@@ -56,34 +56,33 @@
 #define VT_OUTPUT 16
 #define VT_OTHER  32
 
-#define CASE_MATRICES 0
 #define CASE_KRIGING  1
 #define CASE_SIMULATE 2
 
-#define IADH(n, i, j)           (n * (i) + (j))
-#define TEMP(n, i, j)           (temp[IADH(n, i, j)])
-#define Z(ivar, nech, iech)     (z[(ivar) * nech + (iech)])
-#define M(j, i)                 (m[(i) * ndimp + (j)])
-#define TP(j, i)                (tp[(i) * ndimp + (j)])
-#define VEC1(ip, idim)          (vec1[(ip) * _ndim + (idim)])
-#define MAT(i, j)               (mat[(i) * ncorner + (j)])
-#define COTES(ip, i)            (cotes[(ip) * ncorner + (i)])
-#define CORVEC(idim, ip)        (coor[(idim) * nvertex + (ip)])
-#define TBLIN(ib, ip)           (tblin[nvertex * (ib) + (ip)])
-#define CONTAIN(imesh, idim, i) (contain[(i) + 2 * ((idim) + _ndim * (imesh))])
-#define MATGRF                  (&S_ENV.SS_ENV)
-#define LOCAL(ivr, jvr)         (local[(ivr) * nvr + (jvr)])
-#define LOCAL0(ivar, jvar)      (local0[(ivar) * _nvar + (jvar)])
-#define ADM(icov, ivar, icur)   ((icur) + ncur * ((ivar) + _nvar * (icov)))
-#define RHS(icov, ivar, icur)   (rhs[ADM(icov, ivar, icur)])
-#define XCUR(icov, ivar, icur)  (xcur[ADM(icov, ivar, icur)])
-#define TAB(icov, ivar, icur)   (tab[ADM(icov, ivar, icur)])
-#define DATA(ivar, idata)       (data[(ivar) * ndata + (idata)])
-#define GWORK(ilayer, iech)     (gwork[(ilayer) * _nechout + (iech)])
-#define YVERT(ilayer, iech)     (yvert[(ilayer) * nvertex + (iech)])
-#define YDAT(ilayer, iech)      (ydat[(ilayer) * nech + (iech)])
-#define YMEAN(ilayer, iech)     (ymean[(ilayer) * nech + (iech)])
-#define DCOEF(ilayer)           (m2denv.dcoef[ilayer])
+#define IADH(n, i, j)            (n * (i) + (j))
+#define TEMP(n, i, j)            (temp[IADH(n, i, j)])
+#define Z(ivar, nech, iech)      (z[(ivar) * nech + (iech)])
+#define M(j, i)                  (m[(i) * ndimp + (j)])
+#define TP(j, i)                 (tp[(i) * ndimp + (j)])
+#define VEC1(ip, idim)           (vec1[(ip) * _ndim + (idim)])
+#define MAT(i, j)                (mat[(i) * ncorner + (j)])
+#define COTES(ip, i)             (cotes[(ip) * ncorner + (i)])
+#define CORVEC(idim, ip)         (coor[(idim) * nvertex + (ip)])
+#define TBLIN(ib, ip)            (tblin[nvertex * (ib) + (ip)])
+#define CONTAIN(imesh, idim, i)  (contain[(i) + 2 * ((idim) + _ndim * (imesh))])
+#define MATGRF                   (&S_ENV.SS_ENV)
+#define LOCAL(ivr, jvr)          (local[(ivr) * nvr + (jvr)])
+#define LOCAL0(ivar, jvar)       (local0[(ivar) * _nvar + (jvar)])
+#define ADM(icov, ivar, icur)    ((icur) + ncur * ((ivar) + _nvar * (icov)))
+#define RHS(icov, ivar, icur)    (rhs[ADM(icov, ivar, icur)])
+#define XCUR(icov, ivar, icur)   (xcur[ADM(icov, ivar, icur)])
+#define TAB(icov, ivar, icur)    (tab[ADM(icov, ivar, icur)])
+#define DATA(ivar, idata)        (data[(ivar) * ndata + (idata)])
+#define GWORK(ilayer, iech)      (gwork[(ilayer) * _nechout + (iech)])
+#define YVERT(ilayer, iech)      (yvert[(ilayer) * nvertex + (iech)])
+#define YDAT(nech, ilayer, iech) (ydat[(ilayer) * nech + (iech)])
+#define YMEAN(ilayer, iech)      (ymean[(ilayer) * nechc + (iech)])
+#define DCOEF(ilayer)            (m2denv.dcoef[ilayer])
 
 namespace gstlrn
 {
@@ -138,12 +137,10 @@ typedef struct
 } SPDE_Calcul;
 
 /*! \endcond */
-static Id DEBUG                      = 0;
-static Id VERBOSE                    = 0;
-static double FACDIM[]               = {0., 1., 2., 6.};
-static Id SPDE_CURRENT_ICOV          = 0;
-static MatrixSparse* S_EXTERNAL_Q[3] = {NULL, NULL, NULL};
-static MatrixSparse* S_EXTERNAL_A[3] = {NULL, NULL, NULL};
+static Id DEBUG             = 0;
+static Id VERBOSE           = 0;
+static double FACDIM[]      = {0., 1., 2., 6.};
+static Id SPDE_CURRENT_ICOV = 0;
 static SPDE_Environ S_ENV;
 static SPDE_Decision S_DECIDE;
 static String string_encode;
@@ -151,6 +148,7 @@ static SPDE_Calcul Calcul;
 
 MGibbs::MGibbs(Db* dbin, Db* dbout, Model* model)
   : AStringable()
+  , _hasValidEnvironment(false)
   , _dbin(dbin)
   , _dbout(dbout)
   , _model(model)
@@ -169,10 +167,12 @@ MGibbs::MGibbs(Db* dbin, Db* dbout, Model* model)
   , _flagCStd(false)
   , _verbose(false)
 {
+  _hasValidEnvironment = _checkArguments();
 }
 
 MGibbs::MGibbs(const MGibbs& m)
   : AStringable(m)
+  , _hasValidEnvironment(m._hasValidEnvironment)
   , _dbin(m._dbin)
   , _dbout(m._dbout)
   , _model(m._model)
@@ -198,29 +198,37 @@ MGibbs& MGibbs::operator=(const MGibbs& m)
   if (this != &m)
   {
     AStringable::operator=(m);
-    _dbin      = m._dbin;
-    _dbout     = m._dbout;
-    _model     = m._model;
-    _ndim      = m._ndim;
-    _nvar      = m._nvar;
-    _nechin    = m._nechin;
-    _nechout   = m._nechout;
-    _nlayer    = m._nlayer;
-    _niter     = m._niter;
-    _seed      = m._seed;
-    _nbsimu    = m._nbsimu;
-    _icolPinch = m._icolPinch;
-    _flagED    = m._flagED;
-    _flagDrift = m._flagDrift;
-    _flagCE    = m._flagCE;
-    _flagCStd  = m._flagCStd;
-    _verbose   = m._verbose;
+    _hasValidEnvironment = m._hasValidEnvironment;
+    _dbin                = m._dbin;
+    _dbout               = m._dbout;
+    _model               = m._model;
+    _ndim                = m._ndim;
+    _nvar                = m._nvar;
+    _nechin              = m._nechin;
+    _nechout             = m._nechout;
+    _nlayer              = m._nlayer;
+    _niter               = m._niter;
+    _seed                = m._seed;
+    _nbsimu              = m._nbsimu;
+    _icolPinch           = m._icolPinch;
+    _flagED              = m._flagED;
+    _flagDrift           = m._flagDrift;
+    _flagCE              = m._flagCE;
+    _flagCStd            = m._flagCStd;
+    _verbose             = m._verbose;
   }
   return *this;
 }
 
 MGibbs::~MGibbs()
 {
+}
+
+/// Interface to AStringable
+String MGibbs::toString(const AStringFormat* strfmt) const
+{
+  DECLARE_UNUSED(strfmt);
+  return String();
 }
 
 /****************************************************************************/
@@ -362,7 +370,8 @@ void MGibbs::_matelem_print(Id icov)
   message("QC is defined:     %s\n", NOK[Matelem.QC != NULL]);
   message("QCov are defined:  %s\n", NOK[!Matelem.QCov.empty()]);
   message("Lambda is defined: %s\n", NOK[!Matelem.Lambda.empty()]);
-  message("qsimu is defined:  %s\n", NOK[Matelem.qsimu != NULL]);
+  message("QCtt is defined:   %s\n", NOK[Matelem.QCtt != NULL]);
+  message("QCtd is defined:   %s\n", NOK[Matelem.QCtd != NULL]);
   message("s_cheb is defined: %s\n", NOK[Matelem.s_cheb != NULL]);
   message("s_mesh is defined: %s\n", NOK[Matelem.amesh != NULL]);
 }
@@ -440,17 +449,6 @@ void MGibbs::_set_title(Id flag_igrf, Id flag_icov, Id rank, const char* title)
 
 /****************************************************************************/
 /*!
- **  Return the global non-stationary characteristics
-
- **
- *****************************************************************************/
-Model* MGibbs::_get_model(void)
-{
-  return (MATGRF->model);
-}
-
-/****************************************************************************/
-/*!
  **  Initialize the S_ENV Environment structure
  **
  *****************************************************************************/
@@ -472,9 +470,9 @@ void MGibbs::_environ_init(void)
  ** \return true if a Nugget component is present; false otherwise
  **
  *****************************************************************************/
-bool MGibbs::_is_model_nugget(void)
+bool MGibbs::_is_model_nugget(void) const
 {
-  return _get_model()->hasNugget();
+  return _model->hasNugget();
 }
 
 /****************************************************************************/
@@ -482,15 +480,13 @@ bool MGibbs::_is_model_nugget(void)
  **  Returns the pointer to structure containing the Nugget Effect (or NULL)
  **
  *****************************************************************************/
-CovAniso* MGibbs::_get_nugget(void)
+CovAniso* MGibbs::_get_nugget(void) const
 {
-  Model* model;
   CovAniso* cova;
 
-  model = _get_model();
-  for (Id is = 0; is < model->getNCov(); is++)
+  for (Id is = 0; is < _model->getNCov(); is++)
   {
-    cova = model->getCovAniso(is);
+    cova = _model->getCovAniso(is);
     if (cova->getType() == ECov::NUGGET) return (cova);
   }
   return (nullptr);
@@ -501,38 +497,22 @@ CovAniso* MGibbs::_get_nugget(void)
  **  Returns the pointer to the structure
  **
  *****************************************************************************/
-CovAniso* MGibbs::_get_cova(void)
+CovAniso* MGibbs::_get_cova(void) const
 
 {
-  Model* model;
   CovAniso* cova;
   Id is0, jcov;
 
-  model = _get_model();
-  is0   = SPDE_CURRENT_ICOV;
+  is0 = SPDE_CURRENT_ICOV;
 
-  for (Id icov = jcov = 0; icov < model->getNCov(); icov++)
+  for (Id icov = jcov = 0; icov < _model->getNCov(); icov++)
   {
-    cova = model->getCovAniso(icov);
+    cova = _model->getCovAniso(icov);
     if (cova->getType() == ECov::NUGGET) continue;
     if (is0 == jcov) return (cova);
     jcov++;
   }
   return (nullptr);
-}
-
-/****************************************************************************/
-/*!
- **  Set the pointer to the model of the environment
- **
- ** \param[in]  model  Pointer to the Model structure
- **
- ** \remark  The pointer is copied. The contents is NOT duplicated
- **
- *****************************************************************************/
-void MGibbs::_set_model(Model* model)
-{
-  MATGRF->model = model;
 }
 
 /****************************************************************************/
@@ -737,62 +717,30 @@ label_end:
 /*!
  **  Manage the QSimu structure
  **
- ** \return  Pointer to the QSimu structure
+ ** \return  Return code
  **
- ** \param[in]  mode        Type of operation
- **                          1 : Allocation
- **                         -1 : Deallocation
- ** \param[in]  qsimu       QSimu structure
+ ** \param[in]  Matelem     SPDE_Matelem structure
  **
  *****************************************************************************/
-QSimu* MGibbs::_qsimu_manage(Id mode, QSimu* qsimu)
+Id MGibbs::_qsimu_manage(SPDE_Matelem& Matelem)
 {
-  Id error;
+  if (VERBOSE) _set_title(0, 0, 1, "Building Environment");
 
-  /* Initializations */
+  /* Extract sub-matrices */
 
-  error = 1;
-
-  /* Dispatch */
-
-  switch (mode)
+  if (S_DECIDE.flag_dbin)
   {
-    case 1: /* Allocation */
-      if (VERBOSE) _set_title(0, 0, 1, "Building Environment");
-      qsimu = new QSimu;
-
-      /* Extract sub-matrices */
-
-      if (S_DECIDE.flag_dbin)
-      {
-        qsimu->QCtt = _extract_QC_from_Q("f_f", _get_current_matelem(-1).QC,
-                                         VT_FREE, VT_FREE);
-        if (qsimu->QCtt == nullptr) goto label_end;
-        if (S_DECIDE.flag_mesh_dbin)
-        {
-          qsimu->QCtd = _extract_QC_from_Q("f_gd", _get_current_matelem(-1).QC,
-                                           VT_FREE, VT_GIBBS | VT_HARD);
-          if (qsimu->QCtd == nullptr) goto label_end;
-        }
-      }
-      break;
-
-    case -1: /* Deallocation */
-      if (qsimu == nullptr) return (qsimu);
-      qsimu->QCtt = _qchol_manage(-1, qsimu->QCtt);
-      qsimu->QCtd = _qchol_manage(-1, qsimu->QCtd);
-      delete qsimu;
-      qsimu = nullptr;
-      break;
+    Matelem.QCtt = _extract_QC_from_Q("f_f", _get_current_matelem(-1).QC,
+                                      VT_FREE, VT_FREE);
+    if (Matelem.QCtt == nullptr) return 1;
+    if (S_DECIDE.flag_mesh_dbin)
+    {
+      Matelem.QCtd = _extract_QC_from_Q("f_gd", _get_current_matelem(-1).QC,
+                                        VT_FREE, VT_GIBBS | VT_HARD);
+      if (Matelem.QCtd == nullptr) return 1;
+    }
   }
-
-  /* Set the error return code */
-
-  error = 0;
-
-label_end:
-  if (error) qsimu = _qsimu_manage(-1, qsimu);
-  return (qsimu);
+  return 0;
 }
 
 /****************************************************************************/
@@ -824,7 +772,7 @@ double MGibbs::_get_nugget_sill(Id ivar, Id jvar)
  ** \remarks of the structure or of the variables
  **
  *****************************************************************************/
-double MGibbs::_get_cova_sill(Id ivar, Id jvar)
+double MGibbs::_get_cova_sill(Id ivar, Id jvar) const
 {
   CovAniso* cova = _get_cova();
   return (cova->getSill(ivar, jvar));
@@ -835,7 +783,7 @@ double MGibbs::_get_cova_sill(Id ivar, Id jvar)
  **  Return the param of the model
  **
  *****************************************************************************/
-double MGibbs::_get_cova_param(void)
+double MGibbs::_get_cova_param(void) const
 {
   return (_get_cova()->getParam());
 }
@@ -845,19 +793,16 @@ double MGibbs::_get_cova_param(void)
  **  Returns the number of structures in the Model (nugget excluded)
  **
  *****************************************************************************/
-Id MGibbs::_get_ncova(void)
+Id MGibbs::_get_ncova(void) const
 
 {
-  Model* model;
   CovAniso* cova;
   Id ncova;
 
   ncova = 0;
-  model = _get_model();
-  if (model == nullptr) return (ncova);
-  for (Id is = 0; is < model->getNCov(); is++)
+  for (Id is = 0; is < _model->getNCov(); is++)
   {
-    cova = model->getCovAniso(is);
+    cova = _model->getCovAniso(is);
     if (cova->getType() != ECov::NUGGET) ncova++;
   }
   return (ncova);
@@ -880,14 +825,14 @@ Id MGibbs::_get_nvertex(Id icov)
  **  Get the normalized range
  **
  *****************************************************************************/
-double MGibbs::_get_cova_range(void)
+double MGibbs::_get_cova_range(void) const
 {
   return (_get_cova()->getRangeIso());
 }
 
 /****************************************************************************/
 /*!
- **  Return the total sill of the model
+ **  Return the total sill
  **
  ** \param[in] ivar    Rank of the first variable
  ** \param[in] jvar    Rank of the second variable
@@ -896,7 +841,7 @@ double MGibbs::_get_cova_range(void)
  ** \remarks of the variables
  **
  *****************************************************************************/
-double MGibbs::_get_sill_total(Id ivar, Id jvar)
+double MGibbs::_get_sill_total(Id ivar, Id jvar) const
 {
   double total = 0.;
 
@@ -1180,12 +1125,8 @@ void MGibbs::_convert_exponential2matern(CovAniso* cova)
  **
  ** \return Error returned code
  **
- ** \param[in]  dbin         Input Db structure
- ** \param[in]  dbout        Output Db structure
- ** \param[in]  model        Model structure
- **
  *****************************************************************************/
-Id MGibbs::_check_model(const Db* dbin, const Db* dbout, Model* model) const
+bool MGibbs::_checkValidAuxiliary() const
 {
   CovAniso* cova;
   Id flag_mult_data, flag_nugget;
@@ -1193,15 +1134,13 @@ Id MGibbs::_check_model(const Db* dbin, const Db* dbout, Model* model) const
 
   /* Check space dimension */
 
-  if (model == nullptr) return (1);
-
-  if (dbin != nullptr)
+  if (_dbc != nullptr)
   {
-    if (dbin->getNDim() != _ndim)
+    if (_dbc->getNDim() != _ndim)
     {
       messerr("Model (%d) and Input Db (%d) must have the same space dimension",
-              _ndim, dbin->getNDim());
-      return (1);
+              _ndim, _dbc->getNDim());
+      return false;
     }
     flag_mult_data = static_cast<Id>(get_keypone("Flag_Mult_Data", 0));
     if (flag_mult_data)
@@ -1214,38 +1153,37 @@ Id MGibbs::_check_model(const Db* dbin, const Db* dbout, Model* model) const
     }
     else
     {
-      if (dbin->getNLoc(ELoc::Z) != _nvar && S_DECIDE.flag_case != CASE_MATRICES && !S_DECIDE.flag_gibbs)
+      if (_dbc->getNLoc(ELoc::Z) != _nvar && !S_DECIDE.flag_gibbs)
       {
         messerr(
           "Model (%d) and Input Db (%d) must refer to the same number of variables",
-          _nvar, dbin->getNLoc(ELoc::Z));
-        return (1);
+          _nvar, _dbc->getNLoc(ELoc::Z));
+        return false;
       }
     }
   }
-  if (dbout != nullptr)
+  if (_dbout != nullptr)
   {
-    if (dbout->getNDim() != _ndim)
+    if (_dbout->getNDim() != _ndim)
     {
       messerr("Model(%d) and output Db(%d) must have same space dimension",
-              _ndim, dbout->getNDim());
-      return (1);
+              _ndim, _dbout->getNDim());
+      return false;
     }
   }
   if (_ndim != 2 && _ndim != 3)
   {
     messerr("The SPDE Methodology is implemented for 2-D or 3-D case only");
-    return (1);
+    return false;
   }
-  _set_model(model);
 
   /* Checking the Model contents */
 
   silltot     = 0.;
   flag_nugget = 0;
-  for (Id icov = 0; icov < model->getNCov(); icov++)
+  for (Id icov = 0; icov < _model->getNCov(); icov++)
   {
-    cova = model->getCovAniso(icov);
+    cova = _model->getCovAniso(icov);
     silltot += cova->getSill(0, 0);
     if (cova->getType() == ECov::MATERN)
     {
@@ -1259,8 +1197,8 @@ Id MGibbs::_check_model(const Db* dbin, const Db* dbout, Model* model) const
     if (cova->getType() == ECov::NUGGET)
     {
       flag_nugget = 1;
-      if (model->getSill(icov, 0, 0) > 0)
-        _set_filnug(model->getCovAnisoList()->isFiltered(icov));
+      if (_model->getSill(icov, 0, 0) > 0)
+        _set_filnug(_model->getCovAnisoList()->isFiltered(icov));
     }
     else
     {
@@ -1268,13 +1206,13 @@ Id MGibbs::_check_model(const Db* dbin, const Db* dbout, Model* model) const
       messerr("- Matern basic structures");
       messerr("- Exponential basic structures");
       messerr("- A complementary Nugget Effect");
-      return (1);
+      return false;
     }
   }
   if (_get_ncova() <= 0)
   {
     messerr("The SPDE procedure requires at least one Bessel structure");
-    return (1);
+    return false;
   }
 
   /* If 'flag_mesh_dbin' is switched ON, Model must contain nugget Effect */
@@ -1285,7 +1223,7 @@ Id MGibbs::_check_model(const Db* dbin, const Db* dbout, Model* model) const
     MatrixSymmetric sill(_nvar);
     for (Id ivar = 0; ivar < _nvar; ivar++)
       sill.setValue(ivar, ivar, nugval);
-    model->addCovFromParam(ECov::NUGGET, 0., 0., 0., VectorDouble(), sill);
+    _model->addCovFromParam(ECov::NUGGET, 0., 0., 0., VectorDouble(), sill);
   }
 
   /* Check incompatibility between non-stationary and multivariate */
@@ -1293,7 +1231,7 @@ Id MGibbs::_check_model(const Db* dbin, const Db* dbout, Model* model) const
   if (_get_ncova() > 1 || _nvar > 1 || _is_model_nugget())
     S_DECIDE.flag_several = 1;
 
-  return (0);
+  return true;
 }
 
 /****************************************************************************/
@@ -1515,18 +1453,20 @@ Id MGibbs::_fill_Isill(void) const
 Id MGibbs::_fill_Csill(void) const
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
   Model* model          = st_get_model();
   Id icov               = SPDE_CURRENT_ICOV;
   SPDE_Matelem& Matelem = spde_get_current_matelem(icov);
 =======
   Model* model;
+=======
+>>>>>>> 028d6dfb9 (En vue de creer un test)
   VectorDouble mcova;
   Id nvs2, error, icov;
 
   /* Initializations */
 
   error                 = 1;
-  model                 = _get_model();
   nvs2                  = _nvar * (_nvar + 1) / 2;
   icov                  = SPDE_CURRENT_ICOV;
   SPDE_Matelem& Matelem = _get_current_matelem(icov);
@@ -1538,7 +1478,7 @@ Id MGibbs::_fill_Csill(void) const
   Matelem.Csill = chol.getLowerTriangle();
 =======
 
-  if (matrix_cholesky_decompose(model->getSills(icov).getValues().data(),
+  if (matrix_cholesky_decompose(_model->getSills(icov).getValues().data(),
                                 mcova.data(), _nvar))
     goto label_end;
 >>>>>>> b8f112da8 (Deuxieme passe de nettoyage)
@@ -1554,13 +1494,11 @@ Id MGibbs::_fill_Csill(void) const
  **
  ** \return Error returned code
  **
- ** \param[in]  dbin      Db structure
- **
  ** \remark This function allocates 'nvs2' sparse matrices of dimension 'ndata'.
  ** \remark where nvs2 is the product _nvar * (_nvar+1) / 2
  **
  *****************************************************************************/
-Id MGibbs::_fill_Bnugget(Db* dbin) const
+Id MGibbs::_fill_Bnugget() const
 {
   VectorDouble local;
   VectorDouble local0;
@@ -1573,7 +1511,7 @@ Id MGibbs::_fill_Bnugget(Db* dbin) const
 
   /* Initializations */
 
-  ndata = dbin->getNSample(true);
+  ndata = _dbc->getNSample(true);
   nvar2 = _nvar * _nvar;
   nvs2  = _nvar * (_nvar + 1) / 2;
 
@@ -1720,8 +1658,6 @@ Id MGibbs::_fill_Bnugget(Db* dbin) const
  ** \return An array of vertex identification (Dimension: nvertex) or NULL
  **
  ** \param[in]  amesh       AMesh structure
- ** \param[in]  dbin        Db structure for input (optional)
- ** \param[in]  dbout       Db structure for the output
  **
  ** \remarks The array ranks is filled as follows:
  ** \remarks - Its contents follows the mesh numbering
@@ -1734,11 +1670,11 @@ Id MGibbs::_fill_Bnugget(Db* dbin) const
  ** \remarks Dimension: nvertex
  **
  *****************************************************************************/
-VectorInt MGibbs::_get_vertex_ranks(AMesh* amesh, Db* dbin, Db* dbout)
+VectorInt MGibbs::_get_vertex_ranks(AMesh* amesh) const
 {
   Id nvertex = amesh->getNApices();
-  Id n_in    = (dbin != nullptr) ? dbin->getNSample(true) : 0;
-  Id n_out   = dbout->getNSample(true);
+  Id n_in    = (_dbc != nullptr) ? _dbc->getNSample(true) : 0;
+  Id n_out   = _dbout->getNSample(true);
   if (nvertex < (n_in + n_out))
     messageAbort("Nvertex(%d) must be larger than n_in(%d) + n_out(%d)",
                  nvertex, n_in, n_out);
@@ -1750,16 +1686,16 @@ VectorInt MGibbs::_get_vertex_ranks(AMesh* amesh, Db* dbin, Db* dbout)
   /* Identify the vertices */
 
   Id ecr = 0;
-  if (dbin != nullptr)
-    for (Id i = 0; i < dbin->getNSample(); i++)
+  if (_dbc != nullptr)
+    for (Id i = 0; i < _dbc->getNSample(); i++)
     {
-      if (!dbin->isActive(i)) continue;
+      if (!_dbc->isActive(i)) continue;
       ranks[ecr++] = (i + 1);
     }
 
-  for (Id i = 0; i < dbout->getNSampleActive(); i++)
+  for (Id i = 0; i < _dbout->getNSampleActive(); i++)
   {
-    if (!dbout->isActive(i)) continue;
+    if (!_dbout->isActive(i)) continue;
     ranks[ecr++] = -(i + 1);
   }
   return (ranks);
@@ -1772,11 +1708,8 @@ VectorInt MGibbs::_get_vertex_ranks(AMesh* amesh, Db* dbin, Db* dbout)
  **
  ** \return Error returned code
  **
- ** \param[in]  dbin      Input Db structure
- ** \param[in]  dbout     Output Db structure
- **
  *****************************************************************************/
-Id MGibbs::_fill_Bhetero(Db* dbin, Db* dbout) const
+Id MGibbs::_fill_Bhetero() const
 
 {
   VectorInt ranks;
@@ -1790,14 +1723,14 @@ Id MGibbs::_fill_Bhetero(Db* dbin, Db* dbout) const
 
   /* Initializations */
 
-  ndata              = dbin->getNSample(true);
+  ndata              = _dbc->getNSample(true);
   SPDE_Matelem& Mat1 = _get_current_matelem(0);
   amesh              = Mat1.amesh;
   nvertex            = amesh->getNApices();
 
   /* Core allocation */
 
-  ranks = _get_vertex_ranks(amesh, dbin, dbout);
+  ranks = _get_vertex_ranks(amesh);
 
   /* Define the sparse matrices */
 
@@ -1828,7 +1761,7 @@ Id MGibbs::_fill_Bhetero(Db* dbin, Db* dbout) const
       if (ranks[i] <= 0) continue; // Target or Steiner
       ndata1[ivar]++;
       iech  = ranks[i] - 1;
-      value = (FFFF(dbin->getZVariable(iech, ivar))) ? 0. : 1.;
+      value = (FFFF(_dbc->getZVariable(iech, ivar))) ? 0. : 1.;
       Btriplet.add(iech, i, value);
     }
     // Add a fictitious sample (zero value) as a dimension constraint
@@ -1866,7 +1799,7 @@ Id MGibbs::_fill_Bhetero(Db* dbin, Db* dbout) const
         iech = ranks[i] - 1;
 
         // Could the data be considered as a target (heterotopic case)
-        if (FFFF(dbin->getZVariable(iech, ivar)))
+        if (FFFF(_dbc->getZVariable(iech, ivar)))
         {
           // The sample is not defined for the current variable: it is a target
           flag_add = 1;
@@ -2054,11 +1987,14 @@ MatrixSparse* MGibbs::_spde_fill_S(AMesh* amesh, const double* units)
   NF_Triplet Gtriplet;
   flag_sphere = isDefaultSpaceSphere();
   flag_nostat = false;
+<<<<<<< HEAD
   // flag_nostat = model->isNoStat();
 <<<<<<< HEAD
   if (!flag_nostat) st_calcul_update();
   MatrixSquare mat(4);
 =======
+=======
+>>>>>>> 028d6dfb9 (En vue de creer un test)
   if (!flag_nostat) _calcul_update();
 >>>>>>> cef30530e (Premiere phase de nettoyage)
   MatrixSquare matu(4);
@@ -2256,8 +2192,7 @@ VectorDouble MGibbs::_spde_fill_TildeC(AMesh* amesh, const double* units)
  ** \param[in]  TildeC    Vector TildeC
  **
  *****************************************************************************/
-VectorDouble MGibbs::_spde_fill_Lambda(AMesh* amesh,
-                                       const VectorDouble& TildeC)
+VectorDouble MGibbs::_spde_fill_Lambda(AMesh* amesh, const VectorDouble& TildeC)
 {
   VectorDouble Lambda;
   Id nvertex  = amesh->getNApices();
@@ -2799,89 +2734,58 @@ Id MGibbs::_simulate_cholesky(QChol* QC,
  **
  ** \return  Error return code
  **
- ** \param[in]  mode       1 for allocation; -1 for deallocation
+ ** \param[in]  Matelem    Matelem structure
  ** \param[in]  verbose    Verbose flag
  ** \param[in]  power      Parameter passed to Chebychev function
  ** \param[in]  blin       Array of coefficients for Linear combinaison
  ** \param[in]  S          Shift operator
- ** \param[in]  cheb_old   Cheb_Elem to be freed (only for mode=-1)
  **
  ** \remarks Arguments 'power', 'nblin', 'blin' and 'B' are used if mode=1
  ** \remarks Argument 'cheb_old' is used if mode=-1
  **
  *****************************************************************************/
-Cheb_Elem* MGibbs::_spde_cheb_manage(Id mode,
-                                     bool verbose,
-                                     double power,
-                                     const VectorDouble& blin,
-                                     MatrixSparse* S,
-                                     Cheb_Elem* cheb_old)
+Id MGibbs::_spde_cheb_manage(SPDE_Matelem& Matelem,
+                             bool verbose,
+                             double power,
+                             const VectorDouble& blin,
+                             MatrixSparse* S)
 {
-  Cheb_Elem* cheb_elem;
+  Cheb_Elem cheb_elem;
   double a, b, v1, v2, tol;
-  Id error, ncmax, ndisc;
+  Id ncmax, ndisc;
 
-  /* Initializations */
+  // Allocation
 
-  error = 1;
+  ncmax = static_cast<Id>(get_keypone("Number_Polynomials_Chebychev", 10001.));
+  ndisc = static_cast<Id>(get_keypone("Number_Discretization_Chebychev", 100.));
+  tol   = get_keypone("Chebychev_Tolerance", 5.e-3);
 
-  /* Dispatch */
+  /* Calculate key values */
 
-  if (mode > 0)
-  {
+  a  = 0.;
+  b  = S->L1Norm();
+  v1 = 2. / (b - a);
+  v2 = -(b + a) / (b - a);
 
-    // Allocation
+  /* Store the values */
 
-    cheb_elem = new Cheb_Elem();
-    if (cheb_elem == nullptr) goto label_end;
-    cheb_elem->coeffs.clear();
+  cheb_elem.a       = a;
+  cheb_elem.b       = b;
+  cheb_elem.v1      = v1;
+  cheb_elem.v2      = v2;
+  cheb_elem.power   = power;
+  cheb_elem.ncmax   = ncmax;
+  cheb_elem.ndisc   = ndisc;
+  cheb_elem.tol     = tol;
+  cheb_elem.ncoeffs = 0;
+  cheb_elem.coeffs.clear();
 
-    ncmax = static_cast<Id>(get_keypone("Number_Polynomials_Chebychev", 10001.));
-    ndisc = static_cast<Id>(get_keypone("Number_Discretization_Chebychev", 100.));
-    tol   = get_keypone("Chebychev_Tolerance", 5.e-3);
+  /* Get the optimal count of Chebychev coefficients */
 
-    /* Calculate key values */
+  if (_chebychev_calculate_coeffs(&cheb_elem, verbose, blin)) return 1;
 
-    a  = 0.;
-    b  = S->L1Norm();
-    v1 = 2. / (b - a);
-    v2 = -(b + a) / (b - a);
-
-    /* Store the values */
-
-    cheb_elem->a       = a;
-    cheb_elem->b       = b;
-    cheb_elem->v1      = v1;
-    cheb_elem->v2      = v2;
-    cheb_elem->power   = power;
-    cheb_elem->ncmax   = ncmax;
-    cheb_elem->ndisc   = ndisc;
-    cheb_elem->tol     = tol;
-    cheb_elem->ncoeffs = 0;
-    cheb_elem->coeffs.clear();
-
-    /* Get the optimal count of Chebychev coefficients */
-
-    if (_chebychev_calculate_coeffs(cheb_elem, verbose, blin)) goto label_end;
-  }
-  else
-  {
-
-    // Deallocation
-
-    cheb_elem = cheb_old;
-    if (cheb_elem != nullptr) cheb_elem->coeffs.clear();
-    delete cheb_elem;
-    cheb_elem = nullptr;
-  }
-
-  // Set the error return code
-
-  error = 0;
-
-label_end:
-  if (error) cheb_elem = _spde_cheb_manage(-1, 0, 0, VectorDouble(), NULL, cheb_elem);
-  return (cheb_elem);
+  Matelem.s_cheb = &cheb_elem;
+  return 0;
 }
 #endif
 /****************************************************************************/
@@ -2915,7 +2819,8 @@ void MGibbs::_matelem_manage(Id mode)
         Matelem.S             = nullptr;
         Matelem.Aproj         = nullptr;
         Matelem.QC            = nullptr;
-        Matelem.qsimu         = nullptr;
+        Matelem.QCtt          = nullptr;
+        Matelem.QCtd          = nullptr;
         Matelem.s_cheb        = nullptr;
         Matelem.amesh         = nullptr;
       }
@@ -2933,10 +2838,11 @@ void MGibbs::_matelem_manage(Id mode)
           for (Id ivar = 0; ivar < _nvar; ivar++)
             Matelem.QCov[ivar] = _qchol_manage(-1, Matelem.QCov[ivar]);
         }
+        Matelem.QCtt = _qchol_manage(-1, Matelem.QCtt);
+        Matelem.QCtd = _qchol_manage(-1, Matelem.QCtd);
         Matelem.Isill.clear();
         Matelem.Csill.clear();
-        Matelem.qsimu  = _qsimu_manage(-1, Matelem.qsimu);
-        Matelem.s_cheb = _spde_cheb_manage(-1, 0, 0, VectorDouble(), NULL, Matelem.s_cheb);
+        delete Matelem.s_cheb;
         delete Matelem.amesh;
         Matelem.amesh = nullptr;
       }
@@ -2950,22 +2856,12 @@ void MGibbs::_matelem_manage(Id mode)
  **
  ** \return  Pointer to the newly created AMesh structure
  **
- ** \param[in]  dbin       Db structure for the conditioning data
- ** \param[in]  dbout      Db structure of the grid
- ** \param[in]  gext       Array of domain dilation
- ** \param[in]  s_option   SPDE_Option structure
- **
  ** \remarks The option 'flag_force' forces to use the regular meshing rather
  ** \remarks than the Turbo one
  **
  *****************************************************************************/
-AMesh* MGibbs::_create_meshes(Db* dbin,
-                              Db* dbout,
-                              const VectorDouble& gext,
-                              SPDE_Option& s_option)
+AMesh* MGibbs::_create_meshes()
 {
-  DECLARE_UNUSED(s_option);
-  DECLARE_UNUSED(gext);
   bool flag_force = static_cast<Id>(get_keypone("Force_Regular_Meshing", 0));
   if (VERBOSE)
   {
@@ -2977,8 +2873,8 @@ AMesh* MGibbs::_create_meshes(Db* dbin,
   }
 
   Id ndim_loc = 0;
-  if (dbin != nullptr) ndim_loc = MAX(ndim_loc, dbin->getNDim());
-  if (dbout != nullptr) ndim_loc = MAX(ndim_loc, dbout->getNDim());
+  if (_dbc != nullptr) ndim_loc = MAX(ndim_loc, _dbc->getNDim());
+  if (_dbout != nullptr) ndim_loc = MAX(ndim_loc, _dbout->getNDim());
 
   // Processing
 
@@ -3002,13 +2898,13 @@ AMesh* MGibbs::_create_meshes(Db* dbin,
   if (!flag_force)
   {
     if (((!S_DECIDE.flag_dbin || !S_DECIDE.flag_mesh_dbin) &&
-         dbout != nullptr && dbout->isGrid()))
-      dbloc = dbout;
+         _dbout != nullptr && _dbout->isGrid()))
+      dbloc = _dbout;
     if (((!S_DECIDE.flag_dbout || !S_DECIDE.flag_mesh_dbout) &&
-         dbin != nullptr && dbin->isGrid()))
-      dbloc = dbin;
+         _dbc != nullptr && _dbc->isGrid()))
+      dbloc = _dbc;
   }
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbloc);
+  auto* dbgrid = dynamic_cast<DbGrid*>(dbloc);
 
   if (dbloc != nullptr)
   {
@@ -3028,65 +2924,12 @@ AMesh* MGibbs::_create_meshes(Db* dbin,
 
 /****************************************************************************/
 /*!
- **  Check if External Q has been defined
- **
- ** \return 1 if External A-Q has been defined (for 'icov'); 0 otherwise
- **
- ** \param[in]  icov0     Rank of the (non-nugget) covariance
- **
- *****************************************************************************/
-Id MGibbs::_is_external_AQ_defined(Id icov0)
-{
-  return (S_EXTERNAL_Q[icov0] != nullptr &&
-          S_EXTERNAL_A[icov0] != nullptr);
-}
-
-/****************************************************************************/
-/*!
- **  Copy the contents of the internal S_EXTERNAL_AQ into an output Matelem
- **
- **  Error return code
- **
- ** \param[in]  matelem  Output SPDE_Matelem structure
- ** \param[in]  icov0    Rank of the current Covariance
- **
- *****************************************************************************/
-Id MGibbs::_spde_external_copy(SPDE_Matelem& matelem, Id icov0)
-{
-  if (S_EXTERNAL_A[icov0] == nullptr)
-  {
-    messerr("The External A must be allocated before using it");
-    return (1);
-  }
-  if (S_EXTERNAL_Q[icov0] == nullptr)
-  {
-    messerr("The External Q must be allocated before using it");
-    return (1);
-  }
-
-  matelem.QC    = _qchol_manage(1, NULL);
-  matelem.QC->Q = S_EXTERNAL_Q[icov0]->clone();
-  matelem.Aproj = S_EXTERNAL_A[icov0]->clone();
-
-  return (0);
-}
-
-/****************************************************************************/
-/*!
  **  Preparation using SPDE (for all GRF and COV)
  **
  ** \return  Error return code
  **
- ** \param[in]  dbin        Db structure for the conditioning data
- ** \param[in]  dbout       Db structure of the grid
- ** \param[in]  gext        Array of domain dilation
- ** \param[in]  s_option    SPDE_Option structure
- **
  *****************************************************************************/
-Id MGibbs::_spde_prepar(Db* dbin,
-                        Db* dbout,
-                        const VectorDouble& gext,
-                        SPDE_Option& s_option)
+Id MGibbs::_spde_prepar()
 {
   _calcul_init();
 
@@ -3098,7 +2941,7 @@ Id MGibbs::_spde_prepar(Db* dbin,
 
   if (S_DECIDE.flag_dbin && S_DECIDE.flag_several && _is_model_nugget())
   {
-    if (_fill_Bnugget(dbin)) return 1;
+    if (_fill_Bnugget()) return 1;
   }
 
   /* Loop on the covariances */
@@ -3107,7 +2950,6 @@ Id MGibbs::_spde_prepar(Db* dbin,
   {
     SPDE_CURRENT_ICOV     = icov;
     SPDE_Matelem& Matelem = _get_current_matelem(icov);
-    bool flag_AQ_defined  = _is_external_AQ_defined(icov);
 
     /* Title (optional) */
 
@@ -3115,30 +2957,23 @@ Id MGibbs::_spde_prepar(Db* dbin,
 
     /* Load the AMesh structure */
 
-    Matelem.amesh = _create_meshes(dbin, dbout, gext, s_option);
+    Matelem.amesh = _create_meshes();
     if (Matelem.amesh == nullptr) return 1;
-
-    /* Load External Q (if any) */
-
-    if (flag_AQ_defined)
-    {
-      if (_spde_external_copy(Matelem, icov)) return 1;
-    }
 
     /* Prepare the array of sparse matrices (without nugget effect) */
 
     if (S_DECIDE.flag_dbin && S_DECIDE.flag_several && !_is_model_nugget())
     {
-      if (_fill_Bhetero(dbin, dbout)) return 1;
+      if (_fill_Bhetero()) return 1;
     }
 
     /* Prepare the projection matrix */
 
     if (S_DECIDE.flag_dbin)
     {
-      if ((S_DECIDE.flag_several && !flag_AQ_defined) || !S_DECIDE.flag_mesh_dbin)
+      if (!S_DECIDE.flag_mesh_dbin)
       {
-        Matelem.Aproj = dynamic_cast<MatrixSparse*>(Matelem.amesh->createProjMatrix(dbin, -1, false));
+        Matelem.Aproj = dynamic_cast<MatrixSparse*>(Matelem.amesh->createProjMatrix(_dbc, -1, false));
         if (Matelem.Aproj == nullptr) return 1;
       }
     }
@@ -3159,10 +2994,7 @@ Id MGibbs::_spde_prepar(Db* dbin,
 
     /* Build all relevant matrices */
 
-    if (!flag_AQ_defined)
-    {
-      if (_spde_build_matrices(VERBOSE)) return 1;
-    }
+    if (_spde_build_matrices(VERBOSE)) return 1;
 
     /* Build additional matrices */
 
@@ -3177,15 +3009,13 @@ Id MGibbs::_spde_prepar(Db* dbin,
 
     /* Building simulation or Kriging environment */
 
-    Matelem.qsimu = _qsimu_manage(1, NULL);
-    if (Matelem.qsimu == nullptr) return 1;
+    if (_qsimu_manage(Matelem)) return 1;
 
     /* Prepare the Chebychev simulation environment */
 
     if (S_DECIDE.simu_cheb)
     {
-      Matelem.s_cheb = _spde_cheb_manage(1, VERBOSE, -0.5, Calcul.blin, Matelem.S, NULL);
-      if (Matelem.s_cheb == nullptr) return 1;
+      if (_spde_cheb_manage(Matelem, VERBOSE, -0.5, Calcul.blin, Matelem.S)) return 1;
     }
 
     /* Verbose output (optional) */
@@ -3206,55 +3036,7 @@ Id MGibbs::_spde_prepar(Db* dbin,
  *****************************************************************************/
 Id MGibbs::_spde_posterior()
 {
-  /*  if (_get_model()->isNoStat())
-   {
-     const ANoStat *nostat = _get_model()->getNoStat();
-     nostat->detachFromMesh();
-   } */
   return 0;
-}
-
-/****************************************************************************/
-/*!
- **  Print the environment
- **
- ** \param[in]  dbout         Db output structure
- ** \param[in]  gext          Array of domain dilation
- **
- *****************************************************************************/
-void MGibbs::_environ_print(const Db* dbout, const VectorDouble& gext)
-{
-  if (S_DECIDE.flag_case == CASE_KRIGING)
-  {
-    if (S_DECIDE.flag_est) message("Estimation\n");
-    if (S_DECIDE.flag_std)
-      message("Standard Deviation of the Estimation Error\n");
-    if (_get_filnug())
-      message("Filtering Nugget effect (Sill=%lg)\n", _get_nugget_sill(0, 0));
-  }
-  else
-  {
-    if (S_DECIDE.flag_dbin)
-      message("Conditional Simulation\n");
-    else
-      message("Non-Conditional Simulation\n");
-  }
-  if (S_DECIDE.flag_onechol)
-    message("- Single Cholesky option: ON\n");
-  else
-    message("- Single Cholesky option: OFF\n");
-
-  if (S_DECIDE.flag_filnug) message("- Filter component must be filtered\n");
-
-  if (S_DECIDE.flag_gibbs) message("- Gibbs iterations\n");
-
-  if (dbout != nullptr && dbout->isGrid() && !gext.empty())
-  {
-    message("- The resulting Grid is dilated: %lf", gext[0]);
-    for (Id idim = 1; idim < dbout->getNDim(); idim++)
-      message(" * %lf", gext[idim]);
-    message("\n");
-  }
 }
 
 /****************************************************************************/
@@ -3263,15 +3045,6 @@ void MGibbs::_environ_print(const Db* dbout, const VectorDouble& gext)
  **
  ** \return Error return code
  **
- ** \param[in]  dbin          Pointer to the input Db
- ** \param[in]  dbout         Pointer to the output Db
- ** \param[in]  model1        Model structure (first)
- ** \param[in]  verbose       Verbose flag
- ** \param[in]  gext          Array of domain dilation
- ** \param[in]  mesh_dbin     True if Input points must participate to meshing
- ** \param[in]  mesh_dbout    True if Output points must participate to meshing
- ** \param[in]  flag_advanced True for advanced calculus (estimation or simulation)
- **                           False if only matrices are required
  ** \param[in]  flag_est      True for estimation
  ** \param[in]  flag_std      True for standard deviation
  ** \param[in]  flag_gibbs    True for Gibbs sampler
@@ -3280,15 +3053,7 @@ void MGibbs::_environ_print(const Db* dbout, const VectorDouble& gext)
  ** \remarks This function initiates the Matelem structures
  **
  *****************************************************************************/
-Id MGibbs::_spde_check(const Db* dbin,
-                       const Db* dbout,
-                       Model* model1,
-                       bool verbose,
-                       const VectorDouble& gext,
-                       bool mesh_dbin,
-                       bool mesh_dbout,
-                       bool flag_advanced,
-                       bool flag_est,
+Id MGibbs::_spde_check(bool flag_est,
                        bool flag_std,
                        bool flag_gibbs,
                        bool flag_modif)
@@ -3297,30 +3062,25 @@ Id MGibbs::_spde_check(const Db* dbin,
 
   _environ_init();
 
-  VERBOSE = verbose;
-
   S_DECIDE.simu_chol = 0;
   S_DECIDE.simu_cheb = !S_DECIDE.simu_chol;
 
-  S_DECIDE.flag_dbin       = (dbin != nullptr);
-  S_DECIDE.flag_dbout      = (dbout != nullptr);
-  S_DECIDE.flag_mesh_dbin  = mesh_dbin;
-  S_DECIDE.flag_mesh_dbout = mesh_dbout;
+  S_DECIDE.flag_dbin       = (_dbc != nullptr);
+  S_DECIDE.flag_dbout      = (_dbout != nullptr);
+  S_DECIDE.flag_mesh_dbin  = false;
+  S_DECIDE.flag_mesh_dbout = true;
   S_DECIDE.flag_est        = flag_est;
   S_DECIDE.flag_std        = flag_std;
   S_DECIDE.flag_gibbs      = flag_gibbs;
   S_DECIDE.flag_several    = 0;
 
   S_DECIDE.flag_case = 0;
-  if (!flag_advanced)
-    S_DECIDE.flag_case = CASE_MATRICES;
-  else if (S_DECIDE.flag_est == 0 && S_DECIDE.flag_std == 0)
+  if (S_DECIDE.flag_est == 0 && S_DECIDE.flag_std == 0)
     S_DECIDE.flag_case = CASE_SIMULATE;
   else
     S_DECIDE.flag_case = CASE_KRIGING;
   S_DECIDE.flag_Q = 1;
   if (!S_DECIDE.flag_dbin && S_DECIDE.simu_cheb) S_DECIDE.flag_Q = 0;
-  if (!flag_advanced) S_DECIDE.flag_Q = 1;
   S_DECIDE.flag_Q       = static_cast<Id>(get_keypone("Flag_Q", S_DECIDE.flag_Q));
   S_DECIDE.flag_Qchol   = (S_DECIDE.flag_case == CASE_SIMULATE && S_DECIDE.flag_Q && S_DECIDE.simu_chol);
   S_DECIDE.flag_modif   = (S_DECIDE.flag_case == CASE_SIMULATE && flag_modif);
@@ -3334,14 +3094,12 @@ Id MGibbs::_spde_check(const Db* dbin,
 
   if (S_DECIDE.flag_case != CASE_SIMULATE && S_DECIDE.flag_gibbs)
   {
-    messerr(
-      "'flag_gibbs' requires simulation ('flag_est' and 'flag_std' must be FALSE)");
+    messerr("'flag_gibbs' requires simulation ('flag_est' and 'flag_std' must be FALSE)");
     return (1);
   }
   if (S_DECIDE.flag_case != CASE_SIMULATE && flag_modif)
   {
-    messerr(
-      "'flag_modif' is limited to simulations ('flag_est' and 'flag_std' must be FALSE)");
+    messerr("'flag_modif' is limited to simulations ('flag_est' and 'flag_std' must be FALSE)");
     return (1);
   }
   if (S_DECIDE.flag_case == CASE_KRIGING && !S_DECIDE.flag_dbin)
@@ -3350,9 +3108,9 @@ Id MGibbs::_spde_check(const Db* dbin,
     return (1);
   }
 
-  if (model1 != nullptr)
+  if (_model != nullptr)
   {
-    if (_check_model(dbin, dbout, model1)) return (1);
+    if (!_checkValidAuxiliary()) return (1);
     _calcul_init();
     _matelem_manage(1);
     ncova = _get_ncova();
@@ -3364,40 +3122,11 @@ Id MGibbs::_spde_check(const Db* dbin,
       if (VERBOSE) _print_all("Model (Stationary) Parameters");
     }
   }
-  S_DECIDE.flag_Qchol = S_DECIDE.flag_Qchol || (S_DECIDE.flag_case == CASE_MATRICES && S_DECIDE.flag_std);
   if (S_DECIDE.flag_std && _nvar > 1)
   {
     messerr(
       "Calculation of Kriging Variance is incompatible with Multivariate");
     return (1);
-  }
-
-  /* Optional printout */
-
-  if (verbose)
-  {
-    _set_title(0, 0, 1, "Environment for SPDE processing");
-    message("Space Dimension          = %d\n", _ndim);
-    message("Number of variables      = %d\n", _nvar);
-    message("Presence of an input Db  = %d\n", S_DECIDE.flag_dbin);
-    message("Presence of an output Db = %d\n", S_DECIDE.flag_dbout);
-    message("Calculate estimation     = %d\n", S_DECIDE.flag_est);
-    message("Calculate st. deviation  = %d\n", S_DECIDE.flag_std);
-    message("Perform estimation       = %d\n",
-            S_DECIDE.flag_case == CASE_KRIGING);
-    message("Perform simulations      = %d\n",
-            S_DECIDE.flag_case == CASE_SIMULATE);
-    message("Perform gibbs sampler    = %d\n", S_DECIDE.flag_gibbs);
-    message("Post-process simulation  = %d\n", S_DECIDE.flag_modif);
-    if (S_DECIDE.flag_case != CASE_MATRICES)
-    {
-      message("Cholesky Simulations     = %d\n", S_DECIDE.simu_chol);
-      message("Chebychev Simulations    = %d\n", S_DECIDE.simu_cheb);
-    }
-    message("Build Q                  = %d\n", S_DECIDE.flag_Q);
-    message("Perform Cholesky of Q    = %d\n", S_DECIDE.flag_Qchol);
-
-    _environ_print(dbout, gext);
   }
 
   S_DECIDE.flag_Qchol = S_DECIDE.flag_Qchol || (S_DECIDE.flag_case == CASE_KRIGING && _get_filnug());
@@ -3412,25 +3141,20 @@ Id MGibbs::_spde_check(const Db* dbin,
  ** \return Error returned code
  **
  *****************************************************************************/
-bool MGibbs::_checkPinchout()
+bool MGibbs::_checkValidPinchout()
 {
-  if (_icolPinch < 0) return true;
-
-  // Initializations
-
-  Id nech          = _dbout->getNSample();
   VectorDouble tab = _dbout->getColumnByUID(_icolPinch);
 
   // Check that values are within [0,1] interval
 
-  for (Id iech = 0; iech < nech; iech++)
+  for (Id iech = 0; iech < _nechout; iech++)
   {
     if (!_dbout->isActive(iech)) continue;
     if (FFFF(tab[iech])) continue;
     if (tab[iech] < 0 || tab[iech] > 1)
     {
       messerr("Pinchout variable should lie in [0,1]");
-      messerr("At grid node %d/%d, the value is %lf", iech + 1, nech, tab[iech]);
+      messerr("At grid node %d/%d, the value is %lf", iech + 1, _nechout, tab[iech]);
       return false;
     }
   }
@@ -3759,41 +3483,32 @@ void MGibbs::_set_M(M2D_Environ& m2denv,
  **
  ** \return  Address of the newly added vector in 'dbc'
  **
- ** \param[in]  dbout       Db output structure
- ** \param[in]  dbc         Db constraints structure
- **
  *****************************************************************************/
-Id MGibbs::_migrate_pinch_to_point(Db* dbout, Db* dbc) const
+Id MGibbs::_migrate_pinch_to_point() const
 {
-  VectorInt cols(1);
-  cols[0] = _icolPinch;
-
-  // Initializations
-
-  Id nech = dbc->getNSample();
-  if (dbout == nullptr) return 0;
+  Id nechc = _dbc->getNSample();
   if (_icolPinch < 0) return 0;
 
   // Add an attribute
 
-  Id iptr = dbc->addColumnsByConstant(1, TEST);
+  Id iptr = _dbc->addColumnsByConstant(1, TEST);
   if (iptr < 0) return 1;
 
   // Core allocation
 
-  VectorDouble tab(nech);
+  VectorDouble tab(nechc);
 
   // Migrate information from grid to point
 
-  if (migrateByAttribute(dbout, dbc, cols, 0, VectorDouble(), false, false))
+  if (migrateByAttribute(_dbout, _dbc, {_icolPinch}, 0, VectorDouble(), false, false))
   {
-    dbc->deleteColumnByUID(iptr);
+    _dbc->deleteColumnByUID(iptr);
     return 1;
   }
 
   // Store the resulting array in the file
 
-  dbc->setColumnByUID(tab, iptr);
+  _dbc->setColumnByUID(tab, iptr);
 
   // Set the error returned code
 
@@ -3809,19 +3524,11 @@ Id MGibbs::_migrate_pinch_to_point(Db* dbout, Db* dbc) const
  **
  ** \param[in]  m2denv      M2D_Environ structure
  ** \param[in]  mode        1 adding; -1 deleting
- ** \param[in]  dbc         Db constraints structure
  **
  *****************************************************************************/
-Id MGibbs::_drift_inc_manage(M2D_Environ& m2denv,
-                             Id mode,
-                             Db* dbc)
+Id MGibbs::_drift_inc_manage(M2D_Environ& m2denv, Id mode)
 {
-  double M, S;
-  Id iptr;
-
-  /* Initializations */
-
-  iptr = -1;
+  Id iptr = -1;
 
   /* Dispatch */
 
@@ -3830,25 +3537,25 @@ Id MGibbs::_drift_inc_manage(M2D_Environ& m2denv,
 
     /* Identify the drift at the constraining samples */
 
-    m2denv.iatt_fd = dbc->addColumnsByConstant(_nlayer, TEST);
+    m2denv.iatt_fd = _dbc->addColumnsByConstant(_nlayer, TEST);
     if (m2denv.iatt_fd < 0) return (1);
 
     /* If pinch-out is defined, interpolate it at well data */
 
-    iptr = _migrate_pinch_to_point(_dbout, dbc);
-    _set_M(m2denv, iptr, dbc, m2denv.iatt_fd);
-    if (iptr >= 0) dbc->deleteColumnByUID(iptr);
+    iptr = _migrate_pinch_to_point();
+    _set_M(m2denv, iptr, _dbc, m2denv.iatt_fd);
+    if (iptr >= 0) _dbc->deleteColumnByUID(iptr);
 
     /* Check validity of drift at data points */
 
-    for (Id iech = 0; iech < dbc->getNSample(); iech++)
+    for (Id iech = 0; iech < _dbc->getNSample(); iech++)
     {
-      if (!dbc->isActive(iech)) continue;
+      if (!_dbc->isActive(iech)) continue;
       for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
       {
-        M = _get_M(m2denv, dbc, 1, ilayer, iech);
-        S = _get_S(m2denv, dbc, 1, ilayer, iech);
-        if (_check_validity_MS(dbc, ilayer, iech, true, true, M, S)) return (1);
+        double M = _get_M(m2denv, _dbc, 1, ilayer, iech);
+        double S = _get_S(m2denv, _dbc, 1, ilayer, iech);
+        if (_check_validity_MS(_dbc, ilayer, iech, true, true, M, S)) return (1);
       }
     }
 
@@ -3864,7 +3571,7 @@ Id MGibbs::_drift_inc_manage(M2D_Environ& m2denv,
     /* Deleting the drift at the constraining samples */
 
     if (m2denv.iatt_fd >= 0)
-      dbc->deleteColumnsByUIDRange(m2denv.iatt_fd, _nlayer);
+      _dbc->deleteColumnsByUIDRange(m2denv.iatt_fd, _nlayer);
 
     /* Deleting the drift at the target grid */
 
@@ -3971,21 +3678,21 @@ void MGibbs::_stats_init(M2D_Environ& m2denv, double percent)
  **  Update global statistics on the raw information
  **
  ** \param[in]  m2denv      M2D_Environ structure
- ** \param[in]  dbc         Db structure for constraints
  ** \param[in]  percent     Tolerance
  **
  *****************************************************************************/
-void MGibbs::_stats_updt(M2D_Environ& m2denv, Db* dbc, double percent) const
+void MGibbs::_stats_updt(M2D_Environ& m2denv, double percent) const
 {
-  Id nech;
-  double nb, mm, vv, mini, maxi, zval, delta;
+  double zval, delta;
 
   /* Initializations */
 
-  nech = dbc->getNSample();
-  nb = mm = vv = 0.;
-  mini         = MAXIMUM_BIG;
-  maxi         = MINIMUM_BIG;
+  Id nechc    = _dbc->getNSample();
+  double nb   = 0.;
+  double mm   = 0.;
+  double vv   = 0.;
+  double mini = MAXIMUM_BIG;
+  double maxi = MINIMUM_BIG;
 
   /* Loop on the layers */
 
@@ -3994,9 +3701,9 @@ void MGibbs::_stats_updt(M2D_Environ& m2denv, Db* dbc, double percent) const
 
     /* Loop on the samples */
 
-    for (Id iech = 0; iech < nech; iech++)
+    for (Id iech = 0; iech < nechc; iech++)
     {
-      zval = dbc->getZVariable(iech, ilayer);
+      zval = _dbc->getZVariable(iech, ilayer);
 
       nb += 1.;
       mm += zval;
@@ -4051,7 +3758,6 @@ void MGibbs::_stats_updt(M2D_Environ& m2denv, Db* dbc, double percent) const
  ** \return  Error returned code
  **
  ** \param[in]  m2denv      M2D_Environ structure
- ** \param[in]  dbc         Db structure for constraints
  ** \param[in]  njter_max   Maximum number of iterations
  **
  ** \param[out] work        Array of tentative values (Dimension: nlayer)
@@ -4061,30 +3767,28 @@ void MGibbs::_stats_updt(M2D_Environ& m2denv, Db* dbc, double percent) const
  **
  *****************************************************************************/
 Id MGibbs::_initial_elevations(M2D_Environ& m2denv,
-                               Db* dbc,
                                VectorDouble& work,
                                Id njter_max) const
 {
-  Id nech;
   double zmin, zmax, zval, eps;
 
   /* Initializations */
 
-  nech         = dbc->getNSample();
+  Id nechc     = _dbc->getNSample();
   eps          = m2denv.zeps;
   Id flag_jter = 0;
 
   /* Loop on the samples */
 
-  for (Id iech = 0; iech < nech; iech++)
+  for (Id iech = 0; iech < nechc; iech++)
   {
 
     /* Define the values at sample as unconstrained information */
 
     for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
     {
-      zmin         = dbc->getLocVariable(ELoc::L, iech, ilayer);
-      zmax         = dbc->getLocVariable(ELoc::U, iech, ilayer);
+      zmin         = _dbc->getLocVariable(ELoc::L, iech, ilayer);
+      zmax         = _dbc->getLocVariable(ELoc::U, iech, ilayer);
       work[ilayer] = _draw_elevation(m2denv, ilayer, zmin, zmax);
     }
 
@@ -4101,8 +3805,8 @@ Id MGibbs::_initial_elevations(M2D_Environ& m2denv,
 
         /* Determine the bounds at data locations */
 
-        zmin = dbc->getLocVariable(ELoc::L, iech, ilayer);
-        zmax = dbc->getLocVariable(ELoc::U, iech, ilayer);
+        zmin = _dbc->getLocVariable(ELoc::L, iech, ilayer);
+        zmax = _dbc->getLocVariable(ELoc::U, iech, ilayer);
 
         /* Loop on the other layers */
 
@@ -4158,13 +3862,13 @@ Id MGibbs::_initial_elevations(M2D_Environ& m2denv,
     if (flag_jter)
     {
       messerr("At constraining sample #%d/%d, correct interval ordering",
-              iech + 1, nech);
+              iech + 1, nechc);
       messerr("has not been reached after %d iterations. Run is aborted",
               njter_max);
       for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
       {
-        zmin = dbc->getLocVariable(ELoc::L, iech, ilayer);
-        zmax = dbc->getLocVariable(ELoc::U, iech, ilayer);
+        zmin = _dbc->getLocVariable(ELoc::L, iech, ilayer);
+        zmax = _dbc->getLocVariable(ELoc::U, iech, ilayer);
         _print_constraints_per_point(ilayer, iech, work[ilayer],
                                      TEST,
                                      TEST, zmin, zmax);
@@ -4179,7 +3883,7 @@ Id MGibbs::_initial_elevations(M2D_Environ& m2denv,
     /* Store the resulting values */
 
     for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
-      dbc->setLocVariable(ELoc::Z, iech, ilayer, work[ilayer]);
+      _dbc->setLocVariable(ELoc::Z, iech, ilayer, work[ilayer]);
   }
 
   return (0);
@@ -4307,12 +4011,11 @@ label_end:
 /*!
  **  Print the details of the constraints
  **
- ** \param[in]  dbc         Db structure for constraints
  ** \param[in]  nech        Number of hard data
  ** \param[in]  ilayer      Rank of the target layer
  **
  *****************************************************************************/
-void MGibbs::_print_details(Db* dbc, Id nech, Id ilayer)
+void MGibbs::_print_details(Id nech, Id ilayer) const
 {
   double value, lower, upper;
   Id nvalue, nbdmin, nbdmax;
@@ -4320,10 +4023,10 @@ void MGibbs::_print_details(Db* dbc, Id nech, Id ilayer)
   nvalue = nbdmin = nbdmax = 0;
   for (Id iech = 0; iech < nech; iech++)
   {
-    value = dbc->getZVariable(iech, ilayer);
+    value = _dbc->getZVariable(iech, ilayer);
     if (!FFFF(value)) nvalue++;
-    lower = dbc->getLocVariable(ELoc::L, iech, ilayer);
-    upper = dbc->getLocVariable(ELoc::U, iech, ilayer);
+    lower = _dbc->getLocVariable(ELoc::L, iech, ilayer);
+    upper = _dbc->getLocVariable(ELoc::U, iech, ilayer);
     if (!FFFF(lower)) nbdmin++;
     if (!FFFF(upper)) nbdmax++;
   }
@@ -4342,7 +4045,6 @@ void MGibbs::_print_details(Db* dbc, Id nech, Id ilayer)
  ** \return  Error returned code
  **
  ** \param[in]  m2denv      M2D_Environ structure
- ** \param[in]  dbc         Db structure for constraints
  ** \param[in]  number_hard Number of hard data used to fit the drift
  **
  ** \remarks The drift is only established on data where lower and upper bounds
@@ -4354,18 +4056,17 @@ void MGibbs::_print_details(Db* dbc, Id nech, Id ilayer)
  **
  *****************************************************************************/
 Id MGibbs::_drift_fitting(M2D_Environ& m2denv,
-                          Db* dbc,
                           Id number_hard) const
 {
-  Id nech, numb, nbfl;
+  Id numb;
   double ff, mean, ffmean, stdv, epais, mini, maxi, ffmini, ffmaxi;
   VectorDouble a;
   VectorDouble b;
 
   /* Initializations */
 
-  nech = MIN(number_hard, dbc->getNSample());
-  nbfl = 1;
+  Id nech = MIN(number_hard, _dbc->getNSample());
+  Id nbfl = 1;
 
   /* Core allocation */
 
@@ -4396,16 +4097,16 @@ Id MGibbs::_drift_fitting(M2D_Environ& m2denv,
 
       /* Get the values at the data point */
 
-      epais = dbc->getZVariable(iech, ilayer);
+      epais = _dbc->getZVariable(iech, ilayer);
       if (ilayer > 0)
-        epais -= dbc->getZVariable(iech, ilayer - 1);
+        epais -= _dbc->getZVariable(iech, ilayer - 1);
       else
         epais -= m2denv.zmini;
 
       /* Set the drift vector at data point */
 
       if (_flagED)
-        ff = _external_drift_increment(m2denv, dbc, ilayer, iech);
+        ff = _external_drift_increment(m2denv, _dbc, ilayer, iech);
       else
         ff = 1.;
 
@@ -4446,7 +4147,7 @@ Id MGibbs::_drift_fitting(M2D_Environ& m2denv,
     {
       message("\nLayer #%d\n", ilayer + 1);
       message("- Number of Constraints = %d \n", numb);
-      _print_details(dbc, nech, ilayer);
+      _print_details(nech, ilayer);
       message("- Drift:\n");
       if (_flagED)
       {
@@ -4841,7 +4542,6 @@ label_end:
  ** \return Z-Value in the working domain
  **
  ** \param[in]  m2denv      M2D_Environ structure
- ** \param[in]  dbc         Db structure
  ** \param[in]  verbose     Verbose flag
  ** \param[in]  iter        Rank of the iteration
  ** \param[in]  ilayer      Rank of the layer
@@ -4855,7 +4555,6 @@ label_end:
  **
  *****************************************************************************/
 double MGibbs::_draw_gaussian(M2D_Environ& m2denv,
-                              Db* dbc,
                               bool verbose,
                               Id iter,
                               Id ilayer,
@@ -4872,9 +4571,9 @@ double MGibbs::_draw_gaussian(M2D_Environ& m2denv,
 
   /* Initializations */
 
-  M = _get_M(m2denv, dbc, 1, ilayer, iech);
-  S = _get_S(m2denv, dbc, 1, ilayer, iech);
-  if (_check_validity_MS(dbc, ilayer, iech, true, true, M, S))
+  M = _get_M(m2denv, _dbc, 1, ilayer, iech);
+  S = _get_S(m2denv, _dbc, 1, ilayer, iech);
+  if (_check_validity_MS(_dbc, ilayer, iech, true, true, M, S))
     messageAbort("- Impossible to have M or S undefined");
 
   if (verbose)
@@ -4965,7 +4664,6 @@ double MGibbs::_draw_gaussian(M2D_Environ& m2denv,
  **  Convert a layer-pile at a datum from the working to the true domain
  **
  ** \param[in]  m2denv      M2D_Environ structure
- ** \param[in]  dbc         Db structure
  ** \param[in]  type        1 for the constraining Db
  **                         2 for the grid output Db
  ** \param[in]  iech        Rank of the sample
@@ -4973,7 +4671,6 @@ double MGibbs::_draw_gaussian(M2D_Environ& m2denv,
  **
  *****************************************************************************/
 void MGibbs::_convert_Z2Y(M2D_Environ& m2denv,
-                          Db* dbc,
                           Id type,
                           Id iech,
                           VectorDouble& tab) const
@@ -4985,9 +4682,9 @@ void MGibbs::_convert_Z2Y(M2D_Environ& m2denv,
   Zcum       = m2denv.zmini;
   for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
   {
-    M = _get_M(m2denv, dbc, type, ilayer, iech);
-    S = _get_S(m2denv, dbc, type, ilayer, iech);
-    if (_check_validity_MS(dbc, ilayer, iech, true, true, M, S) || flag_undef)
+    M = _get_M(m2denv, _dbc, type, ilayer, iech);
+    S = _get_S(m2denv, _dbc, type, ilayer, iech);
+    if (_check_validity_MS(_dbc, ilayer, iech, true, true, M, S) || flag_undef)
     {
       flag_undef = 1;
       Yval       = TEST;
@@ -5057,28 +4754,25 @@ void MGibbs::_convert_Y2Z(M2D_Environ& m2denv,
  **
  ** \param[in]  title       Title
  ** \param[in]  m2denv      M2D_Environ structure
- ** \param[in]  dbc         Db structure containing the constraints
  ** \param[in]  iech        Sample rank
  ** \param[in]  work        Array of values (defined in Z)
  **
  *****************************************************************************/
 void MGibbs::_print_sample(const char* title,
                            M2D_Environ& m2denv,
-                           Db* dbc,
                            Id iech,
                            VectorDouble& work) const
 {
   DECLARE_UNUSED(m2denv);
-  Id nech;
   double zmin, zmax;
 
-  nech = dbc->getNSample();
-  message("%s - Sample #%d/%d\n", title, iech + 1, nech);
+  Id nechc = _dbc->getNSample();
+  message("%s - Sample #%d/%d\n", title, iech + 1, nechc);
 
   for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
   {
-    zmin = dbc->getLocVariable(ELoc::L, iech, ilayer);
-    zmax = dbc->getLocVariable(ELoc::U, iech, ilayer);
+    zmin = _dbc->getLocVariable(ELoc::L, iech, ilayer);
+    zmax = _dbc->getLocVariable(ELoc::U, iech, ilayer);
     message("Z(%d)=%lf in", ilayer, work[ilayer]);
     _print_concatenate_interval(NULL, zmin, zmax, 1);
   }
@@ -5091,7 +4785,6 @@ void MGibbs::_print_sample(const char* title,
  ** \return Error returned code
  **
  ** \param[in]  m2denv      M2D_Environ structure
- ** \param[in]  dbc         Db structure containing the constraints
  ** \param[in]  iter        Rank of the iteration
  ** \param[in]  sigma       Standard deviation of the nugget value
  ** \param[in]  ymean       Array of mean values at constraints
@@ -5105,7 +4798,6 @@ void MGibbs::_print_sample(const char* title,
  **
  *****************************************************************************/
 Id MGibbs::_global_gibbs(M2D_Environ& m2denv,
-                         Db* dbc,
                          Id iter,
                          double sigma,
                          VectorDouble& ymean,
@@ -5113,25 +4805,24 @@ Id MGibbs::_global_gibbs(M2D_Environ& m2denv,
                          VectorDouble& work)
 {
   bool local_verbose = false;
-  Id nech;
   double zval, zmin, zmax, zcum;
 
   // Initializations
 
-  nech = dbc->getNSample();
+  Id nechc = _dbc->getNSample();
 
   // Loop on the samples
 
-  for (Id iech = 0; iech < nech; iech++)
+  for (Id iech = 0; iech < nechc; iech++)
   {
 
     // Set the initial values
 
     for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
-      work[ilayer] = YDAT(ilayer, iech);
-    _convert_Y2Z(m2denv, dbc, 1, iech, work);
+      work[ilayer] = YDAT(nechc, ilayer, iech);
+    _convert_Y2Z(m2denv, _dbc, 1, iech, work);
     if (local_verbose)
-      _print_sample("Entering in Gibbs", m2denv, dbc, iech, work);
+      _print_sample("Entering in Gibbs", m2denv, iech, work);
 
     // Loop on the layers
 
@@ -5144,8 +4835,8 @@ Id MGibbs::_global_gibbs(M2D_Environ& m2denv,
 
       // Getting the elevation and the bounds for the current layer
 
-      zmin = dbc->getLocVariable(ELoc::L, iech, ilayer);
-      zmax = dbc->getLocVariable(ELoc::U, iech, ilayer);
+      zmin = _dbc->getLocVariable(ELoc::L, iech, ilayer);
+      zmax = _dbc->getLocVariable(ELoc::U, iech, ilayer);
       if (local_verbose)
       {
         message("ilayer=%d", ilayer);
@@ -5186,7 +4877,7 @@ Id MGibbs::_global_gibbs(M2D_Environ& m2denv,
 
       // Drawing plausible values according to constraints
 
-      work[ilayer] = _draw_gaussian(m2denv, dbc, local_verbose, iter, ilayer,
+      work[ilayer] = _draw_gaussian(m2denv, local_verbose, iter, ilayer,
                                     iech, work[ilayer], zcum, zmin, zmax,
                                     YMEAN(ilayer, iech), sigma);
     }
@@ -5194,13 +4885,13 @@ Id MGibbs::_global_gibbs(M2D_Environ& m2denv,
     // Load the new values
 
     if (local_verbose)
-      _print_sample("Exiting Gibbs", m2denv, dbc, iech, work);
-    _convert_Z2Y(m2denv, dbc, 1, iech, work);
+      _print_sample("Exiting Gibbs", m2denv, iech, work);
+    _convert_Z2Y(m2denv, 1, iech, work);
 
     /* Store in the extracted vector */
 
     for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
-      YDAT(ilayer, iech) = work[ilayer];
+      YDAT(nechc, ilayer, iech) = work[ilayer];
   }
   return (0);
 }
@@ -5213,7 +4904,6 @@ Id MGibbs::_global_gibbs(M2D_Environ& m2denv,
  **
  ** \param[in]  title       Title for the printout (if error)
  ** \param[in]  m2denv      M2D_Environ structure
- ** \param[in]  dbc         Db structure containing the constraints
  ** \param[in]  ydat        Array of simulations on the data
  **
  ** \param[out] work        Array of tentative values (Dimension: nlayer)
@@ -5221,26 +4911,24 @@ Id MGibbs::_global_gibbs(M2D_Environ& m2denv,
  *****************************************************************************/
 Id MGibbs::_check_gibbs_data(const char* title,
                              M2D_Environ& m2denv,
-                             Db* dbc,
                              VectorDouble& ydat,
                              VectorDouble& work)
 {
-  Id error, nech;
   double zmin, zmax, depth, eps;
 
   // Initializations
 
-  error = 0;
-  nech  = dbc->getNSample();
-  eps   = m2denv.zeps;
+  Id error = 0;
+  Id nechc = _dbc->getNSample();
+  eps      = m2denv.zeps;
 
   // Loop on the constraints samples
 
-  for (Id iech = 0; iech < nech; iech++)
+  for (Id iech = 0; iech < nechc; iech++)
   {
     for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
-      work[ilayer] = YDAT(ilayer, iech);
-    _convert_Y2Z(m2denv, dbc, 1, iech, work);
+      work[ilayer] = YDAT(nechc, ilayer, iech);
+    _convert_Y2Z(m2denv, _dbc, 1, iech, work);
 
     // Loop on the layers
 
@@ -5250,8 +4938,8 @@ Id MGibbs::_check_gibbs_data(const char* title,
 
       // Getting the elevation and the bounds for the current layer
 
-      zmin = dbc->getLocVariable(ELoc::L, iech, ilayer);
-      zmax = dbc->getLocVariable(ELoc::U, iech, ilayer);
+      zmin = _dbc->getLocVariable(ELoc::L, iech, ilayer);
+      zmax = _dbc->getLocVariable(ELoc::U, iech, ilayer);
 
       // Check consistency
 
@@ -5260,7 +4948,7 @@ Id MGibbs::_check_gibbs_data(const char* title,
         if (depth < zmin - eps)
         {
           messerr("%s: Sample(%d/%d) of Layer(%d/%d): Depth(%lf) < Lower(%lf)",
-                  title, iech + 1, nech, ilayer + 1, _nlayer, depth, zmin);
+                  title, iech + 1, nechc, ilayer + 1, _nlayer, depth, zmin);
           error++;
         }
       }
@@ -5269,7 +4957,7 @@ Id MGibbs::_check_gibbs_data(const char* title,
         if (depth > zmax + eps)
         {
           messerr("%s: Sample(%d/%d) of Layer(%d/%d): Depth(%lf) > Upper(%lf)",
-                  title, iech + 1, nech, ilayer + 1, _nlayer, depth, zmax);
+                  title, iech + 1, nechc, ilayer + 1, _nlayer, depth, zmax);
           error++;
         }
       }
@@ -5316,7 +5004,6 @@ void MGibbs::_m2denv_manage(double ystdv, M2D_Environ& m2denv)
  **  Extract a vector containing the constraints
  **
  ** \param[in]  m2denv      M2D_Environ structure
- ** \param[in]  dbc         Db constraints structure
  **
  ** \param[out] ydat        Array of values at constraints samples
  **                         (Dimension: nech * nlayer)
@@ -5324,34 +5011,29 @@ void MGibbs::_m2denv_manage(double ystdv, M2D_Environ& m2denv)
  **
  *****************************************************************************/
 void MGibbs::_vector_extract(M2D_Environ& m2denv,
-                             Db* dbc,
                              VectorDouble& ydat,
                              VectorDouble& work)
 {
-  Id nech;
-
-  /* Initializations */
-
-  nech = dbc->getNSample();
+  Id nechc = _dbc->getNSample();
 
   /* Loop on the samples */
 
-  for (Id iech = 0; iech < nech; iech++)
+  for (Id iech = 0; iech < nechc; iech++)
   {
 
     /* Loop on the layers */
 
     for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
-      work[ilayer] = dbc->getZVariable(iech, ilayer);
+      work[ilayer] = _dbc->getZVariable(iech, ilayer);
 
     /* Convert from the depth to thickness */
 
-    _convert_Z2Y(m2denv, dbc, 1, iech, work);
+    _convert_Z2Y(m2denv, 1, iech, work);
 
     /* Store in the extracted vector */
 
     for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
-      YDAT(ilayer, iech) = work[ilayer];
+      YDAT(nechc, ilayer, iech) = work[ilayer];
   }
 }
 
@@ -5376,7 +5058,7 @@ void MGibbs::_print_db_constraints(const char* title,
                                    const VectorDouble& ydat) const
 {
   double value, lower, drift, upper, vgaus;
-  Id nech, nprint;
+  Id nprint;
 
   // Initializations
 
@@ -5386,7 +5068,7 @@ void MGibbs::_print_db_constraints(const char* title,
   // Printout
 
   mestitle(1, title);
-  nech = db->getNSample();
+  Id nech = db->getNSample();
   if (nprint > 0) nech = MIN(nech, nprint);
   for (Id iech = 0; iech < nech; iech++)
   {
@@ -5397,7 +5079,7 @@ void MGibbs::_print_db_constraints(const char* title,
       upper = db->getLocVariable(ELoc::U, iech, ilayer);
       value = db->getZVariable(iech, ilayer);
       drift = db->getLocVariable(ELoc::F, iech, ilayer);
-      vgaus = (!ydat.empty()) ? YDAT(ilayer, iech) : TEST;
+      vgaus = (!ydat.empty()) ? YDAT(nech, ilayer, iech) : TEST;
       _print_constraints_per_point(ilayer, iech, value, drift, vgaus, lower, upper);
     }
   }
@@ -5425,12 +5107,18 @@ void MGibbs::_stats_gaus(const char* title,
   {
     (void)gslSPrintf(string_encode, "%s (Layer #%d)", title, ilayer + 1);
     ut_stats_mima_print(string_encode.data(),
-                        nech, &YDAT(ilayer, 0), NULL);
+                        nech, &YDAT(nech, ilayer, 0), NULL);
   }
 }
 
-bool MGibbs::_checkValid()
+bool MGibbs::_checkArguments()
 {
+  // Check Model
+  if (_model == nullptr)
+  {
+    messerr("Model must be defined");
+    return false;
+  }
   _ndim = static_cast<Id>(_model->getNDim());
   if (_ndim != 2)
   {
@@ -5444,25 +5132,45 @@ bool MGibbs::_checkValid()
     messerr("In your case: %d\n", _nvar);
     return false;
   }
-  if (_nlayer <= 0)
+
+  // Check Input Db
+  if (_dbin == nullptr)
   {
-    messerr("This application requires the Number of Layers to be positive");
-    return false;
-  }
-  if (_dbin->getNInterval() < _nlayer)
-  {
-    messerr("This application requires Lower and Upper variables");
-    messerr("to be defined in the Input Db for each layer (nint=%d)",
-            _dbin->getNInterval());
+    messerr("Input Db must be defined");
     return false;
   }
   _nechin = _dbin->getNSample();
+
+  // Check Output Db
+  if (_dbout == nullptr)
+  {
+    messerr("Output Db must be defined");
+    return false;
+  }
   if (!_dbout->isGrid())
   {
     messerr("This application is restricted to a Grid output Db");
     return false;
   }
   _nechout = _dbout->getNSample();
+
+  return true;
+}
+
+bool MGibbs::_checkValidOption()
+{
+  if (_nlayer <= 0)
+  {
+    messerr("This application requires the Number of Layers to be positive");
+    return false;
+  }
+  if (_dbin->getNInterval() != _nlayer)
+  {
+    messerr("This application requires Lower and Upper variables");
+    messerr("to be defined in the Input Db for each layer (nint=%d)",
+            _dbin->getNInterval());
+    return false;
+  }
   if (_flagED && _nlayer > _dbout->getNLoc(ELoc::F))
   {
     messerr("External Drifts are used for Drift definition");
@@ -5479,7 +5187,10 @@ bool MGibbs::_checkValid()
     }
     _flagDrift = true;
   }
-  if (_checkPinchout()) return false;
+  if (_icolPinch >= 0)
+  {
+    if (!_checkValidPinchout()) return false;
+  }
 
   return true;
 }
@@ -5493,7 +5204,7 @@ bool MGibbs::_checkValid()
  *****************************************************************************/
 Id MGibbs::run()
 {
-  Id error, iatt_f, iatt_out, nvertex, nech, number_hard, nfois;
+  Id error, iatt_f, iatt_out, nvertex, nechc, number_hard, nfois;
   Id iptr_ce, iptr_cstd, ecr;
   double nugget, ysigma, vartot;
   VectorDouble gwork;
@@ -5509,7 +5220,6 @@ Id MGibbs::run()
   VectorDouble zkrig;
 
   MatrixSparse* Bproj = nullptr;
-  Db* dbc;
   QChol* Qc;
   M2D_Environ m2denv;
   SPDE_Option s_option;
@@ -5518,15 +5228,14 @@ Id MGibbs::run()
 
   error  = 1;
   iatt_f = iatt_out = -1;
-  dbc               = nullptr;
   Qc                = nullptr;
   ysigma            = 0.;
   number_hard       = 0;
 
-  /* Preliminary checks */
-  if (!_checkValid()) return 1;
-
   law_set_random_seed(_seed);
+
+  /* Preliminary checks */
+  if (!_checkValidOption()) return 1;
 
   /* Prepare the M2D_Environ structure */
 
@@ -5559,9 +5268,9 @@ Id MGibbs::run()
 
   if (_verbose)
     message("\n==> Creating a Temporary Data Base with all constraints\n");
-  dbc = _create_constraints(&number_hard);
-  if (dbc == nullptr) goto label_end;
-  nech = dbc->getNSample(true);
+  _dbc = _create_constraints(&number_hard);
+  if (_dbc == nullptr) goto label_end;
+  nechc = _dbc->getNSample(true);
 
   /* Check SPDE environment */
   // At the first call, only one variable is Z_locatorized in order to
@@ -5569,24 +5278,23 @@ Id MGibbs::run()
   // will share the same Q matrix)
   // Then the environment is set to the multivariate case
   if (_verbose) message("\n==> Checking SPDE Environment\n");
-  _define_locators(dbc, 1);
-  if (_spde_check(dbc, _dbout, _model, false, VectorDouble(), false, true, true,
-                  false, false, false, false)) goto label_end;
-  _define_locators(dbc, _nlayer);
+  _define_locators(_dbc, 1);
+  if (_spde_check(false, false, false, false)) goto label_end;
+  _define_locators(_dbc, _nlayer);
 
   /* Define initial values at constraints and set in Db */
 
   if (_verbose) message("\n==> Creating Initial Value within bounds at Wells\n");
-  if (_initial_elevations(m2denv, dbc, lwork)) goto label_end;
+  if (_initial_elevations(m2denv, lwork)) goto label_end;
 
   /* Global statistics on Centered Elevations */
 
-  _stats_updt(m2denv, dbc);
+  _stats_updt(m2denv);
 
   /* Fitting the coefficients of the drift (external or not) */
 
   if (_verbose) message("\n==> Fitting the optimal Drift(s)\n");
-  if (_drift_fitting(m2denv, dbc, number_hard)) goto label_end;
+  if (_drift_fitting(m2denv, number_hard)) goto label_end;
 
   /* Save the drift only (optional) */
 
@@ -5612,25 +5320,25 @@ Id MGibbs::run()
   /* Drift (corrected by pinch-out) is stored in 'dbc' and 'dbout' */
 
   if (_verbose) message("\n==> Transforming Drift information as Thickness\n");
-  if (_drift_inc_manage(m2denv, 1, dbc)) goto label_end;
+  if (_drift_inc_manage(m2denv, 1)) goto label_end;
 
   /* Prepare all material */
 
   if (_verbose) message("\n==> Preparing SPDE\n");
   s_option = _spde_option_alloc();
-  if (_spde_prepar(dbc, _dbout, VectorDouble(), s_option)) goto label_end;
+  if (_spde_prepar()) goto label_end;
   {
     SPDE_Matelem& Matelem = _get_current_matelem(0);
     nvertex               = _get_nvertex(0);
 
     /* Core allocation */
 
-    ydat.resize(nech * _nlayer, 0);
-    ymean.resize(nech * _nlayer, 0);
+    ydat.resize(nechc * _nlayer, 0);
+    ymean.resize(nechc * _nlayer, 0);
     yvert.resize(_nlayer * nvertex, 0);
-    ydat_loc.resize(nech);
+    ydat_loc.resize(nechc);
     yvert_loc.resize(nvertex);
-    ymean_loc.resize(nech);
+    ymean_loc.resize(nechc);
     vwork.resize(nvertex, 0);
     rhs.resize(nvertex, 0);
     zkrig.resize(nvertex, 0);
@@ -5638,10 +5346,10 @@ Id MGibbs::run()
     /* Extract the vector of current data */
 
     if (_verbose) message("\n==> Extracting the Initial Values at Wells\n");
-    _print_db_constraints("List of Initial Constraining Data", dbc, VectorDouble());
-    _vector_extract(m2denv, dbc, ydat, lwork);
-    _print_db_constraints("List of Constraining Data at Wells", dbc, ydat);
-    _stats_gaus("G-vect (initial)", _nlayer, nech, ydat.data());
+    _print_db_constraints("List of Initial Constraining Data", _dbc, VectorDouble());
+    _vector_extract(m2denv, ydat, lwork);
+    _print_db_constraints("List of Constraining Data at Wells", _dbc, ydat);
+    _stats_gaus("G-vect (initial)", _nlayer, nechc, ydat.data());
 
     /* Print environment just before entering in iterative process */
 
@@ -5677,9 +5385,9 @@ Id MGibbs::run()
 
         for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
         {
-          VH::extractInPlace(ydat, ydat_loc, ilayer * nech);
+          VH::extractInPlace(ydat, ydat_loc, ilayer * nechc);
           VH::extractInPlace(yvert, yvert_loc, ilayer * nvertex);
-          VH::extractInPlace(ymean, ymean_loc, ilayer * nech);
+          VH::extractInPlace(ymean, ymean_loc, ilayer * nechc);
 
           // Non-conditional simulation
 
@@ -5703,18 +5411,16 @@ Id MGibbs::run()
 
         // Perform a Gibbs iteration on the constraints
 
-        _stats_gaus("G-Mean before Gibbs", _nlayer, nech, ymean.data());
-        if (_global_gibbs(m2denv, dbc, iter, ysigma, ymean, ydat,
-                          lwork)) goto label_end;
-        _stats_gaus("G-vect after Gibbs", _nlayer, nech, ydat.data());
+        _stats_gaus("G-Mean before Gibbs", _nlayer, nechc, ymean.data());
+        if (_global_gibbs(m2denv, iter, ysigma, ymean, ydat, lwork)) goto label_end;
+        _stats_gaus("G-vect after Gibbs", _nlayer, nechc, ydat.data());
       }
 
       /* Check that the Constraints on the Wells are honored */
 
       if (_verbose) message("\n==> Checking the Constraints at Wells\n");
-      if (_check_gibbs_data("Checking Constraints at Wells", m2denv, dbc,
-                            ydat, lwork)) goto label_end;
-      _stats_gaus("G-vect final", _nlayer, nech, ydat.data());
+      if (_check_gibbs_data("Checking Constraints at Wells", m2denv, ydat, lwork)) goto label_end;
+      _stats_gaus("G-vect final", _nlayer, nechc, ydat.data());
 
       /* Store the conditional simulation on the grid */
 
@@ -5812,7 +5518,7 @@ Id MGibbs::run()
   error = 0;
 
 label_end:
-  (void)_drift_inc_manage(m2denv, -1, dbc);
+  (void)_drift_inc_manage(m2denv, -1);
   _qchol_manage(-1, Qc);
   delete Bproj;
   if (iatt_f >= 0) _dbin->deleteColumnsByUIDRange(iatt_f, _nlayer);
@@ -5893,6 +5599,7 @@ Id MLayers_spde(Db* dbin,
                 bool verbose)
 {
   MGibbs mgibbs(dbin, dbout, model);
+  if (!mgibbs.isValid()) return 1;
 
   mgibbs.setOptions(nlayer, niter, seed, nbsimu, icol_pinch,
                     flag_ed, flag_drift, flag_ce, flag_cstd, verbose);

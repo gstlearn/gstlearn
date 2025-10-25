@@ -431,13 +431,6 @@ GSTLEARN_EXPORT void global_init(Db* dbin, Db* dbout);
 /* Prototyping the functions in simtub.c */
 /*****************************************/
 
-GSTLEARN_EXPORT void simu_define_func_update(void (*st_simu_update)(Db*,
-                                                                    Id,
-                                                                    Id,
-                                                                    Id));
-GSTLEARN_EXPORT void simu_define_func_scale(void (*st_simu_scale)(Db*,
-                                                                  Id,
-                                                                  Id));
 GSTLEARN_EXPORT void simu_func_categorical_transf(Db* db,
                                                   Id verbose,
                                                   Id isimu,

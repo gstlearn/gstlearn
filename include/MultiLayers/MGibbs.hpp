@@ -41,24 +41,18 @@ public:
   CholeskySparse* chol;
 };
 
-class QSimu
-{
-public:
-  QChol* QCtt;
-  QChol* QCtd;
-};
-
 class SPDE_Matelem
 {
 public:
   VectorDouble Lambda;
+  VectorDouble Isill;
+  VectorDouble Csill;
   MatrixSparse* S;
   MatrixSparse* Aproj;
   QChol* QC;
+  QChol* QCtt;
+  QChol* QCtd;
   std::vector<QChol*> QCov;
-  VectorDouble Isill;
-  VectorDouble Csill;
-  QSimu* qsimu;
   Cheb_Elem* s_cheb;
   AMesh* amesh;
 };
@@ -96,10 +90,13 @@ public:
                   bool flag_cstd,
                   bool verbose);
   Id run();
+  bool isValid() const { return _hasValidEnvironment; }
 
 private:
-  bool _checkValid();
-  bool _checkPinchout();
+  bool _checkArguments();
+  bool _checkValidAuxiliary() const;
+  bool _checkValidOption();
+  bool _checkValidPinchout();
   static void _m2denv_manage(double ystdv, M2D_Environ& m2denv);
   void _stats_init(M2D_Environ& m2denv, double percent = 0.05);
   Id _drift_manage(M2D_Environ& m2denv, Id* iatt_f, double percent = 0.05);
@@ -110,16 +107,11 @@ private:
   void _drift_save(M2D_Environ& m2denv, double* gwork);
   void _define_locators(Db* db, Id nvar) const;
   Id _initial_elevations(M2D_Environ& m2denv,
-                         Db* dbc,
                          VectorDouble& work,
                          Id njter_max = 20) const;
-  void _stats_updt(M2D_Environ& m2denv, Db* dbc, double percent = 0.05) const;
-  Id _drift_fitting(M2D_Environ& m2denv,
-                    Db* dbc,
-                    Id number_hard) const;
-  Id _drift_inc_manage(M2D_Environ& m2denv,
-                       Id mode,
-                       Db* dbc);
+  void _stats_updt(M2D_Environ& m2denv, double percent = 0.05) const;
+  Id _drift_fitting(M2D_Environ& m2denv, Id number_hard) const;
+  Id _drift_inc_manage(M2D_Environ& m2denv, Id mode);
   void _set_M(M2D_Environ& m2denv,
               Id icol_pinch,
               Db* db,
@@ -152,20 +144,18 @@ private:
                     Id bypass,
                     Id* number_arg,
                     double* tab) const;
-  static double _draw_gaussian(M2D_Environ& m2denv,
-                               Db* dbc,
-                               bool verbose,
-                               Id iter,
-                               Id ilayer,
-                               Id iech,
-                               double Zval,
-                               double Zcum,
-                               double Zmin,
-                               double Zmax,
-                               double Ymean,
-                               double Ysigma);
+  double _draw_gaussian(M2D_Environ& m2denv,
+                        bool verbose,
+                        Id iter,
+                        Id ilayer,
+                        Id iech,
+                        double Zval,
+                        double Zcum,
+                        double Zmin,
+                        double Zmax,
+                        double Ymean,
+                        double Ysigma);
   void _convert_Z2Y(M2D_Environ& m2denv,
-                    Db* dbc,
                     Id type,
                     Id iech,
                     VectorDouble& tab) const;
@@ -175,7 +165,6 @@ private:
                     Id iech,
                     VectorDouble& tab) const;
   Id _global_gibbs(M2D_Environ& m2denv,
-                   Db* dbc,
                    Id iter,
                    double sigma,
                    VectorDouble& ymean,
@@ -183,16 +172,13 @@ private:
                    VectorDouble& work);
   void _print_sample(const char* title,
                      M2D_Environ& m2denv,
-                     Db* dbc,
                      Id iech,
                      VectorDouble& work) const;
   Id _check_gibbs_data(const char* title,
                        M2D_Environ& m2denv,
-                       Db* dbc,
                        VectorDouble& ydat,
                        VectorDouble& work);
   void _vector_extract(M2D_Environ& m2denv,
-                       Db* dbc,
                        VectorDouble& ydat,
                        VectorDouble& work);
   void _print_environ(const char* title, M2D_Environ& m2denv) const;
@@ -214,15 +200,12 @@ private:
   static SPDE_Matelem& _get_current_matelem(Id icov);
   static void _matelem_print(Id icov);
   double _get_isill(Id icov, Id ivar, Id jvar) const;
-  QSimu* _qsimu_manage(Id mode, QSimu* qsimu);
+  static Id _qsimu_manage(SPDE_Matelem& Matelem);
   static Id _get_nvertex(Id icov);
   Id _fill_Isill(void) const;
   Id _fill_Csill(void) const;
-  Id _spde_prepar(Db* dbin,
-                  Db* dbout,
-                  const VectorDouble& gext,
-                  SPDE_Option& s_option);
-  Id _fill_Bhetero(Db* dbin, Db* dbout) const;
+  Id _spde_prepar();
+  Id _fill_Bhetero() const;
   MatrixSparse* _extract_Q1_hetero(Id row_var,
                                    Id col_var,
                                    Id row_oper,
@@ -232,15 +215,7 @@ private:
   Id _build_QCov(SPDE_Matelem& Matelem);
   Id _spde_build_matrices(bool verbose);
   void _matelem_manage(Id mode);
-  Id _spde_check(const Db* dbin,
-                 const Db* dbout,
-                 Model* model1,
-                 bool verbose,
-                 const VectorDouble& gext,
-                 bool mesh_dbin,
-                 bool mesh_dbout,
-                 bool flag_advanced,
-                 bool flag_est,
+  Id _spde_check(bool flag_est,
                  bool flag_std,
                  bool flag_gibbs,
                  bool flag_modif);
@@ -250,8 +225,7 @@ private:
                                           Id col_var,
                                           Id* nrows,
                                           Id* ncols);
-  static double _get_nugget_sill(Id ivar, Id jvar);
-  static void _environ_print(const Db* dbout, const VectorDouble& gext);
+  double _get_nugget_sill(Id ivar, Id jvar);
   static void _chol_invert(QChol* qctt,
                            VectorDouble& xcr,
                            const VectorDouble& rhs,
@@ -259,12 +233,11 @@ private:
   static void _chol_simulate(QChol* qctt,
                              VectorDouble& simu,
                              const VectorDouble& work);
-  Cheb_Elem* _spde_cheb_manage(Id mode,
-                               bool verbose,
-                               double power,
-                               const VectorDouble& blin,
-                               MatrixSparse* S,
-                               Cheb_Elem* cheb_old);
+  static Id _spde_cheb_manage(SPDE_Matelem& Matelem,
+                              bool verbose,
+                              double power,
+                              const VectorDouble& blin,
+                              MatrixSparse* S);
   static Id _spde_posterior();
   static void _print_concatenate_interval(const char* title,
                                           double lower,
@@ -282,14 +255,9 @@ private:
                           Id nech,
                           double* ydat);
   Id _active_sample(Db* db, Id nlayer, Id iech, Id bypass) const;
-  static void _print_details(Db* dbc, Id nech, Id ilayer);
-  Id _migrate_pinch_to_point(Db* dbout, Db* dbc) const;
-  static Id _spde_external_copy(SPDE_Matelem& matelem, Id icov0);
-  static Id _is_external_AQ_defined(Id icov0);
-  static AMesh* _create_meshes(Db* dbin,
-                               Db* dbout,
-                               const VectorDouble& gext,
-                               SPDE_Option& s_option);
+  void _print_details(Id nech, Id ilayer) const;
+  Id _migrate_pinch_to_point() const;
+  AMesh* _create_meshes();
   static Id _chebychev_calculate_coeffs(Cheb_Elem* cheb_elem,
                                         bool verbose,
                                         const VectorDouble& blin);
@@ -301,8 +269,7 @@ private:
                                      const VectorDouble& Lambda,
                                      Id nblin,
                                      double* blin);
-  static VectorDouble _spde_fill_Lambda(AMesh* amesh,
-                                        const VectorDouble& TildeC);
+  VectorDouble _spde_fill_Lambda(AMesh* amesh, const VectorDouble& TildeC);
   static VectorDouble _spde_fill_TildeC(AMesh* amesh, const double* units);
   MatrixSparse* _spde_fill_S(AMesh* amesh, const double* units);
   static void _tangent_calculate(double center[3],
@@ -317,14 +284,14 @@ private:
                                Id imesh,
                                double center[3],
                                double xyz[3][3]);
-  static VectorInt _get_vertex_ranks(AMesh* amesh, Db* dbin, Db* dbout);
-  Id _fill_Bnugget(Db* dbin) const;
+  VectorInt _get_vertex_ranks(AMesh* amesh) const;
+  Id _fill_Bnugget() const;
   VectorDouble _spde_get_mesh_dimension(AMesh* amesh) const;
   static Id _identify_nostat_param(const EConsElem& type0,
                                    Id icov0 = -1,
                                    Id ivar0 = -1,
                                    Id jvar0 = -1);
-  Id _check_model(const Db* dbin, const Db* dbout, Model* model) const;
+
   static void _convert_exponential2matern(CovAniso* cova);
   void _calcul_update(void);
   void _calcul_init() const;
@@ -333,13 +300,13 @@ private:
   void _compute_correc(void) const;
   double _spde_compute_correc(double param) const;
   void _print_all(const char* title) const;
-  static double _get_sill_total(Id ivar, Id jvar);
-  static double _get_cova_range(void);
-  static Id _get_ncova(void);
-  static double _get_cova_param(void);
+  double _get_sill_total(Id ivar, Id jvar) const;
+  double _get_cova_range(void) const;
+  Id _get_ncova(void) const;
+  double _get_cova_param(void) const;
   static void _set_title(Id flag_igrf, Id flag_icov, Id rank, const char* title);
   static void _set_filnug(Id flag_filnug);
-  static double _get_cova_sill(Id ivar, Id jvar);
+  double _get_cova_sill(Id ivar, Id jvar) const;
   static QChol* _extract_QC_from_Q(const char* title,
                                    QChol* QC_in,
                                    Id row_auth,
@@ -349,16 +316,16 @@ private:
   static void _qchol_filter(const char* title, Id auth);
   static void _print_status(Id auth);
   static Id _get_filnug(void);
-  static void _set_model(Model* model);
-  static CovAniso* _get_cova(void);
-  static CovAniso* _get_nugget(void);
-  static bool _is_model_nugget(void);
+  CovAniso* _get_cova(void) const;
+  CovAniso* _get_nugget(void) const;
+  bool _is_model_nugget(void) const;
   static void _environ_init(void);
-  static Model* _get_model(void);
 
 private:
+  bool _hasValidEnvironment;
   Db* _dbin;
   Db* _dbout;
+  Db* _dbc;
   Model* _model;
   Id _ndim;
   Id _nvar;
