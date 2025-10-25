@@ -2532,8 +2532,6 @@ Id MGibbs::_simulate_cholesky(QChol* QC,
   return (0);
 }
 
-#ifndef SWIG
-
 /****************************************************************************/
 /*!
  **  Manage Cheb_Elem structure
@@ -2556,7 +2554,7 @@ Id MGibbs::_spde_cheb_manage(SPDE_Matelem& Matelem,
                              const VectorDouble& blin,
                              MatrixSparse* S)
 {
-  Cheb_Elem cheb_elem;
+  auto* cheb_elem = new Cheb_Elem();
   double a, b, v1, v2, tol;
   Id ncmax, ndisc;
 
@@ -2575,25 +2573,28 @@ Id MGibbs::_spde_cheb_manage(SPDE_Matelem& Matelem,
 
   /* Store the values */
 
-  cheb_elem.a       = a;
-  cheb_elem.b       = b;
-  cheb_elem.v1      = v1;
-  cheb_elem.v2      = v2;
-  cheb_elem.power   = power;
-  cheb_elem.ncmax   = ncmax;
-  cheb_elem.ndisc   = ndisc;
-  cheb_elem.tol     = tol;
-  cheb_elem.ncoeffs = 0;
-  cheb_elem.coeffs.clear();
+  cheb_elem->a       = a;
+  cheb_elem->b       = b;
+  cheb_elem->v1      = v1;
+  cheb_elem->v2      = v2;
+  cheb_elem->power   = power;
+  cheb_elem->ncmax   = ncmax;
+  cheb_elem->ndisc   = ndisc;
+  cheb_elem->tol     = tol;
+  cheb_elem->ncoeffs = 0;
 
   /* Get the optimal count of Chebychev coefficients */
 
-  if (_chebychev_calculate_coeffs(&cheb_elem, verbose, blin)) return 1;
+  if (_chebychev_calculate_coeffs(cheb_elem, verbose, blin))
+  {
+    delete cheb_elem;
+    return 1;
+  }
 
-  Matelem.s_cheb = &cheb_elem;
+  Matelem.s_cheb = cheb_elem;
   return 0;
 }
-#endif
+
 /****************************************************************************/
 /*!
  **  Initialize one SP_Mat structure
