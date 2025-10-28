@@ -9,10 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Db/Db.hpp"
-<<<<<<< HEAD
-=======
-
->>>>>>> 642126de1334aedb88cc3bbb89fc30f71118c9c2
 #include "geoslib_define.h"
 
 using namespace gstlrn;
@@ -33,10 +29,7 @@ int main(int argc, char* argv[])
   db->addColumnsByConstant(1, 2., "MyFirst");
 
   db->display();
-<<<<<<< HEAD
-=======
 
   delete db;
->>>>>>> 642126de1334aedb88cc3bbb89fc30f71118c9c2
   return 0;
 }
