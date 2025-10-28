@@ -224,6 +224,14 @@ public:
                               const VectorDouble& coormax     = VectorDouble(),
                               Id seed                         = 124234,
                               bool flagAddSampleRank          = true);
+  static Db* createVerticalWellsFillRandom(Id nline,
+                                           Id nlayer,
+                                           double z0                   = 0.,
+                                           double dz                   = 1.,
+                                           double tolZ                 = 0.,
+                                           const VectorDouble& coormin = VectorDouble(),
+                                           const VectorDouble& coormax = VectorDouble(),
+                                           Id seed                     = 2435);
   static Db* createEmpty(Id ndat,
                          Id ndim                = 2,
                          Id nvar                = 1,

@@ -76,6 +76,7 @@ public:
   inline T maximum() const;
   inline double mean() const;
   inline double norm() const;
+  inline Id getNonZeros() const;
 
   inline double innerProduct(const VectorNumT<T>& v) const;
 
@@ -130,10 +131,21 @@ T VectorNumT<T>::minimum() const // Prevent using max and min keywords (Visual)
 }
 
 template<typename T>
+Id VectorNumT<T>::getNonZeros() const
+{
+  if (VectorNumT::size() <= 0) return 0;
+  Id count = 0;
+  for (const auto& v: VectorNumT::_v)
+    if (v != static_cast<T>(0))
+      count++;
+  return count;
+}
+
+template<typename T>
 double VectorNumT<T>::mean() const
 {
   if (VectorNumT::size() <= 0) return static_cast<T>(NAN);
-  double s = static_cast<double>(sum());
+  auto s = static_cast<double>(sum());
   return (s / static_cast<double>(VectorNumT::_v.size()));
 }
 

@@ -1,0 +1,504 @@
+
+Data Base Characteristics
+=========================
+
+Data Base Contents
+------------------
+                 rank       x-1       x-2       z-1       z-2       z-3       z-4
+     [  0,]     1.000     0.013     0.964     0.199     0.421     0.594     0.749
+     [  1,]     2.000     0.342     0.235     0.218     0.419     0.651     0.844
+     [  2,]     3.000     0.940     0.711     0.228     0.404     0.638     0.852
+     [  3,]     4.000     0.671     0.670     0.178     0.374     0.546     0.776
+     [  4,]     5.000     0.449     0.305     0.232     0.400     0.645     0.816
+     [  5,]     6.000     0.161     0.049     0.156     0.394     0.573     0.743
+     [  6,]     7.000     0.914     0.170     0.225     0.461     0.613     0.803
+(Ncols=7[from 8],Nrows=7[from 10])
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 3
+Total number of samples      = 10000
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      0.010     0.010
+Number :        100       100
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Matern (Third Parameter = 2)
+- Sill         =      1.000
+- Range        =      0.300
+- Theo. Range  =      0.061
+Total Sill     =      1.000
+Known Mean(s)     0.000
+
+Global Statistics on Raw Elevations (extended by 0.05)
+......................................................
+Statistics are derived from compiling bounds (when defined)
+Number of valid bounds = 0
+Mean                   = 0.000000
+St. Deviation          = 1.000000
+Tolerance              = 0.000000
+Minimum                = -0.050000
+Maximum                = 1.050000
+Range                  = 1.100000
+(Range of values are fixed arbitrarily as no bound is found)
+
+==> Migrating Drift Information from Grid to Wells
+
+Global Statistics on Trends (extended by 0.05)
+..............................................
+Statistics are derived from compiling drift at grid nodes
+Number of valid nodes  = 0
+Minimum Drift          = 0.000000
+Maximum Drift          = 1.000000
+Range of Drift         = 1.000000
+
+List of Initial Constraining Data
+---------------------------------
+Sample (1) - Layer (  1) in [    NA ;     NA] ->   0.1993
+Sample (1) - Layer (  2) in [    NA ;     NA] ->   0.4209
+Sample (1) - Layer (  3) in [    NA ;     NA] ->   0.5938
+Sample (1) - Layer (  4) in [    NA ;     NA] ->   0.7491
+Sample (1) - Layer (  5) in [    NA ;     NA] ->   0.9511
+Sample (2) - Layer (  1) in [    NA ;     NA] ->   0.2181
+Sample (2) - Layer (  2) in [    NA ;     NA] ->   0.4194
+Sample (2) - Layer (  3) in [    NA ;     NA] ->   0.6507
+Sample (2) - Layer (  4) in [    NA ;     NA] ->   0.8444
+Sample (2) - Layer (  5) in [    NA ;     NA] ->   1.0751
+Sample (3) - Layer (  1) in [    NA ;     NA] ->   0.2283
+Sample (3) - Layer (  2) in [    NA ;     NA] ->   0.4039
+Sample (3) - Layer (  3) in [    NA ;     NA] ->   0.6383
+Sample (3) - Layer (  4) in [    NA ;     NA] ->   0.8516
+Sample (3) - Layer (  5) in [    NA ;     NA] ->   1.0476
+Sample (4) - Layer (  1) in [    NA ;     NA] ->   0.1781
+Sample (4) - Layer (  2) in [    NA ;     NA] ->   0.3740
+Sample (4) - Layer (  3) in [    NA ;     NA] ->   0.5457
+Sample (4) - Layer (  4) in [    NA ;     NA] ->   0.7764
+Sample (4) - Layer (  5) in [    NA ;     NA] ->   1.0034
+Sample (5) - Layer (  1) in [    NA ;     NA] ->   0.2321
+Sample (5) - Layer (  2) in [    NA ;     NA] ->   0.4001
+Sample (5) - Layer (  3) in [    NA ;     NA] ->   0.6446
+Sample (5) - Layer (  4) in [    NA ;     NA] ->   0.8158
+Sample (5) - Layer (  5) in [    NA ;     NA] ->   0.9887
+Sample (6) - Layer (  1) in [    NA ;     NA] ->   0.1556
+Sample (6) - Layer (  2) in [    NA ;     NA] ->   0.3945
+Sample (6) - Layer (  3) in [    NA ;     NA] ->   0.5732
+Sample (6) - Layer (  4) in [    NA ;     NA] ->   0.7426
+Sample (6) - Layer (  5) in [    NA ;     NA] ->   0.9257
+Sample (7) - Layer (  1) in [    NA ;     NA] ->   0.2251
+Sample (7) - Layer (  2) in [    NA ;     NA] ->   0.4608
+Sample (7) - Layer (  3) in [    NA ;     NA] ->   0.6131
+Sample (7) - Layer (  4) in [    NA ;     NA] ->   0.8029
+Sample (7) - Layer (  5) in [    NA ;     NA] ->   1.0286
+Sample (8) - Layer (  1) in [    NA ;     NA] ->   0.1946
+Sample (8) - Layer (  2) in [    NA ;     NA] ->   0.4290
+Sample (8) - Layer (  3) in [    NA ;     NA] ->   0.6344
+Sample (8) - Layer (  4) in [    NA ;     NA] ->   0.8079
+Sample (8) - Layer (  5) in [    NA ;     NA] ->   1.0279
+Sample (9) - Layer (  1) in [    NA ;     NA] ->   0.1914
+Sample (9) - Layer (  2) in [    NA ;     NA] ->   0.3867
+Sample (9) - Layer (  3) in [    NA ;     NA] ->   0.5910
+Sample (9) - Layer (  4) in [    NA ;     NA] ->   0.7437
+Sample (9) - Layer (  5) in [    NA ;     NA] ->   0.9755
+Sample (10) - Layer (  1) in [    NA ;     NA] ->   0.2435
+Sample (10) - Layer (  2) in [    NA ;     NA] ->   0.4063
+Sample (10) - Layer (  3) in [    NA ;     NA] ->   0.6044
+Sample (10) - Layer (  4) in [    NA ;     NA] ->   0.8014
+Sample (10) - Layer (  5) in [    NA ;     NA] ->   0.9954
+
+==> Creating a Temporary Data Base with all constraints
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 0
+Number of Columns            = 18
+Total number of samples      = 10
+
+Variables
+---------
+Column = 0 - Name = Rank - Locator = NA
+Column = 1 - Name = x-1 - Locator = NA
+Column = 2 - Name = x-2 - Locator = NA
+Column = 3 - Name = Lower-1 - Locator = NA
+Column = 4 - Name = Upper-1 - Locator = NA
+Column = 5 - Name = z-1 - Locator = NA
+Column = 6 - Name = Lower-2 - Locator = NA
+Column = 7 - Name = Upper-2 - Locator = NA
+Column = 8 - Name = z-2 - Locator = NA
+Column = 9 - Name = Lower-3 - Locator = NA
+Column = 10 - Name = Upper-3 - Locator = NA
+Column = 11 - Name = z-3 - Locator = NA
+Column = 12 - Name = Lower-4 - Locator = NA
+Column = 13 - Name = Upper-4 - Locator = NA
+Column = 14 - Name = z-4 - Locator = NA
+Column = 15 - Name = Lower-5 - Locator = NA
+Column = 16 - Name = Upper-5 - Locator = NA
+Column = 17 - Name = z-5 - Locator = NA
+
+==> Checking SPDE Environment
+
+(COV:1) Model (Stationary) Parameters
+-------------------------------------
+Rank of the structure = 1
+Param                 = 2.000000
+Alpha                 = 3.000000
+Total Sill            = 1.000000
+Ranges                = 0.300000 0.300000 
+Anisotropy H matrix
+                  [,1]       [,2]
+       [1,]      0.004      0.000
+       [2,]      0.000      0.004
+Square root of Determinant                    = 0.003750
+Correction factor                             = 0.039789
+Number of terms in Linear Combination         = 4
+Coefficients of the Linear Combination
+                  [,1]
+       [1,]      0.040
+       [2,]      0.119
+       [3,]      0.119
+       [4,]      0.040
+
+==> Creating Initial Value within bounds at Wells
+
+Global Statistics on Centered Elevations
+........................................
+Statistics are compiled from initial values within bounds
+Number of values = 50
+Mean             = 0.604108
+St. Deviation    = 0.281251
+Tolerance        = 0.000060
+Minimum          = 0.109634
+Maximum          = 1.121073
+Range            = 1.011439
+
+==> Fitting the optimal Drift(s)
+
+Layer #1
+- Number of Constraints = 10 
+  . Number of hard data    = 10
+  . Number of lower limits = 10
+  . Number of upper limits = 10
+- Drift:
+  . Coefficient   = 0.133822
+- Residual:
+  . Mean          = 0.096966
+  . St. Deviation = 0.026075
+  . Minimum       = 0.045975
+  . Maximum       = 0.133822
+
+Layer #2
+- Number of Constraints = 10 
+  . Number of hard data    = 10
+  . Number of lower limits = 10
+  . Number of upper limits = 10
+- Drift:
+  . Coefficient   = 0.162839
+- Residual:
+  . Mean          = 0.202946
+  . St. Deviation = 0.027178
+  . Minimum       = 0.162839
+  . Maximum       = 0.238845
+
+Layer #3
+- Number of Constraints = 10 
+  . Number of hard data    = 10
+  . Number of lower limits = 10
+  . Number of upper limits = 10
+- Drift:
+  . Coefficient   = 0.198067
+- Residual:
+  . Mean          = 0.199378
+  . St. Deviation = 0.029082
+  . Minimum       = 0.152284
+  . Maximum       = 0.244487
+
+Layer #4
+- Number of Constraints = 10 
+  . Number of hard data    = 10
+  . Number of lower limits = 10
+  . Number of upper limits = 10
+- Drift:
+  . Coefficient   = 0.197086
+- Residual:
+  . Mean          = 0.184651
+  . St. Deviation = 0.023729
+  . Minimum       = 0.152684
+  . Maximum       = 0.230733
+
+Layer #5
+- Number of Constraints = 10 
+  . Number of hard data    = 10
+  . Number of lower limits = 10
+  . Number of upper limits = 10
+- Drift:
+  . Coefficient   = 0.193999
+- Residual:
+  . Mean          = 0.208321
+  . St. Deviation = 0.020312
+  . Minimum       = 0.172911
+  . Maximum       = 0.231842
+
+==> Transforming Drift information as Thickness
+
+==> Preparing SPDE
+
+Preparing the Environment
+-------------------------
+
+(COV:1) Preparing the Process
+-----------------------------
+Using Turbo Meshing
+
+Turbo Meshing
+=============
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      0.010     0.010
+Number :        100       100
+Euclidean Geometry
+Space Dimension           = 2
+Number of Apices per Mesh = 3
+Number of Meshes          = 19602
+Number of Apices          = 10000
+
+Bounding Box Extension
+----------------------
+Dim #1 - Min:0 - Max:0.99
+Dim #2 - Min:0 - Max:0.99
+Calculation of Csill
+Filling S Sparse Matrix performed successfully
+Filling TildeC Sparse Matrix performed successfully
+Filling Lambda Sparse Matrix performed successfully
+Building Global Q matrix
+Extracting a part of Q for 'f_f'
+- Row authorization code    = FREE 
+- Column authorization code = FREE 
+Chebychev Polynomial Approximation:
+- Power = -0.500000
+- Performed using 2 terms
+- between 0.000000 and 0.000000 (Nb. discretization steps=100)
+- with a tolerance of 0.005
+
+Contents of Matelem structure #1
+--------------------------------
+S is defined:      ON
+Aproj is defined:  ON
+QC is defined:     ON
+QCov are defined:  OFF
+Lambda is defined: ON
+QCtt is defined:   ON
+QCtd is defined:   OFF
+s_cheb is defined: ON
+s_mesh is defined: ON
+
+==> Extracting the Initial Values at Wells
+
+List of Constraining Data at Wells
+----------------------------------
+Sample (1) - Layer (  1) in [  0.1993 ;   0.1993] ->   0.1993 (Gaus=  0.0991)
+Sample (1) - Layer (  2) in [  0.4209 ;   0.4209] ->   0.4209 (Gaus=  0.8083)
+Sample (1) - Layer (  3) in [  0.5938 ;   0.5938] ->   0.5938 (Gaus=  0.3641)
+Sample (1) - Layer (  4) in [  0.7491 ;   0.7491] ->   0.7491 (Gaus=  0.2614)
+Sample (1) - Layer (  5) in [  0.9511 ;   0.9511] ->   0.9511 (Gaus=  0.5408)
+Sample (2) - Layer (  1) in [  0.2181 ;   0.2181] ->   0.2181 (Gaus=  0.2900)
+Sample (2) - Layer (  2) in [  0.4194 ;   0.4194] ->   0.4194 (Gaus=  0.0186)
+Sample (2) - Layer (  3) in [  0.6507 ;   0.6507] ->   0.6507 (Gaus= -0.0377)
+Sample (2) - Layer (  4) in [  0.8444 ;   0.8444] ->   0.8444 (Gaus= -0.2109)
+Sample (2) - Layer (  5) in [  1.0751 ;   1.0751] ->   1.0751 (Gaus= -0.0197)
+Sample (3) - Layer (  1) in [  0.2283 ;   0.2283] ->   0.2283 (Gaus=  0.3801)
+Sample (3) - Layer (  2) in [  0.4039 ;   0.4039] ->   0.4039 (Gaus= -0.5234)
+Sample (3) - Layer (  3) in [  0.6383 ;   0.6383] ->   0.6383 (Gaus= -0.4301)
+Sample (3) - Layer (  4) in [  0.8516 ;   0.8516] ->   0.8516 (Gaus= -0.5196)
+Sample (3) - Layer (  5) in [  1.0476 ;   1.0476] ->   1.0476 (Gaus= -0.5884)
+Sample (4) - Layer (  1) in [  0.1781 ;   0.1781] ->   0.1781 (Gaus= -0.1708)
+Sample (4) - Layer (  2) in [  0.3740 ;   0.3740] ->   0.3740 (Gaus= -0.7013)
+Sample (4) - Layer (  3) in [  0.5457 ;   0.5457] ->   0.5457 (Gaus= -1.0290)
+Sample (4) - Layer (  4) in [  0.7764 ;   0.7764] ->   0.7764 (Gaus= -0.7287)
+Sample (4) - Layer (  5) in [  1.0034 ;   1.0034] ->   1.0034 (Gaus= -0.7293)
+Sample (5) - Layer (  1) in [  0.2321 ;   0.2321] ->   0.2321 (Gaus=  0.4111)
+Sample (5) - Layer (  2) in [  0.4001 ;   0.4001] ->   0.4001 (Gaus= -1.0780)
+Sample (5) - Layer (  3) in [  0.6446 ;   0.6446] ->   0.6446 (Gaus= -0.8989)
+Sample (5) - Layer (  4) in [  0.8158 ;   0.8158] ->   0.8158 (Gaus= -1.2504)
+Sample (5) - Layer (  5) in [  0.9887 ;   0.9887] ->   0.9887 (Gaus= -1.2245)
+Sample (6) - Layer (  1) in [  0.1556 ;   0.1556] ->   0.1556 (Gaus= -0.5684)
+Sample (6) - Layer (  2) in [  0.3945 ;   0.3945] ->   0.3945 (Gaus= -0.9087)
+Sample (6) - Layer (  3) in [  0.5732 ;   0.5732] ->   0.5732 (Gaus= -1.3943)
+Sample (6) - Layer (  4) in [  0.7426 ;   0.7426] ->   0.7426 (Gaus= -1.4434)
+Sample (6) - Layer (  5) in [  0.9257 ;   0.9257] ->   0.9257 (Gaus= -1.3496)
+Sample (7) - Layer (  1) in [  0.2251 ;   0.2251] ->   0.2251 (Gaus=  0.3525)
+Sample (7) - Layer (  2) in [  0.4608 ;   0.4608] ->   0.4608 (Gaus= -1.0760)
+Sample (7) - Layer (  3) in [  0.6131 ;   0.6131] ->   0.6131 (Gaus= -1.7088)
+Sample (7) - Layer (  4) in [  0.8029 ;   0.8029] ->   0.8029 (Gaus= -1.4837)
+Sample (7) - Layer (  5) in [  1.0286 ;   1.0286] ->   1.0286 (Gaus= -1.2947)
+Sample (8) - Layer (  1) in [  0.1946 ;   0.1946] ->   0.1946 (Gaus=  0.0459)
+Sample (8) - Layer (  2) in [  0.4290 ;   0.4290] ->   0.4290 (Gaus= -1.2154)
+Sample (8) - Layer (  3) in [  0.6344 ;   0.6344] ->   0.6344 (Gaus= -1.5428)
+Sample (8) - Layer (  4) in [  0.8079 ;   0.8079] ->   0.8079 (Gaus= -1.7068)
+Sample (8) - Layer (  5) in [  1.0279 ;   1.0279] ->   1.0279 (Gaus= -1.4540)
+Sample (9) - Layer (  1) in [  0.1914 ;   0.1914] ->   0.1914 (Gaus=  0.0072)
+Sample (9) - Layer (  2) in [  0.3867 ;   0.3867] ->   0.3867 (Gaus= -1.5156)
+Sample (9) - Layer (  3) in [  0.5910 ;   0.5910] ->   0.5910 (Gaus= -1.6662)
+Sample (9) - Layer (  4) in [  0.7437 ;   0.7437] ->   0.7437 (Gaus= -1.9525)
+Sample (9) - Layer (  5) in [  0.9755 ;   0.9755] ->   0.9755 (Gaus= -1.5190)
+Sample (10) - Layer (  1) in [  0.2435 ;   0.2435] ->   0.2435 (Gaus=  0.5000)
+Sample (10) - Layer (  2) in [  0.4063 ;   0.4063] ->   0.4063 (Gaus= -1.8026)
+Sample (10) - Layer (  3) in [  0.6044 ;   0.6044] ->   0.6044 (Gaus= -1.8026)
+Sample (10) - Layer (  4) in [  0.8014 ;   0.8014] ->   0.8014 (Gaus= -1.8026)
+Sample (10) - Layer (  5) in [  0.9954 ;   0.9954] ->   0.9954 (Gaus= -1.8026)
+Data vector (initial)
+- Number   = 50 (non-zero) / 50 (defined) / 50 (total)
+- Minimum  =     -1.952
+- Maximum  =      0.808
+- Mean     =     -0.741
+- St. Dev. =      0.791
+
+Environment before Simulations
+------------------------------
+No External Drift
+Z Minimum               = 0.109634
+Z Maximum               = 1.121073
+Z Mean                  = 0.604108
+Z St. Deviation         = 0.281251
+Z Tolerance             = 0.000060
+Drift Minimum           = 0.000000
+Drift Maximum           = 1.000000
+Y St. Deviation         = 1.000000
+Simulation #1/1
+>>>> Iteration #1/10
+Building Q (Size:10000) with additional nugget effect (0.010000)
+Data vector after Gibbs
+- Number   = 50 (non-zero) / 50 (defined) / 50 (total)
+- Minimum  =     -1.952
+- Maximum  =      0.808
+- Mean     =     -0.741
+- St. Dev. =      0.791
+>>>> Iteration #2/10
+Data vector after Gibbs
+- Number   = 50 (non-zero) / 50 (defined) / 50 (total)
+- Minimum  =     -1.952
+- Maximum  =      0.808
+- Mean     =     -0.741
+- St. Dev. =      0.791
+>>>> Iteration #3/10
+Data vector after Gibbs
+- Number   = 50 (non-zero) / 50 (defined) / 50 (total)
+- Minimum  =     -1.952
+- Maximum  =      0.808
+- Mean     =     -0.741
+- St. Dev. =      0.791
+>>>> Iteration #4/10
+Data vector after Gibbs
+- Number   = 50 (non-zero) / 50 (defined) / 50 (total)
+- Minimum  =     -1.952
+- Maximum  =      0.808
+- Mean     =     -0.741
+- St. Dev. =      0.791
+>>>> Iteration #5/10
+Data vector after Gibbs
+- Number   = 50 (non-zero) / 50 (defined) / 50 (total)
+- Minimum  =     -1.952
+- Maximum  =      0.808
+- Mean     =     -0.741
+- St. Dev. =      0.791
+>>>> Iteration #6/10
+Data vector after Gibbs
+- Number   = 50 (non-zero) / 50 (defined) / 50 (total)
+- Minimum  =     -1.952
+- Maximum  =      0.808
+- Mean     =     -0.741
+- St. Dev. =      0.791
+>>>> Iteration #7/10
+Data vector after Gibbs
+- Number   = 50 (non-zero) / 50 (defined) / 50 (total)
+- Minimum  =     -1.952
+- Maximum  =      0.808
+- Mean     =     -0.741
+- St. Dev. =      0.791
+>>>> Iteration #8/10
+Data vector after Gibbs
+- Number   = 50 (non-zero) / 50 (defined) / 50 (total)
+- Minimum  =     -1.952
+- Maximum  =      0.808
+- Mean     =     -0.741
+- St. Dev. =      0.791
+>>>> Iteration #9/10
+Data vector after Gibbs
+- Number   = 50 (non-zero) / 50 (defined) / 50 (total)
+- Minimum  =     -1.952
+- Maximum  =      0.808
+- Mean     =     -0.741
+- St. Dev. =      0.791
+>>>> Iteration #10/10
+Data vector after Gibbs
+- Number   = 50 (non-zero) / 50 (defined) / 50 (total)
+- Minimum  =     -1.952
+- Maximum  =      0.808
+- Mean     =     -0.741
+- St. Dev. =      0.791
+Depth on grid (Gaussian)
+- Number   = 50000 (non-zero) / 50000 (defined) / 50000 (total)
+- Minimum  =   -141.883
+- Maximum  =    146.877
+- Mean     =      0.097
+- St. Dev. =     31.146
+Depth on grid
+- Number   = 48493 (non-zero) / 48493 (defined) / 50000 (total)
+- Minimum  =      0.110
+- Maximum  = 930821893610047262891360387072.000
+- Mean     = 2708683875210440885531574272.000
+- St. Dev. = 35612245844892272298033152000.000
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 8
+Total number of samples      = 10000
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      0.010     0.010
+Number :        100       100
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Layer-1_Simu-1 - Locator = NA
+Column = 4 - Name = Layer-2_Simu-1 - Locator = NA
+Column = 5 - Name = Layer-3_Simu-1 - Locator = NA
+Column = 6 - Name = Layer-4_Simu-1 - Locator = NA
+Column = 7 - Name = Layer-5_Simu-1 - Locator = NA
