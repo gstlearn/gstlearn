@@ -3072,8 +3072,8 @@ Id MGibbs::_initializeElevations(M2D_Environ& m2denv,
                                  VectorDouble& work,
                                  Id njter_max) const
 {
-  double eps = m2denv.zeps;
-  Id flag_jter;
+  double eps   = m2denv.zeps;
+  Id flag_jter = 0;
 
   /* Loop on the samples */
 

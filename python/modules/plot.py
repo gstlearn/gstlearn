@@ -1240,7 +1240,7 @@ def line(dbline, *args, **kwargs):
     return _ax_line(ax, dbline, *args, **kwargs)
 
 def _ax_line(ax, dbline, color = 'blue', colorPoint='black', colorHeader='red', 
-              flagHeader=True, flagSample=False, flagAnnotateHeader=False, offset=[-1.0,0.5],
+              flagHeader=True, flagSample=False, flagAnnotateHeader=False, offset=[-0.05,0.05],
               **kwargs):
     '''
     Plotting a variable (referred by its name) informed in a DbLine
