@@ -518,6 +518,7 @@ Id VectorHelper::cumul(const VectorInt& vec)
   Id total = 0.;
   for (const auto& v: vec)
   {
+    if (IFFFF(v)) continue;
     total += v;
   }
   return total;
