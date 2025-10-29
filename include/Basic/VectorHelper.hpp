@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Basic/Utilities.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
@@ -19,7 +20,36 @@ namespace gstlrn
 {
 class GSTLEARN_EXPORT VectorHelper
 {
+private:
+  static bool isDefined(double value)
+  {
+    return !FFFF(value);
+  }
+
+  static bool isDefined(Id value)
+  {
+    return !IFFFF(value);
+  }
+
 public:
+  // The next TEMPLATE function has been introduced to perform basic
+  // exercise on template (between double and Id).
+  // This function is similar to cumul()
+  // It should be deleted at the end of the test.
+  template<typename T>
+  static T cumul2(const VectorNumT<T>& vec)
+  {
+    T total = 0;
+
+    for (int i = 0; i < vec.size(); i++)
+    {
+      const T& value = vec[i];
+      if (isDefined(value))
+        total += value;
+    }
+    return total;
+  }
+
   static VectorInt initVInt(Id nval, Id value = 0.);
   static VectorDouble initVDouble(Id nval, double value = 0.);
   static VectorVectorDouble initVVDouble(Id nval1, Id nval2, double value = 0.);
