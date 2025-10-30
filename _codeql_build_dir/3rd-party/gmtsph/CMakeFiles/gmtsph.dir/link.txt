@@ -1,0 +1,2 @@
+/usr/bin/ar qc libgmtsph.a CMakeFiles/gmtsph.dir/gmtsph.cpp.o
+/usr/bin/ranlib libgmtsph.a
