@@ -24,7 +24,7 @@ using namespace gstlrn;
 /*!
  ** Main Program
  **
- ** This program is meant to check the manipulation of the Db
+ ** This program is meant to check the various manipulations of the Db
  **
  *****************************************************************************/
 int main(int argc, char* argv[])
