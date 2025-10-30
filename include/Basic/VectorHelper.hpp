@@ -41,7 +41,7 @@ public:
   {
     T total = 0;
 
-    for (int i = 0; i < vec.size(); i++)
+    for (Id i = 0, n = static_cast<Id>(vec.size()); i < n; i++)
     {
       const T& value = vec[i];
       if (isDefined(value))
