@@ -117,14 +117,25 @@ public:
     return VectorDouble();
   }
   virtual double evalSpectrum(const VectorDouble& freq,
-                              Id ivar,
-                              Id jvar) const
+                              Id ivar = 0,
+                              Id jvar = 0) const
   {
     DECLARE_UNUSED(freq);
     DECLARE_UNUSED(ivar);
     DECLARE_UNUSED(jvar);
     message("ACov::evalSpectrum: Not implemented");
     return TEST;
+  }
+  virtual double evalSpectrumRatio(const VectorDouble& freq,
+                                   Id ivar,
+                                   Id jvar,
+                                   const ACov* cov0 = nullptr) const
+  {
+    DECLARE_UNUSED(freq);
+    DECLARE_UNUSED(ivar);
+    DECLARE_UNUSED(jvar);
+    DECLARE_UNUSED(cov0);
+    return 1.0;
   }
 
   virtual void updateCovByPoints(Id icas1, Id iech1, Id icas2, Id iech2) const

@@ -15,6 +15,7 @@
 #include "Simulation/TurningBandOperate.hpp"
 
 #include <cmath>
+#include <cstddef>
 
 namespace gstlrn
 {
@@ -101,16 +102,23 @@ double CovGaussian::simulateTurningBand(double t0, TurningBandOperate& operTB) c
   return operTB.cosineOne(t0);
 }
 
+double CovGaussian::evaluateSpectrum(double freq) const
+{
+  size_t ndim = getContext().getNDim();
+  double val = exp(-freq*freq*0.25)/pow(2*sqrt(GV_PI), ndim);
+  return val;
+}
+
 MatrixDense CovGaussian::simulateSpectralOmega(Id nb) const
 {
-  Id ndim = getContext().getNDim();
+  size_t ndim = getContext().getNDim();
   MatrixDense mat(nb, ndim);
   double sqrt2 = sqrt(2.0);
-  for (Id icol = 0; icol < ndim; icol++)
+  for (size_t icol = 0; icol < ndim; icol++)
   { 
     auto view = mat.getViewOnColumnModify(icol);
-    for (Id irow = 0; irow < nb; irow++)
-      view[irow] =  sqrt2 * law_gaussian();
+    for (size_t irow = 0; irow < static_cast<size_t>(nb); irow++)
+      view[irow] = sqrt2 * law_gaussian();
   }
   return mat;
 }

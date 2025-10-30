@@ -46,11 +46,11 @@ class MatrixDense;
 class GSTLEARN_EXPORT CalcSimuEden: public ACalcSimulation, public AStringable, public ISkinFunctions
 {
 public:
-  CalcSimuEden(Id nfacies   = 0,
-               Id nfluids   = 0,
-               Id niter     = 1,
-               Id nbsimu    = 0,
-               Id seed      = 4324324,
+  CalcSimuEden(Id nfacies  = 0,
+               Id nfluids  = 0,
+               Id niter    = 1,
+               Id nbsimu   = 0,
+               Id seed     = 4324324,
                bool verbose = false);
   CalcSimuEden(const CalcSimuEden& r)            = delete;
   CalcSimuEden& operator=(const CalcSimuEden& r) = delete;
@@ -105,7 +105,7 @@ private:
   Id _getStatCount(Id ifacies, Id ifluid) const;
   double _getStatVolume(Id ifacies, Id ifluid) const;
   Id _checkMax(double number_max, double volume_max);
-  Id _fluidModify(Skin* skin, Id ipos, Id& ref_fluid_loc);
+  Id _fluidModify(Skin* skin, Id ipos, Id* ref_fluid_loc);
   void _statsPrint(const char* title);
   void _statsEmpty(const char* title);
   void _calculateCumul(void);
@@ -124,9 +124,9 @@ private:
   Id _iptrStatCork;
   Id _iptrFluid;
   Id _iptrDate;
-  Id _niter;         /// Number of iterations
-  Id _nfacies;       /// number of facies (facies 0 excluded)
-  Id _nfluids;       /// number of fluids
+  Id _niter;        /// Number of iterations
+  Id _nfacies;      /// number of facies (facies 0 excluded)
+  Id _nfluids;      /// number of fluids
   VectorInt _speeds; /// array containing the travel speeds
   double _numberMax; /// Maximum count of cells invaded (or TEST)
   double _volumeMax; /// Maximum volume invaded (or TEST)
@@ -144,18 +144,18 @@ private:
 };
 
 GSTLEARN_EXPORT Id fluid_propagation(DbGrid* dbgrid,
-                                     const String& name_facies,
-                                     const String& name_fluid,
-                                     const String& name_perm,
-                                     const String& name_poro,
-                                     Id nfacies,
-                                     Id nfluids,
-                                     Id niter                        = 1,
-                                     const VectorInt& speeds         = VectorInt(),
-                                     bool show_fluid                 = false,
-                                     double number_max               = TEST,
-                                     double volume_max               = TEST,
-                                     Id seed                         = 321321,
-                                     bool verbose                    = false,
-                                     const NamingConvention& namconv = NamingConvention("Eden"));
+                                      const String& name_facies,
+                                      const String& name_fluid,
+                                      const String& name_perm,
+                                      const String& name_poro,
+                                      Id nfacies,
+                                      Id nfluids,
+                                      Id niter                       = 1,
+                                      const VectorInt& speeds         = VectorInt(),
+                                      bool show_fluid                 = false,
+                                      double number_max               = TEST,
+                                      double volume_max               = TEST,
+                                      Id seed                        = 321321,
+                                      bool verbose                    = false,
+                                      const NamingConvention& namconv = NamingConvention("Eden"));
 } // namespace gstlrn

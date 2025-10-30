@@ -91,9 +91,11 @@ public:
   VectorDouble evalSpectrumOnSphere(Id n,
                                     bool flagNormDistance = false,
                                     bool flagCumul        = false) const override;
-  double evalSpectrum(const VectorDouble& freq,
-                      Id ivar = 0,
-                      Id jvar = 0) const override;
+  double evalSpectrumRatio(const VectorDouble& freq, Id ivar, Id jvar, const ACov* cov0) const override;
+
+    double evalSpectrum(const VectorDouble& freq,
+                        Id ivar = 0,
+                        Id jvar = 0) const override;
 
   virtual double getIntegralRange(Id ndisc, double hmax) const;
   virtual String getFormula() const { return _corfunc->getFormula(); }

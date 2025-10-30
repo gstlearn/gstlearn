@@ -343,14 +343,14 @@ void MatrixDense::prodMatMatInPlace(const AMatrix* x,
     }
     else
     {
+      auto a = eigenMat();
+      auto b = xm->eigenMat();
       if (transposeY)
       {
-        eigenMat().noalias() = xm->eigenMat() * ym->eigenMat().transpose();
+        a = b * ym->eigenMat().transpose();
       }
       else
       {
-        auto a = eigenMat();
-        auto b = xm->eigenMat();
         a = b * ym->eigenMat();
       }
     }
@@ -610,7 +610,8 @@ Id MatrixDense::_computeGeneralizedEigen(const MatrixSymmetric& b, bool optionPo
 
 Id MatrixDense::_computeEigen(bool optionPositive)
 {
-  Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> solver(eigenMat());
+  auto a = eigenMat();
+  Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> solver(a);
   Eigen::VectorXd eigenValues  = solver.eigenvalues().real();
   Eigen::MatrixXd eigenVectors = solver.eigenvectors().real();
 

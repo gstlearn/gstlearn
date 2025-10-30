@@ -659,8 +659,19 @@ double CorAniso::evalSpectrum(const VectorDouble& freq, Id ivar, Id jvar) const
   SpacePoint p2;
   p2.setCoords(freq);
   double freqnorm = getSpace()->getFrequentialDistance(p1, p2, _aniso);
-  double val      = _corfunc->evaluateSpectrum(freqnorm * freqnorm);
-  return val / getCorrec();
+  double val =  _corfunc->evaluateSpectrum(freqnorm) * getDetTensor();
+  return val;
+}
+
+double CorAniso::evalSpectrumRatio(const VectorDouble& freq, Id ivar, Id jvar, const ACov* cov0) const
+{
+  double ratio  = 1.0;
+  if (cov0 != nullptr)
+  {
+    ratio = evalSpectrum(freq, ivar, jvar) / cov0->evalSpectrum(freq, ivar, jvar);
+  } 
+
+  return ratio;
 }
 
 double CorAniso::normalizeOnSphere(Id n) const
@@ -1057,7 +1068,7 @@ Array CorAniso::evalCovFFT(const VectorDouble& hmax,
   std::function<double(const VectorDouble&)> funcSpectrum;
   funcSpectrum = [this, ivar, jvar](const VectorDouble& freq)
   {
-    return evalSpectrum(freq, ivar, jvar) * getDetTensor();
+    return evalSpectrum(freq, ivar, jvar) / pow(2, getNDim());
   };
   return evalCovFFTSpatial(hmax, N, funcSpectrum);
 }

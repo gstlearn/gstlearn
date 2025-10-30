@@ -254,7 +254,8 @@ void Tensor::_fillTensors()
   _tensorDirect2 = MatrixSymmetric(static_cast<Id>(_nDim));
   _tensorDirect2.prodMatMatInPlace(&_tensorDirect, &_tensorDirect, false, true);
 
-  _tensorDirectSwap = _rotation.getMatrixDirect();
+//XF  _tensorDirectSwap = _rotation.getMatrixDirect();
+  _tensorDirectSwap = _rotation.getMatrixInverse();
   _tensorDirectSwap.multiplyRow(_radius);
 
   // Inverse of the Direct squared tensor

@@ -169,6 +169,8 @@ Known Mean(s)     0.000
   28 -   GEOMETRIC : Geometric (Sphere only)
   29 -     POISSON : Poisson (Sphere only)
   30 -   LINEARSPH : Linear (Sphere only)
+  31 -  CAUCHY_GEN : Generalized Cauchy in 1-D
+  32 -  GNEITING_M : Gneiting with Matern's spatial trace
 NULL
 
 Model characteristics

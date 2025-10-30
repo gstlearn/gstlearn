@@ -13,6 +13,7 @@
 #include "Basic/String.hpp"
 #include "Covariances/CovBesselJ.hpp"
 #include "Covariances/CovCauchy.hpp"
+#include "Covariances/CovCauchyGen.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Covariances/CovCosExp.hpp"
 #include "Covariances/CovCosinus.hpp"
@@ -67,6 +68,7 @@ ACovFunc* CovFactory::createCovFunc(const ECov& type, const CovContext& ctxt)
     case ECov::E_MATERN: return new CovMatern(ctxt);
     case ECov::E_GAMMA: return new CovGamma(ctxt);
     case ECov::E_CAUCHY: return new CovCauchy(ctxt);
+    case ECov::E_CAUCHY_GEN: return new CovCauchyGen(ctxt);
     case ECov::E_STABLE: return new CovStable(ctxt);
     case ECov::E_LINEAR: return new CovLinear(ctxt);
     case ECov::E_POWER: return new CovPower(ctxt);
@@ -108,6 +110,7 @@ ACovFunc* CovFactory::duplicateCovFunc(const ACovFunc& cov)
     case ECov::E_MATERN: return new CovMatern(dynamic_cast<const CovMatern&>(cov));
     case ECov::E_GAMMA: return new CovGamma(dynamic_cast<const CovGamma&>(cov));
     case ECov::E_CAUCHY: return new CovCauchy(dynamic_cast<const CovCauchy&>(cov));
+    case ECov::E_CAUCHY_GEN: return new CovCauchyGen(dynamic_cast<const CovCauchyGen&>(cov));
     case ECov::E_STABLE: return new CovStable(dynamic_cast<const CovStable&>(cov));
     case ECov::E_LINEAR: return new CovLinear(dynamic_cast<const CovLinear&>(cov));
     case ECov::E_POWER: return new CovPower(dynamic_cast<const CovPower&>(cov));

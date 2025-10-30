@@ -71,12 +71,13 @@ public:
                                double maxicond = 1.e20,
                                double eps      = EPSILON20);
   bool isDefinitePositive();
+  Id computeSquareRoot(MatrixSymmetric &tabout);
   Id minimizeWithConstraintsInPlace(const VectorDouble& gmat,
-                                    const MatrixDense& aemat,
-                                    const VectorDouble& bemat,
-                                    const MatrixDense& aimat,
-                                    const VectorDouble& bimat,
-                                    VectorDouble& xmat);
+                                     const MatrixDense& aemat,
+                                     const VectorDouble& bemat,
+                                     const MatrixDense& aimat,
+                                     const VectorDouble& bimat,
+                                     VectorDouble& xmat);
 
   bool _isPhysicallyPresent(Id irow, Id icol) const override;
   void _setValues(const double* values, bool byCol = true) override;

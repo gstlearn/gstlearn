@@ -42,7 +42,7 @@ public:
   VectorDouble getMarkovCoeffs() const override { return _markovCoeffs; }
   void   setMarkovCoeffs(const VectorDouble& coeffs) override { _markovCoeffs = coeffs;}
   double getCorrec() const override { return _correc; }
-  void   setCorrec(double val) override { _correc = val;}
+  void   setCorrec(double val) override;
 
 protected:
   VectorDouble _evaluateSpectrumOnSphere(Id n,

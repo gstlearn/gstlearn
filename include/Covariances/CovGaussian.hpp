@@ -38,6 +38,7 @@ public:
   double simulateTurningBand(double t0, TurningBandOperate& operTB) const override;
 
   bool isValidForSpectral() const override { return true; }
+  virtual double evaluateSpectrum(double freq) const override;
   MatrixDense simulateSpectralOmega(Id nb) const override;
 
 protected:

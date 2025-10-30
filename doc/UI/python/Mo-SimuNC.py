@@ -20,6 +20,7 @@ def _():
     from IPython.display import Markdown
     return Markdown, alt, copy, gdoc, gl, gmo, gp, mo, np, plt
 
+
 @app.cell(hide_code=True)
 def _():
     # Parametrization for the Model
@@ -34,7 +35,7 @@ def _():
     # Version gstlearn a faire marcher
     #Markdown(gdoc.loadDoc("Statistics_mean.md"))
     # version decortiquee qui fonctionne
-    #filename = gl.getReferenceFilename("Cvv.md")
+    #filename = "/home/drenard/project_gstlearn/gstlearn/doc/references/Cvv.md"
     #Markdown(filename)
     return
 

@@ -10,10 +10,12 @@
 /******************************************************************************/
 #include "Covariances/CovExponential.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/MathFunc.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Simulation/TurningBandOperate.hpp"
+#include "geoslib_define.h"
 
 #include <cmath>
 
@@ -36,6 +38,14 @@ String CovExponential::getFormula() const
 double CovExponential::simulateTurningBand(double t0, TurningBandOperate& operTB) const
 {
   return operTB.spectralOne(t0);
+}
+
+double CovExponential::evaluateSpectrum(double freq) const
+{
+  Id ndim = getContext().getNDim();
+  double param = (ndim + 1)*0.5;
+  double val = exp(loggamma(param))/pow(GV_PI*(1+freq*freq), param);
+  return val;
 }
 
 MatrixDense CovExponential::simulateSpectralOmega(Id nb) const

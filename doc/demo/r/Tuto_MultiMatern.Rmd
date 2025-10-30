@@ -1,0 +1,414 @@
+---
+title: "Spectral simulation of multivariate Matern's covariance"
+author: "X. Freulon, and the gstlearn Core Team"
+date: "`r Sys.Date()`"
+output: pdf_document
+editor_options: 
+  chunk_output_type: console
+---
+
+# Introduction
+
+The objective of this notebook is the define the multivariate Matern's covariance models to be implemented in **gstlearn**. The space is the euclidean model $\mathbb{R}^d$ with $d \geq 0$. 
+
+Here, we use the Matern's model defined in Bourotte et al. (2016).
+
+# Definition of the models
+
+## The univariate model
+
+The univariate Matern's covariance model on $\mathbb{R}^d$ is:
+
+$$
+\mathcal{M}(h; \nu) = \frac{2^{1-\nu}}{\Gamma(\nu)} (|h|)^{\nu} K_{\nu}(|h|)
+$$
+where $\nu > 0$ is a smoothness parameter, and $K_{\nu}$ denotes the modified Bessel function of the second kind of order $\nu$. This is the convention used in *gstlearn*.
+
+Its spectral density function is:
+$$
+\mathcal{S}(\boldsymbol{\omega}; \nu) = \frac{\Gamma(\nu + \frac{d}{2})}{\Gamma(\nu)\, \pi^{\frac{d}{2}}} 
+\frac{1}{(1+|\boldsymbol{\omega}|^2)^{\nu + \frac{d}{2}}}
+$$
+
+The space anisotropy and scaling are first applied to the increments to convert them into normalized space distances: $\boldsymbol{h} \mapsto d_s = \sqrt{\boldsymbol{h}^t Q \boldsymbol{h}}$. The space metric tensor $Q = R^t D(1/\boldsymbol{a}^2) R$ is defined by the rotation $R$ and the scaling diagonal matrix $D(1/\boldsymbol{a}^2)$ defined by its spatial ranges ($\boldsymbol{a} = (a_i)_{i \in 1:d} > 0$).
+
+## The multivariate model
+
+The multivariate Matern's model is defined from 
+
+1) The marginal models. 
+Each variable $i$ is characterized by $r_{i} > 0$ its relative scale factor, and $\nu_i > 0$ its smoothness parameter.
+
+2) A covariance matrix $\boldsymbol{\Sigma} = [\sigma_{ij}]_{1 \leq i,j \leq p}$.
+
+The family of simple and cross covariance functions is:
+$$
+C_{ij}^{\mathcal{M}}(\boldsymbol{h}) = \sigma_{ij} \times \mathcal{M}(r_{ij} \, d_s(\boldsymbol{h}); \nu_{ij}).
+$$
+
+with, the cross-parameters are computed from the marginal parameters: 
+
+  i) $\nu_{ij} = (\nu_{i} + \nu_{j})/2$, and 
+  ii) $r_{ij} = \sqrt{(r_{i}^2 + r_{j}^2)/2}$
+
+The family of simple and cross spectrum functions is:
+$$
+S_{ij}^{\mathcal{M}}(\boldsymbol{\omega}) = \sigma_{ij} \times \mathcal{S}(\frac{1}{r_{ij}} \, d^s(\boldsymbol{h}); \nu_{ij}) \, \frac{\Pi_{k=1}^d a_k}{r_{ij}^d}.
+$$
+where the $\mathcal{S}$ the spectrum of the standard covariance function and the *anisotropic* spectral distance $d^s$ defined by
+$$
+d^s(\boldsymbol{\omega}) = \sqrt{\boldsymbol{\omega}^t R^t D(\boldsymbol{a}^2)R\boldsymbol{\omega} }
+$$
+
+**Note:** 
+
+* The covariance matrix **must** verify the condition that  the matrix $[\sigma_{ij}/\tau_{ij}]_{i,j}$ be positive definite, with the *maximum* correlation matrix defined by
+$$
+\tau_{ij} = \frac{\Gamma(\nu_{ij})}{\Gamma(\nu_{i})^{1/2}\Gamma(\nu_{j})^{1/2}}\frac{r_i^{\nu_{i}}r_j^{\nu_{j}}}{r_{ij}^{2\nu_{ij}}}
+$$
+
+* The intrinsic case corresponds to $\nu_i = \nu$ and $r_i = r = 1$ (if all variable ranges are equal, they can be taken into account by the metric defined on space-time): 
+$$
+C_{ij}(\boldsymbol{h}) = C_{ij}(0) \times 
+\mathcal{M}(d_s; \nu).
+$$
+
+
+
+# Initialisation and parameters
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+rm(list = ls())
+library(gstlearn)
+
+# global parameters
+flag.verbose = FALSE
+opers = EStatOption_fromKeys(c("NUM", "MINI", "MAXI", "MEAN", "STDV"))
+
+# variogram directions
+dir_angles = c(0, 45, 90, 135)
+dir_list = matrix(c(1,0, 1,1, 0,1, -1, 1), nrow = 4, ncol = 2, byrow = TRUE)
+dir_col  = c("skyblue", "green", "orange", "red")
+h = seq(from = 0, to = 5, length.out = 100)
+u = seq(from = 0, to = 5, length.out = 100)
+var_col = c("red", "orange", "skyblue", "blue", "green", "darkgreen")
+
+# grid
+x0 = c(0,0)
+nx = c(250, 250)
+dx = c(0.1, 0.1)
+grid = DbGrid_create(x0 = x0, nx = nx, dx = dx)
+prefix = "Simu"
+
+```
+
+Some functions are defined for the QC of the simulations.
+
+```{r fn_qc, echo=FALSE, eval=TRUE}
+# to compute simple or cross variograms on a 2D grid. Values are given using R arrays
+#' @param val1 an array containing the first variable
+#' @param val2 an array containing the second variable
+#' @param nlag the number of variogram lags
+#' @param dir the increments defining the direction
+#' @param dx the mesh of the grid
+#' @value a list containing the parameters of the experimental variogram 
+#' (distance, value, number of pairs)
+compute_vario_on_grid <- function(val1, val2, nlag = 10, dir = c(1,0), dx = c(1,1)) {
+  stopifnot(all(dim(val1) == dim(val2)))
+  nx = dim(val1)
+  gg = rep(NaN, nlag)
+  hh = rep(NaN, nlag)
+  nc = rep(NaN, nlag)
+  dir_norm = sqrt(sum((dir*dx)^2))
+  for (lag in 1:nlag) {
+      idx_deb = max(1,1-lag*dir[1]):min(nx[1], nx[1]-lag*dir[1])
+      jdx_deb = max(1,1-lag*dir[2]):min(nx[2], nx[2]-lag*dir[2])
+      idx_end = idx_deb + lag*dir[1]
+      jdx_end = jdx_deb + lag*dir[2]
+      tmp = 1/2 * as.numeric((val1[idx_deb, jdx_deb] - val1[idx_end, jdx_end])) *
+                  as.numeric((val2[idx_deb, jdx_deb] - val2[idx_end, jdx_end]))
+      nc[lag] = length(tmp)
+      if (nc[lag] > 0) {
+          hh[lag] = dir_norm * lag
+          gg[lag] = sum(tmp)/nc[lag]
+      }
+    }
+  list(
+    nc = nc,
+    hh = hh,
+    gg = gg
+  )
+}
+
+#' to compute the various plot to check the simulations on a two dimensional grid
+#' @param grid a **gstlearn** DbGrid containing the simulations
+#' @param names of the simulations
+#' @param model is the simulated **gstlearn** model.
+#' @param main is the title used for graphics
+#' @param flag.hist a boolean equal to TRUE to plot the histogram of each variable
+#' @param flag.map a boolean equal to TRUE to plot a base map for each variable
+#' @param flag.vario a boolean equal to TRUE to plot all the simple an cross variograms
+#' @value no return value
+plot_hist_map_vario <- function(grid, names, model,
+                                main = NULL,
+                                flag.hist = TRUE, flag.map = TRUE, flag.vario = TRUE) {
+  
+  stopifnot(length(names) == model$getNVar())
+  
+  nx = grid$getNXs()
+  dx = grid$getDXs()
+  x0 = grid$getX0s()
+  x = x0[1] + (1:nx[1]-1)*dx[1]
+  y = x0[2] + (1:nx[2]-1)*dx[2]
+  dir_norm = (apply(X = dir_list, MARGIN = 1, FUN = function(u) {sqrt(sum((u*dx)^2))}))
+  nlag = 25
+  p1 = SpacePoint()
+  p2 = SpacePoint()
+  d  = model$getNDim()
+  for (ivar in seq_along(names)) {
+    simu1 = matrix(grid[names[ivar]], nx[1], nx[2])
+    # histograms
+    if (flag.hist) {
+      hist(simu1, main = NULL)
+      title(main = main, sub = names[ivar], font.main = 4, font.sub = 3, col.sub = "red")
+    }
+    if (flag.map) {
+      image(x = x, y = y, z = simu1, asp = 1, col = hcl.colors(100, "terrain"), 
+            axes = FALSE)
+      contour(x, y, simu1, levels = c(-1, 0, 1),
+              add = TRUE, col = "brown")
+      axis(1, at = seq(min(x), max(x), length.out = 5))
+      axis(2, at = seq(min(y), max(y), length.out = 5))
+      box()
+      title(main = main, sub = names[ivar], font.main = 4, font.sub = 3, col.sub = "red")
+    }
+    # variograms
+    if (flag.vario) {
+      for (jvar in ivar:length(names)) {
+        c0 = model$evalCov(p1 = p1, p2 = p1, ivar = ivar-1, jvar = jvar-1)
+        if (ivar == jvar) {ylim = c(0, c0)} 
+        else {ylim = abs(c0) * c(-1,1)}
+        simu2 = matrix(grid[names[jvar]], nx[1], nx[2])
+        plot(NULL, NULL, xlim = c(0, nlag*max(dir_norm)), ylim = ylim, 
+             xlab = "Distance", ylab = "Variogram")
+        abline(v = c(0), col = "black", lty = 3)
+        abline(h = c(0), col = "black", lty = 3)
+        abline(h = c0, col = "gray", lty = 3)
+        dir_lab = NULL
+        for (idir in 1:dim(dir_list)[1]) {
+          dir_lab = c(dir_lab, sprintf("[%d,%d]", dir_list[idir,1], dir_list[idir,2]))
+          # experimental variogram
+          gam = compute_vario_on_grid(val1 = simu1, val2 = simu2, 
+                                      nlag = nlag, dir = dir_list[idir,], dx = dx)
+          lines(gam$hh, gam$gg, col = dir_col[idir], lty = 2)
+          points(gam$hh, gam$gg, col = dir_col[idir], pch = 19, cex = 0.2)
+          # model
+          h = (0:100)/100*nlag*dir_norm[idir]
+          H = outer(X = h, Y = dir_list[idir,]*dx/dir_norm[idir], FUN = "*")
+          val = rep(model$evalCov(p1 = p1, p2 = p1, ivar = ivar-1, jvar = jvar-1) , length(h))
+          p2 = SpacePoint()
+          for (k in seq_along(val)) {
+            for (id in 1:d) {err = p2$setCoord(i = id-1, val = H[k,id])}
+            val[k] = val[k] - model$evalCov(p1 = p1, p2 = p2, ivar = ivar-1, jvar = jvar-1)
+          }
+          lines(h, val, col = dir_col[idir], lty = 1)
+        } # loop on directions
+        legend("bottomright", legend = dir_lab, col = dir_col, lty = 1)
+        sub = paste0(names[ivar], " vs. ", names[jvar])
+        title(main = main, sub = sub, font.main = 4, font.sub = 1, col.sub = "red")
+      } # loop on jvar
+    } # flag.vario
+  } # loop over ivar
+  invisible(NULL)
+}
+
+```
+
+# The multivariate Matern'model
+
+```{r parameters, echo=TRUE, eval=TRUE}
+
+# parameters for the anisotropy
+ani_scales = c(2, 1/2)
+ani_angles = c(30, 0)
+d = 2
+err = gstlearn::defineDefaultSpace(gstlearn::ESpaceType_RN(), d)
+
+# parameters of the variables
+nu = c(1/2,  3/4, 2)[1:3]
+rr = c(1, 2, 3)[1:3]
+stopifnot(length(nu) == length(rr))
+p = length(nu)
+
+# parameters for the multivariate correlations
+Nu = outer(X = nu, Y = nu, FUN = function(u,v){(u+v)/2})
+Rr = outer(X = rr, Y = rr, FUN = function(u,v){sqrt((u^2+v^2)/2)})
+Tau = matrix(NaN, p, p)
+for (i in 1:p){
+  for (j in 1:p) {
+    Tau[i,j] = gamma(Nu[i,j])/Rr[i,j]^(2*Nu[i,j])/sqrt(
+    (gamma(nu[i])/rr[i]^(2*nu[i]))*(gamma(nu[j])/rr[j]^(2*nu[j])))
+  }
+}
+sigma0 = matrix(rnorm(p*p), p, p)
+sigma0 = sigma0 %*% t(sigma0)
+sigma  = sigma0 * Tau
+stopifnot(all(eigen(sigma)$values >0))
+
+# Multi-variate Matern's models
+gsSigma = MatrixSymmetric(p)
+for (i in 1:p) {
+  for (j in 1:p) {
+    gsSigma$setValue(i-1, j-1, sigma[i, j])
+  }
+}
+
+# the covariance matrix is checked
+stopifnot(gsSigma$isDefinitePositive())
+
+# the Matern's covariance in gstlearn
+gsMatern = CorMatern(
+  ranges = ani_scales[1:d] , angles = ani_angles[1:d], 
+  coeffScales = rr[1:p], params = nu[1:p], sigma = gsSigma, flagRange = FALSE)
+
+# the model is defined by the covariance
+ctxt  = CovContext(nvar = p, ndim = d)
+gsMod = ModelGeneric(ctxt = ctxt) 
+err   = gsMod$setCov(cova = gsMatern)
+
+```
+
+
+# Covariance and spectrum
+
+## Covariances of the multi-variate model
+
+```{r plot_of_covariances, echo=FALSE, eval=TRUE}
+# plot of the variogram/covariance models
+p1 = SpacePoint()
+for(idir in 1:length(dir_angles)) {
+  plot(NULL, NULL, xlim = range(h), ylim = max(abs(sigma))*c(-1,1),
+       xlab = "Distance", ylab = "Variogram")
+  title(
+    main = paste0("Matern: d = ", d, " p = ", p), 
+    sub = paste("Direction = #", idir, " (angle = ", dir_angles[idir], "°)"), 
+    col.sub = "red"
+  )
+  abline(v = 0, col = "gray", lty = 3)
+  abline(h = c(0, sort(unique(as.numeric(sigma)))), col = "gray", lty = 3)
+  theta  = dir_angles[idir]*pi/180
+  cs = cos(theta)
+  sn = sin(theta)
+  rotDir = matrix(c(cs, sn, -sn, cs), d, d)
+  H = h %*% t(rotDir %*% c(1,0))
+  idx = 0
+  lab_var = NULL
+  for (ivar in 1:p) {
+    for (jvar in ivar:p) {
+      idx = idx + 1
+      lab_var = c(lab_var, sprintf("[%d,%d]", ivar, jvar))
+      p2 = SpacePoint()
+      val = rep(gsMatern$evalCov(p1 = p1, p2 = p1, ivar = ivar-1, jvar = jvar-1) , length(h))
+      for (k in seq_along(h)) {
+        for (i in 1:d) {err = p2$setCoord(i = i-1, val = H[k,i])}
+        val[k] = val[k] - gsMatern$evalCov(p1 = p1, p2 = p2, ivar = ivar-1, jvar = jvar-1)
+      }
+      lines(h, val, col = var_col[idx], pch = 19, cex = 0.5)
+    }
+  }
+  legend("bottomright",
+         legend = lab_var,
+         col = var_col[1:idx], 
+         lty = 1)
+}
+
+```
+
+## Spectums of the multi-variate model
+
+```{r plot_of_spectrum, echo=FALSE, eval=TRUE}
+# plot of the spectrums
+
+s0 = NULL
+for (ivar in 1:p) {
+  for (jvar in ivar:p) {
+    s0 = c(s0, gsMatern$evalSpectrum(freq = H[1,], ivar = ivar-1, jvar = jvar-1))
+  }
+}
+
+for(idir in 1:length(dir_angles)) {
+  plot(NULL, NULL, 
+       xlim = range(h), ylim = max(abs(s0))*c(-1,1),
+       xlab = "Distance", ylab = "Spectrum")
+  title(
+    main = paste0("Matern: d = ", d, " p = ", p), 
+    sub = paste("Direction = ", idir, "# (angle = ", dir_angles[idir], "°)"), 
+    col.sub = "red"
+  )
+  abline(v = 0, col = "gray", lty = 3)
+  abline(h = c(0, sort(unique(as.numeric(s0)))), col = "gray", lty = 3)
+  
+  theta  = dir_angles[idir]*pi/180
+  cs = cos(theta)
+  sn = sin(theta)
+  rotDir = matrix(c(cs, sn, -sn, cs), d, d)
+  H = h %*% t(rotDir %*% c(1,0))
+
+  idx = 0
+  lab_var = NULL
+  for (ivar in 1:p) {
+    for (jvar in ivar:p) {
+      idx = idx + 1
+      lab_var = c(lab_var, sprintf("[v%d,v%d]", ivar, jvar))
+      # gstlearn
+      val = rep(NaN, length(h))
+      for (i in seq_along(h)) {
+          val[i] = gsMatern$evalSpectrum(freq = H[i,], ivar = ivar-1, jvar = jvar-1)
+      }
+      lines(h, val, col = var_col[idx], pch = 19, cex = 0.5)
+    }
+  }
+  legend("bottomright",
+         legend = lab_var,
+         col = var_col[1:idx], 
+         lty = 1)
+}
+
+```
+
+
+# Simulations
+
+```{r simu_matern, echo = TRUE, eval = TRUE}
+err = grid$deleteColumns(names = paste(prefix, "*", sep = "."))
+
+# simulation parameters
+seed = 258425
+set.seed(seed)
+ns = 5000 # number of spectral waves
+nbsimu = 3
+
+err = simuSpectral(dbin = NULL, dbout = grid, cova = gsMatern, nbsimu = nbsimu, 
+                   seed = seed, ns = ns, verbose = FALSE, 
+                   namconv = NamingConvention(prefix))
+
+for (isim in 1:nbsimu) {
+  nm_var = paste(prefix, paste0("V", 1:p), paste0("S", isim), sep = ".")
+  knitr::kable(dbStatisticsMono(db = grid, names = nm_var, opers = opers)$toTL(), digits = 4)
+  plot_hist_map_vario(grid = grid, names = nm_var, model = gsMatern,
+                      main = paste0("Matern: d = ", gsMatern$getNDim(),
+                                    ", p = ", gsMatern$getNVar()),
+                      flag.hist = TRUE, flag.map = TRUE, flag.vario = TRUE)
+}
+
+```
+
+# References
+
+* Allard, D., Clarotto, L., & Emery, X. (2022). Fully nonseparable Gneiting covariance functions for multivariate space–time data. Spatial Statistics, 52, 100706.
+
+* Bourotte, M., Allard, D., Porcu, E. (2016). A flexible class of non-separable cross-covariance functions for multi-variate space-time data. Spatial Statistics, 18, 125-146.
+
+* Emery, X., Arroyo, D., & Porcu, E. (2016). An improved spectral turning-bands algorithm for simulating stationary vector Gaussian random fields. Stochastic environmental research and risk assessment, 30(7), 1863-1873.
+

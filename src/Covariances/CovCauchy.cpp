@@ -46,7 +46,7 @@ double CovCauchy::getScadef() const
 
 double CovCauchy::_evaluateCov(double h) const
 {
-  double cov = 1. / pow(1. + h * h, getParam());
+  double cov = 1. / pow(1. + (h * h), getParam());
   return (cov);
 }
 

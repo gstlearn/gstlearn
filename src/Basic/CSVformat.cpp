@@ -11,14 +11,14 @@
 #include "Basic/CSVformat.hpp"
 
 namespace gstlrn
-{
+{ 
 CSVformat::CSVformat(bool flagHeader,
                      Id nSkip,
                      char charSep,
                      char charDec,
                      const String& naString)
-  : AStringable()
-  , _flagHeader(flagHeader)
+  : AStringable(),
+    _flagHeader(flagHeader)
   , _nSkip(nSkip)
   , _charSep(charSep)
   , _charDec(charDec)
@@ -26,9 +26,9 @@ CSVformat::CSVformat(bool flagHeader,
 {
 }
 
-CSVformat::CSVformat(const CSVformat& r)
-  : AStringable(r)
-  , _flagHeader(r._flagHeader)
+CSVformat::CSVformat(const CSVformat &r)
+  : AStringable(r),
+    _flagHeader(r._flagHeader)
   , _nSkip(r._nSkip)
   , _charSep(r._charSep)
   , _charDec(r._charDec)
@@ -36,16 +36,16 @@ CSVformat::CSVformat(const CSVformat& r)
 {
 }
 
-CSVformat& CSVformat::operator=(const CSVformat& r)
+CSVformat& CSVformat::operator= (const CSVformat &r)
 {
   if (this != &r)
   {
     AStringable::operator=(r);
     _flagHeader = r._flagHeader;
-    _nSkip      = r._nSkip;
-    _charSep    = r._charSep;
-    _charDec    = r._charDec;
-    _naString   = r._naString;
+    _nSkip = r._nSkip;
+    _charSep = r._charSep;
+    _charDec = r._charDec;
+    _naString = r._naString;
   }
   return *this;
 }
@@ -61,32 +61,6 @@ CSVformat* CSVformat::create(bool flagHeader,
                              const String& naString)
 {
   return new CSVformat(flagHeader, nSkip, charSep, charDec, naString);
-}
-
-/**
- * @brief Create the CSVformat defined by its style (English or French)
- *
- * @param csvStyle ECSV defining the style of the CSV file
- * @param flagHeader True if the File contains a Header line
- * @param nSkip Number of lines to be skipped at the beginning of the File
- * @param naString String corresponding to missing values
- * @return CSVformat*
- */
-CSVformat* CSVformat::createStandard(const ECSV& csvStyle,
-                                     bool flagHeader,
-                                     Id nSkip,
-                                     const String& naString)
-{
-  // English style
-  if (csvStyle == ECSV::fromKey("ENGLISH"))
-    return new CSVformat(flagHeader, nSkip, ',', '.', naString);
-
-  // French style
-  if (csvStyle == ECSV::fromKey("FRENCH"))
-    return new CSVformat(flagHeader, nSkip, ';', ',', naString);
-
-  // Tabulated style
-  return new CSVformat(flagHeader, nSkip, ' ', '.', naString);
 }
 
 String CSVformat::toString(const AStringFormat* /*strfmt*/) const
@@ -106,4 +80,4 @@ String CSVformat::toString(const AStringFormat* /*strfmt*/) const
   return sstr.str();
 }
 
-} // namespace gstlrn
+}

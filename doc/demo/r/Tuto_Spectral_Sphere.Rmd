@@ -158,7 +158,7 @@ rho = 0.9    # for the geometric model
 lambda = 10  # for the Poisson model
 nu = 5.0     # for the exponential model
 mu = 1.0; kappa = 2.0 # for the SPDE model
-ns = 10000
+ns = 100
 ```
 
 
@@ -166,9 +166,9 @@ ns = 10000
 err = defineDefaultSpace(ESpaceType_SN())
 # modelSph = Model_createFromParam(ECov_LINEARSPH())
 # modelSph = Model_createFromParam(ECov_GEOMETRIC(), rho)
-# modelSph = Model_createFromParam(ECov_POISSON(), 1., 1., lambda)
+modelSph = Model_createFromParam(ECov_POISSON(), 1., 1., lambda)
 # modelSph = Model_createFromParam(ECov_EXPONENTIAL(), nu, 1., 0., flagRange=TRUE)
-modelSph = Model_createFromParam(ECov_MATERN(), 1./kappa, 1., mu, flagRange=FALSE)
+# modelSph = Model_createFromParam(ECov_MATERN(), 1./kappa, 1., mu, flagRange=FALSE)
 
 cova = modelSph$getCovAniso(0)
 covname = cova$getCovName()
@@ -200,10 +200,16 @@ plot.init() +
   plot.geometry(ylim=c(0,NA))
 ```
 
+
+
 ## Simulation
 
 ```{r one_simulation, echo=TRUE, eval = TRUE}
-err = simuSpectral(NULL, grd, modelSph, ns=ns)
+seed = 54251
+err  = grd$deleteColumns(names = paste0(covname, "*"))
+simu = SimuSpectralS2(cova = cova)
+err  = simu$simulate(ns = ns, seed = seed, verbose = TRUE, nd = 100)
+err  = simu$compute(dbout = grd, verbose = TRUE, namconv = NamingConvention(covname))
 ```
 
 ## QC
@@ -211,8 +217,9 @@ err = simuSpectral(NULL, grd, modelSph, ns=ns)
 Statistics
 
 ```{r Statistics}
+
 opers = EStatOption_fromKeys(c("NUM", "MINI", "MAXI", "MEAN", "STDV"))
-tab = dbStatisticsMono(grd, names = "Simu", opers = opers)$toTL()
+tab = dbStatisticsMono(grd, names = paste0(covname, "*"), opers = opers)$toTL()
 knitr::kable(tab, digits = 6, caption = paste0("Statistics for simulation of ", 
                                                covname, " model on S2"))
 ```
@@ -220,8 +227,9 @@ knitr::kable(tab, digits = 6, caption = paste0("Statistics for simulation of ",
 Visualization 2D
 
 ```{r Visu2D}
+simu_name = paste0(covname, ".V1.simu")
 p = plot.init(asp=1) +
-  plot.raster(grd, name = "Simu", flagLegend = TRUE, legendName = "Y", 
+  plot.raster(grd, name = simu_name, flagLegend = TRUE, legendName = "Y", 
             palette = "Spectral") +
   plot.decoration(xlab = "Longitude", ylab = "Colatitutde", 
                   title = paste0(covname, " model on S2"))
@@ -231,7 +239,7 @@ plot.end(p)
 Visualization 3D
 
 ```{r Visu3D}
-err = viz_S2_in_3D$display(val = grd["Simu"], ncol = 25, palette = "terrain")
+err = viz_S2_in_3D$display(val = grd[simu_name], ncol = 25, palette = "terrain")
 rglwidget()
 ```
 
@@ -253,15 +261,15 @@ alpha   = seq(from = 0, to = pi, length.out = 100)
 # computing the variograms
 var_list = list()
 for (idir in 1:length(dir_list)) {
-  var_list[[1+length(var_list)]] = vario_on_S2(grd = grd, nm_var = "Simu", 
+  var_list[[1+length(var_list)]] = vario_on_S2(grd = grd, nm_var = simu_name, 
          lag = dir_list[[idir]]$lag, nlag = 90, ndisc = ndisc, dmax = pi)
 }
 
 # covariance model
 mode = CovCalcMode()
 mode$setAsVario(TRUE)
-mod_vario = cova$evalCovOnSphereVec(alpha, FALSE, mode = mode)
-plot(NULL, NULL, xlim = range(alpha), ylim = 1.1 * range(c(0, mod_vario)), 
+mod_vario = cova$evalCovOnSphereVec(alpha, mode = mode)
+plot(NULL, NULL, xlim = range(alpha), ylim = 1.1 * range(c(0, max(mod_vario))), 
      xlab = "Geodetic distance (rad)", ylab = "Variogram",
      main = paste0(covname, " model on S2"))
 abline(h = c(0, 1), col = "gray", lty = 2)
@@ -287,14 +295,14 @@ legend("bottomright",
 ## Quantification of the fluctuations on the variogram
 
 ```{r multi_simulations, echo = TRUE, eval = TRUE}
-err = grd$deleteColumns(names = "Simu.*")
+err = grd$deleteColumns(names = paste0(covname, "*"))
 nsim = 20 # number of simulation
-err = simuSpectral(NULL, grd, modelSph, ns=ns, nbsimu=nsim)
+err = simuSpectral(dbin = NULL, dbout = grd, cova = cova, seed = 2584, ns=ns, nbsimu=nsim, namconv = NamingConvention(covname))
 
 # simulation and experimental variograms
 varios <- matrix(NaN, nrow = nsim, ncol = ndisc)
 for (s in 1:nsim) {
-  nm  = paste("Simu", s, sep = ".")
+  nm  = paste0(covname, ".V1.S", s)
   vs = vario_on_S2(grd = grd, nm_var = nm, lag = c(1,0), nlag = 90, ndisc = ndisc, dmax = pi)
   varios[s, 1:length(vs$hh)] <- vs$gg
 }
@@ -332,4 +340,5 @@ legend("topright",
        lw = c(2, 1, 2, 1, 1),
        lty = c(1, 2, 2, 1, 1)
        )
+
 ```

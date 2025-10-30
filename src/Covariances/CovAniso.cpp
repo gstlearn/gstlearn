@@ -296,6 +296,7 @@ CovAniso* CovAniso::createAnisotropic(const CovContext& ctxt,
   cov->setSill(sill);
   cov->setParam(param);
   if (!angles.empty()) cov->setAnisoAngles(angles);
+  cov->computeCorrec();
   return cov;
 }
 
@@ -480,13 +481,10 @@ Array CovAniso::evalCovFFT(const VectorDouble& hmax,
                            Id jvar) const
 {
   if (!hasSpectrumOnRn()) return Array();
+  Array result = getCorAniso()->evalCovFFT(hmax, N, ivar, jvar);
+  result.multiplyConstant(_sillCur.getValue(ivar, jvar));
+  return result;
 
-  std::function<double(const VectorDouble&)> funcSpectrum;
-  funcSpectrum = [this, ivar, jvar](const VectorDouble& freq)
-  {
-    return evalSpectrum(freq, ivar, jvar) * getDetTensor();
-  };
-  return evalCovFFTSpatial(hmax, N, funcSpectrum);
 }
 
 CovAniso* CovAniso::createReduce(const VectorInt& validVars) const

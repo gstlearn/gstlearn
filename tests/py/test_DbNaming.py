@@ -87,7 +87,7 @@ grid
 grid.setName("second-2","first")
 grid
 
-# As the name *first* already exists, the field is renamed to *first.1*
+# As the name *first* already exists, the field has been renamed to *first.1*
 # instead.
 
 # We now wish to rename the field *second-3* into *first*.
@@ -96,7 +96,7 @@ grid.setName("second-3","first")
 grid
 
 # The automatic renaming procedure has been applied (adding ".1") iteratively
-# until names are all different: the field is now called *first.2".
+# until names are all different: the field is now called *first.1.1".
 
 # Now that we have demonstrated the uniqueness of the names, are there are ways
 # to designate a field?
@@ -108,7 +108,7 @@ grid
 
 grid.setColumn(gl.VH.simulateUniform(nech),"second-1")
 grid.setColumn(gl.VH.simulateUniform(nech),"first.1")
-grid.setColumn(gl.VH.simulateUniform(nech),"first.2")
+grid.setColumn(gl.VH.simulateUniform(nech),"first.1.1")
 
 grid
 

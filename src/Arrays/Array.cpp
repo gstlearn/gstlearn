@@ -42,6 +42,11 @@ Array::~Array()
 
 }
 
+void Array::multiplyConstant(double val)
+{
+  for (auto& v : _values)
+    v *= val;
+}
 void Array::init(const VectorInt& ndims)
 {
   AArray::init(ndims);
