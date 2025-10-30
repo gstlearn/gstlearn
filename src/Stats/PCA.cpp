@@ -738,7 +738,11 @@ void PCA::_variogramh(Db* db,
   {
     vario = Vario::create(varioparam);
     vario->setDb(db);
-    if (vario->prepare() != 0) return;
+    if (vario->prepare() != 0)
+    {
+      delete vario;
+      return;
+    }
   }
 
   /* Loop on samples */
@@ -818,6 +822,9 @@ void PCA::_variogramh(Db* db,
     message("\n");
     print_matrix("Variogram matrix for distance h", 0, _gh);
   }
+  
+  // Clean up the vario object if it was created
+  if (vario != nullptr) delete vario;
 }
 
 VectorBool PCA::_getVectorIsotopic(const Db* db)
