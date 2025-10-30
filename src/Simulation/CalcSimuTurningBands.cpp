@@ -2287,7 +2287,7 @@ bool CalcSimuTurningBands::_preprocess()
   if (_flagDGM)
   {
     // Centering (only if the output file is a Grid)
-    auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+    DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
     if (dbgrid != nullptr)
     {
       // Duplicating the coordinate variable names before centering

@@ -60,25 +60,41 @@ int main(int argc, char* argv[])
   VectorDouble props1({0.2, 0.5, 0.3});
 
   // Creating the Model(s) of the Underlying GRF(s)
+  Model model1(ctxt);
+  CovAnisoList covs1(ctxt);
   double range1 = 0.2;
-  auto* model1  = Model::createFromParam(ECov::MATERN, range1, 1., 1.);
-  model1->display();
-  (void)model1->dumpToNF("PGSmodel1.NF");
+  CovAniso cova1(ECov::MATERN, range1, 1., 1., ctxt);
+  covs1.addCov(cova1);
+  model1.setCovAnisoList(&covs1);
+  model1.display();
+  (void)model1.dumpToNF("PGSmodel1.NF");
 
+  Model model2(ctxt);
+  CovAnisoList covs2(ctxt);
   double range2 = 0.3;
-  auto* model2  = Model::createFromParam(ECov::EXPONENTIAL, range2, 1., 1.);
-  model2->display();
-  (void)model2->dumpToNF("PGSmodel2.NF");
+  CovAniso cova2(ECov::EXPONENTIAL, range2, 1., 1., ctxt);
+  covs2.addCov(cova2);
+  model2.setCovAnisoList(&covs2);
+  model2.display();
+  (void)model2.dumpToNF("PGSmodel2.NF");
 
+  Model model3(ctxt);
+  CovAnisoList covs3(ctxt);
   double range3 = 0.2;
-  auto* model3  = Model::createFromParam(ECov::MATERN, range3, 1., 1.);
-  model3->display();
-  (void)model3->dumpToNF("PGSmodel3.NF");
+  CovAniso cova3(ECov::MATERN, range3, 1., 1., ctxt);
+  covs3.addCov(cova3);
+  model3.setCovAnisoList(&covs3);
+  model3.display();
+  (void)model3.dumpToNF("PGSmodel3.NF");
 
+  Model model4(ctxt);
+  CovAnisoList covs4(ctxt);
   double range4 = 0.1;
-  auto* model4  = Model::createFromParam(ECov::SPHERICAL, range4, 1., 1.);
-  model4->display();
-  (void)model4->dumpToNF("PGSmodel4.NF");
+  CovAniso cova4(ECov::SPHERICAL, range4, 1., 1., ctxt);
+  covs4.addCov(cova4);
+  model4.setCovAnisoList(&covs4);
+  model4.display();
+  (void)model4.dumpToNF("PGSmodel4.NF");
 
   // Creating the Neighborhood
   NeighUnique* neighU = NeighUnique::create();
@@ -93,7 +109,7 @@ int main(int argc, char* argv[])
   RuleProp* ruleprop1 = RuleProp::createFromRule(rule1, props1);
 
   // Perform a non-conditional PGS simulation on a grid
-  error = simpgs(nullptr, dbgrid, ruleprop1, model1, model2, neighU, nbsimu);
+  error = simpgs(nullptr, dbgrid, ruleprop1, &model1, &model2, neighU, nbsimu);
   dbgrid->setNameByLocator(ELoc::FACIES, "PGS-Facies");
   dbfmt = DbStringFormat(FLAG_STATS, {"PGS-Facies*"});
   dbgrid->display(&dbfmt);
@@ -108,7 +124,7 @@ int main(int argc, char* argv[])
 
   // Perform a non-conditional BiPGS simulation on a grid
   error = simbipgs(nullptr, dbgrid, rulepropbi,
-                   model1, model2, model3, model4, neighU, nbsimu);
+                   &model1, &model2, &model3, &model4, neighU, nbsimu);
   dbgrid->setNameByLocator(ELoc::FACIES, "BiPGS-Facies");
   dbfmt = DbStringFormat(FLAG_STATS, {"BiPGS-Facies*"});
   dbgrid->display(&dbfmt);
@@ -124,16 +140,16 @@ int main(int argc, char* argv[])
   RuleProp* rulepropshift = RuleProp::createFromRule(ruleshift, propshift);
 
   // Perform a non-conditional PGS Shift simulation on a grid
-  error = simpgs(nullptr, dbgrid, rulepropshift, model1, nullptr, neighU, nbsimu);
+  error = simpgs(nullptr, dbgrid, rulepropshift, &model1, nullptr, neighU, nbsimu);
   dbgrid->setNameByLocator(ELoc::FACIES, "PGS-Shift-Facies");
   dbfmt = DbStringFormat(FLAG_STATS, {"PGS-Shift-Facies*"});
   dbgrid->display(&dbfmt);
   (void)dbgrid->dumpToNF("simushiftpgs.NF");
 
   // Performing a PGS simulation using Shadow
-  double slope     = 0.5;
-  double shdown    = -0.2;
-  double shdsup    = +0.5;
+  double slope           = 0.5;
+  double shdown          = -0.2;
+  double shdsup          = +0.5;
   auto* ruleshadow = new RuleShadow(slope, shdsup, shdown, shift);
   ruleshadow->display();
   (void)ruleshadow->dumpToNF("PGSruleshadow.NF");
@@ -142,7 +158,7 @@ int main(int argc, char* argv[])
   RuleProp* rulepropshadow = RuleProp::createFromRule(ruleshadow, propshadow);
 
   // Perform a non-conditional PGS Shadow simulation on a grid
-  error = simpgs(nullptr, dbgrid, rulepropshadow, model1, nullptr, neighU, nbsimu);
+  error = simpgs(nullptr, dbgrid, rulepropshadow, &model1, nullptr, neighU, nbsimu);
   dbgrid->setNameByLocator(ELoc::FACIES, "PGS-Shadow-Facies");
   dbfmt = DbStringFormat(FLAG_STATS, {"PGS-Shadow-Facies*"});
   dbgrid->display(&dbfmt);
@@ -158,9 +174,5 @@ int main(int argc, char* argv[])
   delete rulepropshift;
   delete rulepropshadow;
   delete neighU;
-  delete model1;
-  delete model2;
-  delete model3;
-  delete model4;
   return static_cast<int>(error);
 }

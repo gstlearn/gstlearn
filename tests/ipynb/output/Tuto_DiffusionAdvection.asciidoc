@@ -1,18 +1,10 @@
 #NO_DIFF#XXX
 ----
 Markov (Third Parameter = 1)
-- Sill         =      3.000
-- Range        =     12.000
-- Theo. Range  =      2.000
+- Sill         =      2.000
+- Range        =     14.717
+- Theo. Range  =      1.900
 ----
-
-
-#NO_DIFF#XXX
-----array([1., 2., 1.])----
-
-
-#NO_DIFF#XXX
-----0.24989756768264187----
 
 
 #NO_DIFF#XXX
@@ -25,6 +17,8 @@ Markov (Third Parameter = 1)
 
 #NO_DIFF#XXX
 ----
+1.0
+
 #NO_DIFF#XXX
 ----
 
@@ -37,5 +31,7 @@ Markov (Third Parameter = 1)
 
 #NO_DIFF#XXX
 ----
+1.0
+
 #NO_DIFF#XXX
 ----

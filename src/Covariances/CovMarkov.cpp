@@ -48,6 +48,14 @@ CovMarkov::~CovMarkov()
 {
 }
 
+void CovMarkov::setCorrec(double val)
+{
+  for(auto& e: _markovCoeffs)
+  {
+    e *= val;
+  }
+  _correc = 1;
+}
 double CovMarkov::getScadef() const
 {
   return sqrt(12. * _markovCoeffs.size());
@@ -96,6 +104,8 @@ double CovMarkov::normalizeOnSphere(Id n, double scale) const
 double CovMarkov::evaluateSpectrum(double freq) const
 {
   double s = 0.;
+  size_t ndim = getContext().getNDim();
+
   Id n     = static_cast<Id>(_markovCoeffs.size());
   if (n == 0)
   {
@@ -103,8 +113,8 @@ double CovMarkov::evaluateSpectrum(double freq) const
   }
   for (Id i = 0; i < n; i++)
   {
-    s += _markovCoeffs[i] * pow(freq, i);
+    s += _markovCoeffs[i] * pow(freq * freq, i);
   }
-  return 1. / s;
+  return pow(2, ndim) / s;
 }
 } // namespace gstlrn

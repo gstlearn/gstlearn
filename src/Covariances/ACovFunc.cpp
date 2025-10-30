@@ -309,7 +309,7 @@ Array ACovFunc::_evalCovFFT(const VectorDouble& hmax, Id N) const
       double temp = a[idim] * (static_cast<double>(indices[idim]) / (N - 1) - 0.5);
       s += temp * temp;
     }
-    Re[iad] = prod * evaluateSpectrum(s);
+    Re[iad] = prod * evaluateSpectrum(sqrt(s));
     array.setValue(indices, Re[iad]);
   }
 
@@ -329,10 +329,11 @@ Array ACovFunc::_evalCovFFT(const VectorDouble& hmax, Id N) const
     for (Id idim = 0; idim < ndim; idim++)
     {
       Id odd           = indices[idim] % 2;
-      Id s             = 1 - 2 * odd;
+      Id s             = 1 - (2 * odd);
       newIndices[idim] = nxs[idim] / 2 + s * (indices[idim] / 2 + odd);
       Re[iad] *= s;
     }
+    Re[iad] /= pow(2., ndim);
     array.setValue(newIndices, Re[iad]);
   }
 

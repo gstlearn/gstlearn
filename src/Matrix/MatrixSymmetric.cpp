@@ -121,8 +121,8 @@ void MatrixSymmetric::_setValues(const double* values, bool byCol)
   for (Id icol = 0; icol < getNCols(); icol++)
     for (Id irow = 0; irow < getNRows(); irow++)
     {
-      double val1 = values[icol * getNRows() + irow];
-      double val2 = values[irow * getNCols() + icol];
+      double val1 = values[(icol * getNRows()) + irow];
+      double val2 = values[(irow * getNCols()) + icol];
       if (ABS(val1 - val2) > EPSILON10)
       {
         messerr(
@@ -853,6 +853,49 @@ Id MatrixSymmetric::computeGeneralizedInverse(MatrixSymmetric& tabout,
       }
       tabout.setValue(i, j, value);
     }
+  return 0;
+}
+
+/****************************************************************************/
+/*!
+ **  Calculate the square root of the input square symmetric matrix
+ **    S = F x sqrt(Diag(lambda)) x t(F)
+ **
+ ** \return  Error returned code
+ **
+ ** \param[out] tabout     matrix (square symmetric)
+ **
+ ** \remark The input and output matrices can match
+ **
+ *****************************************************************************/
+Id MatrixSymmetric::computeSquareRoot(MatrixSymmetric& tabout)
+{
+  if (!isSameSize(tabout))
+  {
+    messerr("The argument 'tabout' must have same dimensions as input matrix");
+    return 1;
+  }
+
+  // Calculate the Eigen vectors
+  if (computeEigen() != 0) return 1;
+  VectorDouble eigval        = getEigenValues();
+  const MatrixSquare* eigvec = getEigenVectors();
+
+  if (std::any_of(eigval.begin(), eigval.end(), [](double v) { return v < 0.; }))
+  {
+    messerr("The input matrix should be definite positive");
+    return 1;
+  }
+
+  /* Calculate the square root of the generalized inverse */
+
+  Id nrow = getNRows();
+  for (Id i = 0; i < nrow; i++)
+    eigval[i] = sqrt(eigval[i]);
+  MatrixSymmetric D(nrow);
+  D.setDiagonal(eigval);
+  tabout.prodMatMatInPlace(eigvec, &D, false, false);
+  tabout.prodMatMatInPlace(&tabout, eigvec, false, true);
   return 0;
 }
 

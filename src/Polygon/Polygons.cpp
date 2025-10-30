@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Basic/Law.hpp"
-#include "geoslib_define.h"
 #include "geoslib_old_f.h"
 
 #include "Basic/ASerializable.hpp"
@@ -128,82 +126,6 @@ Id Polygons::resetFromCSV(const String& filename,
     addPolyElem(polyelem); // TODO : Prevent copy (optimization)
   }
   return 0;
-}
-
-/**
- * @brief Create a Polygon (with a single Polyelem) from a pair of coordinate arrays
- *
- * @param x X_coordinates
- * @param y Y_coordinates
- * @return Polygons*
- */
-Polygons* Polygons::createFromVD(const VectorDouble& x,
-                                 const VectorDouble& y)
-{
-  if (x.size() != y.size())
-  {
-    messerr("In Polygons::createFromVD: x and y vectors must have the same size");
-    return nullptr;
-  }
-  auto* polygons = new Polygons();
-  PolyElem polyelem(x, y);
-  polygons->addPolyElem(polyelem);
-  return polygons;
-}
-
-/**
- * @brief Create a Polygon (with a single PolyElem) containing
- * a convex closed shape with random points
- *
- * @param nseg Number of vertices of the shape
- * @param ratio Random proportion of the radius (see details)
- * @param mini Minimum coordinate value
- * @param maxi Maximum coordinate value
- * @param seed Random seed
- * @return Polygons*
- *
- * @remarks The shape is contained in a square with dimensions [mini, maxi]. Its half-extension is extend = (maxi - mini) / 2.
- * @remarks The shape is centered on a point located in middle of this square
- * @remarks Each one of the 'nseg' vertices is generated along a radial regularly spread so as to cover 2* PI around the center
- * @remarks The distance from a vertex to the center is called the 'radius'
- * @remarks This radius is generated randomly within [extend/2 - tol; extend/2 + tol] where tol = ratio * extend / 2
- */
-Polygons* Polygons::createFillRandom(Id nseg,
-                                     double ratio,
-                                     double mini,
-                                     double maxi,
-                                     Id seed)
-{
-  if (nseg < 3)
-  {
-    messerr("In Polygons::createFillRandom: nseg must be at least equal to 3");
-    return nullptr;
-  }
-  law_set_random_seed(seed);
-  auto* polygons = new Polygons();
-  VectorDouble x(nseg + 1);
-  VectorDouble y(nseg + 1);
-  double angle_step = 2. * GV_PI / static_cast<double>(nseg);
-  double angle      = 0.;
-  double middle     = (mini + maxi) / 2.;
-  double extend     = (maxi - mini) / 2.;
-  double radius0    = extend / 2.;
-  VectorDouble center(2);
-  for (Id idim = 0; idim < 2; idim++)
-    center[idim] = middle;
-  for (Id iseg = 0; iseg < nseg; iseg++)
-  {
-    double radius = radius0 + ratio * law_uniform() * radius0;
-    x[iseg]       = center[0] + radius * cos(angle);
-    y[iseg]       = center[1] + radius * sin(angle);
-    angle += angle_step;
-  }
-  x[nseg] = x[0];
-  y[nseg] = y[0];
-
-  PolyElem polyelem(x, y);
-  polygons->addPolyElem(polyelem);
-  return polygons;
 }
 
 /**

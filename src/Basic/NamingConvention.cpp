@@ -9,8 +9,8 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Basic/NamingConvention.hpp"
-#include "Basic/String.hpp"
 #include "Basic/VectorNumT.hpp"
+#include "Basic/String.hpp"
 #include "Db/Db.hpp"
 
 #include <string>
@@ -24,40 +24,40 @@ NamingConvention::NamingConvention(const String& prefix,
                                    const ELoc& locatorOutType,
                                    const String& delim,
                                    bool cleanSameLocator)
-  : AStringable()
-  , _prefix(prefix)
-  , _delim(delim)
-  , _flagVarname(flag_varname)
-  , _flagQualifier(flag_qualifier)
-  , _flagLocator(flag_locator)
-  , _locatorOutType(locatorOutType)
-  , _cleanSameLocator(cleanSameLocator)
+    : AStringable(),
+      _prefix(prefix),
+      _delim(delim),
+      _flagVarname(flag_varname),
+      _flagQualifier(flag_qualifier),
+      _flagLocator(flag_locator),
+      _locatorOutType(locatorOutType),
+      _cleanSameLocator(cleanSameLocator)
 {
 }
 
-NamingConvention::NamingConvention(const NamingConvention& m)
-  : AStringable(m)
-  , _prefix(m._prefix)
-  , _delim(m._delim)
-  , _flagVarname(m._flagVarname)
-  , _flagQualifier(m._flagQualifier)
-  , _flagLocator(m._flagLocator)
-  , _locatorOutType(m._locatorOutType)
-  , _cleanSameLocator(m._cleanSameLocator)
+NamingConvention::NamingConvention(const NamingConvention &m)
+    : AStringable(m),
+      _prefix(m._prefix),
+      _delim(m._delim),
+      _flagVarname(m._flagVarname),
+      _flagQualifier(m._flagQualifier),
+      _flagLocator(m._flagLocator),
+      _locatorOutType(m._locatorOutType),
+      _cleanSameLocator(m._cleanSameLocator)
 {
 }
 
-NamingConvention& NamingConvention::operator=(const NamingConvention& m)
+NamingConvention& NamingConvention::operator=(const NamingConvention &m)
 {
   if (this != &m)
   {
     AStringable::operator=(m);
-    _prefix           = m._prefix;
-    _locatorOutType   = m._locatorOutType;
-    _flagVarname      = m._flagVarname;
-    _flagQualifier    = m._flagQualifier;
-    _flagLocator      = m._flagLocator;
-    _delim            = m._delim;
+    _prefix = m._prefix;
+    _locatorOutType = m._locatorOutType;
+    _flagVarname = m._flagVarname;
+    _flagQualifier = m._flagQualifier;
+    _flagLocator = m._flagLocator;
+    _delim = m._delim;
     _cleanSameLocator = m._cleanSameLocator;
   }
   return *this;
@@ -82,7 +82,7 @@ NamingConvention* NamingConvention::create(const String& prefix,
                                            bool flag_varname,
                                            bool flag_qualifier,
                                            bool flag_locator,
-                                           const ELoc& locatorOutType,
+                                           const ELoc &locatorOutType,
                                            const String& delim,
                                            bool cleanSameLocator)
 {
@@ -137,7 +137,7 @@ void NamingConvention::setNamesAndLocators(const VectorString& names,
                                            Id locatorShift) const
 {
   if (iattout_start < 0) return;
-  Id nvar = static_cast<Id>(names.size());
+  Id nvar = static_cast<Id> (names.size());
   if (nvar <= 0) return;
 
   _setNames(dbout, iattout_start, names, nvar, qualifier, nitems);
@@ -164,10 +164,10 @@ void NamingConvention::setNamesAndLocators(Db* dbout,
                                            Id locatorShift) const
 {
   if (iattout_start < 0) return;
-  Id nvar = static_cast<Id>(names.size());
+  Id nvar = static_cast<Id> (names.size());
 
   for (Id ivar = 0; ivar < nvar; ivar++)
-    dbout->setNameByUID(iattout_start + ivar, names[ivar]);
+    dbout->setNameByUID(iattout_start+ivar, names[ivar]);
 
   if (flagSetLocator)
     setLocators(dbout, iattout_start, nvar, 1, locatorShift);
@@ -224,7 +224,7 @@ void NamingConvention::setNamesAndLocators(const String& namin,
  * @param flagSetLocator True if the variable must be assigned the locator
  * @param locatorShift Shift to be applied to the locator currently defined
  */
-void NamingConvention::setNamesAndLocators(const Db* dbin,
+void NamingConvention::setNamesAndLocators(const Db *dbin,
                                            const VectorString& names,
                                            const ELoc& locatorInType,
                                            Id nvar,
@@ -296,7 +296,7 @@ void NamingConvention::setNamesAndLocators(const Db* dbin,
  * @param flagSetLocator True if the variable must be assigned the locator
  * @param locatorShift Shift to be applied to the locator currently defined
  */
-void NamingConvention::setNamesAndLocators(const Db* dbin,
+void NamingConvention::setNamesAndLocators(const Db *dbin,
                                            const VectorInt& iatts,
                                            Db* dbout,
                                            Id iattout_start,
@@ -318,7 +318,7 @@ void NamingConvention::setNamesAndLocators(const Db* dbin,
 
   if (flagSetLocator)
     setLocators(dbout, iattout_start, nvar, nitems, locatorShift);
-}
+ }
 
 /**
  * Newly created variables are named as follow:
@@ -334,7 +334,7 @@ void NamingConvention::setNamesAndLocators(const Db* dbin,
  * @param flagSetLocator True if the variable must be assigned the locator
  * @param locatorShift Shift to be applied to the locator currently defined
  */
-void NamingConvention::setNamesAndLocators(const Db* dbin,
+void NamingConvention::setNamesAndLocators(const Db *dbin,
                                            Id iatt,
                                            Db* dbout,
                                            Id iattout_start,
@@ -353,14 +353,14 @@ void NamingConvention::setNamesAndLocators(const Db* dbin,
 
   if (flagSetLocator)
     setLocators(dbout, iattout_start, 1, nitems, locatorShift);
-}
+ }
 
 /**
  * Newly created variables for multivariate simulations are named with explicit V/S indicators.
  *
  * For non-conditional simulations (names empty):
  *   Names are: prefix.V1.S1, prefix.V2.S1, ..., prefix.Vnvar.S1, prefix.V1.S2, ...
- *
+ * 
  * For conditional simulations (names provided):
  *   Names are: prefix.name1.S1, prefix.name2.S1, ..., prefix.nameN.S1, prefix.name1.S2, ...
  *
@@ -375,7 +375,7 @@ void NamingConvention::setNamesAndLocators(const Db* dbin,
  * @param flagSetLocator True if the variable must be assigned the locator
  * @param locatorShift Shift to be applied to the locator currently defined
  */
-void NamingConvention::setNamesAndLocatorsForSimulations(const Db* dbin,
+void NamingConvention::setNamesAndLocatorsForSimulations(const Db *dbin,
                                                          const VectorString& names,
                                                          const ELoc& locatorInType,
                                                          Id nvar,
@@ -387,7 +387,7 @@ void NamingConvention::setNamesAndLocatorsForSimulations(const Db* dbin,
                                                          Id locatorShift) const
 {
   if (iattout_start < 0) return;
-
+  
   // Update the list of variable names
   VectorString namloc = names;
   if (namloc.empty())
@@ -414,10 +414,10 @@ void NamingConvention::setNamesAndLocatorsForSimulations(const Db* dbin,
     // The number items in 'namloc' overrides 'nvar'
     nvar = static_cast<Id>(namloc.size());
   }
-
+  
   // Create simulation names
   VectorString outnames = _createSimulationNames(namloc, nvar, nbsimu, flagSimuFirst);
-
+  
   // Debug: print the names we're creating
   // std::cout << "DEBUG: Created names: ";
   // for (size_t i = 0; i < outnames.size(); i++) {
@@ -425,14 +425,14 @@ void NamingConvention::setNamesAndLocatorsForSimulations(const Db* dbin,
   //   if (i < outnames.size() - 1) std::cout << ", ";
   // }
   // std::cout << std::endl;
-
+  
   // Set the names in the database
   Id ntotal = nvar * nbsimu;
   for (Id i = 0; i < ntotal; i++)
   {
     dbout->setNameByUID(iattout_start + i, outnames[i]);
   }
-
+  
   if (flagSetLocator)
   {
     if (_flagLocator && _locatorOutType != ELoc::UNKNOWN)
@@ -448,13 +448,13 @@ void NamingConvention::setNamesAndLocatorsForSimulations(const Db* dbin,
   }
 }
 
-void NamingConvention::setLocators(Db* dbout,
+void NamingConvention::setLocators(Db *dbout,
                                    Id iattout_start,
                                    Id nvar,
                                    Id nitems,
                                    Id locatorShift) const
 {
-  if (!_flagLocator || _locatorOutType == ELoc::UNKNOWN) return;
+  if (! _flagLocator || _locatorOutType == ELoc::UNKNOWN) return;
 
   // Erase already existing locators of the same Type
   // (this is only done if you are not precisely adding higher order version for given locator)
@@ -498,7 +498,7 @@ Id NamingConvention::_getNameCount(const VectorString& names, Id nvar)
  * @param qualifier Optional qualifier
  * @param nitems Number of items to be renamed
  */
-void NamingConvention::_setNames(Db* dbout,
+void NamingConvention::_setNames(Db *dbout,
                                  Id iattout_start,
                                  const VectorString& names,
                                  Id nvar,
@@ -507,7 +507,6 @@ void NamingConvention::_setNames(Db* dbout,
 {
   auto nloc             = _getNameCount(names, nvar);
   VectorString outnames = _createNames(names, nloc, qualifier, nitems);
-  correctNamesForDuplicates(outnames, dbout->getAllNames());
 
   Id ecr = 0;
   for (Id ivar = 0; ivar < nloc; ivar++)
@@ -530,9 +529,9 @@ void NamingConvention::_setNames(Db* dbout,
  *
  * @return outnames An array of variable names (Dimension: nvar * nitems)
  */
-VectorString NamingConvention::_createNames(const VectorString& names,
+VectorString NamingConvention::_createNames(const VectorString &names,
                                             Id nvar,
-                                            const String& qualifier,
+                                            const String &qualifier,
                                             Id nitems) const
 {
   VectorString outnames;
@@ -547,12 +546,12 @@ VectorString NamingConvention::_createNames(const VectorString& names,
     if (_flagVarname)
     {
       if (static_cast<Id>(names.size()) == nvar) loc_varname = names[ivar];
-      if (loc_varname.empty() && nvar > 1) loc_varname = std::to_string(ivar + 1);
+      if (loc_varname.empty() && nvar > 1) loc_varname = std::to_string(ivar+1);
     }
     else
     {
       // Build the rank from the variable number (possibly overwritten by item number)
-      if (nvar > 1) loc_number = std::to_string(ivar + 1);
+      if (nvar > 1) loc_number = std::to_string(ivar+1);
     }
 
     for (Id item = 0; item < nitems; item++)
@@ -562,7 +561,7 @@ VectorString NamingConvention::_createNames(const VectorString& names,
       if (_flagQualifier)
       {
         loc_qualifier = qualifier;
-        if (nitems > 1) loc_number = std::to_string(item + 1);
+        if (nitems > 1) loc_number = std::to_string(item+1);
       }
 
       // Compose the variable name
@@ -589,11 +588,11 @@ VectorString NamingConvention::_createNames(const VectorString& names,
  * @remarks For non-conditional simulations (names empty):
  *   Names are: prefix.V1.S1, prefix.V2.S1, ..., prefix.Vnvar.S1, prefix.V1.S2, ...
  *   (if flagSimuFirst=true, order is: prefix.V1.S1, prefix.V1.S2, ..., prefix.V2.S1, ...)
- *
+ * 
  * @remarks For conditional simulations (names provided):
  *   Names are: prefix.name1.S1, prefix.name2.S1, ..., prefix.nameN.S1, prefix.name1.S2, ...
  */
-VectorString NamingConvention::_createSimulationNames(const VectorString& names,
+VectorString NamingConvention::_createSimulationNames(const VectorString &names,
                                                       Id nvar,
                                                       Id nbsimu,
                                                       bool flagSimuFirst) const
@@ -601,11 +600,11 @@ VectorString NamingConvention::_createSimulationNames(const VectorString& names,
   if (nvar <= 0 || nbsimu <= 0) return {};
 
   VectorString outnames;
-
+  
   // Determine variable names
   VectorString varnames;
   bool isConditional = !names.empty();
-
+  
   if (isConditional)
   {
     // Conditional simulation: use provided variable names
@@ -622,7 +621,7 @@ VectorString NamingConvention::_createSimulationNames(const VectorString& names,
       varnames.push_back(varname);
     }
   }
-
+  
   // Create names based on storage order
   if (flagSimuFirst)
   {
@@ -632,7 +631,7 @@ VectorString NamingConvention::_createSimulationNames(const VectorString& names,
       for (Id isimu = 0; isimu < nbsimu; isimu++)
       {
         String simuname = 'S' + std::to_string(isimu + 1);
-        String name     = concatenateStrings(_delim, _prefix, varnames[ivar], simuname);
+        String name = concatenateStrings(_delim, _prefix, varnames[ivar], simuname);
         if (name.empty()) name = "Dummy";
         outnames.push_back(name);
       }
@@ -646,15 +645,16 @@ VectorString NamingConvention::_createSimulationNames(const VectorString& names,
       for (Id ivar = 0; ivar < nvar; ivar++)
       {
         String simuname = 'S' + std::to_string(isimu + 1);
-        String name     = concatenateStrings(_delim, _prefix, varnames[ivar], simuname);
+        String name = concatenateStrings(_delim, _prefix, varnames[ivar], simuname);
         if (name.empty()) name = "Dummy";
         outnames.push_back(name);
       }
     }
   }
-
+  
   return outnames;
 }
+
 
 String NamingConvention::toString(const AStringFormat* /*strfmt*/) const
 {

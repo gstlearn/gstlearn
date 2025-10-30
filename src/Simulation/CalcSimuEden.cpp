@@ -76,8 +76,8 @@ String CalcSimuEden::toString(const AStringFormat* /*strfmt*/) const
  *****************************************************************************/
 bool CalcSimuEden::_simulate()
 {
-  auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
-  _nxyz        = dbgrid->getNSample();
+  DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+  _nxyz          = dbgrid->getNSample();
 
   auto* skin = new Skin(this, dbgrid);
 
@@ -117,9 +117,7 @@ bool CalcSimuEden::_simulate()
     /* Modifying the peripheral cells using a random walk */
 
     Id idate = 0;
-    Id rank;
-    Id ipos;
-    while (skin->remains())
+    while (skin->remains(_verbose))
     {
 
       /* Check that the maximum quantities have not been reached */
@@ -129,12 +127,14 @@ bool CalcSimuEden::_simulate()
 
       /* Find the next cell to be processed */
 
+      Id rank;
+      Id ipos;
       skin->getNext(&rank, &ipos);
 
       /* Find the new value of the target cell according to its neighborhood */
 
-      Id ref_fluid = UNDEF_FLUID;
-      if (_fluidModify(skin, ipos, ref_fluid))
+      Id ref_fluid;
+      if (_fluidModify(skin, ipos, &ref_fluid))
       {
         _ncork++;
         _setFACIES_CORK(ipos);
@@ -378,8 +378,8 @@ Id CalcSimuEden::isToBeFilled(Id ipos) const
  *****************************************************************************/
 Id CalcSimuEden::_getFACIES(Id iech) const
 {
-  auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
-  Id ifacies   = static_cast<Id>(dbgrid->getArray(iech, _indFacies));
+  DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+  Id ifacies     = static_cast<Id>(dbgrid->getArray(iech, _indFacies));
   if (ifacies < 0 || ifacies > _nfacies || IFFFF(ifacies)) ifacies = SHALE;
   return (ifacies);
 }
@@ -396,8 +396,8 @@ Id CalcSimuEden::_getFACIES(Id iech) const
 Id CalcSimuEden::_getPERM(Id iech) const
 {
   if (_indPerm <= 0) return (1);
-  auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
-  double perm  = dbgrid->getArray(iech, _indPerm);
+  DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+  double perm    = dbgrid->getArray(iech, _indPerm);
   if (FFFF(perm) || perm < 0.) perm = 0.;
   return (static_cast<Id>(perm));
 }
@@ -416,8 +416,8 @@ double CalcSimuEden::_getDATE(Id iech)
   double date;
 
   if (_indDate <= 0) return (0);
-  auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
-  date         = dbgrid->getArray(iech, _indDate);
+  DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+  date           = dbgrid->getArray(iech, _indDate);
   if (FFFF(date)) return (0);
   date = MAX(1., date);
   return (date);
@@ -434,8 +434,8 @@ double CalcSimuEden::_getDATE(Id iech)
  *****************************************************************************/
 Id CalcSimuEden::_getFLUID(Id iech) const
 {
-  auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
-  Id ifluid    = static_cast<Id>(dbgrid->getArray(iech, _indFluid));
+  DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+  Id ifluid      = static_cast<Id>(dbgrid->getArray(iech, _indFluid));
   if (ifluid < 0 || ifluid > _nfluids || IFFFF(ifluid)) ifluid = UNDEF_FLUID;
   return (ifluid);
 }
@@ -452,8 +452,8 @@ Id CalcSimuEden::_getFLUID(Id iech) const
  *****************************************************************************/
 Id CalcSimuEden::_getFLUID_OLD(Id iech) const
 {
-  auto* dbgrid  = dynamic_cast<DbGrid*>(getDbout());
-  double ifluid = dbgrid->getArray(iech, _indFluid);
+  DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+  double ifluid  = dbgrid->getArray(iech, _indFluid);
   if (ifluid < 0 || ifluid > _nfluids) ifluid = UNDEF_FLUID;
   return (static_cast<Id>(ifluid));
 }
@@ -470,8 +470,8 @@ Id CalcSimuEden::_getFLUID_OLD(Id iech) const
 double CalcSimuEden::_getPORO(Id iech) const
 {
   if (_indPoro <= 0) return (1);
-  auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
-  double poro  = dbgrid->getArray(iech, _indPoro);
+  DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+  double poro    = dbgrid->getArray(iech, _indPoro);
   if (FFFF(poro)) return (0);
   poro = MIN(1., MAX(0., poro));
   return (poro);
@@ -601,7 +601,7 @@ void CalcSimuEden::_checkInconsistency(bool verbose)
  *****************************************************************************/
 void CalcSimuEden::_setFLUID(Id iech, Id ifluid)
 {
-  auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+  DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
   dbgrid->setArray(iech, _indFluid, ifluid);
 }
 
@@ -615,7 +615,7 @@ void CalcSimuEden::_setFLUID(Id iech, Id ifluid)
  *****************************************************************************/
 void CalcSimuEden::_setFACIES(Id iech, Id ifacies)
 {
-  auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+  DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
   dbgrid->setArray(iech, _indFacies, ifacies);
 }
 
@@ -628,8 +628,8 @@ void CalcSimuEden::_setFACIES(Id iech, Id ifacies)
  *****************************************************************************/
 void CalcSimuEden::_setFACIES_CORK(Id iech)
 {
-  auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
-  Id ifacies   = static_cast<Id>(dbgrid->getArray(iech, _indFacies));
+  DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+  Id ifacies     = static_cast<Id>(dbgrid->getArray(iech, _indFacies));
   dbgrid->setArray(iech, _indFacies, -ifacies);
 }
 
@@ -643,8 +643,8 @@ void CalcSimuEden::_setFACIES_CORK(Id iech)
  *****************************************************************************/
 void CalcSimuEden::_setDATE(Id iech, Id idate)
 {
-  double value = (IFFFF(idate)) ? TEST : idate;
-  auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+  double value   = (IFFFF(idate)) ? TEST : idate;
+  DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
   dbgrid->setArray(iech, _iptrDate, value);
 }
 
@@ -701,12 +701,13 @@ Id CalcSimuEden::_checkMax(double number_max, double volume_max)
  ** \param[in]  skin       Pointer to the skin
  ** \param[in]  ipos       Cell location
  **
- ** \param[out] ref_fluid  Current fluid value for the target cell
+ ** \param[out] ref_fluid_loc Current fluid value for the target cell
  **
  *****************************************************************************/
-Id CalcSimuEden::_fluidModify(Skin* skin, Id ipos, Id& ref_fluid)
+Id CalcSimuEden::_fluidModify(Skin* skin, Id ipos, Id* ref_fluid_loc)
 {
   Id ecr;
+  Id ref_fluid = UNDEF_FLUID;
 
   /* Loop on the directions */
 
@@ -760,6 +761,7 @@ Id CalcSimuEden::_fluidModify(Skin* skin, Id ipos, Id& ref_fluid)
   /* Returning argument */
 
   if (ref_fluid == UNDEF_FLUID) messageAbort("Undefined replacement Fluid");
+  *ref_fluid_loc = ref_fluid;
   return (0);
 }
 
@@ -843,7 +845,7 @@ void CalcSimuEden::_statsEmpty(const char* title)
 void CalcSimuEden::_calculateCumul(void)
 
 {
-  auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+  DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
 
   /* Loop on the cells of the matrix */
 
@@ -877,7 +879,7 @@ void CalcSimuEden::_calculateCumul(void)
 void CalcSimuEden::_updateResults(Id reset_facies, Id show_fluid)
 
 {
-  auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+  DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
 
   /* Loop on the cells of the matrix */
 
@@ -921,7 +923,7 @@ void CalcSimuEden::_updateResults(Id reset_facies, Id show_fluid)
 void CalcSimuEden::_normalizeCumul(Id niter)
 
 {
-  auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+  DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
 
   /* Loop on the cells of the matrix */
 

@@ -28,7 +28,7 @@ public:
   void setValue(const VectorInt& indice, double value);
   const VectorDouble& getValues() const { return _values; }
   void setValues(const VectorDouble& values) { _values = values; }
-
+  void multiplyConstant(double val);
 private:
   void _update();
 

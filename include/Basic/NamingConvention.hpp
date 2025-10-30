@@ -172,6 +172,8 @@ public:
 
   bool isFlagQualifier() const { return _flagQualifier; }
   bool isFlagVarname()   const { return _flagVarname; }
+  String getPrefix() const {return _prefix;}
+  String getDelim() const {return _delim;}
 
 private:
   void _setNames(Db *dbout,

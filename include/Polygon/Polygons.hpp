@@ -35,46 +35,34 @@ public:
 
   Id resetFromDb(const Db* db, double dilate = 0., bool verbose = false);
   Id resetFromCSV(const String& filename,
-                  const CSVformat& csv,
-                  bool verbose = false,
-                  Id ncol_max  = -1,
-                  Id nrow_max  = -1);
+                   const CSVformat& csv,
+                   bool verbose = false,
+                   Id ncol_max = -1,
+                   Id nrow_max = -1);
   Id resetFromWKT(const String& filename,
-                  const CSVformat& csv,
-                  bool verbose = false,
-                  Id ncol_max  = -1,
-                  Id nrow_max  = -1);
+                   const CSVformat& csv,
+                   bool verbose = false,
+                   Id ncol_max = -1,
+                   Id nrow_max = -1);
 
   static Polygons* create();
   static Polygons* createFromNF(const String& NFFilename, bool verbose = false);
   static Polygons* createFromCSV(const String& filename,
                                  const CSVformat& csv = CSVformat(),
-                                 Id verbose           = false,
-                                 Id ncol_max          = -1,
-                                 Id nrow_max          = -1);
+                                 Id verbose          = false,
+                                 Id ncol_max         = -1,
+                                 Id nrow_max         = -1);
   static Polygons* createFromWKT(const String& filename,
                                  const CSVformat& csv = CSVformat(),
-                                 Id verbose           = false,
-                                 Id ncol_max          = -1,
-                                 Id nrow_max          = -1);
+                                 Id verbose          = false,
+                                 Id ncol_max         = -1,
+                                 Id nrow_max         = -1);
   static Polygons* createFromDb(const Db* db, double dilate = 0., bool verbose = false);
-  static Polygons* createFromVD(const VectorDouble& x, const VectorDouble& y);
-  static Polygons* createFillRandom(Id nseg      = 50,
-                                    double ratio = 0.1,
-                                    double mini  = 0.,
-                                    double maxi  = 1.,
-                                    Id seed      = 243723);
 
-  Id getNPolyElem() const
-  {
-    return static_cast<Id>(_polyelems.size());
-  }
+  Id getNPolyElem() const { return static_cast<Id>(_polyelems.size()); }
   void addPolyElem(const PolyElem& polyelem);
 
-  const std::vector<PolyElem>& getPolyElems() const
-  {
-    return _polyelems;
-  }
+  const std::vector<PolyElem>& getPolyElems() const { return _polyelems; }
   const PolyElem& getPolyElem(Id ipol) const;
   PolyElem getClosedPolyElem(Id ipol) const;
   const VectorDouble& getX(Id ipol) const;
@@ -98,10 +86,7 @@ protected:
   bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
   bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
 #endif
-  String _getNFName() const override
-  {
-    return "Polygon";
-  }
+  String _getNFName() const override { return "Polygon"; }
 
 private:
   static PolyElem _extractFromTab(Id ideb, Id ifin, Id ncol, const VectorDouble& tab);
@@ -128,14 +113,14 @@ GSTLEARN_EXPORT void db_polygon(Db* db,
                                 bool flag_nested                = false,
                                 const NamingConvention& namconv = NamingConvention("Polygon", true, true, true, ELoc::fromKey("SEL")));
 GSTLEARN_EXPORT Id dbPolygonDistance(Db* db,
-                                     Polygons* polygon,
-                                     double dmax,
-                                     Id scale,
-                                     Id polin,
-                                     const NamingConvention& namconv = NamingConvention("Distance"));
+                                      Polygons* polygon,
+                                      double dmax,
+                                      Id scale,
+                                      Id polin,
+                                      const NamingConvention& namconv = NamingConvention("Distance"));
 GSTLEARN_EXPORT Id db_selhull(Db* db1,
-                              Db* db2,
-                              double dilate                   = 0.,
-                              bool verbose                    = false,
-                              const NamingConvention& namconv = NamingConvention("Hull", true, true, true, ELoc::fromKey("SEL")));
+                               Db* db2,
+                               double dilate                   = 0.,
+                               bool verbose                    = false,
+                               const NamingConvention& namconv = NamingConvention("Hull", true, true, true, ELoc::fromKey("SEL")));
 } // namespace gstlrn

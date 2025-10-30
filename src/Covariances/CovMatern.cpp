@@ -15,6 +15,7 @@
 #include "Covariances/CovContext.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Simulation/TurningBandOperate.hpp"
+#include "geoslib_define.h"
 
 #include <cmath>
 
@@ -123,9 +124,21 @@ String CovMatern::getFormula() const
 
 double CovMatern::evaluateSpectrum(double freq) const
 {
-  auto ndim    = getContext().getNDim();
-  double alpha = static_cast<double>(ndim) / 2. + getParam();
+
+ 
+
+  size_t ndim = getContext().getNDim();
+  double param = getParam();
+  size_t ndims2  = 0.5 * ndim;
+  double alpha = param + ndims2;
+  double val = pow(2, ndim) / getCorrec() / pow (1 + (freq * freq), alpha);
+  return val;
+
+  /*
+  Id ndim     = getContext().getNDim();
+  double alpha = (double)ndim / 2. + getParam();
   return 1. / pow(1. + freq, alpha);
+  */
 }
 
 void CovMatern::computeMarkovCoeffs(Id ndim)
@@ -173,7 +186,7 @@ MatrixDense CovMatern::simulateSpectralOmega(Id nb) const
 
   for (Id irow = 0; irow < nb; irow++)
   {
-    double scale = sqrt(param / law_gamma(param));
+    double scale = sqrt(1 / law_gamma(param) / 2);
     for (Id icol = 0; icol < ndim; icol++)
       mat.setValue(irow, icol, scale * law_gaussian());
   }
@@ -189,7 +202,7 @@ VectorDouble CovMatern::_evaluateSpectrumOnSphere(Id n, double scale) const
   VectorDouble sp(1 + n, 0.);
 
   for (Id k = 0; k <= n; k++)
-    sp[k] = (2. * k + 1.) / (4. * GV_PI) / pow(1. + scale2 * k * (k + 1.), alpha);
+    sp[k] = (2. * k + 1.) / (4. * GV_PI) / pow(1. + (scale2 * k * (k + 1.)), alpha);
 
   VH::normalize(sp, 1);
   return sp;

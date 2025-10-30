@@ -46,7 +46,6 @@
 %include Enum/ECalcVario.hpp
 %include Enum/EConvType.hpp
 %include Enum/ECov.hpp
-%include Enum/ECSV.hpp
 %include Enum/ETape.hpp
 %include Enum/ELoadBy.hpp
 %include Enum/ELoc.hpp
@@ -107,6 +106,7 @@
 %include Basic/FFT.hpp
 %include Basic/PolyLine2D.hpp
 %include Basic/Law.hpp
+%include Basic/LawStable.hpp
 %include Basic/MathFunc.hpp
 %include Basic/Indirection.hpp
 
@@ -263,6 +263,7 @@
 %include Covariances/CovBesselJ.hpp
 %include Covariances/CovMatern.hpp
 %include Covariances/CovCauchy.hpp
+%include Covariances/CovCauchyGen.hpp
 %include Covariances/CovCosExp.hpp
 %include Covariances/CovCosinus.hpp
 %include Covariances/CovCubic.hpp
@@ -380,7 +381,9 @@
 %include Simulation/CalcSimuTurningBands.hpp
 %include Simulation/TurningBandDirection.hpp
 %include Simulation/TurningBandOperate.hpp
-%include Simulation/SimuSpectral.hpp
+%include Simulation/ASimuSpectral.hpp
+%include Simulation/SimuSpectralRN.hpp
+%include Simulation/SimuSpectralS2.hpp
 %include Simulation/BooleanObject.hpp
 %include Simulation/SimuBoolean.hpp
 %include Simulation/SimuBooleanParam.hpp

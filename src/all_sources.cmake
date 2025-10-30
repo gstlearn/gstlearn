@@ -114,6 +114,7 @@ set(SRC
   Covariances/CovBesselJ.cpp
   Covariances/CovSpherical.cpp
   Covariances/CovCauchy.cpp
+  Covariances/CovCauchyGen.cpp
   Covariances/CovFactory.cpp
   Covariances/CovStable.cpp
   Covariances/CovMarkov.cpp
@@ -230,6 +231,7 @@ set(SRC
   Basic/VectorHelper.cpp
   Basic/FunctionalSpirale.cpp
   Basic/Law.cpp
+  Basic/LawStable.cpp
   Basic/Interval.cpp
   Basic/Indirection.cpp
   Basic/Tensor.cpp
@@ -337,7 +339,9 @@ set(SRC
   Simulation/CalcSimuTurningBands.cpp
   Simulation/TurningBandDirection.cpp
   Simulation/TurningBandOperate.cpp
-  Simulation/SimuSpectral.cpp
+  Simulation/ASimuSpectral.cpp
+  Simulation/SimuSpectralRN.cpp
+  Simulation/SimuSpectralS2.cpp
   Simulation/BooleanObject.cpp
   Simulation/SimuBoolean.cpp
   Simulation/SimuBooleanParam.cpp

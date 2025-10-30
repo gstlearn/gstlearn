@@ -46,7 +46,7 @@ compare_variograms <- function(var_list, title, idir = 0) {
     
     # initial plot
     sdir = sprintf("Direction = %1d", idir)
-    plot(NULL, NULL, xlim = range(hh), ylim = 1.2*c(0, 1.0),
+    plot(NULL, NULL, xlim = c(0, max(hh)), ylim = 1.2*c(0, 1.0),
          xlab = "Distance", ylab = "Variogram", xaxs="i", yaxs="i",
 	 main = paste0(title, "\n", sdir))
     abline(h = 0, lty = 3, col = "gray")

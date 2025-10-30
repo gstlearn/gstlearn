@@ -12,8 +12,8 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Space/ASpace.hpp"
 #include "Enum/ESpaceType.hpp"
+#include "Space/ASpace.hpp"
 
 #include <memory>
 #include <vector>
@@ -23,14 +23,12 @@ namespace gstlrn
 class SpacePoint;
 class Tensor;
 
-class GSTLEARN_EXPORT SpaceComposite : public ASpace
+class GSTLEARN_EXPORT SpaceComposite: public ASpace
 {
-private:
+public:
   SpaceComposite(const std::vector<ASpaceSharedPtr>& vectspace = std::vector<ASpaceSharedPtr>());
   SpaceComposite(const SpaceComposite& r);
   SpaceComposite& operator=(const SpaceComposite& r);
-  
-public:
   virtual ~SpaceComposite();
 
   /// ICloneable interface
@@ -68,14 +66,13 @@ public:
   /// Return all the distances (one by space component) between two space points
   VectorDouble getDistances(const SpacePoint& p1,
                             const SpacePoint& p2) const override;
-  
+
   /////////////////////////////////////////////
-  
+
   /// Add a space component to me (for exemple RN(1) for time dimension)
   void addSpaceComponent(const ASpaceSharedPtr& comp);
 
 protected:
-
   /// Move the given space point by the given vector
   void _move(SpacePoint& p1, const VectorDouble& vec) const override;
 
@@ -109,9 +106,8 @@ protected:
                             VectorDouble& ptemp,
                             Id ispace = -1) const override;
 
-
 private:
   /// Space composits list
-  std::vector<std::shared_ptr<ASpace> > _comps;
+  std::vector<std::shared_ptr<ASpace>> _comps;
 };
-}
+} // namespace gstlrn
