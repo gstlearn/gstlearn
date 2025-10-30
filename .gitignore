@@ -55,3 +55,5 @@ doc/details/*.synctex.gz
 2
 test_*.NF
 test_*.out
+_codeql_build_dir/
+_codeql_detected_source_root
