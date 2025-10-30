@@ -153,7 +153,8 @@ VectorString generateMultipleNames(const String& radix, Id number, const String&
 /**
  * Check that the names in 'list' are not conflicting with any previous name.
  * If it does, increment its name by a version number.
- * @param list
+ * @param newList List of new names (suggested in Input and possibly corrected)
+ * @param oldList List of already accepted names
  */
 void correctNamesForDuplicates(VectorString& newList,
                                const VectorString& oldList)
