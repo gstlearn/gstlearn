@@ -16,7 +16,9 @@ Markov (Third Parameter = 1)
 
 
 #NO_DIFF#XXX
-----1.0
+----
+1.0
+
 #NO_DIFF#XXX
 ----
 
