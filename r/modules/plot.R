@@ -383,7 +383,7 @@ plot.init <- function(dims = NA, xlim = NA, ylim = NA, asp = NA) {
   # Representing the number of pairs (by size)
   if (drawPsize > 0)
   {
-    p = append(p, geom_point(data = df, mapping=aes(x=hh, y=gg, linewidth=sw), 
+    p = append(p, geom_point(data = df, mapping=aes(x=hh, y=gg, size=sw), 
             na.rm=TRUE, ...))
     p = append(p, list(labs(size = "Nb. pairs")))
   }
@@ -969,7 +969,7 @@ plot.symbol <- function(db, nameColor=NULL, nameSize=NULL,
     if (flagAbsSize) sizval = abs(sizval)
 
     df["size"] = sizval
-    aes_plt$linewidth = substitute(sizval)
+    aes_plt$size = substitute(sizval)
   }
 
   layer <- geom_point(data = df, aes_plt, 
@@ -1607,7 +1607,7 @@ plot.covaOnGrid <- function(cova, dbgrid, useSel=TRUE, color='black',
   #ax.quiver(tabx, taby, tabR2, tabR2, angles=tabA, color=color, **kwargs)
   
   p = ggplot(data = data, aes(x = x, y = y)) + 
-      geom_point(linewidth = 1) + 
+      geom_point(size = 1) + 
       geom_segment(aes(xend = x + dx, yend = y + dy),
                    arrow = arrow(length = unit(0.1, "cm")), ...)
   
