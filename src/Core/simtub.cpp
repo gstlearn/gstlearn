@@ -532,7 +532,7 @@ static void st_check_facies_data2grid(Db* dbin,
   /* Initializations */
 
   if (!dbout->isGrid()) return;
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
+  auto* dbgrid = dynamic_cast<DbGrid*>(dbout);
   check_mandatory_attribute("st_check_facies_data2grid", dbgrid, ELoc::FACIES);
   number = 0;
   if (flag_check)
@@ -1782,7 +1782,7 @@ Id simtub_constraints(Db* dbin,
   tab.resize(dbout->getNSample());
   if (flag_grid)
   {
-    DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
+    auto* dbgrid = dynamic_cast<DbGrid*>(dbout);
     nx.resize(ndim);
     dx.resize(ndim);
     x0.resize(ndim);

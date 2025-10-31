@@ -96,7 +96,7 @@ bool CalcKrigingFactors::_preprocess()
   // Centering the information (only when a change of support is defined)
   if (_hasChangeSupport())
   {
-    DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+    auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
     if (dbgrid == nullptr)
     {
       messerr("Due to change of support, 'dbout' should be a Grid");

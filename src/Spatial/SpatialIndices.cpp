@@ -390,7 +390,7 @@ void SpatialIndices::spatial(const String &name)
   double maille = 1.;
   if (_db->isGrid())
   {
-    DbGrid *dbgrid = dynamic_cast<DbGrid *>(_db);
+    auto *dbgrid = dynamic_cast<DbGrid *>(_db);
     maille = dbgrid->getCellSize();
   }
   double wvalue, value, weight;

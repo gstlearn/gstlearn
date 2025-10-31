@@ -368,14 +368,14 @@ bool ACalcDbToDb::isGridOut(bool verbose) const
 DbGrid* ACalcDbToDb::getGridin() const
 {
   if (!hasDbin(false)) return nullptr;
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(_dbin);
+  auto* dbgrid = dynamic_cast<DbGrid*>(_dbin);
   return dbgrid;
 }
 
 DbGrid* ACalcDbToDb::getGridout() const
 {
   if (!hasDbout(false)) return nullptr;
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(_dbout);
+  auto* dbgrid = dynamic_cast<DbGrid*>(_dbout);
   return dbgrid;
 }
 
@@ -424,7 +424,7 @@ Id ACalcDbToDb::_expandInformation(Id mode, const ELoc& locatorType) const
     messerr("The Input Db does not contain the correct number of External Drifts");
     return 1;
   }
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+  auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
 
   /* Dispatch */
 

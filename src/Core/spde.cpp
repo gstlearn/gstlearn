@@ -2834,7 +2834,7 @@ static AMesh* st_create_meshes(Db* dbin,
          dbin != nullptr && dbin->isGrid()))
       dbloc = dbin;
   }
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbloc);
+  auto* dbgrid = dynamic_cast<DbGrid*>(dbloc);
 
   if (dbloc != nullptr)
   {

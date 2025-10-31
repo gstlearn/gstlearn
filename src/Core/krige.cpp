@@ -919,7 +919,7 @@ static void st_block_discretize(Id mode, Id flag_rand, Id iech)
   ntot = KOPTION.ntot;
   ndim = KOPTION.ndim;
   law_set_random_seed(1234546);
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(DBOUT);
+  auto* dbgrid = dynamic_cast<DbGrid*>(DBOUT);
 
   /* Loop on the discretization points */
 

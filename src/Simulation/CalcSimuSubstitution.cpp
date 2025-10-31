@@ -49,7 +49,7 @@ CalcSimuSubstitution::~CalcSimuSubstitution()
  *****************************************************************************/
 bool CalcSimuSubstitution::_simulate()
 {
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+  auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
   Id np          = 0;
 
   /***********************/

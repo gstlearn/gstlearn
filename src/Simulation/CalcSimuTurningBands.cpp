@@ -1811,7 +1811,7 @@ void CalcSimuTurningBands::_updateData2ToTarget(Db* dbin,
 
   if (dbout->isGrid())
   {
-    DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
+    auto* dbgrid = dynamic_cast<DbGrid*>(dbout);
 
     /*********************************************/
     /* Case where the output file is a grid file */
@@ -1941,7 +1941,7 @@ bool CalcSimuTurningBands::_run()
 
   if (getDbout()->isGrid())
   {
-    DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+    auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
     _simulateGrid(dbgrid, aic, _icase, 0);
     _meanCorrect(getDbout(), _icase);
   }
@@ -2149,7 +2149,7 @@ void CalcSimuTurningBands::_checkGaussianData2Grid(Db* dbin,
   if (get_LOCATOR_NITEM(dbout, ELoc::SIMU) <= 0) return;
   auto nbsimu = getNbSimu();
   if (nbsimu <= 0) return;
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
+  auto* dbgrid = dynamic_cast<DbGrid*>(dbout);
   if (dbgrid == nullptr) return;
   Id ndim = dbin->getNDim();
 
@@ -2287,7 +2287,7 @@ bool CalcSimuTurningBands::_preprocess()
   if (_flagDGM)
   {
     // Centering (only if the output file is a Grid)
-    DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+    auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
     if (dbgrid != nullptr)
     {
       // Duplicating the coordinate variable names before centering

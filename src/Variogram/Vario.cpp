@@ -2192,7 +2192,7 @@ void Vario::_setDPasFromGrid(bool flag_grid)
 {
   if (_db != nullptr && _db->isGrid() && flag_grid)
   {
-    DbGrid* dbgrid = dynamic_cast<DbGrid*>(_db);
+    auto* dbgrid = dynamic_cast<DbGrid*>(_db);
     for (Id idir = 0; idir < getNDir(); idir++)
     {
       _varioparam.setDPas(idir, dbgrid);
@@ -2342,7 +2342,7 @@ Id Vario::_compute(Db* db,
   // Dispatch
   if (isDefinedForGrid())
   {
-    DbGrid* dbgrid = dynamic_cast<DbGrid*>(db);
+    auto* dbgrid = dynamic_cast<DbGrid*>(db);
     if (dbgrid == nullptr)
     {
       messerr("'Vario' is defined for Grid but 'db' is not organized as a grid");

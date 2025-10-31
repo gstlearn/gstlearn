@@ -422,7 +422,7 @@ Id RuleShadow::gaus2facResult(PropDef* propdef,
 
   check_mandatory_attribute("rule_gaus2fac_result_shadow", dbout, ELoc::FACIES);
   check_mandatory_attribute("rule_gaus2fac_result_shadow", dbout, ELoc::SIMU);
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
+  auto* dbgrid = dynamic_cast<DbGrid*>(dbout);
   if (dbgrid == nullptr) return 1;
 
   error = 1;

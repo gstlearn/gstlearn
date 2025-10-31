@@ -134,7 +134,7 @@ Id VMap::compute(Db *db,
 
   if (db->isGrid())
   {
-    DbGrid* dbgrid = dynamic_cast<DbGrid*>(db);
+    auto* dbgrid = dynamic_cast<DbGrid*>(db);
 
     // Case where Data are on a regular grid
 
@@ -216,7 +216,7 @@ DbGrid* db_vmap(Db *db,
     nx_map[idim] = 2 * nxloc[idim] + 1;
   if (db->isGrid())
   {
-    DbGrid* dbgrid = dynamic_cast<DbGrid*>(db);
+    auto* dbgrid = dynamic_cast<DbGrid*>(db);
     for (Id idim = 0; idim < ndim; idim++)
       dx_map[idim] = dbgrid->getDX(idim);
   }

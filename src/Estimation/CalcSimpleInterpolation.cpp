@@ -580,7 +580,7 @@ Id CalcSimpleInterpolation::_invdist(Db* dbin, Db* dbout)
   }
   else
   {
-    DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbin);
+    auto* dbgrid = dynamic_cast<DbGrid*>(dbin);
     _gridInvdist(dbgrid, dbout);
   }
   return 0;

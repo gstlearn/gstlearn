@@ -4,6 +4,7 @@ This file contains the logs between consecutive releases
 
 Release 1.10.0
 ==============
+_ Correction of the Migration algorithm (adding a test in Tuto_Migration.ipynb)
 - New function creating a random Polygon (can create a circle).
 - Adding the possibility of creating a Polygon from two vectors of 2-D coordinates
 - Class CSVformat allows more explicit definition using ECSV style (French or English)

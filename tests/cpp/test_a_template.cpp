@@ -16,6 +16,5 @@ int main(int argc, char* argv[])
 {
   DECLARE_UNUSED(argc);
   DECLARE_UNUSED(argv);
-
   return 0;
 }

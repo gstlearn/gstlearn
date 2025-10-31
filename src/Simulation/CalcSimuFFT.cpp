@@ -49,7 +49,7 @@ CalcSimuFFT::~CalcSimuFFT()
 
 bool CalcSimuFFT::_simulate()
 {
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+  auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
 
   /* Construction of the Simu_FFT structure and core allocation */
 
@@ -87,7 +87,7 @@ bool CalcSimuFFT::_simulate()
  *****************************************************************************/
 void CalcSimuFFT::_alloc()
 {
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+  auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
 
   _nx.resize(3, 0);
   _shift.resize(3, 0);
@@ -227,7 +227,7 @@ VectorInt CalcSimuFFT::_getFactors(Id number)
  *****************************************************************************/
 void CalcSimuFFT::_gridDilate()
 {
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+  auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
   VectorInt indg(3);
   VectorDouble xyz0(3);
   VectorVectorDouble xyz(3);
@@ -416,7 +416,7 @@ void CalcSimuFFT::_prepar(bool flag_amplitude, double eps)
   VectorInt indg(3);
   VectorInt jnd(3);
   VectorVectorDouble xyz1(3);
-  DbGrid* dbgrid      = dynamic_cast<DbGrid*>(getDbout());
+  auto* dbgrid      = dynamic_cast<DbGrid*>(getDbout());
   ModelGeneric* model = getModel();
 
   /* Initializations */
