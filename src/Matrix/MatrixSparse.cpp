@@ -130,15 +130,23 @@ void MatrixSparse::fillRandom(Id seed, double zeroPercent)
 
 void MatrixSparse::_transposeInPlace()
 {
+  Id nrows = getNRows();
+  Id ncols = getNCols();
   Eigen::SparseMatrix<double> temp;
   temp = eigenMat().transpose();
   eigenMat().swap(temp);
+  _setNRows(ncols);
+  _setNCols(nrows);
 }
 
 MatrixSparse* MatrixSparse::transpose() const
 {
+  Id nrows        = getNRows();
+  Id ncols        = getNCols();
   auto* mat       = dynamic_cast<MatrixSparse*>(clone());
   mat->eigenMat() = eigenMat().transpose();
+  mat->_setNRows(ncols);
+  mat->_setNCols(nrows);
   return mat;
 }
 

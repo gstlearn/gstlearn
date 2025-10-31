@@ -431,13 +431,6 @@ GSTLEARN_EXPORT void global_init(Db* dbin, Db* dbout);
 /* Prototyping the functions in simtub.c */
 /*****************************************/
 
-GSTLEARN_EXPORT void simu_define_func_update(void (*st_simu_update)(Db*,
-                                                                    Id,
-                                                                    Id,
-                                                                    Id));
-GSTLEARN_EXPORT void simu_define_func_scale(void (*st_simu_scale)(Db*,
-                                                                  Id,
-                                                                  Id));
 GSTLEARN_EXPORT void simu_func_categorical_transf(Db* db,
                                                   Id verbose,
                                                   Id isimu,
@@ -561,26 +554,6 @@ GSTLEARN_EXPORT Id time_3db(double* HS,
                             double HS_EPS_INIT,
                             Id MSG);
 
-/***************************************/
-/* Prototyping the functions in spde.c */
-/***************************************/
-GSTLEARN_EXPORT Id m2d_gibbs_spde(Db* dbin,
-                                  Db* dbout,
-                                  Model* model,
-                                  Id flag_ed,
-                                  Id nlayer,
-                                  Id niter,
-                                  Id seed,
-                                  Id nbsimu,
-                                  Id icol_pinch,
-                                  Id flag_drift,
-                                  Id flag_ce,
-                                  Id flag_cstd,
-                                  Id verbose);
-
-#ifndef SWIG
-GSTLEARN_EXPORT SPDE_Matelem& spde_get_current_matelem(Id icov);
-#endif
 GSTLEARN_EXPORT AMesh* spde_mesh_load(Db* dbin,
                                       Db* dbout,
                                       const VectorDouble& gext,

@@ -12,9 +12,9 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Db/Db.hpp"
-#include "Basic/NamingConvention.hpp"
 #include "Basic/ICloneable.hpp"
+#include "Basic/NamingConvention.hpp"
+#include "Db/Db.hpp"
 
 namespace gstlrn
 {
@@ -52,44 +52,48 @@ public:
   bool isConsistent() const override;
 
   Id resetFromSamples(Id nech,
-                       const ELoadBy& order,
-                       const VectorDouble& tab,
-                       const VectorInt& lineCounts,
-                       const VectorString& names        = VectorString(),
-                       const VectorString& locatorNames = VectorString(),
-                       bool flagAddSampleRank           = true);
+                      const ELoadBy& order,
+                      const VectorDouble& tab,
+                      const VectorInt& lineCounts,
+                      const VectorString& names        = VectorString(),
+                      const VectorString& locatorNames = VectorString(),
+                      bool flagAddSampleRank           = true);
   Id resetFromSamplesById(Id nech,
-                           const ELoadBy& order,
-                           const VectorDouble& tab,
-                           const VectorInt& lineIds,
-                           const VectorInt& ranksPerId,
-                           const VectorString& names        = VectorString(),
-                           const VectorString& locatorNames = VectorString(),
-                           bool flagAddSampleRank           = true);
+                          const ELoadBy& order,
+                          const VectorDouble& tab,
+                          const VectorInt& lineIds,
+                          const VectorInt& ranksPerId,
+                          const VectorString& names        = VectorString(),
+                          const VectorString& locatorNames = VectorString(),
+                          bool flagAddSampleRank           = true);
 
   static DbLine* createFromSamples(Id nech,
                                    const ELoadBy& order,
                                    const VectorDouble& tab,
                                    const VectorInt& lineCounts,
-                                   const VectorString& names = VectorString(),
+                                   const VectorString& names        = VectorString(),
                                    const VectorString& locatorNames = VectorString(),
-                                   bool flagAddSampleRank = true);
+                                   bool flagAddSampleRank           = true);
   static DbLine* createFromSamplesById(Id nech,
                                        const ELoadBy& order,
                                        const VectorDouble& tab,
                                        const VectorInt& lineIds,
                                        const VectorInt& ranksPerId,
-                                       const VectorString& names = VectorString(),
+                                       const VectorString& names        = VectorString(),
                                        const VectorString& locatorNames = VectorString(),
                                        bool flagAddSampleRank           = true);
   static DbLine* createFromNF(const String& NFFilename, bool verbose = true);
-  static DbLine* createFillRandom(Id ndim,
-                                  Id nbline,
-                                  Id nperline,
-                                  double deltaX             = 5.0,
-                                  const VectorDouble& delta = VectorDouble(),
-                                  double unifDelta          = 0.3,
-                                  Id seed                  = 13422);
+  static DbLine* createFillRandom(Id ndim                     = 3,
+                                  Id nbline                   = 10,
+                                  Id nperline                 = 5,
+                                  double deltaZ               = 0.1,
+                                  double randH                = 0.,
+                                  double randV                = 0.,
+                                  const VectorDouble& coormin = VectorDouble(),
+                                  const VectorDouble& coormax = VectorDouble(),
+                                  bool flagLine               = true,
+                                  bool flagLayer              = true,
+                                  Id seed                     = 13422);
   static DbLine* createVerticalFromGrid(const DbGrid& grid,
                                         const VectorString& names,
                                         const VectorInt& xranks,
@@ -132,4 +136,4 @@ private:
   // - second dimension: Number of addresses (within Db) per Line
   VectorVectorInt _lineAdds;
 };
-}
+} // namespace gstlrn

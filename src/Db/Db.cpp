@@ -6035,6 +6035,32 @@ Db* Db::createFillRandom(Id ndat,
   return db;
 }
 
+Db* Db::createVerticalWellsFillRandom(Id nline,
+                                      Id nlayer,
+                                      double z0,
+                                      double dz,
+                                      double tolZ,
+                                      const VectorDouble& coormin,
+                                      const VectorDouble& coormax,
+                                      Id seed)
+{
+  Id ndim  = 2;
+  auto* db = Db::createFillRandom(nline, ndim, nlayer, 0, 0, 0., 0., VectorDouble(),
+                                  coormin, coormax, seed);
+
+  for (Id ip = 0; ip < nline; ip++)
+  {
+    double zcumul = z0;
+    for (Id il = 0; il < nlayer; il++)
+    {
+      double thick = dz * law_uniform(1. - tolZ, 1. + tolZ);
+      zcumul += thick;
+      db->setZVariable(ip, il, zcumul);
+    }
+  }
+  return db;
+}
+
 Db* Db::createEmpty(Id ndat,
                     Id ndim,
                     Id nvar,

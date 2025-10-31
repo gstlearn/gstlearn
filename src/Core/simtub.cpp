@@ -583,6 +583,15 @@ static void st_check_facies_data2grid(Db* dbin,
   if (flag_check && number <= 0) message("No problem found\n");
 }
 
+static void simu_define_func_update(void (*st_simu_update)(Db*, Id, Id, Id) = nullptr)
+{
+  DECLARE_UNUSED(st_simu_update);
+}
+static void simu_define_func_scale(void (*st_simu_scale)(Db*, Id, Id) = nullptr)
+{
+  DECLARE_UNUSED(st_simu_scale);
+}
+
 /****************************************************************************/
 /*!
  **  Perform the conditional or non-conditional Pluri-gaussian

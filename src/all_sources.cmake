@@ -146,7 +146,6 @@ set(SRC
   Core/krige.cpp
   Core/seismic.cpp
   Core/sparseinv.cpp
-  Core/spde.cpp
   Core/dbtools.cpp
   Anamorphosis/CalcAnamTransform.cpp
   Anamorphosis/AnamContinuous.cpp
@@ -200,7 +199,8 @@ set(SRC
   LinearOp/SPDEOpMatrix.cpp
   LinearOp/ASimulable.cpp
   LinearOp/MatrixSymmetricSim.cpp
-  MLayers/MLayers.cpp
+  MultiLayers/MLayers.cpp
+  MultiLayers/MGibbs.cpp
   Space/SpaceSN.cpp
   Space/SpaceRN.cpp
   Space/SpacePoint.cpp

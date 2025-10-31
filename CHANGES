@@ -4,6 +4,7 @@ This file contains the logs between consecutive releases
 
 Release 1.10.0
 ==============
+- Improvement of DbLine::createFillRandom() to generate samples along Wells
 - Improvement in DbGrid::createFromPolygon (better management of default value + ability to define the selection in the newly create Grid File)
 - Correct the Polygon extension calculation
 - New functions in Db: getRanksAbsoluteToRelativeVec() and getRanksRelativeToAbsolute()

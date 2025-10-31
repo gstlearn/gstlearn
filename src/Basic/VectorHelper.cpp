@@ -189,6 +189,7 @@ void VectorHelper::dumpStats(const String& title, constvect vect, Id nmax)
   Id ntotal = static_cast<Id>(vect.size());
   if (nmax > 0 && nmax < ntotal) ntotal = nmax;
   Id number   = 0;
+  Id nonzero  = 0;
   double mean = 0.;
   double stdv = 0.;
   double mini = MAXIMUM_BIG;
@@ -203,6 +204,7 @@ void VectorHelper::dumpStats(const String& title, constvect vect, Id nmax)
     stdv += value * value;
     if (value < mini) mini = value;
     if (value > maxi) maxi = value;
+    if (ABS(value) > EPSILON6) nonzero++;
   }
 
   if (!title.empty()) message("%s\n", title.c_str());
@@ -212,7 +214,7 @@ void VectorHelper::dumpStats(const String& title, constvect vect, Id nmax)
     stdv = stdv / static_cast<double>(number) - mean * mean;
     stdv = (stdv > 0.) ? sqrt(stdv) : 0.;
 
-    message("- Number of samples = %d / %d\n", number, ntotal);
+    message("- Number   = %d (non-zero) / %d (defined) / %d (total)\n", nonzero, number, ntotal);
     message("- Minimum  = %s\n", toDouble(mini).c_str());
     message("- Maximum  = %s\n", toDouble(maxi).c_str());
     message("- Mean     = %s\n", toDouble(mean).c_str());
@@ -241,6 +243,7 @@ void VectorHelper::dumpRange(const String& title, constvect vect, Id nmax)
   Id ntotal = static_cast<Id>(vect.size());
   if (nmax > 0 && nmax < ntotal) ntotal = nmax;
   Id number   = 0;
+  Id nonzero  = 0;
   double mini = MAXIMUM_BIG;
   double maxi = MINIMUM_BIG;
 
@@ -251,12 +254,13 @@ void VectorHelper::dumpRange(const String& title, constvect vect, Id nmax)
     number++;
     if (value < mini) mini = value;
     if (value > maxi) maxi = value;
+    if (ABS(value) > EPSILON6) nonzero++;
   }
 
   if (!title.empty()) message("%s\n", title.c_str());
   if (number > 0)
   {
-    message("- Number of samples = %d / %d\n", number, ntotal);
+    message("- Number   = %d (non-zero) / %d (defined) / %d (total)\n", nonzero, number, ntotal);
     message("- Minimum  = %lf\n", mini);
     message("- Maximum  = %lf\n", maxi);
   }
@@ -268,10 +272,11 @@ void VectorHelper::dumpRange(const String& title, constvect vect, Id nmax)
 
 void VectorHelper::dumpRange(const String& title, const VectorInt& vect)
 {
-  Id ntotal = static_cast<Id>(vect.size());
-  Id number = 0;
-  Id mini   = 100000000;
-  Id maxi   = -100000000;
+  Id ntotal  = static_cast<Id>(vect.size());
+  Id number  = 0;
+  Id nonzero = 0;
+  Id mini    = 100000000;
+  Id maxi    = -100000000;
 
   for (Id i = 0; i < ntotal; i++)
   {
@@ -280,11 +285,13 @@ void VectorHelper::dumpRange(const String& title, const VectorInt& vect)
     number++;
     if (value < mini) mini = value;
     if (value > maxi) maxi = value;
+    if (value != 0) nonzero++;
   }
 
   if (!title.empty()) message("%s\n", title.c_str());
   if (number > 0)
   {
+    message("- Number   = %d (non-zero) / %d (defined) / %d (total)\n", nonzero, number, ntotal);
     message("- Number of samples = %d / %d\n", number, ntotal);
     message("- Minimum  = %d\n", mini);
     message("- Maximum  = %d\n", maxi);
