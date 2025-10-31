@@ -1350,16 +1350,13 @@ Id Db::addColumnsByConstant(Id nadd,
     _uidcol[nmax + i] = ncol + i;
 
   // Set the name
-  _colNames.resize(nnew);
+  VectorString newNames;
   if (nadd == 1)
-    _colNames[ncol] = radix;
+    newNames = {radix};
   else
-  {
-    VectorString names = generateMultipleNames(radix, nadd);
-    for (Id i = 0; i < nadd; i++)
-      _colNames[ncol + i] = names[i];
-  }
-  (void)correctNamesForDuplicates(_colNames);
+    newNames = generateMultipleNames(radix, nadd);
+  (void)correctNamesForDuplicates(newNames, _colNames);
+  _colNames.insert(_colNames.end(), newNames.begin(), newNames.end());
 
   // Initialize the variables with a given value
   _columnInit(nadd, ncol, true, valinit);
@@ -1411,16 +1408,13 @@ Id Db::addColumnsRandom(Id nadd,
     _uidcol[nmax + i] = ncol + i;
 
   // Set the name
-  _colNames.resize(nnew);
+  VectorString newNames;
   if (nadd == 1)
-    _colNames[ncol] = radix;
+    newNames = {radix};
   else
-  {
-    VectorString names = generateMultipleNames(radix, nadd);
-    for (Id i = 0; i < nadd; i++)
-      _colNames[ncol + i] = names[i];
-  }
-  (void)correctNamesForDuplicates(_colNames);
+    newNames = generateMultipleNames(radix, nadd);
+  (void)correctNamesForDuplicates(newNames, _colNames);
+  _colNames.insert(_colNames.end(), newNames.begin(), newNames.end());
 
   // Initialize the variables with a random value
   law_set_random_seed(seed);

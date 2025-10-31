@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Enum/EAnam.hpp"
+#include "Enum/ECSV.hpp"
 #include "Enum/ECalcMember.hpp"
 #include "Enum/ECalcVario.hpp"
 #include "Enum/EConsElem.hpp"
@@ -42,7 +43,6 @@
 #include "Enum/ESpaceType.hpp"
 #include "Enum/EStatOption.hpp"
 #include "Enum/ETape.hpp"
-
 
 ENUM_DEFINE(ENUM_LOAD_BY)
 ENUM_DEFINE(ENUM_NEIGH)
@@ -78,3 +78,4 @@ ENUM_DEFINE(ENUM_GAUSSINV)
 ENUM_DEFINE(ENUM_POST_UPSCALE)
 ENUM_DEFINE(ENUM_POST_STAT)
 ENUM_DEFINE(ENUM_FORMATNF)
+ENUM_DEFINE(ENUM_CSV)

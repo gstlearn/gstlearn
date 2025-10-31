@@ -153,48 +153,64 @@ VectorString generateMultipleNames(const String& radix, Id number, const String&
 /**
  * Check that the names in 'list' are not conflicting with any previous name.
  * If it does, increment its name by a version number.
- * @param list
+ * @param newList List of new names (suggested in Input and possibly corrected)
+ * @param oldList List of already accepted names
  */
-void correctNamesForDuplicates(VectorString& list)
+void correctNamesForDuplicates(VectorString& newList,
+                               const VectorString& oldList)
 {
-  Id number = static_cast<Id>(list.size());
-  for (Id i = 1; i < number; i++)
+  Id nnew = static_cast<Id>(newList.size());
+  Id nold = static_cast<Id>(oldList.size());
+
+  VectorString catList = oldList;                                // start with contents of 'a'
+  catList.insert(catList.end(), newList.begin(), newList.end()); // append contents of 'b'
+
+  for (Id i = 0; i < nnew; i++)
   {
     // Check that a similar name does not appear among the previous names in list
+    String nameref = newList[i];
+    if (nameref.empty()) continue;
 
+    Id rank = 0;
   label_try:
+    rank++;
     Id found = -1;
-    for (Id j = 0; j < i && found < 0; j++)
+    for (Id j = 0; j < i + nold && found < 0; j++)
     {
-      if (list[i] == list[j]) found = j;
+      if (newList[i] == catList[j]) found = j;
     }
     if (found < 0) continue;
 
     // We have found a similar name. Modify it as long as it matches an already existing name
 
-    list[i] = incrementStringVersion(list[i]);
+    newList[i] = incrementStringVersion(nameref, rank);
     goto label_try;
   }
 }
 
-void correctNewNameForDuplicates(VectorString& list, Id rank)
+void correctNewNameForDuplicates(VectorString& list, Id itarget)
 {
-  Id number = static_cast<Id>(list.size());
-  Id found  = 1;
+  Id number      = static_cast<Id>(list.size());
+  Id found       = 1;
+  String nameref = list[itarget];
   while (found > 0)
   {
-    found = 0;
-    for (Id i = 0; i < number; i++)
+    Id rank = 0;
+
+  label_try:
+    rank++;
+    found = -1;
+    for (Id i = 0; i < number && found < 0; i++)
     {
-      if (i == rank) continue;
-      if (list[rank] == list[i]) found++;
+      if (i == itarget) continue;
+      if (list[itarget] == list[i]) found++;
     }
-    if (found <= 0) break;
-    ;
+    if (found < 0) break;
 
     // We have found a similar name
 
-    list[rank] = incrementStringVersion(list[rank]);
+    list[itarget] = incrementStringVersion(nameref, rank);
+    goto label_try;
   }
 }
 
