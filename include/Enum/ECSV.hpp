@@ -8,14 +8,13 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_define.h"
+#pragma once
 
-using namespace gstlrn;
+#include "Enum/AEnum.hpp"
 
-int main(int argc, char* argv[])
-{
-  DECLARE_UNUSED(argc);
-  DECLARE_UNUSED(argv);
+#define ENUM_CSV ECSV, ENGLISH,             \
+                 FRENCH, 0, "French CSV",   \
+                 ENGLISH, 1, "English CSV", \
+                 TABULATED, 2, "Tabulated CSV"
 
-  return 0;
-}
+ENUM_DECLARE(ENUM_CSV)

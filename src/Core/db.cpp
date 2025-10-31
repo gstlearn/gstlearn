@@ -47,18 +47,6 @@ Id compat_NDIM(Db* db1, Db* db2)
 
 /****************************************************************************/
 /*!
- **  Print the Summary of the Grid structure
- **
- ** \param[in]  db  Pointer to the Db structure (organized as a grid)
- **
- *****************************************************************************/
-void db_grid_print(Db* db)
-{
-  if (db->isGrid()) message(db->toString().c_str());
-}
-
-/****************************************************************************/
-/*!
  **  Returns the number of items for a given locator in the Db
  **
  ** \return  Number of items
@@ -2084,7 +2072,7 @@ Id db_grid_patch(DbGrid* ss_grid,
   if (point_to_grid(db_grid, coor1.data(), -1, indg0.data()) == -1)
   {
     messerr("Subgrid origin does not lie within the main grid");
-    db_grid_print(db_grid);
+    message(db_grid->toString().c_str());
     messerr("Subgrid origin:");
     for (Id idim = 0; idim < ndim; idim++)
       messerr("- Dimension #%d: Coordinate=%lf", idim + 1, coor1[idim]);

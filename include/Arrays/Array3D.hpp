@@ -34,18 +34,26 @@ public:
   }
 
   // Accès type arr[i][j][k]
+  struct LayerYConst
+  {
+    const T* base;
+    constexpr const T* operator[](size_t j) const noexcept { return base + j * NZ; }
+  };
+
   struct LayerY
   {
     T* base;
     constexpr T* operator[](size_t j) noexcept { return base + j * NZ; }
   };
+
   constexpr LayerY operator[](size_t i) noexcept
   {
     return LayerY {data.data() + i * NY * NZ};
   }
-  constexpr LayerY operator[](size_t i) const noexcept
+
+  constexpr LayerYConst operator[](size_t i) const noexcept
   {
-    return LayerY {const_cast<T*>(data.data() + i * NY * NZ)};
+    return LayerYConst {data.data() + i * NY * NZ};
   }
 
 #ifndef SWIG

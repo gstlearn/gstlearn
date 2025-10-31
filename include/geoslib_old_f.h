@@ -154,7 +154,6 @@ GSTLEARN_EXPORT Id db_locator_attribute_add(Db* db,
 GSTLEARN_EXPORT void db_locators_correct(VectorString& strings,
                                          const VectorInt& current,
                                          Id flag_locnew);
-GSTLEARN_EXPORT void db_grid_print(Db* db);
 
 GSTLEARN_EXPORT Id db_grid_define_coordinates(DbGrid* db);
 GSTLEARN_EXPORT void db_sample_print(Db* db,

@@ -399,15 +399,15 @@ plot.init <- function(dims = NA, xlim = NA, ylim = NA, asp = NA) {
                label=as.character(sw)), na.rm=TRUE, ...))
   
   # Adding the vertical axis at X=0
-  p = append(p, geom_vline(xintercept = 0., color='black', size=0.5))
+  p = append(p, geom_vline(xintercept = 0., color='black', linewidth=0.5))
   
   # Adding the horizontal axis at Y=0            
-  p = append(p, geom_hline(yintercept = 0., color="black", size=0.5))
+  p = append(p, geom_hline(yintercept = 0., color="black", linewidth=0.5))
   
   # Drawing the variance-covariance reference line (optional)
   if (drawVariance)
     p = append(p, geom_hline(yintercept=vario$getVar(ivar,jvar), 
-            color=varColor, linetype=varLinetype, size=varSize))
+            color=varColor, linetype=varLinetype, linewidth=varSize))
   
   # Tuning the bounds of graphics. This is optional in order to avoid multiple limit definitions
   if (flagLimits)
@@ -480,19 +480,19 @@ plot.init <- function(dims = NA, xlim = NA, ylim = NA, asp = NA) {
     gg = model$envelop(hh, ivar=ivar, jvar=jvar, isign=-1, codir=codir, mode=mode)
     df = data.frame(gg = gg[istart:nh], hh = hh[istart:nh])
     p = append(p, geom_line(data = df, mapping=aes(x=hh, y=gg), na.rm=TRUE, 
-            color = envColor, linetype = envLinetype, size=envSize))
+            color = envColor, linetype = envLinetype, linewidth=envSize))
     
     gg = model$envelop(hh, ivar=ivar, jvar=jvar, isign=+1, codir=codir, mode=mode)
     df = data.frame(gg = gg[istart:nh], hh = hh[istart:nh])
     p = append(p, geom_line(data = df, mapping=aes(x=hh, y=gg), na.rm=TRUE, 
-            color = envColor, linetype = envLinetype, size=envSize))
+            color = envColor, linetype = envLinetype, linewidth=envSize))
   }
 
   # Adding the vertical axis at X=0
-  p = append(p, geom_vline(xintercept = 0., color='black', size=0.5))
+  p = append(p, geom_vline(xintercept = 0., color='black', linewidth=0.5))
   
   # Adding the horizontal axis at Y=0
-  p = append(p, geom_hline(yintercept = 0., color = "black", size = 0.5))
+  p = append(p, geom_hline(yintercept = 0., color = "black", linewidth = 0.5))
   
   p
 }
