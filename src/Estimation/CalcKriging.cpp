@@ -117,7 +117,7 @@ bool CalcKriging::_preprocess()
   if (getKrigopt().hasFlagDGM())
   {
     // Centering (only if the output file is a Grid)
-    DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+    auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
     if (dbgrid != nullptr)
     {
       // Duplicating the coordinate variable names before centering

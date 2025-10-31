@@ -307,7 +307,7 @@ void st_get_closest_sample(DbGrid* dbgrid,
                            VectorDouble& dvect)
 {
   // Calculate the euclidean distance
-  double dd = distance_inter(dbgrid, dbpoint, ig, ip, nullptr);
+  double dd = distance_inter(dbgrid, dbpoint, ig, ip, dvect);
 
   // Distance modifier
   if (flag_aniso || iatt_time >= 0)
@@ -351,7 +351,7 @@ Id st_next_sample(Id ip0_init,
     if (jp >= np) jp -= np;
     if (xtarget <= xtab[rank[jp]]) return jp;
   }
-  return ip0_init;
+  return np - 1;
 }
 
 /*****************************************************************************/
@@ -384,7 +384,10 @@ static Id st_locate_point_on_grid(const Db* db_point,
     if (!db_point->isActive(iech)) continue;
     for (Id idim = 0; idim < ndim; idim++)
       coor[idim] = db_point->getCoordinate(iech, idim);
-    Id iad = db_grid->getGrid().coordinateToRank(coor);
+    // We try to locate the input sample 'coor' in the grid.
+    // There we must identify the cell to which the sample belongs.
+    // This cell must be CENTERD on the grid node position
+    Id iad = db_grid->getGrid().coordinateToRank(coor, true);
     if (iad >= 0)
     {
       tab[iech] = iad;
@@ -594,7 +597,7 @@ Id CalcMigrate::_migrateGridToPoint(DbGrid* db_grid,
     Id rank = static_cast<Id>(tab[iech]);
     if (!dmax.empty())
     {
-      (void)distance_inter(db_grid, db_point, rank, iech, dvect.data());
+      (void)distance_inter(db_grid, db_point, rank, iech, dvect);
       if (st_larger_than_dmax(ndim_min, dvect, distType, dmax)) continue;
     }
     tab[iech] = db_grid->getArray(rank, iatt);
@@ -929,7 +932,7 @@ Id manageExternalInformation(Id mode,
     messerr("The Input Db does not contain the %d External Drifts");
     return 1;
   }
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
+  auto* dbgrid = dynamic_cast<DbGrid*>(dbout);
 
   /* Dispatch */
 
@@ -1256,7 +1259,7 @@ VectorDouble dbgridLineSampling(DbGrid* dbgrid,
  ** \param[in]  iatt_scalev Optional variable for anisotropy scale factor (V)
  ** \param[in]  iatt_scalew Optional variable for anisotropy scale factor (W)
  ** \param[in]  flag_index  1 if the Index must be assigned to grid node
- **                         0 the 'iatt' attribute is assigned instead
+ **                         0 if the 'iatt' attribute is assigned instead
  ** \param[in]  distType    Type of distance for calculating maximum distance
  **                         1 for L1 and 2 for L2 distance
  ** \param[in]  dmax        Array of maximum distances (optional)
@@ -1375,7 +1378,7 @@ Id expandPointToGrid(Db* db_point,
 
     if (!dmax.empty() && jpmin >= 0)
     {
-      (void)distance_inter(db_grid, db_point, ig, jpmin, dvect.data());
+      (void)distance_inter(db_grid, db_point, ig, jpmin, dvect);
       if (st_larger_than_dmax(ndim_min, dvect, distType, dmax)) continue;
     }
 
@@ -1783,12 +1786,12 @@ Id CalcMigrate::_migrate(Db* db1,
 
   if (db2->isGrid())
   {
-    DbGrid* db2grid = dynamic_cast<DbGrid*>(db2);
+    auto* db2grid = dynamic_cast<DbGrid*>(db2);
 
     // To Grid
     if (db1->isGrid())
     {
-      DbGrid* db1grid = dynamic_cast<DbGrid*>(db1);
+      auto* db1grid = dynamic_cast<DbGrid*>(db1);
 
       // Grid to Grid
       if (flag_fill)
@@ -1843,7 +1846,7 @@ Id CalcMigrate::_migrate(Db* db1,
   }
   else if (db1->isGrid())
   {
-    DbGrid* db1grid = dynamic_cast<DbGrid*>(db1);
+    auto* db1grid = dynamic_cast<DbGrid*>(db1);
 
     // Grid to Point
     if (flag_inter)
@@ -1939,9 +1942,9 @@ Id CalcMigrate::_migratePointToGrid(Db* db_point,
       /* If the grid is not empty, find the closest sample */
 
       Id jech      = static_cast<Id>(tab[inode]);
-      double dist1 = distance_inter(db_grid, db_point, inode, iech, dvect.data());
+      double dist1 = distance_inter(db_grid, db_point, inode, iech, dvect);
       if (st_larger_than_dmax(ndim_min, dvect, distType, dmax)) continue;
-      double dist2 = distance_inter(db_grid, db_point, inode, jech, dvect.data());
+      double dist2 = distance_inter(db_grid, db_point, inode, jech, dvect);
       if (st_larger_than_dmax(ndim_min, dvect, distType, dmax)) continue;
       tab[inode] = (dist1 < dist2) ? iech : jech;
     }
@@ -2006,7 +2009,7 @@ Id CalcMigrate::_expandPointToPointBall(Db* db1,
 
     if (!dmax.empty())
     {
-      (void)distance_inter(db2, db1, inode, iech, dvect.data());
+      (void)distance_inter(db2, db1, inode, iech, dvect);
       if (st_larger_than_dmax(ndim, dvect, distType, dmax)) continue;
     }
 
@@ -2069,7 +2072,7 @@ Id CalcMigrate::_migrateGridToGrid(DbGrid* db_gridin,
 
     Id jech = db_gridout->coordinateToRank(coor);
     if (jech < 0) continue;
-    double dist_loc = distance_inter(db_gridin, db_gridout, iech, jech, dvect.data());
+    double dist_loc = distance_inter(db_gridin, db_gridout, iech, jech, dvect);
     if (st_larger_than_dmax(ndim_min, dvect, distType, dmax)) continue;
     if (dist_loc > dist[jech]) continue;
     tab[jech]  = value;
@@ -2127,7 +2130,7 @@ Id CalcMigrate::_expandPointToPoint(Db* db1,
     for (Id iech1 = 0; iech1 < db1->getNSample(); iech1++)
     {
       if (!db1->isActive(iech1)) continue;
-      double dist = distance_inter(db1, db2, iech1, iech2, dvect.data());
+      double dist = distance_inter(db1, db2, iech1, iech2, dvect);
       if (st_larger_than_dmax(ndim_min, dvect, distType, dmax)) continue;
       if (dist < distmin)
       {
@@ -2184,8 +2187,7 @@ Id CalcMigrate::_expandGridToGrid(DbGrid* db_gridin,
   VectorDouble coor(ndim_max);
   VectorDouble dvect(ndim_max);
   VectorDouble dist(db_gridout->getNSample());
-  for (Id jech = 0; jech < db_gridout->getNSample(); jech++)
-    dist[jech] = MAXIMUM_BIG;
+  dist.fill(MAXIMUM_BIG);
 
   /* Loop on the output grid nodes */
 
@@ -2194,11 +2196,12 @@ Id CalcMigrate::_expandGridToGrid(DbGrid* db_gridin,
     if (!db_gridout->isActive(iech)) continue;
 
     db_gridout->rankToCoordinatesInPlace(iech, coor);
-    Id jech = db_gridin->coordinateToRank(coor);
+    // We need to identify the node of the input grid to which the output node is assigned
+    // This requires to consider the cell CENTERED around the input grid node
+    Id jech = db_gridin->coordinateToRank(coor, true);
     if (jech < 0) continue;
 
-    double dist_loc = distance_inter(db_gridin, db_gridout, jech, iech,
-                                     dvect.data());
+    double dist_loc = distance_inter(db_gridin, db_gridout, jech, iech, dvect);
     if (st_larger_than_dmax(ndim_min, dvect, distType, dmax)) continue;
     if (dist_loc > dist[iech]) continue;
     tab[iech]  = db_gridin->getArray(jech, iatt);

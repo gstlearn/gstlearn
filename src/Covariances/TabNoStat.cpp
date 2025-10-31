@@ -135,7 +135,7 @@ void TabNoStat::setDbNoStatRef(const Db* dbref)
 {
   if (dbref != nullptr)
   {
-    // Db* db       = dynamic_cast<Db*>(dbref->clone());
+    // auto* db       = dynamic_cast<Db*>(dbref->clone());
     _dbNoStatRef = std::shared_ptr<const Db>(dynamic_cast<Db*>(dbref->clone()));
   }
   else

@@ -213,7 +213,7 @@ Id RuleShift::_st_shift_on_grid(Db* db, Id ndim, Id flag_grid_check) const
   _xyz.resize(ndim);
   _ind1.resize(ndim);
 
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(db);
+  auto* dbgrid = dynamic_cast<DbGrid*>(db);
   if (dbgrid == nullptr)
   {
     if (!flag_grid_check) return (0);
@@ -287,7 +287,7 @@ Id RuleShift::gaus2facResult(PropDef* propdef,
 
   check_mandatory_attribute("rule_gaus2fac_result", dbout, ELoc::FACIES);
   check_mandatory_attribute("rule_gaus2fac_result", dbout, ELoc::SIMU);
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
+  auto* dbgrid = dynamic_cast<DbGrid*>(dbout);
   if (dbgrid == nullptr) return 1;
   ndim = dbgrid->getNDim();
   _xyz.resize(ndim);

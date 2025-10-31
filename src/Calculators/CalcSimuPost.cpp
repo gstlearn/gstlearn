@@ -503,7 +503,7 @@ VectorInt CalcSimuPost::_samplesInCellIdenticalSpaceDimension(const VectorInt& i
 VectorInt CalcSimuPost::_samplesInCellDifferentSpaceDimension() const
 {
   VectorInt local;
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+  auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
   for (Id iechin = 0, nechin = getDbin()->getNSample(); iechin < nechin; iechin++)
   {
     if (!getDbin()->isActive(iechin)) continue;
@@ -548,7 +548,7 @@ Id CalcSimuPost::_process()
 
   // Get the indices of the samples within the Grid
   // There is no need to check that 'dbout' is a grid (see _check)
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+  auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
   VectorInt indblock;
   auto icase = _getSortingCase();
   if (icase == 1)

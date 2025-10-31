@@ -49,7 +49,7 @@ CalcSimuPartition::~CalcSimuPartition()
  *****************************************************************************/
 bool CalcSimuPartition::_voronoi()
 {
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+  auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
   auto ndim      = _getNDim();
   VectorDouble simgrid(dbgrid->getNSample());
 
@@ -123,7 +123,7 @@ bool CalcSimuPartition::_voronoi()
  *****************************************************************************/
 bool CalcSimuPartition::_poisson()
 {
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+  auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
 
   std::vector<Stack> stacks;
   std::vector<Plane> planes;

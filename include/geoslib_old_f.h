@@ -198,7 +198,7 @@ GSTLEARN_EXPORT double distance_inter(const Db* db1,
                                       const Db* db2,
                                       Id iech1,
                                       Id iech2,
-                                      double* dist_vect);
+                                      VectorDouble& dist_vect);
 GSTLEARN_EXPORT double distance_intra(const Db* db,
                                       Id iech1,
                                       Id iech2,
@@ -208,15 +208,7 @@ GSTLEARN_EXPORT double distance_grid(DbGrid* db,
                                      Id iech1,
                                      Id iech2,
                                      double* dist_vect);
-GSTLEARN_EXPORT VectorDouble db_distances_general(Db* db1,
-                                                  Db* db2,
-                                                  Id niso,
-                                                  Id mode,
-                                                  Id flag_same,
-                                                  Id* n1,
-                                                  Id* n2,
-                                                  double* dmin,
-                                                  double* dmax);
+
 GSTLEARN_EXPORT Id point_to_grid(const DbGrid* db,
                                  const double* coor,
                                  Id flag_outside,

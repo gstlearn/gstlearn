@@ -298,7 +298,7 @@ DbGrid* CalcImage::_buildMarpat(const NeighImage* neigh,
  *****************************************************************************/
 bool CalcImage::_run()
 {
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbin());
+  auto* dbgrid = dynamic_cast<DbGrid*>(getDbin());
 
   if (_flagFilter)
   {

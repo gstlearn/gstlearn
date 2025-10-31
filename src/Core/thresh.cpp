@@ -353,7 +353,7 @@ Id rule_thresh_define_shadow(PropDef* propdef,
   /* Set the debugging information */
 
   OptDbg::setCurrentIndex(iech + 1);
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(db);
+  auto* dbgrid = dynamic_cast<DbGrid*>(db);
 
   /* Processing an "unknown" facies */
 

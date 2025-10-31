@@ -410,7 +410,8 @@ Id ANeigh::_xvalid(Id iech_in, Id iech_out, double eps)
   if (!getFlagXvalid()) return 0;
   if (!getFlagKFold())
   {
-    if (distance_inter(_dbin, _dbout, iech_in, iech_out, NULL) < eps) return 1;
+    VectorDouble dvect(getNDim());
+    if (distance_inter(_dbin, _dbout, iech_in, iech_out, dvect) < eps) return 1;
   }
   else
   {
