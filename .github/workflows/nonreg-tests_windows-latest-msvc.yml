@@ -61,7 +61,7 @@ jobs:
     - name: Install python dependencies
       run: |
         uv pip install numpy
-        uv pip install pandas scipy mlxtend
+        uv pip install mlxtend
 
     - name: Run sccache-cache
       uses: mozilla-actions/sccache-action@v0.0.9
