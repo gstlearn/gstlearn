@@ -1379,8 +1379,11 @@ VectorDouble Vario::getGgVec(Id idir,
       if (!IFFFF(iad) && (!compress || _sw[idir][iad] > 0.))
       {
         double val = _gg[idir][iad];
-        if (asCov && !getFlagAsym()) val = c0 - val;
-        if (flagNorm) val /= c0;
+        if (!FFFF(val))
+        {
+          if (asCov && !getFlagAsym()) val = c0 - val;
+          if (flagNorm) val /= c0;
+        }
         gg.push_back(val);
       }
     }
@@ -1388,8 +1391,11 @@ VectorDouble Vario::getGgVec(Id idir,
     if (!IFFFF(iad) && (!compress || _sw[idir][iad] > 0.))
     {
       double val = _gg[idir][iad];
-      if (asCov && !getFlagAsym()) val = c0 - val;
-      if (flagNorm) val /= c0;
+      if (!FFFF(val))
+      {
+        if (asCov && !getFlagAsym()) val = c0 - val;
+        if (flagNorm) val /= c0;
+      }
       gg.push_back(val);
     }
     for (Id ilag = 0; ilag < nlag; ilag++)
@@ -1398,8 +1404,11 @@ VectorDouble Vario::getGgVec(Id idir,
       if (!IFFFF(iad) && (!compress || _sw[idir][iad] > 0.))
       {
         double val = _gg[idir][iad];
-        if (asCov && !getFlagAsym()) val = c0 - val;
-        if (flagNorm) val /= c0;
+        if (!FFFF(val))
+        {
+          if (asCov && !getFlagAsym()) val = c0 - val;
+          if (flagNorm) val /= c0;
+        }
         gg.push_back(val);
       }
     }
@@ -1412,8 +1421,11 @@ VectorDouble Vario::getGgVec(Id idir,
       if (!IFFFF(iad) && (!compress || _sw[idir][iad] > 0.))
       {
         double val = _gg[idir][iad];
-        if (asCov && !getFlagAsym()) val = c0 - val;
-        if (flagNorm) val /= c0;
+        if (!FFFF(val))
+        {
+          if (asCov && !getFlagAsym()) val = c0 - val;
+          if (flagNorm) val /= c0;
+        }
         gg.push_back(val);
       }
     }
@@ -1427,30 +1439,33 @@ void Vario::setGgVec(Id idir, Id ivar, Id jvar, const VectorDouble& gg)
   if (!_isVariableValid(jvar)) return;
   if (!_isDirectionValid(idir)) return;
   auto nlag = getNLag(idir);
-  if (nlag != static_cast<Id>(gg.size())) return;
+  if (nlag != static_cast<Id>(gg.size()))
+  {
+    messerr("The number of values expected is %d", nlag);
+    messerr("The length of your input vector (gg) is %d", static_cast<Id>(gg.size()));
+    messerr("(It should include all lags (including those with no pair)");
+    messerr("Nothing is done");
+    return;
+  }
 
-  Id iad;
+  Id lec = 0;
   if (_flagAsym)
   {
     for (Id ilag = nlag - 1; ilag >= 0; ilag--)
     {
-      iad = getDirAddress(idir, ivar, jvar, ilag, false, -1);
-      setGg(idir, ivar, jvar, ilag, gg[iad]);
+      setGg(idir, ivar, jvar, ilag, gg[lec++]);
     }
-    iad = getDirAddress(idir, ivar, jvar, 0, false, 0);
-    setGg(idir, ivar, jvar, 0, gg[iad]);
+    setGg(idir, ivar, jvar, 0, gg[lec++]);
     for (Id ilag = 0; ilag < nlag; ilag++)
     {
-      iad = getDirAddress(idir, ivar, jvar, ilag, false, 1);
-      setGg(idir, ivar, jvar, ilag, gg[iad]);
+      setGg(idir, ivar, jvar, ilag, gg[lec++]);
     }
   }
   else
   {
     for (Id ilag = 0; ilag < nlag; ilag++)
     {
-      iad = getDirAddress(idir, ivar, jvar, ilag, true, 0);
-      setGg(idir, ivar, jvar, ilag, gg[iad]);
+      setGg(idir, ivar, jvar, ilag, gg[lec++]);
     }
   }
 }
@@ -1509,30 +1524,33 @@ void Vario::setHhVec(Id idir, Id ivar, Id jvar, const VectorDouble& hh)
   if (!_isDirectionValid(idir)) return;
 
   auto nlag = getNLag(idir);
-  if (nlag != static_cast<Id>(hh.size())) return;
+  if (nlag != static_cast<Id>(hh.size()))
+  {
+    messerr("The number of values expected is %d", nlag);
+    messerr("The length of your input vector (hh) is %d", static_cast<Id>(hh.size()));
+    messerr("(It should include all lags (including those with no pair)");
+    messerr("Nothing is done");
+    return;
+  }
 
-  Id iad;
+  Id lec = 0;
   if (_flagAsym)
   {
     for (Id ilag = nlag - 1; ilag >= 0; ilag--)
     {
-      iad = getDirAddress(idir, ivar, jvar, ilag, false, -1);
-      setHh(idir, ivar, jvar, ilag, hh[iad]);
+      setHh(idir, ivar, jvar, ilag, hh[lec++]);
     }
-    iad = getDirAddress(idir, ivar, jvar, 0, false, 0);
-    setHh(idir, ivar, jvar, 0, hh[iad]);
+    setHh(idir, ivar, jvar, 0, hh[lec++]);
     for (Id ilag = 0; ilag < nlag; ilag++)
     {
-      iad = getDirAddress(idir, ivar, jvar, ilag, false, 1);
-      setHh(idir, ivar, jvar, ilag, hh[iad]);
+      setHh(idir, ivar, jvar, ilag, hh[lec++]);
     }
   }
   else
   {
     for (Id ilag = 0; ilag < nlag; ilag++)
     {
-      iad = getDirAddress(idir, ivar, jvar, ilag, true, 0);
-      setHh(idir, ivar, jvar, ilag, hh[iad]);
+      setHh(idir, ivar, jvar, ilag, hh[lec++]);
     }
   }
 }
@@ -1590,30 +1608,33 @@ void Vario::setSwVec(Id idir, Id ivar, Id jvar, const VectorDouble& sw)
   if (!_isVariableValid(jvar)) return;
   if (!_isDirectionValid(idir)) return;
   auto nlag = getNLag(idir);
-  if (nlag != static_cast<Id>(sw.size())) return;
+  if (nlag != static_cast<Id>(sw.size()))
+  {
+    messerr("The number of values expected is %d", nlag);
+    messerr("The length of your input vector (sw) is %d", static_cast<Id>(sw.size()));
+    messerr("(It should include all lags (including those with no pair)");
+    messerr("Nothing is done");
+    return;
+  }
 
-  Id iad;
+  Id lec = 0;
   if (_flagAsym)
   {
     for (Id ilag = nlag - 1; ilag >= 0; ilag--)
     {
-      iad = getDirAddress(idir, ivar, jvar, ilag, false, -1);
-      setSw(idir, ivar, jvar, ilag, sw[iad]);
+      setSw(idir, ivar, jvar, ilag, sw[lec++]);
     }
-    iad = getDirAddress(idir, ivar, jvar, 0, false, 0);
-    setSw(idir, ivar, jvar, 0, sw[iad]);
+    setSw(idir, ivar, jvar, 0, sw[lec++]);
     for (Id ilag = 0; ilag < nlag; ilag++)
     {
-      iad = getDirAddress(idir, ivar, jvar, ilag, false, 1);
-      setSw(idir, ivar, jvar, ilag, sw[iad]);
+      setSw(idir, ivar, jvar, ilag, sw[lec++]);
     }
   }
   else
   {
     for (Id ilag = 0; ilag < nlag; ilag++)
     {
-      iad = getDirAddress(idir, ivar, jvar, ilag, true, 0);
-      setSw(idir, ivar, jvar, ilag, sw[iad]);
+      setSw(idir, ivar, jvar, ilag, sw[lec++]);
     }
   }
 }

@@ -103,6 +103,7 @@ Number of variable(s)       = 1
 Number of direction(s)      = 2
 Space dimension             = 2
 Variable(s)                 = [Simu]
+
 Variance-Covariance Matrix     0.859
 
 Direction #1
@@ -202,6 +203,7 @@ Number of variable(s)       = 1
 Number of direction(s)      = 2
 Space dimension             = 2
 Variable(s)                 = [Simu]
+
 Variance-Covariance Matrix     0.874
 
 Direction #1
@@ -319,3 +321,149 @@ Data Base Statistics
  Mean value          =   8056.157
  Standard Deviation  =    752.441
  Variance            = 566166.790
+
+Variogram characteristics
+=========================
+Number of variable(s)       = 2
+Number of direction(s)      = 1
+Space dimension             = 2
+Variable(s)                 = [z-1 z-2]
+
+Variance-Covariance Matrix
+               [,  0]    [,  1]
+     [  0,]     1.138    -0.255
+     [  1,]    -0.255     1.559
+
+Direction #1
+------------
+Number of lags              = 10
+Direction coefficients      =      1.000     0.000
+Direction angles (degrees)  =      0.000
+Tolerance on direction      =     90.000 (degrees)
+Calculation lag             =      0.100
+Tolerance on distance       =     50.000 (Percent of the lag value)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         0     2.000     0.033     0.102
+         1     6.000     0.113     0.909
+         2     5.000     0.196     0.986
+         3     7.000     0.308     1.583
+         4     7.000     0.394     2.269
+         5     7.000     0.490     1.003
+         6     6.000     0.595     0.489
+         7     2.000     0.736     0.162
+         8     3.000     0.821     3.016
+
+For variables 2 and 1
+      Rank    Npairs  Distance     Value
+         0     2.000     0.033     0.401
+         1     6.000     0.113     0.136
+         2     5.000     0.196    -0.514
+         3     7.000     0.308     1.019
+         4     7.000     0.394    -0.750
+         5     7.000     0.490    -0.946
+         6     6.000     0.595    -0.740
+         7     2.000     0.736    -0.664
+         8     3.000     0.821    -0.430
+
+For variable 2
+      Rank    Npairs  Distance     Value
+         0     2.000     0.033     1.605
+         1     6.000     0.113     1.225
+         2     5.000     0.196     0.629
+         3     7.000     0.308     1.704
+         4     7.000     0.394     1.937
+         5     7.000     0.490     2.034
+         6     6.000     0.595     2.435
+         7     2.000     0.736     4.035
+         8     3.000     0.821     0.615
+Variogram for: ivar=0, jvar=0 (no compress)
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]     0.102     0.909     0.986     1.583     2.269     1.003     0.489
+     [  7,]     0.162     3.016
+Variogram for: ivar=1, jvar=0 (no compress)
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]     0.401     0.136    -0.514     1.019    -0.750    -0.946    -0.740
+     [  7,]    -0.664    -0.430
+Variogram for: ivar=1, jvar=1 (no compress)
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]     1.605     1.225     0.629     1.704     1.937     2.034     2.435
+     [  7,]     4.035     0.615
+The number of values expected is 10
+The length of your input vector (gg) is 9
+(It should include all lags (including those with no pair)
+Nothing is done
+The number of values expected is 10
+The length of your input vector (gg) is 9
+(It should include all lags (including those with no pair)
+Nothing is done
+Variogram for: ivar=0, jvar=0
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]     0.102     0.909     0.986     1.583     2.269     1.003     0.489
+     [  7,]     0.162     3.016       N/A
+Variogram for: ivar=1, jvar=0
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]     0.401     0.136    -0.514     1.019    -0.750    -0.946    -0.740
+     [  7,]    -0.664    -0.430       N/A
+Variogram for: ivar=1, jvar=1
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]     1.605     1.225     0.629     1.704     1.937     2.034     2.435
+     [  7,]     4.035     0.615       N/A
+
+Variogram characteristics
+=========================
+Number of variable(s)       = 2
+Number of direction(s)      = 1
+Space dimension             = 2
+Variable(s)                 = [z-1 z-2]
+
+Variance-Covariance Matrix
+               [,  0]    [,  1]
+     [  0,]     1.138    -0.255
+     [  1,]    -0.255     1.559
+
+Direction #1
+------------
+Number of lags              = 10
+Direction coefficients      =      1.000     0.000
+Direction angles (degrees)  =      0.000
+Tolerance on direction      =     90.000 (degrees)
+Calculation lag             =      0.100
+Tolerance on distance       =     50.000 (Percent of the lag value)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         0     2.000     0.033     0.102
+         1     6.000     0.113     0.909
+         2     5.000     0.196     0.986
+         3     7.000     0.308     1.583
+         4     7.000     0.394     2.269
+         5     7.000     0.490     1.003
+         6     6.000     0.595     0.489
+         7     2.000     0.736     0.162
+         8     3.000     0.821     3.016
+
+For variables 2 and 1
+      Rank    Npairs  Distance     Value
+         0     2.000     0.033     0.102
+         1     6.000     0.113     0.909
+         2     5.000     0.196     0.986
+         3     7.000     0.308     1.583
+         4     7.000     0.394     2.269
+         5     7.000     0.490     1.003
+         6     6.000     0.595     0.489
+         7     2.000     0.736     0.162
+         8     3.000     0.821     3.016
+
+For variable 2
+      Rank    Npairs  Distance     Value
+         0     2.000     0.033     0.102
+         1     6.000     0.113     0.909
+         2     5.000     0.196     0.986
+         3     7.000     0.308     1.583
+         4     7.000     0.394     2.269
+         5     7.000     0.490     1.003
+         6     6.000     0.595     0.489
+         7     2.000     0.736     0.162
+         8     3.000     0.821     3.016
