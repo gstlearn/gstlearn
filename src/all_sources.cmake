@@ -73,54 +73,54 @@ set(SRC
   Covariances/ANoStat.cpp
   Covariances/NoStatArray.cpp
   Covariances/NoStatFunctional.cpp
-  Covariances/CovGaussian.cpp
-  Covariances/CovLinear.cpp
-  Covariances/CovWendland0.cpp
-  Covariances/CovWendland1.cpp
-  Covariances/CovWendland2.cpp
+  Covariances/KernelGaussian.cpp
+  Covariances/KernelLinear.cpp
+  Covariances/KernelWendland0.cpp
+  Covariances/KernelWendland1.cpp
+  Covariances/KernelWendland2.cpp
   Covariances/CovGradientGeneric.cpp
   Covariances/CovGradientAnalytic.cpp
-  Covariances/CovMatern.cpp
-  Covariances/CovPower.cpp
-  Covariances/CovStorkey.cpp
-  Covariances/CovGC5.cpp
+  Covariances/KernelMatern.cpp
+  Covariances/KernelPower.cpp
+  Covariances/KernelStorkey.cpp
+  Covariances/KernelGC5.cpp
   Covariances/CovList.cpp
   Covariances/CovAnisoList.cpp
-  Covariances/CovPenta.cpp
-  Covariances/CovGamma.cpp
-  Covariances/CovExponential.cpp
-  Covariances/CovGC1.cpp
+  Covariances/KernelPenta.cpp
+  Covariances/KernelGamma.cpp
+  Covariances/KernelExponential.cpp
+  Covariances/KernelGC1.cpp
   Covariances/ACov.cpp
-  Covariances/CovSincard.cpp
+  Covariances/KernelSincard.cpp
   Covariances/CovLMCTapering.cpp
   Covariances/CovLMCConvolution.cpp
   Covariances/CovLMCAnamorphosis.cpp
   Covariances/CorGneiting.cpp
   Covariances/CorMatern.cpp
-  Covariances/CovGCspline2.cpp
-  Covariances/CovGC3.cpp
-  Covariances/CovGCspline.cpp
-  Covariances/CovTriangle.cpp
+  Covariances/KernelGCspline2.cpp
+  Covariances/KernelGC3.cpp
+  Covariances/KernelGCspline.cpp
+  Covariances/KernelTriangle.cpp
   Covariances/CovCalcMode.cpp
   Covariances/CovContext.cpp
-  Covariances/CovCosinus.cpp
-  Covariances/CovCosExp.cpp
-  Covariances/CovReg1D.cpp
-  Covariances/ACovFunc.cpp
+  Covariances/KernelCosinus.cpp
+  Covariances/KernelCosExp.cpp
+  Covariances/KernelReg1D.cpp
+  Covariances/AKernel.cpp
   Covariances/CorAniso.cpp
   Covariances/CovAniso.cpp
-  Covariances/CovCubic.cpp
-  Covariances/CovNugget.cpp
-  Covariances/CovBesselJ.cpp
-  Covariances/CovSpherical.cpp
-  Covariances/CovCauchy.cpp
-  Covariances/CovCauchyGen.cpp
+  Covariances/KernelCubic.cpp
+  Covariances/KernelNugget.cpp
+  Covariances/KernelBesselJ.cpp
+  Covariances/KernelSpherical.cpp
+  Covariances/KernelCauchy.cpp
+  Covariances/KernelCauchyGen.cpp
   Covariances/CovFactory.cpp
-  Covariances/CovStable.cpp
-  Covariances/CovMarkov.cpp
-  Covariances/CovGeometric.cpp
-  Covariances/CovPoisson.cpp
-  Covariances/CovLinearSph.cpp
+  Covariances/KernelStable.cpp
+  Covariances/KernelMarkov.cpp
+  Covariances/KernelGeometric.cpp
+  Covariances/KernelPoisson.cpp
+  Covariances/KernelLinearSph.cpp
   Covariances/CovDiffusionAdvection.cpp
   Covariances/CovHelper.cpp
   Polygon/Polygons.cpp
