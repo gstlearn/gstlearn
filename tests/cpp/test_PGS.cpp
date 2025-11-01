@@ -17,7 +17,7 @@
 
 #include "Basic/File.hpp"
 #include "Basic/String.hpp"
-#include "Covariances/CovMatern.hpp"
+#include "Covariances/KernelMatern.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "LithoRule/RuleProp.hpp"
