@@ -78,49 +78,49 @@ set(SRC
   Covariances/KernelWendland0.cpp
   Covariances/KernelWendland1.cpp
   Covariances/KernelWendland2.cpp
+  Covariances/CovGradientGeneric.cpp
+  Covariances/CovGradientAnalytic.cpp
   Covariances/KernelMatern.cpp
   Covariances/KernelPower.cpp
   Covariances/KernelStorkey.cpp
   Covariances/KernelGC5.cpp
+  Covariances/CovList.cpp
+  Covariances/CovAnisoList.cpp
   Covariances/KernelPenta.cpp
   Covariances/KernelGamma.cpp
   Covariances/KernelExponential.cpp
   Covariances/KernelGC1.cpp
+  Covariances/ACov.cpp
   Covariances/KernelSincard.cpp
+  Covariances/CovLMCTapering.cpp
+  Covariances/CovLMCConvolution.cpp
+  Covariances/CovLMCAnamorphosis.cpp
+  Covariances/CorGneiting.cpp
+  Covariances/CorMatern.cpp
   Covariances/KernelGCspline2.cpp
   Covariances/KernelGC3.cpp
   Covariances/KernelGCspline.cpp
   Covariances/KernelTriangle.cpp
+  Covariances/CovCalcMode.cpp
+  Covariances/CovContext.cpp
   Covariances/KernelCosinus.cpp
   Covariances/KernelCosExp.cpp
   Covariances/KernelReg1D.cpp
+  Covariances/AKernel.cpp
+  Covariances/CorAniso.cpp
+  Covariances/CovAniso.cpp
   Covariances/KernelCubic.cpp
   Covariances/KernelNugget.cpp
   Covariances/KernelBesselJ.cpp
   Covariances/KernelSpherical.cpp
   Covariances/KernelCauchy.cpp
   Covariances/KernelCauchyGen.cpp
+  Covariances/CovFactory.cpp
   Covariances/KernelStable.cpp
   Covariances/KernelMarkov.cpp
   Covariances/KernelGeometric.cpp
   Covariances/KernelPoisson.cpp
   Covariances/KernelLinearSph.cpp
-  Covariances/CovGradientGeneric.cpp
-  Covariances/CovGradientAnalytic.cpp
-  Covariances/CovList.cpp
-  Covariances/CovAnisoList.cpp
-  Covariances/ACov.cpp
-  Covariances/CovLMCTapering.cpp
-  Covariances/CovLMCConvolution.cpp
-  Covariances/CovLMCAnamorphosis.cpp
-  Covariances/CorGneiting.cpp
-  Covariances/CorMatern.cpp
-  Covariances/CovCalcMode.cpp
-  Covariances/CovContext.cpp
-  Covariances/AKernel.cpp
-  Covariances/CorAniso.cpp
-  Covariances/CovAniso.cpp
-  Covariances/CovFactory.cpp
   Covariances/CovDiffusionAdvection.cpp
   Covariances/CovHelper.cpp
   Polygon/Polygons.cpp
