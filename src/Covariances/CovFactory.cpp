@@ -11,127 +11,127 @@
 #include "Covariances/CovFactory.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/String.hpp"
-#include "Covariances/CovBesselJ.hpp"
-#include "Covariances/CovCauchy.hpp"
-#include "Covariances/CovCauchyGen.hpp"
+#include "Covariances/KernelBesselJ.hpp"
+#include "Covariances/KernelCauchy.hpp"
+#include "Covariances/KernelCauchyGen.hpp"
 #include "Covariances/CovContext.hpp"
-#include "Covariances/CovCosExp.hpp"
-#include "Covariances/CovCosinus.hpp"
-#include "Covariances/CovCubic.hpp"
-#include "Covariances/CovExponential.hpp"
-#include "Covariances/CovGC1.hpp"
-#include "Covariances/CovGC3.hpp"
-#include "Covariances/CovGC5.hpp"
-#include "Covariances/CovGCspline.hpp"
-#include "Covariances/CovGCspline2.hpp"
-#include "Covariances/CovGamma.hpp"
-#include "Covariances/CovGaussian.hpp"
-#include "Covariances/CovGeometric.hpp"
-#include "Covariances/CovLinear.hpp"
-#include "Covariances/CovLinearSph.hpp"
-#include "Covariances/CovMarkov.hpp"
-#include "Covariances/CovMatern.hpp"
-#include "Covariances/CovNugget.hpp"
-#include "Covariances/CovPenta.hpp"
-#include "Covariances/CovPoisson.hpp"
-#include "Covariances/CovPower.hpp"
-#include "Covariances/CovReg1D.hpp"
-#include "Covariances/CovSincard.hpp"
-#include "Covariances/CovSpherical.hpp"
-#include "Covariances/CovStable.hpp"
-#include "Covariances/CovStorkey.hpp"
-#include "Covariances/CovTriangle.hpp"
-#include "Covariances/CovWendland0.hpp"
-#include "Covariances/CovWendland1.hpp"
-#include "Covariances/CovWendland2.hpp"
+#include "Covariances/KernelCosExp.hpp"
+#include "Covariances/KernelCosinus.hpp"
+#include "Covariances/KernelCubic.hpp"
+#include "Covariances/KernelExponential.hpp"
+#include "Covariances/KernelGC1.hpp"
+#include "Covariances/KernelGC3.hpp"
+#include "Covariances/KernelGC5.hpp"
+#include "Covariances/KernelGCspline.hpp"
+#include "Covariances/KernelGCspline2.hpp"
+#include "Covariances/KernelGamma.hpp"
+#include "Covariances/KernelGaussian.hpp"
+#include "Covariances/KernelGeometric.hpp"
+#include "Covariances/KernelLinear.hpp"
+#include "Covariances/KernelLinearSph.hpp"
+#include "Covariances/KernelMarkov.hpp"
+#include "Covariances/KernelMatern.hpp"
+#include "Covariances/KernelNugget.hpp"
+#include "Covariances/KernelPenta.hpp"
+#include "Covariances/KernelPoisson.hpp"
+#include "Covariances/KernelPower.hpp"
+#include "Covariances/KernelReg1D.hpp"
+#include "Covariances/KernelSincard.hpp"
+#include "Covariances/KernelSpherical.hpp"
+#include "Covariances/KernelStable.hpp"
+#include "Covariances/KernelStorkey.hpp"
+#include "Covariances/KernelTriangle.hpp"
+#include "Covariances/KernelWendland0.hpp"
+#include "Covariances/KernelWendland1.hpp"
+#include "Covariances/KernelWendland2.hpp"
 #include <cctype>
 
 namespace gstlrn
 {
-bool _isValid(ACovFunc* cova, const CovContext& ctxt)
+bool _isValid(AKernel* cova, const CovContext& ctxt)
 {
   return static_cast<Id>(cova->getMaxNDim()) <= 0 ||
          static_cast<Id>(ctxt.getNDim()) <= static_cast<Id>(cova->getMaxNDim());
 }
 
-ACovFunc* CovFactory::createCovFunc(const ECov& type, const CovContext& ctxt)
+AKernel* CovFactory::createCovFunc(const ECov& type, const CovContext& ctxt)
 {
   switch (type.toEnum())
   {
-    case ECov::E_NUGGET: return new CovNugget(ctxt);
-    case ECov::E_EXPONENTIAL: return new CovExponential(ctxt);
-    case ECov::E_SPHERICAL: return new CovSpherical(ctxt);
-    case ECov::E_GAUSSIAN: return new CovGaussian(ctxt);
-    case ECov::E_CUBIC: return new CovCubic(ctxt);
-    case ECov::E_SINCARD: return new CovSincard(ctxt);
-    case ECov::E_BESSELJ: return new CovBesselJ(ctxt);
-    case ECov::E_MATERN: return new CovMatern(ctxt);
-    case ECov::E_GAMMA: return new CovGamma(ctxt);
-    case ECov::E_CAUCHY: return new CovCauchy(ctxt);
-    case ECov::E_CAUCHY_GEN: return new CovCauchyGen(ctxt);
-    case ECov::E_STABLE: return new CovStable(ctxt);
-    case ECov::E_LINEAR: return new CovLinear(ctxt);
-    case ECov::E_POWER: return new CovPower(ctxt);
-    case ECov::E_ORDER1_GC: return new CovGC1(ctxt);
-    case ECov::E_SPLINE_GC: return new CovGCspline(ctxt);
-    case ECov::E_SPLINE2_GC: return new CovGCspline2(ctxt);
-    case ECov::E_ORDER3_GC: return new CovGC3(ctxt);
-    case ECov::E_ORDER5_GC: return new CovGC5(ctxt);
-    case ECov::E_COSINUS: return new CovCosinus(ctxt);
-    case ECov::E_TRIANGLE: return new CovTriangle(ctxt);
-    case ECov::E_COSEXP: return new CovCosExp(ctxt);
-    case ECov::E_REG1D: return new CovReg1D(ctxt);
-    case ECov::E_PENTA: return new CovPenta(ctxt);
-    case ECov::E_STORKEY: return new CovStorkey(ctxt);
-    case ECov::E_WENDLAND0: return new CovWendland0(ctxt);
-    case ECov::E_WENDLAND1: return new CovWendland1(ctxt);
-    case ECov::E_WENDLAND2: return new CovWendland2(ctxt);
-    case ECov::E_MARKOV: return new CovMarkov(ctxt);
-    case ECov::E_GEOMETRIC: return new CovGeometric(ctxt);
-    case ECov::E_POISSON: return new CovPoisson(ctxt);
-    case ECov::E_LINEARSPH: return new CovLinearSph(ctxt);
+    case ECov::E_NUGGET: return new KernelNugget(ctxt);
+    case ECov::E_EXPONENTIAL: return new KernelExponential(ctxt);
+    case ECov::E_SPHERICAL: return new KernelSpherical(ctxt);
+    case ECov::E_GAUSSIAN: return new KernelGaussian(ctxt);
+    case ECov::E_CUBIC: return new KernelCubic(ctxt);
+    case ECov::E_SINCARD: return new KernelSincard(ctxt);
+    case ECov::E_BESSELJ: return new KernelBesselJ(ctxt);
+    case ECov::E_MATERN: return new KernelMatern(ctxt);
+    case ECov::E_GAMMA: return new KernelGamma(ctxt);
+    case ECov::E_CAUCHY: return new KernelCauchy(ctxt);
+    case ECov::E_CAUCHY_GEN: return new KernelCauchyGen(ctxt);
+    case ECov::E_STABLE: return new KernelStable(ctxt);
+    case ECov::E_LINEAR: return new KernelLinear(ctxt);
+    case ECov::E_POWER: return new KernelPower(ctxt);
+    case ECov::E_ORDER1_GC: return new KernelGC1(ctxt);
+    case ECov::E_SPLINE_GC: return new KernelGCspline(ctxt);
+    case ECov::E_SPLINE2_GC: return new KernelGCspline2(ctxt);
+    case ECov::E_ORDER3_GC: return new KernelGC3(ctxt);
+    case ECov::E_ORDER5_GC: return new KernelGC5(ctxt);
+    case ECov::E_COSINUS: return new KernelCosinus(ctxt);
+    case ECov::E_TRIANGLE: return new KernelTriangle(ctxt);
+    case ECov::E_COSEXP: return new KernelCosExp(ctxt);
+    case ECov::E_REG1D: return new KernelReg1D(ctxt);
+    case ECov::E_PENTA: return new KernelPenta(ctxt);
+    case ECov::E_STORKEY: return new KernelStorkey(ctxt);
+    case ECov::E_WENDLAND0: return new KernelWendland0(ctxt);
+    case ECov::E_WENDLAND1: return new KernelWendland1(ctxt);
+    case ECov::E_WENDLAND2: return new KernelWendland2(ctxt);
+    case ECov::E_MARKOV: return new KernelMarkov(ctxt);
+    case ECov::E_GEOMETRIC: return new KernelGeometric(ctxt);
+    case ECov::E_POISSON: return new KernelPoisson(ctxt);
+    case ECov::E_LINEARSPH: return new KernelLinearSph(ctxt);
     default: break;
   }
   return nullptr;
 }
 
-ACovFunc* CovFactory::duplicateCovFunc(const ACovFunc& cov)
+AKernel* CovFactory::duplicateCovFunc(const AKernel& cov)
 {
   switch (cov.getType().toEnum())
   {
     // Warning : if a crash with "bad cast" occurs, please check the type of your CovFunc
-    case ECov::E_NUGGET: return new CovNugget(dynamic_cast<const CovNugget&>(cov));
-    case ECov::E_EXPONENTIAL: return new CovExponential(dynamic_cast<const CovExponential&>(cov));
-    case ECov::E_SPHERICAL: return new CovSpherical(dynamic_cast<const CovSpherical&>(cov));
-    case ECov::E_GAUSSIAN: return new CovGaussian(dynamic_cast<const CovGaussian&>(cov));
-    case ECov::E_CUBIC: return new CovCubic(dynamic_cast<const CovCubic&>(cov));
-    case ECov::E_SINCARD: return new CovSincard(dynamic_cast<const CovSincard&>(cov));
-    case ECov::E_BESSELJ: return new CovBesselJ(dynamic_cast<const CovBesselJ&>(cov));
-    case ECov::E_MATERN: return new CovMatern(dynamic_cast<const CovMatern&>(cov));
-    case ECov::E_GAMMA: return new CovGamma(dynamic_cast<const CovGamma&>(cov));
-    case ECov::E_CAUCHY: return new CovCauchy(dynamic_cast<const CovCauchy&>(cov));
-    case ECov::E_CAUCHY_GEN: return new CovCauchyGen(dynamic_cast<const CovCauchyGen&>(cov));
-    case ECov::E_STABLE: return new CovStable(dynamic_cast<const CovStable&>(cov));
-    case ECov::E_LINEAR: return new CovLinear(dynamic_cast<const CovLinear&>(cov));
-    case ECov::E_POWER: return new CovPower(dynamic_cast<const CovPower&>(cov));
-    case ECov::E_ORDER1_GC: return new CovGC1(dynamic_cast<const CovGC1&>(cov));
-    case ECov::E_SPLINE_GC: return new CovGCspline(dynamic_cast<const CovGCspline&>(cov));
-    case ECov::E_ORDER3_GC: return new CovGC3(dynamic_cast<const CovGC3&>(cov));
-    case ECov::E_ORDER5_GC: return new CovGC5(dynamic_cast<const CovGC5&>(cov));
-    case ECov::E_COSINUS: return new CovCosinus(dynamic_cast<const CovCosinus&>(cov));
-    case ECov::E_TRIANGLE: return new CovTriangle(dynamic_cast<const CovTriangle&>(cov));
-    case ECov::E_COSEXP: return new CovCosExp(dynamic_cast<const CovCosExp&>(cov));
-    case ECov::E_REG1D: return new CovReg1D(dynamic_cast<const CovReg1D&>(cov));
-    case ECov::E_PENTA: return new CovPenta(dynamic_cast<const CovPenta&>(cov));
-    case ECov::E_SPLINE2_GC: return new CovGCspline2(dynamic_cast<const CovGCspline2&>(cov));
-    case ECov::E_STORKEY: return new CovStorkey(dynamic_cast<const CovStorkey&>(cov));
-    case ECov::E_WENDLAND0: return new CovWendland0(dynamic_cast<const CovWendland0&>(cov));
-    case ECov::E_WENDLAND1: return new CovWendland1(dynamic_cast<const CovWendland1&>(cov));
-    case ECov::E_WENDLAND2: return new CovWendland2(dynamic_cast<const CovWendland2&>(cov));
-    case ECov::E_MARKOV: return new CovMarkov(dynamic_cast<const CovMarkov&>(cov));
-    case ECov::E_POISSON: return new CovPoisson(dynamic_cast<const CovPoisson&>(cov));
-    case ECov::E_GEOMETRIC: return new CovGeometric(dynamic_cast<const CovGeometric&>(cov));
-    case ECov::E_LINEARSPH: return new CovLinearSph(dynamic_cast<const CovLinearSph&>(cov));
+    case ECov::E_NUGGET: return new KernelNugget(dynamic_cast<const KernelNugget&>(cov));
+    case ECov::E_EXPONENTIAL: return new KernelExponential(dynamic_cast<const KernelExponential&>(cov));
+    case ECov::E_SPHERICAL: return new KernelSpherical(dynamic_cast<const KernelSpherical&>(cov));
+    case ECov::E_GAUSSIAN: return new KernelGaussian(dynamic_cast<const KernelGaussian&>(cov));
+    case ECov::E_CUBIC: return new KernelCubic(dynamic_cast<const KernelCubic&>(cov));
+    case ECov::E_SINCARD: return new KernelSincard(dynamic_cast<const KernelSincard&>(cov));
+    case ECov::E_BESSELJ: return new KernelBesselJ(dynamic_cast<const KernelBesselJ&>(cov));
+    case ECov::E_MATERN: return new KernelMatern(dynamic_cast<const KernelMatern&>(cov));
+    case ECov::E_GAMMA: return new KernelGamma(dynamic_cast<const KernelGamma&>(cov));
+    case ECov::E_CAUCHY: return new KernelCauchy(dynamic_cast<const KernelCauchy&>(cov));
+    case ECov::E_CAUCHY_GEN: return new KernelCauchyGen(dynamic_cast<const KernelCauchyGen&>(cov));
+    case ECov::E_STABLE: return new KernelStable(dynamic_cast<const KernelStable&>(cov));
+    case ECov::E_LINEAR: return new KernelLinear(dynamic_cast<const KernelLinear&>(cov));
+    case ECov::E_POWER: return new KernelPower(dynamic_cast<const KernelPower&>(cov));
+    case ECov::E_ORDER1_GC: return new KernelGC1(dynamic_cast<const KernelGC1&>(cov));
+    case ECov::E_SPLINE_GC: return new KernelGCspline(dynamic_cast<const KernelGCspline&>(cov));
+    case ECov::E_ORDER3_GC: return new KernelGC3(dynamic_cast<const KernelGC3&>(cov));
+    case ECov::E_ORDER5_GC: return new KernelGC5(dynamic_cast<const KernelGC5&>(cov));
+    case ECov::E_COSINUS: return new KernelCosinus(dynamic_cast<const KernelCosinus&>(cov));
+    case ECov::E_TRIANGLE: return new KernelTriangle(dynamic_cast<const KernelTriangle&>(cov));
+    case ECov::E_COSEXP: return new KernelCosExp(dynamic_cast<const KernelCosExp&>(cov));
+    case ECov::E_REG1D: return new KernelReg1D(dynamic_cast<const KernelReg1D&>(cov));
+    case ECov::E_PENTA: return new KernelPenta(dynamic_cast<const KernelPenta&>(cov));
+    case ECov::E_SPLINE2_GC: return new KernelGCspline2(dynamic_cast<const KernelGCspline2&>(cov));
+    case ECov::E_STORKEY: return new KernelStorkey(dynamic_cast<const KernelStorkey&>(cov));
+    case ECov::E_WENDLAND0: return new KernelWendland0(dynamic_cast<const KernelWendland0&>(cov));
+    case ECov::E_WENDLAND1: return new KernelWendland1(dynamic_cast<const KernelWendland1&>(cov));
+    case ECov::E_WENDLAND2: return new KernelWendland2(dynamic_cast<const KernelWendland2&>(cov));
+    case ECov::E_MARKOV: return new KernelMarkov(dynamic_cast<const KernelMarkov&>(cov));
+    case ECov::E_POISSON: return new KernelPoisson(dynamic_cast<const KernelPoisson&>(cov));
+    case ECov::E_GEOMETRIC: return new KernelGeometric(dynamic_cast<const KernelGeometric&>(cov));
+    case ECov::E_LINEARSPH: return new KernelLinearSph(dynamic_cast<const KernelLinearSph&>(cov));
     default: break;
   }
   my_throw("Covariance function not yet implemented!");
@@ -150,7 +150,7 @@ void CovFactory::displayCovList(const CovContext& ctxt)
   {
     if (*it != ECov::UNKNOWN && *it != ECov::FUNCTION)
     {
-      ACovFunc* cova = createCovFunc(*it, ctxt);
+      AKernel* cova = createCovFunc(*it, ctxt);
       if (_isValid(cova, ctxt))
         message("%2d - %s\n", it.getValue(), cova->getCovName().c_str());
       delete cova;
@@ -173,7 +173,7 @@ VectorString CovFactory::getCovList(const CovContext& ctxt, Id order)
   {
     if (*it != ECov::UNKNOWN && *it != ECov::FUNCTION)
     {
-      ACovFunc* cova = createCovFunc(*it, ctxt);
+      AKernel* cova = createCovFunc(*it, ctxt);
       if (_isValid(cova, ctxt))
       {
         if (cova->getMinOrder() <= order)
@@ -201,11 +201,11 @@ ECov CovFactory::identifyCovariance(const String& cov_name,
   auto it = ECov::getIterator();
   while (it.hasNext())
   {
-    // Test covariance name using ACovFunc::getCovName (not the ECov keys!)
+    // Test covariance name using AKernel::getCovName (not the ECov keys!)
     // (This permits to ensure RGeostats scripts retro compatibility)
     if (*it != ECov::UNKNOWN && *it != ECov::FUNCTION)
     {
-      ACovFunc* cova = createCovFunc(*it, ctxt);
+      AKernel* cova = createCovFunc(*it, ctxt);
       String cn      = toUpper(cov_name);
       String ccn     = toUpper(cova->getCovName());
       delete cova;
@@ -222,7 +222,7 @@ ECov CovFactory::identifyCovariance(const String& cov_name,
 double CovFactory::getScaleFactor(const ECov& type, double param)
 {
   CovContext ctxt(1, 1);
-  ACovFunc* cova = CovFactory::createCovFunc(type, ctxt);
+  AKernel* cova = CovFactory::createCovFunc(type, ctxt);
   cova->setParam(param);
   double scadef = cova->getScadef();
   delete cova;

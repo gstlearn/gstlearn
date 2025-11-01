@@ -8,27 +8,50 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#pragma once
+#include "Covariances/KernelCauchy.hpp"
+#include "Covariances/CovContext.hpp"
 
-#include "gstlearn_export.hpp"
-
-#include "Enum/ECov.hpp"
+#include <cmath>
 
 namespace gstlrn
-{ 
-class CovAniso;
-class AKernel;
-class CovContext;
-
-class GSTLEARN_EXPORT CovFactory
 {
-public:
-  static AKernel*    createCovFunc(const ECov& type, const CovContext& ctxt);
-  static AKernel*    duplicateCovFunc(const AKernel& cov);
-  static void         displayCovList(const CovContext& ctxt);
-  static VectorString getCovList(const CovContext& ctxt, Id order=3);
-  static ECov         identifyCovariance(const String& cov_name,
-                                         const CovContext& ctxt);
-  static double       getScaleFactor(const ECov &type, double param);
-};
+KernelCauchy::KernelCauchy(const CovContext& ctxt)
+  : AKernel(ECov::CAUCHY, ctxt)
+{
+  setParam(1);
 }
+
+KernelCauchy::KernelCauchy(const KernelCauchy& r)
+  : AKernel(r)
+{
+}
+
+KernelCauchy& KernelCauchy::operator=(const KernelCauchy& r)
+{
+  if (this != &r)
+  {
+    AKernel::operator=(r);
+  }
+  return *this;
+}
+
+KernelCauchy::~KernelCauchy()
+{
+}
+
+double KernelCauchy::getScadef() const
+{
+  return sqrt(pow(20., 1. / getParam()) - 1.);
+}
+
+double KernelCauchy::_evaluateCov(double h) const
+{
+  double cov = 1. / pow(1. + (h * h), getParam());
+  return (cov);
+}
+
+String KernelCauchy::getFormula() const
+{
+  return "C(h)=\\frac{1}{\\left( 1+ \\frac{h^2}{a_t^2} \\right)^\\alpha";
+}
+} // namespace gstlrn

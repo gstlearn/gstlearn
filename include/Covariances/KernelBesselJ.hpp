@@ -11,24 +11,33 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-
-#include "Enum/ECov.hpp"
+#include "Covariances/AKernel.hpp"
 
 namespace gstlrn
-{ 
-class CovAniso;
-class AKernel;
+{
 class CovContext;
+class TurningBandOperate;
 
-class GSTLEARN_EXPORT CovFactory
+class GSTLEARN_EXPORT KernelBesselJ : public AKernel
 {
 public:
-  static AKernel*    createCovFunc(const ECov& type, const CovContext& ctxt);
-  static AKernel*    duplicateCovFunc(const AKernel& cov);
-  static void         displayCovList(const CovContext& ctxt);
-  static VectorString getCovList(const CovContext& ctxt, Id order=3);
-  static ECov         identifyCovariance(const String& cov_name,
-                                         const CovContext& ctxt);
-  static double       getScaleFactor(const ECov &type, double param);
+  KernelBesselJ(const CovContext& ctx);
+  KernelBesselJ(const KernelBesselJ &r);
+  KernelBesselJ& operator= (const KernelBesselJ &r);
+  virtual ~KernelBesselJ();
+
+  bool hasParam() const override { return true; }
+  double getParMax() const override { return 2; }
+
+  String getFormula() const override;
+  String getCovName() const override { return "J-Bessel"; }
+  Id getMinOrder() const override { return -1; }
+  bool getCompatibleSpaceR() const override { return true; }
+
+  bool isValidForTurningBand() const override { return true; }
+  double simulateTurningBand(double t0, TurningBandOperate &operTB) const override;
+
+protected:
+  double _evaluateCov(double h) const override;
 };
 }

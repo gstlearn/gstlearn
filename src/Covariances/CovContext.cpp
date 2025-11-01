@@ -123,7 +123,7 @@ bool CovContext::isConsistent(const ASpace* space) const
 {
   /// TODO: Consistency of CovContext toward a space: Possible duplicate:
   /// - CovFactory::_isValid
-  /// - ACovFunc::isConsistent
+  /// - AKernel::isConsistent
   return (_space->isEqual(space));
 }
 

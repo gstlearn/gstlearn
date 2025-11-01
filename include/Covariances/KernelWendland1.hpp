@@ -11,24 +11,33 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+#include "Covariances/AKernel.hpp"
 
-#include "Enum/ECov.hpp"
+// In Piecewise polynomial, positive definite and compactly supported
+// radial functions of minimal degree, by H. Wendland
+// Advances in Computational Mathematics, Vol. 4 (389-396), 1995
+// It corresponds to Wendland \psi_{3,1}
 
 namespace gstlrn
-{ 
-class CovAniso;
-class AKernel;
+{
 class CovContext;
 
-class GSTLEARN_EXPORT CovFactory
+class GSTLEARN_EXPORT KernelWendland1 : public AKernel
 {
 public:
-  static AKernel*    createCovFunc(const ECov& type, const CovContext& ctxt);
-  static AKernel*    duplicateCovFunc(const AKernel& cov);
-  static void         displayCovList(const CovContext& ctxt);
-  static VectorString getCovList(const CovContext& ctxt, Id order=3);
-  static ECov         identifyCovariance(const String& cov_name,
-                                         const CovContext& ctxt);
-  static double       getScaleFactor(const ECov &type, double param);
+  KernelWendland1(const CovContext& ctx);
+  KernelWendland1(const KernelWendland1 &r);
+  KernelWendland1& operator= (const KernelWendland1 &r);
+  virtual ~KernelWendland1();
+
+  size_t getMaxNDim() const override { return 3; }
+
+  String         getCovName() const override { return "Wendland-3,1"; }
+  Id            getMinOrder() const override { return -1; }
+  bool           getCompatibleSpaceR() const override { return true; }
+
+protected:
+  double _evaluateCov(double h) const override;
 };
+
 }

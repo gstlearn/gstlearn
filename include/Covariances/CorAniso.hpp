@@ -26,7 +26,7 @@
 #include "Arrays/Array.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Basic/Tensor.hpp"
-#include "Covariances/ACovFunc.hpp"
+#include "Covariances/AKernel.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Space/SpacePoint.hpp"
 #include <array>
@@ -191,7 +191,7 @@ public:
   bool hasRotation() const { return _aniso.hasRotation(); }
   const Tensor& getAniso() const { return _aniso; }
   void setAniso(const Tensor& aniso) { _aniso = aniso; }
-  const ACovFunc* getCorFunc() const { return _corfunc; }
+  const AKernel* getCorFunc() const { return _corfunc; }
   Id getNGradParam() const;
   bool hasCovDerivative() const { return _corfunc->hasCovDerivative(); }
   bool hasCovOnSphere() const { return _corfunc->hasCovOnSphere(); }
@@ -327,7 +327,7 @@ private:
                        const CovCalcMode* mode = nullptr) const override;
 
 private:
-  ACovFunc* _corfunc; /// Basic correlation function
+  AKernel* _corfunc; /// Basic correlation function
   std::vector<ParamInfo> _scales;
   std::vector<ParamInfo> _angles;
   mutable Tensor _aniso;        /// Anisotropy parameters

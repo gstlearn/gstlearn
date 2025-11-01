@@ -11,24 +11,33 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-
-#include "Enum/ECov.hpp"
+#include "Covariances/AKernel.hpp"
 
 namespace gstlrn
-{ 
-class CovAniso;
-class AKernel;
-class CovContext;
+{
+/* Be careful ! This is not a real covariance */
 
-class GSTLEARN_EXPORT CovFactory
+class CovContext;
+class TurningBandOperate;
+
+class GSTLEARN_EXPORT KernelGCspline : public AKernel
 {
 public:
-  static AKernel*    createCovFunc(const ECov& type, const CovContext& ctxt);
-  static AKernel*    duplicateCovFunc(const AKernel& cov);
-  static void         displayCovList(const CovContext& ctxt);
-  static VectorString getCovList(const CovContext& ctxt, Id order=3);
-  static ECov         identifyCovariance(const String& cov_name,
-                                         const CovContext& ctxt);
-  static double       getScaleFactor(const ECov &type, double param);
+  KernelGCspline(const CovContext& ctx);
+  KernelGCspline(const KernelGCspline &r);
+  KernelGCspline& operator= (const KernelGCspline &r);
+  virtual ~KernelGCspline();
+
+  Id            hasRange() const override { return -1; }
+  String         getCovName() const override { return "Spline G.C."; }
+  Id            getMinOrder() const override { return 1; }
+  bool           getCompatibleSpaceR() const override { return true; }
+
+  bool isValidForTurningBand() const override { return true; }
+  double simulateTurningBand(double t0, TurningBandOperate &operTB) const override;
+
+protected:
+  double _evaluateCov(double h) const override;
 };
+
 }

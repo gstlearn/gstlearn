@@ -242,7 +242,7 @@ void CovGradientAnalytic::_evalZAndGradients(const SpacePoint& p1,
 
   //  Calculate the covariance
   const CovAniso* covref  = _getCovRefAniso();
-  const ACovFunc* covfunc = covref->getCorFunc();
+  const AKernel* covfunc = covref->getCorFunc();
   double covar            = covref->getSill(0, 0) * covfunc->evalCorFunc(hh);
   _covpp += covar;
   if (covfunc->getType() == ECov::NUGGET) return;
