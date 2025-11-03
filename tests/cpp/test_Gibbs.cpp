@@ -237,9 +237,7 @@ static Id st_gibbs(Id niter,
         auto i        = ind[ic];
         double valmin = (!consmin.empty()) ? consmin[i] : -10.;
         double valmax = (!consmax.empty()) ? consmax[i] : +10.;
-        if (ic >= static_cast<int>(krig.size()))
-          message("coucou\n");
-        z[i] = st_simcond(iter, niter, valmin, valmax, krig[ic], sigma[i]);
+        z[i]          = st_simcond(iter, niter, valmin, valmax, krig[ic], sigma[i]);
       }
     }
   }
