@@ -524,7 +524,11 @@ def _ax_varmod(axs, vario=None, model=None, ivar=-1, jvar=-1, idir=-1,
     varColor, varLinestyle: parameters for representing variance-covariance line
     envColor, envLinestyle: parameters for representing coregionalization envelop
     cmap : Optional Color scale
-    flagLegend : Flag to display the axes legend.
+    flagLegend : Flag to display the legend.
+    flagLegendColor : Flag to display the legend of the colors used for representation
+    flagLegendLine : Flag to display the legend of the linetypes used for representation
+    nameLegendColor : Name used for color legend
+    nameLegendLine : Name used for linetype legend
     **kwargs : arguments passed to matplotlib.pyplot.plot for all variograms plotted (not models!)
     """
     flagDef = False
