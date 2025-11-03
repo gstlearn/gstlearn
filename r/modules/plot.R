@@ -1082,6 +1082,7 @@ plot.raster <- function(dbgrid, name = NULL, useSel = TRUE, posX=0, posY=1, corn
   # Define the color Scale
   p <- append(p, .defineFill(palette, naColor = naColor, limits = limits, title = legendName))
   p <- .appendNewScale(p, "fill")
+  if (!flagLegend) p <- append(p, guides(fill = "none"))
   
   p
 }
