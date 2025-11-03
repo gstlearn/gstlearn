@@ -44,7 +44,6 @@ Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = Data - Locator = z1
 NULL
-Saving 7 x 7 in image
 
 Data Base Characteristics
 =========================
@@ -146,7 +145,6 @@ For variable 1
         23    57.000    45.946     0.905
         24    59.000    47.895     1.188
 NULL
-Saving 7 x 7 in image
 
 Data Base Grid Characteristics
 ==============================
@@ -173,7 +171,6 @@ Column = 3 - Name = Data - Locator = NA
 Column = 4 - Name = Kriging.Data.estim - Locator = z1
 Column = 5 - Name = Kriging.Data.stdev - Locator = NA
 NULL
-Saving 7 x 7 in image
 
 Data Base Grid Characteristics
 ==============================
@@ -202,4 +199,3 @@ Column = 5 - Name = Kriging.Data.stdev - Locator = NA
 Column = 6 - Name = Simu.Data.1 - Locator = z1
 Column = 7 - Name = Simu.Data.2 - Locator = z2
 NULL
-Saving 7 x 7 in image
