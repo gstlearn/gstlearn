@@ -8,27 +8,43 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#pragma once
+#include "Covariances/KernelStorkey.hpp"
+#include "Covariances/CovContext.hpp"
 
-#include "gstlearn_export.hpp"
-
-#include "Enum/ECov.hpp"
+#include <cmath>
 
 namespace gstlrn
-{ 
-class CovAniso;
-class AKernel;
-class CovContext;
-
-class GSTLEARN_EXPORT CovFactory
 {
-public:
-  static AKernel*    createCovFunc(const ECov& type, const CovContext& ctxt);
-  static AKernel*    duplicateCovFunc(const AKernel& cov);
-  static void         displayCovList(const CovContext& ctxt);
-  static VectorString getCovList(const CovContext& ctxt, Id order=3);
-  static ECov         identifyCovariance(const String& cov_name,
-                                         const CovContext& ctxt);
-  static double       getScaleFactor(const ECov &type, double param);
-};
+KernelStorkey::KernelStorkey(const CovContext& ctxt)
+  : AKernel(ECov::STORKEY, ctxt)
+{
+}
+
+KernelStorkey::KernelStorkey(const KernelStorkey& r)
+  : AKernel(r)
+{
+}
+
+KernelStorkey& KernelStorkey::operator=(const KernelStorkey& r)
+{
+  if (this != &r)
+  {
+    AKernel::operator=(r);
+  }
+  return *this;
+}
+
+KernelStorkey::~KernelStorkey()
+{
+}
+
+double KernelStorkey::_evaluateCov(double h) const
+{
+  double cov = 0.;
+  double pi2 = 2. * GV_PI;
+  if (h < 1)
+    cov = (2. * (1. - h) * (1. + cos(pi2 * h) / 2.) + 3 / pi2 * sin(pi2 * h)) / 3.;
+  return (cov);
+}
+
 }

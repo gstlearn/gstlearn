@@ -8,27 +8,46 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#pragma once
-
-#include "gstlearn_export.hpp"
-
-#include "Enum/ECov.hpp"
+#include "Covariances/KernelPenta.hpp"
+#include "Covariances/CovContext.hpp"
 
 namespace gstlrn
-{ 
-class CovAniso;
-class AKernel;
-class CovContext;
-
-class GSTLEARN_EXPORT CovFactory
 {
-public:
-  static AKernel*    createCovFunc(const ECov& type, const CovContext& ctxt);
-  static AKernel*    duplicateCovFunc(const AKernel& cov);
-  static void         displayCovList(const CovContext& ctxt);
-  static VectorString getCovList(const CovContext& ctxt, Id order=3);
-  static ECov         identifyCovariance(const String& cov_name,
-                                         const CovContext& ctxt);
-  static double       getScaleFactor(const ECov &type, double param);
-};
+KernelPenta::KernelPenta(const CovContext& ctxt)
+  : AKernel(ECov::PENTA, ctxt)
+{
+}
+
+KernelPenta::KernelPenta(const KernelPenta& r)
+  : AKernel(r)
+{
+}
+
+KernelPenta& KernelPenta::operator=(const KernelPenta& r)
+{
+  if (this != &r)
+  {
+    AKernel::operator=(r);
+  }
+  return *this;
+}
+
+KernelPenta::~KernelPenta()
+{
+}
+
+double KernelPenta::_evaluateCov(double h) const
+{
+  double cov = 0.;
+  if (h < 1.)
+  {
+    cov = 1. - 3. * h * (1. - h / 2. * (1. + h / 6.));
+  }
+  else if (h < 2.)
+  {
+    cov = -2. + 3. * h * (1. - h / 2. * (1. - h / 6.));
+  }
+  return (cov);
+}
+
 }

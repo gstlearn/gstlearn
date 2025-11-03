@@ -505,7 +505,7 @@ CovAniso* CovAniso::createReduce(const VectorInt& validVars) const
 double scale2range(const ECov& type, double scale, double param)
 {
   CovContext ctxt(1, 1);
-  ACovFunc* cova = CovFactory::createCovFunc(type, ctxt);
+  AKernel* cova = CovFactory::createCovFunc(type, ctxt);
   cova->setParam(param);
   double scadef = cova->getScadef();
   return scale * scadef;
@@ -514,7 +514,7 @@ double scale2range(const ECov& type, double scale, double param)
 double range2scale(const ECov& type, double range, double param)
 {
   CovContext ctxt(1, 1);
-  ACovFunc* cova = CovFactory::createCovFunc(type, ctxt);
+  AKernel* cova = CovFactory::createCovFunc(type, ctxt);
   cova->setParam(param);
   double scadef = cova->getScadef();
   return range / scadef;

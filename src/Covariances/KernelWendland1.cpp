@@ -8,27 +8,41 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#pragma once
-
-#include "gstlearn_export.hpp"
-
-#include "Enum/ECov.hpp"
+#include "Covariances/KernelWendland1.hpp"
+#include "Covariances/CovContext.hpp"
 
 namespace gstlrn
-{ 
-class CovAniso;
-class AKernel;
-class CovContext;
-
-class GSTLEARN_EXPORT CovFactory
 {
-public:
-  static AKernel*    createCovFunc(const ECov& type, const CovContext& ctxt);
-  static AKernel*    duplicateCovFunc(const AKernel& cov);
-  static void         displayCovList(const CovContext& ctxt);
-  static VectorString getCovList(const CovContext& ctxt, Id order=3);
-  static ECov         identifyCovariance(const String& cov_name,
-                                         const CovContext& ctxt);
-  static double       getScaleFactor(const ECov &type, double param);
-};
+KernelWendland1::KernelWendland1(const CovContext& ctxt)
+  : AKernel(ECov::WENDLAND1, ctxt)
+{
+}
+
+KernelWendland1::KernelWendland1(const KernelWendland1& r)
+  : AKernel(r)
+{
+}
+
+KernelWendland1& KernelWendland1::operator=(const KernelWendland1& r)
+{
+  if (this != &r)
+  {
+    AKernel::operator=(r);
+  }
+  return *this;
+}
+
+KernelWendland1::~KernelWendland1()
+{
+}
+
+double KernelWendland1::_evaluateCov(double h) const
+{
+  // From "Computed Supported Correlation Functions" by T. Gneiting with n=3
+  double cov = 0.;
+  if (h < 1)
+    cov = (1. + 4. * h) * pow(1. - h, 4.);
+  return (cov);
+}
+
 }

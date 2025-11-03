@@ -14,7 +14,7 @@
 #include "Basic/ICloneable.hpp"
 #include "Basic/Tensor.hpp"
 #include "Basic/VectorNumT.hpp"
-#include "Covariances/ACovFunc.hpp"
+#include "Covariances/AKernel.hpp"
 #include "Covariances/CorAniso.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Covariances/CovProportional.hpp"
@@ -225,7 +225,7 @@ public:
   bool hasRotation() const { return getCorAniso()->getAniso().hasRotation(); }
   const Tensor& getAniso() const { return getCorAniso()->getAniso(); }
   void setAniso(const Tensor& aniso) { getCorAnisoModify()->setAniso(aniso); }
-  const ACovFunc* getCorFunc() const { return getCorAniso()->getCorFunc(); }
+  const AKernel* getCorFunc() const { return getCorAniso()->getCorFunc(); }
 
   VectorDouble evalCovOnSphereVec(const VectorDouble& alpha,
                                   Id degree               = 50,

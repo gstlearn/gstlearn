@@ -1,4 +1,6 @@
 build*
+_codeql_build_dir
+_codeql_detected_source_root
 python/doc/documentation.i
 tests/data/*/*.out
 __pycache__
@@ -55,3 +57,5 @@ doc/details/*.synctex.gz
 2
 test_*.NF
 test_*.out
+test_*-Data
+test_*-Grid

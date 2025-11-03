@@ -84,7 +84,7 @@ void model_cova_characteristics(const ECov& type,
 {
   auto space = SpaceRN::create(1); // Use 1-D in order to retrieve all covariances
   CovContext ctxt(1, 1);
-  ACovFunc* cov = CovFactory::createCovFunc(type, ctxt);
+  AKernel* cov = CovFactory::createCovFunc(type, ctxt);
   (void)gslStrcpy(static_cast<char*>(cov_name), STRING_LENGTH, cov->getCovName().c_str());
   *flag_range    = cov->hasRange();
   *flag_param    = cov->hasParam();

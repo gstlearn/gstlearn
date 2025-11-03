@@ -11,24 +11,29 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-
-#include "Enum/ECov.hpp"
+#include "Covariances/AKernel.hpp"
 
 namespace gstlrn
-{ 
-class CovAniso;
-class AKernel;
+{
+  // Forward declaration
 class CovContext;
 
-class GSTLEARN_EXPORT CovFactory
+class GSTLEARN_EXPORT KernelCosinus : public AKernel
 {
 public:
-  static AKernel*    createCovFunc(const ECov& type, const CovContext& ctxt);
-  static AKernel*    duplicateCovFunc(const AKernel& cov);
-  static void         displayCovList(const CovContext& ctxt);
-  static VectorString getCovList(const CovContext& ctxt, Id order=3);
-  static ECov         identifyCovariance(const String& cov_name,
-                                         const CovContext& ctxt);
-  static double       getScaleFactor(const ECov &type, double param);
+  KernelCosinus(const CovContext& ctx);
+  KernelCosinus(const KernelCosinus &r);
+  KernelCosinus& operator= (const KernelCosinus &r);
+  virtual ~KernelCosinus();
+
+  size_t getMaxNDim() const override { return 1; }
+
+  String         getCovName() const override { return "Cosinus"; }
+  Id            getMinOrder() const override { return -1; }
+  bool           getCompatibleSpaceR() const override { return true; }
+
+protected:
+  double _evaluateCov(double h) const override;
 };
+
 }

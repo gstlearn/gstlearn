@@ -8,27 +8,40 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#pragma once
-
-#include "gstlearn_export.hpp"
-
-#include "Enum/ECov.hpp"
+#include "Covariances/KernelWendland0.hpp"
+#include "Covariances/CovContext.hpp"
 
 namespace gstlrn
-{ 
-class CovAniso;
-class AKernel;
-class CovContext;
-
-class GSTLEARN_EXPORT CovFactory
 {
-public:
-  static AKernel*    createCovFunc(const ECov& type, const CovContext& ctxt);
-  static AKernel*    duplicateCovFunc(const AKernel& cov);
-  static void         displayCovList(const CovContext& ctxt);
-  static VectorString getCovList(const CovContext& ctxt, Id order=3);
-  static ECov         identifyCovariance(const String& cov_name,
-                                         const CovContext& ctxt);
-  static double       getScaleFactor(const ECov &type, double param);
-};
+KernelWendland0::KernelWendland0(const CovContext& ctxt)
+  : AKernel(ECov::WENDLAND0, ctxt)
+{
+}
+
+KernelWendland0::KernelWendland0(const KernelWendland0& r)
+  : AKernel(r)
+{
+}
+
+KernelWendland0& KernelWendland0::operator=(const KernelWendland0& r)
+{
+  if (this != &r)
+  {
+    AKernel::operator=(r);
+  }
+  return *this;
+}
+
+KernelWendland0::~KernelWendland0()
+{
+}
+
+double KernelWendland0::_evaluateCov(double h) const
+{
+  double cov = 0.;
+  double h2  = h * h;
+  if (h < 1) cov = 1. - 2 * h + h2;
+  return (cov);
+}
+
 }

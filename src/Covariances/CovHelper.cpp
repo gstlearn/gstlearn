@@ -10,13 +10,13 @@
 /******************************************************************************/
 #include "Covariances/CovHelper.hpp"
 #include "Basic/VectorT.hpp"
-#include "Covariances/ACovFunc.hpp"
+#include "Covariances/AKernel.hpp"
 #include "Covariances/CovFactory.hpp"
 #include "Enum/ECov.hpp"
 
 namespace gstlrn
 {
-bool _isSelected(ACovFunc* cov,
+bool _isSelected(AKernel* cov,
                  Id ndim,
                  Id minorder,
                  bool hasrange,
@@ -57,7 +57,7 @@ VectorString CovHelper::getAllCovariances(Id ndim,
   while (it.hasNext())
   {
     const ECov& covType = ECov::fromKey(it.getKey());
-    ACovFunc* cov       = CovFactory::createCovFunc(covType, ctxt);
+    AKernel* cov       = CovFactory::createCovFunc(covType, ctxt);
 
     // Check if the covariance is valid
     if (_isSelected(cov, ndim, minorder, hasrange, flagSimtub, flagSimuSpectral))
