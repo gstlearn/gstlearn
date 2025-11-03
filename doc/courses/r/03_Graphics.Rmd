@@ -2,11 +2,13 @@
 title: "Tutorial on Graphics"
 author: "gstlearn Team"
 output:
+  pdf_document:
+    toc: true
   html_document:
     df_print: paged
     toc: true
-  pdf_document:
-    toc: true
+editor_options: 
+  chunk_output_type: console
 ---
 
 <!-- SUMMARY: Use the library gtlearn.plot (based on matplotlib) to visualize all the objects of gstlearn library   -->
@@ -148,6 +150,24 @@ We create two layers containing the Point and the Grid representation. We then u
 p1 = plot.init(asp=1) + plot.raster(mygrid)
 p2 = plot.init(asp=1) + plot.symbol(mypoint)
 ggarrange(p1, p2, labels = c("Plot #1", "Plot #2"), ncol = 2, nrow = 1)
+```
+
+Following the same idea, we now want to display two simulations defined on Grid support (using raster representation type) on the same figure. If we want to keep the same size for the two views (despite the presence of one legend), we need to introduce a specific parameter in the **ggarrange** function, as demonstrated next.
+
+```{r}
+# Performing two simulations on a new grid
+mygrid = DbGrid_create(nx=c(100,150))
+mymodel = Model_createFromParam(ECov_SPHERICAL(), ranges = c(50, 30), angles = c(30, 0))
+simtub(NULL, mygrid, mymodel, nbsimu=2, nbtuba=1000, namconv=NamingConvention("Simu"))
+
+# Representing the two figures on the same pa
+p1 = plot.init(asp=1) + plot.raster(mygrid, name="Simu.1", 
+                                    flagLegend=TRUE, legendName="Colors #1")
+p1 = p1 + plot.decoration(title="Simulation 1", xlab="Easting", ylab="Northing")
+p2 = plot.init(asp=1) + plot.raster(mygrid, name="Simu.2", flagLegend=FALSE)
+p2 = p2 + plot.decoration(title="Simulation 2", xlab="Easting", ylab="")
+p = ggarrange(p1, p2, ncol = 2, nrow = 1, align="hv")
+plot.end(p)
 ```
 
 # Variograms and Models
