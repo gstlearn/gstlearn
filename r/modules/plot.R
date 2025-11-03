@@ -379,6 +379,7 @@ plot.init <- function(dims = NA, xlim = NA, ylim = NA, asp = NA) {
   p = append(p, geom_line(data = df, 
               mapping=aes(x=hh, y=gg, color=dirName, linetype=lineName), 
               na.rm=TRUE, ...))
+  p = append(p, list(labs(color = "myColorNameV", linetype = "myLineTypeV")))
   
   # Representing the number of pairs (by size)
   if (drawPsize > 0)
@@ -473,6 +474,7 @@ plot.init <- function(dims = NA, xlim = NA, ylim = NA, asp = NA) {
   p = append(p, geom_line(data = df, 
                mapping=aes(x=hh, y=gg, color=dirName, linetype=lineName), 
              na.rm=TRUE, ...))
+  p = append(p, list(labs(color = "myColorNameM", linetype = "myLineTypeM")))
   
   # Represent the coregionalization envelop
   if (ivar != jvar && flagEnvelop)
