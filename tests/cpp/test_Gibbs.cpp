@@ -160,7 +160,7 @@ static double st_simcond(Id iter,
 {
   double locmin, locmax, x, delta, ratio;
 
-  ratio = (double)(niter - iter - 1) / (double)(iter + 1);
+  ratio = static_cast<double>(niter - iter - 1) / static_cast<double>(iter + 1);
   delta = valmax - valmin;
   if (valmin == -10.)
     locmin = -10.;
@@ -213,7 +213,7 @@ static Id st_gibbs(Id niter,
                    Id nvertex,
                    const VectorInt& colors,
                    const VectorInt& colref,
-                   MatrixSparse** Qcols,
+                   std::vector<MatrixSparse*>& Qcols,
                    const VectorDouble& consmin,
                    const VectorDouble& consmax,
                    const VectorDouble& sigma,
@@ -237,7 +237,9 @@ static Id st_gibbs(Id niter,
         auto i        = ind[ic];
         double valmin = (!consmin.empty()) ? consmin[i] : -10.;
         double valmax = (!consmax.empty()) ? consmax[i] : +10.;
-        z[i]          = st_simcond(iter, niter, valmin, valmax, krig[ic], sigma[i]);
+        if (ic >= static_cast<int>(krig.size()))
+          message("coucou\n");
+        z[i] = st_simcond(iter, niter, valmin, valmax, krig[ic], sigma[i]);
       }
     }
   }
@@ -348,13 +350,18 @@ int main(int argc, char* argv[])
   // Main Algorithm //
   //----------------//
 
+  Id ncols = Q->getNCols();
   std::vector<MatrixSparse*> Qcols(ncolor);
   for (Id icol = 0; icol < ncolor; icol++)
+  {
     Qcols[icol] = Q->extractSubmatrixByColor(colors, colref[icol], true, false);
+    Id nrows    = Qcols[icol]->getNRows();
+    Qcols[icol]->forceDimension(nrows, ncols);
+  }
 
   // Perform the Gibbs sampler
   Id niter = 10;
-  (void)st_gibbs(niter, ncolor, nvertex, colors, colref, Qcols.data(), consmin, consmax,
+  (void)st_gibbs(niter, ncolor, nvertex, colors, colref, Qcols, consmin, consmax,
                  sigma, z, krig);
 
   // Add the newly created field to the grid for printout

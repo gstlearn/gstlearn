@@ -1261,6 +1261,8 @@ void MatrixSparse::forceDimension(Id maxRows, Id maxCols)
   {
     eigenMat().conservativeResize(maxRows, maxCols);
     eigenMat().insert(maxRows - 1, maxCols - 1) = 0.0; // Élément fictif
+    _setNRows(maxRows);
+    _setNCols(maxCols);
   }
 }
 } // namespace gstlrn
