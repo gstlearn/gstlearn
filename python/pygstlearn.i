@@ -32,7 +32,8 @@
 %}
 %include numpy.i
 %init %{
-  import_array(); // Mandatory for using PyArray_* functions
+  // Use a leading '_' to prevent this: https://github.com/numpy/numpy/issues/30122
+  _import_array(); // Mandatory for using PyArray_* functions
 %}
 
 %begin %{
