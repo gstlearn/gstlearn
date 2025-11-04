@@ -1036,7 +1036,7 @@ def polygon(poly, *args, **kwargs):
 
 def _ax_polygon(ax, poly, facecolor='yellow', edgecolor = 'blue', 
                  colorPerSet = False, flagEdge=True, flagFace=False, 
-                 **kwargs):
+                 flagLabels=False, labels=None, **kwargs):
     '''
     Construct a Figure for plotting a polygon
     ax: matplotlib.Axes
@@ -1046,6 +1046,8 @@ def _ax_polygon(ax, poly, facecolor='yellow', edgecolor = 'blue',
     colorPerSet: when True, each polygon is represented with a different color
     flagEdge: when True, the polygon edges are represented
     flagFace: when True, the polygon edges are represented
+    flagLabels: when True, labels (or the polygon Id) is displayed at its centroid
+    labels: List of labels for each polygon (used if flagLabels is True)
     **kwargs: arguments passed to matplotlib.fill
     '''
     if _isNotCorrect(object=poly, types=["Polygons"]):
@@ -1073,6 +1075,15 @@ def _ax_polygon(ax, poly, facecolor='yellow', edgecolor = 'blue',
         ax.fill(x, y, facecolor=facecolor_local, edgecolor=edgecolor_local,
                 **kwargs)
         
+        if flagLabels:
+            centr = poly.getPolyElem(ipol).getCentroid()
+            if (labels is not None) and (ipol < len(labels)):
+                ax.text(centr[0], centr[1], str(labels[ipol]), 
+                        color='black', clip_on=True, ha='center')
+            else:
+                ax.text(centr[0], centr[1], str(ipol), 
+                        color='black', clip_on=True, ha='center')
+
     return ax
 
 def cell(dbgrid, *args, **kwargs):
@@ -1267,7 +1278,7 @@ def _ax_line(ax, dbline, color = 'blue', colorPoint='black', colorHeader='red',
         if flagHeader:
             ax.plot(x[0], y[0], marker='D', color=colorHeader)
             if flagAnnotateHeader:
-                ax.text(x[0]+offset[0], y[0]+offset[1], "L#"+str(iline+1))
+                ax.text(x[0]+offset[0], y[0]+offset[1], "L#"+str(iline+1), clip_on=True)
 
         if flagSample:
             ax.plot(x, y, marker='.', color=colorPoint, linestyle='None')
@@ -1317,10 +1328,11 @@ def _ax_graphO(ax, dbgraphO, color = 'blue', colorPoint='black', flagSample=Fals
 
             if flagAnnotate:
                 if flagByRank:
-                    ax.text(xmid, ymid, str(iarc+1), ha="center", va="bottom", rotation=rotation)
+                    ax.text(xmid, ymid, str(iarc+1), ha="center", va="bottom",
+                            rotation=rotation, clip_on=True)
                 else:
                     ax.text(xmid, ymid, str(round(value,ndec)), ha="center", va="bottom", 
-                            rotation=rotation)
+                            rotation=rotation, clip_on=True)
 
     return ax
 

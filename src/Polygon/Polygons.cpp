@@ -344,6 +344,13 @@ void Polygons::getExtension(double* xmin,
   }
 }
 
+VectorDouble Polygons::getExtensionAsVD() const
+{
+  VectorDouble ext(4);
+  getExtension(&ext.data()[0], &ext.data()[1], &ext.data()[2], &ext.data()[3]);
+  return ext;
+}
+
 double Polygons::getSurface() const
 {
   double surface = 0.;

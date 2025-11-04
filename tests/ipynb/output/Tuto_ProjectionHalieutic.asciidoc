@@ -1,0 +1,16 @@
+#NO_DIFF#XXX
+----
+Polygon extension: [-9.94955409 -1.23270531 35.99409516 48.02438771]  degrees
+Boundaries extension: [-180.  180.  -90.   84.]  degrees
+
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+Polygon extension: [-427232.  368841. 5479556. 6797888.]  degrees
+Boundaries extension: [-393135. 1072736. 5463375. 7117128.]  degrees
+
+#NO_DIFF#XXX
+----

@@ -14,6 +14,7 @@
 
 #include "Basic/ASerializable.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/ICloneable.hpp"
 #include "Basic/CSVformat.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Polygon/PolyElem.hpp"
@@ -22,13 +23,16 @@ namespace gstlrn
 {
 class Db;
 
-class GSTLEARN_EXPORT Polygons: public AStringable, public ASerializable
+class GSTLEARN_EXPORT Polygons: public AStringable, public ASerializable, public ICloneable
 {
 public:
   Polygons();
   Polygons(const Polygons& r);
   Polygons& operator=(const Polygons& r);
   virtual ~Polygons();
+
+  /// ICloneable interface
+  IMPLEMENT_CLONING(Polygons)
 
   /// Interface to AStringable
   String toString(const AStringFormat* strfmt = nullptr) const override;
@@ -86,6 +90,7 @@ public:
                     double* xmax,
                     double* ymin,
                     double* ymax) const;
+  VectorDouble getExtensionAsVD() const;
   double getSurface() const;
   bool inside(const VectorDouble& coor, bool flag_nested = false) const;
 

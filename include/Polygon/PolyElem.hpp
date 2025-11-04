@@ -51,7 +51,8 @@ public:
   void closePolyElem();
   bool inside(const VectorDouble& coor);
   bool inside3D(double zz) const;
-
+  VectorDouble getCentroid() const;
+  
   PolyElem reduceComplexity(double distmin) const;
 
 protected:
