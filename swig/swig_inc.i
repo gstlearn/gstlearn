@@ -132,6 +132,7 @@
   #include "Mesh/MeshETurbo.hpp"
   #include "Mesh/MeshSpherical.hpp"
   #include "Mesh/MeshSphericalExt.hpp"
+  #include "Mesh/VectorMeshes.hpp"
   
   #include "Polynomials/APolynomial.hpp"
   #include "Polynomials/ClassicalPolynomial.hpp"
@@ -431,7 +432,7 @@
 %template(VectorConstIProj)  std::vector< const gstlrn::IProj*>;
 %template(VVectorConstProjMatrix)  std::vector< std::vector< const gstlrn::ProjMatrix*> >;
 %template(VVectorConstIProj) std::vector< std::vector< const gstlrn::IProj*> >;
-%template(VectorMeshes)            std::vector< const gstlrn::AMesh*>;
+%template(VecMeshes)               std::vector< const gstlrn::AMesh*>;
 %template(VectorMatrixSquare)      std::vector<gstlrn::MatrixSquare >;
 
 ////////////////////////////////////////////////

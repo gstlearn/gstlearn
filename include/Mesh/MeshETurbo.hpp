@@ -170,5 +170,4 @@ private:
   friend class DbMeshTurbo;
 };
 
-GSTLEARN_EXPORT bool isTurbo(const VectorMeshes& meshes);
 } // namespace gstlrn

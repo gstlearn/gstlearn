@@ -15,6 +15,7 @@
 #include "LinearOp/ProjMatrix.hpp"
 #include "LinearOp/ProjMulti.hpp"
 #include "Matrix/MatrixSparse.hpp"
+#include "Mesh/VectorMeshes.hpp"
 
 namespace gstlrn
 {
@@ -51,7 +52,7 @@ static std::vector<std::vector<const IProj*>> castToBase(const std::vector<std::
  * a sample (its Z-value is not NA) if 'checkOnZVariable' is False.
  */
 ProjMultiMatrix* ProjMultiMatrix::createFromDbAndMeshes(const Db* db,
-                                                        const std::vector<const AMesh*>& meshes,
+                                                        const VectorMeshes& meshes,
                                                         Id ncov,
                                                         Id nvar,
                                                         bool checkOnZVariable,
@@ -80,13 +81,10 @@ ProjMultiMatrix* ProjMultiMatrix::createFromDbAndMeshes(const Db* db,
     return nullptr;
   }
 
-  for (const auto& e: meshes)
+  if (!meshes.allDefined())
   {
-    if (e == nullptr)
-    {
-      messerr("All the meshes have to be defined");
-      return nullptr;
-    }
+    messerr("All the meshes have to be defined");
+    return nullptr;
   }
 
   std::vector<std::vector<const ProjMatrix*>> stocker;
@@ -103,7 +101,7 @@ ProjMultiMatrix* ProjMultiMatrix::createFromDbAndMeshes(const Db* db,
         if (ivar != jvar)
           stocker[ivar].push_back(nullptr);
         else
-          stocker[ivar].push_back(new ProjMatrix(db, meshes[imesh], kvar, verbose));
+          stocker[ivar].push_back(new ProjMatrix(db, meshes(imesh), kvar, verbose));
       }
   }
   return new ProjMultiMatrix(stocker, true);
@@ -186,7 +184,7 @@ ProjMultiMatrix::ProjMultiMatrix(const std::vector<std::vector<const ProjMatrix*
     {
       if (_projs[i][j] != nullptr)
       {
-        MatrixSparse::glueInPlace(&currentrow, ((MatrixSparse*)proj[i][j]), 0, 1);
+        MatrixSparse::glueInPlace(&currentrow, const_cast<MatrixSparse*>(static_cast<const MatrixSparse*>(proj[i][j])), 0, 1);
       }
       else
       {

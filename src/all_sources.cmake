@@ -288,6 +288,7 @@ set(SRC
   Mesh/MeshSpherical.cpp
   Mesh/MeshSphericalExt.cpp
   Mesh/MeshEStandard.cpp
+  Mesh/VectorMeshes.cpp
   Morpho/Morpho.cpp
   Stats/Classical.cpp
   Stats/PCA.cpp
