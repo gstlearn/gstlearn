@@ -85,11 +85,12 @@ public:
   const VectorDouble& getY(Id ipol) const;
   void setX(Id ipol, const VectorDouble& x);
   void setY(Id ipol, const VectorDouble& y);
-
-  void getExtension(double* xmin,
-                    double* xmax,
-                    double* ymin,
-                    double* ymax) const;
+#ifndef SWIG
+  void getExtension(double& xmin,
+                    double& xmax,
+                    double& ymin,
+                    double& ymax) const;
+#endif
   VectorDouble getExtensionAsVD() const;
   double getSurface() const;
   bool inside(const VectorDouble& coor, bool flag_nested = false) const;

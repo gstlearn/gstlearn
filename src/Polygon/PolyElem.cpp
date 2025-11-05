@@ -71,15 +71,15 @@ String PolyElem::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-void PolyElem::getExtension(double *xmin,
-                           double *xmax,
-                           double *ymin,
-                           double *ymax) const
+void PolyElem::getExtension(double &xmin,
+                            double &xmax,
+                            double &ymin,
+                            double &ymax) const
 {
-  *xmin = getXmin();
-  *ymin = getYmin();
-  *xmax = getXmax();
-  *ymax = getYmax();
+  xmin = getXmin();
+  ymin = getYmin();
+  xmax = getXmax();
+  ymax = getYmax();
 }
 
 double PolyElem::getSurface() const

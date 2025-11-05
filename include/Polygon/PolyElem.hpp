@@ -43,10 +43,12 @@ public:
             const VectorDouble& y,
             double zmin = TEST,
             double zmax = TEST);
-  void getExtension(double *xmin,
-                    double *xmax,
-                    double *ymin,
-                    double *ymax) const;
+#ifndef SWIG
+  void getExtension(double &xmin,
+                    double &xmax,
+                    double &ymin,
+                    double &ymax) const;
+#endif
   double getSurface() const;
   void closePolyElem();
   bool inside(const VectorDouble& coor);
