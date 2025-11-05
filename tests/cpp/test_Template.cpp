@@ -33,14 +33,11 @@ int main(int argc, char* argv[])
   VectorInt itab = VH::sequence(10);
   itab[3]        = ITEST;
 
-  // Use the traditional function cumul() in its real version (polymorphism)
-  std::cout << "cumul double = " << VH::cumul(tab) << std::endl;
-  // Use the traditional function cumul() in its integer version (polymorphism)
-  std::cout << "cumul entier = " << VH::cumul(itab) << std::endl;
-  // Use the template function cumul2() in its real version
-  std::cout << "cumul neutre (tab) = " << VH::cumul2(tab) << std::endl;
-  // Use the template function cumul2() in its integer version
-  std::cout << "cumul neutre (itab) = " << VH::cumul2(itab) << std::endl;
+  message("On identifie le double\n");
+  tab.identify();
+
+  message("On identifie le int\n");
+  itab.identify();
 
   return 0;
 }

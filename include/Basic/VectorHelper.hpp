@@ -32,24 +32,6 @@ private:
   }
 
 public:
-  // The next TEMPLATE function has been introduced to perform basic
-  // exercise on template (between double and Id).
-  // This function is similar to cumul()
-  // It should be deleted at the end of the test.
-  template<typename T>
-  static T cumul2(const VectorNumT<T>& vec)
-  {
-    T total = 0;
-
-    for (Id i = 0, n = static_cast<Id>(vec.size()); i < n; i++)
-    {
-      const T& value = vec[i];
-      if (isDefined(value))
-        total += value;
-    }
-    return total;
-  }
-
   static VectorInt initVInt(Id nval, Id value = 0.);
   static VectorDouble initVDouble(Id nval, double value = 0.);
   static VectorVectorDouble initVVDouble(Id nval1, Id nval2, double value = 0.);

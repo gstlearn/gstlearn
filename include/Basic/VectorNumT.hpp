@@ -16,6 +16,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <iostream>
 #include <limits>
 #include <vector>
 
@@ -77,6 +78,8 @@ public:
   inline double mean() const;
   inline double norm() const;
 
+  inline void identify() const;
+
   inline double innerProduct(const VectorNumT<T>& v) const;
 
   inline const VectorNumT<T>& add(const VectorNumT<T>& v);
@@ -133,7 +136,7 @@ template<typename T>
 double VectorNumT<T>::mean() const
 {
   if (VectorNumT::size() <= 0) return static_cast<T>(NAN);
-  double s = static_cast<double>(sum());
+  auto s = static_cast<double>(sum());
   return (s / static_cast<double>(VectorNumT::_v.size()));
 }
 
@@ -142,6 +145,17 @@ double VectorNumT<T>::norm() const
 {
   double ip = innerProduct(*this);
   return sqrt(ip);
+}
+
+template<typename T>
+void VectorNumT<T>::identify() const
+{
+  if constexpr (std::is_same_v<T, int>)
+    std::cout << "C'est un std::vector<int>\n";
+  else if constexpr (std::is_same_v<T, double>)
+    std::cout << "C'est un std::vector<double>\n";
+  else
+    std::cout << "C'est un std::vector d'un autre type\n";
 }
 
 template<typename T>
