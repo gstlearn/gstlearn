@@ -29,10 +29,9 @@ dependencies = [
 
 [project.optional-dependencies]
 plot = [
-     "geopandas",
      "matplotlib",
      "plotly",
-     "shapely",
+     "pyproj",
 ]
 conv = [
      "pandas",

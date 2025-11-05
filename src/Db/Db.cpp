@@ -948,7 +948,8 @@ VectorVectorDouble Db::getAllCoordinates(bool useSel) const
  * Constitute a Matrix of coordinates for all (active) samples
  * - one row per sample
  * - one column by Space Dimension
- * @return
+ * @param box 2D bounding box to filter the samples (can be empty)
+ * @return Dense matrix with selected coordinates
  */
 MatrixDense Db::getAllCoordinatesMat(const MatrixDense& box) const
 {

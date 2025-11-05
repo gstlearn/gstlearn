@@ -21,7 +21,6 @@ import numpy                 as np
 import numpy.ma              as ma
 import gstlearn              as gl
 import gstlearn.plot         as gp
-# import gstlearn.proj         as prj
 import math
 
 from mpl_toolkits.axes_grid1 import make_axes_locatable
@@ -803,6 +802,7 @@ def _ax_symbol(ax, db, nameColor=None, nameSize=None,
                legendNameColor=None, legendNameSize=None, posX=0, posY=1, **kwargs):
     '''
     Construct a Layer for plotting a point data base, with optional color and size variables
+    If you want to display using projected coordinates, please use baseMap function.
     
     db: Db containing the variable to be plotted
     nameColor: Name of the variable containing the color per sample
@@ -1731,20 +1731,12 @@ def _ax_baseMap(ax, db, crsFrom="EPSG:4326", crsTo="EPSG:3857",
     else:
         pts = db.getAllCoordinatesMat().toTL()
 
-    if len(pts) > 0:
+    # Plot using two first coordinates (if ndim > 2)
+    if pts.shape[0] > 0 and pts.shape[1] >= 2:
         if flagProj:
             import gstlearn.proj as prj
-            from shapely.geometry import Point
-            points = [Point(i) for i in pts]
-            data = prj.projGP(points, crsFrom, crsTo)
-            data.plot(ax=ax, color=color, markersize=size)
-        else:
-            plt.scatter(pts[:,0], pts[:,1], c=color, s=size)
-    #         if literal:
-    #             plt.annotate()
-    # for i, txt in enumerate(labval):
-    #     if not np.isnan(txt):
-    #         ax.annotate(round(txt,2), (tabx[i], taby[i]))
+            pts[:,0], pts[:,1] = prj.proj(pts[:,0], pts[:,1], crsFrom, crsTo)
+        ax.scatter(pts[:,0], pts[:,1], c=color, s=size)
 
     # Display bounding points (optional)
     if box is not None:
@@ -1752,12 +1744,8 @@ def _ax_baseMap(ax, db, crsFrom="EPSG:4326", crsTo="EPSG:3857",
                               [box[0,1], box[1,1]]])
         if flagProj:
             import gstlearn.proj as prj
-            from shapely.geometry import Point
-            geometry = [Point(xy) for xy in extPoints]
-            gdf = prj.projGP(geometry, crsFrom, crsTo)
-            gdf.plot(ax=ax, color='black', markersize=0.1)
-        else:
-            plt.scatter(extPoints[:,0], extPoints[:,1], c="white", s=0.1)
+            extPoints[:,0], extPoints[:,1] = prj.proj(extPoints[:,0], extPoints[:,1], crsFrom, crsTo)
+        ax.scatter(extPoints[:,0], extPoints[:,1], c="white", s=0.1)
 
 def correlation(db, namex, namey, *args, **kwargs):
     '''

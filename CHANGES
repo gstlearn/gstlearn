@@ -22,7 +22,7 @@ _ Correction of the Migration algorithm (adding a test in Tuto_Migration.ipynb)
 - Fix PolyElem::getSurface which was ignoring last polygon point
 - Add PolyElem::getCentroid method
 - Add the possibility to display labels in polygons (python only)
-- Improve management of coordinates transformation (python only)
+- Improve management of coordinates transformation using pyproj in place of geopandas (python only)
 
 
 Release 1.9.0
