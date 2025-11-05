@@ -150,12 +150,16 @@ double VectorNumT<T>::norm() const
 template<typename T>
 void VectorNumT<T>::identify() const
 {
-  if constexpr (std::is_same_v<T, int>)
-    std::cout << "C'est un std::vector<int>\n";
+  if constexpr (std::is_same_v<T, Id>)
+    std::cout << "--> This is a std::vector<Id>\n";
+  else if constexpr (std::is_same_v<T, int>)
+    std::cout << "--> This is a std::vector<int>\n";
+  else if constexpr (std::is_same_v<T, long>)
+    std::cout << "--> This is a std::vector<long>\n";
   else if constexpr (std::is_same_v<T, double>)
-    std::cout << "C'est un std::vector<double>\n";
+    std::cout << "--> This is a std::vector<double>\n";
   else
-    std::cout << "C'est un std::vector d'un autre type\n";
+    std::cout << "??? This is a vector of unexpected type\n";
 }
 
 template<typename T>

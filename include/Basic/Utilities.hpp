@@ -52,18 +52,19 @@ GSTLEARN_EXPORT bool isEqualExtended(double v1,
                                      bool flagAbsolute    = false,
                                      const String& string = "");
 
-// No need this stuff through SWIG (because we use target language NAs)
-#ifndef SWIG
-
 GSTLEARN_EXPORT bool FFFF(double value); // TODO isNA<double>
-GSTLEARN_EXPORT bool IFFFF(Id value);   // TODO isNA<Id>
+GSTLEARN_EXPORT bool IFFFF(Id value);    // TODO isNA<Id>
 GSTLEARN_EXPORT double getTEST();        // TODO getNA<double>
-GSTLEARN_EXPORT Id getITEST();          // TODO getNA<Id>
+GSTLEARN_EXPORT Id getITEST();           // TODO getNA<Id>
 
-#  define DOUBLE_NA TEST
-#  define INT_NA    ITEST
-#  define STRING_NA "NA"
-#  define FLOAT_NA  static_cast<float>(TEST) // 1.234e30 is ok for 4 bytes but needs a cast for Windows
+#define DOUBLE_NA TEST
+#define INT_NA    ITEST
+#define STRING_NA "NA"
+#define FLOAT_NA  static_cast<float>(TEST) // 1.234e30 is ok for 4 bytes but needs a cast for Windows
+
+// No need this stuff through SWIG (because we use target language NAs)
+
+#ifndef SWIG
 
 template<typename T>
 inline T getNA();
@@ -145,7 +146,7 @@ GSTLEARN_EXPORT void ut_shuffle_array(Id nrow, Id ncol, VectorDouble& tab);
 
 GSTLEARN_EXPORT VectorInt getListActiveToAbsolute(const VectorDouble& sel);
 GSTLEARN_EXPORT std::map<Id, Id> getMapAbsoluteToRelative(const VectorDouble& sel,
-                                                            bool verbose = false);
+                                                          bool verbose = false);
 GSTLEARN_EXPORT Id getRankMapAbsoluteToRelative(const std::map<Id, Id>& map, Id iabs);
 GSTLEARN_EXPORT Id getRankMapRelativeToAbsolute(const std::map<Id, Id>& map, Id irel);
 

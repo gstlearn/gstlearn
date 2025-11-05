@@ -91,7 +91,7 @@ double getMax(double val1, double val2)
   return (MAX(val1, val2));
 }
 
-#ifndef SWIG
+// Ici: ifndef SWIG
 
 double getTEST()
 {
@@ -134,7 +134,7 @@ bool IFFFF(Id value)
   return (value == ITEST);
 }
 
-#endif // SWIG
+// ici fin de #endif // SWIG
 
 /*****************************************************************************/
 /*!

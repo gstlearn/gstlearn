@@ -1,10 +1,18 @@
-Creating Vector of Double
-               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
-     [  0,]     0.000     1.000     2.000       N/A     4.000     5.000     6.000
-     [  7,]     7.000     8.000     9.000
-Creating Vector of Integer
-               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
-     [  0,]     0.000     1.000     2.000-1234567.000     4.000     5.000     6.000
-     [  7,]     7.000     8.000     9.000
-Cumul Double =  42
-Cumul Integer =  42
+
+Double values
+=============
+Type of VD created using VH function
+<class 'numpy.ndarray'>
+Type of VD created using VD constructor
+<class 'gstlearn.VectorDouble'>
+Identifying the vector type (double)
+C'est un std::vector<double>
+
+Integer values
+==============
+Type of VD created using VH function
+<class 'numpy.ndarray'>
+Type of VD created using VD constructor
+<class 'gstlearn.VectorInt'>
+Identifying a vector of Id
+C'est un std::vector<Id>

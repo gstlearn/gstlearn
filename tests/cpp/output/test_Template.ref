@@ -1,4 +1,4 @@
-cumul double = 42
-cumul entier = 42
-cumul neutre (tab) = 42
-cumul neutre (itab) = 42
+On identifie le double
+--> This is a std::vector<double>
+On identifie le int
+--> This is a std::vector<Id>

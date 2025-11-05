@@ -1,0 +1,22 @@
+
+Double values
+=============
+[1] "Type of VD created using VH function"
+[1] "numeric"
+[1] "Type of VD created using VD constructor"
+[1] "_p_gstlrn__VectorNumTT_double_t"
+attr(,"package")
+[1] "gstlearn"
+[1] "Identifying the vector type (double)"
+--> This is a std::vector<double>
+
+Integer values
+==============
+[1] "Type of VD created using VH function"
+[1] "integer"
+[1] "Type of VD created using VD constructor"
+[1] "_p_gstlrn__VectorNumTT_long_long_t"
+attr(,"package")
+[1] "gstlearn"
+[1] "Identifying a vector of Id"
+--> This is a std::vector<Id>

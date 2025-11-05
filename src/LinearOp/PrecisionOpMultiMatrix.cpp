@@ -90,7 +90,7 @@ const MatrixSparse* PrecisionOpMultiMatrix::getQ() const
 {
   if (_isSingle())
   {
-    return ((PrecisionOpMatrix*)_pops[0])->getQ();
+    return static_cast<PrecisionOpMatrix*>(_pops[0])->getQ();
   }
   return &_Q;
 }
@@ -102,7 +102,7 @@ void PrecisionOpMultiMatrix::_prepareMatrix()
   MatrixSparse current(0, 0);
   for (Id istruct = 0; istruct < _getNCov(); istruct++)
   {
-    const MatrixSparse* Q = ((PrecisionOpMatrix*)_pops[istruct])->getQ();
+    const MatrixSparse* Q = static_cast<PrecisionOpMatrix*>(_pops[istruct])->getQ();
 
     if (_model->getNVar() == 1)
     {

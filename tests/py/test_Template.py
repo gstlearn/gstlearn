@@ -5,28 +5,39 @@
 
 import gstlearn as gl
 
-# Establish a sequence of real values
+##################
+# Vector of Double
+##################
+gl.mestitle(0, "Double values")
+
+# - created using VH functions
 tab = gl.VectorHelper.sequenceVD(0, 9., 1.)
 tab[3]           = gl.TEST
-gl.VectorHelper.dump("Creating Vector of Double", tab)
+print("Type of VD created using VH function")
+print(type(tab))
 
-# Establish a sequence of integer values
+# - created using the VD constructor only
+tab = gl.VectorDouble([2,3,4])
+print("Type of VD created using VD constructor")
+print(type(tab))
+print("Identifying the vector type (double)")
+tab.identify()
+
+##############
+# Vector of Id
+##############
+
+gl.mestitle(0, "Integer values")
+
+# - created using VH function
 itab = gl.VectorHelper.sequence(10)
 itab[3]        = gl.ITEST
-gl.VectorHelper.dump("Creating Vector of Integer", itab)
+print("Type of VD created using VH function")
+print(type(itab))
 
-# Use the traditional function cumul() in its real version (polymorphism)
-rvalue = gl.VectorHelper.cumul(tab)
-print("Cumul Double = ", rvalue)
-
-# Use the traditional function cumul() in its integer version (polymorphism)
-ivalue = gl.VectorHelper.cumul(itab)
-print("Cumul Integer = ", ivalue)
-
-# Use the template function cumul2() in its real version
-#rvalueNew = gl.VectorHelper.cumul2(tab)
-#print("Cumul Neutral (tab) = ", rvalueNew)
-
-# Use the template function cumul2() in its integer version
-#ivalueNew = gl.VectorHelper.cumul2(itab)
-#print("Cumul Neutral (itab) = ", ivalueNew)
+# - created using the VD constructor only
+itab = gl.VectorInt({1, 2, 4, 6})
+print("Type of VD created using VD constructor")
+print(type(itab))
+print("Identifying a vector of Id")
+itab.identify()

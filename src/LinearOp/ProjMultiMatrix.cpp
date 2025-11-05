@@ -186,7 +186,8 @@ ProjMultiMatrix::ProjMultiMatrix(const std::vector<std::vector<const ProjMatrix*
     {
       if (_projs[i][j] != nullptr)
       {
-        MatrixSparse::glueInPlace(&currentrow, ((MatrixSparse*)proj[i][j]), 0, 1);
+        auto* matPtr = const_cast<MatrixSparse*>(static_cast<const MatrixSparse*>(proj[i][j]));
+        MatrixSparse::glueInPlace(&currentrow, matPtr, 0, 1);
       }
       else
       {
