@@ -59,11 +59,11 @@ Node #  0/  1 - Indices [    0;    11[ - Radius = 0.617832 - Centroid = 0.451086
 List of Neighbors for NN search
 -------------------------------
 All samples ranks are given in Absolute mode
-For Db_1   0 :         0       N/A       N/A       N/A
-For Db_1   1 :         1         0       N/A       N/A
-For Db_1   2 :         2         0         1       N/A
-For Db_1   3 :         3         1         2         0
-For Db_1   4 :         4         3         1         2
+For Db_1   0 :   0       N/A       N/A       N/A
+For Db_1   1 :   1         0       N/A       N/A
+For Db_1   2 :   2         0         1       N/A
+For Db_1   3 :   3         1         2         0
+For Db_1   4 :   4         3         1         2
 For Db_2   5 :         5         4         3         1
 For Db_2   6 :         6         4         5         3
 For Db_2   7 :         7         0         2         4
@@ -158,10 +158,10 @@ Node #  0/  1 - Indices [    0;     9[ - Radius = 0.642982 - Centroid = 0.390982
 List of Neighbors for NN search
 -------------------------------
 All samples ranks are given in Absolute mode
-For Db_1   0 :         0       N/A       N/A       N/A
-For Db_1   1 :         1         0       N/A       N/A
-For Db_1   2 :         2         0         1       N/A
-For Db_1   3 :         3         2         1         0
+For Db_1   0 :   0       N/A       N/A       N/A
+For Db_1   1 :   1         0       N/A       N/A
+For Db_1   2 :   2         0         1       N/A
+For Db_1   3 :   3         2         1         0
 For Db_2   4 :         4         2         3         0
 For Db_2   5 :         5         1         0         3
 For Db_2   6 :         6         3         4         2
@@ -257,7 +257,7 @@ Data Base Statistics
 
 Log-Likelihood
 ==============
-Log-likelihood = -95547.483503
+Log-likelihood = -95547.673816
 
 Kriging with Vecchia approximation (nvar=2)
 ===========================================
@@ -283,3 +283,8 @@ Data Base Statistics
  Mean value          =     -0.063
  Standard Deviation  =      0.122
  Variance            =      0.015
+
+Comparing Log-Likelihood with Vecchia approximation when all neighbors are used
+===============================================================================
+Log-likelihood with    Vecchia= -24.803996
+Log-likelihood without Vecchia= -24.803996

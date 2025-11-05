@@ -13,6 +13,7 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/File.hpp"
 #include "Basic/OptCst.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Estimation/CalcGlobal.hpp"
@@ -153,5 +154,26 @@ int main(int argc, char* argv[])
     delete grid;
   }
 
+  if (mode == 0 || mode == 5)
+  {
+    int ndat = 6;
+    mestitle(0, "Comparing Log-Likelihood with Vecchia approximation when all neighbors are used");
+    Db* db = Db::createFillRandom(ndat, 2, 1, 0, 0, 1., 0., 0., {0., 0.}, {1., 1.}, 1234, false);
+    db->setColumn(VectorDouble(ndat, 0.01), "verr");
+    db->setLocator("verr", ELoc::V);
+    auto ran = VH::sequenceVD(1,1 + ndat-1, 1);
+    db->setColumn(ran, "ranges");
+    // Add duplicate
+    db->setSampleCoordinates(1, {db->getCoordinate(0, 0), db->getCoordinate(0, 1)});
+    Model* model = _createModel(1);
+    model->getCovAniso(0)->attachNoStatDb(db);
+    model->getCovAniso(0)->makeRangeNoStatDb("ranges", 0.);
+    double result = logLikelihoodVecchia(db, model, ndat, false);
+    message("Log-likelihood with    Vecchia= %f\n", result);
+    result = model->computeLogLikelihood(db);
+    message("Log-likelihood without Vecchia= %f\n", result);
+    delete db;
+    delete model;
+  }
   return (0);
 }

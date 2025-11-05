@@ -12,7 +12,7 @@
 #include "Basic/Optim.hpp"
 #include "Basic/AStringable.hpp"
 #include <nlopt.h>
-#define DEBUG_OPTIM
+// #define DEBUG_OPTIM
 namespace gstlrn
 {
 Optim::Optim(opt_algorithm algo, Id dim)
@@ -160,7 +160,10 @@ double Optim::minimize(std::vector<double>& x)
 
   double minf;
   nlopt_result res = nlopt_optimize(_opt, x.data(), &minf);
-  if (res < 0) message("Warning, optimization return code is %d\n", res);
+  if (res < 0)
+  {
+    if (res < 0) message("Warning, optimization return code is %d\n", res);
+  }
   return minf;
 }
 

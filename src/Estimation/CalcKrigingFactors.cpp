@@ -9,11 +9,11 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Estimation/CalcKrigingFactors.hpp"
+#include "Model/Model.hpp"
 #include "Anamorphosis/AAnam.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Estimation/KrigingSystem.hpp"
-#include "Model/Model.hpp"
 
 namespace gstlrn
 {

@@ -50,7 +50,8 @@ private:
 
 protected:
   const Db* _db;
-  VectorDouble _Y;  // Vector of multivariate data
+  VectorDouble _Z;  // Vector of multivariate data (raw)
+  VectorDouble _Y;  // Vector of multivariate data (Gaussian)
   VectorDouble _Yc; // Centered data
   MatrixDense _X;   // Matrix of drifts
   VectorDouble _beta;

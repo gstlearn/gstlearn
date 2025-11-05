@@ -279,8 +279,24 @@ void Vecchia::_buildLHS(Id nitems,
       else
         _db2->getSampleAsSPInPlace(p2, iabs2);
 
+      _model->getCov()->updateCovByPoints(icase1, iabs1, icase2, iabs2);
+      
       double value = _model->evalCov(p1, p2, ivar1, ivar2);
       matCov.setValue(i1, i2, value);
+    }
+
+    // Update the Diagonal due to the presence of Variance of Measurement Error
+    if (_db1->hasLocVariable(ELoc::V) && icase1 == 1)
+    {
+      Id icolVerr = _db1->getColIdxByLocator(ELoc::V, ivar1);
+
+      double verr = 0.;
+
+      if (icolVerr >= 0)
+        verr = _db1->getValueByColIdx(iabs1, icolVerr);
+
+      // Update the Covariance matrix
+      if (verr > 0) matCov.updValue(i1, i1, EOperator::ADD, verr);
     }
   }
 }
@@ -310,6 +326,7 @@ void Vecchia::_buildRHS(Id icase2,
     else
       _db2->getSampleAsSPInPlace(p1, iabs1);
 
+    _model->getCov()->updateCovByPoints(icase1, iabs1, icase2, iabs2);
     double value = _model->evalCov(p1, p2, ivar1, ivar2);
     vectCov.setValue(i1, 0, value);
   }
@@ -374,6 +391,34 @@ void Vecchia::_convertAbsToRel(Id nech,
   }
 }
 
+double Vecchia::_buildC00(Id icaseDb,
+                            Id ipAbs,
+                            Id ivar)
+{
+  SpacePoint p1;
+  if (icaseDb == 1)
+    _db1->getSampleAsSPInPlace(p1, ipAbs);
+  else
+    _db2->getSampleAsSPInPlace(p1, ipAbs);
+
+  if (_model->isNoStat())
+  {
+    _model->getCov()->updateCovByPoints(icaseDb, ipAbs, icaseDb, ipAbs);
+  }
+  double var0 = _model->getCov()->evalCov(p1, p1, ivar, ivar);
+
+  if (icaseDb == 1)
+  { 
+    if (_db1->hasLocVariable(ELoc::V))
+    {
+      Id icolVerr = _db1->getColIdxByLocator(ELoc::V, ivar);
+      if (icolVerr >= 0)
+        var0 += _db1->getValueByColIdx(ipAbs, icolVerr);
+    }
+  }
+  return var0;
+}
+
 /**
  * @brief Construct the Vecchia approximation starting from 'Ranks'
  *
@@ -392,6 +437,10 @@ void Vecchia::_convertAbsToRel(Id nech,
  */
 Id Vecchia::computeLower(const MatrixT<Id>& Ranks, bool verbose)
 {
+  // Handle non stationarities if any
+  // It has to be made before covariance computations since the model may have changed.
+  _model->manage(_db1, _db2);
+
   // Preliminary check
   Id ndim;
   if (!haveSameNDim(_db1, _db2, _model, &ndim)) return 1;
@@ -432,13 +481,12 @@ Id Vecchia::computeLower(const MatrixT<Id>& Ranks, bool verbose)
   Id ipAbs   = 0; // Absolute sample rank in the current Db
   for (Id ivar = 0; ivar < nvar; ivar++)
   {
-    double varK = _model->eval0(ivar, ivar);
     // Loop over the samples referenced in 'Ranks' (over 1 or 2 Dbs)
     for (Id isample = 0; isample < nsample; isample++)
     {
       // Identify the Db and absolute sample rank
       (void)_identifyDbAndAbsoluteRank(Ranks, isample, 0, &icaseDb, &ipAbs);
-
+      
       // Check if the sample corresponds to a valid (defined) variable value
       if (!_isVariableDefined(icaseDb, ipAbs, ivar)) continue;
 
@@ -447,9 +495,11 @@ Id Vecchia::computeLower(const MatrixT<Id>& Ranks, bool verbose)
 
       // Build the list of neighboring information
       Id nitems = _buildNeighborhood(Ranks, ndim, icaseDb, isample, ivar, nb_vecchia, neighDescr, verbose);
-
+      
       // Fill the full matrix
+      
       _LFull.setValue(irel1, irel1, 1.);
+      double varK = _buildC00(icaseDb, ipAbs, ivar);
 
       if (nitems <= 0)
       {

@@ -17,6 +17,7 @@
 #include "Space/SpacePoint.hpp"
 #include "Tree/ball_algorithm.h"
 #include "geoslib_define.h"
+#include <string>
 
 namespace gstlrn
 {
@@ -280,18 +281,19 @@ MatrixT<Id> findNN(const Db* dbin,
     Id iech = ranks[jech];
     if (!dbin->isActive(iech)) continue;
     dbin->getSampleAsSPInPlace(pt, iech);
+    (void)ball.queryOneInPlace(pt.getCoordsUnprotected(), nb_neigh - 1, neighs, distances);
+    for (Id i = 0; i < nb_neigh - 1; i++) mat(irel, i + 1) = neighs[i];
+    mat(irel, 0) = iech;
     ball.setAvailable(iech, true); // Provide absolute ranks (even when selection is present)
-    (void)ball.queryOneInPlace(pt.getCoordsUnprotected(), nb_neigh, neighs, distances);
-    for (Id i = 0; i < nb_neigh; i++) mat(irel, i) = neighs[i];
 
     if (verbose)
     {
-      message("For Db_1 %3d", iech);
-      VH::dump(" ", neighs, false);
+      message("For Db_1 %3d : %3d", iech, iech);
+      VH::dump("", neighs, false);
     }
     irel++;
   }
-
+ 
   if (dbout != nullptr)
   {
     nech  = dbout->getNSample(false);

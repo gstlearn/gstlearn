@@ -205,7 +205,7 @@ void ModelOptimVMap::evalGrad(vect res)
   SpacePoint P = origin;
 
   /* Loop on the experimental conditions */
-  auto gradcov = _model->getGradients();
+  auto gradcov = _model->getCovGradients();
 
   for (size_t i = 0, ngrad = gradcov.size(); i < ngrad; i++)
   {
@@ -227,7 +227,8 @@ void ModelOptimVMap::evalGrad(vect res)
           double vexp = _dbmap->getZVariable(iech, ijvar);
           if (FFFF(vexp)) continue;
           double vtheo  = _model->evalCov(origin, P, ivar, jvar, &_calcmode);
-          double dvtheo = gradcov[i](origin, P, ivar, jvar, &_calcmode);
+          const auto& func = gradcov[i];
+          double dvtheo = func(origin, P, ivar, jvar, &_calcmode);
           double delta  = vexp - vtheo;
           total += -2. * wgt * delta * dvtheo;
         }

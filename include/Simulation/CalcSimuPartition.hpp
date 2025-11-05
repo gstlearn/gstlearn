@@ -22,6 +22,7 @@ namespace gstlrn
 {
 class Db;
 class DbGrid;
+class Model;
 
 typedef struct
 {

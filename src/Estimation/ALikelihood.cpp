@@ -31,6 +31,7 @@ ALikelihood::ALikelihood(ModelGeneric* model,
 ALikelihood::ALikelihood(const ALikelihood& r)
   : AModelOptim(r)
   , _db(r._db)
+  , _Z(r._Z)
   , _Y(r._Y)
   , _Yc(r._Yc)
   , _X(r._X)
@@ -47,6 +48,7 @@ ALikelihood& ALikelihood::operator=(const ALikelihood& r)
   {
     AModelOptim::operator=(r);
     _db     = r._db;
+    _Z      = r._Z;
     _Y      = r._Y;
     _Yc     = r._Yc;
     _X      = r._X;
@@ -76,13 +78,23 @@ void ALikelihood::_initLikelihood(bool verbose)
   }
 
   // Establish the vector of multivariate data
-  if (_nDrift > 0)
+  if (_model->getTransform() == nullptr)
   {
-    _Y = _db->getColumnsActiveAndDefined(ELoc::Z);
-    _Yc.resize(_Y.size());
+    if (_nDrift > 0)
+    {
+      _Y = _db->getColumnsActiveAndDefined(ELoc::Z);
+      _Yc.resize(_Y.size());
+    }
+    else
+      _Yc = _db->getColumnsActiveAndDefined(ELoc::Z, _model->getMeans());
   }
   else
-    _Yc = _db->getColumnsActiveAndDefined(ELoc::Z, _model->getMeans());
+  {
+    _Z = _db->getColumnsActiveAndDefined(ELoc::Z);
+    _Y.resize(_Z.size());
+    _Yc.resize(_Z.size());
+  }
+
   Id size = static_cast<Id>(_Yc.size());
   if (verbose)
   {
@@ -110,6 +122,16 @@ double ALikelihood::computeLogLikelihood(bool flagPrint, bool verbose)
 {
   _updateModel(verbose);
 
+  if (_model->getTransform() != nullptr)//TODO do it only in init if no parameters in transform (e.g logNormal)
+  {
+    // Apply the transformation to data
+    _model->getTransform()->inverseTransformVec(_Z, _Y);
+    if (_nDrift == 0)
+    {
+      // Center the data by the means TODO do it!
+      //_Yc = _Y - _model->getMeans();
+    }
+  }
   if (_nDrift > 0)
   {
     // Calculate t(L-1) %*% D-1 %*% L-1 applied to X (L and D from Vecchia)
@@ -140,7 +162,7 @@ double ALikelihood::computeLogLikelihood(bool flagPrint, bool verbose)
     if (verbose)
       VH::dump("Optimal Drift coefficients = ", _beta);
 
-    // Center the data by the optimal drift: Y = Y - beta * X
+    // Center the data by the optimal drift: Yc = Y - beta * X
     VH::subtractInPlace(_X.prodMatVec(_beta), _Y, _Yc);
   }
 
@@ -162,7 +184,12 @@ double ALikelihood::computeLogLikelihood(bool flagPrint, bool verbose)
     CholeskyDense XtCm1XChol(_XtCm1X);
     loglike -= 0.5 * XtCm1XChol.computeLogDeterminant();
   }
-
+  if (_model->getTransform() != nullptr)
+  {
+    // Add the Jacobian term
+    double logjac = _model->getTransform()->evalLogJacobianVec(_Y);
+    loglike -= logjac;
+  }
   // Optional printout
   if (flagPrint)
   {
