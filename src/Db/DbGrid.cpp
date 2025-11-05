@@ -240,7 +240,7 @@ Id DbGrid::resetFromPolygon(Polygons* polygon,
 
   // Get the polygon extension
   double xmin, xmax, ymin, ymax;
-  polygon->getExtension(&xmin, &xmax, &ymin, &ymax);
+  polygon->getExtension(xmin, xmax, ymin, ymax);
 
   // Derive the Grid parameters
   VectorInt nx_tab;

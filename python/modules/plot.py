@@ -21,7 +21,6 @@ import numpy                 as np
 import numpy.ma              as ma
 import gstlearn              as gl
 import gstlearn.plot         as gp
-# import gstlearn.proj         as prj
 import math
 
 from mpl_toolkits.axes_grid1 import make_axes_locatable
@@ -807,6 +806,7 @@ def _ax_symbol(ax, db, nameColor=None, nameSize=None,
                legendNameColor=None, legendNameSize=None, posX=0, posY=1, **kwargs):
     '''
     Construct a Layer for plotting a point data base, with optional color and size variables
+    If you want to display using projected coordinates, please use baseMap function.
     
     db: Db containing the variable to be plotted
     nameColor: Name of the variable containing the color per sample
@@ -1040,7 +1040,7 @@ def polygon(poly, *args, **kwargs):
 
 def _ax_polygon(ax, poly, facecolor='yellow', edgecolor = 'blue', 
                  colorPerSet = False, flagEdge=True, flagFace=False, 
-                 **kwargs):
+                 flagLabels=False, labels=None, **kwargs):
     '''
     Construct a Figure for plotting a polygon
     ax: matplotlib.Axes
@@ -1050,6 +1050,8 @@ def _ax_polygon(ax, poly, facecolor='yellow', edgecolor = 'blue',
     colorPerSet: when True, each polygon is represented with a different color
     flagEdge: when True, the polygon edges are represented
     flagFace: when True, the polygon edges are represented
+    flagLabels: when True, labels (or the polygon Id) is displayed at its centroid
+    labels: List of labels for each polygon (used if flagLabels is True)
     **kwargs: arguments passed to matplotlib.fill
     '''
     if _isNotCorrect(object=poly, types=["Polygons"]):
@@ -1077,6 +1079,15 @@ def _ax_polygon(ax, poly, facecolor='yellow', edgecolor = 'blue',
         ax.fill(x, y, facecolor=facecolor_local, edgecolor=edgecolor_local,
                 **kwargs)
         
+        if flagLabels:
+            centr = poly.getPolyElem(ipol).getCentroid()
+            if (labels is not None) and (ipol < len(labels)):
+                ax.text(centr[0], centr[1], str(labels[ipol]), 
+                        color='black', clip_on=True, ha='center')
+            else:
+                ax.text(centr[0], centr[1], str(ipol), 
+                        color='black', clip_on=True, ha='center')
+
     return ax
 
 def cell(dbgrid, *args, **kwargs):
@@ -1271,7 +1282,7 @@ def _ax_line(ax, dbline, color = 'blue', colorPoint='black', colorHeader='red',
         if flagHeader:
             ax.plot(x[0], y[0], marker='D', color=colorHeader)
             if flagAnnotateHeader:
-                ax.text(x[0]+offset[0], y[0]+offset[1], "L#"+str(iline+1))
+                ax.text(x[0]+offset[0], y[0]+offset[1], "L#"+str(iline+1), clip_on=True)
 
         if flagSample:
             ax.plot(x, y, marker='.', color=colorPoint, linestyle='None')
@@ -1321,10 +1332,11 @@ def _ax_graphO(ax, dbgraphO, color = 'blue', colorPoint='black', flagSample=Fals
 
             if flagAnnotate:
                 if flagByRank:
-                    ax.text(xmid, ymid, str(iarc+1), ha="center", va="bottom", rotation=rotation)
+                    ax.text(xmid, ymid, str(iarc+1), ha="center", va="bottom",
+                            rotation=rotation, clip_on=True)
                 else:
                     ax.text(xmid, ymid, str(round(value,ndec)), ha="center", va="bottom", 
-                            rotation=rotation)
+                            rotation=rotation, clip_on=True)
 
     return ax
 
@@ -1723,20 +1735,12 @@ def _ax_baseMap(ax, db, crsFrom="EPSG:4326", crsTo="EPSG:3857",
     else:
         pts = db.getAllCoordinatesMat().toTL()
 
-    if len(pts) > 0:
+    # Plot using two first coordinates (if ndim > 2)
+    if pts.shape[0] > 0 and pts.shape[1] >= 2:
         if flagProj:
             import gstlearn.proj as prj
-            from shapely.geometry import Point
-            points = [Point(i) for i in pts]
-            data = prj.projGP(points, crsFrom, crsTo)
-            data.plot(ax=ax, color=color, markersize=size)
-        else:
-            plt.scatter(pts[:,0], pts[:,1], c=color, s=size)
-    #         if literal:
-    #             plt.annotate()
-    # for i, txt in enumerate(labval):
-    #     if not np.isnan(txt):
-    #         ax.annotate(round(txt,2), (tabx[i], taby[i]))
+            pts[:,0], pts[:,1] = prj.proj(pts[:,0], pts[:,1], crsFrom, crsTo)
+        ax.scatter(pts[:,0], pts[:,1], c=color, s=size)
 
     # Display bounding points (optional)
     if box is not None:
@@ -1744,12 +1748,8 @@ def _ax_baseMap(ax, db, crsFrom="EPSG:4326", crsTo="EPSG:3857",
                               [box[0,1], box[1,1]]])
         if flagProj:
             import gstlearn.proj as prj
-            from shapely.geometry import Point
-            geometry = [Point(xy) for xy in extPoints]
-            gdf = prj.projGP(geometry, crsFrom, crsTo)
-            gdf.plot(ax=ax, color='black', markersize=0.1)
-        else:
-            plt.scatter(extPoints[:,0], extPoints[:,1], c="white", s=0.1)
+            extPoints[:,0], extPoints[:,1] = prj.proj(extPoints[:,0], extPoints[:,1], crsFrom, crsTo)
+        ax.scatter(extPoints[:,0], extPoints[:,1], c="white", s=0.1)
 
 def correlation(db, namex, namey, *args, **kwargs):
     '''

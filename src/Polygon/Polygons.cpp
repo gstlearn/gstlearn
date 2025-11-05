@@ -323,25 +323,32 @@ String Polygons::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-void Polygons::getExtension(double* xmin,
-                            double* xmax,
-                            double* ymin,
-                            double* ymax) const
+void Polygons::getExtension(double& xmin,
+                            double& xmax,
+                            double& ymin,
+                            double& ymax) const
 {
   double xmin_loc, xmax_loc, ymin_loc, ymax_loc;
-  *xmin = 1.e30;
-  *ymin = 1.e30;
-  *xmax = -1.e30;
-  *ymax = -1.e30;
+  xmin = 1.e30;
+  ymin = 1.e30;
+  xmax = -1.e30;
+  ymax = -1.e30;
 
   for (Id ipol = 0; ipol < getNPolyElem(); ipol++)
   {
-    _polyelems[ipol].getExtension(&xmin_loc, &xmax_loc, &ymin_loc, &ymax_loc);
-    if (xmin_loc < *xmin) (*xmin) = xmin_loc;
-    if (ymin_loc < *ymin) (*ymin) = ymin_loc;
-    if (xmax_loc > *xmax) (*xmax) = xmax_loc;
-    if (ymax_loc > *ymax) (*ymax) = ymax_loc;
+    _polyelems[ipol].getExtension(xmin_loc, xmax_loc, ymin_loc, ymax_loc);
+    if (xmin_loc < xmin) xmin = xmin_loc;
+    if (ymin_loc < ymin) ymin = ymin_loc;
+    if (xmax_loc > xmax) xmax = xmax_loc;
+    if (ymax_loc > ymax) ymax = ymax_loc;
   }
+}
+
+VectorDouble Polygons::getExtensionAsVD() const
+{
+  VectorDouble ext(4);
+  getExtension(ext[0], ext[1], ext[2], ext[3]);
+  return ext;
 }
 
 double Polygons::getSurface() const

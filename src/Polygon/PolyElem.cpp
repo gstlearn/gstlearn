@@ -71,30 +71,30 @@ String PolyElem::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-void PolyElem::getExtension(double *xmin,
-                           double *xmax,
-                           double *ymin,
-                           double *ymax) const
+void PolyElem::getExtension(double &xmin,
+                            double &xmax,
+                            double &ymin,
+                            double &ymax) const
 {
-  *xmin = getXmin();
-  *ymin = getYmin();
-  *xmax = getXmax();
-  *ymax = getYmax();
+  xmin = getXmin();
+  ymin = getYmin();
+  xmax = getXmax();
+  ymax = getYmax();
 }
 
 double PolyElem::getSurface() const
 {
-  auto np        = getNPoints();
+  auto np = getNPoints();
   double x0 = getX(0);
   double y0 = getY(0);
   double surface = 0.;
-  for (Id i=1; i<np-2; i++)
+  for (Id i = 1; i < np - 1; i++)
   {
     double x1 = getX(i) - x0;
     double y1 = getY(i) - y0;
     double x2 = getX(i + 1) - x0;
     double y2 = getY(i + 1) - y0;
-    surface += 0.5 * ((x1 * y2) - (x2 * y1));
+    surface += (x1 * y2) - (x2 * y1);
   }
 
   // Check if the PolyElem is closed
@@ -105,10 +105,10 @@ double PolyElem::getSurface() const
     double y1 = getY(np-1) - y0;
     double x2 = getX(0) - x0;
     double y2 = getY(0) - y0;
-    surface += 0.5 * ((x1 * y2) - (x2 * y1));
+    surface += (x1 * y2) - (x2 * y1);
   }
 
-  surface = ABS(surface);
+  surface = ABS(surface) * 0.5;
   return(surface);
 }
 
@@ -257,6 +257,52 @@ bool PolyElem::inside3D(double zz) const
   if (!FFFF(_zmin) && zz < _zmin) return false;
   if (!FFFF(_zmax) && zz > _zmax) return false;
   return true;
+}
+
+VectorDouble PolyElem::getCentroid() const
+{
+  VectorDouble centroid(2, 0.);
+  auto np = getNPoints();
+  if (np <= 3) return centroid;
+
+  double factor = 0.;
+  double area = 0.0;
+  for (Id i = 0; i < np - 1; i++)
+  {
+    double x0 = getX(i);
+    double y0 = getY(i);
+    double x1 = getX(i+1);
+    double y1 = getY(i+1);
+    factor = (x0 * y1 - x1 * y0);
+    area += factor;
+    centroid[0] += (x0 + x1) * factor;
+    centroid[1] += (y0 + y1) * factor;
+  }
+
+  // Check if the PolyElem is closed
+  if (! _isClosed())
+  {
+    // Close the polygon artificialy
+    double x0 = getX(np-1);
+    double y0 = getY(np-1);
+    double x1 = getX(0);
+    double y1 = getY(0);
+    factor = (x0 * y1 - x1 * y0);
+    centroid[0] += (x0 + x1) * factor;
+    centroid[1] += (y0 + y1) * factor;
+  }
+
+  if (ABS(area) < EPSILON8)
+  {
+    // Degenerated polygon
+    return {0., 0.};
+  }
+
+  area *= 0.5;
+  centroid[0] /= (6. * area);
+  centroid[1] /= (6. * area);
+
+  return centroid;
 }
 
 PolyElem PolyElem::reduceComplexity(double distmin) const
