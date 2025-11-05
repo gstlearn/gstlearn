@@ -57,14 +57,13 @@ GSTLEARN_EXPORT bool IFFFF(Id value);    // TODO isNA<Id>
 GSTLEARN_EXPORT double getTEST();        // TODO getNA<double>
 GSTLEARN_EXPORT Id getITEST();           // TODO getNA<Id>
 
-#define DOUBLE_NA TEST
-#define INT_NA    ITEST
-#define STRING_NA "NA"
-#define FLOAT_NA  static_cast<float>(TEST) // 1.234e30 is ok for 4 bytes but needs a cast for Windows
-
 // No need this stuff through SWIG (because we use target language NAs)
-
 #ifndef SWIG
+
+#  define DOUBLE_NA TEST
+#  define INT_NA    ITEST
+#  define STRING_NA "NA"
+#  define FLOAT_NA  static_cast<float>(TEST) // 1.234e30 is ok for 4 bytes but needs a cast for Windows
 
 template<typename T>
 inline T getNA();

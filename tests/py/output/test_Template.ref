@@ -1,3 +1,4 @@
+
 Double values
 =============
 Type of VD created using VH function
@@ -5,7 +6,7 @@ Type of VD created using VH function
 Type of VD created using VD constructor
 <class 'gstlearn.VectorDouble'>
 Identifying the vector type (double)
-C'est un std::vector<double>
+--> This is a std::vector<double>
 
 Integer values
 ==============
@@ -14,4 +15,4 @@ Type of VD created using VH function
 Type of VD created using VD constructor
 <class 'gstlearn.VectorInt'>
 Identifying a vector of Id
-C'est un std::vector<Id>
+--> This is a std::vector<Id>
