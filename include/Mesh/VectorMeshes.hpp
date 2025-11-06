@@ -18,6 +18,9 @@ namespace gstlrn
 /**
  * This corresponds to a list of AMeshes
  */
+
+class AMesh;
+
 class GSTLEARN_EXPORT VectorMeshes: public AStringable
 {
 public:

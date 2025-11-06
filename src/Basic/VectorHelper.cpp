@@ -348,9 +348,9 @@ double VectorHelper::maximum(const std::vector<std::vector<double>>& vec, bool f
 
 double VectorHelper::maximumVVD(const VectorVectorDouble& vect, bool flagAbs)
 {
-  double val = VH::maximum(vect[0]);
+  double val = vect[0].maximum(flagAbs);
   for (Id i = 1, n = static_cast<Id>(vect.size()); i < n; i++)
-    val = MAX(val, VH::maximum(vect[i], flagAbs));
+    val = MAX(val, vect[i].maximum(flagAbs));
   return val;
 }
 
@@ -491,9 +491,9 @@ double VectorHelper::minimum(const VectorDouble& vec, bool flagAbs, const Vector
 
 double VectorHelper::minimumVVD(const VectorVectorDouble& vect, bool flagAbs)
 {
-  double val = VH::minimum(vect[0]);
+  double val = vect[0].minimum(flagAbs);
   for (Id i = 1, n = static_cast<Id>(vect.size()); i < n; i++)
-    val = MIN(val, VH::minimum(vect[i], flagAbs));
+    val = MIN(val, vect[i].minimum(flagAbs));
   return val;
 }
 
@@ -518,7 +518,6 @@ Id VectorHelper::cumul(const VectorInt& vec)
   Id total = 0.;
   for (const auto& v: vec)
   {
-    if (IFFFF(v)) continue;
     total += v;
   }
   return total;
