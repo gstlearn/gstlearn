@@ -120,15 +120,17 @@ Id ShiftOpStencil::_addToDest(const constvect inv, vect outv) const
       total = 0.;
 
       // Check if the target point is not on the edge and not masked
-      if (_isInside[ic] && indirect.getAToR(ic) >= 0)
+      if (_isInside[ic])
       {
-        grid.rankToIndice(ic, center);
+        Id rank = indirect.getRToA(ic);
+        grid.rankToIndice(rank, center);
         for (Id iw = 0; iw < nw; iw++)
         {
           local = center;
           VH::addInPlace(local, _relativeShifts[iw]);
           Id ie = grid.indiceToRank(local);
-          if (indirect.getAToR(ie) >= 0) total += (*currentWeights)[iw] * inv[ie];
+          rank = indirect.getAToR(ie);
+          if (rank >= 0) total += (*currentWeights)[iw] * inv[rank];
         }
       }
       outv[ic] = total;
@@ -274,9 +276,11 @@ Id ShiftOpStencil::_buildInternal(const MeshETurbo* mesh,
   Id size = _mesh->getNApices();
   _isInside.fill(true, size);
 
+  const Indirection& indirect = _mesh->getGridIndirect();
   for (Id i = 0; i < size; i++)
   {
-    grid.rankToIndice(i, center);
+    Id rank = indirect.isDefined() ? indirect.getRToA(i) : i;
+    grid.rankToIndice(rank, center);
     bool flagInside = true;
     for (Id idim = 0; idim < ndim && flagInside; idim++)
     {

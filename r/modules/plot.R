@@ -366,7 +366,8 @@ plot.init <- function(dims = NA, xlim = NA, ylim = NA, asp = NA) {
     varColor='black', varLinetype="dashed", varSize=0.5, 
     drawVariance = TRUE, drawPsize = 0, 
     drawPlabel = FALSE, flagLimits=TRUE, 
-    dirName="Direction", lineName="Experimental", ...)
+    dirName="Direction", lineName="Experimental", 
+    legendNameColor= "Direction", legendNameLine="Type", ...)
 {
   dots = list(...)
   p = list()
@@ -379,6 +380,7 @@ plot.init <- function(dims = NA, xlim = NA, ylim = NA, asp = NA) {
   p = append(p, geom_line(data = df, 
               mapping=aes(x=hh, y=gg, color=dirName, linetype=lineName), 
               na.rm=TRUE, ...))
+  p = append(p, list(labs(color = legendNameColor, linetype = legendNameLine)))
   
   # Representing the number of pairs (by size)
   if (drawPsize > 0)
@@ -427,8 +429,8 @@ plot.init <- function(dims = NA, xlim = NA, ylim = NA, asp = NA) {
 .modelElementary <- function(model, ivar=0, jvar=0, codir=NA,
     nh = 100, hmax = NA, asCov=FALSE, flagEnvelop = TRUE, 
     envColor='black', envLinetype="dashed", envSize=0.5, 
-    dirName = "Direction1", lineName="Model",
-    ...)
+    dirName = "Direction", lineName="Model", 
+    legendNameColor= "Direction", legendNameLine="Type", ...)
 {
   dots = list(...)
   p = list()
@@ -473,6 +475,7 @@ plot.init <- function(dims = NA, xlim = NA, ylim = NA, asp = NA) {
   p = append(p, geom_line(data = df, 
                mapping=aes(x=hh, y=gg, color=dirName, linetype=lineName), 
              na.rm=TRUE, ...))
+  p = append(p, list(labs(color = legendNameColor, linetype = legendNameLine)))
   
   # Represent the coregionalization envelop
   if (ivar != jvar && flagEnvelop)
@@ -721,7 +724,8 @@ plot.varmod <- function(vario=NA, model=NA, ivar=0, jvar=0, idir=-1,
     varioLinetype = "dashed", modelLinetype = "solid",
     varColor='black', varLinetype="dashed", varSize=0.5, 
     envColor='black', envLinetype="dashed", envSize=0.5,
-    cols=NA, drawVario=TRUE, flagLegend=FALSE, ...)
+    cols=NA, drawVario=TRUE, flagLegend=FALSE, 
+    legendNameColor="Direction", legendNameLine="Type", ...)
 {
   if (!require(ggnewscale, quietly=TRUE))
     stop("Package ggnewscale is mandatory to use this function!")
@@ -783,12 +787,15 @@ plot.varmod <- function(vario=NA, model=NA, ivar=0, jvar=0, idir=-1,
         if (! .isNotDef(vario) && drawVario)
         {
           dotloc = dots
-          p = append(p, do.call(.varioElementary, c(list(vario=vario, 
-                          ivar=ivar, jvar=jvar, idir=idir, 
-                          varColor=varColor, varLinetype=varLinetype, varSize=varSize,
-                          drawVariance=drawVariance, drawPsize=drawPsize, 
-                          drawPlabel=drawPlabel, 
-                          flagLimits=FALSE, dirName=dirName), dotloc)))
+          p = append(p, do.call(.varioElementary, c(list(
+            vario = vario,
+            ivar = ivar, jvar = jvar, idir = idir,
+            varColor = varColor, varLinetype = varLinetype, varSize = varSize,
+            drawVariance = drawVariance, drawPsize = drawPsize,
+            drawPlabel = drawPlabel,
+            flagLimits = FALSE, dirName = dirName,
+            legendNameColor=legendNameColor, legendNameLine=legendNameLine
+          ), dotloc)))
         }
         
         # Plotting the Model
@@ -796,11 +803,13 @@ plot.varmod <- function(vario=NA, model=NA, ivar=0, jvar=0, idir=-1,
         {
           dotloc = dots
           if (! .isNotDef(vario) && ! has_codir) dotloc$codir = vario$getCodirs(idir) 
-          p = append(p, do.call(.modelElementary, c(list(model, ivar, jvar,  
-                          nh = nh, hmax = hmax, asCov=asCov, 
-                          flagEnvelop=flagEnvelop,
-                          envColor = envColor, envLinetype = envLinetype, 
-                          envSize=envSize, dirName=dirName), dotloc)))
+          p = append(p, do.call(.modelElementary, c(list(model, ivar, jvar,
+            nh = nh, hmax = hmax, asCov = asCov,
+            flagEnvelop = flagEnvelop,
+            envColor = envColor, envLinetype = envLinetype,
+            envSize = envSize, dirName = dirName,
+            legendNameColor=legendNameColor, legendNameLine=legendNameLine
+          ), dotloc)))
         }
       } # End of loop on idir
              
@@ -1082,6 +1091,7 @@ plot.raster <- function(dbgrid, name = NULL, useSel = TRUE, posX=0, posY=1, corn
   # Define the color Scale
   p <- append(p, .defineFill(palette, naColor = naColor, limits = limits, title = legendName))
   p <- .appendNewScale(p, "fill")
+  if (!flagLegend) p <- append(p, guides(fill = "none"))
   
   p
 }

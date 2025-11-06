@@ -5,6 +5,7 @@ This file contains the logs between consecutive releases
 Release 1.10.0
 ==============
 - Creation of a new class VectorMeshes (AStringable)
+- Compatibility with python 3.14 and R 4.5.2
 _ Correction of the Migration algorithm (adding a test in Tuto_Migration.ipynb)
 - New function creating a random Polygon (can create a circle).
 - Adding the possibility of creating a Polygon from two vectors of 2-D coordinates
@@ -19,6 +20,10 @@ _ Correction of the Migration algorithm (adding a test in Tuto_Migration.ipynb)
 - Correct the Global estimation by Kriging (estimation and variance of estimation error)
 - Make the results of Global estimation displayable
 - Attempt to suppress old-style memory management methods
+- Fix PolyElem::getSurface which was ignoring last polygon point
+- Add PolyElem::getCentroid method
+- Add the possibility to display labels in polygons (python only)
+- Improve management of coordinates transformation using pyproj in place of geopandas (python only)
 
 
 Release 1.9.0
