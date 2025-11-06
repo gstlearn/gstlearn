@@ -5,6 +5,7 @@ Number of variable(s)       = 2
 Number of direction(s)      = 1
 Space dimension             = 3
 Variable(s)                 = [Unknown Unknown]
+
 Variance-Covariance Matrix
                [,  0]    [,  1]
      [  0,]     0.937     0.365
@@ -53,23 +54,23 @@ Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
+Cubic
+- Sill matrix:
+               [,  0]    [,  1]
+     [  0,]     0.957     0.437
+     [  1,]     0.437     0.200
+- Range        =      6.471
 Exponential
 - Sill matrix:
                [,  0]    [,  1]
-     [  0,]     0.001     0.032
-     [  1,]     0.032     0.755
-- Range        =      2.344
-- Theo. Range  =      0.782
-Spherical
-- Sill matrix:
-               [,  0]    [,  1]
-     [  0,]     0.959     0.528
-     [  1,]     0.528     0.291
-- Range        =      5.449
+     [  0,]     0.017     0.121
+     [  1,]     0.121     0.846
+- Range        =      2.548
+- Theo. Range  =      0.851
 Total Sill
                [,  0]    [,  1]
-     [  0,]     0.961     0.561
-     [  1,]     0.561     1.046
+     [  0,]     0.974     0.558
+     [  1,]     0.558     1.046
 
 Known Mean(s)     0.000     0.000
 Goodness-of-fit (as a percentage of the variance) corresponds to level #2 (1 for very good)
