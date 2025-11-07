@@ -174,7 +174,7 @@ double ALikelihood::computeLogLikelihood(bool flagPrint, bool verbose)
 
   double logdet = _computeLogDet();
   // Calculate quad = Zt * Cm1Z
-  double quad = VH::innerProductVD(_Yc, _Cm1Yc);
+  double quad = _Yc.innerProduct(_Cm1Yc);
 
   // Derive the log-likelihood
   Id size        = static_cast<Id>(_Yc.size());

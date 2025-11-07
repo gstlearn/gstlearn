@@ -66,7 +66,7 @@ int main(int argc, char* argv[])
   auto* grid = DbGrid::create({100, 100});
 
   VectorDouble gadd = VH::add(grid->getColumn("x1"), grid->getColumn("x2"));
-  VH::divideConstant(gadd, 200.);
+  gadd.divideCst(200.);
   (void)grid->addColumns(gadd, "reference");
 
   auto* model = Model::createFromParam(ECov::SPHERICAL, 10, 0.05);

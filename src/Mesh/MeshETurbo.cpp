@@ -20,7 +20,6 @@
 #include "Matrix/NF_Triplet.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Mesh/Delaunay.hpp"
-
 #include <cmath>
 
 namespace gstlrn
@@ -523,7 +522,7 @@ Id MeshETurbo::getMeshFromCoordinates(const VectorDouble& coor,
   lambdas.resize(ncorner);
 
   VectorInt nx = _grid.getNXs();
-  VH::addConstant(nx, -1);
+  nx.addCst(-1);
 
   Id iref = MAX(0, indg0[ndim - 1]);
   for (Id idim = ndim - 2; idim >= 0; idim--)
@@ -887,7 +886,7 @@ Id MeshETurbo::initFromCova(const CovAniso& cova,
       for (Id idim = 0; idim < ndim; idim++)
         corner1[idim] = (ic[idim] == 0) ? extremesData[idim][0] : extremesData[idim][1];
     }
-    VH::subtractInPlace(corner1, cornerRef);
+    corner1.subtract(cornerRef);
 
     // Rotate this corner in the Covariance Rotation system
     rot.rotateInverse(corner1, cornerRot);
@@ -944,7 +943,7 @@ Id MeshETurbo::initFromCova(const CovAniso& cova,
 
   // Get the rotated Bounding Box in the initial system
   rot.rotateDirect(extendMinRot, x0);
-  VH::addInPlace(x0, cornerRef);
+  x0.add(cornerRef);
 
   initFromGridByMatrix(nx, dx, x0, rot.getMatrixDirectVec(), VectorDouble(), isPolarized, verbose);
   return 0;

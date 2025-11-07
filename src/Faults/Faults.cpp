@@ -75,8 +75,8 @@ bool Faults::_serializeAscii(std::ostream& os, bool verbose) const
 bool Faults::_deserializeAscii(std::istream& is, bool verbose)
 {
   Id nfaults = 0;
-  bool ret    = true;
-  ret         = ret && _recordRead<Id>(is, "Number of Faults", nfaults);
+  bool ret   = true;
+  ret        = ret && _recordRead<Id>(is, "Number of Faults", nfaults);
 
   for (Id i = 0; ret && i < nfaults; i++)
   {
@@ -139,10 +139,10 @@ bool Faults::isSplitByFault(double xt1, double yt1, double xt2, double yt2) cons
 
     // Check if bounding boxes overlap
 
-    if (VH::maximum(x) < xtmin) continue;
-    if (xtmax < VH::minimum(x)) continue;
-    if (VH::maximum(y) < ytmin) continue;
-    if (ytmax < VH::minimum(y)) continue;
+    if (x.maximum() < xtmin) continue;
+    if (xtmax < x.minimum()) continue;
+    if (y.maximum() < ytmin) continue;
+    if (ytmax < y.minimum()) continue;
 
     // Loop on the segments of the polyline
 
@@ -167,7 +167,7 @@ bool Faults::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   if (!faultG) return false;
 
   /* Read the grid characteristics */
-  bool ret    = true;
+  bool ret   = true;
   Id nfaults = 0;
 
   ret = ret && SerializeHDF5::readValue(*faultG, "NFaults", nfaults);
@@ -207,4 +207,4 @@ bool Faults::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
   return ret;
 }
 #endif
-}
+} // namespace gstlrn

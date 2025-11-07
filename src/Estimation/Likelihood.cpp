@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Estimation/Likelihood.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
 #include "Db/RankHandler.hpp"
 #include "Estimation/ALikelihood.hpp"
@@ -122,7 +121,7 @@ void Likelihood::evalGrad(vect res)
     const auto& func = gradcov[iparam];
     _fillGradCovMat(rkh, func);
     _gradCovMat.prodMatVecInPlace(_Cm1Yc, _temp);
-    double dquad = -VH::innerProductVD(_Cm1Yc, _temp);
+    double dquad = -_Cm1Yc.innerProduct(_temp);
     res[iparam]  = 0.0;
     if (_reml && _model->getNDriftEquation() > 0)
     {

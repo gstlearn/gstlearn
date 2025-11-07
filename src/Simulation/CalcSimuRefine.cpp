@@ -17,7 +17,6 @@
 #include "Simulation/ACalcSimulation.hpp"
 #include "Simulation/SimuRefineParam.hpp"
 #include "geoslib_old_f.h"
-
 #include <cmath>
 
 #define LHS(i, j) (lhs[(i) * neq + (j)])
@@ -436,7 +435,7 @@ Id CalcSimuRefine::_kriging_solve(Id type, Id rank, Id nb, bool verbose)
   double var0 = getModel()->evaluateOneGeneric(nullptr, d1, 1., &mode);
   VectorDouble col2(_WGT.row(type, rank).begin(), _WGT.row(type, rank).end());
   VectorDouble wgt2(col2.size());
-  double variance   = var0 - VH::innerProductVD(rhs, wgt2);
+  double variance   = var0 - rhs.innerProduct(wgt2);
   _STDV[type][rank] = (variance > 0) ? sqrt(variance) : 0.;
 
   /* Printout of the weights */

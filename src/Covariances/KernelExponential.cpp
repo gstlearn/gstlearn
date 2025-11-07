@@ -11,7 +11,6 @@
 #include "Covariances/KernelExponential.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/MathFunc.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Simulation/TurningBandOperate.hpp"
@@ -42,9 +41,9 @@ double KernelExponential::simulateTurningBand(double t0, TurningBandOperate& ope
 
 double KernelExponential::evaluateSpectrum(double freq) const
 {
-  Id ndim = getContext().getNDim();
-  double param = (ndim + 1)*0.5;
-  double val = exp(loggamma(param))/pow(GV_PI*(1+freq*freq), param);
+  Id ndim      = getContext().getNDim();
+  double param = (ndim + 1) * 0.5;
+  double val   = exp(loggamma(param)) / pow(GV_PI * (1 + freq * freq), param);
   return val;
 }
 
@@ -64,8 +63,8 @@ MatrixDense KernelExponential::simulateSpectralOmega(Id nb) const
 }
 
 double KernelExponential::_evaluateCovOnSphere(double alpha,
-                                            double scale,
-                                            Id degree) const
+                                               double scale,
+                                               Id degree) const
 {
   DECLARE_UNUSED(degree);
   double nu = scale * getScadef();
@@ -93,7 +92,7 @@ VectorDouble KernelExponential::_evaluateSpectrumOnSphere(Id n, double scale) co
     sp[k] = (2. * k + 1.) / (2. * k - 3.) * (nu2 + (k - 2.) * (k - 2.)) / (nu2 + (k + 1.) * (k + 1.)) * sp[k - 2];
   }
 
-  VH::normalize(sp, 1);
+  sp.normalizeInPlace(1);
 
   return sp;
 }

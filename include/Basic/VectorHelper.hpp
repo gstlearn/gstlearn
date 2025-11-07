@@ -55,17 +55,12 @@ public:
   static void dumpRange(const String& title, const VectorInt& vect);
   static void dumpNNZ(const String& title, const VectorDouble& vect, Id nclass = 10);
 
-  static Id maximumVI(const VectorInt& vec, bool flagAbs = false);
-  static Id minimumVI(const VectorInt& vec, bool flagAbs = false);
-  static double maximum(const VectorDouble& vec, bool flagAbs = false, const VectorDouble& aux = VectorDouble(), Id mode = 0);
-  static double minimum(const VectorDouble& vec, bool flagAbs = false, const VectorDouble& aux = VectorDouble(), Id mode = 0);
-  static double maximumVVD(const VectorVectorDouble& vec, bool flagAbs = false);
   static double maximum(const std::vector<std::vector<double>>& vec, bool flagAbs = false);
+  static double maximum(const VectorDouble& vec, bool flagAbs = false); // Kept for std::vector<std::vector<double>>
+  static double maximumVVD(const VectorVectorDouble& vec, bool flagAbs = false);
   static double minimumVVD(const VectorVectorDouble& vec, bool flagAbs = false);
   static void capInPlace(VectorDouble& vec, double vmin = TEST, double vmax = TEST);
   static void capInPlaceVVD(VectorVectorDouble& vec, double vmin = TEST, double vmax = TEST);
-  static Id product(const VectorInt& vec);
-  static double product(const VectorDouble& vec);
   static Id countUndefined(const VectorDouble& vec);
   static Id countDefined(const VectorDouble& vec);
   static bool hasUndefined(const VectorDouble& vec);
@@ -80,7 +75,6 @@ public:
   static double mean(const VectorDouble& vec);
   static double variance(const VectorDouble& vec, bool scaleByN = false);
   static double stdv(const VectorDouble& vec, bool scaleByN = false);
-  static double norm(const VectorDouble& vec);
   static double normL1(const VectorDouble& vec);
   static double norminf(const VectorDouble& vec);
   static double median(const VectorDouble& vec);
@@ -88,8 +82,6 @@ public:
   static double correlation(const VectorDouble& veca, const VectorDouble& vecb);
   static VectorDouble quantiles(const VectorDouble& vec, const VectorDouble& probas);
 
-  static bool isConstant(const VectorDouble& vect, double refval = TEST);
-  static bool isConstant(const VectorInt& vect, Id refval = ITEST);
   static bool isEqual(const VectorDouble& v1,
                       const VectorDouble& v2,
                       double eps = EPSILON10);
@@ -107,9 +99,6 @@ public:
                                  double valTo,
                                  double valStep = 1.,
                                  double ratio   = 1.);
-  static void fill(VectorDouble& vec, double v, Id size = 0);
-  static void fill(VectorInt& vec, Id v, Id size = 0);
-  static void fill(VectorVectorDouble& vec, double value);
   static void fillUndef(VectorDouble& vec, double repl);
 
 #ifndef SWIG
@@ -125,8 +114,6 @@ public:
   static void addInPlace(constvect in, vect dest);
 #endif
   static VectorDouble add(const VectorDouble& veca, const VectorDouble& vecb);
-  static void addInPlace(VectorDouble& dest, const VectorDouble& src);
-  static void addInPlace(VectorInt& dest, const VectorInt& src);
   static void addInPlace(std::vector<double>& dest, const std::vector<double>& src);
   static void addInPlace(const VectorDouble& veca,
                          const VectorDouble& vecb,
@@ -154,8 +141,6 @@ public:
   static VectorDouble subtract(constvect veca, constvect vecb);
   static void subtractInPlace(const constvect in1, const constvect in2, vect outv);
 #endif
-  static void subtractInPlace(VectorDouble& dest, const VectorDouble& src);
-  static void subtractInPlace(VectorInt& dest, const VectorInt& src);
   static void subtractInPlace(const VectorVectorDouble& in1,
                               const VectorVectorDouble& in2,
                               VectorVectorDouble& outv);
@@ -165,10 +150,8 @@ public:
 
   static VectorDouble multiply(const VectorDouble& veca, const VectorDouble& vecb);
   static void multiplyInPlace(const VectorDouble& veca, const VectorDouble& vecb, VectorDouble& res);
-  static void multiplyInPlace(VectorDouble& vec, const VectorDouble& v);
   static VectorDouble divide(const VectorDouble& veca, const VectorDouble& vecb);
   static void divideInPlace(const VectorDouble& veca, const VectorDouble& vecb, VectorDouble& res);
-  static void divideInPlace(VectorDouble& vec, const VectorDouble& v);
   static void divideInPlace(std::vector<double>& vec, const std::vector<double>& v);
   static void multiplyComplexInPlace(const VectorDouble& vecaRe,
                                      const VectorDouble& vecaIm,
@@ -177,7 +160,6 @@ public:
                                      VectorDouble& resRe,
                                      VectorDouble& resIm);
 
-  static void multiplyConstant(VectorDouble& vec, double v);
   static void multiplyConstantInPlace(const VectorDouble& vec, double v, VectorDouble& vecout);
   static void multiplyConstantSelfInPlace(VectorDouble& vec, double v);
   static void addMultiplyConstantInPlace(double val1,
@@ -187,20 +169,16 @@ public:
   static void addMultiplyConstantInPlace(double val1,
                                          const VectorVectorDouble& in1,
                                          VectorVectorDouble& outv);
-  static void divideConstant(VectorDouble& vec, double v);
   static void copy(const VectorDouble& vecin, VectorDouble& vecout, Id size = -1);
   static void copy(const VectorInt& vecin, VectorInt& vecout, Id size = -1);
   static void copy(const VectorVectorDouble& inv, VectorVectorDouble& outv);
   static void copy(const std::vector<std::vector<double>>& inv, std::vector<std::vector<double>>& outv);
 
-  static void addConstant(VectorDouble& vec, double v);
-  static void addConstant(VectorInt& vec, Id v);
   static void mean1AndMean2ToStdev(const VectorDouble& mean1,
                                    const VectorDouble& mean2,
                                    VectorDouble& std,
                                    Id number);
 
-  static void normalize(VectorDouble& vec, Id norm = 2);
   static void normalize(double* tab, Id ntab);
   static void normalizeFromGaussianDistribution(VectorDouble& vec,
                                                 double mini = 0.,
@@ -217,6 +195,7 @@ public:
   static void power(VectorDouble& res, const constvect vec, double power);
   static void inverse(VectorDouble& res, const constvect vec);
 #endif
+  // Next line is kept only fr VVD compatibility
   static double innerProductVD(const VectorDouble& veca, const VectorDouble& vecb, Id size = -1);
   static double innerProduct(const double* veca, const double* vecb, Id size = -1);
   static double innerProductVVD(const VectorVectorDouble& x,

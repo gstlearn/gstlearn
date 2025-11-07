@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "LinearOp/ShiftOpStencil.hpp"
-
 #include "Basic/AStringable.hpp"
 #include "Basic/Grid.hpp"
 #include "Basic/Indirection.hpp"
@@ -18,7 +17,6 @@
 #include "LinearOp/AShiftOp.hpp"
 #include "LinearOp/ShiftOpMatrix.hpp"
 #include "Mesh/MeshETurbo.hpp"
-
 #include "geoslib_define.h"
 
 namespace gstlrn
@@ -127,9 +125,9 @@ Id ShiftOpStencil::_addToDest(const constvect inv, vect outv) const
         for (Id iw = 0; iw < nw; iw++)
         {
           local = center;
-          VH::addInPlace(local, _relativeShifts[iw]);
+          local.add(_relativeShifts[iw]);
           Id ie = grid.indiceToRank(local);
-          rank = indirect.getAToR(ie);
+          rank  = indirect.getAToR(ie);
           if (rank >= 0) total += (*currentWeights)[iw] * inv[rank];
         }
       }
@@ -252,7 +250,7 @@ Id ShiftOpStencil::_buildInternal(const MeshETurbo* mesh,
     double weight = centerColumn[i];
     if (ABS(weight) < EPSILON6) continue;
     localMesh.getApexIndicesInPlace(i, other);
-    VH::subtractInPlace(other, center);
+    other.subtract(center);
     _relativeShifts.push_back(other);
     _weights.push_back(weight);
   }
@@ -267,7 +265,7 @@ Id ShiftOpStencil::_buildInternal(const MeshETurbo* mesh,
   for (Id iw = 0; iw < nw; iw++)
   {
     VectorInt local = center;
-    VH::addInPlace(local, _relativeShifts[iw]);
+    local.add(_relativeShifts[iw]);
     Id iabs             = grid.indiceToRank(local);
     _absoluteShifts[iw] = iabs - iorigin;
   }

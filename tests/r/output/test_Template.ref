@@ -1,0 +1,28 @@
+[1] "Type of VD created using VD constructor"
+[1] "_p_gstlrn__VectorNumTT_double_t"
+attr(,"package")
+[1] "gstlearn"
+[1] "Identifying the vector type (double)"
+--> This is a Vector of <double>
+[1] "Type of VD created using VD constructor"
+[1] "_p_gstlrn__VectorNumTT_long_long_t"
+attr(,"package")
+[1] "gstlearn"
+[1] "Identifying a vector of Id"
+--> This is a Vector of <Id>
+Array of Double: Initial Vector of Double
+[2 3 4 6 7]
+[4 6 8 12 14]
+Array of Double: After adding this to itself
+[4 6 8 12 14]
+[16 18 20 24 26]
+Array of Double: After adding a constant to this
+[16 18 20 24 26]
+Array of Id: Initial Vector of Id
+[1 2 4 6]
+[2 4 8 12]
+Array of Id: After adding this to itself
+[2 4 8 12]
+[14 16 20 24]
+Array of Id: After adding a constant to this
+[14 16 20 24]

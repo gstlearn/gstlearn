@@ -9,15 +9,14 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Covariances/KernelLinearSph.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Covariances/CovContext.hpp"
 
 #include <cmath>
 
 namespace gstlrn
 {
-KernelLinearSph::KernelLinearSph(const CovContext &ctxt)
-    : AKernel(ECov::LINEARSPH, ctxt)
+KernelLinearSph::KernelLinearSph(const CovContext& ctxt)
+  : AKernel(ECov::LINEARSPH, ctxt)
 {
   setParam(1);
 }
@@ -41,8 +40,8 @@ KernelLinearSph::~KernelLinearSph()
 }
 
 double KernelLinearSph::_evaluateCovOnSphere(double alpha,
-                                          double scale,
-                                          Id degree) const
+                                             double scale,
+                                             Id degree) const
 {
   DECLARE_UNUSED(scale);
   DECLARE_UNUSED(degree);
@@ -54,7 +53,7 @@ VectorDouble KernelLinearSph::_evaluateSpectrumOnSphere(Id n, double scale) cons
   DECLARE_UNUSED(scale);
   VectorDouble sp(n + 1, 0.);
 
-  Id k = 1;
+  Id k  = 1;
   sp[k] = 3. / 4.;
   while (1)
   {
@@ -64,8 +63,8 @@ VectorDouble KernelLinearSph::_evaluateSpectrumOnSphere(Id n, double scale) cons
     sp[k]    = (2. * k + 1.) / (2. * k - 3.) * v * v * sp[k - 2];
   }
 
-  VH::normalize(sp, 1);
+  sp.normalizeInPlace(1);
 
   return sp;
 }
-}
+} // namespace gstlrn

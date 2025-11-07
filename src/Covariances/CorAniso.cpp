@@ -242,7 +242,7 @@ void CorAniso::setRanges(const VectorDouble& ranges)
   }
   VectorDouble scales = ranges;
   double scadef       = _corfunc->getScadef();
-  VH::divideConstant(scales, scadef);
+  scales.divide(scadef);
   setScales(scales);
 }
 
@@ -284,7 +284,7 @@ void CorAniso::setScales(const VectorDouble& scales)
   }
   _aniso.setRadiusVec(scales);
   double scadef = _corfunc->getScadef();
-  _corfunc->setField(scadef * VH::maximum(scales));
+  _corfunc->setField(scadef * scales.maximum());
 }
 
 void CorAniso::setScaleDim(Id idim, double scale)
@@ -296,7 +296,7 @@ void CorAniso::setScaleDim(Id idim, double scale)
   }
   _aniso.setRadiusDir(idim, scale);
   double scadef = _corfunc->getScadef();
-  _corfunc->setField(scadef * VH::maximum(_aniso.getRadius()));
+  _corfunc->setField(scadef * _aniso.getRadius().maximum());
 }
 
 void CorAniso::setAnisoRotationMat(const Rotation& rot)
@@ -380,7 +380,7 @@ void CorAniso::setRotationAnglesAndRadius(const VectorDouble& angles,
     }
     scales_local  = ranges;
     double scadef = _corfunc->getScadef();
-    VH::divideConstant(scales_local, scadef);
+    scales_local.divide(scadef);
   }
 
   // Perform the assignment and update the tensor
@@ -659,17 +659,17 @@ double CorAniso::evalSpectrum(const VectorDouble& freq, Id ivar, Id jvar) const
   SpacePoint p2;
   p2.setCoords(freq);
   double freqnorm = getSpace()->getFrequentialDistance(p1, p2, _aniso);
-  double val =  _corfunc->evaluateSpectrum(freqnorm) * getDetTensor();
+  double val      = _corfunc->evaluateSpectrum(freqnorm) * getDetTensor();
   return val;
 }
 
 double CorAniso::evalSpectrumRatio(const VectorDouble& freq, Id ivar, Id jvar, const ACov* cov0) const
 {
-  double ratio  = 1.0;
+  double ratio = 1.0;
   if (cov0 != nullptr)
   {
     ratio = evalSpectrum(freq, ivar, jvar) / cov0->evalSpectrum(freq, ivar, jvar);
-  } 
+  }
 
   return ratio;
 }
@@ -784,7 +784,7 @@ VectorDouble CorAniso::getRanges() const
   VectorDouble range = getScales();
   double scadef      = _corfunc->getScadef();
   if (!hasRange()) scadef = 0.;
-  VH::multiplyConstant(range, scadef);
+  range.multiplyCst(scadef);
   return range;
 }
 
@@ -804,7 +804,7 @@ double CorAniso::getRangeIso() const
   if (!hasRange()) return 0.;
   if (isIsotropic())
     return getRange(0);
-  return VH::maximum(getRanges());
+  return getRanges().maximum();
 }
 
 double CorAniso::getScaleIso() const
@@ -812,19 +812,19 @@ double CorAniso::getScaleIso() const
   if (!hasRange()) return 0.;
   if (isIsotropic())
     return getScale(0);
-  return VH::maximum(getScales());
+  return getScales().maximum();
 }
 
 VectorDouble CorAniso::getAnisoCoeffs() const
 {
   VectorDouble coef = getRanges();
-  double max        = VH::maximum(coef);
+  double max        = coef.maximum();
   if (isZero(max))
   {
     messerr("Range is null");
     return VectorDouble();
   }
-  VH::divideConstant(coef, max);
+  coef.divide(max);
   return coef;
 }
 
@@ -1643,12 +1643,12 @@ void CorAniso::appendParams(ListParams& listparams,
         const VectorDouble& radius = this->_aniso.getRadius();
 
         this->_aniso.getRotation().rotateInverse(incr, temp);
-        VH::divideInPlace(temp, radius);
-        VH::divideInPlace(temp, radius);
+        temp.divide(radius);
+        temp.divide(radius);
 
         this->_dRot[i].prodMatVecInPlace(temp, res);
 
-        double dist2  = VH::innerProductVD(res, incr);
+        double dist2  = res.innerProduct(incr);
         double result = deriv * dist2;
         return result;
       });

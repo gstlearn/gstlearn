@@ -204,7 +204,7 @@ VectorDouble KernelMatern::_evaluateSpectrumOnSphere(Id n, double scale) const
   for (Id k = 0; k <= n; k++)
     sp[k] = (2. * k + 1.) / (4. * GV_PI) / pow(1. + (scale2 * k * (k + 1.)), alpha);
 
-  VH::normalize(sp, 1);
+  sp.normalizeInPlace(1);
   return sp;
 }
 

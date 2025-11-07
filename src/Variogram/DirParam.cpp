@@ -10,8 +10,6 @@
 /******************************************************************************/
 #include "Variogram/DirParam.hpp"
 #include "Basic/AStringable.hpp"
-#include "Basic/Utilities.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Space/ASpace.hpp"
@@ -77,7 +75,7 @@ DirParam::DirParam(const DbGrid* dbgrid,
   for (Id idim = 0; idim < ndim; idim++)
     dlag += _codir[idim] * _codir[idim];
   _dLag = sqrt(dlag);
-  VH::normalize(_codir);
+  _codir.normalizeInPlace();
 }
 
 DirParam::DirParam(const DirParam& r)
@@ -401,7 +399,7 @@ std::vector<DirParam> DirParam::createMultipleInSpace(Id nlag, double dlag, cons
   std::vector<DirParam> dirs;
   for (Id idim = 0; idim < ndim; idim++)
   {
-    VH::fill(codir, 0);
+    codir.fill(0);
     codir[idim]        = 1;
     DirParam* dirparam = DirParam::create(nlag, dlag, 0.5, 0., 0, 0, TEST, TEST, 0., VectorDouble(), codir, TEST, space);
     dirs.push_back(*dirparam);

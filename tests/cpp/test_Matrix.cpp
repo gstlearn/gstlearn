@@ -260,23 +260,23 @@ int main(int argc, char* argv[])
 
   V1 = MSP->getDiagonal();
   print_vector("Main Diagonal", 0, static_cast<Id>(Vref.size()), Vref.data());
-  message("Are results for MRR and MSP similar: %d\n", static_cast<Id>(VH::isEqual(Vref, V1)));
+  message("Are results for MRR and MSP similar: %d\n", static_cast<Id>(Vref.isEqual(V1)));
   Vref = MRR.getDiagonal(1);
   V1   = MSP->getDiagonal(1);
   print_vector("Second Diagonal Below", 0, static_cast<Id>(Vref.size()), Vref.data());
-  message("Are results for MRR and MSP similar: %d\n", static_cast<Id>(VH::isEqual(Vref, V1)));
+  message("Are results for MRR and MSP similar: %d\n", static_cast<Id>(Vref.isEqual(V1)));
   Vref = MRR.getDiagonal(-2);
   V1   = MSP->getDiagonal(-2);
   print_vector("Third Diagonal Above", 0, static_cast<Id>(Vref.size()), Vref.data());
-  message("Are results for MRR and MSP similar: %d\n", static_cast<Id>(VH::isEqual(Vref, V1)));
+  message("Are results for MRR and MSP similar: %d\n", static_cast<Id>(Vref.isEqual(V1)));
   Vref = MRR.getRow(2);
   V1   = MSP->getRow(2);
   print_vector("Third Row", 0, static_cast<Id>(Vref.size()), Vref.data());
-  message("Are results for MRR and MSP similar: %d\n", static_cast<Id>(VH::isEqual(Vref, V1)));
+  message("Are results for MRR and MSP similar: %d\n", static_cast<Id>(Vref.isEqual(V1)));
   Vref = MRR.getColumn(3);
   V1   = MSP->getColumn(3);
   print_vector("Fourth Column", 0, static_cast<Id>(Vref.size()), Vref.data());
-  message("Are results for MRR and MSP similar: %d\n", static_cast<Id>(VH::isEqual(Vref, V1)));
+  message("Are results for MRR and MSP similar: %d\n", static_cast<Id>(Vref.isEqual(V1)));
 
   ////////////////////////////////////
   // Product of the matrix by a vector
@@ -293,11 +293,11 @@ int main(int argc, char* argv[])
   VH::dump("Reference Output Vector", Vref);
 
   MSG.prodMatVecInPlace(V1, V2);
-  message("Are results for MRR and MSG similar: %d\n", static_cast<Id>(VH::isEqual(Vref, V2)));
+  message("Are results for MRR and MSG similar: %d\n", static_cast<Id>(Vref.isEqual(V2)));
   MSS.prodMatVecInPlace(V1, V2);
-  message("Are results for MRR and MSS similar: %d\n", static_cast<Id>(VH::isEqual(Vref, V2)));
+  message("Are results for MRR and MSS similar: %d\n", static_cast<Id>(Vref.isEqual(V2)));
   MSP->prodMatVecInPlace(V1, V2);
-  message("Are results for MRR and MSP similar: %d\n", static_cast<Id>(VH::isEqual(Vref, V2)));
+  message("Are results for MRR and MSP similar: %d\n", static_cast<Id>(Vref.isEqual(V2)));
 
   ////////////////
   // Linear solver
@@ -316,10 +316,10 @@ int main(int argc, char* argv[])
   VH::dump("Reference Output Vector", V2);
 
   MSS.prodMatVecInPlace(V2, V3);
-  message("Are results correct for MSS: %d\n", static_cast<Id>(VH::isEqual(V1, V3)));
+  message("Are results correct for MSS: %d\n", static_cast<Id>(V1.isEqual(V3)));
   MSP->solve(V1, V2);
   MSP->prodMatVecInPlace(V2, V3);
-  message("Are results correct for MSP: %d\n", static_cast<Id>(VH::isEqual(V1, V3)));
+  message("Are results correct for MSP: %d\n", static_cast<Id>(V1.isEqual(V3)));
 
   ////////////
   // Inversion
@@ -683,7 +683,7 @@ int main(int argc, char* argv[])
   VH::dump("Input Vector B =", B);
   MEigChol.solve(B, XEig);
   VH::dump("Result Vector X =", XEig);
-  message("Is M * X = B: %d\n", static_cast<Id>(VH::isEqual(B, MEig->prodMatVec(XEig))));
+  message("Is M * X = B: %d\n", static_cast<Id>(B.isEqual(MEig->prodMatVec(XEig))));
 
   // Solving a linear system after Cholesky decomposition (matrix RHS)
   mestitle(0, "Solving a Linear system after Cholesky decomposition (matrix RHS)");

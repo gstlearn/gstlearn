@@ -11,14 +11,14 @@
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Polynomials/Chebychev.hpp"
 #include "geoslib_define.h"
-#include <functional>
-
 #include <algorithm>
 #include <cmath>
+#include <functional>
 #include <vector>
 
 namespace gstlrn

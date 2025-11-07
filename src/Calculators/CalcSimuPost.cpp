@@ -333,9 +333,9 @@ void CalcSimuPost::_statisticsFunction(const VectorVectorDouble& Y_p,
       else if (_stats[istat] == EPostStat::STDP)
         tabout[ecr++] = VH::stdv(local, true);
       else if (_stats[istat] == EPostStat::MINI)
-        tabout[ecr++] = VH::minimum(local);
+        tabout[ecr++] = local.minimum();
       else if (_stats[istat] == EPostStat::MAXI)
-        tabout[ecr++] = VH::maximum(local);
+        tabout[ecr++] = local.maximum();
       else if (_stats[istat] == EPostStat::MED)
         tabout[ecr++] = VH::median(local);
     }
@@ -416,11 +416,11 @@ void CalcSimuPost::_defineIterations()
 
   if (_flagMatch)
   {
-    _niter = VH::minimumVI(_nfact);
+    _niter = _nfact.minimum();
   }
   else
   {
-    _niter = VH::product(_nfact);
+    _niter = _nfact.prod();
   }
 }
 

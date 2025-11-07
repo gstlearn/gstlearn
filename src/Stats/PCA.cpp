@@ -312,7 +312,7 @@ VectorDouble PCA::getVarianceRatio() const
 {
   double total         = VectorHelper::cumul(_eigval);
   VectorDouble eignorm = _eigval;
-  VectorHelper::divideConstant(eignorm, total);
+  eignorm.divideCst(total);
   return eignorm;
 }
 

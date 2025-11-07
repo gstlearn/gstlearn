@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Geometry/Rotation.hpp"
 #include "Basic/AException.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Geometry/GeometryHelper.hpp"
 #include "Matrix/MatrixSquare.hpp"
@@ -143,8 +142,7 @@ std::vector<MatrixSquare> Rotation::getDerivatives() const
 
 void Rotation::setIdentity()
 {
-  for (Id idim = 0; idim < static_cast<Id>(_nDim); idim++)
-    VH::fill(_angles, 0.);
+  _angles.fill(0., _nDim);
   _rotMat.setIdentity();
   _rotInv.setIdentity();
   _checkRotForIdentity();

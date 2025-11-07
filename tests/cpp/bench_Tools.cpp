@@ -129,7 +129,7 @@ int main(int argc, char* argv[])
   message("- using VectorHelper\n");
   timer.reset();
   for (Id itime = 0; itime < ntimes; itime++)
-    result = VH::innerProductVD(a, b);
+    result = a.innerProduct(b);
   timer.displayIntervalMilliseconds("with VectorHelper", 200);
   if (ABS(result - result_ref) > ABS(result_ref) * EPSILON6)
     message("Results are different: Result = %lf; Ref = %lf\n", result, result_ref);
@@ -181,7 +181,7 @@ int main(int argc, char* argv[])
   VH::dump("Sorted values", VoutVal);
 
   VectorDouble VsortVal = VH::reorder(VinVal, order, size);
-  if (!VH::isEqual(VoutVal, VsortVal))
+  if (!VoutVal.isEqual(VsortVal))
     VH::dump("Results are different: Re-ordered values", VsortVal);
 
   VectorInt VsortRank = VH::reorder(VinRank, order, size);
@@ -189,10 +189,10 @@ int main(int argc, char* argv[])
 
   VH::arrangeInPlace(0, VinRank, VinVal, true, size);
   VinVal.resize(size);
-  if (!VH::isEqual(VoutVal, VinVal))
+  if (!VoutVal.isEqual(VinVal))
     VH::dump("Results are different: Re-arranged values", VinVal);
   VinRank.resize(size);
-  if (!VH::isEqual(VsortRank, VinRank))
+  if (!VsortRank.isEqual(VinRank))
     VH::dump("Re-arranged ranks", VinRank);
   return (0);
 }

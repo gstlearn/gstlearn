@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Simulation/CalcSimuFFT.hpp"
 #include "Basic/Law.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Core/fftn.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
@@ -392,7 +391,7 @@ bool CalcSimuFFT::_checkCorrect(const VectorVectorDouble& xyz,
   VectorDouble d(ndim, 0.);
   for (Id i = 0; i < ndim; i++)
     d[i] = ix * xyz[i][0] + iy * xyz[i][1] + iz * xyz[i][2];
-  double hh    = VH::norm(d);
+  double hh    = d.norm();
   double value = model->evaluateOneIncr(hh);
 
   return (value / refval <= percent / 100);
@@ -416,7 +415,7 @@ void CalcSimuFFT::_prepar(bool flag_amplitude, double eps)
   VectorInt indg(3);
   VectorInt jnd(3);
   VectorVectorDouble xyz1(3);
-  auto* dbgrid      = dynamic_cast<DbGrid*>(getDbout());
+  auto* dbgrid        = dynamic_cast<DbGrid*>(getDbout());
   ModelGeneric* model = getModel();
 
   /* Initializations */
@@ -484,13 +483,13 @@ void CalcSimuFFT::_prepar(bool flag_amplitude, double eps)
           del[0] = k1 * delta[0];
           del[1] = k2 * delta[1];
           del[2] = k3 * delta[2];
-          hnorm  = VH::norm(del);
+          hnorm  = del.norm();
           value  = model->evaluateOneIncr(hnorm);
           scale += value;
         }
     for (Id i = 0; i < 3; i++)
       del[i] = 0.;
-    hnorm        = VH::norm(del);
+    hnorm        = del.norm();
     value        = model->evaluateOneIncr(hnorm);
     double coeff = value / scale;
 
@@ -516,7 +515,7 @@ void CalcSimuFFT::_prepar(bool flag_amplitude, double eps)
                 del[0] = xyz[0] + k1 * delta[0];
                 del[1] = xyz[1] + k2 * delta[1];
                 del[2] = xyz[2] + k3 * delta[2];
-                hnorm  = VH::norm(del);
+                hnorm  = del.norm();
                 value  = model->evaluateOneIncr(hnorm);
                 cplx[ecr] += coeff * value;
               }

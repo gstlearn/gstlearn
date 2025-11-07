@@ -14,7 +14,6 @@
 #include "Basic/Law.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/SerializeHDF5.hpp"
-#include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Calculators/CalcMigrate.hpp"
@@ -1446,8 +1445,8 @@ VectorVectorDouble DbGrid::getGridEdges() const
 VectorDouble DbGrid::getCodir(const VectorInt& grincr) const
 {
   VectorDouble codir = getGrid().indicesToCoordinate(grincr);
-  VH::subtractInPlace(codir, getGrid().getX0s());
-  VH::normalize(codir);
+  codir.subtract(getGrid().getX0s());
+  codir.normalizeInPlace();
   return codir;
 }
 
@@ -1575,7 +1574,7 @@ DbGrid* DbGrid::createFillRandom(const VectorInt& nx,
   VectorDouble dx(ndim);
   for (Id idim = 0; idim < ndim; idim++) dx[idim] = 1. / nx[idim];
   DbGrid* dbgrid = DbGrid::create(nx, dx, x0);
-  Id ndat        = VH::product(nx);
+  Id ndat        = nx.prod();
 
   // Generate the Vectors of Variance of measurement error (optional)
   if (varmax > 0.)
@@ -1813,9 +1812,9 @@ DbGrid* DbGrid::createSqueezeAndStretchForward(const DbGrid* grid3Din,
 
   // Getting relevant information from the top and bottom surfaces (using the selection)
   VectorDouble botArray = surf2D->getColumn(nameBot, true);
-  double botmin         = VH::minimum(botArray);
+  double botmin         = botArray.minimum();
   VectorDouble topArray = surf2D->getColumn(nameTop, true);
-  double topmax         = VH::maximum(topArray);
+  double topmax         = topArray.maximum();
   if (topmax <= botmin)
   {
     messerr("The thickness of the target Layer seems too small for a Squeeze-and-Stretch");
@@ -1951,9 +1950,9 @@ DbGrid* DbGrid::createSqueezeAndStretchBackward(const DbGrid* grid3Din,
 
   // Getting relevant information from the top and bottom surfaces (using the selection)
   VectorDouble botArray = surf2D->getColumn(nameBot, true);
-  double botmin         = VH::minimum(botArray);
+  double botmin         = botArray.minimum();
   VectorDouble topArray = surf2D->getColumn(nameTop, true);
-  double topmax         = VH::maximum(topArray);
+  double topmax         = topArray.maximum();
   if (topmax <= botmin)
   {
     messerr("The thickness of the target Layer seems too small for a Squeeze-and-Stretch");
@@ -2405,7 +2404,7 @@ VectorVectorDouble DbGrid::getDiscretizedBlock(const VectorInt& ndiscs,
                                                Id seed) const
 {
   auto ndim = getNDim();
-  Id ntot   = VH::product(ndiscs);
+  Id ntot   = ndiscs.prod();
   auto memo = law_get_random_seed();
   law_set_random_seed(seed);
   VectorVectorDouble discs(ntot);

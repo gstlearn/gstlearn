@@ -9,15 +9,12 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Basic/Grid.hpp"
-
 #include "Basic/SerializeHDF5.hpp"
-#include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Geometry/Rotation.hpp"
 #include "Matrix/MatrixSquare.hpp"
 #include "geoslib_define.h"
-
 #include <cmath>
 
 namespace gstlrn
@@ -424,7 +421,7 @@ void Grid::getCoordinatesByCornerInPlace(VectorDouble& coor, const VectorInt& ic
 {
   if (static_cast<Id>(coor.size()) != _nDim) return;
   initThread();
-  VH::fill(_iwork0, 0);
+  _iwork0.fill(0);
   for (Id idim = 0; idim < _nDim; idim++)
     if (icorner[idim] > 0) _iwork0[idim] = _nx[idim] - 1;
   getCoordinatesByIndiceInPlace(coor, _iwork0);
@@ -1159,7 +1156,7 @@ VectorInt Grid::gridIndices(const VectorInt& nx,
                             bool verbose)
 {
   Id ndim  = static_cast<Id>(nx.size());
-  Id ncell = VH::product(nx);
+  Id ncell = nx.prod();
 
   // Decode the string
 

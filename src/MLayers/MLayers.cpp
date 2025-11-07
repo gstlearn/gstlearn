@@ -11,6 +11,7 @@
 #include "MLayers/MLayers.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/OptDbg.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
 #include "Enum/EOperator.hpp"
 #include "Matrix/AMatrix.hpp"
@@ -1068,8 +1069,8 @@ Id MLayers::_prepareCollocation(Id iechout,
   if (_computeLhsOne(seltab, iechout, _nlayers, coor,
                      prop1, prop2, covtab, baux)) return 1;
   a->prodMatVecInPlace(baux, b2);
-  double coefz = VH::innerProductVD(b2, zval);
-  double coefa = VH::innerProductVD(b2, baux);
+  double coefz = b2.innerProduct(zval);
+  double coefa = b2.innerProduct(baux);
   (*ratio)     = (ABS(c0 - coefa) > 1.e-6) ? (botval - coefz) / (c0 - coefa) : 0.;
 
   return 0;
@@ -1097,7 +1098,7 @@ void MLayers::_estimateRegular(double c00,
                                double& estim,
                                double& stdev) const
 {
-  estim = VH::innerProductVD(dual, b);
+  estim = dual.innerProduct(b);
 
   /* Perform the variance of estimation error */
 
@@ -1110,7 +1111,7 @@ void MLayers::_estimateRegular(double c00,
     else
     {
       a->prodMatVecInPlace(b, wgt);
-      stdv = c00val - VH::innerProductVD(b, wgt);
+      stdv = c00val - b.innerProduct(wgt);
       stdv = (stdv > 0) ? sqrt(stdv) : 0.;
     }
     stdev = stdv;
@@ -1164,8 +1165,8 @@ void MLayers::_estimateBayes(double c00,
     c2[iech] = b[iech] + fsf0[iech];
   cc.prodMatVecInPlace(c2, wgt);
 
-  double estim1 = VH::innerProductVD(wgt, zval);
-  double estim2 = VH::innerProductVD(ff0, post_mean);
+  double estim1 = wgt.innerProduct(zval);
+  double estim2 = ff0.innerProduct(post_mean);
   estim         = estim1 + estim2;
 
   /* Calculate the standard deviation */
@@ -1313,7 +1314,7 @@ void MLayers::_estimate(VectorInt& seltab,
       {
         double cx = _getCI0(_nlayers, prop1, ilayer + 1, VectorDouble(), covtab);
         if (FFFF(cx)) continue;
-        coefb = VH::innerProductVD(b2, b);
+        coefb = b2.innerProduct(b);
         estim += (cx - coefb) * ratio;
       }
 

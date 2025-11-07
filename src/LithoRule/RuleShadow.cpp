@@ -14,7 +14,6 @@
 #include "Basic/Law.hpp"
 #include "Basic/SerializeHDF5.hpp"
 #include "Basic/Utilities.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "LithoRule/PropDef.hpp"
@@ -693,7 +692,7 @@ Id RuleShadow::evaluateBounds(PropDef* propdef,
 
 void RuleShadow::_normalizeShift()
 {
-  if (!_shift.empty()) VH::normalize(_shift);
+  if (!_shift.empty()) _shift.normalizeInPlace();
 }
 #ifdef HDF5
 bool RuleShadow::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)

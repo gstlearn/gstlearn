@@ -12,6 +12,7 @@
 #include "Basic/NamingConvention.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Calculators/CalcMigrate.hpp"
 #include "Core/Keypair.hpp"
 #include "Covariances/CovAniso.hpp"

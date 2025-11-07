@@ -2059,8 +2059,8 @@ VectorDouble Db::getExtrema(Id idim, bool useSel) const
   VectorDouble ext;
   if (!isDimensionIndexValid(idim)) return ext;
   VectorDouble coor = getOneCoordinate(idim, useSel);
-  ext.push_back(VH::minimum(coor));
-  ext.push_back(VH::maximum(coor));
+  ext.push_back(coor.minimum());
+  ext.push_back(coor.maximum());
   return ext;
 }
 
@@ -2082,7 +2082,7 @@ VectorDouble Db::getExtends(bool useSel) const
   for (Id idim = 0; idim < getNDim(); idim++)
   {
     VectorDouble coor = getOneCoordinate(idim, useSel);
-    ext.push_back(VH::maximum(coor) - VH::minimum(coor));
+    ext.push_back(coor.maximum() - coor.minimum());
   }
   return ext;
 }
@@ -2097,7 +2097,7 @@ VectorDouble Db::getCoorMinimum(bool useSel) const
   for (Id idim = 0; idim < getNDim(); idim++)
   {
     VectorDouble coor = getOneCoordinate(idim, useSel);
-    ext.push_back(VH::minimum(coor));
+    ext.push_back(coor.minimum());
   }
   return ext;
 }
@@ -2112,7 +2112,7 @@ VectorDouble Db::getCoorMaximum(bool useSel) const
   for (Id idim = 0; idim < getNDim(); idim++)
   {
     VectorDouble coor = getOneCoordinate(idim, useSel);
-    ext.push_back(VH::maximum(coor));
+    ext.push_back(coor.maximum());
   }
   return ext;
 }
@@ -2138,8 +2138,8 @@ double Db::getCenter(Id idim, bool useSel) const
 {
   if (!isDimensionIndexValid(idim)) return TEST;
   VectorDouble coor = getOneCoordinate(idim, useSel);
-  double mini       = VH::minimum(coor);
-  double maxi       = VH::maximum(coor);
+  double mini       = coor.minimum();
+  double maxi       = coor.maximum();
   return ((mini + maxi) / 2.);
 }
 
@@ -2151,8 +2151,8 @@ double Db::getExtension(Id idim, bool useSel) const
 {
   if (!isDimensionIndexValid(idim)) return 0.;
   VectorDouble coor = getOneCoordinate(idim, useSel);
-  double mini       = VH::minimum(coor);
-  double maxi       = VH::maximum(coor);
+  double mini       = coor.minimum();
+  double maxi       = coor.maximum();
   return maxi - mini;
 }
 
@@ -2199,8 +2199,8 @@ void Db::getExtensionInPlace(VectorDouble& mini,
   for (Id idim = 0; idim < getNDim(); idim++)
   {
     VectorDouble coor = getOneCoordinate(idim, useSel);
-    double vmin       = VH::minimum(coor);
-    double vmax       = VH::maximum(coor);
+    double vmin       = coor.minimum();
+    double vmax       = coor.maximum();
     if (FFFF(mini[idim]) || vmin < mini[idim]) mini[idim] = vmin;
     if (FFFF(maxi[idim]) || vmax > maxi[idim]) maxi[idim] = vmax;
   }
@@ -2277,7 +2277,7 @@ double Db::getMinimum(const String& name, bool useSel) const
   VectorInt iuids = _ids(name, true);
   if (iuids.empty()) return TEST;
   VectorDouble tab = getColumnByUID(iuids[0], useSel);
-  return VH::minimum(tab);
+  return tab.minimum();
 }
 
 /**
@@ -2288,7 +2288,7 @@ double Db::getMaximum(const String& name, bool useSel) const
   VectorInt iuids = _ids(name, true);
   if (iuids.empty()) return TEST;
   VectorDouble tab = getColumnByUID(iuids[0], useSel);
-  return VH::maximum(tab);
+  return tab.maximum();
 }
 
 /**
@@ -3480,8 +3480,8 @@ String Db::_summaryExtensions(void) const
   for (Id idim = 0; idim < ndim; idim++)
   {
     VectorDouble coor = getOneCoordinate(idim, true);
-    double vmin       = VH::minimum(coor);
-    double vmax       = VH::maximum(coor);
+    double vmin       = coor.minimum();
+    double vmax       = coor.maximum();
 
     sstr << "Coor #" << idim + 1;
     sstr << " - Min = " << toDouble(vmin);

@@ -667,7 +667,7 @@ double AMatrix::prodVecMatVec(const VectorDouble& x, const VectorDouble& y) cons
 
   VectorDouble left(_nRows);
   prodMatVecInPlace(y, left, false);
-  return VH::innerProductVD(x, left);
+  return x.innerProduct(left);
 }
 
 Id AMatrix::invert()
@@ -1260,7 +1260,7 @@ void AMatrix::makePositiveColumn()
     if (sum >= 0) continue;
 
     // Invert the sign of all its elements
-    VH::multiplyConstant(column, -1.);
+    column.multiplyCst(-1.);
 
     // Replace the column
     setColumn(icol, column);

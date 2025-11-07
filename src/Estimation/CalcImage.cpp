@@ -169,7 +169,7 @@ VectorVectorInt CalcImage::_getActiveRanks(const DbGrid* dblocal)
     dblocal->rankToIndice(iech, local);
 
     // Center the indices
-    VH::subtractInPlace(local, center);
+    local.subtract(center);
 
     // Store these indices to the output vector
     ranks.push_back(local);
@@ -182,12 +182,12 @@ bool CalcImage::_filterImage(DbGrid* dbgrid, const ModelCovList* model)
   VectorDouble means;
   if (model->getNDrift() == 0) means = model->getMeans();
 
-  Id ndim = dbgrid->getNDim();
+  Id ndim   = dbgrid->getNDim();
   auto nvar = _getNVar();
 
-  const auto* neighI = dynamic_cast<const NeighImage*>(getNeigh());
-  DbGrid* dblocal          = neighI->buildImageGrid(dbgrid, _seed);
-  VectorVectorInt ranks    = _getActiveRanks(dblocal);
+  const auto* neighI    = dynamic_cast<const NeighImage*>(getNeigh());
+  DbGrid* dblocal       = neighI->buildImageGrid(dbgrid, _seed);
+  VectorVectorInt ranks = _getActiveRanks(dblocal);
 
   Db* target = Db::createFromOnePoint(VectorDouble(ndim));
   auto iuid  = target->addColumnsByConstant(nvar);
@@ -239,14 +239,14 @@ DbGrid* CalcImage::_buildMarpat(const NeighImage* neigh,
 {
   Id nbneigh = static_cast<Id>(ranks.size());
   Id ndim    = static_cast<Id>(ranks[0].size());
-  auto nvar   = wgt.getNCols();
+  auto nvar  = wgt.getNCols();
   VectorInt nx(ndim);
   for (Id i = 0; i < ndim; i++)
     nx[i] = 2 * neigh->getImageRadius(i) + 1;
 
   // Create the relevant DbGrid
   DbGrid* dbgrid   = DbGrid::create(nx);
-  Id iuid         = dbgrid->addColumnsByConstant(nvar * nvar, 0., "Weights", ELoc::Z);
+  Id iuid          = dbgrid->addColumnsByConstant(nvar * nvar, 0., "Weights", ELoc::Z);
   VectorInt center = dbgrid->getCenterIndices();
 
   // Loop on the valid weights
@@ -254,7 +254,7 @@ DbGrid* CalcImage::_buildMarpat(const NeighImage* neigh,
   for (Id ineigh = 0; ineigh < nbneigh; ineigh++)
   {
     local = ranks[ineigh];
-    VH::addInPlace(local, center);
+    local.add(center);
     Id iadd = dbgrid->indiceToRank(local);
 
     // Load the weights as variables
@@ -340,7 +340,7 @@ void CalcImage::_image_smoother(DbGrid* dbgrid,
                                 double range,
                                 Id iptr0)
 {
-  Id ndim  = dbgrid->getNDim();
+  Id ndim   = dbgrid->getNDim();
   double r2 = (type == 1) ? 1. : range * range;
 
   /* Core allocation */
@@ -391,14 +391,14 @@ void CalcImage::_image_smoother(DbGrid* dbgrid,
       double d2 = 0.;
       for (Id i = 0; i < ndim; i++)
       {
-        Id idelta   = (indnl[i] - indn0[i]);
+        Id idelta    = (indnl[i] - indn0[i]);
         double delta = idelta * dbgrid->getDX(i);
         d2 += delta * delta;
         indgl[i] = indg0[i] + idelta;
         indgl[i] = dbgrid->getMirrorIndex(i, indgl[i]);
       }
 
-      Id jech    = dbgrid->indiceToRank(indgl);
+      Id jech     = dbgrid->indiceToRank(indgl);
       double data = dbgrid->getZVariable(jech, 0);
       if (!FFFF(data))
       {
@@ -428,12 +428,12 @@ void CalcImage::_image_smoother(DbGrid* dbgrid,
  **
  *****************************************************************************/
 Id krimage(DbGrid* dbgrid,
-            Model* model,
-            ANeigh* neigh,
-            bool flagFFT,
-            bool verbose,
-            Id seed,
-            const NamingConvention& namconv)
+           Model* model,
+           ANeigh* neigh,
+           bool flagFFT,
+           bool verbose,
+           Id seed,
+           const NamingConvention& namconv)
 {
   CalcImage image;
 
@@ -467,10 +467,10 @@ Id krimage(DbGrid* dbgrid,
  **
  *****************************************************************************/
 Id dbSmoother(DbGrid* dbgrid,
-               ANeigh* neigh,
-               Id type,
-               double range,
-               const NamingConvention& namconv)
+              ANeigh* neigh,
+              Id type,
+              double range,
+              const NamingConvention& namconv)
 {
   CalcImage image;
 
@@ -502,14 +502,14 @@ Id dbSmoother(DbGrid* dbgrid,
  * @return
  */
 GSTLEARN_EXPORT Id dbMorpho(DbGrid* dbgrid,
-                             const EMorpho& oper,
-                             double vmin,
-                             double vmax,
-                             Id option,
-                             const VectorInt& radius,
-                             bool flagDistErode,
-                             bool verbose,
-                             const NamingConvention& namconv)
+                            const EMorpho& oper,
+                            double vmin,
+                            double vmax,
+                            Id option,
+                            const VectorInt& radius,
+                            bool flagDistErode,
+                            bool verbose,
+                            const NamingConvention& namconv)
 {
   CalcImage image;
 

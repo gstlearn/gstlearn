@@ -1,0 +1,24 @@
+Type of VD created using VH function
+<class 'numpy.ndarray'>
+Type of VD created using VD constructor
+<class 'gstlearn.VectorDouble'>
+Identifying the vector type (double)
+--> This is a Vector of <double>
+Type of VD created using VH function
+<class 'numpy.ndarray'>
+Type of VD created using VD constructor
+<class 'gstlearn.VectorInt'>
+Identifying a vector of Id
+--> This is a Vector of <Id>
+Array of Double: Initial Vector of Double
+[2 3 4]
+Array of Double: After adding this to itself
+[4 6 8]
+Array of Double: After adding a constant to this
+[16 18 20]
+Array of Id: Initial Vector of Id
+[1 2 4 6]
+Array of Id: After adding this to itself
+[2 4 8 12]
+Array of Id: After adding a constant to this
+[14 16 20 24]

@@ -12,6 +12,7 @@
 #include "Basic/Law.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovGradientAnalytic.hpp"
 #include "Db/Db.hpp"

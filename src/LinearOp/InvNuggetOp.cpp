@@ -11,6 +11,7 @@
 
 #include "LinearOp/InvNuggetOp.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Db/Db.hpp"
 #include "LinearOp/CholeskyDense.hpp"
@@ -248,7 +249,7 @@ void InvNuggetOp::_buildInvNugget(const Db* db, Model* model, const SPDEParam& p
   Id ndef = nvar;
   VectorInt position(nvar);
   VectorInt identity(nvar);
-  VectorInt lastPositions(nvar, 0);  // Track last found positions for optimization
+  VectorInt lastPositions(nvar, 0); // Track last found positions for optimization
   for (Id iech = 0; iech < nech; iech++)
   {
     if (!db->isActive(iech)) continue;

@@ -11,7 +11,6 @@
 #include "Matrix/MatrixSquare.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Matrix/AMatrix.hpp"
 #include "Matrix/MatrixFactory.hpp"
 
@@ -371,7 +370,7 @@ Id MatrixSquare::_invertLU()
   for (Id i = 0; i < neq; i++)
   {
     // Preparing the right-hand side vector (column of the identity matrix)
-    VH::fill(b, 0.);
+    b.fill(0.);
     b[i] = 1.;
 
     if (_solveLU(tus, tls, b.data(), x.data())) return 1;
