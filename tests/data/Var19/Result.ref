@@ -5,6 +5,7 @@ Number of variable(s)       = 2
 Number of direction(s)      = 2
 Space dimension             = 3
 Variable(s)                 = [Unknown Unknown]
+
 Variance-Covariance Matrix
                [,  0]    [,  1]
      [  0,]     3.700     3.828
@@ -109,7 +110,7 @@ Cubic
                [,  0]    [,  1]
      [  0,]     0.938     1.081
      [  1,]     1.081     1.295
-- Ranges       =    420.002  2054.133   420.002
+- Ranges       =    420.002  2054.230   420.002
 - Angles       =     90.000     0.000     0.000
 - Rotation Matrix
                [,  0]    [,  1]    [,  2]
@@ -121,7 +122,7 @@ Spherical
                [,  0]    [,  1]
      [  0,]     4.354     4.379
      [  1,]     4.379     4.417
-- Ranges       =   2261.018  3974.422  2261.018
+- Ranges       =   2261.002  3974.222  2261.002
 - Angles       =     90.000     0.000     0.000
 - Rotation Matrix
                [,  0]    [,  1]    [,  2]

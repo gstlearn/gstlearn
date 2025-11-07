@@ -5,6 +5,7 @@ Number of variable(s)       = 2
 Number of direction(s)      = 1
 Space dimension             = 3
 Variable(s)                 = [Unknown Unknown]
+
 Variance-Covariance Matrix
                [,  0]    [,  1]
      [  0,]     0.997     0.361
@@ -61,19 +62,19 @@ Covariance Part
 Cubic
 - Sill matrix:
                [,  0]    [,  1]
-     [  0,]     0.159     0.168
-     [  1,]     0.168     0.319
-- Range        =      1.290
+     [  0,]     0.181     0.181
+     [  1,]     0.181     0.342
+- Range        =      1.339
 Spherical
 - Sill matrix:
                [,  0]    [,  1]
-     [  0,]     0.594     0.127
-     [  1,]     0.127     0.297
-- Range        =      4.292
+     [  0,]     0.576     0.114
+     [  1,]     0.114     0.275
+- Range        =      4.483
 Total Sill
                [,  0]    [,  1]
-     [  0,]     0.753     0.295
-     [  1,]     0.295     0.616
+     [  0,]     0.756     0.295
+     [  1,]     0.295     0.617
 
 Known Mean(s)     0.000     0.000
 Goodness-of-fit (as a percentage of the variance) corresponds to level #3 (1 for very good)
