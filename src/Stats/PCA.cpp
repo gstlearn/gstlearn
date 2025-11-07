@@ -19,6 +19,7 @@
 #include "geoslib_old_f.h"
 
 #include <cmath>
+#include <memory>
 
 namespace gstlrn
 {
@@ -719,7 +720,11 @@ void PCA::_variogramh(Db* db,
 
   SpaceTarget T1;
   SpaceTarget T2;
-  Vario* vario = nullptr;
+
+  // Creating a local Vario structure (to constitute the BiTargetCheck list)
+  // (Only used if ider0 >=0)
+
+  auto vario = std::make_unique<Vario>(varioparam);
 
   // Initializations
 
@@ -733,10 +738,9 @@ void PCA::_variogramh(Db* db,
   VectorDouble data2(nvar);
   _gh.fill(0.);
 
-  // Creating a local Vario structure (to constitute the BiTargetCheck list
   if (idir0 >= 0)
   {
-    vario = Vario::create(varioparam);
+    // Preparing the local Vario structure
     vario->setDb(db);
     if (vario->prepare() != 0) return;
   }
