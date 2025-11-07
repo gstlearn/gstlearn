@@ -193,17 +193,18 @@ def computeAll(model,mesh,seed = 12344):
 
     s = sizetot(model,mesh)
     np.random.seed(seed)
-    u = np.random.normal(size=s )
+    u = np.random.normal(size=s)
     
     modelCrMatrix = model.clone()
     modelCr       = model.clone()
     modelCsMatrix = model.clone()
     modelCs       = model.clone()
 
+    meshes = gl.VectorMeshes(mesh)
     poprMatrix =    PrecisionOpMultiLocal(modelCrMatrix,mesh,True)
     popr       =    PrecisionOpMultiLocal(modelCr      ,mesh,False)
-    popsMatrix = gl.PrecisionOpMultiMatrix(modelCsMatrix,mesh)
-    pops       = gl.PrecisionOpMulti(modelCs      ,mesh)
+    popsMatrix = gl.PrecisionOpMultiMatrix(modelCsMatrix,meshes)
+    pops       = gl.PrecisionOpMulti(modelCs      ,meshes)
     result = dict()
 
     result["reseval"] = pops.evalDirect(u)

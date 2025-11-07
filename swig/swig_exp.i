@@ -170,6 +170,7 @@
 %include Mesh/MeshETurbo.hpp
 %include Mesh/MeshSpherical.hpp
 %include Mesh/MeshSphericalExt.hpp
+%include Mesh/VectorMeshes.hpp
 
 %include Polynomials/APolynomial.hpp
 %include Polynomials/ClassicalPolynomial.hpp

@@ -144,8 +144,4 @@ private:
   VectorDouble _extendMax;
 };
 
-typedef std::vector<const AMesh*> VectorMeshes;
-
-GSTLEARN_EXPORT void dumpMeshes(const VectorMeshes& meshes);
-
 } // namespace gstlrn

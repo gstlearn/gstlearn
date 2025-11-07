@@ -18,6 +18,7 @@ namespace gstlrn
 class ProjMatrix;
 class AMesh;
 class Db;
+class VectorMeshes;
 
 class GSTLEARN_EXPORT ProjMultiMatrix: public ProjMulti
 {
@@ -29,7 +30,7 @@ public:
   static std::vector<std::vector<const ProjMatrix*>> create(std::vector<const ProjMatrix*>& vectproj,
                                                             Id nvariable);
   static ProjMultiMatrix* createFromDbAndMeshes(const Db* db,
-                                                const std::vector<const AMesh*>& meshes,
+                                                const VectorMeshes& meshes,
                                                 Id ncov,
                                                 Id nvar,
                                                 bool checkOnZVariable = true,

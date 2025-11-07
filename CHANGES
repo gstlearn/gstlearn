@@ -4,6 +4,7 @@ This file contains the logs between consecutive releases
 
 Release 1.10.0
 ==============
+- Creation of a new class VectorMeshes (AStringable)
 - Compatibility with python 3.14 and R 4.5.2
 _ Correction of the Migration algorithm (adding a test in Tuto_Migration.ipynb)
 - New function creating a random Polygon (can create a circle).
