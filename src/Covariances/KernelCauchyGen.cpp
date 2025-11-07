@@ -59,7 +59,7 @@ double KernelCauchyGen::getScadef() const
 
 double KernelCauchyGen::_evaluateCov(double h) const
 {
-  double cov = 1. / pow(1. + pow(abs(h), getAlpha()), getParam());
+  double cov = 1. / pow(1. + pow(ABS(h), getAlpha()), getParam());
   return (cov);
 }
 

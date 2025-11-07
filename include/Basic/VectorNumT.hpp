@@ -81,9 +81,11 @@ public:
   inline double normL1() const;
   inline double normInf() const;
   inline T prod() const;
+  inline Id countUndefined() const;
+  inline Id countDefined() const;
 
   inline void identify() const;
-  inline void dump(const String& title) const;
+  inline void dump(const String& title, bool skipLine = true) const;
 
   inline double innerProduct(const VectorNumT<T>& v, Id size = 0) const;
 
@@ -142,7 +144,7 @@ bool VectorNumT<T>::isEqual(const VectorNumT& other, double eps) const
 {
   if (other.size() != VectorNumT::size()) return false;
   for (size_type i = 0, n = VectorNumT::size(); i < n; i++)
-    if (abs(VectorNumT::at(i) - other.at(i)) > eps) return false;
+    if (ABS(VectorNumT::at(i) - other.at(i)) > eps) return false;
   return true;
 }
 
@@ -175,7 +177,7 @@ template<typename T>
 T VectorNumT<T>::maximum(bool flagAbs) const // Prevent using max and min keywords (Visual)
 {
   if (VectorNumT::size() <= 0) return 0;
-  T mymax = (std::numeric_limits<T>::min)(); // https://stackoverflow.com/a/27443191/3952924
+  T mymax = (std::numeric_limits<T>::lowest)(); // https://stackoverflow.com/a/27443191/3952924
   for (auto v: VectorNumT::_v)
   {
     if (isNA(v)) continue;
@@ -272,6 +274,30 @@ T VectorNumT<T>::prod() const
 }
 
 template<typename T>
+Id VectorNumT<T>::countUndefined() const
+{
+  if (VectorNumT::size() <= 0) return 0;
+  Id count = 0;
+  for (auto v: VectorNumT::_v)
+  {
+    if (isNA(v)) count++;
+  }
+  return count;
+}
+
+template<typename T>
+Id VectorNumT<T>::countDefined() const
+{
+  if (VectorNumT::size() <= 0) return 0;
+  Id count = 0;
+  for (auto v: VectorNumT::_v)
+  {
+    if (!isNA(v)) count++;
+  }
+  return count;
+}
+
+template<typename T>
 double VectorNumT<T>::innerProduct(const VectorNumT<T>& v, Id size) const
 {
   if (size <= 0) size = v.size();
@@ -338,7 +364,7 @@ const VectorNumT<T>& VectorNumT<T>::divide(const VectorNumT<T>& v)
     auto v1 = VectorNumT::at(i);
     if (isNA(v1)) continue;
     if (isNA(v[i])) continue;
-    if (abs(v[i]) < 1.e-10) continue;
+    if (ABS(v[i]) < 1.e-10) continue;
     VectorNumT::operator[](i) = v1 / v[i];
   }
   return *this;
@@ -467,7 +493,7 @@ const VectorNumT<T>& VectorNumT<T>::multiplyCst(const T& v)
 template<typename T>
 const VectorNumT<T>& VectorNumT<T>::divideCst(const T& v)
 {
-  if (abs(v) < 1.e-10)
+  if (ABS(v) < 1.e-10)
     throw("VectorNumT<T>::divide: division by 0");
   std::for_each(VectorNumT::begin(), VectorNumT::end(), [v](T& d)
                 { if (!isNA(d)) d /= v; });
@@ -497,12 +523,18 @@ void VectorNumT<T>::identify() const
 }
 
 template<typename T>
-void VectorNumT<T>::dump(const String& title) const
+void VectorNumT<T>::dump(const String& title, bool skipLine) const
 {
   if (VectorNumT::size() <= 0) return;
 
   if (!title.empty())
-    std::cout << title << std::endl;
+  {
+    std::cout << title;
+    if (skipLine)
+      std::cout << std::endl;
+    else
+      std::cout << ":";
+  }
   if constexpr (std::is_same_v<T, double>)
   {
     VectorT<T>::display();

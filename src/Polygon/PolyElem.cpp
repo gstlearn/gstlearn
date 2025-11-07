@@ -10,27 +10,26 @@
 /******************************************************************************/
 #include "Polygon/PolyElem.hpp"
 #include "Basic/AStringable.hpp"
-#include "Basic/Utilities.hpp"
 #include "Basic/PolyLine2D.hpp"
 #include "Basic/SerializeHDF5.hpp"
 
 namespace gstlrn
 {
 PolyElem::PolyElem(const VectorDouble& x,
-                 const VectorDouble& y,
-                 double zmin,
-                 double zmax)
-    : PolyLine2D(x, y),
-      _zmin(TEST),
-      _zmax(TEST)
+                   const VectorDouble& y,
+                   double zmin,
+                   double zmax)
+  : PolyLine2D(x, y)
+  , _zmin(TEST)
+  , _zmax(TEST)
 {
-  init(x,y,zmin,zmax);
+  init(x, y, zmin, zmax);
 }
 
 PolyElem::PolyElem(const PolyElem& r)
-    : PolyLine2D(r),
-      _zmin(r._zmin),
-      _zmax(r._zmax)
+  : PolyLine2D(r)
+  , _zmin(r._zmin)
+  , _zmax(r._zmax)
 {
 }
 
@@ -50,14 +49,14 @@ PolyElem::~PolyElem()
 }
 
 void PolyElem::init(const VectorDouble& x,
-                   const VectorDouble& y,
-                   double zmin,
-                   double zmax)
+                    const VectorDouble& y,
+                    double zmin,
+                    double zmax)
 {
-  PolyLine2D::init(x,y);
+  PolyLine2D::init(x, y);
 
-  _zmin  = zmin;
-  _zmax  = zmax;
+  _zmin = zmin;
+  _zmax = zmax;
 }
 
 String PolyElem::toString(const AStringFormat* strfmt) const
@@ -71,10 +70,10 @@ String PolyElem::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-void PolyElem::getExtension(double &xmin,
-                            double &xmax,
-                            double &ymin,
-                            double &ymax) const
+void PolyElem::getExtension(double& xmin,
+                            double& xmax,
+                            double& ymin,
+                            double& ymax) const
 {
   xmin = getXmin();
   ymin = getYmin();
@@ -84,9 +83,9 @@ void PolyElem::getExtension(double &xmin,
 
 double PolyElem::getSurface() const
 {
-  auto np = getNPoints();
-  double x0 = getX(0);
-  double y0 = getY(0);
+  auto np        = getNPoints();
+  double x0      = getX(0);
+  double y0      = getY(0);
   double surface = 0.;
   for (Id i = 1; i < np - 1; i++)
   {
@@ -99,37 +98,37 @@ double PolyElem::getSurface() const
 
   // Check if the PolyElem is closed
 
-  if (! _isClosed())
+  if (!_isClosed())
   {
-    double x1 = getX(np-1) - x0;
-    double y1 = getY(np-1) - y0;
+    double x1 = getX(np - 1) - x0;
+    double y1 = getY(np - 1) - y0;
     double x2 = getX(0) - x0;
     double y2 = getY(0) - y0;
     surface += (x1 * y2) - (x2 * y1);
   }
 
   surface = ABS(surface) * 0.5;
-  return(surface);
+  return (surface);
 }
 
 bool PolyElem::_serializeAscii(std::ostream& os, bool verbose) const
 {
   if (getNPoints() <= 0) return false;
   bool ret = true;
-  ret = ret && _recordWrite<double>(os, "Z-Minimum", _zmin);
-  ret = ret && _recordWrite<double>(os, "Z-Maximum", _zmax);
-  ret = ret && PolyLine2D::_serializeAscii(os, verbose);
+  ret      = ret && _recordWrite<double>(os, "Z-Minimum", _zmin);
+  ret      = ret && _recordWrite<double>(os, "Z-Maximum", _zmax);
+  ret      = ret && PolyLine2D::_serializeAscii(os, verbose);
   return ret;
 }
 
 bool PolyElem::_deserializeAscii(std::istream& is, bool verbose)
 {
-  _zmin = TEST;
-  _zmax = TEST;
+  _zmin    = TEST;
+  _zmax    = TEST;
   bool ret = true;
-  ret = ret && _recordRead<double>(is, "Z-Minimum", _zmin);
-  ret = ret && _recordRead<double>(is, "Z-Maximum", _zmax);
-  ret = ret && PolyLine2D::_deserializeAscii(is, verbose);
+  ret      = ret && _recordRead<double>(is, "Z-Minimum", _zmin);
+  ret      = ret && _recordRead<double>(is, "Z-Maximum", _zmax);
+  ret      = ret && PolyLine2D::_deserializeAscii(is, verbose);
   return ret;
 }
 
@@ -174,7 +173,7 @@ bool PolyElem::inside(const VectorDouble& coor)
 {
   double dx, dy, xj0, xj1, yj0, yj1, xinter;
 
-  Id inter = 0;
+  Id inter  = 0;
   auto np   = getNPoints();
   double xx = coor[0];
   double yy = coor[1];
@@ -184,9 +183,9 @@ bool PolyElem::inside(const VectorDouble& coor)
   for (Id j = 0; j < np - 1; j++)
   {
     xj0 = getX(j);
-    xj1 = getX(j+1);
+    xj1 = getX(j + 1);
     yj0 = getY(j);
-    yj1 = getY(j+1);
+    yj1 = getY(j + 1);
 
     dx = xj1 - xj0;
     dy = yj1 - yj0;
@@ -209,7 +208,7 @@ bool PolyElem::inside(const VectorDouble& coor)
 
     /* One vertex below and one vertex above */
 
-    if (dy != 0 && ( (yj0 > yy && yj1 < yy) || (yj0 < yy && yj1 > yy) ))
+    if (dy != 0 && ((yj0 > yy && yj1 < yy) || (yj0 < yy && yj1 > yy)))
     {
       xinter = (dx * yy + dy * xj0 - dx * yj0) / dy;
 
@@ -266,28 +265,28 @@ VectorDouble PolyElem::getCentroid() const
   if (np <= 3) return centroid;
 
   double factor = 0.;
-  double area = 0.0;
+  double area   = 0.0;
   for (Id i = 0; i < np - 1; i++)
   {
     double x0 = getX(i);
     double y0 = getY(i);
-    double x1 = getX(i+1);
-    double y1 = getY(i+1);
-    factor = (x0 * y1 - x1 * y0);
+    double x1 = getX(i + 1);
+    double y1 = getY(i + 1);
+    factor    = (x0 * y1 - x1 * y0);
     area += factor;
     centroid[0] += (x0 + x1) * factor;
     centroid[1] += (y0 + y1) * factor;
   }
 
   // Check if the PolyElem is closed
-  if (! _isClosed())
+  if (!_isClosed())
   {
     // Close the polygon artificialy
-    double x0 = getX(np-1);
-    double y0 = getY(np-1);
+    double x0 = getX(np - 1);
+    double y0 = getY(np - 1);
     double x1 = getX(0);
     double y1 = getY(0);
-    factor = (x0 * y1 - x1 * y0);
+    factor    = (x0 * y1 - x1 * y0);
     centroid[0] += (x0 + x1) * factor;
     centroid[1] += (y0 + y1) * factor;
   }
@@ -322,8 +321,8 @@ PolyElem PolyElem::reduceComplexity(double distmin) const
   {
     double xnext = getX(ecr);
     double ynext = getY(ecr);
-    double dx = xnext - xcur;
-    double dy = ynext - ycur;
+    double dx    = xnext - xcur;
+    double dy    = ynext - ycur;
     double dist2 = (dx * dx + dy * dy);
     if (dist2 >= dmin2)
     {
@@ -351,7 +350,7 @@ bool PolyElem::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   ret      = ret && SerializeHDF5::readValue(*polyelemG, "zmin", _zmin);
   ret      = ret && SerializeHDF5::readValue(*polyelemG, "zmax", _zmax);
 
-  ret      = ret && PolyLine2D::_deserializeH5(*polyelemG, verbose);
+  ret = ret && PolyLine2D::_deserializeH5(*polyelemG, verbose);
 
   return ret;
 }
@@ -364,9 +363,9 @@ bool PolyElem::_serializeH5(H5::Group& grp, bool verbose) const
   ret      = ret && SerializeHDF5::writeValue(polyelemG, "zmin", _zmin);
   ret      = ret && SerializeHDF5::writeValue(polyelemG, "zmax", _zmax);
 
-  ret      = ret && PolyLine2D::_serializeH5(polyelemG, verbose);
+  ret = ret && PolyLine2D::_serializeH5(polyelemG, verbose);
 
   return ret;
 }
 #endif
-}
+} // namespace gstlrn

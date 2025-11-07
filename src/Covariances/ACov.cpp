@@ -2410,7 +2410,7 @@ VectorDouble ACov::envelop(const VectorDouble& hh,
   VectorDouble g2 = sample(hh, codir, jvar, jvar, mode);
 
   for (Id i = 0; i < nh; i++)
-    gg[i] = isign * sqrt(abs(g1[i] * g2[i]));
+    gg[i] = isign * sqrt(ABS(g1[i] * g2[i]));
 
   return gg;
 }

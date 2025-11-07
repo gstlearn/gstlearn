@@ -346,7 +346,7 @@ Id MatrixSquare::decomposeLU(MatrixSquare& tls,
           }
         }
         double pivot = tus.getValue(i, i);
-        if (abs(pivot) < eps) return 1;
+        if (ABS(pivot) < eps) return 1;
         tls.setValue(j, i, tls.getValue(j, i) / pivot);
       }
     }
@@ -423,7 +423,7 @@ Id MatrixSquare::_forwardLU(const MatrixSquare& tls, const double* b, double* x,
       tmp -= tls.getValue(i, j) * x[j];
 
     double pivot = tls.getValue(i, i);
-    if (abs(pivot) < eps) return 1;
+    if (ABS(pivot) < eps) return 1;
     x[i] = tmp / pivot;
   }
   return 0;
@@ -456,7 +456,7 @@ Id MatrixSquare::_backwardLU(const MatrixSquare& tus, const double* b, double* x
       tmp -= tus.getValue(i, j) * x[j];
 
     double pivot = tus.getValue(i, i);
-    if (abs(pivot) < eps) return 1;
+    if (ABS(pivot) < eps) return 1;
     x[i] = tmp / pivot;
   }
   return 0;
