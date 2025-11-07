@@ -34,13 +34,13 @@ public:
   CorGneiting(const CorGneiting& r);
   CorGneiting& operator=(const CorGneiting& r);
   virtual ~CorGneiting();
-  /* TODO
-  static CorGneiting* create(const CovContext& ctxt,
+  static CorGneiting* create(const ECov& type,
+                             const CovContext& ctxt,
                              const VectorDouble& params,
                              const VectorDouble& ranges = VectorDouble(),
                              const VectorDouble& angles = VectorDouble(),
-                             double separability = 1.0,
-                             bool flagRange = false); */
+                             double separability        = 1.0,
+                             bool flagRange             = false);
   IMPLEMENT_CLONING(CorGneiting)
 
   bool isConsistent(const ASpace* space) const override

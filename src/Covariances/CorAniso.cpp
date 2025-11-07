@@ -206,10 +206,10 @@ void CorAniso::_setContext(const CovContext& ctxt)
   updateFromContext();
 }
 
-void CorAniso::setParam(double param)
+void CorAniso::setParam(double param, Id ipar)
 {
   if (!_corfunc->hasParam()) return;
-  _corfunc->setParam(param);
+  _corfunc->setParam(param, ipar);
   updateFromContext();
 }
 

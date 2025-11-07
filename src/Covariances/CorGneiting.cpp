@@ -91,14 +91,15 @@ CorGneiting::~CorGneiting()
 {
 }
 
-/*
-CorGneiting* CorGneiting::create(const CovContext& ctxt,
+CorGneiting* CorGneiting::create(const ECov& type,
+                                 const CovContext& ctxt,
                                  const VectorDouble& params,
                                  const VectorDouble& ranges,
                                  const VectorDouble& angles,
                                  double separability,
                                  bool flagRange)
 {
+  DECLARE_UNUSED(type)
   if (ctxt.getNVar() != 1)
   {
     messerr("This function is dedicated to the Monovariate case");
@@ -176,7 +177,7 @@ CorGneiting* CorGneiting::create(const CovContext& ctxt,
   CovContext ctxt_T(1, 1);
   CorAniso* corT = CorAniso::createAnisotropic(
     ctxt_S,
-    ECov::CAUCHY,
+    ECov::CAUCHY_GEN,
     rangesT,
     beta,
     VectorDouble(),
@@ -184,9 +185,8 @@ CorGneiting* CorGneiting::create(const CovContext& ctxt,
 
   return new CorGneiting(corS, corT, separability);
 }
-*/
 
-MatrixDense CorGneiting::simulateSpectralOmega(Id nb) const
+  MatrixDense CorGneiting::simulateSpectralOmega(Id nb) const
 {
   Id ndim      = _corS->getNDim();
   double nu    = _corS->getParam();

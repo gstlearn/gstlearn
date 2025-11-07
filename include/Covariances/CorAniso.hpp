@@ -136,7 +136,7 @@ public:
                                           const VectorDouble& angles = VectorDouble(),
                                           bool flagRange             = true);
 
-  void setParam(double param);
+  void setParam(double param, Id ipar = 0);
   void setNoStatFactor(double noStatFactor) { _noStatFactor = noStatFactor; }
 
   /// Practical range

@@ -47,6 +47,7 @@
                  POISSON,    29, "Poisson (Sphere only)",\
                  LINEARSPH,  30, "Linear (Sphere only)",\
                  CAUCHY_GEN, 31, "Generalized Cauchy in 1-D", \
-                 GNEITING_M, 32, "Gneiting with Matern's spatial trace"
+                 GNEITING_M, 32, "Gneiting with Matern's spatial trace", \
+                 GNEITING_C, 33, "Gneiting with Cauchy's spatial trace"
 
 ENUM_DECLARE(ENUM_COV)
