@@ -1275,8 +1275,8 @@ void ShiftOpMatrix::_projectMesh(const AMesh* amesh,
   v2.normalizeInPlace();
 
   // Get the end points from Unit vectors
-  VectorDouble axe1 = VH::add(center, v1);
-  VectorDouble axe2 = VH::add(center, v2);
+  VectorDouble axe1 = center.addVec(v1);
+  VectorDouble axe2 = center.addVec(v2);
 
   /* Projection */
 

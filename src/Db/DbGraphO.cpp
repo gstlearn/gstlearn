@@ -11,7 +11,6 @@
 #include "Db/DbGraphO.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/SerializeHDF5.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
@@ -453,7 +452,7 @@ bool DbGraphO::areConnected(Id node1, Id node2) const
   VectorDouble v2(nech, 0.);
   v2[node1] = 1.;
 
-  while (VH::cumul(v2) > 0.)
+  while (v2.sum() > 0.)
   {
     v1 = v2;
     _downArcs.prodVecMatInPlace(v1, v2);
@@ -501,7 +500,7 @@ VectorInt DbGraphO::getOrderDown(Id node) const
 
   Id rank = 1;
   _updateOrder(rank, v2, order);
-  while (VH::cumul(v2) > 0.)
+  while (v2.sum() > 0.)
   {
     rank++;
     v1 = v2;

@@ -106,6 +106,20 @@ public:
   inline const VectorNumT<T>& divide(const VectorNumT<T>& v);
   /**@}*/
 
+  /** @addtogroup Func_V2
+   * \ingroup VectorNumT
+   *
+   * Syntax: const func(vec)
+   *
+   * Action: 'this' = 'this' %func% 'vec'
+   *  @{
+   */
+  inline VectorNumT<T> addVec(const VectorNumT<T>& v);
+  inline VectorNumT<T> subtractVec(const VectorNumT<T>& v);
+  inline VectorNumT<T> multiplyVec(const VectorNumT<T>& v);
+  inline VectorNumT<T> divideVec(const VectorNumT<T>& v);
+  /**@}*/
+
   /** @addtogroup Func_Cst
    * \ingroup VectorNumT
    *
@@ -331,6 +345,86 @@ const VectorNumT<T>& VectorNumT<T>::divide(const VectorNumT<T>& v)
 }
 
 template<typename T>
+VectorNumT<T> VectorNumT<T>::addVec(const VectorNumT<T>& v)
+{
+  VectorNumT<T> out;
+  auto size = v.size();
+  if (size != VectorNumT::size()) return out;
+  out.resize(size);
+  for (size_type i = 0, n = VectorNumT::size(); i < n; i++)
+  {
+    auto v1 = VectorNumT::at(i);
+    if (isNA(v1))
+      out[i] = v1;
+    else if (isNA(v[i]))
+      out[i] = v[i];
+    else
+      out[i] = v1 + v[i];
+  }
+  return out;
+}
+
+template<typename T>
+VectorNumT<T> VectorNumT<T>::subtractVec(const VectorNumT<T>& v)
+{
+  VectorNumT<T> out;
+  auto size = v.size();
+  if (size != VectorNumT::size()) return out;
+  out.resize(size);
+  for (size_type i = 0, n = VectorNumT::size(); i < n; i++)
+  {
+    auto v1 = VectorNumT::at(i);
+    if (isNA(v1))
+      out[i] = v1;
+    else if (isNA(v[i]))
+      out[i] = v[i];
+    else
+      out[i] = v1 + v[i];
+  }
+  return out;
+}
+
+template<typename T>
+VectorNumT<T> VectorNumT<T>::multiplyVec(const VectorNumT<T>& v)
+{
+  VectorNumT<T> out;
+  auto size = v.size();
+  if (size != VectorNumT::size()) return out;
+  out.resize(size);
+  for (size_type i = 0, n = VectorNumT::size(); i < n; i++)
+  {
+    auto v1 = VectorNumT::at(i);
+    if (isNA(v1))
+      out[i] = v1;
+    else if (isNA(v[i]))
+      out[i] = v[i];
+    else
+      out[i] = v1 * v[i];
+  }
+  return out;
+}
+
+template<typename T>
+VectorNumT<T> VectorNumT<T>::divideVec(const VectorNumT<T>& v)
+{
+  VectorNumT<T> out;
+  auto size = v.size();
+  if (size != VectorNumT::size()) return out;
+  out.resize(size);
+  for (size_type i = 0, n = VectorNumT::size(); i < n; i++)
+  {
+    auto v1 = VectorNumT::at(i);
+    if (isNA(v1))
+      out[i] = v1;
+    else if (isNA(v[i]))
+      out[i] = v[i];
+    else
+      out[i] = v1 / v[i];
+  }
+  return out;
+}
+
+template<typename T>
 void VectorNumT<T>::normalizeInPlace(Id normType)
 {
   double normValue;
@@ -407,19 +501,19 @@ void VectorNumT<T>::dump(const String& title) const
 {
   if (VectorNumT::size() <= 0) return;
 
+  if (!title.empty())
+    std::cout << title << std::endl;
   if constexpr (std::is_same_v<T, double>)
   {
-    std::cout << "Array of Double: " << title << std::endl;
     VectorT<T>::display();
   }
   else if constexpr (std::is_same_v<T, Id>)
   {
-    std::cout << "Array of Id: " << title << std::endl;
     VectorT<T>::display();
   }
   else
   {
-    std::cout << "Unknown type" << title << std::endl;
+    std::cout << "Unknown type" << std::endl;
   }
 }
 

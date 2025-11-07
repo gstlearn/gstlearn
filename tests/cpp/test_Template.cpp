@@ -44,15 +44,19 @@ int main(int argc, char* argv[])
   // Basic manipulations
   tab.dump("Initial vector of Double");
   tab.add(tab);
-  tab.dump("After adding this to itself");
+  tab.dump("Add this to itself");
   tab.addCst(12);
-  tab.dump("After adding a constant to this");
+  tab.dump("Add a constant to this");
+  VectorDouble tabaux = tab.addVec(tab);
+  tabaux.dump("Add 'this' and return a new VD");
 
   itab.dump("Initial Vector of Id");
   itab.add(itab);
-  itab.dump("After adding this to itself");
+  itab.dump("Add this to itself");
   itab.addCst(12);
-  itab.dump("After adding a constant to this");
+  itab.dump("Add a constant to this");
+  VectorInt itabaux = itab.addVec(itab);
+  itabaux.dump("Adding 'this' and return a new VI");
 
   return 0;
 }

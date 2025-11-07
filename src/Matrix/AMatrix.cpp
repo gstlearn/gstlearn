@@ -12,7 +12,6 @@
 #include "Basic/AException.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/Utilities.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Matrix/NF_Triplet.hpp"
 #include "geoslib_define.h"
@@ -1256,7 +1255,7 @@ void AMatrix::makePositiveColumn()
     VectorDouble column = getColumn(icol);
 
     // Calculate the sum of the elements
-    double sum = VH::cumul(column);
+    double sum = column.sum();
     if (sum >= 0) continue;
 
     // Invert the sign of all its elements

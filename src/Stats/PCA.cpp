@@ -310,7 +310,7 @@ Id PCA::dbF2Z(Db* db,
 
 VectorDouble PCA::getVarianceRatio() const
 {
-  double total         = VectorHelper::cumul(_eigval);
+  double total         = _eigval.sum();
   VectorDouble eignorm = _eigval;
   eignorm.divideCst(total);
   return eignorm;
@@ -851,7 +851,7 @@ VectorDouble PCA::mafOfIndex() const
   // Calculate the probability of each interval
   VectorDouble w = _mean;
   Id ncut        = static_cast<Id>(_mean.size());
-  w.push_back(1 - VH::cumul(_mean));
+  w.push_back(1 - _mean.sum());
   Id nclass = static_cast<Id>(w.size());
 
   // Normalize the indicator of intervals

@@ -5111,7 +5111,7 @@ VectorDouble Vario::computeWeightsFromVario(Id wmode) const
 
   // Ultimate check
 
-  double total = VH::cumul(wt);
+  double total = wt.sum();
   if (ABS(total) <= 0.)
   {
     messerr("The sum of the weight is 0. This must be an error");

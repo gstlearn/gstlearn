@@ -67,9 +67,7 @@ public:
   static double extensionDiagonal(const VectorDouble& mini, const VectorDouble& maxi);
 
   static Id count(const VectorVectorInt& vec);
-  static Id cumul(const VectorInt& vec);
   static Id cumul(const VectorVectorInt& vec);
-  static double cumul(const VectorDouble& vec);
   static double cumulLog(const VectorDouble& vec);
   static VectorInt cumulIncrement(const VectorVectorInt& vec);
   static double mean(const VectorDouble& vec);
@@ -113,7 +111,6 @@ public:
                                          Id iad);
   static void addInPlace(constvect in, vect dest);
 #endif
-  static VectorDouble add(const VectorDouble& veca, const VectorDouble& vecb);
   static void addInPlace(std::vector<double>& dest, const std::vector<double>& src);
   static void addInPlace(const VectorDouble& veca,
                          const VectorDouble& vecb,

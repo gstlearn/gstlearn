@@ -11,7 +11,6 @@
 #include "API/SPDE.hpp"
 #include "Basic/File.hpp"
 #include "Basic/OptDbg.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Calculators/CalcMigrate.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
@@ -65,7 +64,7 @@ int main(int argc, char* argv[])
 
   auto* grid = DbGrid::create({100, 100});
 
-  VectorDouble gadd = VH::add(grid->getColumn("x1"), grid->getColumn("x2"));
+  VectorDouble gadd = grid->getColumn("x1").addVec(grid->getColumn("x2"));
   gadd.divideCst(200.);
   (void)grid->addColumns(gadd, "reference");
 

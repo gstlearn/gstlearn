@@ -60,7 +60,7 @@ int main(int argc, char* argv[])
   Db* data = Db::createFillRandom(nech, ndim, 0);
   if (!flag_simu)
   {
-    VectorDouble resd = VH::add(data->getColumn("x-1"), data->getColumn("x-2"));
+    VectorDouble resd = data->getColumn("x-1").addVec(data->getColumn("x-2"));
     data->addColumns(resd, "Simu", ELoc::Z);
   }
   else
@@ -74,7 +74,7 @@ int main(int argc, char* argv[])
   DbGrid* grid = DbGrid::createCoveringDb(data, {nx, nx});
   if (!flag_simu)
   {
-    VectorDouble resg = VH::add(grid->getColumn("x1"), grid->getColumn("x2"));
+    VectorDouble resg = grid->getColumn("x1").addVec(grid->getColumn("x2"));
     grid->addColumns(resg, "Simu", ELoc::Z);
   }
   else

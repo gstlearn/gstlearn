@@ -2,15 +2,19 @@ On identifie le double
 --> This is a Vector of <double>
 On identifie le int
 --> This is a Vector of <Id>
-Array of Double: Initial vector of Double
+Initial vector of Double
 [0 1 2 1.234e+30 4 5 6 7 8 9]
-Array of Double: After adding this to itself
+Add this to itself
 [0 2 4 1.234e+30 8 10 12 14 16 18]
-Array of Double: After adding a constant to this
+Add a constant to this
 [12 14 16 1.234e+30 20 22 24 26 28 30]
-Array of Id: Initial Vector of Id
+Add 'this' and return a new VD
+[24 28 32 1.234e+30 40 44 48 52 56 60]
+Initial Vector of Id
 [0 1 2 -1234567 4 5 6 7 8 9]
-Array of Id: After adding this to itself
+Add this to itself
 [0 2 4 -1234567 8 10 12 14 16 18]
-Array of Id: After adding a constant to this
+Add a constant to this
 [12 14 16 -1234567 20 22 24 26 28 30]
+Adding 'this' and return a new VI
+[24 28 32 -1234567 40 44 48 52 56 60]

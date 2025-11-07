@@ -473,7 +473,7 @@ VectorVectorDouble SpatialIndices::getQT(const String& name) const
   VectorDouble wzs = VH::reorder(wz, ranks);
 
   // Calculate the Spreading Area
-  double Q        = VH::cumul(wzs);
+  double Q        = wzs.sum();
   double SA       = 0.;
   VectorDouble QT = VH::cumsum(wzs, true);
   for (Id ib = 0, nb = static_cast<Id>(ww.size()); ib < nb; ib++)

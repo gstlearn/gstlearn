@@ -384,22 +384,13 @@ double VectorHelper::mean(const VectorDouble& vec)
   return TEST;
 }
 
-Id VectorHelper::cumul(const VectorInt& vec)
-{
-  Id total = 0.;
-  for (const auto& v: vec)
-  {
-    total += v;
-  }
-  return total;
-}
 
 Id VectorHelper::cumul(const VectorVectorInt& vec)
 {
   Id total = 0.;
   for (const auto& v: vec)
   {
-    total += cumul(v);
+    total += v.sum();
   }
   return total;
 }
@@ -410,16 +401,6 @@ Id VectorHelper::count(const VectorVectorInt& vec)
   for (const auto& v: vec)
   {
     total += static_cast<Id>(v.size());
-  }
-  return total;
-}
-
-double VectorHelper::cumul(const VectorDouble& vec)
-{
-  double total = 0.;
-  for (const auto& v: vec)
-  {
-    if (!FFFF(v)) total += v;
   }
   return total;
 }
@@ -1027,29 +1008,6 @@ VectorInt VectorHelper::sampleRanks(Id ntotal,
   ranks.resize(distance(ranks.begin(), it));
 
   return ranks;
-}
-
-VectorDouble VectorHelper::add(const VectorDouble& veca, const VectorDouble& vecb)
-{
-  if (veca.size() != vecb.size())
-  {
-    messerr("Arguments 'veca' and 'vecb' should have the same dimension. Nothing is done");
-    return veca;
-  }
-
-  VectorDouble res(veca.size());
-  auto it(res.begin());
-  auto ita(veca.begin());
-  auto itb(vecb.begin());
-
-  while (it < res.end())
-  {
-    *it = *ita + *itb;
-    it++;
-    ita++;
-    itb++;
-  }
-  return res;
 }
 
 void VectorHelper::addInPlace(constvect in, vect dest)

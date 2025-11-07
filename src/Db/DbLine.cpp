@@ -191,7 +191,7 @@ DbLine* DbLine::createFromSamplesById(Id nech,
 Id DbLine::_lineLinkage(const VectorInt& lineCounts)
 {
   // Prelimnary check
-  Id nech = VH::cumul(lineCounts);
+  Id nech = lineCounts.sum();
   if (nech != getNSample())
   {
     messerr("Cumulated number of samples given by 'lineCounts' (%d) should "

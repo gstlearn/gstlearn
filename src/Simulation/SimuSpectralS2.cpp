@@ -369,7 +369,7 @@ Id SimuSpectralS2::_compute(Db* dbout, Id iuid, bool verbose)
 
           if (verbose)
           {
-            Id sumComp = VH::cumul(nbrComp);
+            Id sumComp = nbrComp.sum();
             cumComp += sumComp;
             message("K = %d and N = %d : %d / %d  jk = %d\n", m, n, sumComp,
                     cumComp, jk);

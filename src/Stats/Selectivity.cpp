@@ -14,7 +14,6 @@
 #include "Anamorphosis/AnamDiscreteIR.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Basic/AStringable.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
 #include "Enum/ESelectivity.hpp"
 
@@ -223,7 +222,7 @@ Id Selectivity::calculateFromArray(const VectorDouble& tab,
 
   // Perform calculations
 
-  double tonref = VH::cumul(wtab);
+  double tonref = wtab.sum();
   for (Id icut = 0; icut < ncut; icut++)
   {
     double coupure = getZcut(icut);
