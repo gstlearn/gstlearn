@@ -11,6 +11,8 @@
 #include "Model/ModelGeneric.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ListParams.hpp"
+#include "Covariances/ACov.hpp"
+#include "Covariances/CovAniso.hpp"
 #include "Db/Db.hpp"
 #include "Drifts/DriftFactory.hpp"
 #include "Estimation/AModelOptim.hpp"
@@ -30,6 +32,7 @@ ModelGeneric::ModelGeneric(const CovContext& ctxt)
   : _cova(nullptr)
   , _driftList(nullptr)
   , _ctxt(ctxt)
+  , _transform(nullptr)
 {
 }
 
@@ -38,6 +41,7 @@ ModelGeneric::ModelGeneric(const ModelGeneric& r)
   _cova      = (r._cova != nullptr) ? std::dynamic_pointer_cast<ACov>(r._cova->cloneShared()) : nullptr;
   _driftList = (r._driftList != nullptr) ? r._driftList->clone() : nullptr;
   _ctxt      = r._ctxt;
+  _transform = r._transform;
 }
 
 ModelGeneric& ModelGeneric::operator=(const ModelGeneric& r)
@@ -47,6 +51,7 @@ ModelGeneric& ModelGeneric::operator=(const ModelGeneric& r)
     _cova      = (r._cova != nullptr) ? std::dynamic_pointer_cast<ACov>(r._cova->cloneShared()) : nullptr;
     _driftList = (r._driftList != nullptr) ? r._driftList->clone() : nullptr;
     _ctxt      = r._ctxt;
+    _transform = r._transform;
   }
   return *this;
 }
@@ -320,12 +325,12 @@ Id computeDriftMatSVCRHSInPlace(MatrixDense& mat,
 std::shared_ptr<ListParams> ModelGeneric::generateListParams() const
 {
   auto listParams = std::make_shared<ListParams>();
-  _gradFuncs.clear();
+  _gradCovFuncs.clear();
 
   // Add Covariance parameters
   if (_cova != nullptr)
   {
-    _cova->appendParams(*listParams, &_gradFuncs);
+    _cova->appendParams(*listParams, &_gradCovFuncs);
   }
 
   // Add Drift parameters
@@ -333,6 +338,12 @@ std::shared_ptr<ListParams> ModelGeneric::generateListParams() const
   {
     _driftList->appendParams(*listParams);
   }
+
+  if (_transform != nullptr)
+  {
+    _transform->appendParams(*listParams);
+  }
+
   listParams->updateDispatch();
 
   return listParams;
@@ -356,6 +367,11 @@ void ModelGeneric::updateModel()
   {
     _driftList->updateDriftList();
   }
+
+  if (_transform != nullptr)
+  {
+    _transform->updateTransform();
+  }
 }
 
 void ModelGeneric::initParams(const MatrixSymmetric& vars, double href)
@@ -369,7 +385,11 @@ void ModelGeneric::initParams(const MatrixSymmetric& vars, double href)
   // Initialize the parameters in the DriftList
   if (_driftList != nullptr)
   {
-    gstlrn::DriftList::initParams(vars, href);
+    DriftList::initParams(vars, href);
+  }
+  if (_transform != nullptr)
+  {
+    _transform->initParams();
   }
 }
 

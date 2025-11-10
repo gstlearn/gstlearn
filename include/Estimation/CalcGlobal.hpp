@@ -23,6 +23,8 @@ namespace gstlrn
 class Db;
 class DbGrid;
 class KrigingSystem;
+class Model;
+
 class GSTLEARN_EXPORT Global_Result: public AStringable
 {
 public:

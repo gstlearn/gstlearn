@@ -359,6 +359,9 @@ set(SRC
   Simulation/CalcSimuEden.cpp
   Basic/AFunction.cpp
   Skin/Skin.cpp
+  Transform/ATransform.cpp
+  Transform/TuckeyGH.cpp
+  Transform/YeoJohnson.cpp
   Tree/Ball.cpp
   Tree/KNN.cpp
   Tree/ball_algorithm.cpp

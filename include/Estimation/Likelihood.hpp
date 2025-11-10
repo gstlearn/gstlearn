@@ -36,7 +36,7 @@ public:
   void evalGrad(vect res) override;
 
 private:
-  void _fillGradCovMat(RankHandler& rkh, covmaptype& gradcov);
+  void _fillGradCovMat(RankHandler& rkh, const covmaptype& gradcov);
   void _updateModel(bool verbose = false) override;
   void _computeCm1X() override;
   void _computeCm1Yc() override;

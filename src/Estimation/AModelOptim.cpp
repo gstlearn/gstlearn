@@ -106,7 +106,7 @@ void AModelOptim::setVerbose(bool verbose, bool trace)
   if (trace) _verbose = true;
 
   // Export 'verbose' and 'trace' flags down to FitSill (if defined)
-  ModelCovList* mcv = dynamic_cast<ModelCovList*>(_model);
+  auto* mcv = dynamic_cast<ModelCovList*>(_model);
   if (mcv != nullptr)
   {
     AModelFitSills* amf = mcv->getFitSills();

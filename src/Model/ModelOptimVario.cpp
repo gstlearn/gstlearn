@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Model/ModelOptimVario.hpp"
 #include "Basic/OptCustom.hpp"
+#include "Covariances/ACov.hpp"
 #include "Model/AModelFitSills.hpp"
 #include "Model/ModelFitSillsVario.hpp"
 #include "geoslib_define.h"
@@ -219,7 +220,7 @@ ModelOptimVario* ModelOptimVario::createForOptim(ModelGeneric* model,
   // Instantiate Goulard algorithm (optional)
   if (mop.getFlagGoulard())
   {
-    ModelCovList* mcv = dynamic_cast<ModelCovList*>(model);
+    auto* mcv = dynamic_cast<ModelCovList*>(model);
     if (mcv != nullptr)
     {
       mcv->setFitSills(ModelFitSillsVario::createForOptim(vario, model, constraints, mop));
@@ -262,7 +263,7 @@ double ModelOptimVario::computeCost(bool flagPrint, bool verbose)
 void ModelOptimVario::evalGrad(vect res)
 {
 
-  auto gradcov = _model->getGradients();
+  const auto &gradcov = _model->getCovGradients();
   Id nlags     = static_cast<Id>(_lags.size());
   SpacePoint origin;
 
@@ -274,7 +275,8 @@ void ModelOptimVario::evalGrad(vect res)
     {
       {
         const OneLag& lag = _lags[ilag];
-        double dvtheo     = gradcov[i](origin, lag._P, lag._ivar, lag._jvar, &_calcmode);
+        const auto& func = gradcov[i];
+        double dvtheo     = func(origin, lag._P, lag._ivar, lag._jvar, &_calcmode);
         res[i] += -2. * _resid[ilag] * dvtheo;
       }
     }

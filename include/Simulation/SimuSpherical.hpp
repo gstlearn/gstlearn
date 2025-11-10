@@ -21,6 +21,7 @@ namespace gstlrn
 {
 
 class MeshSpherical;
+class Model;
 
 class GSTLEARN_EXPORT SimuSpherical: public ACalcSimulation
 {

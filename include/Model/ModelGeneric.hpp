@@ -12,6 +12,7 @@
 
 #include "Basic/VectorNumT.hpp"
 #include "Model/AModelFitSills.hpp"
+#include "Transform/ATransform.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
@@ -31,7 +32,7 @@ class Db;
 
 class DbGrid;
 class CovCalcMode;
-class Model;
+class ATransform;
 
 /**
  * \brief
@@ -67,7 +68,7 @@ public:
   ACov* _getCovModify() { return _cova.get(); }
   CovContext* _getContextModify() { return &_ctxt; }
   DriftList* _getDriftListModify() { return _driftList; }
-  std::vector<covmaptype>& getGradients() { return _gradFuncs; }
+  std::vector<covmaptype>& getCovGradients() { return _gradCovFuncs; }
 
 public:
   // Forwarding the methods from _cova
@@ -180,6 +181,10 @@ public:
   FORWARD_METHOD_NON_CONST(_getContextModify, setCovar0s)
   FORWARD_METHOD_NON_CONST(_getContextModify, setCovar0)
 
+  FORWARD_METHOD(getTransform, condExpVec, VectorDouble())
+  FORWARD_METHOD(getTransform, transformVec, VectorDouble())
+  FORWARD_METHOD(getTransform, inverseTransformVec, VectorDouble())
+
   void setField(double field);
   bool isValid() const;
 
@@ -192,6 +197,10 @@ public:
   void setDrifts(const VectorString& driftSymbols);
 
   void initParams(const MatrixSymmetric& vars, double href = 1.);
+
+  const ATransform* getTransform() const { return _transform; }
+  ATransform* getTransformModify() { return _transform; }
+  void setTransform(ATransform* transform) { _transform = transform; }
 
   std::shared_ptr<ListParams> generateListParams() const;
   // Version for python test
@@ -207,15 +216,16 @@ public:
               bool verbose               = false,
               bool trace                 = false,
               bool reml                  = false);
-
+bool hasTransform() const { return (_transform != nullptr); }
 private:
   virtual bool _isValid() const;
 
 protected:                     // TODO : pass into private to finish clean
   std::shared_ptr<ACov> _cova; /* Generic Covariance structure */
-  mutable std::vector<covmaptype> _gradFuncs;
+  mutable std::vector<covmaptype> _gradCovFuncs;
   DriftList* _driftList; /* Series of Drift functions */
   CovContext _ctxt;      /* Context */
+  ATransform* _transform; /* Transformation associated to the Model */
 };
 
 GSTLEARN_EXPORT Id computeCovMatSVCLHSInPlace(MatrixSymmetric& cov,

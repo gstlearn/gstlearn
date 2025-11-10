@@ -78,6 +78,11 @@ private:
                         Id nb_vecchia,
                         std::vector<std::array<Id, 4>>& neighDescr,
                         bool verbose = false) const;
+
+  double _buildC00(Id icaseDb,
+                   Id ipAbs,
+                   Id ivar);
+
   void _buildLHS(Id nitems,
                  const std::vector<std::array<Id, 4>>& neighDescr,
                  MatrixSymmetric& matCov);

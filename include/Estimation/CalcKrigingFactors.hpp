@@ -22,6 +22,7 @@ namespace gstlrn
 class Db;
 class DbGrid;
 class KrigingSystem;
+class Model;
 
 class GSTLEARN_EXPORT CalcKrigingFactors: public ACalcInterpolator
 {

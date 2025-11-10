@@ -11,6 +11,10 @@
   #include "geoslib_f.h"
   #include "geoslib_old_f.h"
   
+  #include "Transform/ATransform.hpp"
+  #include "Transform/TuckeyGH.hpp"
+  #include "Transform/YeoJohnson.hpp"
+  
   #include "Enum/AEnum.hpp"
   #include "Enum/EKrigOpt.hpp"
   #include "Enum/ESPDECalcMode.hpp"

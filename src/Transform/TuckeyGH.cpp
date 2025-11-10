@@ -8,18 +8,31 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_define.h"
 
-#include "Basic/ASerializable.hpp"
-using namespace gstlrn;
+#include "Transform/TuckeyGH.hpp"
+#include "Transform/ATransform.hpp"
 
-int main(int argc, char* argv[])
+namespace gstlrn
 {
-  // Do not remove
-  std::stringstream sfn;
-  sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str(), argc, argv);
-  ASerializable::setPrefixName("test_a_template-"); // Here set the test name
-  //
-  return 0;
+
+TuckeyGH::TuckeyGH(double g, double h)
+  : ATransformWithAutoDiff<TuckeyGH>()
+  , _G(ParamInfo("Tuckey G-Value", g, {-INF, INF}))
+  , _H(ParamInfo("Tuckey H-Value", h, {.0, 1})) // H > 0 guarantees monotonicity
+{
 }
+
+void TuckeyGH::initParams()
+{
+  _G.setValue(0.);
+  //_H.setValue(EPSILON4); // H not on its lower bound 
+}
+
+
+void TuckeyGH::appendParams(ListParams& listParams)
+{
+  listParams.addParam(_G);
+  //listParams.addParam(_H);
+}
+
+} // namespace gstlrn

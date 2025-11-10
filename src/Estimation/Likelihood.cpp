@@ -29,7 +29,7 @@ Likelihood::Likelihood(ModelGeneric* model,
   : ALikelihood(model, db, reml)
   , _cov(std::make_shared<MatrixSymmetric>(0))
 {
-  setAuthorizedAnalyticalGradients(true);
+  setAuthorizedAnalyticalGradients(_model->getTransform() == nullptr);
 }
 
 Likelihood::Likelihood(const Likelihood& r)
@@ -108,7 +108,7 @@ void Likelihood::evalGrad(vect res)
   auto invcov = _covChol.inverse();
   RankHandler rkh(_db);
   rkh.defineSampleRanks();
-  auto gradcov = _model->getGradients();
+  const auto &gradcov = _model->getCovGradients();
   _gradCovMat.resize(static_cast<Id>(_Yc.size()), static_cast<Id>(_Yc.size()));
   CholeskyDense XtCm1XChol;
   MatrixSymmetric invXtCm1X;
@@ -119,7 +119,8 @@ void Likelihood::evalGrad(vect res)
   }
   for (size_t iparam = 0; iparam < gradcov.size(); iparam++)
   {
-    _fillGradCovMat(rkh, gradcov[iparam]);
+    const auto& func = gradcov[iparam];
+    _fillGradCovMat(rkh, func);
     _gradCovMat.prodMatVecInPlace(_Cm1Yc, _temp);
     double dquad = -VH::innerProductVD(_Cm1Yc, _temp);
     res[iparam]  = 0.0;
@@ -136,14 +137,14 @@ void Likelihood::evalGrad(vect res)
   }
 }
 
-void Likelihood::_fillGradCovMat(RankHandler& rkh, covmaptype& gradcov)
+void Likelihood::_fillGradCovMat(RankHandler& rkh, const covmaptype& gradcov)
 {
   Id icur, jcur = 0;
 
   SpacePoint p1, p2;
   rkh.defineSampleRanks();
 
-  for (Id jvar = 0; static_cast<Id>(jvar) < _model->getNVar(); jvar++)
+  for (Id jvar = 0; jvar < _model->getNVar(); jvar++)
   {
     auto indsj = rkh.getSampleRanksByVariable(jvar);
 
@@ -152,7 +153,7 @@ void Likelihood::_fillGradCovMat(RankHandler& rkh, covmaptype& gradcov)
       icur = 0;
       _db->getSampleAsSPInPlace(p1, j);
 
-      for (Id ivar = 0; static_cast<Id>(ivar) < _model->getNVar(); ivar++)
+      for (Id ivar = 0; ivar < _model->getNVar(); ivar++)
       {
         auto indsi = rkh.getSampleRanksByVariable(ivar);
         for (auto& i: indsi)
