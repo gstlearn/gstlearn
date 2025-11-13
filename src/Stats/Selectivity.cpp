@@ -1056,7 +1056,7 @@ void Selectivity::interpolateSelectivity(const Selectivity* selecin)
   VectorDouble zz(nclass + 2);
   VectorDouble TT(nclass + 2);
   VectorDouble QQ(nclass + 2);
-  VectorDouble zcuts = getZcut();
+  const auto& zcuts = getZcut();
 
   /* Load arrays */
 

@@ -403,7 +403,7 @@ bool CorAniso::isValidForSpectral() const
 MatrixDense CorAniso::simulateSpectralOmega(Id nb) const
 {
   MatrixDense omega   = _corfunc->simulateSpectralOmega(nb);
-  MatrixSquare tensor = getAniso().getTensorInverse();
+  const auto& tensor  = getAniso().getTensorInverse();
   // omega = omega * tensor;
   omega.prodMat(&tensor);
   return omega;
@@ -641,9 +641,9 @@ double CorAniso::getFullCorrec() const
 
 double CorAniso::getDetTensor() const
 {
-  VectorDouble scales = getScales();
+  const auto& scales  = getScales();
   double detTensor    = 1.;
-  for (auto& e: scales)
+  for (const auto e: scales)
   {
     detTensor *= e;
   }
