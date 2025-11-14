@@ -125,7 +125,7 @@ Id Convolution::ConvolveSparse(Id iatt,
     bool correct = true;
     for (Id ineigh = 0; ineigh < nbneigh && correct; ineigh++)
     {
-      VH::addInPlace(indTarget, ranks[ineigh], current);
+      indTarget.addVecInPlace(ranks[ineigh], current);
       correct = _dbgrid->getGrid().isInside(current);
 
       // Target is not estimated when one neighborhood sample is out of grid
@@ -200,7 +200,7 @@ Id Convolution::ConvolveFFT(Id iatt,
   VectorInt cImage = _dbgrid->getCenterIndices(false);
 
   // Find the shift between the two centers
-  VectorInt shift = VH::subtract(cKernel, cImage);
+  VectorInt shift = cImage.subtractVec(cKernel);
 
   // For each kernel, allocate arrays (real and imaginary parts)
   // at the dimension of the final image.

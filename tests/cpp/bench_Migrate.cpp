@@ -135,7 +135,7 @@ int main(int argc, char* argv[])
   vecb = grid->getColumn("P2Gyb*");
 
   // Compare impact of balltree option on P2Gy
-  diff = VH::subtract(vec, vecb);
+  diff = vecb.subtractVec(vec);
   VH::getMostSignificant(diff, EPSILON6, 10);
   grid->addColumns(diff, "Diff_P2Gy");
 
@@ -154,7 +154,7 @@ int main(int argc, char* argv[])
   vecb = data->getColumn("P2Pyb*");
 
   // Compare impact of balltree option on P2Py
-  diff = VH::subtract(vec, vecb);
+  diff = vecb.subtractVec(vec);
   VH::getMostSignificant(diff, EPSILON6, 10);
   data->addColumns(diff, "Diff_P2Py");
 

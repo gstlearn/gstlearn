@@ -1,50 +1,43 @@
 # Script in python
 # It is meant to check the Template exported in Python via Swig
 
-# Next we load the packages used by the subsequent script, such as *gstlearn* (note that any function belonging to this library will have a prefix *gl*. Similarly, we load the graphic extension (called *gslearn.plot*).
-
 import gstlearn as gl
-
-# - created using VH functions
-tab = gl.VectorHelper.sequenceVD(0, 9., 1.)
-tab[3]           = gl.TEST
-print("Type of VD created using VH function")
-print(type(tab))
+import numpy as np
 
 # - created using the VD constructor only
-tab = gl.VectorDouble([2,3,4])
-print("Type of VD created using VD constructor")
-print(type(tab))
-print("Identifying the vector type (double)")
-tab.identify()
+rtab1 = gl.VectorDouble([2.1, 3.2, 4.1, np.nan, 8.3])
+rtab1.dump("rtab1")
+rtab1.identify()
+print("Moyenne = ", rtab1.mean())
+print("Mediane = ", rtab1.median())
+print("Minimum = ", rtab1.minimum())
+print("Maximum = ", rtab1.maximum())
+print("Variance = ", rtab1.variance())
+print("St. dev. = ", rtab1.stdv())
 
-# - created using VH function
-itab = gl.VectorHelper.sequence(10)
-itab[3]        = gl.ITEST
-print("Type of VD created using VH function")
-print(type(itab))
+rtab2 = gl.VectorDouble([-1.1, np.nan, 6.1, 4.1, -0.2])
+rtab2.dump("rtab2")
+rtab1.add(rtab2)
+rtab1.dump("'rtab1 = 'rtab1 + 'rtab2'")
+rtab1.addCst(12.)
+rtab1.dump("'rtab1' = 'rtab1' + 12")
+tabaux = rtab1.addVec(rtab2)
+tabaux.dump("'out' = 'rtab1' + 'rtab2'")
 
 # - created using the VD constructor only
-itab = gl.VectorInt({1, 2, 4, 6})
-print("Type of VD created using VD constructor")
-print(type(itab))
-print("Identifying a vector of Id")
-itab.identify()
+itab1 = gl.VectorInt({1, 2, 4, 6, 3, 5})
+itab1.dump("itab1");
+itab1.identify()
+print("Moyenne = ", itab1.mean())
+print("Mediane = ", itab1.median())
+print("Variance = ", itab1.variance())
+print("St. dev. = ", itab1.stdv())
 
-# - manipulation of VD
-tab.dump("Initial Vector of Double")
-tab.add(tab)
-tab.dump("Add this to itself")
-tab.addCst(12)
-tab.dump("Add a constant to this")
-tabaux = tab.addVec(tab)
-tabaux.dump("Add 'this' and return a new VD")
-
-# - manipulation of VI
-itab.dump("Initial Vector of Id")
-itab.add(itab)
-itab.dump("Add this to itself")
-itab.addCst(12)
-itab.dump("Add a constant to this")
-itabaux = itab.addVec(itab)
-itabaux.dump("Add 'this' and return a new VI")
+itab2 = gl.VectorInt({-5, 4., 2, 0, 1, 8})
+itab2.dump("itab2");
+itab1.add(itab2)
+itab1.dump("'itab1 = 'itab1 + 'itab2'")
+itab1.addCst(12)
+itab1.dump("'itab1' = 'itab1' + 12")
+itabaux = itab1.addVec(itab2)
+itabaux.dump("'out' = 'itab1' + 'itab2'")

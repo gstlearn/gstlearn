@@ -1141,8 +1141,8 @@ Id ACov::evalCovMatInPlaceFromIdx(MatrixDense& mat,
   // Creating the matrix
   Id nvar1 = static_cast<Id>(index1.size());
   Id nvar2 = static_cast<Id>(index2.size());
-  Id neq1  = VH::count(index1);
-  Id neq2  = VH::count(index2);
+  Id neq1  = index1.count();
+  Id neq2  = index2.count();
   if (neq1 <= 0 || neq2 <= 0)
   {
     messerr("The returned matrix has no valid sample and no valid variable");
@@ -1278,8 +1278,8 @@ Id ACov::evalCovMatRHSInPlaceFromIdx(MatrixDense& mat,
   VectorVectorInt index2 = db2->getSampleRanks(ivars, nbgh2, true, false, false);
 
   // Creating the matrix
-  Id neq1 = VH::count(index1);
-  Id neq2 = VH::count(index2);
+  Id neq1 = index1.count();
+  Id neq2 = index2.count();
   if (neq1 <= 0 || neq2 <= 0)
   {
     messerr("The returned matrix has no valid sample and no valid variable");
@@ -1634,7 +1634,7 @@ Id ACov::evalCovMatSymInPlaceFromIdx(MatrixSymmetric& mat,
                                      bool cleanOptim) const
 {
   // Creating the matrix
-  Id neq1 = VH::count(index1);
+  Id neq1 = index1.count();
   if (neq1 <= 0)
   {
     messerr("The returned matrix has no valid sample and no valid variable");

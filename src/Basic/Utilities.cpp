@@ -40,25 +40,19 @@ Id getClosestInteger(double value)
 
 bool isMultiple(Id nbig, Id nsmall)
 {
-  double ratio;
-
-  ratio = static_cast<double>(nbig) / static_cast<double>(nsmall);
+  double ratio = static_cast<double>(nbig) / static_cast<double>(nsmall);
   return (isInteger(ratio));
 }
 
 bool isOdd(Id number)
 {
-  Id middle;
-
-  middle = number / 2;
+  Id middle = number / 2;
   return (number != 2 * middle);
 }
 
 bool isEven(Id number)
 {
-  Id middle;
-
-  middle = number / 2;
+  Id middle = number / 2;
   return (number == 2 * middle);
 }
 

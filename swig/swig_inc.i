@@ -433,7 +433,7 @@
 %template(VectorABiTargetCheck)    std::vector< gstlrn::ABiTargetCheck* >;
 %template(VectorProjMatrix)        std::vector< gstlrn::ProjMatrix* >;
 %template(VectorConstProjMatrix)   std::vector< const gstlrn::ProjMatrix*>;
-%template(VectorConstIProj)  std::vector< const gstlrn::IProj*>;
+%template(VectorConstIProj)        std::vector< const gstlrn::IProj*>;
 %template(VVectorConstProjMatrix)  std::vector< std::vector< const gstlrn::ProjMatrix*> >;
 %template(VVectorConstIProj) std::vector< std::vector< const gstlrn::IProj*> >;
 %template(VecMeshes)               std::vector< const gstlrn::AMesh*>;

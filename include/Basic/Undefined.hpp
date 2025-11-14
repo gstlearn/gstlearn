@@ -70,7 +70,19 @@ inline unsigned char getNA()
 }
 
 template<typename T>
-inline bool isNA(const T& v);
+inline bool isNA(const T& v)
+{
+  if constexpr (std::is_arithmetic_v<T>)
+  {
+    // fallback pour les scalaires non spécialisés (rare)
+    return v == getNA<T>();
+  }
+  else
+  {
+    // Pour tout type non scalaire : jamais NA
+    return false;
+  }
+}
 template<>
 inline bool isNA(const double& v)
 {

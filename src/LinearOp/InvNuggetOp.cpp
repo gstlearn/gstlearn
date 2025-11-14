@@ -195,7 +195,7 @@ void InvNuggetOp::_buildInvNugget(const Db* db, Model* model, const SPDEParam& p
   // 'cumul' counts the number of valid positions for all variables before 'ivar'
   VectorInt cumul = VH::cumulIncrement(index1);
 
-  Id sizetot = VH::count(index1);
+  Id sizetot = index1.count();
   // Convert from triplet to sparse matrix
   _allocate(sizetot, sizetot, nvar);
   _cholNuggetMatrix = std::make_shared<MatrixSparse>(sizetot, sizetot, nvar);
@@ -209,7 +209,7 @@ void InvNuggetOp::_buildInvNugget(const Db* db, Model* model, const SPDEParam& p
   bool flag_verr     = (nverr > 0);
   bool flag_isotopic = true;
   for (Id ivar = 1; ivar < nvar && flag_isotopic; ivar++)
-    if (!VH::isEqual(index1[ivar], index1[0])) flag_isotopic = false;
+    if (!index1[ivar].isEqual(index1[0])) flag_isotopic = false;
   bool flag_uniqueVerr = true;
   VectorDouble verrDef(nverr, 0.);
   if (flag_verr)

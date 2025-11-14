@@ -9,10 +9,9 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Spatial/Projection.hpp"
-
 #include "Basic/AStringable.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Polygon/Polygons.hpp"
+
 namespace gstlrn
 {
 Projection::Projection(bool flag_mean, double xcenter, double ycenter)
@@ -37,8 +36,8 @@ Projection::Projection(bool flag_mean, Db* db)
   VectorDouble x = db->getOneCoordinate(0, true);
   VectorDouble y = db->getOneCoordinate(1, true);
 
-  _xcenter = VH::mean(x);
-  _ycenter = VH::mean(y);
+  _xcenter = x.mean();
+  _ycenter = y.mean();
 }
 
 Projection::Projection(const Projection& r)

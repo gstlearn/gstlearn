@@ -1,45 +1,41 @@
 suppressWarnings(suppressMessages(library(gstlearn)))
 
-# - created using VH functions
-#tab = VectorHelper_sequenceVD(0, 9., 1.)
-#tab[3] = getTEST()
-#print("Type of VD created using VH function")
-#print(class(tab))
+
 
 # - created using the VD constructor only
-tab = VectorDouble(c(2, 3, 4, 6, 7))
-print("Type of VD created using VD constructor")
-print(class(tab))
-print("Identifying the vector type (double)")
-err = tab$identify()
+rtab1 = VectorDouble(c(2, 3, 4, 6, 7))
+rtab1$dump("rtab1")
+err = rtab1$identify()
+print("Moyenne = ", rtab1$mean())
+print("Mediane = ", rtab1$median())
+print("Minimum = ", rtab1$minimum())
+print("Maximum = ", rtab1$maximum())
+print("Variance = ", rtab1$variance())
+print("St. dev. = ", rtab1$stdv())
 
-# - created using VH function
-#itab = VectorHelper_sequence(10)
-#itab[3]        = getITEST()
-#print("Type of VD created using VH function")
-#print(class(itab))
+rtab2 = VectorDouble(c(-1.1, np.nan, 6.1, 4.1, -0.2))
+rtab2$dump("rtab2")
+rtab1$add(rtab2)
+rtab1$dump("'rtab1 = 'rtab1 + 'rtab2'")
+rtab1$addCst(12.)
+rtab1$dump("'rtab1' = 'rtab1' + 12")
+tabaux = rtab1$addVec(rtab2)
+tabaux$dump("'out' = 'rtab1' + 'rtab2'")
 
 # - created using the VD constructor only
-itab = VectorInt(c(1, 2, 4, 6))
-print("Type of VD created using VD constructor")
-print(class(itab))
-print("Identifying a vector of Id")
-err = itab$identify()
+itab1 = VectorInt(c(1, 2, 4, 6, 3, 5))
+itab1$dump("itab1");
+itab1$identify()
+print("Moyenne = ", itab1$mean())
+print("Mediane = ", itab1$median())
+print("Variance = ", itab1$variance())
+print("St. dev. = ", itab1$stdv())
 
-# - manipulation of VD
-err = tab$dump("Initial Vector of Double")
-tab$add(tab)
-err = tab$dump("Add this to itself")
-tab$addCst(12)
-err = tab$dump("Add a constant to this")
-tabaux = tab$addVec(tab)
-tabaux$dump("Add 'this' and return a new VD")
-
-# - manipulation of VI
-err = itab$dump("Initial Vector of Id")
-itab$add(itab)
-err = itab$dump("Add this to itself")
-itab$addCst(12)
-err = itab$dump("Add a constant to this")
-itabaux = itab$addVec(itab)
-itabaux$dump("Add 'this' and return a new VI")
+itab2 = VectorInt(c(-5, 4., 2, 0, 1, 8))
+itab2$dump("itab2");
+itab1$add(itab2)
+itab1$dump("'itab1 = 'itab1 + 'itab2'")
+itab1$addCst(12)
+itab1$dump("'itab1' = 'itab1' + 12")
+itabaux = itab1$addVec(itab2)
+itabaux$dump("'out' = 'itab1' + 'itab2'")

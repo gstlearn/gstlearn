@@ -279,16 +279,20 @@ void VectorT<T>::fill(const T& value, size_type size)
   std::fill(begin(), end(), value);
 }
 
-
 template<typename T>
 String VectorT<T>::toString(const AStringFormat* strfmt) const
 {
   DECLARE_UNUSED(strfmt);
   std::stringstream sstr;
+  T value;
   sstr << "[";
   for (size_type i = 0, n = size(); i < n; i++)
   {
-    sstr << at(i);
+    value = at(i);
+    if (isNA(value))
+      sstr << "NA";
+    else
+      sstr << at(i);
     if (i != n - 1)
       sstr << " ";
   }

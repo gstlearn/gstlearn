@@ -1,11 +1,12 @@
 ---
 title: "Simulation Post-Processing for calculating Layer Proportions"
 author: "Xavier Freulon"
-date: '2023-07-24'
+date: "2023-07-24"
 output:
+  pdf_document: default
   html_document:
     df_print: paged
-editor_options: 
+editor_options:
   chunk_output_type: console
 ---
 
@@ -371,22 +372,7 @@ err = simuPostPropByLayer(dbin = surfaces, dbout = grid, names = paste0("Z_", 1:
 U = runif(10)
 
 # standard deviation on the samples
-if(abs(sd(U) - VectorHelper_stdv(U, FALSE)) > 1e-15) {
-  u = round(sd(U), digits = 6)
-  v = round(VectorHelper_stdv(U, FALSE), digits = 6)
-  print(paste0("sd(U) = ", u, " vs. VectorHelper_stdv(U, FALSE) = ", v))
-} else {
-  print(paste0("sd(U) == VectorHelper_stdv(U, FALSE)"))
-}
-
-# standard deviation on the population
-if(abs(sd(U) - VectorHelper_stdv(U, TRUE)) > 1e-15) {
-  u = round(sd(U), digits = 6)
-  v = round(VectorHelper_stdv(U, TRUE), digits = 6)
-  print(paste0("sd(U) = ", u, " vs. VectorHelper_stdv(U, TRUE) = ", v))
-} else {
-  print(paste0("sd(U) == VectorHelper_stdv(U, TRUE)"))
-}
+u = round(sd(U), digits = 6)
 
 # formulae
 local_mean <- function(u) {sum(u)/length(u)}

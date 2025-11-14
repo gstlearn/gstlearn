@@ -2310,7 +2310,7 @@ double Db::getMean(const String& name, bool useSel) const
   VectorInt iuids = _ids(name, true);
   if (iuids.empty()) return TEST;
   VectorDouble tab = getColumnByUID(iuids[0], useSel);
-  return VH::mean(tab);
+  return tab.mean();
 }
 
 /**
@@ -2321,7 +2321,7 @@ double Db::getVariance(const String& name, bool useSel) const
   VectorInt iuids = _ids(name, true);
   if (iuids.empty()) return TEST;
   VectorDouble tab = getColumnByUID(iuids[0], useSel);
-  return VH::variance(tab);
+  return tab.variance();
 }
 
 /**
@@ -2332,7 +2332,7 @@ double Db::getStdv(const String& name, bool useSel) const
   VectorInt iuids = _ids(name, true);
   if (iuids.empty()) return TEST;
   VectorDouble tab = getColumnByUID(iuids[0], useSel);
-  return VH::stdv(tab);
+  return tab.stdv();
 }
 
 /**
@@ -2347,7 +2347,7 @@ double Db::getCorrelation(const String& name1, const String& name2, bool useSel)
   iuids             = _ids(name2, true);
   if (iuids.empty()) return TEST;
   VectorDouble tab2 = getColumnByUID(iuids[0], useSel);
-  return VH::correlation(tab1, tab2);
+  return tab1.correlation(tab2);
 }
 
 Id Db::getNDim() const

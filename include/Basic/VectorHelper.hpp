@@ -57,33 +57,18 @@ public:
 
   static double maximum(const std::vector<std::vector<double>>& vec, bool flagAbs = false);
   static double maximum(const VectorDouble& vec, bool flagAbs = false); // Kept for std::vector<std::vector<double>>
-  static double maximumVVD(const VectorVectorDouble& vec, bool flagAbs = false);
-  static double minimumVVD(const VectorVectorDouble& vec, bool flagAbs = false);
   static void capInPlace(VectorDouble& vec, double vmin = TEST, double vmax = TEST);
   static void capInPlaceVVD(VectorVectorDouble& vec, double vmin = TEST, double vmax = TEST);
-  static Id countUndefined(const VectorDouble& vec);
-  static Id countDefined(const VectorDouble& vec);
-  static bool hasUndefined(const VectorDouble& vec);
   static double extensionDiagonal(const VectorDouble& mini, const VectorDouble& maxi);
 
   static Id count(const VectorVectorInt& vec);
-  static Id cumul(const VectorVectorInt& vec);
   static double cumulLog(const VectorDouble& vec);
   static VectorInt cumulIncrement(const VectorVectorInt& vec);
-  static double mean(const VectorDouble& vec);
-  static double variance(const VectorDouble& vec, bool scaleByN = false);
-  static double stdv(const VectorDouble& vec, bool scaleByN = false);
-  static double normL1(const VectorDouble& vec);
-  static double norminf(const VectorDouble& vec);
-  static double median(const VectorDouble& vec);
-  static double normDistance(const VectorDouble& veca, const VectorDouble& vecb);
-  static double correlation(const VectorDouble& veca, const VectorDouble& vecb);
   static VectorDouble quantiles(const VectorDouble& vec, const VectorDouble& probas);
 
   static bool isEqual(const VectorDouble& v1,
                       const VectorDouble& v2,
                       double eps = EPSILON10);
-  static bool isEqual(const VectorInt& v1, const VectorInt& v2);
   static bool isEqualExtended(const VectorDouble& v1,
                               const VectorDouble& v2,
                               double eps           = EPSILON10,
@@ -109,46 +94,28 @@ public:
                                          const constvect in2,
                                          vect out,
                                          Id iad);
+
   static void addInPlace(constvect in, vect dest);
 #endif
   static void addInPlace(std::vector<double>& dest, const std::vector<double>& src);
-  static void addInPlace(const VectorDouble& veca,
-                         const VectorDouble& vecb,
-                         VectorDouble& res,
-                         Id size = 0);
-  static void addInPlace(const VectorInt& veca,
-                         const VectorInt& vecb,
-                         VectorInt& res,
-                         Id size = 0);
   static void addInPlace(const double* veca,
                          const double* vecb,
                          double* res,
                          Id size);
-  static void addInPlace(const VectorVectorDouble& in1,
-                         const VectorVectorDouble& in2,
-                         VectorVectorDouble& outv);
   static void addInPlace(const std::vector<std::vector<double>>& in1,
                          const std::vector<std::vector<double>>& in2,
                          std::vector<std::vector<double>>& outv);
 
   static void addSquareInPlace(VectorDouble& dest, const VectorDouble& src);
-  static VectorDouble subtract(const VectorDouble& veca, const VectorDouble& vecb);
-  static VectorInt subtract(const VectorInt& veca, const VectorInt& vecb);
+
 #ifndef SWIG
   static VectorDouble subtract(constvect veca, constvect vecb);
   static void subtractInPlace(const constvect in1, const constvect in2, vect outv);
 #endif
-  static void subtractInPlace(const VectorVectorDouble& in1,
-                              const VectorVectorDouble& in2,
-                              VectorVectorDouble& outv);
   static void subtractInPlace(const std::vector<std::vector<double>>& in1,
                               const std::vector<std::vector<double>>& in2,
                               std::vector<std::vector<double>>& outv);
 
-  static VectorDouble multiply(const VectorDouble& veca, const VectorDouble& vecb);
-  static void multiplyInPlace(const VectorDouble& veca, const VectorDouble& vecb, VectorDouble& res);
-  static VectorDouble divide(const VectorDouble& veca, const VectorDouble& vecb);
-  static void divideInPlace(const VectorDouble& veca, const VectorDouble& vecb, VectorDouble& res);
   static void divideInPlace(std::vector<double>& vec, const std::vector<double>& v);
   static void multiplyComplexInPlace(const VectorDouble& vecaRe,
                                      const VectorDouble& vecaIm,
@@ -157,7 +124,6 @@ public:
                                      VectorDouble& resRe,
                                      VectorDouble& resIm);
 
-  static void multiplyConstantInPlace(const VectorDouble& vec, double v, VectorDouble& vecout);
   static void multiplyConstantSelfInPlace(VectorDouble& vec, double v);
   static void addMultiplyConstantInPlace(double val1,
                                          const VectorDouble& in1,
@@ -193,10 +159,7 @@ public:
   static void inverse(VectorDouble& res, const constvect vec);
 #endif
   // Next line is kept only fr VVD compatibility
-  static double innerProductVD(const VectorDouble& veca, const VectorDouble& vecb, Id size = -1);
   static double innerProduct(const double* veca, const double* vecb, Id size = -1);
-  static double innerProductVVD(const VectorVectorDouble& x,
-                                const VectorVectorDouble& y);
   static double innerProductVec(const std::vector<double>& veca, const std::vector<double>& vecb, Id size = -1);
 
   static VectorDouble crossProduct3D(const VectorDouble& veca, const VectorDouble& vecb);

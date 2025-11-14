@@ -1063,8 +1063,8 @@ VectorVectorDouble interpolateVariablesToPoint(DbGrid* dbgrid,
   // Cap between the Min and the Max of the interpolated surfaces
   if (flagCap)
   {
-    double mini = VH::minimumVVD(tab);
-    double maxi = VH::maximumVVD(tab);
+    double mini = tab.minimum();
+    double maxi = tab.maximum();
     VH::capInPlaceVVD(tab, mini, maxi);
   }
 
