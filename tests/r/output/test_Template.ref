@@ -1,34 +1,22 @@
-[1] "Type of VD created using VD constructor"
-[1] "_p_gstlrn__VectorNumTT_double_t"
-attr(,"package")
-[1] "gstlearn"
-[1] "Identifying the vector type (double)"
---> This is a Vector of <double>
-[1] "Type of VD created using VD constructor"
-[1] "_p_gstlrn__VectorNumTT_long_long_t"
-attr(,"package")
-[1] "gstlearn"
-[1] "Identifying a vector of Id"
---> This is a Vector of <Id>
-Initial Vector of Double
-[2 3 4 6 7]
-[4 6 8 12 14]
-Add this to itself
-[4 6 8 12 14]
-[16 18 20 24 26]
-Add a constant to this
-[16 18 20 24 26]
-Add 'this' and return a new VD
-[32 36 40 48 52]
-NULL
-Initial Vector of Id
-[1 2 4 6]
-[2 4 8 12]
-Add this to itself
-[2 4 8 12]
-[14 16 20 24]
-Add a constant to this
-[14 16 20 24]
-Add 'this' and return a new VI
-[28 32 40 48]
-NULL
+'rtab1' : [2 3 4 6 7]
+Vector of < double > 
+[1] "Moyenne = 4.4"
+[1] "Mediane = 4"
+[1] "Minimum = 2"
+[1] "Maximum = 7"
+[1] "Variance = 4.3"
+[1] "St. dev. = 2.0736"
+'rtab2' : [-1.1 NA 6.1 4.1 -0.2]
+'rtab1 = 'rtab1 + 'rtab2' : [0.9 NA 10.1 10.1 6.8]
+'rtab1' = 'rtab1' + 12 : [12.9 NA 22.1 22.1 18.8]
+'out' = 'rtab1' + 'rtab2' : [11.8 NA 28.2 26.2 18.6]
+'itab1' : [1 2 4 6 3 5]
+Vector of < Id > 
+[1] "Moyenne = 3.5"
+[1] "Mediane = 3.5"
+[1] "Variance = 3.5"
+[1] "St. dev. = 1.8708"
+'itab2' : [-5 4 2 0 1 8]
+'itab1 = 'itab1 + 'itab2' : [-4 6 6 6 4 13]
+'itab1' = 'itab1' + 12 : [8 18 18 18 16 25]
+'out' = 'itab1' + 'itab2' : [3 22 20 18 17 33]
