@@ -296,7 +296,7 @@ def _legendDiscrete(ax, sizmin, sizmax, sizvmin, sizvmax, color,
 
     indices = np.arange(num)
     sizes = sizmin  + indices * (sizmax - sizmin)
-    values = sizvmin + indices * (sizvmax - sizvmin)
+    values = sizvmin + indices / num * (sizvmax - sizvmin)
     size_handles = [plt.scatter([], [], s=sizes[i], color=color, alpha=0.6, edgecolors='k', 
                                 label=f"{round(values[i],ndec)}") for i in indices]
     ax.legend(handles=size_handles, title=legendName, loc=loc)
