@@ -8,12 +8,12 @@ import numpy as np
 rtab1 = gl.VectorDouble([2.1, 3.2, 4.1, np.nan, 8.3])
 rtab1.dump("rtab1")
 rtab1.identify()
-print("Moyenne = ", rtab1.mean())
+print("Moyenne = ", np.round(rtab1.mean(),4))
 print("Mediane = ", rtab1.median())
 print("Minimum = ", rtab1.minimum())
 print("Maximum = ", rtab1.maximum())
-print("Variance = ", rtab1.variance())
-print("St. dev. = ", rtab1.stdv())
+print("Variance = ", np.round(rtab1.variance(),4))
+print("St. dev. = ", np.round(rtab1.stdv(),4))
 
 rtab2 = gl.VectorDouble([-1.1, np.nan, 6.1, 4.1, -0.2])
 rtab2.dump("rtab2")
@@ -30,8 +30,8 @@ itab1.dump("itab1");
 itab1.identify()
 print("Moyenne = ", itab1.mean())
 print("Mediane = ", itab1.median())
-print("Variance = ", itab1.variance())
-print("St. dev. = ", itab1.stdv())
+print("Variance = ", np.round(itab1.variance(),4))
+print("St. dev. = ", np.round(itab1.stdv(),4))
 
 itab2 = gl.VectorInt({-5, 4., 2, 0, 1, 8})
 itab2.dump("itab2");
