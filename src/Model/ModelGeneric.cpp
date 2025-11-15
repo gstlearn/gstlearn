@@ -24,6 +24,7 @@
 #include "Model/Model.hpp"
 #include "Model/ModelOptimVMap.hpp"
 #include "Model/ModelOptimVario.hpp"
+#include "Transform/ATransform.hpp"
 #include <memory>
 
 namespace gstlrn
@@ -61,6 +62,8 @@ ModelGeneric::~ModelGeneric()
   _cova = nullptr;
   delete _driftList;
   _driftList = nullptr;
+  delete _transform;
+  _transform = nullptr;
 }
 
 void ModelGeneric::setField(double field)
@@ -374,7 +377,7 @@ void ModelGeneric::updateModel()
   }
 }
 
-void ModelGeneric::initParams(const MatrixSymmetric& vars, double href)
+void ModelGeneric::initParams(const MatrixSymmetric& vars, double href, double min, double max)
 {
   // Initialize the parameters in the Covariance
   if (_cova != nullptr)
@@ -389,7 +392,7 @@ void ModelGeneric::initParams(const MatrixSymmetric& vars, double href)
   }
   if (_transform != nullptr)
   {
-    _transform->initParams();
+    _transform->initParams(min,max);
   }
 }
 
@@ -423,5 +426,11 @@ void ModelGeneric::fitNew(const Db* db,
   auto* mcv = dynamic_cast<ModelCovList*>(this);
   if (mcv != nullptr)
     mcv->deleteFitSills();
+}
+
+void ModelGeneric::setTransform(const ATransform* transform)
+{
+  delete _transform;
+  _transform = dynamic_cast<ATransform*>(transform->clone());
 }
 } // namespace gstlrn

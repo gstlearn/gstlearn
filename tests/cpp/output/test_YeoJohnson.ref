@@ -13,10 +13,10 @@ Transformed z: -6.38906
 Testing for lambda = 0
 - Test point: -3
   -Diff inverse: 8.88178e-16
-  -Diff Jacobian: 3.91594e-11
+  -Diff Jacobian: 4.01832e-11
 - Test point: -1
   -Diff inverse: 2.22045e-16
-  -Diff Jacobian: 3.20931e-10
+  -Diff Jacobian: 3.21241e-10
 - Test point: 0
   -Diff inverse: 0
   -Diff Jacobian: 3.33278e-09
@@ -32,41 +32,41 @@ Testing for lambda = 0
 Testing for lambda = 0.5
 - Test point: -3
   -Diff inverse: 8.88178e-16
-  -Diff Jacobian: 3.39142e-11
+  -Diff Jacobian: 3.64503e-11
 - Test point: -1
   -Diff inverse: 2.92877e-13
-  -Diff Jacobian: 1.96598e-10
+  -Diff Jacobian: 1.9712e-10
 - Test point: 0
   -Diff inverse: 0
   -Diff Jacobian: 8.34778e-10
 - Test point: 1
   -Diff inverse: 3.18956e-12
-  -Diff Jacobian: 3.49587e-12
+  -Diff Jacobian: 1.15241e-12
 - Test point: 2
   -Diff inverse: 2.22045e-16
-  -Diff Jacobian: 4.66116e-12
+  -Diff Jacobian: 1.33384e-11
 - Test point: 3
   -Diff inverse: 3.9968e-15
-  -Diff Jacobian: 5.82645e-12
+  -Diff Jacobian: 6.30793e-11
 Testing for lambda = 1
 - Test point: -3
   -Diff inverse: 0
-  -Diff Jacobian: 1.10134e-13
+  -Diff Jacobian: 8.89011e-12
 - Test point: -1
   -Diff inverse: 0
-  -Diff Jacobian: 1.22036e-12
+  -Diff Jacobian: 2.20379e-13
 - Test point: 0
   -Diff inverse: 0
   -Diff Jacobian: 1.10134e-13
 - Test point: 1
   -Diff inverse: 0
-  -Diff Jacobian: 1.22036e-12
+  -Diff Jacobian: 2.20379e-13
 - Test point: 2
   -Diff inverse: 0
-  -Diff Jacobian: 1.10134e-13
+  -Diff Jacobian: 3.89e-12
 - Test point: 3
   -Diff inverse: 0
-  -Diff Jacobian: 1.10134e-13
+  -Diff Jacobian: 8.88967e-12
 Testing for lambda = 2
 - Test point: -3
   -Diff inverse: 5.55112e-15
@@ -79,10 +79,10 @@ Testing for lambda = 2
   -Diff Jacobian: 3.33278e-09
 - Test point: 1
   -Diff inverse: 2.22045e-16
-  -Diff Jacobian: 3.20931e-10
+  -Diff Jacobian: 3.21241e-10
 - Test point: 2
   -Diff inverse: 9.76996e-14
-  -Diff Jacobian: 8.91219e-11
+  -Diff Jacobian: 8.98052e-11
 - Test point: 3
   -Diff inverse: 8.88178e-16
-  -Diff Jacobian: 3.91594e-11
+  -Diff Jacobian: 4.01832e-11

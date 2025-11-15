@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Basic/ICloneable.hpp"
 #include "Basic/ListParams.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/ACov.hpp"
@@ -20,12 +21,12 @@ namespace gstlrn
 
 class ListParams;
 
-class GSTLEARN_EXPORT ATransform
+class GSTLEARN_EXPORT ATransform : public ICloneable
 {
 public:
   ATransform() {};
-  ATransform(const ATransform& r)            = delete;
-  ATransform& operator=(const ATransform& r) = delete;
+  ATransform(const ATransform& r)            = default;
+  ATransform& operator=(const ATransform& r) = default;
 
   virtual double transform(double h) const
   {
@@ -46,11 +47,12 @@ public:
   VectorDouble condExpVec(const VectorDouble& mu, const VectorDouble& sigma, Id power = 1) const;
   double evalLogJacobianVec(constvect in) const;
   virtual void updateTransform() {}
-  virtual void initParams(){};
+  virtual void initParams(double min = 0., double max = INF){DECLARE_UNUSED(min,max)};
   virtual void appendParams(ListParams& listParams)
   {
     DECLARE_UNUSED(listParams);
   }
+  virtual VectorDouble getParams() const { return VectorDouble(); }
   void setNMonteCarlo(Id n) { _nMonteCarlo = n; }
   Id getNMonteCarlo() const { return _nMonteCarlo; }
 

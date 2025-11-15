@@ -23,8 +23,9 @@ class YeoJohnsonForTest: public ATransform
 {
 public:
   YeoJohnsonForTest(double lambda): _lambda(lambda) {};
-  YeoJohnsonForTest(const YeoJohnsonForTest& r)            = delete;
-  YeoJohnsonForTest& operator=(const YeoJohnsonForTest& r) = delete;
+  YeoJohnsonForTest(const YeoJohnsonForTest& r)            = default;
+  YeoJohnsonForTest& operator=(const YeoJohnsonForTest& r) = default;
+  IMPLEMENT_CLONING(YeoJohnsonForTest)
   String getName() const override { return "YeoJohnsonForTest"; }
   virtual ~YeoJohnsonForTest()                      = default;
 

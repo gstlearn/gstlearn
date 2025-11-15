@@ -30,6 +30,7 @@ Likelihood::Likelihood(ModelGeneric* model,
   , _cov(std::make_shared<MatrixSymmetric>(0))
 {
   setAuthorizedAnalyticalGradients(_model->getTransform() == nullptr);
+  setAuthorizedAnalyticalGradients(_model->getTransform() == nullptr);
 }
 
 Likelihood::Likelihood(const Likelihood& r)
@@ -97,6 +98,7 @@ double Likelihood::_computeLogDet() const
 void Likelihood::_updateModel(bool verbose)
 {
   DECLARE_UNUSED(verbose);
+  _model->manage(_db, nullptr);
   _model->evalCovMatSymInPlace(*_cov, _db);
   _covChol.setMatrix(*_cov);
 }

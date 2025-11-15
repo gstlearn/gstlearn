@@ -23,9 +23,21 @@ YeoJohnson::YeoJohnson(double lambda)
 {
 }
 
-void YeoJohnson::initParams()
+YeoJohnson* YeoJohnson::create(double lambda)
 {
+    return new YeoJohnson(lambda);
+}
+void YeoJohnson::initParams(double min, double max)
+{
+  DECLARE_UNUSED(min);
   _lambda.setValue(0.0);
+  if (max != INF)
+    _K = 1.2 * max;
+}
+
+VectorDouble YeoJohnson::getParams() const
+{
+  return {_lambda.getValue()};
 }
 
 double YeoJohnson::inverseTransform(double x) const

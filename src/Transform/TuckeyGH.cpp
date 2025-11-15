@@ -11,6 +11,7 @@
 
 #include "Transform/TuckeyGH.hpp"
 #include "Transform/ATransform.hpp"
+#include "geoslib_define.h"
 
 namespace gstlrn
 {
@@ -22,8 +23,10 @@ TuckeyGH::TuckeyGH(double g, double h)
 {
 }
 
-void TuckeyGH::initParams()
+void TuckeyGH::initParams(double min, double max)
 {
+  DECLARE_UNUSED(min);
+  DECLARE_UNUSED(max);
   _G.setValue(0.);
   //_H.setValue(EPSILON4); // H not on its lower bound 
 }
@@ -35,4 +38,9 @@ void TuckeyGH::appendParams(ListParams& listParams)
   //listParams.addParam(_H);
 }
 
+VectorDouble TuckeyGH::getParams() const
+{
+  return {_G.getValue(), _H.getValue()};
 } // namespace gstlrn
+
+}
