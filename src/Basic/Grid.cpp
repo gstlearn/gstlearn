@@ -315,17 +315,17 @@ String Grid::toString(const AStringFormat* strfmt) const
   sstr << toTitle(1, "Grid characteristics:");
   sstr << "Origin : ";
   for (Id idim = 0; idim < _nDim; idim++)
-    sstr << toDouble(_x0[idim]);
+    sstr << toStr(_x0[idim]);
   sstr << std::endl;
 
   sstr << "Mesh   : ";
   for (Id idim = 0; idim < _nDim; idim++)
-    sstr << toDouble(_dx[idim]);
+    sstr << toStr(_dx[idim]);
   sstr << std::endl;
 
   sstr << "Number : ";
   for (Id idim = 0; idim < _nDim; idim++)
-    sstr << toInt(_nx[idim]);
+    sstr << toStr(_nx[idim]);
   sstr << std::endl;
 
   sstr << _rotation.toString(strfmt);

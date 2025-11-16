@@ -405,10 +405,10 @@ static void st_print_grid(const char* subtitle,
   {
     (void)gslSPrintf(string, "%s Values (iz=%d)\n", subtitle, iz + 1);
     message(string.data());
-    print_matrix(NULL, 0, 0, nxyz[0], nxyz[1], NULL, &valtab[iz * shift]);
+    print_matrix(String(), 0, 0, nxyz[0], nxyz[1], NULL, &valtab[iz * shift]);
     (void)gslSPrintf(string, "%s Counts (iz=%d)\n", subtitle, iz + 1);
     message(string.data());
-    print_matrix(NULL, 0, 0, nxyz[0], nxyz[1], NULL, &numtab[iz * shift]);
+    print_matrix(String(), 0, 0, nxyz[0], nxyz[1], NULL, &numtab[iz * shift]);
   }
   message("\n");
 }

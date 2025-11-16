@@ -1176,20 +1176,20 @@ Id _db_threshold(Db* db,
   {
     namconv.setNamesAndLocators(
       db, iptr + rank,
-      concatenateStrings("Thresh-F", toString(ifac + 1), "-Y1-Low"));
+      concatenateStrings("Thresh-F", toStr(ifac + 1), "-Y1-Low"));
     rank++;
     namconv.setNamesAndLocators(
       db, iptr + rank,
-      concatenateStrings("Thresh-F", toString(ifac + 1), "-Y1-Up"));
+      concatenateStrings("Thresh-F", toStr(ifac + 1), "-Y1-Up"));
     rank++;
     if (ngrf == 1) continue;
     namconv.setNamesAndLocators(
       db, iptr + rank,
-      concatenateStrings("Thresh-F", toString(ifac + 1), "-Y2-Low"));
+      concatenateStrings("Thresh-F", toStr(ifac + 1), "-Y2-Low"));
     rank++;
     namconv.setNamesAndLocators(
       db, iptr + rank,
-      concatenateStrings("Thresh-F", toString(ifac + 1), "-Y2-Up"));
+      concatenateStrings("Thresh-F", toStr(ifac + 1), "-Y2-Up"));
     rank++;
   }
   error = 0;

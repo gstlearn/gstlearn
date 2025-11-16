@@ -12,7 +12,6 @@
 
 #include "Arrays/Array.hpp"
 #include "Basic/AStringable.hpp"
-#include "Basic/FFT.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/CorAniso.hpp"
@@ -31,12 +30,10 @@
 #include "Space/SpaceSN.hpp"
 
 #include <cmath>
-#include <functional>
 #include <ostream>
 
 namespace gstlrn
 {
-
 CovAniso::CovAniso(const ECov& type, const CovContext& ctxt)
   : CovProportional(nullptr, MatrixSymmetric(ctxt.getNVar()))
 {
@@ -192,7 +189,7 @@ String CovAniso::toString(const AStringFormat* strfmt) const
     }
     else
     {
-      sstr << "- Sill         = " << toDouble(_sillCur.getValue(0, 0)) << std::endl;
+      sstr << "- Sill         = " << toStr(_sillCur.getValue(0, 0)) << std::endl;
     }
   }
   else
@@ -211,7 +208,7 @@ String CovAniso::toString(const AStringFormat* strfmt) const
     }
     else
     {
-      sstr << "- Slope        = " << toDouble(getSlope(0, 0)) << std::endl;
+      sstr << "- Slope        = " << toStr(getSlope(0, 0)) << std::endl;
     }
   }
 
@@ -484,7 +481,6 @@ Array CovAniso::evalCovFFT(const VectorDouble& hmax,
   Array result = getCorAniso()->evalCovFFT(hmax, N, ivar, jvar);
   result.multiplyConstant(_sillCur.getValue(ivar, jvar));
   return result;
-
 }
 
 CovAniso* CovAniso::createReduce(const VectorInt& validVars) const

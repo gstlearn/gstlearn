@@ -717,9 +717,9 @@ String CorAniso::toStringParams(const AStringFormat* strfmt) const
 
     if (_aniso.isIsotropic())
     {
-      sstr << "- Range        = " << toDouble(getRange(0)) << std::endl;
+      sstr << "- Range        = " << toStr(getRange(0)) << std::endl;
       if (isAsymptotic())
-        sstr << "- Theo. Range  = " << toDouble(getScale(0)) << std::endl;
+        sstr << "- Theo. Range  = " << toStr(getScale(0)) << std::endl;
     }
     else
     {

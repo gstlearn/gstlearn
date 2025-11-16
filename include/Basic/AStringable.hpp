@@ -10,11 +10,10 @@
 /******************************************************************************/
 #pragma once
 
+#include "Basic/AStringFormat.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
-
-#include "Basic/AStringFormat.hpp"
-#include "Enum/EJustify.hpp"
 
 namespace gstlrn
 {
@@ -97,75 +96,68 @@ GSTLEARN_EXPORT String toVector(const String& title,
 GSTLEARN_EXPORT String toVector(const String& title,
                                 constvect tab,
                                 bool flagOverride = true);
-
-GSTLEARN_EXPORT String toStr(const String& string,
-                             const EJustify& justify = EJustify::fromKey("RIGHT"),
-                             Id localSize            = 0);
-GSTLEARN_EXPORT String toDouble(double value,
-                                const EJustify& justify = EJustify::fromKey("RIGHT"));
-GSTLEARN_EXPORT String toInt(Id value,
-                             const EJustify& justify = EJustify::fromKey("RIGHT"));
 GSTLEARN_EXPORT String toInterval(double zmin, double zmax);
 GSTLEARN_EXPORT VectorString toVectorDouble(const VectorDouble& values,
-                                            const EJustify& justify = EJustify::fromKey("RIGHT"));
+                                            Id justification = 1);
 
 // Old-fashion printing formats
-GSTLEARN_EXPORT void tab_prints(const char* title,
-                                const char* string,
-                                Id ncol                 = 1,
-                                const EJustify& justify = EJustify::fromKey("RIGHT"));
-GSTLEARN_EXPORT void tab_printg(const char* title,
+GSTLEARN_EXPORT void tab_prints(const String& title,
+                                const String& string,
+                                Id ncol          = 1,
+                                Id justification = 1);
+GSTLEARN_EXPORT void tab_printg(const String& title,
                                 double value,
-                                Id ncol                 = 1,
-                                const EJustify& justify = EJustify::fromKey("RIGHT"));
-GSTLEARN_EXPORT void tab_printd(const char* title,
+                                Id ncol          = 1,
+                                Id justification = 1);
+GSTLEARN_EXPORT void tab_printd(const String& title,
                                 double value,
-                                Id ncol                 = 1,
-                                const EJustify& justify = EJustify::fromKey("RIGHT"));
-GSTLEARN_EXPORT void tab_printi(const char* title,
+                                Id ncol          = 1,
+                                Id justification = 1);
+GSTLEARN_EXPORT void tab_printi(const String& title,
                                 Id value,
-                                Id ncol                 = 1,
-                                const EJustify& justify = EJustify::fromKey("RIGHT"));
-GSTLEARN_EXPORT void tab_print_rc(const char* title,
+                                Id ncol          = 1,
+                                Id justification = 1);
+
+GSTLEARN_EXPORT void tab_print_rc(const String& title,
                                   Id mode,
                                   Id value,
-                                  Id ncol                 = 1,
-                                  const EJustify& justify = EJustify::fromKey("RIGHT"));
+                                  Id ncol          = 1,
+                                  Id justification = 1);
 GSTLEARN_EXPORT void tab_print_rowname(const char* string, Id taille);
-GSTLEARN_EXPORT void print_matrix(const char* title,
+GSTLEARN_EXPORT void print_matrix(const String& title,
                                   Id flag_limit,
                                   Id bycol,
                                   Id nx,
                                   Id ny,
                                   const double* sel,
                                   const double* tab);
-GSTLEARN_EXPORT void print_matrix(const char* title,
+GSTLEARN_EXPORT void print_matrix(const String& title,
                                   Id flag_limit,
                                   const AMatrix& mat);
-GSTLEARN_EXPORT void print_trimat(const char* title,
+GSTLEARN_EXPORT void print_trimat(const String& title,
                                   Id mode,
                                   Id neq,
                                   const double* tl);
-GSTLEARN_EXPORT void print_imatrix(const char* title,
+GSTLEARN_EXPORT void print_imatrix(const String& title,
                                    Id flag_limit,
                                    Id bycol,
                                    Id nx,
                                    Id ny,
                                    const double* sel,
                                    const Id* tab);
-GSTLEARN_EXPORT void print_vector(const char* title,
+GSTLEARN_EXPORT void print_vector(const String& title,
                                   Id flag_limit,
                                   Id ntab,
                                   const double* tab);
-GSTLEARN_EXPORT void print_vector(const char* title,
+GSTLEARN_EXPORT void print_vector(const String& title,
                                   Id flag_limit,
                                   Id ntab,
                                   const VectorDouble& tab);
-GSTLEARN_EXPORT void print_ivector(const char* title,
+GSTLEARN_EXPORT void print_ivector(const String& title,
                                    Id flag_limit,
                                    Id ntab,
                                    const Id* itab);
-GSTLEARN_EXPORT void print_ivector(const char* title,
+GSTLEARN_EXPORT void print_ivector(const String& title,
                                    Id flag_limit,
                                    Id ntab,
                                    const VectorInt& itab);

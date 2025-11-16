@@ -3484,8 +3484,8 @@ String Db::_summaryExtensions(void) const
     double vmax       = coor.maximum();
 
     sstr << "Coor #" << idim + 1;
-    sstr << " - Min = " << toDouble(vmin);
-    sstr << " - Max = " << toDouble(vmax);
+    sstr << " - Min = " << toStr(vmin);
+    sstr << " - Max = " << toStr(vmax);
     sstr << " - Ext = " << vmax - vmin;
     sstr << std::endl;
   }
@@ -3543,19 +3543,19 @@ String Db::_summaryStats(VectorInt cols, Id mode, Id maxNClass) const
 
     sstr << icol + 1 << " - Name " << getNameByColIdx(icol) << " - Locator "
          << _getLocatorNameByColIdx(icol) << std::endl;
-    sstr << " Nb of data          = " << toInt(nech) << std::endl;
-    sstr << " Nb of active values = " << toInt(stats.nvalid) << std::endl;
+    sstr << " Nb of data          = " << toStr(nech) << std::endl;
+    sstr << " Nb of active values = " << toStr(stats.nvalid) << std::endl;
     if (stats.nvalid <= 0) continue;
 
     /* Dispatch */
 
     if (mode == 1)
     {
-      sstr << " Minimum value       = " << toDouble(stats.mini) << std::endl;
-      sstr << " Maximum value       = " << toDouble(stats.maxi) << std::endl;
-      sstr << " Mean value          = " << toDouble(stats.mean) << std::endl;
-      sstr << " Standard Deviation  = " << toDouble(stats.stdv) << std::endl;
-      sstr << " Variance            = " << toDouble(stats.stdv * stats.stdv) << std::endl;
+      sstr << " Minimum value       = " << toStr(stats.mini) << std::endl;
+      sstr << " Maximum value       = " << toStr(stats.maxi) << std::endl;
+      sstr << " Mean value          = " << toStr(stats.mean) << std::endl;
+      sstr << " Standard Deviation  = " << toStr(stats.stdv) << std::endl;
+      sstr << " Variance            = " << toStr(stats.stdv * stats.stdv) << std::endl;
     }
     else
     {
@@ -3570,16 +3570,16 @@ String Db::_summaryStats(VectorInt cols, Id mode, Id maxNClass) const
                   nclass, vmin, 1., &nmask,
                   &ntest, &nout, classe.data());
       if (ntest > 0)
-        sstr << " Unknown values      = " << toInt(ntest) << std::endl;
+        sstr << " Unknown values      = " << toStr(ntest) << std::endl;
       if (nout > 0)
-        sstr << " Outside classes     = " << toInt(nout) << std::endl;
+        sstr << " Outside classes     = " << toStr(nout) << std::endl;
 
       for (Id iclass = 0; iclass < nclass; iclass++)
       {
         if (classe[iclass] <= 0) continue;
-        sstr << " Class" << toInt(static_cast<Id>(vmin) + iclass);
-        sstr << " = " << toInt(classe[iclass]);
-        sstr << " (" << toDouble(100. * classe[iclass] / stats.nvalid) << "%)";
+        sstr << " Class" << toStr(static_cast<Id>(vmin) + iclass);
+        sstr << " = " << toStr(classe[iclass]);
+        sstr << " (" << toStr(100. * classe[iclass] / stats.nvalid) << "%)";
         sstr << std::endl;
       }
     }

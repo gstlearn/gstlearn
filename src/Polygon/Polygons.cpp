@@ -401,12 +401,12 @@ PolyElem Polygons::_extractFromWKT(const CSVformat& csv, String& polye)
       y.clear();
       break;
     }
-    x.push_back(toDouble(coords.substr(0, found2), csv.getCharDec()));
+    x.push_back(convertToDouble(coords.substr(0, found2), csv.getCharDec()));
     coords = coords.substr(found2 + 1);
     found2 = coords.find_first_of(' ');
     if (found2 != std::string::npos)
       coords = coords.substr(0, found2);
-    y.push_back(toDouble(coords, csv.getCharDec()));
+    y.push_back(convertToDouble(coords, csv.getCharDec()));
     if (found != std::string::npos)
       polye = polye.substr(found + 1);
   } while (found != std::string::npos);

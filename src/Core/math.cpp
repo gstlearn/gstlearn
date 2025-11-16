@@ -357,7 +357,7 @@ void ct_tables_print(CTables* ctables, Id flag_print)
                 COVAL(ctables, iconf));
 
       if (flag_print == 2)
-        print_matrix(NULL, 0, 1, nelem, nelem, NULL, ctables->res[iconf].data());
+        print_matrix(String(), 0, 1, nelem, nelem, NULL, ctables->res[iconf].data());
     }
     message("\n");
   }

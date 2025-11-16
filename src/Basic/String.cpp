@@ -10,24 +10,102 @@
 /******************************************************************************/
 #include "Basic/String.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/OptCst.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/VectorNumT.hpp"
 
 #include <algorithm>
-#include <cstring>
-#include <iostream>
-#include <locale>
-#include <regex>
-#include <sstream>
-
 #include <cctype>
 #include <cmath>
 #include <cstdarg>
 #include <cstddef>
 #include <cstdio>
+#include <cstring>
+#include <iomanip>
+#include <iostream>
+#include <locale>
+#include <regex>
+#include <sstream>
 
 namespace gstlrn
 {
+static Id _getDecimalNumber()
+{
+  return static_cast<Id>(OptCst::query(ECst::NTDEC));
+}
+static Id _getColumnSize()
+{
+  return static_cast<Id>(OptCst::query(ECst::NTCAR));
+}
+static double _getThresh()
+{
+  Id ndec       = static_cast<Id>(OptCst::query(ECst::NTDEC));
+  double thresh = (0.5 * pow(10, -ndec));
+  return thresh;
+}
+
+std::stringstream _formatOneColumn(Id justification, Id localSize = 0)
+{
+  std::stringstream sstr;
+  auto size = static_cast<I32>((localSize > 0) ? localSize : _getColumnSize());
+  auto prec = static_cast<I32>(_getDecimalNumber());
+  sstr << std::fixed << std::setw(size) << std::setprecision(prec);
+  if (justification < 0)
+    sstr << std::left;
+  else
+    sstr << std::right;
+  return sstr;
+}
+
+String _formatOneString(const String& string,
+                        Id justification,
+                        Id localSize = 0)
+{
+  std::stringstream sstr = _formatOneColumn(justification, localSize);
+  Id size                = static_cast<Id>(string.size());
+  Id truncSize           = (localSize > 0) ? localSize : _getColumnSize();
+  if (size > truncSize)
+  {
+    // String must be truncated
+
+    String strloc = string;
+    strloc.erase(0, size - truncSize);
+    strloc.replace(0, 2, " *");
+    sstr << strloc;
+  }
+  else
+  {
+    sstr << string;
+  }
+  return sstr.str();
+}
+
+String _formatOneDouble(double value, Id justification, Id localSize = 0)
+{
+  std::stringstream sstr = _formatOneColumn(justification, localSize);
+  if (FFFF(value))
+    sstr << "N/A";
+  else
+  {
+    // Prevent -0.00 : https://stackoverflow.com/a/12536500/3952924
+    value = (ABS(value) < _getThresh()) ? 0. : value;
+    sstr << value;
+  }
+
+  return sstr.str();
+}
+
+String _formatOneId(Id value, Id justification, Id localSize = 0)
+{
+  std::stringstream sstr = _formatOneColumn(justification, localSize);
+  if (IFFFF(value))
+    sstr << "N/A";
+  else
+    sstr << value;
+
+  return sstr.str();
+}
+
 /**
  * Protect the matching pattern against Crash which happens when the string
  * contains "*" without any preceding character
@@ -457,20 +535,6 @@ VectorString separateKeywords(const String& code)
 }
 
 /**
- * Decode an integer from a string. Returns ITEST if impossible
- * @param v String to be decoded
- * @return The integer value or ITEST (in case of failure)
- */
-Id toInteger(const String& v)
-{
-  std::istringstream iss(v);
-  Id number;
-  iss >> number;
-  if (iss.fail()) return ITEST;
-  return number;
-}
-
-/**
  * Decode an double from a string. Returns TEST if impossible
  * @param v String to be decoded
  * @param dec Decimal separator character
@@ -486,14 +550,33 @@ public:
   }
 
 private:
-  typename std::numpunct<T>::char_type do_decimal_point() const
+  typename std::numpunct<T>::char_type do_decimal_point() const override
   {
     return _dec;
   }
   char _dec;
 };
 
-double toDouble(const String& v, char dec)
+/**
+ * Decode an integer from a string. Returns ITEST when impossible
+ * @param v String to be decoded
+ * @return The integer value or ITEST (in case of failure)
+ */
+Id convertToInteger(const String& v)
+{
+  std::istringstream iss(v);
+  Id number;
+  iss >> number;
+  if (iss.fail()) return ITEST;
+  return number;
+}
+
+/**
+ * Decode a double value from a string. Returns TEST when impossible
+ * @param v String to be decoded
+ * @return The double value or TEST (in case of failure)
+ */
+double convertToDouble(const String& v, char dec)
 {
   std::istringstream iss(v);
   double number;
@@ -503,17 +586,24 @@ double toDouble(const String& v, char dec)
   return number;
 }
 
-String toString(Id value)
+String toStr(const String& string, Id justification, Id localSize)
 {
   std::stringstream sstr;
-  sstr << value;
+  sstr << _formatOneString(string, justification, localSize);
   return sstr.str();
 }
 
-String toString(double value)
+String toStr(Id value, Id justification, Id localSize)
 {
   std::stringstream sstr;
-  sstr << value;
+  sstr << _formatOneId(value, justification, localSize);
+  return sstr.str();
+}
+
+String toStr(double value, Id justification, Id localSize)
+{
+  std::stringstream sstr;
+  sstr << _formatOneDouble(value, justification, localSize);
   return sstr.str();
 }
 

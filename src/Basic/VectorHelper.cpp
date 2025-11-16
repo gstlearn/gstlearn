@@ -213,10 +213,10 @@ void VectorHelper::dumpStats(const String& title, constvect vect, Id nmax)
     stdv = (stdv > 0.) ? sqrt(stdv) : 0.;
 
     message("- Number of samples = %d / %d\n", number, ntotal);
-    message("- Minimum  = %s\n", toDouble(mini).c_str());
-    message("- Maximum  = %s\n", toDouble(maxi).c_str());
-    message("- Mean     = %s\n", toDouble(mean).c_str());
-    message("- St. Dev. = %s\n", toDouble(stdv).c_str());
+    message("- Minimum  = %s\n", toStr(mini).c_str());
+    message("- Maximum  = %s\n", toStr(maxi).c_str());
+    message("- Mean     = %s\n", toStr(mean).c_str());
+    message("- St. Dev. = %s\n", toStr(stdv).c_str());
   }
   else
   {

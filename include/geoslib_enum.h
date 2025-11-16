@@ -238,13 +238,6 @@ typedef enum
 /*
 typedef enum
 {
-  GD_J_LEFT = -1,
-  GD_J_CENTER = 0,
-  GD_J_RIGHT = 1,
-} ENUM_GD_J;  // Now see EJustify.hpp
-
-typedef enum
-{
   PROCESS_UNDEFINED = -1,
   PROCESS_COPY = 0,
   PROCESS_MARGINAL = 1,

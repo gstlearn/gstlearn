@@ -1011,13 +1011,13 @@ static void st_foxleg_debug_title(void)
 
   String string;
   mestitle(1, "Trajectory of parameters in Foxleg Algorithm");
-  tab_prints(NULL, "Iteration");
-  tab_prints(NULL, "Score");
-  tab_prints(NULL, "Delta");
+  tab_prints(String(), "Iteration");
+  tab_prints(String(), "Score");
+  tab_prints(String(), "Delta");
   for (Id ipar = 0; ipar < NPAR; ipar++)
   {
     (void)gslSPrintf(string, "Par-%d", ipar + 1);
-    tab_prints(NULL, string.data());
+    tab_prints(String(), string);
   }
   message("\n");
 }
@@ -1032,11 +1032,11 @@ static void st_foxleg_debug_current(double mscur,
                                     VectorDouble& param)
 {
   if (!OptDbg::query(EDbg::CONVERGE)) return;
-  tab_printi(NULL, ITERATION);
-  tab_printd(NULL, mscur);
-  tab_printd(NULL, delta);
+  tab_printi(String(), ITERATION);
+  tab_printd(String(), mscur);
+  tab_printd(String(), delta);
   for (Id ipar = 0; ipar < NPAR; ipar++)
-    tab_printg(NULL, param[ipar]);
+    tab_printg(String(), param[ipar]);
   message("\n");
 }
 

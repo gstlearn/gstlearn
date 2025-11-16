@@ -273,24 +273,24 @@ String DirParam::toString(const AStringFormat* /*strfmt*/) const
     if (ndim > 2)
       sstr << toVector("Direction angles (degrees)  = ", angles);
     else
-      sstr << "Direction angles (degrees)  = " << toDouble(angles[0]) << std::endl;
+      sstr << "Direction angles (degrees)  = " << toStr(angles[0]) << std::endl;
   }
 
   if (!FFFF(_tolAngle))
-    sstr << "Tolerance on direction      = " << toDouble(_tolAngle)
+    sstr << "Tolerance on direction      = " << toStr(_tolAngle)
          << " (degrees)" << std::endl;
 
   if (!FFFF(_bench) && _bench > 0.)
-    sstr << "Slice bench                 = " << toDouble(_bench) << std::endl;
+    sstr << "Slice bench                 = " << toStr(_bench) << std::endl;
   if (!FFFF(_cylRad) && _cylRad > 0.)
-    sstr << "Slice radius                = " << toDouble(_cylRad) << std::endl;
+    sstr << "Slice radius                = " << toStr(_cylRad) << std::endl;
 
   if (getFlagRegular())
   {
     if (getDPas() > .0)
     {
-      sstr << "Calculation lag             = " << toDouble(getDPas()) << std::endl;
-      sstr << "Tolerance on distance       = " << toDouble(100. * getTolDist())
+      sstr << "Calculation lag             = " << toStr(getDPas()) << std::endl;
+      sstr << "Tolerance on distance       = " << toStr(100. * getTolDist())
            << " (Percent of the lag value)" << std::endl;
     }
   }

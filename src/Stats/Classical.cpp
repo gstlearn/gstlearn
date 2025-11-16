@@ -1244,17 +1244,17 @@ void dbStatisticsPrint(const Db* db,
 
   tab_print_rowname(" ", taille);
   if (_operExists(opers, EStatOption::NUM))
-    tab_prints(NULL, "Number");
+    tab_prints(String(), "Number");
   if (_operExists(opers, EStatOption::MINI))
-    tab_prints(NULL, "Minimum");
+    tab_prints(String(), "Minimum");
   if (_operExists(opers, EStatOption::MAXI))
-    tab_prints(NULL, "Maximum");
+    tab_prints(String(), "Maximum");
   if (_operExists(opers, EStatOption::MEAN))
-    tab_prints(NULL, "Mean");
+    tab_prints(String(), "Mean");
   if (_operExists(opers, EStatOption::STDV))
-    tab_prints(NULL, "St. Dev.");
+    tab_prints(String(), "St. Dev.");
   if (_operExists(opers, EStatOption::VAR))
-    tab_prints(NULL, "Variance");
+    tab_prints(String(), "Variance");
   message("\n");
 
   /* Print the monovariate statistics */
@@ -1265,32 +1265,32 @@ void dbStatisticsPrint(const Db* db,
     tab_print_rowname(string.data(), taille);
 
     if (_operExists(opers, EStatOption::NUM))
-      tab_printi(NULL, static_cast<Id>(num[icol]));
+      tab_printi(String(), static_cast<Id>(num[icol]));
     if (num[icol] > 0)
     {
       if (_operExists(opers, EStatOption::MINI))
-        tab_printg(NULL, mini[icol]);
+        tab_printg(String(), mini[icol]);
       if (_operExists(opers, EStatOption::MAXI))
-        tab_printg(NULL, maxi[icol]);
+        tab_printg(String(), maxi[icol]);
       if (_operExists(opers, EStatOption::MEAN))
-        tab_printg(NULL, mean[icol]);
+        tab_printg(String(), mean[icol]);
       if (_operExists(opers, EStatOption::STDV))
-        tab_printg(NULL, sqrt(var[icol]));
+        tab_printg(String(), sqrt(var[icol]));
       if (_operExists(opers, EStatOption::VAR))
-        tab_printg(NULL, var[icol]);
+        tab_printg(String(), var[icol]);
     }
     else
     {
       if (_operExists(opers, EStatOption::MINI))
-        tab_prints(NULL, STRING_NA);
+        tab_prints(String(), STRING_NA);
       if (_operExists(opers, EStatOption::MAXI))
-        tab_prints(NULL, STRING_NA);
+        tab_prints(String(), STRING_NA);
       if (_operExists(opers, EStatOption::MEAN))
-        tab_prints(NULL, STRING_NA);
+        tab_prints(String(), STRING_NA);
       if (_operExists(opers, EStatOption::STDV))
-        tab_prints(NULL, STRING_NA);
+        tab_prints(String(), STRING_NA);
       if (_operExists(opers, EStatOption::VAR))
-        tab_prints(NULL, STRING_NA);
+        tab_prints(String(), STRING_NA);
     }
     message("\n");
   }

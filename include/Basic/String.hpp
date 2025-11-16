@@ -50,7 +50,7 @@ GSTLEARN_EXPORT Id decodeInList(const VectorString& symbols,
                                 bool caseSensitive = true);
 GSTLEARN_EXPORT void correctNamesForDuplicates(VectorString& newList,
                                                const VectorString& oldList = VectorString());
-GSTLEARN_EXPORT void correctNewNameForDuplicates(VectorString& list, Id rank);
+GSTLEARN_EXPORT void correctNewNameForDuplicates(VectorString& list, Id target);
 
 GSTLEARN_EXPORT String incrementStringVersion(const String& string,
                                               Id rank             = 1,
@@ -76,10 +76,20 @@ GSTLEARN_EXPORT Id getMaxStringSize(const VectorString& list);
 GSTLEARN_EXPORT VectorString separateKeywords(const String& code);
 
 // TODO : Use template functions
-GSTLEARN_EXPORT Id toInteger(const String& v);
-GSTLEARN_EXPORT double toDouble(const String& v, char dec = '.');
-GSTLEARN_EXPORT String toString(Id value);
-GSTLEARN_EXPORT String toString(double value);
+
+GSTLEARN_EXPORT String toStr(const String& string,
+                             Id justification = 1,
+                             Id localSize     = 0);
+GSTLEARN_EXPORT String toStr(Id value,
+                             Id justification = 1,
+                             Id localSize     = 0);
+GSTLEARN_EXPORT String toStr(double value,
+                             Id justification = 1,
+                             Id localSize     = 0);
+
+GSTLEARN_EXPORT Id convertToInteger(const String& v);
+GSTLEARN_EXPORT double convertToDouble(const String& v, char dec = '.');
+
 GSTLEARN_EXPORT Id askInt(const String& text,
                           Id defval     = ITEST,
                           bool authTest = false);

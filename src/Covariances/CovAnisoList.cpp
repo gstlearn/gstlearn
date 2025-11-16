@@ -137,7 +137,7 @@ String CovAnisoList::toString(const AStringFormat* /*strfmt*/) const
   {
     if (getNVar() <= 1)
     {
-      sstr << "Total Sill     = " << toDouble(getTotalSill(0, 0));
+      sstr << "Total Sill     = " << toStr(getTotalSill(0, 0));
     }
     else
     {

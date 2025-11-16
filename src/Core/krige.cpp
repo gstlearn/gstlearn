@@ -1076,20 +1076,20 @@ void krige_lhs_print(Id nech,
 
     /* Header line */
 
-    tab_prints(NULL, "Rank");
-    tab_prints(NULL, "    ");
+    tab_prints(String(), "Rank");
+    tab_prints(String(), "    ");
     for (j = ideb; j < ifin; j++)
-      tab_printi(NULL, j + 1);
+      tab_printi(String(), j + 1);
     message("\n");
 
     /* Flag line */
 
     if (flag != nullptr)
     {
-      tab_prints(NULL, "    ");
-      tab_prints(NULL, "Flag");
+      tab_prints(String(), "    ");
+      tab_prints(String(), "Flag");
       for (j = ideb; j < ifin; j++)
-        tab_printi(NULL, rel[j]);
+        tab_printi(String(), rel[j]);
       message("\n");
     }
 
@@ -1097,10 +1097,10 @@ void krige_lhs_print(Id nech,
 
     for (i = 0; i < nred; i++)
     {
-      tab_printi(NULL, i + 1);
-      tab_printi(NULL, rel[i]);
+      tab_printi(String(), i + 1);
+      tab_printi(String(), rel[i]);
       for (j = ideb; j < ifin; j++)
-        tab_printg(NULL, LHS_C(i, j));
+        tab_printg(String(), LHS_C(i, j));
       message("\n");
     }
   }
@@ -1167,20 +1167,20 @@ void krige_rhs_print(Id nvar,
 
   /* Header line */
 
-  tab_prints(NULL, "Rank");
-  if (flag != nullptr) tab_prints(NULL, "Flag");
+  tab_prints(String(), "Rank");
+  if (flag != nullptr) tab_prints(String(), "Flag");
   for (Id ivar = 0; ivar < nvar; ivar++)
-    tab_printi(NULL, ivar + 1);
+    tab_printi(String(), ivar + 1);
   message("\n");
 
   /* Matrix lines */
 
   for (Id i = 0; i < nred; i++)
   {
-    tab_printi(NULL, i + 1);
-    if (flag != nullptr) tab_printi(NULL, rel[i]);
+    tab_printi(String(), i + 1);
+    if (flag != nullptr) tab_printi(String(), rel[i]);
     for (Id ivar = 0; ivar < nvar; ivar++)
-      tab_printg(NULL, RHS_C(i, ivar));
+      tab_printg(String(), RHS_C(i, ivar));
     message("\n");
   }
 }
@@ -1230,26 +1230,26 @@ static void st_krige_wgt_print(Id status,
 
   /* First line */
 
-  tab_prints(NULL, "Rank");
+  tab_prints(String(), "Rank");
   for (idim = 0; idim < ndim; idim++)
   {
     String strloc = getLocatorName(ELoc::X, idim);
-    tab_prints(NULL, strloc.c_str());
+    tab_prints(String(), strloc);
   }
-  if (DBIN->hasLocVariable(ELoc::C)) tab_prints(NULL, "Code");
+  if (DBIN->hasLocVariable(ELoc::C)) tab_prints(String(), "Code");
   if (DBIN->getNLoc(ELoc::V) > 0)
-    tab_prints(NULL, "Err.");
+    tab_prints(String(), "Err.");
   if (KOPTION.flag_data_disc)
     for (idim = 0; idim < ndim; idim++)
     {
       (void)gslSPrintf(string, "Size%d", idim + 1);
-      tab_prints(NULL, string.data());
+      tab_prints(String(), string);
     }
-  tab_prints(NULL, "Data");
+  tab_prints(String(), "Data");
   for (ivar = 0; ivar < nvar; ivar++)
   {
     (void)gslSPrintf(string, "Z%d*", ivar + 1);
-    tab_prints(NULL, string.data());
+    tab_prints(String(), string);
   }
   message("\n");
 
@@ -1266,29 +1266,29 @@ static void st_krige_wgt_print(Id status,
     for (iech = 0; iech < nech; iech++, lec++)
     {
       flag_value = (flag != nullptr) ? flag[lec] : 1;
-      tab_printi(NULL, iech + 1);
+      tab_printi(String(), iech + 1);
       for (idim = 0; idim < ndim; idim++)
-        tab_printg(NULL, st_get_idim(nbgh_ranks[iech], idim));
+        tab_printg(String(), st_get_idim(nbgh_ranks[iech], idim));
       if (DBIN->hasLocVariable(ELoc::C))
-        tab_printg(NULL, DBIN->getLocVariable(ELoc::C, nbgh_ranks[iech], 0));
+        tab_printg(String(), DBIN->getLocVariable(ELoc::C, nbgh_ranks[iech], 0));
       if (DBIN->getNLoc(ELoc::V) > 0)
-        tab_printg(NULL, st_get_verr(nbgh_ranks[iech], (FLAG_PROF) ? 0 : jvar_m));
+        tab_printg(String(), st_get_verr(nbgh_ranks[iech], (FLAG_PROF) ? 0 : jvar_m));
       if (KOPTION.flag_data_disc)
       {
         for (idim = 0; idim < ndim; idim++)
-          tab_printg(NULL, DBIN->getLocVariable(ELoc::BLEX, nbgh_ranks[iech], idim));
+          tab_printg(String(), DBIN->getLocVariable(ELoc::BLEX, nbgh_ranks[iech], idim));
       }
       if (icase < 0)
-        tab_printg(NULL, st_get_ivar(nbgh_ranks[iech], jvar_m));
+        tab_printg(String(), st_get_ivar(nbgh_ranks[iech], jvar_m));
       else
-        tab_prints(NULL, "   ");
+        tab_prints(String(), "   ");
 
       for (ivar = 0; ivar < nvar; ivar++)
       {
         iwgt  = nred * ivar + cumflag;
         value = (wgt != nullptr && status == 0 && flag_value) ? wgt[iwgt] : TEST;
         if (!FFFF(value)) sum[ivar] += value;
-        tab_printg(NULL, value);
+        tab_printg(String(), value);
       }
       if (flag_value) cumflag++;
       message("\n");
@@ -1297,11 +1297,11 @@ static void st_krige_wgt_print(Id status,
     number = 1 + ndim + 1;
     if (DBIN->getNLoc(ELoc::V) > 0) number++;
     if (KOPTION.flag_data_disc) number += ndim + 1;
-    tab_prints(NULL, "Sum of weights", number, EJustify::LEFT);
+    tab_prints(String(), "Sum of weights", number, -1);
     for (ivar = 0; ivar < nvar; ivar++)
     {
       value = (status == 0) ? sum[ivar] : TEST;
-      tab_printg(NULL, value);
+      tab_printg(String(), value);
     }
     message("\n");
   }
@@ -1314,9 +1314,9 @@ static void st_krige_wgt_print(Id status,
 
   /* First line */
 
-  tab_prints(NULL, "Rank");
-  tab_prints(NULL, "Lagrange");
-  tab_prints(NULL, "Coeff");
+  tab_prints(String(), "Rank");
+  tab_prints(String(), "Lagrange");
+  tab_prints(String(), "Coeff");
   message("\n");
 
   /* Loop on the drift coefficients */
@@ -1325,11 +1325,11 @@ static void st_krige_wgt_print(Id status,
   for (ib = 0; ib < nfeq; ib++)
   {
     iwgt = ib + cumflag;
-    tab_printi(NULL, ib + 1);
+    tab_printi(String(), ib + 1);
     value = (status == 0) ? wgt[iwgt] : TEST;
-    tab_printg(NULL, value);
+    tab_printg(String(), value);
     value = (status == 0) ? zam1_global[iwgt] : TEST;
-    tab_printg(NULL, value);
+    tab_printg(String(), value);
 
     message("\n");
   }

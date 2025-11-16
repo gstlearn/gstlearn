@@ -1044,8 +1044,7 @@ String Vario::_toStringByDirection(const AStringFormat* /*strfmt*/, Id idir) con
       if (ivar == jvar)
         sstr << "For variable " << ivar + 1 << std::endl;
       else
-        sstr << "For variables " << ivar + 1 << " and " << jvar + 1
-             << std::endl;
+        sstr << "For variables " << ivar + 1 << " and " << jvar + 1 << std::endl;
       sstr << toStr("Rank");
       sstr << toStr("Npairs");
       sstr << toStr("Distance");
@@ -1057,10 +1056,10 @@ String Vario::_toStringByDirection(const AStringFormat* /*strfmt*/, Id idir) con
         auto j = getDirAddress(idir, ivar, jvar, i, true, 0);
         if (_sw[idir][j] <= 0) continue;
         Id rank = (!getFlagAsym()) ? i : i - getNLag(idir);
-        sstr << toInt(rank);
-        sstr << toDouble(_sw[idir][j]);
-        sstr << toDouble(_hh[idir][j]);
-        sstr << toDouble(_gg[idir][j]);
+        sstr << toStr(rank);
+        sstr << toStr(_sw[idir][j]);
+        sstr << toStr(_hh[idir][j]);
+        sstr << toStr(_gg[idir][j]);
         sstr << std::endl;
       }
     }
