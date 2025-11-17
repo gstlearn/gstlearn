@@ -13,7 +13,6 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/SerializeHDF5.hpp"
 #include "Basic/String.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
 
 namespace gstlrn
@@ -80,8 +79,8 @@ Table* Table::create(Id nrow, Id ncol)
 Table* Table::createFromNames(const VectorString& rownames,
                               const VectorString& colnames)
 {
-  Id nrow    = static_cast<Id>(rownames.size());
-  Id ncol    = static_cast<Id>(colnames.size());
+  Id nrow     = static_cast<Id>(rownames.size());
+  Id ncol     = static_cast<Id>(colnames.size());
   auto* table = new Table(nrow, ncol);
   table->setRowNames(rownames);
   table->setColumnNames(colnames);
@@ -106,8 +105,8 @@ VectorDouble Table::getRange(Id icol) const
   VectorDouble vec = getColumn(icol);
   if (vec.empty()) return VectorDouble();
   VectorDouble limits(2);
-  limits[0] = VH::minimum(vec);
-  limits[1] = VH::maximum(vec);
+  limits[0] = vec.minimum();
+  limits[1] = vec.maximum();
   return limits;
 }
 
@@ -147,8 +146,8 @@ bool Table::_serializeAscii(std::ostream& os, bool /*verbose*/) const
 
 bool Table::_deserializeAscii(std::istream& is, bool /*verbose*/)
 {
-  Id nrows    = 0;
-  Id ncols    = 0;
+  Id nrows     = 0;
+  Id ncols     = 0;
   double value = 0.;
 
   bool ret = true;

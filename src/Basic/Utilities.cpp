@@ -40,25 +40,19 @@ Id getClosestInteger(double value)
 
 bool isMultiple(Id nbig, Id nsmall)
 {
-  double ratio;
-
-  ratio = static_cast<double>(nbig) / static_cast<double>(nsmall);
+  double ratio = static_cast<double>(nbig) / static_cast<double>(nsmall);
   return (isInteger(ratio));
 }
 
 bool isOdd(Id number)
 {
-  Id middle;
-
-  middle = number / 2;
+  Id middle = number / 2;
   return (number != 2 * middle);
 }
 
 bool isEven(Id number)
 {
-  Id middle;
-
-  middle = number / 2;
+  Id middle = number / 2;
   return (number == 2 * middle);
 }
 
@@ -91,8 +85,6 @@ double getMax(double val1, double val2)
   return (MAX(val1, val2));
 }
 
-#ifndef SWIG
-
 double getTEST()
 {
   return TEST;
@@ -103,6 +95,7 @@ Id getITEST()
   return ITEST;
 }
 
+#ifndef SWIG
 /****************************************************************************/
 /*!
  **  Checks if a double value is TEST

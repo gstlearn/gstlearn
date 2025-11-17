@@ -17,7 +17,6 @@
 #include "Basic/CSVformat.hpp"
 #include "Basic/File.hpp"
 #include "Basic/SerializeHDF5.hpp"
-#include "Basic/Utilities.hpp"
 #include "Core/CSV.hpp"
 #include "Db/Db.hpp"
 #include "Polygon/Polygons.hpp"
@@ -346,9 +345,12 @@ void Polygons::getExtension(double& xmin,
 
 VectorDouble Polygons::getExtensionAsVD() const
 {
-  VectorDouble ext(4);
-  getExtension(ext[0], ext[1], ext[2], ext[3]);
-  return ext;
+  double xmin;
+  double ymin;
+  double xmax;
+  double ymax;
+  getExtension(xmin, xmax, ymin, ymax);
+  return {xmin, xmax, ymin, ymax};
 }
 
 double Polygons::getSurface() const

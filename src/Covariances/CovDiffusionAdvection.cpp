@@ -203,7 +203,7 @@ std::complex<double> CovDiffusionAdvection::evalSpatialSpectrum(VectorDouble fre
   if (_markovRdefined)
     s2 = 1. / (_markovR->evalSpectrum(freq));
 
-  std::complex<double> a(-_scaleTime * abs(time * s1), -_scaleTime * velinner * time);
+  std::complex<double> a(-_scaleTime * ABS(time * s1), -_scaleTime * velinner * time);
 
   double ratio = _sigma2 / (_globalCorrec * s1 * s2);
   return ratio * exp(a);

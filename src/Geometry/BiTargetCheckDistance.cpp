@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Geometry/BiTargetCheckDistance.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Geometry/GeometryHelper.hpp"
 #include "Space/SpaceTarget.hpp"
 #include "geoslib_old_f.h"
@@ -44,7 +43,7 @@ BiTargetCheckDistance::BiTargetCheckDistance(double radius,
     {
       VectorDouble angles_local = angles;
       angles_local.resize(_ndim, 0.);
-      _flagRotation = (!VH::isConstant(angles_local, 0.));
+      _flagRotation = (!angles_local.isConstant());
       GH::rotationMatrixInPlace(_ndim, angles_local, _anisoRotMat);
     }
     else
@@ -57,7 +56,7 @@ BiTargetCheckDistance::BiTargetCheckDistance(double radius,
     _ndim = 2;
     _anisoCoeffs.resize(_ndim);
     _anisoRotMat.resize(_ndim * _ndim);
-    VH::fill(_anisoCoeffs, 1., _ndim);
+    _anisoCoeffs.fill(1., _ndim);
     GH::rotationMatrixIdentityInPlace(_ndim, _anisoRotMat);
   }
 
@@ -170,7 +169,7 @@ void BiTargetCheckDistance::_calculateDistance() const
 
   /* Calculate the distance */
 
-  _dist = VH::norm(_movingIncr);
+  _dist = _movingIncr.norm();
 }
 
 bool BiTargetCheckDistance::isOK(const SpaceTarget& T1,

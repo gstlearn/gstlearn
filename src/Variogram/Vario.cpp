@@ -763,7 +763,7 @@ MatrixSquare Vario::_evalAverageDbIncr(Model* model,
 
       // Calculate the distance between the two samples
       db.getDistanceVecInPlace(iech, jech, dd);
-      if (!incr.empty()) VH::addInPlace(dd, incr);
+      if (!incr.empty()) dd.add(incr);
 
       // Evaluate the covariance matrix between two samples
       model->evaluateMatInPlace(nullptr, dd, covtab, false, 1., mode);
@@ -815,7 +815,7 @@ Id Vario::regularizeFromDbGrid(Model* model,
     {
       double dist     = ilag * getDPas(idir);
       VectorDouble dd = getCodirs(idir);
-      VH::multiplyConstant(dd, dist);
+      dd.multiplyCst(dist);
 
       MatrixSquare covtab = _evalAverageDbIncr(model, db, dd, mode);
 
@@ -897,7 +897,7 @@ double Vario::getHmax(Id ivar, Id jvar, Id idir) const
       for (Id jv = jvb[0]; jv < jvb[1]; jv++)
       {
         VectorDouble hh = getHhVec(id, iv, jv);
-        double hhloc    = VH::maximum(hh);
+        double hhloc    = hh.maximum();
         if (hhloc > hmax) hmax = hhloc;
       }
   return hmax;
@@ -924,8 +924,8 @@ VectorDouble Vario::getHRange(Id ivar, Id jvar, Id idir) const
       for (Id jv = jvb[0]; jv < jvb[1]; jv++)
       {
         VectorDouble hh = getHhVec(id, iv, jv);
-        double hhmin    = VH::minimum(hh);
-        double hhmax    = VH::maximum(hh);
+        double hhmin    = hh.minimum();
+        double hhmax    = hh.maximum();
         if (hhmin < vec[0]) vec[0] = hhmin;
         if (hhmax > vec[1]) vec[1] = hhmax;
       }
@@ -949,7 +949,7 @@ double Vario::getGmax(Id ivar,
       for (Id jv = jvb[0]; jv < jvb[1]; jv++)
       {
         VectorDouble gg = getGgVec(id, iv, jv);
-        double ggloc    = VH::maximum(gg, flagAbs);
+        double ggloc    = gg.maximum(flagAbs);
         if (ggloc > gmax) gmax = ggloc;
         if (flagSill)
         {
@@ -978,8 +978,8 @@ VectorDouble Vario::getGRange(Id ivar,
       for (Id jv = jvb[0]; jv < jvb[1]; jv++)
       {
         VectorDouble gg = getGgVec(id, iv, jv);
-        double ggmin    = VH::minimum(gg);
-        double ggmax    = VH::maximum(gg);
+        double ggmin    = gg.minimum();
+        double ggmax    = gg.maximum();
         if (ggmin < vec[0]) vec[0] = ggmin;
         if (ggmax > vec[1]) vec[1] = ggmax;
         if (flagSill)
@@ -5111,7 +5111,7 @@ VectorDouble Vario::computeWeightsFromVario(Id wmode) const
 
   // Ultimate check
 
-  double total = VH::cumul(wt);
+  double total = wt.sum();
   if (ABS(total) <= 0.)
   {
     messerr("The sum of the weight is 0. This must be an error");

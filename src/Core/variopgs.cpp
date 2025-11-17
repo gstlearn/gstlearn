@@ -12,7 +12,7 @@
 #include "Basic/Law.hpp"
 #include "Basic/MathFunc.hpp"
 #include "Basic/OptDbg.hpp"
-#include "Basic/Utilities.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Core/CTables.hpp"
 #include "Core/Keypair.hpp"
 #include "Db/Db.hpp"
@@ -3154,13 +3154,13 @@ static double st_optim_onelag_pgs(Local_Pgs* local_pgs,
 
     /* Determine the lag (hgn, alpha*hsd) or a convex combination of both */
 
-    if (VH::innerProductVD(hgn, hgn, npar) <= delta2)
+    if (hgn.innerProduct(hgn, npar) <= delta2)
     {
       step = hgn;
     }
     else
     {
-      double normgrad2 = VH::innerProductVD(gr, gr, npar);
+      double normgrad2 = gr.norm2(); // TODO: check that gr() shoumd be of dimension npar
       double alpha     = normgrad2 / Gn.normVec(gr);
       double normgrad  = sqrt(normgrad2);
       if (normgrad > (delta / alpha))
@@ -3171,9 +3171,9 @@ static double st_optim_onelag_pgs(Local_Pgs* local_pgs,
       {
         VH::linearCombinationInPlace(alpha, hsd, 0., VectorDouble(), a);
         VH::linearCombinationInPlace(1., hgn, -1., a, hgna);
-        double c     = VH::innerProductVD(a, hgn);
-        double a2    = VH::innerProductVD(a, a, npar);
-        double hgna2 = VH::innerProductVD(hgna, hgna, npar);
+        double c     = a.innerProduct(hgn);
+        double a2    = a.norm2();
+        double hgna2 = hgna.norm2();
         double beta  = 0.;
         if (c <= 0.)
           beta = (-c + sqrt(c * c + hgna2 * (delta2 - a2))) / hgna2;
@@ -3226,11 +3226,14 @@ static double st_optim_onelag_pgs(Local_Pgs* local_pgs,
         JJ.linearCombination(npar, &JJ, -penalize / (eigval[3] * eigval[3]), &d2);
         penalize /= 2.;
       }
-      if (rval > 0.75) delta = MAX(delta, 3. * sqrt(VH::innerProductVD(step, step, npar)));
+      if (rval > 0.75) delta = MAX(delta, 3. * sqrt(step.norm2()));
     }
     if (rval < 0.25) delta /= 2.;
 
-    flag_sortie = (VH::norminf(step) < tolsort || niter == maxiter || VH::norminf(Grad) < 0.05 || (fabs(mdiminution) < tolsort && flag_moved));
+    flag_sortie = (step.norm(0) < tolsort ||
+                   niter == maxiter ||
+                   Grad.norm(0) < 0.05 ||
+                   (fabs(mdiminution) < tolsort && flag_moved));
   }
 
   /* Returning arguments */

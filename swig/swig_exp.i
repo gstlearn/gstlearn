@@ -11,19 +11,25 @@
 
 // Export VectorXXX classes
 %include Basic/VectorT.hpp
-%include Basic/VectorNumT.hpp
 %template(VectorTInt)         gstlrn::VectorT< long long >;
 %template(VectorTDouble)      gstlrn::VectorT< double >;
 %template(VectorTFloat)       gstlrn::VectorT< float >;
 %template(VectorBool)         gstlrn::VectorT< UChar >; // See VectorT.hpp
 %template(VectorString)       gstlrn::VectorT< String >;
+
+%include Basic/VectorNumT.hpp
 %template(VectorInt)          gstlrn::VectorNumT< long long >;
 %template(VectorDouble)       gstlrn::VectorNumT< double >;
 %template(VectorFloat)        gstlrn::VectorNumT< float >;
 %template(VectorUChar)        gstlrn::VectorNumT< UChar >;
-%template(VectorVectorInt)    gstlrn::VectorT< VectorNumT< long long > >;
-%template(VectorVectorDouble) gstlrn::VectorT< VectorNumT< double > >;
-%template(VectorVectorFloat)  gstlrn::VectorT< VectorNumT< float > >;
+
+%template(VectorTVectorInt)    gstlrn::VectorT< VectorNumT< long long > >;
+%template(VectorTVectorDouble) gstlrn::VectorT< VectorNumT< double > >;
+%template(VectorTVectorFloat)  gstlrn::VectorT< VectorNumT< float > >;
+
+%template(VectorVectorInt)    gstlrn::VectorNumT< VectorNumT< long long > >;
+%template(VectorVectorDouble) gstlrn::VectorNumT< VectorNumT< double > >;
+%template(VectorVectorFloat)  gstlrn::VectorNumT< VectorNumT< float > >;
 //}
 %include Basic/ICloneable.hpp
 %include Basic/RepeatMacro.hpp

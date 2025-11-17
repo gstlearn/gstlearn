@@ -835,7 +835,7 @@ Id MatrixSymmetric::computeGeneralizedInverse(MatrixSymmetric& tabout,
 
   // Compute the conditioning
 
-  double valcond = VH::maximum(eigval, true);
+  double valcond = eigval.maximum(true);
   if (valcond > maxicond)
     return 1;
 
@@ -881,7 +881,8 @@ Id MatrixSymmetric::computeSquareRoot(MatrixSymmetric& tabout)
   VectorDouble eigval        = getEigenValues();
   const MatrixSquare* eigvec = getEigenVectors();
 
-  if (std::any_of(eigval.begin(), eigval.end(), [](double v) { return v < 0.; }))
+  if (std::any_of(eigval.begin(), eigval.end(), [](double v)
+                  { return v < 0.; }))
   {
     messerr("The input matrix should be definite positive");
     return 1;

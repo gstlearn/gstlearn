@@ -323,21 +323,21 @@ void CalcSimuPost::_statisticsFunction(const VectorVectorDouble& Y_p,
     for (Id istat = 0; istat < nstat; istat++)
     {
       if (_stats[istat] == EPostStat::MEAN)
-        tabout[ecr++] = VH::mean(local);
+        tabout[ecr++] = local.mean();
       else if (_stats[istat] == EPostStat::VAR)
-        tabout[ecr++] = VH::variance(local);
+        tabout[ecr++] = local.variance();
       else if (_stats[istat] == EPostStat::VARP)
-        tabout[ecr++] = VH::variance(local, true);
+        tabout[ecr++] = local.variance(true);
       else if (_stats[istat] == EPostStat::STD)
-        tabout[ecr++] = VH::stdv(local);
+        tabout[ecr++] = local.stdv();
       else if (_stats[istat] == EPostStat::STDP)
-        tabout[ecr++] = VH::stdv(local, true);
+        tabout[ecr++] = local.stdv(true);
       else if (_stats[istat] == EPostStat::MINI)
-        tabout[ecr++] = VH::minimum(local);
+        tabout[ecr++] = local.minimum();
       else if (_stats[istat] == EPostStat::MAXI)
-        tabout[ecr++] = VH::maximum(local);
+        tabout[ecr++] = local.maximum();
       else if (_stats[istat] == EPostStat::MED)
-        tabout[ecr++] = VH::median(local);
+        tabout[ecr++] = local.median();
     }
   }
 
@@ -416,11 +416,11 @@ void CalcSimuPost::_defineIterations()
 
   if (_flagMatch)
   {
-    _niter = VH::minimumVI(_nfact);
+    _niter = _nfact.minimum();
   }
   else
   {
-    _niter = VH::product(_nfact);
+    _niter = _nfact.prod();
   }
 }
 

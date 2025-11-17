@@ -545,7 +545,7 @@ Id DriftList::evalDriftMatByRanksInPlace(MatrixDense& mat,
   }
 
   // Creating the matrix
-  Id neq = VH::count(sampleRanksLoc);
+  Id neq = sampleRanksLoc.count();
   if (neq <= 0)
   {
     messerr("The returned matrix has no valid sample and no valid variable");
@@ -609,7 +609,7 @@ VectorDouble DriftList::evalMeanVecByRanks(const Db* db,
   }
 
   // Creating the matrix
-  Id neq = VH::count(sampleRanksLoc);
+  Id neq = sampleRanksLoc.count();
   if (neq <= 0)
   {
     messerr("The returned matrix has no valid sample and no valid variable");
@@ -660,7 +660,7 @@ Id DriftList::evalDriftMatByTargetInPlace(MatrixDense& mat,
   const VectorVectorInt& index = db->getSampleRanks(ivars, viech2, true, false, false);
 
   // Creating the matrix
-  Id neq = VH::count(index);
+  Id neq = index.count();
   if (neq <= 0)
   {
     messerr("The returned matrix has no valid sample and no valid variable");

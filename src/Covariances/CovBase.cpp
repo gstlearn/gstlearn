@@ -611,8 +611,8 @@ void CovBase::initParams(const MatrixSymmetric& vars, double href)
     double value = chol.getLowerTriangle(ivar, jvar);
     if (ivar == jvar)
     {  
-      _cholSillsInfo(ivar,jvar).setMaxValue(softplusinv(2. * abs(value))); //Protection against too large values for diagonal
-      value = softplusinv(abs(value));
+      _cholSillsInfo(ivar,jvar).setMaxValue(softplusinv(2. * ABS(value))); //Protection against too large values for diagonal
+      value = softplusinv(ABS(value));
       
     }
     _cholSillsInfo(ivar, jvar).setValue(value);

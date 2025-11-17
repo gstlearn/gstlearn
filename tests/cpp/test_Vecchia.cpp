@@ -13,6 +13,7 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/File.hpp"
 #include "Basic/OptCst.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
@@ -161,7 +162,7 @@ int main(int argc, char* argv[])
     Db* db = Db::createFillRandom(ndat, 2, 1, 0, 0, 1., 0., 0., {0., 0.}, {1., 1.}, 1234, false);
     db->setColumn(VectorDouble(ndat, 0.01), "verr");
     db->setLocator("verr", ELoc::V);
-    auto ran = VH::sequenceVD(1,1 + ndat-1, 1);
+    auto ran = VH::sequenceVD(1, 1 + ndat - 1, 1);
     db->setColumn(ran, "ranges");
     // Add duplicate
     db->setSampleCoordinates(1, {db->getCoordinate(0, 0), db->getCoordinate(0, 1)});

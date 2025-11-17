@@ -8,19 +8,19 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Enum/ESpaceType.hpp"
 #include "Enum/ECov.hpp"
+#include "Enum/ESpaceType.hpp"
 
-#include "Space/ASpaceObject.hpp"
-#include "Db/Db.hpp"
-#include "Model/Model.hpp"
 #include "Basic/File.hpp"
-#include "Basic/Timer.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/OptCustom.hpp"
-#include "Neigh/NeighUnique.hpp"
+#include "Basic/Timer.hpp"
+#include "Basic/VectorHelper.hpp"
+#include "Db/Db.hpp"
 #include "Estimation/CalcKriging.hpp"
+#include "Model/Model.hpp"
+#include "Neigh/NeighUnique.hpp"
+#include "Space/ASpaceObject.hpp"
 #include <string>
 
 using namespace gstlrn;
@@ -61,141 +61,141 @@ void st_bench_writing_in_matrix(Id nrows, Id ncols, Timer& timer)
   timer.displayIntervalMilliseconds("Writing randomly by col then by row");
 }
 
-  /****************************************************************************/
-  /*!
-   ** Main Program
-   **
-   *****************************************************************************/
-  int main(int argc, char* argv[])
+/****************************************************************************/
+/*!
+ ** Main Program
+ **
+ *****************************************************************************/
+int main(int argc, char* argv[])
+{
+  bool verbose = false;
+
+  std::stringstream sfn;
+  sfn << gslBaseName(__FILE__) << ".out";
+  StdoutRedirect sr(sfn.str(), argc, argv);
+
+  // Global parameters
+  Id mode = 3;
+  Id ndim = 2;
+  defineDefaultSpace(ESpaceType::RN, ndim);
+
+  // Generate the input data base
+  Id nall  = 100;
+  Db* dbin = Db::createFillRandom(nall, ndim);
+  dbin->addSelectionRandom(0.9);
+  Id ndat = dbin->getNSample(true);
+  if (verbose) dbin->display();
+
+  // Generate the output data base
+  Id nout   = 100000;
+  Db* dbout = Db::createFillRandom(nout, ndim);
+  if (verbose) dbout->display();
+
+  // Create the Model
+  double range = 0.6;
+  double sill  = 1.2;
+  Model* model = Model::createFromParam(ECov::SPHERICAL, range, sill);
+  if (verbose) model->display();
+
+  // Printout
+  message("RHS between:\n");
+  message("- each active sample (%d out of %d) of the input data base\n", ndat, nall);
+  message("- each one of the %d target sites\n", nout);
+  message("(For checking purpose, a Selection has been added)\n");
+  message("Statistics are provided on the averaged RHS\n");
+
+  // Core allocation of common variables
+  SpacePoint p2(model->getSpace());
+  VectorDouble cumul(ndat, 0.);
+  VectorDouble rhs1;
+  Timer timer;
+
+  if (mode == 0 || mode == 1)
   {
-    bool verbose = false;
+    // Traditional solution
+    // ====================
 
-    std::stringstream sfn;
-    sfn << gslBaseName(__FILE__) << ".out";
-    StdoutRedirect sr(sfn.str(), argc, argv);
-
-    // Global parameters
-    Id mode = 3;
-    Id ndim = 2;
-    defineDefaultSpace(ESpaceType::RN, ndim);
-
-    // Generate the input data base
-    Id nall  = 100;
-    Db* dbin = Db::createFillRandom(nall, ndim);
-    dbin->addSelectionRandom(0.9);
-    Id ndat = dbin->getNSample(true);
-    if (verbose) dbin->display();
-
-    // Generate the output data base
-    Id nout   = 100000;
-    Db* dbout = Db::createFillRandom(nout, ndim);
-    if (verbose) dbout->display();
-
-    // Create the Model
-    double range = 0.6;
-    double sill  = 1.2;
-    Model* model = Model::createFromParam(ECov::SPHERICAL, range, sill);
-    if (verbose) model->display();
-
-    // Printout
-    message("RHS between:\n");
-    message("- each active sample (%d out of %d) of the input data base\n", ndat, nall);
-    message("- each one of the %d target sites\n", nout);
-    message("(For checking purpose, a Selection has been added)\n");
-    message("Statistics are provided on the averaged RHS\n");
-
-    // Core allocation of common variables
-    SpacePoint p2(model->getSpace());
-    VectorDouble cumul(ndat, 0.);
-    VectorDouble rhs1;
-    Timer timer;
-
-    if (mode == 0 || mode == 1)
+    mestitle(1, "Traditional solution");
+    message("Double loop on the input and output points\n");
+    timer.reset();
+    for (Id i = 0; i < nout; i++)
     {
-      // Traditional solution
-      // ====================
-
-      mestitle(1, "Traditional solution");
-      message("Double loop on the input and output points\n");
-      timer.reset();
-      for (Id i = 0; i < nout; i++)
-      {
-        dbout->getSampleAsSPInPlace(p2, i);
-        model->evalPointToDb(rhs1, p2, dbin);
-        VH::addInPlace(cumul, rhs1);
-      }
-      timer.displayIntervalMilliseconds("Establishing RHS", 3900);
-
-      // Some printout for comparison
-      VH::divideConstant(cumul, nout);
-      VH::dumpRange("", cumul);
+      dbout->getSampleAsSPInPlace(p2, i);
+      model->evalPointToDb(rhs1, p2, dbin);
+      cumul.add(rhs1);
     }
+    timer.displayIntervalMilliseconds("Establishing RHS", 3900);
 
-    if (mode == 0 || mode == 2)
-    {
-      // Semi-optimized solution
-      // =======================
-
-      mestitle(1, "Semi_optimized solution");
-      message("Input samples are pre-transformed into vector of space points\n");
-      message("Simple loop between each target and the previous vector\n");
-      VH::fill(cumul, 0.);
-
-      timer.reset();
-
-      // Preparing a vector of SpacePoints for the active samples in 'data'
-      // for this usage, the list of SP can be reduced to the active samples only
-      std::vector<SpacePoint> p1s;
-      dbin->getSamplesAsSP(p1s, model->getSpace(), true);
-      VectorDouble rhs2;
-
-      for (Id i = 0; i < nout; i++)
-      {
-        dbout->getSampleAsSPInPlace(p2, i);
-        model->evalPointToDbAsSP(rhs2, p1s, p2);
-        VH::addInPlace(cumul, rhs2);
-      }
-      timer.displayIntervalMilliseconds("Establishing RHS (semi-optimized)", 600);
-
-      // Some printout for comparison
-      VH::divideConstant(cumul, nout);
-      VH::dumpRange("", cumul);
-    }
-
-    if (mode == 0 || mode == 3)
-    {
-      // Optimized version
-      // =================
-
-      mestitle(1, "Optimized solution");
-      message("Input samples are pre-transformed into vector of (anisotropic) space points\n");
-      message("Simple loop between each target and the previous vector\n");
-      model->setOptimEnabled(true);
-
-      MatrixDense mat;
-      timer.reset();
-      OptCustom::define("OptimCovMat", mode);
-      (void) model->evalCovMatInPlace(mat, dbin, dbout);
-      timer.displayIntervalMilliseconds("Establishing RHS V" + std::to_string(Id(mode)));
-
-      // Some printout for comparison
-      VH::fill(cumul, 0.);
-      for (Id i = 0; i < nout; i++)
-        VH::addInPlace(cumul, mat.getColumn(i));
-      VH::divideConstant(cumul, nout);
-      VH::dumpRange("", cumul);
-    }
-
-    if (mode == 0 || mode == 4)
-    {
-      // Measure the difference between consecutive access vs. random access
-      st_bench_writing_in_matrix(nall, nout, timer);
-    }
-
-    // Cleaning
-    delete dbin;
-    delete dbout;
-    delete model;
-
-    return (0);
+    // Some printout for comparison
+    cumul.divideCst(nout);
+    VH::dumpRange("", cumul);
   }
+
+  if (mode == 0 || mode == 2)
+  {
+    // Semi-optimized solution
+    // =======================
+
+    mestitle(1, "Semi_optimized solution");
+    message("Input samples are pre-transformed into vector of space points\n");
+    message("Simple loop between each target and the previous vector\n");
+    cumul.fill(0.);
+
+    timer.reset();
+
+    // Preparing a vector of SpacePoints for the active samples in 'data'
+    // for this usage, the list of SP can be reduced to the active samples only
+    std::vector<SpacePoint> p1s;
+    dbin->getSamplesAsSP(p1s, model->getSpace(), true);
+    VectorDouble rhs2;
+
+    for (Id i = 0; i < nout; i++)
+    {
+      dbout->getSampleAsSPInPlace(p2, i);
+      model->evalPointToDbAsSP(rhs2, p1s, p2);
+      cumul.add(rhs2);
+    }
+    timer.displayIntervalMilliseconds("Establishing RHS (semi-optimized)", 600);
+
+    // Some printout for comparison
+    cumul.divideCst(nout);
+    VH::dumpRange("", cumul);
+  }
+
+  if (mode == 0 || mode == 3)
+  {
+    // Optimized version
+    // =================
+
+    mestitle(1, "Optimized solution");
+    message("Input samples are pre-transformed into vector of (anisotropic) space points\n");
+    message("Simple loop between each target and the previous vector\n");
+    model->setOptimEnabled(true);
+
+    MatrixDense mat;
+    timer.reset();
+    OptCustom::define("OptimCovMat", mode);
+    (void)model->evalCovMatInPlace(mat, dbin, dbout);
+    timer.displayIntervalMilliseconds("Establishing RHS V" + std::to_string(mode));
+
+    // Some printout for comparison
+    cumul.fill(0.);
+    for (Id i = 0; i < nout; i++)
+      cumul.add(mat.getColumn(i));
+    cumul.divideCst(nout);
+    VH::dumpRange("", cumul);
+  }
+
+  if (mode == 0 || mode == 4)
+  {
+    // Measure the difference between consecutive access vs. random access
+    st_bench_writing_in_matrix(nall, nout, timer);
+  }
+
+  // Cleaning
+  delete dbin;
+  delete dbout;
+  delete model;
+
+  return (0);
+}

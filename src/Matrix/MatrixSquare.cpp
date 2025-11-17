@@ -11,7 +11,6 @@
 #include "Matrix/MatrixSquare.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Matrix/AMatrix.hpp"
 #include "Matrix/MatrixFactory.hpp"
 
@@ -347,7 +346,7 @@ Id MatrixSquare::decomposeLU(MatrixSquare& tls,
           }
         }
         double pivot = tus.getValue(i, i);
-        if (abs(pivot) < eps) return 1;
+        if (ABS(pivot) < eps) return 1;
         tls.setValue(j, i, tls.getValue(j, i) / pivot);
       }
     }
@@ -371,7 +370,7 @@ Id MatrixSquare::_invertLU()
   for (Id i = 0; i < neq; i++)
   {
     // Preparing the right-hand side vector (column of the identity matrix)
-    VH::fill(b, 0.);
+    b.fill(0.);
     b[i] = 1.;
 
     if (_solveLU(tus, tls, b.data(), x.data())) return 1;
@@ -424,7 +423,7 @@ Id MatrixSquare::_forwardLU(const MatrixSquare& tls, const double* b, double* x,
       tmp -= tls.getValue(i, j) * x[j];
 
     double pivot = tls.getValue(i, i);
-    if (abs(pivot) < eps) return 1;
+    if (ABS(pivot) < eps) return 1;
     x[i] = tmp / pivot;
   }
   return 0;
@@ -457,7 +456,7 @@ Id MatrixSquare::_backwardLU(const MatrixSquare& tus, const double* b, double* x
       tmp -= tus.getValue(i, j) * x[j];
 
     double pivot = tus.getValue(i, i);
-    if (abs(pivot) < eps) return 1;
+    if (ABS(pivot) < eps) return 1;
     x[i] = tmp / pivot;
   }
   return 0;

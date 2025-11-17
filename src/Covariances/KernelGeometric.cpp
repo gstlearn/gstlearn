@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Covariances/KernelGeometric.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Covariances/CovContext.hpp"
 
 #include <cmath>
@@ -61,7 +60,7 @@ VectorDouble KernelGeometric::_evaluateSpectrumOnSphere(Id n, double scale) cons
     rhoprod *= rho;
   }
 
-  VH::normalize(sp, 1);
+  sp.normalizeInPlace(1);
 
   return sp;
 }

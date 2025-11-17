@@ -402,7 +402,7 @@ static VectorDouble st_point_init_homogeneous(Id number,
     messerr("This method requires 'coormin' and 'coormax' defined");
     return tab;
   }
-  VectorDouble extend = VH::subtract(coormin, coormax);
+  VectorDouble extend = coormax.subtractVec(coormin);
   Id ndim             = static_cast<Id>(coormin.size());
   VectorDouble coor(ndim);
   VectorDouble delta(ndim);
@@ -430,7 +430,7 @@ static VectorDouble st_point_init_homogeneous(Id number,
       {
         for (Id idim = 0; idim < ndim; idim++)
           delta[idim] = (tab[ndim * jp + idim] - coor[idim]) / range;
-        double dd = VH::norm(delta);
+        double dd = delta.norm();
         if (dd < ddmin) ddmin = dd;
       }
 
@@ -585,7 +585,7 @@ static VectorDouble st_point_init_inhomogeneous(Id number,
 
         if (!flag_region)
         {
-          dd = VH::norm(delta) / range;
+          dd = delta.norm() / range;
         }
         else
         {
@@ -596,7 +596,7 @@ static VectorDouble st_point_init_inhomogeneous(Id number,
           Tensor tensor(ndim);
           tensor.setRotationAngle(0, angle);
           tensor.setRadiusVec(radius);
-          dd = VH::norm(tensor.applyInverse(delta));
+          dd = tensor.applyInverse(delta).norm();
         }
 
         // Check if the point 'ip' must be dropped

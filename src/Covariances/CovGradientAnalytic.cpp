@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Covariances/CovGradientAnalytic.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovCalcMode.hpp"
 #include "Covariances/CovContext.hpp"
@@ -241,9 +242,9 @@ void CovGradientAnalytic::_evalZAndGradients(const SpacePoint& p1,
   double hh = getSpace()->getDistance(p1, p2, _getCovRefAniso()->getAniso());
 
   //  Calculate the covariance
-  const CovAniso* covref  = _getCovRefAniso();
+  const CovAniso* covref = _getCovRefAniso();
   const AKernel* covfunc = covref->getCorFunc();
-  double covar            = covref->getSill(0, 0) * covfunc->evalCorFunc(hh);
+  double covar           = covref->getSill(0, 0) * covfunc->evalCorFunc(hh);
   _covpp += covar;
   if (covfunc->getType() == ECov::NUGGET) return;
 

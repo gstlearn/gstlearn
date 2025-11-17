@@ -142,12 +142,12 @@ void DbGraphO::_checkForceDimension(Id nech)
  * @return Id Error returned code
  */
 Id DbGraphO::resetFromSamples(Id nech,
-                               const ELoadBy& order,
-                               const VectorDouble& tab,
-                               NF_Triplet& NF_arcs,
-                               const VectorString& names,
-                               const VectorString& locatorNames,
-                               bool flagAddSampleRank)
+                              const ELoadBy& order,
+                              const VectorDouble& tab,
+                              NF_Triplet& NF_arcs,
+                              const VectorString& names,
+                              const VectorString& locatorNames,
+                              bool flagAddSampleRank)
 {
   if (Db::resetFromSamples(nech, order, tab, names, locatorNames,
                            flagAddSampleRank) != 0)
@@ -174,12 +174,12 @@ Id DbGraphO::resetFromSamples(Id nech,
  * @return Id Error returned code
  */
 Id DbGraphO::resetFromMatrix(Id nech,
-                              const ELoadBy& order,
-                              const VectorDouble& tab,
-                              const MatrixSparse& MatArcs,
-                              const VectorString& names,
-                              const VectorString& locatorNames,
-                              bool flagAddSampleRank)
+                             const ELoadBy& order,
+                             const VectorDouble& tab,
+                             const MatrixSparse& MatArcs,
+                             const VectorString& names,
+                             const VectorString& locatorNames,
+                             bool flagAddSampleRank)
 {
   if (Db::resetFromSamples(nech, order, tab, names, locatorNames,
                            flagAddSampleRank) != 0)
@@ -452,7 +452,7 @@ bool DbGraphO::areConnected(Id node1, Id node2) const
   VectorDouble v2(nech, 0.);
   v2[node1] = 1.;
 
-  while (VH::cumul(v2) > 0.)
+  while (v2.sum() > 0.)
   {
     v1 = v2;
     _downArcs.prodVecMatInPlace(v1, v2);
@@ -500,7 +500,7 @@ VectorInt DbGraphO::getOrderDown(Id node) const
 
   Id rank = 1;
   _updateOrder(rank, v2, order);
-  while (VH::cumul(v2) > 0.)
+  while (v2.sum() > 0.)
   {
     rank++;
     v1 = v2;
@@ -580,7 +580,7 @@ bool DbGraphO::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   if (!dbG) return false;
 
   /* Read the grid characteristics */
-  bool ret  = true;
+  bool ret = true;
   Id ndim  = 0;
   Id narcs = 0;
 

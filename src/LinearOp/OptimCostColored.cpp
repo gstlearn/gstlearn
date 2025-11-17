@@ -10,7 +10,7 @@
 /******************************************************************************/
 #include "LinearOp/OptimCostColored.hpp"
 #include "Basic/AException.hpp"
-#include "Basic/Utilities.hpp"
+#include "Basic/AStringable.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "LinearOp/OptimCostBinary.hpp"
 
@@ -82,7 +82,7 @@ void OptimCostColored::reset(Id nprop,
 {
   // Assignment of pointers
   _nprop = nprop;
-  VH::fill(_meanProps, 1. / _nprop, _nprop);
+  _meanProps.fill(1. / _nprop, _nprop);
   _splits = initSplit(_nprop);
 
   // Pass arguments to the OptimCostBinary class

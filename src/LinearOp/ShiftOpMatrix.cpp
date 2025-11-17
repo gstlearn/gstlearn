@@ -13,6 +13,7 @@
 #include "Basic/AException.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/OptDbg.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Enum/EConsElem.hpp"
 #include "Geometry/GeometryHelper.hpp"
@@ -568,7 +569,7 @@ void ShiftOpMatrix::_loadHHGrad(const AMesh* amesh,
       _getCovAniso()->setAnisoAngle(ir, covaderiv->getAnisoAngle(ir) + 90.);
       const MatrixSquare& drotmat = covaderiv->getAnisoRotMat();
 
-      VH::divideConstant(diag, 180. / GV_PI); // Necessary as angles are provided in degrees. Factor 2 is for derivative
+      diag.divideCst(180. / GV_PI); // Necessary as angles are provided in degrees. Factor 2 is for derivative
       temp.setDiagonal(diag);
       hh.innerMatrix(temp, drotmat, rotmat);
     }
@@ -1072,7 +1073,7 @@ Id ShiftOpMatrix::_buildSGrad(const AMesh* amesh, double tol)
   VectorDouble sqrtTildeC    = VH::power(_TildeC, 0.5);
   VectorDouble invSqrtTildeC = VH::power(_TildeC, -0.5);
   VectorDouble tempVec       = VH::inverse(_TildeC);
-  VH::multiplyConstant(tempVec, -0.5);
+  tempVec.multiplyCst(-0.5);
 
   Id ind                      = 0;
   MatrixSparse* tildeCGradMat = nullptr;
@@ -1084,7 +1085,7 @@ Id ShiftOpMatrix::_buildSGrad(const AMesh* amesh, double tol)
     {
       VectorDouble tildeCGrad = _TildeCGrad[ind]->getDiagonal();
 
-      VH::multiplyInPlace(tildeCGrad, tempVec);
+      tildeCGrad.multiply(tempVec);
       _SGrad[ind]->prodNormDiagVecInPlace(invSqrtTildeC, 1);
 
       tildeCGradMat = MatrixSparse::diagVec(tildeCGrad);
@@ -1249,7 +1250,7 @@ void ShiftOpMatrix::_projectMesh(const AMesh* amesh,
     for (Id i = 0; i < 3; i++)
       center[i] += xyz[icorn][i];
   }
-  VH::normalize(center);
+  center.normalizeInPlace();
 
   // Center gives the vector joining the origin to the center of triangle
   double phi    = srot[1] * GV_PI / 180.;
@@ -1267,15 +1268,15 @@ void ShiftOpMatrix::_projectMesh(const AMesh* amesh,
 
   // V1 = Center ^ w: first axis
   VectorDouble v1 = VH::crossProduct3D(center, w);
-  VH::normalize(v1);
+  v1.normalizeInPlace();
 
   // V2 = Center ^ V1: second axis
   VectorDouble v2 = VH::crossProduct3D(center, v1);
-  VH::normalize(v2);
+  v2.normalizeInPlace();
 
   // Get the end points from Unit vectors
-  VectorDouble axe1 = VH::add(center, v1);
-  VectorDouble axe2 = VH::add(center, v2);
+  VectorDouble axe1 = center.addVec(v1);
+  VectorDouble axe2 = center.addVec(v2);
 
   /* Projection */
 

@@ -11,6 +11,7 @@
 #include "Calculators/CalcMigrate.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/OptDbg.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Calculators/ACalcDbToDb.hpp"
 #include "Core/Keypair.hpp"
 #include "Db/Db.hpp"
@@ -21,7 +22,6 @@
 #include "Tree/Ball.hpp"
 #include "geoslib_define.h"
 #include "geoslib_old_f.h"
-
 #include <cmath>
 
 #define RES(nval, idim) (res[(idim) + (ndim + 1) * (nval)])
@@ -1063,8 +1063,8 @@ VectorVectorDouble interpolateVariablesToPoint(DbGrid* dbgrid,
   // Cap between the Min and the Max of the interpolated surfaces
   if (flagCap)
   {
-    double mini = VH::minimumVVD(tab);
-    double maxi = VH::maximumVVD(tab);
+    double mini = tab.minimum();
+    double maxi = tab.maximum();
     VH::capInPlaceVVD(tab, mini, maxi);
   }
 

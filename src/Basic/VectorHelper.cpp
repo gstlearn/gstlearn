@@ -318,26 +318,6 @@ void VectorHelper::dumpNNZ(const String& title, const VectorDouble& vect, Id ncl
     message("Count below 10.e-%d = %d\n", ic + 1, total[ic]);
 }
 
-bool VectorHelper::hasUndefined(const VectorDouble& vec)
-{
-  for (Id i = 0, n = static_cast<Id>(vec.size()); i < n; i++)
-    if (FFFF(vec[i])) return true;
-  return false;
-}
-
-Id VectorHelper::maximumVI(const VectorInt& vec, bool flagAbs)
-{
-  if (vec.size() <= 0) return 0;
-  Id max = -10000000;
-  for (auto v: vec)
-  {
-    if (IFFFF(v)) continue;
-    if (flagAbs) v = ABS(v);
-    if (v > max) max = v;
-  }
-  return (max);
-}
-
 double VectorHelper::maximum(const std::vector<std::vector<double>>& vec, bool flagAbs)
 {
   double val = VH::maximum(vec[0]);
@@ -346,191 +326,17 @@ double VectorHelper::maximum(const std::vector<std::vector<double>>& vec, bool f
   return val;
 }
 
-double VectorHelper::maximumVVD(const VectorVectorDouble& vect, bool flagAbs)
+double VectorHelper::maximum(const VectorDouble& vec, bool flagAbs)
 {
-  double val = VH::maximum(vect[0]);
-  for (Id i = 1, n = static_cast<Id>(vect.size()); i < n; i++)
-    val = MAX(val, VH::maximum(vect[i], flagAbs));
-  return val;
-}
-
-Id VectorHelper::minimumVI(const VectorInt& vec, bool flagAbs)
-{
-  if (vec.size() <= 0) return 0;
-  Id min = 10000000;
+  if (vec.empty()) return TEST;
+  double max = MINIMUM_BIG;
   for (auto v: vec)
   {
-    if (IFFFF(v)) continue;
+    if (FFFF(v)) continue;
     if (flagAbs) v = ABS(v);
-    if (v < min) min = v;
-  }
-  return (min);
-}
-
-/**
- * Calculate the maximum of 'vec' (conditionally to 'aux')
- * @param vec     Target vector
- * @param flagAbs When True, take the absolute value of 'vec' beforehand
- * @param aux     Conditional vector (see remarks)
- * @param mode    Comparison mode
- * @return Minimum value
- *
- * @remarks When 'aux' is defined, the maximum of 'vec' is conditional to 'aux'
- * @remarks - mode=0: statistics calculated only when 'vec' and 'aux' are both defined
- * @remarks - mode>0: statistics calculated only when 'vec' > 'aux'
- * @remarks - mode<0: statistics calculated only when 'vec' < 'aux'
- */
-double VectorHelper::maximum(const VectorDouble& vec, bool flagAbs, const VectorDouble& aux, Id mode)
-{
-  if (vec.empty()) return TEST;
-  Id size      = static_cast<Id>(vec.size());
-  bool flagAux = (!aux.empty() && static_cast<Id>(aux.size()) == size);
-  double max   = MINIMUM_BIG;
-
-  if (!flagAux)
-  {
-    for (auto v: vec)
-    {
-      if (FFFF(v)) continue;
-      if (flagAbs) v = ABS(v);
-      if (v > max) max = v;
-    }
-  }
-  else
-  {
-    const double* ptrv = vec.data();
-    double val_vec;
-    const double* ptra = aux.data();
-    double val_aux;
-
-    for (Id i = 0; i < size; i++)
-    {
-      val_vec = (*ptrv);
-      val_aux = (*ptra);
-      if (!FFFF(val_vec) && !FFFF(val_aux))
-      {
-        if (flagAbs) val_vec = ABS(val_vec);
-
-        if (mode > 0)
-        {
-          if (val_aux > val_vec) continue;
-        }
-        if (mode < 0)
-        {
-          if (val_aux < val_vec) continue;
-        }
-        if (val_vec > max) max = val_vec;
-      }
-      ptrv++;
-      ptra++;
-    }
+    if (v > max) max = v;
   }
   return (max);
-}
-
-/**
- * Calculate the minimum of 'vec' (conditionally to 'aux')
- * @param vec     Target vector
- * @param flagAbs When True, take the absolute value of 'vec' beforehand
- * @param aux     Conditional vector (see remarks)
- * @param mode    Comparison mode
- * @return Minimum value
- *
- * @remarks When 'aux' is defined, the minimum of 'vec' is conditional to 'aux'
- * @remarks - mode=0: statistics calculated only when 'vec' and 'aux' are both defined
- * @remarks - mode>0: statistics calculated only when 'vec' > 'aux'
- * @remarks - mode<0: statistics calculated only when 'vec' < 'aux'
- */
-double VectorHelper::minimum(const VectorDouble& vec, bool flagAbs, const VectorDouble& aux, Id mode)
-{
-  if (vec.empty()) return TEST;
-  Id size      = static_cast<Id>(vec.size());
-  bool flagAux = (!aux.empty() && static_cast<Id>(aux.size()) == size);
-  double min   = MAXIMUM_BIG;
-
-  if (!flagAux)
-  {
-    for (auto v: vec)
-    {
-      if (FFFF(v)) continue;
-      if (flagAbs) v = ABS(v);
-      if (v < min) min = v;
-    }
-  }
-  else
-  {
-    const double* ptrv = vec.data();
-    double val_vec;
-    const double* ptra = aux.data();
-    double val_aux;
-
-    for (Id i = 0; i < size; i++)
-    {
-      val_vec = (*ptrv);
-      val_aux = (*ptra);
-      if (!FFFF(val_vec) && !FFFF(val_aux))
-      {
-        if (flagAbs) val_vec = ABS(val_vec);
-
-        if (mode > 0)
-        {
-          if (val_aux > val_vec) continue;
-        }
-        if (mode < 0)
-        {
-          if (val_aux < val_vec) continue;
-        }
-        if (val_vec < min) min = val_vec;
-      }
-      ptrv++;
-      ptra++;
-    }
-  }
-  return (min);
-}
-
-double VectorHelper::minimumVVD(const VectorVectorDouble& vect, bool flagAbs)
-{
-  double val = VH::minimum(vect[0]);
-  for (Id i = 1, n = static_cast<Id>(vect.size()); i < n; i++)
-    val = MIN(val, VH::minimum(vect[i], flagAbs));
-  return val;
-}
-
-double VectorHelper::mean(const VectorDouble& vec)
-{
-  if (vec.size() <= 0) return 0.;
-  double mean = 0.;
-  Id number   = 0;
-  for (const auto& v: vec)
-  {
-    if (FFFF(v)) continue;
-    mean += v;
-    number++;
-  }
-  if (number > 0)
-    return (mean / static_cast<double>(number));
-  return TEST;
-}
-
-Id VectorHelper::cumul(const VectorInt& vec)
-{
-  Id total = 0.;
-  for (const auto& v: vec)
-  {
-    total += v;
-  }
-  return total;
-}
-
-Id VectorHelper::cumul(const VectorVectorInt& vec)
-{
-  Id total = 0.;
-  for (const auto& v: vec)
-  {
-    total += cumul(v);
-  }
-  return total;
 }
 
 Id VectorHelper::count(const VectorVectorInt& vec)
@@ -539,16 +345,6 @@ Id VectorHelper::count(const VectorVectorInt& vec)
   for (const auto& v: vec)
   {
     total += static_cast<Id>(v.size());
-  }
-  return total;
-}
-
-double VectorHelper::cumul(const VectorDouble& vec)
-{
-  double total = 0.;
-  for (const auto& v: vec)
-  {
-    if (!FFFF(v)) total += v;
   }
   return total;
 }
@@ -574,62 +370,6 @@ VectorInt VectorHelper::cumulIncrement(const VectorVectorInt& vec)
     number += static_cast<Id>(vec[ivar].size());
   }
   return cumul;
-}
-
-double VectorHelper::variance(const VectorDouble& vec, bool scaleByN)
-{
-  if (vec.size() <= 0) return 0.;
-  double mean = 0.;
-  double var  = 0.;
-  Id number   = 0;
-  for (const auto& v: vec)
-  {
-    if (FFFF(v)) continue;
-    var += v * v;
-    mean += v;
-    number++;
-  }
-  if (number <= 1) return TEST;
-  mean /= static_cast<double>(number);
-  if (scaleByN)
-    var = var / static_cast<double>(number) - mean * mean;
-  else
-    var = (var - static_cast<double>(number) * mean * mean) / static_cast<double>(number - 1);
-  return var;
-}
-
-double VectorHelper::correlation(const VectorDouble& veca, const VectorDouble& vecb)
-{
-  if (veca.size() <= 0 || vecb.size() <= 0 || veca.size() != vecb.size()) return 0.;
-
-  double m1  = 0.;
-  double m2  = 0.;
-  double v11 = 0.;
-  double v22 = 0.;
-  double v12 = 0.;
-  Id number  = 0;
-  for (Id i = 0; i < static_cast<Id>(veca.size()); i++)
-  {
-    double z1 = veca[i];
-    double z2 = vecb[i];
-    if (FFFF(z1) || FFFF(z2)) continue;
-    v11 += z1 * z1;
-    v22 += z2 * z2;
-    v12 += z1 * z2;
-    m1 += z1;
-    m2 += z2;
-    number++;
-  }
-  if (number <= 0) return TEST;
-  m1 /= static_cast<double>(number);
-  m2 /= static_cast<double>(number);
-  v11 = v11 / static_cast<double>(number) - m1 * m1;
-  v22 = v22 / static_cast<double>(number) - m2 * m2;
-  v12 = v12 / static_cast<double>(number) - m1 * m2;
-  if (v11 <= 0.) return TEST;
-  if (v22 <= 0.) return TEST;
-  double corr = v12 / sqrt(v11 * v22);
-  return corr;
 }
 
 /**
@@ -677,117 +417,10 @@ VectorDouble VectorHelper::quantiles(const VectorDouble& vec,
   return retval;
 }
 
-double VectorHelper::stdv(const VectorDouble& vec, bool scaleByN)
-{
-  double var = variance(vec, scaleByN);
-  if (!FFFF(var)) return (sqrt(var));
-  return TEST;
-}
-
-double VectorHelper::norm(const VectorDouble& vec)
-{
-  double ip = innerProductVD(vec, vec);
-  return sqrt(ip);
-}
-
 double VectorHelper::norm(const std::vector<double>& vec)
 {
   double ip = innerProductVec(vec, vec);
   return sqrt(ip);
-}
-
-double VectorHelper::normL1(const VectorDouble& vec)
-{
-  Id nval       = static_cast<Id>(vec.size());
-  double normL1 = 0.;
-  for (Id i = 0; i < nval; i++)
-  {
-    double value = ABS(vec[i]);
-    normL1 += value;
-  }
-  return (normL1);
-}
-
-double VectorHelper::norminf(const VectorDouble& vec)
-{
-  double norminf = 0.;
-  for (Id i = 0, nval = static_cast<Id>(vec.size()); i < nval; i++)
-  {
-    double value = ABS(vec[i]);
-    if (value > norminf) norminf = value;
-  }
-  return norminf;
-}
-
-double VectorHelper::median(const VectorDouble& vec)
-{
-  VectorDouble med;
-  for (Id i = 0, n = static_cast<Id>(vec.size()); i < n; i++)
-    if (!FFFF(vec[i])) med.push_back(vec[i]);
-
-  // Sort the values
-  med = sort(med);
-
-  // Return the median value
-  Id number = static_cast<Id>(med.size());
-  if (number <= 0) return TEST;
-  if (isOdd(number)) return med[number / 2];
-  return (med[number / 2] + med[number / 2 - 1]) / 2.;
-}
-
-double VectorHelper::normDistance(const VectorDouble& veca,
-                                  const VectorDouble& vecb)
-{
-  double prod        = 0.;
-  double delta       = 0.;
-  const double* ptra = veca.data();
-  const double* ptrb = vecb.data();
-  for (Id i = 0, n = static_cast<Id>(veca.size()); i < n; i++)
-  {
-    delta = (*ptra) - (*ptrb);
-    prod += delta * delta;
-    ptra++;
-    ptrb++;
-  }
-  return sqrt(prod);
-}
-
-Id VectorHelper::product(const VectorInt& vec)
-{
-  if (vec.empty()) return 0;
-  Id nprod       = 1;
-  const Id* iptr = vec.data();
-  for (Id i = 0, n = static_cast<Id>(vec.size()); i < n; i++)
-  {
-    nprod *= (*iptr);
-    iptr++;
-  }
-  return nprod;
-}
-
-double VectorHelper::product(const VectorDouble& vec)
-{
-  if (vec.empty()) return 0;
-  double nprod       = 1.;
-  const double* iptr = vec.data();
-  for (Id i = 0, n = static_cast<Id>(vec.size()); i < n; i++)
-  {
-    nprod *= (*iptr);
-    iptr++;
-  }
-  return nprod;
-}
-
-void VectorHelper::normalize(VectorDouble& vec, Id norm)
-{
-  double ratio;
-  if (norm == 2)
-    ratio = VH::norm(vec);
-  else
-    ratio = VH::normL1(vec);
-  if (ratio <= 0.) return;
-  for (auto& v: vec)
-    v /= ratio;
 }
 
 void VectorHelper::normalize(double* tab, Id ntab)
@@ -897,44 +530,6 @@ VectorDouble VectorHelper::normalScore(const VectorDouble& data,
   return vec;
 }
 
-/**
- * Check if the contents of a vector is constant (equal to 'refval' is defined)
- * @param vect   Input vector
- * @param refval Reference value (TEST if not defined)
- * @return
- */
-bool VectorHelper::isConstant(const VectorDouble& vect, double refval)
-{
-  if (vect.empty()) return false;
-  if (FFFF(refval)) refval = vect[0];
-  const double* iptr = vect.data();
-  for (Id i = 0, n = static_cast<Id>(vect.size()); i < n; i++)
-  {
-    if ((*iptr) != refval) return false;
-    iptr++;
-  }
-  return true;
-}
-
-/**
- * Check if the contents of a vector is constant (equal to 'refval' is defined)
- * @param vect   Input vector
- * @param refval Reference value (ITEST if not defined)
- * @return
- */
-bool VectorHelper::isConstant(const VectorInt& vect, Id refval)
-{
-  if (vect.empty()) return false;
-  if (IFFFF(refval)) refval = vect[0];
-  const Id* iptr = vect.data();
-  for (Id i = 0, n = static_cast<Id>(vect.size()); i < n; i++)
-  {
-    if ((*iptr) != refval) return false;
-    iptr++;
-  }
-  return true;
-}
-
 bool VectorHelper::isEqual(const VectorDouble& v1, const VectorDouble& v2, double eps)
 {
   if (v1.size() != v2.size()) return false;
@@ -947,40 +542,6 @@ bool VectorHelper::isEqual(const VectorDouble& v1, const VectorDouble& v2, doubl
     it2++;
   }
   return true;
-}
-
-bool VectorHelper::isEqual(const VectorInt& v1, const VectorInt& v2)
-{
-  if (v1.size() != v2.size()) return false;
-  auto it1(v1.begin());
-  auto it2(v2.begin());
-  while (it1 < v1.end())
-  {
-    if (*it1 != *it2) return false;
-    it1++;
-    it2++;
-  }
-  return true;
-}
-
-void VectorHelper::fill(VectorDouble& vec, double value, Id size)
-{
-  if (size > 0) vec.resize(size);
-  std::fill(vec.begin(), vec.end(), value);
-}
-
-void VectorHelper::fill(VectorInt& vec, Id value, Id size)
-{
-  if (size > 0) vec.resize(size);
-  std::fill(vec.begin(), vec.end(), value);
-}
-
-void VectorHelper::fill(VectorVectorDouble& vec, double value)
-{
-  for (auto& e: vec)
-  {
-    VH::fill(e, value);
-  }
 }
 
 void VectorHelper::fillUndef(VectorDouble& vec, double repl)
@@ -1260,71 +821,6 @@ VectorInt VectorHelper::sampleRanks(Id ntotal,
   return ranks;
 }
 
-VectorDouble VectorHelper::add(const VectorDouble& veca, const VectorDouble& vecb)
-{
-  if (veca.size() != vecb.size())
-  {
-    messerr("Arguments 'veca' and 'vecb' should have the same dimension. Nothing is done");
-    return veca;
-  }
-
-  VectorDouble res(veca.size());
-  auto it(res.begin());
-  auto ita(veca.begin());
-  auto itb(vecb.begin());
-
-  while (it < res.end())
-  {
-    *it = *ita + *itb;
-    it++;
-    ita++;
-    itb++;
-  }
-  return res;
-}
-
-/**
- * Performs: veca += vecb
- * @param dest Input/Output vector
- * @param src Auxiliary vector
- */
-void VectorHelper::addInPlace(VectorDouble& dest, const VectorDouble& src)
-{
-  if (dest.size() != src.size())
-  {
-    messerr("Arguments 'dest' and 'src' should have the same dimension. Nothing is done");
-    return;
-  }
-
-  auto itd(dest.begin());
-  auto its(src.begin());
-  while (itd < dest.end())
-  {
-    *itd += *its;
-    itd++;
-    its++;
-  }
-}
-
-void VectorHelper::addInPlace(VectorInt& dest, const VectorInt& src)
-{
-  if (dest.size() != src.size())
-  {
-    messerr("Arguments 'dest' and 'src' should have the same dimension. "
-            "Nothing is done");
-    return;
-  }
-
-  auto itd(dest.begin());
-  auto its(src.begin());
-  while (itd < dest.end())
-  {
-    *itd += *its;
-    itd++;
-    its++;
-  }
-}
-
 void VectorHelper::addInPlace(constvect in, vect dest)
 {
   const double* inp = in.data();
@@ -1375,49 +871,6 @@ void VectorHelper::addSquareInPlace(VectorDouble& dest, const VectorDouble& src)
   }
 }
 
-void VectorHelper::addInPlace(const VectorDouble& veca,
-                              const VectorDouble& vecb,
-                              VectorDouble& res,
-                              Id size)
-{
-  if (size <= 0) size = static_cast<Id>(veca.size());
-  if (size != static_cast<Id>(vecb.size()))
-    my_throw("Wrong size");
-  if (static_cast<Id>(res.size()) != size) res.resize(size);
-
-  const double* iptra = veca.data();
-  const double* iptrb = vecb.data();
-  double* iptrv       = res.data();
-  for (Id i = 0; i < size; i++)
-  {
-    (*iptrv) = (*iptra) + (*iptrb);
-    iptrv++;
-    iptra++;
-    iptrb++;
-  }
-}
-
-void VectorHelper::addInPlace(const VectorInt& veca,
-                              const VectorInt& vecb,
-                              VectorInt& res,
-                              Id size)
-{
-  if (size <= 0) size = static_cast<Id>(veca.size());
-  if (size != static_cast<Id>(vecb.size())) my_throw("Wrong size");
-  if (static_cast<Id>(res.size()) != size) res.resize(size);
-
-  const Id* iptra = veca.data();
-  const Id* iptrb = vecb.data();
-  Id* iptrv       = res.data();
-  for (Id i = 0; i < size; i++)
-  {
-    (*iptrv) = (*iptra) + (*iptrb);
-    iptrv++;
-    iptra++;
-    iptrb++;
-  }
-}
-
 void VectorHelper::addInPlace(const double* veca,
                               const double* vecb,
                               double* res,
@@ -1425,19 +878,6 @@ void VectorHelper::addInPlace(const double* veca,
 {
   for (Id i = 0; i < size; i++)
     res[i] = veca[i] + vecb[i];
-}
-
-void VectorHelper::addInPlace(const VectorVectorDouble& in1,
-                              const VectorVectorDouble& in2,
-                              VectorVectorDouble& outv)
-{
-  for (Id is = 0, ns = static_cast<Id>(in1.size()); is < ns; is++)
-  {
-    for (Id i = 0, n = static_cast<Id>(in1[is].size()); i < n; i++)
-    {
-      outv[is][i] = in2[is][i] + in1[is][i];
-    }
-  }
 }
 
 /**
@@ -1469,91 +909,6 @@ void VectorHelper::addInPlace(const std::vector<std::vector<double>>& in1,
     }
   }
 }
-/**
- ** @overload
- */
-VectorDouble VectorHelper::subtract(const VectorDouble& veca,
-                                    const VectorDouble& vecb)
-{
-  if (veca.size() != vecb.size())
-    my_throw("Wrong size");
-
-  VectorDouble res(veca.size());
-  auto it(res.begin());
-  auto ita(veca.begin());
-  auto itb(vecb.begin());
-  while (it < res.end())
-  {
-    *it = *itb - *ita;
-    it++;
-    ita++;
-    itb++;
-  }
-  return res;
-}
-
-/**
- * Return a vector containing vecb - veca (integer version)
- * @param veca Input Vector
- * @param vecb Input Vector
- * @return
- */
-VectorInt VectorHelper::subtract(const VectorInt& veca,
-                                 const VectorInt& vecb)
-{
-  if (veca.size() != vecb.size())
-    my_throw("Wrong size");
-
-  VectorInt res(veca.size());
-  auto it(res.begin());
-  auto ita(veca.begin());
-  auto itb(vecb.begin());
-  while (it < res.end())
-  {
-    *it = *itb - *ita;
-    it++;
-    ita++;
-    itb++;
-  }
-  return res;
-}
-
-/**
- * Performs: veca -= vecb
- * @param dest Input/Output vector
- * @param src Auxiliary vector
- */
-void VectorHelper::subtractInPlace(VectorDouble& dest, const VectorDouble& src)
-{
-  VectorDouble res;
-  if (dest.size() != src.size())
-    my_throw("Wrong size");
-
-  auto itd(dest.begin());
-  auto its(src.begin());
-  while (itd < dest.end())
-  {
-    *itd -= *its;
-    itd++;
-    its++;
-  }
-}
-
-void VectorHelper::subtractInPlace(VectorInt& dest, const VectorInt& src)
-{
-  VectorInt res;
-  if (dest.size() != src.size())
-    my_throw("Wrong size");
-
-  auto itd(dest.begin());
-  auto its(src.begin());
-  while (itd < dest.end())
-  {
-    *itd -= *its;
-    itd++;
-    its++;
-  }
-}
 
 /**
  * Performs: outv = in2 - in1
@@ -1571,19 +926,6 @@ void VectorHelper::subtractInPlace(const constvect in1,
   }
 }
 
-void VectorHelper::subtractInPlace(const VectorVectorDouble& in1,
-                                   const VectorVectorDouble& in2,
-                                   VectorVectorDouble& outv)
-{
-  for (Id is = 0, ns = static_cast<Id>(in1.size()); is < ns; is++)
-  {
-    for (Id i = 0, n = static_cast<Id>(in1[is].size()); i < n; i++)
-    {
-      outv[is][i] = in2[is][i] - in1[is][i];
-    }
-  }
-}
-
 // TODO: check why we cannot replace std::vector<std::vecot<double>> by VectorVectorDouble
 void VectorHelper::subtractInPlace(const std::vector<std::vector<double>>& in1,
                                    const std::vector<std::vector<double>>& in2,
@@ -1595,81 +937,6 @@ void VectorHelper::subtractInPlace(const std::vector<std::vector<double>>& in1,
     {
       outv[is][i] = in2[is][i] - in1[is][i];
     }
-  }
-}
-
-void VectorHelper::multiplyInPlace(VectorDouble& vec, const VectorDouble& v)
-{
-  if (vec.size() != v.size())
-    my_throw("Arguments 'vec' and 'v' should have same dimension");
-
-  auto it(vec.begin());
-  auto itv(v.begin());
-  while (it < vec.end())
-  {
-    *it *= (*itv);
-    it++;
-    itv++;
-  }
-}
-
-VectorDouble VectorHelper::multiply(const VectorDouble& veca, const VectorDouble& vecb)
-{
-  if (veca.size() != vecb.size())
-  {
-    messerr(
-      "Arguments 'veca' and 'vecb' should have the same dimension. Nothing is done");
-    return veca;
-  }
-
-  VectorDouble res(veca.size());
-
-  multiplyInPlace(veca, vecb, res);
-  return res;
-}
-
-void VectorHelper::multiplyInPlace(const VectorDouble& veca,
-                                   const VectorDouble& vecb,
-                                   VectorDouble& res)
-{
-  if (veca.size() != vecb.size())
-  {
-    messerr("Arguments 'veca' and 'vecb' should have the same dimension. Nothing is done");
-    return;
-  }
-  if (veca.size() != res.size())
-  {
-    messerr(
-      "Arguments 'veca' and 'res' should have the same dimension. Nothing is done");
-    return;
-  }
-
-  auto it(res.begin());
-  auto ita(veca.begin());
-  auto itb(vecb.begin());
-
-  while (it < res.end())
-  {
-    *it = (*ita) * (*itb);
-    it++;
-    ita++;
-    itb++;
-  }
-}
-
-void VectorHelper::divideInPlace(VectorDouble& vec, const VectorDouble& v)
-{
-  if (vec.size() != v.size())
-    my_throw("Arguments 'vec' and 'v' should have same dimension");
-
-  auto it(vec.begin());
-  auto itv(v.begin());
-  while (it < vec.end())
-  {
-    if (ABS(*itv) >= EPSILON20)
-      *it /= (*itv);
-    it++;
-    itv++;
   }
 }
 
@@ -1689,49 +956,6 @@ void VectorHelper::divideInPlace(std::vector<double>& vec, const std::vector<dou
   }
 }
 
-void VectorHelper::divideInPlace(const VectorDouble& veca,
-                                 const VectorDouble& vecb,
-                                 VectorDouble& res)
-{
-  if (veca.size() != vecb.size())
-  {
-    messerr(
-      "Arguments 'veca' and 'vecb' should have the same dimension. Nothing is done");
-    return;
-  }
-  if (veca.size() != res.size())
-  {
-    messerr(
-      "Arguments 'veca' and 'res' should have the same dimension. Nothing is done");
-    return;
-  }
-
-  auto it(res.begin());
-  auto ita(veca.begin());
-  auto itb(vecb.begin());
-
-  while (it < res.end())
-  {
-    *it = (*ita) / (*itb);
-    it++;
-    ita++;
-    itb++;
-  }
-}
-
-VectorDouble VectorHelper::divide(const VectorDouble& veca, const VectorDouble& vecb)
-{
-  if (veca.size() != vecb.size())
-  {
-    messerr(
-      "Arguments 'veca' and 'vecb' should have the same dimension. Nothing is done");
-    return veca;
-  }
-
-  VectorDouble res(veca.size());
-  return res;
-}
-
 void VectorHelper::multiplyComplexInPlace(const VectorDouble& vecaRe,
                                           const VectorDouble& vecaIm,
                                           const VectorDouble& vecbRe,
@@ -1741,31 +965,13 @@ void VectorHelper::multiplyComplexInPlace(const VectorDouble& vecaRe,
 {
   VectorDouble temp(vecaRe);
 
-  VH::multiplyInPlace(vecaRe, vecbRe, resRe);
-  VH::multiplyInPlace(vecaIm, vecbIm, temp);
-  VH::subtractInPlace(resRe, temp);
+  vecaRe.multiplyVecInPlace(vecbRe, resRe);
+  vecaIm.multiplyVecInPlace(vecbIm, temp);
+  resRe.subtract(temp);
 
-  VH::multiplyInPlace(vecaRe, vecbIm, resIm);
-  VH::multiplyInPlace(vecaIm, vecbRe, temp);
-  VH::addInPlace(resIm, temp);
-}
-
-void VectorHelper::multiplyConstant(VectorDouble& vec, double v)
-{
-  std::for_each(vec.begin(), vec.end(), [v](double& d)
-                { d *= v; });
-}
-
-void VectorHelper::multiplyConstantInPlace(const VectorDouble& vecin, double v, VectorDouble& vecout)
-{
-  auto itout(vecout.begin());
-  auto itin(vecin.begin());
-  while (itin < vecin.end())
-  {
-    *itout = (*itin) * v;
-    itin++;
-    itout++;
-  }
+  vecaRe.multiplyVecInPlace(vecbIm, resIm);
+  vecaIm.multiplyVecInPlace(vecbRe, temp);
+  resIm.add(temp);
 }
 
 void VectorHelper::multiplyConstantSelfInPlace(VectorDouble& vec, double v)
@@ -1829,14 +1035,6 @@ void VectorHelper::addMultiplyConstantInPlace(double val1,
   }
 }
 
-void VectorHelper::divideConstant(VectorDouble& vec, double v)
-{
-  if (isZero(v))
-    my_throw("division by 0");
-  std::for_each(vec.begin(), vec.end(), [v](double& d)
-                { d /= v; });
-}
-
 void VectorHelper::copy(const VectorDouble& vecin, VectorDouble& vecout, Id size)
 {
   if (size < 0) size = static_cast<Id>(vecin.size());
@@ -1887,18 +1085,6 @@ void VectorHelper::copy(const VectorVectorDouble& inv, VectorVectorDouble& outv)
       outv[is][i] = inv[is][i];
     }
   }
-}
-
-void VectorHelper::addConstant(VectorDouble& vec, double v)
-{
-  std::for_each(vec.begin(), vec.end(), [v](double& d)
-                { d += v; });
-}
-
-void VectorHelper::addConstant(VectorInt& vec, Id v)
-{
-  std::for_each(vec.begin(), vec.end(), [v](Id& d)
-                { d += v; });
 }
 
 void VectorHelper::mean1AndMean2ToStdev(const VectorDouble& mean1,
@@ -1967,30 +1153,6 @@ void VectorHelper::inverse(VectorDouble& res, const constvect vec)
   }
 }
 
-Id VectorHelper::countUndefined(const VectorDouble& vec)
-{
-  Id count = 0;
-  auto it(vec.begin());
-  while (it < vec.end())
-  {
-    if (FFFF(*it)) count++;
-    it++;
-  }
-  return count;
-}
-
-Id VectorHelper::countDefined(const VectorDouble& vec)
-{
-  Id count = 0;
-  auto it(vec.begin());
-  while (it < vec.end())
-  {
-    if (!FFFF(*it)) count++;
-    it++;
-  }
-  return count;
-}
-
 /**
  * Calculate the diagonal of the box extension
  * @param mini Array of lower coordinates of the box
@@ -2002,7 +1164,7 @@ double VectorHelper::extensionDiagonal(const VectorDouble& mini,
                                        const VectorDouble& maxi)
 {
   double diag        = 0.;
-  VectorDouble delta = VH::subtract(mini, maxi);
+  VectorDouble delta = maxi.subtractVec(mini);
   Id ndim            = static_cast<Id>(delta.size());
   for (Id idim = 0; idim < ndim; idim++)
   {
@@ -2397,17 +1559,6 @@ double VectorHelper::innerProductCV(const constvect veca, const constvect vecb)
   return innerProduct(veca.data(), vecb.data(), static_cast<Id>(veca.size()));
 }
 
-double VectorHelper::innerProductVD(const VectorDouble& veca,
-                                    const VectorDouble& vecb,
-                                    Id size)
-{
-  if (size < 0) size = static_cast<Id>(veca.size());
-  if (size > static_cast<Id>(veca.size()) || size > static_cast<Id>(vecb.size()))
-    my_throw("Incompatible sizes");
-
-  return innerProduct(veca.data(), vecb.data(), size);
-}
-
 double VectorHelper::innerProduct(const double* veca,
                                   const double* vecb,
                                   Id size)
@@ -2430,14 +1581,6 @@ double VectorHelper::innerProductVVec(const std::vector<std::vector<double>>& x,
   double s = 0.;
   for (Id i = 0, n = static_cast<Id>(x.size()); i < n; i++)
     s += VH::innerProductVec(x[i], y[i]);
-  return s;
-}
-double VectorHelper::innerProductVVD(const VectorVectorDouble& x,
-                                     const VectorVectorDouble& y)
-{
-  double s = 0.;
-  for (Id i = 0, n = static_cast<Id>(x.size()); i < n; i++)
-    s += VH::innerProductVD(x[i], y[i]);
   return s;
 }
 
@@ -2660,7 +1803,7 @@ void VectorHelper::normalizeCodir(Id ndim, VectorDouble& codir)
   double norme;
 
   if (codir.empty()) return;
-  norme = VH::innerProductVD(codir, codir, ndim);
+  norme = codir.norm2();
   if (norme <= 0.)
   {
     for (Id idim = 0; idim < ndim; idim++)

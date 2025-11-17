@@ -642,7 +642,7 @@ Id krigingVecchia(Db* dbin,
   // Calculate LdY
   const VectorDouble& Y = V.computeAndGetY();
   VectorDouble LdY      = V.calculateLdY(Y);
-  VH::multiplyInPlace(LdY, D_dd);
+  LdY.multiply(D_dd);
 
   // Calculate FtLdY
   VectorDouble FtLdY = V.calculateFtLdY(LdY);
@@ -673,7 +673,7 @@ void Vecchia::productVecchia(constvect Y, vect res) const
 {
   _LdY.resize(_LFull.getNRows());
   _LFull.prodMatVecInPlaceC(Y, _LdY, false);
-  VH::multiplyInPlace(_LdY, _DFull);
+  _LdY.multiply(_DFull);
   _LFull.prodMatVecInPlaceC(_LdY, res, true);
 }
 

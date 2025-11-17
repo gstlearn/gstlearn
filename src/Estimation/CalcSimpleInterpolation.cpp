@@ -554,7 +554,7 @@ Id CalcSimpleInterpolation::_lstsqr(Db* dbin, Db* dbout, ANeigh* neigh) const
     VectorDouble Vtarget = drft->evalDriftBySample(dbout, iech);
 
     // Perform the estimation
-    double result = VH::innerProductVD(X, Vtarget);
+    double result = X.innerProduct(Vtarget);
 
     // Assign the result
     dbout->setArray(iech, _iattEst, result);
@@ -816,7 +816,7 @@ double CalcSimpleInterpolation::_stdevCalc(Db* dbin,
 
   // Vector of Covariances between Data and Target
   getModel()->evalPointToDb(M0x, pout, dbin, 0, 0, true, nbgh);
-  double c0x = VH::innerProductVD(M0x, weights);
+  double c0x = M0x.innerProduct(weights);
 
   // Covariance between Data and Data
   MatrixDense Mxx = getModel()->evalCovMat(dbin, dbin, 0, 0, nbgh, nbgh);
@@ -838,7 +838,7 @@ void CalcSimpleInterpolation::_saveResults(Db* dbin,
   double stdev  = TEST;
   if (nbgh.size() > 0)
   {
-    VH::normalize(weights, 1);
+    weights.normalizeInPlace(1);
     if (_flagEst) result = _estimCalc(dbin, nbgh, weights);
     if (_flagStd) stdev = _stdevCalc(dbin, dbout, nbgh, iech, weights);
   }

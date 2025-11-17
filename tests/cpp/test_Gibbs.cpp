@@ -8,27 +8,25 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
-#include "Enum/ECst.hpp"
-#include "Enum/ELoadBy.hpp"
-#include "Enum/ESpaceType.hpp"
-
 #include "API/SPDE.hpp"
-
 #include "Basic/File.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/OptCst.hpp"
 #include "Basic/OptDbg.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
+#include "Enum/ECst.hpp"
+#include "Enum/ELoadBy.hpp"
+#include "Enum/ESpaceType.hpp"
 #include "LinearOp/PrecisionOpMatrix.hpp"
 #include "Matrix/MatrixSparse.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "Model/Model.hpp"
 #include "Space/ASpaceObject.hpp"
+#include "geoslib_old_f.h"
 
 using namespace gstlrn;
 

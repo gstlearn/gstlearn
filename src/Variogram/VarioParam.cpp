@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Variogram/VarioParam.hpp"
-#include "Basic/Utilities.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Model/Model.hpp"
@@ -193,7 +192,7 @@ VarioParam* VarioParam::createMultipleFromGrid(const DbGrid* dbgrid,
   VectorInt grincr(ndim, 0);
   for (Id idim = 0; idim < ncalc; idim++)
   {
-    VH::fill(grincr, 0.);
+    grincr.fill(0.);
     grincr[idim]       = 1;
     DirParam* dirparam = DirParam::createFromGrid(dbgrid, nlag, grincr, space);
     varioparam->addDir(*dirparam);

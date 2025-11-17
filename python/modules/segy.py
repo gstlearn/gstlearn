@@ -280,13 +280,13 @@ def create3DGrid(fileSEGYs, dblabel, topName = None, botName = None, limitZ = No
             
         if botName is not None:
             botArray = dbsegy2D.getColumn(botName, useSel=True)
-            zbot = gl.VectorHelper.minimum(botArray)
+            zbot = np.minimum(botArray)
             if zbot > z0:
                 limitZ[0] = int((zbot - z0) // dz)
     
         if topName is not None:
             topArray = dbsegy2D.getColumn(topName, useSel=True)
-            ztop = gl.VectorHelper.maximum(topArray)
+            ztop = np.maximum(topArray)
             if ztop < zmax:
                 limitZ[1] = int((ztop - z0 + dz/2) // dz + 1)
 

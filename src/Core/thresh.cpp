@@ -10,8 +10,6 @@
 /******************************************************************************/
 #include "Basic/OptDbg.hpp"
 #include "Basic/String.hpp"
-#include "Basic/Utilities.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "LithoRule/PropDef.hpp"
@@ -211,7 +209,7 @@ static Id st_proportion_changed(PropDef* propdef)
 {
   /* Compare with the memory proportion array */
 
-  Id modify = !VH::isEqual(propdef->proploc, propdef->propmem);
+  Id modify = !propdef->proploc.isEqual(propdef->propmem);
   if (!modify) return (1);
 
   /* Print the proportions (optional) */

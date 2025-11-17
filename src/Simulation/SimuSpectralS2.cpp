@@ -62,9 +62,9 @@ SimuSpectralS2::~SimuSpectralS2()
  * @param verbose Verbose flag
  */
 Id SimuSpectralS2::_simulate(Id ns,
-                              Id nd,
-                              const ACov* cov0,
-                              bool verbose)
+                             Id nd,
+                             const ACov* cov0,
+                             bool verbose)
 {
   DECLARE_UNUSED(cov0)
   if (ns <= 0)
@@ -103,12 +103,12 @@ Id SimuSpectralS2::_simulate(Id ns,
   // Simulation of the spectrum
   VectorDouble U = VH::simulateUniform(ns);
   VH::sortInPlace(U);
-  double maxU = VH::maximum(U);
+  double maxU = U.maximum();
 
   VectorDouble spectrum = _cova->evalSpectrumOnSphere(nd);
 
   // Simulate vector N
-  Id n    = 0;
+  Id n     = 0;
   double p = 0.;
   VectorInt N(ns, 0);
   while (p < maxU && n < ns)
@@ -129,7 +129,7 @@ Id SimuSpectralS2::_simulate(Id ns,
   VectorInt Kabs = K;
   for (Id is = 0; is < ns; is++) Kabs[is] = ABS(Kabs[is]);
   VectorInt orders = VH::unique(Kabs);
-  Id order_size   = static_cast<Id>(orders.size());
+  Id order_size    = static_cast<Id>(orders.size());
 
   // Loop on the orders
   _spSims.resize(order_size);
@@ -286,7 +286,7 @@ Id SimuSpectralS2::_compute(Db* dbout, Id iuid, bool verbose)
     auto nmax = _getKey1Maximum(_spSims[is]);
     if (nmax > N_max) N_max = nmax;
   }
-  Id K_max = VH::maximumVI(K_list);
+  Id K_max = K_list.maximum();
 
   // Optional printout
   if (verbose)
@@ -342,7 +342,7 @@ Id SimuSpectralS2::_compute(Db* dbout, Id iuid, bool verbose)
                 _getSumValue(spsimK));
 
       // From n-1 to n
-      Id NK_max = VH::maximumVI(N_list);
+      Id NK_max = N_list.maximum();
       for (Id n = m; n <= NK_max; n++)
       {
         if (n == m)
@@ -369,7 +369,7 @@ Id SimuSpectralS2::_compute(Db* dbout, Id iuid, bool verbose)
 
           if (verbose)
           {
-            Id sumComp = VH::cumul(nbrComp);
+            Id sumComp = nbrComp.sum();
             cumComp += sumComp;
             message("K = %d and N = %d : %d / %d  jk = %d\n", m, n, sumComp,
                     cumComp, jk);
@@ -396,13 +396,12 @@ Id SimuSpectralS2::_compute(Db* dbout, Id iuid, bool verbose)
   }
 
   // Normalize
-  VH::multiplyConstant(val, sqrt(2. / nb));
+  val.multiplyCst(sqrt(2. / nb));
 
   // Save the resulting array
   dbout->setColumnByUID(val, iuid);
 
   return 0;
 }
-
 
 } // namespace gstlrn

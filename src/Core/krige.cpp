@@ -16,6 +16,7 @@
 #include "Basic/OptDbg.hpp"
 #include "Basic/String.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Core/Keypair.hpp"
 #include "Covariances/CovContext.hpp"
@@ -3202,7 +3203,7 @@ Id st_krige_data(Db* db,
     s              = model->evalCovMat(db, db, -1, -1, rutil, vech).getValues();
 
     tutil.prodVecMatInPlace(s, aux3);
-    double estim   = VH::innerProductVD(aux2, aux3);
+    double estim   = aux2.innerProduct(aux3);
     data_est[iech] = estim + model->getMean(0);
 
     if (flag_abs)
@@ -3215,7 +3216,7 @@ Id st_krige_data(Db* db,
     }
 
     invsig.prodVecMatInPlace(aux3, aux4);
-    double variance = VH::innerProductVD(aux3, aux4);
+    double variance = aux3.innerProduct(aux4);
     data_var[iech]  = c00[0] - variance;
   }
   return 0;
@@ -3289,10 +3290,10 @@ Id st_crit_global(Db* db,
     invc.prodMatVecInPlace(cs, temp_loc);
     temp.setColumn(ecr, temp_loc);
 
-    estim       = VH::innerProductVD(datm, temp_loc);
+    estim       = datm.innerProduct(temp_loc);
     olderr[ecr] = estim + model->getMean(0) - db->getZVariable(iech, 0);
 
-    sigma       = VH::innerProductVD(cs, temp_loc);
+    sigma       = cs.innerProduct(temp_loc);
     olddiv[ecr] = olderr[ecr] / (c00[0] - sigma);
     ecr++;
   }
@@ -3574,13 +3575,13 @@ Id krigsampling_f(Db* dbin,
       c00 = model->evalCovMat(dbout, dbout, -1, -1, vech, vech).getValues();
 
     tutil.prodVecMatInPlace(s, aux3);
-    estim = VH::innerProductVD(aux2, aux3) + model->getMean(0);
+    estim = aux2.innerProduct(aux3) + model->getMean(0);
     DBOUT->setArray(IECH_OUT, IPTR_EST, estim);
 
     if (FLAG_STD)
     {
       invsig.prodVecMatInPlace(aux3, aux4);
-      sigma = VH::innerProductVD(aux3, aux4);
+      sigma = aux3.innerProduct(aux4);
       sigma = c00[0] - sigma;
       sigma = (sigma > 0) ? sqrt(sigma) : 0.;
       DBOUT->setArray(IECH_OUT, IPTR_STD, sigma);
@@ -4689,13 +4690,13 @@ Id inhomogeneous_kriging(Db* dbdat,
 
     /* Perform the estimation */
 
-    estim = VH::innerProductVD(data, lambda);
-    stdev = VH::innerProductVD(rhs, lambda);
+    estim = data.innerProduct(lambda);
+    stdev = rhs.innerProduct(lambda);
 
     /* Update the variance in presence of drift */
 
     if (nbfl > 0)
-      stdev += VH::innerProductVD(mu, maux);
+      stdev += mu.innerProduct(maux);
 
     /* Update the variance calculation */
 

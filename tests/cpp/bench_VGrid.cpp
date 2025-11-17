@@ -13,9 +13,10 @@
 /******************************************************************************/
 #include "Enum/ECalcVario.hpp"
 
-#include "Variogram/Vario.hpp"
 #include "Basic/Timer.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Db/DbGrid.hpp"
+#include "Variogram/Vario.hpp"
 
 using namespace gstlrn;
 /****************************************************************************/
@@ -23,7 +24,7 @@ using namespace gstlrn;
 ** Main Program for bench marking the variogram calculation on the Grid
 **
 *****************************************************************************/
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   Timer timer;
   bool verbose = true;
@@ -36,9 +37,9 @@ int main(int argc, char *argv[])
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Creating a regular grid
-  VectorInt nx = { 600, 400 };
-  VectorDouble dx = { 1.0, 1.0 };
-  DbGrid* grid    = DbGrid::create(nx, dx);
+  VectorInt nx     = {600, 400};
+  VectorDouble dx  = {1.0, 1.0};
+  DbGrid* grid     = DbGrid::create(nx, dx);
   VectorDouble tab = VH::simulateGaussian(grid->getNSample());
   grid->addColumns(tab, "Var", ELoc::Z);
   if (verbose) grid->display();

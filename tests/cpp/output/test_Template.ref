@@ -1,0 +1,157 @@
+
+Case of VectorDouble
+--------------------
+'rtab1' : [0.3 9.1 1.2 NA 4.3]
+Count of elements = 5
+Count of elements Defined = 4
+Count of elements Undefined = 1
+Sum of elements = 14.900000
+Product of elements = 14.086800
+Mean = 3.725000
+Median = 2.750000
+Minimum = 0.300000
+Maximum = 9.100000
+Variance = 15.775833
+St. Dev. = 3.971880
+Norm = 10.140513
+'rtab2' : [5.9 NA -1.6 2.2 -1]
+'rtab1' + 'rtab2' : [6.2 NA -0.4 NA 3.3]
+'rtab1' + 12 : [18.2 NA 11.6 NA 15.3]
+'rtab1' + 'rtab2' -> 'rtab3'' : [24.1 NA 10 NA 14.3]
+'rtab1' - 'rtab2' : [12.3 NA 13.2 NA 16.3]
+'rtab1' - 12 : [0.3 NA 1.2 NA 4.3]
+'rtab1' - 'rtab2' -> 'rtab3'' : [-5.6 NA 2.8 NA 5.3]
+'rtab1' * 'rtab2' : [1.77 NA -1.92 NA -4.3]
+'rtab1' * 12 : [21.24 NA -23.04 NA -51.6]
+'rtab1' * 'rtab2' -> 'rtab3'' : [125.316 NA 36.864 NA 51.6]
+'rtab1' / 'rtab2' : [3.6 NA 14.4 NA 51.6]
+'rtab1' / 12 : [0.3 NA 1.2 NA 4.3]
+'rtab1' / 'rtab2' -> 'rtab3'' : [0.0508475 NA -0.75 NA -4.3]
+
+Case of VectorInt
+-----------------
+'itab1' : [-2 9 1 NA 4]
+Count of elements = 5
+Count of elements Defined = 4
+Count of elements Undefined = 1
+Sum of elements = 12.000000
+Product of elements = -72.000000
+Minimum = -2.000000
+Maximum = 9.000000
+'itab2' : [5 NA -1 2 -1]
+'itab1' + 'itab2'' : [3 NA 0 NA 3]
+'itab1' + 12 : [15 NA 12 NA 15]
+'itab1'' + 'itab2' -> 'itab3' : [20 NA 11 NA 14]
+'itab1' - 'itab2'' : [10 NA 13 NA 16]
+'itab1' - 12 : [-2 NA 1 NA 4]
+'itab1'' - 'itab2' -> 'itab3' : [-7 NA 2 NA 5]
+'itab1' * 'itab2'' : [-10 NA -1 NA -4]
+'itab1' * 12 : [-120 NA -12 NA -48]
+'itab1'' * 'itab2' -> 'itab3' : [-600 NA 12 NA 48]
+'itab1' / 'itab2'' : [-24 NA 12 NA 48]
+'itab1' / 12 : [-2 NA 1 NA 4]
+'itab1'' / 'itab2' -> 'itab3' : [0 NA -1 NA -4]
+
+Case of VectorVectorDouble
+--------------------------
+'vrtab1'
+[1.1 2.2 3.3]
+[4.4 5.5 NA 7.7]
+Count of elements = 7
+Count of elements Defined = 6
+Count of elements Undefined = 1
+Sum of elements = 24.200000
+Product of elements = 1488.111240
+Minimum = 1.100000
+Maximum = 7.700000
+'vrtab2'
+[-2.9 NA 3.8]
+[4.5 1.4 6.3 -5.2]
+'vrtab1' + 'vrtab2''
+[-1.8 NA 7.1]
+[8.9 6.9 NA 2.5]
+'vrtab1' + 12
+[10.2 NA 19.1]
+[20.9 18.9 NA 14.5]
+'vrtab1' + 'vrtab2' -> 'vrtab3'
+[7.3 NA 22.9]
+[25.4 20.3 NA 9.3]
+'vrtab1' - 'vrtab2''
+[13.1 NA 15.3]
+[16.4 17.5 NA 19.7]
+'vrtab1' - 12
+[1.1 NA 3.3]
+[4.4 5.5 NA 7.7]
+'vrtab1' - 'vrtab2' -> 'vrtab3'
+[4 NA -0.5]
+[-0.1 4.1 NA 12.9]
+'vrtab1' * 'vrtab2''
+[-3.19 NA 12.54]
+[19.8 7.7 NA -40.04]
+'vrtab1' * 12
+[-38.28 NA 150.48]
+[237.6 92.4 NA -480.48]
+'vrtab1' * 'vrtab2' -> 'vrtab3'
+[111.012 NA 571.824]
+[1069.2 129.36 NA 2498.5]
+'vrtab1' / 'vrtab2''
+[13.2 NA 39.6]
+[52.8 66 NA 92.4]
+'vrtab1' / 12
+[1.1 NA 3.3]
+[4.4 5.5 NA 7.7]
+'vrtab1' / 'vrtab2' -> 'vrtab3'
+[-0.37931 NA 0.868421]
+[0.977778 3.92857 NA -1.48077]
+
+Case of VectorVectorInt
+-----------------------
+'vitab1'
+[1 2 3]
+[4 5 NA 7]
+Count of elements = 7
+Count of elements Defined = 6
+Count of elements Undefined = 1
+Sum of elements = 22.000000
+Product of elements = 840.000000
+Minimum = 1.000000
+Maximum = 7.000000
+'vitab2'
+[-2 NA 3]
+[4 1 6 -5]
+'vitab1' + 'vitab2''
+[-1 NA 6]
+[8 6 NA 2]
+'vitab1' + 12
+[11 NA 18]
+[20 18 NA 14]
+'vitab1' + 'vitab2' -> 'vitab3'
+[9 NA 21]
+[24 19 NA 9]
+'vitab1' - 'vitab2''
+[13 NA 15]
+[16 17 NA 19]
+'vitab1' - 12
+[1 NA 3]
+[4 5 NA 7]
+'vitab1' - 'vitab2' -> 'vitab3'
+[3 NA 0]
+[0 4 NA 12]
+'vitab1' * 'vitab2''
+[-2 NA 9]
+[16 5 NA -35]
+'vitab1' * 12
+[-24 NA 108]
+[192 60 NA -420]
+'vitab1' * 'vitab2' -> 'vitab3'
+[48 NA 324]
+[768 60 NA 2100]
+'vitab1' / 'vitab2''
+[12 NA 36]
+[48 60 NA 84]
+'vitab1' / 12
+[1 NA 3]
+[4 5 NA 7]
+'vitab1' / 'vitab2' -> 'vitab3'
+[0 NA 1]
+[1 5 NA -1]

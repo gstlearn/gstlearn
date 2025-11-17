@@ -2046,8 +2046,8 @@ def _ax_sectionFromGrid(ax, trace, grid, ptype = gl.ELoc.Z, addNames = None,
     if flagFill:
         tabx = np.append(tabx, [tabx[ntab-1], tabx[0]])
     nsurf  = len(tab)
-    mini = gl.VH.minimumVVD(tab)
-    maxi = gl.VH.maximumVVD(tab)
+    mini = np.min(tab)
+    maxi = np.max(tab)
     if flagUp:
         refval = mini - percent * (maxi - mini)
     else:

@@ -8,20 +8,16 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_enum.h"
-#include "geoslib_old_f.h"
-
-#include "Enum/ERule.hpp"
-
+#include "LithoRule/RuleShift.hpp"
 #include "Basic/SerializeHDF5.hpp"
-#include "Basic/Utilities.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
+#include "Enum/ERule.hpp"
 #include "LithoRule/PropDef.hpp"
 #include "LithoRule/Rule.hpp"
-#include "LithoRule/RuleShift.hpp"
 #include "Model/Model.hpp"
-
+#include "geoslib_enum.h"
+#include "geoslib_old_f.h"
 #include <cmath>
 #include <sstream>
 

@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "LinearOp/SPDEOp.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "LinearOp/ASimulable.hpp"
 #include "LinearOp/PrecisionOpMulti.hpp"
@@ -265,7 +266,7 @@ VectorDouble ASPDEOp::stdev(const VectorDouble& dat,
   for (Id iMC = 0; iMC < nMC; iMC++)
   {
     VectorDouble temp = simCond(dat, projK, projS);
-    VH::addInPlace(temp_mean, temp);
+    temp_mean.add(temp);
     VH::addSquareInPlace(temp_mean2, temp);
   }
   VH::mean1AndMean2ToStdev(temp_mean, temp_mean2, temp_mean, nMC);
@@ -411,7 +412,7 @@ double ASPDEOp::computeLogDetOp(Id nbsimu) const
     VH::simulateGaussianInPlace(_workNoiseMesh);
     std::fill(_workmesh.begin(), _workmesh.end(), 0.);
     logPoly.addEvalOp(this, _workNoiseMesh, _workmesh);
-    val += VH::innerProductVD(_workNoiseMesh, _workmesh);
+    val += _workNoiseMesh.innerProduct(_workmesh);
   }
   return val / nbsimu;
 }

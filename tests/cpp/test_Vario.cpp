@@ -11,16 +11,16 @@
 /* This file is meant to demonstrate the process of using PGS                 */
 /*                                                                            */
 /******************************************************************************/
-#include "Covariances/ACov.hpp"
-#include "Covariances/CovAnisoList.hpp"
-#include "Enum/ECalcVario.hpp"
-#include "Enum/ECov.hpp"
-
 #include "Basic/AStringable.hpp"
 #include "Basic/File.hpp"
+#include "Basic/VectorHelper.hpp"
+#include "Covariances/ACov.hpp"
 #include "Covariances/CovAniso.hpp"
+#include "Covariances/CovAnisoList.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
+#include "Enum/ECalcVario.hpp"
+#include "Enum/ECov.hpp"
 #include "Model/Model.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
 #include "Variogram/VMap.hpp"

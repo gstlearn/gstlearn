@@ -59,7 +59,7 @@ VectorDouble KernelPoisson::_evaluateSpectrumOnSphere(Id n, double scale) const
   double lambda   = getParam();
   VectorInt x     = VH::sequence(n + 1);
   VectorDouble sp = law_df_poisson_vec(x, lambda);
-  VH::normalize(sp, 1);
+  sp.normalizeInPlace(1);
 
   return sp;
 }

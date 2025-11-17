@@ -11,6 +11,7 @@
 #include "LinearOp/PrecisionOp.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "LinearOp/AShiftOp.hpp"
@@ -571,7 +572,7 @@ double PrecisionOp::computeLogDet(Id nMC) const
     VH::simulateGaussianInPlace(gauss);
     vect results(result);
     if (_evalPoly(EPowerPT::LOG, gauss, results) != 0) return TEST;
-    val1 += VH::innerProductVD(gauss, result);
+    val1 += gauss.innerProduct(result);
   }
 
   val1 /= nMC;

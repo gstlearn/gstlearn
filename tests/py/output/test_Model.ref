@@ -33,7 +33,7 @@ Drift Part
 Universality_Condition
 Drift:x1
 Drift:x2
- 
+
 Model characteristics
 =====================
 Space dimension              = 2
@@ -70,7 +70,7 @@ Drift:x1
 Drift:x2
 External_Drift:0
 External_Drift:1
- 
+
 Model characteristics
 =====================
 Space dimension              = 2
@@ -94,7 +94,7 @@ Total Sill
      [  1,]     1.000     4.000
 
 Known Mean(s)     0.000     0.000
- 
+
 Model characteristics
 =====================
 Space dimension              = 2
@@ -111,7 +111,7 @@ Gaussian
 - Theo. Range  =      2.889
 Total Sill     =      1.000
 Known Mean(s)     0.000
- 
+
 Model characteristics
 =====================
 Space dimension              = 2
@@ -130,7 +130,7 @@ Total Sill     =      1.500
 Tapering Function     = Storkey
 Tapering Scale        = 2
 Known Mean(s)     0.000
- 
+
 Model characteristics
 =====================
 Space dimension              = 2
@@ -151,4 +151,4 @@ Convolution direction = Along X
 Nb. discretization    = 10
 Convolution Scale     = 0.1
 Known Mean(s)     0.000
- Test successfully performed
+Test successfully performed

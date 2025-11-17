@@ -69,7 +69,7 @@ String KernelMarkov::getFormula() const
 VectorDouble KernelMarkov::_evaluateSpectrumOnSphere(Id n, double scale) const
 {
   auto sp = _evaluateSpectrumOnSphereWithoutNormalization(n, scale);
-  VH::normalize(sp, 1);
+  sp.normalizeInPlace(1);
   return sp;
 }
 

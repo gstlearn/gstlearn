@@ -11,8 +11,8 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/OptCst.hpp"
 #include "Basic/String.hpp"
-#include "Basic/Utilities.hpp"
 #include "Basic/VectorNumT.hpp"
+#include "Matrix/AMatrix.hpp"
 
 #include <cmath>
 #include <cstdarg>

@@ -911,10 +911,10 @@ namespace gstlrn {
 %extend VectorNumT<UChar> {
   std::string __repr__() {  return $self->toString(); }
 }
-%extend VectorT<VectorNumT<long long> > {
+%extend VectorNumT<VectorNumT<long long> > {
   std::string __repr__() {  return $self->toString(); }
 }
-%extend VectorT<VectorNumT<double> >{
+%extend VectorNumT<VectorNumT<double> >{
   std::string __repr__() {  return $self->toString(); }
 }
 

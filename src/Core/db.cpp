@@ -12,6 +12,7 @@
 
 #include "Basic/Grid.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Db/DbGrid.hpp"
 #include "Polygon/Polygons.hpp"
 #include "geoslib_old_f.h"
@@ -1042,7 +1043,7 @@ Id db_proportion(
                            &nmax[ivar]);
     }
   }
-  Id nclass = VH::product(nmax);
+  Id nclass = nmax.prod();
 
   /* Core allocation */
 
