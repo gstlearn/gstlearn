@@ -32,15 +32,15 @@ class GSTLEARN_EXPORT TuckeyGH:
 {
 public:
   TuckeyGH(double g = 0.0, double h = 0.0);
-  TuckeyGH(const TuckeyGH& r)            = delete;
-  TuckeyGH& operator=(const TuckeyGH& r) = delete;
+  TuckeyGH(const TuckeyGH& r)            = default;
+  TuckeyGH& operator=(const TuckeyGH& r) = default;
   virtual ~TuckeyGH()                    = default;
-
+  IMPLEMENT_CLONING(TuckeyGH)
   double getGValue() const { return _G.getValue(); }
   void setGValue(double g) { _G.setValue(g); }
   double getHValue() const { return _H.getValue(); }
   void setHValue(double h) { _H.setValue(h); }
-  void initParams() override;
+  void initParams(double min = 0., double max = INF) override;
   void appendParams(ListParams& listParams) override;
 
   String getName() const override { return "TuckeyGH"; }
@@ -58,6 +58,7 @@ public:
     return (exp(g * h) - 1.) / g * exp(0.5 * hv * h * h);
   }
 
+  VectorDouble getParams() const override;
 private:
   ParamInfo _G;
   ParamInfo _H;

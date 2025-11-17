@@ -114,8 +114,8 @@ public:
 
   // Non-stationary parameters
   void makeRangeNoStatDb(Id icov, const String& namecol, Id idim = 0);
-  void makeScaleNoStatDb(Id icov, const String& namecol, Id idim = 0);
   void makeAngleNoStatDb(Id icov, const String& namecol, Id idim = 0);
+  void makeScaleNoStatDb(Id icov, const String& namecol, Id idim = 0);
 
   void makeTensorNoStatDb(Id icov, const String& namecol, Id idim = 0, Id jdim = 0);
   void makeParamNoStatDb(Id icov, const String& namecol);

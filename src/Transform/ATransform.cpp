@@ -41,6 +41,7 @@ double ATransform::inverseTransform(double y) const
 
 double ATransform::condExp(double mu, double sigma, Id power) const
 {
+  Id oldseed = law_get_random_seed();
   // Monte Carlo estimation of E[transform(X)] where X ~ N(mu, sigma^2)
   double sum = 0.0;
 
@@ -49,7 +50,9 @@ double ATransform::condExp(double mu, double sigma, Id power) const
     double x = mu + (sigma * law_gaussian());
     sum += pow(transform(x), power);
   }
+  law_set_random_seed(oldseed);
   return sum / _nMonteCarlo;
+
 }
 
 void ATransform::condExpVec(constvect mu, constvect sigma, vect out, Id power) const

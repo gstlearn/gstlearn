@@ -47,9 +47,9 @@ AModelOptim::AModelOptim(ModelGeneric* model, bool verbose)
   resetIter();
 };
 
-void AModelOptim::setEnvironment(const MatrixSymmetric& vars, double href, double epsilon)
+void AModelOptim::setEnvironment(const MatrixSymmetric& vars, double href, double epsilon, double min, double max)
 {
-  _model->initParams(vars, href);
+  _model->initParams(vars, href, min, max);
   _opt->setLowerBounds(_params->getMinValues(epsilon), _params->getDispatch());
   _opt->setUpperBounds(_params->getMaxValues(epsilon), _params->getDispatch());
   _x = _params->getOptimizableValues();

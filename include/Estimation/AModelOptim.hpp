@@ -27,8 +27,10 @@ class GSTLEARN_EXPORT AModelOptim
 public:
   AModelOptim(ModelGeneric* model = nullptr,
               bool verbose        = false);
-  void setEnvironment(const MatrixSymmetric& vars, double href, double epsilon = EPSILON6);
-
+  #ifndef SWIG
+  void setEnvironment(const MatrixSymmetric& vars, double href, double epsilon = EPSILON6,
+                      double min = 0., double max = INF);
+  #endif
   AModelOptim& operator=(const AModelOptim& r);
 
   void setAuthorizedAnalyticalGradients(bool authorized);

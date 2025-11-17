@@ -70,7 +70,8 @@ void ALikelihood::_initLikelihood(bool verbose)
 {
   MatrixSymmetric vars = dbVarianceMatrix(_db);
   double hmax          = _db->getExtensionDiagonal();
-  setEnvironment(vars, hmax);
+  double vmax = VH::maximum(_db->getColumnByLocator(ELoc::Z, 0));
+  setEnvironment(vars, hmax, EPSILON6, 0., vmax);
   Id nvar = _db->getNLoc(ELoc::Z);
   if (nvar < 1)
   {

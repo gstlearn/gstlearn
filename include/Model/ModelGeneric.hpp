@@ -196,11 +196,12 @@ public:
   void addDrift(const ADrift* drift); // TODO: check that the same driftM has not been already defined
   void setDrifts(const VectorString& driftSymbols);
 
-  void initParams(const MatrixSymmetric& vars, double href = 1.);
-
+  #ifndef SWIG
+  void initParams(const MatrixSymmetric& vars, double href = 1., double min = 0., double max = INF);
+  #endif
   const ATransform* getTransform() const { return _transform; }
   ATransform* getTransformModify() { return _transform; }
-  void setTransform(ATransform* transform) { _transform = transform; }
+  void setTransform(const ATransform* transform);
 
   std::shared_ptr<ListParams> generateListParams() const;
   // Version for python test
