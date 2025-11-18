@@ -93,7 +93,7 @@ String CSVformat::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
 
-  sstr << toTitle(1, "CSV Format");
+  sstr << toStrTitle(1, "CSV Format");
 
   if (_flagHeader)
     sstr << "The first line contains a Header" << std::endl;

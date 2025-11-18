@@ -144,7 +144,7 @@ void OptDbg::display()
 {
   std::stringstream sstr;
 
-  sstr << toTitle(1,"List of Debug Options");
+  sstr << toStrTitle(1,"List of Debug Options");
   auto it = EDbg::getIterator();
   while (it.hasNext())
   {

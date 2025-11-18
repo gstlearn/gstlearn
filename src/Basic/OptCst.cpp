@@ -82,7 +82,7 @@ void OptCst::display()
 {
   std::stringstream sstr;
 
-  sstr << toTitle(1,"List of Options of internal Constant values");
+  sstr << toStrTitle(1,"List of Options of internal Constant values");
 
   for (auto e: _cst)
   {

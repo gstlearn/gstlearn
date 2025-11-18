@@ -1014,8 +1014,8 @@ String Vario::toString(const AStringFormat* strfmt) const
 
   // Print the variance matrix
 
-  sstr << toMatrix("Variance-Covariance Matrix", VectorString(), VectorString(),
-                   0, _nVar, _nVar, getVars());
+  sstr << toStrMatrix("Variance-Covariance Matrix", VectorString(), VectorString(),
+                      0, _nVar, _nVar, getVars());
 
   /* Loop on the directions (only if the resulting arrays have been defined) */
 
@@ -1023,7 +1023,7 @@ String Vario::toString(const AStringFormat* strfmt) const
   {
     for (Id idir = 0; idir < getNDir(); idir++)
     {
-      sstr << toTitle(1, "Direction #%d", idir + 1);
+      sstr << toStrTitle(1, "Direction #%d", idir + 1);
       sstr << getDirParam(idir).toString(strfmt);
       sstr << _toStringByDirection(strfmt, idir);
     }

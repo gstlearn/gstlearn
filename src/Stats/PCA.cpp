@@ -193,11 +193,11 @@ String PCA::toString(const AStringFormat* strfmt) const
   if (pcafmt != nullptr) dsf = *pcafmt;
   if (_nVar <= 0) return sstr.str();
 
-  sstr << toTitle(1, "PCA Contents");
+  sstr << toStrTitle(1, "PCA Contents");
 
   if (dsf.getflagCenter())
   {
-    sstr << toMatrix("Means", VectorString(), VectorString(), true, _nVar, 1, _mean);
+    sstr << toStrMatrix("Means", VectorString(), VectorString(), true, _nVar, 1, _mean);
   }
   if (dsf.getflagStats())
   {

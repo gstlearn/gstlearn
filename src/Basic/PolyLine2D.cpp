@@ -83,8 +83,8 @@ String PolyLine2D::toString(const AStringFormat* strfmt) const
       tab[i]           = _x[i];
       tab[i + npoints] = _y[i];
     }
-    sstr << toMatrix("Line Vertex Coordinates", VectorString(), VectorString(),
-                     true, npoints, 2, tab);
+    sstr << toStrMatrix("Line Vertex Coordinates", VectorString(), VectorString(),
+                        true, npoints, 2, tab);
   }
   return sstr.str();
 }

@@ -11,6 +11,7 @@
 #include "Matrix/AMatrix.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/String.hpp"
 #include "Basic/Utilities.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Matrix/NF_Triplet.hpp"
@@ -708,8 +709,8 @@ String AMatrix::toString(const AStringFormat* strfmt) const
     sstr << "- Sparse Format" << std::endl;
     flagSkipZero = true;
   }
-  sstr << toMatrix(String(), VectorString(), VectorString(), true, _nRows, _nCols,
-                   getValues(), false, flagSkipZero);
+  sstr << toStrMatrix(String(), VectorString(), VectorString(), true, _nRows, _nCols,
+                      getValues(), false, flagSkipZero);
 
   return sstr.str();
 }

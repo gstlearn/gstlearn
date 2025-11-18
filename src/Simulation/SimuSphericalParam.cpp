@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Simulation/SimuSphericalParam.hpp"
+#include "Basic/String.hpp"
 
 namespace gstlrn
 {
@@ -18,38 +19,38 @@ SimuSphericalParam::SimuSphericalParam(Id special,
                                        Id degmax,
                                        Id ndisc,
                                        double tol)
-    : AStringable(),
-      _special(special),
-      _nbf(nbf),
-      _nfmax(nfmax),
-      _degmax(degmax),
-      _ndisc(ndisc),
-      _tol(tol)
+  : AStringable()
+  , _special(special)
+  , _nbf(nbf)
+  , _nfmax(nfmax)
+  , _degmax(degmax)
+  , _ndisc(ndisc)
+  , _tol(tol)
 {
 }
 
-SimuSphericalParam::SimuSphericalParam(const SimuSphericalParam &r)
-    : AStringable(r),
-      _special(r._special),
-      _nbf(r._nbf),
-      _nfmax(r._nfmax),
-      _degmax(r._degmax),
-      _ndisc(r._ndisc),
-      _tol(r._tol)
+SimuSphericalParam::SimuSphericalParam(const SimuSphericalParam& r)
+  : AStringable(r)
+  , _special(r._special)
+  , _nbf(r._nbf)
+  , _nfmax(r._nfmax)
+  , _degmax(r._degmax)
+  , _ndisc(r._ndisc)
+  , _tol(r._tol)
 {
 }
 
-SimuSphericalParam& SimuSphericalParam::operator=(const SimuSphericalParam &r)
+SimuSphericalParam& SimuSphericalParam::operator=(const SimuSphericalParam& r)
 {
   if (this != &r)
   {
-    AStringable::operator =(r);
+    AStringable::operator=(r);
     _special = r._special;
-    _nbf = r._nbf;
-    _nfmax = r._nfmax;
-    _degmax = r._degmax;
-    _ndisc = r._ndisc;
-    _tol = r._tol;
+    _nbf     = r._nbf;
+    _nfmax   = r._nfmax;
+    _degmax  = r._degmax;
+    _ndisc   = r._ndisc;
+    _tol     = r._tol;
   }
   return *this;
 }
@@ -62,7 +63,7 @@ String SimuSphericalParam::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
 
-  sstr << toTitle(1, "Option for constructing the covariance spectrum");
+  sstr << toStrTitle(1, "Option for constructing the covariance spectrum");
   if (_special == 0)
     sstr << "For all standard covariances" << std::endl;
   else if (_special == 1)
@@ -80,4 +81,4 @@ String SimuSphericalParam::toString(const AStringFormat* /*strfmt*/) const
   return sstr.str();
 }
 
-}
+} // namespace gstlrn

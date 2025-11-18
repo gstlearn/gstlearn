@@ -81,7 +81,7 @@ String AMesh::toString(const AStringFormat* strfmt) const
 
   if (!_extendMin.empty() && !_extendMax.empty())
   {
-    sstr << toTitle(1, "Bounding Box Extension");
+    sstr << toStrTitle(1, "Bounding Box Extension");
     for (Id idim = 0; idim < _nDim; idim++)
       sstr << "Dim #" << idim + 1 << " - Min:" << _extendMin[idim] << " - Max:" << _extendMax[idim] << std::endl;
   }

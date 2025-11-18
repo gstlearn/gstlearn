@@ -68,7 +68,7 @@ String SimuBooleanParam::toString(const AStringFormat* /*strfmt*/) const
   sstr << "- Value assigned to the Background = " << _background << std::endl;
   sstr << "- Value assigned to the Facies     = " << _facies << std::endl;
   if (!_dilate.empty())
-    sstr << toVector("Dilation", _dilate);
+    sstr << toStrVector("Dilation", _dilate);
   return sstr.str();
 }
 

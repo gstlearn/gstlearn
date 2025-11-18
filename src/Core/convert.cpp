@@ -589,7 +589,7 @@ Id csv_table_read(const String& filename,
         if (word == na_string)
           tab.push_back(TEST);
         else
-          tab.push_back(convertToDouble(word, char_dec));
+          tab.push_back(fromStr<double>(word, char_dec));
         ncol2++;
         if (ncol_max > 0 && ncol2 >= ncol_max) break;
         if (ncol > 0 && ncol2 >= ncol) break;

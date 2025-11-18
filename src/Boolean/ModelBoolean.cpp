@@ -110,7 +110,7 @@ String ModelBoolean::toString(const AStringFormat* strfmt) const
   std::stringstream sstr;
   if (getNbTokens() <= 0) return sstr.str();
 
-  sstr << toTitle(0, "Object Model");
+  sstr << toStrTitle(0, "Object Model");
   if (_flagStat)
     sstr << "- Poisson Intensity = " << _thetaCst << std::endl;
   else
@@ -118,7 +118,7 @@ String ModelBoolean::toString(const AStringFormat* strfmt) const
 
   for (Id itok = 0; itok < getNbTokens(); itok++)
   {
-    sstr << toTitle(1, "Token %d", itok + 1);
+    sstr << toStrTitle(1, "Token %d", itok + 1);
     sstr << _shapes[itok]->toString(strfmt);
   }
   return sstr.str();

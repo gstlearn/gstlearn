@@ -10,9 +10,9 @@
 /******************************************************************************/
 #include "Variogram/AVario.hpp"
 
-#include "Enum/ECalcVario.hpp"
-#include "Db/Db.hpp"
 #include "Basic/Utilities.hpp"
+#include "Db/Db.hpp"
+#include "Enum/ECalcVario.hpp"
 
 namespace gstlrn
 {
@@ -41,7 +41,13 @@ AVario& AVario::operator=(const AVario& r)
 AVario::~AVario() {}
 
 void AVario::_evaluateVariogram(
-  Db* db, Id nvar, Id iech1, Id iech2, Id ilag, double dist, bool do_asym)
+  Db* db,
+  Id nvar,
+  Id iech1,
+  Id iech2,
+  Id ilag,
+  double dist,
+  bool do_asym)
 {
   DECLARE_UNUSED(do_asym);
   double w1 = db->getWeight(iech1);
@@ -66,7 +72,13 @@ void AVario::_evaluateVariogram(
 }
 
 void AVario::_evaluateMadogram(
-  Db* db, Id nvar, Id iech1, Id iech2, Id ilag, double dist, bool do_asym)
+  Db* db,
+  Id nvar,
+  Id iech1,
+  Id iech2,
+  Id ilag,
+  double dist,
+  bool do_asym)
 {
   DECLARE_UNUSED(do_asym);
   double w1 = db->getWeight(iech1);
@@ -91,7 +103,13 @@ void AVario::_evaluateMadogram(
 }
 
 void AVario::_evaluateRodogram(
-  Db* db, Id nvar, Id iech1, Id iech2, Id ilag, double dist, bool do_asym)
+  Db* db,
+  Id nvar,
+  Id iech1,
+  Id iech2,
+  Id ilag,
+  double dist,
+  bool do_asym)
 {
   DECLARE_UNUSED(do_asym);
   double w1 = db->getWeight(iech1);
@@ -116,7 +134,13 @@ void AVario::_evaluateRodogram(
 }
 
 void AVario::_evaluatePoisson(
-  Db* db, Id nvar, Id iech1, Id iech2, Id ilag, double dist, bool do_asym)
+  Db* db,
+  Id nvar,
+  Id iech1,
+  Id iech2,
+  Id ilag,
+  double dist,
+  bool do_asym)
 {
   DECLARE_UNUSED(do_asym);
   double w1 = db->getWeight(iech1);
@@ -141,13 +165,19 @@ void AVario::_evaluatePoisson(
 }
 
 void AVario::_evaluateCovariance(
-  Db* db, Id nvar, Id iech1, Id iech2, Id ilag, double dist, bool do_asym)
+  Db* db,
+  Id nvar,
+  Id iech1,
+  Id iech2,
+  Id ilag,
+  double dist,
+  bool do_asym)
 {
   double w1 = db->getWeight(iech1);
   double w2 = db->getWeight(iech2);
   if (FFFF(w1) || FFFF(w2)) return;
-  Id orient = (dist > 0) ? 1 : -1;
-  dist       = ABS(dist);
+  Id orient    = (dist > 0) ? 1 : -1;
+  dist         = ABS(dist);
   double scale = w1 * w2;
   for (Id ivar = 0; ivar < nvar; ivar++)
   {
@@ -173,13 +203,19 @@ void AVario::_evaluateCovariance(
 }
 
 void AVario::_evaluateCovariogram(
-  Db* db, Id nvar, Id iech1, Id iech2, Id ilag, double dist, bool do_asym)
+  Db* db,
+  Id nvar,
+  Id iech1,
+  Id iech2,
+  Id ilag,
+  double dist,
+  bool do_asym)
 {
   double w1 = db->getWeight(iech1);
   double w2 = db->getWeight(iech2);
   if (FFFF(w1) || FFFF(w2)) return;
-  Id orient = (dist > 0) ? 1 : -1;
-  dist       = ABS(dist);
+  Id orient    = (dist > 0) ? 1 : -1;
+  dist         = ABS(dist);
   double scale = w2;
   for (Id ivar = 0; ivar < nvar; ivar++)
   {
@@ -205,7 +241,13 @@ void AVario::_evaluateCovariogram(
 }
 
 void AVario::_evaluateOrder4(
-  Db* db, Id nvar, Id iech1, Id iech2, Id ilag, double dist, bool do_asym)
+  Db* db,
+  Id nvar,
+  Id iech1,
+  Id iech2,
+  Id ilag,
+  double dist,
+  bool do_asym)
 {
   DECLARE_UNUSED(do_asym);
   double w1 = db->getWeight(iech1);
@@ -239,60 +281,60 @@ String AVario::_elemString(const AStringFormat* strfmt) const
 
   switch (getCalcul().toEnum())
   {
-    case ECalcVario::E_UNDEFINED: sstr << toTitle(0, "Undefined"); break;
+    case ECalcVario::E_UNDEFINED: sstr << toStrTitle(0, "Undefined"); break;
 
     case ECalcVario::E_VARIOGRAM:
-      sstr << toTitle(0, "Variogram characteristics");
+      sstr << toStrTitle(0, "Variogram characteristics");
       break;
 
     case ECalcVario::E_MADOGRAM:
-      sstr << toTitle(0, "Madogram characteristics");
+      sstr << toStrTitle(0, "Madogram characteristics");
       break;
 
     case ECalcVario::E_RODOGRAM:
-      sstr << toTitle(0, "Rodogram characteristics");
+      sstr << toStrTitle(0, "Rodogram characteristics");
       break;
 
     case ECalcVario::E_POISSON:
-      sstr << toTitle(0, "Poisson variogram characteristics");
+      sstr << toStrTitle(0, "Poisson variogram characteristics");
       break;
 
     case ECalcVario::E_COVARIANCE:
-      sstr << toTitle(0, "Covariance characteristics");
+      sstr << toStrTitle(0, "Covariance characteristics");
       break;
 
     case ECalcVario::E_COVARIANCE_NC:
-      sstr << toTitle(0, "Non-centered Covariance characteristics");
+      sstr << toStrTitle(0, "Non-centered Covariance characteristics");
       break;
 
     case ECalcVario::E_COVARIOGRAM:
-      sstr << toTitle(0, "Transitive Covariogram characteristics");
+      sstr << toStrTitle(0, "Transitive Covariogram characteristics");
       break;
 
     case ECalcVario::E_GENERAL1:
-      sstr << toTitle(0, "Generalized Variogram of order 1 characteristics");
+      sstr << toStrTitle(0, "Generalized Variogram of order 1 characteristics");
       break;
 
     case ECalcVario::E_GENERAL2:
-      sstr << toTitle(0, "Generalized Variogram of order 2 characteristics");
+      sstr << toStrTitle(0, "Generalized Variogram of order 2 characteristics");
       break;
 
     case ECalcVario::E_GENERAL3:
-      sstr << toTitle(0, "Generalized Variogram of order 3 characteristics");
+      sstr << toStrTitle(0, "Generalized Variogram of order 3 characteristics");
       break;
 
-    case ECalcVario::E_ORDER4: sstr << toTitle(0, "Order-4 Variogram"); break;
+    case ECalcVario::E_ORDER4: sstr << toStrTitle(0, "Order-4 Variogram"); break;
 
     case ECalcVario::E_TRANS1:
-      sstr << toTitle(0, "Cross-to_simple Variogram ratio G12/G1");
+      sstr << toStrTitle(0, "Cross-to_simple Variogram ratio G12/G1");
       break;
 
     case ECalcVario::E_TRANS2:
-      sstr << toTitle(0, "Cross-to_simple Variogram ratio G12/G2");
+      sstr << toStrTitle(0, "Cross-to_simple Variogram ratio G12/G2");
       break;
 
     case ECalcVario::E_BINORMAL:
-      sstr << toTitle(0, "Cross-to_simple Variogram ratio G12/sqrt(G1*G2)");
+      sstr << toStrTitle(0, "Cross-to_simple Variogram ratio G12/sqrt(G1*G2)");
       break;
 
     default: break;
@@ -429,4 +471,4 @@ void AVario::setCalcul(const ECalcVario& calcul)
     }
   }
 }
-}
+} // namespace gstlrn

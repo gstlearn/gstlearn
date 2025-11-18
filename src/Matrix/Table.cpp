@@ -184,7 +184,7 @@ String Table::toString(const AStringFormat* /*strfmt*/) const
   if (!_skipTitle)
   {
     if (!_title.empty())
-      sstr << toTitle(1, _title.c_str());
+      sstr << toStrTitle(1, _title.c_str());
   }
 
   // Description

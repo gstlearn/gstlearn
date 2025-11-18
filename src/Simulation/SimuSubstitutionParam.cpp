@@ -98,13 +98,13 @@ String SimuSubstitutionParam::toString(const AStringFormat* /*strfmt*/) const
   else
     sstr << "Coding not performed: Result is the Direction information" << std::endl;
   if (_flagOrient)
-    sstr << toVector("Vector orthogonal to desorientation layering", _vector);
+    sstr << toStrVector("Vector orthogonal to desorientation layering", _vector);
   sstr << "Factor for desorientation strength (0: isotropic; 1: stratified) = " << _factor << std::endl;
-  sstr << toVector("Transition probability matrix", _trans);
+  sstr << toStrVector("Transition probability matrix", _trans);
   if (_colfac >= 0)
     sstr << "Attribute rank for desorientation factor = " << _colfac << std::endl;
   if (!_colang.empty())
-    sstr << toVector("Attribute ranks for Desorientation Vector", _colang);
+    sstr << toStrVector("Attribute ranks for Desorientation Vector", _colang);
 
   return sstr.str();
 }

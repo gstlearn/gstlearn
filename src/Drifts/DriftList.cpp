@@ -89,7 +89,7 @@ String DriftList::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
   if (getNDrift() <= 0)
-    sstr << toVector("Known Mean(s)", getMeans());
+    sstr << toStrVector("Known Mean(s)", getMeans());
   // TODO: could be added but changes all non-regression files
   //    sstr << "(Note: Simple Kriging will be used)" << std::endl;
   for (Id i = 0, nbfl = getNDrift(); i < nbfl; i++)

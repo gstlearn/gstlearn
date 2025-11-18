@@ -274,8 +274,8 @@ double SpatialIndices::getGIC(const String& name1, const String& name2)
   double inertia1      = getInertia();
   if (computeCGI(name2) != 0)
     return TEST;
-  const auto& center2 = getCenter();
-  double inertia2     = getInertia();
+  VectorDouble center2 = getCenter();
+  double inertia2      = getInertia();
 
   double dx  = center1[0] - center2[0];
   double dy  = center1[1] - center2[1];
@@ -428,10 +428,10 @@ String SpatialIndices::toString(const AStringFormat* strfmt) const
   DECLARE_UNUSED(strfmt);
   std::stringstream sstr;
 
-  sstr << toTitle(0, "Spatial Indices");
+  sstr << toStrTitle(0, "Spatial Indices");
 
   if (!_center.empty())
-    sstr << "Gravity Center" << toVectorDouble(_center) << std::endl;
+    sstr << "Gravity Center" << toStrVectorDouble(_center) << std::endl;
   if (!FFFF(_inertia))
     sstr << "Inertia = " << _inertia << std::endl;
   if (!FFFF(_iso))

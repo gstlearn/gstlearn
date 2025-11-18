@@ -184,8 +184,8 @@ String CovAniso::toString(const AStringFormat* strfmt) const
 
     if (getNVar() > 1)
     {
-      sstr << toMatrix("- Sill matrix:", VectorString(), VectorString(), 0,
-                       getNVar(), getNVar(), _sillCur.getValues());
+      sstr << toStrMatrix("- Sill matrix:", VectorString(), VectorString(), 0,
+                          getNVar(), getNVar(), _sillCur.getValues());
     }
     else
     {
@@ -203,8 +203,8 @@ String CovAniso::toString(const AStringFormat* strfmt) const
       for (Id ivar = 0; ivar < getNVar(); ivar++)
         for (Id jvar = 0; jvar < getNVar(); jvar++)
           slopes.setValue(ivar, jvar, _sillCur.getValue(ivar, jvar) / range);
-      sstr << toMatrix("- Slope matrix:", VectorString(), VectorString(), 0,
-                       getNVar(), getNVar(), slopes.getValues());
+      sstr << toStrMatrix("- Slope matrix:", VectorString(), VectorString(), 0,
+                          getNVar(), getNVar(), slopes.getValues());
     }
     else
     {
@@ -219,7 +219,7 @@ String CovAniso::toString(const AStringFormat* strfmt) const
 
   if (isNoStat())
   {
-    sstr << toTitle(1, "Non-Stationary Parameters");
+    sstr << toStrTitle(1, "Non-Stationary Parameters");
     sstr << _tabNoStat->toString(strfmt);
     auto i = getTabNoStatSills()->getNSills();
     sstr << getCorAniso()->toStringNoStat(strfmt, i);

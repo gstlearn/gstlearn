@@ -54,11 +54,11 @@ String NeighImage::toString(const AStringFormat* strfmt) const
   DECLARE_UNUSED(strfmt);
   std::stringstream sstr;
 
-  sstr << toTitle(0, "Image Neighborhood");
+  sstr << toStrTitle(0, "Image Neighborhood");
 
   sstr << "Skipping factor = " << _skip << std::endl;
-  sstr << toMatrix("Image radius :", VectorString(), VectorString(), true,
-                   1, static_cast<Id>(getNDim()), _imageRadius);
+  sstr << toStrMatrix("Image radius :", VectorString(), VectorString(), true,
+                      1, static_cast<Id>(getNDim()), _imageRadius);
 
   return sstr.str();
 }

@@ -29,25 +29,47 @@
 
 namespace gstlrn
 {
-static Id _getDecimalNumber()
+// Functions for returning parameters from OptCst environment
+Id _getColumnRank()
+{
+  return static_cast<Id>(OptCst::query(ECst::NTRANK));
+}
+Id _getColumnName()
+{
+  return static_cast<Id>(OptCst::query(ECst::NTNAME));
+}
+Id _getColumnSize(Id localSize)
+{
+  return (localSize > 0) ? localSize : static_cast<Id>(OptCst::query(ECst::NTCAR));
+}
+Id _getMaxNCols()
+{
+  return static_cast<Id>(OptCst::query(ECst::NTCOL));
+}
+Id _getMaxNRows()
+{
+  return static_cast<Id>(OptCst::query(ECst::NTROW));
+}
+Id _getNBatch()
+{
+  return static_cast<Id>(OptCst::query(ECst::NTBATCH));
+}
+Id _getDecimalNumber()
 {
   return static_cast<Id>(OptCst::query(ECst::NTDEC));
 }
-static Id _getColumnSize()
-{
-  return static_cast<Id>(OptCst::query(ECst::NTCAR));
-}
-static double _getThresh()
+double _getThresh()
 {
   Id ndec       = static_cast<Id>(OptCst::query(ECst::NTDEC));
   double thresh = (0.5 * pow(10, -ndec));
   return thresh;
 }
 
+// Functions for encoding a single value
 std::stringstream _formatOneColumn(Id justification, Id localSize = 0)
 {
   std::stringstream sstr;
-  auto size = static_cast<I32>((localSize > 0) ? localSize : _getColumnSize());
+  auto size = static_cast<I32>(_getColumnSize(localSize));
   auto prec = static_cast<I32>(_getDecimalNumber());
   sstr << std::fixed << std::setw(size) << std::setprecision(prec);
   if (justification < 0)
@@ -57,13 +79,11 @@ std::stringstream _formatOneColumn(Id justification, Id localSize = 0)
   return sstr;
 }
 
-String _formatOneString(const String& string,
-                        Id justification,
-                        Id localSize = 0)
+String _formatOneString(const String& string, Id justification, Id localSize)
 {
   std::stringstream sstr = _formatOneColumn(justification, localSize);
   Id size                = static_cast<Id>(string.size());
-  Id truncSize           = (localSize > 0) ? localSize : _getColumnSize();
+  Id truncSize           = _getColumnSize(localSize);
   if (size > truncSize)
   {
     // String must be truncated
@@ -80,7 +100,7 @@ String _formatOneString(const String& string,
   return sstr.str();
 }
 
-String _formatOneDouble(double value, Id justification, Id localSize = 0)
+String _formatOneDouble(double value, Id justification, Id localSize)
 {
   std::stringstream sstr = _formatOneColumn(justification, localSize);
   if (FFFF(value))
@@ -103,6 +123,474 @@ String _formatOneId(Id value, Id justification, Id localSize = 0)
   else
     sstr << value;
 
+  return sstr.str();
+}
+
+/**
+ * Decode an double from a string. Returns TEST if impossible
+ * @param v String to be decoded
+ * @param dec Decimal separator character
+ * @return The double value or TEST (in case of failure)
+ */
+template<typename T>
+class dec_separator: public std::numpunct<T>
+{
+public:
+  dec_separator(char dec = ',')
+    : _dec(dec)
+  {
+  }
+
+private:
+  typename std::numpunct<T>::char_type do_decimal_point() const override
+  {
+    return _dec;
+  }
+  char _dec;
+};
+
+/**
+ * Decode an integer from a string. Returns ITEST when impossible
+ * @param v String to be decoded
+ * @param dec Symbol used for decimal point (unused here)
+ * @return The integer value or ITEST (in case of failure)
+ */
+Id _convertToInteger(const String& v, char dec)
+{
+  DECLARE_UNUSED(dec);
+  std::istringstream iss(v);
+  Id number;
+  iss >> number;
+  if (iss.fail()) return ITEST;
+  return number;
+}
+
+/**
+ * Decode a double value from a string. Returns TEST when impossible
+ * @param v String to be decoded
+ * @param dec Symbol used for decimal point
+ * @return The double value or TEST (in case of failure)
+ */
+double _convertToDouble(const String& v, char dec)
+{
+  std::istringstream iss(v);
+  double number;
+  iss.imbue(std::locale(iss.getloc(), new dec_separator<char>(dec)));
+  iss >> number;
+  if (iss.fail()) return TEST;
+  return number;
+}
+
+/**
+ * Ask interactively for the value of one integer
+ * @param v Text of the question
+ * @param defval Default value (or IFFFF)
+ * @param authTest True if TEST value is authorized (TEST)
+ */
+Id _askInt(const String& v, Id defval, bool authTest)
+{
+  bool hasDefault = !IFFFF(defval) || authTest;
+  Id answer       = defval;
+  std::cin.exceptions(std::istream::failbit | std::istream::badbit);
+
+  try
+  {
+    while (true)
+    {
+      // Display the question
+      if (hasDefault)
+      {
+        if (IFFFF(defval))
+          std::cout << v << " (Default = TEST) : ";
+        else
+          std::cout << v << " (Default = " << defval << ") : ";
+      }
+      else
+        std::cout << v << " : ";
+
+      // Read the answer
+      String str;
+      std::getline(std::cin, str);
+
+      // Check for empty line: set to default value
+      if (str.empty() && hasDefault)
+      {
+        answer = defval;
+        break;
+      }
+
+      // Check the TEST answer
+
+      if (authTest && str == "TEST")
+      {
+        answer = ITEST;
+        break;
+      }
+
+      // Try casting in integer
+      std::stringstream ss(str);
+      if (ss >> answer) break;
+
+      std::cout << "The answer is not a valid integer!" << std::endl;
+    }
+  }
+  catch (std::istream::failure& e)
+  {
+    std::cerr << "Problem when reading integer:" << e.what() << std::endl;
+  }
+  return answer;
+}
+
+/**
+ * Ask interactively for the value of one Real (Double value)
+ * @param v Text of the question
+ * @param defval Default value (or IFFFF)
+ * @param authTest True if a TEST answer is authorized (TEST)
+ */
+double _askDouble(const String& v, double defval, bool authTest)
+{
+  bool hasDefault = !FFFF(defval) || authTest;
+  double answer   = defval;
+  std::cin.exceptions(std::istream::failbit | std::istream::badbit);
+
+  try
+  {
+    while (true)
+    {
+      // Display the question
+      if (hasDefault)
+      {
+        if (FFFF(defval))
+          std::cout << v << " (Default = TEST) : ";
+        else
+          std::cout << v << " (Default = " << defval << ") : ";
+      }
+      else
+        std::cout << v << " : ";
+
+      // Read the answer
+      String str;
+      std::getline(std::cin, str);
+
+      // Check for empty line: set to default value
+      if (str.empty() && hasDefault)
+      {
+        answer = defval;
+        break;
+      }
+
+      // Catch the TEST answer
+      if (authTest && str == "TEST")
+      {
+        answer = TEST;
+        break;
+      }
+
+      // Try casting in integer
+      std::stringstream ss(str);
+      if (ss >> answer) break;
+
+      std::cout << "The answer is not a valid double!" << std::endl;
+    }
+  }
+  catch (std::istream::failure& e)
+  {
+    std::cerr << "Problem when reading double:" << e.what() << std::endl;
+  }
+  return answer;
+}
+
+/**
+ * Ask interactively for the value of one boolean
+ * @param v Text of the question
+ * @param defval Default value
+ * @param authTest True if a TEST answer is authorized (TEST)
+ */
+bool _askBool(const String& v, bool defval, bool authTest)
+{
+  DECLARE_UNUSED(authTest);
+  bool hasDefault = !IFFFF(defval);
+  bool answer     = defval;
+  std::cin.exceptions(std::istream::failbit | std::istream::badbit);
+
+  try
+  {
+    while (true)
+    {
+      // Display the question
+      if (hasDefault)
+      {
+        String defstr;
+        if (defval)
+          defstr = "Y";
+        else
+          defstr = "N";
+        std::cout << v << " (Default = " << defstr << ") : ";
+      }
+      else
+        std::cout << v << " : ";
+
+      // Read the answer
+      String str;
+      std::getline(std::cin, str);
+
+      // Check for empty line: set to default value
+      if (str.empty() && hasDefault)
+      {
+        answer = defval;
+        break;
+      }
+
+      // Try checking authorized answer
+      if (str == "Y")
+      {
+        answer = true;
+        break;
+      }
+      if (str == "N")
+      {
+        answer = false;
+        break;
+      }
+
+      std::cout << "The answer is not a valid bool!" << std::endl;
+    }
+  }
+  catch (std::istream::failure& e)
+  {
+    std::cerr << "Problem when reading bool:" << e.what() << std::endl;
+  }
+  return answer;
+}
+template<>
+String toStr(const double& v, Id justification, Id localSize)
+{
+  std::stringstream sstr;
+  sstr << _formatOneDouble(v, justification, localSize);
+  return sstr.str();
+}
+template<>
+String toStr(const Id& v, Id justification, Id localSize)
+{
+  std::stringstream sstr;
+  sstr << _formatOneId(v, justification, localSize);
+  return sstr.str();
+}
+template<>
+String toStr(const String& v, Id justification, Id localSize)
+{
+  std::stringstream sstr;
+  sstr << _formatOneString(v, justification, localSize);
+  return sstr.str();
+}
+
+String toStr(const char* v, Id justification, Id localSize)
+{
+  return toStr(String(v), justification, localSize);
+}
+
+/**
+ * Print a message and underlines it with various formats
+ * @param level  Level of the title
+ * @param format Output format
+ * @param ...    Additional arguments
+ */
+String toStrTitle(Id level, const char* format, ...)
+{
+  std::stringstream sstr;
+  Id STRING_MAX = 1000;
+  char STRING[1000];
+  va_list ap;
+
+  sstr << std::endl;
+  va_start(ap, format);
+  (void)vsnprintf(STRING, sizeof(STRING), format, ap);
+  va_end(ap);
+  sstr << STRING << std::endl;
+
+  /* Underline the string */
+
+  Id size = static_cast<Id>(strlen(STRING));
+  (void)gslStrcpy(STRING, STRING_MAX, "");
+  for (Id i = 0; i < size; i++)
+  {
+    switch (level)
+    {
+      case 0:
+        (void)gslStrcat(STRING, STRING_MAX, "=");
+        break;
+
+      case 1:
+        (void)gslStrcat(STRING, STRING_MAX, "-");
+        break;
+
+      case 2:
+        (void)gslStrcat(STRING, STRING_MAX, ".");
+        break;
+    }
+  }
+  sstr << STRING << std::endl;
+
+  return sstr.str();
+}
+
+String toStrInterval(double zmin, double zmax)
+{
+  std::stringstream sstr;
+
+  sstr << "[";
+  if (FFFF(zmin))
+    sstr << "N/A";
+  else
+    sstr << zmin;
+  message(" ; ");
+  if (FFFF(zmax))
+    sstr << "N/A";
+  else
+    sstr << zmax;
+  sstr << "]" << std::endl;
+
+  return sstr.str();
+}
+
+/**
+ * Printout a vector in a formatted manner
+ * @param title Title of the printout (or empty string)
+ * @param tab   Vector (real values) to be printed
+ * @param flagOverride true to override printout limitations
+ * @return The string (terminated with a newline)
+ */
+String toStrVectorVec(const String& title, constvect tab, bool flagOverride)
+{
+  std::stringstream sstr;
+  if (tab.empty()) return sstr.str();
+
+  Id ncols  = static_cast<Id>(tab.size());
+  Id ncutil = ncols;
+  if (_getMaxNCols() > 0 && ncutil > _getMaxNCols() && !flagOverride) ncutil = _getMaxNCols();
+  bool multi_row = ncutil > _getNBatch();
+
+  /* Print the title (optional) */
+
+  if (!title.empty())
+  {
+    sstr << title;
+    if (multi_row) sstr << std::endl;
+  }
+
+  Id lec = 0;
+  if (multi_row) sstr << _toStrColumnHeader(VectorString(), 0, _getNBatch());
+
+  for (Id i = 0; i < ncutil; i += _getNBatch())
+  {
+    if (multi_row) sstr << _toStrRowHeader(VectorString(), i);
+
+    for (Id j = 0; j < _getNBatch(); j++)
+    {
+      if (lec >= ncutil) continue;
+      sstr << toStr(tab[lec]);
+      lec++;
+    }
+    sstr << std::endl;
+  }
+
+  // Print the trailer
+  sstr << _toStrTrailer(ncols, 0, ncutil, 0);
+
+  return sstr.str();
+}
+
+VectorString toStrVectorDouble(const VectorDouble& values, Id justification)
+{
+  VectorString strings;
+  for (Id i = 0; i < static_cast<Id>(values.size()); i++)
+    strings.push_back(toStr(values[i], justification));
+  return strings;
+}
+
+// Functions for beautifying a suite of values
+String _toStrRowColumn(Id icase, Id value, Id flagAdd)
+{
+  std::stringstream sstr;
+  I32 rank  = static_cast<I32>(_getColumnRank());
+  I32 width = static_cast<I32>(_getColumnSize() - _getColumnRank() - 1);
+  sstr << std::setw(width) << std::right;
+  if (icase == CASE_ROW)
+  {
+    if (!flagAdd)
+      sstr << "[" << std::setw(rank) << value << ",]";
+    else
+      sstr << "[" << std::setw(rank) << value << "+]";
+  }
+  else
+  {
+    if (!flagAdd)
+      sstr << "[," << std::setw(rank) << value << "]";
+    else
+      sstr << "[ " << std::setw(rank) << value << "]";
+  }
+  return sstr.str();
+}
+
+String _toStrRowHeader(const VectorString& rownames, Id iy, Id rowSize)
+{
+  std::stringstream sstr;
+  if (!rownames.empty())
+    sstr << toStr(rownames[iy], -1, rowSize);
+  else
+    sstr << _toStrRowColumn(CASE_ROW, iy, false);
+  return sstr.str();
+}
+String _toStrColumnHeader(const VectorString& colnames, Id colfrom, Id colto, Id colSize)
+{
+  std::stringstream sstr;
+  if (!colnames.empty())
+  {
+    // By Names
+    sstr << toStr(" ", 1) << " ";
+    for (Id ix = colfrom; ix < colto; ix++)
+      sstr << toStr(colnames[ix], 1, colSize);
+    sstr << std::endl;
+  }
+  else
+  {
+    // By Numbers
+    sstr << toStr(" ", 1) << " ";
+    for (Id ix = colfrom; ix < colto; ix++)
+      sstr << _toStrRowColumn(CASE_COL, ix, false);
+    sstr << std::endl;
+  }
+  return sstr.str();
+}
+
+String _toStrTrailer(Id ncols, Id nrows, Id ncols_util, Id nrows_util)
+{
+  std::stringstream sstr;
+
+  bool one_used = (ncols != ncols_util || nrows != nrows_util);
+  bool all_used = (ncols != ncols_util && nrows != nrows_util);
+
+  if (one_used) sstr << "(";
+
+  if (ncols != ncols_util)
+  {
+    if (ncols == ncols_util)
+      sstr << "Ncols=" << ncols;
+    else
+      sstr << "Ncols=" << ncols_util << "[from " << ncols << "]";
+  }
+
+  if (all_used) sstr << ",";
+
+  if (nrows != nrows_util)
+  {
+    if (nrows == nrows_util)
+      sstr << "Nrows=" << nrows;
+    else
+      sstr << "Nrows=" << nrows_util << "[from " << nrows << "]";
+  }
+
+  if (one_used) sstr << ")" << std::endl;
   return sstr.str();
 }
 
@@ -179,7 +667,7 @@ String concatenateString(const String& string,
                          const String& delim)
 {
   std::stringstream ss;
-  ss << string << delim << value;
+  ss << trim(string) << delim << value;
   return ss.str();
 }
 
@@ -194,25 +682,24 @@ String concatenateStrings(const String& delim,
   if (!string1.empty())
   {
     started = true;
-    ss << string1;
+    ss << trim(string1);
   }
   if (!string2.empty())
   {
     if (started) ss << delim;
-    ss << string2;
+    ss << trim(string2);
     started = true;
   }
   if (!string3.empty())
   {
     if (started) ss << delim;
-    ss << string3;
+    ss << trim(string3);
     started = true;
   }
   if (!string4.empty())
   {
     if (started) ss << delim;
-    ss << string4;
-    //    started = true; // never reached
+    ss << trim(string4);
   }
   return ss.str();
 }
@@ -534,261 +1021,6 @@ VectorString separateKeywords(const String& code)
   return result;
 }
 
-/**
- * Decode an double from a string. Returns TEST if impossible
- * @param v String to be decoded
- * @param dec Decimal separator character
- * @return The double value or TEST (in case of failure)
- */
-template<typename T>
-class dec_separator: public std::numpunct<T>
-{
-public:
-  dec_separator(char dec = ',')
-    : _dec(dec)
-  {
-  }
-
-private:
-  typename std::numpunct<T>::char_type do_decimal_point() const override
-  {
-    return _dec;
-  }
-  char _dec;
-};
-
-/**
- * Decode an integer from a string. Returns ITEST when impossible
- * @param v String to be decoded
- * @return The integer value or ITEST (in case of failure)
- */
-Id convertToInteger(const String& v)
-{
-  std::istringstream iss(v);
-  Id number;
-  iss >> number;
-  if (iss.fail()) return ITEST;
-  return number;
-}
-
-/**
- * Decode a double value from a string. Returns TEST when impossible
- * @param v String to be decoded
- * @return The double value or TEST (in case of failure)
- */
-double convertToDouble(const String& v, char dec)
-{
-  std::istringstream iss(v);
-  double number;
-  iss.imbue(std::locale(iss.getloc(), new dec_separator<char>(dec)));
-  iss >> number;
-  if (iss.fail()) return TEST;
-  return number;
-}
-
-String toStr(const String& string, Id justification, Id localSize)
-{
-  std::stringstream sstr;
-  sstr << _formatOneString(string, justification, localSize);
-  return sstr.str();
-}
-
-String toStr(Id value, Id justification, Id localSize)
-{
-  std::stringstream sstr;
-  sstr << _formatOneId(value, justification, localSize);
-  return sstr.str();
-}
-
-String toStr(double value, Id justification, Id localSize)
-{
-  std::stringstream sstr;
-  sstr << _formatOneDouble(value, justification, localSize);
-  return sstr.str();
-}
-
-/**
- * Ask interactively for the value of one integer
- * @param text Text of the question
- * @param defval Default value (or IFFFF)
- * @param authTest True if TEST value is authorized (TEST)
- */
-Id askInt(const String& text, Id defval, bool authTest)
-{
-  bool hasDefault = !IFFFF(defval) || authTest;
-  Id answer       = defval;
-  std::cin.exceptions(std::istream::failbit | std::istream::badbit);
-
-  try
-  {
-    while (true)
-    {
-      // Display the question
-      if (hasDefault)
-      {
-        if (IFFFF(defval))
-          std::cout << text << " (Default = TEST) : ";
-        else
-          std::cout << text << " (Default = " << defval << ") : ";
-      }
-      else
-        std::cout << text << " : ";
-
-      // Read the answer
-      String str;
-      std::getline(std::cin, str);
-
-      // Check for empty line: set to default value
-      if (str.empty() && hasDefault)
-      {
-        answer = defval;
-        break;
-      }
-
-      // Check the TEST answer
-
-      if (authTest && str == "TEST")
-      {
-        answer = ITEST;
-        break;
-      }
-
-      // Try casting in integer
-      std::stringstream ss(str);
-      if (ss >> answer) break;
-
-      std::cout << "The answer is not a valid integer!" << std::endl;
-    }
-  }
-  catch (std::istream::failure& e)
-  {
-    std::cerr << "Problem when reading integer:" << e.what() << std::endl;
-  }
-  return answer;
-}
-
-/**
- * Ask interactively for the value of one Real (Double value)
- * @param text Text of the question
- * @param defval Default value (or IFFFF)
- * @param authTest True if a TEST answer is authorized (TEST)
- */
-double askDouble(const String& text,
-                 double defval,
-                 bool authTest)
-{
-  bool hasDefault = !FFFF(defval) || authTest;
-  double answer   = defval;
-  std::cin.exceptions(std::istream::failbit | std::istream::badbit);
-
-  try
-  {
-    while (true)
-    {
-      // Display the question
-      if (hasDefault)
-      {
-        if (FFFF(defval))
-          std::cout << text << " (Default = TEST) : ";
-        else
-          std::cout << text << " (Default = " << defval << ") : ";
-      }
-      else
-        std::cout << text << " : ";
-
-      // Read the answer
-      String str;
-      std::getline(std::cin, str);
-
-      // Check for empty line: set to default value
-      if (str.empty() && hasDefault)
-      {
-        answer = defval;
-        break;
-      }
-
-      // Catch the TEST answer
-      if (authTest && str == "TEST")
-      {
-        answer = TEST;
-        break;
-      }
-
-      // Try casting in integer
-      std::stringstream ss(str);
-      if (ss >> answer) break;
-
-      std::cout << "The answer is not a valid double!" << std::endl;
-    }
-  }
-  catch (std::istream::failure& e)
-  {
-    std::cerr << "Problem when reading double:" << e.what() << std::endl;
-  }
-  return answer;
-}
-
-/**
- * Ask interactively for the value of one boolean
- * @param text Text of the question
- * @param defval Default value
- */
-Id askBool(const String& text, bool defval)
-{
-  bool hasDefault = !IFFFF(defval);
-  bool answer     = defval;
-  std::cin.exceptions(std::istream::failbit | std::istream::badbit);
-
-  try
-  {
-    while (true)
-    {
-      // Display the question
-      if (hasDefault)
-      {
-        String defstr;
-        if (defval)
-          defstr = "Y";
-        else
-          defstr = "N";
-        std::cout << text << " (Default = " << defstr << ") : ";
-      }
-      else
-        std::cout << text << " : ";
-
-      // Read the answer
-      String str;
-      std::getline(std::cin, str);
-
-      // Check for empty line: set to default value
-      if (str.empty() && hasDefault)
-      {
-        answer = defval;
-        break;
-      }
-
-      // Try checking authorized answer
-      if (str == "Y")
-      {
-        answer = true;
-        break;
-      }
-      if (str == "N")
-      {
-        answer = false;
-        break;
-      }
-
-      std::cout << "The answer is not a valid bool!" << std::endl;
-    }
-  }
-  catch (std::istream::failure& e)
-  {
-    std::cerr << "Problem when reading bool:" << e.what() << std::endl;
-  }
-  return answer;
-}
-
 String trimRight(const String& s, const String& t)
 {
   String d(s);
@@ -1075,4 +1307,52 @@ VectorInt decodeGridSorting(const String& string,
   }
   return (order);
 }
+
+template<>
+double fromStr(const String& v, char dec)
+{
+  return _convertToDouble(v, dec);
+}
+template<>
+Id fromStr(const String& v, char dec)
+{
+  return _convertToInteger(v, dec);
+}
+
+template<>
+double askInteractive(const String& v, double defval, bool authTest)
+{
+  return _askDouble(v, defval, authTest);
+}
+template<>
+Id askInteractive(const String& v, Id defval, bool authTest)
+{
+  return _askInt(v, defval, authTest);
+}
+template<>
+bool askInteractive(const String& v, bool defval, bool authTest)
+{
+  return _askBool(v, defval, authTest);
+}
+
+/**
+ * @overload
+ * Print the contents of a Matrix in a Matrix Form
+ * @param title        Title of the printout
+ * @param mat          Contents of a AMatrix
+ * @param flagOverride true to override printout limitations
+ * @param flagSkipZero when true, skip the zero values (represented by a '.' as for sparse matrix)
+ *                     always true for sparse matrix
+ */
+String toMatrix(const String& title,
+                const AMatrix& mat,
+                bool flagOverride,
+                bool flagSkipZero)
+{
+  flagSkipZero = mat.isSparse();
+  return toStrMatrix(title, VectorString(), VectorString(), true,
+                     mat.getNRows(), mat.getNCols(), mat.getValues(),
+                     flagOverride, flagSkipZero);
+}
+
 } // namespace gstlrn

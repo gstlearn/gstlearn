@@ -1,5 +1,6 @@
 #include "Basic/ListParams.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/String.hpp"
 #include "geoslib_define.h"
 #include <algorithm>
 #include <cstddef>
@@ -136,7 +137,7 @@ String ListParams::toString(const AStringFormat* strfmt) const
 {
   DECLARE_UNUSED(strfmt);
   std::stringstream result;
-  result << toTitle(1, "List of Parameters:");
+  result << toStrTitle(1, "List of Parameters:");
   for (Id ipar = 0, jpar = 0, npar = static_cast<Id>(_dispatchIndex.size()); ipar < npar; ipar++)
   {
     jpar++;

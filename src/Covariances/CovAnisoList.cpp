@@ -141,8 +141,8 @@ String CovAnisoList::toString(const AStringFormat* /*strfmt*/) const
     }
     else
     {
-      sstr << toMatrix("Total Sill", VectorString(), VectorString(), 0, getNVar(),
-                       getNVar(), getTotalSills().getValues());
+      sstr << toStrMatrix("Total Sill", VectorString(), VectorString(), 0, getNVar(),
+                          getNVar(), getTotalSills().getValues());
     }
   }
   sstr << std::endl;

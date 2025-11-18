@@ -110,7 +110,7 @@ String MLayers::toString(const AStringFormat* strfmt) const
   std::stringstream sstr;
   sstr << "List of Apices" << std::endl;
 
-  sstr << toTitle(0, "Multi-Layers Environments") << std::endl;
+  sstr << toStrTitle(0, "Multi-Layers Environments") << std::endl;
   if (_flagVel)
     sstr << "Working in Velocity" << std::endl;
   else

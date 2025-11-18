@@ -11,9 +11,16 @@
 #pragma once
 
 #include "Basic/AStringFormat.hpp"
+#include "Basic/String.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
+
+#define CASE_DOUBLE 0
+#define CASE_REAL   1
+#define CASE_INT    2
+#define CASE_COL    3
+#define CASE_ROW    4
 
 namespace gstlrn
 {
@@ -46,59 +53,6 @@ GSTLEARN_EXPORT bool checkArg(const char* title, Id current, Id nmax);
 GSTLEARN_EXPORT void messageAbort(const char* format, ...);
 GSTLEARN_EXPORT void mestitle(Id level, const char* format, ...);
 GSTLEARN_EXPORT void mes_process(const char* string, Id ntot, Id iech);
-GSTLEARN_EXPORT String toTitle(Id level, const char* format, ...);
-GSTLEARN_EXPORT String toMatrix(const String& title,
-                                const AMatrix& mat,
-                                bool flagOverride = false,
-                                bool flagSkipZero = false);
-GSTLEARN_EXPORT String toMatrix(const String& title,
-                                const VectorString& colnames,
-                                const VectorString& rownames,
-                                bool bycol,
-                                Id nrows,
-                                Id ncols,
-                                const VectorDouble& tab,
-                                bool flagOverride = false,
-                                bool flagSkipZero = false);
-GSTLEARN_EXPORT String toMatrix(const String& title,
-                                const VectorString& colnames,
-                                const VectorString& rownames,
-                                bool bycol,
-                                Id nrows,
-                                Id ncols,
-                                const double* tab,
-                                bool flagOverride = false,
-                                bool flagSkipZero = false);
-GSTLEARN_EXPORT String toMatrix(const String& title,
-                                const VectorString& colnames,
-                                const VectorString& rownames,
-                                bool bycol,
-                                Id nrows,
-                                Id ncols,
-                                const VectorInt& tab,
-                                bool flagOverride = false,
-                                bool flagSkipZero = false);
-GSTLEARN_EXPORT String toVector(const String& title,
-                                const VectorDouble& tab,
-                                bool flagOverride = true);
-GSTLEARN_EXPORT String toVector(const String& title,
-                                const VectorVectorDouble& tab,
-                                bool flagOverride = true);
-GSTLEARN_EXPORT String toVector(const String& title,
-                                const VectorVectorInt& tab,
-                                bool flagOverride = true);
-GSTLEARN_EXPORT String toVector(const String& title,
-                                const VectorInt& tab,
-                                bool flagOverride = true);
-GSTLEARN_EXPORT String toVector(const String& title,
-                                const VectorString& tab,
-                                bool flagOverride = true);
-GSTLEARN_EXPORT String toVector(const String& title,
-                                constvect tab,
-                                bool flagOverride = true);
-GSTLEARN_EXPORT String toInterval(double zmin, double zmax);
-GSTLEARN_EXPORT VectorString toVectorDouble(const VectorDouble& values,
-                                            Id justification = 1);
 
 // Old-fashion printing formats
 GSTLEARN_EXPORT void tab_prints(const String& title,

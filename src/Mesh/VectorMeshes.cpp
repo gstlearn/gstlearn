@@ -58,7 +58,7 @@ String VectorMeshes::toString(const AStringFormat* strfmt) const
 
   std::stringstream sstr;
   Id nmesh = static_cast<Id>(_meshes.size());
-  sstr << toTitle(1, "Contents of the VectorMeshes") << std::endl;
+  sstr << toStrTitle(1, "Contents of the VectorMeshes") << std::endl;
   sstr << "It contains " << nmesh << " mesh(es)" << std::endl;
 
   for (Id imesh = 0; imesh < nmesh; imesh++)

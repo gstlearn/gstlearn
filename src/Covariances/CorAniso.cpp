@@ -723,15 +723,15 @@ String CorAniso::toStringParams(const AStringFormat* strfmt) const
     }
     else
     {
-      sstr << toVector("- Ranges       = ", getRanges());
+      sstr << toStrVector("- Ranges       = ", getRanges());
       if (isAsymptotic())
-        sstr << toVector("- Theo. Ranges = ", getScales());
+        sstr << toStrVector("- Theo. Ranges = ", getScales());
       if (!_aniso.getRotation().isIdentity())
       {
         VectorDouble angles = GeometryHelper::formatAngles(getAnisoAngles(), 180.);
-        sstr << toVector("- Angles       = ", angles);
-        sstr << toMatrix("- Rotation Matrix", VectorString(), VectorString(),
-                         true, getNDim(), getNDim(), getAnisoRotMat().getValues());
+        sstr << toStrVector("- Angles       = ", angles);
+        sstr << toStrMatrix("- Rotation Matrix", VectorString(), VectorString(),
+                            true, getNDim(), getNDim(), getAnisoRotMat().getValues());
       }
     }
   }
@@ -739,13 +739,13 @@ String CorAniso::toStringParams(const AStringFormat* strfmt) const
   {
     if (!_aniso.isIsotropic())
     {
-      sstr << toVector("- Aniso, Coeff = ", _aniso.getRadius());
+      sstr << toStrVector("- Aniso, Coeff = ", _aniso.getRadius());
       if (!_aniso.getRotation().isIdentity())
       {
         VectorDouble angles = GeometryHelper::formatAngles(getAnisoAngles(), 180.);
-        sstr << toVector("- Angles       = ", angles);
-        sstr << toMatrix("- Rotation Matrix", VectorString(), VectorString(),
-                         true, getNDim(), getNDim(), getAnisoRotMat().getValues());
+        sstr << toStrVector("- Angles       = ", angles);
+        sstr << toStrMatrix("- Rotation Matrix", VectorString(), VectorString(),
+                            true, getNDim(), getNDim(), getAnisoRotMat().getValues());
       }
     }
   }

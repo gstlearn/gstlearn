@@ -1093,7 +1093,7 @@ String Db::_summaryLocators(void) const
 
   /* Loop on the pointers */
 
-  sstr << toTitle(1, "List of locators");
+  sstr << toStrTitle(1, "List of locators");
   Id rank     = 0;
   auto number = getNEloc();
   for (Id iloc = 0; iloc < number; iloc++)
@@ -1116,7 +1116,7 @@ String Db::_summaryUIDs(void) const
 {
   std::stringstream sstr;
 
-  sstr << toTitle(1, "List of unsorted UIDs");
+  sstr << toStrTitle(1, "List of unsorted UIDs");
   sstr << "Maximum number of positions = " << getNUIDMax() << std::endl;
   sstr << "Number of Columns           = " << getNColumn() << std::endl;
 
@@ -3452,7 +3452,7 @@ String Db::_summaryString(void) const
 {
   std::stringstream sstr;
 
-  sstr << toTitle(1, "Data Base Summary");
+  sstr << toStrTitle(1, "Data Base Summary");
 
   if (isGrid())
     sstr << "File is organized as a regular grid" << std::endl;
@@ -3476,7 +3476,7 @@ String Db::_summaryExtensions(void) const
 
   /* Printout */
 
-  sstr << toTitle(1, "Data Base Extension");
+  sstr << toStrTitle(1, "Data Base Extension");
   for (Id idim = 0; idim < ndim; idim++)
   {
     VectorDouble coor = getOneCoordinate(idim, true);
@@ -3498,7 +3498,7 @@ String Db::_summaryVariables(void) const
   std::stringstream sstr;
 
   if (getNColumn() <= 0) return sstr.str();
-  sstr << toTitle(1, "Variables");
+  sstr << toStrTitle(1, "Variables");
 
   for (Id icol = 0; icol < getNColumn(); icol++)
   {
@@ -3524,7 +3524,7 @@ String Db::_summaryStats(VectorInt cols, Id mode, Id maxNClass) const
   Id ncol = (cols.empty()) ? getNColumn() : static_cast<Id>(cols.size());
   if (ncol <= 0) return sstr.str();
 
-  sstr << toTitle(1, "Data Base Statistics");
+  sstr << toStrTitle(1, "Data Base Statistics");
 
   Id nmask, ntest, nout;
   auto nech = getNSample(false);
@@ -3594,7 +3594,7 @@ String Db::_summaryArrays(VectorInt cols, bool useSel) const
   Id ncol = (cols.empty()) ? getNColumn() : static_cast<Id>(cols.size());
   if (ncol <= 0) return sstr.str();
 
-  sstr << toTitle(1, "Data Base Contents");
+  sstr << toStrTitle(1, "Data Base Contents");
 
   auto number = getNSample(useSel);
 
@@ -3609,7 +3609,7 @@ String Db::_summaryArrays(VectorInt cols, bool useSel) const
     colnames.push_back(getNameByColIdx(icol));
   }
 
-  sstr << toMatrix(String(), colnames, VectorString(), true, number, ncol, tab);
+  sstr << toStrMatrix(String(), colnames, VectorString(), true, number, ncol, tab);
 
   return sstr.str();
 }
@@ -3670,7 +3670,7 @@ String Db::toString(const AStringFormat* strfmt) const
   DbStringFormat dsf;
   if (dbfmt != nullptr) dsf = *dbfmt;
 
-  sstr << toTitle(0, "Data Base Characteristics");
+  sstr << toStrTitle(0, "Data Base Characteristics");
 
   if (dsf.matchResume())
     sstr << _summaryString();

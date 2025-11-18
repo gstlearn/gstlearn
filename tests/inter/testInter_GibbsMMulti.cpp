@@ -15,6 +15,7 @@
 
 #include "Basic/ASerializable.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/String.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovAnisoList.hpp"
 #include "Covariances/CovContext.hpp"
@@ -48,12 +49,12 @@ int main()
 
   if (flag_inter)
   {
-    nx            = askInt("Number of grid mesh [in each direction]", nx);
-    niter         = askInt("Number of Gibbs iterations", niter);
-    nburn         = askInt("Number of burning steps", nburn);
-    eps           = askDouble("Epsilon", eps);
-    range         = askDouble("Isotropic Range", range);
-    storeInternal = askBool("Store Internal", storeInternal);
+    nx            = askInteractive<Id>("Number of grid mesh [in each direction]", nx);
+    niter         = askInteractive<Id>("Number of Gibbs iterations", niter);
+    nburn         = askInteractive<Id>("Number of burning steps", nburn);
+    eps           = askInteractive<double>("Epsilon", eps);
+    range         = askInteractive<double>("Isotropic Range", range);
+    storeInternal = askInteractive<bool>("Store Internal", storeInternal);
   }
 
   int seed    = 5452;

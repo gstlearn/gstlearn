@@ -72,7 +72,7 @@ String AnamEmpirical::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
 
-  sstr << toTitle(1, "Empirical Anamorphosis");
+  sstr << toStrTitle(1, "Empirical Anamorphosis");
 
   if (_flagDilution)
   {

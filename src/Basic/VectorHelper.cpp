@@ -159,29 +159,29 @@ void VectorHelper::dump(const String& title, const VectorVectorDouble& vect, boo
 
 String VectorHelper::toStringAsVD(const VectorDouble& vec)
 {
-  return toVector(String(), vec);
+  return toStrVector(String(), vec);
 }
 String VectorHelper::toStringAsSpan(constvect vec)
 {
-  return toVector(String(), vec);
+  return toStrVectorVec(String(), vec);
 }
 String VectorHelper::toStringAsVVD(const VectorVectorDouble& vec)
 {
-  return toVector(String(), vec);
+  return toStrVector(String(), vec);
 }
 String VectorHelper::toStringAsVVI(const VectorVectorInt& vec)
 {
-  return toVector(String(), vec);
+  return toStrVector(String(), vec);
 }
 
 String VectorHelper::toStringAsVS(const VectorString& vec)
 {
-  return toVector(String(), vec);
+  return toStrVector(String(), vec);
 }
 
 String VectorHelper::toStringAsVI(const VectorInt& vec)
 {
-  return toVector(String(), vec);
+  return toStrVector(String(), vec);
 }
 
 void VectorHelper::dumpStats(const String& title, constvect vect, Id nmax)

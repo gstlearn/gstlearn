@@ -150,8 +150,8 @@ bool RuleShift::_serializeAscii(std::ostream& os, bool /*verbose*/) const
 String RuleShift::displaySpecific() const
 {
   std::stringstream sstr;
-  sstr << toTitle(2, "Shift Option");
-  sstr << toVector("Translation Vector", _shift);
+  sstr << toStrTitle(2, "Shift Option");
+  sstr << toStrVector("Translation Vector", _shift);
   sstr << "(With the 'Shift' option, only the first GRF is used)" << std::endl;
   return sstr.str();
 }

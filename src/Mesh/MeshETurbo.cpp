@@ -656,14 +656,14 @@ void MeshETurbo::resetProjFromDb(ProjMatrix* m,
 String MeshETurbo::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
-  sstr << toTitle(0, "Turbo Meshing");
+  sstr << toStrTitle(0, "Turbo Meshing");
   if (_isPolarized) sstr << "Diamond construction is activated" << std::endl;
   sstr << _grid.toString(strfmt);
   sstr << AMesh::toString(strfmt);
 
   if (_meshIndirect.isDefined())
   {
-    sstr << toTitle(2, "Mask Information");
+    sstr << toStrTitle(2, "Mask Information");
     sstr << "Mesh Masking Indexing" << std::endl;
     sstr << _meshIndirect.toString(strfmt) << std::endl;
     sstr << "Grid Masking Indexing" << std::endl;

@@ -132,7 +132,7 @@ String BImage::toString(const AStringFormat* strfmt) const
     for (Id iz = izmin; iz < izmax; iz++)
     {
       if (getNDims(2) > 1)
-        sstr << toTitle(2, "Level %d/%d", iz + 1, getNDims(2));
+        sstr << toStrTitle(2, "Level %d/%d", iz + 1, getNDims(2));
       else
         sstr << std::endl;
 

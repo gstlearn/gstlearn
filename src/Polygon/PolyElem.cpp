@@ -9,9 +9,9 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Polygon/PolyElem.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/PolyLine2D.hpp"
 #include "Basic/SerializeHDF5.hpp"
+#include "Basic/Utilities.hpp"
 
 namespace gstlrn
 {
@@ -65,7 +65,7 @@ String PolyElem::toString(const AStringFormat* strfmt) const
 
   sstr << PolyLine2D::toString(strfmt);
 
-  if (!FFFF(_zmin) || !FFFF(_zmax)) sstr << toInterval(_zmin, _zmax);
+  if (!FFFF(_zmin) || !FFFF(_zmax)) sstr << toStrInterval(_zmin, _zmax);
 
   return sstr.str();
 }

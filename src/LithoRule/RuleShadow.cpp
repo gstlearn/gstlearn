@@ -143,8 +143,8 @@ bool RuleShadow::_serializeAscii(std::ostream& os, bool /*verbose*/) const
 String RuleShadow::displaySpecific() const
 {
   std::stringstream sstr;
-  sstr << toTitle(2, "Shadow Option");
-  sstr << toVector("Normalized Translation Vector = ", _shift);
+  sstr << toStrTitle(2, "Shadow Option");
+  sstr << toStrVector("Normalized Translation Vector = ", _shift);
   sstr << "Slope for shadow                  = " << _slope << "(degrees)"
        << std::endl;
   sstr << "Upwards shift for the threshold   = " << _shDsup << std::endl;

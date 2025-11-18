@@ -308,7 +308,7 @@ String Polygons::toString(const AStringFormat* strfmt) const
 
   Id npol = static_cast<Id>(_polyelems.size());
 
-  sstr << toTitle(1, "Polygons");
+  sstr << toStrTitle(1, "Polygons");
   sstr << "Number of Polygon Sets = " << npol << std::endl;
   AStringFormat sf;
   if (strfmt != nullptr) sf = *strfmt;
@@ -316,7 +316,7 @@ String Polygons::toString(const AStringFormat* strfmt) const
   if (sf.getLevel() > 1)
     for (Id i = 0; i < npol; i++)
     {
-      sstr << toTitle(2, "PolyElem #%d", i + 1);
+      sstr << toStrTitle(2, "PolyElem #%d", i + 1);
       sstr << _polyelems[i].toString(strfmt);
     }
   return sstr.str();
@@ -401,12 +401,12 @@ PolyElem Polygons::_extractFromWKT(const CSVformat& csv, String& polye)
       y.clear();
       break;
     }
-    x.push_back(convertToDouble(coords.substr(0, found2), csv.getCharDec()));
+    x.push_back(fromStr<double>(coords.substr(0, found2), csv.getCharDec()));
     coords = coords.substr(found2 + 1);
     found2 = coords.find_first_of(' ');
     if (found2 != std::string::npos)
       coords = coords.substr(0, found2);
-    y.push_back(convertToDouble(coords, csv.getCharDec()));
+    y.push_back(fromStr<double>(coords, csv.getCharDec()));
     if (found != std::string::npos)
       polye = polye.substr(found + 1);
   } while (found != std::string::npos);

@@ -58,7 +58,7 @@ String DbGraphO::toString(const AStringFormat* strfmt) const
   DbStringFormat dsf;
   if (dbfmt != nullptr) dsf = *dbfmt;
 
-  sstr << toTitle(0, "Data Base Oriented Graph Characteristics");
+  sstr << toStrTitle(0, "Data Base Oriented Graph Characteristics");
 
   sstr << _toStringCommon(&dsf);
 

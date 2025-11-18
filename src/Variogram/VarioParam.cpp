@@ -296,7 +296,7 @@ String VarioParam::toString(const AStringFormat* strfmt) const
 
   for (Id idir = 0; idir < getNDir(); idir++)
   {
-    sstr << toTitle(1, "Direction #%d", idir + 1);
+    sstr << toStrTitle(1, "Direction #%d", idir + 1);
     sstr << _dirparams[idir].toString(strfmt);
   }
 
@@ -316,8 +316,8 @@ String VarioParam::toStringMain(const AStringFormat* /*strfmt*/) const
   if (hasDate())
   {
     sstr << "Number of Date Intervals    = " << getNDate() << std::endl;
-    sstr << toMatrix("Matrix of Bounds for Data Intervals", VectorString(), VectorString(),
-                     false, getNDate(), 2, getDates());
+    sstr << toStrMatrix("Matrix of Bounds for Data Intervals", VectorString(), VectorString(),
+                        false, getNDate(), 2, getDates());
   }
 
   if (hasFaults())
