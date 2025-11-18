@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Anamorphosis/AnamDiscreteIR.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
+#include "Basic/AStringable.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/NamingConvention.hpp"
@@ -3531,9 +3532,9 @@ Id krigsampling_f(Db* dbin,
   if (verbose)
   {
     message("Printout of intermediate arrays\n");
-    print_imatrix("Pivot ranks", 0, 1, 1, ntot, NULL, rutil.data());
-    print_matrix("Inv-Sigma", 0, 1, ntot, ntot, NULL, invsig.getValues().data());
-    print_matrix("U", 0, 1, ntot, nutil, NULL, tutil.getValues().data());
+    print_imatrix("Pivot ranks", 0, 1, 1, ntot, rutil);
+    print_matrix("Inv-Sigma", 0, 1, ntot, ntot, invsig.getValues());
+    print_matrix("U", 0, 1, ntot, nutil, tutil.getValues());
   }
 
   /* Second core allocation */
@@ -4032,7 +4033,7 @@ static MatrixDense st_calcul_covmat(const char* title,
   /* Optional printout */
 
   if (INH_FLAG_VERBOSE)
-    print_matrix(title, INH_FLAG_LIMIT, 1, n2, n1, NULL, covgen.getValues().data());
+    print_matrix(title, INH_FLAG_LIMIT, 1, n2, n1, covgen.getValues());
 
   return (covgen);
 }
@@ -4090,7 +4091,7 @@ static VectorDouble st_calcul_drfmat(const char* title,
   /* Optional printout */
 
   if (INH_FLAG_VERBOSE)
-    print_matrix(title, INH_FLAG_LIMIT, 1, nbfl, n1, NULL, drftab.data());
+    print_matrix(title, INH_FLAG_LIMIT, 1, nbfl, n1, drftab);
 
   return (drftab);
 }
@@ -4170,7 +4171,7 @@ static VectorDouble st_calcul_distmat(const char* title,
   /* Optional printout */
 
   if (INH_FLAG_VERBOSE)
-    print_matrix(title, INH_FLAG_LIMIT, 1, ns, n1, NULL, distgen.data());
+    print_matrix(title, INH_FLAG_LIMIT, 1, ns, n1, distgen);
 
   return (distgen);
 }
@@ -4211,7 +4212,7 @@ static VectorDouble st_calcul_product(const char* title,
   /* Optional printout */
 
   if (INH_FLAG_VERBOSE)
-    print_matrix(title, INH_FLAG_LIMIT, 1, ns, n1, NULL, prodgen.data());
+    print_matrix(title, INH_FLAG_LIMIT, 1, ns, n1, prodgen);
 
   return (prodgen);
 }

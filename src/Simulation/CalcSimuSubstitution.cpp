@@ -327,7 +327,7 @@ VectorDouble CalcSimuSubstitution::_transToProp(const SimuSubstitutionParam& sub
   /* Printout the proportions */
 
   if (verbose)
-    print_matrix("Proportions", 0, 1, 1, nfacies, NULL, props.data());
+    print_matrix("Proportions", 0, 1, 1, nfacies, props);
 
   return props;
 }

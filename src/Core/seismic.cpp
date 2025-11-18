@@ -1415,7 +1415,7 @@ static VectorDouble st_seismic_wavelet(Id verbose,
 
   /* Print the wavelet */
 
-  if (verbose) print_vector("Wavelet", 0, ntw2, wavelet);
+  if (verbose) print_vector("Wavelet", wavelet);
 
   return wavelet;
 }

@@ -1040,7 +1040,7 @@ Id Potential::_buildLHS(Db* dbout, MatrixSymmetric& lhs)
   }
 
   if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
-    print_matrix("LHS", 0, 1, _nequa, _nequa, NULL, lhs.getValues().data());
+    print_matrix("LHS", 0, 1, _nequa, _nequa, lhs.getValues());
 
   return (0);
 }
@@ -1215,7 +1215,7 @@ void Potential::_buildRHS(bool flag_grad,
   // Printout (optional)
 
   if (OptDbg::query(EDbg::KRIGING))
-    print_matrix("RHS", 0, 1, _nequa, nsol, NULL, rhs.getValues().data());
+    print_matrix("RHS", 0, 1, _nequa, nsol, rhs.getValues());
 }
 
 /****************************************************************************/
@@ -1536,7 +1536,7 @@ void Potential::_fillDualSimulation(Id nbsimu, MatrixDense& zvals)
   }
 
   if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
-    print_matrix("\n[Simu-Err]", 0, 1, nbsimu, _nequa, NULL, zvals.getValues().data());
+    print_matrix("\n[Simu-Err]", 0, 1, nbsimu, _nequa, zvals.getValues());
 }
 
 void Potential::_calculatePoint(bool flag_grad,
@@ -1579,7 +1579,7 @@ void Potential::_calculatePoint(bool flag_grad,
 
   if (OptDbg::query(EDbg::KRIGING))
   {
-    print_matrix("Results", 0, 1, 1, nsol, NULL, result.data());
+    print_matrix("Results", 0, 1, 1, nsol, result);
     message("\n");
   }
 }
@@ -2459,17 +2459,17 @@ Id Potential::kriging(DbGrid* dbout,
   // Invert the matrix
   if (lhs.invert()) return 1;
   if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
-    print_matrix("[LHS]-1", 0, 1, _nequa, _nequa, NULL, lhs.getValues().data());
+    print_matrix("[LHS]-1", 0, 1, _nequa, _nequa, lhs.getValues());
 
   // Establish the data vector and get the dual form
   VectorDouble zval;
   _fillDual(zval);
   if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
-    print_matrix("\n[Z]", 0, 1, 1, _nequa, NULL, zval.data());
+    print_matrix("\n[Z]", 0, 1, 1, _nequa, zval);
   VectorDouble zdual(_nequa);
   lhs.prodMatVecInPlace(zval, zdual);
   if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
-    print_matrix("\n[Z] * [LHS]-1", 0, 1, 1, _nequa, NULL, zdual.data());
+    print_matrix("\n[Z] * [LHS]-1", 0, 1, 1, _nequa, zdual);
 
   // Evaluate Potential at Reference point
   double refpot = _evaluateRefPot(dbout, zdual, rhs);
@@ -2574,7 +2574,7 @@ Id Potential::simulate(DbGrid* dbout,
   // Invert the matrix
   if (lhs.invert()) return 1;
   if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
-    print_matrix("Inverted LHS", 0, 1, _nequa, _nequa, NULL, lhs.getValues().data());
+    print_matrix("Inverted LHS", 0, 1, _nequa, _nequa, lhs.getValues());
 
   if (flag_tempere)
   {
@@ -2582,10 +2582,10 @@ Id Potential::simulate(DbGrid* dbout,
     // Establish the data vector and get the dual form
     _fillDual(zval);
     if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
-      print_matrix("\n[Z]", 0, 1, 1, _nequa, NULL, zval.data());
+      print_matrix("\n[Z]", 0, 1, 1, _nequa, zval);
     lhs.prodMatVecInPlace(zval, zdual);
     if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
-      print_matrix("\n[Z] *%* [A]-1", 0, 1, 1, _nequa, NULL, zdual.data());
+      print_matrix("\n[Z] *%* [A]-1", 0, 1, 1, _nequa, zdual);
 
     // Evaluate Potential at Reference point
     refpot = _evaluateRefPot(dbout, zdual, rhs);
@@ -2604,7 +2604,7 @@ Id Potential::simulate(DbGrid* dbout,
   _fillDualSimulation(nbsimu, zvals);
   lhs.prodMatMatInPlace(&zvals, &zduals);
   if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
-    print_matrix("\n[Simu-Err] *%* [A]-1", 0, 1, nbsimu, _nequa, NULL, zduals.getValues().data());
+    print_matrix("\n[Simu-Err] *%* [A]-1", 0, 1, nbsimu, _nequa, zduals.getValues());
 
   // Get the Simulated Potential value at the iso-potential samples
   for (Id isimu = 0; isimu < nbsimu; isimu++)
@@ -2677,15 +2677,15 @@ Id Potential::xvalid(bool flag_dist_conv)
   // Invert the matrix
   if (lhs.invert()) return 1;
   if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
-    print_matrix("Inverted LHS", 0, 1, _nequa, _nequa, NULL, lhs.getValues().data());
+    print_matrix("Inverted LHS", 0, 1, _nequa, _nequa, lhs.getValues());
 
   // Establish the data vector and get the dual form
   _fillDual(zval);
   if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
-    print_matrix("\n[Z]", 0, 1, 1, _nequa, NULL, zval.data());
+    print_matrix("\n[Z]", 0, 1, 1, _nequa, zval);
   lhs.prodMatVecInPlace(zval, zdual);
   if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
-    print_matrix("\n[Z] *%* [A]-1", 0, 1, 1, _nequa, NULL, zdual.data());
+    print_matrix("\n[Z] *%* [A]-1", 0, 1, 1, _nequa, zdual);
 
   /* Process the estimate at masked-off isovalues */
   _xvalidCalculate(lhs, flag_dist_conv, zval, lhs_orig, rhs);

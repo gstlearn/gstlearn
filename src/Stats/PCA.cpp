@@ -158,7 +158,7 @@ Id PCA::_calculateEigen(bool verbose, bool optionPositive)
 
   if (verbose)
   {
-    print_matrix("Eigen values", 0, 1, 1, nvar, NULL, _eigval.data());
+    print_matrix("Eigen values", 0, 1, 1, nvar, _eigval);
     print_matrix("Eigen Vectors", 0, _eigvec);
   }
   return 0;
@@ -178,7 +178,7 @@ Id PCA::_calculateGEigen(bool verbose)
 
   if (verbose)
   {
-    print_matrix("GEigen values", 0, 1, 1, nvar, NULL, _eigval.data());
+    print_matrix("GEigen values", 0, 1, 1, nvar, _eigval);
     print_matrix("GEigen Vectors", 0, _eigvec);
   }
   return 0;
@@ -372,8 +372,8 @@ void PCA::_calculateNormalization(const Db* db,
     message("Number of variables         = %d\n", nvar);
     message("Number of samples in the Db = %d\n", nech);
     message("Number of isotropic samples = %d\n", niso);
-    print_matrix("Mean", 0, 1, 1, nvar, NULL, _mean.data());
-    print_matrix("St. Dev.", 0, 1, 1, nvar, NULL, _sigma.data());
+    print_matrix("Mean", 0, 1, 1, nvar, _mean);
+    print_matrix("St. Dev.", 0, 1, 1, nvar, _sigma);
     message("\n");
   }
 }

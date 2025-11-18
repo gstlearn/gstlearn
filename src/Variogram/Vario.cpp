@@ -2549,7 +2549,7 @@ Id Vario::_updateUK(Db* db, Vario_Order* vorder)
       message("Drift removal at iteration #%d/%d\n", iter + 1, _niter_UK);
       _model->display();
       print_matrix("Drift Coefficients Matrix", 0, 1, _DRFXGX.getNRows(),
-                   _DRFXGX.getNCols(), NULL, _DRFXGX.getValues().data());
+                   _DRFXGX.getNCols(), _DRFXGX.getValues());
     }
 
     // Loop on the directions
@@ -4502,7 +4502,7 @@ Id Vario::_driftEstimateCoefficients(Db* db)
   if (_verbose)
   {
     message("Drift removal initial step\n");
-    print_matrix("Drift Coefficients Matrix", 0, 1, nbfl, nbfl, NULL, matdrf.getValues().data());
+    print_matrix("Drift Coefficients Matrix", 0, 1, nbfl, nbfl, matdrf.getValues());
   }
 
   /* Pre-process the vector X %*% (t(X) %*% X)-1 */

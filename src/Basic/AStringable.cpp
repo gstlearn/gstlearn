@@ -288,7 +288,7 @@ void AStringable::display(Id level) const
 /****************************************************************************/
 /*!
  **  Tabulated printout of a string
- 
+
  **
  ** \param[in]  title    optional title (NULL if not defined)
  ** \param[in]  string   String to be written
@@ -493,10 +493,9 @@ void print_matrix(const String& title,
                   Id bycol,
                   Id nx,
                   Id ny,
-                  const double* sel,
-                  const double* tab)
+                  const VectorDouble& tab)
 {
-  if (tab == nullptr || nx <= 0 || ny <= 0) return;
+  if (tab.empty() || nx <= 0 || ny <= 0) return;
   Id nx_util   = (flag_limit && static_cast<Id>(OptCst::query(ECst::NTCOL)) > 0) ? MIN(static_cast<Id>(OptCst::query(ECst::NTCOL)), nx) : nx;
   Id ny_util   = (flag_limit && static_cast<Id>(OptCst::query(ECst::NTROW)) > 0) ? MIN(static_cast<Id>(OptCst::query(ECst::NTROW)), ny) : ny;
   Id multi_row = (ny > 1 || title.empty());
@@ -526,7 +525,6 @@ void print_matrix(const String& title,
   Id ny_done = 0;
   for (Id iy = 0; iy < ny; iy++)
   {
-    if (sel != nullptr && !sel[iy]) continue;
     ny_done++;
     if (ny_done > ny_util) break;
     if (multi_row) tab_print_rc(String(), CASE_ROW, iy + 1);
@@ -559,7 +557,7 @@ void print_matrix(const String& title,
                   Id flag_limit,
                   const AMatrix& mat)
 {
-  print_matrix(title, flag_limit, true, mat.getNCols(), mat.getNRows(), nullptr, mat.getValues().data());
+  print_matrix(title, flag_limit, true, mat.getNCols(), mat.getNRows(), mat.getValues());
 }
 
 /****************************************************************************/
@@ -575,7 +573,7 @@ void print_matrix(const String& title,
  ** \remarks The ordering (compatible with matrix_solve is mode==2)
  **
  *****************************************************************************/
-void print_trimat(const String& title, Id mode, Id neq, const double* tl)
+void print_trimat(const String& title, Id mode, Id neq, const VectorDouble& tl)
 {
 #define TRI(i)    (((i) * ((i) + 1)) / 2)
 #define TL1(i, j) (tl[(j) * neq + (i) - TRI(j)]) /* only for i >= j */
@@ -583,7 +581,7 @@ void print_trimat(const String& title, Id mode, Id neq, const double* tl)
 
   /* Initializations */
 
-  if (tl == nullptr || neq <= 0) return;
+  if (tl.empty() || neq <= 0) return;
 
   /* Print the title (optional) */
 
@@ -631,7 +629,6 @@ void print_trimat(const String& title, Id mode, Id neq, const double* tl)
  ** \param[in]  bycol  1 if values in 'tab' are sorted by column, 0 otherwise
  ** \param[in]  nx     number of columns in the matrix
  ** \param[in]  ny     number of rows in the matrix
- ** \param[in]  sel    array of selection or NULL
  ** \param[in]  tab    array containing the matrix
  **
  *****************************************************************************/
@@ -640,10 +637,9 @@ void print_imatrix(const String& title,
                    Id bycol,
                    Id nx,
                    Id ny,
-                   const double* sel,
-                   const Id* tab)
+                   const VectorInt& tab)
 {
-  if (tab == nullptr || nx <= 0 || ny <= 0) return;
+  if (tab.empty() || nx <= 0 || ny <= 0) return;
   Id nx_util   = (flag_limit && static_cast<Id>(OptCst::query(ECst::NTCOL)) > 0) ? MIN(static_cast<Id>(OptCst::query(ECst::NTCOL)), nx) : nx;
   Id ny_util   = (flag_limit && static_cast<Id>(OptCst::query(ECst::NTROW)) > 0) ? MIN(static_cast<Id>(OptCst::query(ECst::NTROW)), ny) : ny;
   Id multi_row = (ny > 1 || title.empty());
@@ -673,7 +669,6 @@ void print_imatrix(const String& title,
   Id ny_done = 0;
   for (Id iy = 0; iy < ny; iy++)
   {
-    if (sel != nullptr && !sel[iy]) continue;
     ny_done++;
     if (ny_done > ny_util) break;
     if (multi_row) tab_print_rc(String(), CASE_ROW, iy + 1);
@@ -707,22 +702,18 @@ void print_imatrix(const String& title,
  **  Print a vector of real values in a matrix form
  **
  ** \param[in]  title      Title (Optional)
- ** \param[in]  flag_limit 1 if NTCOL is used; 0 otherwise
- ** \param[in]  ntab       Number of elements in the array
  ** \param[in]  tab        Array to be printed
  **
  *****************************************************************************/
-void print_vector(const String& title,
-                  Id flag_limit,
-                  Id ntab,
-                  const double* tab)
+void print_vector(const String& title, const VectorDouble& tab)
 {
   static Id nby_def = 5;
 
   /* Initializations */
 
+  Id ntab = tab.size();
   if (ntab <= 0) return;
-  Id nby         = (flag_limit && static_cast<Id>(OptCst::query(ECst::NTCOL)) >= 0) ? static_cast<Id>(OptCst::query(ECst::NTCOL)) : nby_def;
+  Id nby         = nby_def;
   bool flag_many = (ntab > nby);
 
   if (!title.empty())
@@ -744,32 +735,15 @@ void print_vector(const String& title,
   }
 }
 
-void print_vector(const String& title,
-                  Id flag_limit,
-                  Id ntab,
-                  const VectorDouble& tab)
-{
-  print_vector(title, flag_limit, ntab, tab.data());
-}
-
-/****************************************************************************/
-/*!
- **  Print a vector of integer values in a matrix form
- **
- ** \param[in]  title      Title (Optional)
- ** \param[in]  flag_limit 1 if NTCOL is used; 0 otherwise
- ** \param[in]  ntab       Number of elements in the array
- ** \param[in]  itab       Array to be printed
- **
- *****************************************************************************/
-void print_ivector(const String& title, Id flag_limit, Id ntab, const Id* itab)
+void print_vector(const String& title, const VectorInt& tab)
 {
   static Id nby_def = 5;
 
   /* Initializations */
 
+  Id ntab = tab.size();
   if (ntab <= 0) return;
-  Id nby         = (flag_limit && static_cast<Id>(OptCst::query(ECst::NTCOL)) >= 0) ? static_cast<Id>(OptCst::query(ECst::NTCOL)) : nby_def;
+  Id nby         = nby_def;
   bool flag_many = (ntab > nby);
 
   if (!title.empty())
@@ -784,19 +758,11 @@ void print_ivector(const String& title, Id flag_limit, Id ntab, const Id* itab)
     for (Id j = 0; j < nby; j++)
     {
       if (lec >= ntab) continue;
-      message(" %10d", itab[lec]);
+      message(" %10f", tab[lec]);
       lec++;
     }
     message("\n");
   }
-}
-
-void print_ivector(const String& title,
-                   Id flag_limit,
-                   Id ntab,
-                   const VectorInt& itab)
-{
-  print_ivector(title, flag_limit, ntab, itab.data());
 }
 
 /**

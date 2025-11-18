@@ -1301,7 +1301,7 @@ void dbStatisticsPrint(const Db* db,
   if (ncol > 1 && numiso > 0 && flagCorrel)
   {
     message("Number of isotopic active samples = %d\n", numiso);
-    print_matrix("Correlation matrix", 0, 1, ncol, ncol, NULL, cov.data());
+    print_matrix("Correlation matrix", 0, 1, ncol, ncol, cov);
     message("\n");
   }
 }
