@@ -22,6 +22,12 @@
 #include <sstream>
 #include <typeinfo>
 
+#define CASE_DOUBLE 0
+#define CASE_REAL   1
+#define CASE_INT    2
+#define CASE_COL    3
+#define CASE_ROW    4
+
 namespace gstlrn
 {
 static String FORMAT;

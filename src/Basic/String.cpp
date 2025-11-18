@@ -11,8 +11,8 @@
 #include "Basic/String.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/OptCst.hpp"
-#include "Basic/Utilities.hpp"
 #include "Basic/VectorNumT.hpp"
+#include "Matrix/AMatrix.hpp"
 
 #include <algorithm>
 #include <cctype>
@@ -26,6 +26,12 @@
 #include <locale>
 #include <regex>
 #include <sstream>
+
+#define CASE_DOUBLE 0
+#define CASE_REAL   1
+#define CASE_INT    2
+#define CASE_COL    3
+#define CASE_ROW    4
 
 namespace gstlrn
 {
