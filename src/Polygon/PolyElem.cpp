@@ -11,7 +11,6 @@
 #include "Polygon/PolyElem.hpp"
 #include "Basic/PolyLine2D.hpp"
 #include "Basic/SerializeHDF5.hpp"
-#include "Basic/Utilities.hpp"
 
 namespace gstlrn
 {
