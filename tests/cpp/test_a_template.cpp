@@ -21,5 +21,7 @@ int main(int argc, char* argv[])
   StdoutRedirect sr(sfn.str(), argc, argv);
   ASerializable::setPrefixName("test_a_template-"); // Here set the test name
   //
+
+  tab_printg("my title", 24.);
   return 0;
 }

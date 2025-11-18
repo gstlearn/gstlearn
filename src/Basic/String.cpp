@@ -1069,7 +1069,7 @@ void gslStrcat(String& dst, const char* src)
   size_t add_len = std::strlen(src);
 
   // on redimensionne pour accueillir l'ajout
-  dst.resize(old_len + add_len + 1);
+  dst.resize(old_len + add_len);
 
   // on copie le nouveau contenu à la fin
   std::memcpy(&dst[old_len], src, add_len);
@@ -1294,17 +1294,17 @@ Id fromStr(const String& v, char dec)
 }
 
 template<>
-double askInteractive(const String& v, double defval, bool authTest)
+double askInteractive<double>(const String& v, double defval, bool authTest)
 {
   return _askDouble(v, defval, authTest);
 }
 template<>
-Id askInteractive(const String& v, Id defval, bool authTest)
+Id askInteractive<Id>(const String& v, Id defval, bool authTest)
 {
   return _askInt(v, defval, authTest);
 }
 template<>
-bool askInteractive(const String& v, bool defval, bool authTest)
+bool askInteractive<bool>(const String& v, bool defval, bool authTest)
 {
   return _askBool(v, defval, authTest);
 }
