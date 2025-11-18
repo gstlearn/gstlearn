@@ -481,7 +481,6 @@ void tab_print_rowname(const char* string, Id taille)
  ** \param[in]  bycol  1 if values in 'tab' are sorted by column, 0 otherwise
  ** \param[in]  nx     number of columns in the matrix
  ** \param[in]  ny     number of rows in the matrix
- ** \param[in]  sel    array of selection or NULL
  ** \param[in]  tab    array containing the matrix
  **
  ** \remarks The order of the dimension (nx,ny) is opposite
