@@ -404,8 +404,8 @@ String toStr(const char* v, Id justification, Id localSize)
 String toStrTitle(Id level, const char* format, ...)
 {
   std::stringstream sstr;
-  Id STRING_MAX = 1000;
-  char STRING[1000];
+  Id STRING_MAX = 500;
+  char STRING[500];
   va_list ap;
 
   sstr << std::endl;
