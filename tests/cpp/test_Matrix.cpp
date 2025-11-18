@@ -613,13 +613,13 @@ int main(int argc, char* argv[])
 
   // Extract the Eigen values and vectors (both matrix types)
   (void)MEig->computeEigen();
-  VectorDouble eigVal = MEig->getEigenValues();
+  const auto& eigVal = MEig->getEigenValues();
   VH::dump("Eigen Values (Eigen Library)", eigVal);
   const MatrixSquare* eigVec = MEig->getEigenVectors();
   eigVec->display();
 
   (void)MNoEig->computeEigen();
-  VectorDouble eigNoVal = MNoEig->getEigenValues();
+  const auto& eigNoVal = MNoEig->getEigenValues();
   VH::dump("Eigen Values (no Eigen Library)", eigNoVal);
   const MatrixSquare* eigNoVec = MNoEig->getEigenVectors();
   eigNoVec->display();
@@ -745,7 +745,7 @@ int main(int argc, char* argv[])
 
   // Extract the Generalized Eigen values and vectors (both matrix types)
   (void)MEig->computeGeneralizedEigen(*BEig);
-  VectorDouble genEigVal        = MEig->getEigenValues();
+  const auto& genEigVal         = MEig->getEigenValues();
   const MatrixSquare* genEigVec = MEig->getEigenVectors();
   VH::dump("Generalized Eigen Values (Eigen Library)", genEigVal);
   genEigVec->display();
@@ -758,7 +758,7 @@ int main(int argc, char* argv[])
   delete MRNoEigt;
 
   (void)MNoEig->computeGeneralizedEigen(*BNoEig);
-  VectorDouble genEigNoVal        = MNoEig->getEigenValues();
+  const auto& genEigNoVal         = MNoEig->getEigenValues();
   const MatrixSquare* genEigNoVec = MNoEig->getEigenVectors();
   VH::dump("Generalized Eigen Values (no Eigen Library)", genEigNoVal);
   genEigNoVec->display();

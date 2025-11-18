@@ -3047,7 +3047,7 @@ static Id st_sampling_krige_data(Db* db,
     tn1.linearCombination(1, &tn1, 1, tn2);
 
     if (tn1.computeEigen()) goto label_end;
-    VectorDouble eigval  = tn1.getEigenValues();
+    const auto& eigval   = tn1.getEigenValues();
     MatrixSquare* eigvec = tn1.getEigenVectors()->clone();
 
     eigvec->prodByDiagInPlace(3, eigval);

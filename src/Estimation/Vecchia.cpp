@@ -632,7 +632,7 @@ Id krigingVecchia(Db* dbin,
   if (V.computeLower(Ranks, verbose)) return 1;
 
   // Extract sub-part of 'Diagonal' vector
-  VectorDouble DFull = V.getDFull();
+  const auto& DFull  = V.getDFull();
   auto nd            = V.getND();
   auto nt            = V.getNT();
   Id nvar            = model->getNVar();

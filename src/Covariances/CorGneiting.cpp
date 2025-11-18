@@ -216,10 +216,10 @@ MatrixDense CorGneiting::simulateSpectralOmega(Id nb) const
     omegaT.setValue(n, 0, val);
   }
   // applying the space anisotropy
-  MatrixSquare tensorS = _corS->getAniso().getTensorInverse();
+  const auto& tensorS = _corS->getAniso().getTensorInverse();
   omegaS.prodMat(&tensorS);
   // applying the time anisotropy
-  MatrixSquare tensorT = _corT->getAniso().getTensorInverse();
+  const auto& tensorT = _corT->getAniso().getTensorInverse();
   omegaT.prodMat(&tensorT);
   MatrixDense omegaST(nb, ndim + 1);
   for (Id icol = 0; icol < ndim; icol++)

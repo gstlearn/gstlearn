@@ -542,7 +542,7 @@ VectorDouble PrecisionOp::extractDiag() const
   VectorDouble vec(size, 0.);
   const EPowerPT& power = EPowerPT::ONE;
 
-  VectorDouble lambdas = _shiftOp->getLambdas();
+  const auto& lambdas = _shiftOp->getLambdas();
 
   if (_preparePoly(power) != 0) return vec;
 

@@ -304,7 +304,7 @@ bool NeighMoving::_getAnisotropyElements(double* rx, double* ry, double* theta, 
 {
   double radius = _getRadius();
   if (FFFF(radius)) return false;
-  VectorDouble anisoRatio = getAnisoCoeffs();
+  const auto& anisoRatio  = getAnisoCoeffs();
   Id ndim                 = static_cast<Id>(anisoRatio.size());
   if (ndim != 2) return false;
   *rx = radius * anisoRatio[0];

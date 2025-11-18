@@ -274,8 +274,8 @@ double SpatialIndices::getGIC(const String& name1, const String& name2)
   double inertia1      = getInertia();
   if (computeCGI(name2) != 0)
     return TEST;
-  VectorDouble center2 = getCenter();
-  double inertia2      = getInertia();
+  const auto& center2 = getCenter();
+  double inertia2     = getInertia();
 
   double dx  = center1[0] - center2[0];
   double dy  = center1[1] - center2[1];

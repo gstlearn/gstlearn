@@ -755,7 +755,7 @@ double law_df_quadgaussian(VectorDouble& vect, MatrixSymmetric& correl)
 
   if (correl.computeEigen()) return TEST;
 
-  VectorDouble eigval = correl.getEigenValues();
+  const auto& eigval = correl.getEigenValues();
   for (Id ivar = 0; ivar < nvar; ivar++)
     density -= 0.5 * log(eigval[ivar]);
 
@@ -784,7 +784,7 @@ double law_df_multigaussian(VectorDouble& vect, MatrixSymmetric& correl)
   double density = -0.5 * nvar * log(2 * GV_PI);
 
   if (correl.computeEigen()) return TEST;
-  VectorDouble eigval = correl.getEigenValues();
+  const auto& eigval = correl.getEigenValues();
 
   for (Id i = 0; i < nvar; i++)
     density -= 0.5 * log(eigval[i]);

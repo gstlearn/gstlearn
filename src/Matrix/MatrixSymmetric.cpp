@@ -291,7 +291,7 @@ bool MatrixSymmetric::isDefinitePositive()
 
   // Get the Eigen values
 
-  VectorDouble valpro = getEigenValues();
+  const auto& valpro = getEigenValues();
 
   /* Check if the eigen values are all positive */
 
@@ -830,7 +830,7 @@ Id MatrixSymmetric::computeGeneralizedInverse(MatrixSymmetric& tabout,
 
   // Calculate the Eigen vectors
   if (computeEigen() != 0) return 1;
-  VectorDouble eigval        = getEigenValues();
+  const auto& eigval         = getEigenValues();
   const MatrixSquare* eigvec = getEigenVectors();
 
   // Compute the conditioning

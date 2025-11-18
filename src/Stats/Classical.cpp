@@ -1327,7 +1327,7 @@ MatrixSquare* sphering(const AMatrix* X)
 
   prodsym->prodScalar(1. / static_cast<double>(nech));
   if (prodsym->computeEigen()) return nullptr;
-  VectorDouble eigen_values = prodsym->getEigenValues();
+  const auto& eigen_values  = prodsym->getEigenValues();
   MatrixSquare* S           = prodsym->getEigenVectors()->clone();
 
   // Invert the sign of the second Eigen vector (for compatibility with R output)

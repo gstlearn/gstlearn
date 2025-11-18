@@ -271,7 +271,7 @@ MatrixSparse* PrecisionOpMatrix::_build_Q()
 {
   // Preliminary checks
   auto* S           = ((ShiftOpMatrix*)getShiftOp())->getS();
-  auto Lambda       = getShiftOp()->getLambdas();
+  const auto& Lambda = getShiftOp()->getLambdas();
   VectorDouble blin = getPoly(EPowerPT::ONE)->getCoeffs();
   Id nblin         = static_cast<Id>(blin.size());
   Id nvertex       = S->getNCols();
