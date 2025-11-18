@@ -107,6 +107,12 @@ set_source_files_properties(${SRC} PROPERTIES
   # C++ headers will be found by %import swig directive
   USE_TARGET_INCLUDE_DIRECTORIES TRUE
 )
+# Ajout par DR pour eviter le warning lie a #include <regex> (qui devient erreur sur github)
+set_source_files_properties(
+    src/Basic/String.cpp
+    PROPERTIES
+    COMPILE_FLAGS "-Wno-maybe-uninitialized"
+)
 
 # Tell to CMake that ${SRC} depends on some other files
 set_property(SOURCE ${SRC} PROPERTY

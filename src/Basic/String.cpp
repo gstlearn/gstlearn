@@ -405,12 +405,12 @@ String toStrTitle(Id level, const char* format, ...)
 {
   std::stringstream sstr;
   Id STRING_MAX = 500;
-  char STRING[500];
+  char STRING[501];
   va_list ap;
 
   sstr << std::endl;
   va_start(ap, format);
-  (void)vsnprintf(STRING, sizeof(STRING), format, ap);
+  (void)vsnprintf(STRING, STRING_MAX, format, ap);
   va_end(ap);
   sstr << STRING << std::endl;
 
@@ -1069,7 +1069,7 @@ void gslStrcat(String& dst, const char* src)
   size_t add_len = std::strlen(src);
 
   // on redimensionne pour accueillir l'ajout
-  dst.resize(old_len + add_len);
+  dst.resize(old_len + add_len + 1);
 
   // on copie le nouveau contenu à la fin
   std::memcpy(&dst[old_len], src, add_len);

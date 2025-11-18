@@ -10,7 +10,7 @@
 /******************************************************************************/
 #include "Basic/AStringable.hpp"
 #include "Basic/String.hpp"
-#include "Basic/Utilities.hpp"
+#include "Basic/Undefined.hpp"
 
 /**
  * This test is meant to check the interactive questioning
