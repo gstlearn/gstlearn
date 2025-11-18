@@ -106,7 +106,7 @@ void Likelihood::evalGrad(vect res)
 {
   _temp.resize(_Yc.size());
   _gradCovMatTimesInvCov.resize(static_cast<Id>(_Yc.size()), static_cast<Id>(_Yc.size()));
-  auto invcov = _covChol.inverse();
+  const auto invcov = _covChol.inverse();
   RankHandler rkh(_db);
   rkh.defineSampleRanks();
   const auto &gradcov = _model->getCovGradients();
@@ -147,17 +147,17 @@ void Likelihood::_fillGradCovMat(RankHandler& rkh, const covmaptype& gradcov)
 
   for (Id jvar = 0; jvar < _model->getNVar(); jvar++)
   {
-    auto indsj = rkh.getSampleRanksByVariable(jvar);
+    const auto& indsj = rkh.getSampleRanksByVariable(jvar);
 
-    for (auto& j: indsj)
+    for (const auto j: indsj)
     {
       icur = 0;
       _db->getSampleAsSPInPlace(p1, j);
 
       for (Id ivar = 0; ivar < _model->getNVar(); ivar++)
       {
-        auto indsi = rkh.getSampleRanksByVariable(ivar);
-        for (auto& i: indsi)
+        const auto& indsi = rkh.getSampleRanksByVariable(ivar);
+        for (const auto i: indsi)
         {
           _db->getSampleAsSPInPlace(p2, i);
 

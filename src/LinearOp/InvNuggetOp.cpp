@@ -126,13 +126,12 @@ static Id _loadPositions(Id iech,
 double InvNuggetOp::_updateQuantities(MatrixSymmetric& sillsinv)
 {
   sillsinv.computeEigen();
-  auto eigenvals        = sillsinv.getEigenValues();
+  const auto& eigenvals = sillsinv.getEigenValues();
   auto rangevals        = std::minmax_element(eigenvals.begin(), eigenvals.end());
   _rangeEigenVal.first  = MIN(_rangeEigenVal.first, *rangevals.first);
   _rangeEigenVal.second = MAX(_rangeEigenVal.second, *rangevals.second);
-  std::transform(eigenvals.begin(), eigenvals.end(), eigenvals.begin(), [](double x)
-                 { return std::log(x); });
-  return std::accumulate(eigenvals.begin(), eigenvals.end(), 0.);
+  return std::accumulate(eigenvals.begin(), eigenvals.end(), 0., [](const double acc, const double x)
+                         { return acc + std::log(x); });
 }
 
 /**

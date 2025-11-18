@@ -1385,7 +1385,6 @@ static Id st_goulard_without_constraint(const Option_AutoFit& mauto,
 {
   Id allpos;
   double temp, crit, crit_mem, value;
-  VectorDouble valpro;
   const MatrixSquare* vecpro;
 
   /*******************/
@@ -1498,7 +1497,7 @@ static Id st_goulard_without_constraint(const Option_AutoFit& mauto,
       /* Computing and sorting the eigen values and eigen vectors */
 
       if (cc.computeEigen()) return 1;
-      valpro = cc.getEigenValues();
+      const auto& valpro = cc.getEigenValues();
       vecpro = cc.getEigenVectors();
 
       Id kvar = 0;
@@ -2410,7 +2409,7 @@ static Id st_truncate_negative_eigen(Id nvar,
   if (cc.computeEigen())
     messageAbort("st_truncate_negative_eigen");
 
-  VectorDouble valpro        = cc.getEigenValues();
+  const auto& valpro         = cc.getEigenValues();
   const MatrixSquare* vecpro = cc.getEigenVectors();
 
   /* Check positiveness */

@@ -510,7 +510,6 @@ double ACov::evalIsoIvarIpas(double step,
                              const CovCalcMode* mode) const
 {
   /// TODO : Not true whatever the space
-  VectorDouble center = getSpace()->getOrigin();
   VectorDouble dir    = getSpace()->getUnitaryVector();
   return evalIvarIpas(step, dir, ivar, jvar, mode);
 }

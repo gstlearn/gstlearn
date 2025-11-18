@@ -113,7 +113,7 @@ bool CalcKrigingFactors::_preprocess()
     if (getKrigopt().hasDiscs())
     {
       // Center the information in sub-blocks when the output grid defines panels
-      VectorInt ndiscs = getKrigopt().getDiscs();
+      const auto& ndiscs = getKrigopt().getDiscs();
       DbGrid* dbsmu    = DbGrid::createDivider(dbgrid, ndiscs, 1);
       _nameCoord       = getDbin()->getNamesByLocator(ELoc::X);
       Id error         = _centerDataToGrid(dbsmu);

@@ -619,7 +619,7 @@ Id CalcAnamTransform::_conditionalExpectation(Db* db,
 
   /* Analyzing the codes */
 
-  VectorDouble ycuts = anam_hermite->rawToTransformVec(selectivity->getZcut());
+  const auto& ycuts  = anam_hermite->rawToTransformVec(selectivity->getZcut());
   Id need_T          = selectivity->isNeededT();
 
   /* Computing the estimation */
@@ -739,7 +739,7 @@ Id CalcAnamTransform::_uniformConditioning(Db* db,
 
   /* Transform zcuts into gaussian equivalent */
 
-  VectorDouble ycuts = anam->rawToTransformVec(selectivity->getZcut());
+  const auto& ycuts = anam->rawToTransformVec(selectivity->getZcut());
 
   /* Fill the array phi_b_zc */
 

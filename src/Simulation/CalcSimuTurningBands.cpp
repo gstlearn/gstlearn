@@ -883,7 +883,7 @@ double CalcSimuTurningBands::_irfProcessInit(Id ibs,
   if (type == ECov::ORDER3_GC) level = 1;
   if (type == ECov::ORDER5_GC) level = 2;
   auto nt        = operTB.getTsize();
-  VectorDouble t = operTB.getT();
+  const auto& t  = operTB.getT();
 
   /* Generation of the Wiener-Levy process and its integrations */
 
@@ -950,7 +950,7 @@ VectorDouble CalcSimuTurningBands::_createAIC()
     // Calculate the Eigen decomposition
 
     if (mat.computeEigen()) return VectorDouble();
-    VectorDouble valpro        = mat.getEigenValues();
+    const auto& valpro         = mat.getEigenValues();
     const MatrixSquare* vecpro = mat.getEigenVectors();
 
     /* Calculate the factor matrix */

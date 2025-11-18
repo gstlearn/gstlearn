@@ -2096,7 +2096,7 @@ static Id invgen(MatrixSymmetric& a, MatrixSymmetric& tabout)
   /* Calculate the eigen vectors */
 
   if (a.computeEigen()) return 1;
-  VectorDouble eigval        = a.getEigenValues();
+  const auto& eigval         = a.getEigenValues();
   const MatrixSquare* eigvec = a.getEigenVectors();
 
   /* Calculate the generalized inverse */
