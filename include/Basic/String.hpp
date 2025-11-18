@@ -112,9 +112,7 @@ GSTLEARN_EXPORT VectorInt decodeGridSorting(const String& string,
 template<typename T>
 String toStr(const T& v, Id justification = 1, Id localSize = 0);
 String toStr(const char* v, Id justification = 1, Id localSize = 0);
-String toStrVectorVec(const String& title,
-                      constvect tab,
-                      bool flagOverride = true);
+String toStrVectorVec(const String& title, constvect tab, bool flagOverride = true);
 String toStrTitle(Id level, const char* format, ...);
 String toStrInterval(double zmin, double zmax);
 VectorString toStrVectorDouble(const VectorDouble& values, Id justification = 1);

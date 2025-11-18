@@ -462,42 +462,10 @@ String toStrInterval(double zmin, double zmax)
  */
 String toStrVectorVec(const String& title, constvect tab, bool flagOverride)
 {
-  std::stringstream sstr;
-  if (tab.empty()) return sstr.str();
+  // Adapter le span vers un VectorT<double> ou équivalent
+  VectorT<double> tmp(tab.begin(), tab.end());
 
-  Id ncols  = static_cast<Id>(tab.size());
-  Id ncutil = ncols;
-  if (_getMaxNCols() > 0 && ncutil > _getMaxNCols() && !flagOverride) ncutil = _getMaxNCols();
-  bool multi_row = ncutil > _getNBatch();
-
-  /* Print the title (optional) */
-
-  if (!title.empty())
-  {
-    sstr << title;
-    if (multi_row) sstr << std::endl;
-  }
-
-  Id lec = 0;
-  if (multi_row) sstr << _toStrColumnHeader(VectorString(), 0, _getNBatch());
-
-  for (Id i = 0; i < ncutil; i += _getNBatch())
-  {
-    if (multi_row) sstr << _toStrRowHeader(VectorString(), i);
-
-    for (Id j = 0; j < _getNBatch(); j++)
-    {
-      if (lec >= ncutil) continue;
-      sstr << toStr(tab[lec]);
-      lec++;
-    }
-    sstr << std::endl;
-  }
-
-  // Print the trailer
-  sstr << _toStrTrailer(ncols, 0, ncutil, 0);
-
-  return sstr.str();
+  return toStrVector(title, tmp, flagOverride);
 }
 
 VectorString toStrVectorDouble(const VectorDouble& values, Id justification)
