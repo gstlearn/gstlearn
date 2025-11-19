@@ -11,6 +11,10 @@
 #include "geoslib_define.h"
 
 #include "Basic/ASerializable.hpp"
+
+// #include "Db/Db.hpp"
+// #include "Stats/Classical.hpp"
+
 using namespace gstlrn;
 
 int main(int argc, char* argv[])
@@ -22,6 +26,8 @@ int main(int argc, char* argv[])
   ASerializable::setPrefixName("test_a_template-"); // Here set the test name
   //
 
-  tab_printg("my title", 24.);
-  return 0;
+  // auto* db                       = Db::createFillRandom(100, 2, 3);
+  // VectorString names             = {"x-*", "z-*"};
+  // std::vector<EStatOption> opers = EStatOption::fromKeys({"NUM", "MINI", "MAXI", "MEAN", "STDV"});
+  // dbStatisticsPrint(db, names, opers);
 }

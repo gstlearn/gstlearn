@@ -358,44 +358,24 @@ void tab_prints(const String& title,
 void tab_printg(const String& title,
                 double value,
                 Id ncol,
-                Id justification)
+                Id justification,
+                bool roundZero)
 {
-  _buildFormat(CASE_REAL);
+  // _buildFormat(CASE_REAL);
 
-  if (FFFF(value))
-    (void)gslStrcpy(DECODE, "N/A");
-  else
-  {
-    // Prevent -0.00 : https://stackoverflow.com/a/12536500/3952924
-    value = (ABS(value) < _getThresh()) ? 0. : value;
-    (void)gslSPrintf(DECODE, FORMAT.data(), value);
-  }
-  tab_prints(title, DECODE, ncol, justification);
-}
-
-/****************************************************************************/
-/*!
- **  Tabulated printout of a double value
- **
- ** \param[in]  title    optional title (NULL if not defined)
- ** \param[in]  value    Value to be written
- ** \param[in]  ncol     number of columns for the printout
- ** \param[in]  justification  justification flag
- **
- *****************************************************************************/
-void tab_printd(const String& title,
-                double value,
-                Id ncol,
-                Id justification)
-{
-  _buildFormat(CASE_DOUBLE);
-
-  if (FFFF(value))
-    (void)gslStrcpy(DECODE, "N/A");
-  else
-    (void)gslSPrintf(DECODE, FORMAT.data(), value);
-
-  tab_prints(title, DECODE, ncol, justification);
+  // if (FFFF(value))
+  //   (void)gslStrcpy(DECODE, "N/A");
+  // else
+  // {
+  //   // Prevent -0.00 : https://stackoverflow.com/a/12536500/3952924
+  //   if (roundZero) value = (ABS(value) < _getThresh()) ? 0. : value;
+  //   (void)gslSPrintf(DECODE, FORMAT.data(), value);
+  // }
+  // tab_prints(title, DECODE, ncol, justification);
+  String string = "coucou";
+  string = toStr(value, justification, 0, roundZero, ncol);
+  if (!title.empty()) message("%s", title.c_str());
+  message(string.c_str());
 }
 
 /****************************************************************************/

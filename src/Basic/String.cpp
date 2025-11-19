@@ -44,9 +44,12 @@ Id _getColumnName()
 {
   return static_cast<Id>(OptCst::query(ECst::NTNAME));
 }
-Id _getColumnSize(Id localSize)
+Id _getColumnSize(Id localSize, Id nColumns)
 {
-  return (localSize > 0) ? localSize : static_cast<Id>(OptCst::query(ECst::NTCAR));
+  if (localSize > 0) return localSize;
+  Id size = static_cast<Id>(OptCst::query(ECst::NTCAR));
+  if (nColumns == 1) return size;
+  return size * nColumns + (nColumns - 1); // account for spaces between columns
 }
 Id _getMaxNCols()
 {
@@ -72,10 +75,10 @@ double _getThresh()
 }
 
 // Functions for encoding a single value
-std::stringstream _formatOneColumn(Id justification, Id localSize = 0)
+std::stringstream _formatOneColumn(Id justification = 1, Id localSize = 0, Id nColumns = 1)
 {
   std::stringstream sstr;
-  auto size = static_cast<I32>(_getColumnSize(localSize));
+  auto size = static_cast<I32>(_getColumnSize(localSize, nColumns));
   auto prec = static_cast<I32>(_getDecimalNumber());
   sstr << std::fixed << std::setw(size) << std::setprecision(prec);
   if (justification < 0)
@@ -85,11 +88,11 @@ std::stringstream _formatOneColumn(Id justification, Id localSize = 0)
   return sstr;
 }
 
-String _formatOneString(const String& string, Id justification, Id localSize)
+String _formatOneString(const String& string, Id justification, Id localSize, Id nColumns)
 {
-  std::stringstream sstr = _formatOneColumn(justification, localSize);
+  std::stringstream sstr = _formatOneColumn(justification, localSize, nColumns);
   Id size                = static_cast<Id>(string.size());
-  Id truncSize           = _getColumnSize(localSize);
+  Id truncSize           = _getColumnSize(localSize, nColumns);
   if (size > truncSize)
   {
     // String must be truncated
@@ -106,24 +109,31 @@ String _formatOneString(const String& string, Id justification, Id localSize)
   return sstr.str();
 }
 
-String _formatOneDouble(double value, Id justification, Id localSize)
+String _formatOneDouble(double value,
+                        Id justification,
+                        Id localSize,
+                        bool roundZero,
+                        Id nColumns)
 {
-  std::stringstream sstr = _formatOneColumn(justification, localSize);
+  std::stringstream sstr = _formatOneColumn(justification, localSize, nColumns);
   if (FFFF(value))
     sstr << "N/A";
   else
   {
-    // Prevent -0.00 : https://stackoverflow.com/a/12536500/3952924
-    value = (ABS(value) < _getThresh()) ? 0. : value;
+    if (roundZero)
+    {
+      // Prevent -0.00 : https://stackoverflow.com/a/12536500/3952924
+      value = (ABS(value) < _getThresh()) ? 0. : value;
+    }
     sstr << value;
   }
 
   return sstr.str();
 }
 
-String _formatOneId(Id value, Id justification, Id localSize = 0)
+String _formatOneId(Id value, Id justification, Id localSize, Id nColumns)
 {
-  std::stringstream sstr = _formatOneColumn(justification, localSize);
+  std::stringstream sstr = _formatOneColumn(justification, localSize, nColumns);
   if (IFFFF(value))
     sstr << "N/A";
   else
@@ -161,7 +171,7 @@ private:
  * @param dec Symbol used for decimal point (unused here)
  * @return The integer value or ITEST (in case of failure)
  */
-Id _convertToInteger(const String& v, char dec)
+Id _convertToId(const String& v, char dec)
 {
   DECLARE_UNUSED(dec);
   std::istringstream iss(v);
@@ -367,32 +377,6 @@ bool _askBool(const String& v, bool defval, bool authTest)
     std::cerr << "Problem when reading bool:" << e.what() << std::endl;
   }
   return answer;
-}
-template<>
-String toStr(const double& v, Id justification, Id localSize)
-{
-  std::stringstream sstr;
-  sstr << _formatOneDouble(v, justification, localSize);
-  return sstr.str();
-}
-template<>
-String toStr(const Id& v, Id justification, Id localSize)
-{
-  std::stringstream sstr;
-  sstr << _formatOneId(v, justification, localSize);
-  return sstr.str();
-}
-template<>
-String toStr(const String& v, Id justification, Id localSize)
-{
-  std::stringstream sstr;
-  sstr << _formatOneString(v, justification, localSize);
-  return sstr.str();
-}
-
-String toStr(const char* v, Id justification, Id localSize)
-{
-  return toStr(String(v), justification, localSize);
 }
 
 /**
@@ -1282,32 +1266,6 @@ VectorInt decodeGridSorting(const String& string,
   return (order);
 }
 
-template<>
-double fromStr(const String& v, char dec)
-{
-  return _convertToDouble(v, dec);
-}
-template<>
-Id fromStr(const String& v, char dec)
-{
-  return _convertToInteger(v, dec);
-}
-
-// TODO: this should become a template, checking that evrything is OK
-// in particular in testInter_Ask.cpp
-double questionDouble(const String& v, double defval, bool authTest)
-{
-  return _askDouble(v, defval, authTest);
-}
-Id questionId(const String& v, Id defval, bool authTest)
-{
-  return _askInt(v, defval, authTest);
-}
-bool questionBool(const String& v, bool defval, bool authTest)
-{
-  return _askBool(v, defval, authTest);
-}
-
 /**
  * @overload
  * Print the contents of a Matrix in a Matrix Form
@@ -1328,4 +1286,55 @@ String toMatrix(const String& title,
                      flagOverride, flagSkipZero);
 }
 
+/**
+ * @brief Convert the contents of any argument (double, Id, String) into a String
+ *
+ * @tparam T Can be double, Id or String
+ * @param v Identified argument
+ * @param justification -1 for Left justified; 0 for center; 1 for right justification
+ * @param localSize Dimension provided for the formatted output string
+ * @return String Returned string
+ */
+String toStr(double v, Id justification, Id localSize, bool roundZero, Id nColumns)
+{
+  std::stringstream sstr;
+  sstr << _formatOneDouble(v, justification, localSize, roundZero, nColumns);
+  return sstr.str();
+}
+String toStr(Id v, Id justification, Id localSize, bool roundZero, Id nColumns)
+{
+  DECLARE_UNUSED(roundZero);
+  std::stringstream sstr;
+  sstr << _formatOneId(v, justification, localSize, nColumns);
+  return sstr.str();
+}
+String toStr(const String& v, Id justification, Id localSize, bool roundZero, Id nColumns)
+{
+  DECLARE_UNUSED(roundZero);
+  std::stringstream sstr;
+  sstr << _formatOneString(v, justification, localSize, nColumns);
+  return sstr.str();
+}
+
+double questionDouble(const String& v, double defval, bool authTest)
+{
+  return _askDouble(v, defval, authTest);
+}
+Id questionId(const String& v, Id defval, bool authTest)
+{
+  return _askInt(v, defval, authTest);
+}
+bool questionBool(const String& v, bool defval, bool authTest)
+{
+  return _askBool(v, defval, authTest);
+}
+
+double fromStrToDouble(const String& string, char dec)
+{
+  return _convertToDouble(string, dec);
+}
+Id fromStrToId(const String& string, char dec)
+{
+  return _convertToId(string, dec);
+}
 } // namespace gstlrn

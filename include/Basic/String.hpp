@@ -10,7 +10,6 @@
 /******************************************************************************/
 #pragma once
 
-#include "Basic/Undefined.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/VectorT.hpp"
 #include "geoslib_define.h"
@@ -26,14 +25,13 @@ class AMatrix;
 #ifndef SWIG
 Id _getColumnRank();
 Id _getColumnName();
-Id _getColumnSize(Id localSize = 0);
+Id _getColumnSize(Id localSize = 0, Id ncol = 1);
 Id _getMaxNCols();
 Id _getMaxNRows();
 Id _getNBatch();
 Id _getDecimalNumber();
 double _getThresh();
 
-String _toStrRowColumn(Id icase, Id value, Id flagAdd);
 String _toStrTrailer(Id ncols, Id nrows, Id ncols_util, Id nrows_util);
 String _toStrColumnHeader(const VectorString& colnames, Id colfrom, Id colto, Id colSize = 0);
 String _toStrRowHeader(const VectorString& rownames, Id iy, Id rowSize = 0);
@@ -108,10 +106,8 @@ GSTLEARN_EXPORT VectorInt decodeGridSorting(const String& string,
  * @param defval Default value
  * @param authTest If an NA answer is authorized
  */
-// TODO: this should become a template, checking that evrything is OK...
-// in particular in testInter_Ask.cpp
-GSTLEARN_EXPORT double questionDouble(const String& v, double defval = getNA<double>(), bool authTest = false);
-GSTLEARN_EXPORT Id questionId(const String& v, Id defval = getNA<Id>(), bool authTest = false);
+GSTLEARN_EXPORT double questionDouble(const String& v, double defval = TEST, bool authTest = false);
+GSTLEARN_EXPORT Id questionId(const String& v, Id defval = ITEST, bool authTest = false);
 GSTLEARN_EXPORT bool questionBool(const String& v, bool defval = false, bool authTest = false);
 
 /**
@@ -123,24 +119,23 @@ GSTLEARN_EXPORT bool questionBool(const String& v, bool defval = false, bool aut
  * @param localSize Dimension provided for the formatted output string
  * @return String Returned string
  */
-template<typename T>
-String toStr(const T& v, Id justification = 1, Id localSize = 0);
-String toStr(const char* v, Id justification = 1, Id localSize = 0);
-String toStrVectorVec(const String& title, constvect tab, bool flagOverride = true);
-String toStrTitle(Id level, const char* format, ...);
-String toStrInterval(double zmin, double zmax);
-VectorString toStrVectorDouble(const VectorDouble& values, Id justification = 1);
+GSTLEARN_EXPORT String toStr(double v, Id justification = 1, Id localSize = 0, bool roundZero = true, Id nColumns = 1);
+GSTLEARN_EXPORT String toStr(Id v, Id justification = 1, Id localSize = 0, bool roundZero = true, Id nColumns = 1);
+GSTLEARN_EXPORT String toStr(const String& v, Id justification = 1, Id localSize = 0, bool roundZero = true, Id nColumns = 1);
+
+GSTLEARN_EXPORT String toStrVectorVec(const String& title, constvect tab, bool flagOverride = true);
+GSTLEARN_EXPORT String toStrTitle(Id level, const char* format, ...);
+GSTLEARN_EXPORT String toStrInterval(double zmin, double zmax);
+GSTLEARN_EXPORT VectorString toStrVectorDouble(const VectorDouble& values, Id justification = 1);
 
 /**
  * @brief Converting the contents of a String into double or integer
  *
- * @tparam T Must be a String
  * @param v Input string
  * @param dec Number of decimals (only used for Double conversion)
- * @return T Returned vlaue (double or Id)
  */
-template<typename T>
-T fromStr(const String& v, char dec = '.');
+GSTLEARN_EXPORT double fromStrToDouble(const String& string, char dec = '.');
+GSTLEARN_EXPORT Id fromStrToId(const String& string, char dec = '.');
 
 /**
  * Print the contents of a VectorDouble in a Matrix Form
@@ -289,7 +284,7 @@ inline String toStrVector(const String& title,
 }
 template<typename T>
 inline String toStrVector(const String& title,
-                          const VectorT<VectorNumT<T>>& tab,
+                          const VectorNumT<VectorNumT<T>>& tab,
                           bool flagOverride = true)
 {
   static_assert(std::is_same<T, Id>::value ||

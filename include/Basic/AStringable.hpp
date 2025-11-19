@@ -56,11 +56,8 @@ GSTLEARN_EXPORT void tab_prints(const String& title,
 GSTLEARN_EXPORT void tab_printg(const String& title,
                                 double value,
                                 Id ncol          = 1,
-                                Id justification = 1);
-GSTLEARN_EXPORT void tab_printd(const String& title,
-                                double value,
-                                Id ncol          = 1,
-                                Id justification = 1);
+                                Id justification = 1,
+                                bool roundZero   = false);
 GSTLEARN_EXPORT void tab_printi(const String& title,
                                 Id value,
                                 Id ncol          = 1,

@@ -41,10 +41,10 @@ int main()
 
   mestitle(1, "Conversion from String to double/Id");
 
-  auto dval = fromStr<double>("  -12.345  ");
+  auto dval = fromStrToDouble("  -12.345  ");
   message("Value read = %lf\n", dval);
 
-  auto ival = fromStr<Id>("   12345 ");
+  auto ival = fromStrToId("   12345 ");
   message("Value read = %d\n", ival);
 
   return 0;
