@@ -28,6 +28,8 @@
 #define CASE_COL    3
 #define CASE_ROW    4
 
+bool new_version = true;
+
 namespace gstlrn
 {
 static String FORMAT;
@@ -301,48 +303,57 @@ void tab_prints(const String& title,
                 Id ncol,
                 Id justification)
 {
-  Id taille = (1 + static_cast<Id>(OptCst::query(ECst::NTCAR))) * ncol;
-  Id size   = string.length();
-  Id neff   = MIN(taille, size);
-  Id nrst   = taille - neff;
-  Id n1     = nrst / 2;
-  Id n2     = taille - size - n1;
-
-  /* Encode the title (if defined) */
-
-  if (!title.empty()) message("%s", title.c_str());
-
-  /* Blank the string out */
-
-  (void)gslStrcpy(TABSTR, "");
-
-  /* Switch according to the justification */
-
-  switch (justification)
+  if (!new_version)
   {
-    case -1:
-      (void)gslStrcat(TABSTR, string);
-      TABSTR[neff] = '\0';
-      for (Id i = 0; i < nrst; i++)
-        (void)gslStrcat(TABSTR, " ");
-      break;
+    Id taille = (1 + static_cast<Id>(OptCst::query(ECst::NTCAR))) * ncol;
+    Id size   = string.length();
+    Id neff   = MIN(taille, size);
+    Id nrst   = taille - neff;
+    Id n1     = nrst / 2;
+    Id n2     = taille - size - n1;
 
-    case 0:
-      for (Id i = 0; i < n1; i++)
-        (void)gslStrcat(TABSTR, " ");
-      (void)gslStrcat(TABSTR, string);
-      TABSTR[n1 + neff] = '\0';
-      for (Id i = 0; i < n2; i++)
-        (void)gslStrcat(TABSTR, " ");
-      break;
+    /* Encode the title (if defined) */
 
-    case 1:
-      for (Id i = 0; i < nrst; i++)
-        (void)gslStrcat(TABSTR, " ");
-      (void)gslStrcat(TABSTR, string);
-      break;
+    if (!title.empty()) message("%s", title.c_str());
+
+    /* Blank the string out */
+
+    (void)gslStrcpy(TABSTR, "");
+
+    /* Switch according to the justification */
+
+    switch (justification)
+    {
+      case -1:
+        (void)gslStrcat(TABSTR, string);
+        TABSTR[neff] = '\0';
+        for (Id i = 0; i < nrst; i++)
+          (void)gslStrcat(TABSTR, " ");
+        break;
+
+      case 0:
+        for (Id i = 0; i < n1; i++)
+          (void)gslStrcat(TABSTR, " ");
+        (void)gslStrcat(TABSTR, string);
+        TABSTR[n1 + neff] = '\0';
+        for (Id i = 0; i < n2; i++)
+          (void)gslStrcat(TABSTR, " ");
+        break;
+
+      case 1:
+        for (Id i = 0; i < nrst; i++)
+          (void)gslStrcat(TABSTR, " ");
+        (void)gslStrcat(TABSTR, string);
+        break;
+    }
+    message(TABSTR.data());
   }
-  message(TABSTR.data());
+  else
+  {
+    if (!title.empty()) message("%s", title.c_str());
+    String str = toStr(string, justification, 0, true, ncol);
+    message(str.c_str());
+  }
 }
 
 /****************************************************************************/
@@ -353,29 +364,37 @@ void tab_prints(const String& title,
  ** \param[in]  value    Value to be written
  ** \param[in]  ncol     number of columns for the printout
  ** \param[in]  justification  justification flag
+ ** \param[in]  roundZero true to round very small double values to zero
+ ** \param[in]  flagScientific true to use scientific notation
  **
  *****************************************************************************/
 void tab_printg(const String& title,
                 double value,
                 Id ncol,
                 Id justification,
-                bool roundZero)
+                bool roundZero,
+                bool flagScientific)
 {
-  // _buildFormat(CASE_REAL);
+  if (!new_version)
+  {
+    _buildFormat(CASE_REAL);
 
-  // if (FFFF(value))
-  //   (void)gslStrcpy(DECODE, "N/A");
-  // else
-  // {
-  //   // Prevent -0.00 : https://stackoverflow.com/a/12536500/3952924
-  //   if (roundZero) value = (ABS(value) < _getThresh()) ? 0. : value;
-  //   (void)gslSPrintf(DECODE, FORMAT.data(), value);
-  // }
-  // tab_prints(title, DECODE, ncol, justification);
-  String string = "coucou";
-  string = toStr(value, justification, 0, roundZero, ncol);
-  if (!title.empty()) message("%s", title.c_str());
-  message(string.c_str());
+    if (FFFF(value))
+      (void)gslStrcpy(DECODE, "N/A");
+    else
+    {
+      // Prevent -0.00 : https://stackoverflow.com/a/12536500/3952924
+      if (roundZero) value = (ABS(value) < _getThresh()) ? 0. : value;
+      (void)gslSPrintf(DECODE, FORMAT.data(), value);
+    }
+    tab_prints(title, DECODE, ncol, justification);
+  }
+  else
+  {
+    if (!title.empty()) message("%s", title.c_str());
+    String string = toStr(value, justification, 0, roundZero, ncol, flagScientific);
+    message(string.c_str());
+  }
 }
 
 /****************************************************************************/
@@ -390,14 +409,23 @@ void tab_printg(const String& title,
  *****************************************************************************/
 void tab_printi(const String& title, Id value, Id ncol, Id justification)
 {
-  _buildFormat(CASE_INT);
+  if (!new_version)
+  {
+    _buildFormat(CASE_INT);
 
-  if (IFFFF(value))
-    (void)gslStrcpy(DECODE, "N/A");
+    if (IFFFF(value))
+      (void)gslStrcpy(DECODE, "N/A");
+    else
+      (void)gslSPrintf(DECODE, FORMAT.data(), value);
+
+    tab_prints(title, DECODE, ncol, justification);
+  }
   else
-    (void)gslSPrintf(DECODE, FORMAT.data(), value);
-
-  tab_prints(title, DECODE, ncol, justification);
+  {
+    if (!title.empty()) message("%s", title.c_str());
+    String string = toStr(value, justification, 0, true, ncol);
+    message(string.c_str());
+  }
 }
 
 /****************************************************************************/

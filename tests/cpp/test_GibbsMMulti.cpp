@@ -33,8 +33,12 @@ using namespace gstlrn;
 ** Main Program
 **
 *****************************************************************************/
-int main()
+int main(int argc, char* argv[])
 {
+  std::stringstream sfn;
+  sfn << gslBaseName(__FILE__) << ".out";
+  StdoutRedirect sr(sfn.str(), argc, argv);
+
   Id iptr;
 
   Id nx              = 50;   // Number of grid mesh (in each direction)
@@ -59,7 +63,7 @@ int main()
   // Setup constants
 
   defineDefaultSpace(ESpaceType::RN, ndim);
-  ASerializable::setPrefixName("testinter_AllGibbs-");
+  ASerializable::setPrefixName("test_GibbsMMulti-");
   law_set_random_seed(seed);
 
   // Data file

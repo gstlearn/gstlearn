@@ -1033,8 +1033,8 @@ static void st_foxleg_debug_current(double mscur,
 {
   if (!OptDbg::query(EDbg::CONVERGE)) return;
   tab_printi(String(), ITERATION);
-  tab_printg(String(), mscur, 1, 1, true);
-  tab_printg(String(), delta, 1, 1, true);
+  tab_printg(String(), mscur, 1, 1, false, true);
+  tab_printg(String(), delta, 1, 1, true, false);
   for (Id ipar = 0; ipar < NPAR; ipar++)
     tab_printg(String(), param[ipar]);
   message("\n");

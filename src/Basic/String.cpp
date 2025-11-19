@@ -47,9 +47,9 @@ Id _getColumnName()
 Id _getColumnSize(Id localSize, Id nColumns)
 {
   if (localSize > 0) return localSize;
-  Id size = static_cast<Id>(OptCst::query(ECst::NTCAR));
+  Id size = 1 + static_cast<Id>(OptCst::query(ECst::NTCAR));
   if (nColumns == 1) return size;
-  return size * nColumns + (nColumns - 1); // account for spaces between columns
+  return size * nColumns; // account for spaces between columns
 }
 Id _getMaxNCols()
 {
@@ -75,12 +75,22 @@ double _getThresh()
 }
 
 // Functions for encoding a single value
-std::stringstream _formatOneColumn(Id justification = 1, Id localSize = 0, Id nColumns = 1)
+std::stringstream _formatOneColumn(Id justification    = 1,
+                                   Id localSize        = 0,
+                                   Id nColumns         = 1,
+                                   bool flagScientific = false)
 {
   std::stringstream sstr;
   auto size = static_cast<I32>(_getColumnSize(localSize, nColumns));
   auto prec = static_cast<I32>(_getDecimalNumber());
-  sstr << std::fixed << std::setw(size) << std::setprecision(prec);
+  // Define the format fixed or scientific
+  if (flagScientific)
+    sstr << std::scientific;
+  else
+    sstr << std::fixed;
+  // Define the size and number of decimals
+  sstr << std::setw(size) << std::setprecision(prec);
+  // Define justification
   if (justification < 0)
     sstr << std::left;
   else
@@ -113,21 +123,36 @@ String _formatOneDouble(double value,
                         Id justification,
                         Id localSize,
                         bool roundZero,
-                        Id nColumns)
+                        Id nColumns,
+                        bool flagScientific)
 {
-  std::stringstream sstr = _formatOneColumn(justification, localSize, nColumns);
+  std::stringstream sstr = _formatOneColumn(justification, localSize, nColumns, flagScientific);
   if (FFFF(value))
+  {
     sstr << "N/A";
+  }
   else
   {
+    // Arrondir les très petites valeurs à zéro si demandé
     if (roundZero)
     {
       // Prevent -0.00 : https://stackoverflow.com/a/12536500/3952924
-      value = (ABS(value) < _getThresh()) ? 0. : value;
+      value = (std::abs(value) < _getThresh()) ? 0. : value;
     }
+
+    if (flagScientific)
+    {
+      // 1) Si valeur proche d'un entier → affichage sans décimales
+      double rounded = std::round(value);
+      if (std::abs(value - rounded) < 1e-12) // tolérance pour éviter 0.9999999
+      {
+        sstr << std::defaultfloat << static_cast<long long>(rounded);
+        return sstr.str();
+      }
+    }
+
     sstr << value;
   }
-
   return sstr.str();
 }
 
@@ -1286,19 +1311,10 @@ String toMatrix(const String& title,
                      flagOverride, flagSkipZero);
 }
 
-/**
- * @brief Convert the contents of any argument (double, Id, String) into a String
- *
- * @tparam T Can be double, Id or String
- * @param v Identified argument
- * @param justification -1 for Left justified; 0 for center; 1 for right justification
- * @param localSize Dimension provided for the formatted output string
- * @return String Returned string
- */
-String toStr(double v, Id justification, Id localSize, bool roundZero, Id nColumns)
+String toStr(double v, Id justification, Id localSize, bool roundZero, Id nColumns, bool flagScientific)
 {
   std::stringstream sstr;
-  sstr << _formatOneDouble(v, justification, localSize, roundZero, nColumns);
+  sstr << _formatOneDouble(v, justification, localSize, roundZero, nColumns, flagScientific);
   return sstr.str();
 }
 String toStr(Id v, Id justification, Id localSize, bool roundZero, Id nColumns)

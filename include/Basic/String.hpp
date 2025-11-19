@@ -113,15 +113,30 @@ GSTLEARN_EXPORT bool questionBool(const String& v, bool defval = false, bool aut
 /**
  * @brief Convert the contents of any argument (double, Id, String) into a String
  *
- * @tparam T Can be double, Id or String
  * @param v Identified argument
  * @param justification -1 for Left justified; 0 for center; 1 for right justification
  * @param localSize Dimension provided for the formatted output string
+ * @param roundZero true to round very small double values to zero
+ * @param nColumns Number of columns for the formatted output string
+ * @param flagScientific true to use scientific notation for double values
  * @return String Returned string
  */
-GSTLEARN_EXPORT String toStr(double v, Id justification = 1, Id localSize = 0, bool roundZero = true, Id nColumns = 1);
-GSTLEARN_EXPORT String toStr(Id v, Id justification = 1, Id localSize = 0, bool roundZero = true, Id nColumns = 1);
-GSTLEARN_EXPORT String toStr(const String& v, Id justification = 1, Id localSize = 0, bool roundZero = true, Id nColumns = 1);
+GSTLEARN_EXPORT String toStr(double v,
+                             Id justification    = 1,
+                             Id localSize        = 0,
+                             bool roundZero      = true,
+                             Id nColumns         = 1,
+                             bool flagScientific = false);
+GSTLEARN_EXPORT String toStr(Id v,
+                             Id justification = 1,
+                             Id localSize     = 0,
+                             bool roundZero   = true,
+                             Id nColumns      = 1);
+GSTLEARN_EXPORT String toStr(const String& v,
+                             Id justification = 1,
+                             Id localSize     = 0,
+                             bool roundZero   = true,
+                             Id nColumns      = 1);
 
 GSTLEARN_EXPORT String toStrVectorVec(const String& title, constvect tab, bool flagOverride = true);
 GSTLEARN_EXPORT String toStrTitle(Id level, const char* format, ...);
@@ -131,7 +146,7 @@ GSTLEARN_EXPORT VectorString toStrVectorDouble(const VectorDouble& values, Id ju
 /**
  * @brief Converting the contents of a String into double or integer
  *
- * @param v Input string
+ * @param string Input string
  * @param dec Number of decimals (only used for Double conversion)
  */
 GSTLEARN_EXPORT double fromStrToDouble(const String& string, char dec = '.');
