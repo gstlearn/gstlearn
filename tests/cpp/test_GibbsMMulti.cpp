@@ -36,26 +36,15 @@ using namespace gstlrn;
 int main()
 {
   Id iptr;
-  bool flag_inter = false;
 
-  Id nx              = 50;
-  Id niter           = 1000;
-  Id nburn           = 20;
-  double range       = 10.;
+  Id nx              = 50;   // Number of grid mesh (in each direction)
+  Id niter           = 1000; // Number of Gibbs iterations
+  Id nburn           = 20;   // Number of burning steps
+  double range       = 10.;  // Isotropic range
   double bound       = TEST;
-  double eps         = EPSILON6;
-  bool storeInternal = false; // No HDF5 by default
+  double eps         = EPSILON6; // Epsilon for the Gibbs
+  bool storeInternal = false;    // Store internal: No HDF5 by default
   bool storeVario    = false;
-
-  if (flag_inter)
-  {
-    nx            = askInteractive<Id>("Number of grid mesh [in each direction]", nx);
-    niter         = askInteractive<Id>("Number of Gibbs iterations", niter);
-    nburn         = askInteractive<Id>("Number of burning steps", nburn);
-    eps           = askInteractive<double>("Epsilon", eps);
-    range         = askInteractive<double>("Isotropic Range", range);
-    storeInternal = askInteractive<bool>("Store Internal", storeInternal);
-  }
 
   int seed    = 5452;
   size_t ndim = 2;

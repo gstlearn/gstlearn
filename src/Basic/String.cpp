@@ -1293,18 +1293,17 @@ Id fromStr(const String& v, char dec)
   return _convertToInteger(v, dec);
 }
 
-template<>
-double askInteractive<double>(const String& v, double defval, bool authTest)
+// TODO: this should become a template, checking that evrything is OK
+// in particular in testInter_Ask.cpp
+double questionDouble(const String& v, double defval, bool authTest)
 {
   return _askDouble(v, defval, authTest);
 }
-template<>
-Id askInteractive<Id>(const String& v, Id defval, bool authTest)
+Id questionId(const String& v, Id defval, bool authTest)
 {
   return _askInt(v, defval, authTest);
 }
-template<>
-bool askInteractive<bool>(const String& v, bool defval, bool authTest)
+bool questionBool(const String& v, bool defval, bool authTest)
 {
   return _askBool(v, defval, authTest);
 }

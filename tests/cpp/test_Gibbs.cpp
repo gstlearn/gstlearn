@@ -276,8 +276,7 @@ int main(int argc, char* argv[])
   VectorInt nx    = {100, 100};
   VectorDouble x0 = {0., 0.};
   VectorDouble dx = {1., 1.};
-  DbGrid* dbgrid  = DbGrid::create(nx, dx, x0, VectorDouble(), ELoadBy::COLUMN,
-                                   VectorDouble(), VectorString(), VectorString(), 1);
+  DbGrid* dbgrid  = DbGrid::create(nx, dx, x0, VectorDouble(), ELoadBy::COLUMN);
 
   // Model for SPDE
 

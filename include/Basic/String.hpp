@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Basic/Undefined.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/VectorT.hpp"
 #include "geoslib_define.h"
@@ -101,6 +102,19 @@ GSTLEARN_EXPORT VectorInt decodeGridSorting(const String& string,
                                             bool verbose = false);
 
 /**
+ * @brief Ask for a value interactively
+ *
+ * @param v Input string
+ * @param defval Default value
+ * @param authTest If an NA answer is authorized
+ */
+// TODO: this should become a template, checking that evrything is OK...
+// in particular in testInter_Ask.cpp
+GSTLEARN_EXPORT double questionDouble(const String& v, double defval = getNA<double>(), bool authTest = false);
+GSTLEARN_EXPORT Id questionId(const String& v, Id defval = getNA<Id>(), bool authTest = false);
+GSTLEARN_EXPORT bool questionBool(const String& v, bool defval = false, bool authTest = false);
+
+/**
  * @brief Convert the contents of any argument (double, Id, String) into a String
  *
  * @tparam T Can be double, Id or String
@@ -127,18 +141,6 @@ VectorString toStrVectorDouble(const VectorDouble& values, Id justification = 1)
  */
 template<typename T>
 T fromStr(const String& v, char dec = '.');
-
-/**
- * @brief Ask for a value interactively
- *
- * @tparam T Input string
- * @param v Input string
- * @param defval Default value
- * @param authTest Is an NA answer authorized
- * @return T Valid for Double, Id or Bool
- */
-template<typename T>
-T askInteractive(const String& v, T defval, bool authTest = false);
 
 /**
  * Print the contents of a VectorDouble in a Matrix Form

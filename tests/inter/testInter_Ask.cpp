@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Basic/AStringable.hpp"
 #include "Basic/String.hpp"
-#include "Basic/Undefined.hpp"
 
 /**
  * This test is meant to check the interactive questioning
@@ -26,21 +25,27 @@ int main()
   Id ianswer;
   double ranswer;
 
-  // Testing numerical input
+  mestitle(1, "Testing Interactive input");
 
-  message("Testing Interactive input\n");
+  ianswer = questionId("Enter an Integer with no Default value");
+  message("Value asentered interactivelyked = %d\n", ianswer);
 
-  ianswer = askInteractive<Id>("Enter an Integer with no Default value", getNA<Id>());
-  message("Value read = %d\n", ianswer);
+  ianswer = questionId("Enter an Integer with Default value", 14);
+  message("Value entered interactively = %d\n", ianswer);
 
-  ianswer = askInteractive<Id>("Enter an Integer with Default value", 14);
-  message("Value read = %d\n", ianswer);
+  ranswer = questionDouble("Enter a Double with no Default value");
+  message("Value entered interactively = %lf\n", ranswer);
 
-  ranswer = askInteractive<double>("Enter a Double with no Default value", getNA<double>());
-  message("Value read = %lf\n", ranswer);
+  ranswer = questionDouble("Enter a Double with Default value", 14.);
+  message("Value entered interactively = %lf\n", ranswer);
 
-  ranswer = askInteractive<double>("Enter a Double with Default value", 14.);
-  message("Value read = %lf\n", ranswer);
+  mestitle(1, "Conversion from String to double/Id");
+
+  auto dval = fromStr<double>("  -12.345  ");
+  message("Value read = %lf\n", dval);
+
+  auto ival = fromStr<Id>("   12345 ");
+  message("Value read = %d\n", ival);
 
   return 0;
 }
