@@ -494,6 +494,76 @@ bool MeshETurbo::_addElementToTriplet(NF_Triplet& NF_T,
       return true;
     }
   }
+
+  // The loop above looked into all meshes tessellating the cell starting at indg0,
+  // but if all the meshes are invalid (_addWeights() returned 1) and coor is exactly
+  // on indg0, then we need to look into the other cells around indg0.
+  //
+  // It doesn't matter which cell we end up taking since the weights will be 0 for
+  // all nodes except indg, we just need to check that one neighbor element does exist.
+  //
+  // This is similar to the test in resetProjFromDb() where we "try to shift the point
+  // down by one node" except we need to try shifting one direction at a time.
+
+  // Check if the point is actually on the node
+  bool on_corner = true;
+  auto ndim = getNDim();
+  for (Id idim = 0; idim < ndim; idim++)
+  {
+    if (_grid.indiceToCoordinate(idim, indg0) != coor[idim])
+    {
+      on_corner = false;
+      break;
+    }
+  }
+  if (!on_corner)
+    return false;
+
+  // There are 2^n combinations to try (-1 b/c 0 in all dimensions is the original
+  // index, so the loop below starts at 1), they can be enumerated with modulo / division.
+  Id ntotal = 1;
+  for (Id idim = 0; idim < ndim; idim++)
+  {
+    ntotal *= 2;
+  }
+
+  VectorInt shifts(ndim);
+  for (Id i = 1; i < ntotal; i++)
+  {
+    // Build the shift in each dimension i.e., parity then divide by 2 for next dimension
+    Id idx = i;
+    for (Id idim = 0; idim < ndim; idim++)
+    {
+      shifts[idim] = -(idx % 2);
+      idx /= 2;
+    }
+
+    // Apply the shift and check if result is still within the grid
+    VectorInt indg = indg0;
+    bool valid_node = true;
+    for (Id idim = 0; idim < ndim; idim++)
+    {
+      indg[idim] = indg0[idim] + shifts[idim];
+      if (indg[idim] < 0)
+      {
+        // Shifted node is invalid (node is on border), skip it
+        valid_node = false;
+        break;
+      }
+    }
+    if (!valid_node)
+    {
+      continue;
+    }
+
+    // Check whether one of the meshes of that node is valid (recursive call is OK
+    // since coor cannot be equal to indg).
+    if (_addElementToTriplet(NF_T, iech, coor, indg, verbose))
+    {
+      return true;
+    }
+  }
+
   return false;
 }
 
