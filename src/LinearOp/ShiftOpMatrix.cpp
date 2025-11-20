@@ -737,8 +737,15 @@ Id ShiftOpMatrix::_prepareMatricesSVariety(const AMesh* amesh,
   *deter = matMtM.determinant();
 
   // Calculate (M^t %*% M)^{-1}
+  bool res = false;
+  if (matMtM.getNCols() == 2 && matMtM.getNRows() == 2)
+  {
+    thread_local MatrixSymmetric matMtM2;
+    matMtM2 = matMtM;
+    res     = matMtM2.invert2x2(matMtM);
+  }
 
-  if (matMtM.invert())
+  if (!res && matMtM.invert())
   {
     messerr("Problem for Mesh #%d", imesh + 1);
     amesh->printMesh(imesh);
