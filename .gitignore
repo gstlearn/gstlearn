@@ -59,3 +59,4 @@ test_*.NF
 test_*.out
 test_*-Data
 test_*-Grid
+Oise_GridAnglesModifFinal.ascii

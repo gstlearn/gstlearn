@@ -1,0 +1,101 @@
+Creating data...
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 9
+Total number of samples      = 2334
+Number of active samples     = 1025
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = X - Locator = x1
+Column = 2 - Name = Y - Locator = x2
+Column = 3 - Name = Thickness - Locator = NA
+Column = 4 - Name = Thickness_1 - Locator = NA
+Column = 5 - Name = ThicknessSides - Locator = z1
+Column = 6 - Name = Duplicate - Locator = NA
+Column = 7 - Name = error - Locator = v1
+Column = 8 - Name = selVario - Locator = sel
+
+Creating grid...
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 10
+Total number of samples      = 1320000
+Number of active samples     = 138248
+
+Grid characteristics:
+---------------------
+Origin : 630000.0006865000.000
+Mesh   :     50.000    50.000
+Number :       3300       400
+Rotation Angles        =     40.000     0.000
+Direct Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.766    -0.643
+     [  1,]     0.643     0.766
+Inverse Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.766     0.643
+     [  1,]    -0.643     0.766
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Polygon - Locator = sel
+Column = 4 - Name = angle_define - Locator = NA
+Column = 5 - Name = res - Locator = NA
+Column = 6 - Name = Migrate.angles_interp - Locator = z1
+Column = 7 - Name = angle_define.1 - Locator = NA
+Column = 8 - Name = ranges0 - Locator = NA
+Column = 9 - Name = ranges1 - Locator = NA
+
+Creating model...
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 3
+Number of drift equation(s)  = 3
+
+Covariance Part
+---------------
+Matern (Third Parameter = 1)
+- Sill         =      1.000
+- Ranges       =   8000.000   800.000
+- Theo. Ranges =   2309.401   230.940
+- Angles       =     10.000     0.000
+- Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.985    -0.174
+     [  1,]     0.174     0.985
+
+Non-Stationary Parameters
+-------------------------
+1 - Angle      : IdAngle=1
+Total Sill     =      1.000
+
+Drift Part
+----------
+Universality_Condition
+Drift:x1
+Drift:x2
+
+Kriging (non-stationary)...
+#NO_DIFF# Kriging (non-stationary): Infinite s. (Ref = ?? s.)
