@@ -11,7 +11,11 @@
 #pragma once
 
 #include <array>
-#include <span>
+#ifdef USE_BOOST_SPAN
+#  include <boost/core/span.hpp>
+#else
+#  include <span>
+#endif
 
 namespace gstlrn
 {
@@ -57,14 +61,21 @@ public:
   }
 
 #ifndef SWIG
+#ifdef USE_BOOST_SPAN
+  using span = boost::span<T>;
+  using constspan = boost::span<const T>;
+#else
+  using span = std::span<T>;
+  using constspan = std::span<const T>;
+#endif
   // Vue sur la "colonne k" (dernier indice) pour i,j fixes
-  std::span<T> row(size_t i, size_t j) noexcept
+  span row(size_t i, size_t j) noexcept
   {
-    return std::span<T>(data.data() + i * NY * NZ + j * NZ, NZ);
+    return span(data.data() + i * NY * NZ + j * NZ, NZ);
   }
-  std::span<const T> row(size_t i, size_t j) const noexcept
+  constspan row(size_t i, size_t j) const noexcept
   {
-    return std::span<const T>(data.data() + i * NY * NZ + j * NZ, NZ);
+    return constspan(data.data() + i * NY * NZ + j * NZ, NZ);
   }
 #endif
 };
