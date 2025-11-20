@@ -59,6 +59,7 @@ public:
                                              const VectorDouble& vecsup);
 
   double trace() const;
+  bool invert2x2(MatrixSquare& res) const;
 
   /*! Perform inner product */
   void innerMatrix(const MatrixSquare& x,
