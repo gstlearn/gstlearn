@@ -1367,7 +1367,7 @@ void CorAniso::updateCovByPoints(Id icas1, Id iech1, Id icas2, Id iech2) const
 
   auto ndim = getNDim();
 
-  const auto paramsnostat = getTabNoStatCovAniso()->getTable();
+  const auto &paramsnostat = getTabNoStatCovAniso()->getTable();
   // Loop on the elements that can be updated one-by-one
 
   for (const auto& e: paramsnostat)
