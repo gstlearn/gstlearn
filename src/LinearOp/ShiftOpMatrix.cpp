@@ -489,7 +489,8 @@ void ShiftOpMatrix::_loadHHRegular(MatrixSymmetric& hh, Id imesh)
   const MatrixSquare& rotmat = _getCovAniso()->getAnisoInvMat();
 
   VH::power(_diag, _getCovAniso()->getScales(), 2.);
-  MatrixSymmetric temp(ndim);
+  thread_local MatrixSymmetric temp;
+  temp.resize(ndim, ndim);
   temp.setDiagonal(_diag);
   hh.normMatrix(rotmat, temp);
 }

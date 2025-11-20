@@ -1385,8 +1385,8 @@ void CorAniso::updateCovByPoints(Id icas1, Id iech1, Id icas2, Id iech2) const
 
   if (!isNoStatForAnisotropy()) return;
 
-  VectorDouble angle1;
-  VectorDouble angle2;
+  thread_local VectorDouble angle1;
+  thread_local VectorDouble angle2;
 
   VectorDouble scale1;
   VectorDouble scale2;
@@ -1400,7 +1400,9 @@ void CorAniso::updateCovByPoints(Id icas1, Id iech1, Id icas2, Id iech2) const
 
   if (getNAngles() > 0)
   {
-    angle1 = getAnisoAngles();
+    const auto& angles = _aniso.getAngles();
+    angle1.resize(angles.size());
+    std::copy(angles.cbegin(), angles.cend(), angle1.begin());
     angle2 = angle1;
     for (Id idim = 0; idim < ndim; idim++)
     {
@@ -1458,14 +1460,15 @@ void CorAniso::updateCovByPoints(Id icas1, Id iech1, Id icas2, Id iech2) const
   double ratio = 1.;
   if (flagRotTwo || flagRangeTwo || flagScaleTwo)
   {
+    thread_local MatrixSymmetric direct1, direct2;
     // Extract the direct tensor at first point and square it
     setRotationAnglesAndRadius(angle1, range1, scale1);
-    MatrixSymmetric direct1 = getAniso().getTensorDirect2();
+    direct1 = getAniso().getTensorDirect2();
     double det1             = pow(direct1.determinant(), 0.25);
 
     // Extract the direct tensor at second point and square it
     setRotationAnglesAndRadius(angle2, range2, scale2);
-    MatrixSymmetric direct2 = getAniso().getTensorDirect2();
+    direct2 = getAniso().getTensorDirect2();
     double det2             = pow(direct2.determinant(), 0.25);
 
     // Calculate average squared tensor
@@ -1473,9 +1476,7 @@ void CorAniso::updateCovByPoints(Id icas1, Id iech1, Id icas2, Id iech2) const
     double detM = sqrt(direct2.determinant());
 
     // Update the tensor (squared version)
-    Tensor tensor = getAniso();
-    tensor.setTensorDirect2(direct2);
-    const_cast<CorAniso*>(this)->setAniso(tensor);
+    _aniso.setTensorDirect2(direct2);
     ratio = det1 * det2 / detM;
   }
   else if (flagRotOne || flagRangeOne || flagScaleOne)
