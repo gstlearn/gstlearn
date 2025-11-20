@@ -1464,12 +1464,12 @@ void CorAniso::updateCovByPoints(Id icas1, Id iech1, Id icas2, Id iech2) const
     // Extract the direct tensor at first point and square it
     setRotationAnglesAndRadius(angle1, range1, scale1);
     direct1 = getAniso().getTensorDirect2();
-    double det1             = pow(direct1.determinant(), 0.25);
+    double det1             = sqrt(sqrt(direct1.determinant()));
 
     // Extract the direct tensor at second point and square it
     setRotationAnglesAndRadius(angle2, range2, scale2);
     direct2 = getAniso().getTensorDirect2();
-    double det2             = pow(direct2.determinant(), 0.25);
+    double det2             = sqrt(sqrt(direct2.determinant()));
 
     // Calculate average squared tensor
     direct2.addMat(direct1, 0.5, 0.5);
