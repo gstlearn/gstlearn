@@ -714,7 +714,7 @@ Id ShiftOpMatrix::_prepareMatricesSVariety(const AMesh* amesh,
                                            VectorVectorDouble& coords,
                                            MatrixDense& matM,
                                            MatrixSymmetric& matMtM,
-                                           AMatrix& matP,
+                                           MatrixDense& matP,
                                            double* deter) const
 {
   auto ndim  = getNDim();
@@ -746,7 +746,7 @@ Id ShiftOpMatrix::_prepareMatricesSVariety(const AMesh* amesh,
   }
 
   // Calculate P = (M^t %*% M)^{-1} %*% M^t
-  matP.prodMatMatInPlace(&matMtM, &matM, false, true);
+  matP.eigenMat().noalias() = matMtM.eigenMat() * matM.eigenMat().transpose();
   return 0;
 }
 

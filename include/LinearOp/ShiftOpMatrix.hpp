@@ -114,7 +114,7 @@ private:
                                VectorVectorDouble& coords,
                                MatrixDense& matM,
                                MatrixSymmetric& matMtM,
-                               AMatrix& matP,
+                               MatrixDense& matP,
                                double* deter) const;
   Id _prepareMatricesSphere(const AMesh* amesh,
                              Id imesh,
