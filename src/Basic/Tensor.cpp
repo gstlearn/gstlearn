@@ -264,8 +264,14 @@ void Tensor::_fillTensors()
 
 void Tensor::_direct2ToInverse2()
 {
-  _tensorInverse2 = _tensorDirect2;
-  _tensorInverse2.invert();
+  if (_tensorDirect2.getNCols() == 2 && _tensorDirect2.getNRows() == 2)
+  {
+    _tensorDirect2.invert2x2(_tensorInverse2);
+  }
+  else
+  {
+    _tensorInverse2.eigenMat().noalias() = _tensorDirect2.eigenMat().inverse();
+  }
 }
 
 void Tensor::setTensorDirect2(const MatrixSymmetric& tensor)
