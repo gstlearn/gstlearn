@@ -1322,7 +1322,7 @@ double CorAniso::getValue(const EConsElem& econs, Id iv1, Id iv2) const
   if (econs == EConsElem::SCALE)
     return getScale(iv1);
   if (econs == EConsElem::ANGLE)
-    return getAnisoAngles()[iv1];
+    return getAnisoAngle(iv1);
   if (econs == EConsElem::PARAM)
     return getParam();
   return TEST;

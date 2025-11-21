@@ -172,7 +172,7 @@ public:
   const MatrixSquare& getAnisoRotMat() const { return _aniso.getMatrixDirect(); }
   const MatrixSquare& getAnisoInvMat() const { return _aniso.getMatrixInverse(); }
   VectorDouble getAnisoCoeffs() const;
-  double getAnisoAngles(Id idim) const { return getAnisoAngles()[idim]; }
+  double getAnisoAngle(Id idim) const { return getAnisoAngles()[idim]; }
   double getAnisoRotMat(Id idim, Id jdim) const { return _aniso.getMatrixDirect().getValue(idim, jdim); }
   double getAnisoCoeff(Id idim) const { return getAnisoCoeffs()[idim]; }
   const ECov& getType() const { return _corfunc->getType(); }

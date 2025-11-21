@@ -100,7 +100,7 @@ class WModel(ipw.VBox):
         rangeX = cova.getRange(0)
         rangeY = cova.getRange(1)
         param  = cova.getParam()
-        angle  = cova.getAnisoAngles()[0]
+        angle  = cova.getAnisoAngle(0)
         sill   = cova.getSill(0,0)
         self.value = "{},{},{},{},{},{}".format(type, rangeX, rangeY, param, angle, sill)
         
