@@ -1509,14 +1509,16 @@ void CorAniso::updateCovByMesh(Id imesh, bool aniso) const
 
   if (!isNoStatForAnisotropy()) return;
 
-  VectorDouble angles;
+  thread_local VectorDouble angles;
   VectorDouble scales;
   VectorDouble ranges;
 
   // Define the angles (for all space dimensions)
   if (getNAngles() > 0)
   {
-    angles = getAnisoAngles();
+    const auto& aa = _aniso.getAngles();
+    angles.resize(aa.size());
+    std::copy(aa.cbegin(), aa.cend(), angles.begin());
 
     for (Id idim = 0; idim < ndim; idim++)
     {
