@@ -11,7 +11,6 @@
 #include "Basic/File.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/OptCst.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Db/RankHandler.hpp"
@@ -56,7 +55,7 @@ int main(int argc, char* argv[])
   // - heterotopic sample
   // Warning: Db contents should not be mofiied anymore.
   VectorInt nbgh = {0, 8, 10, 12, 13};
-  VH::dump("List of ranks for Elligible samples", nbgh);
+  print_vector("List of ranks for Elligible samples", nbgh, true, true);
 
   // Define the Rank Handler for the previous list
   rkhd->defineSampleRanks(nbgh);

@@ -11,7 +11,6 @@
 #include "MLayers/MLayers.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/OptDbg.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
 #include "Enum/EOperator.hpp"
 #include "Matrix/AMatrix.hpp"
@@ -2195,8 +2194,8 @@ Id MLayers::calculatePrior()
 
   /* Print the resulting values */
   message("Number of parameters = %d\n", _npar);
-  VH::dump("Means", mean);
-  VH::dump("Variances", vars.getValues());
+  print_vector("Means", mean, true, true);
+  print_vector("Variances", vars.getValues(), true, true);
 
   /* Set the error return code */
 

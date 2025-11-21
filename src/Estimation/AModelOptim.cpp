@@ -11,7 +11,6 @@
 #include "Estimation/AModelOptim.hpp"
 #include "Basic/OptCustom.hpp"
 #include "Basic/Optim.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Model/ModelCovList.hpp"
 
 namespace gstlrn
@@ -140,7 +139,7 @@ double AModelOptim::eval(const std::vector<double>& x)
   if (_trace)
   {
     message("Iteration %4d - Cost = %lf", _iter, result);
-    VH::dump(" - Current parameters", x, false);
+    print_vector(" - Current parameters", x, true, false);
   }
 
   return result;
@@ -164,7 +163,7 @@ void AModelOptim::_printSummary(double minf, const std::vector<double>& x) const
   message("Summary of Optimization procedure:\n");
   message("Count of Iterations = %4d - Final Cost = %lf\n",
           _iter, minf);
-  VH::dump("- Final parameters", x, false);
+  print_vector("- Final parameters:", x, true, false);
   auto* mcv           = dynamic_cast<ModelCovList*>(_model);
   AModelFitSills* amf = mcv->getFitSills();
   if (amf != nullptr)

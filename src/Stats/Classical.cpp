@@ -1242,7 +1242,7 @@ void dbStatisticsPrint(const Db* db,
 
   /* Print the header of the monovariate statistics */
 
-  tab_print_rowname(" ", taille);
+  message("%s", _toStrRowHeader({" "}, 0, taille).c_str());
   if (_operExists(opers, EStatOption::NUM))
     tab_prints(String(), "Number");
   if (_operExists(opers, EStatOption::MINI))
@@ -1262,7 +1262,7 @@ void dbStatisticsPrint(const Db* db,
   for (Id icol = 0; icol < ncol; icol++)
   {
     _getRowname(radix, ncol, icol, db->getNameByUID(iuids[icol]), string);
-    tab_print_rowname(string.data(), taille);
+    message("%s", _toStrRowHeader({string}, 0, taille).c_str());
 
     if (_operExists(opers, EStatOption::NUM))
       tab_printi(String(), static_cast<Id>(num[icol]));
@@ -1327,8 +1327,8 @@ MatrixSquare* sphering(const AMatrix* X)
 
   prodsym->prodScalar(1. / static_cast<double>(nech));
   if (prodsym->computeEigen()) return nullptr;
-  const auto& eigen_values  = prodsym->getEigenValues();
-  MatrixSquare* S           = prodsym->getEigenVectors()->clone();
+  const auto& eigen_values = prodsym->getEigenValues();
+  MatrixSquare* S          = prodsym->getEigenVectors()->clone();
 
   // Invert the sign of the second Eigen vector (for compatibility with R output)
   for (Id ivar = 0; ivar < nvar; ivar++)

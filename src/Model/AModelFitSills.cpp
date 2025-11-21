@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Model/AModelFitSills.hpp"
 #include "Basic/MathFunc.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Model/Constraints.hpp"
 #include "Model/ModelCovList.hpp"
@@ -198,8 +197,8 @@ void AModelFitSills::_allocateInternalArrays(bool flag_exp)
 
 Id AModelFitSills::_goulardWithConstraints()
 {
-  _score                = 0.;
-  const auto& consSill  = _constraints->getConstantSills();
+  _score               = 0.;
+  const auto& consSill = _constraints->getConstantSills();
 
   /* Core allocation */
   std::vector<MatrixSymmetric> matcor;
@@ -746,9 +745,9 @@ void AModelFitSills::_updateAlphaDiag(Id icov0,
                                       VectorDouble& xr,
                                       std::vector<MatrixSymmetric>& alpha)
 {
-  const auto& consSill  = _constraints->getConstantSills();
-  double srm            = _sumSills(ivar0, alpha) - alpha[icov0].getValue(ivar0, ivar0);
-  double value          = consSill[ivar0] / (xr[ivar0] * xr[ivar0]) - srm;
+  const auto& consSill = _constraints->getConstantSills();
+  double srm           = _sumSills(ivar0, alpha) - alpha[icov0].getValue(ivar0, ivar0);
+  double value         = consSill[ivar0] / (xr[ivar0] * xr[ivar0]) - srm;
   alpha[icov0].setValue(ivar0, ivar0, MAX(0., value));
 }
 
@@ -1033,7 +1032,7 @@ Id AModelFitSills::_goulardWithoutConstraint(Id niter,
 
       if (cc.computeEigen()) return 1;
       const auto& valpro = cc.getEigenValues();
-      vecpro = cc.getEigenVectors();
+      vecpro             = cc.getEigenVectors();
 
       Id kvar = 0;
       allpos  = 1;
@@ -1091,7 +1090,7 @@ bool AModelFitSills::_convergenceReached(Id iter,
     for (Id icova = 0; icova < _ncova; icova++)
     {
       message("  - Covariance %d :", icova + 1);
-      VH::dump(" Current parameters ", _sill[icova].getValues(), false);
+      print_vector(" Current parameters ", _sill[icova].getValues(), true, false);
     }
   }
   double eps = _mop.getTolred();

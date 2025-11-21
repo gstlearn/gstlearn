@@ -431,7 +431,7 @@ String SpatialIndices::toString(const AStringFormat* strfmt) const
   sstr << toStrTitle(0, "Spatial Indices");
 
   if (!_center.empty())
-    sstr << "Gravity Center" << toStrVectorDouble(_center) << std::endl;
+    sstr << "Gravity Center" << toStrVector(String(), _center) << std::endl;
   if (!FFFF(_inertia))
     sstr << "Inertia = " << _inertia << std::endl;
   if (!FFFF(_iso))

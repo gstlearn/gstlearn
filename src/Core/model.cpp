@@ -442,7 +442,7 @@ Id model_covmat_inchol(Id verbose,
   if (verbose)
   {
     message("Number of pivots = %d\n", npivot);
-    print_imatrix("Order", 0, 1, 1, npivot, pvec);
+    print_matrix("Order", 0, 1, 1, npivot, pvec);
     print_matrix("Criterion", 0, 1, 1, npivot, crit);
   }
 

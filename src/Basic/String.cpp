@@ -44,7 +44,7 @@ Id _getColumnName()
 {
   return static_cast<Id>(OptCst::query(ECst::NTNAME));
 }
-Id _getColumnSize(Id localSize, Id nColumns)
+Id _getColumnSize(Id localSize = 0, Id nColumns = 1)
 {
   if (localSize > 0) return localSize;
   Id size = 1 + static_cast<Id>(OptCst::query(ECst::NTCAR));
@@ -164,6 +164,93 @@ String _formatOneId(Id value, Id justification, Id localSize, Id nColumns)
   else
     sstr << value;
 
+  return sstr.str();
+}
+
+// Functions for beautifying a suite of values
+String _toStrRowColumn(Id icase, Id value, Id flagAdd)
+{
+  std::stringstream sstr;
+  I32 rank  = static_cast<I32>(_getColumnRank());
+  I32 width = static_cast<I32>(_getColumnSize() - _getColumnRank() - 1);
+  sstr << std::setw(width) << std::right;
+  if (icase == CASE_ROW)
+  {
+    if (!flagAdd)
+      sstr << "[" << std::setw(rank) << value << ",]";
+    else
+      sstr << "[" << std::setw(rank) << value << "+]";
+  }
+  else
+  {
+    if (!flagAdd)
+      sstr << "[," << std::setw(rank) << value << "]";
+    else
+      sstr << "[ " << std::setw(rank) << value << "]";
+  }
+  return sstr.str();
+}
+
+String _toStrRowHeader(const VectorString& rownames, Id iy, Id rowSize)
+{
+  std::stringstream sstr;
+  if (!rownames.empty())
+    sstr << toStr(rownames[iy], -1, rowSize);
+  else
+    sstr << _toStrRowColumn(CASE_ROW, iy, false);
+  return sstr.str();
+}
+
+String _toStrColumnHeaders(const VectorString& colnames, Id colfrom, Id colto, Id colSize = 0)
+{
+  std::stringstream sstr;
+  if (!colnames.empty())
+  {
+    // By Names
+    sstr << toStr(" ", 1) << " ";
+    for (Id ix = colfrom; ix < colto; ix++)
+      sstr << toStr(colnames[ix], 1, colSize);
+    sstr << std::endl;
+  }
+  else
+  {
+    // By Numbers
+    sstr << toStr(" ", 1) << " ";
+    for (Id ix = colfrom; ix < colto; ix++)
+      sstr << _toStrRowColumn(CASE_COL, ix, false);
+    sstr << std::endl;
+  }
+  return sstr.str();
+}
+
+String _toStrTrailer(Id ncols, Id nrows, Id ncols_util, Id nrows_util)
+{
+  std::stringstream sstr;
+
+  bool one_used = (ncols != ncols_util || nrows != nrows_util);
+  bool all_used = (ncols != ncols_util && nrows != nrows_util);
+
+  if (one_used) sstr << "(";
+
+  if (ncols != ncols_util)
+  {
+    if (ncols == ncols_util)
+      sstr << "Ncols=" << ncols;
+    else
+      sstr << "Ncols=" << ncols_util << "[from " << ncols << "]";
+  }
+
+  if (all_used) sstr << ",";
+
+  if (nrows != nrows_util)
+  {
+    if (nrows == nrows_util)
+      sstr << "Nrows=" << nrows;
+    else
+      sstr << "Nrows=" << nrows_util << "[from " << nrows << "]";
+  }
+
+  if (one_used) sstr << ")" << std::endl;
   return sstr.str();
 }
 
@@ -468,19 +555,113 @@ String toStrInterval(double zmin, double zmax)
   return sstr.str();
 }
 
+template<typename T>
+String toStrVector(const String& title,
+                   const VectorT<T>& tab,
+                   bool flagIgnoreMaxNCols,
+                   bool newLineAfterTitle)
+{
+  std::stringstream sstr;
+  if (tab.empty()) return sstr.str();
+
+  Id ncols  = static_cast<Id>(tab.size());
+  Id ncutil = ncols;
+  if (_getMaxNCols() > 0 && ncutil > _getMaxNCols() && !flagIgnoreMaxNCols) ncutil = _getMaxNCols();
+  bool multi_row = ncols > _getNBatch();
+
+  /* Print the title (optional) */
+
+  if (!title.empty())
+  {
+    sstr << title;
+    if (newLineAfterTitle) sstr << std::endl;
+  }
+
+  Id lec = 0;
+  if (multi_row) sstr << _toStrColumnHeaders(VectorString(), 0, _getNBatch());
+
+  for (Id i = 0; i < ncutil; i += _getNBatch())
+  {
+    if (multi_row) sstr << _toStrRowHeader(VectorString(), i);
+
+    for (Id j = 0; j < _getNBatch(); j++)
+    {
+      if (lec >= ncutil) continue;
+      sstr << toStr(tab[lec]);
+      lec++;
+    }
+    sstr << std::endl;
+  }
+
+  // Print the trailer
+  sstr << _toStrTrailer(ncols, 0, ncutil, 0);
+
+  return sstr.str();
+}
+template String toStrVector<double>(const String& title,
+                                    const VectorT<double>& tab,
+                                    bool flagIgnoreMaxNCols,
+                                    bool newLineAfterTitle);
+template String toStrVector<long long>(const String& title,
+                                       const VectorT<long long>& tab,
+                                       bool flagIgnoreMaxNCols,
+                                       bool newLineAfterTitle); // type MUST be long long (not Id)
+template String toStrVector<String>(const String& title,
+                                    const VectorT<String>& tab,
+                                    bool flagIgnoreMaxNCols,
+                                    bool newLineAfterTitle);
+
+template<typename T>
+String toStrVector(const String& title,
+                   const VectorNumT<VectorNumT<T>>& tab,
+                   bool flagIgnoreMaxNRows,
+                   bool newLineAfterTitle)
+{
+  std::stringstream sstr;
+  if (tab.empty()) return sstr.str();
+
+  if (!title.empty())
+  {
+    sstr << title;
+    if (newLineAfterTitle) sstr << std::endl;
+  }
+
+  Id nrows  = static_cast<Id>(tab.size());
+  Id nrutil = nrows;
+  if (_getMaxNRows() > 0 && nrutil > _getMaxNRows() && !flagIgnoreMaxNRows) nrutil = _getMaxNRows();
+
+  for (Id i = 0; i < nrutil; i++)
+    sstr << toStrVector(String(), tab[i], flagIgnoreMaxNRows);
+
+  // Print the trailer
+  sstr << _toStrTrailer(0, nrows, 0, nrutil);
+
+  return sstr.str();
+}
+
+template String toStrVector<double>(const String& title,
+                                    const VectorNumT<VectorNumT<double>>& tab,
+                                    bool flagIgnoreMaxNRows,
+                                    bool newLineAfterTitle);
+template String toStrVector<long long>(const String& title,
+                                       const VectorNumT<VectorNumT<long long>>& tab,
+                                       bool flagIgnoreMaxNRows,
+                                       bool newLineAfterTitle);
+
 /**
  * Printout a vector in a formatted manner
  * @param title Title of the printout (or empty string)
  * @param tab   Vector (real values) to be printed
- * @param flagOverride true to override printout limitations
+ * @param flagIgnoreMaxNCols true to ignore the maximum number of columns
+ * @param newLineAfterTitle true to put a new line after the title (if any)
  * @return The string (terminated with a newline)
  */
-String toStrVectorVec(const String& title, constvect tab, bool flagOverride)
+String toStrVectorVec(const String& title, constvect tab, bool flagIgnoreMaxNCols, bool newLineAfterTitle)
 {
   // Adapter le span vers un VectorT<double> ou équivalent
   VectorT<double> tmp(tab.begin(), tab.end());
 
-  return toStrVector(title, tmp, flagOverride);
+  return toStrVector(title, tmp, flagIgnoreMaxNCols, newLineAfterTitle);
 }
 
 VectorString toStrVectorDouble(const VectorDouble& values, Id justification)
@@ -491,91 +672,161 @@ VectorString toStrVectorDouble(const VectorDouble& values, Id justification)
   return strings;
 }
 
-// Functions for beautifying a suite of values
-String _toStrRowColumn(Id icase, Id value, Id flagAdd)
+/****************************************************************************/
+/*!
+ **  Tabulated printout of a upper triangular matrix
+ **
+ ** \param[in]  title  Title (Optional)
+ ** \param[in]  mode   1 if the matrix is stored linewise
+ **                    2 if the matrix is stored columnwise
+ ** \param[in]  neq    size of the matrix
+ ** \param[in]  tl     array containing the upper triangular matrix
+ **
+ ** \remarks The ordering (compatible with matrix_solve is mode==2)
+ **
+ *****************************************************************************/
+String toStrTrimMat(const String& title,
+                    Id mode,
+                    Id neq,
+                    const VectorDouble& tl)
+{
+#define TRI(i)    (((i) * ((i) + 1)) / 2)
+#define TL1(i, j) (tl[(j) * neq + (i) - TRI(j)]) /* only for i >= j */
+#define TL2(i, j) (tl[TRI(i) + (j)])             /* only for i >= j */
+
+  std::stringstream sstr;
+  if (tl.empty() || neq <= 0) return sstr.str();
+  Id colSize = _getColumnSize();
+
+  /* Print the title (optional) */
+
+  /* Print the title (optional) */
+
+  if (!title.empty())
+    sstr << title << std::endl;
+
+  sstr << _toStrColumnHeaders(VectorString(), 0, neq, colSize);
+
+  /* Print the contents of the array */
+
+  for (Id iy = 0; iy < neq; iy++)
+  {
+    sstr << _toStrRowHeader(VectorString(), iy, 0);
+    for (Id ix = 0; ix < neq; ix++)
+    {
+      if (ix >= iy)
+      {
+        if (mode == 1)
+          tab_printg(String(), TL1(ix, iy));
+        else
+          tab_printg(String(), TL2(ix, iy));
+      }
+      else
+        tab_prints(String(), " ");
+    }
+    message("\n");
+  }
+#undef TRI
+#undef TL1
+#undef TL2
+  return sstr.str();
+}
+
+template<typename T>
+inline String toStrMatrix(const String& title,
+                          const VectorString& colnames,
+                          const VectorString& rownames,
+                          bool bycol,
+                          Id nrows,
+                          Id ncols,
+                          const VectorNumT<T>& tab,
+                          bool flagOverride,
+                          bool flagSkipZero)
 {
   std::stringstream sstr;
-  I32 rank  = static_cast<I32>(_getColumnRank());
-  I32 width = static_cast<I32>(_getColumnSize() - _getColumnRank() - 1);
-  sstr << std::setw(width) << std::right;
-  if (icase == CASE_ROW)
-  {
-    if (!flagAdd)
-      sstr << "[" << std::setw(rank) << value << ",]";
-    else
-      sstr << "[" << std::setw(rank) << value << "+]";
-  }
+  if (tab.empty() || ncols <= 0 || nrows <= 0) return sstr.str();
+
+  /* Initializations */
+
+  Id ncutil = ncols;
+  Id nrutil = nrows;
+  if (_getMaxNCols() > 0 && ncutil > _getMaxNCols() && !flagOverride) ncutil = _getMaxNCols();
+  if (_getMaxNRows() > 0 && nrutil > _getMaxNRows() && !flagOverride) nrutil = _getMaxNRows();
+  Id npass       = static_cast<Id>(ceil(static_cast<double>(ncutil) / static_cast<double>(_getNBatch())));
+  bool multi_row = nrutil > 1 || npass > 1;
+
+  Id colSize = 0;
+  if (colnames.empty())
+    colSize = _getColumnSize();
   else
-  {
-    if (!flagAdd)
-      sstr << "[," << std::setw(rank) << value << "]";
-    else
-      sstr << "[ " << std::setw(rank) << value << "]";
-  }
-  return sstr.str();
-}
-
-String _toStrRowHeader(const VectorString& rownames, Id iy, Id rowSize)
-{
-  std::stringstream sstr;
-  if (!rownames.empty())
-    sstr << toStr(rownames[iy], -1, rowSize);
+    colSize = MAX(MIN(_getColumnName(), getMaxStringSize(colnames) + 1), _getColumnSize());
+  Id rowSize = 0;
+  if (rownames.empty())
+    rowSize = _getColumnSize();
   else
-    sstr << _toStrRowColumn(CASE_ROW, iy, false);
+    rowSize = MAX(getMaxStringSize(rownames) + 1, _getColumnSize());
+
+  /* Print the title (optional) */
+
+  if (!title.empty())
+  {
+    sstr << title;
+    if (multi_row) sstr << std::endl;
+  }
+
+  // Loop on the batches
+
+  for (Id ipass = 0; ipass < npass; ipass++)
+  {
+    Id jdeb = ipass * _getNBatch();
+    Id jfin = MIN(jdeb + _getNBatch(), ncutil);
+
+    /* Print the names of the columns and the column numbers */
+
+    if (multi_row) sstr << _toStrColumnHeaders(colnames, jdeb, jfin, colSize);
+
+    /* Loop on the rows */
+
+    for (Id iy = 0; iy < nrutil; iy++)
+    {
+      if (multi_row) sstr << _toStrRowHeader(rownames, iy, rowSize);
+
+      /* Loop on the columns */
+      for (Id ix = jdeb; ix < jfin; ix++)
+      {
+        Id iad = (bycol) ? iy + nrows * ix : ix + ncols * iy;
+        if (flagSkipZero && ABS(tab[iad]) < EPSILON20)
+          sstr << toStr(".", 1, colSize);
+        else
+          sstr << toStr(tab[iad], 1, colSize);
+      }
+      sstr << std::endl;
+    }
+  }
+
+  /* Print the trailer */
+
+  sstr << _toStrTrailer(ncols, nrows, ncutil, nrutil);
   return sstr.str();
 }
-String _toStrColumnHeader(const VectorString& colnames, Id colfrom, Id colto, Id colSize)
-{
-  std::stringstream sstr;
-  if (!colnames.empty())
-  {
-    // By Names
-    sstr << toStr(" ", 1) << " ";
-    for (Id ix = colfrom; ix < colto; ix++)
-      sstr << toStr(colnames[ix], 1, colSize);
-    sstr << std::endl;
-  }
-  else
-  {
-    // By Numbers
-    sstr << toStr(" ", 1) << " ";
-    for (Id ix = colfrom; ix < colto; ix++)
-      sstr << _toStrRowColumn(CASE_COL, ix, false);
-    sstr << std::endl;
-  }
-  return sstr.str();
-}
-
-String _toStrTrailer(Id ncols, Id nrows, Id ncols_util, Id nrows_util)
-{
-  std::stringstream sstr;
-
-  bool one_used = (ncols != ncols_util || nrows != nrows_util);
-  bool all_used = (ncols != ncols_util && nrows != nrows_util);
-
-  if (one_used) sstr << "(";
-
-  if (ncols != ncols_util)
-  {
-    if (ncols == ncols_util)
-      sstr << "Ncols=" << ncols;
-    else
-      sstr << "Ncols=" << ncols_util << "[from " << ncols << "]";
-  }
-
-  if (all_used) sstr << ",";
-
-  if (nrows != nrows_util)
-  {
-    if (nrows == nrows_util)
-      sstr << "Nrows=" << nrows;
-    else
-      sstr << "Nrows=" << nrows_util << "[from " << nrows << "]";
-  }
-
-  if (one_used) sstr << ")" << std::endl;
-  return sstr.str();
-}
+template String toStrMatrix<double>(const String& title,
+                                    const VectorString& colnames,
+                                    const VectorString& rownames,
+                                    bool bycol,
+                                    Id nrows,
+                                    Id ncols,
+                                    const VectorNumT<double>& tab,
+                                    bool flagOverride,
+                                    bool flagSkipZero);
+template String toStrMatrix<long long>(const String& title,
+                                       const VectorString& colnames,
+                                       const VectorString& rownames,
+                                       bool bycol,
+                                       Id nrows,
+                                       Id ncols,
+                                       const VectorNumT<long long>& tab,
+                                       bool flagOverride,
+                                       bool flagSkipZero);
 
 /**
  * Protect the matching pattern against Crash which happens when the string
@@ -1330,6 +1581,31 @@ String toStr(const String& v, Id justification, Id localSize, bool roundZero, Id
   std::stringstream sstr;
   sstr << _formatOneString(v, justification, localSize, nColumns);
   return sstr.str();
+}
+String toStrFormat(const char* format, ...)
+{
+  va_list args;
+
+  // On essaie une taille initiale raisonnable
+  std::vector<char> buffer(256);
+
+  while (true)
+  {
+    va_start(args, format);
+    int needed = vsnprintf(buffer.data(), buffer.size(), format, args);
+    va_end(args);
+
+    if (needed < 0) return "Coding error in toStr";
+
+    if (needed < static_cast<int>(buffer.size()))
+    {
+      // La taille était suffisante
+      return std::string(buffer.data(), needed);
+    }
+
+    // Sinon, on agrandit et on recommence
+    buffer.resize(needed + 1);
+  }
 }
 
 double questionDouble(const String& v, double defval, bool authTest)

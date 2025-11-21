@@ -23,17 +23,6 @@ namespace gstlrn
 class AMatrix;
 
 #ifndef SWIG
-Id _getColumnRank();
-Id _getColumnName();
-Id _getColumnSize(Id localSize = 0, Id ncol = 1);
-Id _getMaxNCols();
-Id _getMaxNRows();
-Id _getNBatch();
-Id _getDecimalNumber();
-double _getThresh();
-
-String _toStrTrailer(Id ncols, Id nrows, Id ncols_util, Id nrows_util);
-String _toStrColumnHeader(const VectorString& colnames, Id colfrom, Id colto, Id colSize = 0);
 String _toStrRowHeader(const VectorString& rownames, Id iy, Id rowSize = 0);
 #endif
 
@@ -137,11 +126,14 @@ GSTLEARN_EXPORT String toStr(const String& v,
                              Id localSize     = 0,
                              bool roundZero   = true,
                              Id nColumns      = 1);
+GSTLEARN_EXPORT String toStrFormat(const char* format, ...);
 
-GSTLEARN_EXPORT String toStrVectorVec(const String& title, constvect tab, bool flagOverride = true);
 GSTLEARN_EXPORT String toStrTitle(Id level, const char* format, ...);
 GSTLEARN_EXPORT String toStrInterval(double zmin, double zmax);
-GSTLEARN_EXPORT VectorString toStrVectorDouble(const VectorDouble& values, Id justification = 1);
+GSTLEARN_EXPORT String toStrVectorVec(const String& title,
+                                      constvect tab,
+                                      bool flagIgnoreMaxNCols = false,
+                                      bool newLineAfterTitle  = true);
 
 /**
  * @brief Converting the contents of a String into double or integer
@@ -165,164 +157,93 @@ GSTLEARN_EXPORT Id fromStrToId(const String& string, char dec = '.');
  * @param flagSkipZero when True, skip the zero values (represented by a '.' as for sparse matrix)
  */
 template<typename T>
-inline String toStrMatrix(const String& title,
-                          const VectorString& colnames,
-                          const VectorString& rownames,
-                          bool bycol,
-                          Id nrows,
-                          Id ncols,
-                          const VectorNumT<T>& tab,
-                          bool flagOverride = false,
-                          bool flagSkipZero = false)
-{
-  // Vérification du type à la compilation
-  static_assert(std::is_same<T, Id>::value ||
-                  std::is_same<T, double>::value,
-                "toStrMatrix: T must be int or double");
-  std::stringstream sstr;
-  if (tab.empty() || ncols <= 0 || nrows <= 0) return sstr.str();
+String toStrMatrix(const String& title,
+                   const VectorString& colnames,
+                   const VectorString& rownames,
+                   bool bycol,
+                   Id nrows,
+                   Id ncols,
+                   const VectorNumT<T>& tab,
+                   bool flagOverride = false,
+                   bool flagSkipZero = false);
 
-  /* Initializations */
+extern template String toStrMatrix<double>(const String& title,
+                                           const VectorString& colnames,
+                                           const VectorString& rownames,
+                                           bool bycol,
+                                           Id nrows,
+                                           Id ncols,
+                                           const VectorNumT<double>& tab,
+                                           bool flagOverride = false,
+                                           bool flagSkipZero = false);
+extern template String toStrMatrix<long long>(const String& title,
+                                              const VectorString& colnames,
+                                              const VectorString& rownames,
+                                              bool bycol,
+                                              Id nrows,
+                                              Id ncols,
+                                              const VectorNumT<long long>& tab,
+                                              bool flagOverride = false,
+                                              bool flagSkipZero = false);
 
-  Id ncutil = ncols;
-  Id nrutil = nrows;
-  if (_getMaxNCols() > 0 && ncutil > _getMaxNCols() && !flagOverride) ncutil = _getMaxNCols();
-  if (_getMaxNRows() > 0 && nrutil > _getMaxNRows() && !flagOverride) nrutil = _getMaxNRows();
-  Id npass       = static_cast<Id>(ceil(static_cast<double>(ncutil) / static_cast<double>(_getNBatch())));
-  bool multi_row = nrutil > 1 || npass > 1;
-
-  Id colSize = 0;
-  if (colnames.empty())
-    colSize = _getColumnSize();
-  else
-    colSize = MAX(MIN(_getColumnName(), getMaxStringSize(colnames) + 1), _getColumnSize());
-  Id rowSize = 0;
-  if (rownames.empty())
-    rowSize = _getColumnSize();
-  else
-    rowSize = MAX(getMaxStringSize(rownames) + 1, _getColumnSize());
-
-  /* Print the title (optional) */
-
-  if (!title.empty())
-  {
-    sstr << title;
-    if (multi_row) sstr << std::endl;
-  }
-
-  // Loop on the batches
-
-  for (Id ipass = 0; ipass < npass; ipass++)
-  {
-    Id jdeb = ipass * _getNBatch();
-    Id jfin = MIN(jdeb + _getNBatch(), ncutil);
-
-    /* Print the names of the columns and the column numbers */
-
-    if (multi_row) sstr << _toStrColumnHeader(colnames, jdeb, jfin, colSize);
-
-    /* Loop on the rows */
-
-    for (Id iy = 0; iy < nrutil; iy++)
-    {
-      if (multi_row) sstr << _toStrRowHeader(rownames, iy, rowSize);
-
-      /* Loop on the columns */
-      for (Id ix = jdeb; ix < jfin; ix++)
-      {
-        Id iad = (bycol) ? iy + nrows * ix : ix + ncols * iy;
-        if (flagSkipZero && ABS(tab[iad]) < EPSILON20)
-          sstr << toStr(".", 1, colSize);
-        else
-          sstr << toStr(tab[iad], 1, colSize);
-      }
-      sstr << std::endl;
-    }
-  }
-
-  /* Print the trailer */
-
-  sstr << _toStrTrailer(ncols, nrows, ncutil, nrutil);
-  return sstr.str();
-}
 GSTLEARN_EXPORT String toMatrix(const String& title,
                                 const AMatrix& mat,
                                 bool flagOverride = false,
                                 bool flagSkipZero = false);
+GSTLEARN_EXPORT String toStrTrimMat(const String& title,
+                                    Id mode,
+                                    Id neq,
+                                    const VectorDouble& tl);
 
+/**
+ * Printout a template vector in a formatted manner
+ * @param title Title of the printout
+ * @param tab   Template (VectorAny) to be printed
+ * @param flagIgnoreMaxNCols true to ignore the maximum number of columns
+ * @param newLineAfterTitle true to put a new line after the title (if any)
+ * @return The string (terminated with a newline)
+ */
 template<typename T>
-inline String toStrVector(const String& title,
-                          const VectorT<T>& tab,
-                          bool flagOverride = true)
-{
-  static_assert(std::is_same<T, Id>::value ||
-                  std::is_same<T, double>::value ||
-                  std::is_same<T, String>::value,
-                "toStrVector: T must be Id, double, or String");
+String toStrVector(const String& title,
+                   const VectorT<T>& tab,
+                   bool flagIgnoreMaxNCols = false,
+                   bool newLineAfterTitle  = false);
 
-  std::stringstream sstr;
-  if (tab.empty()) return sstr.str();
+extern template String toStrVector<double>(const String& title,
+                                           const VectorT<double>& tab,
+                                           bool flagIgnoreMaxNCols,
+                                           bool newLineAfterTitle);
+extern template String toStrVector<long long>(const String& title,
+                                              const VectorT<long long>& tab,
+                                              bool flagIgnoreMaxNCols,
+                                              bool newLineAfterTitle);
+extern template String toStrVector<String>(const String& title,
+                                           const VectorT<String>& tab,
+                                           bool flagIgnoreMaxNCols,
+                                           bool newLineAfterTitle);
 
-  Id ncols  = static_cast<Id>(tab.size());
-  Id ncutil = ncols;
-  if (_getMaxNCols() > 0 && ncutil > _getMaxNCols() && !flagOverride) ncutil = _getMaxNCols();
-  bool multi_row = ncutil > _getNBatch();
-
-  /* Print the title (optional) */
-
-  if (!title.empty())
-  {
-    sstr << title;
-    if (multi_row) sstr << std::endl;
-  }
-
-  Id lec = 0;
-  if (multi_row) sstr << _toStrColumnHeader(VectorString(), 0, _getNBatch());
-
-  for (Id i = 0; i < ncutil; i += _getNBatch())
-  {
-    if (multi_row) sstr << _toStrRowHeader(VectorString(), i);
-
-    for (Id j = 0; j < _getNBatch(); j++)
-    {
-      if (lec >= ncutil) continue;
-      sstr << toStr(tab[lec]);
-      lec++;
-    }
-    sstr << std::endl;
-  }
-
-  // Print the trailer
-  sstr << _toStrTrailer(ncols, 0, ncutil, 0);
-
-  return sstr.str();
-}
+/**
+ * Printout a template vector in a formatted manner
+ * @param title Title of the printout
+ * @param tab   Template (VectorVectorDouble or VectorVectorInt) to be printed
+ * @param flagIgnoreMaxNRows true to ignore the maximum number of rows
+ * @param newLineAfterTitle true to put a new line after the title (if any)
+ * @return The string (terminated with a newline)
+ */
 template<typename T>
-inline String toStrVector(const String& title,
-                          const VectorNumT<VectorNumT<T>>& tab,
-                          bool flagOverride = true)
-{
-  static_assert(std::is_same<T, Id>::value ||
-                  std::is_same<T, double>::value,
-                "toStrVector: T must be Id or double");
-  std::stringstream sstr;
-  if (tab.empty()) return sstr.str();
+String toStrVector(const String& title,
+                   const VectorNumT<VectorNumT<T>>& tab,
+                   bool flagIgnoreMaxNRows = false,
+                   bool newLineAfterTitle  = true);
 
-  if (!title.empty())
-    sstr << title << std::endl;
-
-  Id nrows  = static_cast<Id>(tab.size());
-  Id nrutil = nrows;
-  if (_getMaxNRows() > 0 && nrutil > _getMaxNRows() && !flagOverride) nrutil = _getMaxNRows();
-
-  for (Id i = 0; i < nrutil; i++)
-    sstr << toStrVector(String(), tab[i], flagOverride);
-
-  // Print the trailer
-  sstr << _toStrTrailer(0, nrows, 0, nrutil);
-
-  return sstr.str();
-}
+extern template String toStrVector<double>(const String& title,
+                                           const VectorNumT<VectorNumT<double>>& tab,
+                                           bool flagIgnoreMaxNRows,
+                                           bool newLineAfterTitle);
+extern template String toStrVector<long long>(const String& title,
+                                              const VectorNumT<VectorNumT<long long>>& tab,
+                                              bool flagIgnoreMaxNRows,
+                                              bool newLineAfterTitle);
 
 // Functions calling modern tools and regrouping potential warnings issued by Windows
 GSTLEARN_EXPORT char* gslStrcpy(char* dst, Id n, const char* src);

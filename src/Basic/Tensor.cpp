@@ -10,8 +10,8 @@
 /******************************************************************************/
 #include "Basic/Tensor.hpp"
 #include "Basic/AException.hpp"
+#include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 
@@ -89,7 +89,7 @@ void Tensor::init(Id ndim)
 String Tensor::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
-  sstr << "Radius     = " << VH::toStringAsVD(_radius) << std::endl;
+  sstr << "Radius     = " << toStrVector(String(), _radius) << std::endl;
   if (!_rotation.isIdentity())
     sstr << _rotation.toString() << std::endl;
   return sstr.str();
@@ -254,7 +254,7 @@ void Tensor::_fillTensors()
   _tensorDirect2 = MatrixSymmetric(static_cast<Id>(_nDim));
   _tensorDirect2.prodMatMatInPlace(&_tensorDirect, &_tensorDirect, false, true);
 
-//XF  _tensorDirectSwap = _rotation.getMatrixDirect();
+  // XF  _tensorDirectSwap = _rotation.getMatrixDirect();
   _tensorDirectSwap = _rotation.getMatrixInverse();
   _tensorDirectSwap.multiplyRow(_radius);
 

@@ -97,7 +97,7 @@ static void st_print_all(const VectorInt& colors,
   if (!consmax.empty())
     print_matrix("consmax", 0, 0, 1, 10, consmax);
   print_matrix("sigma", 0, 0, 1, 10, sigma);
-  print_imatrix("colors", 0, 0, 1, 10, colors);
+  print_matrix("colors", 0, 0, 1, 10, colors);
   Q->display();
 }
 

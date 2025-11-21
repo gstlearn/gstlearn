@@ -128,17 +128,17 @@ int main(int argc, char *argv[])
   law_set_old_style(true);
   law_set_random_seed(seed);
   for (Id i = 0; i < number; i++) tab[i] = law_uniform(mini, maxi);
-  VH::dump("Old Style", tab);
+  print_vector("Old Style", tab, true, true);
   law_set_old_style(false);
   law_set_random_seed(seed);
   for (Id i = 0; i < number; i++) tab[i] = law_uniform(mini, maxi);
-  VH::dump("New Style", tab);
+  print_vector("New Style", tab, true, true);
 
   // Testing miscellaneous functions
 
   message("BesselJ value = %lf\n", besselj(5.2, 0));
 
   VectorInt ipois = VH::sequence(10);
-  VH::dump("Poisson intensity", law_df_poisson_vec(ipois, 5.2));
+  print_vector("Poisson intensity", law_df_poisson_vec(ipois, 5.2), true, true);
   return 0;
 }

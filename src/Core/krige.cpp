@@ -3532,7 +3532,7 @@ Id krigsampling_f(Db* dbin,
   if (verbose)
   {
     message("Printout of intermediate arrays\n");
-    print_imatrix("Pivot ranks", 0, 1, 1, ntot, rutil);
+    print_matrix("Pivot ranks", 0, 1, 1, ntot, rutil);
     print_matrix("Inv-Sigma", 0, 1, ntot, ntot, invsig.getValues());
     print_matrix("U", 0, 1, ntot, nutil, tutil.getValues());
   }

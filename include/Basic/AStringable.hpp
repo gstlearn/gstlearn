@@ -63,12 +63,16 @@ GSTLEARN_EXPORT void tab_printi(const String& title,
                                 Id value,
                                 Id ncol          = 1,
                                 Id justification = 1);
-GSTLEARN_EXPORT void tab_print_rc(const String& title,
-                                  Id mode,
-                                  Id value,
-                                  Id ncol          = 1,
-                                  Id justification = 1);
-GSTLEARN_EXPORT void tab_print_rowname(const char* string, Id taille);
+
+GSTLEARN_EXPORT void print_vector(const String& title,
+                                  const VectorDouble& tab,
+                                  bool flagIgnoreMaxNCols = false,
+                                  bool newLineAfterTitle  = false);
+GSTLEARN_EXPORT void print_vector(const String& title,
+                                  const VectorInt& tab,
+                                  bool flagIgnoreMaxNCols = false,
+                                  bool newLineAfterTitle  = false);
+
 GSTLEARN_EXPORT void print_matrix(const String& title,
                                   Id flag_limit,
                                   Id bycol,
@@ -77,18 +81,16 @@ GSTLEARN_EXPORT void print_matrix(const String& title,
                                   const VectorDouble& tab);
 GSTLEARN_EXPORT void print_matrix(const String& title,
                                   Id flag_limit,
-                                  const AMatrix& mat);
+                                  Id bycol,
+                                  Id nx,
+                                  Id ny,
+                                  const VectorInt& tab);
 GSTLEARN_EXPORT void print_trimat(const String& title,
                                   Id mode,
                                   Id neq,
                                   const VectorDouble& tl);
-GSTLEARN_EXPORT void print_imatrix(const String& title,
-                                   Id flag_limit,
-                                   Id bycol,
-                                   Id nx,
-                                   Id ny,
-                                   const VectorInt& tab);
-GSTLEARN_EXPORT void print_vector(const String& title, const VectorDouble& tab);
-GSTLEARN_EXPORT void print_vector(const String& title, const VectorInt& tab);
+GSTLEARN_EXPORT void print_matrix(const String& title,
+                                  Id flag_limit,
+                                  const AMatrix& mat);
 
 } // namespace gstlrn

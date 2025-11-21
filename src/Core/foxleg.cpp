@@ -11,7 +11,6 @@
 #include "Basic/OptDbg.hpp"
 #include "Basic/String.hpp"
 #include "Basic/Utilities.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "geoslib_old_f.h"
 #include <cmath>
@@ -474,10 +473,10 @@ static void st_minimum(const VectorInt& /*ind_util*/,
   {
     message("dans st_minimum\n");
     bords_red.display();
-    VH::dump("top", top);
-    VH::dump("bot", bot);
-    VH::dump("hgnc", hgnc);
-    VH::dump("hgnadm avant", hgnadm);
+    print_vector("top", top, true, true);
+    print_vector("bot", bot, true, true);
+    print_vector("hgnc", hgnc, true, true);
+    print_vector("hgnadm avant", hgnadm, true, true);
   }
 
   Id iparac2 = 0;
@@ -507,7 +506,7 @@ static void st_minimum(const VectorInt& /*ind_util*/,
   if (doit())
   {
     message("alpha_in=%lf\n", alpha_inf);
-    VH::dump("hgnadm apres", hgnadm);
+    print_vector("hgnadm apres", hgnadm, true, true);
   }
 }
 
@@ -1335,7 +1334,7 @@ Id foxleg_f(Id ndat,
 
     /* Update values for the next iteration */
 
-    if (doit()) VH::dump("hgnadm", hgnadm);
+    if (doit()) print_vector("hgnadm", hgnadm, true, true);
     iparac = 0;
     for (Id ipar = 0; ipar < NPAR; ipar++)
     {
@@ -1372,7 +1371,7 @@ Id foxleg_f(Id ndat,
         if (doit())
         {
           message("denom=%lf rho=%lf\n", denom, rho);
-          VH::dump("hgn", hgn);
+          print_vector("hgn", hgn, true, true);
         }
       }
     }

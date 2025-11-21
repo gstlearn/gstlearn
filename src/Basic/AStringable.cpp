@@ -22,48 +22,8 @@
 #include <sstream>
 #include <typeinfo>
 
-#define CASE_DOUBLE 0
-#define CASE_REAL   1
-#define CASE_INT    2
-#define CASE_COL    3
-#define CASE_ROW    4
-
-bool new_version = true;
-
 namespace gstlrn
 {
-static String FORMAT;
-static String DECODE;
-static String TABSTR;
-
-static void _buildFormat(Id mode)
-{
-  switch (mode)
-  {
-    case CASE_INT:
-      (void)gslSPrintf(FORMAT, "%%%dd", static_cast<Id>(OptCst::query(ECst::NTCAR)));
-      break;
-
-    case CASE_REAL:
-      (void)gslSPrintf(FORMAT, "%%%d.%dlf", static_cast<Id>(OptCst::query(ECst::NTCAR)),
-                       static_cast<Id>(OptCst::query(ECst::NTDEC)));
-      break;
-
-    case CASE_DOUBLE:
-      (void)gslSPrintf(FORMAT, "%%%d.%dlg", static_cast<Id>(OptCst::query(ECst::NTCAR)),
-                       static_cast<Id>(OptCst::query(ECst::NTDEC)));
-      break;
-
-    case CASE_COL:
-      (void)gslSPrintf(FORMAT, "[,%%%dd]", static_cast<Id>(OptCst::query(ECst::NTCAR)) - 3);
-      break;
-
-    case CASE_ROW:
-      (void)gslSPrintf(FORMAT, "[%%%dd,]", static_cast<Id>(OptCst::query(ECst::NTCAR)) - 3);
-      break;
-  }
-}
-
 AStringable::AStringable()
 {
 }
@@ -303,57 +263,9 @@ void tab_prints(const String& title,
                 Id ncol,
                 Id justification)
 {
-  if (!new_version)
-  {
-    Id taille = (1 + static_cast<Id>(OptCst::query(ECst::NTCAR))) * ncol;
-    Id size   = string.length();
-    Id neff   = MIN(taille, size);
-    Id nrst   = taille - neff;
-    Id n1     = nrst / 2;
-    Id n2     = taille - size - n1;
-
-    /* Encode the title (if defined) */
-
-    if (!title.empty()) message("%s", title.c_str());
-
-    /* Blank the string out */
-
-    (void)gslStrcpy(TABSTR, "");
-
-    /* Switch according to the justification */
-
-    switch (justification)
-    {
-      case -1:
-        (void)gslStrcat(TABSTR, string);
-        TABSTR[neff] = '\0';
-        for (Id i = 0; i < nrst; i++)
-          (void)gslStrcat(TABSTR, " ");
-        break;
-
-      case 0:
-        for (Id i = 0; i < n1; i++)
-          (void)gslStrcat(TABSTR, " ");
-        (void)gslStrcat(TABSTR, string);
-        TABSTR[n1 + neff] = '\0';
-        for (Id i = 0; i < n2; i++)
-          (void)gslStrcat(TABSTR, " ");
-        break;
-
-      case 1:
-        for (Id i = 0; i < nrst; i++)
-          (void)gslStrcat(TABSTR, " ");
-        (void)gslStrcat(TABSTR, string);
-        break;
-    }
-    message(TABSTR.data());
-  }
-  else
-  {
-    if (!title.empty()) message("%s", title.c_str());
-    String str = toStr(string, justification, 0, true, ncol);
-    message(str.c_str());
-  }
+  if (!title.empty()) message("%s", title.c_str());
+  String str = toStr(string, justification, 0, true, ncol);
+  message(str.c_str());
 }
 
 /****************************************************************************/
@@ -375,26 +287,9 @@ void tab_printg(const String& title,
                 bool roundZero,
                 bool flagScientific)
 {
-  if (!new_version)
-  {
-    _buildFormat(CASE_REAL);
-
-    if (FFFF(value))
-      (void)gslStrcpy(DECODE, "N/A");
-    else
-    {
-      // Prevent -0.00 : https://stackoverflow.com/a/12536500/3952924
-      if (roundZero) value = (ABS(value) < _getThresh()) ? 0. : value;
-      (void)gslSPrintf(DECODE, FORMAT.data(), value);
-    }
-    tab_prints(title, DECODE, ncol, justification);
-  }
-  else
-  {
-    if (!title.empty()) message("%s", title.c_str());
-    String string = toStr(value, justification, 0, roundZero, ncol, flagScientific);
-    message(string.c_str());
-  }
+  if (!title.empty()) message("%s", title.c_str());
+  String string = toStr(value, justification, 0, roundZero, ncol, flagScientific);
+  message(string.c_str());
 }
 
 /****************************************************************************/
@@ -409,73 +304,9 @@ void tab_printg(const String& title,
  *****************************************************************************/
 void tab_printi(const String& title, Id value, Id ncol, Id justification)
 {
-  if (!new_version)
-  {
-    _buildFormat(CASE_INT);
-
-    if (IFFFF(value))
-      (void)gslStrcpy(DECODE, "N/A");
-    else
-      (void)gslSPrintf(DECODE, FORMAT.data(), value);
-
-    tab_prints(title, DECODE, ncol, justification);
-  }
-  else
-  {
-    if (!title.empty()) message("%s", title.c_str());
-    String string = toStr(value, justification, 0, true, ncol);
-    message(string.c_str());
-  }
-}
-
-/****************************************************************************/
-/*!
- **  Tabulated printout of a row or column value
- **
- ** \param[in]  title    optional title (NULL if not defined)
- ** \param[in]  mode     CASE_ROW or CASE_COL
- ** \param[in]  value    Value to be written
- ** \param[in]  ncol     number of columns for the printout
- ** \param[in]  justification  justification flag
- **
- *****************************************************************************/
-void tab_print_rc(const String& title,
-                  Id mode,
-                  Id value,
-                  Id ncol,
-                  Id justification)
-{
-  _buildFormat(mode);
-
-  (void)gslSPrintf(DECODE, FORMAT.data(), value);
-  string_strip_blanks(DECODE.data(), 0);
-  tab_prints(title, DECODE, ncol, justification);
-}
-
-/****************************************************************************/
-/*!
- **  Tabulated printout of a string (character size provided)
- **
- ** \param[in]  string   String to be written
- ** \param[in]  taille   Number of characters
- **
- ** \remarks The string is printed (left-adjusted) on 'taille' characters
- **
- *****************************************************************************/
-void tab_print_rowname(const char* string, Id taille)
-{
-  Id size = static_cast<Id>(strlen(string));
-  Id neff = MIN(taille, size);
-  Id nrst = taille - neff;
-
-  /* Blank the string out */
-
-  (void)gslStrcpy(TABSTR, "");
-  (void)gslStrcat(TABSTR, string);
-  TABSTR[neff] = '\0';
-  for (Id i = 0; i < nrst; i++)
-    (void)gslStrcat(TABSTR, " ");
-  message(TABSTR.data());
+  if (!title.empty()) message("%s", title.c_str());
+  String string = toStr(value, justification, 0, true, ncol);
+  message(string.c_str());
 }
 
 /****************************************************************************/
@@ -502,62 +333,9 @@ void print_matrix(const String& title,
                   Id ny,
                   const VectorDouble& tab)
 {
-  if (tab.empty() || nx <= 0 || ny <= 0) return;
-  Id nx_util   = (flag_limit && static_cast<Id>(OptCst::query(ECst::NTCOL)) > 0) ? MIN(static_cast<Id>(OptCst::query(ECst::NTCOL)), nx) : nx;
-  Id ny_util   = (flag_limit && static_cast<Id>(OptCst::query(ECst::NTROW)) > 0) ? MIN(static_cast<Id>(OptCst::query(ECst::NTROW)), ny) : ny;
-  Id multi_row = (ny > 1 || title.empty());
-
-  /* Print the title (optional) */
-
-  if (!title.empty())
-  {
-    if (multi_row)
-      message("%s\n", title.c_str());
-    else
-      message("%s ", title.c_str());
-  }
-
-  /* Print the header */
-
-  if (multi_row)
-  {
-    tab_prints(String(), " ");
-    for (Id ix = 0; ix < nx_util; ix++)
-      tab_print_rc(String(), CASE_COL, ix + 1);
-    message("\n");
-  }
-
-  /* Print the contents of the array */
-
-  Id ny_done = 0;
-  for (Id iy = 0; iy < ny; iy++)
-  {
-    ny_done++;
-    if (ny_done > ny_util) break;
-    if (multi_row) tab_print_rc(String(), CASE_ROW, iy + 1);
-    for (Id ix = 0; ix < nx_util; ix++)
-    {
-      Id iad = (bycol) ? iy + ny * ix : ix + nx * iy;
-      tab_printg(String(), tab[iad]);
-    }
-    message("\n");
-  }
-
-  /* Print the trailor */
-
-  if (nx != nx_util || ny != ny_util)
-  {
-    if (nx == nx_util)
-      message("(Ncol=%d", nx);
-    else
-      message("(Ncol=%d[from %d]", nx_util, nx);
-
-    if (ny == ny_util)
-      message(",Nrow=%d)", ny);
-    else
-      message(",Nrow=%d[from %d])", ny_util, ny);
-    message("\n");
-  }
+  String string = toStrMatrix(title, VectorString(), VectorString(), bycol, ny, nx, tab,
+                              flag_limit == 0, false);
+  message(string.c_str());
 }
 
 void print_matrix(const String& title,
@@ -565,6 +343,46 @@ void print_matrix(const String& title,
                   const AMatrix& mat)
 {
   print_matrix(title, flag_limit, true, mat.getNCols(), mat.getNRows(), mat.getValues());
+}
+
+void print_matrix(const String& title,
+                  Id flag_limit,
+                  Id bycol,
+                  Id nx,
+                  Id ny,
+                  const VectorInt& tab)
+{
+  String string = toStrMatrix(title, VectorString(), VectorString(), bycol, ny, nx, tab,
+                              flag_limit == 0, false);
+  message(string.c_str());
+}
+
+/****************************************************************************/
+/*!
+ **  Print a vector of real values in a matrix form
+ **
+ ** \param[in]  title      Title (Optional)
+ ** \param[in]  tab        Array to be printed
+ ** \param[in]  flagIgnoreMaxNCols  true to ignore the maximum number of columns
+ ** \param[in]  newLineAfterTitle   true to put a new line after the title (if any)
+ **
+ *****************************************************************************/
+void print_vector(const String& title,
+                  const VectorDouble& tab,
+                  bool flagIgnoreMaxNCols,
+                  bool newLineAfterTitle)
+{
+  String string = toStrVector(title, tab, flagIgnoreMaxNCols, newLineAfterTitle);
+  message(string.c_str());
+}
+
+void print_vector(const String& title,
+                  const VectorInt& tab,
+                  bool flagIgnoreMaxNCols,
+                  bool newLineAfterTitle)
+{
+  String string = toStrVector(title, tab, flagIgnoreMaxNCols, newLineAfterTitle);
+  message(string.c_str());
 }
 
 /****************************************************************************/
@@ -582,194 +400,8 @@ void print_matrix(const String& title,
  *****************************************************************************/
 void print_trimat(const String& title, Id mode, Id neq, const VectorDouble& tl)
 {
-#define TRI(i)    (((i) * ((i) + 1)) / 2)
-#define TL1(i, j) (tl[(j) * neq + (i) - TRI(j)]) /* only for i >= j */
-#define TL2(i, j) (tl[TRI(i) + (j)])             /* only for i >= j */
-
-  /* Initializations */
-
-  if (tl.empty() || neq <= 0) return;
-
-  /* Print the title (optional) */
-
-  if (!title.empty()) message("%s\n", title.c_str());
-
-  /* Print the header */
-
-  tab_prints(String(), " ");
-  for (Id ix = 0; ix < neq; ix++)
-    tab_print_rc(String(), CASE_COL, ix + 1);
-  message("\n");
-
-  /* Print the contents of the array */
-
-  for (Id iy = 0; iy < neq; iy++)
-  {
-    tab_print_rc(String(), CASE_ROW, iy + 1);
-    for (Id ix = 0; ix < neq; ix++)
-    {
-      if (ix >= iy)
-      {
-        if (mode == 1)
-          tab_printg(String(), TL1(ix, iy));
-        else
-          tab_printg(String(), TL2(ix, iy));
-      }
-      else
-        tab_prints(String(), " ");
-    }
-    message("\n");
-  }
-#undef TRI
-#undef TL1
-#undef TL2
-}
-
-/****************************************************************************/
-/*!
- **  Tabulated printout of a matrix (integer version)
- **
- ** \param[in]  title  Title (Optional)
- ** \param[in]  flag_limit  option for the limits
- ** \li                      1 if limits must be applied
- ** \li                      0 if the whole matrix is printed
- ** \param[in]  bycol  1 if values in 'tab' are sorted by column, 0 otherwise
- ** \param[in]  nx     number of columns in the matrix
- ** \param[in]  ny     number of rows in the matrix
- ** \param[in]  tab    array containing the matrix
- **
- *****************************************************************************/
-void print_imatrix(const String& title,
-                   Id flag_limit,
-                   Id bycol,
-                   Id nx,
-                   Id ny,
-                   const VectorInt& tab)
-{
-  if (tab.empty() || nx <= 0 || ny <= 0) return;
-  Id nx_util   = (flag_limit && static_cast<Id>(OptCst::query(ECst::NTCOL)) > 0) ? MIN(static_cast<Id>(OptCst::query(ECst::NTCOL)), nx) : nx;
-  Id ny_util   = (flag_limit && static_cast<Id>(OptCst::query(ECst::NTROW)) > 0) ? MIN(static_cast<Id>(OptCst::query(ECst::NTROW)), ny) : ny;
-  Id multi_row = (ny > 1 || title.empty());
-
-  /* Print the title (optional) */
-
-  if (!title.empty())
-  {
-    if (multi_row)
-      message("%s\n", title.c_str());
-    else
-      message("%s ", title.c_str());
-  }
-
-  /* Print the header */
-
-  if (multi_row)
-  {
-    tab_prints(String(), " ");
-    for (Id ix = 0; ix < nx_util; ix++)
-      tab_print_rc(String(), CASE_COL, ix + 1);
-    message("\n");
-  }
-
-  /* Print the contents of the array */
-
-  Id ny_done = 0;
-  for (Id iy = 0; iy < ny; iy++)
-  {
-    ny_done++;
-    if (ny_done > ny_util) break;
-    if (multi_row) tab_print_rc(String(), CASE_ROW, iy + 1);
-    for (Id ix = 0; ix < nx_util; ix++)
-    {
-      Id iad = (bycol) ? iy + ny * ix : ix + nx * iy;
-      tab_printi(String(), tab[iad]);
-    }
-    message("\n");
-  }
-
-  /* Print the trailing part */
-
-  if (nx != nx_util || ny != ny_util)
-  {
-    if (nx == nx_util)
-      message("(Ncol=%d", nx);
-    else
-      message("(Ncol=%d[from %d]", nx_util, nx);
-
-    if (ny == ny_util)
-      message(",Nrow=%d)", ny);
-    else
-      message(",Nrow=%d[from %d])", ny_util, ny);
-    message("\n");
-  }
-}
-
-/****************************************************************************/
-/*!
- **  Print a vector of real values in a matrix form
- **
- ** \param[in]  title      Title (Optional)
- ** \param[in]  tab        Array to be printed
- **
- *****************************************************************************/
-void print_vector(const String& title, const VectorDouble& tab)
-{
-  static Id nby_def = 5;
-
-  /* Initializations */
-
-  Id ntab = tab.size();
-  if (ntab <= 0) return;
-  Id nby         = nby_def;
-  bool flag_many = (ntab > nby);
-
-  if (!title.empty())
-  {
-    message("%s", title.c_str());
-    if (flag_many) message("\n");
-  }
-  Id lec = 0;
-  for (Id i = 0; i < ntab; i += nby)
-  {
-    if (flag_many) message(" %2d+  ", i);
-    for (Id j = 0; j < nby; j++)
-    {
-      if (lec >= ntab) continue;
-      message(" %10f", tab[lec]);
-      lec++;
-    }
-    message("\n");
-  }
-}
-
-void print_vector(const String& title, const VectorInt& tab)
-{
-  static Id nby_def = 5;
-
-  /* Initializations */
-
-  Id ntab = tab.size();
-  if (ntab <= 0) return;
-  Id nby         = nby_def;
-  bool flag_many = (ntab > nby);
-
-  if (!title.empty())
-  {
-    message("%s", title.c_str());
-    if (flag_many) message("\n");
-  }
-  Id lec = 0;
-  for (Id i = 0; i < ntab; i += nby)
-  {
-    if (flag_many) message(" %2d+  ", i);
-    for (Id j = 0; j < nby; j++)
-    {
-      if (lec >= ntab) continue;
-      message(" %10f", tab[lec]);
-      lec++;
-    }
-    message("\n");
-  }
+  String string = toStrTrimMat(title, mode, neq, tl);
+  message(string.c_str());
 }
 
 /**
@@ -789,4 +421,5 @@ void messerr(const char* format, ...)
   message_extern(str);
   message_extern("\n");
 }
+
 } // namespace gstlrn

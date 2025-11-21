@@ -6152,10 +6152,10 @@ void Db::dumpGeometry(Id iech, Id jech) const
   message("- Distance = %lf\n", dist);
 
   VectorDouble incr = P1.getIncrement(P2);
-  VH::dump("- Increments = ", incr, false);
+  print_vector("- Increments = ", incr, true, false);
 
   VectorDouble angles = GH::rotationFromIncrements(incr, true);
-  VH::dump("- Angles (deg) = ", angles, false);
+  print_vector("- Angles (deg) = ", angles, true, false);
 }
 
 } // namespace gstlrn

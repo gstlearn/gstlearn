@@ -131,7 +131,7 @@ int main(int argc, char* argv[])
   // Id checkOrder          = 2;
   // VectorVectorDouble res = interpolateVariablesToPoint(grid, xp, yp, zp, ELoc::Z,
   //                                                      checkOrder, true);
-  // VH::dump("Interpolation along lines", res);
+  // print_vector("Interpolation along lines", res, true, true);
   // delete trace;
 
   delete db;

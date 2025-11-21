@@ -78,7 +78,7 @@ String AnamHermite::toString(const AStringFormat* strfmt) const
   if (!_isFitted()) return sstr.str();
 
   sstr << toStrVector("Normalized coefficients for Hermite polynomials (punctual variable)",
-                      _psiHn);
+                      _psiHn, true, true);
 
   return sstr.str();
 }

@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Simulation/TurningBandDirection.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Db/DbGrid.hpp"
 
 namespace gstlrn
@@ -116,6 +115,6 @@ namespace gstlrn
     message("  Tmin=%lf Tmax=%lf Scale=%lf\n", _tmin, _tmax, _scale);
     if (flagGrid)
       message("  T00=%lf DXP=%lf DYP=%lf DZP=%lf\n", _t00, _dxp, _dyp, _dzp);
-    VH::dump("  Angles=", _ang, false);
+    print_vector("  Angles=", _ang, true, false);
   }
 } // namespace gstlrn

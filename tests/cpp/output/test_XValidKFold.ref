@@ -19,10 +19,10 @@ Column = 3 - Name = S - Locator = sel
 Column = 4 - Name = C - Locator = code
 Column = 5 - Name = V - Locator = z1
 
-Neigh ranks for each taget:
-===========================
+Neigh ranks for each target:
+============================
 Neigh ranks [0]: None
-Neigh ranks [1]:   2  3
+Neigh ranks [1]:   2   3
 Neigh ranks [2]:   1
 Neigh ranks [3]:   1
 Neigh ranks [4]:   1

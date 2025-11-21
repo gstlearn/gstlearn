@@ -1356,7 +1356,7 @@ void KrigingAlgebra::printStatus() const
   if (_ncck > 0)
   {
     message("Number of Collocated Variables ('_ncck') = %d\n", _ncck);
-    VH::dump("Rank of Collocated Variables", _rankColVars, false);
+    print_vector("Rank of Collocated Variables", _rankColVars, true, false);
   }
   if (_flagSK)
     message("Working with Known Mean(s)\n");
@@ -1669,12 +1669,12 @@ void KrigingAlgebra::dumpAux()
   // In Bayesian case, dump the Prior and Posterior information
   if (_flagBayes)
   {
-    VH::dump("Prior Mean", *_PriorMean, false);
+    print_vector("Prior Mean:", *_PriorMean, true, false);
     message("Prior Covariance Matrix\n");
     _PriorCov->display();
 
     VectorDouble postmean = getPostMean();
-    VH::dump("Posterior Mean", postmean, false);
+    print_vector("Posterior Mean:", postmean, true, false);
     message("Posterior Covariance Matrix\n");
     const MatrixSymmetric* postcov = getPostCov();
     postcov->display();
