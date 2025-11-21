@@ -251,8 +251,8 @@ void Tensor::_fillTensors()
   _tensorInverse.divideRow(_radius);
 
   // Square of the Direct tensor
-  _tensorDirect2 = MatrixSymmetric(static_cast<Id>(_nDim));
-  _tensorDirect2.prodMatMatInPlace(&_tensorDirect, &_tensorDirect, false, true);
+  _tensorDirect2.resize(_nDim, _nDim);
+  _tensorDirect2.eigenMat().noalias() = _tensorDirect.eigenMat() * _tensorDirect.eigenMat().transpose();
 
 //XF  _tensorDirectSwap = _rotation.getMatrixDirect();
   _tensorDirectSwap = _rotation.getMatrixInverse();
