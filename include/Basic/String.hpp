@@ -174,8 +174,8 @@ extern template String toStrMatrix<double>(const String& title,
                                            Id nrows,
                                            Id ncols,
                                            const VectorNumT<double>& tab,
-                                           bool flagOverride = false,
-                                           bool flagSkipZero = false);
+                                           bool flagOverride,
+                                           bool flagSkipZero);
 extern template String toStrMatrix<long long>(const String& title,
                                               const VectorString& colnames,
                                               const VectorString& rownames,
@@ -183,8 +183,8 @@ extern template String toStrMatrix<long long>(const String& title,
                                               Id nrows,
                                               Id ncols,
                                               const VectorNumT<long long>& tab,
-                                              bool flagOverride = false,
-                                              bool flagSkipZero = false);
+                                              bool flagOverride,
+                                              bool flagSkipZero);
 
 GSTLEARN_EXPORT String toMatrix(const String& title,
                                 const AMatrix& mat,
