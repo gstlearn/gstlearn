@@ -114,7 +114,7 @@ int main(int argc, char* argv[])
     VH::concatenateInPlace(result, Kcalc.getEstimation());
     VH::concatenateInPlace(result, Kcalc.getStdv());
     VH::concatenateInPlace(result, Kcalc.getVarianceZstar());
-    print_vector("Sample " + std::to_string(iout + 1), result, true, false); // Print results at all target sites
+    printVector("Sample " + std::to_string(iout + 1), result, true, false); // Print results at all target sites
   }
 
   // Free classes

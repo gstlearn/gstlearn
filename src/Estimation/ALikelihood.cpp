@@ -70,7 +70,7 @@ void ALikelihood::_initLikelihood(bool verbose)
 {
   MatrixSymmetric vars = dbVarianceMatrix(_db);
   double hmax          = _db->getExtensionDiagonal();
-  double vmax = VH::maximum(_db->getColumnByLocator(ELoc::Z, 0));
+  double vmax          = VH::maximum(_db->getColumnByLocator(ELoc::Z, 0));
   setEnvironment(vars, hmax, EPSILON6, 0., vmax);
   Id nvar = _db->getNLoc(ELoc::Z);
   if (nvar < 1)
@@ -106,7 +106,7 @@ void ALikelihood::_initLikelihood(bool verbose)
     if (_nDrift > 0)
       message("- Number of drift conditions   = %d\n", _nDrift);
     else
-      print_vector("Constant Mean(s)", _model->getMeans(), true, true);
+      printVector("Constant Mean(s)", _model->getMeans(), true, true);
   }
 
   // If Drift function is present, evaluate the optimal Drift coefficients
@@ -123,7 +123,7 @@ double ALikelihood::computeLogLikelihood(bool flagPrint, bool verbose)
 {
   _updateModel(verbose);
 
-  if (_model->getTransform() != nullptr)//TODO do it only in init if no parameters in transform (e.g logNormal)
+  if (_model->getTransform() != nullptr) // TODO do it only in init if no parameters in transform (e.g logNormal)
   {
     // Apply the transformation to data
     _model->getTransform()->inverseTransformVec(_Z, _Y);
@@ -161,7 +161,7 @@ double ALikelihood::computeLogLikelihood(bool flagPrint, bool verbose)
     _model->setBetaHat(_beta);
 
     if (verbose)
-      print_vector("Optimal Drift coefficients = ", _beta, true, true);
+      printVector("Optimal Drift coefficients = ", _beta, true, true);
 
     // Center the data by the optimal drift: Yc = Y - beta * X
     VH::subtractInPlace(_X.prodMatVec(_beta), _Y, _Yc);

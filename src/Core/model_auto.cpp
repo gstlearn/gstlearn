@@ -1259,14 +1259,14 @@ static void st_goulard_debug_title(Id nvar, Id ncova)
   if (!OptDbg::query(EDbg::CONVERGE)) return;
   mestitle(1, "Trajectory of parameters in Goulard Algorithm");
   message("(Sti(V1-V2) : Sill for structure 'i' for variables 'V1' and 'V2'\n");
-  tab_prints(String(), "Iteration");
-  tab_prints(String(), "Score");
+  printElement(String(), "Iteration");
+  printElement(String(), "Score");
   for (Id icov = 0; icov < ncova; icov++)
     for (Id ivar = 0; ivar < nvar; ivar++)
       for (Id jvar = 0; jvar <= ivar; jvar++)
       {
         (void)gslSPrintf(loc_string, "St%d(%d-%d)", icov + 1, ivar + 1, jvar + 1);
-        tab_prints(String(), loc_string);
+        printElement(String(), loc_string);
       }
   message("\n");
 }
@@ -1498,7 +1498,7 @@ static Id st_goulard_without_constraint(const Option_AutoFit& mauto,
 
       if (cc.computeEigen()) return 1;
       const auto& valpro = cc.getEigenValues();
-      vecpro = cc.getEigenVectors();
+      vecpro             = cc.getEigenVectors();
 
       Id kvar = 0;
       allpos  = 1;

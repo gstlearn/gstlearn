@@ -510,10 +510,10 @@ bool DbLine::isConsistent() const
       {
         messerr("Sample %d is reached twice:", iadd);
         messerr("- Line %d:", iline);
-        print_vector("Adds_1", _lineAdds[iline], true, true);
+        printVector("Adds_1", _lineAdds[iline], true, true);
         auto jline = getLineBySample(iadd);
         messerr("- Line %d:", jline);
-        print_vector("Adds_1", _lineAdds[jline], true, true);
+        printVector("Adds_1", _lineAdds[jline], true, true);
         return false;
       }
     }

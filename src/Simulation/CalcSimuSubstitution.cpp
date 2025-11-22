@@ -50,7 +50,7 @@ CalcSimuSubstitution::~CalcSimuSubstitution()
 bool CalcSimuSubstitution::_simulate()
 {
   auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
-  Id np          = 0;
+  Id np        = 0;
 
   /***********************/
   /* Information process */
@@ -327,7 +327,7 @@ VectorDouble CalcSimuSubstitution::_transToProp(const SimuSubstitutionParam& sub
   /* Printout the proportions */
 
   if (verbose)
-    print_matrix("Proportions", 0, 1, 1, nfacies, props);
+    printMatrix("Proportions", 0, 1, 1, nfacies, props);
 
   return props;
 }

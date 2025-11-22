@@ -256,26 +256,26 @@ int main(int argc, char* argv[])
   message("MRR and MSP matrices are used as Reference\n");
   MRR.display();
   Vref = MRR.getDiagonal();
-  print_vector("Reference Vector", Vref, true, true);
+  printVector("Reference Vector", Vref, true, true);
 
   V1 = MSP->getDiagonal();
-  print_vector("Main Diagonal", Vref, false, true);
+  printVector("Main Diagonal", Vref, false, true);
   message("Are results for MRR and MSP similar: %d\n", static_cast<Id>(Vref.isEqual(V1)));
   Vref = MRR.getDiagonal(1);
   V1   = MSP->getDiagonal(1);
-  print_vector("Second Diagonal Below", Vref, false, true);
+  printVector("Second Diagonal Below", Vref, false, true);
   message("Are results for MRR and MSP similar: %d\n", static_cast<Id>(Vref.isEqual(V1)));
   Vref = MRR.getDiagonal(-2);
   V1   = MSP->getDiagonal(-2);
-  print_vector("Third Diagonal Above", Vref, false, true);
+  printVector("Third Diagonal Above", Vref, false, true);
   message("Are results for MRR and MSP similar: %d\n", static_cast<Id>(Vref.isEqual(V1)));
   Vref = MRR.getRow(2);
   V1   = MSP->getRow(2);
-  print_vector("Third Row", Vref, false, true);
+  printVector("Third Row", Vref, false, true);
   message("Are results for MRR and MSP similar: %d\n", static_cast<Id>(Vref.isEqual(V1)));
   Vref = MRR.getColumn(3);
   V1   = MSP->getColumn(3);
-  print_vector("Fourth Column", Vref, false, true);
+  printVector("Fourth Column", Vref, false, true);
   message("Are results for MRR and MSP similar: %d\n", static_cast<Id>(Vref.isEqual(V1)));
 
   ////////////////////////////////////
@@ -288,9 +288,9 @@ int main(int argc, char* argv[])
   reset_to_initial_contents(M, MRR, MSG, MSS, MSP);
   message("Reference Matrix\n");
   MRR.display();
-  print_vector("Reference Input Vector", V1, true, true);
+  printVector("Reference Input Vector", V1, true, true);
   MRR.prodMatVecInPlace(V1, Vref);
-  print_vector("Reference Output Vector", Vref, true, true);
+  printVector("Reference Output Vector", Vref, true, true);
 
   MSG.prodMatVecInPlace(V1, V2);
   message("Are results for MRR and MSG similar: %d\n", static_cast<Id>(Vref.isEqual(V2)));
@@ -311,9 +311,9 @@ int main(int argc, char* argv[])
 
   message("Reference Matrix\n");
   MSS.display();
-  print_vector("Reference Input Vector", V1, true, true);
+  printVector("Reference Input Vector", V1, true, true);
   MSS.solve(V1, V2);
-  print_vector("Reference Output Vector", V2, true, true);
+  printVector("Reference Output Vector", V2, true, true);
 
   MSS.prodMatVecInPlace(V2, V3);
   message("Are results correct for MSS: %d\n", static_cast<Id>(V1.isEqual(V3)));
@@ -428,22 +428,22 @@ int main(int argc, char* argv[])
   message("Multiplying sequence vector by matrix\n");
   myCol    = VH::sequenceVD(1., static_cast<double>(nrow));
   myRowRes = MSG.prodVecMat(myCol, false);
-  print_vector("Resulting Vector", myRowRes, true, true);
+  printVector("Resulting Vector", myRowRes, true, true);
 
   message("Multiplying matrix (transposed) by sequence vector\n");
   myCol    = VH::sequenceVD(1., static_cast<double>(nrow));
   myRowRes = MSG.prodMatVec(myCol, true);
-  print_vector("Resulting Vector", myRowRes, true, true);
+  printVector("Resulting Vector", myRowRes, true, true);
 
   message("Multiplying matrix by sequence vector\n");
   myRow    = VH::sequenceVD(1., static_cast<double>(ncol));
   myColRes = MSG.prodMatVec(myRow, false);
-  print_vector("Resulting Vector", myColRes, true, true);
+  printVector("Resulting Vector", myColRes, true, true);
 
   message("Multiplying sequence vector by matrix (transposed)\n");
   myRow    = VH::sequenceVD(1., static_cast<double>(ncol));
   myColRes = MSG.prodVecMat(myRow, true);
-  print_vector("Resulting Vector", myColRes, true, true);
+  printVector("Resulting Vector", myColRes, true, true);
 
   message("Making the product of the matrix by itself\n");
   MatrixSquare MSG2(MSG);
@@ -518,22 +518,22 @@ int main(int argc, char* argv[])
   message("Multiplying sequence vector by matrix\n");
   myCol    = VH::sequenceVD(1., static_cast<double>(nrow));
   myRowRes = MSP->prodVecMat(myCol, false);
-  print_vector("Resulting Vector", myRowRes, true, true);
+  printVector("Resulting Vector", myRowRes, true, true);
 
   message("Multiplying matrix (transposed) by sequence vector\n");
   myCol    = VH::sequenceVD(1., static_cast<double>(nrow));
   myRowRes = MSP->prodMatVec(myCol, true);
-  print_vector("Resulting Vector", myRowRes, true, true);
+  printVector("Resulting Vector", myRowRes, true, true);
 
   message("Multiplying matrix by sequence vector\n");
   myRow    = VH::sequenceVD(1., static_cast<double>(ncol));
   myColRes = MSP->prodMatVec(myRow, false);
-  print_vector("Resulting Vector", myColRes, true, true);
+  printVector("Resulting Vector", myColRes, true, true);
 
   message("Multiplying sequence vector by matrix (transposed)\n");
   myRow    = VH::sequenceVD(1., static_cast<double>(ncol));
   myColRes = MSP->prodVecMat(myRow, true);
-  print_vector("Resulting Vector", myColRes, true, true);
+  printVector("Resulting Vector", myColRes, true, true);
 
   message("Making the product of the matrix by itself\n");
   MatrixSparse MSP2(*MSP);
@@ -590,7 +590,7 @@ int main(int argc, char* argv[])
   VectorDouble xtest(neq);
   VectorDouble x(neq);
   VectorDouble b = {2., 7., 0.};
-  print_vector("B", b, true, true);
+  printVector("B", b, true, true);
 
   message("Inverse (using LU or invreal depending on the dimension)\n");
   (void)a.invert();
@@ -614,13 +614,13 @@ int main(int argc, char* argv[])
   // Extract the Eigen values and vectors (both matrix types)
   (void)MEig->computeEigen();
   const auto& eigVal = MEig->getEigenValues();
-  print_vector("Eigen Values (Eigen Library)", eigVal, true, true);
+  printVector("Eigen Values (Eigen Library)", eigVal, true, true);
   const MatrixSquare* eigVec = MEig->getEigenVectors();
   eigVec->display();
 
   (void)MNoEig->computeEigen();
   const auto& eigNoVal = MNoEig->getEigenValues();
-  print_vector("Eigen Values (no Eigen Library)", eigNoVal, true, true);
+  printVector("Eigen Values (no Eigen Library)", eigNoVal, true, true);
   const MatrixSquare* eigNoVec = MNoEig->getEigenVectors();
   eigNoVec->display();
 
@@ -643,25 +643,25 @@ int main(int argc, char* argv[])
   MSNoEig->display();
 
   VectorDouble B = VH::simulateGaussian(ntemp);
-  print_vector("Input vector", B, true, true);
+  printVector("Input vector", B, true, true);
 
   VectorDouble XEig(ntemp);
   VectorDouble XNoEig(ntemp);
 
   CholeskySparse MSEigChol(*MSEig);
   MSEigChol.solve(B, XEig);
-  print_vector("Cholesky Solve (Eigen Library)", XEig, true, true);
+  printVector("Cholesky Solve (Eigen Library)", XEig, true, true);
   VectorDouble resEig = MSEig->prodVecMat(XEig);
-  print_vector("Verification (Eigen Library)", resEig, true, true);
+  printVector("Verification (Eigen Library)", resEig, true, true);
   MSEigChol.addSimulateToDest(B, XEig);
   // Simulation using Cholesky cannot be compared due to different choices in embedded permutations
-  //  print_vector("Cholesky Simulate (Eigen Library)", XEig, true, true);
+  //  printVector("Cholesky Simulate (Eigen Library)", XEig, true, true);
 
   CholeskySparse MSNoEigChol(*MSNoEig);
   MSNoEigChol.solve(B, XNoEig);
-  print_vector("Cholesky Solve (No Eigen Library)", XNoEig, true, true);
+  printVector("Cholesky Solve (No Eigen Library)", XNoEig, true, true);
   VectorDouble resNoEig = MSNoEig->prodVecMat(XNoEig);
-  print_vector("Verification (no Eigen Library)", resNoEig, true, true);
+  printVector("Verification (no Eigen Library)", resNoEig, true, true);
   MSNoEigChol.addSimulateToDest(B, XNoEig);
 
   // Log Determinant
@@ -680,9 +680,9 @@ int main(int argc, char* argv[])
 
   // Solving a Linear system after Cholesky decomposition
   mestitle(0, "Solving a Linear system after Cholesky decomposition");
-  print_vector("Input Vector B =", B, true, true);
+  printVector("Input Vector B =", B, true, true);
   MEigChol.solve(B, XEig);
-  print_vector("Result Vector X =", XEig, true, true);
+  printVector("Result Vector X =", XEig, true, true);
   message("Is M * X = B: %d\n", static_cast<Id>(B.isEqual(MEig->prodMatVec(XEig))));
 
   // Solving a linear system after Cholesky decomposition (matrix RHS)
@@ -747,7 +747,7 @@ int main(int argc, char* argv[])
   (void)MEig->computeGeneralizedEigen(*BEig);
   const auto& genEigVal         = MEig->getEigenValues();
   const MatrixSquare* genEigVec = MEig->getEigenVectors();
-  print_vector("Generalized Eigen Values (Eigen Library)", genEigVal, true, true);
+  printVector("Generalized Eigen Values (Eigen Library)", genEigVal, true, true);
   genEigVec->display();
   delete BEig;
 
@@ -760,7 +760,7 @@ int main(int argc, char* argv[])
   (void)MNoEig->computeGeneralizedEigen(*BNoEig);
   const auto& genEigNoVal         = MNoEig->getEigenValues();
   const MatrixSquare* genEigNoVec = MNoEig->getEigenVectors();
-  print_vector("Generalized Eigen Values (no Eigen Library)", genEigNoVal, true, true);
+  printVector("Generalized Eigen Values (no Eigen Library)", genEigNoVal, true, true);
   genEigNoVec->display();
   delete BNoEig;
 
@@ -774,7 +774,7 @@ int main(int argc, char* argv[])
   VectorDouble vecsup  = VH::simulateUniform(neqDiag);
   auto* matsqr         = MatrixSquare::createFromTridiagonal(vecdiag, vecinf, vecsup);
   matsqr->computeEigen();
-  print_vector("Eigen Values", matsqr->getEigenValues(), true, true);
+  printVector("Eigen Values", matsqr->getEigenValues(), true, true);
   message("Eigen Vectors\n");
   matsqr->getEigenVectors()->display();
 

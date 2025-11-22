@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
   }
   for (Id i = 0; i < conv_dim; i++)
     convolution[i] /= total;
-  print_vector("Convolution", convolution, true, true);
+  printVector("Convolution", convolution, true, true);
 
   Id ngrid_seismic     = ngrid - (conv_dim - 1);
   nx                   = VectorInt({nxval, ngrid_seismic});

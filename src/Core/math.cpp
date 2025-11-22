@@ -340,8 +340,8 @@ void ct_tables_print(CTables* ctables, Id flag_print)
   message("\n");
   message("Number of Probability Discretizations       = %d\n", ndisc);
   if (!ctables->v.empty())
-    print_matrix("List of Gaussian Thresholds", 0, 1, 1, ctables->ndisc + 1,
-                 ctables->v);
+    printMatrix("List of Gaussian Thresholds", 0, 1, 1, ctables->ndisc + 1,
+                ctables->v);
 
   if (flag_print > 0)
   {
@@ -356,7 +356,7 @@ void ct_tables_print(CTables* ctables, Id flag_print)
                 COVAL(ctables, iconf));
 
       if (flag_print == 2)
-        print_matrix(String(), 0, 1, nelem, nelem, ctables->res[iconf]);
+        printMatrix(String(), 0, 1, nelem, nelem, ctables->res[iconf]);
     }
     message("\n");
   }

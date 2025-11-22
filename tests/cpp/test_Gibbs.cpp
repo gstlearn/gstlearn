@@ -93,11 +93,11 @@ static void st_print_all(const VectorInt& colors,
                          const MatrixSparse* Q)
 {
   if (!consmin.empty())
-    print_matrix("consmin", 0, 0, 1, 10, consmin);
+    printMatrix("consmin", 0, 0, 1, 10, consmin);
   if (!consmax.empty())
-    print_matrix("consmax", 0, 0, 1, 10, consmax);
-  print_matrix("sigma", 0, 0, 1, 10, sigma);
-  print_matrix("colors", 0, 0, 1, 10, colors);
+    printMatrix("consmax", 0, 0, 1, 10, consmax);
+  printMatrix("sigma", 0, 0, 1, 10, sigma);
+  printMatrix("colors", 0, 0, 1, 10, colors);
   Q->display();
 }
 

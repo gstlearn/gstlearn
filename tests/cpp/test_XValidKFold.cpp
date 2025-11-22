@@ -84,7 +84,7 @@ int main(int argc, char* argv[])
     if (ranks.empty())
       message("%s None\n", str.c_str());
     else
-      print_vector(str, ranks);
+      printVector(str, ranks);
   }
 
   delete neigh;

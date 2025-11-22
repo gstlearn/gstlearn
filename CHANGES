@@ -4,6 +4,11 @@ This file contains the logs between consecutive releases
 
 Release 1.10.0
 ==============
+- General renaming: 
+  . print_vector() into printVector()
+  . print_matrix() into printMatrix()
+  . print_trimat() into printTriMat()
+  . tab_printg(), tab_printi(), tab_printd(), tab_prints() into printElement() 
 - testInter_Gibbsmmulti.cpp has been moved from testInter into test directory (it is no more interactive)
 - Creation of a new class VectorMeshes (AStringable)
 - Compatibility with python 3.14 and R 4.5.2

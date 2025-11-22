@@ -208,7 +208,7 @@ bool SimuSubstitutionParam::_isIrreductibility(bool verbose)
   /* Printout (conditional) */
 
   if (verbose)
-    print_matrix("Transitions", 0, 1, _nfacies, _nfacies, _trans);
+    printMatrix("Transitions", 0, 1, _nfacies, _nfacies, _trans);
 
   return true;
 }

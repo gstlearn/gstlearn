@@ -184,14 +184,14 @@ void proportion_print(PropDef* propdef)
   if (propdef == nullptr) return;
   mestitle(0, "Proportions");
 
-  print_matrix("Initial :", 0, 1, propdef->nfac[1], propdef->nfac[0], 
-               propdef->propfix);
+  printMatrix("Initial :", 0, 1, propdef->nfac[1], propdef->nfac[0],
+              propdef->propfix);
 
-  print_matrix("Working :", 0, 1, propdef->nfac[1], propdef->nfac[0], 
-               propdef->propwrk);
+  printMatrix("Working :", 0, 1, propdef->nfac[1], propdef->nfac[0],
+              propdef->propwrk);
 
-  print_matrix("Current :", 0, 1, propdef->nfaccur, 1, 
-               propdef->proploc);
+  printMatrix("Current :", 0, 1, propdef->nfaccur, 1,
+              propdef->proploc);
 }
 
 /****************************************************************************/

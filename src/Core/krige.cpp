@@ -1077,20 +1077,20 @@ void krige_lhs_print(Id nech,
 
     /* Header line */
 
-    tab_prints(String(), "Rank");
-    tab_prints(String(), "    ");
+    printElement(String(), "Rank");
+    printElement(String(), "    ");
     for (j = ideb; j < ifin; j++)
-      tab_printi(String(), j + 1);
+      printElement(String(), j + 1);
     message("\n");
 
     /* Flag line */
 
     if (flag != nullptr)
     {
-      tab_prints(String(), "    ");
-      tab_prints(String(), "Flag");
+      printElement(String(), "    ");
+      printElement(String(), "Flag");
       for (j = ideb; j < ifin; j++)
-        tab_printi(String(), rel[j]);
+        printElement(String(), rel[j]);
       message("\n");
     }
 
@@ -1098,10 +1098,10 @@ void krige_lhs_print(Id nech,
 
     for (i = 0; i < nred; i++)
     {
-      tab_printi(String(), i + 1);
-      tab_printi(String(), rel[i]);
+      printElement(String(), i + 1);
+      printElement(String(), rel[i]);
       for (j = ideb; j < ifin; j++)
-        tab_printg(String(), LHS_C(i, j));
+        printElement(String(), LHS_C(i, j));
       message("\n");
     }
   }
@@ -1168,20 +1168,20 @@ void krige_rhs_print(Id nvar,
 
   /* Header line */
 
-  tab_prints(String(), "Rank");
-  if (flag != nullptr) tab_prints(String(), "Flag");
+  printElement(String(), "Rank");
+  if (flag != nullptr) printElement(String(), "Flag");
   for (Id ivar = 0; ivar < nvar; ivar++)
-    tab_printi(String(), ivar + 1);
+    printElement(String(), ivar + 1);
   message("\n");
 
   /* Matrix lines */
 
   for (Id i = 0; i < nred; i++)
   {
-    tab_printi(String(), i + 1);
-    if (flag != nullptr) tab_printi(String(), rel[i]);
+    printElement(String(), i + 1);
+    if (flag != nullptr) printElement(String(), rel[i]);
     for (Id ivar = 0; ivar < nvar; ivar++)
-      tab_printg(String(), RHS_C(i, ivar));
+      printElement(String(), RHS_C(i, ivar));
     message("\n");
   }
 }
@@ -1231,26 +1231,26 @@ static void st_krige_wgt_print(Id status,
 
   /* First line */
 
-  tab_prints(String(), "Rank");
+  printElement(String(), "Rank");
   for (idim = 0; idim < ndim; idim++)
   {
     String strloc = getLocatorName(ELoc::X, idim);
-    tab_prints(String(), strloc);
+    printElement(String(), strloc);
   }
-  if (DBIN->hasLocVariable(ELoc::C)) tab_prints(String(), "Code");
+  if (DBIN->hasLocVariable(ELoc::C)) printElement(String(), "Code");
   if (DBIN->getNLoc(ELoc::V) > 0)
-    tab_prints(String(), "Err.");
+    printElement(String(), "Err.");
   if (KOPTION.flag_data_disc)
     for (idim = 0; idim < ndim; idim++)
     {
       (void)gslSPrintf(string, "Size%d", idim + 1);
-      tab_prints(String(), string);
+      printElement(String(), string);
     }
-  tab_prints(String(), "Data");
+  printElement(String(), "Data");
   for (ivar = 0; ivar < nvar; ivar++)
   {
     (void)gslSPrintf(string, "Z%d*", ivar + 1);
-    tab_prints(String(), string);
+    printElement(String(), string);
   }
   message("\n");
 
@@ -1267,29 +1267,29 @@ static void st_krige_wgt_print(Id status,
     for (iech = 0; iech < nech; iech++, lec++)
     {
       flag_value = (flag != nullptr) ? flag[lec] : 1;
-      tab_printi(String(), iech + 1);
+      printElement(String(), iech + 1);
       for (idim = 0; idim < ndim; idim++)
-        tab_printg(String(), st_get_idim(nbgh_ranks[iech], idim));
+        printElement(String(), st_get_idim(nbgh_ranks[iech], idim));
       if (DBIN->hasLocVariable(ELoc::C))
-        tab_printg(String(), DBIN->getLocVariable(ELoc::C, nbgh_ranks[iech], 0));
+        printElement(String(), DBIN->getLocVariable(ELoc::C, nbgh_ranks[iech], 0));
       if (DBIN->getNLoc(ELoc::V) > 0)
-        tab_printg(String(), st_get_verr(nbgh_ranks[iech], (FLAG_PROF) ? 0 : jvar_m));
+        printElement(String(), st_get_verr(nbgh_ranks[iech], (FLAG_PROF) ? 0 : jvar_m));
       if (KOPTION.flag_data_disc)
       {
         for (idim = 0; idim < ndim; idim++)
-          tab_printg(String(), DBIN->getLocVariable(ELoc::BLEX, nbgh_ranks[iech], idim));
+          printElement(String(), DBIN->getLocVariable(ELoc::BLEX, nbgh_ranks[iech], idim));
       }
       if (icase < 0)
-        tab_printg(String(), st_get_ivar(nbgh_ranks[iech], jvar_m));
+        printElement(String(), st_get_ivar(nbgh_ranks[iech], jvar_m));
       else
-        tab_prints(String(), "   ");
+        printElement(String(), "   ");
 
       for (ivar = 0; ivar < nvar; ivar++)
       {
         iwgt  = nred * ivar + cumflag;
         value = (wgt != nullptr && status == 0 && flag_value) ? wgt[iwgt] : TEST;
         if (!FFFF(value)) sum[ivar] += value;
-        tab_printg(String(), value);
+        printElement(String(), value);
       }
       if (flag_value) cumflag++;
       message("\n");
@@ -1298,11 +1298,11 @@ static void st_krige_wgt_print(Id status,
     number = 1 + ndim + 1;
     if (DBIN->getNLoc(ELoc::V) > 0) number++;
     if (KOPTION.flag_data_disc) number += ndim + 1;
-    tab_prints(String(), "Sum of weights", number, -1);
+    printElement(String(), "Sum of weights", number, -1);
     for (ivar = 0; ivar < nvar; ivar++)
     {
       value = (status == 0) ? sum[ivar] : TEST;
-      tab_printg(String(), value);
+      printElement(String(), value);
     }
     message("\n");
   }
@@ -1315,9 +1315,9 @@ static void st_krige_wgt_print(Id status,
 
   /* First line */
 
-  tab_prints(String(), "Rank");
-  tab_prints(String(), "Lagrange");
-  tab_prints(String(), "Coeff");
+  printElement(String(), "Rank");
+  printElement(String(), "Lagrange");
+  printElement(String(), "Coeff");
   message("\n");
 
   /* Loop on the drift coefficients */
@@ -1326,11 +1326,11 @@ static void st_krige_wgt_print(Id status,
   for (ib = 0; ib < nfeq; ib++)
   {
     iwgt = ib + cumflag;
-    tab_printi(String(), ib + 1);
+    printElement(String(), ib + 1);
     value = (status == 0) ? wgt[iwgt] : TEST;
-    tab_printg(String(), value);
+    printElement(String(), value);
     value = (status == 0) ? zam1_global[iwgt] : TEST;
-    tab_printg(String(), value);
+    printElement(String(), value);
 
     message("\n");
   }
@@ -1377,22 +1377,22 @@ static void st_result_kriging_print(Id flag_xvalid, Id nvar, Id status)
       if (FLAG_EST)
       {
         value = (status == 0) ? DBOUT->getArray(IECH_OUT, IPTR_EST + ivar) : TEST;
-        tab_printg(" - Estimate  = ", value);
+        printElement(" - Estimate  = ", value);
         message("\n");
       }
       if (FLAG_STD)
       {
         value = (status == 0) ? DBOUT->getArray(IECH_OUT, IPTR_STD + ivar) : TEST;
-        tab_printg(" - Std. Dev. = ", value);
+        printElement(" - Std. Dev. = ", value);
         value = (status == 0) ? VAR0(ivar, ivar) : TEST;
         message("\n");
-        tab_printg(" - Cov(h=0)  = ", value);
+        printElement(" - Cov(h=0)  = ", value);
         message("\n");
       }
       if (FLAG_VARZ)
       {
         value = (status == 0) ? DBOUT->getArray(IECH_OUT, IPTR_VARZ + ivar) : TEST;
-        tab_printg(" - Var(Z*)   = ", value);
+        printElement(" - Var(Z*)   = ", value);
         message("\n");
       }
     }
@@ -3532,9 +3532,9 @@ Id krigsampling_f(Db* dbin,
   if (verbose)
   {
     message("Printout of intermediate arrays\n");
-    print_matrix("Pivot ranks", 0, 1, 1, ntot, rutil);
-    print_matrix("Inv-Sigma", 0, 1, ntot, ntot, invsig.getValues());
-    print_matrix("U", 0, 1, ntot, nutil, tutil.getValues());
+    printMatrix("Pivot ranks", 0, 1, 1, ntot, rutil);
+    printMatrix("Inv-Sigma", 0, 1, ntot, ntot, invsig.getValues());
+    printMatrix("U", 0, 1, ntot, nutil, tutil.getValues());
   }
 
   /* Second core allocation */
@@ -3592,11 +3592,11 @@ Id krigsampling_f(Db* dbin,
 
     if (OptDbg::query(EDbg::RESULTS))
     {
-      tab_printg(" - Estimate  = ", estim);
+      printElement(" - Estimate  = ", estim);
       message("\n");
       if (FLAG_STD)
       {
-        tab_printg(" - Std. Dev. = ", sigma);
+        printElement(" - Std. Dev. = ", sigma);
         message("\n");
       }
     }
@@ -4033,7 +4033,7 @@ static MatrixDense st_calcul_covmat(const char* title,
   /* Optional printout */
 
   if (INH_FLAG_VERBOSE)
-    print_matrix(title, INH_FLAG_LIMIT, 1, n2, n1, covgen.getValues());
+    printMatrix(title, INH_FLAG_LIMIT, 1, n2, n1, covgen.getValues());
 
   return (covgen);
 }
@@ -4091,7 +4091,7 @@ static VectorDouble st_calcul_drfmat(const char* title,
   /* Optional printout */
 
   if (INH_FLAG_VERBOSE)
-    print_matrix(title, INH_FLAG_LIMIT, 1, nbfl, n1, drftab);
+    printMatrix(title, INH_FLAG_LIMIT, 1, nbfl, n1, drftab);
 
   return (drftab);
 }
@@ -4171,7 +4171,7 @@ static VectorDouble st_calcul_distmat(const char* title,
   /* Optional printout */
 
   if (INH_FLAG_VERBOSE)
-    print_matrix(title, INH_FLAG_LIMIT, 1, ns, n1, distgen);
+    printMatrix(title, INH_FLAG_LIMIT, 1, ns, n1, distgen);
 
   return (distgen);
 }
@@ -4212,7 +4212,7 @@ static VectorDouble st_calcul_product(const char* title,
   /* Optional printout */
 
   if (INH_FLAG_VERBOSE)
-    print_matrix(title, INH_FLAG_LIMIT, 1, ns, n1, prodgen);
+    printMatrix(title, INH_FLAG_LIMIT, 1, ns, n1, prodgen);
 
   return (prodgen);
 }

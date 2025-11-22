@@ -77,27 +77,27 @@ int main(int argc, char* argv[])
 
   // Check the next nodes downstream
   VectorInt iaddown = dbgraphO->getIndicesNextDown(7);
-  print_vector("Nodes next to 7 downstream", iaddown, true, true);
+  printVector("Nodes next to 7 downstream", iaddown, true, true);
 
   // Check the next nodes upstream
   VectorInt iadup = dbgraphO->getIndicesNextUp(7);
-  print_vector("Nodes next to 7 upstream", iadup, true, true);
+  printVector("Nodes next to 7 upstream", iadup, true, true);
 
   // Check the end-of-stream points downwards
   VectorInt iadenddown = dbgraphO->getEndsDown();
-  print_vector("List of Node indices end-of-stream downwards", iadenddown, true, true);
+  printVector("List of Node indices end-of-stream downwards", iadenddown, true, true);
 
   // Check the end-of-stream points upwards
   VectorInt iadendup = dbgraphO->getEndsUp();
-  print_vector("List of Node indices end-of-stream upwards", iadendup, true, true);
+  printVector("List of Node indices end-of-stream upwards", iadendup, true, true);
 
   // Check the orphans
   VectorInt iadorphan = dbgraphO->getOrphans();
-  print_vector("List of Node indices orphans", iadorphan, true, true);
+  printVector("List of Node indices orphans", iadorphan, true, true);
 
   // Check the downstream relationship, starting from an arc number
   VectorInt order = dbgraphO->getOrderDown(3);
-  print_vector("Vertices related to #2", order, true, true);
+  printVector("Vertices related to #2", order, true, true);
 
   // Check if two nodes are connected
   message("Check if nodes 3 and 6 are connected = %d\n",
@@ -106,7 +106,7 @@ int main(int argc, char* argv[])
           dbgraphO->areConnected(3, 8));
 
   VectorDouble cumul = dbgraphO->getCumulDown(7);
-  print_vector("Cumul of arc values starting from node 7", cumul, true, true);
+  printVector("Cumul of arc values starting from node 7", cumul, true, true);
 
   delete dbgraphO;
   delete dbgraphO2;

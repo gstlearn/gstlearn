@@ -66,7 +66,7 @@ int main(int argc, char* argv[])
 
     delete data1;
   }
-  if (flag_stats) print_vector("", times, true, true);
+  if (flag_stats) printVector("", times, true, true);
 
   message("- Migrate P2P: from Db1(n = %d * k) to Db2(n = %d) (in ms per k)\n", nech, nech);
 
@@ -86,7 +86,7 @@ int main(int argc, char* argv[])
     delete data1;
     delete data2;
   }
-  if (flag_stats) print_vector("", times, true, true);
+  if (flag_stats) printVector("", times, true, true);
 
   message("- Migrate P2P: from Db1(n = %d) to Db2(n = %d * k) (in ms per k)\n", nech, nech);
 
@@ -104,7 +104,7 @@ int main(int argc, char* argv[])
     delete data1;
     delete data2;
   }
-  if (flag_stats) print_vector("", times, true, true);
+  if (flag_stats) printVector("", times, true, true);
 
   return (0);
 }

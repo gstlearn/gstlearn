@@ -717,12 +717,12 @@ String toStrTrimMat(const String& title,
       if (ix >= iy)
       {
         if (mode == 1)
-          tab_printg(String(), TL1(ix, iy));
+          printElement(String(), TL1(ix, iy));
         else
-          tab_printg(String(), TL2(ix, iy));
+          printElement(String(), TL2(ix, iy));
       }
       else
-        tab_prints(String(), " ");
+        printElement(String(), " ");
     }
     message("\n");
   }

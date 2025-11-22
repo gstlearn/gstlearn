@@ -58,10 +58,10 @@ int main(int argc, char* argv[])
   // Getting the Neighborhood for various target point
   nbgh.clear();
   neighU->select(0, nbgh);
-  print_vector("For Target Point #0", nbgh, true, true);
+  printVector("For Target Point #0", nbgh, true, true);
   message("Is neighborhood Unchanged since last call = %d\n", neighU->isUnchanged());
   neighU->select(1, nbgh);
-  print_vector("For Target Point #1", nbgh, true, true);
+  printVector("For Target Point #1", nbgh, true, true);
   message("Is neighborhood Unchanged since last call = %d\n", neighU->isUnchanged());
   delete neighU;
 
@@ -78,16 +78,16 @@ int main(int argc, char* argv[])
   // Getting the Neighborhood for various target point
   nbgh.clear();
   neighM->select(0, nbgh);
-  print_vector("For Target Point #0", nbgh, true, true);
+  printVector("For Target Point #0", nbgh, true, true);
   message("Is neighborhood Unchanged since last call = %d\n", neighM->isUnchanged());
   neighM->select(1, nbgh);
-  print_vector("For Target Point #1", nbgh, true, true);
+  printVector("For Target Point #1", nbgh, true, true);
   message("Is neighborhood Unchanged since last call = %d\n", neighM->isUnchanged());
   neighM->select(2, nbgh);
-  print_vector("For Target Point #2", nbgh, true, true);
+  printVector("For Target Point #2", nbgh, true, true);
   message("Is neighborhood Unchanged since last call = %d\n", neighM->isUnchanged());
   neighM->select(3, nbgh);
-  print_vector("For Target Point #3", nbgh, true, true);
+  printVector("For Target Point #3", nbgh, true, true);
   message("Is neighborhood Unchanged since last call = %d\n", neighM->isUnchanged());
   delete neighM;
 

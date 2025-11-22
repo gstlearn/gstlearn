@@ -258,10 +258,10 @@ void AStringable::display(Id level) const
  ** \param[in]  justification  justification flag
  **
  *****************************************************************************/
-void tab_prints(const String& title,
-                const String& string,
-                Id ncol,
-                Id justification)
+void printElement(const String& title,
+                  const String& string,
+                  Id ncol,
+                  Id justification)
 {
   if (!title.empty()) message("%s", title.c_str());
   String str = toStr(string, justification, 0, true, ncol);
@@ -280,12 +280,12 @@ void tab_prints(const String& title,
  ** \param[in]  flagScientific true to use scientific notation
  **
  *****************************************************************************/
-void tab_printg(const String& title,
-                double value,
-                Id ncol,
-                Id justification,
-                bool roundZero,
-                bool flagScientific)
+void printElement(const String& title,
+                  double value,
+                  Id ncol,
+                  Id justification,
+                  bool roundZero,
+                  bool flagScientific)
 {
   if (!title.empty()) message("%s", title.c_str());
   String string = toStr(value, justification, 0, roundZero, ncol, flagScientific);
@@ -302,7 +302,7 @@ void tab_printg(const String& title,
  ** \param[in]  justification  justification flag
  **
  *****************************************************************************/
-void tab_printi(const String& title, Id value, Id ncol, Id justification)
+void printElement(const String& title, Id value, Id ncol, Id justification)
 {
   if (!title.empty()) message("%s", title.c_str());
   String string = toStr(value, justification, 0, true, ncol);
@@ -326,31 +326,31 @@ void tab_printi(const String& title, Id value, Id ncol, Id justification)
  ** \remarks of the one used in R-packages where dim[1]=nrow and dim[2]=ncol
  **
  *****************************************************************************/
-void print_matrix(const String& title,
-                  Id flag_limit,
-                  Id bycol,
-                  Id nx,
-                  Id ny,
-                  const VectorDouble& tab)
+void printMatrix(const String& title,
+                 Id flag_limit,
+                 Id bycol,
+                 Id nx,
+                 Id ny,
+                 const VectorDouble& tab)
 {
   String string = toStrMatrix(title, VectorString(), VectorString(), bycol, ny, nx, tab,
                               flag_limit == 0, false);
   message(string.c_str());
 }
 
-void print_matrix(const String& title,
-                  Id flag_limit,
-                  const AMatrix& mat)
+void printMatrix(const String& title,
+                 Id flag_limit,
+                 const AMatrix& mat)
 {
-  print_matrix(title, flag_limit, true, mat.getNCols(), mat.getNRows(), mat.getValues());
+  printMatrix(title, flag_limit, true, mat.getNCols(), mat.getNRows(), mat.getValues());
 }
 
-void print_matrix(const String& title,
-                  Id flag_limit,
-                  Id bycol,
-                  Id nx,
-                  Id ny,
-                  const VectorInt& tab)
+void printMatrix(const String& title,
+                 Id flag_limit,
+                 Id bycol,
+                 Id nx,
+                 Id ny,
+                 const VectorInt& tab)
 {
   String string = toStrMatrix(title, VectorString(), VectorString(), bycol, ny, nx, tab,
                               flag_limit == 0, false);
@@ -367,19 +367,19 @@ void print_matrix(const String& title,
  ** \param[in]  newLineAfterTitle   true to put a new line after the title (if any)
  **
  *****************************************************************************/
-void print_vector(const String& title,
-                  const VectorDouble& tab,
-                  bool flagIgnoreMaxNCols,
-                  bool newLineAfterTitle)
+void printVector(const String& title,
+                 const VectorDouble& tab,
+                 bool flagIgnoreMaxNCols,
+                 bool newLineAfterTitle)
 {
   String string = toStrVector(title, tab, flagIgnoreMaxNCols, newLineAfterTitle);
   message(string.c_str());
 }
 
-void print_vector(const String& title,
-                  const VectorInt& tab,
-                  bool flagIgnoreMaxNCols,
-                  bool newLineAfterTitle)
+void printVector(const String& title,
+                 const VectorInt& tab,
+                 bool flagIgnoreMaxNCols,
+                 bool newLineAfterTitle)
 {
   String string = toStrVector(title, tab, flagIgnoreMaxNCols, newLineAfterTitle);
   message(string.c_str());
@@ -398,7 +398,7 @@ void print_vector(const String& title,
  ** \remarks The ordering (compatible with matrix_solve is mode==2)
  **
  *****************************************************************************/
-void print_trimat(const String& title, Id mode, Id neq, const VectorDouble& tl)
+void printTriMat(const String& title, Id mode, Id neq, const VectorDouble& tl)
 {
   String string = toStrTrimMat(title, mode, neq, tl);
   message(string.c_str());
