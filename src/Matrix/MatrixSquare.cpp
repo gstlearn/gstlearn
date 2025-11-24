@@ -140,6 +140,22 @@ bool MatrixSquare::invert3x3(MatrixSquare& res) const
   return true;
 }
 
+Id MatrixSquare::invertOutOfPlace(MatrixSquare& res) const
+{
+  if (this->invert2x2(res))
+  {
+    return 0;
+  }
+  if (this->invert3x3(res))
+  {
+    return 0;
+  }
+
+  res.eigenMat().noalias() = this->eigenMat().inverse();
+
+  return 0;
+}
+
 /**
  * Perform the product: this = t(R1) %*% X %*% R2 + t(R2) %*% X %*% R1
  * @param x: Square matrix
