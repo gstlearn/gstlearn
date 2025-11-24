@@ -759,7 +759,7 @@ Id ShiftOpMatrix::_prepareMatricesSVariety(const AMesh* amesh,
   }
 
   // Calculate P = (M^t %*% M)^{-1} %*% M^t
-  matP.eigenMat().noalias() = matMtM.eigenMat() * matM.eigenMat().transpose();
+  matP.prodMatMatNoCheck<false, true>(matMtM, matM);
   return 0;
 }
 

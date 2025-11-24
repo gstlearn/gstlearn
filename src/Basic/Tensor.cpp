@@ -252,7 +252,7 @@ void Tensor::_fillTensors()
 
   // Square of the Direct tensor
   _tensorDirect2.resize(_nDim, _nDim);
-  _tensorDirect2.eigenMat().noalias() = _tensorDirect.eigenMat() * _tensorDirect.eigenMat().transpose();
+  _tensorDirect2.prodMatMatNoCheck<false, true>(_tensorDirect, _tensorDirect);
 
 //XF  _tensorDirectSwap = _rotation.getMatrixDirect();
   _tensorDirectSwap = _rotation.getMatrixInverse();
