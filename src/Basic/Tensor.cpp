@@ -274,7 +274,8 @@ void Tensor::_direct2ToInverse2()
   }
   else
   {
-    _tensorInverse2.eigenMat().noalias() = _tensorDirect2.eigenMat().inverse();
+    _tensorInverse2 = _tensorDirect2;
+    _tensorInverse2.invert();
   }
 }
 
