@@ -8,10 +8,13 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Basic/Message.hpp"
+
 #include "Basic/AStringable.hpp"
 #include "Basic/OptCst.hpp"
 #include "Basic/String.hpp"
 #include "Basic/VectorNumT.hpp"
+#include "Enum/ECst.hpp"
 #include "Matrix/AMatrix.hpp"
 
 #include <cmath>

@@ -10,8 +10,10 @@
 /******************************************************************************/
 #include "Basic/File.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/Message.hpp"
 #include "Basic/OptCst.hpp"
 #include "Basic/VectorHelper.hpp"
+#include "Enum/ECst.hpp"
 #include "LinearOp/CholeskyDense.hpp"
 #include "LinearOp/CholeskySparse.hpp"
 #include "Matrix/AMatrix.hpp"

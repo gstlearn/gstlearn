@@ -1,5 +1,6 @@
 #include "Basic/ListParams.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/Message.hpp"
 #include "Basic/String.hpp"
 #include "geoslib_define.h"
 #include <algorithm>

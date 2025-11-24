@@ -201,13 +201,13 @@ String PCA::toString(const AStringFormat* strfmt) const
   }
   if (dsf.getflagStats())
   {
-    sstr << toMatrix("Covariance Matrix", _c0);
+    sstr << toStrMatrix("Covariance Matrix", _c0);
     if (_gh.size() > 0)
-      sstr << toMatrix("Variogram Matrix at lag h", _gh);
+      sstr << toStrMatrix("Variogram Matrix at lag h", _gh);
 
-    sstr << toMatrix("Matrix MZ2F to transform standardized Variables Z into Factors F", _Z2F);
+    sstr << toStrMatrix("Matrix MZ2F to transform standardized Variables Z into Factors F", _Z2F);
     sstr << "Y = (Z - m) * MZ2F)" << std::endl;
-    sstr << toMatrix("Matrix MF2Z to back-transform Factors F into standardized Variables Z", _F2Z);
+    sstr << toStrMatrix("Matrix MF2Z to back-transform Factors F into standardized Variables Z", _F2Z);
     sstr << "Z = m + Y * MF2Z" << std::endl;
   }
   return sstr.str();

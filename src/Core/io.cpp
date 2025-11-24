@@ -9,8 +9,8 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Core/io.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/File.hpp"
+#include "Basic/Message.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/String.hpp"
 #include "geoslib_define.h"

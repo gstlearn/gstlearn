@@ -9,19 +9,19 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Basic/OptDbg.hpp"
-#include "Basic/AStringable.hpp"
+#include "Basic/Message.hpp"
 #include "Basic/String.hpp"
 
 #include <algorithm>
+#include <iomanip>
 #include <iostream>
 #include <sstream>
-#include <iomanip>
 
 namespace gstlrn
 {
 std::vector<EDbg> OptDbg::_dbg = std::vector<EDbg>();
-Id OptDbg::_currentIndex = -1;
-Id OptDbg::_reference = -1;
+Id OptDbg::_currentIndex       = -1;
+Id OptDbg::_reference          = -1;
 
 void OptDbg::reset()
 {
@@ -45,9 +45,11 @@ bool OptDbg::query(const EDbg& option, bool discardForce)
 
   if (force()) return true;
 #ifdef USE_BOOST_SPAN
-  return std::any_of(_dbg.cbegin(), _dbg.cend(), [&option](const auto& e) { return e == option; });
+  return std::any_of(_dbg.cbegin(), _dbg.cend(), [&option](const auto& e)
+                     { return e == option; });
 #else
-  return std::ranges::any_of(_dbg, [&option](const auto& e) { return e == option; });
+  return std::ranges::any_of(_dbg, [&option](const auto& e)
+                             { return e == option; });
 #endif
 }
 
@@ -144,19 +146,17 @@ void OptDbg::display()
 {
   std::stringstream sstr;
 
-  sstr << toStrTitle(1,"List of Debug Options");
+  sstr << toStrTitle(1, "List of Debug Options");
   auto it = EDbg::getIterator();
   while (it.hasNext())
   {
     EDbg e = *it;
-    sstr << std::setw(30) << e.getDescr() <<
-        "[ " << std::setw(9) << e.getKey() << "]" <<
-        " : " << query(e, true) << std::endl;
+    sstr << std::setw(30) << e.getDescr() << "[ " << std::setw(9) << e.getKey() << "]" << " : " << query(e, true) << std::endl;
     it.toNext();
   }
 
   if (_reference >= 0)
-     sstr << "Index of the reference target under DEBUG = " << _reference << std::endl;
+    sstr << "Index of the reference target under DEBUG = " << _reference << std::endl;
 
   sstr << "Use 'OptDbg::define' to modify the previous values" << std::endl;
   sstr << "Use 'OptDbg::setReference' to define the target index where all flags are turned ON" << std::endl;
@@ -170,4 +170,4 @@ bool OptDbg::force(void)
   if (_currentIndex != _reference) return false;
   return true;
 }
-}
+} // namespace gstlrn

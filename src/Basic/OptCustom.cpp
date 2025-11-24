@@ -9,7 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Basic/OptCustom.hpp"
-#include "Basic/AStringable.hpp"
+#include "Basic/Message.hpp"
 #include "Basic/String.hpp"
 
 #include <iomanip>

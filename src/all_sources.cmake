@@ -220,6 +220,7 @@ set(SRC
   Basic/ParamInfo.cpp
   Basic/ListParams.cpp
   Basic/Limits.cpp
+  Basic/StringHelper.cpp
   Basic/AStringable.cpp
   Basic/AStringFormat.cpp
   Basic/GlobalEnvironment.cpp

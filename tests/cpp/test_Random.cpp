@@ -12,12 +12,13 @@
  * This test is meant to check the generation of random values
  */
 
-#include "Basic/AStringable.hpp"
+#include "Basic/Message.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/MathFunc.hpp"
 #include "Basic/OptCst.hpp"
 #include "Basic/VectorHelper.hpp"
+#include "Enum/ECst.hpp"
 
 using namespace gstlrn;
 

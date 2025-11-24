@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Basic/AStringable.hpp"
+#include "geoslib_io.h"
 
 #include <cstdio>
 #include <cstring>

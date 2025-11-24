@@ -14,6 +14,7 @@
 // - in Moving and Unique Neighborhood
 // A printout is provided
 
+#include "Enum/ECst.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"

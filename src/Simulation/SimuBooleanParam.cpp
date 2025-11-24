@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Simulation/SimuBooleanParam.hpp"
+#include "Basic/String.hpp"
 
 namespace gstlrn
 {

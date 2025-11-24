@@ -8,12 +8,13 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Basic/AStringable.hpp"
 #include "Basic/File.hpp"
+#include "Basic/Message.hpp"
 #include "Basic/OptCst.hpp"
 #include "Basic/OptCustom.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/VectorHelper.hpp"
+#include "Enum/ECst.hpp"
 
 using namespace gstlrn;
 

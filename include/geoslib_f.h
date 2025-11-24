@@ -10,14 +10,16 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
+
+#include "geoslib_d.h"
+
 #include "Basic/NamingConvention.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Model/Model.hpp"
 #include "Stats/Selectivity.hpp"
 #include "Variogram/DirParam.hpp"
 #include "Variogram/Vario.hpp"
-#include "geoslib_d.h"
-#include "gstlearn_export.hpp"
 
 namespace gstlrn
 {

@@ -10,42 +10,43 @@
 /******************************************************************************/
 #include "Basic/Indirection.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/Message.hpp"
 
 namespace gstlrn
-{ 
+{
 Indirection::Indirection(Id mode)
-    : AStringable(),
-      _defined(false),
-      _mode(mode),
-      _nabs(0),
-      _nrel(0),
-      _vecRToA(),
-      _vecAToR(),
-      _mapAToR()
+  : AStringable()
+  , _defined(false)
+  , _mode(mode)
+  , _nabs(0)
+  , _nrel(0)
+  , _vecRToA()
+  , _vecAToR()
+  , _mapAToR()
 {
 }
 
-Indirection::Indirection(const Indirection &m)
-    : AStringable(m),
-      _defined(m._defined),
-      _mode(m._mode),
-      _nabs(m._nabs),
-      _nrel(m._nrel),
-      _vecRToA(m._vecRToA),
-      _vecAToR(m._vecAToR),
-      _mapAToR(m._mapAToR)
+Indirection::Indirection(const Indirection& m)
+  : AStringable(m)
+  , _defined(m._defined)
+  , _mode(m._mode)
+  , _nabs(m._nabs)
+  , _nrel(m._nrel)
+  , _vecRToA(m._vecRToA)
+  , _vecAToR(m._vecAToR)
+  , _mapAToR(m._mapAToR)
 {
 }
 
-Indirection& Indirection::operator=(const Indirection &m)
+Indirection& Indirection::operator=(const Indirection& m)
 {
   if (this != &m)
   {
     AStringable::operator=(m);
     _defined = m._defined;
-    _mode = m._mode;
-    _nabs = m._nabs;
-    _nrel = m._nrel;
+    _mode    = m._mode;
+    _nabs    = m._nabs;
+    _nrel    = m._nrel;
     _vecRToA = m._vecRToA;
     _vecAToR = m._vecAToR;
     _mapAToR = m._mapAToR;
@@ -67,8 +68,8 @@ String Indirection::toString(const AStringFormat* strfmt) const
     sstr << "- Information (AToR) is stored as Array of Integers" << std::endl;
   else
     sstr << "- Information (AToR) is stored as a Map" << std::endl;
-  sstr << "- Number of absolute positions = " <<  _nabs << std::endl;
-  sstr << "- Number of active positions   = " <<  _nrel << std::endl;
+  sstr << "- Number of absolute positions = " << _nabs << std::endl;
+  sstr << "- Number of active positions   = " << _nrel << std::endl;
 
   return sstr.str();
 }
@@ -96,12 +97,12 @@ void Indirection::buildFromSel(const VectorDouble& sel)
 {
   _resetMap();
   _nabs = static_cast<Id>(sel.size());
-  if (_mode == 0) _vecAToR.resize(_nabs,-1);
+  if (_mode == 0) _vecAToR.resize(_nabs, -1);
 
   Id irel = 0;
   for (Id iabs = 0; iabs < _nabs; iabs++)
   {
-    if (! sel[iabs]) continue;
+    if (!sel[iabs]) continue;
     if (_mode == 0)
       _vecAToR[iabs] = irel;
     else
@@ -109,11 +110,11 @@ void Indirection::buildFromSel(const VectorDouble& sel)
     _vecRToA.push_back(iabs);
     irel++;
   }
-  _nrel = irel;
+  _nrel    = irel;
   _defined = true;
 }
 
-void Indirection::buildFromMap(const std::map<Id, Id> &map, Id nabs)
+void Indirection::buildFromMap(const std::map<Id, Id>& map, Id nabs)
 {
   _resetMap();
   _nabs = nabs;
@@ -127,7 +128,7 @@ void Indirection::buildFromMap(const std::map<Id, Id> &map, Id nabs)
 
   for (auto it = map.begin(); it != map.end(); it++)
   {
-    _vecRToA[it->second]  = it->first;
+    _vecRToA[it->second] = it->first;
     if (_mode == 0) _vecAToR[it->first] = it->second;
   }
   _defined = true;
@@ -139,7 +140,7 @@ void Indirection::buildFromRankRInA(const VectorInt& rels, Id nabs)
   _nabs = nabs;
   _nrel = static_cast<Id>(rels.size());
 
-  if (_mode == 0) _vecAToR.resize(_nabs,-1);
+  if (_mode == 0) _vecAToR.resize(_nabs, -1);
 
   Id iabs;
   for (Id irel = 0; irel < _nrel; irel++)
@@ -163,7 +164,7 @@ Id Indirection::getAToR(Id iabs) const
 Id Indirection::getRToA(Id irel) const
 {
   if (_vecRToA.empty()) return irel;
-  if (! _isValidRel(irel)) return ITEST;
+  if (!_isValidRel(irel)) return ITEST;
   return _vecRToA[irel];
 }
 
@@ -180,7 +181,7 @@ bool Indirection::_isValidRel(Id irel) const
 Id Indirection::_getArrayAToR(Id iabs) const
 {
   if (_vecAToR.empty()) return iabs;
-  if (! _isValidAbs(iabs)) return ITEST;
+  if (!_isValidAbs(iabs)) return ITEST;
   return _vecAToR[iabs];
 }
 
@@ -196,4 +197,4 @@ Id Indirection::_getMapAToR(Id iabs) const
   Id irel = _mapAToR.find(iabs)->second;
   return irel;
 }
-}
+} // namespace gstlrn

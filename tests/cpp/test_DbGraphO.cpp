@@ -10,8 +10,10 @@
 /******************************************************************************/
 #include "Basic/File.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/Message.hpp"
 #include "Basic/OptCst.hpp"
 #include "Db/DbGraphO.hpp"
+#include "Enum/ECst.hpp"
 #include "Enum/ESpaceType.hpp"
 #include "Space/ASpaceObject.hpp"
 

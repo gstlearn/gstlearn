@@ -10,7 +10,7 @@
 /******************************************************************************/
 #include "LinearOp/OptimCostColored.hpp"
 #include "Basic/AException.hpp"
-#include "Basic/AStringable.hpp"
+#include "Basic/Message.hpp"
 #include "LinearOp/OptimCostBinary.hpp"
 
 namespace gstlrn

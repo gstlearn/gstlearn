@@ -9,7 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Tree/KNN.hpp"
-#include "Basic/AStringable.hpp"
+#include "Basic/Message.hpp"
 #include "Tree/ball_algorithm.h"
 
 namespace gstlrn
@@ -51,10 +51,10 @@ bool KNN::_query(const t_btree& tree,
 }
 
 Id KNN::btree_query(const t_btree& tree,
-                     const MatrixT<double>& x,
-                     Id n_samples,
-                     Id n_features,
-                     Id n_neigh)
+                    const MatrixT<double>& x,
+                    Id n_samples,
+                    Id n_features,
+                    Id n_neigh)
 {
   auto res = _query(tree, x, n_samples, n_features, n_neigh);
   if (!res) return 1;
@@ -66,13 +66,13 @@ Id KNN::btree_query(const t_btree& tree,
 }
 
 Id KNN::btree_query_inPlace(const t_btree& tree,
-                             const MatrixT<double>& x,
-                             Id n_samples,
-                             Id n_features,
-                             Id n_neigh,
-                             Id rank,
-                             VectorInt& indices,
-                             VectorDouble& distances)
+                            const MatrixT<double>& x,
+                            Id n_samples,
+                            Id n_features,
+                            Id n_neigh,
+                            Id rank,
+                            VectorInt& indices,
+                            VectorDouble& distances)
 {
   if (rank < 0 || rank >= n_samples) return 1;
 

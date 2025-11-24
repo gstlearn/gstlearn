@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Matrix/MatrixInt.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/Message.hpp"
 
 namespace gstlrn
 {

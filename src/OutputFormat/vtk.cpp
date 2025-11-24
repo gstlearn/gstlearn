@@ -56,8 +56,8 @@ License: BSD 3-clause
 // ************************************************************************* */
 #include "OutputFormat/vtk.h"
 
-#include "Basic/AStringable.hpp"
 #include "Basic/File.hpp"
+#include "Basic/Message.hpp"
 #include "Basic/String.hpp"
 
 #include <cstring>
@@ -160,7 +160,7 @@ static void force_big_endian(unsigned char* bytes)
   if (!doneTest)
   {
     Id tmp1    = 1;
-    auto* tmp2 = (unsigned char*)&tmp1;
+    auto* tmp2 = reinterpret_cast<unsigned char*>(&tmp1);
     if (*tmp2 != 0)
       shouldSwap = 1;
     doneTest = 1;

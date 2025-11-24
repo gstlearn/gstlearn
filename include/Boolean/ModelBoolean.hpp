@@ -12,8 +12,9 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Simulation/BooleanObject.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/VectorT.hpp"
+#include "Simulation/BooleanObject.hpp"
 
 namespace gstlrn
 {
@@ -23,8 +24,8 @@ class GSTLEARN_EXPORT ModelBoolean: public AStringable
 {
 public:
   ModelBoolean(double thetaCst = 1., bool flagStat = true);
-  ModelBoolean(const ModelBoolean &r);
-  ModelBoolean& operator=(const ModelBoolean &r);
+  ModelBoolean(const ModelBoolean& r);
+  ModelBoolean& operator=(const ModelBoolean& r);
   virtual ~ModelBoolean();
 
   /// Interface to AStringable
@@ -36,15 +37,15 @@ public:
   BooleanObject* generateObject(Id ndim) const;
   const AShape* getToken(Id itok) const { return _shapes[itok]; }
 
-  bool   isFlagStat() const { return _flagStat; }
+  bool isFlagStat() const { return _flagStat; }
   double getThetaCst() const { return _thetaCst; }
 
   void setFlagStat(bool flagStat) { _flagStat = flagStat; }
   void setThetaCst(double thetaCst) { _thetaCst = thetaCst; }
 
 private:
-  bool   _flagStat;
+  bool _flagStat;
   double _thetaCst;
   std::vector<AShape*> _shapes; // List of the Token
 };
-}
+} // namespace gstlrn

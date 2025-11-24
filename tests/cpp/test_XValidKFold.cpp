@@ -13,6 +13,7 @@
 #include "Basic/OptCst.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Db/Db.hpp"
+#include "Enum/ECst.hpp"
 #include "Enum/ELoadBy.hpp"
 #include "Enum/ESpaceType.hpp"
 #include "Estimation/CalcKriging.hpp"

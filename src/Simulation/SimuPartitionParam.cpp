@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Simulation/SimuPartitionParam.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/String.hpp"
 
 #include <cmath>
 

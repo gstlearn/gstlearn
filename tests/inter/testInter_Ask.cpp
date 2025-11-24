@@ -8,7 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Basic/AStringable.hpp"
+#include "Basic/Message.hpp"
 #include "Basic/String.hpp"
 
 /**

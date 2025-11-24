@@ -13,6 +13,7 @@
 // - either by using the corresponding API
 // - or by solving the Kriging problem by hand
 
+#include "Enum/ECst.hpp"
 #include "geoslib_f.h"
 
 #include "Enum/ESpaceType.hpp"

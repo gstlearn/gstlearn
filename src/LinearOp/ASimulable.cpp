@@ -9,7 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "LinearOp/ASimulable.hpp"
-#include "Basic/AStringable.hpp"
+#include "Basic/Message.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "geoslib_define.h"

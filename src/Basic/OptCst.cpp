@@ -8,16 +8,16 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Basic/Message.hpp"
 #include "Enum/ECst.hpp"
 
 #include "Basic/OptCst.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/String.hpp"
 
-#include <iostream>
-#include <sstream>
 #include <iomanip>
+#include <iostream>
 #include <map>
+#include <sstream>
 
 namespace gstlrn
 {
@@ -25,15 +25,15 @@ namespace gstlrn
  * Setting the default values for the parameters
  */
 std::map<Id, double> OptCst::_cst =
- {{ ECst::E_NTCAR,  10. },
-  { ECst::E_NTDEC,   3. },
-  { ECst::E_NTROW,   7. },
-  { ECst::E_NTCOL,   7. },
-  { ECst::E_NTBATCH, 7. },
-  { ECst::E_NTNAME, 12. },
-  { ECst::E_NTRANK,  3. },
-  { ECst::E_NPROC,   0. },
-  { ECst::E_LOCMOD,  1. }};
+  {{ECst::E_NTCAR, 10.},
+   {ECst::E_NTDEC, 3.},
+   {ECst::E_NTROW, 7.},
+   {ECst::E_NTCOL, 7.},
+   {ECst::E_NTBATCH, 7.},
+   {ECst::E_NTNAME, 12.},
+   {ECst::E_NTRANK, 3.},
+   {ECst::E_NPROC, 0.},
+   {ECst::E_LOCMOD, 1.}};
 
 double OptCst::query(const ECst& option)
 {
@@ -56,7 +56,7 @@ double OptCst::queryByKey(const String& name)
 
 void OptCst::define(const ECst& option, double value)
 {
-  for (auto &e: _cst)
+  for (auto& e: _cst)
   {
     if (e.first == option.getValue())
     {
@@ -68,7 +68,7 @@ void OptCst::define(const ECst& option, double value)
 
 void OptCst::defineByKey(const String& name, double value)
 {
-  for (auto &e: _cst)
+  for (auto& e: _cst)
   {
     if (ECst::fromValue(e.first).getKey() == toUpper(name))
     {
@@ -82,18 +82,16 @@ void OptCst::display()
 {
   std::stringstream sstr;
 
-  sstr << toStrTitle(1,"List of Options of internal Constant values");
+  sstr << toStrTitle(1, "List of Options of internal Constant values");
 
   for (auto e: _cst)
   {
     ECst ec = ECst::fromValue(e.first);
-    sstr << std::setw(50) << ec.getDescr() <<
-        " [" << std::setw(7) << ec.getKey() << "]" << " : " <<
-        e.second << std::endl;
+    sstr << std::setw(50) << ec.getDescr() << " [" << std::setw(7) << ec.getKey() << "]" << " : " << e.second << std::endl;
   }
 
   sstr << "Use 'OptCst::define' to modify the previous values" << std::endl;
 
   messageFlush(sstr.str());
 }
-}
+} // namespace gstlrn

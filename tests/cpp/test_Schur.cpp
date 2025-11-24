@@ -9,8 +9,10 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Basic/AStringFormat.hpp"
+#include "Basic/Message.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/VectorHelper.hpp"
+#include "Enum/ECst.hpp"
 #include "Enum/ESpaceType.hpp"
 
 #include "Basic/File.hpp"

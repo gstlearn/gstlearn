@@ -10,10 +10,15 @@
 /******************************************************************************/
 #pragma once
 
-#include "Basic/AStringFormat.hpp"
-#include "Basic/Message.hpp"
-#include "geoslib_define.h"
 #include "gstlearn_export.hpp"
+
+#include "geoslib_define.h"
+
+#include "Basic/AStringFormat.hpp"
+
+// Even if not used directly here, this include is used in all subsequent functions
+// composing the stream (as required in toString() method)
+#include <sstream>
 
 namespace gstlrn
 {

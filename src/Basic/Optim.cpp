@@ -10,13 +10,13 @@
 /******************************************************************************/
 
 #include "Basic/Optim.hpp"
-#include "Basic/AStringable.hpp"
+#include "Basic/Message.hpp"
 #include <nlopt.h>
 // #define DEBUG_OPTIM
 namespace gstlrn
 {
 Optim::Optim(opt_algorithm algo, Id dim)
-  : _opt(nlopt_create((nlopt_algorithm)algo, static_cast<unsigned int>(dim)))
+  : _opt(nlopt_create(static_cast<nlopt_algorithm>(algo), static_cast<unsigned int>(dim)))
   , _authorizedAnalyticalGradients(true)
 {
   if (!_opt) throw std::runtime_error("Échec de création de l'optimiseur NLopt");
@@ -92,7 +92,7 @@ void Optim::setLowerBounds(const std::vector<double>& lb,
 
   // Dispatch non vide → construire les bornes réduites
   Id n_reduced = 0;
-  for (auto j: dispatch) n_reduced = std::max(n_reduced, (Id)j);
+  for (auto j: dispatch) n_reduced = std::max(n_reduced, static_cast<Id>(j));
   n_reduced += 1; // indices 0-based
 
   std::vector<double> lb_reduced(n_reduced, -HUGE_VAL);
@@ -117,7 +117,7 @@ void Optim::setUpperBounds(const std::vector<double>& ub,
 
   // Dispatch non vide → construire les bornes réduites
   Id n_reduced = 0;
-  for (auto j: dispatch) n_reduced = std::max(n_reduced, (Id)j);
+  for (auto j: dispatch) n_reduced = std::max(n_reduced, static_cast<Id>(j));
   n_reduced += 1; // indices 0-based
 
   std::vector<double> ub_reduced(n_reduced, HUGE_VAL);

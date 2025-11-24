@@ -13,6 +13,7 @@
 #include "gstlearn_export.hpp"
 
 #include "Basic/AStringable.hpp"
+#include "Basic/VectorNumT.hpp"
 
 namespace gstlrn
 {

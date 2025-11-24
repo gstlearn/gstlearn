@@ -10,10 +10,12 @@
 /******************************************************************************/
 #include "Basic/File.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/Message.hpp"
 #include "Basic/OptCst.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Db/RankHandler.hpp"
+#include "Enum/ECst.hpp"
 
 using namespace gstlrn;
 
