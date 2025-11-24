@@ -268,6 +268,10 @@ void Tensor::_direct2ToInverse2()
   {
     _tensorDirect2.invert2x2(_tensorInverse2);
   }
+  else if(_tensorDirect2.getNCols() == 3 && _tensorDirect2.getNRows() == 3)
+  {
+    _tensorDirect2.invert3x3(_tensorInverse2);
+  }
   else
   {
     _tensorInverse2.eigenMat().noalias() = _tensorDirect2.eigenMat().inverse();

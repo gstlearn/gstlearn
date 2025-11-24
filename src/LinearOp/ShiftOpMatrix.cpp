@@ -738,11 +738,17 @@ Id ShiftOpMatrix::_prepareMatricesSVariety(const AMesh* amesh,
 
   // Calculate (M^t %*% M)^{-1}
   bool res = false;
+  thread_local MatrixSymmetric matMtM2;
+
   if (matMtM.getNCols() == 2 && matMtM.getNRows() == 2)
   {
-    thread_local MatrixSymmetric matMtM2;
     matMtM2 = matMtM;
     res     = matMtM2.invert2x2(matMtM);
+  }
+  else if (matMtM.getNCols() == 3 && matMtM.getNRows() == 3)
+  {
+    matMtM2 = matMtM;
+    res     = matMtM2.invert3x3(matMtM);
   }
 
   if (!res && matMtM.invert())
