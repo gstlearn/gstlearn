@@ -1472,8 +1472,7 @@ void CorAniso::updateCovByPoints(Id icas1, Id iech1, Id icas2, Id iech2) const
     double det2             = sqrt(sqrt(direct2.determinant()));
 
     // Calculate average squared tensor
-    direct2.eigenMat() *= 0.5;
-    direct2.eigenMat().noalias() += direct1.eigenMat() * 0.5;
+    direct2.addMatNoCheck(direct1, 0.5, 0.5);
     double detM = sqrt(direct2.determinant());
 
     // Update the tensor (squared version)
