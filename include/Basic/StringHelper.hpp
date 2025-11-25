@@ -52,6 +52,13 @@ GSTLEARN_EXPORT String _toStrColumnHeaders(const VectorString& colnames,
 
 GSTLEARN_EXPORT String _toStrTrailer(Id ncols, Id nrows, Id ncols_util, Id nrows_util);
 
+GSTLEARN_EXPORT Id _convertToId(const String& v, char dec = '.');
+GSTLEARN_EXPORT double _convertToDouble(const String& v, char dec = '.');
+
+GSTLEARN_EXPORT Id _askInt(const String& v, Id defval = getNA<Id>(), bool authTest = true);
+GSTLEARN_EXPORT double _askDouble(const String& v, double defval = getNA<double>(), bool authTest = true);
+GSTLEARN_EXPORT bool _askBool(const String& v, bool defval = false, bool authTest = true);
+
 #endif
 
 } // namespace gstlrn

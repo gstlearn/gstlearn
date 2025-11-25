@@ -13,17 +13,14 @@
 #include "Basic/String.hpp"
 #include "Enum/ECst.hpp"
 
-#include <algorithm>
 #include <cctype>
 #include <cmath>
 #include <cstdarg>
-#include <cstddef>
 #include <cstdio>
 #include <cstring>
 #include <iomanip>
 #include <iostream>
 #include <locale>
-#include <regex>
 #include <sstream>
 
 #define CASE_DOUBLE 0
@@ -158,4 +155,242 @@ String _toStrTrailer(Id ncols, Id nrows, Id ncols_util, Id nrows_util)
   if (one_used) sstr << ")" << std::endl;
   return sstr.str();
 }
+
+/**
+ * Decode an double from a string. Returns TEST if impossible
+ * @param v String to be decoded
+ * @param dec Decimal separator character
+ * @return The double value or TEST (in case of failure)
+ */
+template<typename T>
+class dec_separator: public std::numpunct<T>
+{
+public:
+  dec_separator(char dec = ',')
+    : _dec(dec)
+  {
+  }
+
+private:
+  typename std::numpunct<T>::char_type do_decimal_point() const override
+  {
+    return _dec;
+  }
+  char _dec;
+};
+
+/**
+ * Decode an integer from a string. Returns ITEST when impossible
+ * @param v String to be decoded
+ * @param dec Symbol used for decimal point (unused here)
+ * @return The integer value or ITEST (in case of failure)
+ */
+Id _convertToId(const String& v, char dec)
+{
+  DECLARE_UNUSED(dec);
+  std::istringstream iss(v);
+  Id number;
+  iss >> number;
+  if (iss.fail()) return ITEST;
+  return number;
+}
+
+/**
+ * Decode a double value from a string. Returns TEST when impossible
+ * @param v String to be decoded
+ * @param dec Symbol used for decimal point
+ * @return The double value or TEST (in case of failure)
+ */
+double _convertToDouble(const String& v, char dec)
+{
+  std::istringstream iss(v);
+  double number;
+  iss.imbue(std::locale(iss.getloc(), new dec_separator<char>(dec)));
+  iss >> number;
+  if (iss.fail()) return TEST;
+  return number;
+}
+
+/**
+ * Ask interactively for the value of one integer
+ * @param v Text of the question
+ * @param defval Default value (or IFFFF)
+ * @param authTest True if TEST value is authorized (TEST)
+ */
+Id _askInt(const String& v, Id defval, bool authTest)
+{
+  bool hasDefault = !IFFFF(defval) || authTest;
+  Id answer       = defval;
+  std::cin.exceptions(std::istream::failbit | std::istream::badbit);
+
+  try
+  {
+    while (true)
+    {
+      // Display the question
+      if (hasDefault)
+      {
+        if (IFFFF(defval))
+          std::cout << v << " (Default = TEST) : ";
+        else
+          std::cout << v << " (Default = " << defval << ") : ";
+      }
+      else
+        std::cout << v << " : ";
+
+      // Read the answer
+      String str;
+      std::getline(std::cin, str);
+
+      // Check for empty line: set to default value
+      if (str.empty() && hasDefault)
+      {
+        answer = defval;
+        break;
+      }
+
+      // Check the TEST answer
+
+      if (authTest && str == "TEST")
+      {
+        answer = ITEST;
+        break;
+      }
+
+      // Try casting in integer
+      std::stringstream ss(str);
+      if (ss >> answer) break;
+
+      std::cout << "The answer is not a valid integer!" << std::endl;
+    }
+  }
+  catch (std::istream::failure& e)
+  {
+    std::cerr << "Problem when reading integer:" << e.what() << std::endl;
+  }
+  return answer;
+}
+
+/**
+ * Ask interactively for the value of one Real (Double value)
+ * @param v Text of the question
+ * @param defval Default value (or IFFFF)
+ * @param authTest True if a TEST answer is authorized (TEST)
+ */
+double _askDouble(const String& v, double defval, bool authTest)
+{
+  bool hasDefault = !FFFF(defval) || authTest;
+  double answer   = defval;
+  std::cin.exceptions(std::istream::failbit | std::istream::badbit);
+
+  try
+  {
+    while (true)
+    {
+      // Display the question
+      if (hasDefault)
+      {
+        if (FFFF(defval))
+          std::cout << v << " (Default = TEST) : ";
+        else
+          std::cout << v << " (Default = " << defval << ") : ";
+      }
+      else
+        std::cout << v << " : ";
+
+      // Read the answer
+      String str;
+      std::getline(std::cin, str);
+
+      // Check for empty line: set to default value
+      if (str.empty() && hasDefault)
+      {
+        answer = defval;
+        break;
+      }
+
+      // Catch the TEST answer
+      if (authTest && str == "TEST")
+      {
+        answer = TEST;
+        break;
+      }
+
+      // Try casting in integer
+      std::stringstream ss(str);
+      if (ss >> answer) break;
+
+      std::cout << "The answer is not a valid double!" << std::endl;
+    }
+  }
+  catch (std::istream::failure& e)
+  {
+    std::cerr << "Problem when reading double:" << e.what() << std::endl;
+  }
+  return answer;
+}
+
+/**
+ * Ask interactively for the value of one boolean
+ * @param v Text of the question
+ * @param defval Default value
+ * @param authTest True if a TEST answer is authorized (TEST)
+ */
+bool _askBool(const String& v, bool defval, bool authTest)
+{
+  DECLARE_UNUSED(authTest);
+  bool hasDefault = !IFFFF(defval);
+  bool answer     = defval;
+  std::cin.exceptions(std::istream::failbit | std::istream::badbit);
+
+  try
+  {
+    while (true)
+    {
+      // Display the question
+      if (hasDefault)
+      {
+        String defstr;
+        if (defval)
+          defstr = "Y";
+        else
+          defstr = "N";
+        std::cout << v << " (Default = " << defstr << ") : ";
+      }
+      else
+        std::cout << v << " : ";
+
+      // Read the answer
+      String str;
+      std::getline(std::cin, str);
+
+      // Check for empty line: set to default value
+      if (str.empty() && hasDefault)
+      {
+        answer = defval;
+        break;
+      }
+
+      // Try checking authorized answer
+      if (str == "Y")
+      {
+        answer = true;
+        break;
+      }
+      if (str == "N")
+      {
+        answer = false;
+        break;
+      }
+
+      std::cout << "The answer is not a valid bool!" << std::endl;
+    }
+  }
+  catch (std::istream::failure& e)
+  {
+    std::cerr << "Problem when reading bool:" << e.what() << std::endl;
+  }
+  return answer;
+}
+
 } // namespace gstlrn

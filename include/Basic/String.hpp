@@ -92,9 +92,30 @@ GSTLEARN_EXPORT VectorInt decodeGridSorting(const String& string,
  * @param defval Default value
  * @param authTest If an NA answer is authorized
  */
-GSTLEARN_EXPORT double questionDouble(const String& v, double defval = TEST, bool authTest = false);
-GSTLEARN_EXPORT Id questionId(const String& v, Id defval = ITEST, bool authTest = false);
-GSTLEARN_EXPORT bool questionBool(const String& v, bool defval = false, bool authTest = false);
+// Template générique (déclaré mais pas défini)
+template<typename T>
+T question(const String& v, T defval = getNA<T>(), bool authTest = false);
+
+// Spécialisation pour double
+template<>
+inline double question<double>(const String& v, double defval, bool authTest)
+{
+  return _askDouble(v, defval, authTest);
+}
+
+// Spécialisation pour Id
+template<>
+inline Id question<Id>(const String& v, Id defval, bool authTest)
+{
+  return _askInt(v, defval, authTest);
+}
+
+// Spécialisation pour bool
+template<>
+inline bool question<bool>(const String& v, bool defval, bool authTest)
+{
+  return _askBool(v, defval, authTest);
+}
 
 /**
  * @brief Convert the contents of any argument (double, Id, String) into a String
@@ -138,8 +159,23 @@ GSTLEARN_EXPORT String toStrVectorVec(const String& title,
  * @param string Input string
  * @param dec Number of decimals (only used for Double conversion)
  */
-GSTLEARN_EXPORT double fromStrToDouble(const String& string, char dec = '.');
-GSTLEARN_EXPORT Id fromStrToId(const String& string, char dec = '.');
+// Template générique (non défini)
+template<typename T>
+T fromStr(const String& s, char dec = '.');
+
+// Spécialisation pour double
+template<>
+inline double fromStr<double>(const String& s, char dec)
+{
+  return _convertToDouble(s, dec);
+}
+
+// Spécialisation pour Id
+template<>
+inline Id fromStr<Id>(const String& s, char dec)
+{
+  return _convertToId(s, dec);
+}
 
 /**
  * Print the contents of a VectorDouble in a Matrix Form
