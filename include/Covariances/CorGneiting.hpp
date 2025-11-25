@@ -37,7 +37,7 @@ public:
   static CorGneiting* create(const ECov& type,
                              const CovContext& ctxt,
                              const VectorDouble& params,
-                             const VectorDouble& ranges = VectorDouble(),
+                             const VectorDouble& ranges,
                              const VectorDouble& angles = VectorDouble(),
                              double separability        = 1.0,
                              bool flagRange             = false);
@@ -52,6 +52,7 @@ public:
   /// ACov Interface
 
   Id getNVar() const override { return 1; }
+  bool isValidForSpectral() const override;
   MatrixDense simulateSpectralOmega(Id nb) const override;
 
 protected:
@@ -62,7 +63,7 @@ protected:
                Id jvar                 = 0,
                const CovCalcMode* mode = nullptr) const override;
   // private:
-  //  void _optimizationPreProcess(int mode, const std::vector<SpacePoint>& ps) const override;
+  // void _optimizationPreProcess(int mode, const std::vector<SpacePoint>& ps) const override;
   // void _optimizationPostProcess() const override;
 
 private:

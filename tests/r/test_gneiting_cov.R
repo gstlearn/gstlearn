@@ -1,9 +1,6 @@
 # CorGneiting class: test of the covariance functions
-
-knitr::opts_chunk$set(echo = TRUE)
-library(gstlearn)
 rm(list = ls())
-# source(file = "./function_gneiting_model.R")
+suppressWarnings(suppressMessages(library(gstlearn)))
 
 # auxiliary functions
 kernel_power_exponential <- function(t, alpha = 2.0) {

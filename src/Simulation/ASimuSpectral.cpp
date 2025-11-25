@@ -9,15 +9,18 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Simulation/ASimuSpectral.hpp"
+#include "Basic/AStringable.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/ACov.hpp"
 #include "Db/Db.hpp"
+#include "Enum/ESpaceType.hpp"
 #include "Model/Model.hpp"
 #include "Model/ModelGeneric.hpp"
 #include "Simulation/SimuSpectralRN.hpp"
 #include "Simulation/SimuSpectralS2.hpp"
+#include "Space/ASpaceObject.hpp"
 #include "Stats/Classical.hpp"
 #include "geoslib_define.h"
 
@@ -245,7 +248,19 @@ Id simuSpectral(Db* dbin,
 
   // Instantiate the SimuSpectral class
   std::unique_ptr<ASimuSpectral> simu = nullptr;
-  if (getDefaultSpaceType() == ESpaceType::RN)
+  if (getDefaultSpaceType() == ESpaceType::COMPOSITE)
+  {
+    if(getDefaultSpace()->getComponent(0)->getType() == ESpaceType::RN) 
+    { // The RN x time model is simulated as a R(N+1) model (see CorGneiting)
+    simu = std::make_unique<SimuSpectralRN>(cova);
+    } 
+    else 
+    {
+    messerr("Space time model on S2 not yet implemented");
+    // simu = std::make_unique<SimuSpectralS2>(cova);
+    }
+  }
+  else if (getDefaultSpaceType() == ESpaceType::RN)
   {
     simu = std::make_unique<SimuSpectralRN>(cova);
   }
