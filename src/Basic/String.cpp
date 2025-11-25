@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Basic/String.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/Message.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Matrix/AMatrix.hpp"
 
@@ -180,7 +181,7 @@ String toStrInterval(double zmin, double zmax)
     sstr << "N/A";
   else
     sstr << zmin;
-  message(" ; ");
+  sstr << " ; ";
   if (FFFF(zmax))
     sstr << "N/A";
   else

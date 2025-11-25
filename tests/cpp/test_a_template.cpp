@@ -8,6 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Basic/OptCst.hpp"
 #include "Db/DbGrid.hpp"
 #include "Enum/ECst.hpp"
 #include "LinearOp/ProjMatrix.hpp"
@@ -59,7 +60,7 @@ int main(int argc, char* argv[])
     "SEL", gstlrn::ELoc::SEL);
   gstlrn::MeshETurbo* mesh = gstlrn::MeshETurbo::createFromGrid(db_out);
 
-  gstlrn::ProjMatrix* proj2D = gstlrn::ProjMatrix::create(db_out, mesh, -1, true);
+  gstlrn::ProjMatrix* proj2D = gstlrn::ProjMatrix::create(db_out, mesh, -1, false);
   OptCst::define(ECst::NTCOL, -1);
   OptCst::define(ECst::NTROW, -1);
   proj2D->display();

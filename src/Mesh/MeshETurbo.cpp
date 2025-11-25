@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Mesh/MeshETurbo.hpp"
 #include "Basic/Grid.hpp"
+#include "Basic/Message.hpp"
 #include "Basic/SerializeHDF5.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Db/Db.hpp"
@@ -555,7 +556,9 @@ void MeshETurbo::resetProjFromDb(ProjMatrix* m,
                                  Id rankZ,
                                  bool verbose) const
 {
-  auto ndim = getNDim();
+  auto ndim        = getNDim();
+  Id num_neighbors = 1 << ndim; // 2^ndim combinaisons de -1 et 0
+  VectorInt indgtest(ndim);
   VectorInt indg0(ndim);
   VectorDouble coor(ndim);
   _grid.initThread();
@@ -609,22 +612,9 @@ void MeshETurbo::resetProjFromDb(ProjMatrix* m,
     bool found = _addElementToTriplet(NF_T, iech, coor, indg0, verbose);
 
     // In the case the target coordinate is on the edge of the grid
-    // try to shift the point down by one node
+    // try to shift the point down by one node in any space dimension
     if (!found)
     {
-      // bool flag_correct = false;
-      // for (Id idim = 0; idim < ndim; idim++)
-      // {
-      //   if (indg0[idim] != _grid.getNX(idim) - 1) continue;
-      //   indg0[idim] -= 1;
-      //   flag_correct = true;
-      // }
-      // if (flag_correct)
-      //   found = _addElementToTriplet(NF_T, iech, coor, indg0, verbose);
-
-      Id num_neighbors = 1 << ndim; // 2^ndim combinaisons de -1 et 0
-      VectorInt indgtest(ndim);
-
       for (Id mask = 1; mask < num_neighbors; ++mask)
       {
         bool flag_correct = false;
@@ -632,13 +622,13 @@ void MeshETurbo::resetProjFromDb(ProjMatrix* m,
         for (int idim = 0; idim < ndim; ++idim)
         {
           if (indg0[idim] != _grid.getNX(idim) - 1) continue;
-          // Si le bit d est à 1, soustraire 1, sinon rester
+          // Si le bit 'idim' est à 1, soustraire 1, sinon rester
           indgtest[idim] = indg0[idim] - ((mask >> idim) & 1);
           flag_correct   = true;
         }
 
         if (flag_correct)
-          found = _addElementToTriplet(NF_T, iech, coor, indg0, verbose);
+          found = _addElementToTriplet(NF_T, iech, coor, indgtest, verbose);
       }
     }
 
@@ -646,7 +636,8 @@ void MeshETurbo::resetProjFromDb(ProjMatrix* m,
     if (!found)
     {
       if (verbose)
-        message(" does not to the meshing\n");
+        message(" does not belong to the meshing\n");
+      nout++;
     }
     iech++;
   }
