@@ -113,6 +113,27 @@ public:
                          const AMatrix* y,
                          bool transposeX = false,
                          bool transposeY = false) override;
+  template<bool transposeX, bool transposeY>
+  void prodMatMatNoCheck(const MatrixDense& x,
+                         const MatrixDense& y)
+  {
+    if constexpr (transposeX && transposeY)
+    {
+      eigenMat().noalias() = x.eigenMat().transpose() * y.eigenMat().transpose();
+    }
+    else if constexpr (transposeX)
+    {
+      eigenMat().noalias() = x.eigenMat().transpose() * y.eigenMat();
+    }
+    else if constexpr (transposeY)
+    {
+      eigenMat().noalias() = x.eigenMat() * y.eigenMat().transpose();
+    }
+    else
+    {
+      eigenMat().noalias() = x.eigenMat() * y.eigenMat();
+    }
+  }
   /*! Product 't(A)' %*% 'M' %*% 'A' or 'A' %*% 'M' %*% 't(A)' stored in 'this'*/
   void prodNormMatMatInPlace(const AMatrix* a,
                              const AMatrix* m,
@@ -133,6 +154,11 @@ public:
                          const AMatrix* mat3 = nullptr) override;
   /*! Add a matrix (multiplied by a constant) */
   void addMat(const AMatrix& y, double cx = 1., double cy = 1.) override;
+  void addMatNoCheck(const MatrixDense& y, const double cx = 1., const double cy = 1.)
+  {
+    eigenMat() *= cx;
+    eigenMat().noalias() += cy * y.eigenMat();
+  }
 
   const VectorDouble& getEigenValues() const { return _eigenValues; }
   const MatrixSquare* getEigenVectors() const { return _eigenVectors; }

@@ -79,6 +79,67 @@ double MatrixSquare::trace() const
     res += getValue(irow, irow);
   return res;
 }
+
+/**
+ * @brief Compute the inverse of this 2x2 square matrix
+ *
+ * @param[out] res Output inverse matrix
+ * @return true in case of success
+ */
+bool MatrixSquare::invert2x2(MatrixSquare& res) const
+{
+  if (this->getNCols() != 2 || this->getNRows() != 2)
+  {
+    return false;
+  }
+  const auto em  = this->eigenMat();
+  const auto det = (em(0, 0) * em(1, 1)) - (em(0, 1) * em(1, 0));
+  if (det == 0.)
+  {
+    return false;
+  }
+  res.resize(this->getNRows(), this->getNCols());
+  auto rem           = res.eigenMat();
+  rem.coeffRef(0, 0) = em(1, 1) / det;
+  rem.coeffRef(1, 1) = em(0, 0) / det;
+  rem.coeffRef(0, 1) = -em(1, 0) / det;
+  rem.coeffRef(1, 0) = -em(0, 1) / det;
+  return true;
+}
+
+/**
+ * @brief Compute the inverse of this 3x3 square matrix
+ *
+ * @param[out] res Output inverse matrix
+ * @return true in case of success
+ */
+bool MatrixSquare::invert3x3(MatrixSquare& res) const
+{
+  if (this->getNCols() != 3 || this->getNRows() != 3)
+  {
+    return false;
+  }
+  const auto em  = this->eigenMat();
+  const auto det = (em(0, 0) * em(1, 1) * em(2, 2)) + (em(0, 1) * em(1, 2) * em(2, 0)) + (em(1, 0) * em(2, 1) * em(0, 2)) - (em(2, 0) * em(1, 1) * em(0, 2)) - (em(1, 0) * em(0, 1) * em(2, 2)) - (em(2, 1) * em(1, 2) * em(0, 0));
+  if (det == 0.)
+  {
+    return false;
+  }
+  res.resize(this->getNRows(), this->getNCols());
+  auto rem           = res.eigenMat();
+  rem.coeffRef(0, 0) = (em(1, 1) * em(2, 2) - em(1, 2) * em(2, 1)) / det;
+  rem.coeffRef(0, 1) = -(em(0, 1) * em(2, 2) - em(0, 2) * em(2, 1)) / det;
+  rem.coeffRef(0, 2) = (em(0, 1) * em(1, 2) - em(0, 2) * em(1, 1)) / det;
+  rem.coeffRef(1, 0) = -(em(1, 0) * em(2, 2) - em(1, 2) * em(2, 0)) / det;
+  rem.coeffRef(1, 1) = (em(0, 0) * em(2, 2) - em(0, 2) * em(2, 0)) / det;
+  rem.coeffRef(1, 2) = -(em(0, 0) * em(1, 2) - em(0, 2) * em(1, 0)) / det;
+  rem.coeffRef(2, 0) = (em(1, 0) * em(2, 1) - em(1, 1) * em(2, 0)) / det;
+  rem.coeffRef(2, 1) = -(em(0, 0) * em(2, 1) - em(0, 1) * em(2, 0)) / det;
+  rem.coeffRef(2, 2) = (em(0, 0) * em(1, 1) - em(0, 1) * em(1, 0)) / det;
+
+  return true;
+}
+
 /**
  * Perform the product: this = t(R1) %*% X %*% R2 + t(R2) %*% X %*% R1
  * @param x: Square matrix
@@ -523,7 +584,6 @@ MatrixSquare* MatrixSquare::createFromTridiagonal(const VectorDouble& vecdiag,
   }
   return res;
 }
-
 
 Id MatrixSquare::computeEigen(bool optionPositive)
 {

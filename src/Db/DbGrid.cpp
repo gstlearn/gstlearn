@@ -729,8 +729,8 @@ void DbGrid::initThread() const
 }
 void DbGrid::getCoordinatesInPlace(VectorDouble& coor, Id iech, bool flag_rotate) const
 {
-  const VectorDouble& vec = _grid.getCoordinatesByRank(iech, flag_rotate);
-  std::copy(vec.begin(), vec.begin() + getNDim(), coor.begin());
+  coor.resize(getNDim());
+  _grid.getCoordinatesByRankInPlace(coor, iech, flag_rotate);
 }
 
 Id DbGrid::getNDim() const

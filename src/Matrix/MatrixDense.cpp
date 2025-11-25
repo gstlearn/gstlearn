@@ -521,7 +521,8 @@ void MatrixDense::divideRow(const VectorDouble& vec)
     messerr("The size of 'vec' must match the number of rows. Nothing is done");
     return;
   }
-  VectorDouble temp = VH::inverse(vec);
+  thread_local VectorDouble temp;
+  VH::inverse(temp, vec);
   Eigen::Map<const Eigen::VectorXd> vecm(temp.data(), getNCols());
   eigenMat() = vecm.asDiagonal() * eigenMat();
 }

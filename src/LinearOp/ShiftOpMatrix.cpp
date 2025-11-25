@@ -489,7 +489,8 @@ void ShiftOpMatrix::_loadHHRegular(MatrixSymmetric& hh, Id imesh)
   const MatrixSquare& rotmat = _getCovAniso()->getAnisoInvMat();
 
   VH::power(_diag, _getCovAniso()->getScales(), 2.);
-  MatrixSymmetric temp(ndim);
+  thread_local MatrixSymmetric temp;
+  temp.resize(ndim, ndim);
   temp.setDiagonal(_diag);
   hh.normMatrix(rotmat, temp);
 }
@@ -713,7 +714,7 @@ Id ShiftOpMatrix::_prepareMatricesSVariety(const AMesh* amesh,
                                            VectorVectorDouble& coords,
                                            MatrixDense& matM,
                                            MatrixSymmetric& matMtM,
-                                           AMatrix& matP,
+                                           MatrixDense& matP,
                                            double* deter) const
 {
   auto ndim  = getNDim();
@@ -736,8 +737,21 @@ Id ShiftOpMatrix::_prepareMatricesSVariety(const AMesh* amesh,
   *deter = matMtM.determinant();
 
   // Calculate (M^t %*% M)^{-1}
+  bool res = false;
+  thread_local MatrixSymmetric matMtM2;
 
-  if (matMtM.invert())
+  if (matMtM.getNCols() == 2 && matMtM.getNRows() == 2)
+  {
+    matMtM2 = matMtM;
+    res     = matMtM2.invert2x2(matMtM);
+  }
+  else if (matMtM.getNCols() == 3 && matMtM.getNRows() == 3)
+  {
+    matMtM2 = matMtM;
+    res     = matMtM2.invert3x3(matMtM);
+  }
+
+  if (!res && matMtM.invert())
   {
     messerr("Problem for Mesh #%d", imesh + 1);
     amesh->printMesh(imesh);
@@ -745,7 +759,7 @@ Id ShiftOpMatrix::_prepareMatricesSVariety(const AMesh* amesh,
   }
 
   // Calculate P = (M^t %*% M)^{-1} %*% M^t
-  matP.prodMatMatInPlace(&matMtM, &matM, false, true);
+  matP.prodMatMatNoCheck<false, true>(matMtM, matM);
   return 0;
 }
 
