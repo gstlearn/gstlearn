@@ -156,7 +156,7 @@ GSTLEARN_EXPORT String toStrVectorVec(const String& title,
 /**
  * @brief Converting the contents of a String into double or integer
  *
- * @param string Input string
+ * @param s Input string
  * @param dec Number of decimals (only used for Double conversion)
  */
 // Template générique (non défini)
