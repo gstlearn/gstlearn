@@ -51,7 +51,7 @@ GSTLEARN_EXPORT Id decodeInList(const VectorString& symbols,
                                 bool caseSensitive = true);
 GSTLEARN_EXPORT void correctNamesForDuplicates(VectorString& newList,
                                                const VectorString& oldList = VectorString());
-GSTLEARN_EXPORT void correctNewNameForDuplicates(VectorString& list, Id target);
+GSTLEARN_EXPORT void correctNewNameForDuplicates(VectorString& list, Id itarget);
 
 GSTLEARN_EXPORT String incrementStringVersion(const String& string,
                                               Id rank             = 1,

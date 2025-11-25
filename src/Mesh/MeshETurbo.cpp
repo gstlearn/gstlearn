@@ -612,23 +612,41 @@ void MeshETurbo::resetProjFromDb(ProjMatrix* m,
     // try to shift the point down by one node
     if (!found)
     {
-      bool flag_correct = false;
-      for (Id idim = 0; idim < ndim; idim++)
+      // bool flag_correct = false;
+      // for (Id idim = 0; idim < ndim; idim++)
+      // {
+      //   if (indg0[idim] != _grid.getNX(idim) - 1) continue;
+      //   indg0[idim] -= 1;
+      //   flag_correct = true;
+      // }
+      // if (flag_correct)
+      //   found = _addElementToTriplet(NF_T, iech, coor, indg0, verbose);
+
+      Id num_neighbors = 1 << ndim; // 2^ndim combinaisons de -1 et 0
+      VectorInt indgtest(ndim);
+
+      for (Id mask = 1; mask < num_neighbors; ++mask)
       {
-        if (indg0[idim] != _grid.getNX(idim) - 1) continue;
-        indg0[idim] -= 1;
-        flag_correct = true;
+        bool flag_correct = false;
+        // commencer à 1 pour exclure (0,0,...,0)
+        for (int idim = 0; idim < ndim; ++idim)
+        {
+          if (indg0[idim] != _grid.getNX(idim) - 1) continue;
+          // Si le bit d est à 1, soustraire 1, sinon rester
+          indgtest[idim] = indg0[idim] - ((mask >> idim) & 1);
+          flag_correct   = true;
+        }
+
+        if (flag_correct)
+          found = _addElementToTriplet(NF_T, iech, coor, indg0, verbose);
       }
-      if (flag_correct)
-        found = _addElementToTriplet(NF_T, iech, coor, indg0, verbose);
     }
 
     // The point does not belong to any active mesh, issue a message (optional)
     if (!found)
     {
-      nout++;
       if (verbose)
-        messerr("Sample #%d does not belong to the meshing", jech + 1);
+        message(" does not to the meshing\n");
     }
     iech++;
   }
