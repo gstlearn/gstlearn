@@ -1119,7 +1119,7 @@ String Selectivity::toString(const AStringFormat* /*strfmt*/) const
   std::stringstream sstr;
   auto ncut = getNCuts();
   if (ncut <= 0) return sstr.str();
-  sstr << toTitle(0, "Selectivity Curves");
+  sstr << toStrTitle(0, "Selectivity Curves");
   sstr << _stats.toString();
   return sstr.str();
 }

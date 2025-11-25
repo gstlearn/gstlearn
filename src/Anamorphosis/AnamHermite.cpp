@@ -67,7 +67,7 @@ String AnamHermite::toString(const AStringFormat* strfmt) const
   auto nbpoly = getNbPoly();
   if (nbpoly <= 0) return sstr.str();
 
-  sstr << toTitle(1, "Hermitian Anamorphosis");
+  sstr << toStrTitle(1, "Hermitian Anamorphosis");
 
   sstr << AnamContinuous::toString(strfmt);
 
@@ -77,8 +77,8 @@ String AnamHermite::toString(const AStringFormat* strfmt) const
 
   if (!_isFitted()) return sstr.str();
 
-  sstr << toVector("Normalized coefficients for Hermite polynomials (punctual variable)",
-                   _psiHn);
+  sstr << toStrVector("Normalized coefficients for Hermite polynomials (punctual variable)",
+                      _psiHn, true, true);
 
   return sstr.str();
 }

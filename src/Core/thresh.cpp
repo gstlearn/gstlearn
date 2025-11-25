@@ -184,14 +184,14 @@ void proportion_print(PropDef* propdef)
   if (propdef == nullptr) return;
   mestitle(0, "Proportions");
 
-  print_matrix("Initial :", 0, 1, propdef->nfac[1], propdef->nfac[0], NULL,
-               propdef->propfix.data());
+  printMatrix("Initial :", 0, 1, propdef->nfac[1], propdef->nfac[0],
+              propdef->propfix);
 
-  print_matrix("Working :", 0, 1, propdef->nfac[1], propdef->nfac[0], NULL,
-               propdef->propwrk.data());
+  printMatrix("Working :", 0, 1, propdef->nfac[1], propdef->nfac[0],
+              propdef->propwrk);
 
-  print_matrix("Current :", 0, 1, propdef->nfaccur, 1, NULL,
-               propdef->proploc.data());
+  printMatrix("Current :", 0, 1, propdef->nfaccur, 1,
+              propdef->proploc);
 }
 
 /****************************************************************************/
@@ -1176,20 +1176,20 @@ Id _db_threshold(Db* db,
   {
     namconv.setNamesAndLocators(
       db, iptr + rank,
-      concatenateStrings("Thresh-F", toString(ifac + 1), "-Y1-Low"));
+      concatenateStrings("Thresh-F", toStr(ifac + 1), "-Y1-Low"));
     rank++;
     namconv.setNamesAndLocators(
       db, iptr + rank,
-      concatenateStrings("Thresh-F", toString(ifac + 1), "-Y1-Up"));
+      concatenateStrings("Thresh-F", toStr(ifac + 1), "-Y1-Up"));
     rank++;
     if (ngrf == 1) continue;
     namconv.setNamesAndLocators(
       db, iptr + rank,
-      concatenateStrings("Thresh-F", toString(ifac + 1), "-Y2-Low"));
+      concatenateStrings("Thresh-F", toStr(ifac + 1), "-Y2-Low"));
     rank++;
     namconv.setNamesAndLocators(
       db, iptr + rank,
-      concatenateStrings("Thresh-F", toString(ifac + 1), "-Y2-Up"));
+      concatenateStrings("Thresh-F", toStr(ifac + 1), "-Y2-Up"));
     rank++;
   }
   error = 0;

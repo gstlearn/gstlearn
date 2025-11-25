@@ -152,16 +152,16 @@ String Rotation::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
   if (!_flagRot) return sstr.str();
-  sstr << toVector("Rotation Angles        = ", _angles);
+  sstr << toStrVector("Rotation Angles        = ", _angles);
 
   AStringFormat sf;
   if (strfmt != nullptr) sf = *strfmt;
   if (sf.getLevel() > 0)
   {
-    sstr << toMatrix("Direct Rotation Matrix", VectorString(), VectorString(),
-                     true, static_cast<Id>(_nDim), static_cast<Id>(_nDim), _rotMat.getValues());
-    sstr << toMatrix("Inverse Rotation Matrix", VectorString(), VectorString(),
-                     true, static_cast<Id>(_nDim), static_cast<Id>(_nDim), _rotInv.getValues());
+    sstr << toStrMatrix("Direct Rotation Matrix", VectorString(), VectorString(),
+                        true, static_cast<Id>(_nDim), static_cast<Id>(_nDim), _rotMat.getValues());
+    sstr << toStrMatrix("Inverse Rotation Matrix", VectorString(), VectorString(),
+                        true, static_cast<Id>(_nDim), static_cast<Id>(_nDim), _rotInv.getValues());
   }
   return sstr.str();
 }

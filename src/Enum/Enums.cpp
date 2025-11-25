@@ -22,7 +22,6 @@
 #include "Enum/EDirGen.hpp"
 #include "Enum/EFormatNF.hpp"
 #include "Enum/EGaussInv.hpp"
-#include "Enum/EJustify.hpp"
 #include "Enum/EKrigOpt.hpp"
 #include "Enum/ELaw.hpp"
 #include "Enum/ELoadBy.hpp"
@@ -56,7 +55,6 @@ ENUM_DEFINE(ENUM_KRIG_OPT)
 ENUM_DEFINE(ENUM_ANAM)
 ENUM_DEFINE(ENUM_CONS_ELEM)
 ENUM_DEFINE(ENUM_CONS_TYPE)
-ENUM_DEFINE(ENUM_JUSTIFY)
 ENUM_DEFINE(ENUM_DEBUG)
 ENUM_DEFINE(ENUM_CST)
 ENUM_DEFINE(ENUM_OPERATOR)

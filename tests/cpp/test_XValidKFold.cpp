@@ -9,15 +9,13 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Basic/AStringable.hpp"
-#include "Basic/Law.hpp"
+#include "Basic/File.hpp"
+#include "Basic/OptCst.hpp"
 #include "Basic/VectorNumT.hpp"
+#include "Db/Db.hpp"
+#include "Enum/ECst.hpp"
 #include "Enum/ELoadBy.hpp"
 #include "Enum/ESpaceType.hpp"
-
-#include "Basic/File.hpp"
-#include "Basic/VectorHelper.hpp"
-#include "Basic/OptCst.hpp"
-#include "Db/Db.hpp"
 #include "Estimation/CalcKriging.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/NeighMoving.hpp"
@@ -79,11 +77,15 @@ int main(int argc, char* argv[])
 
   // Display the ranks
   VectorInt ranks;
-  mestitle(0, "Neigh ranks for each taget:");
+  mestitle(0, "Neigh ranks for each target:");
   for (Id i = 0; i < ndat; i++)
   {
     neigh->select(i, ranks);
-    message("Neigh ranks [%d]: %s", i, ranks.empty() ? "None\n" : VH::toStringAsVI(ranks).c_str());
+    String str = toStrFormat("Neigh ranks [%d]:", i);
+    if (ranks.empty())
+      message("%s None\n", str.c_str());
+    else
+      printVector(str, ranks);
   }
 
   delete neigh;

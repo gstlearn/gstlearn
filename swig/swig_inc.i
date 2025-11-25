@@ -79,6 +79,7 @@
   #include "Basic/LawStable.hpp"
   #include "Basic/MathFunc.hpp"
   #include "Basic/Indirection.hpp"
+  #include "Basic/Message.hpp"
   #include "Basic/WarningMacro.hpp"
   
   #include "Geometry/GeometryHelper.hpp"

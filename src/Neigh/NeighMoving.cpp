@@ -120,7 +120,7 @@ String NeighMoving::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
 
-  sstr << toTitle(0, "Moving Neighborhood");
+  sstr << toStrTitle(0, "Moving Neighborhood");
 
   if (_nMini > 0)
     sstr << "Minimum number of samples           = " << _nMini << std::endl;

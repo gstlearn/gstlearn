@@ -153,6 +153,13 @@ endif()
 # Shared and Static libraries
 add_library(shared                  SHARED ${SOURCES})
 add_library(static EXCLUDE_FROM_ALL STATIC ${SOURCES})
+
+# Suppress GCC warning for std::regex (GCC 13 false positive) // Ajoute par DR
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    target_compile_options(shared PRIVATE -Wno-maybe-uninitialized)
+    target_compile_options(static PRIVATE -Wno-maybe-uninitialized)
+endif()
+
 set(FLAVORS shared static)
 
 ############################## Loop on flavors: shared and static

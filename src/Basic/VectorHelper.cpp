@@ -93,96 +93,6 @@ VectorString VectorHelper::initVString(Id ntab, char** names)
   return rettab;
 }
 
-void VectorHelper::dump(const String& title, const VectorInt& vect, bool skipLine)
-{
-  if (vect.empty()) return;
-  if (!title.empty())
-  {
-    message("%s", title.c_str());
-    if (skipLine)
-      message("\n");
-    else
-      message(":");
-  }
-  messageFlush(VH::toStringAsVI(vect));
-}
-
-void VectorHelper::dump(const String& title, const VectorDouble& vect, bool skipLine)
-{
-  if (vect.empty()) return;
-  if (!title.empty())
-  {
-    message("%s", title.c_str());
-    if (skipLine)
-      message("\n");
-    else
-      message(":");
-  }
-  messageFlush(VH::toStringAsVD(vect));
-}
-
-void VectorHelper::dump(const String& title, const VectorString& vect, bool skipLine)
-{
-  if (vect.empty()) return;
-  if (!title.empty())
-  {
-    message("%s", title.c_str());
-    if (skipLine)
-      message("\n");
-    else
-      message(":");
-  }
-  messageFlush(VH::toStringAsVS(vect));
-}
-
-void VectorHelper::dump(const String& title, const VectorVectorInt& vect, bool skipLine)
-{
-  if (vect.empty()) return;
-  if (!title.empty())
-  {
-    message("%s", title.c_str());
-    if (skipLine) message("\n");
-  }
-  messageFlush(VH::toStringAsVVI(vect));
-}
-
-void VectorHelper::dump(const String& title, const VectorVectorDouble& vect, bool skipLine)
-{
-  if (vect.empty()) return;
-  if (!title.empty())
-  {
-    message("%s", title.c_str());
-    if (skipLine) message("\n");
-  }
-  messageFlush(VH::toStringAsVVD(vect));
-}
-
-String VectorHelper::toStringAsVD(const VectorDouble& vec)
-{
-  return toVector(String(), vec);
-}
-String VectorHelper::toStringAsSpan(constvect vec)
-{
-  return toVector(String(), vec);
-}
-String VectorHelper::toStringAsVVD(const VectorVectorDouble& vec)
-{
-  return toVector(String(), vec);
-}
-String VectorHelper::toStringAsVVI(const VectorVectorInt& vec)
-{
-  return toVector(String(), vec);
-}
-
-String VectorHelper::toStringAsVS(const VectorString& vec)
-{
-  return toVector(String(), vec);
-}
-
-String VectorHelper::toStringAsVI(const VectorInt& vec)
-{
-  return toVector(String(), vec);
-}
 
 void VectorHelper::dumpStats(const String& title, constvect vect, Id nmax)
 {
@@ -213,10 +123,10 @@ void VectorHelper::dumpStats(const String& title, constvect vect, Id nmax)
     stdv = (stdv > 0.) ? sqrt(stdv) : 0.;
 
     message("- Number of samples = %d / %d\n", number, ntotal);
-    message("- Minimum  = %s\n", toDouble(mini).c_str());
-    message("- Maximum  = %s\n", toDouble(maxi).c_str());
-    message("- Mean     = %s\n", toDouble(mean).c_str());
-    message("- St. Dev. = %s\n", toDouble(stdv).c_str());
+    message("- Minimum  = %s\n", toStr(mini).c_str());
+    message("- Maximum  = %s\n", toStr(maxi).c_str());
+    message("- Mean     = %s\n", toStr(mean).c_str());
+    message("- St. Dev. = %s\n", toStr(stdv).c_str());
   }
   else
   {

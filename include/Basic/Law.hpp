@@ -63,7 +63,7 @@ GSTLEARN_EXPORT VectorDouble law_exp_sample(const double* tabin,
                                             Id nechout,
                                             Id niter,
                                             Id nconst,
-                                            double* consts,
+                                            VectorDouble& consts,
                                             Id seed,
                                             double percent);
 GSTLEARN_EXPORT Id sampleInteger(Id minit, Id maxi);

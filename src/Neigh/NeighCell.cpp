@@ -70,7 +70,7 @@ String NeighCell::toString(const AStringFormat* strfmt) const
   DECLARE_UNUSED(strfmt);
   std::stringstream sstr;
 
-  sstr << toTitle(0, "Cell Neighborhood");
+  sstr << toStrTitle(0, "Cell Neighborhood");
 
   if (_biPtCell != nullptr)
     sstr << _biPtCell->toString();

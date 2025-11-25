@@ -11,8 +11,6 @@
 #include "Space/SpacePoint.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/AStringable.hpp"
-#include "Basic/Utilities.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Space/ASpace.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "geoslib_define.h"
@@ -146,7 +144,7 @@ void SpacePoint::getIncrementInPlace(VectorDouble& inc, const SpacePoint& pt, Id
 
 String SpacePoint::toString(const AStringFormat* /*strfmt*/) const
 {
-  return VH::toStringAsSpan(constvect(_coord.data(), getNDim()));
+  return toStrVector(String(), _coord);
 }
 
 void SpacePoint::setFFFF()

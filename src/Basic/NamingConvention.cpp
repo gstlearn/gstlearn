@@ -660,7 +660,7 @@ String NamingConvention::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
 
-  sstr << toTitle(0, "Naming Convention");
+  sstr << toStrTitle(0, "Naming Convention");
   sstr << "- Prefix  = " << _prefix << std::endl;
   sstr << "- Delimitor = '" << _delim << "'" << std::endl;
   sstr << "- Add the Variable Name = " << _flagVarname << std::endl;

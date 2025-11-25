@@ -47,10 +47,9 @@ Option_VarioFit::Option_VarioFit(const Option_VarioFit& m)
   , _keep_intstr(m._keep_intstr)
   , _flag_intrinsic(m._flag_intrinsic)
 {
-
 }
 
-Option_VarioFit& Option_VarioFit::operator=(const Option_VarioFit &m)
+Option_VarioFit& Option_VarioFit::operator=(const Option_VarioFit& m)
 {
   if (this != &m)
   {
@@ -71,21 +70,20 @@ Option_VarioFit& Option_VarioFit::operator=(const Option_VarioFit &m)
 
 Option_VarioFit::~Option_VarioFit()
 {
-
 }
 
 String Option_VarioFit::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
-  static const char *NOK[] = {"OFF" , "ON"};
+  static const char* NOK[] = {"OFF", "ON"};
 
-  sstr << "- Anisotropy                " << NOK[getAuthAniso()]       << std::endl;
-  sstr << "- Anisotropy Rotation       " << NOK[getAuthRotation()]    << std::endl;
-  sstr << "- Global Rotation           " << NOK[getLockSamerot()]     << std::endl;
-  sstr << "- Rotation around Z only    " << NOK[getLockRot2d()]       << std::endl;
-  sstr << "- Lock third dimension      " << NOK[getLockNo3d()]        << std::endl;
-  sstr << "- Lock 2-D Isotropy         " << NOK[getLockIso2d()]       << std::endl;
-  sstr << "- Keep Intrinsic structure  " << NOK[getKeepIntstr()]      << std::endl;
+  sstr << "- Anisotropy                " << NOK[getAuthAniso()] << std::endl;
+  sstr << "- Anisotropy Rotation       " << NOK[getAuthRotation()] << std::endl;
+  sstr << "- Global Rotation           " << NOK[getLockSamerot()] << std::endl;
+  sstr << "- Rotation around Z only    " << NOK[getLockRot2d()] << std::endl;
+  sstr << "- Lock third dimension      " << NOK[getLockNo3d()] << std::endl;
+  sstr << "- Lock 2-D Isotropy         " << NOK[getLockIso2d()] << std::endl;
+  sstr << "- Keep Intrinsic structure  " << NOK[getKeepIntstr()] << std::endl;
   sstr << "- Use the Goulard option    " << NOK[getFlagGoulardUsed()] << std::endl;
   sstr << "- Keep all structures       " << NOK[getFlagNoreduce()] << std::endl;
   if (getFlagIntrinsic())
@@ -93,4 +91,4 @@ String Option_VarioFit::toString(const AStringFormat* /*strfmt*/) const
 
   return sstr.str();
 }
-}
+} // namespace gstlrn

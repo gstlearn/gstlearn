@@ -46,7 +46,7 @@ String NeighUnique::toString(const AStringFormat* strfmt) const
   DECLARE_UNUSED(strfmt);
   std::stringstream sstr;
 
-  sstr << toTitle(0,"Unique Neighborhood");
+  sstr << toStrTitle(0,"Unique Neighborhood");
 
   return sstr.str();
 }

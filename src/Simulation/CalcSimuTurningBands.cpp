@@ -882,8 +882,8 @@ double CalcSimuTurningBands::_irfProcessInit(Id ibs,
   if (type == ECov::ORDER1_GC) level = 0;
   if (type == ECov::ORDER3_GC) level = 1;
   if (type == ECov::ORDER5_GC) level = 2;
-  auto nt        = operTB.getTsize();
-  const auto& t  = operTB.getT();
+  auto nt       = operTB.getTsize();
+  const auto& t = operTB.getT();
 
   /* Generation of the Wiener-Levy process and its integrations */
 
@@ -1693,7 +1693,7 @@ void CalcSimuTurningBands::_difference(Db* dbin,
             zvar = dbin->getSimvar(ELoc::GAUSFAC, iech, isimu, ivar, 0, nbsimu,
                                    nvar);
             if (OptDbg::query(EDbg::SIMULATE))
-              tab_printg(NULL, zvar);
+              printElement(String(), zvar);
           }
           double simval = dbin->getSimvar(ELoc::SIMU, iech, isimu, ivar, icase,
                                           nbsimu, nvar);

@@ -9,9 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Space/SpaceTarget.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Space/ASpace.hpp"
-
 #include <cmath>
 #include <iostream>
 
@@ -88,11 +86,11 @@ String SpaceTarget::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
 
-  sstr << "- Center    = " << VH::toStringAsSpan(getCoordsView());
+  sstr << "- Center    = " << toStrVectorVec(String(), getCoordsView());
   if (_checkExtend)
   {
     if (!_extend.empty())
-      sstr << "- Extension = " << VH::toStringAsVD(_extend);
+      sstr << "- Extension = " << toStrVector(String(), _extend);
     else
       sstr << "- Extension = (undefined)" << std::endl;
   }

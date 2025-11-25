@@ -220,6 +220,7 @@ set(SRC
   Basic/ParamInfo.cpp
   Basic/ListParams.cpp
   Basic/Limits.cpp
+  Basic/StringHelper.cpp
   Basic/AStringable.cpp
   Basic/AStringFormat.cpp
   Basic/GlobalEnvironment.cpp
@@ -253,6 +254,7 @@ set(SRC
   Basic/SerializeNeutralFile.cpp
   Basic/PolyLine2D.cpp
   Basic/Convolution.cpp
+  Basic/Message.cpp
   Geometry/GeometryHelper.cpp
   Geometry/ABiTargetCheck.cpp
   Geometry/BiTargetCheckDistance.cpp

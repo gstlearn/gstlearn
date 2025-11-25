@@ -12,7 +12,6 @@
 #include "Basic/File.hpp"
 #include "Basic/FunctionalSpirale.hpp"
 #include "Basic/Law.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
@@ -88,7 +87,7 @@ int main(int argc, char* argv[])
   {
     Id target         = 1000;
     VectorDouble vect = workingDbc->getSampleLocators(ELoc::NOSTAT, target);
-    VH::dump("Non-stationary parameters at sample", vect);
+    printVector("Non-stationary parameters at sample", vect, true, true);
   }
 
   Id useCholesky = 0;

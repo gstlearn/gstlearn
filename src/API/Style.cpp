@@ -10,7 +10,7 @@
 /******************************************************************************/
 // Use double quote "" for include files from our source code
 #include "API/Style.hpp"
-#include "Basic/AStringable.hpp"
+#include "Basic/Message.hpp"
 // Use corners <> for other include files
 #include <iostream>
 

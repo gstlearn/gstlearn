@@ -376,7 +376,7 @@ VectorDouble ASPDEOp::computeDriftCoeffs(const VectorDouble& Z,
 
   // Optional printout
   if (verbose)
-    VH::dump("Drift coefficients", result);
+    toStrVector("Drift coefficients", result);
 
   return result;
 }

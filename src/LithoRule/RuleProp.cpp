@@ -8,33 +8,31 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f_private.h"
-
 #include "LithoRule/RuleProp.hpp"
-#include "LithoRule/Rule.hpp"
-#include "Db/Db.hpp"
 #include "Basic/AStringable.hpp"
-#include "Basic/VectorHelper.hpp"
+#include "Db/Db.hpp"
+#include "LithoRule/Rule.hpp"
+#include "geoslib_f_private.h"
 
 namespace gstlrn
 {
 RuleProp::RuleProp()
-    : AStringable(),
-      _flagStat(true),
-      _propcst(),
-      _dbprop(nullptr),
-      _rules(),
-      _ruleInternal(false)
+  : AStringable()
+  , _flagStat(true)
+  , _propcst()
+  , _dbprop(nullptr)
+  , _rules()
+  , _ruleInternal(false)
 {
 }
 
 RuleProp::RuleProp(const RuleProp& m)
-  : AStringable(m),
-    _flagStat(m._flagStat),
-    _propcst(m._propcst),
-    _dbprop(m._dbprop),
-    _rules(m._rules),
-    _ruleInternal(m._ruleInternal)
+  : AStringable(m)
+  , _flagStat(m._flagStat)
+  , _propcst(m._propcst)
+  , _dbprop(m._dbprop)
+  , _rules(m._rules)
+  , _ruleInternal(m._ruleInternal)
 {
 }
 
@@ -43,10 +41,10 @@ RuleProp& RuleProp::operator=(const RuleProp& m)
   if (this != &m)
   {
     AStringable::operator=(m);
-    _flagStat = m._flagStat;
-    _propcst = m._propcst;
-    _dbprop = m._dbprop;
-    _rules = m._rules;
+    _flagStat     = m._flagStat;
+    _propcst      = m._propcst;
+    _dbprop       = m._dbprop;
+    _rules        = m._rules;
     _ruleInternal = m._ruleInternal;
   }
   return *this;
@@ -67,12 +65,12 @@ Id RuleProp::resetFromDb(const Db* dbprop, const VectorDouble& propcst)
 {
   _clear();
 
-  _flagStat = true;
-  _dbprop = dbprop;
-  _propcst = propcst;
+  _flagStat     = true;
+  _dbprop       = dbprop;
+  _propcst      = propcst;
   _ruleInternal = true;
 
-  if (! _checkConsistency()) return 1;
+  if (!_checkConsistency()) return 1;
 
   // A generic rule is created on the fly
   auto nfacies = _getNFacies();
@@ -85,12 +83,12 @@ Id RuleProp::resetFromRule(const Rule* rule, const VectorDouble& propcst)
 {
   _clear();
 
-  _flagStat = true;
-  _propcst = propcst;
+  _flagStat     = true;
+  _propcst      = propcst;
   _ruleInternal = false;
 
   if (rule != nullptr) _rules.push_back(rule);
-  if (! _checkConsistency()) return 1;
+  if (!_checkConsistency()) return 1;
   return 0;
 }
 
@@ -98,28 +96,28 @@ Id RuleProp::resetFromRuleAndDb(const Rule* rule, const Db* dbprop)
 {
   _clear();
 
-  _flagStat = true;
-  _dbprop = dbprop;
+  _flagStat     = true;
+  _dbprop       = dbprop;
   _ruleInternal = false;
 
   _rules.push_back(rule);
-  if (! _checkConsistency()) return 1;
+  if (!_checkConsistency()) return 1;
   return 0;
 }
 
 Id RuleProp::resetFromRules(const Rule* rule1,
-                             const Rule* rule2,
-                             const VectorDouble& propcst)
+                            const Rule* rule2,
+                            const VectorDouble& propcst)
 {
   _clear();
 
-  _flagStat = true;
-  _propcst = propcst;
+  _flagStat     = true;
+  _propcst      = propcst;
   _ruleInternal = false;
 
   _rules.push_back(rule1);
   _rules.push_back(rule2);
-  if (! _checkConsistency()) return 1;
+  if (!_checkConsistency()) return 1;
   return 0;
 }
 
@@ -127,8 +125,8 @@ Id RuleProp::resetFromRulesAndDb(const Rule* rule1, const Rule* rule2, const Db*
 {
   _clear();
 
-  _flagStat = true;
-  _dbprop = dbprop;
+  _flagStat     = true;
+  _dbprop       = dbprop;
   _ruleInternal = false;
 
   _rules.push_back(rule1);
@@ -154,13 +152,13 @@ String RuleProp::toString(const AStringFormat* strfmt) const
 
   // Stationary Flag
   if (_flagStat)
-    mestitle(0,"RuleProp in Stationary Case");
+    mestitle(0, "RuleProp in Stationary Case");
   else
-    mestitle(0,"RuleProp in Non-Stationary Case");
+    mestitle(0, "RuleProp in Non-Stationary Case");
 
   // Proportions
   if (_flagStat)
-    sstr << "- Constant Proportions" << VH::toStringAsVD(_propcst) << std::endl;
+    sstr << "- Constant Proportions" << toStrVector(String(), _propcst) << std::endl;
   else
     sstr << "- Non-Stationary Proportions are read from Db" << std::endl;
   // if (! _flagStat)
@@ -202,26 +200,26 @@ bool RuleProp::_checkConsistency()
     if (nfacies > 0 && nfacies != nfacdb)
     {
       messerr("Mismatch between:");
-      messerr("- Number of Facies in Rule(s) (%d)",nfacies);
-      messerr("- Number of Proportion fields in Db (%d)",nfacdb);
+      messerr("- Number of Facies in Rule(s) (%d)", nfacies);
+      messerr("- Number of Proportion fields in Db (%d)", nfacdb);
       return false;
     }
     return true;
   }
 
   // Stationary proportions provided by 'propcst'
-  if (! _propcst.empty())
+  if (!_propcst.empty())
   {
     _flagStat = true;
-    _dbprop = nullptr;
+    _dbprop   = nullptr;
 
     // Check consistency of the number of facies
     Id nfacprop = static_cast<Id>(_propcst.size());
     if (nfacies > 0 && nfacies != nfacprop)
     {
       messerr("Mismatch between:");
-      messerr("- Number of Facies in Rule(s) (%d)",nfacies);
-      messerr("- Number of Proportion in Propcst (%d)",nfacprop);
+      messerr("- Number of Facies in Rule(s) (%d)", nfacies);
+      messerr("- Number of Proportion in Propcst (%d)", nfacprop);
       return false;
     }
     return true;
@@ -234,8 +232,8 @@ bool RuleProp::_checkConsistency()
     return false;
   }
   _flagStat = true;
-  _dbprop = nullptr;
-  _propcst.resize(nfacies, 1./static_cast<double>(nfacies));
+  _dbprop   = nullptr;
+  _propcst.resize(nfacies, 1. / static_cast<double>(nfacies));
   return true;
 }
 
@@ -247,7 +245,7 @@ bool RuleProp::_checkRuleRank(Id rank) const
 Id RuleProp::_getNFacies()
 {
   // Check the number of facies against the Rule
-  if (! _rules.empty())
+  if (!_rules.empty())
   {
     Id nfacies = 1;
     for (Id ir = 0; ir < getNRule(); ir++)
@@ -262,7 +260,7 @@ Id RuleProp::_getNFacies()
   }
 
   // Stationary proportions provided by 'propcst'
-  if (! _propcst.empty())
+  if (!_propcst.empty())
   {
     return static_cast<Id>(_propcst.size());
   }
@@ -271,7 +269,7 @@ Id RuleProp::_getNFacies()
 }
 const Rule* RuleProp::getRule(Id rank) const
 {
-  if (! _checkRuleRank(rank)) return nullptr;
+  if (!_checkRuleRank(rank)) return nullptr;
   return _rules[rank];
 }
 
@@ -287,7 +285,7 @@ void RuleProp::clearRule()
 
 Id RuleProp::fit(Db* db, const VarioParam* varioparam, Id ngrfmax, bool verbose)
 {
-  Rule* ruleFit = _rule_auto(db,varioparam,this,ngrfmax,verbose);
+  Rule* ruleFit = _rule_auto(db, varioparam, this, ngrfmax, verbose);
   if (ruleFit == nullptr) return 1;
   clearRule();
   addRule(ruleFit);
@@ -317,7 +315,7 @@ Id RuleProp::gaussToCategory(Db* db, const NamingConvention& namconv) const
  * @param namconv Naming convention
  * @return Error return code
  */
-Id RuleProp::categoryToThresh(Db *db, const NamingConvention& namconv) const
+Id RuleProp::categoryToThresh(Db* db, const NamingConvention& namconv) const
 {
   if (_rules[0]->getModeRule() != ERule::STD)
   {
@@ -333,7 +331,7 @@ Id RuleProp::categoryToThresh(Db *db, const NamingConvention& namconv) const
  * @param namconv Naming convention
  * @return Error return code
  */
-Id RuleProp::computeAllThreshes(Db *db, const NamingConvention& namconv) const
+Id RuleProp::computeAllThreshes(Db* db, const NamingConvention& namconv) const
 {
   if (_rules[0]->getModeRule() != ERule::STD)
   {
@@ -355,7 +353,7 @@ RuleProp* RuleProp::createFromDb(const Db* dbprop, const VectorDouble& propcst)
   return ruleprop;
 }
 RuleProp* RuleProp::createFromRule(const Rule* rule,
-                                                 const VectorDouble& propcst)
+                                   const VectorDouble& propcst)
 {
   RuleProp* ruleprop = new RuleProp;
   if (ruleprop->resetFromRule(rule, propcst))
@@ -403,4 +401,4 @@ RuleProp* RuleProp::createFromRulesAndDb(const Rule* rule1,
   }
   return ruleprop;
 }
-}
+} // namespace gstlrn

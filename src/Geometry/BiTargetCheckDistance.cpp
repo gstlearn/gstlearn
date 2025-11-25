@@ -123,13 +123,13 @@ String BiTargetCheckDistance::toString(const AStringFormat* /*strfmt*/) const
       VectorDouble ranges(_ndim);
       for (Id idim = 0; idim < _ndim; idim++)
         ranges[idim] = _radius * _anisoCoeffs[idim];
-      sstr << toMatrix("Anisotropic Ranges :", VectorString(), VectorString(),
-                       true, 1, _ndim, ranges);
+      sstr << toStrMatrix("Anisotropic Ranges :", VectorString(), VectorString(),
+                          true, 1, _ndim, ranges);
 
       if (_flagRotation)
       {
-        sstr << toMatrix("Anisotropy Rotation :", VectorString(),
-                         VectorString(), true, _ndim, _ndim, _anisoRotMat);
+        sstr << toStrMatrix("Anisotropy Rotation :", VectorString(),
+                            VectorString(), true, _ndim, _ndim, _anisoRotMat);
       }
     }
   }

@@ -255,7 +255,7 @@ String Model::toString(const AStringFormat* /*strfmt*/) const
   auto ndrift = getNDrift();
   if (ncov <= 0 && ndrift <= 0) return sstr.str();
 
-  sstr << toTitle(0, "Model characteristics");
+  sstr << toStrTitle(0, "Model characteristics");
   sstr << "Space dimension              = " << getNDim()
        << std::endl;
   sstr << "Number of variable(s)        = " << getNVar() << std::endl;
@@ -267,14 +267,14 @@ String Model::toString(const AStringFormat* /*strfmt*/) const
 
   if (ncov > 0)
   {
-    sstr << toTitle(1, "Covariance Part");
+    sstr << toStrTitle(1, "Covariance Part");
     sstr << getCovAnisoList()->toString();
   }
 
   /* Drift part */
 
   if (ndrift > 0)
-    sstr << toTitle(1, "Drift Part");
+    sstr << toStrTitle(1, "Drift Part");
 
   sstr << _driftList->toString();
 

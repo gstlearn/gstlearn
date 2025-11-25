@@ -83,6 +83,7 @@
 %include Basic/AStringFormat.hpp
 %include Basic/ASerializable.hpp
 
+%include Basic/Message.hpp
 %include Basic/NamingConvention.hpp
 
 %include Calculators/ACalculator.hpp

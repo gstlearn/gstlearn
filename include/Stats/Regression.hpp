@@ -10,8 +10,9 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/VectorNumT.hpp"
+#include "gstlearn_export.hpp"
 
 #include "geoslib_define.h"
 
@@ -45,14 +46,14 @@ public:
   double getVariance() const { return _variance; }
   double getVarres() const { return _varres; }
 
-  Id apply(Db *db1,
-            Id iptr0,
-            const String &nameResp,
-            const VectorString &nameAux,
-            Id mode = 0,
-            bool flagCst = false,
-            Db *db2 = nullptr,
-            const Model *model = nullptr) const;
+  Id apply(Db* db1,
+           Id iptr0,
+           const String& nameResp,
+           const VectorString& nameAux,
+           Id mode            = 0,
+           bool flagCst       = false,
+           Db* db2            = nullptr,
+           const Model* model = nullptr) const;
 
 private:
   Id _count;
@@ -63,15 +64,15 @@ private:
   double _varres;
 };
 
-GSTLEARN_EXPORT Regression regression(Db *db1,
-                                      const String &nameResp,
-                                      const VectorString &nameAux = VectorString(),
-                                      Id mode = 0,
-                                      bool flagCst = false,
-                                      Db *db2 = nullptr,
-                                      const Model *model = nullptr);
-GSTLEARN_EXPORT VectorDouble regressionDeming(const VectorDouble &x,
-                                              const VectorDouble &y,
+GSTLEARN_EXPORT Regression regression(Db* db1,
+                                      const String& nameResp,
+                                      const VectorString& nameAux = VectorString(),
+                                      Id mode                     = 0,
+                                      bool flagCst                = false,
+                                      Db* db2                     = nullptr,
+                                      const Model* model          = nullptr);
+GSTLEARN_EXPORT VectorDouble regressionDeming(const VectorDouble& x,
+                                              const VectorDouble& y,
                                               double delta = 1);
 
-}
+} // namespace gstlrn

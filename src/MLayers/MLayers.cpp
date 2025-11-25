@@ -11,7 +11,6 @@
 #include "MLayers/MLayers.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/OptDbg.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
 #include "Enum/EOperator.hpp"
 #include "Matrix/AMatrix.hpp"
@@ -110,7 +109,7 @@ String MLayers::toString(const AStringFormat* strfmt) const
   std::stringstream sstr;
   sstr << "List of Apices" << std::endl;
 
-  sstr << toTitle(0, "Multi-Layers Environments") << std::endl;
+  sstr << toStrTitle(0, "Multi-Layers Environments") << std::endl;
   if (_flagVel)
     sstr << "Working in Velocity" << std::endl;
   else
@@ -935,7 +934,7 @@ Id MLayers::_subtractOptimalDrift(bool verbose,
   /* Optional printout of the result */
 
   if (verbose)
-    print_matrix("Estimated Drift", 0, 1, _nlayers, _nbfl, NULL, coeff.data());
+    printMatrix("Estimated Drift", 0, 1, _nlayers, _nbfl, coeff);
 
   /* Subtract the optimal mean */
 
@@ -1576,8 +1575,8 @@ Id MLayers::_calculateDriftBayes(bool verbose,
 
   if (verbose)
   {
-    print_matrix("Prior Mean", 0, 1, _nlayers, _nbfl, NULL, prior_mean.data());
-    print_matrix("Prior Variance", 0, 1, _npar, _npar, NULL, invS.getValues().data());
+    printMatrix("Prior Mean", 0, 1, _nlayers, _nbfl, prior_mean);
+    printMatrix("Prior Variance", 0, 1, _npar, _npar, invS.getValues());
   }
 
   /* Invert the Data Variance-Covariance matrix */
@@ -1608,10 +1607,8 @@ Id MLayers::_calculateDriftBayes(bool verbose,
 
   if (verbose)
   {
-    print_matrix("Posterior Mean", 0, 1,
-                 _nlayers, _nbfl, NULL, post_mean.data());
-    print_matrix("Posterior Variance", 0, 1,
-                 _npar, _npar, NULL, post_vars.getValues().data());
+    printMatrix("Posterior Mean", 0, 1, _nlayers, _nbfl, post_mean);
+    printMatrix("Posterior Variance", 0, 1, _npar, _npar, post_vars.getValues());
   }
 
   /* Modify the Data vector */
@@ -1784,8 +1781,8 @@ Id MLayers::_getVarioCHH(Vario_Order* vorder,
     if (OptDbg::query(EDbg::VARIOGRAM))
     {
       message("Lag %d\n", ilag + 1);
-      print_matrix("L.H.S.", 0, 1, nhalf, nhalf, NULL, atab.getValues().data());
-      print_matrix("R.H.S.", 0, 1, 1, nhalf, NULL, btab.data());
+      printMatrix("L.H.S.", 0, 1, nhalf, nhalf, atab.getValues());
+      printMatrix("R.H.S.", 0, 1, 1, nhalf, btab);
     }
 
     atab.invert();
@@ -1794,7 +1791,7 @@ Id MLayers::_getVarioCHH(Vario_Order* vorder,
     /* Optional printout */
 
     if (OptDbg::query(EDbg::VARIOGRAM))
-      print_trimat("C(h)", 2, _nlayers, sill.data());
+      printTriMat("C(h)", 2, _nlayers, sill);
 
     /* Store the covariance values */
 
@@ -2066,7 +2063,7 @@ Id MLayers::kriging(bool verbose)
     mestitle(0, "Data Vector");
     message("Number of active samples  = %d\n", _nech);
     message("Total number of equations = %d\n", _neq);
-    print_matrix("Data", 0, 1, 1, _nech, NULL, zval.data());
+    printMatrix("Data", 0, 1, 1, _nech, zval);
   }
 
   /* Assign the Variance-Covariance matrix */
@@ -2197,8 +2194,8 @@ Id MLayers::calculatePrior()
 
   /* Print the resulting values */
   message("Number of parameters = %d\n", _npar);
-  VH::dump("Means", mean);
-  VH::dump("Variances", vars.getValues());
+  printVector("Means", mean, true, true);
+  printVector("Variances", vars.getValues(), true, true);
 
   /* Set the error return code */
 

@@ -303,7 +303,7 @@ String Rule::toString(const AStringFormat* strfmt) const
   RuleStringFormat dsf;
   if (rulefmt != nullptr) dsf = *rulefmt;
 
-  sstr << toTitle(0, "Lithotype Rule");
+  sstr << toStrTitle(0, "Lithotype Rule");
 
   if (statistics(0, &node_tot, &nfac_tot, &nmax_tot, &ny1_tot, &ny2_tot,
                  &prop_tot)) return sstr.str();

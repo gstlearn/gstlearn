@@ -10,9 +10,9 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
+#include "geoslib_define.h"
 
-#include "Enum/ECst.hpp"
+#include "gstlearn_export.hpp"
 
 #include <map>
 
@@ -32,17 +32,20 @@ namespace gstlrn
  * To know the current status of all these environmental parameters,
  * use the display() function.
  */
+
+class ECst;
+
 class GSTLEARN_EXPORT OptCst
 {
 public:
   static double query(const ECst& option);
   static double queryByKey(const String& name);
-  static void   define(const ECst& option, double value);
-  static void   defineByKey(const String& name, double value);
-  static void   display(void);
+  static void define(const ECst& option, double value);
+  static void defineByKey(const String& name, double value);
+  static void display(void);
 
 private:
-//  static std::map<const ECst, double> _cst;
+  //  static std::map<const ECst, double> _cst;
   static std::map<Id, double> _cst;
 };
-}
+} // namespace gstlrn

@@ -1,0 +1,28 @@
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Spherical
+- Sill         =       1.000
+- Range        =      10.000
+Total Sill     =       1.000
+Known Mean(s)      0.000
+No HDF5 support: Cannot use External Storing of weights option!
+
+Gibbs using Moving Neighborhood
+-------------------------------
+Building Covariance Sparse Matrix (Dimension = 2500)
+Cholesky Decomposition of Covariance Matrix
+Calculating and storing the weights
+Weights are stored internally
+- Total core needs       = 6250000
+- Number of zero weights = 4343672
+- Percentage             =  30.50
+#NO_DIFF# Gibbs iterations: 11532 ms.

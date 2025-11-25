@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Db/DbStringFormat.hpp"
+#include "Basic/String.hpp"
 
 namespace gstlrn
 {
@@ -62,7 +63,7 @@ String DbStringFormat::toString(const AStringFormat* strfmt) const
 
   std::stringstream sstr;
 
-  sstr << toTitle(1, "Db Format Specification");
+  sstr << toStrTitle(1, "Db Format Specification");
 
   if (_matchFlag(FLAG_RESUME))
     sstr << "- Summary" << std::endl;
@@ -155,4 +156,4 @@ void DbStringFormat::setFlags(bool flag_resume,
   if (flag_locator) _params = _params | FLAG_LOCATOR;
 }
 
-}
+} // namespace gstlrn

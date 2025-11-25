@@ -1711,7 +1711,7 @@ Id db_proportion_estimate(Db* dbin,
     Id iptr = dbout->addColumns(propout, String(), ELoc::UNKNOWN, 0, true);
     if (i == 0) iptr0 = iptr;
     namconv.setNamesAndLocators(nullptr, VectorString(), ELoc::UNKNOWN, -1, dbout, iptr,
-                                concatenateStrings("-", toString(i + 1)));
+                                concatenateStrings("-", toStr(i + 1)));
   }
   namconv.setLocators(dbout, iptr0, 1, ncat);
 

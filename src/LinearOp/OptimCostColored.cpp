@@ -10,8 +10,7 @@
 /******************************************************************************/
 #include "LinearOp/OptimCostColored.hpp"
 #include "Basic/AException.hpp"
-#include "Basic/AStringable.hpp"
-#include "Basic/VectorHelper.hpp"
+#include "Basic/Message.hpp"
 #include "LinearOp/OptimCostBinary.hpp"
 
 namespace gstlrn
@@ -283,12 +282,12 @@ void OptimCostColored::printSplits(const VectorVectorInt& splits) const
   if (splits.empty())
   {
     for (Id level = 0; level < nlevel; level++)
-      VH::dump(String(), _splits[level]);
+      printVector(String(), _splits[level], true, true);
   }
   else
   {
     for (Id level = 0; level < nlevel; level++)
-      VH::dump(String(), splits[level]);
+      printVector(String(), splits[level], true, true);
   }
 }
 

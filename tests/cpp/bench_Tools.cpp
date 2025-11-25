@@ -171,28 +171,28 @@ int main(int argc, char* argv[])
 
   VectorDouble VinVal = VH::simulateUniform(nech);
   VectorInt VinRank   = VH::sequence(nech, 4, 3);
-  VH::dump("Unsorted values", VinVal);
-  VH::dump("Unsorted ranks", VinRank);
+  printVector("Unsorted values", VinVal, true, true);
+  printVector("Unsorted ranks", VinRank, true, true);
 
   VectorInt order = VH::orderRanks(VinVal, true, size);
-  VH::dump("Order", order);
+  printVector("Order", order, true, true);
 
   VectorDouble VoutVal = VH::sort(VinVal, true, size);
-  VH::dump("Sorted values", VoutVal);
+  printVector("Sorted values", VoutVal, true, true);
 
   VectorDouble VsortVal = VH::reorder(VinVal, order, size);
   if (!VoutVal.isEqual(VsortVal))
-    VH::dump("Results are different: Re-ordered values", VsortVal);
+    printVector("Results are different: Re-ordered values", VsortVal, true, true);
 
   VectorInt VsortRank = VH::reorder(VinRank, order, size);
-  VH::dump("Ranks of Sorted values", VsortRank);
+  printVector("Ranks of Sorted values", VsortRank, true, true);
 
   VH::arrangeInPlace(0, VinRank, VinVal, true, size);
   VinVal.resize(size);
   if (!VoutVal.isEqual(VinVal))
-    VH::dump("Results are different: Re-arranged values", VinVal);
+    printVector("Results are different: Re-arranged values", VinVal, true, true);
   VinRank.resize(size);
   if (!VsortRank.isEqual(VinRank))
-    VH::dump("Re-arranged ranks", VinRank);
+    printVector("Re-arranged ranks", VinRank, true, true);
   return (0);
 }

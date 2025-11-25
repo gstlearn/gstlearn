@@ -15,6 +15,7 @@
 
 #include "Basic/ASerializable.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/String.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovAnisoList.hpp"
 #include "Covariances/CovContext.hpp"
@@ -32,29 +33,22 @@ using namespace gstlrn;
 ** Main Program
 **
 *****************************************************************************/
-int main()
+int main(int argc, char* argv[])
 {
+  std::stringstream sfn;
+  sfn << gslBaseName(__FILE__) << ".out";
+  StdoutRedirect sr(sfn.str(), argc, argv);
+
   Id iptr;
-  bool flag_inter = false;
 
-  Id nx              = 50;
-  Id niter           = 1000;
-  Id nburn           = 20;
-  double range       = 10.;
+  Id nx              = 50;   // Number of grid mesh (in each direction)
+  Id niter           = 1000; // Number of Gibbs iterations
+  Id nburn           = 20;   // Number of burning steps
+  double range       = 10.;  // Isotropic range
   double bound       = TEST;
-  double eps         = EPSILON6;
-  bool storeInternal = false; // No HDF5 by default
+  double eps         = EPSILON6; // Epsilon for the Gibbs
+  bool storeInternal = false;    // Store internal: No HDF5 by default
   bool storeVario    = false;
-
-  if (flag_inter)
-  {
-    nx            = askInt("Number of grid mesh [in each direction]", nx);
-    niter         = askInt("Number of Gibbs iterations", niter);
-    nburn         = askInt("Number of burning steps", nburn);
-    eps           = askDouble("Epsilon", eps);
-    range         = askDouble("Isotropic Range", range);
-    storeInternal = askBool("Store Internal", storeInternal);
-  }
 
   int seed    = 5452;
   size_t ndim = 2;
@@ -69,7 +63,7 @@ int main()
   // Setup constants
 
   defineDefaultSpace(ESpaceType::RN, ndim);
-  ASerializable::setPrefixName("testinter_AllGibbs-");
+  ASerializable::setPrefixName("test_GibbsMMulti-");
   law_set_random_seed(seed);
 
   // Data file

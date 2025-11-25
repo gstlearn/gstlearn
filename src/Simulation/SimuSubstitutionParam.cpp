@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Simulation/SimuSubstitutionParam.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/Message.hpp"
 
 #include <cmath>
 
@@ -98,13 +99,13 @@ String SimuSubstitutionParam::toString(const AStringFormat* /*strfmt*/) const
   else
     sstr << "Coding not performed: Result is the Direction information" << std::endl;
   if (_flagOrient)
-    sstr << toVector("Vector orthogonal to desorientation layering", _vector);
+    sstr << toStrVector("Vector orthogonal to desorientation layering", _vector);
   sstr << "Factor for desorientation strength (0: isotropic; 1: stratified) = " << _factor << std::endl;
-  sstr << toVector("Transition probability matrix", _trans);
+  sstr << toStrVector("Transition probability matrix", _trans, true, true);
   if (_colfac >= 0)
     sstr << "Attribute rank for desorientation factor = " << _colfac << std::endl;
   if (!_colang.empty())
-    sstr << toVector("Attribute ranks for Desorientation Vector", _colang);
+    sstr << toStrVector("Attribute ranks for Desorientation Vector", _colang);
 
   return sstr.str();
 }
@@ -208,7 +209,7 @@ bool SimuSubstitutionParam::_isIrreductibility(bool verbose)
   /* Printout (conditional) */
 
   if (verbose)
-    print_matrix("Transitions", 0, 1, _nfacies, _nfacies, NULL, _trans.data());
+    printMatrix("Transitions", 0, 1, _nfacies, _nfacies, _trans);
 
   return true;
 }

@@ -153,7 +153,7 @@ public:
 
   inline Id count(Id flagDef = 0) const;
   inline void identify() const;
-  inline void dump(const String& title = String(), bool skipLine = true) const;
+  inline void dump(const String& title = String(), bool newLineAfterTitle = true) const;
 
   inline double innerProduct(const VectorNumT<T>& v, Id size = 0) const;
 
@@ -1224,13 +1224,13 @@ void VectorNumT<T>::identify() const
 }
 
 template<typename T>
-void VectorNumT<T>::dump(const String& title, bool skipLine) const
+void VectorNumT<T>::dump(const String& title, bool newLineAfterTitle) const
 {
   if (VectorNumT::size() <= 0) return;
 
   if (!title.empty())
   {
-    if (skipLine)
+    if (newLineAfterTitle)
       std::cout << title << std::endl;
     else
       std::cout << title << " : ";
