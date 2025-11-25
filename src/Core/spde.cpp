@@ -3658,8 +3658,8 @@ static void st_m2d_set_M(M2D_Environ* m2denv,
  *****************************************************************************/
 static Id st_m2d_migrate_pinch_to_point(Db* dbout, Db* dbc, Id icol_pinch)
 {
-  VectorInt cols(1);
-  cols[0] = icol_pinch;
+  VectorInt iuids(1);
+  iuids[0] = icol_pinch;
 
   // Initializations
 
@@ -3678,7 +3678,7 @@ static Id st_m2d_migrate_pinch_to_point(Db* dbout, Db* dbc, Id icol_pinch)
 
   // Migrate information from grid to point
 
-  if (migrateByAttribute(dbout, dbc, cols, 0, VectorDouble(), false, false))
+  if (migrateByAttribute(dbout, dbc, iuids, 0, VectorDouble(), false, false))
   {
     dbc->deleteColumnByUID(iptr);
     return 1;
@@ -4131,7 +4131,7 @@ static Id st_m2d_drift_manage(M2D_Environ* m2denv,
   VectorDouble dval;
   double value, delta;
   static double percent = 0.05;
-  VectorInt cols(1);
+  VectorInt iuids(1);
 
   /* Initializations */
 
@@ -4166,11 +4166,11 @@ static Id st_m2d_drift_manage(M2D_Environ* m2denv,
 
     if (m2denv->flag_ed)
     {
-      cols[0] = dbout->getColIdxByLocator(ELoc::F, ilayer);
+      iuids[0] = dbout->getUIDByLocator(ELoc::F, ilayer);
 
       // Migrate the information from Grid to Wells
 
-      migrateByAttribute(dbout, dbin, cols, 0, VectorDouble(), false, false);
+      migrateByAttribute(dbout, dbin, iuids, 0, VectorDouble(), false, false);
 
       // Calculate the statistics of the external drift on the grid
 

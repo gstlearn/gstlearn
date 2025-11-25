@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Db/DbGrid.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/Grid.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/NamingConvention.hpp"
@@ -604,7 +603,7 @@ bool DbGrid::migrateAllVariables(Db* dbin, bool flag_fill, bool flag_inter, bool
 
   // Constitute the list of Variables to be migrated
 
-  VectorInt icols;
+  VectorInt iatts;
   for (Id icol = 0; icol < dbin->getNColumn(); icol++)
   {
     // Skip the rank
@@ -616,21 +615,22 @@ bool DbGrid::migrateAllVariables(Db* dbin, bool flag_fill, bool flag_inter, bool
     {
       if (locatorType == ELoc::X) continue;
     }
-    icols.push_back(icol);
+    // icols.push_back(icol);
+    iatts.push_back(dbin->getUID(name));
   }
-  Id ncol = static_cast<Id>(icols.size());
-  if (ncol <= 0) return true;
+  Id natts = static_cast<Id>(iatts.size());
+  if (natts <= 0) return true;
 
   // Migrate the variables
   auto icolOut = getNColumn();
-  if (migrateByAttribute(dbin, this, icols, 2, VectorDouble(), flag_fill,
+  if (migrateByAttribute(dbin, this, iatts, 2, VectorDouble(), flag_fill,
                          flag_inter, flag_ball, NamingConvention(String())))
     return false;
 
   // Duplicate the locators
-  for (Id icol = 0; icol < ncol; icol++)
+  for (Id icol = 0; icol < natts; icol++)
   {
-    if (dbin->getLocatorByColIdx(icols[icol], &locatorType, &locatorIndex))
+    if (dbin->getLocatorByColIdx(iatts[icol], &locatorType, &locatorIndex))
       setLocatorByColIdx(icolOut + icol, locatorType, locatorIndex);
     else
       setLocatorByColIdx(icolOut + icol, ELoc::UNKNOWN, 0);
