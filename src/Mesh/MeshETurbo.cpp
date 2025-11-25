@@ -748,7 +748,7 @@ Id MeshETurbo::_addWeights(Id icas,
   auto ndim    = getNDim();
   auto ncorner = getNApexPerMesh();
   auto ipol    = _getPolarized(indg0);
-  MatrixSquare lhs;
+  thread_local MatrixSquare lhs;
   _rhs.resize(ncorner);
   _indgg.resize(ndim);
 
