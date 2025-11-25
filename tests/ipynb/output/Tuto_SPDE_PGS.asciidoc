@@ -52,11 +52,11 @@ Column = 2 - Name = LANU - Locator = z1----
 
 #NO_DIFF#XXX
 ----
-Proportion of facies 1 = 0.2726197516262567
-Proportion of facies 2 = 0.46954464813719693
-Proportion of facies 3 = 0.046126552335895916
-Proportion of facies 4 = 0.205204021289178
-Proportion of facies 5 = 0.006505026611472502
+Proportion of facies 1 = 0.273
+Proportion of facies 2 = 0.47
+Proportion of facies 3 = 0.046
+Proportion of facies 4 = 0.205
+Proportion of facies 5 = 0.007
 ----
 
 

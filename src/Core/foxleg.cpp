@@ -11,7 +11,6 @@
 #include "Basic/OptDbg.hpp"
 #include "Basic/String.hpp"
 #include "Basic/Utilities.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "geoslib_old_f.h"
 #include <cmath>
@@ -474,10 +473,10 @@ static void st_minimum(const VectorInt& /*ind_util*/,
   {
     message("dans st_minimum\n");
     bords_red.display();
-    VH::dump("top", top);
-    VH::dump("bot", bot);
-    VH::dump("hgnc", hgnc);
-    VH::dump("hgnadm avant", hgnadm);
+    printVector("top", top, true, true);
+    printVector("bot", bot, true, true);
+    printVector("hgnc", hgnc, true, true);
+    printVector("hgnadm avant", hgnadm, true, true);
   }
 
   Id iparac2 = 0;
@@ -507,7 +506,7 @@ static void st_minimum(const VectorInt& /*ind_util*/,
   if (doit())
   {
     message("alpha_in=%lf\n", alpha_inf);
-    VH::dump("hgnadm apres", hgnadm);
+    printVector("hgnadm apres", hgnadm, true, true);
   }
 }
 
@@ -1011,13 +1010,13 @@ static void st_foxleg_debug_title(void)
 
   String string;
   mestitle(1, "Trajectory of parameters in Foxleg Algorithm");
-  tab_prints(NULL, "Iteration");
-  tab_prints(NULL, "Score");
-  tab_prints(NULL, "Delta");
+  printElement(String(), "Iteration");
+  printElement(String(), "Score");
+  printElement(String(), "Delta");
   for (Id ipar = 0; ipar < NPAR; ipar++)
   {
     (void)gslSPrintf(string, "Par-%d", ipar + 1);
-    tab_prints(NULL, string.data());
+    printElement(String(), string);
   }
   message("\n");
 }
@@ -1032,11 +1031,11 @@ static void st_foxleg_debug_current(double mscur,
                                     VectorDouble& param)
 {
   if (!OptDbg::query(EDbg::CONVERGE)) return;
-  tab_printi(NULL, ITERATION);
-  tab_printd(NULL, mscur);
-  tab_printd(NULL, delta);
+  printElement(String(), ITERATION);
+  printElement(String(), mscur, 1, 1, false, true);
+  printElement(String(), delta, 1, 1, true, false);
   for (Id ipar = 0; ipar < NPAR; ipar++)
-    tab_printg(NULL, param[ipar]);
+    printElement(String(), param[ipar]);
   message("\n");
 }
 
@@ -1335,7 +1334,7 @@ Id foxleg_f(Id ndat,
 
     /* Update values for the next iteration */
 
-    if (doit()) VH::dump("hgnadm", hgnadm);
+    if (doit()) printVector("hgnadm", hgnadm, true, true);
     iparac = 0;
     for (Id ipar = 0; ipar < NPAR; ipar++)
     {
@@ -1372,7 +1371,7 @@ Id foxleg_f(Id ndat,
         if (doit())
         {
           message("denom=%lf rho=%lf\n", denom, rho);
-          VH::dump("hgn", hgn);
+          printVector("hgn", hgn, true, true);
         }
       }
     }

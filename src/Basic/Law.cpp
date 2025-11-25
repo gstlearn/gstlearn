@@ -9,9 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Basic/Law.hpp"
-
 #include "Basic/MathFunc.hpp"
-#include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "geoslib_define.h"
 
@@ -1059,7 +1057,7 @@ VectorDouble law_exp_sample(const double* tabin,
                             Id nechout,
                             Id niter,
                             Id nconst,
-                            double* consts,
+                            VectorDouble& consts,
                             Id seed,
                             double percent)
 {
@@ -1148,7 +1146,7 @@ VectorDouble law_exp_sample(const double* tabin,
       /* Check if the generated vector is authorized or not */
 
       flag_ok = 1;
-      if (nconst > 0 && consts != nullptr)
+      if (nconst > 0 && !consts.empty())
       {
         for (Id iconst = 0; iconst < nconst && flag_ok; iconst++)
         {
@@ -1184,7 +1182,7 @@ VectorDouble law_exp_sample(const double* tabin,
         messerr(" %d - Mini=%lf - Maxi=%lf - Mean=%lf - Stdv=%lf", ivar + 1,
                 mini[ivar], maxi[ivar], mean[ivar], stdv[ivar]);
       }
-      print_matrix("Constraints", 0, 0, nvar1, nconst, NULL, consts);
+      printMatrix("Constraints", 0, 0, nvar1, nconst, consts);
       return VectorDouble();
     }
   }

@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Simulation/SimuPartitionParam.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/String.hpp"
 
 #include <cmath>
 
@@ -56,7 +57,7 @@ String SimuPartitionParam::toString(const AStringFormat* /*strfmt*/) const
   sstr << "Intensity of Poisson Law = " << _intensity << std::endl;
   sstr << "Number of Bands used for valuation simulation = " << _nbtuba << std::endl;
   if (!_dilate.empty())
-    sstr << toVector("Dilation (used for Poisson)", _dilate);
+    sstr << toStrVector("Dilation (used for Poisson)", _dilate);
 
   return sstr.str();
 }

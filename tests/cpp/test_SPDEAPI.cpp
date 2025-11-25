@@ -17,6 +17,7 @@
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
+#include "Enum/ECst.hpp"
 #include "Model/Model.hpp"
 
 using namespace gstlrn;

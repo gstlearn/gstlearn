@@ -66,7 +66,7 @@ String DbMeshStandard::toString(const AStringFormat* strfmt) const
   DbStringFormat dsf;
   if (dbfmt != nullptr) dsf = *dbfmt;
 
-  sstr << toTitle(0, "Data Base for Standard Meshing");
+  sstr << toStrTitle(0, "Data Base for Standard Meshing");
 
   sstr << _toStringCommon(&dsf);
 

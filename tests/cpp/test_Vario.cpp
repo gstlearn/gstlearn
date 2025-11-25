@@ -13,7 +13,6 @@
 /******************************************************************************/
 #include "Basic/AStringable.hpp"
 #include "Basic/File.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovAnisoList.hpp"
@@ -135,13 +134,13 @@ int main(int argc, char* argv[])
 
   // Extract the values from a multivariate variogram
   VectorDouble vec00 = vario->getGgVec(0, 0, 0, false, false, compress);
-  VH::dump("Variogram for: ivar=0, jvar=0 (no compress)", vec00);
+  printVector("Variogram for: ivar=0, jvar=0 (no compress)", vec00, true, true);
 
   VectorDouble vec10 = vario->getGgVec(0, 1, 0, false, false, compress);
-  VH::dump("Variogram for: ivar=1, jvar=0 (no compress)", vec10);
+  printVector("Variogram for: ivar=1, jvar=0 (no compress)", vec10, true, true);
 
   VectorDouble vec11 = vario->getGgVec(0, 1, 1, false, false, compress);
-  VH::dump("Variogram for: ivar=1, jvar=1 (no compress)", vec11);
+  printVector("Variogram for: ivar=1, jvar=1 (no compress)", vec11, true, true);
 
   (void)vario->setGgVec(0, 0, 1, vec00);
   (void)vario->setGgVec(0, 1, 1, vec00);
@@ -149,13 +148,13 @@ int main(int argc, char* argv[])
   compress = false;
 
   vec00 = vario->getGgVec(0, 0, 0, false, false, compress);
-  VH::dump("Variogram for: ivar=0, jvar=0", vec00);
+  printVector("Variogram for: ivar=0, jvar=0", vec00, true, true);
 
   vec10 = vario->getGgVec(0, 1, 0, false, false, compress);
-  VH::dump("Variogram for: ivar=1, jvar=0", vec10);
+  printVector("Variogram for: ivar=1, jvar=0", vec10, true, true);
 
   vec11 = vario->getGgVec(0, 1, 1, false, false, compress);
-  VH::dump("Variogram for: ivar=1, jvar=1", vec11);
+  printVector("Variogram for: ivar=1, jvar=1", vec11, true, true);
 
   (void)vario->setGgVec(0, 0, 1, vec00);
   (void)vario->setGgVec(0, 1, 1, vec00);

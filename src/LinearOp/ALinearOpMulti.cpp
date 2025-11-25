@@ -10,7 +10,7 @@
 /******************************************************************************/
 #include "LinearOp/ALinearOpMulti.hpp"
 #include "Basic/AException.hpp"
-#include "Basic/AStringable.hpp"
+#include "Basic/Message.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/Timer.hpp"
 #include "Basic/VectorHelper.hpp"

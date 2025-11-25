@@ -77,7 +77,7 @@ String NeighBench::toString(const AStringFormat* strfmt) const
 
   std::stringstream sstr;
 
-  sstr << toTitle(0, "Bench Neighborhood");
+  sstr << toStrTitle(0, "Bench Neighborhood");
 
   sstr << _biPtBench->toString();
 

@@ -11,6 +11,7 @@
 
 // This test is mean to check the Factorial Kriging Analysis On Grid
 
+#include "Enum/ECst.hpp"
 #include "Enum/ESpaceType.hpp"
 
 #include "Space/ASpaceObject.hpp"

@@ -112,8 +112,8 @@ void PCA::_pcaFunctions(bool verbose)
 
   if (verbose)
   {
-    print_matrix("PCA Z->F", 0, _Z2F);
-    print_matrix("PCA F->Z", 0, _F2Z);
+    printMatrix("PCA Z->F", 0, _Z2F);
+    printMatrix("PCA F->Z", 0, _F2Z);
   }
 }
 
@@ -139,8 +139,8 @@ void PCA::_mafFunctions(bool verbose)
 
   if (verbose)
   {
-    print_matrix("MAF Z->F", 0, _Z2F);
-    print_matrix("MAF F->Z", 0, _F2Z);
+    printMatrix("MAF Z->F", 0, _Z2F);
+    printMatrix("MAF F->Z", 0, _F2Z);
   }
 }
 
@@ -158,8 +158,8 @@ Id PCA::_calculateEigen(bool verbose, bool optionPositive)
 
   if (verbose)
   {
-    print_matrix("Eigen values", 0, 1, 1, nvar, NULL, _eigval.data());
-    print_matrix("Eigen Vectors", 0, _eigvec);
+    printMatrix("Eigen values", 0, 1, 1, nvar, _eigval);
+    printMatrix("Eigen Vectors", 0, _eigvec);
   }
   return 0;
 }
@@ -178,8 +178,8 @@ Id PCA::_calculateGEigen(bool verbose)
 
   if (verbose)
   {
-    print_matrix("GEigen values", 0, 1, 1, nvar, NULL, _eigval.data());
-    print_matrix("GEigen Vectors", 0, _eigvec);
+    printMatrix("GEigen values", 0, 1, 1, nvar, _eigval);
+    printMatrix("GEigen Vectors", 0, _eigvec);
   }
   return 0;
 }
@@ -193,21 +193,21 @@ String PCA::toString(const AStringFormat* strfmt) const
   if (pcafmt != nullptr) dsf = *pcafmt;
   if (_nVar <= 0) return sstr.str();
 
-  sstr << toTitle(1, "PCA Contents");
+  sstr << toStrTitle(1, "PCA Contents");
 
   if (dsf.getflagCenter())
   {
-    sstr << toMatrix("Means", VectorString(), VectorString(), true, _nVar, 1, _mean);
+    sstr << toStrMatrix("Means", VectorString(), VectorString(), true, _nVar, 1, _mean);
   }
   if (dsf.getflagStats())
   {
-    sstr << toMatrix("Covariance Matrix", _c0);
+    sstr << toStrMatrix("Covariance Matrix", _c0);
     if (_gh.size() > 0)
-      sstr << toMatrix("Variogram Matrix at lag h", _gh);
+      sstr << toStrMatrix("Variogram Matrix at lag h", _gh);
 
-    sstr << toMatrix("Matrix MZ2F to transform standardized Variables Z into Factors F", _Z2F);
+    sstr << toStrMatrix("Matrix MZ2F to transform standardized Variables Z into Factors F", _Z2F);
     sstr << "Y = (Z - m) * MZ2F)" << std::endl;
-    sstr << toMatrix("Matrix MF2Z to back-transform Factors F into standardized Variables Z", _F2Z);
+    sstr << toStrMatrix("Matrix MF2Z to back-transform Factors F into standardized Variables Z", _F2Z);
     sstr << "Z = m + Y * MF2Z" << std::endl;
   }
   return sstr.str();
@@ -372,8 +372,8 @@ void PCA::_calculateNormalization(const Db* db,
     message("Number of variables         = %d\n", nvar);
     message("Number of samples in the Db = %d\n", nech);
     message("Number of isotropic samples = %d\n", niso);
-    print_matrix("Mean", 0, 1, 1, nvar, NULL, _mean.data());
-    print_matrix("St. Dev.", 0, 1, 1, nvar, NULL, _sigma.data());
+    printMatrix("Mean", 0, 1, 1, nvar, _mean);
+    printMatrix("St. Dev.", 0, 1, 1, nvar, _sigma);
     message("\n");
   }
 }
@@ -428,7 +428,7 @@ void PCA::_covariance0(const Db* db,
   /* Printout of the covariance matrix (optional) */
 
   if (verbose)
-    print_matrix("Variance-Covariance matrix for distance 0", 0, _c0);
+    printMatrix("Variance-Covariance matrix for distance 0", 0, _c0);
 }
 
 /****************************************************************************/
@@ -820,7 +820,7 @@ void PCA::_variogramh(Db* db,
     message("Number of samples in the Db = %d\n", nech);
     message("Number of isotopic pairs    = %d\n", npairs);
     message("\n");
-    print_matrix("Variogram matrix for distance h", 0, _gh);
+    printMatrix("Variogram matrix for distance h", 0, _gh);
   }
 }
 

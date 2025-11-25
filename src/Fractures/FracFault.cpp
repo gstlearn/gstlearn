@@ -71,7 +71,7 @@ String FracFault::toString(const AStringFormat* /*strfmt*/) const
   Id number = static_cast<Id>(_thetal.size());
   for (Id j = 0; j < number; j++)
   {
-    sstr << toTitle(2, "Family #%d/%d", j + 1, number);
+    sstr << toStrTitle(2, "Family #%d/%d", j + 1, number);
     sstr << "Intensity maximum value (left)  = " << _thetal[j] << std::endl;
     sstr << "Intensity range (left)          = " << _rangel[j] << std::endl;
     sstr << "Intensity maximum value (right) = " << _thetar[j] << std::endl;

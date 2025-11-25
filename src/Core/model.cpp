@@ -11,8 +11,8 @@
 #include "Model/Model.hpp"
 #include "Anamorphosis/AnamDiscreteIR.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
+#include "Basic/AStringable.hpp"
 #include "Basic/String.hpp"
-#include "Basic/Utilities.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovAnisoList.hpp"
 #include "Covariances/CovCalcMode.hpp"
@@ -442,8 +442,8 @@ Id model_covmat_inchol(Id verbose,
   if (verbose)
   {
     message("Number of pivots = %d\n", npivot);
-    print_imatrix("Order", 0, 1, 1, npivot, NULL, pvec.data());
-    print_matrix("Criterion", 0, 1, 1, npivot, NULL, crit.data());
+    printMatrix("Order", 0, 1, 1, npivot, pvec);
+    printMatrix("Criterion", 0, 1, 1, npivot, crit);
   }
 
   return 0;

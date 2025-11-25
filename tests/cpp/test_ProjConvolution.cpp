@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Basic/File.hpp"
 #include "Basic/Law.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "LinearOp/ProjConvolution.hpp"
@@ -55,7 +54,7 @@ int main(int argc, char* argv[])
   }
   for (Id i = 0; i < conv_dim; i++)
     convolution[i] /= total;
-  VH::dump("Convolution", convolution);
+  printVector("Convolution", convolution, true, true);
 
   Id ngrid_seismic     = ngrid - (conv_dim - 1);
   nx                   = VectorInt({nxval, ngrid_seismic});

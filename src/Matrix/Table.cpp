@@ -184,7 +184,7 @@ String Table::toString(const AStringFormat* /*strfmt*/) const
   if (!_skipTitle)
   {
     if (!_title.empty())
-      sstr << toTitle(1, _title.c_str());
+      sstr << toStrTitle(1, _title.c_str());
   }
 
   // Description
@@ -209,7 +209,7 @@ String Table::toString(const AStringFormat* /*strfmt*/) const
   // Print optional header (using Column names if defined)
   if (!_colNames.empty())
   {
-    if (!_rowNames.empty()) sstr << toStr(" ", EJustify::fromKey("RIGHT"), rowLengthMax);
+    if (!_rowNames.empty()) sstr << toStr(" ", 1, rowLengthMax);
     for (Id icol = 0; icol < ncols; icol++)
       sstr << " " << toStr(_colNames[icol]);
     sstr << std::endl;
@@ -218,10 +218,10 @@ String Table::toString(const AStringFormat* /*strfmt*/) const
   // Print the contents of the table
   for (Id irow = 0; irow < nrows; irow++)
   {
-    if (!_rowNames.empty()) sstr << toStr(_rowNames[irow], EJustify::fromKey("RIGHT"), rowLengthMax);
+    if (!_rowNames.empty()) sstr << toStr(_rowNames[irow], 1, rowLengthMax);
     for (Id icol = 0; icol < ncols; icol++)
     {
-      sstr << " " << toDouble(getValue(irow, icol));
+      sstr << " " << toStr(getValue(irow, icol));
     }
     sstr << std::endl;
   }

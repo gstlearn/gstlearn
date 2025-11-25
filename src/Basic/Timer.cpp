@@ -9,7 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Basic/Timer.hpp"
-#include "Basic/AStringable.hpp"
+#include "Basic/Message.hpp"
 
 namespace gstlrn
 {

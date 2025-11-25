@@ -12,26 +12,26 @@
 
 #include "Enum/ESpaceType.hpp"
 
-#include "Space/ASpaceObject.hpp"
-#include "Db/Db.hpp"
-#include "Db/DbStringFormat.hpp"
-#include "Model/Model.hpp"
-#include "Covariances/CovAniso.hpp"
-#include "Covariances/CovAnisoList.hpp"
-#include "Drifts/DriftM.hpp"
-#include "Basic/Law.hpp"
-#include "Basic/File.hpp"
-#include "Basic/OptDbg.hpp"
-#include "Basic/VectorHelper.hpp"
-#include "Neigh/NeighUnique.hpp"
-#include "Neigh/NeighMoving.hpp"
-#include "Neigh/NeighImage.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Anamorphosis/CalcAnamTransform.hpp"
-#include "Simulation/CalcSimuTurningBands.hpp"
-#include "Estimation/CalcKriging.hpp"
-#include "Estimation/CalcImage.hpp"
+#include "Basic/File.hpp"
+#include "Basic/Law.hpp"
+#include "Basic/OptDbg.hpp"
+#include "Basic/VectorHelper.hpp"
+#include "Covariances/CovAniso.hpp"
+#include "Covariances/CovAnisoList.hpp"
+#include "Db/Db.hpp"
+#include "Db/DbStringFormat.hpp"
+#include "Drifts/DriftM.hpp"
 #include "Estimation/CalcGlobal.hpp"
+#include "Estimation/CalcImage.hpp"
+#include "Estimation/CalcKriging.hpp"
+#include "Model/Model.hpp"
+#include "Neigh/NeighImage.hpp"
+#include "Neigh/NeighMoving.hpp"
+#include "Neigh/NeighUnique.hpp"
+#include "Simulation/CalcSimuTurningBands.hpp"
+#include "Space/ASpaceObject.hpp"
 
 using namespace gstlrn;
 
@@ -239,7 +239,7 @@ int main(int argc, char* argv[])
     message("- Number of Neighbors = %d\n", ktest.nech);
     message("- Number of Kriging System equations (covariance) = %d\n", ktest.CSize);
     message("- Number of Kriging System equations (drift) = %d\n", ktest.DSize);
-    VH::dump("- Neighboring Sample Indices", ktest.nbgh);
+    printVector("- Neighboring Sample Indices", ktest.nbgh, true, true);
   }
 
   // ====================== Unique Neighborhood case ===========================

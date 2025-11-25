@@ -8,6 +8,8 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Basic/Message.hpp"
+#include "Enum/ECst.hpp"
 #include "Enum/EFormatNF.hpp"
 #include "Enum/ESpaceType.hpp"
 

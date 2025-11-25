@@ -10,25 +10,21 @@
 /******************************************************************************/
 #pragma once
 
-#include "Covariances/CovAniso.hpp"
-#include "geoslib_d.h"
 #include "gstlearn_export.hpp"
 
+#include "geoslib_d.h"
+
 #include "Basic/NamingConvention.hpp"
-#include "Db/DbGrid.hpp"
-#include "Matrix/MatrixDense.hpp"
-#include "Model/Constraints.hpp"
+#include "Covariances/CovAniso.hpp"
 #include "Model/Model.hpp"
-#include "Model/Option_AutoFit.hpp"
-#include "Model/Option_VarioFit.hpp"
 #include "Stats/Selectivity.hpp"
 #include "Variogram/DirParam.hpp"
+#include "Variogram/Vario.hpp"
 
 namespace gstlrn
 {
 class CovAniso;
 class Db;
-class Vario;
 class VarioParam;
 class Model;
 class AAnam;

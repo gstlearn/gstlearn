@@ -1093,7 +1093,7 @@ String Db::_summaryLocators(void) const
 
   /* Loop on the pointers */
 
-  sstr << toTitle(1, "List of locators");
+  sstr << toStrTitle(1, "List of locators");
   Id rank     = 0;
   auto number = getNEloc();
   for (Id iloc = 0; iloc < number; iloc++)
@@ -1116,7 +1116,7 @@ String Db::_summaryUIDs(void) const
 {
   std::stringstream sstr;
 
-  sstr << toTitle(1, "List of unsorted UIDs");
+  sstr << toStrTitle(1, "List of unsorted UIDs");
   sstr << "Maximum number of positions = " << getNUIDMax() << std::endl;
   sstr << "Number of Columns           = " << getNColumn() << std::endl;
 
@@ -3452,7 +3452,7 @@ String Db::_summaryString(void) const
 {
   std::stringstream sstr;
 
-  sstr << toTitle(1, "Data Base Summary");
+  sstr << toStrTitle(1, "Data Base Summary");
 
   if (isGrid())
     sstr << "File is organized as a regular grid" << std::endl;
@@ -3476,7 +3476,7 @@ String Db::_summaryExtensions(void) const
 
   /* Printout */
 
-  sstr << toTitle(1, "Data Base Extension");
+  sstr << toStrTitle(1, "Data Base Extension");
   for (Id idim = 0; idim < ndim; idim++)
   {
     VectorDouble coor = getOneCoordinate(idim, true);
@@ -3484,8 +3484,8 @@ String Db::_summaryExtensions(void) const
     double vmax       = coor.maximum();
 
     sstr << "Coor #" << idim + 1;
-    sstr << " - Min = " << toDouble(vmin);
-    sstr << " - Max = " << toDouble(vmax);
+    sstr << " - Min = " << toStr(vmin);
+    sstr << " - Max = " << toStr(vmax);
     sstr << " - Ext = " << vmax - vmin;
     sstr << std::endl;
   }
@@ -3498,7 +3498,7 @@ String Db::_summaryVariables(void) const
   std::stringstream sstr;
 
   if (getNColumn() <= 0) return sstr.str();
-  sstr << toTitle(1, "Variables");
+  sstr << toStrTitle(1, "Variables");
 
   for (Id icol = 0; icol < getNColumn(); icol++)
   {
@@ -3524,7 +3524,7 @@ String Db::_summaryStats(VectorInt cols, Id mode, Id maxNClass) const
   Id ncol = (cols.empty()) ? getNColumn() : static_cast<Id>(cols.size());
   if (ncol <= 0) return sstr.str();
 
-  sstr << toTitle(1, "Data Base Statistics");
+  sstr << toStrTitle(1, "Data Base Statistics");
 
   Id nmask, ntest, nout;
   auto nech = getNSample(false);
@@ -3543,19 +3543,19 @@ String Db::_summaryStats(VectorInt cols, Id mode, Id maxNClass) const
 
     sstr << icol + 1 << " - Name " << getNameByColIdx(icol) << " - Locator "
          << _getLocatorNameByColIdx(icol) << std::endl;
-    sstr << " Nb of data          = " << toInt(nech) << std::endl;
-    sstr << " Nb of active values = " << toInt(stats.nvalid) << std::endl;
+    sstr << " Nb of data          = " << toStr(nech) << std::endl;
+    sstr << " Nb of active values = " << toStr(stats.nvalid) << std::endl;
     if (stats.nvalid <= 0) continue;
 
     /* Dispatch */
 
     if (mode == 1)
     {
-      sstr << " Minimum value       = " << toDouble(stats.mini) << std::endl;
-      sstr << " Maximum value       = " << toDouble(stats.maxi) << std::endl;
-      sstr << " Mean value          = " << toDouble(stats.mean) << std::endl;
-      sstr << " Standard Deviation  = " << toDouble(stats.stdv) << std::endl;
-      sstr << " Variance            = " << toDouble(stats.stdv * stats.stdv) << std::endl;
+      sstr << " Minimum value       = " << toStr(stats.mini) << std::endl;
+      sstr << " Maximum value       = " << toStr(stats.maxi) << std::endl;
+      sstr << " Mean value          = " << toStr(stats.mean) << std::endl;
+      sstr << " Standard Deviation  = " << toStr(stats.stdv) << std::endl;
+      sstr << " Variance            = " << toStr(stats.stdv * stats.stdv) << std::endl;
     }
     else
     {
@@ -3570,16 +3570,16 @@ String Db::_summaryStats(VectorInt cols, Id mode, Id maxNClass) const
                   nclass, vmin, 1., &nmask,
                   &ntest, &nout, classe.data());
       if (ntest > 0)
-        sstr << " Unknown values      = " << toInt(ntest) << std::endl;
+        sstr << " Unknown values      = " << toStr(ntest) << std::endl;
       if (nout > 0)
-        sstr << " Outside classes     = " << toInt(nout) << std::endl;
+        sstr << " Outside classes     = " << toStr(nout) << std::endl;
 
       for (Id iclass = 0; iclass < nclass; iclass++)
       {
         if (classe[iclass] <= 0) continue;
-        sstr << " Class" << toInt(static_cast<Id>(vmin) + iclass);
-        sstr << " = " << toInt(classe[iclass]);
-        sstr << " (" << toDouble(100. * classe[iclass] / stats.nvalid) << "%)";
+        sstr << " Class" << toStr(static_cast<Id>(vmin) + iclass);
+        sstr << " = " << toStr(classe[iclass]);
+        sstr << " (" << toStr(100. * classe[iclass] / stats.nvalid) << "%)";
         sstr << std::endl;
       }
     }
@@ -3594,7 +3594,7 @@ String Db::_summaryArrays(VectorInt cols, bool useSel) const
   Id ncol = (cols.empty()) ? getNColumn() : static_cast<Id>(cols.size());
   if (ncol <= 0) return sstr.str();
 
-  sstr << toTitle(1, "Data Base Contents");
+  sstr << toStrTitle(1, "Data Base Contents");
 
   auto number = getNSample(useSel);
 
@@ -3609,7 +3609,7 @@ String Db::_summaryArrays(VectorInt cols, bool useSel) const
     colnames.push_back(getNameByColIdx(icol));
   }
 
-  sstr << toMatrix(String(), colnames, VectorString(), true, number, ncol, tab);
+  sstr << toStrMatrix(String(), colnames, VectorString(), true, number, ncol, tab);
 
   return sstr.str();
 }
@@ -3670,7 +3670,7 @@ String Db::toString(const AStringFormat* strfmt) const
   DbStringFormat dsf;
   if (dbfmt != nullptr) dsf = *dbfmt;
 
-  sstr << toTitle(0, "Data Base Characteristics");
+  sstr << toStrTitle(0, "Data Base Characteristics");
 
   if (dsf.matchResume())
     sstr << _summaryString();
@@ -6152,10 +6152,10 @@ void Db::dumpGeometry(Id iech, Id jech) const
   message("- Distance = %lf\n", dist);
 
   VectorDouble incr = P1.getIncrement(P2);
-  VH::dump("- Increments = ", incr, false);
+  printVector("- Increments = ", incr, true, false);
 
   VectorDouble angles = GH::rotationFromIncrements(incr, true);
-  VH::dump("- Angles (deg) = ", angles, false);
+  printVector("- Angles (deg) = ", angles, true, false);
 }
 
 } // namespace gstlrn

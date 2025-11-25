@@ -528,25 +528,25 @@ void KrigingSystemSimpleCase::_dumpKrigingResults(Id status,
     if (_iptrEst >= 0)
     {
       double value = (status == 0) ? _dbout->getArray(iechout, _iptrEst + ivar) : TEST;
-      tab_printg(" - Estimate  = ", value);
+      printElement(" - Estimate  = ", value);
       message("\n");
     }
     if (_iptrStd >= 0)
     {
       double value = (status == 0) ? _dbout->getArray(iechout, _iptrStd + ivar) : TEST;
-      tab_printg(" - Std. Dev. = ", value);
+      printElement(" - Std. Dev. = ", value);
       message("\n");
-      tab_printg(" - Variance  = ", FFFF(value) ? TEST : value * value);
+      printElement(" - Variance  = ", FFFF(value) ? TEST : value * value);
 
       value = algebra->getSigma00()->getValue(ivar, ivar);
       message("\n");
-      tab_printg(" - Cov(h=0)  = ", value);
+      printElement(" - Cov(h=0)  = ", value);
       message("\n");
     }
     if (_iptrVarZ >= 0)
     {
       double value = (status == 0) ? _dbout->getArray(iechout, _iptrVarZ + ivar) : TEST;
-      tab_printg(" - Var(Z*)   = ", value);
+      printElement(" - Var(Z*)   = ", value);
       message("\n");
     }
   }

@@ -15,7 +15,6 @@
 #include "Basic/Utilities.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
-#include "Enum/EJustify.hpp"
 #include "Model/Model.hpp"
 #include "geoslib_enum.h"
 #include "geoslib_old_f.h"
@@ -1416,7 +1415,7 @@ static VectorDouble st_seismic_wavelet(Id verbose,
 
   /* Print the wavelet */
 
-  if (verbose) print_vector("Wavelet", 0, ntw2, wavelet);
+  if (verbose) printVector("Wavelet", wavelet);
 
   return wavelet;
 }
@@ -2201,19 +2200,19 @@ static void st_estimate_neigh_print(ST_Seismic_Neigh* ngh, Id ix0, Id iz0)
           ngh->nactive);
 
   if (ngh->nactive <= 0) return;
-  tab_prints(NULL, "Sample");
-  tab_prints(NULL, "Delta-X");
-  tab_prints(NULL, "Delta-Z");
-  tab_prints(NULL, "V1");
-  tab_prints(NULL, "V2");
+  printElement(String(), "Sample");
+  printElement(String(), "Delta-X");
+  printElement(String(), "Delta-Z");
+  printElement(String(), "V1");
+  printElement(String(), "V2");
   message("\n");
   for (i = 0; i < ngh->nactive; i++)
   {
-    tab_printi(NULL, i + 1);
-    tab_printi(NULL, ngh->ix_ngh[i]);
-    tab_printi(NULL, ngh->iz_ngh[i]);
-    tab_printg(NULL, ngh->v1_ngh[i]);
-    tab_printg(NULL, ngh->v2_ngh[i]);
+    printElement(String(), i + 1);
+    printElement(String(), ngh->ix_ngh[i]);
+    printElement(String(), ngh->iz_ngh[i]);
+    printElement(String(), ngh->v1_ngh[i]);
+    printElement(String(), ngh->v2_ngh[i]);
     message("\n");
   }
 }
@@ -2620,14 +2619,14 @@ static void st_wgt_print(ST_Seismic_Neigh* ngh,
 
   /* First line */
 
-  tab_prints(NULL, "Rank");
-  tab_prints(NULL, "Delta-X");
-  tab_prints(NULL, "Delta-Z");
-  tab_prints(NULL, "Data");
+  printElement(String(), "Rank");
+  printElement(String(), "Delta-X");
+  printElement(String(), "Delta-Z");
+  printElement(String(), "Data");
   for (ivar = 0; ivar < nvar; ivar++)
   {
     (void)gslSPrintf(string, "Z%d*", ivar + 1);
-    tab_prints(NULL, string.data());
+    printElement(String(), string);
   }
   message("\n");
 
@@ -2643,28 +2642,28 @@ static void st_wgt_print(ST_Seismic_Neigh* ngh,
       sum[ivar] = 0.;
     for (iech = 0; iech < nech; iech++, lec++)
     {
-      tab_printi(NULL, iech + 1);
-      tab_printi(NULL, ngh->ix_ngh[iech]);
-      tab_printi(NULL, ngh->iz_ngh[iech]);
+      printElement(String(), iech + 1);
+      printElement(String(), ngh->ix_ngh[iech]);
+      printElement(String(), ngh->iz_ngh[iech]);
       if (jvar == 0)
-        tab_printg(NULL, ngh->v1_ngh[iech]);
+        printElement(String(), ngh->v1_ngh[iech]);
       else
-        tab_printg(NULL, ngh->v2_ngh[iech]);
+        printElement(String(), ngh->v2_ngh[iech]);
 
       for (ivar = 0; ivar < nvar; ivar++)
       {
         iwgt  = nred * ivar + cumflag;
         value = (flag[lec]) ? wgt[iwgt] : TEST;
         if (!FFFF(value)) sum[ivar] += value;
-        tab_printg(NULL, value);
+        printElement(String(), value);
       }
       if (flag[lec]) cumflag++;
       message("\n");
     }
 
-    tab_prints(NULL, "Sum of weights", 4, EJustify::LEFT);
+    printElement(String(), "Sum of weights", 4, -1);
     for (ivar = 0; ivar < nvar; ivar++)
-      tab_printg(NULL, sum[ivar]);
+      printElement(String(), sum[ivar]);
     message("\n");
   }
 }
@@ -2774,9 +2773,9 @@ static void st_estimate_result(Db* db,
 
     if (OptDbg::query(EDbg::RESULTS))
     {
-      tab_printi(NULL, ivar + 1);
-      tab_printg(" - Estimate  = ", result);
-      if (flag_std) tab_printg(" - St. Dev.  = ", stdev);
+      printElement(String(), ivar + 1);
+      printElement(" - Estimate  = ", result);
+      if (flag_std) printElement(" - St. Dev.  = ", stdev);
       message("\n");
     }
   }
@@ -2882,7 +2881,7 @@ static void st_simulate_result(DbGrid* db,
       if (OptDbg::query(EDbg::RESULTS))
       {
         message("Simulation #%d of Z%-2d : ", isimu + 1, ivar + 1);
-        tab_printg(" = ", result[ivar]);
+        printElement(" = ", result[ivar]);
         message("\n");
       }
     }

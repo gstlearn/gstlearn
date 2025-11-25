@@ -32,20 +32,6 @@ public:
 
   static VectorString initVString(Id ntab, char** names);
 
-  static void dump(const String& title, const VectorVectorInt& vect, bool skipLine = true);
-  static void dump(const String& title, const VectorVectorDouble& vect, bool skipLine = true);
-  static void dump(const String& title, const VectorDouble& vect, bool skipLine = true);
-  static void dump(const String& title, const VectorString& vect, bool skipLine = true);
-  static void dump(const String& title, const VectorInt& vect, bool skipLine = true);
-#ifndef SWIG
-  static String toStringAsSpan(constvect vec);
-#endif
-  static String toStringAsVD(const VectorDouble& vec); // TODO rename
-  static String toStringAsVVD(const VectorVectorDouble& vec);
-  static String toStringAsVVI(const VectorVectorInt& vec);
-  static String toStringAsVS(const VectorString& vec);
-  static String toStringAsVI(const VectorInt& vec);
-
 #ifndef SWIG
   static void dumpStats(const String& title, constvect vect, Id nmax = -1);
   static void dumpRange(const String& title, constvect vect, Id nmax = -1);

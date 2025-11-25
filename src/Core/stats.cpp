@@ -186,10 +186,10 @@ static Id st_divide_by_2(Id* nxyz, Id orient)
 static void st_mean_arith(Id idim,
                           const Id* nxyz1,
                           const Id* nxyz2,
-                          const double* numtab1,
-                          double* numtab2,
-                          double* valtab1,
-                          double* valtab2)
+                          const VectorDouble& numtab1,
+                          VectorDouble& numtab2,
+                          VectorDouble& valtab1,
+                          VectorDouble& valtab2)
 {
   Id ix, iy, iz, ix1, ix2, iy1, iy2, iz1, iz2;
 
@@ -267,10 +267,10 @@ static void st_mean_arith(Id idim,
 static void st_mean_harmo(Id idim,
                           const Id* nxyz1,
                           const Id* nxyz2,
-                          const double* numtab1,
-                          double* numtab2,
-                          double* valtab1,
-                          double* valtab2)
+                          const VectorDouble& numtab1,
+                          VectorDouble& numtab2,
+                          VectorDouble& valtab1,
+                          VectorDouble& valtab2)
 {
   Id ix, iy, iz, ix1, ix2, iy1, iy2, iz1, iz2;
 
@@ -348,11 +348,11 @@ static void st_mean_harmo(Id idim,
  **
  *****************************************************************************/
 static Id st_recopy(const Id* nxyz1,
-                    const double* numtab1,
-                    const double* valtab1,
+                    const VectorDouble& numtab1,
+                    const VectorDouble& valtab1,
                     Id* nxyz2,
-                    double* numtab2,
-                    double* valtab2)
+                    VectorDouble& numtab2,
+                    VectorDouble& valtab2)
 {
   Id i, ncell;
 
@@ -388,9 +388,9 @@ static Id st_recopy(const Id* nxyz1,
  **
  ****************************************************************************/
 static void st_print_grid(const char* subtitle,
-                          Id nxyz[3],
-                          double* numtab,
-                          double* valtab)
+                          const Id nxyz[3],
+                          VectorDouble& numtab,
+                          VectorDouble& valtab)
 {
   String string;
   Id iz, shift;
@@ -405,10 +405,12 @@ static void st_print_grid(const char* subtitle,
   {
     (void)gslSPrintf(string, "%s Values (iz=%d)\n", subtitle, iz + 1);
     message(string.data());
-    print_matrix(NULL, 0, 0, nxyz[0], nxyz[1], NULL, &valtab[iz * shift]);
+    VectorDouble valsub(valtab.begin() + shift * iz, valtab.begin() + shift * (iz + 1));
+    printMatrix(String(), 0, 0, nxyz[0], nxyz[1], valsub);
     (void)gslSPrintf(string, "%s Counts (iz=%d)\n", subtitle, iz + 1);
     message(string.data());
-    print_matrix(NULL, 0, 0, nxyz[0], nxyz[1], NULL, &numtab[iz * shift]);
+    VectorDouble numsub(numtab.begin() + shift * iz, numtab.begin() + shift * (iz + 1));
+    printMatrix(String(), 0, 0, nxyz[0], nxyz[1], numsub);
   }
   message("\n");
 }
@@ -422,7 +424,9 @@ static void st_print_grid(const char* subtitle,
  ** \param[out] valtab    Array containing the sample value
  **
  *****************************************************************************/
-static void st_print_upscale(const char* title, Id* nxyz, const double* valtab)
+static void st_print_upscale(const char* title,
+                             Id* nxyz,
+                             const VectorDouble& valtab)
 {
   double mini, maxi, value;
   Id lec, ndef;
@@ -467,12 +471,12 @@ static void st_print_upscale(const char* title, Id* nxyz, const double* valtab)
 static void st_upscale(Id orient,
                        Id* nxyz,
                        Id flag_save,
-                       double* numtab0,
-                       double* numtab1,
-                       double* numtab2,
-                       double* valtab0,
-                       double* valtab1,
-                       double* valtab2,
+                       VectorDouble& numtab0,
+                       VectorDouble& numtab1,
+                       VectorDouble& numtab2,
+                       VectorDouble& valtab0,
+                       VectorDouble& valtab1,
+                       VectorDouble& valtab2,
                        double* res1,
                        double* res2)
 {
@@ -737,8 +741,8 @@ Id db_upscale(DbGrid* dbgrid1, DbGrid* dbgrid2, Id orient, Id verbose)
         /* Upscale the corresponding subgrid of the Input Grid */
 
         st_upscale(orient, nxyz, flag_save,
-                   numtab0.data(), numtab1.data(), numtab2.data(),
-                   valtab0.data(), valtab1.data(), valtab2.data(),
+                   numtab0, numtab1, numtab2,
+                   valtab0, valtab1, valtab2,
                    &result1, &result2);
         result = sqrt(result1 * result2);
       }

@@ -100,7 +100,7 @@ String FracEnviron::toString(const AStringFormat* strfmt) const
 
   /* General characteristics */
 
-  sstr << toTitle(0, "Geometry");
+  sstr << toStrTitle(0, "Geometry");
   sstr << "Field extension (horizontal)    = " << _xmax << std::endl;
   sstr << "Field extension (vertical)      = " << _ymax << std::endl;
   sstr << "Field dilation (horizontal)     = " << _deltax << std::endl;
@@ -114,7 +114,7 @@ String FracEnviron::toString(const AStringFormat* strfmt) const
 
   for (Id i = 0; i < getNFamilies(); i++)
   {
-    sstr << toTitle(2, "Family #%d/%d", i + 1, getNFamilies());
+    sstr << toStrTitle(2, "Family #%d/%d", i + 1, getNFamilies());
     sstr << _families[i].toString(strfmt);
   }
 
@@ -122,7 +122,7 @@ String FracEnviron::toString(const AStringFormat* strfmt) const
 
   for (Id i = 0; i < getNFaults(); i++)
   {
-    sstr << toTitle(2, "Fault #%d/%d", i + 1, getNFaults());
+    sstr << toStrTitle(2, "Fault #%d/%d", i + 1, getNFaults());
     sstr << _faults[i].toString(strfmt);
   }
 

@@ -12,7 +12,6 @@
 
 #include "Arrays/Array.hpp"
 #include "Basic/AStringable.hpp"
-#include "Basic/FFT.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/CorAniso.hpp"
@@ -31,12 +30,10 @@
 #include "Space/SpaceSN.hpp"
 
 #include <cmath>
-#include <functional>
 #include <ostream>
 
 namespace gstlrn
 {
-
 CovAniso::CovAniso(const ECov& type, const CovContext& ctxt)
   : CovProportional(nullptr, MatrixSymmetric(ctxt.getNVar()))
 {
@@ -187,12 +184,12 @@ String CovAniso::toString(const AStringFormat* strfmt) const
 
     if (getNVar() > 1)
     {
-      sstr << toMatrix("- Sill matrix:", VectorString(), VectorString(), 0,
-                       getNVar(), getNVar(), _sillCur.getValues());
+      sstr << toStrMatrix("- Sill matrix:", VectorString(), VectorString(), 0,
+                          getNVar(), getNVar(), _sillCur.getValues());
     }
     else
     {
-      sstr << "- Sill         = " << toDouble(_sillCur.getValue(0, 0)) << std::endl;
+      sstr << "- Sill         = " << toStr(_sillCur.getValue(0, 0)) << std::endl;
     }
   }
   else
@@ -206,12 +203,12 @@ String CovAniso::toString(const AStringFormat* strfmt) const
       for (Id ivar = 0; ivar < getNVar(); ivar++)
         for (Id jvar = 0; jvar < getNVar(); jvar++)
           slopes.setValue(ivar, jvar, _sillCur.getValue(ivar, jvar) / range);
-      sstr << toMatrix("- Slope matrix:", VectorString(), VectorString(), 0,
-                       getNVar(), getNVar(), slopes.getValues());
+      sstr << toStrMatrix("- Slope matrix:", VectorString(), VectorString(), 0,
+                          getNVar(), getNVar(), slopes.getValues());
     }
     else
     {
-      sstr << "- Slope        = " << toDouble(getSlope(0, 0)) << std::endl;
+      sstr << "- Slope        = " << toStr(getSlope(0, 0)) << std::endl;
     }
   }
 
@@ -222,7 +219,7 @@ String CovAniso::toString(const AStringFormat* strfmt) const
 
   if (isNoStat())
   {
-    sstr << toTitle(1, "Non-Stationary Parameters");
+    sstr << toStrTitle(1, "Non-Stationary Parameters");
     sstr << _tabNoStat->toString(strfmt);
     auto i = getTabNoStatSills()->getNSills();
     sstr << getCorAniso()->toStringNoStat(strfmt, i);
@@ -484,7 +481,6 @@ Array CovAniso::evalCovFFT(const VectorDouble& hmax,
   Array result = getCorAniso()->evalCovFFT(hmax, N, ivar, jvar);
   result.multiplyConstant(_sillCur.getValue(ivar, jvar));
   return result;
-
 }
 
 CovAniso* CovAniso::createReduce(const VectorInt& validVars) const

@@ -234,7 +234,7 @@ Id Vecchia::_buildNeighborhood(const MatrixT<Id>& Ranks,
 
     message("Row Number %4d (Db %d Var %d)", isample, icase1, ivar);
     message(" - Abs Rank = %4d", ipAbs);
-    VH::dump(" - Coors", coor, false);
+    printVector(" - Coors:", coor, true, false);
     if (nitems > 0) message(" Db | Var | Col Number | Abs Rank |           Coors\n");
     for (Id item = 0; item < nitems; item++)
     {
@@ -246,7 +246,7 @@ Id Vecchia::_buildNeighborhood(const MatrixT<Id>& Ranks,
         _db2->getCoordinatesInPlace(coor, iabs2);
       message(" %2d |  %2d |    %4d    |   %4d   |", neighDescr[item][0], neighDescr[item][1],
               neighDescr[item][2], neighDescr[item][3]);
-      VH::dump("", coor, false);
+      printVector("", coor, true, false);
     }
   }
   return nitems;
@@ -280,7 +280,7 @@ void Vecchia::_buildLHS(Id nitems,
         _db2->getSampleAsSPInPlace(p2, iabs2);
 
       _model->getCov()->updateCovByPoints(icase1, iabs1, icase2, iabs2);
-      
+
       double value = _model->evalCov(p1, p2, ivar1, ivar2);
       matCov.setValue(i1, i2, value);
     }
@@ -392,8 +392,8 @@ void Vecchia::_convertAbsToRel(Id nech,
 }
 
 double Vecchia::_buildC00(Id icaseDb,
-                            Id ipAbs,
-                            Id ivar)
+                          Id ipAbs,
+                          Id ivar)
 {
   SpacePoint p1;
   if (icaseDb == 1)
@@ -408,7 +408,7 @@ double Vecchia::_buildC00(Id icaseDb,
   double var0 = _model->getCov()->evalCov(p1, p1, ivar, ivar);
 
   if (icaseDb == 1)
-  { 
+  {
     if (_db1->hasLocVariable(ELoc::V))
     {
       Id icolVerr = _db1->getColIdxByLocator(ELoc::V, ivar);
@@ -486,7 +486,7 @@ Id Vecchia::computeLower(const MatrixT<Id>& Ranks, bool verbose)
     {
       // Identify the Db and absolute sample rank
       (void)_identifyDbAndAbsoluteRank(Ranks, isample, 0, &icaseDb, &ipAbs);
-      
+
       // Check if the sample corresponds to a valid (defined) variable value
       if (!_isVariableDefined(icaseDb, ipAbs, ivar)) continue;
 
@@ -495,9 +495,9 @@ Id Vecchia::computeLower(const MatrixT<Id>& Ranks, bool verbose)
 
       // Build the list of neighboring information
       Id nitems = _buildNeighborhood(Ranks, ndim, icaseDb, isample, ivar, nb_vecchia, neighDescr, verbose);
-      
+
       // Fill the full matrix
-      
+
       _LFull.setValue(irel1, irel1, 1.);
       double varK = _buildC00(icaseDb, ipAbs, ivar);
 
@@ -539,7 +539,7 @@ Id Vecchia::computeLower(const MatrixT<Id>& Ranks, bool verbose)
   {
     mestitle(1, "Lower Vecchia Matrix");
     _LFull.display();
-    VH::dump("Diagonal of Vecchia Matrix", _DFull);
+    printVector("Diagonal of Vecchia Matrix", _DFull, true, true);
   }
   return 0;
 }
@@ -632,10 +632,10 @@ Id krigingVecchia(Db* dbin,
   if (V.computeLower(Ranks, verbose)) return 1;
 
   // Extract sub-part of 'Diagonal' vector
-  const auto& DFull  = V.getDFull();
-  auto nd            = V.getND();
-  auto nt            = V.getNT();
-  Id nvar            = model->getNVar();
+  const auto& DFull = V.getDFull();
+  auto nd           = V.getND();
+  auto nt           = V.getNT();
+  Id nvar           = model->getNVar();
   VectorDouble D_dd(nd);
   VH::extractInPlace(DFull, D_dd, nt);
 

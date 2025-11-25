@@ -1014,8 +1014,8 @@ String Vario::toString(const AStringFormat* strfmt) const
 
   // Print the variance matrix
 
-  sstr << toMatrix("Variance-Covariance Matrix", VectorString(), VectorString(),
-                   0, _nVar, _nVar, getVars());
+  sstr << toStrMatrix("Variance-Covariance Matrix", VectorString(), VectorString(),
+                      0, _nVar, _nVar, getVars());
 
   /* Loop on the directions (only if the resulting arrays have been defined) */
 
@@ -1023,7 +1023,7 @@ String Vario::toString(const AStringFormat* strfmt) const
   {
     for (Id idir = 0; idir < getNDir(); idir++)
     {
-      sstr << toTitle(1, "Direction #%d", idir + 1);
+      sstr << toStrTitle(1, "Direction #%d", idir + 1);
       sstr << getDirParam(idir).toString(strfmt);
       sstr << _toStringByDirection(strfmt, idir);
     }
@@ -1044,8 +1044,7 @@ String Vario::_toStringByDirection(const AStringFormat* /*strfmt*/, Id idir) con
       if (ivar == jvar)
         sstr << "For variable " << ivar + 1 << std::endl;
       else
-        sstr << "For variables " << ivar + 1 << " and " << jvar + 1
-             << std::endl;
+        sstr << "For variables " << ivar + 1 << " and " << jvar + 1 << std::endl;
       sstr << toStr("Rank");
       sstr << toStr("Npairs");
       sstr << toStr("Distance");
@@ -1057,10 +1056,10 @@ String Vario::_toStringByDirection(const AStringFormat* /*strfmt*/, Id idir) con
         auto j = getDirAddress(idir, ivar, jvar, i, true, 0);
         if (_sw[idir][j] <= 0) continue;
         Id rank = (!getFlagAsym()) ? i : i - getNLag(idir);
-        sstr << toInt(rank);
-        sstr << toDouble(_sw[idir][j]);
-        sstr << toDouble(_hh[idir][j]);
-        sstr << toDouble(_gg[idir][j]);
+        sstr << toStr(rank);
+        sstr << toStr(_sw[idir][j]);
+        sstr << toStr(_hh[idir][j]);
+        sstr << toStr(_gg[idir][j]);
         sstr << std::endl;
       }
     }
@@ -2549,8 +2548,8 @@ Id Vario::_updateUK(Db* db, Vario_Order* vorder)
     {
       message("Drift removal at iteration #%d/%d\n", iter + 1, _niter_UK);
       _model->display();
-      print_matrix("Drift Coefficients Matrix", 0, 1, _DRFXGX.getNRows(),
-                   _DRFXGX.getNCols(), NULL, _DRFXGX.getValues().data());
+      printMatrix("Drift Coefficients Matrix", 0, 1, _DRFXGX.getNRows(),
+                  _DRFXGX.getNCols(), _DRFXGX.getValues());
     }
 
     // Loop on the directions
@@ -4503,7 +4502,7 @@ Id Vario::_driftEstimateCoefficients(Db* db)
   if (_verbose)
   {
     message("Drift removal initial step\n");
-    print_matrix("Drift Coefficients Matrix", 0, 1, nbfl, nbfl, NULL, matdrf.getValues().data());
+    printMatrix("Drift Coefficients Matrix", 0, 1, nbfl, nbfl, matdrf.getValues());
   }
 
   /* Pre-process the vector X %*% (t(X) %*% X)-1 */

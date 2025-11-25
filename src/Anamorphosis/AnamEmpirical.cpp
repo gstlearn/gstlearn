@@ -10,10 +10,8 @@
 /******************************************************************************/
 #include "Anamorphosis/AnamEmpirical.hpp"
 #include "Anamorphosis/AnamContinuous.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/SerializeHDF5.hpp"
-#include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Matrix/Table.hpp"
 
@@ -72,7 +70,7 @@ String AnamEmpirical::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
 
-  sstr << toTitle(1, "Empirical Anamorphosis");
+  sstr << toStrTitle(1, "Empirical Anamorphosis");
 
   if (_flagDilution)
   {

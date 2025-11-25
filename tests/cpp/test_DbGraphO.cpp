@@ -8,14 +8,14 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Enum/ESpaceType.hpp"
-#include "Space/ASpaceObject.hpp"
-
 #include "Basic/File.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/Message.hpp"
 #include "Basic/OptCst.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Db/DbGraphO.hpp"
+#include "Enum/ECst.hpp"
+#include "Enum/ESpaceType.hpp"
+#include "Space/ASpaceObject.hpp"
 
 using namespace gstlrn;
 /****************************************************************************/
@@ -79,27 +79,27 @@ int main(int argc, char* argv[])
 
   // Check the next nodes downstream
   VectorInt iaddown = dbgraphO->getIndicesNextDown(7);
-  VH::dump("Nodes next to 7 downstream", iaddown);
+  printVector("Nodes next to 7 downstream", iaddown, true, true);
 
   // Check the next nodes upstream
   VectorInt iadup = dbgraphO->getIndicesNextUp(7);
-  VH::dump("Nodes next to 7 upstream", iadup);
+  printVector("Nodes next to 7 upstream", iadup, true, true);
 
   // Check the end-of-stream points downwards
   VectorInt iadenddown = dbgraphO->getEndsDown();
-  VH::dump("List of Node indices end-of-stream downwards", iadenddown);
+  printVector("List of Node indices end-of-stream downwards", iadenddown, true, true);
 
   // Check the end-of-stream points upwards
   VectorInt iadendup = dbgraphO->getEndsUp();
-  VH::dump("List of Node indices end-of-stream upwards", iadendup);
+  printVector("List of Node indices end-of-stream upwards", iadendup, true, true);
 
   // Check the orphans
   VectorInt iadorphan = dbgraphO->getOrphans();
-  VH::dump("List of Node indices orphans", iadorphan);
+  printVector("List of Node indices orphans", iadorphan, true, true);
 
   // Check the downstream relationship, starting from an arc number
   VectorInt order = dbgraphO->getOrderDown(3);
-  VH::dump("Vertices related to #2", order);
+  printVector("Vertices related to #2", order, true, true);
 
   // Check if two nodes are connected
   message("Check if nodes 3 and 6 are connected = %d\n",
@@ -108,7 +108,7 @@ int main(int argc, char* argv[])
           dbgraphO->areConnected(3, 8));
 
   VectorDouble cumul = dbgraphO->getCumulDown(7);
-  VH::dump("Cumul of arc values starting from node 7", cumul);
+  printVector("Cumul of arc values starting from node 7", cumul, true, true);
 
   delete dbgraphO;
   delete dbgraphO2;

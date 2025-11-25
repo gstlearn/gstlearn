@@ -265,32 +265,32 @@ String DirParam::toString(const AStringFormat* /*strfmt*/) const
   if (getNLag() > 0)
     sstr << "Number of lags              = " << getNLag() << std::endl;
 
-  sstr << toVector("Direction coefficients      = ", _codir);
+  sstr << toStrVector("Direction coefficients      = ", _codir);
   if (ndim > 1)
   {
     VectorDouble angles(ndim);
     (void)GH::rotationGetAnglesFromCodirInPlace(_codir, angles);
     if (ndim > 2)
-      sstr << toVector("Direction angles (degrees)  = ", angles);
+      sstr << toStrVector("Direction angles (degrees)  = ", angles);
     else
-      sstr << "Direction angles (degrees)  = " << toDouble(angles[0]) << std::endl;
+      sstr << "Direction angles (degrees)  = " << toStr(angles[0]) << std::endl;
   }
 
   if (!FFFF(_tolAngle))
-    sstr << "Tolerance on direction      = " << toDouble(_tolAngle)
+    sstr << "Tolerance on direction      = " << toStr(_tolAngle)
          << " (degrees)" << std::endl;
 
   if (!FFFF(_bench) && _bench > 0.)
-    sstr << "Slice bench                 = " << toDouble(_bench) << std::endl;
+    sstr << "Slice bench                 = " << toStr(_bench) << std::endl;
   if (!FFFF(_cylRad) && _cylRad > 0.)
-    sstr << "Slice radius                = " << toDouble(_cylRad) << std::endl;
+    sstr << "Slice radius                = " << toStr(_cylRad) << std::endl;
 
   if (getFlagRegular())
   {
     if (getDPas() > .0)
     {
-      sstr << "Calculation lag             = " << toDouble(getDPas()) << std::endl;
-      sstr << "Tolerance on distance       = " << toDouble(100. * getTolDist())
+      sstr << "Calculation lag             = " << toStr(getDPas()) << std::endl;
+      sstr << "Tolerance on distance       = " << toStr(100. * getTolDist())
            << " (Percent of the lag value)" << std::endl;
     }
   }
@@ -299,8 +299,8 @@ String DirParam::toString(const AStringFormat* /*strfmt*/) const
     sstr << "Calculation intervals       = " << std::endl;
     for (Id i = 0; i < getNBreak(); i++)
     {
-      sstr << " - Interval " << i + 1 << " = ["
-           << toInterval(getBreak(i), getBreak(i + 1)) << "]" << std::endl;
+      sstr << " - Interval " << i + 1 << " = "
+           << toStrInterval(getBreak(i), getBreak(i + 1)) << std::endl;
     }
   }
 
@@ -309,7 +309,7 @@ String DirParam::toString(const AStringFormat* /*strfmt*/) const
 
     // Case of a variogram defined on a Grid db
 
-    sstr << toVector("Grid Direction coefficients = ", _grincr);
+    sstr << toStrVector("Grid Direction coefficients = ", _grincr);
   }
 
   /* Selection on the 'code' */

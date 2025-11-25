@@ -358,7 +358,7 @@ String PrecisionOpMulti::toString(const AStringFormat* strfmt) const
   sstr << "Number of Meshes      = " << _getNMesh() << std::endl;
   sstr << "Vector dimension      = " << getSize() << std::endl;
 
-  sstr << "Indices of Matérn Covariance = " << VH::toStringAsVI(_covList);
+  sstr << "Indices of Matérn Covariance = " << toStrVector(String(), _covList);
 
   sstr << "Dimensions of the Meshes = ";
   for (Id imesh = 0, nmesh = _getNMesh(); imesh < nmesh; imesh++)

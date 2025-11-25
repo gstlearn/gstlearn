@@ -10,7 +10,7 @@
 /******************************************************************************/
 #include "Calculators/ACalculator.hpp"
 #include "Basic/AException.hpp"
-#include "Basic/AStringable.hpp"
+#include "Basic/Message.hpp"
 
 namespace gstlrn
 {

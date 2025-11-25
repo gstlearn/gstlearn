@@ -571,7 +571,7 @@ String AGibbs::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
 
-  sstr << toTitle(0, "Gibbs Characteristics");
+  sstr << toStrTitle(0, "Gibbs Characteristics");
 
   sstr << "Number of Gaussian Systems" << _npgs;
   sstr << "Number of Variables" << _nvar;

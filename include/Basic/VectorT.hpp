@@ -11,6 +11,7 @@
 #pragma once
 
 #include "Basic/AException.hpp"
+#include "Basic/Undefined.hpp"
 #include "geoslib_define.h"
 #include "geoslib_io.h"
 

@@ -98,7 +98,7 @@ double MeshSpherical::getMeshSize(Id imesh) const
 String MeshSpherical::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
-  sstr << toTitle(0, "Spherical Meshing characteristics");
+  sstr << toStrTitle(0, "Spherical Meshing characteristics");
   sstr << AMesh::toString(strfmt);
   return sstr.str();
 }
