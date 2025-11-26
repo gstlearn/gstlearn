@@ -490,9 +490,10 @@ private:
   mutable MatrixSquare _DRFXGX;
 };
 
-GSTLEARN_EXPORT Vario_Order*
-vario_order_manage(Id mode, Id flag_dist, Id size_aux, Vario_Order* vorder);
-
+GSTLEARN_EXPORT Vario_Order* vario_order_manage(Id mode,
+                                                Id flag_dist,
+                                                Id size_aux,
+                                                Vario_Order* vorder);
 GSTLEARN_EXPORT Vario_Order* vario_order_final(Vario_Order* vorder, Id* npair);
 GSTLEARN_EXPORT void vario_order_print(Vario_Order* vorder,
                                        Id idir_target,
@@ -520,4 +521,15 @@ GSTLEARN_EXPORT Id vario_order_add(Vario_Order* vorder,
                                    Id ilag,
                                    Id idir,
                                    double dist);
+
+GSTLEARN_EXPORT Vario* variogramCalculate(Db* db,
+                                          Id nlag                    = 10,
+                                          double dlag                = 1.,
+                                          Id ndir                    = 1,
+                                          const VectorDouble& angles = VectorDouble(),
+                                          bool verbose               = false);
+
+GSTLEARN_EXPORT Vario* variogridCalculate(DbGrid* dbgrid,
+                                          Id nlag                    = 10,
+                                          bool verbose               = false);
 } // namespace gstlrn

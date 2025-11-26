@@ -11,8 +11,8 @@
 /* This file is meant to demonstrate the process of using PGS                 */
 /*                                                                            */
 /******************************************************************************/
-#include "Basic/AStringable.hpp"
 #include "Basic/File.hpp"
+#include "Basic/OptCst.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovAnisoList.hpp"
@@ -20,6 +20,7 @@
 #include "Db/DbStringFormat.hpp"
 #include "Enum/ECalcVario.hpp"
 #include "Enum/ECov.hpp"
+#include "Enum/ECst.hpp"
 #include "Model/Model.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
 #include "Variogram/VMap.hpp"
@@ -42,6 +43,7 @@ int main(int argc, char* argv[])
   Id ndim  = 2;
   defineDefaultSpace(ESpaceType::RN, ndim);
   CovContext ctxt(1, 2, 1.); // use default space
+  OptCst::define(ECst::NTCAR, 12);
 
   // Creating a Point Data base in the 1x1 square with 'nech' samples
   Id nech = 1000;
@@ -86,6 +88,11 @@ int main(int argc, char* argv[])
   model.fit(variop, covas, false);
   model.display();
 
+  // With a quick entry
+  mestitle(1, "Experimental variogram on Data Samples (quick entry)");
+  auto* variop2 = variogramCalculate(db, 5, 0.1);
+  variop2->display();
+
   // ===============
   // On Grid samples
   // ===============
@@ -94,6 +101,11 @@ int main(int argc, char* argv[])
   VarioParam* varioparamG = VarioParam::createMultipleFromGrid(grid, nlag);
   Vario* variog           = Vario::computeFromDb(*varioparamG, grid, ECalcVario::VARIOGRAM);
   variog->display();
+
+  // With a quick entry
+  mestitle(1, "Experimental variogram on Grid (quick entry)");
+  auto* variog2 = variogramCalculate(grid, 5, 0.1);
+  variog2->display();
 
   // ==========================================
   // Calculating Variogram Map on Isolated Data
@@ -116,7 +128,9 @@ int main(int argc, char* argv[])
   delete grid;
   delete varioparamP;
   delete variop;
+  delete variop2;
   delete variog;
+  delete variog2;
   delete vmapG;
   delete vmapP;
 

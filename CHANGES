@@ -4,6 +4,7 @@ This file contains the logs between consecutive releases
 
 Release 1.10.0
 ==============
+- Two new ways to calculate the experimental variogram (quick definition)
 - Neighborhood is optional (defaulted to Unique ... if not too many samples) in Kriging, Xvalid.
 - General renaming: 
   . print_vector() into printVector()
