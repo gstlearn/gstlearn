@@ -55,6 +55,7 @@ public:
 
   /// Has a specific implementation in the Target language
   DECLARE_TOTL;
+  DECLARE_TOLATEX
 
   /// Cloneable interface
   IMPLEMENT_CLONING(MatrixDense)
