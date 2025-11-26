@@ -12,7 +12,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Basic/File.hpp"
-#include "Basic/OptCst.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovAnisoList.hpp"
@@ -20,7 +19,6 @@
 #include "Db/DbStringFormat.hpp"
 #include "Enum/ECalcVario.hpp"
 #include "Enum/ECov.hpp"
-#include "Enum/ECst.hpp"
 #include "Model/Model.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
 #include "Variogram/VMap.hpp"
@@ -43,7 +41,6 @@ int main(int argc, char* argv[])
   Id ndim  = 2;
   defineDefaultSpace(ESpaceType::RN, ndim);
   CovContext ctxt(1, 2, 1.); // use default space
-  OptCst::define(ECst::NTCAR, 12);
 
   // Creating a Point Data base in the 1x1 square with 'nech' samples
   Id nech = 1000;
@@ -104,7 +101,7 @@ int main(int argc, char* argv[])
 
   // With a quick entry
   mestitle(1, "Experimental variogram on Grid (quick entry)");
-  auto* variog2 = variogramCalculate(grid, 5, 0.1);
+  auto* variog2 = variogridCalculate(grid, 5);
   variog2->display();
 
   // ==========================================
