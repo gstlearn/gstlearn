@@ -8,6 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+
 #include "geoslib_define.h"
 
 #include "Basic/ASerializable.hpp"
