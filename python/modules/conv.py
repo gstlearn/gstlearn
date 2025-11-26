@@ -28,7 +28,6 @@ def Db_toTL(self, flagLocate=False):
 # DECLARE_TOTL usage (not needed in python ?)
 setattr(gl.Db, "toTL", Db_toTL)
 
-
 def Db_fromPandas(df):
     # Create an empty Db
     dat = gl.Db()
@@ -41,7 +40,6 @@ def Db_fromPandas(df):
 
 
 gl.Db.fromTL = staticmethod(Db_fromPandas)
-
 
 def table_toTL(self):
     # As a Panda Data Frame
@@ -58,9 +56,7 @@ def table_toTL(self):
     )
     return Anp
 
-
 setattr(gl.Table, "toTL", table_toTL)
-
 
 def vario_toTL(self, idir, ivar, jvar):
     sw = self.getSwVec(idir, ivar, jvar, False)
@@ -70,9 +66,7 @@ def vario_toTL(self, idir, ivar, jvar):
     colnames = np.array(["sw", "hh", "gg"])
     return pd.DataFrame(array, columns=colnames)
 
-
 setattr(gl.Vario, "toTL", vario_toTL)
-
 
 def vario_updateFromPanda(self, pf, idir, ivar, jvar):
     vario = self
@@ -93,9 +87,7 @@ def vario_updateFromPanda(self, pf, idir, ivar, jvar):
     vario.setGgVec(idir, ivar, jvar, pf["gg"])
     return vario
 
-
 setattr(gl.Vario, "updateFromPanda", vario_updateFromPanda)
-
 
 def matrix_toTL(self):
     if self.isSparse():
@@ -104,7 +96,6 @@ def matrix_toTL(self):
     else:
         return np.array(self.getValues(False)).reshape(self.getNRows(), self.getNCols())
 
-
 setattr(gl.MatrixDense, "toTL", matrix_toTL)
 setattr(gl.MatrixSquare, "toTL", matrix_toTL)
 setattr(gl.MatrixSymmetric, "toTL", matrix_toTL)
@@ -112,7 +103,6 @@ setattr(gl.MatrixSparse, "toTL", matrix_toTL)
 setattr(gl.ProjMatrix, "toTL", matrix_toTL)
 setattr(gl.PrecisionOpMultiMatrix, "toTL", matrix_toTL)
 setattr(gl.ProjMultiMatrix, "toTL", matrix_toTL)
-
 
 def Triplet_toTL(self):
     return sc.csc_matrix(
@@ -123,5 +113,36 @@ def Triplet_toTL(self):
         shape=(self.getNRows() + 1, self.getNCols() + 1),
     )
 
-
 setattr(gl.NF_Triplet, "toTL", Triplet_toTL)
+
+def matrix_toLatex(self):
+    if self.isSparse():
+        NF_T = self.getMatrixToTriplet()
+        return Triplet_toTL(NF_T)
+    else:
+        return np.array(self.getValues(False)).reshape(self.getNRows(), self.getNCols())
+
+setattr(gl.MatrixDense, "toLatex", matrix_toLatex)
+setattr(gl.MatrixSquare, "toLatex", matrix_toLatex)
+setattr(gl.MatrixSymmetric, "toLatex", matrix_toLatex)
+#setattr(gl.MatrixSparse, "toLatex", matrix_toLatex)
+setattr(gl.ProjMatrix, "toLatex", matrix_toLatex)
+setattr(gl.PrecisionOpMultiMatrix, "toLatex", matrix_toLatex)
+setattr(gl.ProjMultiMatrix, "toLatex", matrix_toLatex)
+setattr(gl.Table, "toLatex", matrix_toLatex)
+
+def table_toLatex(self):
+    # As a Panda Data Frame
+    colnames = self.getColumnNames()
+    rownames = self.getRowNames()
+    if len(colnames) == 0:
+        colnames = None
+    if len(rownames) == 0:
+        rownames = None
+    Anp = pd.DataFrame(
+        self.getValues(False).reshape(self.getNRows(), self.getNCols()),
+        columns=colnames,
+        index=rownames,
+    )
+    return Anp
+
