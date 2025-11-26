@@ -345,7 +345,7 @@ Nb. active samples = 1000
 Nb. Monte-Carlo    = 100
 Cholesky           = 0
 Log-Determinant    = -2319.349624
-Quadratic term     = 1105.223470
+Quadratic term     = 1105.223469
 Log-likelihood     = -311.875456
 -> likelihood by New API with cholesky=0 -311.8755
 ----

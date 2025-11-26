@@ -748,7 +748,7 @@ Id MeshETurbo::_addWeights(Id icas,
   auto ndim    = getNDim();
   auto ncorner = getNApexPerMesh();
   auto ipol    = _getPolarized(indg0);
-  thread_local MatrixSquare lhs;
+  thread_local MatrixSquare lhs, invlhs;
   _rhs.resize(ncorner);
   _indgg.resize(ndim);
 
@@ -778,10 +778,10 @@ Id MeshETurbo::_addWeights(Id icas,
   _rhs[ndim] = 1;
 
   // Invert the matrix
-  if (lhs.invert()) return 1;
+  if (lhs.invertOutOfPlace(invlhs)) return 1;
 
   // Calculate the weights
-  lhs.prodMatVecInPlaceC(_rhs, lambda);
+  invlhs.prodMatVecInPlaceC(_rhs, lambda);
 
   // Check that all weights are positive
   for (Id icorner = 0; icorner < ncorner; icorner++)

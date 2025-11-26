@@ -61,6 +61,7 @@ public:
   double trace() const;
   bool invert2x2(MatrixSquare& res) const;
   bool invert3x3(MatrixSquare& res) const;
+  Id invertOutOfPlace(MatrixSquare& res) const;
 
   /*! Perform inner product */
   void innerMatrix(const MatrixSquare& x,

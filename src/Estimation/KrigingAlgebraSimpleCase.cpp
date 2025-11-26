@@ -1023,7 +1023,9 @@ Id KrigingAlgebraSimpleCase::_needLambdaSK()
     _cholSigma->solveMatInPlace(*_Sigma0, *_LambdaSK);
   }
   else
-    _LambdaSK->prodMatMatInPlace(_InvSigma.get(), _Sigma0.get());
+  {
+    _LambdaSK->prodMatMatNoCheck<false, false>(*_InvSigma, *_Sigma0);
+  }
   return 0;
 }
 
