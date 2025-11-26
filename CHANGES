@@ -5,6 +5,7 @@ This file contains the logs between consecutive releases
 Release 1.10.0
 ==============
 - Neighborhood is optional (defaulted to Unique ... if not too many samples) in Kriging, Xvalid.
+- Class Db has a new method called displayStats() which provides some statistics on some variables (easier to use than DbStringFormat). 
 - General renaming: 
   . print_vector() into printVector()
   . print_matrix() into printMatrix()
