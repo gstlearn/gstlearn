@@ -25,7 +25,7 @@ public:
   ProjMatrix();
   ProjMatrix(const Db* db,
              const AMesh* a_mesh,
-             Id rankZ    = -1,
+             Id rankZ     = -1,
              bool verbose = false);
   ProjMatrix(const ProjMatrix& m);
   ProjMatrix(const MatrixSparse& m);
@@ -34,6 +34,7 @@ public:
 
   /// Has a specific implementation in the Target language
   DECLARE_TOTL;
+  DECLARE_TOLATEX;
 
   /// Cloneable interface
   IMPLEMENT_CLONING(ProjMatrix)
@@ -56,11 +57,11 @@ public:
 
   static ProjMatrix* create(const Db* db,
                             const AMesh* a_mesh,
-                            Id rankZ    = -1,
+                            Id rankZ     = -1,
                             bool verbose = false);
   void resetFromMeshAndDb(const Db* db,
                           const AMesh* a_mesh,
-                          Id rankZ    = -1,
+                          Id rankZ     = -1,
                           bool verbose = false);
   void dumpVerticesUsed(Id npmax = -1) const;
 };

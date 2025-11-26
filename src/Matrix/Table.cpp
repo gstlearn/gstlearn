@@ -10,9 +10,9 @@
 /******************************************************************************/
 #include "Matrix/Table.hpp"
 #include "Basic/ASerializable.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/SerializeHDF5.hpp"
 #include "Basic/String.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
 
 namespace gstlrn
@@ -108,6 +108,28 @@ VectorDouble Table::getRange(Id icol) const
   limits[0] = vec.minimum();
   limits[1] = vec.maximum();
   return limits;
+}
+
+Table* Table::createFillRandom(Id nrow,
+                               Id ncol,
+                               const VectorString& rownames,
+                               const VectorString& colnames)
+{
+  auto* table         = new Table(nrow, ncol);
+  VectorDouble values = VH::simulateUniform(nrow * ncol);
+  table->setValues(values);
+
+  VectorString colLocal = colnames;
+  if (colLocal.empty())
+    colLocal = generateMultipleNames("Col", ncol);
+  table->setColumnNames(colLocal);
+
+  VectorString rowLocal = rownames;
+  if (rowLocal.empty())
+    rowLocal = generateMultipleNames("Row", nrow);
+  table->setRowNames(rowLocal);
+
+  return table;
 }
 
 VectorDouble Table::getAllRange() const

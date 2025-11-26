@@ -128,7 +128,7 @@ def matrix_general_toLatex(self, col_titles=None, row_titles=None, precision=3):
     values = self.getValues()
     N = self.getNRows()
     P = self.getNCols()
-    matrix = [values[i*P:(i+1)*P] for i in range(N)]
+    matrix = [values[i::P] for i in range(P)]
 
     # Déterminer l'alignement des colonnes
     # Si on a row_titles, ajouter un 'c' pour la première colonne
@@ -141,7 +141,7 @@ def matrix_general_toLatex(self, col_titles=None, row_titles=None, precision=3):
     # Ligne d'en-tête si col_titles
     if col_titles is not None:
         if row_titles is not None:
-            header = [""] + col_titles
+            header = tuple([""]) + col_titles
         else:
             header = col_titles
         lines.append(" & ".join(header))
@@ -174,10 +174,12 @@ def table_toLatex(self, precision=3):
 setattr(gl.MatrixDense, "toLatex", matrix_toLatex)
 setattr(gl.MatrixSquare, "toLatex", matrix_toLatex)
 setattr(gl.MatrixSymmetric, "toLatex", matrix_toLatex)
-#setattr(gl.MatrixSparse, "toLatex", matrix_toLatex)
+setattr(gl.MatrixSparse, "toLatex", matrix_toLatex)
+setattr(gl.Table, "toLatex", table_toLatex)
+
 setattr(gl.ProjMatrix, "toLatex", matrix_toLatex)
 setattr(gl.PrecisionOpMultiMatrix, "toLatex", matrix_toLatex)
 setattr(gl.ProjMultiMatrix, "toLatex", matrix_toLatex)
-setattr(gl.Table, "toLatex", table_toLatex)
+
 
 

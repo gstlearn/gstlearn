@@ -1083,10 +1083,10 @@ setMethod('[<-',  '_p_gstlrn__Table',               setTableitem)
   df = data.frame(mat)
   if (nrow > 0 && ncol > 0)
   {
- 	names(df) = tab$getColumnNames()
-  	if (length(tab$getColumnNames()) > 0) 
-  		colnames(df) <- tab$getColumnNames()
- 	else
+ 	  names(df) = tab$getColumnNames()
+  	  if (length(tab$getColumnNames()) > 0) 
+  		  colnames(df) <- tab$getColumnNames()
+ 	  else
   		colnames(df) = seq(1, ncol)
   	if (length(tab$getRowNames()) > 0)    
   		rownames(df) <- tab$getRowNames()
@@ -1095,6 +1095,81 @@ setMethod('[<-',  '_p_gstlrn__Table',               setTableitem)
   }
   df
 }
+
+##
+## Add toLatex to Matrix R class
+## ----------------------------- ##
+
+matrix_general_toLatex <- function(self, col_titles = NULL, row_titles = NULL, precision = 3) {
+  # Récupération des valeurs depuis l'objet
+  values <- self$getValues()
+  N <- self$getNRows()
+  P <- self$getNCols()
+  
+  # Reshape en matrice N x P
+  matrix_vals <- matrix(values, nrow = N, ncol = P, byrow = FALSE)
+  
+# Déterminer l’alignement des colonnes
+  num_cols <- P + ifelse(!is.null(row_titles), 1, 0)
+  col_format <- paste(rep("c", num_cols), collapse = "")
+  
+  lines <- c()
+  
+  # Ligne d’en-tête
+  if (!is.null(col_titles)) {
+    if (!is.null(row_titles)) {
+      header <- c("", col_titles)
+    } else {
+      header <- col_titles
+    }
+    lines <- c(lines, paste(header, collapse = " & "))
+  }
+  
+  # Lignes du tableau
+  for (i in seq_len(N)) {
+    formatted_row <- formatC(matrix_vals[i, ], format = "f", digits = precision)
+    
+    if (!is.null(row_titles)) {
+      line <- c(row_titles[i], formatted_row)
+    } else {
+      line <- formatted_row
+    }
+    
+    lines <- c(lines, paste(line, collapse = " & "))
+  }
+  
+  # Concaténation LaTeX propre (sans \n)
+  latex_body <- paste(lines, collapse = " \\\\")  # juste "\\" pour LaTeX
+  
+  latex_code <- paste0(
+    "$$",
+    "\\left[\\begin{array}{", col_format, "}",
+    latex_body,
+    "\\end{array}\\right]",
+    "$$"
+  )
+  return(latex_code)
+}
+
+"matrix_toLatex" <- function(x, precision = 3) {
+  matrix_general_toLatex(x, NULL, NULL, precision)
+}
+
+"table_toLatex" <- function(x, precision = 3) {
+  colnames <- x$getColumnNames()
+  rownames <- x$getRowNames()
+  matrix_general_toLatex(x, colnames, rownames, precision)
+}
+
+"MatrixSparse_toLatex" <- function(x) { matrix_toLatex(x) }
+"MatrixDense_toLatex" <- function(x) { matrix_toLatex(x) }
+"MatrixSquare_toLatex" <- function(x) { matrix_toLatex(x) }
+"MatrixSymmetric_toLatex" <- function(x) { matrix_toLatex(x) }
+"Table_toLatex" <- function(x) { table_toLatex(x) }
+
+"ProjMatrix_toLatex" <- function(x) { matrix_toLatex(x) }
+"ProjMulti_toLatex" <- function(x) { matrix_toLatex(x) }
+"PrecisionOpMultiMatrix_toLatex" <- function(x) { matrix_toLatex(x) }
 
 ##
 ## Add toTL to Triplet R class
@@ -1112,7 +1187,6 @@ setMethod('[<-',  '_p_gstlrn__Table',               setTableitem)
     cat("This requires the library 'Matrix' to be installed\n")
   Q
 }
-
 
 ##
 ## Add toTL to Vario R class
@@ -1152,7 +1226,6 @@ setMethod('[<-',  '_p_gstlrn__Table',               setTableitem)
 	vario
 }
 
-
 ##
 ## Add toTL to Krigtest_Res R class
 ## -------------------------------- ##
@@ -1177,7 +1250,6 @@ setMethod('[<-',  '_p_gstlrn__Table',               setTableitem)
   res
 }
 
-
 ##
 ## Add toTL to Global_Result R class
 ## -------------------------------- ##
@@ -1197,7 +1269,6 @@ setMethod('[<-',  '_p_gstlrn__Table',               setTableitem)
       )
   res
 }
-
 
 ##
 ## Add operator [] to Vario R class
@@ -1295,10 +1366,9 @@ setMethod('[<-',  '_p_gstlrn__Vario',               setVarioitem)
 #attr(`MatrixSparse_create`, "inputTypes") = c('_p_gstlrn__MatrixSparse')
 #class(`MatrixSparse_create`) = c("SWIGFunction", class('MatrixSparse_create'))
 
-
 ##
 ## Add fromTL to a some R classes
-## -------------------------------- ##
+## ------------------------------ ##
 
 "MatrixDense_fromTL" <- function(Robj)
 {

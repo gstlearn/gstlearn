@@ -705,6 +705,13 @@ MatrixDense* MatrixDense::createFromVD(const VectorDouble& X,
   return mat;
 }
 
+MatrixDense* MatrixDense::createFillRandom(Id nrow, Id ncol, Id seed)
+{
+  auto* mat = new MatrixDense(nrow, ncol);
+  mat->fillRandom(seed, 0.);
+  return mat;
+}
+
 MatrixDense* MatrixDense::glue(const AMatrix* A1,
                                const AMatrix* A2,
                                bool flagShiftRow,
