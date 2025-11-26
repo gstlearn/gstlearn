@@ -94,7 +94,7 @@ double KernelGaussian::_evaluateCovDerivative(Id degree, double h) const
 
 String KernelGaussian::getFormula() const
 {
-  return "C(h)=1-e^{-h^2}";
+  return "C(h)=e^{-h^2}";
 }
 
 double KernelGaussian::simulateTurningBand(double t0, TurningBandOperate& operTB) const

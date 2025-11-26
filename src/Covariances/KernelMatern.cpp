@@ -71,8 +71,8 @@ double KernelMatern::_evaluateCov(double h) const
 double KernelMatern::_newMatern(double h) const
 {
   if (h == 0) return 1;
-  double third = getParam();
-  return 2. * pow(h / 2., third) * _besselK(getParam(), h) / exp(loggamma(third));
+  double nu = getParam();
+  return 2. * pow(h / 2., nu) * _besselK(nu, h) / exp(loggamma(nu));
 }
 
 double KernelMatern::_evaluateCovFirstDerivative(double h) const

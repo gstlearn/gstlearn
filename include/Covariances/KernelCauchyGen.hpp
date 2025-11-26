@@ -33,14 +33,14 @@ public:
   bool hasParam() const override { return true; };
   double getParMax() const override { return MAX_PARAM; };
   double getScadef() const override;
-  double getAlpha() const { return _alpha; };
-  bool setAlpha(double alpha);
+//  double getAlpha() const { return _alpha; };
+//  bool setAlpha(double alpha);
 
 protected:
   double _evaluateCov(double h) const override;
 
 private:
-  double _alpha;
+//  double _alpha;
 };
 
 } // namespace gstlrn

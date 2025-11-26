@@ -52,6 +52,6 @@ double KernelCauchy::_evaluateCov(double h) const
 
 String KernelCauchy::getFormula() const
 {
-  return "C(h)=\\frac{1}{\\left( 1+ \\frac{h^2}{a_t^2} \\right)^\\alpha";
+  return "C(h)=\\frac{1}{\\left( 1 + h^2 \\right)^\\alpha";
 }
 } // namespace gstlrn

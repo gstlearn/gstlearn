@@ -13,18 +13,23 @@
 
 #include <cmath>
 
+/*
+C(h) = 1/(1 + abs(h)^alpha)^beta
+with
+alpha = _param[0]
+beta  = _param[1]
+*/
 namespace gstlrn
 {
 KernelCauchyGen::KernelCauchyGen(const CovContext& ctxt)
-  : AKernel(ECov::CAUCHY, ctxt)
+  : AKernel(ECov::CAUCHY_GEN, ctxt)
 {
-  setParam(1);
-  setAlpha(2.0);
+  setParam(2, 0);
+  setParam(1, 1);
 }
 
 KernelCauchyGen::KernelCauchyGen(const KernelCauchyGen& r)
   : AKernel(r)
-  , _alpha(r._alpha)
 {
 }
 
@@ -33,7 +38,6 @@ KernelCauchyGen& KernelCauchyGen::operator=(const KernelCauchyGen& r)
   if (this != &r)
   {
     AKernel::operator=(r);
-    _alpha = r._alpha;
   }
   return *this;
 }
@@ -42,29 +46,19 @@ KernelCauchyGen::~KernelCauchyGen()
 {
 }
 
-bool KernelCauchyGen::setAlpha(double alpha)
-{
-    if((alpha > 0)&&(alpha <= 2.0)){
-        _alpha = alpha;
-        return true;
-    }
-  _alpha = 0.0;
-  return false;
-}
-
 double KernelCauchyGen::getScadef() const
 {
-  return pow(pow(20., 1. / getParam()) - 1., 1. / getAlpha());
+  return pow(pow(20., 1. / getParam(1)) - 1., 1. / getParam(0));
 }
 
 double KernelCauchyGen::_evaluateCov(double h) const
 {
-  double cov = 1. / pow(1. + pow(ABS(h), getAlpha()), getParam());
+  double cov = 1. / pow(1. + pow(abs(h), getParam(0)), getParam(1));
   return (cov);
 }
 
 String KernelCauchyGen::getFormula() const
 {
-  return "C(h)=\\frac{1}{\\left( 1+ \\frac{h^\\alpha}{a_t^\\alpha} \\right)^\\beta";
+  return "C(h)=\\frac{1}{\\left( 1+ h^\\alpha \\right)^\\beta";
 }
 } // namespace gstlrn

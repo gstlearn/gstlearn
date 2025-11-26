@@ -110,4 +110,10 @@ private:
   /// Space composits list
   std::vector<std::shared_ptr<ASpace>> _comps;
 };
+
+GSTLEARN_EXPORT void defineDefaultSpaceRnT(size_t ndim = 2);
+GSTLEARN_EXPORT void defineDefaultSpaceS2T(double radius = 1.0); 
+
+GSTLEARN_EXPORT void displayDefaultSpace(); 
+
 } // namespace gstlrn

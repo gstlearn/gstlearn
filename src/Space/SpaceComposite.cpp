@@ -9,6 +9,9 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Space/SpaceComposite.hpp"
+#include "Space/ASpaceObject.hpp"
+#include "Space/SpaceRN.hpp"
+#include "Space/SpaceSN.hpp"
 
 #include "Space/ASpace.hpp"
 #include "Space/SpacePoint.hpp"
@@ -258,4 +261,26 @@ void SpaceComposite::_getIncrementInPlace(const SpacePoint& p1,
     _comps[ispace]->getIncrementInPlace(p1, p2, ptemp);
   }
 }
+
+void defineDefaultSpaceRnT(size_t ndim)
+{
+auto spatial = SpaceRN::create(static_cast<Id>(ndim));
+auto temporal = SpaceRN::create(1);
+auto sp = SpaceComposite::create({spatial, temporal});
+setDefaultSpace(sp);
+}
+GSTLEARN_EXPORT void defineDefaultSpaceS2T(double radius)
+{
+auto spatial = SpaceSN::create(2, radius);
+auto temporal = SpaceRN::create(1);
+auto sp = SpaceComposite::create({spatial, temporal});
+setDefaultSpace(sp); 
+}
+
+GSTLEARN_EXPORT void displayDefaultSpace()
+{
+  const auto *const sp = getDefaultSpace();
+  sp->display();
+}
+
 } // namespace gstlrn

@@ -206,11 +206,16 @@ void CorAniso::_setContext(const CovContext& ctxt)
   updateFromContext();
 }
 
-void CorAniso::setParam(double param)
+void CorAniso::setParam(double param, Id ipar)
 {
   if (!_corfunc->hasParam()) return;
-  _corfunc->setParam(param);
+  _corfunc->setParam(param, ipar);
   updateFromContext();
+}
+
+void CorAniso::setParams(const VectorDouble& params)
+{
+  return _corfunc->setParams(params);
 }
 
 void CorAniso::setRangeIsotropic(double range)
@@ -965,6 +970,35 @@ Id CorAniso::getNGradParam() const
       number += ndim;
   }
   return number;
+}
+
+CorAniso* CorAniso::create(const CovContext& ctxt,
+                           const ECov& type,
+                           const VectorDouble& params,
+                           const VectorDouble& ranges,
+                           const VectorDouble& angles,
+                           bool flagRange)
+{
+  if (ctxt.getNVar() != 1)
+  {
+    messerr("This function is dedicated to the Monovariate case");
+    return nullptr;
+  }
+  Id ndim = static_cast<Id>(ctxt.getNDim());
+  if (static_cast<Id>(ranges.size()) != ndim)
+  {
+    messerr("Mismatch in Space Dimension between 'ranges'(%d) and 'ctxt'(%d)",
+            ranges.size(), ndim);
+    return nullptr;
+  }
+  auto* cov = new CorAniso(type, ctxt);
+  cov->setParams(params);
+  if (flagRange)
+    cov->setRanges(ranges);
+  else
+    cov->setScales(ranges);
+  if (!angles.empty()) cov->setAnisoAngles(angles);
+  return cov;
 }
 
 CorAniso* CorAniso::createIsotropic(const CovContext& ctxt,

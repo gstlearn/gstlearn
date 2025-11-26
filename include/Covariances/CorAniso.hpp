@@ -93,9 +93,9 @@ public:
                                     bool flagCumul        = false) const override;
   double evalSpectrumRatio(const VectorDouble& freq, Id ivar, Id jvar, const ACov* cov0) const override;
 
-    double evalSpectrum(const VectorDouble& freq,
-                        Id ivar = 0,
-                        Id jvar = 0) const override;
+  double evalSpectrum(const VectorDouble& freq,
+                      Id ivar = 0,
+                      Id jvar = 0) const override;
 
   virtual double getIntegralRange(Id ndisc, double hmax) const;
   virtual String getFormula() const { return _corfunc->getFormula(); }
@@ -113,6 +113,13 @@ public:
   bool isValidForSpectral() const override;
   MatrixDense simulateSpectralOmega(Id nb) const override;
 
+  static CorAniso* create(const CovContext& ctxt,
+                          const ECov& type,
+                          const VectorDouble& params,
+                          const VectorDouble& ranges,
+                          const VectorDouble& angles = VectorDouble(),
+                          bool flagRange = true);
+                          
   static CorAniso* createIsotropic(const CovContext& ctxt,
                                    const ECov& type,
                                    double range,
@@ -136,7 +143,8 @@ public:
                                           const VectorDouble& angles = VectorDouble(),
                                           bool flagRange             = true);
 
-  void setParam(double param);
+  void setParam(double param, Id ipar = 0);
+  void setParams(const VectorDouble& params);
   void setNoStatFactor(double noStatFactor) { _noStatFactor = noStatFactor; }
 
   /// Practical range
