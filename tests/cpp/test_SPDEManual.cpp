@@ -24,7 +24,6 @@
 #include "Mesh/AMesh.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "Model/Model.hpp"
-#include <vector>
 
 #define __USE_MATH_DEFINES
 #include <cmath>
@@ -103,7 +102,7 @@ int main(int argc, char* argv[])
   A.push_back(&Qkriging, &B);
   A.setVarianceData(vardata);
 
-  std::vector<std::vector<double>> Rhs, resultvc;
+  VectorVectorDouble Rhs, resultvc;
   VectorDouble vc(napices);
 
   resultvc.push_back(vc);

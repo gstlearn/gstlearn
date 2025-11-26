@@ -417,7 +417,7 @@ double ASPDEOp::computeLogDetOp(Id nbsimu) const
   return val / nbsimu;
 }
 
-double ASPDEOp::computeQuadratic(const std::vector<double>& x) const
+double ASPDEOp::computeQuadratic(const VectorDouble& x) const
 {
   _workdat4.resize(_getNDat());
   vect w1s(_workdat4);

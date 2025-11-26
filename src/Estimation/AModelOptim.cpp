@@ -37,7 +37,7 @@ AModelOptim::AModelOptim(ModelGeneric* model, bool verbose)
     _opt = new Optim(NELDERMEAD, static_cast<Id>(_x.size()));
 
   _opt->setXtolRel(EPSILON6);
-  _opt->setObjective([this](const std::vector<double>& x)
+  _opt->setObjective([this](const VectorDouble& x)
                      { return this->eval(x); });
   _opt->setGradient([this](vect grad)
                     { this->evalGrad(grad); },
@@ -89,7 +89,7 @@ AModelOptim::~AModelOptim()
   delete _opt;
 }
 
-void AModelOptim::setGradients(std::vector<std::function<double(const std::vector<double>&)>>& gradients)
+void AModelOptim::setGradients(std::vector<std::function<double(const VectorDouble&)>>& gradients)
 {
   if (_opt == nullptr)
   {
@@ -123,7 +123,7 @@ void AModelOptim::setVerbose(bool verbose, bool trace)
     _params->display();
 }
 
-double AModelOptim::eval(const std::vector<double>& x)
+double AModelOptim::eval(const VectorDouble& x)
 {
   _iter++;
 
@@ -158,7 +158,7 @@ void AModelOptim::evalGradInEffectiveDimension(vect res)
 void AModelOptim::evalGrad(vect res) {
   DECLARE_UNUSED(res)
 };
-void AModelOptim::_printSummary(double minf, const std::vector<double>& x) const
+void AModelOptim::_printSummary(double minf, const VectorDouble& x) const
 {
   message("Summary of Optimization procedure:\n");
   message("Count of Iterations = %4d - Final Cost = %lf\n",

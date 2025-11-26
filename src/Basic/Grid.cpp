@@ -913,11 +913,11 @@ VectorInt Grid::iteratorNext(void)
 {
 
   VectorInt indices(_nDim);
-  iteratorNext(indices.getVector());
+  iteratorNext(indices);
   return indices;
 }
 
-void Grid::iteratorNext(std::vector<Id>& indices)
+void Grid::iteratorNext(VectorInt& indices)
 {
   Id idim;
   Id iech = _iter;

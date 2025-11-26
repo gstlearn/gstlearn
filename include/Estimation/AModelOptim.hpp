@@ -27,10 +27,9 @@ class GSTLEARN_EXPORT AModelOptim
 public:
   AModelOptim(ModelGeneric* model = nullptr,
               bool verbose        = false);
-  #ifndef SWIG
-  void setEnvironment(const MatrixSymmetric& vars, double href, double epsilon = EPSILON6,
-                      double min = 0., double max = INF);
-  #endif
+#ifndef SWIG
+  void setEnvironment(const MatrixSymmetric& vars, double href, double epsilon = EPSILON6, double min = 0., double max = INF);
+#endif
   AModelOptim& operator=(const AModelOptim& r);
 
   void setAuthorizedAnalyticalGradients(bool authorized);
@@ -39,11 +38,11 @@ public:
 
   virtual ~AModelOptim();
 
-  void setGradients(std::vector<std::function<double(const std::vector<double>&)>>& gradients);
+  void setGradients(std::vector<std::function<double(const VectorDouble&)>>& gradients);
 
   void setVerbose(bool verbose = false, bool trace = false);
 
-  double eval(const std::vector<double>& x);
+  double eval(const VectorDouble& x);
 
   virtual void evalGrad(vect res);
   double run();
@@ -55,7 +54,7 @@ public:
   void evalGradInEffectiveDimension(vect res);
 
 private:
-  void _printSummary(double minf, const std::vector<double>& x) const;
+  void _printSummary(double minf, const VectorDouble& x) const;
 
 protected:
   ModelGeneric* _model; // Pointer to the model being optimized
@@ -65,7 +64,7 @@ private:
   Optim* _opt;
   bool _verbose;
   bool _trace;
-  std::vector<double> _x;
+  VectorDouble _x;
   Id _iter;
 };
 } // namespace gstlrn

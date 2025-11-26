@@ -81,7 +81,7 @@ private:
   DbGrid* _gridSeis2D;
   DbGrid* _gridRes2D;
   MatrixSparse* _AProjHoriz;
-  mutable std::vector<double> _work;
+  mutable VectorDouble _work;
 };
 
 } // namespace gstlrn

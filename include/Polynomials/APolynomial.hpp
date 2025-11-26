@@ -20,8 +20,8 @@
 
 #include <functional>
 
-
-namespace gstlrn {
+namespace gstlrn
+{
 class MatrixSparse;
 
 class GSTLEARN_EXPORT APolynomial: public AStringable, public ICloneable
@@ -30,7 +30,7 @@ public:
   APolynomial();
   APolynomial(const VectorDouble& coeffs);
   APolynomial(const APolynomial& m);
-  APolynomial & operator=(const APolynomial& p);
+  APolynomial& operator=(const APolynomial& p);
   virtual ~APolynomial();
 
   /// Interface for AStringable
@@ -43,8 +43,8 @@ public:
   VectorDouble evalOp(MatrixSparse* Op, const constvect inv) const;
   virtual void evalOpTraining(MatrixSparse* Op,
                               const constvect inv,
-                              std::vector<std::vector<double>>& outv,
-                              std::vector<double>& work) const
+                              VectorVectorDouble& outv,
+                              VectorDouble& work) const
   {
     DECLARE_UNUSED(Op, inv, outv, work);
   };
@@ -56,27 +56,29 @@ public:
     return 0.;
   }
 
-  //virtual void evalOp(const ALinearOpMulti* Op,const std::vector<Eigen::VectorXd>& inv, std::vector<Eigen::VectorXd>& outv) const;
-    void addEvalOp(const ALinearOp* Op, const constvect inv, vect outv) const;
-  protected:
-    virtual void _addEvalOp(const ALinearOp* Op, const constvect inv, vect outv) const = 0;
+  // virtual void evalOp(const ALinearOpMulti* Op,const std::vector<Eigen::VectorXd>& inv, std::vector<Eigen::VectorXd>& outv) const;
+  void addEvalOp(const ALinearOp* Op, const constvect inv, vect outv) const;
+
+protected:
+  virtual void _addEvalOp(const ALinearOp* Op, const constvect inv, vect outv) const = 0;
 
 #endif
-  public:
-    VectorDouble getCoeffs() const { return _coeffs; }
-    void setCoeffs(const VectorDouble& coeffs) {_coeffs = coeffs;}
 
-    Id getDegree() const { return static_cast<Id>(_coeffs.size());}
-    virtual Id fit(const std::function<double(double)>& f,
-                  double from = 0.,
-                  double to = 1.,
-                  double tol = EPSILON5)
-    {
-     DECLARE_UNUSED(f,from,to,tol);
-     return 1;
-    }
+public:
+  VectorDouble getCoeffs() const { return _coeffs; }
+  void setCoeffs(const VectorDouble& coeffs) { _coeffs = coeffs; }
+
+  Id getDegree() const { return static_cast<Id>(_coeffs.size()); }
+  virtual Id fit(const std::function<double(double)>& f,
+                 double from = 0.,
+                 double to   = 1.,
+                 double tol  = EPSILON5)
+  {
+    DECLARE_UNUSED(f, from, to, tol);
+    return 1;
+  }
 
 protected:
   VectorDouble _coeffs;
 };
-}
+} // namespace gstlrn

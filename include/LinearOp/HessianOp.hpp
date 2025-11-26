@@ -69,14 +69,14 @@ private:
   PrecisionOp* _pMat;          // External pointer
   const ProjMatrix* _projData; // External pointer
   const ProjMatrix* _projSeis; // External pointer
-  std::vector<double> _indic;
-  std::vector<double> _propSeis;
-  std::vector<double> _varSeis;
-  std::vector<double> _lambda;
-  mutable std::vector<double> _workp;
-  mutable std::vector<double> _workx;
-  mutable std::vector<double> _workv;
-  mutable std::vector<double> _works;
+  VectorDouble _indic;
+  VectorDouble _propSeis;
+  VectorDouble _varSeis;
+  VectorDouble _lambda;
+  mutable VectorDouble _workp;
+  mutable VectorDouble _workx;
+  mutable VectorDouble _workv;
+  mutable VectorDouble _works;
 #endif
 };
 

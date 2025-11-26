@@ -12,19 +12,17 @@
 
 #include "LinearOp/ALinearOp.hpp"
 
-#include "Polynomials/APolynomial.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Basic/VectorNumT.hpp"
-
-#include <vector>
+#include "Polynomials/APolynomial.hpp"
 
 class AShiftOp;
 
-namespace gstlrn {
+namespace gstlrn
+{
 class ALinearOp;
 
-
-class GSTLEARN_EXPORT ClassicalPolynomial : public APolynomial
+class GSTLEARN_EXPORT ClassicalPolynomial: public APolynomial
 {
 public:
   ClassicalPolynomial();
@@ -48,9 +46,9 @@ public:
   //                              Id iapex,
   //                              Id igparam);
 #ifndef SWIG
-  // void evalDerivOp(ShiftOpMatrix* shiftOp,const std::vector<double>& inv,
-  //                  std::vector<double>& outv,Id iapex,Id igparam)const;
-  
+  // void evalDerivOp(ShiftOpMatrix* shiftOp,const VectorDouble& inv,
+  //                  VectorDouble& outv,Id iapex,Id igparam)const;
+
   // void evalDerivOpOptim(ShiftOpMatrix* shiftOp,Eigen::VectorXd& temp1,Eigen::VectorXd& temp2,
   //                      Eigen::VectorXd& outv,const std::vector<Eigen::VectorXd>& workpoly,Id iapex,Id igparam)const;
   // void evalOp(const ALinearOpMulti* /*Op*/,
@@ -59,13 +57,13 @@ public:
 
   void evalOpTraining(MatrixSparse* Op,
                       const constvect inv,
-                      std::vector<std::vector<double>>& store,
-                      std::vector<double>& work) const override;
+                      VectorVectorDouble& store,
+                      VectorDouble& work) const override;
   void evalOpCumul(MatrixSparse* Op, const constvect inv, vect outv) const;
   void evalOp(MatrixSparse* Op, const constvect inv, vect outv) const override;
   double evalOpByRank(MatrixSparse* S, Id rank) const override;
 #endif
-  
+
 #ifndef SWIG
 
   void _addEvalOp(const ALinearOp* Op, const constvect inv, vect outv) const override;
@@ -73,10 +71,10 @@ public:
 #endif
 
 #ifndef SWIG
-  
+
 private:
-  mutable std::vector<double> _work;
-  mutable std::vector<double> _work2;
+  mutable VectorDouble _work;
+  mutable VectorDouble _work2;
 #endif
 };
-}
+} // namespace gstlrn

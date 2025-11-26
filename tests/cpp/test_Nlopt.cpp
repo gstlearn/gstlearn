@@ -19,7 +19,6 @@
  */
 
 #include "Basic/ASerializable.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/Optim.hpp"
 #include "Basic/VectorNumT.hpp"
 
@@ -30,7 +29,7 @@
 using namespace gstlrn;
 
 // Function to minimize
-double myfunc2(const std::vector<double>& x)
+double myfunc2(const VectorDouble& x)
 {
   // if (grad)
   //   grad[0] = 2 * (x[0] - 3);
@@ -44,15 +43,15 @@ double myfunc2(const std::vector<double>& x)
 static void _firstTest()
 {
   mestitle(0, "Minimization of a Function");
-  std::vector<double> x = {1.};
-  auto* opt             = new Optim(NELDERMEAD, static_cast<Id>(x.size()));
+  VectorDouble x = {1.};
+  auto* opt      = new Optim(NELDERMEAD, static_cast<Id>(x.size()));
 
   // Bounds for each parameter
   VectorDouble lb = {1., 10.};
   opt->setLowerBounds(lb);
   VectorDouble ub = {5., 10.};
   opt->setUpperBounds(ub);
-  auto func = [](const std::vector<double>& x)
+  auto func = [](const VectorDouble& x)
   { return myfunc2(x); };
   opt->setObjective(func);
   opt->setXtolRel(EPSILON4);

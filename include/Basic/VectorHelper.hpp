@@ -13,7 +13,6 @@
 #include "Basic/VectorNumT.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
-#include <vector>
 
 namespace gstlrn
 {
@@ -41,8 +40,6 @@ public:
   static void dumpRange(const String& title, const VectorInt& vect);
   static void dumpNNZ(const String& title, const VectorDouble& vect, Id nclass = 10);
 
-  static double maximum(const std::vector<std::vector<double>>& vec, bool flagAbs = false);
-  static double maximum(const VectorDouble& vec, bool flagAbs = false); // Kept for std::vector<std::vector<double>>
   static void capInPlace(VectorDouble& vec, double vmin = TEST, double vmax = TEST);
   static void capInPlaceVVD(VectorVectorDouble& vec, double vmin = TEST, double vmax = TEST);
   static double extensionDiagonal(const VectorDouble& mini, const VectorDouble& maxi);
@@ -83,26 +80,16 @@ public:
 
   static void addInPlace(constvect in, vect dest);
 #endif
-  static void addInPlace(std::vector<double>& dest, const std::vector<double>& src);
   static void addInPlace(const double* veca,
                          const double* vecb,
                          double* res,
                          Id size);
-  static void addInPlace(const std::vector<std::vector<double>>& in1,
-                         const std::vector<std::vector<double>>& in2,
-                         std::vector<std::vector<double>>& outv);
-
   static void addSquareInPlace(VectorDouble& dest, const VectorDouble& src);
 
 #ifndef SWIG
   static VectorDouble subtract(constvect veca, constvect vecb);
   static void subtractInPlace(const constvect in1, const constvect in2, vect outv);
 #endif
-  static void subtractInPlace(const std::vector<std::vector<double>>& in1,
-                              const std::vector<std::vector<double>>& in2,
-                              std::vector<std::vector<double>>& outv);
-
-  static void divideInPlace(std::vector<double>& vec, const std::vector<double>& v);
   static void multiplyComplexInPlace(const VectorDouble& vecaRe,
                                      const VectorDouble& vecaIm,
                                      const VectorDouble& vecbRe,
@@ -110,7 +97,6 @@ public:
                                      VectorDouble& resRe,
                                      VectorDouble& resIm);
 
-  static void multiplyConstantSelfInPlace(VectorDouble& vec, double v);
   static void addMultiplyConstantInPlace(double val1,
                                          const VectorDouble& in1,
                                          VectorDouble& outv,
@@ -121,7 +107,6 @@ public:
   static void copy(const VectorDouble& vecin, VectorDouble& vecout, Id size = -1);
   static void copy(const VectorInt& vecin, VectorInt& vecout, Id size = -1);
   static void copy(const VectorVectorDouble& inv, VectorVectorDouble& outv);
-  static void copy(const std::vector<std::vector<double>>& inv, std::vector<std::vector<double>>& outv);
 
   static void mean1AndMean2ToStdev(const VectorDouble& mean1,
                                    const VectorDouble& mean2,
@@ -146,7 +131,6 @@ public:
 #endif
   // Next line is kept only fr VVD compatibility
   static double innerProduct(const double* veca, const double* vecb, Id size = -1);
-  static double innerProductVec(const std::vector<double>& veca, const std::vector<double>& vecb, Id size = -1);
 
   static VectorDouble crossProduct3D(const VectorDouble& veca, const VectorDouble& vecb);
   static void crossProduct3DInPlace(const double* a, const double* b, double* v);
@@ -210,13 +194,10 @@ public:
   static VectorInt complement(const VectorInt& vec, const VectorInt& sel);
 
   static std::pair<double, double> rangeVals(const VectorDouble& vec);
-  static void unflattenInPlace(const std::vector<double>& vd, std::vector<std::vector<double>>& vvd);
-  static void flattenInPlace(const std::vector<std::vector<double>>& vvd, std::vector<double>& vd);
+  static void unflattenInPlace(const VectorDouble& vd, VectorVectorDouble& vvd);
+  static void flattenInPlace(const VectorVectorDouble& vvd, VectorDouble& vd);
   static VectorDouble flatten(const VectorVectorDouble& vvd);
   static VectorVectorDouble unflatten(const VectorDouble& vd, const VectorInt& sizes);
-  static std::vector<double> flatten(const std::vector<std::vector<double>>& vvd);
-  static std::vector<std::vector<double>> unflatten(const std::vector<double>& vd, const VectorInt& sizes);
-  static void flattenInPlace(const VectorVectorDouble& vvd, VectorDouble& vd);
   static void linearCombinationInPlace(double val1,
                                        const VectorDouble& vd1,
                                        double val2,
@@ -227,13 +208,6 @@ public:
                                           double val2,
                                           const VectorVectorDouble& vvd2,
                                           VectorVectorDouble& outv);
-  static double innerProductVVec(const std::vector<std::vector<double>>& x,
-                                 const std::vector<std::vector<double>>& y);
-  static void linearCombinationVVDInPlace(double val1,
-                                          const std::vector<std::vector<double>>& vvd1,
-                                          double val2,
-                                          const std::vector<std::vector<double>>& vvd2,
-                                          std::vector<std::vector<double>>& outv);
 
   static VectorDouble suppressTest(const VectorDouble& vecin);
   static void extractInPlace(const VectorDouble& vecin, VectorDouble& vecout, Id start);
@@ -258,7 +232,6 @@ public:
   static Id whereMaximum(const VectorDouble& tab);
   static Id whereElement(const VectorInt& tab, Id target);
   static Id whereElement(const VectorInt& tab, Id target, Id start);
-  static double norm(const std::vector<double>& vec);
   static bool isIsotropic(const VectorVectorInt& sampleRanks);
 
   static VectorDouble reduceOne(const VectorDouble& vecin, Id index);
@@ -266,9 +239,6 @@ public:
   static VectorDouble compress(const VectorDouble& vecin, const VectorInt& vindex);
   static void truncateDecimalsInPlace(VectorDouble& vec, Id ndec);
   static void truncateDigitsInPlace(VectorDouble& vec, Id ndec);
-  static void simulateGaussianInPlace(std::vector<double>& vec,
-                                      double mean  = 0.,
-                                      double sigma = 1.);
 };
 
 // typedef VectorHelper VH;

@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "LinearOp/PrecisionOp.hpp"
 #include "Basic/AException.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/CovAniso.hpp"
@@ -174,9 +173,9 @@ PrecisionOp::~PrecisionOp()
   }
 }
 
-std::vector<double> PrecisionOp::evalInverse(const VectorDouble& vecin)
+VectorDouble PrecisionOp::evalInverse(const VectorDouble& vecin)
 {
-  std::vector<double> vecout(vecin.size());
+  VectorDouble vecout(vecin.size());
   constvect vecinconst(vecin);
   evalInverse(vecinconst, vecout);
   return vecout;
@@ -391,7 +390,7 @@ Id PrecisionOp::_addEvalPoly(const EPowerPT& power,
 
     if (_workPoly.empty())
     {
-      _workPoly = std::vector<std::vector<double>>(degree);
+      _workPoly = VectorVectorDouble(degree);
       for (auto& e: _workPoly)
       {
         e.resize(inv.size());
@@ -422,7 +421,7 @@ Id PrecisionOp::_addEvalPoly(const EPowerPT& power,
 }
 
 void PrecisionOp::evalInverse(const constvect vecin,
-                              std::vector<double>& vecout)
+                              VectorDouble& vecout)
 {
   if (_work.size() != vecin.size()) _work.resize(vecin.size());
   vect vecouts(vecout);
@@ -437,7 +436,7 @@ VectorDouble PrecisionOp::computeCov(Id imesh)
 
   auto n = getSize();
   VectorDouble result(n);
-  std::vector<double> ei(n);
+  VectorDouble ei(n);
   vect eis(ei);
   vect results(result);
 

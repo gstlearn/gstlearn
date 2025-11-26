@@ -657,8 +657,8 @@ void DbGrid::_createGridCoordinates(Id icol0)
 
   // Generate the vector of coordinates
 
-  std::vector<double> coors(ndim);
-  std::vector<Id> indices;
+  VectorDouble coors(ndim);
+  VectorInt indices;
   _grid.iteratorInit();
   for (Id iech = 0; iech < getNSample(); iech++)
   {

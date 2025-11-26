@@ -14,7 +14,6 @@
 #include "Basic/AException.hpp"
 #include "Basic/AFunctional.hpp"
 #include "Basic/AStringFormat.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/FFT.hpp"
 #include "Basic/ListParams.hpp"
 #include "Basic/ParamInfo.hpp"
@@ -58,9 +57,9 @@ struct DerivCache
   mutable const SpacePoint* cachedP2ptr = nullptr;
   mutable SpacePoint cachedP1;
   mutable SpacePoint cachedP2;
-  mutable double deriv               = 0.0;
-  mutable std::vector<double> angles = {};
-  mutable bool isInitialized         = false;
+  mutable double deriv        = 0.0;
+  mutable VectorDouble angles = {};
+  mutable bool isInitialized  = false;
 
   double get(CorAniso* cor,
              const SpacePoint& p1,
@@ -407,8 +406,8 @@ bool CorAniso::isValidForSpectral() const
 }
 MatrixDense CorAniso::simulateSpectralOmega(Id nb) const
 {
-  MatrixDense omega   = _corfunc->simulateSpectralOmega(nb);
-  const auto& tensor  = getAniso().getTensorInverse();
+  MatrixDense omega  = _corfunc->simulateSpectralOmega(nb);
+  const auto& tensor = getAniso().getTensorInverse();
   // omega = omega * tensor;
   omega.prodMat(&tensor);
   return omega;
@@ -646,8 +645,8 @@ double CorAniso::getFullCorrec() const
 
 double CorAniso::getDetTensor() const
 {
-  const auto& scales  = getScales();
-  double detTensor    = 1.;
+  const auto& scales = getScales();
+  double detTensor   = 1.;
   for (const auto e: scales)
   {
     detTensor *= e;
@@ -1401,7 +1400,7 @@ void CorAniso::updateCovByPoints(Id icas1, Id iech1, Id icas2, Id iech2) const
 
   auto ndim = getNDim();
 
-  const auto &paramsnostat = getTabNoStatCovAniso()->getTable();
+  const auto& paramsnostat = getTabNoStatCovAniso()->getTable();
   // Loop on the elements that can be updated one-by-one
 
   for (const auto& e: paramsnostat)
@@ -1497,13 +1496,13 @@ void CorAniso::updateCovByPoints(Id icas1, Id iech1, Id icas2, Id iech2) const
     thread_local MatrixSymmetric direct1, direct2;
     // Extract the direct tensor at first point and square it
     setRotationAnglesAndRadius(angle1, range1, scale1);
-    direct1 = getAniso().getTensorDirect2();
-    double det1             = sqrt(sqrt(direct1.determinant()));
+    direct1     = getAniso().getTensorDirect2();
+    double det1 = sqrt(sqrt(direct1.determinant()));
 
     // Extract the direct tensor at second point and square it
     setRotationAnglesAndRadius(angle2, range2, scale2);
-    direct2 = getAniso().getTensorDirect2();
-    double det2             = sqrt(sqrt(direct2.determinant()));
+    direct2     = getAniso().getTensorDirect2();
+    double det2 = sqrt(sqrt(direct2.determinant()));
 
     // Calculate average squared tensor
     direct2.addMatNoCheck(direct1, 0.5, 0.5);

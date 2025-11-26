@@ -110,17 +110,17 @@ private:
                            double coeff[3][2]);
   Id _preparMatrices(const AMesh* amesh, Id imesh, MatrixSquare& matu, MatrixDense& matw) const;
   Id _prepareMatricesSVariety(const AMesh* amesh,
-                               Id imesh,
-                               VectorVectorDouble& coords,
-                               MatrixDense& matM,
-                               MatrixSymmetric& matMtM,
-                               MatrixDense& matP,
-                               double* deter) const;
+                              Id imesh,
+                              VectorVectorDouble& coords,
+                              MatrixDense& matM,
+                              MatrixSymmetric& matMtM,
+                              MatrixDense& matP,
+                              double* deter) const;
   Id _prepareMatricesSphere(const AMesh* amesh,
-                             Id imesh,
-                             VectorVectorDouble& coords,
-                             MatrixSquare& matMs,
-                             double* deter) const;
+                            Id imesh,
+                            VectorVectorDouble& coords,
+                            MatrixSquare& matMs,
+                            double* deter) const;
   static void _updateCova(std::shared_ptr<CovAniso>& cova, Id imesh);
   VectorT<std::map<Id, double>> _mapCreate() const;
   VectorT<VectorT<std::map<Id, double>>> _mapVectorCreate() const;
@@ -153,7 +153,7 @@ private:
   VectorT<MatrixSparse*> _TildeCGrad;
   VectorVectorDouble _LambdaGrad;
   bool _flagNoStatByHH;
-  std::vector<double> _detHH;
+  VectorDouble _detHH;
   mutable VectorDouble _diag;
 
   Id _ndim;

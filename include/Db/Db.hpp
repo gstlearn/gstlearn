@@ -238,7 +238,7 @@ public:
 
   /**@}*/
 
-  const std::vector<double>& getArrays() const { return _array; }
+  const VectorDouble& getArrays() const { return _array; }
 
   /** @addtogroup DB_Names Manipulating Names of the variables contained in a Db
    * \ingroup DB
@@ -489,7 +489,7 @@ public:
   void updArrayVec(const VectorInt& iechs, Id iuid, const EOperator& oper, VectorDouble& values);
   VectorDouble getArrayByUID(Id iuid, bool useSel = false) const;
   void setArrayByUID(const VectorDouble& tab, Id iuid);
-  void getArrayBySample(std::vector<double>& vals, Id iech) const;
+  void getArrayBySample(VectorDouble& vals, Id iech) const;
   void setArrayBySample(Id iech, const VectorDouble& vec);
 
   void getSamplesAsSP(std::vector<SpacePoint>& pvec,
@@ -981,7 +981,7 @@ protected:
 
 private:
   Id _getNextLocator(const ELoc& locatorType) const;
-  const std::vector<Id>& _getUIDcol() const { return _uidcol; }
+  const VectorInt& _getUIDcol() const { return _uidcol; }
   VectorString _getNames() const { return _colNames; }
   Id _getUIDcol(Id iuid) const;
   Id _getAddress(Id iech, Id icol) const;
@@ -1031,12 +1031,12 @@ protected:
   void _loadValues(const Db* db, const VectorString& names, const VectorInt& ranks, Id shift = 0);
 
 private:
-  Id _ncol;                   //!< Number of Columns of data
-  Id _nech;                   //!< Number of samples
-  std::vector<double> _array; //!< Array of values
-  std::vector<Id> _uidcol;    //!< UID to Column
-  VectorString _colNames;     //!< Names of the variables
-  std::vector<PtrGeos> _p;    //!< Locator characteristics
+  Id _ncol;                //!< Number of Columns of data
+  Id _nech;                //!< Number of samples
+  VectorDouble _array;     //!< Array of values
+  VectorInt _uidcol;       //!< UID to Column
+  VectorString _colNames;  //!< Names of the variables
+  std::vector<PtrGeos> _p; //!< Locator characteristics
 
   /// factor allocations
   mutable VectorInt _uids;

@@ -162,7 +162,7 @@ public:
 
   void iteratorInit(const VectorInt& order = VectorInt());
   VectorInt iteratorNext(void);
-  void iteratorNext(std::vector<Id>& indices);
+  void iteratorNext(VectorInt& indices);
   bool empty() const;
 
   void dilate(Id mode,
@@ -210,7 +210,7 @@ private:
 
   Id _iter;
   Id _nprod;
-  std::vector<Id> _counts;
+  VectorInt _counts;
   VectorInt _order;
   VectorInt _indices;
   mutable VectorInt _dummy;

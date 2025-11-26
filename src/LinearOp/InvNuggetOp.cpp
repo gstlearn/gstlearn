@@ -10,7 +10,6 @@
 /******************************************************************************/
 
 #include "LinearOp/InvNuggetOp.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Db/Db.hpp"
@@ -229,7 +228,7 @@ void InvNuggetOp::_buildInvNugget(const Db* db, Model* model, const SPDEParam& p
 
   // Pre-calculate the inverse of the sill matrix (if constant)
 
-  std::vector<double> cacheLogDet;
+  VectorDouble cacheLogDet;
   std::vector<CholeskyDense> cholcache;
 
   if (flag_constant)
