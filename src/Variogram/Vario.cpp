@@ -17,7 +17,6 @@
 #include "Anamorphosis/AAnam.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Basic/AException.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/Limits.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/SerializeHDF5.hpp"
@@ -5281,4 +5280,53 @@ bool Vario::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
   return ret;
 }
 #endif
+
+/**
+ * @brief Returns a new Vario pointer initialized and calculated on the Z-variables of the 'db' database.
+ *
+ * @param db The 'db' database containing the Z-variables to calculate the variogram from.
+ * @param nlag Number of lags
+ * @param dlag Lag value
+ * @param ndir Number of directions
+ * @param angles List of calculation angles
+ * @param verbose Verbose mode
+ * @return Vario* Pointer to the calculated Vario object (nullptr if an error occurred)
+ *
+ * @remarks The decision algorithm is described as follows:
+ * - If 'ndir' > 1, multiple regular directions
+ * - else if 'angles' is not empty, several 2D directions based on the provided angles
+ * - else, omni-directional variogram
+ */
+Vario* variogramCalculate(Db* db,
+                          Id nlag,
+                          double dlag,
+                          Id ndir,
+                          const VectorDouble& angles,
+                          bool verbose)
+{
+  VarioParam* varioparam = nullptr;
+  if (ndir > 1)
+    varioparam = VarioParam::createMultiple(ndir, nlag, dlag);
+  else if (!angles.empty())
+    varioparam = VarioParam::createSeveral2D(angles, nlag, dlag);
+  else
+    varioparam = VarioParam::createOmniDirection(nlag, dlag);
+
+  auto* vario = new Vario(*varioparam);
+  if (vario->compute(db, ECalcVario::VARIOGRAM, false, false, nullptr, 0, verbose))
+    return nullptr;
+  return vario;
+}
+
+Vario* variogridCalculate(DbGrid* dbgrid,
+                          Id nlag,
+                          bool verbose)
+{
+  VarioParam* varioparam = VarioParam::createMultipleFromGrid(dbgrid, nlag);
+
+  auto* vario = new Vario(*varioparam);
+  if (vario->compute(dbgrid, ECalcVario::VARIOGRAM, false, false, nullptr, 0, verbose))
+    return nullptr;
+  return vario;
+}
 } // namespace gstlrn

@@ -27,9 +27,9 @@ Total number of samples      = 10000
 
 Grid characteristics:
 ---------------------
-Origin :      0.000     0.000
-Mesh   :      0.010     0.010
-Number :        100       100
+Origin :       0.000      0.000
+Mesh   :       0.010      0.010
+Number :         100        100
 
 Variables
 ---------
@@ -48,11 +48,11 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Matern (Third Parameter = 1)
-- Sill         =      1.000
-- Range        =      0.200
-- Theo. Range  =      0.058
-Total Sill     =      1.000
-Known Mean(s)     0.000
+- Sill         =       1.000
+- Range        =       0.200
+- Theo. Range  =       0.058
+Total Sill     =       1.000
+Known Mean(s)      0.000
 
 Data Base Characteristics
 =========================
@@ -83,9 +83,9 @@ Total number of samples      = 10000
 
 Grid characteristics:
 ---------------------
-Origin :      0.000     0.000
-Mesh   :      0.010     0.010
-Number :        100       100
+Origin :       0.000      0.000
+Mesh   :       0.010      0.010
+Number :         100        100
 
 Variables
 ---------
@@ -104,71 +104,71 @@ Number of direction(s)      = 2
 Space dimension             = 2
 Variable(s)                 = [Simu]
 
-Variance-Covariance Matrix     0.859
+Variance-Covariance Matrix      0.859
 
 Direction #1
 ------------
 Number of lags              = 20
-Direction coefficients      =      1.000     0.000
-Direction angles (degrees)  =      0.000
-Tolerance on direction      =     45.000 (degrees)
-Calculation lag             =      0.025
-Tolerance on distance       =     50.000 (Percent of the lag value)
+Direction coefficients      =       1.000      0.000
+Direction angles (degrees)  =       0.000
+Tolerance on direction      =      45.000 (degrees)
+Calculation lag             =       0.025
+Tolerance on distance       =      50.000 (Percent of the lag value)
 
 For variable 1
-      Rank    Npairs  Distance     Value
-         0   139.000     0.011     0.041
-         1   827.000     0.027     0.184
-         2  1931.000     0.050     0.427
-         3  2700.000     0.076     0.630
-         4  3408.000     0.100     0.695
-         5  4218.000     0.125     0.796
-         6  4683.000     0.150     0.871
-         7  5482.000     0.175     0.901
-         8  5962.000     0.200     0.961
-         9  6180.000     0.225     0.927
-        10  7264.000     0.250     0.942
-        11  7429.000     0.275     0.925
-        12  7539.000     0.300     0.991
-        13  8067.000     0.325     1.011
-        14  7963.000     0.350     1.039
-        15  8426.000     0.375     0.992
-        16  8773.000     0.400     0.960
-        17  8393.000     0.425     0.932
-        18  9144.000     0.450     0.948
-        19  8590.000     0.475     0.975
+       Rank     Npairs   Distance      Value
+          0    139.000      0.011      0.041
+          1    827.000      0.027      0.184
+          2   1931.000      0.050      0.427
+          3   2700.000      0.076      0.630
+          4   3408.000      0.100      0.695
+          5   4218.000      0.125      0.796
+          6   4683.000      0.150      0.871
+          7   5482.000      0.175      0.901
+          8   5962.000      0.200      0.961
+          9   6180.000      0.225      0.927
+         10   7264.000      0.250      0.942
+         11   7429.000      0.275      0.925
+         12   7539.000      0.300      0.991
+         13   8067.000      0.325      1.011
+         14   7963.000      0.350      1.039
+         15   8426.000      0.375      0.992
+         16   8773.000      0.400      0.960
+         17   8393.000      0.425      0.932
+         18   9144.000      0.450      0.948
+         19   8590.000      0.475      0.975
 
 Direction #2
 ------------
 Number of lags              = 20
-Direction coefficients      =      0.000     1.000
-Direction angles (degrees)  =     90.000
-Tolerance on direction      =     45.000 (degrees)
-Calculation lag             =      0.025
-Tolerance on distance       =     50.000 (Percent of the lag value)
+Direction coefficients      =       0.000      1.000
+Direction angles (degrees)  =      90.000
+Tolerance on direction      =      45.000 (degrees)
+Calculation lag             =       0.025
+Tolerance on distance       =      50.000 (Percent of the lag value)
 
 For variable 1
-      Rank    Npairs  Distance     Value
-         0   133.000     0.006     0.027
-         1   974.000     0.027     0.178
-         2  1795.000     0.051     0.363
-         3  2708.000     0.076     0.529
-         4  3551.000     0.101     0.582
-         5  4190.000     0.126     0.718
-         6  4886.000     0.150     0.802
-         7  5352.000     0.175     0.867
-         8  5915.000     0.200     0.899
-         9  6469.000     0.225     1.006
-        10  6888.000     0.250     1.024
-        11  7270.000     0.275     0.962
-        12  7520.000     0.300     0.982
-        13  7956.000     0.325     1.015
-        14  8211.000     0.350     1.000
-        15  8442.000     0.375     1.005
-        16  8620.000     0.400     0.968
-        17  8627.000     0.425     0.904
-        18  8811.000     0.450     0.876
-        19  8866.000     0.475     0.825
+       Rank     Npairs   Distance      Value
+          0    133.000      0.006      0.027
+          1    974.000      0.027      0.178
+          2   1795.000      0.051      0.363
+          3   2708.000      0.076      0.529
+          4   3551.000      0.101      0.582
+          5   4190.000      0.126      0.718
+          6   4886.000      0.150      0.802
+          7   5352.000      0.175      0.867
+          8   5915.000      0.200      0.899
+          9   6469.000      0.225      1.006
+         10   6888.000      0.250      1.024
+         11   7270.000      0.275      0.962
+         12   7520.000      0.300      0.982
+         13   7956.000      0.325      1.015
+         14   8211.000      0.350      1.000
+         15   8442.000      0.375      1.005
+         16   8620.000      0.400      0.968
+         17   8627.000      0.425      0.904
+         18   8811.000      0.450      0.876
+         19   8866.000      0.475      0.825
 Maximum Variogram Value = 1.039433
 Due to the tolerance (5.000000 (percent)), no basic structure would be left
 No structure is discarded
@@ -184,15 +184,44 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Matern (Third Parameter = 1)
-- Sill         =      0.000
-- Range        =      0.119
-- Theo. Range  =      0.034
+- Sill         =       0.000
+- Range        =       0.119
+- Theo. Range  =       0.034
 Exponential
-- Sill         =      0.000
-- Range        =      0.238
-- Theo. Range  =      0.079
-Total Sill     =      0.000
-Known Mean(s)     0.000
+- Sill         =       0.000
+- Range        =       0.238
+- Theo. Range  =       0.079
+Total Sill     =       0.000
+Known Mean(s)      0.000
+
+Experimental variogram on Data Samples (quick entry)
+----------------------------------------------------
+
+Variogram characteristics
+=========================
+Number of variable(s)       = 1
+Number of direction(s)      = 1
+Space dimension             = 2
+Variable(s)                 = [Simu]
+
+Variance-Covariance Matrix      0.859
+
+Direction #1
+------------
+Number of lags              = 5
+Direction coefficients      =       1.000      0.000
+Direction angles (degrees)  =       0.000
+Tolerance on direction      =      90.000 (degrees)
+Calculation lag             =       0.100
+Tolerance on distance       =      50.000 (Percent of the lag value)
+
+For variable 1
+       Rank     Npairs   Distance      Value
+          0   3793.000      0.033      0.244
+          1  27354.000      0.107      0.676
+          2  47619.000      0.203      0.933
+          3  60589.000      0.301      0.985
+          4  68653.000      0.401      0.962
 
 Experimental variogram on Grid
 ------------------------------
@@ -204,71 +233,117 @@ Number of direction(s)      = 2
 Space dimension             = 2
 Variable(s)                 = [Simu]
 
-Variance-Covariance Matrix     0.874
+Variance-Covariance Matrix      0.874
 
 Direction #1
 ------------
 Number of lags              = 20
-Direction coefficients      =      1.000     0.000
-Direction angles (degrees)  =      0.000
-Tolerance on direction      =      0.000 (degrees)
-Calculation lag             =      0.010
-Tolerance on distance       =     50.000 (Percent of the lag value)
-Grid Direction coefficients =          1         0
+Direction coefficients      =       1.000      0.000
+Direction angles (degrees)  =       0.000
+Tolerance on direction      =       0.000 (degrees)
+Calculation lag             =       0.010
+Tolerance on distance       =      50.000 (Percent of the lag value)
+Grid Direction coefficients =           1          0
 
 For variable 1
-      Rank    Npairs  Distance     Value
-         1  9900.000     0.010     0.031
-         2  9800.000     0.020     0.116
-         3  9700.000     0.030     0.231
-         4  9600.000     0.040     0.351
-         5  9500.000     0.050     0.459
-         6  9400.000     0.060     0.551
-         7  9300.000     0.070     0.625
-         8  9200.000     0.080     0.681
-         9  9100.000     0.090     0.716
-        10  9000.000     0.100     0.732
-        11  8900.000     0.110     0.738
-        12  8800.000     0.120     0.749
-        13  8700.000     0.130     0.773
-        14  8600.000     0.140     0.812
-        15  8500.000     0.150     0.856
-        16  8400.000     0.160     0.893
-        17  8300.000     0.170     0.920
-        18  8200.000     0.180     0.937
-        19  8100.000     0.190     0.951
+       Rank     Npairs   Distance      Value
+          1   9900.000      0.010      0.031
+          2   9800.000      0.020      0.116
+          3   9700.000      0.030      0.231
+          4   9600.000      0.040      0.351
+          5   9500.000      0.050      0.459
+          6   9400.000      0.060      0.551
+          7   9300.000      0.070      0.625
+          8   9200.000      0.080      0.681
+          9   9100.000      0.090      0.716
+         10   9000.000      0.100      0.732
+         11   8900.000      0.110      0.738
+         12   8800.000      0.120      0.749
+         13   8700.000      0.130      0.773
+         14   8600.000      0.140      0.812
+         15   8500.000      0.150      0.856
+         16   8400.000      0.160      0.893
+         17   8300.000      0.170      0.920
+         18   8200.000      0.180      0.937
+         19   8100.000      0.190      0.951
 
 Direction #2
 ------------
 Number of lags              = 20
-Direction coefficients      =      0.000     1.000
-Direction angles (degrees)  =     90.000
-Tolerance on direction      =      0.000 (degrees)
-Calculation lag             =      0.010
-Tolerance on distance       =     50.000 (Percent of the lag value)
-Grid Direction coefficients =          0         1
+Direction coefficients      =       0.000      1.000
+Direction angles (degrees)  =      90.000
+Tolerance on direction      =       0.000 (degrees)
+Calculation lag             =       0.010
+Tolerance on distance       =      50.000 (Percent of the lag value)
+Grid Direction coefficients =           0          1
 
 For variable 1
-      Rank    Npairs  Distance     Value
-         1  9900.000     0.010     0.047
-         2  9800.000     0.020     0.102
-         3  9700.000     0.030     0.186
-         4  9600.000     0.040     0.275
-         5  9500.000     0.050     0.352
-         6  9400.000     0.060     0.464
-         7  9300.000     0.070     0.515
-         8  9200.000     0.080     0.566
-         9  9100.000     0.090     0.592
-        10  9000.000     0.100     0.628
-        11  8900.000     0.110     0.699
-        12  8800.000     0.120     0.727
-        13  8700.000     0.130     0.787
-        14  8600.000     0.140     0.829
-        15  8500.000     0.150     0.893
-        16  8400.000     0.160     0.956
-        17  8300.000     0.170     0.966
-        18  8200.000     0.180     1.000
-        19  8100.000     0.190     1.007
+       Rank     Npairs   Distance      Value
+          1   9900.000      0.010      0.047
+          2   9800.000      0.020      0.102
+          3   9700.000      0.030      0.186
+          4   9600.000      0.040      0.275
+          5   9500.000      0.050      0.352
+          6   9400.000      0.060      0.464
+          7   9300.000      0.070      0.515
+          8   9200.000      0.080      0.566
+          9   9100.000      0.090      0.592
+         10   9000.000      0.100      0.628
+         11   8900.000      0.110      0.699
+         12   8800.000      0.120      0.727
+         13   8700.000      0.130      0.787
+         14   8600.000      0.140      0.829
+         15   8500.000      0.150      0.893
+         16   8400.000      0.160      0.956
+         17   8300.000      0.170      0.966
+         18   8200.000      0.180      1.000
+         19   8100.000      0.190      1.007
+
+Experimental variogram on Grid (quick entry)
+--------------------------------------------
+
+Variogram characteristics
+=========================
+Number of variable(s)       = 1
+Number of direction(s)      = 2
+Space dimension             = 2
+Variable(s)                 = [Simu]
+
+Variance-Covariance Matrix      0.874
+
+Direction #1
+------------
+Number of lags              = 5
+Direction coefficients      =       1.000      0.000
+Direction angles (degrees)  =       0.000
+Tolerance on direction      =       0.000 (degrees)
+Calculation lag             =       0.010
+Tolerance on distance       =      50.000 (Percent of the lag value)
+Grid Direction coefficients =           1          0
+
+For variable 1
+       Rank     Npairs   Distance      Value
+          1   9900.000      0.010      0.031
+          2   9800.000      0.020      0.116
+          3   9700.000      0.030      0.231
+          4   9600.000      0.040      0.351
+
+Direction #2
+------------
+Number of lags              = 5
+Direction coefficients      =       0.000      1.000
+Direction angles (degrees)  =      90.000
+Tolerance on direction      =       0.000 (degrees)
+Calculation lag             =       0.010
+Tolerance on distance       =      50.000 (Percent of the lag value)
+Grid Direction coefficients =           0          1
+
+For variable 1
+       Rank     Npairs   Distance      Value
+          1   9900.000      0.010      0.047
+          2   9800.000      0.020      0.102
+          3   9700.000      0.030      0.186
+          4   9600.000      0.040      0.275
 
 Variogram Map on Isolated Data
 ------------------------------
@@ -285,9 +360,9 @@ Total number of samples      = 1681
 
 Grid characteristics:
 ---------------------
-Origin :     -0.999    -0.998
-Mesh   :      0.050     0.050
-Number :         41        41
+Origin :      -0.999     -0.998
+Mesh   :       0.050      0.050
+Number :          41         41
 
 Variables
 ---------
@@ -306,21 +381,21 @@ Data Base Grid Characteristics
 Data Base Statistics
 --------------------
 4 - Name VMAP.Simu.Var - Locator z1
- Nb of data          =       1681
- Nb of active values =       1681
- Minimum value       =      0.000
- Maximum value       =      1.074
- Mean value          =      0.806
- Standard Deviation  =      0.186
- Variance            =      0.034
+ Nb of data          =        1681
+ Nb of active values =        1681
+ Minimum value       =       0.000
+ Maximum value       =       1.074
+ Mean value          =       0.806
+ Standard Deviation  =       0.186
+ Variance            =       0.034
 5 - Name VMAP.Simu.Nb - Locator NA
- Nb of data          =       1681
- Nb of active values =       1681
- Minimum value       =   6400.000
- Maximum value       =  10000.000
- Mean value          =   8056.157
- Standard Deviation  =    752.441
- Variance            = 566166.790
+ Nb of data          =        1681
+ Nb of active values =        1681
+ Minimum value       =    6400.000
+ Maximum value       =   10000.000
+ Mean value          =    8056.157
+ Standard Deviation  =     752.441
+ Variance            =  566166.790
 
 Variogram characteristics
 =========================
@@ -330,66 +405,66 @@ Space dimension             = 2
 Variable(s)                 = [z-1 z-2]
 
 Variance-Covariance Matrix
-               [,  0]    [,  1]
-     [  0,]     1.138    -0.255
-     [  1,]    -0.255     1.559
+                 [,  0]     [,  1]
+      [  0,]      1.138     -0.255
+      [  1,]     -0.255      1.559
 
 Direction #1
 ------------
 Number of lags              = 10
-Direction coefficients      =      1.000     0.000
-Direction angles (degrees)  =      0.000
-Tolerance on direction      =     90.000 (degrees)
-Calculation lag             =      0.100
-Tolerance on distance       =     50.000 (Percent of the lag value)
+Direction coefficients      =       1.000      0.000
+Direction angles (degrees)  =       0.000
+Tolerance on direction      =      90.000 (degrees)
+Calculation lag             =       0.100
+Tolerance on distance       =      50.000 (Percent of the lag value)
 
 For variable 1
-      Rank    Npairs  Distance     Value
-         0     2.000     0.033     0.102
-         1     6.000     0.113     0.909
-         2     5.000     0.196     0.986
-         3     7.000     0.308     1.583
-         4     7.000     0.394     2.269
-         5     7.000     0.490     1.003
-         6     6.000     0.595     0.489
-         7     2.000     0.736     0.162
-         8     3.000     0.821     3.016
+       Rank     Npairs   Distance      Value
+          0      2.000      0.033      0.102
+          1      6.000      0.113      0.909
+          2      5.000      0.196      0.986
+          3      7.000      0.308      1.583
+          4      7.000      0.394      2.269
+          5      7.000      0.490      1.003
+          6      6.000      0.595      0.489
+          7      2.000      0.736      0.162
+          8      3.000      0.821      3.016
 
 For variables 2 and 1
-      Rank    Npairs  Distance     Value
-         0     2.000     0.033     0.401
-         1     6.000     0.113     0.136
-         2     5.000     0.196    -0.514
-         3     7.000     0.308     1.019
-         4     7.000     0.394    -0.750
-         5     7.000     0.490    -0.946
-         6     6.000     0.595    -0.740
-         7     2.000     0.736    -0.664
-         8     3.000     0.821    -0.430
+       Rank     Npairs   Distance      Value
+          0      2.000      0.033      0.401
+          1      6.000      0.113      0.136
+          2      5.000      0.196     -0.514
+          3      7.000      0.308      1.019
+          4      7.000      0.394     -0.750
+          5      7.000      0.490     -0.946
+          6      6.000      0.595     -0.740
+          7      2.000      0.736     -0.664
+          8      3.000      0.821     -0.430
 
 For variable 2
-      Rank    Npairs  Distance     Value
-         0     2.000     0.033     1.605
-         1     6.000     0.113     1.225
-         2     5.000     0.196     0.629
-         3     7.000     0.308     1.704
-         4     7.000     0.394     1.937
-         5     7.000     0.490     2.034
-         6     6.000     0.595     2.435
-         7     2.000     0.736     4.035
-         8     3.000     0.821     0.615
+       Rank     Npairs   Distance      Value
+          0      2.000      0.033      1.605
+          1      6.000      0.113      1.225
+          2      5.000      0.196      0.629
+          3      7.000      0.308      1.704
+          4      7.000      0.394      1.937
+          5      7.000      0.490      2.034
+          6      6.000      0.595      2.435
+          7      2.000      0.736      4.035
+          8      3.000      0.821      0.615
 Variogram for: ivar=0, jvar=0 (no compress)
-               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
-     [  0,]     0.102     0.909     0.986     1.583     2.269     1.003     0.489
-     [  7,]     0.162     3.016
+                 [,  0]     [,  1]     [,  2]     [,  3]     [,  4]     [,  5]     [,  6]
+      [  0,]      0.102      0.909      0.986      1.583      2.269      1.003      0.489
+      [  7,]      0.162      3.016
 Variogram for: ivar=1, jvar=0 (no compress)
-               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
-     [  0,]     0.401     0.136    -0.514     1.019    -0.750    -0.946    -0.740
-     [  7,]    -0.664    -0.430
+                 [,  0]     [,  1]     [,  2]     [,  3]     [,  4]     [,  5]     [,  6]
+      [  0,]      0.401      0.136     -0.514      1.019     -0.750     -0.946     -0.740
+      [  7,]     -0.664     -0.430
 Variogram for: ivar=1, jvar=1 (no compress)
-               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
-     [  0,]     1.605     1.225     0.629     1.704     1.937     2.034     2.435
-     [  7,]     4.035     0.615
+                 [,  0]     [,  1]     [,  2]     [,  3]     [,  4]     [,  5]     [,  6]
+      [  0,]      1.605      1.225      0.629      1.704      1.937      2.034      2.435
+      [  7,]      4.035      0.615
 The number of values expected is 10
 The length of your input vector (gg) is 9
 (It should include all lags (including those with no pair)
@@ -399,17 +474,17 @@ The length of your input vector (gg) is 9
 (It should include all lags (including those with no pair)
 Nothing is done
 Variogram for: ivar=0, jvar=0
-               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
-     [  0,]     0.102     0.909     0.986     1.583     2.269     1.003     0.489
-     [  7,]     0.162     3.016       N/A
+                 [,  0]     [,  1]     [,  2]     [,  3]     [,  4]     [,  5]     [,  6]
+      [  0,]      0.102      0.909      0.986      1.583      2.269      1.003      0.489
+      [  7,]      0.162      3.016        N/A
 Variogram for: ivar=1, jvar=0
-               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
-     [  0,]     0.401     0.136    -0.514     1.019    -0.750    -0.946    -0.740
-     [  7,]    -0.664    -0.430       N/A
+                 [,  0]     [,  1]     [,  2]     [,  3]     [,  4]     [,  5]     [,  6]
+      [  0,]      0.401      0.136     -0.514      1.019     -0.750     -0.946     -0.740
+      [  7,]     -0.664     -0.430        N/A
 Variogram for: ivar=1, jvar=1
-               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
-     [  0,]     1.605     1.225     0.629     1.704     1.937     2.034     2.435
-     [  7,]     4.035     0.615       N/A
+                 [,  0]     [,  1]     [,  2]     [,  3]     [,  4]     [,  5]     [,  6]
+      [  0,]      1.605      1.225      0.629      1.704      1.937      2.034      2.435
+      [  7,]      4.035      0.615        N/A
 
 Variogram characteristics
 =========================
@@ -419,51 +494,51 @@ Space dimension             = 2
 Variable(s)                 = [z-1 z-2]
 
 Variance-Covariance Matrix
-               [,  0]    [,  1]
-     [  0,]     1.138    -0.255
-     [  1,]    -0.255     1.559
+                 [,  0]     [,  1]
+      [  0,]      1.138     -0.255
+      [  1,]     -0.255      1.559
 
 Direction #1
 ------------
 Number of lags              = 10
-Direction coefficients      =      1.000     0.000
-Direction angles (degrees)  =      0.000
-Tolerance on direction      =     90.000 (degrees)
-Calculation lag             =      0.100
-Tolerance on distance       =     50.000 (Percent of the lag value)
+Direction coefficients      =       1.000      0.000
+Direction angles (degrees)  =       0.000
+Tolerance on direction      =      90.000 (degrees)
+Calculation lag             =       0.100
+Tolerance on distance       =      50.000 (Percent of the lag value)
 
 For variable 1
-      Rank    Npairs  Distance     Value
-         0     2.000     0.033     0.102
-         1     6.000     0.113     0.909
-         2     5.000     0.196     0.986
-         3     7.000     0.308     1.583
-         4     7.000     0.394     2.269
-         5     7.000     0.490     1.003
-         6     6.000     0.595     0.489
-         7     2.000     0.736     0.162
-         8     3.000     0.821     3.016
+       Rank     Npairs   Distance      Value
+          0      2.000      0.033      0.102
+          1      6.000      0.113      0.909
+          2      5.000      0.196      0.986
+          3      7.000      0.308      1.583
+          4      7.000      0.394      2.269
+          5      7.000      0.490      1.003
+          6      6.000      0.595      0.489
+          7      2.000      0.736      0.162
+          8      3.000      0.821      3.016
 
 For variables 2 and 1
-      Rank    Npairs  Distance     Value
-         0     2.000     0.033     0.102
-         1     6.000     0.113     0.909
-         2     5.000     0.196     0.986
-         3     7.000     0.308     1.583
-         4     7.000     0.394     2.269
-         5     7.000     0.490     1.003
-         6     6.000     0.595     0.489
-         7     2.000     0.736     0.162
-         8     3.000     0.821     3.016
+       Rank     Npairs   Distance      Value
+          0      2.000      0.033      0.102
+          1      6.000      0.113      0.909
+          2      5.000      0.196      0.986
+          3      7.000      0.308      1.583
+          4      7.000      0.394      2.269
+          5      7.000      0.490      1.003
+          6      6.000      0.595      0.489
+          7      2.000      0.736      0.162
+          8      3.000      0.821      3.016
 
 For variable 2
-      Rank    Npairs  Distance     Value
-         0     2.000     0.033     0.102
-         1     6.000     0.113     0.909
-         2     5.000     0.196     0.986
-         3     7.000     0.308     1.583
-         4     7.000     0.394     2.269
-         5     7.000     0.490     1.003
-         6     6.000     0.595     0.489
-         7     2.000     0.736     0.162
-         8     3.000     0.821     3.016
+       Rank     Npairs   Distance      Value
+          0      2.000      0.033      0.102
+          1      6.000      0.113      0.909
+          2      5.000      0.196      0.986
+          3      7.000      0.308      1.583
+          4      7.000      0.394      2.269
+          5      7.000      0.490      1.003
+          6      6.000      0.595      0.489
+          7      2.000      0.736      0.162
+          8      3.000      0.821      3.016

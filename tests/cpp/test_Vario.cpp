@@ -11,7 +11,6 @@
 /* This file is meant to demonstrate the process of using PGS                 */
 /*                                                                            */
 /******************************************************************************/
-#include "Basic/AStringable.hpp"
 #include "Basic/File.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovAniso.hpp"
@@ -86,6 +85,11 @@ int main(int argc, char* argv[])
   model.fit(variop, covas, false);
   model.display();
 
+  // With a quick entry
+  mestitle(1, "Experimental variogram on Data Samples (quick entry)");
+  auto* variop2 = variogramCalculate(db, 5, 0.1);
+  variop2->display();
+
   // ===============
   // On Grid samples
   // ===============
@@ -94,6 +98,11 @@ int main(int argc, char* argv[])
   VarioParam* varioparamG = VarioParam::createMultipleFromGrid(grid, nlag);
   Vario* variog           = Vario::computeFromDb(*varioparamG, grid, ECalcVario::VARIOGRAM);
   variog->display();
+
+  // With a quick entry
+  mestitle(1, "Experimental variogram on Grid (quick entry)");
+  auto* variog2 = variogridCalculate(grid, 5);
+  variog2->display();
 
   // ==========================================
   // Calculating Variogram Map on Isolated Data
@@ -116,7 +125,9 @@ int main(int argc, char* argv[])
   delete grid;
   delete varioparamP;
   delete variop;
+  delete variop2;
   delete variog;
+  delete variog2;
   delete vmapG;
   delete vmapP;
 
