@@ -5927,7 +5927,7 @@ VectorInt Db::shrinkToValidCols(const VectorInt& cols) const
  * @param varmax Maximum value for the measurement error
  * @param selRatio Percentage of samples that must be masked off (between 0 and 1)
  * @param heteroRatio Vector of proportions of NA to be generated per
- * variable
+ * variable (is not taken into account if not dimensionned to 'nvar')
  * @param coormin Vector of minima of the rectangle containing data (0s if
  * not defined)
  * @param coormax Vector of maxima of the rectangle containing data (1s if
@@ -6156,6 +6156,24 @@ void Db::dumpGeometry(Id iech, Id jech) const
 
   VectorDouble angles = GH::rotationFromIncrements(incr, true);
   printVector("- Angles (deg) = ", angles, true, false);
+}
+
+/**
+ * @brief Provide a table containing some statistics on some variables within the Db
+ *
+ * @param names Vector of variable names (empty: all variables)
+ * @param opers Vector of statistical operations to perform
+ * @return Table Output table
+ *
+ * @remarks This table can easily be printed using the display() facility
+ */
+Table Db::displayStats(const VectorString& names,
+                       const std::vector<EStatOption>& opers) const
+{
+  auto namesLoc = names;
+  if (namesLoc.empty()) namesLoc = getAllNames(false);
+  Table table = dbStatisticsMono(this, namesLoc, opers, false);
+  return table;
 }
 
 } // namespace gstlrn

@@ -525,6 +525,9 @@ public:
                          const VectorDouble& values,
                          bool bySample = false);
 
+  Table displayStats(const VectorString& names             = VectorString(),
+                     const std::vector<EStatOption>& opers = EStatOption::fromKeys({"NUM", "MINI", "MAXI", "MEAN", "STDV", "VAR"})) const;
+
   /** @addtogroup DB_0 Getting and Setting functions by Locator
    * \ingroup DB
    *

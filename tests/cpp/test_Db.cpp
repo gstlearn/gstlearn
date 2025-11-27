@@ -175,5 +175,17 @@ int main(int argc, char* argv[])
     messerr("Previous statement is an error");
     delete db;
   }
+
+  ///////////////////////////////
+  // Testing operator overload //
+  ///////////////////////////////
+  if (mode == 0 || mode == 4)
+  {
+    mestitle(0, "Testing displayStats facility");
+    Id ndat  = 100;
+    auto* db = Db::createFillRandom(ndat, 2, 3, 0, 0, 0., 0.2, {0.1, 0.2, 0.1});
+
+    db->displayStats({"x-1", "z*"}).display();
+  }
   return 0;
 }

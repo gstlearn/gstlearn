@@ -480,7 +480,7 @@ void dbStatisticsVariables(Db* db,
  *
  * @return A Table containing the results
  */
-Table dbStatisticsMono(Db* db,
+Table dbStatisticsMono(const Db* db,
                        const VectorString& names,
                        const std::vector<EStatOption>& opers,
                        bool flagIso,
@@ -536,7 +536,7 @@ Table dbStatisticsMono(Db* db,
     {
       if (!accept[iech]) continue;
       double value = db->getArray(iech, iuids[iuid]);
-      // Skip TEST values (this is necessary when flagIso is set to FALSE)
+      // Skip TEST values (this test is necessary when flagIso is set to FALSE)
       if (FFFF(value)) continue;
 
       local[neff] = value;
