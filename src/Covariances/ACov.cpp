@@ -102,11 +102,11 @@ double ACov::evalCov(const SpacePoint& p1,
   return _eval(p1, p2, ivar, jvar, mode);
 }
 
-std::vector<double> ACov::evalCovGrad(const SpacePoint& p1,
-                                      const SpacePoint& p2,
-                                      Id ivar,
-                                      Id jvar,
-                                      const CovCalcMode* mode)
+VectorDouble ACov::evalCovGrad(const SpacePoint& p1,
+                               const SpacePoint& p2,
+                               Id ivar,
+                               Id jvar,
+                               const CovCalcMode* mode)
 {
   std::vector<covmaptype> gradFuncs;
   auto listParams = std::make_shared<ListParams>();
@@ -510,7 +510,7 @@ double ACov::evalIsoIvarIpas(double step,
                              const CovCalcMode* mode) const
 {
   /// TODO : Not true whatever the space
-  VectorDouble dir    = getSpace()->getUnitaryVector();
+  VectorDouble dir = getSpace()->getUnitaryVector();
   return evalIvarIpas(step, dir, ivar, jvar, mode);
 }
 

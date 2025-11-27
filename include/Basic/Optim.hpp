@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Basic/VectorNumT.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 #include <functional>
@@ -112,7 +113,7 @@ public:
   Optim& operator=(const Optim&) = delete;
   ~Optim();
 
-  void setObjective(std::function<double(const std::vector<double>&)> objective);
+  void setObjective(std::function<double(const VectorDouble&)> objective);
   void setGradient(std::function<void(vect)> gradient,
                    const std::vector<size_t>& dispatch      = {},
                    const std::vector<size_t>& dispatchIndex = {});
@@ -124,23 +125,23 @@ public:
   {
     return _authorizedAnalyticalGradients;
   }
-  void setGradientComponents(const std::vector<std::function<double(const std::vector<double>&)>>& partials);
+  void setGradientComponents(const std::vector<std::function<double(const VectorDouble&)>>& partials);
   void evalGrad(vect res);
   void setXtolRel(double tol);
-  void setLowerBounds(const std::vector<double>& lb,
+  void setLowerBounds(const VectorDouble& lb,
                       const std::vector<size_t>& dispatch = {});
-  void setUpperBounds(const std::vector<double>& ub,
+  void setUpperBounds(const VectorDouble& ub,
                       const std::vector<size_t>& dispatch = {});
-  double minimize(std::vector<double>& x);
+  double minimize(VectorDouble& x);
 
 private:
   static double callback(unsigned n, const double* x, double* grad, void* f_data);
 
   nlopt_opt_s* _opt;
-  std::shared_ptr<std::function<double(const std::vector<double>&)>> _objective;
+  std::shared_ptr<std::function<double(const VectorDouble&)>> _objective;
   std::shared_ptr<std::function<void(vect)>> _gradient;
-  std::vector<std::function<double(const std::vector<double>&)>> _gradientPartials;
-  mutable std::vector<double> _gradBuffer; // Buffer for gradient evaluation
+  std::vector<std::function<double(const VectorDouble&)>> _gradientPartials;
+  mutable VectorDouble _gradBuffer; // Buffer for gradient evaluation
   bool _authorizedAnalyticalGradients;
 };
 } // namespace gstlrn

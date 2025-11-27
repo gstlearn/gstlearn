@@ -88,11 +88,11 @@ public:
   virtual bool isValidForSpectral() const;
   virtual MatrixDense simulateSpectralOmega(Id ns) const;
 
-  std::vector<double> evalCovGrad(const SpacePoint& p1,
-                                  const SpacePoint& p2,
-                                  Id ivar                 = 0,
-                                  Id jvar                 = 0,
-                                  const CovCalcMode* mode = nullptr);
+  VectorDouble evalCovGrad(const SpacePoint& p1,
+                           const SpacePoint& p2,
+                           Id ivar                 = 0,
+                           Id jvar                 = 0,
+                           const CovCalcMode* mode = nullptr);
   virtual double evalCovOnSphere(double alpha,
                                  Id degree               = 50,
                                  bool flagScaleDistance  = false,

@@ -205,7 +205,7 @@ public:
   /** @addtogroup Operate_4
    * \ingroup VectorNumT
    *
-   * Action: 'this' = 'this' %op% 'val'
+   * Action: 'this' = 'this' %op% 'value'
    *  @{
    */
   // Prototype dans la classe

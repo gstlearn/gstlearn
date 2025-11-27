@@ -161,11 +161,11 @@ private:
   Indirection _gridIndirect;
 
   /// factor allocations
-  mutable std::vector<Id> _indg;
-  mutable std::vector<Id> _indices;
-  mutable std::vector<double> _lambdas;
-  mutable std::vector<double> _rhs;
-  mutable std::vector<Id> _indgg;
+  mutable VectorInt _indg;
+  mutable VectorInt _indices;
+  mutable VectorDouble _lambdas;
+  mutable VectorDouble _rhs;
+  mutable VectorInt _indgg;
 
   friend class DbMeshTurbo;
 };

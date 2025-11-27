@@ -132,7 +132,7 @@ void ClassicalPolynomial::evalOp(MatrixSparse* Op,
                                  vect outv) const
 {
   Id n = static_cast<Id>(inv.size());
-  std::vector<double> work(n);
+  VectorDouble work(n);
   vect ws(work);
   for (Id i = 0; i < n; i++)
     outv[i] = _coeffs.back() * inv[i];
@@ -182,8 +182,8 @@ double ClassicalPolynomial::evalOpByRank(MatrixSparse* S, Id rank) const
 void ClassicalPolynomial::evalOpTraining(
   MatrixSparse* Op,
   const constvect inv,
-  std::vector<std::vector<double>>& store,
-  std::vector<double>& work) const
+  VectorVectorDouble& store,
+  VectorDouble& work) const
 {
   Id n = static_cast<Id>(inv.size());
 

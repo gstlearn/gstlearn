@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Basic/AStringable.hpp"
 #include "LinearOp/AShiftOp.hpp"
 #include "Matrix/MatrixSparse.hpp"
 #include "geoslib_define.h"
@@ -157,7 +156,7 @@ Id PrecisionOpMatrix::_addToDest(const constvect inv, vect outv) const
 }
 
 Id PrecisionOpMatrix::_addSimulateToDest(const constvect whitenoise,
-                                          vect outv) const
+                                         vect outv) const
 {
   if (_chol == nullptr) _chol = new CholeskySparse(*_Q);
   _chol->addSimulateToDest(whitenoise, outv);
@@ -165,7 +164,7 @@ Id PrecisionOpMatrix::_addSimulateToDest(const constvect whitenoise,
 }
 
 void PrecisionOpMatrix::evalInverse(const constvect vecin,
-                                    std::vector<double>& vecout)
+                                    VectorDouble& vecout)
 {
   if (_chol == nullptr) _chol = new CholeskySparse(*_Q);
   _chol->solve(vecin, vecout);
@@ -270,11 +269,11 @@ void PrecisionOpMatrix::_buildQ()
 MatrixSparse* PrecisionOpMatrix::_build_Q()
 {
   // Preliminary checks
-  auto* S           = ((ShiftOpMatrix*)getShiftOp())->getS();
+  auto* S            = ((ShiftOpMatrix*)getShiftOp())->getS();
   const auto& Lambda = getShiftOp()->getLambdas();
-  VectorDouble blin = getPoly(EPowerPT::ONE)->getCoeffs();
-  Id nblin         = static_cast<Id>(blin.size());
-  Id nvertex       = S->getNCols();
+  VectorDouble blin  = getPoly(EPowerPT::ONE)->getCoeffs();
+  Id nblin           = static_cast<Id>(blin.size());
+  Id nvertex         = S->getNCols();
   if (nvertex <= 0)
   {
     messerr("You must define a valid Meshing beforehand");

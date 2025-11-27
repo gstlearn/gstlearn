@@ -11,18 +11,19 @@
 #pragma once
 
 #include "Basic/VectorT.hpp"
+#include "Db/Db.hpp"
 #include "Model/GaussianProcess.hpp"
 #include "gstlearn_export.hpp"
-#include "Db/Db.hpp"
 #include "vector"
 
-namespace gstlrn {
+namespace gstlrn
+{
 
 class GaussianProcess;
 class Db;
 class ECov;
 
-using DataFrame = std::map<std::string, std::vector<double>>;
+using DataFrame = std::map<std::string, VectorDouble>;
 
 GSTLEARN_EXPORT Db* createDbFromDataFrame(const DataFrame* dat,
                                           const VectorString& coordinates);
@@ -31,4 +32,4 @@ GSTLEARN_EXPORT GaussianProcess* createModelFromData(const Db* dat,
                                                      const VectorString& variables,
                                                      const std::vector<ECov>& structs,
                                                      bool addMeasurementError = false);
-}
+} // namespace gstlrn

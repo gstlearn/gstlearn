@@ -67,17 +67,17 @@ protected:
 #ifndef SWIG
 
 private:
-  void _AtA(const std::vector<std::vector<double>>& inv, std::vector<std::vector<double>>& outv) const;
-  void _evalDirect(const std::vector<std::vector<double>>& inv, std::vector<std::vector<double>>& outv) const override;
+  void _AtA(const VectorVectorDouble& inv, VectorVectorDouble& outv) const;
+  void _evalDirect(const VectorVectorDouble& inv, VectorVectorDouble& outv) const override;
 
 public:
-  std::vector<std::vector<double>> computeRhs(const std::vector<double>& datVal) const;
-  void computeRhsInPlace(const std::vector<double>& datVal, std::vector<std::vector<double>>& rhs) const;
-  void simulateOnMeshings(std::vector<std::vector<double>>& result) const;
-  void simulateOnMeshing(std::vector<double>& result, Id icov = 0) const;
-  void simulateOnDataPointFromMeshings(const std::vector<std::vector<double>>& simus, std::vector<double>& result) const;
-  void evalInvCov(const constvect inv, std::vector<double>& result) const;
-  double computeQuadratic(const std::vector<double>& x) const;
+  VectorVectorDouble computeRhs(const VectorDouble& datVal) const;
+  void computeRhsInPlace(const VectorDouble& datVal, VectorVectorDouble& rhs) const;
+  void simulateOnMeshings(VectorVectorDouble& result) const;
+  void simulateOnMeshing(VectorDouble& result, Id icov = 0) const;
+  void simulateOnDataPointFromMeshings(const VectorVectorDouble& simus, VectorDouble& result) const;
+  void evalInvCov(const constvect inv, VectorDouble& result) const;
+  double computeQuadratic(const VectorDouble& x) const;
 
 #endif
 
@@ -87,11 +87,11 @@ private:
   VectorDouble _varianceData;                          // Dimension: _ndat
   Id _ndat;
   Id _ncova;
-  mutable std::vector<double> _work1;
-  mutable std::vector<double> _work1bis;
-  mutable std::vector<double> _work1ter;
-  mutable std::vector<double> _workdata;
-  mutable std::vector<std::vector<double>> _work2;
-  mutable std::vector<std::vector<double>> _work3;
+  mutable VectorDouble _work1;
+  mutable VectorDouble _work1bis;
+  mutable VectorDouble _work1ter;
+  mutable VectorDouble _workdata;
+  mutable VectorVectorDouble _work2;
+  mutable VectorVectorDouble _work3;
 };
 } // namespace gstlrn

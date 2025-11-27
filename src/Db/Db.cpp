@@ -654,7 +654,7 @@ void Db::setArrayByUID(const VectorDouble& tab, Id iuid)
   }
 }
 
-void Db::getArrayBySample(std::vector<double>& vals, Id iech) const
+void Db::getArrayBySample(VectorDouble& vals, Id iech) const
 {
   getAllUIDs(_uids);
   vals.resize(_uids.size());
@@ -4689,7 +4689,7 @@ VectorInt Db::getColIdxsByLocator(const ELoc& locatorType) const
  */
 Id Db::getUID(const String& name) const
 {
-  std::vector<Id> iuids = _ids(name, true);
+  VectorInt iuids = _ids(name, true);
   if (iuids.empty()) return -1;
   auto icol = getColIdxByUID(iuids[0]);
   return getUIDByColIdx(icol);
@@ -4966,7 +4966,7 @@ bool Db::_serializeAscii(std::ostream& os, bool /*verbose*/) const
   auto ncol             = getNColumn();
   VectorString locators = getLocators(true);
   VectorString names    = getName("*");
-  std::vector<double> vals;
+  VectorDouble vals;
 
   bool ret = true;
   ret      = ret && _recordWrite<Id>(os, "Number of variables", ncol);

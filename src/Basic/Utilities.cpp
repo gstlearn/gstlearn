@@ -173,7 +173,7 @@ void ut_sort_double(Id safe, Id nech, Id* ind, double* value)
   static Id LISTE_L[LSTACK];
   static Id LISTE_R[LSTACK];
   Id i, j, p, l, r, pstack, inddev, inddeu;
-  std::vector<double> tab;
+  VectorDouble tab;
   double tablev, tableu;
 
   /* Initialization */

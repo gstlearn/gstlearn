@@ -27,9 +27,9 @@ Optim::~Optim()
   nlopt_destroy(_opt);
 }
 
-void Optim::setObjective(std::function<double(const std::vector<double>&)> objective)
+void Optim::setObjective(std::function<double(const VectorDouble&)> objective)
 {
-  _objective = std::make_shared<std::function<double(const std::vector<double>&)>>(
+  _objective = std::make_shared<std::function<double(const VectorDouble&)>>(
     std::move(objective));
   nlopt_set_min_objective(_opt, &Optim::callback, this);
 }
@@ -72,7 +72,7 @@ void Optim::evalGrad(vect res)
     throw std::runtime_error("Gradient function not set");
 }
 
-void Optim::setGradientComponents(const std::vector<std::function<double(const std::vector<double>&)>>& partials)
+void Optim::setGradientComponents(const std::vector<std::function<double(const VectorDouble&)>>& partials)
 {
   _gradientPartials = partials;
 }
@@ -81,7 +81,7 @@ void Optim::setXtolRel(double tol)
 {
   nlopt_set_xtol_rel(_opt, tol);
 }
-void Optim::setLowerBounds(const std::vector<double>& lb,
+void Optim::setLowerBounds(const VectorDouble& lb,
                            const std::vector<size_t>& dispatch)
 {
   if (dispatch.empty())
@@ -95,7 +95,7 @@ void Optim::setLowerBounds(const std::vector<double>& lb,
   for (auto j: dispatch) n_reduced = std::max(n_reduced, static_cast<Id>(j));
   n_reduced += 1; // indices 0-based
 
-  std::vector<double> lb_reduced(n_reduced, -HUGE_VAL);
+  VectorDouble lb_reduced(n_reduced, -HUGE_VAL);
 
   for (size_t i = 0; i < lb.size(); ++i)
   {
@@ -106,7 +106,7 @@ void Optim::setLowerBounds(const std::vector<double>& lb,
   nlopt_set_lower_bounds(_opt, lb_reduced.data());
 }
 
-void Optim::setUpperBounds(const std::vector<double>& ub,
+void Optim::setUpperBounds(const VectorDouble& ub,
                            const std::vector<size_t>& dispatch)
 {
   if (dispatch.empty())
@@ -120,7 +120,7 @@ void Optim::setUpperBounds(const std::vector<double>& ub,
   for (auto j: dispatch) n_reduced = std::max(n_reduced, static_cast<Id>(j));
   n_reduced += 1; // indices 0-based
 
-  std::vector<double> ub_reduced(n_reduced, HUGE_VAL);
+  VectorDouble ub_reduced(n_reduced, HUGE_VAL);
 
   for (size_t i = 0; i < ub.size(); ++i)
   {
@@ -131,12 +131,12 @@ void Optim::setUpperBounds(const std::vector<double>& ub,
   nlopt_set_upper_bounds(_opt, ub_reduced.data());
 }
 
-double Optim::minimize(std::vector<double>& x)
+double Optim::minimize(VectorDouble& x)
 {
 
   // This part checks that the initial guess is within bounds
-  std::vector<double> lb(nlopt_get_dimension(_opt));
-  std::vector<double> ub(nlopt_get_dimension(_opt));
+  VectorDouble lb(nlopt_get_dimension(_opt));
+  VectorDouble ub(nlopt_get_dimension(_opt));
 
   nlopt_get_lower_bounds(_opt, lb.data());
   nlopt_get_upper_bounds(_opt, ub.data());
@@ -171,7 +171,7 @@ double Optim::callback(unsigned n, const double* x, double* grad, void* f_data)
 {
   auto* that        = static_cast<Optim*>(f_data);
   bool gradAnalytic = that->_authorizedAnalyticalGradients;
-  std::vector<double> xvec(x, x + n);
+  VectorDouble xvec(x, x + n);
 
   // ---- Objectif ----
   double result = (*(that->_objective))(xvec);
@@ -203,8 +203,8 @@ double Optim::callback(unsigned n, const double* x, double* grad, void* f_data)
     }
     else
     {
-      const double eps          = EPSILON8;
-      std::vector<double> x_cur = xvec;
+      const double eps   = EPSILON8;
+      VectorDouble x_cur = xvec;
       for (unsigned i = 0; i < n; ++i)
       {
         x_cur[i] += eps;
