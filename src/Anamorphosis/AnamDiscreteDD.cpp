@@ -298,7 +298,7 @@ VectorDouble AnamDiscreteDD::factors_exp(bool verbose)
   /* Verbose option */
 
   if (verbose)
-    printMatrix("Factors", 0, 1, nclass, nclass, chi);
+    printMatrix(chi, nclass, nclass, "Factors", 0, 1);
 
   return chi;
 }
@@ -328,7 +328,7 @@ MatrixDense AnamDiscreteDD::factors_maf(bool verbose)
   /* Verbose option */
 
   if (verbose)
-    printMatrix("MAF", 0, 1, ncut, nclass, maf.getValues());
+    printMatrix(maf,  "MAF");
 
   return maf;
 }

@@ -643,7 +643,7 @@ void print_keypair(Id flag_short)
                 keypair->ncol);
       }
       else
-        printMatrix(keypair->keyword, 0, 0, keypair->ncol, keypair->nrow, keypair->values);
+        printMatrix(keypair->values, keypair->ncol, keypair->nrow, keypair->keyword);
     }
 }
 

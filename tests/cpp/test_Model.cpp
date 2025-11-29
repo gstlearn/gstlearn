@@ -81,7 +81,7 @@ int main(int argc, char* argv[])
   VectorDouble hh = VH::sequenceVD(0., 3., 3. / 50.);
   CovCalcMode mode(ECalcMember::LHS);
   mode.setAsVario(true);
-  printVector("\nModel sampled", modellmc.sample(hh, VectorDouble(), 0, 0, &mode), true, true);
+  printVector(modellmc.sample(hh, VectorDouble(), 0, 0, &mode), "\nModel sampled", true, true);
 
   /////////////////////////////
   // Creating the Tapered Model
@@ -95,7 +95,7 @@ int main(int argc, char* argv[])
   modeltape.display();
 
   // Sample the Tapered Model at regular steps
-  printVector("\nTapered Model", modeltape.sample(hh, VectorDouble(), 0, 0, &mode), true, true);
+  printVector(modeltape.sample(hh, VectorDouble(), 0, 0, &mode), "\nTapered Model", true, true);
 
   /////////////////////////////
   // Creating the Convoluted Model
@@ -108,7 +108,7 @@ int main(int argc, char* argv[])
   modelconv.setCovAnisoList(&covconv);
   modelconv.display();
   // Sample the Tapered Model at regular steps
-  printVector("\nConvoluted Model", modelconv.sample(hh, VectorDouble(), 0, 0, &mode), true, true);
+  printVector(modelconv.sample(hh, VectorDouble(), 0, 0, &mode), "\nConvoluted Model", true, true);
 
   /////////////////////////////////////////
   // Creating Covariance and Drift matrices
@@ -219,7 +219,7 @@ int main(int argc, char* argv[])
 
   // Selecting samples
   VectorInt nbgh = {0, 2, 3, 5};
-  printVector("Ranks of selected samples = ", nbgh, true, true);
+  printVector(nbgh, "Ranks of selected samples = ", true, true);
 
   message("Covariance Matrix (selection & heterotopic multivariate & sampling)\n");
   covM = modelM->evalCovMatSym(workingDbc, nbgh, -1);
@@ -247,8 +247,8 @@ int main(int argc, char* argv[])
   Model* modelSph = Model::createFromParam(ECov::MATERN, 1. / kappa, 1., mu,
                                            VectorDouble(), MatrixSymmetric(),
                                            VectorDouble(), nullptr, false);
-  printVector("Spectrum", modelSph->getCovAniso(0)->evalSpectrumOnSphere(ns), true, true);
-  printVector("Covariance", modelSph->getCovAniso(0)->evalCovOnSphereVec(incr), true, true);
+  printVector(modelSph->getCovAniso(0)->evalSpectrumOnSphere(ns), "Spectrum", true, true);
+  printVector(modelSph->getCovAniso(0)->evalCovOnSphereVec(incr), "Covariance", true, true);
 
   delete workingDbc;
   delete modelM;

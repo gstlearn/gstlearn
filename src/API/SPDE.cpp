@@ -574,7 +574,7 @@ Id SPDE::centerDataByDriftInPlace(VectorDouble& Z, bool verbose)
     MatrixDense driftMat = _model->evalDriftMatByRanks(_dbin);
     _driftCoeffs         = _spdeop->computeDriftCoeffs(Z, driftMat);
     ASPDEOp::centerDataByDriftMat(Z, driftMat, _driftCoeffs);
-    if (verbose) printVector("Drift coefficients = ", _driftCoeffs, true, true);
+    if (verbose) printVector(_driftCoeffs, "Drift coefficients = ", true, true);
   }
   else
   {

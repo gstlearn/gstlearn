@@ -288,7 +288,7 @@ MatrixT<Id> findNN(const Db* dbin,
     if (verbose)
     {
       message("For Db_1 %3d : %3d", iech, iech);
-      printVector("", neighs, true, false);
+      printVector(neighs, "", true, false);
     }
     irel++;
   }
@@ -309,7 +309,7 @@ MatrixT<Id> findNN(const Db* dbin,
       if (verbose)
       {
         message("For Db_2 %3d :", iech + shift);
-        printVector(" ", neighs, true, false);
+        printVector(neighs, " ", true, false);
       }
       irel++;
     }

@@ -228,10 +228,10 @@ VectorString toStrVectorDouble(const VectorDouble& values, Id justification)
  ** \remarks The ordering (compatible with matrix_solve is mode==2)
  **
  *****************************************************************************/
-String toStrTrimMat(const String& title,
-                    Id mode,
+String toStrTrimMat(const VectorDouble& tl,
                     Id neq,
-                    const VectorDouble& tl)
+                    Id mode,
+                    const String& title)
 {
 #define TRI(i)    (((i) * ((i) + 1)) / 2)
 #define TL1(i, j) (tl[(j) * neq + (i) - TRI(j)]) /* only for i >= j */
@@ -257,12 +257,12 @@ String toStrTrimMat(const String& title,
       if (ix >= iy)
       {
         if (mode == 1)
-          printElement(String(), TL1(ix, iy));
+          printElement(TL1(ix, iy));
         else
-          printElement(String(), TL2(ix, iy));
+          printElement(TL2(ix, iy));
       }
       else
-        printElement(String(), " ");
+        printElement(" ");
     }
     message("\n");
   }

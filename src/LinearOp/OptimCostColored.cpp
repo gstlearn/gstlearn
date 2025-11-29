@@ -282,12 +282,12 @@ void OptimCostColored::printSplits(const VectorVectorInt& splits) const
   if (splits.empty())
   {
     for (Id level = 0; level < nlevel; level++)
-      printVector(String(), _splits[level], true, true);
+      printVector(_splits[level], String(), true, true);
   }
   else
   {
     for (Id level = 0; level < nlevel; level++)
-      printVector(String(), splits[level], true, true);
+      printVector(splits[level], String(), true, true);
   }
 }
 

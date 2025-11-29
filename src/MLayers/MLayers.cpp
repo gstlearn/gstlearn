@@ -934,7 +934,7 @@ Id MLayers::_subtractOptimalDrift(bool verbose,
   /* Optional printout of the result */
 
   if (verbose)
-    printMatrix("Estimated Drift", 0, 1, _nlayers, _nbfl, coeff);
+    printMatrix(coeff, _nlayers, _nbfl, "Estimated Drift", 0, 1);
 
   /* Subtract the optimal mean */
 
@@ -1575,8 +1575,8 @@ Id MLayers::_calculateDriftBayes(bool verbose,
 
   if (verbose)
   {
-    printMatrix("Prior Mean", 0, 1, _nlayers, _nbfl, prior_mean);
-    printMatrix("Prior Variance", 0, 1, _npar, _npar, invS.getValues());
+    printMatrix(prior_mean, _nlayers, _nbfl, "Prior Mean", 0, 1);
+    printMatrix(invS.getValues(), _npar, _npar, "Prior Variance", 0, 1);
   }
 
   /* Invert the Data Variance-Covariance matrix */
@@ -1607,8 +1607,8 @@ Id MLayers::_calculateDriftBayes(bool verbose,
 
   if (verbose)
   {
-    printMatrix("Posterior Mean", 0, 1, _nlayers, _nbfl, post_mean);
-    printMatrix("Posterior Variance", 0, 1, _npar, _npar, post_vars.getValues());
+    printMatrix(post_mean, _nlayers, _nbfl, "Posterior Mean", 0, 1);
+    printMatrix(post_vars.getValues(), _npar, _npar, "Posterior Variance", 0, 1);
   }
 
   /* Modify the Data vector */
@@ -1781,8 +1781,8 @@ Id MLayers::_getVarioCHH(Vario_Order* vorder,
     if (OptDbg::query(EDbg::VARIOGRAM))
     {
       message("Lag %d\n", ilag + 1);
-      printMatrix("L.H.S.", 0, 1, nhalf, nhalf, atab.getValues());
-      printMatrix("R.H.S.", 0, 1, 1, nhalf, btab);
+      printMatrix(atab.getValues(), nhalf, nhalf, "L.H.S.", 0, 1);
+      printMatrix(btab, 1, nhalf, "R.H.S.", 0, 1);
     }
 
     atab.invert();
@@ -1791,7 +1791,7 @@ Id MLayers::_getVarioCHH(Vario_Order* vorder,
     /* Optional printout */
 
     if (OptDbg::query(EDbg::VARIOGRAM))
-      printTriMat("C(h)", 2, _nlayers, sill);
+      printTriMat(sill, _nlayers, 2, "C(h)");
 
     /* Store the covariance values */
 
@@ -2063,7 +2063,7 @@ Id MLayers::kriging(bool verbose)
     mestitle(0, "Data Vector");
     message("Number of active samples  = %d\n", _nech);
     message("Total number of equations = %d\n", _neq);
-    printMatrix("Data", 0, 1, 1, _nech, zval);
+    printMatrix(zval, 1, _nech, "Data", 0, 1);
   }
 
   /* Assign the Variance-Covariance matrix */
@@ -2194,8 +2194,8 @@ Id MLayers::calculatePrior()
 
   /* Print the resulting values */
   message("Number of parameters = %d\n", _npar);
-  printVector("Means", mean, true, true);
-  printVector("Variances", vars.getValues(), true, true);
+  printVector(mean, "Means", true, true);
+  printVector(vars.getValues(), "Variances", true, true);
 
   /* Set the error return code */
 

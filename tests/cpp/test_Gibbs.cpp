@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "API/SPDE.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/OptCst.hpp"
@@ -93,11 +92,11 @@ static void st_print_all(const VectorInt& colors,
                          const MatrixSparse* Q)
 {
   if (!consmin.empty())
-    printMatrix("consmin", 0, 0, 1, 10, consmin);
+    printMatrix(consmin, 1, 10, "consmin");
   if (!consmax.empty())
-    printMatrix("consmax", 0, 0, 1, 10, consmax);
-  printMatrix("sigma", 0, 0, 1, 10, sigma);
-  printMatrix("colors", 0, 0, 1, 10, colors);
+    printMatrix(consmax, 1, 10, "consmax");
+  printMatrix(sigma, 1, 10, "sigma");
+  printMatrix(colors, 1, 10, "colors");
   Q->display();
 }
 

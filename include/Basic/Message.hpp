@@ -30,48 +30,49 @@ GSTLEARN_EXPORT void mestitle(Id level, const char* format, ...);
 GSTLEARN_EXPORT void mes_process(const char* string, Id ntot, Id iech);
 
 // Old-fashion printing formats
-GSTLEARN_EXPORT void printElement(const String& title,
-                                  const String& string,
-                                  Id ncol          = 1,
-                                  Id justification = 1);
-GSTLEARN_EXPORT void printElement(const String& title,
-                                  double value,
+GSTLEARN_EXPORT void printElement(const String& string,
+                                  const String& title = String(),
+                                  Id ncol             = 1,
+                                  Id justification    = 1);
+GSTLEARN_EXPORT void printElement(double value,
+                                  const String& title = String(),
                                   Id ncol             = 1,
                                   Id justification    = 1,
                                   bool roundZero      = true,
                                   bool flagScientific = false);
-GSTLEARN_EXPORT void printElement(const String& title,
-                                  Id value,
-                                  Id ncol          = 1,
-                                  Id justification = 1);
+GSTLEARN_EXPORT void printElement(Id value,
+                                  const String& title = String(),
+                                  Id ncol             = 1,
+                                  Id justification    = 1);
 
-GSTLEARN_EXPORT void printVector(const String& title,
-                                 const VectorDouble& tab,
+GSTLEARN_EXPORT void printVector(const VectorDouble& tab,
+                                 const String& title     = String(),
                                  bool flagIgnoreMaxNCols = false,
                                  bool newLineAfterTitle  = false);
-GSTLEARN_EXPORT void printVector(const String& title,
-                                 const VectorInt& tab,
+GSTLEARN_EXPORT void printVector(const VectorInt& tab,
+                                 const String& title     = String(),
                                  bool flagIgnoreMaxNCols = false,
                                  bool newLineAfterTitle  = false);
 
-GSTLEARN_EXPORT void printMatrix(const String& title,
-                                 Id flag_limit,
-                                 Id bycol,
+GSTLEARN_EXPORT void printMatrix(const VectorDouble& tab,
                                  Id nx,
                                  Id ny,
-                                 const VectorDouble& tab);
-GSTLEARN_EXPORT void printMatrix(const String& title,
-                                 Id flag_limit,
-                                 Id bycol,
+                                 const String& title = String(),
+                                 Id flag_limit       = 0,
+                                 Id bycol            = 0);
+GSTLEARN_EXPORT void printMatrix(const VectorInt& tab,
                                  Id nx,
                                  Id ny,
-                                 const VectorInt& tab);
-GSTLEARN_EXPORT void printMatrix(const String& title,
-                                 Id flag_limit,
-                                 const AMatrix& mat);
-GSTLEARN_EXPORT void printTriMat(const String& title,
-                                 Id mode,
+                                 const String& title = String(),
+                                 Id flag_limit       = 0,
+                                 Id bycol            = 0);
+GSTLEARN_EXPORT void printMatrix(const AMatrix& mat,
+                                 const String& title = String(),
+                                 Id flag_limit       = 0);
+
+GSTLEARN_EXPORT void printTriMat(const VectorDouble& tl,
                                  Id neq,
-                                 const VectorDouble& tl);
+                                 Id mode             = 1,
+                                 const String& title = String());
 
 } // namespace gstlrn

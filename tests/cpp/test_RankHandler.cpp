@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
   // - heterotopic sample
   // Warning: Db contents should not be mofiied anymore.
   VectorInt nbgh = {0, 8, 10, 12, 13};
-  printVector("List of ranks for Elligible samples", nbgh, true, true);
+  printVector(nbgh, "List of ranks for Elligible samples", true, true);
 
   // Define the Rank Handler for the previous list
   rkhd->defineSampleRanks(nbgh);

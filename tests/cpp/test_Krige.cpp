@@ -239,7 +239,7 @@ int main(int argc, char* argv[])
     message("- Number of Neighbors = %d\n", ktest.nech);
     message("- Number of Kriging System equations (covariance) = %d\n", ktest.CSize);
     message("- Number of Kriging System equations (drift) = %d\n", ktest.DSize);
-    printVector("- Neighboring Sample Indices", ktest.nbgh, true, true);
+    printVector(ktest.nbgh, "- Neighboring Sample Indices", true, true);
   }
 
   // ====================== Unique Neighborhood case ===========================

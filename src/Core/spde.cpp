@@ -964,7 +964,7 @@ static void st_print_all(const char* title)
 
   /* 'H' Rotation */
 
-  printMatrix("Anisotropy H matrix", 0, 1, ndim, ndim, Calcul.hh.getValues());
+  printMatrix(Calcul.hh.getValues() , ndim, ndim, "Anisotropy H matrix", 0, 1);
   message("Square root of Determinant                    = %lf\n",
           Calcul.sqdeth);
   message("Correction factor                             = %lf\n",
@@ -974,7 +974,7 @@ static void st_print_all(const char* title)
 
   Id nblin = static_cast<Id>(Calcul.blin.size());
   message("Number of terms in Linear Combination         = %d\n", nblin);
-  printMatrix("Coefficients of the Linear Combination", 0, 1, 1, nblin, Calcul.blin);
+  printMatrix(Calcul.blin, 1, nblin, "Coefficients of the Linear Combination", 0, 1);
 }
 
 static double st_spde_compute_correc(Id ndim, double param)
@@ -1966,7 +1966,7 @@ static MatrixSparse* st_spde_fill_S(AMesh* amesh, Model* model, const double* un
           message(" %lf", amesh->getCoor(imesh, icorn, idim));
         message(")\n");
       }
-      printMatrix("MATU", 0, 1, ncorner, ncorner, matu.getValues());
+      printMatrix(matu.getValues(), ncorner, ncorner, "MATU", 0, 1);
     }
     else
     {

@@ -1202,22 +1202,22 @@ void KrigingAlgebraSimpleCase::dumpLHS(Id nbypas) const
     message("\n");
 
     // Header line
-    printElement(String(), "Rank");
-    for (Id j = ideb; j < ifin; j++) printElement(String(), j + 1);
+    printElement("Rank");
+    for (Id j = ideb; j < ifin; j++) printElement(j + 1);
     message("\n");
 
     // LHS Matrix
     for (Id i = 0; i < size; i++)
     {
-      printElement(String(), i + 1);
+      printElement(i + 1);
       if (i < _neq)
       {
         for (Id j = ideb; j < ifin; j++)
         {
           if (j < _neq)
-            printElement(String(), _Sigma->getValue(i, j));
+            printElement(_Sigma->getValue(i, j));
           else
-            printElement(String(), _X->getValue(i, j - _neq));
+            printElement(_X->getValue(i, j - _neq));
         }
         message("\n");
       }
@@ -1226,9 +1226,9 @@ void KrigingAlgebraSimpleCase::dumpLHS(Id nbypas) const
         for (Id j = ideb; j < ifin; j++)
         {
           if (j < _neq)
-            printElement(String(), _X->getValue(j, i - _neq));
+            printElement(_X->getValue(j, i - _neq));
           else
-            printElement(String(), 0.);
+            printElement(0.);
         }
         message("\n");
       }
@@ -1243,24 +1243,24 @@ void KrigingAlgebraSimpleCase::dumpRHS() const
   if (_X0 != nullptr) size += _X0->getNCols();
 
   // Header line
-  printElement(String(), "Rank");
-  for (Id irhs = 0; irhs < _nrhs; irhs++) printElement(String(), irhs + 1);
+  printElement("Rank");
+  for (Id irhs = 0; irhs < _nrhs; irhs++) printElement(irhs + 1);
   message("\n");
 
   // RHS Matrix
   for (Id i = 0; i < size; i++)
   {
-    printElement(String(), i + 1);
+    printElement(i + 1);
     if (i < _neq)
     {
       for (Id irhs = 0; irhs < _nrhs; irhs++)
-        printElement(String(), _Sigma0->getValue(i, irhs));
+        printElement(_Sigma0->getValue(i, irhs));
     }
     else
     {
       if (_X0 != nullptr)
         for (Id irhs = 0; irhs < _nrhs; irhs++)
-          printElement(String(), _X0->getValue(irhs, i - _neq));
+          printElement(_X0->getValue(irhs, i - _neq));
     }
     message("\n");
   }
@@ -1285,12 +1285,12 @@ void KrigingAlgebraSimpleCase::dumpWGT()
 
   /* Header Line */
 
-  printElement(String(), "Rank");
-  printElement(String(), "Data");
+  printElement("Rank");
+  printElement("Data");
   for (Id irhs = 0; irhs < _nrhs; irhs++)
   {
     (void)gslSPrintf(string, "Z%d*", irhs + 1);
-    printElement(String(), string);
+    printElement(string);
   }
   message("\n");
 
@@ -1305,15 +1305,15 @@ void KrigingAlgebraSimpleCase::dumpWGT()
 
     for (Id j = 0; j < nbyvar; j++)
     {
-      printElement(String(), lec + 1);
+      printElement(lec + 1);
       double value = (*_Z)[lec];
       // Correct printout by the mean locally in case of SK
       if (_flagSK && !_Means.empty()) value += _Means[ivar];
-      printElement(String(), value);
+      printElement(value);
       for (Id irhs = 0; irhs < _nrhs; irhs++)
       {
         value = lambda->getValue(lec, irhs);
-        printElement(String(), value);
+        printElement(value);
         sum[irhs] += value;
       }
       message("\n");
@@ -1321,8 +1321,8 @@ void KrigingAlgebraSimpleCase::dumpWGT()
     }
 
     // Display sum of weights
-    printElement(String(), "Sum of weights", 2, -1);
-    for (Id irhs = 0; irhs < _nrhs; irhs++) printElement(String(), sum[irhs]);
+    printElement("Sum of weights", String(), 2, -1);
+    for (Id irhs = 0; irhs < _nrhs; irhs++) printElement(sum[irhs]);
     message("\n");
   }
 }
@@ -1347,21 +1347,21 @@ void KrigingAlgebraSimpleCase::dumpAux()
   if (_needBeta()) return;
 
   // Header Line
-  printElement(String(), "Rank");
+  printElement("Rank");
   for (Id irhs = 0; irhs < _nrhs; irhs++)
   {
     (void)gslSPrintf(string, "Mu%d*", irhs + 1);
-    printElement(String(), string);
+    printElement(string);
   }
-  printElement(String(), "Coeff");
+  printElement("Coeff");
   message("\n");
 
   for (Id ibfl = 0; ibfl < _nbfl; ibfl++)
   {
-    printElement(String(), ibfl + 1);
+    printElement(ibfl + 1);
     for (Id irhs = 0; irhs < _nrhs; irhs++)
-      printElement(String(), _MuUK.getValue(ibfl, irhs));
-    printElement(String(), _Beta->at(ibfl));
+      printElement(_MuUK.getValue(ibfl, irhs));
+    printElement(_Beta->at(ibfl));
     message("\n");
   }
 }

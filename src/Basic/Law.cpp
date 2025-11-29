@@ -1182,7 +1182,7 @@ VectorDouble law_exp_sample(const double* tabin,
         messerr(" %d - Mini=%lf - Maxi=%lf - Mean=%lf - Stdv=%lf", ivar + 1,
                 mini[ivar], maxi[ivar], mean[ivar], stdv[ivar]);
       }
-      printMatrix("Constraints", 0, 0, nvar1, nconst, consts);
+      printMatrix(consts, nvar1, nconst, "Constraints", 0, 0);
       return VectorDouble();
     }
   }

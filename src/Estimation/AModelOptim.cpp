@@ -139,7 +139,7 @@ double AModelOptim::eval(const VectorDouble& x)
   if (_trace)
   {
     message("Iteration %4d - Cost = %lf", _iter, result);
-    printVector(" - Current parameters", x, true, false);
+    printVector(x, " - Current parameters", true, false);
   }
 
   return result;
@@ -163,7 +163,7 @@ void AModelOptim::_printSummary(double minf, const VectorDouble& x) const
   message("Summary of Optimization procedure:\n");
   message("Count of Iterations = %4d - Final Cost = %lf\n",
           _iter, minf);
-  printVector("- Final parameters:", x, true, false);
+  printVector(x, "- Final parameters:", true, false);
   auto* mcv           = dynamic_cast<ModelCovList*>(_model);
   AModelFitSills* amf = mcv->getFitSills();
   if (amf != nullptr)

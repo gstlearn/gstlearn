@@ -12,7 +12,6 @@
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/OptDbg.hpp"
-#include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Calculators/CalcMigrate.hpp"
@@ -528,25 +527,25 @@ void KrigingSystemSimpleCase::_dumpKrigingResults(Id status,
     if (_iptrEst >= 0)
     {
       double value = (status == 0) ? _dbout->getArray(iechout, _iptrEst + ivar) : TEST;
-      printElement(" - Estimate  = ", value);
+      printElement(value, " - Estimate  = ");
       message("\n");
     }
     if (_iptrStd >= 0)
     {
       double value = (status == 0) ? _dbout->getArray(iechout, _iptrStd + ivar) : TEST;
-      printElement(" - Std. Dev. = ", value);
+      printElement(value, " - Std. Dev. = ");
       message("\n");
-      printElement(" - Variance  = ", FFFF(value) ? TEST : value * value);
+      printElement(FFFF(value) ? TEST : value * value, " - Variance  = ");
 
       value = algebra->getSigma00()->getValue(ivar, ivar);
       message("\n");
-      printElement(" - Cov(h=0)  = ", value);
+      printElement(value, " - Cov(h=0)  = ");
       message("\n");
     }
     if (_iptrVarZ >= 0)
     {
       double value = (status == 0) ? _dbout->getArray(iechout, _iptrVarZ + ivar) : TEST;
-      printElement(" - Var(Z*)   = ", value);
+      printElement(value, " - Var(Z*)   = ");
       message("\n");
     }
   }

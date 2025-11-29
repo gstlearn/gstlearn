@@ -87,7 +87,7 @@ int main(int argc, char* argv[])
   {
     Id target         = 1000;
     VectorDouble vect = workingDbc->getSampleLocators(ELoc::NOSTAT, target);
-    printVector("Non-stationary parameters at sample", vect, true, true);
+    printVector(vect, "Non-stationary parameters at sample", true, true);
   }
 
   Id useCholesky = 0;

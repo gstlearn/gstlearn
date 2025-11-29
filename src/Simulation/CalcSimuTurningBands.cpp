@@ -1693,7 +1693,7 @@ void CalcSimuTurningBands::_difference(Db* dbin,
             zvar = dbin->getSimvar(ELoc::GAUSFAC, iech, isimu, ivar, 0, nbsimu,
                                    nvar);
             if (OptDbg::query(EDbg::SIMULATE))
-              printElement(String(), zvar);
+              printElement(zvar);
           }
           double simval = dbin->getSimvar(ELoc::SIMU, iech, isimu, ivar, icase,
                                           nbsimu, nvar);

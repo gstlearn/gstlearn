@@ -932,11 +932,11 @@ void KrigingSystem::_dumpKrigingResults(Id status)
             esterr = estim - trueval;
           }
 
-          printElement(" - True value        = ", trueval);
+          printElement(trueval, " - True value        = ");
           message("\n");
-          printElement(" - Estimated value   = ", estval);
+          printElement(estval, " - Estimated value   = ");
           message("\n");
-          printElement(" - Estimation Error  = ", esterr);
+          printElement(esterr, " - Estimation Error  = ");
           message("\n");
         }
       }
@@ -957,9 +957,9 @@ void KrigingSystem::_dumpKrigingResults(Id status)
             sterr = esterr / stdev;
           }
 
-          printElement(" - Std. deviation    = ", sigma);
+          printElement(sigma, " - Std. deviation    = ");
           message("\n");
-          printElement(" - Normalized Error  = ", sterr);
+          printElement(sterr, " - Normalized Error  = ");
           message("\n");
         }
       }
@@ -973,25 +973,25 @@ void KrigingSystem::_dumpKrigingResults(Id status)
       if (_iptrEst >= 0)
       {
         double value = (status == 0) ? _dbout->getArray(_iechOut, _iptrEst + ivar) : TEST;
-        printElement(" - Estimate  = ", value);
+        printElement(value, " - Estimate  = ");
         message("\n");
       }
       if (_iptrStd >= 0)
       {
         double value = (status == 0) ? _dbout->getArray(_iechOut, _iptrStd + ivar) : TEST;
-        printElement(" - Std. Dev. = ", value);
+        printElement(value, " - Std. Dev. = ");
         message("\n");
-        printElement(" - Variance  = ", FFFF(value) ? TEST : value * value);
+        printElement(FFFF(value) ? TEST : value * value, " - Variance  = ");
 
         value = _Sigma00.getValue(ivar, ivar);
         message("\n");
-        printElement(" - Cov(h=0)  = ", value);
+        printElement(value, " - Cov(h=0)  = ");
         message("\n");
       }
       if (_iptrVarZ >= 0)
       {
         double value = (status == 0) ? _dbout->getArray(_iechOut, _iptrVarZ + ivar) : TEST;
-        printElement(" - Var(Z*)   = ", value);
+        printElement(value, " - Var(Z*)   = ");
         message("\n");
       }
     }
@@ -1010,7 +1010,7 @@ void KrigingSystem::_dumpSimulationResults(Id status)
     {
       message("Simulation #%d of Z%-2d : ", isimu + 1, ivar + 1);
       double value = (status == 0) ? _dbout->getArray(_iechOut, _iptrEst + ecr) : TEST;
-      printElement(" = ", value);
+      printElement(value, " = ");
       message("\n");
     }
 }
