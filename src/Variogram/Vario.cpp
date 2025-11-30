@@ -5335,7 +5335,7 @@ Vario* variogramCalculate(Db* db,
 Vario* varioGridCalculate(DbGrid* dbgrid,
                           Id nlag,
                           bool flagAllDirections,
-                          VectorVectorInt& dirincr,
+                          const VectorVectorInt& dirincr,
                           bool verbose)
 {
   VarioParam* varioparam = nullptr;
