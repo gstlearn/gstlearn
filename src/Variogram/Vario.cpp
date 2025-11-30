@@ -5347,7 +5347,7 @@ Vario* varioGridCalculate(DbGrid* dbgrid,
   {
     if (!dirincr.empty())
     {
-      for (auto& dir: dirincr)
+      for (const auto& dir: dirincr)
       {
         DirParam* dirparam = DirParam::createFromGrid(dbgrid, nlag, dir);
         varioparam->addDir(*dirparam);
