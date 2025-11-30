@@ -1,4 +1,5 @@
 import gstlearn as gl
+from matplotlib import lines
 import numpy as np
 
 try:
@@ -28,7 +29,6 @@ def Db_toTL(self, flagLocate=False):
 # DECLARE_TOTL usage (not needed in python ?)
 setattr(gl.Db, "toTL", Db_toTL)
 
-
 def Db_fromPandas(df):
     # Create an empty Db
     dat = gl.Db()
@@ -41,7 +41,6 @@ def Db_fromPandas(df):
 
 
 gl.Db.fromTL = staticmethod(Db_fromPandas)
-
 
 def table_toTL(self):
     # As a Panda Data Frame
@@ -58,9 +57,7 @@ def table_toTL(self):
     )
     return Anp
 
-
 setattr(gl.Table, "toTL", table_toTL)
-
 
 def vario_toTL(self, idir, ivar, jvar):
     sw = self.getSwVec(idir, ivar, jvar, False)
@@ -70,9 +67,7 @@ def vario_toTL(self, idir, ivar, jvar):
     colnames = np.array(["sw", "hh", "gg"])
     return pd.DataFrame(array, columns=colnames)
 
-
 setattr(gl.Vario, "toTL", vario_toTL)
-
 
 def vario_updateFromPanda(self, pf, idir, ivar, jvar):
     vario = self
@@ -93,9 +88,7 @@ def vario_updateFromPanda(self, pf, idir, ivar, jvar):
     vario.setGgVec(idir, ivar, jvar, pf["gg"])
     return vario
 
-
 setattr(gl.Vario, "updateFromPanda", vario_updateFromPanda)
-
 
 def matrix_toTL(self):
     if self.isSparse():
@@ -104,7 +97,6 @@ def matrix_toTL(self):
     else:
         return np.array(self.getValues(False)).reshape(self.getNRows(), self.getNCols())
 
-
 setattr(gl.MatrixDense, "toTL", matrix_toTL)
 setattr(gl.MatrixSquare, "toTL", matrix_toTL)
 setattr(gl.MatrixSymmetric, "toTL", matrix_toTL)
@@ -112,7 +104,6 @@ setattr(gl.MatrixSparse, "toTL", matrix_toTL)
 setattr(gl.ProjMatrix, "toTL", matrix_toTL)
 setattr(gl.PrecisionOpMultiMatrix, "toTL", matrix_toTL)
 setattr(gl.ProjMultiMatrix, "toTL", matrix_toTL)
-
 
 def Triplet_toTL(self):
     return sc.csc_matrix(
@@ -123,5 +114,72 @@ def Triplet_toTL(self):
         shape=(self.getNRows() + 1, self.getNCols() + 1),
     )
 
-
 setattr(gl.NF_Triplet, "toTL", Triplet_toTL)
+
+def matrix_general_toLatex(self, col_titles=None, row_titles=None, precision=3):
+    """
+    Retourne une chaîne LaTeX compatible Jupyter Notebook pour une matrice avec ou sans titres.
+    
+    self : the input matrix (N x P)
+    col_titles : liste de titres de colonnes (longueur P) ou None
+    row_titles : liste de titres de lignes (longueur N) ou None
+    precision : nombre de chiffres après la virgule
+    """
+    values = self.getValues()
+    N = self.getNRows()
+    P = self.getNCols()
+    matrix = [values[i::P] for i in range(P)]
+
+    # Déterminer l'alignement des colonnes
+    # Si on a row_titles, ajouter un 'c' pour la première colonne
+        # Déterminer l'alignement des colonnes
+    num_cols = P + (1 if row_titles is not None else 0)
+    col_format = "c" * num_cols  # alignement centré
+    
+    lines = []
+
+    # Ligne d'en-tête si col_titles
+    if col_titles is not None:
+        if row_titles is not None:
+            header = tuple([""]) + col_titles
+        else:
+            header = col_titles
+        lines.append(" & ".join(header))
+
+    # Lignes du tableau
+    for i, row in enumerate(matrix):
+        formatted_row = [f"{x:.{precision}f}" for x in row]
+        if row_titles is not None:
+            line = [row_titles[i]] + formatted_row
+        else:
+            line = formatted_row
+        lines.append(" & ".join(line))
+
+    # Concatenation avec \\ entre les lignes
+    latex_body = " \\\\\n".join(lines)
+    
+    # Code final avec retours à la ligne
+    latex_code = "$$\\left[\\begin{array}{" + col_format + "}\n" + latex_body + "\n\\end{array}\\right]$$"
+    
+    return latex_code
+
+def matrix_toLatex(self, precision=3):
+    return matrix_general_toLatex(self, None, None)
+
+def table_toLatex(self, precision=3):
+    colnames = self.getColumnNames()
+    rownames = self.getRowNames()
+    return matrix_general_toLatex(self, colnames, rownames, precision)
+
+setattr(gl.MatrixDense, "toLatex", matrix_toLatex)
+setattr(gl.MatrixSquare, "toLatex", matrix_toLatex)
+setattr(gl.MatrixSymmetric, "toLatex", matrix_toLatex)
+setattr(gl.MatrixSparse, "toLatex", matrix_toLatex)
+setattr(gl.Table, "toLatex", table_toLatex)
+
+setattr(gl.ProjMatrix, "toLatex", matrix_toLatex)
+setattr(gl.PrecisionOpMultiMatrix, "toLatex", matrix_toLatex)
+setattr(gl.ProjMultiMatrix, "toLatex", matrix_toLatex)
+
+
+

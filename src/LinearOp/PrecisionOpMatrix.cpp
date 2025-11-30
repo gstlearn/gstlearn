@@ -269,7 +269,7 @@ void PrecisionOpMatrix::_buildQ()
 MatrixSparse* PrecisionOpMatrix::_build_Q()
 {
   // Preliminary checks
-  auto* S            = ((ShiftOpMatrix*)getShiftOp())->getS();
+  auto* S            = static_cast<ShiftOpMatrix*>(getShiftOp())->getS();
   const auto& Lambda = getShiftOp()->getLambdas();
   VectorDouble blin  = getPoly(EPowerPT::ONE)->getCoeffs();
   Id nblin           = static_cast<Id>(blin.size());

@@ -30,6 +30,7 @@ public:
 
   /// Has a specific implementation in the Target language
   DECLARE_TOTL;
+  DECLARE_TOLATEX
 
   /// ICloneable interface
   IMPLEMENT_CLONING(MatrixSquare)

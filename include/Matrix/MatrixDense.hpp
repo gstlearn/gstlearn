@@ -55,6 +55,7 @@ public:
 
   /// Has a specific implementation in the Target language
   DECLARE_TOTL;
+  DECLARE_TOLATEX
 
   /// Cloneable interface
   IMPLEMENT_CLONING(MatrixDense)
@@ -186,6 +187,7 @@ public:
                                    Id ncol,
                                    bool byCol             = false,
                                    bool invertColumnOrder = false);
+  static MatrixDense* createFillRandom(Id nrow, Id ncol, Id seed = 13242);
   static MatrixDense* glue(const AMatrix* A1,
                            const AMatrix* A2,
                            bool flagShiftRow,

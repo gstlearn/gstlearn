@@ -52,6 +52,7 @@ public:
 
   /// Has a specific implementation in the Target language
   DECLARE_TOTL;
+  DECLARE_TOLATEX
 
   /// Cloneable interface
   IMPLEMENT_CLONING(MatrixSparse)
@@ -160,6 +161,11 @@ public:
                                          Id nrow    = 0,
                                          Id ncol    = 0,
                                          Id nrowmax = -1);
+  static MatrixSparse* createFillRandom(Id nrow,
+                                        Id ncol,
+                                        double zeroPercent = 0.1,
+                                        Id seed            = 143743);
+
   static MatrixSparse* Identity(Id nrow, double value = 1.);
   static MatrixSparse* addMatMat(const MatrixSparse* x,
                                  const MatrixSparse* y,

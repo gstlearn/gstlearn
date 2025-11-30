@@ -386,6 +386,16 @@ MatrixSparse* MatrixSparse::createFromTriplet(const NF_Triplet& NF_T,
   return mat;
 }
 
+MatrixSparse* MatrixSparse::createFillRandom(Id nrow,
+                                             Id ncol,
+                                             double zeroPercent,
+                                             Id seed)
+{
+  auto* mat = new MatrixSparse(nrow, ncol);
+  mat->fillRandom(seed, zeroPercent);
+  return mat;
+}
+
 MatrixSparse* MatrixSparse::Identity(Id nrow, double value)
 {
   auto* mat = new MatrixSparse(nrow, nrow);
