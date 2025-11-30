@@ -5291,6 +5291,7 @@ bool Vario::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
  * @param angles List of calculation angles
  * @param toldis Tolerance on distance
  * @param tolang Tolerance on angle
+ * @param verbose Verbose flag
  * @return Vario* Pointer to the calculated Vario object (nullptr if an error occurred)
  *
  * @remarks The decision algorithm is described as follows:
