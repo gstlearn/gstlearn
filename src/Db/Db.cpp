@@ -6152,10 +6152,10 @@ void Db::dumpGeometry(Id iech, Id jech) const
   message("- Distance = %lf\n", dist);
 
   VectorDouble incr = P1.getIncrement(P2);
-  printVector("- Increments = ", incr, true, false);
+  printVector(incr, "- Increments = ", true, false);
 
   VectorDouble angles = GH::rotationFromIncrements(incr, true);
-  printVector("- Angles (deg) = ", angles, true, false);
+  printVector(angles, "- Angles (deg) = ", true, false);
 }
 
 /**

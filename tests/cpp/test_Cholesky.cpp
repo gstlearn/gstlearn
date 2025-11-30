@@ -102,9 +102,9 @@ int main(int argc, char* argv[])
     message(">>> Function 'LLt' is validated\n");
   else
   {
-    printVector("LLt (by Matrix)", vecref, true, true);
-    printVector("LLt (by CholeskySparse)", vecout1, true, true);
-    printVector("LLt (by CholeskyDense)", vecout2, true, true);
+    printVector(vecref ,"LLt (by Matrix)", true, true);
+    printVector(vecout1, "LLt (by CholeskySparse)", true, true);
+    printVector(vecout2, "LLt (by CholeskyDense)", true, true);
     printError("LLt");
   }
 
@@ -117,9 +117,9 @@ int main(int argc, char* argv[])
     message(">>> Function 'solve' is validated\n");
   else
   {
-    printVector("Solve (by Matrix)", vecref, true, true);
-    printVector("Solve (by CholeskySparse)", vecout1, true, true);
-    printVector("Solve (by CholeskyDense)", vecout2, true, true);
+    printVector(vecref, "Solve (by Matrix)", true, true);
+    printVector(vecout1, "Solve (by CholeskySparse)", true, true);
+    printVector(vecout2, "Solve (by CholeskyDense)", true, true);
     printError("solve");
   }
 
@@ -133,9 +133,9 @@ int main(int argc, char* argv[])
     message(">>> Function 'InvLX(LX)' is validated\n");
   else
   {
-    printVector("Function 'InvLX(LX)' (by Matrix)", vecin, true, true);
-    printVector("Function 'InvLX(LX)' (by CholeskySparse)", vecout1, true, true);
-    printVector("Function 'InvLX(LX)' (by CholeskyDense)", vecout2, true, true);
+    printVector(vecin, "Function 'InvLX(LX)' (by Matrix)", true, true);
+    printVector(vecout1, "Function 'InvLX(LX)' (by CholeskySparse)", true, true);
+    printVector(vecout2, "Function 'InvLX(LX)' (by CholeskyDense)", true, true);
     printError("InvLX(LX)");
   }
 
@@ -149,9 +149,9 @@ int main(int argc, char* argv[])
     message(">>> Function 'LtX(InvLtX)' is validated\n");
   else
   {
-    printVector("Function 'LtX(InvLtX)' (by Matrix)", vecin, true, true);
-    printVector("Function 'LtX(InvLtX)' (by CholeskySparse)", vecout1, true, true);
-    printVector("Function 'LtX(InvLtX)' (by CholeskyDense)", vecout2, true, true);
+    printVector(vecin, "Function 'LtX(InvLtX)' (by Matrix)", true, true);
+    printVector(vecout1, "Function 'LtX(InvLtX)' (by CholeskySparse)", true, true);
+    printVector(vecout2, "Function 'LtX(InvLtX)' (by CholeskyDense)", true, true);
     printError("LtX(InvLtX)");
   }
 
@@ -171,8 +171,8 @@ int main(int argc, char* argv[])
     message(">>> Function 'stdev' is validated\n");
   else
   {
-    printVector("Standard Deviation (by Matrix)", vecout1b, true, true);
-    printVector("Standard Deviation (by Cholesky)", vecout2, true, true);
+    printVector(vecout1b, "Standard Deviation (by Matrix)", true, true);
+    printVector(vecout2, "Standard Deviation (by Cholesky)", true, true);
     printError("stdev");
   }
 

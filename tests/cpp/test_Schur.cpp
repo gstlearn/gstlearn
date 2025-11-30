@@ -133,17 +133,17 @@ static void _firstTest(Db* data,
   Kcalc.setRHS(&Sigma0, &X0);
   Kcalc.setBayes(&PriorMean, &PriorCov);
 
-  printVector("Prior Mean", PriorMean, true, true);
+  printVector(PriorMean, "Prior Mean", true, true);
   message("Prior Variance-Covariance Matrix\n");
   PriorCov.display();
   VectorDouble beta = Kcalc.getPostMean();
-  if (!beta.empty()) printVector("Posterior Mean", beta, true, true);
+  if (!beta.empty()) printVector(beta, "Posterior Mean", true, true);
   message("Posterior Variance-Covariance Matrix\n");
   Kcalc.getPostCov()->display();
 
-  printVector("Kriging Value(s)", Kcalc.getEstimation(), true, true);
-  printVector("Standard Deviation of Estimation Error", Kcalc.getStdv(), true, true);
-  printVector("Variance of Estimator", Kcalc.getVarianceZstar(), true, true);
+  printVector(Kcalc.getEstimation(), "Kriging Value(s)", true, true);
+  printVector(Kcalc.getStdv(), "Standard Deviation of Estimation Error", true, true);
+  printVector(Kcalc.getVarianceZstar(), "Variance of Estimator", true, true);
 
   if (debugSchur) Kcalc.printStatus();
 
@@ -172,7 +172,7 @@ static void _secondTest(Db* data, Db* target, ModelGeneric* model, const VectorD
   mestitle(0, "Collocated Option (in Unique Neighborhood):");
   message("- using 'KrigingAlgebra' on the Complemented Data Set\n");
   message("- using 'KrigingAlgebra' on Standard Data Set adding Collocated Option\n");
-  printVector("- Collocated Variable ranks:", varColCok, false, false);
+  printVector(varColCok, "- Collocated Variable ranks:", false, false);
 
   // Creating the Complemented Data Set
   VectorDouble valuesTarget(nvar, TEST);
@@ -200,9 +200,9 @@ static void _secondTest(Db* data, Db* target, ModelGeneric* model, const VectorD
   KcalcP.setRHS(&Sigma0P, &X0P);
   KcalcP.setVariance(&Sigma00P);
 
-  printVector("Kriging Value(s)", KcalcP.getEstimation(), true, true);
-  printVector("Standard Deviation of Estimation Error", KcalcP.getStdv(), true, true);
-  printVector("Variance of Estimator", KcalcP.getVarianceZstar(), true, true);
+  printVector(KcalcP.getEstimation(), "Kriging Value(s)", true, true);
+  printVector(KcalcP.getStdv(), "Standard Deviation of Estimation Error", true, true);
+  printVector(KcalcP.getVarianceZstar(), "Variance of Estimator", true, true);
 
   if (debugSchur) KcalcP.printStatus();
 
@@ -226,9 +226,9 @@ static void _secondTest(Db* data, Db* target, ModelGeneric* model, const VectorD
   valuesTarget.subtract(means);
   Kcalc.setColCokUnique(&valuesTarget, &varColCok);
 
-  printVector("Kriging Value(s)", Kcalc.getEstimation(), true, true);
-  printVector("Standard Deviation of Estimation Error", Kcalc.getStdv(), true, true);
-  printVector("Variance of Estimator", Kcalc.getVarianceZstar(), true, true);
+  printVector(Kcalc.getEstimation(), "Kriging Value(s)", true, true);
+  printVector(Kcalc.getStdv(), "Standard Deviation of Estimation Error", true, true);
+  printVector(Kcalc.getVarianceZstar(), "Variance of Estimator", true, true);
 
   if (debugSchur) Kcalc.printStatus();
 
@@ -279,9 +279,9 @@ static void _thirdTest(Db* data, ModelGeneric* model, const VectorDouble& means)
   KcalcP.setRHS(&Sigma0P, &X0P);
   KcalcP.setVariance(&Sigma00P);
 
-  printVector("Kriging Value(s)", KcalcP.getEstimation(), true, true);
-  printVector("Standard Deviation of Estimation Error", KcalcP.getStdv(), true, true);
-  printVector("Variance of Estimator", KcalcP.getVarianceZstar(), true, true);
+  printVector(KcalcP.getEstimation(), "Kriging Value(s)", true, true);
+  printVector(KcalcP.getStdv(), "Standard Deviation of Estimation Error", true, true);
+  printVector(KcalcP.getVarianceZstar(), "Variance of Estimator", true, true);
 
   if (debugSchur) KcalcP.printStatus();
 
@@ -302,9 +302,9 @@ static void _thirdTest(Db* data, ModelGeneric* model, const VectorDouble& means)
   Kcalc.setVariance(&Sigma00);
   Kcalc.setXvalidUnique(&rankXvalidEqs, &rankXvalidVars);
 
-  printVector("Kriging Value(s)", Kcalc.getEstimation(), true, true);
-  printVector("Standard Deviation of Estimation Error", Kcalc.getStdv(), true, true);
-  printVector("Variance of Estimator", Kcalc.getVarianceZstar(), true, true);
+  printVector(Kcalc.getEstimation(), "Kriging Value(s)", true, true);
+  printVector(Kcalc.getStdv(), "Standard Deviation of Estimation Error", true, true);
+  printVector(Kcalc.getVarianceZstar(), "Variance of Estimator", true, true);
 
   if (debugSchur) Kcalc.printStatus();
 
@@ -340,9 +340,9 @@ static void _fourthTest(Db* data, Db* target, ModelGeneric* model, const VectorD
   Kcalc1.setRHS(&Sigma0, &X0);
   Kcalc1.setVariance(&Sigma00);
 
-  printVector("Kriging Value(s)", Kcalc1.getEstimation(), true, true);
-  printVector("Standard Deviation of Estimation Error", Kcalc1.getStdv(), true, true);
-  printVector("Variance of Estimator", Kcalc1.getVarianceZstar(), true, true);
+  printVector(Kcalc1.getEstimation(), "Kriging Value(s)", true, true);
+  printVector(Kcalc1.getStdv(), "Standard Deviation of Estimation Error", true, true);
+  printVector(Kcalc1.getVarianceZstar(), "Variance of Estimator", true, true);
 
   // ---------------------- With Dual Option -------------------------
   mestitle(1, "With Dual Option (only Estimation is available)");
@@ -352,7 +352,7 @@ static void _fourthTest(Db* data, Db* target, ModelGeneric* model, const VectorD
   Kcalc2.setLHS(&Sigma, &X);
   Kcalc2.setRHS(&Sigma0, &X0);
 
-  printVector("Kriging Value(s)", Kcalc2.getEstimation(), true, true);
+  printVector(Kcalc2.getEstimation(), "Kriging Value(s)", true, true);
 }
 
 /****************************************************************************/

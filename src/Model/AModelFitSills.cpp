@@ -1090,7 +1090,7 @@ bool AModelFitSills::_convergenceReached(Id iter,
     for (Id icova = 0; icova < _ncova; icova++)
     {
       message("  - Covariance %d :", icova + 1);
-      printVector(" Current parameters ", _sill[icova].getValues(), true, false);
+      printVector(_sill[icova].getValues(), " Current parameters ", true, false);
     }
   }
   double eps = _mop.getTolred();

@@ -106,7 +106,7 @@ void ALikelihood::_initLikelihood(bool verbose)
     if (_nDrift > 0)
       message("- Number of drift conditions   = %d\n", _nDrift);
     else
-      printVector("Constant Mean(s)", _model->getMeans(), true, true);
+      printVector(_model->getMeans(), "Constant Mean(s)", true, true);
   }
 
   // If Drift function is present, evaluate the optimal Drift coefficients
@@ -161,7 +161,7 @@ double ALikelihood::computeLogLikelihood(bool flagPrint, bool verbose)
     _model->setBetaHat(_beta);
 
     if (verbose)
-      printVector("Optimal Drift coefficients = ", _beta, true, true);
+      printVector(_beta, "Optimal Drift coefficients = ", true, true);
 
     // Center the data by the optimal drift: Yc = Y - beta * X
     VH::subtractInPlace(_X.prodMatVec(_beta), _Y, _Yc);

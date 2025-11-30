@@ -112,8 +112,8 @@ void PCA::_pcaFunctions(bool verbose)
 
   if (verbose)
   {
-    printMatrix("PCA Z->F", 0, _Z2F);
-    printMatrix("PCA F->Z", 0, _F2Z);
+    printMatrix(_Z2F, "PCA Z->F", 0);
+    printMatrix(_F2Z, "PCA F->Z", 0);
   }
 }
 
@@ -139,15 +139,13 @@ void PCA::_mafFunctions(bool verbose)
 
   if (verbose)
   {
-    printMatrix("MAF Z->F", 0, _Z2F);
-    printMatrix("MAF F->Z", 0, _F2Z);
+    printMatrix(_Z2F, "MAF Z->F");
+    printMatrix(_F2Z, "MAF F->Z");
   }
 }
 
 Id PCA::_calculateEigen(bool verbose, bool optionPositive)
 {
-  Id nvar = _nVar;
-
   // Eigen decomposition
 
   if (_c0.computeEigen(optionPositive) != 0) return 1;
@@ -158,8 +156,8 @@ Id PCA::_calculateEigen(bool verbose, bool optionPositive)
 
   if (verbose)
   {
-    printMatrix("Eigen values", 0, 1, 1, nvar, _eigval);
-    printMatrix("Eigen Vectors", 0, _eigvec);
+    printMatrix(_eigval, 1, _nVar, "Eigen values");
+    printMatrix(_eigvec, "Eigen Vectors");
   }
   return 0;
 }
@@ -178,8 +176,8 @@ Id PCA::_calculateGEigen(bool verbose)
 
   if (verbose)
   {
-    printMatrix("GEigen values", 0, 1, 1, nvar, _eigval);
-    printMatrix("GEigen Vectors", 0, _eigvec);
+    printMatrix(_eigval, 1, nvar, "GEigen values", 0, 1);
+    printMatrix(_eigvec, "GEigen Vectors", 0);
   }
   return 0;
 }
@@ -372,8 +370,8 @@ void PCA::_calculateNormalization(const Db* db,
     message("Number of variables         = %d\n", nvar);
     message("Number of samples in the Db = %d\n", nech);
     message("Number of isotropic samples = %d\n", niso);
-    printMatrix("Mean", 0, 1, 1, nvar, _mean);
-    printMatrix("St. Dev.", 0, 1, 1, nvar, _sigma);
+    printMatrix(_mean, 1, nvar, "Mean", 0, 1);
+    printMatrix(_sigma, 1, nvar, "St. Dev.", 0, 1);
     message("\n");
   }
 }
@@ -428,7 +426,7 @@ void PCA::_covariance0(const Db* db,
   /* Printout of the covariance matrix (optional) */
 
   if (verbose)
-    printMatrix("Variance-Covariance matrix for distance 0", 0, _c0);
+    printMatrix(_c0, "Variance-Covariance matrix for distance 0");
 }
 
 /****************************************************************************/
@@ -820,7 +818,7 @@ void PCA::_variogramh(Db* db,
     message("Number of samples in the Db = %d\n", nech);
     message("Number of isotopic pairs    = %d\n", npairs);
     message("\n");
-    printMatrix("Variogram matrix for distance h", 0, _gh);
+    printMatrix(_gh, "Variogram matrix for distance h");
   }
 }
 

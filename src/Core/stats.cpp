@@ -406,11 +406,11 @@ static void st_print_grid(const char* subtitle,
     (void)gslSPrintf(string, "%s Values (iz=%d)\n", subtitle, iz + 1);
     message(string.data());
     VectorDouble valsub(valtab.begin() + shift * iz, valtab.begin() + shift * (iz + 1));
-    printMatrix(String(), 0, 0, nxyz[0], nxyz[1], valsub);
+    printMatrix(valsub, nxyz[0], nxyz[1]);
     (void)gslSPrintf(string, "%s Counts (iz=%d)\n", subtitle, iz + 1);
     message(string.data());
     VectorDouble numsub(numtab.begin() + shift * iz, numtab.begin() + shift * (iz + 1));
-    printMatrix(String(), 0, 0, nxyz[0], nxyz[1], numsub);
+    printMatrix(numsub, nxyz[0], nxyz[1]);
   }
   message("\n");
 }

@@ -270,10 +270,10 @@ GSTLEARN_EXPORT String toStrMatrix(const String& title,
                                    const AMatrix& mat,
                                    bool flagOverride = false,
                                    bool flagSkipZero = false);
-GSTLEARN_EXPORT String toStrTrimMat(const String& title,
-                                    Id mode,
+GSTLEARN_EXPORT String toStrTrimMat(const VectorDouble& tl,
                                     Id neq,
-                                    const VectorDouble& tl);
+                                    Id mode             = 1,
+                                    const String& title = String());
 
 /**
  * Printout a vector in a formatted manner

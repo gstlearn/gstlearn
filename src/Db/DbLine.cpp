@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Db/DbLine.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/SerializeHDF5.hpp"
 #include "Basic/String.hpp"
@@ -510,10 +509,10 @@ bool DbLine::isConsistent() const
       {
         messerr("Sample %d is reached twice:", iadd);
         messerr("- Line %d:", iline);
-        printVector("Adds_1", _lineAdds[iline], true, true);
+        printVector(_lineAdds[iline], "Adds_1", true, true);
         auto jline = getLineBySample(iadd);
         messerr("- Line %d:", jline);
-        printVector("Adds_1", _lineAdds[jline], true, true);
+        printVector(_lineAdds[jline], "Adds_1", true, true);
         return false;
       }
     }

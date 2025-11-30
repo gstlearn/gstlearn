@@ -12,10 +12,10 @@
  * This test is meant to check the generation of random values
  */
 
-#include "Basic/Message.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/MathFunc.hpp"
+#include "Basic/Message.hpp"
 #include "Basic/OptCst.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Enum/ECst.hpp"
@@ -129,17 +129,16 @@ int main(int argc, char* argv[])
   law_set_old_style(true);
   law_set_random_seed(seed);
   for (Id i = 0; i < number; i++) tab[i] = law_uniform(mini, maxi);
-  printVector("Old Style", tab, true, true);
+  printVector(tab, "Old Style", true, true);
   law_set_old_style(false);
   law_set_random_seed(seed);
   for (Id i = 0; i < number; i++) tab[i] = law_uniform(mini, maxi);
-  printVector("New Style", tab, true, true);
-
+  printVector(tab, "New Style", true, true);
   // Testing miscellaneous functions
 
   message("BesselJ value = %lf\n", besselj(5.2, 0));
 
   VectorInt ipois = VH::sequence(10);
-  printVector("Poisson intensity", law_df_poisson_vec(ipois, 5.2), true, true);
+  printVector(law_df_poisson_vec(ipois, 5.2), "Poisson intensity", true, true);
   return 0;
 }

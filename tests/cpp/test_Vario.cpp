@@ -145,13 +145,13 @@ int main(int argc, char* argv[])
 
   // Extract the values from a multivariate variogram
   VectorDouble vec00 = vario->getGgVec(0, 0, 0, false, false, compress);
-  printVector("Variogram for: ivar=0, jvar=0 (no compress)", vec00, true, true);
+  printVector(vec00, "Variogram for: ivar=0, jvar=0 (no compress)", true, true);
 
   VectorDouble vec10 = vario->getGgVec(0, 1, 0, false, false, compress);
-  printVector("Variogram for: ivar=1, jvar=0 (no compress)", vec10, true, true);
+  printVector(vec10, "Variogram for: ivar=1, jvar=0 (no compress)", true, true);
 
   VectorDouble vec11 = vario->getGgVec(0, 1, 1, false, false, compress);
-  printVector("Variogram for: ivar=1, jvar=1 (no compress)", vec11, true, true);
+  printVector(vec11, "Variogram for: ivar=1, jvar=1 (no compress)", true, true);
 
   (void)vario->setGgVec(0, 0, 1, vec00);
   (void)vario->setGgVec(0, 1, 1, vec00);
@@ -159,13 +159,13 @@ int main(int argc, char* argv[])
   compress = false;
 
   vec00 = vario->getGgVec(0, 0, 0, false, false, compress);
-  printVector("Variogram for: ivar=0, jvar=0", vec00, true, true);
+  printVector(vec00, "Variogram for: ivar=0, jvar=0", true, true);
 
   vec10 = vario->getGgVec(0, 1, 0, false, false, compress);
-  printVector("Variogram for: ivar=1, jvar=0", vec10, true, true);
+  printVector(vec10, "Variogram for: ivar=1, jvar=0", true, true);
 
   vec11 = vario->getGgVec(0, 1, 1, false, false, compress);
-  printVector("Variogram for: ivar=1, jvar=1", vec11, true, true);
+  printVector(vec11, "Variogram for: ivar=1, jvar=1", true, true);
 
   (void)vario->setGgVec(0, 0, 1, vec00);
   (void)vario->setGgVec(0, 1, 1, vec00);

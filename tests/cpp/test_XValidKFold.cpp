@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Basic/AStringable.hpp"
 #include "Basic/File.hpp"
 #include "Basic/OptCst.hpp"
 #include "Basic/VectorNumT.hpp"
@@ -85,7 +84,7 @@ int main(int argc, char* argv[])
     if (ranks.empty())
       message("%s None\n", str.c_str());
     else
-      printVector(str, ranks);
+      printVector(ranks, str);
   }
 
   delete neigh;

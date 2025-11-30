@@ -115,6 +115,6 @@ void TurningBandDirection::dump(bool flagGrid) const
   message("  Tmin=%lf Tmax=%lf Scale=%lf\n", _tmin, _tmax, _scale);
   if (flagGrid)
     message("  T00=%lf DXP=%lf DYP=%lf DZP=%lf\n", _t00, _dxp, _dyp, _dzp);
-  printVector("  Angles=", _ang, true, false);
+  printVector(_ang, "  Angles=", true, false);
 }
 } // namespace gstlrn

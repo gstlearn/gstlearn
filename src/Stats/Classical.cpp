@@ -1244,17 +1244,17 @@ void dbStatisticsPrint(const Db* db,
 
   message("%s", _toStrRowHeader({" "}, 0, taille).c_str());
   if (_operExists(opers, EStatOption::NUM))
-    printElement(String(), "Number");
+    printElement("Number");
   if (_operExists(opers, EStatOption::MINI))
-    printElement(String(), "Minimum");
+    printElement("Minimum");
   if (_operExists(opers, EStatOption::MAXI))
-    printElement(String(), "Maximum");
+    printElement("Maximum");
   if (_operExists(opers, EStatOption::MEAN))
-    printElement(String(), "Mean");
+    printElement("Mean");
   if (_operExists(opers, EStatOption::STDV))
-    printElement(String(), "St. Dev.");
+    printElement("St. Dev.");
   if (_operExists(opers, EStatOption::VAR))
-    printElement(String(), "Variance");
+    printElement("Variance");
   message("\n");
 
   /* Print the monovariate statistics */
@@ -1265,32 +1265,32 @@ void dbStatisticsPrint(const Db* db,
     message("%s", _toStrRowHeader({string}, 0, taille).c_str());
 
     if (_operExists(opers, EStatOption::NUM))
-      printElement(String(), static_cast<Id>(num[icol]));
+      printElement(static_cast<Id>(num[icol]));
     if (num[icol] > 0)
     {
       if (_operExists(opers, EStatOption::MINI))
-        printElement(String(), mini[icol]);
+        printElement(mini[icol]);
       if (_operExists(opers, EStatOption::MAXI))
-        printElement(String(), maxi[icol]);
+        printElement(maxi[icol]);
       if (_operExists(opers, EStatOption::MEAN))
-        printElement(String(), mean[icol]);
+        printElement(mean[icol]);
       if (_operExists(opers, EStatOption::STDV))
-        printElement(String(), sqrt(var[icol]));
+        printElement(sqrt(var[icol]));
       if (_operExists(opers, EStatOption::VAR))
-        printElement(String(), var[icol]);
+        printElement(var[icol]);
     }
     else
     {
       if (_operExists(opers, EStatOption::MINI))
-        printElement(String(), STRING_NA);
+        printElement(STRING_NA);
       if (_operExists(opers, EStatOption::MAXI))
-        printElement(String(), STRING_NA);
+        printElement(STRING_NA);
       if (_operExists(opers, EStatOption::MEAN))
-        printElement(String(), STRING_NA);
+        printElement(STRING_NA);
       if (_operExists(opers, EStatOption::STDV))
-        printElement(String(), STRING_NA);
+        printElement(STRING_NA);
       if (_operExists(opers, EStatOption::VAR))
-        printElement(String(), STRING_NA);
+        printElement(STRING_NA);
     }
     message("\n");
   }
@@ -1301,7 +1301,7 @@ void dbStatisticsPrint(const Db* db,
   if (ncol > 1 && numiso > 0 && flagCorrel)
   {
     message("Number of isotopic active samples = %d\n", numiso);
-    printMatrix("Correlation matrix", 0, 1, ncol, ncol, cov);
+    printMatrix(cov, ncol, ncol, "Correlation matrix", 0, 1);
     message("\n");
   }
 }

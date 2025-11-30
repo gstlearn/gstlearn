@@ -262,20 +262,19 @@ void ANeigh::_display(const VectorInt& ranks, bool flagCompress) const
   mestitle(1, "Data selected in neighborhood");
 
   // Rank
-  printElement(String(), "Rank");
+  printElement("Rank");
 
   // Sample number
-  printElement(String(), "Sample");
+  printElement("Sample");
 
   // Code
   if (ncode > 0)
-    printElement(String(), "Code");
-
+    printElement("Code");
   // Coordinates
   for (Id idim = 0; idim < ndim; idim++)
   {
     string = getLocatorName(ELoc::X, idim);
-    printElement(String(), string);
+    printElement(string);
   }
 
   // Variables
@@ -284,7 +283,7 @@ void ANeigh::_display(const VectorInt& ranks, bool flagCompress) const
     for (Id ivar = 0; ivar < nvar; ivar++)
     {
       string = getLocatorName(ELoc::Z, ivar);
-      printElement(String(), string);
+      printElement(string);
     }
   }
 
@@ -294,7 +293,7 @@ void ANeigh::_display(const VectorInt& ranks, bool flagCompress) const
     for (Id ierr = 0; ierr < nerr; ierr++)
     {
       string = getLocatorName(ELoc::V, ierr);
-      printElement(String(), string);
+      printElement(string);
     }
   }
 
@@ -304,13 +303,13 @@ void ANeigh::_display(const VectorInt& ranks, bool flagCompress) const
     for (Id idim = 0; idim < ndim; idim++)
     {
       string = getLocatorName(ELoc::BLEX, idim);
-      printElement(String(), string);
+      printElement(string);
     }
   }
 
   // Sector
   if (getType() == ENeigh::MOVING)
-    printElement(String(), "Sector");
+    printElement("Sector");
   message("\n");
 
   /* Loop on the sample points */
@@ -327,37 +326,35 @@ void ANeigh::_display(const VectorInt& ranks, bool flagCompress) const
     if (ranks[jech] < 0) continue;
 
     // Rank
-    printElement(String(), nsel + 1);
+    printElement(nsel + 1);
 
     // Sample number
-    printElement(String(), iech + 1);
+    printElement(iech + 1);
 
     // Code
     if (ncode > 0)
-      printElement(String(), static_cast<Id>(_dbin->getLocVariable(ELoc::C, iech, 0)));
-
+      printElement(static_cast<Id>(_dbin->getLocVariable(ELoc::C, iech, 0)));
     // Coordinates
     for (Id idim = 0; idim < ndim; idim++)
-      printElement(String(), _dbin->getCoordinate(iech, idim));
+      printElement(_dbin->getCoordinate(iech, idim));
 
     // Variables
     for (Id ivar = 0; ivar < nvar; ivar++)
-      printElement(String(), _dbin->getLocVariable(ELoc::Z, iech, ivar));
-
+      printElement(_dbin->getLocVariable(ELoc::Z, iech, ivar));
     // Variance of measurement errors
     for (Id ierr = 0; ierr < nerr; ierr++)
-      printElement(String(), _dbin->getLocVariable(ELoc::V, iech, ierr));
+      printElement(_dbin->getLocVariable(ELoc::V, iech, ierr));
 
     // Variable block extension
     if (nblex > 0)
     {
       for (Id idim = 0; idim < ndim; idim++)
-        printElement(String(), _dbin->getLocVariable(ELoc::BLEX, iech, idim));
+        printElement(_dbin->getLocVariable(ELoc::BLEX, iech, idim));
     }
 
     // Sector
     if (getType() == ENeigh::MOVING)
-      printElement(String(), ranks[jech] + 1);
+      printElement(ranks[jech] + 1);
 
     message("\n");
     nsel++;

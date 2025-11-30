@@ -1584,7 +1584,7 @@ Id FracList::fractureWellToBlock(DbGrid* dbgrid,
   /* Verbose option */
 
   if (verbose)
-    printMatrix("Well information", 0, 0, NBYWOUT, nw_xy, wellout);
+    printMatrix(wellout, NBYWOUT, nw_xy, "Well information");
 
   /* Paint the fluid (optional) */
 

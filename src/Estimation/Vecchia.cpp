@@ -234,7 +234,7 @@ Id Vecchia::_buildNeighborhood(const MatrixT<Id>& Ranks,
 
     message("Row Number %4d (Db %d Var %d)", isample, icase1, ivar);
     message(" - Abs Rank = %4d", ipAbs);
-    printVector(" - Coors:", coor, true, false);
+    printVector(coor, " - Coors:",  true, false);
     if (nitems > 0) message(" Db | Var | Col Number | Abs Rank |           Coors\n");
     for (Id item = 0; item < nitems; item++)
     {
@@ -246,7 +246,7 @@ Id Vecchia::_buildNeighborhood(const MatrixT<Id>& Ranks,
         _db2->getCoordinatesInPlace(coor, iabs2);
       message(" %2d |  %2d |    %4d    |   %4d   |", neighDescr[item][0], neighDescr[item][1],
               neighDescr[item][2], neighDescr[item][3]);
-      printVector("", coor, true, false);
+      printVector(coor, "", true, false);
     }
   }
   return nitems;
@@ -539,7 +539,7 @@ Id Vecchia::computeLower(const MatrixT<Id>& Ranks, bool verbose)
   {
     mestitle(1, "Lower Vecchia Matrix");
     _LFull.display();
-    printVector("Diagonal of Vecchia Matrix", _DFull, true, true);
+    printVector(_DFull, "Diagonal of Vecchia Matrix", true, true);
   }
   return 0;
 }
