@@ -219,7 +219,7 @@ double _convertToDouble(const String& v, char dec)
  */
 Id _askInt(const String& v, Id defval, bool authTest)
 {
-  bool hasDefault = !IFFFF(defval) || authTest;
+  bool hasDefault = !isNA(defval) || authTest;
   Id answer       = defval;
   std::cin.exceptions(std::istream::failbit | std::istream::badbit);
 
@@ -230,7 +230,7 @@ Id _askInt(const String& v, Id defval, bool authTest)
       // Display the question
       if (hasDefault)
       {
-        if (IFFFF(defval))
+        if (isNA(defval))
           std::cout << v << " (Default = TEST) : ";
         else
           std::cout << v << " (Default = " << defval << ") : ";
@@ -339,7 +339,7 @@ double _askDouble(const String& v, double defval, bool authTest)
 bool _askBool(const String& v, bool defval, bool authTest)
 {
   DECLARE_UNUSED(authTest);
-  bool hasDefault = !IFFFF(defval);
+  bool hasDefault = !isNA(defval);
   bool answer     = defval;
   std::cin.exceptions(std::istream::failbit | std::istream::badbit);
 

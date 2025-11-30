@@ -206,7 +206,7 @@ static Id st_define_fipos(Id oper, Id side)
 {
   Id reponse;
 
-  if (IFFFF(side))
+  if (isNA(side))
     reponse = 1;
   else
     reponse = 2 * (oper - 1) + (1 - side) + 1;
@@ -3420,7 +3420,7 @@ static Id st_variogram_geometry_pgs_calcul(Local_Pgs* local_pgs,
       /* Get the rank of the lag */
 
       auto ilag = dirparam.getLagRank(dist);
-      if (IFFFF(ilag)) continue;
+      if (isNA(ilag)) continue;
 
       /* Add the sample (only positive lags are of interest) */
 

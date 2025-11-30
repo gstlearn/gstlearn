@@ -498,7 +498,7 @@ Db* buildDbFromVarioParam(Db* db, const VarioParam& varioparam)
         /* Get the rank of the lag */
 
         auto ilag = dirparam.getLagRank(dist);
-        if (IFFFF(ilag)) continue;
+        if (isNA(ilag)) continue;
 
         // The pair is kept
 

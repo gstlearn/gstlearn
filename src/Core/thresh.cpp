@@ -355,7 +355,7 @@ Id rule_thresh_define_shadow(PropDef* propdef,
 
   /* Processing an "unknown" facies */
 
-  if (!IFFFF(facies) && (facies < 1 || facies > propdef->nfaccur))
+  if (!isNA(facies) && (facies < 1 || facies > propdef->nfaccur))
   {
     *t1min = *t2min = get_rule_extreme(-1);
     *t1max = *t2max = get_rule_extreme(+1);
@@ -394,7 +394,7 @@ Id rule_thresh_define_shadow(PropDef* propdef,
 
   /* Convert the proportions into thresholds */
 
-  facloc      = (IFFFF(facies)) ? 1 : facies;
+  facloc      = (isNA(facies)) ? 1 : facies;
   auto bounds = rule->getThresh(facloc);
   *t1min      = bounds[0];
   *t1max      = bounds[1];
@@ -447,7 +447,7 @@ Id rule_thresh_define(PropDef* propdef,
 
   /* Processing an "unknown" facies */
 
-  if (!IFFFF(facies) && (facies < 1 || facies > propdef->nfaccur))
+  if (!isNA(facies) && (facies < 1 || facies > propdef->nfaccur))
   {
     *t1min = *t2min = get_rule_extreme(-1);
     *t1max = *t2max = get_rule_extreme(+1);
@@ -469,7 +469,7 @@ Id rule_thresh_define(PropDef* propdef,
 
   /* Check that the facies is compatible with the proportions */
 
-  if (flag_check && !IFFFF(facies) && rule->getModeRule() == ERule::STD)
+  if (flag_check && !isNA(facies) && rule->getModeRule() == ERule::STD)
   {
     if (propdef->proploc[facies - 1] <= 0.)
     {
@@ -496,7 +496,7 @@ Id rule_thresh_define(PropDef* propdef,
 
   /* Convert the proportions into thresholds */
 
-  facloc      = (IFFFF(facies)) ? 1 : facies;
+  facloc      = (isNA(facies)) ? 1 : facies;
   auto bounds = rule->getThresh(facloc);
   *t1min      = bounds[0];
   *t1max      = bounds[1];

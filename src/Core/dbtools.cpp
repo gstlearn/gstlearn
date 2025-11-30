@@ -1124,7 +1124,7 @@ Id db_smooth_vpc(DbGrid* db, Id width, double range)
   quant0 = law_invcdf_gaussian(0.975);
   if (FFFF(range))
     range = dz * width / quant0;
-  else if (IFFFF(width))
+  else if (isNA(width))
     width = static_cast<Id>(range * quant0 / dz);
   else
   {

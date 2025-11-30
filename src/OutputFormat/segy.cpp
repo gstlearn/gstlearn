@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "OutputFormat/segy.h"
 #include "Basic/File.hpp"
-#include "Basic/Utilities.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "geoslib_old_f.h"
@@ -1268,10 +1267,10 @@ static Id st_reject_trace(Id iline,
                           Id xline_min,
                           Id xline_max)
 {
-  if (!IFFFF(iline_min) && iline < iline_min) return (1);
-  if (!IFFFF(iline_max) && iline > iline_max) return (1);
-  if (!IFFFF(xline_min) && xline < xline_min) return (1);
-  if (!IFFFF(xline_max) && xline > xline_max) return (1);
+  if (!isNA(iline_min) && iline < iline_min) return (1);
+  if (!isNA(iline_max) && iline > iline_max) return (1);
+  if (!isNA(xline_min) && xline < xline_min) return (1);
+  if (!isNA(xline_max) && xline > xline_max) return (1);
   return (0);
 }
 
@@ -1290,13 +1289,13 @@ static void st_refstats_update(Id iline,
   if (xtrace > refstats.xmaxg || FFFF(refstats.xmaxg)) refstats.xmaxg = xtrace;
   if (ytrace < refstats.yming || FFFF(refstats.yming)) refstats.yming = ytrace;
   if (ytrace > refstats.ymaxg || FFFF(refstats.ymaxg)) refstats.ymaxg = ytrace;
-  if (iline < refstats.ilming || IFFFF(refstats.ilming))
+  if (iline < refstats.ilming || isNA(refstats.ilming))
     refstats.ilming = iline;
-  if (iline > refstats.ilmaxg || IFFFF(refstats.ilmaxg))
+  if (iline > refstats.ilmaxg || isNA(refstats.ilmaxg))
     refstats.ilmaxg = iline;
-  if (xline < refstats.xlming || IFFFF(refstats.xlming))
+  if (xline < refstats.xlming || isNA(refstats.xlming))
     refstats.xlming = xline;
-  if (xline > refstats.xlmaxg || IFFFF(refstats.xlmaxg))
+  if (xline > refstats.xlmaxg || isNA(refstats.xlmaxg))
     refstats.xlmaxg = xline;
   refstats.nbtrace_in++;
 }
@@ -1557,7 +1556,7 @@ SegYArg segy_array(const char* filesegy,
   if (st_readFileHeader(file, verbOption, &nPerTrace, &delta)) return segyarg;
   nz = nPerTrace;
   z0 = -delta * nPerTrace;
-  if (option == -2 && !IFFFF(nz_ss)) nz = nz_ss;
+  if (option == -2 && !isNA(nz_ss)) nz = nz_ss;
 
   // Loop on the traces
 
@@ -1756,7 +1755,7 @@ Grid segy_summary(const char* filesegy,
   if (st_readFileHeader(file, verbOption, &nPerTrace, &delta)) return def_grid;
   nz = nPerTrace;
   z0 = -delta * nPerTrace;
-  if (option == -2 && !IFFFF(nz_ss)) nz = nz_ss;
+  if (option == -2 && !isNA(nz_ss)) nz = nz_ss;
 
   // Working arrays
 

@@ -119,7 +119,7 @@ String _formatOneDouble(double value,
 String _formatOneId(Id value, Id justification, Id localSize, Id nColumns)
 {
   std::stringstream sstr = _formatOneColumn(justification, localSize, nColumns);
-  if (IFFFF(value))
+  if (isNA(value))
     sstr << "N/A";
   else
     sstr << value;

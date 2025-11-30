@@ -101,7 +101,7 @@ int main(int argc, char* argv[])
 
   // With a quick entry
   mestitle(1, "Experimental variogram on Grid (quick entry)");
-  auto* variog2 = variogridCalculate(grid, 5);
+  auto* variog2 = varioGridCalculate(grid, 5);
   variog2->display();
 
   // ==========================================

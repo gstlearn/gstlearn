@@ -278,7 +278,7 @@ Id Skin::init(bool verbose)
     for (Id dir = 0; dir < ndir[ndim]; dir++)
     {
       Id ecr = _gridShift(indg, dir);
-      if (IFFFF(ecr)) continue;
+      if (isNA(ecr)) continue;
       if (!_skf->isAlreadyFilled(ecr)) continue;
       local += static_cast<Id>(_skf->getWeight(ecr, invdir[dir]));
     }
@@ -388,7 +388,7 @@ Id Skin::unstack(Id rank0, Id ipos0)
   for (Id dir = 0; dir < ndir[ndim]; dir++)
   {
     Id ecr = _gridShift(indg, dir);
-    if (IFFFF(ecr)) continue;
+    if (isNA(ecr)) continue;
 
     /* Discard the neighboring cell if it cannot filled */
 

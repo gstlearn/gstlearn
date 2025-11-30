@@ -132,7 +132,7 @@ bool Vecchia::_identifyDbAndAbsoluteRank(const MatrixT<Id>& Ranks,
                                          Id* ipAbs) const
 {
   Id rank = Ranks(irow, icol);
-  if (IFFFF(rank)) return false;
+  if (isNA(rank)) return false;
   if (rank < _NumberAbs1)
   {
     // Information belongs to the first Db

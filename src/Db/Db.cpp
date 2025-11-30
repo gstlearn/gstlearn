@@ -5882,9 +5882,9 @@ VectorInt Db::filter(const String& name,
   if (tab.empty()) return rows;
 
   Id rankFrom = 0;
-  if (!IFFFF(belowRow)) rankFrom = belowRow;
+  if (!isNA(belowRow)) rankFrom = belowRow;
   auto rankTo = getNSample() - 1;
-  if (!IFFFF(aboveRow)) rankTo = aboveRow;
+  if (!isNA(aboveRow)) rankTo = aboveRow;
 
   for (Id irow = rankFrom; irow <= rankTo; irow++)
   {

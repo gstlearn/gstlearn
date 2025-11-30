@@ -2169,7 +2169,7 @@ VectorVectorInt hscatterPairs(Db* db,
       /* Get the rank of the lag */
 
       auto ipasloc = dirparam.getLagRank(dist);
-      if (IFFFF(ipasloc)) continue;
+      if (isNA(ipasloc)) continue;
       if (ilag != ipasloc) continue;
 
       /* Point update */

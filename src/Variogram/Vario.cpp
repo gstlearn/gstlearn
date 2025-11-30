@@ -1074,7 +1074,7 @@ double Vario::getMean(Id ivar) const
 double Vario::getVar(Id ivar, Id jvar) const
 {
   auto iad = getVarAddress(ivar, jvar);
-  if (IFFFF(iad)) return TEST;
+  if (isNA(iad)) return TEST;
   return _vars[iad];
 }
 
@@ -1139,7 +1139,7 @@ void Vario::setVar(double value, Id ivar, Id jvar)
 {
   if (_vars.empty()) _initVars();
   auto iad = getVarAddress(ivar, jvar);
-  if (IFFFF(iad)) return;
+  if (isNA(iad)) return;
   _vars[iad] = value;
 }
 
@@ -1199,7 +1199,7 @@ void Vario::setSw(Id idir, Id ivar, Id jvar, Id ilag, double sw, bool flagCheck)
     if (!_isVariableValid(jvar)) return;
   }
   auto iad = getDirAddress(idir, ivar, jvar, ilag, true, 0);
-  if (IFFFF(iad)) return;
+  if (isNA(iad)) return;
   _sw[idir][iad] = sw;
 }
 
@@ -1211,7 +1211,7 @@ void Vario::setHh(Id idir, Id ivar, Id jvar, Id ilag, double hh, bool flagCheck)
     if (!_isVariableValid(jvar)) return;
   }
   auto iad = getDirAddress(idir, ivar, jvar, ilag, true, 0);
-  if (IFFFF(iad)) return;
+  if (isNA(iad)) return;
   _hh[idir][iad] = hh;
 }
 
@@ -1223,7 +1223,7 @@ void Vario::setGg(Id idir, Id ivar, Id jvar, Id ilag, double gg, bool flagCheck)
     if (!_isVariableValid(jvar)) return;
   }
   auto iad = getDirAddress(idir, ivar, jvar, ilag, true, 0);
-  if (IFFFF(iad)) return;
+  if (isNA(iad)) return;
   _gg[idir][iad] = gg;
 }
 
@@ -1235,7 +1235,7 @@ void Vario::setUtilize(Id idir, Id ivar, Id jvar, Id ilag, double utilize, bool 
     if (!_isVariableValid(jvar)) return;
   }
   auto iad = getDirAddress(idir, ivar, jvar, ilag, true, 0);
-  if (IFFFF(iad)) return;
+  if (isNA(iad)) return;
   _utilize[idir][iad] = utilize;
 }
 
@@ -1267,7 +1267,7 @@ double Vario::getGg(Id idir,
   if (!_isVariableValid(ivar)) return TEST;
   if (!_isVariableValid(jvar)) return TEST;
   auto iad = getDirAddress(idir, ivar, jvar, ilag, true, 0);
-  if (IFFFF(iad)) return TEST;
+  if (isNA(iad)) return TEST;
   double val = _gg[idir][iad];
   double c0  = getVar(ivar, jvar);
 
@@ -1292,7 +1292,7 @@ double Vario::getHh(Id idir, Id ivar, Id jvar, Id ilag) const
   if (!_isVariableValid(ivar)) return TEST;
   if (!_isVariableValid(jvar)) return TEST;
   auto iad = getDirAddress(idir, ivar, jvar, ilag, true, 0);
-  if (IFFFF(iad)) return TEST;
+  if (isNA(iad)) return TEST;
   return _hh[idir][iad];
 }
 
@@ -1301,7 +1301,7 @@ double Vario::getSw(Id idir, Id ivar, Id jvar, Id ilag) const
   if (!_isVariableValid(ivar)) return TEST;
   if (!_isVariableValid(jvar)) return TEST;
   auto iad = getDirAddress(idir, ivar, jvar, ilag, true, 0);
-  if (IFFFF(iad)) return TEST;
+  if (isNA(iad)) return TEST;
   return _sw[idir][iad];
 }
 
@@ -1310,7 +1310,7 @@ double Vario::getUtilize(Id idir, Id ivar, Id jvar, Id ilag) const
   if (!_isVariableValid(ivar)) return TEST;
   if (!_isVariableValid(jvar)) return TEST;
   auto iad = getDirAddress(idir, ivar, jvar, ilag, true, 0);
-  if (IFFFF(iad)) return TEST;
+  if (isNA(iad)) return TEST;
   return _utilize[idir][iad];
 }
 
@@ -1374,7 +1374,7 @@ VectorDouble Vario::getGgVec(Id idir,
     for (Id ilag = nlag - 1; ilag >= 0; ilag--)
     {
       iad = getDirAddress(idir, ivar, jvar, ilag, false, -1);
-      if (!IFFFF(iad) && (!compress || _sw[idir][iad] > 0.))
+      if (!isNA(iad) && (!compress || _sw[idir][iad] > 0.))
       {
         double val = _gg[idir][iad];
         if (!FFFF(val))
@@ -1386,7 +1386,7 @@ VectorDouble Vario::getGgVec(Id idir,
       }
     }
     iad = getDirAddress(idir, ivar, jvar, 0, false, 0);
-    if (!IFFFF(iad) && (!compress || _sw[idir][iad] > 0.))
+    if (!isNA(iad) && (!compress || _sw[idir][iad] > 0.))
     {
       double val = _gg[idir][iad];
       if (!FFFF(val))
@@ -1399,7 +1399,7 @@ VectorDouble Vario::getGgVec(Id idir,
     for (Id ilag = 0; ilag < nlag; ilag++)
     {
       iad = getDirAddress(idir, ivar, jvar, ilag, false, 1);
-      if (!IFFFF(iad) && (!compress || _sw[idir][iad] > 0.))
+      if (!isNA(iad) && (!compress || _sw[idir][iad] > 0.))
       {
         double val = _gg[idir][iad];
         if (!FFFF(val))
@@ -1416,7 +1416,7 @@ VectorDouble Vario::getGgVec(Id idir,
     for (Id ilag = 0; ilag < nlag; ilag++)
     {
       iad = getDirAddress(idir, ivar, jvar, ilag, true, 0);
-      if (!IFFFF(iad) && (!compress || _sw[idir][iad] > 0.))
+      if (!isNA(iad) && (!compress || _sw[idir][iad] > 0.))
       {
         double val = _gg[idir][iad];
         if (!FFFF(val))
@@ -1490,16 +1490,16 @@ VectorDouble Vario::getHhVec(Id idir, Id ivar, Id jvar, bool compress) const
     for (Id ilag = nlag - 1; ilag >= 0; ilag--)
     {
       iad = getDirAddress(idir, ivar, jvar, ilag, false, -1);
-      if (!IFFFF(iad) && (!compress || _sw[idir][iad] > 0.))
+      if (!isNA(iad) && (!compress || _sw[idir][iad] > 0.))
         hh.push_back(_hh[idir][iad]);
     }
     iad = getDirAddress(idir, ivar, jvar, 0, false, 0);
-    if (!IFFFF(iad) && (!compress || _sw[idir][iad] > 0.))
+    if (!isNA(iad) && (!compress || _sw[idir][iad] > 0.))
       hh.push_back(_hh[idir][iad]);
     for (Id ilag = 0; ilag < nlag; ilag++)
     {
       iad = getDirAddress(idir, ivar, jvar, ilag, false, 1);
-      if (!IFFFF(iad) && (!compress || _sw[idir][iad] > 0.))
+      if (!isNA(iad) && (!compress || _sw[idir][iad] > 0.))
         hh.push_back(_hh[idir][iad]);
     }
   }
@@ -1508,7 +1508,7 @@ VectorDouble Vario::getHhVec(Id idir, Id ivar, Id jvar, bool compress) const
     for (Id ilag = 0; ilag < nlag; ilag++)
     {
       iad = getDirAddress(idir, ivar, jvar, ilag, true, 0);
-      if (!IFFFF(iad) && (!compress || _sw[idir][iad] > 0.))
+      if (!isNA(iad) && (!compress || _sw[idir][iad] > 0.))
         hh.push_back(_hh[idir][iad]);
     }
   }
@@ -1575,16 +1575,16 @@ VectorDouble Vario::getSwVec(Id idir, Id ivar, Id jvar, bool compress) const
     for (Id ilag = nlag - 1; ilag >= 0; ilag--)
     {
       iad = getDirAddress(idir, ivar, jvar, ilag, false, -1);
-      if (!IFFFF(iad) && (!compress || _sw[idir][iad] > 0.))
+      if (!isNA(iad) && (!compress || _sw[idir][iad] > 0.))
         sw.push_back(_sw[idir][iad]);
     }
     iad = getDirAddress(idir, ivar, jvar, 0, false, 0);
-    if (!IFFFF(iad) && (!compress || _sw[idir][iad] > 0.))
+    if (!isNA(iad) && (!compress || _sw[idir][iad] > 0.))
       sw.push_back(_sw[idir][iad]);
     for (Id ilag = 0; ilag < nlag; ilag++)
     {
       iad = getDirAddress(idir, ivar, jvar, ilag, false, 1);
-      if (!IFFFF(iad) && (!compress || _sw[idir][iad] > 0.))
+      if (!isNA(iad) && (!compress || _sw[idir][iad] > 0.))
         sw.push_back(_sw[idir][iad]);
     }
   }
@@ -1593,7 +1593,7 @@ VectorDouble Vario::getSwVec(Id idir, Id ivar, Id jvar, bool compress) const
     for (Id ilag = 0; ilag < nlag; ilag++)
     {
       iad = getDirAddress(idir, ivar, jvar, ilag, true, 0);
-      if (!IFFFF(iad) && (!compress || _sw[idir][iad] > 0.))
+      if (!isNA(iad) && (!compress || _sw[idir][iad] > 0.))
         sw.push_back(_sw[idir][iad]);
     }
   }
@@ -1658,16 +1658,16 @@ VectorDouble Vario::getUtilizeVec(Id idir, Id ivar, Id jvar, bool compress) cons
     for (Id ilag = nlag - 1; ilag >= 0; ilag--)
     {
       iad = getDirAddress(idir, ivar, jvar, ilag, false, -1);
-      if (!IFFFF(iad) && (!compress || _sw[idir][iad] > 0.))
+      if (!isNA(iad) && (!compress || _sw[idir][iad] > 0.))
         utilize.push_back(_utilize[idir][iad]);
     }
     iad = getDirAddress(idir, ivar, jvar, 0, false, 0);
-    if (!IFFFF(iad) && (!compress || _sw[idir][iad] > 0.))
+    if (!isNA(iad) && (!compress || _sw[idir][iad] > 0.))
       utilize.push_back(_utilize[idir][iad]);
     for (Id ilag = 0; ilag < nlag; ilag++)
     {
       iad = getDirAddress(idir, ivar, jvar, ilag, false, 1);
-      if (!IFFFF(iad) && (!compress || _sw[idir][iad] > 0.))
+      if (!isNA(iad) && (!compress || _sw[idir][iad] > 0.))
         utilize.push_back(_utilize[idir][iad]);
     }
   }
@@ -1676,7 +1676,7 @@ VectorDouble Vario::getUtilizeVec(Id idir, Id ivar, Id jvar, bool compress) cons
     for (Id ilag = 0; ilag < nlag; ilag++)
     {
       iad = getDirAddress(idir, ivar, jvar, ilag, true, 0);
-      if (!IFFFF(iad) && (!compress || _sw[idir][iad] > 0.))
+      if (!isNA(iad) && (!compress || _sw[idir][iad] > 0.))
         utilize.push_back(_utilize[idir][iad]);
     }
   }
@@ -1727,7 +1727,7 @@ Id Vario::getNext(Id ivar, Id jvar, Id idir, Id shift) const
   for (Id ilag = 0; ilag < nlag && count < shift; ilag++)
   {
     iad = getDirAddress(idir, ivar, jvar, ilag, true, 0);
-    if (IFFFF(iad)) continue;
+    if (isNA(iad)) continue;
     if (!isZero(_sw[idir][iad]) && !isZero(_hh[idir][iad])) count++;
   }
   return iad;
@@ -2048,7 +2048,7 @@ void Vario::patchCenter(Id idir, Id nech, double rho)
     {
       // Get the central address
       auto iad = getDirAddress(idir, ivar, jvar, 0, false, 0);
-      if (IFFFF(iad)) continue;
+      if (isNA(iad)) continue;
       setSwByIndex(idir, iad, static_cast<double>(nech));
       setHhByIndex(idir, iad, 0.);
       if (ivar == jvar)
@@ -3374,7 +3374,7 @@ Id Vario::_calculateGeneralSolution1(Db* db,
       /* Get the rank of the lag */
 
       ilag = dirparam.getLagRank(dist);
-      if (IFFFF(ilag)) continue;
+      if (isNA(ilag)) continue;
 
       /* Case of internal storage */
 
@@ -3488,7 +3488,7 @@ Id Vario::_calculateGeneralSolution2(Db* db, Id idir, const Id* rindex)
       /* Get the rank of the lag */
 
       ilag = dirparam.getLagRank(dist);
-      if (IFFFF(ilag)) continue;
+      if (isNA(ilag)) continue;
 
       /* Evaluate the variogram */
 
@@ -3912,7 +3912,7 @@ Id Vario::computeGeometry(Db* db, Vario_Order* vorder, Id* npair)
         /* Get the rank of the lag */
 
         auto ilag = dirparam.getLagRank(dist);
-        if (IFFFF(ilag)) continue;
+        if (isNA(ilag)) continue;
 
         /* Case of internal storage */
 
@@ -4110,7 +4110,7 @@ Id Vario::_calculateVarioVectSolution(Db* db, Id idir, Id ncomp, const Id* rinde
       /* Get the rank of the lag */
 
       ilag = dirparam.getLagRank(dist);
-      if (IFFFF(ilag)) continue;
+      if (isNA(ilag)) continue;
 
       w1 = db->getWeight(iech);
       w2 = db->getWeight(jech);
@@ -4697,7 +4697,7 @@ Id Vario::computeGeometryMLayers(Db* db,
             /* Get the rank of the lag */
 
             auto ilag = dirparam.getLagRank(dist);
-            if (IFFFF(ilag)) continue;
+            if (isNA(ilag)) continue;
 
             /* Internal storage */
 
@@ -5318,15 +5318,53 @@ Vario* variogramCalculate(Db* db,
   return vario;
 }
 
-Vario* variogridCalculate(DbGrid* dbgrid,
+/**
+ * @brief Calculates the variogram on a DbGrid object.
+ *
+ * @param dbgrid Target Db organized as a Grid
+ * @param nlag Number of lags (on each direction)
+ * @param flagAllDirections if True, all directions are considered
+ * @param dirincr This is the vector of direction increments to consider if flagAllDirections is False
+ * @param verbose Verbose flag
+ * @return Vario*
+ */
+Vario* varioGridCalculate(DbGrid* dbgrid,
                           Id nlag,
+                          bool flagAllDirections,
+                          VectorVectorInt& dirincr,
                           bool verbose)
 {
-  VarioParam* varioparam = VarioParam::createMultipleFromGrid(dbgrid, nlag);
+  VarioParam* varioparam = nullptr;
+  if (flagAllDirections)
+  {
+    varioparam = VarioParam::createMultipleFromGrid(dbgrid, nlag);
+  }
+  else
+  {
+    if (!dirincr.empty())
+    {
+      for (auto& dir: dirincr)
+      {
+        DirParam* dirparam = DirParam::createFromGrid(dbgrid, nlag, dir);
+        varioparam->addDir(*dirparam);
+        delete dirparam;
+      }
+    }
+    else
+    {
+      VectorInt dir(dbgrid->getNDim(), 0);
+      dir[0]             = 1;
+      DirParam* dirparam = DirParam::createFromGrid(dbgrid, nlag, dir);
+      varioparam->addDir(*dirparam);
+      delete dirparam;
+      varioparam = VarioParam::createMultipleFromGrid(dbgrid, nlag);
+    }
+  }
 
   auto* vario = new Vario(*varioparam);
   if (vario->compute(dbgrid, ECalcVario::VARIOGRAM, false, false, nullptr, 0, verbose))
     return nullptr;
   return vario;
 }
+
 } // namespace gstlrn

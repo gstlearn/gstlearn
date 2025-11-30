@@ -1085,7 +1085,7 @@ VectorInt VectorHelper::filter(const VectorInt& vecin, Id vmin, Id vmax, bool as
   for (Id j = 0; j < nech; j++)
   {
     Id i = nech - j - 1;
-    if (!IFFFF(vmin))
+    if (!isNA(vmin))
     {
       if (vecout[i] < vmin)
       {
@@ -1093,7 +1093,7 @@ VectorInt VectorHelper::filter(const VectorInt& vecin, Id vmin, Id vmax, bool as
         continue;
       }
     }
-    if (!IFFFF(vmax))
+    if (!isNA(vmax))
     {
       if (vecout[i] >= vmax)
       {

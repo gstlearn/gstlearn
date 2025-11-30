@@ -529,7 +529,9 @@ GSTLEARN_EXPORT Vario* variogramCalculate(Db* db,
                                           const VectorDouble& angles = VectorDouble(),
                                           bool verbose               = false);
 
-GSTLEARN_EXPORT Vario* variogridCalculate(DbGrid* dbgrid,
-                                          Id nlag                    = 10,
-                                          bool verbose               = false);
+GSTLEARN_EXPORT Vario* varioGridCalculate(DbGrid* dbgrid,
+                                          Id nlag                        = 10,
+                                          bool flagAllDirections         = true,
+                                          const VectorVectorInt& dirincr = VectorVectorInt(),
+                                          bool verbose                   = false);
 } // namespace gstlrn
