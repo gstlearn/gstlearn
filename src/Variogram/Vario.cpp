@@ -5289,7 +5289,8 @@ bool Vario::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
  * @param dlag Lag value
  * @param ndir Number of directions
  * @param angles List of calculation angles
- * @param verbose Verbose mode
+ * @param toldis Tolerance on distance
+ * @param tolang Tolerance on angle
  * @return Vario* Pointer to the calculated Vario object (nullptr if an error occurred)
  *
  * @remarks The decision algorithm is described as follows:
@@ -5302,15 +5303,17 @@ Vario* variogramCalculate(Db* db,
                           double dlag,
                           Id ndir,
                           const VectorDouble& angles,
+                          double toldis,
+                          double tolang,
                           bool verbose)
 {
   VarioParam* varioparam = nullptr;
   if (ndir > 1)
-    varioparam = VarioParam::createMultiple(ndir, nlag, dlag);
+    varioparam = VarioParam::createMultiple(ndir, nlag, dlag, toldis);
   else if (!angles.empty())
-    varioparam = VarioParam::createSeveral2D(angles, nlag, dlag);
+    varioparam = VarioParam::createSeveral2D(angles, nlag, dlag, toldis, tolang);
   else
-    varioparam = VarioParam::createOmniDirection(nlag, dlag);
+    varioparam = VarioParam::createOmniDirection(nlag, dlag, toldis);
 
   auto* vario = new Vario(*varioparam);
   if (vario->compute(db, ECalcVario::VARIOGRAM, false, false, nullptr, 0, verbose))

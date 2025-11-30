@@ -527,6 +527,8 @@ GSTLEARN_EXPORT Vario* variogramCalculate(Db* db,
                                           double dlag                = 1.,
                                           Id ndir                    = 1,
                                           const VectorDouble& angles = VectorDouble(),
+                                          double toldis              = 0.5,
+                                          double tolang              = TEST,
                                           bool verbose               = false);
 
 GSTLEARN_EXPORT Vario* varioGridCalculate(DbGrid* dbgrid,
