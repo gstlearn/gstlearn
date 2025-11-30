@@ -912,13 +912,13 @@ bool AMatrix::_isMatrixCompatible(const String& name,
                                   bool transpose3)
 {
   // First element
-  Id nrow1;
-  Id ncol1;
+  Id nrow1 = -1;
+  Id ncol1 = -1;
   if (!_identifyRowAndCol(mat1, vsize1, transpose1, &nrow1, &ncol1)) return false;
 
   // Second element
-  Id nrow2;
-  Id ncol2;
+  Id nrow2 = -1;
+  Id ncol2 = -1;
   if (_identifyRowAndCol(mat2, vsize2, transpose2, &nrow2, &ncol2))
   {
     if (nrow2 != ncol1)
@@ -929,8 +929,8 @@ bool AMatrix::_isMatrixCompatible(const String& name,
     }
 
     // Third element
-    Id nrow3;
-    Id ncol3;
+    Id nrow3 = -1;
+    Id ncol3 = -1;
     if (_identifyRowAndCol(mat3, vsize3, transpose3, &nrow3, &ncol3))
     {
       if (nrow3 != ncol2)
