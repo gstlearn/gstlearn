@@ -5345,6 +5345,7 @@ Vario* varioGridCalculate(DbGrid* dbgrid,
   }
   else
   {
+    varioparam = new VarioParam();
     if (!dirincr.empty())
     {
       for (const auto& dir: dirincr)
