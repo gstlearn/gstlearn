@@ -601,9 +601,5 @@ MatrixSquare* MatrixSquare::createFromTridiagonal(const VectorDouble& vecdiag,
   return res;
 }
 
-Id MatrixSquare::computeEigen(bool optionPositive)
-{
-  return MatrixDense::_computeEigen(optionPositive);
-}
 
 } // namespace gstlrn

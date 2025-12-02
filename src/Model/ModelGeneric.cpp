@@ -392,7 +392,7 @@ void ModelGeneric::initParams(const MatrixSymmetric& vars, double href, double m
   }
   if (_transform != nullptr)
   {
-    _transform->initParams(min,max);
+    _transform->initParams(min, max);
   }
 }
 

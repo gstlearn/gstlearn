@@ -17,6 +17,7 @@
 #include "Db/DbGrid.hpp"
 #include "Enum/EOperator.hpp"
 #include "Enum/EStatOption.hpp"
+#include "Matrix/MatEigen.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Matrix/Table.hpp"
@@ -1322,13 +1323,13 @@ MatrixSquare* sphering(const AMatrix* X)
 
   AMatrix* TX              = X->transpose();
   AMatrix* prod            = MatrixFactory::prodMatMat(TX, X);
-  MatrixSymmetric* prodsym = dynamic_cast<MatrixSymmetric*>(prod);
+  auto* prodsym = dynamic_cast<MatrixSymmetric*>(prod);
   if (prodsym == nullptr) return nullptr;
 
   prodsym->prodScalar(1. / static_cast<double>(nech));
-  if (prodsym->computeEigen()) return nullptr;
-  const auto& eigen_values = prodsym->getEigenValues();
-  MatrixSquare* S          = prodsym->getEigenVectors()->clone();
+  auto mateigen = MatEigen(*prodsym);
+  const auto& eigen_values = mateigen.getEigenValues();
+  MatrixSquare* S          = mateigen.getEigenVectors().clone();
 
   // Invert the sign of the second Eigen vector (for compatibility with R output)
   for (Id ivar = 0; ivar < nvar; ivar++)

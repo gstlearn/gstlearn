@@ -27,6 +27,7 @@
 #include "Enum/ECalcMember.hpp"
 #include "Estimation/KrigingSystem.hpp"
 #include "Matrix/AMatrix.hpp"
+#include "Matrix/MatEigen.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Matrix/MatrixSquare.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
@@ -3046,9 +3047,9 @@ static Id st_sampling_krige_data(Db* db,
 
     tn1.linearCombination(1, &tn1, 1, tn2);
 
-    if (tn1.computeEigen()) goto label_end;
-    const auto& eigval   = tn1.getEigenValues();
-    MatrixSquare* eigvec = tn1.getEigenVectors()->clone();
+    auto mateigen = MatEigen(tn1);
+    const auto& eigval   = mateigen.getEigenValues();
+    MatrixSquare* eigvec = mateigen.getEigenVectors().clone();
 
     eigvec->prodByDiagInPlace(3, eigval);
     auto* spart = dynamic_cast<MatrixDense*>(MatrixFactory::createGlue(sq, &v, true, false));

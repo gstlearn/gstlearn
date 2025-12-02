@@ -15,6 +15,7 @@
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Enum/ECalcVario.hpp"
+#include "Matrix/MatEigen.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Polygon/Polygons.hpp"
 #include "Space/SpacePoint.hpp"
@@ -212,9 +213,9 @@ Id SpatialIndices::computeCGI(const String& name)
       mm.updValue(idim, jdim, EOperator::DIVIDE, _wztot);
 
   /* Calculate the eigen values and vectors */
-  if (mm.computeEigen()) return 1;
-  _mvalues  = mm.getEigenValues();
-  _mvectors = *mm.getEigenVectors();
+  auto mateigen = MatEigen(mm);
+  _mvalues  = mateigen.getEigenValues();
+  _mvectors = mateigen.getEigenVectors();
 
   double r  = _mvalues[0] / _mvalues[1];
   double e2 = (_mvectors.getValue(1, 0) / _mvectors.getValue(0, 0));

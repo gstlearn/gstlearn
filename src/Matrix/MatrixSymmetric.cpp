@@ -11,6 +11,7 @@
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/VectorHelper.hpp"
+#include "Matrix/MatEigen.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixSquare.hpp"
 
@@ -245,37 +246,6 @@ void MatrixSymmetric::normMatrix(const AMatrix& y, const MatrixSquare& x, bool t
     }
 }
 
-Id MatrixSymmetric::computeEigen(bool optionPositive)
-{
-  return MatrixDense::_computeEigen(optionPositive);
-}
-
-Id MatrixSymmetric::computeGeneralizedEigen(const MatrixSymmetric& b, bool optionPositive)
-{
-  return MatrixDense::_computeGeneralizedEigen(b, optionPositive);
-}
-
-Id MatrixSymmetric::_terminateEigen(const VectorDouble& eigenValues,
-                                    const VectorDouble& eigenVectors,
-                                    bool optionPositive,
-                                    bool changeOrder)
-{
-  auto nrows = getNRows();
-
-  _eigenValues = eigenValues;
-
-  delete _eigenVectors;
-
-  if (changeOrder)
-    std::reverse(_eigenValues.begin(), _eigenValues.end());
-
-  _eigenVectors = MatrixSquare::createFromVD(eigenVectors, nrows, false, changeOrder);
-
-  if (optionPositive) _eigenVectors->makePositiveColumn();
-
-  return 0;
-}
-
 /****************************************************************************/
 /*!
  **  Check if a matrix is definite positive
@@ -287,11 +257,10 @@ bool MatrixSymmetric::isDefinitePositive()
 {
   /* Calculate the eigen values and vectors */
 
-  if (computeEigen() != 0) messageAbort("Abort in computeEigen");
+  auto mateigen = MatEigen(*this);
 
   // Get the Eigen values
-
-  const auto& valpro = getEigenValues();
+  const auto& valpro = mateigen.getEigenValues();
 
   /* Check if the eigen values are all positive */
 
@@ -829,9 +798,9 @@ Id MatrixSymmetric::computeGeneralizedInverse(MatrixSymmetric& tabout,
   if (!isSameSize(tabout)) return 1;
 
   // Calculate the Eigen vectors
-  if (computeEigen() != 0) return 1;
-  const auto& eigval         = getEigenValues();
-  const MatrixSquare* eigvec = getEigenVectors();
+  auto mateigen              = MatEigen(*this);
+  const auto& eigval         = mateigen.getEigenValues();
+  const MatrixSquare& eigvec = mateigen.getEigenVectors();
 
   // Compute the conditioning
 
@@ -849,7 +818,7 @@ Id MatrixSymmetric::computeGeneralizedInverse(MatrixSymmetric& tabout,
       for (Id k = 0; k < neq; k++)
       {
         if (ABS(eigval[k]) > valcond * eps)
-          value += eigvec->getValue(i, k) * eigvec->getValue(j, k) / eigval[k];
+          value += eigvec.getValue(i, k) * eigvec.getValue(j, k) / eigval[k];
       }
       tabout.setValue(i, j, value);
     }
@@ -877,9 +846,9 @@ Id MatrixSymmetric::computeSquareRoot(MatrixSymmetric& tabout)
   }
 
   // Calculate the Eigen vectors
-  if (computeEigen() != 0) return 1;
-  VectorDouble eigval        = getEigenValues();
-  const MatrixSquare* eigvec = getEigenVectors();
+  auto mateigen              = MatEigen(*this);
+  VectorDouble eigval        = mateigen.getEigenValues();
+  const MatrixSquare& eigvec = mateigen.getEigenVectors();
 
   if (std::any_of(eigval.begin(), eigval.end(), [](double v)
                   { return v < 0.; }))
@@ -895,8 +864,8 @@ Id MatrixSymmetric::computeSquareRoot(MatrixSymmetric& tabout)
     eigval[i] = sqrt(eigval[i]);
   MatrixSymmetric D(nrow);
   D.setDiagonal(eigval);
-  tabout.prodMatMatInPlace(eigvec, &D, false, false);
-  tabout.prodMatMatInPlace(&tabout, eigvec, false, true);
+  tabout.prodMatMatInPlace(&eigvec, &D, false, false);
+  tabout.prodMatMatInPlace(&tabout, &eigvec, false, true);
   return 0;
 }
 

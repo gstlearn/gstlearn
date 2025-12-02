@@ -11,6 +11,7 @@
 #include "Basic/Law.hpp"
 #include "Basic/MathFunc.hpp"
 #include "Basic/VectorHelper.hpp"
+#include "Matrix/MatEigen.hpp"
 #include "geoslib_define.h"
 
 #include <cmath>
@@ -751,9 +752,8 @@ double law_df_quadgaussian(VectorDouble& vect, MatrixSymmetric& correl)
   Id nvar        = static_cast<Id>(vect.size());
   double density = -2. * log(2 * GV_PI);
 
-  if (correl.computeEigen()) return TEST;
-
-  const auto& eigval = correl.getEigenValues();
+  auto mateigen = MatEigen(correl);
+  const auto& eigval = mateigen.getEigenValues();
   for (Id ivar = 0; ivar < nvar; ivar++)
     density -= 0.5 * log(eigval[ivar]);
 
@@ -781,8 +781,8 @@ double law_df_multigaussian(VectorDouble& vect, MatrixSymmetric& correl)
   Id nvar        = static_cast<Id>(vect.size());
   double density = -0.5 * nvar * log(2 * GV_PI);
 
-  if (correl.computeEigen()) return TEST;
-  const auto& eigval = correl.getEigenValues();
+  auto mateigen = MatEigen(correl);
+  const auto& eigval = mateigen.getEigenValues();
 
   for (Id i = 0; i < nvar; i++)
     density -= 0.5 * log(eigval[i]);

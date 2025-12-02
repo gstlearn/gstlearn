@@ -66,19 +66,17 @@ public:
                      const VectorInt& rowKeep,
                      bool flagInvert = false);
 
-  Id computeEigen(bool optionPositive = true);
-  Id computeGeneralizedEigen(const MatrixSymmetric& b, bool optionPositive = true);
   Id computeGeneralizedInverse(MatrixSymmetric& tabout,
                                double maxicond = 1.e20,
                                double eps      = EPSILON20);
   bool isDefinitePositive();
-  Id computeSquareRoot(MatrixSymmetric &tabout);
+  Id computeSquareRoot(MatrixSymmetric& tabout);
   Id minimizeWithConstraintsInPlace(const VectorDouble& gmat,
-                                     const MatrixDense& aemat,
-                                     const VectorDouble& bemat,
-                                     const MatrixDense& aimat,
-                                     const VectorDouble& bimat,
-                                     VectorDouble& xmat);
+                                    const MatrixDense& aemat,
+                                    const VectorDouble& bemat,
+                                    const MatrixDense& aimat,
+                                    const VectorDouble& bimat,
+                                    VectorDouble& xmat);
 
   bool _isPhysicallyPresent(Id irow, Id icol) const override;
   void _setValues(const double* values, bool byCol = true) override;
@@ -113,10 +111,6 @@ public:
                                       const VectorDouble& tabimat,
                                       VectorDouble& tabout);
   static Id _constraintsCount(Id nai, VectorInt& active);
-  Id _terminateEigen(const VectorDouble& eigenValues,
-                     const VectorDouble& eigenVectors,
-                     bool optionPositive = true,
-                     bool changeOrder    = false);
   MatrixSymmetric compress0MatLC(const MatrixDense& matLC);
 
 private:

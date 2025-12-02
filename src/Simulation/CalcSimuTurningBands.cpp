@@ -18,6 +18,7 @@
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Geometry/GeometryHelper.hpp"
+#include "Matrix/MatEigen.hpp"
 #include "Model/Model.hpp"
 #include "Simulation/ACalcSimulation.hpp"
 #include "Simulation/TurningBandDirection.hpp"
@@ -949,9 +950,9 @@ VectorDouble CalcSimuTurningBands::_createAIC()
 
     // Calculate the Eigen decomposition
 
-    if (mat.computeEigen()) return VectorDouble();
-    const auto& valpro         = mat.getEigenValues();
-    const MatrixSquare* vecpro = mat.getEigenVectors();
+    auto mateigen = MatEigen(mat);
+    const auto& valpro         = mateigen.getEigenValues();
+    const MatrixSquare* vecpro = &mateigen.getEigenVectors();
 
     /* Calculate the factor matrix */
 
