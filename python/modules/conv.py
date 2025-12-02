@@ -1,5 +1,4 @@
 import gstlearn as gl
-from matplotlib import lines
 import numpy as np
 
 try:
