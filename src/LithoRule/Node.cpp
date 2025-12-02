@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "geoslib_enum.h"
 
-#include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
 #include "LithoRule/Node.hpp"
 #include "Basic/MathFunc.hpp"
@@ -396,7 +395,7 @@ Id Node::isValid(VectorInt& facies)
 
   if (_orient != THRESH_IDLE) return(0);
   Id nfac = static_cast<Id> (facies.size());
-  if (IFFFF(_facies))
+  if (isNA(_facies))
   {
     messerr("The facies of node %s has not been defined",_nodnam.c_str());
     return(1);
@@ -452,7 +451,7 @@ Id Node::proportionDefine(const VectorDouble& props)
   if (_orient == THRESH_IDLE) // [FO] 21/09/13 => nothing to do in splitting nodes (facies=0)
   {
     Id facies = _facies;
-    if (IFFFF(facies)) return(0);
+    if (isNA(facies)) return(0);
 
     double propval = props[facies - 1];
     if (! FFFF(propval))
@@ -541,7 +540,7 @@ Id Node::getThresh(Id  mode,
   }
   else
   {
-    if (! (IFFFF(_facies))) (*rank)++;
+    if (!isNA(_facies)) (*rank)++;
     if ((*rank) != istop) return(0);
   }
 

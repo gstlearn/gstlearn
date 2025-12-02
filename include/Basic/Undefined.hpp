@@ -34,6 +34,11 @@ GSTLEARN_EXPORT Id getITEST();           // TODO getNA<Id>
 template<typename T>
 inline T getNA();
 template<>
+inline bool getNA()
+{
+  return false;
+}
+template<>
 inline double getNA()
 {
   return DOUBLE_NA;

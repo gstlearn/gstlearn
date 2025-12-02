@@ -344,7 +344,7 @@ Id MLayers::_getPropsData(Id iech,
 
   // Get the sample rank in the output Db of the sample from the input Db //
   Id igrid = _locateSampleInDbout(iech);
-  if (IFFFF(igrid)) return (1);
+  if (isNA(igrid)) return (1);
 
   // Evaluate the proportion vector //
   if (_getPropsResult(igrid, ilayer0, props)) return (1);
@@ -384,7 +384,7 @@ double MLayers::_getDriftData(Id iech, Id ilayer0)
   if (!_flagExt) return (TEST);
   _isValidLayer("_getDriftData", ilayer0);
   Id igrid = _locateSampleInDbout(iech);
-  if (IFFFF(igrid)) return (TEST);
+  if (isNA(igrid)) return (TEST);
   return _getDriftResult(igrid, ilayer0);
 }
 
@@ -1354,7 +1354,7 @@ void MLayers::_checkAuxiliaryVariables(VectorInt& seltab)
     coor[1]   = _dbin->getCoordinate(iech, 1);
     Id ilayer = static_cast<Id>(_dbin->getFromLocator(ELoc::LAYER, iech));
     Id igrid  = _locateSampleInDbout(iech);
-    if (IFFFF(igrid)) goto label_suppress;
+    if (isNA(igrid)) goto label_suppress;
 
     // Case of an external drift
     if (_flagExt)

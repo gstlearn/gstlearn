@@ -995,7 +995,7 @@ Id MatrixSparse::_eigen_findColor(Id imesh,
   {
     if (isZero(it.value())) continue;
     Id irow = it.row();
-    if (!IFFFF(colors[irow])) temp[colors[irow] - 1]++;
+    if (!isNA(colors[irow])) temp[colors[irow] - 1]++;
   }
 
   /* Look for a free color */

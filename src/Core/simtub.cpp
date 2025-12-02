@@ -2553,7 +2553,7 @@ static Id st_getTimeInterval(double date,
 static Id st_getFACIES(const DbGrid* dbgrid, Id nfacies, Id indFacies, Id iech)
 {
   Id ifacies = static_cast<Id>(dbgrid->getArray(iech, indFacies));
-  if (ifacies < 0 || ifacies > nfacies || IFFFF(ifacies)) ifacies = 0;
+  if (ifacies < 0 || ifacies > nfacies || isNA(ifacies)) ifacies = 0;
   return (ifacies);
 }
 
@@ -2579,7 +2579,7 @@ static double st_getDATE(const DbGrid* dbgrid, Id indDate, Id iech)
 static Id st_getFLUID(const DbGrid* dbgrid, Id nfluids, Id indFluid, Id iech)
 {
   Id ifluid = static_cast<Id>(dbgrid->getArray(iech, indFluid));
-  if (ifluid < 0 || ifluid > nfluids || IFFFF(ifluid)) ifluid = 0;
+  if (ifluid < 0 || ifluid > nfluids || isNA(ifluid)) ifluid = 0;
   return (ifluid);
 }
 

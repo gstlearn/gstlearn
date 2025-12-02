@@ -928,7 +928,7 @@ std::map<Id, Id> getMapAbsoluteToRelative(const VectorDouble& sel, bool verbose)
     if (isZero(sel[iabs])) continue;
     map[iabs] = irel++;
 
-    if (IFFFF(ifirst)) ifirst = iabs;
+    if (isNA(ifirst)) ifirst = iabs;
     ilast = iabs;
   }
 

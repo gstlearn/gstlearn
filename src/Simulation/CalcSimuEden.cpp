@@ -380,7 +380,7 @@ Id CalcSimuEden::_getFACIES(Id iech) const
 {
   auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
   Id ifacies   = static_cast<Id>(dbgrid->getArray(iech, _indFacies));
-  if (ifacies < 0 || ifacies > _nfacies || IFFFF(ifacies)) ifacies = SHALE;
+  if (ifacies < 0 || ifacies > _nfacies || isNA(ifacies)) ifacies = SHALE;
   return (ifacies);
 }
 
@@ -436,7 +436,7 @@ Id CalcSimuEden::_getFLUID(Id iech) const
 {
   auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
   Id ifluid    = static_cast<Id>(dbgrid->getArray(iech, _indFluid));
-  if (ifluid < 0 || ifluid > _nfluids || IFFFF(ifluid)) ifluid = UNDEF_FLUID;
+  if (ifluid < 0 || ifluid > _nfluids || isNA(ifluid)) ifluid = UNDEF_FLUID;
   return (ifluid);
 }
 
@@ -643,7 +643,7 @@ void CalcSimuEden::_setFACIES_CORK(Id iech)
  *****************************************************************************/
 void CalcSimuEden::_setDATE(Id iech, Id idate)
 {
-  double value = (IFFFF(idate)) ? TEST : idate;
+  double value = (isNA(idate)) ? TEST : idate;
   auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
   dbgrid->setArray(iech, _iptrDate, value);
 }
@@ -713,7 +713,7 @@ Id CalcSimuEden::_fluidModify(Skin* skin, Id ipos, Id& ref_fluid)
   for (Id dir = 0; dir < 6; dir++)
   {
     ecr = skin->gridShift(ipos, dir);
-    if (!IFFFF(ecr))
+    if (!isNA(ecr))
     {
       if (isAlreadyFilled(ecr))
       {

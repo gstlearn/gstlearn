@@ -139,7 +139,7 @@ int main(int argc, char* argv[])
       for (Id icol = 0; icol < ncols; icol++)
       {
         Id value = mat(irow, icol);
-        if (IFFFF(value))
+        if (isNA(value))
           message("   NA");
         else
           message(" %4d", mat(irow, icol));
