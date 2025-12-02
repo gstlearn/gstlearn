@@ -573,8 +573,6 @@ static Id st_suppress_unused_constraints(MatrixDense& bords,
                                          VectorInt& flag2,
                                          VectorDouble& temp)
 {
-  Id n_imposs, ic, ipar, jpar, iparac, jparac, ipar2, iparac2;
-
   // Blanking out the arrays
 
   grad_red.resize(NPCT);
@@ -588,15 +586,15 @@ static Id st_suppress_unused_constraints(MatrixDense& bords,
 
   /* Get the set of constraints to be discarded */
 
-  for (ipar2 = 0; ipar2 < NPAR2; ipar2++)
+  for (Id ipar2 = 0; ipar2 < NPAR2; ipar2++)
     flag1[ipar2] = 1;
-  n_imposs = st_possibilities(NPAR, bords, ai, hgnc, flag2, temp);
+  Id n_imposs = st_possibilities(NPAR, bords, ai, hgnc, flag2, temp);
   if (n_imposs >= NPAR) return (1);
 
   do
   {
     /* Patch the memory flag */
-    for (ipar2 = iparac2 = 0; ipar2 < NPAR2; ipar2++)
+    for (Id ipar2 = 0, iparac2 = 0; ipar2 < NPAR2; ipar2++)
     {
       if (flag1[ipar2] == 0) continue;
       flag1[ipar2] = flag2[iparac2];
@@ -604,13 +602,13 @@ static Id st_suppress_unused_constraints(MatrixDense& bords,
     }
 
     /* Calculate the new ind array */
-    for (ic = ipar2 = 0; ic < 2; ic++)
-      for (ipar = 0; ipar < NPAR; ipar++, ipar2++)
+    for (Id ic = 0, ipar2 = 0; ic < 2; ic++)
+      for (Id ipar = 0; ipar < NPAR; ipar++, ipar2++)
         if (!flag1[ipar2]) ind_util[ipar] = 0;
 
     /* Update the value of variable NPARAC */
     NPARAC = 0;
-    for (ipar = 0; ipar < NPAR; ipar++)
+    for (Id ipar = 0; ipar < NPAR; ipar++)
       if (POSSIBLE(ipar)) NPARAC++;
     NPARAC2 = 2 * NPARAC;
     /* This test has been added in order to avoid continuing */
@@ -618,11 +616,14 @@ static Id st_suppress_unused_constraints(MatrixDense& bords,
     if (NPARAC <= 0) return (1);
 
     /* Reduce the arrays grad and gauss */
-    for (ipar = iparac = 0; ipar < NPCT; ipar++)
+    grad_red.resize(NPARAC);
+    gauss_red.reset(NPARAC, NPARAC);
+    gauss_red.fill(0.);
+    for (Id ipar = 0, iparac = 0; ipar < NPCT; ipar++)
     {
       if (!POSSIBLE(ipar)) continue;
       grad_red[iparac] = grad[ipar];
-      for (jpar = jparac = 0; jpar < NPCT; jpar++)
+      for (Id jpar = 0, jparac = 0; jpar < NPCT; jpar++)
       {
         if (!POSSIBLE(jpar)) continue;
         gauss_red.setValue(iparac, jparac, gauss.getValue(ipar, jpar));
@@ -635,11 +636,12 @@ static Id st_suppress_unused_constraints(MatrixDense& bords,
     st_update_bords(bords, ind_util, bords_red);
 
     /* Reduce the arrays bords and ai */
-    for (ic = 0; ic < 2; ic++)
-      for (ipar = iparac = 0; ipar < NPAR; ipar++)
+    ai_red.reset(NPARAC2, NPARAC);
+    for (Id ic = 0; ic < 2; ic++)
+      for (Id ipar = 0, iparac = 0; ipar < NPAR; ipar++)
       {
         if (!POSSIBLE(ipar)) continue;
-        for (jpar = jparac = 0; jpar < NPAR; jpar++)
+        for (Id jpar = 0, jparac = 0; jpar < NPAR; jpar++)
         {
           if (!POSSIBLE(jpar)) continue;
           ai_red.setValue(IADAC(ic, iparac), jparac, ai.getValue(IAD(ic, ipar), jpar));
@@ -653,8 +655,7 @@ static Id st_suppress_unused_constraints(MatrixDense& bords,
 
       /* Update the Hessian and gradient matrices */
 
-      if (st_solve_hgnc(NPARAC + NCONT, grad_red, gauss_red, hgnc, 1))
-        return (1);
+      if (st_solve_hgnc(NPARAC + NCONT, grad_red, gauss_red, hgnc, 1)) return (1);
 
       /* Update the number of constraints */
 
@@ -839,7 +840,7 @@ static Id st_minimization_under_constraints(VectorInt& ind_util,
   static Id nitermax = 2000;
 
   // Clean out arrays
-  hgnadm.fill(0.);
+  hgnadm.fill(0., NPARAC);
 
   /* Calculate the constraints vector */
 
@@ -885,6 +886,7 @@ static Id st_minimization_under_constraints(VectorInt& ind_util,
                                     flag_actaux, temp);
     if (nactaux > 0)
     {
+      b3.resize(NPARAC);
       for (iparac = 0; iparac < NPARAC; iparac++)
         b3[iparac] = hgnc[iparac] - hgnadm[iparac];
       ai_red.prodMatVecInPlace(hgnadm, b1);
