@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Matrix/MatrixDense.hpp"
 
+#include "Basic/Message.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Matrix/AMatrix.hpp"

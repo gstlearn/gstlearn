@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Basic/Law.hpp"
 #include "Basic/MathFunc.hpp"
+#include "Basic/Message.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Matrix/EigenVectors.hpp"
 #include "geoslib_define.h"

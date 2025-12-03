@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Basic/AException.hpp"
+#include "Basic/Message.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Matrix/EigenVectors.hpp"
 #include "Matrix/MatrixDense.hpp"

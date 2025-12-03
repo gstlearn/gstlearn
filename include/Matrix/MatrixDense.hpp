@@ -14,7 +14,6 @@
 #include "gstlearn_export.hpp"
 
 // Even if not used directly, this is required due to DECLARE_TOTL macro
-#include "Basic/Message.hpp"
 #include "Basic/WarningMacro.hpp"
 #include "Matrix/AMatrix.hpp"
 
