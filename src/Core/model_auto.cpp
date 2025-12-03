@@ -24,7 +24,7 @@
 #include "Enum/EOperator.hpp"
 #include "Geometry/GeometryHelper.hpp"
 #include "LinearOp/CholeskyDense.hpp"
-#include "Matrix/MatEigen.hpp"
+#include "Matrix/EigenVectors.hpp"
 #include "Matrix/MatrixSquare.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Model/Constraints.hpp"
@@ -1497,9 +1497,9 @@ static Id st_goulard_without_constraint(const Option_AutoFit& mauto,
       }
       /* Computing and sorting the eigen values and eigen vectors */
 
-      auto mateigen      = MatEigen(cc);
-      const auto& valpro = mateigen.getEigenValues();
-      vecpro             = &mateigen.getEigenVectors();
+      auto eigenvectors  = EigenVectors(cc);
+      const auto& valpro = eigenvectors.getEigenValues();
+      vecpro             = &eigenvectors.getEigenVectors();
 
       Id kvar = 0;
       allpos  = 1;
@@ -2407,9 +2407,9 @@ static Id st_truncate_negative_eigen(Id nvar,
     for (Id jvar = 0; jvar <= ivar; jvar++)
       cc.setValue(ivar, jvar, matcor[icov0].getValue(ivar, jvar));
 
-  auto mateigen              = MatEigen(cc);
-  const auto& valpro         = mateigen.getEigenValues();
-  const MatrixSquare* vecpro = &mateigen.getEigenVectors();
+  auto eigenvectors          = EigenVectors(cc);
+  const auto& valpro         = eigenvectors.getEigenValues();
+  const MatrixSquare* vecpro = &eigenvectors.getEigenVectors();
 
   /* Check positiveness */
 

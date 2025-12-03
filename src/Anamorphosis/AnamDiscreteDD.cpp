@@ -13,7 +13,7 @@
 #include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
 #include "LinearOp/CholeskyDense.hpp"
-#include "Matrix/MatEigen.hpp"
+#include "Matrix/EigenVectors.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Stats/Selectivity.hpp"
 #include "geoslib_old_f.h"
@@ -380,11 +380,11 @@ VectorDouble AnamDiscreteDD::_generator(const VectorDouble& vecc,
 
   /* Diagonalize the infinitesimal generator */
 
-  auto* matTri  = MatrixSquare::createFromTridiagonal(vecc, veca, vecb);
-  auto mateigen = MatEigen(*matTri);
-  if (!mateigen.isReady()) return VectorDouble();
-  eigval        = mateigen.getEigenValues();
-  eigvec        = mateigen.getEigenVectors().getValues();
+  auto* matTri      = MatrixSquare::createFromTridiagonal(vecc, veca, vecb);
+  auto eigenvectors = EigenVectors(*matTri);
+  if (!eigenvectors.isReady()) return VectorDouble();
+  eigval = eigenvectors.getEigenValues();
+  eigvec = eigenvectors.getEigenVectors().getValues();
   delete matTri;
 
   /* Choose to set the Hn(0) = 1 */

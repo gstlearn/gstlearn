@@ -21,7 +21,7 @@
 #include "LithoRule/Rule.hpp"
 #include "LithoRule/RuleProp.hpp"
 #include "LithoRule/RuleShift.hpp"
-#include "Matrix/MatEigen.hpp"
+#include "Matrix/EigenVectors.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Model/Model.hpp"
@@ -2096,9 +2096,9 @@ static Id invgen(MatrixSymmetric& a, MatrixSymmetric& tabout)
 
   /* Calculate the eigen vectors */
 
-  auto mateigen = MatEigen(a);
-  const auto& eigval         = mateigen.getEigenValues();
-  const MatrixSquare* eigvec = &mateigen.getEigenVectors();
+  auto eigenvectors          = EigenVectors(a);
+  const auto& eigval         = eigenvectors.getEigenValues();
+  const MatrixSquare* eigvec = &eigenvectors.getEigenVectors();
 
   /* Calculate the generalized inverse */
 
@@ -3130,9 +3130,9 @@ static double st_optim_onelag_pgs(Local_Pgs* local_pgs,
     if (barrier)
     {
       st_build_correl(corpgs, param_temp, correl);
-      auto mateigen = MatEigen(correl);
-      eigval = mateigen.getEigenValues();
-      eigvec = &mateigen.getEigenVectors();
+      auto eigenvectors = EigenVectors(correl);
+      eigval            = eigenvectors.getEigenValues();
+      eigvec            = &eigenvectors.getEigenVectors();
       st_deriv_eigen(corpgs, eigval[3], eigvec, d1, d2);
       Srpen = Sr - penalize * log(eigval[3]);
       VH::linearCombinationInPlace(1., Grad, -penalize / eigval[3], d1, Grad);

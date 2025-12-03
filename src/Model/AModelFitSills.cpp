@@ -11,7 +11,7 @@
 #include "Model/AModelFitSills.hpp"
 #include "Basic/MathFunc.hpp"
 #include "Covariances/CovAniso.hpp"
-#include "Matrix/MatEigen.hpp"
+#include "Matrix/EigenVectors.hpp"
 #include "Model/Constraints.hpp"
 #include "Model/ModelCovList.hpp"
 
@@ -476,9 +476,9 @@ Id AModelFitSills::_truncateNegativeEigen(Id icov0)
     for (Id jvar = 0; jvar <= ivar; jvar++)
       cc.setValue(ivar, jvar, _sill[icov0].getValue(ivar, jvar));
 
-  auto mateigen = MatEigen(cc);
-  const auto& valpro         = mateigen.getEigenValues();
-  const MatrixSquare* vecpro = &mateigen.getEigenVectors();
+  auto eigenvectors          = EigenVectors(cc);
+  const auto& valpro         = eigenvectors.getEigenValues();
+  const MatrixSquare* vecpro = &eigenvectors.getEigenVectors();
 
   /* Check positiveness */
 
@@ -1030,9 +1030,9 @@ Id AModelFitSills::_goulardWithoutConstraint(Id niter,
 
       /* Computing and sorting the eigen values and eigen vectors */
 
-      auto mateigen = MatEigen(cc);
-      const auto& valpro = mateigen.getEigenValues();
-      vecpro             = &mateigen.getEigenVectors();
+      auto eigenvectors  = EigenVectors(cc);
+      const auto& valpro = eigenvectors.getEigenValues();
+      vecpro             = &eigenvectors.getEigenVectors();
 
       Id kvar = 0;
       allpos  = 1;

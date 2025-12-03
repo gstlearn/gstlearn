@@ -18,7 +18,7 @@
 namespace gstlrn
 {
 class MatrixSymmetric;
-class GSTLEARN_EXPORT MatEigen
+class GSTLEARN_EXPORT EigenVectors
 {
   /**
    * @brief Prepare calculations for Eigen or a Generalized Eigen (if 'b' is provided)
@@ -33,10 +33,10 @@ class GSTLEARN_EXPORT MatEigen
    */
 
 public:
-  MatEigen(const MatrixSquare& mat, const MatrixSymmetric* b = nullptr, bool optionPositive = true);
-  MatEigen(const MatEigen& r);
-  MatEigen& operator=(const MatEigen& r);
-  virtual ~MatEigen();
+  EigenVectors(const MatrixSquare& mat, const MatrixSymmetric* b = nullptr, bool optionPositive = true);
+  EigenVectors(const EigenVectors& r);
+  EigenVectors& operator=(const EigenVectors& r);
+  virtual ~EigenVectors();
 
   const VectorDouble& getEigenValues() const { return _eigenValues; }
   const MatrixSquare& getEigenVectors() const { return _eigenVectors; }

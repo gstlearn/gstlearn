@@ -8,7 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Matrix/MatEigen.hpp"
+#include "Matrix/EigenVectors.hpp"
 
 #include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixSquare.hpp"
@@ -17,9 +17,9 @@
 namespace gstlrn
 {
 
-MatEigen::MatEigen(const MatrixSquare& mat,
-                   const MatrixSymmetric* b,
-                   bool optionPositive)
+EigenVectors::EigenVectors(const MatrixSquare& mat,
+                           const MatrixSymmetric* b,
+                           bool optionPositive)
   : _ready(false)
   , _eigenValues()
   , _eigenVectors()
@@ -44,7 +44,7 @@ MatEigen::MatEigen(const MatrixSquare& mat,
   _ready = true;
 }
 
-MatEigen::MatEigen(const MatEigen& r)
+EigenVectors::EigenVectors(const EigenVectors& r)
   : _ready(r._ready)
   , _eigenValues(r._eigenValues)
   , _eigenVectors(r._eigenVectors)
@@ -54,7 +54,7 @@ MatEigen::MatEigen(const MatEigen& r)
 {
 }
 
-MatEigen& MatEigen::operator=(const MatEigen& r)
+EigenVectors& EigenVectors::operator=(const EigenVectors& r)
 {
   if (this != &r)
   {
@@ -68,11 +68,11 @@ MatEigen& MatEigen::operator=(const MatEigen& r)
   return *this;
 }
 
-MatEigen::~MatEigen()
+EigenVectors::~EigenVectors()
 {
 }
 
-void MatEigen::_computeEigen(const MatrixSymmetric* b, bool optionPositive)
+void EigenVectors::_computeEigen(const MatrixSymmetric* b, bool optionPositive)
 {
   Eigen::VectorXd eigenValues;
   Eigen::MatrixXd eigenVectors;
@@ -93,10 +93,10 @@ void MatEigen::_computeEigen(const MatrixSymmetric* b, bool optionPositive)
   _terminateEigen(eigenValues, eigenVectors, optionPositive, true);
 }
 
-void MatEigen::_terminateEigen(const Eigen::VectorXd& eigenValues,
-                               const Eigen::MatrixXd& eigenVectors,
-                               bool optionPositive,
-                               bool changeOrder)
+void EigenVectors::_terminateEigen(const Eigen::VectorXd& eigenValues,
+                                   const Eigen::MatrixXd& eigenVectors,
+                                   bool optionPositive,
+                                   bool changeOrder)
 {
   _eigenValues                                                         = VectorDouble(_nrows);
   Eigen::Map<Eigen::VectorXd>(_eigenValues.data(), eigenValues.size()) = eigenValues;

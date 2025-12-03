@@ -14,7 +14,7 @@
 #include "Covariances/CovAniso.hpp"
 #include "Db/Db.hpp"
 #include "LinearOp/CholeskyDense.hpp"
-#include "Matrix/MatEigen.hpp"
+#include "Matrix/EigenVectors.hpp"
 #include "Model/Model.hpp"
 #include "geoslib_define.h"
 #include <algorithm>
@@ -125,8 +125,8 @@ static Id _loadPositions(Id iech,
 
 double InvNuggetOp::_updateQuantities(MatrixSymmetric& sillsinv)
 {
-  auto mateigen = MatEigen(sillsinv);
-  const auto& eigenvals = mateigen.getEigenValues();
+  auto eigenvectors     = EigenVectors(sillsinv);
+  const auto& eigenvals = eigenvectors.getEigenValues();
   auto rangevals        = std::minmax_element(eigenvals.begin(), eigenvals.end());
   _rangeEigenVal.first  = MIN(_rangeEigenVal.first, *rangevals.first);
   _rangeEigenVal.second = MAX(_rangeEigenVal.second, *rangevals.second);
