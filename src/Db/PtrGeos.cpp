@@ -9,9 +9,8 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Db/PtrGeos.hpp"
-#include "Basic/AStringable.hpp"
+#include "Basic/Message.hpp"
 #include "Basic/String.hpp"
-#include "Basic/Utilities.hpp"
 
 #include <sstream>
 #include <cstring>

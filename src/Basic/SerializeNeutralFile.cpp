@@ -11,6 +11,8 @@
 
 #include "Basic/SerializeNeutralFile.hpp"
 #include "Basic/ASerializable.hpp"
+#include "Basic/Message.hpp"
+#include <cstring>
 namespace gstlrn
 {
 
@@ -104,7 +106,7 @@ bool SerializeNeutralFile::tableRead(std::istream& is,
   return ret;
 }
 
-bool SerializeNeutralFile::onlyBlanks(char* string)
+bool SerializeNeutralFile::onlyBlanks(const char* string)
 {
   Id number = static_cast<Id>(strlen(string));
   for (Id i = 0; i < number; i++)

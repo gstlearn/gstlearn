@@ -8,6 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Basic/Message.hpp"
 #include "Enum/EDbg.hpp"
 
 #include "Basic/Law.hpp"

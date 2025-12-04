@@ -13,6 +13,7 @@
 #include "gstlearn_export.hpp"
 
 #include "Gibbs/GibbsMulti.hpp"
+#include "Matrix/MatrixSquare.hpp"
 
 namespace gstlrn
 {

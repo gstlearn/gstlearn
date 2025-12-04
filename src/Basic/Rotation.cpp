@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Geometry/Rotation.hpp"
 #include "Basic/AException.hpp"
+#include "Basic/Message.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Geometry/GeometryHelper.hpp"
 #include "Matrix/MatrixSquare.hpp"

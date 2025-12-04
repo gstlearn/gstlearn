@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Basic/Message.hpp"
 #include "gstlearn_export.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 

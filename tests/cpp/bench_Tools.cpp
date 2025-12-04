@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Basic/File.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/Message.hpp"
 #include "Basic/Timer.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Matrix/MatrixSquare.hpp"

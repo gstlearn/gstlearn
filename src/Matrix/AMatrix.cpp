@@ -11,6 +11,7 @@
 #include "Matrix/AMatrix.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/Message.hpp"
 #include "Basic/String.hpp"
 #include "Basic/Utilities.hpp"
 #include "Matrix/MatrixFactory.hpp"

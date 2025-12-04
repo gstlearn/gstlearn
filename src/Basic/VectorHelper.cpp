@@ -11,6 +11,7 @@
 #include "Basic/VectorHelper.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/Message.hpp"
 #include "Basic/Utilities.hpp"
 #include "geoslib_define.h"
 

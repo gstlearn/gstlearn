@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Boolean/ShapeParameter.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/Message.hpp"
 #include "Enum/ELaw.hpp"
 
 namespace gstlrn
