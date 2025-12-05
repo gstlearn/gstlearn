@@ -621,10 +621,10 @@ int main(int argc, char* argv[])
   const MatrixSquare& eigVec = eigenvectors.getEigenVectors();
   eigVec.display();
 
-  eigenvectors         = EigenVectors(*MNoEig);
-  const auto& eigNoVal = eigenvectors.getEigenValues();
+  auto eigenvectors2   = EigenVectors(*MNoEig);
+  const auto& eigNoVal = eigenvectors2.getEigenValues();
   printVector(eigNoVal, "Eigen Values (no Eigen Library)", true, true);
-  const MatrixSquare& eigNoVec = eigenvectors.getEigenVectors();
+  const MatrixSquare& eigNoVec = eigenvectors2.getEigenVectors();
   eigNoVec.display();
 
   ////////////////////////
@@ -747,9 +747,9 @@ int main(int argc, char* argv[])
   BEig->display();
 
   // Extract the Generalized Eigen values and vectors (both matrix types)
-  eigenvectors                  = EigenVectors(*MEig, BEig);
-  const auto& genEigVal         = eigenvectors.getEigenValues();
-  const MatrixSquare& genEigVec = eigenvectors.getEigenVectors();
+  auto eigenvectors3            = EigenVectors(*MEig, BEig);
+  const auto& genEigVal         = eigenvectors3.getEigenValues();
+  const MatrixSquare& genEigVec = eigenvectors3.getEigenVectors();
   printVector(genEigVal, "Generalized Eigen Values (Eigen Library)", true, true);
   genEigVec.display();
   delete BEig;
@@ -760,9 +760,9 @@ int main(int argc, char* argv[])
   delete MRNoEig;
   delete MRNoEigt;
 
-  eigenvectors                    = EigenVectors(*MNoEig, BNoEig);
-  const auto& genEigNoVal         = eigenvectors.getEigenValues();
-  const MatrixSquare& genEigNoVec = eigenvectors.getEigenVectors();
+  auto eigenvectors4              = EigenVectors(*MNoEig, BNoEig);
+  const auto& genEigNoVal         = eigenvectors4.getEigenValues();
+  const MatrixSquare& genEigNoVec = eigenvectors4.getEigenVectors();
   printVector(genEigNoVal, "Generalized Eigen Values (no Eigen Library)", true, true);
   genEigNoVec.display();
   delete BNoEig;
@@ -777,10 +777,10 @@ int main(int argc, char* argv[])
   VectorDouble vecsup  = VH::simulateUniform(neqDiag);
   auto* matsqr         = MatrixSquare::createFromTridiagonal(vecdiag, vecinf, vecsup);
 
-  eigenvectors = EigenVectors(*matsqr);
-  printVector(eigenvectors.getEigenValues(), "Eigen Values", true, true);
+  auto eigenvectors5 = EigenVectors(*matsqr);
+  printVector(eigenvectors5.getEigenValues(), "Eigen Values", true, true);
   message("Eigen Vectors\n");
-  eigenvectors.getEigenVectors().display();
+  eigenvectors5.getEigenVectors().display();
 
   // Free the pointers
   delete M;
