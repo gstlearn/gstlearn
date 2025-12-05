@@ -34,8 +34,8 @@ class GSTLEARN_EXPORT EigenVectors
 {
 public:
   EigenVectors(const MatrixSquare& mat, const MatrixSymmetric* b = nullptr, bool optionPositive = true);
-  EigenVectors(const EigenVectors& r);
-  EigenVectors& operator=(const EigenVectors& r);
+  EigenVectors(const EigenVectors& r) = delete;
+  EigenVectors& operator=(const EigenVectors& r) = delete;
   virtual ~EigenVectors();
 
   const VectorDouble& getEigenValues() const { return _eigenValues; }

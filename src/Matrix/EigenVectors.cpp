@@ -45,30 +45,6 @@ EigenVectors::EigenVectors(const MatrixSquare& mat,
   _ready = true;
 }
 
-EigenVectors::EigenVectors(const EigenVectors& r)
-  : _ready(r._ready)
-  , _eigenValues(r._eigenValues)
-  , _eigenVectors(r._eigenVectors)
-  , _mat(r._mat)
-  , _nrows(r._nrows)
-  , _ncols(r._ncols)
-{
-}
-
-EigenVectors& EigenVectors::operator=(const EigenVectors& r)
-{
-  if (this != &r)
-  {
-    _ready        = r._ready;
-    _eigenValues  = r._eigenValues;
-    _eigenVectors = r._eigenVectors;
-    // _mat          = r._mat; // _mat is a reference, cannot be assigned
-    _nrows = r._nrows;
-    _ncols = r._ncols;
-  }
-  return *this;
-}
-
 EigenVectors::~EigenVectors()
 {
 }
