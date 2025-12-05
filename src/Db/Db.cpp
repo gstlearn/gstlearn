@@ -6176,4 +6176,50 @@ Table Db::displayStats(const VectorString& names,
   return table;
 }
 
+Table Db::displayStatsByCategory(const String& name,
+                                 const String& category,
+                                 const std::vector<EStatOption>& opers,
+                                 double eps)
+{
+  // Read the contents of the variable 'category'
+  VectorDouble tabCat = getColumn(category, true, true);
+
+  // Find the list of unique categories
+  VectorDouble uniqueCats = VH::unique(tabCat);
+
+  // Define the table
+  Id nrows = uniqueCats.size();
+  Id ncols = opers.size();
+  Table table(nrows, ncols);
+  table.setSkipTitle(true);
+  table.setSkipDescription(true);
+
+  // Loop on the categories
+  for (Id irow = 0; irow < nrows; irow++)
+  {
+    double catValue = uniqueCats[irow];
+
+    // Create a selection based on the current category
+    Id iuid = addSelectionByVariable(category, catValue - eps, catValue + eps, "catSel");
+
+    // Get the statisics for the current category
+    Table tabloc = displayStats({name}, opers);
+
+    // Delete the selection
+    deleteColumnByUID(iuid);
+
+    // Copy the Column Names
+    if (table.empty())
+      for (Id icol = 0; icol < ncols; icol++)
+        table.setColumnName(icol, tabloc.getColumnName(icol));
+
+    // Copy the statistics
+    table.setRow(irow, tabloc.getRow(0));
+
+    // Change the Name of the row
+    table.setRowName(irow, "Category: " + std::to_string(catValue));
+  }
+  return table;
+}
+
 } // namespace gstlrn
