@@ -17,6 +17,7 @@
 #include "Basic/FFT.hpp"
 #include "Basic/ListParams.hpp"
 #include "Basic/ParamInfo.hpp"
+#include "Basic/SerializeHDF5.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
@@ -1724,4 +1725,75 @@ void CorAniso::updateCov()
     }
   }
 }
+
+#ifdef HDF5
+bool CorAniso::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+{
+  bool ret = true;
+  Id ndim  = getNDim();
+
+  // General characteristics
+  Id vartype       = 0;
+  double range     = 0.;
+  double param     = 0.;
+  Id flag_aniso    = 0;
+  Id flag_rotation = 0;
+  VectorDouble aniso_ranges;
+  VectorDouble aniso_rotmat;
+
+  ret = ret && SerializeHDF5::readValue(grp, "Type", vartype);
+  ret = ret && SerializeHDF5::readValue(grp, "Range", range);
+  ret = ret && SerializeHDF5::readValue(grp, "Param", param);
+
+  // Anisotropy
+  ret = ret && SerializeHDF5::readValue(grp, "FlagAniso", flag_aniso);
+  if (flag_aniso)
+  {
+    ret = ret && SerializeHDF5::readVec(grp, "Aniso", aniso_ranges);
+
+    // Rotation
+    ret = ret && SerializeHDF5::readValue(grp, "FlagRotation", flag_rotation);
+    if (flag_rotation)
+      ret = ret && SerializeHDF5::readVec(grp, "Rotation", aniso_rotmat);
+  }
+
+  setType(vartype);
+  setParam(param);
+  if (flag_aniso)
+  {
+    for (Id idim = 0; idim < ndim; idim++)
+      aniso_ranges[idim] *= range;
+    setRanges(aniso_ranges);
+    if (flag_rotation) setAnisoRotation(aniso_rotmat);
+  }
+  else
+    setRangeIsotropic(range);
+
+  return ret;
+}
+
+bool CorAniso::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+{
+  bool ret = true;
+
+  // General characteristics
+  ret = ret && SerializeHDF5::writeValue(grp, "Type", getType().getValue());
+  ret = ret && SerializeHDF5::writeValue(grp, "Range", getRangeIso());
+  ret = ret && SerializeHDF5::writeValue(grp, "Param", getParam());
+
+  // Anisotropy
+  ret = ret && SerializeHDF5::writeValue(grp, "FlagAniso", static_cast<Id>(getFlagAniso()));
+  if (getFlagAniso())
+  {
+    ret = ret && SerializeHDF5::writeVec(grp, "Aniso", getAnisoCoeffs());
+
+    ret = ret && SerializeHDF5::writeValue(grp, "FlagRotation", static_cast<Id>(getFlagRotation()));
+    if (getFlagRotation())
+      ret = ret && SerializeHDF5::writeVec(grp, "Rotation", getAnisoRotMat().getValues());
+  }
+
+  return ret;
+}
+#endif
+
 } // namespace gstlrn

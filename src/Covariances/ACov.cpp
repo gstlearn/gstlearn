@@ -10,9 +10,11 @@
 /******************************************************************************/
 #include "Covariances/ACov.hpp"
 #include "Basic/AException.hpp"
+#include "Basic/ASerializable.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/ListParams.hpp"
+#include "Basic/SerializeHDF5.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/CovCalcMode.hpp"
@@ -43,7 +45,9 @@ namespace gstlrn
 {
 
 ACov::ACov(const CovContext& ctxt)
-  : _ctxt(ctxt)
+  : AStringable()
+  , ASerializable()
+  , _ctxt(ctxt)
   , _optimEnabled(false)
   , _optimPreProcessedData(false)
   , _p1As()
@@ -57,6 +61,7 @@ ACov::ACov(const CovContext& ctxt)
 
 ACov::ACov(const ACov& r)
   : AStringable(r)
+  , ASerializable(r)
   , _ctxt(r._ctxt)
   , _optimEnabled(r._optimEnabled)
   , _optimPreProcessedData(r._optimPreProcessedData)
@@ -74,6 +79,8 @@ ACov& ACov::operator=(const ACov& r)
 {
   if (this != &r)
   {
+    AStringable::operator=(r);
+    ASerializable::operator=(r);
     _ctxt                  = r._ctxt;
     _optimEnabled          = r._optimEnabled;
     _optimPreProcessedData = r._optimPreProcessedData;
@@ -2531,4 +2538,29 @@ MatrixDense ACov::simulateSpectralOmega(Id ns) const
   message("ACov::simulateSpectralOmega: Not implemented");
   return MatrixDense();
 }
+
+#ifdef HDF5
+bool ACov::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+{
+  // This function can seem useless. It is there to ensure the systematic call
+  // of the base class deserialization when inherited classes do not need it.
+  auto acovG = SerializeHDF5::getGroup(grp, "ACov");
+  if (!acovG) return false;
+
+  bool ret = true;
+
+  return ret;
+}
+
+bool ACov::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+{
+  // This function can seem useless. It is there to ensure the systematic call
+  // of the base class deserialization when inherited classes do not need it.
+  auto acovG = grp.createGroup("ACov");
+
+  bool ret = true;
+
+  return ret;
+}
+#endif
 } // namespace gstlrn

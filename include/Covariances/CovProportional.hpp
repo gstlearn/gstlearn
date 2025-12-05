@@ -14,17 +14,16 @@
 #include "Matrix/MatrixSquare.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 
-
 namespace gstlrn
-{ 
+{
 class AFunctional;
 class CovInternal;
 class GSTLEARN_EXPORT CovProportional: public CovBase
 {
 public:
-  CovProportional(ACov* cor = nullptr,const MatrixSymmetric &sills = MatrixSymmetric());
-  CovProportional(const CovProportional &r);
-  CovProportional& operator=(const CovProportional &r);
+  CovProportional(ACov* cor = nullptr, const MatrixSymmetric& sills = MatrixSymmetric());
+  CovProportional(const CovProportional& r);
+  CovProportional& operator=(const CovProportional& r);
   virtual ~CovProportional();
 
   void setCor(ACov* cor) override;
@@ -32,13 +31,15 @@ public:
 
   MatrixDense simulateSpectralOmega(Id ns) const override;
   IMPLEMENT_CLONING(CovProportional)
+
 protected:
-  double _eval(const SpacePoint& p1, 
+  double _eval(const SpacePoint& p1,
                const SpacePoint& p2,
-               Id ivar = 0, 
-               Id jvar = 0, 
+               Id ivar                 = 0,
+               Id jvar                 = 0,
                const CovCalcMode* mode = nullptr) const override;
+
 protected:
-    mutable MatrixSquare _workMat;
+  mutable MatrixSquare _workMat;
 };
-}
+} // namespace gstlrn

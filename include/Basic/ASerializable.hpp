@@ -52,16 +52,34 @@ public:
   virtual String _getNFName() const = 0;
 
 protected:
-  virtual bool _deserializeAscii(std::istream& is, bool verbose = false) = 0;
-  virtual bool _deserializeH5(H5::Group& /*grp*/, bool /*verbose*/ = false)
+  virtual bool _deserializeAscii(std::istream& is, bool verbose = false)
   {
+    DECLARE_UNUSED(is);
+    DECLARE_UNUSED(verbose);
+    // TODO virtual pure
+    messerr("Not implemented anymore");
+    return false;
+  }
+  virtual bool _deserializeH5(H5::Group& grp, bool verbose = false)
+  {
+    DECLARE_UNUSED(grp);
+    DECLARE_UNUSED(verbose);
     // TODO virtual pure
     messerr("Not implemented yet");
     return false;
   }
-  virtual bool _serializeAscii(std::ostream& os, bool verbose = false) const = 0;
-  virtual bool _serializeH5(H5::Group& /*grp*/, bool /*verbose*/ = false) const
+  virtual bool _serializeAscii(std::ostream& os, bool verbose = false) const
   {
+    DECLARE_UNUSED(os);
+    DECLARE_UNUSED(verbose);
+    // TODO virtual pure
+    messerr("Not implemented anymore");
+    return false;
+  }
+  virtual bool _serializeH5(H5::Group& grp, bool verbose = false) const
+  {
+    DECLARE_UNUSED(grp);
+    DECLARE_UNUSED(verbose);
     // TODO virtual pure
     messerr("Not implemented yet");
     return false;

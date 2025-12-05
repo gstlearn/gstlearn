@@ -11,6 +11,7 @@
 #pragma once
 
 #include "Basic/AFunctional.hpp"
+#include "Basic/ASerializable.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Basic/NamingConvention.hpp"
@@ -55,7 +56,7 @@ class MatrixSparse;
  *
  * It is mainly implemented in CovAniso.hpp or CovAnisoList.hpp
  */
-class GSTLEARN_EXPORT ACov: public ICloneable, public AStringable
+class GSTLEARN_EXPORT ACov: public ICloneable, public AStringable, public ASerializable
 {
 public:
   ACov(const CovContext& ctxt = CovContext());
@@ -573,6 +574,13 @@ protected:
                        Id jvar                 = 0,
                        const CovCalcMode* mode = nullptr) const = 0;
 
+public:
+  String _getNFName() const override { return "ACov"; }
+#ifdef HDF5
+  bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
+  bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
+#endif
+
 private:
   virtual void _makeStationary();
   virtual void _copyCovContext(const CovContext& ctxt)
@@ -594,7 +602,6 @@ private:
 protected:
   CovContext _ctxt;
   mutable bool _optimEnabled;
-
   mutable bool _optimPreProcessedData; // True if Data have been pre-processed for optimization
   mutable std::vector<SpacePoint> _p1As;
   mutable std::vector<SpacePoint> _p2As;
