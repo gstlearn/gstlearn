@@ -12,7 +12,6 @@
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Basic/ListParams.hpp"
 #include "Basic/ParamInfo.hpp"
-#include "Basic/Utilities.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovCalcMode.hpp"
 #include "Covariances/CovContext.hpp"

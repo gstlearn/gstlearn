@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Model/ModelGeneric.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/ListParams.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovAniso.hpp"
@@ -392,7 +391,7 @@ void ModelGeneric::initParams(const MatrixSymmetric& vars, double href, double m
   }
   if (_transform != nullptr)
   {
-    _transform->initParams(min,max);
+    _transform->initParams(min, max);
   }
 }
 

@@ -15,7 +15,6 @@
 #include "geoslib_define.h"
 
 #include "Basic/ASerializable.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/VectorT.hpp"
 
 #include <H5Cpp.h>

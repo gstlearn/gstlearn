@@ -10,7 +10,6 @@
 /******************************************************************************/
 
 #include "LinearOp/PrecisionOpMulti.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/CovAniso.hpp"

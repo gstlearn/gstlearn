@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Covariances/CovProportional.hpp"
-#include "Basic/AStringable.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovBase.hpp"
 #include "Matrix/MatrixSymmetric.hpp"

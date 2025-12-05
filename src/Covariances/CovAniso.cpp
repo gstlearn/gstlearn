@@ -11,7 +11,6 @@
 #include "geoslib_define.h"
 
 #include "Arrays/Array.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/CorAniso.hpp"
