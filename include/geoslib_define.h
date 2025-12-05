@@ -68,14 +68,14 @@ using I32 = int;
 #define DECLARE_TOTL                                                                       \
   inline void toTL() const                                                                 \
   {                                                                                        \
-    std::cout << "Method 'toTL' Not implemented yet (missing dependencies?)" << std::endl; \
-  };                                                                    
+    std::cerr << "Method 'toTL' Not implemented yet (missing dependencies?)" << std::endl; \
+  };
 
 // Same for toLatex
-#define DECLARE_TOLATEX                                                      \
-  inline void toLatex() const                                                \
-  {                                                                          \
-    std::cout << "Method 'toLatex' Not implemented yet (missing dependencies?)" << std::endl; \
+#define DECLARE_TOLATEX                                                                       \
+  inline void toLatex() const                                                                 \
+  {                                                                                           \
+    std::cerr << "Method 'toLatex' Not implemented yet (missing dependencies?)" << std::endl; \
   };
 
 // No need to this stuff through SWIG (using target language NAs)

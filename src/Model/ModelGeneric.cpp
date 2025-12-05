@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Model/ModelGeneric.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/ListParams.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovAniso.hpp"

@@ -24,11 +24,11 @@ EigenVectors::EigenVectors(const MatrixSquare& mat,
   : _ready(false)
   , _eigenValues()
   , _eigenVectors()
-  , _mat(&mat)
+  , _mat(mat)
   , _nrows(0)
   , _ncols(0)
 {
-  const auto* matss = dynamic_cast<const MatrixSymmetric*>(_mat);
+  const auto* matss = dynamic_cast<const MatrixSymmetric*>(&_mat);
   if (matss == nullptr)
   {
     // The matrix is not declared as Symmetric. Check if it is actually Symmetric
@@ -39,8 +39,8 @@ EigenVectors::EigenVectors(const MatrixSquare& mat,
       return;
     }
   }
-  _nrows = _mat->getNRows();
-  _ncols = _mat->getNCols();
+  _nrows = _mat.getNRows();
+  _ncols = _mat.getNCols();
   _computeEigen(b, optionPositive);
   _ready = true;
 }
@@ -62,9 +62,9 @@ EigenVectors& EigenVectors::operator=(const EigenVectors& r)
     _ready        = r._ready;
     _eigenValues  = r._eigenValues;
     _eigenVectors = r._eigenVectors;
-    _mat          = r._mat;
-    _nrows        = r._nrows;
-    _ncols        = r._ncols;
+    // _mat          = r._mat; // _mat is a reference, cannot be assigned
+    _nrows = r._nrows;
+    _ncols = r._ncols;
   }
   return *this;
 }
@@ -80,13 +80,13 @@ void EigenVectors::_computeEigen(const MatrixSymmetric* b, bool optionPositive)
 
   if (b == nullptr)
   {
-    Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> solver(_mat->eigenMat());
+    Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> solver(_mat.eigenMat());
     eigenValues  = solver.eigenvalues().real();
     eigenVectors = solver.eigenvectors().real();
   }
   else
   {
-    Eigen::GeneralizedSelfAdjointEigenSolver<Eigen::MatrixXd> solver(_mat->eigenMat(), b->eigenMat());
+    Eigen::GeneralizedSelfAdjointEigenSolver<Eigen::MatrixXd> solver(_mat.eigenMat(), b->eigenMat());
     eigenValues  = solver.eigenvalues().real();
     eigenVectors = solver.eigenvectors().real();
   }
