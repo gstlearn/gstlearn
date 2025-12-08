@@ -17,7 +17,6 @@
 #include "Model/Model.hpp"
 #include "Variogram/VarioParam.hpp"
 #include "Basic/Utilities.hpp"
-#include "Basic/AStringable.hpp"
 #include "Stats/Classical.hpp"
 #include "Anamorphosis/AAnam.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
@@ -97,6 +96,9 @@ void VMap::_setResult(Id iech1,
   auto ijvar = _get_variable_order(nvar, ivar, jvar);
   _dbmap->updArray(ilag, IPTV + ijvar, EOperator::ADD, ww * value);
   _dbmap->updArray(ilag, IPTW + ijvar, EOperator::ADD, ww);
+
+  // Optional storage
+  _storage(iech1, iech2, dist, value);
 }
 
 /****************************************************************************/
