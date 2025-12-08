@@ -14,7 +14,6 @@
 #include "gstlearn_export.hpp"
 
 // Even if not used directly, this is required due to DECLARE_TOTL macro
-#include "Basic/Message.hpp"
 #include "Basic/WarningMacro.hpp"
 #include "Matrix/AMatrix.hpp"
 
@@ -163,8 +162,6 @@ public:
     eigenMat().noalias() += cy * y.eigenMat();
   }
 
-  const VectorDouble& getEigenValues() const { return _eigenValues; }
-  const MatrixSquare* getEigenVectors() const { return _eigenVectors; }
   Id invert2(MatrixDense& res) const;
   void unsample(const AMatrix* A,
                 const VectorInt& rowFetch,
@@ -221,15 +218,8 @@ protected:
   void _addProdMatVecInPlacePtr(constvect x, vect y, bool transpose = false) const override;
 #endif
 
-  Id _computeEigen(bool optionPositive = true);
-  Id _computeGeneralizedEigen(const MatrixSymmetric& b, bool optionPositive = true);
-
 private:
   void _recopy(const MatrixDense& r);
-  Id _terminateEigen(const Eigen::VectorXd& eigenValues,
-                     const Eigen::MatrixXd& eigenVectors,
-                     bool optionPositive = true,
-                     bool changeOrder    = false);
   bool _needToReset(Id nrows, Id ncols) override;
 
 #ifndef SWIG
@@ -253,8 +243,6 @@ public:
 #endif
 
 protected:
-  VectorDouble _eigenValues;
-  MatrixSquare* _eigenVectors;
   VectorDouble _eigenMatrix;
 
 private:

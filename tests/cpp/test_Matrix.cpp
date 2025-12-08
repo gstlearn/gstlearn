@@ -17,6 +17,7 @@
 #include "LinearOp/CholeskyDense.hpp"
 #include "LinearOp/CholeskySparse.hpp"
 #include "Matrix/AMatrix.hpp"
+#include "Matrix/EigenVectors.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Matrix/MatrixInt.hpp"
@@ -614,17 +615,17 @@ int main(int argc, char* argv[])
   MNoEig->display();
 
   // Extract the Eigen values and vectors (both matrix types)
-  (void)MEig->computeEigen();
-  const auto& eigVal = MEig->getEigenValues();
+  auto eigenvectors  = EigenVectors(*MEig);
+  const auto& eigVal = eigenvectors.getEigenValues();
   printVector(eigVal, "Eigen Values (Eigen Library)", true, true);
-  const MatrixSquare* eigVec = MEig->getEigenVectors();
-  eigVec->display();
+  const MatrixSquare& eigVec = eigenvectors.getEigenVectors();
+  eigVec.display();
 
-  (void)MNoEig->computeEigen();
-  const auto& eigNoVal = MNoEig->getEigenValues();
+  auto eigenvectors2   = EigenVectors(*MNoEig);
+  const auto& eigNoVal = eigenvectors2.getEigenValues();
   printVector(eigNoVal, "Eigen Values (no Eigen Library)", true, true);
-  const MatrixSquare* eigNoVec = MNoEig->getEigenVectors();
-  eigNoVec->display();
+  const MatrixSquare& eigNoVec = eigenvectors2.getEigenVectors();
+  eigNoVec.display();
 
   ////////////////////////
   // Cholesky calculations
@@ -746,11 +747,11 @@ int main(int argc, char* argv[])
   BEig->display();
 
   // Extract the Generalized Eigen values and vectors (both matrix types)
-  (void)MEig->computeGeneralizedEigen(*BEig);
-  const auto& genEigVal         = MEig->getEigenValues();
-  const MatrixSquare* genEigVec = MEig->getEigenVectors();
+  auto eigenvectors3            = EigenVectors(*MEig, BEig);
+  const auto& genEigVal         = eigenvectors3.getEigenValues();
+  const MatrixSquare& genEigVec = eigenvectors3.getEigenVectors();
   printVector(genEigVal, "Generalized Eigen Values (Eigen Library)", true, true);
-  genEigVec->display();
+  genEigVec.display();
   delete BEig;
 
   MatrixDense* MRNoEig = MatrixDense::createFromVD(vbh, nrow, ncol, false);
@@ -759,11 +760,11 @@ int main(int argc, char* argv[])
   delete MRNoEig;
   delete MRNoEigt;
 
-  (void)MNoEig->computeGeneralizedEigen(*BNoEig);
-  const auto& genEigNoVal         = MNoEig->getEigenValues();
-  const MatrixSquare* genEigNoVec = MNoEig->getEigenVectors();
+  auto eigenvectors4              = EigenVectors(*MNoEig, BNoEig);
+  const auto& genEigNoVal         = eigenvectors4.getEigenValues();
+  const MatrixSquare& genEigNoVec = eigenvectors4.getEigenVectors();
   printVector(genEigNoVal, "Generalized Eigen Values (no Eigen Library)", true, true);
-  genEigNoVec->display();
+  genEigNoVec.display();
   delete BNoEig;
 
   ////////////////////////////////////////////////
@@ -775,10 +776,11 @@ int main(int argc, char* argv[])
   VectorDouble vecinf  = VH::simulateUniform(neqDiag);
   VectorDouble vecsup  = VH::simulateUniform(neqDiag);
   auto* matsqr         = MatrixSquare::createFromTridiagonal(vecdiag, vecinf, vecsup);
-  matsqr->computeEigen();
-  printVector(matsqr->getEigenValues(), "Eigen Values", true, true);
+
+  auto eigenvectors5 = EigenVectors(*matsqr);
+  printVector(eigenvectors5.getEigenValues(), "Eigen Values", true, true);
   message("Eigen Vectors\n");
-  matsqr->getEigenVectors()->display();
+  eigenvectors5.getEigenVectors().display();
 
   // Free the pointers
   delete M;

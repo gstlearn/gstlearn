@@ -80,8 +80,6 @@ public:
                  MatrixSquare& tus,
                  double eps = EPSILON20);
 
-  Id computeEigen(bool optionPositive = true);
-
 protected:
   bool _isNumbersValid(Id nrows, Id ncols) const override;
   void _setNSize(Id nval);

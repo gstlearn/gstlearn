@@ -9,7 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Basic/Interval.hpp"
-#include "Basic/Utilities.hpp"
+#include "Basic/Message.hpp"
 
 namespace gstlrn
 { 

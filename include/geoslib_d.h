@@ -15,6 +15,7 @@
 
 #include "Enum/EKrigOpt.hpp"
 #include "Matrix/MatrixSparse.hpp"
+#include "Matrix/MatrixSquare.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Model/Option_VarioFit.hpp"
 

@@ -74,9 +74,9 @@ CovLMCConvolution::~CovLMCConvolution()
 }
 
 Id CovLMCConvolution::init(const EConvType& conv_type,
-                            const EConvDir& conv_idir,
-                            double conv_range,
-                            Id conv_ndisc)
+                           const EConvDir& conv_idir,
+                           double conv_range,
+                           Id conv_ndisc)
 {
   for (auto& e: _covs)
   {
@@ -147,7 +147,7 @@ Id CovLMCConvolution::init(const EConvType& conv_type,
   _convWeight.resize(_convNumber);
 
   double delta, weight;
-  Id ecr      = 0;
+  Id ecr       = 0;
   double total = 0.;
   for (Id ix = -navail[0]; ix <= navail[0]; ix++)
     for (Id iy = -navail[1]; iy <= navail[1]; iy++)

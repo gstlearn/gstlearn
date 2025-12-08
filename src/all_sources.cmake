@@ -16,6 +16,7 @@ set(SRC
   Matrix/MatrixSquare.cpp
   Matrix/MatrixSymmetric.cpp
   Matrix/MatrixFactory.cpp
+  Matrix/EigenVectors.cpp
   Matrix/Table.cpp
   Matrix/NF_Triplet.cpp
   API/SPDE.cpp

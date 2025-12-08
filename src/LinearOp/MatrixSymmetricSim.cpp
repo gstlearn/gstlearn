@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "LinearOp/MatrixSymmetricSim.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/Message.hpp"
 #include "LinearOp/ACholesky.hpp"
 #include "LinearOp/CholeskyDense.hpp"
 #include "LinearOp/CholeskySparse.hpp"

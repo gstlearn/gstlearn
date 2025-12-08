@@ -10,7 +10,7 @@
 /******************************************************************************/
 
 #include "LinearOp/ProjMulti.hpp"
-#include "Basic/AStringable.hpp"
+#include "Basic/Message.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "LinearOp/IProj.hpp"
 #include "LinearOp/ProjMultiMatrix.hpp"

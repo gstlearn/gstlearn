@@ -15,12 +15,10 @@
 #include "LinearOp/ASimulable.hpp"
 #include "Matrix/AMatrix.hpp"
 
-
 namespace gstlrn
-{ 
+{
 class AMatrix;
 class MatrixDense;
-
 
 class GSTLEARN_EXPORT ACholesky: public ASimulable
 {
@@ -41,10 +39,10 @@ public:
   VectorDouble invLtX(const VectorDouble& vecin) const;
   VectorDouble LtX(const VectorDouble& vecin) const;
   VectorDouble LX(const VectorDouble& vecin) const;
-  VectorDouble invLX(const VectorDouble& vecin) const; 
+  VectorDouble invLX(const VectorDouble& vecin) const;
   VectorDouble solveX(const VectorDouble& vecin) const;
-  
-  virtual double computeLogDeterminant() const                    = 0;
+
+  virtual double computeLogDeterminant() const                   = 0;
   virtual Id addSolveX(const constvect vecin, vect vecout) const = 0;
   virtual Id addInvLtX(const constvect vecin, vect vecout) const = 0;
   virtual Id addLtX(const constvect vecin, vect vecout) const    = 0;
@@ -52,16 +50,20 @@ public:
   virtual Id addInvLX(const constvect vecin, vect vecout) const  = 0;
 
 protected:
-  void _setReady() const { _ready = true; _empty = false; }
+  void _setReady() const
+  {
+    _ready = true;
+    _empty = false;
+  }
 
 private:
   Id _addToDest(const constvect vecin, vect vecout) const override;
   Id _addSimulateToDest(const constvect whitenoise, vect vecout) const override;
-  double computeLogDet(Id nMC = 1) const override; //just for ASimulable interface
+  double computeLogDet(Id nMC = 1) const override; // just for ASimulable interface
 
 protected:
   Id _size;
   mutable bool _ready;
   mutable bool _empty;
 };
-}
+} // namespace gstlrn

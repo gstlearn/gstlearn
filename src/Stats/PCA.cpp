@@ -11,6 +11,7 @@
 #include "Stats/PCA.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
+#include "Matrix/EigenVectors.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixSquare.hpp"
 #include "Stats/Classical.hpp"
@@ -148,9 +149,9 @@ Id PCA::_calculateEigen(bool verbose, bool optionPositive)
 {
   // Eigen decomposition
 
-  if (_c0.computeEigen(optionPositive) != 0) return 1;
-  _eigval = _c0.getEigenValues();
-  _eigvec = *_c0.getEigenVectors();
+  auto eigenvectors = EigenVectors(_c0, nullptr, optionPositive);
+  _eigval           = eigenvectors.getEigenValues();
+  _eigvec           = eigenvectors.getEigenVectors();
 
   // Printout of the eigen results (optional)
 
@@ -168,9 +169,9 @@ Id PCA::_calculateGEigen(bool verbose)
 
   // Generalized Eigen decomposition
 
-  if (_gh.computeGeneralizedEigen(_c0) != 0) return 1;
-  _eigval = _gh.getEigenValues();
-  _eigvec = *_gh.getEigenVectors();
+  auto eigenvectors = EigenVectors(_gh, &_c0);
+  _eigval           = eigenvectors.getEigenValues();
+  _eigvec           = eigenvectors.getEigenVectors();
 
   // Printout of the eigen results (optional)
 

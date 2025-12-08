@@ -21,7 +21,7 @@
 
 #include "Space/ASpace.hpp"
 
-namespace gstlrn 
+namespace gstlrn
 {
 
 class SpacePoint;
@@ -43,7 +43,7 @@ GSTLEARN_EXPORT double _conv_sincard(double v);
 
 GSTLEARN_EXPORT Def_Convolution& D_CONV(Id rank);
 
-class GSTLEARN_EXPORT CovLMCConvolution : public CovAnisoList
+class GSTLEARN_EXPORT CovLMCConvolution: public CovAnisoList
 {
 public:
   CovLMCConvolution(const EConvType& conv_type,
@@ -51,8 +51,8 @@ public:
                     double conv_range,
                     Id conv_ndisc,
                     const CovContext& ctxt = CovContext());
-  CovLMCConvolution(const CovLMCConvolution &r);
-  CovLMCConvolution& operator= (const CovLMCConvolution &r);
+  CovLMCConvolution(const CovLMCConvolution& r);
+  CovLMCConvolution& operator=(const CovLMCConvolution& r);
   virtual ~CovLMCConvolution();
 
   /// ICloneable interface
@@ -62,11 +62,10 @@ public:
   String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// ACov Interface
-  virtual double eval0(Id ivar = 0,
-                       Id jvar = 0,
+  virtual double eval0(Id ivar                 = 0,
+                       Id jvar                 = 0,
                        const CovCalcMode* mode = nullptr) const override;
-  
-  
+
   Id init(const EConvType& conv_type, const EConvDir& conv_idir, double conv_range, Id conv_ndisc);
 
   double getConvRange() const { return _convRange; }
@@ -78,22 +77,23 @@ public:
 protected:
   void _optimizationSetTarget(SpacePoint& pt) const override
   {
-    ACov::_optimizationSetTarget(pt); 
+    ACov::_optimizationSetTarget(pt);
   }
 
 private:
-virtual double _eval(const SpacePoint& p1,
-                     const SpacePoint& p2,
-                     Id ivar = 0,
-                     Id jvar = 0,
-                     const CovCalcMode* mode = nullptr) const override;
+  double _eval(const SpacePoint& p1,
+               const SpacePoint& p2,
+               Id ivar                 = 0,
+               Id jvar                 = 0,
+               const CovCalcMode* mode = nullptr) const override;
+
 private:
   EConvType _convType; /* Convolution type */
-  EConvDir  _convDir;  /* Convolution direction: 0:X, 1:Y, 2:Z, 3:XY, 4:XYZ */
-  Id _convDiscNumber; /* Number of discretization per direction */
-  double _convRange; /* Convolution Range */
+  EConvDir _convDir;   /* Convolution direction: 0:X, 1:Y, 2:Z, 3:XY, 4:XYZ */
+  Id _convDiscNumber;  /* Number of discretization per direction */
+  double _convRange;   /* Convolution Range */
   Id _convNumber;
-  MatrixDense _convIncr; /* Discretization lags */
-  VectorDouble      _convWeight; /* Weights for convolution */
+  MatrixDense _convIncr;    /* Discretization lags */
+  VectorDouble _convWeight; /* Weights for convolution */
 };
-}
+} // namespace gstlrn

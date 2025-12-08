@@ -65,17 +65,17 @@ using I32 = int;
 // This function must be:
 // - declared in rgstlearn.i or pygstlearn.i
 // - be called as 'classname'_toTL
-#define DECLARE_TOTL                                                      \
-  inline void toTL() const                                                \
-  {                                                                       \
-    messerr("Method 'toTL' Not implemented yet (missing dependencies?)"); \
+#define DECLARE_TOTL                                                                       \
+  inline void toTL() const                                                                 \
+  {                                                                                        \
+    std::cerr << "Method 'toTL' Not implemented yet (missing dependencies?)" << std::endl; \
   };
 
 // Same for toLatex
-#define DECLARE_TOLATEX                                                      \
-  inline void toLatex() const                                                \
-  {                                                                          \
-    messerr("Method 'toLatex' Not implemented yet (missing dependencies?)"); \
+#define DECLARE_TOLATEX                                                                       \
+  inline void toLatex() const                                                                 \
+  {                                                                                           \
+    std::cerr << "Method 'toLatex' Not implemented yet (missing dependencies?)" << std::endl; \
   };
 
 // No need to this stuff through SWIG (using target language NAs)

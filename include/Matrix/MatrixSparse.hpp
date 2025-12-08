@@ -12,7 +12,6 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Basic/Message.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/WarningMacro.hpp"
 #include "LinearOp/ALinearOp.hpp"
