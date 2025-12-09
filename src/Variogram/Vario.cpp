@@ -3744,6 +3744,9 @@ void Vario::_setResult(Id iech1,
     updateGgByIndex(IDIRLOC, i, -getMean(ivar) / 2., false);
   updateHhByIndex(IDIRLOC, i, ww * dist, false);
   updateSwByIndex(IDIRLOC, i, ww, false);
+
+  // Optional storage
+  _storage(iech1, iech2, dist, value);
 }
 
 /****************************************************************************/

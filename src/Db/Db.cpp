@@ -1719,7 +1719,7 @@ Id Db::addSelection(const VectorDouble& tab,
 
   // Convert the input array into a selection (0 or 1)
 
-  combineSelection(sel, combine);
+  _combineSelection(sel, combine);
   Id iuid = addColumns(sel, name, ELoc::SEL);
   return iuid;
 }
@@ -1731,14 +1731,14 @@ Id Db::addSelection(const VectorDouble& tab,
  * @param lower Lower bound (included) or TEST for no lower bound
  * @param upper Upper bound (included) or TEST for no upper bound
  * @param name  Name given to the newly created selection
- * @param oldSelName If defined, the current selection is combined with the existing one
+ * @param combine How to combine with an already existing selection (see _combineSelection() for details)
  * @return Id
  */
 Id Db::addSelectionByVariable(const String& varname,
                               double lower,
                               double upper,
                               const String& name,
-                              const String& oldSelName)
+                              const String& combine)
 {
   VectorDouble var = getColumn(varname, false);
   if (var.empty())
@@ -1765,20 +1765,8 @@ Id Db::addSelectionByVariable(const String& varname,
     sel[iech] = answer;
   }
 
-  // Intersection with an already existing selection (optional)
-  if (oldSelName != "")
-  {
-    VectorDouble selOld = getColumn(oldSelName, false);
-    if (selOld.empty())
-    {
-      messerr("The previous selection '%s' does not exist", oldSelName.c_str());
-      return 1;
-    }
-    for (Id iech = 0; iech < nech; iech++)
-      sel[iech] = sel[iech] * selOld[iech];
-  }
-
   // Store the newly createed selection
+  _combineSelection(sel, combine);
   Id iuid = addColumns(sel, name, ELoc::SEL);
   return iuid;
 }
@@ -1803,7 +1791,7 @@ Id Db::addSelectionByRanks(const VectorInt& ranks,
 
   // Convert the input array into a selection (0 or 1)
 
-  combineSelection(sel, combine);
+  _combineSelection(sel, combine);
   Id iuid = addColumns(sel, name, ELoc::SEL);
   return iuid;
 }
@@ -1838,7 +1826,7 @@ Id Db::addSelectionByLimit(const String& testvar,
     }
     sel[iech] = answer;
   }
-  combineSelection(sel, combine);
+  _combineSelection(sel, combine);
   Id iuid = addColumns(sel, name, ELoc::SEL);
 
   return iuid;
@@ -5667,10 +5655,10 @@ const Db* Db::coverSeveralDbs(const Db* db1, const Db* db2, bool* isBuilt)
 /**
  * Combine 'sel' input argument with an already existing selection (if any)
  * @param sel Input selection (only 0 and 1)
- * @param combine Type of combination: "set", "not", "or", "and", "xor"
+ * @param combine Type of combination: "set", "not", "or", "and", "xor", "notand", "notor"
  * @remark Argument 'sel' may be modified by this procedure
  */
-void Db::combineSelection(VectorDouble& sel, const String& combine) const
+void Db::_combineSelection(VectorDouble& sel, const String& combine) const
 {
   Id nech = static_cast<Id>(sel.size());
   if (nech <= 0) return;
@@ -5708,6 +5696,18 @@ void Db::combineSelection(VectorDouble& sel, const String& combine) const
       sel[iech] = !isEqual(sel[iech], oldsel[iech]);
     return;
   }
+  if (combine == "notor")
+  {
+    for (Id iech = 0; iech < nech; iech++)
+      sel[iech] = (1. - sel[iech]) || oldsel[iech];
+    return;
+  }
+  if (combine == "notand")
+  {
+    for (Id iech = 0; iech < nech; iech++)
+      sel[iech] = (1. - sel[iech]) && oldsel[iech];
+    return;
+  }
 
   // The 'combine' argument is not valid
 
@@ -5720,6 +5720,8 @@ void Db::combineSelection(VectorDouble& sel, const String& combine) const
   messerr("'or' : sel = sel || oldsel");
   messerr("'and': sel = sel && oldsel");
   messerr("'xor': sel = sel != oldsel");
+  messerr("'notor': sel = (1 - sel) || oldsel");
+  messerr("'notand': sel = (1 - sel) && oldsel");
 }
 
 Db* Db::create()
@@ -6188,7 +6190,7 @@ Table Db::displayStatsByCategory(const String& name,
   VectorDouble uniqueCats = VH::unique(tabCat);
 
   // Define the table
-  Id nrows = uniqueCats.size();
+  Id nrows = uniqueCats.count(1);
   Id ncols = opers.size();
   Table table(nrows, ncols);
   table.setSkipTitle(true);
@@ -6198,6 +6200,7 @@ Table Db::displayStatsByCategory(const String& name,
   for (Id irow = 0; irow < nrows; irow++)
   {
     double catValue = uniqueCats[irow];
+    if (isNA(catValue)) continue;
 
     // Create a selection based on the current category
     Id iuid = addSelectionByVariable(category, catValue - eps, catValue + eps, "catSel");
@@ -6209,15 +6212,20 @@ Table Db::displayStatsByCategory(const String& name,
     deleteColumnByUID(iuid);
 
     // Copy the Column Names
-    if (table.empty())
+    if (irow == 0)
+    {
       for (Id icol = 0; icol < ncols; icol++)
         table.setColumnName(icol, tabloc.getColumnName(icol));
+    }
 
     // Copy the statistics
     table.setRow(irow, tabloc.getRow(0));
 
     // Change the Name of the row
-    table.setRowName(irow, "Category: " + std::to_string(catValue));
+    if (isNA(catValue))
+      table.setRowName(irow, "Category: N/A");
+    else
+      table.setRowName(irow, "Category: " + std::to_string(catValue));
   }
   return table;
 }

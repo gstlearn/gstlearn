@@ -342,10 +342,10 @@ public:
                   const String& name      = "NewSel",
                   const String& combine   = "set");
   Id addSelectionByVariable(const String& varname,
-                            double lower             = TEST,
-                            double upper             = TEST,
-                            const String& name       = "NewSel",
-                            const String& oldSelName = "");
+                            double lower          = TEST,
+                            double upper          = TEST,
+                            const String& name    = "NewSel",
+                            const String& combine = "set");
   Id addSelectionByRanks(const VectorInt& ranks,
                          const String& name    = "NewSel",
                          const String& combine = "set");
@@ -860,7 +860,7 @@ public:
   bool isDimensionIndexValid(Id idim) const;
   /**@}*/
 
-  void combineSelection(VectorDouble& sel, const String& combine = "set") const;
+  void _combineSelection(VectorDouble& sel, const String& combine = "set") const;
 
   void generateRank(const String& radix = "rank");
 

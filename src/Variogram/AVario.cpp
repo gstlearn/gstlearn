@@ -10,7 +10,7 @@
 /******************************************************************************/
 #include "Variogram/AVario.hpp"
 
-#include "Basic/Utilities.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Db/Db.hpp"
 #include "Enum/ECalcVario.hpp"
 
@@ -19,12 +19,16 @@ namespace gstlrn
 AVario::AVario()
   : AStringable()
   , _calcul(ECalcVario::UNDEFINED)
+  , _flagStorage(false)
+  , _tabStorage()
 {
 }
 
 AVario::AVario(const AVario& r)
   : AStringable(r)
   , _calcul(r._calcul)
+  , _flagStorage(r._flagStorage)
+  , _tabStorage(r._tabStorage)
 {
 }
 
@@ -33,7 +37,9 @@ AVario& AVario::operator=(const AVario& r)
   if (this != &r)
   {
     AStringable::operator=(r);
-    _calcul = r._calcul;
+    _calcul      = r._calcul;
+    _flagStorage = r._flagStorage;
+    _tabStorage  = r._tabStorage;
   }
   return *this;
 }
@@ -471,4 +477,35 @@ void AVario::setCalcul(const ECalcVario& calcul)
     }
   }
 }
+
+void AVario::setStorage(bool flag)
+{
+  if (flag == _flagStorage) return;
+
+  if (flag)
+  {
+    // Activate storage
+    _tabStorage.clear();
+    _flagStorage = true;
+  }
+  else
+  {
+    // Deactivate storage
+    _tabStorage.clear();
+    _flagStorage = false;
+  }
+}
+
+void AVario::_storage(Id iech1, Id iech2, double dist, double value)
+{
+  if (!_flagStorage) return;
+
+  VectorDouble record(4);
+  record[0] = static_cast<double>(iech1);
+  record[1] = static_cast<double>(iech2);
+  record[2] = dist;
+  record[3] = value;
+  _tabStorage.push_back(record);
+}
+
 } // namespace gstlrn

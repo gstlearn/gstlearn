@@ -22,7 +22,7 @@ namespace gstlrn
 class Db;
 class ECalcVario;
 
-class GSTLEARN_EXPORT AVario:  public AStringable, public ICloneable
+class GSTLEARN_EXPORT AVario: public AStringable, public ICloneable
 {
 public:
   AVario();
@@ -35,6 +35,8 @@ public:
   void setCalcul(const ECalcVario& calcul);
   void setCalculByName(const String& calcul_name);
 
+  void setStorage(bool flag);
+
 protected:
   virtual double _getIVAR(const Db* db, Id iech, Id ivar) const = 0;
   virtual void _setResult(Id iech1,
@@ -46,7 +48,7 @@ protected:
                           Id orient,
                           double ww,
                           double dist,
-                          double value) = 0;
+                          double value)                         = 0;
 
   String _elemString(const AStringFormat* strfmt) const;
 
@@ -104,12 +106,18 @@ protected:
                             Id nvar,
                             Id iech1,
                             Id iech2,
-                            Id ilag
-                              ,
-                    double dist,
-                    bool do_asym);
+                            Id ilag,
+                            double dist,
+                            bool do_asym);
+
+  void _storage(Id iech1, Id iech2, double dist, double value);
+  bool _isStorage() const { return _flagStorage; }
+  const VectorDouble& _getStorage(Id ipair) const { return _tabStorage[ipair]; }
+  Id _getStorageSize() const { return static_cast<Id>(_tabStorage.size()); }
 
 private:
   ECalcVario _calcul;
+  bool _flagStorage;              // Store information on each pair
+  VectorVectorDouble _tabStorage; // Storage of the information on each pair; Dimension [npairs][4]
 };
-}
+} // namespace gstlrn
