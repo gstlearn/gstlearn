@@ -120,8 +120,8 @@ public:
   FORWARD_METHOD(getCov, manage)
   FORWARD_METHOD(getCov, optimizationPreProcessForData)
   FORWARD_METHOD(getCov, optimizationPostProcess)
-  FORWARD_METHOD(getCov,  simulateSpectralOmega, MatrixDense())
-  
+  FORWARD_METHOD(getCov, simulateSpectralOmega, MatrixDense())
+
   FORWARD_METHOD_NON_CONST(_getCovModify, setOptimEnabled)
   FORWARD_METHOD_NON_CONST(_getCovModify, attachNoStatDb)
   FORWARD_METHOD_NON_CONST(_getCovModify, makeStationary)
@@ -159,6 +159,9 @@ public:
   FORWARD_METHOD(getDriftList, getMeans)
   FORWARD_METHOD(getDriftList, evalDriftVarCoef, TEST)
   FORWARD_METHOD(getDriftList, evalDriftVarCoefs)
+  FORWARD_METHOD(getDriftList, getPriorMeans)
+  FORWARD_METHOD(getDriftList, getPriorCovs)
+  FORWARD_METHOD(getDriftList, getPriorCov, TEST)
 
   FORWARD_METHOD_NON_CONST(_getDriftListModify, setFlagLinked)
   FORWARD_METHOD_NON_CONST(_getDriftListModify, setBetaHat)
@@ -168,6 +171,8 @@ public:
   FORWARD_METHOD_NON_CONST(_getDriftListModify, copyCovContext)
   FORWARD_METHOD_NON_CONST(_getDriftListModify, setMeans)
   FORWARD_METHOD_NON_CONST(_getDriftListModify, setMean)
+  FORWARD_METHOD_NON_CONST(_getDriftListModify, setPriorMeans)
+  FORWARD_METHOD_NON_CONST(_getDriftListModify, setPriorCovs)
 
   // Forwarding the methods from _ctxt
   FORWARD_METHOD(getContext, getNVar, -1)
@@ -196,9 +201,9 @@ public:
   void addDrift(const ADrift* drift); // TODO: check that the same driftM has not been already defined
   void setDrifts(const VectorString& driftSymbols);
 
-  #ifndef SWIG
+#ifndef SWIG
   void initParams(const MatrixSymmetric& vars, double href = 1., double min = 0., double max = INF);
-  #endif
+#endif
   const ATransform* getTransform() const { return _transform; }
   ATransform* getTransformModify() { return _transform; }
   void setTransform(const ATransform* transform);
@@ -217,15 +222,16 @@ public:
               bool verbose               = false,
               bool trace                 = false,
               bool reml                  = false);
-bool hasTransform() const { return (_transform != nullptr); }
+  bool hasTransform() const { return (_transform != nullptr); }
+
 private:
   virtual bool _isValid() const;
 
 protected:                     // TODO : pass into private to finish clean
   std::shared_ptr<ACov> _cova; /* Generic Covariance structure */
   mutable std::vector<covmaptype> _gradCovFuncs;
-  DriftList* _driftList; /* Series of Drift functions */
-  CovContext _ctxt;      /* Context */
+  DriftList* _driftList;  /* Series of Drift functions */
+  CovContext _ctxt;       /* Context */
   ATransform* _transform; /* Transformation associated to the Model */
 };
 

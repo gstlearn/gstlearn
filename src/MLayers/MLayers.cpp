@@ -31,6 +31,8 @@ MLayers::MLayers()
   , _flagCumul(true)
   , _flagExt(false)
   , _flagZ(true)
+  , _flagBayes(false)
+  , _flagStd(false)
   , _colrefD(-1)
   , _colrefT(-1)
   , _colrefB(-1)
@@ -54,6 +56,8 @@ MLayers::MLayers(const MLayers& m)
   , _flagCumul(m._flagCumul)
   , _flagExt(m._flagExt)
   , _flagZ(m._flagZ)
+  , _flagBayes(m._flagBayes)
+  , _flagStd(m._flagStd)
   , _colrefD(m._colrefD)
   , _colrefT(m._colrefT)
   , _colrefB(m._colrefB)
@@ -80,6 +84,8 @@ MLayers& MLayers::operator=(const MLayers& m)
     _flagCumul = m._flagCumul;
     _flagExt   = m._flagExt;
     _flagZ     = m._flagZ;
+    _flagBayes = m._flagBayes;
+    _flagStd   = m._flagStd;
     _colrefD   = m._colrefD;
     _colrefT   = m._colrefT;
     _colrefB   = m._colrefB;
@@ -183,10 +189,9 @@ void MLayers::setGeneral(Db* dbin,
                          bool flag_cumul,
                          bool flag_ext,
                          bool flag_Z,
+                         bool flag_bayes,
                          bool match_time,
                          Id irf_rank,
-                         const VectorDouble& prior_means,
-                         const VectorDouble& prior_vars,
                          const String& namerefd,
                          const String& namereft,
                          const String& namerefb)
@@ -205,6 +210,7 @@ void MLayers::setGeneral(Db* dbin,
   _flagCumul = flag_cumul;
   _flagExt   = flag_ext;
   _flagZ     = flag_Z;
+  _flagBayes = flag_bayes;
   _colrefD   = colrefd;
   _colrefT   = colreft;
   _colrefB   = colrefb;
@@ -215,8 +221,6 @@ void MLayers::setGeneral(Db* dbin,
   _nech      = 0;
   _npar      = _nbfl * _nlayers;
   _neq       = _nechmax + _npar;
-  _priorMean = prior_means;
-  _priorVars = prior_vars;
 }
 
 /****************************************************************************/
@@ -1197,7 +1201,6 @@ void MLayers::_estimateBayes(double c00,
 ** \param[in]  a          L.H.S. (square) inverted matrix
 ** \param[in]  zval       Data vector (extended)
 ** \param[in]  dual       Dual vector
-** \param[in]  prior_mean Array of prior means
 **
 ** \param[out] prop1      Working array (Dimension: nlayers)
 ** \param[out] prop2      Working array (Dimension: nlayers)
@@ -1218,7 +1221,6 @@ void MLayers::_estimate(VectorInt& seltab,
                         MatrixSquare* a,
                         VectorDouble& zval,
                         VectorDouble& dual,
-                        const VectorDouble& prior_mean,
                         VectorDouble& prop1,
                         VectorDouble& prop2,
                         MatrixSquare& covtab,
@@ -1234,7 +1236,6 @@ void MLayers::_estimate(VectorInt& seltab,
                         MatrixSquare& gs,
                         VectorDouble& post_mean)
 {
-  DECLARE_UNUSED(prior_mean);
   double estim;
   VectorDouble coor(2);
 
@@ -1547,8 +1548,6 @@ Id MLayers::_fillDriftData(VectorInt& seltab,
  **
  *****************************************************************************/
 Id MLayers::_calculateDriftBayes(bool verbose,
-                                 const VectorDouble& prior_mean,
-                                 const VectorDouble& prior_vars,
                                  MatrixSquare* acov,
                                  VectorDouble& zval,
                                  MatrixDense& fftab,
@@ -1569,13 +1568,13 @@ Id MLayers::_calculateDriftBayes(bool verbose,
 
   for (Id ipar = 0; ipar < _npar; ipar++)
     for (Id jpar = 0; jpar < _npar; jpar++)
-      invS.setValue(ipar, jpar, (ipar == jpar) ? prior_vars[ipar] : 0.);
+      invS.setValue(ipar, jpar, (ipar == jpar) ? _model->getPriorCov(ipar, jpar) : 0.);
 
   /* Optional printout */
 
   if (verbose)
   {
-    printMatrix(prior_mean, _nlayers, _nbfl, "Prior Mean", 0, 1);
+    printMatrix(_model->getPriorMeans(), _nlayers, _nbfl, "Prior Mean", 0, 1);
     printMatrix(invS.getValues(), _npar, _npar, "Prior Variance", 0, 1);
   }
 
@@ -1598,7 +1597,7 @@ Id MLayers::_calculateDriftBayes(bool verbose,
 
   /* Calculate the Posterior Mean vector */
 
-  invS.prodMatVecInPlace(prior_mean, post_mean);
+  invS.prodMatVecInPlace(_model->getPriorMeans(), post_mean);
   for (Id i = 0; i < _npar; i++)
     fm1z[i] += post_mean[i];
   post_vars.prodMatVecInPlace(fm1z, post_mean);
@@ -1948,7 +1947,6 @@ bool MLayers::checkValid()
             get_LOCATOR_NITEM(_dbout, _ptime));
     return false;
   }
-  _flagBayes   = (!_priorMean.empty() && !_priorVars.empty());
   Id dim_prior = _getNDrift() * _nlayers;
   if (_flagBayes && dim_prior != _getNDrift() * _nlayers)
   {
@@ -2075,8 +2073,7 @@ Id MLayers::kriging(bool verbose)
   if (_flagBayes)
   {
     if (_fillDriftData(seltab, prop1, drift, fftab)) return -1;
-    if (_calculateDriftBayes(verbose, _priorMean, _priorVars, a, zval,
-                             fftab, a0, cc, ss, gs, postMean, postVars)) return -1;
+    if (_calculateDriftBayes(verbose, a, zval, fftab, a0, cc, ss, gs, postMean, postVars)) return -1;
   }
   else
   {
@@ -2086,7 +2083,7 @@ Id MLayers::kriging(bool verbose)
 
   /* Perform the estimation over the grid nodes */
 
-  _estimate(seltab, a, zval, dual, _priorMean, prop1, prop2, covtab, b, b2,
+  _estimate(seltab, a, zval, dual, prop1, prop2, covtab, b, b2,
             baux, wgt, c00, fftab, a0, cc, ss, gs, postMean);
 
   /* Reconstitute the surfaces (optional) */
@@ -2219,11 +2216,10 @@ label_end:
  ** \param[in]  flag_vel   True if work is performed in Velocity, False for Depth
  ** \param[in]  flag_cumul True if work is performed in Depth; False in Thickness
  ** \param[in]  flag_ext   True if external drift must be used; False otherwise
+ ** \param[in]  flag_bayes True if Bayesian hypothesis in Drift Coefficients
  ** \param[in]  flag_std   True if the estimation error must be calculated
  ** \param[in]  irf_rank   Rank of the Intrinsic Random Function (0 or 1)
  ** \param[in]  match_time True if external drift matches time; False otherwise
- ** \param[in]  prior_mean Vector of prior means for drift coefficients
- ** \param[in]  prior_vars Vector of prior variances for drift coefficients
  ** \param[in]  namerefd   Name of the reference Depth variable in Dbout
  ** \param[in]  namereft   Name of the reference Time variable in Dbout
  ** \param[in]  namerefb   Name of the Bottom Depth variable in Dbout (or -1)
@@ -2239,11 +2235,10 @@ Id multilayers_kriging(Db* dbin,
                        bool flag_vel,
                        bool flag_cumul,
                        bool flag_ext,
+                       bool flag_bayes,
                        bool flag_std,
                        bool match_time,
                        Id irf_rank,
-                       const VectorDouble& prior_mean,
-                       const VectorDouble& prior_vars,
                        const String& namerefd,
                        const String& namereft,
                        const String& namerefb,
@@ -2252,8 +2247,8 @@ Id multilayers_kriging(Db* dbin,
 {
   MLayers lmlayers = MLayers();
   lmlayers.setGeneral(dbin, dbout, model,
-                      flag_std, flag_same, flag_vel, flag_cumul, flag_ext, flag_Z,
-                      match_time, irf_rank, prior_mean, prior_vars, namerefd, namereft, namerefb);
+                      flag_std, flag_same, flag_vel, flag_cumul, flag_ext, flag_Z, flag_bayes,
+                      match_time, irf_rank, namerefd, namereft, namerefb);
 
   if (!lmlayers.checkValid()) return 1;
 
@@ -2297,8 +2292,8 @@ Id multilayers_vario(Db* dbin,
 {
   MLayers lmlayers = MLayers();
   lmlayers.setGeneral(dbin, dbout, nullptr,
-                      false, false, flag_vel, false, flag_ext, false,
-                      match_time, irf_rank, VectorDouble(), VectorDouble(), namerefd, namereft, String());
+                      false, false, flag_vel, false, flag_ext, false, false,
+                      match_time, irf_rank, namerefd, namereft, String());
 
   if (!lmlayers.checkValid()) return 1;
 
@@ -2338,8 +2333,8 @@ Id multilayers_getPrior(Db* dbin,
 {
   MLayers lmlayers = MLayers();
   lmlayers.setGeneral(dbin, dbout, model,
-                      false, flag_same, flag_vel, false, flag_ext, false,
-                      match_time, irf_rank, VectorDouble(), VectorDouble(), namerefd, namereft, namerefb);
+                      false, flag_same, flag_vel, false, flag_ext, false, false,
+                      match_time, irf_rank, namerefd, namereft, namerefb);
 
   if (!lmlayers.checkValid()) return 1;
 

@@ -4,6 +4,7 @@ This file contains the logs between consecutive releases
 
 Release 1.10.0
 ==============
+- Bayesian prior information (mean and Cov) are now hosted in DriftList within ModelGeneric. They are not passed as arguments in: kribayes(), simbayes, krigsim(), multilayers_kriging().
 - An additional shortcut for Variogram Cloud calculation
 - Some verbose additional outputs for Variogram Cloud calculations
 - New modes for combining selections (in methods of Db.hpp).

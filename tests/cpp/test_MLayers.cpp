@@ -106,6 +106,7 @@ int main(int argc, char* argv[])
   bool flag_cumul = false;
   bool flag_ext   = false;
   bool flag_std   = false;
+  bool flag_bayes = false;
   bool match_time = false;
   Id irf_rank     = 0;
 
@@ -113,8 +114,7 @@ int main(int argc, char* argv[])
 
   (void)multilayers_getPrior(db, grid, model, flag_same, flag_vel, flag_ext);
   (void)multilayers_kriging(db, grid, model, flag_same, flag_Z, flag_vel, flag_cumul,
-                            flag_ext, flag_std, match_time, irf_rank,
-                            VectorDouble(), VectorDouble(),
+                            flag_ext, flag_bayes, flag_std, match_time, irf_rank,
                             "reference", String(), "bottom");
 
   // MatrixDense* trace = MatrixDense::createFromVD({0, 50, 100, 0, 50, 100}, 3, 2);

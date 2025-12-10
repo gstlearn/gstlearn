@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Estimation/KrigingSystem.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/VectorHelper.hpp"
@@ -79,8 +78,6 @@ KrigingSystem::KrigingSystem(Db* dbin,
   , _xvalidVarZ(false)
   , _valuesColcok()
   , _flagBayes(false)
-  , _priorMean()
-  , _priorCov()
   , _postMean()
   , _postCov()
   , _postSimu()
@@ -1142,36 +1139,19 @@ Id KrigingSystem::setKrigOptXValid(bool flag_xvalid,
   return 0;
 }
 
-Id KrigingSystem::setKrigOptBayes(bool flag_bayes,
-                                  const VectorDouble& prior_mean,
-                                  const MatrixSymmetric& prior_cov)
+Id KrigingSystem::setKrigOptBayes(bool flag_bayes)
 {
-  _isReady  = false;
-  auto nfeq = _getNFeq();
+  _isReady = false;
   if (flag_bayes)
   {
-    VectorDouble local_mean   = prior_mean;
-    MatrixSymmetric local_cov = prior_cov;
+    // Check that the Bayseian information contained in the Model is relevant
 
-    if (local_mean.empty())
-      local_mean.resize(nfeq, 0.);
-    if (local_cov.empty())
+    VectorDouble local_mean   = _model->getPriorMeans();
+    MatrixSymmetric local_cov = _model->getPriorCovs();
+    if (local_mean.empty() || local_cov.empty())
     {
-      local_cov.resetFromValue(nfeq, nfeq, 0.);
-      for (Id i = 0; i < nfeq; i++)
-        local_cov.setValue(i, i, 1.);
-    }
-    if (static_cast<Id>(local_mean.size()) != nfeq)
-    {
-      messerr("Size of argument 'prior_mean'(%d)", static_cast<Id>(local_mean.size()));
-      messerr("should be equal to the Number of Drift Equations(%d)", nfeq);
-      return 1;
-    }
-    if (local_cov.size() != nfeq * nfeq)
-    {
-      messerr("Size of argument 'prior_cov'(%d)", local_cov.size());
-      messerr("should be equal to the Number of Drift Equations (squared) (%d)",
-              nfeq * nfeq);
+      messerr("To run Bayesian Estimation of the drift coefficients");
+      messerr("you must provide prior Mean and Covariance within the Model");
       return 1;
     }
     if (_neigh->getType() != ENeigh::UNIQUE)
@@ -1182,12 +1162,10 @@ Id KrigingSystem::setKrigOptBayes(bool flag_bayes,
     }
 
     // Set the parameters
-    _priorMean = local_mean;
-    _priorCov  = local_cov;
     _varCorrec.resize(_nvarCL, _nvarCL);
 
     // Pass the Bayesian information to '_algebra'
-    if (_algebra.setBayes(&_priorMean, &_priorCov)) return 1;
+    if (_algebra.setBayes(&_model->getPriorMeans(), &_model->getPriorCovs())) return 1;
   }
   _flagBayes = flag_bayes;
   return 0;

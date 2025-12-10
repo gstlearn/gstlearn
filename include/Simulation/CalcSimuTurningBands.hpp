@@ -45,12 +45,10 @@ public:
               Model* model,
               ANeigh* neigh,
               Id icase,
-              Id flag_bayes               = false,
-              const VectorDouble& dmean   = VectorDouble(),
-              const MatrixSymmetric& dcov = MatrixSymmetric(),
-              bool flag_pgs               = false,
-              bool flag_gibbs             = false,
-              bool flag_dgm               = false);
+              Id flag_bayes   = false,
+              bool flag_pgs   = false,
+              bool flag_gibbs = false,
+              bool flag_dgm   = false);
   Id simulatePotential(Db* dbiso,
                        Db* dbgrd,
                        Db* dbtgt,
@@ -60,10 +58,6 @@ public:
 
   static bool isValidForTurningBands(const Model* model);
 
-  const MatrixSymmetric& getBayesCov() const { return _bayesCov; }
-  void setBayesCov(const MatrixSymmetric& bayes_cov) { _bayesCov = bayes_cov; }
-  const VectorDouble& getBayesMean() const { return _bayesMean; }
-  void setBayesMean(const VectorDouble& dmean) { _bayesMean = dmean; }
   bool isFlagCheck() const { return _flagCheck; }
   void setFlagCheck(bool flag_check) { _flagCheck = flag_check; }
   bool isFlagBayes() const { return _flagBayes; }
@@ -206,8 +200,6 @@ private:
   bool _flagDGM;
   bool _flagAllocationAlreadyDone;
   VectorString _nameCoord;
-  VectorDouble _bayesMean;
-  MatrixSymmetric _bayesCov;
   Id _npointSimulated;
   double _field;
   double _theta;
@@ -232,8 +224,6 @@ GSTLEARN_EXPORT Id simbayes(Db* dbin,
                             ANeigh* neigh,
                             Id nbsimu                       = 1,
                             Id seed                         = 132141,
-                            const VectorDouble& dmean       = VectorDouble(),
-                            const MatrixSymmetric& dcov     = MatrixSymmetric(),
                             Id nbtuba                       = 100,
                             bool flag_check                 = false,
                             const NamingConvention& namconv = NamingConvention("SimBayes"));

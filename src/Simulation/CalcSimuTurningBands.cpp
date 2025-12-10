@@ -45,8 +45,6 @@ CalcSimuTurningBands::CalcSimuTurningBands(Id nbsimu,
   , _flagDGM(false)
   , _flagAllocationAlreadyDone(false)
   , _nameCoord()
-  , _bayesMean()
-  , _bayesCov()
   , _npointSimulated(0)
   , _field(0.)
   , _theta(0.)
@@ -1961,8 +1959,7 @@ bool CalcSimuTurningBands::_run()
   if (flag_cond)
   {
     if (_krigsim(getDbin(), getDbout(), _modelLocal, getNeigh(),
-                 _flagBayes, _bayesMean, _bayesCov, _icase,
-                 nbsimu, _flagDGM)) return 1;
+                 _flagBayes, _icase, nbsimu, _flagDGM)) return 1;
   }
 
   /* Copy value from data to coinciding grid node */
@@ -1990,9 +1987,6 @@ bool CalcSimuTurningBands::_run()
  ** \param[in]  neigh      ANeigh structure
  ** \param[in]  icase      Case for PGS or -1
  ** \param[in]  flag_bayes 1 if the Bayes option is switched ON
- ** \param[in]  dmean      Array giving the prior means for the drift terms
- ** \param[in]  dcov       Array containing the prior covariance matrix
- **                        for the drift terms
  ** \param[in]  flag_pgs   1 if called from PGS
  ** \param[in]  flag_gibbs 1 if called from Gibbs
  ** \param[in]  flag_dgm   1 if the Discrete Gaussian Model is used
@@ -2004,8 +1998,6 @@ Id CalcSimuTurningBands::simulate(Db* dbin,
                                   ANeigh* neigh,
                                   Id icase,
                                   Id flag_bayes,
-                                  const VectorDouble& dmean,
-                                  const MatrixSymmetric& dcov,
                                   bool flag_pgs,
                                   bool flag_gibbs,
                                   bool flag_dgm)
@@ -2016,8 +2008,6 @@ Id CalcSimuTurningBands::simulate(Db* dbin,
   setNeigh(neigh);
   setIcase(icase);
   setFlagBayes(flag_bayes);
-  setBayesMean(dmean);
-  setBayesCov(dcov);
   setFlagPgs(flag_pgs);
   setFlagGibbs(flag_gibbs);
   setFlagDgm(flag_dgm);
@@ -2390,9 +2380,6 @@ Id simtub(Db* dbin,
  ** \param[in]  neigh      ANeigh structure (optional)
  ** \param[in]  nbsimu     Number of simulations
  ** \param[in]  seed       Seed for random number generator
- ** \param[in]  dmean      Array giving the prior means for the drift terms
- ** \param[in]  dcov       Array containing the prior covariance matrix
- **                        for the drift terms
  ** \param[in]  nbtuba     Number of turning bands
  ** \param[in]  flag_check 1 to check the proximity in Gaussian scale
  ** \param[in]  namconv    Naming convention
@@ -2407,8 +2394,6 @@ Id simbayes(Db* dbin,
             ANeigh* neigh,
             Id nbsimu,
             Id seed,
-            const VectorDouble& dmean,
-            const MatrixSymmetric& dcov,
             Id nbtuba,
             bool flag_check,
             const NamingConvention& namconv)
@@ -2424,8 +2409,6 @@ Id simbayes(Db* dbin,
   situba.setNamingConvention(namconv);
 
   situba.setFlagBayes(true);
-  situba.setBayesMean(dmean);
-  situba.setBayesCov(dcov);
 
   // Run the calculator
   Id error = (situba.run()) ? 0 : 1;

@@ -29,10 +29,10 @@ KrigingAlgebra::KrigingAlgebra(bool flagDual,
   , _Sigma(nullptr)
   , _Sigma0(nullptr)
   , _X(nullptr)
-  , _PriorCov(nullptr)
+  , _PriorCovs(nullptr)
   , _Z(nullptr)
   , _X0(nullptr)
-  , _PriorMean(nullptr)
+  , _PriorMeans(nullptr)
   , _Means(nullptr)
   , _Zp(nullptr)
   , _rankColCok(nullptr)
@@ -643,12 +643,12 @@ Id KrigingAlgebra::setXvalidUnique(const VectorInt* rankXvalidEqs,
   return _patchRHSForXvalidUnique();
 }
 
-Id KrigingAlgebra::setBayes(const VectorDouble* PriorMean,
-                            const MatrixSymmetric* PriorCov)
+Id KrigingAlgebra::setBayes(const VectorDouble* PriorMeans,
+                            const MatrixSymmetric* PriorCovs)
 {
   _resetLinkedToBayes();
 
-  if (PriorMean == nullptr || PriorCov == nullptr)
+  if (PriorMeans == nullptr || PriorCovs == nullptr)
   {
     _flagBayes = false;
     return 0;
@@ -659,10 +659,12 @@ Id KrigingAlgebra::setBayes(const VectorDouble* PriorMean,
     return 1;
   }
 
-  if (!_checkDimensionVD("PriorMean", PriorMean, &_nbfl)) return 1;
-  if (!_checkDimensionMatrix("PriorCov", PriorCov, &_nbfl, &_nbfl)) return 1;
-  _PriorMean = PriorMean;
-  _PriorCov  = PriorCov;
+  if (!_checkDimensionVD("PriorMeans", PriorMeans, &_nbfl)) return 1;
+  if (!_checkDimensionMatrix("PriorCovs", PriorCovs, &_nbfl, &_nbfl)) return 1;
+
+  // Store the arguments (const pointers) into internal storage
+  _PriorMeans = PriorMeans;
+  _PriorCovs  = PriorCovs;
   _flagBayes = true;
 
   return 0;
@@ -770,7 +772,7 @@ Id KrigingAlgebra::_needInvPriorCov()
 {
   if (!_InvPriorCov.empty()) return 0;
   if (_needPriorCov()) return 1;
-  _InvPriorCov = *_PriorCov;
+  _InvPriorCov = *_PriorCovs;
   if (_InvPriorCov.invert()) return 1;
   return 0;
 }
@@ -1076,7 +1078,7 @@ Id KrigingAlgebra::_needBeta()
   {
     if (_needPriorMean()) return 1;
     if (_needInvPriorCov()) return 1;
-    VectorDouble InvSMBayes = _InvPriorCov.prodMatVec(*_PriorMean);
+    VectorDouble InvSMBayes = _InvPriorCov.prodMatVec(*_PriorMeans);
     VH::linearCombinationInPlace(1., XtInvCZ, 1., InvSMBayes, XtInvCZ);
   }
 
@@ -1230,7 +1232,7 @@ Id KrigingAlgebra::_patchRHSForXvalidUnique()
 
 Id KrigingAlgebra::_needPriorCov()
 {
-  if (!_isPresentMatrix("PriorCov", _PriorCov)) return 1;
+  if (!_isPresentMatrix("PriorCovs", _PriorCovs)) return 1;
   return 0;
 }
 
@@ -1266,7 +1268,7 @@ Id KrigingAlgebra::_needXvalid()
 
 Id KrigingAlgebra::_needPriorMean()
 {
-  if (!_isPresentVector("PriorMean", _PriorMean)) return 1;
+  if (!_isPresentVector("PriorMeans", _PriorMeans)) return 1;
   return 0;
 }
 
@@ -1369,9 +1371,9 @@ void KrigingAlgebra::printStatus() const
   _printMatrix("Sigma0", _Sigma0);
   _printMatrix("X", _X);
   _printMatrix("X0", _X0);
-  _printMatrix("PriorCov", _PriorCov);
+  _printMatrix("PriorCovs", _PriorCovs);
   _printVector("Z", _Z);
-  _printVector("PriorMean", _PriorMean);
+  _printVector("PriorMeans", _PriorMeans);
   _printVector("Means", _Means);
   _printVector("Zp", _Zp);
 
@@ -1669,9 +1671,9 @@ void KrigingAlgebra::dumpAux()
   // In Bayesian case, dump the Prior and Posterior information
   if (_flagBayes)
   {
-    printVector(*_PriorMean, "Prior Mean:", true, false);
+    printVector(*_PriorMeans, "Prior Means:", true, false);
     message("Prior Covariance Matrix\n");
-    _PriorCov->display();
+    _PriorCovs->display();
 
     VectorDouble postmean = getPostMean();
     printVector(postmean, "Posterior Mean:", true, false);
