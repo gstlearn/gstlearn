@@ -10,7 +10,6 @@
 /******************************************************************************/
 #pragma once
 
-#include "Basic/AStringable.hpp"
 #include "Basic/SerializeNeutralFile.hpp"
 #include "Enum/EFormatNF.hpp"
 #include "geoslib_define.h"
