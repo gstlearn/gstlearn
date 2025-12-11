@@ -42,6 +42,10 @@ else()
   endif()
 endif()
 
+if(MINGW)
+  add_compile_options(-Wno-error=stringop-overflow)
+endif()
+
 if (MSVC)
   # Enable parallel compilation automatically.
   add_compile_options(/MP)
