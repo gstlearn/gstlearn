@@ -21,7 +21,7 @@ env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   CMAKE_BUILD_TYPE : Release
   BUILD_DIR : build
-  CMAKE_GENERATOR : Ninja
+  CMAKE_GENERATOR: "Visual Studio 17 2022"
   PYTHON_VERSION : "3.14"
   GSTLEARN_OUTPUT_DIR: ${{ github.workspace }}\build\gstlearn_dir
   CMAKE_TOOLCHAIN_FILE : C:\vcpkg\scripts\buildsystems\vcpkg.cmake
@@ -44,13 +44,9 @@ jobs:
 
     - name: Build & install nlopt static libraries
       uses: ./.github/actions/nlopt_static_windows
-      env:
-        CMAKE_GENERATOR: "Visual Studio 17 2022"
 
     - name: Build & install HDF5 static libraries
       uses: ./.github/actions/hdf5_static_windows
-      env:
-        CMAKE_GENERATOR: "Visual Studio 17 2022"
 
     - name: Setup uv
       uses: astral-sh/setup-uv@v6
