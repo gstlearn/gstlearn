@@ -11,9 +11,9 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Matrix/MatrixSymmetric.hpp"
-#include "Matrix/MatrixDense.hpp"
 #include "Matrix/AMatrix.hpp"
+#include "Matrix/MatrixDense.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 
 namespace gstlrn
 {
@@ -32,32 +32,33 @@ namespace gstlrn
  * - the vector *Z* must be centered by the drift beforehand
  * - the vector *beta* corresponds to the vector of Means.
  */
-class GSTLEARN_EXPORT KrigingAlgebra {
+class GSTLEARN_EXPORT KrigingAlgebra
+{
 public:
-  KrigingAlgebra(bool flagDual                        = false,
-                 const VectorVectorInt* sampleRanks   = nullptr,
-                 const VectorDouble* Z                = nullptr,
-                 const MatrixSymmetric* Sigma   = nullptr,
-                 const MatrixDense* X           = nullptr,
-                 const MatrixSymmetric* Sigma00 = nullptr,
-                 const VectorDouble* Means            = nullptr);
+  KrigingAlgebra(bool flagDual                      = false,
+                 const VectorVectorInt* sampleRanks = nullptr,
+                 const VectorDouble* Z              = nullptr,
+                 const MatrixSymmetric* Sigma       = nullptr,
+                 const MatrixDense* X               = nullptr,
+                 const MatrixSymmetric* Sigma00     = nullptr,
+                 const VectorDouble* Means          = nullptr);
 
   void setDual(bool status);
   void resetNewData();
   Id setData(const VectorDouble* Z          = nullptr,
-              const VectorVectorInt* indices = nullptr,
-              const VectorDouble* Means      = nullptr);
+             const VectorVectorInt* indices = nullptr,
+             const VectorDouble* Means      = nullptr);
   Id setLHS(const MatrixSymmetric* Sigma = nullptr,
-             const MatrixDense* X         = nullptr);
+            const MatrixDense* X         = nullptr);
   Id setRHS(const MatrixDense* Sigma0 = nullptr,
-             const MatrixDense* X0     = nullptr);
+            const MatrixDense* X0     = nullptr);
   Id setVariance(const MatrixSymmetric* Sigma00 = nullptr);
-  Id setBayes(const VectorDouble* PriorMean         = nullptr,
-               const MatrixSymmetric* PriorCov = nullptr);
+  Id setBayes(const VectorDouble* PriorMeans   = nullptr,
+              const MatrixSymmetric* PriorCovs = nullptr);
   Id setXvalidUnique(const VectorInt* rankXvalidEqs  = nullptr,
-                      const VectorInt* rankXvalidVars = nullptr);
+                     const VectorInt* rankXvalidVars = nullptr);
   Id setColCokUnique(const VectorDouble* Zp      = nullptr,
-                      const VectorInt* rankColCok = nullptr);
+                     const VectorInt* rankColCok = nullptr);
 
   void printStatus() const;
   void dumpLHS(Id nbypas = 5) const;
@@ -72,9 +73,9 @@ public:
   const MatrixSymmetric* getStdvMat();
   const MatrixSymmetric* getVarianceZstarMat();
   const MatrixSymmetric* getPostCov();
-  const MatrixDense*     getLambda();
-  const MatrixDense*     getLambda0();
-  const MatrixDense*     getMu();
+  const MatrixDense* getLambda();
+  const MatrixDense* getLambda0();
+  const MatrixDense* getMu();
   double getLTerm();
   bool isDual() const { return _flagDual; }
 
@@ -180,30 +181,30 @@ private:
 
 private:
   // Following information should not be removed in destructor
-  const MatrixSymmetric* _Sigma00;  // Variance at Target (Dim: _nrhs * _nrhs)
-  const MatrixSymmetric* _Sigma;    // Covariance Matrix (Dim: _neq * _neq)
-  const MatrixDense* _Sigma0;       // Covariance at Target (Dim: _neq * _nrhs)
-  const MatrixDense* _X;            // Drift at Data (Dim: _neq * _nbfl)
-  const MatrixSymmetric* _PriorCov; // Bayesian Prior Covariance (Dim: _nbfl * _nbfl)
-  const VectorDouble* _Z;                 // Data [flattened] (Dim: _neq)
-  const MatrixDense* _X0;           // Drift at Target (Dim: _nrhs * _nbfl)
-  const VectorDouble* _PriorMean;         // Prior Bayesian Mean (Dim: _nbfl)
-  const VectorDouble* _Means;             // Fixed drift coefficients
-  const VectorDouble* _Zp;                // Vector of values for collocation
-  const VectorInt* _rankColCok;           // Ranks of collocated variables
-  const VectorInt* _rankXvalidEqs;        // Ranks of the cross-validated Equations
-  const VectorInt* _rankXvalidVars;       // Ranks of the cross-validated Variables
-  const VectorVectorInt* _sampleRanks;    // Vector of Vector of sampl indices per variable
+  const MatrixSymmetric* _Sigma00;     // Variance at Target (Dim: _nrhs * _nrhs)
+  const MatrixSymmetric* _Sigma;       // Covariance Matrix (Dim: _neq * _neq)
+  const MatrixDense* _Sigma0;          // Covariance at Target (Dim: _neq * _nrhs)
+  const MatrixDense* _X;               // Drift at Data (Dim: _neq * _nbfl)
+  const MatrixSymmetric* _PriorCovs;   // Bayesian Prior Covariance (Dim: _nbfl * _nbfl)
+  const VectorDouble* _Z;              // Data [flattened] (Dim: _neq)
+  const MatrixDense* _X0;              // Drift at Target (Dim: _nrhs * _nbfl)
+  const VectorDouble* _PriorMeans;     // Prior Bayesian Mean (Dim: _nbfl)
+  const VectorDouble* _Means;          // Fixed drift coefficients
+  const VectorDouble* _Zp;             // Vector of values for collocation
+  const VectorInt* _rankColCok;        // Ranks of collocated variables
+  const VectorInt* _rankXvalidEqs;     // Ranks of the cross-validated Equations
+  const VectorInt* _rankXvalidVars;    // Ranks of the cross-validated Variables
+  const VectorVectorInt* _sampleRanks; // Vector of Vector of sampl indices per variable
 
   // Following elements can be retrieved by Interface functions
-  VectorDouble _Zstar;            // Estimated values (Dim: _nrhs)
-  VectorDouble _Beta;             // Drift coefficients (Dim: _nbfl)
-  MatrixDense _LambdaSK;          // Weights for SK (Dim: _neq * _nrhs)
-  MatrixDense _LambdaUK;          // Weights for UK (Dim: _neq * _nrhs)
-  MatrixDense _MuUK;              // Lagrange multipliers (Dim: _nbfl * _nrhs)
-  MatrixSymmetric _Stdv;          // Estimation stdv. (Dim: _nrhs * _nrhs)
-  MatrixSymmetric _VarZSK;        // Estimator variance in SK (Dim: _nrhs * _nrhs)
-  MatrixSymmetric _VarZUK;        // Estimator variance in UK (Dim: _nrhs * _nrhs)
+  VectorDouble _Zstar;     // Estimated values (Dim: _nrhs)
+  VectorDouble _Beta;      // Drift coefficients (Dim: _nbfl)
+  MatrixDense _LambdaSK;   // Weights for SK (Dim: _neq * _nrhs)
+  MatrixDense _LambdaUK;   // Weights for UK (Dim: _neq * _nrhs)
+  MatrixDense _MuUK;       // Lagrange multipliers (Dim: _nbfl * _nrhs)
+  MatrixSymmetric _Stdv;   // Estimation stdv. (Dim: _nrhs * _nrhs)
+  MatrixSymmetric _VarZSK; // Estimator variance in SK (Dim: _nrhs * _nrhs)
+  MatrixSymmetric _VarZUK; // Estimator variance in UK (Dim: _nrhs * _nrhs)
 
   // Following elements are defined for internal storage
   MatrixDense _XtInvSigma;      // X^t * Inv{Sigma} (Dim: _nbfl * _neq);
@@ -211,17 +212,17 @@ private:
   MatrixDense _InvSigmaSigma0;  // Inv{Sigma} * Sigma0 (Dim: _neq * _nrhs)
   MatrixSymmetric _InvSigma;    // Inv{Sigma} (Dim: _neq * _neq)
   MatrixSymmetric _Sigmac;      // Inv{X^t * Inv{Sigma} * X} (Dim: _nbfl * _nbfl)
-  MatrixSymmetric _InvPriorCov; // Inv{PriorCov} (Dim: _nbfl * _nbfl)
+  MatrixSymmetric _InvPriorCov; // Inv{PriorCovs} (Dim: _nbfl * _nbfl)
 
   // Following elements are defined for internal storage (collocated case in UN)
-  MatrixSymmetric _Sigma00pp;        // ColCok Variance T-T (Dim: _ncck * _ncck)
-  MatrixDense _Sigma00p;             // ColCok Variance D-T (Dim: _ncck * _nrhs)
-  MatrixDense _Sigma0p;              // Collocated Covariance (Dim: _neq * _ncck)
-  MatrixDense _X0p;                  // Collocated Drift (Dim: _ncck * _nbfl)
-  MatrixDense _Y0p;                  // X0p - Sigma0p^t * Inv{Sigma} * X (Dim: _ncck *_nbfl)
-  VectorInt _rankColVars;            // Ranks of active collocated variables
-  VectorDouble _Z0p;                 // Vector of (active) collocated values
-  MatrixDense _Lambda0;              // Collocated weights (Dim: _ncck * _nrhs)
+  MatrixSymmetric _Sigma00pp; // ColCok Variance T-T (Dim: _ncck * _ncck)
+  MatrixDense _Sigma00p;      // ColCok Variance D-T (Dim: _ncck * _nrhs)
+  MatrixDense _Sigma0p;       // Collocated Covariance (Dim: _neq * _ncck)
+  MatrixDense _X0p;           // Collocated Drift (Dim: _ncck * _nbfl)
+  MatrixDense _Y0p;           // X0p - Sigma0p^t * Inv{Sigma} * X (Dim: _ncck *_nbfl)
+  VectorInt _rankColVars;     // Ranks of active collocated variables
+  VectorDouble _Z0p;          // Vector of (active) collocated values
+  MatrixDense _Lambda0;       // Collocated weights (Dim: _ncck * _nrhs)
 
   // Following elements are defined for Dual programming
   VectorDouble _bDual; // Fake Covariance part in Dual (Dim: _neq)
@@ -242,4 +243,4 @@ private:
   bool _flagBayes;
   bool _flagDual;
 };
-}
+} // namespace gstlrn

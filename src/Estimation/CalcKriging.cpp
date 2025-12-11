@@ -34,8 +34,6 @@ CalcKriging::CalcKriging(bool flag_est, bool flag_std, bool flag_varZ)
   , _flagVarZ(flag_varZ)
   , _nameCoord()
   , _flagBayes(false)
-  , _priorMean()
-  , _priorCov()
   , _iechSingleTarget(-1)
   , _verboseSingleTarget(false)
   , _flagGam(false)
@@ -230,7 +228,7 @@ bool CalcKriging::_run()
   if (ksys.updKrigOptEstim(_iptrEst, _iptrStd, _iptrVarZ)) return false;
   if (_flagBayes)
   {
-    ksys.setKrigOptBayes(true, _priorMean, _priorCov);
+    ksys.setKrigOptBayes(true);
   }
   if (_flagGam)
   {
@@ -418,9 +416,6 @@ Id krigcell(Db* dbin,
  ** \param[in]  dbout      output Db structure
  ** \param[in]  model      ModelGeneric structure
  ** \param[in]  neigh      ANeigh structure
- ** \param[in]  prior_mean Array giving the prior means for the drift terms
- ** \param[in]  prior_cov  Array containing the prior covariance matrix
- **                        for the drift terms
  ** \param[in]  flag_est   Pointer for the storing the estimation
  ** \param[in]  flag_std   Pointer for the storing the standard deviation
  ** \param[in]  namconv     Naming convention
@@ -430,8 +425,6 @@ Id kribayes(Db* dbin,
             Db* dbout,
             ModelGeneric* model,
             ANeigh* neigh,
-            const VectorDouble& prior_mean,
-            const MatrixSymmetric& prior_cov,
             bool flag_est,
             bool flag_std,
             const NamingConvention& namconv)
@@ -445,8 +438,6 @@ Id kribayes(Db* dbin,
   krige.setNamingConvention(namconv);
 
   krige.setFlagBayes(true);
-  krige.setPriorMean(prior_mean);
-  krige.setPriorCov(prior_cov);
 
   // Run the calculator
   Id error = (krige.run()) ? 0 : 1;

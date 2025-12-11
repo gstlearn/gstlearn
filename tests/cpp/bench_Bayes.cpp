@@ -16,19 +16,19 @@
 #include "Basic/NamingConvention.hpp"
 #include "Enum/ESpaceType.hpp"
 
-#include "Matrix/MatrixSymmetric.hpp"
-#include "Space/ASpace.hpp"
-#include "Space/ASpaceObject.hpp"
-#include "Db/Db.hpp"
-#include "Db/DbStringFormat.hpp"
-#include "Basic/Law.hpp"
-#include "Model/Model.hpp"
 #include "Basic/File.hpp"
+#include "Basic/Law.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "Neigh/NeighUnique.hpp"
-#include "Neigh/NeighMoving.hpp"
+#include "Db/Db.hpp"
+#include "Db/DbStringFormat.hpp"
 #include "Estimation/CalcKriging.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
+#include "Model/Model.hpp"
+#include "Neigh/NeighMoving.hpp"
+#include "Neigh/NeighUnique.hpp"
+#include "Space/ASpace.hpp"
+#include "Space/ASpaceObject.hpp"
 
 using namespace gstlrn;
 
@@ -44,9 +44,9 @@ int main(int argc, char* argv[])
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Parameters
-  bool verbose    = false;
-  Id nech         = 3;
-  Id nvar         = 1;
+  bool verbose = false;
+  Id nech      = 3;
+  Id nvar      = 1;
 
   // Generate the data base
   Db* data = Db::createFillRandom(nech, ndim, nvar, 0);
@@ -70,15 +70,17 @@ int main(int argc, char* argv[])
   ANeigh* neigh = NeighUnique::create();
 
   // Create the Bayesian Priors for Drift coefficients
-  VectorDouble PriorMean = VH::simulateGaussian(nvar);
-  MatrixSymmetric PriorCov(nvar);
-  PriorCov.setDiagonal(VH::simulateUniform(nvar, 0.1, 0.5));
+  VectorDouble PriorMeans = VH::simulateGaussian(nvar);
+  MatrixSymmetric PriorCovs(nvar);
+  PriorCovs.setDiagonal(VH::simulateUniform(nvar, 0.1, 0.5));
 
   // Define the verbose option
   if (verbose) OptDbg::setReference(1);
 
   // Test on Bayesian
-  kribayes(data, target, model, neigh, PriorMean, PriorCov);
+  model->setPriorMeans(PriorMeans);
+  model->setPriorCovs(PriorCovs);
+  kribayes(data, target, model, neigh);
   dbfmt = DbStringFormat::create(FLAG_STATS, {"Kriging.*"});
   target->display(dbfmt);
 

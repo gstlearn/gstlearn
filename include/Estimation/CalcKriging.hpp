@@ -58,8 +58,6 @@ public:
   CalcKriging& operator=(const CalcKriging& r) = delete;
   virtual ~CalcKriging();
 
-  void setPriorCov(const MatrixSymmetric& priorCov) { _priorCov = priorCov; }
-  void setPriorMean(const VectorDouble& priorMean) { _priorMean = priorMean; }
   void setFlagBayes(bool flagBayes) { _flagBayes = flagBayes; }
   void setIechSingleTarget(Id iechSingleTarget) { _iechSingleTarget = iechSingleTarget; }
   void setVerboseSingleTarget(bool verbose) { _verboseSingleTarget = verbose; }
@@ -91,8 +89,6 @@ private:
   VectorString _nameCoord;
 
   bool _flagBayes;
-  VectorDouble _priorMean;
-  MatrixSymmetric _priorCov;
 
   Id _iechSingleTarget;
   bool _verboseSingleTarget;
@@ -137,12 +133,10 @@ GSTLEARN_EXPORT Id krigcell(Db* dbin,
 GSTLEARN_EXPORT Id kribayes(Db* dbin,
                             Db* dbout,
                             ModelGeneric* model,
-                            ANeigh* neigh                    = nullptr,
-                            const VectorDouble& prior_mean   = VectorDouble(),
-                            const MatrixSymmetric& prior_cov = MatrixSymmetric(),
-                            bool flag_est                    = true,
-                            bool flag_std                    = true,
-                            const NamingConvention& namconv  = NamingConvention("Bayes"));
+                            ANeigh* neigh                   = nullptr,
+                            bool flag_est                   = true,
+                            bool flag_std                   = true,
+                            const NamingConvention& namconv = NamingConvention("Bayes"));
 GSTLEARN_EXPORT Id kriggam(Db* dbin,
                            Db* dbout,
                            ModelGeneric* model,

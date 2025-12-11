@@ -15,6 +15,7 @@
 #include "Db/Db.hpp"
 #include "Drifts/ADrift.hpp"
 #include "Drifts/DriftFactory.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 
 namespace gstlrn
 {
@@ -28,7 +29,14 @@ DriftList::DriftList(const CovContext& ctxt)
   , _filtered()
   , _ctxt(ctxt)
   , _mean(VectorDouble(ctxt.getNVar(), 0.))
+  , _priorMeans()
+  , _priorCovs()
 {
+  auto nfeq   = getNDriftEquation();
+  _priorMeans = VectorDouble(nfeq, 0.);
+  MatrixSymmetric pcov(nfeq);
+  pcov.setIdentity();
+  _priorCovs = pcov;
 }
 
 DriftList::DriftList(const DriftList& r)
@@ -41,6 +49,8 @@ DriftList::DriftList(const DriftList& r)
   , _filtered(r._filtered)
   , _ctxt(r._ctxt)
   , _mean(r._mean)
+  , _priorMeans(r._priorMeans)
+  , _priorCovs(r._priorCovs)
 {
   for (const auto& e: r._drifts)
   {
@@ -57,6 +67,8 @@ DriftList& DriftList::operator=(const DriftList& r)
     _flagCombined = r._flagCombined;
     _driftCL      = r._driftCL;
     _mean         = r._mean;
+    _priorMeans   = r._priorMeans;
+    _priorCovs    = r._priorCovs;
     for (const auto& e: r._drifts)
     {
       _drifts.push_back(dynamic_cast<ADrift*>(e->clone()));
@@ -81,8 +93,17 @@ void DriftList::copyCovContext(const CovContext& ctxt)
 
 void DriftList::_update()
 {
-  if (static_cast<Id>(_mean.size()) != _ctxt.getNVar())
-    _mean = VectorDouble(_ctxt.getNVar(), 0.);
+  Id nvar = _ctxt.getNVar();
+  if (static_cast<Id>(_mean.size()) != nvar)
+    _mean = VectorDouble(nvar, 0.);
+  if (static_cast<Id>(_priorMeans.size()) != nvar)
+    _priorMeans = VectorDouble(nvar, 0.);
+  if (_priorCovs.getNRows() != nvar || _priorCovs.getNCols() != nvar)
+  {
+    MatrixSymmetric pcov(nvar);
+    pcov.setIdentity();
+    _priorCovs = pcov;
+  }
 }
 
 String DriftList::toString(const AStringFormat* /*strfmt*/) const
@@ -816,6 +837,41 @@ void DriftList::setMean(const double mean, Id ivar)
     return;
   }
   _mean[ivar] = mean;
+}
+
+void DriftList::setPriorMeans(const VectorDouble& priorMeans)
+{
+  Id nfeq = getNDriftEquation();
+  if (static_cast<Id>(priorMeans.size()) != nfeq)
+  {
+    messerr("Dimension of 'priorMeans' (%d) does not match number of drift equations (%d)",
+            static_cast<Id>(priorMeans.size()), nfeq);
+    return;
+  }
+  _priorMeans = priorMeans;
+}
+
+void DriftList::setPriorCovs(const MatrixSymmetric& priorCovs)
+{
+  Id nfeq = getNDriftEquation();
+  if (priorCovs.getNRows() != nfeq || priorCovs.getNCols() != nfeq)
+  {
+    messerr("Dimensions of 'priorCovs' (%d, %d) does not match number of drift equations (%d)",
+            priorCovs.getNRows(), priorCovs.getNCols(), nfeq);
+    return;
+  }
+  _priorCovs = priorCovs;
+}
+
+double DriftList::getPriorCov(Id i1, Id i2) const
+{
+  Id nfeq = getNDriftEquation();
+  if (_priorCovs.getNRows() != nfeq || _priorCovs.getNCols() != nfeq)
+  {
+    messerr("Prior covariance matrix is not defined");
+    return TEST;
+  }
+  return _priorCovs.getValue(i1, i2);
 }
 
 /****************************************************************************/

@@ -42,10 +42,9 @@ public:
                   bool flag_cumul,
                   bool flag_ext,
                   bool flag_Z,
+                  bool flag_bayes,
                   bool match_time,
                   Id irf_rank,
-                  const VectorDouble& prior_mean,
-                  const VectorDouble& prior_vars,
                   const String& namerefd,
                   const String& namereft,
                   const String& namerefb);
@@ -150,7 +149,6 @@ private:
                  MatrixSquare* a,
                  VectorDouble& zval,
                  VectorDouble& dual,
-                 const VectorDouble& prior_mean,
                  VectorDouble& prop1,
                  VectorDouble& prop2,
                  MatrixSquare& covtab,
@@ -168,8 +166,6 @@ private:
   void _checkAuxiliaryVariables(VectorInt& seltab);
   void _convertResults();
   Id _calculateDriftBayes(bool verbose,
-                          const VectorDouble& prior_mean,
-                          const VectorDouble& prior_vars,
                           MatrixSquare* acov,
                           VectorDouble& zval,
                           MatrixDense& fftab,
@@ -222,8 +218,6 @@ private:
   Id _npar;        /* Nb. of layers * Nb. of drift functions */
   Id _neq;         /* Total count of equations */
   Id _irfRank;     /* Rank of the IRF */
-  VectorDouble _priorMean;
-  VectorDouble _priorVars;
   Db* _dbin;
   DbGrid* _dbout;
   const Model* _model;
@@ -237,11 +231,10 @@ GSTLEARN_EXPORT Id multilayers_kriging(Db* dbin,
                                        bool flag_vel                   = false,
                                        bool flag_cumul                 = false,
                                        bool flag_ext                   = false,
+                                       bool flag_bayes                 = false,
                                        bool flag_std                   = false,
                                        bool match_time                 = false,
                                        Id irf_rank                     = 0,
-                                       const VectorDouble& prior_mean  = VectorDouble(),
-                                       const VectorDouble& prior_vars  = VectorDouble(),
                                        const String& namerefd          = String(),
                                        const String& namereft          = String(),
                                        const String& namerefb          = String(),

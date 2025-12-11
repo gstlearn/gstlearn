@@ -156,7 +156,13 @@ public:
   void setMean(const double mean, Id ivar = 0);
   double getMean(Id ivar) const;
   const VectorDouble& getMeans() const { return _mean; }
+  void setPriorMeans(const VectorDouble& priorMeans);
+  void setPriorCovs(const MatrixSymmetric& priorCovs);
   const DriftList* createReduce(const VectorInt& validVars) const;
+
+  const VectorDouble& getPriorMeans() const { return _priorMeans; }
+  const MatrixSymmetric& getPriorCovs() const { return _priorCovs; }
+  double getPriorCov(Id i1, Id i2) const;
 
   double evalDriftVarCoef(const Db* db,
                           Id iech,
@@ -201,6 +207,8 @@ protected:
   VectorBool _filtered;         /* Vector of filtered flags (Dimension: as _drifts) */
   CovContext _ctxt;             /* Context (space, number of variables, ...) */
   VectorDouble _mean;           /*  Mean vector */
+  VectorDouble _priorMeans;     /* Prior mean vector (only for Bayesian hypothesis) */
+  MatrixSymmetric _priorCovs;   /* Prior covariance matrix (only for Bayesian hypothesis) */
 #endif
 };
 } // namespace gstlrn

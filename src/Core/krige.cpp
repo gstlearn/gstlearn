@@ -1410,9 +1410,6 @@ static void st_result_kriging_print(Id flag_xvalid, Id nvar, Id status)
  ** \param[in]  model      Model structure
  ** \param[in]  neigh      ANeigh structure
  ** \param[in]  flag_bayes 1 if Bayes option is switched ON
- ** \param[in]  dmean      Array giving the prior means for the drift terms
- ** \param[in]  dcov       Array containing the prior covariance matrix
- **                        for the drift terms
  ** \param[in]  icase      Case for PGS and GRF (or -1)
  ** \param[in]  nbsimu     Number of simulations
  ** \param[in]  flag_dgm   1 if the DGM version of kriging should be used
@@ -1426,8 +1423,6 @@ Id _krigsim(Db* dbin,
             const Model* model,
             ANeigh* neigh,
             bool flag_bayes,
-            const VectorDouble& dmean,
-            const MatrixSymmetric& dcov,
             Id icase,
             Id nbsimu,
             bool flag_dgm)
@@ -1453,7 +1448,7 @@ Id _krigsim(Db* dbin,
   KrigingSystem ksys(dbin, dbout, model, neigh, krigopt);
   if (ksys.setKrigOptFlagSimu(true, nbsimu, icase)) return 1;
   if (ksys.updKrigOptEstim(iptr_est, -1, -1, true)) return 1;
-  if (ksys.setKrigOptBayes(flag_bayes, dmean, dcov)) return 1;
+  if (ksys.setKrigOptBayes(flag_bayes)) return 1;
   if (!ksys.isReady()) return 1;
 
   /* Loop on the targets to be processed */
