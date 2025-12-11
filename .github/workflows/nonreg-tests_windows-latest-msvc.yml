@@ -80,11 +80,11 @@ jobs:
 
     - name: Build the package
       run: |
-        cmake --build ${{env.BUILD_DIR}} --parallel 3
+        cmake --build ${{env.BUILD_DIR}} --parallel 3 --config Release
 
     - name: Install packages and execute non-regression tests
       run: |
-        cmake --build ${{env.BUILD_DIR}} --target check
+        cmake --build ${{env.BUILD_DIR}} --target check --config Release
 
     - name: Compress output logs and neutral files
       if: success() || failure()
