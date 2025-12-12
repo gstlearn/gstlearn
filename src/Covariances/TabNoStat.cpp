@@ -75,7 +75,7 @@ void TabNoStat::updateDescription()
 bool TabNoStat::isElemDefined(const EConsElem& econs, Id iv1, Id iv2) const
 {
   ParamId conselem(econs, iv1, iv2);
-  return _items.count(conselem) > 0; // Warning : use count for C++17 compatibility
+  return _items.contains(conselem);
 }
 
 std::shared_ptr<ANoStat> TabNoStat::getElem(const EConsElem& econs, Id iv1, Id iv2)
