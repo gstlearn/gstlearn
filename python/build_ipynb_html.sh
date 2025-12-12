@@ -35,10 +35,16 @@ fi
 mkdir -p $out_dir
 
 flist=$(ls $in_dir/python/*.ipynb)
+status=0
 for fsc in $flist 
 do
   echo "  Processing $fsc"
   python3 $runner $fsc $out_dir html
+  if [ $? -ne 0 ]; then
+    status=1
+  fi
 done
 
 echo "Done"
+
+exit $status
