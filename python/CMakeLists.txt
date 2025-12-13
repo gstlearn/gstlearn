@@ -228,10 +228,14 @@ file(GENERATE
   INPUT ${CMAKE_CURRENT_BINARY_DIR}/version.py.in
 )
 
-# Generate README.md for each configuration
+# Generate README.md and LICENSE for each configuration
 file(GENERATE
   OUTPUT ${PYTHON_PACKAGE_ROOT_FOLDER}/README.md
   INPUT  ${CMAKE_CURRENT_SOURCE_DIR}/README.md
+)
+file(GENERATE
+  OUTPUT ${PYTHON_PACKAGE_ROOT_FOLDER}/LICENSE
+  INPUT  ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE
 )
 
 # Copy each modules to package *destination* folder for each configuration
