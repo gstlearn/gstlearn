@@ -1,4 +1,4 @@
-# This script is meant to visualize any serialized object 
+# This script is meant to visualize any serialized object
 # from the current Directory
 
 import sys
@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 from pandas.core.sorting import nargsort
 from numpy._core.defchararray import isnumeric
 
+
 def getVariableNames(db, ranks):
     names = []
     for i in ranks:
@@ -19,14 +20,16 @@ def getVariableNames(db, ranks):
             name = i
         names.append(name)
     return names
-    
+
+
 def checkValidPointer(pointer):
     if not pointer:
         print(" ")
         print("The object has not been read correctly")
         print("Procedure is stopped")
         exit()
-        
+
+
 args = sys.argv
 nargs = len(args)
 if nargs < 2:
@@ -72,9 +75,9 @@ if filetype == "Db":
     else:
         gp.correlation(db, nameX, nameY, asPoint=True)
         plt.show()
-            
+
 elif filetype == "DbGrid":
-    dbgrid = gl.DbGrid.createFromNF(filename,False)
+    dbgrid = gl.DbGrid.createFromNF(filename, False)
     checkValidPointer(dbgrid)
     if len(ranks) > 0:
         varnames = getVariableNames(dbgrid, ranks)
@@ -91,7 +94,7 @@ elif filetype == "DbGrid":
     else:
         print("Number of Variable rank should be 0 or 1")
         exit()
-    
+
     if flagDb:
         if dbgrid.getNDim() > 1:
             gp.raster(dbgrid, name, flagLegend=True, legendName="")
@@ -104,59 +107,59 @@ elif filetype == "DbGrid":
     else:
         gp.correlation(dbgrid, nameX, nameY, asPoint=False, bins=100, cmin=1)
         plt.show()
-        
+
 elif filetype == "Vario":
-    vario = gl.Vario.createFromNF(filename,False)
+    vario = gl.Vario.createFromNF(filename, False)
     checkValidPointer(vario)
     filetaux = gl.ASerializable.getFileIdentity(fileaux, verbose)
-    
+
     if filetaux == "Model":
-        model = gl.Model.createFromNF(fileaux,False)
+        model = gl.Model.createFromNF(fileaux, False)
         checkValidPointer(model)
         gp.varmod(vario, model)
         plt.show()
     else:
         gp.variogram(vario, idir=-1)
         plt.show()
-    
+
 elif filetype == "Model":
-    model = gl.Model.createFromNF(filename,False)
+    model = gl.Model.createFromNF(filename, False)
     checkValidPointer(model)
     filetaux = gl.ASerializable.getFileIdentity(fileaux, verbose)
-    
+
     if filetaux == "Vario":
-        vario = gl.Vario.createFromNF(fileaux,False)
+        vario = gl.Vario.createFromNF(fileaux, False)
         checkValidPointer(vario)
         gp.varmod(vario, model)
         plt.show()
     else:
         gp.model(model)
         plt.show()
-    
+
 elif filetype == "Rule":
-    rule = gl.Rule.createFromNF(filename,False)
+    rule = gl.Rule.createFromNF(filename, False)
     checkValidPointer(rule)
     gp.rule(rule)
     plt.show()
-    
+
 elif filetype == "Table":
-    table = gl.Table.createFromNF(filename,False)
+    table = gl.Table.createFromNF(filename, False)
     checkValidPointer(table)
-    gp.table(table,ranks)
+    gp.table(table, ranks)
     gp.decoration(title=filename)
     plt.show()
 
 elif filetype == "Polygon":
-    poly = gl.Polygons.createFromNF(filename,False)
+    poly = gl.Polygons.createFromNF(filename, False)
     checkValidPointer(poly)
-    gp.polygon(poly,colorPerSet=True,flagFace=False)
+    gp.polygon(poly, colorPerSet=True, flagFace=False)
     plt.show()
-      
+
 elif filetype == "MeshETurbo":
     mesh = gl.MeshETurbo.createFromNF(filename, False)
     checkValidPointer(mesh)
     gp.mesh(mesh, flagEdge=True, flagApex=True)
     plt.show()
- 
+
 else:
     print("This type of file is UNKNOWN in draw_file:", filetype)

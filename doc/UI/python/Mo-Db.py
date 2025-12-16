@@ -18,6 +18,7 @@ def _():
     import matplotlib.pyplot as plt
     import copy
     from IPython.display import Markdown
+
     return Markdown, alt, copy, gdoc, gl, gmo, gp, mo, np, plt
 
 
@@ -34,9 +35,10 @@ def _(WidgetDb, gmo, gp):
 
         fig = None
         if db is not None:
-            fig, ax = gp.init(figsize=[4,4])
+            fig, ax = gp.init(figsize=[4, 4])
             ax.symbol(db)
         return fig
+
     return (myplot,)
 
 
@@ -44,16 +46,12 @@ def _(WidgetDb, gmo, gp):
 def _(WidgetDb, gmo, mo, myplot):
     param = mo.ui.tabs(
         {
-            "Data":       gmo.WshowDb(WidgetDb),
+            "Data": gmo.WshowDb(WidgetDb),
         }
     ).style({"minWidth": "350px", "width": "350px"})
 
     simu = mo.vstack(
-        [
-             mo.md(""),
-             mo.md(f"Plotting the Data Base:{mo.as_html(myplot())}")
-        ],
-        gap = 4
+        [mo.md(""), mo.md(f"Plotting the Data Base:{mo.as_html(myplot())}")], gap=4
     )
 
     mo.hstack([param, simu], gap=4)
