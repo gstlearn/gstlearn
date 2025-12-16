@@ -1,11 +1,13 @@
 import os
 import re
+
+
 def extract_macro_calls(header_file, macro_name):
     # Utilisation de os.path pour manipuler les chemins de manière portable
     classname = os.path.basename(header_file).split(".")[0]
     macro_calls = []
     macro_pattern = rf"^(?!#define\s+{macro_name})\s*{macro_name}\((.*?)\)"
-    with open(header_file, 'r') as file:
+    with open(header_file, "r") as file:
         for line in file:
             match = re.findall(macro_pattern, line, re.MULTILINE)
             if match:
@@ -17,12 +19,14 @@ def extract_macro_calls(header_file, macro_name):
                     if len(contents) == 3:
                         body, func_name, arg = contents
                     else:
-                        print("The macro should have 2 or 3 arguments")  
+                        print("The macro should have 2 or 3 arguments")
                 macro_calls += [(classname, func_name.strip(), body.strip(), arg)]
     return macro_calls
-    
+
+
 import os
 import re
+
 
 def find_function_return_type_in_file(method_name, header_path):
     """
@@ -34,7 +38,7 @@ def find_function_return_type_in_file(method_name, header_path):
         print(f"Error: File not found: {header_path}")
         return None
 
-    with open(header_path, 'r', encoding='utf-8') as f:
+    with open(header_path, "r", encoding="utf-8") as f:
         lines = f.readlines()
 
     buffer = ""
@@ -45,7 +49,10 @@ def find_function_return_type_in_file(method_name, header_path):
 
         # Start collecting only if the line looks like a method declaration
         if not collecting:
-            if re.match(rf'^(virtual\s+)?[\w:<>\s*&]+[\s*&]+{re.escape(method_name)}\s*\(', stripped):
+            if re.match(
+                rf"^(virtual\s+)?[\w:<>\s*&]+[\s*&]+{re.escape(method_name)}\s*\(",
+                stripped,
+            ):
                 collecting = True
 
         if collecting:
@@ -58,26 +65,27 @@ def find_function_return_type_in_file(method_name, header_path):
         return None
 
     # Remove comments
-    buffer = re.sub(r'//.*', '', buffer)
-    buffer = re.sub(r'/\*.*?\*/', '', buffer)
+    buffer = re.sub(r"//.*", "", buffer)
+    buffer = re.sub(r"/\*.*?\*/", "", buffer)
 
     # Try extracting the return type
     match = re.match(
-        rf'^(?:virtual\s+)?([\w:<>\s,&*]+?)\s+\**{re.escape(method_name)}\s*\(',
-        buffer.strip()
+        rf"^(?:virtual\s+)?([\w:<>\s,&*]+?)\s+\**{re.escape(method_name)}\s*\(",
+        buffer.strip(),
     )
 
     if match:
         return_type = match.group(1)
         # Clean return type (remove const, &, *, extra spaces)
-        return_type = return_type.replace('const', '')
-        return_type = return_type.replace('&', '')
-        return_type = return_type.replace('*', '')
+        return_type = return_type.replace("const", "")
+        return_type = return_type.replace("&", "")
+        return_type = return_type.replace("*", "")
         return_type = return_type.strip()
         return return_type
 
     print(f"Warning: Could not parse return type for '{method_name}' in {header_path}")
     return None
+
 
 def find_include_folder_in_file(classname, file_path):
     """
@@ -99,7 +107,6 @@ def find_include_folder_in_file(classname, file_path):
 
     print(f"Error: Ligne d'#include pour {classname}.hpp non trouvée dans {file_path}")
     return None
-   
 
 
 def find_header_file_recursive(class_name, root_dir):
@@ -112,21 +119,23 @@ def find_header_file_recursive(class_name, root_dir):
         if target in files:
             return os.path.join(dirpath, target)
     return None
-    
+
+
 def extract_class_and_bases(line):
-    pattern = r'class\s+\w+\s+(\w+)\s*[:\s]*([^{\n]+)?\s*(\{)?'
+    pattern = r"class\s+\w+\s+(\w+)\s*[:\s]*([^{\n]+)?\s*(\{)?"
     match = re.match(pattern, line)
     if match:
         class_name = match.group(1)
         base_classes_raw = match.group(2)
         if base_classes_raw:
-            base_classes_raw = base_classes_raw.split(',')
-            base_classes = [b.replace('public', '').strip() for b in base_classes_raw]
+            base_classes_raw = base_classes_raw.split(",")
+            base_classes = [b.replace("public", "").strip() for b in base_classes_raw]
         else:
             base_classes = []
         return class_name, base_classes
     else:
         return None, []
+
 
 def find_header_for_class(class_name, root_folder):
     expected_file = f"{class_name}.hpp"
@@ -134,6 +143,7 @@ def find_header_for_class(class_name, root_folder):
         if expected_file in filenames:
             return os.path.join(dirpath, expected_file)
     return None
+
 
 def find_method_signature_in_header(method_name, header_path):
     if not os.path.isfile(header_path):
@@ -152,28 +162,33 @@ def find_method_signature_in_header(method_name, header_path):
         if not stripped or stripped.startswith("//") or stripped.startswith("/*"):
             continue
 
-        if not collecting and re.search(rf'\b{re.escape(method_name)}\s*\(', stripped):
+        if not collecting and re.search(rf"\b{re.escape(method_name)}\s*\(", stripped):
             collecting = True
 
         if collecting:
             signature_lines.append(stripped)
-            brace_depth += stripped.count('{') - stripped.count('}')
-            if (brace_depth == 0 and ';' in stripped) or (brace_depth <= 1 and '{' in stripped and '}' in stripped):
+            brace_depth += stripped.count("{") - stripped.count("}")
+            if (brace_depth == 0 and ";" in stripped) or (
+                brace_depth <= 1 and "{" in stripped and "}" in stripped
+            ):
                 break
 
     if not signature_lines:
         return None
 
-    full_signature = ' '.join(signature_lines)
-    full_signature = re.sub(r'\{[^{}]*\}', '', full_signature)
-    full_signature = re.sub(r'\s+', ' ', full_signature).strip()
+    full_signature = " ".join(signature_lines)
+    full_signature = re.sub(r"\{[^{}]*\}", "", full_signature)
+    full_signature = re.sub(r"\s+", " ", full_signature).strip()
 
-    if not full_signature.endswith(';'):
-        full_signature += ';'
+    if not full_signature.endswith(";"):
+        full_signature += ";"
 
     return full_signature
 
-def find_method_in_class_or_bases(class_name, method_name, root_folder, visited=None, depth=0, verbose = False):
+
+def find_method_in_class_or_bases(
+    class_name, method_name, root_folder, visited=None, depth=0, verbose=False
+):
     if visited is None:
         visited = set()
     if class_name in visited:
@@ -189,12 +204,14 @@ def find_method_in_class_or_bases(class_name, method_name, root_folder, visited=
     signature = find_method_signature_in_header(method_name, header_path)
     if signature:
         if depth > 0 and verbose:
-            print(f"Warning: Méthode '{method_name}' trouvée dans la base '{class_name}'")
+            print(
+                f"Warning: Méthode '{method_name}' trouvée dans la base '{class_name}'"
+            )
         return signature
 
     # 2. Si non trouvée, cherche dans les bases
     try:
-        with open(header_path, 'r', encoding='utf-8') as f:
+        with open(header_path, "r", encoding="utf-8") as f:
             lines = f.readlines()
     except Exception:
         return None
@@ -202,9 +219,10 @@ def find_method_in_class_or_bases(class_name, method_name, root_folder, visited=
     for line in lines:
         _, base_classes = extract_class_and_bases(line)
         for base_class in base_classes:
-            signature = find_method_in_class_or_bases(base_class, method_name, root_folder, visited, depth + 1)
+            signature = find_method_in_class_or_bases(
+                base_class, method_name, root_folder, visited, depth + 1
+            )
             if signature:
                 return signature
 
-    return None   
-
+    return None

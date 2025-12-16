@@ -3,13 +3,14 @@ import re
 import sys
 import os
 
-#The aim of this script is to indentify all the classes which inherits  (recursively) from AStringable in order
-#to add the extension 
-#%extend {class_name} {{
+# The aim of this script is to indentify all the classes which inherits  (recursively) from AStringable in order
+# to add the extension
+# %extend {class_name} {{
 #  std::string __repr__() {{
 #    return $self->toString();
 #  }}
-#in the swig.i file such that toString is automatically called in the target languages when the name of the object is given.
+# in the swig.i file such that toString is automatically called in the target languages when the name of the object is given.
+
 
 def extract_class_and_bases(line):
     """
@@ -21,26 +22,29 @@ def extract_class_and_bases(line):
     :return: Tuple (class name, list of inherited base classes)
     """
     # Modified regex to extract the class name and base classes, with or without braces on the same line
-    pattern = r'class\s+\w+\s+(\w+)\s*[:\s]*([^{\n]+)?\s*(\{)?'
+    pattern = r"class\s+\w+\s+(\w+)\s*[:\s]*([^{\n]+)?\s*(\{)?"
 
     match = re.match(pattern, line)
 
     if match:
         # Class name
         class_name = match.group(1)
-        
+
         # Inherited base classes, separated by commas (if any)
         base_classes_raw = match.group(2)
         if base_classes_raw:
-            base_classes_raw = base_classes_raw.split(',')
+            base_classes_raw = base_classes_raw.split(",")
             # Remove the word 'public' from each base class
-            base_classes = [base.replace('public', '').strip() for base in base_classes_raw]
+            base_classes = [
+                base.replace("public", "").strip() for base in base_classes_raw
+            ]
         else:
             base_classes = []
-        
+
         return class_name, base_classes
     else:
         return None, []
+
 
 def find_classes_inheriting_from_AStringable(root_folder):
     """
@@ -57,20 +61,20 @@ def find_classes_inheriting_from_AStringable(root_folder):
     # Traverse through the directory tree
     for root, _, files in os.walk(root_folder):
         for file in files:
-            if file.endswith('.hpp'):
+            if file.endswith(".hpp"):
                 file_path = os.path.join(root, file)
-                
+
                 try:
-                    with open(file_path, 'r', encoding='utf-8') as f:
+                    with open(file_path, "r", encoding="utf-8") as f:
                         for line in f:
                             # Extract class and base classes
                             class_name, base_classes = extract_class_and_bases(line)
-                            
+
                             if class_name:
                                 class_hierarchy[class_name] = base_classes
-                                
+
                                 # Check if the class inherits directly from AStringable
-                                if 'AStringable' in base_classes:
+                                if "AStringable" in base_classes:
                                     direct_inheritors.append(class_name)
                 except (UnicodeDecodeError, FileNotFoundError):
                     continue
@@ -93,13 +97,15 @@ def find_classes_inheriting_from_AStringable(root_folder):
                         break
         newly_found = current_found
         all_inheritors.update(newly_found)
-        
+
         level += 1
 
     # Return the classes sorted alphabetically
     return all_inheritors
 
+
 # Display all classes inheriting from AStringable (directly or indirectly) in alphabetical order
+
 
 def generate_swig_extend_code(class_name):
     """
@@ -121,11 +127,23 @@ if __name__ == "__main__":
     output_txt_file = sys.argv[1]
     include_path = os.path.join("..", "..", "include")
     Astringable_classes = sorted(find_classes_inheriting_from_AStringable(include_path))
-    with open(output_txt_file, "w", encoding='utf-8') as file:
-        excluded = ["AStringable","PrecisionOpMulti", "PrecisionOpMultiMatrix","MatrixSparse","Node", "GibbsUPropMono",
-                    "Tapering", "GibbsUPropMultiMono", "ElemNostat",
-                    "GibbsMultiMono", "RuleShift", "GibbsUMultiMono",
-                    "SpaceSN", "RuleShadow"]
+    with open(output_txt_file, "w", encoding="utf-8") as file:
+        excluded = [
+            "AStringable",
+            "PrecisionOpMulti",
+            "PrecisionOpMultiMatrix",
+            "MatrixSparse",
+            "Node",
+            "GibbsUPropMono",
+            "Tapering",
+            "GibbsUPropMultiMono",
+            "ElemNostat",
+            "GibbsMultiMono",
+            "RuleShift",
+            "GibbsUMultiMono",
+            "SpaceSN",
+            "RuleShadow",
+        ]
         for class_name in Astringable_classes:
-           if class_name not in excluded:
-            file.write(generate_swig_extend_code(class_name))
+            if class_name not in excluded:
+                file.write(generate_swig_extend_code(class_name))
