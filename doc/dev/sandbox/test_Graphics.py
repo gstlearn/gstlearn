@@ -1,12 +1,8 @@
 # Regular Packages
-import numpy as np
-import sys
-import os
 import gstlearn as gl
 import gstlearn.plot as gp
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-import matplotlib.cm as cm
 
 # Parameters
 # This test does not make sense as a non-regression test.

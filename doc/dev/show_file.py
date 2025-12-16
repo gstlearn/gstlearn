@@ -2,11 +2,7 @@
 # from the current Directory
 
 import sys
-import os
 import gstlearn as gl
-import gstlearn.plot as gp
-import matplotlib.pyplot as plt
-from pandas.core.sorting import nargsort
 from numpy._core.defchararray import isnumeric
 
 args = sys.argv
