@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 
 import sys
-import os
-import utils
 
 
 def replace_gstlrn_prefix(filename: str) -> None:

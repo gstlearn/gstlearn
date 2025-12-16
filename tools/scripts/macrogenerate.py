@@ -36,7 +36,7 @@ def generate_python_code(macro_calls, output_file, first=True):
     opt = "w" if first else "a"
     with open(output_file, opt) as file:
         file.write("%pythoncode %{\n")
-        file.write(f"import gstlearn as gl\n")
+        file.write("import gstlearn as gl\n")
         for classname, func_name, body, arg in macro_calls:
             python_body = body.replace("std::cout", "print").replace(";", "")
             file.write("\n")
@@ -58,11 +58,11 @@ def generate_r_code(macro_calls, output_file, first=True):
         file.write("%insert(s)%{\n")
         for classname, func_name, body, arg in macro_calls:
             python_body = body.replace("std::cout", "print").replace(";", "")
-            file.write(f"f = function(self,...)\n")
-            file.write(f"{{\n")
+            file.write("f = function(self,...)\n")
+            file.write("{\n")
             file.write(f"   return({classname}_{python_body}(self)${func_name}(...))\n")
-            file.write(f"}}\n")
-            file.write(f"\n")
+            file.write("}\n")
+            file.write("\n")
             file.write(
                 f"assign('{classname}_{func_name}', f , envir = asNamespace('gstlearn'))\n"
             )

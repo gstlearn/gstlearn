@@ -24,10 +24,6 @@ def extract_macro_calls(header_file, macro_name):
     return macro_calls
 
 
-import os
-import re
-
-
 def find_function_return_type_in_file(method_name, header_path):
     """
     Returns the cleaned return type (without pointer, reference, const, etc.)
