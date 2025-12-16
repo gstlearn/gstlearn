@@ -1,8 +1,6 @@
 # Preamble
 
 import numpy as np
-import sys
-import os
 import gstlearn as gl
 
 # Constants

@@ -1,7 +1,6 @@
 import gstlearn as gl
 import gstlearn.document as gdoc
 import pandas as pd
-import time
 import numpy as np
 
 filename1 = gdoc.loadData("benchmark", "sic_full.dat")

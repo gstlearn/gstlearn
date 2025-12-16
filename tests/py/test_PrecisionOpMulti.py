@@ -1,7 +1,6 @@
 # %%
 import gstlearn as gl
 import numpy as np
-import scipy.sparse.linalg
 
 
 def logit(x, a=1, b=0):
@@ -199,7 +198,7 @@ def testCase(result, simulate=True, matrix=True, ndig=11):
 
     vv = computeError(res, ref, ndig)
     message = (
-        f" Compare " + op + " with ref in the " + case + " case. Error = " + str(vv)
+        " Compare " + op + " with ref in the " + case + " case. Error = " + str(vv)
     )
     print(message)
 
@@ -252,31 +251,31 @@ def testAllSituations(model, mesh, verbose=True, ndig=11):
 
     vv = computeError(result["resevalmat"], result["reseval"], ndig)
     print(
-        f" Compare evalDirect between the matrix case and the matrix-free case. Error = "
+        " Compare evalDirect between the matrix case and the matrix-free case. Error = "
         + str(vv)
     )
-    print(f"---------------------------")
+    print("---------------------------")
 
     return result
 
 
 def test(nvar=1, multistruct=True, ndig=10):
-    print(f"-----------------------------------------------")
+    print("-----------------------------------------------")
     print(
-        f"|      Case: nvar = "
+        "|      Case: nvar = "
         + str(nvar)
         + " multistruct = "
         + str(multistruct)
         + "      |"
     )
-    print(f"-----------------------------------------------")
+    print("-----------------------------------------------")
 
     resultAll = dict()
     for i in ["Stat", "Fake", "Real"]:
         if i == "Real" and nvar == 3:
             continue
-        print(f"No stationarity case: " + i)
-        print(f"---------------------------")
+        print("No stationarity case: " + i)
+        print("---------------------------")
         modelMulti, meshes = create(
             nvar=nvar, multistruct=multistruct, nostatType=i, nx1=[4, 4], nx2=[4, 4]
         )
@@ -284,22 +283,22 @@ def test(nvar=1, multistruct=True, ndig=10):
         if i == "Real":
             verbose = False
         resultAll[i] = testAllSituations(modelMulti, meshes, verbose, ndig)
-    print(f"-------------------------------------------------------")
-    print(f"Comparisons between fake non stationary and Stationary:")
-    print(f"-------------------------------------------------------")
+    print("-------------------------------------------------------")
+    print("Comparisons between fake non stationary and Stationary:")
+    print("-------------------------------------------------------")
 
     vv = computeError(resultAll["Fake"]["reseval"], resultAll["Stat"]["reseval"], ndig)
-    print(f" evalDirect in the matrix-free case. Error = " + str(vv))
+    print(" evalDirect in the matrix-free case. Error = " + str(vv))
     vv = computeError(
         resultAll["Fake"]["resevalmat"], resultAll["Stat"]["resevalmat"], ndig
     )
-    print(f" evalDirect in the matrix case. Error = " + str(vv))
+    print(" evalDirect in the matrix case. Error = " + str(vv))
     vv = computeError(resultAll["Fake"]["ressimu"], resultAll["Stat"]["ressimu"], ndig)
-    print(f" Simulation in the matrix-free case. Error = " + str(vv))
+    print(" Simulation in the matrix-free case. Error = " + str(vv))
     vv = computeError(
         resultAll["Fake"]["ressimumat"], resultAll["Stat"]["ressimumat"], ndig
     )
-    print(f" Simulation in the matrix case. Error = " + str(vv))
+    print(" Simulation in the matrix case. Error = " + str(vv))
     return resultAll
 
 

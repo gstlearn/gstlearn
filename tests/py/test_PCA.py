@@ -4,11 +4,9 @@
 # python3 -m pip install mlxtend
 
 import numpy as np
-import matplotlib.pyplot as plt
 from mlxtend.data import iris_data
 
 import gstlearn as gl
-import gstlearn.plot as gp
 import gstlearn.test as gt
 
 # We use the data coming from Fisher (1936) and called *iris*

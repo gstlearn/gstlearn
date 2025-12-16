@@ -3,8 +3,6 @@
 # Next we load the packages used by the subsequent script, such as *gstlearn* (note that any function belonging to this library will have a prefix *gl*. Similarly, we load the graphic extension (called *gslearn.plot*).
 
 import gstlearn as gl
-import gstlearn.plot as gp
-import matplotlib.pyplot as plt
 
 
 # We create a grid of 150 by 100 square cells of 1m edge.

@@ -1,7 +1,5 @@
 import gstlearn as gl
 import numpy as np
-import os
-import sys
 
 #
 # This first part concerns the assessors used for Db manipulation

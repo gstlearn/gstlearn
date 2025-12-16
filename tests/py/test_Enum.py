@@ -1,6 +1,4 @@
 import gstlearn as gl
-import os
-import sys
 
 # Enums are global unique object instances
 d1 = gl.ENeigh.UNIQUE

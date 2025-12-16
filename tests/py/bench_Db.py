@@ -1,7 +1,6 @@
 # Benchmark for Db in gstlearn
 
 import gstlearn as gl
-import numpy as np
 import time
 
 ndim = 2

@@ -231,13 +231,13 @@ def computeInvNoise(dat, model, verbose=True, debug=False):
     ):
         if verbose:
             print("---------------------------------------------------------")
-            print(f"Isotopic and Stationary and Measurement error identical:")
+            print("Isotopic and Stationary and Measurement error identical:")
             print("---------------------------------------------------------")
         result = IsoStat(dat, model)
 
     else:
         if verbose:
-            print(f"General Case")
+            print("General Case")
         result = GeneralCase(dat, model)
 
     if debug:
@@ -251,7 +251,7 @@ def createDb(
     ndat, hetero, measurement_error, measurement_error_all_equal, nostat=False
 ):
     if ndat < 10:
-        gl.messerr(f"Data File must contain at least 10 samples")
+        gl.messerr("Data File must contain at least 10 samples")
         return None
 
     dat = gl.Db.create()
@@ -310,7 +310,7 @@ def testInvNoise(dat, model, debug=False):
     # Pour la comparaison, je remets le résultat en dense
     err1 = np.sum(np.abs(ref - refnew))
     if err1 > 1e-13:
-        print(f"Pb between ref and new")
+        print("Pb between ref and new")
 
     error = np.sum(np.abs(refnew.toarray() - ref))
     errorlogdet = np.abs(logdetnew - logdetref)
@@ -319,29 +319,29 @@ def testInvNoise(dat, model, debug=False):
     errorchol = np.max(np.abs(cholsill - cholref))
 
     if error < 1e-13:
-        print(f"Diff < ", 1e-13)
+        print("Diff < ", 1e-13)
     else:
-        print(f"Error", np.round(error, 5))
+        print("Error", np.round(error, 5))
 
     if errorlogdet < 1e-13:
-        print(f"Diff logdet < ", 1e-13)
+        print("Diff logdet < ", 1e-13)
     else:
-        print(f"Error logdet", np.round(errorlogdet, 5))
+        print("Error logdet", np.round(errorlogdet, 5))
 
     if errormin < 1e-13:
-        print(f"Diff min eigenvalue < ", 1e-13)
+        print("Diff min eigenvalue < ", 1e-13)
     else:
-        print(f"Error min eigenvalue", np.round(errormin, 5))
+        print("Error min eigenvalue", np.round(errormin, 5))
 
     if errormax < 1e-13:
-        print(f"Diff max eigenvalue < ", 1e-13)
+        print("Diff max eigenvalue < ", 1e-13)
     else:
-        print(f"Error max eigenvalue", np.round(errormax, 5))
+        print("Error max eigenvalue", np.round(errormax, 5))
 
     if errorchol < 1e-13:
-        print(f"Diff chol < ", 1e-13)
+        print("Diff chol < ", 1e-13)
     else:
-        print(f"Error chol", np.round(errorchol, 5))
+        print("Error chol", np.round(errorchol, 5))
         print(f"Chol ref:\n{np.round(cholref, 2)}")
         print(f"Chol new:\n{np.round(cholsill, 2)}")
 
@@ -356,28 +356,28 @@ debug = False
 
 # %%
 print("---------------------------------")
-print(f"Hetero without measurement error")
+print("Hetero without measurement error")
 print("---------------------------------")
 dat = createDb(ndat, True, False, False)
 testInvNoise(dat, model, debug)
 
 # %%
 print("-----------------------------------------------------------------------")
-print(f"Hetero with measurement errors (not the same for all the observations)")
+print("Hetero with measurement errors (not the same for all the observations)")
 print("-----------------------------------------------------------------------")
 dat = createDb(ndat, True, True, False)
 testInvNoise(dat, model, debug)
 
 # %%
 print("----------------------------------------------------------------")
-print(f"Hetero with the same measurement error for all the observations")
+print("Hetero with the same measurement error for all the observations")
 print("----------------------------------------------------------------")
 dat = createDb(ndat, True, True, True)
 testInvNoise(dat, model, debug)
 
 # %%
 print("------------------------------")
-print(f"Iso without measurement error")
+print("Iso without measurement error")
 print("------------------------------")
 dat = createDb(ndat, False, False, False)
 testInvNoise(dat, model, debug)
@@ -385,21 +385,21 @@ testInvNoise(dat, model, debug)
 
 # %%
 print("----------------------------------------------------------------------")
-print(f"Iso,  with measurement errors (not the same for all the observations)")
+print("Iso,  with measurement errors (not the same for all the observations)")
 print("----------------------------------------------------------------------")
 dat = createDb(ndat, False, True, False)
 testInvNoise(dat, model, debug)
 
 # %%
 print("-------------------------------------------------------------")
-print(f"Iso,with the same measurement error for all the observations")
+print("Iso,with the same measurement error for all the observations")
 print("-------------------------------------------------------------")
 dat = createDb(ndat, False, True, True)
 testInvNoise(dat, model, debug)
 
 # %%
 print("---------------------------------------------------------------------")
-print(f"Iso,with the same measurement error for all the observations, nostat")
+print("Iso,with the same measurement error for all the observations, nostat")
 print("---------------------------------------------------------------------")
 dat = createDb(ndat, False, True, True, True)
 testInvNoise(dat, model, debug)
