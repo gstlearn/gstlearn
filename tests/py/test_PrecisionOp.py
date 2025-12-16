@@ -11,13 +11,13 @@ gl.OptCst.define(gl.ECst.NTROW, -1)
 # depending on whether we use the Matrix-Free PrecisionOp or not
 # Due to the small size of the data set, we can affort displaying the results
 
-gl.mestitle(0,"Small Data Set")
+gl.mestitle(0, "Small Data Set")
 nx = 3
-print("(Based on the Turbo Mahing derived from a", nx ,"x", nx, "grid)")
+print("(Based on the Turbo Mahing derived from a", nx, "x", nx, "grid)")
 
 # Creating the environment
-mesh = gl.MeshETurbo([nx, nx],[],[],[],False)
-model = gl.Model.createFromParam(gl.ECov.MATERN, param=1, range=nx/2)
+mesh = gl.MeshETurbo([nx, nx], [], [], [], False)
+model = gl.Model.createFromParam(gl.ECov.MATERN, param=1, range=nx / 2)
 print("Number of apices = ", mesh.getNApices())
 
 # Creating the PrecisionOp with Sparse matrix implemented
@@ -25,7 +25,7 @@ QOpCs = gl.PrecisionOpMatrix(mesh, model.getCovAniso(0))
 
 # Printing the complete Precision Matrix to visualize the Diagonal
 Qmat = QOpCs.getQ()
-#Qmat.display()
+# Qmat.display()
 
 ref1 = QOpCs.extractDiag()
 print("Using the version with explicit Matrix")
@@ -47,15 +47,17 @@ if gl.VH.isEqualExtended(ref1, ref2, string="Vector are not equal"):
 
 print_Time = False
 if not print_Time:
-    print("\nNote: Time is not printed in order not to generate conflicts in non-regression files)")
+    print(
+        "\nNote: Time is not printed in order not to generate conflicts in non-regression files)"
+    )
 
-gl.mestitle(0,"Large Data Set")
+gl.mestitle(0, "Large Data Set")
 nx = 350
-print("(Based on the Turbo Meshing derived from a", nx ,"x", nx, "grid)")
+print("(Based on the Turbo Meshing derived from a", nx, "x", nx, "grid)")
 
 # Creating the environment
-mesh = gl.MeshETurbo([nx, nx],[],[],[],False)
-model = gl.Model.createFromParam(gl.ECov.MATERN, param=1, range=nx/2)
+mesh = gl.MeshETurbo([nx, nx], [], [], [], False)
+model = gl.Model.createFromParam(gl.ECov.MATERN, param=1, range=nx / 2)
 print("Number of apices = ", mesh.getNApices())
 
 # Creating the PrecisionOpMatrix with Sparse matrix implemented
@@ -72,7 +74,7 @@ Qop = gl.PrecisionOp(mesh, model.getCovAniso(0))
 ref2 = Qop.extractDiag()
 checkpointOp = str((time.time() - start_time))
 if print_Time:
-    print("Time Matrix-free version =",checkpointOp)
+    print("Time Matrix-free version =", checkpointOp)
 
 # Comparing the two resulting vectors
 if gl.VH.isEqualExtended(ref1, ref2, string="Vector are not equal"):
@@ -82,14 +84,14 @@ if gl.VH.isEqualExtended(ref1, ref2, string="Vector are not equal"):
 # We do not compare with the Matrix solution which rapidly becomes untractable
 # It is meant to evaluate the elapsed time
 
-gl.mestitle(0,"3-D Data Set")
+gl.mestitle(0, "3-D Data Set")
 nx = 50
-print("(Based on the Turbo Meshing derived from a", nx ,"x", nx, "x", nx, "grid)")
+print("(Based on the Turbo Meshing derived from a", nx, "x", nx, "x", nx, "grid)")
 
 # Creating the environment
 gl.defineDefaultSpace(gl.ESpaceType.RN, 3)
-mesh = gl.MeshETurbo([nx, nx, nx],[],[],[],False)
-model = gl.Model.createFromParam(gl.ECov.MATERN, param=0.5, range=nx/2)
+mesh = gl.MeshETurbo([nx, nx, nx], [], [], [], False)
+model = gl.Model.createFromParam(gl.ECov.MATERN, param=0.5, range=nx / 2)
 print("Number of apices = ", mesh.getNApices())
 
 # Creating the Matrix-free PrecisionOp
@@ -98,5 +100,4 @@ Qop = gl.PrecisionOp(mesh, model.getCovAniso(0))
 ref = Qop.extractDiag()
 checkpointOp3D = str((time.time() - start_time))
 if print_Time:
-    print("Time Matrix-free version =",checkpointOp3D)
-
+    print("Time Matrix-free version =", checkpointOp3D)
