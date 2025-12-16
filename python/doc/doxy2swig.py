@@ -48,7 +48,6 @@ output will be written (the file will be clobbered).
 from xml.dom import minidom
 import re
 import textwrap
-import sys
 import os.path
 import optparse
 
@@ -756,7 +755,7 @@ class Doxy2SWIG:
         name = self.extract_text(first["name"])
         if name[:8] == "operator":  # Don't handle operators yet.
             return
-        if not "definition" in first or kind in ["variable", "typedef"]:
+        if "definition" not in first or kind in ["variable", "typedef"]:
             return
 
         data = self.extract_text(first["definition"])

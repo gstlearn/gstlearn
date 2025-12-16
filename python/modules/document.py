@@ -66,7 +66,6 @@ def internetAvailable(timeout=1):
 Extension for disabling autoscrolling long output, which is super annoying sometimes
 
 """
-from IPython.display import HTML, Javascript, display
 
 
 def setNoScroll():

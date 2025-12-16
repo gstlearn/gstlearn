@@ -12,7 +12,6 @@
 # used for internal check
 
 import numpy as np
-import numpy.ma as ma
 import gstlearn as gl
 
 

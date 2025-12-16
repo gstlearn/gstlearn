@@ -13,11 +13,9 @@
 # Reminder: all methods staring by "W" are dedicated to UI
 
 import gstlearn as gl
-import gstlearn.plot as gp
 
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 
 import marimo as mo
 

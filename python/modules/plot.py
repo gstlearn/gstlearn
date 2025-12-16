@@ -20,15 +20,10 @@ except ModuleNotFoundError as ex:
     raise ModuleNotFoundError(msg) from ex
 
 import numpy as np
-import numpy.ma as ma
 import gstlearn as gl
 import gstlearn.plot as gp
-import math
 
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-from numpy import shape
-from pandas.io import orc
-from matplotlib.pyplot import axes
 import random
 
 # Set of global values
@@ -2723,7 +2718,6 @@ def plotFromNF(filename, name1=None, name2=None, ranks=None, **kwargs):
 ## ------------------------------------------ ##
 ## Add plot functions as methods of the class ##
 ## ------------------------------------------ ##
-import gstlearn.plot as gp
 
 # New style attribute setting functions
 setattr(plt.Axes, "decoration", gp._ax_decoration)

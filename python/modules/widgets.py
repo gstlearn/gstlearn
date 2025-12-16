@@ -9,11 +9,7 @@
 #                                                                              #
 ################################################################################
 import gstlearn as gl
-import matplotlib.pyplot as plt
 import ipywidgets as ipw
-import numpy as np
-import re
-from IPython.display import display
 from traitlets import Unicode
 
 

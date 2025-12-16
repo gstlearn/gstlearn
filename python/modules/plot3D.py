@@ -11,8 +11,6 @@
 
 import numpy as np
 import gstlearn as gl
-from numpy import pi
-from matplotlib.animation import adjusted_figsize
 
 try:
     import plotly.graph_objects as go
