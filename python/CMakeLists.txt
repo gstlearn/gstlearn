@@ -191,13 +191,8 @@ add_dependencies(python_build generate_output)
 ########################################
 # PACKAGING (target independent)
 
-# Generate setup.py automatically for each configuration
+# Generate pyproject.toml automatically for each configuration
 # First step: replace variables (@VAR@)
-configure_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/setup.py.in
-  ${CMAKE_CURRENT_BINARY_DIR}/setup.py.in
-  @ONLY
-)
 configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/pyproject.toml.in
   ${CMAKE_CURRENT_BINARY_DIR}/pyproject.toml.in
@@ -205,10 +200,6 @@ configure_file(
 )
 
 # Second step: replace generator expression ($<>)
-file(GENERATE
-  OUTPUT ${PYTHON_PACKAGE_ROOT_FOLDER}/setup.py
-  INPUT ${CMAKE_CURRENT_BINARY_DIR}/setup.py.in
-)
 file(GENERATE
   OUTPUT ${PYTHON_PACKAGE_ROOT_FOLDER}/pyproject.toml
   INPUT ${CMAKE_CURRENT_BINARY_DIR}/pyproject.toml.in
@@ -228,7 +219,11 @@ file(GENERATE
   INPUT ${CMAKE_CURRENT_BINARY_DIR}/version.py.in
 )
 
-# Generate README.md and LICENSE for each configuration
+# Generate setup.py, README.md and LICENSE for each configuration
+file(GENERATE
+  OUTPUT ${PYTHON_PACKAGE_ROOT_FOLDER}/setup.py
+  INPUT ${CMAKE_CURRENT_SOURCE_DIR}/setup.py
+)
 file(GENERATE
   OUTPUT ${PYTHON_PACKAGE_ROOT_FOLDER}/README.md
   INPUT  ${CMAKE_CURRENT_SOURCE_DIR}/README.md
