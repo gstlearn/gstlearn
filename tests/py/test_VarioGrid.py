@@ -2,8 +2,6 @@
 
 # This file is meant to demonstrate the use of gstlearn by loading a numpy array, perform some calculations (including variogram) based on the grid organization and return the variogram output arrays to be used in Python
 
-import os
-import sys
 import numpy as np
 import gstlearn as gl
 
@@ -15,7 +13,7 @@ ndim = 2
 nx = 5
 ny = 3
 np.random.seed(123085)
-array1 = np.arange(0.,nx * ny).reshape(nx * ny)
+array1 = np.arange(0.0, nx * ny).reshape(nx * ny)
 array2 = np.random.randn(nx * ny)
 
 print(array1)
@@ -30,12 +28,12 @@ gl.defineDefaultSpace(gl.ESpaceType.RN, ndim)
 
 # Then, the Grid file is created first (defining the origin, mesh size and count). Then each variable is added one by one, giving the name. Then, the 'Z' Locator is set for the two variables. Note that locators are entered simultaneously. Otherwise, "var1" will be assigned to locator "z1". Then, when adding "var2", it will be assigned in turn to "z1", erasing the locator previously assigned to "var1".
 
-x0 = [1., 3.]
-dx = [2., 1.]
-grid = gl.DbGrid.create([nx,ny],dx,x0)
+x0 = [1.0, 3.0]
+dx = [2.0, 1.0]
+grid = gl.DbGrid.create([nx, ny], dx, x0)
 ipt_z1 = grid.addColumns(array1, "var1")
 ipt_z2 = grid.addColumns(array2, "var2")
-grid.setLocators(["var1","var2"], gl.ELoc.Z)
+grid.setLocators(["var1", "var2"], gl.ELoc.Z)
 
 print(grid)
 
@@ -46,7 +44,6 @@ print(grid)
 nvar = grid.getNLoc(gl.ELoc.Z)
 nlag = 5
 variop = gl.VarioParam.createMultipleFromGrid(grid, nlag)
-vario = gl.Vario.computeFromDb(variop,grid)
+vario = gl.Vario.computeFromDb(variop, grid)
 
 print(vario)
-

@@ -21,21 +21,35 @@ jobs:
   # Check source formatting #
   # ----------------------- #
   check-formatting:
-    if: false                   # disabled for now, waiting for clang-format
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
 
-    - name: Install latest clang-format
+    - name: Setup uv
+      uses: astral-sh/setup-uv@v6
+      with:
+        activate-environment: true
+
+    - name: Install formatters
       run: |
-        sudo apt update
-        sudo apt install -y clang-format
+        uv pip install clang-format cmake-format ruff
+
+    - name: Pass ruff format on Python sources
+      run: |
+        ruff format --check
+
+    - name: Pass ruff check on Python sources [NOT ENFORCED]
+      continue-on-error: true
+      run: |
+        ruff check
 
     - name: Use clang-format to detect formatting issues
+      if: false                   # disabled for now, waiting for clang-format
       run: |
         git ls-files | grep -E "\.cpp$|\.cxx$|\.h$|\.hpp$" | xargs clang-format -n -Werror
 
     - name: Check line endings (Unix rather than DOS)
+      if: false
       run: |
         ! git ls-files | xargs file "{}" ";" | grep CRLF
 
@@ -50,10 +64,12 @@ jobs:
         git ls-files | xargs file | grep Unicode || true
 
     - name: Check for empty files
+      if: false
       run: |
         ! git ls-files | xargs file | grep empty
 
     - name: No "using namespace" directive in header files
+      if: false
       run: |
         ! git ls-files \
           | grep -E "\.h$|\.hpp$" \

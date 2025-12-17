@@ -2,24 +2,20 @@
 
 ## Preamble
 
-# This tutorial gives answers to the frequently asked question regarding the Name Convention used for variables in a Data Base (Db) of gstlearn 
+# This tutorial gives answers to the frequently asked question regarding the Name Convention used for variables in a Data Base (Db) of gstlearn
 
-import numpy as np
 import gstlearn as gl
-import os
-import sys
 
 ## Prepare the Environment
-gl.mestitle(0,"Preparing the Environment")
+gl.mestitle(0, "Preparing the Environment")
 
 # This paragraph defines the Space Dimension for the whole notebook.
 # It also set the name of the Container (and a Prefix) used if Objects
 # are saved as Neutral Files.
 
 ndim = 2
-gl.defineDefaultSpace(gl.ESpaceType.RN,ndim)
-gl.ASerializable.setPrefixName("test_DbNaling-");
-
+gl.defineDefaultSpace(gl.ESpaceType.RN, ndim)
+gl.ASerializable.setPrefixName("test_DbNaling-")
 # The following object will enable having a complete view of
 # the column / attribute manipulation. It will be used later in the notebook.
 
@@ -27,8 +23,8 @@ dbfmt = gl.DbStringFormat()
 dbfmt.setFlags(flag_locator=True)
 
 ## Creating a data file
-gl.mestitle(0,"Creating a data file")
- 
+gl.mestitle(0, "Creating a data file")
+
 # A Data Base is created for experimentation.
 # It is constructed as a regular Grid (named **grid**).
 # The variable *nech* will contain the number of samples within *grid*.
@@ -37,7 +33,7 @@ gl.mestitle(0,"Creating a data file")
 # The origin (lower left corner) is set to (10,20) in order to be able
 # to distinguish coordinates along first and second axes.
 
-grid = gl.DbGrid.create([5,5], [1,1], [10,20])
+grid = gl.DbGrid.create([5, 5], [1, 1], [10, 20])
 nech = grid.getNSample()
 print(f"Number of sample = {nech}")
 grid
@@ -47,7 +43,7 @@ grid
 # as coordinates (locator *x*).
 
 ## Names
-gl.mestitle(0,"Names")
+gl.mestitle(0, "Names")
 
 # We now add one new field (named *first*) where values are generated randomly
 # (uniform drawn between 0 and 1). Note that, when adding this new field,
@@ -58,7 +54,7 @@ gl.mestitle(0,"Names")
 
 
 tab = gl.VH.simulateUniform(nech)
-iatt1 = grid.addColumns(tab,"first")
+iatt1 = grid.addColumns(tab, "first")
 print(f"Attribute corresponding to 'first' = {iatt1}")
 
 # We can double-check the attribute information by visiting the current
@@ -70,11 +66,11 @@ grid
 # Let us add a series (3) of fields created simulateneously. They are filled
 # with a constant value equal to 5. We also define a locator assigned to all
 # the newly created variables: they will be considered as data variable
-# (locator = *z*). 
+# (locator = *z*).
 # Note the returned value: it corresponds to the attribute number assigned
 # to the first new variable.
 
-iatt2 = grid.addColumnsByConstant(3,5.,"second",gl.ELoc.Z)
+iatt2 = grid.addColumnsByConstant(3, 5.0, "second", gl.ELoc.Z)
 print(f"Attribute corresponding to the first variable named 'second-x' = {iatt2}")
 grid
 
@@ -84,7 +80,7 @@ grid
 
 # Let us now envisage renaming the variable *second-2* into *first*.
 
-grid.setName("second-2","first")
+grid.setName("second-2", "first")
 grid
 
 # As the name *first* already exists, the field is renamed to *first.1*
@@ -92,7 +88,7 @@ grid
 
 # We now wish to rename the field *second-3* into *first*.
 
-grid.setName("second-3","first")
+grid.setName("second-3", "first")
 grid
 
 # The automatic renaming procedure has been applied (adding ".1") iteratively
@@ -102,20 +98,20 @@ grid
 # to designate a field?
 # For the next demonstrations, we first recall the current status of the
 # current Db.
-# 
+#
 # In order to make the next paragrah more demonstrative, we change the contents
 # of several fields
 
-grid.setColumn(gl.VH.simulateUniform(nech),"second-1")
-grid.setColumn(gl.VH.simulateUniform(nech),"first.1")
-grid.setColumn(gl.VH.simulateUniform(nech),"first.2")
+grid.setColumn(gl.VH.simulateUniform(nech), "second-1")
+grid.setColumn(gl.VH.simulateUniform(nech), "first.1")
+grid.setColumn(gl.VH.simulateUniform(nech), "first.2")
 
 grid
 
 ### By Name
 
 # As an example, we access to the field named *first.1.
-# For short, only the four first values are systematically printed. 
+# For short, only the four first values are systematically printed.
 
 grid.getColumn("first.1")[0:4]
 
@@ -135,7 +131,7 @@ grid.getColumnByUID(5)[0:4]
 # We note that the target variable corresponds to the locator *z2* which is
 # the second one (index 1) or the Z-locator type.
 
-grid.getColumnByLocator(gl.ELoc.Z,1)[0:4]
+grid.getColumnByLocator(gl.ELoc.Z, 1)[0:4]
 
 ## Difference between Column and Attribute
 gl.mestitle(0, "Difference between Column and Attribute")
@@ -144,7 +140,7 @@ gl.mestitle(0, "Difference between Column and Attribute")
 # - *iatt1* (3) when adding the field named *first*
 # - *iatt2* (4) when adding the series of 3 fields (originally named after
 #   the radix *second*)
-# 
+#
 # To better understand, we need to ask for the display of the data base with
 # a specific option which describes the current status of the attributes,
 # either unsorted or through an order driven by the locator
@@ -183,7 +179,7 @@ grid.display(dbfmt)
 # which corresponded to *x1* is now set to -1, to signify that the column is
 # actually missing. The display sorted by locator does not need any additional
 # explanation.
-# 
+#
 # Let us now retrieve the information of variable *first.1*  as we did before.
 # We start by addressing the variable by name.
 
@@ -204,18 +200,18 @@ grid.getColumnByUID(5)[0:4]
 grid.getColumnByUID(1)
 
 ## Remark on Space Dimension
-gl.mestitle(0,"Remark on Space Dimension")
+gl.mestitle(0, "Remark on Space Dimension")
 
 # It might be considered as surprising to see that *grid* is considered as
 # a 2-D Grid while there is only **one** coordinate field (locator *x*).
 # In order to avoid any missunderstanding, let us recall this important fact.
-# 
+#
 # The data base *grid* is organized as a grid and for that sake,
 # it contains a descrption of the grid organization. This organization is used
 # to elaborate the coordinates (for example when calling *getCoordinate()*
 # method). The coordinate vectors must only be considered as decoration:
 # they will not be used in any internal operation.
-# 
+#
 # As an example this makes particular sense here as the contents of the
 # variable *x2*, despite its locator rank *1* (i.e. index 0) actually contains
 # the **second** coordinate of the samples, as demonstrated in the next line
@@ -241,10 +237,10 @@ grid.generateRank("RANK")
 grid
 
 ## Conclusion
-gl.mestitle(0,"Conclusion")
+gl.mestitle(0, "Conclusion")
 
 # As a conclusion:
-# 
+#
 # - the variables can be used **safely** when designating them by their **name**
 # - the variables can be used easily when addressing them using the locator
 #   notion (type and index)
@@ -254,7 +250,7 @@ gl.mestitle(0,"Conclusion")
 # - the use of attribute is clever... but it must be used by expert who
 #   understands the process. It allows using  fix values, independently of the
 #   management of other fields
-# 
+#
 # We also recall that all numbering refer to indices (0 based numbering).
 # This is the case for *(column) index* as well as *locator index* per locator
 # type.
@@ -263,14 +259,14 @@ gl.mestitle(0,"Conclusion")
 
 # Usually, the methods which are designed to add variables in a Db can define
 # some characteristics of the newly created variables using a standardized
-# solution, known as the *NamingConvention* facility. 
-# 
+# solution, known as the *NamingConvention* facility.
+#
 # To illustrate this facility, we consider the function *toIndicator* of the
 # class *Limits*. This function stores the indicators of a set of classes
 # (defined in *limits*) in the Db file. We concentrate on the variable *X-1*
 # which has outcomes varying from 10 to 14 (as demonstrated next).
 
-gl.OptCst.define(gl.ECst.NTCOL,-1)
+gl.OptCst.define(gl.ECst.NTCOL, -1)
 dbfmt = gl.DbStringFormat()
 dbfmt.setFlags(flag_array=True)
 grid.display(dbfmt)
@@ -284,14 +280,14 @@ limits
 # the prefix is set to "Indicator". As a result, 4 new variables are added
 # whose names are composed by concatenating *prefix*, *variable name* and
 # the qualifer *Class* followed by the rank of the class.
-# 
+#
 # The resulting variables are of the form **Indicator.X-1.Class.1**
 
-limits.toIndicator(grid,"X-1",namconv=gl.NamingConvention("Indicator"))
+limits.toIndicator(grid, "X-1", namconv=gl.NamingConvention("Indicator"))
 grid
 
 # In this second trial, we decide to suppress the prefix as well as the
 # variable name
 
-limits.toIndicator(grid,"X-1",namconv=gl.NamingConvention("",False))
+limits.toIndicator(grid, "X-1", namconv=gl.NamingConvention("", False))
 grid

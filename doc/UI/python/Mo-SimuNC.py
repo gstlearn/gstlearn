@@ -18,24 +18,26 @@ def _():
     import matplotlib.pyplot as plt
     import copy
     from IPython.display import Markdown
+
     return Markdown, alt, copy, gdoc, gl, gmo, gp, mo, np, plt
+
 
 @app.cell(hide_code=True)
 def _():
     # Parametrization for the Model
     ncovmax = 2
     distmax = 100
-    varmax  = 50
+    varmax = 50
     return distmax, ncovmax, varmax
 
 
 @app.cell(hide_code=True)
 def _():
     # Version gstlearn a faire marcher
-    #Markdown(gdoc.loadDoc("Statistics_mean.md"))
+    # Markdown(gdoc.loadDoc("Statistics_mean.md"))
     # version decortiquee qui fonctionne
-    #filename = gl.getReferenceFilename("Cvv.md")
-    #Markdown(filename)
+    # filename = gl.getReferenceFilename("Cvv.md")
+    # Markdown(filename)
     return
 
 
@@ -60,17 +62,17 @@ def _(gmo):
 @app.cell(hide_code=True)
 def _(WidgetGrid, WidgetModel, WidgetSimtub, gl, gmo, gp):
     def myaction():
-
         model = gmo.WgetModel(WidgetModel)
         grid = gmo.WgetGrid(WidgetGrid)
         nbtuba, seed = gmo.WgetSimtub(WidgetSimtub)
         err = gl.simtub(None, dbout=grid, model=model, nbtuba=nbtuba, seed=int(seed))
 
-        fig, ax = gp.init(2,1,figsize=(10,14))
-        ax[0,0].model(model, hmax=100)
-        ax[1,0].raster(grid)
-        ax[1,0].axis("equal")
+        fig, ax = gp.init(2, 1, figsize=(10, 14))
+        ax[0, 0].model(model, hmax=100)
+        ax[1, 0].raster(grid)
+        ax[1, 0].axis("equal")
         return fig
+
     return (myaction,)
 
 
@@ -78,18 +80,14 @@ def _(WidgetGrid, WidgetModel, WidgetSimtub, gl, gmo, gp):
 def _(WidgetGrid, WidgetModel, WidgetSimtub, gmo, mo, myaction):
     param = mo.ui.tabs(
         {
-            "Grid":       gmo.WshowGrid(WidgetGrid),
-            "Model":      gmo.WshowModel(WidgetModel),
+            "Grid": gmo.WshowGrid(WidgetGrid),
+            "Model": gmo.WshowModel(WidgetModel),
             "Simulation": gmo.WshowSimtub(WidgetSimtub),
         }
     ).style({"minWidth": "350px", "width": "350px"})
 
     simu = mo.vstack(
-        [
-             mo.md(""),
-             mo.md(f"Model and Simulation{mo.as_html(myaction())}")
-        ],
-        gap = 4
+        [mo.md(""), mo.md(f"Model and Simulation{mo.as_html(myaction())}")], gap=4
     )
 
     mo.hstack([param, simu], gap=4)

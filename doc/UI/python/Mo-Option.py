@@ -15,6 +15,7 @@ def _():
 
     import numpy as np
     import pandas as pd
+
     return ctx, gl, gmo, gp, mo, np, pd, plt
 
 
@@ -70,28 +71,30 @@ def _(WidgetCovList, WidgetDb, WidgetGrid, WidgetVario, ctx, gl, gmo, gp, mo):
         ax.baseMap(db=db, box=box, flagProj=flagProj)
         ax.literal(db=db, name=targetName, fontsize=6)
         if flagProj:
-            ctx.add_basemap(ax, source=ctx.providers.OpenStreetMap.Mapnik,
-                            crs="EPSG:4326")
+            ctx.add_basemap(
+                ax, source=ctx.providers.OpenStreetMap.Mapnik, crs="EPSG:4326"
+            )
         ax.decoration(title=targetName + " (long/lat)")
 
     def plotEstim(ax, db, grid, targetName, flagProj=False):
         ax.raster(dbgrid=grid, name="Kriging.*.estim", alpha=0.5)
         ax.literal(db=db, name=targetName, fontsize=6)
         if flagProj:
-            ctx.add_basemap(ax, source=ctx.providers.OpenStreetMap.Mapnik,
-                            crs="EPSG:4326")
+            ctx.add_basemap(
+                ax, source=ctx.providers.OpenStreetMap.Mapnik, crs="EPSG:4326"
+            )
         ax.decoration(title="Estimation")
 
     def plotStdev(ax, db, grid, targetName, flagProj=False):
         ax.raster(dbgrid=grid, name="Kriging.*.stdev", alpha=0.5)
         ax.literal(db=db, name=targetName, fontsize=6)
         if flagProj:
-            ctx.add_basemap(ax, source=ctx.providers.OpenStreetMap.Mapnik,
-                            crs="EPSG:4326")
+            ctx.add_basemap(
+                ax, source=ctx.providers.OpenStreetMap.Mapnik, crs="EPSG:4326"
+            )
         ax.decoration(title="St. Dev. of Estimation Error")
 
     def myaction():
-
         # Define the Input Db
         db = gmo.WgetDb(WidgetDb)
         if db is None:
@@ -100,11 +103,11 @@ def _(WidgetCovList, WidgetDb, WidgetGrid, WidgetVario, ctx, gl, gmo, gp, mo):
         # Check that the Db is 2-D and contains the variable of interest
         targetName = "pH"
         db.setLocators(["longitude", "latitude"], gl.ELoc.X)
-        db.setLocator("sel", gl.ELoc.SEL) # Set the selection (if present in CSV)
+        db.setLocator("sel", gl.ELoc.SEL)  # Set the selection (if present in CSV)
         db.setLocator(targetName, gl.ELoc.Z)
         ndim = db.getNLoc(gl.ELoc.X)
-        if ndim!= 2 or db.getColIdx(targetName) < 0:
-            print("The 'db' should be 2-D (",ndim,") and contain the target variable")
+        if ndim != 2 or db.getColIdx(targetName) < 0:
+            print("The 'db' should be 2-D (", ndim, ") and contain the target variable")
             return None
 
         # Define the output Grid
@@ -123,15 +126,16 @@ def _(WidgetCovList, WidgetDb, WidgetGrid, WidgetVario, ctx, gl, gmo, gp, mo):
         # Perform the Estimation
         err = gl.kriging(db, grid, model, neigh)
 
-        fig, ax = gp.init(2, 2, figsize=(10,10))
-        plotData(ax[0,0], db, box, targetName)
-        plotVario(ax[0,1], vario, model, showPairs=True)
+        fig, ax = gp.init(2, 2, figsize=(10, 10))
+        plotData(ax[0, 0], db, box, targetName)
+        plotVario(ax[0, 1], vario, model, showPairs=True)
 
-        plotEstim(ax[1,0], db, grid, targetName)
-        plotStdev(ax[1,1], db, grid, targetName)
+        plotEstim(ax[1, 0], db, grid, targetName)
+        plotStdev(ax[1, 1], db, grid, targetName)
         mo.mpl.interactive(fig)
 
         return fig
+
     return myaction, plotData, plotEstim, plotStdev, plotVario
 
 
@@ -148,20 +152,16 @@ def _(
 ):
     param = mo.ui.tabs(
         {
-            "Data":       gmo.WshowDb(WidgetDb),
-            "Zoom":       gmo.WshowBox(WidgetZoom),
-            "Grid":       gmo.WshowGridN(WidgetGrid),
-            "Variogram":  gmo.WshowVario(WidgetVario),
-            "Model":      gmo.WshowCovList(WidgetCovList),
+            "Data": gmo.WshowDb(WidgetDb),
+            "Zoom": gmo.WshowBox(WidgetZoom),
+            "Grid": gmo.WshowGridN(WidgetGrid),
+            "Variogram": gmo.WshowVario(WidgetVario),
+            "Model": gmo.WshowCovList(WidgetCovList),
         }
     ).style({"minWidth": "350px", "width": "350px"})
 
     simu = mo.vstack(
-        [
-             mo.md(""),
-             mo.md(f"Data and its Estimation{mo.as_html(myaction())}")
-        ],
-        gap = 4
+        [mo.md(""), mo.md(f"Data and its Estimation{mo.as_html(myaction())}")], gap=4
     )
 
     mo.hstack([param, simu], gap=4)

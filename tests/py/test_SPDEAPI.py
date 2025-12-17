@@ -17,14 +17,14 @@ import matplotlib.pyplot as plt
 # - combination of both
 # - mask on the output grid
 # - data located outside the grid
-# 
+#
 # We also compare the result with the results of a traditional Kriging through a scatter plot between the two estimations performed on the Grid.
 
 # In[2]:
 
 
 range = 0.3
-sill = 3.
+sill = 3.0
 model = gl.Model.createFromParam(gl.ECov.MATERN, range, sill)
 model.display()
 
@@ -33,10 +33,10 @@ model.display()
 
 
 def visualize(name):
-    return # Do nothing in a PY file
+    return  # Do nothing in a PY file
     fig, ax = gp.initGeographic()
     ax.raster(grid, name=name, flagLegend=True)
-    ax.symbol(data, nameSize="z", c='blue', s=100)
+    ax.symbol(data, nameSize="z", c="blue", s=100)
     plt.show()
 
 
@@ -46,13 +46,13 @@ def visualize(name):
 def estimate():
     err = gl.krigingSPDE(data, grid, model, namconv="SPDE")
     visualize("SPDE.*")
-    
+
     neighU = gl.NeighUnique()
     err = gl.kriging(data, grid, model, neighU, flag_std=False, namconv="Kriging")
     gp.correlation(grid, "SPDE.*", "Kriging.*", bins=100, cmin=0.001)
-    
+
     corr = grid.getCorrelation("SPDE.*", "Kriging.*")
-    print("Correlation = ", round(corr,3))
+    print("Correlation = ", round(corr, 3))
 
 
 # ## All values are defined
@@ -60,7 +60,7 @@ def estimate():
 # In[5]:
 
 
-grid = gl.DbGrid.create([100,100], [0.01, 0.01])
+grid = gl.DbGrid.create([100, 100], [0.01, 0.01])
 
 data = gl.Db.createFillRandom(ndat=10)
 print(data[:])
@@ -77,7 +77,7 @@ estimate()
 # In[7]:
 
 
-grid = gl.DbGrid.create([100,100], [0.01, 0.01])
+grid = gl.DbGrid.create([100, 100], [0.01, 0.01])
 
 data = gl.Db.createFillRandom(ndat=10)
 data[2, "z"] = np.nan
@@ -98,7 +98,7 @@ estimate()
 # In[9]:
 
 
-grid = gl.DbGrid.create([100,100], [0.01, 0.01])
+grid = gl.DbGrid.create([100, 100], [0.01, 0.01])
 
 data = gl.Db.createFillRandom(ndat=10, selRatio=0.3)
 data[2, "z"] = np.nan
@@ -119,7 +119,7 @@ estimate()
 # In[11]:
 
 
-grid = gl.DbGrid.create([100,100], [0.01, 0.01])
+grid = gl.DbGrid.create([100, 100], [0.01, 0.01])
 grid.addSelectionRandom(0.9)
 
 data = gl.Db.createFillRandom(ndat=10, selRatio=0.3)
@@ -141,7 +141,7 @@ estimate()
 # In[13]:
 
 
-grid = gl.DbGrid.create([100,100], [0.01, 0.01])
+grid = gl.DbGrid.create([100, 100], [0.01, 0.01])
 
 data = gl.Db.createFillRandom(ndat=10)
 data[2, "x-1"] = 1.5
