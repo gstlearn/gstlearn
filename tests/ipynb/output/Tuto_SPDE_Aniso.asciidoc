@@ -19,9 +19,9 @@ Total number of samples      = 500
 
 Grid characteristics:
 ---------------------
-Origin :      0.000
-Mesh   :      1.000
-Number :        500
+Origin :       0.000
+Mesh   :       1.000
+Number :         500
 
 Variables
 ---------
@@ -54,9 +54,9 @@ Number of active samples     = 43700
 
 Grid characteristics:
 ---------------------
-Origin :      0.000     0.000
-Mesh   :      1.000     1.000
-Number :        500       200
+Origin :       0.000      0.000
+Mesh   :       1.000      1.000
+Number :         500        200
 
 Variables
 ---------
@@ -95,16 +95,16 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Matern (Third Parameter = 1)
-- Sill         =      1.000
-- Range        =    150.000
-- Theo. Range  =     43.301
+- Sill         =       1.000
+- Range        =     150.000
+- Theo. Range  =      43.301
 
 Non-Stationary Parameters
--------------------------
+.........................
 1 - Range      : IDir=2
 2 - Angle      : IdAngle=1
-Total Sill     =      1.000
-Known Mean(s)     0.000
+Total Sill     =       1.000
+Known Mean(s)      0.000
 ----
 
 

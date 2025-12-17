@@ -1,19 +1,19 @@
 #NO_DIFF#XXX
 ----Matern (Third Parameter = 1)
-- Sill         =      2.000
-- Range        =     10.000
-- Theo. Range  =      2.887----
+- Sill         =       2.000
+- Range        =      10.000
+- Theo. Range  =       2.887----
 
 
 #NO_DIFF#XXX
 ----
 Matern (Third Parameter = 1)
-- Sill         =      2.000
-- Range        =     10.000
-- Theo. Range  =      2.887
+- Sill         =       2.000
+- Range        =      10.000
+- Theo. Range  =       2.887
 
 Non-Stationary Parameters
--------------------------
+.........................
 1 - Range      : IDir=2
 2 - Angle      : IdAngle=1
 ----
@@ -22,12 +22,12 @@ Non-Stationary Parameters
 #NO_DIFF#XXX
 ----
 Matern (Third Parameter = 1)
-- Sill         =      2.000
-- Range        =     10.000
-- Theo. Range  =      2.887
+- Sill         =       2.000
+- Range        =      10.000
+- Theo. Range  =       2.887
 
 Non-Stationary Parameters
--------------------------
+.........................
 1 - Range      : IDir=2
 2 - Angle      : IdAngle=1
 ----
@@ -36,12 +36,12 @@ Non-Stationary Parameters
 #NO_DIFF#XXX
 ----
 Matern (Third Parameter = 1)
-- Sill         =      2.000
-- Range        =     10.000
-- Theo. Range  =      2.887
+- Sill         =       2.000
+- Range        =      10.000
+- Theo. Range  =       2.887
 
 Non-Stationary Parameters
--------------------------
+.........................
 1 - Sill       : Ivar=0 Jvar=0
 2 - Range      : IDir=2
 3 - Angle      : IdAngle=1
@@ -59,9 +59,9 @@ You have to specify a name of a column of the reference Db
 ----
 You have to define a Db (with attachNoStatDb or by specifying a Db here)
 Matern (Third Parameter = 1)
-- Sill         =      2.000
-- Range        =     10.000
-- Theo. Range  =      2.887
+- Sill         =       2.000
+- Range        =      10.000
+- Theo. Range  =       2.887
 ----
 
 
@@ -75,12 +75,12 @@ with the new specifications.
 #NO_DIFF#XXX
 ----
 Matern (Third Parameter = 1)
-- Sill         =      2.000
-- Range        =     10.000
-- Theo. Range  =      2.887
+- Sill         =       2.000
+- Range        =      10.000
+- Theo. Range  =       2.887
 
 Non-Stationary Parameters
--------------------------
+.........................
 1 - Scale      : IDir=1
 ----
 
@@ -91,12 +91,12 @@ Warning, you gave a non-stationary specification for the range
 but it was already given for the scale.
 The new specification has replaced the previous one.
 Matern (Third Parameter = 1)
-- Sill         =      2.000
-- Range        =     10.000
-- Theo. Range  =      2.887
+- Sill         =       2.000
+- Range        =      10.000
+- Theo. Range  =       2.887
 
 Non-Stationary Parameters
--------------------------
+.........................
 1 - Range      : IDir=1
 ----
 
@@ -107,12 +107,12 @@ You try to specify non stationarities for range whereas
 you had already specified one for the scale in another dimension.
 It is invalid
 Matern (Third Parameter = 1)
-- Sill         =      2.000
-- Range        =     10.000
-- Theo. Range  =      2.887
+- Sill         =       2.000
+- Range        =      10.000
+- Theo. Range  =       2.887
 
 Non-Stationary Parameters
--------------------------
+.........................
 1 - Scale      : IDir=1
 ----
 
@@ -120,39 +120,39 @@ Non-Stationary Parameters
 #NO_DIFF#XXX
 ----
 Matern (Third Parameter = 1)
-- Sill         =      2.000
-- Range        =     10.000
-- Theo. Range  =      2.887
+- Sill         =       2.000
+- Range        =      10.000
+- Theo. Range  =       2.887
 ----
 
 
 #NO_DIFF#XXX
 ----
 Matern (Third Parameter = 1)
-- Sill         =      2.000
-- Range        =     10.000
-- Theo. Range  =      2.887
+- Sill         =       2.000
+- Range        =      10.000
+- Theo. Range  =       2.887
 ----
 
 
 #NO_DIFF#XXX
 ----
 Matern (Third Parameter = 1)
-- Sill         =      2.000
-- Range        =     10.000
-- Theo. Range  =      2.887
+- Sill         =       2.000
+- Range        =      10.000
+- Theo. Range  =       2.887
 ----
 
 
 #NO_DIFF#XXX
 ----
 Matern (Third Parameter = 1)
-- Sill         =      2.000
-- Range        =     10.000
-- Theo. Range  =      2.887
+- Sill         =       2.000
+- Range        =      10.000
+- Theo. Range  =       2.887
 
 Non-Stationary Parameters
--------------------------
+.........................
 1 - Angle      : IdAngle=1
 2 - Scale      : IDir=1
 ----
@@ -162,14 +162,14 @@ Non-Stationary Parameters
 ----
 Matern (Third Parameter = 1)
 - Sill matrix:
-               [,  0]    [,  1]
-     [  0,]     2.000     1.000
-     [  1,]     1.000     3.000
-- Range        =     10.000
-- Theo. Range  =      2.887
+                 [,  0]     [,  1]
+      [  0,]      2.000      1.000
+      [  1,]      1.000      3.000
+- Range        =      10.000
+- Theo. Range  =       2.887
 
 Non-Stationary Parameters
--------------------------
+.........................
 1 - Sill       : Ivar=0 Jvar=1
 ----
 
@@ -178,14 +178,14 @@ Non-Stationary Parameters
 ----
 Matern (Third Parameter = 1)
 - Sill matrix:
-               [,  0]    [,  1]
-     [  0,]     2.000     1.000
-     [  1,]     1.000     3.000
-- Range        =     10.000
-- Theo. Range  =      2.887
+                 [,  0]     [,  1]
+      [  0,]      2.000      1.000
+      [  1,]      1.000      3.000
+- Range        =      10.000
+- Theo. Range  =       2.887
 
 Non-Stationary Parameters
--------------------------
+.........................
 1 - Sill       : Ivar=0 Jvar=1
 Functional
 ----
@@ -195,14 +195,14 @@ Functional
 ----
 Matern (Third Parameter = 1)
 - Sill matrix:
-               [,  0]    [,  1]
-     [  0,]     2.000     1.000
-     [  1,]     1.000     3.000
-- Range        =     10.000
-- Theo. Range  =      2.887
+                 [,  0]     [,  1]
+      [  0,]      2.000      1.000
+      [  1,]      1.000      3.000
+- Range        =      10.000
+- Theo. Range  =       2.887
 
 Non-Stationary Parameters
--------------------------
+.........................
 1 - Sill       : Ivar=1 Jvar=1
 2 - Sill       : Ivar=0 Jvar=1
 Functional
@@ -223,23 +223,23 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Matern (Third Parameter = 1)
-- Sill         =      1.000
-- Range        =     10.000
-- Theo. Range  =      2.887
+- Sill         =       1.000
+- Range        =      10.000
+- Theo. Range  =       2.887
 
 Non-Stationary Parameters
--------------------------
+.........................
 1 - Sill       : Ivar=0 Jvar=0
 Matern (Third Parameter = 2)
-- Sill         =      1.000
-- Range        =      1.000
-- Theo. Range  =      0.204
+- Sill         =       1.000
+- Range        =       1.000
+- Theo. Range  =       0.204
 
 Non-Stationary Parameters
--------------------------
+.........................
 1 - Sill       : Ivar=0 Jvar=0
-Total Sill     =      2.000
-Known Mean(s)     0.000----
+Total Sill     =       2.000
+Known Mean(s)      0.000----
 
 
 #NO_DIFF#XXX
@@ -255,20 +255,20 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Matern (Third Parameter = 1)
-- Sill         =      1.000
-- Range        =     10.000
-- Theo. Range  =      2.887
+- Sill         =       1.000
+- Range        =      10.000
+- Theo. Range  =       2.887
 
 Non-Stationary Parameters
--------------------------
+.........................
 1 - Sill       : Ivar=0 Jvar=0
 Matern (Third Parameter = 2)
-- Sill         =      1.000
-- Range        =      1.000
-- Theo. Range  =      0.204
+- Sill         =       1.000
+- Range        =       1.000
+- Theo. Range  =       0.204
 
 Non-Stationary Parameters
--------------------------
+.........................
 1 - Sill       : Ivar=0 Jvar=0
-Total Sill     =      2.000
-Known Mean(s)     0.000----
+Total Sill     =       2.000
+Known Mean(s)      0.000----
