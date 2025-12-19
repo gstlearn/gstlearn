@@ -10,8 +10,8 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
 #include "Covariances/AKernel.hpp"
+#include "gstlearn_export.hpp"
 
 namespace gstlrn
 {
@@ -20,36 +20,36 @@ class CovContext;
 class TurningBandOperate;
 class MatrixDense;
 
-class GSTLEARN_EXPORT KernelMatern : public AKernel
+class GSTLEARN_EXPORT KernelMatern: public AKernel
 {
 public:
   KernelMatern(const CovContext& ctx);
-  KernelMatern(const KernelMatern &r);
-  KernelMatern& operator= (const KernelMatern &r);
+  KernelMatern(const KernelMatern& r);
+  KernelMatern& operator=(const KernelMatern& r);
   virtual ~KernelMatern();
 
   String getFormula() const override;
-  String         getCovName() const override { return "Matern"; }
-  Id            getMinOrder() const override { return -1; }
-  bool           getCompatibleSpaceR() const override { return true; }
-  bool           getCompatibleSpaceS() const override { return true; }
+  String getCovName() const override { return "Matern"; }
+  Id getMinOrder() const override { return -1; }
+  bool getCompatibleSpaceR() const override { return true; }
+  bool getCompatibleSpaceS() const override { return true; }
 
-  bool   hasParam() const override { return true; }
+  bool hasParam() const override { return true; }
   double getParMax() const override { return MAX_PARAM; }
   double getScadef() const override;
-  bool   hasSpectrumOnSphere() const override { return true; }
-  bool   hasSpectrumOnRn() const override { return true; }
-  bool   hasMarkovCoeffs() const override { return true; }
+  bool hasSpectrumOnSphere() const override { return true; }
+  bool hasSpectrumOnRn() const override { return true; }
+  bool hasMarkovCoeffs() const override { return true; }
   double evaluateSpectrum(double freq) const override;
-  void   setMarkovCoeffs(const VectorDouble& coeffs) override { _markovCoeffs = coeffs;}
+  void setMarkovCoeffs(const VectorDouble& coeffs) override { _markovCoeffs = coeffs; }
   VectorDouble getMarkovCoeffs() const override;
-  double getCorrec() const override { return _correc;}
-  void   computeCorrec(Id ndim) override;
-  void   setCorrec(double val) override { _correc = val;}
-  void   computeMarkovCoeffs(Id dim) override;
+  double getCorrec() const override { return _correc; }
+  void computeCorrec(Id ndim) override;
+  void setCorrec(double val) override { _correc = val; }
+  void computeMarkovCoeffs(Id dim) override;
 
   bool isValidForTurningBand() const override { return true; }
-  double simulateTurningBand(double t0, TurningBandOperate &operTB) const override;
+  double simulateTurningBand(double t0, TurningBandOperate& operTB) const override;
 
   bool isValidForSpectral() const override { return true; }
   MatrixDense simulateSpectralOmega(Id nb) const override;
@@ -63,10 +63,11 @@ private:
   static double _besselK(double nu, double h);
   double _newMatern(double h) const;
   double _oldMatern(double h) const;
+
 private:
   double _correc;
   VectorDouble _markovCoeffs;
 };
 
 GSTLEARN_EXPORT void bessel_set_old_style(bool style);
-}
+} // namespace gstlrn

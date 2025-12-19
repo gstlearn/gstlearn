@@ -12,6 +12,7 @@
 #include "Basic/AException.hpp"
 #include "Basic/FFT.hpp"
 #include "Basic/Utilities.hpp"
+#include "Covariances/CovFactory.hpp"
 
 #include <cmath>
 
@@ -58,11 +59,11 @@ void AKernel::setParam(double param, Id ipar)
   double max = getParMax();
   if (param < 0. || (!FFFF(max) && param > max))
     my_throw("Wrong third parameter value");
-  
+
   // Ensure the vector is large enough
   if (ipar >= static_cast<Id>(_params.size()))
     _params.resize(ipar + 1, TEST);
-  
+
   _params[ipar] = param;
 }
 
@@ -70,14 +71,14 @@ void AKernel::setParams(const VectorDouble& params)
 {
   if (!hasParam()) return;
   double max = getParMax();
-  
+
   // Validate all parameters
-  for (const auto& param : params)
+  for (const auto& param: params)
   {
     if (param < 0. || (!FFFF(max) && param > max))
       my_throw("Wrong parameter value");
   }
-  
+
   _params = params;
 }
 
@@ -108,8 +109,8 @@ double AKernel::evalCovFirstDerivativeOverH(double h) const
   return _evaluateCovFirstDerivativeOverH(h);
 }
 double AKernel::evalCovOnSphere(double alpha,
-                                 double scale,
-                                 Id degree) const
+                                double scale,
+                                Id degree) const
 {
   return _evaluateCovOnSphere(alpha, scale, degree);
 }
@@ -229,8 +230,8 @@ double AKernel::evaluateSpectrum(double freq) const
 }
 
 double AKernel::_evaluateCovOnSphere(double alpha,
-                                      double scale,
-                                      Id degree) const
+                                     double scale,
+                                     Id degree) const
 {
   double s = 0.;
 
@@ -374,6 +375,51 @@ void AKernel::computeCorrec(Id ndim)
   Array res     = _evalCovFFT(hmax, N);
   double correc = res.getValue(Nv);
   setCorrec(correc);
+}
+
+AKernel* AKernel::createFromType(const ECov& type, Id ndim)
+{
+  CovContext ctxt(1, ndim);
+  AKernel* acov = CovFactory::createCovFunc(type, ctxt);
+  return acov;
+}
+
+VectorInt getAllMaxDimension()
+{
+  AKernel* kernel = nullptr;
+  Id ndim         = 1; // We set the dimension to 1 to get the maximum count of availabme kernels.
+  VectorInt maxdims;
+
+  for (const auto& key: ECov::getAllKeys())
+  {
+    kernel = AKernel::createFromType(ECov::fromKey(key), ndim);
+    if (kernel == nullptr) continue;
+    maxdims.push_back(kernel->getMaxNDim());
+    delete kernel;
+  }
+  return maxdims;
+}
+
+VectorBool getAllIsSpatialTemporal()
+{
+  messerr("Not implemented yet");
+  return VectorBool();
+}
+
+GSTLEARN_EXPORT VectorString getAllFormula()
+{
+  AKernel* kernel = nullptr;
+  Id ndim         = 1; // We set the dimension to 1 to get the maximum count of availabme kernels.
+  VectorString formulas;
+
+  for (const auto& key: ECov::getAllKeys())
+  {
+    kernel = AKernel::createFromType(ECov::fromKey(key), ndim);
+    if (kernel == nullptr) continue;
+    formulas.push_back(kernel->getFormula());
+    delete kernel;
+  }
+  return formulas;
 }
 
 } // namespace gstlrn

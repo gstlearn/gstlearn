@@ -47,8 +47,8 @@ class DirParam;
  * Class containing the Spatial Characteristics as calculated experimentally from the data (contained in a Db).
  *
  * The experimental Spatial Characteristics is usually referred to as the experimental **variogram**.
- * However, note that it can rather calculate other results such as a Covariance or a Madogram. All these
- * quantities can be regrouped by considering them as **two-points** statistics.
+ * However, note that it can rather calculate other results such as a Covariance or a Madogram, Rodogram.
+ * All these quantities can be regrouped by considering them as **two-points** statistics.
  * For a complete list of calculation methods, please refer to ECalcVario.hpp.
  *
  * This class is composed of two parts:
@@ -149,6 +149,7 @@ public:
                    bool asSymmetric = false);
 
   bool getFlagAsym() const { return _flagAsym; }
+  bool isFittable() const;
   bool drawOnlyPositiveX(Id ivar, Id jvar) const;
   bool drawOnlyPositiveY(Id ivar, Id jvar) const;
 
@@ -345,7 +346,6 @@ public:
   double getGrincr(Id idir, Id idim) const { return getDirParam(idir).getGrincr(idim); }
   bool isDefinedForGrid() const { return _varioparam.isDefinedForGrid(); }
   void setNVar(Id nvar) { _nVar = nvar; }
-  void setCalculByName(const String& calcul_name);
   void setVariableNames(const VectorString& variableNames) { _variableNames = variableNames; }
   void setVariableName(Id ivar, const String& variableName);
 
@@ -430,8 +430,8 @@ private:
   double _getBias(Id iiech, Id jjech);
 
   void _calculateFromGeometry(Db* db, Id idir, Vario_Order* vorder);
-  Id _calculateGeneralSolution1(Db* db, Id idir, const Id* rindex, Vario_Order* vorder);
-  Id _calculateGeneralSolution2(Db* db, Id idir, const Id* rindex);
+  Id _calculateGeneralByPair(Db* db, Id idir, const Id* rindex, Vario_Order* vorder);
+  Id _calculateGeneralBySample(Db* db, Id idir, const Id* rindex);
   Id _calculateOnGridSolution(DbGrid* db, Id idir);
   Id _calculateGenOnGridSolution(DbGrid* db, Id idir, Id norder);
   Id _calculateVarioVectSolution(Db* db, Id idir, Id ncomp, const Id* rindex);

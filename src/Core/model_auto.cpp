@@ -4416,11 +4416,10 @@ Id model_auto_fit(Vario* vario,
   if (vario->getCalcul() == ECalcVario::GENERAL1) norder = 1;
   if (vario->getCalcul() == ECalcVario::GENERAL2) norder = 2;
   if (vario->getCalcul() == ECalcVario::GENERAL3) norder = 3;
-  if (vario->getCalcul() == ECalcVario::MADOGRAM ||
-      vario->getCalcul() == ECalcVario::RODOGRAM ||
-      vario->getCalcul() == ECalcVario::GENERAL1 ||
-      vario->getCalcul() == ECalcVario::GENERAL2 ||
-      vario->getCalcul() == ECalcVario::GENERAL3)
+
+  // Check if the tool can be used for fitting
+
+  if (!vario->isFittable())
   {
     messerr("Procedure is designed only for symmetric covariance");
     return (1);

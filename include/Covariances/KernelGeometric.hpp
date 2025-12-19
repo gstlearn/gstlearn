@@ -10,32 +10,32 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
 #include "Covariances/AKernel.hpp"
+#include "gstlearn_export.hpp"
 
 namespace gstlrn
 {
 class CovContext;
 
-class GSTLEARN_EXPORT KernelGeometric : public AKernel
+class GSTLEARN_EXPORT KernelGeometric: public AKernel
 {
 public:
   KernelGeometric(const CovContext& ctx);
-  KernelGeometric(const KernelGeometric &r);
-  KernelGeometric& operator= (const KernelGeometric &r);
+  KernelGeometric(const KernelGeometric& r);
+  KernelGeometric& operator=(const KernelGeometric& r);
   virtual ~KernelGeometric();
 
-  String         getCovName() const override { return "Geometric"; }
-  Id            getMinOrder() const override { return -1; }
-  bool           getCompatibleSpaceS() const override { return true; }
-  bool           hasCovOnSphere() const override { return true; }
-  bool           hasSpectrumOnSphere() const override { return true; }
+  String getCovName() const override { return "Geometric"; }
+  Id getMinOrder() const override { return -1; }
+  bool getCompatibleSpaceS() const override { return true; }
+  bool hasCovOnSphere() const override { return true; }
+  bool hasSpectrumOnSphere() const override { return true; }
 
 protected:
   double _evaluateCovOnSphere(double alpha,
                               double scale = 1.,
-                              Id degree = 50) const override;
+                              Id degree    = 50) const override;
   VectorDouble _evaluateSpectrumOnSphere(Id n, double scale = 1.) const override;
 };
 
-}
+} // namespace gstlrn

@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Variogram/AVario.hpp"
 
+#include "Basic/String.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Db/Db.hpp"
 #include "Enum/ECalcVario.hpp"
@@ -282,139 +283,14 @@ String AVario::_elemString(const AStringFormat* strfmt) const
 {
   DECLARE_UNUSED(strfmt);
   std::stringstream sstr;
-
-  // Print the calculation type
-
-  switch (getCalcul().toEnum())
-  {
-    case ECalcVario::E_UNDEFINED: sstr << toStrTitle(0, "Undefined"); break;
-
-    case ECalcVario::E_VARIOGRAM:
-      sstr << toStrTitle(0, "Variogram characteristics");
-      break;
-
-    case ECalcVario::E_MADOGRAM:
-      sstr << toStrTitle(0, "Madogram characteristics");
-      break;
-
-    case ECalcVario::E_RODOGRAM:
-      sstr << toStrTitle(0, "Rodogram characteristics");
-      break;
-
-    case ECalcVario::E_POISSON:
-      sstr << toStrTitle(0, "Poisson variogram characteristics");
-      break;
-
-    case ECalcVario::E_COVARIANCE:
-      sstr << toStrTitle(0, "Covariance characteristics");
-      break;
-
-    case ECalcVario::E_COVARIANCE_NC:
-      sstr << toStrTitle(0, "Non-centered Covariance characteristics");
-      break;
-
-    case ECalcVario::E_COVARIOGRAM:
-      sstr << toStrTitle(0, "Transitive Covariogram characteristics");
-      break;
-
-    case ECalcVario::E_GENERAL1:
-      sstr << toStrTitle(0, "Generalized Variogram of order 1 characteristics");
-      break;
-
-    case ECalcVario::E_GENERAL2:
-      sstr << toStrTitle(0, "Generalized Variogram of order 2 characteristics");
-      break;
-
-    case ECalcVario::E_GENERAL3:
-      sstr << toStrTitle(0, "Generalized Variogram of order 3 characteristics");
-      break;
-
-    case ECalcVario::E_ORDER4: sstr << toStrTitle(0, "Order-4 Variogram"); break;
-
-    case ECalcVario::E_TRANS1:
-      sstr << toStrTitle(0, "Cross-to_simple Variogram ratio G12/G1");
-      break;
-
-    case ECalcVario::E_TRANS2:
-      sstr << toStrTitle(0, "Cross-to_simple Variogram ratio G12/G2");
-      break;
-
-    case ECalcVario::E_BINORMAL:
-      sstr << toStrTitle(0, "Cross-to_simple Variogram ratio G12/sqrt(G1*G2)");
-      break;
-
-    default: break;
-  }
-  return sstr.str();
-}
-
-/**
- * Convert the Calculation Name into a Calculation Type (ECalcVario)
- *
- * @return The corresponding ECalcVario enum
- */
-ECalcVario AVario::getCalculType(const String& calcul_name)
-{
-  ECalcVario calcul_type;
-
-  if (calcul_name == "undefined")
-    calcul_type = ECalcVario::UNDEFINED;
-  else if (calcul_name == "vg")
-    calcul_type = ECalcVario::VARIOGRAM;
-  else if (calcul_name == "cov")
-    calcul_type = ECalcVario::COVARIANCE;
-  else if (calcul_name == "covnc")
-    calcul_type = ECalcVario::COVARIANCE_NC;
-  else if (calcul_name == "covg")
-    calcul_type = ECalcVario::COVARIOGRAM;
-  else if (calcul_name == "mado")
-    calcul_type = ECalcVario::MADOGRAM;
-  else if (calcul_name == "rodo")
-    calcul_type = ECalcVario::RODOGRAM;
-  else if (calcul_name == "poisson")
-    calcul_type = ECalcVario::POISSON;
-  else if (calcul_name == "general1")
-    calcul_type = ECalcVario::GENERAL1;
-  else if (calcul_name == "general2")
-    calcul_type = ECalcVario::GENERAL2;
-  else if (calcul_name == "general3")
-    calcul_type = ECalcVario::GENERAL3;
-  else if (calcul_name == "order4")
-    calcul_type = ECalcVario::ORDER4;
-  else if (calcul_name == "trans1")
-    calcul_type = ECalcVario::TRANS1;
-  else if (calcul_name == "trans2")
-    calcul_type = ECalcVario::TRANS2;
-  else if (calcul_name == "binormal")
-    calcul_type = ECalcVario::BINORMAL;
+  if (getCalcul() == ECalcVario::UNDEFINED)
+    sstr << toStrTitle(0, "Undefined");
   else
   {
-    messerr("Invalid variogram calculation name : %s", calcul_name.c_str());
-    messerr("The only valid names are:");
-    messerr("vg       : Variogram");
-    messerr("cov      : Covariance");
-    messerr("covnc    : Non-centered ergodic covariance");
-    messerr("covg     : Covariogram");
-    messerr("mado     : Madogram");
-    messerr("rodo     : Rodogram");
-    messerr("poisson  : Poisson");
-    messerr("general1 : Generalized variogram of order 1");
-    messerr("general2 : Generalized variogram of order 2");
-    messerr("general3 : Generalized variogram of order 3");
-    messerr("order4   : Variogram of order 4");
-    messerr("trans1   : Cross-to-Simple Variogram G12/G1");
-    messerr("trans2   : Cross-to-Simple Variogram G12/G1");
-    messerr("binormal : Cross-to-Simple Variogram G12/sqrt(G1*G2)");
-
-    calcul_type = ECalcVario::UNDEFINED;
+    String total_string = std::string(getCalcul().getDescr()) + " characteristics";
+    sstr << toStrTitle(0, total_string.c_str());
   }
-  return calcul_type;
-}
-
-void AVario::setCalculByName(const String& calcul_name)
-{
-  const ECalcVario& calcul = getCalculType(calcul_name);
-  setCalcul(calcul);
+  return sstr.str();
 }
 
 void AVario::setCalcul(const ECalcVario& calcul)

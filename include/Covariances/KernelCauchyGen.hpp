@@ -25,7 +25,7 @@ public:
   KernelCauchyGen& operator=(const KernelCauchyGen& r);
   virtual ~KernelCauchyGen();
 
-  virtual String getFormula() const override;
+  String getFormula() const override;
   String getCovName() const override { return "Generalized Cauchy"; };
   Id getMinOrder() const override { return -1; };
   bool getCompatibleSpaceR() const override { return true; };
@@ -33,14 +33,14 @@ public:
   bool hasParam() const override { return true; };
   double getParMax() const override { return MAX_PARAM; };
   double getScadef() const override;
-//  double getAlpha() const { return _alpha; };
-//  bool setAlpha(double alpha);
+  //  double getAlpha() const { return _alpha; };
+  //  bool setAlpha(double alpha);
 
 protected:
   double _evaluateCov(double h) const override;
 
 private:
-//  double _alpha;
+  //  double _alpha;
 };
 
 } // namespace gstlrn

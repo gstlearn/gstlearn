@@ -489,7 +489,7 @@ void Vario::resetReduce(const VectorInt& varcols,
   if (asSymmetric)
   {
     if (vario_in.getFlagAsym()) flagMakeSym = true;
-    setCalculByName("vg");
+    setCalcul(ECalcVario::VARIOGRAM);
   }
 
   // Reset Mean and variance arrays (only if variable number has been modified)
@@ -1887,7 +1887,7 @@ bool Vario::_deserializeAscii(std::istream& is, bool /*verbose*/)
   _nVar = nvar;
   internalDirectionResize(ndir, false);
   setVars(vars);
-  setCalculByName("vg"); // TODO: read this information from NF file and treat accordingly
+  setCalcul(ECalcVario::VARIOGRAM);
   setScale(scale);
   Id isDefinedForGrid = 0;
 
@@ -2131,30 +2131,14 @@ Id Vario::getDirSize(Id idir) const
 
 void Vario::_setFlagAsym()
 {
-  switch (getCalcul().toEnum())
-  {
-    case ECalcVario::E_VARIOGRAM:
-    case ECalcVario::E_MADOGRAM:
-    case ECalcVario::E_RODOGRAM:
-    case ECalcVario::E_POISSON:
-    case ECalcVario::E_GENERAL1:
-    case ECalcVario::E_GENERAL2:
-    case ECalcVario::E_GENERAL3:
-    case ECalcVario::E_ORDER4:
-    case ECalcVario::E_TRANS1:
-    case ECalcVario::E_TRANS2:
-    case ECalcVario::E_BINORMAL:
-      _flagAsym = false;
-      break;
+  String cle = std::string(getCalcul().getKey());
+  _flagAsym  = !ECalcVarioAttr.at(cle).isSymmetric;
+}
 
-    case ECalcVario::E_COVARIANCE:
-    case ECalcVario::E_COVARIANCE_NC:
-    case ECalcVario::E_COVARIOGRAM:
-      _flagAsym = true;
-      break;
-    default:
-      messerr("Wrong Variogram Calculation enum!");
-  }
+bool Vario::isFittable() const
+{
+  String cle = std::string(getCalcul().getKey());
+  return ECalcVarioAttr.at(cle).isFittable;
 }
 
 /**
@@ -2184,12 +2168,6 @@ Id Vario::getNLagTotal(Id idir) const
   if (!_isDirectionValid(idir)) return 0;
   auto nlag = getNLag(idir);
   return ((_flagAsym) ? 2 * nlag + 1 : nlag);
-}
-
-void Vario::setCalculByName(const String& calcul_name)
-{
-  AVario::setCalculByName(calcul_name);
-  _setFlagAsym();
 }
 
 double Vario::getMaximumDistance() const
@@ -2454,11 +2432,11 @@ Id Vario::_calculateGeneral(Db* db,
   {
     if (!flag_sample)
     {
-      if (_calculateGeneralSolution1(db, idir, rindex.data(), vorder)) return 1;
+      if (_calculateGeneralByPair(db, idir, rindex.data(), vorder)) return 1;
     }
     else
     {
-      if (_calculateGeneralSolution2(db, idir, rindex.data())) return 1;
+      if (_calculateGeneralBySample(db, idir, rindex.data())) return 1;
     }
 
     if (vorder != nullptr)
@@ -3329,10 +3307,10 @@ void Vario::_calculateFromGeometry(Db* db, Id idir, Vario_Order* vorder)
  ** \param[in]  vorder Vario_Order structure
  **
  *****************************************************************************/
-Id Vario::_calculateGeneralSolution1(Db* db,
-                                     Id idir,
-                                     const Id* rindex,
-                                     Vario_Order* vorder)
+Id Vario::_calculateGeneralByPair(Db* db,
+                                  Id idir,
+                                  const Id* rindex,
+                                  Vario_Order* vorder)
 {
   SpaceTarget T1(getSpace(), false);
   SpaceTarget T2(getSpace(), false);
@@ -3430,7 +3408,7 @@ Id Vario::_calculateGeneralSolution1(Db* db,
  ** \param[in]  rindex Array of sorted samples
  **
  *****************************************************************************/
-Id Vario::_calculateGeneralSolution2(Db* db, Id idir, const Id* rindex)
+Id Vario::_calculateGeneralBySample(Db* db, Id idir, const Id* rindex)
 {
   SpaceTarget T1(getSpace(), false);
   SpaceTarget T2(getSpace(), false);
@@ -3687,7 +3665,6 @@ Id Vario::_calculateGenOnGridSolution(DbGrid* db, Id idir, Id norder)
       if (keep)
       {
         value = value * value / NORWGT[norder];
-
         _setResult(iech, iech, nvar, ilag, 0, 0, 0, 1., dist, value);
       }
     }
@@ -3735,14 +3712,20 @@ void Vario::_setResult(Id iech1,
                        double dist,
                        double value)
 {
-  DECLARE_UNUSED(iech1);
-  DECLARE_UNUSED(iech2);
   DECLARE_UNUSED(nvar);
+
+  // Get the address
   auto i = getDirAddress(IDIRLOC, ivar, jvar, ilag, false, orient, false);
-  updateGgByIndex(IDIRLOC, i, ww * value, false);
-  if (getCalcul() == ECalcVario::POISSON)
-    updateGgByIndex(IDIRLOC, i, -getMean(ivar) / 2., false);
+
+  // Store the variogram
+  double local = ww * value;
+  if (getCalcul() == ECalcVario::POISSON) local = local - getMean(ivar) / 2.;
+  updateGgByIndex(IDIRLOC, i, local, false);
+
+  // Store the distance
   updateHhByIndex(IDIRLOC, i, ww * dist, false);
+
+  // Store the weight attached to the lag
   updateSwByIndex(IDIRLOC, i, ww, false);
 
   // Optional storage

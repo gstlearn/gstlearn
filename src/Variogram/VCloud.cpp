@@ -119,7 +119,6 @@ void VCloud::_setResult(Id iech1,
     }
   }
 
-  // Optional storage
   _storage(iech1, iech2, dist, value);
 }
 

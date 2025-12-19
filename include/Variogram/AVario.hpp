@@ -30,11 +30,8 @@ public:
   AVario& operator=(const AVario& r);
   virtual ~AVario();
 
-  static ECalcVario getCalculType(const String& calcul_name);
   const ECalcVario& getCalcul() const { return _calcul; }
   void setCalcul(const ECalcVario& calcul);
-  void setCalculByName(const String& calcul_name);
-
   void setStorage(bool flag);
 
 protected:
