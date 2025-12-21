@@ -62,7 +62,7 @@ typedef std::vector<ECov> VectorECov;
  * - the field extension: this information is needed to get a *stationary* version to any covariance
  * - the experimental mean vector and the variance-covariance matrix (used to calibrate the Model)
  */
-class GSTLEARN_EXPORT Model: public AStringable, public ASerializable, public ModelCovList
+class GSTLEARN_EXPORT Model: public AStringable, public ModelCovList
 {
 public:
   Model(const CovContext& ctxt = CovContext());
@@ -244,14 +244,13 @@ protected:
   bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
 #ifdef HDF5
   bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
-  bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
 #endif
   String _getNFName() const override { return "Model"; }
 
 private:
   bool _isValid() const override;
-  void _clear();
-  void _create();
+  void _create() override;
+  void _clear() override;
   void _copyCovContext();
 };
 } // namespace gstlrn

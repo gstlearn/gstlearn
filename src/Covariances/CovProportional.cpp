@@ -67,7 +67,7 @@ double CovProportional::_eval(const SpacePoint& p1,
                               Id jvar,
                               const CovCalcMode* mode) const
 {
-  return _sillCur.getValue(ivar,jvar) * getCor()->evalCov(p1, p2,0, 0, mode);
+  return _sillCur.getValue(ivar, jvar) * getCor()->evalCov(p1, p2, 0, 0, mode);
 }
 
 bool CovProportional::isValidForSpectral() const
@@ -80,4 +80,4 @@ MatrixDense CovProportional::simulateSpectralOmega(Id ns) const
   return getCor()->simulateSpectralOmega(ns);
 }
 
-}
+} // namespace gstlrn

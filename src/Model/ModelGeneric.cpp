@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Model/ModelGeneric.hpp"
 #include "Basic/ListParams.hpp"
+#include "Basic/SerializeHDF5.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Db/Db.hpp"
@@ -29,7 +30,8 @@
 namespace gstlrn
 {
 ModelGeneric::ModelGeneric(const CovContext& ctxt)
-  : _cova(nullptr)
+  : ASerializable()
+  , _cova(nullptr)
   , _driftList(nullptr)
   , _ctxt(ctxt)
   , _transform(nullptr)
@@ -37,6 +39,7 @@ ModelGeneric::ModelGeneric(const CovContext& ctxt)
 }
 
 ModelGeneric::ModelGeneric(const ModelGeneric& r)
+  : ASerializable(r)
 {
   _cova      = (r._cova != nullptr) ? std::dynamic_pointer_cast<ACov>(r._cova->cloneShared()) : nullptr;
   _driftList = (r._driftList != nullptr) ? r._driftList->clone() : nullptr;
@@ -48,6 +51,7 @@ ModelGeneric& ModelGeneric::operator=(const ModelGeneric& r)
 {
   if (this != &r)
   {
+    ASerializable::operator=(r);
     _cova      = (r._cova != nullptr) ? std::dynamic_pointer_cast<ACov>(r._cova->cloneShared()) : nullptr;
     _driftList = (r._driftList != nullptr) ? r._driftList->clone() : nullptr;
     _ctxt      = r._ctxt;
@@ -58,9 +62,25 @@ ModelGeneric& ModelGeneric::operator=(const ModelGeneric& r)
 
 ModelGeneric::~ModelGeneric()
 {
+  _clear();
+  delete _transform;
+  _transform = nullptr;
+}
+
+void ModelGeneric::_clear()
+{
   _cova = nullptr;
   delete _driftList;
   _driftList = nullptr;
+}
+
+void ModelGeneric::_create()
+{
+  // Manage the DriftList part
+  delete _driftList;
+  _driftList = new DriftList(_ctxt);
+
+  // Manage the ATransform part
   delete _transform;
   _transform = nullptr;
 }
@@ -432,4 +452,76 @@ void ModelGeneric::setTransform(const ATransform* transform)
   delete _transform;
   _transform = dynamic_cast<ATransform*>(transform->clone());
 }
+
+#ifdef HDF5
+bool ModelGeneric::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+{
+  auto modelG = SerializeHDF5::getGroup(grp, "Model");
+  if (!modelG) return false;
+
+  bool ret       = true;
+  Id varioNumber = 0;
+  ret            = ret && SerializeHDF5::readValue(*modelG, "Version Number", varioNumber);
+  if (varioNumber != 2)
+  {
+    messerr("ModelGeneric::_deserializeH5: Unsupported version %d", varioNumber);
+    return false;
+  }
+
+  // Deserialize the CovContext characteristics
+  Id ndim      = 0;
+  Id nvar      = 0;
+  double field = 0.;
+
+  ret = ret && SerializeHDF5::readValue(*modelG, "NDim", ndim);
+  ret = ret && SerializeHDF5::readValue(*modelG, "NVar", nvar);
+  ret = ret && SerializeHDF5::readValue(*modelG, "Field", field);
+  if (!ret) return ret;
+
+  _ctxt = CovContext(nvar, ndim);
+  _ctxt.setField(field);
+
+  _clear();
+  _create(); // Requires the context to exist
+
+  // Process the Covariances
+  ret = ret && _cova->_deserializeH5(*modelG, verbose);
+
+  // Process the drift part
+  ret = ret && _driftList->_deserializeH5(*modelG, verbose);
+
+  // Process the covariance matrix
+  VectorDouble covar0s;
+  ret = ret && SerializeHDF5::readVec(*modelG, "VarCov0", covar0s);
+  setCovar0s(covar0s);
+
+  return ret;
+}
+
+bool ModelGeneric::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+{
+  bool ret = true;
+
+  auto modelG    = grp.createGroup("Model");
+  Id varioNumber = 2;
+  ret            = ret && SerializeHDF5::writeValue(modelG, "Version Number", static_cast<Id>(varioNumber));
+
+  // Serialize the CovContext characteristics
+  ret = ret && SerializeHDF5::writeValue(modelG, "NDim", static_cast<Id>(getNDim()));
+  ret = ret && SerializeHDF5::writeValue(modelG, "NVar", getNVar());
+  ret = ret && SerializeHDF5::writeValue(modelG, "Field", getField());
+
+  // Serialize the covariance part
+  ret = ret && _cova->_serializeH5(modelG, verbose);
+
+  // Serialize the drift part
+  ret = ret && _driftList->_serializeH5(modelG, verbose);
+
+  /// Serialize the variance-covariance at the origin
+  ret = ret && SerializeHDF5::writeVec(modelG, "VarCov0", getCovar0());
+
+  return ret;
+}
+#endif
+
 } // namespace gstlrn

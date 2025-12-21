@@ -118,8 +118,8 @@ public:
                           const VectorDouble& params,
                           const VectorDouble& ranges,
                           const VectorDouble& angles = VectorDouble(),
-                          bool flagRange = true);
-                          
+                          bool flagRange             = true);
+
   static CorAniso* createIsotropic(const CovContext& ctxt,
                                    const ECov& type,
                                    double range,
@@ -328,11 +328,18 @@ private:
   bool _isVariableValid(Id ivar) const;
   void _updateFromContext() override;
 
-  virtual double _eval(const SpacePoint& p1,
-                       const SpacePoint& p2,
-                       Id ivar                 = 0,
-                       Id jvar                 = 0,
-                       const CovCalcMode* mode = nullptr) const override;
+  double _eval(const SpacePoint& p1,
+               const SpacePoint& p2,
+               Id ivar                 = 0,
+               Id jvar                 = 0,
+               const CovCalcMode* mode = nullptr) const override;
+
+  /// Interface to ASerializable
+  String _getNFName() const override { return "Covariance"; }
+#ifdef HDF5
+  bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
+  bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
+#endif
 
 private:
   AKernel* _corfunc; /// Basic correlation function

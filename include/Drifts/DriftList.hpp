@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Basic/ASerializable.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "geoslib_define.h"
@@ -44,7 +45,7 @@ class ELoc;
  * - some additional information defining some relationship between the basic drift function: this is used for the special
  * case where the different Random Functions obey to algebraic relations.
  */
-class GSTLEARN_EXPORT DriftList: public AStringable, public ICloneable
+class GSTLEARN_EXPORT DriftList: public AStringable, public ICloneable, public ASerializable
 {
 public:
   DriftList(const CovContext& ctxt = CovContext());
@@ -195,6 +196,13 @@ private:
   double _getDriftCL(Id ivar, Id il, Id ib) const { return _driftCL[_getAddress(ivar, il, ib)]; }
   void _setDriftCL(Id ivar, Id il, Id ib, double value) { _driftCL[_getAddress(ivar, il, ib)] = value; }
   VectorInt _getActiveVariables(Id ivar0) const;
+
+public:
+#ifdef HDF5
+  bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
+  bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
+#endif
+  String _getNFName() const override { return "DriftList"; }
 
 #ifndef SWIG
 

@@ -16,6 +16,7 @@
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
+#include "Basic/ASerializable.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Basic/ListParams.hpp"
 #include "Covariances/ACov.hpp"
@@ -48,7 +49,7 @@ class ATransform;
  * - the field extension: this information is needed to get a *stationary* version to any covariance
  * - the experimental mean vector and the variance-covariance matrix (used to calibrate the Model)
  */
-class GSTLEARN_EXPORT ModelGeneric: public ICloneable
+class GSTLEARN_EXPORT ModelGeneric: public ICloneable, public ASerializable
 {
 public:
   ModelGeneric(const CovContext& ctxt = CovContext());
@@ -227,12 +228,24 @@ public:
 private:
   virtual bool _isValid() const;
 
+protected:
+  virtual void _clear();
+  virtual void _create();
+
 protected:                     // TODO : pass into private to finish clean
   std::shared_ptr<ACov> _cova; /* Generic Covariance structure */
   mutable std::vector<covmaptype> _gradCovFuncs;
   DriftList* _driftList;  /* Series of Drift functions */
   CovContext _ctxt;       /* Context */
   ATransform* _transform; /* Transformation associated to the Model */
+
+public:
+  /// Interface to ASerializable
+  String _getNFName() const override { return "ModelGeneric"; }
+#ifdef HDF5
+  bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
+  bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
+#endif
 };
 
 GSTLEARN_EXPORT Id computeCovMatSVCLHSInPlace(MatrixSymmetric& cov,

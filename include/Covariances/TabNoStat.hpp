@@ -23,7 +23,6 @@
 
 namespace gstlrn
 {
-
 typedef std::unordered_map<ParamId, std::shared_ptr<ANoStat>, ParamIdHash, ParamIdEqual> mapNoStat;
 
 class GSTLEARN_EXPORT TabNoStat: public AStringable, public ICloneable
@@ -35,6 +34,7 @@ public:
   virtual ~TabNoStat();
 
   IMPLEMENT_CLONING(TabNoStat)
+
   bool isNoStat() const { return !_items.empty(); }
   void informMeshByMesh(const AMesh* amesh) const;
   void informMeshByApex(const AMesh* amesh) const;

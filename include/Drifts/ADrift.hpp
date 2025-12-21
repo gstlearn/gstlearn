@@ -45,12 +45,12 @@ class Db;
  * - an **external drift** function (**DRIFTF**) identified by its rank (corresponding locator ELoc::F)
  * for one sample.
  */
-class GSTLEARN_EXPORT ADrift : public AStringable, public ICloneable
+class GSTLEARN_EXPORT ADrift: public AStringable, public ICloneable
 {
 public:
   ADrift();
-  ADrift(const ADrift &r);
-  ADrift& operator= (const ADrift &r);
+  ADrift(const ADrift& r);
+  ADrift& operator=(const ADrift& r);
   virtual ~ADrift();
 
   /// AStringable Interface
@@ -58,14 +58,14 @@ public:
 
   /// Interface for daughter classes
   virtual VectorInt getPowers() const { return VectorInt(); }
-  virtual Id       getRankFex() const { return 0; }
+  virtual Id getRankFex() const { return 0; }
 
   // ADriftelem Interface
-  virtual String getDriftName() const = 0;
-  virtual Id    getOrderIRF() const = 0;
-  virtual Id    getOrderIRFIdim(Id idim) const = 0;
-  virtual double eval(const Db* db,Id iech) const = 0;
-  virtual Id    getDriftNDimMax() const { return 0; }
-  virtual bool   isDriftExternal() const { return false; }
+  virtual String getDriftName() const              = 0;
+  virtual Id getOrderIRF() const                   = 0;
+  virtual Id getOrderIRFIdim(Id idim) const        = 0;
+  virtual double eval(const Db* db, Id iech) const = 0;
+  virtual Id getDriftNDimMax() const { return 0; }
+  virtual bool isDriftExternal() const { return false; }
 };
-}
+} // namespace gstlrn

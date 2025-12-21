@@ -140,6 +140,7 @@ public:
 
   bool isValidForSpectral() const override;
   MatrixDense simulateSpectralOmega(Id ns) const override;
+
 protected:
   bool _isCovarianceIndexValid(Id icov) const;
   void _load(const SpacePoint& p, bool case1) const override;
@@ -153,6 +154,14 @@ protected:
                Id ivar                 = 0,
                Id jvar                 = 0,
                const CovCalcMode* mode = nullptr) const override;
+
+public:
+  /// Interface to ASerializable
+#ifdef HDF5
+  bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
+  bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
+#endif
+  String _getNFName() const override { return "Covariance List"; }
 
 private:
   void _attachNoStatDb(const Db* db) override;

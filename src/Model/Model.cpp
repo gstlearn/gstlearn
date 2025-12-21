@@ -38,7 +38,6 @@ namespace gstlrn
 {
 Model::Model(const CovContext& ctxt)
   : AStringable()
-  , ASerializable()
   , ModelCovList(ctxt)
 {
   _create();
@@ -46,7 +45,6 @@ Model::Model(const CovContext& ctxt)
 
 Model::Model(Id nvar, Id ndim)
   : AStringable()
-  , ASerializable()
   , ModelCovList()
 {
   auto space = SpaceRN::create(ndim);
@@ -56,7 +54,6 @@ Model::Model(Id nvar, Id ndim)
 
 Model::Model(const Model& m)
   : AStringable(m)
-  , ASerializable(m)
   , ModelCovList(m)
 {
 }
@@ -67,7 +64,6 @@ Model& Model::operator=(const Model& m)
   {
     ModelCovList::operator=(m);
     AStringable::operator=(m);
-    ASerializable::operator=(m);
     setCovAnisoList(dynamic_cast<CovAnisoList*>(m.getCovAnisoList()->clone()));
     if (m._driftList != nullptr)
       _driftList = m._driftList->clone();
@@ -908,20 +904,14 @@ bool Model::_serializeAscii(std::ostream& os, bool /*verbose*/) const
 
 void Model::_clear()
 {
+  ModelGeneric::_clear();
   _cova = nullptr;
-  delete _driftList;
-  _driftList = nullptr;
 }
 
 void Model::_create()
 {
-  // TODO: The next two lines are there in order to allow direct call to
-  // model::addCov() and model::addDrift
-  // The defaulted types of CovAnisoList and DriftList are assumed
-
+  ModelGeneric::_create();
   CovAnisoList tmp(_ctxt);
-  delete _driftList;
-  _driftList = new DriftList(_ctxt);
   setCovAnisoList(&tmp);
 }
 
@@ -1272,7 +1262,20 @@ bool Model::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   auto modelG = SerializeHDF5::getGroup(grp, "Model");
   if (!modelG) return false;
 
-  bool ret     = true;
+  bool ret = true;
+
+  // Attempt to read the latest version of the HDF5 serialization of a Model
+  Id version = 0;
+  ret        = ret && SerializeHDF5::readValue(*modelG, "Version Number", version);
+  if (ret)
+  {
+    ret = ret && ModelGeneric::_deserializeH5(grp, verbose);
+    return ret;
+  }
+
+  messerr("Warning: the Model Neutral File is in an old format (version 1)");
+  messerr("Some capabilities may be missing!\n");
+  ret          = true;
   Id ndim      = 0;
   Id nvar      = 0;
   Id ncov      = 0;
@@ -1384,64 +1387,6 @@ bool Model::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   return ret;
 }
 
-bool Model::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
-{
-  auto modelG = grp.createGroup("Model");
-
-  bool ret = true;
-  ret      = ret && SerializeHDF5::writeValue(modelG, "NDim", static_cast<Id>(getNDim()));
-  ret      = ret && SerializeHDF5::writeValue(modelG, "NVar", getNVar());
-  ret      = ret && SerializeHDF5::writeValue(modelG, "Field", getField());
-  ret      = ret && SerializeHDF5::writeValue(modelG, "NCov", getNCov());
-  ret      = ret && SerializeHDF5::writeValue(modelG, "NDrift", getNDrift());
-
-  // Writing the covariance part
-  auto covsG = modelG.createGroup("Covs");
-  for (Id icov = 0, ncov = getNCov(); ret && icov < ncov; icov++)
-  {
-    const CovAniso* cova = getCovAniso(icov);
-    String locName       = "Covariance" + std::to_string(icov);
-    auto covG            = covsG.createGroup(locName);
-
-    // General characteristics
-    ret = ret && SerializeHDF5::writeValue(covG, "Type", cova->getType().getValue());
-    ret = ret && SerializeHDF5::writeValue(covG, "Range", cova->getRangeIso());
-    ret = ret && SerializeHDF5::writeValue(covG, "Param", cova->getParam());
-
-    // Anisotropy
-    ret = ret && SerializeHDF5::writeValue(covG, "FlagAniso", static_cast<Id>(cova->getFlagAniso()));
-    if (cova->getFlagAniso())
-    {
-      ret = ret && SerializeHDF5::writeVec(covG, "Aniso", cova->getAnisoCoeffs());
-
-      ret = ret && SerializeHDF5::writeValue(covG, "FlagRotation", static_cast<Id>(cova->getFlagRotation()));
-      if (cova->getFlagRotation())
-        ret = ret && SerializeHDF5::writeVec(covG, "Rotation", cova->getAnisoRotMat().getValues());
-    }
-
-    // Sills
-    ret = ret && SerializeHDF5::writeVec(covG, "Sills", cova->getSill().getValues());
-  }
-
-  // Writing the drift part
-  auto driftsG = modelG.createGroup("Drifts");
-  for (Id ibfl = 0, nbfl = getNDrift(); ret && ibfl < nbfl; ibfl++)
-  {
-    const ADrift* drift = getDrift(ibfl);
-    String locName      = "Drift" + std::to_string(ibfl);
-    auto driftG         = driftsG.createGroup(locName);
-
-    ret = ret && SerializeHDF5::writeValue(driftG, "Name", drift->getDriftName());
-  }
-
-  // Writing the matrix of means (if nbfl <= 0)
-  if (getNDrift() <= 0)
-    ret = ret && SerializeHDF5::writeVec(modelG, "Means", getMeans());
-
-  /// Writing the variance-covariance at the origin (optional)
-  ret = ret && SerializeHDF5::writeVec(modelG, "Covar", getCovar0());
-
-  return ret;
-}
 #endif
+
 } // namespace gstlrn

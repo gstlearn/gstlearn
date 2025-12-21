@@ -145,12 +145,20 @@ private:
                   const CovCalcMode* mode) const;
   void _load(const SpacePoint& p, bool case1) const override;
   void _optimizationSetTarget(SpacePoint& pt) const override;
-  virtual double _eval(const SpacePoint& p1,
-                       const SpacePoint& p2,
-                       Id ivar                 = 0,
-                       Id jvar                 = 0,
-                       const CovCalcMode* mode = nullptr) const override;
+  double _eval(const SpacePoint& p1,
+               const SpacePoint& p2,
+               Id ivar                 = 0,
+               Id jvar                 = 0,
+               const CovCalcMode* mode = nullptr) const override;
   void _multiplyCorDerivativesBySills(Id oldSize, std::vector<covmaptype>* gradFuncs);
+
+public:
+  /// Interface to ASerializable
+  String _getNFName() const override { return "CovBase"; }
+#ifdef HDF5
+  bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
+  bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
+#endif
 
 protected:
   MatrixT<ParamInfo> _cholSillsInfo;

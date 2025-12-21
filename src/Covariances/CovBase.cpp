@@ -12,6 +12,7 @@
 #include "Basic/Iterators.hpp"
 #include "Basic/ListParams.hpp"
 #include "Basic/ParamInfo.hpp"
+#include "Basic/SerializeHDF5.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovContext.hpp"
@@ -610,10 +611,9 @@ void CovBase::initParams(const MatrixSymmetric& vars, double href)
   {
     double value = chol.getLowerTriangle(ivar, jvar);
     if (ivar == jvar)
-    {  
-      _cholSillsInfo(ivar,jvar).setMaxValue(softplusinv(2. * ABS(value))); //Protection against too large values for diagonal
+    {
+      _cholSillsInfo(ivar, jvar).setMaxValue(softplusinv(2. * ABS(value))); // Protection against too large values for diagonal
       value = softplusinv(ABS(value));
-      
     }
     _cholSillsInfo(ivar, jvar).setValue(value);
   }
@@ -639,4 +639,35 @@ void CovBase::updateCov()
   if (nvaroptim > 0)
     _sillCur.prodMatMatInPlace(&_cholSills, &_cholSills, false, true);
 }
+
+#ifdef HDF5
+bool CovBase::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+{
+  bool ret = true;
+
+  // Retrieve the Sills
+  VectorDouble sills;
+  ret = ret && SerializeHDF5::readVec(grp, "Sill Matrix", sills);
+  setSill(sills);
+
+  // Retreive the CorAniso
+  ret = ret && _cor->_deserializeH5(grp, verbose);
+
+  return ret;
+}
+
+bool CovBase::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+{
+  bool ret = true;
+
+  // Serialize the sills
+  ret = ret && SerializeHDF5::writeVec(grp, "Sill Matrix", getSill().getValues());
+
+  // Serialize the CorAniso
+  ret = ret && _cor->_serializeH5(grp, verbose);
+
+  return ret;
+}
+#endif
+
 } // namespace gstlrn

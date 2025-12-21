@@ -10,9 +10,11 @@
 /******************************************************************************/
 #include "Covariances/CovList.hpp"
 #include "Basic/Iterators.hpp"
+#include "Basic/SerializeHDF5.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/ACov.hpp"
+#include "Covariances/CovAniso.hpp"
 #include "Covariances/CovBase.hpp"
 #include "Covariances/CovCalcMode.hpp"
 #include "Covariances/CovContext.hpp"
@@ -612,20 +614,61 @@ bool CovList::isValidForSpectral() const
   for (int is = 0; is < getNCov(); is++)
   {
     const ACov* cova = getCov(is);
-    if (! cova->isValidForSpectral())
+    if (!cova->isValidForSpectral())
     {
       messerr("The current structure is not valid for Spectral Simulation on Rn");
       return false;
     }
   }
   return true;
-
 }
-
 
 MatrixDense CovList::simulateSpectralOmega(Id ns) const
 {
   return getCov(0)->simulateSpectralOmega(ns);
 }
+
+#ifdef HDF5
+bool CovList::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+{
+  auto covlistG = SerializeHDF5::getGroup(grp, "Covariance List");
+  if (!covlistG) return false;
+
+  bool ret = true;
+
+  Id ncov                = 0;
+  ret                    = ret && SerializeHDF5::readValue(*covlistG, "Number of Covariances", ncov);
+  const CovContext& ctxt = getContext();
+  CovAniso cov(ECov::NUGGET, ctxt); // TODO: not sure that this is the best way to initialize this dummy variable
+
+  for (Id icov = 0; icov < ncov; icov++)
+  {
+    String locName = "Covariance_" + std::to_string(icov + 1);
+    auto covrankG  = SerializeHDF5::getGroup(*covlistG, locName);
+    ret            = ret && cov._deserializeH5(*covrankG, verbose);
+    addCov(cov);
+  }
+
+  return ret;
+}
+
+bool CovList::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+{
+  auto covlistG = grp.createGroup("Covariance List");
+
+  bool ret = true;
+
+  Id ncov = getNCov();
+  ret     = ret && SerializeHDF5::writeValue(covlistG, "Number of Covariances", ncov);
+
+  for (Id icov = 0; icov < ncov; icov++)
+  {
+    auto covrankG = covlistG.createGroup("Covariance_" + std::to_string(icov + 1));
+    ret           = ret && _covs[icov]->_serializeH5(covrankG, verbose);
+  }
+
+  return ret;
+}
+#endif
 
 } // namespace gstlrn
