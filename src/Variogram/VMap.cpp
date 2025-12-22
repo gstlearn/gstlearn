@@ -104,7 +104,7 @@ void VMap::_setResult(Id iech1,
  ** \return  Error return code
  **
  ** \param[in]  db          Db containing the data
- ** \param[in]  calcul_type Type of calculation (ECalcVario)
+ ** \param[in]  calcul_type Type of calculation (ECalcVario... only symmetrical ones)
  ** \param[in]  radius      Dilation radius (smooth resulting maps) only on points
  ** \param[in]  flag_FFT    Use FFT method (only valid on grid)
  ** \param[in]  namconv     Naming convention
@@ -118,6 +118,11 @@ Id VMap::compute(Db* db,
 {
   if (db == nullptr) return 1;
   setCalcul(calcul_type);
+  if (getFlagAsym())
+  {
+    messerr("VMap calculation only available for symmetrical variograms");
+    return 1;
+  }
 
   /* Create the variables in the Variogram Map file */
 
@@ -167,7 +172,7 @@ Id VMap::compute(Db* db,
  ** \return  Error return code
  **
  ** \param[in]  db          Db containing the data
- ** \param[in]  calcul_type Type of calculation (ECalcVario)
+ ** \param[in]  calcul_type Type of calculation (ECalcVario... only symmetrical ones)
  ** \param[in]  nxx         Vector of (Half-) number of nodes for Vmap (def:20)
  ** \param[in]  dxx         Vector of mesh for Vmap (see details)
  ** \param[in]  radius      Dilation radius (mooth resulting maps) only on points

@@ -148,7 +148,6 @@ public:
                    const VectorInt& dircols,
                    bool asSymmetric = false);
 
-  bool getFlagAsym() const { return _flagAsym; }
   bool isFittable() const;
   bool drawOnlyPositiveX(Id ivar, Id jvar) const;
   bool drawOnlyPositiveY(Id ivar, Id jvar) const;
@@ -391,7 +390,7 @@ private:
   String _toStringByDirection(const AStringFormat* strfmt, Id idir) const;
   void _directionResize(Id idir);
   void _setDPasFromGrid(bool flag_grid);
-  void _setFlagAsym();
+
   static VectorDouble _varsFromProportions(VectorDouble props);
   void _clearBiTargetCheck();
   void _addBiTargetCheck(ABiTargetCheck* abpc);
@@ -474,13 +473,13 @@ private:
 
   Id _biPtsPerDirection;
   std::vector<ABiTargetCheck*> _bipts;
-  mutable bool _flagAsym;
 
   bool _verbose;
   bool _flag_UK;
   Id _niter_UK;
 
   VectorString _variableNames;
+
   mutable Model* _model; // Model pointer (not to be deleted) for drift removal
   mutable VectorDouble _BETA;
   mutable VectorDouble _DRFDIAG;

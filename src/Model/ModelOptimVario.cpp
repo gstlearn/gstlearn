@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Model/ModelOptimVario.hpp"
 #include "Basic/OptCustom.hpp"
-#include "Covariances/ACov.hpp"
 #include "Model/AModelFitSills.hpp"
 #include "Model/ModelFitSillsVario.hpp"
 #include "geoslib_define.h"
@@ -263,8 +262,8 @@ double ModelOptimVario::computeCost(bool flagPrint, bool verbose)
 void ModelOptimVario::evalGrad(vect res)
 {
 
-  const auto &gradcov = _model->getCovGradients();
-  Id nlags     = static_cast<Id>(_lags.size());
+  const auto& gradcov = _model->getCovGradients();
+  Id nlags            = static_cast<Id>(_lags.size());
   SpacePoint origin;
 
   for (size_t i = 0; i < gradcov.size(); i++)
@@ -275,7 +274,7 @@ void ModelOptimVario::evalGrad(vect res)
     {
       {
         const OneLag& lag = _lags[ilag];
-        const auto& func = gradcov[i];
+        const auto& func  = gradcov[i];
         double dvtheo     = func(origin, lag._P, lag._ivar, lag._jvar, &_calcmode);
         res[i] += -2. * _resid[ilag] * dvtheo;
       }

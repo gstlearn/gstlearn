@@ -20,6 +20,7 @@ namespace gstlrn
 AVario::AVario()
   : AStringable()
   , _calcul(ECalcVario::UNDEFINED)
+  , _flagAsym(false)
   , _flagStorage(false)
   , _tabStorage()
 {
@@ -28,6 +29,7 @@ AVario::AVario()
 AVario::AVario(const AVario& r)
   : AStringable(r)
   , _calcul(r._calcul)
+  , _flagAsym(r._flagAsym)
   , _flagStorage(r._flagStorage)
   , _tabStorage(r._tabStorage)
 {
@@ -39,6 +41,7 @@ AVario& AVario::operator=(const AVario& r)
   {
     AStringable::operator=(r);
     _calcul      = r._calcul;
+    _flagAsym    = r._flagAsym;
     _flagStorage = r._flagStorage;
     _tabStorage  = r._tabStorage;
   }
@@ -295,6 +298,7 @@ String AVario::_elemString(const AStringFormat* strfmt) const
 
 void AVario::setCalcul(const ECalcVario& calcul)
 {
+  // Set the calculation type
   _calcul = calcul;
 
   // Define the internal evaluation function
@@ -352,6 +356,10 @@ void AVario::setCalcul(const ECalcVario& calcul)
       break;
     }
   }
+
+  // Define the Asymmetric flag
+  String cle = std::string(_calcul.getKey());
+  _flagAsym  = !ECalcVarioAttr.at(cle).isSymmetric;
 }
 
 void AVario::setStorage(bool flag)

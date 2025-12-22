@@ -65,7 +65,6 @@ Vario::Vario(const VarioParam& varioparam)
   , _utilize()
   , _biPtsPerDirection(0)
   , _bipts()
-  , _flagAsym(false)
   , _verbose(false)
   , _flag_UK(false)
   , _niter_UK(0)
@@ -95,7 +94,6 @@ Vario::Vario(const Vario& r)
   , _hh(r._hh)
   , _utilize(r._utilize)
   , _biPtsPerDirection(r._biPtsPerDirection)
-  , _flagAsym(r._flagAsym)
   , _verbose(r._verbose)
   , _flag_UK(r._flag_UK)
   , _niter_UK(r._niter_UK)
@@ -129,18 +127,18 @@ Vario& Vario::operator=(const Vario& r)
     _hh                = r._hh;
     _utilize           = r._utilize;
     _biPtsPerDirection = r._biPtsPerDirection;
-    _flagAsym          = r._flagAsym;
     _verbose           = r._verbose;
     _flag_UK           = r._flag_UK;
     _niter_UK          = r._niter_UK;
     _variableNames     = r._variableNames;
-    _model             = r._model;
-    _BETA              = r._BETA;
-    _DRFDIAG           = r._DRFDIAG;
-    _DRFXA             = r._DRFXA;
-    _DRFGX             = r._DRFGX;
-    _DRFTAB            = r._DRFTAB;
-    _DRFXGX            = r._DRFXGX;
+
+    _model   = r._model;
+    _BETA    = r._BETA;
+    _DRFDIAG = r._DRFDIAG;
+    _DRFXA   = r._DRFXA;
+    _DRFGX   = r._DRFGX;
+    _DRFTAB  = r._DRFTAB;
+    _DRFXGX  = r._DRFXGX;
 
     for (Id ipt = 0, npt = _getNBiPts(); ipt < npt; ipt++)
       _bipts.push_back(r._bipts[ipt]);
@@ -322,7 +320,6 @@ Id Vario::prepare(const ECalcVario& calcul, bool defineList)
 
   // Preparation
   setCalcul(calcul);
-  _setFlagAsym();
   _setDPasFromGrid(isDefinedForGrid());
   if (internalVariableResize()) return 1;
   internalDirectionResize();
@@ -1271,7 +1268,7 @@ double Vario::getGg(Id idir,
   double val = _gg[idir][iad];
   double c0  = getVar(ivar, jvar);
 
-  if (_flagAsym)
+  if (getFlagAsym())
   {
     if (!asCov) val = c0 - val;
   }
@@ -1369,7 +1366,7 @@ VectorDouble Vario::getGgVec(Id idir,
   auto nlag = getNLag(idir);
 
   Id iad;
-  if (_flagAsym)
+  if (getFlagAsym())
   {
     for (Id ilag = nlag - 1; ilag >= 0; ilag--)
     {
@@ -1447,7 +1444,7 @@ void Vario::setGgVec(Id idir, Id ivar, Id jvar, const VectorDouble& gg)
   }
 
   Id lec = 0;
-  if (_flagAsym)
+  if (getFlagAsym())
   {
     for (Id ilag = nlag - 1; ilag >= 0; ilag--)
     {
@@ -1485,7 +1482,7 @@ VectorDouble Vario::getHhVec(Id idir, Id ivar, Id jvar, bool compress) const
   VectorDouble hh;
   auto nlag = getNLag(idir);
   Id iad;
-  if (_flagAsym)
+  if (getFlagAsym())
   {
     for (Id ilag = nlag - 1; ilag >= 0; ilag--)
     {
@@ -1532,7 +1529,7 @@ void Vario::setHhVec(Id idir, Id ivar, Id jvar, const VectorDouble& hh)
   }
 
   Id lec = 0;
-  if (_flagAsym)
+  if (getFlagAsym())
   {
     for (Id ilag = nlag - 1; ilag >= 0; ilag--)
     {
@@ -1570,7 +1567,7 @@ VectorDouble Vario::getSwVec(Id idir, Id ivar, Id jvar, bool compress) const
   VectorDouble sw;
   auto nlag = getNLag(idir);
   Id iad;
-  if (_flagAsym)
+  if (getFlagAsym())
   {
     for (Id ilag = nlag - 1; ilag >= 0; ilag--)
     {
@@ -1616,7 +1613,7 @@ void Vario::setSwVec(Id idir, Id ivar, Id jvar, const VectorDouble& sw)
   }
 
   Id lec = 0;
-  if (_flagAsym)
+  if (getFlagAsym())
   {
     for (Id ilag = nlag - 1; ilag >= 0; ilag--)
     {
@@ -1653,7 +1650,7 @@ VectorDouble Vario::getUtilizeVec(Id idir, Id ivar, Id jvar, bool compress) cons
   VectorDouble utilize;
   auto nlag = getNLag(idir);
   Id iad;
-  if (_flagAsym)
+  if (getFlagAsym())
   {
     for (Id ilag = nlag - 1; ilag >= 0; ilag--)
     {
@@ -1721,7 +1718,7 @@ Id Vario::getNext(Id ivar, Id jvar, Id idir, Id shift) const
   VectorDouble sw;
   auto nlag = getNLag(idir);
   Id count;
-  if (_flagAsym) return ITEST;
+  if (getFlagAsym()) return ITEST;
   auto iad = getDirSize(idir) - 1;
   count    = 0;
   for (Id ilag = 0; ilag < nlag && count < shift; ilag++)
@@ -2125,16 +2122,6 @@ Id Vario::getDirSize(Id idir) const
   return (getNLagTotal(idir) * _nVar * (_nVar + 1) / 2);
 }
 
-/**
- * Get the Asymmetrical flag
- */
-
-void Vario::_setFlagAsym()
-{
-  String cle = std::string(getCalcul().getKey());
-  _flagAsym  = !ECalcVarioAttr.at(cle).isSymmetric;
-}
-
 bool Vario::isFittable() const
 {
   String cle = std::string(getCalcul().getKey());
@@ -2167,7 +2154,7 @@ Id Vario::getNLagTotal(Id idir) const
 {
   if (!_isDirectionValid(idir)) return 0;
   auto nlag = getNLag(idir);
-  return ((_flagAsym) ? 2 * nlag + 1 : nlag);
+  return ((getFlagAsym()) ? 2 * nlag + 1 : nlag);
 }
 
 double Vario::getMaximumDistance() const
@@ -5125,7 +5112,6 @@ bool Vario::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   ret = ret && SerializeHDF5::readValue(*varioG, "CalcType", type);
 
   setCalcul(ECalcVario::fromValue(type));
-  _setFlagAsym();
   setNVar(nvar);
   internalDirectionResize(ndir, false);
   internalVariableResize();
