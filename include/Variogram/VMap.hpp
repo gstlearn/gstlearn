@@ -10,8 +10,8 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
 #include "geoslib_define.h"
+#include "gstlearn_export.hpp"
 
 #include "Enum/ECalcVario.hpp"
 
@@ -29,7 +29,7 @@ class Db;
  * This function simply calculate and add the results as new field in this DbGrid.
  *
  */
-class GSTLEARN_EXPORT VMap : public AVario
+class GSTLEARN_EXPORT VMap: public AVario
 {
 public:
   VMap(DbGrid* dbmap);
@@ -48,7 +48,7 @@ public:
   String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// AVario Interface
-  double _getIVAR(const Db *db, Id iech, Id ivar) const override;
+  double _getIVAR(const Db* db, Id iech, Id ivar) const override;
   void _setResult(Id iech1,
                   Id iech2,
                   Id nvar,
@@ -60,49 +60,49 @@ public:
                   double dist,
                   double value) override;
 
-  Id compute(Db *db,
-              const ECalcVario &calcul_type,
-              Id radius,
-              bool flag_FFT = true,
-              const NamingConvention &namconv = NamingConvention("VMAP"));
+  Id compute(Db* db,
+             const ECalcVario& calcul_type,
+             Id radius,
+             bool flag_FFT                   = true,
+             const NamingConvention& namconv = NamingConvention("VMAP"));
 
 private:
-  Id _grid_fft(DbGrid *dbgrid,
-                const NamingConvention &namconv);
+  Id _grid_fft(DbGrid* dbgrid,
+               const NamingConvention& namconv);
   static void _extract(const Id* nxmap,
                        const Id* nxgrid,
                        Id* dims,
                        VectorDouble& tabin,
                        VectorDouble& tabout);
-  Id _vmap_general(Db *db,
-                    Id radius,
-                    const NamingConvention &namconv);
-  Id _vmap_grid(DbGrid *dbgrid,
-                 const NamingConvention &namconv);
+  Id _vmap_general(Db* db,
+                   Id radius,
+                   const NamingConvention& namconv);
+  Id _vmap_grid(DbGrid* dbgrid,
+                const NamingConvention& namconv);
   static Id _get_variable_order(Id nvar, Id ivar0, Id jvar0);
   static void _complexArrayAlloc(Id size, VectorVectorDouble& tab);
   static Id _vmap_load_simple(DbGrid* dbgrid,
-                               Id ndim,
-                               Id sizetot,
-                               const Id* dims,
-                               Id* dinv,
-                               Id ivar,
-                               Id jvar,
-                               VectorVectorDouble& i1i2,
-                               VectorVectorDouble& z1i2,
-                               VectorVectorDouble& z2i1,
-                               VectorVectorDouble& z2z1);
-  static Id _vmap_load_cross(DbGrid* dbgrid,
                               Id ndim,
                               Id sizetot,
                               const Id* dims,
                               Id* dinv,
                               Id ivar,
                               Id jvar,
-                              VectorVectorDouble& i1i1,
-                              VectorVectorDouble& z1i1,
-                              VectorVectorDouble& i2i2,
-                              VectorVectorDouble& z2i2);
+                              VectorVectorDouble& i1i2,
+                              VectorVectorDouble& z1i2,
+                              VectorVectorDouble& z2i1,
+                              VectorVectorDouble& z2z1);
+  static Id _vmap_load_cross(DbGrid* dbgrid,
+                             Id ndim,
+                             Id sizetot,
+                             const Id* dims,
+                             Id* dinv,
+                             Id ivar,
+                             Id jvar,
+                             VectorVectorDouble& i1i1,
+                             VectorVectorDouble& z1i1,
+                             VectorVectorDouble& i2i2,
+                             VectorVectorDouble& z2i2);
   static void _vmap_blank(VectorVectorDouble& tab);
   static void _product_conjugate(double coef,
                                  VectorVectorDouble& tab1,
@@ -116,13 +116,15 @@ private:
 
 private:
   DbGrid* _dbmap; // Pointer to the already existing output DbGrid (not to be deleted)
+  Id _IPTV;
+  Id _IPTW;
 };
 
-GSTLEARN_EXPORT DbGrid* db_vmap(Db *db,
-                                const ECalcVario &calcul_type = ECalcVario::fromKey("VARIOGRAM"),
-                                const VectorInt &nxx = VectorInt(),
-                                const VectorDouble &dxx = VectorDouble(),
-                                Id radius = 0,
-                                bool flag_FFT = true,
-                                const NamingConvention &namconv = NamingConvention("VMAP"));
-}
+GSTLEARN_EXPORT DbGrid* db_vmap(Db* db,
+                                const ECalcVario& calcul_type   = ECalcVario::fromKey("VARIOGRAM"),
+                                const VectorInt& nxx            = VectorInt(),
+                                const VectorDouble& dxx         = VectorDouble(),
+                                Id radius                       = 0,
+                                bool flag_FFT                   = true,
+                                const NamingConvention& namconv = NamingConvention("VMAP"));
+} // namespace gstlrn

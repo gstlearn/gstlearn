@@ -573,7 +573,7 @@ Id Vario::transformZToY(const AAnam* anam)
     messerr("The function 'transformZToY' needs an Anamorphosis");
     return 1;
   }
-  AnamHermite* anamH = dynamic_cast<AnamHermite*>(anam->clone());
+  auto* anamH = dynamic_cast<AnamHermite*>(anam->clone());
   if (anamH == nullptr)
   {
     messerr("The function 'transformZToY' needs a Hermite Anamorphosis");
@@ -2764,7 +2764,7 @@ void Vario::_calculateOnLineSolution(Db* db, Id idir, Id norder)
 
   /* Scale the variogram calculations */
 
-  _rescale(idir);
+  _rescaleByWeights(idir);
 
   /* Center the covariance function */
 
@@ -2777,7 +2777,7 @@ void Vario::_calculateOnLineSolution(Db* db, Id idir, Id norder)
 
 /****************************************************************************/
 /*!
- **  Patch the value of C(0) for covariances
+ **  Patch the value of C(0) for asymmetric functions
  **
  ** \param[in]  db    Db descriptor
  ** \param[in]  idir  Rank of the Direction
@@ -2785,11 +2785,8 @@ void Vario::_calculateOnLineSolution(Db* db, Id idir, Id norder)
  *****************************************************************************/
 void Vario::_patchC00(Db* db, Id idir)
 {
-  double z1, z2, s12w, s12wzz, ww, scale, value, m1, m2, sumw;
-
-  /* Initializations */
-
   if (!getFlagAsym()) return;
+  double scale;
 
   /* Calculate the C00 term */
 
@@ -2799,22 +2796,26 @@ void Vario::_patchC00(Db* db, Id idir)
       auto i = getDirAddress(idir, ivar, jvar, 0, false, 0);
       setHhByIndex(idir, i, 0.);
 
-      m1 = m2 = s12w = s12wzz = sumw = 0.;
+      double m1     = 0.;
+      double m2     = 0.;
+      double s12w   = 0.;
+      double s12wzz = 0.;
+      double sumw   = 0.;
 
       /* Calculate the statistics for each variable */
 
       for (Id iech = 0; iech < db->getNSample(); iech++)
       {
         if (!db->isActive(iech)) continue;
-        ww = db->getWeight(iech);
+        double ww = db->getWeight(iech);
         if (FFFF(ww) || ww < 0.) continue;
-        z1 = _getIVAR(db, iech, ivar);
-        z2 = _getIVAR(db, iech, jvar);
+        double z1 = _getIVAR(db, iech, ivar);
+        double z2 = _getIVAR(db, iech, jvar);
         if (FFFF(z1) || FFFF(z2)) continue;
         m1 += ww * z1;
         m2 += ww * z2;
         sumw += ww;
-        value = z1 * z2;
+        double value = z1 * z2;
         if (getCalcul() == ECalcVario::COVARIOGRAM)
         {
           scale = ww;
@@ -3271,7 +3272,7 @@ void Vario::_calculateFromGeometry(Db* db, Id idir, Vario_Order* vorder)
 
   /* Scale the variogram calculations */
 
-  _rescale(idir);
+  _rescaleByWeights(idir);
 
   /* Center the covariance function */
 
@@ -3371,7 +3372,7 @@ Id Vario::_calculateGeneralByPair(Db* db,
 
     /* Scale the variogram calculations */
 
-    _rescale(idir);
+    _rescaleByWeights(idir);
 
     /* Center the covariance function */
 
@@ -3484,7 +3485,7 @@ Id Vario::_calculateGeneralBySample(Db* db, Id idir, const Id* rindex)
 
   /* Scale the variogram calculations */
 
-  _rescale(idir);
+  _rescaleByWeights(idir);
 
   /* Center the covariance function */
 
@@ -3565,7 +3566,7 @@ Id Vario::_calculateOnGridSolution(DbGrid* db, Id idir)
 
   /* Scale the variogram calculations */
 
-  _rescale(idir);
+  _rescaleByWeights(idir);
 
   /* Center the covariance function */
 
@@ -3659,7 +3660,7 @@ Id Vario::_calculateGenOnGridSolution(DbGrid* db, Id idir, Id norder)
 
   /* Scale the variogram calculations */
 
-  _rescale(idir);
+  _rescaleByWeights(idir);
 
   /* Center the covariance function */
 
@@ -3754,7 +3755,6 @@ void Vario::_printDebug(Id iech1,
  *****************************************************************************/
 void Vario::_centerCovariance(Db* db, Id idir)
 {
-  double m1, m2, sumw, z1, z2, ww;
   if (!getFlagAsym()) return;
 
   /* Scale the experimental variogram quantities */
@@ -3764,14 +3764,16 @@ void Vario::_centerCovariance(Db* db, Id idir)
     {
       /* Calculate the mean for each variable */
 
-      m1 = m2 = sumw = 0.;
+      double m1   = 0.;
+      double m2   = 0.;
+      double sumw = 0.;
       for (Id iech = 0, nech = db->getNSample(); iech < nech; iech++)
       {
         if (!db->isActive(iech)) continue;
-        ww = db->getWeight(iech);
+        double ww = db->getWeight(iech);
         if (FFFF(ww) || ww < 0.) continue;
-        z1 = _getIVAR(db, iech, ivar);
-        z2 = _getIVAR(db, iech, jvar);
+        double z1 = _getIVAR(db, iech, ivar);
+        double z2 = _getIVAR(db, iech, jvar);
         if (FFFF(z1) || FFFF(z2)) continue;
         m1 += ww * z1;
         m2 += ww * z2;
@@ -3798,14 +3800,11 @@ void Vario::_centerCovariance(Db* db, Id idir)
 
 bool Vario::_isCompatible(const Db* db) const
 {
-  if (db->getNDim() != getNDim() ||
-      db->getNLoc(ELoc::Z) != getNVar())
+  if (db->getNDim() != getNDim() || db->getNLoc(ELoc::Z) != getNVar())
   {
     messerr("Inconsistent parameters:");
-    messerr("Data Base: NDIM=%d NVAR=%d", db->getNDim(),
-            db->getNLoc(ELoc::Z));
-    messerr("Variogram: NDIM=%d NVAR=%d", getNDim(),
-            getNVar());
+    messerr("Data Base: NDIM=%d NVAR=%d", db->getNDim(), db->getNLoc(ELoc::Z));
+    messerr("Variogram: NDIM=%d NVAR=%d", getNDim(), getNVar());
     return false;
   }
   return true;
@@ -3827,7 +3826,6 @@ Id Vario::computeGeometry(Db* db, Vario_Order* vorder, Id* npair)
 {
   SpaceTarget T1(getSpace(), false);
   SpaceTarget T2(getSpace(), false);
-  Id iech, jech, ideb;
 
   /* Initializations */
 
@@ -3865,15 +3863,15 @@ Id Vario::computeGeometry(Db* db, Vario_Order* vorder, Id* npair)
 
     for (Id iiech = 0; iiech < nech - 1; iiech++)
     {
-      iech = rindex[iiech];
+      Id iech = rindex[iiech];
       if (hasSel && !db->isActive(iech)) continue;
       if (hasWeight && FFFF(db->getWeight(iech))) continue;
       db->getSampleAsSTInPlace(iech, T1);
 
-      ideb = (hasDate) ? 0 : iiech + 1;
+      Id ideb = (hasDate) ? 0 : iiech + 1;
       for (Id jjech = ideb; jjech < nech; jjech++)
       {
-        jech = rindex[jjech];
+        Id jech = rindex[jjech];
         if (db->getDistance1D(iech, jech) > maxdist) break;
         if (hasSel && !db->isActive(jech)) continue;
         if (hasWeight && FFFF(db->getWeight(jech))) continue;
@@ -3941,8 +3939,6 @@ void Vario::getExtension(Id ivar,
                          double* gmin,
                          double* gmax)
 {
-  double hh, gg;
-  Id i, j, idir, jdir, ndir;
   double tol = 0.1;
 
   /* Initializations */
@@ -3971,17 +3967,17 @@ void Vario::getExtension(Id ivar,
 
   /* Loop on the directions */
 
-  ndir = getNDir();
+  Id ndir = getNDir();
   if (idir0 >= 0) ndir = 1;
-  for (jdir = 0; jdir < ndir; jdir++)
+  for (Id jdir = 0; jdir < ndir; jdir++)
   {
-    idir = (idir0 >= 0) ? idir0 : jdir;
-    for (i = 0; i < getNLagTotal(idir); i++)
+    Id idir = (idir0 >= 0) ? idir0 : jdir;
+    for (Id i = 0; i < getNLagTotal(idir); i++)
     {
-      j = getDirAddress(idir, ivar, jvar, i, true, 0);
+      Id j = getDirAddress(idir, ivar, jvar, i, true, 0);
       if (getSwByIndex(idir, j) <= 0) continue;
-      hh = getHhByIndex(idir, j);
-      gg = getGgByIndex(idir, j);
+      double hh = getHhByIndex(idir, j);
+      double gg = getGgByIndex(idir, j);
       if (FFFF(hh) || FFFF(gg)) continue;
       if (flag_norm) gg /= (*c0);
       if (!FFFF(distmin) && hh < distmin) continue;
@@ -4138,7 +4134,7 @@ Id Vario::_calculateVarioVectSolution(Db* db, Id idir, Id ncomp, const Id* rinde
 
   /* Scale the variogram calculations */
 
-  _rescale(idir);
+  _rescaleByWeights(idir);
 
   /* Center the covariance function */
 
@@ -4258,7 +4254,7 @@ void Vario::_getVarioVectStatistics(Db* db, Id ncomp)
  ** \param[in]  idir  Rank of the Direction
  **
  *****************************************************************************/
-void Vario::_rescale(Id idir)
+void Vario::_rescaleByWeights(Id idir)
 {
   auto nvar = getNVar();
 

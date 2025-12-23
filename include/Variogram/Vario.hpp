@@ -448,7 +448,7 @@ private:
                           double value);
   void _centerCovariance(Db* db, Id idir);
   void _getVarioVectStatistics(Db* db, Id ncomp);
-  void _rescale(Id idir);
+  void _rescaleByWeights(Id idir);
   bool _isCompatible(const Db* db) const;
   static double _linear_interpolate(Id n,
                                     const VectorDouble& x,

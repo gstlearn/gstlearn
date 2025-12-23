@@ -25,8 +25,6 @@
 
 namespace gstlrn
 {
-
-static Id IPTR;
 static Polygons* POLYGON = nullptr;
 static VectorDouble IDS;
 
@@ -34,6 +32,7 @@ VCloud::VCloud(DbGrid* dbcloud, const VarioParam* varioparam)
   : AVario()
   , _dbcloud(dbcloud)
   , _varioparam(varioparam)
+  , _IPTR(-1)
 {
 }
 
@@ -41,6 +40,7 @@ VCloud::VCloud(const VCloud& r)
   : AVario(r)
   , _dbcloud(r._dbcloud)
   , _varioparam(r._varioparam)
+  , _IPTR(r._IPTR)
 {
 }
 
@@ -51,6 +51,7 @@ VCloud& VCloud::operator=(const VCloud& r)
     AVario::operator=(r);
     _dbcloud    = r._dbcloud;
     _varioparam = r._varioparam;
+    _IPTR       = r._IPTR;
   }
   return *this;
 }
@@ -104,7 +105,7 @@ void VCloud::_setResult(Id iech1,
   if (POLYGON == nullptr)
   {
     // Store in the output grid
-    _dbcloud->updArray(igrid, IPTR, EOperator::ADD, 1.);
+    _dbcloud->updArray(igrid, _IPTR, EOperator::ADD, 1.);
   }
   else
   {
@@ -164,7 +165,7 @@ Id VCloud::compute(Db* db, const NamingConvention& namconv)
 
   for (Id idir = 0; idir < ndir; idir++)
   {
-    IPTR = iptr + idir;
+    _IPTR = iptr + idir;
     _variogram_cloud(db, idir);
     _final_discretization_grid();
   }
@@ -184,12 +185,11 @@ Id VCloud::compute(Db* db, const NamingConvention& namconv)
  *****************************************************************************/
 void VCloud::_final_discretization_grid()
 {
-  Id nech = _dbcloud->getNSample();
-  for (Id iech = 0; iech < nech; iech++)
+  for (Id iech = 0, nech = _dbcloud->getNSample(); iech < nech; iech++)
   {
-    double value = _dbcloud->getArray(iech, IPTR);
+    double value = _dbcloud->getArray(iech, _IPTR);
     if (value != 0.) continue;
-    _dbcloud->setArray(iech, IPTR, TEST);
+    _dbcloud->setArray(iech, _IPTR, TEST);
   }
 }
 

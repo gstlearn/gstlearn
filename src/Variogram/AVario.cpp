@@ -21,6 +21,8 @@ AVario::AVario()
   : AStringable()
   , _calcul(ECalcVario::UNDEFINED)
   , _flagAsym(false)
+  , _flagCentered(false)
+  , _flagScaled(false)
   , _flagStorage(false)
   , _tabStorage()
 {
@@ -30,6 +32,8 @@ AVario::AVario(const AVario& r)
   : AStringable(r)
   , _calcul(r._calcul)
   , _flagAsym(r._flagAsym)
+  , _flagCentered(r._flagCentered)
+  , _flagScaled(r._flagScaled)
   , _flagStorage(r._flagStorage)
   , _tabStorage(r._tabStorage)
 {
@@ -40,10 +44,12 @@ AVario& AVario::operator=(const AVario& r)
   if (this != &r)
   {
     AStringable::operator=(r);
-    _calcul      = r._calcul;
-    _flagAsym    = r._flagAsym;
-    _flagStorage = r._flagStorage;
-    _tabStorage  = r._tabStorage;
+    _calcul       = r._calcul;
+    _flagAsym     = r._flagAsym;
+    _flagCentered = r._flagCentered;
+    _flagScaled   = r._flagScaled;
+    _flagStorage  = r._flagStorage;
+    _tabStorage   = r._tabStorage;
   }
   return *this;
 }
@@ -357,9 +363,11 @@ void AVario::setCalcul(const ECalcVario& calcul)
     }
   }
 
-  // Define the Asymmetric flag
-  String cle = std::string(_calcul.getKey());
-  _flagAsym  = !ECalcVarioAttr.at(cle).isSymmetric;
+  // Define the different flags
+  String cle    = std::string(_calcul.getKey());
+  _flagAsym     = !ECalcVarioAttr.at(cle).isSymmetric;
+  _flagCentered = ECalcVarioAttr.at(cle).isCentered;
+  _flagScaled   = ECalcVarioAttr.at(cle).isScaled;
 }
 
 void AVario::setStorage(bool flag)

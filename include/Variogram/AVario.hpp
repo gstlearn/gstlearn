@@ -34,6 +34,8 @@ public:
   void setCalcul(const ECalcVario& calcul);
   void setStorage(bool flag);
   bool getFlagAsym() const { return _flagAsym; }
+  bool getCentered() const { return _flagCentered; }
+  bool getScaled() const { return _flagScaled; }
 
 protected:
   virtual double _getIVAR(const Db* db, Id iech, Id ivar) const = 0;
@@ -116,6 +118,8 @@ protected:
 private:
   ECalcVario _calcul;
   mutable bool _flagAsym;
+  mutable bool _flagCentered;
+  mutable bool _flagScaled;
   bool _flagStorage;              // Store information on each pair
   VectorVectorDouble _tabStorage; // Storage of the information on each pair; Dimension [npairs][4]
 };

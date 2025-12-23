@@ -25,21 +25,22 @@
 
 namespace gstlrn
 {
-
-static Id IPTV, IPTW;
-
 #define ADD(ix, iy, iz, nx) ((iz) + nx[2] * ((iy) + nx[1] * (ix)))
 #define OPP(idim, i)        (dims[idim] - i - 1)
 
 VMap::VMap(DbGrid* dbmap)
   : AVario()
   , _dbmap(dbmap)
+  , _IPTV(-1)
+  , _IPTW(-1)
 {
 }
 
 VMap::VMap(const VMap& r)
   : AVario(r)
   , _dbmap(r._dbmap)
+  , _IPTV(r._IPTV)
+  , _IPTW(r._IPTW)
 {
 }
 
@@ -49,6 +50,8 @@ VMap& VMap::operator=(const VMap& r)
   {
     AVario::operator=(r);
     _dbmap = r._dbmap;
+    _IPTV  = r._IPTV;
+    _IPTW  = r._IPTW;
   }
   return *this;
 }
@@ -92,8 +95,8 @@ void VMap::_setResult(Id iech1,
   DECLARE_UNUSED(orient);
   DECLARE_UNUSED(dist);
   auto ijvar = _get_variable_order(nvar, ivar, jvar);
-  _dbmap->updArray(ilag, IPTV + ijvar, EOperator::ADD, ww * value);
-  _dbmap->updArray(ilag, IPTW + ijvar, EOperator::ADD, ww);
+  _dbmap->updArray(ilag, _IPTV + ijvar, EOperator::ADD, ww * value);
+  _dbmap->updArray(ilag, _IPTW + ijvar, EOperator::ADD, ww);
   _storage(iech1, iech2, dist, value);
 }
 
@@ -116,7 +119,8 @@ Id VMap::compute(Db* db,
                  bool flag_FFT,
                  const NamingConvention& namconv)
 {
-  if (db == nullptr) return 1;
+  if (db == nullptr) return (1);
+
   setCalcul(calcul_type);
   if (getFlagAsym())
   {
@@ -128,10 +132,10 @@ Id VMap::compute(Db* db,
 
   Id nvar = db->getNLoc(ELoc::Z);
   Id nvs2 = nvar * (nvar + 1) / 2;
-  IPTV    = _dbmap->addColumnsByConstant(nvs2, 0.);
-  if (IPTV < 0) return 1;
-  IPTW = _dbmap->addColumnsByConstant(nvs2, 0.);
-  if (IPTW < 0) return 1;
+  _IPTV   = _dbmap->addColumnsByConstant(nvs2, 0.);
+  if (_IPTV < 0) return 1;
+  _IPTW = _dbmap->addColumnsByConstant(nvs2, 0.);
+  if (_IPTW < 0) return 1;
 
   // Calculating the variogram map in different ways
 
@@ -145,8 +149,10 @@ Id VMap::compute(Db* db,
     {
       if (_grid_fft(dbgrid, namconv)) return 1;
     }
-    else if (_vmap_grid(dbgrid, namconv))
-      return 1;
+    else
+    {
+      if (_vmap_grid(dbgrid, namconv)) return 1;
+    }
   }
   else
   {
@@ -156,12 +162,12 @@ Id VMap::compute(Db* db,
     if (_vmap_general(db, radius, namconv)) return 1;
   }
 
-  if (IPTW >= 0)
+  if (_IPTW >= 0)
     namconv.setNamesAndLocators(db, VectorString(), ELoc::Z, -1,
-                                _dbmap, IPTW, "Nb", 1, false);
-  if (IPTV >= 0)
+                                _dbmap, _IPTW, "Nb", 1, false);
+  if (_IPTV >= 0)
     namconv.setNamesAndLocators(db, VectorString(), ELoc::Z, -1,
-                                _dbmap, IPTV, "Var");
+                                _dbmap, _IPTV, "Var");
   return 0;
 }
 
@@ -198,6 +204,11 @@ DbGrid* db_vmap(Db* db,
 
   // Creating the output Variogram Map grid
 
+  if (db == nullptr)
+  {
+    messerr("You need a Db to compute a Variogram Map");
+    return nullptr;
+  }
   Id ndim         = db->getNDim();
   VectorInt nxloc = nxx;
   if (nxloc.empty()) nxloc.resize(ndim, 20);
@@ -464,8 +475,8 @@ Id VMap::_grid_fft(DbGrid* dbgrid, const NamingConvention& namconv)
       }
 
       /* Store the results */
-      _vmap_store(res_nn, IPTW + ijvar);
-      _vmap_store(res_gg, IPTV + ijvar);
+      _vmap_store(res_nn, _IPTW + ijvar);
+      _vmap_store(res_gg, _IPTV + ijvar);
     }
 
   return 0;
@@ -489,110 +500,106 @@ void VMap::_extract(const Id* nxmap,
                     VectorDouble& tabin,
                     VectorDouble& tabout)
 {
-  Id ix, iy, iz, jx, jy, jz, nxs2, nys2, nzs2, nxloc, nyloc, nzloc;
-
-  /* Initializations */
-
-  nxs2  = nxmap[0] / 2;
-  nys2  = nxmap[1] / 2;
-  nzs2  = nxmap[2] / 2;
-  nxloc = MIN(1 + nxs2, nxgrid[0]);
-  nyloc = MIN(1 + nys2, nxgrid[1]);
-  nzloc = MIN(1 + nzs2, nxgrid[2]);
+  Id nxs2  = nxmap[0] / 2;
+  Id nys2  = nxmap[1] / 2;
+  Id nzs2  = nxmap[2] / 2;
+  Id nxloc = MIN(1 + nxs2, nxgrid[0]);
+  Id nyloc = MIN(1 + nys2, nxgrid[1]);
+  Id nzloc = MIN(1 + nzs2, nxgrid[2]);
 
   /* Fill the array (IX+,IY+,IZ+) */
 
-  for (ix = 0; ix < nxloc; ix++)
-    for (iy = 0; iy < nyloc; iy++)
-      for (iz = 0; iz < nzloc; iz++)
+  for (Id ix = 0; ix < nxloc; ix++)
+    for (Id iy = 0; iy < nyloc; iy++)
+      for (Id iz = 0; iz < nzloc; iz++)
       {
-        jx                             = nxs2 + ix;
-        jy                             = nys2 + iy;
-        jz                             = nzs2 + iz;
+        Id jx                          = nxs2 + ix;
+        Id jy                          = nys2 + iy;
+        Id jz                          = nzs2 + iz;
         tabout[ADD(jx, jy, jz, nxmap)] = tabin[ADD(ix, iy, iz, dims)];
       }
 
   /* Fill the array (IX-,IY+,IZ+) */
 
-  for (ix = 0; ix < nxloc - 1; ix++)
-    for (iy = 0; iy < nyloc; iy++)
-      for (iz = 0; iz < nzloc; iz++)
+  for (Id ix = 0; ix < nxloc - 1; ix++)
+    for (Id iy = 0; iy < nyloc; iy++)
+      for (Id iz = 0; iz < nzloc; iz++)
       {
-        jx                             = nxs2 - ix - 1;
-        jy                             = nys2 + iy;
-        jz                             = nzs2 + iz;
+        Id jx                          = nxs2 - ix - 1;
+        Id jy                          = nys2 + iy;
+        Id jz                          = nzs2 + iz;
         tabout[ADD(jx, jy, jz, nxmap)] = tabin[ADD(OPP(0, ix), iy, iz, dims)];
       }
 
   /* Fill the array (IX+,IY-,IZ+) */
 
-  for (ix = 0; ix < nxloc; ix++)
-    for (iy = 0; iy < nyloc - 1; iy++)
-      for (iz = 0; iz < nzloc; iz++)
+  for (Id ix = 0; ix < nxloc; ix++)
+    for (Id iy = 0; iy < nyloc - 1; iy++)
+      for (Id iz = 0; iz < nzloc; iz++)
       {
-        jx                             = nxs2 + ix;
-        jy                             = nys2 - iy - 1;
-        jz                             = nzs2 + iz;
+        Id jx                          = nxs2 + ix;
+        Id jy                          = nys2 - iy - 1;
+        Id jz                          = nzs2 + iz;
         tabout[ADD(jx, jy, jz, nxmap)] = tabin[ADD(ix, OPP(1, iy), iz, dims)];
       }
 
   /* Fill the array (IX-,IY-,IZ+) */
 
-  for (ix = 0; ix < nxloc - 1; ix++)
-    for (iy = 0; iy < nyloc - 1; iy++)
-      for (iz = 0; iz < nzloc; iz++)
+  for (Id ix = 0; ix < nxloc - 1; ix++)
+    for (Id iy = 0; iy < nyloc - 1; iy++)
+      for (Id iz = 0; iz < nzloc; iz++)
       {
-        jx                             = nxs2 - ix - 1;
-        jy                             = nys2 - iy - 1;
-        jz                             = nzs2 + iz;
+        Id jx                          = nxs2 - ix - 1;
+        Id jy                          = nys2 - iy - 1;
+        Id jz                          = nzs2 + iz;
         tabout[ADD(jx, jy, jz, nxmap)] = tabin[ADD(OPP(0, ix), OPP(1, iy), iz, dims)];
       }
 
   /* Fill the array (IX+,IY+,IZ-) */
 
-  for (ix = 0; ix < nxloc; ix++)
-    for (iy = 0; iy < nyloc; iy++)
-      for (iz = 0; iz < nzloc - 1; iz++)
+  for (Id ix = 0; ix < nxloc; ix++)
+    for (Id iy = 0; iy < nyloc; iy++)
+      for (Id iz = 0; iz < nzloc - 1; iz++)
       {
-        jx                             = nxs2 + ix;
-        jy                             = nys2 + iy;
-        jz                             = nzs2 - iz - 1;
+        Id jx                          = nxs2 + ix;
+        Id jy                          = nys2 + iy;
+        Id jz                          = nzs2 - iz - 1;
         tabout[ADD(jx, jy, jz, nxmap)] = tabin[ADD(ix, iy, OPP(2, iz), dims)];
       }
 
   /* Fill the array (IX-,IY+,IZ-) */
 
-  for (ix = 0; ix < nxloc - 1; ix++)
-    for (iy = 0; iy < nyloc; iy++)
-      for (iz = 0; iz < nzloc - 1; iz++)
+  for (Id ix = 0; ix < nxloc - 1; ix++)
+    for (Id iy = 0; iy < nyloc; iy++)
+      for (Id iz = 0; iz < nzloc - 1; iz++)
       {
-        jx                             = nxs2 - ix - 1;
-        jy                             = nys2 + iy;
-        jz                             = nzs2 - iz - 1;
+        Id jx                          = nxs2 - ix - 1;
+        Id jy                          = nys2 + iy;
+        Id jz                          = nzs2 - iz - 1;
         tabout[ADD(jx, jy, jz, nxmap)] = tabin[ADD(OPP(0, ix), iy, OPP(2, iz), dims)];
       }
 
   /* Fill the array (IX+,IY-,IZ-) */
 
-  for (ix = 0; ix < nxloc; ix++)
-    for (iy = 0; iy < nyloc - 1; iy++)
-      for (iz = 0; iz < nzloc - 1; iz++)
+  for (Id ix = 0; ix < nxloc; ix++)
+    for (Id iy = 0; iy < nyloc - 1; iy++)
+      for (Id iz = 0; iz < nzloc - 1; iz++)
       {
-        jx                             = nxs2 + ix;
-        jy                             = nys2 - iy - 1;
-        jz                             = nzs2 - iz - 1;
+        Id jx                          = nxs2 + ix;
+        Id jy                          = nys2 - iy - 1;
+        Id jz                          = nzs2 - iz - 1;
         tabout[ADD(jx, jy, jz, nxmap)] = tabin[ADD(ix, OPP(1, iy), OPP(2, iz), dims)];
       }
 
   /* Fill the array (IX-,IY-,IZ-) */
 
-  for (ix = 0; ix < nxloc - 1; ix++)
-    for (iy = 0; iy < nyloc - 1; iy++)
-      for (iz = 0; iz < nzloc - 1; iz++)
+  for (Id ix = 0; ix < nxloc - 1; ix++)
+    for (Id iy = 0; iy < nyloc - 1; iy++)
+      for (Id iz = 0; iz < nzloc - 1; iz++)
       {
-        jx                             = nxs2 - ix - 1;
-        jy                             = nys2 - iy - 1;
-        jz                             = nzs2 - iz - 1;
+        Id jx                          = nxs2 - ix - 1;
+        Id jy                          = nys2 - iy - 1;
+        Id jz                          = nzs2 - iz - 1;
         tabout[ADD(jx, jy, jz, nxmap)] = tabin[ADD(OPP(0, ix), OPP(1, iy), OPP(2, iz), dims)];
       }
 }
@@ -730,7 +737,7 @@ Id VMap::_vmap_general(Db* db, Id radius, const NamingConvention& namconv)
 Id VMap::_vmap_grid(DbGrid* dbgrid, const NamingConvention& namconv)
 {
   DECLARE_UNUSED(namconv);
-  Id nvar, nv2, delta, iech0, flag_out, ndim;
+  Id delta, iech0, flag_out;
 
   /* Preliminary checks */
 
@@ -764,9 +771,9 @@ Id VMap::_vmap_grid(DbGrid* dbgrid, const NamingConvention& namconv)
 
   /* Initializations */
 
-  ndim = _dbmap->getNDim();
-  nvar = dbgrid->getNLoc(ELoc::Z);
-  nv2  = nvar * (nvar + 1) / 2;
+  Id ndim = _dbmap->getNDim();
+  Id nvar = dbgrid->getNLoc(ELoc::Z);
+  Id nv2  = nvar * (nvar + 1) / 2;
 
   /* Core allocation */
 
@@ -1139,11 +1146,7 @@ Id VMap::_findNeighCell(const VectorInt& indg0,
                         Id rank,
                         VectorInt& indg1)
 {
-  Id ndim;
-
-  // Initializations
-
-  ndim = _dbmap->getNDim();
+  Id ndim = _dbmap->getNDim();
 
   // Get the indices of the neighboring cell
 
@@ -1166,11 +1169,11 @@ void VMap::_vmap_normalize(Id nv2)
   {
     for (Id ijvar = 0; ijvar < nv2; ijvar++)
     {
-      double value = _dbmap->getArray(iech, IPTW + ijvar);
+      double value = _dbmap->getArray(iech, _IPTW + ijvar);
       if (value <= 0.)
-        _dbmap->setArray(iech, IPTV + ijvar, TEST);
+        _dbmap->setArray(iech, _IPTV + ijvar, TEST);
       else
-        _dbmap->updArray(iech, IPTV + ijvar, EOperator::DIVIDE, value);
+        _dbmap->updArray(iech, _IPTV + ijvar, EOperator::DIVIDE, value);
     }
   }
 }

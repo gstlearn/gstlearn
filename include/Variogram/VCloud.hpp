@@ -76,6 +76,7 @@ private:
 private:
   DbGrid* _dbcloud;              // Pointer to the already existing output DbGrid (not to be deleted)
   const VarioParam* _varioparam; // Pointer (not to be deleted)
+  Id _IPTR;
 };
 
 GSTLEARN_EXPORT DbGrid* vcloudGrid(const Db* db,

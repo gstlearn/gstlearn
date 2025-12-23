@@ -41,23 +41,25 @@ ENUM_DECLARE(ENUM_CALC_VARIO)
 struct qualifier
 {
   bool isSymmetric; // True if the tool is symmetric (e.g. Variogram), false otherwise (e.g. Covariance)
+  bool isCentered;  // True if this tool is centered by Mean (e.g. Covariance), false otherwise (e.g. Variogram)
+  bool isScaled;    // True if this tool is scaled by St. Dev. (e.g. Correlation), false otherwise (e.g. Variogram)
   bool isFittable;  // True if this tool can be used for fitting a model
 };
 
 inline const std::map<std::string, qualifier> ECalcVarioAttr =
   {
-    {"UNDEFINED", {true, true}},
-    {"VARIOGRAM", {true, true}},
-    {"COVARIANCE", {false, true}},
-    {"COVARIOGRAM", {false, true}},
-    {"MADOGRAM", {true, false}},
-    {"RODOGRAM", {true, false}},
-    {"POISSON", {true, true}},
-    {"GENERAL1", {false, false}},
-    {"GENERAL2", {false, false}},
-    {"GENERAL3", {false, false}},
-    {"COVARIANCE_NC", {false, true}},
-    {"ORDER4", {true, false}},
-    {"TRANS1", {false, false}},
-    {"TRANS2", {false, false}},
-    {"BINORMAL", {false, false}}};
+    {"UNDEFINED", {true, false, false, true}},
+    {"VARIOGRAM", {true, false, false, true}},
+    {"COVARIANCE", {false, true, false, true}},
+    {"COVARIOGRAM", {false, false, false, true}},
+    {"MADOGRAM", {true, false, false, false}},
+    {"RODOGRAM", {true, false, false, false}},
+    {"POISSON", {true, false, false, true}},
+    {"GENERAL1", {false, false, false, false}},
+    {"GENERAL2", {false, false, false, false}},
+    {"GENERAL3", {false, false, false, false}},
+    {"COVARIANCE_NC", {false, true, false, true}},
+    {"ORDER4", {true, false, false, true}},
+    {"TRANS1", {false, false, false, false}},
+    {"TRANS2", {false, false, false, false}},
+    {"BINORMAL", {false, false, false, false}}};
