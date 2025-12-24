@@ -52,7 +52,7 @@ jobs:
 
     - name: Install python dependencies
       run: |
-        uv pip install numpy
+        uv pip install numpy==2.3.5
         uv pip install mlxtend
 
     - name: Setup R Version
