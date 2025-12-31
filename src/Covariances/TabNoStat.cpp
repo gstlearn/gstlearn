@@ -75,7 +75,7 @@ void TabNoStat::updateDescription()
 bool TabNoStat::isElemDefined(const EConsElem& econs, Id iv1, Id iv2) const
 {
   ParamId conselem(econs, iv1, iv2);
-#if USE_BOOST_SPAN
+#ifdef USE_BOOST_SPAN
   return _items.count(conselem) > 0;
 #else
   return _items.contains(conselem);
