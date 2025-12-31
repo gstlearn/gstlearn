@@ -151,6 +151,7 @@ Id MatrixSquare::invertOutOfPlace(MatrixSquare& res) const
     return 0;
   }
 
+  res.resize(this->getNRows(), this->getNCols());
   res.eigenMat().noalias() = this->eigenMat().inverse();
 
   return 0;
