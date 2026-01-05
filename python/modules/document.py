@@ -208,7 +208,13 @@ def locateFile(
             if os.path.isfile(localname):
                 fullname = os.path.abspath(localname)
                 if verbose:
-                    print(filename, "found in $GSTLEARN_DIR =", gstlearn_dir, "... Full path is", fullname)
+                    print(
+                        filename,
+                        "found in $GSTLEARN_DIR =",
+                        gstlearn_dir,
+                        "... Full path is",
+                        fullname,
+                    )
                 return fullname
             elif verbose:
                 print(localname, "not found in $GSTLEARN_DIR =", gstlearn_dir, "...")
