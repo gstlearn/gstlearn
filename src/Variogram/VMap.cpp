@@ -13,10 +13,8 @@
 
 #include "Anamorphosis/AAnam.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
-#include "Basic/Utilities.hpp"
 #include "Core/fftn.hpp"
 #include "Db/Db.hpp"
-#include "Db/DbGrid.hpp"
 #include "Model/Model.hpp"
 #include "Morpho/Morpho.hpp"
 #include "Stats/Classical.hpp"
@@ -72,28 +70,43 @@ double VMap::_getIVAR(const Db* db, Id iech, Id ivar) const
  ** \param[in]  iech1       Rank of the first sample
  ** \param[in]  iech2       Rank of the second sample
  ** \param[in]  nvar        Number of variables
+ ** \param[in]  idir        Rank of the direction
  ** \param[in]  ilag        Rank of the variogram lag
  ** \param[in]  ivar        Index of the first variable
  ** \param[in]  jvar        Index of the second variable
  ** \param[in]  orient      Orientation
  ** \param[in]  ww          Weight
+ ** \param[in]  w1          Weight of the first sample
+ ** \param[in]  w2          Weight of the second sample
+ ** \param[in]  z1          Value of first variable
+ ** \param[in]  z2          Value of second variable
  ** \param[in]  dist        Distance
  ** \param[in]  value       Variogram value
  **
  *****************************************************************************/
-void VMap::_setResult(Id iech1,
-                      Id iech2,
-                      Id nvar,
-                      Id ilag,
-                      Id ivar,
-                      Id jvar,
-                      Id orient,
-                      double ww,
-                      double dist,
-                      double value)
+void VMap::_setAVarioResult(Id iech1,
+                            Id iech2,
+                            Id nvar,
+                            Id idir,
+                            Id ilag,
+                            Id ivar,
+                            Id jvar,
+                            Id orient,
+                            double ww,
+                            double w1,
+                            double w2,
+                            double z1,
+                            double z2,
+                            double dist,
+                            double value)
 {
+  DECLARE_UNUSED(idir);
   DECLARE_UNUSED(orient);
   DECLARE_UNUSED(dist);
+  DECLARE_UNUSED(w1);
+  DECLARE_UNUSED(w2);
+  DECLARE_UNUSED(z1);
+  DECLARE_UNUSED(z2);
   auto ijvar = _get_variable_order(nvar, ivar, jvar);
   _dbmap->updArray(ilag, _IPTV + ijvar, EOperator::ADD, ww * value);
   _dbmap->updArray(ilag, _IPTW + ijvar, EOperator::ADD, ww);
@@ -106,22 +119,25 @@ void VMap::_setResult(Id iech1,
  **
  ** \return  Error return code
  **
- ** \param[in]  db          Db containing the data
- ** \param[in]  calcul_type Type of calculation (ECalcVario... only symmetrical ones)
- ** \param[in]  radius      Dilation radius (smooth resulting maps) only on points
- ** \param[in]  flag_FFT    Use FFT method (only valid on grid)
- ** \param[in]  namconv     Naming convention
+ ** \param[in]  db           Db containing the data
+ ** \param[in]  radius       Dilation radius (smooth resulting maps) only on points
+ ** \param[in]  flag_FFT     Use FFT method (only valid on grid)
+ ** \param[in]  calculType   Type of calculation (ECalcVario... only symmetrical ones)
+ ** \param[in]  flag_ergodic Use ergodic assumption
+ ** \param[in]  namconv      Naming convention
  **
  *****************************************************************************/
 Id VMap::compute(Db* db,
-                 const ECalcVario& calcul_type,
                  Id radius,
                  bool flag_FFT,
+                 const ECalcVario& calculType,
+                 bool flag_ergodic,
                  const NamingConvention& namconv)
 {
   if (db == nullptr) return (1);
 
-  setCalcul(calcul_type);
+  setCalcul(calculType);
+  setErgodic(flag_ergodic);
   if (getFlagAsym())
   {
     messerr("VMap calculation only available for symmetrical variograms");
@@ -178,11 +194,12 @@ Id VMap::compute(Db* db,
  ** \return  Error return code
  **
  ** \param[in]  db          Db containing the data
- ** \param[in]  calcul_type Type of calculation (ECalcVario... only symmetrical ones)
- ** \param[in]  nxx         Vector of (Half-) number of nodes for Vmap (def:20)
- ** \param[in]  dxx         Vector of mesh for Vmap (see details)
  ** \param[in]  radius      Dilation radius (mooth resulting maps) only on points
  ** \param[in]  flag_FFT    Use FFT method (only valid on grid)
+ ** \param[in]  calculType  Type of calculation (ECalcVario... only symmetrical ones)
+ ** \param[in]  flag_ergodic Use ergodic assumption
+ ** \param[in]  nxx         Vector of (Half-) number of nodes for Vmap (def:20)
+ ** \param[in]  dxx         Vector of mesh for Vmap (see details)
  ** \param[in]  namconv     Naming convention
  **
  ** \remarks For calculating the default values:
@@ -193,17 +210,14 @@ Id VMap::compute(Db* db,
  **
  *****************************************************************************/
 DbGrid* db_vmap(Db* db,
-                const ECalcVario& calcul_type,
-                const VectorInt& nxx,
-                const VectorDouble& dxx,
                 Id radius,
                 bool flag_FFT,
+                const ECalcVario& calculType,
+                bool flag_ergodic,
+                const VectorInt& nxx,
+                const VectorDouble& dxx,
                 const NamingConvention& namconv)
 {
-  Id error = 0;
-
-  // Creating the output Variogram Map grid
-
   if (db == nullptr)
   {
     messerr("You need a Db to compute a Variogram Map");
@@ -247,7 +261,7 @@ DbGrid* db_vmap(Db* db,
   // Calculating the variogram map in different ways
 
   VMap vmap(dbmap);
-  error = vmap.compute(db, calcul_type, radius, flag_FFT, namconv);
+  Id error = vmap.compute(db, radius, flag_FFT, calculType, flag_ergodic, namconv);
 
   // In case of error, free the newly created VMAP structure
 
@@ -699,7 +713,7 @@ Id VMap::_vmap_general(Db* db, Id radius, const NamingConvention& namconv)
       {
         iech0 = _findNeighCell(indg0, neigh, in, indg1);
         if (iech0 < 0) continue;
-        (this->*_evaluate)(db, nvar, iech1, iech2, iech0, TEST, false);
+        (this->*_evaluate)(db, nvar, iech1, iech2, 0, iech0, TEST, false);
       }
 
       // Avoid symmetry if point is compared to itself
@@ -713,7 +727,7 @@ Id VMap::_vmap_general(Db* db, Id radius, const NamingConvention& namconv)
       {
         iech0 = _findNeighCell(indg0, neigh, in, indg1);
         if (iech0 < 0) continue;
-        (this->*_evaluate)(db, nvar, iech1, iech2, iech0, TEST, false);
+        (this->*_evaluate)(db, nvar, iech1, iech2, 0, iech0, TEST, false);
       }
     }
   }
@@ -807,7 +821,7 @@ Id VMap::_vmap_grid(DbGrid* dbgrid, const NamingConvention& namconv)
       /* Evaluate the variogram map */
 
       iech0 = _dbmap->indiceToRank(ind0);
-      (this->*_evaluate)(dbgrid, nvar, iech1, iech2, iech0, TEST, false);
+      (this->*_evaluate)(dbgrid, nvar, iech1, iech2, 0, iech0, TEST, false);
     }
   }
 

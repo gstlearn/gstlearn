@@ -49,21 +49,27 @@ public:
 
   /// AVario Interface
   double _getIVAR(const Db* db, Id iech, Id ivar) const override;
-  void _setResult(Id iech1,
-                  Id iech2,
-                  Id nvar,
-                  Id ilag,
-                  Id ivar,
-                  Id jvar,
-                  Id orient,
-                  double ww,
-                  double dist,
-                  double value) override;
+  void _setAVarioResult(Id iech1,
+                        Id iech2,
+                        Id nvar,
+                        Id idir,
+                        Id ilag,
+                        Id ivar,
+                        Id jvar,
+                        Id orient,
+                        double ww,
+                        double w1,
+                        double w2,
+                        double z1,
+                        double z2,
+                        double dist,
+                        double value) override;
 
   Id compute(Db* db,
-             const ECalcVario& calcul_type,
              Id radius,
              bool flag_FFT                   = true,
+             const ECalcVario& calculType    = ECalcVario::fromKey("VARIOGRAM"),
+             bool flag_ergodic               = true,
              const NamingConvention& namconv = NamingConvention("VMAP"));
 
 private:
@@ -121,10 +127,11 @@ private:
 };
 
 GSTLEARN_EXPORT DbGrid* db_vmap(Db* db,
-                                const ECalcVario& calcul_type   = ECalcVario::fromKey("VARIOGRAM"),
-                                const VectorInt& nxx            = VectorInt(),
-                                const VectorDouble& dxx         = VectorDouble(),
                                 Id radius                       = 0,
                                 bool flag_FFT                   = true,
+                                const ECalcVario& calculType    = ECalcVario::fromKey("VARIOGRAM"),
+                                bool flag_ergodic               = true,
+                                const VectorInt& nxx            = VectorInt(),
+                                const VectorDouble& dxx         = VectorDouble(),
                                 const NamingConvention& namconv = NamingConvention("VMAP"));
 } // namespace gstlrn

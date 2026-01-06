@@ -47,18 +47,26 @@ public:
 
   /// AVCloud Interface
   double _getIVAR(const Db* db, Id iech, Id ivar) const override;
-  void _setResult(Id iech1,
-                  Id iech2,
-                  Id nvar,
-                  Id ilag,
-                  Id ivar,
-                  Id jvar,
-                  Id orient,
-                  double ww,
-                  double dist,
-                  double value) override;
+  void _setAVarioResult(Id iech1,
+                        Id iech2,
+                        Id nvar,
+                        Id idir,
+                        Id ilag,
+                        Id ivar,
+                        Id jvar,
+                        Id orient,
+                        double ww,
+                        double w1,
+                        double w2,
+                        double z1,
+                        double z2,
+                        double dist,
+                        double value) override;
 
-  Id compute(Db* db, const NamingConvention& namconv = NamingConvention("Cloud"));
+  Id compute(Db* db,
+             const ECalcVario& calculType    = ECalcVario::fromKey("VARIOGRAM"),
+             bool flag_ergodic               = true,
+             const NamingConvention& namconv = NamingConvention("Cloud"));
 
   Id selectFromPolygon(Db* db, Polygons* polygon, Id idir = 0);
 
@@ -87,6 +95,8 @@ GSTLEARN_EXPORT DbGrid* vcloudGrid(const Db* db,
 
 GSTLEARN_EXPORT DbGrid* db_vcloud(Db* db,
                                   const VarioParam* varioparam,
+                                  const ECalcVario& calculType    = ECalcVario::fromKey("VARIOGRAM"),
+                                  bool flag_ergodic               = true,
                                   double lagmax                   = TEST,
                                   double varmax                   = TEST,
                                   Id lagnb                        = 100,
@@ -94,12 +104,14 @@ GSTLEARN_EXPORT DbGrid* db_vcloud(Db* db,
                                   const NamingConvention& namconv = NamingConvention("Cloud"));
 
 GSTLEARN_EXPORT DbGrid* vcloudCalculate(Db* db,
-                                        Id nlag                    = 10,
-                                        double dlag                = 1.,
-                                        Id ndir                    = 1,
-                                        const VectorDouble& angles = VectorDouble(),
-                                        double toldis              = 0.5,
-                                        double tolang              = TEST,
-                                        Id lagnb                   = 100,
-                                        Id varnb                   = 100);
+                                        const ECalcVario& calculType = ECalcVario::fromKey("VARIOGRAM"),
+                                        bool flag_ergodic            = true,
+                                        Id nlag                      = 10,
+                                        double dlag                  = 1.,
+                                        Id ndir                      = 1,
+                                        const VectorDouble& angles   = VectorDouble(),
+                                        double toldis                = 0.5,
+                                        double tolang                = TEST,
+                                        Id lagnb                     = 100,
+                                        Id varnb                     = 100);
 } // namespace gstlrn

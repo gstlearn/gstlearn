@@ -72,32 +72,47 @@ double VCloud::_getIVAR(const Db* db, Id iech, Id ivar) const
  ** \param[in]  iech1       Rank of the first sample
  ** \param[in]  iech2       Rank of the second sample
  ** \param[in]  nvar        Number of variables
+ ** \param[in]  idir        Rank of the direction
  ** \param[in]  ilag        Rank of the variogram lag
  ** \param[in]  ivar        Index of the first variable
  ** \param[in]  jvar        Index of the second variable
  ** \param[in]  orient      Orientation
  ** \param[in]  ww          Weight
+ ** \param[in]  w1          Weight of the first sample
+ ** \param[in]  w2          Weight of the second sample
+ ** \param[in]  z1          Value of first variable
+ ** \param[in]  z2          Value of second variable
  ** \param[in]  dist        Distance
  ** \param[in]  value       Variogram value
  **
  *****************************************************************************/
-void VCloud::_setResult(Id iech1,
-                        Id iech2,
-                        Id nvar,
-                        Id ilag,
-                        Id ivar,
-                        Id jvar,
-                        Id orient,
-                        double ww,
-                        double dist,
-                        double value)
+void VCloud::_setAVarioResult(Id iech1,
+                              Id iech2,
+                              Id nvar,
+                              Id idir,
+                              Id ilag,
+                              Id ivar,
+                              Id jvar,
+                              Id orient,
+                              double ww,
+                              double w1,
+                              double w2,
+                              double z1,
+                              double z2,
+                              double dist,
+                              double value)
 {
   DECLARE_UNUSED(nvar);
+  DECLARE_UNUSED(idir);
   DECLARE_UNUSED(ilag);
   DECLARE_UNUSED(ivar);
   DECLARE_UNUSED(jvar);
   DECLARE_UNUSED(orient);
   DECLARE_UNUSED(ww);
+  DECLARE_UNUSED(w1);
+  DECLARE_UNUSED(w2);
+  DECLARE_UNUSED(z1);
+  DECLARE_UNUSED(z2);
 
   Id igrid = _update_discretization_grid(dist, value);
   if (igrid < 0) return;
@@ -131,10 +146,15 @@ void VCloud::_setResult(Id iech1,
  ** \return  Error return code
  **
  ** \param[in]  db           Db descriptor
+ ** \param[in]  calculType  Calculation type
+ ** \param[in]  flag_ergodic Ergodic flag
  ** \param[in]  namconv      Naming convention
  **
  *****************************************************************************/
-Id VCloud::compute(Db* db, const NamingConvention& namconv)
+Id VCloud::compute(Db* db,
+                   const ECalcVario& calculType,
+                   bool flag_ergodic,
+                   const NamingConvention& namconv)
 {
   if (db == nullptr) return (1);
 
@@ -156,7 +176,13 @@ Id VCloud::compute(Db* db, const NamingConvention& namconv)
 
   /* Allocate new variables */
 
-  setCalcul(ECalcVario::VARIOGRAM);
+  setCalcul(calculType);
+  setErgodic(flag_ergodic);
+  if (getFlagAsym())
+  {
+    messerr("VCloud calculation only available for symmetrical variograms");
+    return 1;
+  }
   Id ndir = _varioparam->getNDir();
   Id iptr = _dbcloud->addColumnsByConstant(ndir, 0.);
   if (iptr < 0) return (1);
@@ -233,7 +259,7 @@ void VCloud::_variogram_cloud(Db* db, Id idir)
       // Reject the point as soon as one BiTargetChecker is not correct
       if (!vario->keepPair(idir, T1, T2, &dist)) continue;
 
-      (this->*_evaluate)(db, nvar, iech, jech, 0, dist, false);
+      (this->*_evaluate)(db, nvar, iech, jech, idir, 0, dist, false);
     }
   }
 
@@ -292,6 +318,8 @@ DbGrid* vcloudGrid(const Db* db, double lagmax, double varmax, Id lagnb, Id varn
  **
  ** \param[in]  db           Db descriptor
  ** \param[in]  varioparam   VarioParam structure
+ ** \param[in]  calculType   Calculation type
+ ** \param[in]  flag_ergodic Ergodic flag
  ** \param[in]  lagmax       Maximum distance
  ** \param[in]  varmax       Maximum Variance value (see remarks)
  ** \param[in]  lagnb        Number of discretization steps along distance axis
@@ -306,6 +334,8 @@ DbGrid* vcloudGrid(const Db* db, double lagmax, double varmax, Id lagnb, Id varn
  *****************************************************************************/
 DbGrid* db_vcloud(Db* db,
                   const VarioParam* varioparam,
+                  const ECalcVario& calculType,
+                  bool flag_ergodic,
                   double lagmax,
                   double varmax,
                   Id lagnb,
@@ -322,7 +352,7 @@ DbGrid* db_vcloud(Db* db,
 
   // Calling the variogram cloud calculation function
 
-  if (vcloud.compute(db, namconv))
+  if (vcloud.compute(db, calculType, flag_ergodic, namconv))
   {
     delete dbgrid;
     dbgrid = nullptr;
@@ -381,6 +411,8 @@ String VCloud::toString(const AStringFormat* strfmt) const
 }
 
 DbGrid* vcloudCalculate(Db* db,
+                        const ECalcVario& calculType,
+                        bool flag_ergodic,
                         Id nlag,
                         double dlag,
                         Id ndir,
@@ -398,7 +430,7 @@ DbGrid* vcloudCalculate(Db* db,
   else
     varioparam = VarioParam::createOmniDirection(nlag, dlag, toldis);
 
-  auto* dbgrid = db_vcloud(db, varioparam, TEST, TEST, lagnb, varnb);
+  auto* dbgrid = db_vcloud(db, varioparam, calculType, flag_ergodic, TEST, TEST, lagnb, varnb);
 
   return dbgrid;
 }

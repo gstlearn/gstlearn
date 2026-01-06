@@ -115,8 +115,8 @@ Id ModelOptimVario::_buildExperimental()
           double gg   = TEST;
           if (_vario->getFlagAsym())
           {
-            Id iad     = _vario->getDirAddress(idir, ivar, jvar, ilag, false, 1);
-            Id jad     = _vario->getDirAddress(idir, ivar, jvar, ilag, false, -1);
+            Id iad     = _vario->getAddressForGg(idir, ivar, jvar, ilag, 1);
+            Id jad     = _vario->getAddressForGg(idir, ivar, jvar, ilag, -1);
             double c00 = _vario->getC00(idir, ivar, jvar);
             double n1  = _vario->getSwByIndex(idir, iad);
             double n2  = _vario->getSwByIndex(idir, jad);
@@ -135,7 +135,7 @@ Id ModelOptimVario::_buildExperimental()
           }
           else
           {
-            Id iad = _vario->getDirAddress(idir, ivar, jvar, ilag, false, 1);
+            Id iad = _vario->getAddressForGg(idir, ivar, jvar, ilag, 1);
             if (_vario->isLagCorrect(idir, iad))
             {
               gg   = _vario->getGgByIndex(idir, iad);

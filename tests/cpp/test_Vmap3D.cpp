@@ -58,7 +58,7 @@ int main(int argc, char* argv[])
   // Calculating Variogram Map on Grid
   // =================================
 
-  DbGrid* vmap = db_vmap(grid, ECalcVario::VARIOGRAM, {10, 10, 3});
+  DbGrid* vmap = db_vmap(grid, 0, true, ECalcVario::VARIOGRAM, true, {10, 10, 3});
   DbStringFormat dbfmt(FLAG_STATS, {"VMAP*"});
   vmap->display(&dbfmt);
 

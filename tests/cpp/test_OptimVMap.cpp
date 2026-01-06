@@ -47,7 +47,7 @@ int main(int argc, char* argv[])
   (void)dbgrid->dumpToNF("dbgrid.NF");
 
   // Calculating the experimental variogram Map
-  DbGrid* dbmap = db_vmap(dbgrid, ECalcVario::VARIOGRAM, {50, 50});
+  DbGrid* dbmap = db_vmap(dbgrid, 0, true, ECalcVario::VARIOGRAM, true, {50, 50});
   (void)dbmap->dumpToNF("VMap.NF");
 
   mestitle(1, "Initial Model");

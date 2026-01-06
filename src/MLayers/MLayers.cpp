@@ -1799,11 +1799,11 @@ Id MLayers::_getVarioCHH(Vario_Order* vorder,
     for (Id ilayer = 0; ilayer < _nlayers; ilayer++)
       for (Id jlayer = 0; jlayer <= ilayer; jlayer++, ijl++)
       {
-        iadlag = vario->getDirAddress(idir, ilayer, jlayer, ilag, false, 1);
+        iadlag = vario->getAddressForGg(idir, ilayer, jlayer, ilag, 1);
         vario->setGgByIndex(idir, iadlag, sill[ijl]);
         vario->setHhByIndex(idir, iadlag, distsum);
         vario->setSwByIndex(idir, iadlag, nval);
-        iadlag = vario->getDirAddress(idir, ilayer, jlayer, ilag, false, -1);
+        iadlag = vario->getAddressForGg(idir, ilayer, jlayer, ilag, -1);
         vario->setGgByIndex(idir, iadlag, sill[ijl]);
         vario->setHhByIndex(idir, iadlag, -distsum);
         vario->setSwByIndex(idir, iadlag, nval);

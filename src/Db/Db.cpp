@@ -6230,4 +6230,26 @@ Table Db::displayStatsByCategory(const String& name,
   return table;
 }
 
+Table Db::displayContents(const VectorString& names) const
+{
+  auto namesLoc = names;
+  if (namesLoc.empty()) namesLoc = getAllNames(false);
+
+  // Define the table
+  Id nrows = getNSample(true);
+  Id ncols = namesLoc.size();
+  Table table(nrows, ncols);
+  table.setSkipTitle(true);
+  table.setSkipDescription(true);
+
+  // Loop on the variables
+  for (Id icol = 0; icol < ncols; icol++)
+  {
+    table.setColumnName(icol, namesLoc[icol]);
+    VectorDouble tabloc = getColumn(namesLoc[icol], true, false);
+    table.setColumn(icol, tabloc);
+  }
+  return table;
+}
+
 } // namespace gstlrn

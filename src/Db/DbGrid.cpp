@@ -1545,6 +1545,7 @@ DbGrid* DbGrid::createGrid2D(const ELoadBy& order,
  * @param heteroRatio Vector of proportions of NA to be generated per variable
  * @param means Vector of means per variable (optional)
  * @param x0 Vector of coordinates of the origin of the grid (optional)
+ * @param dx Vector of grid meshes (optional). If not provided, dx = 1 / nx (for each space dimension)
  * @param seed Value for the Random Generator seed
  * @return A pointer to the newly created DbGrid
  *
