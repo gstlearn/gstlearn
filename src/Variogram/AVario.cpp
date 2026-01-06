@@ -20,6 +20,8 @@ namespace gstlrn
 AVario::AVario()
   : AStringable()
   , _calcul(ECalcVario::UNDEFINED)
+  , _flagNeedStats(false)
+  , _flagErgodic(true)
   , _flagAsym(false)
   , _flagCentered(false)
   , _flagScaled(false)
@@ -31,6 +33,8 @@ AVario::AVario()
 AVario::AVario(const AVario& r)
   : AStringable(r)
   , _calcul(r._calcul)
+  , _flagNeedStats(r._flagNeedStats)
+  , _flagErgodic(r._flagErgodic)
   , _flagAsym(r._flagAsym)
   , _flagCentered(r._flagCentered)
   , _flagScaled(r._flagScaled)
@@ -44,12 +48,14 @@ AVario& AVario::operator=(const AVario& r)
   if (this != &r)
   {
     AStringable::operator=(r);
-    _calcul       = r._calcul;
-    _flagAsym     = r._flagAsym;
-    _flagCentered = r._flagCentered;
-    _flagScaled   = r._flagScaled;
-    _flagStorage  = r._flagStorage;
-    _tabStorage   = r._tabStorage;
+    _calcul        = r._calcul;
+    _flagNeedStats = r._flagNeedStats;
+    _flagErgodic   = r._flagErgodic;
+    _flagAsym      = r._flagAsym;
+    _flagCentered  = r._flagCentered;
+    _flagScaled    = r._flagScaled;
+    _flagStorage   = r._flagStorage;
+    _tabStorage    = r._tabStorage;
   }
   return *this;
 }
@@ -61,6 +67,7 @@ void AVario::_evaluateVariogram(
   Id nvar,
   Id iech1,
   Id iech2,
+  Id idir,
   Id ilag,
   double dist,
   bool do_asym)
@@ -82,7 +89,8 @@ void AVario::_evaluateVariogram(
       double z22 = _getIVAR(db, iech2, jvar);
       if (FFFF(z21) || FFFF(z22)) continue;
       double value = (z12 - z11) * (z22 - z21) / 2.;
-      _setResult(iech1, iech2, nvar, ilag, ivar, jvar, 0, scale, dist, value);
+      _setAVarioResult(iech1, iech2, nvar, idir, ilag, ivar, jvar, 0,
+                       scale, w1, w2, z11, z21, z12, z22, dist, value);
     }
   }
 }
@@ -92,6 +100,7 @@ void AVario::_evaluateMadogram(
   Id nvar,
   Id iech1,
   Id iech2,
+  Id idir,
   Id ilag,
   double dist,
   bool do_asym)
@@ -113,7 +122,8 @@ void AVario::_evaluateMadogram(
       double z22 = _getIVAR(db, iech2, jvar);
       if (FFFF(z21) || FFFF(z22)) continue;
       double value = sqrt(ABS((z12 - z11) * (z22 - z21))) / 2.;
-      _setResult(iech1, iech2, nvar, ilag, ivar, jvar, 0, scale, dist, value);
+      _setAVarioResult(iech1, iech2, nvar, idir, ilag, ivar, jvar,
+                       0, w1, w2, z11, z21, z12, z22, scale, dist, value);
     }
   }
 }
@@ -123,6 +133,7 @@ void AVario::_evaluateRodogram(
   Id nvar,
   Id iech1,
   Id iech2,
+  Id idir,
   Id ilag,
   double dist,
   bool do_asym)
@@ -144,7 +155,8 @@ void AVario::_evaluateRodogram(
       double z22 = _getIVAR(db, iech2, jvar);
       if (FFFF(z21) || FFFF(z22)) continue;
       double value = pow(ABS((z12 - z11) * (z22 - z21)), 0.25) / 2.;
-      _setResult(iech1, iech2, nvar, ilag, ivar, jvar, 0, scale, dist, value);
+      _setAVarioResult(iech1, iech2, nvar, idir, ilag, ivar, jvar,
+                       0, w1, w2, z11, z21, z12, z22, scale, dist, value);
     }
   }
 }
@@ -154,6 +166,7 @@ void AVario::_evaluatePoisson(
   Id nvar,
   Id iech1,
   Id iech2,
+  Id idir,
   Id ilag,
   double dist,
   bool do_asym)
@@ -175,7 +188,8 @@ void AVario::_evaluatePoisson(
       double z22 = _getIVAR(db, iech2, jvar);
       if (FFFF(z21) || FFFF(z22)) continue;
       double value = (z12 - z11) * (z22 - z21) / 2.;
-      _setResult(iech1, iech2, nvar, ilag, ivar, jvar, 0, scale, dist, value);
+      _setAVarioResult(iech1, iech2, nvar, idir, ilag, ivar, jvar,
+                       0, w1, w2, z11, z21, z12, z22, scale, dist, value);
     }
   }
 }
@@ -185,6 +199,7 @@ void AVario::_evaluateCovariance(
   Id nvar,
   Id iech1,
   Id iech2,
+  Id idir,
   Id ilag,
   double dist,
   bool do_asym)
@@ -207,12 +222,14 @@ void AVario::_evaluateCovariance(
       if (!FFFF(z22))
       {
         double value = z11 * z22;
-        _setResult(iech1, iech2, nvar, ilag, ivar, jvar, orient, scale, dist, value);
+        _setAVarioResult(iech1, iech2, nvar, idir, ilag, ivar, jvar, orient,
+                         scale, w1, w2, z11, TEST, TEST, z22, dist, value);
       }
       if (!FFFF(z21) && do_asym)
       {
         double value = z12 * z21;
-        _setResult(iech1, iech2, nvar, ilag, ivar, jvar, -orient, scale, dist, value);
+        _setAVarioResult(iech1, iech2, nvar, idir, ilag, ivar, jvar, -orient,
+                         scale, w1, w2, TEST, z21, z12, TEST, dist, value);
       }
     }
   }
@@ -223,6 +240,7 @@ void AVario::_evaluateCovariogram(
   Id nvar,
   Id iech1,
   Id iech2,
+  Id idir,
   Id ilag,
   double dist,
   bool do_asym)
@@ -245,12 +263,14 @@ void AVario::_evaluateCovariogram(
       if (!FFFF(z22))
       {
         double value = z11 * z22;
-        _setResult(iech1, iech2, nvar, ilag, ivar, jvar, orient, scale, dist, value);
+        _setAVarioResult(iech1, iech2, nvar, idir, ilag, ivar, jvar, orient,
+                         scale, w1, w2, z11, TEST, TEST, z22, dist, value);
       }
       if (!FFFF(z21) && do_asym)
       {
         double value = z12 * z21;
-        _setResult(iech1, iech2, nvar, ilag, ivar, jvar, -orient, scale, dist, value);
+        _setAVarioResult(iech1, iech2, nvar, idir, ilag, ivar, jvar, -orient,
+                         scale, w1, w2, TEST, z21, z12, TEST, dist, value);
       }
     }
   }
@@ -261,6 +281,7 @@ void AVario::_evaluateOrder4(
   Id nvar,
   Id iech1,
   Id iech2,
+  Id idir,
   Id ilag,
   double dist,
   bool do_asym)
@@ -283,7 +304,8 @@ void AVario::_evaluateOrder4(
       if (FFFF(z21) || FFFF(z22)) continue;
       double value = (z12 - z11) * (z22 - z21);
       value        = value * value / 2.;
-      _setResult(iech1, iech2, nvar, ilag, ivar, jvar, 0, scale, dist, value);
+      _setAVarioResult(iech1, iech2, nvar, idir, ilag, ivar, jvar, 0,
+                       scale, w1, w2, z11, z21, z12, z22, dist, value);
     }
   }
 }
@@ -364,10 +386,11 @@ void AVario::setCalcul(const ECalcVario& calcul)
   }
 
   // Define the different flags
-  String cle    = std::string(_calcul.getKey());
-  _flagAsym     = !ECalcVarioAttr.at(cle).isSymmetric;
-  _flagCentered = ECalcVarioAttr.at(cle).isCentered;
-  _flagScaled   = ECalcVarioAttr.at(cle).isScaled;
+  String cle     = std::string(_calcul.getKey());
+  _flagAsym      = !ECalcVarioAttr.at(cle).isSymmetric;
+  _flagCentered  = ECalcVarioAttr.at(cle).isCentered;
+  _flagScaled    = ECalcVarioAttr.at(cle).isScaled;
+  _flagNeedStats = _flagCentered || _flagScaled;
 }
 
 void AVario::setStorage(bool flag)

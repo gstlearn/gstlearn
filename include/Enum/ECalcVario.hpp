@@ -51,7 +51,7 @@ inline const std::map<std::string, qualifier> ECalcVarioAttr =
     {"UNDEFINED", {true, false, false, true}},
     {"VARIOGRAM", {true, false, false, true}},
     {"COVARIANCE", {false, true, false, true}},
-    {"COVARIOGRAM", {false, false, false, true}},
+    {"COVARIOGRAM", {false, true, false, true}},
     {"MADOGRAM", {true, false, false, false}},
     {"RODOGRAM", {true, false, false, false}},
     {"POISSON", {true, false, false, true}},

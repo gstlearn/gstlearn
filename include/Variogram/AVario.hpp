@@ -33,22 +33,33 @@ public:
   const ECalcVario& getCalcul() const { return _calcul; }
   void setCalcul(const ECalcVario& calcul);
   void setStorage(bool flag);
+  void setErgodic(bool flag) { _flagErgodic = flag; }
+  bool getNeedStats() const { return _flagNeedStats; }
+  bool getErgodic() const { return _flagErgodic; }
   bool getFlagAsym() const { return _flagAsym; }
   bool getCentered() const { return _flagCentered; }
   bool getScaled() const { return _flagScaled; }
 
 protected:
   virtual double _getIVAR(const Db* db, Id iech, Id ivar) const = 0;
-  virtual void _setResult(Id iech1,
-                          Id iech2,
-                          Id nvar,
-                          Id ilag,
-                          Id ivar,
-                          Id jvar,
-                          Id orient,
-                          double ww,
-                          double dist,
-                          double value)                         = 0;
+
+  virtual void _setAVarioResult(Id iech1,
+                                Id iech2,
+                                Id nvar,
+                                Id idir,
+                                Id ilag,
+                                Id ivar,
+                                Id jvar,
+                                Id orient,
+                                double ww,
+                                double w1,
+                                double w2,
+                                double z11,
+                                double z21,
+                                double z12,
+                                double z22,
+                                double dist,
+                                double value) = 0;
 
   String _elemString(const AStringFormat* strfmt) const;
 
@@ -56,6 +67,7 @@ protected:
                           Id nvar,
                           Id iech1,
                           Id iech2,
+                          Id idir,
                           Id ilag,
                           double dist,
                           bool do_asym);
@@ -63,6 +75,7 @@ protected:
                          Id nvar,
                          Id iech1,
                          Id iech2,
+                         Id idir,
                          Id ilag,
                          double dist,
                          bool do_asym);
@@ -70,6 +83,7 @@ protected:
                          Id nvar,
                          Id iech1,
                          Id iech2,
+                         Id idir,
                          Id ilag,
                          double dist,
                          bool do_asym);
@@ -77,6 +91,7 @@ protected:
                         Id nvar,
                         Id iech1,
                         Id iech2,
+                        Id idir,
                         Id ilag,
                         double dist,
                         bool do_asym);
@@ -84,6 +99,7 @@ protected:
                            Id nvar,
                            Id iech1,
                            Id iech2,
+                           Id idir,
                            Id ilag,
                            double dist,
                            bool do_asym);
@@ -91,6 +107,7 @@ protected:
                             Id nvar,
                             Id iech1,
                             Id iech2,
+                            Id idir,
                             Id ilag,
                             double dist,
                             bool do_asym);
@@ -98,6 +115,7 @@ protected:
                        Id nvar,
                        Id iech1,
                        Id iech2,
+                       Id idir,
                        Id ilag,
                        double dist,
                        bool do_asym);
@@ -106,6 +124,7 @@ protected:
                             Id nvar,
                             Id iech1,
                             Id iech2,
+                            Id idir,
                             Id ilag,
                             double dist,
                             bool do_asym);
@@ -117,6 +136,8 @@ protected:
 
 private:
   ECalcVario _calcul;
+  mutable bool _flagNeedStats;
+  mutable bool _flagErgodic;
   mutable bool _flagAsym;
   mutable bool _flagCentered;
   mutable bool _flagScaled;

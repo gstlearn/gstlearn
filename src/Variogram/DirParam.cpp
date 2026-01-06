@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Variogram/DirParam.hpp"
-#include "Basic/AStringable.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Space/ASpace.hpp"
