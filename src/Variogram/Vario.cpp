@@ -903,21 +903,21 @@ void Vario::internalMemoryResize(Id ndir, bool flagDirs)
 
 void Vario::_directionResize(Id idir)
 {
-  auto size = getDirSize(idir);
-  _sw[idir].resize(size);
-  _gg[idir].resize(size);
-  _hh[idir].resize(size);
-  _utilize[idir].resize(size, 1.); // By default, all lags are usable
+  auto size1 = getDirSize(idir);
+  _sw[idir].resize(size1);
+  _gg[idir].resize(size1);
+  _hh[idir].resize(size1);
+  _utilize[idir].resize(size1, 1.); // By default, all lags are usable
 
   if (getNeedStats() && !getErgodic())
   {
-    auto size = getNLagTotal(idir) * getNVar();
-    _meanCount1[idir].resize(size, 0);
-    _meanLocal1[idir].resize(size, 0.);
-    _meanSqLocal1[idir].resize(size, 0.);
-    _meanCount2[idir].resize(size, 0);
-    _meanLocal2[idir].resize(size, 0.);
-    _meanSqLocal2[idir].resize(size, 0.);
+    auto size2 = getNLagTotal(idir) * getNVar();
+    _meanCount1[idir].resize(size2, 0);
+    _meanLocal1[idir].resize(size2, 0.);
+    _meanSqLocal1[idir].resize(size2, 0.);
+    _meanCount2[idir].resize(size2, 0);
+    _meanLocal2[idir].resize(size2, 0.);
+    _meanSqLocal2[idir].resize(size2, 0.);
   }
 }
 
