@@ -173,10 +173,10 @@ def locateFile(
     if os.path.isfile(localname):
         fullname = os.path.abspath(localname)
         if verbose:
-            print(filename, "found... Full path is", fullname)
+            print(filename, "found in current directory... Full path is", fullname)
         return fullname
     elif verbose:
-        print(localname, "not found...")
+        print(localname, "not found in current directory...")
 
     # Test locally in other directories
     if where not in ["references", "data"]:
@@ -195,10 +195,10 @@ def locateFile(
         if os.path.isfile(localname):
             fullname = os.path.abspath(localname)
             if verbose:
-                print(filename, "found... Full path is", fullname)
+                print(filename, "found in", f, "... Full path is", fullname)
             return fullname
         elif verbose:
-            print(localname, "not found...")
+            print(localname, "not found in", f, "...")
 
     # Test in GSTLEARN_DIR environment variable
     if os.environ.get("GSTLEARN_DIR") is not None:
@@ -208,10 +208,16 @@ def locateFile(
             if os.path.isfile(localname):
                 fullname = os.path.abspath(localname)
                 if verbose:
-                    print(filename, "found... Full path is", fullname)
+                    print(
+                        filename,
+                        "found in $GSTLEARN_DIR =",
+                        gstlearn_dir,
+                        "... Full path is",
+                        fullname,
+                    )
                 return fullname
             elif verbose:
-                print(localname, "not found...")
+                print(localname, "not found in $GSTLEARN_DIR =", gstlearn_dir, "...")
 
     # Test on the web
     if not internetAvailable():
