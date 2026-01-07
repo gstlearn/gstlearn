@@ -47,7 +47,48 @@ a.setLocators(["newvar*"], gl.ELoc.Z)
 print(a[["var2", "x2", "z*"]])
 
 # A slice within the previous selection (rows 1 to 3 excluded)
+
 print(a[1:3, ["var2", "x2", "z*"]])
+
+#======================================
+# New tests added to prove numpy 2.4+ compatibility for Db assignment
+def initData():
+    data = gl.Db.createFillRandom(ndat=10)
+    data["z"] = np.round(data["z"], 2) # Replace all values of an existing variable
+    data["y"] = np.arange(10) # Create new variable
+    return data
+
+data = initData()
+data.display()
+print(data[:,:])
+
+data[6:8, "y"] = 0.6
+print(data[:,:])
+
+data = initData()
+data[1:3, "y"] = [0.1, 0.2]
+print(data[:,:])
+
+data = initData()
+data[3:5, ["z", "y"]] = np.nan
+print(data[:,:])
+
+data = initData()
+data[8:10, ["z", "y"]] = [[8, 0.8], [9, 0.9]]
+print(data[:,:])
+
+data = initData()
+data[0, "z"] = np.nan
+print(data[:,:])
+
+data = initData()
+data[1, ["z", "y"]] = np.nan
+print(data[:,:])
+
+data = initData()
+data[2, ["z", "y"]] = [0.1, 0.2]
+print(data[:,:])
+#======================================
 
 #
 # This first part concerns the assessors used for Table manipulation
