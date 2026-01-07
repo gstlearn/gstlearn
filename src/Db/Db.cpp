@@ -6169,8 +6169,8 @@ void Db::dumpGeometry(Id iech, Id jech) const
  *
  * @remarks This table can easily be printed using the display() facility
  */
-Table Db::displayStats(const VectorString& names,
-                       const std::vector<EStatOption>& opers) const
+Table Db::getStatsAsTable(const VectorString& names,
+                          const std::vector<EStatOption>& opers) const
 {
   auto namesLoc = names;
   if (namesLoc.empty()) namesLoc = getAllNames(false);
@@ -6178,10 +6178,10 @@ Table Db::displayStats(const VectorString& names,
   return table;
 }
 
-Table Db::displayStatsByCategory(const String& name,
-                                 const String& category,
-                                 const std::vector<EStatOption>& opers,
-                                 double eps)
+Table Db::getStatsByCategoryAsTable(const String& name,
+                                    const String& category,
+                                    const std::vector<EStatOption>& opers,
+                                    double eps)
 {
   // Read the contents of the variable 'category'
   VectorDouble tabCat = getColumn(category, true, true);
@@ -6206,7 +6206,7 @@ Table Db::displayStatsByCategory(const String& name,
     Id iuid = addSelectionByVariable(category, catValue - eps, catValue + eps, "catSel");
 
     // Get the statisics for the current category
-    Table tabloc = displayStats({name}, opers);
+    Table tabloc = getStatsAsTable({name}, opers);
 
     // Delete the selection
     deleteColumnByUID(iuid);
@@ -6230,7 +6230,7 @@ Table Db::displayStatsByCategory(const String& name,
   return table;
 }
 
-Table Db::displayContents(const VectorString& names) const
+Table Db::getContentsAsTable(const VectorString& names) const
 {
   auto namesLoc = names;
   if (namesLoc.empty()) namesLoc = getAllNames(false);

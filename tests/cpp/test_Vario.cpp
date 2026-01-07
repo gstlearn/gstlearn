@@ -140,7 +140,7 @@ int main(int argc, char* argv[])
   auto mesh   = 1.;
   auto* dbStd = DbGrid::createFillRandom({nsample}, nvar, 0, 0, 0., 0.,
                                          VectorDouble(), VectorDouble(), VectorDouble(), {mesh});
-  dbStd->displayStats().display();
+  dbStd->getStatsAsTable().display();
 
   auto nblag = 4;
   auto dlag  = mesh;
