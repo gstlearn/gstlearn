@@ -1080,7 +1080,7 @@ def get_n_selected_rows(self, arg):
             else:
                 n_sel_rows = len(vals)
         except IndexError:
-            n_sel_rows = 0
+            n_sel_rows = -1
     return n_sel_rows
 
 def get_n_rows(self, use_sel=None):
@@ -1113,7 +1113,6 @@ def getdbitem(self,arg):
     db[gl.ELoc.Z] extracts all the variables located with Z.
     """
     nrows = get_n_rows(self)
-        
     n_sel_rows = get_n_selected_rows(self, arg)
     if n_sel_rows >= 0:
         rows = arg[0]
@@ -1222,7 +1221,7 @@ def setdbitem(self,name,tab):
         
     return
 
-setattr(gl.Db,"useSel",False)    
+setattr(gl.Db,"useSel",False)
     
 setattr(gl.Db,"__getitem__",getdbitem)
 setattr(gl.Db,"__setitem__",setdbitem)
