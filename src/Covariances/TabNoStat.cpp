@@ -75,7 +75,11 @@ void TabNoStat::updateDescription()
 bool TabNoStat::isElemDefined(const EConsElem& econs, Id iv1, Id iv2) const
 {
   ParamId conselem(econs, iv1, iv2);
+#ifdef USE_BOOST_SPAN
+  return _items.count(conselem) > 0;
+#else
   return _items.contains(conselem);
+#endif
 }
 
 std::shared_ptr<ANoStat> TabNoStat::getElem(const EConsElem& econs, Id iv1, Id iv2)
