@@ -11,16 +11,15 @@
 
 #include "Covariances/CorGneiting.hpp"
 #include "Basic/AStringable.hpp"
-#include "Basic/Law.hpp"
 #include "Basic/LawStable.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/CorAniso.hpp"
-#include "Covariances/CovCalcMode.hpp"
+#include "Covariances/CorGaussianMixture.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Matrix/MatrixDense.hpp"
+#include "Simulation/SimuSpectralRN.hpp"
 #include "Space/ASpace.hpp"
 #include "Space/SpaceComposite.hpp"
-#include "Space/SpacePoint.hpp"
 #include "geoslib_define.h"
 #include <cmath>
 #include <memory>
@@ -32,32 +31,32 @@ CorGneiting::CorGneiting(const ECov& type, const CovContext& ctxt)
   : ACov(ctxt)
   , _corS()
   , _corT()
-  , _separability(0.0)
-  , _corSCopy(*_corS) {
+  , _cor(*_corS)
+  , _separability(1.0) {
     DECLARE_UNUSED(type)
   };
 
-CorGneiting::CorGneiting(const CorAniso* covS, const CorAniso* covTemp, double separability)
+CorGneiting::CorGneiting(const CorGaussianMixture* covS, const CorAniso* covT, double separability)
   : ACov()
-  , _corS(std::shared_ptr<const CorAniso>(std::dynamic_pointer_cast<const CorAniso>((covS->cloneShared()))))
-  , _corT(std::shared_ptr<const CorAniso>(std::dynamic_pointer_cast<const CorAniso>((covTemp->cloneShared()))))
+  , _corS(std::shared_ptr<const CorGaussianMixture>(std::dynamic_pointer_cast<const CorGaussianMixture>((covS->cloneShared()))))
+  , _corT(std::shared_ptr<const CorAniso>(std::dynamic_pointer_cast<const CorAniso>((covT->cloneShared()))))
+  , _cor(*covS)
   , _separability(separability)
-  , _corSCopy(*covS)
 {
-  if (separability < 0.0 || separability > 1.0)
+  if (_separability < 0.0 || _separability > 1.0)
   {
-    _separability = 0;
+    _separability = 0.0;
     messerr("CorGneiting: Separability must be in [0,1]");
     messerr("It has been set to 0");
   }
   _corS->setOptimEnabled(false);
-  _corSCopy.setOptimEnabled(false);
   _corT->setOptimEnabled(false);
+  _cor.setOptimEnabled(false);
 
   // Define the Context
   auto space = SpaceComposite::create();
   space->addSpaceComponent(covS->getSpace());
-  space->addSpaceComponent(covTemp->getSpace());
+  space->addSpaceComponent(covT->getSpace());
   _ctxt.setSpace(space);
 
   Id nvar = covS->getNVar();
@@ -69,8 +68,8 @@ CorGneiting::CorGneiting(const CorGneiting& r)
   : ACov(r)
   , _corS(r._corS)
   , _corT(r._corT)
+  , _cor(r._cor)
   , _separability(r._separability)
-  , _corSCopy(*r._corS)
 {
 }
 
@@ -81,7 +80,7 @@ CorGneiting& CorGneiting::operator=(const CorGneiting& r)
     ACov::operator=(r);
     _corS         = r._corS;
     _corT         = r._corT;
-    _corSCopy     = r._corSCopy;
+    _cor          = r._cor;
     _separability = r._separability;
   }
   return *this;
@@ -92,8 +91,12 @@ CorGneiting::~CorGneiting()
 }
 
 CorGneiting* CorGneiting::create(const ECov& type,
-                                 const CovContext& ctxt,
-                                 const VectorDouble& params, // = (alpha, beta*d/2, nu)
+                                 const CovContext& ctxt, // spatial context
+                                 double alpha,
+                                 double beta,
+                                 double timeRange,
+                                 const VectorDouble& params,      // Nus
+                                 const VectorDouble& kappas, // Kappas
                                  const VectorDouble& ranges,
                                  const VectorDouble& angles,
                                  double separability,
@@ -121,38 +124,40 @@ CorGneiting* CorGneiting::create(const ECov& type,
     return nullptr;
   }
 
-  if (ctxt.getNVar() != 1)
+  Id ndim = ctxt.getNDim(); // dimension of the space
+  Id nvar = ctxt.getNVar();
+  if (nvar != params.length())
   {
-    messerr("This function is dedicated to the Monovariate case");
+    messerr("Inconsistent number of shape parameters: nvar = %d vs. params.length = %d", nvar, params.length());
     return nullptr;
   }
-  if (type == ECov::GNEITING_G)
+  if (nvar != kappas.length())
   {
-    if (params.length() != 2)
-    {
-      messerr("Gneiting-Gaussian model requires 2 parameters");
-      return nullptr;
-    }
+    messerr("Inconsistent number of rate parameters: nvar = %d vs. coeffScales.length = %d", nvar, kappas.length());
+    return nullptr;
   }
-  else
+
+  if ((alpha <= 0.0) || (alpha > 2.0))
   {
-    if (params.length() != 3)
-    {
-      messerr("Gneiting model requires 3 parameters");
-      return nullptr;
-    }
+    messerr("Gneiting-Gaussian model requires alpha in (0,2]:  alpha = %f", alpha);
+    return nullptr;
+  }
+  if ((beta <= 0.0) || (beta > 1.0))
+  {
+    messerr("Gneiting-Gaussian model requires beta in (0,2]: beta = %f", beta);
+    return nullptr;
   }
   // parameters of the spatial and time anisotropy
-  if (ctxt.getNDim() < 2)
+  if (ctxt.getNDim() < 1)
   {
-    messerr("Space-time model is defined for ndim >= 2");
+    messerr("Space-time model is defined for ndim >= 1");
     return nullptr;
   }
-  Id ndim = ctxt.getNDim() - 1; // dimension of the space
-  Id nr   = ranges.length();
+
+  Id nr = ranges.length();
   if (nr > 0)
   {
-    if (nr != ndim + 1)
+    if (nr != ndim)
     {
       messerr("Inconsistent number of ranges (%d vs. ndim = %d)", nr, ndim);
       return nullptr;
@@ -175,98 +180,62 @@ CorGneiting* CorGneiting::create(const ECov& type,
   }
 
   // creation of the spatial covariance
-  auto* corS = new CorAniso(ECov::fromValue(id_spatial), CovContext(1, ndim));
-  if (type != ECov::GNEITING_G)
-  {
-    corS->setParam(params[2], 0); // nu > 0
-  }
-  for (Id idim = 0; idim < ndim; idim++)
-  {
-    if (flagRange)
-    {
-      corS->setRange(idim, ranges[idim]);
-    }
-    else
-    {
-      corS->setScaleDim(idim, ranges[idim]);
-    }
-  }
-  if (nang > 0)
-  {
-    corS->setAnisoAngles(angles);
-  }
-
+  auto* corS = new CorGaussianMixture(ECov::fromValue(id_spatial), CovContext(nvar, ndim),
+                                      params, kappas, ranges, angles, flagRange);
   // creation of the temporal covariance
   auto* corT = new CorAniso(ECov::CAUCHY_GEN, CovContext(1, 1));
-  corT->setParam(params[0], 0); // alpha in (0,2]
-  corT->setParam(params[1], 1); // beta*d/2 with beta in (0,1]
+  corT->setParam(alpha, 0);           // alpha in (0,2]
+  corT->setParam(beta * ndim / 2, 1); // beta*d/2 with beta in (0,1]
   if (flagRange)
   {
-    corT->setRange(0, ranges[ndim]);
+    corT->setRange(0, timeRange);
   }
   else
   {
-    corT->setScaleDim(0, ranges[ndim]);
+    corT->setScaleDim(0, timeRange);
   }
   return new CorGneiting(corS, corT, separability);
 }
 
-bool CorGneiting::isValidForSpectral() const
+SpectrumRN CorGneiting::simulateSpectrumRN(Id ns, const ACov* cov0) const
 {
-  return true;
-}
+  // simulation of the spatial spectrum and variables weights
+  SpectrumRN sp      = _corS->simulateSpectrumRN(ns, cov0);
+  Id ndim            = _corS->getNDim(); // spatial dimension
+  MatrixDense omegaS = sp.getOmega();
+  MatrixDense gamma  = sp.getGamma();
 
-MatrixDense CorGneiting::simulateSpectralOmega(Id nb) const
-{
-  Id ndim      = _corS->getNDim();
-  double alpha = _corT->getCorFunc()->getParam(0);
-  double beta  = _corT->getCorFunc()->getParam(1) * 2 / ndim;
-  ECov type    = _corS->getCorFunc()->getType();
-  double nu    = 0.0;
-  if ((type == ECov::MATERN) || (type == ECov::CAUCHY))
+  // simulation of the space-time spectrum
+
+  MatrixDense omega(ns, ndim + 1);
+  for (Id idim = 0; idim < ndim; idim++)
   {
-    nu = _corS->getCorFunc()->getParam(0);
+    omega.setColumn(idim, omegaS.getColumn(idim));
   }
-  MatrixDense omegaS(nb, ndim); // spatial frequencies
-  MatrixDense omegaT(nb, 1);    // temporal frequencies
-  for (Id n = 0; n < nb; n++)
+
+  // simulation of the time frequencies
+  double alpha       = _corT->getCorFunc()->getParam(0);
+  double beta        = _corT->getCorFunc()->getParam(1) * 2 / ndim; // the second parameter of the Cauchy is beta*ndim/2
+  double timeRange  = _corT->getScale(0);
+  MatrixDense omega0 = sp.getOmega0(); // spatial frequency without anisotropy
+  VectorDouble xi0   = sp.getXi();     // random scales of the Gaussian mixture
+
+  for (Id ib = 0; ib < ns; ib++)
   {
-    double Rval = 1.0;
-    if (type == ECov::MATERN)
-    {
-      Rval /= (4.0 * law_gamma(nu));
-    }
-    else if (type == ECov::CAUCHY)
-    {
-      Rval *= law_gamma(nu);
-    }
-    double s2r = std::sqrt(2.0 * Rval);
     double no2 = 0.0;
+    double xi  = xi0[ib];
     for (Id idim = 0; idim < ndim; idim++)
     {
-      double u = s2r * law_gaussian();
-      omegaS.setValue(n, idim, u);
-      no2 += u * u;
+      double val = omega0.getValue(ib, idim);
+      no2 += (val * val);
     }
-    double lb    = std::pow(no2 / (4.0 * Rval), 1 / beta); // = lambda ^ (1/beta)
+    double lb    = std::pow(no2 / (4.0 * xi), 1 / beta); // = lambda ^ (1/beta)
     double sim_S = LawStable::law_stable_unilateral_exptilt(beta, lb);
     double sim_T = LawStable::law_stable_bilateral(alpha);
-    double val   = std::pow(sim_S * lb, 1 / alpha) * sim_T;
-    omegaT.setValue(n, 0, val);
+    double val   = std::pow(sim_S * lb, 1 / alpha) * sim_T / timeRange;
+    omega.setValue(ib, ndim, val);
   }
-  // applying the space anisotropy
-  const auto& tensorS = _corS->getAniso().getTensorInverse();
-  omegaS.prodMat(&tensorS);
-  // applying the time anisotropy
-  const auto& tensorT = _corT->getAniso().getTensorInverse();
-  omegaT.prodMat(&tensorT);
-  MatrixDense omegaST(nb, ndim + 1);
-  for (Id icol = 0; icol < ndim; icol++)
-  {
-    omegaST.setColumn(icol, omegaS.getColumn(icol));
-  }
-  omegaST.setColumn(ndim, omegaT.getColumn(0));
-  return omegaST;
+  return SpectrumRN(gamma, omega);
 }
 
 // void CorGneiting::_optimizationSetTarget(SpacePoint& pt) const
@@ -302,11 +271,18 @@ double CorGneiting::_eval(const SpacePoint& p1,
   auto p2_S    = p2.spacePointOnSubspace(0);
   auto p1_T    = p1.spacePointOnSubspace(1);
   auto p2_T    = p2.spacePointOnSubspace(1);
-  double ct    = _corT->evalCov(p1_T, p2_T, ivar, jvar, mode);
-  double scale = pow(ct, _separability / _corSCopy.getNDim(0));
-  for (Id i = 0; i < _corSCopy.getNDim(); i++)
-    _corSCopy.setScaleDim(i, _corS->getScale(i) / scale);
-  double cs = _corSCopy.evalCov(p1_S, p2_S, ivar, jvar, mode);
+  Id ndim      = _corS->getNDim();
+  double ct    = _corT->evalCov(p1_T, p2_T, 0, 0, mode);
+  double scale = pow(ct, _separability / ndim);
+  _cor.setScaleGneiting(scale);
+  /*
+  for (Id idim = 0; idim < ndim; idim++)
+  {
+    double val = _corS->getScaleDim(idim);
+    _cor.setScaleCor(idim, val / scale);
+  }
+  */
+  double cs = _cor.evalCov(p1_S, p2_S, ivar, jvar, mode);
   return cs * ct;
 }
 } // namespace gstlrn

@@ -19,6 +19,6 @@ Spectral Simulation on a set of Isolated Points
 
 Table: Statistics for simulations of Gneiting-Cauchy(1d)
 
-|               | Number|   Minimum|  Maximum|      Mean|  St. Dev.|
-|:--------------|------:|---------:|--------:|---------:|---------:|
-|GM_1_d.V1.simu |   5000| -2.926088| 2.929317| 0.1948008| 0.9103208|
+|               | Number|   Minimum|  Maximum|      Mean| St. Dev.|
+|:--------------|------:|---------:|--------:|---------:|--------:|
+|GM_1_d.V1.simu |   5000| -2.153627| 3.124459| 0.5376792| 0.939276|

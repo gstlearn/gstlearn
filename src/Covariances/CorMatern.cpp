@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Covariances/CorMatern.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/Law.hpp"
 #include "Basic/MathFunc.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/CorAniso.hpp"
@@ -27,100 +28,96 @@
 
 namespace gstlrn
 {
-CorMatern::CorMatern(const VectorDouble& ranges,
-                     const VectorDouble& angles,
-                     const VectorDouble& coeffScales,
-                     const VectorDouble& params,
-                     const MatrixSymmetric& sigma,
-                     bool flagRange)
-  : ACov()
-  , _nVar(static_cast<Id>(params.size()))
-  , _corRef(std::shared_ptr<const CorAniso>(CorAniso::createAnisotropic(CovContext(1, static_cast<Id>(ranges.size())), ECov::MATERN, ranges, params[0], angles, flagRange)))
-  , _corMatern(*_corRef)
-  , _coeffScales(coeffScales)
-  , _params(params)
-  , _C0(sigma)
-  , _Rr(_nVar)
+CorMatern::CorMatern(const ECov& type, const CovContext& ctxt, const VectorDouble& params, const VectorDouble& kappas, const VectorDouble& ranges, const VectorDouble& angles, bool flagRange)
+  : ACov(ctxt)
+  , _nVar(static_cast<Id>(ctxt.getNVar()))
+  , _corRef(std::shared_ptr<const CorAniso>(
+      CorAniso::createAnisotropic(
+        CovContext(1, static_cast<Id>(ctxt.getNDim())),
+        ECov::MATERN,
+        ranges,
+        params[0],
+        angles,
+        flagRange)))
+  , _cor(*_corRef)
   , _Nu(_nVar)
-  , _Tau(_nVar)
+  , _Kappa(_nVar)
+  , _C0(_nVar)
+
 {
-  if (static_cast<Id>(_coeffScales.size()) != _nVar)
+  int ierr = 0;
+  if (type != ECov::MATERN)
   {
-    messerr("CorMatern: inconsistent size between coeffScales and params");
-    messerr("CorMatern: coeffScales size = %d, params size = %d", _coeffScales.size(), _nVar);
-    _nVar        = 0;
-    _coeffScales = VectorDouble();
-    _params      = VectorDouble();
-    _C0          = MatrixSymmetric(0);
-    _Rr          = MatrixSymmetric(0);
-    _Nu          = MatrixSymmetric(0);
-    _Tau         = MatrixSymmetric(0);
-    return;
+    messerr("CorMatern: inconsistent type");
+    ierr = 1;
   }
+  if (static_cast<Id>(params.size()) != _nVar)
+  {
+    messerr("CorMatern: inconsistent size of params");
+    messerr("CorMatern: params size = %d, context size = %d", params.size(), _nVar);
+    ierr = 1;
+  }
+  if (static_cast<Id>(kappas.size()) != _nVar)
+  {
+    messerr("CorMatern: inconsistent size of coeffScales");
+    messerr("CorMatern: coeffScales size = %d, context size = %d", kappas.size(), _nVar);
+    ierr = 2;
+  }
+
   //_coeffScales.push_front(1.);
-  setContext(_corMatern.getContext());
+  setContext(_cor.getContext());
   _ctxt.setNVar(_nVar);
   for (Id ivar = 0; ivar < _nVar; ivar++)
   {
-    _Tau.setValue(ivar, ivar, 1.);
+    double nui    = params[ivar];
+    double scalei = kappas[ivar];
+    double gni    = exp(loggamma(nui));
+    double ratioi = gni / pow(scalei, 2. * nui);
+    _Nu.setValue(ivar, ivar, nui);
+    _Kappa.setValue(ivar, ivar, scalei);
+    _C0.setValue(ivar, ivar, 1.);
+
     for (Id jvar = ivar + 1; jvar < _nVar; jvar++)
     {
-      double scalei  = _coeffScales[ivar];
-      double scalej  = _coeffScales[jvar];
-      double scaleij = computeScale(ivar, jvar);
-      double nui     = _params[ivar];
-      double nuj     = _params[jvar];
-      double nuij    = computeParam(ivar, jvar);
-      double gni     = exp(loggamma(nui));
+      double scalej  = kappas[jvar];
+      double scaleij = computeScale(scalei, scalej);
+      double nuj     = params[jvar];
+      double nuij    = computeParam(nui, nuj);
       double gnj     = exp(loggamma(nuj));
       double gnij    = exp(loggamma(nuij));
-      double ratioi  = gni / pow(scalei, 2. * nui);
       double ratioj  = gnj / pow(scalej, 2. * nuj);
       double ratioij = gnij / pow(scaleij, 2. * nuij);
       double val     = ratioij / sqrt(ratioi * ratioj);
-      _Rr.setValue(ivar, jvar, scaleij);
       _Nu.setValue(ivar, jvar, nuij);
-      _Tau.setValue(ivar, jvar, val);
+      _Kappa.setValue(ivar, jvar, scaleij);
+      _C0.setValue(ivar, jvar, val);
     }
   }
-  // checking the consistancy of the model
-  MatrixSymmetric qcMat(_nVar);
-
-  for (Id ivar = 0; ivar < _nVar; ivar++)
-  {
-    for (Id jvar = ivar; jvar < _nVar; jvar++)
-    {
-      double c0  = _C0.getValue(ivar, jvar);
-      double tau = _Tau.getValue(ivar, jvar);
-      qcMat.setValue(ivar, jvar, c0 / tau);
-    }
-  }
-  if (!qcMat.isDefinitePositive())
+  // checking the consistancy of the covariance matrix
+  if (!_C0.isDefinitePositive())
   {
     messerr("CorMatern: inconsistent covariance matrix");
-    _nVar        = 0;
-    _coeffScales = VectorDouble();
-    _params      = VectorDouble();
-    _C0          = MatrixSymmetric(0);
-    _Rr          = MatrixSymmetric(0);
-    _Nu          = MatrixSymmetric(0);
-    _Tau         = MatrixSymmetric(0);
+    ierr = 3;
+  }
+  if (ierr > 0)
+  {
+    _nVar  = 0;
+    _C0    = MatrixSymmetric(0);
+    _Kappa = MatrixSymmetric(0);
+    _Nu    = MatrixSymmetric(0);
     return;
   }
 }
 
 CorMatern::CorMatern(const CorMatern& r)
   : ACov(r)
-  , _corMatern(r._corMatern)
+  , _cor(r._cor)
 {
-  _nVar        = r._nVar;
-  _corRef      = r._corRef;
-  _coeffScales = r._coeffScales;
-  _params      = r._params;
-  _C0          = r._C0;
-  _Rr          = r._Rr;
-  _Nu          = r._Nu;
-  _Tau         = r._Tau;
+  _nVar   = r._nVar;
+  _corRef = r._corRef;
+  _C0     = r._C0;
+  _Kappa  = r._Kappa;
+  _Nu     = r._Nu;
 }
 
 CorMatern& CorMatern::operator=(const CorMatern& r)
@@ -128,52 +125,67 @@ CorMatern& CorMatern::operator=(const CorMatern& r)
   if (this != &r)
   {
     ACov::operator=(r);
-    _nVar        = r._nVar;
-    _corMatern   = r._corMatern;
-    _coeffScales = r._coeffScales;
-    _params      = r._params;
-    _C0          = r._C0;
-    _Rr          = r._Rr;
-    _Nu          = r._Nu;
-    _Tau         = r._Tau;
+    _nVar      = r._nVar;
+    _cor = r._cor;
+    _C0        = r._C0;
+    _Kappa     = r._Kappa;
+    _Nu        = r._Nu;
   }
   return *this;
 }
 
-double CorMatern::computeScale(Id ivar, Id jvar) const
+CorMatern* CorMatern::create(
+  const ECov& type,
+  const CovContext& ctxt,
+  const VectorDouble& params,
+  const VectorDouble& kappas,
+  const VectorDouble& ranges,
+  const VectorDouble& angles,
+  bool flagRange)
 {
-  if (ivar == jvar)
+  Id ndim = ctxt.getNDim();
+  Id nvar = ctxt.getNVar();
+  if (ranges.length() != ndim)
   {
-    return _coeffScales[ivar];
+    messerr("Mismatch in Space Dimension between 'ctxt'(%d) and 'ranges'(%d)",
+            ndim, ranges.length());
+    return nullptr;
   }
-  double ci2 = _coeffScales[ivar] * _coeffScales[ivar];
-  double cj2 = _coeffScales[jvar] * _coeffScales[jvar];
+  if (angles.length() != ndim)
+  {
+    messerr("Mismatch in Space Dimension between 'ctxt'(%d) and 'angles'(%d)",
+            ndim, angles.length());
+    return nullptr;
+  }
+  if (params.length() != nvar)
+  {
+    messerr("Mismatch in number of variables between 'ctxt'(%d) and 'params'(%d)",
+            nvar, params.length());
+    return nullptr;
+  }
+  if (kappas.length() != nvar)
+  {
+    messerr("Mismatch in number of variables between 'ctxt'(%d) and 'kappas'(%d)",
+            nvar, kappas.length());
+    return nullptr;
+  }
 
-  return sqrt(0.5 * (ci2 + cj2));
+  auto* cov = new CorMatern(type, ctxt, params, kappas, ranges, angles, flagRange);
+  return cov;
 }
 
-double CorMatern::computeParam(Id ivar, Id jvar) const
-{
-  if (ivar == jvar)
-  {
-    return _params[ivar];
-  }
-
-  return 0.5 * (_params[ivar] + _params[jvar]);
-}
 double CorMatern::evalSpectrum(const VectorDouble& freq, Id ivar, Id jvar) const
 {
-  _corMatern.setParam(computeParam(ivar, jvar));
-
+  double kappa = _Kappa.getValue(ivar, jvar);
   VectorDouble scales = _corRef->getScales();
   VectorDouble angles = _corRef->getAnisoAngles();
-  double correcScale  = computeScale(ivar, jvar);
   for (size_t idim = 0; idim < getSpace()->getNDim(); idim++)
   {
-    scales[idim] /= correcScale;
+    scales[idim] /= kappa;
   }
-  _corMatern.setRotationAnglesAndRadius(angles, VectorDouble(), scales);
-  return _C0.getValue(ivar, jvar) * _corMatern.evalSpectrum(freq, ivar, jvar);
+  _cor.setRotationAnglesAndRadius(angles, VectorDouble(), scales);
+  _cor.setParam(_Nu.getValue(ivar, jvar));
+  return _C0.getValue(ivar, jvar) * _cor.evalSpectrum(freq, ivar, jvar);
 }
 
 double CorMatern::evalSpectrumRatio(const VectorDouble& freq, Id ivar, Id jvar, const ACov* cov0) const
@@ -185,6 +197,52 @@ double CorMatern::evalSpectrumRatio(const VectorDouble& freq, Id ivar, Id jvar, 
 MatrixDense CorMatern::simulateSpectralOmega(Id nb) const
 {
   return _corRef->simulateSpectralOmega(nb);
+}
+
+SpectrumRN CorMatern::simulateSpectrumRN(Id ns, const ACov* cov0) const
+{
+  DECLARE_UNUSED(cov0)
+  // simulation of the frequencies using _corRef
+  MatrixDense omega = simulateSpectralOmega(ns);
+  MatrixDense gamma(ns, getNVar());
+
+  // simulation of the normalizing factors gamma
+  Id nvar = getNVar();
+  VectorDouble values(nvar);
+  MatrixSymmetric H(nvar);
+  for (Id ib = 0; ib < ns; ib++)
+  {
+    double val = sqrt(-log(law_uniform()) * 2 * nvar / ns);
+    if (nvar == 1)
+    {
+      values[0] = val;
+    }
+    else
+    {
+      VectorDouble freq = omega.getRow(ib);
+      for (Id ivar = 0; ivar < nvar; ivar++)
+      {
+        for (Id jvar = 0; jvar <= ivar; jvar++)
+        {
+          double ratioIS = evalSpectrum(freq, ivar, jvar) / _corRef->evalSpectrum(freq);
+          H.setValue(ivar, jvar, ratioIS);
+        }
+      }
+      // square root of the symmetric matrix
+      if (H.computeSquareRoot(H) != 0)
+      {
+        message("Error in computing square root matrix\n");
+      }
+      Id icol        = law_int_uniform(0, nvar - 1);
+      VectorDouble v = H.getColumn(icol);
+      for (Id ivar = 0; ivar < nvar; ivar++)
+      {
+        values[ivar] = val * v[ivar];
+      }
+    }
+    gamma.setRow(ib, values);
+  }
+  return SpectrumRN(gamma, omega);
 }
 
 CorMatern::~CorMatern()
@@ -216,17 +274,16 @@ double CorMatern::_eval(const SpacePoint& p1,
                         Id jvar,
                         const CovCalcMode* mode) const
 {
-  _corMatern.setParam(computeParam(ivar, jvar));
-
   VectorDouble scales = _corRef->getScales();
   VectorDouble angles = _corRef->getAnisoAngles();
-  double correcScale  = computeScale(ivar, jvar);
+  double correcScale  = _Kappa.getValue(ivar, jvar);
   for (size_t idim = 0; idim < getSpace()->getNDim(); idim++)
   {
     scales[idim] /= correcScale;
   }
-  _corMatern.setRotationAnglesAndRadius(angles, VectorDouble(), scales);
-  return _C0.getValue(ivar, jvar) * _corMatern.evalCov(p1, p2, 0, 0, mode);
+  _cor.setParam(_Nu.getValue(ivar, jvar));
+  _cor.setRotationAnglesAndRadius(angles, VectorDouble(), scales);
+  return _C0.getValue(ivar, jvar) * _cor.evalCov(p1, p2, ivar, jvar, mode);
 }
 
 } // namespace gstlrn

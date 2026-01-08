@@ -16,6 +16,7 @@
 #include "Covariances/ACov.hpp"
 #include "Covariances/TabNoStat.hpp"
 #include "Covariances/TabNoStatCovAniso.hpp"
+#include "Simulation/SimuSpectralRN.hpp"
 #include "Enum/EConsElem.hpp"
 #include "Model/CovInternal.hpp"
 #include "geoslib_define.h"
@@ -38,6 +39,7 @@ class Rotation;
 class MatrixSquare;
 class MatrixDense;
 class CovInternal;
+class SpectrumRN;
 /**
  * \brief
  * This class describes an **elementary covariance**.
@@ -119,6 +121,7 @@ public:
   double simulateTurningBand(double t0, TurningBandOperate& operTB) const;
   bool isValidForSpectral() const override;
   MatrixDense simulateSpectralOmega(Id nb) const override;
+  SpectrumRN simulateSpectrumRN(Id ns, const ACov* cov0 = nullptr) const override;
 
   static CorAniso* create(const CovContext& ctxt,
                           const ECov& type,

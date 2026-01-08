@@ -58,6 +58,19 @@ ASimuSpectral::~ASimuSpectral()
 {
 }
 
+Id ASimuSpectral::getNs() const
+{
+  return _phi.length();
+}
+Id ASimuSpectral::getNDim() const
+{
+  return _cova->getNDim();
+}
+Id ASimuSpectral::getNVar() const
+{
+  return _cova->getNVar();
+}
+
 /**
  * Simulate the spectrum components for Rn or S2
  *
@@ -227,7 +240,7 @@ Id simuSpectral(Db* dbin,
     messerr("You must provide a positive number of simulations");
     return 1;
   }
-  if (dbout->getNDim() != (Id)cova->getNDim())
+  if (dbout->getNDim() != cova->getNDim())
   {
     messerr("The Space dimension of 'dbout'(%d) should match the one of Model(%d)",
             dbout->getNDim(), cova->getNDim());

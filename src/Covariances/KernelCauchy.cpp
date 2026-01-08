@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Covariances/KernelCauchy.hpp"
 #include "Covariances/CovContext.hpp"
+#include "Basic/Law.hpp"
 
 #include <cmath>
 
@@ -48,6 +49,21 @@ double KernelCauchy::_evaluateCov(double h) const
 {
   double cov = 1. / pow(1. + (h * h), getParam());
   return (cov);
+}
+
+MatrixDense KernelCauchy::simulateSpectralOmega(Id nb) const
+{
+  auto ndim    = static_cast<Id>(getContext().getNDim());
+  double param = getParam();
+  MatrixDense mat(nb, ndim);
+
+  for (Id irow = 0; irow < nb; irow++)
+  {
+    double scale = sqrt(2 * law_gamma(param));
+    for (Id icol = 0; icol < ndim; icol++)
+      mat.setValue(irow, icol, scale * law_gaussian());
+  }
+  return mat;
 }
 
 String KernelCauchy::getFormula() const

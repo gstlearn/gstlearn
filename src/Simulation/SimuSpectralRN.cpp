@@ -9,8 +9,9 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Simulation/SimuSpectralRN.hpp"
-#include "Basic/Law.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Db/Db.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Model/Model.hpp"
 #include "Simulation/ASimuSpectral.hpp"
 #include "Stats/Classical.hpp"
@@ -19,6 +20,67 @@
 
 namespace gstlrn
 {
+/**
+ * ---------------------------------
+ * Spectrum for simulation on Rn
+ * ---------------------------------
+ */
+SpectrumRN::SpectrumRN(const MatrixDense& gamma, const MatrixDense& omega)
+  : _gamma(gamma)
+  , _omega(omega)
+  , _omega0(0, 0)
+  , _xi(0)
+{
+  if (_gamma.getNRows() != _omega.getNRows())
+  {
+    messerr("The number of simulated harmonic components is not consistent");
+    _gamma.reset(0, 0);
+    _omega.reset(0, 0);
+    _omega0.reset(0, 0);
+    _xi.resize(0);
+  }
+}
+
+SpectrumRN::SpectrumRN(const MatrixDense& gamma, const MatrixDense& omega, MatrixDense& omega0, VectorDouble& xi)
+  : _gamma(gamma)
+  , _omega(omega)
+  , _omega0(omega0)
+  , _xi(xi)
+{
+  if (_gamma.getNRows() != _omega.getNRows())
+  {
+    messerr("The number of simulated harmonic components is not consistent");
+    _gamma.reset(0, 0);
+    _omega.reset(0, 0);
+    _omega0.reset(0, 0);
+    _xi.resize(0);
+  }
+}
+
+SpectrumRN::SpectrumRN(const SpectrumRN& r)
+  : _gamma(r._gamma)
+  , _omega(r._omega)
+  , _omega0(r._omega0)
+  , _xi(r._xi)
+{
+}
+
+SpectrumRN& SpectrumRN::operator=(const SpectrumRN& r)
+{
+  if (this != &r)
+  {
+    _gamma  = r._gamma;
+    _omega  = r._omega;
+    _omega0 = r._omega0;
+    _xi     = r._xi;
+  }
+  return *this;
+}
+
+SpectrumRN::~SpectrumRN()
+{
+}
+
 /**
  * ---------------------------------
  * Spectral simulation on Rn
@@ -89,6 +151,7 @@ Id SimuSpectralRN::_simulate(Id ns,
   }
   Id ndim = _cova->getNDim();
   Id nvar = _cova->getNVar();
+  Id ierr = 0;
   // Optional printout
   if (verbose)
   {
@@ -106,54 +169,21 @@ Id SimuSpectralRN::_simulate(Id ns,
   _gamma.reset(0, 0);
   _omega.reset(0, 0);
 
-  // simulation of the spatial frequencies
-  if (cov0 == nullptr)
+  // Simulation of the spectrum by the covariance
+  SpectrumRN sp = _cova->simulateSpectrumRN(ns, cov0);
+  if (sp.getNs() > 0)
   {
-    _omega = _cova->simulateSpectralOmega(ns);
+    _gamma      = sp.getGamma();
+    _omega      = sp.getOmega();
+    _isPrepared = true;
+    ierr        = 0;
   }
   else
   {
-    _omega = cov0->simulateSpectralOmega(ns);
+    _isPrepared = false;
+    ierr        = 1;
   }
-  // simulation of the normalizing coefficients
-  _gamma.reset(ns, nvar);
-  for (Id ib = 0; ib < ns; ib++)
-  {
-    VectorDouble values(nvar);
-    double gamma = sqrt(-log(law_uniform()) * 2 * nvar / ns);
-    // importance sampling or multivariate model
-    if ((nvar > 1) | (cov0 != nullptr))
-    {
-      VectorDouble freq = _omega.getRow(ib);
-      MatrixSymmetric H(nvar);
-      for (Id ivar = 0; ivar < nvar; ivar++)
-      {
-        for (Id jvar = 0; jvar <= ivar; jvar++)
-        {
-          double ratioIS = _cova->evalSpectrumRatio(freq, ivar, jvar, cov0);
-          H.setValue(ivar, jvar, ratioIS);
-        }
-      }
-      // square root of the symmetric matrix
-      if (H.computeSquareRoot(H) != 0)
-      {
-        message("Error in computing square root matrix\n");
-        return 1;
-      }
-      Id icol        = law_int_uniform(0, nvar - 1);
-      VectorDouble v = H.getColumn(icol);
-      for (Id ivar = 0; ivar < nvar; ivar++)
-        values[ivar] = gamma * v[ivar];
-    }
-    else
-    {
-      for (Id ivar = 0; ivar < nvar; ivar++)
-        values[ivar] = gamma;
-    }
-    _gamma.setRow(ib, values);
-  } // loop over the spectral components
-  _isPrepared = true;
-  return 0;
+  return ierr;
 }
 
 /**

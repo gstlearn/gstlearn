@@ -17,7 +17,6 @@
 #include "Model/ModelGeneric.hpp"
 #include "Simulation/ASimuSpectral.hpp"
 #include "geoslib_define.h"
-#include "Matrix/MatrixSymmetric.hpp"
 
 using namespace gstlrn;
 
@@ -37,21 +36,22 @@ int main(int argc, char* argv[])
   VectorDouble params = {0.5, 1.0, 2.0};
   MatrixSymmetric gsSigma(3);
   gsSigma.setIdentity(1.);
-  
-  bool flagRange = true;
-  CorMatern cor_tri(ranges,
-                    angles,
-                    rr,
-                    params,
-                    gsSigma,
-                    flagRange);
 
+  bool flagRange = true;
   Id nvar            = 3;
   CovContext ctxt    = CovContext(nvar);
+  CorMatern cor_tri(ECov::MATERN,
+                    ctxt,
+                    params,
+                    rr,
+                    ranges, 
+                    angles,
+                    flagRange);
+
   ModelGeneric model = ModelGeneric(ctxt);
   model.setCov(&cor_tri);
   DbGrid* grid = DbGrid::create({100, 100});
-  simuSpectral(nullptr, grid, &cor_tri, 1, 43431, 100, 100, nullptr, true, 
+  simuSpectral(nullptr, grid, &cor_tri, 1, 43431, 100, 100, nullptr, true,
                NamingConvention("Simu"));
 
   return 0;

@@ -45,16 +45,16 @@ New Style
 Gamma Distribution: alpha=3.400000 beta=1.200000
 Old Style
 - Number of samples = 10000 / 10000
-- Minimum  =      0.097
-- Maximum  =     13.751
-- Mean     =      3.413
-- St. Dev. =      1.849
+- Minimum  =      0.081
+- Maximum  =     11.459
+- Mean     =      2.844
+- St. Dev. =      1.541
 New Style
 - Number of samples = 10000 / 10000
-- Minimum  =      0.197
-- Maximum  =     20.296
-- Mean     =      4.078
-- St. Dev. =      2.201
+- Minimum  =      0.137
+- Maximum  =     14.094
+- Mean     =      2.832
+- St. Dev. =      1.529
 
 Poisson Distribution: lambda=4.600000
 Old Style

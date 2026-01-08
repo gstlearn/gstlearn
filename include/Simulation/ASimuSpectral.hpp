@@ -34,8 +34,9 @@ public:
   const ACov* getCov() { return _cova; };
   bool isPrepared() const { return _isPrepared; };
   VectorDouble getPhi() { return _phi; };
-  Id getNs() const { return _phi.length(); };
-
+  Id getNs() const;
+  Id getNDim() const;
+  Id getNVar() const;
   Id simulate(Id ns,
               Id seed          = 4273,
               bool verbose     = false,

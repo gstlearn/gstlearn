@@ -233,7 +233,7 @@ public:
                                   const CovCalcMode* mode = nullptr) const;
   Array evalCovFFT(const VectorDouble& hmax, Id N = 128, Id ivar = 0, Id jvar = 0) const;
 
-  Id getNDim() const { return static_cast<Id>(_ctxt.getNDim()); }
+  // Id getNDim() const { return static_cast<Id>(_ctxt.getNDim()); }
   const CorAniso* getCorAniso() const;
   CorAniso* getCorAnisoModify();
   CovAniso* createReduce(const VectorInt& validVars) const;

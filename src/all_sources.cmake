@@ -115,11 +115,12 @@ set(SRC
   Covariances/CovLMCTapering.cpp
   Covariances/CovLMCConvolution.cpp
   Covariances/CovLMCAnamorphosis.cpp
-  Covariances/CorGneiting.cpp
-  Covariances/CorMatern.cpp
   Covariances/CovCalcMode.cpp
   Covariances/CovContext.cpp
   Covariances/CorAniso.cpp
+  Covariances/CorGaussianMixture.cpp
+  Covariances/CorGneiting.cpp
+  Covariances/CorMatern.cpp
   Covariances/CovAniso.cpp
   Covariances/CovFactory.cpp
   Covariances/CovDiffusionAdvection.cpp

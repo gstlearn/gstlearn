@@ -48,6 +48,7 @@ nu = 3/4 # not used if type == 0
 if (type == 0) {
   # Two parameters are required for the Gneiting-Gauss model
   params = c(alpha, beta*d/2) 
+  nu = NULL
 } else {
   # Three parameters are required for the Gneiting-Matern or Gneiting-Cauchy model
   params = c(alpha, beta*d/2, nu)
@@ -60,14 +61,28 @@ angles[[1+length(angles)]] = c(0,0,0)
 
 # using the static *create* function
 mg_in_gstlearn  = CorGneiting_create(
-  ctxt = CovContext(nvar = 1, ndim = d+1), 
+  ctxt = CovContext(nvar = 1, ndim = d), 
   type = switch(paste(type), "0" = ECov_GNEITING_G(), "1" = ECov_GNEITING_M(), "2" = ECov_GNEITING_C()),
-  params = params,
-  ranges = scales,      # vector of length d+1
-  angles = angles[[d]], # vector of length d (no angles in time)
-  separability = 1.0,   # scalar in [0,1]
+  alpha = alpha,
+  beta = beta, 
+  timeRange = scales[d+1],
+  params = nu, 
+  kappas = 1.0,
+  ranges = scales[1:d], # vector of length d
+  angles = angles[[d]], # vector of length d
+  separability = 1.0,   # scalar in [0,1] (not used)
   flagRange = FALSE
   )
+# XF : Old style
+  # CorGneiting_create(
+  # ctxt = CovContext(nvar = 1, ndim = d+1), 
+  # type = switch(paste(type), "0" = ECov_GNEITING_G(), "1" = ECov_GNEITING_M(), "2" = ECov_GNEITING_C()),
+  # params = params,
+  # ranges = scales,      # vector of length d+1
+  # angles = angles[[d]], # vector of length d (no angles in time)
+  # separability = 1.0,   # scalar in [0,1]
+  # flagRange = FALSE
+  # )
 
 ```
 

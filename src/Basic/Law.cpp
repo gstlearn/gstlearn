@@ -188,11 +188,11 @@ double law_exponential(double lambda)
  **
  ** \return  Gamma random value
  **
- ** \param[in]  alpha parameter of the gamma distribution
- ** \param[in]  beta  Second parameter of the Gamma distribution
+ ** \param[in]  alpha Shape parameter of the gamma distribution
+ ** \param[in]  rate  Rate parameter of the Gamma distribution
  **
  *****************************************************************************/
-double law_gamma(double alpha, double beta)
+double law_gamma(double alpha, double rate)
 
 {
   double value = 0.;
@@ -213,7 +213,7 @@ double law_gamma(double alpha, double beta)
         t     = c3 * tan(GV_PI * (law_uniform(-0.5, 0.5)));
         value = c1 + t;
       } while (value < 0 || law_uniform(0., 1.) > exp(c1 * log(value / c1) - t + log(1 + t * t / c2)));
-      return (value);
+      return (value/rate);
     }
     double c1 = 1. + alpha / GV_EE;
     double c2 = 1 / alpha;
@@ -234,11 +234,68 @@ double law_gamma(double alpha, double beta)
         test  = (log(v) > c3 * log(value));
       }
     } while (test);
-    return (value);
+    return (value/rate);
   }
-  std::gamma_distribution<double> d(alpha, beta);
+  std::gamma_distribution<double> d(alpha, 1/rate);
   value = d(Random_gen);
   return value;
+}
+
+/*****************************************************************************/
+/*!
+ **  Density function of a Gamma distribution
+ **
+ ** \return  Gamma density function
+ **
+ ** \param[in]  value raw value
+ ** \param[in]  alpha Shape parameter of the gamma distribution
+ ** \param[in]  rate  Rate parameter of the Gamma distribution
+ ** \param[in]  isLog return the log of the density function if true
+ **
+ *****************************************************************************/
+double law_df_gamma(double value, double alpha, double rate, bool isLog) {
+  double res = 0.0;
+  res = - rate*value +  alpha*log(rate) + (alpha-1)*log(value) - loggamma(alpha);
+  if (!isLog) {
+    res = exp(res);
+  }
+  return (res);
+}
+
+/*****************************************************************************/
+/*!
+ **  Generate random numbers according to a Inverse Gamma distribution
+ **
+ ** \return  Gamma random value
+ **
+ ** \param[in]  alpha Shape parameter of the Inverse Gamma distribution
+ ** \param[in]  rate  Rate parameter of the Inverse Gamma distribution
+ **
+ *****************************************************************************/
+double law_IGamma(double alpha, double rate)
+{
+  return 1/law_gamma(alpha, rate);
+}
+
+/*****************************************************************************/
+/*!
+ **  Density function of a Inverse Gamma distribution
+ **
+ ** \return  Inverse Gamma density function
+ **
+ ** \param[in]  value raw value
+ ** \param[in]  alpha Shape parameter of the gamma distribution
+ ** \param[in]  rate  Rate parameter of the Gamma distribution
+ ** \param[in]  isLog return the log of the density function if true
+ **
+ *****************************************************************************/
+double law_df_IGamma(double value, double alpha, double rate, bool isLog) {
+  double res = 0.0;
+  res = - rate/value +  alpha*log(rate/value) - log(value) - loggamma(alpha);
+  if (!isLog) {
+    res = exp(res);
+  }
+  return (res);
 }
 
 /*****************************************************************************/
