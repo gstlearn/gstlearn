@@ -227,6 +227,36 @@
       for (int i = 0; i < size && SWIG_IsOK(myres); i++)
       {
         PyObject* item = PySequence_GetItem(obj, i);
+        // Test numpy array items
+        if (PyArray_Check(item))
+        {
+          PyArrayObject* arr = (PyArrayObject*)item;
+          int ndim = PyArray_NDIM(arr);
+          npy_intp* shape = PyArray_SHAPE(arr);
+          //std::cout << "ndim = " << ndim << " shape[0] = " << shape[0] << " shape[1] = " << shape[1] << std::endl;
+          if (ndim == 1 && shape[0] == 1)
+          {
+            // Extract the scalar (don't know why my itemptr must be a const char*)
+            PyObject* scalar = PyArray_GETITEM(arr, (const char*)PyArray_GETPTR1(arr, 0));
+            Py_DECREF(item);
+            item = scalar;
+          }
+          else if (ndim == 2 && (shape[0] == 1 || shape[1] == 1))
+          {
+            // Extract the scalar (don't know why my itemptr must be a const char*)
+            PyObject* scalar = PyArray_GETITEM(arr, (const char*)PyArray_GETPTR2(arr,0,0));
+            Py_DECREF(item);
+            item = scalar;
+          }
+          else
+          {
+            // error
+            std::cerr << "Only 1-column numpy arrays are accepted!" << std::endl;
+            Py_DECREF(item);
+            return SWIG_TypeError;
+          }
+        }
+
         ValueType value;
         myres = convertToCpp(item, value);
         if (SWIG_IsOK(myres))
