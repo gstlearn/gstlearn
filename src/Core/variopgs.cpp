@@ -65,7 +65,7 @@ typedef struct
   PropDef* propdef;
   Id flag_stat;
   Id flag_facies;
-  ECalcVario calcul_type;
+  ECalcVario calculType;
   Id igrfcur;
   Id idircur;
   Id ipascur;
@@ -982,10 +982,10 @@ static double st_func_search_stat(double correl, void* user_data)
       double proba = st_get_proba_ind(correl, low, up, iconf0);
 
       double logp = (proba <= 0.) ? MINIMUM_BIG : log(proba);
-      Id iad      = vario->getDirAddress(idir, ifac1, ifac2, ilag, false, 1);
+      Id iad      = vario->getAddressForGg(idir, ifac1, ifac2, ilag, 1);
       double sw   = vario->getSwByIndex(idir, iad);
       double gg   = vario->getGgByIndex(idir, iad);
-      iad         = vario->getDirAddress(idir, ifac1, ifac2, ilag, false, -1);
+      iad         = vario->getAddressForGg(idir, ifac1, ifac2, ilag, -1);
       gg += vario->getGgByIndex(idir, iad);
       sum -= logp * gg * sw / 2.;
     }
@@ -1157,9 +1157,9 @@ static Id st_varcalc_from_vario_stat(Vario* vario,
         for (Id jgrf = 0; jgrf <= igrf; jgrf++)
         {
           varloc = (igrf == jgrf) ? result : 0.;
-          iad    = vario->getDirAddress(idir, igrf, jgrf, ilag, false, 1);
+          iad    = vario->getAddressForGg(idir, igrf, jgrf, ilag, 1);
           vario->setGgByIndex(idir, iad, varloc);
-          iad = vario->getDirAddress(idir, igrf, jgrf, ilag, false, -1);
+          iad = vario->getAddressForGg(idir, igrf, jgrf, ilag, -1);
           vario->setGgByIndex(idir, iad, varloc);
 
           if (OptDbg::query(EDbg::CONVERGE))
@@ -1257,9 +1257,9 @@ static void st_varcalc_uncorrelated_grf(Local_Pgs* local_pgs, Id idir)
       for (jgrf = 0; jgrf <= igrf; jgrf++)
       {
         varloc = (igrf == jgrf) ? result : 0.;
-        iad    = vario->getDirAddress(idir, igrf, jgrf, ilag, false, 1);
+        iad    = vario->getAddressForGg(idir, igrf, jgrf, ilag, 1);
         vario->setGgByIndex(idir, iad, varloc);
-        iad = vario->getDirAddress(idir, igrf, jgrf, ilag, false, -1);
+        iad = vario->getAddressForGg(idir, igrf, jgrf, ilag, -1);
         vario->setGgByIndex(idir, iad, varloc);
 
         if (OptDbg::query(EDbg::CONVERGE))
@@ -1288,7 +1288,7 @@ static double st_rule_calcul(Local_Pgs* local_pgs, Id* string)
   local_pgs->ngrf = local_pgs->rule->getNGRF();
   local_pgs->vario->setNVar(local_pgs->ngrf);
   local_pgs->vario->internalVariableResize();
-  local_pgs->vario->internalDirectionResize();
+  local_pgs->vario->internalMemoryResize();
   st_retrace_define(local_pgs);
 
   if (local_pgs->flag_stat)
@@ -3346,12 +3346,12 @@ static void st_variogram_geometry_pgs_correct(Local_Pgs* local_pgs,
     for (Id igrf = 0; igrf < ngrf; igrf++)
       for (Id jgrf = 0; jgrf <= igrf; jgrf++)
       {
-        iad = vario->getDirAddress(idir, igrf, jgrf, ilag, false, 1);
+        iad = vario->getAddressForGg(idir, igrf, jgrf, ilag, 1);
         vario->setGgByIndex(idir, iad, st_param_expand(local_pgs, igrf, jgrf, 1));
         if (vario->getSwByIndex(idir, iad) > 0.)
           vario->setHhByIndex(idir, iad,
                               vario->getHhByIndex(idir, iad) / vario->getSwByIndex(idir, iad));
-        iad = vario->getDirAddress(idir, igrf, jgrf, ilag, false, -1);
+        iad = vario->getAddressForGg(idir, igrf, jgrf, ilag, -1);
         vario->setGgByIndex(idir, iad, st_param_expand(local_pgs, igrf, jgrf, -1));
         if (vario->getSwByIndex(idir, iad) > 0.)
           vario->setHhByIndex(idir, iad,
@@ -3437,18 +3437,18 @@ static Id st_variogram_geometry_pgs_calcul(Local_Pgs* local_pgs,
         {
           if (vario->getFlagAsym())
           {
-            iad = vario->getDirAddress(idir, ivar, jvar, ilag, false, 1);
+            iad = vario->getAddressForGg(idir, ivar, jvar, ilag, 1);
             vario->setGgByIndex(idir, iad, 0.);
             vario->setHhByIndex(idir, iad, vario->getHhByIndex(idir, iad) - dist);
             vario->setSwByIndex(idir, iad, vario->getSwByIndex(idir, iad) + 1);
-            iad = vario->getDirAddress(idir, ivar, jvar, ilag, false, -1);
+            iad = vario->getAddressForGg(idir, ivar, jvar, ilag, -1);
             vario->setGgByIndex(idir, iad, 0.);
             vario->setHhByIndex(idir, iad, vario->getHhByIndex(idir, iad) + dist);
             vario->setSwByIndex(idir, iad, vario->getSwByIndex(idir, iad) + 1);
           }
           else
           {
-            iad = vario->getDirAddress(idir, ivar, jvar, ilag, false, 0);
+            iad = vario->getAddressForGg(idir, ivar, jvar, ilag);
             vario->setGgByIndex(idir, iad, 0.);
             vario->setHhByIndex(idir, iad, vario->getHhByIndex(idir, iad) + dist);
             vario->setSwByIndex(idir, iad, vario->getSwByIndex(idir, iad) + 1);
@@ -3534,9 +3534,9 @@ static double st_varcalc_correlated_grf(Local_Pgs* local_pgs, Id idir)
     for (Id igrf = 0; igrf < local_pgs->ngrf; igrf++)
       for (Id jgrf = 0; jgrf <= igrf; jgrf++)
       {
-        iad = vario->getDirAddress(idir, igrf, jgrf, ilag, false, 1);
+        iad = vario->getAddressForGg(idir, igrf, jgrf, ilag, 1);
         vario->setGgByIndex(idir, iad, st_param_expand(local_pgs, igrf, jgrf, 1));
-        iad = vario->getDirAddress(idir, igrf, jgrf, ilag, false, -1);
+        iad = vario->getAddressForGg(idir, igrf, jgrf, ilag, -1);
         vario->setGgByIndex(idir, iad, st_param_expand(local_pgs, igrf, jgrf, -1));
       }
   }
@@ -3595,23 +3595,23 @@ static void st_manage_trace(Local_TracePgs* local_tracepgs)
  ** \param[in]  flag_dist    1 if distances are stored; 0 otherwise
  ** \param[in]  ngrf         Number of GRFs
  ** \param[in]  nfacies      Number of facies
- ** \param[in]  calcul_type  Type of the calculation (covariance, variogram, ...)
+ ** \param[in]  calculType   Type of the calculation (covariance, variogram, ...)
  **
  *****************************************************************************/
 static void st_manage_pgs(Id mode,
                           Local_Pgs* local_pgs,
-                          Db* db                        = nullptr,
-                          const Rule* rule              = nullptr,
-                          Vario* vario                  = nullptr,
-                          Vario* varioind               = nullptr,
-                          Model* model                  = nullptr,
-                          PropDef* propdef              = nullptr,
-                          Id flag_stat                  = 0,
-                          Id flag_facies                = 0,
-                          Id flag_dist                  = 0,
-                          Id ngrf                       = 0,
-                          Id nfacies                    = 0,
-                          const ECalcVario& calcul_type = ECalcVario::UNDEFINED)
+                          Db* db                       = nullptr,
+                          const Rule* rule             = nullptr,
+                          Vario* vario                 = nullptr,
+                          Vario* varioind              = nullptr,
+                          Model* model                 = nullptr,
+                          PropDef* propdef             = nullptr,
+                          Id flag_stat                 = 0,
+                          Id flag_facies               = 0,
+                          Id flag_dist                 = 0,
+                          Id ngrf                      = 0,
+                          Id nfacies                   = 0,
+                          const ECalcVario& calculType = ECalcVario::UNDEFINED)
 {
   /* Dispatch */
 
@@ -3623,7 +3623,7 @@ static void st_manage_pgs(Id mode,
       local_pgs->propdef     = nullptr;
       local_pgs->flag_stat   = 0;
       local_pgs->flag_facies = 0;
-      local_pgs->calcul_type = ECalcVario::UNDEFINED;
+      local_pgs->calculType  = ECalcVario::UNDEFINED;
       local_pgs->igrfcur     = 0;
       local_pgs->idircur     = 0;
       local_pgs->ipascur     = 0;
@@ -3649,7 +3649,7 @@ static void st_manage_pgs(Id mode,
       local_pgs->propdef     = propdef;
       local_pgs->flag_stat   = flag_stat;
       local_pgs->flag_facies = flag_facies;
-      local_pgs->calcul_type = calcul_type;
+      local_pgs->calculType  = calculType;
       local_pgs->igrfcur     = 0;
       local_pgs->ipascur     = 0;
       local_pgs->ngrf        = ngrf;
@@ -3723,7 +3723,6 @@ static Id st_variopgs_calcul_norho(Vario* vario,
     /* Set the value of C(0) */
 
     st_variogram_patch_C00(local_pgs, vario, idir, rule->getRho());
-
     if (ngrf > 1 && (opt_correl != 2 || rule->getRho() != 0))
       st_varcalc_correlated_grf(local_pgs, idir);
     else
@@ -4338,7 +4337,7 @@ static double st_get_value(Local_Pgs* local_pgs,
 {
   double value, g1, g2, ploc[2], low[4], up[4];
 
-  if (local_pgs->calcul_type == ECalcVario::VARIOGRAM)
+  if (local_pgs->calculType == ECalcVario::VARIOGRAM)
   {
     if (ifac1 == ifac2)
     {
@@ -4361,94 +4360,6 @@ static double st_get_value(Local_Pgs* local_pgs,
     value = st_get_proba(local_pgs, flag_ind, low, up, iconf, cov);
   }
   return (value);
-}
-
-/****************************************************************************/
-/*!
- **  Scale the variogram calculations
- **
- ** \param[in]  vario Vario structure
- ** \param[in]  idir  Rank of the Direction
- **
- *****************************************************************************/
-static void st_variogram_scale(Vario* vario, Id idir)
-{
-  Id nvar = vario->getNVar();
-
-  /* Scale the experimental variogram quantities */
-
-  Id ecr = 0;
-  for (Id ivar = 0; ivar < nvar; ivar++)
-    for (Id jvar = 0; jvar <= ivar; jvar++)
-    {
-      for (Id i = 0; i < vario->getNLagTotal(idir); i++, ecr++)
-      {
-        Id j = vario->getDirAddress(idir, ivar, jvar, i, true, 0);
-        if (vario->getSwByIndex(idir, j) <= 0)
-        {
-          vario->setHhByIndex(idir, j, TEST);
-          vario->setGgByIndex(idir, j, TEST);
-        }
-        else
-        {
-          vario->setHhByIndex(idir, j, vario->getHhByIndex(idir, j) / vario->getSwByIndex(idir, j));
-          if (vario->getFlagAsym() && i < vario->getNLag(idir))
-            vario->setHhByIndex(idir, j, -ABS(vario->getHhByIndex(idir, j)));
-          if (vario->getCalcul() != ECalcVario::COVARIOGRAM)
-            vario->setGgByIndex(idir, j,
-                                vario->getGgByIndex(idir, j) / vario->getSwByIndex(idir, j));
-        }
-      }
-    }
-
-  // Process the variogram transformations
-
-  if (vario->getCalcul() == ECalcVario::TRANS1)
-  {
-    for (Id ivar = 0; ivar < nvar; ivar++)
-      for (Id jvar = 0; jvar < ivar; jvar++)
-      {
-        for (Id i = 0; i < vario->getNLagTotal(idir); i++, ecr++)
-        {
-          Id j  = vario->getDirAddress(idir, ivar, jvar, i, true, 0);
-          Id j0 = vario->getDirAddress(idir, jvar, jvar, i, true, 0);
-          vario->setGgByIndex(idir, j,
-                              -vario->getGgByIndex(idir, j) / vario->getGgByIndex(idir, j0));
-        }
-      }
-  }
-  else if (vario->getCalcul() == ECalcVario::TRANS2)
-  {
-    for (Id ivar = 0; ivar < nvar; ivar++)
-      for (Id jvar = 0; jvar < ivar; jvar++)
-      {
-        for (Id i = 0; i < vario->getNLagTotal(idir); i++, ecr++)
-        {
-          Id j  = vario->getDirAddress(idir, ivar, jvar, i, true, 0);
-          Id j0 = vario->getDirAddress(idir, ivar, ivar, i, true, 0);
-          vario->setGgByIndex(idir, j,
-                              -vario->getGgByIndex(idir, j) / vario->getGgByIndex(idir, j0));
-        }
-      }
-  }
-  else if (vario->getCalcul() == ECalcVario::BINORMAL)
-  {
-    for (Id ivar = 0; ivar < nvar; ivar++)
-      for (Id jvar = 0; jvar < ivar; jvar++)
-      {
-        for (Id i = 0; i < vario->getNLagTotal(idir); i++, ecr++)
-        {
-          Id j  = vario->getDirAddress(idir, ivar, jvar, i, true, 0);
-          Id j1 = vario->getDirAddress(idir, ivar, ivar, i, true, 0);
-          Id j2 = vario->getDirAddress(idir, jvar, jvar, i, true, 0);
-          vario->setGgByIndex(
-            idir,
-            j,
-            vario->getGgByIndex(idir, j) / sqrt(
-                                             vario->getGgByIndex(idir, j1) * vario->getGgByIndex(idir, j2)));
-        }
-      }
-  }
 }
 
 /****************************************************************************/
@@ -4506,12 +4417,12 @@ static Id st_vario_indic_model_nostat(Local_Pgs* local_pgs)
           {
             if (local_pgs->vario->getFlagAsym())
             {
-              i = vario->getDirAddress(idir, ifac, jfac, ilag, false, 1);
+              i = vario->getAddressForGg(idir, ifac, jfac, ilag, 1);
               vario->setGgByIndex(idir, i,
                                   vario->getGgByIndex(idir, i) + st_get_value(local_pgs, flag_ind,
                                                                               iech, jech, ifac, jfac,
                                                                               iconf, cov));
-              i = vario->getDirAddress(idir, ifac, jfac, ilag, false, -1);
+              i = vario->getAddressForGg(idir, ifac, jfac, ilag, -1);
               vario->setGgByIndex(idir, i,
                                   vario->getGgByIndex(idir, i) + st_get_value(local_pgs, flag_ind,
                                                                               jech, iech, ifac, jfac,
@@ -4519,7 +4430,7 @@ static Id st_vario_indic_model_nostat(Local_Pgs* local_pgs)
             }
             else
             {
-              i = vario->getDirAddress(idir, ifac, jfac, ilag, false, 0);
+              i = vario->getAddressForGg(idir, ifac, jfac, ilag, ITEST);
               vario->setGgByIndex(idir, i,
                                   vario->getGgByIndex(idir, i) + st_get_value(local_pgs, flag_ind,
                                                                               iech, jech, ifac, jfac,
@@ -4535,7 +4446,7 @@ static Id st_vario_indic_model_nostat(Local_Pgs* local_pgs)
 
     /* Scale the variogram */
 
-    st_variogram_scale(vario, idir);
+    vario->finalScaleByWeights(idir);
   }
   return (0);
 }
@@ -4639,7 +4550,7 @@ static Id st_vario_indic_model_stat(Local_Pgs* local_pgs)
 
       for (Id i = 0; i < vario->getNDim(); i++)
       {
-        Id jpas          = vario->getDirAddress(idir, 0, 0, ilag, false, 1);
+        Id jpas          = vario->getAddressForGg(idir, 0, 0, ilag, 1);
         local_pgs->d1[i] = vario->getHhByIndex(idir, jpas) * vario->getCodir(idir, i);
       }
       st_calcul_covmatrix(local_pgs, &flag_ind, iconf, cov);
@@ -4651,16 +4562,16 @@ static Id st_vario_indic_model_stat(Local_Pgs* local_pgs)
         {
           if (local_pgs->vario->getFlagAsym())
           {
-            iad = vario->getDirAddress(idir, ifac, jfac, ilag, false, 1);
+            iad = vario->getAddressForGg(idir, ifac, jfac, ilag, 1);
             vario->setGgByIndex(idir, iad,
                                 st_get_value(local_pgs, flag_ind, 0, 0, ifac, jfac, iconf, cov));
-            iad = vario->getDirAddress(idir, ifac, jfac, ilag, false, -1);
+            iad = vario->getAddressForGg(idir, ifac, jfac, ilag, -1);
             vario->setGgByIndex(idir, iad,
                                 st_get_value(local_pgs, flag_ind, 0, 0, jfac, ifac, iconf, cov));
           }
           else
           {
-            iad = vario->getDirAddress(idir, ifac, jfac, ilag, false, 0);
+            iad = vario->getAddressForGg(idir, ifac, jfac, ilag, ITEST);
             vario->setGgByIndex(idir, iad,
                                 st_get_value(local_pgs, flag_ind, 0, 0, ifac, jfac, iconf, cov));
           }
@@ -4700,11 +4611,11 @@ static void st_update_variance_stat(Local_Pgs* local_pgs)
 
       for (Id idir = 0; idir < vario->getNDir(); idir++)
       {
-        iad = vario->getDirAddress(idir, ivar, jvar, 0, false, 0);
+        iad = vario->getAddressCenterForGg(idir, ivar, jvar);
         vario->setSwByIndex(idir, iad, 1);
         vario->setHhByIndex(idir, iad, 0);
 
-        switch (local_pgs->calcul_type.toEnum())
+        switch (local_pgs->calculType.toEnum())
         {
           case ECalcVario::E_VARIOGRAM:
             break;
@@ -4786,11 +4697,11 @@ static void st_update_variance_nostat(Local_Pgs* local_pgs)
       // Set the C00 term
       for (Id idir = 0; idir < vario->getNDir(); idir++)
       {
-        Id iad = vario->getDirAddress(idir, ivar, jvar, 0, false, 0);
+        Id iad = vario->getAddressCenterForGg(idir, ivar, jvar);
         vario->setSwByIndex(idir, iad, dbin->getNSample());
         vario->setHhByIndex(idir, iad, 0);
 
-        switch (local_pgs->calcul_type.toEnum())
+        switch (local_pgs->calculType.toEnum())
         {
           case ECalcVario::E_VARIOGRAM:
             break;

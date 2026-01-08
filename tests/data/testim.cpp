@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Basic/AStringable.hpp"
 #include "Enum/EFormatNF.hpp"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"

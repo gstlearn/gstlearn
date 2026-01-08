@@ -265,16 +265,16 @@ No variable name corresponding to your criterion
 Error in UID Index (-1). Argument should lie within [0,7[
 Previous statement is an error
 
-Testing displayStats facility
-=============================
+Testing getStatsAsTable facility
+================================
          Number     Minimum     Maximum        Mean    St. Dev.    Variance
 x-1      82.000       0.015       0.987       0.522       0.282       0.079
 z-1      75.000      -2.653       2.180      -0.044       1.026       1.053
 z-2      67.000      -1.757       2.390       0.010       0.850       0.723
 z-3      72.000      -2.861       2.606       0.077       1.062       1.127
 
-Testing displayStats by Category facility
-=========================================
+Testing getStatsByCategoryAsTable facility
+==========================================
                         Number     Minimum     Maximum        Mean    St. Dev.    Variance
 Category: 0.000000      36.000      -1.224       1.743       0.190       0.760       0.578
 Category: 1.000000      32.000      -2.242       2.031      -0.017       1.037       1.076

@@ -10,28 +10,28 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
 #include "Covariances/AKernel.hpp"
+#include "gstlearn_export.hpp"
 
 namespace gstlrn
 {
 class CovContext;
 
-class GSTLEARN_EXPORT KernelTriangle : public AKernel
+class GSTLEARN_EXPORT KernelTriangle: public AKernel
 {
 public:
   KernelTriangle(const CovContext& ctx);
-  KernelTriangle(const KernelTriangle &r);
-  KernelTriangle& operator= (const KernelTriangle &r);
+  KernelTriangle(const KernelTriangle& r);
+  KernelTriangle& operator=(const KernelTriangle& r);
   virtual ~KernelTriangle();
 
   size_t getMaxNDim() const override { return 1; }
 
-  String         getCovName() const override { return "Triangle"; }
-  Id            getMinOrder() const override { return -1; }
-  bool           getCompatibleSpaceR() const override { return true; }
+  String getCovName() const override { return "Triangle"; }
+  Id getMinOrder() const override { return -1; }
+  bool getCompatibleSpaceR() const override { return true; }
 
 protected:
   double _evaluateCov(double h) const override;
 };
-}
+} // namespace gstlrn

@@ -16,33 +16,33 @@
 
 namespace gstlrn
 {
-  
+
 class CovContext;
 
-class GSTLEARN_EXPORT KernelMarkov : public AKernel
+class GSTLEARN_EXPORT KernelMarkov: public AKernel
 {
 public:
   KernelMarkov(const CovContext& ctx);
-  KernelMarkov(const KernelMarkov &r);
-  KernelMarkov& operator= (const KernelMarkov &r);
+  KernelMarkov(const KernelMarkov& r);
+  KernelMarkov& operator=(const KernelMarkov& r);
   virtual ~KernelMarkov();
 
   String getFormula() const override;
-  String         getCovName() const override { return "Markov"; }
+  String getCovName() const override { return "Markov"; }
 
-  bool   hasParam() const override { return true; }
+  bool hasParam() const override { return true; }
   double getParMax() const override { return MAX_PARAM; }
   double getScadef() const override;
-  bool   hasCovOnRn() const override { return false; }
-  bool   hasSpectrumOnRn() const override { return true; }
-  bool   hasSpectrumOnSphere() const override { return true; }
-  bool   hasMarkovCoeffs() const override { return true; }
-  double normalizeOnSphere(Id n = 50,double scale = 1.) const override;
+  bool hasCovOnRn() const override { return false; }
+  bool hasSpectrumOnRn() const override { return true; }
+  bool hasSpectrumOnSphere() const override { return true; }
+  bool hasMarkovCoeffs() const override { return true; }
+  double normalizeOnSphere(Id n = 50, double scale = 1.) const override;
   double evaluateSpectrum(double freq) const override;
   VectorDouble getMarkovCoeffs() const override { return _markovCoeffs; }
-  void   setMarkovCoeffs(const VectorDouble& coeffs) override { _markovCoeffs = coeffs;}
+  void setMarkovCoeffs(const VectorDouble& coeffs) override { _markovCoeffs = coeffs; }
   double getCorrec() const override { return _correc; }
-  void   setCorrec(double val) override;
+  void setCorrec(double val) override;
 
 protected:
   VectorDouble _evaluateSpectrumOnSphere(Id n,
@@ -51,8 +51,8 @@ protected:
 private:
   VectorDouble _evaluateSpectrumOnSphereWithoutNormalization(Id n, double scale = 1.) const;
 
-private :
+private:
   VectorDouble _markovCoeffs;
   double _correc;
 };
-}
+} // namespace gstlrn

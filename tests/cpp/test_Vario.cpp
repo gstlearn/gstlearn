@@ -72,68 +72,95 @@ int main(int argc, char* argv[])
   // On Data samples
   // ===============
 
-  mestitle(1, "Experimental variogram on Data Samples");
+  mestitle(0, "Experimental variogram on Data Samples");
   Id nlag                 = 20;
   VarioParam* varioparamP = VarioParam::createMultiple(2, nlag, 0.5 / nlag);
   Vario* variop           = Vario::computeFromDb(*varioparamP, db, ECalcVario::VARIOGRAM);
   variop->display();
-  message("Maximum Variogram Value = %lf\n", variop->getGmax());
+  delete varioparamP;
 
   // Fitting the experimental variogram of Underlying GRF (with constraint that total sill is 1)
   Model model(ctxt);
   VectorECov covas {ECov::MATERN, ECov::EXPONENTIAL};
   model.fit(variop, covas, false);
   model.display();
+  delete variop;
 
   // With a quick entry
-  mestitle(1, "Experimental variogram on Data Samples (quick entry)");
-  auto* variop2 = variogramCalculate(db, 5, 0.1);
+  mestitle(0, "Experimental variogram on Data Samples (quick entry)");
+  auto* variop2 = variogramCalculate(db, ECalcVario::VARIOGRAM, true, 5, 0.1);
   variop2->display();
+  delete variop2;
 
   // ===============
   // On Grid samples
   // ===============
 
-  mestitle(1, "Experimental variogram on Grid");
+  mestitle(0, "Experimental variogram on Grid");
   VarioParam* varioparamG = VarioParam::createMultipleFromGrid(grid, nlag);
   Vario* variog           = Vario::computeFromDb(*varioparamG, grid, ECalcVario::VARIOGRAM);
   variog->display();
+  delete variog;
 
   // With a quick entry
-  mestitle(1, "Experimental variogram on Grid (quick entry)");
-  auto* variog2 = varioGridCalculate(grid, 5);
+  mestitle(0, "Experimental variogram on Grid (quick entry)");
+  auto* variog2 = varioGridCalculate(grid, ECalcVario::VARIOGRAM, true, 5);
   variog2->display();
+  delete variog2;
 
   // ==========================================
   // Calculating Variogram Map on Isolated Data
   // ==========================================
 
-  mestitle(1, "Variogram Map on Isolated Data");
-  Db* vmapP = db_vmap(db, ECalcVario::VARIOGRAM);
+  mestitle(0, "Variogram Map on Isolated Data");
+  Db* vmapP = db_vmap(db);
   vmapP->display();
+  delete vmapP;
 
   // =================================
   // Calculating Variogram Map on Grid
   // =================================
 
-  mestitle(1, "Variogram Map on Grid");
-  Db* vmapG = db_vmap(grid, ECalcVario::VARIOGRAM);
+  mestitle(0, "Variogram Map on Grid");
+  Db* vmapG = db_vmap(grid);
   DbStringFormat dbfmt(FLAG_STATS, {"VMAP*"});
   vmapG->display(&dbfmt);
+  delete vmapG;
 
   delete db;
   delete grid;
-  delete varioparamP;
-  delete variop;
-  delete variop2;
-  delete variog;
-  delete variog2;
-  delete vmapG;
-  delete vmapP;
+
+  // ======================================
+  // Calculation of all forms of Variograms
+  // ======================================
+
+  mestitle(0, "Calculation of all forms of Variograms on Standard Data");
+  Id nvar     = 2;
+  Id nsample  = 10;
+  auto mesh   = 1.;
+  auto* dbStd = DbGrid::createFillRandom({nsample}, nvar, 0, 0, 0., 0.,
+                                         VectorDouble(), VectorDouble(), VectorDouble(), {mesh});
+  dbStd->getStatsAsTable().display();
+
+  auto nblag = 4;
+  auto dlag  = mesh;
+  for (const auto& name: ECalcVario::getAllKeys())
+  {
+    if (name == "UNDEFINED" || name == "GENERAL1" || name == "GENERAL2" || name == "GENERAL3") continue;
+    for (bool flag_ergodic: {false, true})
+    {
+      auto* varioStd = variogramCalculate(dbStd, ECalcVario::fromKey(name), flag_ergodic, nblag, dlag);
+      varioStd->display();
+      delete varioStd;
+    }
+  }
+  delete dbStd;
 
   // ===================================
   // Manipulation of variogram assessors
   // ===================================
+
+  mestitle(0, "Manipulation of variogram assessors");
 
   // Create a 2-D data set and calculate an omni-directional variogram
   auto* dat        = Db::createFillRandom(10, 2, 2);

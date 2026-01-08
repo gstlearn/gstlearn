@@ -179,11 +179,11 @@ int main(int argc, char* argv[])
   ////////////////////////////////////
   if (mode == 0 || mode == 4)
   {
-    mestitle(0, "Testing displayStats facility");
+    mestitle(0, "Testing getStatsAsTable facility");
     Id ndat  = 100;
     auto* db = Db::createFillRandom(ndat, 2, 3, 0, 0, 0., 0.2, {0.1, 0.2, 0.1});
 
-    db->displayStats({"x-1", "z*"}).display();
+    db->getStatsAsTable({"x-1", "z*"}).display();
   }
 
   ///////////////////////////////////////////////
@@ -191,11 +191,11 @@ int main(int argc, char* argv[])
   ///////////////////////////////////////////////
   if (mode == 0 || mode == 5)
   {
-    mestitle(0, "Testing displayStats by Category facility");
+    mestitle(0, "Testing getStatsByCategoryAsTable facility");
     Id ndat  = 100;
     auto* db = Db::createFillRandom(ndat, 2, 1, 0, 3);
 
-    db->displayStatsByCategory("z", "code").display();
+    db->getStatsByCategoryAsTable("z", "code").display();
   }
   return 0;
 }

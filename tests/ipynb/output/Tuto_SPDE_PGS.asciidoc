@@ -76,52 +76,52 @@ Number of active samples     = 752
 
 Grid characteristics:
 ---------------------
-Origin : 306764.2835218227.694
-Mesh   :   4787.785  3803.924
-Number :         47       101
+Origin :  306764.2835218227.694
+Mesh   :    4787.785   3803.924
+Number :          47        101
 
 Data Base Statistics
 --------------------
 4 - Name Prop.1 - Locator p1
- Nb of data          =       4747
- Nb of active values =        752
- Minimum value       =      0.014
- Maximum value       =      0.867
- Mean value          =      0.267
- Standard Deviation  =      0.153
- Variance            =      0.023
+ Nb of data          =        4747
+ Nb of active values =         752
+ Minimum value       =       0.014
+ Maximum value       =       0.867
+ Mean value          =       0.267
+ Standard Deviation  =       0.153
+ Variance            =       0.023
 5 - Name Prop.2 - Locator p2
- Nb of data          =       4747
- Nb of active values =        752
- Minimum value       =      0.002
- Maximum value       =      0.937
- Mean value          =      0.481
- Standard Deviation  =      0.211
- Variance            =      0.044
+ Nb of data          =        4747
+ Nb of active values =         752
+ Minimum value       =       0.002
+ Maximum value       =       0.937
+ Mean value          =       0.481
+ Standard Deviation  =       0.211
+ Variance            =       0.044
 6 - Name Prop.3 - Locator p3
- Nb of data          =       4747
- Nb of active values =        752
- Minimum value       =      0.000
- Maximum value       =      0.427
- Mean value          =      0.053
- Standard Deviation  =      0.052
- Variance            =      0.003
+ Nb of data          =        4747
+ Nb of active values =         752
+ Minimum value       =       0.000
+ Maximum value       =       0.427
+ Mean value          =       0.053
+ Standard Deviation  =       0.052
+ Variance            =       0.003
 7 - Name Prop.4 - Locator p4
- Nb of data          =       4747
- Nb of active values =        752
- Minimum value       =      0.002
- Maximum value       =      0.975
- Mean value          =      0.193
- Standard Deviation  =      0.184
- Variance            =      0.034
+ Nb of data          =        4747
+ Nb of active values =         752
+ Minimum value       =       0.002
+ Maximum value       =       0.975
+ Mean value          =       0.193
+ Standard Deviation  =       0.184
+ Variance            =       0.034
 8 - Name Prop.5 - Locator p5
- Nb of data          =       4747
- Nb of active values =        752
- Minimum value       =      0.000
- Maximum value       =      0.129
- Mean value          =      0.007
- Standard Deviation  =      0.014
- Variance            =      0.000
+ Nb of data          =        4747
+ Nb of active values =         752
+ Minimum value       =       0.000
+ Maximum value       =       0.129
+ Mean value          =       0.007
+ Standard Deviation  =       0.014
+ Variance            =       0.000
 
 Variables
 ---------
@@ -170,58 +170,58 @@ Non-centered Covariance characteristics
 Number of variable(s)       = 1
 Number of direction(s)      = 1
 Space dimension             = 2
-Variance-Covariance Matrix     1.000
+Variance-Covariance Matrix      1.000
 
 Direction #1
 ------------
 Number of lags              = 19
-Direction coefficients      =      1.000     0.000
-Direction angles (degrees)  =      0.000
-Tolerance on direction      =     90.000 (degrees)
-Calculation lag             =   1000.000
-Tolerance on distance       =     50.000 (Percent of the lag value)
+Direction coefficients      =       1.000      0.000
+Direction angles (degrees)  =       0.000
+Tolerance on direction      =      90.000 (degrees)
+Calculation lag             =    1000.000
+Tolerance on distance       =      50.000 (Percent of the lag value)
 
 For variable 1
-      Rank    Npairs  Distance     Value
-       -19  9732.000 17998.608     0.017
-       -18  9506.000 17006.901    -0.017
-       -17  8885.000 16006.927    -0.017
-       -16  8815.000 15002.837     0.000
-       -15  8068.000 14003.176     0.000
-       -14  8019.000 12999.786     0.000
-       -13  7684.000 12002.331    -0.052
-       -12  7363.000 11000.802    -0.017
-       -11  6935.000 10007.370    -0.039
-       -10  6310.000  9006.739    -0.039
-        -9  5975.000  8003.635    -0.039
-        -8  5615.000  7013.830    -0.017
-        -7  5035.000  6014.805    -0.052
-        -6  4397.000  5019.156    -0.017
-        -5  3682.000  4012.782    -0.073
-        -4  3011.000  3019.326     0.000
-        -3  2345.000  2038.996     0.094
-        -2  1290.000  1055.802     0.219
-        -1   238.000   307.621     0.781
-         0  1691.000     0.000     1.000
-         1   238.000  -307.621     0.781
-         2  1290.000 -1055.802     0.219
-         3  2345.000 -2038.996     0.094
-         4  3011.000 -3019.326     0.000
-         5  3682.000 -4012.782    -0.073
-         6  4397.000 -5019.156    -0.017
-         7  5035.000 -6014.805    -0.052
-         8  5615.000 -7013.830    -0.017
-         9  5975.000 -8003.635    -0.039
-        10  6310.000 -9006.739    -0.039
-        11  6935.000-10007.370    -0.039
-        12  7363.000-11000.802    -0.017
-        13  7684.000-12002.331    -0.052
-        14  8019.000-12999.786     0.000
-        15  8068.000-14003.176     0.000
-        16  8815.000-15002.837     0.000
-        17  8885.000-16006.927    -0.017
-        18  9506.000-17006.901    -0.017
-        19  9732.000-17998.608     0.017
+       Rank     Npairs   Distance      Value
+        -19   9732.000  17998.608      0.017
+        -18   9506.000  17006.901     -0.017
+        -17   8885.000  16006.927     -0.017
+        -16   8815.000  15002.837      0.000
+        -15   8068.000  14003.176      0.000
+        -14   8019.000  12999.786      0.000
+        -13   7684.000  12002.331     -0.052
+        -12   7363.000  11000.802     -0.017
+        -11   6935.000  10007.370     -0.039
+        -10   6310.000   9006.739     -0.039
+         -9   5975.000   8003.635     -0.039
+         -8   5615.000   7013.830     -0.017
+         -7   5035.000   6014.805     -0.052
+         -6   4397.000   5019.156     -0.017
+         -5   3682.000   4012.782     -0.073
+         -4   3011.000   3019.326      0.000
+         -3   2345.000   2038.996      0.094
+         -2   1290.000   1055.802      0.219
+         -1    238.000    307.621      0.781
+          0   1691.000      0.000      1.000
+          1    238.000   -307.621      0.781
+          2   1290.000  -1055.802      0.219
+          3   2345.000  -2038.996      0.094
+          4   3011.000  -3019.326      0.000
+          5   3682.000  -4012.782     -0.073
+          6   4397.000  -5019.156     -0.017
+          7   5035.000  -6014.805     -0.052
+          8   5615.000  -7013.830     -0.017
+          9   5975.000  -8003.635     -0.039
+         10   6310.000  -9006.739     -0.039
+         11   6935.000 -10007.370     -0.039
+         12   7363.000 -11000.802     -0.017
+         13   7684.000 -12002.331     -0.052
+         14   8019.000 -12999.786      0.000
+         15   8068.000 -14003.176      0.000
+         16   8815.000 -15002.837      0.000
+         17   8885.000 -16006.927     -0.017
+         18   9506.000 -17006.901     -0.017
+         19   9732.000 -17998.608      0.017
 ----
 
 
@@ -233,38 +233,38 @@ Variogram characteristics
 Number of variable(s)       = 1
 Number of direction(s)      = 1
 Space dimension             = 2
-Variance-Covariance Matrix     1.000
+Variance-Covariance Matrix      1.000
 
 Direction #1
 ------------
 Number of lags              = 19
-Direction coefficients      =      1.000     0.000
-Direction angles (degrees)  =      0.000
-Tolerance on direction      =     90.000 (degrees)
-Calculation lag             =   1000.000
-Tolerance on distance       =     50.000 (Percent of the lag value)
+Direction coefficients      =       1.000      0.000
+Direction angles (degrees)  =       0.000
+Tolerance on direction      =      90.000 (degrees)
+Calculation lag             =    1000.000
+Tolerance on distance       =      50.000 (Percent of the lag value)
 
 For variable 1
-      Rank    Npairs  Distance     Value
-         0   238.000   307.621     0.219
-         1  1290.000  1055.802     0.781
-         2  2345.000  2038.996     0.906
-         3  3011.000  3019.326     1.000
-         4  3682.000  4012.782     1.073
-         5  4397.000  5019.156     1.017
-         6  5035.000  6014.805     1.052
-         7  5615.000  7013.830     1.017
-         8  5975.000  8003.635     1.039
-         9  6310.000  9006.739     1.039
-        10  6935.000 10007.370     1.039
-        11  7363.000 11000.802     1.017
-        12  7684.000 12002.331     1.052
-        13  8019.000 12999.786     1.000
-        14  8068.000 14003.176     1.000
-        15  8815.000 15002.837     1.000
-        16  8885.000 16006.927     1.017
-        17  9506.000 17006.901     1.017
-        18  9732.000 17998.608     0.983
+       Rank     Npairs   Distance      Value
+          0    238.000    307.621      0.219
+          1   1290.000   1055.802      0.781
+          2   2345.000   2038.996      0.906
+          3   3011.000   3019.326      1.000
+          4   3682.000   4012.782      1.073
+          5   4397.000   5019.156      1.017
+          6   5035.000   6014.805      1.052
+          7   5615.000   7013.830      1.017
+          8   5975.000   8003.635      1.039
+          9   6310.000   9006.739      1.039
+         10   6935.000  10007.370      1.039
+         11   7363.000  11000.802      1.017
+         12   7684.000  12002.331      1.052
+         13   8019.000  12999.786      1.000
+         14   8068.000  14003.176      1.000
+         15   8815.000  15002.837      1.000
+         16   8885.000  16006.927      1.017
+         17   9506.000  17006.901      1.017
+         18   9732.000  17998.608      0.983
 ----
 
 
@@ -282,11 +282,11 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Matern (Third Parameter = 1.04026)
-- Sill         =      1.000
-- Range        =   1652.384
-- Theo. Range  =    467.681
-Total Sill     =      1.000
-Known Mean(s)     0.000
+- Sill         =       1.000
+- Range        =    1652.384
+- Theo. Range  =     467.681
+Total Sill     =       1.000
+Known Mean(s)      0.000
 ----
 
 

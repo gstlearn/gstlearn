@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Model/ModelOptimVario.hpp"
 #include "Basic/OptCustom.hpp"
-#include "Covariances/ACov.hpp"
 #include "Model/AModelFitSills.hpp"
 #include "Model/ModelFitSillsVario.hpp"
 #include "geoslib_define.h"
@@ -116,8 +115,8 @@ Id ModelOptimVario::_buildExperimental()
           double gg   = TEST;
           if (_vario->getFlagAsym())
           {
-            Id iad     = _vario->getDirAddress(idir, ivar, jvar, ilag, false, 1);
-            Id jad     = _vario->getDirAddress(idir, ivar, jvar, ilag, false, -1);
+            Id iad     = _vario->getAddressForGg(idir, ivar, jvar, ilag, 1);
+            Id jad     = _vario->getAddressForGg(idir, ivar, jvar, ilag, -1);
             double c00 = _vario->getC00(idir, ivar, jvar);
             double n1  = _vario->getSwByIndex(idir, iad);
             double n2  = _vario->getSwByIndex(idir, jad);
@@ -136,7 +135,7 @@ Id ModelOptimVario::_buildExperimental()
           }
           else
           {
-            Id iad = _vario->getDirAddress(idir, ivar, jvar, ilag, false, 1);
+            Id iad = _vario->getAddressForGg(idir, ivar, jvar, ilag, 1);
             if (_vario->isLagCorrect(idir, iad))
             {
               gg   = _vario->getGgByIndex(idir, iad);
@@ -263,8 +262,8 @@ double ModelOptimVario::computeCost(bool flagPrint, bool verbose)
 void ModelOptimVario::evalGrad(vect res)
 {
 
-  const auto &gradcov = _model->getCovGradients();
-  Id nlags     = static_cast<Id>(_lags.size());
+  const auto& gradcov = _model->getCovGradients();
+  Id nlags            = static_cast<Id>(_lags.size());
   SpacePoint origin;
 
   for (size_t i = 0; i < gradcov.size(); i++)
@@ -275,7 +274,7 @@ void ModelOptimVario::evalGrad(vect res)
     {
       {
         const OneLag& lag = _lags[ilag];
-        const auto& func = gradcov[i];
+        const auto& func  = gradcov[i];
         double dvtheo     = func(origin, lag._P, lag._ivar, lag._jvar, &_calcmode);
         res[i] += -2. * _resid[ilag] * dvtheo;
       }

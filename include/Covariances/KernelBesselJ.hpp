@@ -10,20 +10,20 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
 #include "Covariances/AKernel.hpp"
+#include "gstlearn_export.hpp"
 
 namespace gstlrn
 {
 class CovContext;
 class TurningBandOperate;
 
-class GSTLEARN_EXPORT KernelBesselJ : public AKernel
+class GSTLEARN_EXPORT KernelBesselJ: public AKernel
 {
 public:
   KernelBesselJ(const CovContext& ctx);
-  KernelBesselJ(const KernelBesselJ &r);
-  KernelBesselJ& operator= (const KernelBesselJ &r);
+  KernelBesselJ(const KernelBesselJ& r);
+  KernelBesselJ& operator=(const KernelBesselJ& r);
   virtual ~KernelBesselJ();
 
   bool hasParam() const override { return true; }
@@ -35,9 +35,9 @@ public:
   bool getCompatibleSpaceR() const override { return true; }
 
   bool isValidForTurningBand() const override { return true; }
-  double simulateTurningBand(double t0, TurningBandOperate &operTB) const override;
+  double simulateTurningBand(double t0, TurningBandOperate& operTB) const override;
 
 protected:
   double _evaluateCov(double h) const override;
 };
-}
+} // namespace gstlrn

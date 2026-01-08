@@ -565,7 +565,7 @@ double SpatialIndices::getMicroStructure(const String& name,
   Id ncol = 2 * nlag + 1;
   message("nrow=%d ncol=%d dx=%lf dy=%lf maille=%lf\n", nrow, ncol, dx, dy, maille);
   DbGrid* vmap =
-    db_vmap(grid, ECalcVario::E_COVARIOGRAM, {nlag, nlag}, {dx, dy});
+    db_vmap(grid, 0, true, ECalcVario::E_COVARIOGRAM, true, {nlag, nlag}, {dx, dy});
   vmap->dumpToNF("vmap.NF");
 
   // Calculate the Microstructure index

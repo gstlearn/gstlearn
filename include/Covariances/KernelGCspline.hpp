@@ -10,8 +10,8 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
 #include "Covariances/AKernel.hpp"
+#include "gstlearn_export.hpp"
 
 namespace gstlrn
 {
@@ -20,24 +20,24 @@ namespace gstlrn
 class CovContext;
 class TurningBandOperate;
 
-class GSTLEARN_EXPORT KernelGCspline : public AKernel
+class GSTLEARN_EXPORT KernelGCspline: public AKernel
 {
 public:
   KernelGCspline(const CovContext& ctx);
-  KernelGCspline(const KernelGCspline &r);
-  KernelGCspline& operator= (const KernelGCspline &r);
+  KernelGCspline(const KernelGCspline& r);
+  KernelGCspline& operator=(const KernelGCspline& r);
   virtual ~KernelGCspline();
 
-  Id            hasRange() const override { return -1; }
-  String         getCovName() const override { return "Spline G.C."; }
-  Id            getMinOrder() const override { return 1; }
-  bool           getCompatibleSpaceR() const override { return true; }
+  Id hasRange() const override { return -1; }
+  String getCovName() const override { return "Spline G.C."; }
+  Id getMinOrder() const override { return 1; }
+  bool getCompatibleSpaceR() const override { return true; }
 
   bool isValidForTurningBand() const override { return true; }
-  double simulateTurningBand(double t0, TurningBandOperate &operTB) const override;
+  double simulateTurningBand(double t0, TurningBandOperate& operTB) const override;
 
 protected:
   double _evaluateCov(double h) const override;
 };
 
-}
+} // namespace gstlrn

@@ -160,6 +160,7 @@ public:
                                   const VectorDouble& heteroRatio = VectorDouble(),
                                   const VectorDouble& means       = VectorDouble(),
                                   const VectorDouble& x0          = VectorDouble(),
+                                  const VectorDouble& dx          = VectorDouble(),
                                   Id seed                         = 1367843);
   static DbGrid* createFromGrid(const Grid& grid);
 

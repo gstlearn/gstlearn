@@ -525,12 +525,13 @@ public:
                          const VectorDouble& values,
                          bool bySample = false);
 
-  Table displayStats(const VectorString& names             = VectorString(),
-                     const std::vector<EStatOption>& opers = EStatOption::fromKeys({"NUM", "MINI", "MAXI", "MEAN", "STDV", "VAR"})) const;
-  Table displayStatsByCategory(const String& name,
-                               const String& category,
-                               const std::vector<EStatOption>& opers = EStatOption::fromKeys({"NUM", "MINI", "MAXI", "MEAN", "STDV", "VAR"}),
-                               double eps                            = EPSILON6);
+  Table getStatsAsTable(const VectorString& names             = VectorString(),
+                        const std::vector<EStatOption>& opers = EStatOption::fromKeys({"NUM", "MINI", "MAXI", "MEAN", "STDV", "VAR"})) const;
+  Table getStatsByCategoryAsTable(const String& name,
+                                  const String& category,
+                                  const std::vector<EStatOption>& opers = EStatOption::fromKeys({"NUM", "MINI", "MAXI", "MEAN", "STDV", "VAR"}),
+                                  double eps                            = EPSILON6);
+  Table getContentsAsTable(const VectorString& names = VectorString()) const;
 
   /** @addtogroup DB_0 Getting and Setting functions by Locator
    * \ingroup DB

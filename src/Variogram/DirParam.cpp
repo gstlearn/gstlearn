@@ -9,10 +9,10 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Variogram/DirParam.hpp"
-#include "Basic/AStringable.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Space/ASpace.hpp"
+#include "Variogram/AVario.hpp"
 #include <Geometry/GeometryHelper.hpp>
 
 #include <cmath>
@@ -210,9 +210,9 @@ bool DirParam::isDimensionValid(Id idim) const
   return checkArg("Space Dimension", idim, static_cast<Id>(getNDim()));
 }
 
-bool DirParam::isLagValid(Id ilag, bool flagAsym, bool flagCheck) const
+bool DirParam::isLagValid(Id ilag, bool flagAsym) const
 {
-  if (!flagCheck) return true;
+  if (!getFlagAVarioCheck()) return true;
   auto nlag = getNLag();
   if (flagAsym) nlag = 2 * nlag + 1;
   return checkArg("Lag Index", ilag, nlag);

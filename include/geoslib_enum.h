@@ -103,25 +103,6 @@ typedef enum
   NEIGH_MOVING = 2,        //!< Moving Neighborhood
   NEIGH_IMAGE = 3,         //!< Image Neighborhood
 } ENUM_NEIGHS; // Now see ENeigh.hpp
-
-typedef enum
-{
-  CALCUL_UNDEFINED = -1,    //!< Undefined
-  CALCUL_VARIOGRAM = 0,     //!< Variogram
-  CALCUL_COVARIANCE = 1,    //!< Covariance
-  CALCUL_COVARIOGRAM = 2,   //!< Transitive Covariogram
-  CALCUL_MADOGRAM = 3,      //!< Madogram
-  CALCUL_RODOGRAM = 4,      //!< Rodogram
-  CALCUL_POISSON = 5,       //!< Poisson
-  CALCUL_GENERAL1 = 6,      //!< Generalized Variogram of order 1
-  CALCUL_GENERAL2 = 7,      //!< Generalized Variogram of order 2
-  CALCUL_GENERAL3 = 8,      //!< Generalized Variogram of order 3
-  CALCUL_COVARIANCE_NC = 9, //!< Non-centered Covariance
-  CALCUL_ORDER4 = 10,       //!< Order-4 Variogram
-  CALCUL_TRANS1 = 11,       //!< Transition probability G12/G1
-  CALCUL_TRANS2 = 12,       //!< Transition probability G12/G2
-  CALCUL_BINORMAL = 13,     //!< Binormal hypothesis G12/sqrt(G1 * G2)
-} ENUM_CALCUL_VARIO; // Now see ECalcVario.hpp
 */
 /*
 typedef enum

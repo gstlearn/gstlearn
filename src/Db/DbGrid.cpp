@@ -1545,6 +1545,7 @@ DbGrid* DbGrid::createGrid2D(const ELoadBy& order,
  * @param heteroRatio Vector of proportions of NA to be generated per variable
  * @param means Vector of means per variable (optional)
  * @param x0 Vector of coordinates of the origin of the grid (optional)
+ * @param dx Vector of grid meshes (optional). If not provided, dx = 1 / nx (for each space dimension)
  * @param seed Value for the Random Generator seed
  * @return A pointer to the newly created DbGrid
  *
@@ -1564,16 +1565,21 @@ DbGrid* DbGrid::createFillRandom(const VectorInt& nx,
                                  const VectorDouble& heteroRatio,
                                  const VectorDouble& means,
                                  const VectorDouble& x0,
+                                 const VectorDouble& dx,
                                  Id seed)
 {
   // Set the seed
   law_set_random_seed(seed);
 
   // Create the Db
-  Id ndim = static_cast<Id>(nx.size());
-  VectorDouble dx(ndim);
-  for (Id idim = 0; idim < ndim; idim++) dx[idim] = 1. / nx[idim];
-  DbGrid* dbgrid = DbGrid::create(nx, dx, x0);
+  Id ndim            = static_cast<Id>(nx.size());
+  VectorDouble dxloc = dx;
+  if (ndim != static_cast<Id>(dxloc.size()))
+  {
+    dxloc.resize(ndim);
+    for (Id idim = 0; idim < ndim; idim++) dxloc[idim] = 1. / nx[idim];
+  }
+  DbGrid* dbgrid = DbGrid::create(nx, dxloc, x0);
   Id ndat        = nx.prod();
 
   // Generate the Vectors of Variance of measurement error (optional)

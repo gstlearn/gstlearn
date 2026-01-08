@@ -43,7 +43,7 @@ public:
 
   ///////////////////////////////////////////////////
   /// AKernel Interface
-  virtual String getFormula() const { return String("Equation not yet implemented"); }
+  virtual String getFormula() const { return String("Equation is not provided"); }
   virtual double getScadef() const { return 1; }
   virtual double getParMax() const { return 0; }
   virtual bool hasInt1D() const;
@@ -65,7 +65,7 @@ public:
   }
   virtual bool isConsistent() const;
   virtual size_t getMaxNDim() const { return MAX_INT; } // No Space Dimension limit
-  virtual Id getMinOrder() const { return -1; }         // Valid for FAST
+  virtual Id getMinOrder() const { return -1; }         // Valid starting from FAST
   virtual bool getCompatibleSpaceR() const { return false; }
   virtual bool getCompatibleSpaceS() const { return false; }
 
@@ -85,6 +85,8 @@ public:
     DECLARE_UNUSED(nb);
     return MatrixDense();
   }
+
+  static AKernel* createFromType(const ECov& type, Id ndim = 1);
 
   ///////////////////////////////////////////////////
 
@@ -151,8 +153,13 @@ protected:
 
 private:
   Array _evalCovFFT(const VectorDouble& hmax, Id N = 128) const;
-  ECov _type;            /*! Covariance function type */
-  CovContext _ctxt;      /*! Context (space, number of variables, ...) */
-  VectorDouble _params;  /*! Parameters vector (empty if not used) */
+  ECov _type;           /*! Covariance function type */
+  CovContext _ctxt;     /*! Context (space, number of variables, ...) */
+  VectorDouble _params; /*! Parameters vector (empty if not used) */
 };
+
+GSTLEARN_EXPORT VectorInt getAllMaxDimension();
+GSTLEARN_EXPORT VectorBool getAllIsSpatialTemporal();
+GSTLEARN_EXPORT VectorString getAllFormula();
+
 } // namespace gstlrn

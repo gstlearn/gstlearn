@@ -10,27 +10,27 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
 #include "Covariances/AKernel.hpp"
+#include "gstlearn_export.hpp"
 
 namespace gstlrn
 {
 class CovContext;
 
-class GSTLEARN_EXPORT KernelNugget : public AKernel
+class GSTLEARN_EXPORT KernelNugget: public AKernel
 {
 public:
   KernelNugget(const CovContext& ctx);
-  KernelNugget(const KernelNugget &r);
-  KernelNugget& operator= (const KernelNugget &r);
+  KernelNugget(const KernelNugget& r);
+  KernelNugget& operator=(const KernelNugget& r);
   virtual ~KernelNugget();
 
   String getFormula() const override;
-  String         getCovName() const override { return "Nugget Effect"; }
-  Id            getMinOrder() const override { return -1; }
-  bool           getCompatibleSpaceR() const override { return true; }
+  String getCovName() const override { return "Nugget Effect"; }
+  Id getMinOrder() const override { return -1; }
+  bool getCompatibleSpaceR() const override { return true; }
 
-  Id    hasRange() const override { return 0; }
+  Id hasRange() const override { return 0; }
 
   bool isValidForTurningBand() const override { return true; }
 
@@ -38,4 +38,4 @@ protected:
   double _evaluateCov(double h) const override;
 };
 
-}
+} // namespace gstlrn

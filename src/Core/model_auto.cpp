@@ -19,7 +19,6 @@
 #include "Covariances/CovLMCConvolution.hpp"
 #include "Covariances/CovLMCTapering.hpp"
 #include "Db/Db.hpp"
-#include "Db/DbGrid.hpp"
 #include "Enum/EAnam.hpp"
 #include "Enum/EOperator.hpp"
 #include "Geometry/GeometryHelper.hpp"
@@ -530,14 +529,12 @@ label_end:
 static Id st_get_vario_dimension(Vario* vario,
                                  Id* nbexp_ret,
                                  Id* npadir_ret)
-
 {
   Id nbexp  = 0;
   Id npadir = 0;
   Id nvar   = vario->getNVar();
 
-  // Possibly update the distance for first lag
-  // if equal to 0 but corresponds to lots of pairs attached
+  // Possibly update the distance for first lag if equal to 0 but corresponds to lots of pairs attached
   // This patch is not performed for asymetrical case as the h=0 is only conventional.
   for (Id idir = 0; idir < vario->getNDir(); idir++)
   {
@@ -574,7 +571,7 @@ static Id st_get_vario_dimension(Vario* vario,
       for (Id ivar = 0; ivar < nvar; ivar++)
         for (Id jvar = 0; jvar <= ivar; jvar++)
         {
-          Id i = vario->getDirAddress(idir, ivar, jvar, ilag, false, 1);
+          Id i = vario->getAddressForGg(idir, ivar, jvar, ilag, 1);
           if (CORRECT(idir, i)) nbexp++;
         }
   }
@@ -781,16 +778,16 @@ static void st_compress_array(const Vario* vario,
  *****************************************************************************/
 static double st_get_c00(const Vario* vario, Id idir, Id ivar, Id jvar)
 {
-  Id iad0 = vario->getDirAddress(idir, ivar, jvar, 0, false, 0);
+  Id iad0 = vario->getAddressCenterForGg(idir, ivar, jvar);
   Id iad  = iad0;
   if (!isZero(vario->getGgByIndex(idir, iad)) || vario->getSwByIndex(idir, iad) > 0)
     goto label_end;
 
   for (Id ilag = 0, nlag = vario->getNLag(idir); ilag < nlag; ilag++)
   {
-    iad = vario->getDirAddress(idir, ivar, jvar, ilag, false, 1);
+    iad = vario->getAddressForGg(idir, ivar, jvar, ilag, 1);
     if (!isZero(vario->getGgByIndex(idir, iad))) goto label_end;
-    iad = vario->getDirAddress(idir, ivar, jvar, ilag, false, -1);
+    iad = vario->getAddressForGg(idir, ivar, jvar, ilag, -1);
     if (!isZero(vario->getGgByIndex(idir, iad))) goto label_end;
   }
   iad = iad0;
@@ -837,8 +834,8 @@ static void st_load_gg(const Vario* vario,
           GG(ijvar, ipadir) = TEST;
           if (vario->getFlagAsym())
           {
-            Id iad     = vario->getDirAddress(idir, ivar, jvar, ilag, false, 1);
-            Id jad     = vario->getDirAddress(idir, ivar, jvar, ilag, false, -1);
+            Id iad     = vario->getAddressForGg(idir, ivar, jvar, ilag, 1);
+            Id jad     = vario->getAddressForGg(idir, ivar, jvar, ilag, -1);
             double c00 = st_get_c00(vario, idir, ivar, jvar);
             double n1  = vario->getSwByIndex(idir, iad);
             double n2  = vario->getSwByIndex(idir, jad);
@@ -857,7 +854,7 @@ static void st_load_gg(const Vario* vario,
           }
           else
           {
-            Id iad = vario->getDirAddress(idir, ivar, jvar, ilag, false, 1);
+            Id iad = vario->getAddressForGg(idir, ivar, jvar, ilag, 1);
             if (CORRECT(idir, iad))
             {
               GG(ijvar, ipadir) = vario->getGgByIndex(idir, iad);
@@ -869,7 +866,7 @@ static void st_load_gg(const Vario* vario,
 
           if (!strexps.empty())
           {
-            Id i = vario->getDirAddress(idir, ivar, jvar, ilag, false, 1);
+            Id i = vario->getAddressForGg(idir, ivar, jvar, ilag, 1);
             if (INCORRECT(idir, i)) continue;
 
             strexps[ecr].ivar = ivar;
@@ -4416,11 +4413,10 @@ Id model_auto_fit(Vario* vario,
   if (vario->getCalcul() == ECalcVario::GENERAL1) norder = 1;
   if (vario->getCalcul() == ECalcVario::GENERAL2) norder = 2;
   if (vario->getCalcul() == ECalcVario::GENERAL3) norder = 3;
-  if (vario->getCalcul() == ECalcVario::MADOGRAM ||
-      vario->getCalcul() == ECalcVario::RODOGRAM ||
-      vario->getCalcul() == ECalcVario::GENERAL1 ||
-      vario->getCalcul() == ECalcVario::GENERAL2 ||
-      vario->getCalcul() == ECalcVario::GENERAL3)
+
+  // Check if the tool can be used for fitting
+
+  if (!vario->isFittable())
   {
     messerr("Procedure is designed only for symmetric covariance");
     return (1);
