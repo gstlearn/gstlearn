@@ -565,46 +565,6 @@ namespace gstlrn {
   }
 }
 
-// Typemap for VectorDouble* is treated separately below.
-%typemap(in, fragment="ToCpp") const VectorInt*    (void *argp, VectorInt vec),
-                               const VectorString* (void *argp, VectorString vec),
-                               const VectorFloat*  (void *argp, VectorFloat vec),
-                               const VectorUChar*  (void *argp, VectorUChar vec),
-                               const VectorBool*   (void *argp, VectorBool vec)
-{
-  // Try to convert from any target language vector
-  int errcode = vectorToCpp($input, vec);
-  if (errcode == SWIG_NullReferenceError)
-  {
-    $1 = nullptr;
-  }
-  else if (!SWIG_IsOK(errcode))
-  {
-    try
-    {
-      // Try direct conversion of Vectors by reference/pointer (see swigtypes.swg)
-      errcode = SWIG_ConvertPtr($input, &argp, $descriptor, %convertptr_flags);
-      if (SWIG_IsOK(errcode))
-      {
-        if (!argp) {
-          %argument_nullref("$type", $symname, $argnum);
-        }
-        $1 = %reinterpret_cast(argp, $ltype);
-      }
-      else {
-        %argument_fail(errcode, "$type", $symname, $argnum);
-      }
-    }
-    catch(...)
-    {
-      %argument_fail(errcode, "$type", $symname, $argnum);
-    }
-  }
-  else {
-    $1 = &vec;
-  }
-}
-
 // Typemap for missing pointer types are treated separately below.
 %typemap(in, fragment="ToCpp") const VectorString* (void *argp, VectorString vec),
                                const VectorFloat*  (void *argp, VectorFloat vec),

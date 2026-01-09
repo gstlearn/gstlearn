@@ -63,7 +63,7 @@ jobs:
     # Downgrade notebook and plotly (for 3D render) using nbconvert generation
     - name: Install Python dependencies
       run: |
-        uv pip install numpy==2.3.5
+        uv pip install numpy
         uv pip install jupyter
         uv pip install notebook==6.1.6
         uv pip install matplotlib

@@ -4,6 +4,7 @@ This file contains the logs between consecutive releases
 
 Release 1.10.0
 ==============
+- Fix Python Db [] assessors to make them compatible with numpy 2.4+
 - Refactoring of the Variogram calculations (using more template functions)
 - Adding the calculation of CORRELOGRAMS
 - Adding the general feature of ergodic or non-ergodic calculations for Mean and Variance (used for centering and scaling)
