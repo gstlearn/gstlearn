@@ -342,7 +342,7 @@ Id DbLine::resetFromSamplesById(Id nech,
   return 0;
 }
 
-bool DbLine::_deserializeAscii(std::istream& is, bool verbose)
+bool DbLine::_deserializeAscii(std::istream& is)
 {
   Id ndim   = 0;
   Id nbline = 0;
@@ -366,12 +366,12 @@ bool DbLine::_deserializeAscii(std::istream& is, bool verbose)
     ret = ret && _recordRead<Id>(is, "Number of Samples", number);
     ret = ret && _recordReadVec<Id>(is, "", _lineAdds[iline], number);
   }
-  ret = ret && Db::_deserializeAscii(is, verbose);
+  ret = ret && Db::_deserializeAscii(is);
 
   return ret;
 }
 
-bool DbLine::_serializeAscii(std::ostream& os, bool verbose) const
+bool DbLine::_serializeAscii(std::ostream& os) const
 {
   bool ret = true;
 
@@ -390,7 +390,7 @@ bool DbLine::_serializeAscii(std::ostream& os, bool verbose) const
 
   /* Writing the tail of the file */
 
-  ret&& Db::_serializeAscii(os, verbose);
+  ret&& Db::_serializeAscii(os);
 
   return ret;
 }
@@ -777,7 +777,7 @@ DbLine* DbLine::createMarkersFromGrid(const DbGrid& grid,
   return dbline;
 }
 #ifdef HDF5
-bool DbLine::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+bool DbLine::deserializeH5(H5::Group& grp)
 {
   auto dbG = SerializeHDF5::getGroup(grp, "DbLine");
   if (!dbG) return false;
@@ -806,12 +806,12 @@ bool DbLine::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
 
   /* Writing the tail of the file */
 
-  ret = ret && Db::_deserializeH5(*dbG, verbose);
+  ret = ret && Db::deserializeH5(*dbG);
 
   return ret;
 }
 
-bool DbLine::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+bool DbLine::serializeH5(H5::Group& grp) const
 {
   auto dbG = grp.createGroup("DbLine");
 
@@ -832,7 +832,7 @@ bool DbLine::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
 
   /* Writing the tail of the file */
 
-  ret = ret && Db::_serializeH5(dbG, verbose);
+  ret = ret && Db::serializeH5(dbG);
 
   return ret;
 }

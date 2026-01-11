@@ -167,7 +167,7 @@ String toStrTitle(Id level, const char* format, ...)
         break;
     }
   }
-  sstr << STRING << std::endl;
+  if (level <= 2) sstr << STRING << std::endl;
 
   return sstr.str();
 }

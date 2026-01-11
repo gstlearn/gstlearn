@@ -1977,7 +1977,7 @@ bool Vario::_isAddressValid(Id idir, Id i) const
   return (i >= 0 && i < getDirSize(idir));
 }
 
-bool Vario::_deserializeAscii(std::istream& is, bool /*verbose*/)
+bool Vario::_deserializeAscii(std::istream& is)
 {
   Id flag_calcul  = 2;
   Id ndim         = 0;
@@ -2098,7 +2098,7 @@ bool Vario::_deserializeAscii(std::istream& is, bool /*verbose*/)
 }
 
 // TODO: add the type of calculation which has been performed
-bool Vario::_serializeAscii(std::ostream& os, bool /*verbose*/) const
+bool Vario::_serializeAscii(std::ostream& os) const
 {
   double value;
   Id flag_calcul = 1;
@@ -5256,7 +5256,7 @@ VectorDouble Vario::computeWeightsFromVario(Id wmode) const
 }
 
 #ifdef HDF5
-bool Vario::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+bool Vario::deserializeH5(H5::Group& grp)
 {
   auto varioG = SerializeHDF5::getGroup(grp, "Vario");
   if (!varioG) return false;
@@ -5356,7 +5356,7 @@ bool Vario::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   return ret;
 }
 
-bool Vario::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+bool Vario::serializeH5(H5::Group& grp) const
 {
   Id flag_calcul = 1;
 

@@ -26,14 +26,21 @@ public:
   RuleShift& operator=(const RuleShift& m);
   virtual ~RuleShift();
 
+  /// ASerializable Interface
+  String getNFName() const override { return "RuleShift"; }
+#ifdef HDF5
+  bool deserializeH5(H5::Group& grp) override;
+  bool serializeH5(H5::Group& grp) const override;
+#endif
+
   String displaySpecific() const override;
 
   Id resetFromNodes(const VectorInt& nodes, const VectorDouble& shift);
   Id resetFromNames(const VectorString& nodnames, const VectorDouble& shift);
   Id resetFromFaciesCount(Id nfacies, const VectorDouble& shift);
   Id resetFromNumericalCoding(const VectorInt& n_type,
-                               const VectorInt& n_facs,
-                               const VectorDouble& shift);
+                              const VectorInt& n_facs,
+                              const VectorDouble& shift);
 
   static RuleShift* createFromNodes(const VectorInt& nodes,
                                     const VectorDouble& shift);
@@ -46,23 +53,23 @@ public:
                                               const VectorDouble& shift);
 
   Id particularities(Db* db,
-                      const Db* dbprop,
-                      Model* model,
-                      Id flag_grid_check,
-                      Id flag_stat) const override;
+                     const Db* dbprop,
+                     Model* model,
+                     Id flag_grid_check,
+                     Id flag_stat) const override;
   Id gaus2facResult(PropDef* propdef,
-                     Db* dbout,
-                     Id* flag_used,
-                     Id ipgs,
-                     Id isimu,
-                     Id nbsimu) const override;
+                    Db* dbout,
+                    Id* flag_used,
+                    Id ipgs,
+                    Id isimu,
+                    Id nbsimu) const override;
   Id evaluateBounds(PropDef* propdef,
-                     Db* dbin,
-                     Db* dbout,
-                     Id isimu,
-                     Id igrf,
-                     Id ipgs,
-                     Id nbsimu) const override;
+                    Db* dbin,
+                    Db* dbout,
+                    Id isimu,
+                    Id igrf,
+                    Id ipgs,
+                    Id nbsimu) const override;
 
   bool checkModel(const Model* model, Id nvar = 0) const override;
 
@@ -73,13 +80,8 @@ public:
   double getShift(Id idim) const { return _shift[idim]; }
 
 protected:
-  bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
-  bool _deserializeAscii(std::istream& is, bool verbose = false) override;
-#ifdef HDF5
-  bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
-  bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
-#endif
-  String _getNFName() const override { return "RuleShift"; }
+  bool _serializeAscii(std::ostream& os) const override;
+  bool _deserializeAscii(std::istream& is) override;
 
 private:
   Id _st_shift_on_grid(Db* db, Id ndim, Id flag_grid_check) const;

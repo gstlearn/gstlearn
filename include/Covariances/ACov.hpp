@@ -64,6 +64,13 @@ public:
   ACov& operator=(const ACov& r);
   virtual ~ACov();
 
+  /// ASerializable Interface
+  String getNFName() const override { return "ACov"; }
+#ifdef HDF5
+  bool deserializeH5(H5::Group& grp) override;
+  bool serializeH5(H5::Group& grp) const override;
+#endif
+
   /// ACov Interface
   virtual Id getNVar() const { return _ctxt.getNVar(); };
   virtual bool isIndexable() const { return false; }
@@ -573,13 +580,6 @@ protected:
                        Id ivar                 = 0,
                        Id jvar                 = 0,
                        const CovCalcMode* mode = nullptr) const = 0;
-
-public:
-  String _getNFName() const override { return "ACov"; }
-#ifdef HDF5
-  bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
-  bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
-#endif
 
 private:
   virtual void _makeStationary();

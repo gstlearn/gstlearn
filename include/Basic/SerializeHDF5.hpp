@@ -154,7 +154,7 @@ namespace SerializeHDF5
     writeValue(metadata, "Description",
                "This file is used to Serialize gstlearn's internal data structures");
     writeValue(metadata, "Format version", "1.0.0");
-    writeValue(metadata, "Class_Type", parent._getNFName());
+    writeValue(metadata, "Class_Type", parent.getNFName());
     return file;
   }
 

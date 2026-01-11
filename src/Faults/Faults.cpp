@@ -63,16 +63,16 @@ String Faults::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-bool Faults::_serializeAscii(std::ostream& os, bool verbose) const
+bool Faults::_serializeAscii(std::ostream& os) const
 {
   bool ret = true;
   ret      = ret && _recordWrite<Id>(os, "Number of Faults", getNFaults());
   for (Id i = 0; ret && i < getNFaults(); i++)
-    ret = ret && _faults[i]._serializeAscii(os, verbose);
+    ret = ret && _faults[i]._serializeAscii(os);
   return ret;
 }
 
-bool Faults::_deserializeAscii(std::istream& is, bool verbose)
+bool Faults::_deserializeAscii(std::istream& is)
 {
   Id nfaults = 0;
   bool ret   = true;
@@ -81,7 +81,7 @@ bool Faults::_deserializeAscii(std::istream& is, bool verbose)
   for (Id i = 0; ret && i < nfaults; i++)
   {
     PolyLine2D fault;
-    ret = ret && fault._deserializeAscii(is, verbose);
+    ret = ret && fault._deserializeAscii(is);
     addFault(fault);
   }
   return ret;
@@ -161,7 +161,7 @@ bool Faults::isSplitByFault(double xt1, double yt1, double xt2, double yt2) cons
 }
 
 #ifdef HDF5
-bool Faults::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+bool Faults::deserializeH5(H5::Group& grp)
 {
   auto faultG = SerializeHDF5::getGroup(grp, "Faults");
   if (!faultG) return false;
@@ -181,13 +181,13 @@ bool Faults::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
     if (!lineG) return false;
 
     PolyLine2D fault;
-    ret = ret && fault._deserializeH5(*lineG, verbose);
+    ret = ret && fault.deserializeH5(*lineG);
     addFault(fault);
   }
   return ret;
 }
 
-bool Faults::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+bool Faults::serializeH5(H5::Group& grp) const
 {
   auto faultG = grp.createGroup("Faults");
 
@@ -201,7 +201,7 @@ bool Faults::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
     String locName = "Line" + std::to_string(ifault);
     auto lineG     = faultsG.createGroup(locName);
 
-    ret = ret && _faults[ifault]._serializeH5(lineG, verbose);
+    ret = ret && _faults[ifault].serializeH5(lineG);
   }
 
   return ret;

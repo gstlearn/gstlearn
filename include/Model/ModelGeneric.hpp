@@ -57,14 +57,21 @@ public:
   ModelGeneric& operator=(const ModelGeneric& r);
   virtual ~ModelGeneric();
 
+public:
+  /// ICloneable interface
+  IMPLEMENT_CLONING(ModelGeneric)
+
+  /// ASeralizable Interface
+  String getNFName() const override { return "ModelGeneric"; }
+#ifdef HDF5
+  bool deserializeH5(H5::Group& grp) override;
+  bool serializeH5(H5::Group& grp) const override;
+#endif
+
   // getters for member pointers
   const ACov* getCov() const { return _cova.get(); }
   const CovContext* getContext() const { return &_ctxt; }
   const DriftList* getDriftList() const { return _driftList; }
-
-public:
-  /// ICloneable interface
-  IMPLEMENT_CLONING(ModelGeneric)
 
   ACov* _getCovModify() { return _cova.get(); }
   CovContext* _getContextModify() { return &_ctxt; }
@@ -238,14 +245,6 @@ protected:                     // TODO : pass into private to finish clean
   DriftList* _driftList;  /* Series of Drift functions */
   CovContext _ctxt;       /* Context */
   ATransform* _transform; /* Transformation associated to the Model */
-
-public:
-  /// Interface to ASerializable
-  String _getNFName() const override { return "ModelGeneric"; }
-#ifdef HDF5
-  bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
-  bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
-#endif
 };
 
 GSTLEARN_EXPORT Id computeCovMatSVCLHSInPlace(MatrixSymmetric& cov,

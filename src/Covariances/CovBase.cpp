@@ -23,6 +23,7 @@
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Space/SpacePoint.hpp"
 #include "geoslib_define.h"
+#include <cmath>
 #include <cstddef>
 #include <memory>
 
@@ -284,8 +285,7 @@ void CovBase::_attachNoStatDb(const Db* db)
 
 Id CovBase::makeElemNoStat(const EConsElem& econs, Id iv1, Id iv2, const AFunctional* func, const Db* db, const String& namecol)
 {
-  Id a = ACov::makeElemNoStat(econs, iv1, iv2, func, db, namecol);
-  if (a) return 1;
+  if (ACov::makeElemNoStat(econs, iv1, iv2, func, db, namecol)) return 1;
 
   return _cor->makeElemNoStat(econs, iv1, iv2, func, db, namecol);
 }
@@ -641,7 +641,7 @@ void CovBase::updateCov()
 }
 
 #ifdef HDF5
-bool CovBase::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+bool CovBase::deserializeH5(H5::Group& grp)
 {
   bool ret = true;
 
@@ -651,12 +651,17 @@ bool CovBase::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   setSill(sills);
 
   // Retreive the CorAniso
-  ret = ret && _cor->_deserializeH5(grp, verbose);
+  ret = ret && _cor->deserializeH5(grp);
+
+  // Non stationary case.  Look for "NonStat" paragraph. It not found, simply return ... silently
+  auto nostatG = SerializeHDF5::getGroup(grp, "NoStatSills", false);
+  if (nostatG)
+    ret = ret && _tabNoStat->deserializeH5(*nostatG);
 
   return ret;
 }
 
-bool CovBase::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+bool CovBase::serializeH5(H5::Group& grp) const
 {
   bool ret = true;
 
@@ -664,7 +669,14 @@ bool CovBase::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
   ret = ret && SerializeHDF5::writeVec(grp, "Sill Matrix", getSill().getValues());
 
   // Serialize the CorAniso
-  ret = ret && _cor->_serializeH5(grp, verbose);
+  ret = ret && _cor->serializeH5(grp);
+
+  // Non stationary case
+  if (isNoStat())
+  {
+    auto nonstatG = grp.createGroup("NoStatSills");
+    ret           = ret && _tabNoStat->serializeH5(nonstatG);
+  }
 
   return ret;
 }

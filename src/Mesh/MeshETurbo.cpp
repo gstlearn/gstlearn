@@ -507,7 +507,7 @@ bool MeshETurbo::_addElementToTriplet(NF_Triplet& NF_T,
 
   // Check if the point is actually on the node
   bool on_corner = true;
-  auto ndim = getNDim();
+  auto ndim      = getNDim();
   for (Id idim = 0; idim < ndim; idim++)
   {
     if (_grid.indiceToCoordinate(idim, indg0) != coor[idim])
@@ -539,7 +539,7 @@ bool MeshETurbo::_addElementToTriplet(NF_Triplet& NF_T,
     }
 
     // Apply the shift and check if result is still within the grid
-    VectorInt indg = indg0;
+    VectorInt indg  = indg0;
     bool valid_node = true;
     for (Id idim = 0; idim < ndim; idim++)
     {
@@ -1019,7 +1019,7 @@ Id MeshETurbo::initFromCova(const CovAniso& cova,
   return 0;
 }
 
-bool MeshETurbo::_deserializeAscii(std::istream& is, bool /*verbose*/)
+bool MeshETurbo::_deserializeAscii(std::istream& is)
 {
   Id ndim = 0;
   VectorInt nx;
@@ -1070,7 +1070,7 @@ bool MeshETurbo::_deserializeAscii(std::istream& is, bool /*verbose*/)
   return ret;
 }
 
-bool MeshETurbo::_serializeAscii(std::ostream& os, bool /*verbose*/) const
+bool MeshETurbo::_serializeAscii(std::ostream& os) const
 {
   bool ret = true;
   ret      = ret && _recordWrite<Id>(os, "Space Dimension", getNDim());
@@ -1099,7 +1099,7 @@ bool MeshETurbo::_serializeAscii(std::ostream& os, bool /*verbose*/) const
 }
 
 #ifdef HDF5
-bool MeshETurbo::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+bool MeshETurbo::deserializeH5(H5::Group& grp)
 {
   auto meshG = SerializeHDF5::getGroup(grp, "MeshETurbo");
   if (!meshG)
@@ -1158,7 +1158,7 @@ bool MeshETurbo::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   return ret;
 }
 
-bool MeshETurbo::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+bool MeshETurbo::serializeH5(H5::Group& grp) const
 {
   auto meshG = grp.createGroup("MeshETurbo");
 

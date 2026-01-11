@@ -689,7 +689,7 @@ Id Model::fitFromVMap(DbGrid* dbmap,
   return vmap_auto_fit(dbmap, this, verbose, mauto, constraints, optvar);
 }
 
-bool Model::_deserializeAscii(std::istream& is, bool /*verbose*/)
+bool Model::_deserializeAscii(std::istream& is)
 {
   Id ndim          = 0;
   Id nvar          = 0;
@@ -824,7 +824,7 @@ bool Model::_deserializeAscii(std::istream& is, bool /*verbose*/)
   return ret;
 }
 
-bool Model::_serializeAscii(std::ostream& os, bool /*verbose*/) const
+bool Model::_serializeAscii(std::ostream& os) const
 {
   bool ret = true;
 
@@ -1257,7 +1257,7 @@ Model* Model::createFillRandom(Id ndim,
 }
 
 #ifdef HDF5
-bool Model::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+bool Model::deserializeH5(H5::Group& grp)
 {
   auto modelG = SerializeHDF5::getGroup(grp, "Model");
   if (!modelG) return false;
@@ -1269,7 +1269,7 @@ bool Model::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   ret        = ret && SerializeHDF5::readValue(*modelG, "Version Number", version);
   if (ret)
   {
-    ret = ret && ModelGeneric::_deserializeH5(grp, verbose);
+    ret = ret && ModelGeneric::deserializeH5(grp);
     return ret;
   }
 

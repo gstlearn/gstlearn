@@ -111,7 +111,7 @@ void FracFault::addFaultPerFamily(double thetal,
   _ranger[nfam] = ranger;
 }
 
-bool FracFault::_deserializeAscii(std::istream& is, bool /*verbose*/)
+bool FracFault::_deserializeAscii(std::istream& is)
 {
   bool ret  = true;
   auto nfam = getNFamilies();
@@ -125,7 +125,7 @@ bool FracFault::_deserializeAscii(std::istream& is, bool /*verbose*/)
   return ret;
 }
 
-bool FracFault::_serializeAscii(std::ostream& os, bool /*verbose*/) const
+bool FracFault::_serializeAscii(std::ostream& os) const
 {
   bool ret = true;
   ret      = ret && _recordWrite<double>(os, "Abscissa of the first Fault point", _coord);
@@ -139,7 +139,7 @@ bool FracFault::_serializeAscii(std::ostream& os, bool /*verbose*/) const
 }
 
 #ifdef HDF5
-bool FracFault::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+bool FracFault::deserializeH5(H5::Group& grp)
 {
   auto faultG = SerializeHDF5::getGroup(grp, "Faults");
   if (!faultG)
@@ -162,7 +162,7 @@ bool FracFault::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   return ret;
 }
 
-bool FracFault::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+bool FracFault::serializeH5(H5::Group& grp) const
 {
   auto faultG = grp.createGroup("FracFault");
 

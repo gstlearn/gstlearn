@@ -9,10 +9,14 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Covariances/TabNoStat.hpp"
+#include "Basic/ASerializable.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/SerializeHDF5.hpp"
 #include "Basic/VectorNumT.hpp"
+#include "Covariances/NoStatArray.hpp"
 #include "Covariances/ParamId.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 #include "Enum/EConsElem.hpp"
 #include "geoslib_define.h"
 #include <memory>
@@ -21,13 +25,16 @@ namespace gstlrn
 {
 
 TabNoStat::TabNoStat()
-  : _items()
+  : AStringable()
+  , ASerializable()
+  , _items()
   , _dbNoStatRef(nullptr)
 {
 }
 
 TabNoStat::TabNoStat(const TabNoStat& m)
   : AStringable(m)
+  , ASerializable(m)
 {
   _dbNoStatRef = m._dbNoStatRef;
   _items       = m._items;
@@ -37,6 +44,8 @@ TabNoStat& TabNoStat::operator=(const TabNoStat& m)
 {
   if (this != &m)
   {
+    AStringable::operator=(m);
+    ASerializable::operator=(m);
     _dbNoStatRef = m._dbNoStatRef;
     _items       = m._items;
   }
@@ -92,6 +101,7 @@ String TabNoStat::toString(const AStringFormat* strfmt) const
 {
   return toStringInside(strfmt, 0);
 }
+
 String TabNoStat::toStringInside(const AStringFormat* strfmt, Id i) const
 {
   std::stringstream sstr;
@@ -226,4 +236,95 @@ void TabNoStat::informDbOut(const Db* dbout, const EConsElem& econs) const
 TabNoStat::~TabNoStat()
 {
 }
+
+bool TabNoStat::variableExistsInDb(const String& namecol) const
+{
+  if (_dbNoStatRef->getUID(namecol) < 0)
+  {
+    messerr("The Name of the Non-stationary variable (%s) does not exist in the Reference Db",
+            namecol.c_str());
+    return false;
+  }
+  return true;
+}
+
+#ifdef HDF5
+bool TabNoStat::deserializeH5(H5::Group& grp)
+{
+  bool ret = true;
+  Id nrank = 0;
+  ret      = ret && SerializeHDF5::readValue(grp, "Number of items", nrank);
+
+  // Explicit loop to read the non-stationary parameters
+  Id type = 0;
+  Id iv1  = 0;
+  Id iv2  = 0;
+  String colName;
+  bool isGrid = false;
+  for (Id rank = 0; rank < nrank; rank++)
+  {
+    String locName = "Param_" + std::to_string(rank + 1);
+    auto itemG     = SerializeHDF5::getGroup(grp, locName, false);
+    if (!itemG) return true;
+
+    ret = ret && SerializeHDF5::readValue(*itemG, "Type", type);
+    ret = ret && SerializeHDF5::readValue(*itemG, "IV1", iv1);
+    ret = ret && SerializeHDF5::readValue(*itemG, "IV2", iv2);
+    ret = ret && SerializeHDF5::readValue(*itemG, "ColName", colName);
+    ret = ret && SerializeHDF5::readValue(*itemG, "dbIsGrid", isGrid);
+
+    if (isGrid)
+    {
+      auto* dbgrid = new DbGrid();
+      ret          = ret && dbgrid->deserializeH5(*itemG);
+      setDbNoStatRef(dbgrid);
+      delete dbgrid;
+    }
+    else
+    {
+      auto* db = new Db();
+      ret      = ret && db->deserializeH5(*itemG);
+      setDbNoStatRef(db);
+      delete db;
+    }
+
+    // Check that the variable exists
+    if (!variableExistsInDb(colName)) return false;
+
+    std::shared_ptr<ANoStat> ns;
+    ns                     = std::shared_ptr<ANoStat>(new NoStatArray(getDbNoStatRef(), colName));
+    const EConsElem& econs = EConsElem::fromValue(type);
+    addElem(ns, econs, iv1, iv2);
+  }
+
+  return ret;
+}
+
+bool TabNoStat::serializeH5(H5::Group& grp) const
+{
+  bool ret = true;
+  ret      = ret && SerializeHDF5::writeValue(grp, "Number of items", size());
+
+  // Implicit loop to write the non-stationary parameters (in NoStatArray style)
+  Id rank = 0;
+  for (const auto& [paramId, noStatPtr]: _items)
+  {
+    rank++;
+    auto& sna = dynamic_cast<NoStatArray&>(*noStatPtr);
+
+    const auto& dbnostat = sna.getDbNoStat();
+    bool isGrid          = dbnostat->isGrid();
+
+    auto itemG = grp.createGroup("Param_" + std::to_string(rank));
+    ret        = ret && SerializeHDF5::writeValue(itemG, "Type", paramId.getType().getValue());
+    ret        = ret && SerializeHDF5::writeValue(itemG, "IV1", paramId.getIV1());
+    ret        = ret && SerializeHDF5::writeValue(itemG, "IV2", paramId.getIV2());
+    ret        = ret && SerializeHDF5::writeValue(itemG, "ColName", sna.getColName());
+    ret        = ret && SerializeHDF5::writeValue(itemG, "dbIsGrid", isGrid);
+    ret        = ret && dbnostat->serializeH5(itemG);
+  }
+  return ret;
+}
+#endif
+
 } // namespace gstlrn

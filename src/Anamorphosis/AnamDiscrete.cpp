@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Anamorphosis/AnamDiscrete.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/SerializeHDF5.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Stats/Selectivity.hpp"
@@ -89,7 +88,7 @@ String AnamDiscrete::toString(const AStringFormat* /*strfmt*/) const
   sstr << toStrMatrix("Cutoffs", VectorString(), VectorString(), true, _nCut, 1, _zCut);
 
   sstr << toStrMatrix(String(), VectorString(), VectorString(), true, getNClass(), getNElem(),
-                   getStats().getValues());
+                      getStats().getValues());
 
   return sstr.str();
 }
@@ -228,7 +227,7 @@ bool AnamDiscrete::_isClassValid(Id iclass) const
   return checkArg("Class Index", iclass, getNClass());
 }
 
-bool AnamDiscrete::_serializeAscii(std::ostream& os, bool /*verbose*/) const
+bool AnamDiscrete::_serializeAscii(std::ostream& os) const
 {
   bool ret = true;
   ret      = ret && _recordWrite<Id>(os, "Number of Cuttofs", getNCut());
@@ -239,7 +238,7 @@ bool AnamDiscrete::_serializeAscii(std::ostream& os, bool /*verbose*/) const
   return ret;
 }
 
-bool AnamDiscrete::_deserializeAscii(std::istream& is, bool /*verbose*/)
+bool AnamDiscrete::_deserializeAscii(std::istream& is)
 {
   VectorDouble zCut, stats;
   Id nCut   = 0;
@@ -305,7 +304,7 @@ void AnamDiscrete::setStats(const VectorDouble& stats)
   _stats.setValues(stats);
 }
 #ifdef HDF5
-bool AnamDiscrete::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+bool AnamDiscrete::deserializeH5(H5::Group& grp)
 {
   auto anamG = SerializeHDF5::getGroup(grp, "AnamDiscrete");
   if (!anamG)
@@ -338,7 +337,7 @@ bool AnamDiscrete::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   return ret;
 }
 
-bool AnamDiscrete::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+bool AnamDiscrete::serializeH5(H5::Group& grp) const
 {
   auto anamG = grp.createGroup("AnamDiscrete");
 

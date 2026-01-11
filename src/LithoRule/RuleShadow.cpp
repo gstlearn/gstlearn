@@ -103,7 +103,7 @@ RuleShadow::~RuleShadow()
 {
 }
 
-bool RuleShadow::_deserializeAscii(std::istream& is, bool /*verbose*/)
+bool RuleShadow::_deserializeAscii(std::istream& is)
 {
   bool ret = true;
   _shift.resize(3);
@@ -119,7 +119,7 @@ bool RuleShadow::_deserializeAscii(std::istream& is, bool /*verbose*/)
   return ret;
 }
 
-bool RuleShadow::_serializeAscii(std::ostream& os, bool /*verbose*/) const
+bool RuleShadow::_serializeAscii(std::ostream& os) const
 {
   double slope          = (FFFF(_slope)) ? 0. : _slope;
   double shdown         = (FFFF(_shDown)) ? 0. : _shDown;
@@ -695,7 +695,7 @@ void RuleShadow::_normalizeShift()
   if (!_shift.empty()) _shift.normalizeInPlace();
 }
 #ifdef HDF5
-bool RuleShadow::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+bool RuleShadow::deserializeH5(H5::Group& grp)
 {
   auto ruleG = SerializeHDF5::getGroup(grp, "RuleShadow");
   if (!ruleG)
@@ -713,12 +713,12 @@ bool RuleShadow::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   ret = ret && SerializeHDF5::readValue(*ruleG, "ShDsup", _shDsup);
   ret = ret && SerializeHDF5::readVec(*ruleG, "ShiftLoc", _shift);
 
-  ret = ret && Rule::_deserializeH5(*ruleG, verbose);
+  ret = ret && Rule::deserializeH5(*ruleG);
 
   return ret;
 }
 
-bool RuleShadow::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+bool RuleShadow::serializeH5(H5::Group& grp) const
 {
   auto ruleG = grp.createGroup("RuleShadow");
 
@@ -735,7 +735,7 @@ bool RuleShadow::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) con
   ret = ret && SerializeHDF5::writeValue(ruleG, "ShDsup", shdsup);
   ret = ret && SerializeHDF5::writeVec(ruleG, "ShiftLoc", shiftloc);
 
-  ret = ret && Rule::_serializeH5(ruleG, verbose);
+  ret = ret && Rule::serializeH5(ruleG);
 
   return ret;
 }

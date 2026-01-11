@@ -9,13 +9,12 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Covariances/TabNoStatSills.hpp"
-#include "Covariances/ParamId.hpp"
 #include "Covariances/TabNoStat.hpp"
 #include "Enum/EConsElem.hpp"
 #include "geoslib_define.h"
 
 namespace gstlrn
-{ 
+{
 TabNoStatSills::TabNoStatSills()
 {
 }
@@ -43,20 +42,6 @@ String TabNoStatSills::toString(const AStringFormat* strfmt) const
 {
   return toStringInside(strfmt, 0);
 }
-String TabNoStatSills::toStringInside(const AStringFormat* strfmt, Id i) const
-{
-  std::stringstream sstr;
-  if (empty()) return sstr.str();
-
-  for (const auto& e: getTable())
-  {
-    sstr << std::to_string(i + 1) << " - ";
-    sstr << e.first.toString(strfmt);
-    sstr << e.second->toString(strfmt);
-    i++;
-  }
-  return sstr.str();
-}
 
 bool TabNoStatSills::isDefinedForVariance() const
 {
@@ -71,4 +56,4 @@ Id TabNoStatSills::getNSills() const
 TabNoStatSills::~TabNoStatSills()
 {
 }
-}
+} // namespace gstlrn

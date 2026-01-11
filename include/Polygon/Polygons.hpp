@@ -14,8 +14,8 @@
 
 #include "Basic/ASerializable.hpp"
 #include "Basic/AStringable.hpp"
-#include "Basic/ICloneable.hpp"
 #include "Basic/CSVformat.hpp"
+#include "Basic/ICloneable.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Polygon/PolyElem.hpp"
 
@@ -36,6 +36,13 @@ public:
 
   /// Interface to AStringable
   String toString(const AStringFormat* strfmt = nullptr) const override;
+
+  /// ASerializable Interface
+  String getNFName() const override { return "Polygon"; }
+#ifdef HDF5
+  bool deserializeH5(H5::Group& grp) override;
+  bool serializeH5(H5::Group& grp) const override;
+#endif
 
   Id resetFromDb(const Db* db, double dilate = 0., bool verbose = false);
   Id resetFromCSV(const String& filename,
@@ -98,16 +105,8 @@ public:
   Polygons reduceComplexity(double distmin) const;
 
 protected:
-  bool _deserializeAscii(std::istream& is, bool verbose = false) override;
-  bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
-#ifdef HDF5
-  bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
-  bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
-#endif
-  String _getNFName() const override
-  {
-    return "Polygon";
-  }
+  bool _deserializeAscii(std::istream& is) override;
+  bool _serializeAscii(std::ostream& os) const override;
 
 private:
   static PolyElem _extractFromTab(Id ideb, Id ifin, Id ncol, const VectorDouble& tab);

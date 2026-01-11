@@ -59,6 +59,13 @@ public:
   /// AStringable Interface
   String toString(const AStringFormat* strfmt = nullptr) const override;
 
+  /// ASerializable Interface
+  String getNFName() const override { return "DriftList"; }
+#ifdef HDF5
+  bool deserializeH5(H5::Group& grp) override;
+  bool serializeH5(H5::Group& grp) const override;
+#endif
+
   Id getNVar() const { return _ctxt.getNVar(); }
   Id getNDrift() const { return static_cast<Id>(_drifts.size()); }
   bool hasDrift() const { return !_drifts.empty(); }
@@ -196,13 +203,6 @@ private:
   double _getDriftCL(Id ivar, Id il, Id ib) const { return _driftCL[_getAddress(ivar, il, ib)]; }
   void _setDriftCL(Id ivar, Id il, Id ib, double value) { _driftCL[_getAddress(ivar, il, ib)] = value; }
   VectorInt _getActiveVariables(Id ivar0) const;
-
-public:
-#ifdef HDF5
-  bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
-  bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
-#endif
-  String _getNFName() const override { return "DriftList"; }
 
 #ifndef SWIG
 

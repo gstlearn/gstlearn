@@ -4949,7 +4949,7 @@ Db* Db::createFromNF(const String& NFFilename, bool verbose)
   return nullptr;
 }
 
-bool Db::_serializeAscii(std::ostream& os, bool /*verbose*/) const
+bool Db::_serializeAscii(std::ostream& os) const
 {
   auto ncol             = getNColumn();
   VectorString locators = getLocators(true);
@@ -4970,7 +4970,7 @@ bool Db::_serializeAscii(std::ostream& os, bool /*verbose*/) const
   return ret;
 }
 
-bool Db::_deserializeAscii(std::istream& is, bool /*verbose*/)
+bool Db::_deserializeAscii(std::istream& is)
 {
   Id ncol = 0;
   Id nech = 0;
@@ -5026,7 +5026,7 @@ bool Db::_deserializeAscii(std::istream& is, bool /*verbose*/)
 }
 
 #ifdef HDF5
-bool Db::_serializeH5(H5::Group& grp, bool /*verbose*/) const
+bool Db::serializeH5(H5::Group& grp) const
 {
   auto dbG = grp.createGroup("Db");
 
@@ -5061,7 +5061,7 @@ bool Db::_serializeH5(H5::Group& grp, bool /*verbose*/) const
   return true;
 }
 
-bool Db::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+bool Db::deserializeH5(H5::Group& grp)
 {
   auto dbG = SerializeHDF5::getGroup(grp, "Db");
   if (!dbG)

@@ -11,8 +11,8 @@
 #pragma once
 
 #include "Basic/ICloneable.hpp"
-#include "gstlearn_export.hpp"
 #include "geoslib_define.h"
+#include "gstlearn_export.hpp"
 
 #include "Enum/ENeigh.hpp"
 
@@ -42,7 +42,16 @@ public:
   NeighUnique& operator=(const NeighUnique& r);
   virtual ~NeighUnique();
 
+  /// ICloneable Interface
   IMPLEMENT_CLONING(NeighUnique)
+
+  /// ASerializable Interface
+  String getNFName() const override { return "NeighUnique"; }
+#ifdef HDF5
+  bool deserializeH5(H5::Group& grp) override;
+  bool serializeH5(H5::Group& grp) const override;
+#endif
+
   /// Interface for ANeigh
   void getNeigh(Id iech_out, VectorInt& ranks) override;
   Id getNSampleMax(const Db* db) const override;
@@ -56,15 +65,10 @@ public:
   static NeighUnique* createFromNF(const String& NFFilename, bool verbose = true);
 
 protected:
-  bool _deserializeAscii(std::istream& is, bool verbose = false) override;
-  bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
-#ifdef HDF5
-  bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
-  bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
-#endif
-  String _getNFName() const override { return "NeighUnique"; }
+  bool _deserializeAscii(std::istream& is) override;
+  bool _serializeAscii(std::ostream& os) const override;
 
 private:
   void _unique(Id iech_out, VectorInt& ranks);
 };
-}
+} // namespace gstlrn

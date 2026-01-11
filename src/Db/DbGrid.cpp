@@ -754,34 +754,33 @@ bool DbGrid::isConsistent() const
   return _grid.getNTotal() == getNSample();
 }
 
-bool DbGrid::_deserializeAscii(std::istream& is, bool verbose)
+bool DbGrid::_deserializeAscii(std::istream& is)
 {
   bool ret = true;
 
-  ret = ret && _grid._deserializeAscii(is, verbose);
+  ret = ret && _grid._deserializeAscii(is);
 
-  ret = ret && Db::_deserializeAscii(is, verbose);
+  ret = ret && Db::_deserializeAscii(is);
 
   return ret;
 }
 
-bool DbGrid::_serializeAscii(std::ostream& os, bool verbose) const
+bool DbGrid::_serializeAscii(std::ostream& os) const
 {
   bool ret = true;
 
   /* Writing the grid characteristics */
 
-  ret = ret && _grid._serializeAscii(os, verbose);
+  ret = ret && _grid._serializeAscii(os);
 
   /* Writing the tail of the file */
 
-  ret = ret && Db::_serializeAscii(os, verbose);
-
+  ret = ret && Db::_serializeAscii(os);
   return ret;
 }
 
 #ifdef HDF5
-bool DbGrid::_deserializeH5(H5::Group& grp, bool verbose)
+bool DbGrid::deserializeH5(H5::Group& grp)
 {
   auto dbgridG = SerializeHDF5::getGroup(grp, "DbGrid");
   if (!dbgridG)
@@ -792,25 +791,25 @@ bool DbGrid::_deserializeH5(H5::Group& grp, bool verbose)
   bool ret = true;
 
   // call _deserializeAscii on each member with the current class Group
-  ret = ret && _grid._deserializeH5(*dbgridG, verbose);
+  ret = ret && _grid.deserializeH5(*dbgridG);
 
   // call _deserializeAscii on the parent class with the current class Group
-  ret = ret && Db::_deserializeH5(*dbgridG, verbose);
+  ret = ret && Db::deserializeH5(*dbgridG);
 
   return ret;
 }
 
-bool DbGrid::_serializeH5(H5::Group& grp, bool verbose) const
+bool DbGrid::serializeH5(H5::Group& grp) const
 {
   auto dbgridG = grp.createGroup("DbGrid");
 
   bool ret = true;
 
   // call _serializeAscii on each member with the current class Group
-  ret = ret && _grid._serializeH5(dbgridG, verbose);
+  ret = ret && _grid.serializeH5(dbgridG);
 
   // call _serializeAscii on the parent class with the current class Group
-  ret = ret && Db::_serializeH5(dbgridG, verbose);
+  ret = ret && Db::serializeH5(dbgridG);
 
   return ret;
 }

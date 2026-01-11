@@ -11,15 +11,15 @@
 #pragma once
 
 #include "Anamorphosis/AAnam.hpp"
-#include "geoslib_define.h"
-#include "gstlearn_export.hpp"
-
 #include "Basic/ASerializable.hpp"
 #include "Covariances/CovCalcMode.hpp"
 #include "Db/DbGrid.hpp"
 #include "Geometry/ABiTargetCheck.hpp"
 #include "Variogram/AVario.hpp"
 #include "Variogram/VarioParam.hpp"
+
+#include "geoslib_define.h"
+#include "gstlearn_export.hpp"
 
 namespace gstlrn
 {
@@ -105,6 +105,13 @@ public:
 
   /// AStringable Interface
   String toString(const AStringFormat* strfmt = nullptr) const override;
+
+  /// ASerializable Interface
+  String getNFName() const override { return "Vario"; }
+#ifdef HDF5
+  bool deserializeH5(H5::Group& grp) override;
+  bool serializeH5(H5::Group& grp) const override;
+#endif
 
   /// AVario Interface
   double _getIVAR(const Db* db, Id iech, Id ivar) const override;
@@ -394,13 +401,8 @@ public:
   void varioDump(Id idir = 0, const String& title = String()) const;
 
 protected:
-  bool _deserializeAscii(std::istream& is, bool verbose = false) override;
-  bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
-#ifdef HDF5
-  bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
-  bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
-#endif
-  String _getNFName() const override { return "Vario"; }
+  bool _deserializeAscii(std::istream& is) override;
+  bool _serializeAscii(std::ostream& os) const override;
 
 private:
   bool _isVariableValid(Id ivar) const;

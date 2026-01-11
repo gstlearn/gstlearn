@@ -454,7 +454,7 @@ void ModelGeneric::setTransform(const ATransform* transform)
 }
 
 #ifdef HDF5
-bool ModelGeneric::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+bool ModelGeneric::deserializeH5(H5::Group& grp)
 {
   auto modelG = SerializeHDF5::getGroup(grp, "Model");
   if (!modelG) return false;
@@ -464,7 +464,7 @@ bool ModelGeneric::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   ret            = ret && SerializeHDF5::readValue(*modelG, "Version Number", varioNumber);
   if (varioNumber != 2)
   {
-    messerr("ModelGeneric::_deserializeH5: Unsupported version %d", varioNumber);
+    messerr("ModelGeneric::deserializeH5: Unsupported version %d", varioNumber);
     return false;
   }
 
@@ -485,10 +485,10 @@ bool ModelGeneric::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   _create(); // Requires the context to exist
 
   // Process the Covariances
-  ret = ret && _cova->_deserializeH5(*modelG, verbose);
+  ret = ret && _cova->deserializeH5(*modelG);
 
   // Process the drift part
-  ret = ret && _driftList->_deserializeH5(*modelG, verbose);
+  ret = ret && _driftList->deserializeH5(*modelG);
 
   // Process the covariance matrix
   VectorDouble covar0s;
@@ -498,7 +498,7 @@ bool ModelGeneric::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   return ret;
 }
 
-bool ModelGeneric::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+bool ModelGeneric::serializeH5(H5::Group& grp) const
 {
   bool ret = true;
 
@@ -512,10 +512,10 @@ bool ModelGeneric::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) c
   ret = ret && SerializeHDF5::writeValue(modelG, "Field", getField());
 
   // Serialize the covariance part
-  ret = ret && _cova->_serializeH5(modelG, verbose);
+  ret = ret && _cova->serializeH5(modelG);
 
   // Serialize the drift part
-  ret = ret && _driftList->_serializeH5(modelG, verbose);
+  ret = ret && _driftList->serializeH5(modelG);
 
   /// Serialize the variance-covariance at the origin
   ret = ret && SerializeHDF5::writeVec(modelG, "VarCov0", getCovar0());

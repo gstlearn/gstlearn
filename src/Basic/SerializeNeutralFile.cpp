@@ -33,7 +33,7 @@ bool SerializeNeutralFile::fileOpenWrite(const ASerializable& parent,
     return false;
   }
   // Write the file type (class name)
-  os << parent._getNFName() << std::endl;
+  os << parent.getNFName() << std::endl;
   return os.good();
 }
 
@@ -58,11 +58,11 @@ bool SerializeNeutralFile::fileOpenRead(const ASerializable& parent,
   // Read and check the file type (class name)
   String type;
   is >> type;
-  if (type != parent._getNFName())
+  if (type != parent.getNFName())
   {
     if (verbose)
       messerr("The file %s has the wrong type (read: %s, expected: %s)", filepath.c_str(),
-              type.c_str(), parent._getNFName().c_str());
+              type.c_str(), parent.getNFName().c_str());
     is.close();
     return false;
   }

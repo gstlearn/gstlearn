@@ -14,11 +14,11 @@
 #include "Matrix/NF_Triplet.hpp"
 #include "gstlearn_export.hpp"
 
-#include "Db/Db.hpp"
-#include "Basic/NamingConvention.hpp"
 #include "Basic/ICloneable.hpp"
+#include "Basic/NamingConvention.hpp"
+#include "Db/Db.hpp"
 
-namespace gstlrn 
+namespace gstlrn
 {
 
 /**
@@ -52,30 +52,37 @@ public:
   /// AStringable Interface
   String toString(const AStringFormat* strfmt = nullptr) const override;
 
+  /// ASerializable Interface
+  String getNFName() const override { return "DbGraphO"; }
+#ifdef HDF5
+  bool deserializeH5(H5::Group& grp) override;
+  bool serializeH5(H5::Group& grp) const override;
+#endif
+
   /// Db Interface
   bool isLine() const override { return true; }
   bool mayChangeSampleNumber() const override { return false; }
   bool isConsistent() const override;
 
   Id resetFromSamples(Id nech,
-                       const ELoadBy& order,
-                       const VectorDouble& tab,
-                       NF_Triplet& NF_arcs,
-                       const VectorString& names        = VectorString(),
-                       const VectorString& locatorNames = VectorString(),
-                       bool flagAddSampleRank           = true);
+                      const ELoadBy& order,
+                      const VectorDouble& tab,
+                      NF_Triplet& NF_arcs,
+                      const VectorString& names        = VectorString(),
+                      const VectorString& locatorNames = VectorString(),
+                      bool flagAddSampleRank           = true);
   Id resetFromMatrix(Id nech,
-                       const ELoadBy& order,
-                       const VectorDouble& tab,
-                       const MatrixSparse& MatArcs,
-                       const VectorString& names        = VectorString(),
-                       const VectorString& locatorNames = VectorString(),
-                       bool flagAddSampleRank           = true);
+                     const ELoadBy& order,
+                     const VectorDouble& tab,
+                     const MatrixSparse& MatArcs,
+                     const VectorString& names        = VectorString(),
+                     const VectorString& locatorNames = VectorString(),
+                     bool flagAddSampleRank           = true);
   static DbGraphO* createFromSamples(Id nech,
                                      const ELoadBy& order,
                                      const VectorDouble& tab,
                                      NF_Triplet& NF_arcs,
-                                     const VectorString& names = VectorString(),
+                                     const VectorString& names        = VectorString(),
                                      const VectorString& locatorNames = VectorString(),
                                      bool flagAddSampleRank           = true);
 
@@ -109,16 +116,11 @@ public:
   void setArcLine(const VectorInt& nodes, double value = 1.);
 
 protected:
-  bool _deserializeAscii(std::istream& is, bool verbose = false) override;
-  bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
-#ifdef HDF5
-  bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
-  bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
-#endif
-  String _getNFName() const override { return "DbGraphO"; }
+  bool _deserializeAscii(std::istream& is) override;
+  bool _serializeAscii(std::ostream& os) const override;
 
 private:
-  Id  _arcLinkage(NF_Triplet& NF_arcs, Id nech);
+  Id _arcLinkage(NF_Triplet& NF_arcs, Id nech);
   bool _isValidArcRank(Id iarc) const;
   bool _isValidNode(Id node) const;
   void _checkForceDimension(Id nech);
@@ -137,4 +139,4 @@ private:
   // corresponding matrix value is non zero.
   MatrixSparse _downArcs;
 };
-}
+} // namespace gstlrn

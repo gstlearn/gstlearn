@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Db/DbGraphO.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/SerializeHDF5.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Db/Db.hpp"
@@ -194,7 +193,7 @@ Id DbGraphO::resetFromMatrix(Id nech,
   return (!isConsistent());
 }
 
-bool DbGraphO::_deserializeAscii(std::istream& is, bool verbose)
+bool DbGraphO::_deserializeAscii(std::istream& is)
 {
   Id ndim  = 0;
   Id narcs = 0;
@@ -222,12 +221,12 @@ bool DbGraphO::_deserializeAscii(std::istream& is, bool verbose)
 
   // Writing the set of addresses for Line organization
 
-  ret = ret && Db::_deserializeAscii(is, verbose);
+  ret = ret && Db::_deserializeAscii(is);
 
   return ret;
 }
 
-bool DbGraphO::_serializeAscii(std::ostream& os, bool verbose) const
+bool DbGraphO::_serializeAscii(std::ostream& os) const
 {
   bool ret = true;
 
@@ -251,7 +250,7 @@ bool DbGraphO::_serializeAscii(std::ostream& os, bool verbose) const
 
   /* Writing the tail of the file */
 
-  ret = ret && Db::_serializeAscii(os, verbose);
+  ret = ret && Db::_serializeAscii(os);
 
   return ret;
 }
@@ -574,7 +573,7 @@ void DbGraphO::setArcLine(const VectorInt& nodes, double value)
 }
 
 #ifdef HDF5
-bool DbGraphO::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+bool DbGraphO::deserializeH5(H5::Group& grp)
 {
   auto dbG = SerializeHDF5::getGroup(grp, "DbGraphO");
   if (!dbG) return false;
@@ -605,12 +604,12 @@ bool DbGraphO::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
 
   // Writing the set of addresses for Line organization
 
-  ret = ret && Db::_deserializeH5(*dbG, verbose);
+  ret = ret && Db::deserializeH5(*dbG);
 
   return ret;
 }
 
-bool DbGraphO::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+bool DbGraphO::serializeH5(H5::Group& grp) const
 {
   auto dbG = grp.createGroup("DbGraphO");
 
@@ -638,7 +637,7 @@ bool DbGraphO::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
 
   /* Writing the tail of the file */
 
-  ret = ret && Db::_serializeH5(dbG, verbose);
+  ret = ret && Db::serializeH5(dbG);
 
   return ret;
 }

@@ -47,16 +47,12 @@ ParamId::~ParamId()
 {
 }
 
-ParamId* ParamId::create(const EConsElem& elem,
-                         Id iv1,
-                         Id iv2)
+ParamId* ParamId::create(const EConsElem& elem, Id iv1, Id iv2)
 {
   return new ParamId(elem, iv1, iv2);
 }
 
-Id ParamId::init(const EConsElem& type,
-                  Id v1,
-                  Id v2)
+Id ParamId::init(const EConsElem& type, Id v1, Id v2)
 {
   _elemType = type;
   _iv1      = v1;
@@ -133,4 +129,4 @@ String ParamId::toString(const AStringFormat* /*strfmt*/) const
 
   return sstr.str();
 }
-}
+} // namespace gstlrn

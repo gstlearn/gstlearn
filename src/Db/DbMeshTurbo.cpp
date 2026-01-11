@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Db/DbMeshTurbo.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/SerializeHDF5.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Db/Db.hpp"
@@ -89,7 +88,7 @@ DbMeshTurbo* DbMeshTurbo::create(const VectorInt& nx,
 {
   // Creating the MeshETurbo internal storage
   auto* dbmesh = new DbMeshTurbo(nx, dx, x0, angles, order, tab, names,
-                                        locatorNames, flag_polarized, verbose);
+                                 locatorNames, flag_polarized, verbose);
   if (dbmesh == nullptr)
   {
     messerr("Error when creating DbMeshTurbo from Samples");
@@ -99,9 +98,9 @@ DbMeshTurbo* DbMeshTurbo::create(const VectorInt& nx,
   return dbmesh;
 }
 
-bool DbMeshTurbo::_deserializeAscii(std::istream& is, bool verbose)
+bool DbMeshTurbo::_deserializeAscii(std::istream& is)
 {
-  Id ndim = 0;
+  Id ndim  = 0;
   bool ret = true;
 
   // Reading the header
@@ -114,12 +113,12 @@ bool DbMeshTurbo::_deserializeAscii(std::istream& is, bool verbose)
 
   // Reading the Db information
 
-  ret = ret && DbGrid::_deserializeAscii(is, verbose);
+  ret = ret && DbGrid::_deserializeAscii(is);
 
   return ret;
 }
 
-bool DbMeshTurbo::_serializeAscii(std::ostream& os, bool verbose) const
+bool DbMeshTurbo::_serializeAscii(std::ostream& os) const
 {
   bool ret = true;
 
@@ -133,7 +132,7 @@ bool DbMeshTurbo::_serializeAscii(std::ostream& os, bool verbose) const
 
   /* Writing the tail of the file */
 
-  ret = ret && DbGrid::_serializeAscii(os, verbose);
+  ret = ret && DbGrid::_serializeAscii(os);
 
   return ret;
 }
@@ -173,7 +172,7 @@ bool DbMeshTurbo::isConsistent() const
   return true;
 }
 #ifdef HDF5
-bool DbMeshTurbo::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+bool DbMeshTurbo::deserializeH5(H5::Group& grp)
 {
   auto dbg = SerializeHDF5::getGroup(grp, "DbMeshTurbo");
   if (!dbg)
@@ -183,20 +182,20 @@ bool DbMeshTurbo::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
 
   /* Read the grid characteristics */
   bool ret = true;
-  Id ndim = 0;
+  Id ndim  = 0;
 
   ret = ret && SerializeHDF5::readValue(*dbg, "NDim", ndim);
 
   // Writing the Meshing information
-  ret = ret && _mesh._deserializeH5(*dbg, verbose);
+  ret = ret && _mesh.deserializeH5(*dbg);
 
   /* Writing the tail of the file */
-  ret = ret && DbGrid::_deserializeH5(*dbg, verbose);
+  ret = ret && DbGrid::deserializeH5(*dbg);
 
   return ret;
 }
 
-bool DbMeshTurbo::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+bool DbMeshTurbo::serializeH5(H5::Group& grp) const
 {
   auto dbG = grp.createGroup("DbMeshTurbo");
 
@@ -205,12 +204,12 @@ bool DbMeshTurbo::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) co
   ret = ret && SerializeHDF5::writeValue(dbG, "NDim", getNDim());
 
   // Writing the Meshing information
-  ret = ret && _mesh._serializeH5(dbG, verbose);
+  ret = ret && _mesh.serializeH5(dbG);
 
   /* Writing the tail of the file */
-  ret = ret && DbGrid::_serializeH5(dbG, verbose);
+  ret = ret && DbGrid::serializeH5(dbG);
 
   return ret;
 }
 #endif
-}
+} // namespace gstlrn
