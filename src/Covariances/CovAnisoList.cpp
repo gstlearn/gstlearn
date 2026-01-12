@@ -184,7 +184,7 @@ CovAniso CovAnisoList::extractCova(Id icov) const
 {
   const CovAniso* covaniso = _getCovAniso(icov);
   if (covaniso == nullptr)
-    return CovAniso(ECov::NUGGET, CovContext());
+    return CovAniso(CovContext(), ECov::NUGGET);
   return *_getCovAniso(icov);
 }
 

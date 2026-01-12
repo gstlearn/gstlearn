@@ -33,8 +33,8 @@ class GSTLEARN_EXPORT CorGaussianMixture: public ACov
 {
 public:
   CorGaussianMixture(
-    const ECov& type,
     const CovContext& ctxt,
+    const ECov& type,
     const VectorDouble& params = VectorDouble(),
     const VectorDouble& kappas = VectorDouble(),
     const VectorDouble& ranges = VectorDouble(),
@@ -45,8 +45,8 @@ public:
   virtual ~CorGaussianMixture();
 
   static CorGaussianMixture* create(
-    const ECov& type,
     const CovContext& ctxt,
+    const ECov& type,
     const VectorDouble& params,
     const VectorDouble& kappas,
     const VectorDouble& ranges,

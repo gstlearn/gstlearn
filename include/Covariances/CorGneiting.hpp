@@ -30,15 +30,15 @@ class CorAniso;
 class GSTLEARN_EXPORT CorGneiting: public ACov
 {
 public:
-  CorGneiting(const ECov& type, const CovContext& ctxt);
+  CorGneiting(const CovContext& ctxt, const ECov& type);
   CorGneiting(const CorGaussianMixture* covS, const CorAniso* covT, double separability = 1.0);
   CorGneiting(const CorGneiting& r);
   CorGneiting& operator=(const CorGneiting& r);
   virtual ~CorGneiting();
 
   static CorGneiting* create(
-    const ECov& type,
     const CovContext& ctxt,
+    const ECov& type,
     double alpha,
     double beta,
     double timeRange,           // time scale or range according to flagRange value

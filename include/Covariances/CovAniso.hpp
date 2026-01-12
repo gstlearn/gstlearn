@@ -46,14 +46,15 @@ class CovInternal;
 class GSTLEARN_EXPORT CovAniso: public CovProportional
 {
 public:
-  CovAniso(const ECov& type, const CovContext& ctxt);
-  CovAniso(const String& symbol, const CovContext& ctxt);
-  CovAniso(const ECov& type,
-           double range,
-           double param,
-           double sill,
-           const CovContext& ctxt,
-           bool flagRange = true);
+  CovAniso(const CovContext& ctxt, const ECov& type);
+  CovAniso(const CovContext& ctxt, const String& symbol);
+  CovAniso(
+    const CovContext& ctxt,
+    const ECov& type,
+    double param,
+    double sill,
+    double range,
+    bool flagRange = true);
   CovAniso(const CovAniso& r);
   CovAniso& operator=(const CovAniso& r);
   virtual ~CovAniso();

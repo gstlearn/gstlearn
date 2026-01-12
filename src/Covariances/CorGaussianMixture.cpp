@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Covariances/CorGaussianMixture.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/MathFunc.hpp"
 #include "Basic/VectorNumT.hpp"
@@ -28,8 +27,8 @@
 namespace gstlrn
 {
 CorGaussianMixture::CorGaussianMixture(
-  const ECov& type,
   const CovContext& ctxt,
+  const ECov& type,
   const VectorDouble& params,
   const VectorDouble& kappas,
   const VectorDouble& ranges,
@@ -155,8 +154,8 @@ CorGaussianMixture::~CorGaussianMixture()
 }
 
 CorGaussianMixture* CorGaussianMixture::create(
-  const ECov& type,
   const CovContext& ctxt,
+  const ECov& type,
   const VectorDouble& params,
   const VectorDouble& kappas,
   const VectorDouble& ranges,
@@ -190,7 +189,7 @@ CorGaussianMixture* CorGaussianMixture::create(
     return nullptr;
   }
 
-  auto* cov = new CorGaussianMixture(type, ctxt, params, kappas, ranges, angles, flagRange);
+  auto* cov = new CorGaussianMixture(ctxt, type, params, kappas, ranges, angles, flagRange);
   return cov;
 }
 

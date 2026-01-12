@@ -46,24 +46,25 @@ int main(int argc, char* argv[])
   double alpha  = 1.0;
   double beta   = 1.0;
   double scaleT = 5.3;
-  auto* corT    = new CorAniso(ECov::CAUCHY_GEN, CovContext(1, 1));
+  auto* corT    = new CorAniso(CovContext(1, 1), ECov::CAUCHY_GEN);
   corT->setParam(alpha, 0);        // alpha in (0,2]
   corT->setParam(beta * 2 / 2, 1); // beta*d/2 with beta in (0,1]
   corT->setScaleDim(0, scaleT);
 
   // creating the space trace covariance
   CovContext ctxt2d(1, space2d);
-  VectorDouble scales      = {2., 3.};
-  VectorDouble params      = {0.5};
-  VectorDouble kappas      = {1.0};
-  VectorDouble angles      = {30.0, 0.0};
-  auto* corS   = CorGaussianMixture::create(ECov::MATERN,
-                                                        ctxt2d,
-                                                        params,
-                                                        kappas,
-                                                        scales,
-                                                        angles,
-                                                        false);
+  VectorDouble scales = {2., 3.};
+  VectorDouble params = {0.5};
+  VectorDouble kappas = {1.0};
+  VectorDouble angles = {30.0, 0.0};
+  auto* corS          = CorGaussianMixture::create(
+    ctxt2d,
+    ECov::MATERN,
+    params,
+    kappas,
+    scales,
+    angles,
+    false);
   double sep = 1.;
   CorGneiting corGneiting(corS, corT, sep);
   message("Space dimension of Gneiting Covariance = %d\n", corGneiting.getNDim());

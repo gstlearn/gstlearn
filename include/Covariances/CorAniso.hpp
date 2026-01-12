@@ -54,12 +54,13 @@ class SpectrumRN;
 class GSTLEARN_EXPORT CorAniso: public ACov
 {
 public:
-  CorAniso(const ECov& type, const CovContext& ctxt);
-  CorAniso(const String& symbol, const CovContext& ctxt);
-  CorAniso(const ECov& type,
-           double range,
-           double param,
+  CorAniso(const CovContext& ctxt, const ECov& type);
+  CorAniso(const CovContext& ctxt, const String& symbol);
+  CorAniso(
            const CovContext& ctxt,
+            const ECov& type,
+           double param,
+           double range,
            bool flagRange = true);
   CorAniso(const CorAniso& r);
   CorAniso& operator=(const CorAniso& r);

@@ -12,7 +12,6 @@
 #include "Covariances/CorMatern.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Db/DbGrid.hpp"
-#include "Matrix/MatrixSquare.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Model/ModelGeneric.hpp"
 #include "Simulation/ASimuSpectral.hpp"
@@ -37,16 +36,17 @@ int main(int argc, char* argv[])
   MatrixSymmetric gsSigma(3);
   gsSigma.setIdentity(1.);
 
-  bool flagRange = true;
-  Id nvar            = 3;
-  CovContext ctxt    = CovContext(nvar);
-  CorMatern cor_tri(ECov::MATERN,
-                    ctxt,
-                    params,
-                    rr,
-                    ranges, 
-                    angles,
-                    flagRange);
+  bool flagRange  = true;
+  Id nvar         = 3;
+  CovContext ctxt = CovContext(nvar);
+  CorMatern cor_tri(
+    ctxt,
+    ECov::MATERN,
+    params,
+    rr,
+    ranges,
+    angles,
+    flagRange);
 
   ModelGeneric model = ModelGeneric(ctxt);
   model.setCov(&cor_tri);

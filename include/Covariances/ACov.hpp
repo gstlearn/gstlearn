@@ -21,6 +21,7 @@
 #include "Covariances/TabNoStat.hpp"
 #include "Simulation/ASimuSpectral.hpp"
 #include "Simulation/SimuSpectralRN.hpp"
+#include "Simulation/SpectrumRN.hpp"
 #include "Db/RankHandler.hpp"
 #include "Enum/ECalcMember.hpp"
 #include "Estimation/KrigOpt.hpp"

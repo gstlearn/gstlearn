@@ -10,7 +10,6 @@
 /******************************************************************************/
 
 #include "Covariances/CorGneiting.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/LawStable.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/CorAniso.hpp"
@@ -27,7 +26,7 @@
 namespace gstlrn
 {
 
-CorGneiting::CorGneiting(const ECov& type, const CovContext& ctxt)
+CorGneiting::CorGneiting(const CovContext& ctxt, const ECov& type)
   : ACov(ctxt)
   , _corS()
   , _corT()
@@ -90,17 +89,18 @@ CorGneiting::~CorGneiting()
 {
 }
 
-CorGneiting* CorGneiting::create(const ECov& type,
-                                 const CovContext& ctxt, // spatial context
-                                 double alpha,
-                                 double beta,
-                                 double timeRange,
-                                 const VectorDouble& params,      // Nus
-                                 const VectorDouble& kappas, // Kappas
-                                 const VectorDouble& ranges,
-                                 const VectorDouble& angles,
-                                 double separability,
-                                 bool flagRange)
+CorGneiting* CorGneiting::create(
+  const CovContext& ctxt, // spatial context
+  const ECov& type,
+  double alpha,
+  double beta,
+  double timeRange,
+  const VectorDouble& params, // Nus
+  const VectorDouble& kappas, // Kappas
+  const VectorDouble& ranges,
+  const VectorDouble& angles,
+  double separability,
+  bool flagRange)
 {
   Id id_spatial = 0;
   if ((type == ECov::GNEITING_G) || (type == ECov::GNEITING_C) || (type == ECov::GNEITING_M))
@@ -180,10 +180,16 @@ CorGneiting* CorGneiting::create(const ECov& type,
   }
 
   // creation of the spatial covariance
-  auto* corS = new CorGaussianMixture(ECov::fromValue(id_spatial), CovContext(nvar, ndim),
-                                      params, kappas, ranges, angles, flagRange);
+  auto* corS = new CorGaussianMixture(
+    CovContext(nvar, ndim),
+    ECov::fromValue(id_spatial),
+    params,
+    kappas,
+    ranges,
+    angles,
+    flagRange);
   // creation of the temporal covariance
-  auto* corT = new CorAniso(ECov::CAUCHY_GEN, CovContext(1, 1));
+  auto* corT = new CorAniso(CovContext(1, 1), ECov::CAUCHY_GEN);
   corT->setParam(alpha, 0);           // alpha in (0,2]
   corT->setParam(beta * ndim / 2, 1); // beta*d/2 with beta in (0,1]
   if (flagRange)
@@ -216,7 +222,7 @@ SpectrumRN CorGneiting::simulateSpectrumRN(Id ns, const ACov* cov0) const
   // simulation of the time frequencies
   double alpha       = _corT->getCorFunc()->getParam(0);
   double beta        = _corT->getCorFunc()->getParam(1) * 2 / ndim; // the second parameter of the Cauchy is beta*ndim/2
-  double timeRange  = _corT->getScale(0);
+  double timeRange   = _corT->getScale(0);
   MatrixDense omega0 = sp.getOmega0(); // spatial frequency without anisotropy
   VectorDouble xi0   = sp.getXi();     // random scales of the Gaussian mixture
 

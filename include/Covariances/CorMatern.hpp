@@ -32,25 +32,27 @@ class CorAniso;
 class GSTLEARN_EXPORT CorMatern: public ACov
 {
 public:
-  CorMatern(const ECov& type,
-            const CovContext& ctxt,
-            const VectorDouble& params = VectorDouble(),
-            const VectorDouble& kappas = VectorDouble(),
-            const VectorDouble& ranges = VectorDouble(),
-            const VectorDouble& angles = VectorDouble(),
-            bool flagRange             = true);
+  CorMatern(
+    const CovContext& ctxt,
+    const ECov& type,
+    const VectorDouble& params = VectorDouble(),
+    const VectorDouble& kappas = VectorDouble(),
+    const VectorDouble& ranges = VectorDouble(),
+    const VectorDouble& angles = VectorDouble(),
+    bool flagRange             = true);
   CorMatern(const CorMatern& r);
   CorMatern& operator=(const CorMatern& r);
   virtual ~CorMatern();
   IMPLEMENT_CLONING(CorMatern)
 
-  static CorMatern* create(const ECov& type,
-                           const CovContext& ctxt,
-                           const VectorDouble& params,
-                           const VectorDouble& kappas,
-                           const VectorDouble& ranges,
-                           const VectorDouble& angles = VectorDouble(),
-                           bool flagRange             = true);
+  static CorMatern* create(
+    const CovContext& ctxt,
+    const ECov& type,
+    const VectorDouble& params,
+    const VectorDouble& kappas,
+    const VectorDouble& ranges,
+    const VectorDouble& angles = VectorDouble(),
+    bool flagRange             = true);
 
   const ECov& getType() const { return _corRef->getType(); }
 

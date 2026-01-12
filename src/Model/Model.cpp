@@ -345,7 +345,7 @@ void Model::addCovFromParamOldStyle(const ECov& type,
 
   auto space = SpaceRN::create(static_cast<Id>(ndim));
   _ctxt      = CovContext(nvar, space);
-  CovAniso cov(type, _ctxt);
+  CovAniso cov(_ctxt, type);
 
   // Define the Third parameter
   double parmax = cov.getParMax();
@@ -441,7 +441,7 @@ void Model::addCovFromParam(const ECov& type,
 
   auto space = SpaceRN::create(static_cast<Id>(ndim));
   _ctxt      = CovContext(nvar, space);
-  CovAniso cov(type, _ctxt);
+  CovAniso cov(_ctxt, type);
 
   // Define the Third parameter
   double parmax = cov.getParMax();
@@ -606,7 +606,7 @@ Id Model::fitFromCovIndices(Vario* vario,
   _ctxt = CovContext(vario); /// TODO : What to do with that ?
   for (Id is = 0; is < static_cast<Id>(types.size()); is++)
   {
-    CovAniso cov(types[is], _ctxt);
+    CovAniso cov(_ctxt, types[is]);
     addCov(cov);
   }
 
@@ -648,7 +648,7 @@ Id Model::fit(Vario* vario,
 
   for (Id is = 0; is < static_cast<Id>(types.size()); is++)
   {
-    CovAniso cov(types[is], _ctxt);
+    CovAniso cov(_ctxt, types[is]);
     addCov(cov);
   }
   return model_auto_fit(vario, this, verbose, mauto, constraints, optvar);
@@ -683,7 +683,7 @@ Id Model::fitFromVMap(DbGrid* dbmap,
 
   for (Id is = 0; is < static_cast<Id>(types.size()); is++)
   {
-    CovAniso cov(types[is], _ctxt);
+    CovAniso cov(_ctxt, types[is]);
     addCov(cov);
   }
   return vmap_auto_fit(dbmap, this, verbose, mauto, constraints, optvar);
@@ -761,7 +761,7 @@ bool Model::_deserializeAscii(std::istream& is)
     }
     if (!ret) return ret;
 
-    CovAniso cova(ECov::fromValue(type), _ctxt);
+    CovAniso cova(_ctxt, ECov::fromValue(type));
     cova.setParam(param);
     if (flag_aniso != 0)
     {
@@ -1335,7 +1335,7 @@ bool Model::deserializeH5(H5::Group& grp)
     ret = ret && SerializeHDF5::readVec(*covG, "Sills", sills);
     if (!ret) return ret;
 
-    CovAniso cova(ECov::fromValue(vartype), _ctxt);
+    CovAniso cova(_ctxt, ECov::fromValue(vartype));
     cova.setParam(param);
     cova.setSill(sills);
     if (flag_aniso)

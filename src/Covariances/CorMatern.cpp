@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Covariances/CorMatern.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/MathFunc.hpp"
 #include "Basic/VectorNumT.hpp"
@@ -28,7 +27,7 @@
 
 namespace gstlrn
 {
-CorMatern::CorMatern(const ECov& type, const CovContext& ctxt, const VectorDouble& params, const VectorDouble& kappas, const VectorDouble& ranges, const VectorDouble& angles, bool flagRange)
+CorMatern::CorMatern(const CovContext& ctxt, const ECov& type, const VectorDouble& params, const VectorDouble& kappas, const VectorDouble& ranges, const VectorDouble& angles, bool flagRange)
   : ACov(ctxt)
   , _nVar(static_cast<Id>(ctxt.getNVar()))
   , _corRef(std::shared_ptr<const CorAniso>(
@@ -135,8 +134,8 @@ CorMatern& CorMatern::operator=(const CorMatern& r)
 }
 
 CorMatern* CorMatern::create(
-  const ECov& type,
   const CovContext& ctxt,
+  const ECov& type,
   const VectorDouble& params,
   const VectorDouble& kappas,
   const VectorDouble& ranges,
@@ -170,7 +169,7 @@ CorMatern* CorMatern::create(
     return nullptr;
   }
 
-  auto* cov = new CorMatern(type, ctxt, params, kappas, ranges, angles, flagRange);
+  auto* cov = new CorMatern(ctxt, type, params, kappas, ranges, angles, flagRange);
   return cov;
 }
 

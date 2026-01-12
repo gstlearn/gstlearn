@@ -644,7 +644,7 @@ bool CovList::deserializeH5(H5::Group& grp)
   {
     String locName = "Covariance_" + std::to_string(icov + 1);
     auto covrankG  = SerializeHDF5::getGroup(*covlistG, locName);
-    CovAniso cov(ECov::NUGGET, ctxt); // TODO: not sure that this is the best way to initialize this dummy variable
+    CovAniso cov(ctxt, ECov::NUGGET); // TODO: not sure that this is the best way to initialize this dummy variable
     ret = ret && cov.deserializeH5(*covrankG);
     addCov(cov);
   }
