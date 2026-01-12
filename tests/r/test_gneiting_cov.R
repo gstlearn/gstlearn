@@ -197,7 +197,7 @@ EPS_10 = 1.0e-10
 # Test of the generalized cauchy kernel using CorAniso on R^1
 # --------------------------------------------------------------
 setDefaultSpace(SpaceRN_create(ndim = 1))
-corT = CorAniso(type = ECov_CAUCHY_GEN(), ctxt = CovContext(nvar = 1, ndim = 1))
+corT = CorAniso(ctxt = CovContext(nvar = 1, ndim = 1), type = ECov_CAUCHY_GEN())
 for (a_t in c(0.5, 1.0, 1.5, 2.0) ){
 for (alpha in c(0.25, 1.0, 1.5, 2.0)) {
 for (beta in c(1.0, 3/2, 1.0, 2)) {
