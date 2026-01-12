@@ -61,12 +61,12 @@ int main(int argc, char* argv[])
   // Build the List of Covariances
   CovAnisoList covlmc(ctxt);
   // Build the Elementary Covariances
-  CovAniso cov1(ECov::CUBIC, ctxt);
+  CovAniso cov1(ctxt, ECov::CUBIC);
   VectorDouble ranges = {1.2, 2.1};
   cov1.setRanges(ranges);
   cov1.setSill(1.5);
   covlmc.addCov(cov1);
-  CovAniso cov2(ECov::NUGGET, ctxt);
+  CovAniso cov2(ctxt, ECov::NUGGET);
   cov2.setSill(0.5);
   covlmc.addCov(cov2);
   // Assembling the Model

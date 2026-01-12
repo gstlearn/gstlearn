@@ -83,21 +83,21 @@ static Model* createModel(Id nvar, Id typecov, Id typedrift, Id typemean)
 
   if (typecov == 1)
   {
-    CovAniso cova1(ECov::SPHERICAL, 40., 0., 45., ctxt);
+    CovAniso cova1(ctxt, ECov::SPHERICAL, 0., 45., 40.);
     covs.addCov(cova1);
-    CovAniso cova2(ECov::NUGGET, 0., 0., 12., ctxt);
+    CovAniso cova2(ctxt, ECov::NUGGET, 0., 12., 0.);
     covs.addCov(cova2);
     model->setCovAnisoList(&covs);
   }
   else if (typecov == 2)
   {
-    CovAniso covaL(ECov::LINEAR, 1., 0., 1., ctxt);
+    CovAniso covaL(ctxt, ECov::LINEAR, 0., 1., 1.);
     covs.addCov(covaL);
     model->setCovAnisoList(&covs);
   }
   else if (typecov == 3)
   {
-    CovAniso cova1(ECov::SPHERICAL, 40., 0., 1., ctxt);
+    CovAniso cova1(ctxt, ECov::SPHERICAL, 0., 1., 40.);
     covs.addCov(cova1);
     model->setCovAnisoList(&covs);
   }
