@@ -292,6 +292,7 @@ const String& ASerializable::getPrefixName()
   return _myPrefixName;
 }
 
+#ifdef HDF5
 /**
  * @brief Returns the Full Path of a given HDF5 Group
  *
@@ -330,4 +331,6 @@ VectorString ASerializable::getGroupParents(const H5::Group& group)
   parents.push_back("/"); // racine
   return parents;
 }
+#endif
+
 } // namespace gstlrn
