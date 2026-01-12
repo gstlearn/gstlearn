@@ -273,11 +273,13 @@ bool TabNoStat::deserializeH5(H5::Group& grp)
     ret = ret && SerializeHDF5::readValue(*itemG, "ColName", colName);
     ret = ret && SerializeHDF5::readValue(*itemG, "dbIsGrid", isGrid);
 
+    const EConsElem& econs = EConsElem::fromValue(type);
     if (isGrid)
     {
       auto* dbgrid = new DbGrid();
       ret          = ret && dbgrid->deserializeH5(*itemG);
       setDbNoStatRef(dbgrid);
+      if (!variableExistsInDb(colName)) return false;
       delete dbgrid;
     }
     else
@@ -285,15 +287,12 @@ bool TabNoStat::deserializeH5(H5::Group& grp)
       auto* db = new Db();
       ret      = ret && db->deserializeH5(*itemG);
       setDbNoStatRef(db);
+      if (!variableExistsInDb(colName)) return false;
       delete db;
     }
 
-    // Check that the variable exists
-    if (!variableExistsInDb(colName)) return false;
-
     std::shared_ptr<ANoStat> ns;
-    ns                     = std::shared_ptr<ANoStat>(new NoStatArray(getDbNoStatRef(), colName));
-    const EConsElem& econs = EConsElem::fromValue(type);
+    ns = std::shared_ptr<ANoStat>(new NoStatArray(getDbNoStatRef(), colName));
     addElem(ns, econs, iv1, iv2);
   }
 

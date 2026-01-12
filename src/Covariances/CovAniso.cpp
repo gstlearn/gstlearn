@@ -8,6 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Covariances/TabNoStatSills.hpp"
 #include "geoslib_define.h"
 
 #include "Arrays/Array.hpp"

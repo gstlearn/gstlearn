@@ -1798,7 +1798,7 @@ bool CorAniso::serializeH5(H5::Group& grp) const
   }
 
   // Non stationary case
-  if (isNoStat())
+  if (isNoStat() && _tabNoStat->size() > 0)
   {
     auto nonstatG = grp.createGroup("NoStatAniso");
     ret           = ret && _tabNoStat->serializeH5(nonstatG);

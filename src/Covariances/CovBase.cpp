@@ -575,8 +575,10 @@ void CovBase::appendParams(ListParams& listParams,
   for (const auto& [ivar, jvar]: _itRange)
     listParams.addParam(_cholSillsInfo(ivar, jvar));
 
-  for (const auto& [ivard, jvard]: _itRange)
+  for (const auto& pair: _itRange)
   {
+    const Id ivard = pair.first;
+    const Id jvard = pair.second;
     if (_cholSillsInfo(ivard, jvard).isFixed()) continue; // Skip fixed parameters
     gradFuncs->emplace_back(
       [ivard, jvard, this](const SpacePoint& p1, const SpacePoint& p2, Id ivar, Id jvar, const CovCalcMode* mode) -> double
@@ -672,7 +674,7 @@ bool CovBase::serializeH5(H5::Group& grp) const
   ret = ret && _cor->serializeH5(grp);
 
   // Non stationary case
-  if (isNoStat())
+  if (isNoStat() && _tabNoStat->size() > 0)
   {
     auto nonstatG = grp.createGroup("NoStatSills");
     ret           = ret && _tabNoStat->serializeH5(nonstatG);

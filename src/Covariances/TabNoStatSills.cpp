@@ -50,7 +50,16 @@ bool TabNoStatSills::isDefinedForVariance() const
 
 Id TabNoStatSills::getNSills() const
 {
-  return size();
+  // If not item is recorded, the returned rank is obviously "0"
+  if (size() <= 0) return 0;
+
+  // If some items are recorded, find the number of ones refering to "sills"
+  Id count = 0;
+  for (const auto& [paramId, noStatPtr]: getTable())
+  {
+    if (_isValid(paramId.getType())) count++;
+  }
+  return count;
 }
 
 TabNoStatSills::~TabNoStatSills()
