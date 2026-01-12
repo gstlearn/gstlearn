@@ -21,7 +21,7 @@ kappa = [1.0]
 scales = [2.0, 3.0]
 angles = [0, 0]
 corS = gl.CorGaussianMixture.create(
-    gl.ECov.MATERN, ctxt2D, nu, kappa, scales, angles, False
+    ctxt2D, gl.ECov.MATERN, nu, kappa, scales, angles, False
 )
 
 sep = 1
