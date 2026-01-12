@@ -52,20 +52,10 @@ public:
   static VectorString getGroupParents(const H5::Group& group);
 
   virtual String getNFName() const = 0;
-  virtual bool deserializeH5(H5::Group& grp)
-  {
-    DECLARE_UNUSED(grp);
-    // TODO virtual pure
-    messerr("Not implemented yet");
-    return false;
-  }
-  virtual bool serializeH5(H5::Group& grp) const
-  {
-    DECLARE_UNUSED(grp);
-    // TODO virtual pure
-    messerr("Not implemented yet");
-    return false;
-  }
+#ifdef HDF5
+  virtual bool deserializeH5(H5::Group& grp)     = 0;
+  virtual bool serializeH5(H5::Group& grp) const = 0;
+#endif
 
 protected:
   virtual bool _deserializeAscii(std::istream& is)
