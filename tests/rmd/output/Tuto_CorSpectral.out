@@ -1,0 +1,1608 @@
+[1] " Begining of test #1:"
+
+[1] " - Class CorAniso"
+
+[1] " - Model EXPONENTIAL"
+
+[1] " - Number of variables 1"
+
+[1] "Creation of the model"
+[1] "Creating a EXPONENTIAL CovAniso model:"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :1"
+[1] " - variance               :1"
+[1] " - param[1] = 0.750000"
+[1] "Testing the covariance"
+
+[1] "Test in dir #1 for CorAniso (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #2 for CorAniso (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #3 for CorAniso (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #4 for CorAniso (Var-1, Var-1) in space: OK"
+
+[1] "Defining the 2d slice"
+
+[1] "Computing simulation in slice xOy"
+
+[1] "Performing a single simulation"
+
+
+
+Table: Mono-variate statistics for the EXPONENTIAL covariance
+
+|                    | Number|     min|    max| median|   mean|     sd|
+|:-------------------|------:|-------:|------:|------:|------:|------:|
+|EXPONENTIAL.V1.simu |  40000| -3.8208| 3.5577| 0.0227| -0.005| 1.0899|
+
+[1] "Average variogram on various simulations"
+
+[1] ">>> Simulation #1"
+
+[1] ">>> Simulation #2"
+
+
+
+Table: Mono-variate statistics for the EXPONENTIAL covariance
+
+|                  | Number|     min|    max|  median|    mean|     sd|
+|:-----------------|------:|-------:|------:|-------:|-------:|------:|
+|EXPONENTIAL.V1.S1 |  40000| -3.7040| 3.2331| -0.3669| -0.3533| 0.9713|
+|EXPONENTIAL.V1.S2 |  40000| -3.3784| 4.1307| -0.0122|  0.0208| 0.9436|
+
+[1] "RMSE on vario CovAniso (ivar=1, jvar=1) in section xOy in dir#1 = 0.0542"
+
+[1] "RMSE on vario CovAniso (ivar=1, jvar=1) in section xOy in dir#2 = 0.1175"
+
+[1] "RMSE on vario CovAniso (ivar=1, jvar=1) in section xOy in dir#3 = 0.0262"
+
+[1] "RMSE on vario CovAniso (ivar=1, jvar=1) in section xOy in dir#4 = 0.0358"
+
+[1] "-------------------------------------------"
+[1] " End of test #1"
+
+[1] "-------------------------------------------"
+[1] " Begining of test #2:"
+
+[1] " - Class CorAniso"
+
+[1] " - Model GAUSSIAN"
+
+[1] " - Number of variables 1"
+
+[1] "Creation of the model"
+[1] "Creating a GAUSSIAN CovAniso model:"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :1"
+[1] " - variance               :1"
+[1] " - param[1] = 0.750000"
+[1] "Testing the covariance"
+
+[1] "Test in dir #1 for CorAniso (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #2 for CorAniso (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #3 for CorAniso (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #4 for CorAniso (Var-1, Var-1) in space: OK"
+
+[1] "Defining the 2d slice"
+
+[1] "Computing simulation in slice xOy"
+
+[1] "Performing a single simulation"
+
+
+
+Table: Mono-variate statistics for the GAUSSIAN covariance
+
+|                 | Number|    min|    max| median|   mean|     sd|
+|:----------------|------:|------:|------:|------:|------:|------:|
+|GAUSSIAN.V1.simu |  40000| -2.978| 3.3255| 0.1512| 0.1453| 0.9807|
+
+[1] "Average variogram on various simulations"
+
+[1] ">>> Simulation #1"
+
+[1] ">>> Simulation #2"
+
+
+
+Table: Mono-variate statistics for the GAUSSIAN covariance
+
+|               | Number|    min|    max| median|   mean|     sd|
+|:--------------|------:|------:|------:|------:|------:|------:|
+|GAUSSIAN.V1.S1 |  40000| -3.113| 2.7729| 0.0838| 0.0670| 0.9304|
+|GAUSSIAN.V1.S2 |  40000| -3.539| 3.2360| 0.0416| 0.0241| 0.9953|
+
+[1] "RMSE on vario CovAniso (ivar=1, jvar=1) in section xOy in dir#1 = 0.0224"
+
+[1] "RMSE on vario CovAniso (ivar=1, jvar=1) in section xOy in dir#2 = 0.0837"
+
+[1] "RMSE on vario CovAniso (ivar=1, jvar=1) in section xOy in dir#3 = 0.0541"
+
+[1] "RMSE on vario CovAniso (ivar=1, jvar=1) in section xOy in dir#4 = 0.0706"
+
+[1] "-------------------------------------------"
+[1] " End of test #2"
+
+[1] "-------------------------------------------"
+[1] " Begining of test #3:"
+
+[1] " - Class CorAniso"
+
+[1] " - Model MATERN"
+
+[1] " - Number of variables 1"
+
+[1] "Creation of the model"
+[1] "Creating a MATERN CovAniso model:"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :1"
+[1] " - variance               :1"
+[1] " - param[1] = 0.750000"
+[1] "Testing the covariance"
+
+[1] "Test in dir #1 for CorAniso (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #2 for CorAniso (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #3 for CorAniso (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #4 for CorAniso (Var-1, Var-1) in space: OK"
+
+[1] "Defining the 2d slice"
+
+[1] "Computing simulation in slice xOy"
+
+[1] "Performing a single simulation"
+
+
+
+Table: Mono-variate statistics for the MATERN covariance
+
+|               | Number|     min|    max| median|   mean|     sd|
+|:--------------|------:|-------:|------:|------:|------:|------:|
+|MATERN.V1.simu |  40000| -3.4472| 4.0174| 0.0563| 0.0528| 1.0359|
+
+[1] "Average variogram on various simulations"
+
+[1] ">>> Simulation #1"
+
+[1] ">>> Simulation #2"
+
+
+
+Table: Mono-variate statistics for the MATERN covariance
+
+|             | Number|     min|    max|  median|   mean|     sd|
+|:------------|------:|-------:|------:|-------:|------:|------:|
+|MATERN.V1.S1 |  40000| -3.4218| 3.8750| -0.0044| 0.0093| 0.9945|
+|MATERN.V1.S2 |  40000| -2.9123| 4.1179|  0.3677| 0.4080| 1.0136|
+
+[1] "RMSE on vario CovAniso (ivar=1, jvar=1) in section xOy in dir#1 = 0.0339"
+
+[1] "RMSE on vario CovAniso (ivar=1, jvar=1) in section xOy in dir#2 = 0.0759"
+
+[1] "RMSE on vario CovAniso (ivar=1, jvar=1) in section xOy in dir#3 = 0.0326"
+
+[1] "RMSE on vario CovAniso (ivar=1, jvar=1) in section xOy in dir#4 = 0.0535"
+
+[1] "-------------------------------------------"
+[1] " End of test #3"
+
+[1] "-------------------------------------------"
+[1] " Begining of test #4:"
+
+[1] " - Class CorAniso"
+
+[1] " - Model CAUCHY"
+
+[1] " - Number of variables 1"
+
+[1] "Creation of the model"
+[1] "Creating a CAUCHY CovAniso model:"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :1"
+[1] " - variance               :1"
+[1] " - param[1] = 0.750000"
+[1] "Testing the covariance"
+
+[1] "Test in dir #1 for CorAniso (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #2 for CorAniso (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #3 for CorAniso (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #4 for CorAniso (Var-1, Var-1) in space: OK"
+
+[1] "Defining the 2d slice"
+
+[1] "Computing simulation in slice xOy"
+
+[1] "Performing a single simulation"
+
+
+
+Table: Mono-variate statistics for the CAUCHY covariance
+
+|               | Number|     min|    max|  median|    mean|    sd|
+|:--------------|------:|-------:|------:|-------:|-------:|-----:|
+|CAUCHY.V1.simu |  40000| -3.1883| 2.6597| -0.1184| -0.1289| 1.057|
+
+[1] "Average variogram on various simulations"
+
+[1] ">>> Simulation #1"
+
+[1] ">>> Simulation #2"
+
+
+
+Table: Mono-variate statistics for the CAUCHY covariance
+
+|             | Number|     min|    max|  median|    mean|     sd|
+|:------------|------:|-------:|------:|-------:|-------:|------:|
+|CAUCHY.V1.S1 |  40000| -2.8152| 3.3524|  0.3210|  0.3047| 0.9292|
+|CAUCHY.V1.S2 |  40000| -3.3313| 2.5612| -0.1455| -0.1347| 0.8178|
+
+[1] "RMSE on vario CovAniso (ivar=1, jvar=1) in section xOy in dir#1 = 0.1323"
+
+[1] "RMSE on vario CovAniso (ivar=1, jvar=1) in section xOy in dir#2 = 0.1116"
+
+[1] "RMSE on vario CovAniso (ivar=1, jvar=1) in section xOy in dir#3 = 0.0707"
+
+[1] "RMSE on vario CovAniso (ivar=1, jvar=1) in section xOy in dir#4 = 0.0164"
+
+[1] "-------------------------------------------"
+[1] " End of test #4"
+
+[1] "-------------------------------------------"
+[1] " Begining of test #5:"
+
+[1] " - Class CorMatern"
+
+[1] " - Model MATERN"
+
+[1] " - Number of variables 1"
+
+[1] "Creation of the model"
+[1] "Testing the covariance"
+
+[1] "Test in dir #1 for CorMatern (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #2 for CorMatern (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #3 for CorMatern (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #4 for CorMatern (Var-1, Var-1) in space: OK"
+
+[1] "Defining the 2d slice"
+
+[1] "Computing simulation in slice xOy"
+
+[1] "Performing a single simulation"
+
+
+
+Table: Mono-variate statistics for the MATERN covariance
+
+|               | Number|     min|    max| median|   mean|     sd|
+|:--------------|------:|-------:|------:|------:|------:|------:|
+|MATERN.V1.simu |  40000| -3.4472| 4.0174| 0.0563| 0.0528| 1.0359|
+
+[1] "Average variogram on various simulations"
+
+[1] ">>> Simulation #1"
+
+[1] ">>> Simulation #2"
+
+
+
+Table: Mono-variate statistics for the MATERN covariance
+
+|             | Number|     min|    max|  median|   mean|     sd|
+|:------------|------:|-------:|------:|-------:|------:|------:|
+|MATERN.V1.S1 |  40000| -3.4218| 3.8750| -0.0044| 0.0093| 0.9945|
+|MATERN.V1.S2 |  40000| -2.9123| 4.1179|  0.3677| 0.4080| 1.0136|
+
+[1] "RMSE on vario CovMatern (ivar=1, jvar=1) in section xOy in dir#1 = 0.1839"
+
+[1] "RMSE on vario CovMatern (ivar=1, jvar=1) in section xOy in dir#2 = 0.1488"
+
+[1] "RMSE on vario CovMatern (ivar=1, jvar=1) in section xOy in dir#3 = 0.2197"
+
+[1] "RMSE on vario CovMatern (ivar=1, jvar=1) in section xOy in dir#4 = 0.1664"
+
+[1] "-------------------------------------------"
+[1] " End of test #5"
+
+[1] "-------------------------------------------"
+[1] " Begining of test #6:"
+
+[1] " - Class CorMatern"
+
+[1] " - Model MATERN"
+
+[1] " - Number of variables 2"
+
+[1] "Creation of the model"
+[1] "Testing the covariance"
+
+[1] "Creating a MATERN GaussianMixture model:"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :1"
+[1] " - variance[1] = 1.00"
+[1] " - nu[1]       = 0.75"
+[1] " - kappa[1] = 2.00"
+[1] "Test in dir #1 for CorMatern (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #2 for CorMatern (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #3 for CorMatern (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #4 for CorMatern (Var-1, Var-1) in space: OK"
+
+[1] "Creating a MATERN GaussianMixture model:"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :1"
+[1] " - variance[1] = 0.92"
+[1] " - nu[1]       = 0.62"
+[1] " - kappa[1] = 1.58"
+[1] "Test in dir #1 for CorMatern (Var-1, Var-2) in space: OK"
+
+[1] "Test in dir #2 for CorMatern (Var-1, Var-2) in space: OK"
+
+[1] "Test in dir #3 for CorMatern (Var-1, Var-2) in space: OK"
+
+[1] "Test in dir #4 for CorMatern (Var-1, Var-2) in space: OK"
+
+[1] "Creating a MATERN GaussianMixture model:"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :1"
+[1] " - variance[1] = 1.00"
+[1] " - nu[1]       = 0.50"
+[1] " - kappa[1] = 1.00"
+[1] "Test in dir #1 for CorMatern (Var-2, Var-2) in space: OK"
+
+[1] "Test in dir #2 for CorMatern (Var-2, Var-2) in space: OK"
+
+[1] "Test in dir #3 for CorMatern (Var-2, Var-2) in space: OK"
+
+[1] "Test in dir #4 for CorMatern (Var-2, Var-2) in space: OK"
+
+[1] "Defining the 2d slice"
+
+[1] "Computing simulation in slice xOy"
+
+[1] "Performing a single simulation"
+
+[1] "Creating a MATERN GaussianMixture model:"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :1"
+[1] " - variance[1] = 1.00"
+[1] " - nu[1]       = 0.75"
+[1] " - kappa[1] = 2.00"
+[1] "Creating a MATERN GaussianMixture model:"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :1"
+[1] " - variance[1] = 1.00"
+[1] " - nu[1]       = 0.50"
+[1] " - kappa[1] = 1.00"
+
+
+Table: Mono-variate statistics for the MATERN covariance
+
+|               | Number|     min|    max|  median|    mean|     sd|
+|:--------------|------:|-------:|------:|-------:|-------:|------:|
+|MATERN.V1.simu |  40000| -3.7465| 5.4029| -0.0005|  0.0120| 1.0147|
+|MATERN.V2.simu |  40000| -3.7327| 4.7901| -0.1055| -0.1145| 0.9580|
+
+[1] "Average variogram on various simulations"
+
+[1] ">>> Simulation #1"
+
+[1] ">>> Simulation #2"
+
+
+
+Table: Mono-variate statistics for the MATERN covariance
+
+|             | Number|     min|    max|  median|    mean|     sd|
+|:------------|------:|-------:|------:|-------:|-------:|------:|
+|MATERN.V1.S1 |  40000| -3.3816| 3.9814|  0.1289|  0.1061| 1.0309|
+|MATERN.V2.S1 |  40000| -3.6748| 3.3949|  0.1724|  0.1418| 1.0237|
+|MATERN.V1.S2 |  40000| -3.6883| 3.6183| -0.0746| -0.0719| 1.0010|
+|MATERN.V2.S2 |  40000| -3.4307| 3.4111| -0.1066| -0.1220| 0.9913|
+
+[1] "RMSE on vario CovMatern (ivar=1, jvar=1) in section xOy in dir#1 = 0.0542"
+
+[1] "RMSE on vario CovMatern (ivar=1, jvar=1) in section xOy in dir#2 = 0.0376"
+
+[1] "RMSE on vario CovMatern (ivar=1, jvar=1) in section xOy in dir#3 = 0.0472"
+
+[1] "RMSE on vario CovMatern (ivar=1, jvar=1) in section xOy in dir#4 = 0.0329"
+
+[1] "RMSE on vario CovMatern (ivar=1, jvar=2) in section xOy in dir#1 = 0.0509"
+
+[1] "RMSE on vario CovMatern (ivar=1, jvar=2) in section xOy in dir#2 = 0.0360"
+
+[1] "RMSE on vario CovMatern (ivar=1, jvar=2) in section xOy in dir#3 = 0.0528"
+
+[1] "RMSE on vario CovMatern (ivar=1, jvar=2) in section xOy in dir#4 = 0.0303"
+
+[1] "RMSE on vario CovMatern (ivar=2, jvar=2) in section xOy in dir#1 = 0.0517"
+
+[1] "RMSE on vario CovMatern (ivar=2, jvar=2) in section xOy in dir#2 = 0.0363"
+
+[1] "RMSE on vario CovMatern (ivar=2, jvar=2) in section xOy in dir#3 = 0.0575"
+
+[1] "RMSE on vario CovMatern (ivar=2, jvar=2) in section xOy in dir#4 = 0.0291"
+
+[1] "-------------------------------------------"
+[1] " End of test #6"
+
+[1] "-------------------------------------------"
+[1] " Begining of test #7:"
+
+[1] " - Class CorGaussianMixture"
+
+[1] " - Model GAUSSIAN"
+
+[1] " - Number of variables 1"
+
+[1] "Creation of the model"
+[1] "Testing the covariance"
+
+[1] "Test in dir #1 for CorGaussianMixture (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #2 for CorGaussianMixture (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #3 for CorGaussianMixture (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #4 for CorGaussianMixture (Var-1, Var-1) in space: OK"
+
+[1] "Defining the 2d slice"
+
+[1] "Computing simulation in slice xOy"
+
+[1] "Performing a single simulation"
+
+
+
+Table: Mono-variate statistics for the GAUSSIAN covariance
+
+|                 | Number|     min|    max| median|   mean|     sd|
+|:----------------|------:|-------:|------:|------:|------:|------:|
+|GAUSSIAN.V1.simu |  40000| -3.8028| 3.7957| 0.0219| 0.0148| 1.0107|
+
+[1] "Average variogram on various simulations"
+
+[1] ">>> Simulation #1"
+
+[1] ">>> Simulation #2"
+
+
+
+Table: Mono-variate statistics for the GAUSSIAN covariance
+
+|               | Number|     min|    max|  median|    mean|     sd|
+|:--------------|------:|-------:|------:|-------:|-------:|------:|
+|GAUSSIAN.V1.S1 |  40000| -4.0302| 3.3128| -0.0079| -0.0391| 1.0454|
+|GAUSSIAN.V1.S2 |  40000| -3.5535| 3.7315|  0.0318|  0.0231| 0.9905|
+
+[1] "RMSE on vario GaussianMixture (ivar=1, jvar=1) in section xOy in dir#1 = 0.0570"
+
+[1] "RMSE on vario GaussianMixture (ivar=1, jvar=1) in section xOy in dir#2 = 0.0528"
+
+[1] "RMSE on vario GaussianMixture (ivar=1, jvar=1) in section xOy in dir#3 = 0.0384"
+
+[1] "RMSE on vario GaussianMixture (ivar=1, jvar=1) in section xOy in dir#4 = 0.0556"
+
+[1] "-------------------------------------------"
+[1] " End of test #7"
+
+[1] "-------------------------------------------"
+[1] " Begining of test #8:"
+
+[1] " - Class CorGaussianMixture"
+
+[1] " - Model MATERN"
+
+[1] " - Number of variables 1"
+
+[1] "Creation of the model"
+[1] "Testing the covariance"
+
+[1] "Test in dir #1 for CorGaussianMixture (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #2 for CorGaussianMixture (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #3 for CorGaussianMixture (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #4 for CorGaussianMixture (Var-1, Var-1) in space: OK"
+
+[1] "Defining the 2d slice"
+
+[1] "Computing simulation in slice xOy"
+
+[1] "Performing a single simulation"
+
+
+
+Table: Mono-variate statistics for the MATERN covariance
+
+|               | Number|     min|    max|  median|    mean|     sd|
+|:--------------|------:|-------:|------:|-------:|-------:|------:|
+|MATERN.V1.simu |  40000| -4.0469| 3.5239| -0.0712| -0.0802| 0.9527|
+
+[1] "Average variogram on various simulations"
+
+[1] ">>> Simulation #1"
+
+[1] ">>> Simulation #2"
+
+
+
+Table: Mono-variate statistics for the MATERN covariance
+
+|             | Number|     min|    max|  median|    mean|     sd|
+|:------------|------:|-------:|------:|-------:|-------:|------:|
+|MATERN.V1.S1 |  40000| -3.8361| 3.7075| -0.0643| -0.0633| 0.9754|
+|MATERN.V1.S2 |  40000| -3.6909| 3.6477|  0.0076|  0.0261| 1.0391|
+
+[1] "RMSE on vario GaussianMixture (ivar=1, jvar=1) in section xOy in dir#1 = 0.0159"
+
+[1] "RMSE on vario GaussianMixture (ivar=1, jvar=1) in section xOy in dir#2 = 0.0426"
+
+[1] "RMSE on vario GaussianMixture (ivar=1, jvar=1) in section xOy in dir#3 = 0.0579"
+
+[1] "RMSE on vario GaussianMixture (ivar=1, jvar=1) in section xOy in dir#4 = 0.0418"
+
+[1] "-------------------------------------------"
+[1] " End of test #8"
+
+[1] "-------------------------------------------"
+[1] " Begining of test #9:"
+
+[1] " - Class CorGaussianMixture"
+
+[1] " - Model MATERN"
+
+[1] " - Number of variables 2"
+
+[1] "Creation of the model"
+[1] "Testing the covariance"
+
+[1] "Creating a MATERN GaussianMixture model:"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :1"
+[1] " - variance[1] = 1.00"
+[1] " - nu[1]       = 0.75"
+[1] " - kappa[1] = 2.00"
+[1] "Test in dir #1 for CorGaussianMixture (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #2 for CorGaussianMixture (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #3 for CorGaussianMixture (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #4 for CorGaussianMixture (Var-1, Var-1) in space: OK"
+
+[1] "Creating a MATERN GaussianMixture model:"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :1"
+[1] " - variance[1] = 0.92"
+[1] " - nu[1]       = 0.62"
+[1] " - kappa[1] = 1.58"
+[1] "Test in dir #1 for CorGaussianMixture (Var-1, Var-2) in space: OK"
+
+[1] "Test in dir #2 for CorGaussianMixture (Var-1, Var-2) in space: OK"
+
+[1] "Test in dir #3 for CorGaussianMixture (Var-1, Var-2) in space: OK"
+
+[1] "Test in dir #4 for CorGaussianMixture (Var-1, Var-2) in space: OK"
+
+[1] "Creating a MATERN GaussianMixture model:"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :1"
+[1] " - variance[1] = 1.00"
+[1] " - nu[1]       = 0.50"
+[1] " - kappa[1] = 1.00"
+[1] "Test in dir #1 for CorGaussianMixture (Var-2, Var-2) in space: OK"
+
+[1] "Test in dir #2 for CorGaussianMixture (Var-2, Var-2) in space: OK"
+
+[1] "Test in dir #3 for CorGaussianMixture (Var-2, Var-2) in space: OK"
+
+[1] "Test in dir #4 for CorGaussianMixture (Var-2, Var-2) in space: OK"
+
+[1] "Defining the 2d slice"
+
+[1] "Computing simulation in slice xOy"
+
+[1] "Performing a single simulation"
+
+[1] "Creating a MATERN GaussianMixture model:"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :1"
+[1] " - variance[1] = 1.00"
+[1] " - nu[1]       = 0.75"
+[1] " - kappa[1] = 2.00"
+[1] "Creating a MATERN GaussianMixture model:"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :1"
+[1] " - variance[1] = 1.00"
+[1] " - nu[1]       = 0.50"
+[1] " - kappa[1] = 1.00"
+
+
+Table: Mono-variate statistics for the MATERN covariance
+
+|               | Number|     min|    max|  median|    mean|     sd|
+|:--------------|------:|-------:|------:|-------:|-------:|------:|
+|MATERN.V1.simu |  40000| -3.3341| 3.9293| -0.0398| -0.0342| 0.9883|
+|MATERN.V2.simu |  40000| -3.2664| 3.6578| -0.0410| -0.0457| 0.9284|
+
+[1] "Average variogram on various simulations"
+
+[1] ">>> Simulation #1"
+
+[1] ">>> Simulation #2"
+
+
+
+Table: Mono-variate statistics for the MATERN covariance
+
+|             | Number|     min|    max|  median|    mean|     sd|
+|:------------|------:|-------:|------:|-------:|-------:|------:|
+|MATERN.V1.S1 |  40000| -3.9276| 4.1286|  0.0439|  0.0177| 0.9853|
+|MATERN.V2.S1 |  40000| -3.3708| 4.5189|  0.2839|  0.2637| 0.9842|
+|MATERN.V1.S2 |  40000| -4.1792| 3.6839| -0.1308| -0.1231| 0.9819|
+|MATERN.V2.S2 |  40000| -3.6304| 3.0847| -0.1846| -0.1775| 0.8829|
+
+[1] "RMSE on vario GaussianMixture (ivar=1, jvar=1) in section xOy in dir#1 = 0.0462"
+
+[1] "RMSE on vario GaussianMixture (ivar=1, jvar=1) in section xOy in dir#2 = 0.0483"
+
+[1] "RMSE on vario GaussianMixture (ivar=1, jvar=1) in section xOy in dir#3 = 0.0189"
+
+[1] "RMSE on vario GaussianMixture (ivar=1, jvar=1) in section xOy in dir#4 = 0.0342"
+
+[1] "RMSE on vario GaussianMixture (ivar=1, jvar=2) in section xOy in dir#1 = 0.0245"
+
+[1] "RMSE on vario GaussianMixture (ivar=1, jvar=2) in section xOy in dir#2 = 0.0250"
+
+[1] "RMSE on vario GaussianMixture (ivar=1, jvar=2) in section xOy in dir#3 = 0.0180"
+
+[1] "RMSE on vario GaussianMixture (ivar=1, jvar=2) in section xOy in dir#4 = 0.0237"
+
+[1] "RMSE on vario GaussianMixture (ivar=2, jvar=2) in section xOy in dir#1 = 0.0625"
+
+[1] "RMSE on vario GaussianMixture (ivar=2, jvar=2) in section xOy in dir#2 = 0.0667"
+
+[1] "RMSE on vario GaussianMixture (ivar=2, jvar=2) in section xOy in dir#3 = 0.0396"
+
+[1] "RMSE on vario GaussianMixture (ivar=2, jvar=2) in section xOy in dir#4 = 0.0253"
+
+[1] "-------------------------------------------"
+[1] " End of test #9"
+
+[1] "-------------------------------------------"
+[1] " Begining of test #10:"
+
+[1] " - Class CorGaussianMixture"
+
+[1] " - Model CAUCHY"
+
+[1] " - Number of variables 1"
+
+[1] "Creation of the model"
+[1] "Testing the covariance"
+
+[1] "Test in dir #1 for CorGaussianMixture (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #2 for CorGaussianMixture (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #3 for CorGaussianMixture (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #4 for CorGaussianMixture (Var-1, Var-1) in space: OK"
+
+[1] "Defining the 2d slice"
+
+[1] "Computing simulation in slice xOy"
+
+[1] "Performing a single simulation"
+
+
+
+Table: Mono-variate statistics for the CAUCHY covariance
+
+|               | Number|     min|    max| median|   mean|     sd|
+|:--------------|------:|-------:|------:|------:|------:|------:|
+|CAUCHY.V1.simu |  40000| -3.4901| 4.2409| 0.2626| 0.2539| 0.9904|
+
+[1] "Average variogram on various simulations"
+
+[1] ">>> Simulation #1"
+
+[1] ">>> Simulation #2"
+
+
+
+Table: Mono-variate statistics for the CAUCHY covariance
+
+|             | Number|     min|    max|  median|    mean|     sd|
+|:------------|------:|-------:|------:|-------:|-------:|------:|
+|CAUCHY.V1.S1 |  40000| -4.0454| 3.7882|  0.0432|  0.0361| 1.0282|
+|CAUCHY.V1.S2 |  40000| -4.2616| 3.1227| -0.3615| -0.3534| 1.0166|
+
+[1] "RMSE on vario GaussianMixture (ivar=1, jvar=1) in section xOy in dir#1 = 0.0458"
+
+[1] "RMSE on vario GaussianMixture (ivar=1, jvar=1) in section xOy in dir#2 = 0.0533"
+
+[1] "RMSE on vario GaussianMixture (ivar=1, jvar=1) in section xOy in dir#3 = 0.0335"
+
+[1] "RMSE on vario GaussianMixture (ivar=1, jvar=1) in section xOy in dir#4 = 0.0904"
+
+[1] "-------------------------------------------"
+[1] " End of test #10"
+
+[1] "-------------------------------------------"
+[1] " Begining of test #11:"
+
+[1] " - Class CorGaussianMixture"
+
+[1] " - Model CAUCHY"
+
+[1] " - Number of variables 2"
+
+[1] "Creation of the model"
+[1] "Testing the covariance"
+
+[1] "Creating a CAUCHY GaussianMixture model:"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :1"
+[1] " - variance[1] = 1.00"
+[1] " - nu[1]       = 0.75"
+[1] " - kappa[1] = 2.00"
+[1] "Test in dir #1 for CorGaussianMixture (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #2 for CorGaussianMixture (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #3 for CorGaussianMixture (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #4 for CorGaussianMixture (Var-1, Var-1) in space: OK"
+
+[1] "Creating a CAUCHY GaussianMixture model:"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :1"
+[1] " - variance[1] = 0.78"
+[1] " - nu[1]       = 0.62"
+[1] " - kappa[1] = 1.26"
+[1] "Test in dir #1 for CorGaussianMixture (Var-1, Var-2) in space: OK"
+
+[1] "Test in dir #2 for CorGaussianMixture (Var-1, Var-2) in space: OK"
+
+[1] "Test in dir #3 for CorGaussianMixture (Var-1, Var-2) in space: OK"
+
+[1] "Test in dir #4 for CorGaussianMixture (Var-1, Var-2) in space: OK"
+
+[1] "Creating a CAUCHY GaussianMixture model:"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :1"
+[1] " - variance[1] = 1.00"
+[1] " - nu[1]       = 0.50"
+[1] " - kappa[1] = 1.00"
+[1] "Test in dir #1 for CorGaussianMixture (Var-2, Var-2) in space: OK"
+
+[1] "Test in dir #2 for CorGaussianMixture (Var-2, Var-2) in space: OK"
+
+[1] "Test in dir #3 for CorGaussianMixture (Var-2, Var-2) in space: OK"
+
+[1] "Test in dir #4 for CorGaussianMixture (Var-2, Var-2) in space: OK"
+
+[1] "Defining the 2d slice"
+
+[1] "Computing simulation in slice xOy"
+
+[1] "Performing a single simulation"
+
+[1] "Creating a CAUCHY GaussianMixture model:"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :1"
+[1] " - variance[1] = 1.00"
+[1] " - nu[1]       = 0.75"
+[1] " - kappa[1] = 2.00"
+[1] "Creating a CAUCHY GaussianMixture model:"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :1"
+[1] " - variance[1] = 1.00"
+[1] " - nu[1]       = 0.50"
+[1] " - kappa[1] = 1.00"
+
+
+Table: Mono-variate statistics for the CAUCHY covariance
+
+|               | Number|     min|    max| median|   mean|     sd|
+|:--------------|------:|-------:|------:|------:|------:|------:|
+|CAUCHY.V1.simu |  40000| -3.0850| 3.9531| 0.0309| 0.0242| 0.9900|
+|CAUCHY.V2.simu |  40000| -2.5333| 3.2763| 0.2241| 0.2373| 0.9223|
+
+[1] "Average variogram on various simulations"
+
+[1] ">>> Simulation #1"
+
+[1] ">>> Simulation #2"
+
+
+
+Table: Mono-variate statistics for the CAUCHY covariance
+
+|             | Number|     min|    max| median|   mean|     sd|
+|:------------|------:|-------:|------:|------:|------:|------:|
+|CAUCHY.V1.S1 |  40000| -3.1840| 3.2165| 0.0763| 0.0638| 0.9417|
+|CAUCHY.V2.S1 |  40000| -2.3401| 2.7882| 0.1990| 0.1937| 0.9082|
+|CAUCHY.V1.S2 |  40000| -3.0323| 4.2058| 0.0959| 0.1115| 1.0051|
+|CAUCHY.V2.S2 |  40000| -2.0670| 3.5834| 0.4327| 0.5367| 0.9845|
+
+[1] "RMSE on vario GaussianMixture (ivar=1, jvar=1) in section xOy in dir#1 = 0.0603"
+
+[1] "RMSE on vario GaussianMixture (ivar=1, jvar=1) in section xOy in dir#2 = 0.0473"
+
+[1] "RMSE on vario GaussianMixture (ivar=1, jvar=1) in section xOy in dir#3 = 0.0595"
+
+[1] "RMSE on vario GaussianMixture (ivar=1, jvar=1) in section xOy in dir#4 = 0.0526"
+
+[1] "RMSE on vario GaussianMixture (ivar=1, jvar=2) in section xOy in dir#1 = 0.0413"
+
+[1] "RMSE on vario GaussianMixture (ivar=1, jvar=2) in section xOy in dir#2 = 0.0303"
+
+[1] "RMSE on vario GaussianMixture (ivar=1, jvar=2) in section xOy in dir#3 = 0.0334"
+
+[1] "RMSE on vario GaussianMixture (ivar=1, jvar=2) in section xOy in dir#4 = 0.0249"
+
+[1] "RMSE on vario GaussianMixture (ivar=2, jvar=2) in section xOy in dir#1 = 0.0424"
+
+[1] "RMSE on vario GaussianMixture (ivar=2, jvar=2) in section xOy in dir#2 = 0.0543"
+
+[1] "RMSE on vario GaussianMixture (ivar=2, jvar=2) in section xOy in dir#3 = 0.0363"
+
+[1] "RMSE on vario GaussianMixture (ivar=2, jvar=2) in section xOy in dir#4 = 0.0303"
+
+[1] "-------------------------------------------"
+[1] " End of test #11"
+
+[1] "-------------------------------------------"
+[1] " Begining of test #12:"
+
+[1] " - Class CorGneiting"
+
+[1] " - Model GNEITING_G"
+
+[1] " - Number of variables 1"
+
+[1] "Creation of the model"
+[1] "Creating a GAUSSIAN GaussianMixture model:"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :1"
+[1] " - variance[1] = 1.00"
+[1] " - nu[1]       = 1.00"
+[1] " - kappa[1] = 2.00"
+[1] "Creating a CAUCHY_GEN CovAniso model:"
+[1] " - dimension of the space :1"
+[1] " - number of variables    :1"
+[1] " - variance               :1"
+[1] " - param[1] = 2.000000"
+[1] " - param[2] = 1.000000"
+[1] "Creating a space-time GNEITING_G Gneiting model:"
+[1] " - dimension of the model :3"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :1"
+[1] " - alpha                  :2"
+[1] " - beta                   :1"
+[1] " - a_t                    :1"
+[1] "Testing the covariance"
+
+[1] "Test in dir #1 for CorGneiting (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #2 for CorGneiting (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #3 for CorGneiting (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #4 for CorGneiting (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #1 for CorGneiting (Var-1, Var-1) in space x time: OK"
+
+[1] "Test in dir #2 for CorGneiting (Var-1, Var-1) in space x time: OK"
+
+[1] "Test in dir #3 for CorGneiting (Var-1, Var-1) in space x time: OK"
+
+[1] "Test in dir #4 for CorGneiting (Var-1, Var-1) in space x time: OK"
+
+[1] "Defining the 2d slice"
+
+[1] "Computing simulation in slice xOt"
+
+[1] "Performing a single simulation"
+
+
+
+Table: Mono-variate statistics for the GNEITING_G covariance
+
+|                   | Number|     min|    max| median|   mean|     sd|
+|:------------------|------:|-------:|------:|------:|------:|------:|
+|GNEITING_G.V1.simu |  40000| -3.4416| 3.4779| -0.014| -0.027| 0.9729|
+
+[1] "Average variogram on various simulations"
+
+[1] ">>> Simulation #1"
+
+[1] ">>> Simulation #2"
+
+
+
+Table: Mono-variate statistics for the GNEITING_G covariance
+
+|                 | Number|     min|    max|  median|    mean|     sd|
+|:----------------|------:|-------:|------:|-------:|-------:|------:|
+|GNEITING_G.V1.S1 |  40000| -3.7845| 3.3920| -0.0401| -0.0379| 1.0367|
+|GNEITING_G.V1.S2 |  40000| -3.6836| 3.6397|  0.0662|  0.0376| 1.0477|
+
+[1] "RMSE on vario CovGneiting (ivar=1, jvar=1) in section xOt in dir#1 = 0.1058"
+
+[1] "RMSE on vario CovGneiting (ivar=1, jvar=1) in section xOt in dir#2 = 0.1229"
+
+[1] "RMSE on vario CovGneiting (ivar=1, jvar=1) in section xOt in dir#3 = 0.0809"
+
+[1] "RMSE on vario CovGneiting (ivar=1, jvar=1) in section xOt in dir#4 = 0.1014"
+
+[1] "-------------------------------------------"
+[1] " End of test #12"
+
+[1] "-------------------------------------------"
+[1] " Begining of test #13:"
+
+[1] " - Class CorGneiting"
+
+[1] " - Model GNEITING_M"
+
+[1] " - Number of variables 1"
+
+[1] "Creation of the model"
+[1] "Creating a MATERN GaussianMixture model:"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :1"
+[1] " - variance[1] = 1.00"
+[1] " - nu[1]       = 0.75"
+[1] " - kappa[1] = 2.00"
+[1] "Creating a CAUCHY_GEN CovAniso model:"
+[1] " - dimension of the space :1"
+[1] " - number of variables    :1"
+[1] " - variance               :1"
+[1] " - param[1] = 2.000000"
+[1] " - param[2] = 1.000000"
+[1] "Creating a space-time GNEITING_M Gneiting model:"
+[1] " - dimension of the model :3"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :1"
+[1] " - alpha                  :2"
+[1] " - beta                   :1"
+[1] " - a_t                    :1"
+[1] "Testing the covariance"
+
+[1] "Test in dir #1 for CorGneiting (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #2 for CorGneiting (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #3 for CorGneiting (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #4 for CorGneiting (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #1 for CorGneiting (Var-1, Var-1) in space x time: OK"
+
+[1] "Test in dir #2 for CorGneiting (Var-1, Var-1) in space x time: OK"
+
+[1] "Test in dir #3 for CorGneiting (Var-1, Var-1) in space x time: OK"
+
+[1] "Test in dir #4 for CorGneiting (Var-1, Var-1) in space x time: OK"
+
+[1] "Defining the 2d slice"
+
+[1] "Computing simulation in slice xOt"
+
+[1] "Performing a single simulation"
+
+
+
+Table: Mono-variate statistics for the GNEITING_M covariance
+
+|                   | Number|     min|   max|  median|    mean|     sd|
+|:------------------|------:|-------:|-----:|-------:|-------:|------:|
+|GNEITING_M.V1.simu |  40000| -3.9421| 3.338| -0.0452| -0.0534| 0.9799|
+
+[1] "Average variogram on various simulations"
+
+[1] ">>> Simulation #1"
+
+[1] ">>> Simulation #2"
+
+
+
+Table: Mono-variate statistics for the GNEITING_M covariance
+
+|                 | Number|     min|    max|  median|    mean|     sd|
+|:----------------|------:|-------:|------:|-------:|-------:|------:|
+|GNEITING_M.V1.S1 |  40000| -4.5821| 3.3619| -0.0523| -0.1095| 0.9815|
+|GNEITING_M.V1.S2 |  40000| -3.4529| 3.4247|  0.1999|  0.1705| 1.0156|
+
+[1] "RMSE on vario CovGneiting (ivar=1, jvar=1) in section xOt in dir#1 = 0.0181"
+
+[1] "RMSE on vario CovGneiting (ivar=1, jvar=1) in section xOt in dir#2 = 0.0468"
+
+[1] "RMSE on vario CovGneiting (ivar=1, jvar=1) in section xOt in dir#3 = 0.0405"
+
+[1] "RMSE on vario CovGneiting (ivar=1, jvar=1) in section xOt in dir#4 = 0.0411"
+
+[1] "-------------------------------------------"
+[1] " End of test #13"
+
+[1] "-------------------------------------------"
+[1] " Begining of test #14:"
+
+[1] " - Class CorGneiting"
+
+[1] " - Model GNEITING_M"
+
+[1] " - Number of variables 2"
+
+[1] "Creation of the model"
+[1] "Creating a MATERN GaussianMixture model:"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :2"
+[1] " - variance[1] = 1.00"
+[1] " - nu[1]       = 0.75"
+[1] " - kappa[1] = 2.00"
+[1] " - variance[2] = 1.00"
+[1] " - nu[2]       = 0.50"
+[1] " - kappa[2] = 1.00"
+[1] "Creating a CAUCHY_GEN CovAniso model:"
+[1] " - dimension of the space :1"
+[1] " - number of variables    :1"
+[1] " - variance               :1"
+[1] " - param[1] = 2.000000"
+[1] " - param[2] = 1.000000"
+[1] "Creating a space-time GNEITING_M Gneiting model:"
+[1] " - dimension of the model :3"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :2"
+[1] " - alpha                  :2"
+[1] " - beta                   :1"
+[1] " - a_t                    :1"
+[1] "Testing the covariance"
+
+[1] "Creating a MATERN GaussianMixture model:"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :1"
+[1] " - variance[1] = 1.00"
+[1] " - nu[1]       = 0.75"
+[1] " - kappa[1] = 2.00"
+[1] "Creating a CAUCHY_GEN CovAniso model:"
+[1] " - dimension of the space :1"
+[1] " - number of variables    :1"
+[1] " - variance               :1"
+[1] " - param[1] = 2.000000"
+[1] " - param[2] = 1.000000"
+[1] "Creating a space-time GNEITING_M Gneiting model:"
+[1] " - dimension of the model :3"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :1"
+[1] " - alpha                  :2"
+[1] " - beta                   :1"
+[1] " - a_t                    :1"
+[1] "Test in dir #1 for CorGneiting (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #2 for CorGneiting (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #3 for CorGneiting (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #4 for CorGneiting (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #1 for CorGneiting (Var-1, Var-1) in space x time: OK"
+
+[1] "Test in dir #2 for CorGneiting (Var-1, Var-1) in space x time: OK"
+
+[1] "Test in dir #3 for CorGneiting (Var-1, Var-1) in space x time: OK"
+
+[1] "Test in dir #4 for CorGneiting (Var-1, Var-1) in space x time: OK"
+
+[1] "Creating a MATERN GaussianMixture model:"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :1"
+[1] " - variance[1] = 0.92"
+[1] " - nu[1]       = 0.62"
+[1] " - kappa[1] = 1.58"
+[1] "Creating a CAUCHY_GEN CovAniso model:"
+[1] " - dimension of the space :1"
+[1] " - number of variables    :1"
+[1] " - variance               :1"
+[1] " - param[1] = 2.000000"
+[1] " - param[2] = 1.000000"
+[1] "Creating a space-time GNEITING_M Gneiting model:"
+[1] " - dimension of the model :3"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :1"
+[1] " - alpha                  :2"
+[1] " - beta                   :1"
+[1] " - a_t                    :1"
+[1] "Test in dir #1 for CorGneiting (Var-1, Var-2) in space: OK"
+
+[1] "Test in dir #2 for CorGneiting (Var-1, Var-2) in space: OK"
+
+[1] "Test in dir #3 for CorGneiting (Var-1, Var-2) in space: OK"
+
+[1] "Test in dir #4 for CorGneiting (Var-1, Var-2) in space: OK"
+
+[1] "Test in dir #1 for CorGneiting (Var-1, Var-2) in space x time: OK"
+
+[1] "Test in dir #2 for CorGneiting (Var-1, Var-2) in space x time: OK"
+
+[1] "Test in dir #3 for CorGneiting (Var-1, Var-2) in space x time: OK"
+
+[1] "Test in dir #4 for CorGneiting (Var-1, Var-2) in space x time: OK"
+
+[1] "Creating a MATERN GaussianMixture model:"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :1"
+[1] " - variance[1] = 1.00"
+[1] " - nu[1]       = 0.50"
+[1] " - kappa[1] = 1.00"
+[1] "Creating a CAUCHY_GEN CovAniso model:"
+[1] " - dimension of the space :1"
+[1] " - number of variables    :1"
+[1] " - variance               :1"
+[1] " - param[1] = 2.000000"
+[1] " - param[2] = 1.000000"
+[1] "Creating a space-time GNEITING_M Gneiting model:"
+[1] " - dimension of the model :3"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :1"
+[1] " - alpha                  :2"
+[1] " - beta                   :1"
+[1] " - a_t                    :1"
+[1] "Test in dir #1 for CorGneiting (Var-2, Var-2) in space: OK"
+
+[1] "Test in dir #2 for CorGneiting (Var-2, Var-2) in space: OK"
+
+[1] "Test in dir #3 for CorGneiting (Var-2, Var-2) in space: OK"
+
+[1] "Test in dir #4 for CorGneiting (Var-2, Var-2) in space: OK"
+
+[1] "Test in dir #1 for CorGneiting (Var-2, Var-2) in space x time: OK"
+
+[1] "Test in dir #2 for CorGneiting (Var-2, Var-2) in space x time: OK"
+
+[1] "Test in dir #3 for CorGneiting (Var-2, Var-2) in space x time: OK"
+
+[1] "Test in dir #4 for CorGneiting (Var-2, Var-2) in space x time: OK"
+
+[1] "Defining the 2d slice"
+
+[1] "Computing simulation in slice xOt"
+
+[1] "Performing a single simulation"
+
+[1] "Creating a MATERN GaussianMixture model:"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :1"
+[1] " - variance[1] = 1.00"
+[1] " - nu[1]       = 0.75"
+[1] " - kappa[1] = 2.00"
+[1] "Creating a CAUCHY_GEN CovAniso model:"
+[1] " - dimension of the space :1"
+[1] " - number of variables    :1"
+[1] " - variance               :1"
+[1] " - param[1] = 2.000000"
+[1] " - param[2] = 1.000000"
+[1] "Creating a space-time GNEITING_M Gneiting model:"
+[1] " - dimension of the model :3"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :1"
+[1] " - alpha                  :2"
+[1] " - beta                   :1"
+[1] " - a_t                    :1"
+[1] "Creating a MATERN GaussianMixture model:"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :1"
+[1] " - variance[1] = 1.00"
+[1] " - nu[1]       = 0.50"
+[1] " - kappa[1] = 1.00"
+[1] "Creating a CAUCHY_GEN CovAniso model:"
+[1] " - dimension of the space :1"
+[1] " - number of variables    :1"
+[1] " - variance               :1"
+[1] " - param[1] = 2.000000"
+[1] " - param[2] = 1.000000"
+[1] "Creating a space-time GNEITING_M Gneiting model:"
+[1] " - dimension of the model :3"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :1"
+[1] " - alpha                  :2"
+[1] " - beta                   :1"
+[1] " - a_t                    :1"
+
+
+Table: Mono-variate statistics for the GNEITING_M covariance
+
+|                   | Number|     min|    max|  median|    mean|     sd|
+|:------------------|------:|-------:|------:|-------:|-------:|------:|
+|GNEITING_M.V1.simu |  40000| -4.5066| 3.2087|  0.0344| -0.0134| 0.9854|
+|GNEITING_M.V2.simu |  40000| -4.3797| 2.9840| -0.0257| -0.0657| 0.9214|
+
+[1] "Average variogram on various simulations"
+
+[1] ">>> Simulation #1"
+
+[1] ">>> Simulation #2"
+
+
+
+Table: Mono-variate statistics for the GNEITING_M covariance
+
+|                 | Number|     min|    max|  median|    mean|     sd|
+|:----------------|------:|-------:|------:|-------:|-------:|------:|
+|GNEITING_M.V1.S1 |  40000| -3.6068| 3.3077| -0.0717| -0.1000| 1.0011|
+|GNEITING_M.V2.S1 |  40000| -3.5011| 3.1670| -0.0649| -0.0909| 0.9104|
+|GNEITING_M.V1.S2 |  40000| -4.7484| 2.8812| -0.3033| -0.3493| 1.0535|
+|GNEITING_M.V2.S2 |  40000| -4.4014| 2.8933| -0.2251| -0.2744| 1.0034|
+
+[1] "RMSE on vario CovGneiting (ivar=1, jvar=1) in section xOt in dir#1 = 0.0684"
+
+[1] "RMSE on vario CovGneiting (ivar=1, jvar=1) in section xOt in dir#2 = 0.0748"
+
+[1] "RMSE on vario CovGneiting (ivar=1, jvar=1) in section xOt in dir#3 = 0.0796"
+
+[1] "RMSE on vario CovGneiting (ivar=1, jvar=1) in section xOt in dir#4 = 0.1111"
+
+[1] "RMSE on vario CovGneiting (ivar=1, jvar=2) in section xOt in dir#1 = 0.0447"
+
+[1] "RMSE on vario CovGneiting (ivar=1, jvar=2) in section xOt in dir#2 = 0.0602"
+
+[1] "RMSE on vario CovGneiting (ivar=1, jvar=2) in section xOt in dir#3 = 0.0585"
+
+[1] "RMSE on vario CovGneiting (ivar=1, jvar=2) in section xOt in dir#4 = 0.0871"
+
+[1] "RMSE on vario CovGneiting (ivar=2, jvar=2) in section xOt in dir#1 = 0.0665"
+
+[1] "RMSE on vario CovGneiting (ivar=2, jvar=2) in section xOt in dir#2 = 0.0561"
+
+[1] "RMSE on vario CovGneiting (ivar=2, jvar=2) in section xOt in dir#3 = 0.0300"
+
+[1] "RMSE on vario CovGneiting (ivar=2, jvar=2) in section xOt in dir#4 = 0.0163"
+
+[1] "-------------------------------------------"
+[1] " End of test #14"
+
+[1] "-------------------------------------------"
+[1] " Begining of test #15:"
+
+[1] " - Class CorGneiting"
+
+[1] " - Model GNEITING_C"
+
+[1] " - Number of variables 1"
+
+[1] "Creation of the model"
+[1] "Creating a CAUCHY GaussianMixture model:"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :1"
+[1] " - variance[1] = 1.00"
+[1] " - nu[1]       = 0.75"
+[1] " - kappa[1] = 2.00"
+[1] "Creating a CAUCHY_GEN CovAniso model:"
+[1] " - dimension of the space :1"
+[1] " - number of variables    :1"
+[1] " - variance               :1"
+[1] " - param[1] = 2.000000"
+[1] " - param[2] = 1.000000"
+[1] "Creating a space-time GNEITING_C Gneiting model:"
+[1] " - dimension of the model :3"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :1"
+[1] " - alpha                  :2"
+[1] " - beta                   :1"
+[1] " - a_t                    :1"
+[1] "Testing the covariance"
+
+[1] "Test in dir #1 for CorGneiting (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #2 for CorGneiting (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #3 for CorGneiting (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #4 for CorGneiting (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #1 for CorGneiting (Var-1, Var-1) in space x time: OK"
+
+[1] "Test in dir #2 for CorGneiting (Var-1, Var-1) in space x time: OK"
+
+[1] "Test in dir #3 for CorGneiting (Var-1, Var-1) in space x time: OK"
+
+[1] "Test in dir #4 for CorGneiting (Var-1, Var-1) in space x time: OK"
+
+[1] "Defining the 2d slice"
+
+[1] "Computing simulation in slice xOt"
+
+[1] "Performing a single simulation"
+
+
+
+Table: Mono-variate statistics for the GNEITING_C covariance
+
+|                   | Number|    min|    max| median|   mean|     sd|
+|:------------------|------:|------:|------:|------:|------:|------:|
+|GNEITING_C.V1.simu |  40000| -3.449| 4.2834| 0.0984| 0.0859| 1.0207|
+
+[1] "Average variogram on various simulations"
+
+[1] ">>> Simulation #1"
+
+[1] ">>> Simulation #2"
+
+
+
+Table: Mono-variate statistics for the GNEITING_C covariance
+
+|                 | Number|     min|    max| median|   mean|     sd|
+|:----------------|------:|-------:|------:|------:|------:|------:|
+|GNEITING_C.V1.S1 |  40000| -3.2153| 3.9169| 0.0419| 0.0834| 1.0088|
+|GNEITING_C.V1.S2 |  40000| -3.2986| 3.3912| 0.1095| 0.1480| 0.9957|
+
+[1] "RMSE on vario CovGneiting (ivar=1, jvar=1) in section xOt in dir#1 = 0.0255"
+
+[1] "RMSE on vario CovGneiting (ivar=1, jvar=1) in section xOt in dir#2 = 0.0575"
+
+[1] "RMSE on vario CovGneiting (ivar=1, jvar=1) in section xOt in dir#3 = 0.0351"
+
+[1] "RMSE on vario CovGneiting (ivar=1, jvar=1) in section xOt in dir#4 = 0.0246"
+
+[1] "-------------------------------------------"
+[1] " End of test #15"
+
+[1] "-------------------------------------------"
+[1] " Begining of test #16:"
+
+[1] " - Class CorGneiting"
+
+[1] " - Model GNEITING_C"
+
+[1] " - Number of variables 2"
+
+[1] "Creation of the model"
+[1] "Creating a CAUCHY GaussianMixture model:"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :2"
+[1] " - variance[1] = 1.00"
+[1] " - nu[1]       = 0.75"
+[1] " - kappa[1] = 2.00"
+[1] " - variance[2] = 1.00"
+[1] " - nu[2]       = 0.50"
+[1] " - kappa[2] = 1.00"
+[1] "Creating a CAUCHY_GEN CovAniso model:"
+[1] " - dimension of the space :1"
+[1] " - number of variables    :1"
+[1] " - variance               :1"
+[1] " - param[1] = 2.000000"
+[1] " - param[2] = 1.000000"
+[1] "Creating a space-time GNEITING_C Gneiting model:"
+[1] " - dimension of the model :3"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :2"
+[1] " - alpha                  :2"
+[1] " - beta                   :1"
+[1] " - a_t                    :1"
+[1] "Testing the covariance"
+
+[1] "Creating a CAUCHY GaussianMixture model:"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :1"
+[1] " - variance[1] = 1.00"
+[1] " - nu[1]       = 0.75"
+[1] " - kappa[1] = 2.00"
+[1] "Creating a CAUCHY_GEN CovAniso model:"
+[1] " - dimension of the space :1"
+[1] " - number of variables    :1"
+[1] " - variance               :1"
+[1] " - param[1] = 2.000000"
+[1] " - param[2] = 1.000000"
+[1] "Creating a space-time GNEITING_C Gneiting model:"
+[1] " - dimension of the model :3"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :1"
+[1] " - alpha                  :2"
+[1] " - beta                   :1"
+[1] " - a_t                    :1"
+[1] "Test in dir #1 for CorGneiting (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #2 for CorGneiting (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #3 for CorGneiting (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #4 for CorGneiting (Var-1, Var-1) in space: OK"
+
+[1] "Test in dir #1 for CorGneiting (Var-1, Var-1) in space x time: OK"
+
+[1] "Test in dir #2 for CorGneiting (Var-1, Var-1) in space x time: OK"
+
+[1] "Test in dir #3 for CorGneiting (Var-1, Var-1) in space x time: OK"
+
+[1] "Test in dir #4 for CorGneiting (Var-1, Var-1) in space x time: OK"
+
+[1] "Creating a CAUCHY GaussianMixture model:"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :1"
+[1] " - variance[1] = 0.78"
+[1] " - nu[1]       = 0.62"
+[1] " - kappa[1] = 1.26"
+[1] "Creating a CAUCHY_GEN CovAniso model:"
+[1] " - dimension of the space :1"
+[1] " - number of variables    :1"
+[1] " - variance               :1"
+[1] " - param[1] = 2.000000"
+[1] " - param[2] = 1.000000"
+[1] "Creating a space-time GNEITING_C Gneiting model:"
+[1] " - dimension of the model :3"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :1"
+[1] " - alpha                  :2"
+[1] " - beta                   :1"
+[1] " - a_t                    :1"
+[1] "Test in dir #1 for CorGneiting (Var-1, Var-2) in space: OK"
+
+[1] "Test in dir #2 for CorGneiting (Var-1, Var-2) in space: OK"
+
+[1] "Test in dir #3 for CorGneiting (Var-1, Var-2) in space: OK"
+
+[1] "Test in dir #4 for CorGneiting (Var-1, Var-2) in space: OK"
+
+[1] "Test in dir #1 for CorGneiting (Var-1, Var-2) in space x time: OK"
+
+[1] "Test in dir #2 for CorGneiting (Var-1, Var-2) in space x time: OK"
+
+[1] "Test in dir #3 for CorGneiting (Var-1, Var-2) in space x time: OK"
+
+[1] "Test in dir #4 for CorGneiting (Var-1, Var-2) in space x time: OK"
+
+[1] "Creating a CAUCHY GaussianMixture model:"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :1"
+[1] " - variance[1] = 1.00"
+[1] " - nu[1]       = 0.50"
+[1] " - kappa[1] = 1.00"
+[1] "Creating a CAUCHY_GEN CovAniso model:"
+[1] " - dimension of the space :1"
+[1] " - number of variables    :1"
+[1] " - variance               :1"
+[1] " - param[1] = 2.000000"
+[1] " - param[2] = 1.000000"
+[1] "Creating a space-time GNEITING_C Gneiting model:"
+[1] " - dimension of the model :3"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :1"
+[1] " - alpha                  :2"
+[1] " - beta                   :1"
+[1] " - a_t                    :1"
+[1] "Test in dir #1 for CorGneiting (Var-2, Var-2) in space: OK"
+
+[1] "Test in dir #2 for CorGneiting (Var-2, Var-2) in space: OK"
+
+[1] "Test in dir #3 for CorGneiting (Var-2, Var-2) in space: OK"
+
+[1] "Test in dir #4 for CorGneiting (Var-2, Var-2) in space: OK"
+
+[1] "Test in dir #1 for CorGneiting (Var-2, Var-2) in space x time: OK"
+
+[1] "Test in dir #2 for CorGneiting (Var-2, Var-2) in space x time: OK"
+
+[1] "Test in dir #3 for CorGneiting (Var-2, Var-2) in space x time: OK"
+
+[1] "Test in dir #4 for CorGneiting (Var-2, Var-2) in space x time: OK"
+
+[1] "Defining the 2d slice"
+
+[1] "Computing simulation in slice xOt"
+
+[1] "Performing a single simulation"
+
+[1] "Creating a CAUCHY GaussianMixture model:"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :1"
+[1] " - variance[1] = 1.00"
+[1] " - nu[1]       = 0.75"
+[1] " - kappa[1] = 2.00"
+[1] "Creating a CAUCHY_GEN CovAniso model:"
+[1] " - dimension of the space :1"
+[1] " - number of variables    :1"
+[1] " - variance               :1"
+[1] " - param[1] = 2.000000"
+[1] " - param[2] = 1.000000"
+[1] "Creating a space-time GNEITING_C Gneiting model:"
+[1] " - dimension of the model :3"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :1"
+[1] " - alpha                  :2"
+[1] " - beta                   :1"
+[1] " - a_t                    :1"
+[1] "Creating a CAUCHY GaussianMixture model:"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :1"
+[1] " - variance[1] = 1.00"
+[1] " - nu[1]       = 0.50"
+[1] " - kappa[1] = 1.00"
+[1] "Creating a CAUCHY_GEN CovAniso model:"
+[1] " - dimension of the space :1"
+[1] " - number of variables    :1"
+[1] " - variance               :1"
+[1] " - param[1] = 2.000000"
+[1] " - param[2] = 1.000000"
+[1] "Creating a space-time GNEITING_C Gneiting model:"
+[1] " - dimension of the model :3"
+[1] " - dimension of the space :2"
+[1] " - number of variables    :1"
+[1] " - alpha                  :2"
+[1] " - beta                   :1"
+[1] " - a_t                    :1"
+
+
+Table: Mono-variate statistics for the GNEITING_C covariance
+
+|                   | Number|     min|    max| median|   mean|     sd|
+|:------------------|------:|-------:|------:|------:|------:|------:|
+|GNEITING_C.V1.simu |  40000| -3.3794| 3.2065| 0.0704| 0.0439| 0.9987|
+|GNEITING_C.V2.simu |  40000| -3.0400| 3.0430| 0.0319| 0.0325| 0.9523|
+
+[1] "Average variogram on various simulations"
+
+[1] ">>> Simulation #1"
+
+[1] ">>> Simulation #2"
+
+
+
+Table: Mono-variate statistics for the GNEITING_C covariance
+
+|                 | Number|     min|    max|  median|    mean|     sd|
+|:----------------|------:|-------:|------:|-------:|-------:|------:|
+|GNEITING_C.V1.S1 |  40000| -3.4795| 3.6312|  0.0337|  0.0116| 1.0572|
+|GNEITING_C.V2.S1 |  40000| -3.3723| 3.2335|  0.0678|  0.0434| 1.0886|
+|GNEITING_C.V1.S2 |  40000| -3.9741| 3.2471| -0.5086| -0.5352| 1.0648|
+|GNEITING_C.V2.S2 |  40000| -3.2454| 2.3347| -0.5096| -0.5092| 0.8949|
+
+[1] "RMSE on vario CovGneiting (ivar=1, jvar=1) in section xOt in dir#1 = 0.1091"
+
+[1] "RMSE on vario CovGneiting (ivar=1, jvar=1) in section xOt in dir#2 = 0.1038"
+
+[1] "RMSE on vario CovGneiting (ivar=1, jvar=1) in section xOt in dir#3 = 0.0942"
+
+[1] "RMSE on vario CovGneiting (ivar=1, jvar=1) in section xOt in dir#4 = 0.0834"
+
+[1] "RMSE on vario CovGneiting (ivar=1, jvar=2) in section xOt in dir#1 = 0.1097"
+
+[1] "RMSE on vario CovGneiting (ivar=1, jvar=2) in section xOt in dir#2 = 0.0728"
+
+[1] "RMSE on vario CovGneiting (ivar=1, jvar=2) in section xOt in dir#3 = 0.0770"
+
+[1] "RMSE on vario CovGneiting (ivar=1, jvar=2) in section xOt in dir#4 = 0.0950"
+
+[1] "RMSE on vario CovGneiting (ivar=2, jvar=2) in section xOt in dir#1 = 0.0938"
+
+[1] "RMSE on vario CovGneiting (ivar=2, jvar=2) in section xOt in dir#2 = 0.0329"
+
+[1] "RMSE on vario CovGneiting (ivar=2, jvar=2) in section xOt in dir#3 = 0.0352"
+
+[1] "RMSE on vario CovGneiting (ivar=2, jvar=2) in section xOt in dir#4 = 0.0620"
+
+[1] "-------------------------------------------"
+[1] " End of test #16"
+
+[1] "-------------------------------------------"
