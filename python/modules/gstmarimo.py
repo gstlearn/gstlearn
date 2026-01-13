@@ -23,7 +23,6 @@ nxdef = 100
 globalPath = "./"
 debugOption = False
 os.environ["GSTLEARN_OUTPUT_DIR"] = ""
-mo.app_layout("wide")
 
 def _getCovarianceDict():
     """
