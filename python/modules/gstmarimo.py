@@ -17,9 +17,13 @@ import gstlearn as gl
 import numpy as np
 import pandas as pd
 import marimo as mo
+import os
 
 nxdef = 100
 globalPath = "./"
+debugOption = False
+os.environ["GSTLEARN_OUTPUT_DIR"] = ""
+mo.app_layout("wide")
 
 def _getCovarianceDict():
     """
@@ -42,28 +46,23 @@ def _WLock(WTest, condition, colorBackground="white", colorText="black"):
         newWTest = WTest.style({"backgroundColor": "#f0f0f0", "color": "#a0a0a0"})
     return newWTest
 
-def WdefineCovariance(ic=0, ncovmax=1, distmax=100, varmax=100, defmodel=None):
+#================================================================
+# Widget to inquire the parameters for defining one Covariance
+# The covariance is ranked within a list of 'ncovmax' covariances
+#================================================================
+
+def WdefineOneCovariance(ic=0, ncovmax=1, distmax=100, varmax=100, typeRef="Spherical"):
     """
     Returns the widget for inquiring the parameters for a single Basic structure
     ncovmax: Maximum number of Basic structures (used for defaulting range)
     distmax: Maximum distance
     varmax:  Maximum Variance value
-    defmodel: Model used for providing default values (optional)
+    typeRef: Type of covariance used as default
     """
-    if defmodel is None or ic >= defmodel.getCovaNumber():
-        typeRef = "Spherical"
-        distRef = distmax * (ic + 1) / (ncovmax + 1)
-        distAux = distRef
-        varRef = varmax / ncovmax
-        angRef = 0
-        flagAniso = False
-    else:
-        typeRef = defmodel.getCovaType(ic).getDescr()
-        distRef = defmodel.getRange(ic)
-        varRef = defmodel.getSill(ic, 0, 0)
-        distAux = defmodel.getRanges(ic)[1]
-        angRef = defmodel.getCovAniso(ic).getAnisoAngle(1)
-        flagAniso = defmodel.getCovAniso(ic).getFlagAniso()
+    distRef = distmax * (ic + 1) / (ncovmax + 1)
+    distAux = distRef
+    varRef  = varmax / ncovmax
+    angRef  = 0
 
     WUsed = mo.ui.switch(True, label="Basic Structure Used")
     WType = mo.ui.dropdown(
@@ -77,10 +76,7 @@ def WdefineCovariance(ic=0, ncovmax=1, distmax=100, varmax=100, defmodel=None):
 
     return mo.ui.array([WUsed, WType, WRange, WSill, WAniso, WRange2, WAngle])
 
-def WshowCovariance(WAll, flagTitle=True):
-    """
-    Returns the contents of the Covariance Widget as HTML, ready to be displayed
-    """
+def WshowOneCovariance(WAll, flagTitle=True):
     [WUsed, WType, WRange, WSill, WAniso, WRange2, WAngle] = WAll
 
     WTypeupd = _WLock(WType, not WUsed.value)
@@ -103,10 +99,7 @@ def WshowCovariance(WAll, flagTitle=True):
         ]
     )
 
-def WgetCovariance(WAll):
-    """
-    Uses the contents of the Covariance Widget to produce a CovAniso item
-    """
+def WgetOneCovariance(WAll):
     [WUsed, WType, WRange, WSill, WAniso, WRange2, WAngle] = WAll
 
     type = gl.ECov.fromKey(WType.value)
@@ -134,43 +127,165 @@ def WgetCovariance(WAll):
             )
     return cova
 
-def WdefineModel(ncovmax=1, distmax=100, varmax=100, defmodel=None):
+#==========================================
+# Widget to inquire the list of Covariances
+#==========================================
+
+def WdefineCovariances(ncovmax=1, distmax=100, varmax=100):
     """
     Returns the array of widgets for inquiring a series of 'ncovmax' basic structures
     ncovmax: Maximum number of Basic structures (used for defaulting range)
     distmax: Maximum distance
     varmax:  Maximum Variance value
-    defmodel: Model used for providing default values
     """
-    if defmodel is not None:
-        ncovmax = defmodel.getCovaNumber()
-        distmax = defmodel.getMaximumDistance()
-        varmax = defmodel.getTotalSill()
     return mo.ui.array(
         [
-            WdefineCovariance(ic, ncovmax, distmax, varmax, defmodel)
+            WdefineOneCovariance(ic, ncovmax, distmax, varmax)
             for ic in range(ncovmax)
         ]
     )
 
-def WshowModel(WAlls, flagTitle=True):
+def WshowCovariances(WAlls, flagTitle=True):
     ncov = len(WAlls)
     UI = mo.accordion(
         {
-            "Covariance " + str(ic + 1): WshowCovariance(WAlls[ic], False)
+            "Covariance " + str(ic + 1): WshowOneCovariance(WAlls[ic], False)
             for ic in range(ncov)
         }
     )
     return mo.vstack([WgetTitle("Model Definition", flagTitle), UI], justify="start")
 
-def WgetModel(WAlls):
+def WgetCovariances(WAlls):
     """
     Create a gstlearn Model
     """
     model = gl.Model()
     for WAll in WAlls:
-        cova = WgetCovariance(WAll)
+        cova = WgetOneCovariance(WAll)
         model.addCov(cova)
+    return model
+
+#===========================================================
+# Widget to inquire the list of Basic Structures for Fitting
+#===========================================================
+
+def WshowBasicList(WAll, flagTitle=True):
+    [WTypes] = WAll
+
+    return mo.vstack(
+        [WgetTitle("Basic Structures for Fitting", flagTitle), WTypes]
+    )
+
+#======================================================
+# Widget to inquire the parameters for defining a Model
+#======================================================
+
+def WdefineModelFromNF():
+    WFile = mo.ui.file_browser(label="Select a Model Neutral File",
+                               multiple=False, filetypes=[".NF", ".ascii"])
+    return mo.ui.array([WFile])
+
+def WgetModelFromNF(WAll):
+    [WFile] = WAll
+    filename = WFile.name()
+    if filename is None:
+        return None
+    return gl.Model.createFromNF(str(WFile.path(index=0)))
+
+def WdefineModelFitVario(deftypes=["Spherical"]):
+    WTypes = mo.ui.multiselect(options=_getCovarianceDict(), value=deftypes)
+    return mo.ui.array([WTypes])
+
+def WgetModelFitVario(WAll, vario):
+    [WTypes] = WAll
+
+    if vario is None:
+        print("You must define a valid Vario")
+        return None
+
+    # Create a list of ECov from 'options'
+    model = None
+    types = WTypes.value
+    if types:
+        model = gl.Model.createFromVario(vario, gl.ECov.fromKeys(types))
+    return model
+
+def WdefineModel(ncovmax=1, distmax=100, varmax=100, vario=None, 
+                 deftypes=["Spherical"], valdef="Fit"):
+    """
+    Returns the array of widgets for inquiring a series of 'ncovmax' basic structures
+    ncovmax: Maximum number of Basic structures (used for defaulting range)
+    distmax: Maximum distance
+    varmax:  Maximum Variance value
+    vario: Vario used for providing default values (if provided)
+    valdef: Defaulted option for Model definition
+    """
+    if vario is not None:
+        distmax = vario.getMaximumDistance()
+        varmax = vario.getVar()
+
+    WidgetModelDefine = WdefineCovariances(ncovmax=ncovmax, distmax=distmax, varmax=varmax)
+
+    WidgetModelFitVario = WdefineModelFitVario(deftypes=deftypes)
+
+    WidgetModelFromNF = WdefineModelFromNF()
+
+    WidgetModelChoice = mo.ui.radio(
+        options={"Define": 1, "Fit": 2, "From NF": 3}, value=valdef
+    )
+    return mo.ui.array(
+        [
+            WidgetModelChoice,
+            WidgetModelDefine,
+            WidgetModelFitVario,
+            WidgetModelFromNF,
+        ]
+    )
+
+def WshowModel(WAll, flagTitle=True):
+    [
+        WidgetModelChoice,
+        WidgetModelDefine,
+        WidgetModelFitVario,
+        WidgetModelFromNF,
+    ] = WAll
+
+    WTitle = WgetTitle("Model Definition", flagTitle)
+    optionShow = WidgetModelChoice.value
+    if optionShow == 1:
+        return mo.vstack([WTitle, WidgetModelChoice, *WidgetModelDefine])
+    elif optionShow == 2:
+        return mo.vstack([WTitle, WidgetModelChoice, *WidgetModelFitVario])
+    elif optionShow == 3:
+        return mo.vstack([WTitle, WidgetModelChoice, *WidgetModelFromNF])
+    else:
+        return None
+
+def WgetModel(WAll, vario=None):
+    [
+        WidgetModelChoice,
+        WidgetModelDefine,
+        WidgetModelFitVario,
+        WidgetModelFromNF,
+    ] = WAll
+
+    model = None
+    optionGet = WidgetModelChoice.value
+
+    if optionGet == 1:
+        model = WgetCovariances(WidgetModelDefine)
+    elif optionGet == 2:
+        model = WgetModelFitVario(WidgetModelFitVario, vario)
+    elif optionGet == 3:
+        return WgetModelFromNF(WidgetModelFromNF)
+    else:
+        print("You must define a valid Model")
+        return None
+
+    SaveNF(model, "myModel.NF")
+
+    displayItem(model)
+
     return model
 
 def WgetTitle(string, flagTitle=True):
@@ -192,14 +307,11 @@ def WdefineGrid(nxdef=50):
 
     return mo.ui.array([WNX, WNY, WDX, WDY, WX0, WY0])
 
-
 def WshowGrid(WAll, flagTitle=True):
     [WNX, WNY, WDX, WDY, WX0, WY0] = WAll
     Wgrid = mo.hstack(
         [
-            mo.vstack(
-                [mo.md("Parameters"), mo.md("Number"), mo.md("Mesh"), mo.md("Origin")]
-            ),
+            mo.vstack([mo.md("Parameters"), mo.md("Number"), mo.md("Mesh"), mo.md("Origin")]),
             mo.vstack([mo.md("along X"), WNX, WDX, WX0], align="end"),
             mo.vstack([mo.md("along Y"), WNY, WDY, WY0], align="end"),
         ],
@@ -259,7 +371,6 @@ def WdefineDbFromBox(nech=100, nvar=1, xmin=0, ymin=0, xmax=100, ymax=100, seed=
     WSeed = mo.ui.number(start=None, stop=None, value=seed, label="Seed")
     return mo.ui.array([WNech, WNvar, WXmin, WYmin, WXmax, WYmax, WSeed])
 
-
 def WgetDbFromBox(WAll):
     """
     Create a Db with Random Samples and Random Variable(s)
@@ -282,26 +393,16 @@ def WgetDbFromBox(WAll):
         seed=WSeed.value,
     )
 def WdefineDbFromNF():
-    """
-    Inquiry to load a file from a Neutral File
-    """
-    WFile = mo.ui.file_browser(label="Select a Db Neutral File", multiple=False, filetypes=[".NF", ".ascii"])
-
+    WFile = mo.ui.file_browser(label="Select a Db Neutral File", 
+                               multiple=False, filetypes=[".NF", ".ascii"])
     return mo.ui.array([WFile])
 
 def WgetDbFromNF(WAll):
-    """
-    Create the gstlearn Db
-    """
     [WFile] = WAll
     filename = WFile.name()
     if filename is None:
         return None
-    
-    filepath = WFile.path(index=0)
-    db = gl.Db.createFromNF(str(filepath))
-    db.display()
-    return db
+    return gl.Db.createFromNF(str(WFile.path(index=0)))
 
 def WdefineDbFromCSV(nameX="Longitude", nameY="Latitude", nameVar="pH"):
     """
@@ -429,7 +530,7 @@ def WdefineDb(
     ymax=100,
     nxdef=10,
     seed=145234,
-    valdef="From NF",
+    valdef="From Box",
 ):
     WidgetDbFromBox = WdefineDbFromBox(
         nech=nech, nvar=nvar, xmin=xmin, ymin=ymin, xmax=xmax, ymax=ymax, seed=seed
@@ -442,8 +543,7 @@ def WdefineDb(
     WidgetDbFromCSV = WdefineDbFromCSV()
 
     WidgetDbChoice = mo.ui.radio(
-        options={"From Box": 1, "From Grid": 2, "From NF": 3, "From CSV": 4},
-        value=valdef,
+        options={"From Box": 1, "From Grid": 2, "From NF": 3, "From CSV": 4}, value=valdef,
     )
     return mo.ui.array(
         [
@@ -465,18 +565,17 @@ def WshowDb(WAll, flagTitle=True):
     ] = WAll
 
     WTitle = WgetTitle("Data Base Parameters", flagTitle)
-    option = WidgetDbChoice.value
-    if option == 1:
+    optionShow = WidgetDbChoice.value
+    if optionShow == 1:
         return mo.vstack([WTitle, WidgetDbChoice, *WidgetDbFromBox])
-    elif option == 2:
+    elif optionShow == 2:
         return mo.vstack([WTitle, WidgetDbChoice, *WidgetDbFromGrid])
-    elif option == 3:
+    elif optionShow == 3:
         return mo.vstack([WTitle, WidgetDbChoice, *WidgetDbFromNF])
-    elif option == 4:
+    elif optionShow == 4:
         return mo.vstack([WTitle, WidgetDbChoice, *WidgetDbFromCSV])
     else:
         return None
-
 
 def WgetDb(WAll):
     [
@@ -487,75 +586,51 @@ def WgetDb(WAll):
         WidgetDbFromCSV,
     ] = WAll
 
-    option = WidgetDbChoice.value
+    optionGet = WidgetDbChoice.value
     db = None
-    if option == 1:
+    if optionGet == 1:
         db = WgetDbFromBox(WidgetDbFromBox)
-    elif option == 2:
+    elif optionGet == 2:
         db = WgetDbFromGrid(WidgetDbFromGrid)
-    elif option == 3:
+    elif optionGet == 3:
         db = WgetDbFromNF(WidgetDbFromNF)
-    elif option == 4:
+    elif optionGet == 4:
         db = WgetDbFromCSV(WidgetDbFromCSV)
     else:
         db = None
 
-    if db is None:
-        print("You must define a valid Db beforehand")
-
+    displayItem(db)
     return db
 
-def WdefineSaveNF(filename="file.ascii"):
-    """
-    Save the contents into a Neutral File
-    """
-    Wbutton = mo.ui.run_button(label="Save")
+def SaveNF(contents = None, filename = "myFile.NF"):
+    if contents is not None:
+        contents.dumpToNF(filename)
 
-    Wfilename = mo.ui.text(value=filename, label="Saving in Neutral File")
-
-    return mo.ui.array([Wfilename, Wbutton])
-
-
-def WshowSaveNF(WAll):
-    return mo.hstack(WAll, justify="start")
-
-
-def WperformSaveNF(Wall, contents):
-    """
-    Save the contents into a Neutral File
-    """
-    [Wfilename, Wbutton] = Wall
-
-    if Wbutton.value:
-        filename = Wfilename.value
-        if filename is not None:
-            contents.dumpToNF(filename)
-        else:
-            print("You must define a valid filename")
-
+def displayItem(contents = None):
+    if contents is not None and debugOption:
+        contents.display()
 
 def WdefineVarioFromNF():
-    """
-    Inquiry to load a Variogram File from a Neutral File
-    """
-    WFile = mo.ui.file_browser(label="Select a Variogram Neutral File", multiple=False)
-
+    WFile = mo.ui.file_browser(label="Select a Variogram Neutral File", 
+                               multiple=False, filetypes=[".NF", ".ascii"])
     return mo.ui.array([WFile])
 
-
 def WgetVarioFromNF(WAll):
-    """
-    Create the gstlearn Vario
-    """
     [WFile] = WAll
     filename = WFile.name()
     if filename is None:
         return None
-    
-    filepath = WFile.path(index=0)
-    return gl.Vario.createFromNF(str(filepath))
+    return gl.Vario.createFromNF(str(WFile.path(index=0)))
 
-def WdefineVario(nlag=10, dlag=1, ndir=4, valdef="Omni"):
+def WdefineVario(nlag=10, ndir=4, dlag=None, db=None, valdef="Omni"):
+
+    # Calculate the lag distance if not provided
+    if dlag is None and db is not None:
+        maxdist = db.getExtensionDiagonal()
+        dlag = maxdist / nlag / 2.0
+    elif dlag is None:
+        dlag = 1.0
+
     WidgetVarioParamOmni = WdefineVarioParamOmni(nlag=nlag, dlag=dlag)
 
     WidgetVarioParamMulti = WdefineVarioParamMulti(ndir=ndir, nlag=nlag, dlag=dlag)
@@ -566,15 +641,12 @@ def WdefineVario(nlag=10, dlag=1, ndir=4, valdef="Omni"):
         options={"Omni": 1, "Multi": 2, "From NF": 3}, value=valdef
     )
 
-    WidgetVarioSaveNF = WdefineSaveNF("vario.ascii")
-
     return mo.ui.array(
         [
             WidgetVarioChoice,
             WidgetVarioParamOmni,
             WidgetVarioParamMulti,
             WidgetVarioFromNF,
-            WidgetVarioSaveNF,
         ]
     )
 
@@ -584,108 +656,59 @@ def WshowVario(WAll, flagTitle=True):
         WidgetVarioParamOmni,
         WidgetVarioParamMulti,
         WidgetVarioFromNF,
-        WidgetVarioSaveNF,
     ] = WAll
 
     WTitle = WgetTitle("Variogram Parameters", flagTitle)
-    option = WidgetVarioChoice.value
-    if option == 1:
-        return mo.vstack(
-            [
-                WTitle,
-                WidgetVarioChoice,
-                *WidgetVarioParamOmni,
-                WshowSaveNF(WidgetVarioSaveNF),
-            ]
-        )
-    elif option == 2:
-        return mo.vstack(
-            [
-                WTitle,
-                WidgetVarioChoice,
-                *WidgetVarioParamMulti,
-                WshowSaveNF(WidgetVarioSaveNF),
-            ]
-        )
-    elif option == 3:
+    optionShow = WidgetVarioChoice.value
+    if optionShow == 1:
+        return mo.vstack([WTitle, WidgetVarioChoice, *WidgetVarioParamOmni])
+    elif optionShow == 2:
+        return mo.vstack([WTitle, WidgetVarioChoice, *WidgetVarioParamMulti])
+    elif optionShow == 3:
         return mo.vstack([WTitle, WidgetVarioChoice, *WidgetVarioFromNF])
     else:
         return None
 
 
-def WgetVario(WAll, db):
+def WgetVario(WAll, db = None):
     [
         WidgetVarioChoice,
         WidgetVarioParamOmni,
         WidgetVarioParamMulti,
         WidgetVarioFromNF,
-        WidgetVarioSaveNF,
     ] = WAll
 
     varioparam = None
-    option = WidgetVarioChoice.value
+    optionShow = WidgetVarioChoice.value
 
-    if option == 1:
+    if optionShow == 1:
         varioparam = WgetVarioParamOmni(WidgetVarioParamOmni)
-    elif option == 2:
+    elif optionShow == 2:
         varioparam = WgetVarioParamMulti(WidgetVarioParamMulti)
-    elif option == 3:
-        vario = WgetVarioFromNF(WidgetVarioFromNF)
-        return vario
+    elif optionShow == 3:
+        return WgetVarioFromNF(WidgetVarioFromNF)
     else:
-        varioparam = None
-
-    if varioparam is None:
         print("You must define a valid VarioParam")
         return None
 
+    vario = None
     if db is None:
-        print("You must define a valid Db")
-        return None
+        print("To calculate a Variogram, you must define a valid Db")
+    else:
+        vario = gl.Vario.computeFromDb(
+            varioparam, db, calculType=gl.ECalcVario.VARIOGRAM, verbose=True
+        )
 
-    vario = gl.Vario.computeFromDb(
-        varioparam, db, calculType=gl.ECalcVario.VARIOGRAM, verbose=True
-    )
+    SaveNF(vario, "myVario.NF")
 
-    WperformSaveNF(WidgetVarioSaveNF, vario)
+    displayItem(vario)
 
     return vario
 
-
-def WdefineCovList(deftypes=["Spherical"]):
-    """
-    Returns the widget for inquiring the list of basic structures to be used
-    for fitting a Model to an Experimental variogram
-
-    deftypes: List containined the types of the defaulted basic structures
-    """
-    WTypes = mo.ui.multiselect(options=_getCovarianceDict(), value=deftypes)
-
-    return mo.ui.array([WTypes])
-
-
-def WshowCovList(WAll, flagTitle=True):
-    [WTypes] = WAll
-
-    return mo.vstack(
-        [WgetTitle("Select the Basic Structures used for Fitting", flagTitle), WTypes]
-    )
-
-
-def WgetCovList(WAll, vario):
-    [WTypes] = WAll
-
-    if vario is None:
-        print("You must define a valid Vario")
-        return None
-
-    # Create a list of ECov from 'options'
-    model = None
-    types = WTypes.value
-    if types:
-        model = gl.Model.createFromVario(vario, gl.ECov.fromKeys(types))
-    return model
-
+#========================================================
+# Widget to inquire the parameters for constructing a Box
+# based on a Db (optional)
+#========================================================
 
 def WdefineBox(db=None):
     if db is not None and db.getNLoc(gl.ELoc.Z) == 2:
@@ -707,7 +730,6 @@ def WdefineBox(db=None):
 
     return mo.ui.array([WLongMin, WLongMax, WLatMin, WLatMax])
 
-
 def WshowBox(WAll, flagTitle=True):
     [WLongMin, WLongMax, WLatMin, WLatMax] = WAll
 
@@ -717,7 +739,6 @@ def WshowBox(WAll, flagTitle=True):
             mo.hstack([mo.md("Latitude"), WLatMin, WLatMax]),
         ]
     )
-
     Wgrid = mo.hstack(
         [
             mo.vstack([mo.md("Parameters"), mo.md("Minimum"), mo.md("Maximum")]),
@@ -729,7 +750,6 @@ def WshowBox(WAll, flagTitle=True):
 
     return mo.vstack([WgetTitle("Box Definition", flagTitle), Wgrid])
 
-
 def WgetBox(WAll):
     [WLongMin, WLongMax, WLatMin, WLatMax] = WAll
 
@@ -740,17 +760,18 @@ def WgetBox(WAll):
     box[1, 1] = WLatMax.value
     return box
 
+#=========================================================
+# Widget to inquire the parameters for constructing a Grid
+#=========================================================
 
 def WdefineGridN(nxdef=50):
     WNX = mo.ui.number(start=1, stop=None, value=nxdef)
     WNY = mo.ui.number(start=1, stop=None, value=nxdef)
     return mo.ui.array([WNX, WNY])
 
-
 def WshowGridN(WAll, flagTitle=True):
     [WNX, WNY] = WAll
     return mo.vstack([WgetTitle("Grid Discretization", flagTitle), WNX, WNY])
-
 
 def WgetGridN(WAll, box):
     [WNX, WNY] = WAll
@@ -765,15 +786,3 @@ def WgetGridN(WAll, box):
     x0 = box[0, 0]
     y0 = box[1, 0]
     return gl.DbGrid.create(nx=[nx, ny], dx=[dx, dy], x0=[x0, y0])
-
-
-def WdefineTable(db):
-    names = db.getAllNames()
-    df = pd.DataFrame(db[:], columns=names)
-    WDF = mo.ui.table(df)
-    return mo.ui.array([WDF])
-
-
-def WshowTable(WAll, flagTitle=True):
-    [WDF] = WAll
-    return mo.vstack([WgetTitle("Grid Discretization", flagTitle), WDF])
