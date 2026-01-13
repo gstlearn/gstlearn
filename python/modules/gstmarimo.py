@@ -12,13 +12,14 @@
 # to be included in Marimo interface
 # Reminder: all methods staring by "W" are dedicated to UI
 
+from distro import name
 import gstlearn as gl
-
 import numpy as np
 import pandas as pd
-
 import marimo as mo
 
+nxdef = 100
+globalPath = "./"
 
 def _getCovarianceDict():
     """
@@ -31,7 +32,6 @@ def _getCovarianceDict():
         options[names[k]] = keys[k]
     return options
 
-
 def _WLock(WTest, condition, colorBackground="white", colorText="black"):
     """
     Turns the Widget to grey (as if it was locked if 'condition' is fulfilled)
@@ -41,7 +41,6 @@ def _WLock(WTest, condition, colorBackground="white", colorText="black"):
     else:
         newWTest = WTest.style({"backgroundColor": "#f0f0f0", "color": "#a0a0a0"})
     return newWTest
-
 
 def WdefineCovariance(ic=0, ncovmax=1, distmax=100, varmax=100, defmodel=None):
     """
@@ -78,7 +77,6 @@ def WdefineCovariance(ic=0, ncovmax=1, distmax=100, varmax=100, defmodel=None):
 
     return mo.ui.array([WUsed, WType, WRange, WSill, WAniso, WRange2, WAngle])
 
-
 def WshowCovariance(WAll, flagTitle=True):
     """
     Returns the contents of the Covariance Widget as HTML, ready to be displayed
@@ -104,7 +102,6 @@ def WshowCovariance(WAll, flagTitle=True):
             WAngleupd,
         ]
     )
-
 
 def WgetCovariance(WAll):
     """
@@ -137,7 +134,6 @@ def WgetCovariance(WAll):
             )
     return cova
 
-
 def WdefineModel(ncovmax=1, distmax=100, varmax=100, defmodel=None):
     """
     Returns the array of widgets for inquiring a series of 'ncovmax' basic structures
@@ -157,7 +153,6 @@ def WdefineModel(ncovmax=1, distmax=100, varmax=100, defmodel=None):
         ]
     )
 
-
 def WshowModel(WAlls, flagTitle=True):
     ncov = len(WAlls)
     UI = mo.accordion(
@@ -167,7 +162,6 @@ def WshowModel(WAlls, flagTitle=True):
         }
     )
     return mo.vstack([WgetTitle("Model Definition", flagTitle), UI], justify="start")
-
 
 def WgetModel(WAlls):
     """
@@ -179,13 +173,11 @@ def WgetModel(WAlls):
         model.addCov(cova)
     return model
 
-
 def WgetTitle(string, flagTitle=True):
     WTitle = mo.md("")
     if flagTitle:
         WTitle = mo.md("##" + string)
     return WTitle
-
 
 def WdefineGrid(nxdef=50):
     """
@@ -213,9 +205,7 @@ def WshowGrid(WAll, flagTitle=True):
         ],
         justify="start",
     )
-
     return mo.vstack([WgetTitle("Grid Definition", flagTitle), Wgrid])
-
 
 def WgetGrid(WAll):
     """
@@ -226,7 +216,6 @@ def WgetGrid(WAll):
         nx=[WNX.value, WNY.value], dx=[WDX.value, WDY.value], x0=[WX0.value, WY0.value]
     )
     return grid
-
 
 def WdefineSimtub(nbtuba=100, seed=13134):
     """
@@ -239,7 +228,6 @@ def WdefineSimtub(nbtuba=100, seed=13134):
 
     return mo.ui.array([WNbtuba, WSeed])
 
-
 def WshowSimtub(WAll, flagTitle=True):
     [WNbtuba, WSeed] = WAll
     return mo.vstack(
@@ -249,7 +237,6 @@ def WshowSimtub(WAll, flagTitle=True):
             WSeed,
         ]
     )
-
 
 def WgetSimtub(WAll):
     """
@@ -275,7 +262,8 @@ def WdefineDbFromBox(nech=100, nvar=1, xmin=0, ymin=0, xmax=100, ymax=100, seed=
 
 def WgetDbFromBox(WAll):
     """
-    Create a Db with Radom Samples
+    Create a Db with Random Samples and Random Variable(s)
+    It returns the gstlearn Db
     """
     [WNech, WNvar, WXmin, WYmin, WXmax, WYmax, WSeed] = WAll
     coormin = [WXmin.value, WYmin.value]
@@ -293,16 +281,13 @@ def WgetDbFromBox(WAll):
         coormax=coormax,
         seed=WSeed.value,
     )
-
-
 def WdefineDbFromNF():
     """
     Inquiry to load a file from a Neutral File
     """
-    WFile = mo.ui.file_browser(label="Select a Db Neutral File", multiple=False)
+    WFile = mo.ui.file_browser(label="Select a Db Neutral File", multiple=False, filetypes=[".NF", ".ascii"])
 
     return mo.ui.array([WFile])
-
 
 def WgetDbFromNF(WAll):
     """
@@ -312,35 +297,40 @@ def WgetDbFromNF(WAll):
     filename = WFile.name()
     if filename is None:
         return None
+    
+    filepath = WFile.path(index=0)
+    db = gl.Db.createFromNF(str(filepath))
+    db.display()
+    return db
 
-    return gl.Db.createFromNF(filename)
-
-
-def WdefineDbFromCSV():
+def WdefineDbFromCSV(nameX="Longitude", nameY="Latitude", nameVar="pH"):
     """
     Inquiry to load a file from a CSV File
     """
-    WFile = mo.ui.file_browser(label="Select a CSV File", multiple=False)
+    WnameX = mo.ui.text(label="X Coordinate", value=nameX)
+    WnameY = mo.ui.text(label="Y Coordinate", value=nameY)
+    WnameVar = mo.ui.text(label="Variable Name", value=nameVar)
+    WFile = mo.ui.file_browser(label="Select a CSV File", multiple=False, filetypes=[".csv"])
 
-    return mo.ui.array([WFile])
-
+    return mo.ui.array([WFile, WnameX, WnameY, WnameVar])
 
 def WgetDbFromCSV(WAll, flagHeader=True, charSep=";", charDec=","):
     """
     Create the gstlearn Db
     """
-    [WFile] = WAll
+    [WFile, WnameX, WnameY, WnameVar] = WAll
     filename = WFile.name()
     if filename is None:
         return None
 
-    csvformat = gl.CSVformat.create(
-        flagHeader=flagHeader, charSep=charSep, charDec=charDec
-    )
-    return gl.Db.createFromCSV(filename, csvformat)
+    path = WFile.path(index=0)
+    dataframe = pd.read_csv(path)
+    db = gl.Db_fromPandas(dataframe)
+    db.setLocators([WnameX.value, WnameY.value], gl.ELoc.X)
+    db.setLocator(WnameVar.value, gl.ELoc.Z)
+    return db
 
-
-def WdefineDbFromGrid(nxdef=10):
+def WdefineDbFromGrid(nvar=1, nxdef=10):
     """
     Widget to inquire the parameters for constructing a Db as a randomized grid
     """
@@ -350,20 +340,19 @@ def WdefineDbFromGrid(nxdef=10):
     WDY = mo.ui.number(start=1, stop=None, value=1, label="DY")
     WX0 = mo.ui.number(start=0, stop=None, value=0, label="X0")
     WY0 = mo.ui.number(start=0, stop=None, value=0, label="Y0")
+    WNvar = mo.ui.number(start=1, stop=None, value=nvar, label="Number of Variables")
     WPerc = mo.ui.number(start=0, stop=100, value=10, label="Rand. Percent.")
-    return mo.ui.array([WNX, WNY, WDX, WDY, WX0, WY0, WPerc])
-
+    return mo.ui.array([WNX, WNY, WDX, WDY, WX0, WY0, WNvar, WPerc])
 
 def WgetDbFromGrid(WAll):
     """
     Create the gstlearn Grid from the widget WDbRandomGrid
     """
-    [WNX, WNY, WDX, WDY, WX0, WY0, WPerc] = WAll
+    [WNX, WNY, WDX, WDY, WX0, WY0, WNvar, WPerc] = WAll
     grid = gl.DbGrid.create(
         nx=[WNX.value, WNY.value], dx=[WDX.value, WDY.value], x0=[WX0.value, WY0.value]
     )
-    return gl.Db.createFromGridRandomized(grid, WPerc.value)
-
+    return gl.Db.createFromGridRandomized(grid, nvar=WNvar.value, selRatio=WPerc.value)
 
 def WdefineVarioParamOmni(nlag=10, dlag=1):
     """
@@ -375,13 +364,11 @@ def WdefineVarioParamOmni(nlag=10, dlag=1):
     WCylrad = mo.ui.number(start=0, stop=None, value=0, label="Cylinder Radius")
     return mo.ui.array([WNlag, WDlag, WToldis, WCylrad])
 
-
 def WshowVarioParamOmni(WAll, flagTitle=True):
     [WNlag, WDlag, WToldis, WCylrad] = WAll
     mo.vstack(
         WgetTitle("Variogram Parameters", flagTitle), WNlag, WDlag, WToldis, WCylrad
     )
-
 
 def WgetVarioParamOmni(WAll):
     [WNlag, WDlag, WToldis, WCylrad] = WAll
@@ -398,7 +385,6 @@ def WgetVarioParamOmni(WAll):
         )
     return varioparam
 
-
 def WdefineVarioParamMulti(ndir=4, nlag=10, dlag=1):
     """
     Widget to define the Multi-directional (regular) variogram
@@ -412,7 +398,6 @@ def WdefineVarioParamMulti(ndir=4, nlag=10, dlag=1):
     WToldis = mo.ui.number(start=0, stop=1, value=0.5, label="Tolerance on Distance")
     return mo.ui.array([WNdir, WNlag, WDlag, WAngref, WToldis])
 
-
 def WshowVarioParamMulti(WAll, flagTitle=True):
     [WNdir, WNlag, WDlag, WAngref, WToldis] = WAll
     return mo.vstack(
@@ -423,7 +408,6 @@ def WshowVarioParamMulti(WAll, flagTitle=True):
         WAngref,
         WToldis,
     )
-
 
 def WgetVarioParamMulti(WAll):
     [WNdir, WNlag, WDlag, WAngref, WToldis] = WAll
@@ -436,7 +420,6 @@ def WgetVarioParamMulti(WAll):
     )
     return varioparam
 
-
 def WdefineDb(
     nech=100,
     nvar=1,
@@ -445,14 +428,14 @@ def WdefineDb(
     xmax=100,
     ymax=100,
     nxdef=10,
-    seed=14543,
-    valdef="From Box",
+    seed=145234,
+    valdef="From NF",
 ):
     WidgetDbFromBox = WdefineDbFromBox(
         nech=nech, nvar=nvar, xmin=xmin, ymin=ymin, xmax=xmax, ymax=ymax, seed=seed
     )
 
-    WidgetDbFromGrid = WdefineDbFromGrid(nxdef=nxdef)
+    WidgetDbFromGrid = WdefineDbFromGrid(nvar=nvar, nxdef=nxdef)
 
     WidgetDbFromNF = WdefineDbFromNF()
 
@@ -462,7 +445,6 @@ def WdefineDb(
         options={"From Box": 1, "From Grid": 2, "From NF": 3, "From CSV": 4},
         value=valdef,
     )
-
     return mo.ui.array(
         [
             WidgetDbChoice,
@@ -472,7 +454,6 @@ def WdefineDb(
             WidgetDbFromCSV,
         ]
     )
-
 
 def WshowDb(WAll, flagTitle=True):
     [
@@ -524,7 +505,6 @@ def WgetDb(WAll):
 
     return db
 
-
 def WdefineSaveNF(filename="file.ascii"):
     """
     Save the contents into a Neutral File
@@ -571,8 +551,9 @@ def WgetVarioFromNF(WAll):
     filename = WFile.name()
     if filename is None:
         return None
-    return gl.Vario.createFromNF(filename)
-
+    
+    filepath = WFile.path(index=0)
+    return gl.Vario.createFromNF(str(filepath))
 
 def WdefineVario(nlag=10, dlag=1, ndir=4, valdef="Omni"):
     WidgetVarioParamOmni = WdefineVarioParamOmni(nlag=nlag, dlag=dlag)
@@ -596,7 +577,6 @@ def WdefineVario(nlag=10, dlag=1, ndir=4, valdef="Omni"):
             WidgetVarioSaveNF,
         ]
     )
-
 
 def WshowVario(WAll, flagTitle=True):
     [
@@ -664,7 +644,7 @@ def WgetVario(WAll, db):
         return None
 
     vario = gl.Vario.computeFromDb(
-        varioparam, db, calcul=gl.ECalcVario.VARIOGRAM, verbose=True
+        varioparam, db, calculType=gl.ECalcVario.VARIOGRAM, verbose=True
     )
 
     WperformSaveNF(WidgetVarioSaveNF, vario)
