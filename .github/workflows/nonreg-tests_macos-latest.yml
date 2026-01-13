@@ -64,7 +64,8 @@ jobs:
     - name: Install R packages
       uses: r-lib/actions/setup-r-dependencies@v2
       with:
-        packages: ggpubr, ggplot2, ggnewscale, sf, terra
+        packages: ggpubr, ggplot2, ggnewscale, sf
+        extra-packages: cran::terra@1.8-86
         install-pandoc: false
 
     - name: Install the customized SWIG from source
