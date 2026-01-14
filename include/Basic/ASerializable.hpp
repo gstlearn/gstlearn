@@ -48,11 +48,10 @@ public:
   static const String& getPrefixName();
   void setDefaultFormatNF(const EFormatNF& format);
 
-  static String getGroupFullPath(const H5::Group& group);
-  static VectorString getGroupParents(const H5::Group& group);
-
   virtual String getNFName() const = 0;
 #ifdef HDF5
+  static String getGroupFullPath(const H5::Group& group);
+  static VectorString getGroupParents(const H5::Group& group);
   virtual bool deserializeH5(H5::Group& grp)     = 0;
   virtual bool serializeH5(H5::Group& grp) const = 0;
 #endif
