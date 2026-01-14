@@ -12,6 +12,7 @@
 # to be included in Marimo interface
 # Reminder: all methods staring by "W" are dedicated to UI
 
+from click import option
 from distro import name
 import gstlearn as gl
 import numpy as np
@@ -20,7 +21,6 @@ import marimo as mo
 import os
 
 nxdef = 100
-globalPath = "./"
 debugOption = False
 os.environ["GSTLEARN_OUTPUT_DIR"] = ""
 
@@ -554,10 +554,14 @@ def WdefineDb(nech=100, nvar=1, xmin=0, ymin=0, xmax=100, ymax=100, nxdef=10, se
     nbtuba: Number of Turning Bands
     seed: Seed for random number generator
     """
+
+    # mapping label → valeur numérique
+    radio_options = {"From Box": 1, "From Grid": 2, "From NF": 3, "From CSV": 4}
+
     return {
         "WChoice": mo.ui.radio(
-            options={"From Box": 1, "From Grid": 2, "From NF": 3, "From CSV": 4}, 
-            value=valdef
+            options=radio_options,
+            value=valdef,  # valeur initiale
         ),
         "WFromBox": WdefineDbFromBox(nech, nvar, xmin, ymin, xmax, ymax, seed),
         "WFromGrid": WdefineDbFromGrid(nvar, nxdef),
@@ -567,25 +571,26 @@ def WdefineDb(nech=100, nvar=1, xmin=0, ymin=0, xmax=100, ymax=100, nxdef=10, se
 
 def WshowDb(WAll, flagTitle=True):
     WTitle = _WgetTitle("Data Base Parameters", flagTitle)
-    choice = WAll["WChoice"]
-    option = choice.value
 
-    if option == 1:
-        content = WAll["WFromBox"]
-    elif option == 2:
-        content = WAll["WFromGrid"]
-    elif option == 3:
-        content = WAll["WFromNF"]
-    elif option == 4:
-        content = WAll["WFromCSV"]
-    else:
-        content = mo.md("Invalid selection")
+    # Lecture réactive de la valeur sélectionnée (1,2,3,4)
+    option = WAll["WChoice"].value
+    print("option dans showDb =", option)
 
-    return mo.vstack([WTitle, choice, content], gap=6)
+    # Sélection du contenu selon le choix
+    content_dicts = {
+        1: WAll["WFromBox"],
+        2: WAll["WFromGrid"],
+        3: WAll["WFromNF"],
+        4: WAll["WFromCSV"],
+    }
+
+    content = mo.vstack(list(content_dicts.get(option, {}).values()))
+
+    return mo.vstack([WTitle, WAll["WChoice"], content], gap=6)
 
 def WgetDb(WAll):
     option = WAll["WChoice"].value
-    db = None
+    print("option dans getDb =", option)
 
     if option == 1:
         db = WgetDbFromBox(WAll["WFromBox"])
@@ -613,6 +618,17 @@ def WdefineDbFromGrid(nvar=1, nxdef=10):
         "WNvar": mo.ui.number(start=1, stop=None, value=nvar, label="Number of Variables"),
         "WPerc": mo.ui.number(start=0, stop=100, value=10, label="Rand. Percent.")
     }
+
+def WdefineDbFromGrid(nvar=1, nxdef=10):
+    WNX = mo.ui.number(start=1, stop=100, value=nxdef, label="NX")
+    WNY = mo.ui.number(start=1, stop=100, value=nxdef, label="NY")
+    WDX = mo.ui.number(value=1, label="DX")
+    WDY = mo.ui.number(value=1, label="DY")
+    WX0 = mo.ui.number(value=0, label="X0")
+    WY0 = mo.ui.number(value=0, label="Y0")
+    WNvar = mo.ui.number(value=nvar, label="Number of Variables")
+    WPerc = mo.ui.number(value=10, label="Random Percent")
+    return mo.vstack([WNX, WNY, WDX, WDY, WX0, WY0, WNvar, WPerc], gap=4)
 
 def WgetDbFromGrid(WAll):
     grid = gl.DbGrid.create(
