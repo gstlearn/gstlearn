@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Anamorphosis/AnamDiscreteIR.hpp"
 #include "Basic/SerializeHDF5.hpp"
-#include "Basic/Utilities.hpp"
 #include "Db/Db.hpp"
 
 #include <cmath>
@@ -310,20 +309,20 @@ double AnamDiscreteIR::_getResidual(Id iclass, double z) const
   return (retval);
 }
 
-bool AnamDiscreteIR::_serializeAscii(std::ostream& os, bool verbose) const
+bool AnamDiscreteIR::_serializeAscii(std::ostream& os) const
 {
   bool ret = true;
-  ret      = ret && AnamDiscrete::_serializeAscii(os, verbose);
+  ret      = ret && AnamDiscrete::_serializeAscii(os);
   ret      = ret && _recordWrite<double>(os, "Change of support coefficient", getRCoef());
   return ret;
 }
 
-bool AnamDiscreteIR::_deserializeAscii(std::istream& is, bool verbose)
+bool AnamDiscreteIR::_deserializeAscii(std::istream& is)
 {
   double r = TEST;
 
   bool ret = true;
-  ret      = ret && AnamDiscrete::_deserializeAscii(is, verbose);
+  ret      = ret && AnamDiscrete::_deserializeAscii(is);
   ret      = ret && _recordRead<double>(is, "Anamorphosis 'r' coefficient", r);
   if (ret) setRCoef(r);
   return ret;
@@ -605,7 +604,7 @@ Id AnamDiscreteIR::factor2Selectivity(Db* db,
 }
 
 #ifdef HDF5
-bool AnamDiscreteIR::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+bool AnamDiscreteIR::deserializeH5(H5::Group& grp)
 {
   auto anamG = SerializeHDF5::getGroup(grp, "AnamDiscreteIR");
   if (!anamG)
@@ -619,7 +618,7 @@ bool AnamDiscreteIR::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbos
 
   ret = ret && SerializeHDF5::readValue(*anamG, "R", r);
 
-  ret = ret && AnamDiscrete::_deserializeH5(*anamG, verbose);
+  ret = ret && AnamDiscrete::deserializeH5(*anamG);
 
   if (ret)
     setRCoef(r);
@@ -627,7 +626,7 @@ bool AnamDiscreteIR::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbos
   return ret;
 }
 
-bool AnamDiscreteIR::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+bool AnamDiscreteIR::serializeH5(H5::Group& grp) const
 {
   auto anamG = grp.createGroup("AnamDiscreteIR");
 
@@ -635,7 +634,7 @@ bool AnamDiscreteIR::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
 
   ret = ret && SerializeHDF5::writeValue(anamG, "R", getRCoef());
 
-  ret = ret && AnamDiscrete::_serializeH5(anamG, verbose);
+  ret = ret && AnamDiscrete::serializeH5(anamG);
 
   return ret;
 }

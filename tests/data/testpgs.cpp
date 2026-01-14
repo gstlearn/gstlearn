@@ -74,7 +74,7 @@ int main(int argc, char* argv[])
   /* Create the output name (for storage of dump files) */
 
   VectorString subparts = separateKeywords(argv[1]);
-  int nargs             = (int)subparts.size();
+  int nargs             = static_cast<int>(subparts.size());
   String outname =
     concatenateStrings("", subparts[nargs - 2], subparts[nargs - 1], "-");
   ASerializable::setPrefixName(outname);
@@ -156,7 +156,7 @@ int main(int argc, char* argv[])
       vario->compute(dbin, ECalcVario::VARIOGRAM);
       vario->display();
       ascii_filename("Vario", 0, 1, filename);
-      if (!vario->dumpToNF(filename, EFormatNF::DEFAULT, verbose))
+      if (!vario->dumpToNF(filename, EFormatNF::DEFAULT))
         messageAbort("ascii_vario_write");
 
       /* Delete the indicator variables */

@@ -9,22 +9,22 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Neigh/NeighUnique.hpp"
-#include "Mesh/AMesh.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/SerializeHDF5.hpp"
 #include "Db/Db.hpp"
+#include "Mesh/AMesh.hpp"
 #include "Space/ASpace.hpp"
 
 namespace gstlrn
 {
-NeighUnique::NeighUnique(bool flag_xvalid,  const ASpaceSharedPtr& space)
-    : ANeigh(space)
+NeighUnique::NeighUnique(bool flag_xvalid, const ASpaceSharedPtr& space)
+  : ANeigh(space)
 {
   setFlagXvalid(flag_xvalid);
 }
 
 NeighUnique::NeighUnique(const NeighUnique& r)
-    : ANeigh(r)
+  : ANeigh(r)
 {
 }
 
@@ -33,7 +33,7 @@ NeighUnique& NeighUnique::operator=(const NeighUnique& r)
   if (this != &r)
   {
     ANeigh::operator=(r);
-   }
+  }
   return *this;
 }
 
@@ -46,22 +46,22 @@ String NeighUnique::toString(const AStringFormat* strfmt) const
   DECLARE_UNUSED(strfmt);
   std::stringstream sstr;
 
-  sstr << toStrTitle(0,"Unique Neighborhood");
+  sstr << toStrTitle(0, "Unique Neighborhood");
 
   return sstr.str();
 }
 
-bool NeighUnique::_deserializeAscii(std::istream& is, bool verbose)
+bool NeighUnique::_deserializeAscii(std::istream& is)
 {
   bool ret = true;
-  ret = ret && ANeigh::_deserializeAscii(is, verbose);
+  ret      = ret && ANeigh::_deserializeAscii(is);
   return ret;
 }
 
-bool NeighUnique::_serializeAscii(std::ostream& os, bool verbose) const
+bool NeighUnique::_serializeAscii(std::ostream& os) const
 {
   bool ret = true;
-  ret = ret && ANeigh::_serializeAscii(os, verbose);
+  ret      = ret && ANeigh::_serializeAscii(os);
   return ret;
 }
 
@@ -140,7 +140,7 @@ void NeighUnique::_unique(Id iech_out, VectorInt& ranks)
   {
     /* Discard the masked input sample */
 
-    if (! _dbin->isActive(iech)) continue;
+    if (!_dbin->isActive(iech)) continue;
 
     /* Discard samples where all variables are undefined */
 
@@ -157,7 +157,7 @@ void NeighUnique::_unique(Id iech_out, VectorInt& ranks)
 }
 
 #ifdef HDF5
-bool NeighUnique::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+bool NeighUnique::deserializeH5(H5::Group& grp)
 {
   auto neighG = SerializeHDF5::getGroup(grp, "NeighUnique");
   if (!neighG)
@@ -168,12 +168,12 @@ bool NeighUnique::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   /* Read the grid characteristics */
   bool ret = true;
 
-  ret = ret && ANeigh::_deserializeH5(*neighG, verbose);
-  
+  ret = ret && ANeigh::deserializeH5(*neighG);
+
   return ret;
 }
 
-bool NeighUnique::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+bool NeighUnique::serializeH5(H5::Group& grp) const
 {
   auto neighG = grp.createGroup("NeighUnique");
 
@@ -181,9 +181,9 @@ bool NeighUnique::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) co
 
   /* Writing the tail of the file */
 
-  ret = ret && ANeigh::_serializeH5(neighG, verbose);
+  ret = ret && ANeigh::serializeH5(neighG);
 
   return ret;
 }
 #endif
-}
+} // namespace gstlrn

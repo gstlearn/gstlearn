@@ -17,7 +17,7 @@
 class Db;
 
 namespace gstlrn
-{ 
+{
 class GSTLEARN_EXPORT NoStatArray: public ANoStat
 {
 public:
@@ -28,6 +28,9 @@ public:
   virtual ~NoStatArray() {};
   String toString(const AStringFormat* strfmt = nullptr) const override;
 
+  const String& getColName() const { return _colName; }
+  const std::shared_ptr<const Db>& getDbNoStat() const { return _dbNoStat; }
+
 private:
   void _informField(const VectorVectorDouble& coords,
                     VectorDouble& tab,
@@ -37,4 +40,4 @@ private:
   std::shared_ptr<const Db> _dbNoStat;
   const String _colName;
 };
-}
+} // namespace gstlrn

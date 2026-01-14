@@ -78,6 +78,12 @@ public:
   /// AStringable Interface
   String toString(const AStringFormat* strfmt = nullptr) const override;
 
+  /// ASerializable Interface
+  String getNFName() const override { return "Model"; }
+#ifdef HDF5
+  bool deserializeH5(H5::Group& grp) override;
+#endif
+
 public:
   const CovAnisoList* castInCovAnisoListConst(Id icov = -1) const;
   const CovLMCTapering* castInCovLMCTaperingConst() const;
@@ -240,12 +246,8 @@ public:
 
 protected:
   /// Interface to ASerializable
-  bool _deserializeAscii(std::istream& is, bool verbose = false) override;
-  bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
-#ifdef HDF5
-  bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
-#endif
-  String _getNFName() const override { return "Model"; }
+  bool _deserializeAscii(std::istream& is) override;
+  bool _serializeAscii(std::ostream& os) const override;
 
 private:
   bool _isValid() const override;

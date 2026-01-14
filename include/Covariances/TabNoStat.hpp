@@ -10,12 +10,13 @@
 /******************************************************************************/
 #pragma once
 
+#include "Basic/ASerializable.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Basic/VectorNumT.hpp"
-#include "Db/Db.hpp"
 #include "Covariances/ANoStat.hpp"
 #include "Covariances/ParamId.hpp"
+#include "Db/Db.hpp"
 #include "Enum/EConsElem.hpp"
 #include "geoslib_define.h"
 #include <memory>
@@ -25,7 +26,7 @@ namespace gstlrn
 {
 typedef std::unordered_map<ParamId, std::shared_ptr<ANoStat>, ParamIdHash, ParamIdEqual> mapNoStat;
 
-class GSTLEARN_EXPORT TabNoStat: public AStringable, public ICloneable
+class GSTLEARN_EXPORT TabNoStat: public AStringable, public ICloneable, public ASerializable
 {
 public:
   TabNoStat();
@@ -33,7 +34,15 @@ public:
   TabNoStat& operator=(const TabNoStat& m);
   virtual ~TabNoStat();
 
+  /// ICloneable Interface
   IMPLEMENT_CLONING(TabNoStat)
+
+  /// ASerializable Interface
+  String getNFName() const override { return "TabNoStat"; }
+#ifdef HDF5
+  bool deserializeH5(H5::Group& grp) override;
+  bool serializeH5(H5::Group& grp) const override;
+#endif
 
   bool isNoStat() const { return !_items.empty(); }
   void informMeshByMesh(const AMesh* amesh) const;
@@ -62,11 +71,10 @@ public:
                     Id iv2,
                     VectorDouble& result) const;
   String toString(const AStringFormat* strfmt = nullptr) const override;
-  String toStringInside(const AStringFormat* strfmt = nullptr, Id i = 0) const;
   bool isElemDefined(const EConsElem& econs, Id iv1 = 0, Id iv2 = 0) const;
   std::shared_ptr<ANoStat> getElem(const EConsElem& econs, Id iv1 = 0, Id iv2 = 0);
-
-protected:
+  bool variableExistsInDb(const String& namecol) const;
+  String toStringInside(const AStringFormat* strfmt = nullptr, Id i = 0) const;
 
 private:
   virtual void _clear() {};
@@ -81,4 +89,4 @@ private:
   mapNoStat _items;
   std::shared_ptr<const Db> _dbNoStatRef;
 };
-}
+} // namespace gstlrn

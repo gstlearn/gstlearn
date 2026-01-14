@@ -145,7 +145,6 @@ int main(int argc, char* argv[])
 
   // Global parameters
   law_set_random_seed(32131);
-  bool verbose     = 1;
   Id ndim          = 2;
   Id nvar          = 1;
   Id nbsimu        = 3;
@@ -185,14 +184,14 @@ int main(int argc, char* argv[])
   grid_res = grid->clone();
   simtub(data, grid_res, model, neighM, nbsimu);
   grid_res->display(&dbfmt);
-  (void)grid_res->dumpToNF("Moving.NF", EFormatNF::DEFAULT, verbose);
+  (void)grid_res->dumpToNF("Moving.NF", EFormatNF::DEFAULT);
 
   message("\n<----- Simulation (Unique Neighborhood) ----->\n");
   delete grid_res;
   grid_res = grid->clone();
   simtub(data, grid_res, model, neighU, nbsimu);
   grid_res->display(&dbfmt);
-  (void)grid_res->dumpToNF("Unique.NF", EFormatNF::DEFAULT, verbose);
+  (void)grid_res->dumpToNF("Unique.NF", EFormatNF::DEFAULT);
 
   timer.displayIntervalMilliseconds("Turning Band Simulations", 773);
 

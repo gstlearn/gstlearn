@@ -429,7 +429,7 @@ bool ANeigh::_isDimensionValid(Id idim) const
   return true;
 }
 
-bool ANeigh::_deserializeAscii(std::istream& is, bool /*verbose*/)
+bool ANeigh::_deserializeAscii(std::istream& is)
 {
   Id ndim = 0;
 
@@ -439,7 +439,7 @@ bool ANeigh::_deserializeAscii(std::istream& is, bool /*verbose*/)
   return ret;
 }
 
-bool ANeigh::_serializeAscii(std::ostream& os, bool /*verbose*/) const
+bool ANeigh::_serializeAscii(std::ostream& os) const
 {
   bool ret = true;
   ret      = ret && _recordWrite<Id>(os, "Space Dimension", static_cast<Id>(getNDim()));
@@ -463,7 +463,7 @@ void ANeigh::_neighCompress(VectorInt& ranks)
   ranks.resize(necr);
 }
 #ifdef HDF5
-bool ANeigh::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+bool ANeigh::deserializeH5(H5::Group& grp)
 {
   auto aneighG = SerializeHDF5::getGroup(grp, "ANeigh");
   if (!aneighG)
@@ -482,7 +482,7 @@ bool ANeigh::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   return ret;
 }
 
-bool ANeigh::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+bool ANeigh::serializeH5(H5::Group& grp) const
 {
   auto aneighG = grp.createGroup("ANeigh");
 

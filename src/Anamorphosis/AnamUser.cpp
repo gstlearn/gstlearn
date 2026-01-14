@@ -9,26 +9,24 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Anamorphosis/AnamUser.hpp"
-#include "Basic/SerializeHDF5.hpp"
 
 namespace gstlrn
 {
 AnamUser::AnamUser()
-    : AnamContinuous(),
-      _y2z_function(nullptr),
-      _z2y_function(nullptr)
+  : AnamContinuous()
+  , _y2z_function(nullptr)
+  , _z2y_function(nullptr)
 {
 }
 
-AnamUser::AnamUser(const AnamUser &m)
-    : AnamContinuous(m),
-      _y2z_function(m._y2z_function),
-      _z2y_function(m._z2y_function)
+AnamUser::AnamUser(const AnamUser& m)
+  : AnamContinuous(m)
+  , _y2z_function(m._y2z_function)
+  , _z2y_function(m._z2y_function)
 {
-
 }
 
-AnamUser& AnamUser::operator=(const AnamUser &m)
+AnamUser& AnamUser::operator=(const AnamUser& m)
 {
   if (this != &m)
   {
@@ -41,7 +39,6 @@ AnamUser& AnamUser::operator=(const AnamUser &m)
 
 AnamUser::~AnamUser()
 {
-
 }
 
 String AnamUser::toString(const AStringFormat* /*strfmt*/) const
@@ -58,13 +55,13 @@ void AnamUser::calculateMeanAndVariance()
   messerr("AnamUser: This funtion does not make sense");
 }
 
-bool AnamUser::_deserializeAscii(std::istream& /*is*/, bool /*verbose*/)
+bool AnamUser::_deserializeAscii(std::istream& /*is*/)
 {
   messerr("AnamUser: Cannot be deserialized");
   return false;
 }
 
-bool AnamUser::_serializeAscii(std::ostream& /*os*/, bool /*verbose*/) const
+bool AnamUser::_serializeAscii(std::ostream& /*os*/) const
 {
   messerr("AnamUser: Cannot be serialized");
   return false;
@@ -82,18 +79,18 @@ double AnamUser::rawToTransformValue(double h) const
   return _z2y_function(h);
 }
 #ifdef HDF5
-bool AnamUser::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+bool AnamUser::deserializeH5(H5::Group& grp)
 {
   DECLARE_UNUSED(grp);
   messerr("AnamUser: Cannot be deserialized");
   return false;
 }
 
-bool AnamUser::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+bool AnamUser::serializeH5(H5::Group& grp) const
 {
   DECLARE_UNUSED(grp);
   messerr("AnamUser: Cannot be serialized");
   return false;
 }
 #endif
-}
+} // namespace gstlrn

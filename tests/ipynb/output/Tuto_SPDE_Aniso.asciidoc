@@ -99,10 +99,9 @@ Matern (Third Parameter = 1)
 - Range        =     150.000
 - Theo. Range  =      43.301
 
-Non-Stationary Parameters
-.........................
-1 - Range      : IDir=2
-2 - Angle      : IdAngle=1
+List of Non-Stationary Parameters
+1 - Angle      : IdAngle=1
+2 - Range      : IDir=2
 Total Sill     =       1.000
 Known Mean(s)      0.000
 ----

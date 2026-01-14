@@ -923,7 +923,7 @@ VectorDouble DriftList::evalDriftVarCoefs(const Db* db,
 }
 
 #ifdef HDF5
-bool DriftList::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+bool DriftList::deserializeH5(H5::Group& grp)
 {
   bool ret = true;
 
@@ -961,7 +961,7 @@ bool DriftList::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   return ret;
 }
 
-bool DriftList::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+bool DriftList::serializeH5(H5::Group& grp) const
 {
   bool ret = true;
 

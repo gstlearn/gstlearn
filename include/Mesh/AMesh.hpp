@@ -31,6 +31,13 @@ public:
   /// Interface to AStringable
   String toString(const AStringFormat* strfmt = nullptr) const override;
 
+  /// ASerializable Interface
+  String getNFName() const override { return "AMesh"; }
+#ifdef HDF5
+  bool deserializeH5(H5::Group& grp) override;
+  bool serializeH5(H5::Group& grp) const override;
+#endif
+
   /// Interface for AMesh
   /*! Returns the number of apex per mesh */
   virtual Id getNApexPerMesh() const { return _nDim + 1; }
@@ -119,13 +126,8 @@ protected:
 
 protected:
   void _recopy(const AMesh& m);
-  bool _deserializeAscii(std::istream& is, bool verbose = false) override;
-  bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
-#ifdef HDF5
-  bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
-  bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
-#endif
-  String _getNFName() const override { return "AMesh"; }
+  bool _deserializeAscii(std::istream& is) override;
+  bool _serializeAscii(std::ostream& os) const override;
 
 private:
   bool _isSpaceDimensionValid(Id idim) const;

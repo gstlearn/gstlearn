@@ -206,7 +206,7 @@ public:
 
   FORWARD_METHOD(getCorAniso, getDetTensor, false)
 
-  bool isValidForSpectral() const override; //Do not use FORWARD_METHOD because "override" creates compilation issue on Windows
+  bool isValidForSpectral() const override; // Do not use FORWARD_METHOD because "override" creates compilation issue on Windows
   double getSlope(Id ivar, Id jvar) const;
   const Rotation& getAnisoRotation() const { return getCorAniso()->getAniso().getRotation(); }
   bool getFlagAniso() const { return !isIsotropic(); }

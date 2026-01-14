@@ -42,7 +42,7 @@ namespace gstlrn
 class GSTLEARN_EXPORT AnamEmpirical: public AnamContinuous
 {
 public:
-  AnamEmpirical(Id ndisc         = 100,
+  AnamEmpirical(Id ndisc          = 100,
                 double sigma2e    = TEST,
                 bool flagDilution = false,
                 bool flagGaussian = true);
@@ -58,6 +58,13 @@ public:
 
   /// ASerializable Interface
   static AnamEmpirical* createFromNF(const String& NFFilename, bool verbose = true);
+
+  /// ASerializable Interface
+  String getNFName() const override { return "AnamEmpirical"; }
+#ifdef HDF5
+  bool deserializeH5(H5::Group& grp) override;
+  bool serializeH5(H5::Group& grp) const override;
+#endif
 
   void reset(Id ndisc,
              double pymin,
@@ -76,7 +83,7 @@ public:
   const EAnam& getType() const override { return EAnam::fromKey("EMPIRICAL"); }
   Id getNFactor() const override { return _nDisc; }
   Id fitFromArray(const VectorDouble& tab,
-                   const VectorDouble& wt = VectorDouble()) override;
+                  const VectorDouble& wt = VectorDouble()) override;
 
   /// AnamContinuous Interface
   void calculateMeanAndVariance() override;
@@ -99,22 +106,17 @@ public:
   void setFlagGaussian(bool flagGaussian) { _flagGaussian = flagGaussian; }
 
 protected:
-  bool _deserializeAscii(std::istream& is, bool verbose = false) override;
-  bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
-#ifdef HDF5
-  bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
-  bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
-#endif
-  String _getNFName() const override { return "AnamEmpirical"; }
+  bool _deserializeAscii(std::istream& is) override;
+  bool _serializeAscii(std::ostream& os) const override;
 
 private:
   static Id _getStatistics(const VectorDouble& tab,
-                            Id* count,
-                            double* mean,
-                            double* mean2,
-                            double* mini,
-                            double* maxi,
-                            double* var);
+                           Id* count,
+                           double* mean,
+                           double* mean2,
+                           double* mini,
+                           double* maxi,
+                           double* var);
   Id _fitWithDilutionGaussian(const VectorDouble& tab);
   Id _fitWithDilutionLognormal(const VectorDouble& tab);
   Id _fitNormalScore(const VectorDouble& tab);

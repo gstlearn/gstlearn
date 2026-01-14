@@ -599,7 +599,7 @@ void AMesh::dumpNeighborhood(std::vector<VectorInt>& Vmesh, Id nline_max)
   }
 }
 
-bool AMesh::_deserializeAscii(std::istream& is, bool /*verbose*/)
+bool AMesh::_deserializeAscii(std::istream& is)
 {
   bool ret = true;
   ret      = ret && _recordRead<Id>(is, "Space Dimension", _nDim);
@@ -608,7 +608,7 @@ bool AMesh::_deserializeAscii(std::istream& is, bool /*verbose*/)
   return ret;
 }
 
-bool AMesh::_serializeAscii(std::ostream& os, bool /*verbose*/) const
+bool AMesh::_serializeAscii(std::ostream& os) const
 {
   bool ret = true;
   ret      = ret && _recordWrite<Id>(os, "Space Dimension", getNDim());
@@ -897,7 +897,7 @@ VectorDouble AMesh::_defineUnits(void) const
   return units;
 }
 #ifdef HDF5
-bool AMesh::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+bool AMesh::deserializeH5(H5::Group& grp)
 {
   auto ameshG = SerializeHDF5::getGroup(grp, "AMesh");
   if (!ameshG)
@@ -914,7 +914,7 @@ bool AMesh::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   return ret;
 }
 
-bool AMesh::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+bool AMesh::serializeH5(H5::Group& grp) const
 {
   auto ameshG = grp.createGroup("AMesh");
 

@@ -57,6 +57,13 @@ public:
   /// AStringable Interface
   String toString(const AStringFormat* strfmt = nullptr) const override;
 
+  /// ASerializable Interface
+  String getNFName() const override { return "AnamContinuous"; }
+#ifdef HDF5
+  bool deserializeH5(H5::Group& grp) override;
+  bool serializeH5(H5::Group& grp) const override;
+#endif
+
   /// AAnam interface
   bool hasGaussian() const override { return true; }
 
@@ -76,7 +83,7 @@ public:
   VectorDouble rawToGaussianVector(const VectorDouble& z) const;
   VectorDouble gaussianToRawVector(const VectorDouble& y) const;
 
-  AnamContinuousFit sample(Id ndisc    = 100,
+  AnamContinuousFit sample(Id ndisc     = 100,
                            double aymin = -10,
                            double aymax = +10);
 
@@ -104,13 +111,8 @@ public:
 
 protected:
   /// ASerializable Interface
-  bool _deserializeAscii(std::istream& is, bool verbose = false) override;
-  bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
-#ifdef HDF5
-  bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
-  bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
-#endif
-  String _getNFName() const override { return "AnamContinuous"; }
+  bool _deserializeAscii(std::istream& is) override;
+  bool _serializeAscii(std::ostream& os) const override;
 
 protected:
   Interval _az;

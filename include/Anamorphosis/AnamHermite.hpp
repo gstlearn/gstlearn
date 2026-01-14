@@ -36,6 +36,13 @@ public:
   /// AStringable Interface
   String toString(const AStringFormat* strfmt = nullptr) const override;
 
+  /// ASerializable Interface
+  String getNFName() const override { return "AnamHermite"; }
+#ifdef HDF5
+  bool deserializeH5(H5::Group& grp) override;
+  bool serializeH5(H5::Group& grp) const override;
+#endif
+
   /// Interface AAnam
   const EAnam& getType() const override { return EAnam::fromKey("HERMITIAN"); }
   bool hasFactor() const override { return true; }
@@ -48,7 +55,7 @@ public:
   Id getNClass() const override { return getNbPoly(); }
 
   Id fitFromArray(const VectorDouble& tab,
-                   const VectorDouble& wt = VectorDouble()) override;
+                  const VectorDouble& wt = VectorDouble()) override;
 
   /// ASerializable Interface
   static AnamHermite* createFromNF(const String& NFFilename, bool verbose = true);
@@ -83,10 +90,10 @@ public:
   void setRCoef(double r_coef);
 
   Id factor2Selectivity(Db* db,
-                         Selectivity* selectivity,
-                         const VectorInt& cols_est,
-                         const VectorInt& cols_std,
-                         Id iptr0);
+                        Selectivity* selectivity,
+                        const VectorInt& cols_est,
+                        const VectorInt& cols_std,
+                        Id iptr0);
 
   double evalSupportCoefficient(Id option,
                                 Model* model,
@@ -98,13 +105,8 @@ public:
   VectorDouble cumulateVarianceRatio(double chh) const;
 
 protected:
-  bool _deserializeAscii(std::istream& is, bool verbose = false) override;
-  bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
-#ifdef HDF5
-  bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
-  bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
-#endif
-  String _getNFName() const override { return "AnamHermite"; }
+  bool _deserializeAscii(std::istream& is) override;
+  bool _serializeAscii(std::ostream& os) const override;
 
 private:
   bool _isIndexValid(Id i) const;
@@ -117,10 +119,10 @@ private:
                      double aymax,
                      double azmax);
   static Id _data_sort(Id nech,
-                        const VectorDouble& z,
-                        const VectorDouble& wt,
-                        VectorDouble& zs,
-                        VectorDouble& ys);
+                       const VectorDouble& z,
+                       const VectorDouble& wt,
+                       VectorDouble& zs,
+                       VectorDouble& ys);
   void _globalSelectivity(Selectivity* selectivity);
 
 private:

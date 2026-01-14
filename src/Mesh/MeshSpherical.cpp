@@ -325,7 +325,7 @@ Id MeshSpherical::_recopy(const MeshSpherical& m)
   return (0);
 }
 
-bool MeshSpherical::_deserializeAscii(std::istream& is, bool /*verbose*/)
+bool MeshSpherical::_deserializeAscii(std::istream& is)
 {
   Id ndim         = 0;
   Id napices      = 0;
@@ -356,7 +356,7 @@ bool MeshSpherical::_deserializeAscii(std::istream& is, bool /*verbose*/)
   return ret;
 }
 
-bool MeshSpherical::_serializeAscii(std::ostream& os, bool /*verbose*/) const
+bool MeshSpherical::_serializeAscii(std::ostream& os) const
 {
   bool ret = true;
   ret      = ret && _recordWrite<Id>(os, "Space Dimension", getNDim());
@@ -412,7 +412,7 @@ void MeshSpherical::getBarycenterInPlace(Id imesh, vect coord) const
 }
 
 #ifdef HDF5
-bool MeshSpherical::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+bool MeshSpherical::deserializeH5(H5::Group& grp)
 {
   auto meshG = SerializeHDF5::getGroup(grp, "MeshSpherical");
   if (!meshG)
@@ -446,7 +446,7 @@ bool MeshSpherical::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose
   return ret;
 }
 
-bool MeshSpherical::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+bool MeshSpherical::serializeH5(H5::Group& grp) const
 {
   auto meshG = grp.createGroup("MeshSpherical");
 

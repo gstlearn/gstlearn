@@ -415,7 +415,7 @@ PolyElem Polygons::_extractFromWKT(const CSVformat& csv, String& polye)
   return polyelem;
 }
 
-bool Polygons::_deserializeAscii(std::istream& is, bool verbose)
+bool Polygons::_deserializeAscii(std::istream& is)
 {
   Id npol = 0;
 
@@ -433,19 +433,16 @@ bool Polygons::_deserializeAscii(std::istream& is, bool verbose)
   for (Id ipol = 0; ret && ipol < npol; ipol++)
   {
     PolyElem polyelem;
-    ret = ret && polyelem._deserializeAscii(is, verbose);
+    ret = ret && polyelem._deserializeAscii(is);
     if (ret)
-    {
       addPolyElem(polyelem); // TODO : Prevent copy (optimization)
-      if (verbose) message("PolyElem #%d - Number of vertices = %d\n", ipol + 1, polyelem.getNPoints());
-    }
     else
       messerr("Error when reading PolyElem #%d", ipol + 1);
   }
   return ret;
 }
 
-bool Polygons::_serializeAscii(std::ostream& os, bool verbose) const
+bool Polygons::_serializeAscii(std::ostream& os) const
 {
   bool ret = true;
   ret      = ret && _recordWrite<Id>(os, "Number of Polygons", getNPolyElem());
@@ -455,7 +452,7 @@ bool Polygons::_serializeAscii(std::ostream& os, bool verbose) const
   for (Id ipol = 0; ret && ipol < getNPolyElem(); ipol++)
   {
     const PolyElem& polyelem = getPolyElem(ipol);
-    ret                      = ret && polyelem._serializeAscii(os, verbose);
+    ret                      = ret && polyelem._serializeAscii(os);
   }
   return ret;
 }
@@ -1122,7 +1119,7 @@ Id db_selhull(Db* db1,
 }
 
 #ifdef HDF5
-bool Polygons::_deserializeH5(H5::Group& grp, bool verbose)
+bool Polygons::deserializeH5(H5::Group& grp)
 {
   auto polygonsG = SerializeHDF5::getGroup(grp, "Polygons");
   if (!polygonsG) return false;
@@ -1142,14 +1139,14 @@ bool Polygons::_deserializeH5(H5::Group& grp, bool verbose)
     auto polyelemG = SerializeHDF5::getGroup(*polylineG, locname, false);
     if (!polyelemG) break;
 
-    ret = ret && polyOne._deserializeH5(*polyelemG, verbose);
+    ret = ret && polyOne.deserializeH5(*polyelemG);
     _polyelems.push_back(polyOne);
     ipol++;
   }
   return ret;
 }
 
-bool Polygons::_serializeH5(H5::Group& grp, bool verbose) const
+bool Polygons::serializeH5(H5::Group& grp) const
 {
   auto polygonsG = grp.createGroup("Polygons");
 
@@ -1164,7 +1161,7 @@ bool Polygons::_serializeH5(H5::Group& grp, bool verbose) const
     String locname = "PolyElem_" + std::to_string(ipol);
     auto polyelemG = polylineG.createGroup(locname);
 
-    ret = ret && _polyelems[ipol]._serializeH5(polyelemG, verbose);
+    ret = ret && _polyelems[ipol].serializeH5(polyelemG);
   }
 
   return ret;

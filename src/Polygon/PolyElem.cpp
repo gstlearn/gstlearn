@@ -110,24 +110,24 @@ double PolyElem::getSurface() const
   return (surface);
 }
 
-bool PolyElem::_serializeAscii(std::ostream& os, bool verbose) const
+bool PolyElem::_serializeAscii(std::ostream& os) const
 {
   if (getNPoints() <= 0) return false;
   bool ret = true;
   ret      = ret && _recordWrite<double>(os, "Z-Minimum", _zmin);
   ret      = ret && _recordWrite<double>(os, "Z-Maximum", _zmax);
-  ret      = ret && PolyLine2D::_serializeAscii(os, verbose);
+  ret      = ret && PolyLine2D::_serializeAscii(os);
   return ret;
 }
 
-bool PolyElem::_deserializeAscii(std::istream& is, bool verbose)
+bool PolyElem::_deserializeAscii(std::istream& is)
 {
   _zmin    = TEST;
   _zmax    = TEST;
   bool ret = true;
   ret      = ret && _recordRead<double>(is, "Z-Minimum", _zmin);
   ret      = ret && _recordRead<double>(is, "Z-Maximum", _zmax);
-  ret      = ret && PolyLine2D::_deserializeAscii(is, verbose);
+  ret      = ret && PolyLine2D::_deserializeAscii(is);
   return ret;
 }
 
@@ -336,7 +336,7 @@ PolyElem PolyElem::reduceComplexity(double distmin) const
 }
 
 #ifdef HDF5
-bool PolyElem::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+bool PolyElem::deserializeH5(H5::Group& grp)
 {
   auto polyelemG = SerializeHDF5::getGroup(grp, "PolyElem");
   if (!polyelemG)
@@ -349,12 +349,12 @@ bool PolyElem::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   ret      = ret && SerializeHDF5::readValue(*polyelemG, "zmin", _zmin);
   ret      = ret && SerializeHDF5::readValue(*polyelemG, "zmax", _zmax);
 
-  ret = ret && PolyLine2D::_deserializeH5(*polyelemG, verbose);
+  ret = ret && PolyLine2D::deserializeH5(*polyelemG);
 
   return ret;
 }
 
-bool PolyElem::_serializeH5(H5::Group& grp, bool verbose) const
+bool PolyElem::serializeH5(H5::Group& grp) const
 {
   auto polyelemG = grp.createGroup("PolyElem");
 
@@ -362,7 +362,7 @@ bool PolyElem::_serializeH5(H5::Group& grp, bool verbose) const
   ret      = ret && SerializeHDF5::writeValue(polyelemG, "zmin", _zmin);
   ret      = ret && SerializeHDF5::writeValue(polyelemG, "zmax", _zmax);
 
-  ret = ret && PolyLine2D::_serializeH5(polyelemG, verbose);
+  ret = ret && PolyLine2D::serializeH5(polyelemG);
 
   return ret;
 }

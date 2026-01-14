@@ -8,6 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Covariances/TabNoStatSills.hpp"
 #include "geoslib_define.h"
 
 #include "Arrays/Array.hpp"
@@ -218,7 +219,7 @@ String CovAniso::toString(const AStringFormat* strfmt) const
 
   if (isNoStat())
   {
-    sstr << toStrTitle(2, "Non-Stationary Parameters");
+    sstr << toStrTitle(3, "List of Non-Stationary Parameters");
     sstr << _tabNoStat->toString(strfmt);
     auto i = getTabNoStatSills()->getNSills();
     sstr << getCorAniso()->toStringNoStat(strfmt, i);

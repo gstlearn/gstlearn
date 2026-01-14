@@ -38,8 +38,7 @@ public:
   virtual ~ASerializable();
 
   bool dumpToNF(const String& NFFilename,
-                const EFormatNF& format = EFormatNF::fromKey("DEFAULT"),
-                bool verbose            = false) const;
+                const EFormatNF& format = EFormatNF::fromKey("DEFAULT")) const;
 
   static String buildFileName(Id status, const String& filename, bool ensureDirExist = false);
 
@@ -49,39 +48,29 @@ public:
   static const String& getPrefixName();
   void setDefaultFormatNF(const EFormatNF& format);
 
-  virtual String _getNFName() const = 0;
+  static String getGroupFullPath(const H5::Group& group);
+  static VectorString getGroupParents(const H5::Group& group);
+
+  virtual String getNFName() const = 0;
+#ifdef HDF5
+  virtual bool deserializeH5(H5::Group& grp)     = 0;
+  virtual bool serializeH5(H5::Group& grp) const = 0;
+#endif
 
 protected:
-  virtual bool _deserializeAscii(std::istream& is, bool verbose = false)
+  virtual bool _deserializeAscii(std::istream& is)
   {
     DECLARE_UNUSED(is);
-    DECLARE_UNUSED(verbose);
     // TODO virtual pure
     messerr("Not implemented anymore");
     return false;
   }
-  virtual bool _deserializeH5(H5::Group& grp, bool verbose = false)
-  {
-    DECLARE_UNUSED(grp);
-    DECLARE_UNUSED(verbose);
-    // TODO virtual pure
-    messerr("Not implemented yet");
-    return false;
-  }
-  virtual bool _serializeAscii(std::ostream& os, bool verbose = false) const
+
+  virtual bool _serializeAscii(std::ostream& os) const
   {
     DECLARE_UNUSED(os);
-    DECLARE_UNUSED(verbose);
     // TODO virtual pure
     messerr("Not implemented anymore");
-    return false;
-  }
-  virtual bool _serializeH5(H5::Group& grp, bool verbose = false) const
-  {
-    DECLARE_UNUSED(grp);
-    DECLARE_UNUSED(verbose);
-    // TODO virtual pure
-    messerr("Not implemented yet");
     return false;
   }
 

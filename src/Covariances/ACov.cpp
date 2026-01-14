@@ -243,12 +243,7 @@ bool ACov::checkAndManageNoStatDb(const Db* db, const String& namecol)
   }
   _setNoStatDbIfNecessary(db);
 
-  if (_tabNoStat->getDbNoStatRef()->getUID(namecol) < 0)
-  {
-    messerr("You have to specify a name of a column of the reference Db");
-    return false;
-  }
-  return true;
+  return _tabNoStat->variableExistsInDb(namecol);
 }
 
 void ACov::_setNoStatDbIfNecessary(const Db* db)
@@ -2540,7 +2535,7 @@ MatrixDense ACov::simulateSpectralOmega(Id ns) const
 }
 
 #ifdef HDF5
-bool ACov::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+bool ACov::deserializeH5(H5::Group& grp)
 {
   // This function can seem useless. It is there to ensure the systematic call
   // of the base class deserialization when inherited classes do not need it.
@@ -2552,7 +2547,7 @@ bool ACov::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   return ret;
 }
 
-bool ACov::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+bool ACov::serializeH5(H5::Group& grp) const
 {
   // This function can seem useless. It is there to ensure the systematic call
   // of the base class deserialization when inherited classes do not need it.

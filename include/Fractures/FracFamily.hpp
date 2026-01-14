@@ -12,30 +12,37 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
+#include "Basic/AStringable.hpp"
 
 namespace gstlrn
 {
 class GSTLEARN_EXPORT FracFamily: public AStringable, public ASerializable
 {
 public:
-  FracFamily(double orient = 0.,
+  FracFamily(double orient  = 0.,
              double dorient = 0.,
-             double theta0 = 0.,
-             double alpha = 0.,
-             double ratcst = 0.,
-             double prop1 = 0.,
-             double prop2 = 0.,
-             double aterm = 0.,
-             double bterm = 0.,
-             double range = 0.);
+             double theta0  = 0.,
+             double alpha   = 0.,
+             double ratcst  = 0.,
+             double prop1   = 0.,
+             double prop2   = 0.,
+             double aterm   = 0.,
+             double bterm   = 0.,
+             double range   = 0.);
   FracFamily(const FracFamily& r);
   FracFamily& operator=(const FracFamily& r);
   virtual ~FracFamily();
 
   /// Interface for AStringable
   String toString(const AStringFormat* strfmt = nullptr) const override;
+
+  /// ASerializable Interface
+  String getNFName() const override { return "Family"; }
+#ifdef HDF5
+  bool deserializeH5(H5::Group& grp) override;
+  bool serializeH5(H5::Group& grp) const override;
+#endif
 
   double getAlpha() const { return _alpha; }
   void setAlpha(double alpha) { _alpha = alpha; }
@@ -59,27 +66,21 @@ public:
   void setTheta0(double theta0) { _theta0 = theta0; }
 
 public:
-  bool _deserializeAscii(std::istream& is, bool verbose = false) override;
-  bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
-#ifdef HDF5
-  bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
-  bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
-#endif
-protected:
-  String _getNFName() const override { return "Family"; }
+  bool _deserializeAscii(std::istream& is) override;
+  bool _serializeAscii(std::ostream& os) const override;
 
 private:
-  double _orient;              //!< Mean orientation
-  double _dorient;             //!< Standard deviation for orientation
-  double _theta0;              //!< Reference Poisson intensity
-  double _alpha;               //!< Power dependency between layer & intensity
-  double _ratcst;              //!< Ratio of Constant vs. shaped intensity
-  double _prop1;               //!< Survival probability (constant term)
-  double _prop2;               //!< Survival probability (length dependent term)
-  double _aterm;               //!< Survival probability (cumulative length term)
-  double _bterm;               //!< Survival probability (layer thickness term)
-  double _range;               //!< Range of fracture repulsion area
+  double _orient;  //!< Mean orientation
+  double _dorient; //!< Standard deviation for orientation
+  double _theta0;  //!< Reference Poisson intensity
+  double _alpha;   //!< Power dependency between layer & intensity
+  double _ratcst;  //!< Ratio of Constant vs. shaped intensity
+  double _prop1;   //!< Survival probability (constant term)
+  double _prop2;   //!< Survival probability (length dependent term)
+  double _aterm;   //!< Survival probability (cumulative length term)
+  double _bterm;   //!< Survival probability (layer thickness term)
+  double _range;   //!< Range of fracture repulsion area
 
   friend class FracEnviron;
 };
-}
+} // namespace gstlrn

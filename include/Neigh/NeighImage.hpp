@@ -11,12 +11,12 @@
 #pragma once
 
 #include "Basic/ICloneable.hpp"
-#include "gstlearn_export.hpp"
 #include "geoslib_define.h"
+#include "gstlearn_export.hpp"
 
-#include "Space/ASpace.hpp"
 #include "Enum/ENeigh.hpp"
 #include "Neigh/ANeigh.hpp"
+#include "Space/ASpace.hpp"
 
 namespace gstlrn
 {
@@ -40,14 +40,23 @@ class DbGrid;
 class GSTLEARN_EXPORT NeighImage: public ANeigh
 {
 public:
-  NeighImage(const VectorInt &radius = VectorInt(),
-             Id skip = 0,
+  NeighImage(const VectorInt& radius      = VectorInt(),
+             Id skip                      = 0,
              const ASpaceSharedPtr& space = ASpaceSharedPtr());
   NeighImage(const NeighImage& r);
   NeighImage& operator=(const NeighImage& r);
   virtual ~NeighImage();
 
+  /// ICloneable Interface
   IMPLEMENT_CLONING(NeighImage)
+
+  /// ASerializable Interface
+  String getNFName() const override { return "NeighImage"; }
+#ifdef HDF5
+  bool deserializeH5(H5::Group& grp) override;
+  bool serializeH5(H5::Group& grp) const override;
+#endif
+
   /// Interface for ANeigh
   void getNeigh(Id iech_out, VectorInt& ranks) override;
   Id getNSampleMax(const Db* db) const override;
@@ -70,19 +79,14 @@ public:
   DbGrid* buildImageGrid(const DbGrid* dbgrid, Id seed) const;
 
 protected:
-  bool _deserializeAscii(std::istream& is, bool verbose = false) override;
-  bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
-#ifdef HDF5
-  bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
-  bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
-#endif
-  String _getNFName() const override { return "NeighImage"; }
+  bool _deserializeAscii(std::istream& is) override;
+  bool _serializeAscii(std::ostream& os) const override;
 
 private:
   void _uimage(Id iech_out, VectorInt& ranks);
 
 private:
-  Id _skip;                  /* Skipping factor */
-  VectorInt _imageRadius;     /* Vector of image neighborhood radius */
+  Id _skip;               /* Skipping factor */
+  VectorInt _imageRadius; /* Vector of image neighborhood radius */
 };
-}
+} // namespace gstlrn

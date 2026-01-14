@@ -40,6 +40,13 @@ public:
   /// ASerializable Interface
   static AnamDiscreteDD* createFromNF(const String& NFFilename, bool verbose = true);
 
+  /// ASerializable Interface
+  String getNFName() const override { return "AnamDiscreteDD"; }
+#ifdef HDF5
+  bool deserializeH5(H5::Group& grp) override;
+  bool serializeH5(H5::Group& grp) const override;
+#endif
+
   /// AAnam Interface
   const EAnam& getType() const override { return EAnam::fromKey("DISCRETE_DD"); }
   bool hasFactor() const override { return true; }
@@ -89,13 +96,8 @@ public:
                         Id iptr0);
 
 protected:
-  bool _deserializeAscii(std::istream& is, bool verbose = false) override;
-  bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
-#ifdef HDF5
-  bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
-  bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
-#endif
-  String _getNFName() const override { return "AnamDiscreteDD"; }
+  bool _deserializeAscii(std::istream& is) override;
+  bool _serializeAscii(std::ostream& os) const override;
 
 private:
   Id _stats(Id nech, const VectorDouble& tab);

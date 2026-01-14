@@ -600,10 +600,10 @@ MatrixSquare AnamDiscreteDD::chi2I(const VectorDouble& chi, Id mode)
   return chi2i;
 }
 
-bool AnamDiscreteDD::_serializeAscii(std::ostream& os, bool verbose) const
+bool AnamDiscreteDD::_serializeAscii(std::ostream& os) const
 {
   bool ret = true;
-  ret      = ret && AnamDiscrete::_serializeAscii(os, verbose);
+  ret      = ret && AnamDiscrete::_serializeAscii(os);
   ret      = ret && _recordWrite<double>(os, "Change of support coefficient", getSCoef());
   ret      = ret && _recordWrite<double>(os, "Additional Mu coefficient", getMu());
   ret      = ret && _tableWrite(os, "PCA Z2Y", getNCut() * getNCut(), getPcaZ2Fs().getValues());
@@ -611,14 +611,14 @@ bool AnamDiscreteDD::_serializeAscii(std::ostream& os, bool verbose) const
   return ret;
 }
 
-bool AnamDiscreteDD::_deserializeAscii(std::istream& is, bool verbose)
+bool AnamDiscreteDD::_deserializeAscii(std::istream& is)
 {
   MatrixSquare pcaf2z, pcaz2f;
   double s  = TEST;
   double mu = TEST;
 
   bool ret = true;
-  ret      = ret && AnamDiscrete::_deserializeAscii(is, verbose);
+  ret      = ret && AnamDiscrete::_deserializeAscii(is);
   ret      = ret && _recordRead<double>(is, "Anamorphosis 's' coefficient", s);
   ret      = ret && _recordRead<double>(is, "Anamorphosis 'mu' coefficient", mu);
 
@@ -970,7 +970,7 @@ Id AnamDiscreteDD::factor2Selectivity(Db* db,
 }
 
 #ifdef HDF5
-bool AnamDiscreteDD::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+bool AnamDiscreteDD::deserializeH5(H5::Group& grp)
 {
   auto anamG = SerializeHDF5::getGroup(grp, "AnamDiscreteDD");
   if (!anamG)
@@ -990,7 +990,7 @@ bool AnamDiscreteDD::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbos
   ret = ret && SerializeHDF5::readVec(*anamG, "Z2F", z2f);
   ret = ret && SerializeHDF5::readVec(*anamG, "F2Z", f2z);
 
-  ret = ret && AnamDiscrete::_deserializeH5(*anamG, verbose);
+  ret = ret && AnamDiscrete::deserializeH5(*anamG);
 
   if (ret)
   {
@@ -1011,7 +1011,7 @@ bool AnamDiscreteDD::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbos
   return ret;
 }
 
-bool AnamDiscreteDD::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+bool AnamDiscreteDD::serializeH5(H5::Group& grp) const
 {
   auto anamG = grp.createGroup("AnamDiscreteDD");
 
@@ -1022,7 +1022,7 @@ bool AnamDiscreteDD::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   ret = ret && SerializeHDF5::writeVec(anamG, "Z2F", getPcaZ2Fs().getValues());
   ret = ret && SerializeHDF5::writeVec(anamG, "F2Z", getPcaF2Zs().getValues());
 
-  ret = ret && AnamDiscrete::_serializeH5(anamG, verbose);
+  ret = ret && AnamDiscrete::serializeH5(anamG);
 
   return ret;
 }

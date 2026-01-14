@@ -629,7 +629,7 @@ MatrixDense CovList::simulateSpectralOmega(Id ns) const
 }
 
 #ifdef HDF5
-bool CovList::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+bool CovList::deserializeH5(H5::Group& grp)
 {
   auto covlistG = SerializeHDF5::getGroup(grp, "Covariance List");
   if (!covlistG) return false;
@@ -639,20 +639,20 @@ bool CovList::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   Id ncov                = 0;
   ret                    = ret && SerializeHDF5::readValue(*covlistG, "Number of Covariances", ncov);
   const CovContext& ctxt = getContext();
-  CovAniso cov(ECov::NUGGET, ctxt); // TODO: not sure that this is the best way to initialize this dummy variable
 
   for (Id icov = 0; icov < ncov; icov++)
   {
     String locName = "Covariance_" + std::to_string(icov + 1);
     auto covrankG  = SerializeHDF5::getGroup(*covlistG, locName);
-    ret            = ret && cov._deserializeH5(*covrankG, verbose);
+    CovAniso cov(ECov::NUGGET, ctxt); // TODO: not sure that this is the best way to initialize this dummy variable
+    ret = ret && cov.deserializeH5(*covrankG);
     addCov(cov);
   }
 
   return ret;
 }
 
-bool CovList::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+bool CovList::serializeH5(H5::Group& grp) const
 {
   auto covlistG = grp.createGroup("Covariance List");
 
@@ -664,7 +664,7 @@ bool CovList::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
   for (Id icov = 0; icov < ncov; icov++)
   {
     auto covrankG = covlistG.createGroup("Covariance_" + std::to_string(icov + 1));
-    ret           = ret && _covs[icov]->_serializeH5(covrankG, verbose);
+    ret           = ret && _covs[icov]->serializeH5(covrankG);
   }
 
   return ret;

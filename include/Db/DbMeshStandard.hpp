@@ -12,8 +12,8 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Db/Db.hpp"
 #include "Basic/ICloneable.hpp"
+#include "Db/Db.hpp"
 #include "Mesh/MeshEStandard.hpp"
 
 namespace gstlrn
@@ -29,8 +29,8 @@ namespace gstlrn
 class GSTLEARN_EXPORT DbMeshStandard: public Db
 {
 public:
-  DbMeshStandard(Id ndim                         = 0,
-                 Id napexpermesh                 = 1,
+  DbMeshStandard(Id ndim                          = 0,
+                 Id napexpermesh                  = 1,
                  const VectorDouble& apices       = VectorDouble(),
                  const VectorInt& meshes          = VectorInt(),
                  const ELoadBy& order             = ELoadBy::fromKey("SAMPLE"),
@@ -48,6 +48,13 @@ public:
 
   /// AStringable Interface
   String toString(const AStringFormat* strfmt = nullptr) const override;
+
+  /// ASerializable interface
+  String getNFName() const override { return "DbMeshStandard"; }
+#ifdef HDF5
+  bool deserializeH5(H5::Group& grp) override;
+  bool serializeH5(H5::Group& grp) const override;
+#endif
 
   /// Db Interface
   bool isMesh() const override { return true; }
@@ -68,9 +75,9 @@ public:
   static DbMeshStandard*
   createFromExternal(const MatrixDense& apices,
                      const MatrixInt& meshes,
-                     const ELoadBy& order      = ELoadBy::fromKey("SAMPLE"),
-                     const VectorDouble& tab   = VectorDouble(),
-                     const VectorString& names = VectorString(),
+                     const ELoadBy& order             = ELoadBy::fromKey("SAMPLE"),
+                     const VectorDouble& tab          = VectorDouble(),
+                     const VectorString& names        = VectorString(),
                      const VectorString& locatorNames = VectorString(),
                      bool verbose                     = false);
 
@@ -82,17 +89,12 @@ public:
   double getApexCoor(Id i, Id idim) const;
   void getApexCoordinatesInPlace(Id i, VectorDouble& coords) const;
   VectorDouble getCoordinatesPerMesh(Id imesh, Id idim, bool flagClose = false) const;
-  
+
 protected:
-  bool _deserializeAscii(std::istream& is, bool verbose = false) override;
-  bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
-#ifdef HDF5
-  bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
-  bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
-#endif
-  String _getNFName() const override { return "DbMeshStandard"; }
+  bool _deserializeAscii(std::istream& is) override;
+  bool _serializeAscii(std::ostream& os) const override;
 
 private:
   MeshEStandard _mesh;
 };
-}
+} // namespace gstlrn

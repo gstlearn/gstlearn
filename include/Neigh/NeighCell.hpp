@@ -10,11 +10,11 @@
 /******************************************************************************/
 #pragma once
 
-#include <Geometry/BiTargetCheckCell.hpp>
 #include "Basic/ICloneable.hpp"
 #include "Space/ASpace.hpp"
-#include "gstlearn_export.hpp"
 #include "geoslib_define.h"
+#include "gstlearn_export.hpp"
+#include <Geometry/BiTargetCheckCell.hpp>
 
 #include "Enum/ENeigh.hpp"
 
@@ -42,20 +42,30 @@ class GSTLEARN_EXPORT NeighCell: public ANeigh
 {
 public:
   NeighCell(bool flag_xvalid             = false,
-            Id nmini                    = 1,
+            Id nmini                     = 1,
             bool useBallTree             = false,
-            Id leaf_size                = 10,
+            Id leaf_size                 = 10,
             const ASpaceSharedPtr& space = ASpaceSharedPtr());
   NeighCell(const NeighCell& r);
   NeighCell& operator=(const NeighCell& r);
   virtual ~NeighCell();
 
+  /// Icloneable Interface
   IMPLEMENT_CLONING(NeighCell)
+
+  /// ASerializable Interface
+  String getNFName() const override { return "NeighCell"; }
+#ifdef HDF5
+  bool deserializeH5(H5::Group& grp) override;
+  bool serializeH5(H5::Group& grp) const override;
+#endif
+
   /// Interface for ANeigh
-  Id attach(const Db *dbin, const Db *dbout = nullptr) override;
+  Id attach(const Db* dbin, const Db* dbout = nullptr) override;
   void getNeigh(Id iech_out, VectorInt& ranks) override;
   bool hasChanged(Id iech_out) const override;
-  Id getNSampleMax(const Db* db) const override {
+  Id getNSampleMax(const Db* db) const override
+  {
     DECLARE_UNUSED(db);
     return 0;
   }
@@ -65,9 +75,9 @@ public:
   String toString(const AStringFormat* strfmt = nullptr) const override;
 
   static NeighCell* create(bool flag_xvalid             = false,
-                           Id nmini                    = 1,
+                           Id nmini                     = 1,
                            bool useBallTree             = false,
-                           Id leaf_size                = 10,
+                           Id leaf_size                 = 10,
                            const ASpaceSharedPtr& space = ASpaceSharedPtr());
   static NeighCell* createFromNF(const String& NFFilename, bool verbose = true);
 
@@ -77,13 +87,8 @@ private:
   Id _cell(Id iech_out, VectorInt& ranks);
 
 protected:
-  bool _deserializeAscii(std::istream& is, bool verbose = false) override;
-  bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
-#ifdef HDF5
-  bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
-  bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
-#endif
-  String _getNFName() const override { return "NeighCell"; }
+  bool _deserializeAscii(std::istream& is) override;
+  bool _serializeAscii(std::ostream& os) const override;
 
 private:
   Id _nMini;
@@ -92,4 +97,4 @@ private:
   mutable SpaceTarget _T1;
   mutable SpaceTarget _T2;
 };
-}
+} // namespace gstlrn

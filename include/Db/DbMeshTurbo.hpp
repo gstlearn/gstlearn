@@ -12,8 +12,8 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Db/DbGrid.hpp"
 #include "Basic/ICloneable.hpp"
+#include "Db/DbGrid.hpp"
 #include "Mesh/MeshETurbo.hpp"
 
 namespace gstlrn
@@ -42,7 +42,7 @@ public:
               const VectorString& locatorNames = VectorString(),
               bool flag_polarized              = false,
               bool verbose                     = false,
-              Id mode                         = 1);
+              Id mode                          = 1);
   DbMeshTurbo(const DbMeshTurbo& r);
   DbMeshTurbo& operator=(const DbMeshTurbo& r);
   virtual ~DbMeshTurbo();
@@ -53,6 +53,13 @@ public:
 
   /// AStringable Interface
   String toString(const AStringFormat* strfmt = nullptr) const override;
+
+  /// ASerializable interface
+  String getNFName() const override { return "DbMeshTurbo"; }
+#ifdef HDF5
+  bool deserializeH5(H5::Group& grp) override;
+  bool serializeH5(H5::Group& grp) const override;
+#endif
 
   /// Db Interface
   bool isMesh() const override { return true; }
@@ -94,17 +101,12 @@ public:
   {
     return _mesh.getCoordinatesPerMesh(imesh, idim, flagClose);
   }
-  
+
 protected:
-  bool _deserializeAscii(std::istream& is, bool verbose = false) override;
-  bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
-#ifdef HDF5
-  bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
-  bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
-#endif
-  String _getNFName() const override { return "DbMeshTurbo"; }
+  bool _deserializeAscii(std::istream& is) override;
+  bool _serializeAscii(std::ostream& os) const override;
 
 private:
   MeshETurbo _mesh;
 };
-}
+} // namespace gstlrn

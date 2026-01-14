@@ -37,7 +37,16 @@ public:
   CovBase& operator=(const CovBase& r);
   virtual ~CovBase();
 
+  /// ICloneable Interface
   IMPLEMENT_CLONING(CovBase)
+
+  /// Interface to ASerializable
+  String getNFName() const override { return "CovBase"; }
+#ifdef HDF5
+  bool deserializeH5(H5::Group& grp) override;
+  bool serializeH5(H5::Group& grp) const override;
+#endif
+
   static ParamInfo createParamInfoForCholSill();
 
   bool isConsistent(const ASpace* space) const override;
@@ -151,14 +160,6 @@ private:
                Id jvar                 = 0,
                const CovCalcMode* mode = nullptr) const override;
   void _multiplyCorDerivativesBySills(Id oldSize, std::vector<covmaptype>* gradFuncs);
-
-public:
-  /// Interface to ASerializable
-  String _getNFName() const override { return "CovBase"; }
-#ifdef HDF5
-  bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
-  bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
-#endif
 
 protected:
   MatrixT<ParamInfo> _cholSillsInfo;

@@ -9,6 +9,8 @@ Release 1.10.0
 - Adding the calculation of CORRELOGRAMS
 - Adding the general feature of ergodic or non-ergodic calculations for Mean and Variance (used for centering and scaling)
 - Some global functions: getAllMaxDimension(), getAllIsSpatialTemporal(), getAllFormula()
+- Class CovParamId now directly aggregates ParamId 
+- Suppress argument 'verbose' in serialize() and deserialize(), ascii or H5.
 - Bayesian prior information (mean and Cov) are now hosted in DriftList within ModelGeneric. They are not passed as arguments in: kribayes(), simbayes, krigsim(), multilayers_kriging().
 - An additional shortcut for Variogram Cloud calculation
 - Some verbose additional outputs for Variogram Cloud calculations

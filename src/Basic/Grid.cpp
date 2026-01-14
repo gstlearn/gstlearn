@@ -1355,7 +1355,7 @@ bool Grid::sampleBelongsToCell(const VectorDouble& coor,
   return true;
 }
 
-bool Grid::_deserializeAscii(std::istream& is, [[maybe_unused]] bool verbose)
+bool Grid::_deserializeAscii(std::istream& is)
 {
   Id ndim = 0;
   VectorInt nx;
@@ -1391,7 +1391,7 @@ bool Grid::_deserializeAscii(std::istream& is, [[maybe_unused]] bool verbose)
   return ret;
 }
 
-bool Grid::_serializeAscii(std::ostream& os, [[maybe_unused]] bool verbose) const
+bool Grid::_serializeAscii(std::ostream& os) const
 {
   bool ret = true;
 
@@ -1415,7 +1415,7 @@ bool Grid::_serializeAscii(std::ostream& os, [[maybe_unused]] bool verbose) cons
 }
 
 #ifdef HDF5
-bool Grid::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+bool Grid::deserializeH5(H5::Group& grp)
 {
   auto gridG = SerializeHDF5::getGroup(grp, "Grid");
   if (!gridG)
@@ -1441,7 +1441,7 @@ bool Grid::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   return ret;
 }
 
-bool Grid::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+bool Grid::serializeH5(H5::Group& grp) const
 {
   auto gridG = grp.createGroup("Grid");
 

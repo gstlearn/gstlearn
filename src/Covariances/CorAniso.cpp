@@ -1727,7 +1727,7 @@ void CorAniso::updateCov()
 }
 
 #ifdef HDF5
-bool CorAniso::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+bool CorAniso::deserializeH5(H5::Group& grp)
 {
   bool ret = true;
   Id ndim  = getNDim();
@@ -1769,10 +1769,15 @@ bool CorAniso::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   else
     setRangeIsotropic(range);
 
+  // Non stationary case.  Look for "NonStat" paragraph. It not found, simply return ... silently
+  auto nostatG = SerializeHDF5::getGroup(grp, "NoStatAniso", false);
+  if (nostatG)
+    ret = ret && _tabNoStat->deserializeH5(*nostatG);
+
   return ret;
 }
 
-bool CorAniso::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+bool CorAniso::serializeH5(H5::Group& grp) const
 {
   bool ret = true;
 
@@ -1790,6 +1795,13 @@ bool CorAniso::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
     ret = ret && SerializeHDF5::writeValue(grp, "FlagRotation", static_cast<Id>(getFlagRotation()));
     if (getFlagRotation())
       ret = ret && SerializeHDF5::writeVec(grp, "Rotation", getAnisoRotMat().getValues());
+  }
+
+  // Non stationary case
+  if (isNoStat() && _tabNoStat->size() > 0)
+  {
+    auto nonstatG = grp.createGroup("NoStatAniso");
+    ret           = ret && _tabNoStat->serializeH5(nonstatG);
   }
 
   return ret;

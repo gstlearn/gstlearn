@@ -147,7 +147,7 @@ VectorDouble Table::getAllRange() const
   return limits;
 }
 
-bool Table::_serializeAscii(std::ostream& os, bool /*verbose*/) const
+bool Table::_serializeAscii(std::ostream& os) const
 {
   bool ret = true;
   ret      = ret && _recordWrite<Id>(os, "Number of Columns", getNCols());
@@ -166,7 +166,7 @@ bool Table::_serializeAscii(std::ostream& os, bool /*verbose*/) const
   return ret;
 }
 
-bool Table::_deserializeAscii(std::istream& is, bool /*verbose*/)
+bool Table::_deserializeAscii(std::istream& is)
 {
   Id nrows     = 0;
   Id ncols     = 0;
@@ -312,7 +312,7 @@ String Table::getRowName(Id irow) const
   return _rowNames[irow];
 }
 #ifdef HDF5
-bool Table::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+bool Table::deserializeH5(H5::Group& grp)
 {
   auto tableG = SerializeHDF5::getGroup(grp, "Table");
   if (!tableG)
@@ -339,7 +339,7 @@ bool Table::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   return ret;
 }
 
-bool Table::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+bool Table::serializeH5(H5::Group& grp) const
 {
   auto tableG = grp.createGroup("Table");
 

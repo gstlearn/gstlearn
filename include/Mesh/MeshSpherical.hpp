@@ -10,9 +10,9 @@
 /******************************************************************************/
 #pragma once
 
-#include "Mesh/AMesh.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixInt.hpp"
+#include "Mesh/AMesh.hpp"
 
 namespace gstlrn
 {
@@ -20,17 +20,24 @@ namespace gstlrn
 /**
  * Meshing defined in the Spherical Space
  */
-class GSTLEARN_EXPORT MeshSpherical : public AMesh
+class GSTLEARN_EXPORT MeshSpherical: public AMesh
 {
 public:
   MeshSpherical(const MatrixDense& apices = MatrixDense(),
-                const MatrixInt& meshes = MatrixInt());
-  MeshSpherical(const MeshSpherical &m);
-  MeshSpherical& operator= (const MeshSpherical &m);
+                const MatrixInt& meshes   = MatrixInt());
+  MeshSpherical(const MeshSpherical& m);
+  MeshSpherical& operator=(const MeshSpherical& m);
   virtual ~MeshSpherical();
 
   /// Interface to AStringable
   String toString(const AStringFormat* strfmt = nullptr) const override;
+
+  /// ASeriazable interface
+  String getNFName() const override { return "MeshSpherical"; }
+#ifdef HDF5
+  bool deserializeH5(H5::Group& grp) override;
+  bool serializeH5(H5::Group& grp) const override;
+#endif
 
   /// Interface to AMesh
   Id getNApices() const override;
@@ -46,7 +53,7 @@ public:
 
   static MeshSpherical* createFromNF(const String& NFFilename, bool verbose = true);
   static MeshSpherical* create(const MatrixDense& apices = MatrixDense(),
-                               const MatrixInt& meshes         = MatrixInt());
+                               const MatrixInt& meshes   = MatrixInt());
 
   Id reset(Id ndim,
            Id napexpermesh,
@@ -58,16 +65,11 @@ public:
 
   const MatrixDense& getApices() const { return _apices; }
   const MatrixInt& getMeshes() const { return _meshes; }
-  VectorVectorInt getMeshesAsVVI() const {return _meshes.getMatrix();}
+  VectorVectorInt getMeshesAsVVI() const { return _meshes.getMatrix(); }
 
 protected:
-  bool _deserializeAscii(std::istream& is, bool verbose = false) override;
-  bool _serializeAscii(std::ostream& os,bool verbose = false) const override;
-#ifdef HDF5
-  bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
-  bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
-#endif
-  String _getNFName() const override { return "MeshSpherical"; }
+  bool _deserializeAscii(std::istream& is) override;
+  bool _serializeAscii(std::ostream& os) const override;
 
 private:
   void _defineBoundingBox();
@@ -86,6 +88,6 @@ private:
 
 private:
   MatrixDense _apices; // Dimension: NRow=napices; Ncol=Ndim(=2)
-  MatrixInt         _meshes; // Dimension: Nrow=Nmesh; Ncol=NApexPerMesh
+  MatrixInt _meshes;   // Dimension: Nrow=Nmesh; Ncol=NApexPerMesh
 };
-}
+} // namespace gstlrn

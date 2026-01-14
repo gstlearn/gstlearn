@@ -110,7 +110,7 @@ Id RuleShift::resetFromNumericalCoding(const VectorInt& n_type,
   return 0;
 }
 
-bool RuleShift::_deserializeAscii(std::istream& is, bool /*verbose*/)
+bool RuleShift::_deserializeAscii(std::istream& is)
 {
   _shift.resize(3);
   bool ret = true;
@@ -126,7 +126,7 @@ bool RuleShift::_deserializeAscii(std::istream& is, bool /*verbose*/)
   return ret;
 }
 
-bool RuleShift::_serializeAscii(std::ostream& os, bool /*verbose*/) const
+bool RuleShift::_serializeAscii(std::ostream& os) const
 {
   double slope          = (FFFF(_slope)) ? 0. : _slope;
   double shdown         = (FFFF(_shDown)) ? 0. : _shDown;
@@ -463,7 +463,7 @@ RuleShift* RuleShift::createFromNumericalCoding(const VectorInt& n_type,
   return ruleshift;
 }
 #ifdef HDF5
-bool RuleShift::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+bool RuleShift::deserializeH5(H5::Group& grp)
 {
   auto ruleG = SerializeHDF5::getGroup(grp, "RuleShift");
   if (!ruleG)
@@ -480,12 +480,12 @@ bool RuleShift::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   ret = ret && SerializeHDF5::readValue(*ruleG, "ShDsup", _shDsup);
   ret = ret && SerializeHDF5::readVec(*ruleG, "Shift", _shift);
 
-  ret = ret && Rule::_deserializeH5(*ruleG, verbose);
+  ret = ret && Rule::deserializeH5(*ruleG);
 
   return ret;
 }
 
-bool RuleShift::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+bool RuleShift::serializeH5(H5::Group& grp) const
 {
   auto ruleG = grp.createGroup("RuleShift");
 
@@ -502,7 +502,7 @@ bool RuleShift::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) cons
   ret = ret && SerializeHDF5::writeValue(ruleG, "ShDsup", shdsup);
   ret = ret && SerializeHDF5::writeVec(ruleG, "Shift", shiftloc);
 
-  ret = ret && Rule::_serializeH5(ruleG, verbose);
+  ret = ret && Rule::serializeH5(ruleG);
 
   return ret;
 }

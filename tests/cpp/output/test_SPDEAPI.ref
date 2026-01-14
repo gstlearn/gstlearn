@@ -14,8 +14,7 @@ Matern (Third Parameter = 1)
 - Ranges       =      10.000     30.000
 - Theo. Ranges =       2.887      8.660
 
-Non-Stationary Parameters
-.........................
+List of Non-Stationary Parameters
 1 - Angle      : IdAngle=1
 Functional
 Total Sill     =       1.000

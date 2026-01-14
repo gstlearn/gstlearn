@@ -13,6 +13,7 @@
 #include "Basic/Law.hpp"
 #include "Basic/PolyLine2D.hpp"
 #include "Basic/VectorHelper.hpp"
+#include "Covariances/CovAniso.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "LithoRule/Rule.hpp"
@@ -239,11 +240,50 @@ int main(int argc, char* argv[])
     delete model2;
   }
 
+  // ===========================
+  // Model with Non-stationarity
+  // ===========================
+  // Note: this only exists in the H5 new file format.
+
+  if (mode == 0 || mode == 7)
+  {
+    auto* model1 = Model::createFromParam(ECov::NUGGET);
+    model1->addCovFromParam(ECov::EXPONENTIAL, EPSILON6, 1., 1.2, {10, 20}, {}, {90, 0});
+    model1->display();
+
+    // Define the Non-stationrity
+    auto* dbnostat1 = DbGrid::create({10, 10});
+    auto tab1       = dbnostat1->getColumns({"rank"});
+    dbnostat1->addColumns(tab1, "sills");
+    model1->attachNoStatDb(dbnostat1);
+    model1->getCovAniso(0)->makeSillNoStatDb("sills", 0, 0, dbnostat1);
+    delete dbnostat1;
+
+    auto* dbnostat2 = DbGrid::create({10, 10});
+    auto tab2       = dbnostat2->getColumns({"rank"});
+    dbnostat2->addColumns(tab2, "angles");
+    dbnostat2->addColumns(tab2, "ranges");
+    model1->getCovAniso(1)->makeAngleNoStatDb("angles", 0, dbnostat2);
+    model1->getCovAniso(1)->makeRangeNoStatDb("ranges", 1, dbnostat2);
+    delete dbnostat2;
+
+    // Serialize model1
+    (void)model1->dumpToNF("ModelNoStat.NF.h5", EFormatNF::H5);
+
+    // Deserialize model2
+    Model* model2 = nullptr;
+    model2        = Model::createFromNF("ModelNoStat.NF.h5", verbose);
+    model2->display();
+
+    delete model1;
+    delete model2;
+  }
+
   // =====
   // Table
   // =====
 
-  if (mode == 0 || mode == 7)
+  if (mode == 0 || mode == 8)
   {
     VectorVectorDouble table;
     Id ncols      = 3;
@@ -276,7 +316,7 @@ int main(int argc, char* argv[])
   // Rule
   // ====
 
-  if (mode == 0 || mode == 8)
+  if (mode == 0 || mode == 9)
   {
     Rule* rule1 = Rule::createFromNames({"S", "F1", "T", "F2", "S", "F3", "F4"});
     rule1->display();
@@ -303,7 +343,7 @@ int main(int argc, char* argv[])
   // PolyLine2D
   // ==========
 
-  if (mode == 0 || mode == 9)
+  if (mode == 0 || mode == 10)
   {
     Id npolyline           = 100;
     VectorDouble xpolyline = VH::simulateGaussian(npolyline);
@@ -334,7 +374,7 @@ int main(int argc, char* argv[])
   // Moving Neighborhood
   // ===================
 
-  if (mode == 0 || mode == 10)
+  if (mode == 0 || mode == 11)
   {
     Id nmaxi            = 20;
     double radius       = 4.;
@@ -372,7 +412,7 @@ int main(int argc, char* argv[])
   // Unique Neighborhood
   // ===================
 
-  if (mode == 0 || mode == 11)
+  if (mode == 0 || mode == 12)
   {
     NeighUnique* neigh1 = NeighUnique::create();
     neigh1->display();
@@ -399,7 +439,7 @@ int main(int argc, char* argv[])
   // Meshing (Turbo)
   // ===============
 
-  if (mode == 0 || mode == 12)
+  if (mode == 0 || mode == 13)
   {
     MeshETurbo* mesh1 = MeshETurbo::create({10, 10});
     mesh1->display();

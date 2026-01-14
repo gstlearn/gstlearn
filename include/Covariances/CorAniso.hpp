@@ -72,6 +72,13 @@ public:
   /// ASpaceObject Interface
   bool isConsistent(const ASpace* space) const override;
 
+  /// Interface to ASerializable
+  String getNFName() const override { return "Covariance"; }
+#ifdef HDF5
+  bool deserializeH5(H5::Group& grp) override;
+  bool serializeH5(H5::Group& grp) const override;
+#endif
+
   /// ACov Interface
   Id getNVar() const override { return 1; }
 
@@ -333,13 +340,6 @@ private:
                Id ivar                 = 0,
                Id jvar                 = 0,
                const CovCalcMode* mode = nullptr) const override;
-
-  /// Interface to ASerializable
-  String _getNFName() const override { return "Covariance"; }
-#ifdef HDF5
-  bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
-  bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
-#endif
 
 private:
   AKernel* _corfunc; /// Basic correlation function
