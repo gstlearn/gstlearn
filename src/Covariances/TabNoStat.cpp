@@ -107,11 +107,19 @@ String TabNoStat::toStringInside(const AStringFormat* strfmt, Id i) const
   std::stringstream sstr;
   if (_items.empty()) return sstr.str();
 
+  // sort content of std::unordered_map before serialization
+  std::vector<std::pair<std::string, std::string>> sortedTable(getTable().size());
+  size_t j {};
   for (const auto& e: getTable())
   {
+    sortedTable[j++] = {e.first.toString(strfmt), e.second->toString(strfmt)};
+  }
+  std::sort(sortedTable.begin(), sortedTable.end());
+  for (const auto& e: sortedTable)
+  {
     sstr << std::to_string(i + 1) << " - ";
-    sstr << e.first.toString(strfmt);
-    sstr << e.second->toString(strfmt);
+    sstr << e.first;
+    sstr << e.second;
     i++;
   }
   return sstr.str();
