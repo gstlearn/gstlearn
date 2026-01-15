@@ -1988,7 +1988,6 @@ def _ax_table(ax, tableobj, icols, fmt="ok", flagLegend=False, **kwargs):
 
     return ax
 
-
 def mesh(meshobj, *args, **kwargs):
     """
     Plotting the contents of a Mesh
@@ -1996,7 +1995,6 @@ def mesh(meshobj, *args, **kwargs):
     """
     ax = _getNewAxes()
     return _ax_mesh(ax, meshobj=meshobj, *args, **kwargs)
-
 
 def _ax_mesh(
     ax,
@@ -2042,7 +2040,6 @@ def _ax_mesh(
 
     return ax
 
-
 def baseMap(
     db,
     crsFrom="EPSG:4326",
@@ -2062,7 +2059,6 @@ def baseMap(
     return _ax_baseMap(
         ax, db, crsFrom, crsTo, box, flagProj, color, size, *args, **kwargs
     )
-
 
 def _ax_baseMap(
     ax,
@@ -2104,22 +2100,38 @@ def _ax_baseMap(
     # Plot using two first coordinates (if ndim > 2)
     if pts.shape[0] > 0 and pts.shape[1] >= 2:
         if flagProj:
-            import gstlearn.proj as prj
-
-            pts[:, 0], pts[:, 1] = prj.proj(pts[:, 0], pts[:, 1], crsFrom, crsTo)
-        ax.scatter(pts[:, 0], pts[:, 1], c=color, s=size)
+            # Check if projection makes sense (i.e. coordinates are in Long / Lat)
+            clong = pts[:, 0]
+            clat  = pts[:, 1]
+            minlong = np.nanmin(clong)
+            maxlong = np.nanmax(clong)
+            minlat = np.nanmin(clat)
+            maxlat = np.nanmax(clat)
+            if (minlong < -180.0) or (maxlong > 180.0) or (minlat < -90.0) or (maxlat > 90.0):
+                print("Warning: the coordinates do not seem to be in Long/Lat")
+                print("Projection is skipped")
+            else:
+                import gstlearn.proj as prj
+                pts[:, 0], pts[:, 1] = prj.proj(pts[:, 0], pts[:, 1], crsFrom, crsTo)
+            ax.scatter(pts[:, 0], pts[:, 1], c=color, s=size)
 
     # Display bounding points (optional)
     if box is not None:
         extPoints = np.array([[box[0, 0], box[1, 0]], [box[0, 1], box[1, 1]]])
         if flagProj:
-            import gstlearn.proj as prj
-
-            extPoints[:, 0], extPoints[:, 1] = prj.proj(
-                extPoints[:, 0], extPoints[:, 1], crsFrom, crsTo
-            )
+            clong = extPoints[:, 0]
+            clat  = extPoints[:, 1]
+            minlong = np.nanmin(clong)
+            maxlong = np.nanmax(clong)
+            minlat = np.nanmin(clat)
+            maxlat = np.nanmax(clat)
+            if (minlong < -180.0) or (maxlong > 180.0) or (minlat < -90.0) or (maxlat > 90.0):
+                print("Warning: the bounding box does not seem to be in Long/Lat")
+                print("Projection is skipped")
+            else:
+                import gstlearn.proj as prj
+                extPoints[:, 0], extPoints[:, 1] = prj.proj(extPoints[:, 0], extPoints[:, 1], crsFrom, crsTo)
         ax.scatter(extPoints[:, 0], extPoints[:, 1], c="white", s=0.1)
-
 
 def correlation(db, namex, namey, *args, **kwargs):
     """
@@ -2129,7 +2141,6 @@ def correlation(db, namex, namey, *args, **kwargs):
     """
     ax = _getNewAxes()
     return _ax_correlation(ax, db=db, namex=namex, namey=namey, *args, **kwargs)
-
 
 def _ax_correlation(
     ax,
