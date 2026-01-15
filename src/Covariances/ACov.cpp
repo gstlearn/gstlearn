@@ -90,6 +90,7 @@ ACov& ACov::operator=(const ACov& r)
     _pAux                  = r._pAux;
     _pw1                   = r._pw1;
     _pw2                   = r._pw2;
+    delete _tabNoStat;
     _tabNoStat             = r._tabNoStat->clone();
   }
   return *this;
