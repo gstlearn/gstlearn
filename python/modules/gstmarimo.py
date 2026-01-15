@@ -806,3 +806,150 @@ def WgetGridN(WAll, box):
 
     return gl.DbGrid.create(nx=[nx, ny], dx=[dx, dy], x0=[x0, y0])
 
+#========================
+# Widget to manage a Test
+#========================
+
+def WdefineTestFromBox(nech=100, nvar=1):
+    WNech = mo.ui.number(start=1, stop=None, value=nech, label="Number of Samples")
+    WNvar = mo.ui.number(start=1, stop=None, value=nvar, label="Number of Variables")
+    return mo.ui.array([WNech, WNvar])
+
+def WgetTestFromBox(WAll):
+    [WNech, WNvar] = WAll
+    return gl.Db.createFillRandom(
+        ndat=WNech.value,
+        ndim=2,
+        nvar=WNvar.value,
+    )
+
+def WdefineTestFromNF():
+    WFile = mo.ui.file_browser(label="Select a Db Neutral File", multiple=False)
+    return mo.ui.array([WFile])
+
+def WgetTestFromNF(WAll):
+    [WFile] = WAll
+    filename = WFile.name()
+    if filename is None:
+        return None
+    return gl.Db.createFromNF(filename)
+
+def WdefineOneItem(ic=0, nitems=2, distRef=100, varRef=1.0):
+    WRange = mo.ui.number(start=None, stop=None, value=distRef, label="Range")
+    WSill = mo.ui.number(start=0, stop=None, value=varRef, label="Sill")
+    return mo.ui.array([WRange, WSill])
+
+def WshowOneItem(WAll, flagTitle=True):
+    [WRange, WSill] = WAll
+
+    return mo.ui.array(
+        [
+            _WgetTitle("Covariance Definition", flagTitle),
+            WRange,
+            WSill
+        ]
+    )
+
+def WgetOneItem(WAll):
+    [WRange, WSill] = WAll
+    return gl.CovAniso.createIsotropic(
+                ctxt=gl.CovContext(1, 2),
+                type=gl.ECov.SPHERICAL,
+                range=WRange.value,
+                sill=WSill.value,
+                param=1.0,
+                flagRange=True,
+            )
+
+def WdefineItems(nitems = 2):
+    return mo.ui.array(
+        [
+            WdefineOneItem(ic, nitems)
+            for ic in range(nitems)
+        ]
+    )
+
+def WshowItems(WAlls, flagTitle=True, nitems=2):
+    WTitle = _WgetTitle("Items", flagTitle)
+    UI = mo.accordion(
+        {
+            "Covariance " + str(ic + 1): WshowOneItem(WAlls[ic], False)
+            for ic in range(nitems)
+        }
+    )
+    return mo.ui.array([WTitle, UI], justify="start")
+
+def WgetItems(WAlls):
+    for WAll in WAlls:
+        cova = WgetOneItem(WAll) # Useless
+    return gl.Db.createFillRandom()
+
+def WdefineTest(
+    nech=100,
+    nvar=1,
+    valdef="From Box",
+):
+    WidgetTestFromBox = WdefineTestFromBox(nech=nech, nvar=nvar)  
+    WidgetTestFromNF = WdefineTestFromNF()
+    WidgetTestItems = WdefineItems(nitems=2)
+    WidgetTestChoice = mo.ui.radio(options={"From Box": 1, "From NF": 2, "From Items": 3}, value=valdef)
+
+    return mo.ui.array(
+        [
+            WidgetTestChoice,
+            WidgetTestFromBox,
+            WidgetTestFromNF,
+            WidgetTestItems
+        ]
+    )
+
+def WshowTest(WAll, flagTitle=True):
+    [
+        WidgetTestChoice,
+        WidgetTestFromBox,
+        WidgetTestFromNF,
+        WidgetTestItems,
+    ] = WAll
+
+    WTitle = _WgetTitle("Data Base Parameters", flagTitle)
+    option = WidgetTestChoice.value
+    if option == 1:
+        return mo.vstack([WTitle, WidgetTestChoice, *WidgetTestFromBox])
+    elif option == 2:
+        return mo.vstack([WTitle, WidgetTestChoice, *WidgetTestFromNF])
+    elif option == 3:
+        nitems = 2
+        UI = mo.accordion(
+            {
+            f"Covariance {ic + 1}": mo.vstack(WidgetTestItems[ic])
+            # "Covariance " + str(ic + 1): WidgetTestItems[ic]
+            for ic in range(nitems)
+            }
+        )
+        return mo.vstack([WTitle, WidgetTestChoice, UI])
+    else:
+        return None
+
+def WgetTest(WAll):
+    [
+        WidgetTestChoice,
+        WidgetTestFromBox,
+        WidgetTestFromNF,
+        WidgetTestItems,
+    ] = WAll
+
+    option = WidgetTestChoice.value
+    db = None
+    if option == 1:
+        db = WgetTestFromBox(WidgetTestFromBox)
+    elif option == 2:
+        db = WgetTestFromNF(WidgetTestFromNF)
+    elif option == 3:
+        db = WgetItems(WidgetTestItems)
+    else:
+        db = None
+
+    if db is None:
+        print("You must define a valid Db beforehand")
+
+    return db
