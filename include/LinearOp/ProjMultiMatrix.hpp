@@ -46,9 +46,5 @@ protected:
 
 private:
   MatrixSparse _Proj;
-  void _clear() override;
-
-private:
-  bool _toClean;
 };
 } // namespace gstlrn

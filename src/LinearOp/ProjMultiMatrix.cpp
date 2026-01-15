@@ -107,21 +107,6 @@ ProjMultiMatrix* ProjMultiMatrix::createFromDbAndMeshes(const Db* db,
   return new ProjMultiMatrix(stocker, true);
 }
 
-void ProjMultiMatrix::_clear()
-{
-  if (!_toClean || _projs.empty()) return;
-
-  for (auto& e: _projs)
-  {
-    for (auto& f: e)
-    {
-      delete const_cast<IProj*>(f);
-      f = nullptr;
-    }
-    e.clear();
-  }
-  _projs.clear();
-}
 ProjMultiMatrix::~ProjMultiMatrix()
 {
 }
@@ -136,7 +121,7 @@ std::vector<std::vector<const ProjMatrix*>> ProjMultiMatrix::create(std::vector<
   {
     if (vectproj[i] == nullptr)
     {
-      messerr("Projmatrix shouldn't be nullptr.");
+      messerr("ProjMatrix shouldn't be nullptr.");
       return result;
     }
   }
@@ -169,9 +154,8 @@ std::vector<std::vector<const ProjMatrix*>> ProjMultiMatrix::create(std::vector<
 ProjMultiMatrix::ProjMultiMatrix(const std::vector<std::vector<const ProjMatrix*>>& proj,
                                  bool toClean,
                                  bool silent)
-  : ProjMulti(castToBase(proj), silent)
+  : ProjMulti(castToBase(proj), toClean, silent)
   , _Proj(MatrixSparse(0, 0))
-  , _toClean(toClean)
 {
   if (ProjMulti::empty()) return;
   const VectorInt& pointNumbers = getNPoints();

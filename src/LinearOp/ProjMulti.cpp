@@ -144,17 +144,34 @@ void ProjMulti::_init()
   }
 }
 
+void ProjMulti::_clear()
+{
+  if (!_toClean || _projs.empty()) return;
+
+  for (auto& e: _projs)
+  {
+    for (auto& f: e)
+    {
+      delete const_cast<IProj*>(f);
+      f = nullptr;
+    }
+    e.clear();
+  }
+  _projs.clear();
+}
+
 ProjMulti::~ProjMulti()
 {
   _clear();
 }
 
-ProjMulti::ProjMulti(const std::vector<std::vector<const IProj*>>& projs, bool silent)
+ProjMulti::ProjMulti(const std::vector<std::vector<const IProj*>>& projs, bool toClean, bool silent)
   : _projs(projs)
   , _pointNumber(0)
   , _apexNumber(0)
   , _nlatent(0)
   , _nvariable(0)
+  , _toClean(toClean)
   , _silent(silent)
 {
   if (_checkArg(_projs))

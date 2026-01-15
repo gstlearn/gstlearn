@@ -20,7 +20,7 @@ namespace gstlrn
 class GSTLEARN_EXPORT ProjMulti: public IProj, public AStringable
 {
 public:
-  ProjMulti(const std::vector<std::vector<const IProj*>>& projs, bool silent = false);
+  ProjMulti(const std::vector<std::vector<const IProj*>>& projs, bool toClean = false, bool silent = false);
 
   /// AStringable Interface
   String toString(const AStringFormat* strfmt = nullptr) const override;
@@ -42,7 +42,7 @@ protected:
 private:
   bool _checkArg(const std::vector<std::vector<const IProj*>>& projs) const;
   void _init();
-  virtual void _clear() {};
+  virtual void _clear();
 
 protected:
   Id findFirstNoNullOnRow(Id j) const;
@@ -60,6 +60,7 @@ private:
   Id _nvariable;
   VectorInt _pointNumbers;
   VectorInt _apexNumbers;
+  bool _toClean;
   bool _silent;
   mutable VectorDouble _work;
   mutable VectorDouble _workmesh;
