@@ -1006,6 +1006,7 @@ Id fftn(Id ndim,
       Im_Data(i) *= scaling;
     }
   }
+  fft_free(); /* free-up memory */
   return 0;
 
 Dimension_Error:
