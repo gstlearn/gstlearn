@@ -271,10 +271,15 @@ private:
                                                                                   \
   const NAME& NAME::fromKey(const std::string_view key)                           \
   {                                                                               \
+    const auto upperKey = toUpper(key);                                           \
+                                                                                  \
+    if (upperKey == "UNINITIALIZED")                                              \
+      return *_default;                                                           \
+                                                                                  \
     auto it = _map.begin();                                                       \
     while (it != _map.end())                                                      \
     {                                                                             \
-      if (it->second->getKey() == toUpper(key))                                   \
+      if (it->second->getKey() == upperKey)                                       \
         return (*(it->second));                                                   \
       it++;                                                                       \
     }                                                                             \
