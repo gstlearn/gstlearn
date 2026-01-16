@@ -162,46 +162,7 @@ typedef enum
   WAVELET_UNIT    = 5, //!< Constant unit shift
 } ENUM_WAVELETS;
 #endif
-/*
-typedef enum
-{
-  MEMBER_LHS = 0,        //!< Left-hand Side of the Kriging System
-  MEMBER_RHS = 1,        //!< Right-hand Side of the Kriging System
-  MEMBER_VAR = 2,        //!< Variance of the Kriging System
-} ENUM_MEMBERS;  // Now see ECalcMember.hpp
 
-typedef enum
-{
-  ANAM_UNDEFINED = -1,     //!< Undefined anamorphosis
-  ANAM_EXTERNAL = 0,       //!< External anamorphosis
-  ANAM_HERMITIAN = 1,      //!< Hermitian anamorphosis
-  ANAM_EMPIRICAL = 2,      //!< Empirical anamorphosis
-  ANAM_DISCRETE_DD = 3,    //!< Discrete anamorphosis
-  ANAM_DISCRETE_IR = 4,    //!< Discrete Indicator Residuals anamorphosis
-} ENUM_ANAMS;   /: Now see EAnam.hpp
-
-typedef enum
-{
-  CONS_UNKNOWN = 0,
-  CONS_RANGE = 1,    //!< Non-stationary range
-  CONS_ANGLE = 2,    //!< Non-stationary anisotropy rotation angle (degree)
-  CONS_PARAM = 3,    //!< Non-stationary auxiliary parameter
-  CONS_SILL = 4,     //!< Non-stationary sill
-  CONS_SCALE = 5,    //!< Non-stationary scale
-  CONS_T_RANGE = 6,  //!< Non-stationary tapering range
-  CONS_VELOCITY = 7, //!< Non-stationary velocity (advection)
-  CONS_SPHEROT = 8,  //!< Non-stationary rotation angle for Sphere
-  CONS_ROTMAT = 9,   //!< Non-stationary anisotropy matrix term
-} ENUM_CONS; // Now see EConsElem.hpp
-
-typedef enum
-{
-  CONS_TYPE_LOWER = -1,  //!< Lower Bound
-  CONS_TYPE_DEFAULT = 0, //!< Default parameter
-  CONS_TYPE_UPPER = 1,   //!< Upper Bound
-  CONS_TYPE_EQUAL = 2,   //!< Equality
-} ENUM_CONS_TYPE; // Now see EConsType.hpp
-*/
 #ifndef SWIG
 // Internal enums (currently not exported via SWIG)
 typedef enum
@@ -216,29 +177,5 @@ typedef enum
   ANAM_N_QT     = 7,
 } ENUM_ANAM_QT;
 #endif
-/*
-typedef enum
-{
-  PROCESS_UNDEFINED = -1,
-  PROCESS_COPY = 0,
-  PROCESS_MARGINAL = 1,
-  PROCESS_CONDITIONAL = 2,
-} ENUM_PROCESS; // Now see EProcessOper.hpp
 
-typedef enum
-{
-  POPT_UNDEFINED = -1,     //!< Undefined
-  POPT_ONE = 0,            //!< Power is 1
-  POPT_MINUSONE = 1,       //!< Power is -1
-  POPT_MINUSHALF = 2,      //!< Power is -0.5
-  POPT_HALF = 3,           //!< Power is 0.5
-  POPT_LOG = 4,            //!< Logarithm
-} ENUM_POPTS; // Now see EPowerPT.hpp
-typedef enum
-{
-  CALCUL_KRIGING     = 0,    //!< Kriging
-  CALCUL_SIMUCOND    = 1,   //!< Conditional simulations
-  CALCUL_SIMUNONCOND = 2 //!< Non conditional simulations
-} ENUM_CALCUL_MODE;  // Now see ESPDECalcMode.hpp
-*/
 } // namespace gstlrn
