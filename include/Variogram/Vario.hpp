@@ -169,7 +169,7 @@ public:
   const VectorDouble& getMeans() const { return _means; }
   double getMean(Id ivar) const;
 
-  double getVar(Id ivar, Id jvar) const;
+  double getVar(Id ivar = 0, Id jvar = 0) const;
   MatrixSymmetric getVarMatrix() const;
   double getVarIndex(Id ijvar) const;
   const VectorDouble& getVars() const { return _vars; }

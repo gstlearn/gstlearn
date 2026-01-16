@@ -4989,7 +4989,7 @@ bool Db::_deserializeAscii(std::istream& is)
   }
 
   VectorDouble allvalues(nech * ncol);
-  VectorDouble::iterator it(allvalues.begin());
+  auto it(allvalues.begin());
   for (Id iech = 0; iech < nech && ret; iech++)
   {
     ret = ret && _recordReadVecInPlace<double>(is, "Array of values", it, ncol);

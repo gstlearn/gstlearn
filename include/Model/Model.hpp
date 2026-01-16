@@ -125,8 +125,8 @@ public:
                                 const Option_VarioFit& optvar  = Option_VarioFit(),
                                 const Option_AutoFit& mauto    = Option_AutoFit(),
                                 bool verbose                   = false);
-  static Model* createFillRandom(Id ndim,
-                                 Id nvar,
+  static Model* createFillRandom(Id ndim                        = 2,
+                                 Id nvar                        = 1,
                                  const std::vector<ECov>& types = ECov::fromKeys({"SPHERICAL"}),
                                  double hmax                    = 1,
                                  Id order                       = -1,

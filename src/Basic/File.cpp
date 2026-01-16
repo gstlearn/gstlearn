@@ -100,9 +100,9 @@ void skipBOM(std::ifstream& in)
 {
   char test[3] = {0};
   in.read(test, 3);
-  if ((unsigned char)test[0] == 0xEF &&
-      (unsigned char)test[1] == 0xBB &&
-      (unsigned char)test[2] == 0xBF)
+  if (static_cast<unsigned char>(test[0]) == 0xEF &&
+      static_cast<unsigned char>(test[1]) == 0xBB &&
+      static_cast<unsigned char>(test[2]) == 0xBF)
   {
     return;
   }
@@ -194,7 +194,7 @@ std::istream& gslSafeGetline(std::istream& is, String& t)
         if (t.empty()) is.setstate(std::ios::eofbit);
         return is;
       default:
-        t += (char)c;
+        t += static_cast<char>(c);
     }
   }
 }
