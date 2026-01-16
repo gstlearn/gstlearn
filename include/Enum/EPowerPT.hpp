@@ -12,7 +12,7 @@
 
 #include "Enum/AEnum.hpp"
 
-#define ENUM_POWER_PT EPowerPT, UNDEFINED, \
+#define ENUM_POWER_PT EPowerPT, ONE, \
                       UNDEFINED, -1,  "Power is undefined", \
                       ONE,        0,  "Power is 1", \
                       MINUSONE,   1,  "Power is -1", \

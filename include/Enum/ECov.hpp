@@ -12,7 +12,7 @@
 
 #include "Enum/AEnum.hpp"
 
-#define ENUM_COV ECov, UNKNOWN,\
+#define ENUM_COV ECov, NUGGET,\
                  UNKNOWN,    -2, "Unknown covariance",\
                  FUNCTION,   -1, "External covariance function",\
                  NUGGET,      0, "Nugget effect",\

@@ -12,7 +12,7 @@
 
 #include "Enum/AEnum.hpp"
 
-#define ENUM_STATOPTION EStatOption, UNKNOWN, \
+#define ENUM_STATOPTION EStatOption, NUM, \
                  UNKNOWN, -1, "Unknown Option", \
                  NUM,      0, "Number", \
                  MEAN,     1, "Mean", \

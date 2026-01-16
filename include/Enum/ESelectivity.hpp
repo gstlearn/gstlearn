@@ -12,7 +12,7 @@
 
 #include "Enum/AEnum.hpp"
 
-#define ENUM_SELECTIVITY ESelectivity, UNKNOWN, \
+#define ENUM_SELECTIVITY ESelectivity, Z, \
                  UNKNOWN, -1, "Unknown Option", \
                  Z,        0, "Grade", \
                  T,        1, "Tonnage", \

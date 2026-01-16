@@ -13,7 +13,7 @@
 #include "Enum/AEnum.hpp"
 
 // TODO Keep sync' with PtrGeos
-#define ENUM_LOC ELoc, UNKNOWN, \
+#define ENUM_LOC ELoc, Z, \
                  UNKNOWN, -1, "Unknown locator", \
                  X,        0, "Coordinate", \
                  Z,        1, "Variable", \

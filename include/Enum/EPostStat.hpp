@@ -12,7 +12,7 @@
 
 #include "Enum/AEnum.hpp"
 
-#define ENUM_POST_STAT EPostStat, UNKNOWN, \
+#define ENUM_POST_STAT EPostStat, MEAN, \
                  UNKNOWN, -1, "Unknown Option", \
                  MEAN,     1, "Mean", \
                  VAR,      2, "Variance", \

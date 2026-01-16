@@ -12,7 +12,7 @@
 
 #include "Enum/AEnum.hpp"
 
-#define ENUM_CONVTYPE EConvType, UNKNOWN,\
+#define ENUM_CONVTYPE EConvType, UNIFORM,\
                  UNKNOWN,    -1, "Unknown",\
                  UNIFORM,     0, "Uniform",\
                  EXPONENTIAL, 1, "Exponential",\

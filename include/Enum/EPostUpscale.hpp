@@ -12,8 +12,8 @@
 
 #include "Enum/AEnum.hpp"
 
-#define ENUM_POST_UPSCALE EPostUpscale, UNKNOWN, \
-                 UNKNOWN, -1, "Unknown Option", \
+#define ENUM_POST_UPSCALE EPostUpscale, MEAN, \
+                 UNKNOWN, -1, "Unknown", \
                  NUM,      0, "Counter", \
                  MEAN,     1, "Average", \
                  MINI,     4, "Minimum", \

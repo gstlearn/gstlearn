@@ -12,7 +12,7 @@
 
 #include "Enum/AEnum.hpp"
 
-#define ENUM_CONS_ELEM EConsElem, UNKNOWN, \
+#define ENUM_CONS_ELEM EConsElem, RANGE, \
                        UNKNOWN,  0, "Unknown constraint", \
                        RANGE,    1, "Range", \
                        ANGLE,    2, "Anisotropy rotation angle (degree)", \

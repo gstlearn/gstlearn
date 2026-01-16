@@ -12,7 +12,7 @@
 
 #include "Enum/AEnum.hpp"
 
-#define ENUM_MORPHO EMorpho, UNKNOWN,\
+#define ENUM_MORPHO EMorpho, NEGATION,\
                      UNKNOWN,   0, "Idle", \
                      THRESH,    1, "Convert the Input Variable into Binary Image", \
                      NEGATION,  2, "Invert of the Binary Image", \
