@@ -1,7 +1,7 @@
 import marimo
 
 __generated_with = "0.19.2"
-app = marimo.App()
+app = marimo.App(css_file="custom.css")
 
 
 @app.cell(hide_code=True)
@@ -97,7 +97,10 @@ def _(
         ax.geometry(aspect=1)
 
     def plotEstim(ax, db, grid, targetName, flagProj=False):
-        ax.raster(dbgrid=grid, name="Kriging.*.estim", alpha=0.5)
+        varName = "Kriging.*.estim"
+        if grid.getColIdx(varName) <= 0:
+            return
+        ax.raster(dbgrid=grid, name=varName, alpha=0.5)
         ax.literal(db=db, name=targetName, fontsize=6)
         if flagProj:
             ctx.add_basemap(
@@ -107,7 +110,10 @@ def _(
         ax.geometry(aspect=1)
 
     def plotStdev(ax, db, grid, targetName, flagProj=False):
-        ax.raster(dbgrid=grid, name="Kriging.*.stdev", alpha=0.5)
+        varName = "Kriging.*.stdev"
+        if grid.getColIdx(varName) <= 0:
+            return
+        ax.raster(dbgrid=grid, name=varName, alpha=0.5)
         ax.literal(db=db, name=targetName, fontsize=6)
         if flagProj:
             ctx.add_basemap(
@@ -145,7 +151,13 @@ def _(
         neigh = gl.NeighUnique.create()
 
         # Perform the Estimation
-        err = gl.kriging(db, grid, model, neigh)
+        if (
+            db is not None
+            and grid is not None
+            and model is not None
+            and neigh is not None
+        ):
+            err = gl.kriging(db, grid, model, neigh)
 
         fig, ax = gp.init(2, 2, figsize=(10, 10))
         plotData(ax[0, 0], db, box, targetName, flagProj=flagProj)

@@ -275,7 +275,9 @@ def WgetModel(WAll, vario=None):
 
 def WdefineModelFromNF():
     WMFile = mo.ui.file_browser(
-        label="Select a Neutral File", multiple=False, filetypes=[".NF", ".ascii"]
+        label="Select a 'Model' Neutral File",
+        multiple=False,
+        filetypes=[".NF", ".ascii"],
     )
     return mo.ui.array([WMFile])
 
@@ -543,7 +545,9 @@ def WgetVarioParamMulti(WAll):
 
 def WdefineVarioFromNF():
     WVFile = mo.ui.file_browser(
-        label="Select a Neutral File", multiple=False, filetypes=[".NF", ".ascii"]
+        label="Select a 'Vario' Neutral File",
+        multiple=False,
+        filetypes=[".NF", ".ascii"],
     )
     return mo.ui.array([WVFile])
 
@@ -720,7 +724,7 @@ def WgetDbFromBox(WAll):
 
 def WdefineDbFromNF():
     WDFile = mo.ui.file_browser(
-        label="Select a Neutral File", multiple=False, filetypes=[".NF", ".ascii"]
+        label="Select a 'Db' Neutral File", multiple=False, filetypes=[".NF", ".ascii"]
     )
     return mo.ui.array([WDFile])
 
