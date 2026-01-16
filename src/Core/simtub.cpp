@@ -1675,7 +1675,7 @@ Id gibbs_sampler(Db* dbin,
   /* Set the error return flag */
 
   error = 0;
-  namconv.setNamesAndLocators(dbin, VectorString(), ELoc::UNKNOWN, nvar, dbin, iptr, String(), nbsimu);
+  namconv.setNamesAndLocators(dbin, VectorString(), ELoc::UNDEFINED, nvar, dbin, iptr, String(), nbsimu);
 
 label_end:
   proportion_manage(-1, 0, 1, 1, 0, nvar, 0, dbin, NULL, VectorDouble(), propdef);
@@ -2479,7 +2479,7 @@ Id simsph(DbGrid* db,
   SimuSpherical simsphe(1, seed);
   if (simsphe.simulate(db, model, sphepar, iptr, verbose)) return 1;
 
-  namconv.setNamesAndLocators(db, VectorString(), ELoc::UNKNOWN, 1, db, iptr, "Simu");
+  namconv.setNamesAndLocators(db, VectorString(), ELoc::UNDEFINED, 1, db, iptr, "Simu");
   return 0;
 }
 

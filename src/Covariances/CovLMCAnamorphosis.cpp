@@ -84,7 +84,7 @@ Id CovLMCAnamorphosis::init(const VectorInt& anam_strcnt)
 {
   for (auto& e: _covs)
   {
-    ((CovAniso*)e.get())->setOptimEnabled(false);
+    (static_cast<CovAniso*>(e.get()))->setOptimEnabled(false);
   }
   if (_anam == nullptr)
   {
@@ -584,7 +584,7 @@ void CovLMCAnamorphosis::setActiveFactor(Id anam_iclass)
 
 EAnam CovLMCAnamorphosis::getAnamType() const
 {
-  if (_anam == nullptr) return EAnam::UNKNOWN;
+  if (_anam == nullptr) return EAnam::UNDEFINED;
   return _anam->getType();
 }
 

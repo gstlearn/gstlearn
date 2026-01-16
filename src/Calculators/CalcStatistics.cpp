@@ -26,7 +26,7 @@ CalcStatistics::CalcStatistics()
   , _iattOut(-1)
   , _dboutMustBeGrid(false)
   , _flagStats(false)
-  , _oper(EStatOption::UNKNOWN)
+  , _oper(EStatOption::UNDEFINED)
   , _radius(0)
   , _flagRegr(false)
   , _flagCst(false)
@@ -81,10 +81,10 @@ bool CalcStatistics::_preprocess()
   if (!ACalcDbToDb::_preprocess()) return false;
 
   if (_flagStats)
-    _iattOut = _addVariableDb(2, 1, ELoc::UNKNOWN, 0, _getNVar(), 0.);
+    _iattOut = _addVariableDb(2, 1, ELoc::UNDEFINED, 0, _getNVar(), 0.);
 
   if (_flagRegr)
-    _iattOut = _addVariableDb(1, 1, ELoc::UNKNOWN, 0, 1, 0.);
+    _iattOut = _addVariableDb(1, 1, ELoc::UNDEFINED, 0, 1, 0.);
 
   if (_iattOut < 0) return false;
   return true;

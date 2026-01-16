@@ -162,9 +162,12 @@ Model* Model::createFromParam(const ECov& type,
   }
 
   auto* model = new Model(ctxt);
-  model->addCovFromParam(type, range, sill, param, ranges, sills, angles,
-                         flagRange);
-
+  if (model->addCovFromParam(type, range, sill, param, ranges, sills, angles,
+                             flagRange))
+  {
+    delete model;
+    return nullptr;
+  }
   return model;
 }
 
@@ -279,7 +282,7 @@ void Model::addCovFromParam(const ECov& type,
               static_cast<Id>(ranges.size()));
       messerr("and the Space dimension stored in the Model (%d)", ndim);
       messerr("Operation is cancelled");
-      return;
+      return 1;
     }
     ndim = ranges.size();
   }
@@ -291,7 +294,7 @@ void Model::addCovFromParam(const ECov& type,
               static_cast<Id>(angles.size()));
       messerr("and the Space dimension stored in the Model (%d)", ndim);
       messerr("Operation is cancelled");
-      return;
+      return 1;
     }
     ndim = angles.size();
   }
@@ -303,9 +306,14 @@ void Model::addCovFromParam(const ECov& type,
       messerr("Mismatch between the number of rows 'sills' (%d)", sills.getNRows());
       messerr("and the Number of variables stored in the Model (%d)", nvar);
       messerr("Operation is cancelled");
-      return;
+      return 1;
     }
     nvar = static_cast<Id>(sqrt(static_cast<double>(sills.size())));
+  }
+  if (type == ECov::UNKNOWN)
+  {
+    messerr("Cannot create a covariance of type 'UNKNOWN'");
+    return 1;
   }
 
   // Define the covariance
@@ -352,6 +360,7 @@ void Model::addCovFromParam(const ECov& type,
   _copyCovContext();
   if (!angles.empty()) cov.setAnisoAngles(angles);
   addCovAniso(cov);
+  return 0;
 }
 
 double Model::evalCovFromIncr(const VectorDouble& incr,
@@ -1025,7 +1034,7 @@ Id Model::stabilize(double percent, bool verbose)
 
   /* Add a NUGGET EFFECT component */
 
-  addCovFromParam(ECov::NUGGET, 0., total);
+  (void)addCovFromParam(ECov::NUGGET, 0., total);
 
   /* Printout */
 
@@ -1117,7 +1126,12 @@ Model* Model::createFillRandom(Id ndim,
     MatrixSymmetric* sill =
       MatrixSymmetric::createRandomDefinitePositive(nvar, seed_local);
     double range = (hmax * (1. + icov)) / (2. * ncov);
-    model->addCovFromParam(types[icov], range, 0., 1., VectorDouble(), *sill);
+    if (model->addCovFromParam(types[icov], range, 0., 1., VectorDouble(), *sill))
+    {
+      delete sill;
+      delete model;
+      return nullptr;
+    }
     delete sill;
     seed_local = 0;
   }

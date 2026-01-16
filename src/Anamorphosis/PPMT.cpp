@@ -472,7 +472,7 @@ Id PPMT::fit(Db* db,
 
   if (flagStoreInDb)
   {
-    Id iptr = db->addColumns(Y.getValues(), String(), ELoc::UNKNOWN, 0, true);
+    Id iptr = db->addColumns(Y.getValues(), String(), ELoc::UNDEFINED, 0, true);
     namconv.setNamesAndLocators(exp_names, db, iptr);
   }
   return 0;
@@ -521,7 +521,7 @@ Id PPMT::rawToGaussian(Db* db,
     _iterationForward(&Y, N0, iter);
 
   // Add the newly created information in the Db
-  Id iptr = db->addColumns(Y.getValues(), String(), ELoc::UNKNOWN, 0, true);
+  Id iptr = db->addColumns(Y.getValues(), String(), ELoc::UNDEFINED, 0, true);
   namconv.setNamesAndLocators(exp_names, db, iptr);
 
   return 0;
@@ -577,7 +577,7 @@ Id PPMT::gaussianToRaw(Db* db,
   }
 
   // Add the newly created information in the Db
-  Id iptr = db->addColumns(Y.getValues(), String(), ELoc::UNKNOWN, 0, true);
+  Id iptr = db->addColumns(Y.getValues(), String(), ELoc::UNDEFINED, 0, true);
   namconv.setNamesAndLocators(exp_names, db, iptr);
 
   return 0;

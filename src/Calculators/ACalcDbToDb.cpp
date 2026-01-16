@@ -252,7 +252,7 @@ Id ACalcDbToDb::_addVariableDb(Id whichDb,
  * Define the characteristics of the variables created by a Db2Db Calculator
  * @param whichDb     1 if the variable belongs to 'dbin'; 2 if it belongs to 'dbout'
  * @param names       Names of the variables in 'dbin' (or empty)
- * @param locatorType Locator for the names of input variables (or ELoc::UNKNOWN)
+ * @param locatorType Locator for the names of input variables (or ELoc::UNDEFINED)
  * @param nvar        Number of variables (when constructed from locator)
  * @param iptr        IUID of the (first) variable to be renamed
  * @param qualifier   Name which will serve as 'qualifier' (when provided)

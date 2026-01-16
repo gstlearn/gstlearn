@@ -135,7 +135,6 @@ public:
                        const VectorDouble& angles   = VectorDouble(),
                        bool flagRange               = true);
 
-
   FORWARD_METHOD(castInCovAnisoListConst, getActiveFactor, ITEST)
   FORWARD_METHOD(castInCovAnisoListConst, getCovAniso)
   FORWARD_METHOD(castInCovAnisoListConst, getNCov, ITEST)

@@ -101,7 +101,7 @@ bool PtrGeos::isLocatorIndexValid(Id locatorIndex) const
 String getLocatorName(const ELoc& locatorType, Id locatorIndex)
 {
   std::stringstream sstr;
-  if (locatorType == ELoc::UNKNOWN)
+  if (locatorType == ELoc::UNDEFINED)
   {
     sstr << STRING_NA;
     return sstr.str();
@@ -129,13 +129,13 @@ String getLocatorName(const ELoc& locatorType, Id locatorIndex)
  * Check if the Locator type is valid or not
  * Note that the locator type is returned as -1 for non identified locator (such as rank)
  * @param locatorType The locator type to be identified
- * @param unknownValid True if ELoc::UNKNOWN is considered as valid
+ * @param unknownValid True if ELoc::UNDEFINED is considered as valid
  * @return
  */
 bool isLocatorTypeValid(const ELoc& locatorType, bool unknownValid)
 {
   if (unknownValid) return true;
-  if (locatorType == ELoc::UNKNOWN)
+  if (locatorType == ELoc::UNDEFINED)
   {
     messerr("Locator Type must not be UNKNOWN");
     return false;
@@ -148,7 +148,7 @@ Id getLocatorTypeFromName(const String& name_type)
   auto it = ELoc::getIterator();
   while (it.hasNext())
   {
-    if (*it != ELoc::UNKNOWN)
+    if (*it != ELoc::UNDEFINED)
     {
       auto i   = it.getValue();
       auto lng = static_cast<size_t>(strlen(DEF_LOCATOR[i].SREF));
@@ -169,7 +169,7 @@ Id getLocatorTypeFromName(const String& name_type)
  */
 Id locatorIdentify(String string, ELoc* ret_locatorType, Id* ret_locatorIndex, Id* ret_mult)
 {
-  *ret_locatorType  = ELoc::UNKNOWN;
+  *ret_locatorType  = ELoc::UNDEFINED;
   *ret_locatorIndex = -1;
   *ret_mult         = 1;
   Id inum           = -1;
@@ -183,7 +183,7 @@ Id locatorIdentify(String string, ELoc* ret_locatorType, Id* ret_locatorIndex, I
   auto it = ELoc::getIterator();
   while (it.hasNext() && found < 0)
   {
-    if (*it != ELoc::UNKNOWN)
+    if (*it != ELoc::UNDEFINED)
     {
       auto i   = it.getValue();
       auto lng = static_cast<size_t>(strlen(DEF_LOCATOR[i].SREF));
@@ -194,7 +194,7 @@ Id locatorIdentify(String string, ELoc* ret_locatorType, Id* ret_locatorIndex, I
   if (found < 0)
   {
     // The locator has not been matched. It is returned as UNKNOWN
-    *ret_locatorType  = ELoc::UNKNOWN;
+    *ret_locatorType  = ELoc::UNDEFINED;
     *ret_locatorIndex = 0;
     *ret_mult         = 0;
     return 0;
@@ -225,7 +225,7 @@ void printLocatorList()
   auto it = ELoc::getIterator();
   while (it.hasNext())
   {
-    if (*it != ELoc::UNKNOWN)
+    if (*it != ELoc::UNDEFINED)
     {
       auto i = it.getValue();
       if (DEF_LOCATOR[i].IREF == 1)
@@ -244,7 +244,7 @@ VectorString getLocatorNames()
   auto it = ELoc::getIterator();
   while (it.hasNext())
   {
-    if (*it != ELoc::UNKNOWN)
+    if (*it != ELoc::UNDEFINED)
     {
       auto i = it.getValue();
       strings.push_back(DEF_LOCATOR[i].SREF);
@@ -260,7 +260,7 @@ VectorInt getLocatorMultiples()
   auto it = ELoc::getIterator();
   while (it.hasNext())
   {
-    if (*it != ELoc::UNKNOWN)
+    if (*it != ELoc::UNDEFINED)
     {
       auto i = it.getValue();
       mult.push_back(DEF_LOCATOR[i].IREF);

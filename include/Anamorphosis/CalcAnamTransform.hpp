@@ -63,7 +63,7 @@ private:
   Id _getNfact() const { return static_cast<Id>(_ifacs.size()); }
   Id _getNSel() const { return _selectivity->getNVar(); }
 
-  bool _hasAnam(const EAnam& anamType = EAnam::fromKey("UNKNOWN")) const;
+  bool _hasAnam(const EAnam& anamType = EAnam::fromKey()) const;
   bool _hasInputVarDefined(Id mode = 0) const;
   bool _hasSelectivity() const;
   bool _hasVariableNumber(bool equal1 = false) const;

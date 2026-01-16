@@ -14,7 +14,7 @@ namespace gstlrn
 {
 ElemNostat::ElemNostat()
     : AStringable(),
-      _locType(EConsElem::UNKNOWN),
+      _locType(EConsElem::UNDEFINED),
       _rankGRF(0),
       _rankStr(0),
       _rankV1(0),

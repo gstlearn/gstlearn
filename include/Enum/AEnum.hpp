@@ -145,7 +145,7 @@ private:
                                                                               \
     static bool existsKey(const std::string_view key);                        \
     static bool existsValue(Id value);                                        \
-    static const NAME& fromKey(const std::string_view key);                   \
+    static const NAME& fromKey(const std::string_view key = "");              \
     static const NAME& fromValue(Id value);                                   \
     static std::vector<NAME> fromKeys(const VectorString& keys);              \
     static std::vector<NAME> fromValues(const VectorInt& values);             \
@@ -271,10 +271,8 @@ private:
                                                                                   \
   const NAME& NAME::fromKey(const std::string_view key)                           \
   {                                                                               \
+    if (key.empty()) return *_default;                                            \
     const auto upperKey = toUpper(key);                                           \
-                                                                                  \
-    if (upperKey == "UNINITIALIZED")                                              \
-      return *_default;                                                           \
                                                                                   \
     auto it = _map.begin();                                                       \
     while (it != _map.end())                                                      \

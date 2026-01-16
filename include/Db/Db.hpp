@@ -292,32 +292,32 @@ public:
   void clearLocators(const ELoc& locatorType);
   void clearSelection() { clearLocators(ELoc::SEL); }
   void setLocatorByUID(Id iuid,
-                       const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
+                       const ELoc& locatorType = ELoc::fromKey("UNDEFINED"),
                        Id locatorIndex         = 0,
                        bool cleanSameLocator   = false);
   void setLocatorByColIdx(Id icol,
-                          const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
+                          const ELoc& locatorType = ELoc::fromKey("UNDEFINED"),
                           Id locatorIndex         = 0,
                           bool cleanSameLocator   = false);
   void setLocator(const String& name,
-                  const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
+                  const ELoc& locatorType = ELoc::fromKey("UNDEFINED"),
                   Id locatorIndex         = 0,
                   bool cleanSameLocator   = false);
   void setLocators(const VectorString& names,
-                   const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
+                   const ELoc& locatorType = ELoc::fromKey("UNDEFINED"),
                    Id locatorIndex         = 0,
                    bool cleanSameLocator   = false);
   void setLocatorsByUID(Id number,
                         Id iuid,
-                        const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
+                        const ELoc& locatorType = ELoc::fromKey("UNDEFINED"),
                         Id locatorIndex         = 0,
                         bool cleanSameLocator   = false);
   void setLocatorsByUID(const VectorInt& iuids,
-                        const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
+                        const ELoc& locatorType = ELoc::fromKey("UNDEFINED"),
                         Id locatorIndex         = 0,
                         bool cleanSameLocator   = false);
   void setLocatorsByColIdx(const VectorInt& icols,
-                           const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
+                           const ELoc& locatorType = ELoc::fromKey("UNDEFINED"),
                            Id locatorIndex         = 0,
                            bool cleanSameLocator   = false);
   void addColumnsByVVD(const VectorVectorDouble& tab,
@@ -327,7 +327,7 @@ public:
                        bool useSel     = false);
   Id addColumns(const VectorDouble& tab,
                 const String& radix     = "New",
-                const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
+                const ELoc& locatorType = ELoc::fromKey("UNDEFINED"),
                 Id locatorIndex         = 0,
                 bool useSel             = false,
                 double valinit          = 0.,
@@ -335,7 +335,7 @@ public:
   Id addColumnsByConstant(Id nadd                 = 1,
                           double valinit          = 0.,
                           const String& radix     = "New",
-                          const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
+                          const ELoc& locatorType = ELoc::fromKey("UNDEFINED"),
                           Id locatorIndex         = 0,
                           Id nechInit             = 0);
   Id addColumnsRandom(Id nadd,
@@ -386,7 +386,7 @@ public:
 
   void setColumn(const VectorDouble& tab,
                  const String& name,
-                 const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
+                 const ELoc& locatorType = ELoc::fromKey("UNDEFINED"),
                  Id locatorIndex         = 0,
                  bool useSel             = false);
   void setColumnByUIDOldStyle(const double* tab, Id iuid, bool useSel = false);
@@ -447,7 +447,7 @@ public:
                        ELoc* ret_locatorType,
                        Id* ret_locatorIndex) const;
   VectorString getLocators(bool anyLocator         = true,
-                           const ELoc& locatorType = ELoc::fromKey("UNKNOWN")) const;
+                           const ELoc& locatorType = ELoc::fromKey("UNDEFINED")) const;
   bool isUIDDefined(Id iuid) const;
 
   Id getUID(const String& name) const;

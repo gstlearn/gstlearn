@@ -135,12 +135,12 @@ bool CalcGridToGrid::_preprocess()
   if (!ACalcDbToDb::_preprocess()) return false;
 
   // Number of variable
-  _iattOut = _addVariableDb(2, 1, ELoc::UNKNOWN, 0, 1, 0.);
+  _iattOut = _addVariableDb(2, 1, ELoc::UNDEFINED, 0, 1, 0.);
   if (_iattOut < 0) return false;
 
   if (_flagShrink)
   {
-    _iattAux = _addVariableDb(2, 2, ELoc::UNKNOWN, 0, 1, 0.);
+    _iattAux = _addVariableDb(2, 2, ELoc::UNDEFINED, 0, 1, 0.);
     if (_iattAux < 0) return false;
   }
 

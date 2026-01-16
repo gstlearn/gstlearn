@@ -649,7 +649,7 @@ bool CalcMigrate::_preprocess()
   if (!ACalcDbToDb::_preprocess()) return false;
 
   auto nvar = _getNVar();
-  _iattOut  = _addVariableDb(2, 1, ELoc::UNKNOWN, 0, nvar, 0.);
+  _iattOut  = _addVariableDb(2, 1, ELoc::UNDEFINED, 0, nvar, 0.);
   return (_iattOut >= 0);
 }
 
@@ -659,7 +659,7 @@ bool CalcMigrate::_postprocess()
   _cleanVariableDb(2);
 
   auto nvar = _getNVar();
-  _renameVariable(2, getDbin()->getNamesByUID(_iuids), ELoc::UNKNOWN, nvar,
+  _renameVariable(2, getDbin()->getNamesByUID(_iuids), ELoc::UNDEFINED, nvar,
                   _iattOut, String(), 1);
 
   if (_flagLocate)

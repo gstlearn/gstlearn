@@ -518,10 +518,10 @@ Db* buildDbFromVarioParam(Db* db, const VarioParam& varioparam)
 
   // Loading the coordinate vectors in the newly created Db
 
-  newdb->addColumnsByVVD(ranks, "Sample", ELoc::UNKNOWN);
-  newdb->addColumns(lags, "Lag", ELoc::UNKNOWN);
-  newdb->addColumns(dirs, "Direction", ELoc::UNKNOWN);
-  newdb->addColumns(dists, "Distance", ELoc::UNKNOWN);
+  newdb->addColumnsByVVD(ranks, "Sample", ELoc::UNDEFINED);
+  newdb->addColumns(lags, "Lag", ELoc::UNDEFINED);
+  newdb->addColumns(dirs, "Direction", ELoc::UNDEFINED);
+  newdb->addColumns(dists, "Distance", ELoc::UNDEFINED);
 
   return newdb;
 }

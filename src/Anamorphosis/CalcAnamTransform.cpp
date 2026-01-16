@@ -63,7 +63,7 @@ bool CalcAnamTransform::_hasAnam(const EAnam& anamType) const
     messerr("The argument 'anam' must be defined");
     return false;
   }
-  if (anamType == EAnam::UNKNOWN) return true;
+  if (anamType == EAnam::UNDEFINED) return true;
   if (anamType != _anam->getType())
   {
     messerr("The argument 'anam'  should be of type");
@@ -162,7 +162,7 @@ bool CalcAnamTransform::_check()
 
   if (_flagVars)
   {
-    AnamContinuous* anamC = dynamic_cast<AnamContinuous*>(_anam);
+    auto* anamC = dynamic_cast<AnamContinuous*>(_anam);
     if (anamC == nullptr)
     {
       messerr("The argument 'anam'  must be of type AnamContinuous");
@@ -287,7 +287,7 @@ bool CalcAnamTransform::_postprocess()
   {
     auto nsel = _getNSel();
     for (Id i = 0; i < nsel; i++)
-      _renameVariable(1, _iattSel + i, ELoc::UNKNOWN, _selectivity->getVariableName(i), 1);
+      _renameVariable(1, _iattSel + i, ELoc::UNDEFINED, _selectivity->getVariableName(i), 1);
     return true;
   }
 
@@ -619,8 +619,8 @@ Id CalcAnamTransform::_conditionalExpectation(Db* db,
 
   /* Analyzing the codes */
 
-  const auto& ycuts  = anam_hermite->rawToTransformVec(selectivity->getZcut());
-  Id need_T          = selectivity->isNeededT();
+  const auto& ycuts = anam_hermite->rawToTransformVec(selectivity->getZcut());
+  Id need_T         = selectivity->isNeededT();
 
   /* Computing the estimation */
 

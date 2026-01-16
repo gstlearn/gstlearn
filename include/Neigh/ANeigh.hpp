@@ -92,7 +92,7 @@ public:
     DECLARE_UNUSED(iech_out);
     return VectorDouble();
   }
-  virtual ENeigh getType() const { return ENeigh::fromKey("UNKNOWN"); }
+  virtual ENeigh getType() const = 0;
   virtual bool getFlagContinuous() const { return false; }
 
   void displayDebug(VectorInt& ranks) const;

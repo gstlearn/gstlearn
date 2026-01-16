@@ -27,7 +27,7 @@ CalcSimuPost::CalcSimuPost()
   , _flagUpscale(false)
   , _checkLevel(0)
   , _checkTargets()
-  , _upscale(EPostUpscale::UNKNOWN)
+  , _upscale(EPostUpscale::MEAN)
   , _stats()
   , _names()
   , _iechout(0)
@@ -74,17 +74,6 @@ bool CalcSimuPost::_check()
     messerr("The Space Dimension of Dbin(%d) must not be larger than the one of Dbout(%d)",
             getDbin()->getNDim(), getDbout()->getNDim());
     return false;
-  }
-
-  // Cross-checking options
-  if (_flagUpscale)
-  {
-    if (_upscale == EPostUpscale::UNKNOWN)
-    {
-      messerr("When 'dbout' is specified, some Upscaling is required");
-      messerr("Therefor the 'upscale' option must be defined");
-      return false;
-    }
   }
 
   // Identify the variables from the input file
@@ -137,9 +126,9 @@ bool CalcSimuPost::_preprocess()
   if (!ACalcDbToDb::_preprocess()) return false;
 
   if (_flagUpscale)
-    _iattOut = _addVariableDb(2, 1, ELoc::UNKNOWN, 0, _getNVarout(), 0.);
+    _iattOut = _addVariableDb(2, 1, ELoc::UNDEFINED, 0, _getNVarout(), 0.);
   else
-    _iattOut = _addVariableDb(1, 1, ELoc::UNKNOWN, 0, _getNVarout(), 0.);
+    _iattOut = _addVariableDb(1, 1, ELoc::UNDEFINED, 0, _getNVarout(), 0.);
   if (_iattOut < 0) return false;
 
   return true;
@@ -154,9 +143,9 @@ bool CalcSimuPost::_postprocess()
       std::ostringstream oper;
       oper << "Var" << ivar + 1 << "." << _stats[istat].getDescr();
       if (_flagUpscale)
-        _renameVariable(2, VectorString(), ELoc::UNKNOWN, 0, _iattOut + ecr, oper.str(), 1);
+        _renameVariable(2, VectorString(), ELoc::UNDEFINED, 0, _iattOut + ecr, oper.str(), 1);
       else
-        _renameVariable(1, VectorString(), ELoc::UNKNOWN, 0, _iattOut + ecr, oper.str(), 1);
+        _renameVariable(1, VectorString(), ELoc::UNDEFINED, 0, _iattOut + ecr, oper.str(), 1);
       ecr++;
     }
   return true;
@@ -186,8 +175,7 @@ Id CalcSimuPost::_defineVaroutNumber()
   _nvarOut    = 0;
   for (Id ioption = 0, noption = _getNStats(); ioption < noption; ioption++)
   {
-    if (_stats[ioption] != EPostStat::UNKNOWN)
-      _nvarOut += nvarin;
+    _nvarOut += nvarin;
   }
 
   if (_nvarOut <= 0)
