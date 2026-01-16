@@ -67,15 +67,8 @@ def _saveNF(contents=None, filename="myFile.NF"):
         contents.dumpToNF(filename)
 
 
-def _WdefineFromNF():
-    WFile = mo.ui.file_browser(
-        label="Select a Neutral File", multiple=False, filetypes=[".NF", ".ascii"]
-    )
-    return mo.ui.array([WFile])
-
-
 # ================================================================
-# Widget to manage one Covariance
+# Widget to manage one Covariance (radix = WCov)
 # The covariance is ranked within a list of 'ncovmax' covariances
 # ================================================================
 
@@ -93,47 +86,56 @@ def WdefineOneCovariance(ic=0, ncovmax=1, distmax=100, varmax=100, typeRef="Sphe
     varRef = varmax / ncovmax
     angRef = 0
 
-    WUsed = mo.ui.switch(True, label="Basic Structure Used")
-    WType = mo.ui.dropdown(
+    WCovUsed = mo.ui.switch(True, label="Basic Structure Used")
+    WCovType = mo.ui.dropdown(
         options=_getCovarianceDict(), value=typeRef, label="Structure"
     )
-    WRange = mo.ui.number(start=None, stop=None, value=distRef, label="Range")
-    WSill = mo.ui.number(start=0, stop=None, value=varRef, label="Sill")
-    WAniso = mo.ui.switch(value=False, label="Anisotropy")
-    WRange2 = mo.ui.number(start=0, stop=None, value=distAux, label="Range Aux.")
-    WAngle = mo.ui.number(start=0, stop=None, value=angRef, label="Angle")
-
-    return mo.ui.array([WUsed, WType, WRange, WSill, WAniso, WRange2, WAngle])
+    WCovRange = mo.ui.number(start=None, stop=None, value=distRef, label="Range")
+    WCovSill = mo.ui.number(start=0, stop=None, value=varRef, label="Sill")
+    WCovAniso = mo.ui.switch(value=False, label="Anisotropy")
+    WCovRange2 = mo.ui.number(start=0, stop=None, value=distAux, label="Range Aux.")
+    WCovAngle = mo.ui.number(start=0, stop=None, value=angRef, label="Angle")
+    return mo.ui.array(
+        [WCovUsed, WCovType, WCovRange, WCovSill, WCovAniso, WCovRange2, WCovAngle]
+    )
 
 
 def WshowOneCovariance(WAll, flagTitle=True):
-    [WUsed, WType, WRange, WSill, WAniso, WRange2, WAngle] = WAll
+    [WCovUsed, WCovType, WCovRange, WCovSill, WCovAniso, WCovRange2, WCovAngle] = WAll
 
-    WTitle = _WgetTitle("Covariance Definition", flagTitle)
+    WCovTitle = _WgetTitle("Covariance Definition", flagTitle)
 
-    WTypeupd = _WLock(WType, not WUsed.value)
-    WRangeupd = _WLock(WRange, not WUsed.value)
-    WSillupd = _WLock(WSill, not WUsed.value)
-    WAnisoupd = _WLock(WAniso, not WUsed.value)
-    WRange2upd = _WLock(WRange2, not WUsed.value or not WAniso.value)
-    WAngleupd = _WLock(WAngle, not WUsed.value or not WAniso.value)
-
+    WCovTypeupd = _WLock(WCovType, not WCovUsed.value)
+    WCovRangeupd = _WLock(WCovRange, not WCovUsed.value)
+    WCovSillupd = _WLock(WCovSill, not WCovUsed.value)
+    WCovAnisoupd = _WLock(WCovAniso, not WCovUsed.value)
+    WCovRange2upd = _WLock(WCovRange2, not WCovUsed.value or not WCovAniso.value)
+    WCovAngleupd = _WLock(WCovAngle, not WCovUsed.value or not WCovAniso.value)
     return mo.ui.array(
-        [WTitle, WUsed, WTypeupd, WRangeupd, WSillupd, WAnisoupd, WRange2upd, WAngleupd]
+        [
+            WCovTitle,
+            WCovUsed,
+            WCovTypeupd,
+            WCovRangeupd,
+            WCovSillupd,
+            WCovAnisoupd,
+            WCovRange2upd,
+            WCovAngleupd,
+        ]
     )
 
 
 def WgetOneCovariance(WAll):
-    [WUsed, WType, WRange, WSill, WAniso, WRange2, WAngle] = WAll
+    [WCovUsed, WCovType, WCovRange, WCovSill, WCovAniso, WCovRange2, WCovAngle] = WAll
 
-    if WUsed.value:
-        if not WAniso.value:
+    if WCovUsed.value:
+        if not WCovAniso.value:
             # isotropic covariance
             return gl.CovAniso.createIsotropic(
                 ctxt=gl.CovContext(1, 2),
-                type=gl.ECov.fromKey(WType.value),
-                range=WRange.value,
-                sill=WSill.value,
+                type=gl.ECov.fromKey(WCovType.value),
+                range=WCovRange.value,
+                sill=WCovSill.value,
                 param=1.0,
                 flagRange=True,
             )
@@ -141,20 +143,20 @@ def WgetOneCovariance(WAll):
             # anisotropic covariance
             return gl.CovAniso.createAnisotropic(
                 ctxt=gl.CovContext(1, 2),
-                type=gl.ECov.fromKey(WType.value),
-                ranges=[WRange.value, WRange2.value],
-                sill=WSill.value,
+                type=gl.ECov.fromKey(WCovType.value),
+                ranges=[WCovRange.value, WCovRange2.value],
+                sill=WCovSill.value,
                 param=1.0,
-                angles=[WAngle.value, 0.0],
+                angles=[WCovAngle.value, 0.0],
                 flagRange=True,
             )
     else:
         return None
 
 
-# =========================================
+# ========================================
 # Widget to manage the list of Covariances
-# =========================================
+# ========================================
 
 
 def WdefineCovariances(ncovmax=1, distmax=100, varmax=100):
@@ -170,14 +172,14 @@ def WdefineCovariances(ncovmax=1, distmax=100, varmax=100):
 
 
 def WshowCovariances(WAll, flagTitle=True):
-    WTitle = _WgetTitle("Model Definition", flagTitle)
+    WMTitle = _WgetTitle("Model Definition", flagTitle)
     UI = mo.accordion(
         {
             f"Covariance {ic + 1}": WshowOneCovariance(cov, False)
             for ic, cov in enumerate(WAll)
         }
     )
-    return mo.ui.array([WTitle, UI])
+    return mo.ui.array([WMTitle, UI])
 
 
 def WgetCovariances(WAll):
@@ -189,9 +191,9 @@ def WgetCovariances(WAll):
     return model
 
 
-# ===============================================================
+# ==============================================================
 # Widget to manage the list of Basic Structures used for Fitting
-# ===============================================================
+# ==============================================================
 
 
 def WshowBasicList(basic_list, flagTitle=True):
@@ -200,9 +202,9 @@ def WshowBasicList(basic_list, flagTitle=True):
     return mo.ui.array([WTitle, WList])
 
 
-# =========================
-# Widget to manage a Model
-# =========================
+# =====================================
+# Widget to manage a Model (radix = WM)
+# =====================================
 
 
 def WdefineModel(
@@ -220,40 +222,39 @@ def WdefineModel(
         distmax = vario.getMaximumDistance()
         varmax = vario.getVar()
 
-    WChoice = mo.ui.radio(
+    WMChoice = mo.ui.radio(
         options={"Interactive": 1, "Fit": 2, "From NF": 3}, value=valdef
     )
     WInter = WdefineCovariances(ncovmax=ncovmax, distmax=distmax, varmax=varmax)
     WFitVario = WdefineModelFitVario(deftypes=deftypes)
-    WFromNF = _WdefineFromNF()
+    WMFromNF = WdefineModelFromNF()
 
-    return mo.ui.array([WChoice, WInter, WFitVario, WFromNF])
+    return mo.ui.array([WMChoice, WInter, WFitVario, WMFromNF])
 
 
 def WshowModel(WAll, flagTitle=True, gapv=2):
-    [WChoice, WInter, WFitVario, WFromNF] = WAll
-
-    WTitle = _WgetTitle("Model Definition", flagTitle)
-    option = WChoice.value
+    [WMChoice, WInter, WFitVario, WMFromNF] = WAll
+    WMTitle = _WgetTitle("Model Definition", flagTitle)
+    option = WMChoice.value
 
     # Contenu à afficher selon le choix
     if option == 1:
         UI = mo.accordion(
             {f"Covariance {ic + 1}": mo.vstack(WInter[ic]) for ic in range(len(WInter))}
         )
-        return mo.vstack([WTitle, WChoice, UI], gap=gapv)
+        return mo.vstack([WMTitle, WMChoice, UI], gap=gapv)
     elif option == 2:
-        return mo.vstack([WTitle, WChoice, *WFitVario], gap=gapv)
+        return mo.vstack([WMTitle, WMChoice, *WFitVario], gap=gapv)
     elif option == 3:
-        return mo.vstack([WTitle, WChoice, *WFromNF], gap=gapv)
+        return mo.vstack([WMTitle, WMChoice, *WMFromNF], gap=gapv)
     else:
         return mo.md("Invalid option selected")
 
 
 def WgetModel(WAll, vario=None):
-    [WChoice, WInter, WFitVario, WFromNF] = WAll
+    [WMChoice, WInter, WFitVario, WMFromNF] = WAll
 
-    option = WChoice.value
+    option = WMChoice.value
 
     model = None
     if option == 1:
@@ -261,7 +262,7 @@ def WgetModel(WAll, vario=None):
     elif option == 2:
         model = WgetModelFitVario(WFitVario, vario)
     elif option == 3:
-        model = WgetModelFromNF(WFromNF)
+        model = WgetModelFromNF(WMFromNF)
     else:
         return None
 
@@ -272,25 +273,32 @@ def WgetModel(WAll, vario=None):
     return model
 
 
+def WdefineModelFromNF():
+    WMFile = mo.ui.file_browser(
+        label="Select a Neutral File", multiple=False, filetypes=[".NF", ".ascii"]
+    )
+    return mo.ui.array([WMFile])
+
+
 def WgetModelFromNF(WAll):
-    [WFile] = WAll
-    filename = WFile.name()
+    [WMFile] = WAll
+    filename = WMFile.name()
     if filename is None:
         return None
-    return gl.Model.createFromNF(str(WFile.path(index=0)))
+    return gl.Model.createFromNF(str(WMFile.path(index=0)))
 
 
 def WdefineModelFitVario(deftypes=["Spherical"]):
-    WTypes = mo.ui.multiselect(options=_getCovarianceDict(), value=deftypes)
-    return mo.ui.array([WTypes])
+    WMTypes = mo.ui.multiselect(options=_getCovarianceDict(), value=deftypes)
+    return mo.ui.array([WMTypes])
 
 
 def WgetModelFitVario(WAll, vario):
-    [WTypes] = WAll
+    [WMTypes] = WAll
     if vario is None:
         return None
 
-    types = WTypes.value
+    types = WMTypes.value
     if not types:
         return None
 
@@ -298,9 +306,9 @@ def WgetModelFitVario(WAll, vario):
     return model
 
 
-# ========================
-# Widget to manage a Grid
-# ========================
+# =====================================
+# Widget to manage a Grid (radix = WGrid)
+# =====================================
 
 
 def WdefineGrid(nxdef=50):
@@ -308,17 +316,17 @@ def WdefineGrid(nxdef=50):
     Returns parameters for a regular 2-D grid
     nxdef: Number of grid meshes (same along X and Y)
     """
-    WNX = mo.ui.slider(start=1, stop=200, value=nxdef)
-    WNY = mo.ui.slider(start=1, stop=200, value=nxdef)
-    WDX = mo.ui.number(start=1, stop=None, value=1)
-    WDY = mo.ui.number(start=1, stop=None, value=1)
-    WX0 = mo.ui.number(start=0, stop=None, value=0)
-    WY0 = mo.ui.number(start=0, stop=None, value=0)
-    return mo.ui.array([WNX, WNY, WDX, WDY, WX0, WY0])
+    WGridNX = mo.ui.slider(start=1, stop=200, value=nxdef)
+    WGridNY = mo.ui.slider(start=1, stop=200, value=nxdef)
+    WGridDX = mo.ui.number(start=1, stop=None, value=1)
+    WGridDY = mo.ui.number(start=1, stop=None, value=1)
+    WGridX0 = mo.ui.number(start=0, stop=None, value=0)
+    WGridY0 = mo.ui.number(start=0, stop=None, value=0)
+    return mo.ui.array([WGridNX, WGridNY, WGridDX, WGridDY, WGridX0, WGridY0])
 
 
 def WshowGrid(WAll, flagTitle=True, gaph=2, gapv=2):
-    [WNX, WNY, WDX, WDY, WX0, WY0] = WAll
+    [WGridNX, WGridNY, WGridDX, WGridDY, WGridX0, WGridY0] = WAll
     WTitle = _WgetTitle("Grid Definition", flagTitle)
     Wgrid = mo.hstack(
         [
@@ -326,8 +334,12 @@ def WshowGrid(WAll, flagTitle=True, gaph=2, gapv=2):
                 [mo.md("Parameters"), mo.md("Number"), mo.md("Mesh"), mo.md("Origin")],
                 gap=gapv,
             ),
-            mo.vstack([mo.md("along X"), WNX, WDX, WX0], align="end", gap=gapv),
-            mo.vstack([mo.md("along Y"), WNY, WDY, WY0], align="end", gap=gapv),
+            mo.vstack(
+                [mo.md("along X"), WGridNX, WGridDX, WGridX0], align="end", gap=gapv
+            ),
+            mo.vstack(
+                [mo.md("along Y"), WGridNY, WGridDY, WGridY0], align="end", gap=gapv
+            ),
         ],
         gap=gaph,
     )
@@ -335,18 +347,18 @@ def WshowGrid(WAll, flagTitle=True, gaph=2, gapv=2):
 
 
 def WgetGrid(WAll):
-    [WNX, WNY, WDX, WDY, WX0, WY0] = WAll
+    [WGridNX, WGridNY, WGridDX, WGridDY, WGridX0, WGridY0] = WAll
     grid = gl.DbGrid.create(
-        nx=[WNX.value, WNY.value],
-        dx=[WDX.value, WDY.value],
-        x0=[WX0.value, WY0.value],
+        nx=[WGridNX.value, WGridNY.value],
+        dx=[WGridDX.value, WGridDY.value],
+        x0=[WGridX0.value, WGridY0.value],
     )
     return grid
 
 
-# =============================
-# Widget to manage Simulations
-# =============================
+# =====================================
+# Widget to manage Simulations (radix = WSim)
+# =====================================
 
 
 def WdefineSimtub(nbtuba=100, seed=13134):
@@ -355,28 +367,28 @@ def WdefineSimtub(nbtuba=100, seed=13134):
     nbtuba: Number of Turning Bands
     seed: Seed for random number generator
     """
-    WNbtuba = mo.ui.number(
+    WSimNbtuba = mo.ui.number(
         start=1, stop=None, value=nbtuba, label="Number of Turning Bands"
     )
-    WSeed = mo.ui.number(start=0, stop=None, value=seed, label="Seed")
-    return mo.ui.array([WNbtuba, WSeed])
+    WSimSeed = mo.ui.number(start=0, stop=None, value=seed, label="Seed")
+    return mo.ui.array([WSimNbtuba, WSimSeed])
 
 
 def WshowSimtub(WAll, flagTitle=True):
-    [WNbtuba, WSeed] = WAll
+    [WSimNbtuba, WSimSeed] = WAll
 
-    WTitle = _WgetTitle("Parameters for Turning Bands Simulations", flagTitle)
+    WSimTitle = _WgetTitle("Parameters for Turning Bands Simulations", flagTitle)
 
-    return mo.ui.array([WTitle, WNbtuba, WSeed])
+    return mo.ui.array([WSimTitle, WSimNbtuba, WSimSeed])
 
 
 def WgetSimtub(WAll):
-    [WNbtuba, WSeed] = WAll
-    return WNbtuba.value, WSeed.value
+    [WSimNbtuba, WSimSeed] = WAll
+    return WSimNbtuba.value, WSimSeed.value
 
 
 # =========================
-# Widget to manage a Vario
+# Widget to manage a Vario (radix = WV)
 # =========================
 
 
@@ -397,41 +409,41 @@ def WdefineVario(nlag=10, ndir=4, dlag=None, db=None, valdef="Omni"):
     elif dlag is None:
         dlag = 1.0
 
-    WChoice = mo.ui.radio(options={"Omni": 1, "Multi": 2, "From NF": 3}, value=valdef)
-    WOmni = WdefineVarioParamOmni(nlag=nlag, dlag=dlag)
-    WMulti = WdefineVarioParamMulti(ndir=ndir, nlag=nlag, dlag=dlag)
-    WFromNF = _WdefineFromNF()
-    return mo.ui.array([WChoice, WOmni, WMulti, WFromNF])
+    WVChoice = mo.ui.radio(options={"Omni": 1, "Multi": 2, "From NF": 3}, value=valdef)
+    WVOmni = WdefineVarioParamOmni(nlag=nlag, dlag=dlag)
+    WVMulti = WdefineVarioParamMulti(ndir=ndir, nlag=nlag, dlag=dlag)
+    WVFromNF = WdefineVarioFromNF()
+    return mo.ui.array([WVChoice, WVOmni, WVMulti, WVFromNF])
 
 
 def WshowVario(WAll, flagTitle=True):
-    [WChoice, WOmni, WMulti, WFromNF] = WAll
+    [WVChoice, WVOmni, WVMulti, WVFromNF] = WAll
 
-    WTitle = _WgetTitle("Variogram Parameters", flagTitle)
-    option = WChoice.value
+    WVTitle = _WgetTitle("Variogram Parameters", flagTitle)
+    option = WVChoice.value
 
     # Sélection du contenu selon le choix
     if option == 1:
-        return mo.vstack([WTitle, WChoice, *WOmni])
+        return mo.vstack([WVTitle, WVChoice, *WVOmni])
     elif option == 2:
-        return mo.vstack([WTitle, WChoice, *WMulti])
+        return mo.vstack([WVTitle, WVChoice, *WVMulti])
     elif option == 3:
-        return mo.vstack([WTitle, WChoice, *WFromNF])
+        return mo.vstack([WVTitle, WVChoice, *WVFromNF])
     else:
         return mo.md("Invalid selection")
 
 
 def WgetVario(WAll, db=None):
-    [WChoice, WOmni, WMulti, WFromNF] = WAll
-    option = WChoice.value
+    [WVChoice, WVOmni, WVMulti, WVFromNF] = WAll
+    option = WVChoice.value
 
     varioparam = None
     if option == 1:
-        varioparam = WgetVarioParamOmni(WOmni)
+        varioparam = WgetVarioParamOmni(WVOmni)
     elif option == 2:
-        varioparam = WgetVarioParamMulti(WMulti)
+        varioparam = WgetVarioParamMulti(WVMulti)
     elif option == 3:
-        return WgetVarioFromNF(WFromNF)
+        return WgetVarioFromNF(WVFromNF)
     else:
         return None
 
@@ -449,77 +461,103 @@ def WgetVario(WAll, db=None):
 
 
 def WdefineVarioParamOmni(nlag=10, dlag=1):
-    WNlag = mo.ui.number(start=1, stop=100, value=nlag, label="Number of Lags")
-    WDlag = mo.ui.number(start=0, stop=100, value=dlag, label="Lag Value")
-    WToldis = mo.ui.number(start=0, stop=1, value=0.5, label="Tolerance on Distance")
-    WCylrad = mo.ui.number(start=0, stop=None, value=0, label="Cylinder Radius")
-    return mo.ui.array([WNlag, WDlag, WToldis, WCylrad])
+    WVOmniNlag = mo.ui.number(start=1, stop=100, value=nlag, label="Number of Lags")
+    WVOmniDlag = mo.ui.number(start=0, stop=100, value=dlag, label="Lag Value")
+    WVOmniToldis = mo.ui.number(
+        start=0, stop=1, value=0.5, label="Tolerance on Distance"
+    )
+    WVOmniCylrad = mo.ui.number(start=0, stop=None, value=0, label="Cylinder Radius")
+    return mo.ui.array([WVOmniNlag, WVOmniDlag, WVOmniToldis, WVOmniCylrad])
 
 
 def WshowVarioParamOmni(WAll, flagTitle=True):
-    [WNlag, WDlag, WToldis, WCylrad] = WAll
+    [WVOmniNlag, WVOmniDlag, WVOmniToldis, WVOmniCylrad] = WAll
 
-    WTitle = _WgetTitle("Variogram Parameters", flagTitle)
-    return mo.ui.array([WTitle, WNlag, WDlag, WToldis, WCylrad])
+    WVOmniTitle = _WgetTitle("Variogram Parameters", flagTitle)
+    return mo.ui.array(
+        [WVOmniTitle, WVOmniNlag, WVOmniDlag, WVOmniToldis, WVOmniCylrad]
+    )
 
 
 def WgetVarioParamOmni(WAll):
-    [WNlag, WDlag, WToldis, WCylrad] = WAll
-    if WCylrad.value > 0:
+    [WVOmniNlag, WVOmniDlag, WVOmniToldis, WVOmniCylrad] = WAll
+    if WVOmniCylrad.value > 0:
         varioparam = gl.VarioParam.createOmniDirection(
-            nlag=WNlag.value,
-            dlag=WDlag.value,
-            toldis=WToldis.value,
-            cylrad=WCylrad.value,
+            nlag=WVOmniNlag.value,
+            dlag=WVOmniDlag.value,
+            toldis=WVOmniToldis.value,
+            cylrad=WVOmniCylrad.value,
         )
     else:
         varioparam = gl.VarioParam.createOmniDirection(
-            nlag=WNlag.value, dlag=WDlag.value, toldis=WToldis.value
+            nlag=WVOmniNlag.value, dlag=WVOmniDlag.value, toldis=WVOmniToldis.value
         )
 
     return varioparam
 
 
 def WdefineVarioParamMulti(ndir=4, nlag=10, dlag=1):
-    WNdir = mo.ui.number(start=1, stop=10, value=ndir, label="Number of Directions")
-    WNlag = mo.ui.number(start=1, stop=100, value=nlag, label="Number of Lags")
-    WDlag = mo.ui.number(start=0, stop=100, value=dlag, label="Lag Value")
-    WAngref = mo.ui.number(
+    WVMultiNdir = mo.ui.number(
+        start=1, stop=10, value=ndir, label="Number of Directions"
+    )
+    WVMultiNlag = mo.ui.number(start=1, stop=100, value=nlag, label="Number of Lags")
+    WVMultiDlag = mo.ui.number(start=0, stop=100, value=dlag, label="Lag Value")
+    WVMultiAngref = mo.ui.number(
         start=0, stop=180, value=0.0, label="Reference angle (degree)"
     )
-    WToldis = mo.ui.number(start=0, stop=1, value=0.5, label="Tolerance on Distance")
-    return mo.ui.array([WNdir, WNlag, WDlag, WAngref, WToldis])
+    WVMultiToldis = mo.ui.number(
+        start=0, stop=1, value=0.5, label="Tolerance on Distance"
+    )
+    return mo.ui.array(
+        [WVMultiNdir, WVMultiNlag, WVMultiDlag, WVMultiAngref, WVMultiToldis]
+    )
 
 
 def WshowVarioParamMulti(WAll, flagTitle=True):
-    [WNdir, WNlag, WDlag, WAngref, WToldis] = WAll
+    [WVMultiNdir, WVMultiNlag, WVMultiDlag, WVMultiAngref, WVMultiToldis] = WAll
 
-    WTitle = _WgetTitle("Variogram Definition", flagTitle)
+    WVMultiTitle = _WgetTitle("Variogram Definition", flagTitle)
 
-    return mo.ui.array([WTitle, WNdir, WNlag, WDlag, WAngref, WToldis])
-
-
-def WgetVarioParamMulti(WAll):
-    [WNdir, WNlag, WDlag, WAngref, WToldis] = WAll
-    return gl.VarioParam.createMultiple(
-        ndir=WNdir.value,
-        nlag=WNlag.value,
-        dlag=WDlag.value,
-        toldis=WToldis.value,
-        angref=WAngref.value,
+    return mo.ui.array(
+        [
+            WVMultiTitle,
+            WVMultiNdir,
+            WVMultiNlag,
+            WVMultiDlag,
+            WVMultiAngref,
+            WVMultiToldis,
+        ]
     )
 
 
+def WgetVarioParamMulti(WAll):
+    [WVMultiNdir, WVMultiNlag, WVMultiDlag, WVMultiAngref, WVMultiToldis] = WAll
+    return gl.VarioParam.createMultiple(
+        ndir=WVMultiNdir.value,
+        nlag=WVMultiNlag.value,
+        dlag=WVMultiDlag.value,
+        toldis=WVMultiToldis.value,
+        angref=WVMultiAngref.value,
+    )
+
+
+def WdefineVarioFromNF():
+    WVFile = mo.ui.file_browser(
+        label="Select a Neutral File", multiple=False, filetypes=[".NF", ".ascii"]
+    )
+    return mo.ui.array([WVFile])
+
+
 def WgetVarioFromNF(WAll):
-    [WFile] = WAll
-    filename = WFile.name()
+    [WVFile] = WAll
+    filename = WVFile.name()
     if filename is None:
         return None
-    return gl.Vario.createFromNF(str(WFile.path(index=0)))
+    return gl.Vario.createFromNF(str(WVFile.path(index=0)))
 
 
 # ======================
-# Widget to manage a Db
+# Widget to manage a Db (radix = WD)
 # ======================
 
 
@@ -547,48 +585,48 @@ def WdefineDb(
     seed: Seed for random number generator
     """
 
-    WChoice = mo.ui.radio(
+    WDChoice = mo.ui.radio(
         options={"From Box": 1, "From Grid": 2, "From CSV": 3, "From NF": 4},
         value=valdef,
     )
-    WFromBox = WdefineDbFromBox(nech, nvarmax, xmin, ymin, xmax, ymax, seed)
-    WFromGrid = WdefineDbFromGrid(nvarmax, nxdef, seed)
-    WFromCSV = WdefineDbFromCSV()
-    WFromNF = _WdefineFromNF()
+    WDFromBox = WdefineDbFromBox(nech, nvarmax, xmin, ymin, xmax, ymax, seed)
+    WDFromGrid = WdefineDbFromGrid(nvarmax, nxdef, seed)
+    WDFromCSV = WdefineDbFromCSV()
+    WDFromNF = WdefineDbFromNF()
 
-    return mo.ui.array([WChoice, WFromBox, WFromGrid, WFromCSV, WFromNF])
+    return mo.ui.array([WDChoice, WDFromBox, WDFromGrid, WDFromCSV, WDFromNF])
 
 
 def WshowDb(WAll, flagTitle=True):
-    [WChoice, WFromBox, WFromGrid, WFromCSV, WFromNF] = WAll
+    [WDChoice, WDFromBox, WDFromGrid, WDFromCSV, WDFromNF] = WAll
 
-    WTitle = _WgetTitle("Data Base Parameters", flagTitle)
-    option = WChoice.value
+    WDTitle = _WgetTitle("Data Base Parameters", flagTitle)
+    option = WDChoice.value
 
     if option == 1:
-        return mo.vstack([WTitle, WChoice, *WFromBox])
+        return mo.vstack([WDTitle, WDChoice, *WDFromBox])
     elif option == 2:
-        return mo.vstack([WTitle, WChoice, *WFromGrid])
+        return mo.vstack([WDTitle, WDChoice, *WDFromGrid])
     elif option == 3:
-        return mo.vstack([WTitle, WChoice, *WFromCSV])
+        return mo.vstack([WDTitle, WDChoice, *WDFromCSV])
     elif option == 4:
-        return mo.vstack([WTitle, WChoice, *WFromNF])
+        return mo.vstack([WDTitle, WDChoice, *WDFromNF])
     else:
         return None
 
 
 def WgetDb(WAll):
-    [WChoice, WFromBox, WFromGrid, WFromCSV, WFromNF] = WAll
-    option = WChoice.value
+    [WDChoice, WDFromBox, WDFromGrid, WDFromCSV, WDFromNF] = WAll
+    option = WDChoice.value
 
     if option == 1:
-        db = WgetDbFromBox(WFromBox)
+        db = WgetDbFromBox(WDFromBox)
     elif option == 2:
-        db = WgetDbFromGrid(WFromGrid)
+        db = WgetDbFromGrid(WDFromGrid)
     elif option == 3:
-        db = WgetDbFromCSV(WFromCSV)
+        db = WgetDbFromCSV(WDFromCSV)
     elif option == 4:
-        db = WgetDbFromNF(WFromNF)
+        db = WgetDbFromNF(WDFromNF)
     else:
         db = None
 
@@ -600,84 +638,121 @@ def WgetDb(WAll):
 
 
 def WdefineDbFromGrid(nvarmax=1, nxdef=10, seed=14543):
-    WNX = mo.ui.number(start=1, stop=100, value=nxdef, label="NX")
-    WNY = mo.ui.number(start=1, stop=100, value=nxdef, label="NY")
-    WDX = mo.ui.number(start=1, stop=None, value=1, label="DX")
-    WDY = mo.ui.number(start=1, stop=None, value=1, label="DY")
-    WX0 = mo.ui.number(start=0, stop=None, value=0, label="X0")
-    WY0 = mo.ui.number(start=0, stop=None, value=0, label="Y0")
-    WNvar = mo.ui.number(start=1, stop=nvarmax, value=1, label="Number of Variables")
-    WPerc = mo.ui.number(start=0, stop=100, value=10, label="Random Displacement")
-    WSeed = mo.ui.number(start=None, stop=None, value=seed, label="Seed")
+    WDbGridNX = mo.ui.number(start=1, stop=100, value=nxdef, label="NX")
+    WDbGridNY = mo.ui.number(start=1, stop=100, value=nxdef, label="NY")
+    WDbGridDX = mo.ui.number(start=1, stop=None, value=1, label="DX")
+    WDbGridDY = mo.ui.number(start=1, stop=None, value=1, label="DY")
+    WDbGridX0 = mo.ui.number(start=0, stop=None, value=0, label="X0")
+    WDbGridY0 = mo.ui.number(start=0, stop=None, value=0, label="Y0")
+    WDbGridNvar = mo.ui.number(
+        start=1, stop=nvarmax, value=1, label="Number of Variables"
+    )
+    WDbGridPerc = mo.ui.number(start=0, stop=100, value=10, label="Random Displacement")
+    WDbGridSeed = mo.ui.number(start=None, stop=None, value=seed, label="Seed")
 
-    return mo.ui.array([WNX, WNY, WDX, WDY, WX0, WY0, WNvar, WPerc, WSeed])
+    return mo.ui.array(
+        [
+            WDbGridNX,
+            WDbGridNY,
+            WDbGridDX,
+            WDbGridDY,
+            WDbGridX0,
+            WDbGridY0,
+            WDbGridNvar,
+            WDbGridPerc,
+            WDbGridSeed,
+        ]
+    )
 
 
 def WgetDbFromGrid(WAll):
-    [WNX, WNY, WDX, WDY, WX0, WY0, WNvar, WPerc, WSeed] = WAll
+    [
+        WDbGridNX,
+        WDbGridNY,
+        WDbGridDX,
+        WDbGridDY,
+        WDbGridX0,
+        WDbGridY0,
+        WDbGridNvar,
+        WDbGridPerc,
+        WDbGridSeed,
+    ] = WAll
+
     grid = gl.DbGrid.create(
-        nx=[WNX.value, WNY.value], dx=[WDX.value, WDY.value], x0=[WX0.value, WY0.value]
+        nx=[WDbGridNX.value, WDbGridNY.value],
+        dx=[WDbGridDX.value, WDbGridDY.value],
+        x0=[WDbGridX0.value, WDbGridY0.value],
     )
-    db = gl.Db.createFromGridRandomized(grid, randperc=WPerc.value)
-    db.addColumnsRandom(WNvar.value, "z", seed=WSeed.value)
+    db = gl.Db.createFromGridRandomized(grid, randperc=WDbGridPerc.value)
+    db.addColumnsRandom(WDbGridNvar.value, "z", seed=WDbGridSeed.value)
     return db
 
 
 def WdefineDbFromBox(
     nech=100, nvarmax=1, xmin=0, ymin=0, xmax=100, ymax=100, seed=14543
 ):
-    WNech = mo.ui.number(start=1, stop=None, value=nech, label="Number of Samples")
-    WNvar = mo.ui.number(start=1, stop=nvarmax, value=1, label="Number of Variables")
-    WXmin = mo.ui.number(start=None, stop=None, value=xmin, label="Minimum along X")
-    WYmin = mo.ui.number(start=None, stop=None, value=ymin, label="Minimum along Y")
-    WXmax = mo.ui.number(start=None, stop=None, value=xmax, label="Maximum along X")
-    WYmax = mo.ui.number(start=None, stop=None, value=ymax, label="Maximum along Y")
-    WSeed = mo.ui.number(start=None, stop=None, value=seed, label="Seed")
+    WDBoxNech = mo.ui.number(start=1, stop=None, value=nech, label="Number of Samples")
+    WDBoxNvar = mo.ui.number(
+        start=1, stop=nvarmax, value=1, label="Number of Variables"
+    )
+    WDBoxXmin = mo.ui.number(start=None, stop=None, value=xmin, label="Minimum along X")
+    WDBoxYmin = mo.ui.number(start=None, stop=None, value=ymin, label="Minimum along Y")
+    WDBoxXmax = mo.ui.number(start=None, stop=None, value=xmax, label="Maximum along X")
+    WDBoxYmax = mo.ui.number(start=None, stop=None, value=ymax, label="Maximum along Y")
+    WDBoxSeed = mo.ui.number(start=None, stop=None, value=seed, label="Seed")
 
-    return mo.ui.array([WNech, WNvar, WXmin, WYmin, WXmax, WYmax, WSeed])
-
-
-def WgetDbFromBox(WAll):
-    [WNech, WNvar, WXmin, WYmin, WXmax, WYmax, WSeed] = WAll
-    return gl.Db.createFillRandom(
-        ndat=WNech.value,
-        ndim=2,
-        nvar=WNvar.value,
-        coormin=[WXmin.value, WYmin.value],
-        coormax=[WXmax.value, WYmax.value],
-        seed=WSeed.value,
+    return mo.ui.array(
+        [WDBoxNech, WDBoxNvar, WDBoxXmin, WDBoxYmin, WDBoxXmax, WDBoxYmax, WDBoxSeed]
     )
 
 
+def WgetDbFromBox(WAll):
+    [WDBoxNech, WDBoxNvar, WDBoxXmin, WDBoxYmin, WDBoxXmax, WDBoxYmax, WDBoxSeed] = WAll
+    return gl.Db.createFillRandom(
+        ndat=WDBoxNech.value,
+        ndim=2,
+        nvar=WDBoxNvar.value,
+        coormin=[WDBoxXmin.value, WDBoxYmin.value],
+        coormax=[WDBoxXmax.value, WDBoxYmax.value],
+        seed=WDBoxSeed.value,
+    )
+
+
+def WdefineDbFromNF():
+    WDFile = mo.ui.file_browser(
+        label="Select a Neutral File", multiple=False, filetypes=[".NF", ".ascii"]
+    )
+    return mo.ui.array([WDFile])
+
+
 def WgetDbFromNF(WAll):
-    [WFile] = WAll
-    filename = WFile.name()
+    [WDFile] = WAll
+    filename = WDFile.name()
     if filename is None:
         return None
-    return gl.Db.createFromNF(str(WFile.path(index=0)))
+    return gl.Db.createFromNF(str(WDFile.path(index=0)))
 
 
 def WdefineDbFromCSV(
     nameX="Longitude", nameY="Latitude", nameVar="pH", flagEnglishStyle=True
 ):
-    WnameX = mo.ui.text(label="X Coordinate", value=nameX)
-    WnameY = mo.ui.text(label="Y Coordinate", value=nameY)
-    WnameVar = mo.ui.text(label="Variable Name", value=nameVar)
-    WengStyle = mo.ui.checkbox(label="English Style", value=flagEnglishStyle)
-    WFile = mo.ui.file_browser(
+    WDCSVnameX = mo.ui.text(label="X Coordinate", value=nameX)
+    WDCSVnameY = mo.ui.text(label="Y Coordinate", value=nameY)
+    WDCSVnameVar = mo.ui.text(label="Variable Name", value=nameVar)
+    WDCSVengStyle = mo.ui.checkbox(label="English Style", value=flagEnglishStyle)
+    WDCSVFile = mo.ui.file_browser(
         label="Select a CSV File", multiple=False, filetypes=[".csv"]
     )
-    return mo.ui.array([WnameX, WnameY, WnameVar, WengStyle, WFile])
+    return mo.ui.array([WDCSVnameX, WDCSVnameY, WDCSVnameVar, WDCSVengStyle, WDCSVFile])
 
 
 def WgetDbFromCSV(WAll, flagHeader=True):
-    [WnameX, WnameY, WnameVar, WengStyle, WFile] = WAll
-
-    filename = WFile.name()
+    [WDCSVnameX, WDCSVnameY, WDCSVnameVar, WDCSVengStyle, WDCSVFile] = WAll
+    filename = WDCSVFile.name()
     if filename is None:
         return None
-    path = WFile.path(index=0)
-    if WengStyle.value:
+    path = WDCSVFile.path(index=0)
+    if WDCSVengStyle.value:
         charSep = ","
         charDec = "."
     else:
@@ -690,13 +765,13 @@ def WgetDbFromCSV(WAll, flagHeader=True):
     if db.getNSample() <= 0:
         print("Reading of CSV file failed: Check its Style")
     else:
-        db.setLocators([WnameX.value, WnameY.value], gl.ELoc.X)
-        db.setLocator(WnameVar.value, gl.ELoc.Z)
+        db.setLocators([WDCSVnameX.value, WDCSVnameY.value], gl.ELoc.X)
+        db.setLocator(WDCSVnameVar.value, gl.ELoc.Z)
     return db
 
 
 # ===============================================
-# Widget to manage a Box based on an optional Db
+# Widget to manage a Box based on an optional Db (radix = WBox)
 # ===============================================
 
 
@@ -717,46 +792,50 @@ def WdefineBox(db=None):
         latmin = -90
         latmax = 90
 
-    WLongMin = mo.ui.number(start=None, stop=None, value=longmin)
-    WLongMax = mo.ui.number(start=None, stop=None, value=longmax)
-    WLatMin = mo.ui.number(start=None, stop=None, value=latmin)
-    WLatMax = mo.ui.number(start=None, stop=None, value=latmax)
-    WFlagProj = mo.ui.checkbox(
+    WBoxLongMin = mo.ui.number(start=None, stop=None, value=longmin)
+    WBoxLongMax = mo.ui.number(start=None, stop=None, value=longmax)
+    WBoxLatMin = mo.ui.number(start=None, stop=None, value=latmin)
+    WBoxLatMax = mo.ui.number(start=None, stop=None, value=latmax)
+    WBoxFlagProj = mo.ui.checkbox(
         label="Background (if coordinates are Long/Lat)", value=False
     )
 
-    return mo.ui.array([WLongMin, WLongMax, WLatMin, WLatMax, WFlagProj])
+    return mo.ui.array([WBoxLongMin, WBoxLongMax, WBoxLatMin, WBoxLatMax, WBoxFlagProj])
 
 
 def WshowBox(WAll, flagTitle=True, gapv=0, gaph=1):
-    [WLongMin, WLongMax, WLatMin, WLatMax, WFlagProj] = WAll
+    [WBoxLongMin, WBoxLongMax, WBoxLatMin, WBoxLatMax, WBoxFlagProj] = WAll
 
-    WTitle = _WgetTitle("Box Definition", flagTitle)
-    Wgrid = mo.hstack(
+    WBoxTitle = _WgetTitle("Box Definition", flagTitle)
+    WBoxgrid = mo.hstack(
         [
             mo.vstack(
                 [mo.md("Parameters"), mo.md("Minimum"), mo.md("Maximum")], gap=gapv
             ),
-            mo.vstack([mo.md("Longitude"), WLongMin, WLongMax], align="end", gap=gapv),
-            mo.vstack([mo.md("Latitude"), WLatMin, WLatMax], align="end", gap=gapv),
+            mo.vstack(
+                [mo.md("Longitude"), WBoxLongMin, WBoxLongMax], align="end", gap=gapv
+            ),
+            mo.vstack(
+                [mo.md("Latitude"), WBoxLatMin, WBoxLatMax], align="end", gap=gapv
+            ),
         ],
         gap=gaph,
     )
-    return mo.vstack([WTitle, Wgrid, WFlagProj], gap=gapv)
+    return mo.vstack([WBoxTitle, WBoxgrid, WBoxFlagProj], gap=gapv)
 
 
 def WgetBox(WAll):
-    [WLongMin, WLongMax, WLatMin, WLatMax, WFlagProj] = WAll
+    [WBoxLongMin, WBoxLongMax, WBoxLatMin, WBoxLatMax, WBoxFlagProj] = WAll
     box = np.ndarray(shape=(2, 2))
-    box[0, 0] = WLongMin.value
-    box[1, 0] = WLongMax.value
-    box[0, 1] = WLatMin.value
-    box[1, 1] = WLatMax.value
-    return box, WFlagProj.value
+    box[0, 0] = WBoxLongMin.value
+    box[1, 0] = WBoxLongMax.value
+    box[0, 1] = WBoxLatMin.value
+    box[1, 1] = WBoxLatMax.value
+    return box, WBoxFlagProj.value
 
 
 # =======================================
-# Widget to manage a discretization Grid
+# Widget to manage a discretization Grid (radix : WGridN)
 # =======================================
 
 
@@ -765,24 +844,23 @@ def WdefineGridN(nxdef=50):
     Returns parameters for defining a discretization Grid
     nxdef: Number of grid meshes (same along X and Y)
     """
-    WNX = mo.ui.number(start=1, stop=None, value=nxdef, label="Nodes along X")
-    WNY = mo.ui.number(start=1, stop=None, value=nxdef, label="Nodes along Y")
-    return mo.ui.array([WNX, WNY])
+    WGridNNX = mo.ui.number(start=1, stop=None, value=nxdef, label="Nodes along X")
+    WGridNNY = mo.ui.number(start=1, stop=None, value=nxdef, label="Nodes along Y")
+    return mo.ui.array([WGridNNX, WGridNNY])
 
 
 def WshowGridN(WAll, flagTitle=True):
-    [WNX, WNY] = WAll
+    [WGridNNX, WGridNNY] = WAll
+    WGridNTitle = _WgetTitle("Grid Discretization", flagTitle=flagTitle)
 
-    WTitle = _WgetTitle("Grid Discretization", flagTitle=flagTitle)
-
-    return mo.vstack([WTitle, WNX, WNY])
+    return mo.vstack([WGridNTitle, WGridNNX, WGridNNY])
 
 
 def WgetGridN(WAll, box):
-    [WNX, WNY] = WAll
+    [WGridNNX, WGridNNY] = WAll
 
-    nx = WNX.value
-    ny = WNY.value
+    nx = WGridNNX.value
+    ny = WGridNNY.value
     deltax = box[0, 1] - box[0, 0]
     deltay = box[1, 1] - box[1, 0]
     dx = deltax / (nx - 1)
