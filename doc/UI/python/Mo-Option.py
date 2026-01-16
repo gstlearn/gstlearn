@@ -15,6 +15,7 @@ def _():
 
     import numpy as np
     import pandas as pd
+
     return ctx, gl, gmo, gp, mo
 
 
@@ -134,7 +135,7 @@ def _(
         box, flagProj = gmo.WgetBox(WidgetView)
         grid = gmo.WgetGridN(WidgetGrid, box)
 
-         # Define the Variogram parameters
+        # Define the Variogram parameters
         vario = gmo.WgetVario(WidgetVario, db)
 
         # Define the Model
@@ -155,6 +156,7 @@ def _(
         mo.mpl.interactive(fig)
 
         return fig
+
     return (myaction,)
 
 
