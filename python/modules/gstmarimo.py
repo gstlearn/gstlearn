@@ -18,10 +18,27 @@ import gstlearn as gl
 import numpy as np
 import pandas as pd
 import marimo as mo
+import contextily as ctx
 import os
 
-nxdef = 100
-debugOption = False
+optionPrintGlobal = False
+optionSaveGlobal = True
+
+
+def setEnvironment(optionSaveNF=True, optionPrint=False):
+    """
+    Use this function to set options for gstmarimo environment
+
+    :param optionPrint: Provoke the printout of the newly created objects
+    :param optionSaveNF: Provoke the saving of the newly created objects as a Neutral File
+    """
+    global optionPrintGlobal
+    global optionSaveGlobal
+    optionPrintGlobal = optionPrint
+    optionSaveGlobal = optionSaveNF
+
+
+# Ensure that no output directory is set for gstlearn
 os.environ["GSTLEARN_OUTPUT_DIR"] = ""
 
 
@@ -58,12 +75,12 @@ def _WgetTitle(title, flagTitle=True):
 def _displayItem(contents=None, flagForced=False):
     if contents is None:
         return
-    if debugOption or flagForced:
+    if optionPrintGlobal or flagForced:
         contents.display()
 
 
 def _saveNF(contents=None, filename="myFile.NF"):
-    if contents is not None:
+    if contents is not None and optionSaveGlobal:
         contents.dumpToNF(filename)
 
 
@@ -266,6 +283,9 @@ def WgetModel(WAll, vario=None):
     else:
         return None
 
+    # Add the Universality Condition (always)
+    model.setDriftIRF(order=0, nfex=0)
+
     if model is not None:
         _saveNF(model, "myModel.NF")
         _displayItem(model)
@@ -318,8 +338,8 @@ def WdefineGrid(nxdef=50):
     Returns parameters for a regular 2-D grid
     nxdef: Number of grid meshes (same along X and Y)
     """
-    WGridNX = mo.ui.slider(start=1, stop=200, value=nxdef)
-    WGridNY = mo.ui.slider(start=1, stop=200, value=nxdef)
+    WGridNX = mo.ui.number(start=1, stop=200, value=nxdef)
+    WGridNY = mo.ui.number(start=1, stop=200, value=nxdef)
     WGridDX = mo.ui.number(start=1, stop=None, value=1)
     WGridDY = mo.ui.number(start=1, stop=None, value=1)
     WGridX0 = mo.ui.number(start=0, stop=None, value=0)
@@ -327,13 +347,13 @@ def WdefineGrid(nxdef=50):
     return mo.ui.array([WGridNX, WGridNY, WGridDX, WGridDY, WGridX0, WGridY0])
 
 
-def WshowGrid(WAll, flagTitle=True, gaph=2, gapv=2):
+def WshowGrid(WAll, flagTitle=True, gapv=0, gaph=1):
     [WGridNX, WGridNY, WGridDX, WGridDY, WGridX0, WGridY0] = WAll
     WTitle = _WgetTitle("Grid Definition", flagTitle)
     Wgrid = mo.hstack(
         [
             mo.vstack(
-                [mo.md("Parameters"), mo.md("Number"), mo.md("Mesh"), mo.md("Origin")],
+                [mo.md("Parameters"), mo.md("Nodes"), mo.md("Mesh"), mo.md("Origin")],
                 gap=gapv,
             ),
             mo.vstack(
@@ -363,30 +383,32 @@ def WgetGrid(WAll):
 # =====================================
 
 
-def WdefineSimtub(nbtuba=100, seed=13134):
+def WdefineSimtub(nbtuba=100, nbsimu=1, seed=13134):
     """
     Returns parameters for performing Turning Bands simulations
     nbtuba: Number of Turning Bands
+    nbsimu: Number of Simulations
     seed: Seed for random number generator
     """
     WSimNbtuba = mo.ui.number(
         start=1, stop=None, value=nbtuba, label="Number of Turning Bands"
     )
+    WSimNbsimu = mo.ui.number(
+        start=1, stop=None, value=nbsimu, label="Number of Simulations"
+    )
     WSimSeed = mo.ui.number(start=0, stop=None, value=seed, label="Seed")
-    return mo.ui.array([WSimNbtuba, WSimSeed])
+    return mo.ui.array([WSimNbtuba, WSimNbsimu, WSimSeed])
 
 
-def WshowSimtub(WAll, flagTitle=True):
-    [WSimNbtuba, WSimSeed] = WAll
-
+def WshowSimtub(WAll, flagTitle=True, gapv=2):
+    [WSimNbtuba, WSimNbsimu, WSimSeed] = WAll
     WSimTitle = _WgetTitle("Parameters for Turning Bands Simulations", flagTitle)
-
-    return mo.ui.array([WSimTitle, WSimNbtuba, WSimSeed])
+    return mo.vstack([WSimTitle, WSimNbtuba, WSimNbsimu, WSimSeed], gap=gapv)
 
 
 def WgetSimtub(WAll):
-    [WSimNbtuba, WSimSeed] = WAll
-    return WSimNbtuba.value, WSimSeed.value
+    [WSimNbtuba, WSimNbsimu, WSimSeed] = WAll
+    return WSimNbtuba.value, WSimNbsimu.value, WSimSeed.value
 
 
 # =========================
@@ -848,16 +870,24 @@ def WdefineGridN(nxdef=50):
     Returns parameters for defining a discretization Grid
     nxdef: Number of grid meshes (same along X and Y)
     """
-    WGridNNX = mo.ui.number(start=1, stop=None, value=nxdef, label="Nodes along X")
-    WGridNNY = mo.ui.number(start=1, stop=None, value=nxdef, label="Nodes along Y")
+    WGridNNX = mo.ui.number(start=1, stop=None, value=nxdef)
+    WGridNNY = mo.ui.number(start=1, stop=None, value=nxdef)
     return mo.ui.array([WGridNNX, WGridNNY])
 
 
-def WshowGridN(WAll, flagTitle=True):
+def WshowGridN(WAll, flagTitle=True, gapv=0, gaph=1):
     [WGridNNX, WGridNNY] = WAll
     WGridNTitle = _WgetTitle("Grid Discretization", flagTitle=flagTitle)
 
-    return mo.vstack([WGridNTitle, WGridNNX, WGridNNY])
+    WGridNgrid = mo.hstack(
+        [
+            mo.vstack([mo.md("Parameters"), mo.md("Nodes")], gap=gapv),
+            mo.vstack([mo.md("Along X"), WGridNNX], align="end", gap=gapv),
+            mo.vstack([mo.md("Along Y"), WGridNNY], align="end", gap=gapv),
+        ],
+        gap=gaph,
+    )
+    return mo.vstack([WGridNTitle, WGridNgrid], gap=gapv)
 
 
 def WgetGridN(WAll, box):
@@ -872,3 +902,87 @@ def WgetGridN(WAll, box):
     x0 = box[0, 0]
     y0 = box[1, 0]
     return gl.DbGrid.create(nx=[nx, ny], dx=[dx, dy], x0=[x0, y0])
+
+
+# =======================================
+# Widget to manage a Editing of a Db (radix : WEdit)
+# =======================================
+
+
+def WdefineEdit(db):
+    if db is None:
+        return
+    names = db.getAllNames()
+    cols = db.getColumnsAsVVD(names)
+    df = pd.DataFrame(cols.T, columns=names)
+    Wedit = mo.ui.data_editor(df).form(bordered=False)
+    return mo.ui.array([Wedit])
+
+
+def WshowEdit(WAll, flagTitle=True, gapv=0, gaph=1):
+    if WAll is None:
+        return None
+    [Wedit] = WAll
+    WeditTitle = _WgetTitle("Edit Database", flagTitle=flagTitle)
+    return mo.vstack([WeditTitle, Wedit], gap=gapv)
+
+
+def WgetEdit(WAll, db):
+    if WAll is None:
+        return None
+    [Wedit] = WAll
+    if Wedit.value is None:
+        return db
+
+    df = Wedit.value
+    names = db.getAllNames()
+
+    for name in names:
+        if name in df.columns:
+            db.setColumn(df[name], name)
+
+    _saveNF(db, "myDb.NF")
+    _displayItem(db)
+
+    return db
+
+
+# =======================================
+# Some display functions used in Marimo
+# =======================================
+
+
+def plotData(ax, db, name, box=None, title=None, flagProj=False):
+    if db is None:
+        return None
+    if name is None or db.getColIdx(name) <= 0:
+        return None
+
+    if box is not None:
+        ax.baseMap(db=db, box=box, flagProj=flagProj)
+    ax.literal(db=db, name=name, fontsize=6)
+    if flagProj:
+        ctx.add_basemap(ax, source=ctx.providers.OpenStreetMap.Mapnik, crs="EPSG:4326")
+    if title is None:
+        title = name
+    ax.decoration(title=title)
+    ax.geometry(aspect=1)
+
+
+def plotVario(ax, vario=None, model=None, title=None, showPairs=True):
+    ax.varmod(vario, model, showPairs=showPairs)
+    if title is None:
+        title = "Variogram & Model"
+    ax.decoration(title=title)
+
+
+def plotGrid(ax, grid, name, title=None, flagLegend=False):
+    if grid is None:
+        return
+    if name is None or grid.getColIdx(name) <= 0:
+        return
+    if title is None:
+        title = f"Grid: {name}"
+    ax.raster(dbgrid=grid, name=name, alpha=0.5, flagLegend=flagLegend)
+    ax.decoration(title=title)
+    ax.geometry(aspect=1)

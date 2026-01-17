@@ -1106,6 +1106,16 @@ CovAnisoList* Model::_castInCovAnisoList(Id icov)
   return covalist;
 }
 
+bool Model::drawOnlyPositiveX(Id ivar, Id jvar)
+{
+  return (ivar == jvar);
+}
+
+bool Model::drawOnlyPositiveY(Id ivar, Id jvar)
+{
+  return (ivar == jvar);
+}
+
 /****************************************************************************/
 /*!
  **  Stabilize the model (in the monovariate case)

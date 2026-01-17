@@ -7,23 +7,22 @@ app = marimo.App(css_file="custom.css")
 @app.cell(hide_code=True)
 def _():
     import marimo as mo
+
     import gstlearn as gl
     import gstlearn.plot as gp
     import gstlearn.gstmarimo as gmo
     import matplotlib.pyplot as plt
-    import contextily as ctx
 
     import numpy as np
     import pandas as pd
 
-    return ctx, gl, gmo, gp, mo
+    return gl, gmo, gp, mo
 
 
 @app.cell(hide_code=True)
-def _():
-    # Global parameters
-    nxdef = 100
-    return (nxdef,)
+def _(gmo):
+    gmo.setEnvironment(optionSaveNF=True, optionPrint=False)
+    return
 
 
 @app.cell(hide_code=True)
@@ -35,7 +34,19 @@ def _(gmo):
 
 @app.cell(hide_code=True)
 def _(WidgetDb, gmo):
-    db = gmo.WgetDb(WidgetDb)
+    dbinit = gmo.WgetDb(WidgetDb)
+    return (dbinit,)
+
+
+@app.cell(hide_code=True)
+def _(dbinit, gmo):
+    WidgetEdit = gmo.WdefineEdit(dbinit)
+    return (WidgetEdit,)
+
+
+@app.cell(hide_code=True)
+def _(WidgetEdit, dbinit, gmo):
+    db = gmo.WgetEdit(WidgetEdit, dbinit)
     return (db,)
 
 
@@ -46,8 +57,8 @@ def _(db, gmo):
 
 
 @app.cell(hide_code=True)
-def _(gmo, nxdef):
-    WidgetGrid = gmo.WdefineGridN(nxdef)
+def _(gmo):
+    WidgetGrid = gmo.WdefineGridN()
     return (WidgetGrid,)
 
 
@@ -76,52 +87,11 @@ def _(
     WidgetModel,
     WidgetVario,
     WidgetView,
-    ctx,
     gl,
     gmo,
     gp,
     mo,
 ):
-    def plotVario(ax, vario, model, showPairs=True):
-        ax.varmod(vario, model, showPairs=showPairs)
-        ax.decoration(title="Variogram & Model")
-
-    def plotData(ax, db, box, targetName, flagProj=False):
-        ax.baseMap(db=db, box=box, flagProj=flagProj)
-        ax.literal(db=db, name=targetName, fontsize=6)
-        if flagProj:
-            ctx.add_basemap(
-                ax, source=ctx.providers.OpenStreetMap.Mapnik, crs="EPSG:4326"
-            )
-        ax.decoration(title=targetName)
-        ax.geometry(aspect=1)
-
-    def plotEstim(ax, db, grid, targetName, flagProj=False):
-        varName = "Kriging.*.estim"
-        if grid.getColIdx(varName) <= 0:
-            return
-        ax.raster(dbgrid=grid, name=varName, alpha=0.5)
-        ax.literal(db=db, name=targetName, fontsize=6)
-        if flagProj:
-            ctx.add_basemap(
-                ax, source=ctx.providers.OpenStreetMap.Mapnik, crs="EPSG:4326"
-            )
-        ax.decoration(title="Estimation")
-        ax.geometry(aspect=1)
-
-    def plotStdev(ax, db, grid, targetName, flagProj=False):
-        varName = "Kriging.*.stdev"
-        if grid.getColIdx(varName) <= 0:
-            return
-        ax.raster(dbgrid=grid, name=varName, alpha=0.5)
-        ax.literal(db=db, name=targetName, fontsize=6)
-        if flagProj:
-            ctx.add_basemap(
-                ax, source=ctx.providers.OpenStreetMap.Mapnik, crs="EPSG:4326"
-            )
-        ax.decoration(title="St. Dev. of Estimation Error")
-        ax.geometry(aspect=1)
-
     def myaction():
         # Define the Input Db
         db = gmo.WgetDb(WidgetDb)
@@ -159,12 +129,14 @@ def _(
         ):
             err = gl.kriging(db, grid, model, neigh)
 
-        fig, ax = gp.init(2, 2, figsize=(10, 10))
-        plotData(ax[0, 0], db, box, targetName, flagProj=flagProj)
-        plotVario(ax[0, 1], vario, model, showPairs=True)
+        fig, ax = gp.init(2, 2, figsize=(8, 8))
+        gmo.plotData(ax[0, 0], db, name=targetName, box=box, flagProj=flagProj)
+        gmo.plotVario(ax[0, 1], vario, model, showPairs=True)
 
-        plotEstim(ax[1, 0], db, grid, targetName)
-        plotStdev(ax[1, 1], db, grid, targetName)
+        gmo.plotGrid(ax[1, 0], grid, name="Kriging.*.estim", flagLegend=True)
+        gmo.plotData(ax[1, 0], db, name=targetName, box=box, flagProj=flagProj)
+        gmo.plotGrid(ax[1, 1], grid, name="Kriging.*.stdev", flagLegend=True)
+        gmo.plotData(ax[1, 1], db, name=targetName, box=box, flagProj=flagProj)
         mo.mpl.interactive(fig)
 
         return fig
@@ -175,6 +147,7 @@ def _(
 @app.cell(hide_code=True)
 def _(
     WidgetDb,
+    WidgetEdit,
     WidgetGrid,
     WidgetModel,
     WidgetVario,
@@ -186,6 +159,7 @@ def _(
     param = mo.ui.tabs(
         {
             "Data": gmo.WshowDb(WidgetDb),
+            "Edit": gmo.WshowEdit(WidgetEdit),
             "View": gmo.WshowBox(WidgetView, gapv=0, gaph=1),
             "Grid": gmo.WshowGridN(WidgetGrid),
             "Variogram": gmo.WshowVario(WidgetVario),

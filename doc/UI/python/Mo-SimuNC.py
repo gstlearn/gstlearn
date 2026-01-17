@@ -1,55 +1,35 @@
 import marimo
 
-__generated_with = "0.11.25"
-app = marimo.App()
+__generated_with = "0.19.2"
+app = marimo.App(css_file="custom.css")
 
 
 @app.cell(hide_code=True)
 def _():
     import marimo as mo
-    import altair as alt
 
     import gstlearn as gl
     import gstlearn.plot as gp
     import gstlearn.gstmarimo as gmo
-    import gstlearn.document as gdoc
+    import matplotlib.pyplot as plt
 
     import numpy as np
-    import matplotlib.pyplot as plt
-    import copy
-    from IPython.display import Markdown
+    import pandas as pd
 
-    return Markdown, alt, copy, gdoc, gl, gmo, gp, mo, np, plt
+    return gl, gmo, gp, mo
 
 
 @app.cell(hide_code=True)
-def _():
-    # Parametrization for the Model
-    ncovmax = 2
-    distmax = 100
-    varmax = 50
-    return distmax, ncovmax, varmax
-
-
-@app.cell(hide_code=True)
-def _():
-    # Version gstlearn a faire marcher
-    # Markdown(gdoc.loadDoc("Statistics_mean.md"))
-    # version decortiquee qui fonctionne
-    # filename = gl.getReferenceFilename("Cvv.md")
-    # Markdown(filename)
-    return
-
-
-@app.cell(hide_code=True)
-def _(distmax, gmo, ncovmax, varmax):
-    WidgetModel = gmo.WdefineModel(ncovmax, distmax, varmax)
+def _(gmo):
+    WidgetModel = gmo.WdefineModel(
+        ncovmax=2, distmax=100, varmax=50, valdef="Interactive"
+    )
     return (WidgetModel,)
 
 
 @app.cell(hide_code=True)
 def _(gmo):
-    WidgetGrid = gmo.WdefineGrid(100)
+    WidgetGrid = gmo.WdefineGrid()
     return (WidgetGrid,)
 
 
@@ -60,17 +40,37 @@ def _(gmo):
 
 
 @app.cell(hide_code=True)
-def _(WidgetGrid, WidgetModel, WidgetSimtub, gl, gmo, gp):
+def _(WidgetGrid, WidgetModel, WidgetSimtub, gl, gmo, gp, mo):
     def myaction():
-        model = gmo.WgetModel(WidgetModel)
         grid = gmo.WgetGrid(WidgetGrid)
-        nbtuba, seed = gmo.WgetSimtub(WidgetSimtub)
-        err = gl.simtub(None, dbout=grid, model=model, nbtuba=nbtuba, seed=int(seed))
 
-        fig, ax = gp.init(2, 1, figsize=(10, 14))
-        ax[0, 0].model(model, hmax=100)
-        ax[1, 0].raster(grid)
-        ax[1, 0].axis("equal")
+        model = gmo.WgetModel(WidgetModel)
+
+        nbtuba, nbsimu, seed = gmo.WgetSimtub(WidgetSimtub)
+
+        if model is not None and grid is not None:
+            gl.simtub(
+                None, dbout=grid, model=model, nbtuba=nbtuba, nbsimu=nbsimu, seed=seed
+            )
+
+        fig, ax = gp.init(2, 2, figsize=[8, 8])
+
+        gmo.plotVario(ax[0, 0], model=model)
+        name = "Simu"
+        if nbsimu > 1:
+            name = "Simu.1"
+        gmo.plotGrid(ax[1, 0], grid, name=name, title="Simulation #1", flagLegend=True)
+        if nbsimu >= 2:
+            gmo.plotGrid(
+                ax[0, 1], grid, name="Simu.2", title="Simulation #2", flagLegend=True
+            )
+        if nbsimu >= 3:
+            gmo.plotGrid(
+                ax[1, 1], grid, name="Simu.3", title="Simulation #3", flagLegend=True
+            )
+        mo.mpl.interactive(fig)
+
+        print(nbsimu)
         return fig
 
     return (myaction,)
@@ -84,14 +84,14 @@ def _(WidgetGrid, WidgetModel, WidgetSimtub, gmo, mo, myaction):
             "Model": gmo.WshowModel(WidgetModel),
             "Simulation": gmo.WshowSimtub(WidgetSimtub),
         }
-    ).style({"minWidth": "350px", "width": "350px"})
+    ).style({"minWidth": "400px", "width": "350px"})
 
     simu = mo.vstack(
         [mo.md(""), mo.md(f"Model and Simulation{mo.as_html(myaction())}")], gap=4
     )
 
     mo.hstack([param, simu], gap=4)
-    return param, simu
+    return
 
 
 if __name__ == "__main__":
