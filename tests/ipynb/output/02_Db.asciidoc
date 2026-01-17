@@ -127,21 +127,21 @@ Total number of samples      = 236
 Data Base Statistics
 --------------------
 4 - Name Elevation - Locator NA
- Nb of data          =        236
- Nb of active values =        236
- Minimum value       =      2.000
- Maximum value       =    800.000
- Mean value          =    146.441
- Standard Deviation  =    165.138
- Variance            =  27270.713
+ Nb of data          =         236
+ Nb of active values =         236
+ Minimum value       =       2.000
+ Maximum value       =     800.000
+ Mean value          =     146.441
+ Standard Deviation  =     165.138
+ Variance            =   27270.713
 5 - Name January_temp - Locator z1
- Nb of data          =        236
- Nb of active values =        151
- Minimum value       =      0.600
- Maximum value       =      5.200
- Mean value          =      2.815
- Standard Deviation  =      1.010
- Variance            =      1.020
+ Nb of data          =         236
+ Nb of active values =         151
+ Minimum value       =       0.600
+ Maximum value       =       5.200
+ Mean value          =       2.815
+ Standard Deviation  =       1.010
+ Variance            =       1.020
 
 Variables
 ---------
@@ -154,9 +154,9 @@ Column = 4 - Name = January_temp - Locator = z1
 
 
 #NO_DIFF#XXX
-----                   Mean    Minimum    Maximum
-   Elevation     87.974      3.000    387.000
-January_temp      2.815      0.600      5.200----
+----                    Mean     Minimum     Maximum
+   Elevation      87.974       3.000     387.000
+January_temp       2.815       0.600       5.200----
 
 
 #NO_DIFF#XXX
@@ -299,7 +299,7 @@ Column = 4 - Name = January_temp - Locator = z1----
 
 #NO_DIFF#XXX
 ----
-  -1 -     UNKNOWN : Unknown locator
+  -1 -   UNDEFINED : No locator
    0 -           X : Coordinate
    1 -           Z : Variable
    2 -           V : Variance of measurement error
@@ -365,9 +365,9 @@ Number of active samples     = 3092
 
 Grid characteristics:
 ---------------------
-Origin :     65.000   535.000
-Mesh   :      4.938     4.963
-Number :         81       137
+Origin :      65.000    535.000
+Mesh   :       4.938      4.963
+Number :          81        137
 
 Variables
 ---------
