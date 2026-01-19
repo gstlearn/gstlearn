@@ -43,6 +43,11 @@ doc = [
     "IPython",
 ]
 all = ["gstlearn[plot,conv,doc]"]
+marimo = [
+     "gstlearn[all]",
+     "marimo[recommended]",
+     "contextily",
+]
 
 [project.urls]
 Homepage = "@PROJECT_HOMEPAGE_URL@"
