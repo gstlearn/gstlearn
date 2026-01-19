@@ -1,13 +1,12 @@
 import marimo
 
-__generated_with = "0.11.25"
-app = marimo.App()
+__generated_with = "0.19.2"
+app = marimo.App(css_file="custom.css")
 
 
 @app.cell(hide_code=True)
 def _():
     import marimo as mo
-    import altair as alt
 
     import gstlearn as gl
     import gstlearn.plot as gp
@@ -16,10 +15,14 @@ def _():
 
     import numpy as np
     import matplotlib.pyplot as plt
-    import copy
-    from IPython.display import Markdown
 
-    return Markdown, alt, copy, gdoc, gl, gmo, gp, mo, np, plt
+    return gmo, gp, mo
+
+
+@app.cell(hide_code=True)
+def _(gmo):
+    gmo.setEnvironment(optionSaveNF=True, optionPrint=False)
+    return
 
 
 @app.cell(hide_code=True)
@@ -29,33 +32,45 @@ def _(gmo):
 
 
 @app.cell(hide_code=True)
-def _(WidgetDb, gmo, gp):
-    def myplot():
-        db = gmo.WgetDb(WidgetDb)
+def _(WidgetDb, gmo):
+    dbinit = gmo.WgetDb(WidgetDb)
+    return (dbinit,)
 
-        fig = None
-        if db is not None:
-            fig, ax = gp.init(figsize=[4, 4])
-            ax.symbol(db)
+
+@app.cell(hide_code=True)
+def _(dbinit, gmo):
+    WidgetEdit = gmo.WdefineEdit(dbinit)
+    return (WidgetEdit,)
+
+
+@app.cell(hide_code=True)
+def _(WidgetEdit, dbinit, gmo):
+    db = gmo.WgetEdit(WidgetEdit, dbinit)
+    return (db,)
+
+
+@app.cell(hide_code=True)
+def _(db, gmo, gp):
+    def myplot():
+        fig, ax = gp.init(figsize=(4, 4))
+        gmo.plotData(ax, db, name="z")
         return fig
 
     return (myplot,)
 
 
 @app.cell(hide_code=True)
-def _(WidgetDb, gmo, mo, myplot):
+def _(WidgetDb, WidgetEdit, gmo, mo, myplot):
     param = mo.ui.tabs(
-        {
-            "Data": gmo.WshowDb(WidgetDb),
-        }
-    ).style({"minWidth": "350px", "width": "350px"})
+        {"Data": gmo.WshowDb(WidgetDb), "Edit": gmo.WshowEdit(WidgetEdit)}
+    ).style({"minWidth": "700px", "width": "350px"})
 
     simu = mo.vstack(
         [mo.md(""), mo.md(f"Plotting the Data Base:{mo.as_html(myplot())}")], gap=4
     )
 
     mo.hstack([param, simu], gap=4)
-    return param, simu
+    return
 
 
 if __name__ == "__main__":

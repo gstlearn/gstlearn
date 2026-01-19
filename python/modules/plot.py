@@ -710,11 +710,21 @@ def _ax_varmod(
 
             ax.autoscale(True)
 
-            if vario is not None:
-                if vario.drawOnlyPositiveX(iv, jv):
-                    ax.set_xlim(left=0)
-                if vario.drawOnlyPositiveY(iv, jv):
-                    ax.set_ylim(bottom=0)
+            xlimLeft = False
+            if model is not None and model.drawOnlyPositiveX(iv, jv):
+                xlimLeft = True
+            if vario is not None and vario.drawOnlyPositiveX(iv, jv):
+                xlimLeft = True
+            if xlimLeft:
+                ax.set_xlim(left=0)
+
+            ylimBottom = False
+            if model is not None and model.drawOnlyPositiveY(iv, jv):
+                ylimBottom = True
+            if vario is not None and vario.drawOnlyPositiveY(iv, jv):
+                ylimBottom = True
+            if ylimBottom:
+                ax.set_ylim(bottom=0)
 
             # Add the point (0,0) to fix the scale of the graphic
             # This should be valid for any representation of Variogram and/or Model
