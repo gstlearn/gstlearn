@@ -19,6 +19,9 @@
 #include "Covariances/CovCalcMode.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Covariances/TabNoStat.hpp"
+#include "Simulation/ASimuSpectral.hpp"
+#include "Simulation/SimuSpectralRN.hpp"
+#include "Simulation/SpectrumRN.hpp"
 #include "Db/RankHandler.hpp"
 #include "Enum/ECalcMember.hpp"
 #include "Estimation/KrigOpt.hpp"
@@ -45,6 +48,7 @@ class AFunctional;
 class CovInternal;
 class ListParams;
 class MatrixSparse;
+class SpectrumRN;
 
 /**
  * \brief
@@ -95,6 +99,7 @@ public:
 
   virtual bool isValidForSpectral() const;
   virtual MatrixDense simulateSpectralOmega(Id ns) const;
+  virtual SpectrumRN simulateSpectrumRN(Id ns, const ACov* cov0 = nullptr) const;
 
   VectorDouble evalCovGrad(const SpacePoint& p1,
                            const SpacePoint& p2,
@@ -498,7 +503,7 @@ public:
                             Id iv2 = 0) const;
   void informDbIn(const Db* dbin) const;
   void informDbOut(const Db* dbout) const;
-  Id getNDim(Id ispace = -1) const { return static_cast<Id>(_ctxt.getNDim(ispace)); }
+  virtual Id getNDim(Id ispace = -1) const { return static_cast<Id>(_ctxt.getNDim(ispace)); }
   void optimizationPreProcessForData(const Db* db1 = nullptr) const;
   virtual void setOptimEnabled(bool enabled) const { _optimEnabled = enabled; }
 

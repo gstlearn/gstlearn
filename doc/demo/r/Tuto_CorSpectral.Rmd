@@ -1,0 +1,1832 @@
+---
+title: "Test of the correlations functions using the spectral approach"
+author: "The gstlearn Team"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+This script evaluates the following class of *gstlearn*:
+
+* The class **CorAniso** implements a univariate stationary covariance on $\mathbb{R}^d$,
+
+* The class **CorMatern** implements the multivariate stationary Matern's stationary covariance on $\mathbb{R}^d$,
+
+* The class **CorGaussianMixture** implements the multivariate stationary Matern's or Cauchy covariance on $\mathbb{R}^d$,
+
+* The class **CorGneiting** implements the multivariate stationary covariance on $\mathbb{R}^d \times \mathbb{R}$.
+
+
+For all these covariances, the variance is equal to one and a geometrical anisotropy is defined on $\mathbb{R}^d$ by a rotation and $d$ scaling or range positive coefficients.
+
+Four covariances functions are defined:
+
+1) the **EXPONENTIAL** covariance: $C(\boldsymbol{h}) = \exp(-\|\boldsymbol{h}\|)$,
+
+2) the **GAUSSIAN** covariance: $C(\boldsymbol{h}) = \exp(-\|\boldsymbol{h}\|^2)$,
+
+3) the **MATERN** covariance: $C(\boldsymbol{h}; \nu) = \frac{2^{1-\nu}}{\Gamma(\nu)} \|\boldsymbol{h}\|^\nu K_\nu(\|\boldsymbol{h}\|) = \mathcal{M}_{\nu}(\|\boldsymbol{h}\|)$,
+
+4) the **CAUCHY** covariance: $C(\boldsymbol{h}; \nu) = (1 + \|\boldsymbol{h}\|^2)^{-\nu} = \mathcal{C}_{\nu}(\|\boldsymbol{h}\|)$,
+
+5) the **CAUCHY_GEN** covariance: $C(\boldsymbol{h}; \alpha, \nu) = (1 + \|\boldsymbol{h}\|^\alpha)^{-\nu}$,
+
+6) the **GNEITING_G** covariance: $C((\boldsymbol{h}, u); \alpha, \beta, \kappa) = (1 + |\frac{u}{a_t}|^\alpha)^{-\beta\frac{d}{2}} \exp(-\frac{\|\kappa\boldsymbol{h}\|^2}{(1 + |\frac{u}{a_t}|^\alpha)^{\beta}})$,
+
+7) the **GNEITING_M** covariance: $C_{ij}((\boldsymbol{h}, u); \alpha, \beta, \boldsymbol{\nu}, \boldsymbol{\kappa}) = \tau_{ij} \,  (1 + |\frac{u}{a_t}|^\alpha)^{-\beta\frac{d}{2}} \mathcal{M}_{\nu_{ij}}(\kappa_{ij}\, \frac{\|\boldsymbol{h}\|}{(1 + |\frac{u}{a_t}|^\alpha)^{\beta/2}})$, with
+
+* $\nu_{ij} = (\nu_i + \nu_j)/2$,
+
+* $\kappa_{ij} = \sqrt{(\kappa_i^2 + \kappa_j^2)/2}$,
+
+* $\tau_{ij} = \frac{\Gamma(\nu_{ij})}{\sqrt{\Gamma(\nu_{i})\Gamma(\nu_{j})}}\, \frac{\kappa_{i}^{\nu_{i}}\kappa_{j}^{\nu_{j}}}{\kappa_{ij}^{2\nu_{ij}}}$
+
+8) the **GNEITING_C** covariance: $C((\boldsymbol{h}, u); \alpha, \beta, \boldsymbol{\nu}, \boldsymbol{\kappa}) = \tau_{ij} \, (1 + |\frac{u}{a_t}|^\alpha)^{-\beta\frac{d}{2}} \mathcal{C}_{\nu_{ij}}(\kappa_{ij}\, \frac{\|\boldsymbol{h}\|}{(1 + |\frac{u}{a_t}|^\alpha)^{\beta/2}})$,
+
+* $\nu_{ij} = (\nu_i + \nu_j)/2$,
+
+* $\kappa_{ij} = 1/\sqrt{(1/\kappa_i^2 + 1/\kappa_j^2)/2}$,
+
+* $\tau_{ij} = \frac{\Gamma(\nu_{ij})}{\sqrt{\Gamma(\nu_{i})\Gamma(\nu_{j})}}\, \frac{\kappa_{ij}^{2\nu_{ij}}}{\kappa_{i}^{\nu_{i}}\kappa_{j}^{\nu_{j}}}$
+
+In all cases,
+
+* $\boldsymbol{h} \in \mathbb{R}^d$ is the increment,
+* $\|\boldsymbol{h}\|$ is the norm of the increments defined by the geometrical anisotropy,
+* $\boldsymbol{\nu} > 0$ are the shape parameters defined for each variable, and
+* $\boldsymbol{\kappa} > 0$ are the scale/range parameters defined for each variable.
+
+For the Gneiting's models, the covariance trace in time is defined by
+
+* $\alpha \in (0,2]$, 
+* $\beta \in (0,1]$, and
+* $a_t > 0$ a scale/range parameter of the time increment.
+
+```{r, echo=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+rm(list = ls())
+library(gstlearn)
+library(ggplot2)
+library(ggpubr)
+
+# global parameters
+flag.verbose  = TRUE
+flag.msg      = FALSE
+flag.gstlearn = FALSE
+opers = EStatOption_fromKeys(c("NUM", "MINI", "MAXI", "MEAN", "STDV"))
+```
+
+# R functions
+
+### Auxiliary functions
+
+```{r my_functions_aux, echo=FALSE, eval=TRUE}
+# ------------------------------------------------------------------------------
+# Simulation of stable distribution implemented in LawStable class
+# ------------------------------------------------------------------------------
+
+# vector function for cardinal sine function
+sinc <- function(u) {
+  val = rep(1.0, length(u))
+  sel = (abs(u) > 0)
+  val[sel] <- sin(u[sel])/u[sel]
+  val
+}
+
+# Simulation of unilateral stable distribution S_{\alpha} with alpha \in (0,1)
+A <- function(u, alpha) {
+  ((sin(alpha*u)^alpha) * (sin((1-alpha)*u)^(1-alpha)) / sin(u))^(1/(1-alpha))
+}
+
+BB0 <- function(x, alpha) {
+  stopifnot((alpha >= 0)&(alpha <= 1))
+  sinc(x)/(sinc(alpha*x)^alpha)/(sinc((1-alpha)*x)^(1-alpha))
+}
+
+#' Simulation of unilateral stable distribution  $S_{\alpha}$
+#' with $alpha \in (0,1)$
+
+simulate_stable_unilateral <- function(n = 1, alpha) {
+  b = (1-alpha)/alpha
+  (A(pi*runif(n), alpha = alpha)/(-log(runif(n))))^b
+}
+
+# bilateral stable distribution:alpha in (1,2]
+
+#' simulation of a Cauchy distribution
+#' @param n number of values to be simulated
+simulate_cauchy <- function(n) {rnorm(n)/rnorm(n)}
+
+#' simulation of a bilateral stable distribution
+#' @param n number of values to be simulated
+#' @param alpha the tail index (1 < alpha =< 2)
+simulate_stable_bilateral <- function(n, alpha) {  
+  stopifnot((alpha > 0)&(alpha <= 2))
+  U = pi*(runif(n)-0.5) # uniform on [-pi/2, pi/2]
+  if (alpha == 1.0) { # Cauchy distribution
+    tan(U)
+  } else {
+    E = -log(runif(n))        # exponentially distributed
+    sin(alpha*U)/(cos(U)^(1/alpha))*(cos((1-alpha)*U)/E)^((1-alpha)/alpha)
+  }
+}
+
+#' Sinulation of exponentially tilted unilateral stable distribution $S_{\alpha, \lambda}$ 
+#' with $alpha \in (0,1)$ and $\lambda > 0$
+
+simulate_stable_unilateral_exptilted <- function(n = 1, alpha, lambda, flag.double = TRUE) {
+  stopifnot((alpha > 0)&(alpha <= 1))
+  stopifnot(lambda >= 0)
+  X = rep(NaN, n)
+  nt = 0
+  for (i in 1:n) {
+    if (flag.double) {
+      res  = simulate_stable_unilateral_exptilted_scalar_opt(alpha = alpha, lambda = lambda)
+    } else {
+      res  = simulate_stable_unilateral_exptilted_scalar(alpha = alpha, lambda = lambda)
+    }
+    X[i] = res$X
+    nt = nt + res$n
+  }
+  list(X = X, nt = nt/n)
+}
+
+# ------------------------------------------------------------------
+# naive rejection
+# ------------------------------------------------------------------
+# simulation of a single value
+simulate_stable_unilateral_exptilted_scalar <- function(alpha, lambda) {
+  n = 0
+  while (TRUE) {
+    X = simulate_stable_unilateral(n = 1, alpha = alpha)
+    n = n + 1
+    if(runif(1) < exp(-lambda*X)) {break}
+  }
+  list(X = X, n = n) 
+}
+# ------------------------------------------------------------------
+# double rejection method
+# ------------------------------------------------------------------
+# simulation of a single value
+simulate_stable_unilateral_exptilted_scalar_opt <- function(alpha, lambda) {
+  # No tilting
+  if (lambda == 0.0) {
+    X = simulate_stable_unilateral(alpha = alpha)
+    n = 1
+  } else {
+    # lambda > 0
+    # ------------------------------------------------------------
+    # set-up
+    # ------------------------------------------------------------
+    n   = 0
+    b   = (1 - alpha)/alpha
+    gam = lambda^alpha * alpha * (1 - alpha)
+    xi  = ((2 + sqrt(pi/2))*sqrt(2*gam) + 1) / pi
+    psi = exp(-1/8 * gam *pi^2) * (2 + sqrt(pi/2)) * sqrt(gam*pi) / pi
+    w1  = xi * sqrt(pi/(2*gam))
+    w2  = 2  * psi * sqrt(pi)
+    w3  = xi * pi
+    if (gam >= 1.0) {w3 = 0.0}
+    else {w1 = 0.0}
+    w_tot = w1 + w2 + w3
+    
+    # generate U with density proportional to g*/G*
+    while(TRUE) {
+      # generate a proposal according to g**
+      n = n + 1
+      W = runif(1)
+      if (W < w1/w_tot) {
+        U <- abs(rnorm(1))/sqrt(gam)
+      } else if (W < (w1 + w2)/w_tot) {
+        U <- pi *(1 - runif(1)^2)  
+      } else {
+        U <- pi * runif(1)
+      }
+      if (U < pi) {
+        zeta = sqrt(BB0(U, alpha = alpha))
+        phi  = (sqrt(gam)+alpha*zeta)^(1/alpha)
+        z    = phi/(phi - sqrt(gam)^(1/alpha))
+        g1 = 1/pi*exp(lambda^alpha*(1-1/zeta^2))*((1+sqrt(pi/2))*sqrt(gam)/zeta +z)
+        g2 = psi/sqrt(pi-U)
+        if (gam >= 1.0) {g2 = g2 + xi*exp(-1/2*gam*U^2)}
+        else {g2 = g2 + xi}
+        rho = g2/g1
+        Z = runif(1)*g2/g1
+        if(Z <= 1.0) {break}
+      }
+    } # U has density g*/G* and Z is uniform on [0,1]
+    
+    # generate X with density proportional to g(x, U)
+    a = A(u = U, alpha = alpha)
+    m = (b*lambda/a)^alpha
+    delta = sqrt(m*alpha/a)
+    a1 = delta*sqrt(pi/2)
+    a2 = delta
+    a3 = z/a
+    s  = a1 + a2 + a3
+    while(TRUE) {
+      n = n + 1
+      V = runif(1)
+      if(V < a1/s) { # X < m
+        N_prime = rnorm(1)
+        X = m - delta * abs(N_prime)
+        val_test = - 1/2 * N_prime^2
+      } else if (V < (a1+a2)/s) { # m < X < m + delta
+        X = m + delta*runif(1)
+        val_test = 0.0
+      } else { # m + delta < X
+        E_prime = -log(runif(1))
+        X = m + delta + a3*E_prime
+        val_test = - E_prime
+      }
+      val_test = val_test + a*(X-m)+lambda*(1/X^b - 1/m^b)
+      if((X >=0)&(val_test <= -log(Z))) {break}
+    } 
+    X = 1/X^b
+  } # lambda > 0
+  list(X = X, n = n)
+}
+
+# ------------------------------------------------------------------------------
+# function for QC
+# ------------------------------------------------------------------------------
+reduce_model <- function(model, ivar = 1, jvar = 1, verbose = TRUE) {
+  val  = NULL
+  nvar = model$getNVar()
+  stopifnot((ivar %in% 1:nvar)&(jvar %in% 1:nvar))
+  type = model$type()
+  if (nvar == 1) {
+    val = model
+  }
+  if (nvar > 1) {
+    nu    = model$getNus()[ivar, jvar]
+    kappa = model$getKappas()[ivar, jvar]
+    sigma = model$variance(ivar, jvar)
+    ani   = model$getAnisotropy()
+    if (type %in% MyType_[c(3,4)]) {
+      val = MyCorGaussianMixture(type = type, nu = nu, kappa = kappa, sigma = sigma,
+                        anisotropy = ani, verbose = verbose)
+    }
+    if (type %in% MyType_[c(6,7,8)]) {
+      alpha = model$alpha()
+      beta  = model$beta()
+      timeRange   = model$timeRange()
+      val = MyCorGneiting(type = type, nu = nu, kappa = kappa, sigma = sigma,
+                        alpha = alpha, beta = beta, timeRange = timeRange,
+                        anisotropy = ani, verbose = verbose)
+    }
+  }
+  val
+}
+
+# ------------------------------------------------------------------------------
+# Auxiliary functions for simulation and QC
+# ------------------------------------------------------------------------------
+expand_dbgrid <- function(grid) {
+  ndim = grid$getNDim()
+  x0 = grid$getX0s()
+  dx = grid$getDXs()
+  nx = grid$getNXs()
+  xx = list()
+  for (idim in 1:ndim) {
+    xx[[1+length(xx)]] <- (x0[idim] + (0:(nx[idim]-1))*dx[idim])
+  }
+  X = as.matrix(expand.grid(xx))
+  if (ndim == 1) {X = t(X)}
+  X
+}
+
+# ------------------------------------------------------------------------------
+# rotations 1D/2D/3D
+# ------------------------------------------------------------------------------
+rot1D <- function() {
+  matrix(1,1,1)
+}
+rot2D <- function(angles = 0.0) {
+  theta = angles[1] * pi / 180
+  cs = cos(theta)
+  sn = sin(theta)
+  matrix(c(cs, sn, -sn, cs), 2, 2)
+}
+rot3D <- function(angles = rep(0.0, 3), flag.euler = TRUE) {
+  # yaw
+  alpha = angles[1] * pi / 180 
+  cs = cos(alpha); sn = sin(alpha)
+  Rz = matrix(c(cs, sn, 0, -sn, cs, 0, 0, 0, 1), 3, 3)
+  # pitch
+  beta = angles[2] * pi / 180 
+  cs = cos(beta); sn = sin(beta)
+  Ry = matrix(c(cs, 0, -sn, 0, 1, 0, sn, 0, cs), 3, 3)
+  # roll
+  gamma = angles[3] * pi / 180
+  cs = cos(gamma); sn = sin(gamma)
+  Rx = matrix(c(1, 0, 0, 0, cs, sn, 0, -sn, cs), 3, 3)
+  if(flag.euler) {
+    # extrinsic rotation whose (improper) Euler angles are (alpha, beta, gamma)
+    Rx %*% Ry %*% Rz
+  } else {
+    # intrinsic rotation whose Tait-Bryan angles are (alpha, beta, gamma)
+    Rz %*% Ry %*% Rx
+  }
+}
+
+# rotations 1D/2D/3D
+MyRotation = function(angles, flag.euler = FALSE) {
+  stopifnot(length(angles) %in% 1:3)
+  if (length(angles) == 1) {
+    direct = rot1D()
+  }
+  if (length(angles) == 2) {
+    direct = rot2D(angles = angles)
+  }
+  if (length(angles) == 3) {
+    direct = rot3D(angles = angles, flag.euler = flag.euler)
+    }
+  fn_applyDirect = function(U) {
+    stopifnot(ncol(U) == dim(direct)[1])
+    U %*% t(direct)
+  }
+  fn_applyInverse = function(U) {
+    stopifnot(ncol(U) == dim(direct)[1])
+    U %*% direct
+  }
+  list(
+    getNDim = function(){dim(direct)[1]},
+    getAngles = function(){angles},
+    getMatrixDirect = function(){direct},
+    getMatrixInverse = function(){t(direct)},
+    applyDirect  = function(u){direct %*% u},
+    applyInverse = function(u){t(direct) %*% u},
+    applyDirectVec = fn_applyDirect,
+    applyInverseVec = fn_applyInverse
+  )
+}
+
+# ------------------------------------------------------------------------------
+# geometrical anisotropy defined by scale parameters and a rotation
+# ------------------------------------------------------------------------------
+MyAniso = function(scales = c(1, 1), rotation = MyRotation(angles = rep(0.0, length(scales)))) {
+  stopifnot(rotation$getNDim() == length(scales))
+  stopifnot(all(scales > 0))
+  d = length(scales)
+  if (d == 1) {
+    diag_inv = matrix(1/scales, nrow = 1, ncol = 1)
+    diag_dir = matrix(scales, nrow = 1, ncol = 1)
+  } else {
+    diag_inv = diag(1/scales)
+    diag_dir = diag(scales)
+  }
+  L_h2u = diag_inv %*% rotation$getMatrixInverse()
+  Q = t(L_h2u) %*% L_h2u
+  L_u2h = rotation$getMatrixDirect() %*% diag_dir
+  
+  fn_description <- function() {
+    desc   = NULL
+    d      = rotation$getNDim()
+    angles = rotation$getAngles()
+    if (d == 2) {
+      if (any(scales != 1)) {
+        desc = bquote(paste(.(desc), .(sprintf("a = [%.1f, %.1f]", scales[1], scales[2]))))
+      }
+      angles = rotation$getAngles()
+      if (any(angles != 0)) {
+        desc = bquote(paste(.(desc), "; ", theta == .(sprintf("%.0f°", angles[1]))))
+      }
+    }
+    if (d == 3) {
+      if (any(scales != 1)) {
+        desc = bquote(paste(.(desc), .(sprintf("a = [%.1f, %.1f, %.1f]", scales[1], scales[2], scales[3]))))
+      }
+      angles = anisotropy$getRotation()$getAngles()
+      if (any(angles != 0)) {
+        desc = bquote(paste(.(desc), "; ", theta == .(sprintf("[%.0f, %.0f, %.0f]", angles[1], angles[2], angles[3]))))
+      }
+    }
+    desc
+  }
+  list(
+    description = fn_description,
+    getNDim = function(){rotation$getNDim()},
+    getScales = function(){scales},
+    getAngles = function(){rotation$getAngles()},
+    getRotation = function(){rotation},
+    getMatrixDirect = function(){L_h2u},
+    getMatrixInverse = function(){L_u2h},
+    getMatrix = function(){Q},
+    jacobian = function(){prod(scales)},
+    applyDirect = function(H){H %*% t(L_h2u)},
+    applyInverse = function(U){U %*% t(L_u2h)},
+    normH = function(H) {apply(X = H %*% t(L_h2u), 
+                              MARGIN = 1, FUN=function(u){sqrt(sum(u^2))})},
+    normS = function(U) {apply(X = U %*% L_u2h, 
+                              MARGIN = 1, FUN=function(u){sqrt(sum(u^2))})}
+  )
+}
+
+#---------------------------
+# Exponential kernel
+#---------------------------
+# h and u as scalars...
+cov_E <- function(h) {
+    exp(- abs(h))
+}
+#---------------------------
+# Gaussian kernel
+#---------------------------
+# h and u are scalar
+cov_G <- function(h) {
+    exp(-h^2)
+}
+
+spectral_density_G <- function(u, d) {
+  exp(-1/4 * u^2)/(4*pi)^(d/2)
+}
+
+simulate_spectral_G <- function(n, d) {
+  stopifnot(n >  0)
+  stopifnot(d > 0)
+  matrix(data = rnorm(n = n*d), nrow = n, ncol = d)*sqrt(2)
+}
+    
+#---------------------------
+# Matern kernel
+#---------------------------
+cov_M <- function(h, nu) {
+  stopifnot(nu > 0)
+  h = abs(h)
+  sel = (h > 0)
+  cov = rep(1.0, length(h))
+  cov[sel] <- h[sel]^nu * besselK(x = h[sel], nu = nu) / 2^(nu-1) / gamma(nu)
+  cov
+}
+  
+spectral_density_M <- function(u, d, nu) {
+    stopifnot(nu > 0)
+    gamma(nu + d/2)/gamma(nu)/(pi)^(d/2)/(1 + u^2)^(nu + d/2)
+}
+
+simulate_spectral_M <- function(n, d, nu) {
+    stopifnot(n >  0)
+    stopifnot(d > 0)
+    stopifnot(nu > 0)
+    matrix(data = rnorm(n = n*d), nrow = n, ncol = d)/sqrt(2*rgamma(n = n, shape = nu))
+}
+
+#---------------------------
+# Cauchy kernel
+#---------------------------
+cov_C <- function(h, nu) {
+  stopifnot(nu > 0)
+  1/(1+abs(h)^2)^nu
+}
+  
+spectral_density_C <- function(u, d, nu) {
+  nd = 1000 # a parameter to be set
+  r  = qgamma(p = (1:nd)/(1+nd), shape = nu)
+  X  = outer(X = u, Y = r, FUN = function(u, r){exp(-u^2/4/r)/sqrt(2*r)^2})
+  apply(X = X, MARGIN = 1, FUN = mean)/(2*pi)^(d/2)
+}
+
+simulate_spectral_C <- function(n, d, nu) {
+    stopifnot(n >  0)
+    stopifnot(d > 0)
+    stopifnot(nu > 0)
+    matrix(data = rnorm(n = n*d), nrow = n, ncol = d)*sqrt(2*rgamma(n = n, shape = nu))
+}
+
+#---------------------------
+# Generalized Cauchy kernel
+#---------------------------
+cov_GC <- function(h, nu, alpha) {
+  stopifnot(nu > 0)
+  stopifnot((alpha > 0)&(alpha <= 2))
+  1/(1+abs(h)^alpha)^nu
+}
+  
+spectral_density_GC <- function(u, d, nu, alpha) {
+  print(paste0("Generalized CauchySpectral density not implented"))
+  NULL
+}
+
+simulate_spectral_GC <- function(n, d, nu, alpha) {
+  print(paste0("Generalized CauchySpectral density not implented"))
+  NULL
+}
+
+
+# functions for the Gaussian mixture
+density_IG <- function(x, alpha, beta) {
+  (beta/x)^(1+alpha) * exp(- beta/x)/beta/gamma(alpha)
+}
+density_G <- function(x, nu, lambda) {
+  dgamma(x, shape = nu, rate = lambda)
+#  exp(- lambda*x) * (lambda*x)^(nu-1) * lambda / gamma(nu)
+}
+density_scale_Matern <- function(x, nu, kappa) {
+  density_IG(x, alpha = nu, beta = (kappa/2)^2)
+}
+density_scale_Cauchy <- function(x, nu, kappa) {
+  dgamma(x, shape = nu, rate = kappa^2, log = TRUE)
+  # density_G(x, nu = nu, lambda = kappa^2)
+}
+
+kernel_power_exponential <- function(t, alpha = 2.0) {
+  stopifnot((alpha > 0)&(alpha <= 2.0))
+  exp(-abs(t)^alpha)
+}
+
+kernel_matern <- function(h, nu){
+  val = rep(1.0, length(h))
+  sel = (abs(h) > 0.0)
+  val[sel] = abs(h[sel])^nu*besselK(abs(h[sel]), nu = nu)/gamma(nu)/2^(nu-1)
+  val
+}
+
+kernel_gauss  <- function(h){exp(-h^2)}
+
+kernel_generalized_cauchy <- function(u, alpha, beta) {(1+abs(u)^alpha)^{-beta}}
+
+kernel_cauchy <- function(u, nu) {kernel_generalized_cauchy(u, alpha = 2, beta = nu)}
+
+# -------------------------------------------------------------
+MyKernel <- function(type = MyType_[1], d = 2, params = NULL) {
+  stopifnot(type %in% MyType_[1:5])
+  stopifnot(d %in% 1:3)
+  fn_covariance = NULL
+  fn_spectrum   = NULL
+  fn_simulate   = NULL
+  # exponential or Matern kernel
+  if (type %in% MyType_[c(1,3)]) { # Exponential or Matern
+    if (type %in% MyType_[c(1)]) {params = c(1/2)}
+    fn_covariance = function(h) {cov_M(h = h, nu = params[1])}  
+    fn_spectrum = function(u) {spectral_density_M(u = u, d = d, nu = params[1])}
+    fn_simulate = function(n) {simulate_spectral_M(n = n, d = d , nu = params[1])}
+  } 
+  # Gaussian kernel
+  if (type %in% MyType_[c(2)]) {
+    fn_covariance = function(h) {cov_G(h = h)}  
+    fn_spectrum = function(u) {spectral_density_G(u = u, d = d)}
+    fn_simulate = function(n) {simulate_spectral_G(n = n, d = d)}
+  }
+  # Cauchy kernel
+  if (type %in% MyType_[c(4)]) {
+    fn_covariance = function(h) {cov_C(h = h, nu = params[1])}  
+    fn_spectrum = function(u) {spectral_density_C(u = u, d = d, nu = params[1])}
+    fn_simulate = function(n) {simulate_spectral_C(n = n, d = d, nu = params[1])}
+  }
+  # Generalized Cauchy kernel
+  if (type %in% MyType_[c(5)]) {
+    # NOTE: the order of the parameters is inverted...
+    fn_covariance = function(h) {cov_GC(h = h, nu = params[2], alpha = params[1])}  
+    fn_spectrum = function(u) {spectral_density_GC(u = u, d = d, nu = params[2], alpha = params[1])}
+    fn_simulate = function(n) {simulate_spectral_GC(n = n, d = d, nu = params[2], alpha = params[1])}
+  }
+  
+  fn_description <- function() {
+    desc = bquote(paste(.(type)))
+    if (type %in% MyType_[c(3, 4, 5)])  { # "Matern", "Cauchy", "Generalized Cauchy"
+    desc = bquote(paste(.(desc), "; ", nu == .(round(params[1],2))))
+    }
+    if (type %in% MyType_[c(5)]) { # "Generalized Cauchy"
+    desc = bquote(paste(.(desc), "; ", alpha == .(round(params[2],2))))
+    }
+    desc
+  }
+  list(
+    type = function(){type},
+    description = fn_description,
+    getNDim = function(){d},
+    getNVar = function(){1},
+    getParameters = function(){params},
+    variance = function() {1.0},
+    covariance = fn_covariance,
+    spectrum = fn_spectrum,
+    simulate = fn_simulate
+  )
+}
+
+
+# ------------------------------------------------------------------------------
+# computing a spectral model on R^d 
+# ------------------------------------------------------------------------------
+# It works in mono and multi variate cases
+#' @param sp a list containing spectral waves
+#'  - sp$omega a [np, d] matrix of space-time random frequencies
+#'  - sp$phi a [np] vector of the random phases
+#'  - sp$gamma a [np, nvar] matrix of the weights for the random waves
+#'  @param st a [n, d] matrix of the d+1 coordinates of the n target space-time points
+#'  @verbose a boolean
+#'  @value a [n, nvar] matrix of the simulated values
+
+compute_simulation <- function(sp, X, verbose = FALSE) {
+  ns = dim(sp$omega)[1]
+  nd = dim(sp$omega)[2]
+  nv = dim(sp$lambda)[2]
+  stopifnot(length(sp$phi) == ns)
+  if (!is.matrix(sp$lambda)) {
+    sp$lambda = matrix(sp$lambda, nrow = length(sp$lambda), ncol = 1)
+  }
+  stopifnot(dim(sp$lambda)[1] == ns)
+  stopifnot(nd == dim(X)[2])
+  np = dim(X)[1]
+  if(verbose) {
+    print(paste0(">>> Computing using the spectral method:"))
+    print(paste0(">>> - number of dimensions  = ", nd))
+    print(paste0(">>> - number of variables   = ", nv))
+    print(paste0(">>> - number of frequencies = ", ns))
+    print(paste0(">>> - number of points      = ", np))
+  }
+  t(sp$lambda) %*% (cos(sp$omega %*% t(X) + outer(X = sp$phi, Y = rep(1.0, np))))
+}
+
+# ------------------------------------------------------------------------------
+# computing a simple and cross variogram on a 2d grid
+#' @param val
+#' @param val2
+#' @param nval
+# ------------------------------------------------------------------------------
+# computing a spectral model on R^d 
+#--------------------------------------------------------------------------------------------
+compute_vario_on_grid <- function(val, val2 = NULL, nlag = 10, dir = c(1,0), dx = c(1,1)) {
+  nx = dim(val)
+  gg = rep(NaN, nlag)
+  hh = rep(NaN, nlag)
+  nc = rep(NaN, nlag)
+  dir_norm = sqrt(sum((dir*dx)^2))
+  for (lag in 1:nlag) {
+      idx_deb = max(1,1-lag*dir[1]):min(nx[1], nx[1]-lag*dir[1])
+      jdx_deb = max(1,1-lag*dir[2]):min(nx[2], nx[2]-lag*dir[2])
+      idx_end = idx_deb + lag*dir[1]
+      jdx_end = jdx_deb + lag*dir[2]
+      if (is.null(val2)) {
+        tmp = 1/2 * as.numeric((val[idx_deb, jdx_deb] - val[idx_end, jdx_end])^2)
+      } else {
+        tmp = 1/2 * as.numeric((val[idx_deb, jdx_deb] - val[idx_end, jdx_end])*
+                               (val2[idx_deb, jdx_deb] - val2[idx_end, jdx_end])
+                              )
+      }
+      nc[lag] = length(tmp)
+      if (nc[lag] > 0) {
+          hh[lag] = dir_norm * lag
+          gg[lag] = sum(tmp)/nc[lag]
+      }
+    }
+  list(
+    nc = nc,
+    hh = hh,
+    gg = gg
+  )
+}
+
+# ------------------------------------------------------------------------------
+#' compute univariate statistics on a vector of values
+# ------------------------------------------------------------------------------
+compute_statistics <- function(val, na.rm = TRUE) {
+  res = c(
+    length(!is.na(val)), 
+    min(val, na.rm = na.rm),
+    max(val, na.rm = na.rm),
+    median(val, na.rm = na.rm),
+    mean(val, na.rm = na.rm),
+    sd(val, na.rm = na.rm)
+  )
+  names(res) <- c("Number", "min", "max", "median", "mean", "sd")
+  res
+}
+
+# ------------------------------------------------------------------------------
+#' plot of a 2D section of a mono-variate model
+# ------------------------------------------------------------------------------
+#' @param simu
+#' @param model 
+plot_simulation <- function(simu, model, x = 1:dim(simu)[1], y = 1:dim(simu)[1], idx_x = 1, idx_y = 2,
+                            sub = NULL, 
+                            flag.hist = TRUE, flag.map = TRUE, flag.vario = TRUE) {
+  # histogram
+  if (flag.hist) {
+    hist(simu, main = "")
+    title(
+      main = model$description(), font.main = 4,
+      sub = sub, font.sub = 3, col.sub = "red")
+  }
+  # map
+  if (flag.map) {
+    image(x = x, y = y, z = simu, asp = 1, col = hcl.colors(100, "terrain"), axes = FALSE)
+    contour(x, y, simu, levels = c(-1, 0, 1),
+            add = TRUE, col = "brown")
+    axis(1, at = seq(min(x), max(x), length.out = 5))
+    axis(2, at = seq(min(y), max(y), length.out = 5))
+    box()
+    title(main = model$description(), sub = sub, font.main = 4, font.sub = 3, col.sub = "red")
+  }
+  # variograms
+  if (flag.vario) {
+    dir_col  = c("skyblue", "green", "orange", "red")
+    dir_list = matrix(c(1,0, 1,1, 0,1, -1, 1), nrow = 4, ncol = 2, byrow = TRUE)
+    dx       = c(x[2] - x[1], y[2] - y[1])
+    dir_norm = apply(X = dir_list, MARGIN = 1, FUN = function(u) sqrt(sum((u*dx)^2)))
+    nlag     = 30
+    plot(NULL, NULL, xlim = c(0, nlag*max(dir_norm)), ylim = 1.1*c(0, model$variance()), 
+         xlab = "Distance", ylab = "Variogram")
+    abline(v = c(0), col = "gray", lty = 3)
+    abline(h = c(0, model$variance()), col = "gray", lty = 3)
+    dir_lab = NULL
+    for (idir in 1:dim(dir_list)[1]) {
+      dir_lab = c(dir_lab, sprintf("[%d,%d]", dir_list[idir,1], dir_list[idir,2]))
+      # experimental variogram
+      gam = compute_vario_on_grid(val = simu, nlag = nlag, dir = dir_list[idir,], dx = dx)
+      lines(gam$hh, gam$gg, col = dir_col[idir], lty = 2)
+      points(gam$hh, gam$gg, col = dir_col[idir], pch = 19, cex = 0.2)
+      # variogram model
+      dir_norm = sqrt(sum((dir_list[idir,]*dx)^2))
+      h  = (0:100)/100*nlag*dir_norm
+      u0 = rep(0.0, model$getNDim())
+      u0[idx_x] = dir_list[idir, 1]*dx[1]/dir_norm
+      u0[idx_y] = dir_list[idir, 2]*dx[2]/dir_norm
+      H = outer(X = h, Y = u0, FUN = "*")
+      lines(h, as.vector(model$variance())-model$covariance(H), col = dir_col[idir], lty = 1)
+    }
+    legend("bottomright", legend = dir_lab, col = dir_col, lty = 1)
+    title(main = model$description(), sub = sub, font.main = 4, font.sub = 3, col.sub = "red")
+  }
+  invisible(NULL)
+}
+
+```
+
+### Covariance models
+
+```{r my_functions_cov, echo=FALSE, eval=TRUE}
+# ------------------------------------------------------------------------------
+MyType_ = c(
+  "EXPONENTIAL", 
+  "GAUSSIAN", 
+  "MATERN", 
+  "CAUCHY", 
+  "CAUCHY_GEN", 
+  "GNEITING_G", 
+  "GNEITING_M", 
+  "GNEITING_C")
+MyClass_ = c(
+  "CorAniso", 
+  "CorMatern", 
+  "CorGaussianMixture", 
+  "CorGneiting"
+  )
+# ------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
+# MyCorAniso implemented in CorAniso: ACov
+# ------------------------------------------------------------------------------
+
+# The covariance function is defined by an isotropic kernel and a geometrical anisotropy
+MyCorAniso <- function(type = MyType_[3], sigma = 1.0, params = NULL,
+                       anisotropy = MyAniso(), verbose = FALSE) {
+  nvar = 1
+  ndim = anisotropy$getNDim()
+  kernel = MyKernel(type = type, d = ndim, params = params)
+  fn_description = function() {
+    desc = kernel$description()
+    if (sigma != 1.0) {
+      desc = bquote(paste(.(desc), "; ", sigma == .(round(sigma, 2))))
+    }
+    desc = bquote(paste(.(desc), "; ", .(anisotropy$description())))
+   desc
+  }
+  # simulation
+  fn_simulate <- function(n, seed = NULL, cov0 = NULL) {
+    # simulating the spectrum
+    if (!is.null(seed)) {
+      set.seed(seed)
+    }
+    if (is.null(cov0)) {
+      sp_ = list(
+      lambda = matrix(sqrt(-2 * sigma * log(runif(n = n)) / n), nrow = n, ncol = nvar),
+      omega  = matrix(kernel$simulate(n) %*% anisotropy$getMatrixDirect(), nrow = n, ncol = ndim),
+      phi    = runif(n = n, min = 0, max = 2 * pi)
+      ) 
+      } else {
+      # the spectrum is simulated using the auxiliary covariance cov0
+      sp_ = cov0$simulate(n = n, seed = seed)
+      # the importance weights are computed and the spectrum modified
+      aux_sp = cov0$spectrum(U = sp_$omega)
+      tar_sp = kernel$spectrum(anisotropy$normS(U = sp_$omega))*anisotropy$jacobian()
+      sp_$lambda = matrix(sp_$lambda * sqrt(sigma/cov0$variance()*tar_sp/aux_sp), 
+                          nrow = n, ncol = nvar)
+      }
+    # -------------------- defining the methods
+    fn_compute = function(dbout, verbose = FALSE, prefix = type, suffix = "simu") {
+      X   = expand_dbgrid(dbout)
+      val = compute_simulation(sp = sp_, X = X, verbose = verbose) 
+      for (ivar in 1:nvar) {
+        nm_var  = sprintf("%s.V%d.%s", prefix, ivar, suffix)
+        dbout[nm_var] = val[ivar,]
+      }
+      NULL
+    }
+    list(
+      spectrum = function() {sp_},
+      compute  = fn_compute
+    )
+  }
+  # -----------------------------------------
+  if (verbose) {
+    print(paste0("Creating a ", type, " CovAniso model:"))
+    print(paste0(" - dimension of the space :", ndim))
+    print(paste0(" - number of variables    :", nvar))
+    print(paste0(" - variance               :", sigma))
+    if (!is.null(params)) {
+      for (ipar in 1:length(params)) {
+      print(sprintf(" - param[%d] = %f", ipar, params[ipar]))      
+      }
+    }
+  }
+  # -----------------------------------------
+  list(
+    type = function(){type},
+    class = function(){"CovAniso"},
+    description = fn_description,
+    getNDim = function(){ndim},
+    getNVar = function(){nvar},
+    variance = function(ivar = 1, jvar = 1){sigma},
+    covariance  = function(H, ivar = 1, jvar = 1) {sigma*kernel$covariance(anisotropy$normH(H))},
+    spectrum = function(U, ivar = 1, jvar = 1) {sigma*kernel$spectrum(anisotropy$normS(U))*anisotropy$jacobian()},
+    simulate = fn_simulate,
+    # CovAniso
+    getAnisotropy = function(){anisotropy},
+    getParameters = function() {kernel$getParameters()},
+    getKernel = function(){kernel}
+  )
+}
+
+
+# ------------------------------------------------------------------------------
+# MyCorMatern implemented in CorMatern: ACov
+# ------------------------------------------------------------------------------
+# The covariance function is defined by a geometrical anisotropy, and the parameters of
+# the marginal Materns covariances (nu et kappa)
+MyCorMatern <- function(type = MyType_[3], 
+                        nu = 1/2, kappa = rep(1.0, length(nu)), sigma = rep(1, length(nu)),
+                        anisotropy = MyAniso(), verbose = FALSE) {
+  stopifnot(type == MyType_[3])
+  ndim = anisotropy$getNDim() # dimension of the euclidean space (R^d)
+  nvar = length(nu) # number of variables
+  # definition of the multivariate parameters
+  stopifnot((length(kappa) == nvar) & all(kappa > 0.0))
+  stopifnot((length(nu) == nvar) & all(nu > 0.0))
+  stopifnot((length(sigma) == nvar) & all(sigma > 0.0))
+  if (nvar == 1) {
+    Nu_ = matrix(nu, 1, 1)
+    Kappa_ = matrix(kappa, 1, 1)
+    C0_ = matrix(sigma, 1, 1)
+  } 
+  if (nvar > 1) {
+    Nu_ = outer(X = 1:nvar, Y = 1:nvar, FUN = function(i, j) (nu[i] + nu[j])/2)
+    Kappa_ = outer(X = 1:nvar, Y = 1:nvar, FUN = function(i, j) sqrt((kappa[i]^2 + kappa[j]^2)/2))
+    C0_ = outer(X = sigma, Y = sigma, FUN = function(v1, v2){sqrt(v1*v2)}) *
+      gamma(Nu_)/Kappa_^(2*Nu_) / sqrt((gamma(nu)/kappa^(2*nu)) %*% t(gamma(nu)/kappa^(2*nu)))
+  }
+  # C0_ is a positive definite matrix?
+  stopifnot(is.matrix(C0_) & isSymmetric(C0_) & all(eigen(C0_)$values >= -1e-12) )
+  # reference covariance function
+  covRef_ = MyCorAniso(type = MyType_[3], sigma = 1.0, params = min(nu), 
+    anisotropy = MyAniso(
+      scales = anisotropy$getScales()/max(kappa), 
+      rotation = anisotropy$getRotation())
+    )
+  
+  #----------------------------------------------
+  # methods
+  #----------------------------------------------
+    fn_description = function() {
+    desc = sprintf("%s [%d, %d]", type, ndim, nvar)
+    bquote(paste(.(desc), "; ", .(anisotropy$description())))
+    }
+
+  #----------------------------------------------
+  matern_kernel <- function(h, nu) {
+    stopifnot(nu > 0)
+    h = abs(h)
+    sel = (h > 0)
+    cov = rep(1.0, length(h))
+    cov[sel] <- h[sel]^nu * besselK(x = h[sel], nu = nu) / 2^(nu-1) / gamma(nu)
+    cov
+  }
+  matern_spectral_density <- function(u, nu, d = 2) {
+    stopifnot(nu > 0)
+    gamma(nu + d/2)/gamma(nu)/(pi^(d/2))/(1 + u^2)^(nu + d/2)
+  }
+  
+  fn_covariance = function(H, ivar = 1, jvar = 1) {
+    C0_[ivar,jvar]*matern_kernel(anisotropy$normH(H)*Kappa_[ivar,jvar], nu = Nu_[ivar,jvar])
+  }
+  
+  fn_spectrum = function(U, ivar = 1, jvar = 1) {
+    C0_[ivar,jvar]*matern_spectral_density(
+      u = anisotropy$normS(U)/Kappa_[ivar,jvar], 
+      nu = Nu_[ivar,jvar],
+      d = ndim)*anisotropy$jacobian()/Kappa_[ivar,jvar]^ndim
+  }
+  fn_spectrumMat <- function(u) {
+    H = matrix(NaN, nrow = nvar, ncol = nvar)
+    for (ivar in 1:nvar) {
+      for (jvar in 1:nvar) {
+        H[ivar, jvar] = fn_spectrum(U = t(u), ivar = ivar, jvar = jvar)
+      }
+    }
+    H
+  }
+  #----------------------------------------------
+  fn_simulate <- function(n, seed = NULL, cov0 = NULL) {
+    sp0 = covRef_$simulate(n = n, seed = seed)$spectrum()
+    # *square* root of a positive definite matrix
+    sqrt_mat <- function(A) {
+      if (is.matrix(A)&dim(A)[1] > 1) {
+        VD = eigen(A)
+        VD$vectors %*% diag(sqrt(pmax(VD$values, 0))) %*% t(VD$vectors)
+      } else {
+        sqrt(A)
+      }
+    }
+    # weighting the spectral components for the p variables
+    Lambda = outer(X = as.numeric(sp0$lambda), Y = rep(sqrt(nvar), nvar), FUN = "*")
+    sp0_spectrum = covRef_$spectrum(U = sp0$omega)
+    for (i in 1:n) {
+      H = fn_spectrumMat(u =sp0$omega[i,])/sp0_spectrum[i]
+      H = sqrt_mat(H)
+      Lambda[i,] <- Lambda[i,] * H[, sample(x = 1:p, size = 1)]
+    }
+    sp_ = list(lambda = Lambda, omega = sp0$omega, phi = sp0$phi)
+    # -------------------- defining the methods
+    fn_compute = function(dbout, verbose = FALSE, prefix = type, suffix = "simu") {
+      X   = expand_dbgrid(dbout)
+      val = compute_simulation(sp = sp_, X = X, verbose = verbose) 
+      for (ivar in 1:nvar) {
+        nm_var  = sprintf("%s.V%d.%s", prefix, ivar, suffix)
+        dbout[nm_var] = val[ivar,]
+      }
+      NULL
+    }
+    list(
+      spectrum = function() {sp_},
+      compute  = fn_compute
+    )
+  }
+  # -----------------------------------------
+  if (verbose) {
+    print(paste0("Creating a ", type, " CovMatern model:"))
+    print(paste0(" - dimension of the space :", ndim))
+    print(paste0(" - number of variables    :", nvar))
+    for (ivar in 1:nvar) {
+        print(sprintf(" - variance[%d] = %.2f", ivar, C0_[ivar, ivar]))
+        print(sprintf(" - nu[%d]       = %.2f", ivar, Nu_[ivar, ivar]))
+        print(sprintf(" - kappa[%d] = %.2f", ivar, Kappa_[ivar, ivar]))
+      }
+    }
+  
+  # -----------------------------------------
+  list(
+    type = function(){type},
+    class = function(){"CovMatern"},
+    description = fn_description,
+    getNDim = function(){ndim},
+    getNVar = function(){nvar},
+    variance    = function(ivar = 1, jvar = 1){C0_[ivar, jvar]},
+    covariance  = fn_covariance,
+    spectrum = fn_spectrum,
+    simulate = fn_simulate,
+    # CovMatern
+    getCovRef = function(){covRef_},
+    getAnisotropy = function(){anisotropy},
+    getNus = function() {Nu_},
+    getKappas = function(){Kappa_}
+  )
+}
+
+# ------------------------------------------------------------------------------
+# MyCorGaussianMixture implemented in CorGaussianMixture: ACov
+# ------------------------------------------------------------------------------
+MyCorGaussianMixture <- function(type = MyType_[3], nu = 1/2, kappa = rep(1.0, length(nu)),
+                              sigma = rep(1.0, length(nu)),
+                              anisotropy = MyAniso(), verbose = FALSE
+                              ) {
+  stopifnot(type %in% MyType_[1:4]) # EXPONENTIAL/GAUSSIAN/MATERN/CAUCHY
+  # EXPONENTIAL and GAUSSIAN are mono-variate
+  if (type == MyType_[1]) { # EXPONENTIAL
+    nu = 1/2
+    kappa = kappa[1]
+  }
+  if (type == MyType_[2]) { # GAUSSIAN
+    nu    = 1.0
+    kappa = kappa[1]
+  }
+  ndim  = anisotropy$getNDim()
+  nvar   = length(nu)
+  stopifnot(length(kappa) == nvar)
+  stopifnot(length(sigma) == nvar)
+  # attributes
+  corRef_ = MyCorAniso(type = type, sigma = 1, params = nu)
+  Nu_    = outer(X = nu, Y = nu, FUN = function(nu_i, nu_j) {(nu_i + nu_j)/2})
+  C0_    = outer(X = sigma, Y = sigma, FUN = function(v1, v2){sqrt(v1*v2)})
+  if (type %in% MyType_[c(2)]) { # Gaussian (nvar == 1)
+    Kappa_ = matrix(kappa, nrow = nvar, ncol = nvar)
+  }
+  if (type %in% MyType_[c(1,3)]) { # Matern
+    Kappa_ = outer(X = kappa, Y = kappa, FUN = function(ri, rj) {sqrt((ri^2 + rj^2)/2)})
+    C0_    = C0_ * gamma(Nu_) / sqrt(gamma(nu) %*% t(gamma(nu))) * 
+      ((kappa^nu %*% t(kappa^nu)) / Kappa_^(2*Nu_))
+  }
+  if (type == MyType_[4]) { # Cauchy
+    Kappa_ = outer(X = kappa, Y = kappa, FUN = function(ri, rj) {1/sqrt((1/ri^2 + 1/rj^2)/2)})
+    C0_    = C0_ * gamma(Nu_) / sqrt(gamma(nu) %*% t(gamma(nu))) / 
+      ((kappa^nu %*% t(kappa^nu)) / Kappa_^(2*Nu_))
+  }
+  # C0_ is a positive definite matrix?
+  stopifnot(is.matrix(C0_) & isSymmetric(C0_) & all(eigen(C0_)$values >= -1e-12) )
+  #----------------------------------------------
+  # methods
+  #----------------------------------------------
+    fn_description = function() {
+    desc = sprintf("%s[%d, %d]", type, ndim, nvar)
+    bquote(paste(.(desc), "; ", .(anisotropy$description())))
+    }
+  fn_parameters <- function(case = c("nu", "kappa", "var")[3], ivar = NULL, jvar = NULL) {
+    if (is.null(ivar)|is.null(jvar)) {
+      if (case == "nu") {
+        Nu_
+      } else if (case == "kappa") {
+        Kappa_
+      } else if (case == "var") {
+        C0_
+      }
+    } else {
+      stopifnot((ivar %in% 1:nvar)&(jvar %in% 1:nvar))
+      if (case == "nu") {
+        Nu_[ivar, jvar]
+      } else if (case == "kappa") {
+        Kappa_[ivar, jvar]
+      } else if (case == "var") {
+        C0_[ivar, jvar]
+      }
+    }
+  }
+  fn_variance <- function(ivar = NULL, jvar = NULL) {
+    fn_parameters(case = "var", ivar, jvar)
+  }
+  fn_reduce <- function(ivar = 1, jvar = ivar) {
+    MyCorAniso(type = type, sigma = C0_[ivar, jvar], params = Nu_[ivar, jvar],
+        anisotropy = MyAniso(
+                scales = anisotropy$getScales() / Kappa_[ivar,jvar], 
+                rotation = anisotropy$getRotation()) 
+        )
+  }
+  fn_covariance <- function(H, ivar = 1, jvar = 1) {
+      stopifnot((is.matrix(H))&(dim(H)[2] == ndim))
+      stopifnot((ivar %in% 1:nvar)&(jvar %in% 1:nvar))
+      fn_reduce(ivar, jvar)$covariance(H)
+    }
+  fn_simulate <- function(n, seed = NULL, nu0 = NULL, kappa0 = NULL) {
+    if (is.null(nu0)) {nu0 = min(nu)}
+    if (is.null(kappa0)) {kappa0 = max(kappa)}
+    if (!is.null(seed)) {set.seed(seed)}
+    ratio = matrix(1.0, nrow = n, ncol = nvar)
+    if (type %in% MyType_[c(2)]) { # Gaussian
+      xi_    = rep(1.0, n)
+      for (ivar in 1:nvar) {
+        ratio[,ivar] = sigma[ivar] * rep(1.0, n)
+      }
+    }
+    if (type %in% MyType_[c(1,3)]) { # Exponential or Matern
+      xi_    = 1/rgamma(n = n, shape = nu0, rate = (kappa0/2)^2)
+      daux   = density_IG(xi_, alpha = nu0, beta = (kappa0/2)^2)
+      for (ivar in 1:nvar) {
+        ratio[,ivar] = sigma[ivar]*density_IG(xi_, alpha = nu[ivar], beta = (kappa[ivar]/2)^2) / daux
+      }
+    } else if (type == MyType_[4]) { # Cauchy
+      xi_  = rgamma(n = n, shape = nu0, rate = (1/kappa0^2))
+      log_daux  = dgamma(xi_, shape = nu0, rate = 1/kappa0^2, log = TRUE)
+      for (ivar in 1:nvar) {
+        ratio[,ivar] = sigma[ivar]*exp(dgamma(xi_, shape = nu[ivar], rate = 1/kappa[ivar]^2, log = TRUE) - log_daux)
+      }  
+    } else if (type == MyType_[2]) { # Gaussian
+      xi_  = kappa[ivar]^2
+    }
+  
+  omega0_ = matrix(rnorm(n*ndim), nrow = n, ncol = ndim) * sqrt(2*xi_)
+  sp_ = list(
+    lambda = sqrt(-2*log(runif(n))/n*ratio),
+    omega  = (omega0_)%*%anisotropy$getMatrixDirect(),
+    phi    = runif(n = n, min = 0, max = 2*pi),
+    xi     = xi_,
+    omega0 = omega0_
+  )
+    # -------------------- defining the methods
+    fn_compute = function(dbout, verbose = FALSE, prefix = type, suffix = "simu") {
+      X   = expand_dbgrid(dbout)
+      val = compute_simulation(sp = sp_, X = X, verbose = verbose) 
+      for (ivar in 1:nvar) {
+        nm_var  = sprintf("%s.V%d.%s", prefix, ivar, suffix)
+        dbout[nm_var] = val[ivar,]
+      }
+      NULL
+    }
+    list(
+      spectrum = function() {sp_},
+      compute  = fn_compute
+    )
+  }
+  fn_spectrum = function(U, ivar = 1, jvar = 1) {
+    "Not yet implemented (TODO)"
+  }
+  # -----------------------------------------
+  if (verbose) {
+    print(paste0("Creating a ", type, " GaussianMixture model:"))
+    print(paste0(" - dimension of the space :", ndim))
+    print(paste0(" - number of variables    :", nvar))
+    for (ivar in 1:nvar) {
+        print(sprintf(" - variance[%d] = %.2f", ivar, C0_[ivar, ivar]))
+        print(sprintf(" - nu[%d]       = %.2f", ivar, Nu_[ivar, ivar]))
+        print(sprintf(" - kappa[%d] = %.2f", ivar, Kappa_[ivar, ivar]))
+      }
+    }
+  # -----------------------------------------
+  list(
+    type = function(){type},
+    class = function(){"GaussianMixture"},
+    description = fn_description,
+    getNDim = function(){ndim},
+    getNVar = function(){nvar},
+    variance    = function(ivar = 1, jvar = 1){C0_[ivar, jvar]},
+    covariance  = fn_covariance,
+    spectrum = fn_spectrum,
+    simulate = fn_simulate,
+    reduce      = fn_reduce,
+    # Gaussian mixture
+    getAnisotropy = function(){anisotropy},
+    getNus = function() {Nu_},
+    getKappas = function(){Kappa_},
+    getParameters = fn_parameters
+  )
+}
+
+# ------------------------------------------------------------------------------
+# MyCovGneiting implemented in CorGneiting: ACov
+# ------------------------------------------------------------------------------
+# Gneiting model for $d %\in% c(1,2,3)$ 
+# Gneiting model for $type %\in% c(6,7,8)$  Spatial covariance is Gaussian, Matern, or Cauchy
+MyCorGneiting <- function(type = MyType_[7], nu = 1/2, kappa = rep(1.0, length(nu)), sigma = rep(1.0, length(nu)),
+                            anisotropy = MyAniso(),
+                            alpha = 1.0, beta = 1.0, timeRange = 1.0,
+                            verbose = TRUE
+                            ) {
+  # checking parameters
+  stopifnot(type %in% MyType_[6:8])
+  if (type %in% MyType_[6]) typeS = MyType_[2] # Gaussian space trace
+  if (type %in% MyType_[7]) typeS = MyType_[3] # Matern space trace
+  if (type %in% MyType_[8]) typeS = MyType_[4] # Cauchy space trace
+  # defining the spatial trace
+  covS = MyCorGaussianMixture(type = typeS, nu = nu, kappa = kappa, sigma = sigma, 
+                           anisotropy = anisotropy,
+                           verbose = verbose)
+  ndim = covS$getNDim() # number of spatial dimensions
+  stopifnot(ndim %in% 1:3)
+  nvar = covS$getNVar()
+  stopifnot(nvar > 0)
+  
+  # defining the generalized Cauchy temporal covariance
+  stopifnot((alpha > 0.0)&(alpha <= 2.0))
+  stopifnot((beta > 0.0)&(beta <= 1.0))
+  stopifnot((timeRange > 0.0))
+  covT = MyCorAniso(type = MyType_[5], 
+                     anisotropy = MyAniso(scales = timeRange), 
+                     sigma = 1.0, params = c(alpha, beta*ndim/2),
+                     verbose = verbose)
+  
+  # ----------------------------------------------------------
+  fn_type = function(){type}
+  # -------------- description
+  fn_description = function() {
+    desc = sprintf("%s[%d, %d]", type, ndim, nvar)
+    # desc = bquote(paste(.(desc), "; ", .(anisotropy$description())))
+    # desc = bquote(paste(.(desc), "; ", a_t == .(timeRange)))
+    desc = bquote(paste(.(desc), "; ", alpha == .(alpha), "; ", beta == .(beta)))
+    if (nvar == 1) {
+      desc = bquote(paste(.(desc), "; ", nu  == .(round(nu,1)), "; ", kappa == .(round(kappa,1))))
+      }
+    desc
+    }
+  # -------------- space-time covariance function
+  fn_covariance <- function(H, ivar = 1, jvar = 1) {
+    stopifnot(is.matrix(H)&(ncol(H) == ndim+1))
+    h = matrix(H[,1:ndim],  nrow = nrow(H), ncol = ndim)
+    u = matrix(H[, ndim+1], nrow = nrow(H), ncol = 1)
+    # temporal covariance
+    ct = covT$covariance(u, ivar = 1, jvar = 1)
+    # spatial covariance
+    ct * covS$covariance(H = h * ct^(1/ndim), ivar = ivar, jvar = jvar)
+  }
+  
+  #  -------------- simulation
+  fn_simulate <- function(n, seed = NULL, nu0 = NULL, kappa0 = NULL) {
+    if(!is.null(seed)) {set.seed(seed)}
+    # simulating the spatial components
+    spS_ = covS$simulate(n = n, seed = NULL, nu0 = nu0, kappa0 = kappa0)$spectrum()
+    
+    # simulating the temporal frequency
+    lambda = (apply(X = as.matrix(spS_$omega0), 
+                   MARGIN = 1, 
+                   FUN = function(u){sum(u^2)})/(4*spS_$xi))^(1/beta)
+    sim_S = rep(NaN, length(lambda))
+    
+    flag.double = TRUE
+    for (i in seq_along(lambda)) {
+      sim_S[i] = simulate_stable_unilateral_exptilted(n = 1, alpha = beta, lambda = lambda[i], 
+                                                   flag.double = flag.double)$X
+    }
+    sim_T = simulate_stable_bilateral(n = n, alpha = alpha)
+    
+    # combining spatial components and time frequencies
+    omega = matrix(NaN, nrow = n, ncol = ndim + 1)
+    omega[, 1:ndim] = spS_$omega0[, 1:ndim] %*% anisotropy$getMatrixDirect()
+    omega[, 1+ndim] = (sim_S*lambda)^(1/alpha) * sim_T / timeRange
+    # storing the simulated spectrum
+    sp_ = list(
+      lambda = spS_$lambda,
+      omega  = omega, 
+      phi    = spS_$phi
+    )
+    # -------------------- defining the methods
+    fn_compute = function(dbout, verbose = FALSE, prefix = type, suffix = "simu") {
+      X   = expand_dbgrid(dbout)
+      val = compute_simulation(sp = sp_, X = X, verbose = verbose) 
+      for (ivar in 1:nvar) {
+        nm_var  = sprintf("%s.V%d.%s", prefix, ivar, suffix)
+        dbout[nm_var] = val[ivar,]
+      }
+      NULL
+    }
+    list(
+      spectrum = function() {sp_},
+      compute  = fn_compute
+    )
+  }
+  # ----------------------------------------------------------
+  if (verbose) {
+    print(paste0("Creating a space-time ", fn_type(), " Gneiting model:"))
+    print(paste0(" - dimension of the model :", ndim+1))
+    print(paste0(" - dimension of the space :", ndim))
+    print(paste0(" - number of variables    :", nvar))
+    print(paste0(" - alpha                  :", alpha))
+    print(paste0(" - beta                   :", beta))
+    print(paste0(" - a_t                    :", timeRange))
+  }
+  # ----------------------------------------------------------
+    list(
+    type = fn_type,
+    class = function(){"CovGneiting"},
+    description = fn_description,
+    getNDim = function(){ndim+1},
+    getNVar = function(){nvar},
+    variance = function(ivar = 1, jvar = 1){covS$variance(ivar = ivar, jvar = jvar)},
+    covariance = fn_covariance, 
+    spectrum = function(U, ivar=1, jvar=1) {
+      print("Not yet implemented (TODO)")
+      NULL},
+    simulate = fn_simulate,
+    # CovGneiting
+    covS = function() {covS},
+    getAnisotropy = function(){covS$getAnisotropy()},
+    getNus = function() {covS$getNus()},
+    getKappas = function(){covS$getKappas()},
+    getParameters = function(case = c("nu", "kappa", "var")[3], ivar = NULL, jvar = NULL) {
+      covS$getParameters(case = case, ivar = ivar, jvar = jvar)
+    },
+    covT = function(){covT},
+    alpha = function(){alpha},
+    beta  = function(){beta},
+    timeRange = function(){timeRange}
+  )
+}
+
+
+# ------------------------------------------------------------------------------
+# MySimu Spectral is implemented in the simuSpectral function
+# ------------------------------------------------------------------------------
+MySimuSpectral <- function(grid, cov, nsim = 1, ns = 1000, seed = NULL, verbose = FALSE, cov0 = NULL,
+                           prefix = "MySimu") {
+  ierr = 0
+  ndim = cov$getNDim()
+  stopifnot(grid$getNDim() == ndim)
+  nvar = cov$getNVar()
+  if (!is.null(seed)) {set.seed(seed)}
+  if (verbose) {
+    print(sprintf("Simulation of model %s:", cov$type()))
+    print(sprintf(" Number of dimensions  = %d", ndim))
+    print(sprintf(" Number of variables   = %d", nvar))
+    print(sprintf(" Number of simulations = %d", nsim))
+    print(sprintf(" Number of frequencies = %d", ns))
+  }
+  for (isim in 1:nsim) {
+    if (verbose) {
+      print(sprintf("Computing simulation #%d(/%d)", isim, nsim))
+    }
+    simu = cov$simulate(n = ns, seed = NULL)
+    ierr = simu$compute(dbout = grid, verbose = verbose, prefix = prefix, suffix = sprintf("S%d", isim))
+  }
+  ierr
+}
+
+```
+
+# Test of the models
+
+```{r covariance_test, echo = FALSE, eval = TRUE}
+# global parameters
+flag.gstlearn = TRUE
+flag.verbose  = FALSE
+flag.plot     = TRUE
+
+# geometrical anisotropy of the spatial trace
+ndim   = 2 # ndim %in% 1:3
+ani_scales = c(3/4, 3/2, 3/4)[1:ndim]
+ani_angles = c(30, 0, 0)[1:ndim]
+ani0 = MyAniso(scales = ani_scales, rotation = MyRotation(angles = ani_angles))
+
+# tests to be performed
+list_test = list()
+# CorAniso
+list_test[[1+length(list_test)]] <- list(idx_class = 1, idx_type = 1, nvar = 1)
+list_test[[1+length(list_test)]] <- list(idx_class = 1, idx_type = 2, nvar = 1)
+list_test[[1+length(list_test)]] <- list(idx_class = 1, idx_type = 3, nvar = 1)
+list_test[[1+length(list_test)]] <- list(idx_class = 1, idx_type = 4, nvar = 1)
+# CorMatern (mono/bi variate)
+list_test[[1+length(list_test)]] <- list(idx_class = 2, idx_type = 3, nvar = 1)
+list_test[[1+length(list_test)]] <- list(idx_class = 2, idx_type = 3, nvar = 2)
+# CorGaussianMixture (Gaussian - mono)
+list_test[[1+length(list_test)]] <- list(idx_class = 3, idx_type = 2, nvar = 1)
+# CorGaussianMixture (Matern - mono/bi)
+list_test[[1+length(list_test)]] <- list(idx_class = 3, idx_type = 3, nvar = 1)
+list_test[[1+length(list_test)]] <- list(idx_class = 3, idx_type = 3, nvar = 2)
+# CorGaussianMixture (Cauchy - mono/bi)
+list_test[[1+length(list_test)]] <- list(idx_class = 3, idx_type = 4, nvar = 1)
+list_test[[1+length(list_test)]] <- list(idx_class = 3, idx_type = 4, nvar = 2)
+# CorGneiting (Gaussian - mono)
+list_test[[1+length(list_test)]] <- list(idx_class = 4, idx_type = 6, nvar = 1)
+# CorGneiting (Matern - mono/bi)
+list_test[[1+length(list_test)]] <- list(idx_class = 4, idx_type = 7, nvar = 1)
+list_test[[1+length(list_test)]] <- list(idx_class = 4, idx_type = 7, nvar = 2)
+# CorGneiting (Cauchy - mono/bi)
+list_test[[1+length(list_test)]] <- list(idx_class = 4, idx_type = 8, nvar = 1)
+list_test[[1+length(list_test)]] <- list(idx_class = 4, idx_type = 8, nvar = 2)
+
+# parameters for the plot of the covariance
+dd = seq(from = 0.0, to = 5, length.out = 1000)
+dir_angles = c(0, 45, 90, 135)
+dir_list = matrix(c(1,0, 1, 1, 0,1, -1, 1), nrow = 4, ncol = 2, byrow = TRUE)
+ndir = nrow(dir_list)
+col_dir = c("skyblue", "green", "orange", "red")[1:ndir]
+lab_inc = NULL
+lab_s_dir = NULL
+lab_st_dir = NULL
+
+# defining the grids in space R^3 and time
+x0_st = rep(0.0, 4)
+nx_st = rep(200, 4)
+dx_st = rep(0.1, 4)
+xx = list()
+for (idim in 1:4) {
+  xx[[1+length(xx)]] = x0_st[idim] + (0:(nx_st[idim]-1))*dx_st[idim]
+}
+
+# parameters for the simulations
+ns   = 500   # number of spectral components
+nsim = 2      # number of simulations
+nlag = 30     # number of lags of the experimental variograms on grid
+seed = 258425
+set.seed(seed)
+
+# slice in R^2 \times R (1:xOy, 2:xOt, 3:yOt)
+idx_slice = 2
+stopifnot(idx_slice %in% 1:3)
+
+# ==============================================================================
+for (id in seq_len(length(list_test))) {
+# ==============================================================================
+  # defining the model
+  gs_class = MyClass_[list_test[[id]]$idx_class]
+  type     = MyType_[list_test[[id]]$idx_type]
+  nvar     = list_test[[id]]$nvar
+  # spatial trace (mono/multi variate)
+  nus    = c(3/4, 1/2)[1:nvar]
+  kappas = c(2, 1)[1:nvar]
+  # time trace
+  alpha  = 2.0
+  beta   = 1.0
+  timeRange    = 1.0
+  
+  print(sprintf(" Begining of test #%d:",  id))
+  cat("\n")
+  print(sprintf(" - Class %s", gs_class))
+  cat("\n")
+  print(sprintf(" - Model %s", type))
+  cat("\n")
+  print(sprintf(" - Number of variables %d", nvar))  
+  cat("\n")
+
+  # checking the consistency
+  stopifnot(
+    ((gs_class == "CorAniso")&(type %in% MyType_[1:4])&(nvar == 1))|
+    ((gs_class == "CorMatern")&(type %in% MyType_[3]))|
+    ((gs_class == "CorGaussianMixture")&(type %in% MyType_[1:4]))|
+    ((gs_class == "CorGneiting")&(type %in% MyType_[6:8]))
+      )
+
+  # ----------------------------------------------------------------------------
+  print(sprintf("Creation of the model"))
+  # ----------------------------------------------------------------------------
+  # creation of the model
+  gs_ctxt = CovContext(ndim = ndim, nvar = nvar)
+  gs_type = ECov_fromKey(type)
+  if (gs_class == "CorAniso") {
+    my_cov = MyCorAniso(type = type, sigma = 1.0, params = nus, anisotropy = ani0, verbose = TRUE)
+    gs_cov = CorAniso_createAnisotropic(ctxt = gs_ctxt, type = gs_type,
+      ranges = ani_scales,
+      param = nus,
+      angles = ani_angles,
+      flagRange = FALSE)
+  } else if (gs_class == "CorMatern") {
+    my_cov = MyCorMatern(type = type, nu = nus, kappa = kappas, anisotropy = ani0)
+    gs_cov = CorMatern_create(ctxt = gs_ctxt, type = gs_type,
+      params = nus,
+      kappas = kappas,
+      ranges = ani_scales,
+      angles = ani_angles,
+      flagRange = FALSE)
+  
+  } else if (gs_class == "CorGaussianMixture") {
+    my_cov = MyCorGaussianMixture(type = type, nu = nus, kappa = kappas, anisotropy = ani0)
+    gs_cov = CorGaussianMixture_create(ctxt = gs_ctxt, type = gs_type,
+      params = nus,
+      kappas = kappas,
+      ranges = ani_scales,
+      angles = ani_angles,
+      flagRange = FALSE)
+  } else if (gs_class == "CorGneiting") {
+    my_cov = MyCorGneiting(type = type, nu = nus, kappa = kappas, anisotropy = ani0,
+      alpha = alpha, beta = beta, timeRange = timeRange, 
+      verbose = TRUE)
+    gs_cov = CorGneiting_create(ctxt = gs_ctxt, type = gs_type,
+      params = nus,
+      kappas = kappas,
+      alpha  = alpha,
+      beta   = beta,
+      timeRange = timeRange,
+      ranges = ani_scales,
+      angles = ani_angles,
+      separability = 1.0,
+      flagRange = FALSE
+      )
+  }
+  prefix = my_cov$type()
+
+  # ----------------------------------------------------------------------------
+  print(sprintf("Testing the covariance"))
+  cat("\n")
+  # ----------------------------------------------------------------------------
+  s_u0  = dir_list
+  s_u0  = s_u0 / apply(X = s_u0, MARGIN = 1, FUN = function(u)sqrt(sum(u^2)))
+  st_u0 = matrix(c(1,0,1, 1,1,1, 0,1,1, 0,0,1), nrow = 4, ncol = 3, byrow = TRUE)
+  st_u0 = st_u0 / apply(X = st_u0, MARGIN = 1, FUN = function(u)sqrt(sum(u^2)))
+  lab_inc    = NULL
+  lab_s_dir  = NULL
+  lab_st_dir = NULL
+  for (idir in 1:ndir) {
+    # inc
+    lab_inc = c(lab_inc, 
+                sprintf("[%d,%d]", dir_list[idir,1], dir_list[idir,2]))
+    # space
+    lab_s_dir = c(lab_s_dir, 
+                  sprintf("[%.2f,%.2f]", s_u0[idir,1], s_u0[idir,2]))
+    # space x time
+    lab_st_dir = c(lab_st_dir, 
+                   sprintf("[%.2f,%.2f,%.2f]", st_u0[idir,1], st_u0[idir,2], st_u0[idir,3]))
+    } 
+
+    for (ivar in 1:nvar) {
+      for (jvar in ivar:nvar) {
+        my_cov_var = reduce_model(my_cov, ivar, jvar)
+        
+        # --------------------------------------------------------------------------
+        # spatial trace...
+        # --------------------------------------------------------------------------
+        sub = sprintf("%s (Var-%d, Var-%d) in space", gs_class, ivar, jvar)
+        if (flag.plot) {
+          plot(NULL, NULL, xlim = range(dd), ylim = 1.1*c(0, my_cov_var$variance()),
+               xlab = "Distance", ylab = "Covariance",
+               main = my_cov_var$description(), 
+               sub = sub , col.sub = "red")
+              abline(h = c(0, my_cov_var$variance()), col = "gray", lty = 3)
+              abline(v = c(0), col = "gray", lty = 3)
+        }
+    
+        for (idir in 1:length(dir_angles)) {
+          # computing the covariance
+          u0 = as.numeric(MyRotation(angles = c(dir_angles[idir],0))$applyDirect(u = c(1,0)))
+          if (my_cov$type() %in% MyType_[6:8]) {u0 = c(u0, 0.0)}
+          val_R  = my_cov$covariance(H = dd %*% t(u0), ivar = ivar, jvar = jvar)
+          val_gs = NULL
+          if (flag.gstlearn) {
+            val_gs = gs_cov$sample(h = dd, codir = u0, ivar = ivar - 1, jvar = jvar - 1)
+          }
+          if (flag.plot) {
+          lines(dd, val_R, col = col_dir[idir], lty = 1)
+          if (flag.gstlearn) {
+            lines(dd, val_gs, col = "black", lty = 2)
+            }
+          }
+          if(all(abs(val_gs - val_R) < 1.e-10)) {res_test = "OK"
+          } else { res_test = "KO"}
+           print(sprintf("Test in dir #%d for %s: %s", idir, sub, res_test))
+           cat("\n")
+        }
+        if (flag.plot) {
+          legend("topright", 
+                 legend = c(lab_s_dir, "R", "gst"), 
+                 col = c(col_dir, "gray", "black"),
+                 lty = c(rep(1, ndir), 1, 2))
+        }
+        
+        # --------------------------------------------------------------------------
+        # space-time if GNEITING
+        # --------------------------------------------------------------------------
+        if (my_cov$type() %in% MyType_[6:8]) {
+          sub = sprintf("%s (Var-%d, Var-%d) in space x time", gs_class, ivar, jvar)
+          if (flag.plot) {
+            plot(NULL, NULL, xlim = range(dd), ylim = 1.1*c(0, my_cov_var$variance()),
+                 xlab = "Distance", ylab = "Covariance",
+                 main = my_cov_var$description(), 
+                 sub = sub, col.sub = "red")
+                abline(h = c(0, my_cov_var$variance()), col = "gray", lty = 3)
+                abline(v = c(0), col = "gray", lty = 3)
+          }
+          for (idir in 1:length(dir_angles)) {
+            u0 = st_u0[idir,]
+            val_R = my_cov$covariance(H = dd %*% t(u0), ivar = ivar, jvar = jvar)
+            val_gs = NULL
+            if (flag.gstlearn) {
+              val_gs = gs_cov$sample(h = dd, codir = u0, ivar = ivar - 1, jvar = jvar - 1)
+            }
+            if (flag.plot) {
+              lines(dd, val_R, col = col_dir[idir], lty = 1)
+              if (flag.gstlearn) {
+                lines(dd, val_gs, col = "black", lty = 2)
+              }
+            }
+          if(all(abs(val_gs - val_R) < 1.e-10)) {
+           res_test = "OK"
+          } else { res_test = "KO"}
+           print(sprintf("Test in dir #%d for %s: %s", idir, sub, res_test))
+           cat("\n")
+          }
+          if (flag.plot) {
+          legend("topright", 
+                 legend = c(lab_st_dir, "R", "gst"), 
+                 col = c(col_dir, "gray", "black"),
+                 lty = c(rep(1, ndir), 1, 2))
+          }
+            
+        } # time space covariance
+      } # ivar
+    } # jvar
+  
+  # ----------------------------------------------------------------------------
+  print(sprintf("Defining the 2d slice"))
+  cat("\n")
+  # ----------------------------------------------------------------------------
+  if (my_cov$type() %in% MyType_[1:4]){ # spatial covariance
+    slice = "xOy"
+    x0 = x0_st[1:ndim]
+    nx = nx_st[1:ndim]
+    dx = dx_st[1:ndim]
+    idx_x = 1
+    idx_y = 2
+    }
+  if (my_cov$type() %in% MyType_[6:8]){ # space-time covariance (Gneiting's model)
+    slice = c("xOy", "xOt", "yOt")[idx_slice]
+    x0 = x0_st[c(1:ndim,4)]
+    dx = dx_st[c(1:ndim,4)]
+    if (slice == "xOy") {
+      nx = c(nx_st[1:ndim], 1)
+      idx_x = 1
+      idx_y = 2
+      }
+    if (slice == "xOt") {
+      nx = c(nx_st[1], 1, nx_st[4])
+      idx_x = 1
+      idx_y = 3
+      }
+    if (slice == "yOt") {
+      nx = c(1, nx_st[2], nx_st[4])
+      idx_x = 2
+      idx_y = 3
+      }
+  }
+  print(sprintf("Computing simulation in slice %s", slice))
+  cat("\n")
+
+  grid = DbGrid_create(x0 = x0, nx = nx, dx = dx)
+  
+  
+  # ----------------------------------------------------------------------------
+  print(sprintf("Performing a single simulation"))
+  cat("\n")
+
+  # ----------------------------------------------------------------------------
+  err  = grid$deleteColumns(names = paste(prefix, "*", sep = "."))
+  if (flag.gstlearn) {
+    # using the *SimuSpectral* interface
+    sim  = SimuSpectralRN(gs_cov)
+    err  = sim$simulate(ns = ns, seed = seed, verbose = flag.verbose)
+    err  = sim$compute(dbout = grid, verbose = flag.verbose, namconv = NamingConvention(prefix))
+  } else {
+    # using the R functions
+    sim  = my_cov$simulate(n = ns, seed = seed)
+    val  = sim$compute(dbout = grid, verbose = flag.verbose, prefix = prefix)
+  }
+
+  # ------------------
+  # QC of the simulation (statistics and variograms)
+  # ------------------
+
+  tab  = NULL
+  tab_var = NULL
+  for (ivar in 1:nvar) {
+    nm_var  = sprintf("%s.V%d.simu", prefix, ivar)
+    tab_var = c(tab_var, nm_var )
+    val = grid[nm_var]
+    # compute statistics
+    tab = rbind(tab, t(compute_statistics(val)))
+    # plots
+    if (flag.plot) {
+      my_cov_var = reduce_model(my_cov, ivar = ivar, jvar = ivar, verbose = TRUE)
+      plot_simulation(
+        simu  = matrix(data = val, nrow = nx[idx_x], ncol = nx[idx_y]), 
+        model = my_cov_var, x = xx[[idx_x]], y = xx[[idx_y]], 
+        sub = sprintf("%s in section %s", gs_class, slice), idx_x = idx_x, idx_y = idx_y,
+        flag.hist = TRUE, flag.map = TRUE, flag.vario = TRUE
+        )
+    }
+  }
+  rownames(tab) <- tab_var
+  print(knitr::kable(tab, digits = 4, 
+               caption = paste0("Mono-variate statistics for the ", my_cov$type(), " covariance")))
+  cat("\n")
+  # ----------------------------------------------------------------------------
+  print(sprintf("Average variogram on various simulations"))
+  cat("\n")
+  # ----------------------------------------------------------------------------
+  err  = grid$deleteColumns(names = paste(prefix, "*", sep = "."))
+  if (flag.gstlearn) {
+    # using the *gstlearn* interface
+    err = simuSpectral(dbin = NULL, dbout = grid, cova = gs_cov, nbsimu = nsim, ns = ns, 
+                       verbose = flag.verbose, 
+                       namconv = NamingConvention(prefix))
+  } else {
+    # using the *R* interface
+    err = MySimuSpectral(grid = grid, cov = my_cov, nsim = nsim, ns = ns, 
+                         verbose = flag.verbose, 
+                         prefix = prefix)
+    
+  }
+  
+  # ------------------
+  # QC of simulations
+  # ------------------
+  
+  # computing the variograms and statistics on the simulations
+  ngam  = nvar*(nvar+1)/2
+  gg = array(data = 0.0, dim = c(nlag, ndir, nsim, ngam))
+  hh = array(data = 0.0, dim = c(nlag, ndir, nsim, ngam))
+  tab = NULL
+  var_name = NULL
+  for (isim in 1:nsim) {
+    print(sprintf(">>> Simulation #%d", isim))
+    cat("\n")
+    # processing the simulation
+    ig = 0
+    for (ivar in 1:nvar) {
+      nm_vari  = sprintf("%s.V%d.S%d", prefix, ivar, isim)
+      sim_vari = matrix(grid[nm_vari], nx[idx_x], nx[idx_y])
+      # statistics
+      var_name = c(var_name, nm_vari)
+      tab = rbind(tab, t(compute_statistics(grid[nm_vari])))
+  
+      for (jvar in ivar:nvar) {
+        ig = ig+1
+        nm_varj = sprintf("%s.V%d.S%d", prefix, jvar, isim)
+        sim_varj = matrix(grid[nm_varj], nx[idx_x], nx[idx_y])
+        # variogram
+        for (idir in 1:nrow(dir_list)) {
+        gam = compute_vario_on_grid(val = sim_vari, val2 = sim_varj, 
+                                    nlag = nlag, dir = dir_list[idir,], dx = dx[c(idx_x, idx_y)])
+        gg[,idir,isim, ig] = gam$gg
+        hh[,idir,isim, ig] = gam$hh
+        } # idir
+      } # jvar
+    } # ivar
+  } # isim
+
+  # statistics
+  rownames(tab) <- var_name
+  print(knitr::kable(tab, digits = 4, 
+               caption = paste0("Mono-variate statistics for the ", my_cov$type(), " covariance")))
+  cat("\n")
+
+  # plot of the variograms
+  gg_moy = apply(X = gg, MARGIN = c(1,2,4), FUN = mean)
+  hh_moy = apply(X = hh, MARGIN = c(1,2,4), FUN = mean)
+  dd = seq(from = 0, to = max(hh_moy), length.out = 100)
+  
+  ig = 0
+  for (ivar in 1:nvar) {
+    for(jvar in ivar:nvar) {
+      sub = sprintf("%s (ivar=%d, jvar=%d) in section %s", my_cov$class(), ivar, jvar, slice)
+      my_cov_var = reduce_model(my_cov, ivar = ivar, jvar = jvar, verbose = FALSE)
+      ig = ig+1
+      if (flag.plot) {
+        plot(NULL, NULL, xlim = range(dd), ylim = 1.1*c(0,max(gg)),
+         xlab = "Distance", ylab = "Variogram",
+         main = my_cov_var$description(), 
+         sub = sub, col.sub = "red")
+        abline(h = c(0,1), col = "gray", lty = 3)
+        abline(v = c(0), col = "gray", lty = 3)
+      }
+      for (idir in 1:nrow(dir_list)) {
+        # direction
+        u0 = rep(0.0, my_cov$getNDim())
+        v0 = dir_list[idir,]/sqrt(sum(dir_list[idir,]^2))
+        u0[idx_x] = v0[1] 
+        u0[idx_y] = v0[2] 
+        # experimental variogram
+        hh_experimental = hh_moy[,idir,ig]
+        gg_experimental = gg_moy[,idir,ig]
+        # model at experimental distance
+        if (flag.gstlearn) {
+          gg_model = 
+            gs_cov$sample(h = 0.0, codir = u0, ivar = ivar - 1, jvar = jvar - 1) -
+            gs_cov$sample(h = hh_experimental, codir = u0, ivar = ivar - 1, jvar = jvar - 1) 
+        } else {
+          gg_model =
+          my_cov$covariance(H = t(rep(0, my_cov$getNDim())), ivar = ivar, jvar = jvar) -
+              my_cov$covariance(H = hh_experimental %*% t(u0), ivar = ivar, jvar = jvar)
+        }
+        
+        rmse_var = sqrt(mean((gg_experimental - gg_model)^2))
+        print(sprintf("RMSE on vario %s in dir#%d = %.4f", sub, idir, rmse_var))
+        cat("\n")
+
+        if (flag.plot) {
+          # experimental variogram
+          lines(hh_moy[,idir,ig], gg_moy[,idir,ig], col = col_dir[idir], lty = 2)
+          points(hh_moy[,idir,ig], gg_moy[,idir,ig], col = col_dir[idir], pch = 19, cex = 0.2)
+          # model
+          if (flag.gstlearn) {
+          lines(dd, gs_cov$sample(h = 0.0, codir = u0, ivar = ivar - 1, jvar = jvar - 1) -
+                  gs_cov$sample(h = dd, codir = u0, ivar = ivar - 1, jvar = jvar - 1),
+                  col = col_dir[idir], lty = 1)
+          } else {
+          lines(dd, my_cov$covariance(H = t(rep(0, my_cov$getNDim())), ivar = ivar, jvar = jvar) -
+                my_cov$covariance(H = dd %*% t(u0), ivar = ivar, jvar = jvar),
+                  col = col_dir[idir], lty = 1)
+          }
+        }
+      } # idir
+      if (flag.plot) {
+        legend("bottomright", 
+               legend = c(lab_inc, "vario.", "model"), 
+               col = c(col_dir, "gray", "gray"),
+               lty = c(rep(1, ndir), 2, 1))
+      }
+    } #jvar
+  } #ivar
+  # ----------------------------------------------------------------------------
+  # END of test
+  # ----------------------------------------------------------------------------
+  print("-------------------------------------------")  
+  print(sprintf(" End of test #%d",  id))
+  cat("\n")
+  print("-------------------------------------------")  
+  
+} # loop over the tests
+
+```
+
+# References
+
+* Allard, D., Benoit, L., and Obakrim, S. (2025). Modeling and simulating spatio-temporal, multivariate and nonstationary Gaussian Random Fields: a Gaussian mixtures perspective.
+

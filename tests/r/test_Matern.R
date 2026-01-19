@@ -49,12 +49,22 @@ for (i in 1:nvar) {
 }
 gsSigma$isDefinitePositive()
 
-cor_mono = CorMatern(
+# XF: Old implementation
+# cor_mono = CorMatern(
+#   ranges = ranges, 
+#   angle = angles, 
+#   coeffScales = rr[ivar], 
+#   params = params[ivar], 
+#   sigma = gsSigma, 
+#   flagRange = flag.range)
+
+cor_mono = CorMatern_create(
+  type = ECov_MATERN(),
+  ctxt = CovContext(ndim = 2, nvar = 1), 
+  params = params[ivar], 
+  kappas =  rr[ivar], 
   ranges = ranges, 
   angle = angles, 
-  coeffScales = rr[ivar], 
-  params = params[ivar], 
-  sigma = gsSigma, 
   flagRange = flag.range)
 
 nvar = cor_mono$getNVar()
@@ -89,12 +99,22 @@ for (i in 1:nvar) {
 }
 gsSigma$isDefinitePositive()
 
-cor_tri = CorMatern(
+# XF: Old implementation
+# cor_tri = CorMatern(
+#   ranges = ranges, 
+#   angle = angles, 
+#   coeffScales = rr, 
+#   params = params, 
+#   sigma = gsSigma, 
+#   flagRange = flag.range)
+
+cor_tri = CorMatern_create(
+  type = ECov_MATERN(),
+  ctxt = CovContext(ndim = 2, nvar = 3), 
+  params = params, 
+  kappas =  rr, 
   ranges = ranges, 
   angle = angles, 
-  coeffScales = rr, 
-  params = params, 
-  sigma = gsSigma, 
   flagRange = flag.range)
 
 nvar = cor_tri$getNVar()

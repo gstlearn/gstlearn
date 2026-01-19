@@ -259,13 +259,14 @@
 %include Covariances/ACov.hpp
 %include Covariances/CovBase.hpp
 %include Covariances/CovProportional.hpp
-%include Covariances/CorAniso.hpp
 %include Covariances/AKernel.hpp
 %include Covariances/CovList.hpp
 %include Covariances/CovAnisoList.hpp
 %include Covariances/CovAniso.hpp
 %include Covariances/CovGradientGeneric.hpp
 %include Covariances/CovGradientAnalytic.hpp
+%include Covariances/CorAniso.hpp
+%include Covariances/CorGaussianMixture.hpp
 %include Covariances/CorGneiting.hpp
 %include Covariances/CorMatern.hpp
 %include Covariances/CovLMCTapering.hpp
@@ -396,6 +397,7 @@
 %include Simulation/TurningBandOperate.hpp
 %include Simulation/ASimuSpectral.hpp
 %include Simulation/SimuSpectralRN.hpp
+%include Simulation/SpectrumRN.hpp
 %include Simulation/SimuSpectralS2.hpp
 %include Simulation/BooleanObject.hpp
 %include Simulation/SimuBoolean.hpp

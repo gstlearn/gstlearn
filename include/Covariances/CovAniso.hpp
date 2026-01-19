@@ -46,14 +46,15 @@ class CovInternal;
 class GSTLEARN_EXPORT CovAniso: public CovProportional
 {
 public:
-  CovAniso(const ECov& type, const CovContext& ctxt);
-  CovAniso(const String& symbol, const CovContext& ctxt);
-  CovAniso(const ECov& type,
-           double range,
-           double param,
-           double sill,
-           const CovContext& ctxt,
-           bool flagRange = true);
+  CovAniso(const CovContext& ctxt, const ECov& type);
+  CovAniso(const CovContext& ctxt, const String& symbol);
+  CovAniso(
+    const CovContext& ctxt,
+    const ECov& type,
+    double param,
+    double sill,
+    double range,
+    bool flagRange = true);
   CovAniso(const CovAniso& r);
   CovAniso& operator=(const CovAniso& r);
   virtual ~CovAniso();
@@ -233,7 +234,7 @@ public:
                                   const CovCalcMode* mode = nullptr) const;
   Array evalCovFFT(const VectorDouble& hmax, Id N = 128, Id ivar = 0, Id jvar = 0) const;
 
-  Id getNDim() const { return static_cast<Id>(_ctxt.getNDim()); }
+  // Id getNDim() const { return static_cast<Id>(_ctxt.getNDim()); }
   const CorAniso* getCorAniso() const;
   CorAniso* getCorAnisoModify();
   CovAniso* createReduce(const VectorInt& validVars) const;

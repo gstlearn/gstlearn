@@ -197,7 +197,7 @@ EPS_10 = 1.0e-10
 # Test of the generalized cauchy kernel using CorAniso on R^1
 # --------------------------------------------------------------
 setDefaultSpace(SpaceRN_create(ndim = 1))
-corT = CorAniso(type = ECov_CAUCHY_GEN(), ctxt = CovContext(nvar = 1, ndim = 1))
+corT = CorAniso(ctxt = CovContext(nvar = 1, ndim = 1), type = ECov_CAUCHY_GEN())
 for (a_t in c(0.5, 1.0, 1.5, 2.0) ){
 for (alpha in c(0.25, 1.0, 1.5, 2.0)) {
 for (beta in c(1.0, 3/2, 1.0, 2)) {
@@ -234,7 +234,7 @@ angles[[1+length(angles)]] = 0
 angles[[1+length(angles)]] = c(30,0)
 angles[[1+length(angles)]] = c(0,0,0)
 type_label = c("Gneiting-Gauss", "Gneiting-Matern", "Gneiting-Cauchy")
-for (type in 0:2 ){
+for (type in 0:2){
 print(paste0(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"))
 print(paste0(">>> Testing the ", type_label[1+type]))
 print(paste0(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"))
@@ -244,7 +244,7 @@ if (type == 0) {
   nus = list_nu
 }
 
-for (d in 1:3 ){
+for (d in 1:3){
 print(paste0(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"))
 print(paste0(">>> Testing the model in dimension d = ", d))
 print(paste0(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"))
@@ -256,7 +256,7 @@ scales = scales_all[c(1:d,4)]
 rot = switch (d, rot1D(), rot2D(angles[[d]]), rot3D(angles[[d]]))
 # directions of the spatial traces
 if (d == 1) {
-dir_u   = matrix(c(1,0), 1, 2)
+dir_u   = matrix(c(1, 0), 1, 2)
 }
 if (d == 2) {
 dir_u   = matrix(c(1,0,0, 1,1,0, 0,1,0, -1,1,0), nrow = 4, ncol = 3, byrow = TRUE)
@@ -284,12 +284,27 @@ for (nu in nus)
   # Gneiting model defined in R
   mg_in_R = GneitingModel(alpha, beta, nu, ranges = scales, rot = rot, type = type, verbose = TRUE)
   # Gneiting model defined in gstlearn
+  # XF: Old implementation
+  # mg_in_gstlearn  = CorGneiting_create(
+  #   ctxt = CovContext(nvar = 1, ndim = d+1), 
+  #   type = switch(paste(type), "0" = ECov_GNEITING_G(), "1" = ECov_GNEITING_M(), "2" = ECov_GNEITING_C()),
+  #   params = params, 
+  #   ranges = scales,      # vector of length d+1
+  #   angles = angles[[d]], # vector of length d (no angles in time)
+  #   separability = 1.0,   # scalar in [0,1]
+  #   flagRange = FALSE
+  # )
+  # Gneiting model defined in gstlearn
   mg_in_gstlearn  = CorGneiting_create(
-  ctxt = CovContext(nvar = 1, ndim = d+1), 
+  ctxt = CovContext(nvar = 1, ndim = d), 
   type = switch(paste(type), "0" = ECov_GNEITING_G(), "1" = ECov_GNEITING_M(), "2" = ECov_GNEITING_C()),
-  params = params, 
-  ranges = scales,      # vector of length d+1
-  angles = angles[[d]], # vector of length d (no angles in time)
+  alpha = alpha,
+  beta = beta,
+  timeRange = scales[d + 1],
+  params = nu,
+  kappas = 1.0,
+  ranges = scales[1:d], # vector of length d
+  angles = angles[[d]], # vector of length d
   separability = 1.0,   # scalar in [0,1]
   flagRange = FALSE
   )
@@ -301,7 +316,7 @@ for (nu in nus)
   val_in_gstlearn = mg_in_gstlearn$sample(h = h, codir = u0, ivar = 0, jvar = 0)
   res_test[1] = all(abs(val_in_R - val_in_gstlearn) < EPS_10)
   # space trace
-  for (idir in 1:nrow(dir_u)) {
+  for (idir in seq_len(nrow(dir_u))) {
   u0 = dir_u[idir,]
   val_in_gstlearn = mg_in_gstlearn$sample(h = h, codir = u0, ivar = 0, jvar = 0)
   val_in_R = mg_in_R$covariance(H = h %*% t(u0)) 
@@ -309,7 +324,7 @@ for (nu in nus)
   }
 
   # space-time trace
-  for (idir in 1:nrow(dir_st)) {
+  for (idir in seq_len(nrow(dir_st))) {
   u0 = dir_st[idir,]
   val_in_gstlearn = mg_in_gstlearn$sample(h = h, codir = u0, ivar = 0, jvar = 0)
   val_in_R = mg_in_R$covariance(H = h %*% t(u0)) 

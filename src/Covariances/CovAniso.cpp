@@ -34,30 +34,31 @@
 
 namespace gstlrn
 {
-CovAniso::CovAniso(const ECov& type, const CovContext& ctxt)
+CovAniso::CovAniso(const CovContext& ctxt, const ECov& type)
   : CovProportional(nullptr, MatrixSymmetric(ctxt.getNVar()))
 {
-  auto tempcor = CorAniso(type, ctxt);
+  auto tempcor = CorAniso(ctxt, type);
   CovProportional::setCor(&tempcor);
   _initFromContext();
 }
 
-CovAniso::CovAniso(const String& symbol, const CovContext& ctxt)
-  : CovProportional(new CorAniso(symbol, ctxt))
+CovAniso::CovAniso(const CovContext& ctxt, const String& symbol)
+  : CovProportional(new CorAniso(ctxt, symbol))
 {
   ECov covtype = CovFactory::identifyCovariance(symbol, ctxt);
   _initFromContext();
 }
 
-CovAniso::CovAniso(const ECov& type,
-                   double range,
-                   double param,
-                   double sill,
-                   const CovContext& ctxt,
-                   bool flagRange)
+CovAniso::CovAniso(
+  const CovContext& ctxt,
+  const ECov& type,
+  double param,
+  double sill,
+  double range,
+  bool flagRange)
   : CovProportional(nullptr, MatrixSymmetric(ctxt.getNVar()))
 {
-  auto temp = CorAniso(type, range, param, ctxt, flagRange);
+  auto temp = CorAniso(ctxt, type, param, range, flagRange);
   setCor(&temp);
   _initFromContext();
 
@@ -261,7 +262,7 @@ CovAniso* CovAniso::createIsotropic(const CovContext& ctxt,
     messerr("This function is dedicated to the Monovariate case");
     return nullptr;
   }
-  return new CovAniso(type, range, param, sill, ctxt, flagRange);
+  return new CovAniso(ctxt, type, param, sill, range, flagRange);
 }
 
 CovAniso* CovAniso::createAnisotropic(const CovContext& ctxt,
@@ -285,7 +286,7 @@ CovAniso* CovAniso::createAnisotropic(const CovContext& ctxt,
     return nullptr;
   }
 
-  auto* cov = new CovAniso(type, ctxt);
+  auto* cov = new CovAniso(ctxt, type);
   if (flagRange)
     cov->setRanges(ranges);
   else
@@ -304,7 +305,7 @@ CovAniso* CovAniso::createIsotropicMulti(const CovContext& ctxt,
                                          double param,
                                          bool flagRange)
 {
-  auto* cov = new CovAniso(type, ctxt);
+  auto* cov = new CovAniso(ctxt, type);
   auto nvar = sills.getNSize();
   if (ctxt.getNVar() != nvar)
   {
@@ -347,7 +348,7 @@ CovAniso* CovAniso::createAnisotropicMulti(const CovContext& ctxt,
     return nullptr;
   }
 
-  auto* cov = new CovAniso(type, ctxt);
+  auto* cov = new CovAniso(ctxt, type);
   if (flagRange)
     cov->setRanges(ranges);
   else
@@ -430,7 +431,7 @@ CovAniso* CovAniso::createFromParam(const ECov& type,
   // Define the covariance
 
   const CovContext& ctxt = CovContext(nvar, space);
-  auto* cov              = new CovAniso(type, ctxt);
+  auto* cov              = new CovAniso(ctxt, type);
 
   // Define the Third parameter
   double parmax = cov->getParMax();

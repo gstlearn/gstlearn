@@ -34,6 +34,10 @@ public:
   double getParMax() const override { return MAX_PARAM; }
   double getScadef() const override;
 
+  bool isValidForSpectral() const override { return true; }
+  MatrixDense simulateSpectralOmega(Id nb) const override;
+
+
 protected:
   double _evaluateCov(double h) const override;
 };

@@ -16,6 +16,7 @@
 #include "Covariances/ACov.hpp"
 #include "Covariances/TabNoStat.hpp"
 #include "Covariances/TabNoStatCovAniso.hpp"
+#include "Simulation/SimuSpectralRN.hpp"
 #include "Enum/EConsElem.hpp"
 #include "Model/CovInternal.hpp"
 #include "geoslib_define.h"
@@ -38,6 +39,7 @@ class Rotation;
 class MatrixSquare;
 class MatrixDense;
 class CovInternal;
+class SpectrumRN;
 /**
  * \brief
  * This class describes an **elementary covariance**.
@@ -52,12 +54,13 @@ class CovInternal;
 class GSTLEARN_EXPORT CorAniso: public ACov
 {
 public:
-  CorAniso(const ECov& type, const CovContext& ctxt);
-  CorAniso(const String& symbol, const CovContext& ctxt);
-  CorAniso(const ECov& type,
-           double range,
-           double param,
+  CorAniso(const CovContext& ctxt, const ECov& type);
+  CorAniso(const CovContext& ctxt, const String& symbol);
+  CorAniso(
            const CovContext& ctxt,
+            const ECov& type,
+           double param,
+           double range,
            bool flagRange = true);
   CorAniso(const CorAniso& r);
   CorAniso& operator=(const CorAniso& r);
@@ -119,6 +122,7 @@ public:
   double simulateTurningBand(double t0, TurningBandOperate& operTB) const;
   bool isValidForSpectral() const override;
   MatrixDense simulateSpectralOmega(Id nb) const override;
+  SpectrumRN simulateSpectrumRN(Id ns, const ACov* cov0 = nullptr) const override;
 
   static CorAniso* create(const CovContext& ctxt,
                           const ECov& type,

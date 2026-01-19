@@ -196,7 +196,7 @@ plot_hist_map_vario <- function(grid, names, model,
         abline(h = c(0), col = "black", lty = 3)
         abline(h = c0, col = "gray", lty = 3)
         dir_lab = NULL
-        for (idir in 1:dim(dir_list)[1]) {
+        for (idir in seq_len(dim(dir_list)[1])) {
           dir_lab = c(dir_lab, sprintf("[%d,%d]", dir_list[idir,1], dir_list[idir,2]))
           # experimental variogram
           gam = compute_vario_on_grid(val1 = simu1, val2 = simu2, 
@@ -268,12 +268,16 @@ for (i in 1:p) {
 stopifnot(gsSigma$isDefinitePositive())
 
 # the Matern's covariance in gstlearn
-gsMatern = CorMatern(
-  ranges = ani_scales[1:d] , angles = ani_angles[1:d], 
-  coeffScales = rr[1:p], params = nu[1:p], sigma = gsSigma, flagRange = FALSE)
+ctxt  = CovContext(nvar = p, ndim = d)
+gsMatern = CorMatern_create(
+  type = ECov_MATERN(), ctxt = ctxt, 
+  params = nu[1:p],
+  kappas = rr[1:p],
+  ranges = ani_scales[1:d] , 
+  angles = ani_angles[1:d], 
+  flagRange = FALSE)
 
 # the model is defined by the covariance
-ctxt  = CovContext(nvar = p, ndim = d)
 gsMod = ModelGeneric(ctxt = ctxt) 
 err   = gsMod$setCov(cova = gsMatern)
 

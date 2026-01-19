@@ -86,7 +86,7 @@ int main(int argc, char* argv[])
   CovContext ctxt(nvar, 2, 1.); // use default space
   Model model(ctxt);
   CovAnisoList covs(ctxt);
-  CovAniso cova(ECov::SPHERICAL, ctxt);
+  CovAniso cova(ctxt, ECov::SPHERICAL);
   cova.setRanges(ranges);
   cova.setSill(sill);
   covs.addCov(cova);

@@ -15,6 +15,7 @@
 #include "Basic/AFunctional.hpp"
 #include "Basic/AStringFormat.hpp"
 #include "Basic/FFT.hpp"
+#include "Basic/Law.hpp"
 #include "Basic/ListParams.hpp"
 #include "Basic/ParamInfo.hpp"
 #include "Basic/SerializeHDF5.hpp"
@@ -102,7 +103,7 @@ struct DerivCache
   }
 };
 
-CorAniso::CorAniso(const ECov& type, const CovContext& ctxt)
+CorAniso::CorAniso(const CovContext& ctxt, const ECov& type)
   : ACov(ctxt)
   , /// TODO : shared pointer
   _corfunc(CovFactory::createCovFunc(type, ctxt))
@@ -114,7 +115,7 @@ CorAniso::CorAniso(const ECov& type, const CovContext& ctxt)
   initFromContext();
 }
 
-CorAniso::CorAniso(const String& symbol, const CovContext& ctxt)
+CorAniso::CorAniso(const CovContext& ctxt, const String& symbol)
   : ACov(ctxt)
   , /// TODO : shared pointer
   _corfunc()
@@ -128,11 +129,12 @@ CorAniso::CorAniso(const String& symbol, const CovContext& ctxt)
   initFromContext();
 }
 
-CorAniso::CorAniso(const ECov& type,
-                   double range,
-                   double param,
-                   const CovContext& ctxt,
-                   bool flagRange)
+CorAniso::CorAniso(
+  const CovContext& ctxt,
+  const ECov& type,
+  double param,
+  double range,
+  bool flagRange)
   : ACov(ctxt)
   , _corfunc(CovFactory::createCovFunc(type, ctxt))
   , _aniso(ctxt.getSpace()->getNDim())
@@ -413,6 +415,33 @@ MatrixDense CorAniso::simulateSpectralOmega(Id nb) const
   omega.prodMat(&tensor);
   return omega;
 }
+SpectrumRN CorAniso::simulateSpectrumRN(Id ns, const ACov* cov0) const
+{
+  MatrixDense omega(ns, getNDim());
+  MatrixDense gamma(ns, getNVar());
+  if (cov0 == nullptr) // direct sampling of the spectral measure of CorAniso
+  {
+    omega = simulateSpectralOmega(ns);
+    for (Id ib = 0; ib < ns; ib++)
+    {
+      double val = sqrt(-log(law_uniform()) * 2 / ns);
+      gamma.setValue(ib, 0, val);
+    }
+  }
+  else // Importance sampling using the auxiliary the spectral measure of cov0
+  {
+    omega = cov0->simulateSpectralOmega(ns);
+    for (Id ib = 0; ib < ns; ib++)
+    {
+      VectorDouble freq = omega.getRow(ib);
+      double ratioIS    = evalSpectrum(freq, 0, 0) / cov0->evalSpectrum(freq, 0, 0);
+      double val        = sqrt(-log(law_uniform()) * 2 / ns * ratioIS);
+      gamma.setValue(ib, 0, val);
+    }
+  };
+  return SpectrumRN(gamma, omega);
+}
+
 bool CorAniso::isConsistent(const ASpace* space) const
 {
   // Check against the Space Type
@@ -991,7 +1020,7 @@ CorAniso* CorAniso::create(const CovContext& ctxt,
             ranges.size(), ndim);
     return nullptr;
   }
-  auto* cov = new CorAniso(type, ctxt);
+  auto* cov = new CorAniso(ctxt, type);
   cov->setParams(params);
   if (flagRange)
     cov->setRanges(ranges);
@@ -1012,7 +1041,7 @@ CorAniso* CorAniso::createIsotropic(const CovContext& ctxt,
     messerr("This function is dedicated to the Monovariate case");
     return nullptr;
   }
-  return new CorAniso(type, range, param, ctxt, flagRange);
+  return new CorAniso(ctxt, type, param, range, flagRange);
 }
 
 CorAniso* CorAniso::createAnisotropic(const CovContext& ctxt,
@@ -1035,7 +1064,7 @@ CorAniso* CorAniso::createAnisotropic(const CovContext& ctxt,
     return nullptr;
   }
 
-  auto* cov = new CorAniso(type, ctxt);
+  auto* cov = new CorAniso(ctxt, type);
   if (flagRange)
     cov->setRanges(ranges);
   else
@@ -1051,7 +1080,7 @@ CorAniso* CorAniso::createIsotropicMulti(const CovContext& ctxt,
                                          double param,
                                          bool flagRange)
 {
-  auto* cov = new CorAniso(type, ctxt);
+  auto* cov = new CorAniso(ctxt, type);
 
   if (flagRange)
     cov->setRangeIsotropic(range);
@@ -1077,7 +1106,7 @@ CorAniso* CorAniso::createAnisotropicMulti(const CovContext& ctxt,
     return nullptr;
   }
 
-  auto* cov = new CorAniso(type, ctxt);
+  auto* cov = new CorAniso(ctxt, type);
   if (flagRange)
     cov->setRanges(ranges);
   else

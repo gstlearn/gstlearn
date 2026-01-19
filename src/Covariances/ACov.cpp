@@ -2558,4 +2558,33 @@ bool ACov::serializeH5(H5::Group& grp) const
   return ret;
 }
 #endif
+
+SpectrumRN ACov::simulateSpectrumRN(Id ns, const ACov* cov0) const
+{
+  MatrixDense omega(ns, getNDim());
+  MatrixDense gamma(ns, getNVar());
+  if (cov0 == nullptr) // direct sampling of the spectral measure of CorAniso
+  {
+    omega = simulateSpectralOmega(ns);
+    for (Id ib = 0; ib < ns; ib++)
+    {
+      double val = sqrt(-log(law_uniform()) * 2 / ns);
+      gamma.setValue(ib, 0, val);
+    }
+  }
+  else // Importance sampling using the auxiliary the spectral measure of cov0
+  {
+    omega = cov0->simulateSpectralOmega(ns);
+    for (Id ib = 0; ib < ns; ib++)
+    {
+      VectorDouble freq = omega.getRow(ib);
+      double ratioIS = evalSpectrum(freq, 0, 0) / cov0->evalSpectrum(freq, 0, 0);
+      double val = sqrt(-log(law_uniform()) * 2 / ns * ratioIS);
+      gamma.setValue(ib, 0, val);
+    }
+  }
+  
+  return SpectrumRN(gamma, omega);
+}
+
 } // namespace gstlrn
