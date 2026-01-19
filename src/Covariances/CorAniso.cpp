@@ -188,11 +188,11 @@ CorAniso::~CorAniso()
   delete _corfunc;
 }
 
-TabNoStat* CorAniso::_createNoStatTab()
+std::unique_ptr<TabNoStat> CorAniso::_createNoStatTab()
 {
-  _tabNoStat = new TabNoStatCovAniso();
-  return _tabNoStat;
+  return std::make_unique<TabNoStatCovAniso>();
 }
+
 void CorAniso::computeCorrec()
 {
   _corfunc->computeCorrec(getNDim());
@@ -867,7 +867,7 @@ void CorAniso::_initFromContext()
   _aniso.init(ndim);
   updateFromContext();
   setOptimEnabled(true);
-  _createNoStatTab();
+  createNoStatTab();
   _initParamInfo();
 }
 

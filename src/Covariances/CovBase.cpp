@@ -505,9 +505,9 @@ void CovBase::updateCovByMesh(Id imesh, bool aniso) const
   _cor->updateCovByMesh(imesh, aniso);
 }
 
-TabNoStat* CovBase::_createNoStatTab()
+std::unique_ptr<TabNoStat> CovBase::_createNoStatTab()
 {
-  return new TabNoStatSills();
+  return std::make_unique<TabNoStatSills>();
 }
 
 void CovBase::_makeStationary()

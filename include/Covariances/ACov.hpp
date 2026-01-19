@@ -34,6 +34,7 @@
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
+#include <memory>
 #include <vector>
 
 namespace gstlrn
@@ -523,7 +524,7 @@ private:
                                 const VectorVectorInt& index1,
                                 const VectorVectorInt& index2,
                                 const KrigOpt& krigopt = KrigOpt()) const;
-  virtual TabNoStat* _createNoStatTab();
+  virtual std::unique_ptr<TabNoStat> _createNoStatTab();
 
 protected:
   void _setNoStatDbIfNecessary(const Db* db);
@@ -578,6 +579,6 @@ protected:
   mutable SpacePoint _pAux;
   mutable SpacePoint* _pw1;
   mutable SpacePoint* _pw2;
-  TabNoStat* _tabNoStat;
+  std::unique_ptr<TabNoStat> _tabNoStat;
 };
 } // namespace gstlrn

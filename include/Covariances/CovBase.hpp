@@ -145,7 +145,7 @@ protected:
 
 private:
   void _makeStationary() override;
-  TabNoStat* _createNoStatTab() override;
+  std::unique_ptr<TabNoStat> _createNoStatTab() override;
 
   bool _isNoStat() const override;
   void _setContext(const CovContext& ctxt) override;

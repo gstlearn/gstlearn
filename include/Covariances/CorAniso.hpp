@@ -318,7 +318,7 @@ private:
 
   bool _isNoStat() const override;
   void _setContext(const CovContext& ctxt) override;
-  TabNoStat* _createNoStatTab() override;
+  std::unique_ptr<TabNoStat> _createNoStatTab() override;
   void _copyCovContext(const CovContext& ctxt) override;
 
   bool _isOptimEnabled() const override
