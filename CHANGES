@@ -4,6 +4,8 @@ This file contains the logs between consecutive releases
 
 Release 1.10.0
 ==============
+- Implementation of simulations for Gneitting and multivariate Matern covariances (spectral method). See R tutorials Tuto_CorSpectral, Tuto_MultiMatern and Tuto_simulation_Gneiting for more details.
+- Update Marimo GUI features for more intuitive interactions
 - Fix Python Db [] assessors to make them compatible with numpy 2.4+
 - Refactoring of the Variogram calculations (using more template functions)
 - Adding the calculation of CORRELOGRAMS

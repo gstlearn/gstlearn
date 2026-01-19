@@ -297,8 +297,9 @@ def WdefineModelFromNF():
     WMFile = mo.ui.file_browser(
         label="Select a 'Model' Neutral File",
         multiple=False,
-        filetypes=[".NF", ".ascii"],
     )
+    # Add filetypes=[".NF", ".ascii"]
+    # if you want to filter only NF or ascii files (extension)
     return mo.ui.array([WMFile])
 
 
@@ -569,8 +570,9 @@ def WdefineVarioFromNF():
     WVFile = mo.ui.file_browser(
         label="Select a 'Vario' Neutral File",
         multiple=False,
-        filetypes=[".NF", ".ascii"],
     )
+    # Add filetypes=[".NF", ".ascii"]
+    # if you want to filter only NF or ascii files (extension)
     return mo.ui.array([WVFile])
 
 
@@ -745,9 +747,9 @@ def WgetDbFromBox(WAll):
 
 
 def WdefineDbFromNF():
-    WDFile = mo.ui.file_browser(
-        label="Select a 'Db' Neutral File", multiple=False, filetypes=[".NF", ".ascii"]
-    )
+    WDFile = mo.ui.file_browser(label="Select a 'Db' Neutral File", multiple=False)
+    # Add filetypes=[".NF", ".ascii"]
+    # if you want to filter only NF or ascii files (extension)
     return mo.ui.array([WDFile])
 
 
@@ -766,9 +768,8 @@ def WdefineDbFromCSV(
     WDCSVnameY = mo.ui.text(label="Y Coordinate", value=nameY)
     WDCSVnameVar = mo.ui.text(label="Variable Name", value=nameVar)
     WDCSVengStyle = mo.ui.checkbox(label="English Style", value=flagEnglishStyle)
-    WDCSVFile = mo.ui.file_browser(
-        label="Select a CSV File", multiple=False, filetypes=[".csv"]
-    )
+    WDCSVFile = mo.ui.file_browser(label="Select a CSV File", multiple=False)
+    # Add filetypes=[".csv"] if you want to filter only CSV files (extension)
     return mo.ui.array([WDCSVnameX, WDCSVnameY, WDCSVnameVar, WDCSVengStyle, WDCSVFile])
 
 
