@@ -427,7 +427,8 @@ def _getVariable(db, name, posX=0, posY=1, corner=None, useSel=True, asGrid=True
     return tab
 
 
-def _getGridVariable(dbgrid, name, useSel=True, posX=0, posY=1, corner=None, shading="flat"
+def _getGridVariable(
+    dbgrid, name, useSel=True, posX=0, posY=1, corner=None, shading="flat"
 ):
     x0 = dbgrid.getX0(posX)
     y0 = dbgrid.getX0(posY)
@@ -462,8 +463,8 @@ def _getGridVariable(dbgrid, name, useSel=True, posX=0, posY=1, corner=None, sha
 
     return x0, y0, X, Y, Xrot, Yrot, data, tr
 
-def _onlyPositiveX(vario=None, model=None, ivar=0, jvar=0, asCov=False):
 
+def _onlyPositiveX(vario=None, model=None, ivar=0, jvar=0, asCov=False):
     status = False
     if vario is not None:
         if vario.drawOnlyPositiveX(ivar, jvar):
@@ -474,8 +475,8 @@ def _onlyPositiveX(vario=None, model=None, ivar=0, jvar=0, asCov=False):
             status = True
     return status
 
-def _onlyPositiveY(vario=None, model=None, ivar=0, jvar=0, asCov=False):
 
+def _onlyPositiveY(vario=None, model=None, ivar=0, jvar=0, asCov=False):
     status = False
     if vario is not None:
         if vario.drawOnlyPositiveY(ivar, jvar):
@@ -484,6 +485,7 @@ def _onlyPositiveY(vario=None, model=None, ivar=0, jvar=0, asCov=False):
         if model.drawOnlyPositiveY(ivar, jvar, asCov):
             status = True
     return status
+
 
 def __ax_varioElem(
     ax,
@@ -526,7 +528,7 @@ def __ax_varioElem(
     if ivar != jvar:
         ax.hlines(0, 0, hmax, colors="black", linewidth=0.5)
         if not _onlyPositiveY(vario=vario, ivar=ivar, jvar=jvar):
-            ax.hlines(0, -hmax, 0, colors="black", linewidth=0.5)   
+            ax.hlines(0, -hmax, 0, colors="black", linewidth=0.5)
 
     # Drawing the variance-covariance reference line (optional)
     if flagDrawVariance:
@@ -900,11 +902,11 @@ def _ax_modelElem(
     if ivar != jvar and flagEnvelop:
         ggp = modelobj.envelop(hh, ivar, jvar, +1, codir, mode)
         ax.plot(hh[istart:], ggp[istart:], c=envColor, linestyle=envLinestyle)
-        if  not _onlyPositiveX(model=modelobj, ivar=ivar, jvar=jvar, asCov=asCov) :
+        if not _onlyPositiveX(model=modelobj, ivar=ivar, jvar=jvar, asCov=asCov):
             ax.plot(-hh[istart:], ggp[istart:], c=envColor, linestyle=envLinestyle)
         ggm = modelobj.envelop(hh, ivar, jvar, -1, codir, mode)
         ax.plot(hh[istart:], ggm[istart:], c=envColor, linestyle=envLinestyle)
-        if  not _onlyPositiveX(model=modelobj, ivar=ivar, jvar=jvar, asCov=asCov) :
+        if not _onlyPositiveX(model=modelobj, ivar=ivar, jvar=jvar, asCov=asCov):
             ax.plot(-hh[istart:], ggm[istart:], c=envColor, linestyle=envLinestyle)
 
     # Draw the Legend (optional)
