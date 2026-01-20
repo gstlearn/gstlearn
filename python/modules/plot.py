@@ -427,8 +427,7 @@ def _getVariable(db, name, posX=0, posY=1, corner=None, useSel=True, asGrid=True
     return tab
 
 
-def _getGridVariable(
-    dbgrid, name, useSel=True, posX=0, posY=1, corner=None, shading="flat"
+def _getGridVariable(dbgrid, name, useSel=True, posX=0, posY=1, corner=None, shading="flat"
 ):
     x0 = dbgrid.getX0(posX)
     y0 = dbgrid.getX0(posY)
@@ -463,6 +462,28 @@ def _getGridVariable(
 
     return x0, y0, X, Y, Xrot, Yrot, data, tr
 
+def _onlyPositiveX(vario=None, model=None, ivar=0, jvar=0, asCov=False):
+
+    status = False
+    if vario is not None:
+        if vario.drawOnlyPositiveX(ivar, jvar):
+            status = True
+
+    if model is not None:
+        if model.drawOnlyPositiveX(ivar, jvar, asCov):
+            status = True
+    return status
+
+def _onlyPositiveY(vario=None, model=None, ivar=0, jvar=0, asCov=False):
+
+    status = False
+    if vario is not None:
+        if vario.drawOnlyPositiveY(ivar, jvar):
+            status = True
+    if model is not None:
+        if model.drawOnlyPositiveY(ivar, jvar, asCov):
+            status = True
+    return status
 
 def __ax_varioElem(
     ax,
@@ -504,10 +525,14 @@ def __ax_varioElem(
     # Adding the Y=0 axis in multivariate case
     if ivar != jvar:
         ax.hlines(0, 0, hmax, colors="black", linewidth=0.5)
+        if not _onlyPositiveY(vario=vario, ivar=ivar, jvar=jvar):
+            ax.hlines(0, -hmax, 0, colors="black", linewidth=0.5)   
 
     # Drawing the variance-covariance reference line (optional)
     if flagDrawVariance:
         ax.hlines(vario.getVar(ivar, jvar), 0, hmax, varColor, varLinestyle)
+        if not _onlyPositiveX(vario=vario, ivar=ivar, jvar=jvar):
+            ax.hlines(vario.getVar(ivar, jvar), -hmax, 0, varColor, varLinestyle)
 
     # Representing the number of pairs (optional)
     if showPairs:
@@ -527,9 +552,9 @@ def __ax_varioElem(
         ax.legend()
 
     # Hard code the lower bounds
-    if vario.drawOnlyPositiveX(ivar, jvar):
+    if _onlyPositiveX(vario=vario, ivar=ivar, jvar=jvar):
         ax.set_xlim(left=0)
-    if vario.drawOnlyPositiveY(ivar, jvar):
+    if _onlyPositiveY(vario=vario, ivar=ivar, jvar=jvar):
         ax.set_ylim(bottom=0)
 
     return res
@@ -636,6 +661,7 @@ def _ax_varmod(
     nvar = 0
     if vario is not None:
         nvar = vario.getNVar()
+        asCov = vario.getFlagAsym()
     if model is not None:
         nvar = model.getNVar()
     cols = getColorMap(ndir, cmap)
@@ -710,20 +736,9 @@ def _ax_varmod(
 
             ax.autoscale(True)
 
-            xlimLeft = False
-            if model is not None and model.drawOnlyPositiveX(iv, jv):
-                xlimLeft = True
-            if vario is not None and vario.drawOnlyPositiveX(iv, jv):
-                xlimLeft = True
-            if xlimLeft:
+            if _onlyPositiveX(vario=vario, model=model, ivar=iv, jvar=jv, asCov=asCov):
                 ax.set_xlim(left=0)
-
-            ylimBottom = False
-            if model is not None and model.drawOnlyPositiveY(iv, jv):
-                ylimBottom = True
-            if vario is not None and vario.drawOnlyPositiveY(iv, jv):
-                ylimBottom = True
-            if ylimBottom:
+            if _onlyPositiveY(vario=vario, model=model, ivar=iv, jvar=jv, asCov=asCov):
                 ax.set_ylim(bottom=0)
 
             # Add the point (0,0) to fix the scale of the graphic
@@ -877,22 +892,30 @@ def _ax_modelElem(
     mode.setAsVario(not asCov)
     gg = modelobj.sample(hh, codir, ivar, jvar, mode)
     res = ax.plot(hh[istart:], gg[istart:], label=label, **kwargs)
+    if not _onlyPositiveX(model=modelobj, ivar=ivar, jvar=jvar, asCov=asCov):
+        gg = modelobj.sample(-hh, codir, ivar, jvar, mode)
+        ax.plot(-hh[istart:], gg[istart:], label=label, **kwargs)
 
     # Represent the coregionalization envelop (optional)
     if ivar != jvar and flagEnvelop:
         ggp = modelobj.envelop(hh, ivar, jvar, +1, codir, mode)
         ax.plot(hh[istart:], ggp[istart:], c=envColor, linestyle=envLinestyle)
+        if  not _onlyPositiveX(model=modelobj, ivar=ivar, jvar=jvar, asCov=asCov) :
+            ax.plot(-hh[istart:], ggp[istart:], c=envColor, linestyle=envLinestyle)
         ggm = modelobj.envelop(hh, ivar, jvar, -1, codir, mode)
         ax.plot(hh[istart:], ggm[istart:], c=envColor, linestyle=envLinestyle)
-
-    # Representation bounds
-    if ivar == jvar:
-        ax.set_xlim(left=0)
-    ax.set_ylim(bottom=0)
+        if  not _onlyPositiveX(model=modelobj, ivar=ivar, jvar=jvar, asCov=asCov) :
+            ax.plot(-hh[istart:], ggm[istart:], c=envColor, linestyle=envLinestyle)
 
     # Draw the Legend (optional)
     if flagLegend:
         ax.legend()
+
+    # Hard code the lower bounds
+    if _onlyPositiveX(model=modelobj, ivar=ivar, jvar=jvar):
+        ax.set_xlim(left=0)
+    if _onlyPositiveY(model=modelobj, ivar=ivar, jvar=jvar):
+        ax.set_ylim(bottom=0)
 
     return res
 

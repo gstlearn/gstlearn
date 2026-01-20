@@ -1106,14 +1106,14 @@ CovAnisoList* Model::_castInCovAnisoList(Id icov)
   return covalist;
 }
 
-bool Model::drawOnlyPositiveX(Id ivar, Id jvar)
+bool Model::drawOnlyPositiveX(Id ivar, Id jvar, bool asCov)
 {
-  return (ivar == jvar);
+  return (ivar == jvar || !asCov);
 }
 
-bool Model::drawOnlyPositiveY(Id ivar, Id jvar)
+bool Model::drawOnlyPositiveY(Id ivar, Id jvar, bool asCov)
 {
-  return (ivar == jvar);
+  return (ivar == jvar && !asCov);
 }
 
 /****************************************************************************/

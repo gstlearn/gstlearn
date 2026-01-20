@@ -17,13 +17,13 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Matern (Third Parameter = 1)
-- Sill         =      1.000
-- Range        =      0.200
-- Theo. Range  =      0.058
+- Sill         =       1.000
+- Range        =       0.200
+- Theo. Range  =       0.058
 Nugget Effect
-- Sill         =      0.100
-Total Sill     =      1.100
-Known Mean(s)     0.000----
+- Sill         =       0.100
+Total Sill     =       1.100
+Known Mean(s)      0.000----
 
 
 #NO_DIFF#XXX
@@ -81,12 +81,12 @@ Number of drift equation(s)  = 1
 Covariance Part
 ---------------
 Matern (Third Parameter = 1)
-- Sill         =      1.000
-- Range        =      0.200
-- Theo. Range  =      0.058
+- Sill         =       1.000
+- Range        =       0.200
+- Theo. Range  =       0.058
 Nugget Effect
-- Sill         =      0.100
-Total Sill     =      1.100
+- Sill         =       0.100
+Total Sill     =       1.100
 
 Drift Part
 ----------
@@ -164,7 +164,7 @@ Column = 7 - Name = Simu.2 - Locator = z2----
 
 #NO_DIFF#XXX
 ----
-No Constraint : [ 0.591383  3.049498  1.968406 -2.140452]
+No Constraint : [ 0.58471   3.06693   1.693381 -1.421991]
 ----
 
 
@@ -189,7 +189,7 @@ Log-likelihood  = -271.354901
 
 #NO_DIFF#XXX
 ----
-a0=0.5 and b0=1.5 : [ 0.5       3.177797  1.5      -1.482825]
+a0=0.5 and b0=1.5 : [ 0.5      3.18586  1.5     -1.15049]
 ----
 
 
@@ -201,7 +201,7 @@ a0=0.5 and b0=1.5 : [ 0.5       3.177797  1.5      -1.482825]
 
 #NO_DIFF#XXX
 ----
-a0=b0 and a1=b1 : [0.361879 3.91449  0.361879 3.91449 ]
+a0=b0 and a1=b1 : [0.399932 3.815084 0.399932 3.815084]
 ----
 
 
@@ -213,8 +213,8 @@ Likelihood calculation:
 - Length of Information Vector = 400
 - Number of drift conditions   = 2
 Log-Determinant = -676.517039
-Quadratic term  = 528.711994
-Log-likelihood  = -293.672891
+Quadratic term  = 519.260332
+Log-likelihood  = -288.947060
 ----
 
 
@@ -226,7 +226,7 @@ Log-likelihood  = -293.672891
 
 #NO_DIFF#XXX
 ----
-a0=b0 : [0.361879 3.371714 0.361879 0.11506 ]
+a0=b0 : [0.399932 3.326353 0.399932 0.39397 ]
 ----
 
 
@@ -238,7 +238,7 @@ a0=b0 : [0.361879 3.371714 0.361879 0.11506 ]
 
 #NO_DIFF#XXX
 ----
-a0=b0 and a1=1 : [ 1.245068  1.        1.245068 -5.651889]
+a0=b0 and a1=1 : [ 1.266229  1.        1.266229 -5.262681]
 ----
 
 
@@ -256,19 +256,19 @@ Covariance Part
 ---------------
 Matern (Third Parameter = 1)
 - Sill matrix:
-               [,  0]    [,  1]    [,  2]
-     [  0,]     5.167    -3.000     1.843
-     [  1,]    -3.000     3.831     2.299
-     [  2,]     1.843     2.299     6.110
-- Range        =      0.200
-- Theo. Range  =      0.058
+                 [,  0]     [,  1]     [,  2]
+      [  0,]      5.167     -3.000      1.843
+      [  1,]     -3.000      3.831      2.299
+      [  2,]      1.843      2.299      6.110
+- Range        =       0.200
+- Theo. Range  =       0.058
 Total Sill
-               [,  0]    [,  1]    [,  2]
-     [  0,]     5.167    -3.000     1.843
-     [  1,]    -3.000     3.831     2.299
-     [  2,]     1.843     2.299     6.110
+                 [,  0]     [,  1]     [,  2]
+      [  0,]      5.167     -3.000      1.843
+      [  1,]     -3.000      3.831      2.299
+      [  2,]      1.843      2.299      6.110
 
-Known Mean(s)     0.000     0.000     0.000----
+Known Mean(s)      0.000      0.000      0.000----
 
 
 #NO_DIFF#XXX
@@ -298,14 +298,13 @@ Column = 8 - Name = Simu.3 - Locator = z3----
 
 #NO_DIFF#XXX
 ----
-Coefficients : [ 0.896102  2.345101  1.71794  -1.729727 -0.003336 -1.537023]
+Coefficients : [ 0.679814  2.990676  1.092411 -0.961489 -0.969794 -0.317018]
+
+#NO_DIFF#XXX
+----
 
 
 #NO_DIFF#XXX
 ----
-
-
-#NO_DIFF#XXX
-----
-Coefficients : [ 2.058028  0.713794  2.058028 -2.207199  2.058028 -4.431111]
+Coefficients : [ 1.887024  1.295792  1.887024 -2.0771    1.887024 -4.327899]
 ----
