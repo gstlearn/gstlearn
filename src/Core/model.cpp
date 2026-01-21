@@ -30,11 +30,6 @@
 #include <cmath>
 
 /*! \cond */
-#define AD(ivar, jvar)        (ivar) + nvar*(jvar)
-#define AIC(icov, ivar, jvar) aic[(icov) * nvar * nvar + AD(ivar, jvar)]
-#define VALPRO(ivar)          valpro[(ivar)]
-#define VECPRO(ivar, jvar)    vecpro[AD(ivar, jvar)]
-#define CC(ivar, jvar)        cc[AD(ivar, jvar)]
 #define DISC1(i, idim)        (koption->disc1[(idim) * koption->ntot + (i)])
 #define DISC2(i, idim)        (koption->disc2[(idim) * koption->ntot + (i)])
 #define G(i, j)               (G[(i) * nech + j])

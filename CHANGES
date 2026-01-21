@@ -6,6 +6,8 @@ Release 1.10.0
 ==============
 - Implementation of simulations for Gneitting and multivariate Matern covariances (spectral method). See R tutorials Tuto_CorSpectral, Tuto_MultiMatern and Tuto_simulation_Gneiting for more details.
 - Update Marimo GUI features for more intuitive interactions
+- Correction when representing covariance (rather than variogram): adding negative X and/or Y
+- Correction when representing experimental and model: the 'asCov' should be defined by 'vario'
 - Fix Python Db [] assessors to make them compatible with numpy 2.4+
 - Refactoring of the Variogram calculations (using more template functions)
 - Adding the calculation of CORRELOGRAMS

@@ -83,7 +83,6 @@ private:
   bool _resize();
   void _simulatePoint(Db* db, const VectorDouble& aic, Id icase, Id shift);
   void _simulateGrid(DbGrid* db, const VectorDouble& aic, Id icase, Id shift);
-  ;
   void _simulateNugget(Db* db, const VectorDouble& aic, Id icase);
   void _simulateGradient(Db* dbgrd, const VectorDouble& aic, double delta);
   void _simulateTangent(Db* dbtgt, const VectorDouble& aic, double delta);

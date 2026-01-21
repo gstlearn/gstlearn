@@ -243,8 +243,8 @@ public:
   static VectorECov initCovList(const VectorInt& covranks);
 
   bool isValid() const;
-  static bool drawOnlyPositiveX(Id ivar, Id jvar);
-  static bool drawOnlyPositiveY(Id ivar, Id jvar);
+  bool drawOnlyPositiveX(Id ivar, Id jvar, bool asCov = false);
+  bool drawOnlyPositiveY(Id ivar, Id jvar, bool asCov = false);
 
 protected:
   /// Interface to ASerializable

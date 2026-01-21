@@ -324,10 +324,10 @@ Table: Statistics on the grid
 
 |   | Number| Minimum| Maximum|  Mean| St. Dev.|
 |:--|------:|-------:|-------:|-----:|--------:|
-|A  |   1941|   -3.74|    7.56|  1.52|     1.83|
-|B  |   1941|   -2.88|   17.48|  7.46|     3.73|
+|A  |   1941|   -3.96|    7.84|  1.59|     1.96|
+|B  |   1941|   -0.62|   11.36|  6.22|     2.09|
 |N  |   1941|    2.42|    4.79|  3.46|     0.47|
-|Z  |   1941|  -11.06|   65.52| 27.60|    14.73|
+|Z  |   1941|   -2.88|   45.78| 23.06|     8.70|
 
 
 Table: Statistics on the observed data
@@ -335,7 +335,7 @@ Table: Statistics on the observed data
 |   | Number| Minimum| Maximum|  Mean| St. Dev.|
 |:--|------:|-------:|-------:|-----:|--------:|
 |N  |     80|    2.36|    4.73|  3.29|     0.52|
-|Z  |     80|   -8.97|   61.07| 26.45|    17.09|
+|Z  |     80|    2.23|   42.09| 22.08|     8.52|
 [1] ">>> Estimation of Z using KED"
 [1] ">>> Estimation of RES using KED"
 [1] ">>> Estimation of DRIFT using KED"
@@ -347,27 +347,27 @@ Table: Statistics on drift coefficients (actual values and estimated)
 
 |                     | Number| Minimum| Maximum|  Mean| St. Dev.|
 |:--------------------|------:|-------:|-------:|-----:|--------:|
-|KEDM.obs.Z.estim     |   1941|   -8.97|   61.07| 27.92|    14.56|
+|KEDM.obs.Z.estim     |   1941|    2.23|   42.09| 23.04|     7.90|
 |KEDM.obs.Z.stdev     |   1941|    0.00|    1.44|  0.80|     0.26|
-|KEDM.res.Z.estim     |   1941|  -22.64|   18.88| -0.45|     6.79|
+|KEDM.res.Z.estim     |   1941|  -15.87|   16.94| -0.86|     6.70|
 |KEDM.res.Z.stdev     |   1941|    1.06|    1.84|  1.49|     0.13|
-|KEDM.drift.Z.estim   |   1941|    4.11|   46.69| 28.38|     9.71|
+|KEDM.drift.Z.estim   |   1941|   12.87|   44.78| 23.90|     5.57|
 |KEDM.drift.Z.stdev   |   1941|    1.03|    1.75|  1.27|     0.13|
-|KEDM.coeff.0.Z.estim |   1941|  -56.85|   55.13| -9.99|    22.10|
+|KEDM.coeff.0.Z.estim |   1941|  -28.23|   96.57| 12.78|    26.89|
 |KEDM.coeff.0.Z.stdev |   1941|    2.82|    5.95|  4.28|     0.77|
-|KEDM.coeff.1.Z.estim |   1941|   -3.20|   22.25| 11.15|     4.85|
+|KEDM.coeff.1.Z.estim |   1941|  -17.71|   16.03|  3.40|     7.01|
 |KEDM.coeff.1.Z.stdev |   1941|    0.83|    1.88|  1.24|     0.24|
 
 
 Table: Statistics on the residual (MOVING)
 
-|                | Number| Minimum| Maximum|  Mean| St. Dev.|
-|:---------------|------:|-------:|-------:|-----:|--------:|
-|KEDM.diff.Z     |   1941|  -13.26|   10.35| -0.32|     3.27|
-|KEDM.diff.RES   |   1941|  -18.71|   22.37|  0.46|     6.79|
-|KEDM.diff.DRIFT |   1941|  -23.83|   24.90| -0.78|     7.76|
-|KEDM.diff.A     |   1941|  -50.01|   58.26| 11.51|    20.98|
-|KEDM.diff.B     |   1941|  -19.30|   19.71| -3.69|     7.62|
+|                | Number| Minimum| Maximum|   Mean| St. Dev.|
+|:---------------|------:|-------:|-------:|------:|--------:|
+|KEDM.diff.Z     |   1941|  -13.15|   13.93|   0.01|     3.72|
+|KEDM.diff.RES   |   1941|  -16.98|   15.84|   0.86|     6.70|
+|KEDM.diff.DRIFT |   1941|  -22.97|   20.66|  -0.84|     7.77|
+|KEDM.diff.A     |   1941|  -93.14|   29.13| -11.19|    25.53|
+|KEDM.diff.B     |   1941|  -10.45|   26.84|   2.82|     7.59|
 [1] "SVC: number of spatial effects     = 2"
 [1] "SVC: number of constant effects    = 0"
 [1] "SVC: the spatially varying factors are not centered (2 universal conditions)"
@@ -383,15 +383,15 @@ Table: Statistics on drift coefficients (actual values and estimated)
 
 |                    | Number| Minimum| Maximum|  Mean| St. Dev.|
 |:-------------------|------:|-------:|-------:|-----:|--------:|
-|SVC.obs.Z.estim     |   1941|   -8.97|   61.07| 27.87|    14.45|
+|SVC.obs.Z.estim     |   1941|    2.23|   42.09| 23.05|     8.16|
 |SVC.obs.Z.stdev     |   1941|    0.00|    8.37|  4.04|     1.76|
-|SVC.res.Z.estim     |   1941|  -31.67|   31.15|  0.77|    13.29|
+|SVC.res.Z.estim     |   1941|  -23.39|   15.87| -4.48|     7.57|
 |SVC.res.Z.stdev     |   1941|    3.71|   10.97|  6.39|     1.52|
-|SVC.drift.Z.estim   |   1941|   17.33|   39.69| 27.10|     4.48|
+|SVC.drift.Z.estim   |   1941|   19.20|   38.26| 27.53|     3.83|
 |SVC.drift.Z.stdev   |   1941|    3.71|    8.55|  4.85|     1.05|
-|SVC.coeff.0.Z.estim |   1941|  -10.44|   -0.77| -5.53|     1.85|
+|SVC.coeff.0.Z.estim |   1941|   -3.70|    2.17| -0.95|     1.03|
 |SVC.coeff.0.Z.stdev |   1941|   10.37|   11.32| 10.89|     0.19|
-|SVC.coeff.1.Z.estim |   1941|    0.49|   18.45|  9.60|     3.46|
+|SVC.coeff.1.Z.estim |   1941|    1.85|   12.72|  6.95|     1.93|
 |SVC.coeff.1.Z.stdev |   1941|    2.39|    4.30|  3.38|     0.33|
 
 
@@ -399,35 +399,35 @@ Table: Statistics on the residual (UNIQUE)
 
 |               | Number| Minimum| Maximum|  Mean| St. Dev.|
 |:--------------|------:|-------:|-------:|-----:|--------:|
-|SVC.diff.Z     |   1941|  -12.92|   14.67| -0.26|     3.39|
-|SVC.diff.RES   |   1941|  -31.24|   31.40| -0.77|    13.29|
-|SVC.diff.DRIFT |   1941|  -32.20|   37.27|  0.50|    13.66|
-|SVC.diff.A     |   1941|    3.76|    9.91|  7.05|     1.03|
-|SVC.diff.B     |   1941|   -5.33|    1.72| -2.15|     0.92|
+|SVC.diff.Z     |   1941|  -13.72|   12.91|  0.01|     3.75|
+|SVC.diff.RES   |   1941|  -15.72|   23.47|  4.48|     7.57|
+|SVC.diff.DRIFT |   1941|  -29.23|   17.30| -4.47|     8.16|
+|SVC.diff.A     |   1941|   -2.52|    6.80|  2.54|     1.67|
+|SVC.diff.B     |   1941|   -4.02|    2.53| -0.73|     0.99|
 
 
 Table: Statistics for Z
 
 |                 | Number| Minimum| Maximum|  Mean| St. Dev.|
 |:----------------|------:|-------:|-------:|-----:|--------:|
-|Z                |   1941|  -11.06|   65.52| 27.60|    14.73|
-|KEDM.obs.Z.estim |   1941|   -8.97|   61.07| 27.92|    14.56|
-|SVC.obs.Z.estim  |   1941|   -8.97|   61.07| 27.87|    14.45|
+|Z                |   1941|   -2.88|   45.78| 23.06|     8.70|
+|KEDM.obs.Z.estim |   1941|    2.23|   42.09| 23.04|     7.90|
+|SVC.obs.Z.estim  |   1941|    2.23|   42.09| 23.05|     8.16|
 
 
 Table: Statistics for A
 
 |                     | Number| Minimum| Maximum|  Mean| St. Dev.|
 |:--------------------|------:|-------:|-------:|-----:|--------:|
-|A                    |   1941|   -3.74|    7.56|  1.52|     1.83|
-|KEDM.coeff.0.Z.estim |   1941|  -56.85|   55.13| -9.99|    22.10|
-|SVC.coeff.0.Z.estim  |   1941|  -10.44|   -0.77| -5.53|     1.85|
+|A                    |   1941|   -3.96|    7.84|  1.59|     1.96|
+|KEDM.coeff.0.Z.estim |   1941|  -28.23|   96.57| 12.78|    26.89|
+|SVC.coeff.0.Z.estim  |   1941|   -3.70|    2.17| -0.95|     1.03|
 
 
 Table: Statistics for B
 
-|                     | Number| Minimum| Maximum|  Mean| St. Dev.|
-|:--------------------|------:|-------:|-------:|-----:|--------:|
-|B                    |   1941|   -2.88|   17.48|  7.46|     3.73|
-|KEDM.coeff.1.Z.estim |   1941|   -3.20|   22.25| 11.15|     4.85|
-|SVC.coeff.1.Z.estim  |   1941|    0.49|   18.45|  9.60|     3.46|
+|                     | Number| Minimum| Maximum| Mean| St. Dev.|
+|:--------------------|------:|-------:|-------:|----:|--------:|
+|B                    |   1941|   -0.62|   11.36| 6.22|     2.09|
+|KEDM.coeff.1.Z.estim |   1941|  -17.71|   16.03| 3.40|     7.01|
+|SVC.coeff.1.Z.estim  |   1941|    1.85|   12.72| 6.95|     1.93|

@@ -931,7 +931,8 @@ VectorDouble CalcSimuTurningBands::_createAIC()
 {
   auto ncova = _getNCov();
   auto nvar  = _getNVar();
-  VectorDouble aic(ncova * nvar * nvar);
+  Id nv2     = nvar * nvar;
+  VectorDouble aic(ncova * nv2);
 
   /* Calculate the eigen values and vectors of the coregionalization matrix */
 
@@ -957,8 +958,10 @@ VectorDouble CalcSimuTurningBands::_createAIC()
     for (Id ivar = 0; ivar < nvar; ivar++)
       for (Id jvar = 0; jvar < nvar; jvar++)
       {
-        Id ijvar                        = ivar + nvar * jvar;
-        aic[icov * nvar * nvar + ijvar] = vecpro->getValue(ivar, jvar) * sqrt(valpro[ivar]);
+        double value = 0.;
+        for (Id kvar = 0; kvar < nvar; kvar++)
+          value += vecpro->getValue(ivar, kvar) * sqrt(valpro[kvar]) * vecpro->getValue(jvar, kvar);
+        aic[icov * nv2 + ivar + nvar * jvar] = value;
       }
   }
   return aic;
