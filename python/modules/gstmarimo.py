@@ -827,7 +827,9 @@ def WdefineBox(db=None):
         label="Background (if coordinates are Long/Lat)", value=False
     )
 
-    return mo.ui.array([WBoxLongMin, WBoxLongMax, WBoxLatMin, WBoxLatMax, WBoxFlagBackground])
+    return mo.ui.array(
+        [WBoxLongMin, WBoxLongMax, WBoxLatMin, WBoxLatMax, WBoxFlagBackground]
+    )
 
 
 def WshowBox(WAll, flagTitle=True, gapv=0, gaph=1):
