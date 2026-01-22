@@ -283,10 +283,11 @@ def WgetModel(WAll, vario=None):
     else:
         return None
 
-    # Add the Universality Condition (always)
-    model.setDriftIRF(order=0, nfex=0)
-
     if model is not None:
+
+        # Add the Universality Condition (always)
+        model.setDriftIRF(order=0, nfex=0)
+        
         _saveNF(model, "myModel.NF")
         _displayItem(model)
 
