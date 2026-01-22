@@ -218,7 +218,7 @@ Column = 4 - Name = y - Locator = NA
  [ 9.          0.72892591  0.74736531 -1.54        8.        ]
  [10.          0.53722003  0.47335739  0.39        9.        ]]
 Testing Table
-<class 'pandas.core.frame.DataFrame'>
+My table is converted to a pandas DataFrame
 Testing Matrix
 Case of a Standard Matrix
 - Number of rows    = 4

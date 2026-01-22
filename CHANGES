@@ -4,6 +4,8 @@ This file contains the logs between consecutive releases
 
 Release 1.11.0
 ==============
+- Fix python non-regression compatibility with pandas >=3.0
+- flagLocator now deprecated in Db_toTL function in python packages
 
 Release 1.10.0
 ==============
