@@ -810,8 +810,8 @@ def WdefineBox(db=None):
     if db is not None:
         box = db.getExtremas()
         longmin = box[0][0]
-        longmax = box[1][0]
-        latmin = box[0][1]
+        longmax = box[0][1]
+        latmin = box[1][0]
         latmax = box[1][1]
     else:
         longmin = -180
@@ -823,15 +823,15 @@ def WdefineBox(db=None):
     WBoxLongMax = mo.ui.number(start=None, stop=None, value=longmax)
     WBoxLatMin = mo.ui.number(start=None, stop=None, value=latmin)
     WBoxLatMax = mo.ui.number(start=None, stop=None, value=latmax)
-    WBoxFlagProj = mo.ui.checkbox(
+    WBoxFlagBackground = mo.ui.checkbox(
         label="Background (if coordinates are Long/Lat)", value=False
     )
 
-    return mo.ui.array([WBoxLongMin, WBoxLongMax, WBoxLatMin, WBoxLatMax, WBoxFlagProj])
+    return mo.ui.array([WBoxLongMin, WBoxLongMax, WBoxLatMin, WBoxLatMax, WBoxFlagBackground])
 
 
 def WshowBox(WAll, flagTitle=True, gapv=0, gaph=1):
-    [WBoxLongMin, WBoxLongMax, WBoxLatMin, WBoxLatMax, WBoxFlagProj] = WAll
+    [WBoxLongMin, WBoxLongMax, WBoxLatMin, WBoxLatMax, WBoxFlagBackground] = WAll
 
     WBoxTitle = _WgetTitle("Box Definition", flagTitle)
     WBoxgrid = mo.hstack(
@@ -848,17 +848,17 @@ def WshowBox(WAll, flagTitle=True, gapv=0, gaph=1):
         ],
         gap=gaph,
     )
-    return mo.vstack([WBoxTitle, WBoxgrid, WBoxFlagProj], gap=gapv)
+    return mo.vstack([WBoxTitle, WBoxgrid, WBoxFlagBackground], gap=gapv)
 
 
 def WgetBox(WAll):
-    [WBoxLongMin, WBoxLongMax, WBoxLatMin, WBoxLatMax, WBoxFlagProj] = WAll
+    [WBoxLongMin, WBoxLongMax, WBoxLatMin, WBoxLatMax, WBoxFlagBackground] = WAll
     box = np.ndarray(shape=(2, 2))
     box[0, 0] = WBoxLongMin.value
-    box[1, 0] = WBoxLongMax.value
-    box[0, 1] = WBoxLatMin.value
+    box[0, 1] = WBoxLongMax.value
+    box[1, 0] = WBoxLatMin.value
     box[1, 1] = WBoxLatMax.value
-    return box, WBoxFlagProj.value
+    return box, WBoxFlagBackground.value
 
 
 # =======================================
@@ -953,7 +953,7 @@ def WgetEdit(WAll, db):
 # =======================================
 
 
-def plotData(ax, db, name, box=None, title=None, flagProj=False):
+def plotData(ax, db, name, box=None, title=None, flagProj=False, flagBackground=False):
     if db is None:
         return None
     if name is None or db.getColIdx(name) <= 0:
@@ -962,7 +962,7 @@ def plotData(ax, db, name, box=None, title=None, flagProj=False):
     if box is not None:
         ax.baseMap(db=db, box=box, flagProj=flagProj)
     ax.literal(db=db, name=name, fontsize=6)
-    if flagProj:
+    if flagBackground:
         ctx.add_basemap(ax, source=ctx.providers.OpenStreetMap.Mapnik, crs="EPSG:4326")
     if title is None:
         title = name

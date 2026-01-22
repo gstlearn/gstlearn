@@ -108,7 +108,7 @@ def _(
             return None
 
         # Define the output Grid
-        box, flagProj = gmo.WgetBox(WidgetView)
+        box, flagBackground = gmo.WgetBox(WidgetView)
         grid = gmo.WgetGridN(WidgetGrid, box)
 
         # Define the Variogram parameters
@@ -130,13 +130,13 @@ def _(
             err = gl.kriging(db, grid, model, neigh)
 
         fig, ax = gp.init(2, 2, figsize=(8, 8))
-        gmo.plotData(ax[0, 0], db, name=targetName, box=box, flagProj=flagProj)
+        gmo.plotData(ax[0, 0], db, name=targetName, box=box, flagBackground=flagBackground)
         gmo.plotVario(ax[0, 1], vario, model, showPairs=True)
 
         gmo.plotGrid(ax[1, 0], grid, name="Kriging.*.estim", flagLegend=True)
-        gmo.plotData(ax[1, 0], db, name=targetName, box=box, flagProj=flagProj)
+        gmo.plotData(ax[1, 0], db, name=targetName, box=box, flagBackground=flagBackground)
         gmo.plotGrid(ax[1, 1], grid, name="Kriging.*.stdev", flagLegend=True)
-        gmo.plotData(ax[1, 1], db, name=targetName, box=box, flagProj=flagProj)
+        gmo.plotData(ax[1, 1], db, name=targetName, box=box, flagBackground=flagBackground)
         mo.mpl.interactive(fig)
 
         return fig

@@ -2128,12 +2128,14 @@ def _ax_baseMap(
                 or (maxlat > 90.0)
             ):
                 print("Warning: the coordinates do not seem to be in Long/Lat")
+                print("Longitude min: ", minlong, " max: ", maxlong, " should lie between -180 and 180")
+                print("Latitude min: ", minlat, " max: ", maxlat, " should lie between -90 and 90") 
                 print("Projection is skipped")
             else:
                 import gstlearn.proj as prj
-
                 pts[:, 0], pts[:, 1] = prj.proj(pts[:, 0], pts[:, 1], crsFrom, crsTo)
-            ax.scatter(pts[:, 0], pts[:, 1], c=color, s=size)
+
+        ax.scatter(pts[:, 0], pts[:, 1], c=color, s=size)
 
     # Display bounding points (optional)
     if box is not None:
@@ -2152,13 +2154,15 @@ def _ax_baseMap(
                 or (maxlat > 90.0)
             ):
                 print("Warning: the bounding box does not seem to be in Long/Lat")
+                print("Longitude min: ", minlong, " max: ", maxlong, " should lie between -180 and 180")
+                print("Latitude min: ", minlat, " max: ", maxlat, " should lie between -90 and 90") 
                 print("Projection is skipped")
             else:
                 import gstlearn.proj as prj
-
                 extPoints[:, 0], extPoints[:, 1] = prj.proj(
                     extPoints[:, 0], extPoints[:, 1], crsFrom, crsTo
                 )
+
         ax.scatter(extPoints[:, 0], extPoints[:, 1], c="white", s=0.1)
 
 
