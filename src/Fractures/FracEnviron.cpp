@@ -100,7 +100,7 @@ String FracEnviron::toString(const AStringFormat* strfmt) const
 
   /* General characteristics */
 
-  sstr << toTitle(0, "Geometry");
+  sstr << toStrTitle(0, "Geometry");
   sstr << "Field extension (horizontal)    = " << _xmax << std::endl;
   sstr << "Field extension (vertical)      = " << _ymax << std::endl;
   sstr << "Field dilation (horizontal)     = " << _deltax << std::endl;
@@ -114,7 +114,7 @@ String FracEnviron::toString(const AStringFormat* strfmt) const
 
   for (Id i = 0; i < getNFamilies(); i++)
   {
-    sstr << toTitle(2, "Family #%d/%d", i + 1, getNFamilies());
+    sstr << toStrTitle(2, "Family #%d/%d", i + 1, getNFamilies());
     sstr << _families[i].toString(strfmt);
   }
 
@@ -122,45 +122,45 @@ String FracEnviron::toString(const AStringFormat* strfmt) const
 
   for (Id i = 0; i < getNFaults(); i++)
   {
-    sstr << toTitle(2, "Fault #%d/%d", i + 1, getNFaults());
+    sstr << toStrTitle(2, "Fault #%d/%d", i + 1, getNFaults());
     sstr << _faults[i].toString(strfmt);
   }
 
   return sstr.str();
 }
 
-bool FracEnviron::_deserializeAscii(std::istream& is, bool verbose)
+bool FracEnviron::_deserializeAscii(std::istream& is)
 {
   Id nfamilies = 0;
   Id nfaults   = 0;
-  bool ret      = true;
-  ret           = ret && _recordRead<Id>(is, "Number of families", nfamilies);
-  ret           = ret && _recordRead<Id>(is, "Number of main faults", nfaults);
-  ret           = ret && _recordRead<double>(is, "Maximum horizontal distance", _xmax);
-  ret           = ret && _recordRead<double>(is, "Maximum vertical distance", _ymax);
-  ret           = ret && _recordRead<double>(is, "Dilation along the horizontal axis", _deltax);
-  ret           = ret && _recordRead<double>(is, "Dilation along the vertical axis", _deltay);
-  ret           = ret && _recordRead<double>(is, "Mean of thickness distribution", _mean);
-  ret           = ret && _recordRead<double>(is, "Stdev of thickness distribution", _stdev);
+  bool ret     = true;
+  ret          = ret && _recordRead<Id>(is, "Number of families", nfamilies);
+  ret          = ret && _recordRead<Id>(is, "Number of main faults", nfaults);
+  ret          = ret && _recordRead<double>(is, "Maximum horizontal distance", _xmax);
+  ret          = ret && _recordRead<double>(is, "Maximum vertical distance", _ymax);
+  ret          = ret && _recordRead<double>(is, "Dilation along the horizontal axis", _deltax);
+  ret          = ret && _recordRead<double>(is, "Dilation along the vertical axis", _deltay);
+  ret          = ret && _recordRead<double>(is, "Mean of thickness distribution", _mean);
+  ret          = ret && _recordRead<double>(is, "Stdev of thickness distribution", _stdev);
   if (!ret) return ret;
 
   for (Id ifam = 0; ret && ifam < nfamilies; ifam++)
   {
     FracFamily family;
-    ret = ret && family._deserializeAscii(is, verbose);
+    ret = ret && family._deserializeAscii(is);
     if (ret) addFamily(family);
   }
 
   for (Id ifault = 0; ret && ifault < nfaults; ifault++)
   {
     FracFault fault;
-    ret = ret && fault._deserializeAscii(is, verbose);
+    ret = ret && fault._deserializeAscii(is);
     if (ret) addFault(fault);
   }
   return ret;
 }
 
-bool FracEnviron::_serializeAscii(std::ostream& os, bool verbose) const
+bool FracEnviron::_serializeAscii(std::ostream& os) const
 {
   bool ret = true;
   ret      = ret && _recordWrite<Id>(os, "Number of families", getNFamilies());
@@ -176,7 +176,7 @@ bool FracEnviron::_serializeAscii(std::ostream& os, bool verbose) const
   {
     ret                      = ret && _commentWrite(os, "Characteristics of family");
     const FracFamily& family = getFamily(ifam);
-    ret                      = ret && family._serializeAscii(os, verbose);
+    ret                      = ret && family._serializeAscii(os);
   }
 
   /* Loop on the main faults */
@@ -185,7 +185,7 @@ bool FracEnviron::_serializeAscii(std::ostream& os, bool verbose) const
   {
     ret                    = ret && _commentWrite(os, "Characteristics of main fault");
     const FracFault& fault = getFault(ifault);
-    ret                    = ret && fault._serializeAscii(os, verbose);
+    ret                    = ret && fault._serializeAscii(os);
   }
   return ret;
 }
@@ -195,13 +195,13 @@ double FracEnviron::getXextend() const
   return _xmax + 2. * _deltax;
 }
 #ifdef HDF5
-bool FracEnviron::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+bool FracEnviron::deserializeH5(H5::Group& grp)
 {
   auto fracG = SerializeHDF5::getGroup(grp, "FracEnviron");
   if (!fracG) return false;
 
   /* Read the grid characteristics */
-  bool ret      = true;
+  bool ret     = true;
   Id nfamilies = 0;
   Id nfaults   = 0;
 
@@ -222,7 +222,7 @@ bool FracEnviron::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
     if (!famG) return false;
 
     FracFamily family;
-    ret = ret && family._deserializeH5(*famG, verbose);
+    ret = ret && family.deserializeH5(*famG);
     if (ret) addFamily(family);
   }
 
@@ -234,14 +234,14 @@ bool FracEnviron::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
     if (!faultG) return false;
 
     FracFault fault;
-    ret = ret && fault._deserializeH5(*faultG, verbose);
+    ret = ret && fault.deserializeH5(*faultG);
     if (ret) addFault(fault);
   }
 
   return ret;
 }
 
-bool FracEnviron::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+bool FracEnviron::serializeH5(H5::Group& grp) const
 {
   auto fracG = grp.createGroup("FracEnviron");
 
@@ -263,7 +263,7 @@ bool FracEnviron::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) co
     const FracFamily& family = getFamily(ifam);
     String locName           = "Family" + std::to_string(ifam);
     auto famG                = famsG.createGroup(locName);
-    ret                      = ret && family._serializeH5(famsG, verbose);
+    ret                      = ret && family.serializeH5(famG);
   }
 
   // Loop on the main faults
@@ -273,10 +273,10 @@ bool FracEnviron::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) co
     const FracFault& fault = getFault(ifault);
     String locName         = "Fault" + std::to_string(ifault);
     auto faultG            = faultsG.createGroup(locName);
-    ret                    = ret && fault._serializeH5(faultsG, verbose);
+    ret                    = ret && fault.serializeH5(faultG);
   }
 
   return ret;
 }
 #endif
-}
+} // namespace gstlrn

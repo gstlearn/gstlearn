@@ -13,6 +13,7 @@
 #include "Basic/AException.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/OptDbg.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Enum/EConsElem.hpp"
 #include "Geometry/GeometryHelper.hpp"
@@ -488,7 +489,8 @@ void ShiftOpMatrix::_loadHHRegular(MatrixSymmetric& hh, Id imesh)
   const MatrixSquare& rotmat = _getCovAniso()->getAnisoInvMat();
 
   VH::power(_diag, _getCovAniso()->getScales(), 2.);
-  MatrixSymmetric temp(ndim);
+  thread_local MatrixSymmetric temp;
+  temp.resize(ndim, ndim);
   temp.setDiagonal(_diag);
   hh.normMatrix(rotmat, temp);
 }
@@ -568,7 +570,7 @@ void ShiftOpMatrix::_loadHHGrad(const AMesh* amesh,
       _getCovAniso()->setAnisoAngle(ir, covaderiv->getAnisoAngle(ir) + 90.);
       const MatrixSquare& drotmat = covaderiv->getAnisoRotMat();
 
-      VH::divideConstant(diag, 180. / GV_PI); // Necessary as angles are provided in degrees. Factor 2 is for derivative
+      diag.divideCst(180. / GV_PI); // Necessary as angles are provided in degrees. Factor 2 is for derivative
       temp.setDiagonal(diag);
       hh.innerMatrix(temp, drotmat, rotmat);
     }
@@ -712,7 +714,7 @@ Id ShiftOpMatrix::_prepareMatricesSVariety(const AMesh* amesh,
                                            VectorVectorDouble& coords,
                                            MatrixDense& matM,
                                            MatrixSymmetric& matMtM,
-                                           AMatrix& matP,
+                                           MatrixDense& matP,
                                            double* deter) const
 {
   auto ndim  = getNDim();
@@ -735,8 +737,11 @@ Id ShiftOpMatrix::_prepareMatricesSVariety(const AMesh* amesh,
   *deter = matMtM.determinant();
 
   // Calculate (M^t %*% M)^{-1}
+  thread_local MatrixSymmetric matMtM2;
+  matMtM2        = matMtM;
+  const auto ret = matMtM2.invertOutOfPlace(matMtM);
 
-  if (matMtM.invert())
+  if (ret)
   {
     messerr("Problem for Mesh #%d", imesh + 1);
     amesh->printMesh(imesh);
@@ -744,7 +749,7 @@ Id ShiftOpMatrix::_prepareMatricesSVariety(const AMesh* amesh,
   }
 
   // Calculate P = (M^t %*% M)^{-1} %*% M^t
-  matP.prodMatMatInPlace(&matMtM, &matM, false, true);
+  matP.prodMatMatNoCheck<false, true>(matMtM, matM);
   return 0;
 }
 
@@ -1072,7 +1077,7 @@ Id ShiftOpMatrix::_buildSGrad(const AMesh* amesh, double tol)
   VectorDouble sqrtTildeC    = VH::power(_TildeC, 0.5);
   VectorDouble invSqrtTildeC = VH::power(_TildeC, -0.5);
   VectorDouble tempVec       = VH::inverse(_TildeC);
-  VH::multiplyConstant(tempVec, -0.5);
+  tempVec.multiplyCst(-0.5);
 
   Id ind                      = 0;
   MatrixSparse* tildeCGradMat = nullptr;
@@ -1084,7 +1089,7 @@ Id ShiftOpMatrix::_buildSGrad(const AMesh* amesh, double tol)
     {
       VectorDouble tildeCGrad = _TildeCGrad[ind]->getDiagonal();
 
-      VH::multiplyInPlace(tildeCGrad, tempVec);
+      tildeCGrad.multiply(tempVec);
       _SGrad[ind]->prodNormDiagVecInPlace(invSqrtTildeC, 1);
 
       tildeCGradMat = MatrixSparse::diagVec(tildeCGrad);
@@ -1249,8 +1254,7 @@ void ShiftOpMatrix::_projectMesh(const AMesh* amesh,
     for (Id i = 0; i < 3; i++)
       center[i] += xyz[icorn][i];
   }
-  double ratio = VH::norm(center);
-  VH::divideConstant(center, sqrt(ratio));
+  center.normalizeInPlace();
 
   // Center gives the vector joining the origin to the center of triangle
   double phi    = srot[1] * GV_PI / 180.;
@@ -1268,15 +1272,15 @@ void ShiftOpMatrix::_projectMesh(const AMesh* amesh,
 
   // V1 = Center ^ w: first axis
   VectorDouble v1 = VH::crossProduct3D(center, w);
-  VH::normalize(v1);
+  v1.normalizeInPlace();
 
   // V2 = Center ^ V1: second axis
   VectorDouble v2 = VH::crossProduct3D(center, v1);
-  VH::normalize(v2);
+  v2.normalizeInPlace();
 
   // Get the end points from Unit vectors
-  VectorDouble axe1 = VH::add(center, v1);
-  VectorDouble axe2 = VH::add(center, v2);
+  VectorDouble axe1 = center.addVec(v1);
+  VectorDouble axe2 = center.addVec(v2);
 
   /* Projection */
 

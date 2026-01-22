@@ -12,6 +12,7 @@
 #include "Basic/NamingConvention.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Calculators/CalcMigrate.hpp"
 #include "Core/Keypair.hpp"
 #include "Covariances/CovAniso.hpp"
@@ -532,7 +533,7 @@ static void st_check_facies_data2grid(Db* dbin,
   /* Initializations */
 
   if (!dbout->isGrid()) return;
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
+  auto* dbgrid = dynamic_cast<DbGrid*>(dbout);
   check_mandatory_attribute("st_check_facies_data2grid", dbgrid, ELoc::FACIES);
   number = 0;
   if (flag_check)
@@ -556,7 +557,7 @@ static void st_check_facies_data2grid(Db* dbin,
     for (isimu = 0; isimu < nbsimu; isimu++)
     {
       facres = static_cast<Id>(dbgrid->getSimvar(ELoc::FACIES, jech, isimu, 0, ipgs,
-                                     nbsimu, 1));
+                                                 nbsimu, 1));
       if (flag_show)
       {
         if (facdat == facres)
@@ -838,7 +839,7 @@ Id simpgs(Db* dbin,
     situba.setFlagAllocationAlreadyDone(true);
     local_seed = 0;
     if (situba.simulate(dbin, dbout, models[igrf], neigh, icase, false,
-                        VectorDouble(), MatrixSymmetric(), true)) goto label_end;
+                        true)) goto label_end;
   }
 
   /* Convert gaussian to facies at target point */
@@ -1266,7 +1267,7 @@ Id simbipgs(Db* dbin,
       situba.setFlagAllocationAlreadyDone(true);
       local_seed = 0;
       if (situba.simulate(dbin, dbout, models[ipgs][igrf], neigh, icase, false,
-                          VectorDouble(), MatrixSymmetric(), true)) goto label_end;
+                          true)) goto label_end;
     }
 
     /* Convert gaussian to facies at target point */
@@ -1505,20 +1506,40 @@ Id gibbs_sampler(Db* dbin,
                  const NamingConvention& namconv)
 {
   DECLARE_UNUSED(flag_sym_neigh);
-  Id error, iptr, npgs, nvar, iptr_ce, iptr_cstd;
-  PropDef* propdef;
+  Id iptr;
 
   /* Initializations */
 
-  error   = 1;
-  npgs    = 1;
-  nvar    = 0;
-  iptr_ce = iptr_cstd = -1;
-  propdef             = nullptr;
+  Id error         = 1;
+  Id npgs          = 1;
+  Id nvar          = 0;
+  Id iptr_ce       = -1;
+  Id iptr_cstd     = -1;
+  PropDef* propdef = nullptr;
+  AGibbs* gibbs    = nullptr;
+  std::vector<Model*> modvec;
+  VectorVectorDouble y;
 
   /**********************/
   /* Preliminary checks */
   /**********************/
+
+  /* Model */
+
+  if (model == nullptr)
+  {
+    messerr("No Model is provided");
+    return 1;
+  }
+  nvar = model->getNVar();
+  if (!flag_propagation)
+  {
+    if (model->stabilize(percent, true)) return 1;
+  }
+  if (flag_norm)
+  {
+    if (model->standardize(true)) return 1;
+  }
 
   /* Db */
 
@@ -1527,77 +1548,106 @@ Id gibbs_sampler(Db* dbin,
     if (dbin->getNInterval() > 0)
     {
       messerr("The propagation algorithm is incompatible with bounds");
-      goto label_end;
+      return 1;
     }
   }
+  else
+  {
+    if (dbin->getNInterval() > 0)
+    {
+      if (dbin->getNLoc(ELoc::L) != nvar)
+      {
+        messerr("There must be as many Lower bound variables (%d)",
+                dbin->getNInterval());
+        messerr("as there are variables defined in the Model (%d)", nvar);
+        return 1;
+      }
+      if (dbin->getNLoc(ELoc::U) != nvar)
+      {
+        messerr("There must be as many Upper bound variables (%d)",
+                dbin->getNInterval());
+        messerr("as there are variables defined in the Model (%d)", nvar);
+        return 1;
+      }
 
-  /* Model */
+      // Check the consistency of the bounds
+      // If Z-locator is defined, check the consistency with the bounds
+      Id nvarDb = dbin->getNLoc(ELoc::Z);
+      if (nvarDb > 0)
+      {
+        if (nvarDb != nvar)
+        {
+          messerr("Some Z-variables are defined");
+          messerr("Their count (%d) must match the number of variables defined in the Model (%d)",
+                  nvarDb, nvar);
+          return 1;
+        }
 
-  if (model == nullptr)
-  {
-    messerr("No Model is provided");
-    goto label_end;
-  }
-  nvar = model->getNVar();
-  if (!flag_propagation)
-  {
-    if (model->stabilize(percent, true)) goto label_end;
-  }
-  if (flag_norm)
-  {
-    if (model->standardize(true)) goto label_end;
+        // Convert the Z-values into bounds
+        for (Id iech = 0; iech < dbin->getNSample(); iech++)
+        {
+          if (!dbin->isActive(iech)) continue;
+          for (Id ivar = 0; ivar < nvar; ivar++)
+          {
+            double value = dbin->getLocVariable(ELoc::Z, iech, ivar);
+            if (FFFF(value)) continue;
+
+            // Set the bounds to the known exact value
+            dbin->setLocVariable(ELoc::L, iech, ivar, value);
+            dbin->setLocVariable(ELoc::U, iech, ivar, value);
+          }
+        }
+
+        // Cancel the Z-locator for the rest of the Gibbs function
+        dbin->clearLocators(ELoc::Z);
+      }
+    }
   }
 
   /*******************/
   /* Core allocation */
   /*******************/
 
-  propdef = proportion_manage(1, 0, 1, 1, 0, nvar, 0, dbin, NULL,
-                              VectorDouble(), propdef);
+  propdef = proportion_manage(1, 0, 1, 1, 0, nvar, 0, dbin, NULL, VectorDouble(), propdef);
   if (propdef == nullptr) goto label_end;
 
   /**********************/
   /* Add the attributes */
   /**********************/
 
-  if (db_locator_attribute_add(dbin, ELoc::GAUSFAC, nbsimu * nvar, 0, 0.,
-                               &iptr)) goto label_end;
+  if (db_locator_attribute_add(dbin, ELoc::GAUSFAC, nbsimu * nvar, 0, 0., &iptr)) goto label_end;
 
   /*****************/
   /* Gibbs sampler */
   /*****************/
 
+  if (!flag_multi_mono)
   {
-    AGibbs* gibbs;
-    if (!flag_multi_mono)
-    {
-      gibbs = GibbsFactory::createGibbs(dbin, model, flag_moving);
-    }
-    else
-    {
-      std::vector<Model*> modvec;
-      modvec.push_back(model);
-      gibbs = GibbsFactory::createGibbs(dbin, modvec, 0., flag_propagation);
-    }
-    if (gibbs == nullptr) goto label_end;
-    gibbs->setOptionStats(gibbs_optstats);
-    gibbs->init(npgs, nvar, gibbs_nburn, gibbs_niter, seed);
-
-    // Allocate the Gaussian vector
-
-    VectorVectorDouble y = gibbs->allocY();
-
-    /* Allocate the covariance matrix inverted */
-
-    if (gibbs->covmatAlloc(verbose)) goto label_end;
-
-    // Invoke the Gibbs calculator
-
-    for (Id isimu = 0; isimu < nbsimu; isimu++)
-      if (gibbs->run(y, 0, isimu)) goto label_end;
-
-    delete gibbs;
+    gibbs = GibbsFactory::createGibbs(dbin, model, flag_moving);
   }
+  else
+  {
+    modvec.push_back(model);
+    gibbs = GibbsFactory::createGibbs(dbin, modvec, 0., flag_propagation);
+  }
+  if (gibbs == nullptr) goto label_end;
+  gibbs->setOptionStats(gibbs_optstats);
+  gibbs->init(npgs, nvar, gibbs_nburn, gibbs_niter, seed);
+
+  // Allocate the Gaussian vector
+
+  y = gibbs->allocY();
+
+  /* Allocate the covariance matrix inverted */
+
+  if (gibbs->covmatAlloc(verbose)) goto label_end;
+
+  // Invoke the Gibbs calculator
+
+  for (Id isimu = 0; isimu < nbsimu; isimu++)
+    if (gibbs->run(y, 0, isimu)) goto label_end;
+
+  delete gibbs;
 
   /* Convert the simulations */
 
@@ -1624,8 +1674,7 @@ Id gibbs_sampler(Db* dbin,
   /* Set the error return flag */
 
   error = 0;
-  namconv.setNamesAndLocators(dbin, VectorString(), ELoc::UNKNOWN, nvar, dbin, iptr, String(),
-                              nbsimu);
+  namconv.setNamesAndLocators(dbin, VectorString(), ELoc::UNKNOWN, nvar, dbin, iptr, String(), nbsimu);
 
 label_end:
   proportion_manage(-1, 0, 1, 1, 0, nvar, 0, dbin, NULL, VectorDouble(), propdef);
@@ -1734,7 +1783,7 @@ Id simtub_constraints(Db* dbin,
   tab.resize(dbout->getNSample());
   if (flag_grid)
   {
-    DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
+    auto* dbgrid = dynamic_cast<DbGrid*>(dbout);
     nx.resize(ndim);
     dx.resize(ndim);
     x0.resize(ndim);
@@ -2337,7 +2386,7 @@ Id simcond(Db* dbin,
   {
     CalcSimuTurningBands situba(nbsimu, nbtuba, flag_check, seed);
     if (situba.simulate(dbin, dbout, model, neighU, 0, false,
-                        VectorDouble(), MatrixSymmetric(), false, true)) goto label_end;
+                        false, true)) goto label_end;
   }
 
   /* Free the temporary variables not used anymore */
@@ -2504,7 +2553,7 @@ static Id st_getTimeInterval(double date,
 static Id st_getFACIES(const DbGrid* dbgrid, Id nfacies, Id indFacies, Id iech)
 {
   Id ifacies = static_cast<Id>(dbgrid->getArray(iech, indFacies));
-  if (ifacies < 0 || ifacies > nfacies || IFFFF(ifacies)) ifacies = 0;
+  if (ifacies < 0 || ifacies > nfacies || isNA(ifacies)) ifacies = 0;
   return (ifacies);
 }
 
@@ -2530,7 +2579,7 @@ static double st_getDATE(const DbGrid* dbgrid, Id indDate, Id iech)
 static Id st_getFLUID(const DbGrid* dbgrid, Id nfluids, Id indFluid, Id iech)
 {
   Id ifluid = static_cast<Id>(dbgrid->getArray(iech, indFluid));
-  if (ifluid < 0 || ifluid > nfluids || IFFFF(ifluid)) ifluid = 0;
+  if (ifluid < 0 || ifluid > nfluids || isNA(ifluid)) ifluid = 0;
   return (ifluid);
 }
 

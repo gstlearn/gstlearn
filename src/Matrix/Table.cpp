@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Matrix/Table.hpp"
 #include "Basic/ASerializable.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/SerializeHDF5.hpp"
 #include "Basic/String.hpp"
 #include "Basic/VectorHelper.hpp"
@@ -80,8 +79,8 @@ Table* Table::create(Id nrow, Id ncol)
 Table* Table::createFromNames(const VectorString& rownames,
                               const VectorString& colnames)
 {
-  Id nrow    = static_cast<Id>(rownames.size());
-  Id ncol    = static_cast<Id>(colnames.size());
+  Id nrow     = static_cast<Id>(rownames.size());
+  Id ncol     = static_cast<Id>(colnames.size());
   auto* table = new Table(nrow, ncol);
   table->setRowNames(rownames);
   table->setColumnNames(colnames);
@@ -106,9 +105,31 @@ VectorDouble Table::getRange(Id icol) const
   VectorDouble vec = getColumn(icol);
   if (vec.empty()) return VectorDouble();
   VectorDouble limits(2);
-  limits[0] = VH::minimum(vec);
-  limits[1] = VH::maximum(vec);
+  limits[0] = vec.minimum();
+  limits[1] = vec.maximum();
   return limits;
+}
+
+Table* Table::createFillRandom(Id nrow,
+                               Id ncol,
+                               const VectorString& rownames,
+                               const VectorString& colnames)
+{
+  auto* table         = new Table(nrow, ncol);
+  VectorDouble values = VH::simulateUniform(nrow * ncol);
+  table->setValues(values);
+
+  VectorString colLocal = colnames;
+  if (colLocal.empty())
+    colLocal = generateMultipleNames("Col", ncol);
+  table->setColumnNames(colLocal);
+
+  VectorString rowLocal = rownames;
+  if (rowLocal.empty())
+    rowLocal = generateMultipleNames("Row", nrow);
+  table->setRowNames(rowLocal);
+
+  return table;
 }
 
 VectorDouble Table::getAllRange() const
@@ -126,7 +147,7 @@ VectorDouble Table::getAllRange() const
   return limits;
 }
 
-bool Table::_serializeAscii(std::ostream& os, bool /*verbose*/) const
+bool Table::_serializeAscii(std::ostream& os) const
 {
   bool ret = true;
   ret      = ret && _recordWrite<Id>(os, "Number of Columns", getNCols());
@@ -145,10 +166,10 @@ bool Table::_serializeAscii(std::ostream& os, bool /*verbose*/) const
   return ret;
 }
 
-bool Table::_deserializeAscii(std::istream& is, bool /*verbose*/)
+bool Table::_deserializeAscii(std::istream& is)
 {
-  Id nrows    = 0;
-  Id ncols    = 0;
+  Id nrows     = 0;
+  Id ncols     = 0;
   double value = 0.;
 
   bool ret = true;
@@ -185,7 +206,7 @@ String Table::toString(const AStringFormat* /*strfmt*/) const
   if (!_skipTitle)
   {
     if (!_title.empty())
-      sstr << toTitle(1, _title.c_str());
+      sstr << toStrTitle(1, _title.c_str());
   }
 
   // Description
@@ -210,7 +231,7 @@ String Table::toString(const AStringFormat* /*strfmt*/) const
   // Print optional header (using Column names if defined)
   if (!_colNames.empty())
   {
-    if (!_rowNames.empty()) sstr << toStr(" ", EJustify::fromKey("RIGHT"), rowLengthMax);
+    if (!_rowNames.empty()) sstr << toStr(" ", 1, rowLengthMax);
     for (Id icol = 0; icol < ncols; icol++)
       sstr << " " << toStr(_colNames[icol]);
     sstr << std::endl;
@@ -219,10 +240,10 @@ String Table::toString(const AStringFormat* /*strfmt*/) const
   // Print the contents of the table
   for (Id irow = 0; irow < nrows; irow++)
   {
-    if (!_rowNames.empty()) sstr << toStr(_rowNames[irow], EJustify::fromKey("RIGHT"), rowLengthMax);
+    if (!_rowNames.empty()) sstr << toStr(_rowNames[irow], 1, rowLengthMax);
     for (Id icol = 0; icol < ncols; icol++)
     {
-      sstr << " " << toDouble(getValue(irow, icol));
+      sstr << " " << toStr(getValue(irow, icol));
     }
     sstr << std::endl;
   }
@@ -291,7 +312,7 @@ String Table::getRowName(Id irow) const
   return _rowNames[irow];
 }
 #ifdef HDF5
-bool Table::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+bool Table::deserializeH5(H5::Group& grp)
 {
   auto tableG = SerializeHDF5::getGroup(grp, "Table");
   if (!tableG)
@@ -318,7 +339,7 @@ bool Table::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   return ret;
 }
 
-bool Table::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+bool Table::serializeH5(H5::Group& grp) const
 {
   auto tableG = grp.createGroup("Table");
 

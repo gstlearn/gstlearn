@@ -10,14 +10,15 @@
 /******************************************************************************/
 #pragma once
 
+#include "Basic/AStringable.hpp"
+#include "Basic/Message.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
 #include "Enum/ESpaceType.hpp"
 
-#include "Basic/AStringable.hpp"
-#include "Basic/VectorNumT.hpp"
 #include "Basic/ICloneable.hpp"
+#include "Basic/VectorNumT.hpp"
 #include <memory>
 
 namespace gstlrn
@@ -26,12 +27,12 @@ class SpacePoint;
 class Tensor;
 
 /**
-  * @brief Base classe for space definitions
-  *
-  * If the space instance is a sub-space from a parent SpaceComposit
-  * _offset is used. Otherwise it is set to 0.
-  * Example : if I am RN(1) in RN(2)+RN(1), offset is 2
-  */
+ * @brief Base classe for space definitions
+ *
+ * If the space instance is a sub-space from a parent SpaceComposit
+ * _offset is used. Otherwise it is set to 0.
+ * Example : if I am RN(1) in RN(2)+RN(1), offset is 2
+ */
 class GSTLEARN_EXPORT ASpace: public AStringable, public ICloneable
 {
 protected:
@@ -39,7 +40,7 @@ protected:
   ASpace(const ASpace& r);
   ASpace& operator=(const ASpace& r);
 
-public: 
+public:
   virtual ~ASpace();
 
 public:
@@ -71,7 +72,7 @@ public:
   virtual std::shared_ptr<const ASpace> getComponent(Id ispace = -1) const;
 
   /// Dump a space in a string (given the space index)
-  virtual String toString(const AStringFormat* strfmt, Id ispace) const;
+  virtual String toStringIdx(const AStringFormat* strfmt, Id ispace) const;
 
   /// Return true if the given space is equal to me (same dimension and space
   /// definition)
@@ -86,18 +87,18 @@ public:
                                            VectorDouble& res,
                                            const VectorInt& ranks) const
   {
-    DECLARE_UNUSED(p1, p2, res, ranks)     
-    messerr("Not implemented for this space");                                 
+    DECLARE_UNUSED(p1, p2, res, ranks)
+    messerr("Not implemented for this space");
   };
   ///////////////////////////////////////////////
   /// Not to be overriden
-  
+
   /// Move the given space point by the given vector
   void move(SpacePoint& p1, const VectorDouble& vec) const;
 
   /// Return the distance between two space points
-  double getDistance(const SpacePoint &p1,
-                     const SpacePoint &p2,
+  double getDistance(const SpacePoint& p1,
+                     const SpacePoint& p2,
                      Id ispace = -1) const;
 
   /// Return the distance between two space points with the given tensor
@@ -121,18 +122,18 @@ public:
                            VectorDouble& ptemp,
                            Id ispace = -1) const;
 
-VectorDouble getUnitaryVector() const;
+  VectorDouble getUnitaryVector() const;
   /// Project the coordinates in the given space
   virtual VectorDouble projCoord(const VectorDouble& coord,
                                  Id ispace = -1) const;
-  
+
   /// Customize the dimension offset index of the current space
   /// TODO : to be made private
   void setOffset(size_t offset) { _offset = offset; }
 
   static std::shared_ptr<const ASpace> getDefaultSpaceIfNull(const std::shared_ptr<const ASpace>& space);
-protected:
 
+protected:
   /// Move the given space point by the given vector
   virtual void _move(SpacePoint& p1, const VectorDouble& vec) const = 0;
 
@@ -158,7 +159,7 @@ protected:
   virtual VectorDouble _getIncrement(const SpacePoint& p1,
                                      const SpacePoint& p2,
                                      Id ispace = -1) const = 0;
-  
+
   /// Return the increment vector between two space points in a given vector
   virtual void _getIncrementInPlace(const SpacePoint& p1,
                                     const SpacePoint& p2,
@@ -182,9 +183,9 @@ protected:
   mutable VectorDouble _work2;
 
   /// Privilege to SpaceComposit only
-  //friend class SpaceComposit; /// TODO : this has no effect (see _setOffset). Why ?
+  // friend class SpaceComposit; /// TODO : this has no effect (see _setOffset). Why ?
 };
 
 typedef std::shared_ptr<const ASpace> ASpaceSharedPtr;
-typedef std::vector<ASpaceSharedPtr> ASpaceSharedPtrVector; 
-}
+typedef std::vector<ASpaceSharedPtr> ASpaceSharedPtrVector;
+} // namespace gstlrn

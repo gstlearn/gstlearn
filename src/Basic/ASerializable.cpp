@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Basic/ASerializable.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/File.hpp"
 #include "Basic/SerializeHDF5.hpp"
 #include "Basic/SerializeNeutralFile.hpp"
@@ -42,7 +41,6 @@ void ASerializable::setDefaultFormatNF(const EFormatNF& format)
  *
  * @param NFFilename Name of the Output File
  * @param format Choice of the format (see remarks)
- * @param verbose Verbose flag
  * @return true or false
  *
  * @remarks In the argument 'format', the user can select the format for encoding
@@ -52,8 +50,7 @@ void ASerializable::setDefaultFormatNF(const EFormatNF& format)
  * ASerializable::DefaultFormatNF()
  */
 bool ASerializable::dumpToNF(const String& NFFilename,
-                             const EFormatNF& format,
-                             bool verbose) const
+                             const EFormatNF& format) const
 {
   bool ret = true;
 
@@ -73,7 +70,7 @@ bool ASerializable::dumpToNF(const String& NFFilename,
     std::ofstream os;
     if (SerializeNeutralFile::fileOpenWrite(*this, NFFilename, os, true))
     {
-      ret = _serializeAscii(os, verbose);
+      ret = _serializeAscii(os);
       if (!ret)
         messerr("Problem writing in the Neutral File.");
       os.close();
@@ -85,7 +82,7 @@ bool ASerializable::dumpToNF(const String& NFFilename,
   if (formatLocal == EFormatNF::H5)
   {
     auto file = SerializeHDF5::fileOpenWrite(*this, NFFilename);
-    ret       = _serializeH5(file, verbose);
+    ret       = serializeH5(file);
     if (!ret)
       messerr("Problem writing in the HDF5 file.");
     return ret;
@@ -113,7 +110,7 @@ bool ASerializable::_fileOpenAndDeserialize(const String& filename, bool verbose
   {
     auto fileStr = SerializeHDF5::fileOpenRead(filename);
 
-    return _deserializeH5(fileStr, verbose);
+    return deserializeH5(fileStr);
   }
 #endif
 
@@ -121,7 +118,7 @@ bool ASerializable::_fileOpenAndDeserialize(const String& filename, bool verbose
   std::ifstream is;
   if (SerializeNeutralFile::fileOpenRead(*this, filename, is, verbose))
   {
-    return _deserializeAscii(is, verbose);
+    return _deserializeAscii(is);
   }
 
   if (verbose)
@@ -294,4 +291,46 @@ const String& ASerializable::getPrefixName()
 {
   return _myPrefixName;
 }
+
+#ifdef HDF5
+/**
+ * @brief Returns the Full Path of a given HDF5 Group
+ *
+ * @param group   HDF5 Group
+ * @return String
+ */
+String ASerializable::getGroupFullPath(const H5::Group& group)
+{
+  ssize_t size = H5Iget_name(group.getId(), nullptr, 0);
+  std::string path(size, '\0');
+  H5Iget_name(group.getId(), path.data(), size + 1);
+  return path;
+}
+
+/**
+ * @brief Returns the list of Parent Groups of a given HDF5 Group
+ *
+ * @param group   HDF5 Group
+ * @return VectorString
+ */
+VectorString ASerializable::getGroupParents(const H5::Group& group)
+{
+  String path = getGroupFullPath(group);
+  VectorString parents;
+
+  while (path != "/" && !path.empty())
+  {
+    parents.push_back(path);
+    auto pos = path.find_last_of('/');
+    if (pos == 0)
+      path = "/";
+    else
+      path = path.substr(0, pos);
+  }
+
+  parents.push_back("/"); // racine
+  return parents;
+}
+#endif
+
 } // namespace gstlrn

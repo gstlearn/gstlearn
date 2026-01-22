@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Model/Tapering.hpp"
+#include "Basic/Message.hpp"
 #include "Enum/ECov.hpp"
 
 #include <cmath>

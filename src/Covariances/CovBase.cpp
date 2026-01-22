@@ -12,6 +12,7 @@
 #include "Basic/Iterators.hpp"
 #include "Basic/ListParams.hpp"
 #include "Basic/ParamInfo.hpp"
+#include "Basic/SerializeHDF5.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovContext.hpp"
@@ -22,6 +23,7 @@
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Space/SpacePoint.hpp"
 #include "geoslib_define.h"
+#include <cmath>
 #include <cstddef>
 #include <memory>
 
@@ -283,8 +285,7 @@ void CovBase::_attachNoStatDb(const Db* db)
 
 Id CovBase::makeElemNoStat(const EConsElem& econs, Id iv1, Id iv2, const AFunctional* func, const Db* db, const String& namecol)
 {
-  Id a = ACov::makeElemNoStat(econs, iv1, iv2, func, db, namecol);
-  if (a) return 1;
+  if (ACov::makeElemNoStat(econs, iv1, iv2, func, db, namecol)) return 1;
 
   return _cor->makeElemNoStat(econs, iv1, iv2, func, db, namecol);
 }
@@ -574,8 +575,10 @@ void CovBase::appendParams(ListParams& listParams,
   for (const auto& [ivar, jvar]: _itRange)
     listParams.addParam(_cholSillsInfo(ivar, jvar));
 
-  for (const auto& [ivard, jvard]: _itRange)
+  for (const auto& pair: _itRange)
   {
+    const Id ivard = pair.first;
+    const Id jvard = pair.second;
     if (_cholSillsInfo(ivard, jvard).isFixed()) continue; // Skip fixed parameters
     gradFuncs->emplace_back(
       [ivard, jvard, this](const SpacePoint& p1, const SpacePoint& p2, Id ivar, Id jvar, const CovCalcMode* mode) -> double
@@ -610,10 +613,9 @@ void CovBase::initParams(const MatrixSymmetric& vars, double href)
   {
     double value = chol.getLowerTriangle(ivar, jvar);
     if (ivar == jvar)
-    {  
-      _cholSillsInfo(ivar,jvar).setMaxValue(softplusinv(2. * abs(value))); //Protection against too large values for diagonal
-      value = softplusinv(abs(value));
-      
+    {
+      _cholSillsInfo(ivar, jvar).setMaxValue(softplusinv(2. * ABS(value))); // Protection against too large values for diagonal
+      value = softplusinv(ABS(value));
     }
     _cholSillsInfo(ivar, jvar).setValue(value);
   }
@@ -639,4 +641,47 @@ void CovBase::updateCov()
   if (nvaroptim > 0)
     _sillCur.prodMatMatInPlace(&_cholSills, &_cholSills, false, true);
 }
+
+#ifdef HDF5
+bool CovBase::deserializeH5(H5::Group& grp)
+{
+  bool ret = true;
+
+  // Retrieve the Sills
+  VectorDouble sills;
+  ret = ret && SerializeHDF5::readVec(grp, "Sill Matrix", sills);
+  setSill(sills);
+
+  // Retreive the CorAniso
+  ret = ret && _cor->deserializeH5(grp);
+
+  // Non stationary case.  Look for "NonStat" paragraph. It not found, simply return ... silently
+  auto nostatG = SerializeHDF5::getGroup(grp, "NoStatSills", false);
+  if (nostatG)
+    ret = ret && _tabNoStat->deserializeH5(*nostatG);
+
+  return ret;
+}
+
+bool CovBase::serializeH5(H5::Group& grp) const
+{
+  bool ret = true;
+
+  // Serialize the sills
+  ret = ret && SerializeHDF5::writeVec(grp, "Sill Matrix", getSill().getValues());
+
+  // Serialize the CorAniso
+  ret = ret && _cor->serializeH5(grp);
+
+  // Non stationary case
+  if (isNoStat() && _tabNoStat->size() > 0)
+  {
+    auto nonstatG = grp.createGroup("NoStatSills");
+    ret           = ret && _tabNoStat->serializeH5(nonstatG);
+  }
+
+  return ret;
+}
+#endif
+
 } // namespace gstlrn

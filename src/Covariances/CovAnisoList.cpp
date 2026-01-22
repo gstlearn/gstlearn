@@ -12,7 +12,6 @@
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Basic/ListParams.hpp"
 #include "Basic/ParamInfo.hpp"
-#include "Basic/Utilities.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovCalcMode.hpp"
 #include "Covariances/CovContext.hpp"
@@ -137,12 +136,12 @@ String CovAnisoList::toString(const AStringFormat* /*strfmt*/) const
   {
     if (getNVar() <= 1)
     {
-      sstr << "Total Sill     = " << toDouble(getTotalSill(0, 0));
+      sstr << "Total Sill     = " << toStr(getTotalSill(0, 0));
     }
     else
     {
-      sstr << toMatrix("Total Sill", VectorString(), VectorString(), 0, getNVar(),
-                       getNVar(), getTotalSills().getValues());
+      sstr << toStrMatrix("Total Sill", VectorString(), VectorString(), 0, getNVar(),
+                          getNVar(), getTotalSills().getValues());
     }
   }
   sstr << std::endl;
@@ -185,7 +184,7 @@ CovAniso CovAnisoList::extractCova(Id icov) const
 {
   const CovAniso* covaniso = _getCovAniso(icov);
   if (covaniso == nullptr)
-    return CovAniso(ECov::NUGGET, CovContext());
+    return CovAniso(CovContext(), ECov::NUGGET);
   return *_getCovAniso(icov);
 }
 

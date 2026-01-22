@@ -50,10 +50,10 @@ ASpaceSharedPtr SpaceSN::create(Id ndim, double radius)
   return std::shared_ptr<SpaceSN>(new SpaceSN(ndim, radius));
 }
 
-String SpaceSN::toString(const AStringFormat* strfmt, Id idx) const
+String SpaceSN::toStringIdx(const AStringFormat* strfmt, Id idx) const
 {
   std::stringstream sstr;
-  sstr << ASpace::toString(strfmt, idx);
+  sstr << ASpace::toStringIdx(strfmt, idx);
   if (strfmt == nullptr || strfmt->getLevel() == 1)
   {
     if (idx < 0)

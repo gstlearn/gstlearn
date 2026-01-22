@@ -8,27 +8,25 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-
-#include "Enum/ECst.hpp"
-#include "Enum/ELoadBy.hpp"
-#include "Enum/ESpaceType.hpp"
-
 #include "API/SPDE.hpp"
-
 #include "Basic/File.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/OptCst.hpp"
 #include "Basic/OptDbg.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
+#include "Enum/ECst.hpp"
+#include "Enum/ELoadBy.hpp"
+#include "Enum/ESpaceType.hpp"
 #include "LinearOp/PrecisionOpMatrix.hpp"
 #include "Matrix/MatrixSparse.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "Model/Model.hpp"
 #include "Space/ASpaceObject.hpp"
+#include "geoslib_old_f.h"
 
 using namespace gstlrn;
 
@@ -94,11 +92,11 @@ static void st_print_all(const VectorInt& colors,
                          const MatrixSparse* Q)
 {
   if (!consmin.empty())
-    print_matrix("consmin", 0, 0, 1, 10, NULL, consmin.data());
+    printMatrix(consmin, 1, 10, "consmin");
   if (!consmax.empty())
-    print_matrix("consmax", 0, 0, 1, 10, NULL, consmax.data());
-  print_matrix("sigma", 0, 0, 1, 10, NULL, sigma.data());
-  print_imatrix("colors", 0, 0, 1, 10, NULL, colors.data());
+    printMatrix(consmax, 1, 10, "consmax");
+  printMatrix(sigma, 1, 10, "sigma");
+  printMatrix(colors, 1, 10, "colors");
   Q->display();
 }
 
@@ -160,7 +158,7 @@ static double st_simcond(Id iter,
 {
   double locmin, locmax, x, delta, ratio;
 
-  ratio = (double)(niter - iter - 1) / (double)(iter + 1);
+  ratio = static_cast<double>(niter - iter - 1) / static_cast<double>(iter + 1);
   delta = valmax - valmin;
   if (valmin == -10.)
     locmin = -10.;
@@ -213,7 +211,7 @@ static Id st_gibbs(Id niter,
                    Id nvertex,
                    const VectorInt& colors,
                    const VectorInt& colref,
-                   MatrixSparse** Qcols,
+                   std::vector<MatrixSparse*>& Qcols,
                    const VectorDouble& consmin,
                    const VectorDouble& consmax,
                    const VectorDouble& sigma,
@@ -277,8 +275,7 @@ int main(int argc, char* argv[])
   VectorInt nx    = {100, 100};
   VectorDouble x0 = {0., 0.};
   VectorDouble dx = {1., 1.};
-  DbGrid* dbgrid  = DbGrid::create(nx, dx, x0, VectorDouble(), ELoadBy::COLUMN,
-                                   VectorDouble(), VectorString(), VectorString(), 1);
+  DbGrid* dbgrid  = DbGrid::create(nx, dx, x0, VectorDouble(), ELoadBy::COLUMN);
 
   // Model for SPDE
 
@@ -348,13 +345,18 @@ int main(int argc, char* argv[])
   // Main Algorithm //
   //----------------//
 
+  Id ncols = Q->getNCols();
   std::vector<MatrixSparse*> Qcols(ncolor);
   for (Id icol = 0; icol < ncolor; icol++)
+  {
     Qcols[icol] = Q->extractSubmatrixByColor(colors, colref[icol], true, false);
+    Id nrows    = Qcols[icol]->getNRows();
+    Qcols[icol]->forceDimension(nrows, ncols);
+  }
 
   // Perform the Gibbs sampler
   Id niter = 10;
-  (void)st_gibbs(niter, ncolor, nvertex, colors, colref, Qcols.data(), consmin, consmax,
+  (void)st_gibbs(niter, ncolor, nvertex, colors, colref, Qcols, consmin, consmax,
                  sigma, z, krig);
 
   // Add the newly created field to the grid for printout

@@ -10,7 +10,9 @@
 /******************************************************************************/
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Basic/AException.hpp"
+#include "Basic/Message.hpp"
 #include "Basic/VectorHelper.hpp"
+#include "Matrix/EigenVectors.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixSquare.hpp"
 
@@ -121,8 +123,8 @@ void MatrixSymmetric::_setValues(const double* values, bool byCol)
   for (Id icol = 0; icol < getNCols(); icol++)
     for (Id irow = 0; irow < getNRows(); irow++)
     {
-      double val1 = values[icol * getNRows() + irow];
-      double val2 = values[irow * getNCols() + icol];
+      double val1 = values[(icol * getNRows()) + irow];
+      double val2 = values[(irow * getNCols()) + icol];
       if (ABS(val1 - val2) > EPSILON10)
       {
         messerr(
@@ -245,37 +247,6 @@ void MatrixSymmetric::normMatrix(const AMatrix& y, const MatrixSquare& x, bool t
     }
 }
 
-Id MatrixSymmetric::computeEigen(bool optionPositive)
-{
-  return MatrixDense::_computeEigen(optionPositive);
-}
-
-Id MatrixSymmetric::computeGeneralizedEigen(const MatrixSymmetric& b, bool optionPositive)
-{
-  return MatrixDense::_computeGeneralizedEigen(b, optionPositive);
-}
-
-Id MatrixSymmetric::_terminateEigen(const VectorDouble& eigenValues,
-                                    const VectorDouble& eigenVectors,
-                                    bool optionPositive,
-                                    bool changeOrder)
-{
-  auto nrows = getNRows();
-
-  _eigenValues = eigenValues;
-
-  delete _eigenVectors;
-
-  if (changeOrder)
-    std::reverse(_eigenValues.begin(), _eigenValues.end());
-
-  _eigenVectors = MatrixSquare::createFromVD(eigenVectors, nrows, false, changeOrder);
-
-  if (optionPositive) _eigenVectors->makePositiveColumn();
-
-  return 0;
-}
-
 /****************************************************************************/
 /*!
  **  Check if a matrix is definite positive
@@ -287,11 +258,10 @@ bool MatrixSymmetric::isDefinitePositive()
 {
   /* Calculate the eigen values and vectors */
 
-  if (computeEigen() != 0) messageAbort("Abort in computeEigen");
+  auto eigenvectors = EigenVectors(*this);
 
   // Get the Eigen values
-
-  VectorDouble valpro = getEigenValues();
+  const auto& valpro = eigenvectors.getEigenValues();
 
   /* Check if the eigen values are all positive */
 
@@ -829,13 +799,13 @@ Id MatrixSymmetric::computeGeneralizedInverse(MatrixSymmetric& tabout,
   if (!isSameSize(tabout)) return 1;
 
   // Calculate the Eigen vectors
-  if (computeEigen() != 0) return 1;
-  VectorDouble eigval        = getEigenValues();
-  const MatrixSquare* eigvec = getEigenVectors();
+  auto eigenvectors          = EigenVectors(*this);
+  const auto& eigval         = eigenvectors.getEigenValues();
+  const MatrixSquare& eigvec = eigenvectors.getEigenVectors();
 
   // Compute the conditioning
 
-  double valcond = VH::maximum(eigval, true);
+  double valcond = eigval.maximum(true);
   if (valcond > maxicond)
     return 1;
 
@@ -849,10 +819,54 @@ Id MatrixSymmetric::computeGeneralizedInverse(MatrixSymmetric& tabout,
       for (Id k = 0; k < neq; k++)
       {
         if (ABS(eigval[k]) > valcond * eps)
-          value += eigvec->getValue(i, k) * eigvec->getValue(j, k) / eigval[k];
+          value += eigvec.getValue(i, k) * eigvec.getValue(j, k) / eigval[k];
       }
       tabout.setValue(i, j, value);
     }
+  return 0;
+}
+
+/****************************************************************************/
+/*!
+ **  Calculate the square root of the input square symmetric matrix
+ **    S = F x sqrt(Diag(lambda)) x t(F)
+ **
+ ** \return  Error returned code
+ **
+ ** \param[out] tabout     matrix (square symmetric)
+ **
+ ** \remark The input and output matrices can match
+ **
+ *****************************************************************************/
+Id MatrixSymmetric::computeSquareRoot(MatrixSymmetric& tabout)
+{
+  if (!isSameSize(tabout))
+  {
+    messerr("The argument 'tabout' must have same dimensions as input matrix");
+    return 1;
+  }
+
+  // Calculate the Eigen vectors
+  auto eigenvectors          = EigenVectors(*this);
+  VectorDouble eigval        = eigenvectors.getEigenValues();
+  const MatrixSquare& eigvec = eigenvectors.getEigenVectors();
+
+  if (std::any_of(eigval.begin(), eigval.end(), [](double v)
+                  { return v < 0.; }))
+  {
+    messerr("The input matrix should be definite positive");
+    return 1;
+  }
+
+  /* Calculate the square root of the generalized inverse */
+
+  Id nrow = getNRows();
+  for (Id i = 0; i < nrow; i++)
+    eigval[i] = sqrt(eigval[i]);
+  MatrixSymmetric D(nrow);
+  D.setDiagonal(eigval);
+  tabout.prodMatMatInPlace(&eigvec, &D, false, false);
+  tabout.prodMatMatInPlace(&tabout, &eigvec, false, true);
   return 0;
 }
 
@@ -916,6 +930,26 @@ MatrixSymmetric MatrixSymmetric::compress0MatLC(const MatrixDense& matLC)
       mat.setValue(ivarCL, jvarCL, value);
     }
   return mat;
+}
+
+/**
+ * @brief Create a square matrix from one diagonal
+ *
+ * @param vecdiag Vector of information along the diagonal
+ * @return Returned matrix
+ */
+MatrixSymmetric* MatrixSymmetric::createFromDiagonal(const VectorDouble& vecdiag)
+{
+  /* Initializations */
+  Id neq    = static_cast<Id>(vecdiag.size());
+  auto* res = new MatrixSymmetric(neq);
+  res->fill(0.);
+
+  for (Id i = 0; i < neq; i++)
+  {
+    res->setValue(i, i, vecdiag[i]);
+  }
+  return res;
 }
 
 } // namespace gstlrn

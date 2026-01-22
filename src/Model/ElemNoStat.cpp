@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Model/ElemNostat.hpp"
-#include "Basic/Utilities.hpp"
 
 namespace gstlrn
 {
@@ -123,7 +122,7 @@ String ElemNostat::toString(const AStringFormat* /*strfmt*/) const
   sstr << " - Structure = " << getRankStr() + 1 << " - Variable = "
        << getRankV1() + 1;
 
-  if (!IFFFF(getRankV2())) sstr << " - " << getRankV2() + 1;
+  if (!isNA(getRankV2())) sstr << " - " << getRankV2() + 1;
 
   return sstr.str();
 }

@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Space/SpaceRN.hpp"
 #include "Basic/Tensor.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Space/ASpace.hpp"
 #include "Space/SpacePoint.hpp"
 
@@ -95,10 +94,10 @@ double SpaceRN::_getDistance(const SpacePoint& p1,
   if (!tensor.isFlagDefinedByInverse2())
   {
     tensor.applyInverseInPlace(_work1, _work2);
-    return VH::norm(_work2);
+    return _work2.norm();
   }
   tensor.applyInverse2InPlace(_work1, _work2);
-  return sqrt(VH::innerProduct(_work1, _work2));
+  return sqrt(_work1.innerProduct(_work2));
 }
 
 double SpaceRN::_getFrequentialDistance(const SpacePoint& p1,
@@ -109,7 +108,7 @@ double SpaceRN::_getFrequentialDistance(const SpacePoint& p1,
   DECLARE_UNUSED(ispace);
   _getIncrementInPlace(p1, p2, _work1);
   tensor.applyDirectSwapInPlace(_work1, _work2);
-  return VH::norm(_work2);
+  return _work2.norm();
 }
 
 VectorDouble SpaceRN::_getIncrement(const SpacePoint& p1,

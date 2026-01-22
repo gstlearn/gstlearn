@@ -9,8 +9,8 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Core/io.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/File.hpp"
+#include "Basic/Message.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/String.hpp"
 #include "geoslib_define.h"
@@ -444,7 +444,7 @@ void _file_write(FILE* file, const char* format, va_list ap)
     if (ret_i == TEST)
       fprintf(file, "%5.1lf", ASCII_TEST);
     else
-      fprintf(file, "%ld", ret_i);
+      fprintf(file, "%lld", ret_i);
     if (OptDbg::query(EDbg::INTERFACE)) message("Encoded Integer = %i\n", ret_i);
   }
   else if (!strcmp(format, "%f"))

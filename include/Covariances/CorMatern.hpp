@@ -10,75 +10,120 @@
 /******************************************************************************/
 #pragma once
 
+#include "Basic/ICloneable.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/CorAniso.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
+#include "Space/SpacePoint.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
-#include "Basic/ICloneable.hpp"
-#include "Space/SpacePoint.hpp"
+#include <memory>
 #include <vector>
 
 namespace gstlrn
 {
-class ACov;
 class CorAniso;
 /**
  * \brief
- * This class describes the Gneiting correlation function.
+ * This class describes the multivariate Matern correlation function.
  *
  */
 class GSTLEARN_EXPORT CorMatern: public ACov
 {
 public:
-  CorMatern(const VectorDouble &ranges = VectorDouble(),
-            const VectorDouble &angle = VectorDouble(),
-            const VectorDouble& coeffScales = VectorDouble(), 
-            const VectorDouble& params = VectorDouble(),
-            bool flagRange = true);
+  CorMatern(
+    const CovContext& ctxt,
+    const ECov& type,
+    const VectorDouble& params = VectorDouble(),
+    const VectorDouble& kappas = VectorDouble(),
+    const VectorDouble& ranges = VectorDouble(),
+    const VectorDouble& angles = VectorDouble(),
+    bool flagRange             = true);
   CorMatern(const CorMatern& r);
   CorMatern& operator=(const CorMatern& r);
   virtual ~CorMatern();
   IMPLEMENT_CLONING(CorMatern)
 
+  static CorMatern* create(
+    const CovContext& ctxt,
+    const ECov& type,
+    const VectorDouble& params,
+    const VectorDouble& kappas,
+    const VectorDouble& ranges,
+    const VectorDouble& angles = VectorDouble(),
+    bool flagRange             = true);
+
+  const ECov& getType() const { return _corRef->getType(); }
+
   bool isConsistent(const ASpace* space) const override
   {
-    DECLARE_UNUSED(space)
+    return (space->getType() == ESpaceType::RN);
+  }
+  bool isValidForSpectral() const override
+  {
     return true;
   }
 
+  const CorAniso* getCorRef() const { return _corRef.get(); };
   /// ACov Interface
-  Id getNVar() const override { return _nVar; }
-  double getCorMax(Id ivar, Id jvar) const { return _corMax.getValue(ivar, jvar); }
-  double computeScale(Id ivar, Id jvar) const; 
-  double computeParam(Id ivar, Id jvar) const;   
-  protected:
-  virtual double _eval(const SpacePoint& p1,
-                     const SpacePoint& p2,
-                     Id ivar                = 0,
-                     Id jvar                = 0,
-                     const CovCalcMode* mode = nullptr) const override;
+
+  Id getNVar() const override
+  {
+    return _nVar;
+  }
+  double getC0(Id ivar, Id jvar) const
+  {
+    return _C0.getValue(ivar, jvar);
+  };
+  double getNu(Id ivar, Id jvar) const
+  {
+    return _Nu.getValue(ivar, jvar);
+  };
+  double getKappa(Id ivar, Id jvar) const
+  {
+    return _Kappa.getValue(ivar, jvar);
+  };
+
+  static double computeParam(double nui, double nuj)
+  {
+    return 0.5 * (nui + nuj);
+  };
+  static double computeScale(double kappai, double kappaj)
+  {
+    return sqrt(0.5 * (kappai * kappai + kappaj * kappaj));
+  };
+
+  MatrixDense simulateSpectralOmega(Id nb) const override;
+  SpectrumRN simulateSpectrumRN(Id ns, const ACov* cov0 = nullptr) const override;
+
+  double evalSpectrum(const VectorDouble& freq,
+                      Id ivar = 0,
+                      Id jvar = 0) const override;
+
+  double evalSpectrumRatio(const VectorDouble& freq,
+                           Id ivar,
+                           Id jvar,
+                           const ACov* cov0 = nullptr) const override;
+
+protected:
+  double _eval(const SpacePoint& p1,
+               const SpacePoint& p2,
+               Id ivar                 = 0,
+               Id jvar                 = 0,
+               const CovCalcMode* mode = nullptr) const override;
   void _optimizationSetTarget(SpacePoint& pt) const override;
 
- 
 private:
   void _optimizationPreProcess(Id mode, const std::vector<SpacePoint>& ps) const override;
   void _optimizationPostProcess() const override;
-  
+
 private:
-    Id _nVar;
-    const CorAniso* _corRef;
-    mutable CorAniso _corMatern;
-    VectorDouble _coeffScales; //scale factor for each variable 
-                               //starting from the second one 
-                               //(first one is guided by the tensor of 
-                               //_corMatern)
-    VectorDouble _params; //parameters of the Matern correlation function
-    
-    MatrixSymmetric _corMax;
-    VectorDouble _angles; 
-  
-
+  Id _nVar;
+  std::shared_ptr<const CorAniso> _corRef; // the reference covariance function (ivar = 0)
+  mutable CorAniso _cor;                   // an auxiliary Matern covariance function
+  MatrixSymmetric _Nu;                     // the parameter parameter matrix
+  MatrixSymmetric _Kappa;                  // the scale factor matrix
+  MatrixSymmetric _C0;                     // the covariance matrix
 };
-}
-
+} // namespace gstlrn

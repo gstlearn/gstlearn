@@ -9,10 +9,9 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Model/AModelFitSills.hpp"
-
 #include "Basic/MathFunc.hpp"
 #include "Covariances/CovAniso.hpp"
-
+#include "Matrix/EigenVectors.hpp"
 #include "Model/Constraints.hpp"
 #include "Model/ModelCovList.hpp"
 
@@ -96,33 +95,33 @@ AModelFitSills& AModelFitSills::operator=(const AModelFitSills& m)
 {
   if (this != &m)
   {
-    _ndim           = m._ndim;
-    _nvar           = m._nvar;
-    _nvs2           = m._nvs2;
-    _ncova          = m._ncova;
-    _nbexp          = m._nbexp;
-    _npadir         = m._npadir;
-    _wt             = m._wt;
-    _gg             = m._gg;
-    _ggc            = m._ggc;
-    _wtc            = m._wtc;
-    _wt2            = m._wt2;
-    _gg2            = m._gg2;
-    _dd             = m._dd;
-    _ge             = m._ge;
-    _ge1            = m._ge1;
-    _ge2            = m._ge2;
-    _alphau         = m._alphau;
-    _sill1          = m._sill1;
-    _sill           = m._sill;
-    _verbose        = m._verbose;
-    _trace          = m._trace;
-    _iterg          = m._iterg;
-    _score          = m._score;
-    _model          = m._model;
-    _constraints    = m._constraints;
-    _mop            = m._mop;
-    _calcmode       = m._calcmode;
+    _ndim        = m._ndim;
+    _nvar        = m._nvar;
+    _nvs2        = m._nvs2;
+    _ncova       = m._ncova;
+    _nbexp       = m._nbexp;
+    _npadir      = m._npadir;
+    _wt          = m._wt;
+    _gg          = m._gg;
+    _ggc         = m._ggc;
+    _wtc         = m._wtc;
+    _wt2         = m._wt2;
+    _gg2         = m._gg2;
+    _dd          = m._dd;
+    _ge          = m._ge;
+    _ge1         = m._ge1;
+    _ge2         = m._ge2;
+    _alphau      = m._alphau;
+    _sill1       = m._sill1;
+    _sill        = m._sill;
+    _verbose     = m._verbose;
+    _trace       = m._trace;
+    _iterg       = m._iterg;
+    _score       = m._score;
+    _model       = m._model;
+    _constraints = m._constraints;
+    _mop         = m._mop;
+    _calcmode    = m._calcmode;
   }
   return (*this);
 }
@@ -199,8 +198,8 @@ void AModelFitSills::_allocateInternalArrays(bool flag_exp)
 
 Id AModelFitSills::_goulardWithConstraints()
 {
-  _score                = 0.;
-  VectorDouble consSill = _constraints->getConstantSills();
+  _score               = 0.;
+  const auto& consSill = _constraints->getConstantSills();
 
   /* Core allocation */
   std::vector<MatrixSymmetric> matcor;
@@ -253,7 +252,7 @@ void AModelFitSills::_initializeGoulard()
   MatrixDense Ai(_ncova, _ncova);
   VectorDouble bi(_ncova);
   VectorDouble res(_ncova);
-  VectorDouble consSill = _constraints->getConstantSills();
+  const auto& consSill = _constraints->getConstantSills();
 
   /* Initialize the constraints matrices */
 
@@ -338,7 +337,7 @@ Id AModelFitSills::_makeDefinitePositive(Id icov0, double eps)
 {
   VectorDouble muold(_nvar);
   VectorDouble norme1(_nvar);
-  VectorDouble consSill = _constraints->getConstantSills();
+  const auto& consSill = _constraints->getConstantSills();
 
   for (Id ivar = 0; ivar < _nvar; ivar++)
     muold[ivar] = _sill[icov0].getValue(ivar, ivar);
@@ -377,7 +376,7 @@ void AModelFitSills::_optimizeUnderConstraints()
 
   VectorDouble xr(_nvar);
   std::vector<MatrixSymmetric> alpha;
-  VectorDouble consSill = _constraints->getConstantSills();
+  const auto& consSill = _constraints->getConstantSills();
   alpha.reserve(_ncova);
   for (Id icova = 0; icova < _ncova; icova++)
     alpha.push_back(MatrixSymmetric(_nvar));
@@ -477,10 +476,9 @@ Id AModelFitSills::_truncateNegativeEigen(Id icov0)
     for (Id jvar = 0; jvar <= ivar; jvar++)
       cc.setValue(ivar, jvar, _sill[icov0].getValue(ivar, jvar));
 
-  if (cc.computeEigen()) messageAbort("st_truncate_negative_eigen");
-
-  VectorDouble valpro        = cc.getEigenValues();
-  const MatrixSquare* vecpro = cc.getEigenVectors();
+  auto eigenvectors          = EigenVectors(cc);
+  const auto& valpro         = eigenvectors.getEigenValues();
+  const MatrixSquare* vecpro = &eigenvectors.getEigenVectors();
 
   /* Check positiveness */
 
@@ -611,7 +609,7 @@ double AModelFitSills::_minimizeP4(Id icov0,
   VectorDouble xt(2);
   VectorDouble xest(2);
   VectorDouble x(3);
-  VectorDouble consSill = _constraints->getConstantSills();
+  const auto& consSill = _constraints->getConstantSills();
 
   Id irr = _combineVariables(ivar0, ivar0);
 
@@ -747,9 +745,9 @@ void AModelFitSills::_updateAlphaDiag(Id icov0,
                                       VectorDouble& xr,
                                       std::vector<MatrixSymmetric>& alpha)
 {
-  VectorDouble consSill = _constraints->getConstantSills();
-  double srm            = _sumSills(ivar0, alpha) - alpha[icov0].getValue(ivar0, ivar0);
-  double value          = consSill[ivar0] / (xr[ivar0] * xr[ivar0]) - srm;
+  const auto& consSill = _constraints->getConstantSills();
+  double srm           = _sumSills(ivar0, alpha) - alpha[icov0].getValue(ivar0, ivar0);
+  double value         = consSill[ivar0] / (xr[ivar0] * xr[ivar0]) - srm;
   alpha[icov0].setValue(ivar0, ivar0, MAX(0., value));
 }
 
@@ -773,7 +771,7 @@ void AModelFitSills::_updateOtherSills(Id icov0,
 void AModelFitSills::_updateCurrentSillGoulard(Id icov0, Id ivar0)
 {
   VectorDouble mv(_npadir);
-  VectorDouble consSill = _constraints->getConstantSills();
+  const auto& consSill = _constraints->getConstantSills();
 
   // Loop on the variables
 
@@ -829,7 +827,7 @@ void AModelFitSills::_updateAlphaNoDiag(Id icov0,
                                         VectorDouble& xr,
                                         std::vector<MatrixSymmetric>& alpha)
 {
-  VectorDouble consSill = _constraints->getConstantSills();
+  const auto& consSill = _constraints->getConstantSills();
   for (Id ivar = 0; ivar < _nvar; ivar++)
   {
     if (ivar == ivar0 && !FFFF(consSill[ivar0])) continue;
@@ -933,7 +931,6 @@ Id AModelFitSills::_goulardWithoutConstraint(Id niter,
 {
   Id allpos;
   double temp, crit, crit_mem, coeff;
-  VectorDouble valpro;
   const MatrixSquare* vecpro;
 
   /*******************/
@@ -1033,9 +1030,9 @@ Id AModelFitSills::_goulardWithoutConstraint(Id niter,
 
       /* Computing and sorting the eigen values and eigen vectors */
 
-      if (cc.computeEigen()) return 1;
-      valpro = cc.getEigenValues();
-      vecpro = cc.getEigenVectors();
+      auto eigenvectors  = EigenVectors(cc);
+      const auto& valpro = eigenvectors.getEigenValues();
+      vecpro             = &eigenvectors.getEigenVectors();
 
       Id kvar = 0;
       allpos  = 1;
@@ -1093,7 +1090,7 @@ bool AModelFitSills::_convergenceReached(Id iter,
     for (Id icova = 0; icova < _ncova; icova++)
     {
       message("  - Covariance %d :", icova + 1);
-      VH::dump(" Current parameters ", _sill[icova].getValues(), false);
+      printVector(_sill[icova].getValues(), " Current parameters ", true, false);
     }
   }
   double eps = _mop.getTolred();

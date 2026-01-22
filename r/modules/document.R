@@ -57,12 +57,12 @@ locateFile <- function (filename, where='references', directory=NULL, verbose=FA
   {
     fullname = normalizePath(localname)
     if (verbose)
-      print(paste(filename, "found... Full path is", fullname))
+      print(paste(filename, "found in current directory... Full path is", fullname))
     return(fullname)
   }
   else if (verbose)
   {
-    print(paste(localname, "not found..."))
+    print(paste(localname, "not found in current directory..."))
   }
   
   # Test locally in other directories
@@ -84,12 +84,12 @@ locateFile <- function (filename, where='references', directory=NULL, verbose=FA
     {
       fullname = normalizePath(localname)
       if (verbose)
-        print(paste(filename, "found... Full path is", fullname))
+        print(paste(filename, "found in", f, "... Full path is", fullname))
       return(fullname)
     }
     else if (verbose)
     {
-      print(paste(localname, "not found..."))
+      print(paste(localname, "not found in", f, "..."))
     }
   }
 
@@ -102,12 +102,12 @@ locateFile <- function (filename, where='references', directory=NULL, verbose=FA
     {
       fullname = normalizePath(localname)
       if (verbose)
-        print(paste(filename, "found... Full path is", fullname))
+        print(paste(filename, "found in $GSTLEARN_DIR =", Sys.getenv("GSTLEARN_DIR"), "... Full path is", fullname))
       return(fullname)
     }
     else if (verbose)
     {
-      print(paste(localname, "not found..."))
+      print(paste(localname, "not found in $GSTLEARN_DIR =", Sys.getenv("GSTLEARN_DIR"), "..."))
     }
   }
 

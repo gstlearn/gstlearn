@@ -79,7 +79,7 @@ String Constraints::toString(const AStringFormat* strfmt) const
   Id nitem = static_cast<Id>(_consItems.size());
 
   if (nitem > 0)
-    sstr << toTitle(0, "Constraints to be fulfilled in Fitting procedure");
+    sstr << toStrTitle(0, "Constraints to be fulfilled in Fitting procedure");
 
   for (Id i = 0; i < nitem; i++)
   {

@@ -35,6 +35,7 @@ public:
 
   /// Has a specific implementation in the Target language
   DECLARE_TOTL;
+  DECLARE_TOLATEX
 
   /// ICloneable interface
   IMPLEMENT_CLONING(MatrixSymmetric)
@@ -59,17 +60,17 @@ public:
                                              Id neq,
                                              const VectorDouble& tl);
   static MatrixSymmetric* createRandomDefinitePositive(Id neq, Id seed = 13242);
+  static MatrixSymmetric* createFromDiagonal(const VectorDouble& vecdiag);
   static bool sample(MatrixSymmetric& res,
                      const MatrixSymmetric& A,
                      const VectorInt& rowKeep,
                      bool flagInvert = false);
 
-  Id computeEigen(bool optionPositive = true);
-  Id computeGeneralizedEigen(const MatrixSymmetric& b, bool optionPositive = true);
   Id computeGeneralizedInverse(MatrixSymmetric& tabout,
                                double maxicond = 1.e20,
                                double eps      = EPSILON20);
   bool isDefinitePositive();
+  Id computeSquareRoot(MatrixSymmetric& tabout);
   Id minimizeWithConstraintsInPlace(const VectorDouble& gmat,
                                     const MatrixDense& aemat,
                                     const VectorDouble& bemat,
@@ -110,10 +111,6 @@ public:
                                       const VectorDouble& tabimat,
                                       VectorDouble& tabout);
   static Id _constraintsCount(Id nai, VectorInt& active);
-  Id _terminateEigen(const VectorDouble& eigenValues,
-                     const VectorDouble& eigenVectors,
-                     bool optionPositive = true,
-                     bool changeOrder    = false);
   MatrixSymmetric compress0MatLC(const MatrixDense& matLC);
 
 private:

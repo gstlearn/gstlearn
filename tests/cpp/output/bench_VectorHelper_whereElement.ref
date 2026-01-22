@@ -1,0 +1,16 @@
+
+=== Benchmark: whereElement Performance ===
+Vector size: 10000
+Number of searches: 10000
+
+Original (start=0 always):
+  Found 10000/10000 elements
+#NO_DIFF#   Time: 16438 microseconds
+
+Optimized (start=lastPos):
+  Found 10000/10000 elements
+#NO_DIFF#   Time: 34 microseconds
+
+=== Benchmark Complete ===
+Note: The optimized version reduces complexity from O(n²) to O(n)
+      For larger datasets (millions of points), the improvement is dramatic.

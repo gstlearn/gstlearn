@@ -8,6 +8,8 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Basic/Message.hpp"
+#include "Enum/ECst.hpp"
 #include "Enum/EFormatNF.hpp"
 #include "Enum/ESpaceType.hpp"
 
@@ -82,11 +84,11 @@ Id st_mini_test()
 
   // Modify the variables by adding their mean
   VectorDouble z1 = db->getColumn("z-1");
-  VH::addConstant(z1, means[0]);
+  z1.addCst(means[0]);
   db->setColumn(z1, "z-1");
 
   VectorDouble z2 = db->getColumn("z-2");
-  VH::addConstant(z2, means[1]);
+  z2.addCst(means[1]);
   db->setColumn(z2, "z-2");
 
   DbStringFormat* dbfmt = DbStringFormat::createFromFlags(false, false, false, false, true);
@@ -143,7 +145,6 @@ int main(int argc, char* argv[])
 
   // Global parameters
   law_set_random_seed(32131);
-  bool verbose     = 1;
   Id ndim          = 2;
   Id nvar          = 1;
   Id nbsimu        = 3;
@@ -183,14 +184,14 @@ int main(int argc, char* argv[])
   grid_res = grid->clone();
   simtub(data, grid_res, model, neighM, nbsimu);
   grid_res->display(&dbfmt);
-  (void)grid_res->dumpToNF("Moving.NF", EFormatNF::DEFAULT, verbose);
+  (void)grid_res->dumpToNF("Moving.NF", EFormatNF::DEFAULT);
 
   message("\n<----- Simulation (Unique Neighborhood) ----->\n");
   delete grid_res;
   grid_res = grid->clone();
   simtub(data, grid_res, model, neighU, nbsimu);
   grid_res->display(&dbfmt);
-  (void)grid_res->dumpToNF("Unique.NF", EFormatNF::DEFAULT, verbose);
+  (void)grid_res->dumpToNF("Unique.NF", EFormatNF::DEFAULT);
 
   timer.displayIntervalMilliseconds("Turning Band Simulations", 773);
 

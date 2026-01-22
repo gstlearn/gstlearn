@@ -14,7 +14,6 @@
 #include "Basic/OptDbg.hpp"
 #include "Basic/SerializeHDF5.hpp"
 #include "Basic/String.hpp"
-#include "Basic/Utilities.hpp"
 #include "Db/Db.hpp"
 #include "LithoRule/Node.hpp"
 #include "LithoRule/Rule.hpp"
@@ -303,7 +302,7 @@ String Rule::toString(const AStringFormat* strfmt) const
   RuleStringFormat dsf;
   if (rulefmt != nullptr) dsf = *rulefmt;
 
-  sstr << toTitle(0, "Lithotype Rule");
+  sstr << toStrTitle(0, "Lithotype Rule");
 
   if (statistics(0, &node_tot, &nfac_tot, &nmax_tot, &ny1_tot, &ny2_tot,
                  &prop_tot)) return sstr.str();
@@ -681,7 +680,7 @@ Id Rule::setProportions(const VectorDouble& proportions) const
   return (0);
 }
 
-bool Rule::_deserializeAscii(std::istream& is, bool /*verbose*/)
+bool Rule::_deserializeAscii(std::istream& is)
 {
   /* Create the Rule structure */
 
@@ -718,7 +717,7 @@ bool Rule::_deserializeAscii(std::istream& is, bool /*verbose*/)
   return ret;
 }
 
-bool Rule::_serializeAscii(std::ostream& os, bool /*verbose*/) const
+bool Rule::_serializeAscii(std::ostream& os) const
 {
   Id nb_node, nfacies, nmax_tot, ny1_tot, ny2_tot, rank;
   double prop_tot;
@@ -1096,7 +1095,7 @@ Rule* Rule::createFromFaciesCount(Id nfacies, double rho)
   return rule;
 }
 #ifdef HDF5
-bool Rule::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+bool Rule::deserializeH5(H5::Group& grp)
 {
   auto ruleG = SerializeHDF5::getGroup(grp, "Rule");
   if (!ruleG)
@@ -1124,7 +1123,7 @@ bool Rule::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   return ret;
 }
 
-bool Rule::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+bool Rule::serializeH5(H5::Group& grp) const
 {
   auto ruleG = grp.createGroup("Rule");
 

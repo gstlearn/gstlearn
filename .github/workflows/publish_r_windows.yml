@@ -43,7 +43,7 @@ jobs:
     strategy:
       matrix:
         # Last releases from here https://cran.r-project.org/src/base/R-4/
-        r_version: [4.2.3, 4.3.3, 4.4.3, 4.5.0]
+        r_version: [4.2.3, 4.3.3, 4.4.3, 4.5.2]
 
     steps:
     - uses: actions/checkout@v4
@@ -90,6 +90,7 @@ jobs:
       run : |
         cmake `
           -B${{ env.BUILD_DIR }} `
+          -DCMAKE_COMPILE_WARNING_AS_ERROR=ON `
           -DBUILD_PYTHON=OFF `
           -DBUILD_R=ON `
           -DHDF5_USE_STATIC_LIBRARIES=ON `
@@ -136,7 +137,7 @@ jobs:
     strategy:
       matrix:
         # Last releases from here https://cran.r-project.org/src/base/R-4/
-        r_version: [4.2.3, 4.3.3, 4.4.3, 4.5.0]
+        r_version: [4.2.3, 4.3.3, 4.4.3, 4.5.2]
 
     steps:
     - uses: actions/checkout@v4

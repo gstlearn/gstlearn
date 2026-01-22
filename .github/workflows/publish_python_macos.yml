@@ -34,22 +34,18 @@ jobs:
         # Python version
         python: [
           # Double quote for version is needed otherwise 3.10 => 3.1
-            {py: "3.9"},
             {py: "3.10"},
             {py: "3.11"},
             {py: "3.12"},
-            {py: "3.13"}
+            {py: "3.13"},
+            {py: "3.14"}
           ]
         arch: [
-            {ar: x86_64, os: macos-13, pat: /usr/local},
             {ar: arm64,  os: macos-14, pat: /opt/homebrew},
-            {ar: arm64,  os: macos-15, pat: /opt/homebrew}
+            {ar: arm64,  os: macos-15, pat: /opt/homebrew},
+            {ar: x86_64, os: macos-15-intel, pat: /usr/local},
+            {ar: arm64,  os: macos-26, pat: /opt/homebrew},
           ]
-        exclude:
-          - arch: {os: macos-14}
-            python: {py: "3.9"}
-          - arch: {os: macos-15}
-            python: {py: "3.9"}
 
     steps:
     - uses: actions/checkout@v4
@@ -82,6 +78,7 @@ jobs:
       run : |
         cmake \
           -B${{ env.BUILD_DIR }} \
+          -DCMAKE_COMPILE_WARNING_AS_ERROR=ON \
           -DHDF5_USE_STATIC_LIBRARIES=ON \
           -DBUILD_PYTHON=ON \
           -DBUILD_R=OFF \
@@ -98,6 +95,8 @@ jobs:
     - name : Create Wheel
       run : |
         cd ${{env.BUILD_DIR}}/python/${{env.CMAKE_BUILD_TYPE}}
+        cp ${{matrix.arch.pat}}/opt/llvm/lib/libomp.dylib gstlearn
+        install_name_tool -change ${{matrix.arch.pat}}/opt/llvm/lib/libomp.dylib @loader_path/libomp.dylib gstlearn/_gstlearn.so
         # Note: wheel must be declared not pure (see setup.py)
         uv build --wheel
         cd ../../..
@@ -116,22 +115,18 @@ jobs:
       matrix:
         python: [
         # Double quote for version is needed otherwise 3.10 => 3.1
-            {py: "3.9"},
             {py: "3.10"},
             {py: "3.11"},
             {py: "3.12"},
-            {py: "3.13"}
+            {py: "3.13"},
+            {py: "3.14"}
           ]
         arch: [
-            {ar: x86_64, os: macos-13},
             {ar: arm64,  os: macos-14},
-            {ar: arm64,  os: macos-15}
+            {ar: arm64,  os: macos-15},
+            {ar: x86_64, os: macos-15-intel},
+            {ar: arm64,  os: macos-26},
           ]
-        exclude:
-          - arch: {os: macos-14}
-            python: {py: "3.9"}
-          - arch: {os: macos-15}
-            python: {py: "3.9"}
 
     steps:
     - uses: actions/checkout@v4
@@ -145,9 +140,6 @@ jobs:
       with:
         python-version: ${{ matrix.python.py }}
         activate-environment: true
-
-    - name: Install macOS dependencies
-      run: brew install llvm
 
     - name: Install Python package
       run: |
@@ -170,7 +162,7 @@ jobs:
 
     steps:
     # Upload packages to pypi
-    - uses: fabien-ors/pypi-publish-action@v2
+    - uses: fabien-ors/pypi-publish-action@v3
       with:
         repo: pypi
         username: __token__

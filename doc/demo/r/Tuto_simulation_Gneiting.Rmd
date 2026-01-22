@@ -1,0 +1,422 @@
+---
+title: "Spectral simulation of the Gneiting model"
+author: "X. Freulon, and the gstlearn Core Team"
+date: 2025-11-12
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(gstlearn)
+rm(list = ls())
+h   = seq(from = 0, to = 10, length.out = 100)
+```
+
+# The Gneiting covariance
+
+The expression of the space-time Gneiting's covariance on $\mathbb{R}^d \times \mathbb{R}$ is:
+
+$$
+C(h, u; \alpha, \beta, \nu) = (1 + \|u\|^{\alpha})^{-\frac{\beta}{2}d} \mathcal{K}_{\nu} (\frac{\|h\|}{(1 + \|u\|^{\alpha})^{\frac{\beta}{2}}})
+$$
+
+where $(h,u)$ are the increments, respectively in the space $\mathbb{R}^d$ and time $\mathbb{R}$, $\mathcal{K}$ is the Gauss, Matern, or Cauchy kernel, defining the spatial trace,
+
+* the Gauss kernel is $k(h) = e^{-\|h\|^2}$ (no parameters)
+* the Matern kernel is $k(h) = \frac{2^{-\nu}}{\Gamma(\nu)} \|h\|^\nu K_\nu(\|h\|)$ ($\nu > 0$)
+* the Cauchy kernel is $k(h) = (1 + \|h\|^2)^{-\nu}$ ($\nu > 0$)
+
+and, the parameters $\alpha \in (0,2]$ and $\beta \in (0,1]$ defines the temporal trance.
+
+In addition a geometrical anisotropy can be defined in scaling coefficients $(\boldsymbol{a}, a_t) > 0$ and and a rotation matrix $R$: $\|h\| = \sqrt{(h^t \left(R^t D_{(1/\boldsymbol{a}^2)}R\right)h)}$ and $\|u\|= |u|/a_t$.
+
+```{r plot_gneiting, echo=FALSE}
+# parameters
+type = 2 # in 0:2 (GNEITING-GAUSS, GNEITING-MATERN, GNEITING-CAUCHY)
+type_label = c("Gneiting-Gauss", "Gneiting-Matern", "Gneiting-Cauchy")
+d = 1 # in 1:3
+scales = c(1, 2, 2.5, 3)[c(1:d,4)]
+alpha  = 1.5
+beta   = 1
+nu = 3/4 # not used if type == 0
+
+if (type == 0) {
+  # Two parameters are required for the Gneiting-Gauss model
+  params = c(alpha, beta*d/2) 
+  nu = NULL
+} else {
+  # Three parameters are required for the Gneiting-Matern or Gneiting-Cauchy model
+  params = c(alpha, beta*d/2, nu)
+}
+sep = 1.0
+angles = list()
+angles[[1+length(angles)]] = 0
+angles[[1+length(angles)]] = c(30,0)
+angles[[1+length(angles)]] = c(0,0,0)
+
+# using the static *create* function
+mg_in_gstlearn  = CorGneiting_create(
+  ctxt = CovContext(nvar = 1, ndim = d), 
+  type = switch(paste(type), "0" = ECov_GNEITING_G(), "1" = ECov_GNEITING_M(), "2" = ECov_GNEITING_C()),
+  alpha = alpha,
+  beta = beta, 
+  timeRange = scales[d+1],
+  params = nu, 
+  kappas = 1.0,
+  ranges = scales[1:d], # vector of length d
+  angles = angles[[d]], # vector of length d
+  separability = 1.0,   # scalar in [0,1] (not used)
+  flagRange = FALSE
+  )
+# XF : Old style
+  # CorGneiting_create(
+  # ctxt = CovContext(nvar = 1, ndim = d+1), 
+  # type = switch(paste(type), "0" = ECov_GNEITING_G(), "1" = ECov_GNEITING_M(), "2" = ECov_GNEITING_C()),
+  # params = params,
+  # ranges = scales,      # vector of length d+1
+  # angles = angles[[d]], # vector of length d (no angles in time)
+  # separability = 1.0,   # scalar in [0,1]
+  # flagRange = FALSE
+  # )
+
+```
+
+
+```{r plot_gstlearn, echo=FALSE}
+# R^d \times Time
+defineDefaultSpaceRnT(ndim = d)
+displayDefaultSpace()
+
+```
+
+# Covariance function
+
+```{r}
+tit_main = paste0(type_label[1+type], "(", d, "d)")
+if (type == 0) {
+tit_sub  = bquote(paste(alpha == .(alpha), "; ", beta == .(beta)))
+} else {
+tit_sub  = bquote(paste(alpha == .(alpha), "; ", beta == .(beta), "; ", nu == .(nu)))
+}
+```
+
+## Temporal trace
+
+```{r plot_gneiting_temporal, echo=FALSE}
+# Temporal covariance
+plot(NULL,  NULL, xlim = range(h), ylim = c(0,1), 
+     xlab = "Time distance", ylab = "Covariance", 
+     main = paste0(tit_main, ": temporal trace"), 
+     sub = tit_sub
+     )
+abline(h = c(0, 1), col = "gray", lty = 3)
+abline(v = c(0), col = "gray", lty = 3)
+
+# model in gstlearn
+u0  = c(rep(0.0, d), 1.0); u0 = u0 / sqrt(sum(u0^2))
+lines(h, mg_in_gstlearn$sample(h = h, codir = u0, ivar = 0, jvar = 0), col = "black", lty = 1)
+legend("topright", 
+       legend = c("model"),
+       col = c("black"),
+       lty = c(1), 
+       pch = c(NaN)
+       )
+
+```
+
+## Spatial trace
+```{r plot_gneiting_spatial, echo=FALSE}
+if (d == 1) {
+dir_u   = matrix(c(1,0), nrow = 1, ncol = d+1, byrow = TRUE)
+}
+if (d == 2) {
+dir_u   = matrix(c(1,0,0, 1,1,0, 0,1,0, -1,1,0), nrow = 4, ncol = d+1, byrow = TRUE)
+}
+if (d == 3) {
+dir_u   = matrix(c(1,0,0,0, 0,1,0,0, 0,0,1,0), nrow = 3, ncol = d+1, byrow = TRUE)
+}
+dir_col = palette.colors(nrow(dir_u))
+
+# Spatial covariance
+plot(NULL,  NULL, xlim = range(h), ylim = c(0,1), 
+     xlab = "Space distance", ylab = "Covariance", 
+     main = paste0(tit_main, ": spatial trace"), 
+     sub = tit_sub
+     )
+abline(h = c(0, 1), col = "gray", lty = 3)
+abline(v = c(0), col = "gray", lty = 3)
+for (idir in 1:nrow(dir_u)) {
+  u0 = dir_u[idir,]; u0 = u0 / sqrt(sum(u0^2))
+  lines(h, mg_in_gstlearn$sample(h = h, codir = u0, ivar = 0, jvar = 0), 
+        col = dir_col[idir], lty = 1)
+}
+legend("topright", 
+       legend = c(paste0("Dir #", 1:nrow(dir_u))),
+       col = c(dir_col),
+       lty = c(rep(1, nrow(dir_u))), 
+       pch = c(rep(NaN, nrow(dir_u)))
+       )
+
+```
+
+
+## Space-Time covariance
+```{r plot_gneiting_ST, echo=FALSE}
+ndir = 4
+dir_col = palette.colors(nrow(dir_u))
+
+# random directions in space-time
+dir_u = matrix(rnorm(ndir*(d+1)), nrow = ndir, ncol = d+1)
+dir_u = dir_u / apply(X = dir_u, MARGIN = 1, FUN = function(u){sqrt(sum(u^2))})
+
+# space-time covariance
+plot(NULL,  NULL, xlim = range(h), ylim = c(0,1), 
+     xlab = "Space-time distance", ylab = "Covariance", 
+     main = paste0(tit_main, ": space-time covariance"), 
+     sub = tit_sub
+     )
+abline(h = c(0, 1), col = "gray", lty = 3)
+abline(v = c(0), col = "gray", lty = 3)
+# dir Ox
+for (idir in 1:nrow(dir_u)) {
+  lines(h, mg_in_gstlearn$sample(h = h, codir = dir_u[idir,], ivar = 0, jvar = 0), 
+        col = dir_col[idir], lty = 1)
+}
+dir_lab = NULL
+for (i in 1:ndir)  {
+  if (d == 1) {lb = sprintf("[%4.2f, %4.2f]", dir_u[i,1], dir_u[i,2])}
+  else if (d == 2) {lb = sprintf("[%4.2f, %4.2f, %4.2f]", dir_u[i,1], dir_u[i,2], dir_u[i,3])}
+  else if (d == 3) {lb = sprintf("[%4.2f, %4.2f, %4.2f, %4.2f]", dir_u[i,1], dir_u[i,2], dir_u[i,3], dir_u[i,4])}
+dir_lab = c(dir_lab, lb)
+}
+legend("topright", 
+       legend = c(dir_lab),
+       col = c(dir_col),
+       lty = c(rep(1, nrow(dir_u))), 
+       pch = c(rep(NaN, nrow(dir_u)))
+       )
+
+```
+
+# Simulations
+
+```{r simulation_parameters, echo=TRUE, eval=TRUE}
+d = mg_in_gstlearn$getNDim() - 1
+stopifnot(d <= 3)
+ns = 5000 #  number of spectral components
+prefix = paste("GM", d, "d", sep = "_")
+
+# grid
+nx = c(rep(100, 3), 50)[c(1:d, 4)] 
+dx = c(rep(0.15, 3), 0.3)[c(1:d, 4)] 
+x0 = c(rep(0, 3), 0)[c(1:d, 4)]
+grd = DbGrid_create(nx = nx, dx = dx, x0 = x0)
+
+# variogram parameters
+nlag = 20
+incr = diag(d+1)
+if (d == 1) {
+incr = cbind(incr, c(1,1))
+} else if (d == 2) {
+incr = cbind(incr, c(1,1,0))
+incr = cbind(incr, c(1,0,1))
+incr = cbind(incr, c(0,1,1))
+}
+ndir = ncol(incr)
+col_dir = palette.colors(ndir)
+lab_dir = NULL
+varioPar = VarioParam()
+for (idir in (1:ndir)) {
+  dir_param = DirParam_createFromGrid(grd, nlag = nlag, grincr = incr[,idir])
+  err = varioPar$addDir(dir_param)
+  key = "["
+  for (k in 1:(d+1)) {
+    key = paste0(key, incr[k,idir])
+    if (k <= d) {key = paste0(key, ",")}
+    }
+  key = paste0(key, "]")
+  lab_dir = c(lab_dir, key)
+}
+
+```
+
+Performing a single simulation using the *SimuSpectralRN* interface:
+
+```{r one_simulation, echo=TRUE, eval=TRUE}
+# simulation
+gssimu = SimuSpectralRN(cova = mg_in_gstlearn)
+err = gssimu$simulate(ns = ns)
+
+# computation
+err = grd$deleteColumns(names = paste0(prefix, "*"))
+err = gssimu$compute(dbout = grd, verbose = TRUE, 
+                     namconv = NamingConvention(prefix), qualifier = "simu")
+
+```
+
+
+```{r simulate_QC, echo=FALSE, eval=TRUE}
+opers   = EStatOption_fromKeys(c("NUM", "MINI", "MAXI", "MEAN", "STDV"))
+v_name  = paste(prefix, "V1", "simu", sep = ".")
+
+# -----------------------------------------------------
+# statistics
+# -----------------------------------------------------
+tab = dbStatisticsMono(grd, names = v_name, opers = opers)$toTL()
+knitr::kable(tab, caption = paste0("Statistics for simulations of ", tit_main))
+
+# -----------------------------------------------------
+# histogram
+# -----------------------------------------------------
+p.hist = plot.init()
+p.hist = p.hist + plot.hist(grd, name = v_name, bins = 20)
+p.hist = p.hist + geom_vline(xintercept = mean(mean(grd[v_name])), color= "orange",linetype="solid",alpha=0.5,linewidth=1)
+p.hist = p.hist + xlim(c(-3, 3))
+p.hist = p.hist + xlab("S1") + ylab("Frequency")
+p.hist = p.hist + ggtitle(paste0("Distribution of the values"))
+p.hist = p.hist + theme_bw()
+p.hist
+
+# -----------------------------------------------------
+# maps
+# -----------------------------------------------------
+lab.coor = c("x", "y", "z", "time")[c(1:d, 4)] 
+if (d == 1) {
+  idx = matrix(c(1, 2), nrow = 2, ncol = 1)
+} else if (d == 2) {
+  idx = matrix(c(1, 2, 1, 3, 2, 3), nrow = 2, ncol = 3)
+} else if (d == 3) {
+  idx = matrix(c(1, 2, 1, 3, 2, 3, 1, 4, 2, 4, 3, 4), nrow = 2, ncol = 6)
+}
+plot.map <- function(i) {
+  plot.init(asp = 1) + 
+  plot.raster(grd, name = v_name, posX = idx[1,i]-1, posY = idx[2,i]-1) +
+  plot.decoration(title = tit_main, xlab = lab.coor[idx[1,i]], ylab = lab.coor[idx[2,i]])
+}
+
+plot.end(plot.map(1))
+if (d > 1) {
+plot.end(plot.map(2))
+plot.end(plot.map(3))
+} 
+if (d > 2) {
+  plot.end(plot.map(4))
+  plot.end(plot.map(5))
+  plot.end(plot.map(6))
+}
+
+# -----------------------------------------------------
+# variogram on the simulation
+# -----------------------------------------------------
+# computing the experimental variogram in various directions
+vario = Vario(varioPar)
+err   = vario$compute(grd)
+
+# TODO: plot.model with a space-time model does not work here!
+# p.var = plot.init()
+# p.var = p.var + plot.vario(vario)
+# p.var = p.var + plot.model(mg_in_gstlearn)
+# p.var
+
+gg  = matrix(NaN, nrow = nlag, ncol = ndir)
+hh  = matrix(NaN, nrow = nlag, ncol = ndir)
+for (idir in 1:ndir){
+  gg[,idir] = vario$getAllGg(idir = idir-1)
+  hh[,idir] = vario$getAllHh(idir = idir-1)
+}
+
+# plotting variograms
+dd     = seq(from = 0, to = max(hh, na.rm = TRUE), length.out = 100)
+plot(NULL, NULL, xlim = range(dd), ylim = 1.1*c(0.0, max(gg, na.rm = TRUE)),
+     xlab = "Distance", ylab = "Variogram", 
+     main = paste0(tit_main, ": one simulation"),
+     sub  = tit_sub)
+abline(h = 0, col = "black")
+abline(h = 1, col = "grey", lty = 3)
+abline(v = 0, col = "black")
+for (idir in 1:ndir) {
+  # empirical variogram
+  lines(hh[,idir], gg[,idir], col = col_dir[idir], lty = 3)
+  points(hh[,idir], gg[,idir], col = col_dir[idir], pch = 19, cex = 0.5)
+  # variogram model in gstlearn
+  u0  = incr[, idir]*dx/sqrt(sum((incr[, idir]*dx)^2))
+  val = mg_in_gstlearn$sample(h = 0, codir = u0, ivar = 0, jvar = 0) - 
+    mg_in_gstlearn$sample(h = dd, codir = u0, ivar = 0, jvar = 0)
+  lines(dd, val, col  = col_dir[idir], lw = 2)
+}
+legend("topright", legend = c(lab_dir, "model"), col = c(col_dir, "gray"), 
+       lty = c(rep(3, ndir),1), lw = c(rep(1, ndir),2), pch = c(rep(19, ndir), NA))
+
+```
+
+# Multiple simulations 
+
+Performing multiple simulations using the *simuSpectral* interface:
+
+```{r multiple_simulations, echo = TRUE, eval = TRUE}
+# simulations
+nsim = 20
+err = grd$deleteColumns(names = paste0(prefix, "*"))
+err = simuSpectral(dbin = NULL, dbout = grd, cova = mg_in_gstlearn, seed = 0,
+                   nbsimu = nsim, ns = ns, namconv = NamingConvention(prefix), verbose = FALSE)
+```
+
+
+```{r multiple_simulations_vario, echo = FALSE, eval = TRUE}
+# variograms
+gg  = array(NaN, dim = c(nlag, ndir, nsim))
+hh  = array(NaN, dim = c(nlag, ndir, nsim))
+for (is in 1:nsim) {
+  err = grd$setLocator(
+    name = paste(prefix, "V1", paste0("S",is), sep = "."), 
+    locatorType = ELoc_Z(), 
+    cleanSameLocator = TRUE)
+  vario = Vario(varioPar)
+  err   = vario$compute(grd)
+  for (idir in 1:ndir){
+    gg[,idir, is] = vario$getAllGg(idir = idir-1)
+    hh[,idir, is] = vario$getAllHh(idir = idir-1)
+  }
+}
+# Average variogram
+ gg_moy = apply(X = gg, MARGIN = c(1,2), FUN = mean)
+ hh_moy = apply(X = hh, MARGIN = c(1,2), FUN = mean)
+ 
+# plotting variograms
+dd = seq(from = 0, to = max(hh_moy, na.rm = TRUE), length.out = 100)
+plot(NULL, NULL, xlim = range(dd), ylim = 1.1*c(0.0, max(gg_moy, na.rm = TRUE)),
+     xlab = "Distance", ylab = "Variogram", 
+     main = paste0(tit_main, ": ", nsim, " simulations"),
+     sub  = tit_sub)
+abline(h = 0, col = "black")
+abline(h = 1, col = "grey", lty = 3)
+abline(v = 0, col = "black")
+
+for (idir in 1:ndir) {
+  # empirical variogram
+  lines(hh_moy[,idir], gg_moy[,idir], col = col_dir[idir], lty = 3)
+  points(hh_moy[,idir], gg_moy[,idir], col = col_dir[idir], pch = 19, cex = 0.5)
+  # variogram model in gstlearn
+  u0  = incr[, idir]*dx/sqrt(sum((incr[, idir]*dx)^2))
+  val = mg_in_gstlearn$sample(h = 0, codir = u0, ivar = 0, jvar = 0) - 
+    mg_in_gstlearn$sample(h = dd, codir = u0, ivar = 0, jvar = 0)
+  lines(dd, val, col  = col_dir[idir], lw = 2)
+
+}
+legend("topright", legend = c(lab_dir, "model"), col = c(col_dir, "gray"), 
+       lty = c(rep(3, ndir),1), lw = c(rep(1, ndir),2), pch = c(rep(19, ndir), NA))
+
+```
+
+# References
+
+* Gneiting, T. (2013). Strictly and non-strictly positive definite functions on spheres.
+
+* Allard, D., Emery, X., Lacaux, C., & Lantuéjoul, C. (2020). Simulating space-time random fields with nonseparable Gneiting-type covariance functions. Statistics and Computing, 30(5), 1479-1495.
+
+* Allard, D., Benoit, L., & Obakrim, S. (2025). Modeling and simulating spatio-temporal, multivariate and nonstationary Gaussian Random Fields: a Gaussian mixtures perspective.

@@ -22,7 +22,7 @@ env:
   CMAKE_BUILD_TYPE : Release
   BUILD_DIR : build
   CMAKE_GENERATOR : Ninja
-  PYTHON_VERSION : "3.13.3"
+  PYTHON_VERSION : "3.14"
   GSTLEARN_OUTPUT_DIR: ${{ github.workspace }}\build\gstlearn_dir
   CMAKE_TOOLCHAIN_FILE : C:\vcpkg\scripts\buildsystems\vcpkg.cmake
 
@@ -61,7 +61,7 @@ jobs:
     - name: Install python dependencies
       run: |
         uv pip install numpy
-        uv pip install pandas scipy mlxtend
+        uv pip install mlxtend
 
     - name: Run sccache-cache
       uses: mozilla-actions/sccache-action@v0.0.9

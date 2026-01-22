@@ -9,12 +9,10 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Variogram/DirParam.hpp"
-#include "Basic/AStringable.hpp"
-#include "Basic/Utilities.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Space/ASpace.hpp"
+#include "Variogram/AVario.hpp"
 #include <Geometry/GeometryHelper.hpp>
 
 #include <cmath>
@@ -77,7 +75,7 @@ DirParam::DirParam(const DbGrid* dbgrid,
   for (Id idim = 0; idim < ndim; idim++)
     dlag += _codir[idim] * _codir[idim];
   _dLag = sqrt(dlag);
-  VH::normalize(_codir);
+  _codir.normalizeInPlace();
 }
 
 DirParam::DirParam(const DirParam& r)
@@ -212,9 +210,9 @@ bool DirParam::isDimensionValid(Id idim) const
   return checkArg("Space Dimension", idim, static_cast<Id>(getNDim()));
 }
 
-bool DirParam::isLagValid(Id ilag, bool flagAsym, bool flagCheck) const
+bool DirParam::isLagValid(Id ilag, bool flagAsym) const
 {
-  if (!flagCheck) return true;
+  if (!getFlagAVarioCheck()) return true;
   auto nlag = getNLag();
   if (flagAsym) nlag = 2 * nlag + 1;
   return checkArg("Lag Index", ilag, nlag);
@@ -267,32 +265,32 @@ String DirParam::toString(const AStringFormat* /*strfmt*/) const
   if (getNLag() > 0)
     sstr << "Number of lags              = " << getNLag() << std::endl;
 
-  sstr << toVector("Direction coefficients      = ", _codir);
+  sstr << toStrVector("Direction coefficients      = ", _codir);
   if (ndim > 1)
   {
     VectorDouble angles(ndim);
     (void)GH::rotationGetAnglesFromCodirInPlace(_codir, angles);
     if (ndim > 2)
-      sstr << toVector("Direction angles (degrees)  = ", angles);
+      sstr << toStrVector("Direction angles (degrees)  = ", angles);
     else
-      sstr << "Direction angles (degrees)  = " << toDouble(angles[0]) << std::endl;
+      sstr << "Direction angles (degrees)  = " << toStr(angles[0]) << std::endl;
   }
 
   if (!FFFF(_tolAngle))
-    sstr << "Tolerance on direction      = " << toDouble(_tolAngle)
+    sstr << "Tolerance on direction      = " << toStr(_tolAngle)
          << " (degrees)" << std::endl;
 
   if (!FFFF(_bench) && _bench > 0.)
-    sstr << "Slice bench                 = " << toDouble(_bench) << std::endl;
+    sstr << "Slice bench                 = " << toStr(_bench) << std::endl;
   if (!FFFF(_cylRad) && _cylRad > 0.)
-    sstr << "Slice radius                = " << toDouble(_cylRad) << std::endl;
+    sstr << "Slice radius                = " << toStr(_cylRad) << std::endl;
 
   if (getFlagRegular())
   {
     if (getDPas() > .0)
     {
-      sstr << "Calculation lag             = " << toDouble(getDPas()) << std::endl;
-      sstr << "Tolerance on distance       = " << toDouble(100. * getTolDist())
+      sstr << "Calculation lag             = " << toStr(getDPas()) << std::endl;
+      sstr << "Tolerance on distance       = " << toStr(100. * getTolDist())
            << " (Percent of the lag value)" << std::endl;
     }
   }
@@ -301,8 +299,8 @@ String DirParam::toString(const AStringFormat* /*strfmt*/) const
     sstr << "Calculation intervals       = " << std::endl;
     for (Id i = 0; i < getNBreak(); i++)
     {
-      sstr << " - Interval " << i + 1 << " = ["
-           << toInterval(getBreak(i), getBreak(i + 1)) << "]" << std::endl;
+      sstr << " - Interval " << i + 1 << " = "
+           << toStrInterval(getBreak(i), getBreak(i + 1)) << std::endl;
     }
   }
 
@@ -311,7 +309,7 @@ String DirParam::toString(const AStringFormat* /*strfmt*/) const
 
     // Case of a variogram defined on a Grid db
 
-    sstr << toVector("Grid Direction coefficients = ", _grincr);
+    sstr << toStrVector("Grid Direction coefficients = ", _grincr);
   }
 
   /* Selection on the 'code' */
@@ -401,7 +399,7 @@ std::vector<DirParam> DirParam::createMultipleInSpace(Id nlag, double dlag, cons
   std::vector<DirParam> dirs;
   for (Id idim = 0; idim < ndim; idim++)
   {
-    VH::fill(codir, 0);
+    codir.fill(0);
     codir[idim]        = 1;
     DirParam* dirparam = DirParam::create(nlag, dlag, 0.5, 0., 0, 0, TEST, TEST, 0., VectorDouble(), codir, TEST, space);
     dirs.push_back(*dirparam);

@@ -122,7 +122,7 @@ int main(int argc, char* argv[])
     ascii_filename("Vario", 0, 1, filename);
   }
   vario->display();
-  if (!vario->dumpToNF("Vario.dat", EFormatNF::DEFAULT, verbose))
+  if (!vario->dumpToNF("Vario.dat", EFormatNF::DEFAULT))
     messageAbort("ascii_vario_write");
 
   /* Fit the model */
@@ -137,7 +137,7 @@ int main(int argc, char* argv[])
     messageAbort("model_auto_fit");
   model->display();
   ascii_filename("Model", 0, 1, filename);
-  if (!model->dumpToNF("Model.out", EFormatNF::DEFAULT, verbose))
+  if (!model->dumpToNF("Model.out", EFormatNF::DEFAULT))
     messageAbort("ascii_model_write");
 
   // Produce the Goodness-of-fit score

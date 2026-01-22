@@ -1435,7 +1435,7 @@ VectorDouble FracList::fractureExtractLength(Id ifam,
 
     /* Selection according to the family criterion */
 
-    if (!IFFFF(ifam) && desc.getFamily() != ifam) continue;
+    if (!isNA(ifam) && desc.getFamily() != ifam) continue;
 
     /* Calculate the fracture length */
 
@@ -1482,7 +1482,7 @@ VectorDouble FracList::fractureExtractDist(Id ifam, double cote, double dcote)
 
       /* Selection according to the family criterion */
 
-      if (!IFFFF(ifam) && desc.getFamily() != ifam) continue;
+      if (!isNA(ifam) && desc.getFamily() != ifam) continue;
 
       /* Selection according to the layer */
 
@@ -1573,18 +1573,18 @@ Id FracList::fractureWellToBlock(DbGrid* dbgrid,
   /* Allocate the new variable */
 
   iptr_perm = dbgrid->addColumnsByConstant(1, 0);
-  if (!IFFFF(col_perm)) dbgrid->copyByUID(col_perm, iptr_perm);
+  if (!isNA(col_perm)) dbgrid->copyByUID(col_perm, iptr_perm);
 
   if (flag_fluid)
   {
     iptr_fluid = dbgrid->addColumnsByConstant(1, 0.);
-    if (!IFFFF(col_fluid)) dbgrid->copyByUID(col_fluid, iptr_fluid);
+    if (!isNA(col_fluid)) dbgrid->copyByUID(col_fluid, iptr_fluid);
   }
 
   /* Verbose option */
 
   if (verbose)
-    print_matrix("Well information", 0, 0, NBYWOUT, nw_xy, NULL, wellout.data());
+    printMatrix(wellout, NBYWOUT, nw_xy, "Well information");
 
   /* Paint the fluid (optional) */
 

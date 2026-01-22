@@ -12,9 +12,9 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Db/Db.hpp"
-#include "Basic/NamingConvention.hpp"
 #include "Basic/ICloneable.hpp"
+#include "Basic/NamingConvention.hpp"
+#include "Db/Db.hpp"
 
 namespace gstlrn
 {
@@ -46,40 +46,47 @@ public:
   /// AStringable Interface
   String toString(const AStringFormat* strfmt = nullptr) const override;
 
+  /// ASerializable interface
+  String getNFName() const override { return "DbLine"; }
+#ifdef HDF5
+  bool deserializeH5(H5::Group& grp) override;
+  bool serializeH5(H5::Group& grp) const override;
+#endif
+
   /// Db Interface
   bool isLine() const override { return true; }
   bool mayChangeSampleNumber() const override { return false; }
   bool isConsistent() const override;
 
   Id resetFromSamples(Id nech,
-                       const ELoadBy& order,
-                       const VectorDouble& tab,
-                       const VectorInt& lineCounts,
-                       const VectorString& names        = VectorString(),
-                       const VectorString& locatorNames = VectorString(),
-                       bool flagAddSampleRank           = true);
+                      const ELoadBy& order,
+                      const VectorDouble& tab,
+                      const VectorInt& lineCounts,
+                      const VectorString& names        = VectorString(),
+                      const VectorString& locatorNames = VectorString(),
+                      bool flagAddSampleRank           = true);
   Id resetFromSamplesById(Id nech,
-                           const ELoadBy& order,
-                           const VectorDouble& tab,
-                           const VectorInt& lineIds,
-                           const VectorInt& ranksPerId,
-                           const VectorString& names        = VectorString(),
-                           const VectorString& locatorNames = VectorString(),
-                           bool flagAddSampleRank           = true);
+                          const ELoadBy& order,
+                          const VectorDouble& tab,
+                          const VectorInt& lineIds,
+                          const VectorInt& ranksPerId,
+                          const VectorString& names        = VectorString(),
+                          const VectorString& locatorNames = VectorString(),
+                          bool flagAddSampleRank           = true);
 
   static DbLine* createFromSamples(Id nech,
                                    const ELoadBy& order,
                                    const VectorDouble& tab,
                                    const VectorInt& lineCounts,
-                                   const VectorString& names = VectorString(),
+                                   const VectorString& names        = VectorString(),
                                    const VectorString& locatorNames = VectorString(),
-                                   bool flagAddSampleRank = true);
+                                   bool flagAddSampleRank           = true);
   static DbLine* createFromSamplesById(Id nech,
                                        const ELoadBy& order,
                                        const VectorDouble& tab,
                                        const VectorInt& lineIds,
                                        const VectorInt& ranksPerId,
-                                       const VectorString& names = VectorString(),
+                                       const VectorString& names        = VectorString(),
                                        const VectorString& locatorNames = VectorString(),
                                        bool flagAddSampleRank           = true);
   static DbLine* createFromNF(const String& NFFilename, bool verbose = true);
@@ -89,7 +96,7 @@ public:
                                   double deltaX             = 5.0,
                                   const VectorDouble& delta = VectorDouble(),
                                   double unifDelta          = 0.3,
-                                  Id seed                  = 13422);
+                                  Id seed                   = 13422);
   static DbLine* createVerticalFromGrid(const DbGrid& grid,
                                         const VectorString& names,
                                         const VectorInt& xranks,
@@ -113,13 +120,8 @@ public:
   Id getLineSampleRank(Id iline, Id isample) const;
 
 protected:
-  bool _deserializeAscii(std::istream& is, bool verbose = false) override;
-  bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
-#ifdef HDF5
-  bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
-  bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
-#endif
-  String _getNFName() const override { return "DbLine"; }
+  bool _deserializeAscii(std::istream& is) override;
+  bool _serializeAscii(std::ostream& os) const override;
 
 private:
   Id _lineLinkage(const VectorInt& lineCounts);
@@ -132,4 +134,4 @@ private:
   // - second dimension: Number of addresses (within Db) per Line
   VectorVectorInt _lineAdds;
 };
-}
+} // namespace gstlrn

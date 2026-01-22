@@ -98,13 +98,13 @@ int main(int argc, char* argv[])
   cholSparse.LX(vecout, vecout1);
   cholDense.LtX(vecin, vecout);
   cholDense.LX(vecout, vecout2);
-  if (VH::isEqual(vecout1, vecout2) && VH::isEqual(vecref, vecout1))
+  if (vecout1.isEqual(vecout2) && vecref.isEqual(vecout1))
     message(">>> Function 'LLt' is validated\n");
   else
   {
-    VH::dump("LLt (by Matrix)", vecref);
-    VH::dump("LLt (by CholeskySparse)", vecout1);
-    VH::dump("LLt (by CholeskyDense)", vecout2);
+    printVector(vecref ,"LLt (by Matrix)", true, true);
+    printVector(vecout1, "LLt (by CholeskySparse)", true, true);
+    printVector(vecout2, "LLt (by CholeskyDense)", true, true);
     printError("LLt");
   }
 
@@ -113,13 +113,13 @@ int main(int argc, char* argv[])
 
   cholSparse.solve(vecin, vecout1);
   cholDense.solve(vecin, vecout2);
-  if (VH::isEqual(vecout1, vecout2) && VH::isEqual(vecref, vecout1))
+  if (vecout1.isEqual(vecout2) && vecref.isEqual(vecout1))
     message(">>> Function 'solve' is validated\n");
   else
   {
-    VH::dump("Solve (by Matrix)", vecref);
-    VH::dump("Solve (by CholeskySparse)", vecout1);
-    VH::dump("Solve (by CholeskyDense)", vecout2);
+    printVector(vecref, "Solve (by Matrix)", true, true);
+    printVector(vecout1, "Solve (by CholeskySparse)", true, true);
+    printVector(vecout2, "Solve (by CholeskyDense)", true, true);
     printError("solve");
   }
 
@@ -129,13 +129,13 @@ int main(int argc, char* argv[])
   cholDense.LX(vecin, vecout);
   cholDense.InvLX(vecout, vecout2);
 
-  if (VH::isEqual(vecout1, vecout2) && VH::isEqual(vecout1, vecin))
+  if (vecout1.isEqual(vecout2) && vecout1.isEqual(vecin))
     message(">>> Function 'InvLX(LX)' is validated\n");
   else
   {
-    VH::dump("Function 'InvLX(LX)' (by Matrix)", vecin);
-    VH::dump("Function 'InvLX(LX)' (by CholeskySparse)", vecout1);
-    VH::dump("Function 'InvLX(LX)' (by CholeskyDense)", vecout2);
+    printVector(vecin, "Function 'InvLX(LX)' (by Matrix)", true, true);
+    printVector(vecout1, "Function 'InvLX(LX)' (by CholeskySparse)", true, true);
+    printVector(vecout2, "Function 'InvLX(LX)' (by CholeskyDense)", true, true);
     printError("InvLX(LX)");
   }
 
@@ -145,13 +145,13 @@ int main(int argc, char* argv[])
   cholDense.InvLtX(vecin, vecout);
   cholDense.LtX(vecout, vecout2);
 
-  if (VH::isEqual(vecout1, vecout2) && VH::isEqual(vecout1, vecin))
+  if (vecout1.isEqual(vecout2) && vecout1.isEqual(vecin))
     message(">>> Function 'LtX(InvLtX)' is validated\n");
   else
   {
-    VH::dump("Function 'LtX(InvLtX)' (by Matrix)", vecin);
-    VH::dump("Function 'LtX(InvLtX)' (by CholeskySparse)", vecout1);
-    VH::dump("Function 'LtX(InvLtX)' (by CholeskyDense)", vecout2);
+    printVector(vecin, "Function 'LtX(InvLtX)' (by Matrix)", true, true);
+    printVector(vecout1, "Function 'LtX(InvLtX)' (by CholeskySparse)", true, true);
+    printVector(vecout2, "Function 'LtX(InvLtX)' (by CholeskyDense)", true, true);
     printError("LtX(InvLtX)");
   }
 
@@ -167,12 +167,12 @@ int main(int argc, char* argv[])
   Qchol.stdev(vecout2, proj, false);
   delete proj;
 
-  if (VH::isEqual(vecout1b, vecout2))
+  if (vecout1b.isEqual(vecout2))
     message(">>> Function 'stdev' is validated\n");
   else
   {
-    VH::dump("Standard Deviation (by Matrix)", vecout1b);
-    VH::dump("Standard Deviation (by Cholesky)", vecout2);
+    printVector(vecout1b, "Standard Deviation (by Matrix)", true, true);
+    printVector(vecout2, "Standard Deviation (by Cholesky)", true, true);
     printError("stdev");
   }
 

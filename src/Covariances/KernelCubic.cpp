@@ -1,0 +1,90 @@
+/******************************************************************************/
+/*                                                                            */
+/*                            gstlearn C++ Library                            */
+/*                                                                            */
+/* Copyright (c) (2023) MINES Paris / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://gstlearn.org                                              */
+/* License: BSD 3-clause                                                      */
+/*                                                                            */
+/******************************************************************************/
+#include "Covariances/KernelCubic.hpp"
+#include "Covariances/CovContext.hpp"
+#include "Simulation/TurningBandOperate.hpp"
+
+namespace gstlrn
+{
+KernelCubic::KernelCubic(const CovContext& ctxt)
+  : AKernel(ECov::CUBIC, ctxt)
+{
+}
+
+KernelCubic::KernelCubic(const KernelCubic& r)
+  : AKernel(r)
+{
+}
+
+KernelCubic& KernelCubic::operator=(const KernelCubic& r)
+{
+  if (this != &r)
+  {
+    AKernel::operator=(r);
+  }
+  return *this;
+}
+
+KernelCubic::~KernelCubic()
+{
+}
+
+double KernelCubic::_evaluateCov(double h) const
+{
+  double cov = 0.;
+  double h2  = h * h;
+  if (h < 1) cov = 1. - h2 * (7. + h * (-8.75 + h2 * (3.5 - 0.75 * h2)));
+  cov = MAX(0., cov);
+  return (cov);
+}
+
+double KernelCubic::_evaluateCovFirstDerivativeOverH(double h) const
+{
+  double h2, res;
+
+  res = 0.;
+  h2  = h * h;
+  if (h2 >= 1) return res;
+  res = -14. + h * (26.25 - h2 * (17.5 - 5.25 * h2));
+  return res;
+}
+
+double KernelCubic::_evaluateCovDerivative(Id degree, double h) const
+{
+  double h2, res;
+
+  res = 0.;
+  h2  = h * h;
+  if (h2 >= 1) return res;
+
+  switch (degree)
+  {
+    case 1:
+      res = -14. * h + h2 * (26.25 - h2 * (17.5 - 5.25 * h2));
+      break;
+
+    case 2:
+      res = -14. + h * (52.5 + h2 * (-70. + 31.5 * h2)); 
+      break;
+  }
+  return (res);
+}
+
+String KernelCubic::getFormula() const
+{
+  return "C(h)=1 - h^2 * \\left(7 + h * \\left(-8.75 + h^2 * \\left(3.5 - 0.75 * h^2 \\right) \\right) \\right)";
+}
+
+double KernelCubic::simulateTurningBand(double t0, TurningBandOperate& operTB) const
+{
+  return operTB.shotNoiseCubicOne(t0);
+}
+} // namespace gstlrn

@@ -9,43 +9,43 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Anamorphosis/AnamContinuous.hpp"
-#include "Db/Db.hpp"
 #include "Basic/SerializeHDF5.hpp"
+#include "Db/Db.hpp"
 
 namespace gstlrn
 {
 AnamContinuous::AnamContinuous()
-    : AAnam(),
-      _az(),
-      _ay(),
-      _pz(),
-      _py(),
-      _mean(TEST),
-      _variance(TEST)
+  : AAnam()
+  , _az()
+  , _ay()
+  , _pz()
+  , _py()
+  , _mean(TEST)
+  , _variance(TEST)
 {
 }
 
-AnamContinuous::AnamContinuous(const AnamContinuous &m)
-    : AAnam(m),
-      _az(m._az),
-      _ay(m._ay),
-      _pz(m._pz),
-      _py(m._py),
-      _mean(m._mean),
-      _variance(m._variance)
+AnamContinuous::AnamContinuous(const AnamContinuous& m)
+  : AAnam(m)
+  , _az(m._az)
+  , _ay(m._ay)
+  , _pz(m._pz)
+  , _py(m._py)
+  , _mean(m._mean)
+  , _variance(m._variance)
 {
 }
 
-AnamContinuous& AnamContinuous::operator=(const AnamContinuous &m)
+AnamContinuous& AnamContinuous::operator=(const AnamContinuous& m)
 {
   if (this != &m)
   {
-    AAnam::operator= (m);
-    _az = m._az;
-    _ay = m._ay;
-    _pz = m._pz;
-    _py = m._py;
-    _mean = m._mean;
+    AAnam::operator=(m);
+    _az       = m._az;
+    _ay       = m._ay;
+    _pz       = m._pz;
+    _py       = m._py;
+    _mean     = m._mean;
     _variance = m._variance;
   }
   return *this;
@@ -53,7 +53,6 @@ AnamContinuous& AnamContinuous::operator=(const AnamContinuous &m)
 
 AnamContinuous::~AnamContinuous()
 {
-
 }
 
 void AnamContinuous::setABounds(double azmin,
@@ -79,7 +78,7 @@ String AnamContinuous::toString(const AStringFormat* strfmt) const
   DECLARE_UNUSED(strfmt);
   std::stringstream sstr;
 
-  if (! _isFitted()) return sstr.str();
+  if (!_isFitted()) return sstr.str();
 
   sstr << "Minimum absolute value for Y  = " << _ay.getVmin() << std::endl;
   sstr << "Maximum absolute value for Y  = " << _ay.getVmax() << std::endl;
@@ -97,11 +96,11 @@ String AnamContinuous::toString(const AStringFormat* strfmt) const
 
 void AnamContinuous::calculateMeanAndVariance()
 {
-  _mean = TEST;
+  _mean     = TEST;
   _variance = TEST;
 }
 
-VectorDouble AnamContinuous::rawToGaussianVector(const VectorDouble &z) const
+VectorDouble AnamContinuous::rawToGaussianVector(const VectorDouble& z) const
 {
   Id number = static_cast<Id>(z.size());
   VectorDouble y;
@@ -111,7 +110,7 @@ VectorDouble AnamContinuous::rawToGaussianVector(const VectorDouble &z) const
   return y;
 }
 
-VectorDouble AnamContinuous::gaussianToRawVector(const VectorDouble &y) const
+VectorDouble AnamContinuous::gaussianToRawVector(const VectorDouble& y) const
 {
   Id number = static_cast<Id>(y.size());
   VectorDouble z;
@@ -133,9 +132,9 @@ AnamContinuousFit AnamContinuous::sample(Id ndisc, double aymin, double aymax)
   VectorDouble y(ndisc);
   VectorDouble z(ndisc);
   double pas = (aymax - aymin) / ndisc;
-  Id ind0 = ndisc / 2;
-  y[ind0] = 0.;
-  z[ind0] = transformToRawValue(y[ind0]);
+  Id ind0    = ndisc / 2;
+  y[ind0]    = 0.;
+  z[ind0]    = transformToRawValue(y[ind0]);
 
   /* Calculating the values below y=0 */
 
@@ -165,48 +164,48 @@ AnamContinuousFit AnamContinuous::sample(Id ndisc, double aymin, double aymax)
   return retfit;
 }
 
-bool AnamContinuous::_serializeAscii(std::ostream& os, bool /*verbose*/) const
+bool AnamContinuous::_serializeAscii(std::ostream& os) const
 {
   bool ret = true;
-  ret = ret && _recordWrite<double>(os,"", getAzmin());
-  ret = ret && _recordWrite<double>(os, "Absolute Values for Z", getAzmax());
-  ret = ret && _recordWrite<double>(os, "", getAymin());
-  ret = ret && _recordWrite<double>(os, "Absolute Values for Y", getAymax());
-  ret = ret && _recordWrite<double>(os, "", getPzmin());
-  ret = ret && _recordWrite<double>(os, "Practical Values for Z", getPzmax());
-  ret = ret && _recordWrite<double>(os, "", getPymin());
-  ret = ret && _recordWrite<double>(os, "Practical Values for Y", getPymax());
-  ret = ret && _recordWrite<double>(os, "Calculated mean", getMean());
-  ret = ret && _recordWrite<double>(os, "Calculated variance", getVariance());
+  ret      = ret && _recordWrite<double>(os, "", getAzmin());
+  ret      = ret && _recordWrite<double>(os, "Absolute Values for Z", getAzmax());
+  ret      = ret && _recordWrite<double>(os, "", getAymin());
+  ret      = ret && _recordWrite<double>(os, "Absolute Values for Y", getAymax());
+  ret      = ret && _recordWrite<double>(os, "", getPzmin());
+  ret      = ret && _recordWrite<double>(os, "Practical Values for Z", getPzmax());
+  ret      = ret && _recordWrite<double>(os, "", getPymin());
+  ret      = ret && _recordWrite<double>(os, "Practical Values for Y", getPymax());
+  ret      = ret && _recordWrite<double>(os, "Calculated mean", getMean());
+  ret      = ret && _recordWrite<double>(os, "Calculated variance", getVariance());
 
   return ret;
 }
 
-bool AnamContinuous::_deserializeAscii(std::istream& is, bool /*verbose*/)
+bool AnamContinuous::_deserializeAscii(std::istream& is)
 {
-  double azmin = 0.;
-  double azmax = 0.;
-  double aymin = 0.;
-  double aymax = 0.;
-  double pzmin = 0.;
-  double pzmax = 0.;
-  double pymin = 0.;
-  double pymax = 0;
-  double mean = TEST;
+  double azmin    = 0.;
+  double azmax    = 0.;
+  double aymin    = 0.;
+  double aymax    = 0.;
+  double pzmin    = 0.;
+  double pzmax    = 0.;
+  double pymin    = 0.;
+  double pymax    = 0;
+  double mean     = TEST;
   double variance = TEST;
 
   bool ret = true;
-  ret = ret && _recordRead<double>(is, "Minimum absolute Z-value", azmin);
-  ret = ret && _recordRead<double>(is, "Maximum absolute Z-value", azmax);
-  ret = ret && _recordRead<double>(is, "Minimum absolute Y-value", aymin);
-  ret = ret && _recordRead<double>(is, "Maximum absolute Y-value", aymax);
-  ret = ret && _recordRead<double>(is, "Minimum Experimental Z-value", pzmin);
-  ret = ret && _recordRead<double>(is, "Maximum Experimental Z-value", pzmax);
-  ret = ret && _recordRead<double>(is, "Minimum Experimental Y-value", pymin);
-  ret = ret && _recordRead<double>(is, "Maximum Experimental Y-value", pymax);
-  ret = ret && _recordRead<double>(is, "Experimental Mean", mean);
-  ret = ret && _recordRead<double>(is, "Experimental Variance", variance);
-  if (! ret) return ret;
+  ret      = ret && _recordRead<double>(is, "Minimum absolute Z-value", azmin);
+  ret      = ret && _recordRead<double>(is, "Maximum absolute Z-value", azmax);
+  ret      = ret && _recordRead<double>(is, "Minimum absolute Y-value", aymin);
+  ret      = ret && _recordRead<double>(is, "Maximum absolute Y-value", aymax);
+  ret      = ret && _recordRead<double>(is, "Minimum Experimental Z-value", pzmin);
+  ret      = ret && _recordRead<double>(is, "Maximum Experimental Z-value", pzmax);
+  ret      = ret && _recordRead<double>(is, "Minimum Experimental Y-value", pymin);
+  ret      = ret && _recordRead<double>(is, "Maximum Experimental Y-value", pymax);
+  ret      = ret && _recordRead<double>(is, "Experimental Mean", mean);
+  ret      = ret && _recordRead<double>(is, "Experimental Variance", variance);
+  if (!ret) return ret;
 
   setPymin(pymin);
   setPzmin(pzmin);
@@ -222,7 +221,7 @@ bool AnamContinuous::_deserializeAscii(std::istream& is, bool /*verbose*/)
   return ret;
 }
 #ifdef HDF5
-bool AnamContinuous::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+bool AnamContinuous::deserializeH5(H5::Group& grp)
 {
   auto anamG = SerializeHDF5::getGroup(grp, "AnamContinuous");
   if (!anamG)
@@ -231,16 +230,16 @@ bool AnamContinuous::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbos
   }
 
   /* Read the grid characteristics */
-  bool ret = true;
-  double azmin = 0.;
-  double azmax = 0.;
-  double aymin = 0.;
-  double aymax = 0.;
-  double pzmin = 0.;
-  double pzmax = 0.;
-  double pymin = 0.;
-  double pymax = 0.;
-  double mean = 0.;
+  bool ret        = true;
+  double azmin    = 0.;
+  double azmax    = 0.;
+  double aymin    = 0.;
+  double aymax    = 0.;
+  double pzmin    = 0.;
+  double pzmax    = 0.;
+  double pymin    = 0.;
+  double pymax    = 0.;
+  double mean     = 0.;
   double variance = 0.;
 
   // ret      = ret && SerializeHDF5::readVec(*anamG, "NX", nx);
@@ -275,7 +274,7 @@ bool AnamContinuous::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbos
   return ret;
 }
 
-bool AnamContinuous::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+bool AnamContinuous::serializeH5(H5::Group& grp) const
 {
   auto anamG = grp.createGroup("AnamContinuous");
 
@@ -297,4 +296,4 @@ bool AnamContinuous::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   return ret;
 }
 #endif
-}
+} // namespace gstlrn

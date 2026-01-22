@@ -42,10 +42,12 @@ set(DOXYGEN_PREDEFINED "GSTLEARN_EXPORT="
                        "VectorInt" "VectorNumT<int>"
                        "VectorFloat" "VectorNumT<float>"
                        "VectorUChar" "VectorNumT<UChar>"
-                       "VectorVectorInt" "VectorT<VectorInt>"
-                       "VectorVectorDouble" "VectorT<VectorDouble>"
-                       "VectorVectorFloat" "VectorT<VectorFloat>"
+                       "VectorVectorInt" "VectorNumT<VectorInt>"
+                       "VectorVectorDouble" "VectorNumT<VectorDouble>"
+                       "VectorVectorFloat" "VectorNumT<VectorFloat>"
                        "protected=private")
+
+set(DOXYGEN_MARKDOWN_ID_STYLE GITHUB)
 
 # Ajoutez ces lignes pour mieux gérer les surcharges
 set(DOXYGEN_HIDE_SCOPE_NAMES NO)

@@ -9,113 +9,112 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Simulation/TurningBandDirection.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Db/DbGrid.hpp"
 
 namespace gstlrn
 {
-  TurningBandDirection::TurningBandDirection()
-    : _tmin(0.)
-    , _tmax(0.)
-    , _scale(0.)
-    , _t00(0.)
-    , _dxp(0.)
-    , _dyp(0.)
-    , _dzp(0.)
-    , _ang()
+TurningBandDirection::TurningBandDirection()
+  : _tmin(0.)
+  , _tmax(0.)
+  , _scale(0.)
+  , _t00(0.)
+  , _dxp(0.)
+  , _dyp(0.)
+  , _dzp(0.)
+  , _ang()
+{
+  _ang.resize(3);
+}
+
+TurningBandDirection::TurningBandDirection(const TurningBandDirection& r)
+  : _tmin(r._tmin)
+  , _tmax(r._tmax)
+  , _scale(r._scale)
+  , _t00(r._t00)
+  , _dxp(r._dxp)
+  , _dyp(r._dyp)
+  , _dzp(r._dzp)
+  , _ang(r._ang)
+{
+}
+
+TurningBandDirection& TurningBandDirection::operator=(const TurningBandDirection& r)
+{
+  if (this != &r)
   {
-    _ang.resize(3);
+    _tmin  = r._tmin;
+    _tmax  = r._tmax;
+    _scale = r._scale;
+    _t00   = r._t00;
+    _dxp   = r._dxp;
+    _dyp   = r._dyp;
+    _dzp   = r._dzp;
+    _ang   = r._ang;
   }
+  return *this;
+}
 
-  TurningBandDirection::TurningBandDirection(const TurningBandDirection& r)
-    : _tmin(r._tmin)
-    , _tmax(r._tmax)
-    , _scale(r._scale)
-    , _t00(r._t00)
-    , _dxp(r._dxp)
-    , _dyp(r._dyp)
-    , _dzp(r._dzp)
-    , _ang(r._ang)
-  {
-  }
+TurningBandDirection::~TurningBandDirection()
+{
+}
 
-  TurningBandDirection& TurningBandDirection::operator=(const TurningBandDirection& r)
-  {
-    if (this != &r)
-    {
-      _tmin  = r._tmin;
-      _tmax  = r._tmax;
-      _scale = r._scale;
-      _t00   = r._t00;
-      _dxp   = r._dxp;
-      _dyp   = r._dyp;
-      _dzp   = r._dzp;
-      _ang   = r._ang;
-    }
-    return *this;
-  }
+/*****************************************************************************/
+/*!
+ **  Calculates the projection of a grid node on a turning band
+ **
+ ** \return  Projection value
+ **
+ ** \param[in]  db      Db structure
+ ** \param[in]  ix      grid index along X
+ ** \param[in]  iy      grid index along Y
+ ** \param[in]  iz      grid index along Z
+ **
+ *****************************************************************************/
+double TurningBandDirection::projectGrid(const DbGrid* db,
+                                         Id ix,
+                                         Id iy,
+                                         Id iz) const
+{
+  Id ndim = 3;
+  _indg.clear();
+  _indg.resize(ndim, 0);
+  _xyz.clear();
+  _xyz.resize(ndim, 0.);
 
-  TurningBandDirection::~TurningBandDirection()
-  {
-  }
+  _indg[0] = ix;
+  _indg[1] = iy;
+  _indg[2] = iz;
+  db->indicesToCoordinateInPlace(_indg, _xyz);
 
-  /*****************************************************************************/
-  /*!
-   **  Calculates the projection of a grid node on a turning band
-   **
-   ** \return  Projection value
-   **
-   ** \param[in]  db      Db structure
-   ** \param[in]  ix      grid index along X
-   ** \param[in]  iy      grid index along Y
-   ** \param[in]  iz      grid index along Z
-   **
-   *****************************************************************************/
-  double TurningBandDirection::projectGrid(const DbGrid* db,
-                                           Id ix,
-                                           Id iy,
-                                           Id iz) const
-  {
-    Id ndim = 3;
-    _indg.clear();
-    _indg.resize(ndim, 0);
-    _xyz.clear();
-    _xyz.resize(ndim, 0.);
+  double t = 0.;
+  for (Id idim = 0; idim < db->getNDim(); idim++)
+    t += _xyz[idim] * _ang[idim];
+  return t;
+}
 
-    _indg[0] = ix;
-    _indg[1] = iy;
-    _indg[2] = iz;
-    db->indicesToCoordinateInPlace(_indg, _xyz);
+/*****************************************************************************/
+/*!
+ **  Calculates the projection of a point on a turning band
+ **
+ ** \return  Projection value
+ **
+ ** \param[in]  db      Db structure
+ ** \param[in]  iech    rank of the sample
+ **
+ *****************************************************************************/
+double TurningBandDirection::projectPoint(const Db* db, Id iech) const
+{
+  double t = 0.;
+  for (Id idim = 0; idim < db->getNDim(); idim++)
+    t += db->getCoordinate(iech, idim) * _ang[idim];
+  return (t);
+}
 
-    double t = 0.;
-    for (Id idim = 0; idim < db->getNDim(); idim++)
-      t += _xyz[idim] * _ang[idim];
-    return t;
-  }
-
-  /*****************************************************************************/
-  /*!
-   **  Calculates the projection of a point on a turning band
-   **
-   ** \return  Projection value
-   **
-   ** \param[in]  db      Db structure
-   ** \param[in]  iech    rank of the sample
-   **
-   *****************************************************************************/
-  double TurningBandDirection::projectPoint(const Db* db, Id iech) const
-  {
-    double t = 0.;
-    for (Id idim = 0; idim < db->getNDim(); idim++)
-      t += db->getCoordinate(iech, idim) * _ang[idim];
-    return (t);
-  }
-
-  void TurningBandDirection::dump(bool flagGrid) const
-  {
-    message("  Tmin=%lf Tmax=%lf Scale=%lf\n", _tmin, _tmax, _scale);
-    if (flagGrid)
-      message("  T00=%lf DXP=%lf DYP=%lf DZP=%lf\n", _t00, _dxp, _dyp, _dzp);
-    VH::dump("  Angles=", _ang, false);
-  }
+void TurningBandDirection::dump(bool flagGrid) const
+{
+  message("  Tmin=%lf Tmax=%lf Scale=%lf\n", _tmin, _tmax, _scale);
+  if (flagGrid)
+    message("  T00=%lf DXP=%lf DYP=%lf DZP=%lf\n", _t00, _dxp, _dyp, _dzp);
+  printVector(_ang, "  Angles=", true, false);
+}
 } // namespace gstlrn

@@ -9,12 +9,11 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Calculators/CalcSimuPostDemo.hpp"
-#include "Basic/VectorHelper.hpp"
 
 namespace gstlrn
 {
 CalcSimuPostDemo::CalcSimuPostDemo()
-    : CalcSimuPost()
+  : CalcSimuPost()
 {
 }
 
@@ -44,8 +43,8 @@ Id CalcSimuPostDemo::_getTransfoNvar() const
  */
 void CalcSimuPostDemo::_transformFunction(const VectorDouble& Z_n_k_s, VectorDouble& Y_p_k_s) const
 {
-  Y_p_k_s[0] = VH::mean(Z_n_k_s);
-  Y_p_k_s[1] = VH::stdv(Z_n_k_s);
+  Y_p_k_s[0] = Z_n_k_s.mean();
+  Y_p_k_s[1] = Z_n_k_s.stdv();
 }
 
 /**
@@ -61,16 +60,16 @@ void CalcSimuPostDemo::_transformFunction(const VectorDouble& Z_n_k_s, VectorDou
  * For a detailed list of arguments, see \link CalcSimuPost.cpp simuPost \endlink
  *
  */
-Id simuPostDemo(Db *dbin,
-                 DbGrid *dbout,
-                 const VectorString &names,
-                 bool flag_match,
-                 const EPostUpscale &upscale,
-                 const std::vector<EPostStat> &stats,
-                 bool verbose,
-                 const VectorInt& check_targets,
-                 Id check_level,
-                 const NamingConvention &namconv)
+Id simuPostDemo(Db* dbin,
+                DbGrid* dbout,
+                const VectorString& names,
+                bool flag_match,
+                const EPostUpscale& upscale,
+                const std::vector<EPostStat>& stats,
+                bool verbose,
+                const VectorInt& check_targets,
+                Id check_level,
+                const NamingConvention& namconv)
 {
   CalcSimuPostDemo calcul;
   calcul.setDbin(dbin);
@@ -91,4 +90,4 @@ Id simuPostDemo(Db *dbin,
   Id error = (calcul.run()) ? 0 : 1;
   return error;
 }
-}
+} // namespace gstlrn

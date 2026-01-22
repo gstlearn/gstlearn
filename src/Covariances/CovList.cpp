@@ -9,11 +9,12 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Covariances/CovList.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/Iterators.hpp"
+#include "Basic/SerializeHDF5.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/ACov.hpp"
+#include "Covariances/CovAniso.hpp"
 #include "Covariances/CovBase.hpp"
 #include "Covariances/CovCalcMode.hpp"
 #include "Covariances/CovContext.hpp"
@@ -343,6 +344,13 @@ bool CovList::isAllActiveCovList() const
   return true;
 }
 
+void CovList::setAllCovActive()
+{
+  for (Id icov = 0, ncov = static_cast<Id>(_filtered.size()); icov < ncov; icov++)
+    _filtered[icov] = false;
+  _updateLists();
+}
+
 const CovBase* CovList::getCov(Id icov) const
 {
   if (!_isCovarianceIndexValid(icov)) return nullptr;
@@ -465,12 +473,16 @@ void CovList::updateCovByPoints(Id icas1, Id iech1, Id icas2, Id iech2) const
 
 void CovList::setActiveCovListFromOne(Id keepOnlyCovIdx) const
 {
-  _allActiveCov = true;
-  _activeCovList.clear();
   if (keepOnlyCovIdx >= 0)
   {
+    _activeCovList.clear();
     _activeCovList.push_back(keepOnlyCovIdx);
     _allActiveCov = false;
+  }
+  else
+  {
+    _allActiveCov  = true;
+    _activeCovList = _allActiveCovList;
   }
 }
 
@@ -587,4 +599,76 @@ AModelFitSills* CovList::getFitSills() const
 {
   return _modelFitSills;
 }
+
+bool CovList::isValidForSpectral() const
+{
+  ESpaceType type = getDefaultSpaceType();
+  if (getNCov() != 1)
+  {
+    messerr("This method only considers Model with a single covariance structure");
+    return false;
+  }
+
+  /* Loop on the structures */
+
+  for (int is = 0; is < getNCov(); is++)
+  {
+    const ACov* cova = getCov(is);
+    if (!cova->isValidForSpectral())
+    {
+      messerr("The current structure is not valid for Spectral Simulation on Rn");
+      return false;
+    }
+  }
+  return true;
+}
+
+MatrixDense CovList::simulateSpectralOmega(Id ns) const
+{
+  return getCov(0)->simulateSpectralOmega(ns);
+}
+
+#ifdef HDF5
+bool CovList::deserializeH5(H5::Group& grp)
+{
+  auto covlistG = SerializeHDF5::getGroup(grp, "Covariance List");
+  if (!covlistG) return false;
+
+  bool ret = true;
+
+  Id ncov                = 0;
+  ret                    = ret && SerializeHDF5::readValue(*covlistG, "Number of Covariances", ncov);
+  const CovContext& ctxt = getContext();
+
+  for (Id icov = 0; icov < ncov; icov++)
+  {
+    String locName = "Covariance_" + std::to_string(icov + 1);
+    auto covrankG  = SerializeHDF5::getGroup(*covlistG, locName);
+    CovAniso cov(ctxt, ECov::NUGGET); // TODO: not sure that this is the best way to initialize this dummy variable
+    ret = ret && cov.deserializeH5(*covrankG);
+    addCov(cov);
+  }
+
+  return ret;
+}
+
+bool CovList::serializeH5(H5::Group& grp) const
+{
+  auto covlistG = grp.createGroup("Covariance List");
+
+  bool ret = true;
+
+  Id ncov = getNCov();
+  ret     = ret && SerializeHDF5::writeValue(covlistG, "Number of Covariances", ncov);
+
+  for (Id icov = 0; icov < ncov; icov++)
+  {
+    auto covrankG = covlistG.createGroup("Covariance_" + std::to_string(icov + 1));
+    ret           = ret && _covs[icov]->serializeH5(covrankG);
+  }
+
+  return ret;
+}
+#endif
+
 } // namespace gstlrn

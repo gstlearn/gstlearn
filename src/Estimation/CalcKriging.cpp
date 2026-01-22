@@ -18,6 +18,7 @@
 #include "Estimation/KrigOpt.hpp"
 #include "Estimation/KrigingSystem.hpp"
 #include "Model/Model.hpp"
+#include "Neigh/ANeigh.hpp"
 #include "Neigh/NeighBench.hpp"
 #include "Neigh/NeighUnique.hpp"
 
@@ -33,8 +34,6 @@ CalcKriging::CalcKriging(bool flag_est, bool flag_std, bool flag_varZ)
   , _flagVarZ(flag_varZ)
   , _nameCoord()
   , _flagBayes(false)
-  , _priorMean()
-  , _priorCov()
   , _iechSingleTarget(-1)
   , _verboseSingleTarget(false)
   , _flagGam(false)
@@ -117,7 +116,7 @@ bool CalcKriging::_preprocess()
   if (getKrigopt().hasFlagDGM())
   {
     // Centering (only if the output file is a Grid)
-    DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+    auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
     if (dbgrid != nullptr)
     {
       // Duplicating the coordinate variable names before centering
@@ -229,7 +228,7 @@ bool CalcKriging::_run()
   if (ksys.updKrigOptEstim(_iptrEst, _iptrStd, _iptrVarZ)) return false;
   if (_flagBayes)
   {
-    ksys.setKrigOptBayes(true, _priorMean, _priorCov);
+    ksys.setKrigOptBayes(true);
   }
   if (_flagGam)
   {
@@ -281,6 +280,30 @@ bool CalcKriging::_run()
   return true;
 }
 
+ANeigh* _defaultNeighborhood(ANeigh* neigh, Db* dbin, Id maxNumber = 500)
+{
+  // If a neighborhood is already defined, this is the correct solution
+  if (neigh != nullptr) return neigh;
+
+  // We are about to define a Unique Neighborhood by default
+  // Let us first check that the number of active samples is not too large
+  if (dbin != nullptr)
+  {
+    Id nech = dbin->getNSample(true);
+    if (nech > maxNumber)
+    {
+      messerr("No neighborhood has been defined");
+      messerr("The number of active samples (%d) is too large (>%d)", nech, maxNumber);
+      messerr("to allow the definition of a Unique Neighborhood by default");
+      return nullptr;
+    }
+  }
+
+  // Create a default unique neighborhood
+  auto* neighUnique = new NeighUnique();
+  return neighUnique;
+}
+
 /****************************************************************************/
 /*!
  **  Standard Kriging
@@ -300,16 +323,17 @@ bool CalcKriging::_run()
  **
  *****************************************************************************/
 Id kriging(Db* dbin,
-            Db* dbout,
-            ModelGeneric* model,
-            ANeigh* neigh,
-            bool flag_est,
-            bool flag_std,
-            bool flag_varz,
-            const KrigOpt& krigopt,
-            const NamingConvention& namconv)
+           Db* dbout,
+           ModelGeneric* model,
+           ANeigh* neigh,
+           bool flag_est,
+           bool flag_std,
+           bool flag_varz,
+           const KrigOpt& krigopt,
+           const NamingConvention& namconv)
 {
-  auto* neighBench = dynamic_cast<NeighBench*>(neigh);
+  auto* neighLocal = _defaultNeighborhood(neigh, dbin);
+  auto* neighBench = dynamic_cast<NeighBench*>(neighLocal);
   if (krigopt.getCalcul() == EKrigOpt::POINT &&
       !krigopt.hasColcok() &&
       !krigopt.hasMatLC() &&
@@ -322,7 +346,7 @@ Id kriging(Db* dbin,
     krige.setDbin(dbin);
     krige.setDbout(dbout);
     krige.setModel(model);
-    krige.setNeigh(neigh);
+    krige.setNeigh(neighLocal);
     krige.setNamingConvention(namconv);
     Id result = krige.run();
     OptCustom::undefine("Optim");
@@ -333,7 +357,7 @@ Id kriging(Db* dbin,
   krige.setDbin(dbin);
   krige.setDbout(dbout);
   krige.setModel(model);
-  krige.setNeigh(neigh);
+  krige.setNeigh(neighLocal);
   krige.setKrigopt(krigopt);
   krige.setNamingConvention(namconv);
 
@@ -360,19 +384,20 @@ Id kriging(Db* dbin,
  **
  *****************************************************************************/
 Id krigcell(Db* dbin,
-             Db* dbout,
-             ModelGeneric* model,
-             ANeigh* neigh,
-             bool flag_est,
-             bool flag_std,
-             const KrigOpt& krigopt,
-             const NamingConvention& namconv)
+            Db* dbout,
+            ModelGeneric* model,
+            ANeigh* neigh,
+            bool flag_est,
+            bool flag_std,
+            const KrigOpt& krigopt,
+            const NamingConvention& namconv)
 {
+  auto* neighLocal = _defaultNeighborhood(neigh, dbin);
   CalcKriging krige(flag_est, flag_std, false);
   krige.setDbin(dbin);
   krige.setDbout(dbout);
   krige.setModel(model);
-  krige.setNeigh(neigh);
+  krige.setNeigh(neighLocal);
   krige.setKrigopt(krigopt);
   krige.setNamingConvention(namconv);
 
@@ -391,34 +416,28 @@ Id krigcell(Db* dbin,
  ** \param[in]  dbout      output Db structure
  ** \param[in]  model      ModelGeneric structure
  ** \param[in]  neigh      ANeigh structure
- ** \param[in]  prior_mean Array giving the prior means for the drift terms
- ** \param[in]  prior_cov  Array containing the prior covariance matrix
- **                        for the drift terms
  ** \param[in]  flag_est   Pointer for the storing the estimation
  ** \param[in]  flag_std   Pointer for the storing the standard deviation
  ** \param[in]  namconv     Naming convention
  **
  *****************************************************************************/
 Id kribayes(Db* dbin,
-             Db* dbout,
-             ModelGeneric* model,
-             ANeigh* neigh,
-             const VectorDouble& prior_mean,
-             const MatrixSymmetric& prior_cov,
-             bool flag_est,
-             bool flag_std,
-             const NamingConvention& namconv)
+            Db* dbout,
+            ModelGeneric* model,
+            ANeigh* neigh,
+            bool flag_est,
+            bool flag_std,
+            const NamingConvention& namconv)
 {
+  auto* neighLocal = _defaultNeighborhood(neigh, dbin);
   CalcKriging krige(flag_est, flag_std, false);
   krige.setDbin(dbin);
   krige.setDbout(dbout);
   krige.setModel(model);
-  krige.setNeigh(neigh);
+  krige.setNeigh(neighLocal);
   krige.setNamingConvention(namconv);
 
   krige.setFlagBayes(true);
-  krige.setPriorMean(prior_mean);
-  krige.setPriorCov(prior_cov);
 
   // Run the calculator
   Id error = (krige.run()) ? 0 : 1;
@@ -449,11 +468,12 @@ Krigtest_Res krigtest(Db* dbin,
                       const KrigOpt& krigopt,
                       bool verbose)
 {
+  auto* neighLocal = _defaultNeighborhood(neigh, dbin);
   CalcKriging krige(true, true, false);
   krige.setDbin(dbin);
   krige.setDbout(dbout);
   krige.setModel(model);
-  krige.setNeigh(neigh);
+  krige.setNeigh(neighLocal);
   krige.setKrigopt(krigopt);
   krige.setIechSingleTarget(iech0);
   krige.setVerboseSingleTarget(verbose);
@@ -478,11 +498,11 @@ Krigtest_Res krigtest(Db* dbin,
  **
  *****************************************************************************/
 Id kriggam(Db* dbin,
-            Db* dbout,
-            ModelGeneric* model,
-            ANeigh* neigh,
-            AAnam* anam,
-            const NamingConvention& namconv)
+           Db* dbout,
+           ModelGeneric* model,
+           ANeigh* neigh,
+           AAnam* anam,
+           const NamingConvention& namconv)
 {
   CalcKriging krige(true, true, false);
   krige.setDbin(dbin);
@@ -517,21 +537,22 @@ Id kriggam(Db* dbin,
  * @return Error return code
  */
 Id xvalid(Db* db,
-           ModelGeneric* model,
-           ANeigh* neigh,
-           bool flag_kfold,
-           Id flag_xvalid_est,
-           Id flag_xvalid_std,
-           Id flag_xvalid_varz,
-           const KrigOpt& krigopt,
-           const NamingConvention& namconv)
+          ModelGeneric* model,
+          ANeigh* neigh,
+          bool flag_kfold,
+          Id flag_xvalid_est,
+          Id flag_xvalid_std,
+          Id flag_xvalid_varz,
+          const KrigOpt& krigopt,
+          const NamingConvention& namconv)
 {
+  auto* neighLocal = _defaultNeighborhood(neigh, db);
   CalcKriging krige(flag_xvalid_est != 0, flag_xvalid_std != 0,
                     flag_xvalid_varz != 0);
   krige.setDbin(db);
   krige.setDbout(db);
   krige.setModel(model);
-  krige.setNeigh(neigh);
+  krige.setNeigh(neighLocal);
   krige.setNamingConvention(namconv);
 
   krige.setFlagXvalid(true);
@@ -567,16 +588,17 @@ Id xvalid(Db* db,
  **
  *****************************************************************************/
 Id test_neigh(Db* dbin,
-               Db* dbout,
-               ModelGeneric* model,
-               ANeigh* neigh,
-               const NamingConvention& namconv)
+              Db* dbout,
+              ModelGeneric* model,
+              ANeigh* neigh,
+              const NamingConvention& namconv)
 {
+  auto* neighLocal = _defaultNeighborhood(neigh, dbin);
   CalcKriging krige(false, false, false);
   krige.setDbin(dbin);
   krige.setDbout(dbout);
   krige.setModel(model);
-  krige.setNeigh(neigh);
+  krige.setNeigh(neighLocal);
   krige.setNamingConvention(namconv);
 
   krige.setFlagNeighOnly(true);

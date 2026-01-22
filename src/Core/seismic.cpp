@@ -15,7 +15,6 @@
 #include "Basic/Utilities.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
-#include "Enum/EJustify.hpp"
 #include "Model/Model.hpp"
 #include "geoslib_enum.h"
 #include "geoslib_old_f.h"
@@ -25,22 +24,16 @@
 #define LTABLE 8
 #define NTABLE 513
 
-#define ARRAY(ix, iy)     (array[(iy) * NX + (ix)])
-#define LIMIT(ix, iy)     (limit[(iy) * NX + (ix)])
-#define VV(itr, iz)       (db_v->getArray(iatt_v, NTRACE * (iz) + itr) / VFACT)
-#define C00(ivar, jvar)   (c00[(jvar) * NVAR + (ivar)])
-#define LB(ivar, jvar)    (lb[(jvar) * NVAR + (ivar)])
-#define IND(iech, ivar)   ((iech) + (ivar) * nech)
-#define LHS(i, iv, j, jv) (lhs[IND(i, iv) + neqmax * IND(j, jv)])
-#define RHS(i, iv, jv)    (rhs[IND(i, iv) + neqmax * (jv)])
-#define ARRAY(ix, iy)     (array[(iy) * NX + (ix)])
-#define LIMIT(ix, iy)     (limit[(iy) * NX + (ix)])
-#define VV(itr, iz)       (db_v->getArray(iatt_v, NTRACE * (iz) + itr) / VFACT)
-#define C00(ivar, jvar)   (c00[(jvar) * NVAR + (ivar)])
-#define LB(ivar, jvar)    (lb[(jvar) * NVAR + (ivar)])
-#define IND(iech, ivar)   ((iech) + (ivar) * nech)
-#define LHS(i, iv, j, jv) (lhs[IND(i, iv) + neqmax * IND(j, jv)])
-#define RHS(i, iv, jv)    (rhs[IND(i, iv) + neqmax * (jv)])
+#define ARRAY(ix, iy)   (array[(iy) * NX + (ix)])
+#define LIMIT(ix, iy)   (limit[(iy) * NX + (ix)])
+#define VV(itr, iz)     (db_v->getArray(iatt_v, NTRACE * (iz) + itr) / VFACT)
+#define LB(ivar, jvar)  (lb[(jvar) * NVAR + (ivar)])
+#define IND(iech, ivar) ((iech) + (ivar) * nech)
+#define RHS(i, iv, jv)  (rhs[IND(i, iv) + neqmax * (jv)])
+#define ARRAY(ix, iy)   (array[(iy) * NX + (ix)])
+#define LIMIT(ix, iy)   (limit[(iy) * NX + (ix)])
+#define VV(itr, iz)     (db_v->getArray(iatt_v, NTRACE * (iz) + itr) / VFACT)
+#define LB(ivar, jvar)  (lb[(jvar) * NVAR + (ivar)])
 /*! \endcond */
 
 namespace gstlrn
@@ -1422,7 +1415,7 @@ static VectorDouble st_seismic_wavelet(Id verbose,
 
   /* Print the wavelet */
 
-  if (verbose) print_vector("Wavelet", 0, ntw2, wavelet);
+  if (verbose) printVector(wavelet, "Wavelet");
 
   return wavelet;
 }
@@ -2018,7 +2011,7 @@ static void st_sample_add(DbGrid* db,
 static void st_estimate_check_presence(DbGrid* db,
                                        Id ivar,
                                        Id* npres,
-                                       Id* presence)
+                                       VectorInt& presence)
 {
   Id ix, iz, iech;
 
@@ -2207,19 +2200,19 @@ static void st_estimate_neigh_print(ST_Seismic_Neigh* ngh, Id ix0, Id iz0)
           ngh->nactive);
 
   if (ngh->nactive <= 0) return;
-  tab_prints(NULL, "Sample");
-  tab_prints(NULL, "Delta-X");
-  tab_prints(NULL, "Delta-Z");
-  tab_prints(NULL, "V1");
-  tab_prints(NULL, "V2");
+  printElement("Sample");
+  printElement("Delta-X");
+  printElement("Delta-Z");
+  printElement("V1");
+  printElement("V2");
   message("\n");
   for (i = 0; i < ngh->nactive; i++)
   {
-    tab_printi(NULL, i + 1);
-    tab_printi(NULL, ngh->ix_ngh[i]);
-    tab_printi(NULL, ngh->iz_ngh[i]);
-    tab_printg(NULL, ngh->v1_ngh[i]);
-    tab_printg(NULL, ngh->v2_ngh[i]);
+    printElement(i + 1);
+    printElement(ngh->ix_ngh[i]);
+    printElement(ngh->iz_ngh[i]);
+    printElement(ngh->v1_ngh[i]);
+    printElement(ngh->v2_ngh[i]);
     message("\n");
   }
 }
@@ -2368,7 +2361,7 @@ static Id st_estimate_neigh_create(DbGrid* db,
  *****************************************************************************/
 static void st_estimate_flag(ST_Seismic_Neigh* ngh,
                              Id nfeq,
-                             Id* flag,
+                             VectorInt& flag,
                              Id* nred)
 {
   double value;
@@ -2381,8 +2374,7 @@ static void st_estimate_flag(ST_Seismic_Neigh* ngh,
 
   /* Initialize the flag array */
 
-  for (i = 0; i < neqmax; i++)
-    flag[i] = 1;
+  flag.fill(1.);
 
   /* Cancel the flag array */
 
@@ -2421,7 +2413,7 @@ static void st_estimate_flag(ST_Seismic_Neigh* ngh,
  ** \param[out] var0      Array containing the C00 terms (Dimension: NVAR)
  **
  *****************************************************************************/
-static void st_estimate_var0(Model* model, double* var0)
+static void st_estimate_var0(Model* model, VectorDouble& var0)
 {
   VectorDouble d1(model->getNDim());
   CovCalcMode mode(ECalcMember::VAR);
@@ -2440,7 +2432,7 @@ static void st_estimate_var0(Model* model, double* var0)
  ** \param[out] c00      Array containing the C00 terms (Dimension: NVAR * NVAR)
  **
  *****************************************************************************/
-static void st_estimate_c00(Model* model, double* c00)
+static void st_estimate_c00(Model* model, MatrixSquare& c00)
 {
   VectorDouble d1(model->getNDim());
   CovCalcMode mode(ECalcMember::VAR);
@@ -2448,7 +2440,7 @@ static void st_estimate_c00(Model* model, double* c00)
 
   for (Id ivar = 0; ivar < NVAR; ivar++)
     for (Id jvar = 0; jvar < NVAR; jvar++)
-      C00(ivar, jvar) = covtab.getValue(ivar, jvar);
+      c00.setValue(ivar, jvar, covtab.getValue(ivar, jvar));
 }
 
 /****************************************************************************/
@@ -2468,58 +2460,62 @@ static void st_estimate_lhs(ST_Seismic_Neigh* ngh,
                             Model* model,
                             Id nfeq,
                             Id nred,
-                            Id* flag,
-                            double* lhs)
+                            const VectorInt& flag,
+                            MatrixSquare& lhs)
 {
-  Id iech, jech, ivar, jvar, nech, neqmax, i, j, lec, ecr;
-  VectorDouble d1;
-
-  /* Initializations */
-
-  d1.resize(3, 0.);
-  nech   = ngh->nactive;
-  neqmax = NVAR * (nech + nfeq);
+  VectorDouble d1(3);
+  Id nech   = ngh->nactive;
+  Id neqmax = NVAR * (nech + nfeq);
 
   /* Initialize the L.H.S. array */
 
-  for (i = 0; i < neqmax * neqmax; i++)
-    lhs[i] = 0.;
+  lhs.reset(neqmax, neqmax);
+  lhs.fill(0.);
 
   /* Establish the covariance part */
 
-  for (iech = 0; iech < nech; iech++)
-    for (jech = 0; jech < nech; jech++)
+  for (Id iech = 0; iech < nech; iech++)
+    for (Id jech = 0; jech < nech; jech++)
     {
       d1[0] = DX * (ngh->ix_ngh[iech] - ngh->ix_ngh[jech]);
       d1[2] = DZ * (ngh->iz_ngh[iech] - ngh->iz_ngh[jech]);
       model->evaluateMatInPlace(nullptr, d1, covtab, true);
 
-      for (ivar = 0; ivar < NVAR; ivar++)
-        for (jvar = 0; jvar < NVAR; jvar++)
-          LHS(iech, ivar, jech, jvar) = covtab.getValue(ivar, jvar);
+      for (Id ivar = 0; ivar < NVAR; ivar++)
+        for (Id jvar = 0; jvar < NVAR; jvar++)
+          lhs.setValue(IND(iech, ivar), IND(jech, jvar), covtab.getValue(ivar, jvar));
     }
 
   /* Establish the drift part */
 
   if (nfeq)
   {
-    for (iech = 0; iech < nech; iech++)
-      for (ivar = 0; ivar < NVAR; ivar++)
-        for (jvar = 0; jvar < NVAR; jvar++)
+    for (Id iech = 0; iech < nech; iech++)
+      for (Id ivar = 0; ivar < NVAR; ivar++)
+        for (Id jvar = 0; jvar < NVAR; jvar++)
         {
-          LHS(iech, ivar, jvar, NVAR) = (ivar == jvar);
-          LHS(jvar, NVAR, iech, ivar) = (ivar == jvar);
+          lhs.setValue(IND(iech, ivar), IND(jvar, NVAR), (ivar == jvar));
+          lhs.setValue(IND(jvar, NVAR), IND(iech, ivar), (ivar == jvar));
         }
   }
 
-  /* Compress from isotopic to heterotopic */
+  /* Compress from isotopic to heterotopic (if necessary) */
 
-  lec = ecr = 0;
-  for (i = 0; i < neqmax; i++)
-    for (j = 0; j < neqmax; j++, lec++)
-      if (flag[i] && flag[j]) lhs[ecr++] = lhs[lec];
+  if (nred != neqmax)
+  {
+    Id lec              = 0;
+    Id ecr              = 0;
+    VectorDouble lhstab = lhs.getValues();
+    for (Id i = 0; i < neqmax; i++)
+      for (Id j = 0; j < neqmax; j++, lec++)
+        if (flag[i] && flag[j])
+          lhstab[ecr++] = lhstab[lec];
+    lhs.setValues(lhstab);
+    lhs.reset(nred, nred);
+  }
 
-  if (OptDbg::query(EDbg::KRIGING)) krige_lhs_print(nech, neqmax, nred, flag, lhs);
+  if (OptDbg::query(EDbg::KRIGING))
+    krige_lhs_print(nech, neqmax, nred, flag.data(), lhs.getValues().data());
 }
 
 /****************************************************************************/
@@ -2539,56 +2535,59 @@ static void st_estimate_rhs(ST_Seismic_Neigh* ngh,
                             Model* model,
                             Id nfeq,
                             Id nred,
-                            Id* flag,
-                            double* rhs)
+                            const VectorInt& flag,
+                            MatrixDense& rhs)
 {
-  Id iech, nech, ivar, jvar, neqmax, lec, ecr, i;
-  VectorDouble d1;
+  VectorDouble d1(3);
+  Id nech   = ngh->nactive;
+  Id neqmax = NVAR * (nech + nfeq);
   CovCalcMode mode;
-
-  /* Initializations */
-
-  d1.resize(3, 0.);
-  nech   = ngh->nactive;
-  neqmax = NVAR * (nech + nfeq);
   mode.setMember(ECalcMember::RHS);
 
   /* Initialize the L.H.S. array */
 
-  for (i = 0; i < neqmax * NVAR; i++)
-    rhs[i] = 0.;
+  rhs.reset(neqmax, NVAR);
+  rhs.fill(0.);
 
   /* Establish the covariance part */
 
-  for (iech = 0; iech < nech; iech++)
+  for (Id iech = 0; iech < nech; iech++)
   {
     d1[0] = DX * ngh->ix_ngh[iech];
     d1[2] = DZ * ngh->iz_ngh[iech];
     model->evaluateMatInPlace(nullptr, d1, covtab, true);
 
-    for (ivar = 0; ivar < NVAR; ivar++)
-      for (jvar = 0; jvar < NVAR; jvar++)
-        RHS(iech, ivar, jvar) = covtab.getValue(ivar, jvar);
+    for (Id ivar = 0; ivar < NVAR; ivar++)
+      for (Id jvar = 0; jvar < NVAR; jvar++)
+        rhs.setValue(IND(iech, ivar), jvar, covtab.getValue(ivar, jvar));
   }
 
   /* Establish the drift part */
 
   if (nfeq)
   {
-    for (ivar = 0; ivar < NVAR; ivar++)
-      for (jvar = 0; jvar < NVAR; jvar++)
-        RHS(jvar, NVAR, ivar) = (ivar == jvar);
+    for (Id ivar = 0; ivar < NVAR; ivar++)
+      for (Id jvar = 0; jvar < NVAR; jvar++)
+        rhs.setValue(IND(jvar, NVAR), ivar, (ivar == jvar));
   }
 
   /* Compress from isotopic to heterotopic */
 
-  ecr = lec = 0;
-  for (ivar = 0; ivar < NVAR; ivar++)
-    for (i = 0; i < neqmax; i++, lec++)
-      if (flag[i]) rhs[ecr++] = rhs[lec];
+  if (nred != neqmax)
+  {
+    VectorDouble rhstab = rhs.getValues();
+    Id ecr              = 0;
+    Id lec              = 0;
+    for (Id ivar = 0; ivar < NVAR; ivar++)
+      for (Id i = 0; i < neqmax; i++, lec++)
+        if (flag[i])
+          rhstab[ecr++] = rhstab[lec];
+    rhs.setValues(rhstab);
+    rhs.reset(nred, NVAR);
+  }
 
   if (OptDbg::query(EDbg::KRIGING))
-    krige_rhs_print(NVAR, nech, neqmax, nred, flag, rhs);
+    krige_rhs_print(NVAR, nech, neqmax, nred, flag.data(), rhs.getValues().data());
 }
 
 /****************************************************************************/
@@ -2620,14 +2619,14 @@ static void st_wgt_print(ST_Seismic_Neigh* ngh,
 
   /* First line */
 
-  tab_prints(NULL, "Rank");
-  tab_prints(NULL, "Delta-X");
-  tab_prints(NULL, "Delta-Z");
-  tab_prints(NULL, "Data");
+  printElement("Rank");
+  printElement("Delta-X");
+  printElement("Delta-Z");
+  printElement("Data");
   for (ivar = 0; ivar < nvar; ivar++)
   {
     (void)gslSPrintf(string, "Z%d*", ivar + 1);
-    tab_prints(NULL, string.data());
+    printElement(string);
   }
   message("\n");
 
@@ -2643,28 +2642,28 @@ static void st_wgt_print(ST_Seismic_Neigh* ngh,
       sum[ivar] = 0.;
     for (iech = 0; iech < nech; iech++, lec++)
     {
-      tab_printi(NULL, iech + 1);
-      tab_printi(NULL, ngh->ix_ngh[iech]);
-      tab_printi(NULL, ngh->iz_ngh[iech]);
+      printElement(iech + 1);
+      printElement(ngh->ix_ngh[iech]);
+      printElement(ngh->iz_ngh[iech]);
       if (jvar == 0)
-        tab_printg(NULL, ngh->v1_ngh[iech]);
+        printElement(ngh->v1_ngh[iech]);
       else
-        tab_printg(NULL, ngh->v2_ngh[iech]);
+        printElement(ngh->v2_ngh[iech]);
 
       for (ivar = 0; ivar < nvar; ivar++)
       {
         iwgt  = nred * ivar + cumflag;
         value = (flag[lec]) ? wgt[iwgt] : TEST;
         if (!FFFF(value)) sum[ivar] += value;
-        tab_printg(NULL, value);
+        printElement(value);
       }
       if (flag[lec]) cumflag++;
       message("\n");
     }
 
-    tab_prints(NULL, "Sum of weights", 4, EJustify::LEFT);
+    printElement("Sum of weights", String(), 4, -1);
     for (ivar = 0; ivar < nvar; ivar++)
-      tab_printg(NULL, sum[ivar]);
+      printElement(sum[ivar]);
     message("\n");
   }
 }
@@ -2687,24 +2686,21 @@ static void st_wgt_print(ST_Seismic_Neigh* ngh,
 static Id st_estimate_wgt(ST_Seismic_Neigh* ngh,
                           Model* /*model*/,
                           Id nred,
-                          Id* flag,
-                          double* lhs,
-                          double* rhs,
-                          double* wgt)
+                          const VectorInt& flag,
+                          MatrixSquare& lhs,
+                          const MatrixDense& rhs,
+                          MatrixDense& wgt)
 {
-  Id nech;
-
-  /* Initializations */
-
-  nech = ngh->nactive;
+  Id nech = ngh->nactive;
   if (nech <= 0) return (0);
 
   /* Calculate the kriging weights */
 
-  if (matrix_invert(lhs, nred, IECH_OUT)) return (1);
-  matrix_product_safe(nred, nred, 2, lhs, rhs, wgt);
+  lhs.invert();
+  lhs.prodMatMatInPlace(&rhs, &wgt);
 
-  if (OptDbg::query(EDbg::KRIGING)) st_wgt_print(ngh, NVAR, nech, nred, flag, wgt);
+  if (OptDbg::query(EDbg::KRIGING))
+    st_wgt_print(ngh, NVAR, nech, nred, flag.data(), wgt.getValues().data());
 
   return (0);
 }
@@ -2730,10 +2726,10 @@ static void st_estimate_result(Db* db,
                                Id flag_std,
                                Id /*nfeq*/,
                                Id nred,
-                               const Id* flag,
-                               const double* wgt,
-                               const double* rhs,
-                               const double* var0,
+                               const VectorInt& flag,
+                               const MatrixDense& wgt,
+                               const MatrixDense& rhs,
+                               const VectorDouble& var0,
                                Id* iatt_est,
                                Id* iatt_std)
 {
@@ -2753,13 +2749,13 @@ static void st_estimate_result(Db* db,
     /* Estimation */
 
     result = stdev = 0.;
-    lec            = ivar * nred;
+    lec            = 0;
     for (jvar = 0; jvar < NVAR; jvar++)
       for (i = 0; i < nech; i++)
       {
         if (!flag[jvar * nech + i]) continue;
         value = (jvar == 0) ? ngh->v1_ngh[i] : ngh->v2_ngh[i];
-        result += wgt[lec++] * value;
+        result += wgt.getValue(lec++, ivar) * value;
       }
     db->setArray(IECH_OUT, iatt_est[ivar], result);
 
@@ -2768,18 +2764,18 @@ static void st_estimate_result(Db* db,
     if (flag_std)
     {
       stdev = var0[ivar];
-      lec   = ivar * nred;
+      lec   = 0;
       for (i = 0; i < nred; i++)
-        stdev -= rhs[lec + i] * wgt[lec + i];
+        stdev -= rhs.getValue(lec + i, ivar) * wgt.getValue(lec + i, ivar);
       stdev = (stdev > 0) ? sqrt(stdev) : 0.;
       db->setArray(IECH_OUT, iatt_std[ivar], stdev);
     }
 
     if (OptDbg::query(EDbg::RESULTS))
     {
-      tab_printi(NULL, ivar + 1);
-      tab_printg(" - Estimate  = ", result);
-      if (flag_std) tab_printg(" - St. Dev.  = ", stdev);
+      printElement(ivar + 1);
+      printElement(result, " - Estimate  = ");
+      if (flag_std) printElement(stdev, " - St. Dev.  = ");
       message("\n");
     }
   }
@@ -2809,10 +2805,10 @@ static void st_simulate_result(DbGrid* db,
                                Id nbsimu,
                                Id /*nfeq*/,
                                Id nred,
-                               const Id* flag,
-                               const double* wgt,
-                               const double* rhs,
-                               const double* c00,
+                               const VectorInt& flag,
+                               const MatrixDense& wgt,
+                               const MatrixDense& rhs,
+                               const MatrixSquare& c00,
                                Id* iatt_sim)
 {
   Id i, ivar, jvar, nech, lec, isimu, iech;
@@ -2830,7 +2826,7 @@ static void st_simulate_result(DbGrid* db,
     {
       value = 0.;
       for (i = 0; i < nred; i++)
-        value += wgt[nred * ivar + i] * rhs[nred * jvar + i];
+        value += wgt.getValue(i, ivar) * rhs.getValue(i, jvar);
       LB(ivar, jvar) = value;
     }
 
@@ -2847,30 +2843,29 @@ static void st_simulate_result(DbGrid* db,
       /* Estimation */
 
       result[ivar] = 0.;
-      lec          = ivar * nred;
+      lec          = 0;
       for (jvar = 0; jvar < NVAR; jvar++)
         for (i = 0; i < nech; i++)
         {
           if (!flag[jvar * nech + i]) continue;
-          iech  = st_absolute_index(db, ix0 + ngh->ix_ngh[i],
-                                    iz0 + ngh->iz_ngh[i]);
+          iech  = st_absolute_index(db, ix0 + ngh->ix_ngh[i], iz0 + ngh->iz_ngh[i]);
           value = db->getArray(iech, iatt_sim[jvar] + isimu);
-          result[ivar] += wgt[lec++] * value;
+          result[ivar] += wgt.getValue(lec++, ivar) * value;
         }
     }
 
     /* Link the two variables */
 
-    sigma1 = C00(0, 0) - LB(0, 0);
-    sigma2 = C00(1, 1) - LB(1, 1);
+    sigma1 = c00.getValue(0, 0) - LB(0, 0);
+    sigma2 = c00.getValue(1, 1) - LB(1, 1);
 
     z2 = db->getArray(IECH_OUT, iatt_sim[1] + isimu);
     if (FFFF(z2)) z2 = result[1] + sqrt(MAX(0, sigma2)) * law_gaussian();
     z1 = db->getArray(IECH_OUT, iatt_sim[0] + isimu);
     if (FFFF(z1) && sigma2 > 0)
     {
-      l0     = (C00(0, 1) - LB(0, 1)) / sigma2;
-      sigma0 = sigma1 - l0 * (C00(0, 1) - LB(1, 0));
+      l0     = (c00.getValue(0, 1) - LB(0, 1)) / sigma2;
+      sigma0 = sigma1 - l0 * (c00.getValue(0, 1) - LB(1, 0));
       sigma0 = sqrt(MAX(0, sigma0));
       z1     = result[0] + (z2 - result[1]) * l0 + sigma0 * law_gaussian();
     }
@@ -2886,7 +2881,7 @@ static void st_simulate_result(DbGrid* db,
       if (OptDbg::query(EDbg::RESULTS))
       {
         message("Simulation #%d of Z%-2d : ", isimu + 1, ivar + 1);
-        tab_printg(" = ", result[ivar]);
+        printElement(result[ivar], " = ");
         message("\n");
       }
     }
@@ -2904,7 +2899,7 @@ static void st_simulate_result(DbGrid* db,
  ** \param[out] rank     Array giving the order of the traces
  **
  *****************************************************************************/
-static Id st_estimate_sort(const Id* presence, Id* rank)
+static Id st_estimate_sort(const VectorInt& presence, VectorInt& rank)
 {
   double distmin, distval;
   Id ix, jx;
@@ -2923,7 +2918,7 @@ static Id st_estimate_sort(const Id* presence, Id* rank)
     }
     dist[ix] = distmin;
   }
-  ut_sort_double(1, NX, rank, dist.data());
+  ut_sort_double(1, NX, rank.data(), dist.data());
 
   return (0);
 }
@@ -2960,9 +2955,9 @@ Id seismic_estimate_XZ(DbGrid* db,
   Id i, ix0, jx0, iz0, nvois, size, error, nred, nfeq, iatt_z1, iatt_z2;
   Id nb_total, nb_process, nb_calcul;
   ST_Seismic_Neigh *ngh_cur, *ngh_old;
-  VectorDouble lhs;
-  VectorDouble rhs;
-  VectorDouble wgt;
+  MatrixSquare lhs;
+  MatrixDense rhs;
+  MatrixDense wgt;
   VectorDouble var0;
   VectorInt flag;
   VectorInt rank;
@@ -3020,7 +3015,7 @@ Id seismic_estimate_XZ(DbGrid* db,
   /* Look for columns where each variable is defined */
 
   for (i = 0; i < 2; i++)
-    st_estimate_check_presence(db, i, &npres[i], presence[i].data());
+    st_estimate_check_presence(db, i, &npres[i], presence[i]);
 
   /* Maximum dimension of the neighborhood */
 
@@ -3034,13 +3029,12 @@ Id seismic_estimate_XZ(DbGrid* db,
   ngh_old = st_estimate_neigh_management(1, nvois, ngh_old);
   if (ngh_old == nullptr) goto label_end;
   covtab = MatrixSquare(NVAR);
-  lhs.resize(size * size);
-  rhs.resize(size * NVAR);
-  wgt.resize(size * NVAR);
+  lhs.reset(size, size);
+  rhs.reset(size, NVAR);
+  wgt.reset(size, NVAR);
   flag.resize(size);
   rank.resize(NX);
-  if (flag_std)
-    var0.resize(NVAR);
+  if (flag_std) var0.resize(NVAR);
 
   /* Add the resulting variables */
 
@@ -3058,11 +3052,11 @@ Id seismic_estimate_XZ(DbGrid* db,
 
   /* Calculate the constant terms for the variances */
 
-  if (flag_std) st_estimate_var0(model, var0.data());
+  if (flag_std) st_estimate_var0(model, var0);
 
   /* Calculate the order of the columns to be treated */
 
-  if (st_estimate_sort(presence[0].data(), rank.data())) goto label_end;
+  if (st_estimate_sort(presence[0], rank)) goto label_end;
 
   /* Loop on the grid nodes */
 
@@ -3089,27 +3083,25 @@ Id seismic_estimate_XZ(DbGrid* db,
 
         /* Establish the flag */
 
-        st_estimate_flag(ngh_cur, nfeq, flag.data(), &nred);
+        st_estimate_flag(ngh_cur, nfeq, flag, &nred);
 
         /* Establish the kriging L.H.S. */
 
-        st_estimate_lhs(ngh_cur, model, nfeq, nred, flag.data(), lhs.data());
+        st_estimate_lhs(ngh_cur, model, nfeq, nred, flag, lhs);
 
         /* Establish the kriging R.H.S. */
 
-        st_estimate_rhs(ngh_cur, model, nfeq, nred, flag.data(), rhs.data());
+        st_estimate_rhs(ngh_cur, model, nfeq, nred, flag, rhs);
 
         /* Derive the kriging weights */
 
-        if (st_estimate_wgt(ngh_cur, model, nred, flag.data(),
-                            lhs.data(), rhs.data(), wgt.data())) continue;
+        if (st_estimate_wgt(ngh_cur, model, nred, flag, lhs, rhs, wgt)) continue;
       }
 
       /* Perform the estimation */
 
       st_estimate_result(db, ngh_cur, flag_std, nfeq, nred,
-                         flag.data(), wgt.data(), rhs.data(),
-                         var0.data(), iatt_est, iatt_std);
+                         flag, wgt, rhs, var0, iatt_est, iatt_std);
 
       /* Save the neighborhood */
 
@@ -3215,10 +3207,10 @@ Id seismic_simulate_XZ(DbGrid* db,
   Id i, isimu, ix0, iz0, nvois, size, error, nred, nfeq, jx0;
   Id nb_total, nb_process, nb_calcul;
   ST_Seismic_Neigh *ngh_cur, *ngh_old;
-  VectorDouble lhs;
-  VectorDouble rhs;
-  VectorDouble wgt;
-  VectorDouble c00;
+  MatrixSquare lhs;
+  MatrixDense rhs;
+  MatrixDense wgt;
+  MatrixSquare c00;
   VectorInt flag;
   VectorInt rank;
   VectorVectorInt presence(2);
@@ -3272,7 +3264,7 @@ Id seismic_simulate_XZ(DbGrid* db,
 
   law_set_random_seed(seed);
   for (i = 0; i < 2; i++)
-    st_estimate_check_presence(db, i, &npres[i], presence[i].data());
+    st_estimate_check_presence(db, i, &npres[i], presence[i]);
 
   /* Maximum dimension of the neighborhood */
 
@@ -3286,11 +3278,11 @@ Id seismic_simulate_XZ(DbGrid* db,
   ngh_old = st_estimate_neigh_management(1, nvois, ngh_old);
   if (ngh_old == nullptr) goto label_end;
   covtab = MatrixSquare(NVAR);
-  lhs.resize(size * size);
-  rhs.resize(size * NVAR);
-  wgt.resize(size * NVAR);
+  lhs.reset(size, size);
+  rhs.reset(size, NVAR);
+  wgt.reset(size, NVAR);
+  c00.reset(NVAR, NVAR);
   flag.resize(size);
-  c00.resize(NVAR * NVAR);
   rank.resize(NX);
 
   /* Add the resulting variables */
@@ -3307,11 +3299,11 @@ Id seismic_simulate_XZ(DbGrid* db,
 
   /* Calculate the constant terms for the variances */
 
-  st_estimate_c00(model, c00.data());
+  st_estimate_c00(model, c00);
 
   /* Calculate the order of the columns to be treated */
 
-  if (st_estimate_sort(presence[0].data(), rank.data())) goto label_end;
+  if (st_estimate_sort(presence[0], rank)) goto label_end;
 
   /* Loop on the grid nodes */
 
@@ -3339,27 +3331,25 @@ Id seismic_simulate_XZ(DbGrid* db,
 
         /* Establish the flag */
 
-        st_estimate_flag(ngh_cur, nfeq, flag.data(), &nred);
+        st_estimate_flag(ngh_cur, nfeq, flag, &nred);
 
         /* Establish the kriging L.H.S. */
 
-        st_estimate_lhs(ngh_cur, model, nfeq, nred, flag.data(), lhs.data());
+        st_estimate_lhs(ngh_cur, model, nfeq, nred, flag, lhs);
 
         /* Establish the kriging R.H.S. */
 
-        st_estimate_rhs(ngh_cur, model, nfeq, nred, flag.data(), rhs.data());
+        st_estimate_rhs(ngh_cur, model, nfeq, nred, flag, rhs);
 
         /* Derive the kriging weights */
 
-        if (st_estimate_wgt(ngh_cur, model, nred, flag.data(),
-                            lhs.data(), rhs.data(), wgt.data())) continue;
+        if (st_estimate_wgt(ngh_cur, model, nred, flag, lhs, rhs, wgt)) continue;
       }
 
       /* Perform the estimation */
 
       st_simulate_result(db, ix0, iz0, ngh_cur, nbsimu, nfeq, nred,
-                         flag.data(), wgt.data(),
-                         rhs.data(), c00.data(), iatt_sim);
+                         flag, wgt, rhs, c00, iatt_sim);
 
       /* Save the neighborhood */
 

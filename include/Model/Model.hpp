@@ -62,7 +62,7 @@ typedef std::vector<ECov> VectorECov;
  * - the field extension: this information is needed to get a *stationary* version to any covariance
  * - the experimental mean vector and the variance-covariance matrix (used to calibrate the Model)
  */
-class GSTLEARN_EXPORT Model: public AStringable, public ASerializable, public ModelCovList
+class GSTLEARN_EXPORT Model: public AStringable, public ModelCovList
 {
 public:
   Model(const CovContext& ctxt = CovContext());
@@ -77,6 +77,12 @@ public:
 
   /// AStringable Interface
   String toString(const AStringFormat* strfmt = nullptr) const override;
+
+  /// ASerializable Interface
+  String getNFName() const override { return "Model"; }
+#ifdef HDF5
+  bool deserializeH5(H5::Group& grp) override;
+#endif
 
 public:
   const CovAnisoList* castInCovAnisoListConst(Id icov = -1) const;
@@ -119,8 +125,8 @@ public:
                                 const Option_VarioFit& optvar  = Option_VarioFit(),
                                 const Option_AutoFit& mauto    = Option_AutoFit(),
                                 bool verbose                   = false);
-  static Model* createFillRandom(Id ndim,
-                                 Id nvar,
+  static Model* createFillRandom(Id ndim                        = 2,
+                                 Id nvar                        = 1,
                                  const std::vector<ECov>& types = ECov::fromKeys({"SPHERICAL"}),
                                  double hmax                    = 1,
                                  Id order                       = -1,
@@ -237,21 +243,18 @@ public:
   static VectorECov initCovList(const VectorInt& covranks);
 
   bool isValid() const;
+  bool drawOnlyPositiveX(Id ivar, Id jvar, bool asCov = false);
+  bool drawOnlyPositiveY(Id ivar, Id jvar, bool asCov = false);
 
 protected:
   /// Interface to ASerializable
-  bool _deserializeAscii(std::istream& is, bool verbose = false) override;
-  bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
-#ifdef HDF5
-  bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
-  bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
-#endif
-  String _getNFName() const override { return "Model"; }
+  bool _deserializeAscii(std::istream& is) override;
+  bool _serializeAscii(std::ostream& os) const override;
 
 private:
   bool _isValid() const override;
-  void _clear();
-  void _create();
+  void _create() override;
+  void _clear() override;
   void _copyCovContext();
 };
 } // namespace gstlrn

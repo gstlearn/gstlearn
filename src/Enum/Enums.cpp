@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Enum/EAnam.hpp"
+#include "Enum/ECSV.hpp"
 #include "Enum/ECalcMember.hpp"
 #include "Enum/ECalcVario.hpp"
 #include "Enum/EConsElem.hpp"
@@ -21,7 +22,6 @@
 #include "Enum/EDirGen.hpp"
 #include "Enum/EFormatNF.hpp"
 #include "Enum/EGaussInv.hpp"
-#include "Enum/EJustify.hpp"
 #include "Enum/EKrigOpt.hpp"
 #include "Enum/ELaw.hpp"
 #include "Enum/ELoadBy.hpp"
@@ -43,7 +43,6 @@
 #include "Enum/EStatOption.hpp"
 #include "Enum/ETape.hpp"
 
-
 ENUM_DEFINE(ENUM_LOAD_BY)
 ENUM_DEFINE(ENUM_NEIGH)
 ENUM_DEFINE(ENUM_LOC)
@@ -56,7 +55,6 @@ ENUM_DEFINE(ENUM_KRIG_OPT)
 ENUM_DEFINE(ENUM_ANAM)
 ENUM_DEFINE(ENUM_CONS_ELEM)
 ENUM_DEFINE(ENUM_CONS_TYPE)
-ENUM_DEFINE(ENUM_JUSTIFY)
 ENUM_DEFINE(ENUM_DEBUG)
 ENUM_DEFINE(ENUM_CST)
 ENUM_DEFINE(ENUM_OPERATOR)
@@ -78,3 +76,4 @@ ENUM_DEFINE(ENUM_GAUSSINV)
 ENUM_DEFINE(ENUM_POST_UPSCALE)
 ENUM_DEFINE(ENUM_POST_STAT)
 ENUM_DEFINE(ENUM_FORMATNF)
+ENUM_DEFINE(ENUM_CSV)

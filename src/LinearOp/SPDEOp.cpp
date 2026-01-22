@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "LinearOp/SPDEOp.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "LinearOp/ASimulable.hpp"
 #include "LinearOp/PrecisionOpMulti.hpp"
@@ -265,7 +266,7 @@ VectorDouble ASPDEOp::stdev(const VectorDouble& dat,
   for (Id iMC = 0; iMC < nMC; iMC++)
   {
     VectorDouble temp = simCond(dat, projK, projS);
-    VH::addInPlace(temp_mean, temp);
+    temp_mean.add(temp);
     VH::addSquareInPlace(temp_mean2, temp);
   }
   VH::mean1AndMean2ToStdev(temp_mean, temp_mean2, temp_mean, nMC);
@@ -361,12 +362,12 @@ VectorDouble ASPDEOp::computeDriftCoeffs(const VectorDouble& Z,
 
     constvect ym(Z.data(), Z.size());
     constvect wd1(_workdat1.data(), _workdat1.size());
-    XtInvSigmaZ[i] = VH::innerProduct(ym, wd1);
+    XtInvSigmaZ[i] = VH::innerProductCV(ym, wd1);
 
     for (Id j = i; j < xsize; j++)
     {
       constvect xmj = driftMat.getViewOnColumn(j);
-      double prod   = VH::innerProduct(xmj, w1s);
+      double prod   = VH::innerProductCV(xmj, w1s);
       XtInvSigmaX.setValue(i, j, prod);
     }
   }
@@ -375,7 +376,7 @@ VectorDouble ASPDEOp::computeDriftCoeffs(const VectorDouble& Z,
 
   // Optional printout
   if (verbose)
-    VH::dump("Drift coefficients", result);
+    toStrVector("Drift coefficients", result);
 
   return result;
 }
@@ -411,18 +412,18 @@ double ASPDEOp::computeLogDetOp(Id nbsimu) const
     VH::simulateGaussianInPlace(_workNoiseMesh);
     std::fill(_workmesh.begin(), _workmesh.end(), 0.);
     logPoly.addEvalOp(this, _workNoiseMesh, _workmesh);
-    val += VH::innerProduct(_workNoiseMesh, _workmesh);
+    val += _workNoiseMesh.innerProduct(_workmesh);
   }
   return val / nbsimu;
 }
 
-double ASPDEOp::computeQuadratic(const std::vector<double>& x) const
+double ASPDEOp::computeQuadratic(const VectorDouble& x) const
 {
   _workdat4.resize(_getNDat());
   vect w1s(_workdat4);
   constvect xm(x);
   evalInvCov(xm, w1s);
-  return VH::innerProduct(w1s, xm);
+  return VH::innerProductCV(w1s, xm);
 }
 
 double ASPDEOp::computeLogDetQ(Id nMC) const

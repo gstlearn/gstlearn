@@ -14,7 +14,7 @@
 #include "Basic/ICloneable.hpp"
 #include "Basic/Tensor.hpp"
 #include "Basic/VectorNumT.hpp"
-#include "Covariances/ACovFunc.hpp"
+#include "Covariances/AKernel.hpp"
 #include "Covariances/CorAniso.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Covariances/CovProportional.hpp"
@@ -46,14 +46,15 @@ class CovInternal;
 class GSTLEARN_EXPORT CovAniso: public CovProportional
 {
 public:
-  CovAniso(const ECov& type, const CovContext& ctxt);
-  CovAniso(const String& symbol, const CovContext& ctxt);
-  CovAniso(const ECov& type,
-           double range,
-           double param,
-           double sill,
-           const CovContext& ctxt,
-           bool flagRange = true);
+  CovAniso(const CovContext& ctxt, const ECov& type);
+  CovAniso(const CovContext& ctxt, const String& symbol);
+  CovAniso(
+    const CovContext& ctxt,
+    const ECov& type,
+    double param,
+    double sill,
+    double range,
+    bool flagRange = true);
   CovAniso(const CovAniso& r);
   CovAniso& operator=(const CovAniso& r);
   virtual ~CovAniso();
@@ -169,8 +170,6 @@ public:
   FORWARD_METHOD(getCorAniso, getScale, TEST)
   FORWARD_METHOD(getCorAniso, isValidForTurningBand, false)
   FORWARD_METHOD(getCorAniso, simulateTurningBand, TEST)
-  FORWARD_METHOD(getCorAniso, isValidForSpectral, false)
-  FORWARD_METHOD(getCorAniso, simulateSpectralOmega, MatrixDense())
   FORWARD_METHOD(getCorAniso, getRanges, VectorDouble())
   FORWARD_METHOD(getCorAniso, getScales, VectorDouble())
   FORWARD_METHOD(getCorAniso, getRangeIso, TEST)
@@ -208,6 +207,7 @@ public:
 
   FORWARD_METHOD(getCorAniso, getDetTensor, false)
 
+  bool isValidForSpectral() const override; // Do not use FORWARD_METHOD because "override" creates compilation issue on Windows
   double getSlope(Id ivar, Id jvar) const;
   const Rotation& getAnisoRotation() const { return getCorAniso()->getAniso().getRotation(); }
   bool getFlagAniso() const { return !isIsotropic(); }
@@ -226,7 +226,7 @@ public:
   bool hasRotation() const { return getCorAniso()->getAniso().hasRotation(); }
   const Tensor& getAniso() const { return getCorAniso()->getAniso(); }
   void setAniso(const Tensor& aniso) { getCorAnisoModify()->setAniso(aniso); }
-  const ACovFunc* getCorFunc() const { return getCorAniso()->getCorFunc(); }
+  const AKernel* getCorFunc() const { return getCorAniso()->getCorFunc(); }
 
   VectorDouble evalCovOnSphereVec(const VectorDouble& alpha,
                                   Id degree               = 50,
@@ -234,7 +234,7 @@ public:
                                   const CovCalcMode* mode = nullptr) const;
   Array evalCovFFT(const VectorDouble& hmax, Id N = 128, Id ivar = 0, Id jvar = 0) const;
 
-  Id getNDim() const { return static_cast<Id>(_ctxt.getNDim()); }
+  // Id getNDim() const { return static_cast<Id>(_ctxt.getNDim()); }
   const CorAniso* getCorAniso() const;
   CorAniso* getCorAnisoModify();
   CovAniso* createReduce(const VectorInt& validVars) const;

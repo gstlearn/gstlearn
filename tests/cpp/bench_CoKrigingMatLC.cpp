@@ -13,19 +13,21 @@
 
 #include "Basic/AStringFormat.hpp"
 #include "Basic/NamingConvention.hpp"
+#include "Basic/OptCst.hpp"
+#include "Enum/ECst.hpp"
 #include "Enum/ESpaceType.hpp"
 
-#include "Space/ASpaceObject.hpp"
+#include "Basic/File.hpp"
+#include "Basic/Law.hpp"
+#include "Basic/Message.hpp"
+#include "Basic/OptDbg.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
-#include "Basic/Law.hpp"
-#include "Basic/OptCst.hpp"
-#include "Model/Model.hpp"
-#include "Basic/File.hpp"
-#include "Basic/OptDbg.hpp"
-#include "Neigh/NeighUnique.hpp"
-#include "Neigh/NeighMoving.hpp"
 #include "Estimation/CalcKriging.hpp"
+#include "Model/Model.hpp"
+#include "Neigh/NeighMoving.hpp"
+#include "Neigh/NeighUnique.hpp"
+#include "Space/ASpaceObject.hpp"
 
 using namespace gstlrn;
 

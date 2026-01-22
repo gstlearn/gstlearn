@@ -10,7 +10,6 @@
 /******************************************************************************/
 #pragma once
 
-#include "Basic/AStringable.hpp"
 #include "Basic/SerializeNeutralFile.hpp"
 #include "Enum/EFormatNF.hpp"
 #include "geoslib_define.h"
@@ -39,8 +38,7 @@ public:
   virtual ~ASerializable();
 
   bool dumpToNF(const String& NFFilename,
-                const EFormatNF& format = EFormatNF::fromKey("DEFAULT"),
-                bool verbose            = false) const;
+                const EFormatNF& format = EFormatNF::fromKey("DEFAULT")) const;
 
   static String buildFileName(Id status, const String& filename, bool ensureDirExist = false);
 
@@ -50,21 +48,28 @@ public:
   static const String& getPrefixName();
   void setDefaultFormatNF(const EFormatNF& format);
 
-  virtual String _getNFName() const = 0;
+  virtual String getNFName() const = 0;
+#ifdef HDF5
+  static String getGroupFullPath(const H5::Group& group);
+  static VectorString getGroupParents(const H5::Group& group);
+  virtual bool deserializeH5(H5::Group& grp)     = 0;
+  virtual bool serializeH5(H5::Group& grp) const = 0;
+#endif
 
 protected:
-  virtual bool _deserializeAscii(std::istream& is, bool verbose = false) = 0;
-  virtual bool _deserializeH5(H5::Group& /*grp*/, bool /*verbose*/ = false)
+  virtual bool _deserializeAscii(std::istream& is)
   {
+    DECLARE_UNUSED(is);
     // TODO virtual pure
-    messerr("Not implemented yet");
+    messerr("Not implemented anymore");
     return false;
   }
-  virtual bool _serializeAscii(std::ostream& os, bool verbose = false) const = 0;
-  virtual bool _serializeH5(H5::Group& /*grp*/, bool /*verbose*/ = false) const
+
+  virtual bool _serializeAscii(std::ostream& os) const
   {
+    DECLARE_UNUSED(os);
     // TODO virtual pure
-    messerr("Not implemented yet");
+    messerr("Not implemented anymore");
     return false;
   }
 

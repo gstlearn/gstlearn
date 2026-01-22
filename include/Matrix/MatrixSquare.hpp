@@ -30,6 +30,7 @@ public:
 
   /// Has a specific implementation in the Target language
   DECLARE_TOTL;
+  DECLARE_TOLATEX
 
   /// ICloneable interface
   IMPLEMENT_CLONING(MatrixSquare)
@@ -59,6 +60,9 @@ public:
                                              const VectorDouble& vecsup);
 
   double trace() const;
+  bool invert2x2(MatrixSquare& res) const;
+  bool invert3x3(MatrixSquare& res) const;
+  Id invertOutOfPlace(MatrixSquare& res) const;
 
   /*! Perform inner product */
   void innerMatrix(const MatrixSquare& x,
@@ -75,8 +79,6 @@ public:
   Id decomposeLU(MatrixSquare& tls,
                  MatrixSquare& tus,
                  double eps = EPSILON20);
-
-  Id computeEigen(bool optionPositive = true);
 
 protected:
   bool _isNumbersValid(Id nrows, Id ncols) const override;

@@ -11,26 +11,26 @@
 #pragma once
 
 #include "Basic/AStringable.hpp"
-#include "gstlearn_export.hpp"
 #include "LinearOp/IProj.hpp"
+#include "gstlearn_export.hpp"
 #include <vector>
 
 namespace gstlrn
 {
-class GSTLEARN_EXPORT ProjMulti : public IProj, public AStringable
+class GSTLEARN_EXPORT ProjMulti: public IProj, public AStringable
 {
 public:
-  ProjMulti(const std::vector<std::vector<const IProj*>> &projs, bool silent = false);
+  ProjMulti(const std::vector<std::vector<const IProj*>>& projs, bool silent = false);
 
   /// AStringable Interface
   String toString(const AStringFormat* strfmt = nullptr) const override;
-  
+
   Id getNApex() const override;
   Id getNPoint() const override;
   Id getNVariable() const { return _nvariable; }
   Id getNLatent() const { return _nlatent; }
   virtual ~ProjMulti();
-  bool empty() const { return _projs.empty();}
+  bool empty() const { return _projs.empty(); }
 
 #ifndef SWIG
 
@@ -47,21 +47,21 @@ private:
 protected:
   Id findFirstNoNullOnRow(Id j) const;
   Id findFirstNoNullOnCol(Id j) const;
-  const std::vector<Id>& getNPoints() const { return _pointNumbers; }
-  const std::vector<Id>& getNApexs() const { return _apexNumbers; }
+  const VectorInt& getNPoints() const { return _pointNumbers; }
+  const VectorInt& getNApexs() const { return _apexNumbers; }
 
 protected:
-std::vector<std::vector<const IProj*>> _projs; // NOT TO BE DELETED
+  std::vector<std::vector<const IProj*>> _projs; // NOT TO BE DELETED
 
 private:
-Id _pointNumber;
-Id _apexNumber;
-Id _nlatent;
-Id _nvariable;
-std::vector<Id> _pointNumbers;
-std::vector<Id> _apexNumbers;
-bool _silent;
-mutable std::vector<double> _work;
-mutable std::vector<double> _workmesh;
+  Id _pointNumber;
+  Id _apexNumber;
+  Id _nlatent;
+  Id _nvariable;
+  VectorInt _pointNumbers;
+  VectorInt _apexNumbers;
+  bool _silent;
+  mutable VectorDouble _work;
+  mutable VectorDouble _workmesh;
 };
-}
+} // namespace gstlrn

@@ -12,8 +12,8 @@
  * This test is meant to check the string manipulations
  */
 
-#include "Basic/AStringable.hpp"
 #include "Basic/File.hpp"
+#include "Basic/Message.hpp"
 #include "Basic/String.hpp"
 
 using namespace gstlrn;

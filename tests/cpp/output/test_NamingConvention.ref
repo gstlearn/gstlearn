@@ -1,0 +1,27 @@
+
+Testing NamingConvention for Multivariate Simulations
+=====================================================
+
+Test 1: Non-conditional multivariate (nvar=2, nsim=2, simu-first)
+Variable names: Test1.V1.S1, Test1.V1.S2, Test1.V2.S1, Test1.V2.S2
+
+Test 2: Conditional multivariate (nvar=2, nsim=2, simu-first)
+Variable names: Test2.Fe.S1, Test2.Fe.S2, Test2.Al.S1, Test2.Al.S2
+
+Test 3: Non-conditional (nvar=2, nsim=2, variable-first)
+Variable names: Test3.V1.S1, Test3.V2.S1, Test3.V1.S2, Test3.V2.S2
+
+Test 4: Single simulation (nvar=2, nsim=1)
+Variable names: Test4.V1.S1, Test4.V2.S1
+
+Test 5: Larger case (nvar=3, nsim=3, simu-first)
+Variable names:
+  [ 0] Test5.Cu.S1
+  [ 1] Test5.Cu.S2
+  [ 2] Test5.Cu.S3
+  [ 3] Test5.Pb.S1
+  [ 4] Test5.Pb.S2
+  [ 5] Test5.Pb.S3
+  [ 6] Test5.Zn.S1
+  [ 7] Test5.Zn.S2
+  [ 8] Test5.Zn.S3

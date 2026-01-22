@@ -8,6 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Basic/Utilities.hpp"
 #include "geoslib_d.h"
 #include "geoslib_define.h"
 
@@ -1078,7 +1079,7 @@ static double st_mvndnt(Id* n,
                         double* d,
                         double* e)
 {
-  return st_mvndfn_0(1, n, (double*)0, correl, lower, upper, infin,
+  return st_mvndfn_0(1, n, nullptr, correl, lower, upper, infin,
                      infis, d, e);
 }
 
@@ -1440,7 +1441,7 @@ L10:
 static double st_mvndfn(Id* n,
                         double* w)
 {
-  return st_mvndfn_0(0, n, w, (double*)0, (double*)0, (double*)0, (Id*)0, (Id*)0, (double*)0, (double*)0);
+  return st_mvndfn_0(0, n, w, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr);
 }
 
 /****************************************************************************/
@@ -2542,6 +2543,7 @@ VectorDouble ut_legendreVec(Id n, const VectorDouble& vecin, bool flagNorm)
 MatrixDense ut_legendreMatNorm(Id n, const VectorDouble& v)
 {
   Id nrow = static_cast<Id>(v.size());
+  if (nrow <= 0) return {};
   Id ncol = n + 1;
   MatrixDense res(nrow, ncol);
 
@@ -2614,6 +2616,7 @@ MatrixDense ut_legendreMatNorm(Id n, const VectorDouble& v)
 MatrixDense ut_legendreAssociatedMat(Id l, const VectorDouble& v, bool flagNorm)
 {
   Id nrow = static_cast<Id>(v.size());
+  if (nrow <= 0) return {};
   Id ncol = l + 1;
   MatrixDense res(nrow, ncol);
 

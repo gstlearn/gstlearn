@@ -1,0 +1,141 @@
+/******************************************************************************/
+/*                                                                            */
+/*                            gstlearn C++ Library                            */
+/*                                                                            */
+/* Copyright (c) (2023) MINES Paris / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://gstlearn.org                                              */
+/* License: BSD 3-clause                                                      */
+/*                                                                            */
+/******************************************************************************/
+#include "geoslib_define.h"
+#include "geoslib_old_f.h"
+
+#include "Enum/ESpaceType.hpp"
+
+#include "Basic/ASerializable.hpp"
+#include "Basic/Law.hpp"
+#include "Basic/String.hpp"
+#include "Covariances/CovAniso.hpp"
+#include "Covariances/CovAnisoList.hpp"
+#include "Covariances/CovContext.hpp"
+#include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
+#include "Gibbs/GibbsMMulti.hpp"
+#include "Gibbs/GibbsMulti.hpp"
+#include "Model/Model.hpp"
+#include "Variogram/Vario.hpp"
+#include "Variogram/VarioParam.hpp"
+
+using namespace gstlrn;
+/****************************************************************************/
+/*!
+** Main Program
+**
+*****************************************************************************/
+int main(int argc, char* argv[])
+{
+  std::stringstream sfn;
+  sfn << gslBaseName(__FILE__) << ".out";
+  StdoutRedirect sr(sfn.str(), argc, argv);
+
+  Id iptr;
+
+  Id nx              = 50;   // Number of grid mesh (in each direction)
+  Id niter           = 1000; // Number of Gibbs iterations
+  Id nburn           = 20;   // Number of burning steps
+  double range       = 10.;  // Isotropic range
+  double bound       = TEST;
+  double eps         = EPSILON6; // Epsilon for the Gibbs
+  bool storeInternal = false;    // Store internal: No HDF5 by default
+  bool storeVario    = false;
+
+  int seed    = 5452;
+  size_t ndim = 2;
+  int nvar    = 1;
+  int nbsimu  = 1;
+  double sill = 1.;
+  int nlag    = 20;
+
+  VectorDouble ranges = {range, range};
+  bool verbose        = true;
+
+  // Setup constants
+
+  defineDefaultSpace(ESpaceType::RN, ndim);
+  ASerializable::setPrefixName("test_GibbsMMulti-");
+  law_set_random_seed(seed);
+
+  // Data file
+
+  DbGrid* db = DbGrid::create({nx, nx}, {1., 1.});
+  if (!FFFF(bound))
+  {
+    db->addColumnsByConstant(1, -bound, "Lower", ELoc::L);
+    db->addColumnsByConstant(1, +bound, "Upper", ELoc::U);
+  }
+  else
+  {
+    db->addColumnsByConstant(1, TEST, "Lower", ELoc::L);
+    db->addColumnsByConstant(1, TEST, "Upper", ELoc::U);
+  }
+  if (db_locator_attribute_add(db, ELoc::GAUSFAC, nbsimu * nvar, 0, 0., &iptr)) return 1;
+
+  // Model
+
+  CovContext ctxt(nvar, 2, 1.); // use default space
+  Model model(ctxt);
+  CovAnisoList covs(ctxt);
+  CovAniso cova(ctxt, ECov::SPHERICAL);
+  cova.setRanges(ranges);
+  cova.setSill(sill);
+  covs.addCov(cova);
+  model.setCovAnisoList(&covs);
+  model.display();
+
+  // Initialize Gibbs
+
+  GibbsMMulti gibbs(db, &model);
+  gibbs.setOptionStats(2);
+  gibbs.setEps(eps);
+  gibbs.setFlagStoreInternal(storeInternal);
+  gibbs.init(1, nvar, nburn, niter, 0, true);
+
+  // Allocate the Gaussian vector
+
+  VectorVectorDouble y = gibbs.allocY();
+
+  /* Allocate the covariance matrix inverted */
+
+  if (gibbs.covmatAlloc(verbose)) return 1;
+
+  // Invoke the Gibbs calculator
+
+  for (int isimu = 0; isimu < nbsimu; isimu++)
+    if (gibbs.run(y, 0, isimu, verbose, false)) return 1;
+  (void)db->dumpToNF("Result");
+
+  // Calculate a variogram on the samples
+
+  if (storeVario)
+  {
+    VarioParam varioparam;
+    std::vector<DirParam> dirparams = DirParam::createMultipleInSpace(nlag);
+    varioparam.addMultiDirs(dirparams);
+    VectorString names = db->getName("gausfac*");
+    for (size_t isimu = 0; isimu < names.size(); isimu++)
+    {
+      db->clearLocators(ELoc::Z);
+      db->setLocator(names[isimu], ELoc::Z, 0);
+      Vario vario(varioparam);
+      vario.compute(db, ECalcVario::VARIOGRAM);
+      (void)vario.dumpToNF(incrementStringVersion("Vario", static_cast<Id>(isimu) + 1));
+    }
+  }
+
+  // Cleaning structures
+
+  gibbs.cleanup();
+  delete db;
+  return (0);
+}

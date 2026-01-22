@@ -45,7 +45,7 @@ ModelOptimParam::ModelOptimParam(const ModelOptimParam& m)
 {
 }
 
-ModelOptimParam& ModelOptimParam::operator=(const ModelOptimParam &m)
+ModelOptimParam& ModelOptimParam::operator=(const ModelOptimParam& m)
 {
   if (this != &m)
   {
@@ -68,7 +68,6 @@ ModelOptimParam& ModelOptimParam::operator=(const ModelOptimParam &m)
 
 ModelOptimParam::~ModelOptimParam()
 {
-
 }
 
 ModelOptimParam* ModelOptimParam::create(bool auth_aniso,
@@ -83,7 +82,7 @@ ModelOptimParam* ModelOptimParam::create(bool auth_aniso,
                                          Id maxiter,
                                          double tolred)
 {
-  auto* mop = new ModelOptimParam();
+  auto* mop            = new ModelOptimParam();
   mop->_auth_aniso     = auth_aniso;
   mop->_auth_rotation  = auth_rotation;
   mop->_lock_samerot   = lock_samerot;
@@ -101,15 +100,15 @@ ModelOptimParam* ModelOptimParam::create(bool auth_aniso,
 String ModelOptimParam::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
-  static const char *NOK[] = {"OFF" , "ON"};
+  static const char* NOK[] = {"OFF", "ON"};
 
-  sstr << "- Anisotropy                   " << NOK[getAuthAniso()]       << std::endl;
-  sstr << "- Anisotropy Rotation          " << NOK[getAuthRotation()]    << std::endl;
-  sstr << "- Global Rotation              " << NOK[getLockSamerot()]     << std::endl;
-  sstr << "- Rotation around Z only       " << NOK[getLockRot2d()]       << std::endl;
-  sstr << "- Lock third dimension         " << NOK[getLockNo3d()]        << std::endl;
-  sstr << "- Lock 2-D Isotropy            " << NOK[getLockIso2d()]       << std::endl;
-  sstr << "- Use the Goulard option       " << NOK[getFlagGoulard()]     << std::endl;
+  sstr << "- Anisotropy                   " << NOK[getAuthAniso()] << std::endl;
+  sstr << "- Anisotropy Rotation          " << NOK[getAuthRotation()] << std::endl;
+  sstr << "- Global Rotation              " << NOK[getLockSamerot()] << std::endl;
+  sstr << "- Rotation around Z only       " << NOK[getLockRot2d()] << std::endl;
+  sstr << "- Lock third dimension         " << NOK[getLockNo3d()] << std::endl;
+  sstr << "- Lock 2-D Isotropy            " << NOK[getLockIso2d()] << std::endl;
+  sstr << "- Use the Goulard option       " << NOK[getFlagGoulard()] << std::endl;
   if (getFlagIntrinsic())
     sstr << "- Multivariate Model must be Intrinsic" << std::endl;
   sstr << "- Optimization weighting mode  " << getWmode() << std::endl;
@@ -118,4 +117,4 @@ String ModelOptimParam::toString(const AStringFormat* /*strfmt*/) const
 
   return sstr.str();
 }
-}
+} // namespace gstlrn

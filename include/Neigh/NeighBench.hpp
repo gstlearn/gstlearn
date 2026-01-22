@@ -10,10 +10,10 @@
 /******************************************************************************/
 #pragma once
 
-#include <Geometry/BiTargetCheckBench.hpp>
 #include "Space/ASpace.hpp"
-#include "gstlearn_export.hpp"
 #include "geoslib_define.h"
+#include "gstlearn_export.hpp"
+#include <Geometry/BiTargetCheckBench.hpp>
 
 #include "Enum/ENeigh.hpp"
 
@@ -44,15 +44,24 @@ public:
   NeighBench(bool flag_xvalid             = false,
              double width                 = 0.,
              bool useBallTree             = false,
-             Id leaf_size                = 10,
+             Id leaf_size                 = 10,
              const ASpaceSharedPtr& space = ASpaceSharedPtr());
   NeighBench(const NeighBench& r);
   NeighBench& operator=(const NeighBench& r);
   virtual ~NeighBench();
 
+  /// Interface for Icloneable
   IMPLEMENT_CLONING(NeighBench)
+
+  /// Interface for ASerializable
+  String getNFName() const override { return "NeighBench"; }
+#ifdef HDF5
+  bool deserializeH5(H5::Group& grp) override;
+  bool serializeH5(H5::Group& grp) const override;
+#endif
+
   /// Interface for ANeigh
-  Id attach(const Db *dbin, const Db *dbout = nullptr) override;
+  Id attach(const Db* dbin, const Db* dbout = nullptr) override;
   void getNeigh(Id iech_out, VectorInt& ranks) override;
   bool hasChanged(Id iech_out) const override;
   Id getNSampleMax(const Db* db) const override;
@@ -64,20 +73,15 @@ public:
   static NeighBench* create(bool flag_xvalid             = false,
                             double width                 = 0,
                             bool useBallTree             = false,
-                            Id leaf_size                = 10,
+                            Id leaf_size                 = 10,
                             const ASpaceSharedPtr& space = ASpaceSharedPtr());
   static NeighBench* createFromNF(const String& NFFilename, bool verbose = true);
 
   double getWidth() const { return _width; }
 
 protected:
-  bool _deserializeAscii(std::istream& is, bool verbose = false) override;
-  bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
-#ifdef HDF5
-  bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
-  bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
-#endif
-  String _getNFName() const override { return "NeighBench"; }
+  bool _deserializeAscii(std::istream& is) override;
+  bool _serializeAscii(std::ostream& os) const override;
 
 private:
   bool _isSameTargetBench(Id iech_out) const;
@@ -90,4 +94,4 @@ private:
   mutable SpaceTarget _T1;
   mutable SpaceTarget _T2;
 };
-}
+} // namespace gstlrn

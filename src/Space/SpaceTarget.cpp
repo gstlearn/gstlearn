@@ -9,10 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Space/SpaceTarget.hpp"
-#include "Basic/Utilities.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Space/ASpace.hpp"
-
 #include <cmath>
 #include <iostream>
 
@@ -82,18 +79,18 @@ void SpaceTarget::_initialize()
 {
   // Fill the extension with zeroes
   if (_extend.empty())
-    VH::fill(_extend, 0., static_cast<Id>(getNDim()));
+    _extend.fill(0., static_cast<Id>(getNDim()));
 }
 
 String SpaceTarget::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
 
-  sstr << "- Center    = " << VH::toStringAsSpan(getCoordsView());
+  sstr << "- Center    = " << toStrVectorVec(String(), getCoordsView());
   if (_checkExtend)
   {
     if (!_extend.empty())
-      sstr << "- Extension = " << VH::toStringAsVD(_extend);
+      sstr << "- Extension = " << toStrVector(String(), _extend);
     else
       sstr << "- Extension = (undefined)" << std::endl;
   }

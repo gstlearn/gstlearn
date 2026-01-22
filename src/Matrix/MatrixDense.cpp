@@ -9,23 +9,21 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Matrix/MatrixDense.hpp"
+
+#include "Basic/Message.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Matrix/AMatrix.hpp"
 #include "Matrix/MatrixFactory.hpp"
-#include "Matrix/MatrixSquare.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "geoslib_define.h"
 
 #include <cmath>
-#include <omp.h>
 
 namespace gstlrn
 {
 MatrixDense::MatrixDense(Id nrow, Id ncol)
   : AMatrix(nrow, ncol)
-  , _eigenValues()
-  , _eigenVectors(nullptr)
   , _eigenMatrix()
   , _maxSize(nrow * ncol)
 {
@@ -34,8 +32,6 @@ MatrixDense::MatrixDense(Id nrow, Id ncol)
 
 MatrixDense::MatrixDense(const MatrixDense& r)
   : AMatrix(r)
-  , _eigenValues()
-  , _eigenVectors(nullptr)
   , _eigenMatrix()
   , _maxSize(r._maxSize)
 
@@ -46,8 +42,6 @@ MatrixDense::MatrixDense(const MatrixDense& r)
 
 MatrixDense::MatrixDense(const AMatrix& r)
   : AMatrix(r)
-  , _eigenValues()
-  , _eigenVectors(nullptr)
   , _eigenMatrix()
   , _maxSize(r.getNRows() * r.getNCols())
 {
@@ -81,12 +75,6 @@ void MatrixDense::_allocate()
 
 void MatrixDense::_deallocate()
 {
-  if (_eigenVectors != nullptr)
-  {
-    delete _eigenVectors;
-    _eigenVectors = nullptr;
-  }
-  _eigenValues.clear();
   _eigenMatrix.clear();
 }
 
@@ -128,7 +116,8 @@ double MatrixDense::traceProd(const MatrixDense& a, MatrixDense& b)
     return TEST;
   }
 
-  b.eigenMat().array() *= a.eigenMat().transpose().array();
+  auto array = b.eigenMat().array();
+  array *= a.eigenMat().transpose().array();
   return b.eigenMat().sum();
 }
 void MatrixDense::updValue(Id irow,
@@ -214,6 +203,7 @@ Id MatrixDense::invert2(MatrixDense& res) const
   res.eigenMat() = eigenMat().inverse();
   return 0;
 }
+
 Id MatrixDense::_solve(const VectorDouble& b, VectorDouble& x) const
 {
   /// TODO : check beforehand if matrix is invertible ?
@@ -343,13 +333,15 @@ void MatrixDense::prodMatMatInPlace(const AMatrix* x,
     }
     else
     {
+      auto a = eigenMat();
+      auto b = xm->eigenMat();
       if (transposeY)
       {
-        eigenMat().noalias() = xm->eigenMat() * ym->eigenMat().transpose();
+        a = b * ym->eigenMat().transpose();
       }
       else
       {
-        eigenMat().noalias() = xm->eigenMat() * ym->eigenMat();
+        a = b * ym->eigenMat();
       }
     }
   }
@@ -519,7 +511,8 @@ void MatrixDense::divideRow(const VectorDouble& vec)
     messerr("The size of 'vec' must match the number of rows. Nothing is done");
     return;
   }
-  VectorDouble temp = VH::inverse(vec);
+  thread_local VectorDouble temp;
+  VH::inverse(temp, vec);
   Eigen::Map<const Eigen::VectorXd> vecm(temp.data(), getNCols());
   eigenMat() = vecm.asDiagonal() * eigenMat();
 }
@@ -570,51 +563,6 @@ vect MatrixDense::getViewOnColumnModify(Id icol)
   vect res(eigenMat().col(icol).data(), getNRows());
   return res;
 }
-Id MatrixDense::_terminateEigen(const Eigen::VectorXd& eigenValues,
-                                 const Eigen::MatrixXd& eigenVectors,
-                                 bool optionPositive,
-                                 bool changeOrder)
-{
-  auto nrows = getNRows();
-  auto ncols = getNCols();
-
-  _eigenValues                                                         = VectorDouble(nrows);
-  Eigen::Map<Eigen::VectorXd>(_eigenValues.data(), eigenValues.size()) = eigenValues;
-
-  if (changeOrder)
-    std::reverse(_eigenValues.begin(), _eigenValues.end());
-
-  delete _eigenVectors;
-
-  VectorDouble vec(nrows * ncols);
-  Eigen::Map<Eigen::MatrixXd>(vec.data(), nrows, ncols) = eigenVectors;
-
-  _eigenVectors = MatrixSquare::createFromVD(vec, nrows, false, changeOrder);
-
-  if (optionPositive)
-    _eigenVectors->makePositiveColumn();
-
-  return 0;
-}
-
-Id MatrixDense::_computeGeneralizedEigen(const MatrixSymmetric& b, bool optionPositive)
-{
-  Eigen::GeneralizedSelfAdjointEigenSolver<Eigen::MatrixXd> solver(eigenMat(), b.eigenMat());
-  Eigen::VectorXd eigenValues  = solver.eigenvalues().real();
-  Eigen::MatrixXd eigenVectors = solver.eigenvectors().real();
-
-  return _terminateEigen(eigenValues, eigenVectors, optionPositive, true);
-}
-
-Id MatrixDense::_computeEigen(bool optionPositive)
-{
-  Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> solver(eigenMat());
-  Eigen::VectorXd eigenValues  = solver.eigenvalues().real();
-  Eigen::MatrixXd eigenVectors = solver.eigenvectors().real();
-
-  return _terminateEigen(eigenValues, eigenVectors, optionPositive, true);
-}
-
 bool MatrixDense::_needToReset(Id nrows, Id ncols)
 {
   Id newsize = nrows * ncols;
@@ -626,17 +574,9 @@ bool MatrixDense::_needToReset(Id nrows, Id ncols)
   }
   return false;
 }
-
 void MatrixDense::_recopy(const MatrixDense& r)
 {
   _eigenMatrix = r._eigenMatrix;
-  _eigenValues = r._eigenValues;
-  delete _eigenVectors;
-  _eigenVectors = nullptr;
-  if (r._eigenVectors != nullptr)
-  {
-    _eigenVectors = r._eigenVectors->clone();
-  }
 }
 
 MatrixDense* MatrixDense::create(const MatrixDense* mat)
@@ -698,6 +638,13 @@ MatrixDense* MatrixDense::createFromVD(const VectorDouble& X,
         mat->setValue(irow, jcol, X[lec++]);
       }
   }
+  return mat;
+}
+
+MatrixDense* MatrixDense::createFillRandom(Id nrow, Id ncol, Id seed)
+{
+  auto* mat = new MatrixDense(nrow, ncol);
+  mat->fillRandom(seed, 0.);
   return mat;
 }
 
@@ -860,8 +807,8 @@ void MatrixDense::unsample(const AMatrix* A,
 MatrixDense MatrixDense::compressMatLC(const MatrixDense& matLC,
                                        bool transpose)
 {
-  auto nrows = getNRows();
-  auto ncols = getNCols();
+  auto nrows  = getNRows();
+  auto ncols  = getNCols();
   auto nrowCL = matLC.getNRows();
   auto ncolCL = matLC.getNCols();
   MatrixDense mat;

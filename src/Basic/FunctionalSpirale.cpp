@@ -8,14 +8,14 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_define.h"
-
-#include "Basic/AFunctional.hpp"
 #include "Basic/FunctionalSpirale.hpp"
+#include "Basic/AFunctional.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Db/Db.hpp"
 #include "Matrix/MatrixSquare.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
+#include "geoslib_define.h"
 #include <cmath>
 
 namespace gstlrn
@@ -109,7 +109,7 @@ double FunctionalSpirale::getFunctionValue(const VectorDouble& coor) const
  */
 MatrixSquare FunctionalSpirale::getFunctionMatrix(const VectorDouble& coor) const
 {
-  Id ndim          = 2;
+  Id ndim = 2;
   MatrixSquare dirs(ndim);
 
   double angle = getFunctionValue(coor) * GV_PI / 180.;

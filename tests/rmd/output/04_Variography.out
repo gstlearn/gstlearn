@@ -66,6 +66,7 @@ Number of variable(s)       = 1
 Number of direction(s)      = 1
 Space dimension             = 2
 Variable(s)                 = [January_temp]
+
 Variance-Covariance Matrix     1.020
 
 Direction #1
@@ -168,6 +169,10 @@ Known Mean(s)     0.000
   28 -   GEOMETRIC : Geometric (Sphere only)
   29 -     POISSON : Poisson (Sphere only)
   30 -   LINEARSPH : Linear (Sphere only)
+  31 -  CAUCHY_GEN : Generalized Cauchy in 1-D
+  32 -  GNEITING_G : Gneiting with Gaussian spatial trace
+  33 -  GNEITING_M : Gneiting with Matern's spatial trace
+  34 -  GNEITING_C : Gneiting with Cauchy's spatial trace
 NULL
 
 Model characteristics
@@ -273,15 +278,15 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Nugget Effect
-- Sill         =      0.251
+- Sill         =      0.249
 Cubic
-- Sill         =      0.949
-- Ranges       =    154.810   215.452
-- Angles       =    154.991     0.000
+- Sill         =      0.951
+- Ranges       =    155.284   213.126
+- Angles       =    155.282     0.000
 - Rotation Matrix
                [,  0]    [,  1]
-     [  0,]     0.906     0.423
-     [  1,]    -0.423     0.906
+     [  0,]     0.908     0.418
+     [  1,]    -0.418     0.908
 Total Sill     =      1.200
 Known Mean(s)     0.000
 

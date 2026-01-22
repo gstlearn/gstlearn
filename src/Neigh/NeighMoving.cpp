@@ -9,11 +9,9 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Neigh/NeighMoving.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/OptCustom.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/SerializeHDF5.hpp"
-#include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
@@ -120,7 +118,7 @@ String NeighMoving::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
 
-  sstr << toTitle(0, "Moving Neighborhood");
+  sstr << toStrTitle(0, "Moving Neighborhood");
 
   if (_nMini > 0)
     sstr << "Minimum number of samples           = " << _nMini << std::endl;
@@ -151,10 +149,10 @@ String NeighMoving::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-bool NeighMoving::_deserializeAscii(std::istream& is, bool verbose)
+bool NeighMoving::_deserializeAscii(std::istream& is)
 {
   bool ret = true;
-  ret      = ret && ANeigh::_deserializeAscii(is, verbose);
+  ret      = ret && ANeigh::_deserializeAscii(is);
   if (!ret) return ret;
 
   auto ndim = getNDim();
@@ -203,10 +201,10 @@ bool NeighMoving::_deserializeAscii(std::istream& is, bool verbose)
   return ret;
 }
 
-bool NeighMoving::_serializeAscii(std::ostream& os, bool verbose) const
+bool NeighMoving::_serializeAscii(std::ostream& os) const
 {
   bool ret = true;
-  ret      = ret && ANeigh::_serializeAscii(os, verbose);
+  ret      = ret && ANeigh::_serializeAscii(os);
   ret      = ret && _recordWrite<Id>(os, "Use angular sectors", getFlagSector());
   ret      = ret && _recordWrite<Id>(os, "", getNMini());
   ret      = ret && _recordWrite<Id>(os, "", getNMaxi());
@@ -293,7 +291,7 @@ double NeighMoving::getMaxRadius() const
   double radius = _biPtDist->getRadius();
   if (!getFlagAniso()) return radius;
   double max = -1.0;
-  for (auto anisoRatio : getAnisoCoeffs())
+  for (auto anisoRatio: getAnisoCoeffs())
   {
     if (anisoRatio * radius > max) max = anisoRatio * radius;
   }
@@ -304,8 +302,8 @@ bool NeighMoving::_getAnisotropyElements(double* rx, double* ry, double* theta, 
 {
   double radius = _getRadius();
   if (FFFF(radius)) return false;
-  VectorDouble anisoRatio = getAnisoCoeffs();
-  Id ndim                 = static_cast<Id>(anisoRatio.size());
+  const auto& anisoRatio = getAnisoCoeffs();
+  Id ndim                = static_cast<Id>(anisoRatio.size());
   if (ndim != 2) return false;
   *rx = radius * anisoRatio[0];
   *ry = radius * anisoRatio[1];
@@ -528,8 +526,7 @@ void NeighMoving::getNeigh(Id iech_out, VectorInt& ranks)
 Id NeighMoving::_moving(Id iech_out, VectorInt& ranks, double eps)
 {
   Id nech = _dbin->getNSample();
-  ranks.resize(nech);
-  ranks.fill(-1);
+  ranks.fill(-1, nech);
   Id isect = 0;
   if (nech < getNMini()) return 1;
 
@@ -585,7 +582,7 @@ Id NeighMoving::_moving(Id iech_out, VectorInt& ranks, double eps)
     // The rejection with respect to maximum distance is bypassed if
     // '_forceWithinCell'
 
-    if (!_biPtDist->isOK(_T1, _T2)) 
+    if (!_biPtDist->isOK(_T1, _T2))
     {
       // Shortcut
       if (_useBallSearch) break;
@@ -614,7 +611,7 @@ Id NeighMoving::_moving(Id iech_out, VectorInt& ranks, double eps)
     if (_useBallSearch)
     {
       // Shortcut
-       if (nsel >= getNMaxi()) break;
+      if (nsel >= getNMaxi()) break;
     }
   }
 
@@ -627,7 +624,7 @@ Id NeighMoving::_moving(Id iech_out, VectorInt& ranks, double eps)
   if (nsel < getNMini()) return 1;
 
   // Slightly modify the distances in order to ensure the sorting results
-  // In the case of equal distances                                      
+  // In the case of equal distances
 
   for (Id isel = 0; isel < nsel; isel++)
     _movingDst[isel] += distmax * isel * eps;
@@ -787,7 +784,7 @@ void NeighMoving::_movingSelect(Id nsel, VectorInt& ranks)
 }
 
 #ifdef HDF5
-bool NeighMoving::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+bool NeighMoving::deserializeH5(H5::Group& grp)
 {
   auto neighG = SerializeHDF5::getGroup(grp, "NeighMoving");
   if (!neighG)
@@ -798,7 +795,7 @@ bool NeighMoving::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   /* Read the grid characteristics */
   bool ret = true;
 
-  ret = ret && ANeigh::_deserializeH5(*neighG, verbose);
+  ret = ret && ANeigh::deserializeH5(*neighG);
 
   Id flag_aniso    = 0;
   Id flag_rotation = 0;
@@ -834,7 +831,7 @@ bool NeighMoving::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   return ret;
 }
 
-bool NeighMoving::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+bool NeighMoving::serializeH5(H5::Group& grp) const
 {
   auto neighG = grp.createGroup("NeighMoving");
 
@@ -842,7 +839,7 @@ bool NeighMoving::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) co
 
   /* Writing the tail of the file */
 
-  ret = ret && ANeigh::_serializeH5(neighG, verbose);
+  ret = ret && ANeigh::serializeH5(neighG);
 
   ret = ret && SerializeHDF5::writeValue(neighG, "UseSectors", static_cast<Id>(getFlagSector()));
   ret = ret && SerializeHDF5::writeValue(neighG, "NMini", getNMini());

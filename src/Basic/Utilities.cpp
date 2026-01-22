@@ -8,6 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Basic/Message.hpp"
 #include "Enum/EDbg.hpp"
 
 #include "Basic/Law.hpp"
@@ -40,25 +41,19 @@ Id getClosestInteger(double value)
 
 bool isMultiple(Id nbig, Id nsmall)
 {
-  double ratio;
-
-  ratio = static_cast<double>(nbig) / static_cast<double>(nsmall);
+  double ratio = static_cast<double>(nbig) / static_cast<double>(nsmall);
   return (isInteger(ratio));
 }
 
 bool isOdd(Id number)
 {
-  Id middle;
-
-  middle = number / 2;
+  Id middle = number / 2;
   return (number != 2 * middle);
 }
 
 bool isEven(Id number)
 {
-  Id middle;
-
-  middle = number / 2;
+  Id middle = number / 2;
   return (number == 2 * middle);
 }
 
@@ -91,8 +86,6 @@ double getMax(double val1, double val2)
   return (MAX(val1, val2));
 }
 
-#ifndef SWIG
-
 double getTEST()
 {
   return TEST;
@@ -103,6 +96,7 @@ Id getITEST()
   return ITEST;
 }
 
+#ifndef SWIG
 /****************************************************************************/
 /*!
  **  Checks if a double value is TEST
@@ -180,7 +174,7 @@ void ut_sort_double(Id safe, Id nech, Id* ind, double* value)
   static Id LISTE_L[LSTACK];
   static Id LISTE_R[LSTACK];
   Id i, j, p, l, r, pstack, inddev, inddeu;
-  std::vector<double> tab;
+  VectorDouble tab;
   double tablev, tableu;
 
   /* Initialization */
@@ -935,7 +929,7 @@ std::map<Id, Id> getMapAbsoluteToRelative(const VectorDouble& sel, bool verbose)
     if (isZero(sel[iabs])) continue;
     map[iabs] = irel++;
 
-    if (IFFFF(ifirst)) ifirst = iabs;
+    if (isNA(ifirst)) ifirst = iabs;
     ilast = iabs;
   }
 

@@ -222,10 +222,13 @@ void ANeigh::_checkUnchanged(Id iech_out, const VectorInt& ranks)
   _nbghMemo = rsorted;
 }
 
+/** Display the neighborhood characteristics when the debug option is set
+ * @param ranks Compressed Vector of sample ranks in neighborhood
+ */
 void ANeigh::displayDebug(VectorInt& ranks) const
 {
   if (OptDbg::query(EDbg::NBGH))
-    _display(ranks);
+    _display(ranks, true);
 }
 /****************************************************************************/
 /*!
@@ -234,13 +237,20 @@ void ANeigh::displayDebug(VectorInt& ranks) const
  ** \param[in]  ranks     Array of the data ranks
  ** \li                   -1 if not selected
  ** \li                   >=0 gives the angular sector in ENeigh::MOVING
+ ** \param[in]  flagCompress True or False (see remarks)
  **
+ ** \remarks - When flagCompress=TRUE, the array ranks[] is dimensioned to the
+ ** \remarks number of active samples and ranks[i] gives the absolute rank of
+ ** \remarks each active sample,
+ ** \remarks - when flagCompress=FALSE, the array ranks[] is dimensioned to the
+ ** \remarks total number of samples and ranks[i] gives either -1 (not selected)
+ ** \remarks or 0 (if selected). It can even give the angular sector
+ ** \remarks if defined in a Moving Neighborhood
  *****************************************************************************/
-void ANeigh::_display(const VectorInt& ranks) const
+void ANeigh::_display(const VectorInt& ranks, bool flagCompress) const
 {
   String string;
   Id ndim  = _dbin->getNDim();
-  Id nech  = _dbin->getNSample();
   Id nerr  = _dbin->getNLoc(ELoc::V);
   Id ncode = _dbin->getNLoc(ELoc::C);
   Id nblex = _dbin->getNLoc(ELoc::BLEX);
@@ -252,20 +262,19 @@ void ANeigh::_display(const VectorInt& ranks) const
   mestitle(1, "Data selected in neighborhood");
 
   // Rank
-  tab_prints(NULL, "Rank");
+  printElement("Rank");
 
   // Sample number
-  tab_prints(NULL, "Sample");
+  printElement("Sample");
 
   // Code
   if (ncode > 0)
-    tab_prints(NULL, "Code");
-
+    printElement("Code");
   // Coordinates
   for (Id idim = 0; idim < ndim; idim++)
   {
     string = getLocatorName(ELoc::X, idim);
-    tab_prints(NULL, string.c_str());
+    printElement(string);
   }
 
   // Variables
@@ -274,7 +283,7 @@ void ANeigh::_display(const VectorInt& ranks) const
     for (Id ivar = 0; ivar < nvar; ivar++)
     {
       string = getLocatorName(ELoc::Z, ivar);
-      tab_prints(NULL, string.c_str());
+      printElement(string);
     }
   }
 
@@ -284,7 +293,7 @@ void ANeigh::_display(const VectorInt& ranks) const
     for (Id ierr = 0; ierr < nerr; ierr++)
     {
       string = getLocatorName(ELoc::V, ierr);
-      tab_prints(NULL, string.c_str());
+      printElement(string);
     }
   }
 
@@ -294,54 +303,58 @@ void ANeigh::_display(const VectorInt& ranks) const
     for (Id idim = 0; idim < ndim; idim++)
     {
       string = getLocatorName(ELoc::BLEX, idim);
-      tab_prints(NULL, string.c_str());
+      printElement(string);
     }
   }
 
   // Sector
   if (getType() == ENeigh::MOVING)
-    tab_prints(NULL, "Sector");
+    printElement("Sector");
   message("\n");
 
   /* Loop on the sample points */
 
-  Id nsel = 0;
-  for (Id iech = 0; iech < nech; iech++)
+  Id nsel   = 0;
+  Id number = static_cast<Id>(ranks.size());
+  for (Id jech = 0; jech < number; jech++)
   {
-    if (ranks[iech] < 0) continue;
+    Id iech;
+    if (flagCompress)
+      iech = ranks[jech];
+    else
+      iech = jech;
+    if (ranks[jech] < 0) continue;
 
     // Rank
-    tab_printi(NULL, nsel + 1);
+    printElement(nsel + 1);
 
     // Sample number
-    tab_printi(NULL, iech + 1);
+    printElement(iech + 1);
 
     // Code
     if (ncode > 0)
-      tab_printi(NULL, static_cast<Id>(_dbin->getLocVariable(ELoc::C, iech, 0)));
-
+      printElement(static_cast<Id>(_dbin->getLocVariable(ELoc::C, iech, 0)));
     // Coordinates
     for (Id idim = 0; idim < ndim; idim++)
-      tab_printg(NULL, _dbin->getCoordinate(iech, idim));
+      printElement(_dbin->getCoordinate(iech, idim));
 
     // Variables
     for (Id ivar = 0; ivar < nvar; ivar++)
-      tab_printg(NULL, _dbin->getLocVariable(ELoc::Z, iech, ivar));
-
+      printElement(_dbin->getLocVariable(ELoc::Z, iech, ivar));
     // Variance of measurement errors
     for (Id ierr = 0; ierr < nerr; ierr++)
-      tab_printg(NULL, _dbin->getLocVariable(ELoc::V, iech, ierr));
+      printElement(_dbin->getLocVariable(ELoc::V, iech, ierr));
 
     // Variable block extension
     if (nblex > 0)
     {
       for (Id idim = 0; idim < ndim; idim++)
-        tab_printg(NULL, _dbin->getLocVariable(ELoc::BLEX, iech, idim));
+        printElement(_dbin->getLocVariable(ELoc::BLEX, iech, idim));
     }
 
     // Sector
     if (getType() == ENeigh::MOVING)
-      tab_printi(NULL, ranks[iech] + 1);
+      printElement(ranks[jech] + 1);
 
     message("\n");
     nsel++;
@@ -394,7 +407,8 @@ Id ANeigh::_xvalid(Id iech_in, Id iech_out, double eps)
   if (!getFlagXvalid()) return 0;
   if (!getFlagKFold())
   {
-    if (distance_inter(_dbin, _dbout, iech_in, iech_out, NULL) < eps) return 1;
+    VectorDouble dvect(getNDim());
+    if (distance_inter(_dbin, _dbout, iech_in, iech_out, dvect) < eps) return 1;
   }
   else
   {
@@ -415,7 +429,7 @@ bool ANeigh::_isDimensionValid(Id idim) const
   return true;
 }
 
-bool ANeigh::_deserializeAscii(std::istream& is, bool /*verbose*/)
+bool ANeigh::_deserializeAscii(std::istream& is)
 {
   Id ndim = 0;
 
@@ -425,7 +439,7 @@ bool ANeigh::_deserializeAscii(std::istream& is, bool /*verbose*/)
   return ret;
 }
 
-bool ANeigh::_serializeAscii(std::ostream& os, bool /*verbose*/) const
+bool ANeigh::_serializeAscii(std::ostream& os) const
 {
   bool ret = true;
   ret      = ret && _recordWrite<Id>(os, "Space Dimension", static_cast<Id>(getNDim()));
@@ -449,7 +463,7 @@ void ANeigh::_neighCompress(VectorInt& ranks)
   ranks.resize(necr);
 }
 #ifdef HDF5
-bool ANeigh::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+bool ANeigh::deserializeH5(H5::Group& grp)
 {
   auto aneighG = SerializeHDF5::getGroup(grp, "ANeigh");
   if (!aneighG)
@@ -468,7 +482,7 @@ bool ANeigh::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   return ret;
 }
 
-bool ANeigh::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+bool ANeigh::serializeH5(H5::Group& grp) const
 {
   auto aneighG = grp.createGroup("ANeigh");
 

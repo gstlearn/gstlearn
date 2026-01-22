@@ -10,7 +10,6 @@
 /******************************************************************************/
 #pragma once
 
-#include "Basic/AStringable.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/WarningMacro.hpp"
 #include "gstlearn_export.hpp"

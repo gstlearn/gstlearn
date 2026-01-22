@@ -13,6 +13,7 @@
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
+// Even if not used directly, this is required due to DECLARE_TOTL macro
 #include "Basic/WarningMacro.hpp"
 #include "Matrix/AMatrix.hpp"
 
@@ -53,6 +54,7 @@ public:
 
   /// Has a specific implementation in the Target language
   DECLARE_TOTL;
+  DECLARE_TOLATEX
 
   /// Cloneable interface
   IMPLEMENT_CLONING(MatrixDense)
@@ -113,6 +115,27 @@ public:
                          const AMatrix* y,
                          bool transposeX = false,
                          bool transposeY = false) override;
+  template<bool transposeX, bool transposeY>
+  void prodMatMatNoCheck(const MatrixDense& x,
+                         const MatrixDense& y)
+  {
+    if constexpr (transposeX && transposeY)
+    {
+      eigenMat().noalias() = x.eigenMat().transpose() * y.eigenMat().transpose();
+    }
+    else if constexpr (transposeX)
+    {
+      eigenMat().noalias() = x.eigenMat().transpose() * y.eigenMat();
+    }
+    else if constexpr (transposeY)
+    {
+      eigenMat().noalias() = x.eigenMat() * y.eigenMat().transpose();
+    }
+    else
+    {
+      eigenMat().noalias() = x.eigenMat() * y.eigenMat();
+    }
+  }
   /*! Product 't(A)' %*% 'M' %*% 'A' or 'A' %*% 'M' %*% 't(A)' stored in 'this'*/
   void prodNormMatMatInPlace(const AMatrix* a,
                              const AMatrix* m,
@@ -133,9 +156,12 @@ public:
                          const AMatrix* mat3 = nullptr) override;
   /*! Add a matrix (multiplied by a constant) */
   void addMat(const AMatrix& y, double cx = 1., double cy = 1.) override;
+  void addMatNoCheck(const MatrixDense& y, const double cx = 1., const double cy = 1.)
+  {
+    eigenMat() *= cx;
+    eigenMat().noalias() += cy * y.eigenMat();
+  }
 
-  const VectorDouble& getEigenValues() const { return _eigenValues; }
-  const MatrixSquare* getEigenVectors() const { return _eigenVectors; }
   Id invert2(MatrixDense& res) const;
   void unsample(const AMatrix* A,
                 const VectorInt& rowFetch,
@@ -158,6 +184,7 @@ public:
                                    Id ncol,
                                    bool byCol             = false,
                                    bool invertColumnOrder = false);
+  static MatrixDense* createFillRandom(Id nrow, Id ncol, Id seed = 13242);
   static MatrixDense* glue(const AMatrix* A1,
                            const AMatrix* A2,
                            bool flagShiftRow,
@@ -191,15 +218,8 @@ protected:
   void _addProdMatVecInPlacePtr(constvect x, vect y, bool transpose = false) const override;
 #endif
 
-  Id _computeEigen(bool optionPositive = true);
-  Id _computeGeneralizedEigen(const MatrixSymmetric& b, bool optionPositive = true);
-
 private:
   void _recopy(const MatrixDense& r);
-  Id _terminateEigen(const Eigen::VectorXd& eigenValues,
-                     const Eigen::MatrixXd& eigenVectors,
-                     bool optionPositive = true,
-                     bool changeOrder    = false);
   bool _needToReset(Id nrows, Id ncols) override;
 
 #ifndef SWIG
@@ -223,8 +243,6 @@ public:
 #endif
 
 protected:
-  VectorDouble _eigenValues;
-  MatrixSquare* _eigenVectors;
   VectorDouble _eigenMatrix;
 
 private:

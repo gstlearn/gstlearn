@@ -61,7 +61,7 @@ String Regression::toString(const AStringFormat* strfmt) const
 
   std::stringstream sstr;
 
-  sstr << toTitle(1, "Linear Regression");
+  sstr << toStrTitle(1, "Linear Regression");
   sstr << "- Calculated on " << _count << " active values" << std::endl;
 
   Id ecr = 0;

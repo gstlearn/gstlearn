@@ -10,11 +10,14 @@
 /******************************************************************************/
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Anamorphosis/CalcAnamTransform.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/File.hpp"
+#include "Basic/Message.hpp"
 #include "Basic/OptCst.hpp"
+#include "Basic/VectorHelper.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
+#include "Enum/ECst.hpp"
 #include "Estimation/CalcGlobal.hpp"
 #include "Estimation/CalcImage.hpp"
 #include "Estimation/CalcKriging.hpp"
@@ -30,17 +33,17 @@
 
 using namespace gstlrn;
 
-static Db* _createDb(Id nvar = 1, Id ndat = 5, bool verbose = false)
+static Db* _createDb(Id nvar = 1, Id ndat = 5, Id seed = 4243)
 {
   Id ndim = 2;
-  Db* db  = Db::createFillRandom(ndat, ndim, nvar);
-  // db->setZVariable(3, 0, TEST);
-  DbStringFormat dbfmt1(FLAG_ARRAY);
-  if (verbose) db->display(&dbfmt1);
+  Db* db  = Db::createFillRandom(ndat, ndim, nvar, 0, 0, 0., 0.,
+                                 VectorDouble(), VectorDouble(), VectorDouble(), seed);
+  VectorDouble sel(ndat, 1.);
+  db->addSelection(sel, "sel");
   return db;
 }
 
-static Model* _createModel(Id nvar = 1, double range = 0.5, bool verbose = false)
+static Model* _createModel(Id nvar = 1, double range = 0.2, bool verbose = false)
 {
   MatrixSymmetric* sills = MatrixSymmetric::createRandomDefinitePositive(nvar);
   Model* model           = Model::createFromParam(ECov::EXPONENTIAL, range, TEST, 1., VectorDouble(), *sills);
@@ -72,22 +75,39 @@ int main(int argc, char* argv[])
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
+  ASerializable::setPrefixName("test_Vecchia-");
 
   // Global parameters
-  Id mode       = 0;
-  Id nb_vecchia = 3;
-  DbStringFormat dbfmt(FLAG_STATS, {"Vecchia*"});
+  Id mode      = 0;
+  Id nbVecchia = 3;
+  bool verbose = true;
 
   if (mode == 0 || mode == 1)
   {
-    mestitle(0, "Checking Vecchia Class");
+    mestitle(0, "Checking Vecchia Class (based on 2 Dbs with NA)");
     _dumpLimit(1);
-    Db* db       = _createDb(1, 5, true);
+    auto dbfmt = DbStringFormat(FLAG_VARS | FLAG_ARRAY, VectorString(), VectorInt(), false);
+    int indNa;
+    bool addSelection = false;
+
+    indNa   = 3;
+    Db* db1 = _createDb(1, 5, 3261);
+    db1->setValue("z", indNa, TEST);
+    if (addSelection) db1->setValue("sel", indNa, 0.);
+    db1->display(&dbfmt);
+
+    indNa   = 2;
+    Db* db2 = _createDb(1, 6, 4204);
+    db2->setValue("z", indNa, TEST);
+    if (addSelection) db2->setValue("sel", indNa, 0.);
+    db2->display(&dbfmt);
+
     Model* model = _createModel(1);
-    Vecchia V(model, nb_vecchia, db);
-    auto Ranks = findNN(db, nullptr, nb_vecchia + 1, false, true);
-    (void)V.computeLower(Ranks, true);
-    delete db;
+    Vecchia V(model, nbVecchia, db1, db2);
+    auto Ranks = findNN(db1, db2, nbVecchia + 1, false, verbose);
+    (void)V.computeLower(Ranks, verbose);
+    delete db1;
+    delete db2;
     delete model;
     _dumpLimit(-1);
   }
@@ -96,10 +116,11 @@ int main(int argc, char* argv[])
   {
     mestitle(0, "Kriging with Vecchia approximation");
     _dumpLimit(1);
-    Db* db       = _createDb(1, 5, false);
+    auto dbfmt   = DbStringFormat(FLAG_STATS, {"Vecchia*"});
+    Db* db       = _createDb(1, 5);
     Model* model = _createModel(1);
     DbGrid* grid = _createGrid();
-    krigingVecchia(db, grid, model, nb_vecchia, true);
+    krigingVecchia(db, grid, model, nbVecchia, true);
     grid->display(&dbfmt);
     delete db;
     delete model;
@@ -110,9 +131,9 @@ int main(int argc, char* argv[])
   if (mode == 0 || mode == 3)
   {
     mestitle(0, "Log-Likelihood");
-    Db* db              = _createDb(1, 20000, false);
+    Db* db              = _createDb(1, 20000);
     Model* model        = _createModel(1);
-    const double result = logLikelihoodVecchia(db, model, nb_vecchia, false);
+    const double result = logLikelihoodVecchia(db, model, nbVecchia, false);
     message("Log-likelihood = %f\n", result);
     delete db;
     delete model;
@@ -120,17 +141,41 @@ int main(int argc, char* argv[])
 
   if (mode == 0 || mode == 4)
   {
-    nb_vecchia = 2;
+    nbVecchia = 4;
     mestitle(0, "Kriging with Vecchia approximation (nvar=2)");
-    Db* db       = _createDb(2, 10, false);
+    auto dbfmt   = DbStringFormat(FLAG_STATS, {"Vecchia*"});
+    Db* db       = _createDb(2, 10);
     Model* model = _createModel(2);
     DbGrid* grid = _createGrid(100);
-    krigingVecchia(db, grid, model, nb_vecchia, false);
+    krigingVecchia(db, grid, model, nbVecchia, false);
     grid->display(&dbfmt);
+    (void)db->dumpToNF("Data.dat");
+    (void)grid->dumpToNF("Grid.dat");
     delete db;
     delete model;
     delete grid;
   }
 
+  if (mode == 0 || mode == 5)
+  {
+    int ndat = 6;
+    mestitle(0, "Comparing Log-Likelihood with Vecchia approximation when all neighbors are used");
+    Db* db = Db::createFillRandom(ndat, 2, 1, 0, 0, 1., 0., 0., {0., 0.}, {1., 1.}, 1234, false);
+    db->setColumn(VectorDouble(ndat, 0.01), "verr");
+    db->setLocator("verr", ELoc::V);
+    auto ran = VH::sequenceVD(1, 1 + ndat - 1, 1);
+    db->setColumn(ran, "ranges");
+    // Add duplicate
+    db->setSampleCoordinates(1, {db->getCoordinate(0, 0), db->getCoordinate(0, 1)});
+    Model* model = _createModel(1);
+    model->getCovAniso(0)->attachNoStatDb(db);
+    model->getCovAniso(0)->makeRangeNoStatDb("ranges", 0.);
+    double result = logLikelihoodVecchia(db, model, ndat, false);
+    message("Log-likelihood with    Vecchia= %f\n", result);
+    result = model->computeLogLikelihood(db);
+    message("Log-likelihood without Vecchia= %f\n", result);
+    delete db;
+    delete model;
+  }
   return (0);
 }

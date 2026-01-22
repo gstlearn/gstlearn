@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Basic/File.hpp"
 #include "Basic/String.hpp"
-#include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Core/CSV.hpp"
 #include "Db/Db.hpp"
@@ -273,7 +272,7 @@ void csv_print_double(double value)
   else
   {
     if (CSV_ENCODE.flagInteger)
-      (void)fprintf(CSV_ENCODE.file, "%ld", static_cast<Id>(value));
+      (void)fprintf(CSV_ENCODE.file, "%lld", static_cast<Id>(value));
     else
       (void)fprintf(CSV_ENCODE.file, "%lf", value);
   }
@@ -589,7 +588,7 @@ Id csv_table_read(const String& filename,
         if (word == na_string)
           tab.push_back(TEST);
         else
-          tab.push_back(toDouble(word, char_dec));
+          tab.push_back(fromStr<double>(word, char_dec));
         ncol2++;
         if (ncol_max > 0 && ncol2 >= ncol_max) break;
         if (ncol > 0 && ncol2 >= ncol) break;

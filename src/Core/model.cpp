@@ -12,7 +12,6 @@
 #include "Anamorphosis/AnamDiscreteIR.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Basic/String.hpp"
-#include "Basic/Utilities.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovAnisoList.hpp"
 #include "Covariances/CovCalcMode.hpp"
@@ -31,11 +30,6 @@
 #include <cmath>
 
 /*! \cond */
-#define AD(ivar, jvar)        (ivar) + nvar*(jvar)
-#define AIC(icov, ivar, jvar) aic[(icov) * nvar * nvar + AD(ivar, jvar)]
-#define VALPRO(ivar)          valpro[(ivar)]
-#define VECPRO(ivar, jvar)    vecpro[AD(ivar, jvar)]
-#define CC(ivar, jvar)        cc[AD(ivar, jvar)]
 #define DISC1(i, idim)        (koption->disc1[(idim) * koption->ntot + (i)])
 #define DISC2(i, idim)        (koption->disc2[(idim) * koption->ntot + (i)])
 #define G(i, j)               (G[(i) * nech + j])
@@ -84,7 +78,7 @@ void model_cova_characteristics(const ECov& type,
 {
   auto space = SpaceRN::create(1); // Use 1-D in order to retrieve all covariances
   CovContext ctxt(1, 1);
-  ACovFunc* cov = CovFactory::createCovFunc(type, ctxt);
+  AKernel* cov = CovFactory::createCovFunc(type, ctxt);
   (void)gslStrcpy(static_cast<char*>(cov_name), STRING_LENGTH, cov->getCovName().c_str());
   *flag_range    = cov->hasRange();
   *flag_param    = cov->hasParam();
@@ -442,8 +436,8 @@ Id model_covmat_inchol(Id verbose,
   if (verbose)
   {
     message("Number of pivots = %d\n", npivot);
-    print_imatrix("Order", 0, 1, 1, npivot, NULL, pvec.data());
-    print_matrix("Criterion", 0, 1, 1, npivot, NULL, crit.data());
+    printMatrix(pvec, 1, npivot , "Order", 0, 1);
+    printMatrix(crit, 1, npivot, "Criterion", 0, 1);
   }
 
   return 0;

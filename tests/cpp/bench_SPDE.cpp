@@ -15,6 +15,7 @@
 #include "API/SPDEParam.hpp"
 #include "Basic/Law.hpp"
 #include "Enum/ECov.hpp"
+#include "Enum/ECst.hpp"
 #include "Enum/ESpaceType.hpp"
 
 #include "API/SPDE.hpp"

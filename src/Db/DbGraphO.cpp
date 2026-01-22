@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Db/DbGraphO.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/SerializeHDF5.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Db/Db.hpp"
@@ -58,7 +57,7 @@ String DbGraphO::toString(const AStringFormat* strfmt) const
   DbStringFormat dsf;
   if (dbfmt != nullptr) dsf = *dbfmt;
 
-  sstr << toTitle(0, "Data Base Oriented Graph Characteristics");
+  sstr << toStrTitle(0, "Data Base Oriented Graph Characteristics");
 
   sstr << _toStringCommon(&dsf);
 
@@ -142,12 +141,12 @@ void DbGraphO::_checkForceDimension(Id nech)
  * @return Id Error returned code
  */
 Id DbGraphO::resetFromSamples(Id nech,
-                               const ELoadBy& order,
-                               const VectorDouble& tab,
-                               NF_Triplet& NF_arcs,
-                               const VectorString& names,
-                               const VectorString& locatorNames,
-                               bool flagAddSampleRank)
+                              const ELoadBy& order,
+                              const VectorDouble& tab,
+                              NF_Triplet& NF_arcs,
+                              const VectorString& names,
+                              const VectorString& locatorNames,
+                              bool flagAddSampleRank)
 {
   if (Db::resetFromSamples(nech, order, tab, names, locatorNames,
                            flagAddSampleRank) != 0)
@@ -174,12 +173,12 @@ Id DbGraphO::resetFromSamples(Id nech,
  * @return Id Error returned code
  */
 Id DbGraphO::resetFromMatrix(Id nech,
-                              const ELoadBy& order,
-                              const VectorDouble& tab,
-                              const MatrixSparse& MatArcs,
-                              const VectorString& names,
-                              const VectorString& locatorNames,
-                              bool flagAddSampleRank)
+                             const ELoadBy& order,
+                             const VectorDouble& tab,
+                             const MatrixSparse& MatArcs,
+                             const VectorString& names,
+                             const VectorString& locatorNames,
+                             bool flagAddSampleRank)
 {
   if (Db::resetFromSamples(nech, order, tab, names, locatorNames,
                            flagAddSampleRank) != 0)
@@ -194,7 +193,7 @@ Id DbGraphO::resetFromMatrix(Id nech,
   return (!isConsistent());
 }
 
-bool DbGraphO::_deserializeAscii(std::istream& is, bool verbose)
+bool DbGraphO::_deserializeAscii(std::istream& is)
 {
   Id ndim  = 0;
   Id narcs = 0;
@@ -222,12 +221,12 @@ bool DbGraphO::_deserializeAscii(std::istream& is, bool verbose)
 
   // Writing the set of addresses for Line organization
 
-  ret = ret && Db::_deserializeAscii(is, verbose);
+  ret = ret && Db::_deserializeAscii(is);
 
   return ret;
 }
 
-bool DbGraphO::_serializeAscii(std::ostream& os, bool verbose) const
+bool DbGraphO::_serializeAscii(std::ostream& os) const
 {
   bool ret = true;
 
@@ -251,7 +250,7 @@ bool DbGraphO::_serializeAscii(std::ostream& os, bool verbose) const
 
   /* Writing the tail of the file */
 
-  ret = ret && Db::_serializeAscii(os, verbose);
+  ret = ret && Db::_serializeAscii(os);
 
   return ret;
 }
@@ -452,7 +451,7 @@ bool DbGraphO::areConnected(Id node1, Id node2) const
   VectorDouble v2(nech, 0.);
   v2[node1] = 1.;
 
-  while (VH::cumul(v2) > 0.)
+  while (v2.sum() > 0.)
   {
     v1 = v2;
     _downArcs.prodVecMatInPlace(v1, v2);
@@ -500,7 +499,7 @@ VectorInt DbGraphO::getOrderDown(Id node) const
 
   Id rank = 1;
   _updateOrder(rank, v2, order);
-  while (VH::cumul(v2) > 0.)
+  while (v2.sum() > 0.)
   {
     rank++;
     v1 = v2;
@@ -574,13 +573,13 @@ void DbGraphO::setArcLine(const VectorInt& nodes, double value)
 }
 
 #ifdef HDF5
-bool DbGraphO::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+bool DbGraphO::deserializeH5(H5::Group& grp)
 {
   auto dbG = SerializeHDF5::getGroup(grp, "DbGraphO");
   if (!dbG) return false;
 
   /* Read the grid characteristics */
-  bool ret  = true;
+  bool ret = true;
   Id ndim  = 0;
   Id narcs = 0;
 
@@ -605,12 +604,12 @@ bool DbGraphO::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
 
   // Writing the set of addresses for Line organization
 
-  ret = ret && Db::_deserializeH5(*dbG, verbose);
+  ret = ret && Db::deserializeH5(*dbG);
 
   return ret;
 }
 
-bool DbGraphO::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+bool DbGraphO::serializeH5(H5::Group& grp) const
 {
   auto dbG = grp.createGroup("DbGraphO");
 
@@ -638,7 +637,7 @@ bool DbGraphO::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
 
   /* Writing the tail of the file */
 
-  ret = ret && Db::_serializeH5(dbG, verbose);
+  ret = ret && Db::serializeH5(dbG);
 
   return ret;
 }

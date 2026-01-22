@@ -21,6 +21,7 @@
 #include "Basic/VectorT.hpp"
 #include "LinearOp/CholeskyDense.hpp"
 #include "LinearOp/PrecisionOp.hpp"
+#include "Mesh/VectorMeshes.hpp"
 #include "Model/Model.hpp"
 #include <vector>
 
@@ -72,7 +73,7 @@ private:
   bool _checkReady() const;
   virtual void _buildQop(bool stencil = false);
   bool _isValidModel(Model* model);
-  bool _isValidMeshes(const std::vector<const AMesh*>& meshes);
+  bool _isValidMeshes(const VectorMeshes& meshes);
   bool _isNoStat(Id istruct) const { return _isNoStatForVariance[istruct]; }
   bool _matchModelAndMeshes() const;
 
@@ -92,8 +93,8 @@ protected:
   std::vector<CholeskyDense> _invCholSillsStat; // Stationary Sills
   std::vector<CholeskyDense> _cholSillsStat;    // Cholesky of the Sills
 
-  Model* _model;                     // Not to be deleted. TODO : make it const
-  std::vector<const AMesh*> _meshes; // Not to be deleted
+  Model* _model;        // Not to be deleted. TODO : make it const
+  VectorMeshes _meshes; // Not to be deleted
   Id _size;
 
 private:

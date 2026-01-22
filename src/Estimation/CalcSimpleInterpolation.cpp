@@ -161,14 +161,14 @@ bool CalcSimpleInterpolation::_run()
  **
  *****************************************************************************/
 Id inverseDistance(Db* dbin,
-                    Db* dbout,
-                    double exponent,
-                    bool flag_expand,
-                    double dmax,
-                    bool flag_est,
-                    bool flag_std,
-                    Model* model,
-                    const NamingConvention& namconv)
+                   Db* dbout,
+                   double exponent,
+                   bool flag_expand,
+                   double dmax,
+                   bool flag_est,
+                   bool flag_std,
+                   Model* model,
+                   const NamingConvention& namconv)
 {
   CalcSimpleInterpolation interpol;
   interpol.setDbin(dbin);
@@ -204,12 +204,12 @@ Id inverseDistance(Db* dbin,
  **
  *****************************************************************************/
 GSTLEARN_EXPORT Id movingAverage(Db* dbin,
-                                  Db* dbout,
-                                  ANeigh* neigh,
-                                  bool flag_est,
-                                  bool flag_std,
-                                  Model* model,
-                                  const NamingConvention& namconv)
+                                 Db* dbout,
+                                 ANeigh* neigh,
+                                 bool flag_est,
+                                 bool flag_std,
+                                 Model* model,
+                                 const NamingConvention& namconv)
 {
   CalcSimpleInterpolation interpol;
   interpol.setDbin(dbin);
@@ -243,12 +243,12 @@ GSTLEARN_EXPORT Id movingAverage(Db* dbin,
  **
  *****************************************************************************/
 GSTLEARN_EXPORT Id movingMedian(Db* dbin,
-                                 Db* dbout,
-                                 ANeigh* neigh,
-                                 bool flag_est,
-                                 bool flag_std,
-                                 Model* model,
-                                 const NamingConvention& namconv)
+                                Db* dbout,
+                                ANeigh* neigh,
+                                bool flag_est,
+                                bool flag_std,
+                                Model* model,
+                                const NamingConvention& namconv)
 {
   CalcSimpleInterpolation interpol;
   interpol.setDbin(dbin);
@@ -281,11 +281,11 @@ GSTLEARN_EXPORT Id movingMedian(Db* dbin,
  **
  *****************************************************************************/
 GSTLEARN_EXPORT Id nearestNeighbor(Db* dbin,
-                                    Db* dbout,
-                                    bool flag_est,
-                                    bool flag_std,
-                                    Model* model,
-                                    const NamingConvention& namconv)
+                                   Db* dbout,
+                                   bool flag_est,
+                                   bool flag_std,
+                                   Model* model,
+                                   const NamingConvention& namconv)
 {
   CalcSimpleInterpolation interpol;
   interpol.setDbin(dbin);
@@ -319,10 +319,10 @@ GSTLEARN_EXPORT Id nearestNeighbor(Db* dbin,
  **
  *****************************************************************************/
 GSTLEARN_EXPORT Id leastSquares(Db* dbin,
-                                 Db* dbout,
-                                 ANeigh* neigh,
-                                 Id order,
-                                 const NamingConvention& namconv)
+                                Db* dbout,
+                                ANeigh* neigh,
+                                Id order,
+                                const NamingConvention& namconv)
 {
   CalcSimpleInterpolation interpol;
   interpol.setDbin(dbin);
@@ -350,8 +350,8 @@ GSTLEARN_EXPORT Id leastSquares(Db* dbin,
  **
  *****************************************************************************/
 Id CalcSimpleInterpolation::_nearest(Db* dbin,
-                                      Db* dbout,
-                                      ANeigh* neigh)
+                                     Db* dbout,
+                                     ANeigh* neigh)
 {
   VectorInt nbgh;
 
@@ -499,7 +499,7 @@ Id CalcSimpleInterpolation::_lstsqr(Db* dbin, Db* dbout, ANeigh* neigh) const
   VectorInt nbgh;
   CovContext ctxt(1, ndim);
   const DriftList* drft = DriftFactory::createDriftListFromIRF(_order, 0, ctxt);
-  Id ndrift            = drft->getNDrift();
+  Id ndrift             = drft->getNDrift();
   VectorDouble X(ndrift);
   VectorDouble B(ndrift);
   MatrixSymmetric A(ndrift);
@@ -531,7 +531,7 @@ Id CalcSimpleInterpolation::_lstsqr(Db* dbin, Db* dbout, ANeigh* neigh) const
     for (Id i = 0; i < ndrift; i++) B[i] = 0.;
     for (Id jech = 0; jech < nSize; jech++)
     {
-      Id jech1   = nbgh[jech];
+      Id jech1    = nbgh[jech];
       double zval = dbin->getZVariable(jech1, 0);
       if (FFFF(zval)) continue;
       VectorDouble Vdata = drft->evalDriftBySample(dbin, jech1);
@@ -554,7 +554,7 @@ Id CalcSimpleInterpolation::_lstsqr(Db* dbin, Db* dbout, ANeigh* neigh) const
     VectorDouble Vtarget = drft->evalDriftBySample(dbout, iech);
 
     // Perform the estimation
-    double result = VH::innerProduct(X, Vtarget);
+    double result = X.innerProduct(Vtarget);
 
     // Assign the result
     dbout->setArray(iech, _iattEst, result);
@@ -580,7 +580,7 @@ Id CalcSimpleInterpolation::_invdist(Db* dbin, Db* dbout)
   }
   else
   {
-    DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbin);
+    auto* dbgrid = dynamic_cast<DbGrid*>(dbin);
     _gridInvdist(dbgrid, dbout);
   }
   return 0;
@@ -596,7 +596,7 @@ Id CalcSimpleInterpolation::_invdist(Db* dbin, Db* dbout)
  *****************************************************************************/
 void CalcSimpleInterpolation::_pointInvdist(Db* dbin, Db* dbout)
 {
-  Id ndim    = dbin->getNDim();
+  Id ndim     = dbin->getNDim();
   double dmin = dbout->getExtensionDiagonal() / 1.e5;
   VectorDouble coor(ndim);
   VectorDouble cooref(ndim);
@@ -660,7 +660,7 @@ void CalcSimpleInterpolation::_gridInvdist(DbGrid* dbin, Db* dbout)
 {
   Id ndim     = dbin->getNDim();
   Id maxneigh = static_cast<Id>(pow(2., static_cast<double>(ndim)));
-  double dmin  = dbout->getExtensionDiagonal() / 1.e5;
+  double dmin = dbout->getExtensionDiagonal() / 1.e5;
 
   VectorDouble coor(ndim);
   VectorDouble cooref(ndim);
@@ -737,7 +737,7 @@ void CalcSimpleInterpolation::_gridInvdist(DbGrid* dbin, Db* dbout)
 
       /* Check the value */
 
-      Id iech_neigh   = dbin->indiceToRank(indg);
+      Id iech_neigh    = dbin->indiceToRank(indg);
       double val_neigh = dbin->getZVariable(iech_neigh, 0);
       if (FFFF(val_neigh))
       {
@@ -776,7 +776,7 @@ double CalcSimpleInterpolation::_estimCalc(const Db* dbin,
   double result = 0.;
   for (Id i = 0, n = static_cast<Id>(nbgh.size()); i < n; i++)
   {
-    Id iech     = nbgh[i];
+    Id iech      = nbgh[i];
     double value = dbin->getZVariable(iech, 0);
     if (FFFF(value)) return TEST;
     result += value * weights[i];
@@ -816,7 +816,7 @@ double CalcSimpleInterpolation::_stdevCalc(Db* dbin,
 
   // Vector of Covariances between Data and Target
   getModel()->evalPointToDb(M0x, pout, dbin, 0, 0, true, nbgh);
-  double c0x = VH::innerProduct(M0x, weights);
+  double c0x = M0x.innerProduct(weights);
 
   // Covariance between Data and Data
   MatrixDense Mxx = getModel()->evalCovMat(dbin, dbin, 0, 0, nbgh, nbgh);
@@ -838,7 +838,7 @@ void CalcSimpleInterpolation::_saveResults(Db* dbin,
   double stdev  = TEST;
   if (nbgh.size() > 0)
   {
-    VH::normalize(weights, 1);
+    weights.normalizeInPlace(1);
     if (_flagEst) result = _estimCalc(dbin, nbgh, weights);
     if (_flagStd) stdev = _stdevCalc(dbin, dbout, nbgh, iech, weights);
   }

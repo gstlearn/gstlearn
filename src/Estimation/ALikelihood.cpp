@@ -31,6 +31,7 @@ ALikelihood::ALikelihood(ModelGeneric* model,
 ALikelihood::ALikelihood(const ALikelihood& r)
   : AModelOptim(r)
   , _db(r._db)
+  , _Z(r._Z)
   , _Y(r._Y)
   , _Yc(r._Yc)
   , _X(r._X)
@@ -39,21 +40,21 @@ ALikelihood::ALikelihood(const ALikelihood& r)
   , _Cm1Yc(r._Cm1Yc)
   , _XtCm1X(r._XtCm1X)
   , _reml(r._reml)
-  , _nDrift(r._nDrift)
-   {};
-   
+  , _nDrift(r._nDrift) {};
+
 ALikelihood& ALikelihood::operator=(const ALikelihood& r)
 {
   if (this != &r)
   {
     AModelOptim::operator=(r);
     _db     = r._db;
+    _Z      = r._Z;
     _Y      = r._Y;
     _Yc     = r._Yc;
     _X      = r._X;
     _beta   = r._beta;
     _Cm1X   = r._Cm1X;
-    _Cm1Yc   = r._Cm1Yc;
+    _Cm1Yc  = r._Cm1Yc;
     _XtCm1X = r._XtCm1X;
     _reml   = r._reml;
     _nDrift = r._nDrift;
@@ -69,7 +70,8 @@ void ALikelihood::_initLikelihood(bool verbose)
 {
   MatrixSymmetric vars = dbVarianceMatrix(_db);
   double hmax          = _db->getExtensionDiagonal();
-  setEnvironment(vars, hmax);
+  double vmax          = _db->getColumnByLocator(ELoc::Z, 0).maximum();
+  setEnvironment(vars, hmax, EPSILON6, 0., vmax);
   Id nvar = _db->getNLoc(ELoc::Z);
   if (nvar < 1)
   {
@@ -77,13 +79,23 @@ void ALikelihood::_initLikelihood(bool verbose)
   }
 
   // Establish the vector of multivariate data
-  if (_nDrift > 0)
+  if (_model->getTransform() == nullptr)
   {
+    if (_nDrift > 0)
+    {
       _Y = _db->getColumnsActiveAndDefined(ELoc::Z);
       _Yc.resize(_Y.size());
+    }
+    else
+      _Yc = _db->getColumnsActiveAndDefined(ELoc::Z, _model->getMeans());
   }
   else
-    _Yc = _db->getColumnsActiveAndDefined(ELoc::Z, _model->getMeans());
+  {
+    _Z = _db->getColumnsActiveAndDefined(ELoc::Z);
+    _Y.resize(_Z.size());
+    _Yc.resize(_Z.size());
+  }
+
   Id size = static_cast<Id>(_Yc.size());
   if (verbose)
   {
@@ -92,9 +104,9 @@ void ALikelihood::_initLikelihood(bool verbose)
     message("- Number of variables          = %d\n", nvar);
     message("- Length of Information Vector = %d\n", size);
     if (_nDrift > 0)
-      message("- Number of drift conditions = %d\n", _nDrift);
+      message("- Number of drift conditions   = %d\n", _nDrift);
     else
-      VH::dump("Constant Mean(s)", _model->getMeans());
+      printVector(_model->getMeans(), "Constant Mean(s)", true, true);
   }
 
   // If Drift function is present, evaluate the optimal Drift coefficients
@@ -105,13 +117,22 @@ void ALikelihood::_initLikelihood(bool verbose)
 
     _beta.resize(_nDrift);
   }
-
 }
 
-double ALikelihood::computeLogLikelihood(bool verbose)
+double ALikelihood::computeLogLikelihood(bool flagPrint, bool verbose)
 {
   _updateModel(verbose);
 
+  if (_model->getTransform() != nullptr) // TODO do it only in init if no parameters in transform (e.g logNormal)
+  {
+    // Apply the transformation to data
+    _model->getTransform()->inverseTransformVec(_Z, _Y);
+    if (_nDrift == 0)
+    {
+      // Center the data by the means TODO do it!
+      //_Yc = _Y - _model->getMeans();
+    }
+  }
   if (_nDrift > 0)
   {
     // Calculate t(L-1) %*% D-1 %*% L-1 applied to X (L and D from Vecchia)
@@ -140,9 +161,9 @@ double ALikelihood::computeLogLikelihood(bool verbose)
     _model->setBetaHat(_beta);
 
     if (verbose)
-      VH::dump("Optimal Drift coefficients = ", _beta);
+      printVector(_beta, "Optimal Drift coefficients = ", true, true);
 
-    // Center the data by the optimal drift: Y = Y - beta * X
+    // Center the data by the optimal drift: Yc = Y - beta * X
     VH::subtractInPlace(_X.prodMatVec(_beta), _Y, _Yc);
   }
 
@@ -154,7 +175,7 @@ double ALikelihood::computeLogLikelihood(bool verbose)
 
   double logdet = _computeLogDet();
   // Calculate quad = Zt * Cm1Z
-  double quad = VH::innerProduct(_Yc, _Cm1Yc);
+  double quad = _Yc.innerProduct(_Cm1Yc);
 
   // Derive the log-likelihood
   Id size        = static_cast<Id>(_Yc.size());
@@ -164,9 +185,14 @@ double ALikelihood::computeLogLikelihood(bool verbose)
     CholeskyDense XtCm1XChol(_XtCm1X);
     loglike -= 0.5 * XtCm1XChol.computeLogDeterminant();
   }
-
+  if (_model->getTransform() != nullptr)
+  {
+    // Add the Jacobian term
+    double logjac = _model->getTransform()->evalLogJacobianVec(_Y);
+    loglike -= logjac;
+  }
   // Optional printout
-  if (verbose)
+  if (flagPrint)
   {
     message("Log-Determinant = %lf\n", logdet);
     message("Quadratic term  = %lf\n", quad);
@@ -175,8 +201,8 @@ double ALikelihood::computeLogLikelihood(bool verbose)
   return loglike;
 }
 
-double ALikelihood::computeCost(bool verbose)
+double ALikelihood::computeCost(bool flagPrint, bool verbose)
 {
-  return -computeLogLikelihood(verbose);
+  return -computeLogLikelihood(flagPrint, verbose);
 }
 } // namespace gstlrn

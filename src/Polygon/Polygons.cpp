@@ -8,6 +8,8 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Basic/Law.hpp"
+#include "geoslib_define.h"
 #include "geoslib_old_f.h"
 
 #include "Basic/ASerializable.hpp"
@@ -15,7 +17,6 @@
 #include "Basic/CSVformat.hpp"
 #include "Basic/File.hpp"
 #include "Basic/SerializeHDF5.hpp"
-#include "Basic/Utilities.hpp"
 #include "Core/CSV.hpp"
 #include "Db/Db.hpp"
 #include "Polygon/Polygons.hpp"
@@ -129,6 +130,82 @@ Id Polygons::resetFromCSV(const String& filename,
 }
 
 /**
+ * @brief Create a Polygon (with a single Polyelem) from a pair of coordinate arrays
+ *
+ * @param x X_coordinates
+ * @param y Y_coordinates
+ * @return Polygons*
+ */
+Polygons* Polygons::createFromVD(const VectorDouble& x,
+                                 const VectorDouble& y)
+{
+  if (x.size() != y.size())
+  {
+    messerr("In Polygons::createFromVD: x and y vectors must have the same size");
+    return nullptr;
+  }
+  auto* polygons = new Polygons();
+  PolyElem polyelem(x, y);
+  polygons->addPolyElem(polyelem);
+  return polygons;
+}
+
+/**
+ * @brief Create a Polygon (with a single PolyElem) containing
+ * a convex closed shape with random points
+ *
+ * @param nseg Number of vertices of the shape
+ * @param ratio Random proportion of the radius (see details)
+ * @param mini Minimum coordinate value
+ * @param maxi Maximum coordinate value
+ * @param seed Random seed
+ * @return Polygons*
+ *
+ * @remarks The shape is contained in a square with dimensions [mini, maxi]. Its half-extension is extend = (maxi - mini) / 2.
+ * @remarks The shape is centered on a point located in middle of this square
+ * @remarks Each one of the 'nseg' vertices is generated along a radial regularly spread so as to cover 2* PI around the center
+ * @remarks The distance from a vertex to the center is called the 'radius'
+ * @remarks This radius is generated randomly within [extend/2 - tol; extend/2 + tol] where tol = ratio * extend / 2
+ */
+Polygons* Polygons::createFillRandom(Id nseg,
+                                     double ratio,
+                                     double mini,
+                                     double maxi,
+                                     Id seed)
+{
+  if (nseg < 3)
+  {
+    messerr("In Polygons::createFillRandom: nseg must be at least equal to 3");
+    return nullptr;
+  }
+  law_set_random_seed(seed);
+  auto* polygons = new Polygons();
+  VectorDouble x(nseg + 1);
+  VectorDouble y(nseg + 1);
+  double angle_step = 2. * GV_PI / static_cast<double>(nseg);
+  double angle      = 0.;
+  double middle     = (mini + maxi) / 2.;
+  double extend     = (maxi - mini) / 2.;
+  double radius0    = extend / 2.;
+  VectorDouble center(2);
+  for (Id idim = 0; idim < 2; idim++)
+    center[idim] = middle;
+  for (Id iseg = 0; iseg < nseg; iseg++)
+  {
+    double radius = radius0 + ratio * law_uniform() * radius0;
+    x[iseg]       = center[0] + radius * cos(angle);
+    y[iseg]       = center[1] + radius * sin(angle);
+    angle += angle_step;
+  }
+  x[nseg] = x[0];
+  y[nseg] = y[0];
+
+  PolyElem polyelem(x, y);
+  polygons->addPolyElem(polyelem);
+  return polygons;
+}
+
+/**
  * Reset the Polygon from a CSV file using WKT format (first column) exported by QGIS
  * @param filename Filename
  * @param csv      CSV characteristics
@@ -231,7 +308,7 @@ String Polygons::toString(const AStringFormat* strfmt) const
 
   Id npol = static_cast<Id>(_polyelems.size());
 
-  sstr << toTitle(1, "Polygons");
+  sstr << toStrTitle(1, "Polygons");
   sstr << "Number of Polygon Sets = " << npol << std::endl;
   AStringFormat sf;
   if (strfmt != nullptr) sf = *strfmt;
@@ -239,27 +316,41 @@ String Polygons::toString(const AStringFormat* strfmt) const
   if (sf.getLevel() > 1)
     for (Id i = 0; i < npol; i++)
     {
-      sstr << toTitle(2, "PolyElem #%d", i + 1);
+      sstr << toStrTitle(2, "PolyElem #%d", i + 1);
       sstr << _polyelems[i].toString(strfmt);
     }
   return sstr.str();
 }
 
-void Polygons::getExtension(double* xmin,
-                            double* xmax,
-                            double* ymin,
-                            double* ymax) const
+void Polygons::getExtension(double& xmin,
+                            double& xmax,
+                            double& ymin,
+                            double& ymax) const
 {
   double xmin_loc, xmax_loc, ymin_loc, ymax_loc;
+  xmin = 1.e30;
+  ymin = 1.e30;
+  xmax = -1.e30;
+  ymax = -1.e30;
 
   for (Id ipol = 0; ipol < getNPolyElem(); ipol++)
   {
-    _polyelems[ipol].getExtension(&xmin_loc, &xmax_loc, &ymin_loc, &ymax_loc);
-    if (xmin_loc < *xmin) (*xmin) = xmin_loc;
-    if (ymin_loc < *ymin) (*ymin) = ymin_loc;
-    if (xmax_loc > *xmax) (*xmax) = xmax_loc;
-    if (ymax_loc > *ymax) (*ymax) = ymax_loc;
+    _polyelems[ipol].getExtension(xmin_loc, xmax_loc, ymin_loc, ymax_loc);
+    if (xmin_loc < xmin) xmin = xmin_loc;
+    if (ymin_loc < ymin) ymin = ymin_loc;
+    if (xmax_loc > xmax) xmax = xmax_loc;
+    if (ymax_loc > ymax) ymax = ymax_loc;
   }
+}
+
+VectorDouble Polygons::getExtensionAsVD() const
+{
+  double xmin;
+  double ymin;
+  double xmax;
+  double ymax;
+  getExtension(xmin, xmax, ymin, ymax);
+  return {xmin, xmax, ymin, ymax};
 }
 
 double Polygons::getSurface() const
@@ -310,12 +401,12 @@ PolyElem Polygons::_extractFromWKT(const CSVformat& csv, String& polye)
       y.clear();
       break;
     }
-    x.push_back(toDouble(coords.substr(0, found2), csv.getCharDec()));
+    x.push_back(fromStr<double>(coords.substr(0, found2), csv.getCharDec()));
     coords = coords.substr(found2 + 1);
     found2 = coords.find_first_of(' ');
     if (found2 != std::string::npos)
       coords = coords.substr(0, found2);
-    y.push_back(toDouble(coords, csv.getCharDec()));
+    y.push_back(fromStr<double>(coords, csv.getCharDec()));
     if (found != std::string::npos)
       polye = polye.substr(found + 1);
   } while (found != std::string::npos);
@@ -324,7 +415,7 @@ PolyElem Polygons::_extractFromWKT(const CSVformat& csv, String& polye)
   return polyelem;
 }
 
-bool Polygons::_deserializeAscii(std::istream& is, bool verbose)
+bool Polygons::_deserializeAscii(std::istream& is)
 {
   Id npol = 0;
 
@@ -342,19 +433,16 @@ bool Polygons::_deserializeAscii(std::istream& is, bool verbose)
   for (Id ipol = 0; ret && ipol < npol; ipol++)
   {
     PolyElem polyelem;
-    ret = ret && polyelem._deserializeAscii(is, verbose);
+    ret = ret && polyelem._deserializeAscii(is);
     if (ret)
-    {
       addPolyElem(polyelem); // TODO : Prevent copy (optimization)
-      if (verbose) message("PolyElem #%d - Number of vertices = %d\n", ipol + 1, polyelem.getNPoints());
-    }
     else
       messerr("Error when reading PolyElem #%d", ipol + 1);
   }
   return ret;
 }
 
-bool Polygons::_serializeAscii(std::ostream& os, bool verbose) const
+bool Polygons::_serializeAscii(std::ostream& os) const
 {
   bool ret = true;
   ret      = ret && _recordWrite<Id>(os, "Number of Polygons", getNPolyElem());
@@ -364,7 +452,7 @@ bool Polygons::_serializeAscii(std::ostream& os, bool verbose) const
   for (Id ipol = 0; ret && ipol < getNPolyElem(); ipol++)
   {
     const PolyElem& polyelem = getPolyElem(ipol);
-    ret                      = ret && polyelem._serializeAscii(os, verbose);
+    ret                      = ret && polyelem._serializeAscii(os);
   }
   return ret;
 }
@@ -1031,7 +1119,7 @@ Id db_selhull(Db* db1,
 }
 
 #ifdef HDF5
-bool Polygons::_deserializeH5(H5::Group& grp, bool verbose)
+bool Polygons::deserializeH5(H5::Group& grp)
 {
   auto polygonsG = SerializeHDF5::getGroup(grp, "Polygons");
   if (!polygonsG) return false;
@@ -1051,14 +1139,14 @@ bool Polygons::_deserializeH5(H5::Group& grp, bool verbose)
     auto polyelemG = SerializeHDF5::getGroup(*polylineG, locname, false);
     if (!polyelemG) break;
 
-    ret = ret && polyOne._deserializeH5(*polyelemG, verbose);
+    ret = ret && polyOne.deserializeH5(*polyelemG);
     _polyelems.push_back(polyOne);
     ipol++;
   }
   return ret;
 }
 
-bool Polygons::_serializeH5(H5::Group& grp, bool verbose) const
+bool Polygons::serializeH5(H5::Group& grp) const
 {
   auto polygonsG = grp.createGroup("Polygons");
 
@@ -1073,7 +1161,7 @@ bool Polygons::_serializeH5(H5::Group& grp, bool verbose) const
     String locname = "PolyElem_" + std::to_string(ipol);
     auto polyelemG = polylineG.createGroup(locname);
 
-    ret = ret && _polyelems[ipol]._serializeH5(polyelemG, verbose);
+    ret = ret && _polyelems[ipol].serializeH5(polyelemG);
   }
 
   return ret;

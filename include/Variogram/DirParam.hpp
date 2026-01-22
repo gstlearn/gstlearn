@@ -158,7 +158,7 @@ public:
   void setCodir(const VectorDouble& codir) { _codir = codir; }
   void setGrincr(const VectorInt& grincr) { _grincr = grincr; }
 
-  bool isLagValid(Id ilag, bool flagAsym = false, bool flagCheck = true) const;
+  bool isLagValid(Id ilag, bool flagAsym = false) const;
   bool isDimensionValid(Id idim) const;
   bool isDefinedForGrid() const { return !_grincr.empty(); }
 

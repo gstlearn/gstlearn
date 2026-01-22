@@ -46,6 +46,7 @@ public:
   void setCoord(double coord);
   void setCoord(Id i, double val) { _coord[i] = val; }
   void setCoords(const VectorDouble& coord);
+
   void setCoords(const double* coord, Id size);
   void setIech(Id iech) const { _iech = iech; }
   void setProjected(bool status) { _isProjected = status; }

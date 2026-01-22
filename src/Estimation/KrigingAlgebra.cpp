@@ -29,10 +29,10 @@ KrigingAlgebra::KrigingAlgebra(bool flagDual,
   , _Sigma(nullptr)
   , _Sigma0(nullptr)
   , _X(nullptr)
-  , _PriorCov(nullptr)
+  , _PriorCovs(nullptr)
   , _Z(nullptr)
   , _X0(nullptr)
-  , _PriorMean(nullptr)
+  , _PriorMeans(nullptr)
   , _Means(nullptr)
   , _Zp(nullptr)
   , _rankColCok(nullptr)
@@ -643,12 +643,12 @@ Id KrigingAlgebra::setXvalidUnique(const VectorInt* rankXvalidEqs,
   return _patchRHSForXvalidUnique();
 }
 
-Id KrigingAlgebra::setBayes(const VectorDouble* PriorMean,
-                            const MatrixSymmetric* PriorCov)
+Id KrigingAlgebra::setBayes(const VectorDouble* PriorMeans,
+                            const MatrixSymmetric* PriorCovs)
 {
   _resetLinkedToBayes();
 
-  if (PriorMean == nullptr || PriorCov == nullptr)
+  if (PriorMeans == nullptr || PriorCovs == nullptr)
   {
     _flagBayes = false;
     return 0;
@@ -659,10 +659,12 @@ Id KrigingAlgebra::setBayes(const VectorDouble* PriorMean,
     return 1;
   }
 
-  if (!_checkDimensionVD("PriorMean", PriorMean, &_nbfl)) return 1;
-  if (!_checkDimensionMatrix("PriorCov", PriorCov, &_nbfl, &_nbfl)) return 1;
-  _PriorMean = PriorMean;
-  _PriorCov  = PriorCov;
+  if (!_checkDimensionVD("PriorMeans", PriorMeans, &_nbfl)) return 1;
+  if (!_checkDimensionMatrix("PriorCovs", PriorCovs, &_nbfl, &_nbfl)) return 1;
+
+  // Store the arguments (const pointers) into internal storage
+  _PriorMeans = PriorMeans;
+  _PriorCovs  = PriorCovs;
   _flagBayes = true;
 
   return 0;
@@ -770,7 +772,7 @@ Id KrigingAlgebra::_needInvPriorCov()
 {
   if (!_InvPriorCov.empty()) return 0;
   if (_needPriorCov()) return 1;
-  _InvPriorCov = *_PriorCov;
+  _InvPriorCov = *_PriorCovs;
   if (_InvPriorCov.invert()) return 1;
   return 0;
 }
@@ -785,7 +787,7 @@ double KrigingAlgebra::getLTerm()
   if (_needDual()) return 1;
   if (_needZ()) return 1;
 
-  return VH::innerProduct(_bDual, *_Z);
+  return _bDual.innerProduct(*_Z);
 }
 
 Id KrigingAlgebra::_needZstar()
@@ -1076,7 +1078,7 @@ Id KrigingAlgebra::_needBeta()
   {
     if (_needPriorMean()) return 1;
     if (_needInvPriorCov()) return 1;
-    VectorDouble InvSMBayes = _InvPriorCov.prodMatVec(*_PriorMean);
+    VectorDouble InvSMBayes = _InvPriorCov.prodMatVec(*_PriorMeans);
     VH::linearCombinationInPlace(1., XtInvCZ, 1., InvSMBayes, XtInvCZ);
   }
 
@@ -1230,7 +1232,7 @@ Id KrigingAlgebra::_patchRHSForXvalidUnique()
 
 Id KrigingAlgebra::_needPriorCov()
 {
-  if (!_isPresentMatrix("PriorCov", _PriorCov)) return 1;
+  if (!_isPresentMatrix("PriorCovs", _PriorCovs)) return 1;
   return 0;
 }
 
@@ -1266,7 +1268,7 @@ Id KrigingAlgebra::_needXvalid()
 
 Id KrigingAlgebra::_needPriorMean()
 {
-  if (!_isPresentVector("PriorMean", _PriorMean)) return 1;
+  if (!_isPresentVector("PriorMeans", _PriorMeans)) return 1;
   return 0;
 }
 
@@ -1356,7 +1358,7 @@ void KrigingAlgebra::printStatus() const
   if (_ncck > 0)
   {
     message("Number of Collocated Variables ('_ncck') = %d\n", _ncck);
-    VH::dump("Rank of Collocated Variables", _rankColVars, false);
+    printVector(_rankColVars, "Rank of Collocated Variables", true, false);
   }
   if (_flagSK)
     message("Working with Known Mean(s)\n");
@@ -1369,9 +1371,9 @@ void KrigingAlgebra::printStatus() const
   _printMatrix("Sigma0", _Sigma0);
   _printMatrix("X", _X);
   _printMatrix("X0", _X0);
-  _printMatrix("PriorCov", _PriorCov);
+  _printMatrix("PriorCovs", _PriorCovs);
   _printVector("Z", _Z);
-  _printVector("PriorMean", _PriorMean);
+  _printVector("PriorMeans", _PriorMeans);
   _printVector("Means", _Means);
   _printVector("Zp", _Zp);
 
@@ -1525,22 +1527,22 @@ void KrigingAlgebra::dumpLHS(Id nbypas) const
     message("\n");
 
     // Header line
-    tab_prints(NULL, "Rank");
-    for (Id j = ideb; j < ifin; j++) tab_printi(NULL, j + 1);
+    printElement("Rank");
+    for (Id j = ideb; j < ifin; j++) printElement(j + 1);
     message("\n");
 
     // LHS Matrix
     for (Id i = 0; i < size; i++)
     {
-      tab_printi(NULL, i + 1);
+      printElement(i + 1);
       if (i < _neq)
       {
         for (Id j = ideb; j < ifin; j++)
         {
           if (j < _neq)
-            tab_printg(NULL, _Sigma->getValue(i, j));
+            printElement(_Sigma->getValue(i, j));
           else
-            tab_printg(NULL, _X->getValue(i, j - _neq));
+            printElement(_X->getValue(i, j - _neq));
         }
         message("\n");
       }
@@ -1549,9 +1551,9 @@ void KrigingAlgebra::dumpLHS(Id nbypas) const
         for (Id j = ideb; j < ifin; j++)
         {
           if (j < _neq)
-            tab_printg(NULL, _X->getValue(j, i - _neq));
+            printElement(_X->getValue(j, i - _neq));
           else
-            tab_printg(NULL, 0.);
+            printElement(0.);
         }
         message("\n");
       }
@@ -1566,24 +1568,24 @@ void KrigingAlgebra::dumpRHS() const
   if (_X0 != nullptr) size += _X0->getNCols();
 
   // Header line
-  tab_prints(NULL, "Rank");
-  for (Id irhs = 0; irhs < _nrhs; irhs++) tab_printi(NULL, irhs + 1);
+  printElement("Rank");
+  for (Id irhs = 0; irhs < _nrhs; irhs++) printElement(irhs + 1);
   message("\n");
 
   // RHS Matrix
   for (Id i = 0; i < size; i++)
   {
-    tab_printi(NULL, i + 1);
+    printElement(i + 1);
     if (i < _neq)
     {
       for (Id irhs = 0; irhs < _nrhs; irhs++)
-        tab_printg(NULL, _Sigma0->getValue(i, irhs));
+        printElement(_Sigma0->getValue(i, irhs));
     }
     else
     {
       if (_X0 != nullptr)
         for (Id irhs = 0; irhs < _nrhs; irhs++)
-          tab_printg(NULL, _X0->getValue(irhs, i - _neq));
+          printElement(_X0->getValue(irhs, i - _neq));
     }
     message("\n");
   }
@@ -1608,12 +1610,12 @@ void KrigingAlgebra::dumpWGT()
 
   /* Header Line */
 
-  tab_prints(NULL, "Rank");
-  tab_prints(NULL, "Data");
+  printElement("Rank");
+  printElement("Data");
   for (Id irhs = 0; irhs < _nrhs; irhs++)
   {
     (void)gslSPrintf(string, "Z%d*", irhs + 1);
-    tab_prints(NULL, string.data());
+    printElement(string);
   }
   message("\n");
 
@@ -1628,15 +1630,15 @@ void KrigingAlgebra::dumpWGT()
 
     for (Id j = 0; j < nbyvar; j++)
     {
-      tab_printi(NULL, lec + 1);
+      printElement(lec + 1);
       double value = (*_Z)[lec];
       // Correct printout by the mean locally in case of SK
       if (_flagSK && !_Means->empty()) value += (*_Means)[ivar];
-      tab_printg(NULL, value);
+      printElement(value);
       for (Id irhs = 0; irhs < _nrhs; irhs++)
       {
         value = lambda->getValue(lec, irhs);
-        tab_printg(NULL, value);
+        printElement(value);
         sum[irhs] += value;
       }
       message("\n");
@@ -1644,8 +1646,8 @@ void KrigingAlgebra::dumpWGT()
     }
 
     // Display sum of weights
-    tab_prints(NULL, "Sum of weights", 2, EJustify::LEFT);
-    for (Id irhs = 0; irhs < _nrhs; irhs++) tab_printg(NULL, sum[irhs]);
+    printElement("Sum of weights", String(), 2, -1);
+    for (Id irhs = 0; irhs < _nrhs; irhs++) printElement(sum[irhs]);
     message("\n");
   }
 }
@@ -1669,12 +1671,12 @@ void KrigingAlgebra::dumpAux()
   // In Bayesian case, dump the Prior and Posterior information
   if (_flagBayes)
   {
-    VH::dump("Prior Mean", *_PriorMean, false);
+    printVector(*_PriorMeans, "Prior Means:", true, false);
     message("Prior Covariance Matrix\n");
-    _PriorCov->display();
+    _PriorCovs->display();
 
     VectorDouble postmean = getPostMean();
-    VH::dump("Posterior Mean", postmean, false);
+    printVector(postmean, "Posterior Mean:", true, false);
     message("Posterior Covariance Matrix\n");
     const MatrixSymmetric* postcov = getPostCov();
     postcov->display();
@@ -1685,21 +1687,21 @@ void KrigingAlgebra::dumpAux()
   if (_needBeta()) return;
 
   // Header Line
-  tab_prints(NULL, "Rank");
+  printElement("Rank");
   for (Id irhs = 0; irhs < _nrhs; irhs++)
   {
     (void)gslSPrintf(string, "Mu%d*", irhs + 1);
-    tab_prints(NULL, string.data());
+    printElement(string);
   }
-  tab_prints(NULL, "Coeff");
+  printElement("Coeff");
   message("\n");
 
   for (Id ibfl = 0; ibfl < _nbfl; ibfl++)
   {
-    tab_printi(NULL, ibfl + 1);
+    printElement(ibfl + 1);
     for (Id irhs = 0; irhs < _nrhs; irhs++)
-      tab_printg(NULL, _MuUK.getValue(ibfl, irhs));
-    tab_printg(NULL, _Beta[ibfl]);
+      printElement(_MuUK.getValue(ibfl, irhs));
+    printElement(_Beta[ibfl]);
     message("\n");
   }
 }

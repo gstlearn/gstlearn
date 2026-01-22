@@ -11,8 +11,9 @@
 #include "Matrix/AMatrix.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/Message.hpp"
+#include "Basic/String.hpp"
 #include "Basic/Utilities.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Matrix/NF_Triplet.hpp"
 #include "geoslib_define.h"
@@ -179,7 +180,7 @@ bool AMatrix::isSquare(bool printWhyNot) const
  */
 bool AMatrix::isValid(Id irow, Id icol, bool printWhyNot) const
 {
-  if (!_flagMatrixCheck) return true;
+  if (!getFlagMatrixCheck()) return true;
   if (irow < 0 || irow >= getNRows())
   {
     if (printWhyNot)
@@ -306,7 +307,7 @@ void AMatrix::transposeInPlace()
 
 AMatrix* AMatrix::transpose() const
 {
-  AMatrix* mat = dynamic_cast<AMatrix*>(clone());
+  auto* mat = dynamic_cast<AMatrix*>(clone());
   mat->transposeInPlace();
   return mat;
 }
@@ -385,7 +386,7 @@ void AMatrix::setIdentity(double value)
 
 VectorDouble AMatrix::prodMatVec(const VectorDouble& x, bool transpose) const
 {
-  if (_flagMatrixCheck &&
+  if (getFlagMatrixCheck() &&
       !_isMatrixCompatible("AMatrix::prodMatVec",
                            this, 0, transpose,
                            nullptr, static_cast<Id>(x.size()), false)) return VectorDouble();
@@ -405,7 +406,7 @@ void AMatrix::prodMatVecInPlace(const VectorDouble& x,
                                 VectorDouble& y,
                                 bool transpose) const
 {
-  if (_flagMatrixCheck &&
+  if (getFlagMatrixCheck() &&
       !_isMatrixCompatible("AMatrix::prodMatVecInPlace",
                            this, 0, transpose,
                            nullptr, static_cast<Id>(x.size()), false)) return;
@@ -418,7 +419,7 @@ void AMatrix::prodMatVecInPlaceC(const constvect x,
                                  vect y,
                                  bool transpose) const
 {
-  if (_flagMatrixCheck &&
+  if (getFlagMatrixCheck() &&
       !_isMatrixCompatible("AMatrix::prodMatVecInPlaceC",
                            this, 0, transpose,
                            nullptr, static_cast<Id>(x.size()), false)) return;
@@ -431,7 +432,7 @@ void AMatrix::addProdMatVecInPlaceC(const constvect x,
                                     vect y,
                                     bool transpose) const
 {
-  if (_flagMatrixCheck &&
+  if (getFlagMatrixCheck() &&
       !_isMatrixCompatible("AMatrix::addProdMatVecInPlaceC",
                            this, 0, transpose,
                            nullptr, static_cast<Id>(x.size()), false)) return;
@@ -440,7 +441,7 @@ void AMatrix::addProdMatVecInPlaceC(const constvect x,
 
 VectorDouble AMatrix::prodVecMat(const VectorDouble& x, bool transpose) const
 {
-  if (_flagMatrixCheck &&
+  if (getFlagMatrixCheck() &&
       !_isMatrixCompatible("AMatrix::prodVecMat",
                            nullptr, static_cast<Id>(x.size()), true,
                            this, 0, transpose)) return VectorDouble();
@@ -452,7 +453,7 @@ VectorDouble AMatrix::prodVecMat(const VectorDouble& x, bool transpose) const
 
 void AMatrix::prodVecMatInPlace(const VectorDouble& x, VectorDouble& y, bool transpose) const
 {
-  if (_flagMatrixCheck &&
+  if (getFlagMatrixCheck() &&
       !_isMatrixCompatible("AMatrix::prodVecMat",
                            nullptr, static_cast<Id>(x.size()), true,
                            this, 0, transpose)) return;
@@ -463,7 +464,7 @@ void AMatrix::prodVecMatInPlace(const VectorDouble& x, VectorDouble& y, bool tra
 
 void AMatrix::prodVecMatInPlaceC(const constvect x, vect y, bool transpose) const
 {
-  if (_flagMatrixCheck &&
+  if (getFlagMatrixCheck() &&
       !_isMatrixCompatible("AMatrix::prodVecMatInPlaceC",
                            this, 0, transpose,
                            nullptr, static_cast<Id>(x.size()), false)) return;
@@ -476,7 +477,7 @@ void AMatrix::addProdVecMatInPlaceC(const constvect x,
                                     vect y,
                                     bool transpose) const
 {
-  if (_flagMatrixCheck &&
+  if (getFlagMatrixCheck() &&
       !_isMatrixCompatible("AMatrix::addProdVecMatInPlaceC",
                            this, 0, transpose,
                            nullptr, static_cast<Id>(x.size()), false)) return;
@@ -540,7 +541,7 @@ void AMatrix::prodMatMatInPlace(const AMatrix* x,
                                 bool transposeX,
                                 bool transposeY)
 {
-  if (_flagMatrixCheck &&
+  if (getFlagMatrixCheck() &&
       !_isMatrixCompatible("AMatrix::prodMatMatInPlace",
                            x, 0, transposeX,
                            y, 0, transposeY)) return;
@@ -584,7 +585,7 @@ void AMatrix::prodNormMatMatInPlace(const AMatrix* a,
                                     const AMatrix* m,
                                     bool transpose)
 {
-  if (_flagMatrixCheck &&
+  if (getFlagMatrixCheck() &&
       !_isMatrixCompatible("AMatrix::prodNormMatMatInPlace",
                            a, 0, transpose,
                            m, 0, false,
@@ -610,7 +611,7 @@ void AMatrix::prodNormMatMatInPlace(const AMatrix* a,
 
 void AMatrix::prodNormMatVecInPlace(const AMatrix* a, const VectorDouble& vec, bool transpose)
 {
-  if (_flagMatrixCheck &&
+  if (getFlagMatrixCheck() &&
       !_isMatrixCompatible("AMatrix::prodNormMatVecInPlace",
                            a, 0, transpose,
                            a, 0, !transpose)) return;
@@ -635,7 +636,7 @@ void AMatrix::prodNormMatVecInPlace(const AMatrix* a, const VectorDouble& vec, b
 
 void AMatrix::prodNormMatInPlace(const AMatrix* a, bool transpose)
 {
-  if (_flagMatrixCheck &&
+  if (getFlagMatrixCheck() &&
       !_isMatrixCompatible("AMatrix::prodNormMatInPlace",
                            a, 0, transpose,
                            a, 0, !transpose)) return;
@@ -659,7 +660,7 @@ void AMatrix::prodNormMatInPlace(const AMatrix* a, bool transpose)
 
 double AMatrix::prodVecMatVec(const VectorDouble& x, const VectorDouble& y) const
 {
-  if (_flagMatrixCheck &&
+  if (getFlagMatrixCheck() &&
       !_isMatrixCompatible("AMatrix::quadraticMatrix",
                            nullptr, static_cast<Id>(x.size()), true,
                            this, 0, false,
@@ -667,7 +668,7 @@ double AMatrix::prodVecMatVec(const VectorDouble& x, const VectorDouble& y) cons
 
   VectorDouble left(_nRows);
   prodMatVecInPlace(y, left, false);
-  return VH::innerProduct(x, left);
+  return x.innerProduct(left);
 }
 
 Id AMatrix::invert()
@@ -709,8 +710,8 @@ String AMatrix::toString(const AStringFormat* strfmt) const
     sstr << "- Sparse Format" << std::endl;
     flagSkipZero = true;
   }
-  sstr << toMatrix(String(), VectorString(), VectorString(), true, _nRows, _nCols,
-                   getValues(), false, flagSkipZero);
+  sstr << toStrMatrix(String(), VectorString(), VectorString(), true, _nRows, _nCols,
+                      getValues(), false, flagSkipZero);
 
   return sstr.str();
 }
@@ -728,7 +729,7 @@ void AMatrix::_clear()
 
 bool AMatrix::_isNumbersValid(Id nrows, Id ncols) const
 {
-  if (!_flagMatrixCheck) return true;
+  if (!getFlagMatrixCheck()) return true;
   if (nrows < 0)
   {
     messerr("Argument 'nrows' is not valid");
@@ -744,19 +745,19 @@ bool AMatrix::_isNumbersValid(Id nrows, Id ncols) const
 
 bool AMatrix::_isRowValid(Id irow) const
 {
-  if (!_flagMatrixCheck) return true;
+  if (!getFlagMatrixCheck()) return true;
   return checkArg("Row index invalid", irow, getNRows());
 }
 
 bool AMatrix::_isColumnValid(Id icol) const
 {
-  if (!_flagMatrixCheck) return true;
+  if (!getFlagMatrixCheck()) return true;
   return checkArg("Column index invalid", icol, getNCols());
 }
 
 bool AMatrix::_isIndexValid(Id irow, Id icol) const
 {
-  if (!_flagMatrixCheck) return true;
+  if (!getFlagMatrixCheck()) return true;
   if (!_isRowValid(irow)) return false;
   if (!_isColumnValid(icol)) return false;
   return true;
@@ -821,7 +822,7 @@ bool AMatrix::_isRowSizeConsistent(const VectorDouble& tab) const
 
 bool AMatrix::_isRankValid(Id rank) const
 {
-  if (!_flagMatrixCheck) return true;
+  if (!getFlagMatrixCheck()) return true;
   return (rank >= 0 && rank < _getMatrixPhysicalSize());
 }
 
@@ -912,13 +913,13 @@ bool AMatrix::_isMatrixCompatible(const String& name,
                                   bool transpose3)
 {
   // First element
-  Id nrow1;
-  Id ncol1;
+  Id nrow1 = -1;
+  Id ncol1 = -1;
   if (!_identifyRowAndCol(mat1, vsize1, transpose1, &nrow1, &ncol1)) return false;
 
   // Second element
-  Id nrow2;
-  Id ncol2;
+  Id nrow2 = -1;
+  Id ncol2 = -1;
   if (_identifyRowAndCol(mat2, vsize2, transpose2, &nrow2, &ncol2))
   {
     if (nrow2 != ncol1)
@@ -929,8 +930,8 @@ bool AMatrix::_isMatrixCompatible(const String& name,
     }
 
     // Third element
-    Id nrow3;
-    Id ncol3;
+    Id nrow3 = -1;
+    Id ncol3 = -1;
     if (_identifyRowAndCol(mat3, vsize3, transpose3, &nrow3, &ncol3))
     {
       if (nrow3 != ncol2)
@@ -1256,11 +1257,11 @@ void AMatrix::makePositiveColumn()
     VectorDouble column = getColumn(icol);
 
     // Calculate the sum of the elements
-    double sum = VH::cumul(column);
+    double sum = column.sum();
     if (sum >= 0) continue;
 
     // Invert the sign of all its elements
-    VH::multiplyConstant(column, -1.);
+    column.multiplyCst(-1.);
 
     // Replace the column
     setColumn(icol, column);

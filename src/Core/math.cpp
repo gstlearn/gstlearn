@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Basic/Law.hpp"
 #include "Basic/MathFunc.hpp"
-#include "Basic/Utilities.hpp"
 #include "geoslib_d.h"
 
 /*! \cond */
@@ -341,8 +340,7 @@ void ct_tables_print(CTables* ctables, Id flag_print)
   message("\n");
   message("Number of Probability Discretizations       = %d\n", ndisc);
   if (!ctables->v.empty())
-    print_matrix("List of Gaussian Thresholds", 0, 1, 1, ctables->ndisc + 1,
-                 NULL, ctables->v.data());
+    printMatrix(ctables->v , 1, ctables->ndisc + 1, "List of Gaussian Thresholds", 0, 1);
 
   if (flag_print > 0)
   {
@@ -357,7 +355,7 @@ void ct_tables_print(CTables* ctables, Id flag_print)
                 COVAL(ctables, iconf));
 
       if (flag_print == 2)
-        print_matrix(NULL, 0, 1, nelem, nelem, NULL, ctables->res[iconf].data());
+        printMatrix(ctables->res[iconf], nelem, nelem, String(), 0, 1);
     }
     message("\n");
   }

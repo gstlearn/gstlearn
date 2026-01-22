@@ -51,6 +51,7 @@ public:
 
   /// Has a specific implementation in the Target language
   DECLARE_TOTL;
+  DECLARE_TOLATEX
 
   /// Cloneable interface
   IMPLEMENT_CLONING(MatrixSparse)
@@ -149,7 +150,7 @@ public:
 
 #ifndef SWIG
   Id addVecInPlaceEigen(const Eigen::Map<const Eigen::VectorXd>& xm,
-                         Eigen::Map<Eigen::VectorXd>& ym) const;
+                        Eigen::Map<Eigen::VectorXd>& ym) const;
 #endif
 
   // Static functions
@@ -159,6 +160,11 @@ public:
                                          Id nrow    = 0,
                                          Id ncol    = 0,
                                          Id nrowmax = -1);
+  static MatrixSparse* createFillRandom(Id nrow,
+                                        Id ncol,
+                                        double zeroPercent = 0.1,
+                                        Id seed            = 143743);
+
   static MatrixSparse* Identity(Id nrow, double value = 1.);
   static MatrixSparse* addMatMat(const MatrixSparse* x,
                                  const MatrixSparse* y,
@@ -247,9 +253,9 @@ protected:
 private:
   static void _forbiddenForSparse(const String& func);
   Id _eigen_findColor(Id imesh,
-                       Id ncolor,
-                       VectorInt& colors,
-                       VectorInt& temp) const;
+                      Id ncolor,
+                      VectorInt& colors,
+                      VectorInt& temp) const;
 
 #ifndef SWIG
 

@@ -5,9 +5,9 @@ Space Dimension [0] = 2
 Space Type      [1] = RN
 Space Dimension [1] = 1
 Space dimension of Gneiting Covariance = 3
-Value of Gneiting (by Covariance) = 0.020676
+Value of Gneiting (by Covariance) = 0.0331263
 Model dimension = 3
-Value of Gneiting (by Model) = 0.020676
+Value of Gneiting (by Model) = 0.0331263
 
 Data Base Grid Characteristics
 ==============================
@@ -49,16 +49,16 @@ Data Base Statistics
 5 - Name Kriging.z.estim - Locator z1
  Nb of data          =         50
  Nb of active values =         50
- Minimum value       =     -1.635
- Maximum value       =      0.826
- Mean value          =     -0.364
- Standard Deviation  =      0.589
- Variance            =      0.347
+ Minimum value       =     -1.572
+ Maximum value       =      0.634
+ Mean value          =     -0.342
+ Standard Deviation  =      0.521
+ Variance            =      0.272
 6 - Name Kriging.z.stdev - Locator NA
  Nb of data          =         50
  Nb of active values =         50
- Minimum value       =      0.218
- Maximum value       =      0.528
- Mean value          =      0.387
+ Minimum value       =      0.209
+ Maximum value       =      0.516
+ Mean value          =      0.390
  Standard Deviation  =      0.068
  Variance            =      0.005

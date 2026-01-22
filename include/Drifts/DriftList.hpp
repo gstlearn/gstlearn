@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Basic/ASerializable.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "geoslib_define.h"
@@ -44,7 +45,7 @@ class ELoc;
  * - some additional information defining some relationship between the basic drift function: this is used for the special
  * case where the different Random Functions obey to algebraic relations.
  */
-class GSTLEARN_EXPORT DriftList: public AStringable, public ICloneable
+class GSTLEARN_EXPORT DriftList: public AStringable, public ICloneable, public ASerializable
 {
 public:
   DriftList(const CovContext& ctxt = CovContext());
@@ -57,6 +58,13 @@ public:
 
   /// AStringable Interface
   String toString(const AStringFormat* strfmt = nullptr) const override;
+
+  /// ASerializable Interface
+  String getNFName() const override { return "DriftList"; }
+#ifdef HDF5
+  bool deserializeH5(H5::Group& grp) override;
+  bool serializeH5(H5::Group& grp) const override;
+#endif
 
   Id getNVar() const { return _ctxt.getNVar(); }
   Id getNDrift() const { return static_cast<Id>(_drifts.size()); }
@@ -156,7 +164,13 @@ public:
   void setMean(const double mean, Id ivar = 0);
   double getMean(Id ivar) const;
   const VectorDouble& getMeans() const { return _mean; }
+  void setPriorMeans(const VectorDouble& priorMeans);
+  void setPriorCovs(const MatrixSymmetric& priorCovs);
   const DriftList* createReduce(const VectorInt& validVars) const;
+
+  const VectorDouble& getPriorMeans() const { return _priorMeans; }
+  const MatrixSymmetric& getPriorCovs() const { return _priorCovs; }
+  double getPriorCov(Id i1, Id i2) const;
 
   double evalDriftVarCoef(const Db* db,
                           Id iech,
@@ -201,6 +215,8 @@ protected:
   VectorBool _filtered;         /* Vector of filtered flags (Dimension: as _drifts) */
   CovContext _ctxt;             /* Context (space, number of variables, ...) */
   VectorDouble _mean;           /*  Mean vector */
+  VectorDouble _priorMeans;     /* Prior mean vector (only for Bayesian hypothesis) */
+  MatrixSymmetric _priorCovs;   /* Prior covariance matrix (only for Bayesian hypothesis) */
 #endif
 };
 } // namespace gstlrn

@@ -10,9 +10,9 @@
 /******************************************************************************/
 #pragma once
 
+#include "Basic/Message.hpp"
 #include "gstlearn_export.hpp"
 #include "Enum/AEnum.hpp"
-#include "Basic/Utilities.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Matrix/MatrixSparse.hpp"
 

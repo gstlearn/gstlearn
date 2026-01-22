@@ -1,5 +1,7 @@
 #include "Basic/ListParams.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/Message.hpp"
+#include "Basic/String.hpp"
 #include "geoslib_define.h"
 #include <algorithm>
 #include <cstddef>
@@ -11,7 +13,7 @@ namespace gstlrn
 
 struct DSU
 {
-  std::vector<Id> parent;
+  VectorInt parent;
   DSU(Id n)
     : parent(n)
   {
@@ -136,7 +138,7 @@ String ListParams::toString(const AStringFormat* strfmt) const
 {
   DECLARE_UNUSED(strfmt);
   std::stringstream result;
-  result << toTitle(1, "List of Parameters:");
+  result << toStrTitle(1, "List of Parameters:");
   for (Id ipar = 0, jpar = 0, npar = static_cast<Id>(_dispatchIndex.size()); ipar < npar; ipar++)
   {
     jpar++;
@@ -158,10 +160,10 @@ void ListParams::makeDispatchIndexFromDispatch()
     }
   }
 }
-std::vector<double> ListParams::getOptimizableValues() const
+VectorDouble ListParams::getOptimizableValues() const
 {
   size_t nparam = getNOptimizableParams();
-  std::vector<double> values(nparam);
+  VectorDouble values(nparam);
   for (size_t i = 0; i < nparam; ++i)
   {
     values[i] = getOptimizableValue(i);
@@ -169,10 +171,10 @@ std::vector<double> ListParams::getOptimizableValues() const
   return values;
 }
 
-std::vector<double> ListParams::getMinValues(double epsilon) const
+VectorDouble ListParams::getMinValues(double epsilon) const
 {
   size_t nparam = _params.size();
-  std::vector<double> values(nparam);
+  VectorDouble values(nparam);
   for (size_t i = 0; i < nparam; ++i)
   {
     values[i] = _params[i].get().getUserMin() + epsilon;
@@ -180,10 +182,10 @@ std::vector<double> ListParams::getMinValues(double epsilon) const
   return values;
 }
 
-std::vector<double> ListParams::getMaxValues(double epsilon) const
+VectorDouble ListParams::getMaxValues(double epsilon) const
 {
   size_t nparam = _params.size();
-  std::vector<double> values(nparam);
+  VectorDouble values(nparam);
   for (size_t i = 0; i < nparam; ++i)
   {
     values[i] = _params[i].get().getUserMax() - epsilon;
@@ -191,7 +193,7 @@ std::vector<double> ListParams::getMaxValues(double epsilon) const
   return values;
 }
 
-void ListParams::setValues(const std::vector<double>& values)
+void ListParams::setValues(const VectorDouble& values)
 {
   size_t size = _dispatch.size();
   for (size_t i = 0; i < size; i++)

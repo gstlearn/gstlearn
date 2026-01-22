@@ -137,7 +137,7 @@ String PPMT::toString(const AStringFormat* strfmt) const
 
   std::stringstream sstr;
 
-  sstr << toTitle(1, "PPMT");
+  sstr << toStrTitle(1, "PPMT");
   if (_flagPreprocessing)
     sstr << "- Initial Anamorphosis per component and Sphering" << std::endl;
   if (getMethodDir() == EDirGen::VDC)
@@ -233,7 +233,7 @@ void PPMT::_iterationFit(AMatrix* Y, const VectorDouble& N0)
   VectorDouble Y0(np, TEST);
   VectorDouble Yi(np, TEST);
   VectorInt R0(np, ITEST);
-  Id idmax    = -1;
+  Id idmax     = -1;
   double ddmax = MINIMUM_BIG;
 
   // Loop on directions
@@ -279,7 +279,7 @@ void PPMT::_shiftForward(AMatrix* Y,
                          const VectorInt& R0,
                          const VectorDouble& N0) const
 {
-  Id np   = Y->getNRows();
+  Id np     = Y->getNRows();
   auto ndim = getNdim();
 
   for (Id ip = 0; ip < np; ip++)
@@ -298,7 +298,7 @@ void PPMT::_shiftBackward(AMatrix* Y,
                           const AnamHermite* anam,
                           const VectorDouble& Y0) const
 {
-  Id np   = Y->getNRows();
+  Id np     = Y->getNRows();
   auto ndim = getNdim();
 
   for (Id ip = 0; ip < np; ip++)
@@ -320,7 +320,7 @@ void PPMT::_shiftBackward(AMatrix* Y,
  */
 void PPMT::_projectOnDirection(const AMatrix* Y, Id id, VectorDouble& Y0)
 {
-  Id np   = Y->getNRows();
+  Id np     = Y->getNRows();
   auto ndim = getNdim();
 
   for (Id ip = 0; ip < np; ip++)
@@ -387,7 +387,7 @@ void PPMT::_fitInitHermite(AMatrix* Y)
   for (Id icol = 0; icol < ncol; icol++)
   {
     VectorDouble Yvec = Y->getColumn(icol);
-    auto* anam = new AnamHermite(getNbpoly());
+    auto* anam        = new AnamHermite(getNbpoly());
     anam->fitFromArray(Yvec);
     _initAnams.push_back(anam);
   }
@@ -411,8 +411,8 @@ Id PPMT::fitFromMatrix(AMatrix* Y, Id niter, bool verbose)
   // Creating the directions
   _generateAllDirections();
 
-  Id np                = Y->getNRows();
-  VectorDouble sequence = VH::sequence(1., np, 1., 1. + np);
+  Id np                 = Y->getNRows();
+  VectorDouble sequence = VH::sequenceVD(1., np, 1., 1. + np);
   VectorDouble N0       = VH::qnormVec(sequence);
 
   // Optional Pre-processing
@@ -451,11 +451,11 @@ Id PPMT::fitFromMatrix(AMatrix* Y, Id niter, bool verbose)
 }
 
 Id PPMT::fit(Db* db,
-              const VectorString& names,
-              bool flagStoreInDb,
-              Id niter,
-              bool verbose,
-              const NamingConvention& namconv)
+             const VectorString& names,
+             bool flagStoreInDb,
+             Id niter,
+             bool verbose,
+             const NamingConvention& namconv)
 {
   VectorString exp_names = db->expandNameList(names);
   MatrixDense Y          = db->getColumnsAsMatrix(exp_names, true);
@@ -479,9 +479,9 @@ Id PPMT::fit(Db* db,
 }
 
 Id PPMT::rawToGaussian(Db* db,
-                        const VectorString& names,
-                        Id niter,
-                        const NamingConvention& namconv)
+                       const VectorString& names,
+                       Id niter,
+                       const NamingConvention& namconv)
 {
   // Extract the relevant information
 
@@ -506,7 +506,7 @@ Id PPMT::rawToGaussian(Db* db,
   if (niter <= 0) niter = getNiter();
   niter = MIN(niter, getNiter());
 
-  VectorDouble sequence = VH::sequence(1., np, 1., 1. + np);
+  VectorDouble sequence = VH::sequenceVD(1., np, 1., 1. + np);
   VectorDouble N0       = VH::qnormVec(sequence);
 
   // Pre-processing
@@ -528,9 +528,9 @@ Id PPMT::rawToGaussian(Db* db,
 }
 
 Id PPMT::gaussianToRaw(Db* db,
-                        const VectorString& names,
-                        Id niter,
-                        const NamingConvention& namconv)
+                       const VectorString& names,
+                       Id niter,
+                       const NamingConvention& namconv)
 {
   // Extract the relevant information
 
@@ -560,7 +560,7 @@ Id PPMT::gaussianToRaw(Db* db,
   if (niter <= 0) niter = getNiter();
   niter = MIN(niter, getNiter());
 
-  VectorDouble sequence = VH::sequence(1., np, 1., 1. + np);
+  VectorDouble sequence = VH::sequenceVD(1., np, 1., 1. + np);
   VectorDouble N0       = VH::qnormVec(sequence);
 
   // Loop on the iterations (reverse order)

@@ -10,9 +10,11 @@
 /******************************************************************************/
 #include "Covariances/ACov.hpp"
 #include "Basic/AException.hpp"
+#include "Basic/ASerializable.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/ListParams.hpp"
+#include "Basic/SerializeHDF5.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/CovCalcMode.hpp"
@@ -43,7 +45,9 @@ namespace gstlrn
 {
 
 ACov::ACov(const CovContext& ctxt)
-  : _ctxt(ctxt)
+  : AStringable()
+  , ASerializable()
+  , _ctxt(ctxt)
   , _optimEnabled(false)
   , _optimPreProcessedData(false)
   , _p1As()
@@ -57,6 +61,7 @@ ACov::ACov(const CovContext& ctxt)
 
 ACov::ACov(const ACov& r)
   : AStringable(r)
+  , ASerializable(r)
   , _ctxt(r._ctxt)
   , _optimEnabled(r._optimEnabled)
   , _optimPreProcessedData(r._optimPreProcessedData)
@@ -74,6 +79,8 @@ ACov& ACov::operator=(const ACov& r)
 {
   if (this != &r)
   {
+    AStringable::operator=(r);
+    ASerializable::operator=(r);
     _ctxt                  = r._ctxt;
     _optimEnabled          = r._optimEnabled;
     _optimPreProcessedData = r._optimPreProcessedData;
@@ -102,11 +109,11 @@ double ACov::evalCov(const SpacePoint& p1,
   return _eval(p1, p2, ivar, jvar, mode);
 }
 
-std::vector<double> ACov::evalCovGrad(const SpacePoint& p1,
-                                      const SpacePoint& p2,
-                                      Id ivar,
-                                      Id jvar,
-                                      const CovCalcMode* mode)
+VectorDouble ACov::evalCovGrad(const SpacePoint& p1,
+                               const SpacePoint& p2,
+                               Id ivar,
+                               Id jvar,
+                               const CovCalcMode* mode)
 {
   std::vector<covmaptype> gradFuncs;
   auto listParams = std::make_shared<ListParams>();
@@ -149,15 +156,15 @@ void ACov::optimizationPreProcessForData(const Db* db1) const
   _optimPreProcessedData = true;
 }
 
-void ACov::_optimizationPreProcessForTarget(const Db* db2, const VectorInt& nbgh2) const
+void ACov::_optimizationPreProcessForTarget(const Db* db, const VectorInt& nbgh) const
 {
   std::vector<SpacePoint> ps;
 
-  // Add projected samples from db2 (optional)
-  if (nbgh2.empty())
-    db2->getSamplesAsSP(ps, getSpace(), true);
+  // Add projected samples from db (optional)
+  if (nbgh.empty())
+    db->getSamplesAsSP(ps, getSpace(), true);
   else
-    db2->getSamplesFromNbghAsSP(ps, nbgh2);
+    db->getSamplesFromNbghAsSP(ps, getSpace(), nbgh);
   _optimizationPreProcess(2, ps);
 }
 
@@ -236,12 +243,7 @@ bool ACov::checkAndManageNoStatDb(const Db* db, const String& namecol)
   }
   _setNoStatDbIfNecessary(db);
 
-  if (_tabNoStat->getDbNoStatRef()->getUID(namecol) < 0)
-  {
-    messerr("You have to specify a name of a column of the reference Db");
-    return false;
-  }
-  return true;
+  return _tabNoStat->variableExistsInDb(namecol);
 }
 
 void ACov::_setNoStatDbIfNecessary(const Db* db)
@@ -249,11 +251,14 @@ void ACov::_setNoStatDbIfNecessary(const Db* db)
   if (_tabNoStat->getDbNoStatRef() == nullptr)
     attachNoStatDb(db);
 }
+
 void ACov::_attachNoStatDb(const Db* db) {
-  DECLARE_UNUSED(db)} VectorDouble ACov::informCoords(const VectorVectorDouble& coords,
-                                                      const EConsElem& econs,
-                                                      Id iv1,
-                                                      Id iv2) const
+  DECLARE_UNUSED(db)}
+
+VectorDouble ACov::informCoords(const VectorVectorDouble& coords,
+                                const EConsElem& econs,
+                                Id iv1,
+                                Id iv2) const
 {
   VectorDouble result(coords[0].size(), getValue(econs, iv1, iv2));
   _tabNoStat->informCoords(coords, econs, iv1, iv2, result);
@@ -414,13 +419,13 @@ double ACov::evalIvarIpas(double step,
   {
     VectorDouble vec(getNDim(), 0.);
     vec[0] = 1.;
-    VH::multiplyConstant(vec, step);
+    vec.multiplyCst(step);
     p2.move(vec);
   }
   else
   {
     VectorDouble vec(dir);
-    VH::multiplyConstant(vec, step);
+    vec.multiplyCst(step);
     p2.move(vec);
   }
 
@@ -507,8 +512,7 @@ double ACov::evalIsoIvarIpas(double step,
                              const CovCalcMode* mode) const
 {
   /// TODO : Not true whatever the space
-  VectorDouble center = getSpace()->getOrigin();
-  VectorDouble dir    = getSpace()->getUnitaryVector();
+  VectorDouble dir = getSpace()->getUnitaryVector();
   return evalIvarIpas(step, dir, ivar, jvar, mode);
 }
 
@@ -572,40 +576,73 @@ double ACov::evalAverageDbToDb(const Db* db1,
                                Id seed,
                                const CovCalcMode* mode) const
 {
-  auto memo = law_get_random_seed();
+  bool flagSame = db1 == db2;
+  auto memo     = law_get_random_seed();
   if (eps > 0. && seed > 0)
     law_set_random_seed(seed);
 
-  /* Loop on the first sample */
-
   double norme = 0.;
   double total = 0.;
-  for (Id iech1 = 0; iech1 < db1->getNSample(); iech1++)
+
+  if (!flagSame)
   {
-    if (!db1->isActive(iech1)) continue;
-    double w1 = db1->getWeight(iech1);
-    if (isZero(w1)) continue;
-    SpacePoint p1(db1->getSampleCoordinates(iech1));
-
-    /* Loop on the second sample */
-
-    for (Id iech2 = 0; iech2 < db2->getNSample(); iech2++)
+    /* Loop on the first sample */
+    Id nech1 = db1->getNSample();
+    for (Id iech1 = 0; iech1 < nech1; iech1++)
     {
-      if (!db2->isActive(iech2)) continue;
-      double w2 = db2->getWeight(iech2);
-      if (isZero(w2)) continue;
-      VectorDouble coord2 = db2->getSampleCoordinates(iech2);
-      if (eps > 0)
+      if (!db1->isActive(iech1)) continue;
+      double w1 = db1->getWeight(iech1);
+      if (isZero(w1)) continue;
+      SpacePoint p1(db1->getSampleCoordinates(iech1));
+
+      /* Loop on the second sample */
+      for (Id iech2 = 0; iech2 <= iech1; iech2++)
       {
-        for (Id idim = 0, ndim = getNDim(); idim < ndim; idim++)
-          coord2[idim] += eps * law_uniform(-0.5, 0.5);
+        if (!db2->isActive(iech2)) continue;
+        double w2 = db2->getWeight(iech2);
+        if (isZero(w2)) continue;
+        VectorDouble coord2 = db2->getSampleCoordinates(iech2);
+
+        if (eps > 0)
+        {
+          for (Id idim = 0, ndim = getNDim(); idim < ndim; idim++)
+            coord2[idim] += eps * law_uniform(-0.5, 0.5);
+        }
+        SpacePoint p2(coord2);
+
+        Id count = (iech1 == iech2) ? 1 : 2;
+        total += w1 * w2 * count * evalCov(p1, p2, ivar, jvar, mode);
+        norme += w1 * w2 * count;
       }
-      SpacePoint p2(coord2);
+    }
+  }
+  else
+  {
+    /* Loop on the first sample */
+    for (Id iech1 = 0, nech1 = db1->getNSample(); iech1 < nech1; iech1++)
+    {
+      if (!db1->isActive(iech1)) continue;
+      double w1 = db1->getWeight(iech1);
+      if (isZero(w1)) continue;
+      SpacePoint p1(db1->getSampleCoordinates(iech1));
 
-      /* Loop on the dimension of the space */
+      /* Loop on the second sample */
+      for (Id iech2 = 0, nech2 = db2->getNSample(); iech2 < nech2; iech2++)
+      {
+        if (!db2->isActive(iech2)) continue;
+        double w2 = db2->getWeight(iech2);
+        if (isZero(w2)) continue;
+        VectorDouble coord2 = db2->getSampleCoordinates(iech2);
+        if (eps > 0)
+        {
+          for (Id idim = 0, ndim = getNDim(); idim < ndim; idim++)
+            coord2[idim] += eps * law_uniform(-0.5, 0.5);
+        }
+        SpacePoint p2(coord2);
 
-      total += w1 * w2 * evalCov(p1, p2, ivar, jvar, mode);
-      norme += w1 * w2;
+        total += w1 * w2 * evalCov(p1, p2, ivar, jvar, mode);
+        norme += w1 * w2;
+      }
     }
   }
 
@@ -1105,8 +1142,8 @@ Id ACov::evalCovMatInPlaceFromIdx(MatrixDense& mat,
   // Creating the matrix
   Id nvar1 = static_cast<Id>(index1.size());
   Id nvar2 = static_cast<Id>(index2.size());
-  Id neq1  = VH::count(index1);
-  Id neq2  = VH::count(index2);
+  Id neq1  = index1.count();
+  Id neq2  = index2.count();
   if (neq1 <= 0 || neq2 <= 0)
   {
     messerr("The returned matrix has no valid sample and no valid variable");
@@ -1242,8 +1279,8 @@ Id ACov::evalCovMatRHSInPlaceFromIdx(MatrixDense& mat,
   VectorVectorInt index2 = db2->getSampleRanks(ivars, nbgh2, true, false, false);
 
   // Creating the matrix
-  Id neq1 = VH::count(index1);
-  Id neq2 = VH::count(index2);
+  Id neq1 = index1.count();
+  Id neq2 = index2.count();
   if (neq1 <= 0 || neq2 <= 0)
   {
     messerr("The returned matrix has no valid sample and no valid variable");
@@ -1598,7 +1635,7 @@ Id ACov::evalCovMatSymInPlaceFromIdx(MatrixSymmetric& mat,
                                      bool cleanOptim) const
 {
   // Creating the matrix
-  Id neq1 = VH::count(index1);
+  Id neq1 = index1.count();
   if (neq1 <= 0)
   {
     messerr("The returned matrix has no valid sample and no valid variable");
@@ -2374,7 +2411,7 @@ VectorDouble ACov::envelop(const VectorDouble& hh,
   VectorDouble g2 = sample(hh, codir, jvar, jvar, mode);
 
   for (Id i = 0; i < nh; i++)
-    gg[i] = isign * sqrt(abs(g1[i] * g2[i]));
+    gg[i] = isign * sqrt(ABS(g1[i] * g2[i]));
 
   return gg;
 }
@@ -2484,4 +2521,70 @@ void ACov::setContext(const CovContext& ctxt)
   _ctxt = ctxt;
   _setContext(ctxt);
 }
+
+bool ACov::isValidForSpectral() const
+{
+  return false;
+}
+
+MatrixDense ACov::simulateSpectralOmega(Id ns) const
+{
+  DECLARE_UNUSED(ns);
+  message("ACov::simulateSpectralOmega: Not implemented");
+  return MatrixDense();
+}
+
+#ifdef HDF5
+bool ACov::deserializeH5(H5::Group& grp)
+{
+  // This function can seem useless. It is there to ensure the systematic call
+  // of the base class deserialization when inherited classes do not need it.
+  auto acovG = SerializeHDF5::getGroup(grp, "ACov");
+  if (!acovG) return false;
+
+  bool ret = true;
+
+  return ret;
+}
+
+bool ACov::serializeH5(H5::Group& grp) const
+{
+  // This function can seem useless. It is there to ensure the systematic call
+  // of the base class deserialization when inherited classes do not need it.
+  auto acovG = grp.createGroup("ACov");
+
+  bool ret = true;
+
+  return ret;
+}
+#endif
+
+SpectrumRN ACov::simulateSpectrumRN(Id ns, const ACov* cov0) const
+{
+  MatrixDense omega(ns, getNDim());
+  MatrixDense gamma(ns, getNVar());
+  if (cov0 == nullptr) // direct sampling of the spectral measure of CorAniso
+  {
+    omega = simulateSpectralOmega(ns);
+    for (Id ib = 0; ib < ns; ib++)
+    {
+      double val = sqrt(-log(law_uniform()) * 2 / ns);
+      gamma.setValue(ib, 0, val);
+    }
+  }
+  else // Importance sampling using the auxiliary the spectral measure of cov0
+  {
+    omega = cov0->simulateSpectralOmega(ns);
+    for (Id ib = 0; ib < ns; ib++)
+    {
+      VectorDouble freq = omega.getRow(ib);
+      double ratioIS = evalSpectrum(freq, 0, 0) / cov0->evalSpectrum(freq, 0, 0);
+      double val = sqrt(-log(law_uniform()) * 2 / ns * ratioIS);
+      gamma.setValue(ib, 0, val);
+    }
+  }
+  
+  return SpectrumRN(gamma, omega);
+}
+
 } // namespace gstlrn

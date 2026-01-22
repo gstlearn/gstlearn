@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Db/DbMeshStandard.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/SerializeHDF5.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Db/Db.hpp"
@@ -66,7 +65,7 @@ String DbMeshStandard::toString(const AStringFormat* strfmt) const
   DbStringFormat dsf;
   if (dbfmt != nullptr) dsf = *dbfmt;
 
-  sstr << toTitle(0, "Data Base for Standard Meshing");
+  sstr << toStrTitle(0, "Data Base for Standard Meshing");
 
   sstr << _toStringCommon(&dsf);
 
@@ -127,9 +126,9 @@ DbMeshStandard::createFromExternal(const MatrixDense& apices,
   return dbmesh;
 }
 
-bool DbMeshStandard::_deserializeAscii(std::istream& is, bool verbose)
+bool DbMeshStandard::_deserializeAscii(std::istream& is)
 {
-  Id ndim = 0;
+  Id ndim  = 0;
   bool ret = true;
 
   // Reading the header
@@ -142,12 +141,12 @@ bool DbMeshStandard::_deserializeAscii(std::istream& is, bool verbose)
 
   // Reading the Db information
 
-  ret = ret && Db::_deserializeAscii(is, verbose);
+  ret = ret && Db::_deserializeAscii(is);
 
   return ret;
 }
 
-bool DbMeshStandard::_serializeAscii(std::ostream& os, bool verbose) const
+bool DbMeshStandard::_serializeAscii(std::ostream& os) const
 {
   bool ret = true;
 
@@ -161,7 +160,7 @@ bool DbMeshStandard::_serializeAscii(std::ostream& os, bool verbose) const
 
   /* Writing the tail of the file */
 
-  ret = ret && Db::_serializeAscii(os, verbose);
+  ret = ret && Db::_serializeAscii(os);
 
   return ret;
 }
@@ -235,7 +234,7 @@ VectorDouble DbMeshStandard::getCoordinatesPerMesh(Id imesh, Id idim, bool flagC
   return vec;
 }
 #ifdef HDF5
-bool DbMeshStandard::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+bool DbMeshStandard::deserializeH5(H5::Group& grp)
 {
   auto dbg = SerializeHDF5::getGroup(grp, "DbMeshStandard");
   if (!dbg)
@@ -245,18 +244,18 @@ bool DbMeshStandard::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbos
 
   /* Read the grid characteristics */
   bool ret = true;
-  Id ndim = 0;
+  Id ndim  = 0;
 
   ret = ret && SerializeHDF5::readValue(*dbg, "NDim", ndim);
 
-  ret = ret && _mesh._deserializeH5(*dbg, verbose);
+  ret = ret && _mesh.deserializeH5(*dbg);
 
-  ret = ret && Db::_deserializeH5(*dbg, verbose);
+  ret = ret && Db::deserializeH5(*dbg);
 
   return ret;
 }
 
-bool DbMeshStandard::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+bool DbMeshStandard::serializeH5(H5::Group& grp) const
 {
   auto dbG = grp.createGroup("DbMeshStandard");
 
@@ -264,11 +263,11 @@ bool DbMeshStandard::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
 
   ret = ret && SerializeHDF5::writeValue(dbG, "NDim", getNDim());
 
-  ret = ret && _mesh._serializeH5(dbG, verbose);
+  ret = ret && _mesh.serializeH5(dbG);
 
-  ret = ret && Db::_serializeH5(dbG, verbose);
+  ret = ret && Db::serializeH5(dbG);
 
   return ret;
 }
 #endif
-}
+} // namespace gstlrn

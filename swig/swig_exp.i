@@ -11,19 +11,25 @@
 
 // Export VectorXXX classes
 %include Basic/VectorT.hpp
-%include Basic/VectorNumT.hpp
-%template(VectorTInt)         gstlrn::VectorT< long >;
+%template(VectorTInt)         gstlrn::VectorT< long long >;
 %template(VectorTDouble)      gstlrn::VectorT< double >;
 %template(VectorTFloat)       gstlrn::VectorT< float >;
 %template(VectorBool)         gstlrn::VectorT< UChar >; // See VectorT.hpp
 %template(VectorString)       gstlrn::VectorT< String >;
-%template(VectorInt)          gstlrn::VectorNumT< long >;
+
+%include Basic/VectorNumT.hpp
+%template(VectorInt)          gstlrn::VectorNumT< long long >;
 %template(VectorDouble)       gstlrn::VectorNumT< double >;
 %template(VectorFloat)        gstlrn::VectorNumT< float >;
 %template(VectorUChar)        gstlrn::VectorNumT< UChar >;
-%template(VectorVectorInt)    gstlrn::VectorT< VectorNumT< long > >;
-%template(VectorVectorDouble) gstlrn::VectorT< VectorNumT< double > >;
-%template(VectorVectorFloat)  gstlrn::VectorT< VectorNumT< float > >;
+
+%template(VectorTVectorInt)    gstlrn::VectorT< VectorNumT< long long > >;
+%template(VectorTVectorDouble) gstlrn::VectorT< VectorNumT< double > >;
+%template(VectorTVectorFloat)  gstlrn::VectorT< VectorNumT< float > >;
+
+%template(VectorVectorInt)    gstlrn::VectorNumT< VectorNumT< long long > >;
+%template(VectorVectorDouble) gstlrn::VectorNumT< VectorNumT< double > >;
+%template(VectorVectorFloat)  gstlrn::VectorNumT< VectorNumT< float > >;
 //}
 %include Basic/ICloneable.hpp
 %include Basic/RepeatMacro.hpp
@@ -33,6 +39,10 @@
 %include geoslib_enum.h
 %include geoslib_d.h
 %include geoslib_f.h
+
+%include Transform/ATransform.hpp
+%include Transform/TuckeyGH.hpp
+%include Transform/YeoJohnson.hpp
 
 %include Enum/AEnum.hpp
 %include Enum/EKrigOpt.hpp
@@ -46,6 +56,7 @@
 %include Enum/ECalcVario.hpp
 %include Enum/EConvType.hpp
 %include Enum/ECov.hpp
+%include Enum/ECSV.hpp
 %include Enum/ETape.hpp
 %include Enum/ELoadBy.hpp
 %include Enum/ELoc.hpp
@@ -72,6 +83,7 @@
 %include Basic/AStringFormat.hpp
 %include Basic/ASerializable.hpp
 
+%include Basic/Message.hpp
 %include Basic/NamingConvention.hpp
 
 %include Calculators/ACalculator.hpp
@@ -106,6 +118,7 @@
 %include Basic/FFT.hpp
 %include Basic/PolyLine2D.hpp
 %include Basic/Law.hpp
+%include Basic/LawStable.hpp
 %include Basic/MathFunc.hpp
 %include Basic/Indirection.hpp
 
@@ -158,6 +171,8 @@
 %include Matrix/MatrixInt.hpp
 %include Matrix/Table.hpp
 
+%include MLayers/MLayers.hpp
+
 %include Skin/ISkinFunctions.hpp
 %include Skin/Skin.hpp
 
@@ -166,6 +181,7 @@
 %include Mesh/MeshETurbo.hpp
 %include Mesh/MeshSpherical.hpp
 %include Mesh/MeshSphericalExt.hpp
+%include Mesh/VectorMeshes.hpp
 
 %include Polynomials/APolynomial.hpp
 %include Polynomials/ClassicalPolynomial.hpp
@@ -243,13 +259,14 @@
 %include Covariances/ACov.hpp
 %include Covariances/CovBase.hpp
 %include Covariances/CovProportional.hpp
-%include Covariances/CorAniso.hpp
-%include Covariances/ACovFunc.hpp
+%include Covariances/AKernel.hpp
 %include Covariances/CovList.hpp
 %include Covariances/CovAnisoList.hpp
 %include Covariances/CovAniso.hpp
 %include Covariances/CovGradientGeneric.hpp
 %include Covariances/CovGradientAnalytic.hpp
+%include Covariances/CorAniso.hpp
+%include Covariances/CorGaussianMixture.hpp
 %include Covariances/CorGneiting.hpp
 %include Covariances/CorMatern.hpp
 %include Covariances/CovLMCTapering.hpp
@@ -257,37 +274,38 @@
 %include Covariances/CovLMCAnamorphosis.hpp
 %include Covariances/CovContext.hpp
 %include Covariances/CovCalcMode.hpp
-%include Covariances/CovBesselJ.hpp
-%include Covariances/CovMatern.hpp
-%include Covariances/CovCauchy.hpp
-%include Covariances/CovCosExp.hpp
-%include Covariances/CovCosinus.hpp
-%include Covariances/CovCubic.hpp
-%include Covariances/CovExponential.hpp
-%include Covariances/CovGamma.hpp
-%include Covariances/CovGaussian.hpp
-%include Covariances/CovGC1.hpp
-%include Covariances/CovGC3.hpp
-%include Covariances/CovGC5.hpp
-%include Covariances/CovGCspline2.hpp
-%include Covariances/CovGCspline.hpp
-%include Covariances/CovLinear.hpp
-%include Covariances/CovNugget.hpp
-%include Covariances/CovPenta.hpp
-%include Covariances/CovPower.hpp
-%include Covariances/CovReg1D.hpp
-%include Covariances/CovSincard.hpp
-%include Covariances/CovSpherical.hpp
-%include Covariances/CovStable.hpp
-%include Covariances/CovStorkey.hpp
-%include Covariances/CovTriangle.hpp
-%include Covariances/CovWendland0.hpp
-%include Covariances/CovWendland1.hpp
-%include Covariances/CovWendland2.hpp
-%include Covariances/CovMarkov.hpp
-%include Covariances/CovGeometric.hpp
-%include Covariances/CovPoisson.hpp
-%include Covariances/CovLinearSph.hpp
+%include Covariances/KernelBesselJ.hpp
+%include Covariances/KernelMatern.hpp
+%include Covariances/KernelCauchy.hpp
+%include Covariances/KernelCauchyGen.hpp
+%include Covariances/KernelCosExp.hpp
+%include Covariances/KernelCosinus.hpp
+%include Covariances/KernelCubic.hpp
+%include Covariances/KernelExponential.hpp
+%include Covariances/KernelGamma.hpp
+%include Covariances/KernelGaussian.hpp
+%include Covariances/KernelGC1.hpp
+%include Covariances/KernelGC3.hpp
+%include Covariances/KernelGC5.hpp
+%include Covariances/KernelGCspline2.hpp
+%include Covariances/KernelGCspline.hpp
+%include Covariances/KernelLinear.hpp
+%include Covariances/KernelNugget.hpp
+%include Covariances/KernelPenta.hpp
+%include Covariances/KernelPower.hpp
+%include Covariances/KernelReg1D.hpp
+%include Covariances/KernelSincard.hpp
+%include Covariances/KernelSpherical.hpp
+%include Covariances/KernelStable.hpp
+%include Covariances/KernelStorkey.hpp
+%include Covariances/KernelTriangle.hpp
+%include Covariances/KernelWendland0.hpp
+%include Covariances/KernelWendland1.hpp
+%include Covariances/KernelWendland2.hpp
+%include Covariances/KernelMarkov.hpp
+%include Covariances/KernelGeometric.hpp
+%include Covariances/KernelPoisson.hpp
+%include Covariances/KernelLinearSph.hpp
 %include Covariances/CovDiffusionAdvection.hpp
 %include Covariances/CovHelper.hpp
 
@@ -377,7 +395,10 @@
 %include Simulation/CalcSimuTurningBands.hpp
 %include Simulation/TurningBandDirection.hpp
 %include Simulation/TurningBandOperate.hpp
-%include Simulation/SimuSpectral.hpp
+%include Simulation/ASimuSpectral.hpp
+%include Simulation/SimuSpectralRN.hpp
+%include Simulation/SpectrumRN.hpp
+%include Simulation/SimuSpectralS2.hpp
 %include Simulation/BooleanObject.hpp
 %include Simulation/SimuBoolean.hpp
 %include Simulation/SimuBooleanParam.hpp

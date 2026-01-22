@@ -81,7 +81,7 @@ String AMesh::toString(const AStringFormat* strfmt) const
 
   if (!_extendMin.empty() && !_extendMax.empty())
   {
-    sstr << toTitle(1, "Bounding Box Extension");
+    sstr << toStrTitle(1, "Bounding Box Extension");
     for (Id idim = 0; idim < _nDim; idim++)
       sstr << "Dim #" << idim + 1 << " - Min:" << _extendMin[idim] << " - Max:" << _extendMax[idim] << std::endl;
   }
@@ -595,11 +595,11 @@ void AMesh::dumpNeighborhood(std::vector<VectorInt>& Vmesh, Id nline_max)
   if (nline_max > 0) nmax = MIN(nmax, nline_max);
   for (Id irow = 0; irow < nmax; irow++)
   {
-    VH::dump(String(), Vmesh[irow]);
+    printVector(Vmesh[irow], String(), true, true);
   }
 }
 
-bool AMesh::_deserializeAscii(std::istream& is, bool /*verbose*/)
+bool AMesh::_deserializeAscii(std::istream& is)
 {
   bool ret = true;
   ret      = ret && _recordRead<Id>(is, "Space Dimension", _nDim);
@@ -608,7 +608,7 @@ bool AMesh::_deserializeAscii(std::istream& is, bool /*verbose*/)
   return ret;
 }
 
-bool AMesh::_serializeAscii(std::ostream& os, bool /*verbose*/) const
+bool AMesh::_serializeAscii(std::ostream& os) const
 {
   bool ret = true;
   ret      = ret && _recordWrite<Id>(os, "Space Dimension", getNDim());
@@ -897,7 +897,7 @@ VectorDouble AMesh::_defineUnits(void) const
   return units;
 }
 #ifdef HDF5
-bool AMesh::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+bool AMesh::deserializeH5(H5::Group& grp)
 {
   auto ameshG = SerializeHDF5::getGroup(grp, "AMesh");
   if (!ameshG)
@@ -914,7 +914,7 @@ bool AMesh::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   return ret;
 }
 
-bool AMesh::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+bool AMesh::serializeH5(H5::Group& grp) const
 {
   auto ameshG = grp.createGroup("AMesh");
 
@@ -926,14 +926,5 @@ bool AMesh::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
   return ret;
 }
 #endif
-
-void dumpMeshes(const VectorMeshes& meshes)
-{
-  mestitle(1, "Contents of the VectorMeshes");
-  Id nmesh = static_cast<Id>(meshes.size());
-  message("It contains %d mesh(es)\n", nmesh);
-  for (Id imesh = 0; imesh < nmesh; imesh++)
-    messageFlush(meshes[imesh]->toString());
-}
 
 } // namespace gstlrn

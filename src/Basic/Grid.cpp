@@ -9,15 +9,12 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Basic/Grid.hpp"
-
 #include "Basic/SerializeHDF5.hpp"
-#include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Geometry/Rotation.hpp"
 #include "Matrix/MatrixSquare.hpp"
 #include "geoslib_define.h"
-
 #include <cmath>
 
 namespace gstlrn
@@ -315,20 +312,20 @@ String Grid::toString(const AStringFormat* strfmt) const
   std::stringstream sstr;
   if (_nDim <= 0) return sstr.str();
 
-  sstr << toTitle(1, "Grid characteristics:");
+  sstr << toStrTitle(1, "Grid characteristics:");
   sstr << "Origin : ";
   for (Id idim = 0; idim < _nDim; idim++)
-    sstr << toDouble(_x0[idim]);
+    sstr << toStr(_x0[idim]);
   sstr << std::endl;
 
   sstr << "Mesh   : ";
   for (Id idim = 0; idim < _nDim; idim++)
-    sstr << toDouble(_dx[idim]);
+    sstr << toStr(_dx[idim]);
   sstr << std::endl;
 
   sstr << "Number : ";
   for (Id idim = 0; idim < _nDim; idim++)
-    sstr << toInt(_nx[idim]);
+    sstr << toStr(_nx[idim]);
   sstr << std::endl;
 
   sstr << _rotation.toString(strfmt);
@@ -424,7 +421,7 @@ void Grid::getCoordinatesByCornerInPlace(VectorDouble& coor, const VectorInt& ic
 {
   if (static_cast<Id>(coor.size()) != _nDim) return;
   initThread();
-  VH::fill(_iwork0, 0);
+  _iwork0.fill(0);
   for (Id idim = 0; idim < _nDim; idim++)
     if (icorner[idim] > 0) _iwork0[idim] = _nx[idim] - 1;
   getCoordinatesByIndiceInPlace(coor, _iwork0);
@@ -916,11 +913,11 @@ VectorInt Grid::iteratorNext(void)
 {
 
   VectorInt indices(_nDim);
-  iteratorNext(indices.getVector());
+  iteratorNext(indices);
   return indices;
 }
 
-void Grid::iteratorNext(std::vector<Id>& indices)
+void Grid::iteratorNext(VectorInt& indices)
 {
   Id idim;
   Id iech = _iter;
@@ -1159,7 +1156,7 @@ VectorInt Grid::gridIndices(const VectorInt& nx,
                             bool verbose)
 {
   Id ndim  = static_cast<Id>(nx.size());
-  Id ncell = VH::product(nx);
+  Id ncell = nx.prod();
 
   // Decode the string
 
@@ -1358,7 +1355,7 @@ bool Grid::sampleBelongsToCell(const VectorDouble& coor,
   return true;
 }
 
-bool Grid::_deserializeAscii(std::istream& is, [[maybe_unused]] bool verbose)
+bool Grid::_deserializeAscii(std::istream& is)
 {
   Id ndim = 0;
   VectorInt nx;
@@ -1394,7 +1391,7 @@ bool Grid::_deserializeAscii(std::istream& is, [[maybe_unused]] bool verbose)
   return ret;
 }
 
-bool Grid::_serializeAscii(std::ostream& os, [[maybe_unused]] bool verbose) const
+bool Grid::_serializeAscii(std::ostream& os) const
 {
   bool ret = true;
 
@@ -1418,7 +1415,7 @@ bool Grid::_serializeAscii(std::ostream& os, [[maybe_unused]] bool verbose) cons
 }
 
 #ifdef HDF5
-bool Grid::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+bool Grid::deserializeH5(H5::Group& grp)
 {
   auto gridG = SerializeHDF5::getGroup(grp, "Grid");
   if (!gridG)
@@ -1444,7 +1441,7 @@ bool Grid::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   return ret;
 }
 
-bool Grid::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+bool Grid::serializeH5(H5::Group& grp) const
 {
   auto gridG = grp.createGroup("Grid");
 

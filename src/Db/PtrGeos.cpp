@@ -9,9 +9,8 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Db/PtrGeos.hpp"
-#include "Basic/AStringable.hpp"
+#include "Basic/Message.hpp"
 #include "Basic/String.hpp"
-#include "Basic/Utilities.hpp"
 
 #include <sstream>
 #include <cstring>
@@ -201,7 +200,7 @@ Id locatorIdentify(String string, ELoc* ret_locatorType, Id* ret_locatorIndex, I
   }
 
   // Decode the remaining characteristics
-  size_t lng = static_cast<size_t>(strlen(DEF_LOCATOR[found].SREF));
+  auto lng = static_cast<size_t>(strlen(DEF_LOCATOR[found].SREF));
   if (string_loc.size() > lng) inum = atoi(&string_loc[lng]);
   mult = (DEF_LOCATOR[found].IREF == 0);
   if (!mult && inum > 1)

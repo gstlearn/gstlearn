@@ -10,8 +10,6 @@
 /******************************************************************************/
 #include "Polynomials/Hermite.hpp"
 #include "Basic/Law.hpp"
-#include "Basic/Utilities.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Matrix/MatrixSquare.hpp"
 
 #include <cmath>
@@ -176,7 +174,7 @@ VectorDouble hermitePolynomials(double y, double r, const VectorInt& ifacs)
   Id nfact = static_cast<Id>(ifacs.size());
   VectorDouble vec(nfact);
 
-  Id nbpoly         = VH::maximum(ifacs);
+  Id nbpoly         = ifacs.maximum();
   VectorDouble poly = hermitePolynomials(y, r, nbpoly + 1);
 
   for (Id ifac = 0; ifac < nfact; ifac++)

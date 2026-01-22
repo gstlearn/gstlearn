@@ -9,12 +9,13 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Basic/OptCustom.hpp"
-#include "Basic/AStringable.hpp"
+#include "Basic/Message.hpp"
+#include "Basic/String.hpp"
 
-#include <iostream>
-#include <sstream>
 #include <iomanip>
+#include <iostream>
 #include <map>
+#include <sstream>
 
 namespace gstlrn
 {
@@ -32,7 +33,7 @@ double OptCustom::query(const String& name, double valdef)
 void OptCustom::define(const String& name, double value)
 {
   // Check if the entry already exists
-  for (auto &e: _cst)
+  for (auto& e: _cst)
   {
     if (e.first == name)
     {
@@ -42,12 +43,12 @@ void OptCustom::define(const String& name, double value)
   }
 
   // Add the entry
-  _cst.insert({name,value});
+  _cst.insert({name, value});
 }
 
 void OptCustom::undefine(const String& name)
 {
-  for (auto &e: _cst)
+  for (auto& e: _cst)
   {
     if (e.first == name)
     {
@@ -61,13 +62,12 @@ void OptCustom::display(void)
 {
   std::stringstream sstr;
 
-  sstr << toTitle(1,"List of Custom Options");
+  sstr << toStrTitle(1, "List of Custom Options");
 
   for (const auto& e: _cst)
   {
-    sstr << std::setw(50) << e.first << " : " <<
-        e.second << std::endl;
+    sstr << std::setw(50) << e.first << " : " << e.second << std::endl;
   }
   messageFlush(sstr.str());
 }
-}
+} // namespace gstlrn

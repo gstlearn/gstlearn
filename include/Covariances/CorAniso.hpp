@@ -16,6 +16,7 @@
 #include "Covariances/ACov.hpp"
 #include "Covariances/TabNoStat.hpp"
 #include "Covariances/TabNoStatCovAniso.hpp"
+#include "Simulation/SimuSpectralRN.hpp"
 #include "Enum/EConsElem.hpp"
 #include "Model/CovInternal.hpp"
 #include "geoslib_define.h"
@@ -26,7 +27,7 @@
 #include "Arrays/Array.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Basic/Tensor.hpp"
-#include "Covariances/ACovFunc.hpp"
+#include "Covariances/AKernel.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Space/SpacePoint.hpp"
 #include <array>
@@ -38,6 +39,7 @@ class Rotation;
 class MatrixSquare;
 class MatrixDense;
 class CovInternal;
+class SpectrumRN;
 /**
  * \brief
  * This class describes an **elementary covariance**.
@@ -52,12 +54,13 @@ class CovInternal;
 class GSTLEARN_EXPORT CorAniso: public ACov
 {
 public:
-  CorAniso(const ECov& type, const CovContext& ctxt);
-  CorAniso(const String& symbol, const CovContext& ctxt);
-  CorAniso(const ECov& type,
-           double range,
-           double param,
+  CorAniso(const CovContext& ctxt, const ECov& type);
+  CorAniso(const CovContext& ctxt, const String& symbol);
+  CorAniso(
            const CovContext& ctxt,
+            const ECov& type,
+           double param,
+           double range,
            bool flagRange = true);
   CorAniso(const CorAniso& r);
   CorAniso& operator=(const CorAniso& r);
@@ -71,6 +74,13 @@ public:
 
   /// ASpaceObject Interface
   bool isConsistent(const ASpace* space) const override;
+
+  /// Interface to ASerializable
+  String getNFName() const override { return "Covariance"; }
+#ifdef HDF5
+  bool deserializeH5(H5::Group& grp) override;
+  bool serializeH5(H5::Group& grp) const override;
+#endif
 
   /// ACov Interface
   Id getNVar() const override { return 1; }
@@ -91,6 +101,8 @@ public:
   VectorDouble evalSpectrumOnSphere(Id n,
                                     bool flagNormDistance = false,
                                     bool flagCumul        = false) const override;
+  double evalSpectrumRatio(const VectorDouble& freq, Id ivar, Id jvar, const ACov* cov0) const override;
+
   double evalSpectrum(const VectorDouble& freq,
                       Id ivar = 0,
                       Id jvar = 0) const override;
@@ -108,8 +120,16 @@ public:
 
   bool isValidForTurningBand() const;
   double simulateTurningBand(double t0, TurningBandOperate& operTB) const;
-  bool isValidForSpectral() const;
-  MatrixDense simulateSpectralOmega(Id nb) const;
+  bool isValidForSpectral() const override;
+  MatrixDense simulateSpectralOmega(Id nb) const override;
+  SpectrumRN simulateSpectrumRN(Id ns, const ACov* cov0 = nullptr) const override;
+
+  static CorAniso* create(const CovContext& ctxt,
+                          const ECov& type,
+                          const VectorDouble& params,
+                          const VectorDouble& ranges,
+                          const VectorDouble& angles = VectorDouble(),
+                          bool flagRange             = true);
 
   static CorAniso* createIsotropic(const CovContext& ctxt,
                                    const ECov& type,
@@ -134,7 +154,8 @@ public:
                                           const VectorDouble& angles = VectorDouble(),
                                           bool flagRange             = true);
 
-  void setParam(double param);
+  void setParam(double param, Id ipar = 0);
+  void setParams(const VectorDouble& params);
   void setNoStatFactor(double noStatFactor) { _noStatFactor = noStatFactor; }
 
   /// Practical range
@@ -170,7 +191,7 @@ public:
   const MatrixSquare& getAnisoRotMat() const { return _aniso.getMatrixDirect(); }
   const MatrixSquare& getAnisoInvMat() const { return _aniso.getMatrixInverse(); }
   VectorDouble getAnisoCoeffs() const;
-  double getAnisoAngles(Id idim) const { return getAnisoAngles()[idim]; }
+  double getAnisoAngle(Id idim) const { return getAnisoAngles()[idim]; }
   double getAnisoRotMat(Id idim, Id jdim) const { return _aniso.getMatrixDirect().getValue(idim, jdim); }
   double getAnisoCoeff(Id idim) const { return getAnisoCoeffs()[idim]; }
   const ECov& getType() const { return _corfunc->getType(); }
@@ -189,7 +210,7 @@ public:
   bool hasRotation() const { return _aniso.hasRotation(); }
   const Tensor& getAniso() const { return _aniso; }
   void setAniso(const Tensor& aniso) { _aniso = aniso; }
-  const ACovFunc* getCorFunc() const { return _corfunc; }
+  const AKernel* getCorFunc() const { return _corfunc; }
   Id getNGradParam() const;
   bool hasCovDerivative() const { return _corfunc->hasCovDerivative(); }
   bool hasCovOnSphere() const { return _corfunc->hasCovOnSphere(); }
@@ -239,7 +260,7 @@ public:
   void computeMarkovCoeffs();
   double getCorrec() const;
   double getFullCorrec() const;
-  void nostatUpdate(CovInternal* covint);
+  void nostatUpdate(CovInternal* covint) const;
 
   void informMeshByMeshForAnisotropy(const AMesh* amesh) const;
   void informMeshByApexForAnisotropy(const AMesh* amesh) const;
@@ -248,7 +269,7 @@ public:
 
   /// Tell if the use of Optimization is enabled or not
 
-  void updateCovByPoints(Id icas1, Id iech1, Id icas2, Id iech2) override;
+  void updateCovByPoints(Id icas1, Id iech1, Id icas2, Id iech2) const override;
   void updateCovByMesh(Id imesh, bool aniso = true) const override;
   double getValue(const EConsElem& econs, Id iv1, Id iv2) const override;
   void computeCorrec();
@@ -318,14 +339,14 @@ private:
   bool _isVariableValid(Id ivar) const;
   void _updateFromContext() override;
 
-  virtual double _eval(const SpacePoint& p1,
-                       const SpacePoint& p2,
-                       Id ivar                 = 0,
-                       Id jvar                 = 0,
-                       const CovCalcMode* mode = nullptr) const override;
+  double _eval(const SpacePoint& p1,
+               const SpacePoint& p2,
+               Id ivar                 = 0,
+               Id jvar                 = 0,
+               const CovCalcMode* mode = nullptr) const override;
 
 private:
-  ACovFunc* _corfunc; /// Basic correlation function
+  AKernel* _corfunc; /// Basic correlation function
   std::vector<ParamInfo> _scales;
   std::vector<ParamInfo> _angles;
   mutable Tensor _aniso;        /// Anisotropy parameters

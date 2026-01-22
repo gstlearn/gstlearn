@@ -83,12 +83,12 @@ int main(int argc, char* argv[])
 
     // - for a set of neighboring samples
     neighs = ball.getIndices(pt1, nb_neigh);
-    VH::dump("Indices of the target neighbors", neighs);
+    printVector(neighs, "Indices of the target neighbors", true, true);
 
     // - for a more complete output (in place)
     (void)ball.queryOneInPlace(target, nb_neigh, neighs, distances);
-    VH::dump("Indices of the neighbors", neighs);
-    VH::dump("Distances to the target", distances);
+    printVector(neighs, "Indices of the neighbors", true, true);
+    printVector(distances, "Distances to the target", true, true);
   }
 
   if (mode == 0 || mode == 2)
@@ -114,7 +114,7 @@ int main(int argc, char* argv[])
       data->getSampleAsSPInPlace(pt2, iech);
       ball.setAvailable(iech, true);
       (void)ball.queryOneInPlace(pt2.getCoordsUnprotected(), nb_neigh, neighs, distances);
-      VH::dump("Indices of the neighbors", neighs);
+      printVector(neighs, "Indices of the neighbors", true, true);
     }
   }
 
@@ -139,7 +139,7 @@ int main(int argc, char* argv[])
       for (Id icol = 0; icol < ncols; icol++)
       {
         Id value = mat(irow, icol);
-        if (IFFFF(value))
+        if (isNA(value))
           message("   NA");
         else
           message(" %4d", mat(irow, icol));
@@ -184,8 +184,8 @@ int main(int argc, char* argv[])
 
     // - for a set of neighboring samples
     (void)ball.queryOneInPlace(target, nb_neigh, neighs, distances);
-    VH::dump("Indices of the neighbors", neighs);
-    VH::dump("Distances to the target", distances);
+    printVector(neighs, "Indices of the neighbors", true, true);
+    printVector(distances, "Distances to the target", true, true);
   }
   return (0);
 }

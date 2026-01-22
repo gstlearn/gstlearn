@@ -10,10 +10,11 @@
 /******************************************************************************/
 
 #include "LinearOp/InvNuggetOp.hpp"
-#include "Basic/AStringable.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Db/Db.hpp"
 #include "LinearOp/CholeskyDense.hpp"
+#include "Matrix/EigenVectors.hpp"
 #include "Model/Model.hpp"
 #include "geoslib_define.h"
 #include <algorithm>
@@ -89,7 +90,8 @@ static Id _loadPositions(Id iech,
                          const VectorInt& cumul,
                          VectorInt& positions,
                          VectorInt& identity,
-                         Id* rank_arg)
+                         Id* rank_arg,
+                         VectorInt& lastPositions)
 {
   Id nvar = static_cast<Id>(cumul.size());
   Id ndef = 0;
@@ -97,7 +99,7 @@ static Id _loadPositions(Id iech,
   for (Id ivar = 0; ivar < nvar; ivar++)
   {
     rank    = 2 * rank;
-    Id ipos = VH::whereElement(index1[ivar], iech);
+    Id ipos = VH::whereElement(index1[ivar], iech, lastPositions[ivar]);
     if (ipos < 0)
       positions[ivar] = -1;
     else
@@ -106,6 +108,8 @@ static Id _loadPositions(Id iech,
       identity[ndef]  = ivar;
       ndef++;
       rank += 1;
+      // Update last position for next search
+      lastPositions[ivar] = ipos;
     }
   }
   *rank_arg = rank;
@@ -121,14 +125,13 @@ static Id _loadPositions(Id iech,
 
 double InvNuggetOp::_updateQuantities(MatrixSymmetric& sillsinv)
 {
-  sillsinv.computeEigen();
-  auto eigenvals        = sillsinv.getEigenValues();
+  auto eigenvectors     = EigenVectors(sillsinv);
+  const auto& eigenvals = eigenvectors.getEigenValues();
   auto rangevals        = std::minmax_element(eigenvals.begin(), eigenvals.end());
   _rangeEigenVal.first  = MIN(_rangeEigenVal.first, *rangevals.first);
   _rangeEigenVal.second = MAX(_rangeEigenVal.second, *rangevals.second);
-  std::transform(eigenvals.begin(), eigenvals.end(), eigenvals.begin(), [](double x)
-                 { return std::log(x); });
-  return std::accumulate(eigenvals.begin(), eigenvals.end(), 0.);
+  return std::accumulate(eigenvals.begin(), eigenvals.end(), 0., [](const double acc, const double x)
+                         { return acc + std::log(x); });
 }
 
 /**
@@ -191,7 +194,7 @@ void InvNuggetOp::_buildInvNugget(const Db* db, Model* model, const SPDEParam& p
   // 'cumul' counts the number of valid positions for all variables before 'ivar'
   VectorInt cumul = VH::cumulIncrement(index1);
 
-  Id sizetot = VH::count(index1);
+  Id sizetot = index1.count();
   // Convert from triplet to sparse matrix
   _allocate(sizetot, sizetot, nvar);
   _cholNuggetMatrix = std::make_shared<MatrixSparse>(sizetot, sizetot, nvar);
@@ -205,7 +208,7 @@ void InvNuggetOp::_buildInvNugget(const Db* db, Model* model, const SPDEParam& p
   bool flag_verr     = (nverr > 0);
   bool flag_isotopic = true;
   for (Id ivar = 1; ivar < nvar && flag_isotopic; ivar++)
-    if (!VH::isEqual(index1[ivar], index1[0])) flag_isotopic = false;
+    if (!index1[ivar].isEqual(index1[0])) flag_isotopic = false;
   bool flag_uniqueVerr = true;
   VectorDouble verrDef(nverr, 0.);
   if (flag_verr)
@@ -226,7 +229,7 @@ void InvNuggetOp::_buildInvNugget(const Db* db, Model* model, const SPDEParam& p
 
   // Pre-calculate the inverse of the sill matrix (if constant)
 
-  std::vector<double> cacheLogDet;
+  VectorDouble cacheLogDet;
   std::vector<CholeskyDense> cholcache;
 
   if (flag_constant)
@@ -245,12 +248,13 @@ void InvNuggetOp::_buildInvNugget(const Db* db, Model* model, const SPDEParam& p
   Id ndef = nvar;
   VectorInt position(nvar);
   VectorInt identity(nvar);
+  VectorInt lastPositions(nvar, 0); // Track last found positions for optimization
   for (Id iech = 0; iech < nech; iech++)
   {
     if (!db->isActive(iech)) continue;
 
     // Count the number of variables for which current sample is valid
-    ndef = _loadPositions(iech, index1, cumul, position, identity, &rank);
+    ndef = _loadPositions(iech, index1, cumul, position, identity, &rank, lastPositions);
     if (ndef <= 0) continue;
 
     // If all samples are defined, in the stationary case, use the inverted sill matrix

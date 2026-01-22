@@ -218,7 +218,7 @@ void CalcSimuPost::_readIn(Id iech, const VectorInt& indices, VectorDouble& tabi
     message("\n");
   }
   if (_mustBeChecked(2))
-    VH::dump("    Initial    ", tabin, false);
+    printVector(tabin, "    Initial    ", true, false);
 }
 
 void CalcSimuPost::_writeOut(Id iech, const VectorDouble& tabout) const
@@ -288,7 +288,7 @@ void CalcSimuPost::_upscaleFunction(const VectorVectorDouble& Y_p_k_s, VectorDou
   {
     std::ostringstream string;
     string << "    Upscaled (" << nsample << ")";
-    VH::dump(string.str(), tabout, false);
+    printVector(tabout, string.str(), true, false);
   }
 }
 
@@ -323,21 +323,21 @@ void CalcSimuPost::_statisticsFunction(const VectorVectorDouble& Y_p,
     for (Id istat = 0; istat < nstat; istat++)
     {
       if (_stats[istat] == EPostStat::MEAN)
-        tabout[ecr++] = VH::mean(local);
+        tabout[ecr++] = local.mean();
       else if (_stats[istat] == EPostStat::VAR)
-        tabout[ecr++] = VH::variance(local);
+        tabout[ecr++] = local.variance();
       else if (_stats[istat] == EPostStat::VARP)
-        tabout[ecr++] = VH::variance(local, true);
+        tabout[ecr++] = local.variance(true);
       else if (_stats[istat] == EPostStat::STD)
-        tabout[ecr++] = VH::stdv(local);
+        tabout[ecr++] = local.stdv();
       else if (_stats[istat] == EPostStat::STDP)
-        tabout[ecr++] = VH::stdv(local, true);
+        tabout[ecr++] = local.stdv(true);
       else if (_stats[istat] == EPostStat::MINI)
-        tabout[ecr++] = VH::minimum(local);
+        tabout[ecr++] = local.minimum();
       else if (_stats[istat] == EPostStat::MAXI)
-        tabout[ecr++] = VH::maximum(local);
+        tabout[ecr++] = local.maximum();
       else if (_stats[istat] == EPostStat::MED)
-        tabout[ecr++] = VH::median(local);
+        tabout[ecr++] = local.median();
     }
   }
 
@@ -416,11 +416,11 @@ void CalcSimuPost::_defineIterations()
 
   if (_flagMatch)
   {
-    _niter = VH::minimum(_nfact);
+    _niter = _nfact.minimum();
   }
   else
   {
-    _niter = VH::product(_nfact);
+    _niter = _nfact.prod();
   }
 }
 
@@ -503,7 +503,7 @@ VectorInt CalcSimuPost::_samplesInCellIdenticalSpaceDimension(const VectorInt& i
 VectorInt CalcSimuPost::_samplesInCellDifferentSpaceDimension() const
 {
   VectorInt local;
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+  auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
   for (Id iechin = 0, nechin = getDbin()->getNSample(); iechin < nechin; iechin++)
   {
     if (!getDbin()->isActive(iechin)) continue;
@@ -548,7 +548,7 @@ Id CalcSimuPost::_process()
 
   // Get the indices of the samples within the Grid
   // There is no need to check that 'dbout' is a grid (see _check)
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+  auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
   VectorInt indblock;
   auto icase = _getSortingCase();
   if (icase == 1)
@@ -605,7 +605,7 @@ Id CalcSimuPost::_process()
         {
           _transformFunction(sampleIn, sampleOut);
           if (_mustBeChecked(2))
-            VH::dump("    Transformed", sampleOut, false);
+            printVector(sampleOut, "    Transformed", true, false);
           Z_n_k_s.push_back(sampleOut);
         }
       }

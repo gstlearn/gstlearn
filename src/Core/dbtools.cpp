@@ -30,6 +30,7 @@
 #include "Stats/Classical.hpp"
 #include "Tree/Ball.hpp"
 #include "geoslib_define.h"
+#include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include <cmath>
 #include <cstring>
@@ -176,37 +177,34 @@ Id surface(Db* db_point,
 /*****************************************************************************/
 /*!
  **  Generates the discretized points along the trace
+ **  Returns the total length of the trace
  **
- ** \param[in]  nseg   Number of vertices along the trace
- ** \param[in]  trace  Array defining the trace
- **                    (Dimension: 2 * nseg)
+ ** \param[in]  trace  Matrix defining the trace (Ncol=2, Nrow=nseg)
  ** \param[in]  disc   Discretization distance
  **
- ** \param[out] np_arg   Number of discretized points
  ** \param[out] xp       Array of first coordinates
  ** \param[out] yp       Array of second coordinates
  ** \param[out] dd       Array of distances between discretized points
  ** \param[out] del      Array of distances between vertices
- ** \param[out] dist_arg Total distance of the trace
  **
  *****************************************************************************/
-void ut_trace_discretize(Id nseg,
-                         const double* trace,
-                         double disc,
-                         Id* np_arg,
-                         VectorDouble& xp,
-                         VectorDouble& yp,
-                         VectorDouble& dd,
-                         VectorDouble& del,
-                         double* dist_arg)
+double ut_trace_discretize(const MatrixDense& trace,
+                           double disc,
+                           VectorDouble& xp,
+                           VectorDouble& yp,
+                           VectorDouble& dd,
+                           VectorDouble& del)
 {
-  double deltax, deltay, x0, y0, x1, y1, dist;
-  Id iseg, np, ecr, nloc, ip;
+  double deltax, deltay, x0, y0, dist;
+  Id iseg, ecr, nloc, ip;
 
   /* Initializations */
 
-  (*np_arg) = np = 0;
-  (*dist_arg) = x1 = y1 = 0.;
+  Id nseg        = trace.getNRows();
+  Id np          = 0;
+  double distTot = 0.;
+  double x1      = 0.;
+  double y1      = 0.;
   del.resize(nseg);
   del[0] = 0.;
 
@@ -217,15 +215,15 @@ void ut_trace_discretize(Id nseg,
 
     /* Consider a segment trace */
 
-    x0     = TRACE(0, iseg);
-    y0     = TRACE(1, iseg);
-    x1     = TRACE(0, iseg + 1);
-    y1     = TRACE(1, iseg + 1);
+    x0     = trace.getValue(iseg, 0);
+    y0     = trace.getValue(iseg, 1);
+    x1     = trace.getValue(iseg + 1, 0);
+    y1     = trace.getValue(iseg + 1, 1);
     deltax = x1 - x0;
     deltay = y1 - y0;
     dist   = sqrt(deltax * deltax + deltay * deltay);
-    (*dist_arg) += dist;
-    del[iseg + 1] = (*dist_arg);
+    distTot += dist;
+    del[iseg + 1] = distTot;
 
     /* Discretize the trace segment */
 
@@ -261,6 +259,7 @@ void ut_trace_discretize(Id nseg,
     deltay     = yp[ip + 1] - yp[ip];
     dd[ip + 1] = dd[ip] + sqrt(deltax * deltax + deltay * deltay);
   }
+  return distTot;
 }
 
 /*****************************************************************************/
@@ -268,14 +267,12 @@ void ut_trace_discretize(Id nseg,
  **  Sample the point Db close to discretized points of the trace
  **
  ** \param[in]  db     Db to be sampled
- ** \param[in]  ptype  Type of locator
- ** \param[in]  np     Number of discretized points
  ** \param[in]  xp     Array of first coordinates
  ** \param[in]  yp     Array of second coordinates
  ** \param[in]  dd     Array of distances
+ ** \param[in]  ptype  Type of locator
  ** \param[in]  radius Neighborhood radius
  **
- ** \param[out] ns_arg     Number of sampled points
  ** \param[out] xs         Array of first coordinates of sampled points
  ** \param[out] ys         Array of second coordinates of sampled points
  ** \param[out] rks        Array of sample indices (starting from 1)
@@ -287,49 +284,46 @@ void ut_trace_discretize(Id nseg,
  **
  *****************************************************************************/
 void ut_trace_sample(Db* db,
+                     const VectorDouble& xp,
+                     const VectorDouble& yp,
+                     const VectorDouble& dd,
                      const ELoc& ptype,
-                     Id np,
-                     const double* xp,
-                     const double* yp,
-                     const double* dd,
                      double radius,
-                     Id* ns_arg,
                      VectorDouble& xs,
                      VectorDouble& ys,
                      VectorInt& rks,
                      VectorInt& lys,
                      VectorInt& typ)
 {
-  Id iech, ip, ns, ipmin, nvar;
-  double cote, layer, bound[2];
-  double radcarre, xx, yy, delx, dely, dist, ddmin;
+  double bound[2];
 
   /* Initializations */
 
-  radcarre = radius * radius;
-  ns       = 0;
-  nvar     = db->getNInterval();
+  double radcarre = radius * radius;
+  Id ns           = 0;
+  Id nvar         = db->getNInterval();
+  Id np           = static_cast<Id>(xp.size());
 
   /* Loop on the samples */
 
-  for (iech = 0; iech < db->getNSample(); iech++)
+  for (Id iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActive(iech)) continue;
 
     /* Coordinates of the sample point */
 
-    xx = db->getCoordinate(iech, 0);
-    yy = db->getCoordinate(iech, 1);
+    double xx = db->getCoordinate(iech, 0);
+    double yy = db->getCoordinate(iech, 1);
 
     /* Loop on the discretized samples */
 
-    ipmin = -1;
-    ddmin = MAXIMUM_BIG;
-    for (ip = 0; ip < np; ip++)
+    Id ipmin     = -1;
+    double ddmin = MAXIMUM_BIG;
+    for (Id ip = 0; ip < np; ip++)
     {
-      delx = xx - xp[ip];
-      dely = yy - yp[ip];
-      dist = delx * delx + dely * dely;
+      double delx = xx - xp[ip];
+      double dely = yy - yp[ip];
+      double dist = delx * delx + dely * dely;
       if (dist > radcarre || dist > ddmin) continue;
       ddmin = dist;
       ipmin = ip;
@@ -338,10 +332,10 @@ void ut_trace_sample(Db* db,
 
     /* Keep sample defined by locator */
 
-    cote = db->getFromLocator(ptype, iech);
+    double cote = db->getFromLocator(ptype, iech);
     if (!FFFF(cote))
     {
-      layer = db->getFromLocator(ELoc::LAYER, iech);
+      Id layer = db->getFromLocator(ELoc::LAYER, iech);
       xs.resize(ns + 1);
       ys.resize(ns + 1);
       lys.resize(ns + 1);
@@ -349,7 +343,7 @@ void ut_trace_sample(Db* db,
       rks.resize(ns + 1);
       xs[ns]  = dd[ipmin];
       ys[ns]  = cote;
-      lys[ns] = (FFFF(layer)) ? 1 : static_cast<Id>(layer) + 1;
+      lys[ns] = (FFFF(layer)) ? 1 : static_cast<Id>(layer);
       typ[ns] = 1;
       rks[ns] = iech + 1;
       ns++;
@@ -378,10 +372,6 @@ void ut_trace_sample(Db* db,
       }
     }
   }
-
-  /* Returning arguments */
-
-  *ns_arg = ns;
 }
 
 /*****************************************************************************/
@@ -412,7 +402,7 @@ static VectorDouble st_point_init_homogeneous(Id number,
     messerr("This method requires 'coormin' and 'coormax' defined");
     return tab;
   }
-  VectorDouble extend = VH::subtract(coormin, coormax);
+  VectorDouble extend = coormax.subtractVec(coormin);
   Id ndim             = static_cast<Id>(coormin.size());
   VectorDouble coor(ndim);
   VectorDouble delta(ndim);
@@ -440,7 +430,7 @@ static VectorDouble st_point_init_homogeneous(Id number,
       {
         for (Id idim = 0; idim < ndim; idim++)
           delta[idim] = (tab[ndim * jp + idim] - coor[idim]) / range;
-        double dd = VH::norm(delta);
+        double dd = delta.norm();
         if (dd < ddmin) ddmin = dd;
       }
 
@@ -595,7 +585,7 @@ static VectorDouble st_point_init_inhomogeneous(Id number,
 
         if (!flag_region)
         {
-          dd = VH::norm(delta) / range;
+          dd = delta.norm() / range;
         }
         else
         {
@@ -606,7 +596,7 @@ static VectorDouble st_point_init_inhomogeneous(Id number,
           Tensor tensor(ndim);
           tensor.setRotationAngle(0, angle);
           tensor.setRadiusVec(radius);
-          dd = VH::norm(tensor.applyInverse(delta));
+          dd = tensor.applyInverse(delta).norm();
         }
 
         // Check if the point 'ip' must be dropped
@@ -1134,7 +1124,7 @@ Id db_smooth_vpc(DbGrid* db, Id width, double range)
   quant0 = law_invcdf_gaussian(0.975);
   if (FFFF(range))
     range = dz * width / quant0;
-  else if (IFFFF(width))
+  else if (isNA(width))
     width = static_cast<Id>(range * quant0 / dz);
   else
   {
@@ -1721,7 +1711,7 @@ Id db_proportion_estimate(Db* dbin,
     Id iptr = dbout->addColumns(propout, String(), ELoc::UNKNOWN, 0, true);
     if (i == 0) iptr0 = iptr;
     namconv.setNamesAndLocators(nullptr, VectorString(), ELoc::UNKNOWN, -1, dbout, iptr,
-                                concatenateStrings("-", toString(i + 1)));
+                                concatenateStrings("-", toStr(i + 1)));
   }
   namconv.setLocators(dbout, iptr0, 1, ncat);
 

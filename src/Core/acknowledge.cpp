@@ -9,7 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Core/Acknowledge.hpp"
-#include "Basic/AStringable.hpp"
+#include "Basic/Message.hpp"
 #include "version.h"
 
 namespace gstlrn
@@ -38,4 +38,4 @@ void acknowledge_gstlearn(void)
   message("Mike PEREIRA     (mike.pereira@minesparis.psl.eu)\n");
 }
 
-}
+} // namespace gstlrn

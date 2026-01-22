@@ -619,7 +619,7 @@ Id CalcAnamTransform::_conditionalExpectation(Db* db,
 
   /* Analyzing the codes */
 
-  VectorDouble ycuts = anam_hermite->rawToTransformVec(selectivity->getZcut());
+  const auto& ycuts  = anam_hermite->rawToTransformVec(selectivity->getZcut());
   Id need_T          = selectivity->isNeededT();
 
   /* Computing the estimation */
@@ -739,7 +739,7 @@ Id CalcAnamTransform::_uniformConditioning(Db* db,
 
   /* Transform zcuts into gaussian equivalent */
 
-  VectorDouble ycuts = anam->rawToTransformVec(selectivity->getZcut());
+  const auto& ycuts = anam->rawToTransformVec(selectivity->getZcut());
 
   /* Fill the array phi_b_zc */
 
@@ -796,9 +796,7 @@ Id CalcAnamTransform::_uniformConditioning(Db* db,
       VectorDouble hn = hermitePolynomials(yv, 1., nbpoly);
       for (Id ih = 0; ih < nbpoly; ih++)
         hn[ih] *= pow(sv / r_coef, static_cast<double>(ih));
-      double metal;
-      matrix_product_safe(1, nbpoly, 1, hn.data(), phi_b_zc[icut].data(),
-                          &metal);
+      double metal = hn.innerProduct(phi_b_zc[icut]);
 
       if (sv < sv_min) sv_min = sv;
       if (sv > sv_max) sv_max = sv;

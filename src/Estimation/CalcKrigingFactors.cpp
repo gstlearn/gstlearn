@@ -9,11 +9,11 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Estimation/CalcKrigingFactors.hpp"
+#include "Model/Model.hpp"
 #include "Anamorphosis/AAnam.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Estimation/KrigingSystem.hpp"
-#include "Model/Model.hpp"
 
 namespace gstlrn
 {
@@ -96,7 +96,7 @@ bool CalcKrigingFactors::_preprocess()
   // Centering the information (only when a change of support is defined)
   if (_hasChangeSupport())
   {
-    DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+    auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
     if (dbgrid == nullptr)
     {
       messerr("Due to change of support, 'dbout' should be a Grid");
@@ -113,7 +113,7 @@ bool CalcKrigingFactors::_preprocess()
     if (getKrigopt().hasDiscs())
     {
       // Center the information in sub-blocks when the output grid defines panels
-      VectorInt ndiscs = getKrigopt().getDiscs();
+      const auto& ndiscs = getKrigopt().getDiscs();
       DbGrid* dbsmu    = DbGrid::createDivider(dbgrid, ndiscs, 1);
       _nameCoord       = getDbin()->getNamesByLocator(ELoc::X);
       Id error         = _centerDataToGrid(dbsmu);

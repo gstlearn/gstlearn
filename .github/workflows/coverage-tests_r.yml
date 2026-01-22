@@ -18,30 +18,17 @@ jobs:
       fail-fast: false
       matrix:
         # Last releases from here https://cran.r-project.org/src/base/R-4/
-        r_version: [4.2.3, 4.3.3, 4.4.3, 4.5.0]
+        r_version: [4.2.3, 4.3.3, 4.4.3, 4.5.2]
         # See the list here: https://github.com/actions/runner-images#available-images
-        os: [ubuntu-22.04, ubuntu-24.04, windows-2022, windows-2025, macos-13, macos-14, macos-15]
+        os: [ubuntu-22.04, ubuntu-24.04, windows-2022, windows-2025, macos-14, macos-15, macos-15-intel, macos-26]
         exclude:
           - os: ubuntu-22.04
             r_version: 4.2.3  # ggpubr install fails
           - os: ubuntu-24.04
             r_version: 4.2.3  # ggpubr install fails
-          - os: macos-13
-            r_version: 4.3.3
-          - os: macos-13
-            r_version: 4.4.3
-          - os: macos-13
-            r_version: 4.5.0
 
     steps:
     - uses: actions/checkout@v4
-
-    - name: Install dependencies
-      run: |
-        if [[ "${{ matrix.os }}" =~ ^"macos" ]]; then
-          brew install llvm
-        fi
-      shell: bash
 
     - name: Setup R Version
       uses: r-lib/actions/setup-r@v2

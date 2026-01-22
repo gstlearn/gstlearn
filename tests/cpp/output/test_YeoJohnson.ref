@@ -1,0 +1,88 @@
+Original x: 3
+Inverse Transformed y: 2
+Transformed z: 3
+Original x: 6.38906
+Inverse Transformed y: 2
+Transformed z: 6.38906
+Original x: -2
+Inverse Transformed y: -2.79743
+Transformed z: -2
+Original x: -6.38906
+Inverse Transformed y: -2
+Transformed z: -6.38906
+Testing for lambda = 0
+- Test point: -3
+  -Diff inverse: 8.88178e-16
+  -Diff Jacobian: 4.01832e-11
+- Test point: -1
+  -Diff inverse: 2.22045e-16
+  -Diff Jacobian: 3.21241e-10
+- Test point: 0
+  -Diff inverse: 0
+  -Diff Jacobian: 3.33278e-09
+- Test point: 1
+  -Diff inverse: 8.08242e-14
+  -Diff Jacobian: 4.53057e-09
+- Test point: 2
+  -Diff inverse: 8.30447e-14
+  -Diff Jacobian: 1.23226e-08
+- Test point: 3
+  -Diff inverse: 5.55112e-15
+  -Diff Jacobian: 3.35189e-08
+Testing for lambda = 0.5
+- Test point: -3
+  -Diff inverse: 8.88178e-16
+  -Diff Jacobian: 3.64503e-11
+- Test point: -1
+  -Diff inverse: 2.92877e-13
+  -Diff Jacobian: 1.9712e-10
+- Test point: 0
+  -Diff inverse: 0
+  -Diff Jacobian: 8.34778e-10
+- Test point: 1
+  -Diff inverse: 3.18956e-12
+  -Diff Jacobian: 1.15241e-12
+- Test point: 2
+  -Diff inverse: 2.22045e-16
+  -Diff Jacobian: 1.33384e-11
+- Test point: 3
+  -Diff inverse: 3.9968e-15
+  -Diff Jacobian: 6.30793e-11
+Testing for lambda = 1
+- Test point: -3
+  -Diff inverse: 0
+  -Diff Jacobian: 8.89011e-12
+- Test point: -1
+  -Diff inverse: 0
+  -Diff Jacobian: 2.20379e-13
+- Test point: 0
+  -Diff inverse: 0
+  -Diff Jacobian: 1.10134e-13
+- Test point: 1
+  -Diff inverse: 0
+  -Diff Jacobian: 2.20379e-13
+- Test point: 2
+  -Diff inverse: 0
+  -Diff Jacobian: 3.89e-12
+- Test point: 3
+  -Diff inverse: 0
+  -Diff Jacobian: 8.88967e-12
+Testing for lambda = 2
+- Test point: -3
+  -Diff inverse: 5.55112e-15
+  -Diff Jacobian: 3.35189e-08
+- Test point: -1
+  -Diff inverse: 8.08242e-14
+  -Diff Jacobian: 4.53057e-09
+- Test point: 0
+  -Diff inverse: 0
+  -Diff Jacobian: 3.33278e-09
+- Test point: 1
+  -Diff inverse: 2.22045e-16
+  -Diff Jacobian: 3.21241e-10
+- Test point: 2
+  -Diff inverse: 9.76996e-14
+  -Diff Jacobian: 8.98052e-11
+- Test point: 3
+  -Diff inverse: 8.88178e-16
+  -Diff Jacobian: 4.01832e-11

@@ -144,7 +144,7 @@ Id ModelFitSillsVario::_getDimensions()
       for (Id ivar = 0; ivar < _nvar; ivar++)
         for (Id jvar = 0; jvar <= ivar; jvar++)
         {
-          Id i = _vario->getDirAddress(idir, ivar, jvar, ilag, false, 1);
+          Id i = _vario->getAddressForGg(idir, ivar, jvar, ilag, 1);
           if (_vario->isLagCorrect(idir, i)) nbexp++;
         }
   }
@@ -182,8 +182,8 @@ void ModelFitSillsVario::_computeGg()
           _GG(ijvar, ipadir) = TEST;
           if (_vario->getFlagAsym())
           {
-            Id iad     = _vario->getDirAddress(idir, ivar, jvar, ilag, false, 1);
-            Id jad     = _vario->getDirAddress(idir, ivar, jvar, ilag, false, -1);
+            Id iad     = _vario->getAddressForGg(idir, ivar, jvar, ilag, 1);
+            Id jad     = _vario->getAddressForGg(idir, ivar, jvar, ilag, -1);
             double c00 = _vario->getC00(idir, ivar, jvar);
             double n1  = _vario->getSwByIndex(idir, iad);
             double n2  = _vario->getSwByIndex(idir, jad);
@@ -203,7 +203,7 @@ void ModelFitSillsVario::_computeGg()
           }
           else
           {
-            Id iad = _vario->getDirAddress(idir, ivar, jvar, ilag, false, 1);
+            Id iad = _vario->getAddressForGg(idir, ivar, jvar, ilag, 1);
             if (_vario->isLagCorrect(idir, iad))
             {
               _GG(ijvar, ipadir) = _vario->getGgByIndex(idir, iad);
@@ -212,7 +212,7 @@ void ModelFitSillsVario::_computeGg()
           }
 
           // Store the distances
-          Id i = _vario->getDirAddress(idir, ivar, jvar, ilag, false, 1);
+          Id i = _vario->getAddressForGg(idir, ivar, jvar, ilag, 1);
           for (Id idim = 0; idim < _ndim; idim++)
           {
             if (!_vario->isLagCorrect(idir, i)) continue;
@@ -332,6 +332,7 @@ void ModelFitSillsVario::_prepareGoulard()
         }
     }
   }
+  cova->setActiveCovListFromOne(-1);
 }
 
 /****************************************************************************/

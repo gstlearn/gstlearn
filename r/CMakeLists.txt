@@ -108,6 +108,7 @@ set_source_files_properties(${SRC} PROPERTIES
   USE_TARGET_INCLUDE_DIRECTORIES TRUE
 )
 
+
 # Tell to CMake that ${SRC} depends on some other files
 set_property(SOURCE ${SRC} PROPERTY
   DEPENDS
@@ -294,4 +295,18 @@ add_custom_target(r_install
 add_dependencies(r_clean_namespace r_build)
 add_dependencies(r_install r_clean_namespace)
 
-
+if (APPLE)
+  execute_process(
+    COMMAND brew --prefix llvm
+    OUTPUT_VARIABLE LLVM_PREFIX
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+  add_custom_target(r_openmp
+    COMMAND ${CMAKE_COMMAND} -E copy ${OpenMP_C_LIBRARIES} ${R_PACKAGE_SRC_FOLDER}/libomp.so
+    COMMAND install_name_tool -change ${LLVM_PREFIX}/lib/libomp.dylib @loader_path/libomp.so $<TARGET_FILE:r_build>
+    COMMENT "Embedding libomp.dylib into the R package"
+    VERBATIM
+  )
+  add_dependencies(r_install r_openmp)
+  add_dependencies(r_openmp r_clean_namespace)
+endif()

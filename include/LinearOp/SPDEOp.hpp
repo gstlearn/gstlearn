@@ -80,7 +80,7 @@ public:
   void simNonCond(vect outv) const;
 #endif
   virtual double computeLogDetOp(Id nbsimu = 1) const;
-  double computeQuadratic(const std::vector<double>& x) const;
+  double computeQuadratic(const VectorDouble& x) const;
   double computeTotalLogDet(Id nMC = 5, Id seed = 13132) const;
   double computeLogDetQ(Id nMC = 5) const;
   double computeLogDetInvNoise() const;

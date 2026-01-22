@@ -22,9 +22,7 @@ CovParamId::CovParamId(Id igrf,
     : AStringable(),
       _igrf(igrf),
       _icov(icov),
-      _elemType(elem),
-      _iv1(iv1),
-      _iv2(iv2)
+      _param(elem, iv1, iv2)
 {
 }
 
@@ -32,9 +30,7 @@ CovParamId::CovParamId(const CovParamId &m)
     : AStringable(m),
       _igrf(m._igrf),
       _icov(m._icov),
-      _elemType(m._elemType),
-      _iv1(m._iv1),
-      _iv2(m._iv2)
+      _param(m._param)
 {
 
 }
@@ -46,9 +42,7 @@ CovParamId& CovParamId::operator=(const CovParamId &m)
     AStringable::operator=(m);
     _igrf = m._igrf;
     _icov = m._icov;
-    _elemType = m._elemType;
-    _iv1   = m._iv1;
-    _iv2   = m._iv2;
+    _param = m._param;
   }
   return *this;
 }
@@ -75,9 +69,7 @@ Id CovParamId::init(Id igrf,
 {
   _igrf  = igrf;
   _icov  = icov;
-  _elemType  = type;
-  _iv1   = v1;
-  _iv2   = v2;
+  _param.init(type, v1, v2);
 
   // Check to avoid rotation of a Model defined on the sphere
   bool flag_sphere = (getDefaultSpaceType() == ESpaceType::SN);
@@ -94,16 +86,16 @@ String CovParamId::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
 
-  switch (_elemType.toEnum())
+  switch (_param.getType().toEnum())
   {
     case EConsElem::E_RANGE:
       sstr << "Range      :"
-           << " IdCov=" << _icov + 1 << " IDir=" << _iv1 + 1;
+           << " IdCov=" << _icov + 1 << " IDir=" << _param.getIV1() + 1;
       break;
 
     case EConsElem::E_ANGLE:
       sstr << "Angle      :"
-           << " IdCov=" << _icov + 1 << " IdAngle=" << _iv1 + 1;
+           << " IdCov=" << _icov + 1 << " IdAngle=" << _param.getIV1() + 1;
       break;
 
     case EConsElem::E_PARAM:
@@ -113,35 +105,35 @@ String CovParamId::toString(const AStringFormat* /*strfmt*/) const
 
     case EConsElem::E_SILL:
       sstr << "Sill       :"
-           << " IdCov=" << _icov + 1 << " Ivar=" << _iv1 << " Jvar=" << _iv2;
+           << " IdCov=" << _icov + 1 << " Ivar=" << _param.getIV1() << " Jvar=" << _param.getIV2();
       break;
 
     case EConsElem::E_SCALE:
       sstr << "Scale      :"
-           << " IdCov=" << _icov + 1 << " IDir=" << _iv1 + 1;
+           << " IdCov=" << _icov + 1 << " IDir=" << _param.getIV1() + 1;
       break;
 
     case EConsElem::E_T_RANGE:
       sstr << "Tapering   :"
-           << " IdCov=" << _icov + 1 << " IDir=" << _iv1 + 1;
+           << " IdCov=" << _icov + 1 << " IDir=" << _param.getIV1() + 1;
       break;
 
     case EConsElem::E_VELOCITY:
       sstr << "Velocity   :"
-           << " IdCov=" << _icov + 1 << " Ivar=" << _iv1 + 1
-           << " Jvar=" << _iv2 + 1;
+           << " IdCov=" << _icov + 1 << " Ivar=" << _param.getIV1() + 1
+           << " Jvar=" << _param.getIV2() + 1;
       break;
 
     case EConsElem::E_SPHEROT:
       sstr << "S-Rotation :"
-           << " IdCov=" << _icov + 1 << " Ivar=" << _iv1 + 1
-           << " Jvar=" << _iv2 + 1;
+           << " IdCov=" << _icov + 1 << " Ivar=" << _param.getIV1() + 1
+           << " Jvar=" << _param.getIV2() + 1;
       break;
 
     case EConsElem::E_TENSOR:
       sstr << "Anis-Matrix :"
-           << " IdCov=" << _icov + 1 << " Ivar=" << _iv1 + 1
-           << " Jvar=" << _iv2 + 1;
+           << " IdCov=" << _icov + 1 << " Ivar=" << _param.getIV1() + 1
+           << " Jvar=" << _param.getIV2() + 1;
       break;
 
     default:

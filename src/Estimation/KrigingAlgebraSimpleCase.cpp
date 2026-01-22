@@ -21,7 +21,6 @@
 #include "geoslib_define.h"
 #include <cmath>
 #include <memory>
-#include <omp.h>
 
 namespace gstlrn
 {
@@ -747,7 +746,7 @@ double KrigingAlgebraSimpleCase::getLTerm()
   if (_needDual()) return 1;
   if (_notFindZ()) return 1;
 
-  return VH::innerProduct(*_bDual, *_Z);
+  return (*_bDual).innerProduct(*_Z);
 }
 
 Id KrigingAlgebraSimpleCase::prepare()
@@ -1024,7 +1023,9 @@ Id KrigingAlgebraSimpleCase::_needLambdaSK()
     _cholSigma->solveMatInPlace(*_Sigma0, *_LambdaSK);
   }
   else
-    _LambdaSK->prodMatMatInPlace(_InvSigma.get(), _Sigma0.get());
+  {
+    _LambdaSK->prodMatMatNoCheck<false, false>(*_InvSigma, *_Sigma0);
+  }
   return 0;
 }
 
@@ -1201,22 +1202,22 @@ void KrigingAlgebraSimpleCase::dumpLHS(Id nbypas) const
     message("\n");
 
     // Header line
-    tab_prints(NULL, "Rank");
-    for (Id j = ideb; j < ifin; j++) tab_printi(NULL, j + 1);
+    printElement("Rank");
+    for (Id j = ideb; j < ifin; j++) printElement(j + 1);
     message("\n");
 
     // LHS Matrix
     for (Id i = 0; i < size; i++)
     {
-      tab_printi(NULL, i + 1);
+      printElement(i + 1);
       if (i < _neq)
       {
         for (Id j = ideb; j < ifin; j++)
         {
           if (j < _neq)
-            tab_printg(NULL, _Sigma->getValue(i, j));
+            printElement(_Sigma->getValue(i, j));
           else
-            tab_printg(NULL, _X->getValue(i, j - _neq));
+            printElement(_X->getValue(i, j - _neq));
         }
         message("\n");
       }
@@ -1225,9 +1226,9 @@ void KrigingAlgebraSimpleCase::dumpLHS(Id nbypas) const
         for (Id j = ideb; j < ifin; j++)
         {
           if (j < _neq)
-            tab_printg(NULL, _X->getValue(j, i - _neq));
+            printElement(_X->getValue(j, i - _neq));
           else
-            tab_printg(NULL, 0.);
+            printElement(0.);
         }
         message("\n");
       }
@@ -1242,24 +1243,24 @@ void KrigingAlgebraSimpleCase::dumpRHS() const
   if (_X0 != nullptr) size += _X0->getNCols();
 
   // Header line
-  tab_prints(NULL, "Rank");
-  for (Id irhs = 0; irhs < _nrhs; irhs++) tab_printi(NULL, irhs + 1);
+  printElement("Rank");
+  for (Id irhs = 0; irhs < _nrhs; irhs++) printElement(irhs + 1);
   message("\n");
 
   // RHS Matrix
   for (Id i = 0; i < size; i++)
   {
-    tab_printi(NULL, i + 1);
+    printElement(i + 1);
     if (i < _neq)
     {
       for (Id irhs = 0; irhs < _nrhs; irhs++)
-        tab_printg(NULL, _Sigma0->getValue(i, irhs));
+        printElement(_Sigma0->getValue(i, irhs));
     }
     else
     {
       if (_X0 != nullptr)
         for (Id irhs = 0; irhs < _nrhs; irhs++)
-          tab_printg(NULL, _X0->getValue(irhs, i - _neq));
+          printElement(_X0->getValue(irhs, i - _neq));
     }
     message("\n");
   }
@@ -1284,12 +1285,12 @@ void KrigingAlgebraSimpleCase::dumpWGT()
 
   /* Header Line */
 
-  tab_prints(NULL, "Rank");
-  tab_prints(NULL, "Data");
+  printElement("Rank");
+  printElement("Data");
   for (Id irhs = 0; irhs < _nrhs; irhs++)
   {
     (void)gslSPrintf(string, "Z%d*", irhs + 1);
-    tab_prints(NULL, string.data());
+    printElement(string);
   }
   message("\n");
 
@@ -1304,15 +1305,15 @@ void KrigingAlgebraSimpleCase::dumpWGT()
 
     for (Id j = 0; j < nbyvar; j++)
     {
-      tab_printi(NULL, lec + 1);
+      printElement(lec + 1);
       double value = (*_Z)[lec];
       // Correct printout by the mean locally in case of SK
       if (_flagSK && !_Means.empty()) value += _Means[ivar];
-      tab_printg(NULL, value);
+      printElement(value);
       for (Id irhs = 0; irhs < _nrhs; irhs++)
       {
         value = lambda->getValue(lec, irhs);
-        tab_printg(NULL, value);
+        printElement(value);
         sum[irhs] += value;
       }
       message("\n");
@@ -1320,8 +1321,8 @@ void KrigingAlgebraSimpleCase::dumpWGT()
     }
 
     // Display sum of weights
-    tab_prints(NULL, "Sum of weights", 2, EJustify::LEFT);
-    for (Id irhs = 0; irhs < _nrhs; irhs++) tab_printg(NULL, sum[irhs]);
+    printElement("Sum of weights", String(), 2, -1);
+    for (Id irhs = 0; irhs < _nrhs; irhs++) printElement(sum[irhs]);
     message("\n");
   }
 }
@@ -1346,21 +1347,21 @@ void KrigingAlgebraSimpleCase::dumpAux()
   if (_needBeta()) return;
 
   // Header Line
-  tab_prints(NULL, "Rank");
+  printElement("Rank");
   for (Id irhs = 0; irhs < _nrhs; irhs++)
   {
     (void)gslSPrintf(string, "Mu%d*", irhs + 1);
-    tab_prints(NULL, string.data());
+    printElement(string);
   }
-  tab_prints(NULL, "Coeff");
+  printElement("Coeff");
   message("\n");
 
   for (Id ibfl = 0; ibfl < _nbfl; ibfl++)
   {
-    tab_printi(NULL, ibfl + 1);
+    printElement(ibfl + 1);
     for (Id irhs = 0; irhs < _nrhs; irhs++)
-      tab_printg(NULL, _MuUK.getValue(ibfl, irhs));
-    tab_printg(NULL, _Beta->at(ibfl));
+      printElement(_MuUK.getValue(ibfl, irhs));
+    printElement(_Beta->at(ibfl));
     message("\n");
   }
 }

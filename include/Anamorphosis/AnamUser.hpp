@@ -36,6 +36,13 @@ public:
   /// AStringable Interface
   String toString(const AStringFormat* strfmt = nullptr) const override;
 
+  /// ASerializable Interface
+  String getNFName() const override { return "AnamUser"; }
+#ifdef HDF5
+  bool deserializeH5(H5::Group& grp) override;
+  bool serializeH5(H5::Group& grp) const override;
+#endif
+
   /// AAnam Interface
   const EAnam& getType() const override { return EAnam::fromKey("EXTERNAL"); }
   bool isChangeSupportDefined() const override { return false; }
@@ -49,12 +56,7 @@ public:
   void setZ2yFunction(double (*z2y_function)(double)) { _z2y_function = z2y_function; }
 
 protected:
-  bool _deserializeAscii(std::istream& is, bool verbose = false) override;
-  bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
-#ifdef HDF5
-  bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
-  bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
-#endif
-  String _getNFName() const override { return "AnamUser"; }
+  bool _deserializeAscii(std::istream& is) override;
+  bool _serializeAscii(std::ostream& os) const override;
 };
 } // namespace gstlrn

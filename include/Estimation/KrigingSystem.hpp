@@ -62,9 +62,7 @@ public:
                       bool optionXValidEstim = false,
                       bool optionXValidStdev = false,
                       bool optionXValidVarZ  = false);
-  Id setKrigOptBayes(bool flag_bayes,
-                     const VectorDouble& prior_mean,
-                     const MatrixSymmetric& prior_cov);
+  Id setKrigOptBayes(bool flag_bayes);
   Id setKrigOptDataWeights(Id iptrWeights, bool flagSet = true);
   Id setKrigOptFlagSimu(bool flagSimu, Id nbsimu = 0, Id rankPGS = -1);
   Id setKrigOptFlagGlobal(bool flag_global);
@@ -189,8 +187,6 @@ private:
 
   /// Option for Bayesian
   bool _flagBayes;
-  VectorDouble _priorMean;
-  MatrixSymmetric _priorCov;
   VectorDouble _postMean;
   MatrixSymmetric _postCov;
   MatrixDense _postSimu;

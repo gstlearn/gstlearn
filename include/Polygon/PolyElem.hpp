@@ -20,14 +20,22 @@ namespace gstlrn
 class GSTLEARN_EXPORT PolyElem: public PolyLine2D
 {
 public:
-  PolyElem(const VectorDouble &x = VectorDouble(),
-           const VectorDouble &y = VectorDouble(),
-           double zmin = TEST,
-           double zmax = TEST);
+  PolyElem(const VectorDouble& x = VectorDouble(),
+           const VectorDouble& y = VectorDouble(),
+           double zmin           = TEST,
+           double zmax           = TEST);
   PolyElem(const PolyElem& r);
   PolyElem& operator=(const PolyElem& r);
   virtual ~PolyElem();
 
+  /// ASerializable Interface
+  String getNFName() const override { return "PolyElem"; }
+#ifdef HDF5
+  bool deserializeH5(H5::Group& grp) override;
+  bool serializeH5(H5::Group& grp) const override;
+#endif
+
+  /// AStringable Interface
   String toString(const AStringFormat* strfmt = nullptr) const override;
 
   static PolyElem* create();
@@ -43,25 +51,23 @@ public:
             const VectorDouble& y,
             double zmin = TEST,
             double zmax = TEST);
-  void getExtension(double *xmin,
-                    double *xmax,
-                    double *ymin,
-                    double *ymax) const;
+#ifndef SWIG
+  void getExtension(double& xmin,
+                    double& xmax,
+                    double& ymin,
+                    double& ymax) const;
+#endif
   double getSurface() const;
   void closePolyElem();
   bool inside(const VectorDouble& coor);
   bool inside3D(double zz) const;
+  VectorDouble getCentroid() const;
 
   PolyElem reduceComplexity(double distmin) const;
 
 protected:
-  bool _deserializeAscii(std::istream& is, bool verbose = false) override;
-  bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
-#ifdef HDF5
-  bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
-  bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
-#endif
-  String _getNFName() const override { return "PolyElem"; }
+  bool _deserializeAscii(std::istream& is) override;
+  bool _serializeAscii(std::ostream& os) const override;
 
 private:
   bool _isClosed() const;
@@ -72,4 +78,4 @@ private:
 
   friend class Polygons;
 };
-}
+} // namespace gstlrn

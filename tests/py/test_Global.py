@@ -1,4 +1,4 @@
-# This test is meant to check the Global estimation 
+# This test is meant to check the Global estimation
 # either using the Arithmetic Mean algorithm or the Kriging one
 # The global estimate returns a whole structure which is partly printed here
 import gstlearn as gl
@@ -10,7 +10,7 @@ db.display()
 
 # Define a (coarse) grid covering the square
 nx = 5
-grid = gl.DbGrid.create([nx,nx], [1/nx, 1/nx])
+grid = gl.DbGrid.create([nx, nx], [1 / nx, 1 / nx])
 grid.display()
 
 # Define a Model
@@ -31,4 +31,3 @@ Gres = gl.global_kriging(db, grid, model, 0, verbose)
 print("Printing some results from the Output structure")
 print("Number of weights = ", Gres.ntot)
 print("Weights = ", Gres.weights)
-

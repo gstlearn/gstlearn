@@ -115,29 +115,38 @@ void CovDiffusionAdvection::_init()
     _markovL        = CovAniso::createAnisotropic(_ctxt, ECov::MARKOV, temp, 1., 1., temp, false);
     _destroyMarkovL = true;
     _markovLdefined = false;
-    correcL         = 1.;
+    correcL         = _markovR->getDetTensor();
   }
   else
   {
     _markovLdefined = true;
-    correcL         = _markovL->getCorrec();
+    correcL         = _markovL->getCorrec() * pow(2., -.5 * ndim);
   }
   if (_markovR == nullptr)
   {
     _markovR        = CovAniso::createAnisotropic(_ctxt, ECov::MARKOV, temp, 1., 1., temp, false);
     _destroyMarkovR = true;
     _markovRdefined = false;
-    correcR         = 1.;
+    correcR  = 1./_markovL->getFullCorrec() * pow(2., -.5 * ndim); // _markovR has not tensor so we use _markovL determinant
+
   }
   else
   {
     _markovRdefined = true;
-    correcR         = _markovR->getCorrec();
+    correcR         = pow(2., -ndim);
   }
 
   _computeSpatialTrace();
 
-  _globalCorrec = _spatialTrace->getFullCorrec() / (correcR * correcL);
+  _globalCorrec = _spatialTrace->getDetTensor() / (correcR * correcL);
+  // The next correction has been found empirically to match the variance of the SPDE
+  // from the change in the Fourier convention.
+  if (_markovLdefined && _markovRdefined)
+  {
+    double paramL = _markovL->getMarkovCoeffs().size() - 1 - (.5 * ndim);
+    double paramR = _markovR->getMarkovCoeffs().size() - 1 - (.5 * ndim);
+     _globalCorrec /= (paramL + paramR + 1) / (2. * paramR );
+  }
 }
 
 void CovDiffusionAdvection::_computeSpatialTrace()
@@ -194,18 +203,16 @@ std::complex<double> CovDiffusionAdvection::evalSpatialSpectrum(VectorDouble fre
   if (_markovRdefined)
     s2 = 1. / (_markovR->evalSpectrum(freq));
 
-  // std::complex<double> temp = _scaleTime * (-1i * velinner * time - abs(time * s1));
-  std::complex<double> a(-_scaleTime * abs(time * s1), -_scaleTime * velinner * time);
-  std::complex<double> temp = a;
+  std::complex<double> a(-_scaleTime * ABS(time * s1), -_scaleTime * velinner * time);
 
   double ratio = _sigma2 / (_globalCorrec * s1 * s2);
-  return ratio * exp(temp);
+  return ratio * exp(a);
 }
 
 Array CovDiffusionAdvection::evalCovFFT(const VectorDouble& hmax, double time, Id N) const
 {
   std::function<std::complex<double>(VectorDouble, double)> funcSpectrum;
-  funcSpectrum = [this](VectorDouble freq, double time)
+  funcSpectrum = [this](const VectorDouble& freq, double time)
   { return evalSpatialSpectrum(freq, time); };
 
   return evalCovFFTTimeSlice(hmax, time, N, funcSpectrum);

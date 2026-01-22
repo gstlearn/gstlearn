@@ -32,7 +32,8 @@
 %}
 %include numpy.i
 %init %{
-  import_array(); // Mandatory for using PyArray_* functions
+  // Use a leading '_' to prevent this: https://github.com/numpy/numpy/issues/30122
+  _import_array(); // Mandatory for using PyArray_* functions
 %}
 
 %begin %{
@@ -105,18 +106,15 @@
     // Test argument
     if (obj == NULL) return SWIG_TypeError;
 
-    long long v = 0; // Biggest integer type whatever the platform
-    int myres = SWIG_AsVal_long_SS_long(obj, &v);
-    //std::cout << "convertToCpp(int): v=" << v << std::endl;
+    int myres = SWIG_AsVal_long_SS_long(obj, &value);
+    //std::cout << "convertToCpp(int): value=" << value << std::endl;
     if (SWIG_IsOK(myres) || myres == SWIG_OverflowError)
     {
-      if (myres == SWIG_OverflowError || v == NPY_INT_NA) // NaN, Inf or out of bound value becomes NA
+      if (myres == SWIG_OverflowError || value == NPY_INT_NA) // NaN, Inf or out of bound value becomes NA
       {
-        myres = SWIG_OK;
         value = getNA<Id>();
       }
-      else
-        myres = SWIG_AsVal_long(obj, &value);
+      myres = SWIG_OK;
     }
     return myres;
   }
@@ -229,6 +227,36 @@
       for (int i = 0; i < size && SWIG_IsOK(myres); i++)
       {
         PyObject* item = PySequence_GetItem(obj, i);
+        // Test numpy array items
+        if (PyArray_Check(item))
+        {
+          PyArrayObject* arr = (PyArrayObject*)item;
+          int ndim = PyArray_NDIM(arr);
+          npy_intp* shape = PyArray_SHAPE(arr);
+          //std::cout << "ndim = " << ndim << " shape[0] = " << shape[0] << " shape[1] = " << shape[1] << std::endl;
+          if (ndim == 1 && shape[0] == 1)
+          {
+            // Extract the scalar (don't know why my itemptr must be a const char*)
+            PyObject* scalar = PyArray_GETITEM(arr, (const char*)PyArray_GETPTR1(arr, 0));
+            Py_DECREF(item);
+            item = scalar;
+          }
+          else if (ndim == 2 && (shape[0] == 1 || shape[1] == 1))
+          {
+            // Extract the scalar (don't know why my itemptr must be a const char*)
+            PyObject* scalar = PyArray_GETITEM(arr, (const char*)PyArray_GETPTR2(arr,0,0));
+            Py_DECREF(item);
+            item = scalar;
+          }
+          else
+          {
+            // error
+            std::cerr << "Only 1-column numpy arrays are accepted!" << std::endl;
+            Py_DECREF(item);
+            return SWIG_TypeError;
+          }
+        }
+
         ValueType value;
         myres = convertToCpp(item, value);
         if (SWIG_IsOK(myres))
@@ -489,7 +517,7 @@ namespace gstlrn
   template <> NPY_TYPES numpyType<bool>()    { return NPY_BOOL; }
   
   template<typename Type> struct TypeHelper;
-  template <> struct TypeHelper<Id>    { static bool hasFixedSize() { return true; } };
+  template <> struct TypeHelper<Id>     { static bool hasFixedSize() { return true; } };
   template <> struct TypeHelper<double> { static bool hasFixedSize() { return true; } };
   template <> struct TypeHelper<String> { static bool hasFixedSize() { return false; } };
   template <> struct TypeHelper<float>  { static bool hasFixedSize() { return true; } };
@@ -677,7 +705,7 @@ namespace gstlrn
   int matrixDenseFromCpp(PyObject** obj, const gstlrn::MatrixDense& mat)
   {
     // Conversion to a 2D numpy array
-    npy_intp dims[2] = { mat.getNRows(), mat.getNCols() };
+    npy_intp dims[2] = { static_cast<npy_intp>(mat.getNRows()), static_cast<npy_intp>(mat.getNCols()) };
     *obj = PyArray_SimpleNew(2, dims, numpyType<double>());
     if (*obj == NULL) return SWIG_TypeError;
 
@@ -710,7 +738,7 @@ namespace gstlrn
     auto ncols = mat.getNCols();
 
     NF_Triplet NFT = mat.getMatrixToTriplet();
-    const npy_intp nnz = NFT.getNElements();
+    const npy_intp nnz = static_cast<npy_intp>(NFT.getNElements());
 
     // Create 1D NumPy arrays for row indices, column indices, and values
     npy_intp dim[1] = {nnz};
@@ -812,17 +840,18 @@ namespace gstlrn
 %typemap(freearg) std::map<std::string, std::vector<double, std::allocator<double> > > * {
   delete $1;
 }
-// This for automatically converting R string to NamingConvention
+
+// This for automatically converting Python strings to NamingConvention
 
 %typemap(in) NamingConvention, NamingConvention &, const NamingConvention, const NamingConvention &
+    (NamingConvention tmp)
 {
   String value;
-  NamingConvention* localNC=nullptr;
+  NamingConvention *localNC = &tmp;
   int myres = SWIG_AsVal_std_string($input, &value);
   if (SWIG_IsOK(myres))
   {
-    // TODO: Memory leak
-    localNC = new NamingConvention(value);
+    tmp = NamingConvention(value);
   }
   else
   {
@@ -834,7 +863,7 @@ namespace gstlrn
       SWIG_exception_fail(SWIG_ArgError(myres), "in method $symname, invalid null reference of type $type");
     }
   }
-  $1 = reinterpret_cast<NamingConvention *>(localNC);
+  $1 = localNC;
 }
 
 %typemap(typecheck, precedence=SWIG_TYPECHECK_STRING) const std::string_view {
@@ -900,7 +929,7 @@ namespace gstlrn {
 %extend VectorT<String> {
   std::string __repr__() {  return $self->toString(); }
 }
-%extend VectorNumT<long> {
+%extend VectorNumT<long long> {
   std::string __repr__() {  return $self->toString(); }
 }
 %extend VectorNumT<double> {
@@ -912,10 +941,10 @@ namespace gstlrn {
 %extend VectorNumT<UChar> {
   std::string __repr__() {  return $self->toString(); }
 }
-%extend VectorT<VectorNumT<long> > {
+%extend VectorNumT<VectorNumT<long long> > {
   std::string __repr__() {  return $self->toString(); }
 }
-%extend VectorT<VectorNumT<double> >{
+%extend VectorNumT<VectorNumT<double> >{
   std::string __repr__() {  return $self->toString(); }
 }
 
@@ -934,6 +963,7 @@ import gstlearn as gl
 import numpy as np
 import os
 import sys
+from collections.abc import Iterable
 
 ## Version and authors
 from gstlearn.version import __version__
@@ -963,8 +993,8 @@ def isNaN(value):
   return np.isnan(value)
 
 
-## Add operator [] to VectorXXX R class [1-based index] ##
-## ---------------------------------------------------- ##
+## Add operator [] to VectorXXX class [0-based index] ##
+## -------------------------------------------------- ##
 
 def setitem(self, idx, item):
   if idx < 0 or idx >= self.length():
@@ -997,8 +1027,15 @@ setattr(gl.VectorVectorFloat,  "__setitem__", setitem)
 
 ## Override operator [] for the Db class ##
 ## ------------------------------------- ##
-# Thanks to Nicolas Desassis:
+# Thanks to Nicolas Desassis & Fabien Ors:
 
+def has_one_element(x):
+    """Check if the argument is a scalar or a single string or a 
+    tuple/list/array having only one element"""
+    if isinstance(x, Iterable) and not isinstance(x, (str, bytes)):
+        return len(x) == 1
+    return True  # scalaire
+    
 def is_list_type(mylist, types):
     """Check if an input is an iterable (tuple, list or numpy array) containing
        elements of only a given type"""
@@ -1014,12 +1051,12 @@ def is_list_type(mylist, types):
 
 def check_nrows(db, nrows):
     """Check if a number of rows matches with the number of samples of a Db, 
-    and returns the flag for useSel (whether it matches the number of active 
+    and returns the flag for use_sel (whether it matches the number of active 
     samples or the total number of samples)"""
     if nrows == db.getNSampleActive() :
-        useSel = True
+        use_sel = True
     elif nrows == db.getNSample() or db.getNSample()==0:
-        useSel = False
+        use_sel = False
     else:
         if db.getNSampleActive() != db.getNSample():
             raise ValueError("Error of dimension. Your number of lines ("+str(nrows)+") has to be equal to " +
@@ -1027,9 +1064,9 @@ def check_nrows(db, nrows):
         else :
             raise ValueError("Error of dimension. Your number of lines ("+str(nrows)+") has to be equal to " +
                   str(db.getNSampleActive()))
-    return useSel
+    return use_sel
 
-def findColumnNames(self, columns):
+def find_column_names(self, columns):
     """Extract names of columns from Db, given different possible types of arguments: 
         names, indices, or locator"""
     if isinstance(columns, str) or is_list_type(columns, (str, np.str_)): #get variable(s) by name
@@ -1058,26 +1095,29 @@ def findColumnNames(self, columns):
         
     return np.atleast_1d(names)
 
-def has_row_selection(self, arg):
+def get_n_selected_rows(self, arg):
     """Check if the argument given contains a rows selection [rows,columns], 
-    or only column selection [columns].
+    or only column selection [columns] then return the number of selected rows.
     If the argument is a tuple of length 2 and its first element is a valid argument
-    for indexing rows, then the function returns True."""
-    valid_row_indexing = False
+    for indexing rows, then the function returns the number of selected rows, -1 otherwise."""
+    n_sel_rows = -1
     if isinstance(arg, tuple) and len(arg)==2:
-        array_test = np.zeros(getNrows(self))
+        array_test = np.zeros(get_n_rows(self))
         try: # test if first element of tuple is a valid argument for indexing rows. If yes, then we assume it is the argument for rows.
-            array_test[arg[0],]
-            valid_row_indexing = True
+            vals = array_test[arg[0],]
+            if (has_one_element(vals)):
+                n_sel_rows = 1
+            else:
+                n_sel_rows = len(vals)
         except IndexError:
-            valid_row_indexing = False
-    return valid_row_indexing
+            n_sel_rows = -1
+    return n_sel_rows
 
-def getNrows(self, useSel=None):
+def get_n_rows(self, use_sel=None):
     """ get number of rows of the Db when using or not a selection"""
-    if useSel is None:
-        useSel = self.useSel
-    nrows = self.getNSample(useSel)
+    if use_sel is None:
+        use_sel = self.useSel
+    nrows = self.getNSample(use_sel)
     return nrows
 
 def getdbitem(self,arg):
@@ -1102,10 +1142,9 @@ def getdbitem(self,arg):
     db[5:10,(2,3)] extracts the rows 5 to 9 of the variables of index 2 and 3 (array of shape (5,2))
     db[gl.ELoc.Z] extracts all the variables located with Z.
     """
-    nrows = getNrows(self)
-        
-    selec_rows = has_row_selection(self, arg)
-    if selec_rows:
+    nrows = get_n_rows(self)
+    n_sel_rows = get_n_selected_rows(self, arg)
+    if n_sel_rows >= 0:
         rows = arg[0]
         columns = arg[1]
     else:
@@ -1113,9 +1152,9 @@ def getdbitem(self,arg):
         columns = arg
     
     # extract columns
-    ColNames = findColumnNames(self, columns)
-    nbvar = len(ColNames)
-    temp = np.array(self.getColumns(ColNames, self.useSel))
+    col_names = find_column_names(self, columns)
+    nbvar = len(col_names)
+    temp = np.array(self.getColumns(col_names, self.useSel))
     temp = temp.reshape([nbvar,nrows]).T
             
     # extract rows
@@ -1123,7 +1162,7 @@ def getdbitem(self,arg):
     if len(temp.shape) == 2:
       if temp.shape[1] == 1:
         return temp[:,0]
-        
+
     return temp
         
 # This function will add a set of vectors (as a numpy array) to a db. 
@@ -1133,8 +1172,8 @@ def getdbitem(self,arg):
 def setdbitem(self,name,tab):
     
     # analyze input arguments
-    selec_rows = has_row_selection(self, name)   
-    if selec_rows:
+    n_sel_rows = get_n_selected_rows(self, name)   
+    if n_sel_rows >= 0:
         rows = name[0]
         columns = name[1]
     else:
@@ -1142,69 +1181,77 @@ def setdbitem(self,name,tab):
     
     # find existing column names
     arr_columns = np.atleast_1d(columns)
-    ColNames = findColumnNames(self, columns) #existing names
+    col_names = find_column_names(self, columns) #existing names
     
     # analyze input table
     if isinstance(tab, (float, np.floating, int, np.integer, bool, np.bool_)):
-        nrows = getNrows(self)
-        nvars = len(ColNames) # this means we will only modify existing columns, not create ones
+        nrows = get_n_rows(self)
+        nvars = len(col_names) # this means we will only modify existing columns, not create ones
         tab = np.ones((nrows, nvars))*tab
-        if selec_rows:
+        if n_sel_rows > 0:
             tab = np.atleast_2d(tab[rows,:])
     else:
         tab = np.copy(np.float64(tab))
         if len(tab.shape) == 1:
-            tab = np.atleast_2d(tab).T
+            tab = np.atleast_2d(tab)
+            if n_sel_rows != 1:
+                tab = tab.T
         nrows, nvars = tab.shape
-    
+
+    if (n_sel_rows == 1):
+        tab = np.squeeze(tab, axis=0)
+            
     # create list of column names to modify and/or create
-    if len(ColNames) == nvars: # modify existing variables only
-        new_names = ColNames
+    if len(col_names) == nvars: # modify existing variables only
+        new_names = col_names
      
     elif len(arr_columns) == nvars and is_list_type(arr_columns, (str,np.str_)):
         new_names = arr_columns
         
-    elif isinstance(columns, (str,np.str_)) and nvars > 1 and len(ColNames)==0: # create new variables from a unique name
+    elif isinstance(columns, (str,np.str_)) and nvars > 1 and len(col_names)==0: # create new variables from a unique name
         new_names = gl.generateMultipleNames(columns, nvars)
         
     else:
         raise ValueError("Wrong type or length of input ({0}): the input should correspond"
                          " either to a number of existing variables ({1}) equal to the"
                          " number of columns of the table (nvar={2}), or should be a name or "
-                         "list of names of length nvar={2} in order to create new variables.".format(columns, len(ColNames), nvars))
+                         "list of names of length nvar={2} in order to create new variables.".format(columns, len(col_names), nvars))
             
     # loop on the column names to modify/create each column
     for i,name in enumerate(new_names):
         # check if existing name
-        ExistingNames = findColumnNames(self, name)
-        if len(ExistingNames) > 1:
+        existing_names = find_column_names(self, name)
+        if len(existing_names) > 1:
             raise ValueError("There is more than one variable name corresponding to '{}' "
-                             "in the Db: {}".format(name, ExistingNames))
+                             "in the Db: {}".format(name, existing_names))
             
-        if selec_rows:
-            useSel = self.useSel
-            if len(ExistingNames) == 0: # create new variable
-                nrows_tot = getNrows(self, useSel)
+        if n_sel_rows > 0:
+            use_sel = self.useSel
+            if len(existing_names) == 0: # create new variable
+                nrows_tot = get_n_rows(self, use_sel)
                 tab_i = np.empty(nrows_tot)
                 tab_i.fill(np.nan) # NaNs outside of target rows
-            elif len(ExistingNames) == 1: # modify existing variable
+            elif len(existing_names) == 1: # modify existing variable
                 tab_i = self[name]
                 
             tab_i = np.squeeze(tab_i)
-            tab_i[rows,] = tab[:,i]
+            if (n_sel_rows == 1):
+                tab_i[rows,] = tab[i]
+            else:
+                tab_i[rows,] = tab[:,i]
             
         else:
-            useSel = check_nrows(self,nrows)
+            use_sel = check_nrows(self, nrows)
             tab_i = np.empty(nrows)
             tab_i[:] = tab[:,i]
         
         tab_i[np.isnan(tab_i)] = np.nan
-        VectD = np.double(tab_i)
-        self.setColumn(VectD.tolist(), name, gl.ELoc.UNKNOWN, 0, useSel)
+        vect_double = np.double(tab_i)
+        self.setColumn(vect_double.tolist(), name, gl.ELoc.UNKNOWN, 0, use_sel)
         
     return
 
-setattr(gl.Db,"useSel",False)    
+setattr(gl.Db,"useSel",False)
     
 setattr(gl.Db,"__getitem__",getdbitem)
 setattr(gl.Db,"__setitem__",setdbitem)

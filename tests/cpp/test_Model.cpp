@@ -11,6 +11,7 @@
 #include "API/SPDE.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/Message.hpp"
 #include "Basic/OptCst.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Covariances/CovAniso.hpp"
@@ -21,6 +22,7 @@
 #include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Drifts/DriftM.hpp"
+#include "Enum/ECst.hpp"
 #include "Enum/ESpaceType.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Model/Model.hpp"
@@ -59,12 +61,12 @@ int main(int argc, char* argv[])
   // Build the List of Covariances
   CovAnisoList covlmc(ctxt);
   // Build the Elementary Covariances
-  CovAniso cov1(ECov::CUBIC, ctxt);
+  CovAniso cov1(ctxt, ECov::CUBIC);
   VectorDouble ranges = {1.2, 2.1};
   cov1.setRanges(ranges);
   cov1.setSill(1.5);
   covlmc.addCov(cov1);
-  CovAniso cov2(ECov::NUGGET, ctxt);
+  CovAniso cov2(ctxt, ECov::NUGGET);
   cov2.setSill(0.5);
   covlmc.addCov(cov2);
   // Assembling the Model
@@ -76,10 +78,10 @@ int main(int argc, char* argv[])
   result.display();
 
   // Sample the Model at regular steps
-  VectorDouble hh = VH::sequence(0., 3., 3. / 50.);
+  VectorDouble hh = VH::sequenceVD(0., 3., 3. / 50.);
   CovCalcMode mode(ECalcMember::LHS);
   mode.setAsVario(true);
-  VH::dump("\nModel sampled", modellmc.sample(hh, VectorDouble(), 0, 0, &mode));
+  printVector(modellmc.sample(hh, VectorDouble(), 0, 0, &mode), "\nModel sampled", true, true);
 
   /////////////////////////////
   // Creating the Tapered Model
@@ -93,7 +95,7 @@ int main(int argc, char* argv[])
   modeltape.display();
 
   // Sample the Tapered Model at regular steps
-  VH::dump("\nTapered Model", modeltape.sample(hh, VectorDouble(), 0, 0, &mode));
+  printVector(modeltape.sample(hh, VectorDouble(), 0, 0, &mode), "\nTapered Model", true, true);
 
   /////////////////////////////
   // Creating the Convoluted Model
@@ -106,7 +108,7 @@ int main(int argc, char* argv[])
   modelconv.setCovAnisoList(&covconv);
   modelconv.display();
   // Sample the Tapered Model at regular steps
-  VH::dump("\nConvoluted Model", modelconv.sample(hh, VectorDouble(), 0, 0, &mode));
+  printVector(modelconv.sample(hh, VectorDouble(), 0, 0, &mode), "\nConvoluted Model", true, true);
 
   /////////////////////////////////////////
   // Creating Covariance and Drift matrices
@@ -156,7 +158,7 @@ int main(int argc, char* argv[])
   rnd2[1]           = TEST;
   workingDbc->addColumns(rnd2, "Z2");
   VectorDouble verr1(nsample, 0.1);
-  verr1[3]           = TEST;
+  verr1[3] = TEST;
   workingDbc->addColumns(verr1, "V1");
   VectorDouble verr2(nsample, 0.25);
   workingDbc->addColumns(verr2, "V2");
@@ -217,7 +219,7 @@ int main(int argc, char* argv[])
 
   // Selecting samples
   VectorInt nbgh = {0, 2, 3, 5};
-  VH::dump("Ranks of selected samples = ", nbgh);
+  printVector(nbgh, "Ranks of selected samples = ", true, true);
 
   message("Covariance Matrix (selection & heterotopic multivariate & sampling)\n");
   covM = modelM->evalCovMatSym(workingDbc, nbgh, -1);
@@ -232,7 +234,7 @@ int main(int argc, char* argv[])
   defineDefaultSpace(ESpaceType::SN, 2);
   Id ns             = 20;
   Id nincr          = 30;
-  VectorDouble incr = VH::sequence(0., GV_PI + EPSILON10, GV_PI / (nincr - 1.));
+  VectorDouble incr = VH::sequenceVD(0., GV_PI + EPSILON10, GV_PI / (nincr - 1.));
   double mu         = 1.0;
   double kappa      = 2.0;
 
@@ -245,8 +247,8 @@ int main(int argc, char* argv[])
   Model* modelSph = Model::createFromParam(ECov::MATERN, 1. / kappa, 1., mu,
                                            VectorDouble(), MatrixSymmetric(),
                                            VectorDouble(), nullptr, false);
-  VH::dump("Spectrum", modelSph->getCovAniso(0)->evalSpectrumOnSphere(ns));
-  VH::dump("Covariance", modelSph->getCovAniso(0)->evalCovOnSphereVec(incr));
+  printVector(modelSph->getCovAniso(0)->evalSpectrumOnSphere(ns), "Spectrum", true, true);
+  printVector(modelSph->getCovAniso(0)->evalCovOnSphereVec(incr), "Covariance", true, true);
 
   delete workingDbc;
   delete modelM;

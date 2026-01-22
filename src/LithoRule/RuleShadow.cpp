@@ -14,7 +14,6 @@
 #include "Basic/Law.hpp"
 #include "Basic/SerializeHDF5.hpp"
 #include "Basic/Utilities.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "LithoRule/PropDef.hpp"
@@ -104,7 +103,7 @@ RuleShadow::~RuleShadow()
 {
 }
 
-bool RuleShadow::_deserializeAscii(std::istream& is, bool /*verbose*/)
+bool RuleShadow::_deserializeAscii(std::istream& is)
 {
   bool ret = true;
   _shift.resize(3);
@@ -120,7 +119,7 @@ bool RuleShadow::_deserializeAscii(std::istream& is, bool /*verbose*/)
   return ret;
 }
 
-bool RuleShadow::_serializeAscii(std::ostream& os, bool /*verbose*/) const
+bool RuleShadow::_serializeAscii(std::ostream& os) const
 {
   double slope          = (FFFF(_slope)) ? 0. : _slope;
   double shdown         = (FFFF(_shDown)) ? 0. : _shDown;
@@ -144,8 +143,8 @@ bool RuleShadow::_serializeAscii(std::ostream& os, bool /*verbose*/) const
 String RuleShadow::displaySpecific() const
 {
   std::stringstream sstr;
-  sstr << toTitle(2, "Shadow Option");
-  sstr << toVector("Normalized Translation Vector = ", _shift);
+  sstr << toStrTitle(2, "Shadow Option");
+  sstr << toStrVector("Normalized Translation Vector = ", _shift);
   sstr << "Slope for shadow                  = " << _slope << "(degrees)"
        << std::endl;
   sstr << "Upwards shift for the threshold   = " << _shDsup << std::endl;
@@ -422,7 +421,7 @@ Id RuleShadow::gaus2facResult(PropDef* propdef,
 
   check_mandatory_attribute("rule_gaus2fac_result_shadow", dbout, ELoc::FACIES);
   check_mandatory_attribute("rule_gaus2fac_result_shadow", dbout, ELoc::SIMU);
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
+  auto* dbgrid = dynamic_cast<DbGrid*>(dbout);
   if (dbgrid == nullptr) return 1;
 
   error = 1;
@@ -693,10 +692,10 @@ Id RuleShadow::evaluateBounds(PropDef* propdef,
 
 void RuleShadow::_normalizeShift()
 {
-  if (!_shift.empty()) VH::normalize(_shift);
+  if (!_shift.empty()) _shift.normalizeInPlace();
 }
 #ifdef HDF5
-bool RuleShadow::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+bool RuleShadow::deserializeH5(H5::Group& grp)
 {
   auto ruleG = SerializeHDF5::getGroup(grp, "RuleShadow");
   if (!ruleG)
@@ -714,12 +713,12 @@ bool RuleShadow::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   ret = ret && SerializeHDF5::readValue(*ruleG, "ShDsup", _shDsup);
   ret = ret && SerializeHDF5::readVec(*ruleG, "ShiftLoc", _shift);
 
-  ret = ret && Rule::_deserializeH5(*ruleG, verbose);
+  ret = ret && Rule::deserializeH5(*ruleG);
 
   return ret;
 }
 
-bool RuleShadow::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+bool RuleShadow::serializeH5(H5::Group& grp) const
 {
   auto ruleG = grp.createGroup("RuleShadow");
 
@@ -736,7 +735,7 @@ bool RuleShadow::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) con
   ret = ret && SerializeHDF5::writeValue(ruleG, "ShDsup", shdsup);
   ret = ret && SerializeHDF5::writeVec(ruleG, "ShiftLoc", shiftloc);
 
-  ret = ret && Rule::_serializeH5(ruleG, verbose);
+  ret = ret && Rule::serializeH5(ruleG);
 
   return ret;
 }

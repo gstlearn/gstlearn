@@ -407,14 +407,14 @@ void AGibbs::_updateStats(const VectorVectorDouble& y,
     // The mean
     jcol           = _getColRankStats(ipgs, ivar, 0);
     double oldmean = (iter < 1) ? 0. : _stats.getValue(iter - 1, jcol);
-    double newmean = VH::mean(y[icol]);
+    double newmean = y[icol].mean();
     result         = (oldmean * oldw * amort + newmean) / neww;
     _stats.setValue(iter, jcol, result);
 
     // The standard deviation
     jcol          = _getColRankStats(ipgs, ivar, 1);
     double oldvar = (iter < 1) ? 0. : _stats.getValue(iter - 1, jcol);
-    double newvar = VH::variance(y[icol]);
+    double newvar = y[icol].variance();
     result        = (oldvar * oldw * amort + newvar) / neww;
     _stats.setValue(iter, jcol, result);
   }
@@ -571,7 +571,7 @@ String AGibbs::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
 
-  sstr << toTitle(0, "Gibbs Characteristics");
+  sstr << toStrTitle(0, "Gibbs Characteristics");
 
   sstr << "Number of Gaussian Systems" << _npgs;
   sstr << "Number of Variables" << _nvar;

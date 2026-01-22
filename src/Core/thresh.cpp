@@ -10,8 +10,6 @@
 /******************************************************************************/
 #include "Basic/OptDbg.hpp"
 #include "Basic/String.hpp"
-#include "Basic/Utilities.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "LithoRule/PropDef.hpp"
@@ -186,14 +184,11 @@ void proportion_print(PropDef* propdef)
   if (propdef == nullptr) return;
   mestitle(0, "Proportions");
 
-  print_matrix("Initial :", 0, 1, propdef->nfac[1], propdef->nfac[0], NULL,
-               propdef->propfix.data());
+  printMatrix(propdef->propfix, propdef->nfac[1], propdef->nfac[0], "Initial :", 0, 1);
 
-  print_matrix("Working :", 0, 1, propdef->nfac[1], propdef->nfac[0], NULL,
-               propdef->propwrk.data());
+  printMatrix(propdef->propwrk , propdef->nfac[1], propdef->nfac[0], "Working :", 0, 1);
 
-  print_matrix("Current :", 0, 1, propdef->nfaccur, 1, NULL,
-               propdef->proploc.data());
+  printMatrix(propdef->proploc, propdef->nfaccur, 1, "Current :", 0, 1);
 }
 
 /****************************************************************************/
@@ -211,7 +206,7 @@ static Id st_proportion_changed(PropDef* propdef)
 {
   /* Compare with the memory proportion array */
 
-  Id modify = !VH::isEqual(propdef->proploc, propdef->propmem);
+  Id modify = !propdef->proploc.isEqual(propdef->propmem);
   if (!modify) return (1);
 
   /* Print the proportions (optional) */
@@ -353,11 +348,11 @@ Id rule_thresh_define_shadow(PropDef* propdef,
   /* Set the debugging information */
 
   OptDbg::setCurrentIndex(iech + 1);
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(db);
+  auto* dbgrid = dynamic_cast<DbGrid*>(db);
 
   /* Processing an "unknown" facies */
 
-  if (!IFFFF(facies) && (facies < 1 || facies > propdef->nfaccur))
+  if (!isNA(facies) && (facies < 1 || facies > propdef->nfaccur))
   {
     *t1min = *t2min = get_rule_extreme(-1);
     *t1max = *t2max = get_rule_extreme(+1);
@@ -396,7 +391,7 @@ Id rule_thresh_define_shadow(PropDef* propdef,
 
   /* Convert the proportions into thresholds */
 
-  facloc      = (IFFFF(facies)) ? 1 : facies;
+  facloc      = (isNA(facies)) ? 1 : facies;
   auto bounds = rule->getThresh(facloc);
   *t1min      = bounds[0];
   *t1max      = bounds[1];
@@ -449,7 +444,7 @@ Id rule_thresh_define(PropDef* propdef,
 
   /* Processing an "unknown" facies */
 
-  if (!IFFFF(facies) && (facies < 1 || facies > propdef->nfaccur))
+  if (!isNA(facies) && (facies < 1 || facies > propdef->nfaccur))
   {
     *t1min = *t2min = get_rule_extreme(-1);
     *t1max = *t2max = get_rule_extreme(+1);
@@ -471,7 +466,7 @@ Id rule_thresh_define(PropDef* propdef,
 
   /* Check that the facies is compatible with the proportions */
 
-  if (flag_check && !IFFFF(facies) && rule->getModeRule() == ERule::STD)
+  if (flag_check && !isNA(facies) && rule->getModeRule() == ERule::STD)
   {
     if (propdef->proploc[facies - 1] <= 0.)
     {
@@ -498,7 +493,7 @@ Id rule_thresh_define(PropDef* propdef,
 
   /* Convert the proportions into thresholds */
 
-  facloc      = (IFFFF(facies)) ? 1 : facies;
+  facloc      = (isNA(facies)) ? 1 : facies;
   auto bounds = rule->getThresh(facloc);
   *t1min      = bounds[0];
   *t1max      = bounds[1];
@@ -1178,20 +1173,20 @@ Id _db_threshold(Db* db,
   {
     namconv.setNamesAndLocators(
       db, iptr + rank,
-      concatenateStrings("Thresh-F", toString(ifac + 1), "-Y1-Low"));
+      concatenateStrings("Thresh-F", toStr(ifac + 1), "-Y1-Low"));
     rank++;
     namconv.setNamesAndLocators(
       db, iptr + rank,
-      concatenateStrings("Thresh-F", toString(ifac + 1), "-Y1-Up"));
+      concatenateStrings("Thresh-F", toStr(ifac + 1), "-Y1-Up"));
     rank++;
     if (ngrf == 1) continue;
     namconv.setNamesAndLocators(
       db, iptr + rank,
-      concatenateStrings("Thresh-F", toString(ifac + 1), "-Y2-Low"));
+      concatenateStrings("Thresh-F", toStr(ifac + 1), "-Y2-Low"));
     rank++;
     namconv.setNamesAndLocators(
       db, iptr + rank,
-      concatenateStrings("Thresh-F", toString(ifac + 1), "-Y2-Up"));
+      concatenateStrings("Thresh-F", toStr(ifac + 1), "-Y2-Up"));
     rank++;
   }
   error = 0;

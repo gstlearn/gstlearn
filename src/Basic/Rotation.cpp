@@ -10,7 +10,7 @@
 /******************************************************************************/
 #include "Geometry/Rotation.hpp"
 #include "Basic/AException.hpp"
-#include "Basic/VectorHelper.hpp"
+#include "Basic/Message.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Geometry/GeometryHelper.hpp"
 #include "Matrix/MatrixSquare.hpp"
@@ -143,8 +143,7 @@ std::vector<MatrixSquare> Rotation::getDerivatives() const
 
 void Rotation::setIdentity()
 {
-  for (Id idim = 0; idim < static_cast<Id>(_nDim); idim++)
-    VH::fill(_angles, 0.);
+  _angles.fill(0., _nDim);
   _rotMat.setIdentity();
   _rotInv.setIdentity();
   _checkRotForIdentity();
@@ -154,16 +153,16 @@ String Rotation::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
   if (!_flagRot) return sstr.str();
-  sstr << toVector("Rotation Angles        = ", _angles);
+  sstr << toStrVector("Rotation Angles        = ", _angles);
 
   AStringFormat sf;
   if (strfmt != nullptr) sf = *strfmt;
   if (sf.getLevel() > 0)
   {
-    sstr << toMatrix("Direct Rotation Matrix", VectorString(), VectorString(),
-                     true, static_cast<Id>(_nDim), static_cast<Id>(_nDim), _rotMat.getValues());
-    sstr << toMatrix("Inverse Rotation Matrix", VectorString(), VectorString(),
-                     true, static_cast<Id>(_nDim), static_cast<Id>(_nDim), _rotInv.getValues());
+    sstr << toStrMatrix("Direct Rotation Matrix", VectorString(), VectorString(),
+                        true, static_cast<Id>(_nDim), static_cast<Id>(_nDim), _rotMat.getValues());
+    sstr << toStrMatrix("Inverse Rotation Matrix", VectorString(), VectorString(),
+                        true, static_cast<Id>(_nDim), static_cast<Id>(_nDim), _rotInv.getValues());
   }
   return sstr.str();
 }

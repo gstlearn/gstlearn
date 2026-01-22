@@ -45,6 +45,10 @@
                  MARKOV,     27, "Markovian covariances",\
                  GEOMETRIC,  28, "Geometric (Sphere only)",\
                  POISSON,    29, "Poisson (Sphere only)",\
-                 LINEARSPH,  30, "Linear (Sphere only)"
+                 LINEARSPH,  30, "Linear (Sphere only)",\
+                 CAUCHY_GEN, 31, "Generalized Cauchy in 1-D", \
+                 GNEITING_G, 32, "Gneiting with Gaussian spatial trace", \
+                 GNEITING_M, 33, "Gneiting with Matern's spatial trace", \
+                 GNEITING_C, 34, "Gneiting with Cauchy's spatial trace"
 
 ENUM_DECLARE(ENUM_COV)

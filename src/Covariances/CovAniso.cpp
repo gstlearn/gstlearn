@@ -8,11 +8,10 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Covariances/TabNoStatSills.hpp"
 #include "geoslib_define.h"
 
 #include "Arrays/Array.hpp"
-#include "Basic/AStringable.hpp"
-#include "Basic/FFT.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/CorAniso.hpp"
@@ -31,36 +30,35 @@
 #include "Space/SpaceSN.hpp"
 
 #include <cmath>
-#include <functional>
 #include <ostream>
 
 namespace gstlrn
 {
-
-CovAniso::CovAniso(const ECov& type, const CovContext& ctxt)
+CovAniso::CovAniso(const CovContext& ctxt, const ECov& type)
   : CovProportional(nullptr, MatrixSymmetric(ctxt.getNVar()))
 {
-  auto tempcor = CorAniso(type, ctxt);
+  auto tempcor = CorAniso(ctxt, type);
   CovProportional::setCor(&tempcor);
   _initFromContext();
 }
 
-CovAniso::CovAniso(const String& symbol, const CovContext& ctxt)
-  : CovProportional(new CorAniso(symbol, ctxt))
+CovAniso::CovAniso(const CovContext& ctxt, const String& symbol)
+  : CovProportional(new CorAniso(ctxt, symbol))
 {
   ECov covtype = CovFactory::identifyCovariance(symbol, ctxt);
   _initFromContext();
 }
 
-CovAniso::CovAniso(const ECov& type,
-                   double range,
-                   double param,
-                   double sill,
-                   const CovContext& ctxt,
-                   bool flagRange)
+CovAniso::CovAniso(
+  const CovContext& ctxt,
+  const ECov& type,
+  double param,
+  double sill,
+  double range,
+  bool flagRange)
   : CovProportional(nullptr, MatrixSymmetric(ctxt.getNVar()))
 {
-  auto temp = CorAniso(type, range, param, ctxt, flagRange);
+  auto temp = CorAniso(ctxt, type, param, range, flagRange);
   setCor(&temp);
   _initFromContext();
 
@@ -116,6 +114,10 @@ CorAniso* CovAniso::getCorAnisoModify()
   return static_cast<CorAniso*>(getCorModify());
 }
 
+bool CovAniso::isValidForSpectral() const
+{
+  return getCorAniso()->isValidForSpectral();
+}
 double CovAniso::_getSillValue(Id ivar, Id jvar, const CovCalcMode* mode) const
 {
   if (mode != nullptr && mode->getUnitary()) return 1.;
@@ -183,12 +185,12 @@ String CovAniso::toString(const AStringFormat* strfmt) const
 
     if (getNVar() > 1)
     {
-      sstr << toMatrix("- Sill matrix:", VectorString(), VectorString(), 0,
-                       getNVar(), getNVar(), _sillCur.getValues());
+      sstr << toStrMatrix("- Sill matrix:", VectorString(), VectorString(), 0,
+                          getNVar(), getNVar(), _sillCur.getValues());
     }
     else
     {
-      sstr << "- Sill         = " << toDouble(_sillCur.getValue(0, 0)) << std::endl;
+      sstr << "- Sill         = " << toStr(_sillCur.getValue(0, 0)) << std::endl;
     }
   }
   else
@@ -202,12 +204,12 @@ String CovAniso::toString(const AStringFormat* strfmt) const
       for (Id ivar = 0; ivar < getNVar(); ivar++)
         for (Id jvar = 0; jvar < getNVar(); jvar++)
           slopes.setValue(ivar, jvar, _sillCur.getValue(ivar, jvar) / range);
-      sstr << toMatrix("- Slope matrix:", VectorString(), VectorString(), 0,
-                       getNVar(), getNVar(), slopes.getValues());
+      sstr << toStrMatrix("- Slope matrix:", VectorString(), VectorString(), 0,
+                          getNVar(), getNVar(), slopes.getValues());
     }
     else
     {
-      sstr << "- Slope        = " << toDouble(getSlope(0, 0)) << std::endl;
+      sstr << "- Slope        = " << toStr(getSlope(0, 0)) << std::endl;
     }
   }
 
@@ -218,7 +220,7 @@ String CovAniso::toString(const AStringFormat* strfmt) const
 
   if (isNoStat())
   {
-    sstr << toTitle(1, "Non-Stationary Parameters");
+    sstr << toStrTitle(3, "List of Non-Stationary Parameters");
     sstr << _tabNoStat->toString(strfmt);
     auto i = getTabNoStatSills()->getNSills();
     sstr << getCorAniso()->toStringNoStat(strfmt, i);
@@ -260,7 +262,7 @@ CovAniso* CovAniso::createIsotropic(const CovContext& ctxt,
     messerr("This function is dedicated to the Monovariate case");
     return nullptr;
   }
-  return new CovAniso(type, range, param, sill, ctxt, flagRange);
+  return new CovAniso(ctxt, type, param, sill, range, flagRange);
 }
 
 CovAniso* CovAniso::createAnisotropic(const CovContext& ctxt,
@@ -284,7 +286,7 @@ CovAniso* CovAniso::createAnisotropic(const CovContext& ctxt,
     return nullptr;
   }
 
-  auto* cov = new CovAniso(type, ctxt);
+  auto* cov = new CovAniso(ctxt, type);
   if (flagRange)
     cov->setRanges(ranges);
   else
@@ -292,6 +294,7 @@ CovAniso* CovAniso::createAnisotropic(const CovContext& ctxt,
   cov->setSill(sill);
   cov->setParam(param);
   if (!angles.empty()) cov->setAnisoAngles(angles);
+  cov->computeCorrec();
   return cov;
 }
 
@@ -302,7 +305,7 @@ CovAniso* CovAniso::createIsotropicMulti(const CovContext& ctxt,
                                          double param,
                                          bool flagRange)
 {
-  auto* cov = new CovAniso(type, ctxt);
+  auto* cov = new CovAniso(ctxt, type);
   auto nvar = sills.getNSize();
   if (ctxt.getNVar() != nvar)
   {
@@ -345,7 +348,7 @@ CovAniso* CovAniso::createAnisotropicMulti(const CovContext& ctxt,
     return nullptr;
   }
 
-  auto* cov = new CovAniso(type, ctxt);
+  auto* cov = new CovAniso(ctxt, type);
   if (flagRange)
     cov->setRanges(ranges);
   else
@@ -428,7 +431,7 @@ CovAniso* CovAniso::createFromParam(const ECov& type,
   // Define the covariance
 
   const CovContext& ctxt = CovContext(nvar, space);
-  auto* cov              = new CovAniso(type, ctxt);
+  auto* cov              = new CovAniso(ctxt, type);
 
   // Define the Third parameter
   double parmax = cov->getParMax();
@@ -476,13 +479,9 @@ Array CovAniso::evalCovFFT(const VectorDouble& hmax,
                            Id jvar) const
 {
   if (!hasSpectrumOnRn()) return Array();
-
-  std::function<double(const VectorDouble&)> funcSpectrum;
-  funcSpectrum = [this, ivar, jvar](const VectorDouble& freq)
-  {
-    return evalSpectrum(freq, ivar, jvar) * getDetTensor();
-  };
-  return evalCovFFTSpatial(hmax, N, funcSpectrum);
+  Array result = getCorAniso()->evalCovFFT(hmax, N, ivar, jvar);
+  result.multiplyConstant(_sillCur.getValue(ivar, jvar));
+  return result;
 }
 
 CovAniso* CovAniso::createReduce(const VectorInt& validVars) const
@@ -503,7 +502,7 @@ CovAniso* CovAniso::createReduce(const VectorInt& validVars) const
 double scale2range(const ECov& type, double scale, double param)
 {
   CovContext ctxt(1, 1);
-  ACovFunc* cova = CovFactory::createCovFunc(type, ctxt);
+  AKernel* cova = CovFactory::createCovFunc(type, ctxt);
   cova->setParam(param);
   double scadef = cova->getScadef();
   return scale * scadef;
@@ -512,7 +511,7 @@ double scale2range(const ECov& type, double scale, double param)
 double range2scale(const ECov& type, double range, double param)
 {
   CovContext ctxt(1, 1);
-  ACovFunc* cova = CovFactory::createCovFunc(type, ctxt);
+  AKernel* cova = CovFactory::createCovFunc(type, ctxt);
   cova->setParam(param);
   double scadef = cova->getScadef();
   return range / scadef;

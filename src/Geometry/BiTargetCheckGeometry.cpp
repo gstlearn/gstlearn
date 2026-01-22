@@ -9,20 +9,18 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Geometry/BiTargetCheckGeometry.hpp"
-#include "Basic/Utilities.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Geometry/GeometryHelper.hpp"
 #include "Space/SpaceTarget.hpp"
 
 namespace gstlrn
 {
-  // Forward declaration of the static method
-  BiTargetCheckGeometry* create(Id ndim,
-                                const VectorDouble &codir,
-                                double tolang,
-                                double bench,
-                                double cylrad,
-                                bool flagasym);
+// Forward declaration of the static method
+BiTargetCheckGeometry* create(Id ndim,
+                              const VectorDouble& codir,
+                              double tolang,
+                              double bench,
+                              double cylrad,
+                              bool flagasym);
 
 BiTargetCheckGeometry::BiTargetCheckGeometry(Id ndim,
                                              const VectorDouble& codir,
@@ -91,7 +89,7 @@ String BiTargetCheckGeometry::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
 
-  sstr << "- Direction" << VH::toStringAsVD(_codir) << std::endl;
+  sstr << "- Direction" << toStrVector(String(), _codir) << std::endl;
   sstr << "- Tolerance angular" << _tolAng << std::endl;
   if (!FFFF(_bench) && _bench > 0.)
     sstr << "Bench (%lf)" << _bench << std::endl;
@@ -148,4 +146,4 @@ bool BiTargetCheckGeometry::isOK(const SpaceTarget& T1, const SpaceTarget& T2) c
 
   return true;
 }
-}
+} // namespace gstlrn

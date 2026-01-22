@@ -17,7 +17,6 @@
 #include "Simulation/ACalcSimulation.hpp"
 #include "Simulation/SimuRefineParam.hpp"
 #include "geoslib_old_f.h"
-
 #include <cmath>
 
 #define LHS(i, j) (lhs[(i) * neq + (j)])
@@ -74,9 +73,9 @@ Id CalcSimuRefine::_simulate()
     nx2.resize(ndim);
     x02.resize(ndim);
     dx2.resize(ndim);
-    db2       = DbGrid::create(nx2, dx2, x02, dbin->getGrid().getRotAngles(),
-                               ELoadBy::SAMPLE, VectorDouble(), VectorString(),
-                               VectorString(), 1);
+    db2      = DbGrid::create(nx2, dx2, x02, dbin->getGrid().getRotAngles(),
+                              ELoadBy::SAMPLE, VectorDouble(), VectorString(),
+                              VectorString(), 1);
     Id iatt2 = db2->addColumnsByConstant(1, TEST);
 
     /* Establish the Kriging system */
@@ -266,9 +265,9 @@ void CalcSimuRefine::_merge_data(DbGrid* db1, Id iatt1, DbGrid* db2, Id iatt2)
     for (Id iy1 = 0; iy1 < _nx1[1]; iy1++)
       for (Id iz1 = 0; iz1 < _nx1[2]; iz1++)
       {
-        Id ix2      = 1 + 2 * ix1;
-        Id iy2      = 1 + 2 * iy1;
-        Id iz2      = iz1;
+        Id ix2       = 1 + 2 * ix1;
+        Id iy2       = 1 + 2 * iy1;
+        Id iz2       = iz1;
         double value = _read(db1, iatt1, ix1, iy1, iz1, 0, 0, 0);
         _write(db2, iatt2, ix2, iy2, iz2, value);
       }
@@ -338,9 +337,9 @@ double CalcSimuRefine::_read(DbGrid* db,
 void CalcSimuRefine::_write(DbGrid* db, Id iatt, Id ix0, Id iy0, Id iz0, double value)
 {
   VectorInt ind(3);
-  ind[0]  = ix0;
-  ind[1]  = iy0;
-  ind[2]  = iz0;
+  ind[0] = ix0;
+  ind[1] = iy0;
+  ind[2] = iz0;
   Id iad = db->indiceToRank(ind);
   db->setArray(iad, iatt, value);
 }
@@ -380,11 +379,11 @@ void CalcSimuRefine::_truncate_result(DbGrid* db2, Id iatt2, DbGrid* db1, Id iat
  *****************************************************************************/
 Id CalcSimuRefine::_kriging_solve(Id type, Id rank, Id nb, bool verbose)
 {
-  Id neq  = (_param.isFlagSK()) ? nb : nb + 1;
+  Id neq    = (_param.isFlagSK()) ? nb : nb + 1;
   auto ndim = _getNDim();
   VectorDouble d1(ndim);
-  VectorDouble lhs(36);
-  VectorDouble rhs(6);
+  VectorDouble rhs(neq);
+  MatrixSquare lhs(neq);
 
   CovCalcMode mode(ECalcMember::RHS);
 
@@ -396,7 +395,7 @@ Id CalcSimuRefine::_kriging_solve(Id type, Id rank, Id nb, bool verbose)
       if (ndim >= 1) d1[0] = _XYZN[0][type][i] - _XYZN[0][type][j];
       if (ndim >= 2) d1[1] = _XYZN[1][type][i] - _XYZN[1][type][j];
       if (ndim >= 3) d1[2] = _XYZN[2][type][i] - _XYZN[2][type][j];
-      LHS(i, j) = getModel()->evaluateOneGeneric(nullptr, d1);
+      lhs.setValue(i, j, getModel()->evaluateOneGeneric(nullptr, d1));
     }
 
   /* Establish the kriging R.H.S. */
@@ -406,7 +405,7 @@ Id CalcSimuRefine::_kriging_solve(Id type, Id rank, Id nb, bool verbose)
     if (ndim >= 1) d1[0] = _XYZN[0][type][i];
     if (ndim >= 2) d1[1] = _XYZN[1][type][i];
     if (ndim >= 3) d1[2] = _XYZN[2][type][i];
-    RHS(i) = getModel()->evaluateOneGeneric(nullptr, d1);
+    rhs[i] = getModel()->evaluateOneGeneric(nullptr, d1);
   }
 
   /* Add the Universality condition (optional) */
@@ -415,31 +414,28 @@ Id CalcSimuRefine::_kriging_solve(Id type, Id rank, Id nb, bool verbose)
   {
     for (Id i = 0; i < nb; i++)
     {
-      LHS(i, nb) = 1.;
-      LHS(nb, i) = 1.;
+      lhs.setValue(i, nb, 1.);
+      lhs.setValue(nb, i, 1.);
     }
-    LHS(nb, nb) = 0;
-    RHS(nb)     = 1.;
+    lhs.setValue(nb, nb, 0.);
+    rhs[nb] = 1.;
   }
+
+  // Invert the Kriging matrix
+  lhs.invert();
 
   /* Derive the Kriging weights */
-
-  if (matrix_invert(lhs.data(), neq, -1))
-  {
-    messerr("Kriging matrix inversion failed");
-    messerr("Check the consistency between the model and the SK/OK option");
-    return (1);
-  }
-  matrix_product_safe(neq, neq, 1, lhs.data(), rhs.data(), _WGT[type][rank]);
+  VectorDouble col1(_WGT.row(type, rank).begin(), _WGT.row(type, rank).end());
+  VectorDouble wgt1(col1.size());
+  lhs.prodMatVecInPlace(rhs, wgt1);
 
   /* Calculate the variance */
-
   mode.setMember(ECalcMember::VAR);
   for (Id i = 0; i < ndim; i++) d1[i] = 0.;
   double var0 = getModel()->evaluateOneGeneric(nullptr, d1, 1., &mode);
-  double var1 = 0.;
-  matrix_product_safe(1, neq, 1, rhs.data(), _WGT[type][rank], &var1);
-  double variance   = var0 - var1;
+  VectorDouble col2(_WGT.row(type, rank).begin(), _WGT.row(type, rank).end());
+  VectorDouble wgt2(col2.size());
+  double variance   = var0 - rhs.innerProduct(wgt2);
   _STDV[type][rank] = (variance > 0) ? sqrt(variance) : 0.;
 
   /* Printout of the weights */
@@ -504,7 +500,8 @@ void CalcSimuRefine::_simulate_target(DbGrid* db, Id type, Id iatt, Id ix0, Id i
     /* Case of the first layer */
 
     for (Id i = 0; i < 4; i++)
-      value += (_WGT[type][0][i] * _read(db, iatt, ix0, iy0, iz0, _IXYZ[0][type][i], _IXYZ[1][type][i], _IXYZ[2][type][i]));
+      value += (_WGT[type][0][i] * _read(db, iatt, ix0, iy0, iz0,
+                                         _IXYZ[0][type][i], _IXYZ[1][type][i], _IXYZ[2][type][i]));
     value += _STDV[type][0] * law_gaussian();
   }
   else
@@ -513,7 +510,8 @@ void CalcSimuRefine::_simulate_target(DbGrid* db, Id type, Id iatt, Id ix0, Id i
     /* Case of a subsequent layer */
 
     for (Id i = 0; i < 5; i++)
-      value += (_WGT[type][1][i] * _read(db, iatt, ix0, iy0, iz0, _IXYZ[0][type][i], _IXYZ[1][type][i], _IXYZ[2][type][i]));
+      value += (_WGT[type][1][i] * _read(db, iatt, ix0, iy0, iz0,
+                                         _IXYZ[0][type][i], _IXYZ[1][type][i], _IXYZ[2][type][i]));
     value += _STDV[type][1] * law_gaussian();
   }
 

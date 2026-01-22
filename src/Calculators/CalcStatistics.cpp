@@ -119,7 +119,7 @@ bool CalcStatistics::_run()
 {
   if (_flagStats)
   {
-    DbGrid* dbgrid     = dynamic_cast<DbGrid*>(getDbout());
+    auto* dbgrid       = dynamic_cast<DbGrid*>(getDbout());
     VectorString names = getDbin()->getNamesByLocator(ELoc::Z);
     if (dbStatisticsInGridTool(getDbin(), dbgrid, names, _oper, _radius, _iattOut))
       return false;
@@ -148,10 +148,10 @@ bool CalcStatistics::_run()
  **
  *****************************************************************************/
 Id dbStatisticsOnGrid(Db* db,
-                       DbGrid* dbgrid,
-                       const EStatOption& oper,
-                       Id radius,
-                       const NamingConvention& namconv)
+                      DbGrid* dbgrid,
+                      const EStatOption& oper,
+                      Id radius,
+                      const NamingConvention& namconv)
 {
   CalcStatistics stats;
   stats.setDbin(db);
@@ -169,13 +169,13 @@ Id dbStatisticsOnGrid(Db* db,
 }
 
 Id dbRegression(Db* db1,
-                 const String& nameResp,
-                 const VectorString& nameAux,
-                 Id mode,
-                 bool flagCst,
-                 Db* db2,
-                 const Model* model,
-                 const NamingConvention& namconv)
+                const String& nameResp,
+                const VectorString& nameAux,
+                Id mode,
+                bool flagCst,
+                Db* db2,
+                const Model* model,
+                const NamingConvention& namconv)
 {
   if (db2 == nullptr) db2 = db1;
 

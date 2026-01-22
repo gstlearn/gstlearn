@@ -77,18 +77,18 @@ String NeighBench::toString(const AStringFormat* strfmt) const
 
   std::stringstream sstr;
 
-  sstr << toTitle(0, "Bench Neighborhood");
+  sstr << toStrTitle(0, "Bench Neighborhood");
 
   sstr << _biPtBench->toString();
 
   return sstr.str();
 }
 
-bool NeighBench::_deserializeAscii(std::istream& is, bool verbose)
+bool NeighBench::_deserializeAscii(std::istream& is)
 {
   double width = 0.;
   bool ret     = true;
-  ret          = ret && ANeigh::_deserializeAscii(is, verbose);
+  ret          = ret && ANeigh::_deserializeAscii(is);
   ret          = ret && _recordRead<double>(is, "Bench Width", width);
 
   _biPtBench = BiTargetCheckBench::create(-1, width); // idim_bench will be updated in 'attach'
@@ -96,10 +96,10 @@ bool NeighBench::_deserializeAscii(std::istream& is, bool verbose)
   return ret;
 }
 
-bool NeighBench::_serializeAscii(std::ostream& os, bool verbose) const
+bool NeighBench::_serializeAscii(std::ostream& os) const
 {
   bool ret = true;
-  ret      = ret && ANeigh::_serializeAscii(os, verbose);
+  ret      = ret && ANeigh::_serializeAscii(os);
   ret      = ret && _recordWrite<double>(os, "Bench Width", _biPtBench->getWidth());
   return ret;
 }
@@ -135,8 +135,8 @@ NeighBench* NeighBench::createFromNF(const String& NFFilename, bool verbose)
 Id NeighBench::getNSampleMax(const Db* db) const
 {
   bool useSel = false;
-  Id nech    = db->getNSample();
-  Id ndim    = db->getNDim();
+  Id nech     = db->getNSample();
+  Id ndim     = db->getNDim();
   if (db->getNDim() <= 2) return nech;
 
   /* Read the vector of the last coordinates */
@@ -257,7 +257,7 @@ void NeighBench::_bench(Id iech_out, VectorInt& ranks)
 }
 
 #ifdef HDF5
-bool NeighBench::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+bool NeighBench::deserializeH5(H5::Group& grp)
 {
   auto neighG = SerializeHDF5::getGroup(grp, "NeighBench");
   if (!neighG)
@@ -271,21 +271,21 @@ bool NeighBench::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
 
   ret = ret && SerializeHDF5::readValue(*neighG, "Bench", width);
 
-  ret = ret && ANeigh::_deserializeH5(*neighG, verbose);
+  ret = ret && ANeigh::deserializeH5(*neighG);
 
   _biPtBench = BiTargetCheckBench::create(-1, width); // idim_bench will be updated in 'attach'
 
   return ret;
 }
 
-bool NeighBench::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+bool NeighBench::serializeH5(H5::Group& grp) const
 {
   auto neighG = grp.createGroup("NeighBench");
 
   bool ret = true;
 
   ret = ret && SerializeHDF5::writeValue(neighG, "Bench", _biPtBench->getWidth());
-  ret = ret && ANeigh::_serializeH5(neighG, verbose);
+  ret = ret && ANeigh::serializeH5(neighG);
 
   return ret;
 }

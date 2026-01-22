@@ -12,6 +12,7 @@
 
 #include "Basic/Grid.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Db/DbGrid.hpp"
 #include "Polygon/Polygons.hpp"
 #include "geoslib_old_f.h"
@@ -47,18 +48,6 @@ Id compat_NDIM(Db* db1, Db* db2)
 
 /****************************************************************************/
 /*!
- **  Print the Summary of the Grid structure
- **
- ** \param[in]  db  Pointer to the Db structure (organized as a grid)
- **
- *****************************************************************************/
-void db_grid_print(Db* db)
-{
-  if (db->isGrid()) message(db->toString().c_str());
-}
-
-/****************************************************************************/
-/*!
  **  Returns the number of items for a given locator in the Db
  **
  ** \return  Number of items
@@ -86,8 +75,7 @@ Id get_LOCATOR_NITEM(const Db* db, const ELoc& locatorType)
  ** \param[in]  iech1  rank of the first sample
  ** \param[in]  iech2  rank of the second sample
  **
- ** \param[out] dist_vect  If the output vector is provided.
- **                        Returns the distance as a vector
+ ** \param[out] dist_vect  Returns the distance as a vector
  **
  ** \remark: If both Data Bases do not share the same Space Dimension
  ** \remark: the test is performed on their minimum.
@@ -98,7 +86,7 @@ double distance_inter(const Db* db1,
                       const Db* db2,
                       Id iech1,
                       Id iech2,
-                      double* dist_vect)
+                      VectorDouble& dist_vect)
 {
   double v1, v2, *tab1, *tab2;
   Id idim, ndim;
@@ -111,9 +99,9 @@ double distance_inter(const Db* db1,
     v1 = db1->getCoordinate(iech1, idim);
     v2 = db2->getCoordinate(iech2, idim);
     if (FFFF(v1) || FFFF(v2)) return (TEST);
-    tab1[idim] = v1;
-    tab2[idim] = v2;
-    if (dist_vect != nullptr) dist_vect[idim] = v1 - v2;
+    tab1[idim]      = v1;
+    tab2[idim]      = v2;
+    dist_vect[idim] = v1 - v2;
   }
   return (ut_distance(ndim, tab1, tab2));
 }
@@ -1055,7 +1043,7 @@ Id db_proportion(
                            &nmax[ivar]);
     }
   }
-  Id nclass = VH::product(nmax);
+  Id nclass = nmax.prod();
 
   /* Core allocation */
 
@@ -1432,134 +1420,6 @@ Id db_prop_write(DbGrid* db, Id ix, Id iy, double* props)
       db->setLocVariable(ELoc::P, iech, iprop, props[ecr]);
   }
   return (0);
-}
-
-/****************************************************************************/
-/*!
- **  Evaluate the array of distances between samples of two data sets
- **  Takes the selection into account (if any)
- **
- ** \return Array of distances
- **
- ** \param[in]  db1     Db first descriptor
- ** \param[in]  db2     Db second descriptor
- ** \param[in]  niso    Number of variables tested for isotopy
- ** \param[in]  mode    Type of array returned
- **                     0 : extreme distances
- **                     1 : the distance to the closest sample
- **                     2 : all point-to-point distances
- ** \param[in]  flag_same 1 if both Db coincide
- **
- ** \param[out] n1      First dimension of the returned array
- ** \param[out] n2      Second dimension of the returned array
- ** \param[out] dmin    Minimum distance
- ** \param[out] dmax    Maximum distance
- **
- ** \remarks The returned array must be freed by calling routine
- ** \remarks When the two Dbs coincide, the distance calculation excludes
- ** \remarks the comparison between one sample and itself
- **
- *****************************************************************************/
-VectorDouble db_distances_general(Db* db1,
-                                  Db* db2,
-                                  Id niso,
-                                  Id mode,
-                                  Id flag_same,
-                                  Id* n1,
-                                  Id* n2,
-                                  double* dmin,
-                                  double* dmax)
-{
-  Id nech1, nech2, iech1, iech2, ecr, max_all, nvalid;
-  double dlocmin, dloc, dist_min, dist_max;
-  VectorDouble dist;
-
-  /* Preliminary calculations */
-
-  *n1     = 0;
-  *n2     = 0;
-  nech1   = db1->getNSample(true);
-  nech2   = db2->getNSample(true);
-  max_all = nech1 * nech2;
-
-  /* Preliminary checks */
-
-  if (niso > db1->getNLoc(ELoc::Z) || niso > db2->getNLoc(ELoc::Z))
-  {
-    messerr("You ask for distances between samples with %d variables defined",
-            niso);
-    messerr("But the input 'Db' have %d and %d variables defined",
-            db1->getNLoc(ELoc::Z), db2->getNLoc(ELoc::Z));
-    return dist;
-  }
-
-  /* Core allocation */
-
-  if (mode > 0)
-  {
-    dist.resize(max_all);
-    for (Id i = 0; i < max_all; i++) dist[i] = 0.;
-  }
-
-  /* Loop on the second point */
-
-  dist_min = MAXIMUM_BIG;
-  dist_max = MINIMUM_BIG;
-  ecr = nvalid = 0;
-  for (iech2 = 0; iech2 < nech2; iech2++)
-  {
-    if (!db2->isActive(iech2)) continue;
-    if (!db2->isIsotopic(iech2, niso)) continue;
-    nvalid++;
-    dlocmin = MAXIMUM_BIG;
-
-    /* Loop on the first point */
-
-    for (iech1 = 0; iech1 < nech1; iech1++)
-    {
-      if (mode != 2 && flag_same && iech1 == iech2) continue;
-      if (!db1->isActive(iech1)) continue;
-      if (!db1->isIsotopic(iech1, niso)) continue;
-
-      /* Calculate distance */
-
-      dloc = distance_inter(db1, db2, iech1, iech2, NULL);
-      if (dloc < dist_min) dist_min = dloc;
-      if (dloc > dist_max) dist_max = dloc;
-
-      if (mode == 1)
-      {
-        if (dloc < dlocmin) dlocmin = dloc;
-      }
-      else if (mode == 2)
-      {
-        dist[ecr++] = dloc;
-      }
-    }
-
-    if (mode == 1) dist[ecr++] = dlocmin;
-  }
-
-  /* Reallocate the distance array */
-
-  if (mode > 0 && ecr < max_all)
-    dist.resize(ecr);
-
-  /* Returned arguments */
-
-  *dmin = dist_min;
-  *dmax = dist_max;
-  if (mode == 1)
-  {
-    *n1 = ecr;
-    *n2 = 1;
-  }
-  else if (mode == 2)
-  {
-    *n1 = nvalid;
-    *n2 = nvalid;
-  }
-  return dist;
 }
 
 /****************************************************************************/
@@ -2084,7 +1944,7 @@ Id db_grid_patch(DbGrid* ss_grid,
   if (point_to_grid(db_grid, coor1.data(), -1, indg0.data()) == -1)
   {
     messerr("Subgrid origin does not lie within the main grid");
-    db_grid_print(db_grid);
+    message(db_grid->toString().c_str());
     messerr("Subgrid origin:");
     for (Id idim = 0; idim < ndim; idim++)
       messerr("- Dimension #%d: Coordinate=%lf", idim + 1, coor1[idim]);

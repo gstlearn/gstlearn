@@ -40,7 +40,8 @@ jobs:
             "cp310-cp310",
             "cp311-cp311",
             "cp312-cp312",
-            "cp313-cp313"
+            "cp313-cp313",
+            "cp314-cp314"
           ]
         image: [
            manylinux_2_28_x86_64
@@ -60,6 +61,7 @@ jobs:
         dnf update -y
         dnf install -y \
           sudo \
+          cmake \
           swig \
           doxygen \
           eigen3-devel
@@ -96,6 +98,7 @@ jobs:
       run : |
         cmake \
           -B${{ env.BUILD_DIR }} \
+          -DCMAKE_COMPILE_WARNING_AS_ERROR=ON \
           -DHDF5_USE_STATIC_LIBRARIES=ON \
           -DBUILD_PYTHON=ON \
           -DBUILD_R=OFF \
@@ -135,7 +138,8 @@ jobs:
             "cp310-cp310",
             "cp311-cp311",
             "cp312-cp312",
-            "cp313-cp313"
+            "cp313-cp313",
+            "cp314-cp314"
           ]
         image: [
            manylinux_2_28_x86_64
@@ -179,7 +183,7 @@ jobs:
 
     steps:
     # Upload packages to pypi
-    - uses: fabien-ors/pypi-publish-action@v2
+    - uses: fabien-ors/pypi-publish-action@v3
       with:
         repo: pypi
         username: __token__

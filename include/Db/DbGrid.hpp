@@ -18,7 +18,6 @@
 #include "Basic/ICloneable.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Db/Db.hpp"
-#include <omp.h>
 
 namespace gstlrn
 {
@@ -72,6 +71,13 @@ public:
   /// AStringable Interface
   String toString(const AStringFormat* strfmt = nullptr) const override;
 
+  /// ASerializable Interface
+  String getNFName() const override { return "DbGrid"; }
+#ifdef HDF5
+  bool deserializeH5(H5::Group& grp) override;
+  bool serializeH5(H5::Group& grp) const override;
+#endif
+
   /// Db Interface
   inline bool isGrid() const override { return true; }
   double getCoordinate(Id iech, Id idim, bool flag_rotate = true) const override;
@@ -102,8 +108,9 @@ public:
                                   const VectorDouble& x0     = VectorDouble(),
                                   const VectorDouble& margin = VectorDouble());
   static DbGrid* createFromPolygon(Polygons* polygon,
-                                   const VectorInt& nodes,
-                                   const VectorDouble& dcell,
+                                   const VectorInt& nx    = VectorInt(),
+                                   const VectorDouble& dx = VectorDouble(),
+                                   bool flagAddSelection  = true,
                                    bool flagAddSampleRank = true);
   static DbGrid* createCoarse(DbGrid* dbin,
                               const VectorInt& nmult,
@@ -160,6 +167,7 @@ public:
                                   const VectorDouble& heteroRatio = VectorDouble(),
                                   const VectorDouble& means       = VectorDouble(),
                                   const VectorDouble& x0          = VectorDouble(),
+                                  const VectorDouble& dx          = VectorDouble(),
                                   Id seed                         = 1367843);
   static DbGrid* createFromGrid(const Grid& grid);
 
@@ -179,8 +187,9 @@ public:
                      const VectorDouble& x0     = VectorDouble(),
                      const VectorDouble& margin = VectorDouble());
   Id resetFromPolygon(Polygons* polygon,
-                      const VectorInt& nodes,
-                      const VectorDouble& dcell,
+                      const VectorInt& nx    = VectorInt(),
+                      const VectorDouble& dx = VectorDouble(),
+                      bool flagAddSelection  = true,
                       bool flagAddSampleRank = true);
 
   DbGrid* coarsify(const VectorInt& nmult);
@@ -400,13 +409,8 @@ public:
   void initThread() const override;
 
 protected:
-  bool _deserializeAscii(std::istream& is, bool verbose = false) override;
-  bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
-#ifdef HDF5
-  bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
-  bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
-#endif
-  String _getNFName() const override { return "DbGrid"; }
+  bool _deserializeAscii(std::istream& is) override;
+  bool _serializeAscii(std::ostream& os) const override;
 
 private:
   void _createGridCoordinates(Id icol0);

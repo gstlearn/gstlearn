@@ -8,15 +8,11 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Basic/AStringable.hpp"
-#include "Enum/EFormatNF.hpp"
-#include "geoslib_f.h"
-#include "geoslib_old_f.h"
-
 #include "Basic/File.hpp"
 #include "Core/Ascii.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
+#include "Enum/EFormatNF.hpp"
 #include "Estimation/CalcKriging.hpp"
 #include "Estimation/CalcKrigingGradient.hpp"
 #include "Neigh/ANeigh.hpp"
@@ -27,6 +23,8 @@
 #include "Simulation/CalcSimuTurningBands.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Variogram/Vario.hpp"
+#include "geoslib_f.h"
+#include "geoslib_old_f.h"
 
 using namespace gstlrn;
 
@@ -107,7 +105,7 @@ int main(int argc, char* argv[])
     vario->compute(dbin, ECalcVario::VARIOGRAM);
     vario->display();
     ascii_filename("Vario", 0, 1, filename);
-    if (!vario->dumpToNF(filename, EFormatNF::DEFAULT, verbose))
+    if (!vario->dumpToNF(filename, EFormatNF::DEFAULT))
       messageAbort("ascii_vario_write");
   }
 
@@ -120,7 +118,7 @@ int main(int argc, char* argv[])
   {
     if (model_fitting_sills(vario, model, constraints)) goto label_end;
     ascii_filename("Model", 0, 1, filename);
-    if (!model->dumpToNF(filename, EFormatNF::DEFAULT, verbose))
+    if (!model->dumpToNF(filename, EFormatNF::DEFAULT))
       messageAbort("ascii_model_write");
   }
 
@@ -167,7 +165,7 @@ int main(int argc, char* argv[])
         messageAbort("Simulations");
       dbfmt.setFlags(true, false, true, true, true);
       dbout->display(&dbfmt);
-      dbout->dumpToNF("Simu.out", EFormatNF::DEFAULT, verbose);
+      dbout->dumpToNF("Simu.out", EFormatNF::DEFAULT);
     }
     else
     {
@@ -199,7 +197,7 @@ int main(int argc, char* argv[])
         }
         dbfmt.setFlags(true, false, true, true, true);
         dbout->display(&dbfmt);
-        dbout->dumpToNF("Krige.out", EFormatNF::DEFAULT, verbose);
+        dbout->dumpToNF("Krige.out", EFormatNF::DEFAULT);
       }
     }
   }

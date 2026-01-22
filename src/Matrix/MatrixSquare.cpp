@@ -11,7 +11,6 @@
 #include "Matrix/MatrixSquare.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Matrix/AMatrix.hpp"
 #include "Matrix/MatrixFactory.hpp"
 
@@ -80,6 +79,84 @@ double MatrixSquare::trace() const
     res += getValue(irow, irow);
   return res;
 }
+
+/**
+ * @brief Compute the inverse of this 2x2 square matrix
+ *
+ * @param[out] res Output inverse matrix
+ * @return true in case of success
+ */
+bool MatrixSquare::invert2x2(MatrixSquare& res) const
+{
+  if (this->getNCols() != 2 || this->getNRows() != 2)
+  {
+    return false;
+  }
+  const auto em  = this->eigenMat();
+  const auto det = (em(0, 0) * em(1, 1)) - (em(0, 1) * em(1, 0));
+  if (det == 0.)
+  {
+    return false;
+  }
+  res.resize(this->getNRows(), this->getNCols());
+  auto rem           = res.eigenMat();
+  rem.coeffRef(0, 0) = em(1, 1) / det;
+  rem.coeffRef(1, 1) = em(0, 0) / det;
+  rem.coeffRef(0, 1) = -em(1, 0) / det;
+  rem.coeffRef(1, 0) = -em(0, 1) / det;
+  return true;
+}
+
+/**
+ * @brief Compute the inverse of this 3x3 square matrix
+ *
+ * @param[out] res Output inverse matrix
+ * @return true in case of success
+ */
+bool MatrixSquare::invert3x3(MatrixSquare& res) const
+{
+  if (this->getNCols() != 3 || this->getNRows() != 3)
+  {
+    return false;
+  }
+  const auto em  = this->eigenMat();
+  const auto det = (em(0, 0) * em(1, 1) * em(2, 2)) + (em(0, 1) * em(1, 2) * em(2, 0)) + (em(1, 0) * em(2, 1) * em(0, 2)) - (em(2, 0) * em(1, 1) * em(0, 2)) - (em(1, 0) * em(0, 1) * em(2, 2)) - (em(2, 1) * em(1, 2) * em(0, 0));
+  if (det == 0.)
+  {
+    return false;
+  }
+  res.resize(this->getNRows(), this->getNCols());
+  auto rem           = res.eigenMat();
+  rem.coeffRef(0, 0) = (em(1, 1) * em(2, 2) - em(1, 2) * em(2, 1)) / det;
+  rem.coeffRef(0, 1) = -(em(0, 1) * em(2, 2) - em(0, 2) * em(2, 1)) / det;
+  rem.coeffRef(0, 2) = (em(0, 1) * em(1, 2) - em(0, 2) * em(1, 1)) / det;
+  rem.coeffRef(1, 0) = -(em(1, 0) * em(2, 2) - em(1, 2) * em(2, 0)) / det;
+  rem.coeffRef(1, 1) = (em(0, 0) * em(2, 2) - em(0, 2) * em(2, 0)) / det;
+  rem.coeffRef(1, 2) = -(em(0, 0) * em(1, 2) - em(0, 2) * em(1, 0)) / det;
+  rem.coeffRef(2, 0) = (em(1, 0) * em(2, 1) - em(1, 1) * em(2, 0)) / det;
+  rem.coeffRef(2, 1) = -(em(0, 0) * em(2, 1) - em(0, 1) * em(2, 0)) / det;
+  rem.coeffRef(2, 2) = (em(0, 0) * em(1, 1) - em(0, 1) * em(1, 0)) / det;
+
+  return true;
+}
+
+Id MatrixSquare::invertOutOfPlace(MatrixSquare& res) const
+{
+  if (this->invert2x2(res))
+  {
+    return 0;
+  }
+  if (this->invert3x3(res))
+  {
+    return 0;
+  }
+
+  res.resize(this->getNRows(), this->getNCols());
+  res.eigenMat().noalias() = this->eigenMat().inverse();
+
+  return 0;
+}
+
 /**
  * Perform the product: this = t(R1) %*% X %*% R2 + t(R2) %*% X %*% R1
  * @param x: Square matrix
@@ -347,7 +424,7 @@ Id MatrixSquare::decomposeLU(MatrixSquare& tls,
           }
         }
         double pivot = tus.getValue(i, i);
-        if (abs(pivot) < eps) return 1;
+        if (ABS(pivot) < eps) return 1;
         tls.setValue(j, i, tls.getValue(j, i) / pivot);
       }
     }
@@ -371,7 +448,7 @@ Id MatrixSquare::_invertLU()
   for (Id i = 0; i < neq; i++)
   {
     // Preparing the right-hand side vector (column of the identity matrix)
-    VH::fill(b, 0.);
+    b.fill(0.);
     b[i] = 1.;
 
     if (_solveLU(tus, tls, b.data(), x.data())) return 1;
@@ -424,7 +501,7 @@ Id MatrixSquare::_forwardLU(const MatrixSquare& tls, const double* b, double* x,
       tmp -= tls.getValue(i, j) * x[j];
 
     double pivot = tls.getValue(i, i);
-    if (abs(pivot) < eps) return 1;
+    if (ABS(pivot) < eps) return 1;
     x[i] = tmp / pivot;
   }
   return 0;
@@ -457,7 +534,7 @@ Id MatrixSquare::_backwardLU(const MatrixSquare& tus, const double* b, double* x
       tmp -= tus.getValue(i, j) * x[j];
 
     double pivot = tus.getValue(i, i);
-    if (abs(pivot) < eps) return 1;
+    if (ABS(pivot) < eps) return 1;
     x[i] = tmp / pivot;
   }
   return 0;
@@ -525,9 +602,5 @@ MatrixSquare* MatrixSquare::createFromTridiagonal(const VectorDouble& vecdiag,
   return res;
 }
 
-Id MatrixSquare::computeEigen(bool optionPositive)
-{
-  return MatrixDense::_computeEigen(optionPositive);
-}
 
 } // namespace gstlrn

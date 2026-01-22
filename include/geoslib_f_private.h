@@ -41,8 +41,6 @@ Id _krigsim(Db* dbin,
              const Model* model,
              ANeigh* neigh,
              bool flag_bayes,
-             const VectorDouble& dmean,
-             const MatrixSymmetric& dcov,
              Id icase,
              Id nbsimu,
              bool flag_dgm);

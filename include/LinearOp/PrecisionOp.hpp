@@ -46,9 +46,9 @@ public:
   // Interface functions for using PrecisionOp
 
 #ifndef SWIG
-  virtual void evalInverse(const constvect vecin, std::vector<double>& vecout);
+  virtual void evalInverse(const constvect vecin, VectorDouble& vecout);
 #endif
-  std::vector<double> evalInverse(const VectorDouble& vecin);
+  VectorDouble evalInverse(const VectorDouble& vecin);
   virtual std::pair<double, double> getRangeEigenVal(Id ndiscr = 100);
 
   static PrecisionOp* createFromShiftOp(AShiftOp* shiftop    = nullptr,
@@ -147,12 +147,12 @@ private:
 #ifndef SWIG
 
 protected:
-  mutable std::vector<double> _work;
-  mutable std::vector<double> _work2;
-  mutable std::vector<double> _work3;
-  mutable std::vector<double> _work4;
-  mutable std::vector<double> _work5;
-  mutable std::vector<std::vector<double>> _workPoly;
+  mutable VectorDouble _work;
+  mutable VectorDouble _work2;
+  mutable VectorDouble _work3;
+  mutable VectorDouble _work4;
+  mutable VectorDouble _work5;
+  mutable VectorVectorDouble _workPoly;
 #endif
 };
 } // namespace gstlrn

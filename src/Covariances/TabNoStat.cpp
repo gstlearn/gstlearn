@@ -9,10 +9,14 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Covariances/TabNoStat.hpp"
+#include "Basic/ASerializable.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/SerializeHDF5.hpp"
 #include "Basic/VectorNumT.hpp"
+#include "Covariances/NoStatArray.hpp"
 #include "Covariances/ParamId.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 #include "Enum/EConsElem.hpp"
 #include "geoslib_define.h"
 #include <memory>
@@ -21,13 +25,16 @@ namespace gstlrn
 {
 
 TabNoStat::TabNoStat()
-  : _items()
+  : AStringable()
+  , ASerializable()
+  , _items()
   , _dbNoStatRef(nullptr)
 {
 }
 
 TabNoStat::TabNoStat(const TabNoStat& m)
   : AStringable(m)
+  , ASerializable(m)
 {
   _dbNoStatRef = m._dbNoStatRef;
   _items       = m._items;
@@ -37,6 +44,8 @@ TabNoStat& TabNoStat::operator=(const TabNoStat& m)
 {
   if (this != &m)
   {
+    AStringable::operator=(m);
+    ASerializable::operator=(m);
     _dbNoStatRef = m._dbNoStatRef;
     _items       = m._items;
   }
@@ -75,7 +84,11 @@ void TabNoStat::updateDescription()
 bool TabNoStat::isElemDefined(const EConsElem& econs, Id iv1, Id iv2) const
 {
   ParamId conselem(econs, iv1, iv2);
-  return _items.count(conselem) > 0; // Warning : use count for C++17 compatibility
+#ifdef USE_BOOST_SPAN
+  return _items.count(conselem) > 0;
+#else
+  return _items.contains(conselem);
+#endif
 }
 
 std::shared_ptr<ANoStat> TabNoStat::getElem(const EConsElem& econs, Id iv1, Id iv2)
@@ -88,16 +101,25 @@ String TabNoStat::toString(const AStringFormat* strfmt) const
 {
   return toStringInside(strfmt, 0);
 }
+
 String TabNoStat::toStringInside(const AStringFormat* strfmt, Id i) const
 {
   std::stringstream sstr;
   if (_items.empty()) return sstr.str();
 
+  // sort content of std::unordered_map before serialization
+  std::vector<std::pair<std::string, std::string>> sortedTable(getTable().size());
+  size_t j {};
   for (const auto& e: getTable())
   {
+    sortedTable[j++] = {e.first.toString(strfmt), e.second->toString(strfmt)};
+  }
+  std::sort(sortedTable.begin(), sortedTable.end());
+  for (const auto& e: sortedTable)
+  {
     sstr << std::to_string(i + 1) << " - ";
-    sstr << e.first.toString(strfmt);
-    sstr << e.second->toString(strfmt);
+    sstr << e.first;
+    sstr << e.second;
     i++;
   }
   return sstr.str();
@@ -135,8 +157,7 @@ void TabNoStat::setDbNoStatRef(const Db* dbref)
 {
   if (dbref != nullptr)
   {
-    // Db* db       = dynamic_cast<Db*>(dbref->clone());
-    _dbNoStatRef = std::shared_ptr<const Db>(dynamic_cast<Db*>(dbref->clone()));
+    _dbNoStatRef = std::shared_ptr<const Db>(dbref->clone());
   }
   else
     _dbNoStatRef = nullptr;
@@ -223,4 +244,94 @@ void TabNoStat::informDbOut(const Db* dbout, const EConsElem& econs) const
 TabNoStat::~TabNoStat()
 {
 }
+
+bool TabNoStat::variableExistsInDb(const String& namecol) const
+{
+  if (_dbNoStatRef->getUID(namecol) < 0)
+  {
+    messerr("The Name of the Non-stationary variable (%s) does not exist in the Reference Db",
+            namecol.c_str());
+    return false;
+  }
+  return true;
+}
+
+#ifdef HDF5
+bool TabNoStat::deserializeH5(H5::Group& grp)
+{
+  bool ret = true;
+  Id nrank = 0;
+  ret      = ret && SerializeHDF5::readValue(grp, "Number of items", nrank);
+
+  // Explicit loop to read the non-stationary parameters
+  Id type = 0;
+  Id iv1  = 0;
+  Id iv2  = 0;
+  String colName;
+  bool isGrid = false;
+  for (Id rank = 0; rank < nrank; rank++)
+  {
+    String locName = "Param_" + std::to_string(rank + 1);
+    auto itemG     = SerializeHDF5::getGroup(grp, locName, false);
+    if (!itemG) return true;
+
+    ret = ret && SerializeHDF5::readValue(*itemG, "Type", type);
+    ret = ret && SerializeHDF5::readValue(*itemG, "IV1", iv1);
+    ret = ret && SerializeHDF5::readValue(*itemG, "IV2", iv2);
+    ret = ret && SerializeHDF5::readValue(*itemG, "ColName", colName);
+    ret = ret && SerializeHDF5::readValue(*itemG, "dbIsGrid", isGrid);
+
+    const EConsElem& econs = EConsElem::fromValue(type);
+    if (isGrid)
+    {
+      auto* dbgrid = new DbGrid();
+      ret          = ret && dbgrid->deserializeH5(*itemG);
+      setDbNoStatRef(dbgrid);
+      if (!variableExistsInDb(colName)) return false;
+      delete dbgrid;
+    }
+    else
+    {
+      auto* db = new Db();
+      ret      = ret && db->deserializeH5(*itemG);
+      setDbNoStatRef(db);
+      if (!variableExistsInDb(colName)) return false;
+      delete db;
+    }
+
+    std::shared_ptr<ANoStat> ns;
+    ns = std::shared_ptr<ANoStat>(new NoStatArray(getDbNoStatRef(), colName));
+    addElem(ns, econs, iv1, iv2);
+  }
+
+  return ret;
+}
+
+bool TabNoStat::serializeH5(H5::Group& grp) const
+{
+  bool ret = true;
+  ret      = ret && SerializeHDF5::writeValue(grp, "Number of items", size());
+
+  // Implicit loop to write the non-stationary parameters (in NoStatArray style)
+  Id rank = 0;
+  for (const auto& [paramId, noStatPtr]: _items)
+  {
+    rank++;
+    auto& sna = dynamic_cast<NoStatArray&>(*noStatPtr);
+
+    const auto& dbnostat = sna.getDbNoStat();
+    bool isGrid          = dbnostat->isGrid();
+
+    auto itemG = grp.createGroup("Param_" + std::to_string(rank));
+    ret        = ret && SerializeHDF5::writeValue(itemG, "Type", paramId.getType().getValue());
+    ret        = ret && SerializeHDF5::writeValue(itemG, "IV1", paramId.getIV1());
+    ret        = ret && SerializeHDF5::writeValue(itemG, "IV2", paramId.getIV2());
+    ret        = ret && SerializeHDF5::writeValue(itemG, "ColName", sna.getColName());
+    ret        = ret && SerializeHDF5::writeValue(itemG, "dbIsGrid", isGrid);
+    ret        = ret && dbnostat->serializeH5(itemG);
+  }
+  return ret;
+}
+#endif
+
 } // namespace gstlrn

@@ -11,6 +11,10 @@
   #include "geoslib_f.h"
   #include "geoslib_old_f.h"
   
+  #include "Transform/ATransform.hpp"
+  #include "Transform/TuckeyGH.hpp"
+  #include "Transform/YeoJohnson.hpp"
+  
   #include "Enum/AEnum.hpp"
   #include "Enum/EKrigOpt.hpp"
   #include "Enum/ESPDECalcMode.hpp"
@@ -23,6 +27,7 @@
   #include "Enum/ECalcVario.hpp"
   #include "Enum/EConvType.hpp"
   #include "Enum/ECov.hpp"
+  #include "Enum/ECSV.hpp"
   #include "Enum/ETape.hpp"
   #include "Enum/ELoadBy.hpp"
   #include "Enum/ELoc.hpp"
@@ -71,8 +76,10 @@
   #include "Basic/FFT.hpp"
   #include "Basic/PolyLine2D.hpp"
   #include "Basic/Law.hpp"
+  #include "Basic/LawStable.hpp"
   #include "Basic/MathFunc.hpp"
   #include "Basic/Indirection.hpp"
+  #include "Basic/Message.hpp"
   #include "Basic/WarningMacro.hpp"
   
   #include "Geometry/GeometryHelper.hpp"
@@ -130,6 +137,7 @@
   #include "Mesh/MeshETurbo.hpp"
   #include "Mesh/MeshSpherical.hpp"
   #include "Mesh/MeshSphericalExt.hpp"
+  #include "Mesh/VectorMeshes.hpp"
   
   #include "Polynomials/APolynomial.hpp"
   #include "Polynomials/ClassicalPolynomial.hpp"
@@ -207,13 +215,14 @@
   #include "Covariances/ACov.hpp"
   #include "Covariances/CovBase.hpp"
   #include "Covariances/CovProportional.hpp"
-  #include "Covariances/CorAniso.hpp"
-  #include "Covariances/ACovFunc.hpp"
+  #include "Covariances/AKernel.hpp"
   #include "Covariances/CovAnisoList.hpp"
   #include "Covariances/CovAnisoList.hpp"
   #include "Covariances/CovAniso.hpp"
   #include "Covariances/CovGradientGeneric.hpp"
   #include "Covariances/CovGradientAnalytic.hpp"
+  #include "Covariances/CorAniso.hpp"
+  #include "Covariances/CorGaussianMixture.hpp"
   #include "Covariances/CorGneiting.hpp"
   #include "Covariances/CorMatern.hpp"
   #include "Covariances/CovLMCTapering.hpp"
@@ -221,37 +230,38 @@
   #include "Covariances/CovLMCAnamorphosis.hpp"
   #include "Covariances/CovContext.hpp"
   #include "Covariances/CovCalcMode.hpp"
-  #include "Covariances/CovBesselJ.hpp"
-  #include "Covariances/CovMatern.hpp"
-  #include "Covariances/CovCauchy.hpp"
-  #include "Covariances/CovCosExp.hpp"
-  #include "Covariances/CovCosinus.hpp"
-  #include "Covariances/CovCubic.hpp"
-  #include "Covariances/CovExponential.hpp"
-  #include "Covariances/CovGamma.hpp"
-  #include "Covariances/CovGaussian.hpp"
-  #include "Covariances/CovGC1.hpp"
-  #include "Covariances/CovGC3.hpp"
-  #include "Covariances/CovGC5.hpp"
-  #include "Covariances/CovGCspline2.hpp"
-  #include "Covariances/CovGCspline.hpp"
-  #include "Covariances/CovLinear.hpp"
-  #include "Covariances/CovNugget.hpp"
-  #include "Covariances/CovMarkov.hpp"
-  #include "Covariances/CovPenta.hpp"
-  #include "Covariances/CovPower.hpp"
-  #include "Covariances/CovReg1D.hpp"
-  #include "Covariances/CovSincard.hpp"
-  #include "Covariances/CovSpherical.hpp"
-  #include "Covariances/CovStable.hpp"
-  #include "Covariances/CovStorkey.hpp"
-  #include "Covariances/CovTriangle.hpp"
-  #include "Covariances/CovWendland0.hpp"
-  #include "Covariances/CovWendland1.hpp"
-  #include "Covariances/CovWendland2.hpp"
-  #include "Covariances/CovGeometric.hpp"
-  #include "Covariances/CovPoisson.hpp"
-  #include "Covariances/CovLinearSph.hpp"
+  #include "Covariances/KernelBesselJ.hpp"
+  #include "Covariances/KernelMatern.hpp"
+  #include "Covariances/KernelCauchy.hpp"
+  #include "Covariances/KernelCauchyGen.hpp"
+  #include "Covariances/KernelCosExp.hpp"
+  #include "Covariances/KernelCosinus.hpp"
+  #include "Covariances/KernelCubic.hpp"
+  #include "Covariances/KernelExponential.hpp"
+  #include "Covariances/KernelGamma.hpp"
+  #include "Covariances/KernelGaussian.hpp"
+  #include "Covariances/KernelGC1.hpp"
+  #include "Covariances/KernelGC3.hpp"
+  #include "Covariances/KernelGC5.hpp"
+  #include "Covariances/KernelGCspline2.hpp"
+  #include "Covariances/KernelGCspline.hpp"
+  #include "Covariances/KernelLinear.hpp"
+  #include "Covariances/KernelNugget.hpp"
+  #include "Covariances/KernelMarkov.hpp"
+  #include "Covariances/KernelPenta.hpp"
+  #include "Covariances/KernelPower.hpp"
+  #include "Covariances/KernelReg1D.hpp"
+  #include "Covariances/KernelSincard.hpp"
+  #include "Covariances/KernelSpherical.hpp"
+  #include "Covariances/KernelStable.hpp"
+  #include "Covariances/KernelStorkey.hpp"
+  #include "Covariances/KernelTriangle.hpp"
+  #include "Covariances/KernelWendland0.hpp"
+  #include "Covariances/KernelWendland1.hpp"
+  #include "Covariances/KernelWendland2.hpp"
+  #include "Covariances/KernelGeometric.hpp"
+  #include "Covariances/KernelPoisson.hpp"
+  #include "Covariances/KernelLinearSph.hpp"
   #include "Covariances/CovDiffusionAdvection.hpp"
   #include "Covariances/CovHelper.hpp"
   
@@ -270,6 +280,7 @@
   #include "Matrix/MatrixFactory.hpp"
   #include "Matrix/MatrixInt.hpp"
   #include "Matrix/Table.hpp"
+  #include "MLayers/MLayers.hpp"
   #include "LinearOp/InvNuggetOp.hpp"
 
   #include "API/SPDE.hpp"
@@ -350,7 +361,10 @@
   #include "Simulation/CalcSimuTurningBands.hpp"
   #include "Simulation/TurningBandDirection.hpp"
   #include "Simulation/TurningBandOperate.hpp"
-  #include "Simulation/SimuSpectral.hpp"
+  #include "Simulation/ASimuSpectral.hpp"
+  #include "Simulation/SimuSpectralRN.hpp"
+  #include "Simulation/SpectrumRN.hpp"
+  #include "Simulation/SimuSpectralS2.hpp"
   #include "Simulation/BooleanObject.hpp"
   #include "Simulation/SimuBoolean.hpp"
   #include "Simulation/SimuBooleanParam.hpp"
@@ -398,6 +412,7 @@
 %include std_string.i
 %template(DoNotUseVectorIntStd)     std::vector< int >;
 %template(DoNotUseVectorLongStd)    std::vector< long >;
+%template(DoNotUseVectorLLongStd)   std::vector< long long >;
 %template(DoNotUseVectorSizeT)      std::vector< size_t >; // Keep size_t here otherwise asptr fails!
 %template(DoNotUseVectorDoubleStd)  std::vector< double >;
 %template(DoNotUseVectorStringStd)  std::vector< std::string >; // Keep std::string here otherwise asptr fails!
@@ -406,6 +421,7 @@
 %template(DoNotUseVectorBoolStd)    std::vector< bool >;
 %template(DoNotUseVVectorIntStd)    std::vector< std::vector< int > >;
 %template(DoNotUseVVectorLongStd)   std::vector< std::vector< long > >;
+%template(DoNotUseVVectorLLongStd)  std::vector< std::vector< long long > >;
 %template(DoNotUseVVectorDoubleStd) std::vector< std::vector< double > >;
 %template(DoNotUseVVectorFloatStd)  std::vector< std::vector< float > >; 
 
@@ -420,10 +436,10 @@
 %template(VectorABiTargetCheck)    std::vector< gstlrn::ABiTargetCheck* >;
 %template(VectorProjMatrix)        std::vector< gstlrn::ProjMatrix* >;
 %template(VectorConstProjMatrix)   std::vector< const gstlrn::ProjMatrix*>;
-%template(VectorConstIProj)  std::vector< const gstlrn::IProj*>;
+%template(VectorConstIProj)        std::vector< const gstlrn::IProj*>;
 %template(VVectorConstProjMatrix)  std::vector< std::vector< const gstlrn::ProjMatrix*> >;
 %template(VVectorConstIProj) std::vector< std::vector< const gstlrn::IProj*> >;
-%template(VectorMeshes)            std::vector< const gstlrn::AMesh*>;
+%template(VecMeshes)               std::vector< const gstlrn::AMesh*>;
 %template(VectorMatrixSquare)      std::vector<gstlrn::MatrixSquare >;
 
 ////////////////////////////////////////////////
@@ -548,46 +564,6 @@ namespace gstlrn {
     else {
       %argument_fail(errcode, "$type", $symname, $argnum);
     }
-  }
-}
-
-// Typemap for VectorDouble* is treated separately below.
-%typemap(in, fragment="ToCpp") const VectorInt*    (void *argp, VectorInt vec),
-                               const VectorString* (void *argp, VectorString vec),
-                               const VectorFloat*  (void *argp, VectorFloat vec),
-                               const VectorUChar*  (void *argp, VectorUChar vec),
-                               const VectorBool*   (void *argp, VectorBool vec)
-{
-  // Try to convert from any target language vector
-  int errcode = vectorToCpp($input, vec);
-  if (errcode == SWIG_NullReferenceError)
-  {
-    $1 = nullptr;
-  }
-  else if (!SWIG_IsOK(errcode))
-  {
-    try
-    {
-      // Try direct conversion of Vectors by reference/pointer (see swigtypes.swg)
-      errcode = SWIG_ConvertPtr($input, &argp, $descriptor, %convertptr_flags);
-      if (SWIG_IsOK(errcode))
-      {
-        if (!argp) {
-          %argument_nullref("$type", $symname, $argnum);
-        }
-        $1 = %reinterpret_cast(argp, $ltype);
-      }
-      else {
-        %argument_fail(errcode, "$type", $symname, $argnum);
-      }
-    }
-    catch(...)
-    {
-      %argument_fail(errcode, "$type", $symname, $argnum);
-    }
-  }
-  else {
-    $1 = &vec;
   }
 }
 

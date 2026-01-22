@@ -16,10 +16,10 @@
 #include "Basic/AStringable.hpp"
 
 namespace gstlrn
-{ 
+{
 class Db;
 
-class GSTLEARN_EXPORT AGibbs : public AStringable
+class GSTLEARN_EXPORT AGibbs: public AStringable
 {
 public:
   AGibbs();
@@ -32,17 +32,17 @@ public:
          Id seed,
          Id flag_order,
          bool flag_decay);
-  AGibbs(const AGibbs &r);
-  AGibbs& operator=(const AGibbs &r);
+  AGibbs(const AGibbs& r);
+  AGibbs& operator=(const AGibbs& r);
   virtual ~AGibbs();
 
   /// Interface for AStringable
   String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// Interface for AGibbs
-  virtual Id calculInitialize(VectorVectorDouble &y, Id isimu, Id ipgs) = 0;
+  virtual Id calculInitialize(VectorVectorDouble& y, Id isimu, Id ipgs)  = 0;
   virtual void update(VectorVectorDouble& y, Id isimu, Id ipgs, Id iter) = 0;
-  virtual Id covmatAlloc(bool verbose, bool verboseTimer = false) = 0;
+  virtual Id covmatAlloc(bool verbose, bool verboseTimer = false)        = 0;
   virtual double getSimulate(VectorVectorDouble& y,
                              double yk,
                              double sk,
@@ -50,22 +50,22 @@ public:
                              Id ipgs,
                              Id ivar,
                              Id iact,
-                             Id iter) = 0;
-  virtual Id checkGibbs(const VectorVectorDouble& y, Id isimu, Id ipgs) = 0;
-  virtual void cleanup() { }
+                             Id iter)                                    = 0;
+  virtual Id checkGibbs(const VectorVectorDouble& y, Id isimu, Id ipgs)  = 0;
+  virtual void cleanup() {}
 
   void init(Id npgs,
             Id nvar,
             Id nburn,
             Id niter,
-            Id seed = 3241,
-            Id flag_order = 0,
-            bool flag_decay= true);
-  Id run(VectorVectorDouble &y,
-          Id ipgs0 = 0,
-          Id isimu0 = 0,
-          bool verboseTimer = false,
-          bool flagCheck = false);
+            Id seed         = 3241,
+            Id flag_order   = 0,
+            bool flag_decay = true);
+  Id run(VectorVectorDouble& y,
+         Id ipgs0          = 0,
+         Id isimu0         = 0,
+         bool verboseTimer = false,
+         bool flagCheck    = false);
 
   Id getNvar() const { return _nvar; }
   void setNvar(Id nvar) { _nvar = nvar; }
@@ -88,16 +88,16 @@ public:
   Id getRank(Id ipgs, Id ivar) const;
 
 protected:
-  Id  _getDimension() const;
-  Id  _getSampleRankNumber() const;
+  Id _getDimension() const;
+  Id _getSampleRankNumber() const;
   void _statsInit();
   bool _isConstraintTight(Id icase, Id iact, double* value) const;
-  void _updateStats(const VectorVectorDouble &y,
+  void _updateStats(const VectorVectorDouble& y,
                     Id ipgs,
                     Id jter,
                     double amort = 0.9);
-  void _getBoundsDecay(Id iter, double *vmin, double *vmax) const;
-  Id  _boundsCheck(Id ipgs, Id ivar, Id iact, double *vmin, double *vmax) const;
+  void _getBoundsDecay(Id iter, double* vmin, double* vmax) const;
+  Id _boundsCheck(Id ipgs, Id ivar, Id iact, double* vmin, double* vmax) const;
   void _printInequalities(Id iact,
                           Id ivar,
                           double simval,
@@ -114,7 +114,7 @@ protected:
 
 private:
   VectorInt _calculateSampleRanks() const;
-  Id  _getRelativeRank(Id iech);
+  Id _getRelativeRank(Id iech);
 
 private:
   Id _npgs;
@@ -126,12 +126,12 @@ private:
   //  -1 if the descending order must be honored
   //   0 if no order relationship must be honored
   bool _flagDecay;
-  Id  _optionStats; // 0: no storage; 1: printout; 2: Neutral File
+  Id _optionStats; // 0: no storage; 1: printout; 2: Neutral File
 
   VectorInt _ranks; // Internal array use to store indices of active samples
   // Pointer to the reference Db (only stored for efficiency)
-  Db*   _db;
+  Db* _db;
   // Optional Table used to store performance statistics (see _optionStats)
   Table _stats;
 };
-}
+} // namespace gstlrn

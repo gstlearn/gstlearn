@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Variogram/VarioParam.hpp"
-#include "Basic/Utilities.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Model/Model.hpp"
@@ -193,7 +192,7 @@ VarioParam* VarioParam::createMultipleFromGrid(const DbGrid* dbgrid,
   VectorInt grincr(ndim, 0);
   for (Id idim = 0; idim < ncalc; idim++)
   {
-    VH::fill(grincr, 0.);
+    grincr.fill(0.);
     grincr[idim]       = 1;
     DirParam* dirparam = DirParam::createFromGrid(dbgrid, nlag, grincr, space);
     varioparam->addDir(*dirparam);
@@ -297,7 +296,7 @@ String VarioParam::toString(const AStringFormat* strfmt) const
 
   for (Id idir = 0; idir < getNDir(); idir++)
   {
-    sstr << toTitle(1, "Direction #%d", idir + 1);
+    sstr << toStrTitle(1, "Direction #%d", idir + 1);
     sstr << _dirparams[idir].toString(strfmt);
   }
 
@@ -317,8 +316,8 @@ String VarioParam::toStringMain(const AStringFormat* /*strfmt*/) const
   if (hasDate())
   {
     sstr << "Number of Date Intervals    = " << getNDate() << std::endl;
-    sstr << toMatrix("Matrix of Bounds for Data Intervals", VectorString(), VectorString(),
-                     false, getNDate(), 2, getDates());
+    sstr << toStrMatrix("Matrix of Bounds for Data Intervals", VectorString(), VectorString(),
+                        false, getNDate(), 2, getDates());
   }
 
   if (hasFaults())
@@ -499,7 +498,7 @@ Db* buildDbFromVarioParam(Db* db, const VarioParam& varioparam)
         /* Get the rank of the lag */
 
         auto ilag = dirparam.getLagRank(dist);
-        if (IFFFF(ilag)) continue;
+        if (isNA(ilag)) continue;
 
         // The pair is kept
 

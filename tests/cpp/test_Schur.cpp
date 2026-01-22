@@ -9,8 +9,10 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Basic/AStringFormat.hpp"
+#include "Basic/Message.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/VectorHelper.hpp"
+#include "Enum/ECst.hpp"
 #include "Enum/ESpaceType.hpp"
 
 #include "Basic/File.hpp"
@@ -77,12 +79,9 @@ static Db* _dataAsIs(Db* data)
 static void _firstTest(Db* data,
                        Db* target,
                        ModelGeneric* model,
-                       ANeigh* neigh,
-                       const VectorDouble& means,
-                       const VectorDouble& PriorMean,
-                       MatrixSymmetric& PriorCov)
+                       ANeigh* neigh)
 {
-  Model* modelc = dynamic_cast<Model*>(model);
+  auto* modelc = dynamic_cast<Model*>(model);
   if (!modelc->hasDrift())
   {
     messerr("The 'Model' must have drift defined to check 'Bayesian' option");
@@ -108,7 +107,7 @@ static void _firstTest(Db* data,
   // ---------------------- Using Standard Kriging procedure ---------------
   mestitle(1, "Using Standard Kriging procedure");
   Table table;
-  kribayes(dataP, target, modelc, neigh, PriorMean, PriorCov, true, true);
+  kribayes(dataP, target, modelc, neigh, true, true);
   table = target->printOneSample(iech0, {"Bayes*"}, true, true);
   target->deleteColumn("Bayes*");
   table.display();
@@ -122,26 +121,26 @@ static void _firstTest(Db* data,
   MatrixDense Sigma0          = model->evalCovMat(data, target);
   MatrixDense X0              = model->evalDriftMat(target);
   VectorVectorInt sampleRanks = data->getSampleRanks();
-  VectorDouble Z              = data->getValuesByRanks(sampleRanks, means);
+  VectorDouble Z              = data->getValuesByRanks(sampleRanks, model->getMeans());
 
   KrigingAlgebra Kcalc;
-  Kcalc.setData(&Z, &sampleRanks, &means);
+  Kcalc.setData(&Z, &sampleRanks, &model->getMeans());
   Kcalc.setLHS(&Sigma, &X);
   Kcalc.setVariance(&Sigma00);
   Kcalc.setRHS(&Sigma0, &X0);
-  Kcalc.setBayes(&PriorMean, &PriorCov);
+  Kcalc.setBayes(&model->getPriorMeans(), &model->getPriorCovs());
 
-  VH::dump("Prior Mean", PriorMean);
+  printVector(model->getPriorMeans(), "Prior Means", true, true);
   message("Prior Variance-Covariance Matrix\n");
-  PriorCov.display();
+  model->getPriorCovs().display();
   VectorDouble beta = Kcalc.getPostMean();
-  if (!beta.empty()) VH::dump("Posterior Mean", beta);
+  if (!beta.empty()) printVector(beta, "Posterior Mean", true, true);
   message("Posterior Variance-Covariance Matrix\n");
   Kcalc.getPostCov()->display();
 
-  VH::dump("Kriging Value(s)", Kcalc.getEstimation());
-  VH::dump("Standard Deviation of Estimation Error", Kcalc.getStdv());
-  VH::dump("Variance of Estimator", Kcalc.getVarianceZstar());
+  printVector(Kcalc.getEstimation(), "Kriging Value(s)", true, true);
+  printVector(Kcalc.getStdv(), "Standard Deviation of Estimation Error", true, true);
+  printVector(Kcalc.getVarianceZstar(), "Variance of Estimator", true, true);
 
   if (debugSchur) Kcalc.printStatus();
 
@@ -153,7 +152,7 @@ static void _firstTest(Db* data,
  ** Testing Collocated option
  **
  *****************************************************************************/
-static void _secondTest(Db* data, Db* target, ModelGeneric* model, const VectorDouble& means)
+static void _secondTest(Db* data, Db* target, ModelGeneric* model)
 {
   auto* modelc = dynamic_cast<Model*>(model);
   // Local parameters
@@ -170,7 +169,7 @@ static void _secondTest(Db* data, Db* target, ModelGeneric* model, const VectorD
   mestitle(0, "Collocated Option (in Unique Neighborhood):");
   message("- using 'KrigingAlgebra' on the Complemented Data Set\n");
   message("- using 'KrigingAlgebra' on Standard Data Set adding Collocated Option\n");
-  VH::dump("- Collocated Variable ranks", varColCok, false);
+  printVector(varColCok, "- Collocated Variable ranks:", false, false);
 
   // Creating the Complemented Data Set
   VectorDouble valuesTarget(nvar, TEST);
@@ -190,17 +189,17 @@ static void _secondTest(Db* data, Db* target, ModelGeneric* model, const VectorD
   MatrixDense Sigma0P          = model->evalCovMat(dataP, target);
   MatrixDense X0P              = model->evalDriftMat(target);
   VectorVectorInt sampleRanksP = dataP->getSampleRanks();
-  VectorDouble ZP              = dataP->getValuesByRanks(sampleRanksP, means);
+  VectorDouble ZP              = dataP->getValuesByRanks(sampleRanksP, model->getMeans());
 
   KrigingAlgebra KcalcP;
-  KcalcP.setData(&ZP, &sampleRanksP, &means);
+  KcalcP.setData(&ZP, &sampleRanksP, &model->getMeans());
   KcalcP.setLHS(&SigmaP, &XP);
   KcalcP.setRHS(&Sigma0P, &X0P);
   KcalcP.setVariance(&Sigma00P);
 
-  VH::dump("Kriging Value(s)", KcalcP.getEstimation());
-  VH::dump("Standard Deviation of Estimation Error", KcalcP.getStdv());
-  VH::dump("Variance of Estimator", KcalcP.getVarianceZstar());
+  printVector(KcalcP.getEstimation(), "Kriging Value(s)", true, true);
+  printVector(KcalcP.getStdv(), "Standard Deviation of Estimation Error", true, true);
+  printVector(KcalcP.getVarianceZstar(), "Variance of Estimator", true, true);
 
   if (debugSchur) KcalcP.printStatus();
 
@@ -213,20 +212,20 @@ static void _secondTest(Db* data, Db* target, ModelGeneric* model, const VectorD
   MatrixDense Sigma0          = model->evalCovMat(data, target);
   MatrixDense X0              = model->evalDriftMat(target);
   VectorVectorInt sampleRanks = data->getSampleRanks();
-  VectorDouble Z              = data->getValuesByRanks(sampleRanks, means);
+  VectorDouble Z              = data->getValuesByRanks(sampleRanks, model->getMeans());
 
   KrigingAlgebra Kcalc;
-  Kcalc.setData(&Z, &sampleRanks, &means);
+  Kcalc.setData(&Z, &sampleRanks, &model->getMeans());
   Kcalc.setLHS(&Sigma, &X);
   Kcalc.setRHS(&Sigma0, &X0);
   Kcalc.setVariance(&Sigma00);
   // Subtract the mean (non zero for SK only) from the Collocated values
-  VH::subtractInPlace(valuesTarget, means);
+  valuesTarget.subtract(model->getMeans());
   Kcalc.setColCokUnique(&valuesTarget, &varColCok);
 
-  VH::dump("Kriging Value(s)", Kcalc.getEstimation());
-  VH::dump("Standard Deviation of Estimation Error", Kcalc.getStdv());
-  VH::dump("Variance of Estimator", Kcalc.getVarianceZstar());
+  printVector(Kcalc.getEstimation(), "Kriging Value(s)", true, true);
+  printVector(Kcalc.getStdv(), "Standard Deviation of Estimation Error", true, true);
+  printVector(Kcalc.getVarianceZstar(), "Variance of Estimator", true, true);
 
   if (debugSchur) Kcalc.printStatus();
 
@@ -238,7 +237,7 @@ static void _secondTest(Db* data, Db* target, ModelGeneric* model, const VectorD
  ** Testing Cross-validation option
  **
  *****************************************************************************/
-static void _thirdTest(Db* data, ModelGeneric* model, const VectorDouble& means)
+static void _thirdTest(Db* data, ModelGeneric* model)
 {
   // Set of ranks of cross-validated information
   VectorInt varXvalid = {1, 2};
@@ -269,17 +268,17 @@ static void _thirdTest(Db* data, ModelGeneric* model, const VectorDouble& means)
   MatrixDense Sigma0P          = model->evalCovMat(dataP, targetP, -1, -1, VectorInt(), VectorInt({iech0}));
   MatrixDense X0P              = model->evalDriftMat(targetP, VectorInt {iech0});
   VectorVectorInt sampleRanksP = dataP->getSampleRanks();
-  VectorDouble ZP              = dataP->getValuesByRanks(sampleRanksP, means);
+  VectorDouble ZP              = dataP->getValuesByRanks(sampleRanksP, model->getMeans());
 
   KrigingAlgebra KcalcP;
-  KcalcP.setData(&ZP, &sampleRanksP, &means);
+  KcalcP.setData(&ZP, &sampleRanksP, &model->getMeans());
   KcalcP.setLHS(&SigmaP, &XP);
   KcalcP.setRHS(&Sigma0P, &X0P);
   KcalcP.setVariance(&Sigma00P);
 
-  VH::dump("Kriging Value(s)", KcalcP.getEstimation());
-  VH::dump("Standard Deviation of Estimation Error", KcalcP.getStdv());
-  VH::dump("Variance of Estimator", KcalcP.getVarianceZstar());
+  printVector(KcalcP.getEstimation(), "Kriging Value(s)", true, true);
+  printVector(KcalcP.getStdv(), "Standard Deviation of Estimation Error", true, true);
+  printVector(KcalcP.getVarianceZstar(), "Variance of Estimator", true, true);
 
   if (debugSchur) KcalcP.printStatus();
 
@@ -292,17 +291,17 @@ static void _thirdTest(Db* data, ModelGeneric* model, const VectorDouble& means)
   MatrixDense Sigma0          = model->evalCovMat(data, targetP);
   MatrixDense X0              = model->evalDriftMat(targetP);
   VectorVectorInt sampleRanks = data->getSampleRanks();
-  VectorDouble Z              = data->getValuesByRanks(sampleRanks, means);
+  VectorDouble Z              = data->getValuesByRanks(sampleRanks, model->getMeans());
 
   KrigingAlgebra Kcalc;
-  Kcalc.setData(&Z, &sampleRanks, &means);
+  Kcalc.setData(&Z, &sampleRanks, &model->getMeans());
   Kcalc.setLHS(&Sigma, &X);
   Kcalc.setVariance(&Sigma00);
   Kcalc.setXvalidUnique(&rankXvalidEqs, &rankXvalidVars);
 
-  VH::dump("Kriging Value(s)", Kcalc.getEstimation());
-  VH::dump("Standard Deviation of Estimation Error", Kcalc.getStdv());
-  VH::dump("Variance of Estimator", Kcalc.getVarianceZstar());
+  printVector(Kcalc.getEstimation(), "Kriging Value(s)", true, true);
+  printVector(Kcalc.getStdv(), "Standard Deviation of Estimation Error", true, true);
+  printVector(Kcalc.getVarianceZstar(), "Variance of Estimator", true, true);
 
   if (debugSchur) Kcalc.printStatus();
 
@@ -317,7 +316,7 @@ static void _thirdTest(Db* data, ModelGeneric* model, const VectorDouble& means)
  ** Note: Means are set to 0 to check SK option
  **
  *****************************************************************************/
-static void _fourthTest(Db* data, Db* target, ModelGeneric* model, const VectorDouble& means)
+static void _fourthTest(Db* data, Db* target, ModelGeneric* model)
 {
   // Title
   mestitle(0, "Estimation using Dual option or not (in Unique Neighborhood):");
@@ -330,27 +329,27 @@ static void _fourthTest(Db* data, Db* target, ModelGeneric* model, const VectorD
   MatrixDense Sigma0          = model->evalCovMat(data, target);
   MatrixDense X0              = model->evalDriftMat(target);
   VectorVectorInt sampleRanks = data->getSampleRanks();
-  VectorDouble Z              = data->getValuesByRanks(sampleRanks, means);
+  VectorDouble Z              = data->getValuesByRanks(sampleRanks, model->getMeans());
 
   KrigingAlgebra Kcalc1(false);
-  Kcalc1.setData(&Z, &sampleRanks, &means);
+  Kcalc1.setData(&Z, &sampleRanks, &model->getMeans());
   Kcalc1.setLHS(&Sigma, &X);
   Kcalc1.setRHS(&Sigma0, &X0);
   Kcalc1.setVariance(&Sigma00);
 
-  VH::dump("Kriging Value(s)", Kcalc1.getEstimation());
-  VH::dump("Standard Deviation of Estimation Error", Kcalc1.getStdv());
-  VH::dump("Variance of Estimator", Kcalc1.getVarianceZstar());
+  printVector(Kcalc1.getEstimation(), "Kriging Value(s)", true, true);
+  printVector(Kcalc1.getStdv(), "Standard Deviation of Estimation Error", true, true);
+  printVector(Kcalc1.getVarianceZstar(), "Variance of Estimator", true, true);
 
   // ---------------------- With Dual Option -------------------------
   mestitle(1, "With Dual Option (only Estimation is available)");
 
   KrigingAlgebra Kcalc2(true);
-  Kcalc2.setData(&Z, &sampleRanks, &means);
+  Kcalc2.setData(&Z, &sampleRanks, &model->getMeans());
   Kcalc2.setLHS(&Sigma, &X);
   Kcalc2.setRHS(&Sigma0, &X0);
 
-  VH::dump("Kriging Value(s)", Kcalc2.getEstimation());
+  printVector(Kcalc2.getEstimation(), "Kriging Value(s)", true, true);
 }
 
 /****************************************************************************/
@@ -411,13 +410,17 @@ int main(int argc, char* argv[])
   model        = Model::createFromParam(ECov::EXPONENTIAL, scale, 0., 0., VectorDouble(),
                                         *sills, VectorDouble(), nullptr, false);
   auto* modelc = dynamic_cast<Model*>(model);
+
+  // Set the variable means
   modelc->setMeans(means);
   if (!flagSK) modelc->setDriftIRF(0, nfex);
 
   // Create the Bayesian Priors for Drift coefficients
-  VectorDouble PriorMean = VH::simulateGaussian(nbfl);
-  MatrixSymmetric PriorCov(nbfl);
-  PriorCov.setDiagonal(VH::simulateUniform(nbfl, 0.1, 0.5));
+  VectorDouble prior_means = VH::simulateGaussian(nbfl);
+  MatrixSymmetric prior_covs(nbfl);
+  prior_covs.setDiagonal(VH::simulateUniform(nbfl, 0.1, 0.5));
+  modelc->setPriorMeans(prior_means);
+  modelc->setPriorCovs(prior_covs);
 
   // Unique Neighborhood
   NeighUnique* neigh = NeighUnique::create();
@@ -430,7 +433,7 @@ int main(int argc, char* argv[])
   if (mode == 0 || mode == 1)
   {
     Db* dataLocal = data->clone();
-    _firstTest(dataLocal, target, model, neigh, means, PriorMean, PriorCov);
+    _firstTest(dataLocal, target, model, neigh);
     delete dataLocal;
   }
 
@@ -438,7 +441,7 @@ int main(int argc, char* argv[])
   if (mode == 0 || mode == 2)
   {
     Db* dataLocal = data->clone();
-    _secondTest(dataLocal, target, model, means);
+    _secondTest(dataLocal, target, model);
     delete dataLocal;
   }
 
@@ -446,7 +449,7 @@ int main(int argc, char* argv[])
   if (mode == 0 || mode == 3)
   {
     Db* dataLocal = data->clone();
-    _thirdTest(dataLocal, model, means);
+    _thirdTest(dataLocal, model);
     delete dataLocal;
   }
 
@@ -454,7 +457,7 @@ int main(int argc, char* argv[])
   if (mode == 0 || mode == 4)
   {
     Db* dataLocal = data->clone();
-    _fourthTest(dataLocal, target, model, means);
+    _fourthTest(dataLocal, target, model);
     delete dataLocal;
   }
 

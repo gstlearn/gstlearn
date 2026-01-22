@@ -274,7 +274,7 @@ Id GridIfpEn::_readLine(Id mode,
 
   if (mode == 1)
   {
-    if (gslSScanf(&line[start], "%ld", valint) != 1) return (1);
+    if (gslSScanf(&line[start], "%lld", valint) != 1) return (1);
   }
   else if (mode == 2)
   {

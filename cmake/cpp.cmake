@@ -32,6 +32,7 @@ else()
     -Wnon-virtual-dtor
     -Wvla
     -Wundef
+    -Woverloaded-virtual
   )
   if (APPLE)
     add_compile_options(-Wno-absolute-value -Wno-inconsistent-missing-override)
@@ -39,6 +40,10 @@ else()
   if (CLANG)
      add_compile_options(-Werror=shorten-64-to-32)
   endif()
+endif()
+
+if(MINGW)
+  add_compile_options(-Wno-error=stringop-overflow)
 endif()
 
 if (MSVC)
@@ -124,9 +129,6 @@ mark_as_advanced(USE_BOOST_SPAN)
 
 # Look for OpenMP
 find_package(OpenMP REQUIRED)
-if (OPENMP_FOUND)
-  add_definitions(-DOPENMP)
-endif()
 
 # Look for Eigen
 find_package(Eigen3 REQUIRED) 
@@ -155,6 +157,13 @@ endif()
 # Shared and Static libraries
 add_library(shared                  SHARED ${SOURCES})
 add_library(static EXCLUDE_FROM_ALL STATIC ${SOURCES})
+
+# Suppress GCC warning for std::regex (GCC 13 false positive) // Ajoute par DR
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    target_compile_options(shared PRIVATE -Wno-maybe-uninitialized)
+    target_compile_options(static PRIVATE -Wno-maybe-uninitialized)
+endif()
+
 set(FLAVORS shared static)
 
 ############################## Loop on flavors: shared and static
@@ -206,13 +215,7 @@ foreach(FLAVOR ${FLAVORS})
 
   # Link to Boost (use headers)
   # Target for header-only dependencies. (Boost include directory)
-  # Currently Boost headers are only used in .cpp so a PRIVATE link minimizes
-  # dependencies for projects using gstlearn, except with USE_BOOST_SPAN.
-  if(USE_BOOST_SPAN)
-    target_link_libraries(${FLAVOR} PUBLIC Boost::boost)
-  else()
-    target_link_libraries(${FLAVOR} PRIVATE Boost::boost)
-  endif()
+  target_link_libraries(${FLAVOR} PUBLIC Boost::boost)
 
   # Link to NLopt
   target_link_libraries(${FLAVOR} PRIVATE NLopt::nlopt)

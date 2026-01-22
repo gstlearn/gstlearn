@@ -9,11 +9,12 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Enum/AEnum.hpp"
-#include "Basic/AStringable.hpp"
+#include "Basic/Message.hpp"
 
 namespace gstlrn
 {
-void AEnum::printEnum() const {
+void AEnum::printEnum() const
+{
   _printMsg("  %2d - %11s : %s\n", _value, _key.data(), _descr.data());
 }
 
@@ -28,4 +29,4 @@ void AEnum::_printMsg(const char* format, Args... args)
 {
   message(format, args...);
 }
-}
+} // namespace gstlrn

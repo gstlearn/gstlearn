@@ -52,7 +52,7 @@ Authors: gstlearn Team
 Website: https://gstlearn.org
 License: BSD 3-clause
 */
-#include "Basic/AStringable.hpp"
+#include "Basic/Message.hpp"
 #include "Core/fftn.hpp"
 #include <cmath>
 #include <cstdlib>
@@ -237,7 +237,7 @@ static Id fftradix(double Re[],
   }
   if (MaxPermAlloced < static_cast<size_t>(maxPerm))
   {
-    Perm           = static_cast<Id*>(realloc((char*)Perm, maxPerm * sizeof(Id)));
+    Perm           = static_cast<Id*>(realloc(reinterpret_cast<char*>(Perm), maxPerm * sizeof(Id)));
     MaxPermAlloced = maxPerm;
   }
   else

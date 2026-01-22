@@ -13,6 +13,7 @@
 // - either by using the corresponding API
 // - or by solving the Kriging problem by hand
 
+#include "Enum/ECst.hpp"
 #include "geoslib_f.h"
 
 #include "Enum/ESpaceType.hpp"
@@ -21,12 +22,12 @@
 #include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
-#include "Model/Model.hpp"
-#include "Neigh/NeighUnique.hpp"
-#include "Neigh/NeighMoving.hpp"
 #include "Estimation/CalcKriging.hpp"
 #include "Estimation/KrigOpt.hpp"
 #include "Estimation/KrigingAlgebra.hpp"
+#include "Model/Model.hpp"
+#include "Neigh/NeighMoving.hpp"
+#include "Neigh/NeighUnique.hpp"
 
 using namespace gstlrn;
 
@@ -49,19 +50,19 @@ int main(int argc, char* argv[])
   bool verbose = true;
 
   // Generate the input data (in the 1x1 square) with 'nvar' variables and 'nfex' external drifts
-  Id ndat    = 10;
-  Id nvar    = 2;
-  Id nfex    = 2;
-  Id seedin  = 13227;
-  Db* dbin   = Db::createFillRandom(ndat, ndim, nvar, nfex, 0, 0., 0.,
-                                    VectorDouble(), VectorDouble(), VectorDouble(), seedin);
+  Id ndat   = 10;
+  Id nvar   = 2;
+  Id nfex   = 2;
+  Id seedin = 13227;
+  Db* dbin  = Db::createFillRandom(ndat, ndim, nvar, nfex, 0, 0., 0.,
+                                   VectorDouble(), VectorDouble(), VectorDouble(), seedin);
   if (verbose) dbin->display();
 
   // Generate the output data set
-  Id nout     = 20;
-  Id seedout  = 134484;
-  Db* dbout   = Db::createFillRandom(nout, ndim, 0, nfex, 0, 0., 0.,
-                                     VectorDouble(), VectorDouble(), VectorDouble(), seedout);
+  Id nout    = 20;
+  Id seedout = 134484;
+  Db* dbout  = Db::createFillRandom(nout, ndim, 0, nfex, 0, 0., 0.,
+                                    VectorDouble(), VectorDouble(), VectorDouble(), seedout);
   if (verbose) dbout->display();
 
   // Create the Model
@@ -84,13 +85,13 @@ int main(int argc, char* argv[])
   mestitle(0, "Kriging constructed 'by hand'");
   MatrixSymmetric Sigma00 = model->eval0Mat();
   if (verbose) Sigma00.dumpStatistics("C00 Matrix");
-  MatrixSymmetric Sigma   = model->evalCovMatSym(dbin);
+  MatrixSymmetric Sigma = model->evalCovMatSym(dbin);
   if (verbose) Sigma.dumpStatistics("LHS: Covariance part");
-  MatrixDense X           = model->evalDriftMat(dbin);
+  MatrixDense X = model->evalDriftMat(dbin);
   if (verbose) X.dumpStatistics("LHS: Drift part");
 
-  VectorVectorInt sampleRanks   = dbin->getSampleRanks();
-  VectorDouble Z                = dbin->getValuesByRanks(sampleRanks);
+  VectorVectorInt sampleRanks = dbin->getSampleRanks();
+  VectorDouble Z              = dbin->getValuesByRanks(sampleRanks);
 
   KrigingAlgebra Kcalc;
   Kcalc.setData(&Z, &sampleRanks);
@@ -105,7 +106,7 @@ int main(int argc, char* argv[])
   for (Id iout = 0; iout < nout; iout++)
   {
     if (model->evalCovMatRHSInPlaceFromIdx(Sigma0, dbin, dbout, sampleRanks, iout, krigopt, false)) break;
-    if (verbose && iout == 0) Sigma0.dumpStatistics("RHS(target:1): Covariance part");  
+    if (verbose && iout == 0) Sigma0.dumpStatistics("RHS(target:1): Covariance part");
     if (model->evalDriftMatByTargetInPlace(X0, dbout, iout, krigopt)) break;
     if (verbose && iout == 0) X0.dumpStatistics("RHS(target:1): Drift part");
 
@@ -113,8 +114,8 @@ int main(int argc, char* argv[])
     result.clear();
     VH::concatenateInPlace(result, Kcalc.getEstimation());
     VH::concatenateInPlace(result, Kcalc.getStdv());
-    VH::concatenateInPlace(result, Kcalc.getVarianceZstar()); 
-    VH::dump("Sample " + std::to_string(iout+1), result, false); // Print results at all target sites
+    VH::concatenateInPlace(result, Kcalc.getVarianceZstar());
+    printVector(result, "Sample " + std::to_string(iout + 1), true, false); // Print results at all target sites
   }
 
   // Free classes

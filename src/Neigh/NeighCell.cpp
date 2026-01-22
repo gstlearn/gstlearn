@@ -70,7 +70,7 @@ String NeighCell::toString(const AStringFormat* strfmt) const
   DECLARE_UNUSED(strfmt);
   std::stringstream sstr;
 
-  sstr << toTitle(0, "Cell Neighborhood");
+  sstr << toStrTitle(0, "Cell Neighborhood");
 
   if (_biPtCell != nullptr)
     sstr << _biPtCell->toString();
@@ -78,19 +78,19 @@ String NeighCell::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-bool NeighCell::_deserializeAscii(std::istream& is, bool verbose)
+bool NeighCell::_deserializeAscii(std::istream& is)
 {
   bool ret = true;
-  ret      = ret && ANeigh::_deserializeAscii(is, verbose);
+  ret      = ret && ANeigh::_deserializeAscii(is);
   ret      = ret && _recordRead<Id>(is, "Minimum Number of samples", _nMini);
 
   return ret;
 }
 
-bool NeighCell::_serializeAscii(std::ostream& os, bool verbose) const
+bool NeighCell::_serializeAscii(std::ostream& os) const
 {
   bool ret = true;
-  ret      = ret && ANeigh::_serializeAscii(os, verbose);
+  ret      = ret && ANeigh::_serializeAscii(os);
   ret      = ret && _recordWrite<Id>(os, "", getNMini());
   return ret;
 }
@@ -202,7 +202,7 @@ Id NeighCell::_cell(Id iech_out, VectorInt& ranks)
 }
 
 #ifdef HDF5
-bool NeighCell::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+bool NeighCell::deserializeH5(H5::Group& grp)
 {
   auto neighG = SerializeHDF5::getGroup(grp, "NeighCell");
   if (!neighG)
@@ -215,19 +215,19 @@ bool NeighCell::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
 
   ret = ret && SerializeHDF5::readValue(*neighG, "NMini", _nMini);
 
-  ret = ret && ANeigh::_deserializeH5(*neighG, verbose);
+  ret = ret && ANeigh::deserializeH5(*neighG);
 
   return ret;
 }
 
-bool NeighCell::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+bool NeighCell::serializeH5(H5::Group& grp) const
 {
   auto neighG = grp.createGroup("NeighCell");
 
   bool ret = true;
   ret      = ret && SerializeHDF5::writeValue(neighG, "NMini", getNMini());
 
-  ret = ret && ANeigh::_serializeH5(neighG, verbose);
+  ret = ret && ANeigh::serializeH5(neighG);
 
   return ret;
 }

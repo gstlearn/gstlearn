@@ -13,18 +13,17 @@
 #include "Basic/OptDbg.hpp"
 #include "Basic/String.hpp"
 #include "Basic/Utilities.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Core/Keypair.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMCAnamorphosis.hpp"
 #include "Covariances/CovLMCConvolution.hpp"
 #include "Covariances/CovLMCTapering.hpp"
 #include "Db/Db.hpp"
-#include "Db/DbGrid.hpp"
 #include "Enum/EAnam.hpp"
 #include "Enum/EOperator.hpp"
 #include "Geometry/GeometryHelper.hpp"
 #include "LinearOp/CholeskyDense.hpp"
+#include "Matrix/EigenVectors.hpp"
 #include "Matrix/MatrixSquare.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Model/Constraints.hpp"
@@ -530,14 +529,12 @@ label_end:
 static Id st_get_vario_dimension(Vario* vario,
                                  Id* nbexp_ret,
                                  Id* npadir_ret)
-
 {
   Id nbexp  = 0;
   Id npadir = 0;
   Id nvar   = vario->getNVar();
 
-  // Possibly update the distance for first lag
-  // if equal to 0 but corresponds to lots of pairs attached
+  // Possibly update the distance for first lag if equal to 0 but corresponds to lots of pairs attached
   // This patch is not performed for asymetrical case as the h=0 is only conventional.
   for (Id idir = 0; idir < vario->getNDir(); idir++)
   {
@@ -574,7 +571,7 @@ static Id st_get_vario_dimension(Vario* vario,
       for (Id ivar = 0; ivar < nvar; ivar++)
         for (Id jvar = 0; jvar <= ivar; jvar++)
         {
-          Id i = vario->getDirAddress(idir, ivar, jvar, ilag, false, 1);
+          Id i = vario->getAddressForGg(idir, ivar, jvar, ilag, 1);
           if (CORRECT(idir, i)) nbexp++;
         }
   }
@@ -781,16 +778,16 @@ static void st_compress_array(const Vario* vario,
  *****************************************************************************/
 static double st_get_c00(const Vario* vario, Id idir, Id ivar, Id jvar)
 {
-  Id iad0 = vario->getDirAddress(idir, ivar, jvar, 0, false, 0);
+  Id iad0 = vario->getAddressCenterForGg(idir, ivar, jvar);
   Id iad  = iad0;
   if (!isZero(vario->getGgByIndex(idir, iad)) || vario->getSwByIndex(idir, iad) > 0)
     goto label_end;
 
   for (Id ilag = 0, nlag = vario->getNLag(idir); ilag < nlag; ilag++)
   {
-    iad = vario->getDirAddress(idir, ivar, jvar, ilag, false, 1);
+    iad = vario->getAddressForGg(idir, ivar, jvar, ilag, 1);
     if (!isZero(vario->getGgByIndex(idir, iad))) goto label_end;
-    iad = vario->getDirAddress(idir, ivar, jvar, ilag, false, -1);
+    iad = vario->getAddressForGg(idir, ivar, jvar, ilag, -1);
     if (!isZero(vario->getGgByIndex(idir, iad))) goto label_end;
   }
   iad = iad0;
@@ -837,8 +834,8 @@ static void st_load_gg(const Vario* vario,
           GG(ijvar, ipadir) = TEST;
           if (vario->getFlagAsym())
           {
-            Id iad     = vario->getDirAddress(idir, ivar, jvar, ilag, false, 1);
-            Id jad     = vario->getDirAddress(idir, ivar, jvar, ilag, false, -1);
+            Id iad     = vario->getAddressForGg(idir, ivar, jvar, ilag, 1);
+            Id jad     = vario->getAddressForGg(idir, ivar, jvar, ilag, -1);
             double c00 = st_get_c00(vario, idir, ivar, jvar);
             double n1  = vario->getSwByIndex(idir, iad);
             double n2  = vario->getSwByIndex(idir, jad);
@@ -857,7 +854,7 @@ static void st_load_gg(const Vario* vario,
           }
           else
           {
-            Id iad = vario->getDirAddress(idir, ivar, jvar, ilag, false, 1);
+            Id iad = vario->getAddressForGg(idir, ivar, jvar, ilag, 1);
             if (CORRECT(idir, iad))
             {
               GG(ijvar, ipadir) = vario->getGgByIndex(idir, iad);
@@ -869,7 +866,7 @@ static void st_load_gg(const Vario* vario,
 
           if (!strexps.empty())
           {
-            Id i = vario->getDirAddress(idir, ivar, jvar, ilag, false, 1);
+            Id i = vario->getAddressForGg(idir, ivar, jvar, ilag, 1);
             if (INCORRECT(idir, i)) continue;
 
             strexps[ecr].ivar = ivar;
@@ -941,6 +938,7 @@ static void st_prepar_goulard_vario(Id imod)
         }
     }
   }
+  cova->setActiveCovListFromOne(-1);
 }
 
 /*****************************************************************************/
@@ -1234,7 +1232,7 @@ static void st_load_wt(const Vario* vario,
   for (Id ivar = 0; ivar < nvar; ivar++)
     for (Id jvar = 0; jvar <= ivar; jvar++, ijvar0++)
     {
-      double ratio = (vario->getVar(ivar, jvar) > 0 && vario->getVar(jvar, ivar) > 0) ? sqrt(vario->getVar(ivar, jvar) * vario->getVar(jvar, ivar)) : 1.;
+      double ratio = (vario->getVar(ivar, ivar) > 0 && vario->getVar(jvar, jvar) > 0) ? sqrt(vario->getVar(ivar, ivar) * vario->getVar(jvar, jvar)) : 1.;
       ipadir       = 0;
       for (Id idir = 0; idir < ndir; idir++)
       {
@@ -1259,14 +1257,14 @@ static void st_goulard_debug_title(Id nvar, Id ncova)
   if (!OptDbg::query(EDbg::CONVERGE)) return;
   mestitle(1, "Trajectory of parameters in Goulard Algorithm");
   message("(Sti(V1-V2) : Sill for structure 'i' for variables 'V1' and 'V2'\n");
-  tab_prints(NULL, "Iteration");
-  tab_prints(NULL, "Score");
+  printElement("Iteration");
+  printElement("Score");
   for (Id icov = 0; icov < ncova; icov++)
     for (Id ivar = 0; ivar < nvar; ivar++)
       for (Id jvar = 0; jvar <= ivar; jvar++)
       {
         (void)gslSPrintf(loc_string, "St%d(%d-%d)", icov + 1, ivar + 1, jvar + 1);
-        tab_prints(NULL, loc_string.data());
+        printElement(loc_string);
       }
   message("\n");
 }
@@ -1385,7 +1383,6 @@ static Id st_goulard_without_constraint(const Option_AutoFit& mauto,
 {
   Id allpos;
   double temp, crit, crit_mem, value;
-  VectorDouble valpro;
   const MatrixSquare* vecpro;
 
   /*******************/
@@ -1497,9 +1494,9 @@ static Id st_goulard_without_constraint(const Option_AutoFit& mauto,
       }
       /* Computing and sorting the eigen values and eigen vectors */
 
-      if (cc.computeEigen()) return 1;
-      valpro = cc.getEigenValues();
-      vecpro = cc.getEigenVectors();
+      auto eigenvectors  = EigenVectors(cc);
+      const auto& valpro = eigenvectors.getEigenValues();
+      vecpro             = &eigenvectors.getEigenVectors();
 
       Id kvar = 0;
       allpos  = 1;
@@ -2040,7 +2037,7 @@ static void st_model_auto_pardef(StrMod* strmod,
  *****************************************************************************/
 static void st_model_auto_strmod_define(StrMod* strmod,
                                         Id npar,
-                                        VectorDouble& param)
+                                        const VectorDouble& param)
 {
   Id icov, ntot, imod, ivar, jvar;
   Model* model;
@@ -2118,7 +2115,7 @@ static void st_model_auto_strmod_define(StrMod* strmod,
 
       case EConsElem::E_RANGE:
       {
-        if (ivar == 0) VH::fill(ranges, param[ntot]);
+        if (ivar == 0) ranges.fill(param[ntot]);
         if (ivar < ndim) ranges[ivar] = param[ntot];
         break;
       }
@@ -2407,11 +2404,9 @@ static Id st_truncate_negative_eigen(Id nvar,
     for (Id jvar = 0; jvar <= ivar; jvar++)
       cc.setValue(ivar, jvar, matcor[icov0].getValue(ivar, jvar));
 
-  if (cc.computeEigen())
-    messageAbort("st_truncate_negative_eigen");
-
-  VectorDouble valpro        = cc.getEigenValues();
-  const MatrixSquare* vecpro = cc.getEigenVectors();
+  auto eigenvectors          = EigenVectors(cc);
+  const auto& valpro         = eigenvectors.getEigenValues();
+  const MatrixSquare* vecpro = &eigenvectors.getEigenVectors();
 
   /* Check positiveness */
 
@@ -4057,7 +4052,7 @@ static Id st_model_auto_count(const Vario* vario,
  *****************************************************************************/
 static void st_strmod_vario_evaluate(Id nbexp,
                                      Id npar,
-                                     VectorDouble& param,
+                                     const VectorDouble& param,
                                      VectorDouble& tabge)
 {
   /* Define the current values of the parameters */
@@ -4129,6 +4124,7 @@ static void st_prepar_goulard_vmap(Id imod)
           ge[icov].setValue(ijvar, ipadir, tab.getValue(ivar, jvar));
     }
   }
+  cova->setActiveCovListFromOne(-1);
 }
 
 /****************************************************************************/
@@ -4144,7 +4140,7 @@ static void st_prepar_goulard_vmap(Id imod)
  *****************************************************************************/
 static void st_strmod_vmap_evaluate(Id nbexp,
                                     Id npar,
-                                    VectorDouble& param,
+                                    const VectorDouble& param,
                                     VectorDouble& tabge)
 {
   DECLARE_UNUSED(nbexp)
@@ -4242,7 +4238,6 @@ static void st_vario_varchol_manage(const Vario* vario,
 static void st_vmap_varchol_manage(const Db* dbmap, VectorDouble& varchol)
 {
   Id nvar = dbmap->getNLoc(ELoc::Z);
-  Id size = nvar * (nvar + 1) / 2;
 
   /* Allocation */
 
@@ -4253,9 +4248,8 @@ static void st_vmap_varchol_manage(const Db* dbmap, VectorDouble& varchol)
     VectorDouble ranges = dbmap->getRange(name);
     aux.setValue(ivar, ivar, ranges[1] - ranges[0]);
   }
-  varchol.resize(size);
-  if (matrix_cholesky_decompose(aux.getValues().data(), varchol.data(), nvar))
-    messageAbort("Error in the Cholesky decomposition of the variance matrix");
+  CholeskyDense chol(aux);
+  varchol = chol.getLowerTriangle();
 }
 
 /****************************************************************************/
@@ -4419,11 +4413,10 @@ Id model_auto_fit(Vario* vario,
   if (vario->getCalcul() == ECalcVario::GENERAL1) norder = 1;
   if (vario->getCalcul() == ECalcVario::GENERAL2) norder = 2;
   if (vario->getCalcul() == ECalcVario::GENERAL3) norder = 3;
-  if (vario->getCalcul() == ECalcVario::MADOGRAM ||
-      vario->getCalcul() == ECalcVario::RODOGRAM ||
-      vario->getCalcul() == ECalcVario::GENERAL1 ||
-      vario->getCalcul() == ECalcVario::GENERAL2 ||
-      vario->getCalcul() == ECalcVario::GENERAL3)
+
+  // Check if the tool can be used for fitting
+
+  if (!vario->isFittable())
   {
     messerr("Procedure is designed only for symmetric covariance");
     return (1);
@@ -4508,7 +4501,6 @@ Id model_auto_fit(Vario* vario,
   st_model_auto_constraints_apply(strmod, npar, constraints, param, lower, upper);
 
   /* Minimization algorithm */
-
   STREXPS           = strexps;
   STRMOD            = strmod;
   MAUTO             = mauto;
@@ -4566,6 +4558,7 @@ Id model_auto_fit(Vario* vario,
   /* Store the sills in the keypair mechanism */
 
   st_keypair_sill(1, model);
+  model->_castInCovAnisoList()->setAllCovActive();
 
   /* Set the error return code */
 

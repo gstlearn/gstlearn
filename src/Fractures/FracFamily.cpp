@@ -97,7 +97,7 @@ String FracFamily::toString(const AStringFormat* /*strfmt*/) const
   return sstr.str();
 }
 
-bool FracFamily::_deserializeAscii(std::istream& is, bool /*verbose*/)
+bool FracFamily::_deserializeAscii(std::istream& is)
 {
   bool ret = true;
   ret      = ret && _recordRead<double>(is, "Mean orientation", _orient);
@@ -113,7 +113,7 @@ bool FracFamily::_deserializeAscii(std::istream& is, bool /*verbose*/)
   return ret;
 }
 
-bool FracFamily::_serializeAscii(std::ostream& os, bool /*verbose*/) const
+bool FracFamily::_serializeAscii(std::ostream& os) const
 {
   bool ret = true;
   ret      = ret && _recordWrite<double>(os, "Mean orientation", _orient);
@@ -130,7 +130,7 @@ bool FracFamily::_serializeAscii(std::ostream& os, bool /*verbose*/) const
 }
 
 #ifdef HDF5
-bool FracFamily::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+bool FracFamily::deserializeH5(H5::Group& grp)
 {
   auto famG = SerializeHDF5::getGroup(grp, "Families");
   if (!famG)
@@ -155,7 +155,7 @@ bool FracFamily::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   return ret;
 }
 
-bool FracFamily::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+bool FracFamily::serializeH5(H5::Group& grp) const
 {
   auto famG = grp.createGroup("FracFamily");
 
@@ -174,4 +174,4 @@ bool FracFamily::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) con
   return ret;
 }
 #endif
-}
+} // namespace gstlrn

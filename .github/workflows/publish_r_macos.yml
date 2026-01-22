@@ -36,16 +36,13 @@ jobs:
     strategy:
       matrix:
         # Last releases from here https://cran.r-project.org/src/base/R-4/
-        r_version: [4.2.3, 4.3.3, 4.4.3, 4.5.0]
+        r_version: [4.2.3, 4.3.3, 4.4.3, 4.5.2]
         arch: [
-            {ar: x86_64, os: macos-13, pat: /usr/local},
             {ar: arm64,  os: macos-14, pat: /opt/homebrew},
-            {ar: arm64,  os: macos-15, pat: /opt/homebrew}
+            {ar: arm64,  os: macos-15, pat: /opt/homebrew},
+            {ar: x86_64, os: macos-15-intel, pat: /usr/local},
+            {ar: arm64,  os: macos-26, pat: /opt/homebrew},
          ]
-        exclude:
-          - {arch: {os: macos-13}, r_version: 4.3.3}
-          - {arch: {os: macos-13}, r_version: 4.4.3}
-          - {arch: {os: macos-13}, r_version: 4.5.0}
 
     steps:
     - uses: actions/checkout@v4
@@ -87,6 +84,7 @@ jobs:
       run : |
         cmake \
           -B${{ env.BUILD_DIR }} \
+          -DCMAKE_COMPILE_WARNING_AS_ERROR=ON \
           -DHDF5_USE_STATIC_LIBRARIES=ON \
           -DBUILD_PYTHON=OFF \
           -DBUILD_R=ON \
@@ -130,16 +128,13 @@ jobs:
     strategy:
       matrix:
         # Last releases from here https://cran.r-project.org/src/base/R-4/
-        r_version: [4.2.3, 4.3.3, 4.4.3, 4.5.0]
+        r_version: [4.2.3, 4.3.3, 4.4.3, 4.5.2]
         arch: [
-            {ar: x86_64, os: macos-13, pat: /usr/local},
-            {ar: arm64,  os: macos-14, pat: /opt/homebrew},
-            {ar: arm64,  os: macos-15, pat: /opt/homebrew}
+            {ar: arm64,  os: macos-14},
+            {ar: arm64,  os: macos-15},
+            {ar: x86_64, os: macos-15-intel},
+            {ar: arm64,  os: macos-26},
          ]
-        exclude:
-          - {arch: {os: macos-13}, r_version: 4.3.3}
-          - {arch: {os: macos-13}, r_version: 4.4.3}
-          - {arch: {os: macos-13}, r_version: 4.5.0}
 
     steps:
     - uses: actions/checkout@v4
@@ -147,9 +142,6 @@ jobs:
     - uses: actions/download-artifact@v4
       with:
         name: macos-r-package-${{matrix.arch.os}}-${{matrix.r_version}}
-
-    - name: Install dependencies
-      run: brew install llvm
 
     - name: Setup R Version
       uses: r-lib/actions/setup-r@v2

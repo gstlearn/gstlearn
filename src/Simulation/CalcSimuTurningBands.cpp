@@ -18,6 +18,7 @@
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Geometry/GeometryHelper.hpp"
+#include "Matrix/EigenVectors.hpp"
 #include "Model/Model.hpp"
 #include "Simulation/ACalcSimulation.hpp"
 #include "Simulation/TurningBandDirection.hpp"
@@ -44,8 +45,6 @@ CalcSimuTurningBands::CalcSimuTurningBands(Id nbsimu,
   , _flagDGM(false)
   , _flagAllocationAlreadyDone(false)
   , _nameCoord()
-  , _bayesMean()
-  , _bayesCov()
   , _npointSimulated(0)
   , _field(0.)
   , _theta(0.)
@@ -882,8 +881,8 @@ double CalcSimuTurningBands::_irfProcessInit(Id ibs,
   if (type == ECov::ORDER1_GC) level = 0;
   if (type == ECov::ORDER3_GC) level = 1;
   if (type == ECov::ORDER5_GC) level = 2;
-  auto nt        = operTB.getTsize();
-  VectorDouble t = operTB.getT();
+  auto nt       = operTB.getTsize();
+  const auto& t = operTB.getT();
 
   /* Generation of the Wiener-Levy process and its integrations */
 
@@ -932,7 +931,8 @@ VectorDouble CalcSimuTurningBands::_createAIC()
 {
   auto ncova = _getNCov();
   auto nvar  = _getNVar();
-  VectorDouble aic(ncova * nvar * nvar);
+  Id nv2     = nvar * nvar;
+  VectorDouble aic(ncova * nv2);
 
   /* Calculate the eigen values and vectors of the coregionalization matrix */
 
@@ -949,17 +949,19 @@ VectorDouble CalcSimuTurningBands::_createAIC()
 
     // Calculate the Eigen decomposition
 
-    if (mat.computeEigen()) return VectorDouble();
-    VectorDouble valpro        = mat.getEigenValues();
-    const MatrixSquare* vecpro = mat.getEigenVectors();
+    auto eigenvectors          = EigenVectors(mat);
+    const auto& valpro         = eigenvectors.getEigenValues();
+    const MatrixSquare* vecpro = &eigenvectors.getEigenVectors();
 
     /* Calculate the factor matrix */
 
     for (Id ivar = 0; ivar < nvar; ivar++)
       for (Id jvar = 0; jvar < nvar; jvar++)
       {
-        Id ijvar                        = ivar + nvar * jvar;
-        aic[icov * nvar * nvar + ijvar] = vecpro->getValue(ivar, jvar) * sqrt(valpro[ivar]);
+        double value = 0.;
+        for (Id kvar = 0; kvar < nvar; kvar++)
+          value += vecpro->getValue(ivar, kvar) * sqrt(valpro[kvar]) * vecpro->getValue(jvar, kvar);
+        aic[icov * nv2 + ivar + nvar * jvar] = value;
       }
   }
   return aic;
@@ -1693,7 +1695,7 @@ void CalcSimuTurningBands::_difference(Db* dbin,
             zvar = dbin->getSimvar(ELoc::GAUSFAC, iech, isimu, ivar, 0, nbsimu,
                                    nvar);
             if (OptDbg::query(EDbg::SIMULATE))
-              tab_printg(NULL, zvar);
+              printElement(zvar);
           }
           double simval = dbin->getSimvar(ELoc::SIMU, iech, isimu, ivar, icase,
                                           nbsimu, nvar);
@@ -1811,7 +1813,7 @@ void CalcSimuTurningBands::_updateData2ToTarget(Db* dbin,
 
   if (dbout->isGrid())
   {
-    DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
+    auto* dbgrid = dynamic_cast<DbGrid*>(dbout);
 
     /*********************************************/
     /* Case where the output file is a grid file */
@@ -1941,7 +1943,7 @@ bool CalcSimuTurningBands::_run()
 
   if (getDbout()->isGrid())
   {
-    DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+    auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
     _simulateGrid(dbgrid, aic, _icase, 0);
     _meanCorrect(getDbout(), _icase);
   }
@@ -1960,8 +1962,7 @@ bool CalcSimuTurningBands::_run()
   if (flag_cond)
   {
     if (_krigsim(getDbin(), getDbout(), _modelLocal, getNeigh(),
-                 _flagBayes, _bayesMean, _bayesCov, _icase,
-                 nbsimu, _flagDGM)) return 1;
+                 _flagBayes, _icase, nbsimu, _flagDGM)) return 1;
   }
 
   /* Copy value from data to coinciding grid node */
@@ -1989,9 +1990,6 @@ bool CalcSimuTurningBands::_run()
  ** \param[in]  neigh      ANeigh structure
  ** \param[in]  icase      Case for PGS or -1
  ** \param[in]  flag_bayes 1 if the Bayes option is switched ON
- ** \param[in]  dmean      Array giving the prior means for the drift terms
- ** \param[in]  dcov       Array containing the prior covariance matrix
- **                        for the drift terms
  ** \param[in]  flag_pgs   1 if called from PGS
  ** \param[in]  flag_gibbs 1 if called from Gibbs
  ** \param[in]  flag_dgm   1 if the Discrete Gaussian Model is used
@@ -2003,8 +2001,6 @@ Id CalcSimuTurningBands::simulate(Db* dbin,
                                   ANeigh* neigh,
                                   Id icase,
                                   Id flag_bayes,
-                                  const VectorDouble& dmean,
-                                  const MatrixSymmetric& dcov,
                                   bool flag_pgs,
                                   bool flag_gibbs,
                                   bool flag_dgm)
@@ -2015,8 +2011,6 @@ Id CalcSimuTurningBands::simulate(Db* dbin,
   setNeigh(neigh);
   setIcase(icase);
   setFlagBayes(flag_bayes);
-  setBayesMean(dmean);
-  setBayesCov(dcov);
   setFlagPgs(flag_pgs);
   setFlagGibbs(flag_gibbs);
   setFlagDgm(flag_dgm);
@@ -2149,7 +2143,7 @@ void CalcSimuTurningBands::_checkGaussianData2Grid(Db* dbin,
   if (get_LOCATOR_NITEM(dbout, ELoc::SIMU) <= 0) return;
   auto nbsimu = getNbSimu();
   if (nbsimu <= 0) return;
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
+  auto* dbgrid = dynamic_cast<DbGrid*>(dbout);
   if (dbgrid == nullptr) return;
   Id ndim = dbin->getNDim();
 
@@ -2287,7 +2281,7 @@ bool CalcSimuTurningBands::_preprocess()
   if (_flagDGM)
   {
     // Centering (only if the output file is a Grid)
-    DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+    auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
     if (dbgrid != nullptr)
     {
       // Duplicating the coordinate variable names before centering
@@ -2389,9 +2383,6 @@ Id simtub(Db* dbin,
  ** \param[in]  neigh      ANeigh structure (optional)
  ** \param[in]  nbsimu     Number of simulations
  ** \param[in]  seed       Seed for random number generator
- ** \param[in]  dmean      Array giving the prior means for the drift terms
- ** \param[in]  dcov       Array containing the prior covariance matrix
- **                        for the drift terms
  ** \param[in]  nbtuba     Number of turning bands
  ** \param[in]  flag_check 1 to check the proximity in Gaussian scale
  ** \param[in]  namconv    Naming convention
@@ -2406,8 +2397,6 @@ Id simbayes(Db* dbin,
             ANeigh* neigh,
             Id nbsimu,
             Id seed,
-            const VectorDouble& dmean,
-            const MatrixSymmetric& dcov,
             Id nbtuba,
             bool flag_check,
             const NamingConvention& namconv)
@@ -2423,8 +2412,6 @@ Id simbayes(Db* dbin,
   situba.setNamingConvention(namconv);
 
   situba.setFlagBayes(true);
-  situba.setBayesMean(dmean);
-  situba.setBayesCov(dcov);
 
   // Run the calculator
   Id error = (situba.run()) ? 0 : 1;

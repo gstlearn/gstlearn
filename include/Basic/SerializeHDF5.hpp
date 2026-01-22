@@ -15,7 +15,6 @@
 #include "geoslib_define.h"
 
 #include "Basic/ASerializable.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/VectorT.hpp"
 
 #include <H5Cpp.h>
@@ -38,9 +37,9 @@ namespace SerializeHDF5
   {
     return H5::PredType::NATIVE_DOUBLE;
   }
-  inline H5::DataType getHDF5Type([[maybe_unused]] const long a)
+  inline H5::DataType getHDF5Type([[maybe_unused]] const Id a)
   {
-    return H5::PredType::NATIVE_LONG;
+    return H5::PredType::NATIVE_LLONG;
   }
   inline H5::DataType getHDF5Type([[maybe_unused]] const bool a)
   {
@@ -155,7 +154,7 @@ namespace SerializeHDF5
     writeValue(metadata, "Description",
                "This file is used to Serialize gstlearn's internal data structures");
     writeValue(metadata, "Format version", "1.0.0");
-    writeValue(metadata, "Class_Type", parent._getNFName());
+    writeValue(metadata, "Class_Type", parent.getNFName());
     return file;
   }
 

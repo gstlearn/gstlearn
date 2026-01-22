@@ -10,9 +10,10 @@
 /******************************************************************************/
 #include "Anamorphosis/AnamDiscreteDD.hpp"
 #include "Basic/SerializeHDF5.hpp"
-#include "Basic/Utilities.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
 #include "LinearOp/CholeskyDense.hpp"
+#include "Matrix/EigenVectors.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Stats/Selectivity.hpp"
 #include "geoslib_old_f.h"
@@ -210,7 +211,7 @@ Id AnamDiscreteDD::_stats(Id nech, const VectorDouble& tab)
 
 VectorDouble AnamDiscreteDD::factors_exp(bool verbose)
 {
-  VectorDouble chi, maf, lambda, veca, vecb, vecc, f1, eigval, eigvec;
+  VectorDouble chi, lambda, eigval, eigvec;
 
   /* Initializations */
 
@@ -218,21 +219,21 @@ VectorDouble AnamDiscreteDD::factors_exp(bool verbose)
 
   /* Core allocation */
 
-  f1.resize(nclass);
-  veca.resize(nclass);
-  vecb.resize(nclass);
-  vecc.resize(nclass);
+  VectorDouble f1(nclass);
+  VectorDouble veca(nclass);
+  VectorDouble vecb(nclass);
+  VectorDouble vecc(nclass);
   eigvec.resize(nclass * nclass);
   eigval.resize(nclass);
 
   /* Calculate the experimental MAF array */
 
-  maf = factors_maf(verbose);
+  MatrixDense maf = factors_maf(verbose);
 
   /* Calculate the array 'F1' (based on the first MAF) */
 
   for (Id iclass = 0; iclass < nclass; iclass++)
-    f1[iclass] = maf[iclass] / maf[0];
+    f1[iclass] = maf.getValue(iclass, 0) / maf.getValue(0, 0);
 
   /* Establish the tri-diagonal matrix */
 
@@ -298,39 +299,37 @@ VectorDouble AnamDiscreteDD::factors_exp(bool verbose)
   /* Verbose option */
 
   if (verbose)
-    print_matrix("Factors", 0, 1, nclass, nclass, NULL, chi.data());
+    printMatrix(chi, nclass, nclass, "Factors", 0, 1);
 
   return chi;
 }
 
-VectorDouble AnamDiscreteDD::factors_maf(bool verbose)
+MatrixDense AnamDiscreteDD::factors_maf(bool verbose)
 {
-  VectorDouble maf, tab;
   auto ncut   = getNCut();
   auto nclass = getNClass();
 
   /* Core allocation */
 
-  maf.resize(nclass * nclass, 0);
-  tab.resize(nclass * nclass, 0);
+  MatrixDense maf(nclass, ncut);
+  MatrixDense tab(nclass, ncut);
 
   /* Calculate the experimental MAF array */
 
-  Id ecr = 0;
   for (Id icut = 0; icut < ncut; icut++)
-    for (Id iclass = 0; iclass < nclass; iclass++, ecr++)
+    for (Id iclass = 0; iclass < nclass; iclass++)
     {
       double bval = (iclass >= icut) ? 1 : 0;
       double cval = (iclass >= (icut + 1)) ? 1 : 0;
       double prop = getDDStatProp(icut);
-      tab[ecr]    = ((bval - cval) - prop) / sqrt(prop * (1. - prop));
+      tab.setValue(iclass, icut, ((bval - cval) - prop) / sqrt(prop * (1. - prop)));
     }
-  matrix_product_safe(nclass, ncut, ncut, tab.data(), getPcaZ2Fs().getValues().data(), maf.data());
+  getPcaZ2Fs().prodMatMatInPlace(&tab, &maf);
 
   /* Verbose option */
 
   if (verbose)
-    print_matrix("MAF", 0, 1, ncut, nclass, NULL, maf.data());
+    printMatrix(maf, "MAF");
 
   return maf;
 }
@@ -381,10 +380,11 @@ VectorDouble AnamDiscreteDD::_generator(const VectorDouble& vecc,
 
   /* Diagonalize the infinitesimal generator */
 
-  auto* matTri = MatrixSquare::createFromTridiagonal(vecc, veca, vecb);
-  matTri->computeEigen();
-  eigval = matTri->getEigenValues();
-  eigvec = matTri->getEigenVectors()->getValues();
+  auto* matTri      = MatrixSquare::createFromTridiagonal(vecc, veca, vecb);
+  auto eigenvectors = EigenVectors(*matTri);
+  if (!eigenvectors.isReady()) return VectorDouble();
+  eigval = eigenvectors.getEigenValues();
+  eigvec = eigenvectors.getEigenVectors().getValues();
   delete matTri;
 
   /* Choose to set the Hn(0) = 1 */
@@ -600,10 +600,10 @@ MatrixSquare AnamDiscreteDD::chi2I(const VectorDouble& chi, Id mode)
   return chi2i;
 }
 
-bool AnamDiscreteDD::_serializeAscii(std::ostream& os, bool verbose) const
+bool AnamDiscreteDD::_serializeAscii(std::ostream& os) const
 {
   bool ret = true;
-  ret      = ret && AnamDiscrete::_serializeAscii(os, verbose);
+  ret      = ret && AnamDiscrete::_serializeAscii(os);
   ret      = ret && _recordWrite<double>(os, "Change of support coefficient", getSCoef());
   ret      = ret && _recordWrite<double>(os, "Additional Mu coefficient", getMu());
   ret      = ret && _tableWrite(os, "PCA Z2Y", getNCut() * getNCut(), getPcaZ2Fs().getValues());
@@ -611,14 +611,14 @@ bool AnamDiscreteDD::_serializeAscii(std::ostream& os, bool verbose) const
   return ret;
 }
 
-bool AnamDiscreteDD::_deserializeAscii(std::istream& is, bool verbose)
+bool AnamDiscreteDD::_deserializeAscii(std::istream& is)
 {
   MatrixSquare pcaf2z, pcaz2f;
   double s  = TEST;
   double mu = TEST;
 
   bool ret = true;
-  ret      = ret && AnamDiscrete::_deserializeAscii(is, verbose);
+  ret      = ret && AnamDiscrete::_deserializeAscii(is);
   ret      = ret && _recordRead<double>(is, "Anamorphosis 's' coefficient", s);
   ret      = ret && _recordRead<double>(is, "Anamorphosis 'mu' coefficient", mu);
 
@@ -970,7 +970,7 @@ Id AnamDiscreteDD::factor2Selectivity(Db* db,
 }
 
 #ifdef HDF5
-bool AnamDiscreteDD::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+bool AnamDiscreteDD::deserializeH5(H5::Group& grp)
 {
   auto anamG = SerializeHDF5::getGroup(grp, "AnamDiscreteDD");
   if (!anamG)
@@ -990,7 +990,7 @@ bool AnamDiscreteDD::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbos
   ret = ret && SerializeHDF5::readVec(*anamG, "Z2F", z2f);
   ret = ret && SerializeHDF5::readVec(*anamG, "F2Z", f2z);
 
-  ret = ret && AnamDiscrete::_deserializeH5(*anamG, verbose);
+  ret = ret && AnamDiscrete::deserializeH5(*anamG);
 
   if (ret)
   {
@@ -1011,7 +1011,7 @@ bool AnamDiscreteDD::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbos
   return ret;
 }
 
-bool AnamDiscreteDD::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+bool AnamDiscreteDD::serializeH5(H5::Group& grp) const
 {
   auto anamG = grp.createGroup("AnamDiscreteDD");
 
@@ -1022,7 +1022,7 @@ bool AnamDiscreteDD::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   ret = ret && SerializeHDF5::writeVec(anamG, "Z2F", getPcaZ2Fs().getValues());
   ret = ret && SerializeHDF5::writeVec(anamG, "F2Z", getPcaF2Zs().getValues());
 
-  ret = ret && AnamDiscrete::_serializeH5(anamG, verbose);
+  ret = ret && AnamDiscrete::serializeH5(anamG);
 
   return ret;
 }

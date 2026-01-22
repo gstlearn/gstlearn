@@ -1,10 +1,11 @@
 #include "Basic/ParamInfo.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/Message.hpp"
 #include "geoslib_define.h"
 
 #include <sstream>
 namespace gstlrn
-{ 
+{
 ParamInfo::ParamInfo(const String& name,
                      double value,
                      const std::array<double, 2>& absoluteBounds,
@@ -62,7 +63,6 @@ void ParamInfo::increaseMin(double value)
   _value         = std::max(_userBounds[0], _value);
   _currentValue  = _value;
 }
-
 
 void ParamInfo::decreaseMax(double value)
 {
@@ -153,4 +153,4 @@ void ParamInfo::setMaxValue(double value)
     _userBounds[1] = value;
   }
 }
-}
+} // namespace gstlrn

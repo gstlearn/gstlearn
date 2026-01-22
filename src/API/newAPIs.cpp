@@ -49,13 +49,13 @@ GaussianProcess* createModelFromData(const Db* dat,
 
   if (addMeasurementError)
   {
-    CovAniso nugget(ECov::NUGGET, ctxt);
+    CovAniso nugget(ctxt, ECov::NUGGET);
     model.addCov(nugget);
   }
 
   for (size_t i = 0; i < structs.size(); ++i)
   {
-    CovAniso covi(structs[i], ctxt);
+    CovAniso covi(ctxt, structs[i]);
     model.addCov(covi);
   }
   model.setDriftIRF(0);

@@ -36,7 +36,7 @@ public:
   ModelOptimVario& operator=(const ModelOptimVario& m);
   virtual ~ModelOptimVario();
 
-  double computeCost(bool verbose = false) override;
+  double computeCost(bool flagPrint = false, bool verbose = false) override;
   void evalGrad(vect res) override;
 
   static ModelOptimVario* createForOptim(ModelGeneric* model,

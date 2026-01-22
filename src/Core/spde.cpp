@@ -22,6 +22,7 @@
 #include "Db/Db.hpp"
 #include "Enum/ELoadBy.hpp"
 #include "Geometry/GeometryHelper.hpp"
+#include "LinearOp/CholeskyDense.hpp"
 #include "LinearOp/CholeskySparse.hpp"
 #include "LinearOp/ProjMatrix.hpp"
 #include "Matrix/MatrixFactory.hpp"
@@ -32,6 +33,7 @@
 #include "Mesh/MeshEStandard.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "Model/Model.hpp"
+#include "Space/ASpaceObject.hpp"
 #include "Space/SpaceSN.hpp"
 #include "geoslib_define.h"
 #include "geoslib_f_private.h"
@@ -151,7 +153,7 @@ typedef struct
   double correc;
   double R;
   VectorDouble blin;
-  VectorDouble hh;
+  MatrixSquare hh;
   VectorDouble vv;
   VectorDouble srot;
 } SPDE_Calcul;
@@ -591,10 +593,8 @@ static void st_set_filnug(Id flag_filnug)
  *****************************************************************************/
 static double st_get_isill(Id icov, Id ivar, Id jvar)
 {
-  Id nvar                     = S_ENV.nvar;
   const SPDE_Matelem& Maticov = spde_get_current_matelem(icov);
-  double value                = Maticov.Isill[(jvar) + nvar * (ivar)];
-  return (value);
+  return Maticov.Isill.getValue(ivar, jvar);
 }
 
 /****************************************************************************/
@@ -964,7 +964,7 @@ static void st_print_all(const char* title)
 
   /* 'H' Rotation */
 
-  print_matrix("Anisotropy H matrix", 0, 1, ndim, ndim, NULL, Calcul.hh.data());
+  printMatrix(Calcul.hh.getValues() , ndim, ndim, "Anisotropy H matrix", 0, 1);
   message("Square root of Determinant                    = %lf\n",
           Calcul.sqdeth);
   message("Correction factor                             = %lf\n",
@@ -974,8 +974,7 @@ static void st_print_all(const char* title)
 
   Id nblin = static_cast<Id>(Calcul.blin.size());
   message("Number of terms in Linear Combination         = %d\n", nblin);
-  print_matrix("Coefficients of the Linear Combination", 0, 1, 1, nblin, NULL,
-               Calcul.blin.data());
+  printMatrix(Calcul.blin, 1, nblin, "Coefficients of the Linear Combination", 0, 1);
 }
 
 static double st_spde_compute_correc(Id ndim, double param)
@@ -1073,7 +1072,7 @@ static void st_compute_hh()
 
   Id ndim        = S_ENV.ndim;
   CovAniso* cova = st_get_cova();
-  VectorDouble temp(ndim * ndim, 0.);
+  MatrixSquare temp(ndim);
 
   /* Processing */
 
@@ -1081,10 +1080,9 @@ static void st_compute_hh()
   {
     double scale = cova->getScale(i);
     if (Calcul.flag_sphere) scale /= Calcul.R;
-    TEMP(ndim, i, i) = scale * scale;
+    temp.setValue(i, i, scale * scale);
   }
-  matrix_prod_norme(1, ndim, ndim, cova->getAnisoRotMat().getValues().data(),
-                    temp.data(), Calcul.hh.data());
+  Calcul.hh.prodNormMatMatInPlace(&cova->getAnisoRotMat(), &temp, false);
 }
 
 /****************************************************************************/
@@ -1098,7 +1096,8 @@ static void st_calcul_init(Id ndim)
   Calcul.sqdeth      = 0.;
   Calcul.correc      = 0.;
   Calcul.R           = 0.;
-  Calcul.hh.resize(ndim * ndim, 0.);
+  Calcul.hh.reset(ndim, ndim);
+  Calcul.hh.fill(0.);
   if (Calcul.flag_sphere)
   {
     const ASpace* space = getDefaultSpaceSh().get();
@@ -1116,8 +1115,6 @@ static void st_calcul_init(Id ndim)
  *****************************************************************************/
 static void st_calcul_update(void)
 {
-  Id ndim = S_ENV.ndim;
-
   // Check that the structure has already been initiated
 
   if (Calcul.hh.size() <= 0)
@@ -1133,7 +1130,7 @@ static void st_calcul_update(void)
   st_compute_hh();
 
   // Calculate the determinant of HH
-  Calcul.sqdeth = sqrt(matrix_determinant(ndim, Calcul.hh));
+  Calcul.sqdeth = sqrt(Calcul.hh.determinant());
 }
 
 /****************************************************************************/
@@ -1395,23 +1392,12 @@ static Id st_kriging_cholesky(QChol* QC,
 static VectorDouble st_spde_get_mesh_dimension(AMesh* amesh)
 
 {
-  VectorDouble units;
-  VectorDouble mat(9);
-
-  /* Initializations */
-
-  Id ndim          = amesh->getNDim();
-  Id nmesh         = amesh->getNMeshes();
-  Id ncorner       = amesh->getNApexPerMesh();
-  bool flag_sphere = isDefaultSpaceSphere();
-
-  /* Core allocation */
-
-  units.resize(nmesh);
+  Id nmesh = amesh->getNMeshes();
+  VectorDouble units(nmesh);
 
   /* Dispatch */
 
-  if (flag_sphere)
+  if (isDefaultSpaceSphere())
   {
     for (Id imesh = 0; imesh < nmesh; imesh++)
     {
@@ -1425,73 +1411,20 @@ static VectorDouble st_spde_get_mesh_dimension(AMesh* amesh)
   }
   else
   {
+    MatrixSquare mat(3);
+    Id ndim    = amesh->getNDim();
+    Id ncorner = amesh->getNApexPerMesh();
+
     for (Id imesh = 0; imesh < nmesh; imesh++)
     {
-      Id ecr = 0;
       for (Id icorn = 1; icorn < ncorner; icorn++)
         for (Id idim = 0; idim < ndim; idim++)
-          mat[ecr++] = (amesh->getCoor(imesh, icorn, idim) - amesh->getCoor(imesh, 0, idim));
-      units[imesh] = ABS(matrix_determinant(ndim, mat)) / FACDIM[ndim];
+          mat.setValue(idim, icorn - 1,
+                       amesh->getCoor(imesh, icorn, idim) - amesh->getCoor(imesh, 0, idim));
+      units[imesh] = ABS(mat.determinant()) / FACDIM[ndim];
     }
   }
   return (units);
-}
-
-/****************************************************************************/
-/*!
- **  Update parameters in S_ENV structure in non-stationary case
- **
- ** \param[in]  amesh     MeshEStandard structure
- ** \param[in]  imesh0    Rank of the current mesh
- **
- *****************************************************************************/
-static void st_calcul_update_nostat(AMesh* amesh, Id imesh0)
-{
-  DECLARE_UNUSED(amesh);
-  DECLARE_UNUSED(imesh0);
-  // Model *model = st_get_model();
-  // const ANoStat *nostat = model->getNoStat();
-
-  /* Initializations */
-
-  // Id ndim = S_ENV.ndim;
-  // Id igrf0 = SPDE_CURRENT_IGRF;
-  // Id icov0 = SPDE_CURRENT_ICOV;
-
-  /* Update the Tensor 'hh' */
-
-  /*  if (nostat->isDefinedforAnisotropy(icov0, igrf0))
-   {
-     model->updateCovByMesh(imesh0);
-     st_compute_hh();
-     Calcul.sqdeth = sqrt(matrix_determinant(ndim, Calcul.hh));
-   }
-  */
-  /* Update the Spherical Rotation array */
-
-  /*  if (nostat->isDefined(EConsElem::SPHEROT, icov0, -1, -1, igrf0))
-   {
-     VectorDouble srot(2, 0.);
-     for (Id i = 0; i < 2; i++)
-     {
-       Id ipar = nostat->getRank(EConsElem::SPHEROT, icov0,  i, -1, igrf0);
-       if (ipar < 0) continue;
-       Calcul.srot[i] = nostat->getValueByParam(ipar, 0, imesh0);
-     }
-   }
-  */
-  /* Update the Velocity array */
-
-  /*   if (nostat->isDefined(EConsElem::VELOCITY, icov0, -1, -1, igrf0))
-    {
-      VectorDouble vv(ndim, 0.);
-      for (Id idim = 0; idim < ndim; idim++)
-      {
-        Id ipar = nostat->getRank(EConsElem::VELOCITY, icov0, idim, -1, igrf0);
-        if (ipar < 0) continue;
-        Calcul.vv[idim] = nostat->getValueByParam(ipar, 0, imesh0);
-      }
-    } */
 }
 
 /****************************************************************************/
@@ -1505,31 +1438,23 @@ static void st_calcul_update_nostat(AMesh* amesh, Id imesh0)
  *****************************************************************************/
 static Id st_fill_Isill(void)
 {
-  VectorDouble mcova;
-  Id nvar, nvar2, error, icov, ecr;
-
-  /* Initializations */
-
-  error                 = 1;
-  nvar                  = S_ENV.nvar;
-  nvar2                 = nvar * nvar;
-  icov                  = SPDE_CURRENT_ICOV;
+  Id nvar               = S_ENV.nvar;
+  Id icov               = SPDE_CURRENT_ICOV;
   SPDE_Matelem& Matelem = spde_get_current_matelem(icov);
 
   /* Core allocation */
 
-  mcova.resize(nvar2);
+  MatrixSquare mcova(nvar);
 
   /* Load the sill of the covariance */
 
-  ecr = 0;
   for (Id ivar = 0; ivar < nvar; ivar++)
     for (Id jvar = 0; jvar < nvar; jvar++)
-      mcova[ecr++] = st_get_cova_sill(ivar, jvar);
+      mcova.setValue(ivar, jvar, st_get_cova_sill(ivar, jvar));
 
   /* Loop on the structures to invert the sill matrices */
 
-  if (matrix_invert(mcova.data(), nvar, -1)) goto label_end;
+  mcova.invert();
 
   /* Optional printout */
 
@@ -1537,12 +1462,8 @@ static Id st_fill_Isill(void)
 
   /* Set the error return code */
 
-  error = 0;
-
-label_end:
-  if (error) mcova.clear();
   Matelem.Isill = mcova;
-  return (error);
+  return 0;
 }
 
 /****************************************************************************/
@@ -1557,41 +1478,17 @@ label_end:
  *****************************************************************************/
 static Id st_fill_Csill(void)
 {
-  Model* model;
-  VectorDouble mcova;
-  Id nvar, nvs2, error, icov;
-
-  /* Initializations */
-
-  error                 = 1;
-  model                 = st_get_model();
-  nvar                  = S_ENV.nvar;
-  nvs2                  = nvar * (nvar + 1) / 2;
-  icov                  = SPDE_CURRENT_ICOV;
+  Model* model          = st_get_model();
+  Id icov               = SPDE_CURRENT_ICOV;
   SPDE_Matelem& Matelem = spde_get_current_matelem(icov);
 
-  /* Core allocation */
-
-  mcova.resize(nvs2);
-
   /* Load the sills of continuous covariance elements */
-
-  if (matrix_cholesky_decompose(model->getSills(icov).getValues().data(),
-                                mcova.data(), nvar))
-    goto label_end;
+  CholeskyDense chol(model->getSills(icov));
+  Matelem.Csill = chol.getLowerTriangle();
 
   /* Optional printout */
-
   if (VERBOSE) message("Calculation of Csill\n");
-
-  /* Set the error return code */
-
-  error = 0;
-
-label_end:
-  if (error) mcova.clear();
-  Matelem.Csill = mcova;
-  return (error);
+  return 0;
 }
 
 /****************************************************************************/
@@ -1630,11 +1527,6 @@ static Id st_fill_Bnugget(Db* dbin)
   /* which corresponds to the sill of the nugget effect */
 
   flag_nostat_sillnug = st_identify_nostat_param(EConsElem::SILL) >= 0;
-  /*  if (flag_nostat_sillnug)
-    {
-      messerr("Non-stationarity on nugget sill values not programmed yet");
-      goto label_end;
-    } */
 
   /* Core allocation */
 
@@ -1644,89 +1536,7 @@ static Id st_fill_Bnugget(Db* dbin)
   ind.resize(ndata);
   mat.resize(size, 0);
 
-  /* Establish the nugget sill matrix for isotopic case (only in stationary) */
-
-  /* if (!flag_nostat_sillnug)
-  {
-    for (ivar = 0; ivar < nvar; ivar++)
-      for (jvar = 0; jvar < nvar; jvar++)
-        LOCAL0(ivar,jvar) = st_get_nugget_sill(ivar, jvar);
-    if (matrix_invert(local0, nvar, -1))
-    {
-      messerr("Problem when inverting the Global Nugget matrix of sill");
-      goto label_end;
-    }
-  } */
-
   /* Loop on the active samples */
-
-  ecr = 0;
-  /* for (Id iech = 0; iech < dbin->getNSample(); iech++)
-  {
-    if (!dbin->isActive(iech)) continue;
- */
-  /* Check the heterotopy for the nugget effect */
-
-  /*   nvr = 0;
-    for (ivar = 0; ivar < nvar; ivar++)
-    {
-      if (FFFF(dbin->getZVariable(iech, ivar))) continue;
-      ind[nvr] = ivar;
-      nvr++;
-    }
-    if (nvr <= 0)
-    {
-      messerr("For sample %#d, no variable is defined", iech + 1);
-      goto label_end;
-    } */
-
-  /* Dispatch */
-
-  /*   if (nvr == nvar && !flag_nostat_sillnug)
-    { */
-
-  /* Isotopic case: Store the sill partial matrix */
-
-  /*    for (ivar = 0; ivar < nvar; ivar++)
-       for (jvar = 0; jvar <= ivar; jvar++)
-       {
-         iad = st_get_rank(ivar, jvar);
-         mat[iad * ndata + ecr] = LOCAL0(ivar, jvar);
-       }
-   }
-   else
-   { */
-
-  /* Constitute the sill matrix for the nugget effect */
-
-  /*    for (Id ivr = 0; ivr < nvr; ivr++)
-       for (Id jvr = 0; jvr < nvr; jvr++)
-         LOCAL(ivr,jvr) = st_get_nugget_sill(ind[ivr], ind[jvr]);
-*/
-  /* Invert the sill partial matrix */
-
-  /*    if (matrix_invert(local, nvr, -1))
-     {
-       messerr("Problem when inverting Nugget matrix of sill at sample #%d",
-               iech + 1);
-       goto label_end;
-     } */
-
-  /* Store the sill partial matrix */
-
-  /*   for (Id ivr = 0; ivr < nvr; ivr++)
-      for (Id jvr = 0; jvr <= ivr; jvr++)
-      {
-        ivar = ind[ivr];
-        jvar = ind[jvr];
-        iad = st_get_rank(ivar, jvar);
-        mat[iad * ndata + ecr] = LOCAL(ivr, jvr);
-      }
-  }
-  ecr++;
-}
-*/
-  /* Define the sparse matrices */
 
   ecr = 0;
   for (ivar = 0; ivar < nvar; ivar++)
@@ -2068,9 +1878,8 @@ static void st_tangent_calculate(double center[3],
 static MatrixSparse* st_spde_fill_S(AMesh* amesh, Model* model, const double* units)
 {
   DECLARE_UNUSED(model)
-  double vald, mat[16], mat1[16];
-  double xyz[3][3], center[3], axes[2][3], matv[3], coeff[3][2];
-  Id ecr, errcod, error, ndim, ncorner, flag_nostat;
+  double xyz[3][3], center[3], axes[2][3], coeff[3][2], vald;
+  Id errcod, error, ndim, ncorner, flag_nostat;
   bool flag_sphere;
   long ip1, ip2;
   MatrixSparse* G = nullptr;
@@ -2089,18 +1898,16 @@ static MatrixSparse* st_spde_fill_S(AMesh* amesh, Model* model, const double* un
   flag_nostat = false;
   // flag_nostat = model->isNoStat();
   if (!flag_nostat) st_calcul_update();
+  MatrixSquare mat(4);
   MatrixSquare matu(4);
-  VectorDouble matw(16);
-  VectorDouble matinvw(16);
+  MatrixSquare matw(4);
+  MatrixSquare mat1(4);
+  VectorDouble matv(3);
 
   /* Loop on the meshes */
 
   for (Id imesh = 0; imesh < amesh->getNMeshes(); imesh++)
   {
-
-    /* Get parameters in the non-stationary case */
-
-    if (flag_nostat) st_calcul_update_nostat(amesh, imesh);
 
     // Processing on the Sphere
 
@@ -2159,20 +1966,19 @@ static MatrixSparse* st_spde_fill_S(AMesh* amesh, Model* model, const double* un
           message(" %lf", amesh->getCoor(imesh, icorn, idim));
         message(")\n");
       }
-      print_matrix("MATU", 0, 1, ncorner, ncorner, NULL, matu.getValues().data());
+      printMatrix(matu.getValues(), ncorner, ncorner, "MATU", 0, 1);
     }
     else
     {
-      ecr = 0;
       for (Id icorn = 0; icorn < ncorner; icorn++)
         for (Id idim = 0; idim < ndim; idim++)
-          matw[ecr++] = matu.getValue(idim, icorn);
-      matrix_transpose(ndim, ncorner, matw, matinvw);
+          matw.setValue(idim, icorn, matu.getValue(idim, icorn));
 
-      matrix_product_safe(ncorner, ndim, ndim, matinvw.data(), Calcul.hh.data(), mat1);
+      /*! Perform 'this' = 'x' * 'y' */
+      mat1.prodMatMatInPlace(&matw, &Calcul.hh, true, false);
       if (flag_nostat)
-        matrix_product_safe(ncorner, ndim, 1, matinvw.data(), Calcul.vv.data(), matv);
-      matrix_product_safe(ncorner, ndim, ncorner, mat1, matw.data(), mat);
+        matw.prodMatVecInPlace(Calcul.vv, matv, true);
+      mat.prodMatMatInPlace(&mat1, &matw);
 
       for (Id j0 = 0; j0 < ncorner; j0++)
         for (Id j1 = 0; j1 < ncorner; j1++)
@@ -2180,7 +1986,7 @@ static MatrixSparse* st_spde_fill_S(AMesh* amesh, Model* model, const double* un
           ip1 = amesh->getApex(imesh, j0);
           ip2 = amesh->getApex(imesh, j1);
           std::pair<Id, Id> key(ip1, ip2);
-          vald = units[imesh] * MAT(j0, j1);
+          vald = units[imesh] * mat.getValue(j0, j1);
           if (flag_nostat) vald += matv[j1] * units[imesh];
           ret = tab.insert(std::pair<std::pair<Id, Id>, double>(key, vald));
           if (!ret.second) ret.first->second += vald;
@@ -3027,7 +2833,7 @@ static AMesh* st_create_meshes(Db* dbin,
          dbin != nullptr && dbin->isGrid()))
       dbloc = dbin;
   }
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbloc);
+  auto* dbgrid = dynamic_cast<DbGrid*>(dbloc);
 
   if (dbloc != nullptr)
   {
@@ -3852,8 +3658,8 @@ static void st_m2d_set_M(M2D_Environ* m2denv,
  *****************************************************************************/
 static Id st_m2d_migrate_pinch_to_point(Db* dbout, Db* dbc, Id icol_pinch)
 {
-  VectorInt cols(1);
-  cols[0] = icol_pinch;
+  VectorInt iuids(1);
+  iuids[0] = icol_pinch;
 
   // Initializations
 
@@ -3872,7 +3678,7 @@ static Id st_m2d_migrate_pinch_to_point(Db* dbout, Db* dbc, Id icol_pinch)
 
   // Migrate information from grid to point
 
-  if (migrateByAttribute(dbout, dbc, cols, 0, VectorDouble(), false, false))
+  if (migrateByAttribute(dbout, dbc, iuids, 0, VectorDouble(), false, false))
   {
     dbc->deleteColumnByUID(iptr);
     return 1;
@@ -4325,7 +4131,7 @@ static Id st_m2d_drift_manage(M2D_Environ* m2denv,
   VectorDouble dval;
   double value, delta;
   static double percent = 0.05;
-  VectorInt cols(1);
+  VectorInt iuids(1);
 
   /* Initializations */
 
@@ -4360,11 +4166,11 @@ static Id st_m2d_drift_manage(M2D_Environ* m2denv,
 
     if (m2denv->flag_ed)
     {
-      cols[0] = dbout->getColIdxByLocator(ELoc::F, ilayer);
+      iuids[0] = dbout->getUIDByLocator(ELoc::F, ilayer);
 
       // Migrate the information from Grid to Wells
 
-      migrateByAttribute(dbout, dbin, cols, 0, VectorDouble(), false, false);
+      migrateByAttribute(dbout, dbin, iuids, 0, VectorDouble(), false, false);
 
       // Calculate the statistics of the external drift on the grid
 

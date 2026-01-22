@@ -10,14 +10,13 @@
 /******************************************************************************/
 #pragma once
 
+#include "Basic/Message.hpp"
 #include "geoslib_define.h"
 
-#include "Basic/AStringable.hpp"
 #include "Basic/File.hpp"
 #include "Basic/VectorT.hpp"
-#include "Basic/Utilities.hpp"
 
-namespace gstlrn 
+namespace gstlrn
 {
 
 class ASerializable;
@@ -25,37 +24,35 @@ class ASerializable;
 namespace SerializeNeutralFile
 {
 
-  bool fileOpenWrite(const ASerializable& parent,
-                     const String& filename,
-                     std::ofstream& os,
-                     bool verbose = false);
-  bool fileOpenRead(const ASerializable& parent,
-                    const String& filename,
-                    std::ifstream& is,
-                    bool verbose = false);
+bool fileOpenWrite(const ASerializable& parent,
+                   const String& filename,
+                   std::ofstream& os,
+                   bool verbose = false);
+bool fileOpenRead(const ASerializable& parent,
+                  const String& filename,
+                  std::ifstream& is,
+                  bool verbose = false);
 
-  bool commentWrite(std::ostream& os, const String& comment);
-  template<typename T>
-  bool recordWrite(std::ostream& os, const String& title, const T& val);
-  template<typename T>
-  bool recordWriteVec(std::ostream& os, const String& title, const std::vector<T>& vec);
+bool commentWrite(std::ostream& os, const String& comment);
+template<typename T>
+bool recordWrite(std::ostream& os, const String& title, const T& val);
+template<typename T>
+bool recordWriteVec(std::ostream& os, const String& title, const std::vector<T>& vec);
 
-  template<typename T>
-  bool recordRead(std::istream& is, const String& title, T& val);
-  template<typename T>
-  bool
-  recordReadVec(std::istream& is, const String& title, VectorT<T>& vec, Id nvalues);
+template<typename T>
+bool recordRead(std::istream& is, const String& title, T& val);
+template<typename T>
+bool recordReadVec(std::istream& is, const String& title, VectorT<T>& vec, Id nvalues);
 
-  template<typename T>
-  bool recordReadVecInPlace(std::istream& is,
-                            const String& title,
-                            VectorDouble::iterator& it,
-                            Id nvalues);
-  bool onlyBlanks(char* string);
+template<typename T>
+bool recordReadVecInPlace(std::istream& is,
+                          const String& title,
+                          VectorDouble::iterator& it,
+                          Id nvalues);
+bool onlyBlanks(const char* string);
 
-  bool tableRead(std::istream& is, const String& string, Id ntab, double* tab);
-  bool
-  tableWrite(std::ostream& os, const String& string, Id ntab, const VectorDouble& tab);
+bool tableRead(std::istream& is, const String& string, Id ntab, double* tab);
+bool tableWrite(std::ostream& os, const String& string, Id ntab, const VectorDouble& tab);
 
 } // namespace SerializeNeutralFile
 
@@ -304,4 +301,4 @@ bool SerializeNeutralFile::recordReadVecInPlace(std::istream& is,
   }
   return true;
 }
-}
+} // namespace gstlrn

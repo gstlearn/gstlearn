@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "LinearOp/ProjConvolution.hpp"
 #include "Basic/AStringable.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "LinearOp/ProjMatrix.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include <vector>
@@ -325,12 +324,12 @@ DbGrid* ProjConvolution::getResolutionGrid() const
 Id ProjConvolution::getNApex() const
 {
   Grid grid = _getGridCharacteristicsRR();
-  return VH::product(grid.getNXs());
+  return grid.getNXs().prod();
 }
 
 Id ProjConvolution::getNPoint() const
 {
   VectorInt nxs = _gridSeismic->getNXs();
-  return VH::product(nxs);
+  return nxs.prod();
 }
 } // namespace gstlrn

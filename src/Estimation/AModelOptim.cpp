@@ -11,7 +11,6 @@
 #include "Estimation/AModelOptim.hpp"
 #include "Basic/OptCustom.hpp"
 #include "Basic/Optim.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Model/ModelCovList.hpp"
 
 namespace gstlrn
@@ -38,7 +37,7 @@ AModelOptim::AModelOptim(ModelGeneric* model, bool verbose)
     _opt = new Optim(NELDERMEAD, static_cast<Id>(_x.size()));
 
   _opt->setXtolRel(EPSILON6);
-  _opt->setObjective([this](const std::vector<double>& x)
+  _opt->setObjective([this](const VectorDouble& x)
                      { return this->eval(x); });
   _opt->setGradient([this](vect grad)
                     { this->evalGrad(grad); },
@@ -47,9 +46,9 @@ AModelOptim::AModelOptim(ModelGeneric* model, bool verbose)
   resetIter();
 };
 
-void AModelOptim::setEnvironment(const MatrixSymmetric& vars, double href, double epsilon)
+void AModelOptim::setEnvironment(const MatrixSymmetric& vars, double href, double epsilon, double min, double max)
 {
-  _model->initParams(vars, href);
+  _model->initParams(vars, href, min, max);
   _opt->setLowerBounds(_params->getMinValues(epsilon), _params->getDispatch());
   _opt->setUpperBounds(_params->getMaxValues(epsilon), _params->getDispatch());
   _x = _params->getOptimizableValues();
@@ -90,7 +89,7 @@ AModelOptim::~AModelOptim()
   delete _opt;
 }
 
-void AModelOptim::setGradients(std::vector<std::function<double(const std::vector<double>&)>>& gradients)
+void AModelOptim::setGradients(std::vector<std::function<double(const VectorDouble&)>>& gradients)
 {
   if (_opt == nullptr)
   {
@@ -106,7 +105,7 @@ void AModelOptim::setVerbose(bool verbose, bool trace)
   if (trace) _verbose = true;
 
   // Export 'verbose' and 'trace' flags down to FitSill (if defined)
-  ModelCovList* mcv = dynamic_cast<ModelCovList*>(_model);
+  auto* mcv = dynamic_cast<ModelCovList*>(_model);
   if (mcv != nullptr)
   {
     AModelFitSills* amf = mcv->getFitSills();
@@ -124,7 +123,7 @@ void AModelOptim::setVerbose(bool verbose, bool trace)
     _params->display();
 }
 
-double AModelOptim::eval(const std::vector<double>& x)
+double AModelOptim::eval(const VectorDouble& x)
 {
   _iter++;
 
@@ -135,12 +134,12 @@ double AModelOptim::eval(const std::vector<double>& x)
   _model->updateModel();
 
   // Calculate the cost
-  double result = computeCost(false);
+  double result = computeCost(false, false);
 
   if (_trace)
   {
     message("Iteration %4d - Cost = %lf", _iter, result);
-    VH::dump(" - Current parameters", x, false);
+    printVector(x, " - Current parameters", true, false);
   }
 
   return result;
@@ -159,12 +158,12 @@ void AModelOptim::evalGradInEffectiveDimension(vect res)
 void AModelOptim::evalGrad(vect res) {
   DECLARE_UNUSED(res)
 };
-void AModelOptim::_printSummary(double minf, const std::vector<double>& x) const
+void AModelOptim::_printSummary(double minf, const VectorDouble& x) const
 {
   message("Summary of Optimization procedure:\n");
   message("Count of Iterations = %4d - Final Cost = %lf\n",
           _iter, minf);
-  VH::dump("- Final parameters", x, false);
+  printVector(x, "- Final parameters:", true, false);
   auto* mcv           = dynamic_cast<ModelCovList*>(_model);
   AModelFitSills* amf = mcv->getFitSills();
   if (amf != nullptr)

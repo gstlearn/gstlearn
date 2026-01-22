@@ -37,7 +37,7 @@ public:
   ModelOptimVMap& operator=(const ModelOptimVMap& m);
   virtual ~ModelOptimVMap();
 
-  double computeCost(bool verbose = false) override;
+  double computeCost(bool flagPrint = false, bool verbose = false) override;
 
   static ModelOptimVMap* createForOptim(ModelGeneric* model,
                                         const DbGrid* dbmap,

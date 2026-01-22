@@ -14,10 +14,11 @@
 #include "Basic/AException.hpp"
 #include "Basic/AFunctional.hpp"
 #include "Basic/AStringFormat.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/FFT.hpp"
+#include "Basic/Law.hpp"
 #include "Basic/ListParams.hpp"
 #include "Basic/ParamInfo.hpp"
+#include "Basic/SerializeHDF5.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
@@ -28,6 +29,7 @@
 #include "Db/Db.hpp"
 #include "Enum/EConsElem.hpp"
 #include "Geometry/GeometryHelper.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixSquare.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Space/ASpace.hpp"
@@ -57,9 +59,9 @@ struct DerivCache
   mutable const SpacePoint* cachedP2ptr = nullptr;
   mutable SpacePoint cachedP1;
   mutable SpacePoint cachedP2;
-  mutable double deriv               = 0.0;
-  mutable std::vector<double> angles = {};
-  mutable bool isInitialized         = false;
+  mutable double deriv        = 0.0;
+  mutable VectorDouble angles = {};
+  mutable bool isInitialized  = false;
 
   double get(CorAniso* cor,
              const SpacePoint& p1,
@@ -101,7 +103,7 @@ struct DerivCache
   }
 };
 
-CorAniso::CorAniso(const ECov& type, const CovContext& ctxt)
+CorAniso::CorAniso(const CovContext& ctxt, const ECov& type)
   : ACov(ctxt)
   , /// TODO : shared pointer
   _corfunc(CovFactory::createCovFunc(type, ctxt))
@@ -113,7 +115,7 @@ CorAniso::CorAniso(const ECov& type, const CovContext& ctxt)
   initFromContext();
 }
 
-CorAniso::CorAniso(const String& symbol, const CovContext& ctxt)
+CorAniso::CorAniso(const CovContext& ctxt, const String& symbol)
   : ACov(ctxt)
   , /// TODO : shared pointer
   _corfunc()
@@ -127,11 +129,12 @@ CorAniso::CorAniso(const String& symbol, const CovContext& ctxt)
   initFromContext();
 }
 
-CorAniso::CorAniso(const ECov& type,
-                   double range,
-                   double param,
-                   const CovContext& ctxt,
-                   bool flagRange)
+CorAniso::CorAniso(
+  const CovContext& ctxt,
+  const ECov& type,
+  double param,
+  double range,
+  bool flagRange)
   : ACov(ctxt)
   , _corfunc(CovFactory::createCovFunc(type, ctxt))
   , _aniso(ctxt.getSpace()->getNDim())
@@ -205,11 +208,16 @@ void CorAniso::_setContext(const CovContext& ctxt)
   updateFromContext();
 }
 
-void CorAniso::setParam(double param)
+void CorAniso::setParam(double param, Id ipar)
 {
   if (!_corfunc->hasParam()) return;
-  _corfunc->setParam(param);
+  _corfunc->setParam(param, ipar);
   updateFromContext();
+}
+
+void CorAniso::setParams(const VectorDouble& params)
+{
+  return _corfunc->setParams(params);
 }
 
 void CorAniso::setRangeIsotropic(double range)
@@ -241,7 +249,7 @@ void CorAniso::setRanges(const VectorDouble& ranges)
   }
   VectorDouble scales = ranges;
   double scadef       = _corfunc->getScadef();
-  VH::divideConstant(scales, scadef);
+  scales.divideCst(scadef);
   setScales(scales);
 }
 
@@ -283,7 +291,7 @@ void CorAniso::setScales(const VectorDouble& scales)
   }
   _aniso.setRadiusVec(scales);
   double scadef = _corfunc->getScadef();
-  _corfunc->setField(scadef * VH::maximum(scales));
+  _corfunc->setField(scadef * scales.maximum());
 }
 
 void CorAniso::setScaleDim(Id idim, double scale)
@@ -295,7 +303,7 @@ void CorAniso::setScaleDim(Id idim, double scale)
   }
   _aniso.setRadiusDir(idim, scale);
   double scadef = _corfunc->getScadef();
-  _corfunc->setField(scadef * VH::maximum(_aniso.getRadius()));
+  _corfunc->setField(scadef * _aniso.getRadius().maximum());
 }
 
 void CorAniso::setAnisoRotationMat(const Rotation& rot)
@@ -379,7 +387,7 @@ void CorAniso::setRotationAnglesAndRadius(const VectorDouble& angles,
     }
     scales_local  = ranges;
     double scadef = _corfunc->getScadef();
-    VH::divideConstant(scales_local, scadef);
+    scales_local.divideCst(scadef);
   }
 
   // Perform the assignment and update the tensor
@@ -401,8 +409,39 @@ bool CorAniso::isValidForSpectral() const
 }
 MatrixDense CorAniso::simulateSpectralOmega(Id nb) const
 {
-  return _corfunc->simulateSpectralOmega(nb);
+  MatrixDense omega  = _corfunc->simulateSpectralOmega(nb);
+  const auto& tensor = getAniso().getTensorInverse();
+  // omega = omega * tensor;
+  omega.prodMat(&tensor);
+  return omega;
 }
+SpectrumRN CorAniso::simulateSpectrumRN(Id ns, const ACov* cov0) const
+{
+  MatrixDense omega(ns, getNDim());
+  MatrixDense gamma(ns, getNVar());
+  if (cov0 == nullptr) // direct sampling of the spectral measure of CorAniso
+  {
+    omega = simulateSpectralOmega(ns);
+    for (Id ib = 0; ib < ns; ib++)
+    {
+      double val = sqrt(-log(law_uniform()) * 2 / ns);
+      gamma.setValue(ib, 0, val);
+    }
+  }
+  else // Importance sampling using the auxiliary the spectral measure of cov0
+  {
+    omega = cov0->simulateSpectralOmega(ns);
+    for (Id ib = 0; ib < ns; ib++)
+    {
+      VectorDouble freq = omega.getRow(ib);
+      double ratioIS    = evalSpectrum(freq, 0, 0) / cov0->evalSpectrum(freq, 0, 0);
+      double val        = sqrt(-log(law_uniform()) * 2 / ns * ratioIS);
+      gamma.setValue(ib, 0, val);
+    }
+  };
+  return SpectrumRN(gamma, omega);
+}
+
 bool CorAniso::isConsistent(const ASpace* space) const
 {
   // Check against the Space Type
@@ -636,9 +675,9 @@ double CorAniso::getFullCorrec() const
 
 double CorAniso::getDetTensor() const
 {
-  VectorDouble scales = getScales();
-  double detTensor    = 1.;
-  for (auto& e: scales)
+  const auto& scales = getScales();
+  double detTensor   = 1.;
+  for (const auto e: scales)
   {
     detTensor *= e;
   }
@@ -654,8 +693,19 @@ double CorAniso::evalSpectrum(const VectorDouble& freq, Id ivar, Id jvar) const
   SpacePoint p2;
   p2.setCoords(freq);
   double freqnorm = getSpace()->getFrequentialDistance(p1, p2, _aniso);
-  double val      = _corfunc->evaluateSpectrum(freqnorm * freqnorm);
-  return val / getCorrec();
+  double val      = _corfunc->evaluateSpectrum(freqnorm) * getDetTensor();
+  return val;
+}
+
+double CorAniso::evalSpectrumRatio(const VectorDouble& freq, Id ivar, Id jvar, const ACov* cov0) const
+{
+  double ratio = 1.0;
+  if (cov0 != nullptr)
+  {
+    ratio = evalSpectrum(freq, ivar, jvar) / cov0->evalSpectrum(freq, ivar, jvar);
+  }
+
+  return ratio;
 }
 
 double CorAniso::normalizeOnSphere(Id n) const
@@ -701,21 +751,21 @@ String CorAniso::toStringParams(const AStringFormat* strfmt) const
 
     if (_aniso.isIsotropic())
     {
-      sstr << "- Range        = " << toDouble(getRange(0)) << std::endl;
+      sstr << "- Range        = " << toStr(getRange(0)) << std::endl;
       if (isAsymptotic())
-        sstr << "- Theo. Range  = " << toDouble(getScale(0)) << std::endl;
+        sstr << "- Theo. Range  = " << toStr(getScale(0)) << std::endl;
     }
     else
     {
-      sstr << toVector("- Ranges       = ", getRanges());
+      sstr << toStrVector("- Ranges       = ", getRanges());
       if (isAsymptotic())
-        sstr << toVector("- Theo. Ranges = ", getScales());
+        sstr << toStrVector("- Theo. Ranges = ", getScales());
       if (!_aniso.getRotation().isIdentity())
       {
         VectorDouble angles = GeometryHelper::formatAngles(getAnisoAngles(), 180.);
-        sstr << toVector("- Angles       = ", angles);
-        sstr << toMatrix("- Rotation Matrix", VectorString(), VectorString(),
-                         true, getNDim(), getNDim(), getAnisoRotMat().getValues());
+        sstr << toStrVector("- Angles       = ", angles);
+        sstr << toStrMatrix("- Rotation Matrix", VectorString(), VectorString(),
+                            true, getNDim(), getNDim(), getAnisoRotMat().getValues());
       }
     }
   }
@@ -723,13 +773,13 @@ String CorAniso::toStringParams(const AStringFormat* strfmt) const
   {
     if (!_aniso.isIsotropic())
     {
-      sstr << toVector("- Aniso, Coeff = ", _aniso.getRadius());
+      sstr << toStrVector("- Aniso, Coeff = ", _aniso.getRadius());
       if (!_aniso.getRotation().isIdentity())
       {
         VectorDouble angles = GeometryHelper::formatAngles(getAnisoAngles(), 180.);
-        sstr << toVector("- Angles       = ", angles);
-        sstr << toMatrix("- Rotation Matrix", VectorString(), VectorString(),
-                         true, getNDim(), getNDim(), getAnisoRotMat().getValues());
+        sstr << toStrVector("- Angles       = ", angles);
+        sstr << toStrMatrix("- Rotation Matrix", VectorString(), VectorString(),
+                            true, getNDim(), getNDim(), getAnisoRotMat().getValues());
       }
     }
   }
@@ -756,7 +806,7 @@ String CorAniso::toString(const AStringFormat* strfmt) const
  **                          or NULL (for stationary case)
  **
  *****************************************************************************/
-void CorAniso::nostatUpdate(CovInternal* covint)
+void CorAniso::nostatUpdate(CovInternal* covint) const
 {
   if (covint == nullptr) return;
   updateCovByPoints(covint->getIcas1(), covint->getIech1(),
@@ -768,7 +818,7 @@ VectorDouble CorAniso::getRanges() const
   VectorDouble range = getScales();
   double scadef      = _corfunc->getScadef();
   if (!hasRange()) scadef = 0.;
-  VH::multiplyConstant(range, scadef);
+  range.multiplyCst(scadef);
   return range;
 }
 
@@ -788,7 +838,7 @@ double CorAniso::getRangeIso() const
   if (!hasRange()) return 0.;
   if (isIsotropic())
     return getRange(0);
-  return VH::maximum(getRanges());
+  return getRanges().maximum();
 }
 
 double CorAniso::getScaleIso() const
@@ -796,19 +846,19 @@ double CorAniso::getScaleIso() const
   if (!hasRange()) return 0.;
   if (isIsotropic())
     return getScale(0);
-  return VH::maximum(getScales());
+  return getScales().maximum();
 }
 
 VectorDouble CorAniso::getAnisoCoeffs() const
 {
   VectorDouble coef = getRanges();
-  double max        = VH::maximum(coef);
+  double max        = coef.maximum();
   if (isZero(max))
   {
     messerr("Range is null");
     return VectorDouble();
   }
-  VH::divideConstant(coef, max);
+  coef.divideCst(max);
   return coef;
 }
 
@@ -951,6 +1001,35 @@ Id CorAniso::getNGradParam() const
   return number;
 }
 
+CorAniso* CorAniso::create(const CovContext& ctxt,
+                           const ECov& type,
+                           const VectorDouble& params,
+                           const VectorDouble& ranges,
+                           const VectorDouble& angles,
+                           bool flagRange)
+{
+  if (ctxt.getNVar() != 1)
+  {
+    messerr("This function is dedicated to the Monovariate case");
+    return nullptr;
+  }
+  Id ndim = static_cast<Id>(ctxt.getNDim());
+  if (static_cast<Id>(ranges.size()) != ndim)
+  {
+    messerr("Mismatch in Space Dimension between 'ranges'(%d) and 'ctxt'(%d)",
+            ranges.size(), ndim);
+    return nullptr;
+  }
+  auto* cov = new CorAniso(ctxt, type);
+  cov->setParams(params);
+  if (flagRange)
+    cov->setRanges(ranges);
+  else
+    cov->setScales(ranges);
+  if (!angles.empty()) cov->setAnisoAngles(angles);
+  return cov;
+}
+
 CorAniso* CorAniso::createIsotropic(const CovContext& ctxt,
                                     const ECov& type,
                                     double range,
@@ -962,7 +1041,7 @@ CorAniso* CorAniso::createIsotropic(const CovContext& ctxt,
     messerr("This function is dedicated to the Monovariate case");
     return nullptr;
   }
-  return new CorAniso(type, range, param, ctxt, flagRange);
+  return new CorAniso(ctxt, type, param, range, flagRange);
 }
 
 CorAniso* CorAniso::createAnisotropic(const CovContext& ctxt,
@@ -985,7 +1064,7 @@ CorAniso* CorAniso::createAnisotropic(const CovContext& ctxt,
     return nullptr;
   }
 
-  auto* cov = new CorAniso(type, ctxt);
+  auto* cov = new CorAniso(ctxt, type);
   if (flagRange)
     cov->setRanges(ranges);
   else
@@ -1001,7 +1080,7 @@ CorAniso* CorAniso::createIsotropicMulti(const CovContext& ctxt,
                                          double param,
                                          bool flagRange)
 {
-  auto* cov = new CorAniso(type, ctxt);
+  auto* cov = new CorAniso(ctxt, type);
 
   if (flagRange)
     cov->setRangeIsotropic(range);
@@ -1027,7 +1106,7 @@ CorAniso* CorAniso::createAnisotropicMulti(const CovContext& ctxt,
     return nullptr;
   }
 
-  auto* cov = new CorAniso(type, ctxt);
+  auto* cov = new CorAniso(ctxt, type);
   if (flagRange)
     cov->setRanges(ranges);
   else
@@ -1052,7 +1131,7 @@ Array CorAniso::evalCovFFT(const VectorDouble& hmax,
   std::function<double(const VectorDouble&)> funcSpectrum;
   funcSpectrum = [this, ivar, jvar](const VectorDouble& freq)
   {
-    return evalSpectrum(freq, ivar, jvar) * getDetTensor();
+    return evalSpectrum(freq, ivar, jvar) / pow(2, getNDim());
   };
   return evalCovFFTSpatial(hmax, N, funcSpectrum);
 }
@@ -1306,7 +1385,7 @@ double CorAniso::getValue(const EConsElem& econs, Id iv1, Id iv2) const
   if (econs == EConsElem::SCALE)
     return getScale(iv1);
   if (econs == EConsElem::ANGLE)
-    return getAnisoAngles()[iv1];
+    return getAnisoAngle(iv1);
   if (econs == EConsElem::PARAM)
     return getParam();
   return TEST;
@@ -1343,7 +1422,7 @@ void CorAniso::informDbOutForAnisotropy(const Db* dbout) const
  * @param icas2 Type of first Db: 1 for Input; 2 for Output
  * @param iech2 Rank of the target within Dbout (or -2)
  */
-void CorAniso::updateCovByPoints(Id icas1, Id iech1, Id icas2, Id iech2)
+void CorAniso::updateCovByPoints(Id icas1, Id iech1, Id icas2, Id iech2) const
 {
   // If no non-stationary parameter is defined, simply skip
   if (!getTabNoStatCovAniso()->isNoStat()) return;
@@ -1351,7 +1430,7 @@ void CorAniso::updateCovByPoints(Id icas1, Id iech1, Id icas2, Id iech2)
 
   auto ndim = getNDim();
 
-  const auto paramsnostat = getTabNoStatCovAniso()->getTable();
+  const auto& paramsnostat = getTabNoStatCovAniso()->getTable();
   // Loop on the elements that can be updated one-by-one
 
   for (const auto& e: paramsnostat)
@@ -1361,7 +1440,7 @@ void CorAniso::updateCovByPoints(Id icas1, Id iech1, Id icas2, Id iech2)
 
     if (type == EConsElem::PARAM)
     {
-      setParam(0.5 * (val1 + val2));
+      const_cast<CorAniso*>(this)->setParam(0.5 * (val1 + val2));
     }
   }
 
@@ -1369,8 +1448,8 @@ void CorAniso::updateCovByPoints(Id icas1, Id iech1, Id icas2, Id iech2)
 
   if (!isNoStatForAnisotropy()) return;
 
-  VectorDouble angle1;
-  VectorDouble angle2;
+  thread_local VectorDouble angle1;
+  thread_local VectorDouble angle2;
 
   VectorDouble scale1;
   VectorDouble scale2;
@@ -1384,7 +1463,9 @@ void CorAniso::updateCovByPoints(Id icas1, Id iech1, Id icas2, Id iech2)
 
   if (getNAngles() > 0)
   {
-    angle1 = getAnisoAngles();
+    const auto& angles = _aniso.getAngles();
+    angle1.resize(angles.size());
+    std::copy(angles.cbegin(), angles.cend(), angle1.begin());
     angle2 = angle1;
     for (Id idim = 0; idim < ndim; idim++)
     {
@@ -1442,24 +1523,23 @@ void CorAniso::updateCovByPoints(Id icas1, Id iech1, Id icas2, Id iech2)
   double ratio = 1.;
   if (flagRotTwo || flagRangeTwo || flagScaleTwo)
   {
+    thread_local MatrixSymmetric direct1, direct2;
     // Extract the direct tensor at first point and square it
     setRotationAnglesAndRadius(angle1, range1, scale1);
-    MatrixSymmetric direct1 = getAniso().getTensorDirect2();
-    double det1             = pow(direct1.determinant(), 0.25);
+    direct1     = getAniso().getTensorDirect2();
+    double det1 = sqrt(sqrt(direct1.determinant()));
 
     // Extract the direct tensor at second point and square it
     setRotationAnglesAndRadius(angle2, range2, scale2);
-    MatrixSymmetric direct2 = getAniso().getTensorDirect2();
-    double det2             = pow(direct2.determinant(), 0.25);
+    direct2     = getAniso().getTensorDirect2();
+    double det2 = sqrt(sqrt(direct2.determinant()));
 
     // Calculate average squared tensor
-    direct2.addMat(direct1, 0.5, 0.5);
+    direct2.addMatNoCheck(direct1, 0.5, 0.5);
     double detM = sqrt(direct2.determinant());
 
     // Update the tensor (squared version)
-    Tensor tensor = getAniso();
-    tensor.setTensorDirect2(direct2);
-    setAniso(tensor);
+    _aniso.setTensorDirect2(direct2);
     ratio = det1 * det2 / detM;
   }
   else if (flagRotOne || flagRangeOne || flagScaleOne)
@@ -1467,7 +1547,7 @@ void CorAniso::updateCovByPoints(Id icas1, Id iech1, Id icas2, Id iech2)
     // Simply update the model with one set of parameters
     setRotationAnglesAndRadius(angle1, range1, scale1);
   }
-  setNoStatFactor(ratio);
+  const_cast<CorAniso*>(this)->setNoStatFactor(ratio);
 }
 
 void CorAniso::updateCovByMesh(Id imesh, bool aniso) const
@@ -1491,14 +1571,16 @@ void CorAniso::updateCovByMesh(Id imesh, bool aniso) const
 
   if (!isNoStatForAnisotropy()) return;
 
-  VectorDouble angles;
+  thread_local VectorDouble angles;
   VectorDouble scales;
   VectorDouble ranges;
 
   // Define the angles (for all space dimensions)
   if (getNAngles() > 0)
   {
-    angles = getAnisoAngles();
+    const auto& aa = _aniso.getAngles();
+    angles.resize(aa.size());
+    std::copy(aa.cbegin(), aa.cend(), angles.begin());
 
     for (Id idim = 0; idim < ndim; idim++)
     {
@@ -1583,7 +1665,7 @@ void CorAniso::appendParams(ListParams& listparams,
 {
   listparams.addParams(_scales);
   listparams.addParams(_angles);
-  if (_scales.size () == 0 && _angles.size() == 0)
+  if (_scales.size() == 0 && _angles.size() == 0)
     return;
   auto derivCache = std::make_shared<DerivCache>();
   _handleConstraints();
@@ -1627,12 +1709,12 @@ void CorAniso::appendParams(ListParams& listparams,
         const VectorDouble& radius = this->_aniso.getRadius();
 
         this->_aniso.getRotation().rotateInverse(incr, temp);
-        VH::divideInPlace(temp, radius);
-        VH::divideInPlace(temp, radius);
+        temp.divide(radius);
+        temp.divide(radius);
 
         this->_dRot[i].prodMatVecInPlace(temp, res);
 
-        double dist2  = VH::innerProduct(res, incr);
+        double dist2  = res.innerProduct(incr);
         double result = deriv * dist2;
         return result;
       });
@@ -1672,4 +1754,87 @@ void CorAniso::updateCov()
     }
   }
 }
+
+#ifdef HDF5
+bool CorAniso::deserializeH5(H5::Group& grp)
+{
+  bool ret = true;
+  Id ndim  = getNDim();
+
+  // General characteristics
+  Id vartype       = 0;
+  double range     = 0.;
+  double param     = 0.;
+  Id flag_aniso    = 0;
+  Id flag_rotation = 0;
+  VectorDouble aniso_ranges;
+  VectorDouble aniso_rotmat;
+
+  ret = ret && SerializeHDF5::readValue(grp, "Type", vartype);
+  ret = ret && SerializeHDF5::readValue(grp, "Range", range);
+  ret = ret && SerializeHDF5::readValue(grp, "Param", param);
+
+  // Anisotropy
+  ret = ret && SerializeHDF5::readValue(grp, "FlagAniso", flag_aniso);
+  if (flag_aniso)
+  {
+    ret = ret && SerializeHDF5::readVec(grp, "Aniso", aniso_ranges);
+
+    // Rotation
+    ret = ret && SerializeHDF5::readValue(grp, "FlagRotation", flag_rotation);
+    if (flag_rotation)
+      ret = ret && SerializeHDF5::readVec(grp, "Rotation", aniso_rotmat);
+  }
+
+  setType(vartype);
+  setParam(param);
+  if (flag_aniso)
+  {
+    for (Id idim = 0; idim < ndim; idim++)
+      aniso_ranges[idim] *= range;
+    setRanges(aniso_ranges);
+    if (flag_rotation) setAnisoRotation(aniso_rotmat);
+  }
+  else
+    setRangeIsotropic(range);
+
+  // Non stationary case.  Look for "NonStat" paragraph. It not found, simply return ... silently
+  auto nostatG = SerializeHDF5::getGroup(grp, "NoStatAniso", false);
+  if (nostatG)
+    ret = ret && _tabNoStat->deserializeH5(*nostatG);
+
+  return ret;
+}
+
+bool CorAniso::serializeH5(H5::Group& grp) const
+{
+  bool ret = true;
+
+  // General characteristics
+  ret = ret && SerializeHDF5::writeValue(grp, "Type", getType().getValue());
+  ret = ret && SerializeHDF5::writeValue(grp, "Range", getRangeIso());
+  ret = ret && SerializeHDF5::writeValue(grp, "Param", getParam());
+
+  // Anisotropy
+  ret = ret && SerializeHDF5::writeValue(grp, "FlagAniso", static_cast<Id>(getFlagAniso()));
+  if (getFlagAniso())
+  {
+    ret = ret && SerializeHDF5::writeVec(grp, "Aniso", getAnisoCoeffs());
+
+    ret = ret && SerializeHDF5::writeValue(grp, "FlagRotation", static_cast<Id>(getFlagRotation()));
+    if (getFlagRotation())
+      ret = ret && SerializeHDF5::writeVec(grp, "Rotation", getAnisoRotMat().getValues());
+  }
+
+  // Non stationary case
+  if (isNoStat() && _tabNoStat->size() > 0)
+  {
+    auto nonstatG = grp.createGroup("NoStatAniso");
+    ret           = ret && _tabNoStat->serializeH5(nonstatG);
+  }
+
+  return ret;
+}
+#endif
+
 } // namespace gstlrn

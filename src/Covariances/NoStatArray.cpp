@@ -60,13 +60,13 @@ void NoStatArray::_informField(const VectorVectorDouble& coords,
     if (expandPointToCoor(_dbNoStat.get(), iatt, coords, tab)) return;
   }
 
-  Id ndef = VH::countUndefined(tab);
+  Id ndef = tab.count(-1);
   if (ndef > 0)
   {
 
     // Calculate local statistics
 
-    double mean = VH::mean(tab);
+    double mean = tab.mean();
     if (FFFF(mean))
     {
       messerr("This Non-Stationary parameter is not valid");

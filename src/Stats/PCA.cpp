@@ -11,6 +11,7 @@
 #include "Stats/PCA.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
+#include "Matrix/EigenVectors.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixSquare.hpp"
 #include "Stats/Classical.hpp"
@@ -19,6 +20,7 @@
 #include "geoslib_old_f.h"
 
 #include <cmath>
+#include <memory>
 
 namespace gstlrn
 {
@@ -111,8 +113,8 @@ void PCA::_pcaFunctions(bool verbose)
 
   if (verbose)
   {
-    print_matrix("PCA Z->F", 0, _Z2F);
-    print_matrix("PCA F->Z", 0, _F2Z);
+    printMatrix(_Z2F, "PCA Z->F", 0);
+    printMatrix(_F2Z, "PCA F->Z", 0);
   }
 }
 
@@ -138,27 +140,25 @@ void PCA::_mafFunctions(bool verbose)
 
   if (verbose)
   {
-    print_matrix("MAF Z->F", 0, _Z2F);
-    print_matrix("MAF F->Z", 0, _F2Z);
+    printMatrix(_Z2F, "MAF Z->F");
+    printMatrix(_F2Z, "MAF F->Z");
   }
 }
 
 Id PCA::_calculateEigen(bool verbose, bool optionPositive)
 {
-  Id nvar = _nVar;
-
   // Eigen decomposition
 
-  if (_c0.computeEigen(optionPositive) != 0) return 1;
-  _eigval = _c0.getEigenValues();
-  _eigvec = *_c0.getEigenVectors();
+  auto eigenvectors = EigenVectors(_c0, nullptr, optionPositive);
+  _eigval           = eigenvectors.getEigenValues();
+  _eigvec           = eigenvectors.getEigenVectors();
 
   // Printout of the eigen results (optional)
 
   if (verbose)
   {
-    print_matrix("Eigen values", 0, 1, 1, nvar, NULL, _eigval.data());
-    print_matrix("Eigen Vectors", 0, _eigvec);
+    printMatrix(_eigval, 1, _nVar, "Eigen values");
+    printMatrix(_eigvec, "Eigen Vectors");
   }
   return 0;
 }
@@ -169,16 +169,16 @@ Id PCA::_calculateGEigen(bool verbose)
 
   // Generalized Eigen decomposition
 
-  if (_gh.computeGeneralizedEigen(_c0) != 0) return 1;
-  _eigval = _gh.getEigenValues();
-  _eigvec = *_gh.getEigenVectors();
+  auto eigenvectors = EigenVectors(_gh, &_c0);
+  _eigval           = eigenvectors.getEigenValues();
+  _eigvec           = eigenvectors.getEigenVectors();
 
   // Printout of the eigen results (optional)
 
   if (verbose)
   {
-    print_matrix("GEigen values", 0, 1, 1, nvar, NULL, _eigval.data());
-    print_matrix("GEigen Vectors", 0, _eigvec);
+    printMatrix(_eigval, 1, nvar, "GEigen values", 0, 1);
+    printMatrix(_eigvec, "GEigen Vectors", 0);
   }
   return 0;
 }
@@ -192,21 +192,21 @@ String PCA::toString(const AStringFormat* strfmt) const
   if (pcafmt != nullptr) dsf = *pcafmt;
   if (_nVar <= 0) return sstr.str();
 
-  sstr << toTitle(1, "PCA Contents");
+  sstr << toStrTitle(1, "PCA Contents");
 
   if (dsf.getflagCenter())
   {
-    sstr << toMatrix("Means", VectorString(), VectorString(), true, _nVar, 1, _mean);
+    sstr << toStrMatrix("Means", VectorString(), VectorString(), true, _nVar, 1, _mean);
   }
   if (dsf.getflagStats())
   {
-    sstr << toMatrix("Covariance Matrix", _c0);
+    sstr << toStrMatrix("Covariance Matrix", _c0);
     if (_gh.size() > 0)
-      sstr << toMatrix("Variogram Matrix at lag h", _gh);
+      sstr << toStrMatrix("Variogram Matrix at lag h", _gh);
 
-    sstr << toMatrix("Matrix MZ2F to transform standardized Variables Z into Factors F", _Z2F);
+    sstr << toStrMatrix("Matrix MZ2F to transform standardized Variables Z into Factors F", _Z2F);
     sstr << "Y = (Z - m) * MZ2F)" << std::endl;
-    sstr << toMatrix("Matrix MF2Z to back-transform Factors F into standardized Variables Z", _F2Z);
+    sstr << toStrMatrix("Matrix MF2Z to back-transform Factors F into standardized Variables Z", _F2Z);
     sstr << "Z = m + Y * MF2Z" << std::endl;
   }
   return sstr.str();
@@ -309,9 +309,9 @@ Id PCA::dbF2Z(Db* db,
 
 VectorDouble PCA::getVarianceRatio() const
 {
-  double total         = VectorHelper::cumul(_eigval);
+  double total         = _eigval.sum();
   VectorDouble eignorm = _eigval;
-  VectorHelper::divideConstant(eignorm, total);
+  eignorm.divideCst(total);
   return eignorm;
 }
 
@@ -371,8 +371,8 @@ void PCA::_calculateNormalization(const Db* db,
     message("Number of variables         = %d\n", nvar);
     message("Number of samples in the Db = %d\n", nech);
     message("Number of isotropic samples = %d\n", niso);
-    print_matrix("Mean", 0, 1, 1, nvar, NULL, _mean.data());
-    print_matrix("St. Dev.", 0, 1, 1, nvar, NULL, _sigma.data());
+    printMatrix(_mean, 1, nvar, "Mean", 0, 1);
+    printMatrix(_sigma, 1, nvar, "St. Dev.", 0, 1);
     message("\n");
   }
 }
@@ -427,7 +427,7 @@ void PCA::_covariance0(const Db* db,
   /* Printout of the covariance matrix (optional) */
 
   if (verbose)
-    print_matrix("Variance-Covariance matrix for distance 0", 0, _c0);
+    printMatrix(_c0, "Variance-Covariance matrix for distance 0");
 }
 
 /****************************************************************************/
@@ -719,7 +719,11 @@ void PCA::_variogramh(Db* db,
 
   SpaceTarget T1;
   SpaceTarget T2;
-  Vario* vario = nullptr;
+
+  // Creating a local Vario structure (to constitute the BiTargetCheck list)
+  // (Only used if ider0 >=0)
+
+  auto vario = std::make_unique<Vario>(varioparam);
 
   // Initializations
 
@@ -733,10 +737,9 @@ void PCA::_variogramh(Db* db,
   VectorDouble data2(nvar);
   _gh.fill(0.);
 
-  // Creating a local Vario structure (to constitute the BiTargetCheck list
   if (idir0 >= 0)
   {
-    vario = Vario::create(varioparam);
+    // Preparing the local Vario structure
     vario->setDb(db);
     if (vario->prepare() != 0) return;
   }
@@ -816,7 +819,7 @@ void PCA::_variogramh(Db* db,
     message("Number of samples in the Db = %d\n", nech);
     message("Number of isotopic pairs    = %d\n", npairs);
     message("\n");
-    print_matrix("Variogram matrix for distance h", 0, _gh);
+    printMatrix(_gh, "Variogram matrix for distance h");
   }
 }
 
@@ -847,7 +850,7 @@ VectorDouble PCA::mafOfIndex() const
   // Calculate the probability of each interval
   VectorDouble w = _mean;
   Id ncut        = static_cast<Id>(_mean.size());
-  w.push_back(1 - VH::cumul(_mean));
+  w.push_back(1 - _mean.sum());
   Id nclass = static_cast<Id>(w.size());
 
   // Normalize the indicator of intervals
@@ -862,11 +865,9 @@ VectorDouble PCA::mafOfIndex() const
     }
   }
 
-  VectorDouble local(nclass * ncut);
-  matrix_product_safe(nclass, ncut, ncut, i_norm_val.getValues().data(),
-                      _Z2F.getValues().data(), local.data());
-
-  VectorDouble maf_index = VH::concatenate(VH::initVDouble(nclass, 1.), local);
+  MatrixDense local(nclass, ncut);
+  local.prodMatMatInPlace(&i_norm_val, &_Z2F);
+  VectorDouble maf_index = VH::concatenate(VH::initVDouble(nclass, 1.), local.getValues());
 
   return maf_index;
 }

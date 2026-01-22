@@ -2,6 +2,56 @@ This file contains the logs between consecutive releases
 ********************************************************
 # Make last version consistent with CMakeLists.txt
 
+Release 1.10.0
+==============
+- Implementation of simulations for Gneitting and multivariate Matern covariances (spectral method). See R tutorials Tuto_CorSpectral, Tuto_MultiMatern and Tuto_simulation_Gneiting for more details.
+- Update Marimo GUI features for more intuitive interactions
+- Correction when representing covariance (rather than variogram): adding negative X and/or Y
+- Correction when representing experimental and model: the 'asCov' should be defined by 'vario'
+- Fix Python Db [] assessors to make them compatible with numpy 2.4+
+- Refactoring of the Variogram calculations (using more template functions)
+- Adding the calculation of CORRELOGRAMS
+- Adding the general feature of ergodic or non-ergodic calculations for Mean and Variance (used for centering and scaling)
+- Some global functions: getAllMaxDimension(), getAllIsSpatialTemporal(), getAllFormula()
+- Class CovParamId now directly aggregates ParamId 
+- Suppress argument 'verbose' in serialize() and deserialize(), ascii or H5.
+- Bayesian prior information (mean and Cov) are now hosted in DriftList within ModelGeneric. They are not passed as arguments in: kribayes(), simbayes, krigsim(), multilayers_kriging().
+- An additional shortcut for Variogram Cloud calculation
+- Some verbose additional outputs for Variogram Cloud calculations
+- New modes for combining selections (in methods of Db.hpp).
+- Some classes are interfaced to the Target Language to provide a LateX output (e.g. matrices and Tables)
+- Two new ways to calculate the experimental variogram (quick definition)
+- Adding method createFillRandom() in Table class
+- Neighborhood is optional (defaulted to Unique ... if not too many samples) in Kriging, Xvalid.
+- Class Db has a new method called displayStats() which provides some statistics on some variables (easier to use than DbStringFormat). 
+- General renaming: 
+  . print_vector() into printVector()
+  . print_matrix() into printMatrix()
+  . print_trimat() into printTriMat()
+  . tab_printg(), tab_printi(), tab_printd(), tab_prints() into printElement() 
+- testInter_Gibbsmmulti.cpp has been moved from testInter into test directory (it is no more interactive)
+- Creation of a new class VectorMeshes (AStringable)
+- Compatibility with python 3.14 and R 4.5.2
+_ Correction of the Migration algorithm (adding a test in Tuto_Migration.ipynb)
+- New function creating a random Polygon (can create a circle).
+- Adding the possibility of creating a Polygon from two vectors of 2-D coordinates
+- Class CSVformat allows more explicit definition using ECSV style (French or English)
+- Improvement in DbGrid::createFromPolygon (better management of default value + ability to define the selection in the newly create Grid File)
+- Correct the Polygon extension calculation
+- New functions in Db: getRanksAbsoluteToRelativeVec() and getRanksRelativeToAbsolute()
+- For generating a VectorDouble containing the sequence of values, please now use VH::sequenceVD() 
+- Db() offers the possibility to overload operators (robustified against illegal argument).
+- Db::createReduce() and Db::resetReduce() have a new mode for keeping only isotopic samples
+- Extend the ability to generate drift functions for any space and IRF order (setDriftIRF)
+- Correct the Global estimation by Kriging (estimation and variance of estimation error)
+- Make the results of Global estimation displayable
+- Attempt to suppress old-style memory management methods
+- Fix PolyElem::getSurface which was ignoring last polygon point
+- Add PolyElem::getCentroid method
+- Add the possibility to display labels in polygons (python only)
+- Improve management of coordinates transformation using pyproj in place of geopandas (python only)
+
+
 Release 1.9.0
 =============
 - Correction in Wendland1 and Wendland2 covariance functions (polynomial formula)
@@ -11,6 +61,7 @@ Release 1.9.0
 - Fix ProjComposition when composing more than 2 matrices (issue #674)
 - Fix Moving Neighborhood using XValid with K-Fold and Ball Tree 
 - Fix Maximum Likelihood for more complex variogram models contexts
+
 
 Release 1.8.2
 =============

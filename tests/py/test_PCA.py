@@ -1,14 +1,12 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-#python3 -m pip install mlxtend
+# python3 -m pip install mlxtend
 
 import numpy as np
-import matplotlib.pyplot as plt
 from mlxtend.data import iris_data
 
 import gstlearn as gl
-import gstlearn.plot as gp
 import gstlearn.test as gt
 
 # We use the data coming from Fisher (1936) and called *iris*
@@ -16,8 +14,8 @@ import gstlearn.test as gt
 X, y = iris_data()
 
 ndat = 120
-Xtrain = X[range(ndat),:]
-Xtest = X[range(ndat+1,X.shape[0]),:]
+Xtrain = X[range(ndat), :]
+Xtest = X[range(ndat + 1, X.shape[0]), :]
 
 # ## Load the values inside a Data Base
 
@@ -26,12 +24,16 @@ Xtest = X[range(ndat+1,X.shape[0]),:]
 
 nech = Xtrain.shape[0]
 ncol = Xtrain.shape[1]
-names = gl.generateMultipleNames("x",ncol, delim="")
-locatornames = gl.generateMultipleNames("z",ncol, delim="")
-db = gl.Db.createFromSamples(nech=Xtrain.shape[0], tab=Xtrain.flatten(), names=names, locatorNames=locatornames)
-dbfmt = gl.DbStringFormat.createFromFlags(flag_array=True, flag_resume=False, flag_vars=False)
+names = gl.generateMultipleNames("x", ncol, delim="")
+locatornames = gl.generateMultipleNames("z", ncol, delim="")
+db = gl.Db.createFromSamples(
+    nech=Xtrain.shape[0], tab=Xtrain.flatten(), names=names, locatorNames=locatornames
+)
+dbfmt = gl.DbStringFormat.createFromFlags(
+    flag_array=True, flag_resume=False, flag_vars=False
+)
 
-gl.OptCst.defineByKey("NTCOL",-1)
+gl.OptCst.defineByKey("NTCOL", -1)
 db
 
 # PCA in gstlearn
@@ -53,10 +55,10 @@ err = pcag.dbF2Z(db)
 db
 
 # Compare the initial variables with the ones obtained by back-transforming the factors
-gt.checkEqualityVectors(db["x1"],db["Z.1"], message="Z.1")
-gt.checkEqualityVectors(db["x2"],db["Z.2"], message="Z.2")
-gt.checkEqualityVectors(db["x3"],db["Z.3"], message="Z.3")
-gt.checkEqualityVectors(db["x4"],db["Z.4"], message="Z.4")
+gt.checkEqualityVectors(db["x1"], db["Z.1"], message="Z.1")
+gt.checkEqualityVectors(db["x2"], db["Z.2"], message="Z.2")
+gt.checkEqualityVectors(db["x3"], db["Z.3"], message="Z.3")
+gt.checkEqualityVectors(db["x4"], db["Z.4"], message="Z.4")
 
 # Get the vector of variance ratio.
 
@@ -68,14 +70,14 @@ varratiog = pcag.getVarianceRatio()
 
 # Calculate the Covariance matrix (dividing by n-1)
 
-means = np.mean(Xtrain,axis=0)
-Xc = Xtrain-means
-cova = 1/(ndat-1) * Xc.T@Xc
+means = np.mean(Xtrain, axis=0)
+Xc = Xtrain - means
+cova = 1 / (ndat - 1) * Xc.T @ Xc
 
 # Computing the Variance Ratio
 
 eig = np.linalg.eig(cova)
-varratio = eig[0]/np.sum(eig[0])
+varratio = eig[0] / np.sum(eig[0])
 
 # Comparing with gstlearn
 
@@ -83,11 +85,13 @@ gt.checkEqualityVectors(varratio, varratiog, message="Error in Variance Ratio")
 
 # Transform the original data set
 
-Xt = Xc@eig[1]/np.sqrt(eig[0])
+Xt = Xc @ eig[1] / np.sqrt(eig[0])
 
 # Comparing with gstlearn
 
-gt.checkEqualityVectors(Xt, db["F*"], flagAbsolute=True, message="Transformed original data set")
+gt.checkEqualityVectors(
+    Xt, db["F*"], flagAbsolute=True, message="Transformed original data set"
+)
 
 # Transform another data set
 
@@ -95,9 +99,11 @@ gt.checkEqualityVectors(Xt, db["F*"], flagAbsolute=True, message="Transformed or
 
 nech = Xtest.shape[0]
 ncol = Xtest.shape[1]
-names = gl.generateMultipleNames("x",ncol, delim="")
-locatornames = gl.generateMultipleNames("z",ncol, delim="")
-dbtest = gl.Db.createFromSamples(nech=Xtest.shape[0], tab=Xtest.flatten(), names=names, locatorNames=locatornames)
+names = gl.generateMultipleNames("x", ncol, delim="")
+locatornames = gl.generateMultipleNames("z", ncol, delim="")
+dbtest = gl.Db.createFromSamples(
+    nech=Xtest.shape[0], tab=Xtest.flatten(), names=names, locatorNames=locatornames
+)
 dbtest
 
 # Applying the PCA using gstlearn
@@ -106,8 +112,10 @@ err = pcag.dbZ2F(dbtest)
 
 # Applying the Python PCA on the secondary data set
 
-Xtestnm =(Xtest-means)@eig[1]/np.sqrt(eig[0])
+Xtestnm = (Xtest - means) @ eig[1] / np.sqrt(eig[0])
 
 # Comparing with gstlearn
 
-gt.checkEqualityVectors(Xtestnm, dbtest["F*"], flagAbsolute=True, message="Transformed another data set")
+gt.checkEqualityVectors(
+    Xtestnm, dbtest["F*"], flagAbsolute=True, message="Transformed another data set"
+)

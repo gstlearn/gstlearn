@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Mesh/Delaunay.hpp"
-#include "Basic/Utilities.hpp"
 #include "Core/io.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
@@ -512,7 +511,7 @@ static MeshEStandard* st_ultimate_regular_grid(Db* dbgrid,
   for (Id iech = 0; iech < number; iech++)
   {
     Id local = order[iech];
-    if (IFFFF(local)) continue;
+    if (isNA(local)) continue;
     if (local > 0) nin++;
     nvertex++;
   }
@@ -525,7 +524,7 @@ static MeshEStandard* st_ultimate_regular_grid(Db* dbgrid,
   for (Id iech = 0; iech < number; iech++)
   {
     Id local = order[iech];
-    if (IFFFF(local)) continue;
+    if (isNA(local)) continue;
     if (local > 0)
       ranks[iech] = rank_in++;
     else
@@ -538,7 +537,7 @@ static MeshEStandard* st_ultimate_regular_grid(Db* dbgrid,
   for (Id iech = 0; iech < number; iech++)
   {
     Id local = order[iech];
-    if (IFFFF(local)) continue;
+    if (isNA(local)) continue;
     Id jech = ranks[iech];
     for (Id idim = 0; idim < ndim; idim++)
       points[jech * ndim + idim] = dbgrid->getCoordinate(iech, idim);

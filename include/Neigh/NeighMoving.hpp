@@ -11,17 +11,14 @@
 #pragma once
 
 #include "Basic/ICloneable.hpp"
-#include "Space/ASpace.hpp"
-#include "geoslib_define.h"
-#include "gstlearn_export.hpp"
-
 #include "Enum/ENeigh.hpp"
-
-#include "Basic/Utilities.hpp"
 #include "Geometry/ABiTargetCheck.hpp"
 #include "Geometry/BiTargetCheckDistance.hpp"
 #include "Neigh/ANeigh.hpp"
+#include "Space/ASpace.hpp"
 #include "Space/SpaceTarget.hpp"
+#include "geoslib_define.h"
+#include "gstlearn_export.hpp"
 
 namespace gstlrn
 {
@@ -63,7 +60,15 @@ public:
   NeighMoving& operator=(const NeighMoving& r);
   virtual ~NeighMoving();
 
+  /// ICloneable Interface
   IMPLEMENT_CLONING(NeighMoving)
+
+  /// ASerializable Interface
+  String getNFName() const override { return "NeighMoving"; }
+#ifdef HDF5
+  bool deserializeH5(H5::Group& grp) override;
+  bool serializeH5(H5::Group& grp) const override;
+#endif
 
   /// Interface for ANeigh
   Id attach(const Db* dbin, const Db* dbout = nullptr) override;
@@ -120,13 +125,8 @@ public:
   VectorVectorDouble getZoomLimits(const VectorDouble& target, double percent = 20) const;
 
 protected:
-  bool _deserializeAscii(std::istream& is, bool verbose = false) override;
-  bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
-#ifdef HDF5
-  bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
-  bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
-#endif
-  String _getNFName() const override { return "NeighMoving"; }
+  bool _deserializeAscii(std::istream& is) override;
+  bool _serializeAscii(std::ostream& os) const override;
 
 private:
   Id _getNBiPts() const { return static_cast<Id>(_bipts.size()); }

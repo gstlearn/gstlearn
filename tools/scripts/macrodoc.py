@@ -32,27 +32,37 @@ if __name__ == "__main__":
                 if file not in signatures_by_file:
                     signatures_by_file[file] = {
                         "class_name": class_name,
-                        "signatures": []
+                        "signatures": [],
                     }
 
                 for found in founds:
                     method_name = found[1]
                     method_get = found[2]
 
-                    classname = utils.find_function_return_type_in_file(method_get, header_file)
-                    method_file = utils.find_header_for_class(classname, os.path.join(os.pardir, "include"))
+                    classname = utils.find_function_return_type_in_file(
+                        method_get, header_file
+                    )
+                    method_file = utils.find_header_for_class(
+                        classname, os.path.join(os.pardir, "include")
+                    )
                     if not method_file:
                         continue
 
-                    signature = utils.find_method_signature_in_header(method_name, method_file)
+                    signature = utils.find_method_signature_in_header(
+                        method_name, method_file
+                    )
                     if signature is None:
-                        signature = utils.find_method_in_class_or_bases(classname, method_name, os.path.join(os.pardir, "include"))
+                        signature = utils.find_method_in_class_or_bases(
+                            classname, method_name, os.path.join(os.pardir, "include")
+                        )
                         if signature is None:
                             print(f" Method not found ({file}): {method_name}")
                             continue
 
                     doc = f"/**\n * @brief Call the method \\ref {classname}::{method_name} of the object \\ref {classname}.\n */"
-                    signatures_by_file[file]["signatures"].append(doc + "\n" + signature)
+                    signatures_by_file[file]["signatures"].append(
+                        doc + "\n" + signature
+                    )
 
     # Génération finale avec namespace gstlrn
     for file, content in signatures_by_file.items():
@@ -64,4 +74,3 @@ if __name__ == "__main__":
                 f.write(textwrap.indent(sig + "\n\n", "  "))
             f.write("};\n\n")
             f.write("} // namespace gstlrn\n")
-

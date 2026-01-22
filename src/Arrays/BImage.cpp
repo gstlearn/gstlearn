@@ -10,26 +10,25 @@
 /******************************************************************************/
 #include "Arrays/BImage.hpp"
 #include "Arrays/BImageStringFormat.hpp"
+#include "Basic/String.hpp"
 #include "Basic/VectorNumT.hpp"
-#include "Basic/Utilities.hpp"
 
 namespace gstlrn
 {
 BImage::BImage(const VectorInt& ndims)
-    : AArray(ndims),
-      _values()
+  : AArray(ndims)
+  , _values()
 {
   _update();
 }
 
-BImage::BImage(const BImage &r)
-    : AArray(r),
-      _values(r._values)
+BImage::BImage(const BImage& r)
+  : AArray(r)
+  , _values(r._values)
 {
-
 }
 
-BImage& BImage::operator=(const BImage &r)
+BImage& BImage::operator=(const BImage& r)
 {
   if (this != &r)
   {
@@ -41,7 +40,6 @@ BImage& BImage::operator=(const BImage &r)
 
 BImage::~BImage()
 {
-
 }
 
 void BImage::init(const VectorInt& ndims)
@@ -66,7 +64,7 @@ Id BImage::getAllocSize() const
 
 Id BImage::getAddress(Id i, Id j, Id k) const
 {
-  return ((i)+(getNDims(0)*((j)+getNDims(1)*(k))));
+  return ((i) + (getNDims(0) * ((j) + getNDims(1) * (k))));
 }
 
 bool BImage::isInside(Id i, Id j, Id k) const
@@ -103,25 +101,25 @@ String BImage::toString(const AStringFormat* strfmt) const
   {
     // Default values
 
-    Id izmin = 0;
+    Id izmin   = 0;
     auto izmax = getNDims(2);
-    Id iymin = 0;
+    Id iymin   = 0;
     auto iymax = getNDims(1);
-    Id ixmin = 0;
+    Id ixmin   = 0;
     auto ixmax = getNDims(0);
-    char zero = '0';
-    char one  = '1';
+    char zero  = '0';
+    char one   = '1';
     if (strfmt != nullptr)
     {
       izmin = bstrfmt->getIndMin(2);
       iymin = bstrfmt->getIndMin(1);
       ixmin = bstrfmt->getIndMin(0);
       izmax = bstrfmt->getIndMax(2);
-      if (IFFFF(izmax)) izmax = getNDims(2);
+      if (isNA(izmax)) izmax = getNDims(2);
       iymax = bstrfmt->getIndMax(1);
-      if (IFFFF(iymax)) iymax = getNDims(1);
+      if (isNA(iymax)) iymax = getNDims(1);
       ixmax = bstrfmt->getIndMax(0);
-      if (IFFFF(ixmax)) ixmax = getNDims(0);
+      if (isNA(ixmax)) ixmax = getNDims(0);
 
       zero = bstrfmt->getCharZero();
       one  = bstrfmt->getCharOne();
@@ -132,7 +130,7 @@ String BImage::toString(const AStringFormat* strfmt) const
     for (Id iz = izmin; iz < izmax; iz++)
     {
       if (getNDims(2) > 1)
-        sstr << toTitle(2, "Level %d/%d", iz + 1, getNDims(2));
+        sstr << toStrTitle(2, "Level %d/%d", iz + 1, getNDims(2));
       else
         sstr << std::endl;
 
@@ -165,15 +163,15 @@ String BImage::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-unsigned char BImage::getOffset (Id i, Id j, Id k) const
+unsigned char BImage::getOffset(Id i, Id j, Id k) const
 {
-  static unsigned char COffset[] = { 128, 64, 32, 16, 8, 4, 2, 1 };
-  return COffset[_residu(i,j,k)];
+  static unsigned char COffset[] = {128, 64, 32, 16, 8, 4, 2, 1};
+  return COffset[_residu(i, j, k)];
 }
 
 unsigned char BImage::getMaskoff(Id i, Id j, Id k) const
 {
-  static unsigned char CMaskoff[] = { 127, 191, 223, 239, 247, 251, 253, 254 };
-  return CMaskoff[_residu(i,j,k)];
+  static unsigned char CMaskoff[] = {127, 191, 223, 239, 247, 251, 253, 254};
+  return CMaskoff[_residu(i, j, k)];
 }
-}
+} // namespace gstlrn

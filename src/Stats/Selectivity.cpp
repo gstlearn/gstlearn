@@ -14,8 +14,6 @@
 #include "Anamorphosis/AnamDiscreteIR.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Basic/AStringable.hpp"
-#include "Basic/Utilities.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
 #include "Enum/ESelectivity.hpp"
 
@@ -43,7 +41,7 @@ Selectivity::Selectivity(Id ncut)
   , _rankQT()
   , _flagOnlyZDefined(false)
 {
-  VH::fill(_Zcut, TEST);
+  _Zcut.fill(TEST);
   _stats.setColumnNames(_getAllNames());
   _stats.fill(TEST);
 }
@@ -184,8 +182,8 @@ Id Selectivity::calculateFromDb(const Db* db, bool autoCuts)
 }
 
 Id Selectivity::calculateFromArray(const VectorDouble& tab,
-                                    const VectorDouble& weights,
-                                    bool autoCuts)
+                                   const VectorDouble& weights,
+                                   bool autoCuts)
 {
   if (getNCuts() <= 0)
   {
@@ -198,7 +196,7 @@ Id Selectivity::calculateFromArray(const VectorDouble& tab,
     return 1;
   }
 
-  Id nech          = static_cast<Id>(tab.size());
+  Id nech           = static_cast<Id>(tab.size());
   VectorDouble wtab = weights;
   if (wtab.empty())
   {
@@ -224,7 +222,7 @@ Id Selectivity::calculateFromArray(const VectorDouble& tab,
 
   // Perform calculations
 
-  double tonref = VH::cumul(wtab);
+  double tonref = wtab.sum();
   for (Id icut = 0; icut < ncut; icut++)
   {
     double coupure = getZcut(icut);
@@ -310,8 +308,8 @@ Table Selectivity::evalFromAnamorphosis(AAnam* anam)
 Table Selectivity::getStats() const
 {
   VectorString names = _getAllNames();
-  Id nrow           = _stats.getNRows();
-  Id ncol           = _stats.getNColDefined();
+  Id nrow            = _stats.getNRows();
+  Id ncol            = _stats.getNColDefined();
 
   // Allocate the output Table
   Table rtable(nrow, ncol, false, true);
@@ -345,7 +343,7 @@ Selectivity* Selectivity::createInterpolation(const VectorDouble& zcuts,
   double tval, qval;
 
   auto nclass = selecin.getNCuts();
-  Id ncuts  = static_cast<Id>(zcuts.size());
+  Id ncuts    = static_cast<Id>(zcuts.size());
 
   auto* selectivity = new Selectivity(ncuts);
   for (Id icut = 0; icut < ncuts; icut++)
@@ -487,7 +485,7 @@ void Selectivity::defineRecoveries(const std::vector<ESelectivity>& codes,
                                    bool verbose)
 {
   Id ncode = static_cast<Id>(codes.size());
-  _proba    = proba;
+  _proba   = proba;
   _numberQT.reset(getNQT(), 2);
   _numberQT.fill(0);
 
@@ -1052,13 +1050,13 @@ void Selectivity::interpolateSelectivity(const Selectivity* selecin)
 {
   double tval, qval;
 
-  double z_max = getZmax();
-  Id nclass   = selecin->getNCuts();
+  double z_max  = getZmax();
+  Id nclass     = selecin->getNCuts();
   auto ncutmine = getNCuts();
   VectorDouble zz(nclass + 2);
   VectorDouble TT(nclass + 2);
   VectorDouble QQ(nclass + 2);
-  VectorDouble zcuts = getZcut();
+  const auto& zcuts = getZcut();
 
   /* Load arrays */
 
@@ -1121,7 +1119,7 @@ String Selectivity::toString(const AStringFormat* /*strfmt*/) const
   std::stringstream sstr;
   auto ncut = getNCuts();
   if (ncut <= 0) return sstr.str();
-  sstr << toTitle(0, "Selectivity Curves");
+  sstr << toStrTitle(0, "Selectivity Curves");
   sstr << _stats.toString();
   return sstr.str();
 }
@@ -1148,8 +1146,8 @@ VectorInt Selectivity::geNQTStd() const
 
 void Selectivity::_defineAutomaticCutoffs(const VectorDouble& tab, double eps)
 {
-  double zmin = VH::minimum(tab);
-  double zmax = VH::maximum(tab) + eps;
+  double zmin = tab.minimum();
+  double zmax = tab.maximum() + eps;
   auto ncuts  = getNCuts();
 
   if (ncuts <= 1)
@@ -1162,9 +1160,9 @@ void Selectivity::_defineAutomaticCutoffs(const VectorDouble& tab, double eps)
 }
 
 Id dbSelectivity(Db* db,
-                  const String& name,
-                  const VectorDouble& zcuts,
-                  const NamingConvention& namconv)
+                 const String& name,
+                 const VectorDouble& zcuts,
+                 const NamingConvention& namconv)
 {
   if (db == nullptr)
   {

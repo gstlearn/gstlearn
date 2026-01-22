@@ -1,0 +1,84 @@
+Test case 1: order=0, ndim=1
+Number of drifts: 1
+  Universality_Condition
+
+Test case 2: order=1, ndim=2
+Number of drifts: 3
+  Universality_Condition
+  Drift:x1
+  Drift:x2
+
+Test case 3: order=2, ndim=2
+Number of drifts: 6
+  Universality_Condition
+  Drift:x1
+  Drift:x2
+  Drift:x1*x2
+  Drift:x1^2
+  Drift:x2^2
+
+Test case 4: order=3, ndim=2
+Number of drifts: 10
+  Universality_Condition
+  Drift:x1
+  Drift:x2
+  Drift:x1*x2
+  Drift:x1^2
+  Drift:x2^2
+  Drift:x1*x2^2
+  Drift:x1^2*x2
+  Drift:x1^3
+  Drift:x2^3
+
+Test case 5: order=3, ndim=3
+Number of drifts: 20
+  Universality_Condition
+  Drift:x1
+  Drift:x2
+  Drift:x3
+  Drift:x1*x2
+  Drift:x1*x3
+  Drift:x1^2
+  Drift:x2*x3
+  Drift:x2^2
+  Drift:x3^2
+  Drift:x1*x2*x3
+  Drift:x1*x2^2
+  Drift:x1*x3^2
+  Drift:x1^2*x2
+  Drift:x1^2*x3
+  Drift:x1^3
+  Drift:x2*x3^2
+  Drift:x2^2*x3
+  Drift:x2^3
+  Drift:x3^3
+
+Test case 6: order=4, ndim=1
+Number of drifts: 5
+  Universality_Condition
+  Drift:x1
+  Drift:x1^2
+  Drift:x1^3
+  Drift:x1^4
+
+Test case 7: order=2, ndim=3 (backward compatibility test)
+Number of drifts: 10
+  Universality_Condition
+  Drift:x1
+  Drift:x2
+  Drift:x3
+  Drift:x1*x2
+  Drift:x1*x3
+  Drift:x1^2
+  Drift:x2*x3
+  Drift:x2^2
+  Drift:x3^2
+
+Test case 8: order=1, ndim=3, nfex=2
+Number of drifts: 6
+  Universality_Condition
+  Drift:x1
+  Drift:x2
+  Drift:x3
+  External_Drift:0
+  External_Drift:1

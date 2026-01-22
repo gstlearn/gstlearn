@@ -11,6 +11,7 @@
 #pragma once
 
 #include "Basic/AFunctional.hpp"
+#include "Basic/ASerializable.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Basic/NamingConvention.hpp"
@@ -18,6 +19,9 @@
 #include "Covariances/CovCalcMode.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Covariances/TabNoStat.hpp"
+#include "Simulation/ASimuSpectral.hpp"
+#include "Simulation/SimuSpectralRN.hpp"
+#include "Simulation/SpectrumRN.hpp"
 #include "Db/RankHandler.hpp"
 #include "Enum/ECalcMember.hpp"
 #include "Estimation/KrigOpt.hpp"
@@ -44,6 +48,7 @@ class AFunctional;
 class CovInternal;
 class ListParams;
 class MatrixSparse;
+class SpectrumRN;
 
 /**
  * \brief
@@ -55,13 +60,20 @@ class MatrixSparse;
  *
  * It is mainly implemented in CovAniso.hpp or CovAnisoList.hpp
  */
-class GSTLEARN_EXPORT ACov: public ICloneable, public AStringable
+class GSTLEARN_EXPORT ACov: public ICloneable, public AStringable, public ASerializable
 {
 public:
   ACov(const CovContext& ctxt = CovContext());
   ACov(const ACov& r);
   ACov& operator=(const ACov& r);
   virtual ~ACov();
+
+  /// ASerializable Interface
+  String getNFName() const override { return "ACov"; }
+#ifdef HDF5
+  bool deserializeH5(H5::Group& grp) override;
+  bool serializeH5(H5::Group& grp) const override;
+#endif
 
   /// ACov Interface
   virtual Id getNVar() const { return _ctxt.getNVar(); };
@@ -85,11 +97,15 @@ public:
                  Id jvar                 = 0,
                  const CovCalcMode* mode = nullptr) const;
 
-  std::vector<double> evalCovGrad(const SpacePoint& p1,
-                                  const SpacePoint& p2,
-                                  Id ivar                 = 0,
-                                  Id jvar                 = 0,
-                                  const CovCalcMode* mode = nullptr);
+  virtual bool isValidForSpectral() const;
+  virtual MatrixDense simulateSpectralOmega(Id ns) const;
+  virtual SpectrumRN simulateSpectrumRN(Id ns, const ACov* cov0 = nullptr) const;
+
+  VectorDouble evalCovGrad(const SpacePoint& p1,
+                           const SpacePoint& p2,
+                           Id ivar                 = 0,
+                           Id jvar                 = 0,
+                           const CovCalcMode* mode = nullptr);
   virtual double evalCovOnSphere(double alpha,
                                  Id degree               = 50,
                                  bool flagScaleDistance  = false,
@@ -99,6 +115,7 @@ public:
     DECLARE_UNUSED(degree);
     DECLARE_UNUSED(flagScaleDistance);
     DECLARE_UNUSED(mode);
+    message("ACov::evalCovOnSphere: Not implemented");
     return TEST;
   }
 
@@ -109,16 +126,29 @@ public:
     DECLARE_UNUSED(n);
     DECLARE_UNUSED(flagNormDistance);
     DECLARE_UNUSED(flagCumul);
+    message("ACov::evalSpectrumOnSphere: Not implemented");
     return VectorDouble();
   }
   virtual double evalSpectrum(const VectorDouble& freq,
-                              Id ivar,
-                              Id jvar) const
+                              Id ivar = 0,
+                              Id jvar = 0) const
   {
     DECLARE_UNUSED(freq);
     DECLARE_UNUSED(ivar);
     DECLARE_UNUSED(jvar);
+    message("ACov::evalSpectrum: Not implemented");
     return TEST;
+  }
+  virtual double evalSpectrumRatio(const VectorDouble& freq,
+                                   Id ivar,
+                                   Id jvar,
+                                   const ACov* cov0 = nullptr) const
+  {
+    DECLARE_UNUSED(freq);
+    DECLARE_UNUSED(ivar);
+    DECLARE_UNUSED(jvar);
+    DECLARE_UNUSED(cov0);
+    return 1.0;
   }
 
   virtual void updateCovByPoints(Id icas1, Id iech1, Id icas2, Id iech2) const
@@ -127,6 +157,7 @@ public:
     DECLARE_UNUSED(iech1);
     DECLARE_UNUSED(icas2);
     DECLARE_UNUSED(iech2);
+    message("ACov::updateCovByPoints: Not implemented");
   }
 
   void attachNoStatDb(const Db* db);
@@ -472,14 +503,7 @@ public:
                             Id iv2 = 0) const;
   void informDbIn(const Db* dbin) const;
   void informDbOut(const Db* dbout) const;
-  virtual void updateCovByPoints(Id icas1, Id iech1, Id icas2, Id iech2)
-  {
-    DECLARE_UNUSED(icas1);
-    DECLARE_UNUSED(iech1);
-    DECLARE_UNUSED(icas2);
-    DECLARE_UNUSED(iech2);
-  }
-  Id getNDim(Id ispace = -1) const { return static_cast<Id>(_ctxt.getNDim(ispace)); }
+  virtual Id getNDim(Id ispace = -1) const { return static_cast<Id>(_ctxt.getNDim(ispace)); }
   void optimizationPreProcessForData(const Db* db1 = nullptr) const;
   virtual void setOptimEnabled(bool enabled) const { _optimEnabled = enabled; }
 
@@ -492,12 +516,14 @@ public:
                             std::vector<covmaptype>* gradFuncs = nullptr)
   {
     DECLARE_UNUSED(listParams, gradFuncs);
+    message("ACov::appendParams: Not implemented");
   }
   virtual void updateCov() {}
   virtual void initParams(const MatrixSymmetric& vars,
                           double href = 1.)
   {
     DECLARE_UNUSED(vars, href);
+    message("ACov::initParams: Not implemented");
   }
 
 private:
@@ -511,8 +537,8 @@ private:
   virtual void _load(const SpacePoint& p, bool option) const;
   virtual void _attachNoStatDb(const Db* db);
 
-  void _optimizationPreProcessForTarget(const Db* db2,
-                                        const VectorInt& nbgh2 = VectorInt()) const;
+  void _optimizationPreProcessForTarget(const Db* db,
+                                        const VectorInt& nbgh = VectorInt()) const;
 
   void _loopOnData(MatrixDense& mat,
                    const SpacePoint& p2,
@@ -581,7 +607,6 @@ private:
 protected:
   CovContext _ctxt;
   mutable bool _optimEnabled;
-
   mutable bool _optimPreProcessedData; // True if Data have been pre-processed for optimization
   mutable std::vector<SpacePoint> _p1As;
   mutable std::vector<SpacePoint> _p2As;

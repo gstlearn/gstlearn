@@ -56,15 +56,27 @@ class Ball;
  * - Possibility to exclude the target (or samples sharing some characteristics with
  * the Target). This is the cross-validation option.
  */
-class GSTLEARN_EXPORT ANeigh:  public ASpaceObject, public ASerializable, public ICloneable
+class GSTLEARN_EXPORT ANeigh: public ASpaceObject, public ASerializable, public ICloneable
 {
 public:
   ANeigh(const ASpaceSharedPtr& space = ASpaceSharedPtr());
   ANeigh(const ANeigh& r);
   ANeigh& operator=(const ANeigh& r);
   virtual ~ANeigh();
+
   /// ASpaceObject Interface
-  bool isConsistent(const ASpace* space) const override { DECLARE_UNUSED(space); return true; }
+  bool isConsistent(const ASpace* space) const override
+  {
+    DECLARE_UNUSED(space);
+    return true;
+  }
+
+  /// ASerializable Interface
+  String getNFName() const override { return "ANeigh"; }
+#ifdef HDF5
+  bool deserializeH5(H5::Group& grp) override;
+  bool serializeH5(H5::Group& grp) const override;
+#endif
 
   /// Interface for ANeigh
   virtual Id attach(const Db* dbin, const Db* dbout);
@@ -93,8 +105,8 @@ public:
   bool getFlagKFold() const { return _flagKFold; }
 
   void setFlagXvalid(bool flagXvalid) { _flagXvalid = flagXvalid; }
-  void setFlagKFold(bool flagKFold)   { _flagKFold = flagKFold; }
-  void setFlagSimu(bool flagSimu)     { _flagSimu = flagSimu; }
+  void setFlagKFold(bool flagKFold) { _flagKFold = flagKFold; }
+  void setFlagSimu(bool flagSimu) { _flagSimu = flagSimu; }
 
   void setBallSearch(bool status, Id leaf_size = 10);
   void attachBall();
@@ -102,20 +114,15 @@ public:
 protected:
   bool _isNbghMemoEmpty() const { return _nbghMemo.empty(); }
   static void _neighCompress(VectorInt& ranks);
-  void _display(const VectorInt& ranks) const;
+  void _display(const VectorInt& ranks, bool flagCompress = false) const;
   bool _discardUndefined(Id iech);
   Id _xvalid(Id iech_in, Id iech_out, double eps = EPSILON9);
   bool _isDimensionValid(Id idim) const;
   Ball& getBall() { return _ball; }
 
 protected:
-  bool _deserializeAscii(std::istream& is, bool verbose = false) override;
-  bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
-#ifdef HDF5
-  bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
-  bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
-#endif
-  String _getNFName() const override { return "ANeigh"; }
+  bool _deserializeAscii(std::istream& is) override;
+  bool _serializeAscii(std::ostream& os) const override;
 
 private:
   bool _isSameTarget(Id iech_out);
@@ -138,4 +145,4 @@ private:
   mutable VectorInt _nbghMemo;
   mutable Ball _ball;
 };
-}
+} // namespace gstlrn

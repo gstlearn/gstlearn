@@ -12,26 +12,26 @@
 
 #include "Enum/ESpaceType.hpp"
 
-#include "Space/ASpaceObject.hpp"
-#include "Db/Db.hpp"
-#include "Db/DbStringFormat.hpp"
-#include "Model/Model.hpp"
-#include "Covariances/CovAniso.hpp"
-#include "Covariances/CovAnisoList.hpp"
-#include "Drifts/DriftM.hpp"
-#include "Basic/Law.hpp"
-#include "Basic/File.hpp"
-#include "Basic/OptDbg.hpp"
-#include "Basic/VectorHelper.hpp"
-#include "Neigh/NeighUnique.hpp"
-#include "Neigh/NeighMoving.hpp"
-#include "Neigh/NeighImage.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Anamorphosis/CalcAnamTransform.hpp"
-#include "Simulation/CalcSimuTurningBands.hpp"
-#include "Estimation/CalcKriging.hpp"
-#include "Estimation/CalcImage.hpp"
+#include "Basic/File.hpp"
+#include "Basic/Law.hpp"
+#include "Basic/OptDbg.hpp"
+#include "Basic/VectorHelper.hpp"
+#include "Covariances/CovAniso.hpp"
+#include "Covariances/CovAnisoList.hpp"
+#include "Db/Db.hpp"
+#include "Db/DbStringFormat.hpp"
+#include "Drifts/DriftM.hpp"
 #include "Estimation/CalcGlobal.hpp"
+#include "Estimation/CalcImage.hpp"
+#include "Estimation/CalcKriging.hpp"
+#include "Model/Model.hpp"
+#include "Neigh/NeighImage.hpp"
+#include "Neigh/NeighMoving.hpp"
+#include "Neigh/NeighUnique.hpp"
+#include "Simulation/CalcSimuTurningBands.hpp"
+#include "Space/ASpaceObject.hpp"
 
 using namespace gstlrn;
 
@@ -83,21 +83,21 @@ static Model* createModel(Id nvar, Id typecov, Id typedrift, Id typemean)
 
   if (typecov == 1)
   {
-    CovAniso cova1(ECov::SPHERICAL, 40., 0., 45., ctxt);
+    CovAniso cova1(ctxt, ECov::SPHERICAL, 0., 45., 40.);
     covs.addCov(cova1);
-    CovAniso cova2(ECov::NUGGET, 0., 0., 12., ctxt);
+    CovAniso cova2(ctxt, ECov::NUGGET, 0., 12., 0.);
     covs.addCov(cova2);
     model->setCovAnisoList(&covs);
   }
   else if (typecov == 2)
   {
-    CovAniso covaL(ECov::LINEAR, 1., 0., 1., ctxt);
+    CovAniso covaL(ctxt, ECov::LINEAR, 0., 1., 1.);
     covs.addCov(covaL);
     model->setCovAnisoList(&covs);
   }
   else if (typecov == 3)
   {
-    CovAniso cova1(ECov::SPHERICAL, 40., 0., 1., ctxt);
+    CovAniso cova1(ctxt, ECov::SPHERICAL, 0., 1., 40.);
     covs.addCov(cova1);
     model->setCovAnisoList(&covs);
   }
@@ -239,7 +239,7 @@ int main(int argc, char* argv[])
     message("- Number of Neighbors = %d\n", ktest.nech);
     message("- Number of Kriging System equations (covariance) = %d\n", ktest.CSize);
     message("- Number of Kriging System equations (drift) = %d\n", ktest.DSize);
-    VH::dump("- Neighboring Sample Indices", ktest.nbgh);
+    printVector(ktest.nbgh, "- Neighboring Sample Indices", true, true);
   }
 
   // ====================== Unique Neighborhood case ===========================

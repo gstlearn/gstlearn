@@ -10,7 +10,6 @@
 /******************************************************************************/
 
 #include "LinearOp/PrecisionOpMulti.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/CovAniso.hpp"
@@ -129,7 +128,7 @@ PrecisionOpMulti::PrecisionOpMulti(Model* model,
 
   if (buildOp)
   {
-    bool localStencil = stencil && isTurbo(meshes) && !model->isNoStat();
+    bool localStencil = stencil && meshes.isTurbo() && !model->isNoStat();
     buildQop(localStencil);
   }
 }
@@ -155,7 +154,7 @@ void PrecisionOpMulti::_buildQop(bool stencil)
   for (Id i = 0, number = _getNCov(); i < number; i++)
   {
     CovAniso* cova = _model->getCovAniso(_covList[i]);
-    _pops.push_back(PrecisionOp::create(_meshes[i], cova, stencil));
+    _pops.push_back(PrecisionOp::create(_meshes(i), cova, stencil));
   }
 }
 PrecisionOpMulti::~PrecisionOpMulti()
@@ -203,7 +202,7 @@ bool PrecisionOpMulti::_isValidModel(Model* model)
 ** \param[in]  meshes  Vector of Meshes
 **
 *******************************************************************************/
-bool PrecisionOpMulti::_isValidMeshes(const std::vector<const AMesh*>& meshes)
+bool PrecisionOpMulti::_isValidMeshes(const VectorMeshes& meshes)
 {
   if (meshes.empty()) return false;
 
@@ -258,7 +257,7 @@ void PrecisionOpMulti::_computeSize()
   _size     = 0;
   for (Id i = 0; i < ncov; i++)
   {
-    _size += nvar * _meshes[i]->getNApices();
+    _size += nvar * _meshes(i)->getNApices();
   }
 }
 
@@ -277,8 +276,8 @@ Id PrecisionOpMulti::_buildLocalMatricesNoStat(Id icov)
 
   CovAniso* cova = _model->getCovAniso(icov);
   auto nvar      = _getNVar();
-  cova->informMeshByApexForSills(_meshes[icov]);
-  Id nvertex = _meshes[icov]->getNApices();
+  cova->informMeshByApexForSills(_meshes(icov));
+  Id nvertex = _meshes(icov)->getNApices();
   Id nterms  = nvar * (nvar + 1) / 2;
   _invCholSillsNoStat[icov].resize(nterms);
   _cholSillsNoStat[icov].resize(nterms);
@@ -344,7 +343,7 @@ Id PrecisionOpMulti::_buildMatrices()
 Id PrecisionOpMulti::size(Id imesh) const
 {
   if (imesh < 0 || imesh >= _getNMesh()) return 0;
-  return _meshes[imesh]->getNApices();
+  return _meshes(imesh)->getNApices();
 }
 
 String PrecisionOpMulti::toString(const AStringFormat* strfmt) const
@@ -358,7 +357,7 @@ String PrecisionOpMulti::toString(const AStringFormat* strfmt) const
   sstr << "Number of Meshes      = " << _getNMesh() << std::endl;
   sstr << "Vector dimension      = " << getSize() << std::endl;
 
-  sstr << "Indices of Matérn Covariance = " << VH::toStringAsVI(_covList);
+  sstr << "Indices of Matérn Covariance = " << toStrVector(String(), _covList);
 
   sstr << "Dimensions of the Meshes = ";
   for (Id imesh = 0, nmesh = _getNMesh(); imesh < nmesh; imesh++)

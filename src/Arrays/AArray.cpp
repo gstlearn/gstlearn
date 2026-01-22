@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Arrays/AArray.hpp"
+#include "Basic/Message.hpp"
 #include "Basic/VectorNumT.hpp"
 
 namespace gstlrn

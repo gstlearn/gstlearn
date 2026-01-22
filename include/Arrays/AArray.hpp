@@ -13,7 +13,7 @@
 #include "gstlearn_export.hpp"
 
 #include "Basic/AStringable.hpp"
-#include "Basic/VectorHelper.hpp"
+#include "Basic/VectorNumT.hpp"
 
 namespace gstlrn
 {
@@ -34,7 +34,7 @@ public:
   void rankToIndice(Id rank, VectorInt& indices) const;
 
   Id getNDim() const { return static_cast<Id>(_ndims.size()); }
-  Id getNPixels() const { return VH::product(_ndims); }
+  Id getNPixels() const { return _ndims.prod(); }
   const VectorInt& getNDims() const { return _ndims; }
   VectorInt getNDimsExt(Id ndimMax) const;
   Id getNDims(Id idim) const;

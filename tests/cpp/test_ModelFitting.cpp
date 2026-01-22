@@ -96,7 +96,7 @@ static void _thirdTest(DbGrid* dbgrid,
 {
   mestitle(0, "Sill Fitting from Variogram Map (new version)");
 
-  DbGrid* dbmap = db_vmap(dbgrid, calcul, {50, 50});
+  DbGrid* dbmap = db_vmap(dbgrid, 0, true, calcul, true, {50, 50});
   (void)dbmap->dumpToNF("VMap.NF");
 
   model->fitNew(nullptr, nullptr, dbmap, nullptr, mop, ITEST,

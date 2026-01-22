@@ -54,20 +54,20 @@ String NeighImage::toString(const AStringFormat* strfmt) const
   DECLARE_UNUSED(strfmt);
   std::stringstream sstr;
 
-  sstr << toTitle(0, "Image Neighborhood");
+  sstr << toStrTitle(0, "Image Neighborhood");
 
   sstr << "Skipping factor = " << _skip << std::endl;
-  sstr << toMatrix("Image radius :", VectorString(), VectorString(), true,
-                   1, static_cast<Id>(getNDim()), _imageRadius);
+  sstr << toStrMatrix("Image radius :", VectorString(), VectorString(), true,
+                      1, static_cast<Id>(getNDim()), _imageRadius);
 
   return sstr.str();
 }
 
-bool NeighImage::_deserializeAscii(std::istream& is, bool verbose)
+bool NeighImage::_deserializeAscii(std::istream& is)
 {
   bool ret = true;
 
-  ret = ret && ANeigh::_deserializeAscii(is, verbose);
+  ret = ret && ANeigh::_deserializeAscii(is);
   ret = ret && _recordRead<Id>(is, "Skipping factor", _skip);
   for (Id idim = 0; ret && idim < static_cast<Id>(getNDim()); idim++)
   {
@@ -80,10 +80,10 @@ bool NeighImage::_deserializeAscii(std::istream& is, bool verbose)
   return ret;
 }
 
-bool NeighImage::_serializeAscii(std::ostream& os, bool verbose) const
+bool NeighImage::_serializeAscii(std::ostream& os) const
 {
   bool ret = true;
-  ret      = ret && ANeigh::_serializeAscii(os, verbose);
+  ret      = ret && ANeigh::_serializeAscii(os);
   ret      = ret && _recordWrite<Id>(os, "", getSkip());
   for (Id idim = 0; ret && idim < static_cast<Id>(getNDim()); idim++)
     ret = ret && _recordWrite<double>(os, "", static_cast<double>(getImageRadius(idim)));
@@ -240,7 +240,7 @@ DbGrid* NeighImage::buildImageGrid(const DbGrid* dbgrid, Id seed) const
   return dbsub;
 }
 #ifdef HDF5
-bool NeighImage::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+bool NeighImage::deserializeH5(H5::Group& grp)
 {
   auto neighG = SerializeHDF5::getGroup(grp, "NeighImage");
   if (!neighG)
@@ -256,12 +256,12 @@ bool NeighImage::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
 
   ret = ret && SerializeHDF5::readVec(*neighG, "Radius", _imageRadius);
 
-  ret = ret && ANeigh::_deserializeH5(*neighG, verbose);
+  ret = ret && ANeigh::deserializeH5(*neighG);
 
   return ret;
 }
 
-bool NeighImage::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+bool NeighImage::serializeH5(H5::Group& grp) const
 {
   auto neighG = grp.createGroup("NeighImage");
 
@@ -270,7 +270,7 @@ bool NeighImage::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) con
   ret = ret && SerializeHDF5::writeValue(neighG, "Skip", getSkip());
   ret = ret && SerializeHDF5::writeVec(neighG, "Radius", getImageRadius());
 
-  ret = ret && ANeigh::_serializeH5(neighG, verbose);
+  ret = ret && ANeigh::serializeH5(neighG);
 
   return ret;
 }

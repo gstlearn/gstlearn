@@ -17,14 +17,14 @@
 namespace gstlrn
 { 
 class CovAniso;
-class ACovFunc;
+class AKernel;
 class CovContext;
 
 class GSTLEARN_EXPORT CovFactory
 {
 public:
-  static ACovFunc*    createCovFunc(const ECov& type, const CovContext& ctxt);
-  static ACovFunc*    duplicateCovFunc(const ACovFunc& cov);
+  static AKernel*    createCovFunc(const ECov& type, const CovContext& ctxt);
+  static AKernel*    duplicateCovFunc(const AKernel& cov);
   static void         displayCovList(const CovContext& ctxt);
   static VectorString getCovList(const CovContext& ctxt, Id order=3);
   static ECov         identifyCovariance(const String& cov_name,

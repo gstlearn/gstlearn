@@ -62,11 +62,11 @@ Sample variance                  = 1.137649
 CVsample                         = 16.682853
 CViid                            = 5.275581
 Cxx                              = 0.207223
-Cxv                              = 0.053449
+Cxv                              = 0.027128
 Cvv                              = 0.059393
 Estimation by arithmetic average = 0.063934
-Estimation St. dev. of the mean  = 0.399648
-CVgeo                            = 6.250923
+Estimation St. dev. of the mean  = 0.460825
+CVgeo                            = 7.207791
 Surface                          = 1.000000
 Q (Estimation * Surface)         = 0.063934
 
@@ -79,10 +79,10 @@ Global estimation kriging
 Total number of data             = 10
 Number of active data            = 10
 Number of variables              = 1
-Cvv                              = 0.059392
+Cvv                              = 0.059456
 Estimation by kriging            = 0.006263
-Estimation St. Dev. of the mean  = 0.205082
-CVgeo                            = 32.742863
+Estimation St. Dev. of the mean  = 0.205238
+CVgeo                            = 32.767843
 Surface                          = 1.000000
 Q (Estimation * Surface)         = 0.006263
 

@@ -34,6 +34,16 @@ public:
   virtual ~Grid();
 
 public:
+  /// Interface to AStringable
+  String toString(const AStringFormat* strfmt = nullptr) const override;
+
+  /// ASerializable Interface
+  String getNFName() const override { return "Grid"; }
+#ifdef HDF5
+  bool deserializeH5(H5::Group& grp) override;
+  bool serializeH5(H5::Group& grp) const override;
+#endif
+
   void initThread() const;
   static VectorInt gridIndices(const VectorInt& nx,
                                const String& string,
@@ -65,9 +75,6 @@ public:
   double getExtend(Id idim, bool flagCell = false) const;
   double getVolume(bool flagCell = false) const;
   VectorDouble getExtends(bool flagCell = false) const;
-
-  /// Interface to AStringable
-  String toString(const AStringFormat* strfmt = nullptr) const override;
 
   void copyParams(Id mode, const Grid& gridaux);
   double getCoordinate(Id rank, Id idim, bool flag_rotate = true) const;
@@ -162,7 +169,7 @@ public:
 
   void iteratorInit(const VectorInt& order = VectorInt());
   VectorInt iteratorNext(void);
-  void iteratorNext(std::vector<Id>& indices);
+  void iteratorNext(VectorInt& indices);
   bool empty() const;
 
   void dilate(Id mode,
@@ -184,13 +191,8 @@ public:
   bool isInside(const VectorInt& indices) const;
 
 protected:
-  bool _deserializeAscii(std::istream& is, bool verbose = false) override;
-  bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
-#ifdef HDF5
-  bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
-  bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
-#endif
-  String _getNFName() const override { return "Grid"; }
+  bool _deserializeAscii(std::istream & is) override;
+  bool _serializeAscii(std::ostream& os) const override;
 
 private:
   const MatrixSquare& _getRotMat() const { return _rotation.getMatrixDirect(); }
@@ -210,7 +212,7 @@ private:
 
   Id _iter;
   Id _nprod;
-  std::vector<Id> _counts;
+  VectorInt _counts;
   VectorInt _order;
   VectorInt _indices;
   mutable VectorInt _dummy;

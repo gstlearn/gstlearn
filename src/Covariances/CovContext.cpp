@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Covariances/CovContext.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Db/Db.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
@@ -109,7 +108,7 @@ String CovContext::toString(const AStringFormat* strfmt) const
   sstr << "Nb Variables       = " << _nVar << std::endl;
   if (!FFFF(_field))
     sstr << "Field Size         = " << _field << std::endl;
-  sstr << "Covariance (0)     = " << VH::toStringAsVD(_covar0);
+  sstr << "Covariance (0)     = " << toStrVector(String(), _covar0);
   return sstr.str();
 }
 
@@ -123,7 +122,7 @@ bool CovContext::isConsistent(const ASpace* space) const
 {
   /// TODO: Consistency of CovContext toward a space: Possible duplicate:
   /// - CovFactory::_isValid
-  /// - ACovFunc::isConsistent
+  /// - AKernel::isConsistent
   return (_space->isEqual(space));
 }
 

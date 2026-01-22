@@ -10,22 +10,23 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
 #include "LinearOp/IProj.hpp"
+#include "gstlearn_export.hpp"
 
 #include <memory>
 
 namespace gstlrn
 {
-class GSTLEARN_EXPORT ProjComposition : public IProj
+class GSTLEARN_EXPORT ProjComposition: public IProj
 {
 public:
   ProjComposition(std::vector<const IProj*> projs);
-  ProjComposition(const ProjComposition&) = delete;
+  ProjComposition(const ProjComposition&)            = delete;
   ProjComposition& operator=(const ProjComposition&) = delete;
-  ~ProjComposition() override = default;
+  ~ProjComposition() override                        = default;
 
 #ifndef SWIG
+
 protected:
   Id _addPoint2mesh(const constvect in, vect out) const override;
   Id _addMesh2point(const constvect in, vect out) const override;
@@ -37,6 +38,6 @@ public:
 
 private:
   std::vector<std::unique_ptr<const IProj>> _projs;
-  mutable std::vector<std::vector<double>> _works;
+  mutable VectorVectorDouble _works;
 };
-}
+} // namespace gstlrn

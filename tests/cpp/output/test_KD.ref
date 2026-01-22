@@ -1283,25 +1283,22 @@ Column = 31 - Name = UC.Q-estim-0 - Locator = NA
 Column = 32 - Name = UC.Q-estim-0.5 - Locator = NA
 Column = 33 - Name = UC.Q-stdev-0 - Locator = NA
 Column = 34 - Name = UC.Q-stdev-0.5 - Locator = z1
-Change of Support coefficient (DGM-1) =  0.709
+Change of Support coefficient (DGM-1) =  0.708
 
 Model characteristics
 =====================
 Space dimension              = 2
 Number of variable(s)        = 1
-Number of basic structure(s) = 2
+Number of basic structure(s) = 1
 Number of drift function(s)  = 0
 Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
-Cubic
-- Sill         =      0.334
-- Range        =      0.134
 Exponential
-- Sill         =      0.666
-- Range        =      3.520
-- Theo. Range  =      1.175
+- Sill         =      1.000
+- Range        =      0.851
+- Theo. Range  =      0.284
 Total Sill     =      1.000
 
 Hermitian Anamorphosis
@@ -1315,9 +1312,9 @@ Maximum practical value for Y = 3.1
 Minimum practical value for Z = 0.2413
 Maximum practical value for Z = 6.07942
 Mean                          = 1.53264
-Variance                      = 0.340409
+Variance                      = 0.339173
 Number of Hermite polynomials = 20
-Change of Support Coefficient = 0.708748
+Change of Support Coefficient = 0.707534
 Normalized coefficients for Hermite polynomials (punctual variable)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     1.533    -0.798     0.280    -0.051    -0.021     0.023    -0.013
@@ -1347,11 +1344,11 @@ LHS of Kriging matrix
 Dimension of the Covariance Matrix  = 5
 
        Rank          1          2          3          4          5
-          1      1.000      0.349      0.349      0.397      0.397
-          2      0.349      1.000      0.312      0.397      0.397
-          3      0.349      0.312      1.000      0.397      0.397
-          4      0.397      0.397      0.397      1.000      0.502
-          5      0.397      0.397      0.397      0.502      1.000
+          1      1.000      0.390      0.390      0.420      0.420
+          2      0.390      1.000      0.352      0.420      0.420
+          3      0.390      0.352      1.000      0.420      0.420
+          4      0.420      0.420      0.420      1.000      0.501
+          5      0.420      0.420      0.420      0.501      1.000
 
 RHS of Kriging matrix
 =====================
@@ -1361,21 +1358,21 @@ Number of right-hand sides  = 1
 Punctual Estimation
 
        Rank          1
-          1      0.560
-          2      0.560
-          3      0.560
-          4      0.709
-          5      0.709
+          1      0.593
+          2      0.593
+          3      0.593
+          4      0.708
+          5      0.708
 
 (Co-) Kriging weights
 =====================
        Rank       Data        Z1*
-          1     -0.405      0.171
-          2     -0.610      0.181
-          3      0.786      0.181
-          4      0.324      0.331
-          5     -1.048      0.331
-Sum of weights              1.195
+          1     -0.405      0.180
+          2     -0.610      0.192
+          3      0.786      0.192
+          4      0.324      0.314
+          5     -1.048      0.314
+Sum of weights              1.192
 
 Drift or Mean Information
 =========================
@@ -1385,9 +1382,9 @@ Mean for Variable Z1 = 0.000000
 =====================
 Target Sample = 1
 Variable Z1 
- - Estimate  =      -0.277
- - Std. Dev. =       0.482
- - Variance  =       0.232
+ - Estimate  =      -0.267
+ - Std. Dev. =       0.470
+ - Variance  =       0.221
  - Cov(h=0)  =       1.000
 
 Data Base Grid Characteristics
@@ -1468,11 +1465,11 @@ LHS of Kriging matrix
 Dimension of the Covariance Matrix  = 5
 
        Rank          1          2          3          4          5
-          1      1.000      0.397      0.397      0.349      0.397
-          2      0.397      1.000      0.502      0.397      0.502
-          3      0.397      0.502      1.000      0.397      0.502
-          4      0.349      0.397      0.397      1.000      0.397
-          5      0.397      0.502      0.502      0.397      1.000
+          1      1.000      0.420      0.420      0.390      0.420
+          2      0.420      1.000      0.501      0.420      0.501
+          3      0.420      0.501      1.000      0.420      0.501
+          4      0.390      0.420      0.420      1.000      0.420
+          5      0.420      0.501      0.501      0.420      1.000
 
 RHS of Kriging matrix
 =====================
@@ -1482,21 +1479,21 @@ Number of right-hand sides  = 1
 Block Estimation : Discretization = 5 x 5
 
        Rank          1
-          1      0.468
-          2      0.472
-          3      0.472
-          4      0.468
-          5      0.472
+          1      0.499
+          2      0.513
+          3      0.513
+          4      0.499
+          5      0.513
 
 (Co-) Kriging weights
 =====================
        Rank       Data        Z1*
-          1      2.135      0.214
-          2      0.786      0.151
-          3     -0.536      0.151
-          4      0.307      0.214
-          5      0.859      0.151
-Sum of weights              0.880
+          1      2.135      0.205
+          2      0.786      0.170
+          3     -0.536      0.170
+          4      0.307      0.205
+          5      0.859      0.170
+Sum of weights              0.921
 
 Drift or Mean Information
 =========================
@@ -1506,10 +1503,10 @@ Mean for Variable Z1 = 0.000000
 =====================
 Target Sample = 1
 Variable Z1 
- - Estimate  =       0.690
- - Std. Dev. =       0.472
- - Variance  =       0.223
- - Cov(h=0)  =       0.637
+ - Estimate  =       0.689
+ - Std. Dev. =       0.427
+ - Variance  =       0.182
+ - Cov(h=0)  =       0.649
 
 Data Base Grid Characteristics
 ==============================
@@ -1540,7 +1537,7 @@ Column = 7 - Name = DK_Blk.Factor.Gauss.Z.2.stdev - Locator = NA
 Column = 8 - Name = DK_Blk.Factor.Gauss.Z.3.stdev - Locator = NA
 Column = 9 - Name = DK_DGM1.Gauss.Z.estim - Locator = z1
 Column = 10 - Name = DK_DGM1.Gauss.Z.stdev - Locator = NA
-Change of Support coefficient (DGM-2) =  0.707
+Change of Support coefficient (DGM-2) =  0.705
 
 Model characteristics
 =====================
@@ -1554,8 +1551,8 @@ Covariance Part
 ---------------
 Exponential
 - Sill         =      1.000
-- Range        =      0.261
-- Theo. Range  =      0.087
+- Range        =      0.310
+- Theo. Range  =      0.103
 Total Sill     =      1.000
 Known Mean(s)     0.000
 
@@ -1571,8 +1568,8 @@ Covariance Part
 ---------------
 Exponential
 - Sill         =      1.000
-- Range        =      0.261
-- Theo. Range  =      0.087
+- Range        =      0.310
+- Theo. Range  =      0.103
 Total Sill     =      1.000
 
 Hermitian Anamorphosis
@@ -1586,9 +1583,9 @@ Maximum practical value for Y = 3.1
 Minimum practical value for Z = 0.2413
 Maximum practical value for Z = 6.07942
 Mean                          = 1.53264
-Variance                      = 0.338245
+Variance                      = 0.336985
 Number of Hermite polynomials = 20
-Change of Support Coefficient = 0.70662
+Change of Support Coefficient = 0.705377
 Normalized coefficients for Hermite polynomials (punctual variable)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     1.533    -0.798     0.280    -0.051    -0.021     0.023    -0.013
@@ -1618,11 +1615,11 @@ LHS of Kriging matrix
 Dimension of the Covariance Matrix  = 5
 
        Rank          1          2          3          4          5
-          1      1.000      0.222      0.222      0.281      0.281
-          2      0.222      1.000      0.158      0.281      0.281
-          3      0.222      0.158      1.000      0.281      0.281
-          4      0.281      0.281      0.281      1.000      0.499
-          5      0.281      0.281      0.281      0.499      1.000
+          1      1.000      0.251      0.251      0.307      0.307
+          2      0.251      1.000      0.189      0.307      0.307
+          3      0.251      0.189      1.000      0.307      0.307
+          4      0.307      0.307      0.307      1.000      0.498
+          5      0.307      0.307      0.307      0.498      1.000
 
 RHS of Kriging matrix
 =====================
@@ -1632,21 +1629,21 @@ Number of right-hand sides  = 1
 Punctual Estimation
 
        Rank          1
-          1      0.398
-          2      0.398
-          3      0.398
-          4      0.707
-          5      0.707
+          1      0.435
+          2      0.435
+          3      0.435
+          4      0.705
+          5      0.705
 
 (Co-) Kriging weights
 =====================
        Rank       Data        Z1*
-          1     -0.405      0.116
-          2     -0.610      0.126
-          3      0.786      0.126
-          4      0.324      0.402
-          5     -1.048      0.402
-Sum of weights              1.172
+          1     -0.405      0.127
+          2     -0.610      0.139
+          3      0.786      0.139
+          4      0.324      0.388
+          5     -1.048      0.388
+Sum of weights              1.181
 
 Drift or Mean Information
 =========================
@@ -1656,9 +1653,9 @@ Mean for Variable Z1 = 0.000000
 =====================
 Target Sample = 1
 Variable Z1 
- - Estimate  =      -0.316
- - Std. Dev. =       0.534
- - Variance  =       0.285
+ - Estimate  =      -0.309
+ - Std. Dev. =       0.526
+ - Variance  =       0.276
  - Cov(h=0)  =       1.000
 
 Data Base Grid Characteristics
@@ -1741,11 +1738,11 @@ LHS of Kriging matrix
 Dimension of the Covariance Matrix  = 5
 
        Rank          1          2          3          4          5
-          1      1.000      0.281      0.281      0.222      0.281
-          2      0.281      1.000      0.499      0.281      0.499
-          3      0.281      0.499      1.000      0.281      0.499
-          4      0.222      0.281      0.281      1.000      0.281
-          5      0.281      0.499      0.499      0.281      1.000
+          1      1.000      0.307      0.307      0.251      0.307
+          2      0.307      1.000      0.498      0.307      0.498
+          3      0.307      0.498      1.000      0.307      0.498
+          4      0.251      0.307      0.307      1.000      0.307
+          5      0.307      0.498      0.498      0.307      1.000
 
 RHS of Kriging matrix
 =====================
@@ -1755,21 +1752,21 @@ Number of right-hand sides  = 1
 Block Estimation : Discretization = 5 x 5
 
        Rank          1
-          1      0.248
-          2      0.263
-          3      0.263
-          4      0.248
-          5      0.263
+          1      0.288
+          2      0.303
+          3      0.303
+          4      0.288
+          5      0.303
 
 (Co-) Kriging weights
 =====================
        Rank       Data        Z1*
-          1      2.135      0.140
-          2      0.786      0.092
-          3     -0.536      0.092
-          4      0.307      0.140
-          5      0.859      0.092
-Sum of weights              0.556
+          1      2.135      0.153
+          2      0.786      0.105
+          3     -0.536      0.105
+          4      0.307      0.153
+          5      0.859      0.105
+Sum of weights              0.620
 
 Drift or Mean Information
 =========================
@@ -1779,10 +1776,10 @@ Mean for Variable Z1 = 0.000000
 =====================
 Target Sample = 1
 Variable Z1 
- - Estimate  =       0.443
- - Std. Dev. =       0.379
- - Variance  =       0.144
- - Cov(h=0)  =       0.286
+ - Estimate  =       0.489
+ - Std. Dev. =       0.394
+ - Variance  =       0.155
+ - Cov(h=0)  =       0.339
 
 Data Base Grid Characteristics
 ==============================

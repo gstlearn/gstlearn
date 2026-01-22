@@ -17,13 +17,13 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Matern (Third Parameter = 1)
-- Sill         =      1.000
-- Range        =      0.200
-- Theo. Range  =      0.058
+- Sill         =       1.000
+- Range        =       0.200
+- Theo. Range  =       0.058
 Nugget Effect
-- Sill         =      0.100
-Total Sill     =      1.100
-Known Mean(s)     0.000----
+- Sill         =       0.100
+Total Sill     =       1.100
+Known Mean(s)      0.000----
 
 
 #NO_DIFF#XXX
@@ -81,12 +81,12 @@ Number of drift equation(s)  = 1
 Covariance Part
 ---------------
 Matern (Third Parameter = 1)
-- Sill         =      1.000
-- Range        =      0.200
-- Theo. Range  =      0.058
+- Sill         =       1.000
+- Range        =       0.200
+- Theo. Range  =       0.058
 Nugget Effect
-- Sill         =      0.100
-Total Sill     =      1.100
+- Sill         =       0.100
+Total Sill     =       1.100
 
 Drift Part
 ----------
@@ -111,9 +111,7 @@ Likelihood calculation:
 - Number of active samples     = 100
 - Number of variables          = 1
 - Length of Information Vector = 100
-- Number of drift conditions = 1
-Optimal Drift coefficients = 
-     0.728
+- Number of drift conditions   = 1
 Log-Determinant = -33.879144
 Quadratic term  = 90.846364
 Log-likelihood  = -120.377463
@@ -122,41 +120,6 @@ Log-likelihood  = -120.377463
 
 #NO_DIFF#XXX
 ----
-
-Lower Vecchia Matrix
---------------------
-- Number of rows    = 100
-- Number of columns = 100
-- Sparse Format
-               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
-     [  0,]     1.000         .         .         .         .         .         .
-     [  1,]    -0.011     1.000         .         .         .         .         .
-     [  2,]    -0.274     0.000     1.000         .         .         .         .
-     [  3,]     0.000    -0.001     0.000     1.000         .         .         .
-     [  4,]    -0.171    -0.002    -0.001     0.000     1.000         .         .
-     [  5,]    -0.028    -0.142     0.003         .    -0.022     1.000         .
-     [  6,]     0.000    -0.026         .     0.000         .     0.001     1.000
-(Ncols=7[from 100],Nrows=7[from 100])
-
-Diagonal of Vecchia Matrix
-               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
-     [  0,]     0.909     0.909     0.983     0.909     0.937     0.929     0.910
-     [  7,]     0.909     0.910     1.190     1.099     0.930     1.022     0.951
-     [ 14,]     0.995     0.952     0.959     2.441     2.026     1.933     1.013
-     [ 21,]     0.910     0.917     1.359     0.941     0.911     1.139     0.911
-     [ 28,]     0.933     0.961     1.126     1.361     1.934     2.438     1.028
-     [ 35,]     1.817     1.363     1.309     3.203     0.931     1.230     1.736
-     [ 42,]     0.984     0.910     1.567     0.946     1.246     2.879     1.127
-     [ 49,]     1.381     1.987     1.332     1.233     0.996     1.946     1.331
-     [ 56,]     3.414     1.258     1.157     1.210     1.351     1.993     1.212
-     [ 63,]     1.573     2.322     0.971     1.060     2.079     1.220     1.334
-     [ 70,]     0.936     1.189     1.639     1.910     1.943     1.915     1.685
-     [ 77,]     2.417     1.301     4.589     1.714     1.137     4.998     1.026
-     [ 84,]     1.148     1.636     1.558     1.415     1.014     0.996     3.764
-     [ 91,]     1.897     2.804     1.283     3.324     2.089     2.169     1.425
-     [ 98,]     1.296     2.566
-Optimal Drift coefficients = 
-     0.725
 Log-Determinant = -33.200255
 Quadratic term  = 89.332909
 Log-likelihood  = -119.960180
@@ -201,7 +164,7 @@ Column = 7 - Name = Simu.2 - Locator = z2----
 
 #NO_DIFF#XXX
 ----
-No Constraint : [ 0.591383  3.049498  1.968406 -2.140452]
+No Constraint : [ 0.58471   3.06693   1.693381 -1.421991]
 ----
 
 
@@ -211,9 +174,7 @@ Likelihood calculation:
 - Number of active samples     = 200
 - Number of variables          = 2
 - Length of Information Vector = 400
-- Number of drift conditions = 4
-Optimal Drift coefficients = 
-     0.591     3.049     1.968    -2.140
+- Number of drift conditions   = 4
 Log-Determinant = -676.517039
 Quadratic term  = 484.076013
 Log-likelihood  = -271.354901
@@ -228,7 +189,7 @@ Log-likelihood  = -271.354901
 
 #NO_DIFF#XXX
 ----
-a0=0.5 and b0=1.5 : [ 0.5       3.177797  1.5      -1.482825]
+a0=0.5 and b0=1.5 : [ 0.5      3.18586  1.5     -1.15049]
 ----
 
 
@@ -240,7 +201,7 @@ a0=0.5 and b0=1.5 : [ 0.5       3.177797  1.5      -1.482825]
 
 #NO_DIFF#XXX
 ----
-a0=b0 and a1=b1 : [0.361879 3.91449  0.361879 3.91449 ]
+a0=b0 and a1=b1 : [0.399932 3.815084 0.399932 3.815084]
 ----
 
 
@@ -250,12 +211,10 @@ Likelihood calculation:
 - Number of active samples     = 200
 - Number of variables          = 2
 - Length of Information Vector = 400
-- Number of drift conditions = 2
-Optimal Drift coefficients = 
-     0.362     3.914
+- Number of drift conditions   = 2
 Log-Determinant = -676.517039
-Quadratic term  = 528.711994
-Log-likelihood  = -293.672891
+Quadratic term  = 519.260332
+Log-likelihood  = -288.947060
 ----
 
 
@@ -267,7 +226,7 @@ Log-likelihood  = -293.672891
 
 #NO_DIFF#XXX
 ----
-a0=b0 : [0.361879 3.371714 0.361879 0.11506 ]
+a0=b0 : [0.399932 3.326353 0.399932 0.39397 ]
 ----
 
 
@@ -279,7 +238,7 @@ a0=b0 : [0.361879 3.371714 0.361879 0.11506 ]
 
 #NO_DIFF#XXX
 ----
-a0=b0 and a1=1 : [ 1.245068  1.        1.245068 -5.651889]
+a0=b0 and a1=1 : [ 1.266229  1.        1.266229 -5.262681]
 ----
 
 
@@ -297,19 +256,19 @@ Covariance Part
 ---------------
 Matern (Third Parameter = 1)
 - Sill matrix:
-               [,  0]    [,  1]    [,  2]
-     [  0,]     5.167    -3.000     1.843
-     [  1,]    -3.000     3.831     2.299
-     [  2,]     1.843     2.299     6.110
-- Range        =      0.200
-- Theo. Range  =      0.058
+                 [,  0]     [,  1]     [,  2]
+      [  0,]      5.167     -3.000      1.843
+      [  1,]     -3.000      3.831      2.299
+      [  2,]      1.843      2.299      6.110
+- Range        =       0.200
+- Theo. Range  =       0.058
 Total Sill
-               [,  0]    [,  1]    [,  2]
-     [  0,]     5.167    -3.000     1.843
-     [  1,]    -3.000     3.831     2.299
-     [  2,]     1.843     2.299     6.110
+                 [,  0]     [,  1]     [,  2]
+      [  0,]      5.167     -3.000      1.843
+      [  1,]     -3.000      3.831      2.299
+      [  2,]      1.843      2.299      6.110
 
-Known Mean(s)     0.000     0.000     0.000----
+Known Mean(s)      0.000      0.000      0.000----
 
 
 #NO_DIFF#XXX
@@ -339,12 +298,13 @@ Column = 8 - Name = Simu.3 - Locator = z3----
 
 #NO_DIFF#XXX
 ----
-[ 0.89610178  2.34510063  1.71794026 -1.729727   -0.00333606 -1.53702255]
+Coefficients : [ 0.679814  2.990676  1.092411 -0.961489 -0.969794 -0.317018]
 
 #NO_DIFF#XXX
 ----
 
 
 #NO_DIFF#XXX
-----array([ 2.05802776,  0.71379393,  2.05802776, -2.20719891,  2.05802776,
-       -4.43111105])----
+----
+Coefficients : [ 1.887024  1.295792  1.887024 -2.0771    1.887024 -4.327899]
+----

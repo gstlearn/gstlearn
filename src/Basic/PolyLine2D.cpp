@@ -83,8 +83,8 @@ String PolyLine2D::toString(const AStringFormat* strfmt) const
       tab[i]           = _x[i];
       tab[i + npoints] = _y[i];
     }
-    sstr << toMatrix("Line Vertex Coordinates", VectorString(), VectorString(),
-                     true, npoints, 2, tab);
+    sstr << toStrMatrix("Line Vertex Coordinates", VectorString(), VectorString(),
+                        true, npoints, 2, tab);
   }
   return sstr.str();
 }
@@ -101,10 +101,9 @@ PolyLine2D* PolyLine2D::createFromNF(const String& NFFilename, bool verbose)
  * Serialization (by Point rather than by Coordinate)
  * This is maintained for all classes using this interface for serialization
  * @param os Output Stream
- * @param verbose Verbose flag
  * @return
  */
-bool PolyLine2D::_serializeAscii(std::ostream& os, bool /*verbose*/) const
+bool PolyLine2D::_serializeAscii(std::ostream& os) const
 {
   if (getNPoints() <= 0) return false;
   bool ret = true;
@@ -123,10 +122,9 @@ bool PolyLine2D::_serializeAscii(std::ostream& os, bool /*verbose*/) const
 /**
  * Deserialization (by sample)
  * @param is Input stream
- * @param verbose Verbose flag
  * @return
  */
-bool PolyLine2D::_deserializeAscii(std::istream& is, bool /*verbose*/)
+bool PolyLine2D::_deserializeAscii(std::istream& is)
 {
   Id np    = 0;
   bool ret = true;
@@ -693,7 +691,7 @@ double distanceBetweenPolylines(const PolyLine2D& poly1,
 }
 
 #ifdef HDF5
-bool PolyLine2D::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+bool PolyLine2D::deserializeH5(H5::Group& grp)
 {
   auto polyline2DG = SerializeHDF5::getGroup(grp, "PolyLine2D");
   if (!polyline2DG)
@@ -709,7 +707,7 @@ bool PolyLine2D::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   return ret;
 }
 
-bool PolyLine2D::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+bool PolyLine2D::serializeH5(H5::Group& grp) const
 {
   auto polyline2DG = grp.createGroup("PolyLine2D");
 

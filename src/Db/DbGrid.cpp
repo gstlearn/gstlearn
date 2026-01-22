@@ -9,12 +9,10 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Db/DbGrid.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/Grid.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/SerializeHDF5.hpp"
-#include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Calculators/CalcMigrate.hpp"
@@ -67,7 +65,7 @@ String DbGrid::toString(const AStringFormat* strfmt) const
   DbStringFormat dsf;
   if (dbfmt != nullptr) dsf = *dbfmt;
 
-  sstr << toTitle(0, "Data Base Grid Characteristics");
+  sstr << toStrTitle(0, "Data Base Grid Characteristics");
 
   if (dsf.matchResume())
   {
@@ -163,7 +161,7 @@ Id DbGrid::reset(const VectorInt& nx,
  * @param x0       Vector of the expected origin of the grid (in coordinate)
  * @param margin   Vector of the expected margins of the grid (in distance)
  *
- * @remarks Arguments 'nodes' and 'dcell' are disjunctive. If both defined, 'dcell' prevails
+ * @remarks Arguments 'nx' and 'dx' are disjunctive. If both defined, 'nx' prevails
  */
 Id DbGrid::resetCoveringDb(const Db* db,
                            const VectorInt& nx,
@@ -229,27 +227,20 @@ Id DbGrid::resetCoveringDb(const Db* db,
   return 0;
 }
 
-/**
- * Creating a regular grid Db which covers the input Polygon
- *
- * @param polygon    Pointer to the input Polygon
- * @param nodes      Vector of the expected number of nodes
- * @param dcell      Vector of the expected dimensions for the grid cells
- * @param flagAddSampleRank true if the sample rank must be generated
- */
 Id DbGrid::resetFromPolygon(Polygons* polygon,
-                            const VectorInt& nodes,
-                            const VectorDouble& dcell,
+                            const VectorInt& nx,
+                            const VectorDouble& dx,
+                            bool flagAddSelection,
                             bool flagAddSampleRank)
 {
   _clear();
-  double xmin, xmax, ymin, ymax;
   Id ndim = 2;
 
-  polygon->getExtension(&xmin, &xmax, &ymin, &ymax);
+  // Get the polygon extension
+  double xmin, xmax, ymin, ymax;
+  polygon->getExtension(xmin, xmax, ymin, ymax);
 
   // Derive the Grid parameters
-
   VectorInt nx_tab;
   VectorDouble x0_tab;
   VectorDouble dx_tab;
@@ -259,42 +250,44 @@ Id DbGrid::resetFromPolygon(Polygons* polygon,
     double x0  = (idim == 0) ? xmin : ymin;
     double ext = (idim == 0) ? xmax - xmin : ymax - ymin;
 
-    Id nx     = 10;
-    double dx = ext / static_cast<double>(nx);
-    if (ndim == static_cast<Id>(nodes.size()))
+    Id nxloc     = 10;
+    double dxloc = ext / static_cast<double>(nxloc);
+    if (ndim == static_cast<Id>(nx.size()))
     {
-      nx = nodes[idim];
-      dx = ext / static_cast<double>(nx);
+      nxloc = nx[idim];
+      dxloc = ext / static_cast<double>(nxloc);
     }
-    if (ndim == static_cast<Id>(dcell.size()))
+    if (ndim == static_cast<Id>(dx.size()))
     {
-      dx = dcell[idim];
-      nx = static_cast<Id>(ext / dx);
+      dxloc = dx[idim];
+      nxloc = static_cast<Id>(ext / dxloc);
     }
 
-    nx_tab.push_back(nx);
+    nx_tab.push_back(nxloc);
     x0_tab.push_back(x0);
-    dx_tab.push_back(dx);
-    nech *= nx;
+    dx_tab.push_back(dxloc);
+    nech *= nxloc;
   }
   Id ncol = (flagAddSampleRank) ? ndim + 1 : ndim;
 
   // Create the grid
-
   if (gridDefine(nx_tab, dx_tab, x0_tab)) return 1;
   resetDims(ncol, nech);
 
   /// Load the data
-
   if (flagAddSampleRank) _createRank(0);
   _createGridCoordinates(flagAddSampleRank);
 
   // Create the locators
-
   Id jcol = 0;
   if (flagAddSampleRank) jcol++;
   setLocatorsByUID(ndim, jcol, ELoc::X, 0);
 
+  // Add a selection (optional)
+  if (flagAddSelection)
+  {
+    db_polygon(this, polygon);
+  }
   return 0;
 }
 
@@ -326,7 +319,7 @@ DbGrid* DbGrid::createCoveringDb(const Db* db,
                                  const VectorDouble& x0,
                                  const VectorDouble& margin)
 {
-  DbGrid* dbgrid = new DbGrid;
+  auto* dbgrid = new DbGrid;
   if (dbgrid->resetCoveringDb(db, nx, dx, x0, margin))
   {
     messerr("Error when creating DbGrid covering another Db");
@@ -336,13 +329,30 @@ DbGrid* DbGrid::createCoveringDb(const Db* db,
   return dbgrid;
 }
 
+/**
+ * Creating a regular unrotated grid Db which covers the input Polygon
+ *
+ * @param polygon    Pointer to the input Polygon
+ * @param nx         Vector of the expected number of nodes
+ * @param dx         Vector of the expected dimensions for the grid cells
+ * @param flagAddSelection true if a selection variable must be created
+ * @param flagAddSampleRank true if the sample rank must be generated
+ *
+ * @remarks The aim of this procedure is to create a regular (unrotated) grid
+ *          which covers the extension of the input Polygon
+ * @remarks If 'nx' is not defined, it is set to 10 by default along each space dimension
+ * @remarks If 'nx' is defined, 'dx' is derived
+ * @remarks If 'dx' is defined, 'nx' is derived
+ * @remarks If both 'nx' and 'dx' are defined, 'dx' prevails over 'nx'
+ */
 DbGrid* DbGrid::createFromPolygon(Polygons* polygon,
-                                  const VectorInt& nodes,
-                                  const VectorDouble& dcell,
+                                  const VectorInt& nx,
+                                  const VectorDouble& dx,
+                                  bool flagAddSelection,
                                   bool flagAddSampleRank)
 {
-  DbGrid* dbgrid = new DbGrid;
-  if (dbgrid->resetFromPolygon(polygon, nodes, dcell, flagAddSampleRank))
+  auto* dbgrid = new DbGrid;
+  if (dbgrid->resetFromPolygon(polygon, nx, dx, flagAddSelection, flagAddSampleRank))
   {
     messerr("Error when creating DbGrid from Polygon");
     delete dbgrid;
@@ -400,7 +410,7 @@ DbGrid* DbGrid::createFromGridExtend(const DbGrid& gridIn,
                                      bool verbose,
                                      double eps)
 {
-  DbGrid* gridnew = new DbGrid;
+  auto* gridnew = new DbGrid;
 
   Id ncoor = static_cast<Id>(nxnew.size());
   if (ncoor <= 0)
@@ -593,7 +603,7 @@ bool DbGrid::migrateAllVariables(Db* dbin, bool flag_fill, bool flag_inter, bool
 
   // Constitute the list of Variables to be migrated
 
-  VectorInt icols;
+  VectorInt iatts;
   for (Id icol = 0; icol < dbin->getNColumn(); icol++)
   {
     // Skip the rank
@@ -605,21 +615,22 @@ bool DbGrid::migrateAllVariables(Db* dbin, bool flag_fill, bool flag_inter, bool
     {
       if (locatorType == ELoc::X) continue;
     }
-    icols.push_back(icol);
+    // icols.push_back(icol);
+    iatts.push_back(dbin->getUID(name));
   }
-  Id ncol = static_cast<Id>(icols.size());
-  if (ncol <= 0) return true;
+  Id natts = static_cast<Id>(iatts.size());
+  if (natts <= 0) return true;
 
   // Migrate the variables
   auto icolOut = getNColumn();
-  if (migrateByAttribute(dbin, this, icols, 2, VectorDouble(), flag_fill,
+  if (migrateByAttribute(dbin, this, iatts, 2, VectorDouble(), flag_fill,
                          flag_inter, flag_ball, NamingConvention(String())))
     return false;
 
   // Duplicate the locators
-  for (Id icol = 0; icol < ncol; icol++)
+  for (Id icol = 0; icol < natts; icol++)
   {
-    if (dbin->getLocatorByColIdx(icols[icol], &locatorType, &locatorIndex))
+    if (dbin->getLocatorByColIdx(iatts[icol], &locatorType, &locatorIndex))
       setLocatorByColIdx(icolOut + icol, locatorType, locatorIndex);
     else
       setLocatorByColIdx(icolOut + icol, ELoc::UNKNOWN, 0);
@@ -646,8 +657,8 @@ void DbGrid::_createGridCoordinates(Id icol0)
 
   // Generate the vector of coordinates
 
-  std::vector<double> coors(ndim);
-  std::vector<Id> indices;
+  VectorDouble coors(ndim);
+  VectorInt indices;
   _grid.iteratorInit();
   for (Id iech = 0; iech < getNSample(); iech++)
   {
@@ -718,8 +729,8 @@ void DbGrid::initThread() const
 }
 void DbGrid::getCoordinatesInPlace(VectorDouble& coor, Id iech, bool flag_rotate) const
 {
-  const VectorDouble& vec = _grid.getCoordinatesByRank(iech, flag_rotate);
-  std::copy(vec.begin(), vec.begin() + getNDim(), coor.begin());
+  coor.resize(getNDim());
+  _grid.getCoordinatesByRankInPlace(coor, iech, flag_rotate);
 }
 
 Id DbGrid::getNDim() const
@@ -743,34 +754,33 @@ bool DbGrid::isConsistent() const
   return _grid.getNTotal() == getNSample();
 }
 
-bool DbGrid::_deserializeAscii(std::istream& is, bool verbose)
+bool DbGrid::_deserializeAscii(std::istream& is)
 {
   bool ret = true;
 
-  ret = ret && _grid._deserializeAscii(is, verbose);
+  ret = ret && _grid._deserializeAscii(is);
 
-  ret = ret && Db::_deserializeAscii(is, verbose);
+  ret = ret && Db::_deserializeAscii(is);
 
   return ret;
 }
 
-bool DbGrid::_serializeAscii(std::ostream& os, bool verbose) const
+bool DbGrid::_serializeAscii(std::ostream& os) const
 {
   bool ret = true;
 
   /* Writing the grid characteristics */
 
-  ret = ret && _grid._serializeAscii(os, verbose);
+  ret = ret && _grid._serializeAscii(os);
 
   /* Writing the tail of the file */
 
-  ret = ret && Db::_serializeAscii(os, verbose);
-
+  ret = ret && Db::_serializeAscii(os);
   return ret;
 }
 
 #ifdef HDF5
-bool DbGrid::_deserializeH5(H5::Group& grp, bool verbose)
+bool DbGrid::deserializeH5(H5::Group& grp)
 {
   auto dbgridG = SerializeHDF5::getGroup(grp, "DbGrid");
   if (!dbgridG)
@@ -781,25 +791,25 @@ bool DbGrid::_deserializeH5(H5::Group& grp, bool verbose)
   bool ret = true;
 
   // call _deserializeAscii on each member with the current class Group
-  ret = ret && _grid._deserializeH5(*dbgridG, verbose);
+  ret = ret && _grid.deserializeH5(*dbgridG);
 
   // call _deserializeAscii on the parent class with the current class Group
-  ret = ret && Db::_deserializeH5(*dbgridG, verbose);
+  ret = ret && Db::deserializeH5(*dbgridG);
 
   return ret;
 }
 
-bool DbGrid::_serializeH5(H5::Group& grp, bool verbose) const
+bool DbGrid::serializeH5(H5::Group& grp) const
 {
   auto dbgridG = grp.createGroup("DbGrid");
 
   bool ret = true;
 
   // call _serializeAscii on each member with the current class Group
-  ret = ret && _grid._serializeH5(dbgridG, verbose);
+  ret = ret && _grid.serializeH5(dbgridG);
 
   // call _serializeAscii on the parent class with the current class Group
-  ret = ret && Db::_serializeH5(dbgridG, verbose);
+  ret = ret && Db::serializeH5(dbgridG);
 
   return ret;
 }
@@ -1434,8 +1444,8 @@ VectorVectorDouble DbGrid::getGridEdges() const
 VectorDouble DbGrid::getCodir(const VectorInt& grincr) const
 {
   VectorDouble codir = getGrid().indicesToCoordinate(grincr);
-  VH::subtractInPlace(codir, getGrid().getX0s());
-  VH::normalize(codir);
+  codir.subtract(getGrid().getX0s());
+  codir.normalizeInPlace();
   return codir;
 }
 
@@ -1534,6 +1544,7 @@ DbGrid* DbGrid::createGrid2D(const ELoadBy& order,
  * @param heteroRatio Vector of proportions of NA to be generated per variable
  * @param means Vector of means per variable (optional)
  * @param x0 Vector of coordinates of the origin of the grid (optional)
+ * @param dx Vector of grid meshes (optional). If not provided, dx = 1 / nx (for each space dimension)
  * @param seed Value for the Random Generator seed
  * @return A pointer to the newly created DbGrid
  *
@@ -1553,17 +1564,22 @@ DbGrid* DbGrid::createFillRandom(const VectorInt& nx,
                                  const VectorDouble& heteroRatio,
                                  const VectorDouble& means,
                                  const VectorDouble& x0,
+                                 const VectorDouble& dx,
                                  Id seed)
 {
   // Set the seed
   law_set_random_seed(seed);
 
   // Create the Db
-  Id ndim = static_cast<Id>(nx.size());
-  VectorDouble dx(ndim);
-  for (Id idim = 0; idim < ndim; idim++) dx[idim] = 1. / nx[idim];
-  DbGrid* dbgrid = DbGrid::create(nx, dx, x0);
-  Id ndat        = VH::product(nx);
+  Id ndim            = static_cast<Id>(nx.size());
+  VectorDouble dxloc = dx;
+  if (ndim != static_cast<Id>(dxloc.size()))
+  {
+    dxloc.resize(ndim);
+    for (Id idim = 0; idim < ndim; idim++) dxloc[idim] = 1. / nx[idim];
+  }
+  DbGrid* dbgrid = DbGrid::create(nx, dxloc, x0);
+  Id ndat        = nx.prod();
 
   // Generate the Vectors of Variance of measurement error (optional)
   if (varmax > 0.)
@@ -1801,9 +1817,9 @@ DbGrid* DbGrid::createSqueezeAndStretchForward(const DbGrid* grid3Din,
 
   // Getting relevant information from the top and bottom surfaces (using the selection)
   VectorDouble botArray = surf2D->getColumn(nameBot, true);
-  double botmin         = VH::minimum(botArray);
+  double botmin         = botArray.minimum();
   VectorDouble topArray = surf2D->getColumn(nameTop, true);
-  double topmax         = VH::maximum(topArray);
+  double topmax         = topArray.maximum();
   if (topmax <= botmin)
   {
     messerr("The thickness of the target Layer seems too small for a Squeeze-and-Stretch");
@@ -1939,9 +1955,9 @@ DbGrid* DbGrid::createSqueezeAndStretchBackward(const DbGrid* grid3Din,
 
   // Getting relevant information from the top and bottom surfaces (using the selection)
   VectorDouble botArray = surf2D->getColumn(nameBot, true);
-  double botmin         = VH::minimum(botArray);
+  double botmin         = botArray.minimum();
   VectorDouble topArray = surf2D->getColumn(nameTop, true);
-  double topmax         = VH::maximum(topArray);
+  double topmax         = topArray.maximum();
   if (topmax <= botmin)
   {
     messerr("The thickness of the target Layer seems too small for a Squeeze-and-Stretch");
@@ -2393,7 +2409,7 @@ VectorVectorDouble DbGrid::getDiscretizedBlock(const VectorInt& ndiscs,
                                                Id seed) const
 {
   auto ndim = getNDim();
-  Id ntot   = VH::product(ndiscs);
+  Id ntot   = ndiscs.prod();
   auto memo = law_get_random_seed();
   law_set_random_seed(seed);
   VectorVectorDouble discs(ntot);

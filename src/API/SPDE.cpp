@@ -18,7 +18,6 @@
 #include "Db/Db.hpp"
 #include "Enum/ECov.hpp"
 #include "LinearOp/InvNuggetOp.hpp"
-#include "LinearOp/PrecisionOp.hpp"
 #include "LinearOp/PrecisionOpMulti.hpp"
 #include "LinearOp/PrecisionOpMultiMatrix.hpp"
 #include "LinearOp/ProjMatrix.hpp"
@@ -293,7 +292,7 @@ bool SPDE::_isValidProjection(const Db* db, const VectorMeshes* meshes, const Pr
   Id ncol = 0;
   for (Id icov = 0; icov < ncov; icov++)
   {
-    ncol += nvar * (*meshes)[icov]->getNApices();
+    ncol += nvar * (*meshes)(icov)->getNApices();
   }
   if (ncol != napices)
   {
@@ -302,7 +301,7 @@ bool SPDE::_isValidProjection(const Db* db, const VectorMeshes* meshes, const Pr
     messerr("- Number of variables = %d", nvar);
     for (Id icov = 0; icov < nvar; icov++)
       messerr("- Number of apices for Meshing (%ld) = %d",
-              icov + 1, (*meshes)[icov]->getNApices());
+              icov + 1, (*meshes)(icov)->getNApices());
     return false;
   }
 
@@ -323,12 +322,12 @@ bool SPDE::_isValidProjection(const Db* db, const VectorMeshes* meshes, const Pr
 
 VectorMeshes SPDE::_duplicateMeshes(bool flagForKrige)
 {
-  const auto* src = flagForKrige ? _meshesKInit : _meshesSInit;
+  const auto* mesh = flagForKrige ? (*_meshesKInit)(0) : (*_meshesSInit)(0);
 
   Id ncov = _model->getNCov(true);
   VectorMeshes meshes(ncov);
   for (Id icov = 0; icov < ncov; icov++)
-    meshes[icov] = (*src)[0];
+    meshes.replace(icov, mesh);
   return meshes;
 }
 
@@ -348,10 +347,10 @@ VectorMeshes SPDE::_defineMeshesFromDbs(bool flagKrige)
   {
     if (_model->getCovType(jcov) == ECov::NUGGET) continue;
     const CovAniso* cova = _model->getCovAniso(jcov);
-    meshes[icov++]       = MeshETurbo::createFromCova(*cova, localDomain, refine,
+    meshes.replace(icov++, MeshETurbo::createFromCova(*cova, localDomain, refine,
                                                       _params.getBorder(),
                                                       _params.isPolarized(), true,
-                                                      _params.getNxMax());
+                                                      _params.getNxMax()));
   }
   if (isBuilt) delete localDomain;
 
@@ -364,7 +363,7 @@ void SPDE::_printMeshesDetails(const VectorMeshes& meshes)
   for (Id imesh = 0; imesh < nmesh; imesh++)
   {
     message("- Mesh #%d/%d: NMeshes = %d, NApices = %d\n",
-            imesh + 1, nmesh, meshes[imesh]->getNMeshes(), meshes[imesh]->getNApices());
+            imesh + 1, nmesh, meshes(imesh)->getNMeshes(), meshes(imesh)->getNApices());
   }
 }
 
@@ -384,7 +383,7 @@ void SPDE::_cleanMeshes(bool flagForKrige)
     if (_createMeshesK && !_meshesK.empty())
     {
       for (Id i = 0, n = static_cast<Id>(_meshesK.size()); i < n; i++)
-        delete _meshesK[i];
+        delete _meshesK(i);
     }
   }
   else
@@ -392,7 +391,7 @@ void SPDE::_cleanMeshes(bool flagForKrige)
     if (_createMeshesS && !_meshesS.empty())
     {
       for (Id i = 0, n = static_cast<Id>(_meshesS.size()); i < n; i++)
-        delete _meshesS[i];
+        delete _meshesS(i);
     }
   }
 }
@@ -575,7 +574,7 @@ Id SPDE::centerDataByDriftInPlace(VectorDouble& Z, bool verbose)
     MatrixDense driftMat = _model->evalDriftMatByRanks(_dbin);
     _driftCoeffs         = _spdeop->computeDriftCoeffs(Z, driftMat);
     ASPDEOp::centerDataByDriftMat(Z, driftMat, _driftCoeffs);
-    if (verbose) VH::dump("Drift coefficients = ", _driftCoeffs);
+    if (verbose) printVector(_driftCoeffs, "Drift coefficients = ", true, true);
   }
   else
   {

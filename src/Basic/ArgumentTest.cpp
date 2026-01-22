@@ -9,8 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Basic/ArgumentTest.hpp"
-#include "Basic/AStringable.hpp"
-#include "Basic/Utilities.hpp"
+#include "Basic/Message.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixSquare.hpp"
@@ -41,7 +40,7 @@ void _printEmpty()
 
 void _printInt(Id value)
 {
-  if (IFFFF(value))
+  if (isNA(value))
     _test();
   else
     message("%ld ", value);
@@ -49,7 +48,7 @@ void _printInt(Id value)
 
 void _printDouble(double value)
 {
-  if (FFFF(value))
+  if (isNA(value))
     _test();
   else
     message("%lf ", value);

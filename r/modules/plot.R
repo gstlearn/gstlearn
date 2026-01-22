@@ -358,6 +358,38 @@ plot.init <- function(dims = NA, xlim = NA, ylim = NA, asp = NA) {
   outs
 }
 
+.onlyPositiveX <- function(vario=NULL, model=NULL, ivar=0, jvar=0, asCov=FALSE) {
+    status = FALSE
+    if (! .isNotDef(vario)) {
+      if (vario$drawOnlyPositiveX(ivar, jvar)) {
+        status = TRUE
+      }
+    }
+
+    if (! .isNotDef(model)) {
+      if (model$drawOnlyPositiveX(ivar, jvar, asCov)) {
+        status = TRUE
+      }
+    }
+    return(status)
+}
+
+.onlyPositiveY <- function(vario = NULL, model = NULL, ivar = 0, jvar = 0, asCov = FALSE) {
+  status = FALSE
+  if (!.isNotDef(vario)) {
+    if (vario$drawOnlyPositiveY(ivar, jvar)) {
+      status = TRUE
+    }
+  }
+  if (!.isNotDef(model)) {
+    if (model$drawOnlyPositiveY(ivar, jvar, asCov)) {
+      status = TRUE
+    }
+  }
+  return(status)
+}
+
+
 #' Draw an elementary experimental variogram
 #' 
 #' @keywords internal
@@ -366,7 +398,8 @@ plot.init <- function(dims = NA, xlim = NA, ylim = NA, asp = NA) {
     varColor='black', varLinetype="dashed", varSize=0.5, 
     drawVariance = TRUE, drawPsize = 0, 
     drawPlabel = FALSE, flagLimits=TRUE, 
-    dirName="Direction", lineName="Experimental", ...)
+    dirName="Direction", lineName="Experimental", 
+    legendNameColor= "Direction", legendNameLine="Type", ...)
 {
   dots = list(...)
   p = list()
@@ -379,6 +412,7 @@ plot.init <- function(dims = NA, xlim = NA, ylim = NA, asp = NA) {
   p = append(p, geom_line(data = df, 
               mapping=aes(x=hh, y=gg, color=dirName, linetype=lineName), 
               na.rm=TRUE, ...))
+  p = append(p, list(labs(color = legendNameColor, linetype = legendNameLine)))
   
   # Representing the number of pairs (by size)
   if (drawPsize > 0)
@@ -399,22 +433,22 @@ plot.init <- function(dims = NA, xlim = NA, ylim = NA, asp = NA) {
                label=as.character(sw)), na.rm=TRUE, ...))
   
   # Adding the vertical axis at X=0
-  p = append(p, geom_vline(xintercept = 0., color='black', size=0.5))
+  p = append(p, geom_vline(xintercept = 0., color='black', linewidth=0.5))
   
   # Adding the horizontal axis at Y=0            
-  p = append(p, geom_hline(yintercept = 0., color="black", size=0.5))
+  p = append(p, geom_hline(yintercept = 0., color="black", linewidth=0.5))
   
   # Drawing the variance-covariance reference line (optional)
   if (drawVariance)
     p = append(p, geom_hline(yintercept=vario$getVar(ivar,jvar), 
-            color=varColor, linetype=varLinetype, size=varSize))
+            color=varColor, linetype=varLinetype, linewidth=varSize))
   
   # Tuning the bounds of graphics. This is optional in order to avoid multiple limit definitions
   if (flagLimits)
   {
-    if (vario$drawOnlyPositiveX(ivar, jvar))
+    if (.onlyPositiveX(vario=vario, ivar=ivar, jvar=jvar))
       p = append(p, plot.geometry(xlim = c(0, NA)))
-    if (vario$drawOnlyPositiveY(ivar, jvar))
+    if (.onlyPositiveY(vario=vario, ivar=ivar, jvar=jvar))
       p = append(p, plot.geometry(ylim = c(0, NA)))
   }
   p
@@ -427,8 +461,8 @@ plot.init <- function(dims = NA, xlim = NA, ylim = NA, asp = NA) {
 .modelElementary <- function(model, ivar=0, jvar=0, codir=NA,
     nh = 100, hmax = NA, asCov=FALSE, flagEnvelop = TRUE, 
     envColor='black', envLinetype="dashed", envSize=0.5, 
-    dirName = "Direction1", lineName="Model",
-    ...)
+    dirName = "Direction", lineName="Model", 
+    legendNameColor= "Direction", legendNameLine="Type", ...)
 {
   dots = list(...)
   p = list()
@@ -470,29 +504,60 @@ plot.init <- function(dims = NA, xlim = NA, ylim = NA, asp = NA) {
   mode$setAsVario(! asCov)
   gg = model$sample(hh, codir=codir, ivar=ivar, jvar=jvar, mode=mode)
   df = data.frame(gg = gg[istart:nh], hh = hh[istart:nh])
-  p = append(p, geom_line(data = df, 
-               mapping=aes(x=hh, y=gg, color=dirName, linetype=lineName), 
-             na.rm=TRUE, ...))
+  p = append(p, geom_line(
+    data = df, mapping = aes(x = hh, y = gg, color = dirName, linetype = lineName),
+    na.rm = TRUE, ... ))
+  if (!.onlyPositiveX(model = model, ivar = ivar, jvar = jvar, asCov = asCov)) {
+    df = data.frame(gg = gg[istart:nh], hh = -hh[istart:nh])
+    p = append(p, geom_line(
+      data = df, mapping = aes(x = hh, y = gg, color = dirName, linetype = lineName),
+      na.rm = TRUE, ... ))
+  }
+  p = append(p, list(labs(color = legendNameColor, linetype = legendNameLine)))
   
   # Represent the coregionalization envelop
   if (ivar != jvar && flagEnvelop)
   {
     gg = model$envelop(hh, ivar=ivar, jvar=jvar, isign=-1, codir=codir, mode=mode)
     df = data.frame(gg = gg[istart:nh], hh = hh[istart:nh])
-    p = append(p, geom_line(data = df, mapping=aes(x=hh, y=gg), na.rm=TRUE, 
-            color = envColor, linetype = envLinetype, size=envSize))
+    p = append(p, geom_line(
+      data = df, mapping = aes(x = hh, y = gg), na.rm = TRUE,
+      color = envColor, linetype = envLinetype, linewidth = envSize
+    ))
+    if (!.onlyPositiveX(model = model, ivar = ivar, jvar = jvar, asCov = asCov)) {
+      df = data.frame(gg = gg[istart:nh], hh = -hh[istart:nh])
+      p = append(p, geom_line(
+        data = df, mapping = aes(x = hh, y = gg), na.rm = TRUE,
+        color = envColor, linetype = envLinetype, linewidth = envSize
+      ))
+    }
     
     gg = model$envelop(hh, ivar=ivar, jvar=jvar, isign=+1, codir=codir, mode=mode)
     df = data.frame(gg = gg[istart:nh], hh = hh[istart:nh])
-    p = append(p, geom_line(data = df, mapping=aes(x=hh, y=gg), na.rm=TRUE, 
-            color = envColor, linetype = envLinetype, size=envSize))
+    p = append(p, geom_line(
+      data = df, mapping = aes(x = hh, y = gg), na.rm = TRUE,
+      color = envColor, linetype = envLinetype, linewidth = envSize
+    ))
+    if (!.onlyPositiveX(model = model, ivar = ivar, jvar = jvar, asCov = asCov)) {
+      df = data.frame(gg = gg[istart:nh], hh = -hh[istart:nh])
+      p = append(p, geom_line(
+        data = df, mapping = aes(x = hh, y = gg), na.rm = TRUE,
+        color = envColor, linetype = envLinetype, linewidth = envSize
+      ))
+    }
   }
 
   # Adding the vertical axis at X=0
-  p = append(p, geom_vline(xintercept = 0., color='black', size=0.5))
+  p = append(p, geom_vline(xintercept = 0., color='black', linewidth=0.5))
   
   # Adding the horizontal axis at Y=0
-  p = append(p, geom_hline(yintercept = 0., color = "black", size = 0.5))
+  p = append(p, geom_hline(yintercept = 0., color = "black", linewidth = 0.5))
+  
+  # Informing bound criterion
+  if (.onlyPositiveX(model = model, ivar = ivar, jvar = jvar, asCov = asCov)) 
+    p = append(p, plot.geometry(xlim = c(0, NA)))
+  if (.onlyPositiveY(model = model, ivar = ivar, jvar = jvar, asCov = asCov)) 
+    p = append(p, plot.geometry(ylim = c(0, NA)))
   
   p
 }
@@ -721,7 +786,8 @@ plot.varmod <- function(vario=NA, model=NA, ivar=0, jvar=0, idir=-1,
     varioLinetype = "dashed", modelLinetype = "solid",
     varColor='black', varLinetype="dashed", varSize=0.5, 
     envColor='black', envLinetype="dashed", envSize=0.5,
-    cols=NA, drawVario=TRUE, flagLegend=FALSE, ...)
+    cols=NA, drawVario=TRUE, flagLegend=FALSE, 
+    legendNameColor="Direction", legendNameLine="Type", ...)
 {
   if (!require(ggnewscale, quietly=TRUE))
     stop("Package ggnewscale is mandatory to use this function!")
@@ -737,7 +803,8 @@ plot.varmod <- function(vario=NA, model=NA, ivar=0, jvar=0, idir=-1,
   if (! .isNotDef(vario)) ndir = vario$getNDir()
   nvar = 1
   if (! .isNotDef(vario)) nvar = vario$getNVar()
-  if (! .isNotDef(model)) nvar = model$getNVar()
+  if (!.isNotDef(model)) nvar = model$getNVar()
+  if (! .isNotDef(vario)) asCov = vario$getFlagAsym()
   if (missing(cols)) cols = .getColors()
   
   idirUtil = .selectItemsInList(ndir, idir)
@@ -760,9 +827,6 @@ plot.varmod <- function(vario=NA, model=NA, ivar=0, jvar=0, idir=-1,
   p <- .appendNewScale(p, "colour")
   
   # Loop on the variables
-  flag_allow_negative_X = FALSE
-  flag_allow_negative_Y = FALSE
-  
   for (ivar in ivarUtil)
   {
     for (jvar in jvarUtil)
@@ -783,12 +847,15 @@ plot.varmod <- function(vario=NA, model=NA, ivar=0, jvar=0, idir=-1,
         if (! .isNotDef(vario) && drawVario)
         {
           dotloc = dots
-          p = append(p, do.call(.varioElementary, c(list(vario=vario, 
-                          ivar=ivar, jvar=jvar, idir=idir, 
-                          varColor=varColor, varLinetype=varLinetype, varSize=varSize,
-                          drawVariance=drawVariance, drawPsize=drawPsize, 
-                          drawPlabel=drawPlabel, 
-                          flagLimits=FALSE, dirName=dirName), dotloc)))
+          p = append(p, do.call(.varioElementary, c(list(
+            vario = vario,
+            ivar = ivar, jvar = jvar, idir = idir,
+            varColor = varColor, varLinetype = varLinetype, varSize = varSize,
+            drawVariance = drawVariance, drawPsize = drawPsize,
+            drawPlabel = drawPlabel,
+            flagLimits = FALSE, dirName = dirName,
+            legendNameColor=legendNameColor, legendNameLine=legendNameLine
+          ), dotloc)))
         }
         
         # Plotting the Model
@@ -796,22 +863,21 @@ plot.varmod <- function(vario=NA, model=NA, ivar=0, jvar=0, idir=-1,
         {
           dotloc = dots
           if (! .isNotDef(vario) && ! has_codir) dotloc$codir = vario$getCodirs(idir) 
-          p = append(p, do.call(.modelElementary, c(list(model, ivar, jvar,  
-                          nh = nh, hmax = hmax, asCov=asCov, 
-                          flagEnvelop=flagEnvelop,
-                          envColor = envColor, envLinetype = envLinetype, 
-                          envSize=envSize, dirName=dirName), dotloc)))
+          p = append(p, do.call(.modelElementary, c(list(model, ivar, jvar,
+            nh = nh, hmax = hmax, asCov = asCov,
+            flagEnvelop = flagEnvelop,
+            envColor = envColor, envLinetype = envLinetype,
+            envSize = envSize, dirName = dirName,
+            legendNameColor=legendNameColor, legendNameLine=legendNameLine
+          ), dotloc)))
         }
       } # End of loop on idir
              
       # Informing bound criterion
-      if (! .isNotDef(vario))
-      {
-        if (! vario$drawOnlyPositiveX(ivar, jvar))
-          flag_allow_negative_X = TRUE
-        if (! vario$drawOnlyPositiveY(ivar, jvar))
-          flag_allow_negative_Y = TRUE
-      }
+      if (.onlyPositiveX(vario = vario, model = model, ivar = ivar, jvar = jvar, asCov = asCov)) 
+        p = append(p, plot.geometry(xlim = c(0, NA)))
+      if (.onlyPositiveY(vario = vario, model = model, ivar = ivar, jvar = jvar, asCov = asCov))
+        p = append(p, plot.geometry(ylim = c(0, NA)))
     } # End of loop on jvar
   } # End of loop on ivar
   
@@ -821,15 +887,7 @@ plot.varmod <- function(vario=NA, model=NA, ivar=0, jvar=0, idir=-1,
   # Constructing the Legend
   if (! flagLegend)
     p <- append(p, list(theme(legend.position='none')))
-  
-  # Tuning the global bounds of graphics
-  lower_bound = NA
-  if (! flag_allow_negative_X) lower_bound = 0
-  p = append(p, plot.geometry(xlim = c(lower_bound, NA)))
-  lower_bound = NA
-  if (! flag_allow_negative_Y) lower_bound = 0
-  p = append(p, plot.geometry(ylim = c(lower_bound, NA)))
-  
+
   p
 }
 
@@ -1082,6 +1140,7 @@ plot.raster <- function(dbgrid, name = NULL, useSel = TRUE, posX=0, posY=1, corn
   # Define the color Scale
   p <- append(p, .defineFill(palette, naColor = naColor, limits = limits, title = legendName))
   p <- .appendNewScale(p, "fill")
+  if (!flagLegend) p <- append(p, guides(fill = "none"))
   
   p
 }

@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Estimation/KrigOpt.hpp"
 #include "Basic/AStringable.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Db/DbGrid.hpp"
 #include "Enum/EKrigOpt.hpp"
 #include "Matrix/MatrixDense.hpp"
@@ -106,8 +105,8 @@ Id KrigOpt::setMatLC(const MatrixDense* matLC)
 }
 
 Id KrigOpt::setOptionCalcul(const EKrigOpt& calcul,
-                             const VectorInt& ndiscs,
-                             bool flag_per_cell)
+                            const VectorInt& ndiscs,
+                            bool flag_per_cell)
 {
   _calcul = calcul;
 
@@ -133,7 +132,7 @@ Id KrigOpt::setOptionCalcul(const EKrigOpt& calcul,
 
     // Prepare auxiliary storage
     _nDiscDim    = static_cast<Id>(ndiscs.size());
-    _nDiscNumber = VH::product(_ndiscs);
+    _nDiscNumber = _ndiscs.prod();
     _disc1.resize(_nDiscNumber);
     _disc2.resize(_nDiscNumber);
     for (Id i = 0; i < _nDiscNumber; i++)
@@ -219,7 +218,7 @@ bool KrigOpt::_isValidCalcul(const Db* dbout, const ANeigh* neigh) const
   if (_calcul == EKrigOpt::BLOCK)
   {
     const auto* dbgrid = dynamic_cast<const DbGrid*>(dbout);
-    _dbgrid              = dbgrid;
+    _dbgrid            = dbgrid;
     if (dbgrid == nullptr)
     {
       messerr("Block Estimation is only possible for Grid '_dbout'");

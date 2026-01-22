@@ -10,8 +10,8 @@
 /******************************************************************************/
 #include "Basic/Tensor.hpp"
 #include "Basic/AException.hpp"
+#include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 
@@ -89,7 +89,7 @@ void Tensor::init(Id ndim)
 String Tensor::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
-  sstr << "Radius     = " << VH::toStringAsVD(_radius) << std::endl;
+  sstr << "Radius     = " << toStrVector(String(), _radius) << std::endl;
   if (!_rotation.isIdentity())
     sstr << _rotation.toString() << std::endl;
   return sstr.str();
@@ -99,7 +99,7 @@ void Tensor::setRadiusIsotropic(double radius)
 {
   if (isZero(radius))
     my_throw("Ellipsoid radius cannot be null");
-  VH::fill(_radius, radius, static_cast<Id>(_radius.size()));
+  _radius.fill(radius, static_cast<Id>(_radius.size()));
   _isotropic = true;
   _fillTensors();
 }
@@ -251,10 +251,11 @@ void Tensor::_fillTensors()
   _tensorInverse.divideRow(_radius);
 
   // Square of the Direct tensor
-  _tensorDirect2 = MatrixSymmetric(static_cast<Id>(_nDim));
-  _tensorDirect2.prodMatMatInPlace(&_tensorDirect, &_tensorDirect, false, true);
+  _tensorDirect2.resize(_nDim, _nDim);
+  _tensorDirect2.prodMatMatNoCheck<false, true>(_tensorDirect, _tensorDirect);
 
-  _tensorDirectSwap = _rotation.getMatrixDirect();
+  // XF  _tensorDirectSwap = _rotation.getMatrixDirect();
+  _tensorDirectSwap = _rotation.getMatrixInverse();
   _tensorDirectSwap.multiplyRow(_radius);
 
   // Inverse of the Direct squared tensor
@@ -263,8 +264,7 @@ void Tensor::_fillTensors()
 
 void Tensor::_direct2ToInverse2()
 {
-  _tensorInverse2 = _tensorDirect2;
-  _tensorInverse2.invert();
+  _tensorDirect2.invertOutOfPlace(_tensorInverse2);
 }
 
 void Tensor::setTensorDirect2(const MatrixSymmetric& tensor)

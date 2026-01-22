@@ -10,7 +10,7 @@
 /******************************************************************************/
 #include "LinearOp/PrecisionOp.hpp"
 #include "Basic/AException.hpp"
-#include "Basic/AStringable.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "LinearOp/AShiftOp.hpp"
@@ -144,7 +144,7 @@ PrecisionOp& PrecisionOp::operator=(const PrecisionOp& pmat)
 
     if (_destroyShiftOp)
     {
-      _shiftOp = (AShiftOp*)pmat._shiftOp->clone();
+      _shiftOp = static_cast<AShiftOp*>(pmat._shiftOp->clone());
     }
     else
       _shiftOp = pmat._shiftOp;
@@ -173,9 +173,9 @@ PrecisionOp::~PrecisionOp()
   }
 }
 
-std::vector<double> PrecisionOp::evalInverse(const VectorDouble& vecin)
+VectorDouble PrecisionOp::evalInverse(const VectorDouble& vecin)
 {
-  std::vector<double> vecout(vecin.size());
+  VectorDouble vecout(vecin.size());
   constvect vecinconst(vecin);
   evalInverse(vecinconst, vecout);
   return vecout;
@@ -234,7 +234,7 @@ void PrecisionOp::setPolynomialFromPoly(APolynomial* polynomial)
 {
   _purge();
   _userPoly                   = true;
-  _polynomials[EPowerPT::ONE] = std::unique_ptr<APolynomial>((APolynomial*)polynomial->clone());
+  _polynomials[EPowerPT::ONE] = std::unique_ptr<APolynomial>(static_cast<APolynomial*>(polynomial->clone()));
   _preparePoly(EPowerPT::MINUSONE, true);
   _preparePoly(EPowerPT::MINUSHALF, true);
   _preparePoly(EPowerPT::LOG, true);
@@ -250,8 +250,8 @@ Id PrecisionOp::_prepareChebychev(const EPowerPT& power) const
 
   double b                                = _shiftOp->getMaxEigenValue();
   std::unique_ptr<APolynomial> chebMatern = std::make_unique<Chebychev>();
-  ((Chebychev*)chebMatern.get())->setA(0);
-  ((Chebychev*)chebMatern.get())->setB(b);
+  static_cast<Chebychev*>(chebMatern.get())->setA(0);
+  static_cast<Chebychev*>(chebMatern.get())->setB(b);
 
   std::function<double(double)> f;
 
@@ -294,7 +294,7 @@ Id PrecisionOp::reset(const AShiftOp* shiftop,
 
     _cova    = cova;
     _verbose = verbose;
-    _shiftOp = (AShiftOp*)shiftop->clone();
+    _shiftOp = static_cast<AShiftOp*>(shiftop->clone());
 
     _purge();
   }
@@ -390,7 +390,7 @@ Id PrecisionOp::_addEvalPoly(const EPowerPT& power,
 
     if (_workPoly.empty())
     {
-      _workPoly = std::vector<std::vector<double>>(degree);
+      _workPoly = VectorVectorDouble(degree);
       for (auto& e: _workPoly)
       {
         e.resize(inv.size());
@@ -405,7 +405,7 @@ Id PrecisionOp::_addEvalPoly(const EPowerPT& power,
       messerr("only available for ShiftOpMatrix\n");
       return 1;
     }
-    ((ClassicalPolynomial*)_polynomials[power].get())->evalOpTraining(a->getS(), invs, _workPoly, _work5);
+    static_cast<ClassicalPolynomial*>(_polynomials[power].get())->evalOpTraining(a->getS(), invs, _workPoly, _work5);
 
     for (Id i = 0; i < static_cast<Id>(inv.size()); i++)
     {
@@ -421,7 +421,7 @@ Id PrecisionOp::_addEvalPoly(const EPowerPT& power,
 }
 
 void PrecisionOp::evalInverse(const constvect vecin,
-                              std::vector<double>& vecout)
+                              VectorDouble& vecout)
 {
   if (_work.size() != vecin.size()) _work.resize(vecin.size());
   vect vecouts(vecout);
@@ -436,7 +436,7 @@ VectorDouble PrecisionOp::computeCov(Id imesh)
 
   auto n = getSize();
   VectorDouble result(n);
-  std::vector<double> ei(n);
+  VectorDouble ei(n);
   vect eis(ei);
   vect results(result);
 
@@ -541,7 +541,7 @@ VectorDouble PrecisionOp::extractDiag() const
   VectorDouble vec(size, 0.);
   const EPowerPT& power = EPowerPT::ONE;
 
-  VectorDouble lambdas = _shiftOp->getLambdas();
+  const auto& lambdas = _shiftOp->getLambdas();
 
   if (_preparePoly(power) != 0) return vec;
 
@@ -571,7 +571,7 @@ double PrecisionOp::computeLogDet(Id nMC) const
     VH::simulateGaussianInPlace(gauss);
     vect results(result);
     if (_evalPoly(EPowerPT::LOG, gauss, results) != 0) return TEST;
-    val1 += VH::innerProduct(gauss, result);
+    val1 += gauss.innerProduct(result);
   }
 
   val1 /= nMC;

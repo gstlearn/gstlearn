@@ -213,6 +213,21 @@ Id Ball::resetAvailable(bool status)
   return 0;
 }
 
+/**
+ * @brief Construct a matrix with covering dbin and dbout (optional)
+ * - the number of columns is equal to nb_neigh+1
+ * - the number of rows is equal to the number of active (non masked) samples
+ *
+ * @param dbin First Db structure
+ * @param dbout Second Db structure (can be null)
+ * @param nb_neigh Number of neighbors to consider
+ * @param flagShuffle True if the samples are considered in random order
+ * @param verbose   Verbose flag
+ * @param leaf_size   Size of the leafs in the Ball tree
+ * @param default_distance_function   Distance function (1 for Euclidean, 2 for Manhattan)
+ * @param likelihood    True if the function is called for likelihood calculation (not used yet)
+ * @return MatrixT<Id>
+ */
 MatrixT<Id> findNN(const Db* dbin,
                    const Db* dbout,
                    Id nb_neigh,
@@ -239,11 +254,10 @@ MatrixT<Id> findNN(const Db* dbin,
   if (verbose) ball.display(1);
 
   // Dimensioning the output matrix
-  //RankHandler rh = RankHandler(dbin, true, true, true, likelihood);
-  //rh.defineSampleRanks();
-  
-  Id n1 = dbin->getNSample(true);
-  Id n2 = (dbout != nullptr) ? dbout->getNSample(true) : 0;
+  nb_neigh = MIN(nb_neigh, ball.getNSample());
+  Id n1    = dbin->getNSample(true);
+  Id n2    = (dbout != nullptr) ? dbout->getNSample(true) : 0;
+  Id shift = (dbin != nullptr) ? dbin->getNSample(false) : 0;
   mat.resize(n1 + n2, nb_neigh);
 
   // Loop on the samples for the FNN search
@@ -251,44 +265,65 @@ MatrixT<Id> findNN(const Db* dbin,
   VectorInt ranks;
   VectorInt neighs(nb_neigh);
   VectorDouble distances(nb_neigh);
+  int irel = 0;
 
   if (verbose)
+  {
     mestitle(1, "List of Neighbors for NN search");
+    message("All samples ranks are given in Absolute mode\n");
+  }
 
-  ranks = (flagShuffle) ? law_random_path(n1) : VH::sequence(n1);
-  for (Id jech = 0; jech < n1; jech++)
+  Id nech = dbin->getNSample(false);
+  ranks   = (flagShuffle) ? law_random_path(nech) : VH::sequence(nech);
+  for (Id jech = 0; jech < nech; jech++)
   {
     Id iech = ranks[jech];
+    if (!dbin->isActive(iech)) continue;
     dbin->getSampleAsSPInPlace(pt, iech);
-    ball.setAvailable(iech, true);
-    (void)ball.queryOneInPlace(pt.getCoordsUnprotected(), nb_neigh, neighs, distances);
-    for (Id i = 0; i < nb_neigh; i++) mat(jech, i) = neighs[i];
+    (void)ball.queryOneInPlace(pt.getCoordsUnprotected(), nb_neigh - 1, neighs, distances);
+    for (Id i = 0; i < nb_neigh - 1; i++) mat(irel, i + 1) = neighs[i];
+    mat(irel, 0) = iech;
+    ball.setAvailable(iech, true); // Provide absolute ranks (even when selection is present)
 
     if (verbose)
     {
-      message("Sample_1 %3d", iech);
-      VH::dump(" ", neighs, false);
+      message("For Db_1 %3d : %3d", iech, iech);
+      printVector(neighs, "", true, false);
     }
+    irel++;
   }
 
   if (dbout != nullptr)
   {
-    ranks = (flagShuffle) ? law_random_path(n2) : VH::sequence(n2);
-    for (Id jech = 0; jech < n2; jech++)
+    nech  = dbout->getNSample(false);
+    ranks = (flagShuffle) ? law_random_path(nech) : VH::sequence(nech);
+    for (Id jech = 0; jech < nech; jech++)
     {
       Id iech = ranks[jech];
+      if (!dbout->isActive(iech)) continue;
       dbout->getSampleAsSPInPlace(pt, iech);
-      ball.setAvailable(iech + n1, true);
+      ball.setAvailable(iech + shift, true); // Provide absolute ranks (even when selection is present)
       (void)ball.queryOneInPlace(pt.getCoordsUnprotected(), nb_neigh, neighs, distances);
-      for (Id i = 0; i < nb_neigh; i++) mat(n1 + jech, i) = neighs[i];
+      for (Id i = 0; i < nb_neigh; i++) mat(irel, i) = neighs[i];
 
       if (verbose)
       {
-        message("Sample_2 %3d", n1 + iech);
-        VH::dump(" ", neighs, false);
+        message("For Db_2 %3d :", iech + shift);
+        printVector(neighs, " ", true, false);
       }
+      irel++;
     }
   }
+
+  // Ultimate check
+  if (irel != n1 + n2)
+  {
+    messerr("In function findNN: irel(%d) should be equal to n1+n2(i.e. %d + %d)",
+            irel, n1, n2);
+    mat.clear();
+  }
+
+  if (verbose) message("\n");
   return mat;
 }
 

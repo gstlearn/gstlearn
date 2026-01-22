@@ -12,9 +12,11 @@
 
 #include "Basic/VectorNumT.hpp"
 #include "Model/AModelFitSills.hpp"
+#include "Transform/ATransform.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
+#include "Basic/ASerializable.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Basic/ListParams.hpp"
 #include "Covariances/ACov.hpp"
@@ -31,7 +33,7 @@ class Db;
 
 class DbGrid;
 class CovCalcMode;
-class Model;
+class ATransform;
 
 /**
  * \brief
@@ -47,7 +49,7 @@ class Model;
  * - the field extension: this information is needed to get a *stationary* version to any covariance
  * - the experimental mean vector and the variance-covariance matrix (used to calibrate the Model)
  */
-class GSTLEARN_EXPORT ModelGeneric: public ICloneable
+class GSTLEARN_EXPORT ModelGeneric: public ICloneable, public ASerializable
 {
 public:
   ModelGeneric(const CovContext& ctxt = CovContext());
@@ -55,19 +57,26 @@ public:
   ModelGeneric& operator=(const ModelGeneric& r);
   virtual ~ModelGeneric();
 
+public:
+  /// ICloneable interface
+  IMPLEMENT_CLONING(ModelGeneric)
+
+  /// ASeralizable Interface
+  String getNFName() const override { return "ModelGeneric"; }
+#ifdef HDF5
+  bool deserializeH5(H5::Group& grp) override;
+  bool serializeH5(H5::Group& grp) const override;
+#endif
+
   // getters for member pointers
   const ACov* getCov() const { return _cova.get(); }
   const CovContext* getContext() const { return &_ctxt; }
   const DriftList* getDriftList() const { return _driftList; }
 
-public:
-  /// ICloneable interface
-  IMPLEMENT_CLONING(ModelGeneric)
-
   ACov* _getCovModify() { return _cova.get(); }
   CovContext* _getContextModify() { return &_ctxt; }
   DriftList* _getDriftListModify() { return _driftList; }
-  std::vector<covmaptype>& getGradients() { return _gradFuncs; }
+  std::vector<covmaptype>& getCovGradients() { return _gradCovFuncs; }
 
 public:
   // Forwarding the methods from _cova
@@ -100,6 +109,7 @@ public:
   FORWARD_METHOD(getCov, evalAverageDbToDb, TEST)
   FORWARD_METHOD(getCov, evalAverageIncrToIncr, TEST)
   FORWARD_METHOD(getCov, evalAveragePointToDb, TEST)
+  FORWARD_METHOD(getCov, isValidForSpectral, false)
   FORWARD_METHOD(getCov, samplingDensityVariance, TEST)
   FORWARD_METHOD(getCov, specificVolume, TEST)
   FORWARD_METHOD(getCov, coefficientOfVariation, TEST)
@@ -118,6 +128,8 @@ public:
   FORWARD_METHOD(getCov, manage)
   FORWARD_METHOD(getCov, optimizationPreProcessForData)
   FORWARD_METHOD(getCov, optimizationPostProcess)
+  FORWARD_METHOD(getCov, simulateSpectralOmega, MatrixDense())
+
   FORWARD_METHOD_NON_CONST(_getCovModify, setOptimEnabled)
   FORWARD_METHOD_NON_CONST(_getCovModify, attachNoStatDb)
   FORWARD_METHOD_NON_CONST(_getCovModify, makeStationary)
@@ -155,6 +167,9 @@ public:
   FORWARD_METHOD(getDriftList, getMeans)
   FORWARD_METHOD(getDriftList, evalDriftVarCoef, TEST)
   FORWARD_METHOD(getDriftList, evalDriftVarCoefs)
+  FORWARD_METHOD(getDriftList, getPriorMeans)
+  FORWARD_METHOD(getDriftList, getPriorCovs)
+  FORWARD_METHOD(getDriftList, getPriorCov, TEST)
 
   FORWARD_METHOD_NON_CONST(_getDriftListModify, setFlagLinked)
   FORWARD_METHOD_NON_CONST(_getDriftListModify, setBetaHat)
@@ -164,6 +179,8 @@ public:
   FORWARD_METHOD_NON_CONST(_getDriftListModify, copyCovContext)
   FORWARD_METHOD_NON_CONST(_getDriftListModify, setMeans)
   FORWARD_METHOD_NON_CONST(_getDriftListModify, setMean)
+  FORWARD_METHOD_NON_CONST(_getDriftListModify, setPriorMeans)
+  FORWARD_METHOD_NON_CONST(_getDriftListModify, setPriorCovs)
 
   // Forwarding the methods from _ctxt
   FORWARD_METHOD(getContext, getNVar, -1)
@@ -177,6 +194,10 @@ public:
   FORWARD_METHOD_NON_CONST(_getContextModify, setCovar0s)
   FORWARD_METHOD_NON_CONST(_getContextModify, setCovar0)
 
+  FORWARD_METHOD(getTransform, condExpVec, VectorDouble())
+  FORWARD_METHOD(getTransform, transformVec, VectorDouble())
+  FORWARD_METHOD(getTransform, inverseTransformVec, VectorDouble())
+
   void setField(double field);
   bool isValid() const;
 
@@ -188,7 +209,12 @@ public:
   void addDrift(const ADrift* drift); // TODO: check that the same driftM has not been already defined
   void setDrifts(const VectorString& driftSymbols);
 
-  void initParams(const MatrixSymmetric& vars, double href = 1.);
+#ifndef SWIG
+  void initParams(const MatrixSymmetric& vars, double href = 1., double min = 0., double max = INF);
+#endif
+  const ATransform* getTransform() const { return _transform; }
+  ATransform* getTransformModify() { return _transform; }
+  void setTransform(const ATransform* transform);
 
   std::shared_ptr<ListParams> generateListParams() const;
   // Version for python test
@@ -204,15 +230,21 @@ public:
               bool verbose               = false,
               bool trace                 = false,
               bool reml                  = false);
+  bool hasTransform() const { return (_transform != nullptr); }
 
 private:
   virtual bool _isValid() const;
 
+protected:
+  virtual void _clear();
+  virtual void _create();
+
 protected:                     // TODO : pass into private to finish clean
   std::shared_ptr<ACov> _cova; /* Generic Covariance structure */
-  mutable std::vector<covmaptype> _gradFuncs;
-  DriftList* _driftList; /* Series of Drift functions */
-  CovContext _ctxt;      /* Context */
+  mutable std::vector<covmaptype> _gradCovFuncs;
+  DriftList* _driftList;  /* Series of Drift functions */
+  CovContext _ctxt;       /* Context */
+  ATransform* _transform; /* Transformation associated to the Model */
 };
 
 GSTLEARN_EXPORT Id computeCovMatSVCLHSInPlace(MatrixSymmetric& cov,

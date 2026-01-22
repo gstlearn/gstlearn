@@ -15,6 +15,7 @@
 
 #include "Enum/EKrigOpt.hpp"
 #include "Matrix/MatrixSparse.hpp"
+#include "Matrix/MatrixSquare.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Model/Option_VarioFit.hpp"
 
@@ -120,7 +121,7 @@ typedef struct
   MatrixSparse* Aproj;
   QChol* QC;
   std::vector<QChol*> QCov;
-  VectorDouble Isill;
+  MatrixSquare Isill;
   VectorDouble Csill;
   QSimu* qsimu;
   Cheb_Elem* s_cheb;

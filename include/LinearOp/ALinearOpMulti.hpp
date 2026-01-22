@@ -10,24 +10,25 @@
 /******************************************************************************/
 #pragma once
 
+#include "Basic/VectorNumT.hpp"
 #include "LinearOp/LogStats.hpp"
-#include <vector>
 #include "geoslib_define.h"
 
 namespace gstlrn
 {
-  class LogStats;
+class LogStats;
 
-class GSTLEARN_EXPORT ALinearOpMulti {
+class GSTLEARN_EXPORT ALinearOpMulti
+{
 
 public:
   ALinearOpMulti(Id nitermax = 1000, double eps = EPSILON8);
-  ALinearOpMulti(const ALinearOpMulti &m);
-  ALinearOpMulti& operator=(const ALinearOpMulti &m);
+  ALinearOpMulti(const ALinearOpMulti& m);
+  ALinearOpMulti& operator=(const ALinearOpMulti& m);
   virtual ~ALinearOpMulti();
 
-  void initLk(const std::vector<std::vector<double>> &inv, std::vector<std::vector<double>> &outv) const;
-  virtual Id sizes() const = 0;
+  void initLk(const VectorVectorDouble& inv, VectorVectorDouble& outv) const;
+  virtual Id sizes() const  = 0;
   virtual Id size(Id) const = 0;
 
   void setNIterMax(Id nitermax) { _nIterMax = nitermax; }
@@ -44,38 +45,38 @@ public:
 #ifndef SWIG
 
 protected:
-  virtual void _evalDirect(const std::vector<std::vector<double>>& inv,
-                           std::vector<std::vector<double>>& outv) const = 0;
+  virtual void _evalDirect(const VectorVectorDouble& inv,
+                           VectorVectorDouble& outv) const = 0;
 
 public:
-  void evalDirect(const std::vector<std::vector<double>>& inv,
-                  std::vector<std::vector<double>>& outv) const;
-  virtual void evalInverse(const std::vector<std::vector<double>>& vecin,
-                           std::vector<std::vector<double>>& vecout) const;
+  void evalDirect(const VectorVectorDouble& inv,
+                  VectorVectorDouble& outv) const;
+  virtual void evalInverse(const VectorVectorDouble& vecin,
+                           VectorVectorDouble& vecout) const;
 #endif
 
 protected:
   void _updated() const;
 
 private:
-  Id                       _nIterMax;
-  Id                       _nIterRestart;
-  double                    _eps;
-  bool                      _precondStatus;
-  bool                      _userInitialValue;
-  const ALinearOpMulti*     _precond;
+  Id _nIterMax;
+  Id _nIterRestart;
+  double _eps;
+  bool _precondStatus;
+  bool _userInitialValue;
+  const ALinearOpMulti* _precond;
 
   // Work arrays
-  mutable bool                         _initialized;
-  mutable std::vector<std::vector<double>> _r;
+  mutable bool _initialized;
+  mutable VectorVectorDouble _r;
 
 public:
-  mutable std::vector<std::vector<double>> _temp;
-  mutable std::vector<std::vector<double>> _p;
-  mutable std::vector<std::vector<double>> _z;
+  mutable VectorVectorDouble _temp;
+  mutable VectorVectorDouble _p;
+  mutable VectorVectorDouble _z;
   mutable double _nb;
 
 protected:
-  LogStats                   _logStats;
+  LogStats _logStats;
 };
-}
+} // namespace gstlrn

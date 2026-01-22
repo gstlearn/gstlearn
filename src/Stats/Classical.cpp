@@ -12,10 +12,12 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/String.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Enum/EOperator.hpp"
 #include "Enum/EStatOption.hpp"
+#include "Matrix/EigenVectors.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Matrix/Table.hpp"
@@ -479,7 +481,7 @@ void dbStatisticsVariables(Db* db,
  *
  * @return A Table containing the results
  */
-Table dbStatisticsMono(Db* db,
+Table dbStatisticsMono(const Db* db,
                        const VectorString& names,
                        const std::vector<EStatOption>& opers,
                        bool flagIso,
@@ -535,7 +537,7 @@ Table dbStatisticsMono(Db* db,
     {
       if (!accept[iech]) continue;
       double value = db->getArray(iech, iuids[iuid]);
-      // Skip TEST values (this is necessary when flagIso is set to FALSE)
+      // Skip TEST values (this test is necessary when flagIso is set to FALSE)
       if (FFFF(value)) continue;
 
       local[neff] = value;
@@ -1241,19 +1243,19 @@ void dbStatisticsPrint(const Db* db,
 
   /* Print the header of the monovariate statistics */
 
-  tab_print_rowname(" ", taille);
+  message("%s", _toStrRowHeader({" "}, 0, taille).c_str());
   if (_operExists(opers, EStatOption::NUM))
-    tab_prints(NULL, "Number");
+    printElement("Number");
   if (_operExists(opers, EStatOption::MINI))
-    tab_prints(NULL, "Minimum");
+    printElement("Minimum");
   if (_operExists(opers, EStatOption::MAXI))
-    tab_prints(NULL, "Maximum");
+    printElement("Maximum");
   if (_operExists(opers, EStatOption::MEAN))
-    tab_prints(NULL, "Mean");
+    printElement("Mean");
   if (_operExists(opers, EStatOption::STDV))
-    tab_prints(NULL, "St. Dev.");
+    printElement("St. Dev.");
   if (_operExists(opers, EStatOption::VAR))
-    tab_prints(NULL, "Variance");
+    printElement("Variance");
   message("\n");
 
   /* Print the monovariate statistics */
@@ -1261,35 +1263,35 @@ void dbStatisticsPrint(const Db* db,
   for (Id icol = 0; icol < ncol; icol++)
   {
     _getRowname(radix, ncol, icol, db->getNameByUID(iuids[icol]), string);
-    tab_print_rowname(string.data(), taille);
+    message("%s", _toStrRowHeader({string}, 0, taille).c_str());
 
     if (_operExists(opers, EStatOption::NUM))
-      tab_printi(NULL, static_cast<Id>(num[icol]));
+      printElement(static_cast<Id>(num[icol]));
     if (num[icol] > 0)
     {
       if (_operExists(opers, EStatOption::MINI))
-        tab_printg(NULL, mini[icol]);
+        printElement(mini[icol]);
       if (_operExists(opers, EStatOption::MAXI))
-        tab_printg(NULL, maxi[icol]);
+        printElement(maxi[icol]);
       if (_operExists(opers, EStatOption::MEAN))
-        tab_printg(NULL, mean[icol]);
+        printElement(mean[icol]);
       if (_operExists(opers, EStatOption::STDV))
-        tab_printg(NULL, sqrt(var[icol]));
+        printElement(sqrt(var[icol]));
       if (_operExists(opers, EStatOption::VAR))
-        tab_printg(NULL, var[icol]);
+        printElement(var[icol]);
     }
     else
     {
       if (_operExists(opers, EStatOption::MINI))
-        tab_prints(NULL, STRING_NA);
+        printElement(STRING_NA);
       if (_operExists(opers, EStatOption::MAXI))
-        tab_prints(NULL, STRING_NA);
+        printElement(STRING_NA);
       if (_operExists(opers, EStatOption::MEAN))
-        tab_prints(NULL, STRING_NA);
+        printElement(STRING_NA);
       if (_operExists(opers, EStatOption::STDV))
-        tab_prints(NULL, STRING_NA);
+        printElement(STRING_NA);
       if (_operExists(opers, EStatOption::VAR))
-        tab_prints(NULL, STRING_NA);
+        printElement(STRING_NA);
     }
     message("\n");
   }
@@ -1300,7 +1302,7 @@ void dbStatisticsPrint(const Db* db,
   if (ncol > 1 && numiso > 0 && flagCorrel)
   {
     message("Number of isotopic active samples = %d\n", numiso);
-    print_matrix("Correlation matrix", 0, 1, ncol, ncol, NULL, cov.data());
+    printMatrix(cov, ncol, ncol, "Correlation matrix", 0, 1);
     message("\n");
   }
 }
@@ -1319,15 +1321,15 @@ MatrixSquare* sphering(const AMatrix* X)
   Id nech = X->getNRows();
   Id nvar = X->getNCols();
 
-  AMatrix* TX              = X->transpose();
-  AMatrix* prod            = MatrixFactory::prodMatMat(TX, X);
-  MatrixSymmetric* prodsym = dynamic_cast<MatrixSymmetric*>(prod);
+  AMatrix* TX   = X->transpose();
+  AMatrix* prod = MatrixFactory::prodMatMat(TX, X);
+  auto* prodsym = dynamic_cast<MatrixSymmetric*>(prod);
   if (prodsym == nullptr) return nullptr;
 
   prodsym->prodScalar(1. / static_cast<double>(nech));
-  if (prodsym->computeEigen()) return nullptr;
-  VectorDouble eigen_values = prodsym->getEigenValues();
-  MatrixSquare* S           = prodsym->getEigenVectors()->clone();
+  auto eigenvectors        = EigenVectors(*prodsym);
+  const auto& eigen_values = eigenvectors.getEigenValues();
+  MatrixSquare* S          = eigenvectors.getEigenVectors().clone();
 
   // Invert the sign of the second Eigen vector (for compatibility with R output)
   for (Id ivar = 0; ivar < nvar; ivar++)
@@ -2168,7 +2170,7 @@ VectorVectorInt hscatterPairs(Db* db,
       /* Get the rank of the lag */
 
       auto ipasloc = dirparam.getLagRank(dist);
-      if (IFFFF(ipasloc)) continue;
+      if (isNA(ipasloc)) continue;
       if (ilag != ipasloc) continue;
 
       /* Point update */

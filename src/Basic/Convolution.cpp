@@ -10,9 +10,9 @@
 /******************************************************************************/
 #include "Basic/Convolution.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/FFT.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Core/fftn.hpp"
-#include "Basic/FFT.hpp"
 #include "Db/DbGrid.hpp"
 #include "Matrix/MatrixDense.hpp"
 
@@ -28,7 +28,7 @@ Convolution::Convolution(const Convolution& m)
 {
 }
 
-Convolution& Convolution::operator=(const Convolution &m)
+Convolution& Convolution::operator=(const Convolution& m)
 {
   if (this != &m)
   {
@@ -39,7 +39,6 @@ Convolution& Convolution::operator=(const Convolution &m)
 
 Convolution::~Convolution()
 {
-
 }
 
 bool Convolution::_isDbGridDefined() const
@@ -53,12 +52,12 @@ bool Convolution::_isDbGridDefined() const
 }
 
 Id Convolution::ConvolveSparse(Id iatt,
-                                const VectorVectorInt& ranks,
-                                const MatrixDense& wgt,
-                                const VectorDouble& means,
-                                Id optionVerbose)
+                               const VectorVectorInt& ranks,
+                               const MatrixDense& wgt,
+                               const VectorDouble& means,
+                               Id optionVerbose)
 {
-  if (! _isDbGridDefined()) return 1;
+  if (!_isDbGridDefined()) return 1;
   Id ndim    = _dbgrid->getNDim();
   Id nvar    = _dbgrid->getNLoc(ELoc::Z);
   Id nbneigh = static_cast<Id>(ranks.size());
@@ -69,7 +68,7 @@ Id Convolution::ConvolveSparse(Id iatt,
     messerr("The second dimension of 'ranks' (%d)", static_cast<Id>(ranks[0].size()));
     messerr("must be equal to the space dimension (%d)", ndim);
     return 1;
-    }
+  }
   if (wgt.getNRows() != nbneigh * nvar)
   {
     messerr("The number of rows in the weight matrix (%d)", wgt.getNRows());
@@ -100,8 +99,8 @@ Id Convolution::ConvolveSparse(Id iatt,
           VectorDouble vect = wgt.getColumnByRowRange(ivar, nbneigh * jvar, nbneigh * (jvar + 1));
           table.setRowName(irow, "Weight of Z" + std::to_string(jvar + 1) +
                                    " for Z*" + std::to_string(ivar + 1));
-          table.setValue(irow, 0, VH::minimum(vect));
-          table.setValue(irow, 1, VH::maximum(vect));
+          table.setValue(irow, 0, vect.minimum());
+          table.setValue(irow, 1, vect.maximum());
         }
       }
       table.display();
@@ -126,16 +125,16 @@ Id Convolution::ConvolveSparse(Id iatt,
     bool correct = true;
     for (Id ineigh = 0; ineigh < nbneigh && correct; ineigh++)
     {
-      VH::addInPlace(indTarget, ranks[ineigh], current);
+      indTarget.addVecInPlace(ranks[ineigh], current);
       correct = _dbgrid->getGrid().isInside(current);
 
       // Target is not estimated when one neighborhood sample is out of grid
       if (!correct) continue;
 
       // Load the mutlivariate set of values at location 'jech'
-      // Variable 'valid' is set to false if one data value is undefined 
+      // Variable 'valid' is set to false if one data value is undefined
       bool valid = true;
-      Id jech   = _dbgrid->indiceToRank(current);
+      Id jech    = _dbgrid->indiceToRank(current);
       for (Id ivar = 0; ivar < nvar && valid; ivar++)
       {
         double value = _dbgrid->getZVariable(jech, ivar);
@@ -159,7 +158,7 @@ Id Convolution::ConvolveSparse(Id iatt,
       for (Id jvar = 0; jvar < nvar; jvar++)
       {
         Id irow = jvar * nbneigh + ineigh;
-          
+
         // Loop on target variable
         for (Id ivar = 0; ivar < nvar; ivar++)
         {
@@ -184,15 +183,15 @@ Id Convolution::ConvolveSparse(Id iatt,
 }
 
 Id Convolution::ConvolveFFT(Id iatt,
-                             Id nvar,
-                             const DbGrid* marpat,
-                             const VectorDouble& means)
+                            Id nvar,
+                            const DbGrid* marpat,
+                            const VectorDouble& means)
 {
-  Id ndim       = _dbgrid->getNDim();
-  Id nv2        = nvar * nvar;
+  Id ndim        = _dbgrid->getNDim();
+  Id nv2         = nvar * nvar;
   VectorInt dims = _dbgrid->getNXs();
-  Id sImage     = VH::product(dims);
-  auto rImage  = static_cast<double>(sImage);
+  Id sImage      = dims.prod();
+  auto rImage    = static_cast<double>(sImage);
 
   // Find the center of kernel
   VectorInt cKernel = marpat->getCenterIndices(false);
@@ -201,10 +200,10 @@ Id Convolution::ConvolveFFT(Id iatt,
   VectorInt cImage = _dbgrid->getCenterIndices(false);
 
   // Find the shift between the two centers
-  VectorInt shift = VH::subtract(cKernel, cImage);
+  VectorInt shift = cImage.subtractVec(cKernel);
 
   // For each kernel, allocate arrays (real and imaginary parts)
-  // at the dimension of the final image. 
+  // at the dimension of the final image.
   VectorInt indices(ndim);
   std::vector<VectorDouble> kernelRe;
   std::vector<VectorDouble> kernelIm;
@@ -218,11 +217,11 @@ Id Convolution::ConvolveFFT(Id iatt,
 
   // For each pair or variable (ivar, jvar), plunge the corresponding
   // set of weights (given by 'marpat') in the "middle" of each 'kernel'
-  Id sKernel = VH::product(marpat->getNXs());
+  Id sKernel = marpat->getNXs().prod();
   for (Id i = 0; i < sKernel; i++)
   {
     marpat->rankToIndice(i, indices);
-    VH::addInPlace(indices, shift);
+    indices.add(shift);
     Id j = _dbgrid->indiceToRank(indices);
 
     for (Id iv2 = 0; iv2 < nv2; iv2++)
@@ -232,7 +231,7 @@ Id Convolution::ConvolveFFT(Id iatt,
   // Perform the FFT forward transform for each kernel
   for (Id iv2 = 0; iv2 < nv2; iv2++)
     if (fftn(ndim, dims.data(), kernelRe[iv2].data(), kernelIm[iv2].data(), 1)) return 1;
-  
+
   // Retreive the vector of images (real and imaginary parts)
   std::vector<VectorDouble> imageRe;
   std::vector<VectorDouble> imageIm;
@@ -241,7 +240,7 @@ Id Convolution::ConvolveFFT(Id iatt,
   for (Id ivar = 0; ivar < nvar; ivar++)
   {
     imageRe[ivar] = _dbgrid->getColumnByLocator(ELoc::Z, ivar);
-    if (!means.empty()) VH::addConstant(imageRe[ivar], -means[ivar]);
+    if (!means.empty()) imageRe[ivar].addCst(-means[ivar]);
     imageIm[ivar].resize(sImage, 0.);
 
     // Perform the FFT forward transform of each image
@@ -268,16 +267,16 @@ Id Convolution::ConvolveFFT(Id iatt,
       if (fftn(ndim, dims.data(), localRe.data(), localIm.data(), -1, rImage)) return 1;
 
       // Cumulate the real parts
-      VH::addInPlace(result, localRe);
+      result.add(localRe);
     }
 
     // Perform the ultimate swap
     fftshift(dims, result);
 
     // Store the results in the Db
-    if (!means.empty()) VH::addConstant(result, means[ivar]);
+    if (!means.empty()) result.addCst(means[ivar]);
     _dbgrid->setArrayByUID(result, iatt + ivar);
   }
   return 0;
 }
-}
+} // namespace gstlrn

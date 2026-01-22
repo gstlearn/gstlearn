@@ -42,7 +42,8 @@ jobs:
             {py: "3.10"},
             {py: "3.11"},
             {py: "3.12"},
-            {py: "3.13.3"}
+            {py: "3.13"},
+            {py: "3.14"}
           ]
         arch: [
             {pl: win_amd64, ar: x64, of: x64},
@@ -97,6 +98,7 @@ jobs:
       run : |
         cmake `
           -B${{ env.BUILD_DIR }} `
+          -DCMAKE_COMPILE_WARNING_AS_ERROR=ON `
           -A ${{matrix.arch.of}} `
           -DBUILD_PYTHON=ON `
           -DBUILD_R=OFF `
@@ -134,7 +136,8 @@ jobs:
             {py: "3.10"},
             {py: "3.11"},
             {py: "3.12"},
-            {py: "3.13.3"}
+            {py: "3.13"},
+            {py: "3.14"}
           ]
         arch: [
             {pl: win_amd64, ar: x64, of: x64},
@@ -175,7 +178,7 @@ jobs:
 
     steps:
     # Upload packages to pypi
-    - uses: fabien-ors/pypi-publish-action@v2
+    - uses: fabien-ors/pypi-publish-action@v3
       with:
         repo: pypi
         username: __token__

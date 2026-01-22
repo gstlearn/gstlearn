@@ -79,7 +79,7 @@ int main(int argc, char* argv[])
   /// Traditional Kriging
   kriging(temperatures, grid, model, neighU);
 
-  (void)grid->dumpToNF("Grid.ascii", EFormatNF::DEFAULT, verbose);
+  (void)grid->dumpToNF("Grid.ascii", EFormatNF::DEFAULT);
 
   DbStringFormat dbfmt(FLAG_STATS, {"*estim"});
   grid->display(&dbfmt);

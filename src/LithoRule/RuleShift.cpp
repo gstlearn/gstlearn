@@ -8,20 +8,16 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_enum.h"
-#include "geoslib_old_f.h"
-
-#include "Enum/ERule.hpp"
-
+#include "LithoRule/RuleShift.hpp"
 #include "Basic/SerializeHDF5.hpp"
-#include "Basic/Utilities.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
+#include "Enum/ERule.hpp"
 #include "LithoRule/PropDef.hpp"
 #include "LithoRule/Rule.hpp"
-#include "LithoRule/RuleShift.hpp"
 #include "Model/Model.hpp"
-
+#include "geoslib_enum.h"
+#include "geoslib_old_f.h"
 #include <cmath>
 #include <sstream>
 
@@ -114,7 +110,7 @@ Id RuleShift::resetFromNumericalCoding(const VectorInt& n_type,
   return 0;
 }
 
-bool RuleShift::_deserializeAscii(std::istream& is, bool /*verbose*/)
+bool RuleShift::_deserializeAscii(std::istream& is)
 {
   _shift.resize(3);
   bool ret = true;
@@ -130,7 +126,7 @@ bool RuleShift::_deserializeAscii(std::istream& is, bool /*verbose*/)
   return ret;
 }
 
-bool RuleShift::_serializeAscii(std::ostream& os, bool /*verbose*/) const
+bool RuleShift::_serializeAscii(std::ostream& os) const
 {
   double slope          = (FFFF(_slope)) ? 0. : _slope;
   double shdown         = (FFFF(_shDown)) ? 0. : _shDown;
@@ -154,8 +150,8 @@ bool RuleShift::_serializeAscii(std::ostream& os, bool /*verbose*/) const
 String RuleShift::displaySpecific() const
 {
   std::stringstream sstr;
-  sstr << toTitle(2, "Shift Option");
-  sstr << toVector("Translation Vector", _shift);
+  sstr << toStrTitle(2, "Shift Option");
+  sstr << toStrVector("Translation Vector", _shift);
   sstr << "(With the 'Shift' option, only the first GRF is used)" << std::endl;
   return sstr.str();
 }
@@ -213,7 +209,7 @@ Id RuleShift::_st_shift_on_grid(Db* db, Id ndim, Id flag_grid_check) const
   _xyz.resize(ndim);
   _ind1.resize(ndim);
 
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(db);
+  auto* dbgrid = dynamic_cast<DbGrid*>(db);
   if (dbgrid == nullptr)
   {
     if (!flag_grid_check) return (0);
@@ -287,7 +283,7 @@ Id RuleShift::gaus2facResult(PropDef* propdef,
 
   check_mandatory_attribute("rule_gaus2fac_result", dbout, ELoc::FACIES);
   check_mandatory_attribute("rule_gaus2fac_result", dbout, ELoc::SIMU);
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
+  auto* dbgrid = dynamic_cast<DbGrid*>(dbout);
   if (dbgrid == nullptr) return 1;
   ndim = dbgrid->getNDim();
   _xyz.resize(ndim);
@@ -467,7 +463,7 @@ RuleShift* RuleShift::createFromNumericalCoding(const VectorInt& n_type,
   return ruleshift;
 }
 #ifdef HDF5
-bool RuleShift::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+bool RuleShift::deserializeH5(H5::Group& grp)
 {
   auto ruleG = SerializeHDF5::getGroup(grp, "RuleShift");
   if (!ruleG)
@@ -484,12 +480,12 @@ bool RuleShift::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   ret = ret && SerializeHDF5::readValue(*ruleG, "ShDsup", _shDsup);
   ret = ret && SerializeHDF5::readVec(*ruleG, "Shift", _shift);
 
-  ret = ret && Rule::_deserializeH5(*ruleG, verbose);
+  ret = ret && Rule::deserializeH5(*ruleG);
 
   return ret;
 }
 
-bool RuleShift::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+bool RuleShift::serializeH5(H5::Group& grp) const
 {
   auto ruleG = grp.createGroup("RuleShift");
 
@@ -506,7 +502,7 @@ bool RuleShift::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) cons
   ret = ret && SerializeHDF5::writeValue(ruleG, "ShDsup", shdsup);
   ret = ret && SerializeHDF5::writeVec(ruleG, "Shift", shiftloc);
 
-  ret = ret && Rule::_serializeH5(ruleG, verbose);
+  ret = ret && Rule::serializeH5(ruleG);
 
   return ret;
 }

@@ -8,31 +8,19 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-/**
- * This file is meant to parametrized the ModelGeneric in terms of ParamInfo
- * and to fit the values of these parameters according to the Maximum LogLikelihood
- * method and using the Vecchia approximation.
- */
-#include "Covariances/CovAniso.hpp"
-#include "Enum/ESpaceType.hpp"
-#include "Model/Model.hpp"
-#include "Space/ASpaceObject.hpp"
 #include "geoslib_define.h"
+
+#include "Basic/ASerializable.hpp"
+
 using namespace gstlrn;
 
 int main(int argc, char* argv[])
 {
-  DECLARE_UNUSED(argc);
-  DECLARE_UNUSED(argv);
+  // Do not remove
+  std::stringstream sfn;
+  sfn << gslBaseName(__FILE__) << ".out";
+  StdoutRedirect sr(sfn.str(), argc, argv);
+  ASerializable::setPrefixName("test_a_template-"); // Here set the test name
 
-  defineDefaultSpace(ESpaceType::RN, 3);
-
-  double range = 10.;
-  Model* model = Model::createFromParam(ECov::LINEAR, range);
-  model->display();
-
-  model->getCovAniso(0)->getCorAnisoModify()->setRanges({30, 20, 10});
-  model->display();
-
-  exit(0);
+  return 0;
 }

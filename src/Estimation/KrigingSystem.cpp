@@ -10,10 +10,8 @@
 /******************************************************************************/
 #include "Estimation/KrigingSystem.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/OptDbg.hpp"
-#include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Calculators/CalcMigrate.hpp"
 #include "Covariances/CovLMCAnamorphosis.hpp"
@@ -80,8 +78,6 @@ KrigingSystem::KrigingSystem(Db* dbin,
   , _xvalidVarZ(false)
   , _valuesColcok()
   , _flagBayes(false)
-  , _priorMean()
-  , _priorCov()
   , _postMean()
   , _postCov()
   , _postSimu()
@@ -685,7 +681,7 @@ Id KrigingSystem::estimate(Id iech_out)
       Id nvar = _model->getNVar();
       _valuesColcok.resize(nvar);
       _valuesColcok = _dbout->getLocVariables(ELoc::Z, _iechOut);
-      if (_X.empty()) VH::subtractInPlace(_valuesColcok, _means);
+      if (_X.empty()) _valuesColcok.subtract(_means);
       if (_algebra.setColCokUnique(&_valuesColcok, &_krigopt.getRankColcok())) return 1;
     }
   }
@@ -933,11 +929,11 @@ void KrigingSystem::_dumpKrigingResults(Id status)
             esterr = estim - trueval;
           }
 
-          tab_printg(" - True value        = ", trueval);
+          printElement(trueval, " - True value        = ");
           message("\n");
-          tab_printg(" - Estimated value   = ", estval);
+          printElement(estval, " - Estimated value   = ");
           message("\n");
-          tab_printg(" - Estimation Error  = ", esterr);
+          printElement(esterr, " - Estimation Error  = ");
           message("\n");
         }
       }
@@ -958,9 +954,9 @@ void KrigingSystem::_dumpKrigingResults(Id status)
             sterr = esterr / stdev;
           }
 
-          tab_printg(" - Std. deviation    = ", sigma);
+          printElement(sigma, " - Std. deviation    = ");
           message("\n");
-          tab_printg(" - Normalized Error  = ", sterr);
+          printElement(sterr, " - Normalized Error  = ");
           message("\n");
         }
       }
@@ -974,25 +970,25 @@ void KrigingSystem::_dumpKrigingResults(Id status)
       if (_iptrEst >= 0)
       {
         double value = (status == 0) ? _dbout->getArray(_iechOut, _iptrEst + ivar) : TEST;
-        tab_printg(" - Estimate  = ", value);
+        printElement(value, " - Estimate  = ");
         message("\n");
       }
       if (_iptrStd >= 0)
       {
         double value = (status == 0) ? _dbout->getArray(_iechOut, _iptrStd + ivar) : TEST;
-        tab_printg(" - Std. Dev. = ", value);
+        printElement(value, " - Std. Dev. = ");
         message("\n");
-        tab_printg(" - Variance  = ", FFFF(value) ? TEST : value * value);
+        printElement(FFFF(value) ? TEST : value * value, " - Variance  = ");
 
         value = _Sigma00.getValue(ivar, ivar);
         message("\n");
-        tab_printg(" - Cov(h=0)  = ", value);
+        printElement(value, " - Cov(h=0)  = ");
         message("\n");
       }
       if (_iptrVarZ >= 0)
       {
         double value = (status == 0) ? _dbout->getArray(_iechOut, _iptrVarZ + ivar) : TEST;
-        tab_printg(" - Var(Z*)   = ", value);
+        printElement(value, " - Var(Z*)   = ");
         message("\n");
       }
     }
@@ -1011,7 +1007,7 @@ void KrigingSystem::_dumpSimulationResults(Id status)
     {
       message("Simulation #%d of Z%-2d : ", isimu + 1, ivar + 1);
       double value = (status == 0) ? _dbout->getArray(_iechOut, _iptrEst + ecr) : TEST;
-      tab_printg(" = ", value);
+      printElement(value, " = ");
       message("\n");
     }
 }
@@ -1143,36 +1139,19 @@ Id KrigingSystem::setKrigOptXValid(bool flag_xvalid,
   return 0;
 }
 
-Id KrigingSystem::setKrigOptBayes(bool flag_bayes,
-                                  const VectorDouble& prior_mean,
-                                  const MatrixSymmetric& prior_cov)
+Id KrigingSystem::setKrigOptBayes(bool flag_bayes)
 {
-  _isReady  = false;
-  auto nfeq = _getNFeq();
+  _isReady = false;
   if (flag_bayes)
   {
-    VectorDouble local_mean   = prior_mean;
-    MatrixSymmetric local_cov = prior_cov;
+    // Check that the Bayseian information contained in the Model is relevant
 
-    if (local_mean.empty())
-      local_mean.resize(nfeq, 0.);
-    if (local_cov.empty())
+    VectorDouble local_mean   = _model->getPriorMeans();
+    MatrixSymmetric local_cov = _model->getPriorCovs();
+    if (local_mean.empty() || local_cov.empty())
     {
-      local_cov.resetFromValue(nfeq, nfeq, 0.);
-      for (Id i = 0; i < nfeq; i++)
-        local_cov.setValue(i, i, 1.);
-    }
-    if (static_cast<Id>(local_mean.size()) != nfeq)
-    {
-      messerr("Size of argument 'prior_mean'(%d)", static_cast<Id>(local_mean.size()));
-      messerr("should be equal to the Number of Drift Equations(%d)", nfeq);
-      return 1;
-    }
-    if (local_cov.size() != nfeq * nfeq)
-    {
-      messerr("Size of argument 'prior_cov'(%d)", local_cov.size());
-      messerr("should be equal to the Number of Drift Equations (squared) (%d)",
-              nfeq * nfeq);
+      messerr("To run Bayesian Estimation of the drift coefficients");
+      messerr("you must provide prior Mean and Covariance within the Model");
       return 1;
     }
     if (_neigh->getType() != ENeigh::UNIQUE)
@@ -1183,12 +1162,10 @@ Id KrigingSystem::setKrigOptBayes(bool flag_bayes,
     }
 
     // Set the parameters
-    _priorMean = local_mean;
-    _priorCov  = local_cov;
     _varCorrec.resize(_nvarCL, _nvarCL);
 
     // Pass the Bayesian information to '_algebra'
-    if (_algebra.setBayes(&_priorMean, &_priorCov)) return 1;
+    if (_algebra.setBayes(&_model->getPriorMeans(), &_model->getPriorCovs())) return 1;
   }
   _flagBayes = flag_bayes;
   return 0;

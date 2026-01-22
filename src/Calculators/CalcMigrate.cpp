@@ -11,6 +11,7 @@
 #include "Calculators/CalcMigrate.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/OptDbg.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Calculators/ACalcDbToDb.hpp"
 #include "Core/Keypair.hpp"
 #include "Db/Db.hpp"
@@ -21,7 +22,6 @@
 #include "Tree/Ball.hpp"
 #include "geoslib_define.h"
 #include "geoslib_old_f.h"
-
 #include <cmath>
 
 #define RES(nval, idim) (res[(idim) + (ndim + 1) * (nval)])
@@ -307,7 +307,7 @@ void st_get_closest_sample(DbGrid* dbgrid,
                            VectorDouble& dvect)
 {
   // Calculate the euclidean distance
-  double dd = distance_inter(dbgrid, dbpoint, ig, ip, nullptr);
+  double dd = distance_inter(dbgrid, dbpoint, ig, ip, dvect);
 
   // Distance modifier
   if (flag_aniso || iatt_time >= 0)
@@ -351,7 +351,7 @@ Id st_next_sample(Id ip0_init,
     if (jp >= np) jp -= np;
     if (xtarget <= xtab[rank[jp]]) return jp;
   }
-  return ip0_init;
+  return np - 1;
 }
 
 /*****************************************************************************/
@@ -384,7 +384,10 @@ static Id st_locate_point_on_grid(const Db* db_point,
     if (!db_point->isActive(iech)) continue;
     for (Id idim = 0; idim < ndim; idim++)
       coor[idim] = db_point->getCoordinate(iech, idim);
-    Id iad = db_grid->getGrid().coordinateToRank(coor);
+    // We try to locate the input sample 'coor' in the grid.
+    // There we must identify the cell to which the sample belongs.
+    // This cell must be CENTERD on the grid node position
+    Id iad = db_grid->getGrid().coordinateToRank(coor, true);
     if (iad >= 0)
     {
       tab[iech] = iad;
@@ -594,7 +597,7 @@ Id CalcMigrate::_migrateGridToPoint(DbGrid* db_grid,
     Id rank = static_cast<Id>(tab[iech]);
     if (!dmax.empty())
     {
-      (void)distance_inter(db_grid, db_point, rank, iech, dvect.data());
+      (void)distance_inter(db_grid, db_point, rank, iech, dvect);
       if (st_larger_than_dmax(ndim_min, dvect, distType, dmax)) continue;
     }
     tab[iech] = db_grid->getArray(rank, iatt);
@@ -929,7 +932,7 @@ Id manageExternalInformation(Id mode,
     messerr("The Input Db does not contain the %d External Drifts");
     return 1;
   }
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
+  auto* dbgrid = dynamic_cast<DbGrid*>(dbout);
 
   /* Dispatch */
 
@@ -968,13 +971,124 @@ Id manageExternalInformation(Id mode,
   return 0;
 }
 
+/**
+ * @brief Create a list of values at some control points (NP) in a space of dimension NDIM
+ * for a set of NSURF variables(ht eZ-locators).
+ *
+ * @param dbgrid  DbGrid containing the surfaces
+ * @param xp      Vector of coordinates along X for discretization points
+ * @param yp      Vector of coordinates along Y for discretization points
+ * @param zp      Vector of coordinates along Z for discretization points
+ * @param ptype   Type of the variable to be plotted
+ * @param checkOrder Ensure variable order (-2, -1, 0, 1, 2)
+ * @param flagCap when TRUE, cap between Min and Max of the surfaces
+ * @return VectorVectorDouble
+ *
+ * @remarks At each site, when comparing the surface N to the surface N-1:
+ * @remarks If checkOrder>0, if surf_N < surf_N-1 then surf_N = surf_N-1
+ * @remarks If checkOrder<0, if surf_N > surf_N-1 then surf_N = surf_N-1
+ */
+VectorVectorDouble interpolateVariablesToPoint(DbGrid* dbgrid,
+                                               const VectorDouble& xp,
+                                               const VectorDouble& yp,
+                                               const VectorDouble& zp,
+                                               const ELoc& ptype,
+                                               Id checkOrder,
+                                               bool flagCap)
+{
+  VectorVectorDouble tab;
+  VectorInt iatts = dbgrid->getUIDsByLocator(ptype);
+  Id nsurf        = static_cast<Id>(iatts.size());
+  if (nsurf <= 0) return tab;
+
+  tab.resize(nsurf);
+  for (Id isurf = 0; isurf < nsurf; isurf++)
+    if (interpolateVariableToPoint(dbgrid, iatts[isurf], xp, yp, zp, tab[isurf])) break;
+
+  // Check order consistency between surfaces
+  if (checkOrder != 0)
+  {
+    for (Id ip = 0, np = static_cast<Id>(tab[0].size()); ip < np; ip++)
+    {
+      // Checking upwards
+      if (checkOrder > 0)
+      {
+        for (Id isurf = 1; isurf < nsurf; isurf++)
+        {
+          double value  = tab[isurf][ip];
+          double refval = tab[isurf - 1][ip];
+          if (FFFF(refval)) continue;
+          if (FFFF(value))
+          {
+            tab[isurf][ip] = refval;
+            continue;
+          }
+          if (checkOrder == 1)
+          {
+            if (value < refval) value = refval;
+          }
+          else
+          {
+            if (value > refval) value = refval;
+          }
+          tab[isurf][ip] = value;
+        }
+      }
+      else
+      {
+        for (Id isurf = nsurf - 2; isurf >= 0; isurf--)
+        {
+          double value  = tab[isurf][ip];
+          double refval = tab[isurf + 1][ip];
+          if (FFFF(refval)) continue;
+          if (FFFF(value))
+          {
+            tab[isurf][ip] = refval;
+            continue;
+          }
+          if (checkOrder == -1)
+          {
+            if (value < refval) value = refval;
+          }
+          else
+          {
+            if (value > refval) value = refval;
+          }
+          tab[isurf][ip] = value;
+        }
+      }
+    }
+  }
+
+  // Cap between the Min and the Max of the interpolated surfaces
+  if (flagCap)
+  {
+    double mini = tab.minimum();
+    double maxi = tab.maximum();
+    VH::capInPlaceVVD(tab, mini, maxi);
+  }
+
+  return tab;
+}
+
+VectorDouble interpolateOneVariableToPoint(DbGrid* dbgrid,
+                                           const VectorDouble& xp,
+                                           const VectorDouble& yp,
+                                           const VectorDouble& zp,
+                                           const String& name)
+{
+  VectorDouble tab;
+  Id iatt = dbgrid->getUID(name);
+  (void)interpolateVariableToPoint(dbgrid, iatt, xp, yp, zp, tab);
+  return tab;
+}
+
 /*****************************************************************************/
 /*!
  ** Interpolate a variable from a grid Db on discretization points
  **
- ** \param[in]  db_grid   Descriptor of the grid parameters
+ ** \param[in]  dbgrid    Descriptor of the grid parameters
  ** \param[in]  iatt      Rank of the attribute in db_grid
- ** \param[in]  np        Number of discretized points
  ** \param[in]  xp        Array of first coordinates
  ** \param[in]  yp        Array of second coordinates
  ** \param[in]  zp        Array of third coordinates
@@ -988,33 +1102,31 @@ Id manageExternalInformation(Id mode,
  ** \remark (in all space dimensions) is always set to FFFF
  **
  *****************************************************************************/
-Id interpolateVariableToPoint(DbGrid* db_grid,
+Id interpolateVariableToPoint(DbGrid* dbgrid,
                               Id iatt,
-                              Id np,
-                              const double* xp,
-                              const double* yp,
-                              const double* zp,
-                              double* tab)
+                              const VectorDouble& xp,
+                              const VectorDouble& yp,
+                              const VectorDouble& zp,
+                              VectorDouble& tab)
 {
-  Id error, ndim;
-  VectorDouble coor(3);
+  VectorDouble coor;
+  Id np = static_cast<Id>(xp.size());
+  tab.resize(np);
 
   /* Initializations */
 
-  error = 1;
-  for (Id idim = 0; idim < 3; idim++)
-    coor[idim] = 0.;
-  ndim = db_grid->getNDim();
+  coor.fill(0., 3);
+  Id ndim = dbgrid->getNDim();
   if (ndim > 3)
   {
     messerr("This procedure is limited to 3-D grid");
-    goto label_end;
+    return 1;
   }
-  if ((ndim >= 1 && xp == nullptr) || (ndim >= 2 && yp == nullptr) || (ndim >= 3 && zp == nullptr))
+  if ((ndim >= 1 && xp.empty()) || (ndim >= 2 && yp.empty()) || (ndim >= 3 && zp.empty()))
   {
     messerr("The Grid space dimension (%d) must be in accordance with", ndim);
     messerr("the definition of arguments 'xp', 'yp' and 'zp'");
-    goto label_end;
+    return 1;
   }
 
   /* Loop on the point samples */
@@ -1024,17 +1136,9 @@ Id interpolateVariableToPoint(DbGrid* db_grid,
     if (ndim >= 1) coor[0] = xp[ip];
     if (ndim >= 2) coor[1] = yp[ip];
     if (ndim >= 3) coor[2] = zp[ip];
-    tab[ip] = st_multilinear_interpolation(db_grid, iatt, 0, VectorDouble(), coor);
+    tab[ip] = st_multilinear_interpolation(dbgrid, iatt, 0, VectorDouble(), coor);
   }
-
-  /* Set the error return code */
-
-  error = 0;
-
-  /* Core deallocation */
-
-label_end:
-  return (error);
+  return 0;
 }
 
 /*****************************************************************************/
@@ -1061,11 +1165,11 @@ label_end:
  ** \remarks The program returns the list of all these intersection coordinates
  *****************************************************************************/
 VectorDouble dbgridLineSampling(DbGrid* dbgrid,
-                                const double* x1,
-                                const double* x2,
+                                const VectorDouble& x1,
+                                const VectorDouble& x2,
                                 Id ndisc,
                                 Id ncut,
-                                const double* cuts,
+                                const VectorDouble& cuts,
                                 Id* nval_ret)
 {
   double delta, vi1, vi2, cut, v1, v2;
@@ -1155,7 +1259,7 @@ VectorDouble dbgridLineSampling(DbGrid* dbgrid,
  ** \param[in]  iatt_scalev Optional variable for anisotropy scale factor (V)
  ** \param[in]  iatt_scalew Optional variable for anisotropy scale factor (W)
  ** \param[in]  flag_index  1 if the Index must be assigned to grid node
- **                         0 the 'iatt' attribute is assigned instead
+ **                         0 if the 'iatt' attribute is assigned instead
  ** \param[in]  distType    Type of distance for calculating maximum distance
  **                         1 for L1 and 2 for L2 distance
  ** \param[in]  dmax        Array of maximum distances (optional)
@@ -1274,7 +1378,7 @@ Id expandPointToGrid(Db* db_point,
 
     if (!dmax.empty() && jpmin >= 0)
     {
-      (void)distance_inter(db_grid, db_point, ig, jpmin, dvect.data());
+      (void)distance_inter(db_grid, db_point, ig, jpmin, dvect);
       if (st_larger_than_dmax(ndim_min, dvect, distType, dmax)) continue;
     }
 
@@ -1682,12 +1786,12 @@ Id CalcMigrate::_migrate(Db* db1,
 
   if (db2->isGrid())
   {
-    DbGrid* db2grid = dynamic_cast<DbGrid*>(db2);
+    auto* db2grid = dynamic_cast<DbGrid*>(db2);
 
     // To Grid
     if (db1->isGrid())
     {
-      DbGrid* db1grid = dynamic_cast<DbGrid*>(db1);
+      auto* db1grid = dynamic_cast<DbGrid*>(db1);
 
       // Grid to Grid
       if (flag_fill)
@@ -1742,7 +1846,7 @@ Id CalcMigrate::_migrate(Db* db1,
   }
   else if (db1->isGrid())
   {
-    DbGrid* db1grid = dynamic_cast<DbGrid*>(db1);
+    auto* db1grid = dynamic_cast<DbGrid*>(db1);
 
     // Grid to Point
     if (flag_inter)
@@ -1838,9 +1942,9 @@ Id CalcMigrate::_migratePointToGrid(Db* db_point,
       /* If the grid is not empty, find the closest sample */
 
       Id jech      = static_cast<Id>(tab[inode]);
-      double dist1 = distance_inter(db_grid, db_point, inode, iech, dvect.data());
+      double dist1 = distance_inter(db_grid, db_point, inode, iech, dvect);
       if (st_larger_than_dmax(ndim_min, dvect, distType, dmax)) continue;
-      double dist2 = distance_inter(db_grid, db_point, inode, jech, dvect.data());
+      double dist2 = distance_inter(db_grid, db_point, inode, jech, dvect);
       if (st_larger_than_dmax(ndim_min, dvect, distType, dmax)) continue;
       tab[inode] = (dist1 < dist2) ? iech : jech;
     }
@@ -1905,7 +2009,7 @@ Id CalcMigrate::_expandPointToPointBall(Db* db1,
 
     if (!dmax.empty())
     {
-      (void)distance_inter(db2, db1, inode, iech, dvect.data());
+      (void)distance_inter(db2, db1, inode, iech, dvect);
       if (st_larger_than_dmax(ndim, dvect, distType, dmax)) continue;
     }
 
@@ -1968,7 +2072,7 @@ Id CalcMigrate::_migrateGridToGrid(DbGrid* db_gridin,
 
     Id jech = db_gridout->coordinateToRank(coor);
     if (jech < 0) continue;
-    double dist_loc = distance_inter(db_gridin, db_gridout, iech, jech, dvect.data());
+    double dist_loc = distance_inter(db_gridin, db_gridout, iech, jech, dvect);
     if (st_larger_than_dmax(ndim_min, dvect, distType, dmax)) continue;
     if (dist_loc > dist[jech]) continue;
     tab[jech]  = value;
@@ -2026,7 +2130,7 @@ Id CalcMigrate::_expandPointToPoint(Db* db1,
     for (Id iech1 = 0; iech1 < db1->getNSample(); iech1++)
     {
       if (!db1->isActive(iech1)) continue;
-      double dist = distance_inter(db1, db2, iech1, iech2, dvect.data());
+      double dist = distance_inter(db1, db2, iech1, iech2, dvect);
       if (st_larger_than_dmax(ndim_min, dvect, distType, dmax)) continue;
       if (dist < distmin)
       {
@@ -2083,8 +2187,7 @@ Id CalcMigrate::_expandGridToGrid(DbGrid* db_gridin,
   VectorDouble coor(ndim_max);
   VectorDouble dvect(ndim_max);
   VectorDouble dist(db_gridout->getNSample());
-  for (Id jech = 0; jech < db_gridout->getNSample(); jech++)
-    dist[jech] = MAXIMUM_BIG;
+  dist.fill(MAXIMUM_BIG);
 
   /* Loop on the output grid nodes */
 
@@ -2093,11 +2196,12 @@ Id CalcMigrate::_expandGridToGrid(DbGrid* db_gridin,
     if (!db_gridout->isActive(iech)) continue;
 
     db_gridout->rankToCoordinatesInPlace(iech, coor);
-    Id jech = db_gridin->coordinateToRank(coor);
+    // We need to identify the node of the input grid to which the output node is assigned
+    // This requires to consider the cell CENTERED around the input grid node
+    Id jech = db_gridin->coordinateToRank(coor, true);
     if (jech < 0) continue;
 
-    double dist_loc = distance_inter(db_gridin, db_gridout, jech, iech,
-                                     dvect.data());
+    double dist_loc = distance_inter(db_gridin, db_gridout, jech, iech, dvect);
     if (st_larger_than_dmax(ndim_min, dvect, distType, dmax)) continue;
     if (dist_loc > dist[iech]) continue;
     tab[iech]  = db_gridin->getArray(jech, iatt);

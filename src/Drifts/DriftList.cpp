@@ -9,17 +9,21 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Drifts/DriftList.hpp"
+#include "Basic/ASerializable.hpp"
+#include "Basic/SerializeHDF5.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Db/Db.hpp"
 #include "Drifts/ADrift.hpp"
 #include "Drifts/DriftFactory.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 
 namespace gstlrn
 {
 DriftList::DriftList(const CovContext& ctxt)
   : AStringable()
+  , ASerializable()
   , _flagLinked(false)
   , _flagCombined(false)
   , _driftCL()
@@ -28,11 +32,19 @@ DriftList::DriftList(const CovContext& ctxt)
   , _filtered()
   , _ctxt(ctxt)
   , _mean(VectorDouble(ctxt.getNVar(), 0.))
+  , _priorMeans()
+  , _priorCovs()
 {
+  auto nfeq   = getNDriftEquation();
+  _priorMeans = VectorDouble(nfeq, 0.);
+  MatrixSymmetric pcov(nfeq);
+  pcov.setIdentity();
+  _priorCovs = pcov;
 }
 
 DriftList::DriftList(const DriftList& r)
   : AStringable(r)
+  , ASerializable(r)
   , _flagLinked(r._flagLinked)
   , _flagCombined(r._flagCombined)
   , _driftCL(r._driftCL)
@@ -41,6 +53,8 @@ DriftList::DriftList(const DriftList& r)
   , _filtered(r._filtered)
   , _ctxt(r._ctxt)
   , _mean(r._mean)
+  , _priorMeans(r._priorMeans)
+  , _priorCovs(r._priorCovs)
 {
   for (const auto& e: r._drifts)
   {
@@ -53,10 +67,13 @@ DriftList& DriftList::operator=(const DriftList& r)
   if (this != &r)
   {
     AStringable::operator=(r);
+    ASerializable::operator=(r);
     _flagLinked   = r._flagLinked;
     _flagCombined = r._flagCombined;
     _driftCL      = r._driftCL;
     _mean         = r._mean;
+    _priorMeans   = r._priorMeans;
+    _priorCovs    = r._priorCovs;
     for (const auto& e: r._drifts)
     {
       _drifts.push_back(dynamic_cast<ADrift*>(e->clone()));
@@ -81,15 +98,24 @@ void DriftList::copyCovContext(const CovContext& ctxt)
 
 void DriftList::_update()
 {
-  if (static_cast<Id>(_mean.size()) != _ctxt.getNVar())
-    _mean = VectorDouble(_ctxt.getNVar(), 0.);
+  Id nvar = _ctxt.getNVar();
+  if (static_cast<Id>(_mean.size()) != nvar)
+    _mean = VectorDouble(nvar, 0.);
+  if (static_cast<Id>(_priorMeans.size()) != nvar)
+    _priorMeans = VectorDouble(nvar, 0.);
+  if (_priorCovs.getNRows() != nvar || _priorCovs.getNCols() != nvar)
+  {
+    MatrixSymmetric pcov(nvar);
+    pcov.setIdentity();
+    _priorCovs = pcov;
+  }
 }
 
 String DriftList::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
   if (getNDrift() <= 0)
-    sstr << toVector("Known Mean(s)", getMeans());
+    sstr << toStrVector("Known Mean(s)", getMeans());
   // TODO: could be added but changes all non-regression files
   //    sstr << "(Note: Simple Kriging will be used)" << std::endl;
   for (Id i = 0, nbfl = getNDrift(); i < nbfl; i++)
@@ -545,7 +571,7 @@ Id DriftList::evalDriftMatByRanksInPlace(MatrixDense& mat,
   }
 
   // Creating the matrix
-  Id neq = VH::count(sampleRanksLoc);
+  Id neq = sampleRanksLoc.count();
   if (neq <= 0)
   {
     messerr("The returned matrix has no valid sample and no valid variable");
@@ -609,7 +635,7 @@ VectorDouble DriftList::evalMeanVecByRanks(const Db* db,
   }
 
   // Creating the matrix
-  Id neq = VH::count(sampleRanksLoc);
+  Id neq = sampleRanksLoc.count();
   if (neq <= 0)
   {
     messerr("The returned matrix has no valid sample and no valid variable");
@@ -660,7 +686,7 @@ Id DriftList::evalDriftMatByTargetInPlace(MatrixDense& mat,
   const VectorVectorInt& index = db->getSampleRanks(ivars, viech2, true, false, false);
 
   // Creating the matrix
-  Id neq = VH::count(index);
+  Id neq = index.count();
   if (neq <= 0)
   {
     messerr("The returned matrix has no valid sample and no valid variable");
@@ -818,6 +844,41 @@ void DriftList::setMean(const double mean, Id ivar)
   _mean[ivar] = mean;
 }
 
+void DriftList::setPriorMeans(const VectorDouble& priorMeans)
+{
+  Id nfeq = getNDriftEquation();
+  if (static_cast<Id>(priorMeans.size()) != nfeq)
+  {
+    messerr("Dimension of 'priorMeans' (%d) does not match number of drift equations (%d)",
+            static_cast<Id>(priorMeans.size()), nfeq);
+    return;
+  }
+  _priorMeans = priorMeans;
+}
+
+void DriftList::setPriorCovs(const MatrixSymmetric& priorCovs)
+{
+  Id nfeq = getNDriftEquation();
+  if (priorCovs.getNRows() != nfeq || priorCovs.getNCols() != nfeq)
+  {
+    messerr("Dimensions of 'priorCovs' (%d, %d) does not match number of drift equations (%d)",
+            priorCovs.getNRows(), priorCovs.getNCols(), nfeq);
+    return;
+  }
+  _priorCovs = priorCovs;
+}
+
+double DriftList::getPriorCov(Id i1, Id i2) const
+{
+  Id nfeq = getNDriftEquation();
+  if (_priorCovs.getNRows() != nfeq || _priorCovs.getNCols() != nfeq)
+  {
+    messerr("Prior covariance matrix is not defined");
+    return TEST;
+  }
+  return _priorCovs.getValue(i1, i2);
+}
+
 /****************************************************************************/
 /*!
  **  Evaluate the drift with a given sample and a given variable
@@ -860,5 +921,70 @@ VectorDouble DriftList::evalDriftVarCoefs(const Db* db,
   vec = evalDriftCoefs(db, coeffs, useSel);
   return vec;
 }
+
+#ifdef HDF5
+bool DriftList::deserializeH5(H5::Group& grp)
+{
+  bool ret = true;
+
+  auto driftsG = SerializeHDF5::getGroup(grp, "Drift List");
+  if (!driftsG) return false;
+
+  Id ndrift = 0;
+  ret       = ret && SerializeHDF5::readValue(*driftsG, "NDrift", ndrift);
+
+  // TODO: possibly delegate the serialization to ADrift
+  delAllDrifts();
+  ADrift* drift;
+  String driftname;
+  for (Id ibfl = 0; ret && ibfl < ndrift; ibfl++)
+  {
+    String locName = "Drift_" + std::to_string(ibfl + 1);
+    auto driftG    = SerializeHDF5::getGroup(*driftsG, locName);
+    if (!driftG) return false;
+
+    ret = ret && SerializeHDF5::readValue(*driftG, "Name", driftname);
+
+    drift = DriftFactory::createDriftByIdentifier(driftname);
+    addDrift(drift);
+    delete drift;
+  }
+
+  // Process the Means
+  if (ndrift <= 0)
+  {
+    VectorDouble means;
+    ret = ret && SerializeHDF5::readVec(*driftsG, "Means", means);
+    setMeans(means);
+  }
+
+  return ret;
+}
+
+bool DriftList::serializeH5(H5::Group& grp) const
+{
+  bool ret = true;
+
+  auto driftsG = grp.createGroup("Drift List");
+
+  Id nbfl = getNDrift();
+  ret     = ret && SerializeHDF5::writeValue(driftsG, "NDrift", nbfl);
+
+  for (Id ibfl = 0; ret && ibfl < nbfl; ibfl++)
+  {
+    const ADrift* drift = getDrift(ibfl);
+    String locName      = "Drift_" + std::to_string(ibfl + 1);
+    auto driftG         = driftsG.createGroup(locName);
+
+    ret = ret && SerializeHDF5::writeValue(driftG, "Name", drift->getDriftName());
+  }
+
+  // Writing the matrix of means (if nbfl <= 0)
+  if (getNDrift() <= 0)
+    ret = ret && SerializeHDF5::writeVec(driftsG, "Means", getMeans());
+
+  return ret;
+}
+#endif
 
 } // namespace gstlrn

@@ -12,7 +12,6 @@
 
 #include "gstlearn_export.hpp"
 
-// WARNING: Make this include list as small as possible!
 #include "Basic/AStringable.hpp"
 
 namespace gstlrn
@@ -38,10 +37,10 @@ namespace gstlrn
  */
 class GSTLEARN_EXPORT ModelOptimParam: public AStringable
 {
- public:
+public:
   ModelOptimParam();
-  ModelOptimParam(const ModelOptimParam &m);
-  ModelOptimParam& operator= (const ModelOptimParam &m);
+  ModelOptimParam(const ModelOptimParam& m);
+  ModelOptimParam& operator=(const ModelOptimParam& m);
   virtual ~ModelOptimParam();
 
   String toString(const AStringFormat* strfmt = nullptr) const override;
@@ -54,8 +53,8 @@ class GSTLEARN_EXPORT ModelOptimParam: public AStringable
                                  bool lock_iso2d     = false,
                                  bool flag_goulard   = true,
                                  bool flag_intrinsic = false,
-                                 Id wmode           = 2,
-                                 Id maxiter         = 1000,
+                                 Id wmode            = 2,
+                                 Id maxiter          = 1000,
                                  double tolred       = EPSILON10);
 
   bool getAuthAniso() const { return _auth_aniso; }
@@ -85,24 +84,24 @@ class GSTLEARN_EXPORT ModelOptimParam: public AStringable
    * @param wmode       type of weighting function (0, 1, 2 or 3, see above)
    * @note The default value for wmode is 2
    */
-  Id    getWmode() const { return _wmode; }
-  void   setWmode(Id wmode) { _wmode = wmode; }
-  Id    getMaxiter() const { return _maxiter; }
-  void   setMaxiter(Id maxiter) { _maxiter = maxiter; }
+  void setWmode(Id wmode) { _wmode = wmode; }
+  Id getWmode() const { return _wmode; }
+  void setMaxiter(Id maxiter) { _maxiter = maxiter; }
+  Id getMaxiter() const { return _maxiter; }
   double getTolred() const { return _tolred; }
-  void   setTolred(double tolred) { _tolred = tolred; }
+  void setTolred(double tolred) { _tolred = tolred; }
 
 private:
-  bool _auth_aniso;        /* Authorize the anisotropy */
-  bool _auth_rotation;     /* Authorize the rotation of the anisotropy */
-  bool _lock_samerot;      /* Lock the anisotropy rotation for all str */
-  bool _lock_rot2d;        /* Lock the anisotropy rotation around Z only */
-  bool _lock_no3d;         /* Lock the parameters in 2-D */
-  bool _lock_iso2d;        /* Lock isotropy for 2-D */
-  bool _flag_goulard;      /* True if Goulard must be used (for sills) */
-  bool _flag_intrinsic;    /* Ask for an intrinsic model */
-  Id  _wmode;             /* Weighting option (used in Goulard) */
-  Id  _maxiter;           /* Maximum number of iterations */
-  double _tolred;          /* Scaled tolerance (used in calculations) */
+  bool _auth_aniso;     /* Authorize the anisotropy */
+  bool _auth_rotation;  /* Authorize the rotation of the anisotropy */
+  bool _lock_samerot;   /* Lock the anisotropy rotation for all str */
+  bool _lock_rot2d;     /* Lock the anisotropy rotation around Z only */
+  bool _lock_no3d;      /* Lock the parameters in 2-D */
+  bool _lock_iso2d;     /* Lock isotropy for 2-D */
+  bool _flag_goulard;   /* True if Goulard must be used (for sills) */
+  bool _flag_intrinsic; /* Ask for an intrinsic model */
+  Id _wmode;            /* Weighting option (used in Goulard) */
+  Id _maxiter;          /* Maximum number of iterations */
+  double _tolred;       /* Scaled tolerance (used in calculations) */
 };
-}
+} // namespace gstlrn

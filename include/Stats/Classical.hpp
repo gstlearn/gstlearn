@@ -14,9 +14,9 @@
 
 #include "Enum/EStatOption.hpp"
 
-#include "Matrix/MatrixSymmetric.hpp"
-#include "Basic/VectorNumT.hpp"
 #include "Basic/NamingConvention.hpp"
+#include "Basic/VectorNumT.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 
 namespace gstlrn
 {
@@ -43,30 +43,30 @@ GSTLEARN_EXPORT std::vector<EStatOption> KeysToStatOptions(const VectorString& o
  * @param title      Title given to the output (if defined)
  *  @{
  */
-GSTLEARN_EXPORT Table dbStatisticsMono(Db *db,
-                                       const VectorString &names,
-                                       const std::vector<EStatOption> &opers = EStatOption::fromKeys({ "MEAN" }),
-                                       bool flagIso = true,
-                                       double proba = TEST,
-                                       double vmin = TEST,
-                                       double vmax = TEST,
-                                       const String& title = "");
-GSTLEARN_EXPORT Table dbStatisticsCorrel(Db *db,
-                                         const VectorString &names,
-                                         bool flagIso = true,
+GSTLEARN_EXPORT Table dbStatisticsMono(const Db* db,
+                                       const VectorString& names,
+                                       const std::vector<EStatOption>& opers = EStatOption::fromKeys({"MEAN"}),
+                                       bool flagIso                          = true,
+                                       double proba                          = TEST,
+                                       double vmin                           = TEST,
+                                       double vmax                           = TEST,
+                                       const String& title                   = "");
+GSTLEARN_EXPORT Table dbStatisticsCorrel(Db* db,
+                                         const VectorString& names,
+                                         bool flagIso        = true,
                                          const String& title = "");
-GSTLEARN_EXPORT void dbStatisticsPrint(const Db *db,
-                                       const VectorString &names,
-                                       const std::vector<EStatOption> &opers = EStatOption::fromKeys({ "MEAN" }),
-                                       bool flagIso = false,
-                                       bool flagCorrel = false,
-                                       const String &title = "",
-                                       const String &radix = "");
-GSTLEARN_EXPORT Table dbStatisticsMulti(Db *db,
-                                        const VectorString &names,
-                                        const EStatOption &oper = EStatOption::fromKey("MEAN"),
-                                        bool flagMono = true,
-                                        const String& title = "");
+GSTLEARN_EXPORT void dbStatisticsPrint(const Db* db,
+                                       const VectorString& names,
+                                       const std::vector<EStatOption>& opers = EStatOption::fromKeys({"MEAN"}),
+                                       bool flagIso                          = false,
+                                       bool flagCorrel                       = false,
+                                       const String& title                   = "",
+                                       const String& radix                   = "");
+GSTLEARN_EXPORT Table dbStatisticsMulti(Db* db,
+                                        const VectorString& names,
+                                        const EStatOption& oper = EStatOption::fromKey("MEAN"),
+                                        bool flagMono           = true,
+                                        const String& title     = "");
 
 /**@}*/
 
@@ -81,51 +81,51 @@ GSTLEARN_EXPORT Table dbStatisticsMulti(Db *db,
  * @param  cuts       Array of cutoffs (when needed)
  *  @{
  */
-GSTLEARN_EXPORT VectorDouble dbStatisticsPerCell(Db *db,
-                                                 DbGrid *dbgrid,
-                                                 const EStatOption &oper,
+GSTLEARN_EXPORT VectorDouble dbStatisticsPerCell(Db* db,
+                                                 DbGrid* dbgrid,
+                                                 const EStatOption& oper,
                                                  const String& name1,
-                                                 const String& name2 = "",
-                                                 const VectorDouble &cuts = VectorDouble());
+                                                 const String& name2      = "",
+                                                 const VectorDouble& cuts = VectorDouble());
 /**@}*/
 
-GSTLEARN_EXPORT Id statisticsProportion(DbGrid *dbin,
-                                         DbGrid *dbout,
-                                         Id pos,
-                                         Id nfacies,
-                                         Id radius);
-GSTLEARN_EXPORT Id statisticsTransition(DbGrid *dbin,
-                                         DbGrid *dbout,
-                                         Id pos,
-                                         Id nfacies,
-                                         Id radius,
-                                         Id orient);
+GSTLEARN_EXPORT Id statisticsProportion(DbGrid* dbin,
+                                        DbGrid* dbout,
+                                        Id pos,
+                                        Id nfacies,
+                                        Id radius);
+GSTLEARN_EXPORT Id statisticsTransition(DbGrid* dbin,
+                                        DbGrid* dbout,
+                                        Id pos,
+                                        Id nfacies,
+                                        Id radius,
+                                        Id orient);
 
-GSTLEARN_EXPORT VectorDouble dbStatisticsFacies(Db *db);
-GSTLEARN_EXPORT double dbStatisticsIndicator(Db *db);
+GSTLEARN_EXPORT VectorDouble dbStatisticsFacies(Db* db);
+GSTLEARN_EXPORT double dbStatisticsIndicator(Db* db);
 
 GSTLEARN_EXPORT MatrixSquare* sphering(const AMatrix* X);
 
-GSTLEARN_EXPORT VectorVectorInt correlationPairs(Db *db1,
-                                                 Db *db2,
-                                                 const String &name1,
-                                                 const String &name2,
+GSTLEARN_EXPORT VectorVectorInt correlationPairs(Db* db1,
+                                                 Db* db2,
+                                                 const String& name1,
+                                                 const String& name2,
                                                  bool flagFrom1 = false,
-                                                 bool verbose = false);
-GSTLEARN_EXPORT VectorVectorInt hscatterPairs(Db *db,
-                                              const String &name1,
-                                              const String &name2,
-                                              VarioParam *varioparam,
-                                              Id ilag = 0,
-                                              Id idir = 0,
+                                                 bool verbose   = false);
+GSTLEARN_EXPORT VectorVectorInt hscatterPairs(Db* db,
+                                              const String& name1,
+                                              const String& name2,
+                                              VarioParam* varioparam,
+                                              Id ilag      = 0,
+                                              Id idir      = 0,
                                               bool verbose = false);
-GSTLEARN_EXPORT Id correlationIdentify(Db *db1,
-                                        Db *db2,
-                                        Id icol1,
-                                        Id icol2,
-                                        Polygons *polygon);
-GSTLEARN_EXPORT VectorVectorDouble condexp(Db *db1,
-                                           Db *db2,
+GSTLEARN_EXPORT Id correlationIdentify(Db* db1,
+                                       Db* db2,
+                                       Id icol1,
+                                       Id icol2,
+                                       Polygons* polygon);
+GSTLEARN_EXPORT VectorVectorDouble condexp(Db* db1,
+                                           Db* db2,
                                            Id icol1,
                                            Id icol2,
                                            double mini,
@@ -134,7 +134,7 @@ GSTLEARN_EXPORT VectorVectorDouble condexp(Db *db1,
                                            bool verbose = false);
 
 GSTLEARN_EXPORT std::map<Id, Id> contingencyTable(const VectorInt& values);
-GSTLEARN_EXPORT std::map<Id, std::map<Id, Id>>contingencyTable2(const VectorInt& values, const VectorInt& bins);
+GSTLEARN_EXPORT std::map<Id, std::map<Id, Id>> contingencyTable2(const VectorInt& values, const VectorInt& bins);
 GSTLEARN_EXPORT MatrixSymmetric dbVarianceMatrix(const Db* db);
 
 #ifndef SWIG
@@ -166,11 +166,11 @@ GSTLEARN_EXPORT void dbStatisticsVariables(Db* db,
 /**@}*/
 
 GSTLEARN_EXPORT Id dbStatisticsInGridTool(Db* db,
-                                           DbGrid* dbgrid,
-                                           const VectorString& names,
-                                           const EStatOption& oper,
-                                           Id radius,
-                                           Id iptr0);
+                                          DbGrid* dbgrid,
+                                          const VectorString& names,
+                                          const EStatOption& oper,
+                                          Id radius,
+                                          Id iptr0);
 
 #endif // SWIG
-}
+} // namespace gstlrn

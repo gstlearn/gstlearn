@@ -40,6 +40,13 @@ public:
   /// ASerializable Interface
   static AnamDiscreteDD* createFromNF(const String& NFFilename, bool verbose = true);
 
+  /// ASerializable Interface
+  String getNFName() const override { return "AnamDiscreteDD"; }
+#ifdef HDF5
+  bool deserializeH5(H5::Group& grp) override;
+  bool serializeH5(H5::Group& grp) const override;
+#endif
+
   /// AAnam Interface
   const EAnam& getType() const override { return EAnam::fromKey("DISCRETE_DD"); }
   bool hasFactor() const override { return true; }
@@ -50,13 +57,13 @@ public:
   bool allowChangeSupport() const override { return true; }
   bool isChangeSupportDefined() const override { return (_sCoef > 0.); }
   Id fitFromArray(const VectorDouble& tab,
-                   const VectorDouble& wt = VectorDouble()) override;
+                  const VectorDouble& wt = VectorDouble()) override;
 
   /// AnamDiscrete Interface
   void calculateMeanAndVariance() override;
 
   VectorDouble factors_exp(bool verbose = false);
-  VectorDouble factors_maf(bool verbose = false);
+  MatrixDense factors_maf(bool verbose = false);
   VectorDouble factors_mod();
   MatrixSquare chi2I(const VectorDouble& chi, Id mode);
 
@@ -83,19 +90,14 @@ public:
   void setI2Chi(const MatrixSquare& i2Chi) { _i2Chi = i2Chi; }
 
   Id factor2Selectivity(Db* db,
-                         Selectivity* selectivity,
-                         const VectorInt& cols_est,
-                         const VectorInt& cols_std,
-                         Id iptr0);
+                        Selectivity* selectivity,
+                        const VectorInt& cols_est,
+                        const VectorInt& cols_std,
+                        Id iptr0);
 
 protected:
-  bool _deserializeAscii(std::istream& is, bool verbose = false) override;
-  bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
-#ifdef HDF5
-  bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
-  bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
-#endif
-  String _getNFName() const override { return "AnamDiscreteDD"; }
+  bool _deserializeAscii(std::istream& is) override;
+  bool _serializeAscii(std::ostream& os) const override;
 
 private:
   Id _stats(Id nech, const VectorDouble& tab);

@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Boolean/AShape.hpp"
 #include "Basic/AException.hpp"
+#include "Basic/Message.hpp"
 
 namespace gstlrn
 {
