@@ -47,7 +47,7 @@ struct qualifier
   bool isFittable;  // True if this tool can be used for fitting a model
 };
 
-inline const std::map<std::string, qualifier> ECalcVarioAttr =
+const std::map<std::string, qualifier> ECalcVarioAttr =
   {
     {"UNDEFINED", {true, false, false, true}},
     {"VARIOGRAM", {true, false, false, true}},
