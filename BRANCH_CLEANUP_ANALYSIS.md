@@ -16,7 +16,7 @@ Based on the analysis of all branches in the repository against the deletion cri
 ### Deletion Criteria
 A branch can be deleted if:
 1. It has no commits ahead of the 'dev' branch
-2. Its name doesn't start with v1 or 1 (patch maintenance branch)  
+2. Its name doesn't start with v1 or 1 (patch maintenance branch)
 3. It has commits ahead of the 'dev' branch, but the proposed code has already been merged into 'dev' (by another merge)
 
 ---
@@ -111,7 +111,7 @@ These branches have unique commits not in dev and no associated PR found:
 
 #### Recommended Reviews
 1. **Issue_741** - Review if work from closed PR #782 is still needed
-2. **testing_template** - Review if work from closed PR #746 is still needed  
+2. **testing_template** - Review if work from closed PR #746 is still needed
 3. **copilot/fix-tuto-pca-maf-test** - Review if work from closed PR #748 is still needed
 4. **Marimo_developments** - PR #820 was merged but branch still has commits ahead - investigate why
 
