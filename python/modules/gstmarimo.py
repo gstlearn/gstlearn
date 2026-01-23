@@ -283,10 +283,10 @@ def WgetModel(WAll, vario=None):
     else:
         return None
 
-    # Add the Universality Condition (always)
-    model.setDriftIRF(order=0, nfex=0)
-
     if model is not None:
+        # Add the Universality Condition (always)
+        model.setDriftIRF(order=0, nfex=0)
+
         _saveNF(model, "myModel.NF")
         _displayItem(model)
 
@@ -786,11 +786,16 @@ def WgetDbFromCSV(WAll, flagHeader=True):
         charSep = ";"
         charDec = ","
     dataframe = pd.read_csv(
-        path, sep=charSep, decimal=charDec, header=0 if flagHeader else None
+        path,
+        sep=charSep,
+        decimal=charDec,
+        header=0 if flagHeader else None,
+        on_bad_lines="warn",
     )
     db = gl.Db_fromPandas(dataframe)
     if db.getNSample() <= 0:
         print("Reading of CSV file failed: Check its Style")
+        db = None
     else:
         db.setLocators([WDCSVnameX.value, WDCSVnameY.value], gl.ELoc.X)
         db.setLocator(WDCSVnameVar.value, gl.ELoc.Z)
@@ -810,8 +815,8 @@ def WdefineBox(db=None):
     if db is not None:
         box = db.getExtremas()
         longmin = box[0][0]
-        longmax = box[1][0]
-        latmin = box[0][1]
+        longmax = box[0][1]
+        latmin = box[1][0]
         latmax = box[1][1]
     else:
         longmin = -180
@@ -823,15 +828,17 @@ def WdefineBox(db=None):
     WBoxLongMax = mo.ui.number(start=None, stop=None, value=longmax)
     WBoxLatMin = mo.ui.number(start=None, stop=None, value=latmin)
     WBoxLatMax = mo.ui.number(start=None, stop=None, value=latmax)
-    WBoxFlagProj = mo.ui.checkbox(
+    WBoxFlagBackground = mo.ui.checkbox(
         label="Background (if coordinates are Long/Lat)", value=False
     )
 
-    return mo.ui.array([WBoxLongMin, WBoxLongMax, WBoxLatMin, WBoxLatMax, WBoxFlagProj])
+    return mo.ui.array(
+        [WBoxLongMin, WBoxLongMax, WBoxLatMin, WBoxLatMax, WBoxFlagBackground]
+    )
 
 
 def WshowBox(WAll, flagTitle=True, gapv=0, gaph=1):
-    [WBoxLongMin, WBoxLongMax, WBoxLatMin, WBoxLatMax, WBoxFlagProj] = WAll
+    [WBoxLongMin, WBoxLongMax, WBoxLatMin, WBoxLatMax, WBoxFlagBackground] = WAll
 
     WBoxTitle = _WgetTitle("Box Definition", flagTitle)
     WBoxgrid = mo.hstack(
@@ -848,17 +855,17 @@ def WshowBox(WAll, flagTitle=True, gapv=0, gaph=1):
         ],
         gap=gaph,
     )
-    return mo.vstack([WBoxTitle, WBoxgrid, WBoxFlagProj], gap=gapv)
+    return mo.vstack([WBoxTitle, WBoxgrid, WBoxFlagBackground], gap=gapv)
 
 
 def WgetBox(WAll):
-    [WBoxLongMin, WBoxLongMax, WBoxLatMin, WBoxLatMax, WBoxFlagProj] = WAll
+    [WBoxLongMin, WBoxLongMax, WBoxLatMin, WBoxLatMax, WBoxFlagBackground] = WAll
     box = np.ndarray(shape=(2, 2))
     box[0, 0] = WBoxLongMin.value
-    box[1, 0] = WBoxLongMax.value
-    box[0, 1] = WBoxLatMin.value
+    box[0, 1] = WBoxLongMax.value
+    box[1, 0] = WBoxLatMin.value
     box[1, 1] = WBoxLatMax.value
-    return box, WBoxFlagProj.value
+    return box, WBoxFlagBackground.value
 
 
 # =======================================
@@ -953,7 +960,7 @@ def WgetEdit(WAll, db):
 # =======================================
 
 
-def plotData(ax, db, name, box=None, title=None, flagProj=False):
+def plotData(ax, db, name, box=None, title=None, flagProj=False, flagBackground=False):
     if db is None:
         return None
     if name is None or db.getColIdx(name) <= 0:
@@ -962,7 +969,7 @@ def plotData(ax, db, name, box=None, title=None, flagProj=False):
     if box is not None:
         ax.baseMap(db=db, box=box, flagProj=flagProj)
     ax.literal(db=db, name=name, fontsize=6)
-    if flagProj:
+    if flagBackground:
         ctx.add_basemap(ax, source=ctx.providers.OpenStreetMap.Mapnik, crs="EPSG:4326")
     if title is None:
         title = name
@@ -977,7 +984,7 @@ def plotVario(ax, vario=None, model=None, title=None, showPairs=True):
     ax.decoration(title=title)
 
 
-def plotGrid(ax, grid, name, title=None, flagLegend=False):
+def plotGrid(ax, grid, name, title=None, flagLegend=False, nlevel=10, levels=None):
     if grid is None:
         return
     if name is None or grid.getColIdx(name) <= 0:
@@ -985,5 +992,14 @@ def plotGrid(ax, grid, name, title=None, flagLegend=False):
     if title is None:
         title = f"Grid: {name}"
     ax.raster(dbgrid=grid, name=name, alpha=0.5, flagLegend=flagLegend)
+    if nlevel > 0:
+        ax.isoline(
+            dbgrid=grid,
+            name=name,
+            nlevel=nlevel,
+            levels=levels,
+            colors="black",
+            linewidths=0.5,
+        )
     ax.decoration(title=title)
     ax.geometry(aspect=1)
