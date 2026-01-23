@@ -111,7 +111,7 @@ git push origin --delete Issue_741
 git push origin --delete Issue-816
 git push origin --delete Marimo_developments
 git push origin --delete Modify_setLocator
-git push origin --delete 'Move-spde-(old-code)-into-MultiLayers'
+git push origin --delete "Move-spde-(old-code)-into-MultiLayers"
 git push origin --delete NDesassis-patch-2
 git push origin --delete Robustify-SPDE
 git push origin --delete Test-MSVC-2022
