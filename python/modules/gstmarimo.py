@@ -786,11 +786,16 @@ def WgetDbFromCSV(WAll, flagHeader=True):
         charSep = ";"
         charDec = ","
     dataframe = pd.read_csv(
-        path, sep=charSep, decimal=charDec, header=0 if flagHeader else None
+        path,
+        sep=charSep,
+        decimal=charDec,
+        header=0 if flagHeader else None,
+        on_bad_lines="warn",
     )
     db = gl.Db_fromPandas(dataframe)
     if db.getNSample() <= 0:
         print("Reading of CSV file failed: Check its Style")
+        db = None
     else:
         db.setLocators([WDCSVnameX.value, WDCSVnameY.value], gl.ELoc.X)
         db.setLocator(WDCSVnameVar.value, gl.ELoc.Z)
@@ -979,7 +984,7 @@ def plotVario(ax, vario=None, model=None, title=None, showPairs=True):
     ax.decoration(title=title)
 
 
-def plotGrid(ax, grid, name, title=None, flagLegend=False):
+def plotGrid(ax, grid, name, title=None, flagLegend=False, nlevel=10, levels=None):
     if grid is None:
         return
     if name is None or grid.getColIdx(name) <= 0:
@@ -987,5 +992,14 @@ def plotGrid(ax, grid, name, title=None, flagLegend=False):
     if title is None:
         title = f"Grid: {name}"
     ax.raster(dbgrid=grid, name=name, alpha=0.5, flagLegend=flagLegend)
+    if nlevel > 0:
+        ax.isoline(
+            dbgrid=grid,
+            name=name,
+            nlevel=nlevel,
+            levels=levels,
+            colors="black",
+            linewidths=0.5,
+        )
     ax.decoration(title=title)
     ax.geometry(aspect=1)

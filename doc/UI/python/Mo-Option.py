@@ -16,7 +16,7 @@ def _():
     import numpy as np
     import pandas as pd
 
-    return gl, gmo, gp, mo
+    return gl, gmo, gp, mo, plt
 
 
 @app.cell(hide_code=True)
@@ -91,6 +91,7 @@ def _(
     gmo,
     gp,
     mo,
+    plt,
 ):
     def myaction():
         # Define the Input Db
@@ -135,7 +136,7 @@ def _(
         )
         gmo.plotVario(ax[0, 1], vario, model, showPairs=True)
 
-        gmo.plotGrid(ax[1, 0], grid, name="Kriging.*.estim", flagLegend=True)
+        gmo.plotGrid(ax[1, 0], grid, name="Kriging.*.estim", flagLegend=True, nlevel=20)
         gmo.plotData(
             ax[1, 0], db, name=targetName, box=box, flagBackground=flagBackground
         )
@@ -143,6 +144,7 @@ def _(
         gmo.plotData(
             ax[1, 1], db, name=targetName, box=box, flagBackground=flagBackground
         )
+        plt.tight_layout()
         mo.mpl.interactive(fig)
 
         return fig
