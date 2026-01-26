@@ -2,10 +2,12 @@ This file contains the logs between consecutive releases
 ********************************************************
 # Make last version consistent with CMakeLists.txt
 
-Release 1.11.0
+Release 1.10.1
 ==============
 - Fix python non-regression compatibility with pandas >=3.0
 - flagLocator now deprecated in Db_toTL function in python packages
+- Marimo notebooks don't need a custom CSS anymore
+- Robustify Marimo widgets
 
 Release 1.10.0
 ==============
