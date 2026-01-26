@@ -2,8 +2,16 @@ This file contains the logs between consecutive releases
 ********************************************************
 # Make last version consistent with CMakeLists.txt
 
+Release 1.10.1
+==============
+- Fix python non-regression compatibility with pandas >=3.0
+- flagLocator now deprecated in Db_toTL function in python packages
+- Marimo notebooks don't need a custom CSS anymore
+- Robustify Marimo widgets
+
 Release 1.10.0
 ==============
+- Fix multivariate simulations with anti correlated variables
 - Implementation of simulations for Gneitting and multivariate Matern covariances (spectral method). See R tutorials Tuto_CorSpectral, Tuto_MultiMatern and Tuto_simulation_Gneiting for more details.
 - Update Marimo GUI features for more intuitive interactions
 - Correction when representing covariance (rather than variogram): adding negative X and/or Y

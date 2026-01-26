@@ -19,8 +19,11 @@ def Db_toTL(self, flagLocate=False):
     )
 
     if flagLocate:
-        for j, i in enumerate(self.getAllNames()):
-            df[i].locator = self.getLocators()[j]
+        # for j, i in enumerate(self.getAllNames()):
+        #    df[i].locator = self.getLocators()[j]
+        # This no longer works with pandas >= 3.0
+        # because df[i] is a copy and not a view
+        print("Warning: 'flagLocate' argument no longer supported")
     return df
 
 

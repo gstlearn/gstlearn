@@ -1,5 +1,6 @@
 import gstlearn as gl
 import numpy as np
+import pandas as pd
 
 #
 # This first part concerns the assessors used for Db manipulation
@@ -104,7 +105,10 @@ table.setColumnNames(["Col1", "Col2", "Col3"])
 table
 
 newtab = table.toTL()
-print(type(newtab))
+if isinstance(newtab, pd.DataFrame):
+    print("My table is converted to a pandas DataFrame")
+else:
+    print(f"My table is not a pandas DataFrame but a {type(newtab)}")
 newtab
 
 #
