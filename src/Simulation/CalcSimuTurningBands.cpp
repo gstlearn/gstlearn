@@ -30,8 +30,6 @@
 namespace gstlrn
 {
 
-bool _internalNewStyle = true;
-
 CalcSimuTurningBands::CalcSimuTurningBands(Id nbsimu,
                                            Id nbtuba,
                                            bool flag_check,
