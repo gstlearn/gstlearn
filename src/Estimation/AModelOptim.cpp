@@ -45,6 +45,7 @@ AModelOptim::AModelOptim(ModelGeneric* model, bool verbose)
                     _params->getDispatchIndex());
   resetIter();
   _opt->setMaxIter(10000);
+  _opt->setMaxIter(10000);
 };
 
 void AModelOptim::setEnvironment(const MatrixSymmetric& vars, double href, double epsilon, double min, double max)

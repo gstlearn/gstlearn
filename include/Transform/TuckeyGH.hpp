@@ -37,13 +37,14 @@ public:
   virtual ~TuckeyGH()                    = default;
   IMPLEMENT_CLONING(TuckeyGH)
   bool hasParameters() const override { return true; }
+  bool hasParameters() const override { return true; }
   double getGValue() const { return _G.getValue(); }
   void setGValue(double g) { _G.setValue(g); }
   double getHValue() const { return _H.getValue(); }
   void setHValue(double h) { _H.setValue(h); }
-#ifndef SWIG
+  #ifndef SWIG
   void initParams(double min = 0, double max = INF) override;
-#endif
+  #endif
   void appendParams(ListParams& listParams) override;
 
   String getName() const override { return "TuckeyGH"; }

@@ -28,9 +28,9 @@ class GSTLEARN_EXPORT YeoJohnson:
 #endif
 {
 public:
-  YeoJohnson(double lambda);
   YeoJohnson(const YeoJohnson& r);
-  YeoJohnson& operator=(const YeoJohnson& r);
+  YeoJohnson(double lambda);
+  YeoJohnson& operator=(const YeoJohnson& r) ;
   virtual ~YeoJohnson()                      = default;
   IMPLEMENT_CLONING(YeoJohnson)
   bool hasParameters() const override { return true; }

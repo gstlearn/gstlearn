@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Basic/ICloneable.hpp"
 #include "Transform/ATransform.hpp"
 #include "gstlearn_export.hpp"
 
@@ -19,17 +20,16 @@
 namespace gstlrn
 {
 
-class YeoJohnsonForTest: public ATransform
+class YeoJohnsonForTest: public ATransform 
 {
 public:
   YeoJohnsonForTest(double lambda)
     : _lambda(lambda) {};
   YeoJohnsonForTest(const YeoJohnsonForTest& r)            = default;
   YeoJohnsonForTest& operator=(const YeoJohnsonForTest& r) = default;
-  IMPLEMENT_CLONING(YeoJohnsonForTest)
   String getName() const override { return "YeoJohnsonForTest"; }
-  virtual ~YeoJohnsonForTest() = default;
-
+  virtual ~YeoJohnsonForTest()                      = default;
+  IMPLEMENT_CLONING(YeoJohnsonForTest)
   bool hasParameters() const override { return false; }
   double getLambda() const { return _lambda; }
   void setLambda(double lambda) { _lambda = lambda; }
@@ -57,4 +57,4 @@ private:
   double _lambda;
 };
 
-} // namespace gstlrn
+}

@@ -34,8 +34,8 @@ public:
           Id nb_vecchia,
           const Db* db1,
           const Db* db2 = nullptr,
-          bool reml     = false,
-          bool verbose  = false);
+          bool reml       = false,
+          bool verbose    = false);
   Vecchia(const Vecchia& r);
   Vecchia& operator=(const Vecchia& r);
   virtual ~Vecchia();

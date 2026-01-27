@@ -90,9 +90,10 @@ public:
                              const ECalcMember& calcMember = ECalcMember::RHS) const override;
 #endif
   void setCovFiltered(Id icov, bool filtered);
+  bool isFiltered(Id icov) const;
   Id getNCov() const;
   Id getNCovNuggetExcluded() const;
-  bool isFiltered(Id icov) const;
+  
   virtual double getTotalSill(Id ivar = 0, Id jvar = 0) const;
   MatrixSymmetric getTotalSills() const;
   bool isAllActiveCovList() const;

@@ -67,6 +67,7 @@ ALikelihood::~ALikelihood()
 }
 
 void ALikelihood::initLikelihood(bool verbose)
+void ALikelihood::initLikelihood(bool verbose)
 {
   MatrixSymmetric vars = dbVarianceMatrix(_db);
   double hmax          = _db->getExtensionDiagonal();
@@ -198,7 +199,7 @@ double ALikelihood::computeLogLikelihood(bool flagPrint, bool verbose)
     CholeskyDense XtCm1XChol(_XtCm1X);
     loglike -= 0.5 * XtCm1XChol.computeLogDeterminant();
   }
-
+  
   double logjac = _model->getTransform() == nullptr ? 0. : _model->getTransform()->evalLogJacobianVec(_Y);
 
   loglike -= logjac;

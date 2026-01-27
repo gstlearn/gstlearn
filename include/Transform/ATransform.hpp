@@ -47,8 +47,8 @@ public:
   void inverseTransformVec(constvect in, vect out) const;
 #endif
   VectorDouble transformVec(const VectorDouble& in) const;
-  VectorDouble inverseTransformVec(const VectorDouble& in) const;
   virtual double evalJacobian(double x) const;
+  VectorDouble inverseTransformVec(const VectorDouble& in) const;
   virtual double condExp(double mu, double sigma, Id power = 1) const;
   VectorDouble condExpVec(const VectorDouble& mu, const VectorDouble& sigma, Id power = 1) const;
   double evalLogJacobianVec(constvect in) const;
