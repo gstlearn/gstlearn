@@ -72,17 +72,17 @@ namespace gstlrn
 {
 
 /* Static parameters - for memory management */
-static size_t SpaceAlloced   = 0;
-static size_t MaxPermAlloced = 0;
+thread_local size_t SpaceAlloced   = 0;
+thread_local size_t MaxPermAlloced = 0;
 
 /* temp space, (void *) since both float and double routines use it */
-static void* Tmp0 = NULL; /* temp space for real part */
-static void* Tmp1 = NULL; /* temp space for imaginary part */
-static void* Tmp2 = NULL; /* temp space for Cosine values */
-static void* Tmp3 = NULL; /* temp space for Sine values */
-static Id* Perm   = NULL; /* Permutation vector */
+thread_local void* Tmp0 = NULL; /* temp space for real part */
+thread_local void* Tmp1 = NULL; /* temp space for imaginary part */
+thread_local void* Tmp2 = NULL; /* temp space for Cosine values */
+thread_local void* Tmp3 = NULL; /* temp space for Sine values */
+thread_local Id* Perm   = NULL; /* Permutation vector */
 
-static Id factor[NFACTOR];
+thread_local Id factor[NFACTOR];
 
 /******************************************************************************/
 /*!
