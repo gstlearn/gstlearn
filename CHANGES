@@ -4,7 +4,7 @@ This file contains the logs between consecutive releases
 
 Release 1.11.0
 ==============
-
+- Incorporate the AIC information as a member of CovBase
 
 Release 1.10.1
 ==============

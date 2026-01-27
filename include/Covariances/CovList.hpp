@@ -109,6 +109,7 @@ public:
   void setSills(Id icov, const MatrixSymmetric& sills);
   const MatrixSymmetric& getSills(Id icov) const;
   double getSill(Id icov, Id ivar, Id jvar) const;
+  double getAic(Id icov, Id ivar, Id jvar) const;
 
   // Methods necessary for Optimization
   void _optimizationPreProcess(Id mode, const std::vector<SpacePoint>& ps) const override;
@@ -147,6 +148,8 @@ public:
 
   bool isValidForSpectral() const override;
   MatrixDense simulateSpectralOmega(Id ns) const override;
+  void computeAic() const;
+  void initializeAic() const;
 
 protected:
   bool _isCovarianceIndexValid(Id icov) const;

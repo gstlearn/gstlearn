@@ -951,10 +951,12 @@ Id AModelFitSills::_goulardWithoutConstraint(Id niter,
     fk.push_back(MatrixDense(nvs2Local, npadir));
   MatrixSymmetric cc(nvar);
 
-  std::vector<MatrixSymmetric> aic;
-  aic.reserve(ncova);
+  // The array 'aicLocal' is similar to '_aic' stored within CovBase class
+  // However it is not stored there as 'nvar' is defined locally.
+  std::vector<MatrixSymmetric> aicLocal;
+  aicLocal.reserve(ncova);
   for (Id icova = 0; icova < ncova; icova++)
-    aic.push_back(MatrixSymmetric(nvar));
+    aicLocal.push_back(MatrixSymmetric(nvar));
   std::vector<MatrixSymmetric> alphak;
   alphak.reserve(ncova);
   for (Id icova = 0; icova < ncova; icova++)
@@ -981,7 +983,7 @@ Id AModelFitSills::_goulardWithoutConstraint(Id niter,
       for (Id jvar = 0; jvar <= ivar; jvar++, ijvar++)
       {
         sum1 = sum2 = 0;
-        aic[icov].setValue(ivar, jvar, 0.);
+        aicLocal[icov].setValue(ivar, jvar, 0.);
         for (Id ipadir = 0; ipadir < npadir; ipadir++)
         {
           if (FFFF(WT(ijvar, ipadir))) continue;
@@ -991,7 +993,7 @@ Id AModelFitSills::_goulardWithoutConstraint(Id niter,
           sum2 += temp * ge[icov].getValue(ijvar, ipadir);
         }
         alphak[icov].setValue(ivar, jvar, 1. / sum2);
-        aic[icov].setValue(ivar, jvar, sum1 / sum2);
+        aicLocal[icov].setValue(ivar, jvar, sum1 / sum2);
       }
   crit = _calculateScoreMP(nvar, npadir, wt, gg, mp);
 
@@ -1022,7 +1024,7 @@ Id AModelFitSills::_goulardWithoutConstraint(Id niter,
                            ge[icov].getValue(ijvar, ipadir)));
             sum += fk[icov].getValue(ijvar, ipadir) * mp.getValue(ijvar, ipadir);
           }
-          coeff = aic[icov].getValue(ivar, jvar) -
+          coeff = aicLocal[icov].getValue(ivar, jvar) -
                   alphak[icov].getValue(ivar, jvar) * sum;
           cc.setValue(ivar, jvar, coeff);
           cc.setValue(jvar, ivar, coeff);
