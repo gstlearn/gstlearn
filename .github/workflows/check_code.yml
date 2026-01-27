@@ -80,7 +80,7 @@ jobs:
   # Check compiler warnings #
   # ----------------------- #
   check-warnings:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         opt: [Debug, Release]
@@ -90,14 +90,18 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Install macOS dependencies
+    - name: Install dependencies
       run: |
-        brew install llvm
-        brew install boost
-        brew install eigen
-        brew install nlopt
-        brew install hdf5
-        echo "$(brew --prefix llvm)/bin" >> $GITHUB_PATH
+        sudo rm /etc/apt/sources.list.d/microsoft-prod.list
+        sudo apt-get update
+        sudo apt-get install -yq \
+          libhdf5-dev \
+          libopenmpi-dev \
+          libboost-dev \
+          libeigen3-dev \
+          libnlopt-dev \
+          libomp-dev \
+          clang-tools
 
     - name: Create & configure gstlearn build directory
       run: |
@@ -118,8 +122,8 @@ jobs:
         git ls-files \
         | grep -E "src|include" \
         | grep -E "\.cpp$|\.hpp$" \
-        | xargs -n1 -P$(sysctl -n hw.physicalcpu) -t \
-            xcrun clang-check -p build --extra-arg=-Werror
+        | xargs -n1 -P$(nproc) -t \
+            clang-check -p build --extra-arg=-Werror
 
 
   # ------------- #
