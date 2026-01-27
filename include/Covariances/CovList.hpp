@@ -149,6 +149,7 @@ public:
   bool isValidForSpectral() const override;
   MatrixDense simulateSpectralOmega(Id ns) const override;
   void computeAic() const;
+  void initializeAic() const;
 
 protected:
   bool _isCovarianceIndexValid(Id icov) const;

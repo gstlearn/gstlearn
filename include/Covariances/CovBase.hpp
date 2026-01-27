@@ -62,6 +62,7 @@ public:
   void setAic(const MatrixSquare& aic) { _aic = aic; }
   void setAic(Id ivar, Id jvar, double val);
   void computeAic();
+  void initializeAic();
 
   const MatrixSymmetric& getSill() const { return _sillCur; }
   const MatrixSquare& getAic() const { return _aic; }

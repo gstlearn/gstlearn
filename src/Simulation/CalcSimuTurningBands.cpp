@@ -1046,9 +1046,7 @@ void CalcSimuTurningBands::_spreadSpectralOnPoint(const Db* db,
  ** \param[in]  shift      Shift before writing the simulation result
  **
  *****************************************************************************/
-void CalcSimuTurningBands::_simulatePoint(Db* db,
-                                          Id icase,
-                                          Id shift)
+void CalcSimuTurningBands::_simulatePoint(Db* db, Id icase, Id shift)
 {
   Id nech       = db->getNSample();
   auto ncova    = _getNCov();
@@ -1194,9 +1192,7 @@ void CalcSimuTurningBands::_simulatePoint(Db* db,
  ** \param[in]  shift      Shift before writing the simulation result
  **
  *****************************************************************************/
-void CalcSimuTurningBands::_simulateGrid(DbGrid* db,
-                                         Id icase,
-                                         Id shift)
+void CalcSimuTurningBands::_simulateGrid(DbGrid* db, Id icase, Id shift)
 {
   auto nbsimu            = getNbSimu();
   double theta1          = 1. / _theta;
@@ -1348,8 +1344,7 @@ void CalcSimuTurningBands::_simulateGrid(DbGrid* db,
  ** \remarks At the end, the simulated gradient is stored at first point
  **
  *****************************************************************************/
-void CalcSimuTurningBands::_simulateGradient(Db* dbgrd,
-                                             double delta)
+void CalcSimuTurningBands::_simulateGradient(Db* dbgrd, double delta)
 {
   Id jsimu;
   Id icase               = 0;
@@ -1422,8 +1417,7 @@ void CalcSimuTurningBands::_simulateGradient(Db* dbgrd,
  ** \remarks simulation outcome variables as for the gradients
  **
  *****************************************************************************/
-void CalcSimuTurningBands::_simulateTangent(Db* dbtgt,
-                                            double delta)
+void CalcSimuTurningBands::_simulateTangent(Db* dbtgt, double delta)
 {
   Id icase               = 0;
   auto nvar              = _getNVar();
@@ -1525,8 +1519,7 @@ void CalcSimuTurningBands::_getOmegaPhi(Id ibs,
  ** \param[in]  icase      Rank of PGS or GRF
  **
  *****************************************************************************/
-void CalcSimuTurningBands::_simulateNugget(Db* db,
-                                           Id icase)
+void CalcSimuTurningBands::_simulateNugget(Db* db, Id icase)
 {
   Id nech                = db->getNSample();
   auto ncova             = _getNCov();

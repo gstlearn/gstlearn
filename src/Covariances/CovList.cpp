@@ -639,6 +639,12 @@ void CovList::computeAic() const
     e->computeAic();
 }
 
+void CovList::initializeAic() const
+{
+  for (const auto& e: _covs)
+    e->initializeAic();
+}
+
 #ifdef HDF5
 bool CovList::deserializeH5(H5::Group& grp)
 {

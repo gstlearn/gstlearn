@@ -180,6 +180,14 @@ void CovBase::computeAic()
   if (!_sillCur.empty()) _aic = _sillCur.squareRoot();
 }
 
+void CovBase::initializeAic()
+{
+  if (_sillCur.empty()) return;
+  Id nvar = _sillCur.getNCols();
+  _aic    = MatrixSymmetric(nvar);
+  _aic.setIdentity();
+}
+
 bool CovBase::_isVariableValid(Id ivar) const
 {
   return checkArg("Rank of the Variable", ivar, getNVar());
