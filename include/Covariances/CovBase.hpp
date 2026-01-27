@@ -59,8 +59,12 @@ public:
   virtual void setSill(const VectorDouble& sill) const;
   virtual void setSill(Id ivar, Id jvar, double sill) const;
   void initSill(double value = 0.);
+  void setAic(const MatrixSquare& aic) { _aic = aic; }
+  void setAic(Id ivar, Id jvar, double val);
+  void computeAic();
 
   const MatrixSymmetric& getSill() const { return _sillCur; }
+  const MatrixSquare& getAic() const { return _aic; }
   virtual void setCor(ACov* cor);
   const ACov* getCor() const { return _cor.get(); }
   ACov* getCorModify() { return _cor.get(); }
@@ -166,6 +170,7 @@ protected:
   mutable MatrixSquare _cholSills;
   mutable MatrixSymmetric _sillCur;
   mutable MatrixSquare _workMat;
+  mutable MatrixSymmetric _aic;
 
 private:
   std::shared_ptr<ACov> _cor;

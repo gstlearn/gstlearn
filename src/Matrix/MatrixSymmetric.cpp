@@ -838,7 +838,7 @@ Id MatrixSymmetric::computeGeneralizedInverse(MatrixSymmetric& tabout,
  ** \remark The input and output matrices can match
  **
  *****************************************************************************/
-Id MatrixSymmetric::computeSquareRoot(MatrixSymmetric& tabout)
+Id MatrixSymmetric::squareRootInPlace(MatrixSymmetric& tabout)
 {
   if (!isSameSize(tabout))
   {
@@ -950,6 +950,49 @@ MatrixSymmetric* MatrixSymmetric::createFromDiagonal(const VectorDouble& vecdiag
     res->setValue(i, i, vecdiag[i]);
   }
   return res;
+}
+
+MatrixSymmetric MatrixSymmetric::squareRoot(double tol)
+{
+  Eigen::MatrixXd B = eigenMat();
+  Id n              = B.rows();
+
+  // Eigen-decomposition (symmetric)
+  Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> es(B);
+  if (es.info() != Eigen::Success)
+  {
+    messerr("Eigen decomposition failed");
+    return MatrixSymmetric();
+  }
+
+  Eigen::VectorXd evals = es.eigenvalues();
+  Eigen::MatrixXd evecs = es.eigenvectors();
+
+  // Clamp small negative values due to numerical noise
+  for (int i = 0; i < evals.size(); ++i)
+  {
+    if (evals(i) < 0 && std::abs(evals(i)) < tol) evals(i) = 0.0;
+  }
+
+  // Look for negative eigen values
+  for (int i = 0; i < evals.size(); ++i)
+  {
+    if (evals(i) < 0)
+    {
+      messerr("Matrix has negative eigenvalues: no real symmetric square root exists");
+      return MatrixSymmetric();
+    }
+  }
+
+  // Racine carrée diagonale
+  Eigen::VectorXd sqrt_evals = evals.array().sqrt();
+
+  // Recomposition : A = Q * sqrt(Lambda) * Q^T
+  Eigen::MatrixXd A = evecs * sqrt_evals.asDiagonal() * evecs.transpose();
+
+  MatrixSymmetric mat(n);
+  mat.eigenMat() = A;
+  return mat;
 }
 
 } // namespace gstlrn

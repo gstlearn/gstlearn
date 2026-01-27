@@ -70,7 +70,8 @@ public:
                                double maxicond = 1.e20,
                                double eps      = EPSILON20);
   bool isDefinitePositive();
-  Id computeSquareRoot(MatrixSymmetric& tabout);
+  Id squareRootInPlace(MatrixSymmetric& tabout);
+  MatrixSymmetric squareRoot(double tol = EPSILON12);
   Id minimizeWithConstraintsInPlace(const VectorDouble& gmat,
                                     const MatrixDense& aemat,
                                     const VectorDouble& bemat,

@@ -81,11 +81,11 @@ private:
   void _rollback() override;
 
   bool _resize();
-  void _simulatePoint(Db* db, const VectorDouble& aic, Id icase, Id shift);
-  void _simulateGrid(DbGrid* db, const VectorDouble& aic, Id icase, Id shift);
-  void _simulateNugget(Db* db, const VectorDouble& aic, Id icase);
-  void _simulateGradient(Db* dbgrd, const VectorDouble& aic, double delta);
-  void _simulateTangent(Db* dbtgt, const VectorDouble& aic, double delta);
+  void _simulatePoint(Db* db, Id icase, Id shift);
+  void _simulateGrid(DbGrid* db, Id icase, Id shift);
+  void _simulateNugget(Db* db, Id icase);
+  void _simulateGradient(Db* dbgrd, double delta);
+  void _simulateTangent(Db* dbtgt, double delta);
   void _meanCorrect(Db* dbout, Id icase);
   void _difference(Db* dbin,
                    Model* model,
@@ -129,8 +129,6 @@ private:
   void _setDensity();
   static ECov _particularCase(const ECov& type, double param);
   Id _initializeSeedBands();
-  VectorDouble _createAIC();
-  double _getAIC(const VectorDouble& aic, Id icov, Id ivar, Id jvar);
 
   static double _computeScale(double alpha, double scale);
   static double _computeScaleKB(double param, double scale);

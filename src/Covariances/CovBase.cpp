@@ -50,6 +50,7 @@ CovBase::CovBase(ACov* cor,
   createNoStatTab();
 
   _ctxt.setNVar(sill.getNSize());
+  _aic.clear();
 
   if (cor != nullptr)
   {
@@ -68,6 +69,7 @@ CovBase::CovBase(const CovBase& r)
   _cholSills     = r._cholSills;
   _sillCur       = r._sillCur;
   _workMat       = r._workMat;
+  _aic           = r._aic;
   _cor           = std::dynamic_pointer_cast<ACov>(r._cor->cloneShared());
 }
 
@@ -79,6 +81,7 @@ CovBase& CovBase::operator=(const CovBase& r)
     _cholSills     = r._cholSills;
     _sillCur       = r._sillCur;
     _workMat       = r._workMat;
+    _aic           = r._aic;
     _cor           = std::dynamic_pointer_cast<ACov>(r._cor->cloneShared());
     _itRange       = LowerTriangularRange(r._cholSills.getNRows());
   }
@@ -158,6 +161,23 @@ void CovBase::setCholSill(Id ivar, Id jvar, double val) const
     return;
   }
   _cholSills.setValue(ivar, jvar, val);
+}
+
+void CovBase::setAic(Id ivar, Id jvar, double val)
+{
+  if (!_isVariableValid(ivar)) return;
+  if (!_isVariableValid(jvar)) return;
+  _aic.setValue(ivar, jvar, val);
+}
+
+/**
+ * @brief Calculate the square root of the sill matrix.
+ * This decomposition requires the Sill matrix to be definite positive.
+ */
+void CovBase::computeAic()
+{
+  // Check that the sill matrix has been defined before squaring it
+  if (!_sillCur.empty()) _aic = _sillCur.squareRoot();
 }
 
 bool CovBase::_isVariableValid(Id ivar) const
