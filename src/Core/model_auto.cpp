@@ -307,7 +307,7 @@ static Id st_parid_alloc(StrMod* strmod, Id npar0)
                                  &flag_aniso, &flag_rotation, &scalfac,
                                  &parmax);
 
-      /* AIC coefficients -> Sill */
+      /* Sill constraints (operated through the AIC matrix) */
       if (DEFINE_AIC)
         for (Id ivar = 0; ivar < nvar; ivar++)
           for (Id jvar = 0; jvar <= ivar; jvar++)
@@ -1404,10 +1404,10 @@ static Id st_goulard_without_constraint(const Option_AutoFit& mauto,
   for (Id icova = 0; icova < ncova; icova++)
     fk.push_back(MatrixDense(nvs2, npadir));
 
-  std::vector<MatrixSymmetric> aic;
-  aic.reserve(ncova);
+  std::vector<MatrixSymmetric> aicLocal;
+  aicLocal.reserve(ncova);
   for (Id icova = 0; icova < ncova; icova++)
-    aic.push_back(MatrixSymmetric(nvar));
+    aicLocal.push_back(MatrixSymmetric(nvar));
 
   std::vector<MatrixSymmetric> alphak;
   alphak.reserve(ncova);
@@ -1435,7 +1435,7 @@ static Id st_goulard_without_constraint(const Option_AutoFit& mauto,
       for (Id jvar = 0; jvar <= ivar; jvar++, ijvar++)
       {
         sum1 = sum2 = 0;
-        aic[icov].setValue(ivar, jvar, 0.);
+        aicLocal[icov].setValue(ivar, jvar, 0.);
         for (Id ipadir = 0; ipadir < npadir; ipadir++)
         {
           if (FFFF(WT(ijvar, ipadir))) continue;
@@ -1445,7 +1445,7 @@ static Id st_goulard_without_constraint(const Option_AutoFit& mauto,
           sum2 += temp * ge[icov].getValue(ijvar, ipadir);
         }
         alphak[icov].setValue(ivar, jvar, 1. / sum2);
-        aic[icov].setValue(ivar, jvar, sum1 * alphak[icov].getValue(ivar, jvar));
+        aicLocal[icov].setValue(ivar, jvar, sum1 * alphak[icov].getValue(ivar, jvar));
       }
   }
 
@@ -1487,7 +1487,7 @@ static Id st_goulard_without_constraint(const Option_AutoFit& mauto,
             mp.setValue(ijvar, ipadir, mp.getValue(ijvar, ipadir) - sill[icov].getValue(ivar, jvar) * ge[icov].getValue(ijvar, ipadir));
             sum += fk[icov].getValue(ijvar, ipadir) * mp.getValue(ijvar, ipadir);
           }
-          value = aic[icov].getValue(ivar, jvar) - alphak[icov].getValue(ivar, jvar) * sum;
+          value = aicLocal[icov].getValue(ivar, jvar) - alphak[icov].getValue(ivar, jvar) * sum;
           cc.setValue(ivar, jvar, value);
           cc.setValue(jvar, ivar, value);
         }
@@ -3416,6 +3416,8 @@ static Id st_goulard_fitting(Id flag_title,
   /* Dispatch */
 
   Id status;
+  Id nvar  = model->getNVar();
+  Id ncova = model->getNCov();
   if (!optvar.getFlagIntrinsic())
   {
 
@@ -3425,8 +3427,7 @@ static Id st_goulard_fitting(Id flag_title,
     {
       /* Without constraint on the sill */
 
-      status = st_goulard_without_constraint(mauto, model->getNVar(),
-                                             model->getNCov(),
+      status = st_goulard_without_constraint(mauto, nvar, ncova,
                                              RECINT.npadir, RECINT.wt,
                                              RECINT.gg, RECINT.ge, RECINT.sill,
                                              &crit);
