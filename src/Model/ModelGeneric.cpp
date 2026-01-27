@@ -44,7 +44,7 @@ ModelGeneric::ModelGeneric(const ModelGeneric& r)
   _cova      = (r._cova != nullptr) ? std::dynamic_pointer_cast<ACov>(r._cova->cloneShared()) : nullptr;
   _driftList = (r._driftList != nullptr) ? r._driftList->clone() : nullptr;
   _ctxt      = r._ctxt;
-  _transform = r._transform;
+  _transform = (r._transform != nullptr) ? std::dynamic_pointer_cast<ATransform>(r._transform->cloneShared()) : nullptr;
 }
 
 ModelGeneric& ModelGeneric::operator=(const ModelGeneric& r)
@@ -55,7 +55,7 @@ ModelGeneric& ModelGeneric::operator=(const ModelGeneric& r)
     _cova      = (r._cova != nullptr) ? std::dynamic_pointer_cast<ACov>(r._cova->cloneShared()) : nullptr;
     _driftList = (r._driftList != nullptr) ? r._driftList->clone() : nullptr;
     _ctxt      = r._ctxt;
-    _transform = r._transform;
+    _transform = (r._transform != nullptr) ? std::dynamic_pointer_cast<ATransform>(r._transform->cloneShared()) : nullptr;
   }
   return *this;
 }
@@ -63,7 +63,6 @@ ModelGeneric& ModelGeneric::operator=(const ModelGeneric& r)
 ModelGeneric::~ModelGeneric()
 {
   _clear();
-  delete _transform;
   _transform = nullptr;
 }
 
@@ -81,7 +80,6 @@ void ModelGeneric::_create()
   _driftList = new DriftList(_ctxt);
 
   // Manage the ATransform part
-  delete _transform;
   _transform = nullptr;
 }
 
@@ -121,8 +119,9 @@ bool ModelGeneric::_isValid() const
  */
 double ModelGeneric::computeLogLikelihood(const Db* db, bool verbose)
 {
-  auto* like = Likelihood::createForOptim(this, db, false, verbose);
-  return like->computeLogLikelihood(verbose);
+  auto like = Likelihood(this, db, false);
+  like.initLikelihood(verbose);
+  return like.computeLogLikelihood(verbose);
 }
 
 /**
@@ -449,8 +448,12 @@ void ModelGeneric::fitNew(const Db* db,
 
 void ModelGeneric::setTransform(const ATransform* transform)
 {
-  delete _transform;
-  _transform = dynamic_cast<ATransform*>(transform->clone());
+  if (transform == nullptr)
+  {
+    _transform = nullptr;
+    return;
+  }
+  _transform = std::dynamic_pointer_cast<ATransform>(transform->cloneShared());
 }
 
 #ifdef HDF5

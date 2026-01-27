@@ -359,7 +359,7 @@ void MatrixSparse::_setValues(const double* values, bool byCol)
 }
 #endif
 
-MatrixSparse* MatrixSparse::create(const MatrixSparse* mat)
+MatrixSparse* MatrixSparse::createFromCopy(const MatrixSparse* mat)
 {
   return new MatrixSparse(*mat);
 }

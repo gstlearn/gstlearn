@@ -154,7 +154,7 @@ public:
 #endif
 
   // Static functions
-  static MatrixSparse* create(const MatrixSparse* mat);
+  static MatrixSparse* createFromCopy(const MatrixSparse* mat);
   static MatrixSparse* create(Id nrow, Id ncol);
   static MatrixSparse* createFromTriplet(const NF_Triplet& NF_T,
                                          Id nrow    = 0,

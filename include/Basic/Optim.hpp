@@ -113,6 +113,7 @@ public:
   Optim& operator=(const Optim&) = delete;
   ~Optim();
 
+  void setMaxIter(Id maxiter);
   void setObjective(std::function<double(const VectorDouble&)> objective);
   void setGradient(std::function<void(vect)> gradient,
                    const std::vector<size_t>& dispatch      = {},

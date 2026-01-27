@@ -48,12 +48,12 @@ protected:
   virtual void _evalDirect(const VectorVectorDouble& inv,
                            VectorVectorDouble& outv) const = 0;
 
+#endif
 public:
   void evalDirect(const VectorVectorDouble& inv,
                   VectorVectorDouble& outv) const;
   virtual void evalInverse(const VectorVectorDouble& vecin,
                            VectorVectorDouble& vecout) const;
-#endif
 
 protected:
   void _updated() const;

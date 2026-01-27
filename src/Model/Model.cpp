@@ -277,6 +277,11 @@ String Model::toString(const AStringFormat* /*strfmt*/) const
   if (isFlagLinked())
     sstr << "Drifts are linked" << std::endl;
 
+  if (_transform != nullptr)
+  {
+    sstr << toStrTitle(1, "Transformation");
+    sstr << _transform->toString();
+  }
   return sstr.str();
 }
 

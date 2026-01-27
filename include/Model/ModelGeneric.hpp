@@ -212,8 +212,8 @@ public:
 #ifndef SWIG
   void initParams(const MatrixSymmetric& vars, double href = 1., double min = 0., double max = INF);
 #endif
-  const ATransform* getTransform() const { return _transform; }
-  ATransform* getTransformModify() { return _transform; }
+  const ATransform* getTransform() const { return _transform.get(); }
+  ATransform* getTransformModify() { return _transform.get(); }
   void setTransform(const ATransform* transform);
 
   std::shared_ptr<ListParams> generateListParams() const;
@@ -242,9 +242,10 @@ protected:
 protected:                     // TODO : pass into private to finish clean
   std::shared_ptr<ACov> _cova; /* Generic Covariance structure */
   mutable std::vector<covmaptype> _gradCovFuncs;
-  DriftList* _driftList;  /* Series of Drift functions */
-  CovContext _ctxt;       /* Context */
-  ATransform* _transform; /* Transformation associated to the Model */
+
+  DriftList* _driftList; /* Series of Drift functions */
+  CovContext _ctxt;      /* Context */
+  std::shared_ptr<ATransform> _transform; /* Transformation associated to the Model */
 };
 
 GSTLEARN_EXPORT Id computeCovMatSVCLHSInPlace(MatrixSymmetric& cov,

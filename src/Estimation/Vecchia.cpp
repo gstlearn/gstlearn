@@ -54,6 +54,7 @@ Vecchia::Vecchia(ModelGeneric* model,
   setAuthorizedAnalyticalGradients(false);
   _chol = new CholeskyDense();
   _init(verbose);
+  if (db2 == nullptr) initLikelihood(verbose);
 }
 
 Vecchia::Vecchia(const Vecchia& r)
@@ -711,7 +712,13 @@ double logLikelihoodVecchia(const Db* db,
                             bool flagPrint,
                             bool verbose)
 {
-  Vecchia* vec  = Vecchia::createForOptim(model, db, nb_vecchia, false, verbose);
+  auto* vec  = new Vecchia(model,
+                 nb_vecchia,
+                 db,
+                 nullptr,
+                 false,
+                 verbose);
+  vec->initLikelihood(verbose);
   double result = -vec->computeCost(flagPrint, verbose);
   delete vec;
   return result;
@@ -726,7 +733,7 @@ Vecchia* Vecchia::createForOptim(ModelGeneric* model,
 
   auto* vec = new Vecchia(model, nb_vecchia, db, nullptr, reml, verbose);
 
-  vec->_initLikelihood(verbose);
+  vec->_initLikelihoodForOptim(verbose);
   return vec;
 }
 

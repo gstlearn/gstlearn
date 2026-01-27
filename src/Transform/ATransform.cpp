@@ -39,6 +39,16 @@ double ATransform::inverseTransform(double y) const
   return x;
 }
 
+String ATransform::toString(const AStringFormat* strfmt) const
+{
+  std::stringstream sstr;
+  sstr << "Type: " << getName() << "\n";
+  if (hasParameters())
+  {
+    _printParams(sstr, strfmt);
+  }
+  return sstr.str();
+}
 double ATransform::condExp(double mu, double sigma, Id power) const
 {
   Id oldseed = law_get_random_seed();

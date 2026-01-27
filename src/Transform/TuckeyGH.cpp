@@ -25,10 +25,9 @@ TuckeyGH::TuckeyGH(double g, double h)
 
 void TuckeyGH::initParams(double min, double max)
 {
-  DECLARE_UNUSED(min);
-  DECLARE_UNUSED(max);
+  DECLARE_UNUSED(min,max)
   _G.setValue(0.);
-  //_H.setValue(EPSILON4); // H not on its lower bound 
+  _H.setValue(EPSILON4); // H not on its lower bound 
 }
 
 
@@ -43,4 +42,4 @@ VectorDouble TuckeyGH::getParams() const
   return {_G.getValue(), _H.getValue()};
 } // namespace gstlrn
 
-}
+} // namespace gstlrn
