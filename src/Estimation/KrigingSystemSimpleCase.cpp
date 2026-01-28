@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Estimation/KrigingSystemSimpleCase.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"

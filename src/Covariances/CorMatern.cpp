@@ -124,11 +124,11 @@ CorMatern& CorMatern::operator=(const CorMatern& r)
   if (this != &r)
   {
     ACov::operator=(r);
-    _nVar      = r._nVar;
-    _cor = r._cor;
-    _C0        = r._C0;
-    _Kappa     = r._Kappa;
-    _Nu        = r._Nu;
+    _nVar  = r._nVar;
+    _cor   = r._cor;
+    _C0    = r._C0;
+    _Kappa = r._Kappa;
+    _Nu    = r._Nu;
   }
   return *this;
 }
@@ -175,7 +175,7 @@ CorMatern* CorMatern::create(
 
 double CorMatern::evalSpectrum(const VectorDouble& freq, Id ivar, Id jvar) const
 {
-  double kappa = _Kappa.getValue(ivar, jvar);
+  double kappa        = _Kappa.getValue(ivar, jvar);
   VectorDouble scales = _corRef->getScales();
   VectorDouble angles = _corRef->getAnisoAngles();
   for (size_t idim = 0; idim < getSpace()->getNDim(); idim++)
@@ -228,7 +228,7 @@ SpectrumRN CorMatern::simulateSpectrumRN(Id ns, const ACov* cov0) const
         }
       }
       // square root of the symmetric matrix
-      if (H.computeSquareRoot(H) != 0)
+      if (H.squareRootInPlace(H) != 0)
       {
         message("Error in computing square root matrix\n");
       }

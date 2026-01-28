@@ -401,6 +401,11 @@ void CovList::setSills(Id icov, const MatrixSymmetric& sills)
   if (!_isCovarianceIndexValid(icov)) return;
   _covs[icov]->setSill(sills);
 }
+double CovList::getAic(Id icov, Id ivar, Id jvar) const
+{
+  if (!_isCovarianceIndexValid(icov)) return 0.;
+  return _covs[icov]->getAic().getValue(ivar, jvar);
+}
 /**
  * Calculate the total sill of the model for given pair of variables
  * @param ivar Rank of the first variable
@@ -626,6 +631,18 @@ bool CovList::isValidForSpectral() const
 MatrixDense CovList::simulateSpectralOmega(Id ns) const
 {
   return getCov(0)->simulateSpectralOmega(ns);
+}
+
+void CovList::computeAic() const
+{
+  for (const auto& e: _covs)
+    e->computeAic();
+}
+
+void CovList::initializeAic() const
+{
+  for (const auto& e: _covs)
+    e->initializeAic();
 }
 
 #ifdef HDF5

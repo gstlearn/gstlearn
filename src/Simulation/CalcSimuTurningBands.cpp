@@ -18,7 +18,6 @@
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Geometry/GeometryHelper.hpp"
-#include "Matrix/EigenVectors.hpp"
 #include "Model/Model.hpp"
 #include "Simulation/ACalcSimulation.hpp"
 #include "Simulation/TurningBandDirection.hpp"
@@ -30,6 +29,7 @@
 
 namespace gstlrn
 {
+
 CalcSimuTurningBands::CalcSimuTurningBands(Id nbsimu,
                                            Id nbtuba,
                                            bool flag_check,
@@ -913,60 +913,6 @@ double CalcSimuTurningBands::_irfProcessInit(Id ibs,
   return _irfCorrec(type, theta1, scale);
 }
 
-/*****************************************************************************/
-/*!
- **  Calculate the linear model of coregionalization starting from the
- **  coregionalization matrix
- **
- ** \return  The Vector containing the AIC matrix
- **
- ** \remark  In case of error, the message is printed by the routine
- ** \remark  Warning: in the case of linked drift, the test of definite
- ** \remark  positiveness is bypassed as we are not in the scope of the
- ** \remark  linear model of coregionalization anymore.
- ** \remark  As a consequence the array "aic()" is not evaluated
- **
- *****************************************************************************/
-VectorDouble CalcSimuTurningBands::_createAIC()
-{
-  auto ncova = _getNCov();
-  auto nvar  = _getNVar();
-  Id nv2     = nvar * nvar;
-  VectorDouble aic(ncova * nv2);
-
-  /* Calculate the eigen values and vectors of the coregionalization matrix */
-
-  for (Id icov = 0; icov < ncova; icov++)
-  {
-    MatrixSymmetric mat = _modelLocal->getSills(icov);
-    if (!mat.isDefinitePositive())
-    {
-      messerr("Warning: the model is not authorized");
-      messerr("The coregionalization matrix for the structure %d is not definite positive",
-              icov + 1);
-      return VectorDouble();
-    }
-
-    // Calculate the Eigen decomposition
-
-    auto eigenvectors          = EigenVectors(mat);
-    const auto& valpro         = eigenvectors.getEigenValues();
-    const MatrixSquare* vecpro = &eigenvectors.getEigenVectors();
-
-    /* Calculate the factor matrix */
-
-    for (Id ivar = 0; ivar < nvar; ivar++)
-      for (Id jvar = 0; jvar < nvar; jvar++)
-      {
-        double value = 0.;
-        for (Id kvar = 0; kvar < nvar; kvar++)
-          value += vecpro->getValue(ivar, kvar) * sqrt(valpro[kvar]) * vecpro->getValue(jvar, kvar);
-        aic[icov * nv2 + ivar + nvar * jvar] = value;
-      }
-  }
-  return aic;
-}
-
 void CalcSimuTurningBands::_spreadRegularOnGrid(Id nx,
                                                 Id ny,
                                                 Id nz,
@@ -1094,15 +1040,11 @@ void CalcSimuTurningBands::_spreadSpectralOnPoint(const Db* db,
  **  Turning Bands method.
  **
  ** \param[in]  db         Db structure
- ** \param[in]  aic        Array 'aic'
  ** \param[in]  icase      Rank of PGS or GRF
  ** \param[in]  shift      Shift before writing the simulation result
  **
  *****************************************************************************/
-void CalcSimuTurningBands::_simulatePoint(Db* db,
-                                          const VectorDouble& aic,
-                                          Id icase,
-                                          Id shift)
+void CalcSimuTurningBands::_simulatePoint(Db* db, Id icase, Id shift)
 {
   Id nech       = db->getNSample();
   auto ncova    = _getNCov();
@@ -1220,7 +1162,7 @@ void CalcSimuTurningBands::_simulatePoint(Db* db,
                 {
                   db->updSimvar(ELoc::SIMU, iech, shift + isimu, jvar, icase,
                                 nbsimu, nvar, EOperator::ADD,
-                                tab[iech] * correc * _getAIC(aic, is, jvar, ivar));
+                                tab[iech] * correc * _modelLocal->getAic(is, ivar, jvar));
                 }
         }
   }
@@ -1244,15 +1186,11 @@ void CalcSimuTurningBands::_simulatePoint(Db* db,
  **  Turning Bands method
  **
  ** \param[in]  db         Db structure
- ** \param[in]  aic        Array 'aic'
  ** \param[in]  icase      Rank of PGS or GRF
  ** \param[in]  shift      Shift before writing the simulation result
  **
  *****************************************************************************/
-void CalcSimuTurningBands::_simulateGrid(DbGrid* db,
-                                         const VectorDouble& aic,
-                                         Id icase,
-                                         Id shift)
+void CalcSimuTurningBands::_simulateGrid(DbGrid* db, Id icase, Id shift)
 {
   auto nbsimu            = getNbSimu();
   double theta1          = 1. / _theta;
@@ -1373,7 +1311,7 @@ void CalcSimuTurningBands::_simulateGrid(DbGrid* db,
                 for (Id jvar = 0; jvar < nvar; jvar++)
                   db->updSimvar(ELoc::SIMU, iech, shift + isimu, jvar, icase,
                                 nbsimu, nvar, EOperator::ADD,
-                                tab[iech] * correc * _getAIC(aic, is, jvar, ivar));
+                                tab[iech] * correc * _modelLocal->getAic(is, ivar, jvar));
         }
   }
 
@@ -1396,7 +1334,6 @@ void CalcSimuTurningBands::_simulateGrid(DbGrid* db,
  **  Turning Bands method.
  **
  ** \param[in]  dbgrd      Gradient Db structure
- ** \param[in]  aic        Array 'aic'
  ** \param[in]  delta      Value of the increment
  **
  ** \remarks The simulated gradients are stored as follows:
@@ -1405,9 +1342,7 @@ void CalcSimuTurningBands::_simulateGrid(DbGrid* db,
  ** \remarks At the end, the simulated gradient is stored at first point
  **
  *****************************************************************************/
-void CalcSimuTurningBands::_simulateGradient(Db* dbgrd,
-                                             const VectorDouble& aic,
-                                             double delta)
+void CalcSimuTurningBands::_simulateGradient(Db* dbgrd, double delta)
 {
   Id jsimu;
   Id icase               = 0;
@@ -1423,7 +1358,7 @@ void CalcSimuTurningBands::_simulateGradient(Db* dbgrd,
     for (Id isimu = 0; isimu < nbsimu; isimu++)
     {
       jsimu = isimu + idim * nbsimu;
-      _simulatePoint(dbgrd, aic, icase, jsimu);
+      _simulatePoint(dbgrd, icase, jsimu);
     }
 
     /* Shift the information */
@@ -1438,7 +1373,7 @@ void CalcSimuTurningBands::_simulateGradient(Db* dbgrd,
     for (Id isimu = 0; isimu < nbsimu; isimu++)
     {
       jsimu = isimu + idim * nbsimu + ndim * nbsimu;
-      _simulatePoint(dbgrd, aic, icase, jsimu);
+      _simulatePoint(dbgrd, icase, jsimu);
     }
 
     /* Un-Shift the information */
@@ -1473,7 +1408,6 @@ void CalcSimuTurningBands::_simulateGradient(Db* dbgrd,
  **  Turning Bands method.
  **
  ** \param[in]  dbtgt      Tangent Db structure
- ** \param[in]  aic        Array 'aic'
  ** \param[in]  delta      Value of the increment
  **
  ** \remarks Warning: To perform the simulation of the tangent, we must
@@ -1481,9 +1415,7 @@ void CalcSimuTurningBands::_simulateGradient(Db* dbgrd,
  ** \remarks simulation outcome variables as for the gradients
  **
  *****************************************************************************/
-void CalcSimuTurningBands::_simulateTangent(Db* dbtgt,
-                                            const VectorDouble& aic,
-                                            double delta)
+void CalcSimuTurningBands::_simulateTangent(Db* dbtgt, double delta)
 {
   Id icase               = 0;
   auto nvar              = _getNVar();
@@ -1492,7 +1424,7 @@ void CalcSimuTurningBands::_simulateTangent(Db* dbtgt,
 
   /* Perform the simulation of the gradients at tangent points */
 
-  _simulateGradient(dbtgt, aic, delta);
+  _simulateGradient(dbtgt, delta);
 
   /* Calculate the simulated tangent */
 
@@ -1582,13 +1514,10 @@ void CalcSimuTurningBands::_getOmegaPhi(Id ibs,
  **  simulations
  **
  ** \param[in]  db         Db structure
- ** \param[in]  aic        Array 'aic'
  ** \param[in]  icase      Rank of PGS or GRF
  **
  *****************************************************************************/
-void CalcSimuTurningBands::_simulateNugget(Db* db,
-                                           const VectorDouble& aic,
-                                           Id icase)
+void CalcSimuTurningBands::_simulateNugget(Db* db, Id icase)
 {
   Id nech                = db->getNSample();
   auto ncova             = _getNCov();
@@ -1623,22 +1552,12 @@ void CalcSimuTurningBands::_simulateNugget(Db* db,
           double nugget = law_gaussian();
           for (Id jvar = 0; jvar < nvar; jvar++)
             db->updSimvar(ELoc::SIMU, iech, isimu, jvar, icase, nbsimu, nvar,
-                          EOperator::ADD,
-                          nugget * _getAIC(aic, is, jvar, ivar));
+                          EOperator::ADD, nugget * _modelLocal->getAic(is, ivar, jvar));
         }
       }
 
   // Set the initial seed back
   law_set_random_seed(mem_seed);
-}
-
-double CalcSimuTurningBands::_getAIC(const VectorDouble& aic,
-                                     Id icov,
-                                     Id ivar,
-                                     Id jvar)
-{
-  auto nvar = _getNVar();
-  return aic[jvar + nvar * (ivar + nvar * icov)];
 }
 
 /*****************************************************************************/
@@ -1922,16 +1841,14 @@ bool CalcSimuTurningBands::_run()
   _minmax(getDbin());
   if (_initializeSeedBands()) return false;
 
-  // Calculate the 'aic' array
-
-  VectorDouble aic = _createAIC();
-  if (aic.empty()) return false;
+  // Factorize the matrix of sills
+  _modelLocal->computeAic();
 
   // Non conditional simulations on the data points
 
   if (flag_cond)
   {
-    _simulatePoint(getDbin(), aic, _icase, 0);
+    _simulatePoint(getDbin(), _icase, 0);
     _meanCorrect(getDbin(), _icase);
 
     // Calculate the simulated error
@@ -1944,18 +1861,18 @@ bool CalcSimuTurningBands::_run()
   if (getDbout()->isGrid())
   {
     auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
-    _simulateGrid(dbgrid, aic, _icase, 0);
+    _simulateGrid(dbgrid, _icase, 0);
     _meanCorrect(getDbout(), _icase);
   }
   else
   {
-    _simulatePoint(getDbout(), aic, _icase, 0);
+    _simulatePoint(getDbout(), _icase, 0);
     _meanCorrect(getDbout(), _icase);
   }
 
   /* Add the contribution of Nugget effect (optional) */
 
-  _simulateNugget(getDbout(), aic, _icase);
+  _simulateNugget(getDbout(), _icase);
 
   /* Conditional simulations */
 
@@ -2059,30 +1976,28 @@ Id CalcSimuTurningBands::simulatePotential(Db* dbiso,
   _minmax(dbtgt);
   if (_initializeSeedBands()) return 1;
 
-  /* Calculate the 'aic' array */
-
-  VectorDouble aic = _createAIC();
-  if (aic.empty()) return 1;
+  // Factorize the matrix of sills
+  _modelLocal->computeAic();
 
   /* Non conditional simulations on the data points */
 
   if (dbiso != nullptr)
   {
-    _simulatePoint(dbiso, aic, icase, 0);
+    _simulatePoint(dbiso, icase, 0);
   }
 
   /* Non conditional simulations on the gradient points */
 
   if (dbgrd != nullptr)
   {
-    _simulateGradient(dbgrd, aic, delta);
+    _simulateGradient(dbgrd, delta);
   }
 
   /* Non conditional simulations on the tangent points */
 
   if (dbtgt != nullptr)
   {
-    _simulateTangent(dbtgt, aic, delta);
+    _simulateTangent(dbtgt, delta);
   }
 
   /* Non conditional simulations on the grid */
@@ -2090,16 +2005,16 @@ Id CalcSimuTurningBands::simulatePotential(Db* dbiso,
   if (dbout->isGrid())
   {
     auto* dbgrid = dynamic_cast<DbGrid*>(dbout);
-    _simulateGrid(dbgrid, aic, icase, 0);
+    _simulateGrid(dbgrid, icase, 0);
   }
   else
   {
-    _simulatePoint(dbout, aic, icase, 0);
+    _simulatePoint(dbout, icase, 0);
   }
 
   /* Add the contribution of nugget effect (optional) */
 
-  _simulateNugget(dbout, aic, icase);
+  _simulateNugget(dbout, icase);
   return 0;
 }
 
