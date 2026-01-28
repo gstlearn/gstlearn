@@ -65,13 +65,14 @@ def case(optim=True, cholesky=False, nbthreads=1, flagStd=False):
         std = None
     return grid["*estim"], std
 
+
 estim, std = case(False, False, 1, True)
 
 nb_threads = 5
-estim1, _    = case(True, False, nb_threads, False)
-estim2, _    = case(True, True,  nb_threads, False)
+estim1, _ = case(True, False, nb_threads, False)
+estim2, _ = case(True, True, nb_threads, False)
 estim3, std3 = case(True, False, nb_threads, True)
-estim4, std4 = case(True, True,  nb_threads, True)
+estim4, std4 = case(True, True, nb_threads, True)
 
 print("Dual - Inversion - estimation", np.round(np.max(np.abs(estim - estim1)), 4))
 print("Dual - Cholesky - estimation", np.round(np.max(np.abs(estim - estim2)), 4))
