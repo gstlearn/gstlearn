@@ -13,6 +13,9 @@
 #include "Basic/AStringable.hpp"
 #include "LinearOp/IProj.hpp"
 #include "gstlearn_export.hpp"
+
+#include <functional>
+#include <optional>
 #include <vector>
 
 namespace gstlrn
@@ -20,6 +23,8 @@ namespace gstlrn
 class GSTLEARN_EXPORT ProjMulti: public IProj, public AStringable
 {
 public:
+  using ProjVect = std::vector<std::vector<std::optional<std::reference_wrapper<const IProj>>>>;
+
   ProjMulti(const std::vector<std::vector<const IProj*>>& projs, bool silent = false);
 
   /// AStringable Interface
@@ -29,7 +34,7 @@ public:
   Id getNPoint() const override;
   Id getNVariable() const { return _nvariable; }
   Id getNLatent() const { return _nlatent; }
-  virtual ~ProjMulti();
+  ~ProjMulti() override = default;
   bool empty() const { return _projs.empty(); }
 
 #ifndef SWIG
@@ -40,9 +45,8 @@ protected:
 #endif
 
 private:
-  bool _checkArg(const std::vector<std::vector<const IProj*>>& projs) const;
+  bool _checkArg(const ProjVect& projs) const;
   void _init();
-  virtual void _clear() {};
 
 protected:
   Id findFirstNoNullOnRow(Id j) const;
@@ -51,7 +55,7 @@ protected:
   const VectorInt& getNApexs() const { return _apexNumbers; }
 
 protected:
-  std::vector<std::vector<const IProj*>> _projs; // NOT TO BE DELETED
+  ProjVect _projs;
 
 private:
   Id _pointNumber;
