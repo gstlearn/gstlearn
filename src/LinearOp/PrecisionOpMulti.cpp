@@ -128,7 +128,7 @@ PrecisionOpMulti::PrecisionOpMulti(Model* model,
 
   if (buildOp)
   {
-    bool localStencil = stencil && meshes.isTurbo() && !model->isNoStat();
+    bool localStencil = stencil && meshes.isTurbo();
     buildQop(localStencil);
   }
 }
@@ -154,7 +154,8 @@ void PrecisionOpMulti::_buildQop(bool stencil)
   for (Id i = 0, number = _getNCov(); i < number; i++)
   {
     CovAniso* cova = _model->getCovAniso(_covList[i]);
-    _pops.push_back(PrecisionOp::create(_meshes(i), cova, stencil));
+    bool localStencil = stencil && !cova->isNoStatForAnisotropy();
+    _pops.push_back(PrecisionOp::create(_meshes(i), cova, localStencil));
   }
 }
 PrecisionOpMulti::~PrecisionOpMulti()
