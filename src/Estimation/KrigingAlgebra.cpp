@@ -665,7 +665,7 @@ Id KrigingAlgebra::setBayes(const VectorDouble* PriorMeans,
   // Store the arguments (const pointers) into internal storage
   _PriorMeans = PriorMeans;
   _PriorCovs  = PriorCovs;
-  _flagBayes = true;
+  _flagBayes  = true;
 
   return 0;
 }
@@ -1168,7 +1168,7 @@ Id KrigingAlgebra::_patchRHSForXvalidUnique()
   MatrixSymmetric alpha;
   MatrixSymmetric::sample(alpha, _InvSigma, *_rankXvalidEqs);
   MatrixSymmetric InvAlpha = alpha;
-  InvAlpha.invert();
+  if (InvAlpha.invert()) return 1;
 
   // Calculate a1 term
   MatrixSymmetric omega(_nxvalid);
@@ -1208,7 +1208,7 @@ Id KrigingAlgebra::_patchRHSForXvalidUnique()
     MatrixSymmetric p3(_nbfl);
     p3.prodNormMatMatInPlace(&epsilon, &alpha, true);
     a2.linearCombination(1., &a2, -1., &p3);
-    a2.invert();
+    if (a2.invert()) return 1;
 
     // Compute omega
     MatrixSymmetric p4(_nxvalid);

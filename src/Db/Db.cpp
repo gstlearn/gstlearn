@@ -5044,8 +5044,7 @@ bool Db::serializeH5(H5::Group& grp) const
 
   for (Id i = 0; i < ncol; ++i)
   {
-    // here we create H5::DataSet by hand to augment them with
-    // attributes
+    // Here we create H5::DataSet by hand to augment them with attributes
     auto data = dbG.createDataSet(names[i], H5::PredType::NATIVE_DOUBLE, ds);
     // Locators are semantically close to Db columns and H5::Attribute has a
     // nicer API than string H5::DataSets. Putting Locators inside Attribute

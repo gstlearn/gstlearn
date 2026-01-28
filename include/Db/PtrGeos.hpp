@@ -37,7 +37,7 @@ public:
   Id findUIDInLocator(Id iuid) const;
   void erase(Id locatorIndex);
   void clear();
-  void resize(Id count) { _r.resize(count, 0); }
+  void resize(Id count) { _r.resize(count, -1); }
   String dumpLocator(Id rank, const ELoc& locatorType) const;
 
 private:

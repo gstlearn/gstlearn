@@ -4,7 +4,8 @@ This file contains the logs between consecutive releases
 
 Release 1.11.0
 ==============
-
+- Adding test to avoid Kriging with too few data (KrigingSimpleCase)
+- Adding a test to check that Matrix Inversion was performed correctly
 
 Release 1.10.1
 ==============

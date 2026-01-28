@@ -9,14 +9,14 @@
 /******************************************************************************/
 #pragma once
 
+#include "Basic/OptCustom.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Db/RankHandler.hpp"
 #include "LinearOp/CholeskyDense.hpp"
-#include "gstlearn_export.hpp"
-#include "Basic/OptCustom.hpp"
-#include "Matrix/MatrixSymmetric.hpp"
-#include "Matrix/MatrixDense.hpp"
 #include "Matrix/AMatrix.hpp"
+#include "Matrix/MatrixDense.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
+#include "gstlearn_export.hpp"
 #include <memory>
 
 namespace gstlrn
@@ -42,27 +42,28 @@ class RankHandler;
 class GSTLEARN_EXPORT KrigingAlgebraSimpleCase
 {
 public:
-  KrigingAlgebraSimpleCase(bool flagDual                        = false,
-                           const RankHandler* rankhandler       = nullptr,
-                           const VectorDouble* Z                = nullptr,
-                           const VectorDouble& Means            = VectorDouble(),
-                           Id flagchol                         = false,
-                           bool neighUnique                     = OptCustom::query("unique", 1));
+  KrigingAlgebraSimpleCase(bool flagDual                  = false,
+                           const RankHandler* rankhandler = nullptr,
+                           const VectorDouble* Z          = nullptr,
+                           const VectorDouble& Means      = VectorDouble(),
+                           Id flagchol                    = false,
+                           bool neighUnique               = OptCustom::query("unique", 1));
   KrigingAlgebraSimpleCase(KrigingAlgebraSimpleCase& r);
   KrigingAlgebraSimpleCase& operator=(const KrigingAlgebraSimpleCase& r) = delete;
   virtual ~KrigingAlgebraSimpleCase();
   Id prepare();
+
   void setDual(bool status);
   void setNeighUnique(bool nu = false) { _neighUnique = nu; }
   void resetNewData();
   void setZ(std::shared_ptr<VectorDouble>& Z);
   Id setData(const VectorDouble* Z          = nullptr,
-              const RankHandler* rankhandler = nullptr,
-              const VectorDouble& Means      = VectorDouble());
+             const RankHandler* rankhandler = nullptr,
+             const VectorDouble& Means      = VectorDouble());
   Id setLHS(const MatrixSymmetric* Sigma = nullptr,
-             const MatrixDense* X         = nullptr);
+            const MatrixDense* X         = nullptr);
   Id setRHS(MatrixDense* Sigma0 = nullptr,
-             MatrixDense* X0     = nullptr);
+            MatrixDense* X0     = nullptr);
   Id setVariance(const MatrixSymmetric* Sigma00 = nullptr);
 
   void printStatus() const;
@@ -72,7 +73,7 @@ public:
   void dumpAux();
 
   VectorDouble& getEstimation();
-  const VectorDouble &getStdv();
+  const VectorDouble& getStdv();
   double getVarianceZstar(Id i);
   VectorDouble getVarianceZstar();
   const MatrixSymmetric* getStdvMat();
@@ -94,8 +95,8 @@ public:
   MatrixDense* getX0() { return _X0.get(); }
   const VectorVectorInt* getSampleRanks() { return &_rankHandler->getSampleRanks(); }
   VectorInt* getSampleRanksByVariable(Id ivar) { return &_rankHandler->getSampleRanksByVariable(ivar); }
-  RankHandler* getRankHandler() { return _rankHandler.get();}
-  void setRankHandler(std::shared_ptr<RankHandler> &rkh){ _rankHandler = rkh;}
+  RankHandler* getRankHandler() { return _rankHandler.get(); }
+  void setRankHandler(std::shared_ptr<RankHandler>& rkh) { _rankHandler = rkh; }
   VectorInt* getNbgh() { return _nbgh.get(); }
   void setMeans(const VectorDouble& means);
 
@@ -174,10 +175,11 @@ private:
 
   bool _forbiddenWhenDual() const;
   void _resetAll();
+  static void _printInversionErrorMessage(const MatrixSymmetric& mat);
 
 private:
   // Quantities to be defined by the user
-  std::shared_ptr<VectorDouble> _Z;              // Data [flattened] (Dim: _neq)
+  std::shared_ptr<VectorDouble> _Z; // Data [flattened] (Dim: _neq)
   std::shared_ptr<RankHandler> _rankHandler;
   std::shared_ptr<VectorInt> _nbgh;
   std::shared_ptr<MatrixDense> _X;           // Drift at Data (Dim: _neq * _nbfl)
@@ -192,12 +194,12 @@ private:
   std::shared_ptr<CholeskyDense> _cholSigma;
   std::shared_ptr<MatrixDense> _XtInvSigma;    // X^t * Inv{Sigma} (Dim: _nbfl * _neq);
   std::shared_ptr<MatrixDense> _invSigmaX;     // Inv{Sigma} X (Dim: _neq * _nbfl);
-  std::shared_ptr<VectorDouble> _XtInvSigmaZ;        // X^t * Inv{Sigma} Z (Dim: _nbfl * _nvar);
+  std::shared_ptr<VectorDouble> _XtInvSigmaZ;  // X^t * Inv{Sigma} Z (Dim: _nbfl * _nvar);
   std::shared_ptr<MatrixSymmetric> _invSigmac; // Inv{X^t * Inv{Sigma} * X} (Dim: _nbfl * _nbfl)
-  std::shared_ptr<VectorDouble> _Beta;               // Drift coefficients (Dim: _nbfl)
+  std::shared_ptr<VectorDouble> _Beta;         // Drift coefficients (Dim: _nbfl)
   std::shared_ptr<MatrixDense> _LambdaSK;      // Weights for SK (Dim: _neq * _nrhs)
-                                                     // Following elements are defined for Dual programming
-  std::shared_ptr<VectorDouble> _bDual;              // Fake Covariance part in Dual (Dim: _neq)
+                                               // Following elements are defined for Dual programming
+  std::shared_ptr<VectorDouble> _bDual;        // Fake Covariance part in Dual (Dim: _neq)
   std::shared_ptr<VectorDouble> _invSigmaXBeta;
 
   VectorDouble _Zstar; // Estimated values (Dim: _nrhs)
@@ -209,10 +211,9 @@ private:
   MatrixSymmetric _VarZSK; // Estimator variance in SK (Dim: _nrhs * _nrhs)
   MatrixSymmetric _VarZUK; // Estimator variance in UK (Dim: _nrhs * _nrhs)
   MatrixSymmetric _Sigmac;
+
   // Following elements are defined for internal storage
-
   MatrixDense _Y0; // X0 - LambdaSK * X^t (Dim: _nrhs * _nbfl)
-
   MatrixDense _LambdaUKtSigma0;
   MatrixDense _MuUKtX0t;
   MatrixDense _invSigmaXMuUK;
@@ -235,4 +236,4 @@ private:
 
   VectorDouble _dummy;
 };
-}
+} // namespace gstlrn

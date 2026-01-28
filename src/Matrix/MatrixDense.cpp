@@ -192,15 +192,17 @@ void MatrixDense::_addProdVecMatInPlacePtr(constvect x, vect y, bool transpose) 
 
 Id MatrixDense::_invert()
 {
-  /// TODO : check beforehand if matrix is invertible ?
   eigenMat() = eigenMat().inverse();
+  if (!eigenMat().allFinite())
+    return 1;
   return 0;
 }
 
 Id MatrixDense::invert2(MatrixDense& res) const
 {
-  /// TODO : check beforehand if matrix is invertible ?
   res.eigenMat() = eigenMat().inverse();
+  if (!res.eigenMat().allFinite())
+    return 1;
   return 0;
 }
 
