@@ -71,7 +71,7 @@ Id ASimuSpectral::getNVar() const
 }
 
 /**
- * Simulate the spectrum components for Rn or S2
+ * Simulate the spectrum components for Rn or S2 for one simulation
  *
  * @param ns Number of components
  * @param seed Seed for random number generation: avoid setting the seed)
@@ -140,6 +140,16 @@ Id ASimuSpectral::simulate(Id ns, Id seed, bool verbose, const ACov* cov0, Id nd
   return 0;
 }
 
+/**
+ * @brief Compute one non-conditional simulation on the samples of Dbout using Spectral Method
+ *
+ * @param dbout
+ * @param iuid
+ * @param verbose
+ * @param namconv
+ * @param qualifier
+ * @return Id
+ */
 Id ASimuSpectral::compute(Db* dbout, Id iuid, bool verbose, const NamingConvention& namconv, const String& qualifier)
 {
   Id ndim              = dbout->getNDim();

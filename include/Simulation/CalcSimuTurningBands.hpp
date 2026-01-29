@@ -81,13 +81,13 @@ private:
   void _rollback() override;
 
   bool _resize();
-  void _compute(Db* db, Id icase, Id shift);
+  Id _compute(Db* db, Id icase, Id shift);
 
-  void _simulatePoint(Db* db, Id icase, Id shift);
-  void _simulateGrid(DbGrid* db, Id icase, Id shift);
-  void _simulateNugget(Db* db, Id icase);
-  void _simulateGradient(Db* dbgrd, double delta);
-  void _simulateTangent(Db* dbtgt, double delta);
+  void _computePoint(Db* db, Id icase, Id shift);
+  void _computeGrid(DbGrid* db, Id icase, Id shift);
+  void _computeNugget(Db* db, Id icase);
+  void _computeGradient(Db* dbgrd, double delta);
+  void _computeTangent(Db* dbtgt, double delta);
   void _meanCorrect(Db* dbout, Id icase);
   void _difference(Db* dbin,
                    Model* model,
@@ -103,6 +103,7 @@ private:
   void _checkGaussianData2Grid(Db* dbin, Db* dbout, Model* model) const;
 
   // Turning bands specific methods
+  Id _getIBS(Id isimu, Id is, Id ib) const;
   void _setCodirAng(Id ibs, Id idir, double value) { _codirs[ibs].setAng(idir, value); }
   void _setCodirTmin(Id ibs, double value) { _codirs[ibs].setTmin(value); }
   void _setCodirTmax(Id ibs, double value) { _codirs[ibs].setTmax(value); }
@@ -132,9 +133,21 @@ private:
   void _setDensity();
   static ECov _particularCase(const ECov& type, double param);
   Id _initializeSeedBands();
-
-  static double _computeScale(double alpha, double scale);
-  static double _computeScaleKB(double param, double scale);
+  void _cumulateResult(Db* db,
+                       Id icase,
+                       Id shift,
+                       Id ivar,
+                       Id isimu,
+                       Id is,
+                       double correc,
+                       const VectorBool& activeArray,
+                       const VectorDouble& tab);
+  void _normeResults(Db* db,
+                     Id icase,
+                     Id shift,
+                     const VectorBool& activeArray);
+  static double _getScale(double alpha, double scale);
+  static double _getScaleKB(double param, double scale);
   void _migrationInit(Id ibs,
                       Id is,
                       double scale,
@@ -158,9 +171,7 @@ private:
                     double* c0z,
                     double* s0z);
 
-  void _spreadRegularOnGrid(Id nx,
-                            Id ny,
-                            Id nz,
+  void _spreadRegularOnGrid(const DbGrid* dbgrid,
                             Id ibs,
                             Id is,
                             TurningBandOperate& operTB,
@@ -172,9 +183,7 @@ private:
                              TurningBandOperate& operTB,
                              const VectorBool& activeArray,
                              VectorDouble& tab);
-  void _spreadSpectralOnGrid(Id nx,
-                             Id ny,
-                             Id nz,
+  void _spreadSpectralOnGrid(const DbGrid* dbgrid,
                              Id ibs,
                              Id is,
                              TurningBandOperate& operTB,
