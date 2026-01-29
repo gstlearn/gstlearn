@@ -71,53 +71,14 @@ License: BSD 3-clause
 namespace gstlrn
 {
 
-/* Static parameters - for memory management */
-thread_local size_t SpaceAlloced   = 0;
-thread_local size_t MaxPermAlloced = 0;
-
-/* temp space, (void *) since both float and double routines use it */
-thread_local void* Tmp0 = NULL; /* temp space for real part */
-thread_local void* Tmp1 = NULL; /* temp space for imaginary part */
-thread_local void* Tmp2 = NULL; /* temp space for Cosine values */
-thread_local void* Tmp3 = NULL; /* temp space for Sine values */
-thread_local Id* Perm   = NULL; /* Permutation vector */
+/* temp space */
+thread_local std::vector<double> Tmp0; /* temp space for real part */
+thread_local std::vector<double> Tmp1; /* temp space for imaginary part */
+thread_local std::vector<double> Tmp2; /* temp space for Cosine values */
+thread_local std::vector<double> Tmp3; /* temp space for Sine values */
+thread_local std::vector<Id> Perm;     /* Permutation vector */
 
 thread_local Id factor[NFACTOR];
-
-/******************************************************************************/
-/*!
- *    Free the arrays allocated for FFT
- *
- ******************************************************************************/
-static void fft_free(void)
-{
-  SpaceAlloced = MaxPermAlloced = 0;
-  if (Tmp0)
-  {
-    free(Tmp0);
-    Tmp0 = NULL;
-  }
-  if (Tmp1)
-  {
-    free(Tmp1);
-    Tmp1 = NULL;
-  }
-  if (Tmp2)
-  {
-    free(Tmp2);
-    Tmp2 = NULL;
-  }
-  if (Tmp3)
-  {
-    free(Tmp3);
-    Tmp3 = NULL;
-  }
-  if (Perm)
-  {
-    free(Perm);
-    Perm = NULL;
-  }
-}
 
 /* return the number of factors */
 static Id factorize(Id nPass, Id* kt)
@@ -222,36 +183,18 @@ static Id fftradix(double Re[],
   if (nPass < 2) return 0;
 
   /* allocate storage */
-  if (SpaceAlloced < maxFactors * sizeof(double))
-  {
-    SpaceAlloced = maxFactors * sizeof(double);
-    Tmp0         = realloc(Tmp0, SpaceAlloced);
-    Tmp1         = realloc(Tmp1, SpaceAlloced);
-    Tmp2         = realloc(Tmp2, SpaceAlloced);
-    Tmp3         = realloc(Tmp3, SpaceAlloced);
-  }
-  else
-  {
-    /* allow full use of alloc'd space */
-    maxFactors = static_cast<Id>(SpaceAlloced / sizeof(double));
-  }
-  if (MaxPermAlloced < static_cast<size_t>(maxPerm))
-  {
-    Perm           = static_cast<Id*>(realloc(reinterpret_cast<char*>(Perm), maxPerm * sizeof(Id)));
-    MaxPermAlloced = maxPerm;
-  }
-  else
-  {
-    /* allow full use of alloc'd space */
-    maxPerm = static_cast<Id>(MaxPermAlloced);
-  }
-  if (!Tmp0 || !Tmp1 || !Tmp2 || !Tmp3 || !Perm) goto Memory_Error;
+  Tmp0.resize(maxFactors);
+  Tmp1.resize(maxFactors);
+  Tmp2.resize(maxFactors);
+  Tmp3.resize(maxFactors);
+
+  Perm.resize(maxPerm);
 
   /* assign pointers */
-  Rtmp = static_cast<double*>(Tmp0);
-  Itmp = static_cast<double*>(Tmp1);
-  Cos  = static_cast<double*>(Tmp2);
-  Sin  = static_cast<double*>(Tmp3);
+  Rtmp = Tmp0.data();
+  Itmp = Tmp1.data();
+  Cos  = Tmp2.data();
+  Sin  = Tmp3.data();
 
   /*
    * Function Body
@@ -918,7 +861,6 @@ Permute_Results:
 /* alloc or other problem, do some clean-up */
 Memory_Error:
   (void)messerr("Error: fftradix() - insufficient memory.");
-  fft_free(); /* free-up memory */
   return -1;
 }
 
@@ -1010,7 +952,6 @@ Id fftn(Id ndim,
 
 Dimension_Error:
   (void)messerr("Error: fftn() - dimension error");
-  fft_free(); /* free-up memory */
   return -1;
 }
 } // namespace gstlrn
