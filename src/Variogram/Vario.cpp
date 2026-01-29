@@ -3134,6 +3134,7 @@ void Vario::_getStatistics(Db* db)
       ww = db->getWeight(iech);
       if (FFFF(ww) || ww < 0.) continue;
       z1 = _getIVAR(db, iech, ivar);
+      if (FFFF(z1)) continue;
       s1w += ww;
       s1z += z1;
     }
