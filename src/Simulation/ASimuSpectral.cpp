@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Simulation/ASimuSpectral.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/VectorNumT.hpp"
