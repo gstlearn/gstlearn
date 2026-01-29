@@ -178,10 +178,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Publish packages to our CRAN
       - env:
           CRAN_PATH: ${{needs.build.outputs.cran_path}}
-
-        # Publish packages to our CRAN
         uses: fabien-ors/cran-publish-action@v4
         with:
           host: ${{secrets.CG_HOST}}
