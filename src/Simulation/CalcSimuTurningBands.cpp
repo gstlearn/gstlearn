@@ -1034,6 +1034,15 @@ void CalcSimuTurningBands::_spreadSpectralOnPoint(const Db* db,
   }
 }
 
+void CalcSimuTurningBands::_compute(Db* db, Id icase, Id shift)
+{
+  auto* dbgrid = dynamic_cast<DbGrid*>(db);
+  if (dbgrid != nullptr)
+    _simulateGrid(dbgrid, icase, shift);
+  else
+    _simulatePoint(db, icase, shift);
+}
+
 /*****************************************************************************/
 /*!
  **  Perform non-conditional simulations on a set of points using
@@ -1051,7 +1060,6 @@ void CalcSimuTurningBands::_simulatePoint(Db* db, Id icase, Id shift)
   auto nvar     = _getNVar();
   auto nbsimu   = getNbSimu();
   double theta1 = 1. / _theta;
-  double norme  = sqrt(1. / _nbtuba);
 
   /* Core allocation */
 
@@ -1169,6 +1177,7 @@ void CalcSimuTurningBands::_simulatePoint(Db* db, Id icase, Id shift)
 
   /* Normation */
 
+  double norme = sqrt(1. / _nbtuba);
   for (Id isimu = 0; isimu < nbsimu; isimu++)
     for (Id iech = 0; iech < nech; iech++)
       for (Id jvar = 0; jvar < nvar; jvar++)
@@ -1201,7 +1210,6 @@ void CalcSimuTurningBands::_simulateGrid(DbGrid* db, Id icase, Id shift)
   Id ny                  = (ndim >= 2) ? db->getNX(1) : 1;
   Id nz                  = (ndim >= 3) ? db->getNX(2) : 1;
   Id nech                = nx * ny * nz;
-  double norme           = sqrt(1. / _nbtuba);
   VectorBool activeArray = db->getActiveArray();
 
   /* Core allocation */
@@ -1317,6 +1325,7 @@ void CalcSimuTurningBands::_simulateGrid(DbGrid* db, Id icase, Id shift)
 
   /* Normation */
 
+  double norme = sqrt(1. / _nbtuba);
   for (Id isimu = 0; isimu < nbsimu; isimu++)
     for (Id iech = 0; iech < nech; iech++)
       for (Id jvar = 0; jvar < nvar; jvar++)
@@ -1358,7 +1367,7 @@ void CalcSimuTurningBands::_simulateGradient(Db* dbgrd, double delta)
     for (Id isimu = 0; isimu < nbsimu; isimu++)
     {
       jsimu = isimu + idim * nbsimu;
-      _simulatePoint(dbgrd, icase, jsimu);
+      _compute(dbgrd, icase, jsimu);
     }
 
     /* Shift the information */
@@ -1373,7 +1382,7 @@ void CalcSimuTurningBands::_simulateGradient(Db* dbgrd, double delta)
     for (Id isimu = 0; isimu < nbsimu; isimu++)
     {
       jsimu = isimu + idim * nbsimu + ndim * nbsimu;
-      _simulatePoint(dbgrd, icase, jsimu);
+      _compute(dbgrd, icase, jsimu);
     }
 
     /* Un-Shift the information */
@@ -1848,7 +1857,7 @@ bool CalcSimuTurningBands::_run()
 
   if (flag_cond)
   {
-    _simulatePoint(getDbin(), _icase, 0);
+    _compute(getDbin(), _icase, 0);
     _meanCorrect(getDbin(), _icase);
 
     // Calculate the simulated error
@@ -1856,19 +1865,10 @@ bool CalcSimuTurningBands::_run()
     _difference(getDbin(), _modelLocal, _icase, _flagPGS, _flagGibbs, _flagDGM);
   }
 
-  // Non conditional simulations on the grid
+  // Non conditional simulations on the target points
 
-  if (getDbout()->isGrid())
-  {
-    auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
-    _simulateGrid(dbgrid, _icase, 0);
-    _meanCorrect(getDbout(), _icase);
-  }
-  else
-  {
-    _simulatePoint(getDbout(), _icase, 0);
-    _meanCorrect(getDbout(), _icase);
-  }
+  _compute(getDbout(), _icase, 0);
+  _meanCorrect(getDbout(), _icase);
 
   /* Add the contribution of Nugget effect (optional) */
 
@@ -1983,7 +1983,7 @@ Id CalcSimuTurningBands::simulatePotential(Db* dbiso,
 
   if (dbiso != nullptr)
   {
-    _simulatePoint(dbiso, icase, 0);
+    _compute(dbiso, icase, 0);
   }
 
   /* Non conditional simulations on the gradient points */
@@ -2002,15 +2002,7 @@ Id CalcSimuTurningBands::simulatePotential(Db* dbiso,
 
   /* Non conditional simulations on the grid */
 
-  if (dbout->isGrid())
-  {
-    auto* dbgrid = dynamic_cast<DbGrid*>(dbout);
-    _simulateGrid(dbgrid, icase, 0);
-  }
-  else
-  {
-    _simulatePoint(dbout, icase, 0);
-  }
+  _compute(dbout, icase, 0);
 
   /* Add the contribution of nugget effect (optional) */
 

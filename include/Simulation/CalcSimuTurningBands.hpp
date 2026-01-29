@@ -81,6 +81,8 @@ private:
   void _rollback() override;
 
   bool _resize();
+  void _compute(Db* db, Id icase, Id shift);
+
   void _simulatePoint(Db* db, Id icase, Id shift);
   void _simulateGrid(DbGrid* db, Id icase, Id shift);
   void _simulateNugget(Db* db, Id icase);
@@ -100,6 +102,7 @@ private:
                             bool flag_dgm = false);
   void _checkGaussianData2Grid(Db* dbin, Db* dbout, Model* model) const;
 
+  // Turning bands specific methods
   void _setCodirAng(Id ibs, Id idir, double value) { _codirs[ibs].setAng(idir, value); }
   void _setCodirTmin(Id ibs, double value) { _codirs[ibs].setTmin(value); }
   void _setCodirTmax(Id ibs, double value) { _codirs[ibs].setTmax(value); }

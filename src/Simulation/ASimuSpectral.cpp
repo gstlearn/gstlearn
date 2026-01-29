@@ -206,7 +206,7 @@ Id ASimuSpectral::compute(Db* dbout, Id iuid, bool verbose, const NamingConventi
  * @param nd Maximum number of spectral orders on S2
  * @param nbsimu Number of simulations processed simultaneously
  * @param seed Seed used for the Random number generator
- * @param cov0 an auxiliary covariance used for importance sampling
+ * @param cov0 Auxiliary covariance used for importance sampling
  * @param verbose Verbose flag
  * @param namconv Naming Convention
  *
@@ -262,14 +262,14 @@ Id simuSpectral(Db* dbin,
   std::unique_ptr<ASimuSpectral> simu = nullptr;
   if (getDefaultSpaceType() == ESpaceType::COMPOSITE)
   {
-    if(getDefaultSpace()->getComponent(0)->getType() == ESpaceType::RN) 
+    if (getDefaultSpace()->getComponent(0)->getType() == ESpaceType::RN)
     { // The RN x time model is simulated as a R(N+1) model (see CorGneiting)
-    simu = std::make_unique<SimuSpectralRN>(cova);
-    } 
-    else 
+      simu = std::make_unique<SimuSpectralRN>(cova);
+    }
+    else
     {
-    messerr("Space time model on S2 not yet implemented");
-    // simu = std::make_unique<SimuSpectralS2>(cova);
+      messerr("Space time model on S2 not yet implemented");
+      // simu = std::make_unique<SimuSpectralS2>(cova);
     }
   }
   else if (getDefaultSpaceType() == ESpaceType::RN)
