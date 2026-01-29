@@ -339,6 +339,11 @@ void argumentTestMatrixSparse(const MatrixSparse& mat)
   if (!mat.empty()) mat.display();
 }
 
+void argumentTestMatrixSparsePtr(const MatrixSparse* mat)
+{
+  if (mat != nullptr && !mat->empty()) mat->display();
+}
+
 MatrixSparse argumentReturnMatrixSparse(Id nrows,
                                         Id ncols,
                                         double zeroPercent,

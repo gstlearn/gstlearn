@@ -37,9 +37,10 @@ public:
   double computeCost(bool flagPrint = false, bool verbose = false) override;
   double computeLogLikelihood(bool flagPrint = false, bool verbose = false);
   VectorDouble getBeta() const { return _beta; }
-
+  void initLikelihood(bool verbose = false);
+  void updateModel(bool verbose = false);
 protected:
-  void _initLikelihood(bool verbose = false);
+  void _initLikelihoodForOptim(bool verbose = false);
 
 private:
   virtual void _updateModel(bool verbose = false) { DECLARE_UNUSED(verbose); }

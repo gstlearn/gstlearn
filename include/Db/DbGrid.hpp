@@ -119,7 +119,8 @@ public:
   static DbGrid* createRefine(DbGrid* dbin,
                               const VectorInt& nmult,
                               bool flagCell          = true,
-                              bool flagAddSampleRank = true);
+                              bool flagAddSampleRank = true,
+                              bool flagInter         = true);
   static DbGrid* createFromGridExtend(const DbGrid& gridIn,
                                       const VectorString& tops,
                                       const VectorString& bots,

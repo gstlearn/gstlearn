@@ -56,9 +56,8 @@ double logLikelihood(const Db* db,
                      ModelGeneric* model,
                      bool verbose)
 {
-  Likelihood* vec = Likelihood::createForOptim(model, db);
-  double result   = vec->computeLogLikelihood(verbose);
-  delete vec;
+  Likelihood vec(model, db);
+  double result = vec.computeLogLikelihood(verbose);
   return result;
 }
 
@@ -68,7 +67,7 @@ Likelihood* Likelihood::createForOptim(ModelGeneric* model,
                                        bool verbose)
 {
   auto* vec = new Likelihood(model, db, reml);
-  vec->_initLikelihood(verbose);
+  vec->_initLikelihoodForOptim(verbose);
   return vec;
 }
 

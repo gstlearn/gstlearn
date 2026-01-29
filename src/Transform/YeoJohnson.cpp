@@ -19,20 +19,46 @@ namespace gstlrn
 
 YeoJohnson::YeoJohnson(double lambda)
   : ATransformWithAutoDiff<YeoJohnson>()
-  , _lambda(ParamInfo("Yeo-Johnson Lambda", lambda,{-1., 2.}))
+  , _lambda(ParamInfo("Yeo-Johnson Lambda", lambda, {-1., 2.}))
 {
+}
+
+YeoJohnson::YeoJohnson(const YeoJohnson& r)
+  : ATransformWithAutoDiff<YeoJohnson>(r)
+  , _lambda(r._lambda)
+  , _K(r._K)
+{
+}
+
+YeoJohnson& YeoJohnson::operator=(const YeoJohnson& r)
+{
+  if (this != &r)
+  {
+    ATransformWithAutoDiff<YeoJohnson>::operator=(r);
+    _lambda = r._lambda;
+    _K      = r._K;
+  }
+  return *this;
 }
 
 YeoJohnson* YeoJohnson::create(double lambda)
 {
-    return new YeoJohnson(lambda);
+  return new YeoJohnson(lambda);
 }
+
 void YeoJohnson::initParams(double min, double max)
 {
   DECLARE_UNUSED(min);
-  _lambda.setValue(0.0);
   if (max != INF)
     _K = 1.2 * max;
+}
+
+void YeoJohnson::_printParams(std::stringstream& sstr, const AStringFormat* strfmt) const
+{
+  DECLARE_UNUSED(strfmt);
+  sstr << "Parameters:\n";
+  sstr << "  Lambda: " << _lambda.getValue() << "\n";
+  sstr << "  Saturation: " << _K << "\n";
 }
 
 VectorDouble YeoJohnson::getParams() const

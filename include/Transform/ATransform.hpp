@@ -21,7 +21,7 @@ namespace gstlrn
 
 class ListParams;
 
-class GSTLEARN_EXPORT ATransform : public ICloneable
+class GSTLEARN_EXPORT ATransform : public ICloneable, public AStringable
 {
 public:
   ATransform() {};
@@ -34,7 +34,13 @@ public:
     return TEST;
   }
   virtual String getName() const = 0;
+  virtual bool hasParameters() const = 0;
+  virtual void _printParams(std::stringstream &sstr, const AStringFormat* strfmt) const
+  {
+    DECLARE_UNUSED(sstr, strfmt);
+  }
   virtual double inverseTransform(double y) const;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 #ifndef SWIG
   void transformVec(constvect in, vect out) const;
   void condExpVec(constvect mu, constvect sigma,  vect out, Id power = 1) const;

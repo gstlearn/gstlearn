@@ -66,7 +66,7 @@ ALikelihood::~ALikelihood()
 {
 }
 
-void ALikelihood::_initLikelihood(bool verbose)
+void ALikelihood::initLikelihood(bool verbose)
 {
   MatrixSymmetric vars = dbVarianceMatrix(_db);
   double hmax          = _db->getExtensionDiagonal();
@@ -118,10 +118,23 @@ void ALikelihood::_initLikelihood(bool verbose)
     _beta.resize(_nDrift);
   }
 }
+void ALikelihood::_initLikelihoodForOptim(bool verbose)
+{
+  initLikelihood(verbose);
+  MatrixSymmetric vars = dbVarianceMatrix(_db);
+  double hmax          = _db->getExtensionDiagonal();
+  double vmax          = _db->getColumnByLocator(ELoc::Z, 0).maximum();
+  setEnvironment(vars, hmax, EPSILON6, 0., vmax);
+}
+
+void ALikelihood::updateModel(bool verbose)
+{
+  _updateModel(verbose);
+}
 
 double ALikelihood::computeLogLikelihood(bool flagPrint, bool verbose)
 {
-  _updateModel(verbose);
+  updateModel(verbose);
 
   if (_model->getTransform() != nullptr) // TODO do it only in init if no parameters in transform (e.g logNormal)
   {
@@ -185,17 +198,17 @@ double ALikelihood::computeLogLikelihood(bool flagPrint, bool verbose)
     CholeskyDense XtCm1XChol(_XtCm1X);
     loglike -= 0.5 * XtCm1XChol.computeLogDeterminant();
   }
-  if (_model->getTransform() != nullptr)
-  {
-    // Add the Jacobian term
-    double logjac = _model->getTransform()->evalLogJacobianVec(_Y);
-    loglike -= logjac;
-  }
+
+  double logjac = _model->getTransform() == nullptr ? 0. : _model->getTransform()->evalLogJacobianVec(_Y);
+
+  loglike -= logjac;
   // Optional printout
   if (flagPrint)
   {
     message("Log-Determinant = %lf\n", logdet);
     message("Quadratic term  = %lf\n", quad);
+    if (_model->getTransform() != nullptr)
+      message("Jacobian term  = %lf\n", logjac);
     message("Log-likelihood  = %lf\n", loglike);
   }
   return loglike;

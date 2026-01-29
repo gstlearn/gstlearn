@@ -565,7 +565,8 @@ DbGrid* DbGrid::refine(const VectorInt& nmult)
 DbGrid* DbGrid::createRefine(DbGrid* dbin,
                              const VectorInt& nmult,
                              bool flagCell,
-                             bool flagAddSampleRank)
+                             bool flagAddSampleRank,
+                             bool flagInter)
 {
   DbGrid* dbgrid;
   Id ndim = dbin->getNDim();
@@ -581,7 +582,7 @@ DbGrid* DbGrid::createRefine(DbGrid* dbin,
                   VectorDouble(), VectorString(), VectorString(), flagAddSampleRank);
 
   // Migrate all variables (except 'rank'  and coordinates
-  (void)dbgrid->migrateAllVariables(dbin, true, true, false, flagAddSampleRank);
+  (void)dbgrid->migrateAllVariables(dbin, true, flagInter, false, flagAddSampleRank);
 
   return dbgrid;
 }

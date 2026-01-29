@@ -163,7 +163,6 @@ DriftList* DriftFactory::createDriftListFromIRF(Id order,
 
   // In the strict stationary case, no drift is defined (even external)
   if (order < 0)
-    // In the strict stationary case, no drift is defined (even external)
     return drifts;
 
   // Standard monomials

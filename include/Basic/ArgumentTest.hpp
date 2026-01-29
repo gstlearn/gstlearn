@@ -99,6 +99,7 @@ GSTLEARN_EXPORT MatrixDense argumentReturnMatrix(Id nrows = 2,
                                                  Id seed  = 1312);
 
 GSTLEARN_EXPORT void argumentTestMatrixSparse(const MatrixSparse& mat = MatrixSparse());
+GSTLEARN_EXPORT void argumentTestMatrixSparsePtr(const MatrixSparse* mat = nullptr);
 GSTLEARN_EXPORT MatrixSparse argumentReturnMatrixSparse(Id nrows = 2,
                                                         Id ncols = 3,
                                                         double zeroPercent = 0.1,

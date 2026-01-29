@@ -44,6 +44,7 @@ AModelOptim::AModelOptim(ModelGeneric* model, bool verbose)
                     _params->getDispatch(),
                     _params->getDispatchIndex());
   resetIter();
+  _opt->setMaxIter(10000);
 };
 
 void AModelOptim::setEnvironment(const MatrixSymmetric& vars, double href, double epsilon, double min, double max)
@@ -62,6 +63,17 @@ AModelOptim& AModelOptim::operator=(const AModelOptim& r)
     messerr("Assignment operator not implemented for AModelOptim");
   }
   return *this;
+}
+
+AModelOptim::AModelOptim(const AModelOptim& r)
+  : _model(r._model)
+  , _params(r._params)
+  , _opt(nullptr)
+  , _verbose(r._verbose)
+  , _trace(r._trace)
+  , _x(r._x)
+  , _iter(r._iter)
+{
 }
 
 void AModelOptim::setAuthorizedAnalyticalGradients(bool authorized)

@@ -27,6 +27,11 @@ Optim::~Optim()
   nlopt_destroy(_opt);
 }
 
+void Optim::setMaxIter(Id maxiter)
+{
+  nlopt_set_maxeval(_opt, static_cast<unsigned int>(maxiter));
+}
+
 void Optim::setObjective(std::function<double(const VectorDouble&)> objective)
 {
   _objective = std::make_shared<std::function<double(const VectorDouble&)>>(
