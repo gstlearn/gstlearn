@@ -37,11 +37,10 @@ jobs:
       matrix:
         # Last releases from here https://cran.r-project.org/src/base/R-4/
         r_version: [4.2.3, 4.3.3, 4.4.3, 4.5.2]
+        # Only one arm64 and one x86_64 Mac OS version are needed
         arch: [
-            {ar: arm64,  os: macos-14, pat: /opt/homebrew},
-            {ar: arm64,  os: macos-15, pat: /opt/homebrew},
             {ar: x86_64, os: macos-15-intel, pat: /usr/local},
-            {ar: arm64,  os: macos-26, pat: /opt/homebrew},
+            {ar: arm64,  os: macos-14, pat: /opt/homebrew},
          ]
 
     steps:
@@ -129,11 +128,10 @@ jobs:
       matrix:
         # Last releases from here https://cran.r-project.org/src/base/R-4/
         r_version: [4.2.3, 4.3.3, 4.4.3, 4.5.2]
+        # Only one arm64 and one x86_64 Mac OS version are needed
         arch: [
-            {ar: arm64,  os: macos-14},
-            {ar: arm64,  os: macos-15},
             {ar: x86_64, os: macos-15-intel},
-            {ar: arm64,  os: macos-26},
+            {ar: arm64,  os: macos-14},
          ]
 
     steps:
@@ -174,10 +172,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Publish packages to our CRAN
       - env:
           CRAN_PATH: ${{needs.build.outputs.cran_path}}
-
-        # Publish packages to our CRAN
         uses: fabien-ors/cran-publish-action@v4
         with:
           host: ${{secrets.CG_HOST}}
