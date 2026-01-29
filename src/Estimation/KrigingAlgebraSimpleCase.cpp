@@ -71,7 +71,6 @@ KrigingAlgebraSimpleCase::KrigingAlgebraSimpleCase(bool flagDual,
   , _flagCholesky(flagchol == -1 ? (flagDual || _neighUnique) : flagchol)
   , _dualHasChanged(true)
   , _invSigmaHasChanged(true)
-  , _XtInvSigmaHasChanged(true)
 {
   _Sigma0 = std::make_shared<MatrixDense>();
   _X0     = std::make_shared<MatrixDense>();
@@ -108,7 +107,7 @@ KrigingAlgebraSimpleCase::KrigingAlgebraSimpleCase(bool flagDual,
 KrigingAlgebraSimpleCase::KrigingAlgebraSimpleCase(KrigingAlgebraSimpleCase& r)
 {
 
-  // Quantities which doesn't evolve with the target in unique Neighborhood
+  // Quantities that do not evolve with the target in unique Neighborhood
 
   if (r._neighUnique)
     _copyPtrForUniqueNeigh(r);
@@ -730,7 +729,11 @@ Id KrigingAlgebraSimpleCase::_needInvSigma()
   else
   {
     _InvSigma->resize(_Sigma->getNRows(), _Sigma->getNCols());
-    _Sigma->invert2(*_InvSigma);
+    if (_Sigma->invert2(*_InvSigma))
+    {
+      _printInversionErrorMessage(*_Sigma);
+      return 1;
+    }
   }
   _invSigmaHasChanged = false;
   return 0;
@@ -951,8 +954,18 @@ Id KrigingAlgebraSimpleCase::_needSigmac()
     _Sigmac.prodMatMatInPlace(_XtInvSigma.get(), _X.get());
   // Compute the inverse matrix
   _invSigmac->resize(_nbfl, _nbfl);
-  if (_Sigmac.invert2(*_invSigmac)) return 1;
+  if (_Sigmac.invert2(*_invSigmac))
+  {
+    _printInversionErrorMessage(_Sigmac);
+    return 1;
+  }
   return 0;
+}
+
+void KrigingAlgebraSimpleCase::_printInversionErrorMessage(const MatrixSymmetric& mat) 
+{
+  messerr("Problem when inverting Kriging Matrix (NRows=%d x NCols=%d)",
+          mat.getNRows(), mat.getNCols());
 }
 
 Id KrigingAlgebraSimpleCase::_needBeta()
@@ -1049,9 +1062,9 @@ Id KrigingAlgebraSimpleCase::_needLambdaUK()
   if (!_LambdaUK.empty()) return 0;
   _LambdaUK.resize(_neq, _nrhs);
 
-  _needXtInvSigma();
-  _needLambdaSK();
-  _needMuUK();
+  if (_needXtInvSigma()) return 1;
+  if (_needLambdaSK()) return 1;
+  if (_needMuUK()) return 1;
 
   _invSigmaXMuUK.resize(_neq, _nrhs);
   if (_flagCholesky)

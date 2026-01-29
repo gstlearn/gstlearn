@@ -447,6 +447,12 @@ Id KrigingSystemSimpleCase::estimate(Id iechout,
     neigh->select(iechout, *nbgh);
     if (nbgh->size() <= 0)
       return 0;
+    if (static_cast<Id>(nbgh->size()) < _getNbfl())
+    {
+      messerr("Not enough data (%d) to perform kriging (with %d Drift Functions) at target %d",
+              nbgh->size(), _getNbfl(), iechout + 1);
+      return 1;
+    }
     if (!_neigh->isUnchanged() || _neigh->getFlagContinuous() || OptDbg::force())
     {
       updateLHS(algebra, model, tabwork);

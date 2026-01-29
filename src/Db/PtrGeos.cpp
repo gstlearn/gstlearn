@@ -11,16 +11,17 @@
 #include "Db/PtrGeos.hpp"
 #include "Basic/Message.hpp"
 #include "Basic/String.hpp"
+#include "Enum/ELoc.hpp"
 
-#include <sstream>
 #include <cstring>
+#include <sstream>
 
 namespace gstlrn
 {
 typedef struct
 {
   char SREF[LOCAL_SIZE];       /* Name of the Locator */
-  Id IREF;                    /* Unicity of the locator */
+  Id IREF;                     /* Unicity of the locator */
   char COMMENT[STRING_LENGTH]; /* Meaning */
 } Def_Locator;
 
@@ -149,8 +150,8 @@ Id getLocatorTypeFromName(const String& name_type)
   {
     if (*it != ELoc::UNKNOWN)
     {
-      auto i           = it.getValue();
-      auto lng         = static_cast<size_t>(strlen(DEF_LOCATOR[i].SREF));
+      auto i   = it.getValue();
+      auto lng = static_cast<size_t>(strlen(DEF_LOCATOR[i].SREF));
       if (name_type.compare(0, lng, DEF_LOCATOR[i].SREF) == 0) return i;
     }
     it.toNext();
@@ -171,8 +172,8 @@ Id locatorIdentify(String string, ELoc* ret_locatorType, Id* ret_locatorIndex, I
   *ret_locatorType  = ELoc::UNKNOWN;
   *ret_locatorIndex = -1;
   *ret_mult         = 1;
-  Id inum          = -1;
-  Id found         = -1;
+  Id inum           = -1;
+  Id found          = -1;
   bool mult         = 0;
 
   // Transform the input argument into lower case for comparison
@@ -184,8 +185,8 @@ Id locatorIdentify(String string, ELoc* ret_locatorType, Id* ret_locatorIndex, I
   {
     if (*it != ELoc::UNKNOWN)
     {
-      auto i           = it.getValue();
-      auto lng         = static_cast<size_t>(strlen(DEF_LOCATOR[i].SREF));
+      auto i   = it.getValue();
+      auto lng = static_cast<size_t>(strlen(DEF_LOCATOR[i].SREF));
       if (string_loc.compare(0, lng, DEF_LOCATOR[i].SREF) == 0) found = i;
     }
     it.toNext();
@@ -268,4 +269,4 @@ VectorInt getLocatorMultiples()
   }
   return mult;
 }
-}
+} // namespace gstlrn
