@@ -145,6 +145,7 @@ private:
   void _normeResults(Db* db,
                      Id icase,
                      Id shift,
+                     Id isimu,
                      const VectorBool& activeArray);
   Id _getCorrec(const ECov& type, Id is, Id ibs, TurningBandOperate& operTB, double& correc);
   static double _getScale(double alpha, double scale);

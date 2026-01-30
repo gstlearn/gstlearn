@@ -1008,20 +1008,20 @@ Id CalcSimuTurningBands::_compute(Db* db, Id icase, Id shift)
  * @param db Target Db
  * @param icase Rank of PGS or GRF
  * @param shift Shift before writing the simulation result
+ * @param isimu Simulation index
  * @param activeArray Array indicating active samples
  */
-void CalcSimuTurningBands::_normeResults(Db* db, Id icase, Id shift, const VectorBool& activeArray)
+void CalcSimuTurningBands::_normeResults(Db* db, Id icase, Id shift, Id isimu, const VectorBool& activeArray)
 {
   auto nbsimu  = getNbSimu();
   auto nech    = db->getNSample();
   auto nvar    = _getNVar();
   auto nbtuba  = getNbtuba();
   double norme = sqrt(1. / nbtuba);
-  for (Id isimu = 0; isimu < nbsimu; isimu++)
-    for (Id iech = 0; iech < nech; iech++)
-      for (Id ivar = 0; ivar < nvar; ivar++)
-        if (activeArray[iech])
-          db->updSimvar(ELoc::SIMU, iech, shift + isimu, ivar, icase, nbsimu, nvar, EOperator::PRODUCT, norme);
+  for (Id iech = 0; iech < nech; iech++)
+    for (Id ivar = 0; ivar < nvar; ivar++)
+      if (activeArray[iech])
+        db->updSimvar(ELoc::SIMU, iech, shift + isimu, ivar, icase, nbsimu, nvar, EOperator::PRODUCT, norme);
 }
 
 /**
@@ -1164,9 +1164,9 @@ void CalcSimuTurningBands::_computePoint(Db* db, Id icase, Id shift)
   /*****************************/
 
   Id mem_seed = law_get_random_seed();
-  for (Id ivar = 0; ivar < nvar; ivar++)
-    for (Id isimu = 0; isimu < nbsimu; isimu++)
-      for (Id is = 0; is < ncova; is++)
+  for (Id isimu = 0; isimu < nbsimu; isimu++)
+    for (Id is = 0; is < ncova; is++)
+      for (Id ivar = 0; ivar < nvar; ivar++)
         for (Id ib = 0; ib < nbtuba; ib++)
         {
           Id ibs       = _getIBS(isimu, is, ib);
@@ -1194,7 +1194,8 @@ void CalcSimuTurningBands::_computePoint(Db* db, Id icase, Id shift)
         }
 
   // Normation of the results
-  _normeResults(db, icase, shift, activeArray);
+  for (int isimu = 0; isimu < nbsimu; isimu++)
+    _normeResults(db, icase, shift, isimu, activeArray);
 
   // Set the initial seed back
   law_set_random_seed(mem_seed);
@@ -1230,9 +1231,9 @@ void CalcSimuTurningBands::_computeGrid(DbGrid* dbgrid, Id icase, Id shift)
   /*****************************/
 
   Id mem_seed = law_get_random_seed();
-  for (Id ivar = 0; ivar < nvar; ivar++)
-    for (Id isimu = 0; isimu < nbsimu; isimu++)
-      for (Id is = 0; is < ncova; is++)
+  for (Id isimu = 0; isimu < nbsimu; isimu++)
+    for (Id is = 0; is < ncova; is++)
+      for (Id ivar = 0; ivar < nvar; ivar++)
         for (Id ib = 0; ib < nbtuba; ib++)
         {
           Id ibs       = _getIBS(isimu, is, ib);
@@ -1260,7 +1261,8 @@ void CalcSimuTurningBands::_computeGrid(DbGrid* dbgrid, Id icase, Id shift)
         }
 
   // Normation of the results
-  _normeResults(dbgrid, icase, shift, activeArray);
+  for (int isimu = 0; isimu < nbsimu; isimu++)
+    _normeResults(dbgrid, icase, shift, isimu, activeArray);
 
   // Set the initial seed back
   law_set_random_seed(mem_seed);
