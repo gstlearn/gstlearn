@@ -861,11 +861,6 @@ void AMesh::resetProjFromDb(ProjMatrix* m,
   // Preliminary checks
   if (isCompatibleDb(db)) return;
 
-  /* Instantiate a Ball Tree for quick search */
-  // Note: this Ball tree is defined in 3D despite the space dimension of mesh
-  Ball ball(this, 10, true);
-  if (verbose) ball.display(1);
-
   /* Instantiate a Sparse matrix structure (Triplets) */
   NF_Triplet NF_T;
 
