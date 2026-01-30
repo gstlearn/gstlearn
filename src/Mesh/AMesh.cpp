@@ -488,6 +488,83 @@ VectorDouble AMesh::getApexCoordinates(Id iapex) const
   return vec;
 }
 
+VectorInt AMesh::getMeshApicesFromCoordinates(const VectorDouble& coords) const
+{
+  auto ncorner = getNApexPerMesh();
+  VectorInt meshApices(ncorner, -1);
+
+  Id found  = getMeshFromCoordinates(coords);
+  Id ip_max = 0;
+
+  if (found >= 0)
+  {
+    for (Id icorn = 0; icorn < ncorner; icorn++)
+    {
+      auto ip = getApex(found, icorn);
+      if (ip > ip_max) ip_max = ip;
+      meshApices[icorn] = ip;
+    }
+  }
+
+  return meshApices;
+}
+
+Id AMesh::getMeshFromCoordinates(const VectorDouble& coords) const
+{
+  auto ncorner = getNApexPerMesh();
+  VectorDouble weights(ncorner, 0);
+
+  return getMeshAndInPlaceWeightsFromCoordinates(coords, weights);
+}
+
+Id AMesh::getMeshAndInPlaceWeightsFromCoordinates(const VectorDouble& coords, VectorDouble& weights) const
+{
+  auto nmeshes = getNMeshes();
+  VectorDouble units(nmeshes, 0.);
+  if (getVariety() != 1)
+    units = _defineUnits();
+
+  /* Instantiate a Ball Tree for quick search */
+  // Note: this Ball tree is defined in 3D despite the space dimension of mesh
+  Ball ball(this, 10, true);
+  // if (verbose) ball.display(1);
+
+  /* Loop on the samples */
+  VectorInt neighs;
+  VectorDouble distances;
+
+  /* Loop on the elligible meshes */
+  Id nb_neigh = 5;
+  (void)ball.queryOneInPlace(coords, nb_neigh, neighs, distances);
+  Id found = _findBarycenter(coords, units, nb_neigh, neighs, weights);
+
+  // If search has failed with a small number of neighbors, try with a larger one
+  if (found < 0)
+  {
+    nb_neigh = 50;
+    (void)ball.queryOneInPlace(coords, nb_neigh, neighs, distances);
+    found = _findBarycenter(coords, units, nb_neigh, neighs, weights);
+  }
+  if (found < 0)
+  {
+    Id ndim = getNDim();
+
+    /* Printout if a point does not belong to any mesh */
+    if (ndim == 3)
+    {
+      messerr("Point (%lf %lf %lf) does not belong to any mesh (nb_neigh=%d)",
+              coords[0], coords[1], coords[2], nb_neigh);
+    }
+    else
+    {
+      messerr("Point (%lf %lf) does not belong to any mesh (nb_neigh=%d)",
+              coords[0], coords[1], nb_neigh);
+    }
+  }
+
+  return found;
+}
+
 VectorDouble AMesh::getDistances(Id iapex0, const VectorInt& japices) const
 {
   VectorInt jlocal = japices;
@@ -784,12 +861,7 @@ void AMesh::resetProjFromDb(ProjMatrix* m,
   // Preliminary checks
   if (isCompatibleDb(db)) return;
 
-  /* Instantiate a Ball Tree for quick search */
-  // Note: this Ball tree is defined in 3D despite the space dimension of mesh
-  Ball ball(this, 10, true);
-  if (verbose) ball.display(1);
-
-  /* Instantiate a Sparse matrix structrue (Triplets) */
+  /* Instantiate a Sparse matrix structure (Triplets) */
   NF_Triplet NF_T;
 
   /* Optional title */
@@ -817,18 +889,7 @@ void AMesh::resetProjFromDb(ProjMatrix* m,
     // Identification of the target point
     db->getCoordinatesInPlace(target, jech);
 
-    /* Loop on the elligible meshes */
-    Id nb_neigh = 5;
-    (void)ball.queryOneInPlace(target, nb_neigh, neighs, distances);
-    Id found = _findBarycenter(target, units, nb_neigh, neighs, weight);
-
-    // If search has failed with a small number of neighbors, try with a larger one
-    if (found < 0)
-    {
-      nb_neigh = 50;
-      (void)ball.queryOneInPlace(target, nb_neigh, neighs, distances);
-      found = _findBarycenter(target, units, nb_neigh, neighs, weight);
-    }
+    Id found = getMeshAndInPlaceWeightsFromCoordinates(target, weight);
 
     if (found >= 0)
     {
@@ -846,12 +907,7 @@ void AMesh::resetProjFromDb(ProjMatrix* m,
     }
     else
     {
-
-      /* Printout if a point does not belong to any mesh */
-
       nout++;
-      messerr("Point %d (%lf %lf) does not belong to any mesh (nb_neigh=%d)",
-              jech + 1, target[0], target[1], nb_neigh);
     }
     iech++;
   }

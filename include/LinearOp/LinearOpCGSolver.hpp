@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Basic/Message.hpp"
 #include "Basic/VectorNumT.hpp"
 
 // iostream is included here as it is used in Eigen function (std::cerr)
@@ -33,6 +34,7 @@ public:
   virtual void setTolerance(double tol) = 0;
   virtual Id  getIterations() const = 0;
   virtual double getError() const = 0;
+  void setVerbose(bool v) { _verbose = v; }
 #ifndef SWIG
   virtual void solve(const constvect in, const vect out) = 0;
   virtual void solve(const Eigen::Map<const Eigen::VectorXd>& rhs,
@@ -42,6 +44,7 @@ public:
   virtual void solveWithGuess(const Eigen::Map<const Eigen::VectorXd>& rhs,
                               const Eigen::Map<const Eigen::VectorXd>& guess,
                               Eigen::Map<Eigen::VectorXd>& out) = 0;
+  bool _verbose;
 #endif
 };
 
@@ -101,6 +104,12 @@ void LinearOpCGSolver<TLinOP>::solve(
   ::Eigen::Map<Eigen::VectorXd>& out)
 {
   out = cg.solve(rhs);
+  if (_verbose)
+  {
+    mestitle(0, "LinearOpCGSolver");
+    messageFlush("Number of iterations: " + std::to_string(cg.iterations()) + "/" + std::to_string(cg.maxIterations()) + "\n");
+    messageFlush("Error: " + std::to_string(cg.error()) + "\n");
+  }
 }
 
 template<typename TLinOP>

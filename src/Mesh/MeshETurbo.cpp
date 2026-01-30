@@ -567,6 +567,34 @@ bool MeshETurbo::_addElementToTriplet(NF_Triplet& NF_T,
   return false;
 }
 
+VectorInt MeshETurbo::getMeshApicesFromCoordinates(const VectorDouble& coords) const
+{
+  auto ncorner = getNApexPerMesh();
+  VectorDouble weights(ncorner, 0);
+  VectorInt indices(ncorner, 0);
+
+  getMeshFromCoordinates(coords, indices, weights);
+
+  return indices;
+}
+
+Id MeshETurbo::getMeshFromCoordinates(const VectorDouble& coords) const
+{
+  auto ncorner = getNApexPerMesh();
+  VectorDouble weights(ncorner, 0);
+  VectorInt indices(ncorner, 0);
+
+  return getMeshFromCoordinates(coords, indices, weights);
+}
+
+Id MeshETurbo::getMeshAndInPlaceWeightsFromCoordinates(const VectorDouble& coords, VectorDouble& weights) const
+{
+  auto ncorner = getNApexPerMesh();
+  VectorInt indices(ncorner, 0);
+
+  return getMeshFromCoordinates(coords, indices, weights);
+}
+
 /**
  * @brief Given the coordinates of a point, return the corresponding mesh index
  * and updates the apex indices
@@ -798,7 +826,7 @@ void MeshETurbo::_setNElementPerCell()
  * Return the weights assigned to the corners
  * @param icas   Corner indication
  * @param indg0  Indices of the starting grid node
- * @param coor   Coordinates of the targte point
+ * @param coor   Coordinates of the target point
  * @param indices Grid indices of the target (in active ranks)
  * @param lambda  Weights
  * @param verbose Verbose flag

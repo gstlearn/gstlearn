@@ -69,7 +69,7 @@ public:
 
   /*! Returns the Sparse Matrix for projecting the Mesh to a Db */
   ProjMatrix* createProjMatrix(const Db* db, Id rankZ = -1, bool verbose = false) const;
-
+  
   /*! Returns the space dimension */
   Id getNDim() const { return _nDim; }
   /*! Returns the minimum of the Bounding box for a given space dimension */
@@ -95,6 +95,13 @@ public:
   VectorDouble getCoordinatesPerMesh(Id imesh, Id idim, bool flagClose = false) const;
   /*! Returns the coordinates of an Apex */
   VectorDouble getApexCoordinates(Id iapex) const;
+
+  /*! Returns the Mesh Apices from coordinates */
+  virtual VectorInt getMeshApicesFromCoordinates(const VectorDouble& coords) const;
+
+  /*! Returns the Mesh from coordinates */
+  virtual Id getMeshFromCoordinates(const VectorDouble& coords) const;
+  virtual Id getMeshAndInPlaceWeightsFromCoordinates(const VectorDouble& coords, VectorDouble& weights) const;
 
   VectorVectorDouble getCoordinatesPerMesh(Id imesh) const;
   VectorVectorDouble getEmbeddedCoordinatesPerMesh(Id imesh = 0) const;

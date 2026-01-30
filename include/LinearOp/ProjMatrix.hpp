@@ -42,6 +42,8 @@ public:
   /// Interface for AStringable
   String toString(const AStringFormat* strfmt = nullptr) const override;
 
+  static ProjMatrix* createFromMatrix(const MatrixSparse& mat);
+
   /// Interface for IProj
 
 #ifndef SWIG
