@@ -118,6 +118,11 @@ String ProjMatrix::toString(const AStringFormat* strfmt) const
   return MatrixSparse::toString(strfmt);
 }
 
+ProjMatrix* ProjMatrix::createFromMatrix(const MatrixSparse& mat) {
+
+  return new ProjMatrix(mat);
+}
+
 void ProjMatrix::dumpVerticesUsed(Id npmax) const
 {
   mestitle(1, "Vertices used in the projection matrix");
