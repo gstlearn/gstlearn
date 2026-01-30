@@ -143,7 +143,7 @@ private:
   Id _generateDirections(const Db* dbout);
   void _minmax(const Db* db);
   void _setDensity();
-  static ECov _particularCase(const ECov& type, double param);
+  ECov _particularCase(Id is, double eps = EPSILON7) const;
   Id _initializeSeedBands();
   void _cumulateResult(Db* db,
                        Id icase,
@@ -159,7 +159,7 @@ private:
                      Id shift,
                      Id isimu,
                      const VectorBool& activeArray);
-  Id _getCorrec(const ECov& type, Id is, Id ibs, TurningBandOperate& operTB, double& correc);
+  Id _getCorrec(Id is, Id ibs, TurningBandOperate& operTB, double& correc);
   static double _getScale(double alpha, double scale);
   static double _getScaleKB(double param, double scale);
   void _migrationInit(Id ibs,
