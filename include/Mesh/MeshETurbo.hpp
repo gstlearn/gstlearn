@@ -124,6 +124,14 @@ public:
   const Indirection& getGridIndirect() const { return _gridIndirect; }
   const Indirection& getMeshIndirect() const { return _meshIndirect; }
   void getApexIndicesInPlace(Id i, VectorInt& indg) const;
+
+  /*! Returns the Mesh Apices from coordinates */
+  VectorInt getMeshApicesFromCoordinates(const VectorDouble& coords) const override;
+
+  /*! Returns the Mesh from coordinates */
+  Id getMeshFromCoordinates(const VectorDouble& coords) const override;
+  Id getMeshAndInPlaceWeightsFromCoordinates(const VectorDouble& coords, VectorDouble& weights) const override;
+
   Id getMeshFromCoordinates(const VectorDouble& coor,
                             VectorInt& indices,
                             VectorDouble& lambdas) const;
