@@ -99,8 +99,9 @@ Id ShiftOpStencil::_addToDest(const constvect inv, vect outv) const
         for (Id iw = 0; iw < nw; iw++)
         {
           Id iabs      = ic + _absoluteShifts[iw];
-          double value = _isInside[iabs] ? inv[iabs] : 0.;
-          total += (*currentWeights)[iw] * value;
+          if (_isInside[iabs]) {
+            total += (*currentWeights)[iw] * inv[iabs];
+          }
         }
       }
       outv[ic] = total;
