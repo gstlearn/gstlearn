@@ -19,7 +19,7 @@ namespace gstlrn
 class GSTLEARN_EXPORT ACalcSimulation: public ACalcInterpolator
 {
 public:
-  ACalcSimulation(Id nbsimu, Id seed = 4324324);
+  ACalcSimulation(Id nbsimu = 1, Id seed = 4324324);
   ACalcSimulation(const ACalcSimulation& r)            = delete;
   ACalcSimulation& operator=(const ACalcSimulation& r) = delete;
   virtual ~ACalcSimulation();
@@ -32,6 +32,11 @@ public:
 protected:
   bool _check() override;
   bool _preprocess() override;
+  // virtual Id _compute(Db* db, Id icase, Id shift);
+
+  Id _compute2(Db* db, Id icase, Id shift);
+  void _computeGradient2(Db* dbgrd, double delta);
+  void _computeTangent2(Db* dbtgt, double delta);
 
 private:
   Id _nbsimu;
