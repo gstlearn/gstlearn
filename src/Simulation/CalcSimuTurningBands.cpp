@@ -471,9 +471,8 @@ Id CalcSimuTurningBands::_initializeSeedBands()
           Id optionSpectral = _getCorrec(is, ibs, operTB, correc);
           if (optionSpectral == 0)
           {
-            ECov type = _particularCase(is);
             messerr("The structure (%s) cannot be simulated",
-                    type.getDescr().data());
+                    _particularCase(is).getDescr().data());
             messerr("using the Turning Bands algorithm");
             return 1;
           }
@@ -1164,6 +1163,8 @@ Id CalcSimuTurningBands::_getCorrec(Id is, Id ibs, TurningBandOperate& operTB, d
  ** \param[in]  shift      Shift before writing the simulation result
  ** \param[in]  isimu      Simulation index
  ** \param[in]  is         Covariance index
+ ** \param[in]  activeArray  Array indicating active samples
+ ** \param[out] tab        Array to store simulation values for one band
  **
  *****************************************************************************/
 void CalcSimuTurningBands::_computePoint(Db* db,
@@ -1209,6 +1210,8 @@ void CalcSimuTurningBands::_computePoint(Db* db,
  ** \param[in]  shift      Shift before writing the simulation result
  ** \param[in]  isimu      Simulation index
  ** \param[in]  is         Covariance index
+ ** \param[in]  activeArray  Array indicating active samples
+ ** \param[out] tab        Array to store simulation values for one band
  **
  *****************************************************************************/
 void CalcSimuTurningBands::_computeGrid(DbGrid* dbgrid,
@@ -1241,117 +1244,6 @@ void CalcSimuTurningBands::_computeGrid(DbGrid* dbgrid,
 
       // Cumulate 'tab' into the simulation results
       _cumulateResult(dbgrid, icase, shift, ivar, isimu, is, correc, activeArray, tab);
-    }
-}
-
-/*****************************************************************************/
-/*!
- **  Perform non-conditional simulations on a set of gradient points using
- **  Turning Bands method.
- **
- ** \param[in]  dbgrd      Gradient Db structure
- ** \param[in]  delta      Value of the increment
- **
- ** \remarks The simulated gradients are stored as follows:
- ** \remarks idim * nbsimu + isimu (for simulation at first point)
- ** \remarks idim * nbsimu + isimu + ndim * nbsimu (for simulation at 2nd point)
- ** \remarks At the end, the simulated gradient is stored at first point
- **
- *****************************************************************************/
-void CalcSimuTurningBands::_computeGradient(Db* dbgrd, double delta)
-{
-  Id jsimu;
-  Id icase               = 0;
-  Id ndim                = dbgrd->getNDim();
-  auto nbsimu            = getNbSimu();
-  VectorBool activeArray = dbgrd->getActiveArray();
-
-  for (Id idim = 0; idim < ndim; idim++)
-  {
-
-    /* Simulation at the initial location */
-
-    for (Id isimu = 0; isimu < nbsimu; isimu++)
-    {
-      jsimu = isimu + idim * nbsimu;
-      _compute(dbgrd, icase, jsimu);
-    }
-
-    /* Shift the information */
-
-    for (Id iech = 0; iech < dbgrd->getNSample(); iech++)
-      if (activeArray[iech])
-        dbgrd->setCoordinate(iech, idim, dbgrd->getCoordinate(iech, idim) + delta);
-
-    /* Simulation at the shift location */
-
-    for (Id isimu = 0; isimu < nbsimu; isimu++)
-    {
-      jsimu = isimu + idim * nbsimu + ndim * nbsimu;
-      _compute(dbgrd, icase, jsimu);
-    }
-
-    /* Un-Shift the information */
-
-    for (Id iech = 0; iech < dbgrd->getNSample(); iech++)
-      if (activeArray[iech])
-        dbgrd->setCoordinate(iech, idim, dbgrd->getCoordinate(iech, idim) - delta);
-
-    /* Scaling */
-
-    for (Id isimu = 0; isimu < nbsimu; isimu++)
-      for (Id iech = 0; iech < dbgrd->getNSample(); iech++)
-      {
-        if (!activeArray[iech]) continue;
-        jsimu         = isimu + idim * nbsimu + ndim * nbsimu;
-        double value2 = dbgrd->getSimvar(ELoc::SIMU, iech, jsimu, 0, icase,
-                                         2 * ndim * nbsimu, 1);
-        jsimu         = isimu + idim * nbsimu;
-        double value1 = dbgrd->getSimvar(ELoc::SIMU, iech, jsimu, 0, icase,
-                                         2 * ndim * nbsimu, 1);
-        dbgrd->setSimvar(ELoc::SIMU, iech, jsimu, 0, icase,
-                         2 * ndim * nbsimu,
-                         1, (value2 - value1) / delta);
-      }
-  }
-}
-
-/*****************************************************************************/
-/*!
- **  Perform non-conditional simulations on a set of tangent points using
- **  Turning Bands method.
- **
- ** \param[in]  dbtgt      Tangent Db structure
- ** \param[in]  delta      Value of the increment
- **
- ** \remarks Warning: To perform the simulation of the tangent, we must
- ** \remarks simulated the gradients first. So we need to dimension the
- ** \remarks simulation outcome variables as for the gradients
- **
- *****************************************************************************/
-void CalcSimuTurningBands::_computeTangent(Db* dbtgt, double delta)
-{
-  Id icase               = 0;
-  auto nvar              = _getNVar();
-  auto nbsimu            = getNbSimu();
-  VectorBool activeArray = dbtgt->getActiveArray();
-
-  /* Perform the simulation of the gradients at tangent points */
-
-  _computeGradient(dbtgt, delta);
-
-  /* Calculate the simulated tangent */
-
-  for (Id isimu = 0; isimu < nbsimu; isimu++)
-    for (Id iech = 0; iech < dbtgt->getNSample(); iech++)
-    {
-      if (!activeArray[iech]) continue;
-
-      double value = 0.;
-      for (Id idim = 0; idim < dbtgt->getNDim(); idim++)
-        value += dbtgt->getLocVariable(ELoc::TGTE, iech, idim) *
-                 dbtgt->getSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, nvar);
-      dbtgt->setSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, nvar, value);
     }
 }
 

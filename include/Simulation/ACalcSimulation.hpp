@@ -32,11 +32,10 @@ public:
 protected:
   bool _check() override;
   bool _preprocess() override;
-  // virtual Id _compute(Db* db, Id icase, Id shift);
+  virtual Id _compute(Db* db, Id icase, Id shift);
 
-  Id _compute2(Db* db, Id icase, Id shift);
-  void _computeGradient2(Db* dbgrd, double delta);
-  void _computeTangent2(Db* dbtgt, double delta);
+  void _computeGradient(Db* dbgrd, double delta);
+  void _computeTangent(Db* dbtgt, double delta);
 
 private:
   Id _nbsimu;

@@ -80,9 +80,9 @@ private:
   bool _postprocess() override;
   void _rollback() override;
 
-  bool _resize();
-  Id _compute(Db* db, Id icase, Id shift);
+  Id _compute(Db* db, Id icase, Id shift) override;
 
+  bool _resize();
   void _computePoint(Db* db,
                      Id icase,
                      Id shift,
@@ -98,8 +98,6 @@ private:
                     const VectorBool& activeArray,
                     VectorDouble& tab);
   void _computeNugget(Db* db, Id icase);
-  void _computeGradient(Db* dbgrd, double delta);
-  void _computeTangent(Db* dbtgt, double delta);
   void _meanCorrect(Db* dbout, Id icase);
   void _difference(Db* dbin,
                    Model* model,

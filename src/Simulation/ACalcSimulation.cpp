@@ -42,7 +42,7 @@ bool ACalcSimulation::_preprocess()
   return ACalcInterpolator::_preprocess();
 }
 
-Id ACalcSimulation::_compute2(Db* db, Id icase, Id shift)
+Id ACalcSimulation::_compute(Db* db, Id icase, Id shift)
 {
   DECLARE_UNUSED(db);
   DECLARE_UNUSED(icase);
@@ -65,7 +65,7 @@ Id ACalcSimulation::_compute2(Db* db, Id icase, Id shift)
  ** \remarks At the end, the simulated gradient is stored at first point
  **
  *****************************************************************************/
-void ACalcSimulation::_computeGradient2(Db* dbgrd, double delta)
+void ACalcSimulation::_computeGradient(Db* dbgrd, double delta)
 {
   Id jsimu;
   Id icase               = 0;
@@ -81,7 +81,7 @@ void ACalcSimulation::_computeGradient2(Db* dbgrd, double delta)
     for (Id isimu = 0; isimu < nbsimu; isimu++)
     {
       jsimu = isimu + idim * nbsimu;
-      _compute2(dbgrd, icase, jsimu);
+      _compute(dbgrd, icase, jsimu);
     }
 
     /* Shift the information */
@@ -95,7 +95,7 @@ void ACalcSimulation::_computeGradient2(Db* dbgrd, double delta)
     for (Id isimu = 0; isimu < nbsimu; isimu++)
     {
       jsimu = isimu + idim * nbsimu + ndim * nbsimu;
-      _compute2(dbgrd, icase, jsimu);
+      _compute(dbgrd, icase, jsimu);
     }
 
     /* Un-Shift the information */
@@ -136,7 +136,7 @@ void ACalcSimulation::_computeGradient2(Db* dbgrd, double delta)
  ** \remarks simulation outcome variables as for the gradients
  **
  *****************************************************************************/
-void ACalcSimulation::_computeTangent2(Db* dbtgt, double delta)
+void ACalcSimulation::_computeTangent(Db* dbtgt, double delta)
 {
   Id icase               = 0;
   auto nvar              = _getNVar();
@@ -145,7 +145,7 @@ void ACalcSimulation::_computeTangent2(Db* dbtgt, double delta)
 
   /* Perform the simulation of the gradients at tangent points */
 
-  _computeGradient2(dbtgt, delta);
+  _computeGradient(dbtgt, delta);
 
   /* Calculate the simulated tangent */
 
