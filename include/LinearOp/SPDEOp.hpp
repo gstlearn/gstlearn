@@ -89,7 +89,11 @@ public:
                                  const VectorDouble& driftCoeffs);
   static Id centerDataByMeanVec(VectorDouble& Z,
                                 const VectorDouble& meanVec);
-  void setVerbose(bool v) { _verbose = v; }
+  void setVerbose(bool v)
+  {
+    _verbose = v;
+    _solver->setVerbose(v);
+  }
 
 #ifndef SWIG
 
