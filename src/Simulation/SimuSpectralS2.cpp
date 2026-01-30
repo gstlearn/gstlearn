@@ -26,8 +26,8 @@ namespace gstlrn
  * -----------------------------------------
  */
 
-SimuSpectralS2::SimuSpectralS2(const ACov* cova)
-  : ASimuSpectral(cova)
+SimuSpectralS2::SimuSpectralS2(const ACov* cova, Id ns, Id nd)
+  : ASimuSpectral(cova, ns, nd)
   , _spSims()
 {
 }
@@ -42,9 +42,8 @@ SimuSpectralS2& SimuSpectralS2::operator=(const SimuSpectralS2& r)
 {
   if (this != &r)
   {
-    _cova       = r._cova;
-    _isPrepared = r._isPrepared;
-    _spSims     = r._spSims;
+    ASimuSpectral::operator=(r);
+    _spSims = r._spSims;
   }
   return *this;
 }
@@ -56,17 +55,14 @@ SimuSpectralS2::~SimuSpectralS2()
 /**
  * Simulate the spectrum components for Rn
  *
- * @param ns Number of components
- * @param nd Maxium order of the spectrum on S2
  * @param cov0 the auxiliary covariance not used on S2
  * @param verbose Verbose flag
  */
-Id SimuSpectralS2::_simulate(Id ns,
-                             Id nd,
-                             const ACov* cov0,
-                             bool verbose)
+Id SimuSpectralS2::_simulate(const ACov* cov0, bool verbose)
 {
   DECLARE_UNUSED(cov0)
+  Id ns = _getNs();
+  Id nd = _getNd();
   if (ns <= 0)
   {
     messerr("The number of simulated harmonic components should be positive");
@@ -79,14 +75,14 @@ Id SimuSpectralS2::_simulate(Id ns,
       messerr("Simulation of the harmonic components is not implemented for the auxiliary covariance");
       return 1;
     }
-    if (_cova->getNVar() > 1)
+    if (_getNVar() > 1)
     {
       messerr("The covariance should be scalar on S2");
       return 1;
     }
   }
-  Id ndim = _cova->getNDim();
-  Id nvar = _cova->getNVar();
+  Id ndim = _getNDim();
+  Id nvar = _getNVar();
   // Optional printout
   if (verbose)
   {

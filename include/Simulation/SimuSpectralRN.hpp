@@ -28,7 +28,7 @@ class ASimuSpectral;
 class GSTLEARN_EXPORT SimuSpectralRN: public ASimuSpectral
 {
 public:
-  SimuSpectralRN(const ACov* cova = nullptr);
+  SimuSpectralRN(const ACov* cova = nullptr, Id ns = 10000, Id nd = 100);
   SimuSpectralRN(const SimuSpectralRN& r);
   SimuSpectralRN& operator=(const SimuSpectralRN& r);
   virtual ~SimuSpectralRN();
@@ -37,9 +37,7 @@ public:
   MatrixDense getGamma() { return _gamma; };
 
 protected:
-  Id _simulate(Id ns,
-               Id nd            = 100,
-               const ACov* cov0 = nullptr,
+  Id _simulate(const ACov* cov0 = nullptr,
                bool verbose     = false) override;
   Id _compute(Db* dbout,
               Id iuid      = 0,

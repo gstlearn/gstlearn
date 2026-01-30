@@ -36,15 +36,13 @@ class ASimuSpectral;
 class GSTLEARN_EXPORT SimuSpectralS2: public ASimuSpectral
 {
 public:
-  SimuSpectralS2(const ACov* cova = nullptr);
+  SimuSpectralS2(const ACov* cova = nullptr, Id ns = 10000, Id nd = 100);
   SimuSpectralS2(const SimuSpectralS2& r);
   SimuSpectralS2& operator=(const SimuSpectralS2& r);
   virtual ~SimuSpectralS2();
 
 protected:
-  Id _simulate(Id ns,
-               Id nd            = 100,
-               const ACov* cov0 = nullptr,
+  Id _simulate(const ACov* cov0 = nullptr,
                bool verbose     = false) override;
   Id _compute(Db* dbout,
               Id iuid      = 0,

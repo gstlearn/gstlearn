@@ -26,22 +26,19 @@ class ModelGeneric;
 class GSTLEARN_EXPORT ASimuSpectral
 {
 public:
-  ASimuSpectral(const ACov* cova = nullptr);
+  ASimuSpectral(const ACov* cova = nullptr, Id ns = 10000, Id nd = 100);
   ASimuSpectral(const ASimuSpectral& r);
   ASimuSpectral& operator=(const ASimuSpectral& r);
   virtual ~ASimuSpectral();
+
   void setCov(const ACov*& cova) { _cova = cova; };
   const ACov* getCov() { return _cova; };
   bool isPrepared() const { return _isPrepared; };
   VectorDouble getPhi() { return _phi; };
-  Id getNs() const;
-  Id getNDim() const;
-  Id getNVar() const;
-  Id simulate(Id ns,
-              Id seed          = 4273,
+
+  Id simulate(Id seed          = 4273,
               bool verbose     = false,
-              const ACov* cov0 = nullptr,
-              Id nd            = 100);
+              const ACov* cov0 = nullptr);
   Id compute(Db* dbout,
              Id iuid                         = 0,
              bool verbose                    = false,
@@ -49,19 +46,23 @@ public:
              const String& qualifier         = "simu");
 
 protected:
-  virtual Id _simulate(Id ns,
-                       Id nd            = 100,
-                       const ACov* cov0 = nullptr,
+  virtual Id _simulate(const ACov* cov0 = nullptr,
                        bool verbose     = false) = 0;
 
   virtual Id _compute(Db* dbout,
                       Id iuid      = 0,
                       bool verbose = false) = 0;
+  Id _getNs() const { return _ns; };
+  Id _getNd() const { return _nd; };
+  Id _getNDim() const;
+  Id _getNVar() const;
 
 protected:
   bool _isPrepared;
+  Id _ns;            // Number of spectral components
+  Id _nd;            // Maximum number of spectral orders on
   VectorDouble _phi; // Vector length=_ns
-  const ACov* _cova; // Storing the poIder (not to be deleted)
+  const ACov* _cova; // Storing the pointer (not to be deleted)
 };
 
 GSTLEARN_EXPORT Id simuSpectral(Db* dbin,

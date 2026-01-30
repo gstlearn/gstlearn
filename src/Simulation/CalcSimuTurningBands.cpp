@@ -1323,24 +1323,20 @@ void CalcSimuTurningBands::_getOmegaPhi(Id ibs,
  *****************************************************************************/
 void CalcSimuTurningBands::_computeNugget(Db* db, Id icase)
 {
+  /* Do nothing if there is no nugget effect in the model */
+  if (!_modelLocal->hasNugget()) return;
+
   Id nech                = db->getNSample();
   auto ncova             = _getNCov();
   auto nvar              = _getNVar();
   auto nbsimu            = getNbSimu();
   VectorBool activeArray = db->getActiveArray();
 
-  /* Do nothing if there is no nugget effect in the model */
-
-  bool flag_used = false;
-  for (Id is = 0; is < ncova && flag_used == 0; is++)
-  {
-    if (_modelLocal->getCovType(is) == ECov::NUGGET) flag_used = true;
-  }
-  if (!flag_used) return;
+  // Memorize the seed
+  Id mem_seed = law_get_random_seed();
 
   /* Performing the simulation */
 
-  Id mem_seed = law_get_random_seed();
   for (Id isimu = 0; isimu < nbsimu; isimu++)
     for (Id ivar = 0; ivar < nvar; ivar++)
       for (Id is = 0; is < ncova; is++)

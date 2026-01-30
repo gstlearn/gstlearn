@@ -28,8 +28,10 @@
 
 namespace gstlrn
 {
-ASimuSpectral::ASimuSpectral(const ACov* cova)
+ASimuSpectral::ASimuSpectral(const ACov* cova, Id ns, Id nd)
   : _isPrepared(false)
+  , _ns(ns)
+  , _nd(nd)
   , _phi()
   , _cova(cova)
 {
@@ -37,6 +39,8 @@ ASimuSpectral::ASimuSpectral(const ACov* cova)
 
 ASimuSpectral::ASimuSpectral(const ASimuSpectral& r)
   : _isPrepared(r._isPrepared)
+  , _ns(r._ns)
+  , _nd(r._nd)
   , _phi(r._phi)
   , _cova(r._cova)
 {
@@ -47,6 +51,8 @@ ASimuSpectral& ASimuSpectral::operator=(const ASimuSpectral& r)
   if (this != &r)
   {
     _isPrepared = r._isPrepared;
+    _ns         = r._ns;
+    _nd         = r._nd;
     _phi        = r._phi;
     _cova       = r._cova;
   }
@@ -57,29 +63,25 @@ ASimuSpectral::~ASimuSpectral()
 {
 }
 
-Id ASimuSpectral::getNs() const
+Id ASimuSpectral::_getNDim() const
 {
-  return _phi.length();
-}
-Id ASimuSpectral::getNDim() const
-{
+  if (_cova == nullptr) return 0;
   return _cova->getNDim();
 }
-Id ASimuSpectral::getNVar() const
+Id ASimuSpectral::_getNVar() const
 {
+  if (_cova == nullptr) return 0;
   return _cova->getNVar();
 }
 
 /**
  * Simulate the spectrum components for Rn or S2 for one simulation
  *
- * @param ns Number of components
  * @param seed Seed for random number generation: avoid setting the seed)
  * @param verbose Verbose flag
  * @param cov0 the auxiliary covariance function used for importance sampling
- * @param nd Maximum order of the spectrum on S2
  */
-Id ASimuSpectral::simulate(Id ns, Id seed, bool verbose, const ACov* cov0, Id nd)
+Id ASimuSpectral::simulate(Id seed, bool verbose, const ACov* cov0)
 {
   if (_cova == nullptr)
   {
@@ -93,6 +95,7 @@ Id ASimuSpectral::simulate(Id ns, Id seed, bool verbose, const ACov* cov0, Id nd
   }
   Id ndim = _cova->getNDim();
   Id nvar = _cova->getNVar();
+  Id ns   = _getNs();
   if (ns <= 0)
   {
     messerr("The number of simulated harmonic components should be positive");
@@ -135,7 +138,7 @@ Id ASimuSpectral::simulate(Id ns, Id seed, bool verbose, const ACov* cov0, Id nd
     _phi[is] = pi2 * law_uniform();
 
   // simulation of the random frequencies
-  if (_simulate(ns, nd, cov0, verbose) != 0) return 1;
+  if (_simulate(cov0, verbose) != 0) return 1;
   _isPrepared = true;
   return 0;
 }
@@ -154,10 +157,10 @@ Id ASimuSpectral::compute(Db* dbout, Id iuid, bool verbose, const NamingConventi
 {
   Id ndim              = dbout->getNDim();
   Id nech              = dbout->getNSample(true);
-  Id nvar              = _cova->getNVar();
+  Id nvar              = _getNVar();
   bool flagNewVariable = (iuid <= 0);
 
-  if (ndim != _cova->getNDim())
+  if (ndim != _getNDim())
   {
     messerr("The Space dimension of 'dbout'(%d) should match the one of Model(%d)", ndim);
     return 1;
@@ -284,11 +287,11 @@ Id simuSpectral(Db* dbin,
   }
   else if (getDefaultSpaceType() == ESpaceType::RN)
   {
-    simu = std::make_unique<SimuSpectralRN>(cova);
+    simu = std::make_unique<SimuSpectralRN>(cova, ns, nd);
   }
   else
   {
-    simu = std::make_unique<SimuSpectralS2>(cova);
+    simu = std::make_unique<SimuSpectralS2>(cova, ns, nd);
   }
 
   String prefix(namconv.getPrefix());
@@ -300,7 +303,7 @@ Id simuSpectral(Db* dbin,
   {
     if (verbose)
       messerr(">>> computing simulation %d", isimu + 1);
-    if (simu->simulate(ns, 0, verbose, cov0, nd)) return 1;
+    if (simu->simulate(0, verbose, cov0)) return 1;
     if (simu->compute(dbout, iuid + isimu * nvar, verbose)) return 1;
 
     // Modify the name of the output

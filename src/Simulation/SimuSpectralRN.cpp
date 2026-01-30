@@ -8,12 +8,12 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Simulation/SimuSpectralRN.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Db/Db.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Model/Model.hpp"
 #include "Simulation/ASimuSpectral.hpp"
-#include "Simulation/SimuSpectralRN.hpp"
 #include "Simulation/SpectrumRN.hpp"
 #include "Stats/Classical.hpp"
 
@@ -27,8 +27,8 @@ namespace gstlrn
  * Spectral simulation on Rn
  * ---------------------------------
  */
-SimuSpectralRN::SimuSpectralRN(const ACov* cova)
-  : ASimuSpectral(cova)
+SimuSpectralRN::SimuSpectralRN(const ACov* cova, Id ns, Id nd)
+  : ASimuSpectral(cova, ns, nd)
   , _gamma()
   , _omega()
 {
@@ -45,11 +45,9 @@ SimuSpectralRN& SimuSpectralRN::operator=(const SimuSpectralRN& r)
 {
   if (this != &r)
   {
-    _cova       = r._cova;
-    _isPrepared = r._isPrepared;
-    _phi        = r._phi;
-    _gamma      = r._gamma;
-    _omega      = r._omega;
+    ASimuSpectral::operator=(r);
+    _gamma = r._gamma;
+    _omega = r._omega;
   }
   return *this;
 }
@@ -61,17 +59,12 @@ SimuSpectralRN::~SimuSpectralRN()
 /**
  * Simulate the spectrum components for Rn
  *
- * @param ns Number of components
- * @param nd not used (for S2 only)
  * @param cov0 the auxiliary covariance function used for importance sampling
  * @param verbose Verbose flag
  */
-Id SimuSpectralRN::_simulate(Id ns,
-                             Id nd,
-                             const ACov* cov0,
-                             bool verbose)
+Id SimuSpectralRN::_simulate(const ACov* cov0, bool verbose)
 {
-  DECLARE_UNUSED(nd)
+  Id ns = _getNs();
   if (ns <= 0)
   {
     messerr("The number of simulated harmonic components should be positive");
@@ -90,8 +83,8 @@ Id SimuSpectralRN::_simulate(Id ns,
       return 1;
     }
   }
-  Id ndim = _cova->getNDim();
-  Id nvar = _cova->getNVar();
+  Id ndim = _getNDim();
+  Id nvar = _getNVar();
   Id ierr = 0;
   // Optional printout
   if (verbose)
@@ -141,12 +134,12 @@ Id SimuSpectralRN::_compute(Db* dbout, Id iuid, bool verbose)
     messerr("You should run 'simulate' beforehand");
     return 1;
   }
-  Id nvar = _cova->getNVar();
+  Id nvar = _getNVar();
   Id ndim = dbout->getNDim();
   VectorDouble coor(ndim);
   VectorInt ranks;
   dbout->getSampleRanksPerVariable(ranks);
-  Id ns   = getNs();
+  Id ns   = _getNs();
   Id nech = ranks.length();
   if (nech <= 0)
   {

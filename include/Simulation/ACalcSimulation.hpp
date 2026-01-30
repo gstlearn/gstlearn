@@ -32,6 +32,7 @@ public:
 protected:
   bool _check() override;
   bool _preprocess() override;
+  // Next functions should be mandatory for derived classes. Not done yet
   virtual Id _compute(Db* db, Id icase, Id shift);
 
   void _computeGradient(Db* dbgrd, double delta);
