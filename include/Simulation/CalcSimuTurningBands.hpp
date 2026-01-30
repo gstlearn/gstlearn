@@ -83,8 +83,20 @@ private:
   bool _resize();
   Id _compute(Db* db, Id icase, Id shift);
 
-  void _computePoint(Db* db, Id icase, Id shift);
-  void _computeGrid(DbGrid* db, Id icase, Id shift);
+  void _computePoint(Db* db,
+                     Id icase,
+                     Id shift,
+                     Id isimu,
+                     Id is,
+                     const VectorBool& activeArray,
+                     VectorDouble& tab);
+  void _computeGrid(DbGrid* db,
+                    Id icase,
+                    Id shift,
+                    Id isimu,
+                    Id is,
+                    const VectorBool& activeArray,
+                    VectorDouble& tab);
   void _computeNugget(Db* db, Id icase);
   void _computeGradient(Db* dbgrd, double delta);
   void _computeTangent(Db* dbtgt, double delta);

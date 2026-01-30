@@ -993,12 +993,31 @@ void CalcSimuTurningBands::_spreadSpectralOnPoint(const Db* db,
  */
 Id CalcSimuTurningBands::_compute(Db* db, Id icase, Id shift)
 {
-  auto* dbgrid = dynamic_cast<DbGrid*>(db);
-  if (dbgrid != nullptr)
-    _computeGrid(dbgrid, icase, shift);
-  else
-    _computePoint(db, icase, shift);
+  auto nech   = db->getNSample();
+  auto nbsimu = getNbSimu();
+  auto ncova  = _getNCov();
 
+  VectorDouble tab(nech, 0.);
+  VectorBool activeArray = db->getActiveArray();
+  Id mem_seed            = law_get_random_seed();
+
+  auto* dbgrid = dynamic_cast<DbGrid*>(db);
+  for (Id isimu = 0; isimu < nbsimu; isimu++)
+  {
+    for (Id is = 0; is < ncova; is++)
+    {
+      if (dbgrid != nullptr)
+        _computeGrid(dbgrid, icase, shift, isimu, is, activeArray, tab);
+      else
+        _computePoint(db, icase, shift, isimu, is, activeArray, tab);
+    }
+
+    // Normation of the results
+    _normeResults(db, icase, shift, isimu, activeArray);
+  }
+
+  // Set the initial seed back
+  law_set_random_seed(mem_seed);
   return 0;
 }
 
@@ -1142,20 +1161,20 @@ Id CalcSimuTurningBands::_getCorrec(const ECov& type, Id is, Id ibs, TurningBand
  ** \param[in]  db         Db structure
  ** \param[in]  icase      Rank of PGS or GRF
  ** \param[in]  shift      Shift before writing the simulation result
+ ** \param[in]  isimu      Simulation index
+ ** \param[in]  is         Covariance index
  **
  *****************************************************************************/
-void CalcSimuTurningBands::_computePoint(Db* db, Id icase, Id shift)
+void CalcSimuTurningBands::_computePoint(Db* db,
+                                         Id icase,
+                                         Id shift,
+                                         Id isimu,
+                                         Id is,
+                                         const VectorBool& activeArray,
+                                         VectorDouble& tab)
 {
-  auto nech   = db->getNSample();
-  auto ncova  = _getNCov();
   auto nvar   = _getNVar();
-  auto nbsimu = getNbSimu();
   auto nbtuba = getNbtuba();
-
-  /* Core allocation */
-
-  VectorDouble tab(nech, 0.);
-  VectorBool activeArray = db->getActiveArray();
   TurningBandOperate operTB;
   double correc;
 
@@ -1163,42 +1182,32 @@ void CalcSimuTurningBands::_computePoint(Db* db, Id icase, Id shift)
   /* Performing the simulation */
   /*****************************/
 
-  Id mem_seed = law_get_random_seed();
-  for (Id isimu = 0; isimu < nbsimu; isimu++)
-    for (Id is = 0; is < ncova; is++)
-      for (Id ivar = 0; ivar < nvar; ivar++)
-        for (Id ib = 0; ib < nbtuba; ib++)
-        {
-          Id ibs       = _getIBS(isimu, is, ib);
-          double scale = _getCodirScale(ibs);
-          double param = _modelLocal->getParam(is);
-          ECov type    = _particularCase(_modelLocal->getCovType(is), param);
-          operTB.reset();
-          operTB.setScale(scale);
-          operTB.setFlagScaled(false);
+  for (Id ivar = 0; ivar < nvar; ivar++)
+    for (Id ib = 0; ib < nbtuba; ib++)
+    {
+      Id ibs       = _getIBS(isimu, is, ib);
+      double scale = _getCodirScale(ibs);
+      double param = _modelLocal->getParam(is);
+      ECov type    = _particularCase(_modelLocal->getCovType(is), param);
+      operTB.reset();
+      operTB.setScale(scale);
+      operTB.setFlagScaled(false);
 
-          law_set_random_seed(_getSeedBand(ivar, is, ib, isimu));
+      law_set_random_seed(_getSeedBand(ivar, is, ib, isimu));
 
-          Id optionSpectral = _getCorrec(type, is, ibs, operTB, correc);
+      Id optionSpectral = _getCorrec(type, is, ibs, operTB, correc);
 
-          if (type == ECov::NUGGET) continue;
+      if (type == ECov::NUGGET) continue;
 
-          // Spreading the values on the points within 'tab'
-          if (optionSpectral == 1)
-            _spreadSpectralOnPoint(db, ibs, is, operTB, activeArray, tab);
-          else
-            _spreadRegularOnPoint(db, ibs, is, operTB, activeArray, tab);
+      // Spreading the values on the points within 'tab'
+      if (optionSpectral == 1)
+        _spreadSpectralOnPoint(db, ibs, is, operTB, activeArray, tab);
+      else
+        _spreadRegularOnPoint(db, ibs, is, operTB, activeArray, tab);
 
-          // Cumulate 'tab' into the simulation results
-          _cumulateResult(db, icase, shift, ivar, isimu, is, correc, activeArray, tab);
-        }
-
-  // Normation of the results
-  for (int isimu = 0; isimu < nbsimu; isimu++)
-    _normeResults(db, icase, shift, isimu, activeArray);
-
-  // Set the initial seed back
-  law_set_random_seed(mem_seed);
+      // Cumulate 'tab' into the simulation results
+      _cumulateResult(db, icase, shift, ivar, isimu, is, correc, activeArray, tab);
+    }
 }
 
 /*****************************************************************************/
@@ -1209,20 +1218,20 @@ void CalcSimuTurningBands::_computePoint(Db* db, Id icase, Id shift)
  ** \param[in]  dbgrid     Db Grid structure
  ** \param[in]  icase      Rank of PGS or GRF
  ** \param[in]  shift      Shift before writing the simulation result
+ ** \param[in]  isimu      Simulation index
+ ** \param[in]  is         Covariance index
  **
  *****************************************************************************/
-void CalcSimuTurningBands::_computeGrid(DbGrid* dbgrid, Id icase, Id shift)
+void CalcSimuTurningBands::_computeGrid(DbGrid* dbgrid,
+                                        Id icase,
+                                        Id shift,
+                                        Id isimu,
+                                        Id is,
+                                        const VectorBool& activeArray,
+                                        VectorDouble& tab)
 {
-  auto nech              = dbgrid->getNSample();
-  auto nbsimu            = getNbSimu();
-  auto nvar              = _getNVar();
-  auto ncova             = _getNCov();
-  auto nbtuba            = getNbtuba();
-  VectorBool activeArray = dbgrid->getActiveArray();
-
-  /* Core allocation */
-
-  VectorDouble tab(nech, 0.);
+  auto nvar   = _getNVar();
+  auto nbtuba = getNbtuba();
   TurningBandOperate operTB;
   double correc;
 
@@ -1230,42 +1239,32 @@ void CalcSimuTurningBands::_computeGrid(DbGrid* dbgrid, Id icase, Id shift)
   /* Performing the simulation */
   /*****************************/
 
-  Id mem_seed = law_get_random_seed();
-  for (Id isimu = 0; isimu < nbsimu; isimu++)
-    for (Id is = 0; is < ncova; is++)
-      for (Id ivar = 0; ivar < nvar; ivar++)
-        for (Id ib = 0; ib < nbtuba; ib++)
-        {
-          Id ibs       = _getIBS(isimu, is, ib);
-          double scale = _getCodirScale(ibs);
-          double param = _modelLocal->getParam(is);
-          ECov type    = _particularCase(_modelLocal->getCovType(is), param);
-          operTB.reset();
-          operTB.setScale(scale);
-          operTB.setFlagScaled(true);
+  for (Id ivar = 0; ivar < nvar; ivar++)
+    for (Id ib = 0; ib < nbtuba; ib++)
+    {
+      Id ibs       = _getIBS(isimu, is, ib);
+      double scale = _getCodirScale(ibs);
+      double param = _modelLocal->getParam(is);
+      ECov type    = _particularCase(_modelLocal->getCovType(is), param);
+      operTB.reset();
+      operTB.setScale(scale);
+      operTB.setFlagScaled(true);
 
-          law_set_random_seed(_getSeedBand(ivar, is, ib, isimu));
+      law_set_random_seed(_getSeedBand(ivar, is, ib, isimu));
 
-          Id optionSpectral = _getCorrec(type, is, ibs, operTB, correc);
+      Id optionSpectral = _getCorrec(type, is, ibs, operTB, correc);
 
-          if (type == ECov::NUGGET) continue;
+      if (type == ECov::NUGGET) continue;
 
-          // Spreading the values on the grid within 'tab'
-          if (optionSpectral == 1)
-            _spreadSpectralOnGrid(dbgrid, ibs, is, operTB, activeArray, tab);
-          else
-            _spreadRegularOnGrid(dbgrid, ibs, is, operTB, activeArray, tab);
+      // Spreading the values on the grid within 'tab'
+      if (optionSpectral == 1)
+        _spreadSpectralOnGrid(dbgrid, ibs, is, operTB, activeArray, tab);
+      else
+        _spreadRegularOnGrid(dbgrid, ibs, is, operTB, activeArray, tab);
 
-          // Cumulate 'tab' into the simulation results
-          _cumulateResult(dbgrid, icase, shift, ivar, isimu, is, correc, activeArray, tab);
-        }
-
-  // Normation of the results
-  for (int isimu = 0; isimu < nbsimu; isimu++)
-    _normeResults(dbgrid, icase, shift, isimu, activeArray);
-
-  // Set the initial seed back
-  law_set_random_seed(mem_seed);
+      // Cumulate 'tab' into the simulation results
+      _cumulateResult(dbgrid, icase, shift, ivar, isimu, is, correc, activeArray, tab);
+    }
 }
 
 /*****************************************************************************/
