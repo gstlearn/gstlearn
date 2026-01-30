@@ -13,11 +13,14 @@
 #include "Basic/Grid.hpp"
 #include "Basic/Indirection.hpp"
 #include "Basic/VectorNumT.hpp"
+#include "Basic/OptCustom.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "LinearOp/AShiftOp.hpp"
 #include "LinearOp/ShiftOpMatrix.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "geoslib_define.h"
+
+#include <omp.h>
 
 namespace gstlrn
 {
@@ -87,10 +90,14 @@ Id ShiftOpStencil::_addToDest(const constvect inv, vect outv) const
   Id size                     = static_cast<Id>(inv.size());
   const Indirection& indirect = _mesh->getGridIndirect();
 
+  auto nbthread = static_cast<I32>(OptCustom::query("ompthreads", 1));
+  omp_set_num_threads(nbthread);
+
   double total;
   if (!indirect.isDefined())
   {
     // Use the fast option when no selection is defined on the Grid
+#pragma omp parallel for private(total)
     for (Id ic = 0; ic < size; ic++)
     {
       total = 0.;
@@ -112,8 +119,13 @@ Id ShiftOpStencil::_addToDest(const constvect inv, vect outv) const
     const Grid& grid = _mesh->getGrid();
     Id ndim          = _mesh->getNDim();
 
+#pragma omp parallel private(total)
+    {
     VectorInt center(ndim);
     VectorInt local(ndim);
+    // #pragma omp parallel for private(total, center, local) crashes, probably
+    // because center/local are not POD, so use a parallel block followed by for.
+#pragma omp for
     for (Id ic = 0; ic < size; ic++)
     {
       total = 0.;
@@ -134,6 +146,7 @@ Id ShiftOpStencil::_addToDest(const constvect inv, vect outv) const
       }
       outv[ic] = total;
     }
+    } // omp parallel
   }
   return 0;
 }
