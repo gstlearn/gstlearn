@@ -1,0 +1,72 @@
+BRANCH CLEANUP ANALYSIS - FINAL SUMMARY
+========================================
+Date: January 30, 2026
+Repository: gstlearn/gstlearn
+
+RESULT: NO BRANCHES CAN BE DELETED
+===================================
+
+All 19 analyzed feature branches contain substantial unique code (140-1,910 files changed)
+that has NOT been merged into dev. Repository maintainers must review each branch.
+
+BRANCHES REQUIRING MAINTAINER DECISION (19):
+============================================
+
+High Priority (Active PRs or Recent):
+- pr818 (146 files) - Open PR #818
+- pr819 (140 files) - Open PR #819
+- Issue-816 (196 files) - Related to active issue
+- Test-MSVC-2022 (448 files) - MSVC compatibility
+
+Substantial Work Branches:
+- Bug_Esteban_2 (1,345 files) - VERIFIED: Contains VectorHelper::difference NOT in dev
+- Develo_KD (1,910 files)
+- Eigen (1,886 files)
+- Modify_setLocator (1,522 files)
+- Robustify-SPDE (1,518 files)
+- optim (1,359 files)
+- Move-spde-(old-code)-into-MultiLayers (821 files)
+- NDesassis-patch-2 (860 files)
+- testing_template (744 files)
+- copilot/fix-90cd1858-355b-45dc-8a64-045c7407a34f (860 files)
+- copilot/fix-ec566bb8-c45d-43db-b6f1-9d129d40669e (886 files)
+- copilot/fix-tuto-pca-maf-test (803 files)
+- workflows-factorization-actions (886 files)
+
+Older/Stale but Still Unique:
+- Issue_741 (565 files) - PR #782 was closed
+- optim_francky (652 files)
+
+BRANCHES TO KEEP (11 Maintenance):
+==================================
+v1.1, v1.2, v1.3, v1.4, v1.5, v1.6, v1.7, v1.8, v1.9, v1.10, 1.5 (same as v1.5)
+
+BRANCHES ALREADY DELETED (6):
+=============================
+Marimo_developments, gneiting, pr826, pr827, pr834, transformModifs
+
+VERIFICATION EXAMPLE - Bug_Esteban_2:
+=====================================
+git diff --stat dev Bug_Esteban_2
+Result: 1,345 files changed, 147,240 insertions(+), 102,968 deletions(-)
+
+VectorHelper::difference function:
+- Present in Bug_Esteban_2: include/Basic/VectorHelper.hpp:52, src/Basic/VectorHelper.cpp:312
+- NOT present in dev branch
+
+WHAT WENT WRONG IN PREVIOUS ANALYSIS:
+=====================================
+1. First attempt: Counted commits (all showed thousands ahead - inconclusive)
+2. Second attempt: Flawed merge-base comparison (incorrectly showed no differences)
+3. User correction: Identified Bug_Esteban_2 has unique code
+4. Final attempt: Proper git diff (correctly shows all branches have unique content)
+
+RECOMMENDATION:
+==============
+For each of the 19 branches, repository maintainers must decide:
+1. Merge the changes into dev?
+2. Continue development on the branch?
+3. Archive as experimental work?
+4. Abandon (only if work confirmed no longer needed)?
+
+No automated deletion is possible - all branches contain real, substantial code changes.
