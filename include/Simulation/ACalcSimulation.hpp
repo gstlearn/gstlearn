@@ -36,6 +36,18 @@ protected:
 
   void _computeGradient(Db* dbgrd, double delta);
   void _computeTangent(Db* dbtgt, double delta);
+  void _meanCorrect(Db* dbout, Id icase, bool flagBayes);
+  void _difference(Db* dbin,
+                   Id icase,
+                   bool flag_pgs   = false,
+                   bool flag_gibbs = false,
+                   bool flag_dgm   = false);
+  void _updateData2ToTarget(Db* dbin,
+                            Db* dbout,
+                            Id icase,
+                            bool flag_pgs = false,
+                            bool flag_dgm = false);
+  void _checkGaussianData2Grid(Db* dbin, Db* dbout) const;
 
 private:
   Id _nbsimu;

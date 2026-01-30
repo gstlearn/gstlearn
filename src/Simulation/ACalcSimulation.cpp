@@ -9,7 +9,12 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Simulation/ACalcSimulation.hpp"
+#include "Anamorphosis/AnamHermite.hpp"
+#include "Basic/Law.hpp"
+#include "Basic/OptDbg.hpp"
 #include "Calculators/ACalcInterpolator.hpp"
+#include "Model/Model.hpp"
+#include "geoslib_old_f.h"
 
 namespace gstlrn
 {
@@ -160,6 +165,340 @@ void ACalcSimulation::_computeTangent(Db* dbtgt, double delta)
                  dbtgt->getSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, nvar);
       dbtgt->setSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, nvar, value);
     }
+}
+
+/****************************************************************************/
+/*!
+ **  Correct for the mean in the case of non-conditional simulations
+ **
+ ** \param[in]  dbout     Output Db structure
+ ** \param[in]  icase     Rank of PGS or GRF
+ ** \param[in]  flagBayes Flag indicating if Bayesian updating is performed
+ **
+ *****************************************************************************/
+void ACalcSimulation::_meanCorrect(Db* dbout, Id icase, bool flagBayes)
+{
+  if (flagBayes) return;
+  auto nbsimu = getNbSimu();
+  auto nvar   = _getNVar();
+  Id nech     = dbout->getNSample();
+
+  VectorBool activeArray = dbout->getActiveArray();
+
+  // Loop on the simulations
+  for (Id isimu = 0; isimu < nbsimu; isimu++)
+  {
+
+    // Loop on the variables
+    for (Id ivar = 0; ivar < nvar; ivar++)
+    {
+
+      // Loop on the samples
+      for (Id iech = 0; iech < nech; iech++)
+      {
+        if (!activeArray[iech]) continue;
+        dbout->updSimvar(ELoc::SIMU, iech, isimu, ivar, icase, nbsimu,
+                         nvar, EOperator::ADD, getModel()->getMean(ivar));
+      }
+    }
+  }
+}
+
+/*****************************************************************************/
+/*!
+ **  Convert the non conditional simulations at the data points
+ **  into simulation error
+ **
+ ** \param[in]  dbin       Input Db structure
+ ** \param[in]  icase      Case for PGS or GRF
+ ** \param[in]  flag_pgs   1 if called from PGS
+ ** \param[in]  flag_gibbs 1 if called from Gibbs
+ ** \param[in]  flag_dgm   1 if in the Discrete Gaussian Model
+ **
+ *****************************************************************************/
+void ACalcSimulation::_difference(Db* dbin,
+                                  Id icase,
+                                  bool flag_pgs,
+                                  bool flag_gibbs,
+                                  bool flag_dgm)
+{
+  auto nbsimu = getNbSimu();
+  auto nvar   = _getNVar();
+  double r    = 1.;
+  if (flag_dgm)
+  {
+    auto* modelLocal  = dynamic_cast<Model*>(getModel());
+    const auto* anamH = dynamic_cast<const AnamHermite*>(modelLocal->getAnam());
+    r                 = anamH->getRCoef();
+  }
+
+  /* Transform the non conditional simulation into simulation error */
+
+  if (!flag_pgs)
+  {
+    /********************************/
+    /* Standard case (multivariate) */
+    /********************************/
+
+    for (Id iech = 0; iech < dbin->getNSample(); iech++)
+    {
+      if (!dbin->isActive(iech)) continue;
+      for (Id ivar = 0; ivar < nvar; ivar++)
+      {
+        double zvar = TEST;
+        if (!flag_gibbs)
+        {
+          zvar = dbin->getZVariable(iech, ivar);
+        }
+        for (Id isimu = 0; isimu < nbsimu; isimu++)
+        {
+          if (flag_gibbs)
+          {
+            zvar = dbin->getSimvar(ELoc::GAUSFAC, iech, isimu, ivar, 0, nbsimu,
+                                   nvar);
+            if (OptDbg::query(EDbg::SIMULATE))
+              printElement(zvar);
+          }
+          double simval = dbin->getSimvar(ELoc::SIMU, iech, isimu, ivar, icase,
+                                          nbsimu, nvar);
+          if (flag_dgm)
+          {
+            simval = r * simval + sqrt(1. - r * r) * law_gaussian();
+          }
+
+          double simunc = (FFFF(zvar) || FFFF(simval)) ? TEST : simval - zvar;
+          dbin->setSimvar(ELoc::SIMU, iech, isimu, ivar, icase, nbsimu, nvar,
+                          simunc);
+        }
+      }
+    }
+  }
+  else
+  {
+
+    /*********************************************************/
+    /* Case of PGS: Data varies per simulation (monovariate) */
+    /*********************************************************/
+
+    for (Id iech = 0; iech < dbin->getNSample(); iech++)
+    {
+      if (!dbin->isActive(iech)) continue;
+      for (Id isimu = 0; isimu < nbsimu; isimu++)
+      {
+        double zvar = dbin->getSimvar(ELoc::GAUSFAC, iech, isimu, 0, icase,
+                                      nbsimu, 1);
+        if (!FFFF(zvar))
+          dbin->updSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, 1, EOperator::ADD,
+                          -zvar);
+      }
+    }
+  }
+}
+
+/****************************************************************************/
+/*!
+ **  Update the conditional simulations when the target coincides
+ **  with a data point
+ **
+ ** \param[in]  dbin      Input Db structure
+ ** \param[in]  dbout     Output Db structure
+ ** \param[in]  icase     Case for PGS or GRF
+ ** \param[in]  flag_pgs  1 if called from PGS
+ ** \param[in]  flag_dgm  1 for the Discrete Gaussian Model
+ **
+ ** \remarks This migration is not performed in the case where data point
+ ** \remarks coincide with the target artificially. This is the case
+ ** \remarks for the Discrete Gaussian Model (DGM) where data have been
+ ** \remarks migrated to the cell center to mimic a point randomized
+ ** \remarks within a cell
+ **
+ *****************************************************************************/
+void ACalcSimulation::_updateData2ToTarget(Db* dbin,
+                                           Db* dbout,
+                                           Id icase,
+                                           bool flag_pgs,
+                                           bool flag_dgm)
+{
+  if (dbin->getNSample() <= 0) return;
+  if (flag_dgm) return;
+  auto nvar   = _getNVar();
+  Id ndim     = dbin->getNDim();
+  auto nbsimu = getNbSimu();
+
+  /* Calculate the field extension */
+
+  double radius = dbin->getExtensionDiagonal();
+  double eps    = radius * EPSILON6;
+  double eps2   = eps * eps;
+  VectorDouble coor1(ndim);
+  VectorDouble coor2(ndim);
+  VectorBool activeArrayIn  = dbin->getActiveArray();
+  VectorBool activeArrayOut = dbout->getActiveArray();
+
+  /* Dispatch according to the file type */
+
+  if (dbout->isGrid())
+  {
+    auto* dbgrid = dynamic_cast<DbGrid*>(dbout);
+
+    /*********************************************/
+    /* Case where the output file is a grid file */
+    /*********************************************/
+
+    for (Id ip = 0; ip < dbin->getNSample(); ip++)
+    {
+      if (!activeArrayIn[ip]) continue;
+      dbin->getCoordinatesInPlace(coor2, ip);
+      Id rank = dbgrid->coordinateToRank(coor2, false, eps);
+      if (rank < 0 || !activeArrayOut[rank]) continue;
+      dbgrid->rankToCoordinatesInPlace(rank, coor1);
+
+      /* Get the distance to the target point */
+
+      double dist = 0;
+      for (Id idim = 0; idim < ndim; idim++)
+      {
+        double delta = coor1[idim] - coor2[idim];
+        dist += delta * delta;
+      }
+      if (dist > eps2) continue;
+
+      /* We have found a close data point: perform the assignment */
+
+      for (Id isimu = 0; isimu < nbsimu; isimu++)
+        for (Id ivar = 0; ivar < nvar; ivar++)
+        {
+          double valdat;
+          if (!flag_pgs)
+            valdat = dbin->getZVariable(ip, ivar);
+          else
+            valdat = dbin->getSimvar(ELoc::GAUSFAC, ip, isimu, 0, icase, nbsimu,
+                                     1);
+          if (FFFF(valdat)) continue;
+          dbgrid->setSimvar(ELoc::SIMU, rank, isimu, ivar, icase, nbsimu, nvar,
+                            valdat);
+        }
+    }
+  }
+  else
+  {
+
+    /**********************************************/
+    /* Case where the output file is a point file */
+    /**********************************************/
+
+    for (Id ik = 0; ik < dbout->getNSample(); ik++)
+    {
+      // Get coordinates of the active target point
+      if (!activeArrayOut[ik]) continue;
+      dbout->getCoordinatesInPlace(coor1, ik);
+
+      /* Look for the closest data point */
+
+      Id ip_close = -1;
+      for (Id ip = 0; ip < dbin->getNSample() && ip_close < 0; ip++)
+      {
+        // Get the coordinates of the active data point
+        if (!activeArrayIn[ip]) continue;
+        dbin->getCoordinatesInPlace(coor2, ip);
+
+        /* Get the distance to the target point */
+
+        double dist = 0;
+        for (Id idim = 0; idim < ndim; idim++)
+        {
+          double delta = coor1[idim] - coor2[idim];
+          dist += delta * delta;
+        }
+        if (dist <= eps2) ip_close = ip;
+      }
+
+      if (ip_close < 0) continue;
+
+      /* We have found a close data point: perform the assignment */
+
+      for (Id isimu = 0; isimu < nbsimu; isimu++)
+        for (Id ivar = 0; ivar < nvar; ivar++)
+        {
+          double valdat;
+          if (!flag_pgs)
+            valdat = dbin->getZVariable(ip_close, ivar);
+          else
+            valdat = dbin->getSimvar(ELoc::GAUSFAC, ip_close, isimu, 0, icase,
+                                     nbsimu, 1);
+          if (FFFF(valdat)) continue;
+          dbout->setSimvar(ELoc::SIMU, ik, isimu, ivar, icase, nbsimu, nvar,
+                           valdat);
+        }
+    }
+  }
+}
+
+/****************************************************************************/
+/*!
+ **  Check/Show the data (gaussian) against the closest grid node
+ **
+ ** \param[in]  dbin       Input Db structure
+ ** \param[in]  dbout      Output Db grid structure
+ **
+ ** \remark Attributes ELoc::SIMU and ELoc::GAUSFAC (for PGS) are mandatory
+ ** \remark Tests have only been produced for icase=0
+ **
+ *****************************************************************************/
+void ACalcSimulation::_checkGaussianData2Grid(Db* dbin, Db* dbout) const
+{
+  if (dbin == nullptr) return;
+  if (get_LOCATOR_NITEM(dbout, ELoc::SIMU) <= 0) return;
+  auto nbsimu = getNbSimu();
+  if (nbsimu <= 0) return;
+
+  auto* model  = getModel();
+  auto* dbgrid = dynamic_cast<DbGrid*>(dbout);
+  if (dbgrid == nullptr) return;
+  Id ndim = dbin->getNDim();
+
+  mestitle(1, "Checking Gaussian of data against closest grid node");
+
+  /* Loop on the data */
+
+  Id number = 0;
+  VectorDouble coor(ndim);
+  for (Id iech = 0; iech < dbin->getNSample(); iech++)
+  {
+    if (!dbin->isActive(iech)) continue;
+
+    // Find the index of the closest grid node and derive tolerance
+    Id jech = index_point_to_grid(dbin, iech, 0, dbgrid, coor.data());
+    if (jech < 0) continue;
+    double eps = model->calculateStDev(dbin, iech, dbgrid, jech, false, 2.);
+    if (eps < 1.e-6) eps = 1.e-6;
+
+    for (Id isimu = 0; isimu < nbsimu; isimu++)
+    {
+      double valdat = dbin->getSimvar(ELoc::GAUSFAC, iech, 0, 0, 0, nbsimu, 1);
+      double valres = dbgrid->getSimvar(ELoc::SIMU, jech, isimu, 0, 0, nbsimu, 1);
+      if (ABS(valdat - valres) < eps) continue;
+      number++;
+
+      /* The data facies is different from the grid facies */
+
+      message("Inconsistency for Simulation (%d) between :\n", isimu + 1);
+      message("- Value (%lf) at Data (#%d) ", valdat, iech + 1);
+      message("at (");
+      for (Id idim = 0; idim < ndim; idim++)
+        message(" %lf", dbin->getCoordinate(iech, idim));
+      message(")\n");
+
+      message("- Value (%lf) at Grid (#%d) ", valres, jech + 1);
+      message("at (");
+      for (Id idim = 0; idim < ndim; idim++)
+        message(" %lf", dbgrid->getCoordinate(jech, idim));
+      message(")\n");
+
+      message("- Tolerance = %lf\n", eps);
+    }
+  }
+  if (number <= 0) message("No problem found\n");
 }
 
 } // namespace gstlrn

@@ -82,7 +82,7 @@ private:
 
   Id _compute(Db* db, Id icase, Id shift) override;
 
-  bool _resize();
+  bool _resizeTB();
   void _computePoint(Db* db,
                      Id icase,
                      Id shift,
@@ -98,19 +98,6 @@ private:
                     const VectorBool& activeArray,
                     VectorDouble& tab);
   void _computeNugget(Db* db, Id icase);
-  void _meanCorrect(Db* dbout, Id icase);
-  void _difference(Db* dbin,
-                   Model* model,
-                   Id icase,
-                   bool flag_pgs   = false,
-                   bool flag_gibbs = false,
-                   bool flag_dgm   = false);
-  void _updateData2ToTarget(Db* dbin,
-                            Db* dbout,
-                            Id icase,
-                            bool flag_pgs = false,
-                            bool flag_dgm = false);
-  void _checkGaussianData2Grid(Db* dbin, Db* dbout, Model* model) const;
 
   // Turning bands specific methods
   Id _getIBS(Id isimu, Id is, Id ib) const;
@@ -207,6 +194,8 @@ private:
                               TurningBandOperate& operTB,
                               const VectorBool& activeArray,
                               VectorDouble& tab);
+
+  // Debugging methods
   void _dumpBands() const;
   void _dumpSeeds() const;
 
