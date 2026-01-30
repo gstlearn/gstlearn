@@ -37,9 +37,9 @@ Older/Stale but Still Unique:
 - Issue_741 (565 files) - PR #782 was closed
 - optim_francky (652 files)
 
-BRANCHES TO KEEP (11 Maintenance):
+BRANCHES TO KEEP (10 Maintenance):
 ==================================
-v1.1, v1.2, v1.3, v1.4, v1.5, v1.6, v1.7, v1.8, v1.9, v1.10, 1.5 (same as v1.5)
+v1.1, v1.2, v1.3, v1.4, v1.5, v1.6, v1.7, v1.8, v1.9, v1.10
 
 BRANCHES ALREADY DELETED (6):
 =============================
@@ -48,11 +48,15 @@ Marimo_developments, gneiting, pr826, pr827, pr834, transformModifs
 VERIFICATION EXAMPLE - Bug_Esteban_2:
 =====================================
 git diff --stat dev Bug_Esteban_2
-Result: 1,345 files changed, 147,240 insertions(+), 102,968 deletions(-)
+Result: 1,345 files changed, 175,635 insertions(+), 157,946 deletions(-)
 
 VectorHelper::difference function:
 - Present in Bug_Esteban_2: include/Basic/VectorHelper.hpp:52, src/Basic/VectorHelper.cpp:312
 - NOT present in dev branch
+
+NEW BRANCH DISCOVERED:
+=====================
+potential_spde - 8 files changed (141 insertions, 20 deletions) - should be kept
 
 WHAT WENT WRONG IN PREVIOUS ANALYSIS:
 =====================================

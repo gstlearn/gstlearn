@@ -64,23 +64,22 @@ All of these branches have **substantial unique code** that is NOT in dev:
 18. **testing_template** - 744 files changed
 19. **workflows-factorization-actions** - 886 files changed
 
-### Maintenance Branches to KEEP (11 branches)
-These branches start with 'v1' or '1' and must be kept for patch maintenance:
+### Maintenance Branches to KEEP (10 branches)
+These branches start with 'v1' and must be kept for patch maintenance:
 
-1. **1.5** (now appears as **v1.5** in remote)
-2. **v1.1** - Maintenance branch
-3. **v1.2** - Maintenance branch
-4. **v1.3** - Maintenance branch
-5. **v1.4** - Maintenance branch
-6. **v1.5** - Maintenance branch
-7. **v1.6** - Maintenance branch
-8. **v1.7** - Maintenance branch
-9. **v1.8** - Maintenance branch
-10. **v1.9** - Maintenance branch
-11. **v1.10** - Maintenance branch
+1. **v1.1** - Maintenance branch
+2. **v1.2** - Maintenance branch
+3. **v1.3** - Maintenance branch
+4. **v1.4** - Maintenance branch
+5. **v1.5** - Maintenance branch
+6. **v1.6** - Maintenance branch
+7. **v1.7** - Maintenance branch
+8. **v1.8** - Maintenance branch
+9. **v1.9** - Maintenance branch
+10. **v1.10** - Maintenance branch
 
-### New Branch Discovered
-- **potential_spde** - Not in original analysis (new branch)
+### New Branch Discovered - Also Has Unique Content
+- **potential_spde** - Not in original analysis, has 8 files changed (141 insertions, 20 deletions) - should be kept
 
 ---
 
@@ -181,7 +180,7 @@ For each of the 19 branches with unique content, **repository maintainers must r
 ```bash
 # Confirmed Bug_Esteban_2 has unique content
 git diff --stat dev Bug_Esteban_2
-# Result: 1058 files changed, 147240 insertions(+), 102968 deletions(-)
+# Result: 1,345 files changed, 175,635 insertions(+), 157,946 deletions(-)
 
 # Confirmed VectorHelper::difference exists in Bug_Esteban_2 but not in dev
 git diff dev Bug_Esteban_2 -- include/Basic/VectorHelper.hpp
