@@ -1368,7 +1368,6 @@ bool CalcSimuTurningBands::_run()
 {
   law_set_random_seed(getSeed());
   bool flag_cond = hasDbin(false);
-  auto nbsimu    = getNbSimu();
 
   // Initializations
 
@@ -1386,7 +1385,7 @@ bool CalcSimuTurningBands::_run()
   if (flag_cond)
   {
     _compute(getDbin(), _icase, 0);
-    _meanCorrect(getDbin(), _icase, _flagBayes);
+    _correctStationaryMean(getDbin(), _icase, _flagBayes);
 
     // Calculate the simulated error
 
@@ -1396,7 +1395,7 @@ bool CalcSimuTurningBands::_run()
   // Non conditional simulations on the target points
 
   _compute(getDbout(), _icase, 0);
-  _meanCorrect(getDbout(), _icase, _flagBayes);
+  _correctStationaryMean(getDbout(), _icase, _flagBayes);
 
   /* Add the contribution of Nugget effect (optional) */
 
@@ -1406,19 +1405,21 @@ bool CalcSimuTurningBands::_run()
 
   if (flag_cond)
   {
-    if (_krigsim(getDbin(), getDbout(), _modelLocal, getNeigh(),
-                 _flagBayes, _icase, nbsimu, _flagDGM)) return 1;
+    if (_conditionalKriging(getDbin(), getDbout(), _icase,
+                            _flagBayes, _flagDGM)) return 1;
   }
 
   /* Copy value from data to coinciding grid node */
 
   if (flag_cond)
-    _updateData2ToTarget(getDbin(), getDbout(), _icase, _flagPGS, _flagDGM);
+    _updateDataToTarget(getDbin(), getDbout(), _icase, _flagPGS, _flagDGM);
 
   // Check the simulation at data location
 
   if (_flagCheck)
-    _checkGaussianData2Grid(getDbin(), getDbout());
+  {
+    if (_checkGaussianDataToGrid(getDbin(), getDbout())) return false;
+  }
 
   return true;
 }

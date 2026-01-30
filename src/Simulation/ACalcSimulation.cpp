@@ -13,7 +13,9 @@
 #include "Basic/Law.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Calculators/ACalcInterpolator.hpp"
+#include "Estimation/KrigingSystem.hpp"
 #include "Model/Model.hpp"
+#include "Neigh/ANeigh.hpp"
 #include "geoslib_old_f.h"
 
 namespace gstlrn
@@ -176,7 +178,7 @@ void ACalcSimulation::_computeTangent(Db* dbtgt, double delta)
  ** \param[in]  flagBayes Flag indicating if Bayesian updating is performed
  **
  *****************************************************************************/
-void ACalcSimulation::_meanCorrect(Db* dbout, Id icase, bool flagBayes)
+void ACalcSimulation::_correctStationaryMean(Db* dbout, Id icase, bool flagBayes)
 {
   if (flagBayes) return;
   auto nbsimu = getNbSimu();
@@ -313,11 +315,11 @@ void ACalcSimulation::_difference(Db* dbin,
  ** \remarks within a cell
  **
  *****************************************************************************/
-void ACalcSimulation::_updateData2ToTarget(Db* dbin,
-                                           Db* dbout,
-                                           Id icase,
-                                           bool flag_pgs,
-                                           bool flag_dgm)
+void ACalcSimulation::_updateDataToTarget(Db* dbin,
+                                          Db* dbout,
+                                          Id icase,
+                                          bool flag_pgs,
+                                          bool flag_dgm)
 {
   if (dbin->getNSample() <= 0) return;
   if (flag_dgm) return;
@@ -445,16 +447,16 @@ void ACalcSimulation::_updateData2ToTarget(Db* dbin,
  ** \remark Tests have only been produced for icase=0
  **
  *****************************************************************************/
-void ACalcSimulation::_checkGaussianData2Grid(Db* dbin, Db* dbout) const
+Id ACalcSimulation::_checkGaussianDataToGrid(Db* dbin, Db* dbout) const
 {
-  if (dbin == nullptr) return;
-  if (get_LOCATOR_NITEM(dbout, ELoc::SIMU) <= 0) return;
+  if (dbin == nullptr) return 0;
+  if (get_LOCATOR_NITEM(dbout, ELoc::SIMU) <= 0) return 0;
   auto nbsimu = getNbSimu();
-  if (nbsimu <= 0) return;
+  if (nbsimu <= 0) return 0;
 
   auto* model  = getModel();
   auto* dbgrid = dynamic_cast<DbGrid*>(dbout);
-  if (dbgrid == nullptr) return;
+  if (dbgrid == nullptr) return 0;
   Id ndim = dbin->getNDim();
 
   mestitle(1, "Checking Gaussian of data against closest grid node");
@@ -499,6 +501,70 @@ void ACalcSimulation::_checkGaussianData2Grid(Db* dbin, Db* dbout) const
     }
   }
   if (number <= 0) message("No problem found\n");
+  return number;
+}
+
+/****************************************************************************/
+/*!
+ **  Conditioning Kriging
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  dbin       input Db structure
+ ** \param[in]  dbout      output Db structure
+ ** \param[in]  icase      Case for PGS and GRF (or -1)
+ ** \param[in]  flag_bayes 1 if Bayes option is switched ON
+ ** \param[in]  flag_dgm   1 if the DGM version of kriging should be used
+ **
+ ** \remark: The model contains an anamorphosis with a change of support
+ ** \remark: coefficient as soon as flag_dgm is TRUE
+ **
+ *****************************************************************************/
+Id ACalcSimulation::_conditionalKriging(Db* dbin,
+                                        Db* dbout,
+                                        Id icase,
+                                        bool flag_bayes,
+                                        bool flag_dgm)
+{
+  auto* neigh = getNeigh();
+  auto* model = getModel();
+  Id nbsimu   = getNbSimu();
+
+  // Preliminary checks
+
+  if (neigh->getType() == ENeigh::IMAGE)
+  {
+    messerr("This tool cannot function with an IMAGE neighborhood");
+    return 1;
+  }
+
+  /* Add the attributes for storing the results */
+
+  Id iptr_est = dbout->getColIdxByLocator(ELoc::SIMU, 0);
+  if (iptr_est < 0) return 1;
+
+  /* Setting options */
+
+  KrigOpt krigopt;
+  krigopt.setOptionDGM(flag_dgm);
+
+  KrigingSystem ksys(dbin, dbout, model, neigh, krigopt);
+  if (ksys.setKrigOptFlagSimu(true, nbsimu, icase)) return 1;
+  if (ksys.updKrigOptEstim(iptr_est, -1, -1, true)) return 1;
+  if (ksys.setKrigOptBayes(flag_bayes)) return 1;
+  if (!ksys.isReady()) return 1;
+
+  /* Loop on the targets to be processed */
+
+  for (Id iech_out = 0; iech_out < dbout->getNSample(); iech_out++)
+  {
+    mes_process("Conditional Simulation", dbout->getNSample(), iech_out);
+    if (ksys.estimate(iech_out)) return 1;
+  }
+
+  ksys.conclusion();
+
+  return 0;
 }
 
 } // namespace gstlrn
