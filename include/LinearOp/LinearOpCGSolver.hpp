@@ -107,8 +107,8 @@ void LinearOpCGSolver<TLinOP>::solve(
   if (_verbose)
   {
     mestitle(0, "LinearOpCGSolver");
-    messageFlush("Number of iterations: " + std::to_string(cg.iterations()) + "/" + std::to_string(cg.maxIterations()));
-    messageFlush("\nError: " + std::to_string(cg.error()));
+    messageFlush("Number of iterations: " + std::to_string(cg.iterations()) + "/" + std::to_string(cg.maxIterations()) + "\n");
+    messageFlush("Error: " + std::to_string(cg.error()) + "\n");
   }
 }
 
