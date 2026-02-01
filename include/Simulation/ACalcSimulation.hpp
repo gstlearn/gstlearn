@@ -32,8 +32,14 @@ public:
 protected:
   bool _check() override;
   bool _preprocess() override;
-  // Next functions should be mandatory for derived classes. Not done yet
-  virtual Id _compute(Db* db, Id icase, Id shift);
+
+  virtual Id _computeTB(Db* db, Id icase, Id shift)
+  {
+    DECLARE_UNUSED(db);
+    DECLARE_UNUSED(icase);
+    DECLARE_UNUSED(shift);
+    return 0;
+  };
 
   void _computeGradient(Db* dbgrd, double delta);
   void _computeTangent(Db* dbtgt, double delta);

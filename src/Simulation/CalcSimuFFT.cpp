@@ -1160,7 +1160,7 @@ Id simfft(DbGrid* db,
 {
   CalcSimuFFT simfft(nbsimu, verbose, seed);
   simfft.setDbout(db);
-  simfft.setModel(model);
+  simfft.setModelGeneric(model);
   simfft.setNamingConvention(namconv);
   simfft.setParam(param);
 
@@ -1192,7 +1192,7 @@ VectorDouble getChangeSupport(DbGrid* db,
 {
   CalcSimuFFT simfft(1, verbose, seed);
   simfft.setDbout(db);
-  simfft.setModel(model);
+  simfft.setModelGeneric(model);
   simfft.setParam(param);
   return simfft.changeSupport(sigma);
 }

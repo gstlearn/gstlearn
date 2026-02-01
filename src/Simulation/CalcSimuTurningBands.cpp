@@ -588,7 +588,7 @@ double CalcSimuTurningBands::_dilutionInit(Id ibs,
 
 /*****************************************************************************/
 /*!
- **  Prepare a spectral method
+ **  Initiate the spectral method
  **
  ** \param[in]  ibs    Rank of the Turning Band
  ** \param[in]  is     Rank of the covariance
@@ -597,9 +597,7 @@ double CalcSimuTurningBands::_dilutionInit(Id ibs,
  ** \return Correction factor
  **
  *****************************************************************************/
-double CalcSimuTurningBands::_spectralInit(Id ibs,
-                                           Id is,
-                                           TurningBandOperate& operTB)
+double CalcSimuTurningBands::_spectralInit(Id ibs, Id is, TurningBandOperate& operTB)
 {
   double scale = _getCodirScale(ibs);
   double param = _modelLocal->getParam(is);
@@ -987,7 +985,7 @@ void CalcSimuTurningBands::_spreadSpectralOnPoint(const Db* db,
  * @param icase Rank of PGS or GRF
  * @param shift Shift before writing the simulation result
  */
-Id CalcSimuTurningBands::_compute(Db* db, Id icase, Id shift)
+Id CalcSimuTurningBands::_computeTB(Db* db, Id icase, Id shift)
 {
   auto nech   = db->getNSample();
   auto nbsimu = getNbSimu();
@@ -1312,6 +1310,27 @@ void CalcSimuTurningBands::_getOmegaPhi(Id ibs,
   *s0z = sin(omega * t00 + phi);
 }
 
+bool CalcSimuTurningBands::_prepareSimulation()
+{
+  // Dimension the Turning Bands environment
+  if (!_resizeTB()) return false;
+
+  // Generate the Bands directions
+  if (_generateDirections(getDbout())) return false;
+
+  // Calculate the extension of the field
+  _minmax(getDbout());
+  _minmax(getDbin());
+
+  // Populate the bands
+  if (_initializeSeedBands()) return false;
+
+  // Factorize the matrix of sills
+  _modelLocal->computeAic();
+
+  return true;
+}
+
 /*****************************************************************************/
 /*!
  **  Add the contribution of the nugget effect to the non-conditional
@@ -1367,20 +1386,13 @@ bool CalcSimuTurningBands::_run()
 
   // Initializations
 
-  if (!_resizeTB()) return false;
-  if (_generateDirections(getDbout())) return false;
-  _minmax(getDbout());
-  _minmax(getDbin());
-  if (_initializeSeedBands()) return false;
-
-  // Factorize the matrix of sills
-  _modelLocal->computeAic();
+  if (!_prepareSimulation()) return false;
 
   // Non conditional simulations on the data points
 
   if (flag_cond)
   {
-    _compute(getDbin(), _icase, 0);
+    _computeTB(getDbin(), _icase, 0);
     _correctStationaryMean(getDbin(), _icase, _flagBayes);
 
     // Calculate the simulated error
@@ -1390,7 +1402,7 @@ bool CalcSimuTurningBands::_run()
 
   // Non conditional simulations on the target points
 
-  _compute(getDbout(), _icase, 0);
+  _computeTB(getDbout(), _icase, 0);
   _correctStationaryMean(getDbout(), _icase, _flagBayes);
 
   /* Add the contribution of Nugget effect (optional) */
@@ -1449,7 +1461,7 @@ Id CalcSimuTurningBands::simulate(Db* dbin,
 {
   setDbin(dbin);
   setDbout(dbout);
-  setModel(model);
+  setModelGeneric(model);
   setNeigh(neigh);
   setIcase(icase);
   setFlagBayes(flag_bayes);
@@ -1483,7 +1495,7 @@ Id CalcSimuTurningBands::simulatePotential(Db* dbiso,
                                            double delta)
 {
   setDbout(dbout);
-  setModel(model);
+  setModelGeneric(model);
   if (getNbSimu() <= 0 || getNBtuba() <= 0)
   {
     messerr("You must define 'nbsimu', 'nbtuba' and the 'model' beforehand");
@@ -1507,7 +1519,7 @@ Id CalcSimuTurningBands::simulatePotential(Db* dbiso,
   /* Non conditional simulations on the data points */
 
   if (dbiso != nullptr)
-    _compute(dbiso, icase, 0);
+    _computeTB(dbiso, icase, 0);
 
   /* Non conditional simulations on the gradient points */
 
@@ -1521,7 +1533,7 @@ Id CalcSimuTurningBands::simulatePotential(Db* dbiso,
 
   /* Non conditional simulations on the target samples */
 
-  _compute(dbout, icase, 0);
+  _computeTB(dbout, icase, 0);
 
   /* Add the contribution of nugget effect (optional) */
 
@@ -1539,13 +1551,15 @@ Id CalcSimuTurningBands::simulatePotential(Db* dbiso,
  ** \param[in]  model    Model structure
  **
  *****************************************************************************/
-bool CalcSimuTurningBands::isValidForTurningBands(const Model* model)
+bool CalcSimuTurningBands::isValidForTurningBands(const ModelGeneric* model)
 {
   /* Loop on the structures */
 
-  for (Id is = 0; is < model->getNCov(); is++)
+  const auto* mod = dynamic_cast<const Model*>(model);
+  if (mod == nullptr) return false;
+  for (Id is = 0; is < mod->getNCov(); is++)
   {
-    if (!model->getCovAniso(is)->isValidForTurningBand()) return false;
+    if (!mod->getCovAniso(is)->isValidForTurningBand()) return false;
   }
   return true;
 }
@@ -1719,7 +1733,7 @@ Id simtub(Db* dbin,
   // Set the members of the Calculator
   situba.setDbin(dbin);
   situba.setDbout(dbout);
-  situba.setModel(model);
+  situba.setModelGeneric(model);
   situba.setNeigh(neigh);
   situba.setNamingConvention(namconv);
   situba.setFlagDgm(flag_dgm);
@@ -1766,7 +1780,7 @@ Id simbayes(Db* dbin,
   // Set the members of the Calculator
   situba.setDbin(dbin);
   situba.setDbout(dbout);
-  situba.setModel(model);
+  situba.setModelGeneric(model);
   situba.setNeigh(neigh);
   situba.setNamingConvention(namconv);
 

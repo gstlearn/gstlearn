@@ -395,10 +395,10 @@
 %include Simulation/CalcSimuTurningBands.hpp
 %include Simulation/TurningBandDirection.hpp
 %include Simulation/TurningBandOperate.hpp
-%include Simulation/ASimuSpectral.hpp
+%include Simulation/CalcSimuSpectral.hpp
 %include Simulation/SimuSpectralRN.hpp
-%include Simulation/SpectrumRN.hpp
 %include Simulation/SimuSpectralS2.hpp
+%include Simulation/SpectrumRN.hpp
 %include Simulation/BooleanObject.hpp
 %include Simulation/SimuBoolean.hpp
 %include Simulation/SimuBooleanParam.hpp

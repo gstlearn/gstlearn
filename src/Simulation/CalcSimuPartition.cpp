@@ -50,7 +50,7 @@ CalcSimuPartition::~CalcSimuPartition()
 bool CalcSimuPartition::_voronoi()
 {
   auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
-  auto ndim      = _getNDim();
+  auto ndim    = _getNDim();
   VectorDouble simgrid(dbgrid->getNSample());
 
   /************************************/
@@ -331,7 +331,7 @@ Id tessellation_poisson(DbGrid* dbgrid,
 {
   CalcSimuPartition simpart(2, 1, seed, verbose);
   simpart.setDbout(dbgrid);
-  simpart.setModel(model);
+  simpart.setModelGeneric(model);
   simpart.setNamingConvention(namconv);
   simpart.setParparam(parparam);
 
@@ -362,7 +362,7 @@ Id tessellation_voronoi(DbGrid* dbgrid,
 {
   CalcSimuPartition simpart(1, 1, seed, verbose);
   simpart.setDbout(dbgrid);
-  simpart.setModel(model);
+  simpart.setModelGeneric(model);
   simpart.setNamingConvention(namconv);
   simpart.setParparam(parparam);
 

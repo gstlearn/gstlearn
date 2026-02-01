@@ -346,7 +346,7 @@ Global_Result global_arithmetic(Db* dbin,
   CalcGlobal global(ivar0, verbose);
   global.setDbin(dbin);
   global.setDbout(dbgrid);
-  global.setModel(model);
+  global.setModelGeneric(model);
   global.setFlagArithmetic(true);
 
   if (global.run())
@@ -364,7 +364,7 @@ Global_Result global_kriging(Db* dbin,
   CalcGlobal global(ivar0, verbose);
   global.setDbin(dbin);
   global.setDbout(dbout);
-  global.setModel(model);
+  global.setModelGeneric(model);
   global.setFlagKriging(true);
 
   if (global.run())

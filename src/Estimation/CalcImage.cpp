@@ -439,7 +439,7 @@ Id krimage(DbGrid* dbgrid,
 
   image.setDbin(dbgrid);
   image.setDbout(dbgrid);
-  image.setModel(model);
+  image.setModelGeneric(model);
   image.setNeigh(neigh);
   image.setFlagFFT(flagFFT);
   image.setSeed(seed);

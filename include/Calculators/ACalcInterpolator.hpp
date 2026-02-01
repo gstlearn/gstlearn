@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Model/Model.hpp"
 #include "Model/ModelGeneric.hpp"
 #include "gstlearn_export.hpp"
 
@@ -28,14 +29,16 @@ public:
   ACalcInterpolator& operator=(const ACalcInterpolator& r) = delete;
   virtual ~ACalcInterpolator();
 
-  void setModel(ModelGeneric* model) { _model = model; }
+  void setModelGeneric(ModelGeneric* modelGeneric);
   void setNeigh(ANeigh* neigh) { _neigh = neigh; }
   void setKrigopt(const KrigOpt& krigopt) { _krigopt = krigopt; }
 
-  ModelGeneric* getModel() const { return _model; }
+  ModelGeneric* getModelGeneric() const { return _modelGeneric; }
+  Model* getModel() const { return _model; }
   ANeigh* getNeigh() const { return _neigh; }
   const KrigOpt& getKrigopt() const { return _krigopt; }
 
+  bool hasModelGeneric(bool verbose = true) const;
   bool hasModel(bool verbose = true) const;
   bool hasNeigh(bool verbose = true) const;
 
@@ -43,12 +46,13 @@ protected:
   bool _check() override;
   bool _preprocess() override;
   Id _getNCov() const { return _ncova; }
-  bool _setNCov(Id ncova);
 
   Id _centerDataToGrid(DbGrid* dbgrid);
 
 private:
-  ModelGeneric* _model;
+  // Next members are pointers (not to be deleted)
+  ModelGeneric* _modelGeneric;
+  Model* _model; // Conversion of _modelGeneric into a Model (more than ModelGeneric)
   ANeigh* _neigh;
   KrigOpt _krigopt;
   Id _ncova;

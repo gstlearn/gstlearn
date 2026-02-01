@@ -9,11 +9,11 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Estimation/CalcKrigingFactors.hpp"
-#include "Model/Model.hpp"
 #include "Anamorphosis/AAnam.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Estimation/KrigingSystem.hpp"
+#include "Model/Model.hpp"
 
 namespace gstlrn
 {
@@ -114,9 +114,9 @@ bool CalcKrigingFactors::_preprocess()
     {
       // Center the information in sub-blocks when the output grid defines panels
       const auto& ndiscs = getKrigopt().getDiscs();
-      DbGrid* dbsmu    = DbGrid::createDivider(dbgrid, ndiscs, 1);
-      _nameCoord       = getDbin()->getNamesByLocator(ELoc::X);
-      Id error         = _centerDataToGrid(dbsmu);
+      DbGrid* dbsmu      = DbGrid::createDivider(dbgrid, ndiscs, 1);
+      _nameCoord         = getDbin()->getNamesByLocator(ELoc::X);
+      Id error           = _centerDataToGrid(dbsmu);
       delete dbsmu;
       if (error) return false;
     }
@@ -234,7 +234,7 @@ Id krigingFactors(Db* dbin,
   CalcKrigingFactors krige(flag_est, flag_std);
   krige.setDbin(dbin);
   krige.setDbout(dbout);
-  krige.setModel(model);
+  krige.setModelGeneric(model);
   krige.setNeigh(neigh);
   krige.setKrigopt(krigopt);
   krige.setNamingConvention(namconv);

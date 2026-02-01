@@ -13,7 +13,7 @@
 #include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
-#include "Simulation/ASimuSpectral.hpp"
+#include "Simulation/CalcSimuSpectral.hpp"
 #include "Stats/Classical.hpp"
 
 #include <cmath>
@@ -26,26 +26,10 @@ namespace gstlrn
  * -----------------------------------------
  */
 
-SimuSpectralS2::SimuSpectralS2(const ACov* cova, Id ns, Id nd)
-  : ASimuSpectral(cova, ns, nd)
+SimuSpectralS2::SimuSpectralS2(Id nbsimu, Id ns, Id nd, Id seed, bool verbose)
+  : CalcSimuSpectral(nbsimu, ns, nd, seed, verbose)
   , _spSims()
 {
-}
-
-SimuSpectralS2::SimuSpectralS2(const SimuSpectralS2& r)
-  : ASimuSpectral(r)
-  , _spSims(r._spSims)
-{
-}
-
-SimuSpectralS2& SimuSpectralS2::operator=(const SimuSpectralS2& r)
-{
-  if (this != &r)
-  {
-    ASimuSpectral::operator=(r);
-    _spSims = r._spSims;
-  }
-  return *this;
 }
 
 SimuSpectralS2::~SimuSpectralS2()
@@ -54,37 +38,16 @@ SimuSpectralS2::~SimuSpectralS2()
 
 /**
  * Simulate the spectrum components for Rn
- *
- * @param cov0 the auxiliary covariance not used on S2
- * @param verbose Verbose flag
  */
-Id SimuSpectralS2::_simulate(const ACov* cov0, bool verbose)
+Id SimuSpectralS2::_simulate()
 {
-  DECLARE_UNUSED(cov0)
-  Id ns = _getNs();
-  Id nd = _getNd();
-  if (ns <= 0)
-  {
-    messerr("The number of simulated harmonic components should be positive");
-    return 1;
-  }
-  if (cov0 != nullptr)
-  {
-    if (!cov0->isValidForSpectral())
-    {
-      messerr("Simulation of the harmonic components is not implemented for the auxiliary covariance");
-      return 1;
-    }
-    if (_getNVar() > 1)
-    {
-      messerr("The covariance should be scalar on S2");
-      return 1;
-    }
-  }
+  Id ns   = _getNs();
+  Id nd   = _getNd();
   Id ndim = _getNDim();
   Id nvar = _getNVar();
+
   // Optional printout
-  if (verbose)
+  if (getVerbose())
   {
     message("Simulation of the spectrum\n");
     message("- Space dimension   = %d\n", ndim);
@@ -101,7 +64,8 @@ Id SimuSpectralS2::_simulate(const ACov* cov0, bool verbose)
   VH::sortInPlace(U);
   double maxU = U.maximum();
 
-  VectorDouble spectrum = _cova->evalSpectrumOnSphere(nd);
+  const auto* cova      = getModelGeneric()->getCov();
+  VectorDouble spectrum = cova->evalSpectrumOnSphere(nd);
 
   // Simulate vector N
   Id n     = 0;
@@ -163,11 +127,10 @@ Id SimuSpectralS2::_simulate(const ACov* cov0, bool verbose)
   }
 
   // Optional printout
-  if (verbose)
-  {
+  if (getVerbose())
     _printSpSims(1);
-  }
-  _isPrepared = true;
+
+  _setIsPrepared(true);
   return 0;
 }
 
@@ -268,7 +231,7 @@ void SimuSpectralS2::_printSpSims(Id status)
   message("- Number of components (-) = %d\n", totalM);
 }
 
-Id SimuSpectralS2::_compute(Db* dbout, Id iuid, bool verbose)
+Id SimuSpectralS2::_compute(Db* dbout, Id iuid)
 {
   Id np = dbout->getNSample(true);
 
@@ -285,7 +248,7 @@ Id SimuSpectralS2::_compute(Db* dbout, Id iuid, bool verbose)
   Id K_max = K_list.maximum();
 
   // Optional printout
-  if (verbose)
+  if (getVerbose())
   {
     mestitle(1, ">>> simulation on Sphere");
     message(">>> point number    : %d\n", np);
@@ -333,7 +296,7 @@ Id SimuSpectralS2::_compute(Db* dbout, Id iuid, bool verbose)
       const spSim& spsimK = _spSims[K_idx++];
       VectorInt N_list    = _getKeys1(spsimK);
 
-      if (verbose)
+      if (getVerbose())
         message(">>> Simulating order K = %d: component number = %d\n", m,
                 _getSumValue(spsimK));
 
@@ -363,7 +326,7 @@ Id SimuSpectralS2::_compute(Db* dbout, Id iuid, bool verbose)
           VectorInt valComp = _getKeys2(spsimK, n);
           VectorInt nbrComp = _getValues2(spsimK, n);
 
-          if (verbose)
+          if (getVerbose())
           {
             Id sumComp = nbrComp.sum();
             cumComp += sumComp;
@@ -381,7 +344,7 @@ Id SimuSpectralS2::_compute(Db* dbout, Id iuid, bool verbose)
               for (Id ns = 0; ns < nbrComp[ii]; ns++)
               {
                 for (Id ip = 0; ip < np; ip++)
-                  val[ip] += fac * Plm[ip] * cos(s * m * phi[ip] + _phi[jk]);
+                  val[ip] += fac * Plm[ip] * cos(s * m * phi[ip] + getPhi(jk));
                 jk++;
               }
             }

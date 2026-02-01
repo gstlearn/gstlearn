@@ -10,13 +10,13 @@
 /******************************************************************************/
 #include "Simulation/SimuSpectralRN.hpp"
 #include "Basic/VectorNumT.hpp"
+#include "Covariances/CovAniso.hpp"
 #include "Db/Db.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Model/Model.hpp"
-#include "Simulation/ASimuSpectral.hpp"
+#include "Simulation/CalcSimuSpectral.hpp"
 #include "Simulation/SpectrumRN.hpp"
 #include "Stats/Classical.hpp"
-
 #include <cmath>
 
 namespace gstlrn
@@ -27,76 +27,58 @@ namespace gstlrn
  * Spectral simulation on Rn
  * ---------------------------------
  */
-SimuSpectralRN::SimuSpectralRN(const ACov* cova, Id ns, Id nd)
-  : ASimuSpectral(cova, ns, nd)
+SimuSpectralRN::SimuSpectralRN(Id nbsimu, Id ns, Id nd, Id seed, const ACov* cov0, bool verbose)
+  : CalcSimuSpectral(nbsimu, ns, nd, seed, verbose)
   , _gamma()
   , _omega()
+  , _cov0(cov0)
 {
-}
-
-SimuSpectralRN::SimuSpectralRN(const SimuSpectralRN& r)
-  : ASimuSpectral(r)
-  , _gamma(r._gamma)
-  , _omega(r._omega)
-{
-}
-
-SimuSpectralRN& SimuSpectralRN::operator=(const SimuSpectralRN& r)
-{
-  if (this != &r)
-  {
-    ASimuSpectral::operator=(r);
-    _gamma = r._gamma;
-    _omega = r._omega;
-  }
-  return *this;
 }
 
 SimuSpectralRN::~SimuSpectralRN()
 {
 }
 
-/**
- * Simulate the spectrum components for Rn
- *
- * @param cov0 the auxiliary covariance function used for importance sampling
- * @param verbose Verbose flag
- */
-Id SimuSpectralRN::_simulate(const ACov* cov0, bool verbose)
+bool SimuSpectralRN::_check()
 {
-  Id ns = _getNs();
-  if (ns <= 0)
+  if (!CalcSimuSpectral::_check()) return false;
+
+  bool hasCov0 = (_cov0 != nullptr);
+  if (hasCov0)
   {
-    messerr("The number of simulated harmonic components should be positive");
-    return 1;
-  }
-  if (cov0 != nullptr)
-  {
-    if (!cov0->isValidForSpectral())
+    if (!_cov0->isValidForSpectral())
     {
       messerr("Simulation of the harmonic components is not implemented for the auxiliary covariance");
-      return 1;
+      return false;
     }
-    if (cov0->getNVar() > 1)
+    if (_cov0->getNVar() > 1)
     {
       messerr("The auxiliary covariance should be scalar");
-      return 1;
+      return false;
     }
   }
+
+  return true;
+}
+
+/**
+ * Simulate the spectrum components for Rn
+ */
+Id SimuSpectralRN::_simulate()
+{
+  Id ns   = _getNs();
   Id ndim = _getNDim();
   Id nvar = _getNVar();
-  Id ierr = 0;
+
   // Optional printout
-  if (verbose)
+  if (getVerbose())
   {
     message("Simulation of the spectrum\n");
     message("- Space dimension   = %d\n", ndim);
     message("- Number of variables  = %d\n", nvar);
     message("- Number of spectral components = %d\n", ns);
-    if (cov0 != nullptr)
-    {
+    if (_cov0 != nullptr)
       message("Simulation using importance sampling\n");
-    }
   }
 
   // Cleaning any previously allocated memory
@@ -104,20 +86,18 @@ Id SimuSpectralRN::_simulate(const ACov* cov0, bool verbose)
   _omega.reset(0, 0);
 
   // Simulation of the spectrum by the covariance
-  SpectrumRN sp = _cova->simulateSpectrumRN(ns, cov0);
+  const auto* cova = getModelGeneric()->getCov();
+  SpectrumRN sp    = cova->simulateSpectrumRN(ns, _cov0);
+
   if (sp.getNs() > 0)
   {
-    _gamma      = sp.getGamma();
-    _omega      = sp.getOmega();
-    _isPrepared = true;
-    ierr        = 0;
+    _gamma = sp.getGamma();
+    _omega = sp.getOmega();
+    _setIsPrepared(true);
+    return 0;
   }
-  else
-  {
-    _isPrepared = false;
-    ierr        = 1;
-  }
-  return ierr;
+  _setIsPrepared(false);
+  return 1;
 }
 
 /**
@@ -125,15 +105,9 @@ Id SimuSpectralRN::_simulate(const ACov* cov0, bool verbose)
  *
  * @param dbout Db containing the results
  * @param iuid  Address for storage (or 0 if the variable must be created locally)
- * @param verbose Verbose flag
  */
-Id SimuSpectralRN::_compute(Db* dbout, Id iuid, bool verbose)
+Id SimuSpectralRN::_compute(Db* dbout, Id iuid)
 {
-  if (!_isPrepared)
-  {
-    messerr("You should run 'simulate' beforehand");
-    return 1;
-  }
   Id nvar = _getNVar();
   Id ndim = dbout->getNDim();
   VectorDouble coor(ndim);
@@ -141,13 +115,9 @@ Id SimuSpectralRN::_compute(Db* dbout, Id iuid, bool verbose)
   dbout->getSampleRanksPerVariable(ranks);
   Id ns   = _getNs();
   Id nech = ranks.length();
-  if (nech <= 0)
-  {
-    messerr("'dbout' must have a positive number of active samples");
-    return 1;
-  }
+
   // Optional printout
-  if (verbose)
+  if (getVerbose())
   {
     message("Spectral Simulation on a set of Isolated Points\n");
     message("- Number of samples = %d\n", nech);
@@ -163,7 +133,7 @@ Id SimuSpectralRN::_compute(Db* dbout, Id iuid, bool verbose)
     VectorDouble u = _omega.prodMatVec(coor);
 
     for (Id ib = 0; ib < ns; ib++)
-      u[ib] = cos(u[ib] + _phi[ib]);
+      u[ib] = cos(u[ib] + getPhi(ib));
     VectorDouble values = _gamma.prodMatVec(u, true);
     for (Id iv = 0; iv < nvar; iv++)
       dbout->setArray(iech, iuid + iv, values[iv]);

@@ -14,7 +14,7 @@
 #include "Db/DbGrid.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Model/ModelGeneric.hpp"
-#include "Simulation/ASimuSpectral.hpp"
+#include "Simulation/CalcSimuSpectral.hpp"
 #include "geoslib_define.h"
 
 using namespace gstlrn;
@@ -51,7 +51,7 @@ int main(int argc, char* argv[])
   ModelGeneric model = ModelGeneric(ctxt);
   model.setCov(&cor_tri);
   DbGrid* grid = DbGrid::create({100, 100});
-  simuSpectral(nullptr, grid, &cor_tri, 1, 43431, 100, 100, nullptr, true,
+  simuSpectral(nullptr, grid, &model, nullptr, 1, 43431, 100, 100, nullptr, true,
                NamingConvention("Simu"));
 
   return 0;

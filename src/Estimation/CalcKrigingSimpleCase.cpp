@@ -45,9 +45,9 @@ bool CalcKrigingSimpleCase::_check()
 {
   if (!ACalcInterpolator::_check()) return false;
 
-  if (!hasDbin())  return false;
+  if (!hasDbin()) return false;
   if (!hasDbout()) return false;
-  if (!hasModel()) return false;
+  if (!hasModelGeneric()) return false;
   if (!hasNeigh()) return false;
 
   if (_flagVarZ)
@@ -132,7 +132,7 @@ bool CalcKrigingSimpleCase::_run()
 {
   /* Setting options */
 
-  KrigingSystemSimpleCase ksys(getDbin(), getDbout(), getModel(), getNeigh());
+  KrigingSystemSimpleCase ksys(getDbin(), getDbout(), getModelGeneric(), getNeigh());
   if (ksys.updKrigOptEstim(_iptrEst, _iptrStd, _iptrVarZ)) return false;
   VectorDouble tabwork(getDbin()->getNSample());
   if (!ksys.isReady(tabwork)) return false;
@@ -142,15 +142,15 @@ bool CalcKrigingSimpleCase::_run()
   /***************************************/
 
   KrigingAlgebraSimpleCase algebra(ksys.getAlgebra());
-  bool use_parallel = !getModel()->isNoStat();
+  bool use_parallel = !getModelGeneric()->isNoStat();
   Id nech_out       = getDbout()->getNSample();
   auto nbthread     = static_cast<I32>(OptCustom::query("ompthreads", 1)); // TODO : would like to use more threads
   omp_set_num_threads(nbthread);
 
-  SpacePoint pin(getModel()->getSpace());
-  SpacePoint pout(getModel()->getSpace());
+  SpacePoint pin(getModelGeneric()->getSpace());
+  SpacePoint pout(getModelGeneric()->getSpace());
   ModelGeneric model(*ksys.getModel());
-  auto ndim                       = getModel()->getSpace()->getNDim();
+  auto ndim                       = getModelGeneric()->getSpace()->getNDim();
   const VectorVectorDouble coords = getDbout()->getAllCoordinates();
   static ANeigh* neigh            = nullptr;
 #pragma omp threadprivate(neigh)

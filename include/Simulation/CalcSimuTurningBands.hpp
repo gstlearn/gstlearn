@@ -56,7 +56,7 @@ public:
                        ModelGeneric* model,
                        double delta);
 
-  static bool isValidForTurningBands(const Model* model);
+  static bool isValidForTurningBands(const ModelGeneric* model);
 
   bool isFlagCheck() const { return _flagCheck; }
   void setFlagCheck(bool flag_check) { _flagCheck = flag_check; }
@@ -80,7 +80,8 @@ private:
   bool _postprocess() override;
   void _rollback() override;
 
-  Id _compute(Db* db, Id icase, Id shift) override;
+  bool _prepareSimulation();
+  Id _computeTB(Db* db, Id icase, Id shift) override;
 
   bool _resizeTB();
   void _computePoint(Db* db,

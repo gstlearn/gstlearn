@@ -579,7 +579,7 @@ DbGrid* simulation_refine(DbGrid* dbin,
 {
   CalcSimuRefine simfine(1, seed);
   simfine.setDbin(dbin);
-  simfine.setModel(model);
+  simfine.setModelGeneric(model);
   simfine.setNamingConvention(namconv);
   simfine.setParam(param);
 

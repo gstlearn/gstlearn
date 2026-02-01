@@ -203,7 +203,7 @@ Id krigingGradient(Db* dbin,
   CalcKrigingGradient krigeGradient(flag_est, flag_std, ball_radius);
   krigeGradient.setDbin(dbin);
   krigeGradient.setDbout(dbout);
-  krigeGradient.setModel(model);
+  krigeGradient.setModelGeneric(model);
   krigeGradient.setNeigh(neigh);
   krigeGradient.setFlagForceNumeric(flagForceNumeric);
   krigeGradient.setNamingConvention(namconv);

@@ -49,15 +49,6 @@ bool ACalcSimulation::_preprocess()
   return ACalcInterpolator::_preprocess();
 }
 
-Id ACalcSimulation::_compute(Db* db, Id icase, Id shift)
-{
-  DECLARE_UNUSED(db);
-  DECLARE_UNUSED(icase);
-  DECLARE_UNUSED(shift);
-  messerr("The method 'compute' should be implemented in derived classes");
-  return 1;
-}
-
 /*****************************************************************************/
 /*!
  **  Perform non-conditional simulations on a set of gradient points using
@@ -88,7 +79,7 @@ void ACalcSimulation::_computeGradient(Db* dbgrd, double delta)
     for (Id isimu = 0; isimu < nbsimu; isimu++)
     {
       jsimu = isimu + idim * nbsimu;
-      _compute(dbgrd, icase, jsimu);
+      _computeTB(dbgrd, icase, jsimu);
     }
 
     /* Shift the information */
@@ -102,7 +93,7 @@ void ACalcSimulation::_computeGradient(Db* dbgrd, double delta)
     for (Id isimu = 0; isimu < nbsimu; isimu++)
     {
       jsimu = isimu + idim * nbsimu + ndim * nbsimu;
-      _compute(dbgrd, icase, jsimu);
+      _computeTB(dbgrd, icase, jsimu);
     }
 
     /* Un-Shift the information */

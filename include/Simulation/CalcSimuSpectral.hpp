@@ -10,70 +10,66 @@
 /******************************************************************************/
 #pragma once
 
-#include "geoslib_define.h"
+#include "Simulation/ACalcSimulation.hpp"
 #include "gstlearn_export.hpp"
-
-#include "Basic/NamingConvention.hpp"
-#include "Basic/VectorNumT.hpp"
 
 namespace gstlrn
 {
-class ACov;
-class ModelGeneric;
-/**
- * Abstract Class for operating the Spectral simulations
- */
-class GSTLEARN_EXPORT ASimuSpectral
+class Model;
+
+class GSTLEARN_EXPORT CalcSimuSpectral: public ACalcSimulation
 {
 public:
-  ASimuSpectral(const ACov* cova = nullptr, Id ns = 10000, Id nd = 100);
-  ASimuSpectral(const ASimuSpectral& r);
-  ASimuSpectral& operator=(const ASimuSpectral& r);
-  virtual ~ASimuSpectral();
+  CalcSimuSpectral(Id nbsimu = 1, Id ns = 10000, Id nd = 100, Id seed = 4324324, bool verbose = false);
+  CalcSimuSpectral(const CalcSimuSpectral& r)            = delete;
+  CalcSimuSpectral& operator=(const CalcSimuSpectral& r) = delete;
+  virtual ~CalcSimuSpectral();
 
-  void setCov(const ACov*& cova) { _cova = cova; };
-  const ACov* getCov() { return _cova; };
-  bool isPrepared() const { return _isPrepared; };
-  VectorDouble getPhi() { return _phi; };
-
-  Id simulate(Id seed          = 4273,
-              bool verbose     = false,
-              const ACov* cov0 = nullptr);
+  Id simulate();
   Id compute(Db* dbout,
              Id iuid                         = 0,
-             bool verbose                    = false,
              const NamingConvention& namconv = NamingConvention("Simu"),
              const String& qualifier         = "simu");
 
-protected:
-  virtual Id _simulate(const ACov* cov0 = nullptr,
-                       bool verbose     = false) = 0;
+  VectorDouble getPhi() { return _phi; };
+  double getPhi(Id i) { return _phi[i]; };
+  static bool isValidForSpectral(const ModelGeneric* model);
+  bool getVerbose() const { return _verbose; }
 
-  virtual Id _compute(Db* dbout,
-                      Id iuid      = 0,
-                      bool verbose = false) = 0;
+protected:
+  bool _check() override;
+  bool _run() override;
+  bool _preprocess() override { return true; };
+
+  virtual Id _simulate()                      = 0;
+  virtual Id _compute(Db* dbout, Id iuid = 0) = 0;
+
   Id _getNs() const { return _ns; };
   Id _getNd() const { return _nd; };
   Id _getNDim() const;
   Id _getNVar() const;
 
-protected:
+  void _setIsPrepared(bool status) { _isPrepared = status; }
+  bool _getIsPrepared() const { return _isPrepared; }
+
+private:
   bool _isPrepared;
+  bool _verbose;
   Id _ns;            // Number of spectral components
   Id _nd;            // Maximum number of spectral orders on
   VectorDouble _phi; // Vector length=_ns
-  const ACov* _cova; // Storing the pointer (not to be deleted)
 };
 
 GSTLEARN_EXPORT Id simuSpectral(Db* dbin,
                                 Db* dbout,
-                                const ACov* cova,
+                                ModelGeneric* model,
+                                ANeigh* neigh                   = nullptr,
                                 Id nbsimu                       = 1,
-                                Id seed                         = 0,
+                                Id seed                         = 135672,
                                 Id ns                           = 10000,
                                 Id nd                           = 100,
                                 const ACov* cov0                = nullptr,
                                 bool verbose                    = false,
-                                const NamingConvention& namconv = NamingConvention(""));
+                                const NamingConvention& namconv = NamingConvention("Simu"));
 
 } // namespace gstlrn

@@ -175,7 +175,7 @@ Id inverseDistance(Db* dbin,
   interpol.setDbout(dbout);
   interpol.setFlagEst(flag_est);
   interpol.setFlagStd(flag_std);
-  interpol.setModel(model);
+  interpol.setModelGeneric(model);
   interpol.setNamingConvention(namconv);
 
   interpol.setFlagInvDist(true);
@@ -217,7 +217,7 @@ GSTLEARN_EXPORT Id movingAverage(Db* dbin,
   interpol.setNeigh(neigh);
   interpol.setFlagEst(flag_est);
   interpol.setFlagStd(flag_std);
-  interpol.setModel(model);
+  interpol.setModelGeneric(model);
   interpol.setNamingConvention(namconv);
 
   interpol.setFlagMovAve(true);
@@ -256,7 +256,7 @@ GSTLEARN_EXPORT Id movingMedian(Db* dbin,
   interpol.setNeigh(neigh);
   interpol.setFlagEst(flag_est);
   interpol.setFlagStd(flag_std);
-  interpol.setModel(model);
+  interpol.setModelGeneric(model);
   interpol.setNamingConvention(namconv);
 
   interpol.setFlagMovMed(true);
@@ -292,7 +292,7 @@ GSTLEARN_EXPORT Id nearestNeighbor(Db* dbin,
   interpol.setDbout(dbout);
   interpol.setFlagEst(flag_est);
   interpol.setFlagStd(flag_std);
-  interpol.setModel(model);
+  interpol.setModelGeneric(model);
 
   NeighMoving neighM(false, 1, 1.e6);
   interpol.setNeigh(&neighM);
