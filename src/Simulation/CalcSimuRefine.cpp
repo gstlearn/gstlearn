@@ -395,7 +395,7 @@ Id CalcSimuRefine::_kriging_solve(Id type, Id rank, Id nb, bool verbose)
       if (ndim >= 1) d1[0] = _XYZN[0][type][i] - _XYZN[0][type][j];
       if (ndim >= 2) d1[1] = _XYZN[1][type][i] - _XYZN[1][type][j];
       if (ndim >= 3) d1[2] = _XYZN[2][type][i] - _XYZN[2][type][j];
-      lhs.setValue(i, j, getModel()->evaluateOneGeneric(nullptr, d1));
+      lhs.setValue(i, j, getModelGeneric()->evaluateOneGeneric(nullptr, d1));
     }
 
   /* Establish the kriging R.H.S. */
@@ -405,7 +405,7 @@ Id CalcSimuRefine::_kriging_solve(Id type, Id rank, Id nb, bool verbose)
     if (ndim >= 1) d1[0] = _XYZN[0][type][i];
     if (ndim >= 2) d1[1] = _XYZN[1][type][i];
     if (ndim >= 3) d1[2] = _XYZN[2][type][i];
-    rhs[i] = getModel()->evaluateOneGeneric(nullptr, d1);
+    rhs[i] = getModelGeneric()->evaluateOneGeneric(nullptr, d1);
   }
 
   /* Add the Universality condition (optional) */
@@ -432,7 +432,7 @@ Id CalcSimuRefine::_kriging_solve(Id type, Id rank, Id nb, bool verbose)
   /* Calculate the variance */
   mode.setMember(ECalcMember::VAR);
   for (Id i = 0; i < ndim; i++) d1[i] = 0.;
-  double var0 = getModel()->evaluateOneGeneric(nullptr, d1, 1., &mode);
+  double var0 = getModelGeneric()->evaluateOneGeneric(nullptr, d1, 1., &mode);
   VectorDouble col2(_WGT.row(type, rank).begin(), _WGT.row(type, rank).end());
   VectorDouble wgt2(col2.size());
   double variance   = var0 - rhs.innerProduct(wgt2);
@@ -523,7 +523,7 @@ bool CalcSimuRefine::_check()
   if (!ACalcSimulation::_check()) return false;
 
   if (!hasDbin()) return false;
-  if (!hasModel()) return false;
+  if (!hasModelGeneric()) return false;
 
   if (!getDbin()->isGrid())
   {
@@ -545,7 +545,7 @@ bool CalcSimuRefine::_preprocess()
 
   /* Patch the model with maximum dimension for OK */
 
-  getModel()->setField(getDbin()->getExtensionDiagonal());
+  getModelGeneric()->setField(getDbin()->getExtensionDiagonal());
   return true;
 }
 

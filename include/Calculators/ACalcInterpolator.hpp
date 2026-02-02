@@ -10,7 +10,6 @@
 /******************************************************************************/
 #pragma once
 
-#include "Model/Model.hpp"
 #include "Model/ModelGeneric.hpp"
 #include "gstlearn_export.hpp"
 
@@ -34,12 +33,10 @@ public:
   void setKrigopt(const KrigOpt& krigopt) { _krigopt = krigopt; }
 
   ModelGeneric* getModelGeneric() const { return _modelGeneric; }
-  Model* getModel() const { return _model; }
   ANeigh* getNeigh() const { return _neigh; }
   const KrigOpt& getKrigopt() const { return _krigopt; }
 
   bool hasModelGeneric(bool verbose = true) const;
-  bool hasModel(bool verbose = true) const;
   bool hasNeigh(bool verbose = true) const;
 
 protected:
@@ -52,7 +49,6 @@ protected:
 private:
   // Next members are pointers (not to be deleted)
   ModelGeneric* _modelGeneric;
-  Model* _model; // Conversion of _modelGeneric into a Model (more than ModelGeneric)
   ANeigh* _neigh;
   KrigOpt _krigopt;
   Id _ncova;

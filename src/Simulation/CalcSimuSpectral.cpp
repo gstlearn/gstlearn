@@ -23,7 +23,6 @@
 #include "geoslib_define.h"
 
 #include <cmath>
-#include <string>
 
 namespace gstlrn
 {
@@ -31,6 +30,7 @@ CalcSimuSpectral::CalcSimuSpectral(Id nbsimu, Id ns, Id nd, Id seed, bool verbos
   : ACalcSimulation(nbsimu, seed)
   , _isPrepared(false)
   , _verbose(verbose)
+  , _iattOut(-1)
   , _ns(ns)
   , _nd(nd)
   , _phi()
@@ -101,9 +101,8 @@ bool CalcSimuSpectral::isValidForSpectral(const ModelGeneric* model)
  */
 Id CalcSimuSpectral::simulate()
 {
-  auto ns = _getNs();
-
   // simulation of random phases, uniform on [0,2 pi]
+  auto ns    = _getNs();
   _phi       = VectorDouble(ns);
   double pi2 = 2. * GV_PI;
   for (Id is = 0; is < ns; is++)
@@ -111,7 +110,7 @@ Id CalcSimuSpectral::simulate()
 
   // simulation of the random frequencies
   if (_simulate() != 0) return 1;
-  _isPrepared = true;
+  _setIsPrepared(true);
   return 0;
 }
 
@@ -119,25 +118,18 @@ Id CalcSimuSpectral::simulate()
  * @brief Compute one non-conditional simulation on the samples of Dbout using Spectral Method
  *
  * @param dbout
- * @param iuid
- * @param namconv
- * @param qualifier
+ * @param isimu
  * @return Id
  */
-Id CalcSimuSpectral::compute(Db* dbout,
-                             Id iuid,
-                             const NamingConvention& namconv,
-                             const String& qualifier)
+Id CalcSimuSpectral::compute(Db* dbout, Id isimu)
 {
   if (!_getIsPrepared())
   {
     messerr("You should run 'simulate' beforehand");
     return 1;
   }
-  Id ndim              = dbout->getNDim();
-  Id nech              = dbout->getNSample(true);
-  Id nvar              = _getNVar();
-  bool flagNewVariable = (iuid <= 0);
+  Id ndim = dbout->getNDim();
+  Id nech = dbout->getNSample(true);
 
   if (ndim != _getNDim())
   {
@@ -149,55 +141,68 @@ Id CalcSimuSpectral::compute(Db* dbout,
     messerr("'dbout' must have a positive number of active samples");
     return 1;
   }
-  if (!_isPrepared)
-  {
-    messerr("You should run 'simulate' beforehand");
-    return 1;
-  }
-
-  // Optional printout
-  if (getVerbose())
-  {
-    message("Spectral Simulation on a set of Isolated Points\n");
-    message("- Number of samples = %d\n", nech);
-    message("- Space dimension   = %d\n", ndim);
-    message("- Number of variables = %d\n", nvar);
-  }
-
-  // Create the variables
-  if (flagNewVariable)
-  {
-    iuid = dbout->addColumnsByConstant(nvar, 0., String(), ELoc::Z);
-    if (iuid < 0) return 1;
-  }
 
   // computing the values
-  if (_compute(dbout, iuid) > 0) return 1;
+  if (_compute(dbout, isimu) > 0) return 1;
 
-  // Modify the name of the output variables
-  if (flagNewVariable)
-  {
-    for (Id ivar = 0; ivar < nvar; ivar++)
-    {
-      NamingConvention nmSim(namconv);
-      String nm(namconv.getPrefix() + namconv.getDelim() + "V" + std::to_string(ivar + 1));
-      nmSim.setPrefix(nm);
-      nmSim.setNamesAndLocators(dbout, iuid + ivar, qualifier, 1);
-    }
-  }
   return 0;
+}
+
+bool CalcSimuSpectral::_preprocess()
+{
+  if (!ACalcSimulation::_preprocess()) return false;
+
+  auto nvar   = _getNVar();
+  auto nbsimu = getNbSimu();
+
+  /* Add the attributes for storing the results */
+
+  if (getDbin() != nullptr)
+  {
+    Id iptr_in = _addVariableDb(1, 2, ELoc::SIMU, 0, nvar * nbsimu);
+    if (iptr_in < 0) return false;
+  }
+
+  _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 0, nvar * nbsimu);
+  return _iattOut >= 0;
+}
+
+bool CalcSimuSpectral::_postprocess()
+{
+  // Free the temporary variables
+  _cleanVariableDb(2);
+
+  // Clean variables created for Expansion
+  if (_expandInformation(-1, ELoc::F)) return false;
+  if (_expandInformation(-1, ELoc::NOSTAT)) return false;
+
+  // Set the error return flag
+
+  // _renameVariable(2, VectorString(), ELoc::Z, _getNVar(), _iattOut, String(), getNbSimu());
+
+  NamingConvention namconv = getNamingConvention();
+  String prefix(namconv.getPrefix());
+  String delim(namconv.getDelim());
+  NamingConvention namconvS(namconv);
+
+  // Loop on the simulations
+  for (Id isimu = 0; isimu < getNbSimu(); isimu++)
+    for (Id ivar = 0; ivar < _getNVar(); ivar++)
+    {
+      String ps(prefix);
+      ps.append(delim + "V" + std::to_string(ivar + 1));
+      ps.append(delim + "S" + std::to_string(isimu + 1));
+      namconvS.setPrefix(ps);
+      namconvS.setNamesAndLocators(nullptr, VectorString(), ELoc::Z, 1, getDbout(),
+                                   _iattOut + isimu * _getNVar() + ivar, "", 1);
+    }
+  return true;
 }
 
 bool CalcSimuSpectral::_run()
 {
   law_set_random_seed(getSeed());
-  auto nvar   = getModelGeneric()->getNVar();
   auto nbsimu = getNbSimu();
-
-  // Creating the output variables
-
-  Id iuid = getDbout()->addColumnsByConstant(nbsimu * nvar, 0., String(), ELoc::Z);
-  if (iuid < 0) return false;
 
   // Loop on the simulations
   for (Id isimu = 0; isimu < nbsimu; isimu++)
@@ -205,7 +210,7 @@ bool CalcSimuSpectral::_run()
     if (getVerbose())
       messerr(">>> computing simulation %d", isimu + 1);
     if (simulate()) return false;
-    if (compute(getDbout(), iuid + isimu * nvar)) return false;
+    if (compute(getDbout(), isimu)) return false;
   }
   return true;
 }
@@ -274,29 +279,5 @@ Id simuSpectral(Db* dbin,
   // Run the calculator
   Id error = (spectral->run()) ? 0 : 1;
   return error;
-
-  // String prefix(namconv.getPrefix());
-  // String delim(namconv.getDelim());
-  // NamingConvention namconvS(namconv);
-
-  // // Loop on the simulations
-  // for (Id isimu = 0; isimu < nbsimu; isimu++)
-  // {
-  //   if (verbose)
-  //     messerr(">>> computing simulation %d", isimu + 1);
-  //   if (simu->simulate(cov0, verbose)) return 1;
-  //   if (simu->compute(dbout, iuid + isimu * nvar, verbose)) return 1;
-
-  //   // Modify the name of the output
-  //   for (Id ivar = 0; ivar < nvar; ivar++)
-  //   {
-  //     String ps(prefix);
-  //     ps.append(delim + "V" + std::to_string(ivar + 1));
-  //     ps.append(delim + "S" + std::to_string(isimu + 1));
-  //     namconvS.setPrefix(ps);
-  //     namconvS.setNamesAndLocators(dbin, VectorString(), ELoc::Z, 1, dbout, iuid + isimu * nvar + ivar, "", 1);
-  //   }
-  // }
-  // return 0;
 }
 } // namespace gstlrn

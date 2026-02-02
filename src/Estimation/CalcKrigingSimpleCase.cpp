@@ -52,7 +52,7 @@ bool CalcKrigingSimpleCase::_check()
 
   if (_flagVarZ)
   {
-    if (getModel()->isNoStat())
+    if (getModelGeneric()->isNoStat())
     {
       messerr("Variance of Estimator is limited to Stationary Covariance"); // Why?
       messerr("Variance of Estimator is limited to Stationary Covariance"); // Why?

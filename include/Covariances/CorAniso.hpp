@@ -16,7 +16,6 @@
 #include "Covariances/ACov.hpp"
 #include "Covariances/TabNoStat.hpp"
 #include "Covariances/TabNoStatCovAniso.hpp"
-#include "Simulation/SimuSpectralRN.hpp"
 #include "Enum/EConsElem.hpp"
 #include "Model/CovInternal.hpp"
 #include "geoslib_define.h"

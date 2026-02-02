@@ -16,7 +16,6 @@
 #include "Covariances/CorGaussianMixture.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Matrix/MatrixDense.hpp"
-#include "Simulation/SimuSpectralRN.hpp"
 #include "Space/ASpace.hpp"
 #include "Space/SpaceComposite.hpp"
 #include "geoslib_define.h"

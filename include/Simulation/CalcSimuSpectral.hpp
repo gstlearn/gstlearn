@@ -25,11 +25,9 @@ public:
   CalcSimuSpectral& operator=(const CalcSimuSpectral& r) = delete;
   virtual ~CalcSimuSpectral();
 
+  // Perform the task for ONE simulation
   Id simulate();
-  Id compute(Db* dbout,
-             Id iuid                         = 0,
-             const NamingConvention& namconv = NamingConvention("Simu"),
-             const String& qualifier         = "simu");
+  Id compute(Db* dbout, Id isimu = 0);
 
   VectorDouble getPhi() { return _phi; };
   double getPhi(Id i) { return _phi[i]; };
@@ -38,11 +36,12 @@ public:
 
 protected:
   bool _check() override;
+  bool _preprocess() override;
+  bool _postprocess() override;
   bool _run() override;
-  bool _preprocess() override { return true; };
 
-  virtual Id _simulate()                      = 0;
-  virtual Id _compute(Db* dbout, Id iuid = 0) = 0;
+  virtual Id _simulate()                       = 0;
+  virtual Id _compute(Db* dbout, Id isimu = 0) = 0;
 
   Id _getNs() const { return _ns; };
   Id _getNd() const { return _nd; };
@@ -55,6 +54,7 @@ protected:
 private:
   bool _isPrepared;
   bool _verbose;
+  Id _iattOut;
   Id _ns;            // Number of spectral components
   Id _nd;            // Maximum number of spectral orders on
   VectorDouble _phi; // Vector length=_ns

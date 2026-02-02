@@ -362,7 +362,9 @@ Performing multiple simulations using the *simuSpectral* interface:
 # simulations
 nsim = 20
 err = grd$deleteColumns(names = paste0(prefix, "*"))
-err = simuSpectral(dbin = NULL, dbout = grd, cova = mg_in_gstlearn, seed = 0,
+modelGeneric = ModelGeneric(ctxt)
+err = modelGeneric$setCov(mg_in_gstlearn)
+err = simuSpectral(dbin = NULL, dbout = grd, model = modelGeneric, seed = 0,
                    nbsimu = nsim, ns = ns, namconv = NamingConvention(prefix), verbose = FALSE)
 ```
 

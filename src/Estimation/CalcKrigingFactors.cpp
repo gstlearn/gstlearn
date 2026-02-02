@@ -43,7 +43,7 @@ bool CalcKrigingFactors::_check()
 
   if (!hasDbin()) return false;
   if (!hasDbout()) return false;
-  if (!hasModel()) return false;
+  if (!hasModelGeneric()) return false;
   if (!hasNeigh()) return false;
 
   if (getNeigh()->getType() == ENeigh::IMAGE)
@@ -52,7 +52,7 @@ bool CalcKrigingFactors::_check()
     return false;
   }
 
-  _modelLocal = dynamic_cast<Model*>(getModel());
+  _modelLocal = dynamic_cast<Model*>(getModelGeneric());
   if (_modelLocal == nullptr)
   {
     messerr("The model must be of type Model (not ModelGeneric)");
@@ -172,7 +172,7 @@ Id CalcKrigingFactors::_getNFactors() const
  *****************************************************************************/
 bool CalcKrigingFactors::_run()
 {
-  KrigingSystem ksys(getDbin(), getDbout(), getModel(), getNeigh(), getKrigopt());
+  KrigingSystem ksys(getDbin(), getDbout(), getModelGeneric(), getNeigh(), getKrigopt());
   if (ksys.updKrigOptEstim(_iptrEst, _iptrStd, -1)) return 1;
   if (ksys.setKrigOptFactorKriging(true)) return 1;
   if (!ksys.isReady()) return 1;

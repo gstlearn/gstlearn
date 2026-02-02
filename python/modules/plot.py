@@ -471,7 +471,7 @@ def _onlyPositiveX(vario=None, model=None, ivar=0, jvar=0, asCov=False):
             status = True
 
     if model is not None:
-        if model.drawOnlyPositiveX(ivar, jvar, asCov):
+        if gl.Model_drawOnlyPositiveX(ivar, jvar, asCov):
             status = True
     return status
 

@@ -191,7 +191,7 @@ void ACalcSimulation::_correctStationaryMean(Db* dbout, Id icase, bool flagBayes
       {
         if (!activeArray[iech]) continue;
         dbout->updSimvar(ELoc::SIMU, iech, isimu, ivar, icase, nbsimu,
-                         nvar, EOperator::ADD, getModel()->getMean(ivar));
+                         nvar, EOperator::ADD, getModelGeneric()->getMean(ivar));
       }
     }
   }
@@ -220,7 +220,7 @@ void ACalcSimulation::_difference(Db* dbin,
   double r    = 1.;
   if (flag_dgm)
   {
-    auto* modelLocal  = dynamic_cast<Model*>(getModel());
+    auto* modelLocal  = dynamic_cast<Model*>(getModelGeneric());
     const auto* anamH = dynamic_cast<const AnamHermite*>(modelLocal->getAnam());
     r                 = anamH->getRCoef();
   }
@@ -445,7 +445,7 @@ Id ACalcSimulation::_checkGaussianDataToGrid(Db* dbin, Db* dbout) const
   auto nbsimu = getNbSimu();
   if (nbsimu <= 0) return 0;
 
-  auto* model  = getModel();
+  auto* model  = getModelGeneric();
   auto* dbgrid = dynamic_cast<DbGrid*>(dbout);
   if (dbgrid == nullptr) return 0;
   Id ndim = dbin->getNDim();
@@ -517,9 +517,9 @@ Id ACalcSimulation::_conditionalKriging(Db* dbin,
                                         bool flag_bayes,
                                         bool flag_dgm)
 {
-  auto* neigh = getNeigh();
-  auto* model = getModel();
-  Id nbsimu   = getNbSimu();
+  auto* neigh        = getNeigh();
+  auto* modelGeneric = getModelGeneric();
+  Id nbsimu          = getNbSimu();
 
   // Preliminary checks
 
@@ -539,7 +539,7 @@ Id ACalcSimulation::_conditionalKriging(Db* dbin,
   KrigOpt krigopt;
   krigopt.setOptionDGM(flag_dgm);
 
-  KrigingSystem ksys(dbin, dbout, model, neigh, krigopt);
+  KrigingSystem ksys(dbin, dbout, modelGeneric, neigh, krigopt);
   if (ksys.setKrigOptFlagSimu(true, nbsimu, icase)) return 1;
   if (ksys.updKrigOptEstim(iptr_est, -1, -1, true)) return 1;
   if (ksys.setKrigOptBayes(flag_bayes)) return 1;

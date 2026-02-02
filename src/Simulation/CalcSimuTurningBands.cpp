@@ -463,11 +463,12 @@ Id CalcSimuTurningBands::_initializeSeedBands()
       for (Id is = 0; is < ncova; is++)
         for (Id ib = 0; ib < nbtuba; ib++)
         {
-          Id ibs = _getIBS(isimu, is, ib);
+          Id ibs    = _getIBS(isimu, is, ib);
+          ECov type = _particularCase(is);
           operTB.reset();
           _setSeedBand(ivar, is, ib, isimu, law_get_random_seed());
 
-          Id optionSpectral = _getCorrec(is, ibs, operTB, correc);
+          Id optionSpectral = _getCorrec(type, is, ibs, operTB, correc);
           if (optionSpectral == 0)
           {
             messerr("The structure (%s) cannot be simulated",
@@ -855,20 +856,19 @@ double CalcSimuTurningBands::_irfProcessInit(Id ibs, Id is, TurningBandOperate& 
 }
 
 void CalcSimuTurningBands::_spreadRegularOnGrid(const DbGrid* dbgrid,
+                                                CovAniso* cova,
                                                 Id ibs,
-                                                Id is,
+                                                double correc,
                                                 TurningBandOperate& operTB,
                                                 const VectorBool& activeArray,
                                                 VectorDouble& tab)
 {
-  CovAniso* cova = _modelLocal->getCovAniso(is);
   double t0y, t0z, t0;
 
-  Id ndim   = dbgrid->getNDim();
-  Id nx     = (ndim >= 1) ? dbgrid->getNX(0) : 1;
-  Id ny     = (ndim >= 2) ? dbgrid->getNX(1) : 1;
-  Id nz     = (ndim >= 3) ? dbgrid->getNX(2) : 1;
-  ECov type = _modelLocal->getCovType(is);
+  Id ndim = dbgrid->getNDim();
+  Id nx   = (ndim >= 1) ? dbgrid->getNX(0) : 1;
+  Id ny   = (ndim >= 2) ? dbgrid->getNX(1) : 1;
+  Id nz   = (ndim >= 3) ? dbgrid->getNX(2) : 1;
 
   double t00 = _getCodirT00(ibs);
   double dxp = _getCodirDXP(ibs);
@@ -888,7 +888,7 @@ void CalcSimuTurningBands::_spreadRegularOnGrid(const DbGrid* dbgrid,
       for (Id ix = 0; ix < nx; ix++)
       {
         if (activeArray[ind])
-          tab[ind] = cova->simulateTurningBand(t0, operTB);
+          tab[ind] += correc * cova->simulateTurningBand(t0, operTB);
         t0 += dxp;
 
         ind++;
@@ -898,13 +898,13 @@ void CalcSimuTurningBands::_spreadRegularOnGrid(const DbGrid* dbgrid,
 }
 
 void CalcSimuTurningBands::_spreadSpectralOnGrid(const DbGrid* dbgrid,
+                                                 CovAniso* cova,
                                                  Id ibs,
-                                                 Id is,
+                                                 double correc,
                                                  TurningBandOperate& operTB,
                                                  const VectorBool& activeArray,
                                                  VectorDouble& tab)
 {
-  CovAniso* cova = _modelLocal->getCovAniso(is);
   double c1, s1, c0x, s0x, c0y, s0y, c0z, s0z, cxp, sxp, cyp, syp, czp, szp;
   Id ndim = dbgrid->getNDim();
   Id nx   = (ndim >= 1) ? dbgrid->getNX(0) : 1;
@@ -932,7 +932,7 @@ void CalcSimuTurningBands::_spreadSpectralOnGrid(const DbGrid* dbgrid,
       for (Id ix = 0; ix < nx; ix++)
       {
         if (activeArray[ind])
-          tab[ind] = cova->simulateTurningBand(c0x, operTB);
+          tab[ind] += correc * cova->simulateTurningBand(c0x, operTB);
         c1  = c0x * cxp - s0x * sxp;
         s1  = s0x * cxp + c0x * sxp;
         c0x = c1;
@@ -945,36 +945,36 @@ void CalcSimuTurningBands::_spreadSpectralOnGrid(const DbGrid* dbgrid,
 }
 
 void CalcSimuTurningBands::_spreadRegularOnPoint(const Db* db,
+                                                 CovAniso* cova,
                                                  Id ibs,
-                                                 Id is,
+                                                 double correc,
                                                  TurningBandOperate& operTB,
                                                  const VectorBool& activeArray,
                                                  VectorDouble& tab)
 {
-  CovAniso* cova = _modelLocal->getCovAniso(is);
   double t0;
   for (Id iech = 0, nech = db->getNSample(); iech < nech; iech++)
   {
     if (!activeArray[iech]) continue;
-    t0        = _codirs[ibs].projectPoint(db, iech);
-    tab[iech] = cova->simulateTurningBand(t0, operTB);
+    t0 = _codirs[ibs].projectPoint(db, iech);
+    tab[iech] += correc * cova->simulateTurningBand(t0, operTB);
   }
 }
 
 void CalcSimuTurningBands::_spreadSpectralOnPoint(const Db* db,
+                                                  CovAniso* cova,
                                                   Id ibs,
-                                                  Id is,
+                                                  double correc,
                                                   TurningBandOperate& operTB,
                                                   const VectorBool& activeArray,
                                                   VectorDouble& tab)
 {
-  CovAniso* cova = _modelLocal->getCovAniso(is);
   double t0;
   for (Id iech = 0, nech = db->getNSample(); iech < nech; iech++)
   {
     if (!activeArray[iech]) continue;
-    t0        = _codirs[ibs].projectPoint(db, iech);
-    tab[iech] = cova->simulateTurningBand(t0, operTB);
+    t0 = _codirs[ibs].projectPoint(db, iech);
+    tab[iech] += correc * cova->simulateTurningBand(t0, operTB);
   }
 }
 
@@ -990,8 +990,12 @@ Id CalcSimuTurningBands::_computeTB(Db* db, Id icase, Id shift)
   auto nech   = db->getNSample();
   auto nbsimu = getNbSimu();
   auto ncova  = _getNCov();
+  auto nvar   = _getNVar();
 
-  VectorDouble tab(nech, 0.);
+  VectorVectorDouble tab;
+  tab.resize(nvar);
+  for (Id ivar = 0; ivar < nvar; ivar++)
+    tab[ivar].resize(nech, 0.);
   VectorBool activeArray = db->getActiveArray();
   Id mem_seed            = law_get_random_seed();
 
@@ -1000,16 +1004,20 @@ Id CalcSimuTurningBands::_computeTB(Db* db, Id icase, Id shift)
   {
     for (Id is = 0; is < ncova; is++)
     {
-      ECov type = _particularCase(is);
+      CovAniso* cova = _modelLocal->getCovAniso(is);
+      ECov type      = _particularCase(is);
       if (type == ECov::NUGGET) continue;
-      if (dbgrid != nullptr)
-        _computeGrid(dbgrid, icase, shift, isimu, is, activeArray, tab);
-      else
-        _computePoint(db, icase, shift, isimu, is, activeArray, tab);
-    }
+      tab.fill(0.);
 
-    // Normation of the results
-    _normeResults(db, icase, shift, isimu, activeArray);
+      // Simulate all bands / variables at all samples for current simulation / structure
+      if (dbgrid != nullptr)
+        _computeGrid(dbgrid, cova, type, isimu, is, activeArray, tab);
+      else
+        _computePoint(db, cova, type, isimu, is, activeArray, tab);
+
+      // Cumulate structures for current simulation
+      _scaleAndCumulateStructures(db, icase, shift, isimu, is, activeArray, tab);
+    }
   }
 
   // Set the initial seed back
@@ -1021,65 +1029,67 @@ Id CalcSimuTurningBands::_computeTB(Db* db, Id icase, Id shift)
  * @brief For all simulated values, apply the normation by the number of bands
  *
  * @param db Target Db
- * @param icase Rank of PGS or GRF
- * @param shift Shift before writing the simulation result
- * @param isimu Simulation index
  * @param activeArray Array indicating active samples
+ * @param tab Array containing simulation values for all bands
  */
-void CalcSimuTurningBands::_normeResults(Db* db, Id icase, Id shift, Id isimu, const VectorBool& activeArray)
+void CalcSimuTurningBands::_normalizeForBands(const Db* db,
+                                              const VectorBool& activeArray,
+                                              VectorVectorDouble& tab)
 {
-  auto nbsimu  = getNbSimu();
   auto nech    = db->getNSample();
   auto nvar    = _getNVar();
   auto nbtuba  = getNbtuba();
   double norme = sqrt(1. / nbtuba);
+
   for (Id iech = 0; iech < nech; iech++)
     for (Id ivar = 0; ivar < nvar; ivar++)
       if (activeArray[iech])
-        db->updSimvar(ELoc::SIMU, iech, shift + isimu, ivar, icase, nbsimu, nvar, EOperator::PRODUCT, norme);
+      {
+        tab[ivar][iech] *= norme;
+      }
 }
 
 /**
- * @brief Cumulate the contents of 'tab' (one band) into the simulation results
+ * @brief Cumulate the contents of 'tab' (all bands) into the simulation results
  *
  * @param db Target Db
  * @param icase Rank of PGS or GRF
  * @param shift Shift before writing the simulation result
- * @param ivar Variable index
  * @param isimu Simulation index
  * @param is Covariance index
- * @param correc Correction factor
  * @param activeArray Array indicating active samples
  * @param tab Array containing simulation values for one band
  */
-void CalcSimuTurningBands::_cumulateResult(Db* db,
-                                           Id icase,
-                                           Id shift,
-                                           Id ivar,
-                                           Id isimu,
-                                           Id is,
-                                           double correc,
-                                           const VectorBool& activeArray,
-                                           const VectorDouble& tab)
+void CalcSimuTurningBands::_scaleAndCumulateStructures(Db* db,
+                                                       Id icase,
+                                                       Id shift,
+                                                       Id isimu,
+                                                       Id is,
+                                                       const VectorBool& activeArray,
+                                                       const VectorVectorDouble& tab)
 {
   auto nbsimu = getNbSimu();
   auto nech   = db->getNSample();
   auto nvar   = _getNVar();
   for (Id iech = 0; iech < nech; iech++)
     if (activeArray[iech])
-      for (Id jvar = 0; jvar < nvar; jvar++)
-        db->updSimvar(ELoc::SIMU, iech, shift + isimu, jvar, icase,
-                      nbsimu, nvar, EOperator::ADD,
-                      tab[iech] * correc * _modelLocal->getAic(is, ivar, jvar));
+      for (Id ivar = 0; ivar < nvar; ivar++)
+        for (Id jvar = 0; jvar < nvar; jvar++)
+          db->updSimvar(ELoc::SIMU, iech, shift + isimu, jvar, icase,
+                        nbsimu, nvar, EOperator::ADD,
+                        tab[jvar][iech] * _modelLocal->getAic(is, ivar, jvar));
 }
 
-Id CalcSimuTurningBands::_getCorrec(Id is, Id ibs, TurningBandOperate& operTB, double& correc)
+Id CalcSimuTurningBands::_getCorrec(const ECov& type,
+                                    Id is,
+                                    Id ibs,
+                                    TurningBandOperate& operTB,
+                                    double& correc)
 {
-  double scale  = _getCodirScale(ibs);
-  double param  = _modelLocal->getParam(is);
-  ECov type     = _particularCase(is);
-  double theta1 = 1. / _theta;
-  correc        = 1.;
+  double scale;
+  double param;
+  double theta1;
+  correc = 1.;
   switch (type.toEnum())
   {
     case ECov::E_NUGGET:
@@ -1088,32 +1098,29 @@ Id CalcSimuTurningBands::_getCorrec(Id is, Id ibs, TurningBandOperate& operTB, d
       return 1;
 
     case ECov::E_STABLE:
+      param = _modelLocal->getParam(is);
       if (param > 1)
       {
         correc = _spectralInit(ibs, is, operTB);
         return 1;
       }
-      else
-      {
-        scale = _getScale(param, 2. * scale);
-        _migrationInit(ibs, is, scale, operTB);
-        return 2;
-      }
+      scale = _getScale(param, 2. * _getCodirScale(ibs));
+      _migrationInit(ibs, is, scale, operTB);
+      return 2;
 
     case ECov::E_MATERN:
+      param = _modelLocal->getParam(is);
       if (param > 0.5)
       {
         correc = _spectralInit(ibs, is, operTB);
         return 1;
       }
-      else
-      {
-        scale = _getScaleKB(param, scale) * 2;
-        _migrationInit(ibs, is, scale, operTB);
-        return 2;
-      }
+      scale = _getScaleKB(param, _getCodirScale(ibs)) * 2;
+      _migrationInit(ibs, is, scale, operTB);
+      return 2;
 
     case ECov::E_EXPONENTIAL:
+      scale = _getCodirScale(ibs);
       _migrationInit(ibs, is, 2. * scale, operTB);
       return 2;
 
@@ -1140,6 +1147,7 @@ Id CalcSimuTurningBands::_getCorrec(Id is, Id ibs, TurningBandOperate& operTB, d
     case ECov::E_ORDER1_GC:
     case ECov::E_ORDER3_GC:
     case ECov::E_ORDER5_GC:
+      theta1 = 1. / _theta;
       _migrationInit(ibs, is, theta1, operTB);
       correc = _irfProcessInit(ibs, is, operTB);
       return 2;
@@ -1156,8 +1164,8 @@ Id CalcSimuTurningBands::_getCorrec(Id is, Id ibs, TurningBandOperate& operTB, d
  **  Turning Bands method.
  **
  ** \param[in]  db         Db structure
- ** \param[in]  icase      Rank of PGS or GRF
- ** \param[in]  shift      Shift before writing the simulation result
+ ** \param[in]  cova       Covariance Anisotropy structure
+ ** \param[in]  type       Covariance type
  ** \param[in]  isimu      Simulation index
  ** \param[in]  is         Covariance index
  ** \param[in]  activeArray  Array indicating active samples
@@ -1165,12 +1173,12 @@ Id CalcSimuTurningBands::_getCorrec(Id is, Id ibs, TurningBandOperate& operTB, d
  **
  *****************************************************************************/
 void CalcSimuTurningBands::_computePoint(Db* db,
-                                         Id icase,
-                                         Id shift,
+                                         CovAniso* cova,
+                                         const ECov& type,
                                          Id isimu,
                                          Id is,
                                          const VectorBool& activeArray,
-                                         VectorDouble& tab)
+                                         VectorVectorDouble& tab)
 {
   TurningBandOperate operTB;
   double correc;
@@ -1184,17 +1192,17 @@ void CalcSimuTurningBands::_computePoint(Db* db,
       operTB.setFlagScaled(false);
 
       law_set_random_seed(_getSeedBand(ivar, is, ib, isimu));
-      Id optionSpectral = _getCorrec(is, ibs, operTB, correc);
+      Id optionSpectral = _getCorrec(type, is, ibs, operTB, correc);
 
       // Spreading the values on the points within 'tab'
       if (optionSpectral == 1)
-        _spreadSpectralOnPoint(db, ibs, is, operTB, activeArray, tab);
+        _spreadSpectralOnPoint(db, cova, ibs, correc, operTB, activeArray, tab[ivar]);
       else
-        _spreadRegularOnPoint(db, ibs, is, operTB, activeArray, tab);
-
-      // Cumulate 'tab' into the simulation results
-      _cumulateResult(db, icase, shift, ivar, isimu, is, correc, activeArray, tab);
+        _spreadRegularOnPoint(db, cova, ibs, correc, operTB, activeArray, tab[ivar]);
     }
+
+  // Normalize by the count of bands
+  _normalizeForBands(db, activeArray, tab);
 }
 
 /*****************************************************************************/
@@ -1203,8 +1211,8 @@ void CalcSimuTurningBands::_computePoint(Db* db,
  **  Turning Bands method
  **
  ** \param[in]  dbgrid     Db Grid structure
- ** \param[in]  icase      Rank of PGS or GRF
- ** \param[in]  shift      Shift before writing the simulation result
+ ** \param[in]  cova       Covariance Anisotropy structure
+ ** \param[in]  type       Covariance type
  ** \param[in]  isimu      Simulation index
  ** \param[in]  is         Covariance index
  ** \param[in]  activeArray  Array indicating active samples
@@ -1212,12 +1220,12 @@ void CalcSimuTurningBands::_computePoint(Db* db,
  **
  *****************************************************************************/
 void CalcSimuTurningBands::_computeGrid(DbGrid* dbgrid,
-                                        Id icase,
-                                        Id shift,
+                                        CovAniso* cova,
+                                        const ECov& type,
                                         Id isimu,
                                         Id is,
                                         const VectorBool& activeArray,
-                                        VectorDouble& tab)
+                                        VectorVectorDouble& tab)
 {
   TurningBandOperate operTB;
   double correc;
@@ -1231,17 +1239,17 @@ void CalcSimuTurningBands::_computeGrid(DbGrid* dbgrid,
       operTB.setFlagScaled(true);
 
       law_set_random_seed(_getSeedBand(ivar, is, ib, isimu));
-      Id optionSpectral = _getCorrec(is, ibs, operTB, correc);
+      Id optionSpectral = _getCorrec(type, is, ibs, operTB, correc);
 
       // Spreading the values on the grid within 'tab'
       if (optionSpectral == 1)
-        _spreadSpectralOnGrid(dbgrid, ibs, is, operTB, activeArray, tab);
+        _spreadSpectralOnGrid(dbgrid, cova, ibs, correc, operTB, activeArray, tab[ivar]);
       else
-        _spreadRegularOnGrid(dbgrid, ibs, is, operTB, activeArray, tab);
-
-      // Cumulate 'tab' into the simulation results
-      _cumulateResult(dbgrid, icase, shift, ivar, isimu, is, correc, activeArray, tab);
+        _spreadRegularOnGrid(dbgrid, cova, ibs, correc, operTB, activeArray, tab[ivar]);
     }
+
+  // Normalize by the count of bands
+  _normalizeForBands(dbgrid, activeArray, tab);
 }
 
 /****************************************************************************/
@@ -1569,7 +1577,7 @@ bool CalcSimuTurningBands::_check()
   if (!ACalcSimulation::_check()) return false;
 
   if (!hasDbout()) return false;
-  if (!hasModel()) return false;
+  if (!hasModelGeneric()) return false;
   if (hasDbin(false))
   {
     if (!hasNeigh()) return false;
@@ -1583,9 +1591,8 @@ bool CalcSimuTurningBands::_check()
     return false;
   }
 
-  // Check that the model is of type 'Model' (more than ModelGeneric)
-  // Store the pointer to this converted type locally for better performance
-  _modelLocal = dynamic_cast<Model*>(getModel());
+  // Check that the model is of type 'Model'
+  _modelLocal = dynamic_cast<Model*>(getModelGeneric());
   if (_modelLocal == nullptr)
   {
     messerr("The model must be of type Model not ModelGeneric)");

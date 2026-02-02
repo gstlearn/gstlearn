@@ -66,8 +66,8 @@ bool CalcImage::_check()
 
   if (_flagFilter)
   {
-    const auto* model = dynamic_cast<const ModelCovList*>(getModel());
-    if (model == nullptr)
+    const auto* modelCovList = dynamic_cast<const ModelCovList*>(getModelGeneric());
+    if (modelCovList == nullptr)
     {
       messerr("Model should be a ModelCovList");
       return false;
@@ -177,10 +177,10 @@ VectorVectorInt CalcImage::_getActiveRanks(const DbGrid* dblocal)
   return ranks;
 }
 
-bool CalcImage::_filterImage(DbGrid* dbgrid, const ModelCovList* model)
+bool CalcImage::_filterImage(DbGrid* dbgrid, const ModelGeneric* modelGeneric)
 {
   VectorDouble means;
-  if (model->getNDrift() == 0) means = model->getMeans();
+  if (modelGeneric->getNDrift() == 0) means = modelGeneric->getMeans();
 
   Id ndim   = dbgrid->getNDim();
   auto nvar = _getNVar();
@@ -194,7 +194,7 @@ bool CalcImage::_filterImage(DbGrid* dbgrid, const ModelCovList* model)
 
   // We perform a Kriging of the center 'dbaux' in Unique Neighborhood
   NeighUnique* neighU = NeighUnique::create();
-  KrigingSystem ksys(dblocal, target, model, neighU, getKrigopt());
+  KrigingSystem ksys(dblocal, target, modelGeneric, neighU, getKrigopt());
   if (ksys.updKrigOptEstim(iuid, -1, -1, true)) return false;
   if (!ksys.isReady()) return false;
   if (ksys.estimate(0)) return false;
@@ -302,8 +302,7 @@ bool CalcImage::_run()
 
   if (_flagFilter)
   {
-    const auto* model = dynamic_cast<const ModelCovList*>(getModel());
-    if (!_filterImage(dbgrid, model)) return false;
+    if (!_filterImage(dbgrid, getModelGeneric())) return false;
   }
 
   if (_flagMorpho)

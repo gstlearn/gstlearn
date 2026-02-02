@@ -47,7 +47,7 @@ bool CalcKrigingGradient::_check()
 
   if (!hasDbin()) return false;
   if (!hasDbout()) return false;
-  if (!hasModel()) return false;
+  if (!hasModelGeneric()) return false;
   if (!hasNeigh()) return false;
 
   // Must be Monovariate
@@ -97,7 +97,7 @@ Id CalcKrigingGradient::_updateModel()
   Id ndim = _getNDim();
 
   // Check if the Model contains a ACov
-  const ACov* acov = dynamic_cast<const ACov*>(getModel()->getCov());
+  const ACov* acov = dynamic_cast<const ACov*>(getModelGeneric()->getCov());
   if (acov == nullptr)
   {
     messerr("The input Model should contain an 'ACov'");
@@ -105,7 +105,7 @@ Id CalcKrigingGradient::_updateModel()
   }
 
   // Create the new Model
-  CovContext ctxt(*getModel()->getContext());
+  CovContext ctxt(*getModelGeneric()->getContext());
   Id new_nvar = 1 + ndim;
   ctxt.setNVar(new_nvar);
   _modelGradient = new ModelGeneric(ctxt);
@@ -141,7 +141,7 @@ Id CalcKrigingGradient::_updateModel()
   // Create the basic drift structures
   // *********************************
 
-  DriftList* drifts = DriftFactory::createDriftListForGradients(getModel()->getDriftList(), ctxt);
+  DriftList* drifts = DriftFactory::createDriftListForGradients(getModelGeneric()->getDriftList(), ctxt);
   _modelGradient->setDriftList(drifts);
   delete drifts;
 

@@ -297,7 +297,9 @@ legend("bottomright",
 ```{r multi_simulations, echo = TRUE, eval = TRUE}
 err = grd$deleteColumns(names = paste0(covname, "*"))
 nsim = 20 # number of simulation
-err = simuSpectral(dbin = NULL, dbout = grd, cova = cova, seed = 2584, ns=ns, nbsimu=nsim, namconv = NamingConvention(covname))
+modelGeneric = ModelGeneric()
+err = modelGeneric$setCov(cova)
+err = simuSpectral(dbin = NULL, dbout = grd, model = modelGeneric, seed = 2584, ns=ns, nbsimu=nsim, namconv = NamingConvention(covname))
 
 # simulation and experimental variograms
 varios <- matrix(NaN, nrow = nsim, ncol = ndisc)

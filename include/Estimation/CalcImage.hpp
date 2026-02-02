@@ -57,7 +57,7 @@ private:
   bool _postprocess() override;
   void _rollback() override;
 
-  bool _filterImage(DbGrid* dbgrid, const ModelCovList* model);
+  bool _filterImage(DbGrid* dbgrid, const ModelGeneric* model);
   static void _image_smoother(DbGrid* dbgrid,
                               const NeighImage* neigh,
                               Id type,

@@ -393,7 +393,9 @@ set.seed(seed)
 ns = 5000 # number of spectral waves
 nbsimu = 3
 
-err = simuSpectral(dbin = NULL, dbout = grid, cova = gsMatern, nbsimu = nbsimu, 
+modelGeneric = ModelGeneric(ctxt)
+err = modelGeneric$setCov(gsMatern)
+err = simuSpectral(dbin = NULL, dbout = grid, model = modelGeneric, nbsimu = nbsimu, 
                    seed = seed, ns = ns, verbose = FALSE, 
                    namconv = NamingConvention(prefix))
 

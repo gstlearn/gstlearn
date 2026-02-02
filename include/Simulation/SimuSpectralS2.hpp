@@ -42,7 +42,7 @@ public:
 
 protected:
   Id _simulate() override;
-  Id _compute(Db* dbout, Id iuid = 0) override;
+  Id _compute(Db* dbout, Id isimu = 0) override;
 
   bool _run() override { return true; };
 

@@ -58,7 +58,6 @@ Id SimuSpectralS2::_simulate()
   // Cleaning any previously allocated memory
   _spSims.clear();
 
-  // simulation of the spectrum
   // Simulation of the spectrum
   VectorDouble U = VH::simulateUniform(ns);
   VH::sortInPlace(U);
@@ -231,9 +230,13 @@ void SimuSpectralS2::_printSpSims(Id status)
   message("- Number of components (-) = %d\n", totalM);
 }
 
-Id SimuSpectralS2::_compute(Db* dbout, Id iuid)
+Id SimuSpectralS2::_compute(Db* dbout, Id isimu)
 {
-  Id np = dbout->getNSample(true);
+  VectorInt ranks;
+  dbout->getSampleRanksPerVariable(ranks);
+  Id np     = ranks.length();
+  Id nvar   = _getNVar();
+  Id nbsimu = getNbSimu();
 
   Id nb    = 0;
   Id N_max = -9999;
@@ -250,7 +253,7 @@ Id SimuSpectralS2::_compute(Db* dbout, Id iuid)
   // Optional printout
   if (getVerbose())
   {
-    mestitle(1, ">>> simulation on Sphere");
+    mestitle(1, ">>> Simulation on Sphere");
     message(">>> point number    : %d\n", np);
     message(">>> component number: %d\n", nb);
     message(">>> Maximum order   : %d\n", K_max);
@@ -358,8 +361,12 @@ Id SimuSpectralS2::_compute(Db* dbout, Id iuid)
   val.multiplyCst(sqrt(2. / nb));
 
   // Save the resulting array
-  dbout->setColumnByUID(val, iuid);
 
+  for (Id ip = 0; ip < np; ip++)
+  {
+    Id iech = ranks[ip];
+    dbout->setSimvar(ELoc::SIMU, iech, isimu, 0, 0, nbsimu, nvar, val[ip]);
+  }
   return 0;
 }
 

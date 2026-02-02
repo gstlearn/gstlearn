@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Enum/ECov.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
@@ -85,19 +86,19 @@ private:
 
   bool _resizeTB();
   void _computePoint(Db* db,
-                     Id icase,
-                     Id shift,
+                     CovAniso* cova,
+                     const ECov& type,
                      Id isimu,
                      Id is,
                      const VectorBool& activeArray,
-                     VectorDouble& tab);
+                     VectorVectorDouble& tab);
   void _computeGrid(DbGrid* db,
-                    Id icase,
-                    Id shift,
+                    CovAniso* cova,
+                    const ECov& type,
                     Id isimu,
                     Id is,
                     const VectorBool& activeArray,
-                    VectorDouble& tab);
+                    VectorVectorDouble& tab);
   void _computeNugget(Db* db, Id icase);
 
   // Turning bands specific methods
@@ -131,21 +132,15 @@ private:
   void _setDensity();
   ECov _particularCase(Id is, double eps = EPSILON7) const;
   Id _initializeSeedBands();
-  void _cumulateResult(Db* db,
-                       Id icase,
-                       Id shift,
-                       Id ivar,
-                       Id isimu,
-                       Id is,
-                       double correc,
-                       const VectorBool& activeArray,
-                       const VectorDouble& tab);
-  void _normeResults(Db* db,
-                     Id icase,
-                     Id shift,
-                     Id isimu,
-                     const VectorBool& activeArray);
-  Id _getCorrec(Id is, Id ibs, TurningBandOperate& operTB, double& correc);
+  void _scaleAndCumulateStructures(Db* db,
+                                   Id icase,
+                                   Id shift,
+                                   Id isimu,
+                                   Id is,
+                                   const VectorBool& activeArray,
+                                   const VectorVectorDouble& tab);
+  void _normalizeForBands(const Db* db, const VectorBool& activeArray, VectorVectorDouble& tab);
+  Id _getCorrec(const ECov& type, Id is, Id ibs, TurningBandOperate& operTB, double& correc);
   static double _getScale(double alpha, double scale);
   static double _getScaleKB(double param, double scale);
   void _migrationInit(Id ibs,
@@ -172,26 +167,30 @@ private:
                     double* s0z);
 
   void _spreadRegularOnGrid(const DbGrid* dbgrid,
+                            CovAniso* cova,
                             Id ibs,
-                            Id is,
+                            double correc,
                             TurningBandOperate& operTB,
                             const VectorBool& activeArray,
                             VectorDouble& tab);
   void _spreadRegularOnPoint(const Db* db,
+                             CovAniso* cova,
                              Id ibs,
-                             Id is,
+                             double correc,
                              TurningBandOperate& operTB,
                              const VectorBool& activeArray,
                              VectorDouble& tab);
   void _spreadSpectralOnGrid(const DbGrid* dbgrid,
+                             CovAniso* cova,
                              Id ibs,
-                             Id is,
+                             double correc,
                              TurningBandOperate& operTB,
                              const VectorBool& activeArray,
                              VectorDouble& tab);
   void _spreadSpectralOnPoint(const Db* db,
+                              CovAniso* cova,
                               Id ibs,
-                              Id is,
+                              double correc,
                               TurningBandOperate& operTB,
                               const VectorBool& activeArray,
                               VectorDouble& tab);

@@ -367,7 +367,7 @@ plot.init <- function(dims = NA, xlim = NA, ylim = NA, asp = NA) {
     }
 
     if (! .isNotDef(model)) {
-      if (model$drawOnlyPositiveX(ivar, jvar, asCov)) {
+      if (Model_drawOnlyPositiveX(ivar, jvar, asCov)) {
         status = TRUE
       }
     }

@@ -12,7 +12,9 @@
 
 #include "Basic/ASerializable.hpp"
 #include "Covariances/CorAniso.hpp"
-#include "Simulation/SimuSpectralRN.hpp"
+#include "Db/DbGrid.hpp"
+#include "Model/ModelGeneric.hpp"
+#include "Simulation/CalcSimuSpectral.hpp"
 
 using namespace gstlrn;
 
@@ -36,8 +38,8 @@ int main(int argc, char* argv[])
                                                         nus,
                                                         ani_angles,
                                                         false);
-  auto* model             = new ModelGeneric(gs_ctxt);
-  model->setCov(gs_cov);
+  auto* modelGeneric      = new ModelGeneric(gs_ctxt);
+  modelGeneric->setCov(gs_cov);
 
   VectorDouble x0 = {0., 0.};
   VectorInt nx    = {200, 200};
@@ -45,7 +47,14 @@ int main(int argc, char* argv[])
   auto* grid      = DbGrid::create(nx, dx, x0);
   grid->display();
 
-  (void)simuSpectral(nullptr, grid, model);
+  Id nbsimu    = 3;
+  Id seed      = 234567;
+  Id ns        = 1000;
+  Id nd        = 100;
+  bool verbose = true;
+  (void)simuSpectral(nullptr, grid, modelGeneric, nullptr, nbsimu, seed, ns, nd, nullptr, verbose,
+                     NamingConvention("mySimu"));
+  grid->display();
 
   return 0;
 }

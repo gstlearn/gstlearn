@@ -244,7 +244,7 @@ bool CalcSimuPartition::_check()
   if (!ACalcSimulation::_check()) return false;
 
   if (!hasDbout()) return false;
-  if (!hasModel()) return false;
+  if (!hasModelGeneric()) return false;
   auto ndim = _getNDim();
   if (ndim > 3)
   {
@@ -265,7 +265,7 @@ bool CalcSimuPartition::_check()
     return false;
   }
 
-  _modelLocal = dynamic_cast<Model*>(getModel());
+  _modelLocal = dynamic_cast<Model*>(getModelGeneric());
   if (_modelLocal == nullptr)
   {
     messerr("The model must be of type 'Model' (not ModelGeneric)");

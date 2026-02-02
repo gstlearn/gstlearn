@@ -22,7 +22,6 @@ namespace gstlrn
 ACalcInterpolator::ACalcInterpolator()
   : ACalcDbToDb()
   , _modelGeneric(nullptr)
-  , _model(nullptr)
   , _neigh(nullptr)
   , _krigopt()
   , _ncova(0)
@@ -220,9 +219,6 @@ bool ACalcInterpolator::_preprocess()
 void ACalcInterpolator::setModelGeneric(ModelGeneric* modelGeneric)
 {
   _modelGeneric = modelGeneric;
-
-  // Try to set the pointer to the Model (if argument is compatible)
-  _model = dynamic_cast<Model*>(modelGeneric);
 }
 
 bool ACalcInterpolator::hasModelGeneric(bool verbose) const
@@ -230,16 +226,6 @@ bool ACalcInterpolator::hasModelGeneric(bool verbose) const
   if (_modelGeneric == nullptr)
   {
     if (verbose) messerr("The argument 'modelGeneric' must be defined");
-    return false;
-  }
-  return true;
-}
-
-bool ACalcInterpolator::hasModel(bool verbose) const
-{
-  if (_model == nullptr)
-  {
-    if (verbose) messerr("The argument 'model' must be defined");
     return false;
   }
   return true;

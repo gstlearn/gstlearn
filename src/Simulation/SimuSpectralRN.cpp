@@ -104,12 +104,13 @@ Id SimuSpectralRN::_simulate()
  * Compute the simulation on Dbout using Spectral Method
  *
  * @param dbout Db containing the results
- * @param iuid  Address for storage (or 0 if the variable must be created locally)
+ * @param isimu Simulation index
  */
-Id SimuSpectralRN::_compute(Db* dbout, Id iuid)
+Id SimuSpectralRN::_compute(Db* dbout, Id isimu)
 {
-  Id nvar = _getNVar();
-  Id ndim = dbout->getNDim();
+  Id nvar   = _getNVar();
+  Id ndim   = dbout->getNDim();
+  Id nbsimu = getNbSimu();
   VectorDouble coor(ndim);
   VectorInt ranks;
   dbout->getSampleRanksPerVariable(ranks);
@@ -121,9 +122,6 @@ Id SimuSpectralRN::_compute(Db* dbout, Id iuid)
   {
     message("Spectral Simulation on a set of Isolated Points\n");
     message("- Number of samples = %d\n", nech);
-    message("- Space dimension   = %d\n", ndim);
-    message("- Number of spectral components = %d\n", ns);
-    message("- Number of variables = %d\n", nvar);
   }
   // Loop on the active samples
   for (Id jech = 0; jech < nech; jech++)
@@ -136,7 +134,7 @@ Id SimuSpectralRN::_compute(Db* dbout, Id iuid)
       u[ib] = cos(u[ib] + getPhi(ib));
     VectorDouble values = _gamma.prodMatVec(u, true);
     for (Id iv = 0; iv < nvar; iv++)
-      dbout->setArray(iech, iuid + iv, values[iv]);
+      dbout->setSimvar(ELoc::SIMU, iech, isimu, iv, 0, nbsimu, nvar, values[iv]);
   }
   return 0;
 }

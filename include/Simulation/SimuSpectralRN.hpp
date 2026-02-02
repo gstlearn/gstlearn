@@ -41,10 +41,9 @@ public:
   MatrixDense getGamma() { return _gamma; };
 
 protected:
-  Id _simulate() override;
-  Id _compute(Db* dbout, Id iuid = 0) override;
-
   bool _check() override;
+  Id _simulate() override;
+  Id _compute(Db* dbout, Id isimu = 0) override;
 
 private:
   // spectrum for R^n

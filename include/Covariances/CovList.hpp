@@ -51,6 +51,8 @@ public:
   CovList& operator=(const CovList& r);
   virtual ~CovList();
 
+  IMPLEMENT_CLONING(CovList)
+
   /// Interface for ACov
   Id getNVar() const override;
   bool isIndexable() const override { return true; }

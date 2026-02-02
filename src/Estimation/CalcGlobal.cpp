@@ -60,9 +60,9 @@ bool CalcGlobal::_check()
 
   if (!hasDbin()) return false;
   if (!hasDbout()) return false;
-  if (!hasModel()) return false;
+  if (!hasModelGeneric()) return false;
 
-  _modelLocal = dynamic_cast<Model*>(getModel());
+  _modelLocal = dynamic_cast<Model*>(getModelGeneric());
   if (_modelLocal == nullptr)
   {
     messerr("This method requires the model to be a 'Model' (not a ModelGeneric)");
