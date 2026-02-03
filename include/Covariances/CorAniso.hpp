@@ -203,6 +203,7 @@ public:
   bool hasRotation() const { return _aniso.hasRotation(); }
   const Tensor& getAniso() const { return _aniso; }
   void setAniso(const Tensor& aniso) { _aniso = aniso; }
+  void addEvalCorFromHVect(constvect h, vect res, const CovCalcMode* mode, double lambda = 1.) const;
   const AKernel* getCorFunc() const { return _corfunc; }
   Id getNGradParam() const;
 

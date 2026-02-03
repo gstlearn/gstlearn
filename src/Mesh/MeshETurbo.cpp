@@ -24,6 +24,14 @@
 
 namespace gstlrn
 {
+
+/// factor allocations
+thread_local VectorInt _indg;
+thread_local VectorInt _indices;
+thread_local VectorDouble _lambdas;
+thread_local VectorDouble _rhs;
+thread_local VectorInt _indgg;
+
 MeshETurbo::MeshETurbo(Id mode)
   : AMesh()
   , _grid()
@@ -633,6 +641,19 @@ Id MeshETurbo::getMeshFromCoordinates(const VectorDouble& coor,
       return iref + icas;
   }
   return -1;
+}
+
+void MeshETurbo::initThread() const
+{
+  _grid.initThread();
+  if (_indg.size() != static_cast<size_t>(getNDim()))
+  {
+    _indg.resize(getNDim());
+    _indices.resize(getNApexPerMesh()); 
+    _lambdas.resize(getNApexPerMesh());
+    _rhs.resize(getNApexPerMesh());
+    _indgg.resize(getNDim());
+  }
 }
 
 /****************************************************************************/

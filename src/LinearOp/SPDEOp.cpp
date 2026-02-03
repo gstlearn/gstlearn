@@ -13,25 +13,28 @@
 #include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "LinearOp/ASimulable.hpp"
+#include "LinearOp/IPrecisionOp.hpp"
+#include "LinearOp/IProj.hpp"
 #include "LinearOp/PrecisionOpMulti.hpp"
-#include "LinearOp/ProjMulti.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Polynomials/Chebychev.hpp"
 #include "geoslib_define.h"
 
 namespace gstlrn
 {
-ASPDEOp::ASPDEOp(const PrecisionOpMulti* const popKriging,
-                 const ProjMulti* const projInKriging,
+ASPDEOp::ASPDEOp(const IPrecisionOp* const popKriging,
+                 const IProj* const projInKriging,
                  const ASimulable* invNoise,
-                 const PrecisionOpMulti* const popSimu,
-                 const ProjMulti* const projInSimu)
+                 const IPrecisionOp* const popSimu,
+                 const IProj* const projInSimu,
+                 APreconditioner* precond)
   : _QKriging(popKriging)
   , _projInKriging(projInKriging)
   , _invNoise(invNoise)
   , _QSimu(popSimu == nullptr ? popKriging : popSimu)
   , _projInSimu(projInSimu == nullptr ? projInKriging : projInSimu)
   , _solver(nullptr)
+  , _precond(precond)
   , _verbose(false)
   , _ndat(0)
 {
@@ -91,13 +94,22 @@ Id ASPDEOp::_addToDest(const constvect inv, vect outv) const
 
   Id status = _QKriging->addToDest(inv, outv); // TODO: find why outv is set to zero in multistructure case
   if (status) return status;
+   _addProjOp(inv, outv);
+  return status;
+}
+
+void ASPDEOp::_addProjOp(const constvect inv, vect out) const
+{
   vect w1s(_workdat1);
   vect w2s(_workdat2);
   _projInKriging->mesh2point(inv, w1s);
   _invNoise->evalDirect(w1s, w2s);
-  _projInKriging->addPoint2mesh(w2s, outv);
-
-  return status;
+  _projInKriging->addPoint2mesh(w2s, out);
+}
+void ASPDEOp::_projOp(constvect inv, vect out) const
+{
+  std::fill(out.begin(), out.end(), 0.);
+   _addProjOp(inv, out);
 }
 
 void ASPDEOp::_simCond(const constvect data, vect outvK, vect outvS) const
@@ -137,7 +149,7 @@ void ASPDEOp::_simNonCond(vect outv) const
   _QSimu->evalSimulate(_workNoiseMesh, outv);
 }
 
-VectorDouble ASPDEOp::kriging(const VectorDouble& dat, const ProjMulti* proj) const
+VectorDouble ASPDEOp::kriging(const VectorDouble& dat, const IProj* proj) const
 {
   constvect datm(dat.data(), dat.size());
   VectorDouble outMeshK(getSize());
@@ -200,7 +212,7 @@ Id ASPDEOp::centerDataByMeanVec(VectorDouble& Z,
   return 0;
 }
 
-VectorDouble ASPDEOp::simNonCond(const ProjMulti* proj) const
+VectorDouble ASPDEOp::simNonCond(const IProj* proj) const
 {
   VectorDouble outMeshS(getSizeSimu());
   vect outMeshSv(outMeshS);
@@ -214,8 +226,8 @@ VectorDouble ASPDEOp::simNonCond(const ProjMulti* proj) const
 }
 
 VectorDouble ASPDEOp::simCond(const VectorDouble& dat,
-                              const ProjMulti* projK,
-                              const ProjMulti* projS) const
+                              const IProj* projK,
+                              const IProj* projS) const
 {
   constvect datv(dat.data(), dat.size());
   VectorDouble outMeshK(getSize());
@@ -252,8 +264,8 @@ VectorDouble ASPDEOp::simCond(const VectorDouble& dat,
 VectorDouble ASPDEOp::stdev(const VectorDouble& dat,
                             Id nMC,
                             Id seed,
-                            const ProjMulti* projK,
-                            const ProjMulti* projS) const
+                            const IProj* projK,
+                            const IProj* projS) const
 {
   auto memo = law_get_random_seed();
   law_set_random_seed(seed);
@@ -310,6 +322,15 @@ Id ASPDEOp::_solve(const constvect in, vect out) const
   return 0;
 }
 
+VectorDouble ASPDEOp::evalInverse(const VectorDouble& vecin)
+{
+  constvect inv(vecin.data(), vecin.size());
+  VectorDouble out(getSize());
+  vect outv(out);
+  Id err = _solve(inv, outv);
+  if (err) return VectorDouble();
+  return out;
+}
 Id ASPDEOp::_solveWithGuess(const constvect in,
                             const constvect guess,
                             vect out) const
@@ -381,16 +402,35 @@ VectorDouble ASPDEOp::computeDriftCoeffs(const VectorDouble& Z,
   return result;
 }
 
-std::pair<double, double> ASPDEOp::_computeRangeEigenVal() const
+
+double ASPDEOp::getMaxEigenValProj() const
 {
-  std::pair<double, double> result = _QKriging->rangeEigenValQ();
-  // result.second += getMaxEigenValProj();
+  _workmesh.resize(getSize());
+  _workNoiseMesh.resize(getSize());
+  std::fill(_workmesh.begin(), _workmesh.end(), 1.);
+  _projOp(_workmesh, _workNoiseMesh);
+  return _workNoiseMesh.maximum();
+}
+
+VectorDouble ASPDEOp::getRangeEigenVal(Id ndiscr) const
+{
+  std::pair<double, double> ranges = _computeRangeEigenVal(ndiscr);
+  VectorDouble result(2);
+  result[0] = ranges.first;
+  result[1] = ranges.second;
   return result;
 }
 
-void ASPDEOp::_preparePoly(Chebychev& logPoly) const
+std::pair<double, double> ASPDEOp::_computeRangeEigenVal(Id ndiscr) const
 {
-  std::pair<double, double> ranges = _computeRangeEigenVal();
+  std::pair<double, double> result = _QKriging->rangeEigenVal(ndiscr);
+  result.second += getMaxEigenValProj();
+  return result;
+}
+
+void ASPDEOp::_preparePoly(Chebychev& logPoly, Id ndiscr) const
+{
+  std::pair<double, double> ranges = _computeRangeEigenVal(ndiscr);
   double a                         = ranges.first;
   double b                         = ranges.second;
   logPoly.setA(a);

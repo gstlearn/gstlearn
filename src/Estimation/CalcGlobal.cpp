@@ -287,7 +287,7 @@ Id CalcGlobal::_globalArithmetic()
 
   /* Filling the resulting structure */
 
-  double sse   = cvv - 2. * cxv + cxx;
+  double sse   = cvv - (2. * cxv) + cxx;
   sse          = (sse > 0) ? sqrt(sse) : 0.;
   double cvsam = (!isZero(ave)) ? sqrt(var) / ave : TEST;
   double cviid = cvsam / sqrt(np);

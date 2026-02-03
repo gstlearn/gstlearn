@@ -46,7 +46,7 @@ namespace gstlrn
  */
 class GSTLEARN_EXPORT MatrixSparse: public AMatrix, public virtual ALinearOp
 {
-public:
+public: 
   MatrixSparse(Id nrow = 0, Id ncol = 0, Id ncolmax = -1);
   MatrixSparse(const MatrixSparse& m);
   MatrixSparse& operator=(const MatrixSparse& m);
@@ -61,12 +61,16 @@ public:
 
   //// Interface to AStringable
   String toString(const AStringFormat* strfmt = nullptr) const override;
-
+  
   /// Interface for ALinearOp
 
   Id getSize() const override { return getNRows(); }
 
+
+  static MatrixSparse* createFromMatrix(const MatrixSparse& mat);
+
   /// Interface for AMatrix
+
 
   /*! Returns if the current matrix is Sparse */
   bool isSparse() const override { return true; }
@@ -216,7 +220,8 @@ public:
 
   Id forwardLU(const VectorDouble& b, VectorDouble& x, bool flagLower = true) const;
   void forceDimension(Id maxRows, Id maxCols);
-
+  VectorInt getNonZeroCols(Id irow) const;
+  VectorInt getNonZeroRows(Id icol) const;
 #ifndef SWIG
 
 protected:

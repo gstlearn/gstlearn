@@ -216,7 +216,6 @@ private:
   VectorInt _order;
   VectorInt _indices;
   mutable VectorInt _dummy;
-  // Some working vectors, defined in order to avoid too many allocations
 
   friend class DbGrid;
 };

@@ -59,15 +59,24 @@ public:
 
 protected:
   double _evaluateCov(double h) const override;
+  double _evaluateCovGeneric(double h) const;
+
   double _evaluateCovFirstDerivative(double h) const override;
   VectorDouble _evaluateSpectrumOnSphere(Id n, double scale = 1., bool flagScale = true) const override;
+  double _evaluateCovHalfInteger(double h) const;
+  void _setParam(double param, Id ipar = 0) override;
 
 private:
+  using MaternFunc = double (*)(double);
   static double _besselK(double nu, double h);
   double _newMatern(double h) const;
   double _oldMatern(double h) const;
+  static double _evalExp(double h);
+  static double _evalNu15(double h);
+  static double _evalNu25(double h);
 
 private:
+  MaternFunc _maternFunc = nullptr;
   double _correc;
   VectorDouble _markovCoeffs;
 };

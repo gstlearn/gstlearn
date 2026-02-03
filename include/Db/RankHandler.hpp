@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Basic/ICloneable.hpp"
 #include "Matrix/MatrixT.hpp"
 #include "gstlearn_export.hpp"
 
@@ -27,7 +28,7 @@ class Db;
  * The main functionality of this class is to return the list of samples
  * per variable, within a given list of elligible sample ranks (neighborhood)
  */
-class GSTLEARN_EXPORT RankHandler
+class GSTLEARN_EXPORT RankHandler 
 {
 public:
   RankHandler(const Db* db = nullptr,
@@ -50,7 +51,7 @@ public:
   Id getTotalCount() const;
   Id identifyVariableRank(Id ipos) const;
   Id identifySampleRank(Id ipos) const;
-
+  void setSampleRanks(Id ivar, const VectorInt& ranks) { _index[ivar] = ranks; }
   void dump(bool flagFull = false) const;
 
 private:

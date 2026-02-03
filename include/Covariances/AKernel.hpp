@@ -88,6 +88,7 @@ public:
 
   static AKernel* createFromType(const ECov& type, Id ndim = 1);
 
+  virtual void evalCorFuncBatch(constvect h, vect res) const;
   ///////////////////////////////////////////////////
 
   void setParam(double param, Id ipar = 0);
@@ -124,6 +125,11 @@ public:
 protected:
   /// TODO : Gneiting (spatio-temporal covariance) :
   /// Change argument : double h becomes VectorDouble (number of sub-space)
+  virtual void _setParam(double param, Id ipar = 0)
+  {
+    DECLARE_UNUSED(param);
+    DECLARE_UNUSED(ipar);
+  }
   virtual double _evaluateCov(double h) const
   {
     DECLARE_UNUSED(h);

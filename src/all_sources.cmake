@@ -192,7 +192,6 @@ set(SRC
   LinearOp/IProj.cpp
   LinearOp/PrecisionOpMulti.cpp
   LinearOp/PrecisionOpMultiMatrix.cpp
-  LinearOp/PrecisionOpMultiConditional.cpp
   LinearOp/OptimCostColored.cpp
   LinearOp/ProjConvolution.cpp
   LinearOp/ACholesky.cpp
@@ -202,6 +201,9 @@ set(SRC
   LinearOp/SPDEOpMatrix.cpp
   LinearOp/ASimulable.cpp
   LinearOp/MatrixSymmetricSim.cpp
+  LinearOp/LinearOpHelper.cpp
+  LinearOp/MultiGridSolver.cpp
+  LinearOp/MultiGridSPDE.cpp
   MLayers/MLayers.cpp
   Space/SpaceSN.cpp
   Space/SpaceRN.cpp

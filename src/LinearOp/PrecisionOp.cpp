@@ -14,7 +14,7 @@
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "LinearOp/AShiftOp.hpp"
-#include "LinearOp/ASimulable.hpp"
+#include "LinearOp/IPrecisionOp.hpp"
 #include "LinearOp/ShiftOpMatrix.hpp"
 #include "LinearOp/ShiftOpStencil.hpp"
 #include "Mesh/AMesh.hpp"
@@ -30,7 +30,7 @@
 namespace gstlrn
 {
 PrecisionOp::PrecisionOp()
-  : ASimulable()
+  : IPrecisionOp()
   , _shiftOp(nullptr)
   , _cova(nullptr)
   , _polynomials()
@@ -47,7 +47,7 @@ PrecisionOp::PrecisionOp()
 PrecisionOp::PrecisionOp(AShiftOp* shiftop,
                          const CovAniso* cova,
                          bool verbose)
-  : ASimulable()
+  : IPrecisionOp()
   , _shiftOp(shiftop)
   , _cova(cova->clone())
   , _polynomials()
@@ -68,10 +68,10 @@ PrecisionOp::PrecisionOp(AShiftOp* shiftop,
 }
 
 PrecisionOp::PrecisionOp(const AMesh* mesh,
-                         CovAniso* cova,
+                         const CovAniso* cova,
                          bool stencil,
                          bool verbose)
-  : ASimulable()
+  : IPrecisionOp()
   , _shiftOp(nullptr)
   , _cova(cova->clone())
   , _polynomials()
@@ -108,7 +108,7 @@ PrecisionOp::PrecisionOp(const AMesh* mesh,
 }
 
 PrecisionOp::PrecisionOp(const PrecisionOp& pmat)
-  : ASimulable(pmat) // Explicitly call the base class copy constructor
+  : IPrecisionOp(pmat) // Explicitly call the base class copy constructor
   , _shiftOp(nullptr)
   , _cova(pmat._cova->clone())
   , _verbose(pmat._verbose)
@@ -167,6 +167,7 @@ void PrecisionOp::_purge()
 PrecisionOp::~PrecisionOp()
 {
   _purge();
+  delete _cova;
   if (_destroyShiftOp)
   {
     delete _shiftOp;
@@ -490,7 +491,7 @@ Id PrecisionOp::_preparePrecisionPoly() const
 /* discretized over ndiscr points */
 /* and return the min and the max */
 
-std::pair<double, double> PrecisionOp::getRangeEigenVal(Id ndiscr)
+std::pair<double, double> PrecisionOp::rangeEigenVal(Id ndiscr) const
 {
   std::pair<double, double> rangeVals;
   double sill  = _cova->getSill(0, 0); // TODO handle non constant sill

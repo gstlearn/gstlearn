@@ -15,6 +15,7 @@
 #include "Basic/VectorNumT.hpp"
 #include "Basic/WarningMacro.hpp"
 #include "LinearOp/ACholesky.hpp"
+#include "Matrix/MatrixSparse.hpp"
 
 #ifndef SWIG
 #  include <Eigen/Core>
@@ -39,7 +40,7 @@ using Sp = Eigen::SparseMatrix<double, 0, gstlrn::Id>;
 class GSTLEARN_EXPORT CholeskySparse: public ACholesky
 {
 public:
-  CholeskySparse(const MatrixSparse& mat);
+  CholeskySparse(const MatrixSparse& mat = MatrixSparse());
   CholeskySparse(const CholeskySparse& m);
   CholeskySparse& operator=(const CholeskySparse& m);
   virtual ~CholeskySparse();

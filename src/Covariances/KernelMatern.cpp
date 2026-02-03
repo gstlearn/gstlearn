@@ -39,6 +39,7 @@ KernelMatern::KernelMatern(const KernelMatern& r)
   , _correc(r._correc)
   , _markovCoeffs(r._markovCoeffs)
 {
+  _setParam(r.getParam());
 }
 
 KernelMatern& KernelMatern::operator=(const KernelMatern& r)
@@ -46,6 +47,7 @@ KernelMatern& KernelMatern::operator=(const KernelMatern& r)
   if (this != &r)
   {
     AKernel::operator=(r);
+    _setParam(r.getParam());
   }
   return *this;
 }
@@ -54,19 +56,127 @@ KernelMatern::~KernelMatern()
 {
 }
 
+void KernelMatern::_setParam(double param, Id ipar)
+{
+  if (ipar != 0)
+    my_throw("KernelMatern: only one parameter is expected");
+  if (param == 0.5)
+  {
+    _maternFunc = &KernelMatern::_evalExp;
+  }
+  else if (param == 1.5)
+  {
+    _maternFunc = &KernelMatern::_evalNu15;
+  }
+  else if (param == 2.5)
+  {
+    _maternFunc = &KernelMatern::_evalNu25;
+  }
+  else
+  {
+    _maternFunc = nullptr;
+  }
+}
+
 double KernelMatern::getScadef() const
 {
   return sqrt(12. * getParam());
 }
 
-double KernelMatern::_evaluateCov(double h) const
+double KernelMatern::_evaluateCovGeneric(double h) const
 {
+
   if (bessel_Old_Style)
   {
     return _oldMatern(h);
   }
   return _newMatern(h);
 }
+
+double KernelMatern::_evaluateCov(double h) const
+{
+  if (_maternFunc == nullptr)
+  {
+    return _evaluateCovGeneric(h);
+  }
+  return (this->_maternFunc)(h);
+}
+
+
+double KernelMatern::_evalExp(double h) 
+{
+   return std::exp(-h); 
+}
+
+double KernelMatern::_evalNu15(double h) 
+{
+   return std::exp(-h) * (1.0 + h); 
+}
+
+double KernelMatern::_evalNu25(double h) 
+{ 
+    return std::exp(-h) * (1.0 + h * (1.0 + h * 0.3333333333333333)); 
+}
+
+// TODO restore for the big nu case when formula is stable
+// double KernelMatern::_evaluateCovHalfInteger(double h) const
+// {
+//     if (h <= 1e-15) return 1.0;
+
+//     double nu = getParam();
+//     int p = static_cast<int>(nu - 0.5);
+
+//     double poly = 0.0;
+
+//     // Formules explicites optimisées pour les cas fréquents
+//     switch (p)
+//     {
+//         case 0: // nu = 0.5
+//             poly = 1.0;
+//             break;
+//         case 1: // nu = 1.5
+//             poly = 1.0 + h;
+//             break;
+//         case 2: // nu = 2.5
+//             poly = 1.0 + h + (h * h) / 3.0;
+//             break;
+//         case 3: // nu = 3.5
+//             poly = 1.0 + h + (0.4 * h * h) + (h * h * h) / 15.0;
+//             break;
+//         case 4: // nu = 4.5
+//             poly = 1.0 + h + (3.0/7.0 * h * h) + (2.0/21.0 * h * h * h) + (h * h * h * h) / 105.0;
+//             break;
+//         default:
+//             // Formule de récurrence générale pour p > 4
+//             // On utilise la forme : \sum_{k=0}^p a_k h^k
+//             // où a_k = \frac{(p+k)!}{k!(p-k)! 2^k} / \frac{(2p)!}{p! 2^p} ... non, plus simple :
+//             // a_k = a_{k-1} * \frac{p-k+1}{k(2p-k+1)}
+//             {
+//                 poly = 1.0;
+//                 double currentTerm = 1.0;
+//                 for (int k = 1; k <= p; ++k)
+//                 {
+//                     double factor = static_cast<double>(p - k + 1) / (k * (2 * p - k + 1));
+//                     currentTerm *= (h * factor * 2.0 * p); // Ajustement de normalisation
+//                     // Correction de la récurrence directe pour C(0)=1 :
+//                     // a_k = a_{k-1} * h * (p-k+1) / ( k * (2p-k+1) )
+//                     // Mais avec le h déjà inclus.
+//                 }
+                
+//                 // Version stable par Horner ou sommation directe :
+//                 poly = 1.0;
+//                 double ak = 1.0;
+//                 for (int k = 1; k <= p; ++k) {
+//                     ak *= h * static_cast<double>(p - k + 1) / (static_cast<double>(k) * (2 * p - k + 1));
+//                     poly += ak;
+//                 }
+//             }
+//             break;
+//     }
+
+//     return std::exp(-h) * poly;
+// }
+
 
 double KernelMatern::_newMatern(double h) const
 {

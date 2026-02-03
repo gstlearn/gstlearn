@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "LinearOp/SPDEOpMatrix.hpp"
+#include "LinearOp/IProj.hpp"
 #include "LinearOp/InvNuggetOp.hpp"
 #include "LinearOp/PrecisionOpMultiMatrix.hpp"
 #include "LinearOp/ProjMultiMatrix.hpp"
@@ -81,8 +82,8 @@ double SPDEOpMatrix::computeLogDetOp(Id nbsimu) const
 VectorDouble SPDEOpMatrix::stdev(const VectorDouble& dat,
                                  Id nMC,
                                  Id seed,
-                                 const ProjMulti* projK,
-                                 const ProjMulti* projS) const
+                                 const IProj* projK,
+                                 const IProj* projS) const
 {
   DECLARE_UNUSED(dat);
   DECLARE_UNUSED(nMC);
