@@ -15,6 +15,8 @@
 
 // iostream is included here as it is used in Eigen function (std::cerr)
 #include <iostream>
+#include "LinearOp/Precond.hpp"
+#include "geoslib_define.h"
 
 #ifndef SWIG
 #  include <Eigen/Core>
@@ -73,7 +75,7 @@ public:
 private:
   Eigen::ConjugateGradient<TLinOP,
                            Eigen::Lower | Eigen::Upper,
-                           Eigen::IdentityPreconditioner> cg;
+                           IdentityPreconditioner<TLinOP>> cg;
 #endif
 };
 }

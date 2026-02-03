@@ -665,6 +665,91 @@ VectorVectorInt AMesh::getNeighborhoodPerApex() const
   return Vapex;
 }
 
+VectorInt AMesh::getAdjacentApices(Id iapex) const
+{
+  if (_adjacencyMatrix.empty())
+  {
+    _buildAdjacencyMatrix();
+  }
+  return _adjacencyMatrix.getNonZeroCols(iapex);
+}
+
+VectorInt AMesh::getNRingsAdjacentApices( Id start_apex, Id n_rings) const
+{
+    if (n_rings <= 0) return {start_apex};
+    
+    // 1. Préparation des collecteurs
+    VectorInt all_neighbors;
+    VectorInt current_layer;
+    size_t nApices = getNApices();
+    // On utilise notre membre de classe pour marquer les visites
+    // On s'assure qu'il a la bonne taille (au cas où le maillage a changé)
+    if (_visitedWorkspace.size() != nApices) {
+        _visitedWorkspace.fill(false, nApices);
+    }
+
+    // 2. Initialisation du BFS
+    _visitedWorkspace[start_apex] = true;
+    current_layer.push_back(start_apex);
+    all_neighbors.push_back(start_apex);
+
+    // 3. Expansion des couronnes
+    for (int r = 0; r < n_rings; ++r) {
+        VectorInt next_layer;
+        for (int apex : current_layer) {
+            // Ton accesseur Eigen rapide
+            VectorInt neighbors = getAdjacentApices(apex);
+            
+            for (int v : neighbors) {
+                if (!_visitedWorkspace[v]) {
+                    _visitedWorkspace[v] = true;
+                    next_layer.push_back(v);
+                    all_neighbors.push_back(v);
+                }
+            }
+        }
+        if (next_layer.empty()) break;
+        current_layer = next_layer; // TODO use std::move
+    }
+
+    // 4. NETTOYAGE CRUCIAL : On remet à false uniquement les sommets touchés
+    // C'est beaucoup plus rapide que de faire un fill(false) sur tout le vecteur
+    for (int idx : all_neighbors) {
+        _visitedWorkspace[idx] = false;
+    }
+
+    return all_neighbors;
+}
+
+
+void AMesh::_buildAdjacencyMatrix() const
+{
+  auto napices  = getNApices();
+  auto nmeshes  = getNMeshes();
+  auto npermesh = getNApexPerMesh();
+
+  Id nbmax = getNDim() == 2 ? 7 : 20;
+  _adjacencyMatrix = MatrixSparse(napices, napices, nbmax);
+
+  // Loop on the meshes
+
+  for (Id imesh = 0; imesh < nmeshes; imesh++)
+  {
+    // Loop on the apices for each mesh
+
+    for (Id rank1 = 0; rank1 < npermesh; rank1++)
+    {
+      auto ip1 = getApex(imesh, rank1);
+      for (Id rank2 = 0; rank2 < npermesh; rank2++)
+      {
+        if (rank1 == rank2) continue;
+        auto ip2 = getApex(imesh, rank2);
+        _adjacencyMatrix.setValue(ip1, ip2, 1.);
+      }
+    }
+  }
+}
+
 void AMesh::dumpNeighborhood(std::vector<VectorInt>& Vmesh, Id nline_max)
 {
   mestitle(1, "List of Meshing Neighborhood");

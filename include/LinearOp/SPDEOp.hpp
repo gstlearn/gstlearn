@@ -113,6 +113,8 @@ private:
 
 private:
   void _prepare(bool w1 = true, bool w2 = true) const;
+  void _addADinvAt(const constvect inv, vect outv) const;
+
 
 protected:
   const PrecisionOpMulti* const _QKriging;

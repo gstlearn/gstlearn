@@ -974,6 +974,16 @@ Id MatrixSparse::_getIndexToRank(Id irow, Id icol) const
   return ITEST;
 }
 
+VectorInt MatrixSparse::getNonZeroCols(Id irow) const
+{
+  VectorInt cols;
+  for (Eigen::SparseMatrix<double>::InnerIterator it(eigenMat(), irow); it; ++it)
+  {
+   cols.push_back(it.index());
+  }
+  return cols;
+}
+
 MatrixSparse* createFromAnyMatrix(const AMatrix* matin)
 {
   return MatrixSparse::createFromTriplet(matin->getMatrixToTriplet(),

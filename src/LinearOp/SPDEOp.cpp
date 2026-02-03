@@ -87,17 +87,21 @@ void ASPDEOp::_prepare(bool w1, bool w2) const
 
 Id ASPDEOp::_addToDest(const constvect inv, vect outv) const
 {
-  _prepare();
 
   Id status = _QKriging->addToDest(inv, outv); // TODO: find why outv is set to zero in multistructure case
   if (status) return status;
+  _addADinvAt(inv,outv);
+  return status;
+}
+
+void ASPDEOp::_addADinvAt(const constvect inv, vect outv) const
+{
+  _prepare();
   vect w1s(_workdat1);
   vect w2s(_workdat2);
   _projInKriging->mesh2point(inv, w1s);
   _invNoise->evalDirect(w1s, w2s);
   _projInKriging->addPoint2mesh(w2s, outv);
-
-  return status;
 }
 
 void ASPDEOp::_simCond(const constvect data, vect outvK, vect outvS) const
@@ -381,10 +385,19 @@ VectorDouble ASPDEOp::computeDriftCoeffs(const VectorDouble& Z,
   return result;
 }
 
+
 std::pair<double, double> ASPDEOp::_computeRangeEigenVal() const
 {
   std::pair<double, double> result = _QKriging->rangeEigenValQ();
-  // result.second += getMaxEigenValProj();
+
+/* Evaluate the max along columns of the sum along lines of AtA. */
+/* Since the terms of A are positive, we can compute AtA * 1_n  and take the max */
+
+  _workmesh.resize(getSize());
+  _workNoiseMesh.resize(getSize());
+  std::fill(_workmesh.begin(), _workmesh.end(), 1.);
+  _addADinvAt(_workmesh, _workNoiseMesh);
+  result.second += _workNoiseMesh.maximum();
   return result;
 }
 

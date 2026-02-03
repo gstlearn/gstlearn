@@ -43,7 +43,7 @@ namespace gstlrn
  */
 class GSTLEARN_EXPORT MatrixSparse: public AMatrix, public virtual ALinearOp
 {
-public:
+public: 
   MatrixSparse(Id nrow = 0, Id ncol = 0, Id ncolmax = -1);
   MatrixSparse(const MatrixSparse& m);
   MatrixSparse& operator=(const MatrixSparse& m);
@@ -213,7 +213,7 @@ public:
 
   Id forwardLU(const VectorDouble& b, VectorDouble& x, bool flagLower = true) const;
   void forceDimension(Id maxRows, Id maxCols);
-
+  VectorInt getNonZeroCols(Id irow) const;
 #ifndef SWIG
 
 protected:
