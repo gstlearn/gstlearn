@@ -130,7 +130,7 @@ void MatrixSparse::fillRandom(Id seed, double zeroPercent)
 
 void MatrixSparse::_transposeInPlace()
 {
-  Eigen::SparseMatrix<double> temp;
+  EigenSparseMatrix temp;
   temp = eigenMat().transpose();
   eigenMat().swap(temp);
 }
@@ -291,7 +291,7 @@ void MatrixSparse::multiplyRow(const VectorDouble& vec)
     return;
   }
   for (Id k = 0; k < eigenMat().outerSize(); ++k)
-    for (Eigen::SparseMatrix<double>::InnerIterator it(eigenMat(), k); it; ++it)
+    for (EigenSparseMatrix::InnerIterator it(eigenMat(), k); it; ++it)
       it.valueRef() *= vec[it.row()];
 }
 
@@ -304,7 +304,7 @@ void MatrixSparse::multiplyColumn(const VectorDouble& vec)
     return;
   }
   for (Id k = 0; k < eigenMat().outerSize(); ++k)
-    for (Eigen::SparseMatrix<double>::InnerIterator it(eigenMat(), k); it; ++it)
+    for (EigenSparseMatrix::InnerIterator it(eigenMat(), k); it; ++it)
       it.valueRef() *= vec[it.col()];
 }
 
@@ -317,7 +317,7 @@ void MatrixSparse::divideRow(const VectorDouble& vec)
     return;
   }
   for (Id k = 0; k < eigenMat().outerSize(); ++k)
-    for (Eigen::SparseMatrix<double>::InnerIterator it(eigenMat(), k); it; ++it)
+    for (EigenSparseMatrix::InnerIterator it(eigenMat(), k); it; ++it)
       it.valueRef() /= vec[it.row()];
 }
 
@@ -330,7 +330,7 @@ void MatrixSparse::divideColumn(const VectorDouble& vec)
     return;
   }
   for (Id k = 0; k < eigenMat().outerSize(); ++k)
-    for (Eigen::SparseMatrix<double>::InnerIterator it(eigenMat(), k); it; ++it)
+    for (EigenSparseMatrix::InnerIterator it(eigenMat(), k); it; ++it)
       it.valueRef() /= vec[it.col()];
 }
 
@@ -453,7 +453,7 @@ MatrixSparse* MatrixSparse::diagMat(MatrixSparse* A, Id oper_choice)
 
 bool MatrixSparse::_isElementPresent(Id irow, Id icol) const
 {
-  for (Eigen::SparseMatrix<double>::InnerIterator it(eigenMat(), icol); it; ++it)
+  for (EigenSparseMatrix::InnerIterator it(eigenMat(), icol); it; ++it)
   {
     if (it.row() == irow) return true;
   }
@@ -522,7 +522,7 @@ Id MatrixSparse::addVecInPlaceVD(const VectorDouble& x, VectorDouble& y) const
 void MatrixSparse::setConstant(double value)
 {
   for (Id k = 0; k < eigenMat().outerSize(); ++k)
-    for (Eigen::SparseMatrix<double>::InnerIterator it(eigenMat(), k); it; ++it)
+    for (EigenSparseMatrix::InnerIterator it(eigenMat(), k); it; ++it)
       it.valueRef() = value;
 }
 
@@ -542,7 +542,7 @@ void MatrixSparse::addScalar(double v)
 {
   if (isZero(v)) return;
   for (Id k = 0; k < eigenMat().outerSize(); ++k)
-    for (Eigen::SparseMatrix<double>::InnerIterator it(eigenMat(), k); it; ++it)
+    for (EigenSparseMatrix::InnerIterator it(eigenMat(), k); it; ++it)
       it.valueRef() += v;
 }
 
@@ -555,7 +555,7 @@ void MatrixSparse::addScalarDiag(double v)
   if (isZero(v)) return;
 
   for (Id k = 0; k < eigenMat().outerSize(); ++k)
-    for (Eigen::SparseMatrix<double>::InnerIterator it(eigenMat(), k); it; ++it)
+    for (EigenSparseMatrix::InnerIterator it(eigenMat(), k); it; ++it)
     {
       if (it.col() == it.row())
         it.valueRef() += v;
@@ -570,7 +570,7 @@ void MatrixSparse::prodScalar(double v)
 {
   if (isOne(v)) return;
   for (Id k = 0; k < eigenMat().outerSize(); ++k)
-    for (Eigen::SparseMatrix<double>::InnerIterator it(eigenMat(), k); it; ++it)
+    for (EigenSparseMatrix::InnerIterator it(eigenMat(), k); it; ++it)
       it.valueRef() *= v;
 }
 
@@ -863,9 +863,9 @@ Id MatrixSparse::_invert()
   if (!isSquare())
     my_throw("Invert method is restricted to Square matrices");
   auto n = getNCols();
-  Eigen::SimplicialLLT<Eigen::SparseMatrix<double>> solver;
+  Eigen::SimplicialLLT<EigenSparseMatrix> solver;
   solver.compute(eigenMat());
-  Eigen::SparseMatrix<double> I(n, n);
+  EigenSparseMatrix I(n, n);
   I.setIdentity();
   eigenMat() = solver.solve(I);
 
@@ -879,7 +879,7 @@ Id MatrixSparse::_solve(const VectorDouble& b, VectorDouble& x) const
   if (static_cast<Id>(b.size()) != getNRows() || static_cast<Id>(x.size()) != getNRows())
     my_throw("b' and 'x' should have the same dimension as the Matrix");
 
-  Eigen::SimplicialLLT<Eigen::SparseMatrix<double>> solver;
+  Eigen::SimplicialLLT<EigenSparseMatrix> solver;
   Eigen::Map<const Eigen::VectorXd> bm(b.data(), getNCols());
   Eigen::Map<Eigen::VectorXd> xm(x.data(), getNRows());
   xm = solver.compute(eigenMat()).solve(bm);
@@ -896,7 +896,7 @@ String MatrixSparse::toString(const AStringFormat* strfmt) const
 
 void MatrixSparse::_allocate(Id nrow, Id ncol, Id ncolmax)
 {
-  eigenMat() = Eigen::SparseMatrix<double>(nrow, ncol);
+  eigenMat() = EigenSparseMatrix(nrow, ncol);
   _setNCols(ncol);
   _setNRows(nrow);
 
@@ -915,9 +915,9 @@ void MatrixSparse::_allocate(Id nrow, Id ncol, Id ncolmax)
  */
 void MatrixSparse::_allocate()
 {
-  eigenMat() = Eigen::SparseMatrix<double>(getNRows(), getNCols());
+  eigenMat() = EigenSparseMatrix(getNRows(), getNCols());
   {
-    eigenMat() = Eigen::SparseMatrix<double>(getNRows(), getNCols());
+    eigenMat() = EigenSparseMatrix(getNRows(), getNCols());
 
     if (_nColMax > 0)
     {
@@ -991,7 +991,7 @@ Id MatrixSparse::_eigen_findColor(Id imesh,
 
   /* Checks the colors of the connected nodes */
 
-  for (Eigen::SparseMatrix<double>::InnerIterator it(eigenMat(), imesh); it; ++it)
+  for (EigenSparseMatrix::InnerIterator it(eigenMat(), imesh); it; ++it)
   {
     if (isZero(it.value())) continue;
     Id irow = it.row();
@@ -1173,7 +1173,7 @@ void MatrixSparse::gibbs(Id iech,
                          double* sk)
 {
   *yk = 0.;
-  for (Eigen::SparseMatrix<double>::InnerIterator it(eigenMat(), iech); it;
+  for (EigenSparseMatrix::InnerIterator it(eigenMat(), iech); it;
        ++it)
   {
     double coeff = it.valueRef();
@@ -1220,7 +1220,7 @@ MatrixSparse* MatrixSparse::getRowAsMatrixSparse(Id irow, double coeff) const
   // The input sparse matrix being symmetrical, we benefit from its
   // column-major storage (setting icol = irow)
   Id icol = irow;
-  for (Eigen::SparseMatrix<double>::InnerIterator it(eigenMat(), icol); it; ++it)
+  for (EigenSparseMatrix::InnerIterator it(eigenMat(), icol); it; ++it)
     res->eigenMat().coeffRef(0, it.row()) = coeff * it.value();
 
   return res;
@@ -1232,7 +1232,7 @@ MatrixSparse* MatrixSparse::getColumnAsMatrixSparse(Id icol, double coeff) const
   auto nrows = getNRows();
   auto* res  = new MatrixSparse(nrows, 1);
 
-  for (Eigen::SparseMatrix<double>::InnerIterator it(eigenMat(), icol); it; ++it)
+  for (EigenSparseMatrix::InnerIterator it(eigenMat(), icol); it; ++it)
     res->eigenMat().coeffRef(it.row(), 0) = coeff * it.value();
 
   return res;
@@ -1240,8 +1240,8 @@ MatrixSparse* MatrixSparse::getColumnAsMatrixSparse(Id icol, double coeff) const
 
 ///////////////Not exported //////////
 
-Eigen::SparseMatrix<double> AtMA(const Eigen::SparseMatrix<double>& A,
-                                 const Eigen::SparseMatrix<double>& M)
+EigenSparseMatrix AtMA(const EigenSparseMatrix& A,
+                       const EigenSparseMatrix& M)
 {
   return A.transpose() * M * A;
 }
@@ -1253,13 +1253,13 @@ Id MatrixSparse::forwardLU(const VectorDouble& b, VectorDouble& x, bool flagLowe
 
   if (!flagLower)
   {
-    const Eigen::SparseMatrix<double>& Lx = eigenMat().transpose();
-    xm                                    = Lx.triangularView<Eigen::Upper>().solve(bm);
+    const EigenSparseMatrix& Lx = eigenMat().transpose();
+    xm                          = Lx.triangularView<Eigen::Upper>().solve(bm);
   }
   else
   {
-    const Eigen::SparseMatrix<double>& Lx = eigenMat();
-    xm                                    = Lx.triangularView<Eigen::Lower>().solve(bm);
+    const EigenSparseMatrix& Lx = eigenMat();
+    xm                          = Lx.triangularView<Eigen::Lower>().solve(bm);
   }
   return 0;
 }

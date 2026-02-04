@@ -23,6 +23,7 @@ DISABLE_WARNING_DECLARATION_HIDE_GLOBAL
 DISABLE_WARNING_POP
 
 typedef Eigen::Triplet<double, gstlrn::Id> T;
+typedef Eigen::SparseMatrix<double, 0, gstlrn::Id> EigenSparseMatrix; // see MatrixSparse.hpp
 #endif
 
 namespace gstlrn
@@ -57,9 +58,9 @@ public:
   void appendInPlace(const NF_Triplet& T2);
 
 #ifndef SWIG
-  ::Eigen::SparseMatrix<double> buildEigenFromTriplet() const;
+  EigenSparseMatrix buildEigenFromTriplet() const;
 
-  static NF_Triplet createFromEigen(const Eigen::SparseMatrix<double>& mat, Id shiftRow = 0, Id shiftCol = 0);
+  static NF_Triplet createFromEigen(const EigenSparseMatrix& mat, Id shiftRow = 0, Id shiftCol = 0);
 #endif
 
 private:

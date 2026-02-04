@@ -411,7 +411,7 @@ double GibbsMMulti::_getEstimate(Id ipgs,
 
   if (storeSparse)
   {
-    for (Eigen::SparseMatrix<double>::InnerIterator it(_matWgt->eigenMat(), icol); it; ++it)
+    for (EigenSparseMatrix::InnerIterator it(_matWgt->eigenMat(), icol); it; ++it)
     {
       _splitCol(it.row(), &jact, &jvar);
       jcase = getRank(ipgs, jvar);

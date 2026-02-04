@@ -34,7 +34,7 @@ DISABLE_WARNING_POP
 namespace gstlrn
 {
 class MatrixSparse;
-using Sp = Eigen::SparseMatrix<double>;
+using Sp = Eigen::SparseMatrix<double, 0, gstlrn::Id>;
 
 class GSTLEARN_EXPORT CholeskySparse: public ACholesky
 {

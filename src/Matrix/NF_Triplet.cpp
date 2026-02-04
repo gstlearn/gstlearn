@@ -63,22 +63,22 @@ void NF_Triplet::force(Id nrow, Id ncol)
     add(nrow - 1, ncol - 1, 0.);
 }
 
-Eigen::SparseMatrix<double> NF_Triplet::buildEigenFromTriplet() const
+EigenSparseMatrix NF_Triplet::buildEigenFromTriplet() const
 {
-  Eigen::SparseMatrix<double> mat(_nrowmax + 1, _ncolmax + 1);
+  EigenSparseMatrix mat(_nrowmax + 1, _ncolmax + 1);
   mat.setFromTriplets(_eigenT.begin(), _eigenT.end());
   //  mat.prune(EPSILON10);
   return mat;
 }
 
-NF_Triplet NF_Triplet::createFromEigen(const Eigen::SparseMatrix<double>& mat, Id shiftRow, Id shiftCol)
+NF_Triplet NF_Triplet::createFromEigen(const EigenSparseMatrix& mat, Id shiftRow, Id shiftCol)
 {
   NF_Triplet NF_T;
   std::vector<T> v;
   Id row_max = 0;
   Id col_max = 0;
   for (Id i = 0; i < mat.outerSize(); i++)
-    for (typename Eigen::SparseMatrix<double>::InnerIterator it(mat, i); it; ++it)
+    for (typename EigenSparseMatrix::InnerIterator it(mat, i); it; ++it)
     {
       Id irow = it.row() + shiftRow;
       Id icol = it.col() + shiftCol;
