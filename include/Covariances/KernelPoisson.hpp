@@ -30,17 +30,14 @@ public:
   double getParMax() const override { return MAX_PARAM; }
   Id getMinOrder() const override { return -1; }
   bool getCompatibleSpaceS() const override { return true; }
-  bool hasCovOnRn() const override { return false; }
-  bool hasCovOnSphere() const override { return true; }
-  bool hasSpectrumOnSphere() const override { return true; }
 
-  bool isValidForSpectral() const override { return true; }
+  bool isValidForSpectralOnRn() const override { return true; }
+  bool hasCovOnSphere() const override { return true; }
+  bool isValidForSpectralOnSphere() const override { return true; }
 
 protected:
-  double _evaluateCovOnSphere(double alpha,
-                              double scale = 1.,
-                              Id degree    = 50) const override;
-  VectorDouble _evaluateSpectrumOnSphere(Id n, double scale = 1.) const override;
+  double _evaluateCovOnSphere(double alpha, double scale = 1., Id degree = 50) const override;
+  VectorDouble _evaluateSpectrumOnSphere(Id n, double scale = 1., bool flagScale = true) const override;
 };
 
 } // namespace gstlrn

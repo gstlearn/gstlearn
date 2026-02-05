@@ -43,7 +43,7 @@ protected:
   bool _check() override;
   bool _preprocess() override;
   Id _getNCov() const { return _ncova; }
-
+  Id _calculateNCova();
   Id _centerDataToGrid(DbGrid* dbgrid);
 
 private:

@@ -151,6 +151,13 @@ void CovBase::setSill(Id ivar, Id jvar, double sill) const
   _sillCur.setValue(ivar, jvar, sill);
 }
 
+double CovBase::getAic(Id ivar, Id jvar) const
+{
+  if (!_isVariableValid(ivar)) return 0.;
+  if (!_isVariableValid(jvar)) return 0.;
+  return _aic.getValue(ivar, jvar);
+}
+
 void CovBase::setCholSill(Id ivar, Id jvar, double val) const
 {
   if (!_isVariableValid(ivar)) return;

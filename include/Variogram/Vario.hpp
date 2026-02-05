@@ -162,8 +162,8 @@ public:
                    bool asSymmetric = false);
 
   bool isFittable() const;
-  bool drawOnlyPositiveX(Id ivar, Id jvar) const;
-  bool drawOnlyPositiveY(Id ivar, Id jvar) const;
+  bool representOnlyPositiveX(Id ivar, Id jvar) const;
+  bool representOnlyPositiveY(Id ivar, Id jvar) const;
 
   Id getNVar() const { return _nVar; }
   const VectorDouble& getMeans() const { return _means; }

@@ -413,10 +413,10 @@ void CalcSimuTurningBands::_setDensity()
  ** \return  The modified type
  **
  *****************************************************************************/
-ECov CalcSimuTurningBands::_particularCase(Id is, double eps) const
+ECov CalcSimuTurningBands::_particularCase(const CovAniso* cova, double eps)
 {
-  double param = _modelLocal->getParam(is);
-  ECov type    = _modelLocal->getCovType(is);
+  double param     = cova->getParam();
+  const ECov& type = cova->getType();
 
   switch (type.toEnum())
   {
@@ -464,15 +464,14 @@ Id CalcSimuTurningBands::_initializeSeedBands()
         for (Id ib = 0; ib < nbtuba; ib++)
         {
           Id ibs    = _getIBS(isimu, is, ib);
-          ECov type = _particularCase(is);
+          ECov type = _particularCase(_modelLocal->getCovAniso(is));
           operTB.reset();
           _setSeedBand(ivar, is, ib, isimu, law_get_random_seed());
 
           Id optionSpectral = _getCorrec(type, is, ibs, operTB, correc);
           if (optionSpectral == 0)
           {
-            messerr("The structure (%s) cannot be simulated",
-                    _particularCase(is).getDescr().data());
+            messerr("The structure (%s) cannot be simulated", type.getDescr().data());
             messerr("using the Turning Bands algorithm");
             return 1;
           }
@@ -856,7 +855,7 @@ double CalcSimuTurningBands::_irfProcessInit(Id ibs, Id is, TurningBandOperate& 
 }
 
 void CalcSimuTurningBands::_spreadRegularOnGrid(const DbGrid* dbgrid,
-                                                CovAniso* cova,
+                                                const CovAniso* cova,
                                                 Id ibs,
                                                 double correc,
                                                 TurningBandOperate& operTB,
@@ -898,7 +897,7 @@ void CalcSimuTurningBands::_spreadRegularOnGrid(const DbGrid* dbgrid,
 }
 
 void CalcSimuTurningBands::_spreadSpectralOnGrid(const DbGrid* dbgrid,
-                                                 CovAniso* cova,
+                                                 const CovAniso* cova,
                                                  Id ibs,
                                                  double correc,
                                                  TurningBandOperate& operTB,
@@ -945,7 +944,7 @@ void CalcSimuTurningBands::_spreadSpectralOnGrid(const DbGrid* dbgrid,
 }
 
 void CalcSimuTurningBands::_spreadRegularOnPoint(const Db* db,
-                                                 CovAniso* cova,
+                                                 const CovAniso* cova,
                                                  Id ibs,
                                                  double correc,
                                                  TurningBandOperate& operTB,
@@ -962,7 +961,7 @@ void CalcSimuTurningBands::_spreadRegularOnPoint(const Db* db,
 }
 
 void CalcSimuTurningBands::_spreadSpectralOnPoint(const Db* db,
-                                                  CovAniso* cova,
+                                                  const CovAniso* cova,
                                                   Id ibs,
                                                   double correc,
                                                   TurningBandOperate& operTB,
@@ -992,31 +991,33 @@ Id CalcSimuTurningBands::_computeTB(Db* db, Id icase, Id shift)
   auto ncova  = _getNCov();
   auto nvar   = _getNVar();
 
-  VectorVectorDouble tab;
-  tab.resize(nvar);
-  for (Id ivar = 0; ivar < nvar; ivar++)
-    tab[ivar].resize(nech, 0.);
+  VectorVectorDouble tab(nvar);
+  for (Id ivar = 0; ivar < nvar; ivar++) tab[ivar].resize(nech, 0.);
   VectorBool activeArray = db->getActiveArray();
-  Id mem_seed            = law_get_random_seed();
 
+  Id mem_seed  = law_get_random_seed();
   auto* dbgrid = dynamic_cast<DbGrid*>(db);
+
   for (Id isimu = 0; isimu < nbsimu; isimu++)
   {
     for (Id is = 0; is < ncova; is++)
     {
-      CovAniso* cova = _modelLocal->getCovAniso(is);
-      ECov type      = _particularCase(is);
+      const CovAniso* cova = _modelLocal->getCovAniso(is);
+      ECov type            = _particularCase(cova);
       if (type == ECov::NUGGET) continue;
-      tab.fill(0.);
 
-      // Simulate all bands / variables at all samples for current simulation / structure
+      // Blank out the array 'tab'
+      for (Id ivar = 0, nvar = _getNVar(); ivar < nvar; ivar++)
+        tab[ivar].fill(0.);
+
+      // Evaluate the multivariate simulation on the target samples
       if (dbgrid != nullptr)
         _computeGrid(dbgrid, cova, type, isimu, is, activeArray, tab);
       else
         _computePoint(db, cova, type, isimu, is, activeArray, tab);
 
       // Cumulate structures for current simulation
-      _scaleAndCumulateStructures(db, icase, shift, isimu, is, activeArray, tab);
+      scaleAndSaveResults(db, cova, icase, shift, isimu, activeArray, tab);
     }
   }
 
@@ -1043,41 +1044,7 @@ void CalcSimuTurningBands::_normalizeForBands(const Db* db,
 
   for (Id iech = 0; iech < nech; iech++)
     for (Id ivar = 0; ivar < nvar; ivar++)
-      if (activeArray[iech])
-      {
-        tab[ivar][iech] *= norme;
-      }
-}
-
-/**
- * @brief Cumulate the contents of 'tab' (all bands) into the simulation results
- *
- * @param db Target Db
- * @param icase Rank of PGS or GRF
- * @param shift Shift before writing the simulation result
- * @param isimu Simulation index
- * @param is Covariance index
- * @param activeArray Array indicating active samples
- * @param tab Array containing simulation values for one band
- */
-void CalcSimuTurningBands::_scaleAndCumulateStructures(Db* db,
-                                                       Id icase,
-                                                       Id shift,
-                                                       Id isimu,
-                                                       Id is,
-                                                       const VectorBool& activeArray,
-                                                       const VectorVectorDouble& tab)
-{
-  auto nbsimu = getNbSimu();
-  auto nech   = db->getNSample();
-  auto nvar   = _getNVar();
-  for (Id iech = 0; iech < nech; iech++)
-    if (activeArray[iech])
-      for (Id ivar = 0; ivar < nvar; ivar++)
-        for (Id jvar = 0; jvar < nvar; jvar++)
-          db->updSimvar(ELoc::SIMU, iech, shift + isimu, jvar, icase,
-                        nbsimu, nvar, EOperator::ADD,
-                        tab[jvar][iech] * _modelLocal->getAic(is, ivar, jvar));
+      if (activeArray[iech]) tab[ivar][iech] *= norme;
 }
 
 Id CalcSimuTurningBands::_getCorrec(const ECov& type,
@@ -1173,7 +1140,7 @@ Id CalcSimuTurningBands::_getCorrec(const ECov& type,
  **
  *****************************************************************************/
 void CalcSimuTurningBands::_computePoint(Db* db,
-                                         CovAniso* cova,
+                                         const CovAniso* cova,
                                          const ECov& type,
                                          Id isimu,
                                          Id is,
@@ -1220,7 +1187,7 @@ void CalcSimuTurningBands::_computePoint(Db* db,
  **
  *****************************************************************************/
 void CalcSimuTurningBands::_computeGrid(DbGrid* dbgrid,
-                                        CovAniso* cova,
+                                        const CovAniso* cova,
                                         const ECov& type,
                                         Id isimu,
                                         Id is,
@@ -1378,8 +1345,8 @@ void CalcSimuTurningBands::_computeNugget(Db* db, Id icase)
           if (!activeArray[iech]) continue;
           double nugget = law_gaussian();
           for (Id jvar = 0; jvar < nvar; jvar++)
-            db->updSimvar(ELoc::SIMU, iech, isimu, jvar, icase, nbsimu, nvar,
-                          EOperator::ADD, nugget * _modelLocal->getAic(is, ivar, jvar));
+            db->updSimvar(ELoc::SIMU, iech, isimu, jvar, icase, nbsimu, nvar, EOperator::ADD,
+                          nugget * _modelLocal->getAic(is, ivar, jvar));
         }
       }
 

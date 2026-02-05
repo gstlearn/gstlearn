@@ -1,11 +1,8 @@
 NULL
 NULL
+>>> computing simulation 1 for covariance 1
 Simulation of the spectrum
-- Space dimension   = 2
-- Number of variables  = 1
-- Number of spectral components = 100
-Simulation of the spectrum
-- Space dimension   = 2
+- Space dimension   = S2
 - Number of variables  = 1
 - Number of spectral components = 100
 
@@ -93,12 +90,8 @@ Summary:
 - Number of Orders         = 15
 - Number of components (+) = 52
 - Number of components (-) = 48
-Spectral Simulation on a set of Isolated Points
-- Number of samples = 64800
-- Space dimension   = 2
-- Number of variables = 1
 
->>> simulation on Sphere
+>>> Simulation on Sphere
 ------------------------
 >>> point number    : 64800
 >>> component number: 100
@@ -185,7 +178,7 @@ K = 14 and N = 16 : 1 / 100  jk = 99
 
 Table: Statistics for simulation of Poisson model on S2
 
-|                | Number|  Minimum| Maximum|     Mean| St. Dev.|
-|:---------------|------:|--------:|-------:|--------:|--------:|
-|Poisson.V1.simu |  64800| -3.54206| 3.19619| -0.02458| 0.970365|
+|              | Number|  Minimum| Maximum|     Mean| St. Dev.|
+|:-------------|------:|--------:|-------:|--------:|--------:|
+|Poisson.V1.S1 |  64800| -3.54206| 3.19619| -0.02458| 0.970365|
 NULL

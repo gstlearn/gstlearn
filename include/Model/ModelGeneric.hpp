@@ -78,6 +78,8 @@ public:
   DriftList* _getDriftListModify() { return _driftList; }
   std::vector<covmaptype>& getCovGradients() { return _gradCovFuncs; }
 
+  static ModelGeneric* create(const CovContext& ctxt = CovContext());
+
 public:
   // Forwarding the methods from _cova
   FORWARD_METHOD(getCov, evalCovMat)
@@ -109,7 +111,8 @@ public:
   FORWARD_METHOD(getCov, evalAverageDbToDb, TEST)
   FORWARD_METHOD(getCov, evalAverageIncrToIncr, TEST)
   FORWARD_METHOD(getCov, evalAveragePointToDb, TEST)
-  FORWARD_METHOD(getCov, isValidForSpectral, false)
+  FORWARD_METHOD(getCov, isValidForSpectralOnRn, false)
+  FORWARD_METHOD(getCov, isValidForSpectralOnSphere, false)
   FORWARD_METHOD(getCov, samplingDensityVariance, TEST)
   FORWARD_METHOD(getCov, specificVolume, TEST)
   FORWARD_METHOD(getCov, coefficientOfVariation, TEST)

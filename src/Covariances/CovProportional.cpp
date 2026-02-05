@@ -70,9 +70,14 @@ double CovProportional::_eval(const SpacePoint& p1,
   return _sillCur.getValue(ivar, jvar) * getCor()->evalCov(p1, p2, 0, 0, mode);
 }
 
-bool CovProportional::isValidForSpectral() const
+bool CovProportional::isValidForSpectralOnRn() const
 {
-  return getCor()->isValidForSpectral();
+  return getCor()->isValidForSpectralOnRn();
+}
+
+bool CovProportional::isValidForSpectralOnSphere() const
+{
+  return getCor()->isValidForSpectralOnSphere();
 }
 
 MatrixDense CovProportional::simulateSpectralOmega(Id ns) const

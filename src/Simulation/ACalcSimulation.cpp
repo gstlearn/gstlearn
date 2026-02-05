@@ -137,7 +137,7 @@ void ACalcSimulation::_computeGradient(Db* dbgrd, double delta)
 void ACalcSimulation::_computeTangent(Db* dbtgt, double delta)
 {
   Id icase               = 0;
-  auto nvar              = _getNVar();
+  auto nvar              = getNVar();
   auto nbsimu            = getNbSimu();
   VectorBool activeArray = dbtgt->getActiveArray();
 
@@ -173,7 +173,7 @@ void ACalcSimulation::_correctStationaryMean(Db* dbout, Id icase, bool flagBayes
 {
   if (flagBayes) return;
   auto nbsimu = getNbSimu();
-  auto nvar   = _getNVar();
+  auto nvar   = getNVar();
   Id nech     = dbout->getNSample();
 
   VectorBool activeArray = dbout->getActiveArray();
@@ -216,7 +216,7 @@ void ACalcSimulation::_difference(Db* dbin,
                                   bool flag_dgm)
 {
   auto nbsimu = getNbSimu();
-  auto nvar   = _getNVar();
+  auto nvar   = getNVar();
   double r    = 1.;
   if (flag_dgm)
   {
@@ -310,11 +310,11 @@ void ACalcSimulation::_updateDataToTarget(Db* dbin,
                                           Db* dbout,
                                           Id icase,
                                           bool flag_pgs,
-                                          bool flag_dgm)
+                                          bool flag_dgm) const
 {
   if (dbin->getNSample() <= 0) return;
   if (flag_dgm) return;
-  auto nvar   = _getNVar();
+  auto nvar   = getNVar();
   Id ndim     = dbin->getNDim();
   auto nbsimu = getNbSimu();
 
@@ -556,6 +556,71 @@ Id ACalcSimulation::_conditionalKriging(Db* dbin,
   ksys.conclusion();
 
   return 0;
+}
+
+/**
+ * @brief Save one multivariate simulation result into the Db
+ *
+ * @param db Db where the result is stored
+ * @param icase Rank of PGS or GRF
+ * @param shift Shift before writing the simulation result
+ * @param isimu Simulation index
+ * @param activeArray Array indicating active samples
+ * @param tab   Array containing simulation values for all variables
+ */
+void ACalcSimulation::saveResults(Db* db,
+                                  Id icase,
+                                  Id shift,
+                                  Id isimu,
+                                  const VectorBool& activeArray,
+                                  const VectorVectorDouble& tab) const
+{
+  auto nbsimu = getNbSimu();
+  auto nvar   = getNVar();
+
+  for (Id iech = 0, nech = db->getNSample(); iech < nech; iech++)
+  {
+    if (!activeArray[iech]) continue;
+    for (Id ivar = 0; ivar < nvar; ivar++)
+      db->setSimvar(ELoc::SIMU, iech, shift + isimu, ivar, icase, nbsimu, nvar, tab[ivar][iech]);
+  }
+}
+
+/**
+ * @brief Save the multivariate simulation result into the Db after:
+ * @brief - multiplying by the sill matrix
+ * @brief - adding to existing values
+ *
+ * @param db Db where the result is stored
+ * @param cova Covariance where to read the AIC matrix
+ * @param icase Rank of PGS or GRF
+ * @param shift Shift before writing the simulation result
+ * @param isimu Simulation index
+ * @param activeArray Array indicating active samples
+ * @param tab   Array containing simulation values for all variables
+ */
+void ACalcSimulation::scaleAndSaveResults(Db* db,
+                                          const CovBase* cova,
+                                          Id icase,
+                                          Id shift,
+                                          Id isimu,
+                                          const VectorBool& activeArray,
+                                          const VectorVectorDouble& tab) const
+{
+  auto nbsimu = getNbSimu();
+  auto nvar   = getNVar();
+  for (Id iech = 0, nech = db->getNSample(); iech < nech; iech++)
+    if (activeArray[iech])
+      for (Id ivar = 0; ivar < nvar; ivar++)
+        for (Id jvar = 0; jvar < nvar; jvar++)
+          db->updSimvar(ELoc::SIMU, iech, shift + isimu, ivar, icase, nbsimu, nvar, EOperator::ADD,
+                        tab[jvar][iech] * cova->getAic(ivar, jvar));
+}
+
+Id ACalcSimulation::getNVar() const
+{
+  if (getModelGeneric() == nullptr) return 0;
+  return getModelGeneric()->getNVar();
 }
 
 } // namespace gstlrn

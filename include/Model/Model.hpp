@@ -108,15 +108,7 @@ public:
                                 const VectorDouble& angles   = VectorDouble(),
                                 const ASpaceSharedPtr& space = ASpaceSharedPtr(),
                                 bool flagRange               = true);
-  static Model* createFromParamOldStyle(const ECov& type             = ECov::fromKey("NUGGET"),
-                                        double range                 = 1.,
-                                        double sill                  = 1.,
-                                        double param                 = 1.,
-                                        const VectorDouble& ranges   = VectorDouble(),
-                                        const VectorDouble& sills    = VectorDouble(),
-                                        const VectorDouble& angles   = VectorDouble(),
-                                        const ASpaceSharedPtr& space = ASpaceSharedPtr(),
-                                        bool flagRange               = true);
+
   static Model* createFromDb(const Db* db);
   static Model* createFromNF(const String& NFFilename, bool verbose = true);
   static Model* createFromVario(Vario* vario,
@@ -142,14 +134,7 @@ public:
                        const MatrixSymmetric& sills = MatrixSymmetric(),
                        const VectorDouble& angles   = VectorDouble(),
                        bool flagRange               = true);
-  void addCovFromParamOldStyle(const ECov& type,
-                               double range               = EPSILON6,
-                               double sill                = 1.,
-                               double param               = 1.,
-                               const VectorDouble& ranges = VectorDouble(),
-                               const VectorDouble& sills  = VectorDouble(),
-                               const VectorDouble& angles = VectorDouble(),
-                               bool flagRange             = true);
+
 
   FORWARD_METHOD(castInCovAnisoListConst, getActiveFactor, ITEST)
   FORWARD_METHOD(castInCovAnisoListConst, getCovAniso)
@@ -243,8 +228,8 @@ public:
   static VectorECov initCovList(const VectorInt& covranks);
 
   bool isValid() const;
-  static bool drawOnlyPositiveX(Id ivar, Id jvar, bool asCov = false);
-  static bool drawOnlyPositiveY(Id ivar, Id jvar, bool asCov = false);
+  static bool representOnlyPositiveX(Id ivar, Id jvar, bool asCov = false);
+  static bool representOnlyPositiveY(Id ivar, Id jvar, bool asCov = false);
 
 protected:
   /// Interface to ASerializable

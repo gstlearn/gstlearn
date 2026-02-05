@@ -248,21 +248,26 @@ for (idir in (1:ndir)) {
 Performing a single simulation using the *SimuSpectralRN* interface:
 
 ```{r one_simulation, echo=TRUE, eval=TRUE}
+modelGeneric = ModelGeneric()
+err = modelGeneric$setCov(mg_in_gstlearn)
+
 # simulation
-gssimu = SimuSpectralRN(cova = mg_in_gstlearn)
-err = gssimu$simulate(ns = ns)
+gssimu = SimuSpectralRN(1, ns, 100, 123, NULL, TRUE)
+err = gssimu$setModelGeneric(modelGeneric)
+err = gssimu$simulate(mg_in_gstlearn)
 
 # computation
 err = grd$deleteColumns(names = paste0(prefix, "*"))
-err = gssimu$compute(dbout = grd, verbose = TRUE, 
-                     namconv = NamingConvention(prefix), qualifier = "simu")
+err = gssimu$compute(dbout = grd) 
 
+v_name  = paste(prefix, "V1", "simu", sep = ".")
+err = grd$setName("Simu", v_name)
+err = grd$setLocator(v_name,ELoc_Z())
 ```
 
 
 ```{r simulate_QC, echo=FALSE, eval=TRUE}
 opers   = EStatOption_fromKeys(c("NUM", "MINI", "MAXI", "MEAN", "STDV"))
-v_name  = paste(prefix, "V1", "simu", sep = ".")
 
 # -----------------------------------------------------
 # statistics
@@ -362,7 +367,7 @@ Performing multiple simulations using the *simuSpectral* interface:
 # simulations
 nsim = 20
 err = grd$deleteColumns(names = paste0(prefix, "*"))
-modelGeneric = ModelGeneric(ctxt)
+modelGeneric = ModelGeneric(CovContext(nvar = 1, ndim = d))
 err = modelGeneric$setCov(mg_in_gstlearn)
 err = simuSpectral(dbin = NULL, dbout = grd, model = modelGeneric, seed = 0,
                    nbsimu = nsim, ns = ns, namconv = NamingConvention(prefix), verbose = FALSE)

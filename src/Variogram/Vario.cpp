@@ -2354,12 +2354,12 @@ VectorDouble Vario::_varsFromProportions(VectorDouble props)
   return vars;
 }
 
-bool Vario::drawOnlyPositiveX(Id ivar, Id jvar) const
+bool Vario::representOnlyPositiveX(Id ivar, Id jvar) const
 {
   return (ivar == jvar || !getFlagAsym());
 }
 
-bool Vario::drawOnlyPositiveY(Id ivar, Id jvar) const
+bool Vario::representOnlyPositiveY(Id ivar, Id jvar) const
 {
   return (ivar == jvar && !getFlagAsym());
 }

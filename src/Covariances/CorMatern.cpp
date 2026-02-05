@@ -32,7 +32,8 @@ CorMatern::CorMatern(const CovContext& ctxt, const ECov& type, const VectorDoubl
   , _nVar(static_cast<Id>(ctxt.getNVar()))
   , _corRef(std::shared_ptr<const CorAniso>(
       CorAniso::createAnisotropic(
-        CovContext(1, static_cast<Id>(ctxt.getNDim())),
+        // CovContext(1, static_cast<Id>(ctxt.getNDim())),
+        CovContext(1, ctxt.getSpace()),
         ECov::MATERN,
         ranges,
         params[0],

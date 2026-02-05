@@ -20,18 +20,23 @@ class Model;
 class GSTLEARN_EXPORT CalcSimuSpectral: public ACalcSimulation
 {
 public:
-  CalcSimuSpectral(Id nbsimu = 1, Id ns = 10000, Id nd = 100, Id seed = 4324324, bool verbose = false);
+  CalcSimuSpectral(Id nbsimu          = 1,
+                   Id ns              = 10000,
+                   Id nd              = 100,
+                   Id seed            = 4324324,
+                   bool verbose       = false,
+                   bool performedOnRn = true);
   CalcSimuSpectral(const CalcSimuSpectral& r)            = delete;
   CalcSimuSpectral& operator=(const CalcSimuSpectral& r) = delete;
   virtual ~CalcSimuSpectral();
 
   // Perform the task for ONE simulation
-  Id simulate();
+  Id simulate(const ACov* cova);
   Id compute(Db* dbout, Id isimu = 0);
 
-  VectorDouble getPhi() { return _phi; };
+  VectorDouble getPhis() { return _phi; };
   double getPhi(Id i) { return _phi[i]; };
-  static bool isValidForSpectral(const ModelGeneric* model);
+  bool isValidForSpectral() const;
   bool getVerbose() const { return _verbose; }
 
 protected:
@@ -40,20 +45,17 @@ protected:
   bool _postprocess() override;
   bool _run() override;
 
-  virtual Id _simulate()                       = 0;
-  virtual Id _compute(Db* dbout, Id isimu = 0) = 0;
+  virtual Id _simulate(const ACov* cova)                                                 = 0;
+  virtual Id _compute(Db* dbout, const VectorBool& activeArray, VectorVectorDouble& tab) = 0;
 
   Id _getNs() const { return _ns; };
   Id _getNd() const { return _nd; };
   Id _getNDim() const;
   Id _getNVar() const;
 
-  void _setIsPrepared(bool status) { _isPrepared = status; }
-  bool _getIsPrepared() const { return _isPrepared; }
-
 private:
-  bool _isPrepared;
   bool _verbose;
+  bool _performedOnRN;
   Id _iattOut;
   Id _ns;            // Number of spectral components
   Id _nd;            // Maximum number of spectral orders on

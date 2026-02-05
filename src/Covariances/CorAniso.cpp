@@ -395,18 +395,11 @@ void CorAniso::setRotationAnglesAndRadius(const VectorDouble& angles,
   _aniso.setRotationAnglesAndRadius(angles, scales_local);
 }
 
-bool CorAniso::isValidForTurningBand() const
-{
-  return _corfunc->isValidForTurningBand();
-}
 double CorAniso::simulateTurningBand(double t0, TurningBandOperate& operTB) const
 {
   return _corfunc->simulateTurningBand(t0, operTB);
 }
-bool CorAniso::isValidForSpectral() const
-{
-  return _corfunc->isValidForSpectral();
-}
+
 MatrixDense CorAniso::simulateSpectralOmega(Id nb) const
 {
   MatrixDense omega  = _corfunc->simulateSpectralOmega(nb);
@@ -585,7 +578,7 @@ double CorAniso::evalDerivativeBasis(const SpacePoint& p1,
 
 double CorAniso::evalCovOnSphere(double alpha,
                                  Id degree,
-                                 bool flagScaleDistance,
+                                 bool scaleDistanceByRadius,
                                  const CovCalcMode* mode) const
 {
   if (!_corfunc->hasCovOnSphere()) return TEST;
@@ -594,37 +587,35 @@ double CorAniso::evalCovOnSphere(double alpha,
   if (spaceSn == nullptr) return TEST;
 
   double scale = getScaleIso();
-  if (flagScaleDistance)
+  if (scaleDistanceByRadius)
   {
     double radius = spaceSn->getRadius();
     scale         = scale / radius;
     alpha         = alpha / radius;
   }
 
-  double value = _corfunc->evalCovOnSphere(alpha, scale, degree);
+  double value = _corfunc->evaluateCovOnSphere(alpha, scale, degree);
 
   if (mode != nullptr && mode->getAsVario())
-    value = _corfunc->evalCovOnSphere(0., scale, degree) - value;
+    value = _corfunc->evaluateCovOnSphere(0., scale, degree) - value;
 
   return value;
 }
 
-VectorDouble CorAniso::evalSpectrumOnSphere(Id n, bool flagNormDistance, bool flagCumul) const
+VectorDouble CorAniso::evalSpectrumOnSphere(Id n, bool scaleDistanceByRadius, bool flagScale) const
 {
-  if (!_corfunc->hasSpectrumOnSphere()) return VectorDouble();
+  if (!_corfunc->isValidForSpectralOnSphere()) return VectorDouble();
   const ASpace* space = getDefaultSpaceSh().get();
   const auto* spaceSn = dynamic_cast<const SpaceSN*>(space);
   if (spaceSn == nullptr) return VectorDouble();
 
   double scale = getScaleIso();
-  if (flagNormDistance)
+  if (scaleDistanceByRadius)
   {
     double radius = spaceSn->getRadius();
     scale /= radius;
   }
-  VectorDouble vec = _corfunc->evalSpectrumOnSphere(n, scale);
-  if (flagCumul) VH::cumulateInPlace(vec);
-  return vec;
+  return _corfunc->evaluateSpectrumOnSphere(n, scale, flagScale);
 }
 
 void CorAniso::setMarkovCoeffs(const VectorDouble& coeffs)
@@ -687,7 +678,7 @@ double CorAniso::getDetTensor() const
 double CorAniso::evalSpectrum(const VectorDouble& freq, Id ivar, Id jvar) const
 {
   DECLARE_UNUSED(ivar, jvar)
-  if (!_corfunc->hasSpectrumOnRn()) return TEST;
+  if (!_corfunc->isValidForSpectralOnRn()) return TEST;
 
   SpacePoint p1;
   SpacePoint p2;
@@ -727,13 +718,13 @@ VectorDouble CorAniso::getMarkovCoeffs() const
 
 VectorDouble CorAniso::evalCovOnSphereVec(const VectorDouble& alpha,
                                           Id degree,
-                                          bool flagScaleDistance,
+                                          bool scaleDistanceByRadius,
                                           const CovCalcMode* mode) const
 {
   Id n = static_cast<Id>(alpha.size());
   VectorDouble vec(n);
   for (Id i = 0; i < n; i++)
-    vec[i] = evalCovOnSphere(alpha[i], degree, flagScaleDistance, mode);
+    vec[i] = evalCovOnSphere(alpha[i], degree, scaleDistanceByRadius, mode);
   return vec;
 }
 
@@ -1126,7 +1117,7 @@ Array CorAniso::evalCovFFT(const VectorDouble& hmax,
                            Id ivar,
                            Id jvar) const
 {
-  if (!hasSpectrumOnRn()) return Array();
+  if (!isValidForSpectralOnRn()) return Array();
 
   std::function<double(const VectorDouble&)> funcSpectrum;
   funcSpectrum = [this, ivar, jvar](const VectorDouble& freq)

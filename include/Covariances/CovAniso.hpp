@@ -73,15 +73,11 @@ public:
                const CovCalcMode* mode = nullptr) const override;
 
   double evalCovOnSphere(double alpha,
-                         Id degree               = 50,
-                         bool flagScaleDistance  = true,
-                         const CovCalcMode* mode = nullptr) const override;
-  VectorDouble evalSpectrumOnSphere(Id n,
-                                    bool flagNormDistance = false,
-                                    bool flagCumul        = false) const override;
-  double evalSpectrum(const VectorDouble& freq,
-                      Id ivar = 0,
-                      Id jvar = 0) const override;
+                         Id degree                  = 50,
+                         bool scaleDistanceByRadius = true,
+                         const CovCalcMode* mode    = nullptr) const override;
+  VectorDouble evalSpectrumOnSphere(Id n, bool scaleDistanceByRadius = false, bool flagScale = true) const override;
+  double evalSpectrum(const VectorDouble& freq, Id ivar = 0, Id jvar = 0) const override;
 
   virtual double getIntegralRange(Id ndisc, double hmax) const;
   virtual String getFormula() const { return getCorAniso()->getFormula(); }
@@ -188,9 +184,7 @@ public:
   FORWARD_METHOD(getCorAniso, getNGradParam, ITEST)
   FORWARD_METHOD(getCorAniso, hasCovDerivative, false)
   FORWARD_METHOD(getCorAniso, hasCovOnSphere, false)
-  FORWARD_METHOD(getCorAniso, hasSpectrumOnSphere, false)
   FORWARD_METHOD(getCorAniso, hasMarkovCoeffs, false)
-  FORWARD_METHOD(getCorAniso, hasSpectrumOnRn, false)
   FORWARD_METHOD(getCorAniso, normalizeOnSphere, false)
   FORWARD_METHOD(getCorAniso, getMarkovCoeffs, VectorDouble())
   FORWARD_METHOD(getCorAniso, getCorrec, false)
@@ -207,7 +201,9 @@ public:
 
   FORWARD_METHOD(getCorAniso, getDetTensor, false)
 
-  bool isValidForSpectral() const override; // Do not use FORWARD_METHOD because "override" creates compilation issue on Windows
+  bool isValidForSpectralOnRn() const override;     // Do not use FORWARD_METHOD because "override" creates compilation issue on Windows
+  bool isValidForSpectralOnSphere() const override; // Do not use FORWARD_METHOD because "override" creates compilation issue on Windows
+
   double getSlope(Id ivar, Id jvar) const;
   const Rotation& getAnisoRotation() const { return getCorAniso()->getAniso().getRotation(); }
   bool getFlagAniso() const { return !isIsotropic(); }
@@ -229,9 +225,9 @@ public:
   const AKernel* getCorFunc() const { return getCorAniso()->getCorFunc(); }
 
   VectorDouble evalCovOnSphereVec(const VectorDouble& alpha,
-                                  Id degree               = 50,
-                                  bool flagScaleDistance  = false,
-                                  const CovCalcMode* mode = nullptr) const;
+                                  Id degree                  = 50,
+                                  bool scaleDistanceByRadius = false,
+                                  const CovCalcMode* mode    = nullptr) const;
   Array evalCovFFT(const VectorDouble& hmax, Id N = 128, Id ivar = 0, Id jvar = 0) const;
 
   // Id getNDim() const { return static_cast<Id>(_ctxt.getNDim()); }
@@ -251,6 +247,7 @@ public:
                Id ivar                 = 0,
                Id jvar                 = 0,
                const CovCalcMode* mode = nullptr) const override;
+  SpectrumRN simulateSpectrumRN(Id ns, const ACov* cov0 = nullptr) const override;
 };
 
 GSTLEARN_EXPORT double scale2range(const ECov& type, double scale, double param = 1.);

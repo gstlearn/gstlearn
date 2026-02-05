@@ -828,8 +828,6 @@ MyCorAniso <- function(type = MyType_[3], sigma = 1.0, params = NULL,
       isim = 1
       for (ivar in 1:nvar) {
         nm_var  = sprintf("%s.V%d.S%d", prefix, ivar, isim)
-        print("on attend 1")
-        print(nm_var)
         dbout[nm_var] = val[ivar,]
       }
       NULL
@@ -974,8 +972,6 @@ MyCorMatern <- function(type = MyType_[3],
       isim = 1
       for (ivar in 1:nvar) {
         nm_var  = sprintf("%s.V%d.S%d", prefix, ivar, isim)
-        print("on attend 2 ")
-        print(nm_var)
         dbout[nm_var] = val[ivar,]
       }
       NULL
@@ -1140,8 +1136,6 @@ MyCorGaussianMixture <- function(type = MyType_[3], nu = 1/2, kappa = rep(1.0, l
       isim = 1
       for (ivar in 1:nvar) {
         nm_var  = sprintf("%s.V%d.%Sd", prefix, ivar, isim)
-        print("on attend 3")
-        print(nm_var)
         dbout[nm_var] = val[ivar,]
       }
       NULL
@@ -1278,9 +1272,6 @@ MyCorGneiting <- function(type = MyType_[7], nu = 1/2, kappa = rep(1.0, length(n
       isim = 1
       for (ivar in 1:nvar) {
         nm_var  = sprintf("%s.V%d.S%d", prefix, ivar, isim)
-        print("on attend 4")
-        print(nm_var)
-        dbout$display()
         dbout[nm_var] = val[ivar,]
       }
       NULL
@@ -1363,8 +1354,8 @@ MySimuSpectral <- function(grid, cov, nsim = 1, ns = 1000, seed = NULL, verbose 
 ```{r covariance_test, echo = FALSE, eval = TRUE}
 # global parameters
 flag.gstlearn = TRUE
-flag.verbose  = TRUE
-flag.plot     = FALSE
+flag.verbose  = FALSE
+flag.plot     = TRUE
 
 # geometrical anisotropy of the spatial trace
 ndim   = 2 # ndim %in% 1:3
@@ -1419,7 +1410,7 @@ for (idim in 1:4) {
 }
 
 # parameters for the simulations
-ns   = 500   # number of spectral components
+ns   = 500    # number of spectral components
 nsim = 2      # number of simulations
 nlag = 30     # number of lags of the experimental variograms on grid
 seed = 258425
@@ -1685,9 +1676,6 @@ for (id in seq_len(length(list_test))) {
   isim = 1
   for (ivar in 1:nvar) {
     nm_var  = sprintf("%s.V%d.S%d", prefix, ivar, isim)
-    print("on attend 5 ")
-    print(nm_var)
-    grid$display()
     tab_var = c(tab_var, nm_var )
     val = grid[nm_var]
     # compute statistics

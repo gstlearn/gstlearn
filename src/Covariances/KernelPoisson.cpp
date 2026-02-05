@@ -42,9 +42,7 @@ KernelPoisson::~KernelPoisson()
 {
 }
 
-double KernelPoisson::_evaluateCovOnSphere(double alpha,
-                                        double scale,
-                                        Id degree) const
+double KernelPoisson::_evaluateCovOnSphere(double alpha, double scale, Id degree) const
 {
   DECLARE_UNUSED(scale);
   DECLARE_UNUSED(degree);
@@ -53,14 +51,15 @@ double KernelPoisson::_evaluateCovOnSphere(double alpha,
   return exp(lambda * (cos(alpha) - 1.)) * valbes;
 }
 
-VectorDouble KernelPoisson::_evaluateSpectrumOnSphere(Id n, double scale) const
+VectorDouble KernelPoisson::_evaluateSpectrumOnSphere(Id n, double scale, bool flagScale) const
 {
   DECLARE_UNUSED(scale);
   double lambda   = getParam();
   VectorInt x     = VH::sequence(n + 1);
   VectorDouble sp = law_df_poisson_vec(x, lambda);
-  sp.normalizeInPlace(1);
+
+  if (flagScale) sp.normalizeInPlace(1);
 
   return sp;
 }
-}
+} // namespace gstlrn

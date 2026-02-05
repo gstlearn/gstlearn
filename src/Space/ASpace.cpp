@@ -44,18 +44,17 @@ ASpace& ASpace::operator=(const ASpace& r)
   if (this != &r)
   {
     AStringable::operator=(r);
-    _nDim = r._nDim;
+    _nDim   = r._nDim;
     _origin = r._origin;
     _offset = r._offset;
-    _work1 = r._work1;
-    _work2 = r._work2;
+    _work1  = r._work1;
+    _work2  = r._work2;
   }
   return *this;
 }
 
-ASpace::~ASpace() 
+ASpace::~ASpace()
 {
-  //messerr("coucou");
 }
 
 /// Interface for AStringable
@@ -68,7 +67,7 @@ String ASpace::toString(const AStringFormat* strfmt) const
 }
 
 /// Update the origin of the space
-void ASpace::setOrigin(const VectorDouble& origin) 
+void ASpace::setOrigin(const VectorDouble& origin)
 {
   if (origin.size() != getNDim())
   {
@@ -189,8 +188,8 @@ VectorDouble ASpace::getUnitaryVector() const
   return uni;
 }
 /// Return the distance between two space points
-double ASpace::getDistance(const SpacePoint &p1,
-                           const SpacePoint &p2,
+double ASpace::getDistance(const SpacePoint& p1,
+                           const SpacePoint& p2,
                            Id ispace) const
 {
   if (p1.getNDim() != p2.getNDim())
@@ -267,12 +266,12 @@ void ASpace::getIncrementInPlace(const SpacePoint& p1,
 VectorDouble ASpace::projCoord(const VectorDouble& coord, Id ispace) const
 {
   if (ispace < 0 || ispace >= static_cast<Id>(getNComponents())) return coord;
-  auto sp = getComponent(ispace);
-  auto first       = coord.cbegin() + sp->getOffset();
-  auto last        = first          + sp->getNDim();
+  auto sp    = getComponent(ispace);
+  auto first = coord.cbegin() + sp->getOffset();
+  auto last  = first + sp->getNDim();
   /// TODO : Memory copies !
   return VectorDouble(first, last);
 }
 
 /////////////////////////////////////////////////////////
-}
+} // namespace gstlrn

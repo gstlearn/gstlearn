@@ -41,10 +41,8 @@ public:
   virtual ~SimuSpectralS2();
 
 protected:
-  Id _simulate() override;
-  Id _compute(Db* dbout, Id isimu = 0) override;
-
-  bool _run() override { return true; };
+  Id _simulate(const ACov* cova) override;
+  Id _compute(Db* dbout, const VectorBool& activeArray, VectorVectorDouble& tab) override;
 
 private:
   static void _printSpSim(const spSim& spsim, Id status = 0);

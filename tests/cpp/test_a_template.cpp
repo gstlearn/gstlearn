@@ -8,13 +8,13 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Simulation/SimuSpectralRN.hpp"
 #include "geoslib_define.h"
 
 #include "Basic/ASerializable.hpp"
-#include "Covariances/CorAniso.hpp"
-#include "Db/DbGrid.hpp"
-#include "Model/ModelGeneric.hpp"
+#include "Model/Model.hpp"
 #include "Simulation/CalcSimuSpectral.hpp"
+#include "geoslib_f.h"
 
 using namespace gstlrn;
 
@@ -26,35 +26,28 @@ int main(int argc, char* argv[])
   StdoutRedirect sr(sfn.str(), argc, argv);
   ASerializable::setPrefixName("test_a_template-"); // Here set the test name
 
-  Id ndim                 = 2;
-  Id nvar                 = 1;
-  auto gs_type            = ECov::EXPONENTIAL;
-  auto gs_ctxt            = CovContext(nvar, ndim);
-  VectorDouble ani_scales = {3. / 4., 3. / 2.};
-  VectorDouble ani_angles = {30., 0.};
-  double nus              = .3 / 4.;
-  auto* gs_cov            = CorAniso::createAnisotropic(gs_ctxt, gs_type,
-                                                        ani_scales,
-                                                        nus,
-                                                        ani_angles,
-                                                        false);
-  auto* modelGeneric      = new ModelGeneric(gs_ctxt);
-  modelGeneric->setCov(gs_cov);
+  // type_cov <- c("GAUSSIAN", "EXPONENTIAL", "MATERN")[idx_type]
+  // nu <- c(10, 1/2, 3/4)[idx_type]
+  // ranges = c(5, 10, 15)
+  // angles = c(30., 0, 0)
 
-  VectorDouble x0 = {0., 0.};
-  VectorInt nx    = {200, 200};
-  VectorDouble dx = {0.1, 0.1};
-  auto* grid      = DbGrid::create(nx, dx, x0);
-  grid->display();
+  Id ndim = 1;
+  Id nb   = 1000;
+  Id seed = 13112;
 
-  Id nbsimu    = 3;
-  Id seed      = 234567;
-  Id ns        = 1000;
-  Id nd        = 100;
-  bool verbose = true;
-  (void)simuSpectral(nullptr, grid, modelGeneric, nullptr, nbsimu, seed, ns, nd, nullptr, verbose,
-                     NamingConvention("mySimu"));
-  grid->display();
+  defineDefaultSpace(ESpaceType::RN, ndim);
+  VectorInt nx    = {10000};
+  VectorDouble dx = {1.};
+  auto* db        = DbGrid::create(nx, dx);
 
+  auto* mod = Model::createFromParam(ECov::MATERN, 5., 1, 0.75);
+  auto sim  = SimuSpectralRN(1, nb, 100, seed, NULL, true);
+  (void)sim.setModelGeneric(mod);
+  (void)sim.simulate(mod->getCovAniso(0));
+  auto gamma = sim.getGamma();
+  auto omega = sim.getOmega();
+  (void)sim.compute(db);
+
+  db->getStatsAsTable().display();
   return 0;
 }

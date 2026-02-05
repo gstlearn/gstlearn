@@ -199,11 +199,7 @@ bool ACalcInterpolator::_preprocess()
   // Number of covariance functions
 
   if (_modelGeneric != nullptr)
-  {
-    const auto* modelcovlist = dynamic_cast<const ModelCovList*>(_modelGeneric);
-    if (modelcovlist != nullptr)
-      _ncova = modelcovlist->getNCov();
-  }
+    _ncova = _calculateNCova();
 
   // Expand information amongst Db if necessary
 
@@ -214,6 +210,16 @@ bool ACalcInterpolator::_preprocess()
   if (_expandInformation(1, ELoc::NOSTAT)) return false;
 
   return true;
+}
+
+Id ACalcInterpolator::_calculateNCova()
+{
+  const auto* modelcovlist = dynamic_cast<const ModelCovList*>(_modelGeneric);
+  if (modelcovlist == nullptr) return 0;
+  const auto* covanisolist = dynamic_cast<const CovAnisoList*>(modelcovlist->getCovList());
+  if (covanisolist == nullptr) return 0;
+  _ncova = modelcovlist->getNCov();
+  return _ncova;
 }
 
 void ACalcInterpolator::setModelGeneric(ModelGeneric* modelGeneric)

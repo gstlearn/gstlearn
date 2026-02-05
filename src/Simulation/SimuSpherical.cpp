@@ -351,8 +351,7 @@ VectorDouble SimuSpherical::_spectrum_any(Model* model,
   auto ndisc = sphepar.getNdisc();
   ndisc      = static_cast<Id>(get_keypone("Simsph_Ndisc", ndisc));
   VectorDouble freqs;
-  VectorDouble dd(2);
-  dd[0] = dd[1] = 0.;
+  VectorDouble dd(2, 0.);
   Id ifreq      = 0;
   double dincr  = GV_PI / (static_cast<double>(sphepar.getNdisc()));
   VectorDouble covs(ndisc);

@@ -78,6 +78,12 @@ def _isNotCorrect(object, types):
 
 
 def _getDefaultVariableName(db, name):
+    """
+    Returns a valid variable name.
+    If the argument 'name' has been provided, it is checked in the DataBase 'db'.
+    Otherwise the default variable name is the first Z locator if it exists, or the last
+    variable in the DataBase.
+    """
     if name is None:
         if db.getNLoc(gl.ELoc.Z) > 0:
             name = db.getNameByLocator(gl.ELoc.Z, 0)
@@ -85,7 +91,7 @@ def _getDefaultVariableName(db, name):
             name = db.getLastName()
     else:
         if db.getUID(name) < 0:
-            name = db.getLastName()
+            return None
     return name
 
 
@@ -467,11 +473,11 @@ def _getGridVariable(
 def _onlyPositiveX(vario=None, model=None, ivar=0, jvar=0, asCov=False):
     status = False
     if vario is not None:
-        if vario.drawOnlyPositiveX(ivar, jvar):
+        if vario.representOnlyPositiveX(ivar, jvar):
             status = True
 
     if model is not None:
-        if gl.Model_drawOnlyPositiveX(ivar, jvar, asCov):
+        if gl.Model.representOnlyPositiveX(ivar, jvar, asCov):
             status = True
     return status
 
@@ -479,10 +485,10 @@ def _onlyPositiveX(vario=None, model=None, ivar=0, jvar=0, asCov=False):
 def _onlyPositiveY(vario=None, model=None, ivar=0, jvar=0, asCov=False):
     status = False
     if vario is not None:
-        if vario.drawOnlyPositiveY(ivar, jvar):
+        if vario.representOnlyPositiveY(ivar, jvar):
             status = True
     if model is not None:
-        if model.drawOnlyPositiveY(ivar, jvar, asCov):
+        if gl.Model.representOnlyPositiveY(ivar, jvar, asCov):
             status = True
     return status
 
@@ -1119,6 +1125,8 @@ def _ax_literal(
         return
 
     name = _getDefaultVariableName(db, name)
+    if name is None:
+        return None
 
     labval = _getVariable(db, name, posX, posY, None, useSel, False)
     valid = ~np.isnan(labval)
@@ -1426,6 +1434,8 @@ def _ax_raster(
     **kwargs : arguments passed to matplotlib.pyplot.pcolormesh
     """
     name = _getDefaultVariableName(dbgrid, name)
+    if name is None:
+        return None
 
     x0, y0, X, Y, Xrot, Yrot, data, tr = _getGridVariable(
         dbgrid, name, useSel, posX=posX, posY=posY, corner=corner
@@ -1484,6 +1494,8 @@ def _ax_isoline(
     **kwargs : arguments passed to matplotlib.pyplot.contour
     """
     name = _getDefaultVariableName(dbgrid, name)
+    if name is None:
+        return None
 
     x0, y0, X, Y, Xrot, Yrot, data, tr = _getGridVariable(
         dbgrid, name, useSel, posX=posX, posY=posY, corner=corner, shading="nearest"

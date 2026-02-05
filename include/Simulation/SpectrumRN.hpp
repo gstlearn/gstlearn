@@ -50,5 +50,4 @@ private:
   VectorDouble _xi;    // Vector of random scales, length =_ns
 };
 
-
 } // namespace gstlrn

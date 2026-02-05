@@ -404,7 +404,7 @@ void CovList::setSills(Id icov, const MatrixSymmetric& sills)
 double CovList::getAic(Id icov, Id ivar, Id jvar) const
 {
   if (!_isCovarianceIndexValid(icov)) return 0.;
-  return _covs[icov]->getAic().getValue(ivar, jvar);
+  return _covs[icov]->getAics().getValue(ivar, jvar);
 }
 /**
  * Calculate the total sill of the model for given pair of variables
@@ -605,23 +605,28 @@ AModelFitSills* CovList::getFitSills() const
   return _modelFitSills;
 }
 
-bool CovList::isValidForSpectral() const
+bool CovList::isValidForSpectralOnRn() const
 {
-  ESpaceType type = getDefaultSpaceType();
-  if (getNCov() != 1)
-  {
-    messerr("This method only considers Model with a single covariance structure");
-    return false;
-  }
-
-  /* Loop on the structures */
-
-  for (int is = 0; is < getNCov(); is++)
+  for (int is = 0, ns = getNCov(); is < ns; is++)
   {
     const ACov* cova = getCov(is);
-    if (!cova->isValidForSpectral())
+    if (!cova->isValidForSpectralOnRn())
     {
       messerr("The current structure is not valid for Spectral Simulation on Rn");
+      return false;
+    }
+  }
+  return true;
+}
+
+bool CovList::isValidForSpectralOnSphere() const
+{
+  for (int is = 0, ns = getNCov(); is < ns; is++)
+  {
+    const ACov* cova = getCov(is);
+    if (!cova->isValidForSpectralOnSphere())
+    {
+      messerr("The current structure is not valid for Spectral Simulation on Sphere");
       return false;
     }
   }

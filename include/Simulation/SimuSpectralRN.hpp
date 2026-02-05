@@ -42,8 +42,8 @@ public:
 
 protected:
   bool _check() override;
-  Id _simulate() override;
-  Id _compute(Db* dbout, Id isimu = 0) override;
+  Id _simulate(const ACov* cova) override;
+  Id _compute(Db* dbout, const VectorBool& activeArray, VectorVectorDouble& tab) override;
 
 private:
   // spectrum for R^n

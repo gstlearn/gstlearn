@@ -39,16 +39,14 @@ KernelLinearSph::~KernelLinearSph()
 {
 }
 
-double KernelLinearSph::_evaluateCovOnSphere(double alpha,
-                                             double scale,
-                                             Id degree) const
+double KernelLinearSph::_evaluateCovOnSphere(double alpha, double scale, Id degree) const
 {
   DECLARE_UNUSED(scale);
   DECLARE_UNUSED(degree);
   return 1. - 2. * alpha / GV_PI;
 }
 
-VectorDouble KernelLinearSph::_evaluateSpectrumOnSphere(Id n, double scale) const
+VectorDouble KernelLinearSph::_evaluateSpectrumOnSphere(Id n, double scale, bool flagScale) const
 {
   DECLARE_UNUSED(scale);
   VectorDouble sp(n + 1, 0.);
@@ -63,7 +61,7 @@ VectorDouble KernelLinearSph::_evaluateSpectrumOnSphere(Id n, double scale) cons
     sp[k]    = (2. * k + 1.) / (2. * k - 3.) * v * v * sp[k - 2];
   }
 
-  sp.normalizeInPlace(1);
+  if (flagScale) sp.normalizeInPlace(1);
 
   return sp;
 }

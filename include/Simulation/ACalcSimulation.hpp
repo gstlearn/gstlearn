@@ -16,6 +16,8 @@
 
 namespace gstlrn
 {
+class CovBase;
+
 class GSTLEARN_EXPORT ACalcSimulation: public ACalcInterpolator
 {
 public:
@@ -26,8 +28,23 @@ public:
 
   Id getSeed() const { return _seed; }
   Id getNbSimu() const { return _nbsimu; }
+  Id getNVar() const;
   void setSeed(Id seed) { _seed = seed; }
   void setNbSimu(Id nbsimu) { _nbsimu = nbsimu; }
+
+  void saveResults(Db* db,
+                   Id icase,
+                   Id shift,
+                   Id isimu,
+                   const VectorBool& activeArray,
+                   const VectorVectorDouble& tab) const;
+  void scaleAndSaveResults(Db* db,
+                           const CovBase* cova,
+                           Id icase,
+                           Id shift,
+                           Id isimu,
+                           const VectorBool& activeArray,
+                           const VectorVectorDouble& tab) const;
 
 protected:
   bool _check() override;
@@ -53,7 +70,7 @@ protected:
                            Db* dbout,
                            Id icase,
                            bool flag_pgs = false,
-                           bool flag_dgm = false);
+                           bool flag_dgm = false) const;
   Id _checkGaussianDataToGrid(Db* dbin, Db* dbout) const;
   Id _conditionalKriging(Db* dbin,
                          Db* dbout,

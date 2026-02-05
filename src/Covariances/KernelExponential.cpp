@@ -62,16 +62,14 @@ MatrixDense KernelExponential::simulateSpectralOmega(Id nb) const
   return mat;
 }
 
-double KernelExponential::_evaluateCovOnSphere(double alpha,
-                                               double scale,
-                                               Id degree) const
+double KernelExponential::_evaluateCovOnSphere(double alpha, double scale, Id degree) const
 {
   DECLARE_UNUSED(degree);
   double nu = scale * getScadef();
   return exp(-nu * alpha);
 }
 
-VectorDouble KernelExponential::_evaluateSpectrumOnSphere(Id n, double scale) const
+VectorDouble KernelExponential::_evaluateSpectrumOnSphere(Id n, double scale, bool flagScale) const
 {
   double nu    = scale * getScadef();
   double nu2   = nu * nu;
@@ -92,7 +90,7 @@ VectorDouble KernelExponential::_evaluateSpectrumOnSphere(Id n, double scale) co
     sp[k] = (2. * k + 1.) / (2. * k - 3.) * (nu2 + (k - 2.) * (k - 2.)) / (nu2 + (k + 1.) * (k + 1.)) * sp[k - 2];
   }
 
-  sp.normalizeInPlace(1);
+  if (flagScale) sp.normalizeInPlace(1);
 
   return sp;
 }

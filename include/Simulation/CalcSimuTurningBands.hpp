@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Covariances/CovAniso.hpp"
 #include "Enum/ECov.hpp"
 #include "gstlearn_export.hpp"
 
@@ -86,14 +87,14 @@ private:
 
   bool _resizeTB();
   void _computePoint(Db* db,
-                     CovAniso* cova,
+                     const CovAniso* cova,
                      const ECov& type,
                      Id isimu,
                      Id is,
                      const VectorBool& activeArray,
                      VectorVectorDouble& tab);
   void _computeGrid(DbGrid* db,
-                    CovAniso* cova,
+                    const CovAniso* cova,
                     const ECov& type,
                     Id isimu,
                     Id is,
@@ -130,15 +131,8 @@ private:
   Id _generateDirections(const Db* dbout);
   void _minmax(const Db* db);
   void _setDensity();
-  ECov _particularCase(Id is, double eps = EPSILON7) const;
+  static ECov _particularCase(const CovAniso* cova, double eps = EPSILON7);
   Id _initializeSeedBands();
-  void _scaleAndCumulateStructures(Db* db,
-                                   Id icase,
-                                   Id shift,
-                                   Id isimu,
-                                   Id is,
-                                   const VectorBool& activeArray,
-                                   const VectorVectorDouble& tab);
   void _normalizeForBands(const Db* db, const VectorBool& activeArray, VectorVectorDouble& tab);
   Id _getCorrec(const ECov& type, Id is, Id ibs, TurningBandOperate& operTB, double& correc);
   static double _getScale(double alpha, double scale);
@@ -167,28 +161,28 @@ private:
                     double* s0z);
 
   void _spreadRegularOnGrid(const DbGrid* dbgrid,
-                            CovAniso* cova,
+                            const CovAniso* cova,
                             Id ibs,
                             double correc,
                             TurningBandOperate& operTB,
                             const VectorBool& activeArray,
                             VectorDouble& tab);
   void _spreadRegularOnPoint(const Db* db,
-                             CovAniso* cova,
+                             const CovAniso* cova,
                              Id ibs,
                              double correc,
                              TurningBandOperate& operTB,
                              const VectorBool& activeArray,
                              VectorDouble& tab);
   void _spreadSpectralOnGrid(const DbGrid* dbgrid,
-                             CovAniso* cova,
+                             const CovAniso* cova,
                              Id ibs,
                              double correc,
                              TurningBandOperate& operTB,
                              const VectorBool& activeArray,
                              VectorDouble& tab);
   void _spreadSpectralOnPoint(const Db* db,
-                              CovAniso* cova,
+                              const CovAniso* cova,
                               Id ibs,
                               double correc,
                               TurningBandOperate& operTB,

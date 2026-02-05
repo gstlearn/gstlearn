@@ -2522,11 +2522,6 @@ void ACov::setContext(const CovContext& ctxt)
   _setContext(ctxt);
 }
 
-bool ACov::isValidForSpectral() const
-{
-  return false;
-}
-
 MatrixDense ACov::simulateSpectralOmega(Id ns) const
 {
   DECLARE_UNUSED(ns);
@@ -2561,30 +2556,56 @@ bool ACov::serializeH5(H5::Group& grp) const
 
 SpectrumRN ACov::simulateSpectrumRN(Id ns, const ACov* cov0) const
 {
-  MatrixDense omega(ns, getNDim());
-  MatrixDense gamma(ns, getNVar());
-  if (cov0 == nullptr) // direct sampling of the spectral measure of CorAniso
-  {
-    omega = simulateSpectralOmega(ns);
-    for (Id ib = 0; ib < ns; ib++)
-    {
-      double val = sqrt(-log(law_uniform()) * 2 / ns);
-      gamma.setValue(ib, 0, val);
-    }
-  }
-  else // Importance sampling using the auxiliary the spectral measure of cov0
-  {
-    omega = cov0->simulateSpectralOmega(ns);
-    for (Id ib = 0; ib < ns; ib++)
-    {
-      VectorDouble freq = omega.getRow(ib);
-      double ratioIS = evalSpectrum(freq, 0, 0) / cov0->evalSpectrum(freq, 0, 0);
-      double val = sqrt(-log(law_uniform()) * 2 / ns * ratioIS);
-      gamma.setValue(ib, 0, val);
-    }
-  }
-  
-  return SpectrumRN(gamma, omega);
+  DECLARE_UNUSED(ns);
+  DECLARE_UNUSED(cov0);
+  messerr("Not implemented");
+  return SpectrumRN();
+}
+
+double ACov::evalCovOnSphere(double alpha, Id degree, bool scaleDistanceByRadius, const CovCalcMode* mode) const
+{
+  DECLARE_UNUSED(alpha);
+  DECLARE_UNUSED(degree);
+  DECLARE_UNUSED(scaleDistanceByRadius);
+  DECLARE_UNUSED(mode);
+  message("ACov::evalCovOnSphere: Not implemented");
+  return TEST;
+}
+
+VectorDouble ACov::evalSpectrumOnSphere(Id n, bool scaleDistanceByRadius, bool flagScale) const
+{
+  DECLARE_UNUSED(n);
+  DECLARE_UNUSED(scaleDistanceByRadius);
+  DECLARE_UNUSED(flagScale);
+  message("ACov::evalSpectrumOnSphere: Not implemented");
+  return VectorDouble();
+}
+
+double ACov::evalSpectrum(const VectorDouble& freq, Id ivar, Id jvar) const
+{
+  DECLARE_UNUSED(freq);
+  DECLARE_UNUSED(ivar);
+  DECLARE_UNUSED(jvar);
+  message("ACov::evalSpectrum: Not implemented");
+  return TEST;
+}
+
+double ACov::evalSpectrumRatio(const VectorDouble& freq, Id ivar, Id jvar, const ACov* cov0) const
+{
+  DECLARE_UNUSED(freq);
+  DECLARE_UNUSED(ivar);
+  DECLARE_UNUSED(jvar);
+  DECLARE_UNUSED(cov0);
+  return 1.0;
+}
+
+void ACov::updateCovByPoints(Id icas1, Id iech1, Id icas2, Id iech2) const
+{
+  DECLARE_UNUSED(icas1);
+  DECLARE_UNUSED(iech1);
+  DECLARE_UNUSED(icas2);
+  DECLARE_UNUSED(iech2);
+  message("ACov::updateCovByPoints: Not implemented");
 }
 
 } // namespace gstlrn

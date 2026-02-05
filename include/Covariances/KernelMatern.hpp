@@ -37,27 +37,29 @@ public:
   bool hasParam() const override { return true; }
   double getParMax() const override { return MAX_PARAM; }
   double getScadef() const override;
-  bool hasSpectrumOnSphere() const override { return true; }
-  bool hasSpectrumOnRn() const override { return true; }
+
   bool hasMarkovCoeffs() const override { return true; }
-  double evaluateSpectrum(double freq) const override;
   void setMarkovCoeffs(const VectorDouble& coeffs) override { _markovCoeffs = coeffs; }
   VectorDouble getMarkovCoeffs() const override;
+  void computeMarkovCoeffs(Id dim) override;
+
   double getCorrec() const override { return _correc; }
   void computeCorrec(Id ndim) override;
   void setCorrec(double val) override { _correc = val; }
-  void computeMarkovCoeffs(Id dim) override;
 
   bool isValidForTurningBand() const override { return true; }
   double simulateTurningBand(double t0, TurningBandOperate& operTB) const override;
 
-  bool isValidForSpectral() const override { return true; }
+  bool isValidForSpectralOnRn() const override { return true; }
+  bool isValidForSpectralOnSphere() const override { return true; }
+  double evaluateSpectrum(double freq) const override;
   MatrixDense simulateSpectralOmega(Id nb) const override;
+  bool needCorrec() const override { return true; }
 
 protected:
   double _evaluateCov(double h) const override;
   double _evaluateCovFirstDerivative(double h) const override;
-  VectorDouble _evaluateSpectrumOnSphere(Id n, double scale = 1.) const override;
+  VectorDouble _evaluateSpectrumOnSphere(Id n, double scale = 1., bool flagScale = true) const override;
 
 private:
   static double _besselK(double nu, double h);

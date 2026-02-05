@@ -80,7 +80,7 @@ Id Style::documentedStandard(Id myArg)
 {
   std::cout << "Documented Function" << std::endl;
   message("Value of MyArg = %d\n", myArg);
-  
+
   return 0;
 }
 
@@ -142,8 +142,8 @@ Id Style::unusedArgument(Id a)
 Id Style::_increment(Id arg, bool verbose)
 {
   if (verbose)
-    std::cout << "Coucou" << std::endl;
+    std::cout << "Example" << std::endl;
   arg++;
   return arg;
 }
-}
+} // namespace gstlrn

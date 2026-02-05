@@ -29,13 +29,14 @@ public:
 
   String getFormula() const override;
   String getCovName() const override { return "Markov"; }
+  bool needCorrec() const override { return true; }
 
   bool hasParam() const override { return true; }
   double getParMax() const override { return MAX_PARAM; }
   double getScadef() const override;
   bool hasCovOnRn() const override { return false; }
-  bool hasSpectrumOnRn() const override { return true; }
-  bool hasSpectrumOnSphere() const override { return true; }
+  bool isValidForSpectralOnRn() const override { return true; }
+  bool isValidForSpectralOnSphere() const override { return true; }
   bool hasMarkovCoeffs() const override { return true; }
   double normalizeOnSphere(Id n = 50, double scale = 1.) const override;
   double evaluateSpectrum(double freq) const override;
@@ -45,11 +46,7 @@ public:
   void setCorrec(double val) override;
 
 protected:
-  VectorDouble _evaluateSpectrumOnSphere(Id n,
-                                         double scale = 1.) const override;
-
-private:
-  VectorDouble _evaluateSpectrumOnSphereWithoutNormalization(Id n, double scale = 1.) const;
+  VectorDouble _evaluateSpectrumOnSphere(Id n, double scale = 1., bool flagScale = true) const override;
 
 private:
   VectorDouble _markovCoeffs;

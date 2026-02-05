@@ -65,7 +65,8 @@ public:
   void initializeAic();
 
   const MatrixSymmetric& getSill() const { return _sillCur; }
-  const MatrixSquare& getAic() const { return _aic; }
+  const MatrixSquare& getAics() const { return _aic; }
+  double getAic(Id ivar, Id jvar) const;
   virtual void setCor(ACov* cor);
   const ACov* getCor() const { return _cor.get(); }
   ACov* getCorModify() { return _cor.get(); }
