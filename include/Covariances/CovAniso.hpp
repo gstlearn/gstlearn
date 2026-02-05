@@ -94,7 +94,7 @@ public:
                                    const VectorDouble& ranges   = VectorDouble(),
                                    const MatrixSymmetric& sills = MatrixSymmetric(),
                                    const VectorDouble& angles   = VectorDouble(),
-                                   const ASpaceSharedPtr& space = nullptr,
+                                   const ASpaceSharedPtr& space = ASpaceSharedPtr(),
                                    bool flagRange               = true);
   static CovAniso* createIsotropic(const CovContext& ctxt,
                                    const ECov& type,
