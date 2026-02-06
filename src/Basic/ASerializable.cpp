@@ -15,6 +15,7 @@
 #include "Basic/String.hpp"
 #include "Enum/EFormatNF.hpp"
 
+#include <clocale>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -22,8 +23,17 @@
 namespace gstlrn
 {
 String ASerializable::_myPrefixName = String();
+thread_local bool locale_set        = false;
 
-ASerializable::ASerializable()                                    = default;
+ASerializable::ASerializable()
+{
+  if (!locale_set)
+  {
+    // support utf8 characters in Windows files/folders
+    setlocale(LC_ALL, "en_US.utf8");
+    locale_set = true;
+  }
+}
 ASerializable::ASerializable(const ASerializable&)                = default;
 ASerializable& ASerializable::operator=(const ASerializable&)     = default;
 ASerializable::ASerializable(ASerializable&&) noexcept            = default;
