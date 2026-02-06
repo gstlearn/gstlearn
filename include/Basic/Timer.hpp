@@ -38,7 +38,7 @@ public:
                               Id expected_time = -1,
                               bool flag_reset = true);
   double getIntervalSeconds(bool flag_reset = true);
-  static void displaySeconds(const String& title, double sec, Id expected_time = -1);
+  static void displaySeconds(const String& title, double seconds, Id expected_time = -1);
 
   void displayIntervalMilliseconds(const String& title = "",
                                    Id expected_time = -1,

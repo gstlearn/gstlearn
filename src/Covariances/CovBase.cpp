@@ -217,7 +217,7 @@ bool CovBase::isConsistent(const ASpace* space) const
   return _cor->isConsistent(space);
 }
 
-Id CovBase::addEvalCovVecRHSInPlace(vect vect,
+Id CovBase::addEvalCovVecRHSInPlace(vect vec,
                                     const VectorInt& index1,
                                     Id iech2,
                                     const KrigOpt& krigopt,
@@ -228,7 +228,7 @@ Id CovBase::addEvalCovVecRHSInPlace(vect vect,
                                     const ECalcMember& calcMember) const
 {
   DECLARE_UNUSED(lambda)
-  return _cor->addEvalCovVecRHSInPlace(vect, index1, iech2, krigopt, pin, pout, tabwork, getSill(0, 0), calcMember);
+  return _cor->addEvalCovVecRHSInPlace(vec, index1, iech2, krigopt, pin, pout, tabwork, getSill(0, 0), calcMember);
 }
 
 double CovBase::_eval(const SpacePoint& p1,

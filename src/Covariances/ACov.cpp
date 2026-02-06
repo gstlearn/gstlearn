@@ -1358,7 +1358,7 @@ Id ACov::evalCovMatOptimInPlace(MatrixDense& mat,
   return 0;
 }
 
-Id ACov::evalCovVecRHSInPlace(vect vect,
+Id ACov::evalCovVecRHSInPlace(vect vec,
                               const RankHandler& rank,
                               Id iech2,
                               const KrigOpt& krigopt,
@@ -1368,15 +1368,15 @@ Id ACov::evalCovVecRHSInPlace(vect vect,
                               double lambda,
                               const ECalcMember& calcMember) const
 {
-  for (Id i = 0; i < static_cast<Id>(vect.size()); i++)
-    vect[i] = 0.;
+  for (Id i = 0; i < static_cast<Id>(vec.size()); i++)
+    vec[i] = 0.;
 
   // db2->getSampleAsSPInPlace(pin, iech2);
-  return addEvalCovVecRHSInPlace(vect, rank.getSampleRanks(0), iech2, krigopt, pin, pout,
+  return addEvalCovVecRHSInPlace(vec, rank.getSampleRanks(0), iech2, krigopt, pin, pout,
                                  tabwork, lambda, calcMember);
 }
 
-Id ACov::addEvalCovVecRHSInPlace(vect vect,
+Id ACov::addEvalCovVecRHSInPlace(vect vec,
                                  const VectorInt& index1,
                                  Id iech2,
                                  const KrigOpt& krigopt,
@@ -1392,7 +1392,7 @@ Id ACov::addEvalCovVecRHSInPlace(vect vect,
   const CovCalcMode& mode = krigopt.getMode();
   const Id* inds          = index1.data();
   Id icas                 = (calcMember == ECalcMember::LHS) ? 1 : 2;
-  for (Id i = 0; i < static_cast<Id>(vect.size()); i++)
+  for (Id i = 0; i < static_cast<Id>(vec.size()); i++)
   {
     if (flagNoStat)
       updateCovByPoints(1, *inds, icas, iech2);
@@ -1403,7 +1403,7 @@ Id ACov::addEvalCovVecRHSInPlace(vect vect,
     // else
     // {
     SpacePoint& p1 = optimizationLoadInPlace(*inds++, 1, 1);
-    vect[i] += lambda * evalCov(p1, pin, 0, 0, &mode);
+    vec[i] += lambda * evalCov(p1, pin, 0, 0, &mode);
     //  }
   }
   return 0;

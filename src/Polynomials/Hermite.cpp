@@ -454,10 +454,10 @@ VectorDouble hermiteCoefIndicator(double yc, Id nbpoly)
 VectorDouble hermiteCoefMetal(double yc, const VectorDouble& phi)
 {
   Id nbpoly = static_cast<Id>(phi.size());
-  VectorDouble vect(nbpoly);
+  VectorDouble vec(nbpoly);
   MatrixSquare TAU = hermiteIncompleteIntegral(yc, nbpoly);
-  TAU.prodMatVecInPlace(phi, vect);
-  return vect;
+  TAU.prodMatVecInPlace(phi, vec);
+  return vec;
 }
 
 /**

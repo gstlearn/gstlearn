@@ -73,9 +73,9 @@ bool CholeskyDense::empty() const
 MatrixDense CholeskyDense::inverse() const
 {
   if (!isReady()) return MatrixDense();
-  auto Id = Eigen::MatrixXd::Identity(_size, _size);
+  auto Identity = Eigen::MatrixXd::Identity(_size, _size);
   MatrixDense res(_size, _size);
-  res.eigenMat() = _factor.solve(Id);
+  res.eigenMat() = _factor.solve(Identity);
   return res;
 }
 

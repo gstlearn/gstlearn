@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Basic/Convolution.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/FFT.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Core/fftn.hpp"
@@ -96,11 +95,11 @@ Id Convolution::ConvolveSparse(Id iatt,
       {
         for (Id jvar = 0; jvar < nvar; jvar++, irow++)
         {
-          VectorDouble vect = wgt.getColumnByRowRange(ivar, nbneigh * jvar, nbneigh * (jvar + 1));
+          VectorDouble vec = wgt.getColumnByRowRange(ivar, nbneigh * jvar, nbneigh * (jvar + 1));
           table.setRowName(irow, "Weight of Z" + std::to_string(jvar + 1) +
                                    " for Z*" + std::to_string(ivar + 1));
-          table.setValue(irow, 0, vect.minimum());
-          table.setValue(irow, 1, vect.maximum());
+          table.setValue(irow, 0, vec.minimum());
+          table.setValue(irow, 1, vec.maximum());
         }
       }
       table.display();

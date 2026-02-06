@@ -776,18 +776,18 @@ label_norme:
  **
  ** \return  Gaussian density function
  **
- ** \param[in]  vect   Array of values (Dimension = 2)
+ ** \param[in]  vec    Array of values (Dimension = 2)
  ** \param[in]  mean   Array of means (Dimension = 2)
  ** \param[in]  correl Correlation matrix (Dimension: 2*2)
  **
  *****************************************************************************/
-double law_df_bigaussian(VectorDouble& vect,
+double law_df_bigaussian(VectorDouble& vec,
                          VectorDouble& mean,
                          MatrixSymmetric& correl)
 {
   VectorDouble xc(2);
-  xc[0]          = vect[0] - mean[0];
-  xc[1]          = vect[1] - mean[1];
+  xc[0]          = vec[0] - mean[0];
+  xc[1]          = vec[1] - mean[1];
   double detv    = correl.getValue(0, 0) * correl.getValue(1, 1) - correl.getValue(0, 1) * correl.getValue(1, 0);
   double det2    = (correl.getValue(1, 1) * xc[0] * xc[0] - 2. * correl.getValue(0, 1) * xc[0] * xc[1] + correl.getValue(0, 0) * xc[1] * xc[1]);
   double logres  = 2. * log(2. * GV_PI) + log(detv) + det2 / detv;
@@ -801,13 +801,13 @@ double law_df_bigaussian(VectorDouble& vect,
  **
  ** \return  Gaussian density function
  **
- ** \param[in]  vect   Array of values (Dimension = nvar)
+ ** \param[in]  vec    Array of values (Dimension = nvar)
  ** \param[in]  correl Correlation matrix (Dimension: nvar*nvar)
  **
  *****************************************************************************/
-double law_df_quadgaussian(VectorDouble& vect, MatrixSymmetric& correl)
+double law_df_quadgaussian(VectorDouble& vec, MatrixSymmetric& correl)
 {
-  Id nvar        = static_cast<Id>(vect.size());
+  Id nvar        = static_cast<Id>(vec.size());
   double density = -2. * log(2 * GV_PI);
 
   auto eigenvectors  = EigenVectors(correl);
@@ -818,7 +818,7 @@ double law_df_quadgaussian(VectorDouble& vect, MatrixSymmetric& correl)
   MatrixSymmetric invcor = correl;
   if (invcor.invert()) return TEST;
 
-  density -= 0.5 * invcor.normVec(vect);
+  density -= 0.5 * invcor.normVec(vec);
   density = exp(density);
   return density;
 }
@@ -829,14 +829,14 @@ double law_df_quadgaussian(VectorDouble& vect, MatrixSymmetric& correl)
  **
  ** \return  Gaussian density function
  **
- ** \param[in]  vect   Array of values (Dimension = nvar)
+ ** \param[in]  vec    Array of values (Dimension = nvar)
  ** \param[in]  correl Correlation matrix (Dimension: nvar*nvar)
  **
  *****************************************************************************/
-double law_df_multigaussian(VectorDouble& vect, MatrixSymmetric& correl)
+double law_df_multigaussian(VectorDouble& vec, MatrixSymmetric& correl)
 
 {
-  Id nvar        = static_cast<Id>(vect.size());
+  Id nvar        = static_cast<Id>(vec.size());
   double density = -0.5 * nvar * log(2 * GV_PI);
 
   auto eigenvectors  = EigenVectors(correl);
@@ -848,7 +848,7 @@ double law_df_multigaussian(VectorDouble& vect, MatrixSymmetric& correl)
   MatrixSymmetric invcor(correl);
   if (invcor.invert()) return TEST;
 
-  density -= invcor.normVec(vect);
+  density -= invcor.normVec(vec);
   density = exp(density);
   return (density);
 }

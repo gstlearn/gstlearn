@@ -968,8 +968,8 @@ NF_Triplet AMatrix::getMatrixToTriplet(Id shiftRow, Id shiftCol) const
 
 VectorDouble AMatrix::getValues(bool byCol) const
 {
-  VectorDouble vect(_nCols * _nRows);
-  VectorDouble::iterator itvect(vect.begin());
+  VectorDouble vec(_nCols * _nRows);
+  auto itvect(vec.begin());
 
   if (byCol)
   {
@@ -989,7 +989,7 @@ VectorDouble AMatrix::getValues(bool byCol) const
         itvect++;
       }
   }
-  return vect;
+  return vec;
 }
 
 double AMatrix::compare(const AMatrix& mat) const
@@ -1037,12 +1037,12 @@ const VectorDouble& AMatrix::getDiagonal(Id shift) const
 /*! Extract a Row */
 VectorDouble AMatrix::getRow(Id irow) const
 {
-  VectorDouble vect;
-  if (!checkArg("Incorrect argument 'irow'", irow, getNRows())) return vect;
+  VectorDouble vec;
+  if (!checkArg("Incorrect argument 'irow'", irow, getNRows())) return vec;
 
   for (Id icol = 0; icol < getNCols(); icol++)
-    vect.push_back(getValue(irow, icol));
-  return vect;
+    vec.push_back(getValue(irow, icol));
+  return vec;
 }
 
 /*! Extract a Column */
@@ -1051,10 +1051,10 @@ VectorDouble AMatrix::getColumn(Id icol) const
   if (icol < 0 || icol >= getNCols())
     my_throw("Incorrect argument 'icol'");
 
-  VectorDouble vect;
+  VectorDouble vec;
   for (Id irow = 0; irow < getNRows(); irow++)
-    vect.push_back(getValue(irow, icol));
-  return vect;
+    vec.push_back(getValue(irow, icol));
+  return vec;
 }
 
 VectorDouble AMatrix::getColumnByRowRange(Id icol, Id rowFrom, Id rowTo) const
@@ -1062,10 +1062,10 @@ VectorDouble AMatrix::getColumnByRowRange(Id icol, Id rowFrom, Id rowTo) const
   if (icol < 0 || icol >= getNCols())
     my_throw("Incorrect argument 'icol'");
 
-  VectorDouble vect;
+  VectorDouble vec;
   for (Id irow = rowFrom; irow < rowTo; irow++)
-    vect.push_back(getValue(irow, icol));
-  return vect;
+    vec.push_back(getValue(irow, icol));
+  return vec;
 }
 
 /*! Checks if a Column is valid (contains a non TEST value) */

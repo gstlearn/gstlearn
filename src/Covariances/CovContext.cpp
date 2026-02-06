@@ -171,9 +171,9 @@ void CovContext::_update()
 {
   if (_nVar * _nVar != static_cast<Id>(_covar0.size()))
   {
-    MatrixSymmetric Id(_nVar);
-    Id.setIdentity();
-    _covar0 = Id.getValues();
+    MatrixSymmetric Identity(_nVar);
+    Identity.setIdentity();
+    _covar0 = Identity.getValues();
   }
 }
 

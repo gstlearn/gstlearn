@@ -31,7 +31,7 @@ VarioParam::VarioParam(double scale,
 {
 }
 
-VarioParam::VarioParam(const VarioParam& VarioParam,
+VarioParam::VarioParam(const VarioParam& varioparam,
                        const VectorInt& dircols,
                        const Faults* faults)
   : AStringable()
@@ -40,12 +40,12 @@ VarioParam::VarioParam(const VarioParam& VarioParam,
   , _dirparams()
   , _faults(faults)
 {
-  _scale = VarioParam.getScale();
-  _dates = VarioParam.getDates();
+  _scale = varioparam.getScale();
+  _dates = varioparam.getDates();
 
   for (Id idir = 0; idir < static_cast<Id>(dircols.size()); idir++)
   {
-    _dirparams.push_back(VarioParam.getDirParam(dircols[idir]));
+    _dirparams.push_back(varioparam.getDirParam(dircols[idir]));
   }
 }
 
@@ -454,7 +454,7 @@ Db* buildDbFromVarioParam(Db* db, const VarioParam& varioparam)
   VectorDouble lags;
   VectorDouble dirs;
   VectorDouble dists;
-  VectorDouble vect(ndim);
+  VectorDouble vec(ndim);
 
   SpaceTarget T1(varioparam.getSpace());
   SpaceTarget T2(varioparam.getSpace());

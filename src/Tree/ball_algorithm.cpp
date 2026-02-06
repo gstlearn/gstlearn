@@ -26,7 +26,6 @@ License: BSD 3-clause
 */
 
 #include "Tree/ball_algorithm.h"
-#include "Basic/AStringable.hpp"
 #include "Space/SpacePoint.hpp"
 
 namespace gstlrn

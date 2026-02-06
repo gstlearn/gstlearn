@@ -135,52 +135,52 @@ bool MatrixInt::_isRankValid(Id rank) const
 
 VectorInt MatrixInt::getValues() const
 {
-  VectorInt vect;
+  VectorInt vec;
   for (Id icol = 0; icol < _nCols; icol++)
     for (Id irow = 0; irow < _nRows; irow++)
     {
       auto value = getValue(irow, icol);
-      vect.push_back(value);
+      vec.push_back(value);
     }
-  return vect;
+  return vec;
 }
 
 VectorInt MatrixInt::getValuesPerRow(Id irow) const
 {
-  VectorInt vect;
+  VectorInt vec;
   for (Id icol = 0; icol < _nCols; icol++)
   {
     auto value = getValue(irow, icol);
-    vect.push_back(value);
+    vec.push_back(value);
   }
-  return vect;
+  return vec;
 }
 
 VectorInt MatrixInt::getValuesPerColumn(Id icol) const
 {
-  VectorInt vect;
+  VectorInt vec;
   for (Id irow = 0; irow < _nRows; irow++)
   {
     auto value = getValue(irow, icol);
-    vect.push_back(value);
+    vec.push_back(value);
   }
-  return vect;
+  return vec;
 }
 
 VectorVectorInt MatrixInt::getMatrix() const
 {
-  VectorVectorInt vect(_nRows);
+  VectorVectorInt vec(_nRows);
   ;
   for (Id irow = 0; irow < _nRows; irow++)
   {
-    vect[irow].resize(_nCols);
+    vec[irow].resize(_nCols);
     for (Id icol = 0; icol < _nCols; icol++)
     {
-      auto value       = getValue(irow, icol);
-      vect[irow][icol] = value;
+      auto value      = getValue(irow, icol);
+      vec[irow][icol] = value;
     }
   }
-  return vect;
+  return vec;
 }
 
 /**

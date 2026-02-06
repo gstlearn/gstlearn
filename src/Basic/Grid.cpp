@@ -844,17 +844,17 @@ bool Grid::isSameMesh(const Grid& grid) const
  */
 VectorDouble Grid::getAxis(Id idim) const
 {
-  VectorDouble vect;
-  if (idim < 0 || idim >= getNDim()) return (vect);
+  VectorDouble vec;
+  if (idim < 0 || idim >= getNDim()) return (vec);
 
   auto nvect    = getNX(idim);
   double origin = getX0(idim);
   double pas    = getDX(idim);
-  vect.resize(nvect);
+  vec.resize(nvect);
 
   for (Id i = 0; i < nvect; i++)
-    vect[i] = origin + i * pas;
-  return vect;
+    vec[i] = origin + i * pas;
+  return vec;
 }
 
 /**

@@ -3644,7 +3644,7 @@ static void st_declustering_truncate_and_rescale(Db* db, Id iptr)
 static Id st_declustering_1(Db* db, Id iptr, const VectorDouble& radius)
 {
   Id ndim = db->getNDim();
-  VectorDouble vect(ndim);
+  VectorDouble vec(ndim);
 
   if (radius.empty())
   {
@@ -3666,15 +3666,15 @@ static Id st_declustering_1(Db* db, Id iptr, const VectorDouble& radius)
       if (!db->isActive(jech)) continue;
       double value = db->getZVariable(iech, 0);
       if (FFFF(value)) continue;
-      (void)distance_intra(db, iech, jech, vect.data());
+      (void)distance_intra(db, iech, jech, vec.data());
 
       /* Normalize the distance */
 
       double dist = 0.;
       for (Id idim = 0; idim < db->getNDim(); idim++)
       {
-        vect[idim] /= radius[idim];
-        dist += vect[idim] * vect[idim];
+        vec[idim] /= radius[idim];
+        dist += vec[idim] * vec[idim];
       }
       if (dist > 1) continue;
       db->updArray(iech, iptr, EOperator::ADD, 1);

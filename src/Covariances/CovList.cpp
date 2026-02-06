@@ -227,7 +227,7 @@ const VectorInt& CovList::_getListActiveCovariances(const CovCalcMode* mode) con
   return _allActiveCovList;
 }
 
-Id CovList::addEvalCovVecRHSInPlace(vect vect,
+Id CovList::addEvalCovVecRHSInPlace(vect vec,
                                     const VectorInt& index1,
                                     Id iech2,
                                     const KrigOpt& krigopt,
@@ -242,9 +242,9 @@ Id CovList::addEvalCovVecRHSInPlace(vect vect,
   for (const auto& j: list.getVector())
   {
     if (_covs[j]->isOptimEnabled())
-      _covs[j]->addEvalCovVecRHSInPlace(vect, index1, iech2, krigopt, pin, pout, tabwork, lambda, calcMember);
+      _covs[j]->addEvalCovVecRHSInPlace(vec, index1, iech2, krigopt, pin, pout, tabwork, lambda, calcMember);
     else
-      _covs[j]->ACov::addEvalCovVecRHSInPlace(vect, index1, iech2, krigopt, pin, pout, tabwork, lambda, calcMember);
+      _covs[j]->ACov::addEvalCovVecRHSInPlace(vec, index1, iech2, krigopt, pin, pout, tabwork, lambda, calcMember);
   }
   return 0;
 }

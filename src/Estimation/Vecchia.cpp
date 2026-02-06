@@ -517,9 +517,9 @@ Id Vecchia::computeLower(const MatrixT<Id>& Ranks, bool verbose)
 
         // Solve the local system
         _chol->setMatrix(_matCov);
-        constvect vect = _vectCov.getViewOnColumn(0);
-        _work.resize(vect.size());
-        _chol->solve(vect, _work);
+        constvect vec = _vectCov.getViewOnColumn(0);
+        _work.resize(vec.size());
+        _chol->solve(vec, _work);
 
         // Patch the global matrix
         for (Id i = 0; i < nitems; i++)
@@ -527,7 +527,7 @@ Id Vecchia::computeLower(const MatrixT<Id>& Ranks, bool verbose)
           Id irel2 = neighDescr[i][2];
           _LFull.setValue(irel2, irel1, -_work[i]);
         }
-        _DFull[irel1] = 1. / (varK - VH::innerProductCV(_work, vect));
+        _DFull[irel1] = 1. / (varK - VH::innerProductCV(_work, vec));
       }
     }
   }
