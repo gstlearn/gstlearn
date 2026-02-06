@@ -222,15 +222,17 @@ bool CalcSimuSpectral::_postprocess()
   NamingConvention namconvS(namconv);
 
   // Loop on the simulations
-  for (Id isimu = 0; isimu < getNbSimu(); isimu++)
-    for (Id ivar = 0; ivar < _getNVar(); ivar++)
+  Id nbsimu = getNbSimu();
+  Id nvar   = _getNVar();
+  for (Id isimu = 0; isimu < nbsimu; isimu++)
+    for (Id ivar = 0; ivar < nvar; ivar++)
     {
       String ps(prefix);
       ps.append(delim + "V" + std::to_string(ivar + 1));
       ps.append(delim + "S" + std::to_string(isimu + 1));
       namconvS.setPrefix(ps);
       namconvS.setNamesAndLocators(nullptr, VectorString(), ELoc::Z, 1, getDbout(),
-                                   _iattOut + isimu * _getNVar() + ivar, "", 1);
+                                   _iattOut + isimu * nvar + ivar, "", 1);
     }
   return true;
 }
@@ -272,7 +274,7 @@ bool CalcSimuSpectral::_run()
       }
 
       // Blank out the array 'tab'
-      for (Id ivar = 0, nvar = _getNVar(); ivar < nvar; ivar++)
+      for (Id ivar = 0; ivar < nvar; ivar++)
         tab[ivar].fill(0.);
 
       if (simulate(cova)) return false;
