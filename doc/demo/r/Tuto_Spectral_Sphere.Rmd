@@ -3,6 +3,8 @@
   author: "Ch. Lantuejoul, X. Freulon, and the gstlearn Core Team"
   date: "2024-04-04"
   output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
   
 # Introduction
@@ -192,7 +194,7 @@ plot.init() +
 
 ```{r spectrum, echo=TRUE, eval = TRUE}
 nd = 100
-spevec = cova$evalSpectrumOnSphere(nd, flagCumul=TRUE)
+spevec = cova$evalSpectrumOnSphere(nd)
 plot.init() + 
   plot.XY(seq(nd+1), spevec) +
   plot.decoration(title=paste0(covname, " spectrum on S2"),
@@ -200,16 +202,13 @@ plot.init() +
   plot.geometry(ylim=c(0,NA))
 ```
 
-
-
 ## Simulation
 
 ```{r one_simulation, echo=TRUE, eval = TRUE}
 seed = 54251
 err  = grd$deleteColumns(names = paste0(covname, "*"))
-simu = SimuSpectralS2(cova = cova)
-err  = simu$simulate(ns = ns, seed = seed, verbose = TRUE, nd = 100)
-err  = simu$compute(dbout = grd, verbose = TRUE, namconv = NamingConvention(covname))
+err = simuSpectral(dbin=NULL, dbout=grd, model=modelSph, ns=ns, nd=nd, seed=seed, verbose=TRUE, 
+                   namconv = NamingConvention(covname))
 ```
 
 ## QC
@@ -227,7 +226,7 @@ knitr::kable(tab, digits = 6, caption = paste0("Statistics for simulation of ",
 Visualization 2D
 
 ```{r Visu2D}
-simu_name = paste0(covname, ".V1.simu")
+simu_name = paste0(covname, ".V1.S1")
 p = plot.init(asp=1) +
   plot.raster(grd, name = simu_name, flagLegend = TRUE, legendName = "Y", 
             palette = "Spectral") +
@@ -297,7 +296,8 @@ legend("bottomright",
 ```{r multi_simulations, echo = TRUE, eval = TRUE}
 err = grd$deleteColumns(names = paste0(covname, "*"))
 nsim = 20 # number of simulation
-err = simuSpectral(dbin = NULL, dbout = grd, cova = cova, seed = 2584, ns=ns, nbsimu=nsim, namconv = NamingConvention(covname))
+err = simuSpectral(dbin = NULL, dbout = grd, model = modelSph, seed = 2584, ns=ns, nbsimu=nsim, 
+                   namconv = NamingConvention(covname))
 
 # simulation and experimental variograms
 varios <- matrix(NaN, nrow = nsim, ncol = ndisc)

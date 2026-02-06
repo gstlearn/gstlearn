@@ -51,6 +51,8 @@ public:
   CovList& operator=(const CovList& r);
   virtual ~CovList();
 
+  IMPLEMENT_CLONING(CovList)
+
   /// Interface for ACov
   Id getNVar() const override;
   bool isIndexable() const override { return true; }
@@ -146,7 +148,8 @@ public:
   Id getNitergCum() const { return _itergCum; }
   void setAllCovActive();
 
-  bool isValidForSpectral() const override;
+  bool isValidForSpectralOnRn() const override;
+  bool isValidForSpectralOnSphere() const override;
   MatrixDense simulateSpectralOmega(Id ns) const override;
   void computeAic() const;
   void initializeAic() const;

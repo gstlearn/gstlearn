@@ -125,13 +125,11 @@ String KernelMatern::getFormula() const
 double KernelMatern::evaluateSpectrum(double freq) const
 {
 
- 
-
-  size_t ndim = getContext().getNDim();
-  double param = getParam();
-  size_t ndims2  = 0.5 * ndim;
-  double alpha = param + ndims2;
-  double val = pow(2, ndim) / getCorrec() / pow (1 + (freq * freq), alpha);
+  size_t ndim   = getContext().getNDim();
+  double param  = getParam();
+  size_t ndims2 = 0.5 * ndim;
+  double alpha  = param + ndims2;
+  double val    = pow(2, ndim) / getCorrec() / pow(1 + (freq * freq), alpha);
   return val;
 
   /*
@@ -193,7 +191,7 @@ MatrixDense KernelMatern::simulateSpectralOmega(Id nb) const
   return mat;
 }
 
-VectorDouble KernelMatern::_evaluateSpectrumOnSphere(Id n, double scale) const
+VectorDouble KernelMatern::_evaluateSpectrumOnSphere(Id n, double scale, bool flagScale) const
 {
   double scale2 = scale * scale;
   double mu     = getParam();
@@ -204,7 +202,7 @@ VectorDouble KernelMatern::_evaluateSpectrumOnSphere(Id n, double scale) const
   for (Id k = 0; k <= n; k++)
     sp[k] = (2. * k + 1.) / (4. * GV_PI) / pow(1. + (scale2 * k * (k + 1.)), alpha);
 
-  sp.normalizeInPlace(1);
+  if (flagScale) sp.normalizeInPlace(1);
   return sp;
 }
 

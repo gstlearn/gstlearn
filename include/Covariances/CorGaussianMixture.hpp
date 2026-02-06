@@ -61,10 +61,6 @@ public:
   {
     return (space->getType() == ESpaceType::RN);
   }
-  bool isValidForSpectral() const override
-  {
-    return true;
-  }
 
   const CorAniso* getCorRef() const { return _corRef.get(); }
 
@@ -85,6 +81,7 @@ public:
   void setScaleGneiting(double val) { _scaleGneiting = val; }
   bool getScaleGneiting() const { return _scaleGneiting; }
 
+  bool isValidForSpectralOnRn() const override { return true; }
   SpectrumRN simulateSpectrumRN(Id ns, const ACov* cov0 = nullptr) const override;
 
 protected:

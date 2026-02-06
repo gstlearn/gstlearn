@@ -1401,71 +1401,6 @@ static void st_result_kriging_print(Id flag_xvalid, Id nvar, Id status)
 
 /****************************************************************************/
 /*!
- **  Conditioning Kriging
- **
- ** \return  Error return code
- **
- ** \param[in]  dbin       input Db structure
- ** \param[in]  dbout      output Db structure
- ** \param[in]  model      Model structure
- ** \param[in]  neigh      ANeigh structure
- ** \param[in]  flag_bayes 1 if Bayes option is switched ON
- ** \param[in]  icase      Case for PGS and GRF (or -1)
- ** \param[in]  nbsimu     Number of simulations
- ** \param[in]  flag_dgm   1 if the DGM version of kriging should be used
- **
- ** \remark: The model contains an anamorphosis with a change of support
- ** \remark: coefficient as soon as flag_dgm is TRUE
- **
- *****************************************************************************/
-Id _krigsim(Db* dbin,
-            Db* dbout,
-            const Model* model,
-            ANeigh* neigh,
-            bool flag_bayes,
-            Id icase,
-            Id nbsimu,
-            bool flag_dgm)
-{
-  // Preliminary checks
-
-  if (neigh->getType() == ENeigh::IMAGE)
-  {
-    messerr("This tool cannot function with an IMAGE neighborhood");
-    return 1;
-  }
-
-  /* Add the attributes for storing the results */
-
-  Id iptr_est = dbout->getColIdxByLocator(ELoc::SIMU, 0);
-  if (iptr_est < 0) return 1;
-
-  /* Setting options */
-
-  KrigOpt krigopt;
-  krigopt.setOptionDGM(flag_dgm);
-
-  KrigingSystem ksys(dbin, dbout, model, neigh, krigopt);
-  if (ksys.setKrigOptFlagSimu(true, nbsimu, icase)) return 1;
-  if (ksys.updKrigOptEstim(iptr_est, -1, -1, true)) return 1;
-  if (ksys.setKrigOptBayes(flag_bayes)) return 1;
-  if (!ksys.isReady()) return 1;
-
-  /* Loop on the targets to be processed */
-
-  for (Id iech_out = 0; iech_out < dbout->getNSample(); iech_out++)
-  {
-    mes_process("Conditional Simulation", dbout->getNSample(), iech_out);
-    if (ksys.estimate(iech_out)) return 1;
-  }
-
-  ksys.conclusion();
-
-  return 0;
-}
-
-/****************************************************************************/
-/*!
  **  Estimation of the variance by transitive method
  **
  ** \return  Error return code
@@ -3709,7 +3644,7 @@ static void st_declustering_truncate_and_rescale(Db* db, Id iptr)
 static Id st_declustering_1(Db* db, Id iptr, const VectorDouble& radius)
 {
   Id ndim = db->getNDim();
-  VectorDouble vect(ndim);
+  VectorDouble vec(ndim);
 
   if (radius.empty())
   {
@@ -3731,15 +3666,15 @@ static Id st_declustering_1(Db* db, Id iptr, const VectorDouble& radius)
       if (!db->isActive(jech)) continue;
       double value = db->getZVariable(iech, 0);
       if (FFFF(value)) continue;
-      (void)distance_intra(db, iech, jech, vect.data());
+      (void)distance_intra(db, iech, jech, vec.data());
 
       /* Normalize the distance */
 
       double dist = 0.;
       for (Id idim = 0; idim < db->getNDim(); idim++)
       {
-        vect[idim] /= radius[idim];
-        dist += vect[idim] * vect[idim];
+        vec[idim] /= radius[idim];
+        dist += vec[idim] * vec[idim];
       }
       if (dist > 1) continue;
       db->updArray(iech, iptr, EOperator::ADD, 1);

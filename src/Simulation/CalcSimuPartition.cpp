@@ -50,7 +50,7 @@ CalcSimuPartition::~CalcSimuPartition()
 bool CalcSimuPartition::_voronoi()
 {
   auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
-  auto ndim      = _getNDim();
+  auto ndim    = _getNDim();
   VectorDouble simgrid(dbgrid->getNSample());
 
   /************************************/
@@ -244,7 +244,7 @@ bool CalcSimuPartition::_check()
   if (!ACalcSimulation::_check()) return false;
 
   if (!hasDbout()) return false;
-  if (!hasModel()) return false;
+  if (!hasModelGeneric()) return false;
   auto ndim = _getNDim();
   if (ndim > 3)
   {
@@ -265,7 +265,7 @@ bool CalcSimuPartition::_check()
     return false;
   }
 
-  _modelLocal = dynamic_cast<Model*>(getModel());
+  _modelLocal = dynamic_cast<Model*>(getModelGeneric());
   if (_modelLocal == nullptr)
   {
     messerr("The model must be of type 'Model' (not ModelGeneric)");
@@ -331,7 +331,7 @@ Id tessellation_poisson(DbGrid* dbgrid,
 {
   CalcSimuPartition simpart(2, 1, seed, verbose);
   simpart.setDbout(dbgrid);
-  simpart.setModel(model);
+  simpart.setModelGeneric(model);
   simpart.setNamingConvention(namconv);
   simpart.setParparam(parparam);
 
@@ -362,7 +362,7 @@ Id tessellation_voronoi(DbGrid* dbgrid,
 {
   CalcSimuPartition simpart(1, 1, seed, verbose);
   simpart.setDbout(dbgrid);
-  simpart.setModel(model);
+  simpart.setModelGeneric(model);
   simpart.setNamingConvention(namconv);
   simpart.setParparam(parparam);
 

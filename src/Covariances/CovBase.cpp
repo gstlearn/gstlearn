@@ -151,6 +151,13 @@ void CovBase::setSill(Id ivar, Id jvar, double sill) const
   _sillCur.setValue(ivar, jvar, sill);
 }
 
+double CovBase::getAic(Id ivar, Id jvar) const
+{
+  if (!_isVariableValid(ivar)) return 0.;
+  if (!_isVariableValid(jvar)) return 0.;
+  return _aic.getValue(ivar, jvar);
+}
+
 void CovBase::setCholSill(Id ivar, Id jvar, double val) const
 {
   if (!_isVariableValid(ivar)) return;
@@ -210,7 +217,7 @@ bool CovBase::isConsistent(const ASpace* space) const
   return _cor->isConsistent(space);
 }
 
-Id CovBase::addEvalCovVecRHSInPlace(vect vect,
+Id CovBase::addEvalCovVecRHSInPlace(vect vec,
                                     const VectorInt& index1,
                                     Id iech2,
                                     const KrigOpt& krigopt,
@@ -221,7 +228,7 @@ Id CovBase::addEvalCovVecRHSInPlace(vect vect,
                                     const ECalcMember& calcMember) const
 {
   DECLARE_UNUSED(lambda)
-  return _cor->addEvalCovVecRHSInPlace(vect, index1, iech2, krigopt, pin, pout, tabwork, getSill(0, 0), calcMember);
+  return _cor->addEvalCovVecRHSInPlace(vec, index1, iech2, krigopt, pin, pout, tabwork, getSill(0, 0), calcMember);
 }
 
 double CovBase::_eval(const SpacePoint& p1,

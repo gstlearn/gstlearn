@@ -65,7 +65,7 @@ bool CalcSimpleInterpolation::_check()
   // Model is required if the variance is demanded
   if (_flagStd)
   {
-    if (!hasModel())
+    if (!hasModelGeneric())
     {
       messerr("A Model is required for calculation of option 'St. Dev.'");
       return false;
@@ -175,7 +175,7 @@ Id inverseDistance(Db* dbin,
   interpol.setDbout(dbout);
   interpol.setFlagEst(flag_est);
   interpol.setFlagStd(flag_std);
-  interpol.setModel(model);
+  interpol.setModelGeneric(model);
   interpol.setNamingConvention(namconv);
 
   interpol.setFlagInvDist(true);
@@ -217,7 +217,7 @@ GSTLEARN_EXPORT Id movingAverage(Db* dbin,
   interpol.setNeigh(neigh);
   interpol.setFlagEst(flag_est);
   interpol.setFlagStd(flag_std);
-  interpol.setModel(model);
+  interpol.setModelGeneric(model);
   interpol.setNamingConvention(namconv);
 
   interpol.setFlagMovAve(true);
@@ -256,7 +256,7 @@ GSTLEARN_EXPORT Id movingMedian(Db* dbin,
   interpol.setNeigh(neigh);
   interpol.setFlagEst(flag_est);
   interpol.setFlagStd(flag_std);
-  interpol.setModel(model);
+  interpol.setModelGeneric(model);
   interpol.setNamingConvention(namconv);
 
   interpol.setFlagMovMed(true);
@@ -292,7 +292,7 @@ GSTLEARN_EXPORT Id nearestNeighbor(Db* dbin,
   interpol.setDbout(dbout);
   interpol.setFlagEst(flag_est);
   interpol.setFlagStd(flag_std);
-  interpol.setModel(model);
+  interpol.setModelGeneric(model);
 
   NeighMoving neighM(false, 1, 1.e6);
   interpol.setNeigh(&neighM);
@@ -812,14 +812,14 @@ double CalcSimpleInterpolation::_stdevCalc(Db* dbin,
   pout.setCoords(coor);
 
   // Point Covariance at target
-  double c00 = getModel()->evalCov(pout, pout);
+  double c00 = getModelGeneric()->evalCov(pout, pout);
 
   // Vector of Covariances between Data and Target
-  getModel()->evalPointToDb(M0x, pout, dbin, 0, 0, true, nbgh);
+  getModelGeneric()->evalPointToDb(M0x, pout, dbin, 0, 0, true, nbgh);
   double c0x = M0x.innerProduct(weights);
 
   // Covariance between Data and Data
-  MatrixDense Mxx = getModel()->evalCovMat(dbin, dbin, 0, 0, nbgh, nbgh);
+  MatrixDense Mxx = getModelGeneric()->evalCovMat(dbin, dbin, 0, 0, nbgh, nbgh);
   double cxx      = Mxx.prodVecMatVec(weights, weights);
 
   double result = sqrt(c00 - 2. * c0x + cxx);

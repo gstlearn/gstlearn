@@ -60,9 +60,9 @@ bool CalcGlobal::_check()
 
   if (!hasDbin()) return false;
   if (!hasDbout()) return false;
-  if (!hasModel()) return false;
+  if (!hasModelGeneric()) return false;
 
-  _modelLocal = dynamic_cast<Model*>(getModel());
+  _modelLocal = dynamic_cast<Model*>(getModelGeneric());
   if (_modelLocal == nullptr)
   {
     messerr("This method requires the model to be a 'Model' (not a ModelGeneric)");
@@ -346,7 +346,7 @@ Global_Result global_arithmetic(Db* dbin,
   CalcGlobal global(ivar0, verbose);
   global.setDbin(dbin);
   global.setDbout(dbgrid);
-  global.setModel(model);
+  global.setModelGeneric(model);
   global.setFlagArithmetic(true);
 
   if (global.run())
@@ -364,7 +364,7 @@ Global_Result global_kriging(Db* dbin,
   CalcGlobal global(ivar0, verbose);
   global.setDbin(dbin);
   global.setDbout(dbout);
-  global.setModel(model);
+  global.setModelGeneric(model);
   global.setFlagKriging(true);
 
   if (global.run())

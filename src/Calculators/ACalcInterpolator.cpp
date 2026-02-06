@@ -21,7 +21,7 @@ namespace gstlrn
 {
 ACalcInterpolator::ACalcInterpolator()
   : ACalcDbToDb()
-  , _model(nullptr)
+  , _modelGeneric(nullptr)
   , _neigh(nullptr)
   , _krigopt()
   , _ncova(0)
@@ -30,24 +30,6 @@ ACalcInterpolator::ACalcInterpolator()
 
 ACalcInterpolator::~ACalcInterpolator()
 {
-}
-
-bool ACalcInterpolator::_setNCov(Id ncova)
-{
-  if (ncova <= 0) return true;
-  if (_ncova <= 0)
-    _ncova = ncova;
-  else
-  {
-    if (_ncova != ncova)
-    {
-      messerr("Inconsistent Covariance function Number:");
-      messerr("- Number already defined = %d", _ncova);
-      messerr("- Number of variables newly declared = %d", ncova);
-      return false;
-    }
-  }
-  return true;
 }
 
 bool ACalcInterpolator::_check()
@@ -59,21 +41,21 @@ bool ACalcInterpolator::_check()
   /**************************************************/
 
   size_t ndim = _getNDim();
-  if (_model != nullptr)
+  if (_modelGeneric != nullptr)
   {
     if (ndim > 0)
     {
-      if (ndim != _model->getNDim())
+      if (ndim != _modelGeneric->getNDim())
       {
         messerr("Inconsistent Space dimension:");
         messerr("- Current dimension = %d", ndim);
-        messerr("- Space Dimension of 'model' = %d", _model->getNDim());
+        messerr("- Space Dimension of 'model' = %d", _modelGeneric->getNDim());
         return false;
       }
     }
     else
     {
-      ndim = _model->getNDim();
+      ndim = _modelGeneric->getNDim();
     }
   }
 
@@ -102,9 +84,9 @@ bool ACalcInterpolator::_check()
   /**************************************************/
 
   auto nvar = _getNVar();
-  if (_model != nullptr)
+  if (_modelGeneric != nullptr)
   {
-    Id nvarModel = _model->getNVar();
+    Id nvarModel = _modelGeneric->getNVar();
     if (nvar > 0)
     {
       if (nvar != nvarModel)
@@ -136,9 +118,9 @@ bool ACalcInterpolator::_check()
   /************************************************************/
 
   Id nfex = 0;
-  if (_model != nullptr)
+  if (_modelGeneric != nullptr)
   {
-    nfex = _model->getNExtDrift();
+    nfex = _modelGeneric->getNExtDrift();
     if (nfex > 0)
     {
       // No check needs to be performed on the Input file as
@@ -162,11 +144,11 @@ bool ACalcInterpolator::_check()
   /* Checking the Validity of the _model */
   /***************************************/
 
-  if (_model != nullptr)
+  if (_modelGeneric != nullptr)
   {
-    if (_model->getCov() == nullptr)
+    if (_modelGeneric->getCov() == nullptr)
     {
-      messerr("The number of covariance must be positive");
+      messerr("The Model must contain at least one Covariance");
       return false;
     }
   }
@@ -175,19 +157,19 @@ bool ACalcInterpolator::_check()
   /* Cross-checking the Krigopt */
   /******************************/
 
-  if (!_krigopt.isCorrect(getDbout(), _neigh, _model)) return false;
+  if (!_krigopt.isCorrect(getDbout(), _neigh, _modelGeneric)) return false;
 
   /*********************************/
   /* Calculate the field extension */
   /*********************************/
 
-  if (_model != nullptr)
+  if (_modelGeneric != nullptr)
   {
     VectorDouble db_mini(ndim, TEST);
     VectorDouble db_maxi(ndim, TEST);
     if (hasDbin(false)) getDbin()->getExtensionInPlace(db_mini, db_maxi, true);
     if (hasDbout(false)) getDbout()->getExtensionInPlace(db_mini, db_maxi, true);
-    _model->setField(VH::extensionDiagonal(db_mini, db_maxi));
+    _modelGeneric->setField(VH::extensionDiagonal(db_mini, db_maxi));
   }
   return true;
 }
@@ -198,9 +180,9 @@ bool ACalcInterpolator::_preprocess()
 
   // Space dimension
 
-  if (_model != nullptr)
+  if (_modelGeneric != nullptr)
   {
-    if (!_setNdim(static_cast<Id>(_model->getNDim()))) return false;
+    if (!_setNdim(static_cast<Id>(_modelGeneric->getNDim()))) return false;
   }
   if (_neigh != nullptr)
   {
@@ -209,25 +191,19 @@ bool ACalcInterpolator::_preprocess()
 
   // Number of variables
 
-  if (_model != nullptr)
+  if (_modelGeneric != nullptr)
   {
-    if (!_setNvar(_model->getNVar())) return false;
+    if (!_setNvar(_modelGeneric->getNVar())) return false;
   }
 
   // Number of covariance functions
 
-  if (_model != nullptr)
-  {
-    const auto* modelcovlist = dynamic_cast<const ModelCovList*>(_model);
-    if (modelcovlist != nullptr)
-    {
-      if (!_setNCov(modelcovlist->getNCov())) return false;
-    }
-  }
+  if (_modelGeneric != nullptr)
+    _ncova = _calculateNCova();
 
   // Expand information amongst Db if necessary
 
-  if (_model != nullptr && _model->getNExtDrift() > 0)
+  if (_modelGeneric != nullptr && _modelGeneric->getNExtDrift() > 0)
   {
     if (_expandInformation(1, ELoc::F)) return false;
   }
@@ -236,15 +212,31 @@ bool ACalcInterpolator::_preprocess()
   return true;
 }
 
-bool ACalcInterpolator::hasModel(bool verbose) const
+Id ACalcInterpolator::_calculateNCova()
 {
-  if (_model == nullptr)
+  const auto* modelcovlist = dynamic_cast<const ModelCovList*>(_modelGeneric);
+  if (modelcovlist == nullptr) return 0;
+  const auto* covanisolist = dynamic_cast<const CovAnisoList*>(modelcovlist->getCovList());
+  if (covanisolist == nullptr) return 0;
+  _ncova = modelcovlist->getNCov();
+  return _ncova;
+}
+
+void ACalcInterpolator::setModelGeneric(ModelGeneric* modelGeneric)
+{
+  _modelGeneric = modelGeneric;
+}
+
+bool ACalcInterpolator::hasModelGeneric(bool verbose) const
+{
+  if (_modelGeneric == nullptr)
   {
-    if (verbose) messerr("The argument 'model' must be defined");
+    if (verbose) messerr("The argument 'modelGeneric' must be defined");
     return false;
   }
   return true;
 }
+
 bool ACalcInterpolator::hasNeigh(bool verbose) const
 {
   if (_neigh == nullptr)

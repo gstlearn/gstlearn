@@ -12,7 +12,7 @@
 
 #include "Basic/NamingConvention.hpp"
 #include "Matrix/MatrixDense.hpp"
-#include "Simulation/ASimuSpectral.hpp"
+#include "Simulation/CalcSimuSpectral.hpp"
 #include "gstlearn_export.hpp"
 
 namespace gstlrn
@@ -20,35 +20,37 @@ namespace gstlrn
 
 class ACov;
 class ModelGeneric;
-class ASimuSpectral;
 
 /**
  * Class for operating the Spectral simulations on RN
  */
-class GSTLEARN_EXPORT SimuSpectralRN: public ASimuSpectral
+class GSTLEARN_EXPORT SimuSpectralRN: public CalcSimuSpectral
 {
 public:
-  SimuSpectralRN(const ACov* cova = nullptr);
-  SimuSpectralRN(const SimuSpectralRN& r);
-  SimuSpectralRN& operator=(const SimuSpectralRN& r);
+  SimuSpectralRN(Id nbsimu        = 1,
+                 Id ns            = 10000,
+                 Id nd            = 100,
+                 Id seed          = 4324324,
+                 const ACov* cov0 = nullptr,
+                 bool verbose     = false);
+  SimuSpectralRN(const SimuSpectralRN& r)            = delete;
+  SimuSpectralRN& operator=(const SimuSpectralRN& r) = delete;
   virtual ~SimuSpectralRN();
 
   MatrixDense getOmega() { return _omega; };
   MatrixDense getGamma() { return _gamma; };
 
 protected:
-  Id _simulate(Id ns,
-               Id nd            = 100,
-               const ACov* cov0 = nullptr,
-               bool verbose     = false) override;
-  Id _compute(Db* dbout,
-              Id iuid      = 0,
-              bool verbose = false) override;
+  bool _check() override;
+  Id _simulate(const ACov* cova) override;
+  Id _compute(Db* dbout, const VectorBool& activeArray, VectorVectorDouble& tab) override;
 
 private:
   // spectrum for R^n
   MatrixDense _gamma; // Matrix nrows=_ns, ncols= number of variables of _cova
   MatrixDense _omega; // Matrix nrows=_ns, ncols= number of dimensions of _cova
+
+  const ACov* _cov0;
 };
 
 } // namespace gstlrn

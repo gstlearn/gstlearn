@@ -27,7 +27,6 @@
 #include "Model/ModelCovList.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Space/ASpace.hpp"
-#include "Space/ASpaceObject.hpp"
 #include "Space/SpaceRN.hpp"
 #include "Variogram/Vario.hpp"
 #include "geoslib_define.h"
@@ -82,7 +81,7 @@ Id Model::resetFromDb(const Db* db)
   Id ndim = db->getNDim();
   Id nvar = db->getNLoc(ELoc::Z);
   if (nvar <= 0) nvar = 1;
-  auto space = SpaceRN::create(ndim);
+  auto space = SpaceRN::create(ndim); // TODO doc: tell that RNis imposed
   _ctxt      = CovContext(nvar, space);
   _create();
   return 0;
@@ -147,11 +146,11 @@ Model* Model::createFromParam(const ECov& type,
   Id nvar = 1;
   if (!sills.empty()) nvar = sills.getNRows();
 
-  auto spaceloc = ASpace::getDefaultSpaceIfNull(space);
+  CovContext ctxt(nvar, space);
 
   if (!ranges.empty())
   {
-    Id ndim       = static_cast<Id>(spaceloc->getNDim());
+    Id ndim       = static_cast<Id>(ctxt.getNDim());
     Id ndimRanges = static_cast<Id>(ranges.size());
     if (ndimRanges != 1 && ndimRanges != ndim)
     {
@@ -162,47 +161,9 @@ Model* Model::createFromParam(const ECov& type,
     }
   }
 
-  CovContext ctxt(nvar, space);
   auto* model = new Model(ctxt);
   model->addCovFromParam(type, range, sill, param, ranges, sills, angles,
                          flagRange);
-
-  return model;
-}
-
-Model* Model::createFromParamOldStyle(const ECov& type,
-                                      double range,
-                                      double sill,
-                                      double param,
-                                      const VectorDouble& ranges,
-                                      const VectorDouble& sills,
-                                      const VectorDouble& angles,
-                                      const ASpaceSharedPtr& space,
-                                      bool flagRange)
-{
-  Id nvar = 1;
-  if (!sills.empty())
-    nvar = static_cast<Id>(sqrt(sills.size()));
-
-  auto spaceloc = ASpace::getDefaultSpaceIfNull(space);
-
-  if (!ranges.empty())
-  {
-    Id ndim       = static_cast<Id>(spaceloc->getNDim());
-    Id ndimRanges = static_cast<Id>(ranges.size());
-    if (ndimRanges != 1 && ndimRanges != ndim)
-    {
-      messerr("Incompatibility between:");
-      messerr("Space Dimension = %d", ndim);
-      messerr("Dimension of argument 'ranges' = %d", ndimRanges);
-      return nullptr;
-    }
-  }
-
-  CovContext ctxt(nvar, spaceloc);
-  auto* model = new Model(ctxt);
-  model->addCovFromParamOldStyle(type, range, sill, param, ranges, sills,
-                                 angles, flagRange);
 
   return model;
 }
@@ -252,8 +213,7 @@ String Model::toString(const AStringFormat* /*strfmt*/) const
   if (ncov <= 0 && ndrift <= 0) return sstr.str();
 
   sstr << toStrTitle(0, "Model characteristics");
-  sstr << "Space dimension              = " << getNDim()
-       << std::endl;
+  sstr << "Space dimension              = " << getNDim() << std::endl;
   sstr << "Number of variable(s)        = " << getNVar() << std::endl;
   sstr << "Number of basic structure(s) = " << ncov << std::endl;
   sstr << "Number of drift function(s)  = " << ndrift << std::endl;
@@ -297,100 +257,6 @@ void Model::setCovAnisoList(const CovAnisoList* covalist)
     return;
   }
   ModelCovList::setCovList(covalist);
-}
-
-void Model::addCovFromParamOldStyle(const ECov& type,
-                                    double range,
-                                    double sill,
-                                    double param,
-                                    const VectorDouble& ranges,
-                                    const VectorDouble& sills,
-                                    const VectorDouble& angles,
-                                    bool flagRange)
-{
-  // Check consistency with parameters of the model
-
-  auto ndim = getNDim();
-  if (!ranges.empty())
-  {
-    if (ndim > 0 && ranges.size() != ndim)
-    {
-      messerr("Mismatch between the dimension of 'ranges' (%d)", static_cast<Id>(ranges.size()));
-      messerr("and the Space dimension stored in the Model (%d)", ndim);
-      messerr("Operation is cancelled");
-      return;
-    }
-    ndim = ranges.size();
-  }
-  if (!angles.empty())
-  {
-    if (ndim > 0 && angles.size() != ndim)
-    {
-      messerr("Mismatch between the dimension of 'angles' (%d)", static_cast<Id>(angles.size()));
-      messerr("and the Space dimension stored in the Model (%d)", ndim);
-      messerr("Operation is cancelled");
-      return;
-    }
-    ndim = angles.size();
-  }
-  auto nvar = getNVar();
-  if (!sills.empty())
-  {
-    if (nvar > 0 && static_cast<Id>(sills.size()) != nvar * nvar)
-    {
-      messerr("Mismatch between the size of 'sills' (%d)", static_cast<Id>(sills.size()));
-      messerr("and the Number of variables stored in the Model (%d)", nvar);
-      messerr("Operation is cancelled");
-      return;
-    }
-    nvar = static_cast<Id>(sqrt(static_cast<double>(sills.size())));
-  }
-
-  // Define the covariance
-
-  auto space = SpaceRN::create(static_cast<Id>(ndim));
-  _ctxt      = CovContext(nvar, space);
-  CovAniso cov(_ctxt, type);
-
-  // Define the Third parameter
-  double parmax = cov.getParMax();
-  if (param > parmax) param = parmax;
-  cov.setParam(param);
-
-  // Define the range
-  if (!ranges.empty())
-  {
-    if (flagRange)
-      cov.setRanges(ranges);
-    else
-      cov.setScales(ranges);
-  }
-  else
-  {
-    if (flagRange)
-      cov.setRangeIsotropic(range);
-    else
-      cov.setScale(range);
-  }
-
-  // Define the sill
-  if (!sills.empty())
-    cov.setSill(sills);
-  else
-  {
-    if (nvar <= 1)
-      cov.setSill(sill);
-    else
-    {
-      MatrixSymmetric locsills(nvar);
-      locsills.setIdentity(sill);
-      cov.setSill(locsills);
-    }
-  }
-
-  if (!angles.empty())
-    cov.setAnisoAngles(angles);
-  addCov(cov);
 }
 
 void Model::addCovFromParam(const ECov& type,
@@ -444,9 +310,7 @@ void Model::addCovFromParam(const ECov& type,
 
   // Define the covariance
 
-  auto space = SpaceRN::create(static_cast<Id>(ndim));
-  _ctxt      = CovContext(nvar, space);
-  CovAniso cov(_ctxt, type);
+  CovAniso cov(*getContext(), type);
 
   // Define the Third parameter
   double parmax = cov.getParMax();
@@ -1111,12 +975,12 @@ CovAnisoList* Model::_castInCovAnisoList(Id icov)
   return covalist;
 }
 
-bool Model::drawOnlyPositiveX(Id ivar, Id jvar, bool asCov)
+bool Model::representOnlyPositiveX(Id ivar, Id jvar, bool asCov)
 {
   return (ivar == jvar || !asCov);
 }
 
-bool Model::drawOnlyPositiveY(Id ivar, Id jvar, bool asCov)
+bool Model::representOnlyPositiveY(Id ivar, Id jvar, bool asCov)
 {
   return (ivar == jvar && !asCov);
 }

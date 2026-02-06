@@ -39,16 +39,14 @@ KernelGeometric::~KernelGeometric()
 {
 }
 
-double KernelGeometric::_evaluateCovOnSphere(double alpha,
-                                          double scale,
-                                          Id degree) const
+double KernelGeometric::_evaluateCovOnSphere(double alpha, double scale, Id degree) const
 {
   DECLARE_UNUSED(degree);
   double rho = scale;
   return ((1. - rho) / sqrt(1. - 2. * rho * cos(alpha) + rho * rho));
 }
 
-VectorDouble KernelGeometric::_evaluateSpectrumOnSphere(Id n, double scale) const
+VectorDouble KernelGeometric::_evaluateSpectrumOnSphere(Id n, double scale, bool flagScale) const
 {
   double rho = scale;
   VectorDouble sp(1 + n, 0.);
@@ -60,7 +58,7 @@ VectorDouble KernelGeometric::_evaluateSpectrumOnSphere(Id n, double scale) cons
     rhoprod *= rho;
   }
 
-  sp.normalizeInPlace(1);
+  if (flagScale) sp.normalizeInPlace(1);
 
   return sp;
 }

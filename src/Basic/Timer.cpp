@@ -54,8 +54,8 @@ void Timer::displayIntervalSeconds(const String& title,
                                    Id expected_time,
                                    bool flag_reset)
 {
-  double sec = getIntervalSeconds(flag_reset);
-  displaySeconds(title, sec, expected_time);
+  double seconds = getIntervalSeconds(flag_reset);
+  displaySeconds(title, seconds, expected_time);
 }
 
 double Timer::getIntervalSeconds(bool flag_reset)
@@ -67,13 +67,13 @@ double Timer::getIntervalSeconds(bool flag_reset)
   return fs.count();
 }
 
-void Timer::displaySeconds(const String& title, double sec, Id expected_time)
+void Timer::displaySeconds(const String& title, double seconds, Id expected_time)
 {
   String loc_title = title.empty() ? "Timer" : title;
   if (expected_time > 0)
-    messageNoDiff("%s: %d s. (Ref = %d s.)\n", title.c_str(), static_cast<Id>(sec), expected_time);
+    messageNoDiff("%s: %d s. (Ref = %d s.)\n", title.c_str(), static_cast<Id>(seconds), expected_time);
   else
-    messageNoDiff("%s: %d s.\n", title.c_str(), static_cast<Id>(sec));
+    messageNoDiff("%s: %d s.\n", title.c_str(), static_cast<Id>(seconds));
 }
 
 /**

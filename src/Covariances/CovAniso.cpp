@@ -114,10 +114,6 @@ CorAniso* CovAniso::getCorAnisoModify()
   return static_cast<CorAniso*>(getCorModify());
 }
 
-bool CovAniso::isValidForSpectral() const
-{
-  return getCorAniso()->isValidForSpectral();
-}
 double CovAniso::_getSillValue(Id ivar, Id jvar, const CovCalcMode* mode) const
 {
   if (mode != nullptr && mode->getUnitary()) return 1.;
@@ -142,33 +138,48 @@ double CovAniso::_eval(const SpacePoint& p1,
 
 double CovAniso::evalCovOnSphere(double alpha,
                                  Id degree,
-                                 bool flagScaleDistance,
+                                 bool scaleDistanceByRadius,
                                  const CovCalcMode* mode) const
 {
-  double value = getCorAniso()->evalCovOnSphere(alpha, degree, flagScaleDistance, mode);
+  double value = getCorAniso()->evalCovOnSphere(alpha, degree, scaleDistanceByRadius, mode);
   return value * _getSillValue(0, 0, mode);
 }
 
-VectorDouble CovAniso::evalSpectrumOnSphere(Id n, bool flagNormDistance, bool flagCumul) const
+VectorDouble CovAniso::evalSpectrumOnSphere(Id n, bool scaleDistanceByRadius, bool flagScale) const
 {
-  return getCorAniso()->evalSpectrumOnSphere(n, flagNormDistance, flagCumul);
+  if (!getCorAniso()->isValidForSpectralOnSphere()) return VectorDouble();
+  return getCorAniso()->evalSpectrumOnSphere(n, scaleDistanceByRadius, flagScale);
 }
 
 double CovAniso::evalSpectrum(const VectorDouble& freq, Id ivar, Id jvar) const
 {
-  if (!getCorAniso()->hasSpectrumOnRn()) return TEST;
+  if (!getCorAniso()->isValidForSpectralOnRn()) return TEST;
   return _sillCur.getValue(ivar, jvar) * getCorAniso()->evalSpectrum(freq, ivar, jvar);
 }
 
+SpectrumRN CovAniso::simulateSpectrumRN(Id ns, const ACov* cov0) const
+{
+  if (!getCorAniso()->isValidForSpectralOnRn()) return SpectrumRN();
+  return getCorAniso()->simulateSpectrumRN(ns, cov0);
+}
+
+bool CovAniso::isValidForSpectralOnRn() const
+{
+  return getCorAniso()->isValidForSpectralOnRn();
+}
+bool CovAniso::isValidForSpectralOnSphere() const
+{
+  return getCorAniso()->isValidForSpectralOnSphere();
+}
 VectorDouble CovAniso::evalCovOnSphereVec(const VectorDouble& alpha,
                                           Id degree,
-                                          bool flagScaleDistance,
+                                          bool scaleDistanceByRadius,
                                           const CovCalcMode* mode) const
 {
   Id n = static_cast<Id>(alpha.size());
   VectorDouble vec(n);
   for (Id i = 0; i < n; i++)
-    vec[i] = evalCovOnSphere(alpha[i], degree, flagScaleDistance, mode);
+    vec[i] = evalCovOnSphere(alpha[i], degree, scaleDistanceByRadius, mode);
   return vec;
 }
 
@@ -369,6 +380,24 @@ CovAniso* CovAniso::createFromParam(const ECov& type,
                                     const ASpaceSharedPtr& space,
                                     bool flagRange)
 {
+  Id nvar = 0;
+  if (!sills.empty())
+  {
+    if (nvar > 0 && nvar != sills.getNCols())
+    {
+      messerr("Mismatch between the number of rows 'sills' (%d)", sills.getNRows());
+      messerr("and the Number of variables stored in the Model (%d)", nvar);
+      messerr("Operation is cancelled");
+      return nullptr;
+    }
+    nvar = static_cast<Id>(sqrt(static_cast<double>(sills.size())));
+  }
+  if (nvar <= 0) nvar = 1;
+
+  // Define the Context
+
+  const CovContext& ctxt = CovContext(nvar, space);
+
   // Check consistency with parameters of the model
 
   Id ndim = 0;
@@ -396,42 +425,22 @@ CovAniso* CovAniso::createFromParam(const ECov& type,
     }
     ndim = static_cast<Id>(angles.size());
   }
-  if (space != nullptr)
+  if (ndim > 0 && static_cast<Id>(ctxt.getNDim()) != ndim)
   {
-    if (ndim > 0 && static_cast<Id>(space->getNDim()) != ndim)
-    {
-      messerr("Mismatch between the space dimension in 'space' (%d)",
-              static_cast<Id>(space->getNDim()));
-      messerr("and the Space dimension stored in the Model (%d)", ndim);
-      messerr("Operation is cancelled");
-      return nullptr;
-    }
-    ndim = static_cast<Id>(space->getNDim());
+    messerr("Mismatch between the space dimension in 'space' (%d)",
+            static_cast<Id>(ctxt.getNDim()));
+    messerr("and the Space dimension stored in the Model (%d)", ndim);
+    messerr("Operation is cancelled");
+    return nullptr;
   }
+  ndim = static_cast<Id>(ctxt.getNDim());
   if (ndim <= 0)
   {
     messerr("You must define the Space dimension");
     return nullptr;
   }
 
-  Id nvar = 0;
-  if (!sills.empty())
-  {
-    if (nvar > 0 && nvar != sills.getNCols())
-    {
-      messerr("Mismatch between the number of rows 'sills' (%d)", sills.getNRows());
-      messerr("and the Number of variables stored in the Model (%d)", nvar);
-      messerr("Operation is cancelled");
-      return nullptr;
-    }
-    nvar = static_cast<Id>(sqrt(static_cast<double>(sills.size())));
-  }
-  if (nvar <= 0) nvar = 1;
-
-  // Define the covariance
-
-  const CovContext& ctxt = CovContext(nvar, space);
-  auto* cov              = new CovAniso(ctxt, type);
+  auto* cov = new CovAniso(ctxt, type);
 
   // Define the Third parameter
   double parmax = cov->getParMax();
@@ -478,7 +487,7 @@ Array CovAniso::evalCovFFT(const VectorDouble& hmax,
                            Id ivar,
                            Id jvar) const
 {
-  if (!hasSpectrumOnRn()) return Array();
+  if (!isValidForSpectralOnRn()) return Array();
   Array result = getCorAniso()->evalCovFFT(hmax, N, ivar, jvar);
   result.multiplyConstant(_sillCur.getValue(ivar, jvar));
   return result;

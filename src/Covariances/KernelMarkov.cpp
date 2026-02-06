@@ -50,7 +50,7 @@ KernelMarkov::~KernelMarkov()
 
 void KernelMarkov::setCorrec(double val)
 {
-  for(auto& e: _markovCoeffs)
+  for (auto& e: _markovCoeffs)
   {
     e *= val;
   }
@@ -66,14 +66,7 @@ String KernelMarkov::getFormula() const
   return "C(h)=\\int_{R^d} \\frac{e^{-i\\omega^t.h}}{P(||\\omega||^2)}d\\omega";
 }
 
-VectorDouble KernelMarkov::_evaluateSpectrumOnSphere(Id n, double scale) const
-{
-  auto sp = _evaluateSpectrumOnSphereWithoutNormalization(n, scale);
-  sp.normalizeInPlace(1);
-  return sp;
-}
-
-VectorDouble KernelMarkov::_evaluateSpectrumOnSphereWithoutNormalization(Id n, double scale) const
+VectorDouble KernelMarkov::_evaluateSpectrumOnSphere(Id n, double scale, bool flagScale) const
 {
   VectorDouble sp(1 + n, 0.);
 
@@ -87,12 +80,14 @@ VectorDouble KernelMarkov::_evaluateSpectrumOnSphereWithoutNormalization(Id n, d
     }
     sp[j] = (2. * j + 1.) / (4 * GV_PI * s);
   }
+
+  if (flagScale) sp.normalizeInPlace(1);
   return sp;
 }
 
 double KernelMarkov::normalizeOnSphere(Id n, double scale) const
 {
-  auto sp  = _evaluateSpectrumOnSphereWithoutNormalization(n, scale);
+  auto sp  = _evaluateSpectrumOnSphere(n, scale, false);
   double s = 0.;
   for (auto& e: sp)
   {
@@ -103,10 +98,10 @@ double KernelMarkov::normalizeOnSphere(Id n, double scale) const
 
 double KernelMarkov::evaluateSpectrum(double freq) const
 {
-  double s = 0.;
+  double s    = 0.;
   size_t ndim = getContext().getNDim();
 
-  Id n     = static_cast<Id>(_markovCoeffs.size());
+  Id n = static_cast<Id>(_markovCoeffs.size());
   if (n == 0)
   {
     return TEST;

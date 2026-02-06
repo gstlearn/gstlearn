@@ -19,11 +19,11 @@
 
 namespace gstlrn
 {
-static std::vector<std::vector<const IProj*>> castToBase(const std::vector<std::vector<const ProjMatrix*>>& vect)
+static std::vector<std::vector<const IProj*>> castToBase(const std::vector<std::vector<const ProjMatrix*>>& vec)
 {
-  std::vector<std::vector<const IProj*>> casted(vect.size());
+  std::vector<std::vector<const IProj*>> casted(vec.size());
   Id iv = 0;
-  for (const auto& e: vect)
+  for (const auto& e: vec)
   {
     std::vector<const IProj*> temp(e.size());
     Id ie = 0;

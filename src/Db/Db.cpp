@@ -746,17 +746,17 @@ VectorVectorDouble Db::getIncrements(const VectorInt& iechs, const VectorInt& je
   tab.resize(ndim);
   for (Id idim = 0; idim < ndim; idim++) tab[idim].resize(number);
 
-  VectorDouble vect;
+  VectorDouble vec;
   for (Id ip = 0; ip < number; ip++)
   {
     getSampleAsSPInPlace(P1, iechs[ip]);
     getSampleAsSPInPlace(P2, jechs[ip]);
-    vect.clear();
-    vect.resize(ndim);
-    P2.getIncrementInPlace(vect, P1);
+    vec.clear();
+    vec.resize(ndim);
+    P2.getIncrementInPlace(vec, P1);
 
     for (Id idim = 0; idim < ndim; idim++)
-      tab[idim][ip] = vect[idim];
+      tab[idim][ip] = vec[idim];
   }
   return tab;
 }

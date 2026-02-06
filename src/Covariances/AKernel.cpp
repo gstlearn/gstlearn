@@ -108,16 +108,14 @@ double AKernel::evalCovFirstDerivativeOverH(double h) const
 {
   return _evaluateCovFirstDerivativeOverH(h);
 }
-double AKernel::evalCovOnSphere(double alpha,
-                                double scale,
-                                Id degree) const
+double AKernel::evaluateCovOnSphere(double alpha, double scale, Id degree) const
 {
   return _evaluateCovOnSphere(alpha, scale, degree);
 }
 
-VectorDouble AKernel::evalSpectrumOnSphere(Id n, double scale) const
+VectorDouble AKernel::evaluateSpectrumOnSphere(Id n, double scale, bool flagScale) const
 {
-  return _evaluateSpectrumOnSphere(n, scale);
+  return _evaluateSpectrumOnSphere(n, scale, flagScale);
 }
 
 String AKernel::toString(const AStringFormat* /*strfmt*/) const
@@ -147,7 +145,7 @@ String AKernel::toString(const AStringFormat* /*strfmt*/) const
 bool AKernel::hasCovOnSphere() const
 {
   // If a spectrum is available, the covariance can be calculated
-  return hasSpectrumOnSphere();
+  return isValidForSpectralOnSphere();
 }
 
 /// Test consistency with the current context
@@ -219,7 +217,7 @@ VectorDouble AKernel::getMarkovCoeffs() const
 double AKernel::evaluateSpectrum(double freq) const
 {
   DECLARE_UNUSED(freq);
-  if (!hasSpectrumOnRn())
+  if (!isValidForSpectralOnRn())
   {
     messerr("This covariance does not allow spectrum calculations");
     return TEST;
@@ -229,9 +227,7 @@ double AKernel::evaluateSpectrum(double freq) const
   my_throw("This should never happen");
 }
 
-double AKernel::_evaluateCovOnSphere(double alpha,
-                                     double scale,
-                                     Id degree) const
+double AKernel::_evaluateCovOnSphere(double alpha, double scale, Id degree) const
 {
   double s = 0.;
 
@@ -261,11 +257,12 @@ double AKernel::_evaluateCovOnSphere(double alpha,
   return s;
 }
 
-VectorDouble AKernel::_evaluateSpectrumOnSphere(Id n, double scale) const
+VectorDouble AKernel::_evaluateSpectrumOnSphere(Id n, double scale, bool flagScale) const
 {
   DECLARE_UNUSED(n);
   DECLARE_UNUSED(scale);
-  if (!hasSpectrumOnSphere())
+  DECLARE_UNUSED(flagScale);
+  if (!isValidForSpectralOnSphere())
   {
     messerr("This covariance does not allow On Sphere calculations");
     return VectorDouble();
@@ -363,7 +360,9 @@ Array AKernel::_evalCovFFT(const VectorDouble& hmax, Id N) const
 
 void AKernel::computeCorrec(Id ndim)
 {
-  if (!hasSpectrumOnRn()) return;
+  if (!needCorrec()) return;
+  if (!isValidForSpectralOnRn()) return;
+
   Id N = static_cast<Id>(pow(2, 8));
   VectorInt Nv(ndim);
   VectorDouble hmax(ndim);

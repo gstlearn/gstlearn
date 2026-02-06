@@ -28,7 +28,7 @@ bool _isSelected(AKernel* cov,
   if (minorder < cov->getMinOrder()) return false;
   if (hasrange && !cov->hasRange()) return false;
   if (flagSimtub && !cov->isValidForTurningBand()) return false;
-  if (flagSimuSpectral && !cov->isValidForSpectral()) return false;
+  if (flagSimuSpectral && !cov->isValidForSpectralOnRn()) return false;
   return true;
 }
 
@@ -57,7 +57,7 @@ VectorString CovHelper::getAllCovariances(Id ndim,
   while (it.hasNext())
   {
     const ECov& covType = ECov::fromKey(it.getKey());
-    AKernel* cov       = CovFactory::createCovFunc(covType, ctxt);
+    AKernel* cov        = CovFactory::createCovFunc(covType, ctxt);
 
     // Check if the covariance is valid
     if (_isSelected(cov, ndim, minorder, hasrange, flagSimtub, flagSimuSpectral))

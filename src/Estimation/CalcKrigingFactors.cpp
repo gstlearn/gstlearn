@@ -9,11 +9,11 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Estimation/CalcKrigingFactors.hpp"
-#include "Model/Model.hpp"
 #include "Anamorphosis/AAnam.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Estimation/KrigingSystem.hpp"
+#include "Model/Model.hpp"
 
 namespace gstlrn
 {
@@ -43,7 +43,7 @@ bool CalcKrigingFactors::_check()
 
   if (!hasDbin()) return false;
   if (!hasDbout()) return false;
-  if (!hasModel()) return false;
+  if (!hasModelGeneric()) return false;
   if (!hasNeigh()) return false;
 
   if (getNeigh()->getType() == ENeigh::IMAGE)
@@ -52,7 +52,7 @@ bool CalcKrigingFactors::_check()
     return false;
   }
 
-  _modelLocal = dynamic_cast<Model*>(getModel());
+  _modelLocal = dynamic_cast<Model*>(getModelGeneric());
   if (_modelLocal == nullptr)
   {
     messerr("The model must be of type Model (not ModelGeneric)");
@@ -114,9 +114,9 @@ bool CalcKrigingFactors::_preprocess()
     {
       // Center the information in sub-blocks when the output grid defines panels
       const auto& ndiscs = getKrigopt().getDiscs();
-      DbGrid* dbsmu    = DbGrid::createDivider(dbgrid, ndiscs, 1);
-      _nameCoord       = getDbin()->getNamesByLocator(ELoc::X);
-      Id error         = _centerDataToGrid(dbsmu);
+      DbGrid* dbsmu      = DbGrid::createDivider(dbgrid, ndiscs, 1);
+      _nameCoord         = getDbin()->getNamesByLocator(ELoc::X);
+      Id error           = _centerDataToGrid(dbsmu);
       delete dbsmu;
       if (error) return false;
     }
@@ -172,7 +172,7 @@ Id CalcKrigingFactors::_getNFactors() const
  *****************************************************************************/
 bool CalcKrigingFactors::_run()
 {
-  KrigingSystem ksys(getDbin(), getDbout(), getModel(), getNeigh(), getKrigopt());
+  KrigingSystem ksys(getDbin(), getDbout(), getModelGeneric(), getNeigh(), getKrigopt());
   if (ksys.updKrigOptEstim(_iptrEst, _iptrStd, -1)) return 1;
   if (ksys.setKrigOptFactorKriging(true)) return 1;
   if (!ksys.isReady()) return 1;
@@ -234,7 +234,7 @@ Id krigingFactors(Db* dbin,
   CalcKrigingFactors krige(flag_est, flag_std);
   krige.setDbin(dbin);
   krige.setDbout(dbout);
-  krige.setModel(model);
+  krige.setModelGeneric(model);
   krige.setNeigh(neigh);
   krige.setKrigopt(krigopt);
   krige.setNamingConvention(namconv);

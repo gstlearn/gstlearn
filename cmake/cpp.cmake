@@ -33,6 +33,7 @@ else()
     -Wvla
     -Wundef
     -Woverloaded-virtual
+  #  -Wshadow
   )
   if (APPLE)
     add_compile_options(-Wno-absolute-value -Wno-inconsistent-missing-override)

@@ -4,6 +4,7 @@ This file contains the logs between consecutive releases
 
 Release 1.11.0
 ==============
+- New algorithm to check and default the variable name for plot (in R and Python)
 - Adding test to avoid Kriging with too few data (KrigingSimpleCase)
 - Adding a test to check that Matrix Inversion was performed correctly
 - Incorporate the AIC information as a member of CovBase

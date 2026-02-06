@@ -379,12 +379,12 @@ bool CalcSimuFFT::_checkCorrect(const VectorVectorDouble& xyz,
                                 Id iz,
                                 double percent)
 {
-  auto ndim           = _getNDim();
-  ModelGeneric* model = getModel();
+  auto ndim                  = _getNDim();
+  ModelGeneric* modelGeneric = getModelGeneric();
 
   /* Calculate the reference C(0) value */
 
-  double refval = model->evaluateOneIncr(0.);
+  double refval = modelGeneric->evaluateOneIncr(0.);
 
   /* Evaluate the covariance value */
 
@@ -392,7 +392,7 @@ bool CalcSimuFFT::_checkCorrect(const VectorVectorDouble& xyz,
   for (Id i = 0; i < ndim; i++)
     d[i] = ix * xyz[i][0] + iy * xyz[i][1] + iz * xyz[i][2];
   double hh    = d.norm();
-  double value = model->evaluateOneIncr(hh);
+  double value = modelGeneric->evaluateOneIncr(hh);
 
   return (value / refval <= percent / 100);
 }
@@ -415,8 +415,8 @@ void CalcSimuFFT::_prepar(bool flag_amplitude, double eps)
   VectorInt indg(3);
   VectorInt jnd(3);
   VectorVectorDouble xyz1(3);
-  auto* dbgrid        = dynamic_cast<DbGrid*>(getDbout());
-  ModelGeneric* model = getModel();
+  auto* dbgrid               = dynamic_cast<DbGrid*>(getDbout());
+  ModelGeneric* modelGeneric = getModelGeneric();
 
   /* Initializations */
 
@@ -484,13 +484,13 @@ void CalcSimuFFT::_prepar(bool flag_amplitude, double eps)
           del[1] = k2 * delta[1];
           del[2] = k3 * delta[2];
           hnorm  = del.norm();
-          value  = model->evaluateOneIncr(hnorm);
+          value  = modelGeneric->evaluateOneIncr(hnorm);
           scale += value;
         }
     for (Id i = 0; i < 3; i++)
       del[i] = 0.;
     hnorm        = del.norm();
-    value        = model->evaluateOneIncr(hnorm);
+    value        = modelGeneric->evaluateOneIncr(hnorm);
     double coeff = value / scale;
 
     Id ecr = 0;
@@ -516,7 +516,7 @@ void CalcSimuFFT::_prepar(bool flag_amplitude, double eps)
                 del[1] = xyz[1] + k2 * delta[1];
                 del[2] = xyz[2] + k3 * delta[2];
                 hnorm  = del.norm();
-                value  = model->evaluateOneIncr(hnorm);
+                value  = modelGeneric->evaluateOneIncr(hnorm);
                 cplx[ecr] += coeff * value;
               }
         }
@@ -1050,9 +1050,9 @@ bool CalcSimuFFT::_check()
   if (!ACalcSimulation::_check()) return false;
 
   if (!hasDbout()) return false;
-  if (!hasModel()) return false;
-  auto ndim = getModel()->getNDim();
-  auto nvar = getModel()->getNVar();
+  if (!hasModelGeneric()) return false;
+  auto ndim = getModelGeneric()->getNDim();
+  auto nvar = getModelGeneric()->getNVar();
   if (ndim < 1 || ndim > 3)
   {
     messerr("The FFT Method is not a relevant simulation model");
@@ -1160,7 +1160,7 @@ Id simfft(DbGrid* db,
 {
   CalcSimuFFT simfft(nbsimu, verbose, seed);
   simfft.setDbout(db);
-  simfft.setModel(model);
+  simfft.setModelGeneric(model);
   simfft.setNamingConvention(namconv);
   simfft.setParam(param);
 
@@ -1192,7 +1192,7 @@ VectorDouble getChangeSupport(DbGrid* db,
 {
   CalcSimuFFT simfft(1, verbose, seed);
   simfft.setDbout(db);
-  simfft.setModel(model);
+  simfft.setModelGeneric(model);
   simfft.setParam(param);
   return simfft.changeSupport(sigma);
 }

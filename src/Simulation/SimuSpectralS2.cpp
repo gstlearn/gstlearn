@@ -13,7 +13,7 @@
 #include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
-#include "Simulation/ASimuSpectral.hpp"
+#include "Simulation/CalcSimuSpectral.hpp"
 #include "Stats/Classical.hpp"
 
 #include <cmath>
@@ -26,27 +26,10 @@ namespace gstlrn
  * -----------------------------------------
  */
 
-SimuSpectralS2::SimuSpectralS2(const ACov* cova)
-  : ASimuSpectral(cova)
+SimuSpectralS2::SimuSpectralS2(Id nbsimu, Id ns, Id nd, Id seed, bool verbose)
+  : CalcSimuSpectral(nbsimu, ns, nd, seed, verbose, false)
   , _spSims()
 {
-}
-
-SimuSpectralS2::SimuSpectralS2(const SimuSpectralS2& r)
-  : ASimuSpectral(r)
-  , _spSims(r._spSims)
-{
-}
-
-SimuSpectralS2& SimuSpectralS2::operator=(const SimuSpectralS2& r)
-{
-  if (this != &r)
-  {
-    _cova       = r._cova;
-    _isPrepared = r._isPrepared;
-    _spSims     = r._spSims;
-  }
-  return *this;
 }
 
 SimuSpectralS2::~SimuSpectralS2()
@@ -55,43 +38,19 @@ SimuSpectralS2::~SimuSpectralS2()
 
 /**
  * Simulate the spectrum components for Rn
- *
- * @param ns Number of components
- * @param nd Maxium order of the spectrum on S2
- * @param cov0 the auxiliary covariance not used on S2
- * @param verbose Verbose flag
  */
-Id SimuSpectralS2::_simulate(Id ns,
-                             Id nd,
-                             const ACov* cov0,
-                             bool verbose)
+Id SimuSpectralS2::_simulate(const ACov* cova)
 {
-  DECLARE_UNUSED(cov0)
-  if (ns <= 0)
-  {
-    messerr("The number of simulated harmonic components should be positive");
-    return 1;
-  }
-  if (cov0 != nullptr)
-  {
-    if (!cov0->isValidForSpectral())
-    {
-      messerr("Simulation of the harmonic components is not implemented for the auxiliary covariance");
-      return 1;
-    }
-    if (_cova->getNVar() > 1)
-    {
-      messerr("The covariance should be scalar on S2");
-      return 1;
-    }
-  }
-  Id ndim = _cova->getNDim();
-  Id nvar = _cova->getNVar();
+  Id ns   = _getNs();
+  Id nd   = _getNd();
+  Id ndim = _getNDim();
+  Id nvar = _getNVar();
+
   // Optional printout
-  if (verbose)
+  if (getVerbose())
   {
     message("Simulation of the spectrum\n");
-    message("- Space dimension   = %d\n", ndim);
+    message("- Space dimension   = S%d\n", ndim);
     message("- Number of variables  = %d\n", nvar);
     message("- Number of spectral components = %d\n", ns);
   }
@@ -99,13 +58,13 @@ Id SimuSpectralS2::_simulate(Id ns,
   // Cleaning any previously allocated memory
   _spSims.clear();
 
-  // simulation of the spectrum
   // Simulation of the spectrum
   VectorDouble U = VH::simulateUniform(ns);
   VH::sortInPlace(U);
   double maxU = U.maximum();
 
-  VectorDouble spectrum = _cova->evalSpectrumOnSphere(nd);
+  VectorDouble spectrum = cova->evalSpectrumOnSphere(nd);
+  if (spectrum.empty()) return 1;
 
   // Simulate vector N
   Id n     = 0;
@@ -167,11 +126,9 @@ Id SimuSpectralS2::_simulate(Id ns,
   }
 
   // Optional printout
-  if (verbose)
-  {
+  if (getVerbose())
     _printSpSims(1);
-  }
-  _isPrepared = true;
+
   return 0;
 }
 
@@ -272,9 +229,9 @@ void SimuSpectralS2::_printSpSims(Id status)
   message("- Number of components (-) = %d\n", totalM);
 }
 
-Id SimuSpectralS2::_compute(Db* dbout, Id iuid, bool verbose)
+Id SimuSpectralS2::_compute(Db* dbout, const VectorBool& activeArray, VectorVectorDouble& tab)
 {
-  Id np = dbout->getNSample(true);
+  auto nech = dbout->getNSample();
 
   Id nb    = 0;
   Id N_max = -9999;
@@ -289,10 +246,10 @@ Id SimuSpectralS2::_compute(Db* dbout, Id iuid, bool verbose)
   Id K_max = K_list.maximum();
 
   // Optional printout
-  if (verbose)
+  if (getVerbose())
   {
-    mestitle(1, ">>> simulation on Sphere");
-    message(">>> point number    : %d\n", np);
+    mestitle(1, ">>> Simulation on Sphere");
+    message(">>> point number    : %d\n", nech);
     message(">>> component number: %d\n", nb);
     message(">>> Maximum order   : %d\n", K_max);
     message(">>> Maximum degree  : %d\n", N_max);
@@ -301,24 +258,23 @@ Id SimuSpectralS2::_compute(Db* dbout, Id iuid, bool verbose)
   // Simulation
   VectorDouble phi   = dbout->getOneCoordinate(0);
   VectorDouble theta = dbout->getOneCoordinate(1);
-  VectorDouble sim(np, 0.);
-  VectorDouble x(np);
-  VectorDouble w(np);
-  for (Id i = 0; i < np; i++)
+  VectorDouble sim(nech, 0.);
+  VectorDouble x(nech);
+  VectorDouble w(nech);
+  for (Id iech = 0; iech < nech; iech++)
   {
-    double cosval = cos(theta[i]);
-    x[i]          = cosval;
-    w[i]          = sqrt(1 - cosval * cosval);
+    double cosval = cos(theta[iech]);
+    x[iech]       = cosval;
+    w[iech]       = sqrt(1 - cosval * cosval);
   }
 
   Id K_idx   = 0; // Index running in spectrum list
   Id jk      = 0; // Index running in components
   Id cumComp = 0;
-  VectorDouble val(np, 0.);
-  VectorDouble Pmm(np, 0.);
-  VectorDouble Plm(np, 0.);
-  VectorDouble P1(np, 0.);
-  VectorDouble P2(np, 0.);
+  VectorDouble Pmm(nech, 0.);
+  VectorDouble Plm(nech, 0.);
+  VectorDouble P1(nech, 0.);
+  VectorDouble P2(nech, 0.);
 
   for (Id m = 0; m <= K_max; m++)
   {
@@ -328,8 +284,8 @@ Id SimuSpectralS2::_compute(Db* dbout, Id iuid, bool verbose)
     else
     {
       double scale = sqrt((2. * m + 1.) / (2. * m));
-      for (Id ip = 0; ip < np; ip++)
-        Pmm[ip] = -scale * w[ip] * Pmm[ip];
+      for (Id iech = 0; iech < nech; iech++)
+        Pmm[iech] = -scale * w[iech] * Pmm[iech];
     }
 
     if (VH::whereElement(K_list, m) >= 0)
@@ -337,7 +293,7 @@ Id SimuSpectralS2::_compute(Db* dbout, Id iuid, bool verbose)
       const spSim& spsimK = _spSims[K_idx++];
       VectorInt N_list    = _getKeys1(spsimK);
 
-      if (verbose)
+      if (getVerbose())
         message(">>> Simulating order K = %d: component number = %d\n", m,
                 _getSumValue(spsimK));
 
@@ -355,8 +311,8 @@ Id SimuSpectralS2::_compute(Db* dbout, Id iuid, bool verbose)
         {
           double a = sqrt((2. * n + 1.) * (2. * n - 1.) / (n - m) / (n + m));
           double b = sqrt((2. * n + 1.) / (2. * n - 3.) * (n - 1. - m) / (n - m) * (n - 1. + m) / (n + m));
-          for (Id ip = 0; ip < np; ip++)
-            Plm[ip] = a * x[ip] * P1[ip] - b * P2[ip];
+          for (Id iech = 0; iech < nech; iech++)
+            Plm[iech] = a * x[iech] * P1[iech] - b * P2[iech];
           P2 = P1;
           P1 = Plm;
         }
@@ -367,7 +323,7 @@ Id SimuSpectralS2::_compute(Db* dbout, Id iuid, bool verbose)
           VectorInt valComp = _getKeys2(spsimK, n);
           VectorInt nbrComp = _getValues2(spsimK, n);
 
-          if (verbose)
+          if (getVerbose())
           {
             Id sumComp = nbrComp.sum();
             cumComp += sumComp;
@@ -384,8 +340,9 @@ Id SimuSpectralS2::_compute(Db* dbout, Id iuid, bool verbose)
 
               for (Id ns = 0; ns < nbrComp[ii]; ns++)
               {
-                for (Id ip = 0; ip < np; ip++)
-                  val[ip] += fac * Plm[ip] * cos(s * m * phi[ip] + _phi[jk]);
+                for (Id iech = 0; iech < nech; iech++)
+                  if (activeArray[iech])
+                    tab[0][iech] += fac * Plm[iech] * cos(s * m * phi[iech] + getPhi(jk));
                 jk++;
               }
             }
@@ -396,11 +353,7 @@ Id SimuSpectralS2::_compute(Db* dbout, Id iuid, bool verbose)
   }
 
   // Normalize
-  val.multiplyCst(sqrt(2. / nb));
-
-  // Save the resulting array
-  dbout->setColumnByUID(val, iuid);
-
+  tab[0].multiplyCst(sqrt(2. / nb));
   return 0;
 }
 

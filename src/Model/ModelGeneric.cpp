@@ -83,6 +83,11 @@ void ModelGeneric::_create()
   _transform = nullptr;
 }
 
+ModelGeneric* ModelGeneric::create(const CovContext& ctxt)
+{
+  return new ModelGeneric(ctxt);
+}
+
 void ModelGeneric::setField(double field)
 {
   _ctxt.setField(field);

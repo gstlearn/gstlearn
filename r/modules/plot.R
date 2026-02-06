@@ -308,23 +308,33 @@ plot.init <- function(dims = NA, xlim = NA, ylim = NA, asp = NA) {
 #'
 #' @note The defaulted variable is the first one attached to the locator-Z (if any);
 #' @note otherwise it is the last defined variable within 'db'.
+#' 
 #' @return Name of the defaulted variable
 #' 
 #' @keywords internal
 #' @noRd
-.defaultVariable <- function(db, name1 = NULL, name2 = NULL)
+.getDefaultVariableName <- function(db, name1 = NULL, name2 = NULL)
 {
-  # If at least one variable name is defined, return 'name1 as is'
-  if (!is.null(name1) || !is.null(name2))
-    return(name1)
+  name = name1
+  if (is.null(name)) name = name2
 
+  if (!is.null(name)) {
+    # Check that the variable exists
+    if (db$getUID(name) < 0) {
+      return(NULL)
+    }
+    return(name)
+  }
+
+  # No name has been specified as argument, use the default procedure
   # If no variable is defined, return a variable name by default
-  if (db$getNLoc(ELoc_Z()) > 0)
+  if (db$getNLoc(ELoc_Z()) > 0) {
     # Use the first Z-Locator variable (if defined)
-		return(db$getNameByLocator(ELoc_Z(),0))
-  else
+    return(db$getNameByLocator(ELoc_Z(), 0))
+  } else {
     # Use the last defined variable
-	  return(db$getLastName())
+    return(db$getLastName())
+  }
 
   # No solution is found, return an error
   cat("No variable name is provided. Procedure is aborted")
@@ -361,13 +371,13 @@ plot.init <- function(dims = NA, xlim = NA, ylim = NA, asp = NA) {
 .onlyPositiveX <- function(vario=NULL, model=NULL, ivar=0, jvar=0, asCov=FALSE) {
     status = FALSE
     if (! .isNotDef(vario)) {
-      if (vario$drawOnlyPositiveX(ivar, jvar)) {
+      if (vario$representOnlyPositiveX(ivar, jvar)) {
         status = TRUE
       }
     }
 
     if (! .isNotDef(model)) {
-      if (model$drawOnlyPositiveX(ivar, jvar, asCov)) {
+      if (Model_representOnlyPositiveX(ivar, jvar, asCov)) {
         status = TRUE
       }
     }
@@ -377,12 +387,12 @@ plot.init <- function(dims = NA, xlim = NA, ylim = NA, asp = NA) {
 .onlyPositiveY <- function(vario = NULL, model = NULL, ivar = 0, jvar = 0, asCov = FALSE) {
   status = FALSE
   if (!.isNotDef(vario)) {
-    if (vario$drawOnlyPositiveY(ivar, jvar)) {
+    if (vario$representOnlyPositiveY(ivar, jvar)) {
       status = TRUE
     }
   }
   if (!.isNotDef(model)) {
-    if (model$drawOnlyPositiveY(ivar, jvar, asCov)) {
+    if (Model_representOnlyPositiveY(ivar, jvar, asCov)) {
       status = TRUE
     }
   }
@@ -1006,7 +1016,10 @@ plot.symbol <- function(db, nameColor=NULL, nameSize=NULL,
   p = list()
 
   # Get the name of the variable to be displayed by default
-  nameSize = .defaultVariable(db, nameSize, nameColor)
+  nameSize = .getDefaultVariableName(db, nameSize, nameColor)
+  if (is.null(nameSize)) {
+    return(NULL)
+  }
 
   # Creating the necessary data frame
   df = .readPointCoor(db, useSel, posX, posY)
@@ -1068,7 +1081,10 @@ plot.literal <- function(db, name=NULL, digit=2, useSel=TRUE, posX=0, posY=1,
     stop("Package ggrepel is mandatory to use this function!")
 
   # Get the name of the variable to be displayed by default
-  name = .defaultVariable(db, name)
+  name = .getDefaultVariableName(db, name)
+  if (is.null(name)) {
+    return(NULL)
+  }
 
   # Creating the necessary data frame
   df = .readPointCoor(db, useSel, posX, posY)
@@ -1110,7 +1126,10 @@ plot.raster <- function(dbgrid, name = NULL, useSel = TRUE, posX=0, posY=1, corn
   p = list()
 
   # Get the name of the variable to be displayed
-  name = .defaultVariable(dbgrid, name)
+  name = .getDefaultVariableName(dbgrid, name)
+  if (is.null(name)) {
+    return(NULL)
+  }
 
   # Reading the Grid information
   df = .readGridCoor(dbgrid, name, useSel, posX, posY, corner)
@@ -1166,7 +1185,10 @@ plot.contour <- function(dbgrid, name=NULL, useSel = TRUE, posX=0, posY=1, corne
   p = list()
 
   # Get the name of the variable to be displayed
-  name = .defaultVariable(dbgrid, name)
+  name = .getDefaultVariableName(dbgrid, name)
+  if (is.null(name)) {
+    return(NULL)
+  }
     
   # Reading the Grid information
   df = .readGridCoor(dbgrid, name, useSel, posX, posY, corner)

@@ -10,6 +10,8 @@
 /******************************************************************************/
 #pragma once
 
+#include "Covariances/CovAniso.hpp"
+#include "Enum/ECov.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
@@ -56,7 +58,7 @@ public:
                        ModelGeneric* model,
                        double delta);
 
-  static bool isValidForTurningBands(const Model* model);
+  static bool isValidForTurningBands(const ModelGeneric* model);
 
   bool isFlagCheck() const { return _flagCheck; }
   void setFlagCheck(bool flag_check) { _flagCheck = flag_check; }
@@ -80,26 +82,28 @@ private:
   bool _postprocess() override;
   void _rollback() override;
 
-  bool _resize();
-  void _simulatePoint(Db* db, Id icase, Id shift);
-  void _simulateGrid(DbGrid* db, Id icase, Id shift);
-  void _simulateNugget(Db* db, Id icase);
-  void _simulateGradient(Db* dbgrd, double delta);
-  void _simulateTangent(Db* dbtgt, double delta);
-  void _meanCorrect(Db* dbout, Id icase);
-  void _difference(Db* dbin,
-                   Model* model,
-                   Id icase,
-                   bool flag_pgs   = false,
-                   bool flag_gibbs = false,
-                   bool flag_dgm   = false);
-  void _updateData2ToTarget(Db* dbin,
-                            Db* dbout,
-                            Id icase,
-                            bool flag_pgs = false,
-                            bool flag_dgm = false);
-  void _checkGaussianData2Grid(Db* dbin, Db* dbout, Model* model) const;
+  bool _prepareSimulation();
+  Id _computeTB(Db* db, Id icase, Id shift) override;
 
+  bool _resizeTB();
+  void _computePoint(Db* db,
+                     const CovAniso* cova,
+                     const ECov& type,
+                     Id isimu,
+                     Id is,
+                     const VectorBool& activeArray,
+                     VectorVectorDouble& tab);
+  void _computeGrid(DbGrid* db,
+                    const CovAniso* cova,
+                    const ECov& type,
+                    Id isimu,
+                    Id is,
+                    const VectorBool& activeArray,
+                    VectorVectorDouble& tab);
+  void _computeNugget(Db* db, Id icase);
+
+  // Turning bands specific methods
+  Id _getIBS(Id isimu, Id is, Id ib) const;
   void _setCodirAng(Id ibs, Id idir, double value) { _codirs[ibs].setAng(idir, value); }
   void _setCodirTmin(Id ibs, double value) { _codirs[ibs].setTmin(value); }
   void _setCodirTmax(Id ibs, double value) { _codirs[ibs].setTmax(value); }
@@ -127,11 +131,12 @@ private:
   Id _generateDirections(const Db* dbout);
   void _minmax(const Db* db);
   void _setDensity();
-  static ECov _particularCase(const ECov& type, double param);
+  static ECov _particularCase(const CovAniso* cova, double eps = EPSILON7);
   Id _initializeSeedBands();
-
-  static double _computeScale(double alpha, double scale);
-  static double _computeScaleKB(double param, double scale);
+  void _normalizeForBands(const Db* db, const VectorBool& activeArray, VectorVectorDouble& tab);
+  Id _getCorrec(const ECov& type, Id is, Id ibs, TurningBandOperate& operTB, double& correc);
+  static double _getScale(double alpha, double scale);
+  static double _getScaleKB(double param, double scale);
   void _migrationInit(Id ibs,
                       Id is,
                       double scale,
@@ -155,34 +160,36 @@ private:
                     double* c0z,
                     double* s0z);
 
-  void _spreadRegularOnGrid(Id nx,
-                            Id ny,
-                            Id nz,
+  void _spreadRegularOnGrid(const DbGrid* dbgrid,
+                            const CovAniso* cova,
                             Id ibs,
-                            Id is,
+                            double correc,
                             TurningBandOperate& operTB,
                             const VectorBool& activeArray,
                             VectorDouble& tab);
   void _spreadRegularOnPoint(const Db* db,
+                             const CovAniso* cova,
                              Id ibs,
-                             Id is,
+                             double correc,
                              TurningBandOperate& operTB,
                              const VectorBool& activeArray,
                              VectorDouble& tab);
-  void _spreadSpectralOnGrid(Id nx,
-                             Id ny,
-                             Id nz,
+  void _spreadSpectralOnGrid(const DbGrid* dbgrid,
+                             const CovAniso* cova,
                              Id ibs,
-                             Id is,
+                             double correc,
                              TurningBandOperate& operTB,
                              const VectorBool& activeArray,
                              VectorDouble& tab);
   void _spreadSpectralOnPoint(const Db* db,
+                              const CovAniso* cova,
                               Id ibs,
-                              Id is,
+                              double correc,
                               TurningBandOperate& operTB,
                               const VectorBool& activeArray,
                               VectorDouble& tab);
+
+  // Debugging methods
   void _dumpBands() const;
   void _dumpSeeds() const;
 

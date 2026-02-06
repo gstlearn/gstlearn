@@ -14,7 +14,7 @@
 
 #include "Basic/NamingConvention.hpp"
 #include "Basic/VectorNumT.hpp"
-#include "Simulation/ASimuSpectral.hpp"
+#include "Simulation/CalcSimuSpectral.hpp"
 
 namespace gstlrn
 {
@@ -28,27 +28,21 @@ typedef struct
 
 class ACov;
 class ModelGeneric;
-class ASimuSpectral;
 
 /**
  * Class for operating the Spectral simulations on S2
  */
-class GSTLEARN_EXPORT SimuSpectralS2: public ASimuSpectral
+class GSTLEARN_EXPORT SimuSpectralS2: public CalcSimuSpectral
 {
 public:
-  SimuSpectralS2(const ACov* cova = nullptr);
-  SimuSpectralS2(const SimuSpectralS2& r);
-  SimuSpectralS2& operator=(const SimuSpectralS2& r);
+  SimuSpectralS2(Id nbsimu = 1, Id ns = 10000, Id nd = 100, Id seed = 4324324, bool verbose = false);
+  SimuSpectralS2(const SimuSpectralS2& r)            = delete;
+  SimuSpectralS2& operator=(const SimuSpectralS2& r) = delete;
   virtual ~SimuSpectralS2();
 
 protected:
-  Id _simulate(Id ns,
-               Id nd            = 100,
-               const ACov* cov0 = nullptr,
-               bool verbose     = false) override;
-  Id _compute(Db* dbout,
-              Id iuid      = 0,
-              bool verbose = false) override;
+  Id _simulate(const ACov* cova) override;
+  Id _compute(Db* dbout, const VectorBool& activeArray, VectorVectorDouble& tab) override;
 
 private:
   static void _printSpSim(const spSim& spsim, Id status = 0);

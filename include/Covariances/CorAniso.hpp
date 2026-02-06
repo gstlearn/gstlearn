@@ -16,7 +16,6 @@
 #include "Covariances/ACov.hpp"
 #include "Covariances/TabNoStat.hpp"
 #include "Covariances/TabNoStatCovAniso.hpp"
-#include "Simulation/SimuSpectralRN.hpp"
 #include "Enum/EConsElem.hpp"
 #include "Model/CovInternal.hpp"
 #include "geoslib_define.h"
@@ -57,11 +56,11 @@ public:
   CorAniso(const CovContext& ctxt, const ECov& type);
   CorAniso(const CovContext& ctxt, const String& symbol);
   CorAniso(
-           const CovContext& ctxt,
-            const ECov& type,
-           double param,
-           double range,
-           bool flagRange = true);
+    const CovContext& ctxt,
+    const ECov& type,
+    double param,
+    double range,
+    bool flagRange = true);
   CorAniso(const CorAniso& r);
   CorAniso& operator=(const CorAniso& r);
   virtual ~CorAniso();
@@ -95,17 +94,13 @@ public:
                                      // correlation will be different for multivariate
 
   double evalCovOnSphere(double alpha,
-                         Id degree               = 50,
-                         bool flagScaleDistance  = true,
-                         const CovCalcMode* mode = nullptr) const override;
-  VectorDouble evalSpectrumOnSphere(Id n,
-                                    bool flagNormDistance = false,
-                                    bool flagCumul        = false) const override;
+                         Id degree                  = 50,
+                         bool scaleDistanceByRadius = true,
+                         const CovCalcMode* mode    = nullptr) const override;
+  VectorDouble evalSpectrumOnSphere(Id n, bool scaleDistanceByRadius = false, bool flagScale = true) const override;
   double evalSpectrumRatio(const VectorDouble& freq, Id ivar, Id jvar, const ACov* cov0) const override;
 
-  double evalSpectrum(const VectorDouble& freq,
-                      Id ivar = 0,
-                      Id jvar = 0) const override;
+  double evalSpectrum(const VectorDouble& freq, Id ivar = 0, Id jvar = 0) const override;
 
   virtual double getIntegralRange(Id ndisc, double hmax) const;
   virtual String getFormula() const { return _corfunc->getFormula(); }
@@ -118,9 +113,8 @@ public:
   void _optimizationSetTarget(SpacePoint& p) const override;
   void _optimizationPostProcess() const override;
 
-  bool isValidForTurningBand() const;
+  bool isValidForTurningBand() const { return _corfunc->isValidForTurningBand(); }
   double simulateTurningBand(double t0, TurningBandOperate& operTB) const;
-  bool isValidForSpectral() const override;
   MatrixDense simulateSpectralOmega(Id nb) const override;
   SpectrumRN simulateSpectrumRN(Id ns, const ACov* cov0 = nullptr) const override;
 
@@ -212,12 +206,14 @@ public:
   void setAniso(const Tensor& aniso) { _aniso = aniso; }
   const AKernel* getCorFunc() const { return _corfunc; }
   Id getNGradParam() const;
+
   bool hasCovDerivative() const { return _corfunc->hasCovDerivative(); }
   bool hasCovOnSphere() const { return _corfunc->hasCovOnSphere(); }
-  bool hasSpectrumOnSphere() const { return _corfunc->hasSpectrumOnSphere(); }
+  bool isValidForSpectralOnSphere() const override { return _corfunc->isValidForSpectralOnSphere(); }
   bool hasMarkovCoeffs() const { return _corfunc->hasMarkovCoeffs(); }
-  bool hasSpectrumOnRn() const { return _corfunc->hasSpectrumOnRn(); }
+  bool isValidForSpectralOnRn() const override { return _corfunc->isValidForSpectralOnRn(); }
   double normalizeOnSphere(Id n = 50) const;
+
   //////////////////////// New NoStat methods //////////////////////////
 
   void makeRangeNoStatDb(const String& namecol, Id idim = 0, const Db* db = nullptr);
@@ -249,9 +245,9 @@ public:
   bool isNoStatForRotation() const { return getTabNoStatCovAniso()->isDefinedForRotation(); }
 
   VectorDouble evalCovOnSphereVec(const VectorDouble& alpha,
-                                  Id degree               = 50,
-                                  bool flagScaleDistance  = false,
-                                  const CovCalcMode* mode = nullptr) const;
+                                  Id degree                  = 50,
+                                  bool scaleDistanceByRadius = true,
+                                  const CovCalcMode* mode    = nullptr) const;
   Array evalCovFFT(const VectorDouble& hmax, Id N = 128, Id ivar = 0, Id jvar = 0) const;
   VectorDouble getMarkovCoeffs() const;
   void setMarkovCoeffs(const VectorDouble& coeffs);

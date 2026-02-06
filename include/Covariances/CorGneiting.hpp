@@ -57,12 +57,13 @@ public:
     return (space->getType() == ESpaceType::RN);
   }
 
-  bool isValidForSpectral() const override { return true; };
   Id getNVar() const override { return _corS->getNVar(); }
   double getC0(Id ivar, Id jvar) const { return _corS->getC0(ivar, jvar); }
   double getNu(Id ivar, Id jvar) const { return _corS->getNu(ivar, jvar); }
   double getKappa(Id ivar, Id jvar) const { return _corS->getKappa(ivar, jvar); }
   double separability() const { return _separability; }
+
+  bool isValidForSpectralOnRn() const override { return true; };
   SpectrumRN simulateSpectrumRN(Id ns, const ACov* cov0 = nullptr) const override;
 
 protected:

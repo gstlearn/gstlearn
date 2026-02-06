@@ -32,19 +32,6 @@ class NeighImage;
 class EMorpho;
 class MatrixSymmetric;
 
-/****************************************/
-/* Prototyping the functions in krige.c */
-/****************************************/
-
-Id _krigsim(Db* dbin,
-             Db* dbout,
-             const Model* model,
-             ANeigh* neigh,
-             bool flag_bayes,
-             Id icase,
-             Id nbsimu,
-             bool flag_dgm);
-
 /*******************************************/
 /* Prototyping the functions in variopgs.c */
 /*******************************************/
@@ -60,16 +47,16 @@ Rule* _rule_auto(Db* db,
 /*****************************************/
 
 Id _db_rule(Db* db,
-             const RuleProp* ruleprop,
-             Model* model                    = nullptr,
-             const NamingConvention& namconv = NamingConvention("Facies", true, true, true, ELoc::fromKey("FACIES")));
+            const RuleProp* ruleprop,
+            Model* model                    = nullptr,
+            const NamingConvention& namconv = NamingConvention("Facies", true, true, true, ELoc::fromKey("FACIES")));
 Id _db_bounds(Db* db,
-               const RuleProp* ruleprop,
-               Model* model                    = nullptr,
-               const NamingConvention& namconv = NamingConvention("Bounds"));
+              const RuleProp* ruleprop,
+              Model* model                    = nullptr,
+              const NamingConvention& namconv = NamingConvention("Bounds"));
 Id _db_threshold(Db* db,
-                  const RuleProp* ruleprop,
-                  Model* model                    = nullptr,
-                  const NamingConvention& namconv = NamingConvention("Thresh"));
+                 const RuleProp* ruleprop,
+                 Model* model                    = nullptr,
+                 const NamingConvention& namconv = NamingConvention("Thresh"));
 
 } // namespace gstlrn

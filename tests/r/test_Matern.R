@@ -153,7 +153,7 @@ model = ModelGeneric(ctxt)
 a = model$setCov(cor_tri)
 grid = DbGrid_create(c(100,100))
 nmc = NamingConvention("Simu")
-simuSpectral(dbin = NULL, dbout = grid, cova = cor_tri, nbsimu = 1, seed = 43431, ns = 100, nd = 100, 
+simuSpectral(dbin = NULL, dbout = grid, model = model, nbsimu = 1, seed = 43431, ns = 100, nd = 100, 
 verbose = T, namconv = nmc)
 
 print("All tests are ok.")

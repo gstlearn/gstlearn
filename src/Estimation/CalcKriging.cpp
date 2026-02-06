@@ -62,7 +62,7 @@ bool CalcKriging::_check()
 
   if (!hasDbin()) return false;
   if (!hasDbout()) return false;
-  if (!hasModel()) return false;
+  if (!hasModelGeneric()) return false;
   if (!hasNeigh()) return false;
   if (getNeigh()->getType() == ENeigh::IMAGE)
   {
@@ -72,7 +72,7 @@ bool CalcKriging::_check()
 
   if (_flagVarZ)
   {
-    if (getModel()->isNoStat())
+    if (getModelGeneric()->isNoStat())
     {
       messerr("Variance of Estimator is limited to Stationary Covariance");
       return false;
@@ -224,7 +224,7 @@ void CalcKriging::_storeResultsForExport(const KrigingSystem& ksys)
  *****************************************************************************/
 bool CalcKriging::_run()
 {
-  KrigingSystem ksys(getDbin(), getDbout(), getModel(), getNeigh(), getKrigopt());
+  KrigingSystem ksys(getDbin(), getDbout(), getModelGeneric(), getNeigh(), getKrigopt());
   if (ksys.updKrigOptEstim(_iptrEst, _iptrStd, _iptrVarZ)) return false;
   if (_flagBayes)
   {
@@ -345,7 +345,7 @@ Id kriging(Db* dbin,
     CalcKrigingSimpleCase krige(flag_est, flag_std, flag_varz);
     krige.setDbin(dbin);
     krige.setDbout(dbout);
-    krige.setModel(model);
+    krige.setModelGeneric(model);
     krige.setNeigh(neighLocal);
     krige.setNamingConvention(namconv);
     Id result = krige.run();
@@ -356,7 +356,7 @@ Id kriging(Db* dbin,
   CalcKriging krige(flag_est, flag_std, flag_varz);
   krige.setDbin(dbin);
   krige.setDbout(dbout);
-  krige.setModel(model);
+  krige.setModelGeneric(model);
   krige.setNeigh(neighLocal);
   krige.setKrigopt(krigopt);
   krige.setNamingConvention(namconv);
@@ -396,7 +396,7 @@ Id krigcell(Db* dbin,
   CalcKriging krige(flag_est, flag_std, false);
   krige.setDbin(dbin);
   krige.setDbout(dbout);
-  krige.setModel(model);
+  krige.setModelGeneric(model);
   krige.setNeigh(neighLocal);
   krige.setKrigopt(krigopt);
   krige.setNamingConvention(namconv);
@@ -433,7 +433,7 @@ Id kribayes(Db* dbin,
   CalcKriging krige(flag_est, flag_std, false);
   krige.setDbin(dbin);
   krige.setDbout(dbout);
-  krige.setModel(model);
+  krige.setModelGeneric(model);
   krige.setNeigh(neighLocal);
   krige.setNamingConvention(namconv);
 
@@ -472,7 +472,7 @@ Krigtest_Res krigtest(Db* dbin,
   CalcKriging krige(true, true, false);
   krige.setDbin(dbin);
   krige.setDbout(dbout);
-  krige.setModel(model);
+  krige.setModelGeneric(model);
   krige.setNeigh(neighLocal);
   krige.setKrigopt(krigopt);
   krige.setIechSingleTarget(iech0);
@@ -507,7 +507,7 @@ Id kriggam(Db* dbin,
   CalcKriging krige(true, true, false);
   krige.setDbin(dbin);
   krige.setDbout(dbout);
-  krige.setModel(model);
+  krige.setModelGeneric(model);
   krige.setNeigh(neigh);
   krige.setNamingConvention(namconv);
 
@@ -551,7 +551,7 @@ Id xvalid(Db* db,
                     flag_xvalid_varz != 0);
   krige.setDbin(db);
   krige.setDbout(db);
-  krige.setModel(model);
+  krige.setModelGeneric(model);
   krige.setNeigh(neighLocal);
   krige.setNamingConvention(namconv);
 
@@ -597,7 +597,7 @@ Id test_neigh(Db* dbin,
   CalcKriging krige(false, false, false);
   krige.setDbin(dbin);
   krige.setDbout(dbout);
-  krige.setModel(model);
+  krige.setModelGeneric(model);
   krige.setNeigh(neighLocal);
   krige.setNamingConvention(namconv);
 

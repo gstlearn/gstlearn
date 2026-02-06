@@ -62,7 +62,7 @@ Displaying the grid cells
 
 ```{r}
 p = plot.init(asp=1)
-p = p + plot.raster(mygrid, flagLegend=TRUE, legendName="coucou", 
+p = p + plot.raster(mygrid, flagLegend=TRUE, legendName="raster", 
                     palette="viridis")
 p = p + plot.contour(mygrid,  flagLegend=TRUE, legendName="isolines", bins=10, 
                     palette = "inferno")

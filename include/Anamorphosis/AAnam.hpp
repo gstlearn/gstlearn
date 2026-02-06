@@ -37,8 +37,8 @@ public:
   virtual const EAnam& getType() const = 0;
   virtual double       getVariance() const { return TEST; }
   virtual bool         hasFactor() const { return false; }
-  virtual Id          getNFactor() const { return 0; }
-  virtual Id          getNClass() const { return 0; }
+  virtual Id           getNFactor() const { return 0; }
+  virtual Id           getNClass() const { return 0; }
   virtual bool         isChangeSupportDefined() const = 0;
   virtual VectorDouble z2factor(double z, const VectorInt& ifacs) const;
   virtual double       computeVariance(double sval) const;

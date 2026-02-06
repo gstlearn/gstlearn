@@ -93,9 +93,9 @@ VectorString VectorHelper::initVString(Id ntab, char** names)
   return rettab;
 }
 
-void VectorHelper::dumpStats(const String& title, constvect vect, Id nmax)
+void VectorHelper::dumpStats(const String& title, constvect vec, Id nmax)
 {
-  Id ntotal = static_cast<Id>(vect.size());
+  Id ntotal = static_cast<Id>(vec.size());
   if (nmax > 0 && nmax < ntotal) ntotal = nmax;
   Id number   = 0;
   double mean = 0.;
@@ -105,7 +105,7 @@ void VectorHelper::dumpStats(const String& title, constvect vect, Id nmax)
 
   for (Id i = 0; i < ntotal; i++)
   {
-    double value = vect[i];
+    double value = vec[i];
     if (FFFF(value)) continue;
     number++;
     mean += value;
@@ -135,19 +135,19 @@ void VectorHelper::dumpStats(const String& title, constvect vect, Id nmax)
 
 void VectorHelper::dumpStats(const String& title, const VectorDouble& vectin, Id nmax)
 {
-  constvect vect(vectin);
-  dumpStats(title, vect, nmax);
+  constvect vec(vectin);
+  dumpStats(title, vec, nmax);
 }
 
 void VectorHelper::dumpRange(const String& title, const VectorDouble& vectin, Id nmax)
 {
-  constvect vect(vectin);
-  dumpRange(title, vect, nmax);
+  constvect vec(vectin);
+  dumpRange(title, vec, nmax);
 }
 
-void VectorHelper::dumpRange(const String& title, constvect vect, Id nmax)
+void VectorHelper::dumpRange(const String& title, constvect vec, Id nmax)
 {
-  Id ntotal = static_cast<Id>(vect.size());
+  Id ntotal = static_cast<Id>(vec.size());
   if (nmax > 0 && nmax < ntotal) ntotal = nmax;
   Id number   = 0;
   double mini = MAXIMUM_BIG;
@@ -155,7 +155,7 @@ void VectorHelper::dumpRange(const String& title, constvect vect, Id nmax)
 
   for (Id i = 0; i < ntotal; i++)
   {
-    double value = vect[i];
+    double value = vec[i];
     if (FFFF(value)) continue;
     number++;
     if (value < mini) mini = value;
@@ -175,16 +175,16 @@ void VectorHelper::dumpRange(const String& title, constvect vect, Id nmax)
   }
 }
 
-void VectorHelper::dumpRange(const String& title, const VectorInt& vect)
+void VectorHelper::dumpRange(const String& title, const VectorInt& vec)
 {
-  Id ntotal = static_cast<Id>(vect.size());
+  Id ntotal = static_cast<Id>(vec.size());
   Id number = 0;
   Id mini   = 100000000;
   Id maxi   = -100000000;
 
   for (Id i = 0; i < ntotal; i++)
   {
-    Id value = vect[i];
+    Id value = vec[i];
     if (FFFF(value)) continue;
     number++;
     if (value < mini) mini = value;
@@ -204,15 +204,15 @@ void VectorHelper::dumpRange(const String& title, const VectorInt& vect)
   }
 }
 
-void VectorHelper::dumpNNZ(const String& title, const VectorDouble& vect, Id nclass)
+void VectorHelper::dumpNNZ(const String& title, const VectorDouble& vec, Id nclass)
 {
-  Id ntotal = static_cast<Id>(vect.size());
+  Id ntotal = static_cast<Id>(vec.size());
   VectorInt total(nclass);
   for (Id ic = 0; ic < nclass; ic++) total[ic] = 0.;
 
   for (Id i = 0; i < ntotal; i++)
   {
-    double value = ABS(vect[i]);
+    double value = ABS(vec[i]);
     double tol   = 1.;
     for (Id ic = 0; ic < nclass; ic++)
     {

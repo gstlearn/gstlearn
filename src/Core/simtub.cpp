@@ -2503,7 +2503,7 @@ VectorDouble simsph_mesh(MeshSpherical* mesh,
 {
   VectorDouble simu;
 
-  bool flag_sphere = isDefaultSpaceSphere();
+  bool flag_sphere = (model->getContext()->getSpace()->getType() == ESpaceType::SN);
   if (!flag_sphere)
   {
     messerr("The Spherical Simulation is restricted to Spherical coordinates");

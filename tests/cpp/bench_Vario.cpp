@@ -17,7 +17,6 @@
 #include "Variogram/Vario.hpp"
 #include "Variogram/VMap.hpp"
 #include "Model/Model.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Timer.hpp"
 #include "Db/Db.hpp"

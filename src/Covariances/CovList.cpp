@@ -227,7 +227,7 @@ const VectorInt& CovList::_getListActiveCovariances(const CovCalcMode* mode) con
   return _allActiveCovList;
 }
 
-Id CovList::addEvalCovVecRHSInPlace(vect vect,
+Id CovList::addEvalCovVecRHSInPlace(vect vec,
                                     const VectorInt& index1,
                                     Id iech2,
                                     const KrigOpt& krigopt,
@@ -242,9 +242,9 @@ Id CovList::addEvalCovVecRHSInPlace(vect vect,
   for (const auto& j: list.getVector())
   {
     if (_covs[j]->isOptimEnabled())
-      _covs[j]->addEvalCovVecRHSInPlace(vect, index1, iech2, krigopt, pin, pout, tabwork, lambda, calcMember);
+      _covs[j]->addEvalCovVecRHSInPlace(vec, index1, iech2, krigopt, pin, pout, tabwork, lambda, calcMember);
     else
-      _covs[j]->ACov::addEvalCovVecRHSInPlace(vect, index1, iech2, krigopt, pin, pout, tabwork, lambda, calcMember);
+      _covs[j]->ACov::addEvalCovVecRHSInPlace(vec, index1, iech2, krigopt, pin, pout, tabwork, lambda, calcMember);
   }
   return 0;
 }
@@ -404,7 +404,7 @@ void CovList::setSills(Id icov, const MatrixSymmetric& sills)
 double CovList::getAic(Id icov, Id ivar, Id jvar) const
 {
   if (!_isCovarianceIndexValid(icov)) return 0.;
-  return _covs[icov]->getAic().getValue(ivar, jvar);
+  return _covs[icov]->getAics().getValue(ivar, jvar);
 }
 /**
  * Calculate the total sill of the model for given pair of variables
@@ -605,23 +605,30 @@ AModelFitSills* CovList::getFitSills() const
   return _modelFitSills;
 }
 
-bool CovList::isValidForSpectral() const
+bool CovList::isValidForSpectralOnRn() const
 {
-  ESpaceType type = getDefaultSpaceType();
-  if (getNCov() != 1)
-  {
-    messerr("This method only considers Model with a single covariance structure");
-    return false;
-  }
-
-  /* Loop on the structures */
-
-  for (int is = 0; is < getNCov(); is++)
+  Id ns = getNCov();
+  for (int is = 0; is < ns; is++)
   {
     const ACov* cova = getCov(is);
-    if (!cova->isValidForSpectral())
+    if (!cova->isValidForSpectralOnRn())
     {
       messerr("The current structure is not valid for Spectral Simulation on Rn");
+      return false;
+    }
+  }
+  return true;
+}
+
+bool CovList::isValidForSpectralOnSphere() const
+{
+  Id ns = getNCov();
+  for (int is = 0; is < ns; is++)
+  {
+    const ACov* cova = getCov(is);
+    if (!cova->isValidForSpectralOnSphere())
+    {
+      messerr("The current structure is not valid for Spectral Simulation on Sphere");
       return false;
     }
   }

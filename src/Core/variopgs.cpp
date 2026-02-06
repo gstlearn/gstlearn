@@ -2520,11 +2520,11 @@ static double st_rkl(Id maxpts,
   VectorDouble cste(2);
   cste[0] = 0.;
   cste[1] = 0.;
-  VectorDouble vect(2);
-  vect[0]           = x;
-  vect[1]           = y;
-  VectorDouble mean = temp.prodMatVec(vect);
-  double v1         = law_df_bigaussian(vect, cste, corr1);
+  VectorDouble vec(2);
+  vec[0]           = x;
+  vec[1]           = y;
+  VectorDouble mean = temp.prodMatVec(vec);
+  double v1         = law_df_bigaussian(vec, cste, corr1);
   mvndst2n(lower.data(), upper.data(), mean.data(), covar.getValues().data(),
            maxpts, abseps, releps, &error, &v2, &inform);
   return (v1 * v2);

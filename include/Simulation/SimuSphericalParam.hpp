@@ -24,7 +24,7 @@ public:
                      Id nfmax = -1,
                      Id degmax = -1,
                      Id ndisc = 360,
-                     double tol = 1.e-5);
+                     double tol = EPSILON5);
   SimuSphericalParam(const SimuSphericalParam &r);
   SimuSphericalParam& operator=(const SimuSphericalParam &r);
   virtual ~SimuSphericalParam();

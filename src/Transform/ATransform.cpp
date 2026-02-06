@@ -10,7 +10,6 @@
 /******************************************************************************/
 
 #include "Transform/ATransform.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "geoslib_define.h"
@@ -62,7 +61,6 @@ double ATransform::condExp(double mu, double sigma, Id power) const
   }
   law_set_random_seed(oldseed);
   return sum / _nMonteCarlo;
-
 }
 
 void ATransform::condExpVec(constvect mu, constvect sigma, vect out, Id power) const

@@ -54,8 +54,7 @@ public:
   virtual bool hasCovDerivative() const { return false; }
   virtual bool hasCovOnRn() const { return true; }
   virtual bool hasCovOnSphere() const;
-  virtual bool hasSpectrumOnSphere() const { return false; }
-  virtual bool hasSpectrumOnRn() const { return false; }
+  virtual bool isValidForSpectralOnSphere() const { return false; }
   virtual bool hasMarkovCoeffs() const { return false; }
   virtual double normalizeOnSphere(Id n = 50, double scale = 1.) const
   {
@@ -79,7 +78,7 @@ public:
   }
 
   // Specific for Spectral Simulation Method
-  virtual bool isValidForSpectral() const { return false; }
+  virtual bool isValidForSpectralOnRn() const { return false; }
   virtual MatrixDense simulateSpectralOmega(Id nb) const
   {
     DECLARE_UNUSED(nb);
@@ -97,10 +96,8 @@ public:
   double evalCorFunc(double h) const;
   double evalCovDerivative(Id degree, double h) const;
   double evalCovFirstDerivativeOverH(double h) const;
-  double evalCovOnSphere(double alpha,
-                         double scale = 1.,
-                         Id degree    = 50) const;
-  VectorDouble evalSpectrumOnSphere(Id n, double scale = 1.) const;
+  double evaluateCovOnSphere(double alpha, double scale, Id degree = 50) const;
+  VectorDouble evaluateSpectrumOnSphere(Id n, double scale, bool flagScale = true) const;
   const ECov& getType() const { return _type; }
   const CovContext& getContext() const { return _ctxt; }
   Id getNParams() const { return static_cast<Id>(_params.size()); }
@@ -116,6 +113,7 @@ public:
   {
     DECLARE_UNUSED(val);
   }
+  virtual bool needCorrec() const { return false; }
   virtual void computeCorrec(Id ndim);
   virtual void computeMarkovCoeffs(Id dim)
   {
@@ -146,10 +144,8 @@ protected:
     double eps = EPSILON4;
     return (_evaluateCov(h + eps) - _evaluateCov(h - eps)) / (2. * eps) / h;
   }
-  virtual double _evaluateCovOnSphere(double alpha,
-                                      double scale = 1.,
-                                      Id degree    = 50) const;
-  virtual VectorDouble _evaluateSpectrumOnSphere(Id n, double scale = 1.) const;
+  virtual double _evaluateCovOnSphere(double alpha, double scale = 1., Id degree = 50) const;
+  virtual VectorDouble _evaluateSpectrumOnSphere(Id n, double scale = 1., bool flagScale = true) const;
 
 private:
   Array _evalCovFFT(const VectorDouble& hmax, Id N = 128) const;

@@ -53,14 +53,15 @@ public:
   Id getMinOrder() const override { return -1; }
   bool getCompatibleSpaceR() const override { return true; }
   bool getCompatibleSpaceS() const override { return true; }
-  bool hasCovOnSphere() const override { return true; }
-  bool hasSpectrumOnSphere() const override { return true; }
 
   bool isValidForTurningBand() const override { return true; }
   double simulateTurningBand(double t0, TurningBandOperate& operTB) const override;
 
-  bool isValidForSpectral() const override { return true; }
+  bool isValidForSpectralOnRn() const override { return true; }
+  bool hasCovOnSphere() const override { return true; }
+  bool isValidForSpectralOnSphere() const override { return true; }
   double evaluateSpectrum(double freq) const override;
+
   MatrixDense simulateSpectralOmega(Id nb) const override;
   template<typename T>
   T evalImpl(T h) const
@@ -70,10 +71,8 @@ public:
   }
 
 protected:
-  double _evaluateCovOnSphere(double alpha,
-                              double scale = 1.,
-                              Id degree    = 50) const override;
-  VectorDouble _evaluateSpectrumOnSphere(Id n, double scale = 1.) const override;
+  double _evaluateCovOnSphere(double alpha, double scale = 1., Id degree = 50) const override;
+  VectorDouble _evaluateSpectrumOnSphere(Id n, double scale = 1., bool flagScale = true) const override;
   // double _evaluateCovFirstDerivative(double h) const override;
 };
 } // namespace gstlrn
