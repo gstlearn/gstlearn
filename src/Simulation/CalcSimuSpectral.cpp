@@ -248,10 +248,10 @@ bool CalcSimuSpectral::_run()
   Id mem_seed = law_get_random_seed();
   law_set_random_seed(getSeed());
 
-  auto ncova = _getNCov();
-  const ACov* cova;
-  const CovAniso* covbase;
-  const auto* modellist = dynamic_cast<const ModelCovList*>(getModelGeneric());
+  auto ncova              = _getNCov();
+  const ACov* cova        = nullptr;
+  const CovAniso* covbase = nullptr;
+  const auto* modellist   = dynamic_cast<const ModelCovList*>(getModelGeneric());
 
   VectorVectorDouble tab(nvar);
   for (Id ivar = 0; ivar < nvar; ivar++) tab[ivar].resize(nech);
@@ -262,6 +262,10 @@ bool CalcSimuSpectral::_run()
   {
     for (Id is = 0, ns = MAX(ncova, 1); is < ns; is++)
     {
+      // Blank out the array 'tab'
+      for (Id ivar = 0; ivar < nvar; ivar++)
+        tab[ivar].fill(0.);
+
       if (getVerbose())
         messerr(">>> computing simulation %d for covariance %d", isimu + 1, is + 1);
       if (ncova <= 0)
@@ -272,10 +276,6 @@ bool CalcSimuSpectral::_run()
         if (covbase->getType() == ECov::NUGGET) continue;
         cova = dynamic_cast<const ACov*>(covbase);
       }
-
-      // Blank out the array 'tab'
-      for (Id ivar = 0; ivar < nvar; ivar++)
-        tab[ivar].fill(0.);
 
       if (simulate(cova)) return false;
 
