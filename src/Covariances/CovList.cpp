@@ -607,7 +607,8 @@ AModelFitSills* CovList::getFitSills() const
 
 bool CovList::isValidForSpectralOnRn() const
 {
-  for (int is = 0, ns = getNCov(); is < ns; is++)
+  Id ns = getNCov();
+  for (int is = 0; is < ns; is++)
   {
     const ACov* cova = getCov(is);
     if (!cova->isValidForSpectralOnRn())
@@ -621,7 +622,8 @@ bool CovList::isValidForSpectralOnRn() const
 
 bool CovList::isValidForSpectralOnSphere() const
 {
-  for (int is = 0, ns = getNCov(); is < ns; is++)
+  Id ns = getNCov();
+  for (int is = 0; is < ns; is++)
   {
     const ACov* cova = getCov(is);
     if (!cova->isValidForSpectralOnSphere())
