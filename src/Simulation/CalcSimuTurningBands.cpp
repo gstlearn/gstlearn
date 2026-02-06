@@ -1007,7 +1007,7 @@ Id CalcSimuTurningBands::_computeTB(Db* db, Id icase, Id shift)
       if (type == ECov::NUGGET) continue;
 
       // Blank out the array 'tab'
-      for (Id ivar = 0, nvar = _getNVar(); ivar < nvar; ivar++)
+      for (Id ivar = 0; ivar < nvar; ivar++)
         tab[ivar].fill(0.);
 
       // Evaluate the multivariate simulation on the target samples
