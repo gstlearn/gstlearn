@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Basic/AStringable.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Basic/ListParams.hpp"
 #include "Basic/VectorNumT.hpp"
@@ -39,7 +40,6 @@ public:
     DECLARE_UNUSED(h);
     return TEST;
   }
-
   virtual bool hasParameters() const = 0;
   virtual void _printParams(std::stringstream& sstr, const AStringFormat* strfmt) const
   {
@@ -56,8 +56,8 @@ public:
   virtual String getName() const = 0;
 #ifndef SWIG
   void transformVec(constvect in, vect out) const;
-  void inverseTransformVec(constvect in, vect out) const;
   void condExpVec(constvect mu, constvect sigma, vect out, Id power = 1) const;
+  void inverseTransformVec(constvect in, vect out) const;
 #endif
   VectorDouble transformVec(const VectorDouble& in) const;
   VectorDouble inverseTransformVec(const VectorDouble& in) const;

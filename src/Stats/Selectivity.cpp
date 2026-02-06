@@ -391,78 +391,78 @@ Selectivity* Selectivity::createInterpolation(const VectorDouble& zcuts,
 
 void Selectivity::setZcut(Id iclass, double zcut)
 {
-  if (!_isValidCut(iclass)) return;
+  if (!_isCutValid(iclass)) return;
   _stats.setValue(iclass, Z_CUT, zcut);
   _Zcut[iclass] = zcut;
 }
 double Selectivity::getZcut(Id iclass) const
 {
-  if (!_isValidCut(iclass)) return (TEST);
+  if (!_isCutValid(iclass)) return (TEST);
   return _Zcut[iclass];
 }
 void Selectivity::setBest(Id iclass, double best)
 {
-  if (!_isValidCut(iclass)) return;
+  if (!_isCutValid(iclass)) return;
   _stats.setValue(iclass, B_EST, best);
 }
 void Selectivity::setMest(Id iclass, double mest)
 {
-  if (!_isValidCut(iclass)) return;
+  if (!_isCutValid(iclass)) return;
   _stats.setValue(iclass, M_EST, mest);
 }
 
 void Selectivity::setQest(Id iclass, double qest)
 {
-  if (!_isValidCut(iclass)) return;
+  if (!_isCutValid(iclass)) return;
   _stats.setValue(iclass, Q_EST, qest);
 }
 void Selectivity::setQstd(Id iclass, double qstd)
 {
-  if (!_isValidCut(iclass)) return;
+  if (!_isCutValid(iclass)) return;
   _stats.setValue(iclass, Q_STD, qstd);
 }
 void Selectivity::setTest(Id iclass, double test)
 {
-  if (!_isValidCut(iclass)) return;
+  if (!_isCutValid(iclass)) return;
   _stats.setValue(iclass, T_EST, test);
 }
 void Selectivity::setTstd(Id iclass, double tstd)
 {
-  if (!_isValidCut(iclass)) return;
+  if (!_isCutValid(iclass)) return;
   _stats.setValue(iclass, T_STD, tstd);
 }
 double Selectivity::getBest(Id iclass) const
 {
-  if (!_isValidCut(iclass)) return (TEST);
+  if (!_isCutValid(iclass)) return (TEST);
   return _stats.getValue(iclass, B_EST);
 }
 double Selectivity::getMest(Id iclass) const
 {
-  if (!_isValidCut(iclass)) return (TEST);
+  if (!_isCutValid(iclass)) return (TEST);
   return _stats.getValue(iclass, M_EST);
 }
 double Selectivity::getQest(Id iclass) const
 {
-  if (!_isValidCut(iclass)) return (TEST);
+  if (!_isCutValid(iclass)) return (TEST);
   return _stats.getValue(iclass, Q_EST);
 }
 double Selectivity::getQstd(Id iclass) const
 {
-  if (!_isValidCut(iclass)) return (TEST);
+  if (!_isCutValid(iclass)) return (TEST);
   return _stats.getValue(iclass, Q_STD);
 }
 double Selectivity::getTest(Id iclass) const
 {
-  if (!_isValidCut(iclass)) return (TEST);
+  if (!_isCutValid(iclass)) return (TEST);
   return _stats.getValue(iclass, T_EST);
 }
 double Selectivity::getTstd(Id iclass) const
 {
-  if (!_isValidCut(iclass)) return (TEST);
+  if (!_isCutValid(iclass)) return (TEST);
   return _stats.getValue(iclass, T_STD);
 }
 
-bool Selectivity::_isValidCut(Id iclass) const
+bool Selectivity::_isCutValid(Id iclass) const
 {
   return checkArg("Selectivity Class", iclass, getNCuts());
 }
