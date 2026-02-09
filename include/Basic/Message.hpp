@@ -23,7 +23,6 @@ GSTLEARN_EXPORT void messerrFlush(const String& string);
 GSTLEARN_EXPORT void messerr(const char* format, ...);
 GSTLEARN_EXPORT void message(const char* format, ...);
 GSTLEARN_EXPORT void messageNoDiff(const char* format, ...);
-GSTLEARN_EXPORT void mesArg(const char* title, Id current, Id nmax);
 GSTLEARN_EXPORT bool checkArg(const char* title, Id current, Id nmax);
 GSTLEARN_EXPORT void messageAbort(const char* format, ...);
 GSTLEARN_EXPORT void mestitle(Id level, const char* format, ...);

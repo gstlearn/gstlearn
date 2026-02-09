@@ -10,10 +10,10 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
 #include "Basic/AStringable.hpp"
-#include "LithoRule/Rule.hpp"
 #include "Basic/NamingConvention.hpp"
+#include "LithoRule/Rule.hpp"
+#include "gstlearn_export.hpp"
 
 #include <vector>
 
@@ -22,28 +22,28 @@ namespace gstlrn
 class Db;
 class VarioParam;
 
-class GSTLEARN_EXPORT RuleProp : public AStringable
+class GSTLEARN_EXPORT RuleProp: public AStringable
 {
 public:
   RuleProp();
   RuleProp(const RuleProp& m);
-  RuleProp& operator=(const RuleProp &m);
+  RuleProp& operator=(const RuleProp& m);
   virtual ~RuleProp();
 
   /// Interface to AStringable
   String toString(const AStringFormat* strfmt = nullptr) const override;
 
   Id resetFromDb(const Db* dbprop,
-                  const VectorDouble& propcst = VectorDouble());
+                 const VectorDouble& propcst = VectorDouble());
   Id resetFromRule(const Rule* rule,
-                    const VectorDouble& propcst = VectorDouble());
+                   const VectorDouble& propcst = VectorDouble());
   Id resetFromRuleAndDb(const Rule* rule, const Db* dbprop);
   Id resetFromRules(const Rule* rule1,
-                     const Rule* rule2,
-                     const VectorDouble& propcst = VectorDouble());
+                    const Rule* rule2,
+                    const VectorDouble& propcst = VectorDouble());
   Id resetFromRulesAndDb(const Rule* rule1,
-                          const Rule* rule2,
-                          const Db* dbprop);
+                         const Rule* rule2,
+                         const Db* dbprop);
 
   static RuleProp* createFromDb(const Db* dbprop,
                                 const VectorDouble& propcst = VectorDouble());
@@ -69,19 +69,23 @@ public:
   Id getNRule() const { return static_cast<Id>(_rules.size()); }
 
   Id fit(Db* db,
-          const VarioParam* varioparam,
-          Id ngrfmax = 1,
-          bool verbose = false);
-  Id gaussToCategory(Db *db,
-                      const NamingConvention &namconv = NamingConvention(
-                          "Facies", true, true, true, ELoc::fromKey("FACIES"))) const;
-  Id categoryToThresh(Db *db, const NamingConvention& namconv = NamingConvention("Bounds")) const;
-  Id computeAllThreshes(Db *db, const NamingConvention& namconv = NamingConvention("Thresh")) const;
+         const VarioParam* varioparam,
+         Id ngrfmax   = 1,
+         bool verbose = false);
+  Id gaussToCategory(Db* db,
+                     const NamingConvention& namconv = NamingConvention(
+                       "Facies",
+                       true,
+                       true,
+                       true,
+                       ELoc::fromKey("FACIES"))) const;
+  Id categoryToThresh(Db* db, const NamingConvention& namconv = NamingConvention("Bounds")) const;
+  Id computeAllThreshes(Db* db, const NamingConvention& namconv = NamingConvention("Thresh")) const;
 
 private:
   void _clear();
   bool _checkConsistency();
-  bool _checkRuleRank(Id rank) const;
+  bool _isRuleRankValid(Id rank) const;
   Id _getNFacies();
 
 private:
@@ -91,4 +95,4 @@ private:
   std::vector<const Rule*> _rules;
   bool _ruleInternal; // TRUE if a fictitious rule has been established internally
 };
-}
+} // namespace gstlrn

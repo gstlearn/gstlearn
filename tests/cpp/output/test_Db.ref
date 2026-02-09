@@ -254,15 +254,15 @@ Data Base Contents
       [ 12,]     13.000      0.336      0.952      1.000        N/A      0.957     -0.507
       [ 13,]     14.000      0.300      0.987      1.000     -2.812     -0.774        N/A
       [ 14,]     15.000      0.470      0.687      1.000     -0.434      0.094     -1.002
-Error in Sample Index (3000). Argument should lie within [0,15[
+Error in Sample Index. The index (3000) should be non-negative and lower than 15
 This should be an error = nan
 No variable name corresponding to your criterion
-Error in UID Index (-1). Argument should lie within [0,7[
+Error in UID Index. The index (-1) should be non-negative and lower than 7
 This should be an error = nan
-Error in Sample Index (30000). Argument should lie within [0,15[
+Error in Sample Index. The index (30000) should be non-negative and lower than 15
 Previous statement is an error
 No variable name corresponding to your criterion
-Error in UID Index (-1). Argument should lie within [0,7[
+Error in UID Index. The index (-1) should be non-negative and lower than 7
 Previous statement is an error
 
 Testing getStatsAsTable facility

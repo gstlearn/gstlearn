@@ -81,27 +81,35 @@ void messerrFlush(const String& string)
 }
 
 /**
- * Print a standard Error Message if an argument does not lie in Interval
- * @param title   Title to be printed
+ * @brief Check if 'current' is a valid argument
+ * @brief - it must be non negative
+ * @brief - it must be lower than 'nmax' (when 'nmax' is specified, i.e. positive)
+ *
+ * @param title Description of the argument
  * @param current Current value of the argument
- * @param nmax    Maximum (inclusive) possible value
+ * @param nmax Maximum (exclusive) possible value (optional)
+ * @return true If the argument is valid
+ * @return false Otherwise
  */
-void mesArg(const char* title, Id current, Id nmax)
-{
-  if (nmax <= 0)
-    messerr("Error in %s (%d). No element of this type is recorded yet", title,
-            current);
-  else
-    messerr("Error in %s (%d). Argument should lie within [0,%d[", title,
-            current, nmax);
-}
-
 bool checkArg(const char* title, Id current, Id nmax)
 {
-  if (current < 0 || current >= nmax)
+  if (nmax >= 0)
   {
-    mesArg(title, current, nmax);
-    return false;
+    if (current < 0 || current >= nmax)
+    {
+      messerr("Error in %s. The index (%d) should be non-negative and lower than %d",
+              title, current, nmax);
+      return false;
+    }
+  }
+  else
+  {
+    if (current < 0)
+    {
+      messerr("Error in %s. The index (%d) should be non-negative",
+              title, current);
+      return false;
+    }
   }
   return true;
 }

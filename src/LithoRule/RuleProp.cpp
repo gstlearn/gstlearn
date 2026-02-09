@@ -237,7 +237,7 @@ bool RuleProp::_checkConsistency()
   return true;
 }
 
-bool RuleProp::_checkRuleRank(Id rank) const
+bool RuleProp::_isRuleRankValid(Id rank) const
 {
   return checkArg("Rule Rank", rank, getNRule());
 }
@@ -269,7 +269,7 @@ Id RuleProp::_getNFacies()
 }
 const Rule* RuleProp::getRule(Id rank) const
 {
-  if (!_checkRuleRank(rank)) return nullptr;
+  if (!_isRuleRankValid(rank)) return nullptr;
   return _rules[rank];
 }
 
