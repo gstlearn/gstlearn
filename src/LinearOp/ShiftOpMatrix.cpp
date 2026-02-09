@@ -892,6 +892,13 @@ Id ShiftOpMatrix::_buildS(const AMesh* amesh, double tol)
     _S->addValue(ip0, ip0, S);
   }
 
+  // Workaround for 1d
+  if (ndim == 1)
+  {
+    _TildeC.multiplyCst(3.);
+    _S->prodScalar(2.);
+  }
+
   // Ending S construction
 
   _S->prodNormDiagVecInPlace(_TildeC, -3);
