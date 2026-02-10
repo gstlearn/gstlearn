@@ -146,12 +146,12 @@ Model* Model::createFromParam(const ECov& type,
   Id nvar = 1;
   if (!sills.empty()) nvar = sills.getNRows();
 
-  CovContext ctxt(nvar, space);
+  Id ndimRanges = (ranges.empty()) ? 0 : static_cast<Id>(ranges.size());
 
-  if (!ranges.empty())
+  CovContext ctxt;
+  if (space != nullptr)
   {
-    Id ndim       = static_cast<Id>(ctxt.getNDim());
-    Id ndimRanges = static_cast<Id>(ranges.size());
+    Id ndim = space->getNDim();
     if (ndimRanges != 1 && ndimRanges != ndim)
     {
       messerr("Incompatibility between:");
@@ -159,6 +159,11 @@ Model* Model::createFromParam(const ECov& type,
       messerr("Dimension of argument 'ranges' = %d", ndimRanges);
       return nullptr;
     }
+    ctxt = CovContext(nvar, space);
+  }
+  else
+  {
+    ctxt = CovContext(nvar, SpaceRN::create(ndimRanges));
   }
 
   auto* model = new Model(ctxt);
