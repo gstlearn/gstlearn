@@ -163,7 +163,10 @@ Model* Model::createFromParam(const ECov& type,
   }
   else
   {
-    ctxt = CovContext(nvar, SpaceRN::create(ndimRanges));
+    if (ndimRanges > 0)
+      ctxt = CovContext(nvar, SpaceRN::create(ndimRanges));
+    else
+      ctxt = CovContext(nvar, space);
   }
 
   auto* model = new Model(ctxt);
