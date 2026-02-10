@@ -248,7 +248,7 @@ int main(int argc, char* argv[])
                                            VectorDouble(), MatrixSymmetric(),
                                            VectorDouble(), nullptr, false);
   printVector(modelSph->getCovAniso(0)->evalSpectrumOnSphere(ns), "Spectrum", true, true);
-  printVector(modelSph->getCovAniso(0)->evalCovOnSphereVec(incr), "Covariance", true, true);
+  printVector(modelSph->getCovAniso(0)->evalCovOnSphereVec(incr, 50, false), "Covariance", true, true);
 
   delete workingDbc;
   delete modelM;
