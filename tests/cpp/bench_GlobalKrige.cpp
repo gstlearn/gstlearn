@@ -12,20 +12,18 @@
 // This test is mean to check the Block Kriging (essentially for printout)
 
 #include "Basic/AStringFormat.hpp"
+#include "Basic/File.hpp"
+#include "Basic/Law.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "Basic/File.hpp"
-#include "Enum/ESpaceType.hpp"
-
-#include "Matrix/MatrixSymmetric.hpp"
-#include "Space/ASpaceObject.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
-#include "Basic/Law.hpp"
+#include "Enum/ESpaceType.hpp"
+#include "Estimation/Estimations.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Model/Model.hpp"
-
-#include "Estimation/CalcGlobal.hpp"
+#include "Space/ASpaceObject.hpp"
 
 using namespace gstlrn;
 
@@ -42,9 +40,9 @@ int main(int argc, char* argv[])
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Parameters
-  Id nech         = 4;
-  Id nvar         = 1;
-  bool flagSK     = false;
+  Id nech     = 4;
+  Id nvar     = 1;
+  bool flagSK = false;
 
   // Generate the data base
   Db* data = Db::createFillRandom(nech, ndim, nvar, 0);
@@ -53,9 +51,9 @@ int main(int argc, char* argv[])
   data->display(dbfmt);
 
   // Generate the target file
-  VectorInt nx = {5, 5};
+  VectorInt nx    = {5, 5};
   VectorDouble dx = {0.2, 0.2};
-  DbGrid* target = DbGrid::create(nx, dx);
+  DbGrid* target  = DbGrid::create(nx, dx);
 
   // Create the Model
   double scale = 0.7;

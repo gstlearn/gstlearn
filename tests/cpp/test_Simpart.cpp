@@ -16,6 +16,7 @@
 #include "Model/Model.hpp"
 #include "Simulation/CalcSimuPartition.hpp"
 #include "Simulation/SimuPartitionParam.hpp"
+#include "Simulation/Simulations.hpp"
 #include "Space/ASpaceObject.hpp"
 
 using namespace gstlrn;

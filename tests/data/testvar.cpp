@@ -18,7 +18,7 @@
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Model/Model.hpp"
-#include "Simulation/CalcSimuTurningBands.hpp"
+#include "Simulation/Simulations.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Variogram/Vario.hpp"
 

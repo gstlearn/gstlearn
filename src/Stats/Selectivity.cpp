@@ -262,21 +262,21 @@ Id Selectivity::calculateFromArray(const VectorDouble& tab,
 
 Id Selectivity::calculateFromAnamorphosis(AAnam* anam)
 {
-  AnamHermite* anamH = dynamic_cast<AnamHermite*>(anam);
+  auto* anamH = dynamic_cast<AnamHermite*>(anam);
   if (anamH != nullptr)
   {
     anamH->_globalSelectivity(this);
     return 0;
   }
 
-  AnamDiscreteDD* anamDD = dynamic_cast<AnamDiscreteDD*>(anam);
+  auto* anamDD = dynamic_cast<AnamDiscreteDD*>(anam);
   if (anamDD != nullptr)
   {
     anamDD->_globalSelectivity(this);
     return 0;
   }
 
-  AnamDiscreteIR* anamIR = dynamic_cast<AnamDiscreteIR*>(anam);
+  auto* anamIR = dynamic_cast<AnamDiscreteIR*>(anam);
   if (anamIR != nullptr)
   {
     anamIR->_globalSelectivity(this);

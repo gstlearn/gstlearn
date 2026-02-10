@@ -77,6 +77,7 @@
 %include Enum/EPostUpscale.hpp
 %include Enum/EPostStat.hpp
 %include Enum/EFormatNF.hpp
+%include Enum/ESimuType.hpp
 
 %include Basic/ArgumentTest.hpp
 %include Basic/AStringable.hpp
@@ -362,6 +363,7 @@
 %include LithoRule/RuleStringFormat.hpp
 %include LithoRule/RuleProp.hpp
 
+%include Estimation/Estimations.hpp
 %include Estimation/KrigingSystem.hpp
 %include Estimation/KrigingAlgebra.hpp
 %include Estimation/CalcKriging.hpp
@@ -391,6 +393,7 @@
 %include OutputFormat/GridZycor.hpp
 %include OutputFormat/segy.h
 
+%include Simulation/Simulations.hpp
 %include Simulation/ACalcSimulation.hpp
 %include Simulation/CalcSimuTurningBands.hpp
 %include Simulation/TurningBandDirection.hpp

@@ -22,7 +22,7 @@
 #include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
-#include "Estimation/CalcKriging.hpp"
+#include "Estimation/Estimations.hpp"
 #include "Estimation/KrigOpt.hpp"
 #include "Estimation/KrigingAlgebra.hpp"
 #include "Model/Model.hpp"

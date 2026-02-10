@@ -554,35 +554,5 @@ bool CalcSimuRefine::_run()
   return (_simulate() == 0);
 }
 
-/****************************************************************************/
-/*!
- **  Refine the simulation
- **
- ** \return  Newly refined Grid.
- **
- ** \param[in]  dbin       Input grid Db structure
- ** \param[in]  model      Model structure
- ** \param[in]  param      SimuRefineParam structure
- ** \param[in]  seed       Seed for the random number generator
- ** \param[in]  namconv    Naming convention
- **
- ** \remark For each dimension of the space, if N stands for the number of
- ** \remark nodes in the input grid, the number of nodes of the output grid
- ** \remark will be (N-1) * 2^p + 1 where p is the param.getNmult()
- **
- *****************************************************************************/
-DbGrid* simulation_refine(DbGrid* dbin,
-                          Model* model,
-                          const SimuRefineParam& param,
-                          Id seed,
-                          const NamingConvention& namconv)
-{
-  CalcSimuRefine simfine(1, seed);
-  simfine.setDbin(dbin);
-  simfine.setModelGeneric(model);
-  simfine.setNamingConvention(namconv);
-  simfine.setParam(param);
 
-  return (simfine.run()) ? simfine.getResultingGrid() : nullptr;
-}
 } // namespace gstlrn

@@ -90,43 +90,4 @@ private:
   Id _order;
 };
 
-GSTLEARN_EXPORT Id inverseDistance(Db* dbin,
-                                    Db* dbout,
-                                    double exponent                 = 2.,
-                                    bool flag_expand                = true,
-                                    double dmax                     = TEST,
-                                    bool flag_est                   = true,
-                                    bool flag_std                   = false,
-                                    Model* model                    = nullptr,
-                                    const NamingConvention& namconv = NamingConvention(
-                                      "InvDist"));
-GSTLEARN_EXPORT Id nearestNeighbor(Db* dbin,
-                                    Db* dbout,
-                                    bool flag_est                   = true,
-                                    bool flag_std                   = false,
-                                    Model* model                    = nullptr,
-                                    const NamingConvention& namconv = NamingConvention(
-                                      "Nearest"));
-GSTLEARN_EXPORT Id movingAverage(Db* dbin,
-                                  Db* dbout,
-                                  ANeigh* neigh,
-                                  bool flag_est                   = true,
-                                  bool flag_std                   = false,
-                                  Model* model                    = nullptr,
-                                  const NamingConvention& namconv = NamingConvention(
-                                    "MovAve"));
-GSTLEARN_EXPORT Id movingMedian(Db* dbin,
-                                 Db* dbout,
-                                 ANeigh* neigh,
-                                 bool flag_est                   = true,
-                                 bool flag_std                   = false,
-                                 Model* model                    = nullptr,
-                                 const NamingConvention& namconv = NamingConvention(
-                                   "MovMed"));
-GSTLEARN_EXPORT Id leastSquares(Db* dbin,
-                                 Db* dbout,
-                                 ANeigh* neigh,
-                                 Id order                       = 0,
-                                 const NamingConvention& namconv = NamingConvention(
-                                   "LstSqr"));
 } // namespace gstlrn

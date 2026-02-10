@@ -11,6 +11,7 @@
 #pragma once
 
 #include "Basic/AStringFormat.hpp"
+#include "Enum/ESimuType.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
@@ -52,9 +53,6 @@ public:
   virtual bool hasParam() const { return false; }
   virtual String getCovName() const = 0;
   virtual bool hasCovDerivative() const { return false; }
-  virtual bool hasCovOnRn() const { return true; }
-  virtual bool hasCovOnSphere() const;
-  virtual bool isValidForSpectralOnSphere() const { return false; }
   virtual bool hasMarkovCoeffs() const { return false; }
   virtual double normalizeOnSphere(Id n = 50, double scale = 1.) const
   {
@@ -69,7 +67,6 @@ public:
   virtual bool getCompatibleSpaceS() const { return false; }
 
   // Specific to Turning Band Simulation Method
-  virtual bool isValidForTurningBand() const { return false; }
   virtual double simulateTurningBand(double t0, TurningBandOperate& operTB) const
   {
     DECLARE_UNUSED(t0);
@@ -78,7 +75,11 @@ public:
   }
 
   // Specific for Spectral Simulation Method
-  virtual bool isValidForSpectralOnRn() const { return false; }
+  virtual bool isValidForSimulation(const ESimuType& simuType) const
+  {
+    DECLARE_UNUSED(simuType);
+    return false;
+  }
   virtual MatrixDense simulateSpectralOmega(Id nb) const
   {
     DECLARE_UNUSED(nb);
@@ -96,10 +97,10 @@ public:
   double evalCorFunc(double h) const;
   double evalCovDerivative(Id degree, double h) const;
   double evalCovFirstDerivativeOverH(double h) const;
-  double evaluateCovOnSphere(double alpha, double scale, Id degree = 50) const;
-  VectorDouble evaluateSpectrumOnSphere(Id n, double scale, bool flagScale = true) const;
+
   const ECov& getType() const { return _type; }
   const CovContext& getContext() const { return _ctxt; }
+  ESpaceType getSpaceType() const { return _ctxt.getSpace()->getType(); }
   Id getNParams() const { return static_cast<Id>(_params.size()); }
   double getParam(Id ipar = 0) const;
   const VectorDouble& getParams() const { return _params; }
@@ -108,22 +109,17 @@ public:
   virtual double evaluateSpectrum(double freq) const;
   virtual VectorDouble getMarkovCoeffs() const;
   virtual void setMarkovCoeffs(const VectorDouble& coeffs);
+  virtual void computeMarkovCoeffs(Id dim) { DECLARE_UNUSED(dim); }
+
+  double evaluateCovOnSphere(double alpha, double scale, Id degree = 50) const;
+  VectorDouble evaluateSpectrumOnSphere(Id n, double scale, bool flagScale = true) const;
+
   virtual double getCorrec() const { return 1.; }
-  virtual void setCorrec(double val)
-  {
-    DECLARE_UNUSED(val);
-  }
+  virtual void setCorrec(double val) { DECLARE_UNUSED(val); }
   virtual bool needCorrec() const { return false; }
   virtual void computeCorrec(Id ndim);
-  virtual void computeMarkovCoeffs(Id dim)
-  {
-    DECLARE_UNUSED(dim);
-  }
 
-  double evalDerivative(double h) const
-  {
-    return _evaluateCovFirstDerivative(h);
-  }
+  double evalDerivative(double h) const { return _evaluateCovFirstDerivative(h); }
 
 protected:
   /// TODO : Gneiting (spatio-temporal covariance) :

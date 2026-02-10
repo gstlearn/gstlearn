@@ -336,40 +336,5 @@ Id CalcGlobal::_globalArithmetic()
   return 0;
 }
 
-Global_Result global_arithmetic(Db* dbin,
-                                DbGrid* dbgrid,
-                                ModelGeneric* model,
-                                Id ivar0,
-                                bool verbose)
-{
-  Global_Result gres;
-  CalcGlobal global(ivar0, verbose);
-  global.setDbin(dbin);
-  global.setDbout(dbgrid);
-  global.setModelGeneric(model);
-  global.setFlagArithmetic(true);
-
-  if (global.run())
-    gres = global.getGRes();
-  return gres;
-}
-
-Global_Result global_kriging(Db* dbin,
-                             Db* dbout,
-                             ModelGeneric* model,
-                             Id ivar0,
-                             bool verbose)
-{
-  Global_Result gres;
-  CalcGlobal global(ivar0, verbose);
-  global.setDbin(dbin);
-  global.setDbout(dbout);
-  global.setModelGeneric(model);
-  global.setFlagKriging(true);
-
-  if (global.run())
-    gres = global.getGRes();
-  return gres;
-}
 
 } // namespace gstlrn

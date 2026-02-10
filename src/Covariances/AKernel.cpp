@@ -11,8 +11,10 @@
 #include "Covariances/AKernel.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/FFT.hpp"
+#include "Basic/Message.hpp"
 #include "Basic/Utilities.hpp"
 #include "Covariances/CovFactory.hpp"
+#include "Enum/ESimuType.hpp"
 
 #include <cmath>
 
@@ -142,12 +144,6 @@ String AKernel::toString(const AStringFormat* /*strfmt*/) const
   return sstr.str();
 }
 
-bool AKernel::hasCovOnSphere() const
-{
-  // If a spectrum is available, the covariance can be calculated
-  return isValidForSpectralOnSphere();
-}
-
 /// Test consistency with the current context
 bool AKernel::isConsistent() const
 {
@@ -217,7 +213,7 @@ VectorDouble AKernel::getMarkovCoeffs() const
 double AKernel::evaluateSpectrum(double freq) const
 {
   DECLARE_UNUSED(freq);
-  if (!isValidForSpectralOnRn())
+  if (!isValidForSimulation(ESimuType::SPECTRAL))
   {
     messerr("This covariance does not allow spectrum calculations");
     return TEST;
@@ -262,7 +258,7 @@ VectorDouble AKernel::_evaluateSpectrumOnSphere(Id n, double scale, bool flagSca
   DECLARE_UNUSED(n);
   DECLARE_UNUSED(scale);
   DECLARE_UNUSED(flagScale);
-  if (!isValidForSpectralOnSphere())
+  if (!isValidForSimulation(ESimuType::SPECTRAL))
   {
     messerr("This covariance does not allow On Sphere calculations");
     return VectorDouble();
@@ -361,7 +357,7 @@ Array AKernel::_evalCovFFT(const VectorDouble& hmax, Id N) const
 void AKernel::computeCorrec(Id ndim)
 {
   if (!needCorrec()) return;
-  if (!isValidForSpectralOnRn()) return;
+  if (!isValidForSimulation(ESimuType::SPECTRAL)) return;
 
   Id N = static_cast<Id>(pow(2, 8));
   VectorInt Nv(ndim);
@@ -401,7 +397,7 @@ VectorInt getAllMaxDimension()
 
 VectorBool getAllIsSpatialTemporal()
 {
-  messerr("Not implemented yet");
+  messerrNotImplemented(String(), "getAllIsSpatialTemporal");
   return VectorBool();
 }
 

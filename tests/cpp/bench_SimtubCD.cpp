@@ -16,14 +16,13 @@
 
 #include "Variogram/Vario.hpp"
 #include "Model/Model.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Timer.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Neigh/NeighUnique.hpp"
-#include "Simulation/CalcSimuTurningBands.hpp"
+#include "Simulation/Simulations.hpp"
 
 using namespace gstlrn;
 /****************************************************************************/

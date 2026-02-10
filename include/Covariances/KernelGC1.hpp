@@ -34,7 +34,11 @@ public:
   String getCovName() const override { return "Order-1 G.C."; }
   bool getCompatibleSpaceR() const override { return true; }
 
-  bool isValidForTurningBand() const override { return true; }
+  bool isValidForSimulation(const ESimuType& simuType) const override
+  {
+    return (simuType == ESimuType::TB);
+  }
+
   double simulateTurningBand(double t0, TurningBandOperate& operTB) const override;
 
 protected:

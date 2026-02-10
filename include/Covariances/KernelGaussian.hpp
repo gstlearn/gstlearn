@@ -34,10 +34,12 @@ public:
   bool hasCovDerivative() const override { return true; }
   bool getCompatibleSpaceR() const override { return true; }
 
-  bool isValidForTurningBand() const override { return true; }
   double simulateTurningBand(double t0, TurningBandOperate& operTB) const override;
 
-  bool isValidForSpectralOnRn() const override { return true; }
+  bool isValidForSimulation(const ESimuType& simuType) const override
+  {
+    return ((getSpaceType() == ESpaceType::RN && simuType == ESimuType::SPECTRAL) || simuType == ESimuType::TB);
+  }
   double evaluateSpectrum(double freq) const override;
   MatrixDense simulateSpectralOmega(Id nb) const override;
 

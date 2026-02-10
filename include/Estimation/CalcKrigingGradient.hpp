@@ -54,14 +54,4 @@ private:
   bool _flagForceNumeric;
 };
 
-GSTLEARN_EXPORT Id krigingGradient(Db* dbin,
-                                   Db* dbout,
-                                   ModelGeneric* model,
-                                   ANeigh* neigh,
-                                   bool flag_est                   = true,
-                                   bool flag_std                   = true,
-                                   double ball_radius              = 0.01,
-                                   bool flagForceNumeric           = false,
-                                   const NamingConvention& namconv = NamingConvention("KrigGradient"));
-
 } // namespace gstlrn

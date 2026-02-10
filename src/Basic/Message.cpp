@@ -115,6 +115,20 @@ bool checkArg(const char* title, Id current, Id nmax)
 }
 
 /**
+ * @brief Standard function for telling that a method is not implemented yet
+ *
+ * @param className Name of the calling class (can be empty if not relevant )
+ * @param methodName Name of the calling function or method
+ */
+void messerrNotImplemented(const String& className, const String& methodName)
+{
+  if (!className.empty())
+    messerr("Function '%s' not implemented for class '%s'", methodName.c_str(), className.c_str());
+  else
+    messerr("Function '%s' not implemented", methodName.c_str());
+}
+
+/**
  * Print a message and underlines it with various formats
  * @param level  Level of the title
  * @param format Output format

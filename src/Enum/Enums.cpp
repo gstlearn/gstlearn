@@ -39,6 +39,7 @@
 #include "Enum/ESPDECalcMode.hpp"
 #include "Enum/ESelectivity.hpp"
 #include "Enum/EShape.hpp"
+#include "Enum/ESimuType.hpp"
 #include "Enum/ESpaceType.hpp"
 #include "Enum/EStatOption.hpp"
 #include "Enum/ETape.hpp"
@@ -77,3 +78,4 @@ ENUM_DEFINE(ENUM_POST_UPSCALE)
 ENUM_DEFINE(ENUM_POST_STAT)
 ENUM_DEFINE(ENUM_FORMATNF)
 ENUM_DEFINE(ENUM_CSV)
+ENUM_DEFINE(ENUM_SIMUTYPE)

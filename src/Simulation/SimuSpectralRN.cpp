@@ -46,7 +46,7 @@ bool SimuSpectralRN::_check()
   bool hasCov0 = (_cov0 != nullptr);
   if (hasCov0)
   {
-    if (!_cov0->isValidForSpectralOnRn())
+    if (!_cov0->isValidForSimulation(ESimuType::SPECTRAL))
     {
       messerr("Simulation of the harmonic components is not implemented for the auxiliary covariance");
       return false;

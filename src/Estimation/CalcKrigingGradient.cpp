@@ -15,7 +15,7 @@
 #include "Covariances/CovGradientGeneric.hpp"
 #include "Db/Db.hpp"
 #include "Drifts/DriftFactory.hpp"
-#include "Estimation/CalcKriging.hpp"
+#include "Estimation/Estimations.hpp"
 #include "Estimation/KrigOpt.hpp"
 #include "Estimation/KrigingSystem.hpp"
 #include "Model/Model.hpp"
@@ -190,27 +190,5 @@ bool CalcKrigingGradient::_run()
   return true;
 }
 
-Id krigingGradient(Db* dbin,
-                   Db* dbout,
-                   ModelGeneric* model,
-                   ANeigh* neigh,
-                   bool flag_est,
-                   bool flag_std,
-                   double ball_radius,
-                   bool flagForceNumeric,
-                   const NamingConvention& namconv)
-{
-  CalcKrigingGradient krigeGradient(flag_est, flag_std, ball_radius);
-  krigeGradient.setDbin(dbin);
-  krigeGradient.setDbout(dbout);
-  krigeGradient.setModelGeneric(model);
-  krigeGradient.setNeigh(neigh);
-  krigeGradient.setFlagForceNumeric(flagForceNumeric);
-  krigeGradient.setNamingConvention(namconv);
-
-  // Run the calculator
-  Id error = (krigeGradient.run()) ? 0 : 1;
-  return error;
-}
 
 } // namespace gstlrn

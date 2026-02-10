@@ -604,31 +604,15 @@ AModelFitSills* CovList::getFitSills() const
 {
   return _modelFitSills;
 }
-
-bool CovList::isValidForSpectralOnRn() const
+bool CovList::isValidForSimulation(const ESimuType& simuType) const
 {
   Id ns = getNCov();
   for (int is = 0; is < ns; is++)
   {
     const ACov* cova = getCov(is);
-    if (!cova->isValidForSpectralOnRn())
+    if (!cova->isValidForSimulation(simuType))
     {
-      messerr("The current structure is not valid for Spectral Simulation on Rn");
-      return false;
-    }
-  }
-  return true;
-}
-
-bool CovList::isValidForSpectralOnSphere() const
-{
-  Id ns = getNCov();
-  for (int is = 0; is < ns; is++)
-  {
-    const ACov* cova = getCov(is);
-    if (!cova->isValidForSpectralOnSphere())
-    {
-      messerr("The current structure is not valid for Spectral Simulation on Sphere");
+      messerr("The current structure is not valid for Simulation");
       return false;
     }
   }

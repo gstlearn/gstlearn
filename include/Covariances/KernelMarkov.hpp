@@ -34,9 +34,10 @@ public:
   bool hasParam() const override { return true; }
   double getParMax() const override { return MAX_PARAM; }
   double getScadef() const override;
-  bool hasCovOnRn() const override { return false; }
-  bool isValidForSpectralOnRn() const override { return true; }
-  bool isValidForSpectralOnSphere() const override { return true; }
+  bool isValidForSimulation(const ESimuType& simuType) const override
+  {
+    return (simuType == ESimuType::SPECTRAL);
+  }
   bool hasMarkovCoeffs() const override { return true; }
   double normalizeOnSphere(Id n = 50, double scale = 1.) const override;
   double evaluateSpectrum(double freq) const override;

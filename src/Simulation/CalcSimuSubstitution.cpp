@@ -382,32 +382,5 @@ void CalcSimuSubstitution::_rollback()
   _cleanVariableDb(1);
 }
 
-/*****************************************************************************
- **
- ** Generate a simulation on a regular 3D grid using substitution method
- **
- ** \returns Error return code
- **
- ** \param[in]  dbgrid      Db structure (should be a grid)
- ** \param[in]  subparam    SimuSubstitutionParam structure
- ** \param[in]  seed        Seed
- ** \param[in]  verbose     Verbose option
- ** \param[in]  namconv     Naming convention
- **
- *****************************************************************************/
-Id substitution(DbGrid* dbgrid,
-                SimuSubstitutionParam& subparam,
-                Id seed,
-                Id verbose,
-                const NamingConvention& namconv)
-{
-  CalcSimuSubstitution simsub(1, seed, verbose);
-  simsub.setDbout(dbgrid);
-  simsub.setNamingConvention(namconv);
-  simsub.setSubparam(subparam);
 
-  // Run the calculator
-  Id error = (simsub.run()) ? 0 : 1;
-  return error;
-}
 } // namespace gstlrn

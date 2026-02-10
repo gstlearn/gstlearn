@@ -113,7 +113,6 @@ public:
   void _optimizationSetTarget(SpacePoint& p) const override;
   void _optimizationPostProcess() const override;
 
-  bool isValidForTurningBand() const { return _corfunc->isValidForTurningBand(); }
   double simulateTurningBand(double t0, TurningBandOperate& operTB) const;
   MatrixDense simulateSpectralOmega(Id nb) const override;
   SpectrumRN simulateSpectrumRN(Id ns, const ACov* cov0 = nullptr) const override;
@@ -208,10 +207,11 @@ public:
   Id getNGradParam() const;
 
   bool hasCovDerivative() const { return _corfunc->hasCovDerivative(); }
-  bool hasCovOnSphere() const { return _corfunc->hasCovOnSphere(); }
-  bool isValidForSpectralOnSphere() const override { return _corfunc->isValidForSpectralOnSphere(); }
   bool hasMarkovCoeffs() const { return _corfunc->hasMarkovCoeffs(); }
-  bool isValidForSpectralOnRn() const override { return _corfunc->isValidForSpectralOnRn(); }
+  bool isValidForSimulation(const ESimuType& simuType) const override
+  {
+    return _corfunc->isValidForSimulation(simuType);
+  }
   double normalizeOnSphere(Id n = 50) const;
 
   //////////////////////// New NoStat methods //////////////////////////

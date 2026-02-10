@@ -58,8 +58,6 @@ public:
                        ModelGeneric* model,
                        double delta);
 
-  static bool isValidForTurningBands(const ModelGeneric* model);
-
   bool isFlagCheck() const { return _flagCheck; }
   void setFlagCheck(bool flag_check) { _flagCheck = flag_check; }
   bool isFlagBayes() const { return _flagBayes; }
@@ -212,23 +210,4 @@ private:
   Model* _modelLocal; // Conversion of getModel() into a Model (more than ModelGeneric)
 };
 
-GSTLEARN_EXPORT Id simtub(Db* dbin                        = nullptr,
-                          Db* dbout                       = nullptr,
-                          Model* model                    = nullptr,
-                          ANeigh* neigh                   = nullptr,
-                          Id nbsimu                       = 1,
-                          Id seed                         = 43431,
-                          Id nbtuba                       = 100,
-                          bool flag_dgm                   = false,
-                          bool flag_check                 = false,
-                          const NamingConvention& namconv = NamingConvention("Simu"));
-GSTLEARN_EXPORT Id simbayes(Db* dbin,
-                            Db* dbout,
-                            Model* model,
-                            ANeigh* neigh,
-                            Id nbsimu                       = 1,
-                            Id seed                         = 132141,
-                            Id nbtuba                       = 100,
-                            bool flag_check                 = false,
-                            const NamingConvention& namconv = NamingConvention("SimBayes"));
 } // namespace gstlrn

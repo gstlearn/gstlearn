@@ -15,7 +15,7 @@
 #include "Basic/Timer.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
-#include "Estimation/CalcKriging.hpp"
+#include "Estimation/Estimations.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/NeighBench.hpp"
 #include "Space/ASpaceObject.hpp"

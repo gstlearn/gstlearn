@@ -27,8 +27,7 @@ public:
   virtual ~CovProportional();
 
   void setCor(ACov* cor) override;
-  bool isValidForSpectralOnRn() const override;
-  bool isValidForSpectralOnSphere() const override;
+  bool isValidForSimulation(const ESimuType& simuType) const override;
 
   MatrixDense simulateSpectralOmega(Id ns) const override;
   IMPLEMENT_CLONING(CovProportional)

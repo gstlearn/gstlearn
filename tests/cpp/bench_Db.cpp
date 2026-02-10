@@ -17,7 +17,7 @@
 #include "Basic/File.hpp"
 #include "Basic/Timer.hpp"
 #include "Neigh/NeighUnique.hpp"
-#include "Estimation/CalcKriging.hpp"
+#include "Estimation/Estimations.hpp"
 
 using namespace gstlrn;
 /****************************************************************************/

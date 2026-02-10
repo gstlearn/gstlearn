@@ -28,6 +28,7 @@
 #include "Covariances/TabNoStatCovAniso.hpp"
 #include "Db/Db.hpp"
 #include "Enum/EConsElem.hpp"
+#include "Enum/ESimuType.hpp"
 #include "Geometry/GeometryHelper.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixSquare.hpp"
@@ -581,7 +582,8 @@ double CorAniso::evalCovOnSphere(double alpha,
                                  bool scaleDistanceByRadius,
                                  const CovCalcMode* mode) const
 {
-  if (!_corfunc->hasCovOnSphere()) return TEST;
+
+  if (!_corfunc->isValidForSimulation(ESimuType::SPECTRAL)) return TEST;
   const ASpace* space = getDefaultSpaceSh().get();
   const auto* spaceSn = dynamic_cast<const SpaceSN*>(space);
   if (spaceSn == nullptr) return TEST;
@@ -604,17 +606,14 @@ double CorAniso::evalCovOnSphere(double alpha,
 
 VectorDouble CorAniso::evalSpectrumOnSphere(Id n, bool scaleDistanceByRadius, bool flagScale) const
 {
-  if (!_corfunc->isValidForSpectralOnSphere()) return VectorDouble();
+  if (!_corfunc->isValidForSimulation(ESimuType::SPECTRAL)) return VectorDouble();
   const ASpace* space = getDefaultSpaceSh().get();
   const auto* spaceSn = dynamic_cast<const SpaceSN*>(space);
   if (spaceSn == nullptr) return VectorDouble();
 
   double scale = getScaleIso();
   if (scaleDistanceByRadius)
-  {
-    double radius = spaceSn->getRadius();
-    scale /= radius;
-  }
+    scale /= spaceSn->getRadius();
   return _corfunc->evaluateSpectrumOnSphere(n, scale, flagScale);
 }
 
@@ -678,23 +677,20 @@ double CorAniso::getDetTensor() const
 double CorAniso::evalSpectrum(const VectorDouble& freq, Id ivar, Id jvar) const
 {
   DECLARE_UNUSED(ivar, jvar)
-  if (!_corfunc->isValidForSpectralOnRn()) return TEST;
+  if (!_corfunc->isValidForSimulation(ESimuType::SPECTRAL)) return TEST;
 
   SpacePoint p1;
   SpacePoint p2;
   p2.setCoords(freq);
   double freqnorm = getSpace()->getFrequentialDistance(p1, p2, _aniso);
-  double val      = _corfunc->evaluateSpectrum(freqnorm) * getDetTensor();
-  return val;
+  return _corfunc->evaluateSpectrum(freqnorm) * getDetTensor();
 }
 
 double CorAniso::evalSpectrumRatio(const VectorDouble& freq, Id ivar, Id jvar, const ACov* cov0) const
 {
   double ratio = 1.0;
   if (cov0 != nullptr)
-  {
     ratio = evalSpectrum(freq, ivar, jvar) / cov0->evalSpectrum(freq, ivar, jvar);
-  }
 
   return ratio;
 }
@@ -1117,7 +1113,7 @@ Array CorAniso::evalCovFFT(const VectorDouble& hmax,
                            Id ivar,
                            Id jvar) const
 {
-  if (!isValidForSpectralOnRn()) return Array();
+  if (!isValidForSimulation(ESimuType::SPECTRAL)) return Array();
 
   std::function<double(const VectorDouble&)> funcSpectrum;
   funcSpectrum = [this, ivar, jvar](const VectorDouble& freq)

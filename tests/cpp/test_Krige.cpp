@@ -23,14 +23,12 @@
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Drifts/DriftM.hpp"
-#include "Estimation/CalcGlobal.hpp"
-#include "Estimation/CalcImage.hpp"
-#include "Estimation/CalcKriging.hpp"
+#include "Estimation/Estimations.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/NeighImage.hpp"
 #include "Neigh/NeighMoving.hpp"
 #include "Neigh/NeighUnique.hpp"
-#include "Simulation/CalcSimuTurningBands.hpp"
+#include "Simulation/Simulations.hpp"
 #include "Space/ASpaceObject.hpp"
 
 using namespace gstlrn;

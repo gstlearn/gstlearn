@@ -17,6 +17,7 @@
 #include "Model/Model.hpp"
 #include "Simulation/CalcSimuFFT.hpp"
 #include "Simulation/SimuFFTParam.hpp"
+#include "Simulation/Simulations.hpp"
 #include "Space/ASpaceObject.hpp"
 
 using namespace gstlrn;

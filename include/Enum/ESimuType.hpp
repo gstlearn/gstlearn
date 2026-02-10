@@ -10,35 +10,11 @@
 /******************************************************************************/
 #pragma once
 
-#include "Covariances/AKernel.hpp"
-#include "gstlearn_export.hpp"
+#include "Enum/AEnum.hpp"
 
-namespace gstlrn
-{
-class CovContext;
+#define ENUM_SIMUTYPE ESimuType, UNDEFINED,            \
+                      UNDEFINED, 0, "Not defined yet", \
+                      TB, 1, "Turning Bands method",   \
+                      SPECTRAL, 2, "Spectral method"
 
-class GSTLEARN_EXPORT KernelNugget: public AKernel
-{
-public:
-  KernelNugget(const CovContext& ctx);
-  KernelNugget(const KernelNugget& r);
-  KernelNugget& operator=(const KernelNugget& r);
-  virtual ~KernelNugget();
-
-  String getFormula() const override;
-  String getCovName() const override { return "Nugget Effect"; }
-  Id getMinOrder() const override { return -1; }
-  bool getCompatibleSpaceR() const override { return true; }
-
-  Id hasRange() const override { return 0; }
-
-  bool isValidForSimulation(const ESimuType& simuType) const override
-  {
-    return (simuType == ESimuType::TB);
-  }
-
-protected:
-  double _evaluateCov(double h) const override;
-};
-
-} // namespace gstlrn
+ENUM_DECLARE(ENUM_SIMUTYPE)

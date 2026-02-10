@@ -310,6 +310,7 @@ set(SRC
   Neigh/NeighMoving.cpp
   Neigh/NeighBench.cpp
   Neigh/NeighCell.cpp
+  Estimation/Estimations.cpp
   Estimation/AModelOptim.cpp
   Estimation/ALikelihood.cpp
   Estimation/AModelOptimFactory.cpp
@@ -340,6 +341,7 @@ set(SRC
   OutputFormat/GridF2G.cpp
   OutputFormat/vtk.cpp
   OutputFormat/segy.cpp
+  Simulation/Simulations.cpp
   Simulation/ACalcSimulation.cpp
   Simulation/CalcSimuTurningBands.cpp
   Simulation/CalcSimuSpectral.cpp

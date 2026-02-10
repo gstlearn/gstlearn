@@ -87,17 +87,4 @@ private:
   VectorDouble _v;
 };
 
-GSTLEARN_EXPORT Id simfft(DbGrid* db,
-                           ModelGeneric* model,
-                           SimuFFTParam& param,
-                           Id nbsimu                      = 1,
-                           Id seed                        = 432431,
-                           Id verbose                     = false,
-                           const NamingConvention& namconv = NamingConvention("FFT"));
-GSTLEARN_EXPORT VectorDouble getChangeSupport(DbGrid* db,
-                                              ModelGeneric* model,
-                                              const SimuFFTParam& param,
-                                              const VectorDouble& sigma = VectorDouble(),
-                                              Id seed                  = 14333,
-                                              bool verbose              = false);
 } // namespace gstlrn

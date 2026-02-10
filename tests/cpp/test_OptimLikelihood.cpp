@@ -9,13 +9,12 @@
 /*                                                                            */
 /******************************************************************************/
 
-#include "Basic/AStringable.hpp"
 #include "Basic/File.hpp"
 #include "Basic/OptCustom.hpp"
 #include "Db/Db.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Model/Model.hpp"
-#include "Simulation/CalcSimuTurningBands.hpp"
+#include "Simulation/Simulations.hpp"
 
 using namespace gstlrn;
 

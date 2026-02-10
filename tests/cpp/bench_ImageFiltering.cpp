@@ -11,19 +11,18 @@
 
 // This test is mean to check the Factorial Kriging Analysis On Grid
 
-#include "Enum/ECst.hpp"
-#include "Enum/ESpaceType.hpp"
-
-#include "Space/ASpaceObject.hpp"
+#include "Basic/File.hpp"
+#include "Basic/Law.hpp"
+#include "Basic/OptCst.hpp"
+#include "Basic/OptDbg.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
-#include "Basic/Law.hpp"
+#include "Enum/ECst.hpp"
+#include "Enum/ESpaceType.hpp"
+#include "Estimation/Estimations.hpp"
 #include "Model/Model.hpp"
-#include "Basic/File.hpp"
-#include "Basic/OptDbg.hpp"
-#include "Basic/OptCst.hpp"
 #include "Neigh/NeighImage.hpp"
-#include "Estimation/CalcImage.hpp"
+#include "Space/ASpaceObject.hpp"
 
 using namespace gstlrn;
 
@@ -73,7 +72,7 @@ int main(int argc, char* argv[])
   if (debug) OptDbg::setReference(1);
 
   // Test on Collocated CoKriging in Unique Neighborhood
-  (void) krimage(db, model, neigh, flagFFT, verbose);
+  (void)krimage(db, model, neigh, flagFFT, verbose);
   dbfmt = DbStringFormat::create(FLAG_STATS, {"Filtering*"});
   db->display(dbfmt);
 

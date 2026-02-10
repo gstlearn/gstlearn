@@ -34,7 +34,10 @@ public:
   Id getMinOrder() const override { return -1; }
   bool getCompatibleSpaceR() const override { return true; }
 
-  bool isValidForTurningBand() const override { return true; }
+  bool isValidForSimulation(const ESimuType& simuType) const override
+  {
+    return (simuType == ESimuType::TB);
+  }
   double simulateTurningBand(double t0, TurningBandOperate& operTB) const override;
 
 protected:

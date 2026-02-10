@@ -4,6 +4,8 @@ This file contains the logs between consecutive releases
 
 Release 1.11.0
 ==============
+- Regrouping all estimation API functions in a single header file Estimations.hpp
+- Regrouping all simulation API functions in a single header file Simulations.hpp 
 - New algorithm to check and default the variable name for plot (in R and Python)
 - The generic error message (produced in CheckArg) has been made more explicit.
 - Adding a function for printing the name of the most concrete class to which a pointer belongs

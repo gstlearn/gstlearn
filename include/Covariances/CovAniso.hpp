@@ -164,7 +164,6 @@ public:
 
   FORWARD_METHOD(getCorAniso, getScaleIso, TEST)
   FORWARD_METHOD(getCorAniso, getScale, TEST)
-  FORWARD_METHOD(getCorAniso, isValidForTurningBand, false)
   FORWARD_METHOD(getCorAniso, simulateTurningBand, TEST)
   FORWARD_METHOD(getCorAniso, getRanges, VectorDouble())
   FORWARD_METHOD(getCorAniso, getScales, VectorDouble())
@@ -183,7 +182,6 @@ public:
   FORWARD_METHOD(getCorAniso, hasParam, false)
   FORWARD_METHOD(getCorAniso, getNGradParam, ITEST)
   FORWARD_METHOD(getCorAniso, hasCovDerivative, false)
-  FORWARD_METHOD(getCorAniso, hasCovOnSphere, false)
   FORWARD_METHOD(getCorAniso, hasMarkovCoeffs, false)
   FORWARD_METHOD(getCorAniso, normalizeOnSphere, false)
   FORWARD_METHOD(getCorAniso, getMarkovCoeffs, VectorDouble())
@@ -201,8 +199,7 @@ public:
 
   FORWARD_METHOD(getCorAniso, getDetTensor, false)
 
-  bool isValidForSpectralOnRn() const override;     // Do not use FORWARD_METHOD because "override" creates compilation issue on Windows
-  bool isValidForSpectralOnSphere() const override; // Do not use FORWARD_METHOD because "override" creates compilation issue on Windows
+  bool isValidForSimulation(const ESimuType& simuType) const override;
 
   double getSlope(Id ivar, Id jvar) const;
   const Rotation& getAnisoRotation() const { return getCorAniso()->getAniso().getRotation(); }
@@ -226,7 +223,7 @@ public:
 
   VectorDouble evalCovOnSphereVec(const VectorDouble& alpha,
                                   Id degree                  = 50,
-                                  bool scaleDistanceByRadius = false,
+                                  bool scaleDistanceByRadius = true,
                                   const CovCalcMode* mode    = nullptr) const;
   Array evalCovFFT(const VectorDouble& hmax, Id N = 128, Id ivar = 0, Id jvar = 0) const;
 

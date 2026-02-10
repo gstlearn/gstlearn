@@ -21,6 +21,7 @@
 #include "Covariances/TabNoStat.hpp"
 #include "Db/RankHandler.hpp"
 #include "Enum/ECalcMember.hpp"
+#include "Enum/ESimuType.hpp"
 #include "Estimation/KrigOpt.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixSquare.hpp"
@@ -95,7 +96,11 @@ public:
                  Id jvar                 = 0,
                  const CovCalcMode* mode = nullptr) const;
 
-  virtual bool isValidForSpectralOnRn() const { return false; }
+  virtual bool isValidForSimulation(const ESimuType& simuType) const
+  {
+    DECLARE_UNUSED(simuType);
+    return false;
+  }
   virtual MatrixDense simulateSpectralOmega(Id ns) const;
   virtual SpectrumRN simulateSpectrumRN(Id ns, const ACov* cov0 = nullptr) const;
   virtual double evalSpectrum(const VectorDouble& freq, Id ivar = 0, Id jvar = 0) const;
@@ -103,13 +108,13 @@ public:
                                    Id ivar,
                                    Id jvar,
                                    const ACov* cov0 = nullptr) const;
-
-  virtual bool isValidForSpectralOnSphere() const { return false; }
+  virtual VectorDouble evalSpectrumOnSphere(Id n,
+                                            bool ScaleDistanceByRadius = false,
+                                            bool flagScale             = true) const;
   virtual double evalCovOnSphere(double alpha,
                                  Id degree                  = 50,
                                  bool scaleDistanceByRadius = true,
                                  const CovCalcMode* mode    = nullptr) const;
-  virtual VectorDouble evalSpectrumOnSphere(Id n, bool ScaleDistanceByRadius = false, bool flagScale = true) const;
 
   VectorDouble evalCovGrad(const SpacePoint& p1,
                            const SpacePoint& p2,
@@ -121,6 +126,7 @@ public:
   void attachNoStatDb(const Db* db);
 
   ASpaceSharedPtr getSpace() const { return _ctxt.getSpace(); }
+  ESpaceType getSpaceType() const { return _ctxt.getSpace()->getType(); }
   virtual bool isConsistent(const ASpace* space) const
   {
     DECLARE_UNUSED(space)

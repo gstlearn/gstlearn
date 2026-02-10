@@ -201,48 +201,5 @@ bool CalcKrigingFactors::_run()
   return true;
 }
 
-/****************************************************************************/
-/*!
- **  Disjunctive Kriging
- **
- ** \return  Error return code
- **
- ** \param[in]  dbin       input Db structure (containing the factors)
- ** \param[in]  dbout      output Grid Db structure
- ** \param[in]  model      Model structure
- ** \param[in]  neigh      ANeigh structure
 
- ** \param[in]  flag_est   Option for the storing the estimation
- ** \param[in]  flag_std   Option for the storing the standard deviation
- ** \param[in]  krigopt    Krigopt structure
- ** \param[in]  namconv    Naming convention
- **
- ** \remark When the change of support is defined through the Anamorphosis
- ** \remark the 'calcul' option must be set to POINT and 'ndisc' does not
- ** \remark have to be defined
- **
- *****************************************************************************/
-Id krigingFactors(Db* dbin,
-                  Db* dbout,
-                  Model* model,
-                  ANeigh* neigh,
-                  bool flag_est,
-                  bool flag_std,
-                  const KrigOpt& krigopt,
-                  const NamingConvention& namconv)
-{
-  CalcKrigingFactors krige(flag_est, flag_std);
-  krige.setDbin(dbin);
-  krige.setDbout(dbout);
-  krige.setModelGeneric(model);
-  krige.setNeigh(neigh);
-  krige.setKrigopt(krigopt);
-  krige.setNamingConvention(namconv);
-
-  krige.setIuidFactors(dbin->getUIDsByLocator(ELoc::Z));
-
-  // Run the calculator
-  Id error = (krige.run()) ? 0 : 1;
-  return error;
-}
 } // namespace gstlrn

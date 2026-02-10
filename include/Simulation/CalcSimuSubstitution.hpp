@@ -55,9 +55,4 @@ private:
   std::vector<Plane> _planes;
 };
 
-GSTLEARN_EXPORT Id substitution(DbGrid* dbgrid,
-                                 SimuSubstitutionParam& subparam,
-                                 Id seed                        = 43242,
-                                 Id verbose                     = false,
-                                 const NamingConvention& namconv = NamingConvention("SimSub"));
 } // namespace gstlrn

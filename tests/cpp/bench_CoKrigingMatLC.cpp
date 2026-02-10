@@ -23,7 +23,7 @@
 #include "Basic/OptDbg.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
-#include "Estimation/CalcKriging.hpp"
+#include "Estimation/Estimations.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/NeighMoving.hpp"
 #include "Neigh/NeighUnique.hpp"

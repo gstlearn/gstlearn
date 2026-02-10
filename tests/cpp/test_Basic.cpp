@@ -11,10 +11,10 @@
 #include "Basic/Law.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
-#include "Estimation/CalcKriging.hpp"
+#include "Estimation/Estimations.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/NeighUnique.hpp"
-#include "Simulation/CalcSimuTurningBands.hpp"
+#include "Simulation/Simulations.hpp"
 #include "Variogram/Vario.hpp"
 #include "Variogram/VarioParam.hpp"
 

@@ -13,14 +13,13 @@
 /******************************************************************************/
 #include "Enum/ECov.hpp"
 
-#include "Variogram/Vario.hpp"
-#include "Model/Model.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Timer.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
-#include "Simulation/CalcSimuTurningBands.hpp"
+#include "Model/Model.hpp"
+#include "Simulation/Simulations.hpp"
+#include "Variogram/Vario.hpp"
 
 using namespace gstlrn;
 
@@ -29,7 +28,7 @@ using namespace gstlrn;
 ** Main Program for bench marking the non-conditional simulation using Turning Bands
 **
 *****************************************************************************/
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   Timer timer;
 
@@ -42,12 +41,12 @@ int main(int argc, char *argv[])
   bool verbose = false;
 
   // Creating a grid covering the same space
-  VectorInt nx = { 200, 200 };
-  VectorDouble dx = { 0.005, 0.005 };
-  DbGrid* grid = DbGrid::create(nx, dx);
+  VectorInt nx    = {200, 200};
+  VectorDouble dx = {0.005, 0.005};
+  DbGrid* grid    = DbGrid::create(nx, dx);
 
   // Creating a Model(s) for simulating a variable
-  Model* model = Model::createFromParam(ECov::SPHERICAL,0.2);
+  Model* model = Model::createFromParam(ECov::SPHERICAL, 0.2);
 
   // Perform a non-conditional simulation on the Grid
   Id nbsimu = 1;
@@ -62,7 +61,7 @@ int main(int argc, char *argv[])
   }
 
   timer.reset();
-  (void) simtub(nullptr,grid,model,nullptr, nbsimu, 113423, nbtuba);
+  (void)simtub(nullptr, grid, model, nullptr, nbsimu, 113423, nbtuba);
   timer.displayIntervalMilliseconds("Non-conditional Simulation on Grid", 6800);
 
   // Produce some statistics for comparison

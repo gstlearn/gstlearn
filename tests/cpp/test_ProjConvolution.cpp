@@ -14,7 +14,7 @@
 #include "Db/DbGrid.hpp"
 #include "LinearOp/ProjConvolution.hpp"
 #include "Model/Model.hpp"
-#include "Simulation/CalcSimuTurningBands.hpp"
+#include "Simulation/Simulations.hpp"
 
 using namespace gstlrn;
 

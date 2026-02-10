@@ -10,12 +10,14 @@
 /******************************************************************************/
 #include "Simulation/CalcSimuPartition.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/Plane.hpp"
 #include "Calculators/CalcMigrate.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
+#include "Model/Model.hpp"
 #include "Simulation/ACalcSimulation.hpp"
-#include "Simulation/CalcSimuTurningBands.hpp"
 #include "Simulation/SimuPartitionParam.hpp"
+#include "Simulation/Simulations.hpp"
 
 #include <cmath>
 
@@ -306,68 +308,6 @@ bool CalcSimuPartition::_postprocess()
 void CalcSimuPartition::_rollback()
 {
   _cleanVariableDb(1);
-}
-
-/*****************************************************************************
- **
- ** Generate a simulation on a regular 3D grid using Poisson Polyhedra Model
- **
- ** \returns Error return code
- **
- ** \param[in]  dbgrid      Db structure (should be a grid)
- ** \param[in]  model       Model used for the valuation of tesselation
- ** \param[in]  parparam    SimuPartitionParam structure
- ** \param[in]  seed        Seed
- ** \param[in]  verbose     Verbose option
- ** \param[in]  namconv     Naming Convention
- **
- *****************************************************************************/
-Id tessellation_poisson(DbGrid* dbgrid,
-                        Model* model,
-                        const SimuPartitionParam& parparam,
-                        Id seed,
-                        Id verbose,
-                        const NamingConvention& namconv)
-{
-  CalcSimuPartition simpart(2, 1, seed, verbose);
-  simpart.setDbout(dbgrid);
-  simpart.setModelGeneric(model);
-  simpart.setNamingConvention(namconv);
-  simpart.setParparam(parparam);
-
-  Id error = (simpart.run()) ? 0 : 1;
-  return error;
-}
-
-/*****************************************************************************
- **
- ** Generate a simulation on a regular 3D grid using Voronoi Mosaic Model
- **
- ** \returns Error return code
- **
- ** \param[in]  dbgrid      Db structure (should be a grid)
- ** \param[in]  model       Model used for the valuation of tesselation
- ** \param[in]  parparam    SimuPartitionParam structure
- ** \param[in]  seed        Seed
- ** \param[in]  verbose     Verbose option
- ** \param[in]  namconv     Naming Convention
- **
- *****************************************************************************/
-Id tessellation_voronoi(DbGrid* dbgrid,
-                        Model* model,
-                        const SimuPartitionParam& parparam,
-                        Id seed,
-                        Id verbose,
-                        const NamingConvention& namconv)
-{
-  CalcSimuPartition simpart(1, 1, seed, verbose);
-  simpart.setDbout(dbgrid);
-  simpart.setModelGeneric(model);
-  simpart.setNamingConvention(namconv);
-  simpart.setParparam(parparam);
-
-  Id error = (simpart.run()) ? 0 : 1;
-  return error;
 }
 
 } // namespace gstlrn

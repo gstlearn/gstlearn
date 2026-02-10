@@ -30,9 +30,10 @@ public:
   Id getMinOrder() const override { return -1; }
   bool getCompatibleSpaceS() const override { return true; }
 
-  bool isValidForSpectralOnRn() const override { return true; }
-  bool hasCovOnSphere() const override { return true; }
-  bool isValidForSpectralOnSphere() const override { return true; }
+  bool isValidForSimulation(const ESimuType& simuType) const override
+  {
+    return (getSpaceType() == ESpaceType::SN && simuType == ESimuType::SPECTRAL);
+  }
 
 protected:
   double _evaluateCovOnSphere(double alpha, double scale = 1., Id degree = 50) const override;
