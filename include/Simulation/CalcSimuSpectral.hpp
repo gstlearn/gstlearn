@@ -55,7 +55,6 @@ protected:
 
 private:
   bool _verbose;
-  bool _performedOnRN;
   Id _iattOut;
   Id _ns;            // Number of spectral components
   Id _nd;            // Maximum number of spectral orders on

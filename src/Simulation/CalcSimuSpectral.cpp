@@ -28,7 +28,6 @@ namespace gstlrn
 CalcSimuSpectral::CalcSimuSpectral(Id nbsimu, Id ns, Id nd, Id seed, bool verbose, bool performedOnRN)
   : ACalcSimulation(nbsimu, seed)
   , _verbose(verbose)
-  , _performedOnRN(performedOnRN)
   , _iattOut(-1)
   , _ns(ns)
   , _nd(nd)
