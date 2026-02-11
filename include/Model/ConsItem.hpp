@@ -47,7 +47,7 @@ public:
                           const EConsType &type = EConsType::fromKey("DEFAULT"),
                           double value = 0.);
   static ConsItem* createFromParamId(Id icov = 0,
-                                     const EConsElem& elem = EConsElem::fromKey("UNDEFINED"),
+                                     const EConsElem& elem = EConsElem::fromKey("RANGE"),
                                      const EConsType &type = EConsType::fromKey("DEFAULT"),
                                      double value = 0.,
                                      Id igrf = 0,
@@ -87,7 +87,7 @@ public:
    * @remark Do not forget to delete object after usage
    * @return
    */
-  static ConsItem define(const EConsElem& elem = EConsElem::fromKey("UNDEFINED"),
+  static ConsItem define(const EConsElem& elem = EConsElem::fromKey("RANGE"),
                          Id icov = 0,
                          Id iv1 = 0,
                          Id iv2 = 0,
