@@ -10,13 +10,16 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
+
+#include "geoslib_define.h"
+
 #include "Basic/AStringable.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Basic/ListParams.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/ACov.hpp"
-#include "geoslib_define.h"
-#include "gstlearn_export.hpp"
+
 namespace gstlrn
 {
 

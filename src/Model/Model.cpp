@@ -146,11 +146,14 @@ Model* Model::createFromParam(const ECov& type,
   Id nvar = 1;
   if (!sills.empty()) nvar = sills.getNRows();
 
-  Id ndimRanges = (ranges.empty()) ? 0 : static_cast<Id>(ranges.size());
+  Id ndimRanges = 1; // By default, the argument 'range' gives the space dimension.
+  // If ranges is provided, its length provides an infirmation on the space dimension
+  if (!ranges.empty()) ndimRanges = static_cast<Id>(ranges.size());
 
   CovContext ctxt;
   if (space != nullptr)
   {
+    // Space is defined: check that its dimension is consistent with the one of 'ranges' if provided
     Id ndim = space->getNDim();
     if (ndimRanges != 1 && ndimRanges != ndim)
     {
