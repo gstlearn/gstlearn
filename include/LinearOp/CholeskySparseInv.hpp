@@ -21,7 +21,7 @@
 
 namespace gstlrn
 {
-typedef Eigen::SparseMatrix<double>::StorageIndex StorageIndex;
+typedef Eigen::SparseMatrix<double, 0, gstlrn::Id>::StorageIndex StorageIndex;
 
 template<typename SpMat>
 class MatchPattern

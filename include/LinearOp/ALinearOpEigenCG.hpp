@@ -23,22 +23,22 @@
 #  include <iostream>
 #  include <unsupported/Eigen/IterativeSolvers>
 
-#  define DECLARE_EIGEN_TRAITS(TLinOP)                                                         \
-    namespace gstlrn                                                                           \
-    {                                                                                          \
-    class TLinOP;                                                                              \
-    }                                                                                          \
-    using Eigen::SparseMatrix;                                                                 \
-                                                                                               \
-    namespace Eigen                                                                            \
-    {                                                                                          \
-    namespace internal                                                                         \
-    {                                                                                          \
-    template<>                                                                                 \
-    struct traits<gstlrn::TLinOP>: public Eigen::internal::traits<Eigen::SparseMatrix<double>> \
-    {                                                                                          \
-    };                                                                                         \
-    }                                                                                          \
+#  define DECLARE_EIGEN_TRAITS(TLinOP)                                                                        \
+    namespace gstlrn                                                                                          \
+    {                                                                                                         \
+    class TLinOP;                                                                                             \
+    }                                                                                                         \
+    using Eigen::SparseMatrix;                                                                                \
+                                                                                                              \
+    namespace Eigen                                                                                           \
+    {                                                                                                         \
+    namespace internal                                                                                        \
+    {                                                                                                         \
+    template<>                                                                                                \
+    struct traits<gstlrn::TLinOP>: public Eigen::internal::traits<Eigen::SparseMatrix<double, 0, gstlrn::Id>> \
+    {                                                                                                         \
+    };                                                                                                        \
+    }                                                                                                         \
     }
 
 #  define DECLARE_EIGEN_PRODUCT(TLinOP)                                                                                             \

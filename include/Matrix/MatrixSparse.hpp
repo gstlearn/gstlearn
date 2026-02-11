@@ -25,6 +25,9 @@ DISABLE_WARNING_UNUSED_BUT_SET_VARIABLE
 DISABLE_WARNING_DECLARATION_HIDE_GLOBAL
 #  include <Eigen/Sparse>
 DISABLE_WARNING_POP
+
+// Eigen::SparseMatrix<double> uses 'int' as StorageIndex
+typedef Eigen::SparseMatrix<double, 0, gstlrn::Id> EigenSparseMatrix; // (always stored Eigen::ColMajor)
 #endif
 
 namespace gstlrn
@@ -260,12 +263,12 @@ private:
 #ifndef SWIG
 
 public:
-  const Eigen::SparseMatrix<double>& eigenMat() const
+  const EigenSparseMatrix& eigenMat() const
   {
     return _eigenMatrix;
   }
 
-  Eigen::SparseMatrix<double>& eigenMat()
+  EigenSparseMatrix& eigenMat()
   {
     return _eigenMatrix;
   }
@@ -273,7 +276,7 @@ public:
 
 private:
 #ifndef SWIG
-  Eigen::SparseMatrix<double> _eigenMatrix; // Storage (always stored Eigen::ColMajor)
+  EigenSparseMatrix _eigenMatrix; // Storage
 #endif
   Id _nColMax;
 };
@@ -300,7 +303,7 @@ GSTLEARN_EXPORT MatrixSparse* prodNormDiagVec(const MatrixSparse* a,
 // Not exported method
 
 #ifndef SWIG
-GSTLEARN_EXPORT Eigen::SparseMatrix<double> AtMA(const Eigen::SparseMatrix<double>& A,
-                                                 const Eigen::SparseMatrix<double>& M);
+GSTLEARN_EXPORT EigenSparseMatrix AtMA(const EigenSparseMatrix& A,
+                                       const EigenSparseMatrix& M);
 #endif
 } // namespace gstlrn
