@@ -584,7 +584,7 @@ void CovLMCAnamorphosis::setActiveFactor(Id anam_iclass)
 
 EAnam CovLMCAnamorphosis::getAnamType() const
 {
-  if (_anam == nullptr) return EAnam::UNDEFINED;
+  if (_anam == nullptr) return EAnam::HERMITIAN;
   return _anam->getType();
 }
 

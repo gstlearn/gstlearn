@@ -63,7 +63,6 @@ bool CalcAnamTransform::_hasAnam(const EAnam& anamType) const
     messerr("The argument 'anam' must be defined");
     return false;
   }
-  if (anamType == EAnam::UNDEFINED) return true;
   if (anamType != _anam->getType())
   {
     messerr("The argument 'anam'  should be of type");

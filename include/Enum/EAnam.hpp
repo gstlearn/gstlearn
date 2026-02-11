@@ -12,8 +12,7 @@
 
 #include "Enum/AEnum.hpp"
 
-#define ENUM_ANAM EAnam, UNDEFINED,                                    \
-                  UNDEFINED, 0, "Undefined",                           \
+#define ENUM_ANAM EAnam, HERMITIAN,                                    \
                   EXTERNAL, 1, "External anamorphosis",                \
                   HERMITIAN, 2, "Hermitian anamorphosis",              \
                   EMPIRICAL, 3, "Empirical anamorphosis",              \
