@@ -28,7 +28,7 @@ namespace gstlrn
  * ---------------------------------
  */
 SimuSpectralRN::SimuSpectralRN(Id nbsimu, Id ns, Id nd, Id seed, const ACov* cov0, bool verbose)
-  : CalcSimuSpectral(nbsimu, ns, nd, seed, verbose, true)
+  : CalcSimuSpectral(nbsimu, ns, nd, seed, verbose)
   , _gamma()
   , _omega()
   , _cov0(cov0)
