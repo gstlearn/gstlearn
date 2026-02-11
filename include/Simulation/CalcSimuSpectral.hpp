@@ -20,12 +20,11 @@ class Model;
 class GSTLEARN_EXPORT CalcSimuSpectral: public ACalcSimulation
 {
 public:
-  CalcSimuSpectral(Id nbsimu          = 1,
-                   Id ns              = 10000,
-                   Id nd              = 100,
-                   Id seed            = 4324324,
-                   bool verbose       = false,
-                   bool performedOnRn = true);
+  CalcSimuSpectral(Id nbsimu    = 1,
+                   Id ns        = 10000,
+                   Id nd        = 100,
+                   Id seed      = 4324324,
+                   bool verbose = false);
   CalcSimuSpectral(const CalcSimuSpectral& r)            = delete;
   CalcSimuSpectral& operator=(const CalcSimuSpectral& r) = delete;
   virtual ~CalcSimuSpectral();
