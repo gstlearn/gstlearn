@@ -166,7 +166,7 @@ Model* Model::createFromParam(const ECov& type,
   }
   else
   {
-    if (ndimRanges > 0)
+    if (!ranges.empty())
       ctxt = CovContext(nvar, SpaceRN::create(ndimRanges));
     else
       ctxt = CovContext(nvar, space);
