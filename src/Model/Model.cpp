@@ -162,12 +162,7 @@ Model* Model::createFromParam(const ECov& type,
   }
 
   auto* model = new Model(ctxt);
-  if (model->addCovFromParam(type, range, sill, param, ranges, sills, angles,
-                             flagRange))
-  {
-    delete model;
-    return nullptr;
-  }
+  model->addCovFromParam(type, range, sill, param, ranges, sills, angles, flagRange);
   return model;
 }
 
@@ -282,7 +277,7 @@ void Model::addCovFromParam(const ECov& type,
               static_cast<Id>(ranges.size()));
       messerr("and the Space dimension stored in the Model (%d)", ndim);
       messerr("Operation is cancelled");
-      return 1;
+      return;
     }
     ndim = ranges.size();
   }
@@ -294,7 +289,7 @@ void Model::addCovFromParam(const ECov& type,
               static_cast<Id>(angles.size()));
       messerr("and the Space dimension stored in the Model (%d)", ndim);
       messerr("Operation is cancelled");
-      return 1;
+      return;
     }
     ndim = angles.size();
   }
@@ -306,7 +301,7 @@ void Model::addCovFromParam(const ECov& type,
       messerr("Mismatch between the number of rows 'sills' (%d)", sills.getNRows());
       messerr("and the Number of variables stored in the Model (%d)", nvar);
       messerr("Operation is cancelled");
-      return 1;
+      return;
     }
     nvar = static_cast<Id>(sqrt(static_cast<double>(sills.size())));
   }
@@ -355,7 +350,6 @@ void Model::addCovFromParam(const ECov& type,
   _copyCovContext();
   if (!angles.empty()) cov.setAnisoAngles(angles);
   addCovAniso(cov);
-  return 0;
 }
 
 double Model::evalCovFromIncr(const VectorDouble& incr,
@@ -837,7 +831,8 @@ VectorECov Model::initCovList(const VectorInt& covranks)
 
   for (Id i = 0; i < static_cast<Id>(covranks.size()); i++)
   {
-    list.push_back(ECov::fromValue(covranks[i]));
+    ECov ec = ECov::fromValue(covranks[i]);
+    list.push_back(ec);
   }
   return list;
 }
@@ -1114,12 +1109,7 @@ Model* Model::createFillRandom(Id ndim,
     MatrixSymmetric* sill =
       MatrixSymmetric::createRandomDefinitePositive(nvar, seed_local);
     double range = (hmax * (1. + icov)) / (2. * ncov);
-    if (model->addCovFromParam(types[icov], range, 0., 1., VectorDouble(), *sill))
-    {
-      delete sill;
-      delete model;
-      return nullptr;
-    }
+    model->addCovFromParam(types[icov], range, 0., 1., VectorDouble(), *sill);
     delete sill;
     seed_local = 0;
   }

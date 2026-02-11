@@ -183,7 +183,6 @@ Known Mean(s)     0.000----
 
 #NO_DIFF#XXX
 ----
-  -2 -     UNKNOWN : Unknown covariance
   -1 -    FUNCTION : External covariance function
    0 -      NUGGET : Nugget effect
    1 - EXPONENTIAL : Exponential

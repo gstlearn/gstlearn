@@ -136,7 +136,6 @@ Spherical
 - Range        =    129.766
 Total Sill     =      1.123
 Known Mean(s)     0.000
-  -2 -     UNKNOWN : Unknown covariance
   -1 -    FUNCTION : External covariance function
    0 -      NUGGET : Nugget effect
    1 - EXPONENTIAL : Exponential
