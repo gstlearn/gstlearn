@@ -372,14 +372,13 @@ void CovList::setCov(Id icov, const CovBase* covs)
 const ECov& CovList::getCovType(Id icov) const
 {
   DECLARE_UNUSED(icov)
-  return ECov::UNKNOWN;
+  return ECov::NUGGET;
 }
 
 String CovList::getCovName(Id icov) const
 {
   DECLARE_UNUSED(icov)
-  ECov unknown = ECov::UNKNOWN;
-  return std::string(unknown.getKey());
+  return std::string(ECov::NUGGET.getKey());
 }
 
 const MatrixSymmetric& CovList::getSills(Id icov) const

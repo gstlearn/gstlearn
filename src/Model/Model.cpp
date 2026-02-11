@@ -310,11 +310,6 @@ void Model::addCovFromParam(const ECov& type,
     }
     nvar = static_cast<Id>(sqrt(static_cast<double>(sills.size())));
   }
-  if (type == ECov::UNKNOWN)
-  {
-    messerr("Cannot create a covariance of type 'UNKNOWN'");
-    return 1;
-  }
 
   // Define the covariance
 
@@ -842,14 +837,7 @@ VectorECov Model::initCovList(const VectorInt& covranks)
 
   for (Id i = 0; i < static_cast<Id>(covranks.size()); i++)
   {
-    ECov ec = ECov::fromValue(covranks[i]);
-    if (ec == ECov::UNKNOWN)
-    {
-      ECov::printAll();
-      list.clear();
-      break;
-    }
-    list.push_back(ec);
+    list.push_back(ECov::fromValue(covranks[i]));
   }
   return list;
 }

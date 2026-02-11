@@ -11,10 +11,10 @@
 #include "Covariances/CovFactory.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/String.hpp"
+#include "Covariances/CovContext.hpp"
 #include "Covariances/KernelBesselJ.hpp"
 #include "Covariances/KernelCauchy.hpp"
 #include "Covariances/KernelCauchyGen.hpp"
-#include "Covariances/CovContext.hpp"
 #include "Covariances/KernelCosExp.hpp"
 #include "Covariances/KernelCosinus.hpp"
 #include "Covariances/KernelCubic.hpp"
@@ -148,7 +148,7 @@ void CovFactory::displayCovList(const CovContext& ctxt)
   auto it = ECov::getIterator();
   while (it.hasNext())
   {
-    if (*it != ECov::UNKNOWN && *it != ECov::FUNCTION)
+    if (*it != ECov::FUNCTION)
     {
       AKernel* cova = createCovFunc(*it, ctxt);
       if (_isValid(cova, ctxt))
@@ -171,7 +171,7 @@ VectorString CovFactory::getCovList(const CovContext& ctxt, Id order)
   auto it = ECov::getIterator();
   while (it.hasNext())
   {
-    if (*it != ECov::UNKNOWN && *it != ECov::FUNCTION)
+    if (*it != ECov::FUNCTION)
     {
       AKernel* cova = createCovFunc(*it, ctxt);
       if (_isValid(cova, ctxt))
@@ -189,7 +189,7 @@ VectorString CovFactory::getCovList(const CovContext& ctxt, Id order)
 /**
  * Return the ECov object from the given covariance name.
  * The name must correspond to one of the getCovName().
- * If the name doesn't exists, this method returns ECov::UNKNOWN
+ * If the name doesn't exists, this method returns ECov::NUGGET
  * and display available covariances for the given context.
  *
  * @param cov_name  Name of the required covariance
@@ -203,11 +203,11 @@ ECov CovFactory::identifyCovariance(const String& cov_name,
   {
     // Test covariance name using AKernel::getCovName (not the ECov keys!)
     // (This permits to ensure RGeostats scripts retro compatibility)
-    if (*it != ECov::UNKNOWN && *it != ECov::FUNCTION)
+    if (*it != ECov::FUNCTION)
     {
       AKernel* cova = createCovFunc(*it, ctxt);
-      String cn      = toUpper(cov_name);
-      String ccn     = toUpper(cova->getCovName());
+      String cn     = toUpper(cov_name);
+      String ccn    = toUpper(cova->getCovName());
       delete cova;
       if (cn == ccn)
         return *it;
@@ -216,7 +216,7 @@ ECov CovFactory::identifyCovariance(const String& cov_name,
   }
   messerr("Unknown covariance name:%s!", cov_name.c_str());
   displayCovList(ctxt);
-  return ECov::UNKNOWN;
+  return ECov::NUGGET;
 }
 
 double CovFactory::getScaleFactor(const ECov& type, double param)

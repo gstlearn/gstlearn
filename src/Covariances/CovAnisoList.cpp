@@ -227,7 +227,7 @@ void CovAnisoList::setCov(Id icov, const CovBase* covs)
 }
 const ECov& CovAnisoList::getCovType(Id icov) const
 {
-  if (!_isCovarianceIndexValid(icov)) return ECov::UNKNOWN;
+  if (!_isCovarianceIndexValid(icov)) return ECov::NUGGET;
   const CovAniso* covaniso = _getCovAniso(icov);
   if (covaniso == nullptr)
   {
