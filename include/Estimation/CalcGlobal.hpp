@@ -80,14 +80,5 @@ private:
   Global_Result _gRes;
 };
 
-GSTLEARN_EXPORT Global_Result global_arithmetic(Db* dbin,
-                                                DbGrid* dbgrid,
-                                                ModelGeneric* model,
-                                                Id ivar0     = 0,
-                                                bool verbose = false);
-GSTLEARN_EXPORT Global_Result global_kriging(Db* dbin,
-                                             Db* dbout,
-                                             ModelGeneric* model,
-                                             Id ivar0     = 0,
-                                             bool verbose = false);
+
 } // namespace gstlrn

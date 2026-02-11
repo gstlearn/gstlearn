@@ -59,12 +59,5 @@ private:
   Model* _modelLocal;
 };
 
-GSTLEARN_EXPORT Id krigingFactors(Db* dbin,
-                                   Db* dbout,
-                                   Model* model,
-                                   ANeigh* neigh,
-                                   bool flag_est                   = true,
-                                   bool flag_std                   = true,
-                                   const KrigOpt& krigopt          = KrigOpt(),
-                                   const NamingConvention& namconv = NamingConvention("KD"));
+
 } // namespace gstlrn

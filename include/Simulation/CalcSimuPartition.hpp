@@ -10,13 +10,10 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
-
-#include "geoslib_define.h"
-
-#include "Basic/Plane.hpp"
 #include "Simulation/ACalcSimulation.hpp"
 #include "Simulation/SimuPartitionParam.hpp"
+#include "geoslib_define.h"
+#include "gstlearn_export.hpp"
 
 namespace gstlrn
 {
@@ -63,18 +60,4 @@ private:
   Model* _modelLocal;
 };
 
-GSTLEARN_EXPORT Id tessellation_voronoi(DbGrid* dbgrid,
-                                         Model* model,
-                                         const SimuPartitionParam& parparam,
-                                         Id seed                        = 43243,
-                                         Id verbose                     = false,
-                                         const NamingConvention& namconv = NamingConvention(
-                                           "Voronoi"));
-GSTLEARN_EXPORT Id tessellation_poisson(DbGrid* dbgrid,
-                                         Model* model,
-                                         const SimuPartitionParam& parparam,
-                                         Id seed                        = 432432,
-                                         Id verbose                     = false,
-                                         const NamingConvention& namconv = NamingConvention(
-                                           "Poisson"));
 } // namespace gstlrn

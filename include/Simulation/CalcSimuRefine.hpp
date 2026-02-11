@@ -13,7 +13,6 @@
 #include "gstlearn_export.hpp"
 
 #include "Arrays/Array3D.hpp"
-#include "Model/Model.hpp"
 #include "Simulation/ACalcSimulation.hpp"
 #include "Simulation/SimuRefineParam.hpp"
 
@@ -70,9 +69,4 @@ private:
   double _STDV[2][2];
 };
 
-GSTLEARN_EXPORT DbGrid* simulation_refine(DbGrid* dbin,
-                                          Model* model,
-                                          const SimuRefineParam& param,
-                                          Id seed                         = 432432,
-                                          const NamingConvention& namconv = NamingConvention("Refine"));
 } // namespace gstlrn

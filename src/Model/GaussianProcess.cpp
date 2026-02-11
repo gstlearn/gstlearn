@@ -10,14 +10,13 @@
 /******************************************************************************/
 
 #include "Model/GaussianProcess.hpp"
-
+#include "Basic/Law.hpp"
+#include "Db/Db.hpp"
+#include "Estimation/Estimations.hpp"
 #include "Model/Model.hpp"
 #include "Model/ModelGeneric.hpp"
-#include "Db/Db.hpp"
 #include "Neigh/NeighUnique.hpp"
-#include "Estimation/CalcKriging.hpp"
-#include "Basic/Law.hpp"
-#include "Simulation/CalcSimuTurningBands.hpp"
+#include "Simulation/Simulations.hpp"
 #include "geoslib_define.h"
 #include <memory>
 
@@ -111,4 +110,4 @@ void GaussianProcess::simulate(Db* out, Id nbsimus)
     simtub(getData().get(), out, dynamic_cast<Model*>(getModel().get()), &neigh, nbsimus, seed);
   }
 }
-}
+} // namespace gstlrn

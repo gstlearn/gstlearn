@@ -7,27 +7,24 @@
 /* Website: https://gstlearn.org                                              */
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
-/* This file is meant to test PCA and MAF features in a way similar to       */
-/* the Tuto_PCA_and_MAF.Rmd script to diagnose memory issues with ASAN       */
+/* This file is meant to test PCA and MAF features in a way similar to        */
+/* the Tuto_PCA_and_MAF.Rmd script to diagnose memory issues with ASAN        */
 /*                                                                            */
 /******************************************************************************/
-#include "Basic/AStringable.hpp"
 #include "Basic/File.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Enum/ECov.hpp"
-#include "Enum/EDbg.hpp"
 #include "Model/Constraints.hpp"
 #include "Model/Model.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Option_VarioFit.hpp"
-#include "Simulation/CalcSimuTurningBands.hpp"
+#include "Simulation/Simulations.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Stats/PCA.hpp"
 #include "Variogram/Vario.hpp"
 #include "Variogram/VarioParam.hpp"
 #include "geoslib_define.h"
-#include "utils.hpp"
 
 using namespace gstlrn;
 

@@ -32,7 +32,10 @@ public:
 
   Id hasRange() const override { return 0; }
 
-  bool isValidForTurningBand() const override { return true; }
+  bool isValidForSimulation(const ESimuType& simuType) const override
+  {
+    return (simuType == ESimuType::TB);
+  }
 
 protected:
   double _evaluateCov(double h) const override;

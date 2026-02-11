@@ -27,6 +27,7 @@ GSTLEARN_EXPORT bool checkArg(const char* title, Id current, Id nmax);
 GSTLEARN_EXPORT void messageAbort(const char* format, ...);
 GSTLEARN_EXPORT void mestitle(Id level, const char* format, ...);
 GSTLEARN_EXPORT void mes_process(const char* string, Id ntot, Id iech);
+GSTLEARN_EXPORT void messerrNotImplemented(const String& className, const String& methodName);
 
 // Old-fashion printing formats
 GSTLEARN_EXPORT void printElement(const String& string,

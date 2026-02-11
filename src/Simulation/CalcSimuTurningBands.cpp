@@ -1517,28 +1517,6 @@ Id CalcSimuTurningBands::simulatePotential(Db* dbiso,
   return 0;
 }
 
-/****************************************************************************/
-/*!
- **  Check if the Model can be simulated using Turning Bands
- **
- ** \return  True if the Model is valid; 0 otherwise
- **
- ** \param[in]  model    Model structure
- **
- *****************************************************************************/
-bool CalcSimuTurningBands::isValidForTurningBands(const ModelGeneric* model)
-{
-  /* Loop on the structures */
-
-  const auto* mod = dynamic_cast<const Model*>(model);
-  if (mod == nullptr) return false;
-  for (Id is = 0; is < mod->getNCov(); is++)
-  {
-    if (!mod->getCovAniso(is)->isValidForTurningBand()) return false;
-  }
-  return true;
-}
-
 bool CalcSimuTurningBands::_check()
 {
   if (!ACalcSimulation::_check()) return false;
@@ -1571,6 +1549,7 @@ bool CalcSimuTurningBands::_check()
     messerr("The Model should contain some valid covariances");
     return false;
   }
+  if (!_modelLocal->isValidForSimulation(ESimuType::TB)) return false;
 
   if (getNBtuba() <= 0)
   {
@@ -1667,102 +1646,6 @@ bool CalcSimuTurningBands::_postprocess()
 void CalcSimuTurningBands::_rollback()
 {
   _cleanVariableDb(1);
-}
-
-/****************************************************************************/
-/*!
- **  Perform the conditional or non-conditional simulation
- **
- ** \return  Error return code
- **
- ** \param[in]  dbin       Input Db structure (optional)
- ** \param[in]  dbout      Output Db structure
- ** \param[in]  model      Model structure
- ** \param[in]  neigh      ANeigh structure (optional)
- ** \param[in]  nbsimu     Number of simulations
- ** \param[in]  seed       Seed for random number generator
- ** \param[in]  nbtuba     Number of turning bands
- ** \param[in]  flag_dgm   1 for Direct Block Simulation
- ** \param[in]  flag_check 1 to check the proximity in Gaussian scale
- ** \param[in]  namconv    Naming convention
- **
- ** \remark  The arguments 'dbin' and 'neigh' are optional: they must
- ** \remark  be defined only for conditional simulations
- **
- *****************************************************************************/
-Id simtub(Db* dbin,
-          Db* dbout,
-          Model* model,
-          ANeigh* neigh,
-          Id nbsimu,
-          Id seed,
-          Id nbtuba,
-          bool flag_dgm,
-          bool flag_check,
-          const NamingConvention& namconv)
-{
-  // Instantiate the Calculator
-  CalcSimuTurningBands situba(nbsimu, nbtuba, flag_check, seed);
-
-  // Set the members of the Calculator
-  situba.setDbin(dbin);
-  situba.setDbout(dbout);
-  situba.setModelGeneric(model);
-  situba.setNeigh(neigh);
-  situba.setNamingConvention(namconv);
-  situba.setFlagDgm(flag_dgm);
-
-  // Run the calculator
-  Id error = (situba.run()) ? 0 : 1;
-  return error;
-}
-
-/****************************************************************************/
-/*!
- **  Perform the conditional or non-conditional simulation
- **  with Bayesian Drift
- **
- ** \return  Error return code
- **
- ** \param[in]  dbin       Input Db structure (optional)
- ** \param[in]  dbout      Output Db structure
- ** \param[in]  model      Model structure
- ** \param[in]  neigh      ANeigh structure (optional)
- ** \param[in]  nbsimu     Number of simulations
- ** \param[in]  seed       Seed for random number generator
- ** \param[in]  nbtuba     Number of turning bands
- ** \param[in]  flag_check 1 to check the proximity in Gaussian scale
- ** \param[in]  namconv    Naming convention
- **
- ** \remark  The arguments 'dbin' and 'neigh' are optional: they must
- ** \remark  be defined only for conditional simulations
- **
- *****************************************************************************/
-Id simbayes(Db* dbin,
-            Db* dbout,
-            Model* model,
-            ANeigh* neigh,
-            Id nbsimu,
-            Id seed,
-            Id nbtuba,
-            bool flag_check,
-            const NamingConvention& namconv)
-{
-  // Instantiate the Calculator
-  CalcSimuTurningBands situba(nbsimu, nbtuba, flag_check, seed);
-
-  // Set the members of the Calculator
-  situba.setDbin(dbin);
-  situba.setDbout(dbout);
-  situba.setModelGeneric(model);
-  situba.setNeigh(neigh);
-  situba.setNamingConvention(namconv);
-
-  situba.setFlagBayes(true);
-
-  // Run the calculator
-  Id error = (situba.run()) ? 0 : 1;
-  return error;
 }
 
 } // namespace gstlrn

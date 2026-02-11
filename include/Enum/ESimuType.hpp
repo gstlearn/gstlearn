@@ -8,18 +8,13 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Basic/ASerializable.hpp"
-#include "geoslib_define.h"
+#pragma once
 
-using namespace gstlrn;
+#include "Enum/AEnum.hpp"
 
-int main(int argc, char* argv[])
-{
-  // Do not remove
-  std::stringstream sfn;
-  sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str(), argc, argv);
-  ASerializable::setPrefixName("test_a_template-"); // Here set the test name
+#define ENUM_SIMUTYPE ESimuType, UNDEFINED,            \
+                      UNDEFINED, 0, "Not defined yet", \
+                      TB, 1, "Turning Bands method",   \
+                      SPECTRAL, 2, "Spectral method"
 
-  return 0;
-}
+ENUM_DECLARE(ENUM_SIMUTYPE)

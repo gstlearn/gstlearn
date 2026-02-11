@@ -12,10 +12,11 @@
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovAnisoList.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
 #include "OutputFormat/AOF.hpp"
-#include "Simulation/CalcSimuTurningBands.hpp"
+#include "Simulation/Simulations.hpp"
 
 using namespace gstlrn;
 

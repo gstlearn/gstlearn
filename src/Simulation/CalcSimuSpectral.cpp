@@ -13,9 +13,7 @@
 #include "Basic/NamingConvention.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovAniso.hpp"
-#include "Covariances/CovList.hpp"
 #include "Db/Db.hpp"
-#include "Enum/ESpaceType.hpp"
 #include "Model/Model.hpp"
 #include "Model/ModelGeneric.hpp"
 #include "Simulation/SimuSpectralRN.hpp"
@@ -27,10 +25,9 @@
 
 namespace gstlrn
 {
-CalcSimuSpectral::CalcSimuSpectral(Id nbsimu, Id ns, Id nd, Id seed, bool verbose, bool performedOnRN)
+CalcSimuSpectral::CalcSimuSpectral(Id nbsimu, Id ns, Id nd, Id seed, bool verbose)
   : ACalcSimulation(nbsimu, seed)
   , _verbose(verbose)
-  , _performedOnRN(performedOnRN)
   , _iattOut(-1)
   , _ns(ns)
   , _nd(nd)
@@ -100,41 +97,19 @@ bool CalcSimuSpectral::isValidForSpectral() const
     if (ncova <= 0)
     {
       const auto* cova = getModelGeneric()->getCov();
-      if (_performedOnRN)
+      if (!cova->isValidForSimulation(ESimuType::SPECTRAL))
       {
-        if (!cova->isValidForSpectralOnRn())
-        {
-          messerr("The covariance component %s of the Model is not valid for Spectral Simulation on Rn", is + 1);
-          return false;
-        }
-      }
-      else
-      {
-        if (!cova->isValidForSpectralOnSphere())
-        {
-          messerr("The covariance component %d of the Model is not valid for Spectral Simulation on the Sphere", is + 1);
-          return false;
-        }
+        messerr("The covariance component %d of the Model is not valid for Spectral Simulation", is + 1);
+        return false;
       }
     }
     else
     {
       const auto* covbase = dynamic_cast<const CovAniso*>(modellist->getCovBase(is));
-      if (_performedOnRN)
+      if (!covbase->isValidForSimulation(ESimuType::SPECTRAL))
       {
-        if (!covbase->isValidForSpectralOnRn())
-        {
-          messerr("The covariance component %d of the Model is not valid for Spectral Simulation on Rn", is + 1);
-          return false;
-        }
-      }
-      else
-      {
-        if (!covbase->isValidForSpectralOnSphere())
-        {
-          messerr("The covariance component %d of the Model is not valid for Spectral Simulation on the Sphere", is + 1);
-          return false;
-        }
+        messerr("The covariance component %d of the Model is not valid for Spectral Simulation", is + 1);
+        return false;
       }
     }
   }
@@ -295,70 +270,4 @@ bool CalcSimuSpectral::_run()
   return true;
 }
 
-/**
- * Perform a series of simulations (on Rn or on the Sphere) using Spectral Method
- *
- * @param dbin Input Db where the conditioning data are read
- * @param dbout Output Db where the results are stored
- * @param model ModelGeneric structure
- * @param neigh Neighborhood structure
- * @param nbsimu Number of simulations processed simultaneously
- * @param seed Seed used for the Random number generator
- * @param ns Number of spectral components
- * @param nd Maximum number of spectral orders on S2
- * @param cov0 Auxiliary covariance used for importance sampling
- * @param verbose Verbose flag
- * @param namconv Naming Convention
- *
- * @note The conditional version is not yet available
- */
-Id simuSpectral(Db* dbin,
-                Db* dbout,
-                ModelGeneric* model,
-                ANeigh* neigh,
-                Id nbsimu,
-                Id seed,
-                Id ns,
-                Id nd,
-                const ACov* cov0,
-                bool verbose,
-                const NamingConvention& namconv)
-{
-  // Check the space type
-  bool isSimuRN;
-  const auto space = model->getContext()->getSpace();
-  if (space->getType() == ESpaceType::COMPOSITE)
-  {
-    // The RN x time model is simulated as a R(N+1) model (see CorGneiting)
-    isSimuRN = (space->getComponent(0)->getType() == ESpaceType::RN);
-  }
-  else
-  {
-    isSimuRN = (space->getType() == ESpaceType::RN);
-  }
-
-  // Instantiate the Calculator
-  std::unique_ptr<CalcSimuSpectral> spectral;
-
-  // Instantiate
-  if (isSimuRN)
-  {
-    spectral = std::make_unique<SimuSpectralRN>(nbsimu, ns, nd, seed, cov0, verbose);
-  }
-  else
-  {
-    spectral = std::make_unique<SimuSpectralS2>(nbsimu, ns, nd, seed, verbose);
-  }
-
-  // Set the members of the Calculator
-  spectral->setDbin(dbin);
-  spectral->setDbout(dbout);
-  spectral->setModelGeneric(model);
-  spectral->setNeigh(neigh);
-  spectral->setNamingConvention(namconv);
-
-  // Run the calculator
-  Id error = (spectral->run()) ? 0 : 1;
-  return error;
-}
 } // namespace gstlrn

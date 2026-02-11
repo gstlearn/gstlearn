@@ -147,30 +147,27 @@ double CovAniso::evalCovOnSphere(double alpha,
 
 VectorDouble CovAniso::evalSpectrumOnSphere(Id n, bool scaleDistanceByRadius, bool flagScale) const
 {
-  if (!getCorAniso()->isValidForSpectralOnSphere()) return VectorDouble();
+  if (!getCorAniso()->isValidForSimulation(ESimuType::SPECTRAL)) return VectorDouble();
   return getCorAniso()->evalSpectrumOnSphere(n, scaleDistanceByRadius, flagScale);
 }
 
 double CovAniso::evalSpectrum(const VectorDouble& freq, Id ivar, Id jvar) const
 {
-  if (!getCorAniso()->isValidForSpectralOnRn()) return TEST;
+  if (!getCorAniso()->isValidForSimulation(ESimuType::SPECTRAL)) return TEST;
   return _sillCur.getValue(ivar, jvar) * getCorAniso()->evalSpectrum(freq, ivar, jvar);
 }
 
 SpectrumRN CovAniso::simulateSpectrumRN(Id ns, const ACov* cov0) const
 {
-  if (!getCorAniso()->isValidForSpectralOnRn()) return SpectrumRN();
+  if (!getCorAniso()->isValidForSimulation(ESimuType::SPECTRAL)) return SpectrumRN();
   return getCorAniso()->simulateSpectrumRN(ns, cov0);
 }
 
-bool CovAniso::isValidForSpectralOnRn() const
+bool CovAniso::isValidForSimulation(const ESimuType& simuType) const
 {
-  return getCorAniso()->isValidForSpectralOnRn();
+  return getCorAniso()->isValidForSimulation(simuType);
 }
-bool CovAniso::isValidForSpectralOnSphere() const
-{
-  return getCorAniso()->isValidForSpectralOnSphere();
-}
+
 VectorDouble CovAniso::evalCovOnSphereVec(const VectorDouble& alpha,
                                           Id degree,
                                           bool scaleDistanceByRadius,
@@ -487,7 +484,7 @@ Array CovAniso::evalCovFFT(const VectorDouble& hmax,
                            Id ivar,
                            Id jvar) const
 {
-  if (!isValidForSpectralOnRn()) return Array();
+  if (!isValidForSimulation(ESimuType::SPECTRAL)) return Array();
   Array result = getCorAniso()->evalCovFFT(hmax, N, ivar, jvar);
   result.multiplyConstant(_sillCur.getValue(ivar, jvar));
   return result;

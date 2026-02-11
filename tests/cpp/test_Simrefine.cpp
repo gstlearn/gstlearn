@@ -15,9 +15,8 @@
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Model/Model.hpp"
-#include "Simulation/CalcSimuRefine.hpp"
-#include "Simulation/CalcSimuTurningBands.hpp"
 #include "Simulation/SimuRefineParam.hpp"
+#include "Simulation/Simulations.hpp"
 #include "Space/ASpaceObject.hpp"
 
 using namespace gstlrn;

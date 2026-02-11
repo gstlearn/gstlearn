@@ -18,10 +18,10 @@
 #include "Basic/File.hpp"
 #include "Basic/Law.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
-#include "Simulation/CalcSimuEden.hpp"
-#include "Simulation/CalcSimuTurningBands.hpp"
+#include "Simulation/Simulations.hpp"
 #include "Space/ASpaceObject.hpp"
 
 using namespace gstlrn;

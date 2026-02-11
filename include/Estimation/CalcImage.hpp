@@ -91,25 +91,4 @@ private:
   double _smoothRange;
 };
 
-GSTLEARN_EXPORT Id krimage(DbGrid* dbgrid,
-                           Model* model,
-                           ANeigh* neigh,
-                           bool flagFFT                    = false,
-                           bool verbose                    = false,
-                           Id seed                         = 13431,
-                           const NamingConvention& namconv = NamingConvention("Filtering"));
-GSTLEARN_EXPORT Id dbMorpho(DbGrid* dbgrid,
-                            const EMorpho& oper,
-                            double vmin                     = 0.,
-                            double vmax                     = 1.5,
-                            Id option                       = 0,
-                            const VectorInt& radius         = VectorInt(),
-                            bool flagDistErode              = false,
-                            bool verbose                    = false,
-                            const NamingConvention& namconv = NamingConvention("Morpho"));
-GSTLEARN_EXPORT Id dbSmoother(DbGrid* dbgrid,
-                              ANeigh* neigh,
-                              Id type                         = 1,
-                              double range                    = 1.,
-                              const NamingConvention& namconv = NamingConvention("Smooth"));
 } // namespace gstlrn

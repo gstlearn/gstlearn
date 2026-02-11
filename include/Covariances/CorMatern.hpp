@@ -68,7 +68,10 @@ public:
   static double computeParam(double nui, double nuj) { return 0.5 * (nui + nuj); }
   static double computeScale(double kappai, double kappaj) { return sqrt(0.5 * (kappai * kappai + kappaj * kappaj)); }
 
-  bool isValidForSpectralOnRn() const override { return true; }
+  bool isValidForSimulation(const ESimuType& simuType) const override
+  {
+    return (getSpaceType() == ESpaceType::RN && simuType == ESimuType::SPECTRAL);
+  }
   MatrixDense simulateSpectralOmega(Id nb) const override;
   SpectrumRN simulateSpectrumRN(Id ns, const ACov* cov0 = nullptr) const override;
   double evalSpectrum(const VectorDouble& freq, Id ivar = 0, Id jvar = 0) const override;

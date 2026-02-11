@@ -22,11 +22,11 @@
 #include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
-#include "Estimation/CalcKriging.hpp"
+#include "Estimation/Estimations.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/NeighMoving.hpp"
 #include "Neigh/NeighUnique.hpp"
-#include "Simulation/CalcSimuTurningBands.hpp"
+#include "Simulation/Simulations.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Stats/Classical.hpp"
 

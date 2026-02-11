@@ -21,7 +21,7 @@
 #include "Basic/OptDbg.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
-#include "Estimation/CalcKriging.hpp"
+#include "Estimation/Estimations.hpp"
 #include "Estimation/KrigingAlgebra.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixSymmetric.hpp"

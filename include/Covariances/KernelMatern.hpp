@@ -47,11 +47,12 @@ public:
   void computeCorrec(Id ndim) override;
   void setCorrec(double val) override { _correc = val; }
 
-  bool isValidForTurningBand() const override { return true; }
   double simulateTurningBand(double t0, TurningBandOperate& operTB) const override;
 
-  bool isValidForSpectralOnRn() const override { return true; }
-  bool isValidForSpectralOnSphere() const override { return true; }
+  bool isValidForSimulation(const ESimuType& simuType) const override
+  {
+    return (simuType == ESimuType::SPECTRAL || simuType == ESimuType::TB);
+  }
   double evaluateSpectrum(double freq) const override;
   MatrixDense simulateSpectralOmega(Id nb) const override;
   bool needCorrec() const override { return true; }

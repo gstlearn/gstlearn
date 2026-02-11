@@ -70,4 +70,10 @@ void AStringable::display(Id level) const
   display(&sf);
 }
 
+void AStringable::printConcreteClassName() const
+{
+  message_extern(typeid(*this).name());
+  message_extern("\n");
+}
+
 } // namespace gstlrn

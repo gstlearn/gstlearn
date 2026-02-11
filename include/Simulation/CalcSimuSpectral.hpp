@@ -20,12 +20,11 @@ class Model;
 class GSTLEARN_EXPORT CalcSimuSpectral: public ACalcSimulation
 {
 public:
-  CalcSimuSpectral(Id nbsimu          = 1,
-                   Id ns              = 10000,
-                   Id nd              = 100,
-                   Id seed            = 4324324,
-                   bool verbose       = false,
-                   bool performedOnRn = true);
+  CalcSimuSpectral(Id nbsimu    = 1,
+                   Id ns        = 10000,
+                   Id nd        = 100,
+                   Id seed      = 4324324,
+                   bool verbose = false);
   CalcSimuSpectral(const CalcSimuSpectral& r)            = delete;
   CalcSimuSpectral& operator=(const CalcSimuSpectral& r) = delete;
   virtual ~CalcSimuSpectral();
@@ -55,23 +54,10 @@ protected:
 
 private:
   bool _verbose;
-  bool _performedOnRN;
   Id _iattOut;
   Id _ns;            // Number of spectral components
   Id _nd;            // Maximum number of spectral orders on
   VectorDouble _phi; // Vector length=_ns
 };
-
-GSTLEARN_EXPORT Id simuSpectral(Db* dbin,
-                                Db* dbout,
-                                ModelGeneric* model,
-                                ANeigh* neigh                   = nullptr,
-                                Id nbsimu                       = 1,
-                                Id seed                         = 135672,
-                                Id ns                           = 10000,
-                                Id nd                           = 100,
-                                const ACov* cov0                = nullptr,
-                                bool verbose                    = false,
-                                const NamingConvention& namconv = NamingConvention("Simu"));
 
 } // namespace gstlrn

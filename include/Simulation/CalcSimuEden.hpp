@@ -15,7 +15,6 @@
 #include "geoslib_define.h"
 
 #include "Basic/AStringable.hpp"
-#include "Db/DbGrid.hpp"
 #include "Simulation/ACalcSimulation.hpp"
 #include "Skin/ISkinFunctions.hpp"
 
@@ -143,19 +142,4 @@ private:
   VectorDouble _volumes;
 };
 
-GSTLEARN_EXPORT Id fluid_propagation(DbGrid* dbgrid,
-                                     const String& name_facies,
-                                     const String& name_fluid,
-                                     const String& name_perm,
-                                     const String& name_poro,
-                                     Id nfacies,
-                                     Id nfluids,
-                                     Id niter                        = 1,
-                                     const VectorInt& speeds         = VectorInt(),
-                                     bool show_fluid                 = false,
-                                     double number_max               = TEST,
-                                     double volume_max               = TEST,
-                                     Id seed                         = 321321,
-                                     bool verbose                    = false,
-                                     const NamingConvention& namconv = NamingConvention("Eden"));
 } // namespace gstlrn

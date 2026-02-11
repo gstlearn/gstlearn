@@ -8,18 +8,17 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Enum/ECov.hpp"
-#include "Enum/ESpaceType.hpp"
-
 #include "Basic/File.hpp"
 #include "Basic/Timer.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Calculators/CalcMigrate.hpp"
 #include "Db/Db.hpp"
-#include "Estimation/CalcKriging.hpp"
+#include "Enum/ECov.hpp"
+#include "Enum/ESpaceType.hpp"
+#include "Estimation/Estimations.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/NeighUnique.hpp"
-#include "Simulation/CalcSimuTurningBands.hpp"
+#include "Simulation/Simulations.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Tree/Ball.hpp"
 

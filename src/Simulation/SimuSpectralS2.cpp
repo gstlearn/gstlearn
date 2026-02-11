@@ -27,7 +27,7 @@ namespace gstlrn
  */
 
 SimuSpectralS2::SimuSpectralS2(Id nbsimu, Id ns, Id nd, Id seed, bool verbose)
-  : CalcSimuSpectral(nbsimu, ns, nd, seed, verbose, false)
+  : CalcSimuSpectral(nbsimu, ns, nd, seed, verbose)
   , _spSims()
 {
 }

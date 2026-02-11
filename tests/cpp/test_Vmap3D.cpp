@@ -19,7 +19,7 @@
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
-#include "Simulation/CalcSimuTurningBands.hpp"
+#include "Simulation/Simulations.hpp"
 #include "Variogram/VMap.hpp"
 #include "Variogram/Vario.hpp"
 

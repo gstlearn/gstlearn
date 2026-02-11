@@ -63,7 +63,10 @@ public:
   double getKappa(Id ivar, Id jvar) const { return _corS->getKappa(ivar, jvar); }
   double separability() const { return _separability; }
 
-  bool isValidForSpectralOnRn() const override { return true; };
+  bool isValidForSimulation(const ESimuType& simuType) const override
+  {
+    return (simuType == ESimuType::SPECTRAL);
+  }
   SpectrumRN simulateSpectrumRN(Id ns, const ACov* cov0 = nullptr) const override;
 
 protected:

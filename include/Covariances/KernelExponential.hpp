@@ -54,12 +54,12 @@ public:
   bool getCompatibleSpaceR() const override { return true; }
   bool getCompatibleSpaceS() const override { return true; }
 
-  bool isValidForTurningBand() const override { return true; }
+  bool isValidForSimulation(const ESimuType& simuType) const override
+  {
+    return (simuType == ESimuType::TB || simuType == ESimuType::SPECTRAL);
+  }
   double simulateTurningBand(double t0, TurningBandOperate& operTB) const override;
 
-  bool isValidForSpectralOnRn() const override { return true; }
-  bool hasCovOnSphere() const override { return true; }
-  bool isValidForSpectralOnSphere() const override { return true; }
   double evaluateSpectrum(double freq) const override;
 
   MatrixDense simulateSpectralOmega(Id nb) const override;

@@ -34,7 +34,10 @@ public:
   double getParMax() const override { return MAX_PARAM; }
   double getScadef() const override;
 
-  bool isValidForSpectralOnRn() const override { return true; }
+  bool isValidForSimulation(const ESimuType& simuType) const override
+  {
+    return (getSpaceType() == ESpaceType::RN && simuType == ESimuType::SPECTRAL);
+  }
   MatrixDense simulateSpectralOmega(Id nb) const override;
 
 protected:

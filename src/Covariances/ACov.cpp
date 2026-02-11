@@ -14,6 +14,7 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/ListParams.hpp"
+#include "Basic/Message.hpp"
 #include "Basic/SerializeHDF5.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
@@ -2525,7 +2526,7 @@ void ACov::setContext(const CovContext& ctxt)
 MatrixDense ACov::simulateSpectralOmega(Id ns) const
 {
   DECLARE_UNUSED(ns);
-  message("ACov::simulateSpectralOmega: Not implemented");
+  messerrNotImplemented("ACov", "simulateSpectralOmega");
   return MatrixDense();
 }
 
@@ -2558,7 +2559,7 @@ SpectrumRN ACov::simulateSpectrumRN(Id ns, const ACov* cov0) const
 {
   DECLARE_UNUSED(ns);
   DECLARE_UNUSED(cov0);
-  messerr("Not implemented");
+  messerrNotImplemented("ACov", "simulateSpectrumRN");
   return SpectrumRN();
 }
 
@@ -2568,7 +2569,7 @@ double ACov::evalCovOnSphere(double alpha, Id degree, bool scaleDistanceByRadius
   DECLARE_UNUSED(degree);
   DECLARE_UNUSED(scaleDistanceByRadius);
   DECLARE_UNUSED(mode);
-  message("ACov::evalCovOnSphere: Not implemented");
+  messerrNotImplemented("ACov", "evalCovOnSphere");
   return TEST;
 }
 
@@ -2577,7 +2578,7 @@ VectorDouble ACov::evalSpectrumOnSphere(Id n, bool scaleDistanceByRadius, bool f
   DECLARE_UNUSED(n);
   DECLARE_UNUSED(scaleDistanceByRadius);
   DECLARE_UNUSED(flagScale);
-  message("ACov::evalSpectrumOnSphere: Not implemented");
+  messerrNotImplemented("ACov", "evalSpectrumOnSphere");
   return VectorDouble();
 }
 
@@ -2586,7 +2587,7 @@ double ACov::evalSpectrum(const VectorDouble& freq, Id ivar, Id jvar) const
   DECLARE_UNUSED(freq);
   DECLARE_UNUSED(ivar);
   DECLARE_UNUSED(jvar);
-  message("ACov::evalSpectrum: Not implemented");
+  messerrNotImplemented("ACov", "evalSpectrum");
   return TEST;
 }
 
@@ -2605,7 +2606,7 @@ void ACov::updateCovByPoints(Id icas1, Id iech1, Id icas2, Id iech2) const
   DECLARE_UNUSED(iech1);
   DECLARE_UNUSED(icas2);
   DECLARE_UNUSED(iech2);
-  message("ACov::updateCovByPoints: Not implemented");
+  messerrNotImplemented("ACov", "updateCovByPoints");
 }
 
 } // namespace gstlrn

@@ -111,8 +111,7 @@ public:
   FORWARD_METHOD(getCov, evalAverageDbToDb, TEST)
   FORWARD_METHOD(getCov, evalAverageIncrToIncr, TEST)
   FORWARD_METHOD(getCov, evalAveragePointToDb, TEST)
-  FORWARD_METHOD(getCov, isValidForSpectralOnRn, false)
-  FORWARD_METHOD(getCov, isValidForSpectralOnSphere, false)
+  FORWARD_METHOD(getCov, isValidForSimulation, false)
   FORWARD_METHOD(getCov, samplingDensityVariance, TEST)
   FORWARD_METHOD(getCov, specificVolume, TEST)
   FORWARD_METHOD(getCov, coefficientOfVariation, TEST)
@@ -246,8 +245,8 @@ protected:                     // TODO : pass into private to finish clean
   std::shared_ptr<ACov> _cova; /* Generic Covariance structure */
   mutable std::vector<covmaptype> _gradCovFuncs;
 
-  DriftList* _driftList; /* Series of Drift functions */
-  CovContext _ctxt;      /* Context */
+  DriftList* _driftList;                  /* Series of Drift functions */
+  CovContext _ctxt;                       /* Context */
   std::shared_ptr<ATransform> _transform; /* Transformation associated to the Model */
 };
 

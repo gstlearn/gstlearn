@@ -81,7 +81,10 @@ public:
   void setScaleGneiting(double val) { _scaleGneiting = val; }
   bool getScaleGneiting() const { return _scaleGneiting; }
 
-  bool isValidForSpectralOnRn() const override { return true; }
+  bool isValidForSimulation(const ESimuType& simuType) const override
+  {
+    return (getSpaceType() == ESpaceType::RN && simuType == ESimuType::SPECTRAL);
+  }
   SpectrumRN simulateSpectrumRN(Id ns, const ACov* cov0 = nullptr) const override;
 
 protected:

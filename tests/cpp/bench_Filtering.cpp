@@ -25,7 +25,7 @@
 #include "Basic/OptDbg.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Neigh/NeighMoving.hpp"
-#include "Estimation/CalcKriging.hpp"
+#include "Estimation/Estimations.hpp"
 
 using namespace gstlrn;
 

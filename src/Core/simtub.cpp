@@ -40,6 +40,7 @@
 #include "Simulation/SimuBoolean.hpp"
 #include "Simulation/SimuSpherical.hpp"
 #include "Simulation/SimuSphericalParam.hpp"
+#include "Simulation/Simulations.hpp"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
@@ -2503,7 +2504,7 @@ VectorDouble simsph_mesh(MeshSpherical* mesh,
 {
   VectorDouble simu;
 
-  bool flag_sphere = (model->getContext()->getSpace()->getType() == ESpaceType::SN);
+  bool flag_sphere = (model->getSpace()->getType() == ESpaceType::SN);
   if (!flag_sphere)
   {
     messerr("The Spherical Simulation is restricted to Spherical coordinates");

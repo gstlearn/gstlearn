@@ -14,13 +14,13 @@
 #include "Enum/ECalcVario.hpp"
 #include "Enum/ECov.hpp"
 
-#include "Variogram/Vario.hpp"
-#include "Variogram/VMap.hpp"
-#include "Model/Model.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Timer.hpp"
 #include "Db/Db.hpp"
-#include "Simulation/CalcSimuTurningBands.hpp"
+#include "Model/Model.hpp"
+#include "Simulation/Simulations.hpp"
+#include "Variogram/VMap.hpp"
+#include "Variogram/Vario.hpp"
 
 using namespace gstlrn;
 
@@ -31,7 +31,7 @@ using namespace gstlrn;
 ** - on a regular grid
 **
 *****************************************************************************/
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   Timer timer;
   bool verbose = true;
@@ -48,20 +48,20 @@ int main(int argc, char *argv[])
   Id nvar  = 1;
   Id ncode = 5;
   Id seed  = 143421;
-  Db *db = Db::createFillRandom(nech, ndim, nvar, 0, ncode, 0., 0.,
-                                VectorDouble(), VectorDouble(), VectorDouble(), seed, 1);
+  Db* db   = Db::createFillRandom(nech, ndim, nvar, 0, ncode, 0., 0.,
+                                  VectorDouble(), VectorDouble(), VectorDouble(), seed, 1);
 
   // Creating a grid covering the same space
-  VectorInt nx = { 200, 200 };
-  VectorDouble dx = { 0.005, 0.005 };
-  DbGrid* grid = DbGrid::create(nx, dx);
+  VectorInt nx    = {200, 200};
+  VectorDouble dx = {0.005, 0.005};
+  DbGrid* grid    = DbGrid::create(nx, dx);
 
   // Creating a Model(s) for simulating a variable
-  Model* model = Model::createFromParam(ECov::MATERN,0.2);
+  Model* model = Model::createFromParam(ECov::MATERN, 0.2);
 
   // Perform a non-conditional simulation on the Db and on the Grid
-  (void) simtub(nullptr,db,model);
-  (void) simtub(nullptr,grid,model);
+  (void)simtub(nullptr, db, model);
+  (void)simtub(nullptr, grid, model);
 
   // Defining a Fault system
   auto* faults = new Faults();
@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
 
   timer.reset();
   VarioParam* varioparamP = VarioParam::createMultiple(ndir, nlag, 0.5 / nlag);
-  Vario* varioP = Vario::computeFromDb(*varioparamP,db,ECalcVario::VARIOGRAM);
+  Vario* varioP           = Vario::computeFromDb(*varioparamP, db, ECalcVario::VARIOGRAM);
   timer.displayIntervalMilliseconds("Variogram on Isolated Points", 2600);
   if (verbose) varioP->display();
 
@@ -94,18 +94,18 @@ int main(int argc, char *argv[])
   message("- for a variogram calculated in 1 direction with %d lags\n", nlag);
 
   timer.reset();
-  double dlag = 0.05;
-  double toldis = 0.5;
-  double tolang = 45.;
+  double dlag       = 0.05;
+  double toldis     = 0.5;
+  double tolang     = 45.;
   Id optcode        = 1;
-  double tolcode = 2;
-  double angle2D = 30.;
+  double tolcode    = 2;
+  double angle2D    = 30.;
   DirParam dirparam = DirParam(nlag, dlag, toldis, tolang, optcode, 0, TEST, TEST, tolcode,
-                                VectorDouble(), VectorDouble(), angle2D);
+                               VectorDouble(), VectorDouble(), angle2D);
   VarioParam varioparamC;
   varioparamC.addDir(dirparam);
   varioparamC.addFaults(faults);
-  Vario* varioC = Vario::computeFromDb(varioparamC,db,ECalcVario::VARIOGRAM);
+  Vario* varioC = Vario::computeFromDb(varioparamC, db, ECalcVario::VARIOGRAM);
   timer.displayIntervalMilliseconds("Variogram on Isolated Points (with attributes)", 1100);
   if (verbose) varioC->display();
 
@@ -114,12 +114,12 @@ int main(int argc, char *argv[])
   // ===============
 
   mestitle(1, "Experimental variogram on Grid");
-  message("- on a grid of %d by %d pixels\n",nx[0],nx[1]);
-  message("- for a variogram calculated along main directions with %d lags\n",nlag);
+  message("- on a grid of %d by %d pixels\n", nx[0], nx[1]);
+  message("- for a variogram calculated along main directions with %d lags\n", nlag);
 
   timer.reset();
   VarioParam* varioparamG = VarioParam::createMultipleFromGrid(grid, nlag);
-  Vario* varioG = Vario::computeFromDb(*varioparamG, grid, ECalcVario::VARIOGRAM);
+  Vario* varioG           = Vario::computeFromDb(*varioparamG, grid, ECalcVario::VARIOGRAM);
   timer.displayIntervalMilliseconds("Variogram on Regular Grid", 1500);
   if (verbose) varioG->display();
 
@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
   message("- for %d by %d cells (automatic dimensions)\n", ncell, ncell);
 
   timer.reset();
-  Db* vmapP = db_vmap(db, 0, true, ECalcVario::VARIOGRAM, true, {ncell,ncell});
+  Db* vmapP = db_vmap(db, 0, true, ECalcVario::VARIOGRAM, true, {ncell, ncell});
   timer.displayIntervalMilliseconds("Variogram Map on Isolated Points", 2400);
 
   // =================================
@@ -142,7 +142,7 @@ int main(int argc, char *argv[])
 
   mestitle(1, "Variogram Map on Grid");
   timer.reset();
-  Db* vmapG = db_vmap(grid, 0, true, ECalcVario::VARIOGRAM, true, {100,100});
+  Db* vmapG = db_vmap(grid, 0, true, ECalcVario::VARIOGRAM, true, {100, 100});
   timer.displayIntervalMilliseconds("Variogram Map on Regular Grid", 100);
 
   delete db;

@@ -8,12 +8,11 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Basic/AStringable.hpp"
 #include "Basic/File.hpp"
 #include "Db/Db.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Model/Model.hpp"
-#include "Simulation/CalcSimuTurningBands.hpp"
+#include "Simulation/Simulations.hpp"
 #include "Variogram/VMap.hpp"
 #include "Variogram/Vario.hpp"
 #include "Variogram/VarioParam.hpp"

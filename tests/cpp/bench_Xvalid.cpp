@@ -14,20 +14,20 @@
 // - in Moving and Unique Neighborhood
 // A printout is provided
 
-#include "Enum/ECst.hpp"
-#include "Matrix/MatrixSymmetric.hpp"
+#include "Basic/File.hpp"
+#include "Basic/Law.hpp"
+#include "Basic/NamingConvention.hpp"
+#include "Basic/OptCst.hpp"
+#include "Basic/OptDbg.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
-#include "Basic/Law.hpp"
-#include "Basic/VectorHelper.hpp"
-#include "Basic/NamingConvention.hpp"
+#include "Enum/ECst.hpp"
+#include "Estimation/Estimations.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Model/Model.hpp"
-#include "Basic/File.hpp"
-#include "Basic/OptDbg.hpp"
-#include "Basic/OptCst.hpp"
-#include "Neigh/NeighUnique.hpp"
 #include "Neigh/NeighMoving.hpp"
-#include "Estimation/CalcKriging.hpp"
+#include "Neigh/NeighUnique.hpp"
 
 using namespace gstlrn;
 
@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
   data->display(dbfmt);
 
   // Create the Model
-  double scale = 0.7;
+  double scale           = 0.7;
   MatrixSymmetric* sills = MatrixSymmetric::createRandomDefinitePositive(nvar);
   Model* model =
     Model::createFromParam(ECov::EXPONENTIAL, scale, 0., 0., VectorDouble(),

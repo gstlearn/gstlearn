@@ -148,8 +148,7 @@ public:
   Id getNitergCum() const { return _itergCum; }
   void setAllCovActive();
 
-  bool isValidForSpectralOnRn() const override;
-  bool isValidForSpectralOnSphere() const override;
+  bool isValidForSimulation(const ESimuType& simuType) const override;
   MatrixDense simulateSpectralOmega(Id ns) const override;
   void computeAic() const;
   void initializeAic() const;

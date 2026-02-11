@@ -17,7 +17,7 @@
 #include "MLayers/MLayers.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/NeighUnique.hpp"
-#include "Simulation/CalcSimuTurningBands.hpp"
+#include "Simulation/Simulations.hpp"
 #include "geoslib_f.h"
 
 using namespace gstlrn;

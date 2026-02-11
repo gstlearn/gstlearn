@@ -18,7 +18,7 @@
 #include "Basic/File.hpp"
 #include "Basic/Timer.hpp"
 #include "Neigh/NeighImage.hpp"
-#include "Estimation/CalcImage.hpp"
+#include "Estimation/Estimations.hpp"
 
 using namespace gstlrn;
 

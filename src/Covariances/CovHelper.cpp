@@ -27,8 +27,8 @@ bool _isSelected(AKernel* cov,
   if (ndim > static_cast<Id>(cov->getMaxNDim())) return false;
   if (minorder < cov->getMinOrder()) return false;
   if (hasrange && !cov->hasRange()) return false;
-  if (flagSimtub && !cov->isValidForTurningBand()) return false;
-  if (flagSimuSpectral && !cov->isValidForSpectralOnRn()) return false;
+  if (flagSimtub && !cov->isValidForSimulation(ESimuType::TB)) return false;
+  if (flagSimuSpectral && !cov->isValidForSimulation(ESimuType::SPECTRAL)) return false;
   return true;
 }
 

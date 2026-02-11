@@ -47,6 +47,7 @@
   #include "Enum/ECalcMember.hpp"
   #include "Enum/EPostUpscale.hpp"
   #include "Enum/EPostStat.hpp"
+  #include "Enum/ESimuType.hpp"
   
   #include "Basic/VectorT.hpp"
   #include "Basic/VectorNumT.hpp"
@@ -328,6 +329,7 @@
   #include "LithoRule/RuleStringFormat.hpp"
   #include "LithoRule/RuleProp.hpp"
   
+  #include "Estimation/Estimations.hpp"
   #include "Estimation/KrigingSystem.hpp"
   #include "Estimation/KrigingAlgebra.hpp"
   #include "Estimation/CalcKriging.hpp"
@@ -357,6 +359,8 @@
   #include "OutputFormat/segy.h"
   
   #include "Polynomials/Chebychev.hpp"
+
+  #include "Simulation/Simulations.hpp"
   #include "Simulation/ACalcSimulation.hpp"
   #include "Simulation/CalcSimuTurningBands.hpp"
   #include "Simulation/TurningBandDirection.hpp"

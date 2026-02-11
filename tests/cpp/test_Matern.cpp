@@ -14,7 +14,7 @@
 #include "Db/DbGrid.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Model/ModelGeneric.hpp"
-#include "Simulation/CalcSimuSpectral.hpp"
+#include "Simulation/Simulations.hpp"
 #include "geoslib_define.h"
 
 using namespace gstlrn;

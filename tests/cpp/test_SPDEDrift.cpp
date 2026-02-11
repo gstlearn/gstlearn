@@ -15,7 +15,7 @@
 #include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Enum/EFormatNF.hpp"
-#include "Estimation/CalcKriging.hpp"
+#include "Estimation/Estimations.hpp"
 #include "Model/ConsItem.hpp"
 #include "Model/Constraints.hpp"
 #include "Model/Model.hpp"
