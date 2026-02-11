@@ -403,7 +403,6 @@ String VCloud::toString(const AStringFormat* strfmt) const
   // Print the calculation type
 
   sstr << _elemString(strfmt) << std::endl;
-  if (getCalcul() == ECalcVario::UNDEFINED) return sstr.str();
 
   // TODO: to be completed
 

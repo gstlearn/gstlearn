@@ -21,7 +21,7 @@ static bool _flagAVarioCheck = false;
 
 AVario::AVario()
   : AStringable()
-  , _calculType(ECalcVario::UNDEFINED)
+  , _calculType(ECalcVario::VARIOGRAM)
   , _flagNeedStats(false)
   , _flagErgodic(true)
   , _flagAsym(false)
@@ -197,13 +197,8 @@ String AVario::_elemString(const AStringFormat* strfmt) const
 {
   DECLARE_UNUSED(strfmt);
   std::stringstream sstr;
-  if (getCalcul() == ECalcVario::UNDEFINED)
-    sstr << toStrTitle(0, "Undefined");
-  else
-  {
-    String total_string = std::string(getCalcul().getDescr()) + " characteristics";
-    sstr << toStrTitle(0, total_string.c_str());
-  }
+  String total_string = std::string(getCalcul().getDescr()) + " characteristics";
+  sstr << toStrTitle(0, total_string.c_str());
   return sstr.str();
 }
 
