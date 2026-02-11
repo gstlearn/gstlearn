@@ -12,8 +12,8 @@
 
 #include "Enum/AEnum.hpp"
 
-#define ENUM_MORPHO EMorpho, UNDEFINED,                                                 \
-                    UNDEFINED, 0, "Idle",                                               \
+#define ENUM_MORPHO EMorpho, IDLE,                                                      \
+                    IDLE, 0, "Idle",                                                    \
                     THRESH, 1, "Convert the Input Variable into Binary Image",          \
                     NEGATION, 2, "Invert of the Binary Image",                          \
                     EROSION, 3, "Erosion on the Binary Image",                          \
