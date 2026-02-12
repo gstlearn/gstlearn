@@ -35,7 +35,7 @@ CalcImage::CalcImage()
   , _seed(13242)
   , _flagMorpho(false)
   , _nvarMorpho(1)
-  , _oper(EMorpho::UNKNOWN)
+  , _oper(EMorpho::IDLE)
   , _vmin(0.5)
   , _vmax(1.5)
   , _option(0)
@@ -111,13 +111,13 @@ bool CalcImage::_preprocess()
 
   auto nvar = _getNVar();
   if (_flagFilter)
-    _iattOut = _addVariableDb(2, 1, ELoc::UNKNOWN, 0, nvar, 0.);
+    _iattOut = _addVariableDb(2, 1, ELoc::UNDEFINED, 0, nvar, 0.);
 
   if (_flagMorpho)
-    _iattOut = _addVariableDb(2, 1, ELoc::UNKNOWN, 0, _nvarMorpho, 0.);
+    _iattOut = _addVariableDb(2, 1, ELoc::UNDEFINED, 0, _nvarMorpho, 0.);
 
   if (_flagSmooth)
-    _iattOut = _addVariableDb(2, 1, ELoc::UNKNOWN, 0, 1, 0.);
+    _iattOut = _addVariableDb(2, 1, ELoc::UNDEFINED, 0, 1, 0.);
 
   if (_iattOut < 0) return false;
   return true;

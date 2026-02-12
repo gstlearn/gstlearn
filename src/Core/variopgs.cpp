@@ -3611,7 +3611,7 @@ static void st_manage_pgs(Id mode,
                           Id flag_dist                 = 0,
                           Id ngrf                      = 0,
                           Id nfacies                   = 0,
-                          const ECalcVario& calculType = ECalcVario::UNDEFINED)
+                          const ECalcVario& calculType = ECalcVario::VARIOGRAM)
 {
   /* Dispatch */
 
@@ -3623,7 +3623,7 @@ static void st_manage_pgs(Id mode,
       local_pgs->propdef     = nullptr;
       local_pgs->flag_stat   = 0;
       local_pgs->flag_facies = 0;
-      local_pgs->calculType  = ECalcVario::UNDEFINED;
+      local_pgs->calculType  = ECalcVario::VARIOGRAM;
       local_pgs->igrfcur     = 0;
       local_pgs->idircur     = 0;
       local_pgs->ipascur     = 0;

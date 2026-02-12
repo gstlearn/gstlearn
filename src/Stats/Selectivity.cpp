@@ -137,7 +137,7 @@ Selectivity* Selectivity::createByKeys(const VectorString& keys,
   for (Id i = 0; i < static_cast<Id>(keys.size()); i++)
   {
     ESelectivity code = ESelectivity::fromKey(keys[i]);
-    if (code == ESelectivity::UNKNOWN) continue;
+    if (code == ESelectivity::UNDEFINED) continue;
     codes.push_back(code);
   }
 
@@ -503,7 +503,7 @@ void Selectivity::defineRecoveries(const std::vector<ESelectivity>& codes,
     auto key = code.getValue();
     switch (code.toEnum())
     {
-      case ESelectivity::E_UNKNOWN:
+      case ESelectivity::E_UNDEFINED:
         break;
 
       case ESelectivity::E_Z:
@@ -624,7 +624,7 @@ void Selectivity::_defineVariableRanks()
 
 bool Selectivity::_isMultiplied(const ESelectivity& code)
 {
-  return (code != ESelectivity::UNKNOWN && code != ESelectivity::Z &&
+  return (code != ESelectivity::UNDEFINED && code != ESelectivity::Z &&
           code != ESelectivity::PROP && code != ESelectivity::QUANT);
 }
 
@@ -658,7 +658,7 @@ String Selectivity::getVariableName(const ESelectivity& code, Id icut, Id mode) 
 {
   switch (code.toEnum())
   {
-    case ESelectivity::E_UNKNOWN:
+    case ESelectivity::E_UNDEFINED:
       break;
 
     case ESelectivity::E_Z:
@@ -794,7 +794,7 @@ Id Selectivity::getNVar() const
 
 bool Selectivity::isUsed(const ESelectivity& code) const
 {
-  if (code == ESelectivity::UNKNOWN) return false;
+  if (code == ESelectivity::UNDEFINED) return false;
   if (!_isRecoveryDefined()) return false;
   auto key = code.getValue();
   if (_numberQT.getValue(key, 0) > 0) return true;
@@ -804,7 +804,7 @@ bool Selectivity::isUsed(const ESelectivity& code) const
 
 bool Selectivity::isUsedEst(const ESelectivity& code) const
 {
-  if (code == ESelectivity::UNKNOWN) return false;
+  if (code == ESelectivity::UNDEFINED) return false;
   if (!_isRecoveryDefined()) return false;
   auto key = code.getValue();
   return (_numberQT.getValue(key, 0) > 0);
@@ -812,7 +812,7 @@ bool Selectivity::isUsedEst(const ESelectivity& code) const
 
 bool Selectivity::isUsedStD(const ESelectivity& code) const
 {
-  if (code == ESelectivity::UNKNOWN) return false;
+  if (code == ESelectivity::UNDEFINED) return false;
   auto key = code.getValue();
   return (_numberQT.getValue(key, 1) > 0);
 }
@@ -836,7 +836,7 @@ bool Selectivity::isNeededQ() const
 
 Id Selectivity::getAddressQTEst(const ESelectivity& code, Id iptr0, Id rank) const
 {
-  if (code == ESelectivity::UNKNOWN) return -1;
+  if (code == ESelectivity::UNDEFINED) return -1;
   auto key = code.getValue();
   if (rank < 0 || rank >= _numberQT.getValue(key, 0)) return -1;
   return (iptr0 + _rankQT.getValue(key, 0) + rank);
@@ -844,7 +844,7 @@ Id Selectivity::getAddressQTEst(const ESelectivity& code, Id iptr0, Id rank) con
 
 Id Selectivity::getAddressQTStd(const ESelectivity& code, Id iptr0, Id rank) const
 {
-  if (code == ESelectivity::UNKNOWN) return -1;
+  if (code == ESelectivity::UNDEFINED) return -1;
   if (!_isRecoveryDefined()) return -1;
   auto key = code.getValue();
   if (rank < 0 || rank >= _numberQT.getValue(key, 1)) return -1;

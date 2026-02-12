@@ -235,7 +235,7 @@ Id Vecchia::_buildNeighborhood(const MatrixT<Id>& Ranks,
 
     message("Row Number %4d (Db %d Var %d)", isample, icase1, ivar);
     message(" - Abs Rank = %4d", ipAbs);
-    printVector(coor, " - Coors:",  true, false);
+    printVector(coor, " - Coors:", true, false);
     if (nitems > 0) message(" Db | Var | Col Number | Abs Rank |           Coors\n");
     for (Id item = 0; item < nitems; item++)
     {
@@ -664,7 +664,7 @@ Id krigingVecchia(Db* dbin,
   for (Id i = 0; i < nt; i++) result[i] = -result[i];
 
   // Saving the results
-  Id iptr = dbout->addColumns(result, String(), ELoc::UNKNOWN, 0, true);
+  Id iptr = dbout->addColumns(result, String(), ELoc::UNDEFINED, 0, true);
   namconv.setNamesAndLocators(dbout, iptr, "estim", nvar);
 
   return 0;

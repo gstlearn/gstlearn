@@ -384,7 +384,7 @@ bool Db::getLocatorByColIdx(Id icol,
       }
     }
   }
-  *ret_locatorType  = ELoc::UNKNOWN;
+  *ret_locatorType  = ELoc::UNDEFINED;
   *ret_locatorIndex = -1;
   return false;
 }
@@ -525,7 +525,7 @@ void Db::resetDims(Id ncol, Id nech)
   auto it = ELoc::getIterator();
   while (it.hasNext())
   {
-    if (*it != ELoc::UNKNOWN)
+    if (*it != ELoc::UNDEFINED)
       clearLocators(*it);
     it.toNext();
   }
@@ -1061,7 +1061,7 @@ Id Db::getNEloc()
   auto it   = ELoc::getIterator();
   while (it.hasNext())
   {
-    if (*it != ELoc::UNKNOWN) number++;
+    if (*it != ELoc::UNDEFINED) number++;
     it.toNext();
   }
   return number;
@@ -1147,7 +1147,7 @@ Id Db::_getNextLocator(const ELoc& locatorType) const
 /**
  * Setting the locator for a set of variables designated by their names
  * @param names        Vector of variable names
- * @param locatorType  Locator type (include ELoc::UNKNOWN)
+ * @param locatorType  Locator type (include ELoc::UNDEFINED)
  * @param locatorIndex Starting locator rank (starting from 0)
  * @param cleanSameLocator When TRUE, clean variables with same locator beforehand
  *
@@ -1194,7 +1194,7 @@ void Db::setLocator(const String& name,
 /**
  * Setting the locator for a variable designated by its UID
  * @param iuid          Index of the UID
- * @param locatorType   Type of locator (include ELoc::UNKNOWN)
+ * @param locatorType   Type of locator (include ELoc::UNDEFINED)
  * @param locatorIndex  Rank in the Locator (starting from 0)
  * @param cleanSameLocator When TRUE, clean variables with same locator beforehand
  * @remark: 1) At this stage, no check is performed to see if items
@@ -1231,7 +1231,7 @@ void Db::setLocatorByUID(Id iuid,
   // in incorrect order. This must be kept as long as the Demonstration files
   // use the db.locate() of unsorted ranks
 
-  if (locatorType != ELoc::UNKNOWN)
+  if (locatorType != ELoc::UNDEFINED)
   {
     PtrGeos& p = _p[locatorType.getValue()];
     auto nitem = p.getNLoc();
@@ -1266,7 +1266,7 @@ String Db::_getLocatorNameByColIdx(Id icol) const
  * Set the Locators for a set of variables identified by their UID
  * @param number        Number of variables to be set
  * @param iuid          Index of the first UID
- * @param locatorType   Type of the Locator (include ELoc::UNKNOWN)
+ * @param locatorType   Type of the Locator (include ELoc::UNDEFINED)
  * @param locatorIndex  Rank of the first Locator index (starting from 0)
  * @param cleanSameLocator When TRUE, clean variables with same locator beforehand
  */
@@ -1363,7 +1363,7 @@ Id Db::addColumnsByConstant(Id nadd,
   _columnInit(nadd, ncol, true, valinit);
 
   // Set the locator (if defined)
-  if (locatorType != ELoc::UNKNOWN)
+  if (locatorType != ELoc::UNDEFINED)
     setLocatorsByUID(nadd, nmax, locatorType, locatorIndex);
 
   _ncol += nadd;
@@ -1422,7 +1422,7 @@ Id Db::addColumnsRandom(Id nadd,
   _columnInit(nadd, ncol, false);
 
   // Set the locator (if defined)
-  if (locatorType != ELoc::UNKNOWN)
+  if (locatorType != ELoc::UNDEFINED)
     setLocatorsByUID(nadd, nmax, locatorType, locatorIndex);
 
   _ncol += nadd;
@@ -2649,7 +2649,7 @@ void Db::setValuesByColIdx(const VectorInt& iechs,
  */
 Id Db::getNLoc(const ELoc& loctype) const
 {
-  if (loctype == ELoc::UNKNOWN) return 0;
+  if (loctype == ELoc::UNDEFINED) return 0;
   const PtrGeos& p = _p[loctype.getValue()];
   return p.getNLoc();
 }
@@ -2667,7 +2667,7 @@ Id Db::getNZValues() const
  */
 bool Db::hasLocVariable(const ELoc& loctype) const
 {
-  if (loctype == ELoc::UNKNOWN) return false;
+  if (loctype == ELoc::UNDEFINED) return false;
   return hasLocator(loctype);
 }
 bool Db::hasZVariable() const
@@ -2708,7 +2708,7 @@ VectorDouble Db::getLocVariables(const ELoc& loctype, Id iech, Id nitemax) const
  */
 void Db::setLocVariable(const ELoc& loctype, Id iech, Id item, double value)
 {
-  if (loctype == ELoc::UNKNOWN) return;
+  if (loctype == ELoc::UNDEFINED) return;
   setFromLocator(loctype, iech, item, value);
 }
 void Db::setZVariable(Id iech, Id item, double value)
@@ -2738,7 +2738,7 @@ void Db::setLocVariables(const ELoc& loctype,
  */
 void Db::updLocVariable(const ELoc& loctype, Id iech, Id item, const EOperator& oper, double value)
 {
-  if (loctype == ELoc::UNKNOWN) return;
+  if (loctype == ELoc::UNDEFINED) return;
   if (!isSampleIndexValid(iech)) return;
   auto icol            = getColIdxByLocator(loctype, item);
   auto internalAddress = _getAddress(iech, icol);

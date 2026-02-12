@@ -1267,7 +1267,7 @@ void db_locators_correct(VectorString& strings,
   auto it = ELoc::getIterator();
   while (it.hasNext())
   {
-    if (*it != ELoc::UNKNOWN)
+    if (*it != ELoc::UNDEFINED)
     {
       /* Store the ranks of the locators matching the reference locator
        */

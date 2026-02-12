@@ -56,17 +56,16 @@ CalcAnamTransform::~CalcAnamTransform()
 {
 }
 
-bool CalcAnamTransform::_hasAnam(const EAnam& anamType) const
+bool CalcAnamTransform::_hasAnam(bool flagAny, const EAnam& anamType) const
 {
   if (_anam == nullptr)
   {
     messerr("The argument 'anam' must be defined");
     return false;
   }
-  if (anamType == EAnam::UNKNOWN) return true;
-  if (anamType != _anam->getType())
+  if (!flagAny && anamType != _anam->getType())
   {
-    messerr("The argument 'anam'  should be of type");
+    messerr("The argument 'anam' should be of type %s", anamType.getKey().data());
     return false;
   }
   return true;
@@ -162,7 +161,7 @@ bool CalcAnamTransform::_check()
 
   if (_flagVars)
   {
-    AnamContinuous* anamC = dynamic_cast<AnamContinuous*>(_anam);
+    auto* anamC = dynamic_cast<AnamContinuous*>(_anam);
     if (anamC == nullptr)
     {
       messerr("The argument 'anam'  must be of type AnamContinuous");
@@ -188,7 +187,7 @@ bool CalcAnamTransform::_check()
 
   if (_flagDisjKrig)
   {
-    if (!_hasAnam(EAnam::HERMITIAN)) return false;
+    if (!_hasAnam(false, EAnam::HERMITIAN)) return false;
     if (!_hasInputVarDefined()) return false;
     if (!_hasSelectivity()) return false;
     return true;
@@ -196,7 +195,7 @@ bool CalcAnamTransform::_check()
 
   if (_flagCondExp)
   {
-    if (!_hasAnam(EAnam::HERMITIAN)) return false;
+    if (!_hasAnam(false, EAnam::HERMITIAN)) return false;
     if (!_hasInputVarDefined()) return false;
     if (!_hasSelectivity()) return false;
     return true;
@@ -204,7 +203,7 @@ bool CalcAnamTransform::_check()
 
   if (_flagUniCond)
   {
-    if (!_hasAnam(EAnam::HERMITIAN)) return false;
+    if (!_hasAnam(false, EAnam::HERMITIAN)) return false;
     if (!_hasInputVarDefined(1)) return false;
     if (!_hasSelectivity()) return false;
     if (_selectivity->isUsed(ESelectivity::Z))
@@ -287,7 +286,7 @@ bool CalcAnamTransform::_postprocess()
   {
     auto nsel = _getNSel();
     for (Id i = 0; i < nsel; i++)
-      _renameVariable(1, _iattSel + i, ELoc::UNKNOWN, _selectivity->getVariableName(i), 1);
+      _renameVariable(1, _iattSel + i, ELoc::UNDEFINED, _selectivity->getVariableName(i), 1);
     return true;
   }
 
@@ -619,8 +618,8 @@ Id CalcAnamTransform::_conditionalExpectation(Db* db,
 
   /* Analyzing the codes */
 
-  const auto& ycuts  = anam_hermite->rawToTransformVec(selectivity->getZcut());
-  Id need_T          = selectivity->isNeededT();
+  const auto& ycuts = anam_hermite->rawToTransformVec(selectivity->getZcut());
+  Id need_T         = selectivity->isNeededT();
 
   /* Computing the estimation */
 

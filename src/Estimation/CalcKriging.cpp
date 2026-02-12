@@ -90,22 +90,22 @@ bool CalcKriging::_preprocess()
 
   if (_flagEst)
   {
-    _iptrEst = _addVariableDb(2, status, ELoc::UNKNOWN, 0, _getNVar(), TEST);
+    _iptrEst = _addVariableDb(2, status, ELoc::UNDEFINED, 0, _getNVar(), TEST);
     if (_iptrEst < 0) return false;
   }
   if (_flagStd)
   {
-    _iptrStd = _addVariableDb(2, status, ELoc::UNKNOWN, 0, _getNVar(), TEST);
+    _iptrStd = _addVariableDb(2, status, ELoc::UNDEFINED, 0, _getNVar(), TEST);
     if (_iptrStd < 0) return false;
   }
   if (_flagVarZ)
   {
-    _iptrVarZ = _addVariableDb(2, status, ELoc::UNKNOWN, 0, _getNVar(), TEST);
+    _iptrVarZ = _addVariableDb(2, status, ELoc::UNDEFINED, 0, _getNVar(), TEST);
     if (_iptrVarZ < 0) return false;
   }
   if (_flagNeighOnly)
   {
-    _iptrNeigh = _addVariableDb(2, status, ELoc::UNKNOWN, 0, _nbNeigh, TEST);
+    _iptrNeigh = _addVariableDb(2, status, ELoc::UNDEFINED, 0, _nbNeigh, TEST);
     if (_iptrNeigh < 0) return false;
   }
 
@@ -179,9 +179,9 @@ bool CalcKriging::_postprocess()
     }
     else
     {
-      _renameVariable(2, {"LC"}, ELoc::UNKNOWN, nvar, _iptrVarZ, "varz", 1);
-      _renameVariable(2, {"LC"}, ELoc::UNKNOWN, nvar, _iptrStd, "stdev", 1);
-      _renameVariable(2, {"LC"}, ELoc::UNKNOWN, nvar, _iptrEst, "estim", 1);
+      _renameVariable(2, {"LC"}, ELoc::UNDEFINED, nvar, _iptrVarZ, "varz", 1);
+      _renameVariable(2, {"LC"}, ELoc::UNDEFINED, nvar, _iptrStd, "stdev", 1);
+      _renameVariable(2, {"LC"}, ELoc::UNDEFINED, nvar, _iptrEst, "estim", 1);
     }
   }
 

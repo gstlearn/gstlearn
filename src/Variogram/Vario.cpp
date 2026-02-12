@@ -1035,7 +1035,6 @@ String Vario::toString(const AStringFormat* strfmt) const
   // Print the calculation type
 
   sstr << _elemString(strfmt);
-  if (getCalcul() == ECalcVario::UNDEFINED) return sstr.str();
 
   sstr << "Number of variable(s)       = " << _nVar << std::endl;
 

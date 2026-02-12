@@ -16,8 +16,7 @@
 /**
  * TODO : Documentation
  */
-#define ENUM_CALC_VARIO ECalcVario, UNDEFINED,                                           \
-                        UNDEFINED, -1, "Undefined",                                      \
+#define ENUM_CALC_VARIO ECalcVario, VARIOGRAM,                                           \
                         VARIOGRAM, 0, "Variogram",                                       \
                         COVARIANCE, 1, "Covariance",                                     \
                         COVARIOGRAM, 2, "Transitive Covariogram",                        \

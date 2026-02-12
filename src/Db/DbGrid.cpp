@@ -635,7 +635,7 @@ bool DbGrid::migrateAllVariables(Db* dbin, bool flag_fill, bool flag_inter, bool
     if (dbin->getLocatorByColIdx(iatts[icol], &locatorType, &locatorIndex))
       setLocatorByColIdx(icolOut + icol, locatorType, locatorIndex);
     else
-      setLocatorByColIdx(icolOut + icol, ELoc::UNKNOWN, 0);
+      setLocatorByColIdx(icolOut + icol, ELoc::UNDEFINED, 0);
   }
   return true;
 }

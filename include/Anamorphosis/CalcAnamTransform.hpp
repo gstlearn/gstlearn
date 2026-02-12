@@ -63,7 +63,7 @@ private:
   Id _getNfact() const { return static_cast<Id>(_ifacs.size()); }
   Id _getNSel() const { return _selectivity->getNVar(); }
 
-  bool _hasAnam(const EAnam& anamType = EAnam::fromKey("UNKNOWN")) const;
+  bool _hasAnam(bool flagAny = true, const EAnam& anamType = EAnam::HERMITIAN) const;
   bool _hasInputVarDefined(Id mode = 0) const;
   bool _hasSelectivity() const;
   bool _hasVariableNumber(bool equal1 = false) const;
@@ -82,59 +82,59 @@ private:
                                VectorDouble& krigest,
                                VectorDouble& krigstd);
   static Id _conditionalExpectation(Db* db,
-                                     AAnam* anam,
-                                     const Selectivity* selectivity,
-                                     Id iptr0,
-                                     Id col_est,
-                                     Id col_std,
-                                     bool flag_OK,
-                                     double proba,
-                                     Id nbsimu);
+                                    AAnam* anam,
+                                    const Selectivity* selectivity,
+                                    Id iptr0,
+                                    Id col_est,
+                                    Id col_std,
+                                    bool flag_OK,
+                                    double proba,
+                                    Id nbsimu);
   static Id _uniformConditioning(Db* db,
-                                  AnamHermite* anam,
-                                  Selectivity* selectivity,
-                                  Id iptr0,
-                                  Id col_est,
-                                  Id col_var);
+                                 AnamHermite* anam,
+                                 Selectivity* selectivity,
+                                 Id iptr0,
+                                 Id col_est,
+                                 Id col_var);
   static Id _ceZ(Db* db,
-                  const AnamHermite* anam,
-                  const Selectivity* selectivity,
-                  Id iptr0,
-                  Id col_est,
-                  Id col_std,
-                  Id nbsimu,
-                  bool flag_OK);
+                 const AnamHermite* anam,
+                 const Selectivity* selectivity,
+                 Id iptr0,
+                 Id col_est,
+                 Id col_std,
+                 Id nbsimu,
+                 bool flag_OK);
   static Id _ceT(Id mode,
-                  Db* db,
-                  const Selectivity* selectivity,
-                  Id iptr0,
-                  Id col_est,
-                  Id col_std,
-                  const VectorDouble& ycuts,
-                  Id nbsimu,
-                  bool flag_OK);
+                 Db* db,
+                 const Selectivity* selectivity,
+                 Id iptr0,
+                 Id col_est,
+                 Id col_std,
+                 const VectorDouble& ycuts,
+                 Id nbsimu,
+                 bool flag_OK);
   static Id _ceQ(Db* db,
-                  const AnamHermite* anam,
-                  const Selectivity* selectivity,
-                  Id iptr0,
-                  Id col_est,
-                  Id col_std,
-                  const VectorDouble& ycuts,
-                  Id nbsimu,
-                  bool flag_OK);
+                 const AnamHermite* anam,
+                 const Selectivity* selectivity,
+                 Id iptr0,
+                 Id col_est,
+                 Id col_std,
+                 const VectorDouble& ycuts,
+                 Id nbsimu,
+                 bool flag_OK);
   static Id _ceB(Db* db,
-                  const Selectivity* selectivity,
-                  Id iptr0,
-                  const VectorDouble& ycuts);
+                 const Selectivity* selectivity,
+                 Id iptr0,
+                 const VectorDouble& ycuts);
   static Id _ceM(Db* db, const Selectivity* selectivity, Id iptr0);
   static Id _ceQuant(Db* db,
-                      const AnamHermite* anam,
-                      const Selectivity* selectivity,
-                      Id iptr0,
-                      Id col_est,
-                      Id col_std,
-                      double proba,
-                      bool flag_OK);
+                     const AnamHermite* anam,
+                     const Selectivity* selectivity,
+                     Id iptr0,
+                     Id col_est,
+                     Id col_std,
+                     double proba,
+                     bool flag_OK);
 
 private:
   Id _iattVar;
@@ -159,33 +159,33 @@ private:
 
 // TODO : rename functions with a lower case at the beginning
 GSTLEARN_EXPORT Id DisjunctiveKriging(Db* db,
+                                      AAnam* anam,
+                                      Selectivity* selectivity,
+                                      const VectorString& name_est,
+                                      const VectorString& name_std,
+                                      const NamingConvention& namconv = NamingConvention(
+                                        "DK"));
+GSTLEARN_EXPORT Id ConditionalExpectation(Db* db,
+                                          AAnam* anam,
+                                          Selectivity* selectivity        = nullptr,
+                                          const String& name_est          = "",
+                                          const String& name_std          = "",
+                                          bool flag_OK                    = false,
+                                          double proba                    = TEST,
+                                          Id nbsimu                       = 0,
+                                          const NamingConvention& namconv = NamingConvention(
+                                            "CE"));
+GSTLEARN_EXPORT Id UniformConditioning(Db* db,
                                        AAnam* anam,
                                        Selectivity* selectivity,
-                                       const VectorString& name_est,
-                                       const VectorString& name_std,
+                                       const String& name_est,
+                                       const String& name_varz,
                                        const NamingConvention& namconv = NamingConvention(
-                                         "DK"));
-GSTLEARN_EXPORT Id ConditionalExpectation(Db* db,
-                                           AAnam* anam,
-                                           Selectivity* selectivity        = nullptr,
-                                           const String& name_est          = "",
-                                           const String& name_std          = "",
-                                           bool flag_OK                    = false,
-                                           double proba                    = TEST,
-                                           Id nbsimu                      = 0,
-                                           const NamingConvention& namconv = NamingConvention(
-                                             "CE"));
-GSTLEARN_EXPORT Id UniformConditioning(Db* db,
-                                        AAnam* anam,
-                                        Selectivity* selectivity,
-                                        const String& name_est,
-                                        const String& name_varz,
-                                        const NamingConvention& namconv = NamingConvention(
-                                          "UC"));
+                                         "UC"));
 
 GSTLEARN_EXPORT Id anamPointToBlock(AAnam* anam,
-                                     Id verbose,
-                                     double cvv,
-                                     double coeff,
-                                     double mu);
+                                    Id verbose,
+                                    double cvv,
+                                    double coeff,
+                                    double mu);
 } // namespace gstlrn

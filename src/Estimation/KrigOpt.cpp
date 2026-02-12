@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Estimation/KrigOpt.hpp"
-#include "Basic/AStringable.hpp"
 #include "Db/DbGrid.hpp"
 #include "Enum/EKrigOpt.hpp"
 #include "Matrix/MatrixDense.hpp"

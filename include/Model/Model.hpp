@@ -108,7 +108,6 @@ public:
                                 const VectorDouble& angles   = VectorDouble(),
                                 const ASpaceSharedPtr& space = ASpaceSharedPtr(),
                                 bool flagRange               = true);
-
   static Model* createFromDb(const Db* db);
   static Model* createFromNF(const String& NFFilename, bool verbose = true);
   static Model* createFromVario(Vario* vario,
@@ -135,11 +134,10 @@ public:
                        const VectorDouble& angles   = VectorDouble(),
                        bool flagRange               = true);
 
-
   FORWARD_METHOD(castInCovAnisoListConst, getActiveFactor, ITEST)
   FORWARD_METHOD(castInCovAnisoListConst, getCovAniso)
   FORWARD_METHOD(castInCovAnisoListConst, getNCov, ITEST)
-  FORWARD_METHOD(castInCovAnisoListConst, getCovType, ECov::UNKNOWN)
+  FORWARD_METHOD(castInCovAnisoListConst, getCovType, ECov::NUGGET)
   FORWARD_METHOD(castInCovAnisoListConst, getRange, TEST)
   FORWARD_METHOD(castInCovAnisoListConst, getRanges)
   FORWARD_METHOD(castInCovAnisoListConst, getAngles)

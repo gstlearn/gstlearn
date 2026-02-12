@@ -359,7 +359,7 @@ std::vector<EStatOption> KeysToStatOptions(const VectorString& opers)
   for (Id i = 0; i < static_cast<Id>(opers.size()); i++)
   {
     EStatOption opt = EStatOption::fromKey(opers[i]);
-    if (opt != EStatOption::UNKNOWN) options.push_back(opt);
+    if (opt != EStatOption::UNDEFINED) options.push_back(opt);
   }
   return options;
 }

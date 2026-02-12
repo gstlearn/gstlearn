@@ -27,7 +27,7 @@ namespace gstlrn
 class GSTLEARN_EXPORT ParamId: public AStringable, public ICloneable
 {
 public:
-  ParamId(const EConsElem& elem = EConsElem::fromKey("UNKNOWN"), Id iv1 = 0, Id iv2 = 0);
+  ParamId(const EConsElem& elem = EConsElem::fromKey("RANGE"), Id iv1 = 0, Id iv2 = 0);
   ParamId(const ParamId& m);
   ParamId& operator=(const ParamId& m);
   virtual ~ParamId();
@@ -38,7 +38,9 @@ public:
   /// AStringable Interface
   String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  static ParamId* create(const EConsElem& elem = EConsElem::fromKey("UNKNOWN"), Id iv1 = 0, Id iv2 = 0);
+  static ParamId* create(const EConsElem& elem = EConsElem::fromKey("RANGE"),
+                         Id iv1                = 0,
+                         Id iv2                = 0);
 
   Id init(const EConsElem& type, Id iv1, Id iv2);
 
@@ -48,7 +50,7 @@ public:
 
   void setType(const EConsElem& type) { _elemType = type; }
 
-  bool matchType(const EConsElem& type0) const { return (type0 == EConsElem::fromKey("UNKNOWN") || _elemType == type0); }
+  bool matchType(const EConsElem& type0) const { return (_elemType == type0); }
   bool matchIV1(Id iv10) const { return (iv10 < 0 || _iv1 == iv10); }
   bool matchIV2(Id iv20) const { return (iv20 < 0 || _iv2 == iv20); }
 

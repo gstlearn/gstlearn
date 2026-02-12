@@ -243,7 +243,7 @@ void NamingConvention::setNamesAndLocators(const Db* dbin,
   if (namloc.empty())
   {
     // No list of variable names is provided. Attempt to construct it
-    if (dbin != nullptr && locatorInType != ELoc::UNKNOWN)
+    if (dbin != nullptr && locatorInType != ELoc::UNDEFINED)
     {
       // Variables are designated using the locator in a 'db'.
       // If 'nvar' is not defined, 'namloc' defines the count of variables
@@ -393,7 +393,7 @@ void NamingConvention::setNamesAndLocatorsForSimulations(const Db* dbin,
   if (namloc.empty())
   {
     // No list of variable names is provided. Attempt to construct it
-    if (dbin != nullptr && locatorInType != ELoc::UNKNOWN)
+    if (dbin != nullptr && locatorInType != ELoc::UNDEFINED)
     {
       // Variables are designated using the locator in a 'db'.
       namloc = dbin->getNamesByLocator(locatorInType);
@@ -435,7 +435,7 @@ void NamingConvention::setNamesAndLocatorsForSimulations(const Db* dbin,
 
   if (flagSetLocator)
   {
-    if (_flagLocator && _locatorOutType != ELoc::UNKNOWN)
+    if (_flagLocator && _locatorOutType != ELoc::UNDEFINED)
     {
       // Erase already existing locators of the same Type
       if (_cleanSameLocator && locatorShift == 0)
@@ -454,7 +454,7 @@ void NamingConvention::setLocators(Db* dbout,
                                    Id nitems,
                                    Id locatorShift) const
 {
-  if (!_flagLocator || _locatorOutType == ELoc::UNKNOWN) return;
+  if (!_flagLocator || _locatorOutType == ELoc::UNDEFINED) return;
 
   // Erase already existing locators of the same Type
   // (this is only done if you are not precisely adding higher order version for given locator)

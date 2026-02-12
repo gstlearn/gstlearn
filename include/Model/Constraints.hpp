@@ -34,7 +34,7 @@ public:
   String toString(const AStringFormat* strfmt = nullptr) const override;
 
   void addItem(const ConsItem* item);
-  void addItemFromParamId(const EConsElem &elem = EConsElem::fromKey("UNKNOWN"),
+  void addItemFromParamId(const EConsElem &elem = EConsElem::fromKey("RANGE"),
                           Id icov = 0,
                           Id iv1 = 0,
                           Id iv2 = 0,

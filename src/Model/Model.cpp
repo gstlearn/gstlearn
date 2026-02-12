@@ -162,9 +162,7 @@ Model* Model::createFromParam(const ECov& type,
   }
 
   auto* model = new Model(ctxt);
-  model->addCovFromParam(type, range, sill, param, ranges, sills, angles,
-                         flagRange);
-
+  model->addCovFromParam(type, range, sill, param, ranges, sills, angles, flagRange);
   return model;
 }
 
@@ -834,12 +832,6 @@ VectorECov Model::initCovList(const VectorInt& covranks)
   for (Id i = 0; i < static_cast<Id>(covranks.size()); i++)
   {
     ECov ec = ECov::fromValue(covranks[i]);
-    if (ec == ECov::UNKNOWN)
-    {
-      ECov::printAll();
-      list.clear();
-      break;
-    }
     list.push_back(ec);
   }
   return list;
@@ -1025,7 +1017,7 @@ Id Model::stabilize(double percent, bool verbose)
 
   /* Add a NUGGET EFFECT component */
 
-  addCovFromParam(ECov::NUGGET, 0., total);
+  (void)addCovFromParam(ECov::NUGGET, 0., total);
 
   /* Printout */
 

@@ -2443,9 +2443,9 @@ Id Potential::kriging(DbGrid* dbout,
   _saveResultData(dbout, 1, TEST, ELoc::Z, ELoc::G, uid_out_pot, uid_out_grad);
   if (flag_save_data)
   {
-    _saveResultData(_dbiso, 1, TEST, ELoc::UNKNOWN, ELoc::UNKNOWN, uid_iso_pot, uid_iso_grad);
-    _saveResultData(_dbgrd, 1, TEST, ELoc::UNKNOWN, ELoc::UNKNOWN, uid_grd_pot, uid_grd_grad);
-    _saveResultData(_dbtgt, 1, TEST, ELoc::UNKNOWN, ELoc::UNKNOWN, uid_tgt_pot, uid_tgt_grad);
+    _saveResultData(_dbiso, 1, TEST, ELoc::UNDEFINED, ELoc::UNDEFINED, uid_iso_pot, uid_iso_grad);
+    _saveResultData(_dbgrd, 1, TEST, ELoc::UNDEFINED, ELoc::UNDEFINED, uid_grd_pot, uid_grd_grad);
+    _saveResultData(_dbtgt, 1, TEST, ELoc::UNDEFINED, ELoc::UNDEFINED, uid_tgt_pot, uid_tgt_grad);
   }
 
   // Core allocation
@@ -2538,13 +2538,13 @@ Id Potential::simulate(DbGrid* dbout,
   if (_updateFinal()) return 1;
 
   /* Add the attributes for storing the results */
-  _saveResultData(dbout, nbsimu, 0., ELoc::SIMU, ELoc::UNKNOWN,
+  _saveResultData(dbout, nbsimu, 0., ELoc::SIMU, ELoc::UNDEFINED,
                   uid_out_pot, uid_out_grad);
-  _saveResultData(_dbiso, 2 * nbsimu, 0., ELoc::SIMU, ELoc::UNKNOWN,
+  _saveResultData(_dbiso, 2 * nbsimu, 0., ELoc::SIMU, ELoc::UNDEFINED,
                   uid_iso_pot, uid_iso_grad);
-  _saveResultData(_dbgrd, 2 * nbsimu, 0., ELoc::SIMU, ELoc::UNKNOWN,
+  _saveResultData(_dbgrd, 2 * nbsimu, 0., ELoc::SIMU, ELoc::UNDEFINED,
                   uid_grd_pot, uid_grd_grad);
-  _saveResultData(_dbtgt, 2 * nbsimu, 0., ELoc::SIMU, ELoc::UNKNOWN,
+  _saveResultData(_dbtgt, 2 * nbsimu, 0., ELoc::SIMU, ELoc::UNDEFINED,
                   uid_tgt_pot, uid_tgt_grad);
   if (flag_tempere)
     (void)dbout->addColumnsByConstant(1, TEST, String(), ELoc::Z);

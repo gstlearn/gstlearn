@@ -72,17 +72,17 @@ bool CalcKrigingSimpleCase::_preprocess()
 
   if (_flagEst)
   {
-    _iptrEst = _addVariableDb(2, status, ELoc::UNKNOWN, 0, _getNVar(), TEST);
+    _iptrEst = _addVariableDb(2, status, ELoc::UNDEFINED, 0, _getNVar(), TEST);
     if (_iptrEst < 0) return false;
   }
   if (_flagStd)
   {
-    _iptrStd = _addVariableDb(2, status, ELoc::UNKNOWN, 0, _getNVar(), TEST);
+    _iptrStd = _addVariableDb(2, status, ELoc::UNDEFINED, 0, _getNVar(), TEST);
     if (_iptrStd < 0) return false;
   }
   if (_flagVarZ)
   {
-    _iptrVarZ = _addVariableDb(2, status, ELoc::UNKNOWN, 0, _getNVar(), TEST);
+    _iptrVarZ = _addVariableDb(2, status, ELoc::UNDEFINED, 0, _getNVar(), TEST);
     if (_iptrVarZ < 0) return false;
   }
 
