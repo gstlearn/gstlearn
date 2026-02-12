@@ -342,7 +342,7 @@ void CovBase::makeSillNoStatFunctional(const AFunctional* func, Id ivar, Id jvar
 
 void CovBase::makeSillsStationary(bool silent)
 {
-  if (getTabNoStatSills()->empty() && !silent)
+  if (getTabNoStatSills().empty() && !silent)
   {
     messerr("All the sills are already stationary!");
     return;
@@ -551,16 +551,14 @@ bool CovBase::_isNoStat() const
 
 Id CovBase::getNSills() const
 {
-  TabNoStatSills* tabnostat = getTabNoStatSills();
-  if (tabnostat == nullptr) return 0;
-  return tabnostat->getNSills();
+  TabNoStatSills& tabnostat = getTabNoStatSills();
+  return tabnostat.getNSills();
 }
 
 bool CovBase::isNoStatForVariance() const
 {
-  TabNoStatSills* tabnostat = getTabNoStatSills();
-  if (tabnostat == nullptr) return 0;
-  return tabnostat->isDefinedForVariance();
+  TabNoStatSills& tabnostat = getTabNoStatSills();
+  return tabnostat.isDefinedForVariance();
 }
 
 void CovBase::_multiplyCorDerivativesBySills(Id oldSize, std::vector<covmaptype>* gradFuncs)

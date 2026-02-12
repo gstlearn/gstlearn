@@ -230,7 +230,7 @@ String CovAniso::toString(const AStringFormat* strfmt) const
   {
     sstr << toStrTitle(3, "List of Non-Stationary Parameters");
     sstr << _tabNoStat->toString(strfmt);
-    auto i = getTabNoStatSills()->getNSills();
+    auto i = getTabNoStatSills().getNSills();
     sstr << getCorAniso()->toStringNoStat(strfmt, i);
   }
   return sstr.str();
