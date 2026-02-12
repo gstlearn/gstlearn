@@ -1677,11 +1677,11 @@ Id gibbs_sampler(Db* dbin,
   /* Set the error return flag */
 
   error = 0;
-  namconv.setNamesAndLocators(dbin, VectorString(), ELoc::UNKNOWN, nvar, dbin, iptr, String(), nbsimu);
+  namconv.setNamesAndLocators(dbin, VectorString(), ELoc::UNDEFINED, nvar, dbin, iptr, String(), nbsimu);
   if (iptr_cstd >= 0)
-    namconv.setNamesAndLocators(dbin, VectorString(), ELoc::UNKNOWN, nvar, dbin, iptr_cstd, "STD", nvar);
+    namconv.setNamesAndLocators(dbin, VectorString(), ELoc::UNDEFINED, nvar, dbin, iptr_cstd, "STD", nvar);
   if (iptr_ce >= 0)
-    namconv.setNamesAndLocators(dbin, VectorString(), ELoc::UNKNOWN, nvar, dbin, iptr_ce, "CE", nvar);
+    namconv.setNamesAndLocators(dbin, VectorString(), ELoc::UNDEFINED, nvar, dbin, iptr_ce, "CE", nvar);
 
 label_end:
   proportion_manage(-1, 0, 1, 1, 0, nvar, 0, dbin, NULL, VectorDouble(), propdef);
