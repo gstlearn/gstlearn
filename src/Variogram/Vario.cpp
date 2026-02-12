@@ -3537,7 +3537,7 @@ Id Vario::_calculateGeneralByPair(Db* db,
  ** \param[in]  ilag0 Rank of the lag to evaluate
  **
  *****************************************************************************/
-VectorInt Vario::getPairs(Db* db, Id iech, Id ilag0) const
+VectorInt Vario::getPairs(Db* db, Id iech, Id ilag0) 
 {
   VectorInt vec;
   SpaceTarget T1(getSpace(), false);
@@ -3545,6 +3545,7 @@ VectorInt Vario::getPairs(Db* db, Id iech, Id ilag0) const
 
   DirParam dirparam = getDirParam(0);
   Id nech           = db->getNSample();
+  _setListBiTargetCheck();
 
   // Local variables to speed up calculations
   bool hasSel    = db->hasLocVariable(ELoc::SEL);
@@ -3559,6 +3560,7 @@ VectorInt Vario::getPairs(Db* db, Id iech, Id ilag0) const
 
   for (Id jech = 0; jech < nech; jech++)
   {
+    if (iech == jech) continue;
     if (hasSel && !db->isActive(jech)) continue;
     if (hasWeight && FFFF(db->getWeight(jech))) continue;
     db->getSampleAsSTInPlace(jech, T2);
@@ -5590,7 +5592,7 @@ Vario* varioGridCalculate(DbGrid* dbgrid,
 }
 
 VectorInt variogramPerPoint(Db* db,
-                            Id iech,
+                            Id iech0,
                             Id ilag0,
                             double dlag,
                             const VectorDouble& codir,
@@ -5610,7 +5612,8 @@ VectorInt variogramPerPoint(Db* db,
   varioparam->addDir(dirparam);
 
   auto* vario     = new Vario(*varioparam);
-  VectorInt pairs = vario->getPairs(db, iech, ilag0);
+
+  VectorInt pairs = vario->getPairs(db, iech0, ilag0);
   delete varioparam;
   delete vario;
   return pairs;
