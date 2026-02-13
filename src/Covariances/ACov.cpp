@@ -91,14 +91,13 @@ ACov& ACov::operator=(const ACov& r)
     _pAux                  = r._pAux;
     _pw1                   = r._pw1;
     _pw2                   = r._pw2;
-    _tabNoStat             = r._tabNoStat->clone();
+    _tabNoStat             = std::unique_ptr<TabNoStat>(r._tabNoStat->clone());
   }
   return *this;
 }
 
 ACov::~ACov()
 {
-  delete _tabNoStat;
 }
 
 double ACov::evalCov(const SpacePoint& p1,
@@ -215,8 +214,7 @@ void ACov::_optimizationPreProcess(Id mode, const std::vector<SpacePoint>& ps) c
 
 void ACov::createNoStatTab()
 {
-  delete _tabNoStat;
-  _tabNoStat = _createNoStatTab();
+  _tabNoStat = std::unique_ptr<TabNoStat>(_createNoStatTab());
 }
 
 void ACov::attachNoStatDb(const Db* db)
@@ -266,9 +264,9 @@ VectorDouble ACov::informCoords(const VectorVectorDouble& coords,
   return result;
 }
 
-TabNoStat* ACov::_createNoStatTab()
+std::unique_ptr<TabNoStat> ACov::_createNoStatTab()
 {
-  return new TabNoStat();
+  return std::make_unique<TabNoStat>();
 }
 
 bool ACov::_checkDims(Id idim, Id jdim) const

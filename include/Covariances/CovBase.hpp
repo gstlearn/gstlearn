@@ -78,7 +78,7 @@ public:
   void makeSillsStationary(bool silent = false);
   void makeSillNoStatFunctional(const AFunctional* func, Id ivar = 0, Id jvar = 0);
 
-  TabNoStatSills* getTabNoStatSills() const { return static_cast<TabNoStatSills*>(_tabNoStat); }
+  TabNoStatSills& getTabNoStatSills() const { return static_cast<TabNoStatSills&>(*_tabNoStat); }
 
   Id getNSills() const;
   bool isNoStatForVariance() const;
@@ -145,7 +145,7 @@ protected:
 
 private:
   void _makeStationary() override;
-  TabNoStat* _createNoStatTab() override;
+  std::unique_ptr<TabNoStat> _createNoStatTab() override;
 
   bool _isNoStat() const override;
   void _setContext(const CovContext& ctxt) override;

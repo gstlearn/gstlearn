@@ -234,15 +234,15 @@ public:
   void makeTensorStationary(Id idim, Id jdim);
   void makeParamStationary();
 
-  TabNoStatCovAniso* getTabNoStatCovAniso() const { return static_cast<TabNoStatCovAniso*>(_tabNoStat); }
+  TabNoStatCovAniso& getTabNoStatCovAniso() const { return static_cast<TabNoStatCovAniso&>(*_tabNoStat); }
 
-  Id getNAngles() const { return getTabNoStatCovAniso()->getNAngles(); }
-  Id getNRanges() const { return getTabNoStatCovAniso()->getNRanges(); }
-  Id getNScales() const { return getTabNoStatCovAniso()->getNScales(); }
-  bool isNoStatForParam() const { return getTabNoStatCovAniso()->isParam(); }
-  bool isNoStatForTensor() const { return getTabNoStatCovAniso()->isDefinedForTensor(); }
-  bool isNoStatForAnisotropy() const { return getTabNoStatCovAniso()->isDefinedForAnisotropy(); }
-  bool isNoStatForRotation() const { return getTabNoStatCovAniso()->isDefinedForRotation(); }
+  Id getNAngles() const { return getTabNoStatCovAniso().getNAngles(); }
+  Id getNRanges() const { return getTabNoStatCovAniso().getNRanges(); }
+  Id getNScales() const { return getTabNoStatCovAniso().getNScales(); }
+  bool isNoStatForParam() const { return getTabNoStatCovAniso().isParam(); }
+  bool isNoStatForTensor() const { return getTabNoStatCovAniso().isDefinedForTensor(); }
+  bool isNoStatForAnisotropy() const { return getTabNoStatCovAniso().isDefinedForAnisotropy(); }
+  bool isNoStatForRotation() const { return getTabNoStatCovAniso().isDefinedForRotation(); }
 
   VectorDouble evalCovOnSphereVec(const VectorDouble& alpha,
                                   Id degree                  = 50,
@@ -318,7 +318,7 @@ private:
 
   bool _isNoStat() const override;
   void _setContext(const CovContext& ctxt) override;
-  TabNoStat* _createNoStatTab() override;
+  std::unique_ptr<TabNoStat> _createNoStatTab() override;
   void _copyCovContext(const CovContext& ctxt) override;
 
   bool _isOptimEnabled() const override
