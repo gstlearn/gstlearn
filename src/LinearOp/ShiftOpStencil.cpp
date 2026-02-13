@@ -118,13 +118,10 @@ Id ShiftOpStencil::_addToDest(const constvect inv, vect outv) const
     const Grid& grid = _mesh->getGrid();
     Id ndim          = _mesh->getNDim();
 
-#pragma omp parallel
-    {
     VectorInt center(ndim);
     VectorInt local(ndim);
-    // #pragma omp parallel for private(total, center, local) crashes, probably
-    // because center/local are not POD, so use a parallel block followed by for.
-#pragma omp for
+
+#pragma omp parallel for firstprivate(center, local)
     for (Id ic = 0; ic < size; ic++)
     {
       double total = 0.;
@@ -145,7 +142,6 @@ Id ShiftOpStencil::_addToDest(const constvect inv, vect outv) const
       }
       outv[ic] = total;
     }
-    } // omp parallel
   }
   return 0;
 }
