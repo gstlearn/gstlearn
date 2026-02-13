@@ -1547,9 +1547,10 @@ Id gibbs_sampler(Db* dbin,
 
   /* Db */
 
+  Id nbounds = dbin->getNBounds();
   if (flag_propagation)
   {
-    if (dbin->getNBounds() > 0)
+    if (nbounds > 0)
     {
       messerr("The propagation algorithm is incompatible with bounds");
       return 1;
@@ -1557,7 +1558,6 @@ Id gibbs_sampler(Db* dbin,
   }
   else
   {
-    Id nbounds = dbin->getNBounds();
     if (nbounds > 0)
     {
       if (dbin->getNLoc(ELoc::L) != nvar)
