@@ -93,14 +93,13 @@ Id ShiftOpStencil::_addToDest(const constvect inv, vect outv) const
   auto nbthread = static_cast<I32>(OptCustom::query("ompthreads", 1));
   omp_set_num_threads(nbthread);
 
-  double total;
   if (!indirect.isDefined())
   {
     // Use the fast option when no selection is defined on the Grid
-#pragma omp parallel for private(total)
+#pragma omp parallel for
     for (Id ic = 0; ic < size; ic++)
     {
-      total = 0.;
+      double total = 0.;
       if (_isInside[ic])
       {
         for (Id iw = 0; iw < nw; iw++)
@@ -119,7 +118,7 @@ Id ShiftOpStencil::_addToDest(const constvect inv, vect outv) const
     const Grid& grid = _mesh->getGrid();
     Id ndim          = _mesh->getNDim();
 
-#pragma omp parallel private(total)
+#pragma omp parallel
     {
     VectorInt center(ndim);
     VectorInt local(ndim);
@@ -128,7 +127,7 @@ Id ShiftOpStencil::_addToDest(const constvect inv, vect outv) const
 #pragma omp for
     for (Id ic = 0; ic < size; ic++)
     {
-      total = 0.;
+      double total = 0.;
 
       // Check if the target point is not on the edge and not masked
       if (_isInside[ic])
