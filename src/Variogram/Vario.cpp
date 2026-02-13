@@ -3537,8 +3537,10 @@ Id Vario::_calculateGeneralByPair(Db* db,
  ** \param[in]  ilag0 Rank of the lag to evaluate
  **
  *****************************************************************************/
-VectorInt Vario::getPairs(Db* db, Id iech, Id ilag0) 
+VectorInt Vario::getPairs(Db* db, Id iech, Id ilag0)
 {
+  _db   = db;
+  _nVar = _db->getNLoc(ELoc::Z);
   VectorInt vec;
   SpaceTarget T1(getSpace(), false);
   SpaceTarget T2(getSpace(), false);
@@ -5601,9 +5603,10 @@ VectorInt variogramPerPoint(Db* db,
                             double bench,
                             double cylrad)
 {
+
   auto space = SpaceRN::create(db->getNDim());
 
-  Id nlag          = MAX(1, ilag0);
+  Id nlag          = MAX(1, ilag0 + 1);
   Id opt_code      = 0;
   double tolcode   = 0.;
   auto dirparam    = DirParam(nlag, dlag, toldis, tolang, opt_code, 0, bench, cylrad, tolcode,
@@ -5611,7 +5614,7 @@ VectorInt variogramPerPoint(Db* db,
   auto* varioparam = new VarioParam();
   varioparam->addDir(dirparam);
 
-  auto* vario     = new Vario(*varioparam);
+  auto* vario = new Vario(*varioparam);
 
   VectorInt pairs = vario->getPairs(db, iech0, ilag0);
   delete varioparam;
