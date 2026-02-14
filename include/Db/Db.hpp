@@ -473,6 +473,8 @@ public:
   virtual void getSampleAsSTInPlace(Id iech, SpaceTarget& P) const;
   VectorDouble getSampleLocators(const ELoc& locatorType, Id iech) const;
   VectorVectorDouble getIncrements(const VectorInt& iechs, const VectorInt& jechs) const;
+  VectorDouble getSamplesOneCoordinate(const VectorInt& iechs, Id idim = 0) const;
+  Id getSampleClosestTo(const VectorDouble& coor, bool useSel = false) const;
 
   VectorDouble getOneCoordinate(Id idim, bool useSel = false, bool flag_rotate = true) const;
   VectorVectorDouble getAllCoordinates(bool useSel = false) const;
