@@ -34,6 +34,7 @@ using namespace gstlrn;
 *****************************************************************************/
 int main(int argc, char* argv[])
 {
+  bessel_set_old_style(true);
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);

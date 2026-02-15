@@ -17,6 +17,7 @@
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 #include <Eigen/Core>
+#include <functional>
 #include <vector>
 
 #pragma once
@@ -36,7 +37,7 @@ public:
 
 
   // On prépare la hiérarchie
-  MultiGridSolver& compute(const ALinearOp&) { return *this; }
+  MultiGridSolver& compute(const ALinearOp& /*default*/) { return *this; }
 
   // Méthode appelée par le CG d'Eigen
   template<typename Rhs>
@@ -48,8 +49,8 @@ public:
   }
 
   // Indispensable pour l'interface Eigen
-  MultiGridSolver& analyzePattern(const ALinearOp&) { return *this; }
-  MultiGridSolver& factorize(const ALinearOp&) { return *this; }
+  MultiGridSolver& analyzePattern(const ALinearOp& /*default*/) { return *this; }
+  MultiGridSolver& factorize(const ALinearOp& /*default*/) { return *this; }
   
 
 private:
@@ -58,9 +59,10 @@ private:
 private:
   int _nLevels;
   //std::vector<const TLinOP*> _operators;  // La hiérarchie des Q
-  std::vector<const IProj*> _transferOps; // La hiérarchie des transferts (spécialisations de IProj)
+  std::vector<std::reference_wrapper<const IProj>> _transferOps; // La hiérarchie des transferts (spécialisations de IProj)
+  std::vector<ALinearOp*> _operators;     // La hiérarchie des opérateurs
   VectorDouble _lMax;              // Rayons spectraux pour Chebyshev
-  // Solveur direct pour le niveau L-1
+  // Solveur direct pour le niv&eau L-1
   mutable CholeskySparse _coarseSolver;
 };
 

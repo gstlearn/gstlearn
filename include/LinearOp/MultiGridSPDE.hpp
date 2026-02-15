@@ -13,6 +13,7 @@
 
 #include "Db/DbGrid.hpp"
 #include "LinearOp/MultiGridSolver.hpp"
+#include "LinearOp/ProjMatrix.hpp"
 #include "gstlearn_export.hpp"
 
 
@@ -33,7 +34,7 @@ public:
   void prepare(MultiGridSolver* solver,const DbGrid* grid);
   Id buildGridHierarchy(const DbGrid* dbfine, Id nlevels = 2);
   static std::pair<DbGrid, bool> buildNextGrid(const DbGrid* dbfine);
-  MatrixSparse buildProlongator(const DbGrid* dbfine, const DbGrid* dbcoarse, Id n_rings = 1);
+  ProjMatrix buildProlongator(const DbGrid* dbfine, const DbGrid* dbcoarse, Id n_rings = 1);
 
 private:
   const CovAniso* _cova;

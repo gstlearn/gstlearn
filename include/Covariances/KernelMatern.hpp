@@ -69,6 +69,7 @@ protected:
 private:
   using MaternFunc = double (*)(double, Id);
   static double _besselK(double nu, double h);
+  double _oldMatern(double h) const;
   static double _evalExp(double h, Id p = 0);
   static double _evalNu15(double h, Id p = 1);
   static double _evalNu25(double h, Id p = 2);
@@ -80,4 +81,5 @@ private:
   VectorDouble _markovCoeffs;
 };
 
+GSTLEARN_EXPORT void bessel_set_old_style(bool style);
 } // namespace gstlrn

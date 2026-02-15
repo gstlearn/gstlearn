@@ -86,9 +86,17 @@ double KernelMatern::getScadef() const
   return sqrt(12. * getParam());
 }
 
+static bool _besselOldStyle = false;
+
+void bessel_set_old_style(bool style)
+{
+  _besselOldStyle = style;
+}
+
 double KernelMatern::_evaluateCovGeneric(double h) const
 {
   if (h == 0) return 1;
+  if (_besselOldStyle) return _oldMatern(h);
   double nu = getParam();
   return 2. * pow(h / 2., nu) * _besselK(nu, h) / exp(loggamma(nu));
 }
@@ -160,6 +168,24 @@ double KernelMatern::_besselK(double nu, double h)
 #else
   return std::cyl_bessel_k(nu, h);
 #endif
+}
+
+double KernelMatern::_oldMatern(double h) const
+{
+  double TAB[MAXTAB];
+  double cov   = 0.;
+  double third = getParam();
+  Id nb        = static_cast<Id>(floor(third));
+  double alpha = third - nb;
+  if (third <= 0 || nb >= MAXTAB) return (0.);
+  double coeff = (h > 0) ? pow(h / 2., third) : 1.;
+  cov          = 1.;
+  if (h > 0)
+  {
+    if (besselk(h, alpha, nb + 1, TAB) < nb + 1) return 0.;
+    cov = 2. * coeff * TAB[nb] / exp(loggamma(third));
+  }
+  return (cov);
 }
 
 String KernelMatern::getFormula() const

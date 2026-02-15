@@ -20,6 +20,7 @@
 #include "Enum/EKrigOpt.hpp"
 #include "LinearOp/PrecisionOp.hpp"
 #include "Estimation/KrigOpt.hpp"
+#include "LinearOp/ProjMatrix.hpp"
 #include "LinearOp/CholeskyDense.hpp"
 #include "LinearOp/CholeskySparse.hpp"
 #include "LinearOp/MultiGridSolver.hpp"
@@ -93,7 +94,7 @@ void MultiGridSPDE::prepare(MultiGridSolver* solver, const DbGrid* grid)
   MeshETurbo mesh(grid);
 }
 
-MatrixSparse MultiGridSPDE::buildProlongator(const DbGrid* dbfine, const DbGrid* dbcoarse, Id n_rings)
+ProjMatrix MultiGridSPDE::buildProlongator(const DbGrid* dbfine, const DbGrid* dbcoarse, Id n_rings)
 {
   MeshETurbo mesh_c(dbcoarse);
   MeshETurbo mesh_f(dbfine);
@@ -208,8 +209,10 @@ MatrixSparse MultiGridSPDE::buildProlongator(const DbGrid* dbfine, const DbGrid*
 
   for (const auto& privateTriplet: privateTriplets)
     triplet.appendInPlace(privateTriplet);
-  MatrixSparse result(dbfine->getNSample(), dbcoarse->getNSample());
+  ProjMatrix result;
   result.resetFromTriplet(triplet);
+  //MatrixSparse result(dbfine->getNSample(), dbcoarse->getNSample());
+  //result.resetFromTriplet(triplet);
   return result;
 }
 
