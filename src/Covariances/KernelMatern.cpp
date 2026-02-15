@@ -22,7 +22,6 @@
 #define MAXTAB 100
 namespace gstlrn
 {
-static bool bessel_Old_Style = false;
 
 KernelMatern::KernelMatern(const CovContext& ctxt)
   : AKernel(ECov::MATERN, ctxt)
@@ -72,6 +71,10 @@ void KernelMatern::_setParam(double param, Id ipar)
   {
     _maternFunc = &KernelMatern::_evalNu25;
   }
+  else if (std::floor(param - 0.5) == param - 0.5)
+  {
+    _maternFunc = &KernelMatern::_evaluateCovIntegerPlusOneHalf;
+  }
   else
   {
     _maternFunc = nullptr;
@@ -85,12 +88,9 @@ double KernelMatern::getScadef() const
 
 double KernelMatern::_evaluateCovGeneric(double h) const
 {
-
-  if (bessel_Old_Style)
-  {
-    return _oldMatern(h);
-  }
-  return _newMatern(h);
+  if (h == 0) return 1;
+  double nu = getParam();
+  return 2. * pow(h / 2., nu) * _besselK(nu, h) / exp(loggamma(nu));
 }
 
 double KernelMatern::_evaluateCov(double h) const
@@ -99,90 +99,43 @@ double KernelMatern::_evaluateCov(double h) const
   {
     return _evaluateCovGeneric(h);
   }
-  return (this->_maternFunc)(h);
+  return (this->_maternFunc)(h, static_cast<Id>(getParam() - 0.5));
 }
 
-
-double KernelMatern::_evalExp(double h) 
+double KernelMatern::_evalExp(double h, Id p)
 {
-   return std::exp(-h); 
+  DECLARE_UNUSED(p)
+  return std::exp(-h);
 }
 
-double KernelMatern::_evalNu15(double h) 
+double KernelMatern::_evalNu15(double h, Id p)
 {
-   return std::exp(-h) * (1.0 + h); 
+  DECLARE_UNUSED(p)
+  return std::exp(-h) * (1.0 + h);
 }
 
-double KernelMatern::_evalNu25(double h) 
-{ 
-    return std::exp(-h) * (1.0 + h * (1.0 + h * 0.3333333333333333)); 
-}
-
-// TODO restore for the big nu case when formula is stable
-// double KernelMatern::_evaluateCovHalfInteger(double h) const
-// {
-//     if (h <= 1e-15) return 1.0;
-
-//     double nu = getParam();
-//     int p = static_cast<int>(nu - 0.5);
-
-//     double poly = 0.0;
-
-//     // Formules explicites optimisées pour les cas fréquents
-//     switch (p)
-//     {
-//         case 0: // nu = 0.5
-//             poly = 1.0;
-//             break;
-//         case 1: // nu = 1.5
-//             poly = 1.0 + h;
-//             break;
-//         case 2: // nu = 2.5
-//             poly = 1.0 + h + (h * h) / 3.0;
-//             break;
-//         case 3: // nu = 3.5
-//             poly = 1.0 + h + (0.4 * h * h) + (h * h * h) / 15.0;
-//             break;
-//         case 4: // nu = 4.5
-//             poly = 1.0 + h + (3.0/7.0 * h * h) + (2.0/21.0 * h * h * h) + (h * h * h * h) / 105.0;
-//             break;
-//         default:
-//             // Formule de récurrence générale pour p > 4
-//             // On utilise la forme : \sum_{k=0}^p a_k h^k
-//             // où a_k = \frac{(p+k)!}{k!(p-k)! 2^k} / \frac{(2p)!}{p! 2^p} ... non, plus simple :
-//             // a_k = a_{k-1} * \frac{p-k+1}{k(2p-k+1)}
-//             {
-//                 poly = 1.0;
-//                 double currentTerm = 1.0;
-//                 for (int k = 1; k <= p; ++k)
-//                 {
-//                     double factor = static_cast<double>(p - k + 1) / (k * (2 * p - k + 1));
-//                     currentTerm *= (h * factor * 2.0 * p); // Ajustement de normalisation
-//                     // Correction de la récurrence directe pour C(0)=1 :
-//                     // a_k = a_{k-1} * h * (p-k+1) / ( k * (2p-k+1) )
-//                     // Mais avec le h déjà inclus.
-//                 }
-                
-//                 // Version stable par Horner ou sommation directe :
-//                 poly = 1.0;
-//                 double ak = 1.0;
-//                 for (int k = 1; k <= p; ++k) {
-//                     ak *= h * static_cast<double>(p - k + 1) / (static_cast<double>(k) * (2 * p - k + 1));
-//                     poly += ak;
-//                 }
-//             }
-//             break;
-//     }
-
-//     return std::exp(-h) * poly;
-// }
-
-
-double KernelMatern::_newMatern(double h) const
+double KernelMatern::_evalNu25(double h, Id p)
 {
-  if (h == 0) return 1;
-  double nu = getParam();
-  return 2. * pow(h / 2., nu) * _besselK(nu, h) / exp(loggamma(nu));
+  DECLARE_UNUSED(p)
+  return std::exp(-h) * (1.0 + h * (1.0 + h * 0.3333333333333333));
+}
+
+double KernelMatern::_evaluateCovIntegerPlusOneHalf(double h, Id p)
+{
+  if (h <= 1e-15) return 1.0;
+
+  double poly = 1.0;
+  double ak   = 1.0;
+
+  for (int k = 1; k <= p; ++k)
+  {
+    double num = 2.0 * static_cast<double>(p - k + 1);
+    auto den   = static_cast<double>(k * (2 * p - k + 1));
+    ak *= h * (num / den);
+    poly += ak;
+  }
+
+  return std::exp(-h) * poly;
 }
 
 double KernelMatern::_evaluateCovFirstDerivative(double h) const
@@ -209,24 +162,6 @@ double KernelMatern::_besselK(double nu, double h)
 #endif
 }
 
-double KernelMatern::_oldMatern(double h) const
-{
-  double TAB[MAXTAB];
-  double cov   = 0.;
-  double third = getParam();
-  Id nb        = static_cast<Id>(floor(third));
-  double alpha = third - nb;
-  if (third <= 0 || nb >= MAXTAB) return (0.);
-  double coeff = (h > 0) ? pow(h / 2., third) : 1.;
-  cov          = 1.;
-  if (h > 0)
-  {
-    if (besselk(h, alpha, nb + 1, TAB) < nb + 1) return 0.;
-    cov = 2. * coeff * TAB[nb] / exp(loggamma(third));
-  }
-  return (cov);
-}
-
 String KernelMatern::getFormula() const
 {
   return "C(h)=\\frac{2^{1-\\nu}}{\\Gamma(\\nu)} h^\\nu K_{\\nu}( h )";
@@ -241,12 +176,6 @@ double KernelMatern::evaluateSpectrum(double freq) const
   double alpha  = param + ndims2;
   double val    = pow(2, ndim) / getCorrec() / pow(1 + (freq * freq), alpha);
   return val;
-
-  /*
-  Id ndim     = getContext().getNDim();
-  double alpha = (double)ndim / 2. + getParam();
-  return 1. / pow(1. + freq, alpha);
-  */
 }
 
 void KernelMatern::computeMarkovCoeffs(Id ndim)
@@ -316,8 +245,4 @@ VectorDouble KernelMatern::_evaluateSpectrumOnSphere(Id n, double scale, bool fl
   return sp;
 }
 
-void bessel_set_old_style(bool style)
-{
-  bessel_Old_Style = style;
-}
 } // namespace gstlrn

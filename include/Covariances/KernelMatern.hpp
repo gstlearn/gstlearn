@@ -11,6 +11,7 @@
 #pragma once
 
 #include "Covariances/AKernel.hpp"
+#include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
 namespace gstlrn
@@ -63,17 +64,15 @@ protected:
 
   double _evaluateCovFirstDerivative(double h) const override;
   VectorDouble _evaluateSpectrumOnSphere(Id n, double scale = 1., bool flagScale = true) const override;
-  double _evaluateCovHalfInteger(double h) const;
   void _setParam(double param, Id ipar = 0) override;
 
 private:
-  using MaternFunc = double (*)(double);
+  using MaternFunc = double (*)(double, Id);
   static double _besselK(double nu, double h);
-  double _newMatern(double h) const;
-  double _oldMatern(double h) const;
-  static double _evalExp(double h);
-  static double _evalNu15(double h);
-  static double _evalNu25(double h);
+  static double _evalExp(double h, Id p = 0);
+  static double _evalNu15(double h, Id p = 1);
+  static double _evalNu25(double h, Id p = 2);
+  static double _evaluateCovIntegerPlusOneHalf(double h, Id p);
 
 private:
   MaternFunc _maternFunc = nullptr;
@@ -81,5 +80,4 @@ private:
   VectorDouble _markovCoeffs;
 };
 
-GSTLEARN_EXPORT void bessel_set_old_style(bool style);
 } // namespace gstlrn
