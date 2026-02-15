@@ -34,7 +34,6 @@ using namespace gstlrn;
 *****************************************************************************/
 int main(int argc, char* argv[])
 {
-  bessel_set_old_style(true);
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
@@ -122,7 +121,9 @@ int main(int argc, char* argv[])
   Model modelPGS1(ctxt);
   Model modelPGS2(ctxt);
   Constraints constraints;
+  constraints.addItemFromParamId(EConsElem::PARAM,0,0,0,EConsType::EQUAL, 2.5);
   constraints.setConstantSillValue(1.);
+
 
   VectorECov covs {ECov::MATERN, ECov::EXPONENTIAL};
   modelPGS1.fit(&vario1, covs, constraints);
