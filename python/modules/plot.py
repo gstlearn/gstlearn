@@ -2512,7 +2512,8 @@ def _ax_neighWeights(
                 **kwargs,
             )
 
-def drawCircles(m, M, middle=False, x0 = 0, y0 = 0):
+
+def drawCircles(m, M, middle=False, x0=0, y0=0):
     x = np.linspace(-m, m, 100)
     plt.plot(x + x0, np.sqrt(m**2 - x**2) + y0, c="g")
     plt.plot(x + x0, -np.sqrt(m**2 - x**2) + y0, c="g")
@@ -2526,7 +2527,8 @@ def drawCircles(m, M, middle=False, x0 = 0, y0 = 0):
         plt.plot(x + x0, np.sqrt(mid**2 - x**2) + y0, c="r")
         plt.plot(x + x0, -np.sqrt(mid**2 - x**2) + y0, c="r")
 
-def drawLineLimited(x0, y0, dx, dy, offset=0, col="black", ls='solid', lw=1, eps=0.05):
+
+def drawLineLimited(x0, y0, dx, dy, offset=0, col="black", ls="solid", lw=1, eps=0.05):
     """
     Trace une ligne passant par (x0, y0) avec direction (dx, dy),
     limitée aux bords de la figure, avec un décalage vertical 'offset'.
@@ -2540,35 +2542,38 @@ def drawLineLimited(x0, y0, dx, dy, offset=0, col="black", ls='solid', lw=1, eps
     deltay = ymax - ymin
     ymin = ymin + deltay * eps
     ymax = ymax - deltay * eps
-    
+
     # calculer t pour intersections avec les 4 côtés
     t_vals = []
     if dx != 0:
-        t_vals.extend([(xmin - x0)/dx, (xmax - x0)/dx])
+        t_vals.extend([(xmin - x0) / dx, (xmax - x0) / dx])
     if dy != 0:
-        t_vals.extend([(ymin - y0 - offset)/dy, (ymax - y0 - offset)/dy])
+        t_vals.extend([(ymin - y0 - offset) / dy, (ymax - y0 - offset) / dy])
 
     points = []
     for t in t_vals:
-        xi = x0 + t*dx
-        yi = y0 + t*dy + offset
-        if xmin-1e-12 <= xi <= xmax+1e-12 and ymin-1e-12 <= yi <= ymax+1e-12:
+        xi = x0 + t * dx
+        yi = y0 + t * dy + offset
+        if xmin - 1e-12 <= xi <= xmax + 1e-12 and ymin - 1e-12 <= yi <= ymax + 1e-12:
             points.append((xi, yi))
-    
+
     if len(points) >= 2:
         (x1, y1), (x2, y2) = points[:2]
         ax.plot([x1, x2], [y1, y2], c=col, linestyle=ls, linewidth=lw)
 
-def drawCone(angle, tolang = 0, x0 = 0, y0 = 0, col="red"):
-    gp.drawDirection(angle, x0=x0, y0=y0, col=col, ls='-')
-    gp.drawDirection(angle + tolang, x0=x0, y0=y0, col=col, ls='solid')
-    gp.drawDirection(angle - tolang, x0=x0, y0=y0, col=col, ls='solid')
 
-def drawDirection(angle, x0 = 0, y0 = 0, col="black", ls='solid', lw=1):
+def drawCone(angle, tolang=0, x0=0, y0=0, col="red"):
+    gp.drawDirection(angle, x0=x0, y0=y0, col=col, ls="-")
+    gp.drawDirection(angle + tolang, x0=x0, y0=y0, col=col, ls="solid")
+    gp.drawDirection(angle - tolang, x0=x0, y0=y0, col=col, ls="solid")
+
+
+def drawDirection(angle, x0=0, y0=0, col="black", ls="solid", lw=1):
     a = np.deg2rad(angle)
     dx, dy = np.cos(a), np.sin(a)
     drawLineLimited(x0, y0, dx, dy, col=col, ls=ls, lw=lw)
-    
+
+
 def drawDir(angle, col, R=10000):
     a = np.deg2rad(angle)
     u = R * np.array([0, np.cos(a)])
@@ -2577,31 +2582,33 @@ def drawDir(angle, col, R=10000):
     plt.plot(-u, -v, c=col)
 
 
-def drawCylrad(angle, cylrad, col="purple", x0 = 0, y0 = 0):
+def drawCylrad(angle, cylrad, col="purple", x0=0, y0=0):
     if cylrad == gl.TEST:
         return
 
     a = np.deg2rad(angle)
     dx, dy = np.cos(a), np.sin(a)
-    x = cylrad / np.sin(a - np.pi/2)
-    
+    x = cylrad / np.sin(a - np.pi / 2)
+
     # tracer les 4 droites avec décalage
-    drawLineLimited(x0, y0, dx, dy, offset= x, col=col)
+    drawLineLimited(x0, y0, dx, dy, offset=x, col=col)
     drawLineLimited(x0, y0, dx, dy, offset=-x, col=col)
-    drawLineLimited(x0, y0, dx, dy, offset= x * -1, col=col)
+    drawLineLimited(x0, y0, dx, dy, offset=x * -1, col=col)
     drawLineLimited(x0, y0, dx, dy, offset=-x * -1, col=col)
 
-def drawBench(angle, bench, col="blue", x0 = 0, y0 = 0):
+
+def drawBench(angle, bench, col="blue", x0=0, y0=0):
     if bench == gl.TEST:
         return
 
     a = np.deg2rad(angle)
     dx, dy = np.cos(a), np.sin(a)
-    x = bench / np.sin(a - np.pi/2)
-    
+    x = bench / np.sin(a - np.pi / 2)
+
     # tracer les 4 droites avec décalage
-    drawLineLimited(x0, y0, dx, dy, offset= x, col=col)
+    drawLineLimited(x0, y0, dx, dy, offset=x, col=col)
     drawLineLimited(x0, y0, dx, dy, offset=-x, col=col)
+
 
 # Function to retrieve the limits of a lag
 def lagDefine(i, lag, tol=0):
@@ -2612,6 +2619,7 @@ def lagDefine(i, lag, tol=0):
             mini = center - reltol
         maxi = maxi + reltol
     return mini, center, maxi
+
 
 def sectionFromGrid(
     trace,
