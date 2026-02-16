@@ -613,20 +613,21 @@ double CalcSimpleInterpolation::_stdevCalc(Db* dbin,
   Id ndim = dbin->getNDim();
   VectorDouble coor(ndim);
   VectorDouble M0x;
-  SpacePoint pout;
+  ModelGeneric* model = getModelGeneric();
+  SpacePoint pout(model->getSpace());
 
   dbout->getCoordinatesInPlace(coor, iechout);
   pout.setCoords(coor);
 
   // Point Covariance at target
-  double c00 = getModelGeneric()->evalCov(pout, pout);
+  double c00 = model->evalCov(pout, pout);
 
   // Vector of Covariances between Data and Target
-  getModelGeneric()->evalPointToDb(M0x, pout, dbin, 0, 0, true, nbgh);
+  model->evalPointToDb(M0x, pout, dbin, 0, 0, true, nbgh);
   double c0x = M0x.innerProduct(weights);
 
   // Covariance between Data and Data
-  MatrixDense Mxx = getModelGeneric()->evalCovMat(dbin, dbin, 0, 0, nbgh, nbgh);
+  MatrixDense Mxx = model->evalCovMat(dbin, dbin, 0, 0, nbgh, nbgh);
   double cxx      = Mxx.prodVecMatVec(weights, weights);
 
   double result = sqrt(c00 - 2. * c0x + cxx);

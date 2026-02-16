@@ -257,8 +257,8 @@ void Vecchia::_buildLHS(Id nitems,
                         const std::vector<std::array<Id, 4>>& neighDescr,
                         MatrixSymmetric& matCov)
 {
-  SpacePoint p1;
-  SpacePoint p2;
+  SpacePoint p1(_model->getSpace());
+  SpacePoint p2(_model->getSpace());
 
   for (Id i1 = 0; i1 < nitems; i1++)
   {
@@ -309,8 +309,8 @@ void Vecchia::_buildRHS(Id icase2,
                         const std::vector<std::array<Id, 4>>& neighDescr,
                         MatrixDense& vectCov)
 {
-  SpacePoint p1;
-  SpacePoint p2;
+  SpacePoint p1(_model->getSpace());
+  SpacePoint p2(_model->getSpace());
 
   if (icase2 == 1)
     _db1->getSampleAsSPInPlace(p2, iabs2);
@@ -396,7 +396,7 @@ double Vecchia::_buildC00(Id icaseDb,
                           Id ipAbs,
                           Id ivar)
 {
-  SpacePoint p1;
+  SpacePoint p1(_model->getSpace());
   if (icaseDb == 1)
     _db1->getSampleAsSPInPlace(p1, ipAbs);
   else

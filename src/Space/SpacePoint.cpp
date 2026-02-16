@@ -27,7 +27,7 @@ SpacePoint::SpacePoint(const ASpaceSharedPtr& space)
 {
 
   // Initialize the point to the space origin
-  // TODO : Not true whatever the space
+  // TODO[space]: Not true whatever the space
   _coord = getOrigin();
 }
 
@@ -48,7 +48,7 @@ SpacePoint::SpacePoint(const VectorDouble& coord, Id iech, const ASpaceSharedPtr
   if (coord.size() == 0 || coord.size() != getNDim())
   {
     // Use a valid default SpacePoint (origin ?)
-    // TODO : Not true whatever the space
+    // TODO[space]: Not true whatever the space!
     messerr("Problem with the number of coordinates.");
     messerr("Point not created.");
     _coord = getOrigin();

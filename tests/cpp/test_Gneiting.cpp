@@ -72,8 +72,8 @@ int main(int argc, char* argv[])
   // Testing the covariance calculation between two points
   VectorDouble coords1 = {12., 3., 1.};
   VectorDouble coords2 = {4., 5., 2.};
-  SpacePoint p1(sp);
-  SpacePoint p2(sp);
+  SpacePoint p1(sp); // Use default space (2D + 1D)
+  SpacePoint p2(sp); // Use default space (2D + 1D)
   p1.setCoords(coords1);
   p2.setCoords(coords2);
   double cres = corGneiting.evalCov(p1, p2);

@@ -102,6 +102,7 @@ double DbLine::getLineLength(Id iline) const
 {
   if (!_isLineNumberValid(iline)) return TEST;
   double total = 0.;
+  //TODO[space]: Default space is used!
   SpacePoint P1;
   SpacePoint P2;
   getSampleAsSPInPlace(P1, _lineAdds[iline][0]);

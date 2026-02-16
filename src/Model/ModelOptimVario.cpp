@@ -245,7 +245,7 @@ double ModelOptimVario::computeCost(bool flagPrint, bool verbose)
   // Evaluate the Cost function
   Id nlags     = static_cast<Id>(_lags.size());
   double score = 0.;
-  SpacePoint origin;
+  SpacePoint origin(_model->getSpace());
   _resid.resize(nlags);
   for (Id ilag = 0; ilag < nlags; ilag++)
   {
@@ -264,7 +264,7 @@ void ModelOptimVario::evalGrad(vect res)
 
   const auto& gradcov = _model->getCovGradients();
   Id nlags            = static_cast<Id>(_lags.size());
-  SpacePoint origin;
+  SpacePoint origin(_model->getSpace());
 
   for (size_t i = 0; i < gradcov.size(); i++)
     res[i] = 0.;

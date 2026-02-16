@@ -309,6 +309,7 @@ double manhattan_distance(const double* x1, const double* x2, Id n_features)
  */
 double euclidean_distance(const double* x1, const double* x2, Id n_features)
 {
+  //TODO[space]: Default space is used here! Hopefully, it's RN (euclidean)... but n_features must be 2!
   thread_local SpacePoint p1;
   thread_local SpacePoint p2;
   if (p1.getSpace() != getDefaultSpaceSh())

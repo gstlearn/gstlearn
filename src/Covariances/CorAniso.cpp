@@ -679,8 +679,8 @@ double CorAniso::evalSpectrum(const VectorDouble& freq, Id ivar, Id jvar) const
   DECLARE_UNUSED(ivar, jvar)
   if (!_corfunc->isValidForSimulation(ESimuType::SPECTRAL)) return TEST;
 
-  SpacePoint p1;
-  SpacePoint p2;
+  SpacePoint p1(getSpace());
+  SpacePoint p2(getSpace());
   p2.setCoords(freq);
   double freqnorm = getSpace()->getFrequentialDistance(p1, p2, _aniso);
   return _corfunc->evaluateSpectrum(freqnorm) * getDetTensor();
@@ -922,7 +922,7 @@ void CorAniso::_updateFromContext()
 double CorAniso::getIntegralRange(Id ndisc, double hmax) const
 {
   auto ndim = getNDim();
-  SpacePoint dd(VectorDouble(ndim), -1);
+  SpacePoint dd(VectorDouble(ndim), -1, getSpace());
   double delta = hmax / ndisc;
   double total = 0.;
   switch (ndim)
@@ -931,7 +931,7 @@ double CorAniso::getIntegralRange(Id ndisc, double hmax) const
       for (Id j1 = -ndisc; j1 <= ndisc; j1++)
       {
         dd.setCoord(0, delta * j1);
-        total += delta * evalCov(dd, SpacePoint());
+        total += delta * evalCov(dd, SpacePoint(getSpace()));
       }
       break;
 
@@ -941,7 +941,7 @@ double CorAniso::getIntegralRange(Id ndisc, double hmax) const
         {
           dd.setCoord(0, delta * j1);
           dd.setCoord(1, delta * j2);
-          total += delta * delta * evalCov(dd, SpacePoint());
+          total += delta * delta * evalCov(dd, SpacePoint(getSpace()));
         }
       break;
 
@@ -953,7 +953,7 @@ double CorAniso::getIntegralRange(Id ndisc, double hmax) const
             dd.setCoord(0, delta * j1);
             dd.setCoord(1, delta * j2);
             dd.setCoord(2, delta * j3);
-            total += delta * delta * delta * evalCov(dd, SpacePoint());
+            total += delta * delta * delta * evalCov(dd, SpacePoint(getSpace()));
           }
       break;
 
