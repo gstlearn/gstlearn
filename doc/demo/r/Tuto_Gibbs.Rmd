@@ -574,6 +574,7 @@ for (s in 1:nbsimu) {
   print(paste0(">>>> processing simulation #", s))
   s_nm = paste("cs.y", s, sep = ".")
   # simulations of the censored observations
+  err = data$clearLocators(ELoc_Z())
   err = gibbs_sampler(dbin = data, model = model, 
       nbsimu = 1, flag_ce = FALSE, flag_cstd = FALSE, 
       namconv = NamingConvention(s_nm),

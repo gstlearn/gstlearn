@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Gibbs/GibbsFactory.hpp"
-#include "Basic/AStringable.hpp"
 #include "Db/Db.hpp"
 #include "Gibbs/GibbsMMulti.hpp"
 #include "Gibbs/GibbsUMulti.hpp"
