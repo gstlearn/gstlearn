@@ -13,7 +13,7 @@
 #include "LinearOp/IProj.hpp"
 #include "gstlearn_export.hpp"
 
-#include <memory>
+#include <functional>
 
 namespace gstlrn
 {
@@ -33,11 +33,13 @@ protected:
 #endif
 
 public:
-  Id getNApex() const override { return (_projs.size() == 0 ? 0 : _projs.front()->getNApex()); }
-  Id getNPoint() const override { return (_projs.size() == 0 ? 0 : _projs.back()->getNPoint()); }
+  Id getNApex() const override { return (_projs.size() == 0 ? 0 : _projs.front().get().getNApex()); }
+  Id getNPoint() const override { return (_projs.size() == 0 ? 0 : _projs.back().get().getNPoint()); }
 
 private:
-  std::vector<std::unique_ptr<const IProj>> _projs;
+  using ProjVect = std::vector<std::reference_wrapper<const IProj>>;
+
+  ProjVect _projs;
   mutable VectorVectorDouble _works;
 };
 } // namespace gstlrn
