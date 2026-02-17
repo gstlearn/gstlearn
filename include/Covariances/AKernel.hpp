@@ -151,7 +151,6 @@ private:
 };
 
 GSTLEARN_EXPORT VectorInt getAllMaxDimension();
-GSTLEARN_EXPORT VectorBool getAllIsSpatialTemporal();
 GSTLEARN_EXPORT VectorString getAllFormula();
 
 } // namespace gstlrn
