@@ -13,11 +13,14 @@
 #include "Basic/Grid.hpp"
 #include "Basic/Indirection.hpp"
 #include "Basic/VectorNumT.hpp"
+#include "Basic/OptCustom.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "LinearOp/AShiftOp.hpp"
 #include "LinearOp/ShiftOpMatrix.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "geoslib_define.h"
+
+#include <omp.h>
 
 namespace gstlrn
 {
@@ -87,20 +90,24 @@ Id ShiftOpStencil::_addToDest(const constvect inv, vect outv) const
   Id size                     = static_cast<Id>(inv.size());
   const Indirection& indirect = _mesh->getGridIndirect();
 
-  double total;
+  auto nbthread = static_cast<I32>(OptCustom::query("ompthreads", 1));
+  omp_set_num_threads(nbthread);
+
   if (!indirect.isDefined())
   {
     // Use the fast option when no selection is defined on the Grid
+#pragma omp parallel for
     for (Id ic = 0; ic < size; ic++)
     {
-      total = 0.;
+      double total = 0.;
       if (_isInside[ic])
       {
         for (Id iw = 0; iw < nw; iw++)
         {
           Id iabs      = ic + _absoluteShifts[iw];
-          double value = _isInside[iabs] ? inv[iabs] : 0.;
-          total += (*currentWeights)[iw] * value;
+          if (_isInside[iabs]) {
+            total += (*currentWeights)[iw] * inv[iabs];
+          }
         }
       }
       outv[ic] = total;
@@ -113,9 +120,11 @@ Id ShiftOpStencil::_addToDest(const constvect inv, vect outv) const
 
     VectorInt center(ndim);
     VectorInt local(ndim);
+
+#pragma omp parallel for firstprivate(center, local)
     for (Id ic = 0; ic < size; ic++)
     {
-      total = 0.;
+      double total = 0.;
 
       // Check if the target point is not on the edge and not masked
       if (_isInside[ic])
