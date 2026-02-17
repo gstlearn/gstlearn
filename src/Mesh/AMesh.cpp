@@ -16,6 +16,7 @@
 #include "LinearOp/ProjMatrix.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixInt.hpp"
+#include "Matrix/MatrixSparse.hpp"
 #include "Matrix/MatrixSquare.hpp"
 #include "Matrix/NF_Triplet.hpp"
 #include "Space/SpacePoint.hpp"
@@ -31,6 +32,7 @@ AMesh::AMesh()
   , _nDim(0)
   , _extendMin()
   , _extendMax()
+  , _adjacencyMatrix(new MatrixSparse())
 {
 }
 
@@ -54,6 +56,7 @@ AMesh& AMesh::operator=(const AMesh& m)
 
 AMesh::~AMesh()
 {
+  delete _adjacencyMatrix;
 }
 
 Id AMesh::_setExtend(const VectorDouble& extendmin,
@@ -184,6 +187,8 @@ void AMesh::_recopy(const AMesh& m)
   _nDim      = m._nDim;
   _extendMin = m._extendMin;
   _extendMax = m._extendMax;
+  delete _adjacencyMatrix;
+  _adjacencyMatrix = new MatrixSparse(*m._adjacencyMatrix);
 }
 
 VectorDouble AMesh::getCoordinatesPerApex(Id idim) const
@@ -666,6 +671,93 @@ VectorVectorInt AMesh::getNeighborhoodPerApex() const
   return Vapex;
 }
 
+VectorInt AMesh::getAdjacentApices(Id iapex) const
+{
+  if (_adjacencyMatrix->empty())
+  {
+    buildAdjacencyMatrix();
+  }
+  return _adjacencyMatrix->getNonZeroCols(iapex);
+}
+
+thread_local VectorBool _visitedWorkspace;
+
+VectorInt AMesh::getNRingsAdjacentApices( Id start_apex, Id n_rings) const
+{
+    if (n_rings <= 0) return {start_apex};
+    
+    VectorInt all_neighbors;
+    VectorInt current_layer;
+    size_t nApices = getNApices();
+
+    if (_visitedWorkspace.size() != nApices) {
+        _visitedWorkspace.fill(false, nApices);
+    }
+
+    _visitedWorkspace[start_apex] = true;
+    current_layer.push_back(start_apex);
+    all_neighbors.push_back(start_apex);
+
+    for (Id r = 0; r < n_rings; ++r) {
+        VectorInt next_layer;
+        for (Id apex : current_layer) {
+            VectorInt neighbors = getAdjacentApices(apex);
+            
+            for (Id v : neighbors) {
+                if (!_visitedWorkspace[v]) {
+                    _visitedWorkspace[v] = true;
+                    next_layer.push_back(v);
+                    all_neighbors.push_back(v);
+                }
+            }
+        }
+        if (next_layer.empty()) break;
+        current_layer = next_layer; // TODO use std::move
+    }
+
+    for (Id idx : all_neighbors) {
+        _visitedWorkspace[idx] = false;
+    }
+
+    return all_neighbors;
+}
+
+const MatrixSparse* AMesh::getAdjacentApicesMatrix() const
+{
+  if (_adjacencyMatrix->empty())
+  {
+    buildAdjacencyMatrix();
+  }
+  return _adjacencyMatrix;
+}
+
+void AMesh::buildAdjacencyMatrix() const
+{
+  delete _adjacencyMatrix;
+  Id nmeshes         = getNMeshes();
+  Id ncorner         = getNApexPerMesh();
+
+  // Define Sl as the sparse matrix giving the clutter of apices among vertices
+  NF_Triplet NF_T;
+  for (Id imesh = 0; imesh < nmeshes; imesh++)
+  {
+    for (Id ic = 0; ic < ncorner; ic++)
+    {
+      Id iapex = getApex(imesh, ic);
+      NF_T.add(iapex, imesh, 1.);
+    }
+  }
+  auto* Sl = MatrixSparse::createFromTriplet(NF_T);
+
+  // Operate the product Sl * t(Sl) to get the final matrix Sret
+  _adjacencyMatrix = prodNormMat(Sl, false);
+  delete Sl;
+
+  // Blank out the contents of the sparse matrix
+  _adjacencyMatrix->setConstant(1.);
+
+}
+
 void AMesh::dumpNeighborhood(std::vector<VectorInt>& Vmesh, Id nline_max)
 {
   mestitle(1, "List of Meshing Neighborhood");
@@ -900,7 +992,7 @@ void AMesh::resetProjFromDb(ProjMatrix* m,
       for (Id icorn = 0; icorn < ncorner; icorn++)
       {
         auto ip = getApex(found, icorn);
-        if (ip > ip_max) ip_max = ip;
+        ip_max = MAX(ip_max, ip);
         if (verbose) message(" %4d (%4.2lf)", ip, weight[icorn]);
         NF_T.add(iech, ip, weight[icorn]);
       }

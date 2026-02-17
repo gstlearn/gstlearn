@@ -446,7 +446,7 @@ SpacePoint& CovList::_optimizationLoadInPlace(Id iech, Id mode, Id rank) const
 {
   for (Id is = 1, ns = getNCov(); is < ns; is++)
     (void)_covs[is]->optimizationLoadInPlace(iech, mode, rank);
-  return _covs[0]->optimizationLoadInPlace(iech, mode, rank);
+  return _covs[0]->optimizationLoadInPlace(iech, mode, rank); // TODO :check
 }
 
 void CovList::_optimizationPostProcess() const

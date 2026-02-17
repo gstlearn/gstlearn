@@ -11,6 +11,7 @@
 #pragma once
 
 #include "LinearOp/CholeskySparse.hpp"
+#include "LinearOp/IProj.hpp"
 #include "LinearOp/InvNuggetOp.hpp"
 #include "LinearOp/SPDEOp.hpp"
 #include "Matrix/MatrixSparse.hpp"
@@ -35,8 +36,8 @@ public:
   VectorDouble stdev(const VectorDouble& dat,
                      Id nMC                 = 1,
                      Id seed                = 134343,
-                     const ProjMulti* projK = nullptr,
-                     const ProjMulti* projS = nullptr) const override;
+                     const IProj* projK = nullptr,
+                     const IProj* projS = nullptr) const override;
 
 #ifndef SWIG
 

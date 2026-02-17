@@ -1,5 +1,6 @@
 %feature(director) IProj;
 %feature(director) ACov;
+%feature(director) AFunction;
 %feature(director) AFunctional;
 %feature(director) ABiTargetCheck;
 
@@ -148,12 +149,16 @@
   #include "LinearOp/CGParam.hpp"
   #include "LinearOp/LogStats.hpp"
   #include "LinearOp/ALinearOp.hpp"
+  #include "LinearOp/APreconditioner.hpp"
+  #include "LinearOp/MultiGridSolver.hpp"
+  #include "LinearOp/MultiGridSPDE.hpp"
   #include "LinearOp/ASimulable.hpp"
   #include "LinearOp/LinearOpCGSolver.hpp"
   #include "LinearOp/ALinearOpMulti.hpp"
   #include "LinearOp/AShiftOp.hpp"
   #include "LinearOp/ShiftOpStencil.hpp"
   #include "LinearOp/ShiftOpMatrix.hpp"
+  #include "LinearOp/IPrecisionOp.hpp"
   #include "LinearOp/PrecisionOp.hpp"
   #include "LinearOp/PrecisionOpMatrix.hpp"
   #include "LinearOp/TurboOptimizer.hpp"
@@ -166,7 +171,6 @@
   #include "LinearOp/ProjComposition.hpp"
   #include "LinearOp/PrecisionOpMulti.hpp"
   #include "LinearOp/PrecisionOpMultiMatrix.hpp"
-  #include "LinearOp/PrecisionOpMultiConditional.hpp"
   #include "LinearOp/IOptimCost.hpp"
   #include "LinearOp/OptimCostBinary.hpp"
   #include "LinearOp/OptimCostColored.hpp"
@@ -177,7 +181,8 @@
   #include "LinearOp/ACholesky.hpp"
   #include "LinearOp/CholeskyDense.hpp"
   #include "LinearOp/CholeskySparse.hpp"
-
+  #include "LinearOp/LinearOpHelper.hpp"
+  
   #include "Neigh/ANeigh.hpp"
   #include "Neigh/NeighUnique.hpp"
   #include "Neigh/NeighImage.hpp"

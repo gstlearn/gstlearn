@@ -11,7 +11,7 @@
 #pragma once
 
 #include "Basic/AStringFormat.hpp"
-#include "LinearOp/ASimulable.hpp"
+#include "LinearOp/IPrecisionOp.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "gstlearn_export.hpp"
@@ -37,7 +37,7 @@ class ASimulable;
 
 // This class is dedicated to the multivariate Model.
 // It creates a vector of precision operators (matrix-free).
-class GSTLEARN_EXPORT PrecisionOpMulti: public AStringable, public ASimulable
+class GSTLEARN_EXPORT PrecisionOpMulti: public AStringable, public IPrecisionOp
 {
 public:
   PrecisionOpMulti(Model* model               = nullptr,
@@ -54,7 +54,7 @@ public:
   Id getSize() const override;
 
   double computeLogDet(Id nMC = 1) const override;
-  std::pair<double, double> rangeEigenValQ() const;
+  std::pair<double, double> rangeEigenVal(Id ndiscr = 100) const override;
 
 protected:
 #ifndef SWIG

@@ -153,11 +153,14 @@ bool CalcKrigingSimpleCase::_run()
   auto ndim                       = getModelGeneric()->getSpace()->getNDim();
   const VectorVectorDouble coords = getDbout()->getAllCoordinates();
   static ANeigh* neigh            = nullptr;
+  
+  const double* selcol = getDbout()->getColumnPtr(ELoc::SEL, 0);
+  bool hassel = getDbout()->hasLocator(ELoc::SEL);
 #pragma omp threadprivate(neigh)
 #pragma omp parallel for firstprivate(pin, pout, tabwork, algebra, model) schedule(guided) if (use_parallel)
   for (Id iech_out = 0; iech_out < nech_out; iech_out++)
   {
-    if (!getDbout()->isActive(iech_out)) continue;
+    if (hassel && !selcol[iech_out]) continue; // Skip non-selected targets
     if (neigh == nullptr)
     {
       neigh = static_cast<ANeigh*>(getNeigh()->clone());

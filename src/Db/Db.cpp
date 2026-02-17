@@ -1052,6 +1052,11 @@ double Db::getFromLocator(const ELoc& locatorType,
   return (_array[_getAddress(iech, icol)]);
 }
 
+const double* Db::getColumnPtr(const ELoc& locatorType, Id locatorIndex)
+{
+  return &_array[_getAddress(0, getColIdxByLocator(locatorType, locatorIndex))];
+}
+
 bool Db::hasLocator(const ELoc& locatorType) const
 {
   const PtrGeos& p = _p[locatorType.getValue()];

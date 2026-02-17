@@ -67,6 +67,18 @@ public:
   void setVerbose(bool verbose) { _verbose = verbose; }
 
   Id fit2(AFunction* f, double a = 0., double b = 1., double tol = EPSILON5);
+  VectorDouble smoother(ALinearOp* Op, const VectorDouble& ucurr, const VectorDouble& rhs, 
+                        double lambda_max, double ratiomin = 0.03,
+                        double ratiomax = 1.05, Id iterations = 3) const;
+  #ifndef SWIG
+  void smoother(ALinearOp* Op, 
+                VectorDouble& ucurr, 
+                const VectorDouble& rhs,  
+                double lambda_max, 
+                double ratiomin = 0.03, 
+                double ratiomax = 1.05,  
+                Id iterations=3) const;
+  #endif 
 
 private:
   bool _isReady() const { return !_coeffs.empty(); }
@@ -82,5 +94,7 @@ private:
   double _a;
   double _b;
   bool _verbose;
+  mutable VectorDouble _work;
+  mutable VectorDouble _work2;
 };
 } // namespace gstlrn

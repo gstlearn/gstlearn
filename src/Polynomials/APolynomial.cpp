@@ -50,7 +50,7 @@ APolynomial& APolynomial::operator=(const APolynomial& p)
   }
   return *this;
 }
-#ifndef SWIG
+
 VectorDouble APolynomial::evalOp(MatrixSparse* Op, const constvect in) const
 {
   VectorDouble result(in.size());
@@ -59,7 +59,6 @@ VectorDouble APolynomial::evalOp(MatrixSparse* Op, const constvect in) const
   return result;
 }
 
-#endif
 String APolynomial::toString(const AStringFormat* /*strfmt*/) const
 {
   String str;
@@ -83,5 +82,15 @@ void APolynomial::init(const VectorDouble& coeffs)
 void APolynomial::addEvalOp(const ALinearOp* Op, const constvect inv, vect outv) const
 {
   _addEvalOp(Op, inv, outv);
+  
+}
+VectorDouble APolynomial::evalOp(const ALinearOp* Op, const VectorDouble& inv) const
+{
+  VectorDouble result;
+  result.fill(0., inv.size());
+  vect outv(result);
+  addEvalOp(Op, inv, outv);
+  return result;
+
 }
 } // namespace gstlrn

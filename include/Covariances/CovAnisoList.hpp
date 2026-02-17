@@ -107,7 +107,7 @@ public:
   bool isChangeSupportDefined() const;
   void appendParams(ListParams& listParams,
                     std::vector<covmaptype>* gradFuncs = nullptr) override;
-  // Methods necessary for Optimization
+
   bool hasNugget() const;
   Id getRankNugget() const;
   const CovAnisoList* createReduce(const VectorInt& validVars) const;

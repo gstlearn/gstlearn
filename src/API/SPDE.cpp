@@ -18,6 +18,7 @@
 #include "Db/Db.hpp"
 #include "Enum/ECov.hpp"
 #include "LinearOp/InvNuggetOp.hpp"
+#include "LinearOp/MultiGridSolver.hpp"
 #include "LinearOp/PrecisionOpMulti.hpp"
 #include "LinearOp/PrecisionOpMultiMatrix.hpp"
 #include "LinearOp/ProjMatrix.hpp"

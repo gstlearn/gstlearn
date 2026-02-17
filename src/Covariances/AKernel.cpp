@@ -67,6 +67,7 @@ void AKernel::setParam(double param, Id ipar)
     _params.resize(ipar + 1, TEST);
 
   _params[ipar] = param;
+  _setParam(param, ipar);
 }
 
 void AKernel::setParams(const VectorDouble& params)
@@ -79,9 +80,13 @@ void AKernel::setParams(const VectorDouble& params)
   {
     if (param < 0. || (!FFFF(max) && param > max))
       my_throw("Wrong parameter value");
+   
   }
-
-  _params = params;
+  
+  for (Id ipar = 0; ipar < static_cast<Id>(params.size()); ipar++)
+  {
+    setParam(params[ipar], ipar);
+  }
 }
 
 double AKernel::getParam(Id ipar) const
@@ -98,6 +103,14 @@ void AKernel::setField(double field)
   _ctxt.setField(field);
 }
 
+void AKernel::evalCorFuncBatch(constvect h, vect res) const
+{
+  // Implémentation par défaut : lente mais sûre pour tous les noyaux
+  for (size_t i = 0; i < h.size(); ++i)
+  {
+    res[i] = evalCorFunc(h[i]);
+  }
+}
 double AKernel::evalCorFunc(double h) const
 {
   return _evaluateCov(h);

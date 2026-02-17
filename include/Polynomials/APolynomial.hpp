@@ -38,6 +38,8 @@ public:
 
   void init(const VectorDouble& coeffs);
   virtual double eval(double x) const = 0;
+  VectorDouble evalOp(const ALinearOp* Op, const VectorDouble& inv) const;
+
 #ifndef SWIG
   virtual void evalOp(MatrixSparse* Op, const constvect inv, vect outv) const = 0;
   VectorDouble evalOp(MatrixSparse* Op, const constvect inv) const;
@@ -58,7 +60,6 @@ public:
 
   // virtual void evalOp(const ALinearOpMulti* Op,const std::vector<Eigen::VectorXd>& inv, std::vector<Eigen::VectorXd>& outv) const;
   void addEvalOp(const ALinearOp* Op, const constvect inv, vect outv) const;
-
 protected:
   virtual void _addEvalOp(const ALinearOp* Op, const constvect inv, vect outv) const = 0;
 

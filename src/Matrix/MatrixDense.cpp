@@ -304,6 +304,8 @@ void MatrixDense::addMat(const AMatrix& y, double cx, double cy)
   }
 }
 
+double MatrixDense::sum() const { return eigenMat().sum(); }
+
 void MatrixDense::prodMatMatInPlace(const AMatrix* x,
                                     const AMatrix* y,
                                     bool transposeX,
@@ -326,23 +328,30 @@ void MatrixDense::prodMatMatInPlace(const AMatrix* x,
     {
       if (transposeY)
       {
+        resize(xm->getNCols(), ym->getNRows());
         eigenMat().noalias() = xm->eigenMat().transpose() * ym->eigenMat().transpose();
       }
       else
       {
+        resize(xm->getNCols(), ym->getNCols());
         eigenMat().noalias() = xm->eigenMat().transpose() * ym->eigenMat();
       }
     }
     else
     {
-      auto a = eigenMat();
-      auto b = xm->eigenMat();
+      
       if (transposeY)
       {
+        resize(xm->getNRows(), ym->getNRows());
+        auto a = eigenMat();
+        auto b = xm->eigenMat();
         a = b * ym->eigenMat().transpose();
       }
       else
       {
+        resize(xm->getNRows(), ym->getNCols());
+        auto a = eigenMat();
+        auto b = xm->eigenMat();
         a = b * ym->eigenMat();
       }
     }
