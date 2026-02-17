@@ -53,6 +53,7 @@ doc/details/*.pdf
 doc/details/*.fdb_latexmk
 doc/details/*.fls
 doc/details/*.synctex.gz
+/doc/UI/python/__marimo__/
 .venv
 2
 test_*.NF
