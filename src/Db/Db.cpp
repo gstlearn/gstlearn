@@ -717,6 +717,8 @@ VectorDouble Db::getSampleCoordinates(Id iech) const
  *
  * @param P SpacePoint reference (output)
  * @param iabs Rank of the sample
+ *
+ * @warning Space characteristics (type and dimension) are not checked
  */
 void Db::getSampleAsSPInPlace(SpacePoint& P, Id iabs) const
 {
@@ -731,6 +733,7 @@ VectorVectorDouble Db::getIncrements(const VectorInt& iechs, const VectorInt& je
 {
   VectorVectorDouble tab;
   auto ndim = getNDim();
+  //TODO[space]: Use default space
   SpacePoint P1(ndim, -1);
   SpacePoint P2(ndim, -1);
 
@@ -6142,6 +6145,7 @@ void Db::copyByCol(Id icolIn, Id icolOut)
 void Db::dumpGeometry(Id iech, Id jech) const
 {
   auto ndim = getNDim();
+  //TODO[space]: Use default space
   SpacePoint P1(ndim);
   SpacePoint P2(ndim);
   getSampleAsSPInPlace(P1, iech);

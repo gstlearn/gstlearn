@@ -166,7 +166,7 @@ double ModelOptimVMap::computeCost(bool flagPrint, bool verbose)
   _dbmap->rankToIndice(_nech / 2, _indg1);
   for (Id idim = 0; idim < _ndim; idim++)
     d0[idim] = _indg1[idim] * _dbmap->getDX(idim);
-  SpacePoint origin(d0);
+  SpacePoint origin(d0, -1, _model->getSpace());
   SpacePoint P = origin;
 
   /* Loop on the experimental conditions */
@@ -201,7 +201,7 @@ void ModelOptimVMap::evalGrad(vect res)
   _dbmap->rankToIndice(_nech / 2, _indg1);
   for (Id idim = 0; idim < _ndim; idim++)
     d0[idim] = _indg1[idim] * _dbmap->getDX(idim);
-  SpacePoint origin(d0);
+  SpacePoint origin(d0, -1, _model->getSpace());
   SpacePoint P = origin;
 
   /* Loop on the experimental conditions */

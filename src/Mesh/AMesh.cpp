@@ -571,11 +571,12 @@ VectorDouble AMesh::getDistances(Id iapex0, const VectorInt& japices) const
   if (jlocal.empty()) jlocal = VH::sequence(getNApices());
   Id number = static_cast<Id>(jlocal.size());
   VectorDouble vec(number, 0.);
-
+  //TODO[space]: Use default space
   SpacePoint P1(getApexCoordinates(iapex0), -1);
 
   for (Id iapex = 0; iapex < number; iapex++)
   {
+    //TODO[space]: Use default space
     SpacePoint P2(getApexCoordinates(jlocal[iapex]), -1);
     vec[iapex] = P1.getDistance(P2);
   }
