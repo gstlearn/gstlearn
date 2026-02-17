@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Space/SpacePoint.hpp"
 #include "Basic/AException.hpp"
-#include "Basic/AStringable.hpp"
 #include "Space/ASpace.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "geoslib_define.h"
