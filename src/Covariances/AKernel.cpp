@@ -408,12 +408,6 @@ VectorInt getAllMaxDimension()
   return maxdims;
 }
 
-VectorBool getAllIsSpatialTemporal()
-{
-  messerrNotImplemented(String(), "getAllIsSpatialTemporal");
-  return VectorBool();
-}
-
 GSTLEARN_EXPORT VectorString getAllFormula()
 {
   AKernel* kernel = nullptr;
