@@ -18,8 +18,9 @@
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
-#include "LinearOp/PrecisionOpMultiConditional.hpp"
+#include "LinearOp/InvNuggetOp.hpp"
 #include "LinearOp/ProjMatrix.hpp"
+#include "LinearOp/SPDEOp.hpp"
 #include "LinearOp/ShiftOpMatrix.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Mesh/MeshETurbo.hpp"
@@ -98,22 +99,16 @@ int main(int argc, char* argv[])
 
   double vardata = 0.01;
   PrecisionOp Qkriging(&S, cova);
-  PrecisionOpMultiConditional A;
-  A.push_back(&Qkriging, &B);
-  A.setVarianceData(vardata);
 
-  VectorVectorDouble Rhs, resultvc;
+  auto* modelNug = Model::createFromParam(ECov::NUGGET, 0., vardata);
+  InvNuggetOp Bnug(dat, modelNug);
+  SPDEOp A(&Qkriging, &B, &Bnug);
+
   VectorDouble vc(napices);
 
-  resultvc.push_back(vc);
-  Rhs.push_back(rhs);
-  A.evalInverse(Rhs, resultvc);
-  grid->addColumns(resultvc[0], "Kriging");
+  vc = A.evalInverse(rhs);
+  grid->addColumns(vc, "Kriging");
 
-  // // New class
-  // TODO: this code should be developed (using new interfaces for SPDE class)
-  // before we can get rid of PrecisionOpMultiConditional class
-  //
 
   // Statistics
   DbStringFormat dsf(FLAG_RESUME | FLAG_STATS);
@@ -124,5 +119,6 @@ int main(int argc, char* argv[])
   delete dat;
   delete grid;
   delete model;
+  delete modelNug;
   return 0;
 }

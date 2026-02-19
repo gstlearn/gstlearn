@@ -8,22 +8,40 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Basic/ASerializable.hpp"
-#include "geoslib_define.h"
-#include "Space/SpaceRN.hpp"
-#include "Space/ASpaceObject.hpp"
-#include "Covariances/CovContext.hpp"
-#include "Covariances/CorAniso.hpp"
 
-using namespace gstlrn;
 
-int main(int argc, char* argv[])
+#include "LinearOp/LinearOpHelper.hpp"
+#include "Basic/VectorHelper.hpp"
+
+namespace gstlrn
 {
-  // Do not remove
-  std::stringstream sfn;
-  sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str(), argc, argv);
-  ASerializable::setPrefixName("test_a_template-"); // Here set the test name
 
-  return 0;
+double LinearOpHelper::powerIteration(ALinearOp* op, Id niter)
+{
+
+    Id size = op->getSize();
+    auto b = VH::simulateGaussian(size);
+    VectorDouble bnext(size);
+    double norm2 = VH::innerProductCV(b, b);
+
+    for (Id i = 0; i < niter; ++i)
+    {
+        op->evalDirect(b, bnext); // b_next = A * b
+        norm2 = VH::innerProductCV(bnext, bnext); 
+        double norm = std::sqrt(norm2);
+        if (i == niter - 1) 
+        {
+            break;
+        }
+        for (Id j = 0; j < size; ++j) 
+        {
+            b[j] = bnext[j] / norm; // Normalize
+        }
+        
+    }
+
+    return VH::innerProductCV(b,bnext);
+
+}
+
 }

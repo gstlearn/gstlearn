@@ -15,6 +15,7 @@
 #include "Enum/EPowerPT.hpp"
 #include "LinearOp/AShiftOp.hpp"
 #include "LinearOp/ASimulable.hpp"
+#include "LinearOp/IPrecisionOp.hpp"
 #include <map>
 #include <memory>
 
@@ -28,7 +29,7 @@ class AMesh;
 // Note that if the model is multivariate, the precision is built with a constant sill = 1.
 // Therefore it has to be used only through the PrecisionOpMulti class
 // which handles the sills matrix (possibly non stationary)
-class GSTLEARN_EXPORT PrecisionOp: public ASimulable
+class GSTLEARN_EXPORT PrecisionOp: public IPrecisionOp
 {
 public:
   PrecisionOp();
@@ -36,7 +37,7 @@ public:
               const CovAniso* cova,
               bool verbose = false);
   PrecisionOp(const AMesh* mesh,
-              CovAniso* cova,
+              const CovAniso* cova,
               bool stencil = false,
               bool verbose = false);
   PrecisionOp(const PrecisionOp& pmat);
@@ -49,7 +50,7 @@ public:
   virtual void evalInverse(const constvect vecin, VectorDouble& vecout);
 #endif
   VectorDouble evalInverse(const VectorDouble& vecin);
-  virtual std::pair<double, double> getRangeEigenVal(Id ndiscr = 100);
+  std::pair<double, double> rangeEigenVal(Id ndiscr = 100) const override;
 
   static PrecisionOp* createFromShiftOp(AShiftOp* shiftop    = nullptr,
                                         const CovAniso* cova = nullptr,

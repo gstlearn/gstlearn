@@ -261,6 +261,7 @@ MatrixT<Id> findNN(const Db* dbin,
   mat.resize(n1 + n2, nb_neigh);
 
   // Loop on the samples for the FNN search
+  //TODO[space]: Default space is used here!
   SpacePoint pt;
   VectorInt ranks;
   VectorInt neighs(nb_neigh);

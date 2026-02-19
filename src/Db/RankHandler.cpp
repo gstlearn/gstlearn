@@ -81,6 +81,7 @@ void RankHandler::_initElligible()
 {
   Id nech = _db->getNSample();
   _elligible.resize(_nvar, nech);
+  _elligible.fill(true);
 
   for (size_t ivar = 0; ivar < static_cast<size_t>(_nvar); ivar++)
   {
@@ -88,19 +89,27 @@ void RankHandler::_initElligible()
     // Loop on the elligible sample ranks
     for (size_t iabs = 0; iabs < static_cast<size_t>(nech); iabs++)
     {
-
+      if (!_elligible.getValue(ivar, iabs)) continue;
       // Check against a possible selection
       if (_iptrSel >= 0)
       {
         value = _db->getValueByColIdx(static_cast<Id>(iabs), _iptrSel);
-        _elligible.setValue(ivar, iabs, value > 0);
+        if (value <= 0)
+        {
+          _elligible.setValue(ivar, iabs, false);
+          continue;
+        }
       }
 
       // Check against validity of the Variance of Measurement Error variable
       if (!_iptrVerr.empty())
       {
         value = _db->getValueByColIdx(static_cast<Id>(iabs), _iptrVerr[ivar]);
-        _elligible.setValue(ivar, iabs, !FFFF(value) && (value > 0));
+        if (FFFF(value) || value <= 0)
+        {
+          _elligible.setValue(ivar, iabs, false);
+          continue;
+        }
       }
 
       // Check against the validity of ALL external drifts
@@ -112,18 +121,27 @@ void RankHandler::_initElligible()
           value = _db->getValueByColIdx(static_cast<Id>(iabs), _iptrExtD[iext]);
           if (FFFF(value)) valid = false;
         }
-        _elligible.setValue(ivar, iabs, valid);
+        if (!valid)
+        {
+          _elligible.setValue(ivar, iabs, false);
+          continue;
+        }
       }
 
       // Check against the existence of a target variable
       if (!_iptrZ.empty())
       {
         value = _db->getValueByColIdx(static_cast<Id>(iabs), _iptrZ[ivar]);
-        _elligible.setValue(ivar, iabs, !FFFF(value));
+        if (FFFF(value))
+        {
+          _elligible.setValue(ivar, iabs, false);
+          continue;
+        }
       }
     }
   }
 }
+
 RankHandler::RankHandler(const RankHandler& r)
   : _useSel(r._useSel)
   , _useZ(r._useZ)
@@ -200,16 +218,24 @@ void RankHandler::defineSampleRanks(const VectorInt& nbgh)
   VectorInt ranks;
   for (Id ivar = 0; ivar < _nvar; ivar++)
   {
+    const double* zadd = nullptr;
     ranks.clear();
-    const double* zadd = _db->getColAdressByColIdx(_iptrZ[ivar]);
+    if (!_iptrZ.empty())
+    {
+      zadd = _db->getColAdressByColIdx(_iptrZ[ivar]);
+    }
     // Loop on the elligible sample ranks
     for (Id irel = 0; irel < nech; irel++)
     {
       Id iabs = _nbgh[irel];
       if (!_elligible.getValue(ivar, iabs)) continue;
 
-      value = zadd[iabs];
+      // The sample is valid for the current variable: its Z value is stored
+      if (!_iptrZ.empty())
+      {
+        value = zadd[iabs];
       _Zflatten->push_back(value);
+      }
       // The sample is finally accepted: its ABSOLUTE index is stored
       ranks.push_back(iabs);
     }
@@ -310,4 +336,4 @@ void RankHandler::dump(bool flagFull) const
     message("\n");
   }
 }
-}
+} // namespace gstlrn

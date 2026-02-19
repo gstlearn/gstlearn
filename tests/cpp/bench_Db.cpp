@@ -43,8 +43,8 @@ int main(int argc, char *argv[])
 
   Timer timer;
   VectorDouble dist(nsample);
-  SpacePoint p0;
-  SpacePoint p;
+  SpacePoint p0; // Use default space
+  SpacePoint p; // Use default space
   data->getSampleAsSPInPlace(p0, 0);
   for (Id i = 0; i < nsample; i++)
   {

@@ -55,6 +55,9 @@ public:
   /// Has a specific implementation in the Target language
   DECLARE_TOTL;
   DECLARE_TOLATEX
+  #ifndef SWIG
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  #endif 
 
   /// Cloneable interface
   IMPLEMENT_CLONING(MatrixDense)
@@ -200,7 +203,7 @@ public:
                   const MatrixDense* mat2,
                   MatrixDense* mat3);
 #endif // !SWIG
-
+double sum() const;
 protected:
   void _allocate() override;
   void _deallocate() override;
@@ -232,19 +235,18 @@ public:
 #ifndef SWIG
 
 public:
-  Eigen::Map<const Eigen::MatrixXd> eigenMat() const
+  Eigen::Map<const Eigen::MatrixXd, Eigen::Unaligned> eigenMat() const
   {
-    return Eigen::Map<const Eigen::MatrixXd>(_eigenMatrix.data(), getNRows(), getNCols());
+    return Eigen::Map<const Eigen::MatrixXd, Eigen::Unaligned>(_eigenMatrix.data(), getNRows(), getNCols());
   }
-  Eigen::Map<Eigen::MatrixXd> eigenMat()
+  Eigen::Map<Eigen::MatrixXd, Eigen::Unaligned> eigenMat()
   {
-    return Eigen::Map<Eigen::MatrixXd>(_eigenMatrix.data(), getNRows(), getNCols());
+    return Eigen::Map<Eigen::MatrixXd, Eigen::Unaligned>(_eigenMatrix.data(), getNRows(), getNCols());
   }
 #endif
 
 protected:
-  VectorDouble _eigenMatrix;
-
+  std::vector<double, Eigen::aligned_allocator<double>> _eigenMatrix;
 private:
   Id _maxSize;
 };

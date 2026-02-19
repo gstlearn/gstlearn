@@ -248,7 +248,8 @@ Id kriging(Db* dbin,
       !krigopt.hasMatLC() &&
       neighBench == nullptr &&
       model->getNVar() == 1 &&
-      OptCustom::query("NotOptimSimpleCase", 0) == 0)
+      OptCustom::query("NotOptimSimpleCase", 0) == 0&&
+      !dbout->hasLocator(ELoc::DOM))
   {
     OptCustom::define("Optim", 1);
     CalcKrigingSimpleCase krige(flag_est, flag_std, flag_varz);

@@ -643,6 +643,7 @@ static SpacePoint _calculateGlobalGravityCenter(const VectorDouble& xxs,
   }
 
   // Global center of gravity
+  //TODO[space]: Default space is used here!
   SpacePoint centerG;
   centerG.setCoord(0, xt / xb);
   centerG.setCoord(1, yt / yb);
@@ -658,6 +659,7 @@ static void _createNewPatch(Id iech,
                             VectorDouble& pa,
                             VectorDouble& pb)
 {
+  //TODO[space]: Default space is used here!
   SpacePoint current;
   current.setCoord(0, xxs[iech]);
   current.setCoord(1, yys[iech]);
@@ -726,6 +728,7 @@ std::vector<SpacePoint> SpatialIndices::getPatches(const String& name,
   _createNewPatch(0, xxs, yys, zzs, wws, centers, pa, pb);
 
   // Loop on the samples
+  //TODO[space]: Default space is used here!
   SpacePoint current;
   for (Id jech = 0; jech < nech; jech++)
   {

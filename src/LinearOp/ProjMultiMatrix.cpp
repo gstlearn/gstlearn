@@ -8,10 +8,9 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+
 #include "LinearOp/ProjMultiMatrix.hpp"
-#include "Basic/AStringable.hpp"
 #include "Db/Db.hpp"
-#include "LinearOp/IProj.hpp"
 #include "LinearOp/ProjMatrix.hpp"
 #include "LinearOp/ProjMulti.hpp"
 #include "Matrix/MatrixSparse.hpp"
@@ -19,19 +18,29 @@
 
 namespace gstlrn
 {
-static std::vector<std::vector<const IProj*>> castToBase(const std::vector<std::vector<const ProjMatrix*>>& vec)
+
+template<typename T>
+static std::vector<std::vector<const IProj*>> castToBase(const std::vector<std::vector<T>>& vec)
 {
   std::vector<std::vector<const IProj*>> casted(vec.size());
   Id iv = 0;
   for (const auto& e: vec)
   {
-    std::vector<const IProj*> temp(e.size());
+    auto& dst = casted[iv++];
+    dst.resize(e.size());
     Id ie = 0;
     for (const auto& f: e)
     {
-      temp[ie++] = static_cast<const IProj*>(f);
+      if (!f)
+      {
+        dst[ie++] = {};
+        continue;
+      }
+      if constexpr (std::is_same<T, const ProjMatrix*>::value)
+        dst[ie++] = f;
+      else if constexpr (std::is_same<T, std::optional<ProjMatrix>>::value)
+        dst[ie++] = &f.value();
     }
-    casted[iv++] = temp;
   }
   return casted;
 }
@@ -68,7 +77,7 @@ ProjMultiMatrix* ProjMultiMatrix::createFromDbAndMeshes(const Db* db,
     messerr("nvar should be > 0");
     return nullptr;
   }
-  Id nmeshes = static_cast<Id>(meshes.size());
+  Id nmeshes = meshes.size();
   if (nmeshes == 0)
   {
     messerr("You have to provide at least one mesh");
@@ -87,43 +96,23 @@ ProjMultiMatrix* ProjMultiMatrix::createFromDbAndMeshes(const Db* db,
     return nullptr;
   }
 
-  std::vector<std::vector<const ProjMatrix*>> stocker;
+  ProjsStore stocker(nvar);
 
-  Id nmesh       = static_cast<Id>(meshes.size());
-  bool flagIsVar = checkOnZVariable && db->hasLocator(ELoc::Z);
+  const auto nmesh = meshes.size();
+  bool flagIsVar   = checkOnZVariable && db->hasLocator(ELoc::Z);
   for (Id ivar = 0; ivar < nvar; ivar++)
   {
-    stocker.push_back(std::vector<const ProjMatrix*>());
     for (Id imesh = 0; imesh < nmesh; imesh++)
       for (Id jvar = 0; jvar < nvar; jvar++)
       {
         Id kvar = (flagIsVar) ? jvar : -1;
         if (ivar != jvar)
-          stocker[ivar].push_back(nullptr);
+          stocker[ivar].emplace_back();
         else
-          stocker[ivar].push_back(new ProjMatrix(db, meshes(imesh), kvar, verbose));
+          stocker[ivar].emplace_back(ProjMatrix(db, meshes(imesh), kvar, verbose));
       }
   }
-  return new ProjMultiMatrix(stocker, true);
-}
-
-void ProjMultiMatrix::_clear()
-{
-  if (!_toClean || _projs.empty()) return;
-
-  for (auto& e: _projs)
-  {
-    for (auto& f: e)
-    {
-      delete const_cast<IProj*>(f);
-      f = nullptr;
-    }
-    e.clear();
-  }
-  _projs.clear();
-}
-ProjMultiMatrix::~ProjMultiMatrix()
-{
+  return new ProjMultiMatrix(std::move(stocker));
 }
 
 std::vector<std::vector<const ProjMatrix*>> ProjMultiMatrix::create(std::vector<const ProjMatrix*>& vectproj,
@@ -136,7 +125,7 @@ std::vector<std::vector<const ProjMatrix*>> ProjMultiMatrix::create(std::vector<
   {
     if (vectproj[i] == nullptr)
     {
-      messerr("Projmatrix shouldn't be nullptr.");
+      messerr("ProjMatrix shouldn't be nullptr.");
       return result;
     }
   }
@@ -159,7 +148,7 @@ std::vector<std::vector<const ProjMatrix*>> ProjMultiMatrix::create(std::vector<
     std::vector<const ProjMatrix*> e(nlatent * nvariable, nullptr);
     for (Id j = 0; j < nlatent; j++)
     {
-      e[j * nvariable + i] = vectproj[j];
+      e[(j * nvariable) + i] = vectproj[j];
     }
     result[i] = e;
   }
@@ -167,11 +156,23 @@ std::vector<std::vector<const ProjMatrix*>> ProjMultiMatrix::create(std::vector<
 }
 
 ProjMultiMatrix::ProjMultiMatrix(const std::vector<std::vector<const ProjMatrix*>>& proj,
-                                 bool toClean,
                                  bool silent)
   : ProjMulti(castToBase(proj), silent)
   , _Proj(MatrixSparse(0, 0))
-  , _toClean(toClean)
+{
+  this->init();
+}
+
+ProjMultiMatrix::ProjMultiMatrix(ProjsStore&& proj,
+                                 bool silent)
+  : ProjMulti(castToBase(proj), silent)
+  , _projsStore(std::move(proj))
+  , _Proj(MatrixSparse(0, 0))
+{
+  this->init();
+}
+
+void ProjMultiMatrix::init()
 {
   if (ProjMulti::empty()) return;
   const VectorInt& pointNumbers = getNPoints();
@@ -182,9 +183,9 @@ ProjMultiMatrix::ProjMultiMatrix(const std::vector<std::vector<const ProjMatrix*
     MatrixSparse currentrow;
     for (Id j = 0; j < getNLatent(); j++)
     {
-      if (_projs[i][j] != nullptr)
+      if (_projs[i][j])
       {
-        MatrixSparse::glueInPlace(&currentrow, const_cast<MatrixSparse*>(static_cast<const MatrixSparse*>(proj[i][j])), 0, 1);
+        MatrixSparse::glueInPlace(&currentrow, &static_cast<const ProjMatrix&>(_projs[i][j].value().get()), 0, 1);
       }
       else
       {

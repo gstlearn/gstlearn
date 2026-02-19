@@ -396,6 +396,7 @@ public:
   void setColumnByColIdxOldStyle(const double* tab, Id icol, bool useSel = false);
   void duplicateColumnByUID(Id iuid_in, Id iuid_out);
 
+  const double* getColumnPtr(const ELoc& locatorType, Id locatorIndex = 0);
   VectorVectorDouble getItem(const VectorInt& rows,
                              const VectorString& colnames,
                              bool useSel = false) const;

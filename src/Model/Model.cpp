@@ -133,6 +133,25 @@ Model* Model::createNugget(Id nvar, Id ndim, double sill)
   return model;
 }
 
+/**
+ * @brief Create a Model containing a single covariance defined from parameters.
+ *
+ * @param type Type of covariance (see ECov)
+ * @param range Range of the covariance (isotropic if 'ranges' is not defined).
+ * @param sill Sill of the covariance (used for monovariate case only)
+ * @param param A third parameter of the covariance (for example, the shape parameter for a Matern covariance)
+ * @param ranges Definition of the ranges in the anisotropic case (see remarks)
+ * @param sills Definition of the sill Matrix in the multivariate case (see remarks)
+ * @param angles Definition of the angles in the anisotropic case
+ * @param space Space definition (optional)
+ * @param flagRange When TRUE, 'range' and 'ranges' are interpreted as ranges, otherwise they are interpreted as scales
+ * @return Model*
+ *
+ * @remarks If 'ranges' is defined, its dimension gives an information on the space dimension.
+ * @remarks If 'space' is defined (which also provides an information on the space dimension), the consistency between the space dimension and the one of 'ranges' is checked.
+ * @remarks otherwise, the space dimension (defined by 'ranges') is maintained.
+ * @remarks If 'sills' is defined, its dimension gives an information on the number of variables.
+ */
 Model* Model::createFromParam(const ECov& type,
                               double range,
                               double sill,
@@ -146,12 +165,15 @@ Model* Model::createFromParam(const ECov& type,
   Id nvar = 1;
   if (!sills.empty()) nvar = sills.getNRows();
 
-  CovContext ctxt(nvar, space);
+  Id ndimRanges = 1; // By default, the argument 'range' gives the space dimension.
+  // If ranges is provided, its length provides an infirmation on the space dimension
+  if (!ranges.empty()) ndimRanges = static_cast<Id>(ranges.size());
 
-  if (!ranges.empty())
+  CovContext ctxt;
+  if (space != nullptr)
   {
-    Id ndim       = static_cast<Id>(ctxt.getNDim());
-    Id ndimRanges = static_cast<Id>(ranges.size());
+    // Space is defined: check that its dimension is consistent with the one of 'ranges' if provided
+    Id ndim = space->getNDim();
     if (ndimRanges != 1 && ndimRanges != ndim)
     {
       messerr("Incompatibility between:");
@@ -159,6 +181,14 @@ Model* Model::createFromParam(const ECov& type,
       messerr("Dimension of argument 'ranges' = %d", ndimRanges);
       return nullptr;
     }
+    ctxt = CovContext(nvar, space);
+  }
+  else
+  {
+    if (!ranges.empty())
+      ctxt = CovContext(nvar, SpaceRN::create(ndimRanges));
+    else
+      ctxt = CovContext(nvar, space);
   }
 
   auto* model = new Model(ctxt);

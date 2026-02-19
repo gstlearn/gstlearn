@@ -71,6 +71,11 @@ MatrixSparse::~MatrixSparse()
   _deallocate();
 }
 
+MatrixSparse* MatrixSparse::createFromMatrix(const MatrixSparse& mat)
+{
+  return new MatrixSparse(mat);
+}
+
 void MatrixSparse::resetFromValue(Id nrows, Id ncols, double value)
 {
   DECLARE_UNUSED(nrows);
@@ -972,6 +977,38 @@ Id MatrixSparse::_getIndexToRank(Id irow, Id icol) const
   DECLARE_UNUSED(icol);
   _forbiddenForSparse("_getIndexToRank");
   return ITEST;
+}
+
+VectorInt MatrixSparse::getNonZeroCols(Id irow) const
+{
+  VectorInt cols;
+  for (EigenSparseMatrix::InnerIterator it(eigenMat(), irow); it; ++it)
+  {
+   cols.push_back(it.index());
+  }
+  return cols;
+}
+
+VectorInt MatrixSparse::getNonZeroRows(Id icol) const
+{
+    if (!_isColumnValid(icol)) 
+    {
+      return  VectorInt();
+    }
+    VectorInt rows;
+    
+    // On force la création d'une matrice RowMajor (C'est ICI que la copie a lieu)
+    // Eigen va réorganiser les données en mémoire.
+    Eigen::SparseMatrix<double, Eigen::RowMajor> rowMat = eigenMat();
+
+    // Maintenant, l'itérateur fonctionne car les lignes sont contiguës
+    for (Eigen::SparseMatrix<double, Eigen::RowMajor>::InnerIterator it(rowMat, icol); it; ++it)
+    {
+        rows.push_back(it.index());
+    }
+
+    return rows;
+
 }
 
 MatrixSparse* createFromAnyMatrix(const AMatrix* matin)

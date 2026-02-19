@@ -141,7 +141,8 @@ void Likelihood::_fillGradCovMat(RankHandler& rkh, const covmaptype& gradcov)
 {
   Id icur, jcur = 0;
 
-  SpacePoint p1, p2;
+  SpacePoint p1(_model->getSpace());
+  SpacePoint p2(_model->getSpace());
   rkh.defineSampleRanks();
 
   for (Id jvar = 0; jvar < _model->getNVar(); jvar++)

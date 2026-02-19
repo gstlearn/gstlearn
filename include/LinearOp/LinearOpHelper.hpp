@@ -8,22 +8,23 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Basic/ASerializable.hpp"
-#include "geoslib_define.h"
-#include "Space/SpaceRN.hpp"
-#include "Space/ASpaceObject.hpp"
-#include "Covariances/CovContext.hpp"
-#include "Covariances/CorAniso.hpp"
+#pragma once
 
-using namespace gstlrn;
+#include "gstlearn_export.hpp"
+#include "LinearOp/ALinearOp.hpp"
 
-int main(int argc, char* argv[])
+namespace gstlrn
 {
-  // Do not remove
-  std::stringstream sfn;
-  sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str(), argc, argv);
-  ASerializable::setPrefixName("test_a_template-"); // Here set the test name
+class GSTLEARN_EXPORT LinearOpHelper
+{
+  public:
+    static double powerIteration(ALinearOp* op, Id niter = 30);
+    
+};
 
-  return 0;
+class LH : public LinearOpHelper
+{
+
+};
+
 }

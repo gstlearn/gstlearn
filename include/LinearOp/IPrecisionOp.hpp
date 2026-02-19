@@ -8,22 +8,33 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Basic/ASerializable.hpp"
+#pragma once
+
 #include "geoslib_define.h"
-#include "Space/SpaceRN.hpp"
-#include "Space/ASpaceObject.hpp"
-#include "Covariances/CovContext.hpp"
-#include "Covariances/CorAniso.hpp"
+#include "gstlearn_export.hpp"
 
-using namespace gstlrn;
+#include "LinearOp/ASimulable.hpp"
 
-int main(int argc, char* argv[])
+namespace gstlrn
 {
-  // Do not remove
-  std::stringstream sfn;
-  sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str(), argc, argv);
-  ASerializable::setPrefixName("test_a_template-"); // Here set the test name
+class GSTLEARN_EXPORT IPrecisionOp: public ASimulable
+{
+public:
+  IPrecisionOp()                    = default;
+  IPrecisionOp(const IPrecisionOp&) = default;
+  VectorDouble getRangeEigenVal(Id ndiscr = 100) const
+  {
+    std::pair<double, double> ranges = rangeEigenVal(ndiscr);
+    VectorDouble result(2);
+    result[0] = ranges.first;
+    result[1] = ranges.second;
+    return result;
+  }
+  virtual ~IPrecisionOp() = default;
 
-  return 0;
-}
+#ifndef SWIG
+  virtual std::pair<double, double> rangeEigenVal(Id ndiscr = 100) const = 0;
+#endif
+};
+
+} // namespace gstlrn

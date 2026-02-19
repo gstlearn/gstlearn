@@ -9,6 +9,7 @@
 
 Contents of the VectorMeshes
 ----------------------------
+
 It contains 1 mesh(es)
 
 Turbo Meshing
@@ -16,9 +17,9 @@ Turbo Meshing
 
 Grid characteristics:
 ---------------------
-Origin :     -0.250    -0.250
-Mesh   :      0.020     0.020
-Number :         75        75
+Origin :      -0.250     -0.250
+Mesh   :       0.020      0.020
+Number :          75         75
 Euclidean Geometry
 Space Dimension           = 2
 Number of Apices per Mesh = 3
@@ -47,20 +48,20 @@ Total number of samples      = 2500
 
 Grid characteristics:
 ---------------------
-Origin :      0.000     0.000
-Mesh   :      0.020     0.020
-Number :         50        50
+Origin :       0.000      0.000
+Mesh   :       0.020      0.020
+Number :          50         50
 
 Data Base Statistics
 --------------------
 4 - Name SimuSPDE - Locator z1
- Nb of data          =       2500
- Nb of active values =       2500
- Minimum value       =     -3.342
- Maximum value       =      3.300
- Mean value          =     -0.121
- Standard Deviation  =      1.007
- Variance            =      1.014
+ Nb of data          =        2500
+ Nb of active values =        2500
+ Minimum value       =      -3.342
+ Maximum value       =       3.300
+ Mean value          =      -0.121
+ Standard Deviation  =       1.007
+ Variance            =       1.014
 
 Variables
 ---------
@@ -93,13 +94,13 @@ Total number of samples      = 1000
 Data Base Statistics
 --------------------
 3 - Name SimuSPDE - Locator z1
- Nb of data          =       1000
- Nb of active values =       1000
- Minimum value       =     -2.990
- Maximum value       =      2.941
- Mean value          =      0.079
- Standard Deviation  =      0.969
- Variance            =      0.939
+ Nb of data          =        1000
+ Nb of active values =        1000
+ Minimum value       =      -2.990
+ Maximum value       =       2.941
+ Mean value          =       0.079
+ Standard Deviation  =       0.969
+ Variance            =       0.939
 
 Variables
 ---------
@@ -137,60 +138,60 @@ Number of active samples     = 2500
 
 Grid characteristics:
 ---------------------
-Origin :     -0.250    -0.250
-Mesh   :      0.020     0.020
-Number :         75        75
+Origin :      -0.250     -0.250
+Mesh   :       0.020      0.020
+Number :          75         75
 
 Data Base Statistics
 --------------------
 1 - Name rank - Locator NA
- Nb of data          =       5625
- Nb of active values =       2500
- Minimum value       =    989.000
- Maximum value       =   4713.000
- Mean value          =   2851.000
- Standard Deviation  =   1082.411
+ Nb of data          =        5625
+ Nb of active values =        2500
+ Minimum value       =     989.000
+ Maximum value       =    4713.000
+ Mean value          =    2851.000
+ Standard Deviation  =    1082.411
  Variance            = 1171614.500
 2 - Name x1 - Locator x1
- Nb of data          =       5625
- Nb of active values =       2500
- Minimum value       =      0.010
- Maximum value       =      0.990
- Mean value          =      0.500
- Standard Deviation  =      0.289
- Variance            =      0.083
+ Nb of data          =        5625
+ Nb of active values =        2500
+ Minimum value       =       0.010
+ Maximum value       =       0.990
+ Mean value          =       0.500
+ Standard Deviation  =       0.289
+ Variance            =       0.083
 3 - Name x2 - Locator x2
- Nb of data          =       5625
- Nb of active values =       2500
- Minimum value       =      0.010
- Maximum value       =      0.990
- Mean value          =      0.500
- Standard Deviation  =      0.289
- Variance            =      0.083
+ Nb of data          =        5625
+ Nb of active values =        2500
+ Minimum value       =       0.010
+ Maximum value       =       0.990
+ Mean value          =       0.500
+ Standard Deviation  =       0.289
+ Variance            =       0.083
 4 - Name NewSel - Locator sel
- Nb of data          =       5625
- Nb of active values =       2500
- Minimum value       =      1.000
- Maximum value       =      1.000
- Mean value          =      1.000
- Standard Deviation  =      0.000
- Variance            =      0.000
+ Nb of data          =        5625
+ Nb of active values =        2500
+ Minimum value       =       1.000
+ Maximum value       =       1.000
+ Mean value          =       1.000
+ Standard Deviation  =       0.000
+ Variance            =       0.000
 5 - Name KrigingSPDE-Free.SimuSPDE.estim - Locator NA
- Nb of data          =       5625
- Nb of active values =       2500
- Minimum value       =     -2.550
- Maximum value       =      2.549
- Mean value          =      0.108
- Standard Deviation  =      0.867
- Variance            =      0.752
+ Nb of data          =        5625
+ Nb of active values =        2500
+ Minimum value       =      -2.550
+ Maximum value       =       2.549
+ Mean value          =       0.108
+ Standard Deviation  =       0.867
+ Variance            =       0.752
 6 - Name KrigingSPDE-Chol.SimuSPDE.estim - Locator z1
- Nb of data          =       5625
- Nb of active values =       2500
- Minimum value       =     -2.550
- Maximum value       =      2.549
- Mean value          =      0.108
- Standard Deviation  =      0.867
- Variance            =      0.752
+ Nb of data          =        5625
+ Nb of active values =        2500
+ Minimum value       =      -2.550
+ Maximum value       =       2.549
+ Mean value          =       0.108
+ Standard Deviation  =       0.867
+ Variance            =       0.752
 
 Variables
 ---------
@@ -296,7 +297,7 @@ Projection of 'dbin' for Kriging: Created from Db and Mesh(es)
 - Number of Apices    = 5625
 - Number of Points    = 1000
 Drift coefficients = 
-     0.065
+      0.065
 LogDet of Q + ADA': 12296.938911
 LogDet of Q: 11255.715075
 LogDet of InvNoise: 2302.585093
@@ -336,16 +337,17 @@ Projection of 'dbin' for Kriging: Created from Db and Mesh(es)
 - Number of Apices    = 5625
 - Number of Points    = 1000
 Drift coefficients = 
-     0.079
-LogDet of Q + ADA': 11569.018180
+      0.079
+LogDet of Q + ADA': 11568.583760
 LogDet of Q: 11585.782711
 LogDet of InvNoise: 2302.585093
+
 Likelihood calculation:
 Nb. active samples = 1000
 Nb. Monte-Carlo    = 100
 Cholesky           = 0
-Log-Determinant    = -2319.349624
+Log-Determinant    = -2319.784044
 Quadratic term     = 1105.223469
-Log-likelihood     = -311.875456
--> likelihood by New API with cholesky=0 -311.8755
+Log-likelihood     = -311.658246
+-> likelihood by New API with cholesky=0 -311.6582
 ----
