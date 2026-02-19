@@ -114,6 +114,9 @@ public:
   static Id _constraintsCount(Id nai, VectorInt& active);
   MatrixSymmetric compress0MatLC(const MatrixDense& matLC);
 
+  #ifndef SWIG
+  void solveSDP(constvect b, vect x) const;
+  #endif
 private:
   Id _getTriangleSize() const;
 };

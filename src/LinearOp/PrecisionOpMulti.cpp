@@ -404,13 +404,13 @@ Id PrecisionOpMulti::_addSimulateToDest(const constvect vecin, vect vecout) cons
          iad_struct + jvar * napices, true, y, jvar, nvar, ivar, jvar)
 }
 
-std::pair<double, double> PrecisionOpMulti::rangeEigenValQ() const
+std::pair<double, double> PrecisionOpMulti::rangeEigenVal(Id ndiscr) const
 {
-  std::pair<double, double> result = _pops[0]->getRangeEigenVal();
+  std::pair<double, double> result = _pops[0]->rangeEigenVal(ndiscr);
 
   for (Id i = 1; i < static_cast<Id>(_pops.size()); i++)
   {
-    std::pair<double, double> vals = _pops[i]->getRangeEigenVal();
+    std::pair<double, double> vals = _pops[i]->rangeEigenVal(ndiscr);
     result.first                   = MIN(result.first, vals.first);
     result.second                  = MAX(result.second, vals.second);
   }

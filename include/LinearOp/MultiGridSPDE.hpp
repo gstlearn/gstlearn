@@ -8,22 +8,39 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Basic/ASerializable.hpp"
-#include "geoslib_define.h"
-#include "Space/SpaceRN.hpp"
-#include "Space/ASpaceObject.hpp"
-#include "Covariances/CovContext.hpp"
-#include "Covariances/CorAniso.hpp"
 
-using namespace gstlrn;
+#pragma once
 
-int main(int argc, char* argv[])
+#include "Db/DbGrid.hpp"
+#include "LinearOp/MultiGridSolver.hpp"
+#include "LinearOp/ProjMatrix.hpp"
+#include "gstlearn_export.hpp"
+
+
+namespace gstlrn
 {
-  // Do not remove
-  std::stringstream sfn;
-  sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str(), argc, argv);
-  ASerializable::setPrefixName("test_a_template-"); // Here set the test name
 
-  return 0;
-}
+class CovAniso;
+class MultiGridSolver;
+class DbGrid;
+class AMesh;
+
+class GSTLEARN_EXPORT MultiGridSPDE
+{
+
+public:
+  MultiGridSPDE(const CovAniso* cov = nullptr);
+
+  void prepare(MultiGridSolver* solver,const DbGrid* grid);
+  Id buildGridHierarchy(const DbGrid* dbfine, Id nlevels = 2);
+  static std::pair<DbGrid, bool> buildNextGrid(const DbGrid* dbfine);
+  ProjMatrix buildProlongator(const DbGrid* dbfine, const DbGrid* dbcoarse, Id n_rings = 1);
+
+private:
+  const CovAniso* _cova;
+
+};
+
+GSTLEARN_EXPORT MultiGridSolver* createMultiGridSolverSPDE(const CovAniso* cov, DbGrid* grid);
+
+} // namespace gstlrn

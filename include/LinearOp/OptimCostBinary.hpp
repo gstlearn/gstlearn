@@ -41,7 +41,7 @@ public:
                         double eps = 5.e-4);
   void calculateGradient(const VectorDouble& indic,
                          const VectorDouble& lambda,
-                         double* out);
+                         double* out) override;
   Id setMeanProportion(double meanprop);
   /*!  Set the constant parameters for internal Pre-Conditioner */
   static void setPreCondParams(Id chebncmax = 10001, double chebtol = 5.e-3)

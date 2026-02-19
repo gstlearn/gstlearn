@@ -390,7 +390,7 @@ double ACov::eval0(Id ivar,
                    Id jvar,
                    const CovCalcMode* mode) const
 {
-  SpacePoint p1(getSpace()->getOrigin(), -1);
+  SpacePoint p1(getSpace()->getOrigin(), -1, getSpace());
   return evalCov(p1, p1, ivar, jvar, mode); // pure virtual method
 }
 
@@ -592,7 +592,7 @@ double ACov::evalAverageDbToDb(const Db* db1,
       if (!db1->isActive(iech1)) continue;
       double w1 = db1->getWeight(iech1);
       if (isZero(w1)) continue;
-      SpacePoint p1(db1->getSampleCoordinates(iech1));
+      SpacePoint p1(db1->getSampleCoordinates(iech1), iech1, getSpace());
 
       /* Loop on the second sample */
       for (Id iech2 = 0; iech2 <= iech1; iech2++)
@@ -607,7 +607,7 @@ double ACov::evalAverageDbToDb(const Db* db1,
           for (Id idim = 0, ndim = getNDim(); idim < ndim; idim++)
             coord2[idim] += eps * law_uniform(-0.5, 0.5);
         }
-        SpacePoint p2(coord2);
+        SpacePoint p2(coord2, iech2, getSpace());
 
         Id count = (iech1 == iech2) ? 1 : 2;
         total += w1 * w2 * count * evalCov(p1, p2, ivar, jvar, mode);
@@ -623,7 +623,7 @@ double ACov::evalAverageDbToDb(const Db* db1,
       if (!db1->isActive(iech1)) continue;
       double w1 = db1->getWeight(iech1);
       if (isZero(w1)) continue;
-      SpacePoint p1(db1->getSampleCoordinates(iech1));
+      SpacePoint p1(db1->getSampleCoordinates(iech1), iech1, getSpace());
 
       /* Loop on the second sample */
       for (Id iech2 = 0, nech2 = db2->getNSample(); iech2 < nech2; iech2++)
@@ -637,7 +637,7 @@ double ACov::evalAverageDbToDb(const Db* db1,
           for (Id idim = 0, ndim = getNDim(); idim < ndim; idim++)
             coord2[idim] += eps * law_uniform(-0.5, 0.5);
         }
-        SpacePoint p2(coord2);
+        SpacePoint p2(coord2, iech2, getSpace());
 
         total += w1 * w2 * evalCov(p1, p2, ivar, jvar, mode);
         norme += w1 * w2;
@@ -1342,7 +1342,7 @@ Id ACov::evalCovMatOptimInPlace(MatrixDense& mat,
 
   mat.resize(neq1, neq1);
   vect view;
-  SpacePoint pout;
+  SpacePoint pout(getSpace());
   const auto& index    = rankhandler.getSampleRanks();
   const auto& indexcur = rankhandler.getSampleRanks(0);
   for (Id i = 0; i < mat.getNCols(); i++)

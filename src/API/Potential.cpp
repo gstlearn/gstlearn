@@ -232,6 +232,7 @@ void Potential::_environmentManage(bool flag_pot,
   _optionPart  = option_part;
   _ndim        = _dbiso->getNDim();
 
+  // TODO[space]: SpaceRN is forced here
   _p1 = SpacePoint(_ndim);
   _p2 = SpacePoint(_ndim);
 }

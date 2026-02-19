@@ -489,6 +489,74 @@ double CorAniso::evalCorFromH(double h, const CovCalcMode* mode) const
   return cov;
 }
 
+
+thread_local VectorDouble h_shifted;
+thread_local VectorDouble res_shifted;
+/**
+ * Calculate the value of the covariance from the distance between bi-points
+ * This distance has been calculated beforehand (possibly using anisotropy)
+ * @param h    Input distance
+ * @param res  Output vector to store the covariance values (in place)
+ * @param mode Pointer to CovCalcMode structure (optional)
+ * @param lambda Multiplier for the covariance value 
+ */
+void CorAniso::addEvalCorFromHVect(constvect h, vect res, const CovCalcMode* mode, double lambda) const
+{
+  Id n = static_cast<Id>(h.size());
+  h_shifted.resize(n);
+  res_shifted.resize(n);
+  if (mode != nullptr && mode->getOrderVario() > 0)
+  {
+    Id norder = mode->getOrderVario();
+    // Initialisation du résultat à 0 car on va cumuler
+    for (Id i = 0; i < n; i++) res[i] = 0.;
+
+    // Buffer temporaire pour stocker le calcul batch de chaque iwgt
+    // On peut utiliser un VectorDouble local ou un buffer de travail
+
+
+    // Calculate High-order Variogram (only valuable when h != 0)
+    for (Id iwgt = 1, nwgt = NWGT[norder]; iwgt < nwgt; iwgt++)
+    {
+      double factor_h = 1. + iwgt;
+      double wgt = COVWGT[norder][iwgt];
+      
+      // On prépare les distances décalées pour le batch
+      for (Id i = 0; i < n; i++) h_shifted[i] = h[i] * factor_h;
+      
+      // Appel Batch pour ce poids
+      _corfunc->evalCorFuncBatch(h_shifted, res_shifted);
+      
+      // Accumulation
+      double norm = NORWGT[norder];
+      for (Id i = 0; i < n; i++) res[i] += wgt * res_shifted[i]/norm;
+    }    
+  }
+  else
+  {
+    // Case norder == 0 or mode == nullptr
+    _corfunc->evalCorFuncBatch(h, res_shifted);
+    
+    double factor = _noStatFactor;
+    bool asVario = (mode != nullptr && mode->getAsVario());
+    
+    if (asVario)
+    {
+      double c0 = _corfunc->evalCorFunc(0);
+      for (Id i = 0; i < n; i++) 
+        res[i] += lambda * (c0 - (res_shifted[i] * factor));
+    }
+    else
+    {
+      for (Id i = 0; i < n; i++) 
+        res[i] += lambda * res_shifted[i] * factor;
+    }
+  }
+  res_shifted.clear();
+  h_shifted.clear();
+}
+
+
 double CorAniso::evalCor(const SpacePoint& p1,
                          const SpacePoint& p2,
                          const CovCalcMode* mode,
@@ -530,14 +598,11 @@ Id CorAniso::addEvalCovVecRHSInPlace(vect vec,
 
   // TODO adapt to Moving
 
-  double* dists = tabwork.data();
-  // const Id* ind = index1.data();
-  for (Id i = 0; i < static_cast<Id>(index1.size()); i++)
-  {
-    vec[i] += lambda * evalCorFromH(dists[i], &mode);
-  }
+  addEvalCorFromHVect(tabwork, vec, &mode, lambda);
+
   return 0;
 }
+
 double CorAniso::_eval(const SpacePoint& p1,
                        const SpacePoint& p2,
                        Id ivar,
@@ -679,8 +744,8 @@ double CorAniso::evalSpectrum(const VectorDouble& freq, Id ivar, Id jvar) const
   DECLARE_UNUSED(ivar, jvar)
   if (!_corfunc->isValidForSimulation(ESimuType::SPECTRAL)) return TEST;
 
-  SpacePoint p1;
-  SpacePoint p2;
+  SpacePoint p1(getSpace());
+  SpacePoint p2(getSpace());
   p2.setCoords(freq);
   double freqnorm = getSpace()->getFrequentialDistance(p1, p2, _aniso);
   return _corfunc->evaluateSpectrum(freqnorm) * getDetTensor();
@@ -922,7 +987,7 @@ void CorAniso::_updateFromContext()
 double CorAniso::getIntegralRange(Id ndisc, double hmax) const
 {
   auto ndim = getNDim();
-  SpacePoint dd(VectorDouble(ndim), -1);
+  SpacePoint dd(VectorDouble(ndim), -1, getSpace());
   double delta = hmax / ndisc;
   double total = 0.;
   switch (ndim)
@@ -931,7 +996,7 @@ double CorAniso::getIntegralRange(Id ndisc, double hmax) const
       for (Id j1 = -ndisc; j1 <= ndisc; j1++)
       {
         dd.setCoord(0, delta * j1);
-        total += delta * evalCov(dd, SpacePoint());
+        total += delta * evalCov(dd, SpacePoint(getSpace()));
       }
       break;
 
@@ -941,7 +1006,7 @@ double CorAniso::getIntegralRange(Id ndisc, double hmax) const
         {
           dd.setCoord(0, delta * j1);
           dd.setCoord(1, delta * j2);
-          total += delta * delta * evalCov(dd, SpacePoint());
+          total += delta * delta * evalCov(dd, SpacePoint(getSpace()));
         }
       break;
 
@@ -953,7 +1018,7 @@ double CorAniso::getIntegralRange(Id ndisc, double hmax) const
             dd.setCoord(0, delta * j1);
             dd.setCoord(1, delta * j2);
             dd.setCoord(2, delta * j3);
-            total += delta * delta * delta * evalCov(dd, SpacePoint());
+            total += delta * delta * delta * evalCov(dd, SpacePoint(getSpace()));
           }
       break;
 

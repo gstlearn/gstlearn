@@ -84,6 +84,10 @@
 %include Basic/Message.hpp
 %include Basic/NamingConvention.hpp
 
+%include Transform/ATransform.hpp
+%include Transform/TuckeyGH.hpp
+%include Transform/YeoJohnson.hpp
+
 %include Calculators/ACalculator.hpp
 %include Calculators/ACalcDbVarCreator.hpp
 %include Calculators/ACalcDbToDb.hpp
@@ -157,6 +161,9 @@
 %include Space/SpaceShape.hpp
 
 %include LinearOp/ALinearOp.hpp
+%include LinearOp/APreconditioner.hpp
+%include LinearOp/MultiGridSolver.hpp
+%include LinearOp/MultiGridSPDE.hpp
 %include LinearOp/ASimulable.hpp
 %include Matrix/AMatrix.hpp
 %include Matrix/MatrixDense.hpp
@@ -168,6 +175,7 @@
 %include Matrix/MatrixFactory.hpp
 %include Matrix/MatrixInt.hpp
 %include Matrix/Table.hpp
+%include LinearOp/LinearOpHelper.hpp
 
 %include MLayers/MLayers.hpp
 
@@ -195,6 +203,7 @@
 %include LinearOp/AShiftOp.hpp
 %include LinearOp/ShiftOpStencil.hpp
 %include LinearOp/ShiftOpMatrix.hpp
+%include LinearOp/IPrecisionOp.hpp
 %include LinearOp/PrecisionOp.hpp
 %include LinearOp/PrecisionOpMatrix.hpp
 %include LinearOp/SPDEOp.hpp
@@ -208,7 +217,6 @@
 %include LinearOp/ProjMultiMatrix.hpp
 %include LinearOp/PrecisionOpMulti.hpp
 %include LinearOp/PrecisionOpMultiMatrix.hpp
-%include LinearOp/PrecisionOpMultiConditional.hpp
 %include LinearOp/ProjConvolution.hpp
 %include LinearOp/IOptimCost.hpp
 %include LinearOp/OptimCostBinary.hpp

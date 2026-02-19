@@ -150,10 +150,9 @@ void NF_Triplet::appendInPlace(const NF_Triplet& T2)
   // Update the maxima for rows and columns
   for (Id i = 0, n = T2.getNElements(); i < n; i++)
   {
-    auto irow = T2.getRow(i);
-    auto icol = T2.getCol(i);
-    if (irow > _nrowmax) _nrowmax = irow;
-    if (icol > _ncolmax) _ncolmax = icol;
+    _nrowmax = std::max(_nrowmax, T2.getRow(i));
+    _ncolmax = std::max(_ncolmax, T2.getCol(i));
+
   }
 }
 } // namespace gstlrn

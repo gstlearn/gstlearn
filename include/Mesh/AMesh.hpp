@@ -13,6 +13,8 @@
 #include "Basic/ASerializable.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/VectorNumT.hpp"
+#include "Basic/VectorT.hpp"
+#include "Matrix/MatrixSparse.hpp"
 
 namespace gstlrn
 {
@@ -113,6 +115,7 @@ public:
   VectorVectorDouble getAllCoordinates() const;
   MatrixDense getAllApices() const;
   MatrixInt getAllMeshes() const;
+  const MatrixSparse* getAdjacentApicesMatrix() const;
 
   double getCenterCoordinate(Id imesh, Id idim) const;
   VectorVectorDouble getAllCenterCoordinates() const;
@@ -120,7 +123,9 @@ public:
   VectorVectorInt getNeighborhoodPerMesh() const;
   VectorVectorInt getNeighborhoodPerApex() const;
   static void dumpNeighborhood(std::vector<VectorInt>& Vmesh, Id nline_max = 1);
-
+  virtual VectorInt getAdjacentApices(Id iapex) const;
+  VectorInt getNRingsAdjacentApices(Id start_apex, Id n_rings) const;
+  virtual void buildAdjacencyMatrix() const;
 protected:
   void _setNDim(Id ndim) { _nDim = ndim; }
   Id _setExtend(const VectorDouble& extendmin, const VectorDouble& extendmax);
@@ -130,6 +135,7 @@ protected:
                               VectorDouble& weights,
                               double eps = EPSILON5) const;
   double _getMeshUnit(const VectorVectorDouble& corners) const;
+    
 
 protected:
   void _recopy(const AMesh& m);
@@ -151,6 +157,7 @@ private:
   Id _nDim;
   VectorDouble _extendMin;
   VectorDouble _extendMax;
+  mutable MatrixSparse* _adjacencyMatrix; //!< Mesh adjacency matrix (lazy evaluation)
 };
 
 } // namespace gstlrn

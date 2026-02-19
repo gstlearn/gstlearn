@@ -72,7 +72,7 @@ int main(int argc, char* argv[])
 
     // My target sample
     VectorDouble target = {0.4, 0.2};
-    SpacePoint pt1(target);
+    SpacePoint pt1(target); // Use default space
 
     // Inquiring the Ball tree
     mestitle(1, "Various ways of inquiring the Ball Tree");
@@ -105,7 +105,7 @@ int main(int argc, char* argv[])
     if (verbose) ball.display(1);
 
     // Loop on the samples for the FNN search
-    SpacePoint pt2;
+    SpacePoint pt2; // Use default space
     // VectorInt ranks = law_random_path(nech);
     VectorInt ranks = VH::sequence(nech);
     for (Id jech = 0; jech < nech; jech++)
@@ -173,7 +173,7 @@ int main(int argc, char* argv[])
 
     // Defining a Target point in Longitude / Latitude
     VectorDouble target = {70., 70.};
-    SpacePoint pt1(target);
+    SpacePoint pt1(target); // Use default space
 
     // Inquiring the Ball tree
     mestitle(1, "Various ways of inquiring the Ball Tree");

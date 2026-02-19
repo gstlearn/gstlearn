@@ -136,6 +136,8 @@ public:
                             VectorInt& indices,
                             VectorDouble& lambdas) const;
 
+  void initThread() const;
+
 private:
   Id _defineGrid(const VectorDouble& cellsize);
   void _setNElementPerCell();
@@ -170,12 +172,7 @@ private:
   Indirection _meshIndirect;
   Indirection _gridIndirect;
 
-  /// factor allocations
-  mutable VectorInt _indg;
-  mutable VectorInt _indices;
-  mutable VectorDouble _lambdas;
-  mutable VectorDouble _rhs;
-  mutable VectorInt _indgg;
+
 
   friend class DbMeshTurbo;
 };

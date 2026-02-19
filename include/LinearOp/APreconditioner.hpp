@@ -8,22 +8,25 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Basic/ASerializable.hpp"
-#include "geoslib_define.h"
-#include "Space/SpaceRN.hpp"
-#include "Space/ASpaceObject.hpp"
-#include "Covariances/CovContext.hpp"
-#include "Covariances/CorAniso.hpp"
+#pragma once
 
-using namespace gstlrn;
+#include "gstlearn_export.hpp"
+#include <Eigen/IterativeLinearSolvers>
 
-int main(int argc, char* argv[])
+namespace gstlrn
 {
-  // Do not remove
-  std::stringstream sfn;
-  sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str(), argc, argv);
-  ASerializable::setPrefixName("test_a_template-"); // Here set the test name
 
-  return 0;
+class GSTLEARN_EXPORT APreconditioner {
+public:
+    APreconditioner() : _status(Eigen::Success){}
+    virtual ~APreconditioner() = default;
+    #ifndef SWIG
+    Eigen::ComputationInfo info() const { return _status;  }
+    #endif
+       
+private:
+      Eigen::ComputationInfo _status;
+
+};
+
 }

@@ -15,6 +15,7 @@
 #include "Matrix/EigenVectors.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixSquare.hpp"
+#include <Eigen/src/Core/util/Constants.h>
 
 #define TRI(i)        (((i) * ((i) + 1)) / 2)
 #define SQ(i, j, neq) ((j) * neq + (i))
@@ -162,6 +163,17 @@ void MatrixSymmetric::resetFromVVD(const VectorVectorDouble& tab, bool byCol)
     return;
   }
   MatrixSquare::resetFromVVD(tab, byCol);
+}
+
+void MatrixSymmetric::solveSDP(constvect b, vect x) const
+{
+  /// TODO : check beforehand if matrix is invertible ?
+  Eigen::Map<const Eigen::VectorXd> bm(b.data(), getNCols());
+  Eigen::Map<Eigen::VectorXd> xm(x.data(), getNRows());
+  
+  auto a = eigenMat();
+
+  xm = a.inverse() * bm;
 }
 
 /**

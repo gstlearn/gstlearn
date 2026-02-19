@@ -102,8 +102,8 @@ bool MatrixSquare::invert2x2(MatrixSquare& res) const
   auto rem           = res.eigenMat();
   rem.coeffRef(0, 0) = em(1, 1) / det;
   rem.coeffRef(1, 1) = em(0, 0) / det;
-  rem.coeffRef(0, 1) = -em(1, 0) / det;
-  rem.coeffRef(1, 0) = -em(0, 1) / det;
+  rem.coeffRef(1, 0) = -em(1, 0) / det;
+  rem.coeffRef(0, 1) = -em(0, 1) / det;
   return true;
 }
 
@@ -475,6 +475,7 @@ Id MatrixSquare::_solveLU(const MatrixSquare& tus,
   if (_backwardLU(tus, y.data(), x)) return 1;
   return 0;
 }
+
 
 /*****************************************************************************/
 /*!
