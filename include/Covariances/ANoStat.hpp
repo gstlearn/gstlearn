@@ -33,8 +33,8 @@ public:
   double getValueOnMeshByApex(Id iapex) const;
   double getValueOnMesh(Id iapex, bool center = false) const;
   void informField(const VectorVectorDouble& coords, VectorDouble& tab, bool verbose = false);
-  void informMeshByMesh(const AMesh* amesh, bool verbose = false);
-  void informMeshByApex(const AMesh* amesh, bool verbose = false);
+  virtual void informMeshByMesh(const AMesh* amesh, bool verbose = false);
+  virtual void informMeshByApex(const AMesh* amesh, bool verbose = false);
   void informDbIn(const Db* dbin, bool verbose = false);
   void informDbOout(const Db* dbout, bool verbose = false);
 
