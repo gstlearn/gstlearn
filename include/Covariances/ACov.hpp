@@ -458,7 +458,7 @@ public:
     return TEST;
   }
   void makeStationary();
-  virtual void setFlagAnisoOnMesh(bool flagAnisoOnMesh) { _flagAnisoOnMesh = flagAnisoOnMesh; }
+  void setFlagAnisoOnMesh(bool flagAnisoOnMesh) { _flagAnisoOnMesh = flagAnisoOnMesh; }
   inline bool getFlagAnisoOnMesh() const { return _flagAnisoOnMesh; }
   Id makeElemNoStatOnMesh(const EConsElem& econs, Id iv1, Id iv2, const Db* db = nullptr, const String& namecol = String());
   virtual Id makeElemNoStat(const EConsElem& econs, Id iv1, Id iv2, const AFunctional* func = nullptr, const Db* db = nullptr, const String& namecol = String());
