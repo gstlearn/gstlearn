@@ -21,8 +21,8 @@
 #include "Covariances/CovCalcMode.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Covariances/NoStatArray.hpp"
-#include "Covariances/NoStatOnMesh.hpp"
 #include "Covariances/NoStatFunctional.hpp"
+#include "Covariances/NoStatOnMesh.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Enum/ECalcMember.hpp"
@@ -57,7 +57,6 @@ ACov::ACov(const CovContext& ctxt)
   , _p2A(ctxt.getSpace())
   , _pAux(ctxt.getSpace())
   , _tabNoStat(nullptr)
-  , _flagAnisoOnMesh(false)
 {
   createNoStatTab();
 }
@@ -75,7 +74,6 @@ ACov::ACov(const ACov& r)
   , _pw1(r._pw1)
   , _pw2(r._pw2)
   , _tabNoStat(r._tabNoStat == nullptr ? nullptr : r._tabNoStat->clone())
-  , _flagAnisoOnMesh(r._flagAnisoOnMesh)
 {
 }
 
@@ -95,7 +93,6 @@ ACov& ACov::operator=(const ACov& r)
     _pw1                   = r._pw1;
     _pw2                   = r._pw2;
     _tabNoStat             = std::unique_ptr<TabNoStat>(r._tabNoStat->clone());
-    _flagAnisoOnMesh       = r._flagAnisoOnMesh;
   }
   return *this;
 }
@@ -2020,20 +2017,8 @@ void ACov::_makeStationary()
 {
 }
 
-Id ACov::makeElemNoStatOnMesh(const EConsElem& econs, Id iv1, Id iv2, const Db* db, const String& namecol)
-{
-  std::shared_ptr<ANoStat> ns;
-  if (!checkAndManageNoStatDb(db, namecol)) return 1;
-
-  ns = std::shared_ptr<ANoStat>(new NoStatOnMesh(_tabNoStat->getDbNoStatRef(), namecol));
-
-  return _tabNoStat->addElem(ns, econs, iv1, iv2);
-}
-
 Id ACov::makeElemNoStat(const EConsElem& econs, Id iv1, Id iv2, const AFunctional* func, const Db* db, const String& namecol)
 {
-  if (_flagAnisoOnMesh && db != nullptr) return makeElemNoStatOnMesh(econs, iv1, iv2, db, namecol);
-
   return _makeElemNoStat(econs, iv1, iv2, func, db, namecol);
 }
 

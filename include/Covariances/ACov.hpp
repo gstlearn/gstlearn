@@ -458,9 +458,6 @@ public:
     return TEST;
   }
   void makeStationary();
-  void setFlagAnisoOnMesh(bool flagAnisoOnMesh) { _flagAnisoOnMesh = flagAnisoOnMesh; }
-  inline bool getFlagAnisoOnMesh() const { return _flagAnisoOnMesh; }
-  Id makeElemNoStatOnMesh(const EConsElem& econs, Id iv1, Id iv2, const Db* db = nullptr, const String& namecol = String());
   virtual Id makeElemNoStat(const EConsElem& econs, Id iv1, Id iv2, const AFunctional* func = nullptr, const Db* db = nullptr, const String& namecol = String());
   void createNoStatTab();
   void informMeshByMesh(const AMesh* amesh) const;
@@ -584,6 +581,5 @@ protected:
   mutable SpacePoint* _pw1;
   mutable SpacePoint* _pw2;
   std::unique_ptr<TabNoStat> _tabNoStat;
-  bool _flagAnisoOnMesh;
 };
 } // namespace gstlrn

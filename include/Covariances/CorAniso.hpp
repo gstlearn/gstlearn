@@ -215,6 +215,12 @@ public:
   }
   double normalizeOnSphere(Id n = 50) const;
 
+  
+  void setFlagAnisoOnMesh(bool flagAnisoOnMesh) { _flagAnisoOnMesh = flagAnisoOnMesh; }
+  inline bool getFlagAnisoOnMesh() const { return _flagAnisoOnMesh; }
+  Id makeElemNoStatOnMesh(const EConsElem& econs, Id iv1, Id iv2, const Db* db = nullptr, const String& namecol = String());
+  Id makeElemNoStat(const EConsElem& econs, Id iv1, Id iv2, const AFunctional* func = nullptr, const Db* db = nullptr, const String& namecol = String()) override;
+
   //////////////////////// New NoStat methods //////////////////////////
 
   void makeRangeNoStatDb(const String& namecol, Id idim = 0, const Db* db = nullptr);
@@ -351,6 +357,7 @@ private:
 
   bool _optimNoAniso;   // All ranges should be equal
   bool _optimLockIso2d; // Range U and V should be equal
+  bool _flagAnisoOnMesh;
   mutable std::vector<MatrixSquare> _dRot;
   const std::array<EConsElem, 4> _listaniso = {EConsElem::RANGE,
                                                EConsElem::SCALE,
