@@ -40,6 +40,7 @@
 %include geoslib_d.h
 %include geoslib_f.h
 
+
 %include Enum/AEnum.hpp
 %include Enum/EKrigOpt.hpp
 %include Enum/ESPDECalcMode.hpp
@@ -231,6 +232,10 @@
 %include Neigh/NeighMoving.hpp
 %include Neigh/NeighBench.hpp
 %include Neigh/NeighCell.hpp
+
+%include Transform/ATransform.hpp
+%include Transform/TuckeyGH.hpp
+%include Transform/YeoJohnson.hpp
 
 %include Variogram/AVario.hpp
 %include Variogram/VarioParam.hpp

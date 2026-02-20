@@ -1472,20 +1472,23 @@ label_end:
  ** \param[in]  seed        Seed for random number generator
  ** \param[in]  gibbs_nburn Initial number of iterations for bootstrapping
  ** \param[in]  gibbs_niter Maximum number of iterations
- ** \param[in]  flag_moving      1 for Moving
- ** \param[in]  flag_norm   1 if the Model must be normalized
- ** \param[in]  flag_multi_mono  1 for the Multi_mono algorithm
- ** \param[in]  flag_propagation 1 for the propagation algorithm
- ** \param[in]  flag_sym_neigh Deprecated argument
+ ** \param[in]  flag_moving      TRUE for Moving
+ ** \param[in]  flag_norm        TRUE if the Model must be normalized
+ ** \param[in]  flag_multi_mono  TRUE for the Multi_mono algorithm
+ ** \param[in]  flag_propagation TRUE for the propagation algorithm
+ ** \param[in]  flag_sym_neigh   Deprecated argument
  ** \param[in]  gibbs_optstats   0: No stats - 1: Print - 2: Save Neutral file
  ** \param[in]  percent     Amount of nugget effect added to too continuous
  **                         model (expressed in percentage of total variance)
- ** \param[in]  flag_ce     1 if the conditional expectation
+ ** \param[in]  flag_ce     TRUE if the conditional expectation
  **                         should be returned instead of simulations
- ** \param[in]  flag_cstd   1 if the conditional standard deviation
+ ** \param[in]  flag_cstd   TRUE if the conditional standard deviation
  **                         should be returned instead of simulations
  ** \param[in]  verbose     Verbose flag
  ** \param[in]  namconv     Naming convention
+ **
+ ** \remark 'dbin' should contain the target variable(s) (Locator: Z)
+ **         and the bounds (Locators: L and U).
  **
  *****************************************************************************/
 Id gibbs_sampler(Db* dbin,
@@ -1544,9 +1547,10 @@ Id gibbs_sampler(Db* dbin,
 
   /* Db */
 
+  Id nbounds = dbin->getNBounds();
   if (flag_propagation)
   {
-    if (dbin->getNInterval() > 0)
+    if (nbounds > 0)
     {
       messerr("The propagation algorithm is incompatible with bounds");
       return 1;
@@ -1554,19 +1558,17 @@ Id gibbs_sampler(Db* dbin,
   }
   else
   {
-    if (dbin->getNInterval() > 0)
+    if (nbounds > 0)
     {
       if (dbin->getNLoc(ELoc::L) != nvar)
       {
-        messerr("There must be as many Lower bound variables (%d)",
-                dbin->getNInterval());
+        messerr("There must be as many Lower bound variables (%d)", nbounds);
         messerr("as there are variables defined in the Model (%d)", nvar);
         return 1;
       }
       if (dbin->getNLoc(ELoc::U) != nvar)
       {
-        messerr("There must be as many Upper bound variables (%d)",
-                dbin->getNInterval());
+        messerr("There must be as many Upper bound variables (%d)", nbounds);
         messerr("as there are variables defined in the Model (%d)", nvar);
         return 1;
       }
@@ -1654,8 +1656,8 @@ Id gibbs_sampler(Db* dbin,
 
   if (flag_ce || flag_cstd)
   {
-    if (db_simulations_to_ce(dbin, ELoc::GAUSFAC, nbsimu, nvar, &iptr_ce,
-                             &iptr_cstd)) goto label_end;
+    if (db_simulations_to_ce(dbin, ELoc::GAUSFAC, nbsimu, nvar,
+                             &iptr_ce, &iptr_cstd)) goto label_end;
 
     // We release the attributes dedicated to simulations on Dbout
 
@@ -1676,6 +1678,10 @@ Id gibbs_sampler(Db* dbin,
 
   error = 0;
   namconv.setNamesAndLocators(dbin, VectorString(), ELoc::UNDEFINED, nvar, dbin, iptr, String(), nbsimu);
+  if (iptr_cstd >= 0)
+    namconv.setNamesAndLocators(dbin, VectorString(), ELoc::UNDEFINED, nvar, dbin, iptr_cstd, "STD", nvar);
+  if (iptr_ce >= 0)
+    namconv.setNamesAndLocators(dbin, VectorString(), ELoc::UNDEFINED, nvar, dbin, iptr_ce, "CE", nvar);
 
 label_end:
   proportion_manage(-1, 0, 1, 1, 0, nvar, 0, dbin, NULL, VectorDouble(), propdef);
@@ -2331,7 +2337,7 @@ Id simcond(Db* dbin,
     messerr("This method is restricted to the monovariate case");
     goto label_end;
   }
-  if (dbin->getNInterval() <= 0)
+  if (dbin->getNBounds() <= 0)
   {
     messerr("No bound is defined: use 'simtub' instead");
     goto label_end;

@@ -541,7 +541,8 @@ public:
                                   const String& category,
                                   const std::vector<EStatOption>& opers = EStatOption::fromKeys({"NUM", "MINI", "MAXI", "MEAN", "STDV", "VAR"}),
                                   double eps                            = EPSILON6);
-  Table getContentsAsTable(const VectorString& names = VectorString()) const;
+  Table getContentsAsTable(const VectorString& names = VectorString(),
+                           bool useSel               = false) const;
 
   /** @addtogroup DB_0 Getting and Setting functions by Locator
    * \ingroup DB
@@ -588,6 +589,7 @@ public:
 
   void setInterval(Id iech, Id item, double rklow = TEST, double rkup = TEST);
   Id getNInterval() const;
+  Id getNBounds() const;
   void setBound(Id iech, Id item, double lower = TEST, double upper = TEST);
   VectorDouble getWithinBounds(Id item, bool useSel = false) const;
   VectorDouble getGradient(Id item, bool useSel = false) const;

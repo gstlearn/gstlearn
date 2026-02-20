@@ -2895,6 +2895,11 @@ Id Db::getNInterval() const
   return MAX(getNLoc(ELoc::RKLOW), getNLoc(ELoc::RKUP));
 }
 
+Id Db::getNBounds() const
+{
+  return MAX(getNLoc(ELoc::L), getNLoc(ELoc::U));
+}
+
 void Db::setInterval(Id iech, Id item, double rklow, double rkup)
 {
   if (rklow > rkup)
@@ -6266,13 +6271,13 @@ Table Db::getStatsByCategoryAsTable(const String& name,
   return table;
 }
 
-Table Db::getContentsAsTable(const VectorString& names) const
+Table Db::getContentsAsTable(const VectorString& names, bool useSel) const
 {
   auto namesLoc = names;
   if (namesLoc.empty()) namesLoc = getAllNames(false);
 
   // Define the table
-  Id nrows = getNSample(true);
+  Id nrows = getNSample(useSel);
   Id ncols = namesLoc.size();
   Table table(nrows, ncols);
   table.setSkipTitle(true);
@@ -6282,7 +6287,7 @@ Table Db::getContentsAsTable(const VectorString& names) const
   for (Id icol = 0; icol < ncols; icol++)
   {
     table.setColumnName(icol, namesLoc[icol]);
-    VectorDouble tabloc = getColumn(namesLoc[icol], true, false);
+    VectorDouble tabloc = getColumn(namesLoc[icol], true, useSel);
     table.setColumn(icol, tabloc);
   }
   return table;
