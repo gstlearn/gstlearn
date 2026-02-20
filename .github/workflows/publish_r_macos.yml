@@ -157,12 +157,7 @@ jobs:
       run: Rscript -e "install.packages(\"$(ls *.tgz)\", repos=NULL, type='source')"
 
     - name: Test installed R package
-      run: |
-        Rscript -e "library('gstlearn'); acknowledge_gstlearn()"
-        Rscript tests/r/test_Arguments.R
-        Rscript tests/r/test_Assessors.R
-        Rscript tests/r/test_Matrix.R
-        Rscript tests/r/test_dumpToNF.R
+      uses: ./.github/actions/run_r_tests
 
   publish:
     needs: test
