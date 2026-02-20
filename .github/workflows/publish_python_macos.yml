@@ -35,10 +35,6 @@ jobs:
         python: [
           # Double quote for version is needed otherwise 3.10 => 3.1
             {py: "3.10"},
-            {py: "3.11"},
-            {py: "3.12"},
-            {py: "3.13"},
-            {py: "3.14"}
           ]
         # Only one arm64 and one x86_64 Mac OS version are needed
         arch: [
@@ -98,6 +94,8 @@ jobs:
         install_name_tool -change ${{matrix.arch.pat}}/opt/llvm/lib/libomp.dylib @loader_path/libomp.dylib gstlearn/_gstlearn.so
         # Note: wheel must be declared not pure (see setup.py)
         uv build --wheel
+        uvx wheel tags --python-tag=cp310 --abi-tag=abi3 dist/*.whl
+        rm dist/*cp310-cp310*.whl
         if [ "${{matrix.arch.os}}" == "macos-15-intel" ] && [ $(ls dist/*universal2.whl | wc -l) -gt 0 ]; then
           # Fix wheel platform tag for x86_64 macOS
           WHEEL_FILE=$(ls dist/*universal2.whl)
@@ -110,7 +108,7 @@ jobs:
     - uses: actions/upload-artifact@v4
       # Use specific artifact identifier for publishing all versions
       with:
-        name: macos-python-package-${{matrix.arch.os}}-${{matrix.python.py}}
+        name: macos-python-package-${{matrix.arch.os}}
         path: ${{env.MY_PKG}}
 
   test:
@@ -137,7 +135,7 @@ jobs:
 
     - uses: actions/download-artifact@v4
       with:
-        name: macos-python-package-${{matrix.arch.os}}-${{matrix.python.py}}
+        name: macos-python-package-${{matrix.arch.os}}
 
     - name: Setup uv
       uses: astral-sh/setup-uv@v6
@@ -171,5 +169,4 @@ jobs:
     # Delete the artifacts (for freeing storage space under github)
     - uses: geekyeggo/delete-artifact@v5
       with:
-        name: macos-python-package-*
-
+        name: macos-python-package
