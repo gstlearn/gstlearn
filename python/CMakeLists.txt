@@ -11,7 +11,7 @@ set(PYTHON_PACKAGE_NAME ${PROJECT_NAME})
 
 # Look for Python3
 #set(CMAKE_FIND_DEBUG_MODE TRUE)
-find_package(Python3 REQUIRED COMPONENTS Interpreter Development.Module NumPy)
+find_package(Python3 REQUIRED COMPONENTS Interpreter Development.SABIModule NumPy)
 string(REGEX MATCH "^([0-9]+)\\.([0-9]+)\\.([0-9]+)"
   Python3_NumPy_VERSION_MATCH ${Python3_NumPy_VERSION})
 set(Python3_NumPy_VERSION_MAJOR ${CMAKE_MATCH_1})
@@ -169,7 +169,7 @@ if (MSVC OR APPLE)
   # Link to python's libraries (needed for MSVC and MacOS)
   # Prefer using Python3::Module (which works for MacOS) in place of ${Python3_LIBRARIES}
   # https://gitlab.kitware.com/cmake/cmake/-/issues/17664
-  target_link_libraries(python_build PRIVATE Python3::Module)
+  target_link_libraries(python_build PRIVATE Python3::SABIModule)
 endif()
 
 if (CLANG)

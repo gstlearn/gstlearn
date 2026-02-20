@@ -8,6 +8,12 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+
+%begin %{
+// use the Python Stable ABI to target several Python versions at once
+#define Py_LIMITED_API 0x030A0000 // Python 3.10 and up
+%}
+
 // Keep sync with PYTHON_PACKAGE_NAME in CMakeLists.txt
 %module(directors="1") gstlearn // TODO : configure this using CMake configure_file
 
@@ -414,7 +420,7 @@
     // Reading the storage format
     PyObject* format_obj = PyObject_GetAttrString(obj, "format");
     if (!format_obj) return SWIG_TypeError; 
-    const char* format_str = PyUnicode_AsUTF8(format_obj);
+    const char* format_str = PyUnicode_AsUTF8AndSize(format_obj, nullptr);
     if (!format_str) return SWIG_TypeError;
 
     // Recover 'data' information
@@ -813,7 +819,7 @@ namespace gstlrn
 
   PyObject *col;
   while ((col = PyIter_Next(iter))) {
-      const char *colname = PyUnicode_AsUTF8(col);
+      const char *colname = PyUnicode_AsUTF8AndSize(col, nullptr);
       PyObject *series = PyObject_GetItem($input, col);
       PyObject *values = PyObject_GetAttrString(series, "values");
 
