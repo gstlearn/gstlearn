@@ -130,6 +130,7 @@ if __name__ == "__main__":
     with open(output_txt_file, "w", encoding="utf-8") as file:
         excluded = [
             "AStringable",
+            "ATransformWithAutoDiff",
             "PrecisionOpMulti",
             "PrecisionOpMultiMatrix",
             "MatrixSparse",
