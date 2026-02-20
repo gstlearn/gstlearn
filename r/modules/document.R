@@ -114,7 +114,7 @@ locateFile <- function (filename, where='references', directory=NULL, verbose=FA
   # Test on the web
   if (!internetAvailable())
   {
-    print(paste("Error: Cannot access to", filename, "(no Internet)!"))
+    print(paste("Error: Cannot access to", filename, "(no Internet - 'lares' package is required)!"))
     return(NULL)
   }
   
