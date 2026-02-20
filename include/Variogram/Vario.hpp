@@ -399,6 +399,7 @@ public:
   void finalScaleByWeights(Id idir);
 
   void varioDump(Id idir = 0, const String& title = String()) const;
+  VectorInt getPairs(Db* db, Id iech, Id ilag0);
 
 protected:
   bool _deserializeAscii(std::istream& is) override;
@@ -575,4 +576,13 @@ GSTLEARN_EXPORT Vario* varioGridCalculate(DbGrid* dbgrid,
                                           bool flagAllDirections         = true,
                                           const VectorVectorInt& dirincr = VectorVectorInt(),
                                           bool verbose                   = false);
+GSTLEARN_EXPORT VectorInt variogramPerPoint(Db* db,
+                                            Id iech0,
+                                            Id ilag0                  = 10,
+                                            double dlag               = 1.,
+                                            const VectorDouble& codir = VectorDouble(),
+                                            double toldis             = 0.5,
+                                            double tolang             = TEST,
+                                            double bench              = TEST,
+                                            double cylrad             = TEST);
 } // namespace gstlrn

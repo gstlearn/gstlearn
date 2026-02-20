@@ -25,11 +25,5 @@ int main(int argc, char* argv[])
   StdoutRedirect sr(sfn.str(), argc, argv);
   ASerializable::setPrefixName("test_a_template-"); // Here set the test name
 
-  setDefaultSpace(SpaceRN::create(3));
-  std::cout << "Default space dimension: " << getDefaultSpace()->getNDim() << std::endl;
-
-  CovContext ctxt(1, 1);
-  CorAniso* cov1 = CorAniso::create(ctxt, ECov::MATERN, {0.5}, {1.});
-  std::cout << "CorAniso dimension: " << cov1->getNDim() << std::endl;
-  std::cout << "eval0 = " << cov1->eval0() << std::endl;
+  return 0;
 }

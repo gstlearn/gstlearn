@@ -3528,6 +3528,60 @@ Id Vario::_calculateGeneralByPair(Db* db,
 
 /****************************************************************************/
 /*!
+ **  Evaluate the variogram using the traditional method
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  db    Db description
+ ** \param[in]  iech  Rank of the first sample
+ ** \param[in]  ilag0 Rank of the lag to evaluate
+ **
+ *****************************************************************************/
+VectorInt Vario::getPairs(Db* db, Id iech, Id ilag0)
+{
+  _db   = db;
+  _nVar = _db->getNLoc(ELoc::Z);
+  VectorInt vec;
+  SpaceTarget T1(getSpace(), false);
+  SpaceTarget T2(getSpace(), false);
+
+  DirParam dirparam = getDirParam(0);
+  Id nech           = db->getNSample();
+  _setListBiTargetCheck();
+
+  // Local variables to speed up calculations
+  bool hasSel    = db->hasLocVariable(ELoc::SEL);
+  bool hasWeight = db->hasLocVariable(ELoc::W);
+  double dist    = 0.;
+
+  /* Loop on the first point */
+
+  if (hasSel && !db->isActive(iech)) return vec;
+  if (hasWeight && FFFF(db->getWeight(iech))) return vec;
+  db->getSampleAsSTInPlace(iech, T1);
+
+  for (Id jech = 0; jech < nech; jech++)
+  {
+    if (iech == jech) continue;
+    if (hasSel && !db->isActive(jech)) continue;
+    if (hasWeight && FFFF(db->getWeight(jech))) continue;
+    db->getSampleAsSTInPlace(jech, T2);
+
+    // Reject the point as soon as one BiTargetChecker is not correct
+    if (!keepPair(0, T1, T2, &dist)) continue;
+
+    /* Get the rank of the lag */
+
+    Id ilag = dirparam.getLagRank(dist);
+    if (isNA(ilag)) continue;
+    if (ilag != ilag0) continue;
+    vec.push_back(jech);
+  }
+  return vec;
+}
+
+/****************************************************************************/
+/*!
  **  Evaluate the variogram by sample
  **
  ** \return  Error return code
@@ -5537,6 +5591,35 @@ Vario* varioGridCalculate(DbGrid* dbgrid,
   if (vario->compute(dbgrid, calculType, flag_ergodic, false, false, nullptr, 0, verbose))
     return nullptr;
   return vario;
+}
+
+VectorInt variogramPerPoint(Db* db,
+                            Id iech0,
+                            Id ilag0,
+                            double dlag,
+                            const VectorDouble& codir,
+                            double toldis,
+                            double tolang,
+                            double bench,
+                            double cylrad)
+{
+
+  auto space = SpaceRN::create(db->getNDim());
+
+  Id nlag          = MAX(1, ilag0 + 1);
+  Id opt_code      = 0;
+  double tolcode   = 0.;
+  auto dirparam    = DirParam(nlag, dlag, toldis, tolang, opt_code, 0, bench, cylrad, tolcode,
+                              VectorDouble(), codir, TEST, space);
+  auto* varioparam = new VarioParam();
+  varioparam->addDir(dirparam);
+
+  auto* vario = new Vario(*varioparam);
+
+  VectorInt pairs = vario->getPairs(db, iech0, ilag0);
+  delete varioparam;
+  delete vario;
+  return pairs;
 }
 
 } // namespace gstlrn

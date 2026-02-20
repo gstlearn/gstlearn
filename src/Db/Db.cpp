@@ -712,6 +712,34 @@ VectorDouble Db::getSampleCoordinates(Id iech) const
   return coor;
 }
 
+VectorDouble Db::getSamplesOneCoordinate(const VectorInt& iechs, Id idim) const
+{
+  Id nech = iechs.size();
+  VectorDouble coor(nech);
+  for (Id i = 0; i < nech; i++)
+    coor[i] = getCoordinate(iechs[i], idim);
+  return coor;
+}
+
+Id Db::getSampleClosestTo(const VectorDouble& coor, bool useSel) const
+{
+  Id closest = -1;
+  double distmin = MAXIMUM_BIG;
+  SpacePoint P(getNDim(), -1);
+  for (Id iech = 0, nech = getNSample(); iech < nech; iech++)
+  {
+    if (useSel && !isActive(iech)) continue;
+    getSampleAsSPInPlace(P, iech);
+    double dist = P.getDistance(coor);
+    if (dist < distmin)
+    {
+      distmin = dist;
+      closest = iech;
+    }
+  }
+  return closest;
+}
+
 /**
  * @brief In the SpacePoint 'P', define the sample rank and coordinates
  *
