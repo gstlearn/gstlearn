@@ -1911,4 +1911,37 @@ void VectorHelper::capInPlaceVVD(VectorVectorDouble& vec, double vmin, double vm
     VH::capInPlace(vec[i], vmin, vmax);
 }
 
+void VectorHelper::add(VectorDouble& vecout, const VectorDouble& v1, const VectorDouble& v2)
+{
+  auto n1 = static_cast<Id>(v1.size());
+  auto n2 = static_cast<Id>(v2.size());
+  if (n1 != n2)
+  {
+    messerr("Impossible to add vectors of different dimensions\n");
+    return;
+  }
+  if (&vecout != &v1 && &vecout != &v2)
+  {
+    vecout.resize(n1);
+  }
+  for (Id i = 0; i < n1; i++)
+  {
+    vecout[i] = v1[i] + v2[i];
+  }
+}
+
+VectorDouble VectorHelper::add(const VectorDouble& v1, const VectorDouble& v2)
+{
+  VectorDouble vecout;
+  add(vecout, v1, v2);
+  return vecout;
+}
+
+void VectorHelper::increment(VectorDouble& vecout, const VectorDouble& v1)
+{
+  VectorHelper::add(vecout, vecout, v1);
+}
+
+
+
 } // namespace gstlrn

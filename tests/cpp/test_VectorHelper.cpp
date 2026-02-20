@@ -8,8 +8,8 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f.h"
 #include "Basic/VectorHelper.hpp"
+#include "geoslib_f.h"
 
 using namespace gstlrn;
 
@@ -25,7 +25,7 @@ int main(int argc, char* argv[])
   // Test 1: Basic whereElement functionality (without start parameter)
   message("\n=== Test 1: Basic whereElement ===\n");
   VectorInt vec1 = {10, 20, 30, 40, 50};
-  Id pos = VH::whereElement(vec1, 30);
+  Id pos         = VH::whereElement(vec1, 30);
   if (pos == 2)
     message("PASS: Found 30 at position 2\n");
   else
@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
   // Test 2: Optimized whereElement with start parameter
   message("\n=== Test 2: Optimized whereElement with start ===\n");
   VectorInt vec2 = {5, 15, 25, 35, 45, 55, 65, 75, 85, 95};
-  
+
   // Search starting from position 0
   pos = VH::whereElement(vec2, 25, 0);
   if (pos == 2)
@@ -66,8 +66,8 @@ int main(int argc, char* argv[])
   message("\n=== Test 3: Sequential search pattern ===\n");
   VectorInt indices = {0, 2, 5, 7, 10, 12, 15, 18, 20, 25};
   VectorInt targets = {0, 2, 5, 7, 10, 12, 15, 18, 20, 25};
-  
-  Id lastPos = 0;
+
+  Id lastPos    = 0;
   bool allFound = true;
   for (Id i = 0; i < static_cast<Id>(targets.size()); i++)
   {
@@ -75,7 +75,7 @@ int main(int argc, char* argv[])
     if (pos >= 0)
     {
       message("Found %d at position %d (started from %d)\n", targets[i], pos, lastPos);
-      lastPos = pos;  // Update for next search
+      lastPos = pos; // Update for next search
     }
     else
     {
@@ -83,7 +83,7 @@ int main(int argc, char* argv[])
       allFound = false;
     }
   }
-  
+
   if (allFound)
     message("PASS: All elements found in sequential order\n");
   else
@@ -91,7 +91,7 @@ int main(int argc, char* argv[])
 
   // Test 4: Edge cases
   message("\n=== Test 4: Edge cases ===\n");
-  
+
   // Empty vector
   VectorInt emptyVec;
   pos = VH::whereElement(emptyVec, 10);
@@ -108,7 +108,7 @@ int main(int argc, char* argv[])
 
   // Single element
   VectorInt singleVec = {42};
-  pos = VH::whereElement(singleVec, 42, 0);
+  pos                 = VH::whereElement(singleVec, 42, 0);
   if (pos == 0)
     message("PASS: Single element found at position 0\n");
   else
@@ -116,11 +116,31 @@ int main(int argc, char* argv[])
 
   // Start beyond vector size
   VectorInt vec3 = {1, 2, 3};
-  pos = VH::whereElement(vec3, 2, 10);
+  pos            = VH::whereElement(vec3, 2, 10);
   if (pos == -1)
     message("PASS: Start beyond vector size returns -1\n");
   else
     message("FAIL: Expected -1 when start > size, got %d\n", pos);
+
+  // New interface
+  mestitle(0, "Testing new VectorHelper interface for addition");
+  auto nech = 5;
+  auto V1   = VH::simulateGaussian(nech, 0., 1.);
+  auto V2   = VH::simulateGaussian(nech, 0., 1.);
+  VectorDouble V4;
+
+  VectorDouble V3 = VH::add(V1, V2);
+  V3.dump("Checking VH::add(V1,V2)");
+
+  VH::add(V4, V1, V2);
+  V4.dump("Checking VH::add(v4,V1,V2)");
+
+  VectorDouble V5 = V1 + V2;
+  V5.dump("Checking V = V1 + V2");
+
+  VectorDouble V6 = V1;
+  V6 += V2;
+  V6.dump("Checking V6 += V2");
 
   message("\n=== All tests completed ===\n");
   return 0;

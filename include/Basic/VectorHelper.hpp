@@ -239,11 +239,30 @@ public:
   static VectorDouble compress(const VectorDouble& vecin, const VectorInt& vindex);
   static void truncateDecimalsInPlace(VectorDouble& vec, Id ndec);
   static void truncateDigitsInPlace(VectorDouble& vec, Id ndec);
+
+  static VectorDouble add(const VectorDouble& v1, const VectorDouble& v2);
+#ifndef SWIG
+  static void add(VectorDouble& vecout, const VectorDouble& v1, const VectorDouble& v2);
+  static void increment(VectorDouble& vecout, const VectorDouble& v1);
+#endif
 };
 
 // typedef VectorHelper VH;
 class VH: public VectorHelper
 {
 };
+
+inline VectorDouble operator+(const VectorDouble& v1, const VectorDouble& v2)
+{
+  VectorDouble result;
+  VectorHelper::add(result, v1, v2);
+  return result;
+}
+
+inline VectorDouble& operator+=(VectorDouble& v1, const VectorDouble& v2)
+{
+  VectorHelper::add(v1, v1, v2);
+  return v1;
+}
 
 } // namespace gstlrn

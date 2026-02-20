@@ -175,7 +175,7 @@ public:
   inline const VectorNumT<T>& subtract(const VectorNumT<T>& v);
   inline const VectorNumT<T>& multiply(const VectorNumT<T>& v);
   inline const VectorNumT<T>& divide(const VectorNumT<T>& v);
-  auto operator+=(const VectorNumT<T>& v) -> VectorNumT<T>&;
+  // auto operator+=(const VectorNumT<T>& v) -> VectorNumT<T>&; Supprime car bascule dans VectorHelper
   /**@}*/
 
   /** @addtogroup Operate_2
@@ -725,12 +725,12 @@ const VectorNumT<T>& VectorNumT<T>::add(const VectorNumT<T>& v)
   return *this;
 }
 
-template<typename T>
-auto VectorNumT<T>::operator+=(const VectorNumT<T>& v) -> VectorNumT<T>&
-{
-  this->add(v);
-  return *this;
-}
+// template<typename T>
+// auto VectorNumT<T>::operator+=(const VectorNumT<T>& v) -> VectorNumT<T>&
+// {
+//   this->add(v);
+//   return *this;
+// }
 
 template<typename T>
 const VectorNumT<T>& VectorNumT<T>::subtract(const VectorNumT<T>& v)
