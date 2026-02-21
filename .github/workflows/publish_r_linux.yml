@@ -84,7 +84,7 @@ jobs:
       run: |
         cat ${{env.BUILD_DIR}}/r/${{env.CMAKE_BUILD_TYPE}}/create_doc.out
 
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v6
       with:
         name: linux-r-package
         path: ${{env.MY_PKG}}

@@ -94,4 +94,3 @@ jobs:
       uses: ./.github/actions/compress_and_upload_nonreg_artifacts
       with:
         os-name: macos
-

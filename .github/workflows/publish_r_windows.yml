@@ -125,7 +125,7 @@ jobs:
       run: |
         cat ${{env.BUILD_DIR}}/r/${{env.CMAKE_BUILD_TYPE}}/create_doc.out
 
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v6
       # Use specific artifact identifier for publishing all R versions
       with:
         name: windows-r-package-${{matrix.r_version}}
