@@ -1917,17 +1917,18 @@ void VectorHelper::add(VectorDouble& vecout, const VectorDouble& v1, const Vecto
   auto n2 = static_cast<Id>(v2.size());
   if (n1 != n2)
   {
-    messerr("Impossible to add vectors of different dimensions\n");
+    messerr("Impossible to add vectors of different dimensions: V1(%d) and V2(%d)\n", n1, n2);
     return;
   }
   if (&vecout != &v1 && &vecout != &v2)
-  {
     vecout.resize(n1);
-  }
   for (Id i = 0; i < n1; i++)
-  {
     vecout[i] = v1[i] + v2[i];
-  }
+}
+
+void VectorHelper::increment(VectorDouble& vecout, const VectorDouble& v1)
+{
+  VectorHelper::add(vecout, vecout, v1);
 }
 
 VectorDouble VectorHelper::add(const VectorDouble& v1, const VectorDouble& v2)
@@ -1937,11 +1938,24 @@ VectorDouble VectorHelper::add(const VectorDouble& v1, const VectorDouble& v2)
   return vecout;
 }
 
-void VectorHelper::increment(VectorDouble& vecout, const VectorDouble& v1)
+void VectorHelper::add(VectorDouble& vecout, const VectorDouble& v1, double v2)
 {
-  VectorHelper::add(vecout, vecout, v1);
+  auto n1 = static_cast<Id>(v1.size());
+  if (&vecout != &v1)
+    vecout.resize(n1);
+  for (Id i = 0; i < n1; i++)
+    vecout[i] = v1[i] + v2;
 }
 
+void VectorHelper::increment(VectorDouble& vecout, const VectorDouble& v1, double v2)
+{
+  VectorHelper::add(vecout, v1, v2);
+}
 
-
+VectorDouble VectorHelper::add(const VectorDouble& v1, double v2)
+{
+  VectorDouble vecout;
+  add(vecout, v1, v2);
+  return vecout;
+}
 } // namespace gstlrn

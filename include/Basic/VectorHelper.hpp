@@ -241,9 +241,12 @@ public:
   static void truncateDigitsInPlace(VectorDouble& vec, Id ndec);
 
   static VectorDouble add(const VectorDouble& v1, const VectorDouble& v2);
+  static VectorDouble add(const VectorDouble& v1, double v2);
 #ifndef SWIG
   static void add(VectorDouble& vecout, const VectorDouble& v1, const VectorDouble& v2);
   static void increment(VectorDouble& vecout, const VectorDouble& v1);
+  static void add(VectorDouble& vecout, const VectorDouble& v1, double v2);
+  static void increment(VectorDouble& vecout, const VectorDouble& v1, double v2);
 #endif
 };
 
@@ -259,7 +262,26 @@ inline VectorDouble operator+(const VectorDouble& v1, const VectorDouble& v2)
   return result;
 }
 
+inline VectorDouble operator+(const VectorDouble& v1, double v2)
+{
+  VectorDouble result;
+  VectorHelper::add(result, v1, v2);
+  return result;
+}
+
+inline VectorDouble operator+(double v1, const VectorDouble& v2)
+{
+  VectorDouble result;
+  VectorHelper::add(result, v2, v1);
+  return result;
+}
 inline VectorDouble& operator+=(VectorDouble& v1, const VectorDouble& v2)
+{
+  VectorHelper::add(v1, v1, v2);
+  return v1;
+}
+
+inline VectorDouble& operator+=(VectorDouble& v1, double v2)
 {
   VectorHelper::add(v1, v1, v2);
   return v1;
