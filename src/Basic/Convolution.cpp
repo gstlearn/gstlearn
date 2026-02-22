@@ -265,8 +265,8 @@ Id Convolution::ConvolveFFT(Id iatt,
       // Compute the inverse FFT
       if (fftn(ndim, dims.data(), localRe.data(), localIm.data(), -1, rImage)) return 1;
 
-      // Cumulate the real parts
-      result.add(localRe);
+      // Cumulate the real part
+      result += localRe;
     }
 
     // Perform the ultimate swap

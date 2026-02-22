@@ -681,7 +681,7 @@ Id KrigingSystem::estimate(Id iech_out)
       Id nvar = _model->getNVar();
       _valuesColcok.resize(nvar);
       _valuesColcok = _dbout->getLocVariables(ELoc::Z, _iechOut);
-      if (_X.empty()) _valuesColcok.subtract(_means);
+      if (_X.empty()) _valuesColcok -= _means;
       if (_algebra.setColCokUnique(&_valuesColcok, &_krigopt.getRankColcok())) return 1;
     }
   }

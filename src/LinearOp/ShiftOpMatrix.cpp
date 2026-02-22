@@ -11,7 +11,6 @@
 #include "LinearOp/ShiftOpMatrix.hpp"
 
 #include "Basic/AException.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Covariances/CovAniso.hpp"
@@ -1096,7 +1095,7 @@ Id ShiftOpMatrix::_buildSGrad(const AMesh* amesh, double tol)
     {
       VectorDouble tildeCGrad = _TildeCGrad[ind]->getDiagonal();
 
-      tildeCGrad.multiply(tempVec);
+      tildeCGrad *= tempVec;
       _SGrad[ind]->prodNormDiagVecInPlace(invSqrtTildeC, 1);
 
       tildeCGradMat = MatrixSparse::diagVec(tildeCGrad);

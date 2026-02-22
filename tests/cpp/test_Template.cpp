@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Basic/File.hpp"
 #include "Basic/Message.hpp"
+#include "Basic/VectorHelper.hpp"
 
 using namespace gstlrn;
 /****************************************************************************/
@@ -49,28 +50,28 @@ int main(int argc, char* argv[])
   rtab2.dump("'rtab2'", false);
   VectorDouble rtab3;
 
-  rtab1.add(rtab2);
+  rtab1 += rtab2;
   rtab1.dump("'rtab1' + 'rtab2'", false);
   rtab1.addCst(12);
   rtab1.dump("'rtab1' + 12", false);
   rtab3 = rtab1.addVec(rtab2);
   rtab3.dump("'rtab1' + 'rtab2' -> 'rtab3''", false);
 
-  rtab1.subtract(rtab2);
+  rtab1 -= rtab2;
   rtab1.dump("'rtab1' - 'rtab2'", false);
   rtab1.subtractCst(12);
   rtab1.dump("'rtab1' - 12", false);
   rtab3 = rtab1.subtractVec(rtab2);
   rtab3.dump("'rtab1' - 'rtab2' -> 'rtab3''", false);
 
-  rtab1.multiply(rtab2);
+  rtab1 *= rtab2;
   rtab1.dump("'rtab1' * 'rtab2'", false);
   rtab1.multiplyCst(12);
   rtab1.dump("'rtab1' * 12", false);
   rtab3 = rtab1.multiplyVec(rtab2);
   rtab3.dump("'rtab1' * 'rtab2' -> 'rtab3''", false);
 
-  rtab1.divide(rtab2);
+  rtab1 /= rtab2;
   rtab1.dump("'rtab1' / 'rtab2'", false);
   rtab1.divideCst(12);
   rtab1.dump("'rtab1' / 12", false);

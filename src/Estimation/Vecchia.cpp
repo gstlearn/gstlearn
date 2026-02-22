@@ -643,7 +643,7 @@ Id krigingVecchia(Db* dbin,
   // Calculate LdY
   const VectorDouble& Y = V.computeAndGetY();
   VectorDouble LdY      = V.calculateLdY(Y);
-  LdY.multiply(D_dd);
+  LdY *= D_dd;
 
   // Calculate FtLdY
   VectorDouble FtLdY = V.calculateFtLdY(LdY);
@@ -674,7 +674,7 @@ void Vecchia::productVecchia(constvect Y, vect res) const
 {
   _LdY.resize(_LFull.getNRows());
   _LFull.prodMatVecInPlaceC(Y, _LdY, false);
-  _LdY.multiply(_DFull);
+  _LdY *= _DFull;
   _LFull.prodMatVecInPlaceC(_LdY, res, true);
 }
 
@@ -712,12 +712,12 @@ double logLikelihoodVecchia(const Db* db,
                             bool flagPrint,
                             bool verbose)
 {
-  auto* vec  = new Vecchia(model,
-                 nb_vecchia,
-                 db,
-                 nullptr,
-                 false,
-                 verbose);
+  auto* vec = new Vecchia(model,
+                          nb_vecchia,
+                          db,
+                          nullptr,
+                          false,
+                          verbose);
   vec->initLikelihood(verbose);
   double result = -vec->computeCost(flagPrint, verbose);
   delete vec;

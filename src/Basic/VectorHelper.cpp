@@ -777,11 +777,11 @@ void VectorHelper::multiplyComplexInPlace(const VectorDouble& vecaRe,
 
   vecaRe.multiplyVecInPlace(vecbRe, resRe);
   vecaIm.multiplyVecInPlace(vecbIm, temp);
-  resRe.subtract(temp);
+  resRe -= temp;
 
   vecaRe.multiplyVecInPlace(vecbIm, resIm);
   vecaIm.multiplyVecInPlace(vecbRe, temp);
-  resIm.add(temp);
+  resIm += temp;
 }
 
 void VectorHelper::addMultiplyConstantInPlace(double val1,
@@ -1930,7 +1930,7 @@ void VectorHelper::add(VectorDouble& vecout, const VectorDouble& v1, const Vecto
   if (&vecout != &v1 && &vecout != &v2)
     vecout.resize(n1);
   for (Id i = 0; i < n1; i++)
-    vecout[i] = v1[i] + v2[i];
+    vecout[i] = (isNA(v1[i]) || isNA(v2[i])) ? TEST : v1[i] + v2[i];
 }
 
 void VectorHelper::increment(VectorDouble& vecout, const VectorDouble& v1)
@@ -1943,8 +1943,11 @@ void VectorHelper::add(VectorDouble& vecout, const VectorDouble& v1, double v2)
   auto n1 = static_cast<Id>(v1.size());
   if (&vecout != &v1)
     vecout.resize(n1);
-  for (Id i = 0; i < n1; i++)
-    vecout[i] = v1[i] + v2;
+  if (isNA(v2))
+    vecout.fill(TEST);
+  else
+    for (Id i = 0; i < n1; i++)
+      vecout[i] = (isNA(v1[i])) ? TEST : v1[i] + v2;
 }
 
 void VectorHelper::increment(VectorDouble& vecout, const VectorDouble& v1, double v2)
@@ -1984,7 +1987,7 @@ void VectorHelper::subtract(VectorDouble& vecout, const VectorDouble& v1, const 
   if (&vecout != &v1 && &vecout != &v2)
     vecout.resize(n1);
   for (Id i = 0; i < n1; i++)
-    vecout[i] = v1[i] - v2[i];
+    vecout[i] = (isNA(v1[i]) || isNA(v2[i])) ? TEST : v1[i] - v2[i];
 }
 
 void VectorHelper::decrement(VectorDouble& vecout, const VectorDouble& v1)
@@ -1997,8 +2000,22 @@ void VectorHelper::subtract(VectorDouble& vecout, const VectorDouble& v1, double
   auto n1 = static_cast<Id>(v1.size());
   if (&vecout != &v1)
     vecout.resize(n1);
-  for (Id i = 0; i < n1; i++)
-    vecout[i] = flagOpposite ? v1[i] - v2 : v2 - v1[i];
+
+  if (isNA(v2))
+    vecout.fill(TEST);
+  else
+  {
+    if (flagOpposite)
+    {
+      for (Id i = 0; i < n1; i++)
+        vecout[i] = (isNA(v1[i])) ? TEST : v2 - v1[i];
+    }
+    else
+    {
+      for (Id i = 0; i < n1; i++)
+        vecout[i] = (isNA(v1[i])) ? TEST : v1[i] - v2;
+    }
+  }
 }
 
 void VectorHelper::decrement(VectorDouble& vecout, const VectorDouble& v1, double v2)
@@ -2038,7 +2055,7 @@ void VectorHelper::multiply(VectorDouble& vecout, const VectorDouble& v1, const 
   if (&vecout != &v1 && &vecout != &v2)
     vecout.resize(n1);
   for (Id i = 0; i < n1; i++)
-    vecout[i] = v1[i] * v2[i];
+    vecout[i] = (isNA(v1[i]) || isNA(v2[i])) ? TEST : v1[i] * v2[i];
 }
 
 void VectorHelper::multiplyAssign(VectorDouble& vecout, const VectorDouble& v1)
@@ -2051,8 +2068,11 @@ void VectorHelper::multiply(VectorDouble& vecout, const VectorDouble& v1, double
   auto n1 = static_cast<Id>(v1.size());
   if (&vecout != &v1)
     vecout.resize(n1);
-  for (Id i = 0; i < n1; i++)
-    vecout[i] = v1[i] * v2;
+  if (isNA(v2))
+    vecout.fill(TEST);
+  else
+    for (Id i = 0; i < n1; i++)
+      vecout[i] = (isNA(v1[i])) ? TEST : v1[i] * v2;
 }
 
 void VectorHelper::multiplyAssign(VectorDouble& vecout, const VectorDouble& v1, double v2)
@@ -2105,15 +2125,19 @@ void VectorHelper::divide(VectorDouble& vecout, const VectorDouble& v1, double v
   auto n1 = static_cast<Id>(v1.size());
   if (&vecout != &v1)
     vecout.resize(n1);
-  if (flagOpposite)
+  if (isNA(v2))
+    vecout.fill(TEST);
   {
-    for (Id i = 0; i < n1; i++)
-      vecout[i] = (isNA(v1[i]) || isNA(v2) || v1[i] == 0.) ? TEST : v2 / v1[i];
-  }
-  else
-  {
-    for (Id i = 0; i < n1; i++)
-      vecout[i] = (isNA(v1[i]) || isNA(v2) || v2 == 0.) ? TEST : v1[i] / v2;
+    if (flagOpposite)
+    {
+      for (Id i = 0; i < n1; i++)
+        vecout[i] = (isNA(v1[i]) || v1[i] == 0.) ? TEST : v2 / v1[i];
+    }
+    else
+    {
+      for (Id i = 0; i < n1; i++)
+        vecout[i] = (isNA(v1[i]) || v2 == 0.) ? TEST : v1[i] / v2;
+    }
   }
 }
 
