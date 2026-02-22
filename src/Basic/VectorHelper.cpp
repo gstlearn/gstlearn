@@ -1911,6 +1911,13 @@ void VectorHelper::capInPlaceVVD(VectorVectorDouble& vec, double vmin, double vm
     VH::capInPlace(vec[i], vmin, vmax);
 }
 
+/**
+ * @brief Adding two vectors of the same dimension: Vres = V1 + V2
+ *
+ * @param vecout Output VectorDouble (can be the same as v1 or v2)
+ * @param v1 Input VectorDouble 1
+ * @param v2 Input VectorDouble 2
+ */
 void VectorHelper::add(VectorDouble& vecout, const VectorDouble& v1, const VectorDouble& v2)
 {
   auto n1 = static_cast<Id>(v1.size());
@@ -1931,13 +1938,6 @@ void VectorHelper::increment(VectorDouble& vecout, const VectorDouble& v1)
   VectorHelper::add(vecout, vecout, v1);
 }
 
-VectorDouble VectorHelper::add(const VectorDouble& v1, const VectorDouble& v2)
-{
-  VectorDouble vecout;
-  add(vecout, v1, v2);
-  return vecout;
-}
-
 void VectorHelper::add(VectorDouble& vecout, const VectorDouble& v1, double v2)
 {
   auto n1 = static_cast<Id>(v1.size());
@@ -1952,10 +1952,186 @@ void VectorHelper::increment(VectorDouble& vecout, const VectorDouble& v1, doubl
   VectorHelper::add(vecout, v1, v2);
 }
 
-VectorDouble VectorHelper::add(const VectorDouble& v1, double v2)
+VectorDouble VectorHelper::add(const VectorDouble& v1, const VectorDouble& v2)
 {
   VectorDouble vecout;
   add(vecout, v1, v2);
+  return vecout;
+}
+VectorDouble VectorHelper::addCst(const VectorDouble& v1, double v2)
+{
+  VectorDouble vecout;
+  add(vecout, v1, v2);
+  return vecout;
+}
+
+/**
+ * @brief Subtracting two vectors of the same dimension: Vres = V1 - V2
+ *
+ * @param vecout Output VectorDouble (can be the same as v1 or v2)
+ * @param v1 Input VectorDouble 1
+ * @param v2 Input VectorDouble 2
+ */
+void VectorHelper::subtract(VectorDouble& vecout, const VectorDouble& v1, const VectorDouble& v2)
+{
+  auto n1 = static_cast<Id>(v1.size());
+  auto n2 = static_cast<Id>(v2.size());
+  if (n1 != n2)
+  {
+    messerr("Impossible to subtract vectors of different dimensions: V1(%d) and V2(%d)\n", n1, n2);
+    return;
+  }
+  if (&vecout != &v1 && &vecout != &v2)
+    vecout.resize(n1);
+  for (Id i = 0; i < n1; i++)
+    vecout[i] = v1[i] - v2[i];
+}
+
+void VectorHelper::decrement(VectorDouble& vecout, const VectorDouble& v1)
+{
+  VectorHelper::subtract(vecout, vecout, v1);
+}
+
+void VectorHelper::subtract(VectorDouble& vecout, const VectorDouble& v1, double v2, bool flagOpposite)
+{
+  auto n1 = static_cast<Id>(v1.size());
+  if (&vecout != &v1)
+    vecout.resize(n1);
+  for (Id i = 0; i < n1; i++)
+    vecout[i] = flagOpposite ? v1[i] - v2 : v2 - v1[i];
+}
+
+void VectorHelper::decrement(VectorDouble& vecout, const VectorDouble& v1, double v2)
+{
+  VectorHelper::subtract(vecout, v1, v2);
+}
+
+VectorDouble VectorHelper::subtract(const VectorDouble& v1, const VectorDouble& v2)
+{
+  VectorDouble vecout;
+  subtract(vecout, v1, v2);
+  return vecout;
+}
+VectorDouble VectorHelper::subtractCst(const VectorDouble& v1, double v2, bool flagOpposite)
+{
+  VectorDouble vecout;
+  subtract(vecout, v1, v2, flagOpposite);
+  return vecout;
+}
+
+/**
+ * @brief Make the pointwise product of two vectors of the same dimension: Vres = V1 * V2
+ *
+ * @param vecout Output VectorDouble (can be the same as v1 or v2)
+ * @param v1 Input VectorDouble 1
+ * @param v2 Input VectorDouble 2
+ */
+void VectorHelper::multiply(VectorDouble& vecout, const VectorDouble& v1, const VectorDouble& v2)
+{
+  auto n1 = static_cast<Id>(v1.size());
+  auto n2 = static_cast<Id>(v2.size());
+  if (n1 != n2)
+  {
+    messerr("Impossible to multiply vectors of different dimensions: V1(%d) and V2(%d)\n", n1, n2);
+    return;
+  }
+  if (&vecout != &v1 && &vecout != &v2)
+    vecout.resize(n1);
+  for (Id i = 0; i < n1; i++)
+    vecout[i] = v1[i] * v2[i];
+}
+
+void VectorHelper::multiplyAssign(VectorDouble& vecout, const VectorDouble& v1)
+{
+  VectorHelper::multiply(vecout, vecout, v1);
+}
+
+void VectorHelper::multiply(VectorDouble& vecout, const VectorDouble& v1, double v2)
+{
+  auto n1 = static_cast<Id>(v1.size());
+  if (&vecout != &v1)
+    vecout.resize(n1);
+  for (Id i = 0; i < n1; i++)
+    vecout[i] = v1[i] * v2;
+}
+
+void VectorHelper::multiplyAssign(VectorDouble& vecout, const VectorDouble& v1, double v2)
+{
+  VectorHelper::multiply(vecout, v1, v2);
+}
+
+VectorDouble VectorHelper::multiply(const VectorDouble& v1, const VectorDouble& v2)
+{
+  VectorDouble vecout;
+  multiply(vecout, v1, v2);
+  return vecout;
+}
+VectorDouble VectorHelper::multiplyCst(const VectorDouble& v1, double v2)
+{
+  VectorDouble vecout;
+  multiply(vecout, v1, v2);
+  return vecout;
+}
+
+/**
+ * @brief Make the pointwise division of two vectors of the same dimension: Vres = V1 / V2
+ *
+ * @param vecout Output VectorDouble (can be the same as v1 or v2)
+ * @param v1 Input VectorDouble 1
+ * @param v2 Input VectorDouble 2
+ */
+void VectorHelper::divide(VectorDouble& vecout, const VectorDouble& v1, const VectorDouble& v2)
+{
+  auto n1 = static_cast<Id>(v1.size());
+  auto n2 = static_cast<Id>(v2.size());
+  if (n1 != n2)
+  {
+    messerr("Impossible to divide vectors of different dimensions: V1(%d) and V2(%d)\n", n1, n2);
+    return;
+  }
+  if (&vecout != &v1 && &vecout != &v2)
+    vecout.resize(n1);
+  for (Id i = 0; i < n1; i++)
+    vecout[i] = (isNA(v1[i]) || isNA(v2[i]) || v2[i] == 0.) ? TEST : v1[i] / v2[i];
+}
+
+void VectorHelper::divideAssign(VectorDouble& vecout, const VectorDouble& v1)
+{
+  VectorHelper::divide(vecout, vecout, v1);
+}
+
+void VectorHelper::divide(VectorDouble& vecout, const VectorDouble& v1, double v2, bool flagOpposite)
+{
+  auto n1 = static_cast<Id>(v1.size());
+  if (&vecout != &v1)
+    vecout.resize(n1);
+  if (flagOpposite)
+  {
+    for (Id i = 0; i < n1; i++)
+      vecout[i] = (isNA(v1[i]) || isNA(v2) || v1[i] == 0.) ? TEST : v2 / v1[i];
+  }
+  else
+  {
+    for (Id i = 0; i < n1; i++)
+      vecout[i] = (isNA(v1[i]) || isNA(v2) || v2 == 0.) ? TEST : v1[i] / v2;
+  }
+}
+
+void VectorHelper::divideAssign(VectorDouble& vecout, const VectorDouble& v1, double v2)
+{
+  VectorHelper::divide(vecout, v1, v2);
+}
+
+VectorDouble VectorHelper::divide(const VectorDouble& v1, const VectorDouble& v2)
+{
+  VectorDouble vecout;
+  divide(vecout, v1, v2);
+  return vecout;
+}
+VectorDouble VectorHelper::divideCst(const VectorDouble& v1, double v2, bool flagOpposite)
+{
+  VectorDouble vecout;
+  divide(vecout, v1, v2, flagOpposite);
   return vecout;
 }
 } // namespace gstlrn

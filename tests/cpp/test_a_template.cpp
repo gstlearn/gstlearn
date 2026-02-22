@@ -27,31 +27,74 @@ int main(int argc, char* argv[])
   V1.dump("Vector V1");
   auto V2 = VH::simulateGaussian(nech, 0., 1.);
   V2.dump("Vector V2");
-  VectorDouble V4;
+  VectorDouble Vres;
 
-  auto V3 = VH::add(V1, V2);
-  V3.dump("Checking VH::add(V1,V2)");
+  Vres = VH::add(V1, V2);
+  Vres.dump("Checking VH::add(V1,V2)");
 
-  VH::add(V4, V1, V2);
-  V4.dump("Checking VH::add(v4,V1,V2)");
+  VH::add(Vres, V1, V2);
+  Vres.dump("Checking VH::add(Vres,V1,V2)");
 
-  auto V5 = V1 + V2;
-  V5.dump("Checking V = V1 + V2");
+  Vres = V1 + V2;
+  Vres.dump("Checking Vres = V1 + V2");
 
-  auto V6 = V1;
-  V6 += V2;
-  V6.dump("Checking V6 += V2");
+  Vres = V1;
+  Vres += V2;
+  Vres.dump("Checking Vres(V1) += V2");
 
-  auto V7 = V1 + V2 + V1;
-  V7.dump("Checking V = V1 + V2 + V1");
+  Vres = V1 + V2 + V1;
+  Vres.dump("Checking Vres = V1 + V2 + V1");
 
-  auto V8 = V1 + 3.1;
-  V8.dump("Checking V = V1 + 3.1");
+  Vres = V1 + 3.1;
+  Vres.dump("Checking Vres = V1 + 3.1");
 
-  auto V9 = 2.1 + V1;
-  V9.dump("Checking V = 2.1 + V1");
+  Vres = 2.1 + V1;
+  Vres.dump("Checking Vres = 2.1 + V1");
 
-  auto V10 = 2.1 + V1 + 2.3;
-  V10.dump("Checking V = 2.1 + V1 + 2.3");
+  Vres = 2.1 + V1 + 2.3;
+  Vres.dump("Checking Vres = 2.1 + V1 + 2.3");
+
+  Vres = V1 - V2;
+  Vres.dump("Checking Vres = V1 - V2");
+
+  Vres = V1 - 3.1;
+  Vres.dump("Checking Vres = V1 - 3.1");
+
+  Vres = -3.1 + V1;
+  Vres.dump("Checking Vres = -3.1 + V1");
+
+  Vres = V1 * V2;
+  Vres.dump("Checking Vres = V1 * V2");
+
+  Vres = V1 * 3.1;
+  Vres.dump("Checking Vres = V1 * 3.1");
+
+  Vres = 2.1 * V1;
+  Vres.dump("Checking Vres = 2.1 * V1");
+
+  Vres = V1 / V2;
+  Vres.dump("Checking Vres = V1 / V2");
+
+  Vres = V1 / 3.1;
+  Vres.dump("Checking Vres = V1 / 3.1");
+
+  Vres = 2.1 / V1;
+  Vres.dump("Checking Vres = 2.1 / V1");
+
+  Vres = V1;
+  Vres /= V2;
+  Vres.dump("Checking Vres (V1) /= V2");
+
+  Vres = V1 + 4. * V2;
+  Vres.dump("Checking Vres = V1 + 4. * V2");
+
+  Vres = (V1 + 4.) * V2;
+  Vres.dump("Checking Vres = (V1 + 4.) * V2 -> NO");
+
+  Vres = V1 + (4. * V2);
+  Vres.dump("Checking Vres = V1 + (4. * V2)");
+
+  Vres = V2 * 4. + V1;
+  Vres.dump("Checking Vres = V2 * 4. + V1");
   return 0;
 }

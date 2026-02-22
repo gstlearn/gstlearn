@@ -241,12 +241,36 @@ public:
   static void truncateDigitsInPlace(VectorDouble& vec, Id ndec);
 
   static VectorDouble add(const VectorDouble& v1, const VectorDouble& v2);
-  static VectorDouble add(const VectorDouble& v1, double v2);
+  static VectorDouble addCst(const VectorDouble& v1, double v2);
+
+  static VectorDouble subtract(const VectorDouble& v1, const VectorDouble& v2);
+  static VectorDouble subtractCst(const VectorDouble& v1, double v2, bool flagOpposite = false);
+
+  static VectorDouble multiply(const VectorDouble& v1, const VectorDouble& v2);
+  static VectorDouble multiplyCst(const VectorDouble& v1, double v2);
+
+  static VectorDouble divide(const VectorDouble& v1, const VectorDouble& v2);
+  static VectorDouble divideCst(const VectorDouble& v1, double v2, bool flagOpposite = false);
 #ifndef SWIG
   static void add(VectorDouble& vecout, const VectorDouble& v1, const VectorDouble& v2);
   static void increment(VectorDouble& vecout, const VectorDouble& v1);
   static void add(VectorDouble& vecout, const VectorDouble& v1, double v2);
   static void increment(VectorDouble& vecout, const VectorDouble& v1, double v2);
+
+  static void subtract(VectorDouble& vecout, const VectorDouble& v1, const VectorDouble& v2);
+  static void decrement(VectorDouble& vecout, const VectorDouble& v1);
+  static void subtract(VectorDouble& vecout, const VectorDouble& v1, double v2, bool flagOpposite = false);
+  static void decrement(VectorDouble& vecout, const VectorDouble& v1, double v2);
+
+  static void multiply(VectorDouble& vecout, const VectorDouble& v1, const VectorDouble& v2);
+  static void multiplyAssign(VectorDouble& vecout, const VectorDouble& v1);
+  static void multiply(VectorDouble& vecout, const VectorDouble& v1, double v2);
+  static void multiplyAssign(VectorDouble& vecout, const VectorDouble& v1, double v2);
+
+  static void divide(VectorDouble& vecout, const VectorDouble& v1, const VectorDouble& v2);
+  static void divideAssign(VectorDouble& vecout, const VectorDouble& v1);
+  static void divide(VectorDouble& vecout, const VectorDouble& v1, double v2, bool flagOpposite = false);
+  static void divideAssign(VectorDouble& vecout, const VectorDouble& v1, double v2);
 #endif
 };
 
@@ -255,20 +279,25 @@ class VH: public VectorHelper
 {
 };
 
+/**
+ * @brief Operator attached to "+" symbol
+ *
+ * @param v1 Input first vector
+ * @param v2 Input second vector
+ * @return VectorDouble
+ */
 inline VectorDouble operator+(const VectorDouble& v1, const VectorDouble& v2)
 {
   VectorDouble result;
   VectorHelper::add(result, v1, v2);
   return result;
 }
-
 inline VectorDouble operator+(const VectorDouble& v1, double v2)
 {
   VectorDouble result;
   VectorHelper::add(result, v1, v2);
   return result;
 }
-
 inline VectorDouble operator+(double v1, const VectorDouble& v2)
 {
   VectorDouble result;
@@ -280,10 +309,117 @@ inline VectorDouble& operator+=(VectorDouble& v1, const VectorDouble& v2)
   VectorHelper::add(v1, v1, v2);
   return v1;
 }
-
 inline VectorDouble& operator+=(VectorDouble& v1, double v2)
 {
   VectorHelper::add(v1, v1, v2);
+  return v1;
+}
+
+/**
+ * @brief Operator attached to "-" symbol
+ *
+ * @param v1 Input first vector
+ * @param v2 Input second vector
+ * @return VectorDouble
+ */
+inline VectorDouble operator-(const VectorDouble& v1, const VectorDouble& v2)
+{
+  VectorDouble result;
+  VectorHelper::subtract(result, v1, v2);
+  return result;
+}
+inline VectorDouble operator-(const VectorDouble& v1, double v2)
+{
+  VectorDouble result;
+  VectorHelper::subtract(result, v1, v2, false);
+  return result;
+}
+inline VectorDouble operator-(double v1, const VectorDouble& v2)
+{
+  VectorDouble result;
+  VectorHelper::subtract(result, v2, v1, true);
+  return result;
+}
+inline VectorDouble& operator-=(VectorDouble& v1, const VectorDouble& v2)
+{
+  VectorHelper::subtract(v1, v1, v2);
+  return v1;
+}
+inline VectorDouble& operator-=(VectorDouble& v1, double v2)
+{
+  VectorHelper::subtract(v1, v1, v2, false);
+  return v1;
+}
+
+/**
+ * @brief Operator attached to "*" symbol
+ *
+ * @param v1 Input first vector
+ * @param v2 Input second vector
+ * @return VectorDouble
+ */
+inline VectorDouble operator*(const VectorDouble& v1, const VectorDouble& v2)
+{
+  VectorDouble result;
+  VectorHelper::multiply(result, v1, v2);
+  return result;
+}
+inline VectorDouble operator*(const VectorDouble& v1, double v2)
+{
+  VectorDouble result;
+  VectorHelper::multiply(result, v1, v2);
+  return result;
+}
+inline VectorDouble operator*(double v1, const VectorDouble& v2)
+{
+  VectorDouble result;
+  VectorHelper::multiply(result, v2, v1);
+  return result;
+}
+inline VectorDouble& operator*=(VectorDouble& v1, const VectorDouble& v2)
+{
+  VectorHelper::multiply(v1, v1, v2);
+  return v1;
+}
+inline VectorDouble& operator*=(VectorDouble& v1, double v2)
+{
+  VectorHelper::multiply(v1, v1, v2);
+  return v1;
+}
+
+/**
+ * @brief Operator attached to "/" symbol
+ *
+ * @param v1 Input first vector
+ * @param v2 Input second vector
+ * @return VectorDouble
+ */
+inline VectorDouble operator/(const VectorDouble& v1, const VectorDouble& v2)
+{
+  VectorDouble result;
+  VectorHelper::divide(result, v1, v2);
+  return result;
+}
+inline VectorDouble operator/(const VectorDouble& v1, double v2)
+{
+  VectorDouble result;
+  VectorHelper::divide(result, v1, v2, false);
+  return result;
+}
+inline VectorDouble operator/(double v1, const VectorDouble& v2)
+{
+  VectorDouble result;
+  VectorHelper::divide(result, v2, v1, true);
+  return result;
+}
+inline VectorDouble& operator/=(VectorDouble& v1, const VectorDouble& v2)
+{
+  VectorHelper::divide(v1, v1, v2);
+  return v1;
+}
+inline VectorDouble& operator/=(VectorDouble& v1, double v2)
+{
+  VectorHelper::divide(v1, v1, v2, false);
   return v1;
 }
 
