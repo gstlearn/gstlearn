@@ -50,9 +50,5 @@ jobs:
       run: Rscript -e "install.packages(c('gstlearn'), repos='https://soft.mines-paristech.fr/cran/', dependencies = TRUE)"
 
     - name: Run the r tests
-      run: |
-        Rscript tests/r/test_Arguments.R
-        Rscript tests/r/test_Assessors.R
-        Rscript tests/r/test_Matrix.R
-        Rscript tests/r/test_dumpToNF.R
+      uses: ./.github/actions/run_r_tests
 

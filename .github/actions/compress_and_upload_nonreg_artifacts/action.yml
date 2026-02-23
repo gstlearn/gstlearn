@@ -1,0 +1,35 @@
+name: 'Compress and Upload Non-regression Artifacts'
+description: 'Compress output logs and neutral files, then upload as artifacts'
+inputs:
+  os-name:
+    description: 'OS prefix for artifact names (e.g., ubuntu, macos, msvc, rtools)'
+    required: true
+  build-dir:
+    description: 'Build directory path'
+    required: false
+    default: 'build'
+runs:
+  using: "composite"
+  steps:
+
+    - name: Compress output logs and neutral files
+      if: always()
+      shell: bash
+      run: |
+        cd ${{ inputs.build-dir }}/tests
+        find . -type f -name "*.out" -print0 | tar -czvf ${{ inputs.os-name }}-logs.tar.gz --null -T -
+        cd $GITHUB_WORKSPACE/${{ inputs.build-dir }}/gstlearn_dir
+        find . -type f -name "*.*" -print0 | tar -czvf ${{ inputs.os-name }}-neutral.tar.gz --null -T -
+        mv ${{ inputs.os-name }}-neutral.tar.gz $GITHUB_WORKSPACE/
+
+    - name: Publish output logs as artefact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.os-name }}-nonreg-logs
+        path: ${{ inputs.build-dir }}/tests/${{ inputs.os-name }}-logs.tar.gz
+
+    - name: Publish output neutral files as artefact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.os-name }}-neutral-files
+        path: ${{ github.workspace }}/${{ inputs.os-name }}-neutral.tar.gz
