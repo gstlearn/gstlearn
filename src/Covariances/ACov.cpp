@@ -419,13 +419,13 @@ double ACov::evalIvarIpas(double step,
   {
     VectorDouble vec(getNDim(), 0.);
     vec[0] = 1.;
-    vec.multiplyCst(step);
+    vec *= step;
     p2.move(vec);
   }
   else
   {
     VectorDouble vec(dir);
-    vec.multiplyCst(step);
+    vec *= step;
     p2.move(vec);
   }
 

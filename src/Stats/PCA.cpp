@@ -311,7 +311,7 @@ VectorDouble PCA::getVarianceRatio() const
 {
   double total         = _eigval.sum();
   VectorDouble eignorm = _eigval;
-  eignorm.divideCst(total);
+  eignorm /= total;
   return eignorm;
 }
 

@@ -353,7 +353,7 @@ Id SimuSpectralS2::_compute(Db* dbout, const VectorBool& activeArray, VectorVect
   }
 
   // Normalize
-  tab[0].multiplyCst(sqrt(2. / nb));
+  tab[0] *= sqrt(2. / nb);
   return 0;
 }
 

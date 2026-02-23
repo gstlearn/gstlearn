@@ -255,8 +255,7 @@ void CorAniso::setRanges(const VectorDouble& ranges)
     }
   }
   VectorDouble scales = ranges;
-  double scadef       = _corfunc->getScadef();
-  scales.divideCst(scadef);
+  scales /= _corfunc->getScadef();
   setScales(scales);
 }
 
@@ -393,8 +392,7 @@ void CorAniso::setRotationAnglesAndRadius(const VectorDouble& angles,
       }
     }
     scales_local  = ranges;
-    double scadef = _corfunc->getScadef();
-    scales_local.divideCst(scadef);
+    scales_local /= _corfunc->getScadef();
   }
 
   // Perform the assignment and update the tensor
@@ -873,7 +871,7 @@ VectorDouble CorAniso::getRanges() const
   VectorDouble range = getScales();
   double scadef      = _corfunc->getScadef();
   if (!hasRange()) scadef = 0.;
-  range.multiplyCst(scadef);
+  range *= scadef;
   return range;
 }
 
@@ -913,7 +911,7 @@ VectorDouble CorAniso::getAnisoCoeffs() const
     messerr("Range is null");
     return VectorDouble();
   }
-  coef.divideCst(max);
+  coef /= max;
   return coef;
 }
 

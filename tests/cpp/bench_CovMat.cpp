@@ -127,7 +127,7 @@ int main(int argc, char* argv[])
     timer.displayIntervalMilliseconds("Establishing RHS", 3900);
 
     // Some printout for comparison
-    cumul.divideCst(nout);
+    cumul /= nout;
     VH::dumpRange("", cumul);
   }
 
@@ -158,7 +158,7 @@ int main(int argc, char* argv[])
     timer.displayIntervalMilliseconds("Establishing RHS (semi-optimized)", 600);
 
     // Some printout for comparison
-    cumul.divideCst(nout);
+    cumul /= nout;
     VH::dumpRange("", cumul);
   }
 
@@ -182,7 +182,7 @@ int main(int argc, char* argv[])
     cumul.fill(0.);
     for (Id i = 0; i < nout; i++)
       cumul += mat.getColumn(i);
-    cumul.divideCst(nout);
+    cumul /= nout;
     VH::dumpRange("", cumul);
   }
 

@@ -14,6 +14,7 @@
 #include "Basic/Message.hpp"
 #include "Basic/String.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Matrix/NF_Triplet.hpp"
 #include "geoslib_define.h"
@@ -1261,7 +1262,7 @@ void AMatrix::makePositiveColumn()
     if (sum >= 0) continue;
 
     // Invert the sign of all its elements
-    column.multiplyCst(-1.);
+    column *= -1.;
 
     // Replace the column
     setColumn(icol, column);

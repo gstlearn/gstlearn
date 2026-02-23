@@ -12,6 +12,7 @@
 #include "Basic/Convolution.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/NamingConvention.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Calculators/ACalcInterpolator.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
@@ -169,7 +170,7 @@ VectorVectorInt CalcImage::_getActiveRanks(const DbGrid* dblocal)
     dblocal->rankToIndice(iech, local);
 
     // Center the indices
-    local.subtract(center);
+    local -= center;
 
     // Store these indices to the output vector
     ranks.push_back(local);
@@ -253,8 +254,7 @@ DbGrid* CalcImage::_buildMarpat(const NeighImage* neigh,
   VectorInt local(ndim);
   for (Id ineigh = 0; ineigh < nbneigh; ineigh++)
   {
-    local = ranks[ineigh];
-    local.add(center);
+    local = ranks[ineigh] + center;
     Id iadd = dbgrid->indiceToRank(local);
 
     // Load the weights as variables

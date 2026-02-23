@@ -52,30 +52,30 @@ int main(int argc, char* argv[])
 
   rtab1 += rtab2;
   rtab1.dump("'rtab1' + 'rtab2'", false);
-  rtab1.addCst(12);
+  rtab1 += 12;
   rtab1.dump("'rtab1' + 12", false);
-  rtab3 = rtab1.addVec(rtab2);
+  rtab3 = rtab1 + rtab2;
   rtab3.dump("'rtab1' + 'rtab2' -> 'rtab3''", false);
 
   rtab1 -= rtab2;
   rtab1.dump("'rtab1' - 'rtab2'", false);
-  rtab1.subtractCst(12);
+  rtab1 -= 12;
   rtab1.dump("'rtab1' - 12", false);
-  rtab3 = rtab1.subtractVec(rtab2);
+  rtab3 = rtab1 - rtab2;
   rtab3.dump("'rtab1' - 'rtab2' -> 'rtab3''", false);
 
   rtab1 *= rtab2;
   rtab1.dump("'rtab1' * 'rtab2'", false);
-  rtab1.multiplyCst(12);
+  rtab1 *= 12;
   rtab1.dump("'rtab1' * 12", false);
-  rtab3 = rtab1.multiplyVec(rtab2);
+  rtab3 = rtab1 * rtab2;
   rtab3.dump("'rtab1' * 'rtab2' -> 'rtab3''", false);
 
   rtab1 /= rtab2;
   rtab1.dump("'rtab1' / 'rtab2'", false);
-  rtab1.divideCst(12);
+  rtab1 /= 12;
   rtab1.dump("'rtab1' / 12", false);
-  rtab3 = rtab1.divideVec(rtab2);
+  rtab3 = rtab1 / rtab2;
   rtab3.dump("'rtab1' / 'rtab2' -> 'rtab3''", false);
 
   // ==============
@@ -97,32 +97,32 @@ int main(int argc, char* argv[])
   itab2.dump("'itab2'", false);
   VectorInt itab3;
 
-  itab1.add(itab2);
+  itab1 += itab2;
   itab1.dump("'itab1' + 'itab2''", false);
-  itab1.addCst(12);
+  itab1 += 12;
   itab1.dump("'itab1' + 12", false);
-  itab3 = itab1.addVec(itab2);
+  itab3 = itab1 + itab2;
   itab3.dump("'itab1'' + 'itab2' -> 'itab3'", false);
 
-  itab1.subtract(itab2);
+  itab1 -= itab2;
   itab1.dump("'itab1' - 'itab2''", false);
-  itab1.subtractCst(12);
+  itab1 -= 12;
   itab1.dump("'itab1' - 12", false);
-  itab3 = itab1.subtractVec(itab2);
+  itab3 = itab1 - itab2;
   itab3.dump("'itab1'' - 'itab2' -> 'itab3'", false);
 
-  itab1.multiply(itab2);
+  itab1 *= itab2;
   itab1.dump("'itab1' * 'itab2''", false);
-  itab1.multiplyCst(12);
+  itab1 *= 12;
   itab1.dump("'itab1' * 12", false);
-  itab3 = itab1.multiplyVec(itab2);
+  itab3 = itab1 * itab2;
   itab3.dump("'itab1'' * 'itab2' -> 'itab3'", false);
 
-  itab1.divide(itab2);
+  itab1 /= itab2;
   itab1.dump("'itab1' / 'itab2''", false);
-  itab1.divideCst(12);
+  itab1 /= 12;
   itab1.dump("'itab1' / 12", false);
-  itab3 = itab1.divideVec(itab2);
+  itab3 = itab1 / itab2;
   itab3.dump("'itab1'' / 'itab2' -> 'itab3'", false);
 
   // ========================

@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Basic/Message.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
@@ -252,17 +253,62 @@ public:
    * (or a vector and a scalar) and return a new vector as result (not in place)
    *  @{
    */
-  static VectorDouble add(const VectorDouble& v1, const VectorDouble& v2);
-  static VectorDouble addCst(const VectorDouble& v1, double v2);
-
-  static VectorDouble subtract(const VectorDouble& v1, const VectorDouble& v2);
-  static VectorDouble subtractCst(const VectorDouble& v1, double v2, bool flagOpposite = false);
-
-  static VectorDouble multiply(const VectorDouble& v1, const VectorDouble& v2);
-  static VectorDouble multiplyCst(const VectorDouble& v1, double v2);
-
-  static VectorDouble divide(const VectorDouble& v1, const VectorDouble& v2);
-  static VectorDouble divideCst(const VectorDouble& v1, double v2, bool flagOpposite = false);
+  template<typename T>
+  static VectorNumT<T> add(const VectorNumT<T>& v1, const VectorNumT<T>& v2)
+  {
+    VectorNumT<T> vecout;
+    add(vecout, v1, v2);
+    return vecout;
+  }
+  template<typename T>
+  static VectorNumT<T> addCst(const VectorNumT<T>& v1, T v2)
+  {
+    VectorNumT<T> vecout;
+    add(vecout, v1, v2);
+    return vecout;
+  }
+  template<typename T>
+  static VectorNumT<T> subtract(const VectorNumT<T>& v1, const VectorNumT<T>& v2)
+  {
+    VectorNumT<T> vecout;
+    subtract(vecout, v1, v2);
+    return vecout;
+  }
+  template<typename T>
+  static VectorNumT<T> subtractCst(const VectorNumT<T>& v1, T v2, bool flagOpposite = false)
+  {
+    VectorNumT<T> vecout;
+    subtract(vecout, v1, v2, flagOpposite);
+    return vecout;
+  }
+  template<typename T>
+  static VectorNumT<T> multiply(const VectorNumT<T>& v1, const VectorNumT<T>& v2)
+  {
+    VectorNumT<T> vecout;
+    multiply(vecout, v1, v2);
+    return vecout;
+  }
+  template<typename T>
+  static VectorNumT<T> multiplyCst(const VectorNumT<T>& v1, T v2)
+  {
+    VectorNumT<T> vecout;
+    multiply(vecout, v1, v2);
+    return vecout;
+  }
+  template<typename T>
+  static VectorNumT<T> divide(const VectorNumT<T>& v1, const VectorNumT<T>& v2)
+  {
+    VectorNumT<T> vecout;
+    divide(vecout, v1, v2);
+    return vecout;
+  }
+  template<typename T>
+  static VectorNumT<T> divideCst(const VectorNumT<T>& v1, T v2, bool flagOpposite = false)
+  {
+    VectorNumT<T> vecout;
+    divide(vecout, v1, v2, flagOpposite);
+    return vecout;
+  }
   /**@}*/
 
   /** @addtogroup Operate_2
@@ -277,25 +323,177 @@ public:
    *  @{
    */
 #ifndef SWIG
-  static void add(VectorDouble& vecout, const VectorDouble& v1, const VectorDouble& v2);
-  static void increment(VectorDouble& vecout, const VectorDouble& v1);
-  static void add(VectorDouble& vecout, const VectorDouble& v1, double v2);
-  static void increment(VectorDouble& vecout, const VectorDouble& v1, double v2);
+  template<typename T>
+  static void add(VectorNumT<T>& vecout, const VectorNumT<T>& v1, const VectorNumT<T>& v2)
+  {
+    auto n1 = static_cast<Id>(v1.size());
+    auto n2 = static_cast<Id>(v2.size());
+    if (n1 != n2)
+    {
+      messerr("Impossible to add vectors of different dimensions: V1(%d) and V2(%d)\n", n1, n2);
+      return;
+    }
+    if (&vecout != &v1 && &vecout != &v2)
+      vecout.resize(n1);
+    for (Id i = 0; i < n1; i++)
+      vecout[i] = (isNA(v1[i]) || isNA(v2[i])) ? getNA<T>() : v1[i] + v2[i];
+  }
+  template<typename T>
+  static void increment(VectorNumT<T>& vecout, const VectorNumT<T>& v1)
+  {
+    VectorHelper::add(vecout, vecout, v1);
+  }
+  template<typename T>
+  static void add(VectorNumT<T>& vecout, const VectorNumT<T>& v1, T v2)
+  {
+    auto n1 = static_cast<Id>(v1.size());
+    if (&vecout != &v1)
+      vecout.resize(n1);
+    if (isNA(v2))
+      vecout.fill(getNA<T>());
+    else
+      for (Id i = 0; i < n1; i++)
+        vecout[i] = (isNA(v1[i])) ? getNA<T>() : v1[i] + v2;
+  }
+  template<typename T>
+  static void increment(VectorNumT<T>& vecout, const VectorNumT<T>& v1, T v2)
+  {
+    VectorHelper::add(vecout, v1, v2);
+  }
 
-  static void subtract(VectorDouble& vecout, const VectorDouble& v1, const VectorDouble& v2);
-  static void decrement(VectorDouble& vecout, const VectorDouble& v1);
-  static void subtract(VectorDouble& vecout, const VectorDouble& v1, double v2, bool flagOpposite = false);
-  static void decrement(VectorDouble& vecout, const VectorDouble& v1, double v2);
+  template<typename T>
+  static void subtract(VectorNumT<T>& vecout, const VectorNumT<T>& v1, const VectorNumT<T>& v2)
+  {
+    auto n1 = static_cast<Id>(v1.size());
+    auto n2 = static_cast<Id>(v2.size());
+    if (n1 != n2)
+    {
+      messerr("Impossible to subtract vectors of different dimensions: V1(%d) and V2(%d)\n", n1, n2);
+      return;
+    }
+    if (&vecout != &v1 && &vecout != &v2)
+      vecout.resize(n1);
+    for (Id i = 0; i < n1; i++)
+      vecout[i] = (isNA(v1[i]) || isNA(v2[i])) ? getNA<T>() : v1[i] - v2[i];
+  }
+  template<typename T>
+  static void decrement(VectorNumT<T>& vecout, const VectorNumT<T>& v1)
+  {
+    VectorHelper::subtract(vecout, vecout, v1);
+  }
+  template<typename T>
+  static void subtract(VectorNumT<T>& vecout, const VectorNumT<T>& v1, T v2, bool flagOpposite = false)
+  {
+    auto n1 = static_cast<Id>(v1.size());
+    if (&vecout != &v1)
+      vecout.resize(n1);
 
-  static void multiply(VectorDouble& vecout, const VectorDouble& v1, const VectorDouble& v2);
-  static void multiplyAssign(VectorDouble& vecout, const VectorDouble& v1);
-  static void multiply(VectorDouble& vecout, const VectorDouble& v1, double v2);
-  static void multiplyAssign(VectorDouble& vecout, const VectorDouble& v1, double v2);
+    if (isNA(v2))
+      vecout.fill(getNA<T>());
+    else
+    {
+      if (flagOpposite)
+      {
+        for (Id i = 0; i < n1; i++)
+          vecout[i] = (isNA(v1[i])) ? getNA<T>() : v2 - v1[i];
+      }
+      else
+      {
+        for (Id i = 0; i < n1; i++)
+          vecout[i] = (isNA(v1[i])) ? getNA<T>() : v1[i] - v2;
+      }
+    }
+  }
+  template<typename T>
+  static void decrement(VectorNumT<T>& vecout, const VectorNumT<T>& v1, T v2)
+  {
+    VectorHelper::subtract(vecout, v1, v2);
+  }
 
-  static void divide(VectorDouble& vecout, const VectorDouble& v1, const VectorDouble& v2);
-  static void divideAssign(VectorDouble& vecout, const VectorDouble& v1);
-  static void divide(VectorDouble& vecout, const VectorDouble& v1, double v2, bool flagOpposite = false);
-  static void divideAssign(VectorDouble& vecout, const VectorDouble& v1, double v2);
+  template<typename T>
+  static void multiply(VectorNumT<T>& vecout, const VectorNumT<T>& v1, const VectorNumT<T>& v2)
+  {
+    auto n1 = static_cast<Id>(v1.size());
+    auto n2 = static_cast<Id>(v2.size());
+    if (n1 != n2)
+    {
+      messerr("Impossible to multiply vectors of different dimensions: V1(%d) and V2(%d)\n", n1, n2);
+      return;
+    }
+    if (&vecout != &v1 && &vecout != &v2)
+      vecout.resize(n1);
+    for (Id i = 0; i < n1; i++)
+      vecout[i] = (isNA(v1[i]) || isNA(v2[i])) ? getNA<T>() : v1[i] * v2[i];
+  }
+  template<typename T>
+  static void multiplyAssign(VectorNumT<T>& vecout, const VectorNumT<T>& v1)
+  {
+    VectorHelper::multiply(vecout, vecout, v1);
+  }
+  template<typename T>
+  static void multiply(VectorNumT<T>& vecout, const VectorNumT<T>& v1, T v2)
+  {
+    auto n1 = static_cast<Id>(v1.size());
+    if (&vecout != &v1)
+      vecout.resize(n1);
+    if (isNA(v2))
+      vecout.fill(getNA<T>());
+    else
+      for (Id i = 0; i < n1; i++)
+        vecout[i] = (isNA(v1[i])) ? getNA<T>() : v1[i] * v2;
+  }
+  template<typename T>
+  static void multiplyAssign(VectorNumT<T>& vecout, const VectorNumT<T>& v1, T v2)
+  {
+    VectorHelper::multiply(vecout, v1, v2);
+  }
+
+  template<typename T>
+  static void divide(VectorNumT<T>& vecout, const VectorNumT<T>& v1, const VectorNumT<T>& v2)
+  {
+    auto n1 = static_cast<Id>(v1.size());
+    auto n2 = static_cast<Id>(v2.size());
+    if (n1 != n2)
+    {
+      messerr("Impossible to divide vectors of different dimensions: V1(%d) and V2(%d)\n", n1, n2);
+      return;
+    }
+    if (&vecout != &v1 && &vecout != &v2)
+      vecout.resize(n1);
+    for (Id i = 0; i < n1; i++)
+      vecout[i] = (isNA(v1[i]) || isNA(v2[i]) || v2[i] == 0.) ? getNA<T>() : v1[i] / v2[i];
+  }
+  template<typename T>
+  static void divideAssign(VectorNumT<T>& vecout, const VectorNumT<T>& v1)
+  {
+    VectorHelper::divide(vecout, vecout, v1);
+  }
+  template<typename T>
+  static void divide(VectorNumT<T>& vecout, const VectorNumT<T>& v1, T v2, bool flagOpposite = false)
+  {
+    auto n1 = static_cast<Id>(v1.size());
+    if (&vecout != &v1)
+      vecout.resize(n1);
+    if (isNA(v2))
+      vecout.fill(getNA<T>());
+    {
+      if (flagOpposite)
+      {
+        for (Id i = 0; i < n1; i++)
+          vecout[i] = (isNA(v1[i]) || v1[i] == 0.) ? getNA<T>() : v2 / v1[i];
+      }
+      else
+      {
+        for (Id i = 0; i < n1; i++)
+          vecout[i] = (isNA(v1[i]) || v2 == 0.) ? getNA<T>() : v1[i] / v2;
+      }
+    }
+  }
+  template<typename T>
+  static void divideAssign(VectorNumT<T>& vecout, const VectorNumT<T>& v1, T v2)
+  {
+    VectorHelper::divide(vecout, v1, v2);
+  }
 #endif
   /**@}*/
 };
@@ -324,128 +522,196 @@ class VH: public VectorHelper
 /**
  * @brief Operator attached to "+" symbol
  */
-inline VectorDouble operator+(const VectorDouble& v1, const VectorDouble& v2)
+template<typename T>
+inline VectorNumT<T> operator+(const VectorNumT<T>& v1, const VectorNumT<T>& v2)
 {
-  VectorDouble result;
+  VectorNumT<T> result;
   VectorHelper::add(result, v1, v2);
   return result;
 }
-inline VectorDouble operator+(const VectorDouble& v1, double v2)
+template<typename T, typename U>
+inline VectorNumT<T> operator+(const VectorNumT<T>& v1, U v2)
 {
-  VectorDouble result;
-  VectorHelper::add(result, v1, v2);
+  static_assert(std::is_same_v<T, U> ||
+                  (std::is_same_v<T, Id> && std::is_integral_v<U>) ||
+                  (std::is_same_v<T, double> && std::is_arithmetic_v<U>),
+                "Invalid type for addition operator between VectorNumT and scalar");
+  VectorNumT<T> result;
+  VectorHelper::add(result, v1, static_cast<T>(v2));
   return result;
 }
-inline VectorDouble operator+(double v1, const VectorDouble& v2)
+template<typename T, typename U>
+inline VectorNumT<T> operator+(U v1, const VectorNumT<T>& v2)
 {
-  VectorDouble result;
-  VectorHelper::add(result, v2, v1);
+  static_assert(std::is_same_v<T, U> ||
+                  (std::is_same_v<T, Id> && std::is_integral_v<U>) ||
+                  (std::is_same_v<T, double> && std::is_arithmetic_v<U>),
+                "Invalid type for addition operator between VectorNumT and scalar");
+  VectorNumT<T> result;
+  VectorHelper::add(result, v2, static_cast<T>(v1));
   return result;
 }
-inline VectorDouble& operator+=(VectorDouble& v1, const VectorDouble& v2)
+template<typename T>
+inline VectorNumT<T>& operator+=(VectorNumT<T>& v1, const VectorNumT<T>& v2)
 {
   VectorHelper::add(v1, v1, v2);
   return v1;
 }
-inline VectorDouble& operator+=(VectorDouble& v1, double v2)
+template<typename T, typename U>
+inline VectorNumT<T>& operator+=(VectorNumT<T>& v1, U v2)
 {
-  VectorHelper::add(v1, v1, v2);
+  static_assert(std::is_same_v<T, U> ||
+                  (std::is_same_v<T, Id> && std::is_integral_v<U>) ||
+                  (std::is_same_v<T, double> && std::is_arithmetic_v<U>),
+                "Invalid type for addition operator between VectorNumT and scalar");
+  VectorHelper::add(v1, v1, static_cast<T>(v2));
   return v1;
 }
 
 /**
  * @brief Operator attached to "-" symbol
  */
-inline VectorDouble operator-(const VectorDouble& v1, const VectorDouble& v2)
+template<typename T>
+inline VectorNumT<T> operator-(const VectorNumT<T>& v1, const VectorNumT<T>& v2)
 {
-  VectorDouble result;
+  VectorNumT<T> result;
   VectorHelper::subtract(result, v1, v2);
   return result;
 }
-inline VectorDouble operator-(const VectorDouble& v1, double v2)
+template<typename T, typename U>
+inline VectorNumT<T> operator-(const VectorNumT<T>& v1, U v2)
 {
-  VectorDouble result;
-  VectorHelper::subtract(result, v1, v2, false);
+  static_assert(std::is_same_v<T, U> ||
+                  (std::is_same_v<T, Id> && std::is_integral_v<U>) ||
+                  (std::is_same_v<T, double> && std::is_arithmetic_v<U>),
+                "Invalid type for subtraction operator between VectorNumT and scalar");
+  VectorNumT<T> result;
+  VectorHelper::subtract(result, v1, static_cast<T>(v2), false);
   return result;
 }
-inline VectorDouble operator-(double v1, const VectorDouble& v2)
+template<typename T, typename U>
+inline VectorNumT<T> operator-(U v1, const VectorNumT<T>& v2)
 {
-  VectorDouble result;
-  VectorHelper::subtract(result, v2, v1, true);
+  static_assert(std::is_same_v<T, U> ||
+                  (std::is_same_v<T, Id> && std::is_integral_v<U>) ||
+                  (std::is_same_v<T, double> && std::is_arithmetic_v<U>),
+                "Invalid type for subtraction operator between VectorNumT and scalar");
+  VectorNumT<T> result;
+  VectorHelper::subtract(result, v2, static_cast<T>(v1), true);
   return result;
 }
-inline VectorDouble& operator-=(VectorDouble& v1, const VectorDouble& v2)
+template<typename T>
+inline VectorNumT<T>& operator-=(VectorNumT<T>& v1, const VectorNumT<T>& v2)
 {
   VectorHelper::subtract(v1, v1, v2);
   return v1;
 }
-inline VectorDouble& operator-=(VectorDouble& v1, double v2)
+template<typename T, typename U>
+inline VectorNumT<T>& operator-=(VectorNumT<T>& v1, U v2)
 {
-  VectorHelper::subtract(v1, v1, v2, false);
+  static_assert(std::is_same_v<T, U> ||
+                  (std::is_same_v<T, Id> && std::is_integral_v<U>) ||
+                  (std::is_same_v<T, double> && std::is_arithmetic_v<U>),
+                "Invalid type for subtraction operator between VectorNumT and scalar");
+  VectorHelper::subtract(v1, v1, static_cast<T>(v2), false);
   return v1;
 }
 
 /**
  * @brief Operator attached to "*" symbol
  */
-inline VectorDouble operator*(const VectorDouble& v1, const VectorDouble& v2)
+template<typename T>
+inline VectorNumT<T> operator*(const VectorNumT<T>& v1, const VectorNumT<T>& v2)
 {
-  VectorDouble result;
+  VectorNumT<T> result;
   VectorHelper::multiply(result, v1, v2);
   return result;
 }
-inline VectorDouble operator*(const VectorDouble& v1, double v2)
+template<typename T, typename U>
+inline VectorNumT<T> operator*(const VectorNumT<T>& v1, U v2)
 {
-  VectorDouble result;
-  VectorHelper::multiply(result, v1, v2);
+  static_assert(std::is_same_v<T, U> ||
+                  (std::is_same_v<T, Id> && std::is_integral_v<U>) ||
+                  (std::is_same_v<T, double> && std::is_arithmetic_v<U>),
+                "Invalid type for multiplication operator between VectorNumT and scalar");
+  VectorNumT<T> result;
+  VectorHelper::multiply(result, v1, static_cast<T>(v2));
   return result;
 }
-inline VectorDouble operator*(double v1, const VectorDouble& v2)
+template<typename T, typename U>
+inline VectorNumT<T> operator*(U v1, const VectorNumT<T>& v2)
 {
-  VectorDouble result;
-  VectorHelper::multiply(result, v2, v1);
+  static_assert(std::is_same_v<T, U> ||
+                  (std::is_same_v<T, Id> && std::is_integral_v<U>) ||
+                  (std::is_same_v<T, double> && std::is_arithmetic_v<U>),
+                "Invalid type for multiplication operator between VectorNumT and scalar");
+  VectorNumT<T> result;
+  VectorHelper::multiply(result, v2, static_cast<T>(v1));
   return result;
 }
-inline VectorDouble& operator*=(VectorDouble& v1, const VectorDouble& v2)
+template<typename T>
+inline VectorNumT<T>& operator*=(VectorNumT<T>& v1, const VectorNumT<T>& v2)
 {
   VectorHelper::multiply(v1, v1, v2);
   return v1;
 }
-inline VectorDouble& operator*=(VectorDouble& v1, double v2)
+template<typename T, typename U>
+inline VectorNumT<T>& operator*=(VectorNumT<T>& v1, U v2)
 {
-  VectorHelper::multiply(v1, v1, v2);
+  static_assert(std::is_same_v<T, U> ||
+                  (std::is_same_v<T, Id> && std::is_integral_v<U>) ||
+                  (std::is_same_v<T, double> && std::is_arithmetic_v<U>),
+                "Invalid type for multiplication operator between VectorNumT and scalar");
+  VectorHelper::multiply(v1, v1, static_cast<T>(v2));
   return v1;
 }
 
 /**
  * @brief Operator attached to "/" symbol
  */
-inline VectorDouble operator/(const VectorDouble& v1, const VectorDouble& v2)
+template<typename T>
+inline VectorNumT<T> operator/(const VectorNumT<T>& v1, const VectorNumT<T>& v2)
 {
-  VectorDouble result;
+  VectorNumT<T> result;
   VectorHelper::divide(result, v1, v2);
   return result;
 }
-inline VectorDouble operator/(const VectorDouble& v1, double v2)
+template<typename T, typename U>
+inline VectorNumT<T> operator/(const VectorNumT<T>& v1, U v2)
 {
-  VectorDouble result;
-  VectorHelper::divide(result, v1, v2, false);
+  static_assert(std::is_same_v<T, U> ||
+                  (std::is_same_v<T, Id> && std::is_integral_v<U>) ||
+                  (std::is_same_v<T, double> && std::is_arithmetic_v<U>),
+                "Invalid type for division operator between VectorNumT and scalar");
+  VectorNumT<T> result;
+  VectorHelper::divide(result, v1, static_cast<T>(v2), false);
   return result;
 }
-inline VectorDouble operator/(double v1, const VectorDouble& v2)
+template<typename T, typename U>
+inline VectorNumT<T> operator/(U v1, const VectorNumT<T>& v2)
 {
-  VectorDouble result;
-  VectorHelper::divide(result, v2, v1, true);
+  static_assert(std::is_same_v<T, U> ||
+                  (std::is_same_v<T, Id> && std::is_integral_v<U>) ||
+                  (std::is_same_v<T, double> && std::is_arithmetic_v<U>),
+                "Invalid type for division operator between VectorNumT and scalar");
+  VectorNumT<T> result;
+  VectorHelper::divide(result, v2, static_cast<T>(v1), true);
   return result;
 }
-inline VectorDouble& operator/=(VectorDouble& v1, const VectorDouble& v2)
+template<typename T>
+inline VectorNumT<T>& operator/=(VectorNumT<T>& v1, const VectorNumT<T>& v2)
 {
   VectorHelper::divide(v1, v1, v2);
   return v1;
 }
-inline VectorDouble& operator/=(VectorDouble& v1, double v2)
+template<typename T, typename U>
+inline VectorNumT<T>& operator/=(VectorNumT<T>& v1, U v2)
 {
-  VectorHelper::divide(v1, v1, v2, false);
+  static_assert(std::is_same_v<T, U> ||
+                  (std::is_same_v<T, Id> && std::is_integral_v<U>) ||
+                  (std::is_same_v<T, double> && std::is_arithmetic_v<U>),
+                "Invalid type for division operator between VectorNumT and scalar");
+  VectorHelper::divide(v1, v1, static_cast<T>(v2), false);
   return v1;
 }
 

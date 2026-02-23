@@ -629,7 +629,7 @@ Id MeshETurbo::getMeshFromCoordinates(const VectorDouble& coor,
   lambdas.resize(ncorner);
 
   VectorInt nx = _grid.getNXs();
-  nx.addCst(-1);
+  nx -= 1;
 
   Id iref = MAX(0, indg0[ndim - 1]);
   for (Id idim = ndim - 2; idim >= 0; idim--)

@@ -831,7 +831,7 @@ Id Vario::regularizeFromDbGrid(Model* model,
     {
       double dist     = ilag * getDPas(idir);
       VectorDouble dd = getCodirs(idir);
-      dd.multiplyCst(dist);
+      dd *= dist;
 
       MatrixSquare covtab = _evalAverageDbIncr(model, db, dd, mode);
 

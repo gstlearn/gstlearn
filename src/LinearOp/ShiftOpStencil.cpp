@@ -9,11 +9,11 @@
 /*                                                                            */
 /******************************************************************************/
 #include "LinearOp/ShiftOpStencil.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/Grid.hpp"
 #include "Basic/Indirection.hpp"
-#include "Basic/VectorNumT.hpp"
 #include "Basic/OptCustom.hpp"
+#include "Basic/VectorHelper.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "LinearOp/AShiftOp.hpp"
 #include "LinearOp/ShiftOpMatrix.hpp"
@@ -103,8 +103,9 @@ Id ShiftOpStencil::_addToDest(const constvect inv, vect outv) const
       {
         for (Id iw = 0; iw < nw; iw++)
         {
-          Id iabs      = ic + _absoluteShifts[iw];
-          if (_isInside[iabs]) {
+          Id iabs = ic + _absoluteShifts[iw];
+          if (_isInside[iabs])
+          {
             total += (*currentWeights)[iw] * inv[iabs];
           }
         }
@@ -132,8 +133,7 @@ Id ShiftOpStencil::_addToDest(const constvect inv, vect outv) const
         grid.rankToIndice(rank, center);
         for (Id iw = 0; iw < nw; iw++)
         {
-          local = center;
-          local.add(_relativeShifts[iw]);
+          local = center + _relativeShifts[iw];
           Id ie = grid.indiceToRank(local);
           rank  = indirect.getAToR(ie);
           if (rank >= 0) total += (*currentWeights)[iw] * inv[rank];
@@ -258,7 +258,7 @@ Id ShiftOpStencil::_buildInternal(const MeshETurbo* mesh,
     double weight = centerColumn[i];
     if (ABS(weight) < EPSILON6) continue;
     localMesh.getApexIndicesInPlace(i, other);
-    other.subtract(center);
+    other -= center;
     _relativeShifts.push_back(other);
     _weights.push_back(weight);
   }
@@ -272,8 +272,7 @@ Id ShiftOpStencil::_buildInternal(const MeshETurbo* mesh,
 
   for (Id iw = 0; iw < nw; iw++)
   {
-    VectorInt local = center;
-    local.add(_relativeShifts[iw]);
+    VectorInt local     = center + _relativeShifts[iw];
     Id iabs             = grid.indiceToRank(local);
     _absoluteShifts[iw] = iabs - iorigin;
   }

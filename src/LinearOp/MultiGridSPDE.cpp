@@ -189,7 +189,7 @@ ProjMatrix MultiGridSPDE::buildProlongator(const DbGrid* dbfine, const DbGrid* d
     chol.solve(ones, s1);
     double sc    = 1.0 / s1.sum();
     double ratio = sc * (1 - sw);
-    s1.multiplyCst(ratio);
+    s1 *= ratio;
     weights += s1;
 
     // Add the triplets for the prolongator matrix
