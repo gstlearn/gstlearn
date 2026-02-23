@@ -18,9 +18,9 @@ runs:
       run: |
         cd ${{ inputs.build-dir }}/tests
         find . -type f -name "*.out" -print0 | tar -czvf ${{ inputs.os-name }}-logs.tar.gz --null -T -
-        cd ${{ github.workspace }}/${{ inputs.build-dir }}/gstlearn_dir
+        cd $GITHUB_WORKSPACE/${{ inputs.build-dir }}/gstlearn_dir
         find . -type f -name "*.*" -print0 | tar -czvf ${{ inputs.os-name }}-neutral.tar.gz --null -T -
-        mv ${{ inputs.os-name }}-neutral.tar.gz ${{ github.workspace }}/
+        mv ${{ inputs.os-name }}-neutral.tar.gz $GITHUB_WORKSPACE/
 
     - name: Publish output logs as artefact
       uses: actions/upload-artifact@v4
