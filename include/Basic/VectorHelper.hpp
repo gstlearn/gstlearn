@@ -240,6 +240,18 @@ public:
   static void truncateDecimalsInPlace(VectorDouble& vec, Id ndec);
   static void truncateDigitsInPlace(VectorDouble& vec, Id ndec);
 
+  /**
+   * \defgroup Operators: List of basic operators bewteen numerical Vectors and scalars
+   *
+   **/
+
+  /** @addtogroup Operate_1
+   * \ingroup Operators
+   *
+   * Action: These operators perform basic operations between two vectors of the same size
+   * (or a vector and a scalar) and return a new vector as result (not in place)
+   *  @{
+   */
   static VectorDouble add(const VectorDouble& v1, const VectorDouble& v2);
   static VectorDouble addCst(const VectorDouble& v1, double v2);
 
@@ -251,6 +263,19 @@ public:
 
   static VectorDouble divide(const VectorDouble& v1, const VectorDouble& v2);
   static VectorDouble divideCst(const VectorDouble& v1, double v2, bool flagOpposite = false);
+  /**@}*/
+
+  /** @addtogroup Operate_2
+   * \ingroup Operators
+   *
+   * Action: These operators perform basic operations between two vectors of the same size
+   * (or a vector and a scalar) and return the result in the first argument.
+   * They are not meant to be exposted in foreign language and, therefore, they benefit from
+   * the polymorphism.
+   *
+   * They have been defined to allow efficient calculations without using any allocation
+   *  @{
+   */
 #ifndef SWIG
   static void add(VectorDouble& vecout, const VectorDouble& v1, const VectorDouble& v2);
   static void increment(VectorDouble& vecout, const VectorDouble& v1);
@@ -272,6 +297,7 @@ public:
   static void divide(VectorDouble& vecout, const VectorDouble& v1, double v2, bool flagOpposite = false);
   static void divideAssign(VectorDouble& vecout, const VectorDouble& v1, double v2);
 #endif
+  /**@}*/
 };
 
 // typedef VectorHelper VH;
@@ -280,11 +306,23 @@ class VH: public VectorHelper
 };
 
 /**
- * @brief Operator attached to "+" symbol
+ * \defgroup Symbolic: List of basic operators bewteen numerical Vectors and scalars
+ * (expressed using standad operators)
  *
- * @param v1 Input first vector
- * @param v2 Input second vector
- * @return VectorDouble
+ **/
+
+/** @addtogroup Operate_3
+ * \ingroup Symbolic
+ *
+ * Action: These operators perform basic operations between two vectors of the same size
+ * or between a vector and a scalar.
+ * They are presented as an overload of basic operators ''+', '-', '*', and '/'.
+ * They are not meant to be exposted in foreign language.
+ *  @{
+ */
+
+/**
+ * @brief Operator attached to "+" symbol
  */
 inline VectorDouble operator+(const VectorDouble& v1, const VectorDouble& v2)
 {
@@ -317,10 +355,6 @@ inline VectorDouble& operator+=(VectorDouble& v1, double v2)
 
 /**
  * @brief Operator attached to "-" symbol
- *
- * @param v1 Input first vector
- * @param v2 Input second vector
- * @return VectorDouble
  */
 inline VectorDouble operator-(const VectorDouble& v1, const VectorDouble& v2)
 {
@@ -353,10 +387,6 @@ inline VectorDouble& operator-=(VectorDouble& v1, double v2)
 
 /**
  * @brief Operator attached to "*" symbol
- *
- * @param v1 Input first vector
- * @param v2 Input second vector
- * @return VectorDouble
  */
 inline VectorDouble operator*(const VectorDouble& v1, const VectorDouble& v2)
 {
@@ -389,10 +419,6 @@ inline VectorDouble& operator*=(VectorDouble& v1, double v2)
 
 /**
  * @brief Operator attached to "/" symbol
- *
- * @param v1 Input first vector
- * @param v2 Input second vector
- * @return VectorDouble
  */
 inline VectorDouble operator/(const VectorDouble& v1, const VectorDouble& v2)
 {
