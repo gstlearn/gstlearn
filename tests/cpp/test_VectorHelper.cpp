@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Basic/File.hpp"
-#include "Basic/Law.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "geoslib_define.h"
 
@@ -205,13 +204,10 @@ int main(int argc, char* argv[])
   Vres.dump("Checking Vres = V2 * 4. + V1", false);
 
   mestitle(1, "Testing operations on Vectors of Integers");
-  VectorInt IV1(nech);
-  for (Id i = 0; i < nech; i++)
-    IV1[i] = static_cast<Id>(10. * law_uniform());
+  Id nvar       = 10;
+  VectorInt IV1 = VH::simulateInteger(nech, VectorDouble(nvar, 1. / nvar));
   IV1.dump("Vector IV1", false);
-  VectorInt IV2(nech);
-  for (Id i = 0; i < nech; i++)
-    IV2[i] = static_cast<Id>(10. * law_uniform());
+  VectorInt IV2 = VH::simulateInteger(nech, VectorDouble(nvar, 1. / nvar));
   IV2.dump("Vector IV2", false);
   VectorInt IVres;
 

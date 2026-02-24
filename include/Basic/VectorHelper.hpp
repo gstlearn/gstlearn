@@ -141,6 +141,8 @@ public:
   static void cumulate(VectorDouble& veca, const VectorDouble& vecb, double coeff = 1., double addval = 0.);
   static void getMostSignificant(const VectorDouble& vec, double tol = EPSILON6, Id nmax = -1);
 
+  static VectorBool simulateBoolean(Id n, double probaTrue = 0.5);
+  static VectorInt simulateInteger(Id n, const VectorDouble& probas = VectorDouble(5, 0.2));
   static VectorDouble simulateUniform(Id n        = 1,
                                       double mini = 0.,
                                       double maxi = 1.);

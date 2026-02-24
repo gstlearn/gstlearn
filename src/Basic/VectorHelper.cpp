@@ -490,6 +490,59 @@ VectorDouble VectorHelper::sequenceVD(double valFrom,
   return vec;
 }
 
+VectorBool VectorHelper::simulateBoolean(Id n, double probaTrue)
+{
+  VectorBool vec(n);
+  auto it(vec.begin());
+  while (it < vec.end())
+  {
+    *it = (law_uniform(0., 1.) < probaTrue);
+    it++;
+  }
+  return vec;
+}
+
+VectorInt VectorHelper::simulateInteger(Id n, const VectorDouble& probas)
+{
+  VectorInt vec(n);
+
+  // Normalize the probabilities
+  double total = 0.;
+  for (const auto& p: probas)
+  {
+    if (p < 0.)
+    {
+      messerr("Probabilities should be positive. Nothing is done.");
+      return VectorInt();
+    }
+    total += p;
+  }
+  if (total <= 0.)
+  {
+    messerr("The sum of probabilities should be positive. Nothing is done.");
+    return VectorInt();
+  }
+  VectorDouble normprobas(probas.size());
+  for (Id i = 0, n = static_cast<Id>(probas.size()); i < n; i++)
+    normprobas[i] = probas[i] / total;
+
+  auto it(vec.begin());
+  while (it < vec.end())
+  {
+    double rand = law_uniform(0., 1.);
+    Id ic       = 0;
+    double tol  = probas[0];
+    while (rand > tol && ic < static_cast<Id>(probas.size()) - 1)
+    {
+      ic++;
+      tol += probas[ic];
+    }
+    *it = ic;
+    it++;
+  }
+  return vec;
+}
+
 VectorDouble VectorHelper::simulateUniform(Id n, double mini, double maxi)
 {
   VectorDouble vec(n);
@@ -724,10 +777,7 @@ void VectorHelper::addSquareInPlace(VectorDouble& dest, const VectorDouble& src)
   }
 }
 
-void VectorHelper::addInPlace(const double* veca,
-                              const double* vecb,
-                              double* res,
-                              Id size)
+void VectorHelper::addInPlace(const double* veca, const double* vecb, double* res, Id size)
 {
   for (Id i = 0; i < size; i++)
     res[i] = veca[i] + vecb[i];
