@@ -739,8 +739,7 @@ void VectorHelper::addInPlace(const double* veca,
  * @param vecb Input Vector
  * @return
  */
-VectorDouble VectorHelper::subtract(constvect veca,
-                                    constvect vecb)
+VectorDouble VectorHelper::subtract(constvect veca, constvect vecb)
 {
   VectorDouble res(veca.size());
   for (Id i = 0; i < static_cast<Id>(veca.size()); i++)
@@ -756,9 +755,7 @@ VectorDouble VectorHelper::subtract(constvect veca,
  * @param in2 Input vector
  * @param outv Output vector
  */
-void VectorHelper::subtractInPlace(const constvect in1,
-                                   const constvect in2,
-                                   vect outv)
+void VectorHelper::subtractInPlace(const constvect in1, const constvect in2, vect outv)
 {
   for (Id is = 0, ns = static_cast<Id>(in1.size()); is < ns; is++)
   {

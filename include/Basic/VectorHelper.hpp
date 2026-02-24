@@ -326,6 +326,9 @@ public:
   template<typename T>
   static void add(VectorNumT<T>& vecout, const VectorNumT<T>& v1, const VectorNumT<T>& v2)
   {
+    static_assert((std::is_same_v<T, Id> && std::is_integral_v<T>) ||
+                    (std::is_same_v<T, double> && std::is_arithmetic_v<T>),
+                  "Invalid type for addition operator");
     auto n1 = static_cast<Id>(v1.size());
     auto n2 = static_cast<Id>(v2.size());
     if (n1 != n2)
@@ -364,6 +367,9 @@ public:
   template<typename T>
   static void subtract(VectorNumT<T>& vecout, const VectorNumT<T>& v1, const VectorNumT<T>& v2)
   {
+    static_assert((std::is_same_v<T, Id> && std::is_integral_v<T>) ||
+                    (std::is_same_v<T, double> && std::is_arithmetic_v<T>),
+                  "Invalid type for subtraction operator");
     auto n1 = static_cast<Id>(v1.size());
     auto n2 = static_cast<Id>(v2.size());
     if (n1 != n2)
@@ -413,6 +419,9 @@ public:
   template<typename T>
   static void multiply(VectorNumT<T>& vecout, const VectorNumT<T>& v1, const VectorNumT<T>& v2)
   {
+    static_assert((std::is_same_v<T, Id> && std::is_integral_v<T>) ||
+                    (std::is_same_v<T, double> && std::is_arithmetic_v<T>),
+                  "Invalid type for multiplication operator");
     auto n1 = static_cast<Id>(v1.size());
     auto n2 = static_cast<Id>(v2.size());
     if (n1 != n2)
@@ -451,6 +460,9 @@ public:
   template<typename T>
   static void divide(VectorNumT<T>& vecout, const VectorNumT<T>& v1, const VectorNumT<T>& v2)
   {
+    static_assert((std::is_same_v<T, Id> && std::is_integral_v<T>) ||
+                    (std::is_same_v<T, double> && std::is_arithmetic_v<T>),
+                  "Invalid type for division operator");
     auto n1 = static_cast<Id>(v1.size());
     auto n2 = static_cast<Id>(v2.size());
     if (n1 != n2)
