@@ -44,6 +44,11 @@ const MatrixSparse* PrecisionOpMatrix::getS() const
   return dynamic_cast<const ShiftOpMatrix*>(getShiftOp())->getS();
 }
 
+const VectorDouble& PrecisionOpMatrix::getTildeC() const
+{
+  return dynamic_cast<const ShiftOpMatrix*>(getShiftOp())->getTildeC();
+}
+
 PrecisionOpMatrix::~PrecisionOpMatrix()
 {
   delete _chol;

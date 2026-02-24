@@ -265,6 +265,7 @@
 %include Covariances/TabNoStatSills.hpp
 %include Covariances/ANoStat.hpp
 %include Covariances/NoStatArray.hpp
+%include Covariances/NoStatOnMesh.hpp
 %include Covariances/NoStatFunctional.hpp
 %include Covariances/ACov.hpp
 %include Covariances/CovBase.hpp

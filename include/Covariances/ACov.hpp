@@ -525,6 +525,7 @@ private:
                                 const VectorVectorInt& index2,
                                 const KrigOpt& krigopt = KrigOpt()) const;
   virtual std::unique_ptr<TabNoStat> _createNoStatTab();
+  Id _makeElemNoStat(const EConsElem& econs, Id iv1, Id iv2, const AFunctional* func = nullptr, const Db* db = nullptr, const String& namecol = String());
 
 protected:
   void _setNoStatDbIfNecessary(const Db* db);

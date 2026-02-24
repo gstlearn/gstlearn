@@ -119,6 +119,9 @@ public:
                                           const VectorDouble& angles = VectorDouble(),
                                           bool flagRange             = true);
 
+  FORWARD_METHOD_NON_CONST(getCorAnisoModify, setFlagAnisoOnMesh)
+  FORWARD_METHOD_NON_CONST(getCorAnisoModify, getFlagAnisoOnMesh)
+
   FORWARD_METHOD_NON_CONST(getCorAnisoModify, setParam)
   FORWARD_METHOD_NON_CONST(getCorAnisoModify, computeMarkovCoeffs)
   FORWARD_METHOD_NON_CONST(getCorAnisoModify, setRangeIsotropic)

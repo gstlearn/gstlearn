@@ -106,6 +106,7 @@ set(SRC
   Covariances/CovProportional.cpp
   Covariances/ANoStat.cpp
   Covariances/NoStatArray.cpp
+  Covariances/NoStatOnMesh.cpp
   Covariances/NoStatFunctional.cpp
   Covariances/CovGradientGeneric.cpp
   Covariances/CovGradientAnalytic.cpp

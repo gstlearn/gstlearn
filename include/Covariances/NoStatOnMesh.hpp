@@ -10,34 +10,26 @@
 /******************************************************************************/
 #pragma once
 
-#include "Covariances/ANoStat.hpp"
+#include "Covariances/NoStatArray.hpp"
 #include "gstlearn_export.hpp"
-#include <memory>
-
-class Db;
 
 namespace gstlrn
 {
-class GSTLEARN_EXPORT NoStatArray: public ANoStat
+class GSTLEARN_EXPORT NoStatOnMesh: public NoStatArray
 {
 public:
-  NoStatArray() {};
-  NoStatArray(std::shared_ptr<const Db> dbref, const String& colname);
-  NoStatArray(const NoStatArray& m)            = delete;
-  NoStatArray& operator=(const NoStatArray& m) = delete;
-  virtual ~NoStatArray() {};
-  String toString(const AStringFormat* strfmt = nullptr) const override;
+  NoStatOnMesh() {};
+  NoStatOnMesh(std::shared_ptr<const Db> dbref, const String& colname);
 
-  const String& getColName() const { return _colName; }
-  const std::shared_ptr<const Db>& getDbNoStat() const { return _dbNoStat; }
+  NoStatOnMesh(const NoStatOnMesh& m)            = delete;
+  NoStatOnMesh& operator=(const NoStatOnMesh& m) = delete;
+
+  void informMeshByMesh(const AMesh* amesh, bool verbose = false) override;
+  void informMeshByApex(const AMesh* amesh, bool verbose = false) override;
+
+  virtual ~NoStatOnMesh() {};
 
 private:
-  void _informField(const VectorVectorDouble& coords,
-                    VectorDouble& tab,
-                    bool verbose = false) override;
-
-protected:
-  std::shared_ptr<const Db> _dbNoStat;
-  const String _colName;
+  void _informFieldByMesh(const AMesh* amesh, VectorDouble& tab, bool onMeshes);
 };
 } // namespace gstlrn

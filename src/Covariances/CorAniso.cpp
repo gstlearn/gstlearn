@@ -25,6 +25,7 @@
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovCalcMode.hpp"
 #include "Covariances/CovFactory.hpp"
+#include "Covariances/NoStatOnMesh.hpp"
 #include "Covariances/TabNoStatCovAniso.hpp"
 #include "Db/Db.hpp"
 #include "Enum/EConsElem.hpp"
@@ -112,6 +113,7 @@ CorAniso::CorAniso(const CovContext& ctxt, const ECov& type)
   , _noStatFactor(1.)
   , _optimNoAniso(false)
   , _optimLockIso2d(false)
+  , _flagAnisoOnMesh(false)
 {
   initFromContext();
 }
@@ -124,6 +126,7 @@ CorAniso::CorAniso(const CovContext& ctxt, const String& symbol)
   , _noStatFactor(1.)
   , _optimNoAniso(false)
   , _optimLockIso2d(false)
+  , _flagAnisoOnMesh(false)
 {
   ECov covtype = CovFactory::identifyCovariance(symbol, ctxt);
   _corfunc     = CovFactory::createCovFunc(covtype, ctxt);
@@ -142,6 +145,7 @@ CorAniso::CorAniso(
   , _noStatFactor(1.)
   , _optimNoAniso(false)
   , _optimLockIso2d(false)
+  , _flagAnisoOnMesh(false)
 {
   initFromContext();
 
@@ -164,6 +168,7 @@ CorAniso::CorAniso(const CorAniso& r)
   , _noStatFactor(r._noStatFactor)
   , _optimNoAniso(r._optimNoAniso)
   , _optimLockIso2d(r._optimLockIso2d)
+  , _flagAnisoOnMesh(r._flagAnisoOnMesh)
 {
 }
 
@@ -172,13 +177,14 @@ CorAniso& CorAniso::operator=(const CorAniso& r)
   if (this != &r)
   {
     ACov::operator=(r);
-    _corfunc        = CovFactory::duplicateCovFunc(*r._corfunc);
-    _scales         = r._scales;
-    _angles         = r._angles;
-    _aniso          = r._aniso;
-    _noStatFactor   = r._noStatFactor;
-    _optimNoAniso   = r._optimNoAniso;
-    _optimLockIso2d = r._optimLockIso2d;
+    _corfunc         = CovFactory::duplicateCovFunc(*r._corfunc);
+    _scales          = r._scales;
+    _angles          = r._angles;
+    _aniso           = r._aniso;
+    _noStatFactor    = r._noStatFactor;
+    _optimNoAniso    = r._optimNoAniso;
+    _optimLockIso2d  = r._optimLockIso2d;
+    _flagAnisoOnMesh = r._flagAnisoOnMesh;
   }
   return *this;
 }
@@ -1282,6 +1288,24 @@ String CorAniso::toStringNoStat(const AStringFormat* strfmt, Id i) const
   sstr = getTabNoStatCovAniso().toStringInside(strfmt, i);
   return sstr;
 }
+
+Id CorAniso::makeElemNoStatOnMesh(const EConsElem& econs, Id iv1, Id iv2, const Db* db, const String& namecol)
+{
+  std::shared_ptr<ANoStat> ns;
+  if (!checkAndManageNoStatDb(db, namecol)) return 1;
+
+  ns = std::shared_ptr<ANoStat>(new NoStatOnMesh(_tabNoStat->getDbNoStatRef(), namecol));
+
+  return _tabNoStat->addElem(ns, econs, iv1, iv2);
+}
+
+Id CorAniso::makeElemNoStat(const EConsElem& econs, Id iv1, Id iv2, const AFunctional* func, const Db* db, const String& namecol)
+{
+  if (_flagAnisoOnMesh) return makeElemNoStatOnMesh(econs, iv1, iv2, db, namecol);
+
+  return ACov::makeElemNoStat(econs, iv1, iv2, func, db, namecol);
+}
+
 ///////////////////// Range ////////////////////////
 void CorAniso::makeRangeNoStatDb(const String& namecol, Id idim, const Db* db)
 {

@@ -66,6 +66,7 @@ public:
 #endif
   const MatrixSparse* getQ() const { return _Q.get(); }
   const MatrixSparse* getS() const;
+  const VectorDouble& getTildeC() const;
 
 private:
   void _buildQ();

@@ -539,14 +539,15 @@ Id AMesh::getMeshAndInPlaceWeightsFromCoordinates(const VectorDouble& coords, Ve
   VectorDouble distances;
 
   /* Loop on the elligible meshes */
-  Id nb_neigh = 5;
+  Id nb_neigh = MIN(5, getNMeshes());;
   (void)ball.queryOneInPlace(coords, nb_neigh, neighs, distances);
   Id found = _findBarycenter(coords, units, nb_neigh, neighs, weights);
 
   // If search has failed with a small number of neighbors, try with a larger one
   if (found < 0)
   {
-    nb_neigh = 50;
+    nb_neigh = MIN(50, getNMeshes());
+
     (void)ball.queryOneInPlace(coords, nb_neigh, neighs, distances);
     found = _findBarycenter(coords, units, nb_neigh, neighs, weights);
   }

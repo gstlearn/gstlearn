@@ -22,6 +22,7 @@
 #include "Covariances/CovContext.hpp"
 #include "Covariances/NoStatArray.hpp"
 #include "Covariances/NoStatFunctional.hpp"
+#include "Covariances/NoStatOnMesh.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Enum/ECalcMember.hpp"
@@ -2017,6 +2018,11 @@ void ACov::_makeStationary()
 }
 
 Id ACov::makeElemNoStat(const EConsElem& econs, Id iv1, Id iv2, const AFunctional* func, const Db* db, const String& namecol)
+{
+  return _makeElemNoStat(econs, iv1, iv2, func, db, namecol);
+}
+
+Id ACov::_makeElemNoStat(const EConsElem& econs, Id iv1, Id iv2, const AFunctional* func, const Db* db, const String& namecol)
 {
   std::shared_ptr<ANoStat> ns;
   if (func == nullptr)
