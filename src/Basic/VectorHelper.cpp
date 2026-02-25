@@ -522,8 +522,9 @@ VectorInt VectorHelper::simulateInteger(Id n, const VectorDouble& probas)
     messerr("The sum of probabilities should be positive. Nothing is done.");
     return VectorInt();
   }
-  VectorDouble normprobas(probas.size());
-  for (Id i = 0, n = static_cast<Id>(probas.size()); i < n; i++)
+  auto nproba = static_cast<Id>(probas.size());
+  VectorDouble normprobas(nproba);
+  for (Id i = 0; i < nproba; i++)
     normprobas[i] = probas[i] / total;
 
   auto it(vec.begin());
@@ -531,11 +532,11 @@ VectorInt VectorHelper::simulateInteger(Id n, const VectorDouble& probas)
   {
     double rand = law_uniform(0., 1.);
     Id ic       = 0;
-    double tol  = probas[0];
-    while (rand > tol && ic < static_cast<Id>(probas.size()) - 1)
+    double tol  = normprobas[0];
+    while (rand > tol && ic < nproba - 1)
     {
       ic++;
-      tol += probas[ic];
+      tol += normprobas[ic];
     }
     *it = ic;
     it++;
