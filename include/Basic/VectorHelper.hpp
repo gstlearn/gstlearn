@@ -244,6 +244,75 @@ public:
   static void truncateDigitsInPlace(VectorDouble& vec, Id ndec);
 
   /**
+   * @brief List of operators exported for Target Language
+   */
+  static VectorDouble addVD(const VectorDouble& v1, const VectorDouble& v2)
+  {
+    return add(v1, v2);
+  }
+  static VectorDouble addVDCst(const VectorDouble& v1, double v2)
+  {
+    return addCst(v1, v2);
+  }
+  static VectorDouble subtractVD(const VectorDouble& v1, const VectorDouble& v2)
+  {
+    return subtract(v1, v2);
+  }
+  static VectorDouble subtractVDCst(const VectorDouble& v1, double v2, bool flagOpposite = false)
+  {
+    return subtractCst(v1, v2, flagOpposite);
+  }
+  static VectorDouble multiplyVD(const VectorDouble& v1, const VectorDouble& v2)
+  {
+    return multiply(v1, v2);
+  }
+  static VectorDouble multiplyVDCst(const VectorDouble& v1, double v2)
+  {
+    return multiplyCst(v1, v2);
+  }
+  static VectorDouble divideVD(const VectorDouble& v1, const VectorDouble& v2)
+  {
+    return divide(v1, v2);
+  }
+  static VectorDouble divideVDCst(const VectorDouble& v1, double v2, bool flagOpposite = false)
+  {
+    return divideCst(v1, v2, flagOpposite);
+  }
+
+  static VectorInt addVI(const VectorInt& v1, const VectorInt& v2)
+  {
+    return add(v1, v2);
+  }
+  static VectorInt addVICst(const VectorInt& v1, Id v2)
+  {
+    return addCst(v1, v2);
+  }
+  static VectorInt subtractVI(const VectorInt& v1, const VectorInt& v2)
+  {
+    return subtract(v1, v2);
+  }
+  static VectorInt subtractVICst(const VectorInt& v1, Id v2, bool flagOpposite = false)
+  {
+    return subtractCst(v1, v2, flagOpposite);
+  }
+  static VectorInt multiplyVI(const VectorInt& v1, const VectorInt& v2)
+  {
+    return multiply(v1, v2);
+  }
+  static VectorInt multiplyVICst(const VectorInt& v1, Id v2)
+  {
+    return multiplyCst(v1, v2);
+  }
+  static VectorInt divideVI(const VectorInt& v1, const VectorInt& v2)
+  {
+    return divide(v1, v2);
+  }
+  static VectorInt divideVICst(const VectorInt& v1, Id v2, bool flagOpposite = false)
+  {
+    return divideCst(v1, v2, flagOpposite);
+  }
+
+  /**
    * \defgroup Operators: List of basic operators bewteen numerical Vectors and scalars
    *
    **/
