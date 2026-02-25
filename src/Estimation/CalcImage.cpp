@@ -251,11 +251,10 @@ DbGrid* CalcImage::_buildMarpat(const NeighImage* neigh,
   VectorInt center = dbgrid->getCenterIndices();
 
   // Loop on the valid weights
-  VectorInt local(ndim);
   for (Id ineigh = 0; ineigh < nbneigh; ineigh++)
   {
-    local = ranks[ineigh] + center;
-    Id iadd = dbgrid->indiceToRank(local);
+    auto local = ranks[ineigh] + center;
+    Id iadd    = dbgrid->indiceToRank(local);
 
     // Load the weights as variables
     Id ecr = 0;

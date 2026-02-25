@@ -36,4 +36,3 @@ itabaux.dump("'out' = 'itab1' + 'itab2'")
 itabaux = gl.VectorInt(gl.VH.addVICst(itab1, 2))
 itabaux.dump("'out' = 'itab1' + 2")
 type(itab1)
-

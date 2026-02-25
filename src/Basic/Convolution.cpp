@@ -239,7 +239,7 @@ Id Convolution::ConvolveFFT(Id iatt,
   for (Id ivar = 0; ivar < nvar; ivar++)
   {
     imageRe[ivar] = _dbgrid->getColumnByLocator(ELoc::Z, ivar);
-    if (!means.empty()) imageRe[ivar] -= -means[ivar];
+    if (!means.empty()) imageRe[ivar] -= means[ivar];
     imageIm[ivar].resize(sImage, 0.);
 
     // Perform the FFT forward transform of each image
