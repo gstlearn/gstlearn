@@ -22,7 +22,6 @@
 #include "Covariances/CovContext.hpp"
 #include "Covariances/NoStatArray.hpp"
 #include "Covariances/NoStatFunctional.hpp"
-#include "Covariances/NoStatOnMesh.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Enum/ECalcMember.hpp"
