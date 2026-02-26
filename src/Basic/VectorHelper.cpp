@@ -493,12 +493,8 @@ VectorDouble VectorHelper::sequenceVD(double valFrom,
 VectorBool VectorHelper::simulateBoolean(Id n, double probaTrue)
 {
   VectorBool vec(n);
-  auto it(vec.begin());
-  while (it < vec.end())
-  {
-    *it = (law_uniform(0., 1.) < probaTrue);
-    it++;
-  }
+  for (Id i = 0; i < n; i++)
+    vec[i] = (law_uniform(0., 1.) < probaTrue);
   return vec;
 }
 
@@ -527,8 +523,7 @@ VectorInt VectorHelper::simulateInteger(Id n, const VectorDouble& probas)
   for (Id i = 0; i < nproba; i++)
     normprobas[i] = probas[i] / total;
 
-  auto it(vec.begin());
-  while (it < vec.end())
+  for (Id i = 0; i < n; i++)
   {
     double rand = law_uniform(0., 1.);
     Id ic       = 0;
@@ -538,8 +533,7 @@ VectorInt VectorHelper::simulateInteger(Id n, const VectorDouble& probas)
       ic++;
       tol += normprobas[ic];
     }
-    *it = ic;
-    it++;
+    vec[i] = ic;
   }
   return vec;
 }

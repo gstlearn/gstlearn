@@ -133,7 +133,7 @@ Id ShiftOpStencil::_addToDest(const constvect inv, vect outv) const
         grid.rankToIndice(rank, center);
         for (Id iw = 0; iw < nw; iw++)
         {
-          local = center + _relativeShifts[iw];
+          VH::add(local, center, _relativeShifts[iw]);
           Id ie = grid.indiceToRank(local);
           rank  = indirect.getAToR(ie);
           if (rank >= 0) total += (*currentWeights)[iw] * inv[rank];
@@ -270,9 +270,10 @@ Id ShiftOpStencil::_buildInternal(const MeshETurbo* mesh,
   for (Id idim = 0; idim < ndim; idim++) center[idim] = NXs[idim] / 2;
   Id iorigin = grid.indiceToRank(center);
 
+  VectorInt local(ndim);
   for (Id iw = 0; iw < nw; iw++)
   {
-    VectorInt local     = center + _relativeShifts[iw];
+    VH::add(local, center, _relativeShifts[iw]);
     Id iabs             = grid.indiceToRank(local);
     _absoluteShifts[iw] = iabs - iorigin;
   }
