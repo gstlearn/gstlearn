@@ -493,8 +493,8 @@ VectorDouble VectorHelper::sequenceVD(double valFrom,
 VectorBool VectorHelper::simulateBoolean(Id n, double probaTrue)
 {
   VectorBool vec(n);
-  for (Id i = 0; i < n; i++)
-    vec[i] = (law_uniform(0., 1.) < probaTrue);
+  for (auto& el: vec)
+    el = law_uniform(0., 1.) < probaTrue;
   return vec;
 }
 
@@ -523,7 +523,7 @@ VectorInt VectorHelper::simulateInteger(Id n, const VectorDouble& probas)
   for (Id i = 0; i < nproba; i++)
     normprobas[i] = probas[i] / total;
 
-  for (Id i = 0; i < n; i++)
+  for (auto& el: vec)
   {
     double rand = law_uniform(0., 1.);
     Id ic       = 0;
@@ -533,7 +533,7 @@ VectorInt VectorHelper::simulateInteger(Id n, const VectorDouble& probas)
       ic++;
       tol += normprobas[ic];
     }
-    vec[i] = ic;
+    el = ic;
   }
   return vec;
 }
@@ -541,11 +541,9 @@ VectorInt VectorHelper::simulateInteger(Id n, const VectorDouble& probas)
 VectorDouble VectorHelper::simulateUniform(Id n, double mini, double maxi)
 {
   VectorDouble vec(n);
-  auto it(vec.begin());
-  while (it < vec.end())
+  for (auto& el: vec)
   {
-    *it = law_uniform(mini, maxi);
-    it++;
+    el = law_uniform(mini, maxi);
   }
   return vec;
 }
@@ -553,15 +551,13 @@ VectorDouble VectorHelper::simulateUniform(Id n, double mini, double maxi)
 VectorDouble VectorHelper::simulateBernoulli(Id n, double proba, double vone, double velse)
 {
   VectorDouble vec(n);
-  auto it(vec.begin());
-  while (it < vec.end())
+  for (auto& el: vec)
   {
     double rand = law_uniform(0., 1.);
     if (rand < proba)
-      *it = vone;
+      el = vone;
     else
-      *it = velse;
-    it++;
+      el = velse;
   }
   return vec;
 }
@@ -573,20 +569,15 @@ VectorDouble VectorHelper::simulateGaussian(Id n, double mean, double sigma)
   return vec;
 }
 
-void VectorHelper::simulateGaussianInPlace(VectorDouble& vec,
-                                           double mean,
-                                           double sigma)
+void VectorHelper::simulateGaussianInPlace(VectorDouble& vec, double mean, double sigma)
 {
-  auto it(vec.begin());
-  while (it < vec.end())
+  for (auto& el: vec)
   {
-    *it = mean + sigma * law_gaussian();
-    it++;
+    el = mean + sigma * law_gaussian();
   }
 }
 
-VectorDouble VectorHelper::concatenate(const VectorDouble& veca,
-                                       const VectorDouble& vecb)
+VectorDouble VectorHelper::concatenate(const VectorDouble& veca, const VectorDouble& vecb)
 {
   VectorDouble res = veca;
   for (const auto& e: vecb) res.push_back(e);
@@ -743,7 +734,7 @@ void VectorHelper::addInPlace(constvect in, vect dest)
 {
   const double* inp = in.data();
   double* outp      = dest.data();
-  for (Id i = 0; i < static_cast<Id>(in.size()); i++)
+  for (Id i = 0, n = static_cast<Id>(in.size()); i < n; i++)
   {
     *(outp++) += *(inp++);
   }
