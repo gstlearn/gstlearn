@@ -46,7 +46,7 @@ namespace gstlrn
  */
 class GSTLEARN_EXPORT MatrixSparse: public AMatrix, public virtual ALinearOp
 {
-public: 
+public:
   MatrixSparse(Id nrow = 0, Id ncol = 0, Id ncolmax = -1);
   MatrixSparse(const MatrixSparse& m);
   MatrixSparse& operator=(const MatrixSparse& m);
@@ -61,16 +61,14 @@ public:
 
   //// Interface to AStringable
   String toString(const AStringFormat* strfmt = nullptr) const override;
-  
+
   /// Interface for ALinearOp
 
   Id getSize() const override { return getNRows(); }
 
-
   static MatrixSparse* createFromMatrix(const MatrixSparse& mat);
 
   /// Interface for AMatrix
-
 
   /*! Returns if the current matrix is Sparse */
   bool isSparse() const override { return true; }
@@ -152,6 +150,10 @@ public:
   /*! Extract the contents of the matrix */
   NF_Triplet getMatrixToTriplet(Id shiftRow = 0, Id shiftCol = 0) const override;
 
+  /*! New methods for operator overloading */
+  AMatrix& addCstInPlace(double a) override;
+  std::unique_ptr<AMatrix> addCst(double a) const override;
+
   MatrixSparse* getRowAsMatrixSparse(Id irow, double coeff = 1.) const;
   MatrixSparse* getColumnAsMatrixSparse(Id icol, double coeff = 1.) const;
 
@@ -222,6 +224,7 @@ public:
   void forceDimension(Id maxRows, Id maxCols);
   VectorInt getNonZeroCols(Id irow) const;
   VectorInt getNonZeroRows(Id icol) const;
+
 #ifndef SWIG
 
 protected:

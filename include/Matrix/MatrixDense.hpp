@@ -55,9 +55,9 @@ public:
   /// Has a specific implementation in the Target language
   DECLARE_TOTL;
   DECLARE_TOLATEX
-  #ifndef SWIG
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-  #endif 
+#ifndef SWIG
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+#endif
 
   /// Cloneable interface
   IMPLEMENT_CLONING(MatrixDense)
@@ -118,6 +118,11 @@ public:
                          const AMatrix* y,
                          bool transposeX = false,
                          bool transposeY = false) override;
+
+  /*! New methods for operator overloading */
+  AMatrix& addCstInPlace(double a) override;
+  std::unique_ptr<AMatrix> addCst(double a) const override;
+
   template<bool transposeX, bool transposeY>
   void prodMatMatNoCheck(const MatrixDense& x,
                          const MatrixDense& y)
@@ -203,7 +208,8 @@ public:
                   const MatrixDense* mat2,
                   MatrixDense* mat3);
 #endif // !SWIG
-double sum() const;
+  double sum() const;
+
 protected:
   void _allocate() override;
   void _deallocate() override;
@@ -247,6 +253,7 @@ public:
 
 protected:
   std::vector<double, Eigen::aligned_allocator<double>> _eigenMatrix;
+
 private:
   Id _maxSize;
 };

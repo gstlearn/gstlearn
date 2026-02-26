@@ -304,7 +304,10 @@ void MatrixDense::addMat(const AMatrix& y, double cx, double cy)
   }
 }
 
-double MatrixDense::sum() const { return eigenMat().sum(); }
+double MatrixDense::sum() const
+{
+  return eigenMat().sum();
+}
 
 void MatrixDense::prodMatMatInPlace(const AMatrix* x,
                                     const AMatrix* y,
@@ -339,20 +342,20 @@ void MatrixDense::prodMatMatInPlace(const AMatrix* x,
     }
     else
     {
-      
+
       if (transposeY)
       {
         resize(xm->getNRows(), ym->getNRows());
         auto a = eigenMat();
         auto b = xm->eigenMat();
-        a = b * ym->eigenMat().transpose();
+        a      = b * ym->eigenMat().transpose();
       }
       else
       {
         resize(xm->getNRows(), ym->getNCols());
         auto a = eigenMat();
         auto b = xm->eigenMat();
-        a = b * ym->eigenMat();
+        a      = b * ym->eigenMat();
       }
     }
   }
@@ -871,4 +874,17 @@ void MatrixDense::sum(const MatrixDense* mat1,
   mat3->eigenMat().noalias() = mat1->eigenMat() + mat2->eigenMat();
 }
 
-} // namespace gstlrn
+/*! New methodes for operator overloading */
+std::unique_ptr<AMatrix> MatrixDense::addCst(double a) const
+{
+  auto result = std::make_unique<MatrixDense>(*this);
+  result->addScalar(a);
+  return result;
+}
+AMatrix& MatrixDense::addCstInPlace(double a)
+{
+  addScalar(a);
+  return *this;
+}
+
+}; // namespace gstlrn

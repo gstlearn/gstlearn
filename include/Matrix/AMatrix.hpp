@@ -92,6 +92,10 @@ public:
   /*! Divide a Matrix column-wise */
   virtual void divideColumn(const VectorDouble& vec) = 0;
 
+  /*! New methods for operator overloading */
+  virtual AMatrix& addCstInPlace(double a)                = 0;
+  virtual std::unique_ptr<AMatrix> addCst(double a) const = 0;
+
   /*! Check if the matrix is (non empty) square */
   virtual bool isSquare(bool printWhyNot = false) const;
   /*! Check if the input matrix is (non empty and square) symmetric */
@@ -238,6 +242,24 @@ public:
   double operator()(Id row, Id col) const { return getValue(row, col); }
   /*! Set value operator */
   double& operator()(Id row, Id col) { return _getValueRef(row, col); }
+
+  // Addition d'une constante
+  AMatrix& operator+=(double a)
+  {
+    return this->addCstInPlace(a);
+  }
+  AMatrix& operator-=(double a)
+  {
+    return this->addCstInPlace(-a);
+  }
+  std::unique_ptr<AMatrix> operator+(double a) const
+  {
+    return this->addCst(a);
+  }
+  std::unique_ptr<AMatrix> operator-(double a) const
+  {
+    return this->addCst(-a);
+  }
 #endif
 
 protected:

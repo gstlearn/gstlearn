@@ -984,31 +984,30 @@ VectorInt MatrixSparse::getNonZeroCols(Id irow) const
   VectorInt cols;
   for (EigenSparseMatrix::InnerIterator it(eigenMat(), irow); it; ++it)
   {
-   cols.push_back(it.index());
+    cols.push_back(it.index());
   }
   return cols;
 }
 
 VectorInt MatrixSparse::getNonZeroRows(Id icol) const
 {
-    if (!_isColumnValid(icol)) 
-    {
-      return  VectorInt();
-    }
-    VectorInt rows;
-    
-    // On force la création d'une matrice RowMajor (C'est ICI que la copie a lieu)
-    // Eigen va réorganiser les données en mémoire.
-    Eigen::SparseMatrix<double, Eigen::RowMajor> rowMat = eigenMat();
+  if (!_isColumnValid(icol))
+  {
+    return VectorInt();
+  }
+  VectorInt rows;
 
-    // Maintenant, l'itérateur fonctionne car les lignes sont contiguës
-    for (Eigen::SparseMatrix<double, Eigen::RowMajor>::InnerIterator it(rowMat, icol); it; ++it)
-    {
-        rows.push_back(it.index());
-    }
+  // On force la création d'une matrice RowMajor (C'est ICI que la copie a lieu)
+  // Eigen va réorganiser les données en mémoire.
+  Eigen::SparseMatrix<double, Eigen::RowMajor> rowMat = eigenMat();
 
-    return rows;
+  // Maintenant, l'itérateur fonctionne car les lignes sont contiguës
+  for (Eigen::SparseMatrix<double, Eigen::RowMajor>::InnerIterator it(rowMat, icol); it; ++it)
+  {
+    rows.push_back(it.index());
+  }
 
+  return rows;
 }
 
 MatrixSparse* createFromAnyMatrix(const AMatrix* matin)
@@ -1312,4 +1311,20 @@ void MatrixSparse::forceDimension(Id maxRows, Id maxCols)
     _setNCols(maxCols);
   }
 }
-} // namespace gstlrn
+
+/*! New methodes for operator overloading */
+std::unique_ptr<AMatrix> MatrixSparse::addCst(double a) const
+{
+  auto result = std::make_unique<MatrixSparse>(*this);
+  result->addScalar(a);
+  return result;
+}
+
+AMatrix& MatrixSparse::addCstInPlace(double a)
+{
+  addScalar(a);
+  return *this;
+}
+
+}; // namespace gstlrn
+// namespace gstlrn
