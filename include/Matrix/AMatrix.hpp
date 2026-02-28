@@ -21,6 +21,8 @@ namespace gstlrn
 
 class NF_Triplet;
 class EOperator;
+class MatrixDense;
+class MatrixSparse;
 
 /// TODO : Transform into template for storing something else than double
 
@@ -93,8 +95,32 @@ public:
   virtual void divideColumn(const VectorDouble& vec) = 0;
 
   /*! New methods for operator overloading */
+  virtual std::unique_ptr<AMatrix> cloneUniquePtr() const = 0;
   virtual AMatrix& addCstInPlace(double a)                = 0;
   virtual std::unique_ptr<AMatrix> addCst(double a) const = 0;
+
+  template<typename T>
+  static void addCstT(T& res, const T& other, double cst)
+  {
+    static_assert(std::is_same_v<T, AMatrix> ||
+                    std::is_same_v<T, MatrixDense> ||
+                    std::is_same_v<T, MatrixSparse>,
+                  "Invalid type for Matrix addition (template method). Only MatrixDense and MatrixSparse are allowed");
+    res = other;
+    res.addCstInPlace(cst);
+  }
+
+  template<typename T>
+  static T& addCstInPlaceT(T& res, const T& other, double cst)
+  {
+    static_assert(std::is_same_v<T, AMatrix> ||
+                    std::is_same_v<T, MatrixDense> ||
+                    std::is_same_v<T, MatrixSparse>,
+                  "Invalid type for Matrix addition (template method). Only MatrixDense and MatrixSparse are allowed");
+    res = other;
+    res.addCstInPlace(cst);
+    return res;
+  }
 
   /*! Check if the matrix is (non empty) square */
   virtual bool isSquare(bool printWhyNot = false) const;
@@ -246,19 +272,27 @@ public:
   // Addition d'une constante
   AMatrix& operator+=(double a)
   {
-    return this->addCstInPlace(a);
+    addCstT(*this, *this, a);
+    return *this;
   }
   AMatrix& operator-=(double a)
   {
-    return this->addCstInPlace(-a);
+    addCstT(*this, *this, -a);
+    return *this;
   }
+
   std::unique_ptr<AMatrix> operator+(double a) const
   {
-    return this->addCst(a);
+    auto res = cloneUniquePtr();
+    addCstInPlaceT(*res, *this, a);
+    return res;
   }
+
   std::unique_ptr<AMatrix> operator-(double a) const
   {
-    return this->addCst(-a);
+    auto res = cloneUniquePtr();
+    addCstInPlaceT(*res, *this, -a);
+    return res;
   }
 #endif
 

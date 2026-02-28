@@ -151,6 +151,10 @@ public:
   NF_Triplet getMatrixToTriplet(Id shiftRow = 0, Id shiftCol = 0) const override;
 
   /*! New methods for operator overloading */
+  std::unique_ptr<AMatrix> cloneUniquePtr() const override
+  {
+    return std::make_unique<MatrixSparse>(*this);
+  }
   AMatrix& addCstInPlace(double a) override;
   std::unique_ptr<AMatrix> addCst(double a) const override;
 

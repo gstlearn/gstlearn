@@ -68,6 +68,7 @@ public:
   bool isDense() const override { return true; }
   /*! Returns if the current matrix is Sparse */
   bool isSparse() const override { return false; }
+
   /*! Get the value from a matrix cell */
   double getValue(Id irow, Id icol) const override;
   /*! Set the value for in a matrix cell */
@@ -77,10 +78,14 @@ public:
                 Id icol,
                 const EOperator& oper,
                 double value) override;
+  /*! Extract a Column */
+  VectorDouble getColumn(Id icol) const override;
   /*! Set the contents of a Column */
   void setColumn(Id icol, const VectorDouble& tab) override;
   /*! Set the contents of a Column to a constant value */
   void setColumnToConstant(Id icol, double value) override;
+  /*! Extract a Row */
+  VectorDouble getRow(Id irow) const override;
   /*! Set the contents of a Row */
   void setRow(Id irow, const VectorDouble& tab) override;
   /*! Set the contents of a Row to a constant value*/
@@ -89,14 +94,13 @@ public:
   void setDiagonal(const VectorDouble& tab) override;
   /*! Set the contents of the (main) Diagonal to a constant value */
   void setDiagonalToConstant(double value = 1.) override;
+
   /*! Add a value to each matrix component */
   void addScalar(double v) override;
   /*! Add value to matrix diagonal */
   void addScalarDiag(double v) override;
   /*! Multiply each matrix component by a value */
   void prodScalar(double v) override;
-  /*! Set all the values of the Matrix at once */
-  void fill(double value) override;
   /*! Multiply a Matrix row-wise */
   void multiplyRow(const VectorDouble& vec) override;
   /*! Multiply a Matrix column-wise */
@@ -105,14 +109,12 @@ public:
   void divideRow(const VectorDouble& vec) override;
   /*! Divide a Matrix column-wise */
   void divideColumn(const VectorDouble& vec) override;
+  /*! Set all the values of the Matrix at once */
+  void fill(double value) override;
 
   /*! Say if the matrix must be symmetric */
   bool mustBeSymmetric() const override { return false; }
 
-  /*! Extract a Row */
-  VectorDouble getRow(Id irow) const override;
-  /*! Extract a Column */
-  VectorDouble getColumn(Id icol) const override;
   /*! Multiply matrix 'x' by matrix 'y' and store the result in 'this' */
   void prodMatMatInPlace(const AMatrix* x,
                          const AMatrix* y,
@@ -120,12 +122,15 @@ public:
                          bool transposeY = false) override;
 
   /*! New methods for operator overloading */
+  std::unique_ptr<AMatrix> cloneUniquePtr() const override
+  {
+    return std::make_unique<MatrixDense>(*this);
+  }
   AMatrix& addCstInPlace(double a) override;
   std::unique_ptr<AMatrix> addCst(double a) const override;
 
   template<bool transposeX, bool transposeY>
-  void prodMatMatNoCheck(const MatrixDense& x,
-                         const MatrixDense& y)
+  void prodMatMatNoCheck(const MatrixDense& x, const MatrixDense& y)
   {
     if constexpr (transposeX && transposeY)
     {
@@ -164,11 +169,7 @@ public:
                          const AMatrix* mat3 = nullptr) override;
   /*! Add a matrix (multiplied by a constant) */
   void addMat(const AMatrix& y, double cx = 1., double cy = 1.) override;
-  void addMatNoCheck(const MatrixDense& y, const double cx = 1., const double cy = 1.)
-  {
-    eigenMat() *= cx;
-    eigenMat().noalias() += cy * y.eigenMat();
-  }
+  void addMatNoCheck(const MatrixDense& y, const double cx = 1., const double cy = 1.);
 
   Id invert2(MatrixDense& res) const;
   void unsample(const AMatrix* A,
@@ -207,7 +208,7 @@ public:
   static void sum(const MatrixDense* mat1,
                   const MatrixDense* mat2,
                   MatrixDense* mat3);
-#endif // !SWIG
+#endif
   double sum() const;
 
 protected:

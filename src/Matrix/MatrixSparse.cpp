@@ -116,6 +116,15 @@ void MatrixSparse::resetFromTriplet(const NF_Triplet& NF_T)
   _setNCols(eigenMat().cols());
 }
 
+/**
+ * @brief Fill a sparse matrix with random values, using a given seed and a percentage of zero values
+ *
+ * @param seed Seed
+ * @param zeroPercent Percentage of zero values (between 0 and 1)
+ *
+ * @remarks The method also ensures that the last element of the matrix (at position [nrow-1, ncol-1])
+ * is non-zero
+ */
 void MatrixSparse::fillRandom(Id seed, double zeroPercent)
 {
   law_set_random_seed(seed);
@@ -129,7 +138,7 @@ void MatrixSparse::fillRandom(Id seed, double zeroPercent)
       if (law_uniform(0., 1.) < zeroPercent) continue;
       NF_T.add(irow, icol, law_gaussian());
     }
-  NF_T.force(nrow, ncol);
+  NF_T.add(nrow - 1, ncol - 1, law_gaussian());
   resetFromTriplet(NF_T);
 }
 
