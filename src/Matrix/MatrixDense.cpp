@@ -304,6 +304,12 @@ void MatrixDense::addMat(const AMatrix& y, double cx, double cy)
   }
 }
 
+void MatrixDense::addMatNoCheck(const MatrixDense& y, const double cx, const double cy)
+{
+  eigenMat() *= cx;
+  eigenMat().noalias() += cy * y.eigenMat();
+}
+
 double MatrixDense::sum() const
 {
   return eigenMat().sum();
@@ -885,6 +891,18 @@ AMatrix& MatrixDense::addCstInPlace(double a)
 {
   addScalar(a);
   return *this;
+}
+void MatrixDense::addCstGeneral(AMatrix& res, const AMatrix& other, double cst) const
+{
+  if (isZero(cst))
+  {
+    res = other;
+    return;
+  }
+
+  auto* resDense               = dynamic_cast<MatrixDense*>(&res);
+  const auto* otherDense       = dynamic_cast<const MatrixDense*>(&other);
+  resDense->eigenMat().array() = otherDense->eigenMat().array() + cst;
 }
 
 }; // namespace gstlrn

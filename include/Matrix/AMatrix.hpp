@@ -95,9 +95,9 @@ public:
   virtual void divideColumn(const VectorDouble& vec) = 0;
 
   /*! New methods for operator overloading */
-  virtual std::unique_ptr<AMatrix> cloneUniquePtr() const = 0;
-  virtual AMatrix& addCstInPlace(double a)                = 0;
-  virtual std::unique_ptr<AMatrix> addCst(double a) const = 0;
+  virtual AMatrix& addCstInPlace(double a)                                         = 0;
+  virtual std::unique_ptr<AMatrix> addCst(double a) const                          = 0;
+  virtual void addCstGeneral(AMatrix& res, const AMatrix& other, double cst) const = 0;
 
   template<typename T>
   static void addCstT(T& res, const T& other, double cst)
@@ -107,7 +107,10 @@ public:
                     std::is_same_v<T, MatrixSparse>,
                   "Invalid type for Matrix addition (template method). Only MatrixDense and MatrixSparse are allowed");
     res = other;
-    res.addCstInPlace(cst);
+    static_cast<AMatrix&>(res).addCstGeneral(
+      static_cast<AMatrix&>(res),
+      static_cast<const AMatrix&>(other),
+      cst);
   }
 
   template<typename T>
@@ -118,7 +121,10 @@ public:
                     std::is_same_v<T, MatrixSparse>,
                   "Invalid type for Matrix addition (template method). Only MatrixDense and MatrixSparse are allowed");
     res = other;
-    res.addCstInPlace(cst);
+    static_cast<AMatrix&>(res).addCstGeneral(
+      static_cast<AMatrix&>(res),
+      static_cast<const AMatrix&>(other),
+      cst);
     return res;
   }
 
@@ -268,32 +274,6 @@ public:
   double operator()(Id row, Id col) const { return getValue(row, col); }
   /*! Set value operator */
   double& operator()(Id row, Id col) { return _getValueRef(row, col); }
-
-  // Addition d'une constante
-  AMatrix& operator+=(double a)
-  {
-    addCstT(*this, *this, a);
-    return *this;
-  }
-  AMatrix& operator-=(double a)
-  {
-    addCstT(*this, *this, -a);
-    return *this;
-  }
-
-  std::unique_ptr<AMatrix> operator+(double a) const
-  {
-    auto res = cloneUniquePtr();
-    addCstInPlaceT(*res, *this, a);
-    return res;
-  }
-
-  std::unique_ptr<AMatrix> operator-(double a) const
-  {
-    auto res = cloneUniquePtr();
-    addCstInPlaceT(*res, *this, -a);
-    return res;
-  }
 #endif
 
 protected:

@@ -56,7 +56,16 @@ int main(int argc, char* argv[])
 
   auto M3 = M1 + 10.;
   message("After: M3 = M1 + 10 (operator +)\n");
-  M3->display();
+  M3.display();
+
+  // Testing the operators
+  MS1 += 10.;
+  message("After: MS1 += 10. (operator +=)\n");
+  MS1.display();
+
+  auto MS3 = MS1 + 10.;
+  message("After: MS3 = MS1 + 10 (operator +)\n");
+  MS3.display();
 
   return 0;
 }

@@ -1334,6 +1334,21 @@ AMatrix& MatrixSparse::addCstInPlace(double a)
   addScalar(a);
   return *this;
 }
+void MatrixSparse::addCstGeneral(AMatrix& res, const AMatrix& other, double cst) const
+{
+  if (isZero(cst))
+  {
+    res = other;
+    return;
+  }
 
+  // tentative de cast vers AMatrixSparse
+  auto* resSparse         = dynamic_cast<MatrixSparse*>(&res);
+  const auto* otherSparse = dynamic_cast<const MatrixSparse*>(&other);
+
+  *resSparse = *otherSparse;
+  for (Id k = 0; k < resSparse->eigenMat().outerSize(); ++k)
+    for (EigenSparseMatrix::InnerIterator it(resSparse->eigenMat(), k); it; ++it)
+      it.valueRef() += cst;
+}
 }; // namespace gstlrn
-// namespace gstlrn

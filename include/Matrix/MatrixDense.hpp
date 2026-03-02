@@ -122,12 +122,9 @@ public:
                          bool transposeY = false) override;
 
   /*! New methods for operator overloading */
-  std::unique_ptr<AMatrix> cloneUniquePtr() const override
-  {
-    return std::make_unique<MatrixDense>(*this);
-  }
   AMatrix& addCstInPlace(double a) override;
   std::unique_ptr<AMatrix> addCst(double a) const override;
+  void addCstGeneral(AMatrix& res, const AMatrix& other, double cst) const override;
 
   template<bool transposeX, bool transposeY>
   void prodMatMatNoCheck(const MatrixDense& x, const MatrixDense& y)
@@ -237,6 +234,33 @@ private:
 public:
   constvect getViewOnColumn(Id icol) const;
   vect getViewOnColumnModify(Id icol);
+
+  // Operators overloading
+  MatrixDense& operator+=(double a)
+  {
+    addCstT(*this, *this, a);
+    return *this;
+  }
+
+  MatrixDense& operator-=(double a)
+  {
+    addCstT(*this, *this, -a);
+    return *this;
+  }
+
+  MatrixDense operator+(double a) const
+  {
+    MatrixDense res;
+    addCstT(res, *this, a);
+    return res;
+  }
+
+  MatrixDense operator-(double a) const
+  {
+    MatrixDense res;
+    addCstT(res, *this, -a);
+    return res;
+  }
 #endif
 
 #ifndef SWIG
