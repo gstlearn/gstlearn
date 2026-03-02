@@ -1322,19 +1322,20 @@ void MatrixSparse::forceDimension(Id maxRows, Id maxCols)
 }
 
 /*! New methodes for operator overloading */
-std::unique_ptr<AMatrix> MatrixSparse::addCst(double a) const
+MatrixSparse MatrixSparse::addCst(double a) const
 {
-  auto result = std::make_unique<MatrixSparse>(*this);
-  result->addScalar(a);
+  auto result(*this);
+  result.addScalar(a);
   return result;
 }
 
-AMatrix& MatrixSparse::addCstInPlace(double a)
+MatrixSparse& MatrixSparse::addCstInPlace(double a)
 {
   addScalar(a);
   return *this;
 }
-void MatrixSparse::addCstGeneral(AMatrix& res, const AMatrix& other, double cst) const
+
+void MatrixSparse::addCstGeneral(MatrixSparse& res, const MatrixSparse& other, double cst)
 {
   if (isZero(cst))
   {
@@ -1342,13 +1343,10 @@ void MatrixSparse::addCstGeneral(AMatrix& res, const AMatrix& other, double cst)
     return;
   }
 
-  // tentative de cast vers AMatrixSparse
-  auto* resSparse         = dynamic_cast<MatrixSparse*>(&res);
-  const auto* otherSparse = dynamic_cast<const MatrixSparse*>(&other);
-
-  *resSparse = *otherSparse;
-  for (Id k = 0; k < resSparse->eigenMat().outerSize(); ++k)
-    for (EigenSparseMatrix::InnerIterator it(resSparse->eigenMat(), k); it; ++it)
+  res = other;
+  for (Id k = 0; k < res.eigenMat().outerSize(); ++k)
+    for (EigenSparseMatrix::InnerIterator it(res.eigenMat(), k); it; ++it)
       it.valueRef() += cst;
 }
+
 }; // namespace gstlrn

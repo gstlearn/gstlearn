@@ -122,9 +122,9 @@ public:
                          bool transposeY = false) override;
 
   /*! New methods for operator overloading */
-  AMatrix& addCstInPlace(double a) override;
-  std::unique_ptr<AMatrix> addCst(double a) const override;
-  void addCstGeneral(AMatrix& res, const AMatrix& other, double cst) const override;
+  MatrixDense& addCstInPlace(double a);
+  MatrixDense addCst(double a) const;
+  static void addCstGeneral(MatrixDense& res, const MatrixDense& other, double cst);
 
   template<bool transposeX, bool transposeY>
   void prodMatMatNoCheck(const MatrixDense& x, const MatrixDense& y)

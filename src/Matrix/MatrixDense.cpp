@@ -881,18 +881,20 @@ void MatrixDense::sum(const MatrixDense* mat1,
 }
 
 /*! New methodes for operator overloading */
-std::unique_ptr<AMatrix> MatrixDense::addCst(double a) const
+MatrixDense MatrixDense::addCst(double a) const
 {
-  auto result = std::make_unique<MatrixDense>(*this);
-  result->addScalar(a);
+  auto result(*this);
+  result.addScalar(a);
   return result;
 }
-AMatrix& MatrixDense::addCstInPlace(double a)
+
+MatrixDense& MatrixDense::addCstInPlace(double a)
 {
   addScalar(a);
   return *this;
 }
-void MatrixDense::addCstGeneral(AMatrix& res, const AMatrix& other, double cst) const
+
+void MatrixDense::addCstGeneral(MatrixDense& res, const MatrixDense& other, double cst)
 {
   if (isZero(cst))
   {
@@ -900,9 +902,7 @@ void MatrixDense::addCstGeneral(AMatrix& res, const AMatrix& other, double cst) 
     return;
   }
 
-  auto* resDense               = dynamic_cast<MatrixDense*>(&res);
-  const auto* otherDense       = dynamic_cast<const MatrixDense*>(&other);
-  resDense->eigenMat().array() = otherDense->eigenMat().array() + cst;
+  res.eigenMat().array() = other.eigenMat().array() + cst;
 }
 
 }; // namespace gstlrn

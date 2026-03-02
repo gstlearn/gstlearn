@@ -47,7 +47,7 @@ int main(int argc, char* argv[])
 
   auto M2 = M1.addCst(10.);
   message("After: M2 = M1 + 10 (class method: addCst)\n");
-  M2->display();
+  M2.display();
 
   // Testing the operators
   M1 += 10.;

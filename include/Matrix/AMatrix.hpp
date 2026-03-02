@@ -21,8 +21,6 @@ namespace gstlrn
 
 class NF_Triplet;
 class EOperator;
-class MatrixDense;
-class MatrixSparse;
 
 /// TODO : Transform into template for storing something else than double
 
@@ -95,37 +93,14 @@ public:
   virtual void divideColumn(const VectorDouble& vec) = 0;
 
   /*! New methods for operator overloading */
-  virtual AMatrix& addCstInPlace(double a)                                         = 0;
-  virtual std::unique_ptr<AMatrix> addCst(double a) const                          = 0;
-  virtual void addCstGeneral(AMatrix& res, const AMatrix& other, double cst) const = 0;
-
   template<typename T>
   static void addCstT(T& res, const T& other, double cst)
   {
-    static_assert(std::is_same_v<T, AMatrix> ||
-                    std::is_same_v<T, MatrixDense> ||
-                    std::is_same_v<T, MatrixSparse>,
-                  "Invalid type for Matrix addition (template method). Only MatrixDense and MatrixSparse are allowed");
+    static_assert(std::is_base_of_v<AMatrix, T>,
+                  "Invalid type for Matrix addition (template method). "
+                  "Only MatrixDense and MatrixSparse are allowed");
     res = other;
-    static_cast<AMatrix&>(res).addCstGeneral(
-      static_cast<AMatrix&>(res),
-      static_cast<const AMatrix&>(other),
-      cst);
-  }
-
-  template<typename T>
-  static T& addCstInPlaceT(T& res, const T& other, double cst)
-  {
-    static_assert(std::is_same_v<T, AMatrix> ||
-                    std::is_same_v<T, MatrixDense> ||
-                    std::is_same_v<T, MatrixSparse>,
-                  "Invalid type for Matrix addition (template method). Only MatrixDense and MatrixSparse are allowed");
-    res = other;
-    static_cast<AMatrix&>(res).addCstGeneral(
-      static_cast<AMatrix&>(res),
-      static_cast<const AMatrix&>(other),
-      cst);
-    return res;
+    res.addCstGeneral(res, other, cst);
   }
 
   /*! Check if the matrix is (non empty) square */
