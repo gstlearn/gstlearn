@@ -132,13 +132,18 @@ void MatrixSparse::fillRandom(Id seed, double zeroPercent)
   auto nrow = getNRows();
   auto ncol = getNCols();
   NF_Triplet NF_T;
+  bool lastElementNonZero = false;
   for (Id irow = 0; irow < nrow; irow++)
     for (Id icol = 0; icol < ncol; icol++)
     {
       if (law_uniform(0., 1.) < zeroPercent) continue;
       NF_T.add(irow, icol, law_gaussian());
+      if (irow == nrow - 1 && icol == ncol - 1) lastElementNonZero = true;
     }
-  NF_T.add(nrow - 1, ncol - 1, law_gaussian());
+  if (!lastElementNonZero)
+  {
+    NF_T.add(nrow - 1, ncol - 1, law_gaussian());
+  }
   resetFromTriplet(NF_T);
 }
 
