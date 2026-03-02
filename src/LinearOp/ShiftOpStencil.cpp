@@ -91,12 +91,11 @@ Id ShiftOpStencil::_addToDest(const constvect inv, vect outv) const
   const Indirection& indirect = _mesh->getGridIndirect();
 
   auto nbthread = static_cast<I32>(OptCustom::query("ompthreads", 1));
-  omp_set_num_threads(nbthread);
 
   if (!indirect.isDefined())
   {
     // Use the fast option when no selection is defined on the Grid
-#pragma omp parallel for
+#pragma omp parallel for num_threads(nbthread)
     for (Id ic = 0; ic < size; ic++)
     {
       double total = 0.;
@@ -121,7 +120,7 @@ Id ShiftOpStencil::_addToDest(const constvect inv, vect outv) const
     VectorInt center(ndim);
     VectorInt local(ndim);
 
-#pragma omp parallel for firstprivate(center, local)
+#pragma omp parallel for firstprivate(center, local) num_threads(nbthread)
     for (Id ic = 0; ic < size; ic++)
     {
       double total = 0.;
