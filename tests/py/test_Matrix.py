@@ -74,21 +74,6 @@ MSP.display()
 # Creating a Diagonal matrix (from M)
 cst = gl.law_gaussian()
 
-#
-# Adding a constant to the diagonal of a matrix
-#
-addendum = 1.432
-
-gl.mestitle(0, "Adding a constant value to the diagonal of a matrix")
-reset_to_initial_contents(M, MRR, MSG, MSS, MSP)
-
-MRR.addScalarDiag(addendum)
-MSG.addScalarDiag(addendum)
-print("Are results for MRR and MSG similar: ", MRR.isSame(MSG))
-MSS.addScalarDiag(addendum)
-print("Are results for MRR and MSS similar: ", MRR.isSame(MSS))
-MSP.addScalarDiag(addendum)
-print("Are results for MRR and MSP similar: ", MRR.isSame(MSP))
 
 #
 # Multiplying the matrix by a constant
@@ -105,20 +90,6 @@ MSS.prodScalar(multiply)
 print("Are results for MRR and MSS similar: ", MRR.isSame(MSS))
 MSP.prodScalar(multiply)
 print("Are results for MRR and MSP similar: ", MRR.isSame(MSP))
-
-#
-# Adding a constant to a matrix
-# Note: This does not make sense for sparse or diagonal matrices
-#
-
-gl.mestitle(0, "Adding a constant value to the whole matrix")
-reset_to_initial_contents(M, MRR, MSG, MSS, MSP)
-
-MRR.addScalar(addendum)
-MSG.addScalar(addendum)
-print("Are results for MRR and MSG similar: ", MRR.isSame(MSG))
-MSS.addScalar(addendum)
-print("Are results for MRR and MSS similar: ", MRR.isSame(MSS))
 
 #
 # Linear combination

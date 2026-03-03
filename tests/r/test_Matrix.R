@@ -87,22 +87,6 @@ err = MSP$display()
 cst = rnorm(n = 1, mean = 0, sd = 1.0)
 
 #
-# Adding a constant to the diagonal of a matrix
-#
-addendum = 1.432
-
-err = mestitle(0,"Adding a constant value to the diagonal of a matrix")
-err = reset_to_initial_contents(M, MRR, MSG, MSS, MSP)
-
-err = MRR$addScalarDiag(addendum)
-err = MSG$addScalarDiag(addendum)
-print(paste0("Are results for MRR and MSG similar: ", MRR$isSame(MSG)))
-err = MSS$addScalarDiag(addendum)
-print(paste0("Are results for MRR and MSS similar: ", MRR$isSame(MSS)))
-err = MSP$addScalarDiag(addendum)
-print(paste0("Are results for MRR and MSP similar: ", MRR$isSame(MSP)))
-
-#
 # Multiplying the matrix by a constant
 #
 multiply = 3.2
@@ -117,19 +101,6 @@ err = MSS$prodScalar(multiply)
 print(paste0("Are results for MRR and MSS similar: ", MRR$isSame(MSS)))
 err = MSP$prodScalar(multiply)
 print(paste0("Are results for MRR and MSP similar: ", MRR$isSame(MSP)))
-
-#
-# Adding a constant to a matrix
-# Note: This does not make sense for sparse or diagonal matrices
-#
-err = mestitle(0,"Adding a constant value to the whole matrix")
-err = reset_to_initial_contents(M, MRR, MSG, MSS, MSP)
-
-err = MRR$addScalar(addendum)
-err = MSG$addScalar(addendum)
-print(paste0("Are results for MRR and MSG similar: ", MRR$isSame(MSG)))
-err = MSS$addScalar(addendum)
-print(paste0("Are results for MRR and MSS similar: ", MRR$isSame(MSS)))
 
 #
 # Linear combination

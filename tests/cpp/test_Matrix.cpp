@@ -166,27 +166,6 @@ int main(int argc, char* argv[])
   message("Matrix MSP\n");
   MSP->display();
 
-  //////////////////////////////////////////////////////
-  // Adding a constant value to the diagonal of a matrix
-  //////////////////////////////////////////////////////
-
-  double addendum = 1.432;
-
-  mestitle(0, "Adding a constant value to the diagonal of a matrix");
-  reset_to_initial_contents(M, MRR, MSG, MSS, MSP);
-  message("Reference MRR (before addition)\n");
-  MRR.display();
-  MRR.addScalarDiag(addendum);
-  message("Reference MRR (after addition)\n");
-  MRR.display();
-
-  MSG.addScalarDiag(addendum);
-  message("Are results for MRR and MSG similar: %d\n", static_cast<Id>(MRR.isSame(MSG)));
-  MSS.addScalarDiag(addendum);
-  message("Are results for MRR and MSS similar: %d\n", static_cast<Id>(MRR.isSame(MSS)));
-  MSP->addScalarDiag(addendum);
-  message("Are results for MRR and MSP similar: %d\n", static_cast<Id>(MRR.isSame(*MSP)));
-
   ///////////////////////////////////////
   // Multiplying the matrix by a constant
   ///////////////////////////////////////
@@ -207,24 +186,6 @@ int main(int argc, char* argv[])
   message("Are results for MRR and MSS similar: %d\n", static_cast<Id>(MRR.isSame(MSS)));
   MSP->prodScalar(multiply);
   message("Are results for MRR and MSP similar: %d\n", static_cast<Id>(MRR.isSame(*MSP)));
-
-  /////////////////////////////////////////////////////////////////
-  // Adding a constant to a matrix
-  // Note: This does not make sense for sparse or diagonal matrices
-  /////////////////////////////////////////////////////////////////
-
-  mestitle(0, "Adding a constant value to the whole matrix");
-  reset_to_initial_contents(M, MRR, MSG, MSS, MSP);
-  message("Reference MRR (before addition)\n");
-  MRR.display();
-  MRR.addScalar(addendum);
-  message("Reference MRR (after addition)\n");
-  MRR.display();
-
-  MSG.addScalar(addendum);
-  message("Are results for MRR and MSG similar: %d\n", static_cast<Id>(MRR.isSame(MSG)));
-  MSS.addScalar(addendum);
-  message("Are results for MRR and MSS similar: %d\n", static_cast<Id>(MRR.isSame(MSS)));
 
   /////////////////////
   // Linear combination
@@ -379,16 +340,6 @@ int main(int argc, char* argv[])
   MSG.setRow(irow0, myRow);
   MSG.display();
 
-  double vadd0 = 12.;
-  message("Adding constant %lf to all terms of matrix\n", vadd0);
-  MSG.addScalar(vadd0);
-  MSG.display();
-
-  double vadddiag0 = -23.;
-  message("Adding constant %lf to diagonal terms of matrix\n", vadddiag0);
-  MSG.addScalarDiag(vadddiag0);
-  MSG.display();
-
   double vprod0 = 1.2;
   message("Product of all terms of matrix by constant %lf\n", vprod0);
   MSG.prodScalar(vprod0);
@@ -475,14 +426,6 @@ int main(int argc, char* argv[])
   message("Setting terms of Row (%d) to a vector (sequence from 1 to %d)\n", irow0, ncol);
   myRow = VH::sequenceVD(1., static_cast<double>(ncol));
   MSP->setRow(irow0, myRow);
-  MSP->display();
-
-  message("Adding constant %lf to all non-zero terms of matrix\n", vadd0);
-  MSP->addScalar(vadd0);
-  MSP->display();
-
-  message("Adding constant %lf to diagonal non-zero terms of matrix\n", vadddiag0);
-  MSP->addScalarDiag(vadddiag0);
   MSP->display();
 
   message("Product of all non-zero terms of matrix by constant %lf\n", vprod0);

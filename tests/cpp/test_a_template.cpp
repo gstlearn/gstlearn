@@ -33,6 +33,11 @@ int main(int argc, char* argv[])
   message("Initial Sparse Matrix MS1\n");
   MS1.display();
 
+  ////////////////////////////////
+  // Testing the free functions //
+  ////////////////////////////////
+  mestitle(0, " Testing free functions");
+
   AMatrix::addCstT(M1, M1, 10.);
   message("After: M1 = M1 + 10 (free method: addCstT)\n");
   M1.display();
@@ -41,31 +46,55 @@ int main(int argc, char* argv[])
   message("After: MS1 = MS1 + 10. (free method: addCstT)\n");
   MS1.display();
 
+  AMatrix::prodCstT(M1, M1, 2.);
+  message("After: M1 = M1 * 2 (free method: prodCstT)\n");
+  M1.display();
+
+  AMatrix::prodCstT(MS1, MS1, 2.);
+  message("After: MS1 = MS1 * 2. (free method: prodCstT)\n");
+  MS1.display();
+
+  //////////////////////////////////
+  // Testing the member functions //
+  //////////////////////////////////
+  mestitle(0, " Testing member functions");
+
   M1.addCstInPlace(10.);
   message("After: M1 += 10. (class method: addCstInPlace)\n");
   M1.display();
 
-  auto M2 = M1.addCst(10.);
-  message("After: M2 = M1 + 10 (class method: addCst)\n");
-  M2.display();
+  auto M1add = M1.addCst(10.);
+  message("After: M1add = M1 + 10 (class method: addCst)\n");
+  M1add.display();
 
-  // Testing the operators
+  M1.prodCstInPlace(2.);
+  message("After: M1 *= 2. (class method: prodCstInPlace)\n");
+  M1.display();
+
+  auto M1prod = M1.prodCst(2.);
+  message("After: M1prod = M1 * 2 (class method: prodCst)\n");
+  M1prod.display();
+
+  ///////////////////////////
+  // Testing the operators //
+  ///////////////////////////
+  mestitle(0, " Testing the operators");
+
   M1 += 10.;
   message("After: M1 += 10. (operator +=)\n");
   M1.display();
 
-  auto M3 = M1 + 10.;
-  message("After: M3 = M1 + 10 (operator +)\n");
-  M3.display();
+  auto M1addOp = M1 + 10.;
+  message("After: M1addOp = M1 + 10 (operator +)\n");
+  M1addOp.display();
 
-  // Testing the operators
   MS1 += 10.;
   message("After: MS1 += 10. (operator +=)\n");
   MS1.display();
 
-  auto MS3 = MS1 + 10.;
-  message("After: MS3 = MS1 + 10 (operator +)\n");
-  MS3.display();
+  auto MS1addOp = MS1 + 10.;
+  message("After: MS1addOp = MS1 + 10 (operator +)\n");
+  MS1addOp.display();
 
   return 0;
 }

@@ -75,10 +75,6 @@ public:
   virtual void setDiagonal(const VectorDouble& tab) = 0;
   /*! Set the contents of the (main) Diagonal to a constant value */
   virtual void setDiagonalToConstant(double value = 1.) = 0;
-  /*! Add a value to each matrix component */
-  virtual void addScalar(double v) = 0;
-  /*! Add value to matrix diagonal */
-  virtual void addScalarDiag(double v) = 0;
   /*! Multiply each matrix component by a value */
   virtual void prodScalar(double v) = 0;
   /*! Set all the values of the Matrix at once */
@@ -102,13 +98,34 @@ public:
     res = other;
     res.addCstGeneral(res, other, cst);
   }
+  template<typename T>
+  static void addMatT(T& res, const T& other1, const T& other2)
+  {
+    static_assert(std::is_base_of_v<AMatrix, T>,
+                  "Invalid type for Matrix addition (template method). "
+                  "Only MatrixDense and MatrixSparse are allowed");
+    res = other1;
+    res.addCstGeneral(res, other1, other2);
+  }
+  template<typename T>
+  static void prodCstT(T& res, const T& other, double cst)
+  {
+    static_assert(std::is_base_of_v<AMatrix, T>,
+                  "Invalid type for Matrix addition (template method). "
+                  "Only MatrixDense and MatrixSparse are allowed");
+    res = other;
+    res.prodCstGeneral(res, other, cst);
+  }
 
   /*! Check if the matrix is (non empty) square */
   virtual bool isSquare(bool printWhyNot = false) const;
   /*! Check if the input matrix is (non empty and square) symmetric */
   virtual bool isSymmetric(double eps = EPSILON10, bool printWhyNot = false) const;
   /*! Say if the matrix must be symmetric */
-  virtual bool mustBeSymmetric() const { return false; }
+  virtual bool mustBeSymmetric() const
+  {
+    return false;
+  }
 
   virtual void reset(Id nrows, Id ncols);
   virtual void resetFromValue(Id nrows, Id ncols, double value);
@@ -170,16 +187,28 @@ public:
   /*! Check that 'm' has the same dimensions as 'this' */
   bool isSameSize(const AMatrix& m) const;
   /*! Returns if the current matrix is Empty */
-  bool empty() const { return (_nRows == 0 || _nCols == 0); }
+  bool empty() const
+  {
+    return (_nRows == 0 || _nCols == 0);
+  }
   /*! Returns the sum of absolute difference between argument and this */
   double compare(const AMatrix& mat) const;
   /*! Returns the number of rows */
-  Id getNRows() const { return _nRows; }
+  Id getNRows() const
+  {
+    return _nRows;
+  }
   /*! Returns the number of columns */
-  Id getNCols() const { return _nCols; }
+  Id getNCols() const
+  {
+    return _nCols;
+  }
   /*! Get the total number of elements of the (full) matrix */
   /* The name has been chosen by analogy to VectorT class */
-  Id size() const { return _nRows * _nCols; }
+  Id size() const
+  {
+    return _nRows * _nCols;
+  }
 
   /*! Returns the contents of the whole matrix as a VectorDouble */
   VectorDouble getValues(bool byCol = true) const;
@@ -246,9 +275,15 @@ public:
 
 #ifndef SWIG
   /*! Get value operator */
-  double operator()(Id row, Id col) const { return getValue(row, col); }
+  double operator()(Id row, Id col) const
+  {
+    return getValue(row, col);
+  }
   /*! Set value operator */
-  double& operator()(Id row, Id col) { return _getValueRef(row, col); }
+  double& operator()(Id row, Id col)
+  {
+    return _getValueRef(row, col);
+  }
 #endif
 
 protected:
@@ -273,14 +308,23 @@ protected:
 #endif
 
   virtual bool _needToReset(Id nrows, Id ncols);
-  virtual bool _isPhysicallyPresent(Id /*irow*/, Id /*icol*/) const { return true; }
+  virtual bool _isPhysicallyPresent(Id /*irow*/, Id /*icol*/) const
+  {
+    return true;
+  }
   virtual void _setValues(const double* values, bool byCol);
 
   virtual void _clear();
   virtual bool _isNumbersValid(Id nrows, Id ncols) const;
 
-  void _setNCols(Id ncols) { _nCols = ncols; }
-  void _setNRows(Id nrows) { _nRows = nrows; }
+  void _setNCols(Id ncols)
+  {
+    _nCols = ncols;
+  }
+  void _setNRows(Id nrows)
+  {
+    _nRows = nrows;
+  }
   bool _isColumnValid(Id icol) const;
   bool _isRowValid(Id irow) const;
   bool _isIndexValid(Id irow, Id icol) const;

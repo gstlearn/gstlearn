@@ -272,17 +272,6 @@ void MatrixDense::setDiagonalToConstant(double value)
   eigenMat().diagonal() = Eigen::VectorXd::Constant(getNRows(), value);
 }
 
-void MatrixDense::addScalar(double v)
-{
-  eigenMat().array() += v;
-}
-
-void MatrixDense::addScalarDiag(double v)
-{
-  if (isZero(v)) return;
-  eigenMat().diagonal() += Eigen::VectorXd::Constant(getNRows(), v);
-}
-
 void MatrixDense::prodScalar(double v)
 {
   if (isOne(v)) return;
@@ -884,25 +873,57 @@ void MatrixDense::sum(const MatrixDense* mat1,
 MatrixDense MatrixDense::addCst(double a) const
 {
   auto result(*this);
-  result.addScalar(a);
+  addCstGeneral(result, *this, a);
+  return result;
+}
+
+MatrixDense MatrixDense::prodCst(double a) const
+{
+  auto result(*this);
+  prodCstGeneral(result, *this, a);
   return result;
 }
 
 MatrixDense& MatrixDense::addCstInPlace(double a)
 {
-  addScalar(a);
+  addCstGeneral(*this, *this, a);
   return *this;
 }
 
-void MatrixDense::addCstGeneral(MatrixDense& res, const MatrixDense& other, double cst)
+MatrixDense& MatrixDense::prodCstInPlace(double a)
+{
+  prodCstGeneral(*this, *this, a);
+  return *this;
+}
+
+void MatrixDense::addCstGeneral(MatrixDense& res,
+                                const MatrixDense& other,
+                                double cst)
 {
   if (isZero(cst))
   {
     res = other;
     return;
   }
-
   res.eigenMat().array() = other.eigenMat().array() + cst;
 }
 
+void MatrixDense::addCstGeneral(MatrixDense& res,
+                                const MatrixDense& other1,
+                                const MatrixDense& other2)
+{
+  res.eigenMat().array() = other1.eigenMat().array() + other2.eigenMat().array();
+}
+
+void MatrixDense::prodCstGeneral(MatrixDense& res,
+                                 const MatrixDense& other,
+                                 double cst)
+{
+  if (isOne(cst))
+  {
+    res = other;
+    return;
+  }
+  res.eigenMat().array() = other.eigenMat().array() * cst;
+}
 }; // namespace gstlrn

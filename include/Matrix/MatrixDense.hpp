@@ -95,10 +95,6 @@ public:
   /*! Set the contents of the (main) Diagonal to a constant value */
   void setDiagonalToConstant(double value = 1.) override;
 
-  /*! Add a value to each matrix component */
-  void addScalar(double v) override;
-  /*! Add value to matrix diagonal */
-  void addScalarDiag(double v) override;
   /*! Multiply each matrix component by a value */
   void prodScalar(double v) override;
   /*! Multiply a Matrix row-wise */
@@ -121,10 +117,15 @@ public:
                          bool transposeX = false,
                          bool transposeY = false) override;
 
-  /*! New methods for operator overloading */
+  /*! New methods overload */
   MatrixDense& addCstInPlace(double a);
+  MatrixDense& prodCstInPlace(double a);
   MatrixDense addCst(double a) const;
+  MatrixDense prodCst(double a) const;
+
   static void addCstGeneral(MatrixDense& res, const MatrixDense& other, double cst);
+  static void addCstGeneral(MatrixDense& res, const MatrixDense& other1, const MatrixDense& other2);
+  static void prodCstGeneral(MatrixDense& res, const MatrixDense& other, double cst);
 
   template<bool transposeX, bool transposeY>
   void prodMatMatNoCheck(const MatrixDense& x, const MatrixDense& y)
@@ -261,6 +262,31 @@ public:
     addCstT(res, *this, -a);
     return res;
   }
+  MatrixDense& operator*=(double a)
+  {
+    prodCstT(*this, *this, a);
+    return *this;
+  }
+
+  MatrixDense operator*(double a) const
+  {
+    MatrixDense res;
+    prodCstT(res, *this, a);
+    return res;
+  }
+  MatrixDense& operator/=(double a)
+  {
+    prodCstT(*this, *this, 1.0 / a);
+    return *this;
+  }
+
+  MatrixDense operator/(double a) const
+  {
+    MatrixDense res;
+    prodCstT(res, *this, 1.0 / a);
+    return res;
+  }
+
 #endif
 
 #ifndef SWIG

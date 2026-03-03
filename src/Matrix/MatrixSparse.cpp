@@ -555,34 +555,6 @@ Id MatrixSparse::scaleByDiag()
 
 /**
  *
- * @param v Add a scalar value to all terms of the current matrix
- */
-void MatrixSparse::addScalar(double v)
-{
-  if (isZero(v)) return;
-  for (Id k = 0; k < eigenMat().outerSize(); ++k)
-    for (EigenSparseMatrix::InnerIterator it(eigenMat(), k); it; ++it)
-      it.valueRef() += v;
-}
-
-/**
- *
- * @param v Add constant value to the diagonal of the current Matrix
- */
-void MatrixSparse::addScalarDiag(double v)
-{
-  if (isZero(v)) return;
-
-  for (Id k = 0; k < eigenMat().outerSize(); ++k)
-    for (EigenSparseMatrix::InnerIterator it(eigenMat(), k); it; ++it)
-    {
-      if (it.col() == it.row())
-        it.valueRef() += v;
-    }
-}
-
-/**
- *
  * @param v Multiply all the terms of the matrix by the scalar 'v'
  */
 void MatrixSparse::prodScalar(double v)
@@ -1330,13 +1302,26 @@ void MatrixSparse::forceDimension(Id maxRows, Id maxCols)
 MatrixSparse MatrixSparse::addCst(double a) const
 {
   auto result(*this);
-  result.addScalar(a);
+  addCstGeneral(result, *this, a);
+  return result;
+}
+
+MatrixSparse MatrixSparse::prodCst(double a) const
+{
+  auto result(*this);
+  prodCstGeneral(result, *this, a);
   return result;
 }
 
 MatrixSparse& MatrixSparse::addCstInPlace(double a)
 {
-  addScalar(a);
+  addCstGeneral(*this, *this, a);
+  return *this;
+}
+
+MatrixSparse& MatrixSparse::prodCstInPlace(double a)
+{
+  prodCstGeneral(*this, *this, a);
   return *this;
 }
 
@@ -1352,6 +1337,30 @@ void MatrixSparse::addCstGeneral(MatrixSparse& res, const MatrixSparse& other, d
   for (Id k = 0; k < res.eigenMat().outerSize(); ++k)
     for (EigenSparseMatrix::InnerIterator it(res.eigenMat(), k); it; ++it)
       it.valueRef() += cst;
+}
+
+void MatrixSparse::prodCstGeneral(MatrixSparse& res, const MatrixSparse& other, double cst)
+{
+  if (isOne(cst))
+  {
+    res = other;
+    return;
+  }
+
+  res = other;
+  for (Id k = 0; k < res.eigenMat().outerSize(); ++k)
+    for (EigenSparseMatrix::InnerIterator it(res.eigenMat(), k); it; ++it)
+      it.valueRef() *= cst;
+}
+
+void MatrixSparse::addCstGeneral(MatrixSparse& res,
+                                 const MatrixSparse& other1,
+                                 const MatrixSparse& other2)
+{
+  res = other1;
+  for (Id k = 0; k < res.eigenMat().outerSize(); ++k)
+    for (EigenSparseMatrix::InnerIterator it(res.eigenMat(), k); it; ++it)
+      it.valueRef() += other2.eigenMat().coeff(it.row(), it.col());
 }
 
 }; // namespace gstlrn

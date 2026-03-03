@@ -96,10 +96,6 @@ public:
   void setDiagonal(const VectorDouble& tab) override;
   /*! Set the contents of the (main) Diagonal to a constant value */
   void setDiagonalToConstant(double value = 1.) override;
-  /*! Add a value to each matrix component */
-  void addScalar(double v) override;
-  /*! Add value to matrix diagonal */
-  void addScalarDiag(double v) override;
   /*! Multiply each matrix component by a value */
   void prodScalar(double v) override;
   /*! Set all the values of the matrix at once */
@@ -152,8 +148,13 @@ public:
 
   /*! New methods for operator overloading */
   MatrixSparse& addCstInPlace(double a);
+  MatrixSparse& prodCstInPlace(double a);
   MatrixSparse addCst(double a) const;
+  MatrixSparse prodCst(double a) const;
+
   static void addCstGeneral(MatrixSparse& res, const MatrixSparse& other, double cst);
+  static void addCstGeneral(MatrixSparse& res, const MatrixSparse& other1, const MatrixSparse& other2);
+  static void prodCstGeneral(MatrixSparse& res, const MatrixSparse& other, double cst);
 
   MatrixSparse* getRowAsMatrixSparse(Id irow, double coeff = 1.) const;
   MatrixSparse* getColumnAsMatrixSparse(Id icol, double coeff = 1.) const;
@@ -264,6 +265,31 @@ public:
     addCstT(res, *this, -a);
     return res;
   }
+  MatrixSparse& operator*=(double a)
+  {
+    prodCstT(*this, *this, a);
+    return *this;
+  }
+
+  MatrixSparse operator*(double a) const
+  {
+    MatrixSparse res;
+    prodCstT(res, *this, a);
+    return res;
+  }
+  MatrixSparse& operator/=(double a)
+  {
+    prodCstT(*this, *this, 1.0 / a);
+    return *this;
+  }
+
+  MatrixSparse operator/(double a) const
+  {
+    MatrixSparse res;
+    prodCstT(res, *this, 1.0 / a);
+    return res;
+  }
+
 #endif
 
 protected:
