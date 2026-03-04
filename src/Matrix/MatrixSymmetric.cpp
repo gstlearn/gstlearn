@@ -52,7 +52,7 @@ MatrixSymmetric::MatrixSymmetric(const AMatrix& m)
     messerr("It has been symetrized by computing (this + this^T)/2");
     this->transposeInPlace();
     this->addMat(m);
-    this->prodScalar(0.5);
+    this->prodCst(0.5);
   }
 }
 

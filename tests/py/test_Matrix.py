@@ -83,12 +83,12 @@ multiply = 3.2
 gl.mestitle(0, "Multiplying a Matrix by a constant")
 reset_to_initial_contents(M, MRR, MSG, MSS, MSP)
 
-MRR.prodScalar(multiply)
-MSG.prodScalar(multiply)
+MRR.prodCst(multiply)
+MSG.prodCst(multiply)
 print("Are results for MRR and MSG similar: ", MRR.isSame(MSG))
-MSS.prodScalar(multiply)
+MSS.prodCst(multiply)
 print("Are results for MRR and MSS similar: ", MRR.isSame(MSS))
-MSP.prodScalar(multiply)
+MSP.prodCst(multiply)
 print("Are results for MRR and MSP similar: ", MRR.isSame(MSP))
 
 #

@@ -350,7 +350,7 @@ MatrixSparse argumentReturnMatrixSparse(Id nrows,
                                         Id seed)
 {
   MatrixSparse mat(nrows, ncols);
-  mat.fillRandom(seed, zeroPercent);
+  mat.fillRandom(zeroPercent, seed);
   mat.display();
   return mat;
 }

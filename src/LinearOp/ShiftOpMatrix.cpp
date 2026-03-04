@@ -576,7 +576,7 @@ void ShiftOpMatrix::_loadHHGrad(const AMesh* amesh,
   }
 
   Id number = amesh->getNApexPerMesh();
-  hh.prodScalar(1. / number);
+  hh.prodCst(1. / number);
 }
 
 double ShiftOpMatrix::_computeGradLogDetHH(const AMesh* amesh,
@@ -894,8 +894,8 @@ Id ShiftOpMatrix::_buildS(const AMesh* amesh, double tol)
   // Workaround for 1d
   if (ndim == 1)
   {
-    _TildeC *= 3.;
-    _S->prodScalar(2.);
+    _TildeC.multiplyCst(3.);
+    _S->prodCst(2.);
   }
 
   // Ending S construction

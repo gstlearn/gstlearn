@@ -119,13 +119,12 @@ void MatrixSparse::resetFromTriplet(const NF_Triplet& NF_T)
 /**
  * @brief Fill a sparse matrix with random values, using a given seed and a percentage of zero values
  *
- * @param seed Seed
  * @param zeroPercent Percentage of zero values (between 0 and 1)
  *
  * @remarks The method also ensures that the last element of the matrix (at position [nrow-1, ncol-1])
  * is non-zero
  */
-void MatrixSparse::fillRandom(Id seed, double zeroPercent)
+void MatrixSparse::fillRandom(double zeroPercent, Id seed)
 {
   law_set_random_seed(seed);
 
@@ -411,7 +410,7 @@ MatrixSparse* MatrixSparse::createFillRandom(Id nrow,
                                              Id seed)
 {
   auto* mat = new MatrixSparse(nrow, ncol);
-  mat->fillRandom(seed, zeroPercent);
+  mat->fillRandom(zeroPercent, seed);
   return mat;
 }
 
@@ -423,6 +422,17 @@ MatrixSparse* MatrixSparse::Identity(Id nrow, double value)
     mat->eigenMat().coeffRef(i, i) += value;
   }
   return mat;
+}
+
+MatrixDense* MatrixSparse::createFromSparse(const MatrixSparse& mat)
+{
+  auto nrow = mat.getNRows();
+  auto ncol = mat.getNCols();
+  auto* res = new MatrixDense(nrow, ncol);
+  for (Id irow = 0; irow < nrow; irow++)
+    for (Id icol = 0; icol < ncol; icol++)
+      res->setValue(irow, icol, mat.getValue(irow, icol));
+  return res;
 }
 
 MatrixSparse* MatrixSparse::addMatMat(const MatrixSparse* x,
@@ -551,18 +561,6 @@ Id MatrixSparse::scaleByDiag()
   Eigen::Map<const Eigen::VectorXd> ym(diag.data(), diag.size());
   eigenMat() = ym.asDiagonal() * eigenMat();
   return 0;
-}
-
-/**
- *
- * @param v Multiply all the terms of the matrix by the scalar 'v'
- */
-void MatrixSparse::prodScalar(double v)
-{
-  if (isOne(v)) return;
-  for (Id k = 0; k < eigenMat().outerSize(); ++k)
-    for (EigenSparseMatrix::InnerIterator it(eigenMat(), k); it; ++it)
-      it.valueRef() *= v;
 }
 
 void MatrixSparse::_addProdMatVecInPlacePtr(constvect x, vect y, bool transpose) const
@@ -1302,30 +1300,32 @@ void MatrixSparse::forceDimension(Id maxRows, Id maxCols)
 MatrixSparse MatrixSparse::addCst(double a) const
 {
   auto result(*this);
-  addCstGeneral(result, *this, a);
+  addGeneral(result, *this, a);
   return result;
 }
 
 MatrixSparse MatrixSparse::prodCst(double a) const
 {
   auto result(*this);
-  prodCstGeneral(result, *this, a);
+  prodGeneral(result, *this, a);
   return result;
 }
 
 MatrixSparse& MatrixSparse::addCstInPlace(double a)
 {
-  addCstGeneral(*this, *this, a);
+  addGeneral(*this, *this, a);
   return *this;
 }
 
 MatrixSparse& MatrixSparse::prodCstInPlace(double a)
 {
-  prodCstGeneral(*this, *this, a);
+  prodGeneral(*this, *this, a);
   return *this;
 }
 
-void MatrixSparse::addCstGeneral(MatrixSparse& res, const MatrixSparse& other, double cst)
+void MatrixSparse::addGeneral(MatrixSparse& res,
+                              const MatrixSparse& other,
+                              double cst)
 {
   if (isZero(cst))
   {
@@ -1333,13 +1333,14 @@ void MatrixSparse::addCstGeneral(MatrixSparse& res, const MatrixSparse& other, d
     return;
   }
 
-  res = other;
-  for (Id k = 0; k < res.eigenMat().outerSize(); ++k)
-    for (EigenSparseMatrix::InnerIterator it(res.eigenMat(), k); it; ++it)
-      it.valueRef() += cst;
+  MatrixSparse temp(other.getNRows(), other.getNCols());
+  temp.fill(cst);
+  res.eigenMat() = other.eigenMat() + temp.eigenMat();
 }
 
-void MatrixSparse::prodCstGeneral(MatrixSparse& res, const MatrixSparse& other, double cst)
+void MatrixSparse::prodGeneral(MatrixSparse& res,
+                               const MatrixSparse& other,
+                               double cst)
 {
   if (isOne(cst))
   {
@@ -1347,20 +1348,20 @@ void MatrixSparse::prodCstGeneral(MatrixSparse& res, const MatrixSparse& other, 
     return;
   }
 
-  res = other;
-  for (Id k = 0; k < res.eigenMat().outerSize(); ++k)
-    for (EigenSparseMatrix::InnerIterator it(res.eigenMat(), k); it; ++it)
-      it.valueRef() *= cst;
+  res.eigenMat() = other.eigenMat() * cst;
 }
 
-void MatrixSparse::addCstGeneral(MatrixSparse& res,
-                                 const MatrixSparse& other1,
-                                 const MatrixSparse& other2)
+void MatrixSparse::addGeneral(MatrixSparse& res,
+                              const MatrixSparse& other1,
+                              const MatrixSparse& other2)
 {
-  res = other1;
-  for (Id k = 0; k < res.eigenMat().outerSize(); ++k)
-    for (EigenSparseMatrix::InnerIterator it(res.eigenMat(), k); it; ++it)
-      it.valueRef() += other2.eigenMat().coeff(it.row(), it.col());
+  res.eigenMat() = other1.eigenMat() + other2.eigenMat();
 }
 
+void MatrixSparse::prodGeneral(MatrixSparse& res,
+                               const MatrixSparse& other1,
+                               const MatrixSparse& other2)
+{
+  res.eigenMat() = other1.eigenMat().cwiseProduct(other2.eigenMat());
+}
 }; // namespace gstlrn

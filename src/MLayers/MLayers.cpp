@@ -1894,7 +1894,7 @@ Id MLayers::_getPrior(Id nech,
   /* Normalize the results */
   for (Id ipar = 0; ipar < npar; ipar++)
     mean[ipar] /= nech;
-  vars.prodScalar(1. / static_cast<double>(nech));
+  vars.prodCst(1. / static_cast<double>(nech));
   for (Id ipar = 0; ipar < npar; ipar++)
     for (Id jpar = 0; jpar < npar; jpar++)
       vars.updValue(ipar, jpar, EOperator::SUBOPP, mean[ipar] * mean[jpar]);

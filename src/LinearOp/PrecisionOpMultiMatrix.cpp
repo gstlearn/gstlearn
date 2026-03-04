@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "LinearOp/PrecisionOpMultiMatrix.hpp"
-#include "Basic/AStringable.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "LinearOp/PrecisionOpMatrix.hpp"
 #include "LinearOp/PrecisionOpMulti.hpp"
@@ -39,7 +38,7 @@ MatrixSparse PrecisionOpMultiMatrix::_prepareMatrixStationary(Id icov, const Mat
     for (Id ivar = 0; ivar < _getNVar(); ivar++)
     {
       MatrixSparse copy = *Q;
-      copy.prodScalar(sills.getValue(ivar,jvar));
+      copy.prodCst(sills.getValue(ivar,jvar));
       MatrixSparse::glueInPlace(&currentCol,&copy ,1,0);
     }
 

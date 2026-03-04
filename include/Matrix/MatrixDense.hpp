@@ -44,7 +44,6 @@ class EOperator;
 
 class GSTLEARN_EXPORT MatrixDense: public AMatrix
 {
-
 public:
   MatrixDense(Id nrow = 0, Id ncol = 0);
   MatrixDense(const MatrixDense& r);
@@ -95,8 +94,6 @@ public:
   /*! Set the contents of the (main) Diagonal to a constant value */
   void setDiagonalToConstant(double value = 1.) override;
 
-  /*! Multiply each matrix component by a value */
-  void prodScalar(double v) override;
   /*! Multiply a Matrix row-wise */
   void multiplyRow(const VectorDouble& vec) override;
   /*! Multiply a Matrix column-wise */
@@ -123,9 +120,10 @@ public:
   MatrixDense addCst(double a) const;
   MatrixDense prodCst(double a) const;
 
-  static void addCstGeneral(MatrixDense& res, const MatrixDense& other, double cst);
-  static void addCstGeneral(MatrixDense& res, const MatrixDense& other1, const MatrixDense& other2);
-  static void prodCstGeneral(MatrixDense& res, const MatrixDense& other, double cst);
+  static void addGeneral(MatrixDense& res, const MatrixDense& other, double cst);
+  static void addGeneral(MatrixDense& res, const MatrixDense& other1, const MatrixDense& other2);
+  static void prodGeneral(MatrixDense& res, const MatrixDense& other, double cst);
+  static void prodGeneral(MatrixDense& res, const MatrixDense& other1, const MatrixDense& other2);
 
   template<bool transposeX, bool transposeY>
   void prodMatMatNoCheck(const MatrixDense& x, const MatrixDense& y)
@@ -239,51 +237,51 @@ public:
   // Operators overloading
   MatrixDense& operator+=(double a)
   {
-    addCstT(*this, *this, a);
+    add(*this, *this, a);
     return *this;
   }
 
   MatrixDense& operator-=(double a)
   {
-    addCstT(*this, *this, -a);
+    add(*this, *this, -a);
     return *this;
   }
 
   MatrixDense operator+(double a) const
   {
     MatrixDense res;
-    addCstT(res, *this, a);
+    add(res, *this, a);
     return res;
   }
 
   MatrixDense operator-(double a) const
   {
     MatrixDense res;
-    addCstT(res, *this, -a);
+    add(res, *this, -a);
     return res;
   }
   MatrixDense& operator*=(double a)
   {
-    prodCstT(*this, *this, a);
+    prod(*this, *this, a);
     return *this;
   }
 
   MatrixDense operator*(double a) const
   {
     MatrixDense res;
-    prodCstT(res, *this, a);
+    prod(res, *this, a);
     return res;
   }
   MatrixDense& operator/=(double a)
   {
-    prodCstT(*this, *this, 1.0 / a);
+    prod(*this, *this, 1.0 / a);
     return *this;
   }
 
   MatrixDense operator/(double a) const
   {
     MatrixDense res;
-    prodCstT(res, *this, 1.0 / a);
+    prod(res, *this, 1.0 / a);
     return res;
   }
 

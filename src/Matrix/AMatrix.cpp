@@ -341,7 +341,7 @@ void AMatrix::_setValues(const double* values, bool byCol)
 }
 #endif
 
-void AMatrix::fillRandom(Id seed, double zeroPercent)
+void AMatrix::fillRandom(double zeroPercent, Id seed)
 {
   law_set_random_seed(seed);
 

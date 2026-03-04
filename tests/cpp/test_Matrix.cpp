@@ -176,15 +176,15 @@ int main(int argc, char* argv[])
   reset_to_initial_contents(M, MRR, MSG, MSS, MSP);
   message("Reference MRR (before multiplication)\n");
   MRR.display();
-  MRR.prodScalar(multiply);
+  MRR.prodCst(multiply);
   message("Reference MRR (after multiplication)\n");
   MRR.display();
 
-  MSG.prodScalar(multiply);
+  MSG.prodCst(multiply);
   message("Are results for MRR and MSG similar: %d\n", static_cast<Id>(MRR.isSame(MSG)));
-  MSS.prodScalar(multiply);
+  MSS.prodCst(multiply);
   message("Are results for MRR and MSS similar: %d\n", static_cast<Id>(MRR.isSame(MSS)));
-  MSP->prodScalar(multiply);
+  MSP->prodCst(multiply);
   message("Are results for MRR and MSP similar: %d\n", static_cast<Id>(MRR.isSame(*MSP)));
 
   /////////////////////
@@ -342,7 +342,7 @@ int main(int argc, char* argv[])
 
   double vprod0 = 1.2;
   message("Product of all terms of matrix by constant %lf\n", vprod0);
-  MSG.prodScalar(vprod0);
+  MSG.prodCst(vprod0);
   MSG.display();
 
   message("Adding the matrix to itself\n");
@@ -429,7 +429,7 @@ int main(int argc, char* argv[])
   MSP->display();
 
   message("Product of all non-zero terms of matrix by constant %lf\n", vprod0);
-  MSP->prodScalar(vprod0);
+  MSP->prodCst(vprod0);
   MSP->display();
 
   message("Adding the matrix to itself\n");

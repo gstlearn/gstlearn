@@ -11,40 +11,41 @@
 #pragma once
 
 #include "Basic/Message.hpp"
-#include "gstlearn_export.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
+#include "gstlearn_export.hpp"
 
 namespace gstlrn
 {
 class AMatrix;
 class MatrixSquare;
 
-class GSTLEARN_EXPORT MatrixFactory {
+class GSTLEARN_EXPORT MatrixFactory
+{
 
 public:
   /// TODO : Use smartpointer
-  static AMatrix* prodMatMat(const AMatrix *x,
-                             const AMatrix *y,
+  static AMatrix* prodMatMat(const AMatrix* x,
+                             const AMatrix* y,
                              bool transposeX = false,
                              bool transposeY = false);
-  template <typename T>
-  static T* prodMatMat(const AMatrix *x,
-                       const AMatrix *y,
+  template<typename T>
+  static T* prodMatMat(const AMatrix* x,
+                       const AMatrix* y,
                        bool transposeX = false,
                        bool transposeY = false);
-  static MatrixSquare* createMatrixSquare(const MatrixSquare* x,Id nrow);
-  static AMatrix* createReduce(const AMatrix *x,
-                               const VectorInt &selRows = VectorInt(),
-                               const VectorInt &selCols = VectorInt(),
-                               bool flagKeepRows = true,
-                               bool flagKeepCols = true);
-  static AMatrix* createReduceOne(const AMatrix *x,
-                                  Id selRow = -1,
-                                  Id selCol = -1,
+  static MatrixSquare* createMatrixSquare(const MatrixSquare* x, Id nrow);
+  static AMatrix* createReduce(const AMatrix* x,
+                               const VectorInt& selRows = VectorInt(),
+                               const VectorInt& selCols = VectorInt(),
+                               bool flagKeepRows        = true,
+                               bool flagKeepCols        = true);
+  static AMatrix* createReduceOne(const AMatrix* x,
+                                  Id selRow        = -1,
+                                  Id selCol        = -1,
                                   bool flagKeepRow = true,
                                   bool flagKeepCol = true);
-  static AMatrix* createGlue(const AMatrix *a1,
-                             const AMatrix *a2,
+  static AMatrix* createGlue(const AMatrix* a1,
+                             const AMatrix* a2,
                              bool flagShiftRow,
                              bool flagShiftCol);
 };
@@ -66,17 +67,17 @@ public:
  ** TODO : Why 2 methods for MatrixFactory::prodMatMat ?
  *****************************************************************************/
 template<typename T>
-T* MatrixFactory::prodMatMat(const AMatrix *x,
-                             const AMatrix *y,
+T* MatrixFactory::prodMatMat(const AMatrix* x,
+                             const AMatrix* y,
                              bool transposeX,
                              bool transposeY)
 {
   auto* res = new T();
 
-  Id nxrows = (! transposeX) ? x->getNRows() : x->getNCols();
-  Id nxcols = (! transposeX) ? x->getNCols() : x->getNRows();
-  Id nyrows = (! transposeY) ? y->getNRows() : y->getNCols();
-  Id nycols = (! transposeY) ? y->getNCols() : y->getNRows();
+  Id nxrows = (!transposeX) ? x->getNRows() : x->getNCols();
+  Id nxcols = (!transposeX) ? x->getNCols() : x->getNRows();
+  Id nyrows = (!transposeY) ? y->getNRows() : y->getNCols();
+  Id nycols = (!transposeY) ? y->getNCols() : y->getNRows();
 
   if (nxcols != nyrows)
   {
@@ -90,4 +91,4 @@ T* MatrixFactory::prodMatMat(const AMatrix *x,
   return res;
 }
 
-}
+} // namespace gstlrn

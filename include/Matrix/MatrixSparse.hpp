@@ -37,6 +37,7 @@ class EOperator;
 
 namespace gstlrn
 {
+class MatrixDense;
 /**
  * Sparse Matrix
  *
@@ -96,8 +97,6 @@ public:
   void setDiagonal(const VectorDouble& tab) override;
   /*! Set the contents of the (main) Diagonal to a constant value */
   void setDiagonalToConstant(double value = 1.) override;
-  /*! Multiply each matrix component by a value */
-  void prodScalar(double v) override;
   /*! Set all the values of the matrix at once */
   void fill(double value) override;
   /*! Multiply the matrix row-wise */
@@ -152,9 +151,10 @@ public:
   MatrixSparse addCst(double a) const;
   MatrixSparse prodCst(double a) const;
 
-  static void addCstGeneral(MatrixSparse& res, const MatrixSparse& other, double cst);
-  static void addCstGeneral(MatrixSparse& res, const MatrixSparse& other1, const MatrixSparse& other2);
-  static void prodCstGeneral(MatrixSparse& res, const MatrixSparse& other, double cst);
+  static void addGeneral(MatrixSparse& res, const MatrixSparse& other, double cst);
+  static void addGeneral(MatrixSparse& res, const MatrixSparse& other1, const MatrixSparse& other2);
+  static void prodGeneral(MatrixSparse& res, const MatrixSparse& other, double cst);
+  static void prodGeneral(MatrixSparse& res, const MatrixSparse& other1, const MatrixSparse& other2);
 
   MatrixSparse* getRowAsMatrixSparse(Id irow, double coeff = 1.) const;
   MatrixSparse* getColumnAsMatrixSparse(Id icol, double coeff = 1.) const;
@@ -175,8 +175,10 @@ public:
                                         Id ncol,
                                         double zeroPercent = 0.1,
                                         Id seed            = 143743);
+  static MatrixDense* createFromSparse(const MatrixSparse& mat);
 
-  static MatrixSparse* Identity(Id nrow, double value = 1.);
+  static MatrixSparse*
+  Identity(Id nrow, double value = 1.);
   static MatrixSparse* addMatMat(const MatrixSparse* x,
                                  const MatrixSparse* y,
                                  double cx = 1.,
@@ -198,7 +200,7 @@ public:
   void resetFromTriplet(const NF_Triplet& NF_T);
 
   /*! Set all the values of the Matrix with random values */
-  void fillRandom(Id seed = 432432, double zeroPercent = 0);
+  void fillRandom(double zeroPercent = 0, Id seed = 432432);
 
 #ifndef SWIG
   Id addVecInPlace(const constvect x, vect y) const;
@@ -242,51 +244,51 @@ public:
   // Operators overloading
   MatrixSparse& operator+=(double a)
   {
-    addCstT(*this, *this, a);
+    add(*this, *this, a);
     return *this;
   }
 
   MatrixSparse& operator-=(double a)
   {
-    addCstT(*this, *this, -a);
+    add(*this, *this, -a);
     return *this;
   }
 
   MatrixSparse operator+(double a) const
   {
     MatrixSparse res;
-    addCstT(res, *this, a);
+    add(res, *this, a);
     return res;
   }
 
   MatrixSparse operator-(double a) const
   {
     MatrixSparse res;
-    addCstT(res, *this, -a);
+    add(res, *this, -a);
     return res;
   }
   MatrixSparse& operator*=(double a)
   {
-    prodCstT(*this, *this, a);
+    prod(*this, *this, a);
     return *this;
   }
 
   MatrixSparse operator*(double a) const
   {
     MatrixSparse res;
-    prodCstT(res, *this, a);
+    prod(res, *this, a);
     return res;
   }
   MatrixSparse& operator/=(double a)
   {
-    prodCstT(*this, *this, 1.0 / a);
+    prod(*this, *this, 1.0 / a);
     return *this;
   }
 
   MatrixSparse operator/(double a) const
   {
     MatrixSparse res;
-    prodCstT(res, *this, 1.0 / a);
+    prod(res, *this, 1.0 / a);
     return res;
   }
 

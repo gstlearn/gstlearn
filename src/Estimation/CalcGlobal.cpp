@@ -176,8 +176,8 @@ Id CalcGlobal::_globalKriging()
 
   // Normalize the cumulative R.H.S. to fake the RHS corresponding to the average target
   double oneOverNG = 1. / static_cast<double>(ng);
-  Sigma0Cum.prodScalar(oneOverNG);
-  if (X0Cum.size() > 0) X0Cum.prodScalar(oneOverNG);
+  Sigma0Cum.prodCst(oneOverNG);
+  if (X0Cum.size() > 0) X0Cum.prodCst(oneOverNG);
   algebra.setRHS(&Sigma0Cum, &X0Cum);
 
   // Get matrix of covariances between last target and itself (C00) for all variables

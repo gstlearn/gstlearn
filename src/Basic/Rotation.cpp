@@ -118,7 +118,7 @@ Id Rotation::getDerivativesInPlace(std::vector<MatrixSquare>& res) const
   GH::rotationMatrixDerivativesInPlace(static_cast<Id>(_nDim), _angles, res);
   for (auto& dR: res)
   {
-    dR.prodScalar(GV_PI / 180);
+    dR.prodCst(GV_PI / 180);
   }
   return 0;
 }

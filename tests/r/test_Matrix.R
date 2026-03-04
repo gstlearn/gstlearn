@@ -94,12 +94,12 @@ multiply = 3.2
 err = mestitle(0,"Multiplying a Matrix by a constant")
 err = reset_to_initial_contents(M, MRR, MSG, MSS, MSP)
 
-err = MRR$prodScalar(multiply)
-err = MSG$prodScalar(multiply)
+err = MRR$prodCst(multiply)
+err = MSG$prodCst(multiply)
 print(paste0("Are results for MRR and MSG similar: ", MRR$isSame(MSG)))
-err = MSS$prodScalar(multiply)
+err = MSS$prodCst(multiply)
 print(paste0("Are results for MRR and MSS similar: ", MRR$isSame(MSS)))
-err = MSP$prodScalar(multiply)
+err = MSP$prodCst(multiply)
 print(paste0("Are results for MRR and MSP similar: ", MRR$isSame(MSP)))
 
 #

@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Basic/Message.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Basic/AStringable.hpp"
@@ -75,8 +76,6 @@ public:
   virtual void setDiagonal(const VectorDouble& tab) = 0;
   /*! Set the contents of the (main) Diagonal to a constant value */
   virtual void setDiagonalToConstant(double value = 1.) = 0;
-  /*! Multiply each matrix component by a value */
-  virtual void prodScalar(double v) = 0;
   /*! Set all the values of the Matrix at once */
   virtual void fill(double value) = 0;
   /*! Multiply a Matrix row-wise */
@@ -90,31 +89,69 @@ public:
 
   /*! New methods for operator overloading */
   template<typename T>
-  static void addCstT(T& res, const T& other, double cst)
+  static void add(T& res, const T& other, double cst)
   {
     static_assert(std::is_base_of_v<AMatrix, T>,
                   "Invalid type for Matrix addition (template method). "
                   "Only MatrixDense and MatrixSparse are allowed");
-    res = other;
-    res.addCstGeneral(res, other, cst);
+    if (res.getNRows() != other.getNRows() || res.getNCols() != other.getNCols())
+    {
+      res.resize(other.getNRows(), other.getNCols());
+    }
+    res.addGeneral(res, other, cst);
   }
+
   template<typename T>
-  static void addMatT(T& res, const T& other1, const T& other2)
+  static void add(T& res, const T& other1, const T& other2)
   {
     static_assert(std::is_base_of_v<AMatrix, T>,
                   "Invalid type for Matrix addition (template method). "
                   "Only MatrixDense and MatrixSparse are allowed");
-    res = other1;
-    res.addCstGeneral(res, other1, other2);
+    // Check dimensions
+    if (other1.getNRows() != other2.getNRows() ||
+        other1.getNCols() != other2.getNCols())
+    {
+      messerr("Matrix addition error: matrices have different dimensions");
+      return;
+    }
+    if (res.getNRows() != other1.getNRows() || res.getNCols() != other1.getNCols())
+    {
+      res.resize(other1.getNRows(), other1.getNCols());
+    }
+    res.addGeneral(res, other1, other2);
   }
+
   template<typename T>
-  static void prodCstT(T& res, const T& other, double cst)
+  static void prod(T& res, const T& other, double cst)
   {
     static_assert(std::is_base_of_v<AMatrix, T>,
-                  "Invalid type for Matrix addition (template method). "
+                  "Invalid type for Matrix product (template method). "
                   "Only MatrixDense and MatrixSparse are allowed");
-    res = other;
-    res.prodCstGeneral(res, other, cst);
+    if (res.getNRows() != other.getNRows() || res.getNCols() != other.getNCols())
+    {
+      res.resize(other.getNRows(), other.getNCols());
+    }
+    res.prodGeneral(res, other, cst);
+  }
+  
+  template<typename T>
+  static void prodHadamard(T& res, const T& other1, const T& other2)
+  {
+    static_assert(std::is_base_of_v<AMatrix, T>,
+                  "Invalid type for Matrix Hadamard product (template method). "
+                  "Only MatrixDense and MatrixSparse are allowed");
+    // Check dimensions
+    if (other1.getNRows() != other2.getNRows() ||
+        other1.getNCols() != other2.getNCols())
+    {
+      messerr("Matrix Hadamard product error: matrices have different dimensions");
+      return;
+    }
+    if (res.getNRows() != other1.getNRows() || res.getNCols() != other1.getNCols())
+    {
+      res.resize(other1.getNRows(), other1.getNCols());
+    }
+    res.prodGeneral(res, other1, other2);
   }
 
   /*! Check if the matrix is (non empty) square */
@@ -194,22 +231,11 @@ public:
   /*! Returns the sum of absolute difference between argument and this */
   double compare(const AMatrix& mat) const;
   /*! Returns the number of rows */
-  Id getNRows() const
-  {
-    return _nRows;
-  }
+  Id getNRows() const { return _nRows; }
   /*! Returns the number of columns */
-  Id getNCols() const
-  {
-    return _nCols;
-  }
-  /*! Get the total number of elements of the (full) matrix */
-  /* The name has been chosen by analogy to VectorT class */
-  Id size() const
-  {
-    return _nRows * _nCols;
-  }
-
+  Id getNCols() const { return _nCols; }
+  /*! Get the total number of elements of the (full) matrix (as for VectorT) */
+  Id size() const { return _nRows * _nCols; }
   /*! Returns the contents of the whole matrix as a VectorDouble */
   VectorDouble getValues(bool byCol = true) const;
   /*! Extract a Diagonal (main or secondary) of this */
@@ -258,7 +284,7 @@ public:
   void dumpStatistics(const String& title) const;
   /*! Sets the matrix as Identity */
   void setIdentity(double value = 1.);
-  void fillRandom(Id seed = 432432, double zeroPercent = 0);
+  void fillRandom(double zeroPercent = 0, Id seed = 432432);
   void setValues(const VectorDouble& values, bool byCol = true);
   double getMeanByColumn(Id icol) const;
   double getMinimum() const;
