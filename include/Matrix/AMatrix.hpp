@@ -133,7 +133,7 @@ public:
     }
     res.prodGeneral(res, other, cst);
   }
-  
+
   template<typename T>
   static void prodHadamard(T& res, const T& other1, const T& other2)
   {
@@ -224,10 +224,7 @@ public:
   /*! Check that 'm' has the same dimensions as 'this' */
   bool isSameSize(const AMatrix& m) const;
   /*! Returns if the current matrix is Empty */
-  bool empty() const
-  {
-    return (_nRows == 0 || _nCols == 0);
-  }
+  bool empty() const { return (_nRows == 0 || _nCols == 0); }
   /*! Returns the sum of absolute difference between argument and this */
   double compare(const AMatrix& mat) const;
   /*! Returns the number of rows */

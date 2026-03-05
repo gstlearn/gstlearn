@@ -864,27 +864,13 @@ void MatrixDense::sum(const MatrixDense* mat1,
 }
 
 /*! New methodes for operator overloading */
-MatrixDense MatrixDense::addCst(double a) const
-{
-  auto result(*this);
-  addGeneral(result, *this, a);
-  return result;
-}
-
-MatrixDense MatrixDense::prodCst(double a) const
-{
-  auto result(*this);
-  prodGeneral(result, *this, a);
-  return result;
-}
-
-MatrixDense& MatrixDense::addCstInPlace(double a)
+MatrixDense& MatrixDense::addCst(double a)
 {
   addGeneral(*this, *this, a);
   return *this;
 }
 
-MatrixDense& MatrixDense::prodCstInPlace(double a)
+MatrixDense& MatrixDense::prodCst(double a)
 {
   prodGeneral(*this, *this, a);
   return *this;

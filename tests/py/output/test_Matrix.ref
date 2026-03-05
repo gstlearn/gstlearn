@@ -78,22 +78,11 @@ Matrix MSP
       [  6,]          .          .      2.190      0.291     -0.038          .      1.561
 
 
-Adding a constant value to the diagonal of a matrix
-===================================================
-Are results for MRR and MSG similar:  True
-Are results for MRR and MSS similar:  True
-Are results for MRR and MSP similar:  True
-
 Multiplying a Matrix by a constant
 ==================================
 Are results for MRR and MSG similar:  True
 Are results for MRR and MSS similar:  True
 Are results for MRR and MSP similar:  True
-
-Adding a constant value to the whole matrix
-===========================================
-Are results for MRR and MSG similar:  True
-Are results for MRR and MSS similar:  True
 
 Linear combination of matrices
 ==============================

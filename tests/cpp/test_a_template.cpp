@@ -48,6 +48,26 @@ void reset(MatrixDense& M1,
   }
 }
 
+void resetSquare(MatrixSquare& MSq1,
+                 MatrixSquare& MSq2,
+                 bool verbose = false)
+{
+  MSq1.fillRandom(0., 31366);
+  MSq2.fillRandom(0., 424672);
+
+  if (verbose)
+  {
+    message("Initial Square Matrix MSq1\n");
+    MSq1.display();
+    message("Initial Square Matrix MSq2\n");
+    MSq2.display();
+  }
+  else
+  {
+    message("Matrices MSq1 and MSq2 are reset to initial values\n");
+  }
+}
+
 int main(int argc, char* argv[])
 {
   // Do not remove
@@ -121,12 +141,12 @@ int main(int argc, char* argv[])
   // Adding a Constant
   reset(M1, M2, MS1, MS2, false);
 
-  M1.addCstInPlace(10.);
-  message("M1.addCstInPlace(10.) -> M1\n");
+  M1.addCst(10.);
+  message("M1.addCst(10.) -> M1\n");
   M1.display();
 
-  MS1.addCstInPlace(10.);
-  message("MS1.addCstInPlace(10.) -> MS1\n");
+  MS1.addCst(10.);
+  message("MS1.addCst(10.) -> MS1\n");
   MS1.display();
 
   // Adding a Constant and allocating a new class
@@ -143,11 +163,11 @@ int main(int argc, char* argv[])
   // Product of a matrix by a constant
   reset(M1, M2, MS1, MS2, false);
 
-  M1.prodCstInPlace(2.);
+  M1.prodCst(2.);
   message("M1.prodCstInPlace(2.) -> M1\n");
   M1.display();
 
-  MS1.prodCstInPlace(2.);
+  MS1.prodCst(2.);
   message("MS1.prodCstInPlace(2.) -> MS1\n");
   MS1.display();
 
@@ -210,6 +230,26 @@ int main(int argc, char* argv[])
   auto MS1subtractOp = MS1 - 10.;
   message("MS1subtractOp = MS1 - 10. -> MS1subtractOp\n");
   MS1subtractOp.display();
+
+  ///////////////////////////
+  // Testing child classes //
+  ///////////////////////////
+  mestitle(0, "Testing child classes");
+  MatrixSquare MSq1(3);
+  MatrixSquare MSq2(3);
+  resetSquare(MSq1, MSq2, true);
+
+  // Adding a constant
+  resetSquare(MSq1, MSq2, false);
+  AMatrix::add(MSq2, MSq1, 10.);
+  message("add(MSq2, MSq1, 10.) -> MSq2\n");
+  MSq2.display();
+
+  // Adding a constant
+  resetSquare(MSq1, MSq2, false);
+  AMatrix::add(MSq2, MSq1, MSq2);
+  message("add(MSq2, MSq1, MSq2) -> MSq2\n");
+  MSq2.display();
 
   return 0;
 }

@@ -146,10 +146,8 @@ public:
   NF_Triplet getMatrixToTriplet(Id shiftRow = 0, Id shiftCol = 0) const override;
 
   /*! New methods for operator overloading */
-  MatrixSparse& addCstInPlace(double a);
-  MatrixSparse& prodCstInPlace(double a);
-  MatrixSparse addCst(double a) const;
-  MatrixSparse prodCst(double a) const;
+  MatrixSparse& addCst(double a);
+  MatrixSparse& prodCst(double a);
 
   static void addGeneral(MatrixSparse& res, const MatrixSparse& other, double cst);
   static void addGeneral(MatrixSparse& res, const MatrixSparse& other1, const MatrixSparse& other2);

@@ -120,6 +120,7 @@ void MatrixSparse::resetFromTriplet(const NF_Triplet& NF_T)
  * @brief Fill a sparse matrix with random values, using a given seed and a percentage of zero values
  *
  * @param zeroPercent Percentage of zero values (between 0 and 1)
+ * @param seed Random seed for reproducibility
  *
  * @remarks The method also ensures that the last element of the matrix (at position [nrow-1, ncol-1])
  * is non-zero
@@ -1297,27 +1298,13 @@ void MatrixSparse::forceDimension(Id maxRows, Id maxCols)
 }
 
 /*! New methodes for operator overloading */
-MatrixSparse MatrixSparse::addCst(double a) const
-{
-  auto result(*this);
-  addGeneral(result, *this, a);
-  return result;
-}
-
-MatrixSparse MatrixSparse::prodCst(double a) const
-{
-  auto result(*this);
-  prodGeneral(result, *this, a);
-  return result;
-}
-
-MatrixSparse& MatrixSparse::addCstInPlace(double a)
+MatrixSparse& MatrixSparse::addCst(double a)
 {
   addGeneral(*this, *this, a);
   return *this;
 }
 
-MatrixSparse& MatrixSparse::prodCstInPlace(double a)
+MatrixSparse& MatrixSparse::prodCst(double a)
 {
   prodGeneral(*this, *this, a);
   return *this;
@@ -1335,7 +1322,9 @@ void MatrixSparse::addGeneral(MatrixSparse& res,
 
   MatrixSparse temp(other.getNRows(), other.getNCols());
   temp.fill(cst);
-  res.eigenMat() = other.eigenMat() + temp.eigenMat();
+
+  auto result    = other.eigenMat() + temp.eigenMat();
+  res.eigenMat() = result;
 }
 
 void MatrixSparse::prodGeneral(MatrixSparse& res,

@@ -115,10 +115,8 @@ public:
                          bool transposeY = false) override;
 
   /*! New methods overload */
-  MatrixDense& addCstInPlace(double a);
-  MatrixDense& prodCstInPlace(double a);
-  MatrixDense addCst(double a) const;
-  MatrixDense prodCst(double a) const;
+  MatrixDense& addCst(double a);
+  MatrixDense& prodCst(double a);
 
   static void addGeneral(MatrixDense& res, const MatrixDense& other, double cst);
   static void addGeneral(MatrixDense& res, const MatrixDense& other1, const MatrixDense& other2);

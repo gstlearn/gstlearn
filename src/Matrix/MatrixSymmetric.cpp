@@ -920,7 +920,7 @@ bool MatrixSymmetric::sample(MatrixSymmetric& res,
 MatrixSymmetric* MatrixSymmetric::createRandomDefinitePositive(Id neq, Id seed)
 {
   MatrixSymmetric local(neq);
-  local.fillRandom(seed);
+  local.fillRandom(0, seed);
   auto* mat = new MatrixSymmetric(neq);
   mat->prodMatMatInPlace(&local, &local, true);
   return mat;
