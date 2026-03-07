@@ -120,6 +120,19 @@ public:
     res.addGeneral(res, other1, other2);
   }
 
+  /**
+   * @brief Linear combination of up to 3 matrices and a constant
+   *
+   * @tparam T
+   * @param res Resulting matrix of the linear combination
+   * @param addition Constant to be added to the linear combination
+   * @param val1 Weight of the first matrix
+   * @param other1 First matrix
+   * @param val2  Weight of the second matrix
+   * @param other2 Second matrix
+   * @param val3  Weight of the third matrix
+   * @param other3 Third matrix
+   */
   template<typename T>
   static void CL(T& res,
                  double addition,
