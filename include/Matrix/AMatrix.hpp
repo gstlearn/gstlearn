@@ -122,13 +122,13 @@ public:
 
   template<typename T>
   static void CL(T& res,
+                 double addition,
                  double val1,
                  const T& other1,
                  double val2     = 0.,
                  const T& other2 = T(),
                  double val3     = 0.,
-                 const T& other3 = T(),
-                 double addition = 0.)
+                 const T& other3 = T())
   {
     static_assert(std::is_base_of_v<AMatrix, T>,
                   "Invalid type for Matrix addition (template method). "

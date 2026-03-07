@@ -29,6 +29,11 @@ MatrixSymmetric::MatrixSymmetric(Id nrow)
 {
 }
 
+MatrixSymmetric::MatrixSymmetric(Id nrow, Id ncol)
+  : MatrixSquare(nrow, ncol)
+{
+}
+
 MatrixSymmetric::MatrixSymmetric(const MatrixSymmetric& m)
   : MatrixSquare(m)
 {
@@ -170,7 +175,7 @@ void MatrixSymmetric::solveSDP(constvect b, vect x) const
   /// TODO : check beforehand if matrix is invertible ?
   Eigen::Map<const Eigen::VectorXd> bm(b.data(), getNCols());
   Eigen::Map<Eigen::VectorXd> xm(x.data(), getNRows());
-  
+
   auto a = eigenMat();
 
   xm = a.inverse() * bm;
