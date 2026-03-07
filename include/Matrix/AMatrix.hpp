@@ -19,7 +19,6 @@
 
 namespace gstlrn
 {
-
 class NF_Triplet;
 class EOperator;
 
@@ -119,6 +118,62 @@ public:
       res.resize(other1.getNRows(), other1.getNCols());
     }
     res.addGeneral(res, other1, other2);
+  }
+
+  template<typename T>
+  static void CL(T& res,
+                 double val1,
+                 const T& other1,
+                 double val2     = 0.,
+                 const T& other2 = T(),
+                 double val3     = 0.,
+                 const T& other3 = T(),
+                 double addition = 0.)
+  {
+    static_assert(std::is_base_of_v<AMatrix, T>,
+                  "Invalid type for Matrix addition (template method). "
+                  "Only MatrixDense and MatrixSparse are allowed");
+
+    // Check dimensions
+    if (val1 != 0. && (other1.getNRows() != other2.getNRows() ||
+                       other1.getNCols() != other2.getNCols()))
+    {
+      messerr("Matrix linear combination error: matrices 'other1' and 'other2' have different dimensions");
+      return;
+    }
+    if (val2 != 0. && (other1.getNRows() != other2.getNRows() ||
+                       other1.getNCols() != other2.getNCols()))
+    {
+      messerr("Matrix linear combination error: matrices 'other1' and 'other2' have different dimensions");
+      return;
+    }
+    if (val3 != 0. && (other1.getNRows() != other3.getNRows() ||
+                       other1.getNCols() != other3.getNCols()))
+    {
+      messerr("Matrix linear combination error: matrices 'other1' and 'other3' have different dimensions");
+      return;
+    }
+    if (res.getNRows() != other1.getNRows() || res.getNCols() != other1.getNCols())
+    {
+      res.resize(other1.getNRows(), other1.getNCols());
+    }
+    T temp(res.getNRows(), res.getNCols());
+    temp.prodGeneral(temp, other1, val1);
+    res.addGeneral(res, res, temp);
+
+    if (val2 != 0.)
+    {
+      temp.prodGeneral(temp, other2, val2);
+      res.addGeneral(res, res, temp);
+    }
+
+    if (val3 != 0.)
+    {
+      temp.prodGeneral(temp, other3, val3);
+      res.addGeneral(res, res, temp);
+    }
+    if (addition != 0.)
+      res.addGeneral(res, res, addition);
   }
 
   template<typename T>
@@ -224,15 +279,27 @@ public:
   /*! Check that 'm' has the same dimensions as 'this' */
   bool isSameSize(const AMatrix& m) const;
   /*! Returns if the current matrix is Empty */
-  bool empty() const { return (_nRows == 0 || _nCols == 0); }
+  bool empty() const
+  {
+    return (_nRows == 0 || _nCols == 0);
+  }
   /*! Returns the sum of absolute difference between argument and this */
   double compare(const AMatrix& mat) const;
   /*! Returns the number of rows */
-  Id getNRows() const { return _nRows; }
+  Id getNRows() const
+  {
+    return _nRows;
+  }
   /*! Returns the number of columns */
-  Id getNCols() const { return _nCols; }
+  Id getNCols() const
+  {
+    return _nCols;
+  }
   /*! Get the total number of elements of the (full) matrix (as for VectorT) */
-  Id size() const { return _nRows * _nCols; }
+  Id size() const
+  {
+    return _nRows * _nCols;
+  }
   /*! Returns the contents of the whole matrix as a VectorDouble */
   VectorDouble getValues(bool byCol = true) const;
   /*! Extract a Diagonal (main or secondary) of this */
