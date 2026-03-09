@@ -852,7 +852,7 @@ Id KrigingAlgebraSimpleCase::_needStdv()
   if (_flagSK)
   {
     if (_needVarZSK()) return 1;
-    AMatrix::CL(_Stdv, 0., 1., *_Sigma00, -1., _VarZSK);
+    AMatrix::linearCombination(_Stdv, 0., 1., *_Sigma00, -1., _VarZSK);
   }
   else
   {
@@ -864,7 +864,7 @@ Id KrigingAlgebraSimpleCase::_needStdv()
     _LambdaUKtSigma0.prodMatMatInPlace(&_LambdaUK, _Sigma0.get(), true);
     _MuUKtX0t.resize(_nrhs, _nrhs);
     _MuUKtX0t.prodMatMatInPlace(&_MuUK, _X0.get(), true, true);
-    AMatrix::CL(_Stdv, 0., 1., *_Sigma00, -1., _LambdaUKtSigma0, +1., _MuUKtX0t);
+    AMatrix::linearCombination(_Stdv, 0., 1., *_Sigma00, -1., _LambdaUKtSigma0, +1., _MuUKtX0t);
   }
 
   // Transform variance into standard deviation
@@ -991,7 +991,7 @@ Id KrigingAlgebraSimpleCase::_needMuUK()
   _Y0.resize(_nrhs, _nbfl);
 
   _LambdaSKtX.prodMatMatInPlace(_LambdaSK.get(), _X.get(), true, false);
-  AMatrix::CL(_Y0, 0., 1., *_X0, -1., _LambdaSKtX);
+  AMatrix::linearCombination(_Y0, 0., 1., *_X0, -1., _LambdaSKtX);
 
   _MuUK.prodMatMatInPlace(_invSigmac.get(), &_Y0, false, true);
   return 0;

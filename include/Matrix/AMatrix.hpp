@@ -134,21 +134,20 @@ public:
    * @param other3 Third matrix
    */
   template<typename T>
-  static void CL(T& res,
-                 double addition,
-                 double val1,
-                 const T& other1,
-                 double val2     = 0.,
-                 const T& other2 = T(),
-                 double val3     = 0.,
-                 const T& other3 = T())
+  static void linearCombination(T& res,
+                                double addition,
+                                double val1,
+                                const T& other1,
+                                double val2     = 0.,
+                                const T& other2 = T(),
+                                double val3     = 0.,
+                                const T& other3 = T())
   {
     static_assert(std::is_base_of_v<AMatrix, T>,
                   "Invalid type for Matrix addition (template method). "
                   "Only MatrixDense and MatrixSparse are allowed");
 
     // Check dimensions
-    // --- Vérifications de dimensions ---
     auto checkDims = [](const T& a, const T& b, const char* nameA, const char* nameB)
     {
       if (a.getNRows() != b.getNRows() || a.getNCols() != b.getNCols())
