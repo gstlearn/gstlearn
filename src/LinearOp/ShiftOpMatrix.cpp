@@ -894,7 +894,7 @@ Id ShiftOpMatrix::_buildS(const AMesh* amesh, double tol)
   // Workaround for 1d
   if (ndim == 1)
   {
-    _TildeC.multiplyCst(3.);
+    _TildeC *= 3.;
     _S->prodCst(2.);
   }
 
