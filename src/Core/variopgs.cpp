@@ -2316,7 +2316,8 @@ static void st_deriv_eigen(Local_CorPgs* corpgs,
   MatrixSymmetric invGn(4);
   d2.fill(0.);
   st_build_correl(corpgs, corpgs->params, temp);
-  temp.linearCombination(-1., &temp);
+  AMatrix::CL(temp, 0., -1., temp);
+  // temp.linearCombination(-1., &temp);
 
   for (Id i = 0; i < 4; i++)
     temp.updValue(i, i, EOperator::ADD, eigval);
@@ -2521,8 +2522,8 @@ static double st_rkl(Id maxpts,
   cste[0] = 0.;
   cste[1] = 0.;
   VectorDouble vec(2);
-  vec[0]           = x;
-  vec[1]           = y;
+  vec[0]            = x;
+  vec[1]            = y;
   VectorDouble mean = temp.prodMatVec(vec);
   double v1         = law_df_bigaussian(vec, cste, corr1);
   mvndst2n(lower.data(), upper.data(), mean.data(), covar.getValues().data(),
@@ -3136,8 +3137,10 @@ static double st_optim_onelag_pgs(Local_Pgs* local_pgs,
       st_deriv_eigen(corpgs, eigval[3], eigvec, d1, d2);
       Srpen = Sr - penalize * log(eigval[3]);
       VH::linearCombinationInPlace(1., Grad, -penalize / eigval[3], d1, Grad);
-      Hess.linearCombination(npar, &Hess, penalize / (eigval[3] * eigval[3]), &d2);
-      JJ.linearCombination(npar, &JJ, penalize / (eigval[3] * eigval[3]), &d2);
+      AMatrix::CL(Hess, 0., npar, Hess, penalize / (eigval[3] * eigval[3]), d2);
+      // Hess.linearCombination(npar, &Hess, penalize / (eigval[3] * eigval[3]), &d2);
+      AMatrix::CL(JJ, 0., npar, JJ, penalize / (eigval[3] * eigval[3]), d2);
+      // JJ.linearCombination(npar, &JJ, penalize / (eigval[3] * eigval[3]), &d2);
       penalize /= 2.;
     }
     niter++;
@@ -3223,8 +3226,10 @@ static double st_optim_onelag_pgs(Local_Pgs* local_pgs,
       {
         st_deriv_eigen(corpgs, eigval[3], eigvec, d1, d2);
         VH::linearCombinationInPlace(1, Grad, penalize / eigval[3], d1, Grad);
-        Hess.linearCombination(npar, &Hess, -penalize / (eigval[3] * eigval[3]), &d2);
-        JJ.linearCombination(npar, &JJ, -penalize / (eigval[3] * eigval[3]), &d2);
+        AMatrix::CL(Hess, 0., npar, Hess, -penalize / (eigval[3] * eigval[3]), d2);
+        // Hess.linearCombination(npar, &Hess, -penalize / (eigval[3] * eigval[3]), &d2);
+        AMatrix::CL(JJ, 0., npar, JJ, -penalize / (eigval[3] * eigval[3]), d2);
+        // JJ.linearCombination(npar, &JJ, -penalize / (eigval[3] * eigval[3]), &d2);
         penalize /= 2.;
       }
       if (rval > 0.75) delta = MAX(delta, 3. * sqrt(step.norm2()));

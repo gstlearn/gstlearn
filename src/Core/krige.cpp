@@ -2975,7 +2975,8 @@ static Id st_sampling_krige_data(Db* db,
 
     auto* tn2 = dynamic_cast<MatrixSymmetric*>(MatrixFactory::prodMatMat(&v, &v, true, false));
 
-    tn1.linearCombination(1, &tn1, 1, tn2);
+    // tn1.linearCombination(1, &tn1, 1, tn2);
+    AMatrix::CL(tn1, 0., 1., tn1, 1, *tn2);
 
     auto eigenvectors    = EigenVectors(tn1);
     const auto& eigval   = eigenvectors.getEigenValues();
