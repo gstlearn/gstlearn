@@ -798,34 +798,6 @@ void MatrixSparse::prodNormMatMatInPlace(const AMatrix* a,
   }
 }
 
-void MatrixSparse::linearCombination(double val1,
-                                     const AMatrix* mat1,
-                                     double val2,
-                                     const AMatrix* mat2,
-                                     double val3,
-                                     const AMatrix* mat3)
-{
-  const auto* mmat1 = dynamic_cast<const MatrixSparse*>(mat1);
-  const auto* mmat2 = dynamic_cast<const MatrixSparse*>(mat2);
-  const auto* mmat3 = dynamic_cast<const MatrixSparse*>(mat3);
-
-  if ((mat1 != nullptr && mmat1 == nullptr) ||
-      (mat2 != nullptr && mmat2 == nullptr) || (mat2 == this) ||
-      (mat3 != nullptr && mmat3 == nullptr) || (mat3 == this))
-  {
-    AMatrix::linearCombination(val1, mat1, val2, mat2, val3, mat3);
-  }
-  else
-  {
-    if (mat1 != nullptr && val1 != 0.)
-      eigenMat() = val1 * mmat1->eigenMat();
-    if (mat2 != nullptr && val2 != 0.)
-      eigenMat() += val2 * mmat2->eigenMat();
-    if (mat3 != nullptr && val3 != 0.)
-      eigenMat() += val3 * mmat3->eigenMat();
-  }
-}
-
 /*!
  * Updates the current Matrix as a linear combination of matrices as follows:
  *  this <- cx * this + cy * y

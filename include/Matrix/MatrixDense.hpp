@@ -154,13 +154,7 @@ public:
   /*! Perform 'this' = 't(A)' %*% 'A' or 'A' %*% 't(A)' */
   void prodNormMatInPlace(const AMatrix* a,
                           bool transpose = false) override;
-  /*! Perform 'this' = 'val1' * 'mat1' + 'val2' * 'mat2' + 'val3' * 'mat3' */
-  void linearCombination(double val1,
-                         const AMatrix* mat1,
-                         double val2         = 1.,
-                         const AMatrix* mat2 = nullptr,
-                         double val3         = 1.,
-                         const AMatrix* mat3 = nullptr) override;
+
   /*! Add a matrix (multiplied by a constant) */
   void addMat(const AMatrix& y, double cx = 1., double cy = 1.) override;
   void addMatNoCheck(const MatrixDense& y, const double cx = 1., const double cy = 1.);

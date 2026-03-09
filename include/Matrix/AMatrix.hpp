@@ -192,20 +192,6 @@ public:
     if (addition != 0.)
       T::addGeneral(cumul, cumul, addition);
 
-    T oldMat(other1.getNRows(), other1.getNCols());
-    oldMat.linearCombination(val1, &other1, val2, &other2, val3, &other3);
-
-    for (Id irow = 0; irow < res.getNRows(); irow++)
-      for (Id icol = 0; icol < res.getNCols(); icol++)
-      {
-        double diff = oldMat.getValue(irow, icol) - cumul.getValue(irow, icol);
-        if (ABS(diff) > 1.e-10)
-        {
-          messerr("Error in element (%d, %d). Old=%lf new=%lf",
-                  irow, icol, oldMat.getValue(irow, icol), cumul.getValue(irow, icol));
-          return;
-        }
-      }
     res = cumul;
   }
 
@@ -284,13 +270,6 @@ public:
   /*! Perform 'this' = 't(A)' %*% 'A' or 'A' %*% 't(A)' */
   virtual void prodNormMatInPlace(const AMatrix* a,
                                   bool transpose = false);
-  /*! Perform 'this' = 'val1' * 'mat1' + 'val2' * 'mat2' + 'val3' * 'mat3' */
-  virtual void linearCombination(double val1,
-                                 const AMatrix* mat1,
-                                 double val2         = 1.,
-                                 const AMatrix* mat2 = nullptr,
-                                 double val3         = 1.,
-                                 const AMatrix* mat3 = nullptr);
   /*! Add a matrix (multiplied by a constant) */
   virtual void addMat(const AMatrix& y, double cx = 1., double cy = 1.);
 

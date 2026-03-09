@@ -930,8 +930,7 @@ Id KrigingAlgebra::_needStdv()
     p1.prodMatMatInPlace(&_LambdaUK, _Sigma0, true);
     MatrixSymmetric p2(_nrhs, _nrhs);
     p2.prodMatMatInPlace(&_MuUK, _X0, true, true);
-    // AMatrix::CL(_Stdv, 0., 1., _Stdv, -1., p1, 1, p2);
-    _Stdv.linearCombination(1, &_Stdv, -1., &p1, +1., &p2);
+    AMatrix::CL(_Stdv, 0., 1., _Stdv, -1., p1, 1, p2);
 
     if (_ncck > 0)
     {

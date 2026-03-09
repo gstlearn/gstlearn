@@ -864,7 +864,7 @@ Id KrigingAlgebraSimpleCase::_needStdv()
     _LambdaUKtSigma0.prodMatMatInPlace(&_LambdaUK, _Sigma0.get(), true);
     _MuUKtX0t.resize(_nrhs, _nrhs);
     _MuUKtX0t.prodMatMatInPlace(&_MuUK, _X0.get(), true, true);
-    _Stdv.linearCombination(1, _Sigma00.get(), -1., &_LambdaUKtSigma0, +1., &_MuUKtX0t);
+    AMatrix::CL(_Stdv, 0., 1., *_Sigma00, -1., _LambdaUKtSigma0, +1., _MuUKtX0t);
   }
 
   // Transform variance into standard deviation
