@@ -1327,6 +1327,21 @@ void MatrixSparse::addGeneral(MatrixSparse& res,
   res.eigenMat() = result;
 }
 
+/**
+ * @brief Add matrices 'other1' and 'other2' and store the result in 'res'
+ * This code is alais-safe, as it does not modify 'other1' and 'other2' and only writes to 'res'.
+ *
+ * @param res Resulting matrix
+ * @param other1 First matrix
+ * @param other2 Second matrix
+ */
+void MatrixSparse::addGeneral(MatrixSparse& res,
+                              const MatrixSparse& other1,
+                              const MatrixSparse& other2)
+{
+  res.eigenMat() = other1.eigenMat() + other2.eigenMat();
+}
+
 void MatrixSparse::prodGeneral(MatrixSparse& res,
                                const MatrixSparse& other,
                                double cst)
@@ -1340,13 +1355,14 @@ void MatrixSparse::prodGeneral(MatrixSparse& res,
   res.eigenMat() = other.eigenMat() * cst;
 }
 
-void MatrixSparse::addGeneral(MatrixSparse& res,
-                              const MatrixSparse& other1,
-                              const MatrixSparse& other2)
-{
-  res.eigenMat() = other1.eigenMat() + other2.eigenMat();
-}
-
+/**
+ * @brief Make the elementwise product of matrices 'other1' and 'other2' and store the result in 'res'
+ * This code is alais-safe, as it does not modify 'other1' and 'other2' and only writes to 'res'.
+ *
+ * @param res Resulting matrix
+ * @param other1 First matrix
+ * @param other2 Second matrix
+ */
 void MatrixSparse::prodGeneral(MatrixSparse& res,
                                const MatrixSparse& other1,
                                const MatrixSparse& other2)

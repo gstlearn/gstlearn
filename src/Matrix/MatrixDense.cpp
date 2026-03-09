@@ -888,6 +888,14 @@ void MatrixDense::addGeneral(MatrixDense& res,
   res.eigenMat() = other.eigenMat().array() + cst;
 }
 
+/**
+ * @brief Add matrices 'other1' and 'other2' and store the result in 'res'
+ * This code is alais-safe, as it does not modify 'other1' and 'other2' and only writes to 'res'.
+ *
+ * @param res Resulting matrix
+ * @param other1 First matrix
+ * @param other2 Second matrix
+ */
 void MatrixDense::addGeneral(MatrixDense& res,
                              const MatrixDense& other1,
                              const MatrixDense& other2)
@@ -907,6 +915,14 @@ void MatrixDense::prodGeneral(MatrixDense& res,
   res.eigenMat() = other.eigenMat() * cst;
 }
 
+/**
+ * @brief Make the elementwise product of matrices 'other1' and 'other2' and store the result in 'res'
+ * This code is alais-safe, as it does not modify 'other1' and 'other2' and only writes to 'res'.
+ *
+ * @param res Resulting matrix
+ * @param other1 First matrix
+ * @param other2 Second matrix
+ */
 void MatrixDense::prodGeneral(MatrixDense& res,
                               const MatrixDense& other1,
                               const MatrixDense& other2)

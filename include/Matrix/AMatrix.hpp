@@ -148,45 +148,65 @@ public:
                   "Only MatrixDense and MatrixSparse are allowed");
 
     // Check dimensions
-    if (val1 != 0. && (other1.getNRows() != other2.getNRows() ||
-                       other1.getNCols() != other2.getNCols()))
+    // --- Vérifications de dimensions ---
+    auto checkDims = [](const T& a, const T& b, const char* nameA, const char* nameB)
     {
-      messerr("Matrix linear combination error: matrices 'other1' and 'other2' have different dimensions");
-      return;
-    }
-    if (val2 != 0. && (other1.getNRows() != other2.getNRows() ||
-                       other1.getNCols() != other2.getNCols()))
-    {
-      messerr("Matrix linear combination error: matrices 'other1' and 'other2' have different dimensions");
-      return;
-    }
-    if (val3 != 0. && (other1.getNRows() != other3.getNRows() ||
-                       other1.getNCols() != other3.getNCols()))
-    {
-      messerr("Matrix linear combination error: matrices 'other1' and 'other3' have different dimensions");
-      return;
-    }
+      if (a.getNRows() != b.getNRows() || a.getNCols() != b.getNCols())
+      {
+        messerr("Matrix linear combination error: matrices '%s' and '%s' have different dimensions",
+                nameA, nameB);
+        return false;
+      }
+      return true;
+    };
+
+    if (val1 != 0. && val2 != 0. && !checkDims(other1, other2, "other1", "other2")) return;
+    if (val1 != 0. && val3 != 0. && !checkDims(other1, other3, "other1", "other3")) return;
+    if (val2 != 0. && val3 != 0. && !checkDims(other2, other3, "other2", "other3")) return;
+
     if (res.getNRows() != other1.getNRows() || res.getNCols() != other1.getNCols())
     {
       res.resize(other1.getNRows(), other1.getNCols());
     }
+
     T temp(res.getNRows(), res.getNCols());
-    temp.prodGeneral(temp, other1, val1);
-    res.addGeneral(res, res, temp);
+    T cumul(res.getNRows(), res.getNCols());
+
+    if (val1 != 0.)
+    {
+      T::prodGeneral(temp, other1, val1);
+      T::addGeneral(cumul, cumul, temp);
+    }
 
     if (val2 != 0.)
     {
-      temp.prodGeneral(temp, other2, val2);
-      res.addGeneral(res, res, temp);
+      T::prodGeneral(temp, other2, val2);
+      T::addGeneral(cumul, cumul, temp);
     }
 
     if (val3 != 0.)
     {
-      temp.prodGeneral(temp, other3, val3);
-      res.addGeneral(res, res, temp);
+      T::prodGeneral(temp, other3, val3);
+      T::addGeneral(cumul, cumul, temp);
     }
     if (addition != 0.)
-      res.addGeneral(res, res, addition);
+      T::addGeneral(cumul, cumul, addition);
+
+    T oldMat(other1.getNRows(), other1.getNCols());
+    oldMat.linearCombination(val1, &other1, val2, &other2, val3, &other3);
+
+    for (Id irow = 0; irow < res.getNRows(); irow++)
+      for (Id icol = 0; icol < res.getNCols(); icol++)
+      {
+        double diff = oldMat.getValue(irow, icol) - cumul.getValue(irow, icol);
+        if (ABS(diff) > 1.e-10)
+        {
+          messerr("Error in element (%d, %d). Old=%lf new=%lf",
+                  irow, icol, oldMat.getValue(irow, icol), cumul.getValue(irow, icol));
+          return;
+        }
+      }
+    res = cumul;
   }
 
   template<typename T>

@@ -852,7 +852,7 @@ Id KrigingAlgebraSimpleCase::_needStdv()
   if (_flagSK)
   {
     if (_needVarZSK()) return 1;
-    _Stdv.linearCombination(1., _Sigma00.get(), -1., &_VarZSK);
+    AMatrix::CL(_Stdv, 0., 1., *_Sigma00, -1., _VarZSK);
   }
   else
   {
@@ -962,7 +962,7 @@ Id KrigingAlgebraSimpleCase::_needSigmac()
   return 0;
 }
 
-void KrigingAlgebraSimpleCase::_printInversionErrorMessage(const MatrixSymmetric& mat) 
+void KrigingAlgebraSimpleCase::_printInversionErrorMessage(const MatrixSymmetric& mat)
 {
   messerr("Problem when inverting Kriging Matrix (NRows=%d x NCols=%d)",
           mat.getNRows(), mat.getNCols());
@@ -991,7 +991,7 @@ Id KrigingAlgebraSimpleCase::_needMuUK()
   _Y0.resize(_nrhs, _nbfl);
 
   _LambdaSKtX.prodMatMatInPlace(_LambdaSK.get(), _X.get(), true, false);
-  _Y0.linearCombination(1., _X0.get(), -1., &_LambdaSKtX);
+  AMatrix::CL(_Y0, 0., 1., *_X0, -1., _LambdaSKtX);
 
   _MuUK.prodMatMatInPlace(_invSigmac.get(), &_Y0, false, true);
   return 0;
