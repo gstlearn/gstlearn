@@ -60,7 +60,7 @@ jobs:
         uv pip install pandas
         uv pip install scipy
         uv pip install dash
-        uv pip install scikit-sparse
+        uv pip install scikit-sparse==0.4.16
 
     - name: Run sccache-cache
       uses: mozilla-actions/sccache-action@v0.0.9
