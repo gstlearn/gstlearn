@@ -1777,8 +1777,8 @@ VectorDouble GeometryHelper::rayTriangleIntersect(const VectorDouble& dir,
                                                   const VectorDouble& v2)
 {
   VectorDouble res(3, -1.);
-  VectorDouble v20 = v2.subtractVec(v0);
-  VectorDouble v10 = v1.subtractVec(v0);
+  VectorDouble v20 = v2 - v0;
+  VectorDouble v10 = v1 - v0;
 
   VectorDouble pvec = VH::crossProduct3D(dir, v20);
   double det        = pvec.innerProduct(v10);
@@ -1791,7 +1791,7 @@ VectorDouble GeometryHelper::rayTriangleIntersect(const VectorDouble& dir,
   if (u < 0 || u > 1) return res;
 
   VectorDouble vm0 = v0;
-  vm0.multiplyCst(-1.);
+  vm0 *= -1.;
   VectorDouble qvec = VH::crossProduct3D(vm0, v10);
   double v          = dir.innerProduct(qvec) * invDet;
   if (v < 0 || u + v > 1) return res;

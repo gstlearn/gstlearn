@@ -779,7 +779,7 @@ MatrixSquare Vario::_evalAverageDbIncr(Model* model,
 
       // Calculate the distance between the two samples
       db.getDistanceVecInPlace(iech, jech, dd);
-      if (!incr.empty()) dd.add(incr);
+      if (!incr.empty()) dd += incr;
 
       // Evaluate the covariance matrix between two samples
       model->evaluateMatInPlace(nullptr, dd, covtab, false, 1., mode);
@@ -831,7 +831,7 @@ Id Vario::regularizeFromDbGrid(Model* model,
     {
       double dist     = ilag * getDPas(idir);
       VectorDouble dd = getCodirs(idir);
-      dd.multiplyCst(dist);
+      dd *= dist;
 
       MatrixSquare covtab = _evalAverageDbIncr(model, db, dd, mode);
 

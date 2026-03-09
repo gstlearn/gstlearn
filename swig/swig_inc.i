@@ -452,9 +452,9 @@
 %template(VecMeshes)               std::vector< const gstlrn::AMesh*>;
 %template(VectorMatrixSquare)      std::vector<gstlrn::MatrixSquare >;
 
-////////////////////////////////////////////////
-// Conversion Target language => C++
-
+///////////////////////////////////////
+// Conversion Target language => C++ //
+///////////////////////////////////////
 namespace gstlrn {
 
 // Note : Before including this file :
@@ -815,8 +815,6 @@ namespace gstlrn {
   }
 }
 
-
-
 %typemap(in, fragment="ToCpp") const MatrixDense&     (void *argp, MatrixDense mat),
                                const MatrixDense*     (void *argp, MatrixDense mat),
                                const MatrixSquare&   (void *argp, MatrixSquare mat),
@@ -1074,6 +1072,77 @@ namespace gstlrn {
   VectorInt getIndices(int rank = 0) const {
     const auto view = $self->getIndices(rank);
     return {view.begin(), view.end()};
+  }
+}
+
+%extend gstlrn::VectorHelper {
+/**
+   * @brief List of operators exported for Target Language
+   */
+  static VectorDouble addVD(const VectorDouble& v1, const VectorDouble& v2)
+  {
+    return VectorHelper::add(v1, v2);
+  }
+  static VectorDouble addVDCst(const VectorDouble& v1, double v2)
+  {
+    return VectorHelper::addCst(v1, v2);
+  }
+  static VectorDouble subtractVD(const VectorDouble& v1, const VectorDouble& v2)
+  {
+    return VectorHelper::subtract(v1, v2);
+  }
+  static VectorDouble subtractVDCst(const VectorDouble& v1, double v2, bool flagOpposite = false)
+  {
+    return VectorHelper::subtractCst(v1, v2, flagOpposite);
+  }
+  static VectorDouble multiplyVD(const VectorDouble& v1, const VectorDouble& v2)
+  {
+    return VectorHelper::multiply(v1, v2);
+  }
+  static VectorDouble multiplyVDCst(const VectorDouble& v1, double v2)
+  {
+    return VectorHelper::multiplyCst(v1, v2);
+  }
+  static VectorDouble divideVD(const VectorDouble& v1, const VectorDouble& v2)
+  {
+    return VectorHelper::divide(v1, v2);
+  }
+  static VectorDouble divideVDCst(const VectorDouble& v1, double v2, bool flagOpposite = false)
+  {
+    return VectorHelper::divideCst(v1, v2, flagOpposite);
+  }
+
+  static VectorInt addVI(const VectorInt& v1, const VectorInt& v2)
+  {
+    return VectorHelper::add(v1, v2);
+  }
+  static VectorInt addVICst(const VectorInt& v1, Id v2)
+  {
+    return VectorHelper::addCst(v1, v2);
+  }
+  static VectorInt subtractVI(const VectorInt& v1, const VectorInt& v2)
+  {
+    return VectorHelper::subtract(v1, v2);
+  }
+  static VectorInt subtractVICst(const VectorInt& v1, Id v2, bool flagOpposite = false)
+  {
+    return VectorHelper::subtractCst(v1, v2, flagOpposite);
+  }
+  static VectorInt multiplyVI(const VectorInt& v1, const VectorInt& v2)
+  {
+    return VectorHelper::multiply(v1, v2);
+  }
+  static VectorInt multiplyVICst(const VectorInt& v1, Id v2)
+  {
+    return VectorHelper::multiplyCst(v1, v2);
+  }
+  static VectorInt divideVI(const VectorInt& v1, const VectorInt& v2)
+  {
+    return VectorHelper::divide(v1, v2);
+  }
+  static VectorInt divideVICst(const VectorInt& v1, Id v2, bool flagOpposite = false)
+  {
+    return VectorHelper::divideCst(v1, v2, flagOpposite);
   }
 }
 

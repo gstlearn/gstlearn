@@ -220,7 +220,7 @@ static void _secondTest(Db* data, Db* target, ModelGeneric* model)
   Kcalc.setRHS(&Sigma0, &X0);
   Kcalc.setVariance(&Sigma00);
   // Subtract the mean (non zero for SK only) from the Collocated values
-  valuesTarget.subtract(model->getMeans());
+  valuesTarget -= model->getMeans();
   Kcalc.setColCokUnique(&valuesTarget, &varColCok);
 
   printVector(Kcalc.getEstimation(), "Kriging Value(s)", true, true);

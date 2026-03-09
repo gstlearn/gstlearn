@@ -71,7 +71,7 @@ int main(int argc, char* argv[])
   // Define the verbose option
   if (debug) OptDbg::setReference(1);
 
-  // Test on Collocated CoKriging in Unique Neighborhood
+  // Test on Image Filtering in Unique Neighborhood
   (void)krimage(db, model, neigh, flagFFT, verbose);
   dbfmt = DbStringFormat::create(FLAG_STATS, {"Filtering*"});
   db->display(dbfmt);

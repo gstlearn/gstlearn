@@ -771,8 +771,8 @@ std::vector<SpacePoint> SpatialIndices::getPatches(const String& name,
   double patot;
   double pbtot;
   SpacePoint globalCenter = _calculateGlobalGravityCenter(xxs, yys, zzs, wws, &patot, &pbtot);
-  pa.divideCst(patot);
-  pb.divideCst(pbtot);
+  pa /= patot;
+  pb /= pbtot;
 
   // Printout
   Id ncenter = static_cast<Id>(centers.size());

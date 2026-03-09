@@ -10,10 +10,6 @@
 /******************************************************************************/
 #include "Basic/ASerializable.hpp"
 #include "geoslib_define.h"
-#include "Space/SpaceRN.hpp"
-#include "Space/ASpaceObject.hpp"
-#include "Covariances/CovContext.hpp"
-#include "Covariances/CorAniso.hpp"
 
 using namespace gstlrn;
 

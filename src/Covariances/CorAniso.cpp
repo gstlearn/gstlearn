@@ -255,8 +255,7 @@ void CorAniso::setRanges(const VectorDouble& ranges)
     }
   }
   VectorDouble scales = ranges;
-  double scadef       = _corfunc->getScadef();
-  scales.divideCst(scadef);
+  scales /= _corfunc->getScadef();
   setScales(scales);
 }
 
@@ -393,8 +392,7 @@ void CorAniso::setRotationAnglesAndRadius(const VectorDouble& angles,
       }
     }
     scales_local  = ranges;
-    double scadef = _corfunc->getScadef();
-    scales_local.divideCst(scadef);
+    scales_local /= _corfunc->getScadef();
   }
 
   // Perform the assignment and update the tensor
@@ -495,7 +493,6 @@ double CorAniso::evalCorFromH(double h, const CovCalcMode* mode) const
   return cov;
 }
 
-
 thread_local VectorDouble h_shifted;
 thread_local VectorDouble res_shifted;
 /**
@@ -504,7 +501,7 @@ thread_local VectorDouble res_shifted;
  * @param h    Input distance
  * @param res  Output vector to store the covariance values (in place)
  * @param mode Pointer to CovCalcMode structure (optional)
- * @param lambda Multiplier for the covariance value 
+ * @param lambda Multiplier for the covariance value
  */
 void CorAniso::addEvalCorFromHVect(constvect h, vect res, const CovCalcMode* mode, double lambda) const
 {
@@ -520,48 +517,46 @@ void CorAniso::addEvalCorFromHVect(constvect h, vect res, const CovCalcMode* mod
     // Buffer temporaire pour stocker le calcul batch de chaque iwgt
     // On peut utiliser un VectorDouble local ou un buffer de travail
 
-
     // Calculate High-order Variogram (only valuable when h != 0)
     for (Id iwgt = 1, nwgt = NWGT[norder]; iwgt < nwgt; iwgt++)
     {
       double factor_h = 1. + iwgt;
-      double wgt = COVWGT[norder][iwgt];
-      
+      double wgt      = COVWGT[norder][iwgt];
+
       // On prépare les distances décalées pour le batch
       for (Id i = 0; i < n; i++) h_shifted[i] = h[i] * factor_h;
-      
+
       // Appel Batch pour ce poids
       _corfunc->evalCorFuncBatch(h_shifted, res_shifted);
-      
+
       // Accumulation
       double norm = NORWGT[norder];
-      for (Id i = 0; i < n; i++) res[i] += wgt * res_shifted[i]/norm;
-    }    
+      for (Id i = 0; i < n; i++) res[i] += wgt * res_shifted[i] / norm;
+    }
   }
   else
   {
     // Case norder == 0 or mode == nullptr
     _corfunc->evalCorFuncBatch(h, res_shifted);
-    
+
     double factor = _noStatFactor;
-    bool asVario = (mode != nullptr && mode->getAsVario());
-    
+    bool asVario  = (mode != nullptr && mode->getAsVario());
+
     if (asVario)
     {
       double c0 = _corfunc->evalCorFunc(0);
-      for (Id i = 0; i < n; i++) 
+      for (Id i = 0; i < n; i++)
         res[i] += lambda * (c0 - (res_shifted[i] * factor));
     }
     else
     {
-      for (Id i = 0; i < n; i++) 
+      for (Id i = 0; i < n; i++)
         res[i] += lambda * res_shifted[i] * factor;
     }
   }
   res_shifted.clear();
   h_shifted.clear();
 }
-
 
 double CorAniso::evalCor(const SpacePoint& p1,
                          const SpacePoint& p2,
@@ -876,7 +871,7 @@ VectorDouble CorAniso::getRanges() const
   VectorDouble range = getScales();
   double scadef      = _corfunc->getScadef();
   if (!hasRange()) scadef = 0.;
-  range.multiplyCst(scadef);
+  range *= scadef;
   return range;
 }
 
@@ -916,7 +911,7 @@ VectorDouble CorAniso::getAnisoCoeffs() const
     messerr("Range is null");
     return VectorDouble();
   }
-  coef.divideCst(max);
+  coef /= max;
   return coef;
 }
 
@@ -1785,8 +1780,7 @@ void CorAniso::appendParams(ListParams& listparams,
         const VectorDouble& radius = this->_aniso.getRadius();
 
         this->_aniso.getRotation().rotateInverse(incr, temp);
-        temp.divide(radius);
-        temp.divide(radius);
+        temp /= (radius * radius);
 
         this->_dRot[i].prodMatVecInPlace(temp, res);
 

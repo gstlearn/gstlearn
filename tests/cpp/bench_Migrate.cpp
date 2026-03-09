@@ -59,7 +59,7 @@ int main(int argc, char* argv[])
   Db* data = Db::createFillRandom(nech, ndim, 0);
   if (!flag_simu)
   {
-    VectorDouble resd = data->getColumn("x-1").addVec(data->getColumn("x-2"));
+    VectorDouble resd = data->getColumn("x-1") + data->getColumn("x-2");
     data->addColumns(resd, "Simu", ELoc::Z);
   }
   else
@@ -73,7 +73,7 @@ int main(int argc, char* argv[])
   DbGrid* grid = DbGrid::createCoveringDb(data, {nx, nx});
   if (!flag_simu)
   {
-    VectorDouble resg = grid->getColumn("x1").addVec(grid->getColumn("x2"));
+    VectorDouble resg = grid->getColumn("x1") + grid->getColumn("x2");
     grid->addColumns(resg, "Simu", ELoc::Z);
   }
   else
@@ -134,7 +134,7 @@ int main(int argc, char* argv[])
   vecb = grid->getColumn("P2Gyb*");
 
   // Compare impact of balltree option on P2Gy
-  diff = vecb.subtractVec(vec);
+  diff = vecb - vec;
   VH::getMostSignificant(diff, EPSILON6, 10);
   grid->addColumns(diff, "Diff_P2Gy");
 
@@ -153,7 +153,7 @@ int main(int argc, char* argv[])
   vecb = data->getColumn("P2Pyb*");
 
   // Compare impact of balltree option on P2Py
-  diff = vecb.subtractVec(vec);
+  diff = vecb - vec;
   VH::getMostSignificant(diff, EPSILON6, 10);
   data->addColumns(diff, "Diff_P2Py");
 

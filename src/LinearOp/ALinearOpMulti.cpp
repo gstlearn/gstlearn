@@ -156,8 +156,9 @@ void ALinearOpMulti::evalInverse(const VectorVectorDouble& vecin,
 
   if (_userInitialValue)
   {
-    evalDirect(vecout, _temp);           // temp = Ax0 (x0 est stocké dans outv)
-    vecin.subtractVecInPlace(_temp, _r); // r=b-Ax0
+    evalDirect(vecout, _temp); // temp = Ax0 (x0 est stocké dans outv)
+    for (Id item = 0, nitem = static_cast<Id>(vecin.size()); item < nitem; item++)
+      VH::subtract(_r[item], vecin[item], _temp[item]);
     nb = _r.innerProduct(_r);
 
     // If _nb is not set, then initialize the internal state from scratch.
@@ -208,8 +209,9 @@ void ALinearOpMulti::evalInverse(const VectorVectorDouble& vecin,
 
     if (_nIterRestart > 0 && (niter + 1) % _nIterRestart == 0)
     {
-      evalDirect(vecout, _temp);           // temp = Ax
-      vecin.subtractVecInPlace(_temp, _r); // r = b - Ax
+      evalDirect(vecout, _temp); // temp = Ax
+      for (Id item = 0, nitem = static_cast<Id>(vecin.size()); item < nitem; item++)
+        VH::subtract(_r[item], vecin[item], _temp[item]); // r = b - Ax
       if (OptDbg::query(EDbg::CONVERGE))
         message("Recomputing exact residuals after %d iterations (max=%d)\n", niter, _nIterMax);
     }
@@ -219,7 +221,7 @@ void ALinearOpMulti::evalInverse(const VectorVectorDouble& vecin,
     if (_precondStatus)
     {
       _precond->evalDirect(_r, _temp);                                             // z = Mr
-      rsnew = _r.innerProduct(_temp);                           // r'z
+      rsnew = _r.innerProduct(_temp);                                              // r'z
       VectorHelper::linearCombinationVVDInPlace(1., _temp, rsnew / rsold, _p, _p); // p = z+beta p
     }
     else

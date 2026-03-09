@@ -8,8 +8,9 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f.h"
+#include "Basic/File.hpp"
 #include "Basic/VectorHelper.hpp"
+#include "geoslib_define.h"
 
 using namespace gstlrn;
 
@@ -25,7 +26,7 @@ int main(int argc, char* argv[])
   // Test 1: Basic whereElement functionality (without start parameter)
   message("\n=== Test 1: Basic whereElement ===\n");
   VectorInt vec1 = {10, 20, 30, 40, 50};
-  Id pos = VH::whereElement(vec1, 30);
+  Id pos         = VH::whereElement(vec1, 30);
   if (pos == 2)
     message("PASS: Found 30 at position 2\n");
   else
@@ -40,7 +41,7 @@ int main(int argc, char* argv[])
   // Test 2: Optimized whereElement with start parameter
   message("\n=== Test 2: Optimized whereElement with start ===\n");
   VectorInt vec2 = {5, 15, 25, 35, 45, 55, 65, 75, 85, 95};
-  
+
   // Search starting from position 0
   pos = VH::whereElement(vec2, 25, 0);
   if (pos == 2)
@@ -66,8 +67,8 @@ int main(int argc, char* argv[])
   message("\n=== Test 3: Sequential search pattern ===\n");
   VectorInt indices = {0, 2, 5, 7, 10, 12, 15, 18, 20, 25};
   VectorInt targets = {0, 2, 5, 7, 10, 12, 15, 18, 20, 25};
-  
-  Id lastPos = 0;
+
+  Id lastPos    = 0;
   bool allFound = true;
   for (Id i = 0; i < static_cast<Id>(targets.size()); i++)
   {
@@ -75,7 +76,7 @@ int main(int argc, char* argv[])
     if (pos >= 0)
     {
       message("Found %d at position %d (started from %d)\n", targets[i], pos, lastPos);
-      lastPos = pos;  // Update for next search
+      lastPos = pos; // Update for next search
     }
     else
     {
@@ -83,7 +84,7 @@ int main(int argc, char* argv[])
       allFound = false;
     }
   }
-  
+
   if (allFound)
     message("PASS: All elements found in sequential order\n");
   else
@@ -91,7 +92,7 @@ int main(int argc, char* argv[])
 
   // Test 4: Edge cases
   message("\n=== Test 4: Edge cases ===\n");
-  
+
   // Empty vector
   VectorInt emptyVec;
   pos = VH::whereElement(emptyVec, 10);
@@ -108,7 +109,7 @@ int main(int argc, char* argv[])
 
   // Single element
   VectorInt singleVec = {42};
-  pos = VH::whereElement(singleVec, 42, 0);
+  pos                 = VH::whereElement(singleVec, 42, 0);
   if (pos == 0)
     message("PASS: Single element found at position 0\n");
   else
@@ -116,11 +117,158 @@ int main(int argc, char* argv[])
 
   // Start beyond vector size
   VectorInt vec3 = {1, 2, 3};
-  pos = VH::whereElement(vec3, 2, 10);
+  pos            = VH::whereElement(vec3, 2, 10);
   if (pos == -1)
     message("PASS: Start beyond vector size returns -1\n");
   else
     message("FAIL: Expected -1 when start > size, got %d\n", pos);
+
+  // New interface
+  auto nech = 5;
+  mestitle(1, "Testing Operations for Vector of Double");
+
+  auto V1 = VH::simulateGaussian(nech, 0., 1.);
+  V1.dump("Vector V1", false);
+  auto V2 = VH::simulateGaussian(nech, 0., 1.);
+  V2.dump("Vector V2", false);
+
+  VectorDouble Vres;
+  message("\n");
+
+  Vres = VH::add(V1, V2);
+  Vres.dump("Checking VH::add(V1,V2)", false);
+
+  VH::add(Vres, V1, V2);
+  Vres.dump("Checking VH::add(Vres,V1,V2)", false);
+
+  Vres = V1 + V2;
+  Vres.dump("Checking Vres = V1 + V2", false);
+
+  Vres = V1;
+  Vres += V2;
+  Vres.dump("Checking Vres(V1) += V2", false);
+
+  Vres = V1 + V2 + V1;
+  Vres.dump("Checking Vres = V1 + V2 + V1", false);
+
+  Vres = V1 + 3.1;
+  Vres.dump("Checking Vres = V1 + 3.1", false);
+
+  Vres = 2.1 + V1;
+  Vres.dump("Checking Vres = 2.1 + V1", false);
+
+  Vres = 2.1 + V1 + 2.3;
+  Vres.dump("Checking Vres = 2.1 + V1 + 2.3", false);
+
+  Vres = V1 - V2;
+  Vres.dump("Checking Vres = V1 - V2", false);
+
+  Vres = V1 - 3.1;
+  Vres.dump("Checking Vres = V1 - 3.1", false);
+
+  Vres = -3.1 + V1;
+  Vres.dump("Checking Vres = -3.1 + V1", false);
+
+  Vres = V1 * V2;
+  Vres.dump("Checking Vres = V1 * V2", false);
+
+  Vres = V1 * 3.1;
+  Vres.dump("Checking Vres = V1 * 3.1", false);
+
+  Vres = 2.1 * V1;
+  Vres.dump("Checking Vres = 2.1 * V1", false);
+
+  Vres = V1 / V2;
+  Vres.dump("Checking Vres = V1 / V2", false);
+
+  Vres = V1 / 3.1;
+  Vres.dump("Checking Vres = V1 / 3.1", false);
+
+  Vres = 2.1 / V1;
+  Vres.dump("Checking Vres = 2.1 / V1", false);
+
+  Vres = V1;
+  Vres /= V2;
+  Vres.dump("Checking Vres (V1) /= V2", false);
+
+  Vres = V1 + 4. * V2;
+  Vres.dump("Checking Vres = V1 + 4. * V2", false);
+
+  Vres = (V1 + 4.) * V2;
+  Vres.dump("Checking Vres = (V1 + 4.) * V2 -> NO", false);
+
+  Vres = V1 + (4. * V2);
+  Vres.dump("Checking Vres = V1 + (4. * V2)", false);
+
+  Vres = V2 * 4. + V1;
+  Vres.dump("Checking Vres = V2 * 4. + V1", false);
+
+  mestitle(1, "Testing operations on Vectors of Integers");
+  Id nvar       = 10;
+  VectorInt IV1 = VH::simulateInteger(nech, VectorDouble(nvar, 1. / nvar));
+  IV1.dump("Vector IV1", false);
+  VectorInt IV2 = VH::simulateInteger(nech, VectorDouble(nvar, 1. / nvar));
+  IV2.dump("Vector IV2", false);
+  VectorInt IVres;
+
+  IVres = VH::add(IV1, IV2);
+  IVres.dump("Checking VH::add(IV1,IV2)", false);
+
+  VH::add(IVres, IV1, IV2);
+  IVres.dump("Checking VH::add(IVres,IV1,IV2)", false);
+
+  IVres = IV1 + IV2;
+  IVres.dump("Checking IVres = IV1 + IV2", false);
+
+  IVres = IV1;
+  IVres += IV2;
+  IVres.dump("Checking IVres(IV1) += IV2", false);
+
+  IVres = IV1 + IV2 + IV1;
+  IVres.dump("Checking IVres = IV1 + IV2 + IV1", false);
+
+  IVres = IV1 + 3;
+  IVres.dump("Checking IVres = IV1 + 3", false);
+
+  IVres = 2 + IV1;
+  IVres.dump("Checking IVres = 2 + IV1", false);
+
+  IVres = 2 + IV1 + 5;
+  IVres.dump("Checking IVres = 2 + IV1 + 5", false);
+
+  IVres = IV1 - IV2;
+  IVres.dump("Checking IVres = IV1 - IV2", false);
+
+  IVres = IV1 - 3;
+  IVres.dump("Checking IVres = IV1 - 3", false);
+
+  IVres = -3 + IV1;
+  IVres.dump("Checking IVres = -3 + IV1", false);
+
+  IVres = IV1 * IV2;
+  IVres.dump("Checking IVres = IV1 * IV2", false);
+
+  IVres = IV1 * 3;
+  IVres.dump("Checking IVres = IV1 * 3", false);
+
+  IVres = 2 * IV1;
+  IVres.dump("Checking IVres = 2 * IV1", false);
+
+  IVres = IV1 / IV2;
+  IVres.dump("Checking IVres = IV1 / IV2", false);
+
+  IVres = IV1 / 3;
+  IVres.dump("Checking IVres = IV1 / 3", false);
+
+  IVres = 2 / IV1;
+  IVres.dump("Checking IVres = 2 / IV1", false);
+
+  IVres = IV1;
+  IVres /= IV2;
+  IVres.dump("Checking IVres (IV1) /= IV2", false);
+
+  IVres = IV1 + 4 * IV2;
+  IVres.dump("Checking IVres = IV1 + 4 * IV2", false);
 
   message("\n=== All tests completed ===\n");
   return 0;

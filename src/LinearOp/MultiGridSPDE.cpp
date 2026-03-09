@@ -11,6 +11,7 @@
 
 #include "LinearOp/MultiGridSPDE.hpp"
 #include "Basic/OptCustom.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Db/Db.hpp"
@@ -18,12 +19,12 @@
 #include "Db/RankHandler.hpp"
 #include "Enum/ECalcMember.hpp"
 #include "Enum/EKrigOpt.hpp"
-#include "LinearOp/PrecisionOp.hpp"
 #include "Estimation/KrigOpt.hpp"
-#include "LinearOp/ProjMatrix.hpp"
 #include "LinearOp/CholeskyDense.hpp"
 #include "LinearOp/CholeskySparse.hpp"
 #include "LinearOp/MultiGridSolver.hpp"
+#include "LinearOp/PrecisionOp.hpp"
+#include "LinearOp/ProjMatrix.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixSparse.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
@@ -43,22 +44,22 @@ MultiGridSPDE::MultiGridSPDE(const CovAniso* cov)
 
 std::pair<DbGrid, bool> MultiGridSPDE::buildNextGrid(const DbGrid* dbfine)
 {
-  auto x0     = dbfine->getX0s();
-  auto nxs    = dbfine->getNXs();
-  auto dxs    = dbfine->getDXs();
-  auto dim    = dbfine->getNDim();
-  auto angles = dbfine->getAngles();
+  auto x0      = dbfine->getX0s();
+  auto nxs     = dbfine->getNXs();
+  auto dxs     = dbfine->getDXs();
+  auto dim     = dbfine->getNDim();
+  auto angles  = dbfine->getAngles();
   bool reduced = false;
   for (Id d = 0; d < dim; d++)
   {
-    Id n_intervals = nxs[d] - 1;          // number of intervals in the fine grid
+    Id n_intervals = nxs[d] - 1;            // number of intervals in the fine grid
     Id nxcandidate = (n_intervals / 2) + 1; // number of nodes in the coarse grid if we keep every 2nd node
     if (nxcandidate > 5)
     {
-      reduced = true;
-      nxs[d]         = n_intervals / 2 + 1; // number of intervals divided by 2 + 1 for the nodes
-      double L       = n_intervals * dxs[d];
-      dxs[d]         = L / (nxs[d] - 1); // new grid spacing
+      reduced  = true;
+      nxs[d]   = n_intervals / 2 + 1; // number of intervals divided by 2 + 1 for the nodes
+      double L = n_intervals * dxs[d];
+      dxs[d]   = L / (nxs[d] - 1); // new grid spacing
     }
   }
   DbGrid next_db = DbGrid();
@@ -75,15 +76,13 @@ Id MultiGridSPDE::buildGridHierarchy(const DbGrid* dbfine, Id nlevels)
 
   for (Id i = 0; i < nlevels - 1; i++)
   {
-    std::pair<DbGrid,bool> returnpair = buildNextGrid(dbfine);
+    std::pair<DbGrid, bool> returnpair = buildNextGrid(dbfine);
     if (!returnpair.second) break;
     nlevels_built++;
     prolongators.push_back(buildProlongator(dbfine, &returnpair.first));
     MeshETurbo mesh(&returnpair.first);
     precisionOps.push_back(PrecisionOp(&mesh, _cova));
-    dbfine         = &returnpair.first;
-
-
+    dbfine = &returnpair.first;
   }
   return nlevels_built;
 }
@@ -190,8 +189,8 @@ ProjMatrix MultiGridSPDE::buildProlongator(const DbGrid* dbfine, const DbGrid* d
     chol.solve(ones, s1);
     double sc    = 1.0 / s1.sum();
     double ratio = sc * (1 - sw);
-    s1.multiplyCst(ratio);
-    weights.add(s1);
+    s1 *= ratio;
+    weights += s1;
 
     // Add the triplets for the prolongator matrix
     for (size_t j = 0; j < all_parents.size(); j++)
@@ -201,7 +200,7 @@ ProjMatrix MultiGridSPDE::buildProlongator(const DbGrid* dbfine, const DbGrid* d
 
 #pragma omp parallel
   {
-    
+
     delete rkh;
     rkh = nullptr;
   }
@@ -211,8 +210,8 @@ ProjMatrix MultiGridSPDE::buildProlongator(const DbGrid* dbfine, const DbGrid* d
     triplet.appendInPlace(privateTriplet);
   ProjMatrix result;
   result.resetFromTriplet(triplet);
-  //MatrixSparse result(dbfine->getNSample(), dbcoarse->getNSample());
-  //result.resetFromTriplet(triplet);
+  // MatrixSparse result(dbfine->getNSample(), dbcoarse->getNSample());
+  // result.resetFromTriplet(triplet);
   return result;
 }
 

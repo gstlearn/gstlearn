@@ -402,7 +402,7 @@ static VectorDouble st_point_init_homogeneous(Id number,
     messerr("This method requires 'coormin' and 'coormax' defined");
     return tab;
   }
-  VectorDouble extend = coormax.subtractVec(coormin);
+  VectorDouble extend = coormax - coormin;
   Id ndim             = static_cast<Id>(coormin.size());
   VectorDouble coor(ndim);
   VectorDouble delta(ndim);

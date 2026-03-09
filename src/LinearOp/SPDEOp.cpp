@@ -278,7 +278,7 @@ VectorDouble ASPDEOp::stdev(const VectorDouble& dat,
   for (Id iMC = 0; iMC < nMC; iMC++)
   {
     VectorDouble temp = simCond(dat, projK, projS);
-    temp_mean.add(temp);
+    temp_mean += temp;
     VH::addSquareInPlace(temp_mean2, temp);
   }
   VH::mean1AndMean2ToStdev(temp_mean, temp_mean2, temp_mean, nMC);

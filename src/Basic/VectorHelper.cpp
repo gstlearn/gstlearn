@@ -490,14 +490,60 @@ VectorDouble VectorHelper::sequenceVD(double valFrom,
   return vec;
 }
 
+VectorBool VectorHelper::simulateBoolean(Id n, double probaTrue)
+{
+  VectorBool vec(n);
+  for (auto& el: vec)
+    el = law_uniform(0., 1.) < probaTrue;
+  return vec;
+}
+
+VectorInt VectorHelper::simulateInteger(Id n, const VectorDouble& probas)
+{
+  VectorInt vec(n);
+
+  // Normalize the probabilities
+  double total = 0.;
+  for (const auto& p: probas)
+  {
+    if (p < 0.)
+    {
+      messerr("Probabilities should be positive. Nothing is done.");
+      return VectorInt();
+    }
+    total += p;
+  }
+  if (total <= 0.)
+  {
+    messerr("The sum of probabilities should be positive. Nothing is done.");
+    return VectorInt();
+  }
+  auto nproba = static_cast<Id>(probas.size());
+  VectorDouble normprobas(nproba);
+  for (Id i = 0; i < nproba; i++)
+    normprobas[i] = probas[i] / total;
+
+  for (auto& el: vec)
+  {
+    double rand = law_uniform(0., 1.);
+    Id ic       = 0;
+    double tol  = normprobas[0];
+    while (rand > tol && ic < nproba - 1)
+    {
+      ic++;
+      tol += normprobas[ic];
+    }
+    el = ic;
+  }
+  return vec;
+}
+
 VectorDouble VectorHelper::simulateUniform(Id n, double mini, double maxi)
 {
   VectorDouble vec(n);
-  auto it(vec.begin());
-  while (it < vec.end())
+  for (auto& el: vec)
   {
-    *it = law_uniform(mini, maxi);
-    it++;
+    el = law_uniform(mini, maxi);
   }
   return vec;
 }
@@ -505,15 +551,13 @@ VectorDouble VectorHelper::simulateUniform(Id n, double mini, double maxi)
 VectorDouble VectorHelper::simulateBernoulli(Id n, double proba, double vone, double velse)
 {
   VectorDouble vec(n);
-  auto it(vec.begin());
-  while (it < vec.end())
+  for (auto& el: vec)
   {
     double rand = law_uniform(0., 1.);
     if (rand < proba)
-      *it = vone;
+      el = vone;
     else
-      *it = velse;
-    it++;
+      el = velse;
   }
   return vec;
 }
@@ -525,20 +569,15 @@ VectorDouble VectorHelper::simulateGaussian(Id n, double mean, double sigma)
   return vec;
 }
 
-void VectorHelper::simulateGaussianInPlace(VectorDouble& vec,
-                                           double mean,
-                                           double sigma)
+void VectorHelper::simulateGaussianInPlace(VectorDouble& vec, double mean, double sigma)
 {
-  auto it(vec.begin());
-  while (it < vec.end())
+  for (auto& el: vec)
   {
-    *it = mean + sigma * law_gaussian();
-    it++;
+    el = mean + sigma * law_gaussian();
   }
 }
 
-VectorDouble VectorHelper::concatenate(const VectorDouble& veca,
-                                       const VectorDouble& vecb)
+VectorDouble VectorHelper::concatenate(const VectorDouble& veca, const VectorDouble& vecb)
 {
   VectorDouble res = veca;
   for (const auto& e: vecb) res.push_back(e);
@@ -695,7 +734,7 @@ void VectorHelper::addInPlace(constvect in, vect dest)
 {
   const double* inp = in.data();
   double* outp      = dest.data();
-  for (Id i = 0; i < static_cast<Id>(in.size()); i++)
+  for (Id i = 0, n = static_cast<Id>(in.size()); i < n; i++)
   {
     *(outp++) += *(inp++);
   }
@@ -724,10 +763,7 @@ void VectorHelper::addSquareInPlace(VectorDouble& dest, const VectorDouble& src)
   }
 }
 
-void VectorHelper::addInPlace(const double* veca,
-                              const double* vecb,
-                              double* res,
-                              Id size)
+void VectorHelper::addInPlace(const double* veca, const double* vecb, double* res, Id size)
 {
   for (Id i = 0; i < size; i++)
     res[i] = veca[i] + vecb[i];
@@ -739,8 +775,7 @@ void VectorHelper::addInPlace(const double* veca,
  * @param vecb Input Vector
  * @return
  */
-VectorDouble VectorHelper::subtract(constvect veca,
-                                    constvect vecb)
+VectorDouble VectorHelper::subtract(constvect veca, constvect vecb)
 {
   VectorDouble res(veca.size());
   for (Id i = 0; i < static_cast<Id>(veca.size()); i++)
@@ -756,9 +791,7 @@ VectorDouble VectorHelper::subtract(constvect veca,
  * @param in2 Input vector
  * @param outv Output vector
  */
-void VectorHelper::subtractInPlace(const constvect in1,
-                                   const constvect in2,
-                                   vect outv)
+void VectorHelper::subtractInPlace(const constvect in1, const constvect in2, vect outv)
 {
   for (Id is = 0, ns = static_cast<Id>(in1.size()); is < ns; is++)
   {
@@ -775,13 +808,13 @@ void VectorHelper::multiplyComplexInPlace(const VectorDouble& vecaRe,
 {
   VectorDouble temp(vecaRe);
 
-  vecaRe.multiplyVecInPlace(vecbRe, resRe);
-  vecaIm.multiplyVecInPlace(vecbIm, temp);
-  resRe.subtract(temp);
+  multiply(resRe, vecaRe, vecbRe);
+  multiply(temp, vecaIm, vecbIm);
+  resRe -= temp;
 
-  vecaRe.multiplyVecInPlace(vecbIm, resIm);
-  vecaIm.multiplyVecInPlace(vecbRe, temp);
-  resIm.add(temp);
+  multiply(resIm, vecaRe, vecbIm);
+  multiply(temp, vecaIm, vecbRe);
+  resIm += temp;
 }
 
 void VectorHelper::addMultiplyConstantInPlace(double val1,
@@ -954,7 +987,7 @@ double VectorHelper::extensionDiagonal(const VectorDouble& mini,
                                        const VectorDouble& maxi)
 {
   double diag        = 0.;
-  VectorDouble delta = maxi.subtractVec(mini);
+  VectorDouble delta = maxi - mini;
   Id ndim            = static_cast<Id>(delta.size());
   for (Id idim = 0; idim < ndim; idim++)
   {

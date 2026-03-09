@@ -409,7 +409,7 @@ void Chebychev::smoother(ALinearOp* Op, VectorDouble& ucurr, const VectorDouble&
     Op->evalDirect(ucurr,_work);
     VH::subtractInPlace(_work, rhs, _work);
 
-    _work.divideCst(d);
+    _work /= d;
     VectorHelper::addInPlace(_work, ucurr);
     VectorDouble* delta = &_work;
 
@@ -423,8 +423,8 @@ void Chebychev::smoother(ALinearOp* Op, VectorDouble& ucurr, const VectorDouble&
         VH::subtractInPlace(_work2, rhs, _work2);
         
         // Formule récursive pour u_{k+1}
-        delta->multiplyCst((rho_curr * rho_prev) * c / (4.0 * d));
-        _work2.multiplyCst(rho_curr / c);
+        *delta *= (rho_curr * rho_prev) * c / (4.0 * d);
+        _work2 *= rho_curr / c;
         VH::addInPlace(_work2,*delta);
         VH::addInPlace(*delta, ucurr);
         

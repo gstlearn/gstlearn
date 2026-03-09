@@ -161,6 +161,7 @@ public:
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, setActiveFactor)
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, getCovAniso)
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, setRangeIsotropic)
+  FORWARD_METHOD_NON_CONST(_castInCovAnisoList, setType)
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, setMarkovCoeffs)
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, makeRangeNoStatDb);
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, makeScaleNoStatDb);

@@ -125,7 +125,6 @@ Id krimage(DbGrid* dbgrid,
 
   image.setFlagFilter(true);
 
-  // Run the calculator
   Id error = (image.run()) ? 0 : 1;
   return error;
 }
@@ -160,7 +159,6 @@ Id dbSmoother(DbGrid* dbgrid,
   image.setSmoothType(type);
   image.setSmoothRange(range);
 
-  // Run the calculator
   Id error = (image.run()) ? 0 : 1;
   return error;
 }
@@ -208,7 +206,6 @@ GSTLEARN_EXPORT Id dbMorpho(DbGrid* dbgrid,
   if (oper == EMorpho::GRADIENT) nvar = dbgrid->getNDim();
   image.setNvarMorpho(nvar);
 
-  // Run the calculator
   Id error = (image.run()) ? 0 : 1;
   return error;
 }
@@ -248,7 +245,7 @@ Id kriging(Db* dbin,
       !krigopt.hasMatLC() &&
       neighBench == nullptr &&
       model->getNVar() == 1 &&
-      OptCustom::query("NotOptimSimpleCase", 0) == 0&&
+      OptCustom::query("NotOptimSimpleCase", 0) == 0 &&
       !dbout->hasLocator(ELoc::DOM))
   {
     OptCustom::define("Optim", 1);
@@ -271,9 +268,7 @@ Id kriging(Db* dbin,
   krige.setKrigopt(krigopt);
   krige.setNamingConvention(namconv);
 
-  // Run the calculator
-  Id error = 1 - krige.run();
-
+  Id error = (krige.run()) ? 0 : 1;
   return error;
 }
 
@@ -311,7 +306,6 @@ Id krigcell(Db* dbin,
   krige.setKrigopt(krigopt);
   krige.setNamingConvention(namconv);
 
-  // Run the calculator
   Id error = (krige.run()) ? 0 : 1;
   return error;
 }
@@ -349,7 +343,6 @@ Id kribayes(Db* dbin,
 
   krige.setFlagBayes(true);
 
-  // Run the calculator
   Id error = (krige.run()) ? 0 : 1;
   return error;
 }
@@ -424,7 +417,6 @@ Id kriggam(Db* dbin,
   krige.setFlagGam(true);
   krige.setAnam(anam);
 
-  // Run the calculator
   Id error = (krige.run()) ? 0 : 1;
   return error;
 }
@@ -472,7 +464,6 @@ Id xvalid(Db* db,
   krige.setFlagKfold(flag_kfold);
   krige.setKrigopt(krigopt);
 
-  // Run the calculator
   Id error = (krige.run()) ? 0 : 1;
   return error;
 }
@@ -513,7 +504,6 @@ Id test_neigh(Db* dbin,
 
   krige.setFlagNeighOnly(true);
 
-  // Run the calculator
   Id error = (krige.run()) ? 0 : 1;
   return error;
 }
@@ -558,7 +548,6 @@ Id krigingFactors(Db* dbin,
 
   krige.setIuidFactors(dbin->getUIDsByLocator(ELoc::Z));
 
-  // Run the calculator
   Id error = (krige.run()) ? 0 : 1;
   return error;
 }
@@ -581,7 +570,6 @@ Id krigingGradient(Db* dbin,
   krigeGradient.setFlagForceNumeric(flagForceNumeric);
   krigeGradient.setNamingConvention(namconv);
 
-  // Run the calculator
   Id error = (krigeGradient.run()) ? 0 : 1;
   return error;
 }
@@ -626,7 +614,6 @@ Id inverseDistance(Db* dbin,
   interpol.setFlagExpand(flag_expand);
   interpol.setDmax(dmax);
 
-  // Run the calculator
   Id error = (interpol.run()) ? 0 : 1;
   return error;
 }
@@ -665,7 +652,6 @@ GSTLEARN_EXPORT Id movingAverage(Db* dbin,
 
   interpol.setFlagMovAve(true);
 
-  // Run the calculator
   Id error = (interpol.run()) ? 0 : 1;
   return error;
 }
@@ -704,7 +690,6 @@ GSTLEARN_EXPORT Id movingMedian(Db* dbin,
 
   interpol.setFlagMovMed(true);
 
-  // Run the calculator
   Id error = (interpol.run()) ? 0 : 1;
   return error;
 }
@@ -743,7 +728,6 @@ GSTLEARN_EXPORT Id nearestNeighbor(Db* dbin,
 
   interpol.setFlagNearest(true);
 
-  // Run the calculator
   Id error = (interpol.run()) ? 0 : 1;
   return error;
 }
@@ -776,7 +760,6 @@ GSTLEARN_EXPORT Id leastSquares(Db* dbin,
   interpol.setFlagLstSqr(true);
   interpol.setOrder(order);
 
-  // Run the calculator
   Id error = (interpol.run()) ? 0 : 1;
   return error;
 }

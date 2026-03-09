@@ -124,7 +124,7 @@ Id Convolution::ConvolveSparse(Id iatt,
     bool correct = true;
     for (Id ineigh = 0; ineigh < nbneigh && correct; ineigh++)
     {
-      indTarget.addVecInPlace(ranks[ineigh], current);
+      VH::add(current, indTarget, ranks[ineigh]);
       correct = _dbgrid->getGrid().isInside(current);
 
       // Target is not estimated when one neighborhood sample is out of grid
@@ -199,7 +199,7 @@ Id Convolution::ConvolveFFT(Id iatt,
   VectorInt cImage = _dbgrid->getCenterIndices(false);
 
   // Find the shift between the two centers
-  VectorInt shift = cImage.subtractVec(cKernel);
+  VectorInt shift = cImage - cKernel;
 
   // For each kernel, allocate arrays (real and imaginary parts)
   // at the dimension of the final image.
@@ -220,7 +220,7 @@ Id Convolution::ConvolveFFT(Id iatt,
   for (Id i = 0; i < sKernel; i++)
   {
     marpat->rankToIndice(i, indices);
-    indices.add(shift);
+    indices += shift;
     Id j = _dbgrid->indiceToRank(indices);
 
     for (Id iv2 = 0; iv2 < nv2; iv2++)
@@ -239,7 +239,7 @@ Id Convolution::ConvolveFFT(Id iatt,
   for (Id ivar = 0; ivar < nvar; ivar++)
   {
     imageRe[ivar] = _dbgrid->getColumnByLocator(ELoc::Z, ivar);
-    if (!means.empty()) imageRe[ivar].addCst(-means[ivar]);
+    if (!means.empty()) imageRe[ivar] -= means[ivar];
     imageIm[ivar].resize(sImage, 0.);
 
     // Perform the FFT forward transform of each image
@@ -265,15 +265,15 @@ Id Convolution::ConvolveFFT(Id iatt,
       // Compute the inverse FFT
       if (fftn(ndim, dims.data(), localRe.data(), localIm.data(), -1, rImage)) return 1;
 
-      // Cumulate the real parts
-      result.add(localRe);
+      // Cumulate the real part
+      result += localRe;
     }
 
     // Perform the ultimate swap
     fftshift(dims, result);
 
     // Store the results in the Db
-    if (!means.empty()) result.addCst(means[ivar]);
+    if (!means.empty()) result += means[ivar];
     _dbgrid->setArrayByUID(result, iatt + ivar);
   }
   return 0;

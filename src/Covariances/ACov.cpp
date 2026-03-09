@@ -22,7 +22,6 @@
 #include "Covariances/CovContext.hpp"
 #include "Covariances/NoStatArray.hpp"
 #include "Covariances/NoStatFunctional.hpp"
-#include "Covariances/NoStatOnMesh.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Enum/ECalcMember.hpp"
@@ -419,13 +418,13 @@ double ACov::evalIvarIpas(double step,
   {
     VectorDouble vec(getNDim(), 0.);
     vec[0] = 1.;
-    vec.multiplyCst(step);
+    vec *= step;
     p2.move(vec);
   }
   else
   {
     VectorDouble vec(dir);
-    vec.multiplyCst(step);
+    vec *= step;
     p2.move(vec);
   }
 

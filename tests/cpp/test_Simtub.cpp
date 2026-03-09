@@ -84,11 +84,11 @@ Id st_mini_test()
 
   // Modify the variables by adding their mean
   VectorDouble z1 = db->getColumn("z-1");
-  z1.addCst(means[0]);
+  z1 += means[0];
   db->setColumn(z1, "z-1");
 
   VectorDouble z2 = db->getColumn("z-2");
-  z2.addCst(means[1]);
+  z2 += means[1];
   db->setColumn(z2, "z-2");
 
   DbStringFormat* dbfmt = DbStringFormat::createFromFlags(false, false, false, false, true);

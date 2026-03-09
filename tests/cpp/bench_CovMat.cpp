@@ -122,12 +122,12 @@ int main(int argc, char* argv[])
     {
       dbout->getSampleAsSPInPlace(p2, i);
       model->evalPointToDb(rhs1, p2, dbin);
-      cumul.add(rhs1);
+      cumul += rhs1;
     }
     timer.displayIntervalMilliseconds("Establishing RHS", 3900);
 
     // Some printout for comparison
-    cumul.divideCst(nout);
+    cumul /= nout;
     VH::dumpRange("", cumul);
   }
 
@@ -153,12 +153,12 @@ int main(int argc, char* argv[])
     {
       dbout->getSampleAsSPInPlace(p2, i);
       model->evalPointToDbAsSP(rhs2, p1s, p2);
-      cumul.add(rhs2);
+      cumul += rhs2;
     }
     timer.displayIntervalMilliseconds("Establishing RHS (semi-optimized)", 600);
 
     // Some printout for comparison
-    cumul.divideCst(nout);
+    cumul /= nout;
     VH::dumpRange("", cumul);
   }
 
@@ -181,8 +181,8 @@ int main(int argc, char* argv[])
     // Some printout for comparison
     cumul.fill(0.);
     for (Id i = 0; i < nout; i++)
-      cumul.add(mat.getColumn(i));
-    cumul.divideCst(nout);
+      cumul += mat.getColumn(i);
+    cumul /= nout;
     VH::dumpRange("", cumul);
   }
 

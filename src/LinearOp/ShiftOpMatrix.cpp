@@ -11,7 +11,6 @@
 #include "LinearOp/ShiftOpMatrix.hpp"
 
 #include "Basic/AException.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Covariances/CovAniso.hpp"
@@ -570,7 +569,7 @@ void ShiftOpMatrix::_loadHHGrad(const AMesh* amesh,
       _getCovAniso()->setAnisoAngle(ir, covaderiv->getAnisoAngle(ir) + 90.);
       const MatrixSquare& drotmat = covaderiv->getAnisoRotMat();
 
-      diag.divideCst(180. / GV_PI); // Necessary as angles are provided in degrees. Factor 2 is for derivative
+      diag /= 180. / GV_PI; // Necessary as angles are provided in degrees. Factor 2 is for derivative
       temp.setDiagonal(diag);
       hh.innerMatrix(temp, drotmat, rotmat);
     }
@@ -895,7 +894,7 @@ Id ShiftOpMatrix::_buildS(const AMesh* amesh, double tol)
   // Workaround for 1d
   if (ndim == 1)
   {
-    _TildeC.multiplyCst(3.);
+    _TildeC *= 3.;
     _S->prodScalar(2.);
   }
 
@@ -1084,7 +1083,7 @@ Id ShiftOpMatrix::_buildSGrad(const AMesh* amesh, double tol)
   VectorDouble sqrtTildeC    = VH::power(_TildeC, 0.5);
   VectorDouble invSqrtTildeC = VH::power(_TildeC, -0.5);
   VectorDouble tempVec       = VH::inverse(_TildeC);
-  tempVec.multiplyCst(-0.5);
+  tempVec *= -0.5;
 
   Id ind                      = 0;
   MatrixSparse* tildeCGradMat = nullptr;
@@ -1096,7 +1095,7 @@ Id ShiftOpMatrix::_buildSGrad(const AMesh* amesh, double tol)
     {
       VectorDouble tildeCGrad = _TildeCGrad[ind]->getDiagonal();
 
-      tildeCGrad.multiply(tempVec);
+      tildeCGrad *= tempVec;
       _SGrad[ind]->prodNormDiagVecInPlace(invSqrtTildeC, 1);
 
       tildeCGradMat = MatrixSparse::diagVec(tildeCGrad);
@@ -1286,8 +1285,8 @@ void ShiftOpMatrix::_projectMesh(const AMesh* amesh,
   v2.normalizeInPlace();
 
   // Get the end points from Unit vectors
-  VectorDouble axe1 = center.addVec(v1);
-  VectorDouble axe2 = center.addVec(v2);
+  VectorDouble axe1 = center + v1;
+  VectorDouble axe2 = center + v2;
 
   /* Projection */
 

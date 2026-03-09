@@ -11,6 +11,7 @@
 #include "Mesh/MeshETurbo.hpp"
 #include "Basic/Grid.hpp"
 #include "Basic/SerializeHDF5.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
@@ -628,7 +629,7 @@ Id MeshETurbo::getMeshFromCoordinates(const VectorDouble& coor,
   lambdas.resize(ncorner);
 
   VectorInt nx = _grid.getNXs();
-  nx.addCst(-1);
+  nx -= 1;
 
   Id iref = MAX(0, indg0[ndim - 1]);
   for (Id idim = ndim - 2; idim >= 0; idim--)
@@ -649,7 +650,7 @@ void MeshETurbo::initThread() const
   if (_indg.size() != static_cast<size_t>(getNDim()))
   {
     _indg.resize(getNDim());
-    _indices.resize(getNApexPerMesh()); 
+    _indices.resize(getNApexPerMesh());
     _lambdas.resize(getNApexPerMesh());
     _rhs.resize(getNApexPerMesh());
     _indgg.resize(getNDim());
@@ -1005,7 +1006,7 @@ Id MeshETurbo::initFromCova(const CovAniso& cova,
       for (Id idim = 0; idim < ndim; idim++)
         corner1[idim] = (ic[idim] == 0) ? extremesData[idim][0] : extremesData[idim][1];
     }
-    corner1.subtract(cornerRef);
+    corner1 -= cornerRef;
 
     // Rotate this corner in the Covariance Rotation system
     rot.rotateInverse(corner1, cornerRot);
@@ -1062,7 +1063,7 @@ Id MeshETurbo::initFromCova(const CovAniso& cova,
 
   // Get the rotated Bounding Box in the initial system
   rot.rotateDirect(extendMinRot, x0);
-  x0.add(cornerRef);
+  x0 += cornerRef;
 
   initFromGridByMatrix(nx, dx, x0, rot.getMatrixDirectVec(), VectorDouble(), isPolarized, verbose);
   return 0;
