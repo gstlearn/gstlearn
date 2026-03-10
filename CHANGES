@@ -4,6 +4,10 @@ This file contains the logs between consecutive releases
 
 Release 1.11.0
 ==============
+- Adding new syntax for matrices (AMatrix class): overload and operators. 
+- In AMatrix, the method fillRandom() has modified the order of the arguments
+- In AMatrix, the method linearCombination() has changed prototype
+- In AMatrix, the method add() is now template and has changed implementation for Sparse
 - Testing new syntax for VectorDouble (in VectorHelper): overload of operators
 - Regrouping all estimation API functions in a single header file Estimations.hpp
 - Regrouping all simulation API functions in a single header file Simulations.hpp 
