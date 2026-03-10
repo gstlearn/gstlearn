@@ -12,6 +12,7 @@
 #include "Basic/Law.hpp"
 #include "Basic/Message.hpp"
 #include "Basic/OptCst.hpp"
+#include "Basic/OptCustom.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Enum/ECst.hpp"
 #include "LinearOp/CholeskyDense.hpp"
@@ -66,7 +67,7 @@ int main(int argc, char* argv[])
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
-  setMultiThread(8);
+  OptCustom::define("ompthreads", 8);
 
   OptCst::define(ECst::NTCOL, -1);
   OptCst::define(ECst::NTROW, -1);
