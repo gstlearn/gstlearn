@@ -309,9 +309,6 @@ private:
 };
 
 /* Shortcut functions for C style aficionados */
-GSTLEARN_EXPORT I32 getMultiThread();
-GSTLEARN_EXPORT void setMultiThread(I32 nthreads);
-GSTLEARN_EXPORT bool isMultiThread();
 GSTLEARN_EXPORT bool getFlagMatrixCheck();
 GSTLEARN_EXPORT void setFlagMatrixCheck(bool flag);
 } // namespace gstlrn
