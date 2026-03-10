@@ -1075,6 +1075,38 @@ namespace gstlrn {
   }
 }
 
+%extend gstlrn::MatrixDense {
+  /**
+   * @brief List of methods from class MatrixDense exported for Target Language
+   */
+  void linearCombination(double addition,
+                         double val1,
+                         const MatrixDense& other1,
+                         double val2     = 0.,
+                         const MatrixDense& other2 = MatrixDense(),
+                         double val3     = 0.,
+                         const MatrixDense& other3 = MatrixDense())
+  {
+    MatrixDense::linearCombination(*$self, addition, val1, other1, val2, other2, val3, other3);
+  }
+}
+
+%extend gstlrn::MatrixSparse {
+  /**
+   * @brief List of methods from class MatrixSparse exported for Target Language
+   */
+  void linearCombination(double addition,
+                         double val1,
+                         const MatrixSparse& other1,
+                         double val2     = 0.,
+                         const MatrixSparse& other2 = MatrixSparse(),
+                         double val3     = 0.,
+                         const MatrixSparse& other3 = MatrixSparse())
+  {
+    MatrixSparse::linearCombination(*$self, addition, val1, other1, val2, other2, val3, other3);
+  }
+}
+
 %extend gstlrn::VectorHelper {
 /**
    * @brief List of operators from class VectorHelper exported for Target Language

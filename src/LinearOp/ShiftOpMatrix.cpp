@@ -1102,8 +1102,8 @@ Id ShiftOpMatrix::_buildSGrad(const AMesh* amesh, double tol)
       A             = MatrixFactory::prodMatMat<MatrixSparse>(_S, tildeCGradMat);
       delete tildeCGradMat;
       At = A->transpose();
-      A->addMat(*At);
-      _SGrad[ind]->addMat(*A);
+      AMatrix::add(*A, *A, *At);
+      AMatrix::add(*_SGrad[ind], *_SGrad[ind], *A);
       delete At;
       delete A;
       ind++;

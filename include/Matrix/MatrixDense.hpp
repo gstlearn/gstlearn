@@ -156,7 +156,6 @@ public:
                           bool transpose = false) override;
 
   /*! Add a matrix (multiplied by a constant) */
-  void addMat(const AMatrix& y, double cx = 1., double cy = 1.) override;
   void addMatNoCheck(const MatrixDense& y, const double cx = 1., const double cy = 1.);
 
   Id invert2(MatrixDense& res) const;

@@ -220,7 +220,7 @@ void MatrixDense::setColumn(Id icol, const VectorDouble& tab)
   if (getFlagMatrixCheck())
   {
     if (!_isColumnValid(icol)) return;
-    if (!_isColumnSizeConsistent(tab)) return;
+    if (!_isRowConsistent(tab)) return;
   }
   Eigen::Map<const Eigen::VectorXd> tabm(tab.data(), getNRows());
   eigenMat().col(icol) = tabm;
@@ -240,7 +240,7 @@ void MatrixDense::setRow(Id irow, const VectorDouble& tab)
   if (getFlagMatrixCheck())
   {
     if (!_isRowValid(irow)) return;
-    if (!_isRowSizeConsistent(tab)) return;
+    if (!_isColumnConsistent(tab)) return;
   }
   Eigen::Map<const Eigen::VectorXd> tabm(tab.data(), getNCols());
   eigenMat().row(irow) = tabm;
@@ -259,7 +259,7 @@ void MatrixDense::setDiagonal(const VectorDouble& tab)
 {
   if (getFlagMatrixCheck())
   {
-    if (!_isRowSizeConsistent(tab)) return;
+    if (!_isColumnConsistent(tab)) return;
   }
   eigenMat().setZero();
   Eigen::Map<const Eigen::VectorXd> tabm(tab.data(), getNRows());
@@ -270,21 +270,6 @@ void MatrixDense::setDiagonalToConstant(double value)
 {
   eigenMat().setZero();
   eigenMat().diagonal() = Eigen::VectorXd::Constant(getNRows(), value);
-}
-
-void MatrixDense::addMat(const AMatrix& y, double cx, double cy)
-{
-  const auto* ym = dynamic_cast<const MatrixDense*>(&y);
-  if (ym == nullptr || ym == this)
-  {
-    AMatrix::addMat(y, cx, cy);
-  }
-  else
-  {
-    eigenMat().noalias() = cx * eigenMat();
-    if (cy == 0. || (getFlagMatrixCheck() && !isSameSize(y))) return;
-    eigenMat().noalias() += cy * ym->eigenMat();
-  }
 }
 
 void MatrixDense::addMatNoCheck(const MatrixDense& y, const double cx, const double cy)
@@ -457,11 +442,7 @@ void MatrixDense::fill(double value)
 /*! Multiply a Matrix row-wise */
 void MatrixDense::multiplyRow(const VectorDouble& vec)
 {
-  if (getFlagMatrixCheck() && getNRows() != static_cast<Id>(vec.size()))
-  {
-    messerr("The size of 'vec' must match the number of rows. Nothing is done");
-    return;
-  }
+  if (getFlagMatrixCheck() && !_isRowConsistent(vec)) return;
   Eigen::Map<const Eigen::VectorXd> vecm(vec.data(), getNCols());
   eigenMat() = vecm.asDiagonal() * eigenMat();
 }
@@ -469,11 +450,7 @@ void MatrixDense::multiplyRow(const VectorDouble& vec)
 /*! Multiply a Matrix column-wise */
 void MatrixDense::multiplyColumn(const VectorDouble& vec)
 {
-  if (getFlagMatrixCheck() && getNCols() != static_cast<Id>(vec.size()))
-  {
-    messerr("The size of 'vec' must match the number of columns. Nothing is done");
-    return;
-  }
+  if (getFlagMatrixCheck() && !_isColumnConsistent(vec)) return;
   Eigen::Map<const Eigen::VectorXd> vecm(vec.data(), getNRows());
   eigenMat() = eigenMat() * vecm.asDiagonal();
 }
@@ -481,11 +458,7 @@ void MatrixDense::multiplyColumn(const VectorDouble& vec)
 /*! Divide a Matrix row-wise */
 void MatrixDense::divideRow(const VectorDouble& vec)
 {
-  if (getFlagMatrixCheck() && getNRows() != static_cast<Id>(vec.size()))
-  {
-    messerr("The size of 'vec' must match the number of rows. Nothing is done");
-    return;
-  }
+  if (getFlagMatrixCheck() && !_isRowConsistent(vec)) return;
   thread_local VectorDouble temp;
   VH::inverse(temp, vec);
   Eigen::Map<const Eigen::VectorXd> vecm(temp.data(), getNCols());
@@ -495,11 +468,7 @@ void MatrixDense::divideRow(const VectorDouble& vec)
 /*! Divide a Matrix column-wise */
 void MatrixDense::divideColumn(const VectorDouble& vec)
 {
-  if (getFlagMatrixCheck() && getNCols() != static_cast<Id>(vec.size()))
-  {
-    messerr("The size of 'vec' must match the number of columns. Nothing is done");
-    return;
-  }
+  if (getFlagMatrixCheck() && !_isColumnConsistent(vec)) return;
   VectorDouble temp = VH::inverse(vec);
   Eigen::Map<const Eigen::VectorXd> vecm(temp.data(), getNRows());
   eigenMat() = eigenMat() * vecm.asDiagonal();

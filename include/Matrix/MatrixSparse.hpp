@@ -133,9 +133,6 @@ public:
   void prodNormMatInPlace(const AMatrix* a,
                           bool transpose = false) override;
 
-  /*! Add a matrix (multiplied by a constant) */
-  void addMat(const AMatrix& y, double cx = 1., double cy = 1.) override;
-
   /*! Extract the contents of the matrix */
   NF_Triplet getMatrixToTriplet(Id shiftRow = 0, Id shiftCol = 0) const override;
 
@@ -192,7 +189,7 @@ public:
   void resetFromTriplet(const NF_Triplet& NF_T);
 
   /*! Set all the values of the Matrix with random values */
-  void fillRandom(double zeroPercent = 0, Id seed = 432432);
+  void fillRandom(double zeroPercent = 0, Id seed = 432432) override;
 
 #ifndef SWIG
   Id addVecInPlace(const constvect x, vect y) const;

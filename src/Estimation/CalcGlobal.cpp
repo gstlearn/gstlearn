@@ -169,10 +169,8 @@ Id CalcGlobal::_globalKriging()
     if (_modelLocal->evalDriftMatByTargetInPlace(X0, dbout, iech, krigopt)) return 1;
 
     // Cumulate the R.H.S.
-    AMatrix::linearCombination(Sigma0Cum, 0., 1., Sigma0);
-    // Sigma0Cum.addMat(Sigma0);
-    if (X0.size() > 0) AMatrix::linearCombination(X0Cum, 0., 1., X0);
-    // if (X0.size() > 0) X0Cum.addMat(X0);
+    AMatrix::add(Sigma0Cum, Sigma0Cum, Sigma0);
+    if (X0.size() > 0) AMatrix::add(X0Cum, X0Cum, X0);
     ng++;
   }
 

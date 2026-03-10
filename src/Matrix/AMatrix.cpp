@@ -513,24 +513,6 @@ void AMatrix::resize(Id nrows, Id ncols)
 }
 
 /**
- * Add the matrix 'y' to the current Matrix
- * @param y Matrix to be added
- * @param cx Multiplicative parameter for this
- * @param cy Multiplicative parameter for y
- */
-void AMatrix::addMat(const AMatrix& y, double cx, double cy)
-{
-  if (!isSameSize(y)) return;
-
-  for (Id irow = 0; irow < _nRows; irow++)
-    for (Id icol = 0; icol < _nCols; icol++)
-    {
-      if (!_isPhysicallyPresent(irow, icol)) continue;
-      setValue(irow, icol, cx * getValue(irow, icol) + cy * y.getValue(irow, icol));
-    }
-}
-
-/**
  * Store the product of 'x'(or 't(x)') by 'y' (or 't(y') in this
  * @param x First Matrix
  * @param y Second matrix
@@ -764,7 +746,7 @@ bool AMatrix::_isIndexValid(Id irow, Id icol) const
   return true;
 }
 
-bool AMatrix::_isRowVectorConsistent(const VectorDouble& tab) const
+bool AMatrix::_isRowConsistent(const VectorDouble& tab) const
 {
   if (static_cast<Id>(tab.size()) != getNRows())
   {
@@ -774,7 +756,7 @@ bool AMatrix::_isRowVectorConsistent(const VectorDouble& tab) const
   return true;
 }
 
-bool AMatrix::_isColVectorConsistent(const VectorDouble& tab) const
+bool AMatrix::_isColumnConsistent(const VectorDouble& tab) const
 {
   if (static_cast<Id>(tab.size()) != getNCols())
   {
@@ -784,7 +766,7 @@ bool AMatrix::_isColVectorConsistent(const VectorDouble& tab) const
   return true;
 }
 
-bool AMatrix::_isVectorSizeConsistent(const VectorDouble& tab) const
+bool AMatrix::_isMatrixConsistent(const VectorDouble& tab) const
 {
   auto nrows = getNRows();
   auto ncols = getNCols();
@@ -792,30 +774,6 @@ bool AMatrix::_isVectorSizeConsistent(const VectorDouble& tab) const
   {
     messerr("The argument 'tab'(%d) does not have correct dimension (%d)",
             static_cast<Id>(tab.size()), nrows * ncols);
-    return false;
-  }
-  return true;
-}
-
-bool AMatrix::_isColumnSizeConsistent(const VectorDouble& tab) const
-{
-  auto nrows = getNRows();
-  if (static_cast<Id>(tab.size()) != nrows)
-  {
-    messerr("The argument 'tab'(%d) does not have correct dimension (%d)",
-            static_cast<Id>(tab.size()), nrows);
-    return false;
-  }
-  return true;
-}
-
-bool AMatrix::_isRowSizeConsistent(const VectorDouble& tab) const
-{
-  auto ncols = getNCols();
-  if (static_cast<Id>(tab.size()) != ncols)
-  {
-    messerr("The argument 'tab'(%d) does not have correct dimension (%d)",
-            static_cast<Id>(tab.size()), ncols);
     return false;
   }
   return true;

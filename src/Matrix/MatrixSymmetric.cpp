@@ -51,14 +51,14 @@ MatrixSymmetric::MatrixSymmetric(const AMatrix& m)
 
   copyElements(m);
 
-  if (!m.isSymmetric())
-  {
-    messerr("The input matrix should be Symmetric");
-    messerr("It has been symetrized by computing (this + this^T)/2");
-    this->transposeInPlace();
-    this->addMat(m);
-    this->prodCst(0.5);
-  }
+  if (m.isSymmetric()) return;
+
+  messerr("The input matrix should be Symmetric");
+  messerr("It has been symetrized by computing (this + this^T)/2");
+
+  for (Id icol = 0; icol < m.getNCols(); icol++)
+    for (Id irow = 0; irow < m.getNRows(); irow++)
+      setValue(irow, icol, 0.5 * (m.getValue(irow, icol) + m.getValue(icol, irow)));
 }
 
 MatrixSymmetric& MatrixSymmetric::operator=(const MatrixSymmetric& m)

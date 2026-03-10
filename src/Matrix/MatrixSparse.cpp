@@ -173,7 +173,7 @@ void MatrixSparse::setColumn(Id icol, const VectorDouble& tab)
   if (getFlagMatrixCheck())
   {
     if (!_isColumnValid(icol)) return;
-    if (!_isColumnSizeConsistent(tab)) return;
+    if (!_isRowConsistent(tab)) return;
   }
   for (Id irow = 0; irow < nrows; irow++)
     eigenMat().coeffRef(irow, icol) = tab[irow];
@@ -182,10 +182,7 @@ void MatrixSparse::setColumn(Id icol, const VectorDouble& tab)
 void MatrixSparse::setColumnToConstant(Id icol, double value)
 {
   auto nrows = getNRows();
-  if (getFlagMatrixCheck())
-  {
-    if (!_isColumnValid(icol)) return;
-  }
+  if (getFlagMatrixCheck() && !_isColumnValid(icol)) return;
   for (Id irow = 0; irow < nrows; irow++)
     eigenMat().coeffRef(irow, icol) = value;
 }
@@ -204,7 +201,7 @@ void MatrixSparse::setRow(Id irow, const VectorDouble& tab)
   if (getFlagMatrixCheck())
   {
     if (!_isRowValid(irow)) return;
-    if (!_isRowSizeConsistent(tab)) return;
+    if (!_isColumnConsistent(tab)) return;
   }
   for (Id icol = 0; icol < ncols; icol++)
     eigenMat().coeffRef(irow, icol) = tab[icol];
@@ -213,21 +210,14 @@ void MatrixSparse::setRow(Id irow, const VectorDouble& tab)
 void MatrixSparse::setRowToConstant(Id irow, double value)
 {
   auto ncols = getNCols();
-  if (getFlagMatrixCheck())
-  {
-    if (!_isRowValid(irow)) return;
-  }
+  if (getFlagMatrixCheck() && !_isRowValid(irow)) return;
   for (Id icol = 0; icol < ncols; icol++)
     eigenMat().coeffRef(irow, icol) = value;
 }
 
 void MatrixSparse::setDiagonal(const VectorDouble& tab)
 {
-  if (getFlagMatrixCheck())
-  {
-    if (!_isRowSizeConsistent(tab)) return;
-  }
-
+  if (getFlagMatrixCheck() && !_isColumnConsistent(tab)) return;
   Eigen::Map<const Eigen::VectorXd> vecm(tab.data(), tab.size());
   eigenMat() = vecm.asDiagonal();
 }
@@ -304,11 +294,7 @@ void MatrixSparse::fill(double value)
 /*! Multiply a Matrix row-wise */
 void MatrixSparse::multiplyRow(const VectorDouble& vec)
 {
-  if (getFlagMatrixCheck() && getNRows() != static_cast<Id>(vec.size()))
-  {
-    messerr("The size of 'vec' must match the number of rows. Nothing is done");
-    return;
-  }
+  if (getFlagMatrixCheck() && !_isRowConsistent(vec)) return;
   for (Id k = 0; k < eigenMat().outerSize(); ++k)
     for (EigenSparseMatrix::InnerIterator it(eigenMat(), k); it; ++it)
       it.valueRef() *= vec[it.row()];
@@ -317,11 +303,7 @@ void MatrixSparse::multiplyRow(const VectorDouble& vec)
 /*! Multiply a Matrix column-wise */
 void MatrixSparse::multiplyColumn(const VectorDouble& vec)
 {
-  if (getFlagMatrixCheck() && getNCols() != static_cast<Id>(vec.size()))
-  {
-    messerr("The size of 'vec' must match the number of columns. Nothing is done");
-    return;
-  }
+  if (getFlagMatrixCheck() && !_isColumnConsistent(vec)) return;
   for (Id k = 0; k < eigenMat().outerSize(); ++k)
     for (EigenSparseMatrix::InnerIterator it(eigenMat(), k); it; ++it)
       it.valueRef() *= vec[it.col()];
@@ -330,11 +312,7 @@ void MatrixSparse::multiplyColumn(const VectorDouble& vec)
 /*! Divide a Matrix row-wise */
 void MatrixSparse::divideRow(const VectorDouble& vec)
 {
-  if (getFlagMatrixCheck() && getNRows() != static_cast<Id>(vec.size()))
-  {
-    messerr("The size of 'vec' must match the number of rows. Nothing is done");
-    return;
-  }
+  if (getFlagMatrixCheck() && !_isRowConsistent(vec)) return;
   for (Id k = 0; k < eigenMat().outerSize(); ++k)
     for (EigenSparseMatrix::InnerIterator it(eigenMat(), k); it; ++it)
       it.valueRef() /= vec[it.row()];
@@ -343,11 +321,7 @@ void MatrixSparse::divideRow(const VectorDouble& vec)
 /*! Divide a Matrix column-wise */
 void MatrixSparse::divideColumn(const VectorDouble& vec)
 {
-  if (getFlagMatrixCheck() && getNCols() != static_cast<Id>(vec.size()))
-  {
-    messerr("The size of 'vec' must match the number of columns. Nothing is done");
-    return;
-  }
+  if (getFlagMatrixCheck() && !_isColumnConsistent(vec)) return;
   for (Id k = 0; k < eigenMat().outerSize(); ++k)
     for (EigenSparseMatrix::InnerIterator it(eigenMat(), k); it; ++it)
       it.valueRef() /= vec[it.col()];
@@ -795,28 +769,6 @@ void MatrixSparse::prodNormMatMatInPlace(const AMatrix* a,
     {
       eigenMat() = (am->eigenMat() * mm->eigenMat()) * am->eigenMat().transpose();
     }
-  }
-}
-
-/*!
- * Updates the current Matrix as a linear combination of matrices as follows:
- *  this <- cx * this + cy * y
- * @param cx Coefficient applied to the current Matrix
- * @param cy Coefficient applied to the Matrix  'y'
- * @param y Second Matrix in the Linear combination
- */
-void MatrixSparse::addMat(const AMatrix& y, double cx, double cy)
-{
-  const auto* ym = dynamic_cast<const MatrixSparse*>(&y);
-  if (ym == nullptr || ym == this)
-  {
-    AMatrix::addMat(y, cx, cy);
-  }
-  else
-  {
-    eigenMat() = cx * eigenMat();
-    if (cy == 0. || (getFlagMatrixCheck() && !isSameSize(y))) return;
-    eigenMat() += cy * ym->eigenMat();
   }
 }
 

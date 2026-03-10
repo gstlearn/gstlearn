@@ -100,12 +100,12 @@ reset_to_initial_contents(M, MRR, MSG, MSS, MSP)
 cx = 1.3
 cy = -0.3
 
-MRR.addMat(MRR, cx, cy)
-MSG.addMat(MSG, cx, cy)
+MRR.linearCombination(0.0, cx, MRR, cy, MRR)
+MSG.linearCombination(0.0, cx, MSG, cy, MSG)
 print("Are results for MRR and MSG similar: ", MRR.isSame(MSG))
-MSS.addMat(MSS, cx, cy)
+MSS.linearCombination(0.0, cx, MSS, cy, MSS)
 print("Are results for MRR and MSS similar: ", MRR.isSame(MSS))
-MSP.addMat(MSP, cx, cy)
+MSP.linearCombination(0.0, cx, MSP, cy, MSP)
 print("Are results for MRR and MSP similar: ", MRR.isSame(MSP))
 
 #

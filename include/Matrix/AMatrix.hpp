@@ -95,6 +95,10 @@ public:
   /*! Set all the values of the Matrix at once */
   virtual void fill(double value) = 0;
 
+  //////////////////////////////////
+  // Series of template functions //
+  //////////////////////////////////
+
   /**
    * @brief Operate addition a constant to all terms of a matrix and store the result in res = other1 + cst
    *
@@ -296,8 +300,6 @@ public:
   /*! Perform 'this' = 't(A)' %*% 'A' or 'A' %*% 't(A)' */
   virtual void prodNormMatInPlace(const AMatrix* a,
                                   bool transpose = false);
-  /*! Add a matrix (multiplied by a constant) */
-  virtual void addMat(const AMatrix& y, double cx = 1., double cy = 1.);
 
   /*! Extract the contents of the matrix */
   virtual NF_Triplet getMatrixToTriplet(Id shiftRow = 0, Id shiftCol = 0) const;
@@ -317,27 +319,15 @@ public:
   /*! Check that 'm' has the same dimensions as 'this' */
   bool isSameSize(const AMatrix& m) const;
   /*! Returns if the current matrix is Empty */
-  bool empty() const
-  {
-    return (_nRows == 0 || _nCols == 0);
-  }
+  bool empty() const { return (_nRows == 0 || _nCols == 0); }
   /*! Returns the sum of absolute difference between argument and this */
   double compare(const AMatrix& mat) const;
   /*! Returns the number of rows */
-  Id getNRows() const
-  {
-    return _nRows;
-  }
+  Id getNRows() const { return _nRows; }
   /*! Returns the number of columns */
-  Id getNCols() const
-  {
-    return _nCols;
-  }
+  Id getNCols() const { return _nCols; }
   /*! Get the total number of elements of the (full) matrix (as for VectorT) */
-  Id size() const
-  {
-    return _nRows * _nCols;
-  }
+  Id size() const { return _nRows * _nCols; }
   /*! Returns the contents of the whole matrix as a VectorDouble */
   VectorDouble getValues(bool byCol = true) const;
   /*! Extract a Diagonal (main or secondary) of this */
@@ -386,7 +376,7 @@ public:
   void dumpStatistics(const String& title) const;
   /*! Sets the matrix as Identity */
   void setIdentity(double value = 1.);
-  void fillRandom(double zeroPercent = 0, Id seed = 432432);
+  virtual void fillRandom(double zeroPercent = 0, Id seed = 432432);
   void setValues(const VectorDouble& values, bool byCol = true);
   double getMeanByColumn(Id icol) const;
   double getMinimum() const;
@@ -436,31 +426,19 @@ protected:
 #endif
 
   virtual bool _needToReset(Id nrows, Id ncols);
-  virtual bool _isPhysicallyPresent(Id /*irow*/, Id /*icol*/) const
-  {
-    return true;
-  }
+  virtual bool _isPhysicallyPresent(Id /*irow*/, Id /*icol*/) const { return true; }
   virtual void _setValues(const double* values, bool byCol);
-
   virtual void _clear();
   virtual bool _isNumbersValid(Id nrows, Id ncols) const;
 
-  void _setNCols(Id ncols)
-  {
-    _nCols = ncols;
-  }
-  void _setNRows(Id nrows)
-  {
-    _nRows = nrows;
-  }
+  void _setNCols(Id ncols) { _nCols = ncols; }
+  void _setNRows(Id nrows) { _nRows = nrows; }
   bool _isColumnValid(Id icol) const;
   bool _isRowValid(Id irow) const;
   bool _isIndexValid(Id irow, Id icol) const;
-  bool _isRowVectorConsistent(const VectorDouble& tab) const;
-  bool _isColVectorConsistent(const VectorDouble& tab) const;
-  bool _isVectorSizeConsistent(const VectorDouble& tab) const;
-  bool _isColumnSizeConsistent(const VectorDouble& tab) const;
-  bool _isRowSizeConsistent(const VectorDouble& tab) const;
+  bool _isRowConsistent(const VectorDouble& tab) const;
+  bool _isColumnConsistent(const VectorDouble& tab) const;
+  bool _isMatrixConsistent(const VectorDouble& tab) const;
   bool _isRankValid(Id rank) const;
   void _fillFromVVD(const VectorVectorDouble& X);
 

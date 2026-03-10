@@ -964,7 +964,7 @@ static void st_print_all(const char* title)
 
   /* 'H' Rotation */
 
-  printMatrix(Calcul.hh.getValues() , ndim, ndim, "Anisotropy H matrix", 0, 1);
+  printMatrix(Calcul.hh.getValues(), ndim, ndim, "Anisotropy H matrix", 0, 1);
   message("Square root of Determinant                    = %lf\n",
           Calcul.sqdeth);
   message("Correction factor                             = %lf\n",
@@ -2361,7 +2361,7 @@ static MatrixSparse* st_spde_build_Q(MatrixSparse* S,
 
   for (Id iterm = 1; iterm < nblin; iterm++)
   {
-    Q->addMat(*Bi, 1., blin[iterm]);
+    AMatrix::linearCombination(*Q, 0., 1., *Q, blin[iterm], *Bi);
     if (iterm < nblin - 1)
       Bi->prodMat(S);
   }
