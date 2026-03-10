@@ -30,7 +30,8 @@ SPDEOpMatrix::SPDEOpMatrix(const PrecisionOpMultiMatrix* pop,
   {
     _QpAinvNoiseAt->prodNormMatMatInPlace(A->getProj(), invNoise, true);
   }
-  _QpAinvNoiseAt->addMat(*pop->getQ());
+  AMatrix::linearCombination(*_QpAinvNoiseAt, 0., 1., *_QpAinvNoiseAt, 1., *pop->getQ());
+  // _QpAinvNoiseAt->addMat(*pop->getQ());
 }
 
 SPDEOpMatrix::~SPDEOpMatrix()

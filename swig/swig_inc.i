@@ -1077,7 +1077,7 @@ namespace gstlrn {
 
 %extend gstlrn::VectorHelper {
 /**
-   * @brief List of operators exported for Target Language
+   * @brief List of operators from class VectorHelper exported for Target Language
    */
   static VectorDouble addVD(const VectorDouble& v1, const VectorDouble& v2)
   {
@@ -1111,7 +1111,6 @@ namespace gstlrn {
   {
     return VectorHelper::divideCst(v1, v2, flagOpposite);
   }
-
   static VectorInt addVI(const VectorInt& v1, const VectorInt& v2)
   {
     return VectorHelper::add(v1, v2);

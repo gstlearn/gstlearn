@@ -48,21 +48,21 @@ public:
   /// Interface to AStringable
   String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  /// Functions to be implemented in derived classes
-
   /*! Returns if the current matrix is Sparse */
   virtual bool isSparse() const = 0;
   /*! Returns if the matrix belongs to the MatrixDense class */
   virtual bool isDense() const = 0;
-  /*! Gets the value at row 'irow' and column 'icol' */
-  virtual double getValue(Id irow, Id icol) const = 0;
+  /*! Check if the matrix is (non empty) square */
+  virtual bool isSquare(bool printWhyNot = false) const;
+  /*! Check if the input matrix is (non empty and square) symmetric */
+  virtual bool isSymmetric(double eps = EPSILON10, bool printWhyNot = false) const;
+  /*! Say if the matrix must be symmetric */
+  virtual bool mustBeSymmetric() const { return false; }
+
   /*! Sets the value at row 'irow' and column 'icol' */
   virtual void setValue(Id irow, Id icol, double value) = 0;
   /*! Update the value at row 'irow' and column 'icol' */
-  virtual void updValue(Id irow,
-                        Id icol,
-                        const EOperator& oper,
-                        double value) = 0;
+  virtual void updValue(Id irow, Id icol, const EOperator& oper, double value) = 0;
   /*! Set the contents of a Column */
   virtual void setColumn(Id icol, const VectorDouble& tab) = 0;
   /*! Set the contents of a Column to a constant value*/
@@ -75,8 +75,7 @@ public:
   virtual void setDiagonal(const VectorDouble& tab) = 0;
   /*! Set the contents of the (main) Diagonal to a constant value */
   virtual void setDiagonalToConstant(double value = 1.) = 0;
-  /*! Set all the values of the Matrix at once */
-  virtual void fill(double value) = 0;
+
   /*! Multiply a Matrix row-wise */
   virtual void multiplyRow(const VectorDouble& vec) = 0;
   /*! Multiply a Matrix column-wise */
@@ -86,7 +85,24 @@ public:
   /*! Divide a Matrix column-wise */
   virtual void divideColumn(const VectorDouble& vec) = 0;
 
-  /*! New methods for operator overloading */
+  /*! Gets the value at row 'irow' and column 'icol' */
+  virtual double getValue(Id irow, Id icol) const = 0;
+  /*! Extract a Row */
+  virtual VectorDouble getRow(Id irow) const;
+  /*! Extract a Column */
+  virtual VectorDouble getColumn(Id icol) const;
+
+  /*! Set all the values of the Matrix at once */
+  virtual void fill(double value) = 0;
+
+  /**
+   * @brief Operate addition a constant to all terms of a matrix and store the result in res = other1 + cst
+   *
+   * @tparam T Type of the matrix
+   * @param res Output Matrix
+   * @param other Input matrix
+   * @param cst Constant value to be added
+   */
   template<typename T>
   static void add(T& res, const T& other, double cst)
   {
@@ -100,6 +116,15 @@ public:
     res.addGeneral(res, other, cst);
   }
 
+  /**
+   * @brief Operate addition of two matrices and store the result in a third one (res = other1 + other2)
+   *
+   * @tparam T Type of the matrix
+   * @param res Output Matrix
+   * @param other1 First input matrix
+   * @param other2 Second input matrix
+   * @note The dimensions of the matrices must be the same. If 'res' has different dimensions, it will be resized to fit the dimensions of 'other1' and 'other2
+   */
   template<typename T>
   static void add(T& res, const T& other1, const T& other2)
   {
@@ -118,6 +143,56 @@ public:
       res.resize(other1.getNRows(), other1.getNCols());
     }
     res.addGeneral(res, other1, other2);
+  }
+
+  /**
+   * @brief Operate product of a constant to all terms of a matrix and store the result in res = other1 * cst
+   *
+   * @tparam T Type of the matrix
+   * @param res Output Matrix
+   * @param other Input matrix
+   * @param cst Constant value to be multiplied
+   */
+  template<typename T>
+  static void prod(T& res, const T& other, double cst)
+  {
+    static_assert(std::is_base_of_v<AMatrix, T>,
+                  "Invalid type for Matrix product (template method). "
+                  "Only MatrixDense and MatrixSparse are allowed");
+    if (res.getNRows() != other.getNRows() || res.getNCols() != other.getNCols())
+    {
+      res.resize(other.getNRows(), other.getNCols());
+    }
+    res.prodGeneral(res, other, cst);
+  }
+
+  /**
+   * @brief Operate element-wise product of two matrices and store the result in a third one (res = other1 .* other2)
+   *
+   * @tparam T Type of the matrix
+   * @param res Output Matrix
+   * @param other1 First input matrix
+   * @param other2 Second input matrix
+   * @note The dimensions of the matrices must be the same. If 'res' has different dimensions, it will be resized to fit the dimensions of 'other1' and 'other2
+   */
+  template<typename T>
+  static void prodHadamard(T& res, const T& other1, const T& other2)
+  {
+    static_assert(std::is_base_of_v<AMatrix, T>,
+                  "Invalid type for Matrix Hadamard product (template method). "
+                  "Only MatrixDense and MatrixSparse are allowed");
+    // Check dimensions
+    if (other1.getNRows() != other2.getNRows() ||
+        other1.getNCols() != other2.getNCols())
+    {
+      messerr("Matrix Hadamard product error: matrices have different dimensions");
+      return;
+    }
+    if (res.getNRows() != other1.getNRows() || res.getNCols() != other1.getNCols())
+    {
+      res.resize(other1.getNRows(), other1.getNCols());
+    }
+    res.prodGeneral(res, other1, other2);
   }
 
   /**
@@ -194,49 +269,6 @@ public:
     res = cumul;
   }
 
-  template<typename T>
-  static void prod(T& res, const T& other, double cst)
-  {
-    static_assert(std::is_base_of_v<AMatrix, T>,
-                  "Invalid type for Matrix product (template method). "
-                  "Only MatrixDense and MatrixSparse are allowed");
-    if (res.getNRows() != other.getNRows() || res.getNCols() != other.getNCols())
-    {
-      res.resize(other.getNRows(), other.getNCols());
-    }
-    res.prodGeneral(res, other, cst);
-  }
-
-  template<typename T>
-  static void prodHadamard(T& res, const T& other1, const T& other2)
-  {
-    static_assert(std::is_base_of_v<AMatrix, T>,
-                  "Invalid type for Matrix Hadamard product (template method). "
-                  "Only MatrixDense and MatrixSparse are allowed");
-    // Check dimensions
-    if (other1.getNRows() != other2.getNRows() ||
-        other1.getNCols() != other2.getNCols())
-    {
-      messerr("Matrix Hadamard product error: matrices have different dimensions");
-      return;
-    }
-    if (res.getNRows() != other1.getNRows() || res.getNCols() != other1.getNCols())
-    {
-      res.resize(other1.getNRows(), other1.getNCols());
-    }
-    res.prodGeneral(res, other1, other2);
-  }
-
-  /*! Check if the matrix is (non empty) square */
-  virtual bool isSquare(bool printWhyNot = false) const;
-  /*! Check if the input matrix is (non empty and square) symmetric */
-  virtual bool isSymmetric(double eps = EPSILON10, bool printWhyNot = false) const;
-  /*! Say if the matrix must be symmetric */
-  virtual bool mustBeSymmetric() const
-  {
-    return false;
-  }
-
   virtual void reset(Id nrows, Id ncols);
   virtual void resetFromValue(Id nrows, Id ncols, double value);
   virtual void resetFromArray(Id nrows, Id ncols, const double* tab, bool byCol = true);
@@ -247,11 +279,6 @@ public:
   virtual void transposeInPlace();
   /*! Transpose the matrix and return it as a copy*/
   virtual AMatrix* transpose() const;
-
-  /*! Extract a Row */
-  virtual VectorDouble getRow(Id irow) const;
-  /*! Extract a Column */
-  virtual VectorDouble getColumn(Id icol) const;
 
   /*! Perform 'this' = 'x' * 'y' */
   virtual void prodMatMatInPlace(const AMatrix* x,
