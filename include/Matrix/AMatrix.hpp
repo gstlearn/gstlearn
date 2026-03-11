@@ -182,7 +182,6 @@ public:
    * @brief Operate product of a constant to all terms of a matrix and store the result in res = other1 * cst
    *
    * @tparam T Type of the matrix
-   * @param res Output Matrix
    * @param other Input matrix
    * @param cst Constant value to be multiplied
    */
@@ -215,7 +214,6 @@ public:
    * @brief Operate element-wise product of two matrices and store the result in a third one (res = other1 .* other2)
    *
    * @tparam T Type of the matrix
-   * @param res Output Matrix
    * @param other1 First input matrix
    * @param other2 Second input matrix
    * @note The dimensions of the matrices must be the same. If 'res' has different dimensions, it will be resized to fit the dimensions of 'other1' and 'other2
@@ -262,7 +260,6 @@ public:
    * @brief Linear combination of up to 3 matrices and a constant
    *
    * @tparam T
-   * @param res Resulting matrix of the linear combination
    * @param addition Constant to be added to the linear combination
    * @param val1 Weight of the first matrix
    * @param other1 First matrix
