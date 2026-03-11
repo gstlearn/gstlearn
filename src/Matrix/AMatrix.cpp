@@ -842,6 +842,23 @@ bool AMatrix::_identifyRowAndCol(const AMatrix* mat,
   return true;
 }
 
+bool AMatrix::_isProductCompatible(Id nrow1,
+                                   Id ncol1,
+                                   bool transpose1,
+                                   Id nrow2,
+                                   Id ncol2,
+                                   bool transpose2)
+{
+  Id nc1 = (transpose1) ? nrow1 : ncol1;
+  Id nr2 = (transpose2) ? ncol2 : nrow2;
+  if (nc1 != nr2)
+  {
+    messerr("Linkage error: Ncol1 = %d should match Nrow2 = %d", nc1, nr2);
+    return false;
+  }
+  return true;
+}
+
 /**
  * Check that a set of matrices (or vectors) has the correct linkage
  * The linkage is defined as follows:

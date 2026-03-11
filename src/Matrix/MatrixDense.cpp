@@ -283,6 +283,80 @@ double MatrixDense::sum() const
   return eigenMat().sum();
 }
 
+void MatrixDense::productGeneral(MatrixDense& res,
+                                 const MatrixDense& x,
+                                 const MatrixDense& y,
+                                 bool transposeX,
+                                 bool transposeY)
+{
+  if (transposeX)
+  {
+    if (transposeY)
+    {
+      res.eigenMat().noalias() = x.eigenMat().transpose() * y.eigenMat().transpose();
+    }
+    else
+    {
+      res.eigenMat().noalias() = x.eigenMat().transpose() * y.eigenMat();
+    }
+  }
+  else
+  {
+
+    if (transposeY)
+    {
+      res.eigenMat().noalias() = x.eigenMat() * y.eigenMat().transpose();
+    }
+    else
+    {
+      res.eigenMat().noalias() = x.eigenMat() * y.eigenMat();
+    }
+  }
+}
+
+/**
+ * @brief Product of a matrix by a vector
+ * 
+ * @param res Resulting vector
+ * @param other Input matrix
+ * @param vec  Input vector
+ * @param transpose Should the matrix 'other' be transposed
+ * @param flagInvert Product 'other' * 'vec' (F) or 'vec' * 'other' (T)
+ */
+void MatrixDense::productGeneral(VectorDouble& res,
+                                 const MatrixDense& other,
+                                 const VectorDouble& vec,
+                                 bool transpose,
+                                 bool flagInvert)
+{
+  Eigen::Map<const Eigen::VectorXd> vecm(vec.data(), vec.size());
+  Eigen::Map<Eigen::VectorXd> resm(res.data(), res.size());
+
+  if (flagInvert)
+  {
+    if (transpose)
+    {
+      resm.noalias() = vecm * other.eigenMat().transpose();
+    }
+    else
+    {
+      resm.noalias() = vecm * other.eigenMat();
+    }
+  }
+  else
+  {
+
+    if (transpose)
+    {
+      resm.noalias() += other.eigenMat().transpose() * vecm;
+    }
+    else
+    {
+      resm.noalias() += other.eigenMat() * vecm;
+    }
+  }
+}
+
 void MatrixDense::prodMatMatInPlace(const AMatrix* x,
                                     const AMatrix* y,
                                     bool transposeX,

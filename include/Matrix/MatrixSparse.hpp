@@ -144,6 +144,16 @@ public:
   static void addGeneral(MatrixSparse& res, const MatrixSparse& other1, const MatrixSparse& other2);
   static void prodGeneral(MatrixSparse& res, const MatrixSparse& other, double cst);
   static void prodGeneral(MatrixSparse& res, const MatrixSparse& other1, const MatrixSparse& other2);
+  static void productGeneral(MatrixSparse& res,
+                             const MatrixSparse& other1,
+                             const MatrixSparse& other2,
+                             bool transpose1 = false,
+                             bool transpose2 = false);
+  static void productGeneral(VectorDouble& res,
+                             const MatrixSparse& other,
+                             const VectorDouble& vec,
+                             bool transpose  = false,
+                             bool flagInvert = false);
 
   MatrixSparse* getRowAsMatrixSparse(Id irow, double coeff = 1.) const;
   MatrixSparse* getColumnAsMatrixSparse(Id icol, double coeff = 1.) const;

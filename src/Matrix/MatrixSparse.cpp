@@ -570,6 +570,70 @@ void MatrixSparse::_addProdVecMatInPlacePtr(constvect x, vect y, bool transpose)
   }
 }
 
+void MatrixSparse::productGeneral(MatrixSparse& res,
+                                  const MatrixSparse& other1,
+                                  const MatrixSparse& other2,
+                                  bool transpose1,
+                                  bool transpose2)
+{
+  if (transpose1)
+  {
+    if (transpose2)
+      res.eigenMat() = other1.eigenMat().transpose() * other2.eigenMat().transpose();
+    else
+      res.eigenMat() = other1.eigenMat().transpose() * other2.eigenMat();
+  }
+  else
+  {
+    if (transpose2)
+      res.eigenMat() = other1.eigenMat() * other2.eigenMat().transpose();
+    else
+      res.eigenMat() = other1.eigenMat() * other2.eigenMat();
+  }
+}
+
+/**
+ * @brief Product of a matrix by a vector
+ *
+ * @param res Resulting vector
+ * @param other Input matrix
+ * @param vec  Input vector
+ * @param transpose Should the matrix 'other' be transposed
+ * @param flagInvert Product 'other' * 'vec' (F) or 'vec' * 'other' (T)
+ */
+void MatrixSparse::productGeneral(VectorDouble& res,
+                                  const MatrixSparse& other,
+                                  const VectorDouble& vec,
+                                  bool transpose,
+                                  bool flagInvert)
+{
+  Eigen::Map<const Eigen::VectorXd> vecm(vec.data(), vec.size());
+  Eigen::Map<Eigen::VectorXd> resm(res.data(), res.size());
+
+  if (flagInvert)
+  {
+    if (transpose)
+    {
+      resm = vecm * other.eigenMat().transpose();
+    }
+    else
+    {
+      resm = vecm * other.eigenMat();
+    }
+  }
+  else
+  {
+    if (transpose)
+    {
+      resm = other.eigenMat().transpose() * vecm;
+    }
+    else
+    {
+      resm = other.eigenMat() * vecm;
+    }
+  }
+}
+
 /**
  * Store the product of 'x' by 'y' in this
  * @param x First Matrix

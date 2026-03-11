@@ -122,6 +122,16 @@ public:
   static void addGeneral(MatrixDense& res, const MatrixDense& other1, const MatrixDense& other2);
   static void prodGeneral(MatrixDense& res, const MatrixDense& other, double cst);
   static void prodGeneral(MatrixDense& res, const MatrixDense& other1, const MatrixDense& other2);
+  static void productGeneral(MatrixDense& res,
+                             const MatrixDense& x,
+                             const MatrixDense& y,
+                             bool transposeX = false,
+                             bool transposeY = false);
+  static void productGeneral(VectorDouble& res,
+                             const MatrixDense& other,
+                             const VectorDouble& vec,
+                             bool transpose  = false,
+                             bool flagInvert = false);
 
   template<bool transposeX, bool transposeY>
   void prodMatMatNoCheck(const MatrixDense& x, const MatrixDense& y)
