@@ -210,11 +210,13 @@ bool AMatrix::isValid(Id irow, Id icol, bool printWhyNot) const
  */
 bool AMatrix::isSameSize(const AMatrix& m) const
 {
-  if (_nRows == m.getNRows() && _nCols == m.getNCols()) return true;
+  if (_nRows == m.getNRows() &&
+      _nCols == m.getNCols()) return true;
 
   messerr("Dimensions of matrices do not match");
   messerr("- current matrix (%d x %d)", getNRows(), getNCols());
   messerr("- tested matrix  (%d x %d)", m.getNRows(), m.getNCols());
+
   return false;
 }
 

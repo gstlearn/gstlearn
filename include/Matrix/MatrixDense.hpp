@@ -132,6 +132,14 @@ public:
                              const VectorDouble& vec,
                              bool transpose  = false,
                              bool flagInvert = false);
+  static void prodnormGeneral(MatrixDense& res,
+                              const MatrixDense& a,
+                              const MatrixDense& m = MatrixDense(),
+                              bool transpose       = false);
+  static void prodnormGeneral(MatrixDense& res,
+                              const MatrixDense& a,
+                              const VectorDouble& vec,
+                              bool transpose = false);
 
   template<bool transposeX, bool transposeY>
   void prodMatMatNoCheck(const MatrixDense& x, const MatrixDense& y)

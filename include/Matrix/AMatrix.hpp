@@ -23,8 +23,6 @@ namespace gstlrn
 class NF_Triplet;
 class EOperator;
 
-/// TODO : Transform into template for storing something else than double
-
 /**
  * This class is the root of the Matrix organization in gstlearn
  * A matrix is a 2-D organization: it is characterized by its number of rows
@@ -99,6 +97,14 @@ public:
   //////////////////////////////////
   // Series of template functions //
   //////////////////////////////////
+  /**
+   * @brief Return 'other' + 'cst'
+   *
+   * @tparam T Type of the matrix
+   * @param res Output Matrix
+   * @param other Input matrix
+   * @param cst Constant value to be added
+   */
   template<typename T>
   static T add(const T& other, double cst)
   {
@@ -111,7 +117,7 @@ public:
   }
 
   /**
-   * @brief Operate addition a constant to all terms of a matrix and store the result in res = other1 + cst
+   * @brief Operate 'res' = 'other' + 'cst'
    *
    * @tparam T Type of the matrix
    * @param res Output Matrix
@@ -131,6 +137,13 @@ public:
     res.addGeneral(res, other, cst);
   }
 
+  /**
+   * @brief Return 'other1' + 'other2'
+   *
+   * @tparam T Type of the matrix
+   * @param other1 First Input matrix
+   * @param other2 Second Input matrix
+   */
   template<typename T>
   static T add(const T& other1, const T& other2)
   {
@@ -150,13 +163,11 @@ public:
   }
 
   /**
-   * @brief Operate addition of two matrices and store the result in a third one (res = other1 + other2)
+   * @brief Operate: 'res' = 'other1' + 'other2'
    *
    * @tparam T Type of the matrix
-   * @param res Output Matrix
-   * @param other1 First input matrix
-   * @param other2 Second input matrix
-   * @note The dimensions of the matrices must be the same. If 'res' has different dimensions, it will be resized to fit the dimensions of 'other1' and 'other2
+   * @param other1 First Input matrix
+   * @param other2 Second Input matrix
    */
   template<typename T>
   static void add(T& res, const T& other1, const T& other2)
@@ -179,13 +190,12 @@ public:
   }
 
   /**
-   * @brief Operate product of a constant to all terms of a matrix and store the result in res = other1 * cst
+   * @brief Return 'other' * 'cst'
    *
    * @tparam T Type of the matrix
    * @param other Input matrix
    * @param cst Constant value to be multiplied
    */
-
   template<typename T>
   static T prod(const T& other, double cst)
   {
@@ -197,6 +207,13 @@ public:
     return res;
   }
 
+  /**
+   * @brief Operate: 'res' = 'other' * 'cst'
+   *
+   * @tparam T Type of the matrix
+   * @param other Input matrix
+   * @param cst Constant value to be multiplied
+   */
   template<typename T>
   static void prod(T& res, const T& other, double cst)
   {
@@ -211,12 +228,11 @@ public:
   }
 
   /**
-   * @brief Operate element-wise product of two matrices and store the result in a third one (res = other1 .* other2)
+   * @brief Return: 'other1' * 'other2' (where '*' designates the element-wise prodtc)
    *
    * @tparam T Type of the matrix
    * @param other1 First input matrix
    * @param other2 Second input matrix
-   * @note The dimensions of the matrices must be the same. If 'res' has different dimensions, it will be resized to fit the dimensions of 'other1' and 'other2
    */
   template<typename T>
   static T prodHadamard(const T& other1, const T& other2)
@@ -236,6 +252,13 @@ public:
     return res;
   }
 
+  /**
+   * @brief Operate: 'res' = 'other1' * 'other2' (where '*' designates the element-wise prodtc)
+   *
+   * @tparam T Type of the matrix
+   * @param other1 First input matrix
+   * @param other2 Second input matrix
+   */
   template<typename T>
   static void prodHadamard(T& res, const T& other1, const T& other2)
   {
@@ -257,7 +280,7 @@ public:
   }
 
   /**
-   * @brief Linear combination of up to 3 matrices and a constant
+   * @brief Return: 'val1' * 'other1' + 'val2' * 'other2' + 'val3' * 'other3' + 'addition'
    *
    * @tparam T
    * @param addition Constant to be added to the linear combination
@@ -285,6 +308,18 @@ public:
     return res;
   }
 
+  /**
+   * @brief Operate: 'res' = 'val1' * 'other1' + 'val2' * 'other2' + 'val3' * 'other3' + 'addition'
+   *
+   * @tparam T
+   * @param addition Constant to be added to the linear combination
+   * @param val1 Weight of the first matrix
+   * @param other1 First matrix
+   * @param val2  Weight of the second matrix
+   * @param other2 Second matrix
+   * @param val3  Weight of the third matrix
+   * @param other3 Third matrix
+   */
   template<typename T>
   static void linearCombination(T& res,
                                 double addition,
@@ -346,6 +381,15 @@ public:
     res = cumul;
   }
 
+  /**
+   * @brief Return: 'other1' * 'other2'
+   *
+   * @tparam T
+   * @param other1 First matrix
+   * @param other2 Second matrix
+   * @param transpose1 True if 'other1' must be transposed
+   * @param transpose2 True if 'other2' must be transposed
+   */
   template<typename T>
   static T product(const T& other1,
                    const T& other2,
@@ -367,6 +411,15 @@ public:
     return res;
   }
 
+  /**
+   * @brief Operate: 'res' = 'other1' * 'other2'
+   *
+   * @tparam T
+   * @param other1 First matrix
+   * @param other2 Second matrix
+   * @param transpose1 True if 'other1' must be transposed
+   * @param transpose2 True if 'other2' must be transposed
+   */
   template<typename T>
   static void product(T& res,
                       const T& other1,
@@ -390,6 +443,14 @@ public:
     res.productGeneral(res, other1, other2, transpose1, transpose2);
   }
 
+  /**
+   * @brief Return: 'other' * 'vec'
+   *
+   * @tparam T
+   * @param other First matrix
+   * @param vec  Vector
+   * @param transpose True if 'other' must be transposed
+   */
   template<typename T>
   static VectorDouble product(const T& other,
                               const VectorDouble& vec,
@@ -409,6 +470,14 @@ public:
     return res;
   }
 
+  /**
+   * @brief Operate: 'res' = 'other' * 'vec'
+   *
+   * @tparam T
+   * @param other First matrix
+   * @param vec  Vector
+   * @param transpose True if 'other' must be transposed
+   */
   template<typename T>
   static void product(VectorDouble& res,
                       const T& other,
@@ -431,6 +500,14 @@ public:
     T::productGeneral(res, other, vec, transpose, false);
   }
 
+  /**
+   * @brief Return: 'vec' * 'other'
+   *
+   * @tparam T
+   * @param other First matrix
+   * @param vec  Vector
+   * @param transpose True if 'other' must be transposed
+   */
   template<typename T>
   static VectorDouble product(const VectorDouble& vec,
                               const T& other,
@@ -450,6 +527,14 @@ public:
     return res;
   }
 
+  /**
+   * @brief Operate: 'res' = 'vec' * 'other'
+   *
+   * @tparam T
+   * @param other First matrix
+   * @param vec  Vector
+   * @param transpose True if 'other' must be transposed
+   */
   template<typename T>
   static void product(VectorDouble& res,
                       const VectorDouble& vec,
@@ -472,6 +557,14 @@ public:
     T::productGeneral(res, other, vec, transpose, true);
   }
 
+  /**
+   * @brief Return: 'a_t' * 'm' * 'a' or 'a' * 'm' * 'a_t' (where 'a_t' is the transpose of 'a')
+   *
+   * @tparam T
+   * @param a First matrix
+   * @param m Second matrix (may be omitted)
+   * @param transpose True if first 'a' is transposed; otherwise second 'a' is transposed
+   */
   template<typename T>
   static T prodnorm(const T& a,
                     const T& m     = T(),
@@ -497,10 +590,18 @@ public:
     }
 
     T res(n1, n1);
-    prodnorm(res, a, m, transpose);
+    prodnormGeneral(res, a, m, transpose);
     return res;
   }
 
+  /**
+   * @brief Operate: 'res' = 'a_t' * 'm' * 'a' or 'a' * 'm' * 'a_t' (where 'a_t' is the transpose of 'a')
+   *
+   * @tparam T
+   * @param a First matrix
+   * @param m Second matrix (may be omitted)
+   * @param transpose True if first 'a' is transposed; otherwise second 'a' is transposed
+   */
   template<typename T>
   static void prodnorm(T& res,
                        const T& a,
@@ -530,7 +631,70 @@ public:
     {
       res.resize(n1, n1);
     }
-    // res.prodnormGeneral(res, a, m, transpose);
+    res.prodnormGeneral(res, a, m, transpose);
+  }
+
+  /**
+   * @brief Return: 'a_t' * 'vec' * 'a' or 'a' * 'vec' * 'a_t' (where 'a_t' is the transpose of 'a')
+   *
+   * @tparam T
+   * @param a First matrix
+   * @param vec Vector
+   * @param transpose True if first 'a' is transposed; otherwise second 'a' is transposed
+   */
+  template<typename T>
+  static T prodnorm(const T& a,
+                    const VectorDouble& vec,
+                    bool transpose = false)
+  {
+    static_assert(std::is_base_of_v<AMatrix, T>,
+                  "Invalid type for Matrix product (template method). "
+                  "Only MatrixDense and MatrixSparse are allowed");
+    Id n1;
+    Id n2;
+    if (!_isProductCompatible(a.getNRows(), a.getNCols(), transpose,
+                              vec.size(), 1, false,
+                              n1, n2)) return;
+    if (!_isProductCompatible(vec.size(), 1, true,
+                              a.getNRows(), a.getNCols(), !transpose,
+                              n2, n1)) return;
+
+    T res(n1, n1);
+    res.prodnormGeneral(res, a, vec, transpose);
+    return res;
+  }
+
+  /**
+   * @brief Operate: 'res' = 'a_t' * 'vec' * 'a' or 'a' * 'vec' * 'a_t' (where 'a_t' is the transpose of 'a')
+   *
+   * @tparam T
+   * @param a First matrix
+   * @param vec Vector
+   * @param transpose True if first 'a' is transposed; otherwise second 'a' is transposed
+   */
+  template<typename T>
+  static void prodnorm(T& res,
+                       const T& a,
+                       const VectorDouble& vec,
+                       bool transpose = false)
+  {
+    static_assert(std::is_base_of_v<AMatrix, T>,
+                  "Invalid type for Matrix product (template method). "
+                  "Only MatrixDense and MatrixSparse are allowed");
+    Id n1;
+    Id n2;
+    if (!_isProductCompatible(a.getNRows(), a.getNCols(), transpose,
+                              vec.size(), 1, false,
+                              n1, n2)) return;
+    if (!_isProductCompatible(vec.size(), 1, true,
+                              a.getNRows(), a.getNCols(), !transpose,
+                              n2, n1)) return;
+
+    if (res.getNRows() != n1 || res.getNCols() != n1)
+    {
+      res.resize(n1, n1);
+    }
+    res.prodnormGeneral(res, a, vec, transpose);
   }
 
   virtual void reset(Id nrows, Id ncols);

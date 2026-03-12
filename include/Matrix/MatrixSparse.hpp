@@ -154,6 +154,14 @@ public:
                              const VectorDouble& vec,
                              bool transpose  = false,
                              bool flagInvert = false);
+  static void prodnormGeneral(MatrixSparse& res,
+                              const MatrixSparse& a,
+                              const MatrixSparse& m = MatrixSparse(),
+                              bool transpose        = false);
+  static void prodnormGeneral(MatrixSparse& res,
+                              const MatrixSparse& a,
+                              const VectorDouble& vec,
+                              bool transpose = false);
 
   MatrixSparse* getRowAsMatrixSparse(Id irow, double coeff = 1.) const;
   MatrixSparse* getColumnAsMatrixSparse(Id icol, double coeff = 1.) const;

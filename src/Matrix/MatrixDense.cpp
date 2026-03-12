@@ -451,6 +451,10 @@ void MatrixDense::prodNormMatMatInPlace(const AMatrix* a,
       eigenMat().noalias() = am->eigenMat() * mm->eigenMat() * am->eigenMat().transpose();
     }
   }
+
+  MatrixDense temp;
+  AMatrix::prodnorm(temp, *am, *mm, transpose);
+  (void)isSame(temp);
 }
 
 /**
@@ -485,6 +489,10 @@ void MatrixDense::prodNormMatVecInPlace(const AMatrix* a, const VectorDouble& ve
       eigenMat().noalias() = am->eigenMat() * vecm * am->eigenMat().transpose();
     }
   }
+
+  MatrixDense temp;
+  AMatrix::prodnorm(temp, *am, vec, transpose);
+  (void)isSame(temp);
 }
 
 void MatrixDense::prodNormMatInPlace(const AMatrix* a, bool transpose)
@@ -510,6 +518,10 @@ void MatrixDense::prodNormMatInPlace(const AMatrix* a, bool transpose)
       eigenMat() = am->eigenMat() * am->eigenMat().transpose();
     }
   }
+
+  MatrixDense temp;
+  AMatrix::prodnorm(temp, *am, MatrixDense(), transpose);
+  (void)isSame(temp);
 }
 
 void MatrixDense::fill(double value)
@@ -948,4 +960,50 @@ void MatrixDense::prodGeneral(MatrixDense& res,
 {
   res.eigenMat() = other1.eigenMat().array() * other2.eigenMat().array();
 }
+
+void MatrixDense::prodnormGeneral(MatrixDense& res,
+                                  const MatrixDense& a,
+                                  const MatrixDense& m,
+                                  bool transpose)
+{
+  if (m.empty())
+  {
+    if (transpose)
+    {
+      res.eigenMat().noalias() = a.eigenMat().transpose() * a.eigenMat();
+    }
+    else
+    {
+      res.eigenMat().noalias() = a.eigenMat() * a.eigenMat().transpose();
+    }
+  }
+  else
+  {
+    if (transpose)
+    {
+      res.eigenMat().noalias() = a.eigenMat().transpose() * m.eigenMat() * a.eigenMat();
+    }
+    else
+    {
+      res.eigenMat().noalias() = a.eigenMat() * m.eigenMat() * a.eigenMat().transpose();
+    }
+  }
+}
+
+void MatrixDense::prodnormGeneral(MatrixDense& res,
+                                  const MatrixDense& a,
+                                  const VectorDouble& vec,
+                                  bool transpose)
+{
+  Eigen::Map<const Eigen::VectorXd> vecm(vec.data(), vec.size());
+  if (transpose)
+  {
+    res.eigenMat().noalias() = a.eigenMat().transpose() * vecm * a.eigenMat();
+  }
+  else
+  {
+    res.eigenMat().noalias() = a.eigenMat() * vecm * a.eigenMat().transpose();
+  }
+}
+
 }; // namespace gstlrn

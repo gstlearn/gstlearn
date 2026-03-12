@@ -677,7 +677,7 @@ void MatrixSparse::prodMatMatInPlace(const AMatrix* x,
       else
         eigenMat() = xm->eigenMat() * ym->eigenMat();
     }
-    (void)isSame(temp);
+    // (void)isSame(temp); // Not performed to save lot of time
   }
 }
 
@@ -785,6 +785,10 @@ void MatrixSparse::prodNormMatVecInPlace(const AMatrix* a,
       eigenMat() = am->eigenMat() * vecm.asDiagonal() * am->eigenMat().transpose();
     }
   }
+
+  MatrixSparse temp;
+  AMatrix::prodnorm(temp, *am, vec, transpose);
+  // (void)isSame(temp); // Not performed to save lot of time
 }
 
 void MatrixSparse::prodNormMatInPlace(const AMatrix* a, bool transpose)
@@ -810,6 +814,10 @@ void MatrixSparse::prodNormMatInPlace(const AMatrix* a, bool transpose)
       eigenMat() = am->eigenMat() * am->eigenMat().transpose();
     }
   }
+
+  MatrixSparse temp;
+  AMatrix::prodnorm(temp, *am, MatrixSparse(), transpose);
+  // (void)isSame(temp); // Not performed to save lot of time
 }
 
 void MatrixSparse::prodNormMatMatInPlace(const AMatrix* a,
@@ -839,6 +847,10 @@ void MatrixSparse::prodNormMatMatInPlace(const AMatrix* a,
       eigenMat() = (am->eigenMat() * mm->eigenMat()) * am->eigenMat().transpose();
     }
   }
+
+  MatrixSparse temp;
+  AMatrix::prodnorm(temp, *am, *mm, transpose);
+  // (void)isSame(temp); // Not performed to save lot of time
 }
 
 Id MatrixSparse::_invert()
@@ -1362,4 +1374,59 @@ void MatrixSparse::prodGeneral(MatrixSparse& res,
 {
   res.eigenMat() = other1.eigenMat().cwiseProduct(other2.eigenMat());
 }
+
+void MatrixSparse::prodnormGeneral(MatrixSparse& res,
+                                   const MatrixSparse& a,
+                                   const MatrixSparse& m,
+                                   bool transpose)
+{
+  if (m.empty())
+  {
+    if (transpose)
+    {
+      res.eigenMat() = a.eigenMat().transpose() * a.eigenMat();
+    }
+    else
+    {
+      res.eigenMat() = a.eigenMat() * a.eigenMat().transpose();
+    }
+  }
+  else
+  {
+    if (transpose)
+    {
+      res.eigenMat() = a.eigenMat().transpose() * m.eigenMat() * a.eigenMat();
+    }
+    else
+    {
+      res.eigenMat() = a.eigenMat() * m.eigenMat() * a.eigenMat().transpose();
+    }
+  }
+}
+
+void MatrixSparse::prodnormGeneral(MatrixSparse& res,
+                                   const MatrixSparse& a,
+                                   const VectorDouble& vec,
+                                   bool transpose)
+{
+  Eigen::Map<const Eigen::VectorXd> vecm(vec.data(), vec.size());
+  if (transpose)
+  {
+    res.eigenMat() = a.eigenMat().transpose() * vecm * a.eigenMat();
+  }
+  else
+  {
+    res.eigenMat() = a.eigenMat() * vecm * a.eigenMat().transpose();
+  }
+}
+
+/**
+ * Check that Matrix 'm' is equal to the current Matrix
+ *
+ * @param m Matrix to be compared to the current Matrix
+ * @param eps Epsilon for double equality comparison
+ * @param printWhyNot Print the message is the answer is false
+ * @return true if 'm'  is equal to the current Matrix
+ */
+
 }; // namespace gstlrn
