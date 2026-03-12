@@ -325,23 +325,23 @@ public:
 
     if (val1 != 0.)
     {
-      T::prodGeneral(temp, other1, val1);
-      T::addGeneral(cumul, cumul, temp);
+      prod(temp, other1, val1);
+      add(cumul, cumul, temp);
     }
 
     if (val2 != 0.)
     {
-      T::prodGeneral(temp, other2, val2);
-      T::addGeneral(cumul, cumul, temp);
+      prod(temp, other2, val2);
+      add(cumul, cumul, temp);
     }
 
     if (val3 != 0.)
     {
-      T::prodGeneral(temp, other3, val3);
-      T::addGeneral(cumul, cumul, temp);
+      prod(temp, other3, val3);
+      add(cumul, cumul, temp);
     }
     if (addition != 0.)
-      T::addGeneral(cumul, cumul, addition);
+      add(cumul, cumul, addition);
 
     res = cumul;
   }
@@ -355,12 +355,12 @@ public:
     static_assert(std::is_base_of_v<AMatrix, T>,
                   "Invalid type for Matrix product (template method). "
                   "Only MatrixDense and MatrixSparse are allowed");
+    Id nrow;
+    Id ncol;
     if (!_isProductCompatible(other1.getNRows(), other1.getNCols(), transpose1,
-                              other2.getNRows(), other2.getNCols(), transpose2))
+                              other2.getNRows(), other2.getNCols(), transpose2,
+                              nrow, ncol))
       return T();
-
-    Id nrow = (transpose1) ? other1.getNCols() : other1.getNRows();
-    Id ncol = (transpose2) ? other1.getNRows() : other1.getNCols();
 
     T res(nrow, ncol);
     product(res, other1, other2, transpose1, transpose2);
@@ -377,11 +377,11 @@ public:
     static_assert(std::is_base_of_v<AMatrix, T>,
                   "Invalid type for Matrix product (template method). "
                   "Only MatrixDense and MatrixSparse are allowed");
+    Id nrow;
+    Id ncol;
     if (!_isProductCompatible(other1.getNRows(), other1.getNCols(), transpose1,
-                              other2.getNRows(), other2.getNCols(), transpose2)) return;
-
-    Id nrow = (transpose1) ? other1.getNCols() : other1.getNRows();
-    Id ncol = (transpose2) ? other1.getNRows() : other1.getNCols();
+                              other2.getNRows(), other2.getNCols(), transpose2,
+                              nrow, ncol)) return;
 
     if (res.getNRows() != nrow || res.getNCols() != ncol)
     {
@@ -398,11 +398,13 @@ public:
     static_assert(std::is_base_of_v<AMatrix, T>,
                   "Invalid type for Matrix product (template method). "
                   "Only MatrixDense and MatrixSparse are allowed");
+    Id nrow;
+    Id ncol;
     if (!_isProductCompatible(other.getNRows(), other.getNCols(), transpose,
-                              vec.size(), 1, false)) return VectorDouble();
+                              vec.size(), 1, false,
+                              nrow, ncol)) return VectorDouble();
 
-    Id size = (transpose) ? other.getNCols() : other.getNRows();
-    VectorDouble res(size);
+    VectorDouble res(ncol);
     product(res, other, vec, transpose);
     return res;
   }
@@ -416,13 +418,15 @@ public:
     static_assert(std::is_base_of_v<AMatrix, T>,
                   "Invalid type for Matrix product (template method). "
                   "Only MatrixDense and MatrixSparse are allowed");
+    Id nrow;
+    Id ncol;
     if (!_isProductCompatible(other.getNRows(), other.getNCols(), transpose,
-                              vec.size(), 1, false)) return;
+                              vec.size(), 1, false,
+                              nrow, ncol)) return;
 
-    Id size = (transpose) ? other.getNCols() : other.getNRows();
-    if (res.size() != static_cast<size_t>(size))
+    if (res.size() != static_cast<size_t>(ncol))
     {
-      res.resize(size);
+      res.resize(ncol);
     }
     T::productGeneral(res, other, vec, transpose, false);
   }
@@ -435,12 +439,13 @@ public:
     static_assert(std::is_base_of_v<AMatrix, T>,
                   "Invalid type for Matrix product (template method). "
                   "Only MatrixDense and MatrixSparse are allowed");
+    Id nrow;
+    Id ncol;
     if (!_isProductCompatible(vec.size(), 1, true,
-                              other.getNRows(), other.getNCols(), transpose))
-      return VectorDouble();
+                              other.getNRows(), other.getNCols(), transpose,
+                              nrow, ncol)) return VectorDouble();
 
-    Id size = (transpose) ? other.getNRows() : other.getNCols();
-    VectorDouble res(size);
+    VectorDouble res(ncol);
     T::productGeneral(res, other, vec, transpose, true);
     return res;
   }
@@ -454,13 +459,15 @@ public:
     static_assert(std::is_base_of_v<AMatrix, T>,
                   "Invalid type for Matrix product (template method). "
                   "Only MatrixDense and MatrixSparse are allowed");
+    Id nrow;
+    Id ncol;
     if (!_isProductCompatible(vec.size(), 1, true,
-                              other.getNRows(), other.getNCols(), transpose)) return;
+                              other.getNRows(), other.getNCols(), transpose,
+                              nrow, ncol)) return;
 
-    Id size = (transpose) ? other.getNRows() : other.getNCols();
-    if (res.size() != static_cast<size_t>(size))
+    if (res.size() != static_cast<size_t>(ncol))
     {
-      res.resize(size);
+      res.resize(ncol);
     }
     T::productGeneral(res, other, vec, transpose, true);
   }
@@ -677,7 +684,9 @@ protected:
                                    bool transpose1,
                                    Id nrow2,
                                    Id ncol2,
-                                   bool transpose2);
+                                   bool transpose2,
+                                   Id& nrow,
+                                   Id& ncol);
 
 private:
   bool _matrixNeedToReset(Id nrows, Id ncols);

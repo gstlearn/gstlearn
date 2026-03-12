@@ -316,7 +316,7 @@ void MatrixDense::productGeneral(MatrixDense& res,
 
 /**
  * @brief Product of a matrix by a vector
- * 
+ *
  * @param res Resulting vector
  * @param other Input matrix
  * @param vec  Input vector
@@ -348,11 +348,11 @@ void MatrixDense::productGeneral(VectorDouble& res,
 
     if (transpose)
     {
-      resm.noalias() += other.eigenMat().transpose() * vecm;
+      resm.noalias() = other.eigenMat().transpose() * vecm;
     }
     else
     {
-      resm.noalias() += other.eigenMat() * vecm;
+      resm.noalias() = other.eigenMat() * vecm;
     }
   }
 }
@@ -375,6 +375,9 @@ void MatrixDense::prodMatMatInPlace(const AMatrix* x,
   }
   else
   {
+    MatrixDense temp;
+    AMatrix::product(temp, *xm, *ym, transposeX, transposeY);
+
     if (transposeX)
     {
       if (transposeY)
@@ -390,7 +393,6 @@ void MatrixDense::prodMatMatInPlace(const AMatrix* x,
     }
     else
     {
-
       if (transposeY)
       {
         resize(xm->getNRows(), ym->getNRows());
@@ -406,6 +408,7 @@ void MatrixDense::prodMatMatInPlace(const AMatrix* x,
         a      = b * ym->eigenMat();
       }
     }
+    (void)isSame(temp);
   }
 }
 

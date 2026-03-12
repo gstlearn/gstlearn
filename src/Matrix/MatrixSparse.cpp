@@ -659,6 +659,9 @@ void MatrixSparse::prodMatMatInPlace(const AMatrix* x,
   }
   else
   {
+    MatrixSparse temp;
+    AMatrix::product(temp, *xm, *ym, transposeX, transposeY);
+
     if (transposeX)
     {
       if (transposeY)
@@ -673,6 +676,7 @@ void MatrixSparse::prodMatMatInPlace(const AMatrix* x,
       else
         eigenMat() = xm->eigenMat() * ym->eigenMat();
     }
+    (void)isSame(temp);
   }
 }
 

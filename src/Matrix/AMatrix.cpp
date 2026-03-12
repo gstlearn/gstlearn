@@ -16,6 +16,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Matrix/MatrixFactory.hpp"
+#include "Matrix/MatrixSparse.hpp"
 #include "Matrix/NF_Triplet.hpp"
 #include "geoslib_define.h"
 
@@ -394,6 +395,17 @@ VectorDouble AMatrix::prodMatVec(const VectorDouble& x, bool transpose) const
   Id size = (transpose) ? _nCols : _nRows;
   VectorDouble y(size, 0.);
   _addProdMatVecInPlacePtr(x, y, transpose);
+
+  // VectorDouble temp;
+  // const auto* other1 = dynamic_cast<const MatrixDense*>(this);
+  // if (other1 != nullptr)
+  //   AMatrix::product(temp, *other1, x, transpose);
+  // else
+  // {
+  //   const auto* other2 = dynamic_cast<const MatrixSparse*>(this);
+  //   AMatrix::product(temp, *other2, x, transpose);
+  // }
+  // (void)temp.isEqual(y);
   return y;
 }
 
@@ -414,6 +426,17 @@ void AMatrix::prodMatVecInPlace(const VectorDouble& x,
   Id size = (transpose) ? _nCols : _nRows;
   y.fill(0., size);
   _addProdMatVecInPlacePtr(x, y, transpose);
+
+  // VectorDouble temp;
+  // const auto* other1 = dynamic_cast<const MatrixDense*>(this);
+  // if (other1 != nullptr)
+  //   AMatrix::product(temp, *other1, x, transpose);
+  // else
+  // {
+  //   const auto* other2 = dynamic_cast<const MatrixSparse*>(this);
+  //   AMatrix::product(temp, *other2, x, transpose);
+  // }
+  // (void)temp.isEqual(y);
 }
 
 void AMatrix::prodMatVecInPlaceC(const constvect x,
@@ -449,6 +472,18 @@ VectorDouble AMatrix::prodVecMat(const VectorDouble& x, bool transpose) const
   Id size = (transpose) ? _nRows : _nCols;
   VectorDouble y(size, 0.);
   _addProdVecMatInPlacePtr(x, y, transpose);
+
+  // VectorDouble temp;
+  // const auto* other1 = dynamic_cast<const MatrixDense*>(this);
+  // if (other1 != nullptr)
+  //   AMatrix::product(temp, x, *other1, transpose);
+  // else
+  // {
+  //   const auto* other2 = dynamic_cast<const MatrixSparse*>(this);
+  //   AMatrix::product(temp, x, *other2, transpose);
+  // }
+  // (void)temp.isEqual(y);
+
   return y;
 }
 
@@ -461,6 +496,17 @@ void AMatrix::prodVecMatInPlace(const VectorDouble& x, VectorDouble& y, bool tra
   Id size = (transpose) ? _nRows : _nCols;
   y.fill(0., size);
   _addProdVecMatInPlacePtr(x, y, transpose);
+
+  // VectorDouble temp;
+  // const auto* other1 = dynamic_cast<const MatrixDense*>(this);
+  // if (other1 != nullptr)
+  //   AMatrix::product(temp, x, *other1, transpose);
+  // else
+  // {
+  //   const auto* other2 = dynamic_cast<const MatrixSparse*>(this);
+  //   AMatrix::product(temp, x, *other2, transpose);
+  // }
+  // (void)temp.isEqual(y);
 }
 
 void AMatrix::prodVecMatInPlaceC(const constvect x, vect y, bool transpose) const
@@ -847,15 +893,21 @@ bool AMatrix::_isProductCompatible(Id nrow1,
                                    bool transpose1,
                                    Id nrow2,
                                    Id ncol2,
-                                   bool transpose2)
+                                   bool transpose2,
+                                   Id& nrow,
+                                   Id& ncol)
 {
+  Id nr1 = (transpose1) ? ncol1 : nrow1;
   Id nc1 = (transpose1) ? nrow1 : ncol1;
   Id nr2 = (transpose2) ? ncol2 : nrow2;
+  Id nc2 = (transpose2) ? nrow2 : ncol2;
   if (nc1 != nr2)
   {
     messerr("Linkage error: Ncol1 = %d should match Nrow2 = %d", nc1, nr2);
     return false;
   }
+  nrow = nr1;
+  ncol = nc2;
   return true;
 }
 
