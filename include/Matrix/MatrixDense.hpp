@@ -123,10 +123,10 @@ public:
   static void prodGeneral(MatrixDense& res, const MatrixDense& other, double cst);
   static void prodGeneral(MatrixDense& res, const MatrixDense& other1, const MatrixDense& other2);
   static void productGeneral(MatrixDense& res,
-                             const MatrixDense& x,
-                             const MatrixDense& y,
-                             bool transposeX = false,
-                             bool transposeY = false);
+                             const MatrixDense& other1,
+                             const MatrixDense& other2,
+                             bool transpose1 = false,
+                             bool transpose2 = false);
   static void productGeneral(VectorDouble& res,
                              const MatrixDense& other,
                              const VectorDouble& vec,

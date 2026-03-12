@@ -284,32 +284,32 @@ double MatrixDense::sum() const
 }
 
 void MatrixDense::productGeneral(MatrixDense& res,
-                                 const MatrixDense& x,
-                                 const MatrixDense& y,
-                                 bool transposeX,
-                                 bool transposeY)
+                                 const MatrixDense& other1,
+                                 const MatrixDense& other2,
+                                 bool transpose1,
+                                 bool transpose2)
 {
-  if (transposeX)
+  if (transpose1)
   {
-    if (transposeY)
+    if (transpose2)
     {
-      res.eigenMat().noalias() = x.eigenMat().transpose() * y.eigenMat().transpose();
+      res.eigenMat().noalias() = other1.eigenMat().transpose() * other2.eigenMat().transpose();
     }
     else
     {
-      res.eigenMat().noalias() = x.eigenMat().transpose() * y.eigenMat();
+      res.eigenMat().noalias() = other1.eigenMat().transpose() * other2.eigenMat();
     }
   }
   else
   {
 
-    if (transposeY)
+    if (transpose2)
     {
-      res.eigenMat().noalias() = x.eigenMat() * y.eigenMat().transpose();
+      res.eigenMat().noalias() = other1.eigenMat() * other2.eigenMat().transpose();
     }
     else
     {
-      res.eigenMat().noalias() = x.eigenMat() * y.eigenMat();
+      res.eigenMat().noalias() = other1.eigenMat() * other2.eigenMat();
     }
   }
 }
@@ -334,13 +334,14 @@ void MatrixDense::productGeneral(VectorDouble& res,
 
   if (flagInvert)
   {
+    // In order to obtain the correct result as a vector, the product is coded in a transposed manner
     if (transpose)
     {
-      resm.noalias() = vecm * other.eigenMat().transpose();
+      resm.noalias() = other.eigenMat() * vecm;
     }
     else
     {
-      resm.noalias() = vecm * other.eigenMat();
+      resm.noalias() = other.eigenMat().transpose() * vecm;
     }
   }
   else

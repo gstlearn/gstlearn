@@ -396,16 +396,17 @@ VectorDouble AMatrix::prodMatVec(const VectorDouble& x, bool transpose) const
   VectorDouble y(size, 0.);
   _addProdMatVecInPlacePtr(x, y, transpose);
 
-  // VectorDouble temp;
-  // const auto* other1 = dynamic_cast<const MatrixDense*>(this);
-  // if (other1 != nullptr)
-  //   AMatrix::product(temp, *other1, x, transpose);
-  // else
-  // {
-  //   const auto* other2 = dynamic_cast<const MatrixSparse*>(this);
-  //   AMatrix::product(temp, *other2, x, transpose);
-  // }
-  // (void)temp.isEqual(y);
+  VectorDouble temp;
+  const auto* other1 = dynamic_cast<const MatrixDense*>(this);
+  if (other1 != nullptr)
+    AMatrix::product(temp, *other1, x, transpose);
+  else
+  {
+    const auto* other2 = dynamic_cast<const MatrixSparse*>(this);
+    AMatrix::product(temp, *other2, x, transpose);
+  }
+  (void)temp.isEqual(y);
+
   return y;
 }
 
@@ -427,16 +428,16 @@ void AMatrix::prodMatVecInPlace(const VectorDouble& x,
   y.fill(0., size);
   _addProdMatVecInPlacePtr(x, y, transpose);
 
-  // VectorDouble temp;
-  // const auto* other1 = dynamic_cast<const MatrixDense*>(this);
-  // if (other1 != nullptr)
-  //   AMatrix::product(temp, *other1, x, transpose);
-  // else
-  // {
-  //   const auto* other2 = dynamic_cast<const MatrixSparse*>(this);
-  //   AMatrix::product(temp, *other2, x, transpose);
-  // }
-  // (void)temp.isEqual(y);
+  VectorDouble temp;
+  const auto* other1 = dynamic_cast<const MatrixDense*>(this);
+  if (other1 != nullptr)
+    AMatrix::product(temp, *other1, x, transpose);
+  else
+  {
+    const auto* other2 = dynamic_cast<const MatrixSparse*>(this);
+    AMatrix::product(temp, *other2, x, transpose);
+  }
+  (void)temp.isEqual(y);
 }
 
 void AMatrix::prodMatVecInPlaceC(const constvect x,
@@ -473,16 +474,16 @@ VectorDouble AMatrix::prodVecMat(const VectorDouble& x, bool transpose) const
   VectorDouble y(size, 0.);
   _addProdVecMatInPlacePtr(x, y, transpose);
 
-  // VectorDouble temp;
-  // const auto* other1 = dynamic_cast<const MatrixDense*>(this);
-  // if (other1 != nullptr)
-  //   AMatrix::product(temp, x, *other1, transpose);
-  // else
-  // {
-  //   const auto* other2 = dynamic_cast<const MatrixSparse*>(this);
-  //   AMatrix::product(temp, x, *other2, transpose);
-  // }
-  // (void)temp.isEqual(y);
+  VectorDouble temp;
+  const auto* other1 = dynamic_cast<const MatrixDense*>(this);
+  if (other1 != nullptr)
+    AMatrix::product(temp, x, *other1, transpose);
+  else
+  {
+    const auto* other2 = dynamic_cast<const MatrixSparse*>(this);
+    AMatrix::product(temp, x, *other2, transpose);
+  }
+  (void)temp.isEqual(y);
 
   return y;
 }
@@ -497,16 +498,16 @@ void AMatrix::prodVecMatInPlace(const VectorDouble& x, VectorDouble& y, bool tra
   y.fill(0., size);
   _addProdVecMatInPlacePtr(x, y, transpose);
 
-  // VectorDouble temp;
-  // const auto* other1 = dynamic_cast<const MatrixDense*>(this);
-  // if (other1 != nullptr)
-  //   AMatrix::product(temp, x, *other1, transpose);
-  // else
-  // {
-  //   const auto* other2 = dynamic_cast<const MatrixSparse*>(this);
-  //   AMatrix::product(temp, x, *other2, transpose);
-  // }
-  // (void)temp.isEqual(y);
+  VectorDouble temp;
+  const auto* other1 = dynamic_cast<const MatrixDense*>(this);
+  if (other1 != nullptr)
+    AMatrix::product(temp, x, *other1, transpose);
+  else
+  {
+    const auto* other2 = dynamic_cast<const MatrixSparse*>(this);
+    AMatrix::product(temp, x, *other2, transpose);
+  }
+  (void)temp.isEqual(y);
 }
 
 void AMatrix::prodVecMatInPlaceC(const constvect x, vect y, bool transpose) const

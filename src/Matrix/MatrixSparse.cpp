@@ -612,13 +612,14 @@ void MatrixSparse::productGeneral(VectorDouble& res,
 
   if (flagInvert)
   {
+    // In order to obtain the correct result as a vector, the product is coded in a transposed manner
     if (transpose)
     {
-      resm = vecm * other.eigenMat().transpose();
+      resm.noalias() = other.eigenMat() * vecm;
     }
     else
     {
-      resm = vecm * other.eigenMat();
+      resm.noalias() = other.eigenMat().transpose() * vecm;
     }
   }
   else

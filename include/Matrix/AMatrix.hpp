@@ -424,9 +424,9 @@ public:
                               vec.size(), 1, false,
                               nrow, ncol)) return;
 
-    if (res.size() != static_cast<size_t>(ncol))
+    if (res.size() != static_cast<size_t>(nrow))
     {
-      res.resize(ncol);
+      res.resize(nrow);
     }
     T::productGeneral(res, other, vec, transpose, false);
   }
@@ -470,6 +470,67 @@ public:
       res.resize(ncol);
     }
     T::productGeneral(res, other, vec, transpose, true);
+  }
+
+  template<typename T>
+  static T prodnorm(const T& a,
+                    const T& m     = T(),
+                    bool transpose = false)
+  {
+    static_assert(std::is_base_of_v<AMatrix, T>,
+                  "Invalid type for Matrix product (template method). "
+                  "Only MatrixDense and MatrixSparse are allowed");
+    Id n1;
+    if (!m.empty())
+    {
+      Id n2;
+      if (!_isProductCompatible(a.getNRows(), a.getNCols(), transpose,
+                                m.getNRows(), m.getNCols(), false,
+                                n1, n2)) return;
+      if (!_isProductCompatible(m.getNRows(), m.getNCols(), false,
+                                a.getNRows(), a.getNCols(), !transpose,
+                                n2, n1)) return;
+    }
+    else
+    {
+      n1 = (transpose) ? a.getNCols() : a.getNRows();
+    }
+
+    T res(n1, n1);
+    prodnorm(res, a, m, transpose);
+    return res;
+  }
+
+  template<typename T>
+  static void prodnorm(T& res,
+                       const T& a,
+                       const T& m     = T(),
+                       bool transpose = false)
+  {
+    static_assert(std::is_base_of_v<AMatrix, T>,
+                  "Invalid type for Matrix product (template method). "
+                  "Only MatrixDense and MatrixSparse are allowed");
+    Id n1;
+    if (!m.empty())
+    {
+      Id n2;
+      if (!_isProductCompatible(a.getNRows(), a.getNCols(), transpose,
+                                m.getNRows(), m.getNCols(), false,
+                                n1, n2)) return;
+      if (!_isProductCompatible(m.getNRows(), m.getNCols(), false,
+                                a.getNRows(), a.getNCols(), !transpose,
+                                n2, n1)) return;
+    }
+    else
+    {
+      n1 = (transpose) ? a.getNCols() : a.getNRows();
+    }
+
+    if (res.getNRows() != n1 || res.getNCols() != n1)
+    {
+      res.resize(n1, n1);
+    }
+    // res.prodnormGeneral(res, a, m, transpose);
   }
 
   virtual void reset(Id nrows, Id ncols);
