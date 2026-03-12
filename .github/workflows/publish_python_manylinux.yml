@@ -36,12 +36,7 @@ jobs:
         # Python version
         python: [
           # Double quote for version is needed otherwise 3.10 => 3.1
-            "cp39-cp39",
             "cp310-cp310",
-            "cp311-cp311",
-            "cp312-cp312",
-            "cp313-cp313",
-            "cp314-cp314"
           ]
         image: [
            manylinux_2_28_x86_64
@@ -114,14 +109,16 @@ jobs:
       run : |
         cd ${{ env.BUILD_DIR }}/python/${{ env.CMAKE_BUILD_TYPE }}
         # Note: wheel must be declared not pure (see setup.py)
-        uv build --wheel -C="--build-option=--plat-name=${{ matrix.image }}"
+        uv build --wheel
+        uvx wheel tags --python-tag=cp310 --abi-tag=abi3 --platform-tag=${{ matrix.image }} dist/*.whl
+        rm dist/*${{ matrix.python }}*.whl
         cd ../../..
         echo "MY_PKG=$(ls ${{ env.BUILD_DIR }}/python/${{ env.CMAKE_BUILD_TYPE }}/dist/*)" >> "$GITHUB_ENV"
 
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v6
       # Use specific artifact identifier for publishing all versions
       with:
-        name: linux-python-package-${{ matrix.image }}-${{ matrix.python }}
+        name: linux-python-package-${{ matrix.image }}
         path: ${{env.MY_PKG}}
 
   test:
@@ -134,7 +131,6 @@ jobs:
         # Python version
         python: [
           # Double quote for version is needed otherwise 3.10 => 3.1
-            "cp39-cp39",
             "cp310-cp310",
             "cp311-cp311",
             "cp312-cp312",
@@ -148,9 +144,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - uses: actions/download-artifact@v4
+    - uses: actions/download-artifact@v7
       with:
-        name: linux-python-package-${{ matrix.image }}-${{ matrix.python }}
+        name: linux-python-package-${{ matrix.image }}
 
     - name: Register the python version
       run: |
@@ -188,5 +184,4 @@ jobs:
     # Delete the artifacts (for freeing storage space under github)
     - uses: geekyeggo/delete-artifact@v5
       with:
-        name: linux-python-package-*
-
+        name: linux-python-package

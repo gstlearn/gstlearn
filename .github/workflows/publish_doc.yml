@@ -59,12 +59,12 @@ jobs:
         python3 -m grip r/README.md --export r/R_README.html
         echo "R_README_FILE=$(ls r/R_README.html)" >> "$GITHUB_ENV"
 
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v6
       with:
         name: bib-file-${{env.PROJECT_VERSION}}
         path: ${{env.BIB_FILE}}
 
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v6
       with:
         name: r-readme-${{env.PROJECT_VERSION}}
         path: ${{env.R_README_FILE}}

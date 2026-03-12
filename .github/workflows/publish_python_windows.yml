@@ -39,24 +39,19 @@ jobs:
         python: [
           # Double quote for version is needed otherwise 3.10 => 3.1
             {py: "3.10"},
-            {py: "3.11"},
-            {py: "3.12"},
-            {py: "3.13"},
-            {py: "3.14"}
           ]
         arch: [
             {pl: win_amd64, ar: x64, of: x64},
-            {pl: win32,     ar: x86, of: Win32} # TODO : Win32 to be removed ?
           ]
 
     steps:
     - uses: actions/checkout@v4
 
-    - name: Setup Python Version
-      uses: actions/setup-python@v5
+    - name: Setup uv
+      uses: astral-sh/setup-uv@v6
       with:
-        python-version: ${{matrix.python.py}}
-        architecture: ${{matrix.arch.ar}}
+        python-version: ${{ matrix.python.py }}
+        activate-environment: true
 
     - name: Install dependencies
       run: |
@@ -69,13 +64,8 @@ jobs:
         VCPKG_DEFAULT_TRIPLET: ${{ matrix.arch.ar }}-windows
 
     - name: Install Python dependencies
-      # Force specific old version for Numpy
       run: |
-        python -m pip install --upgrade pip
-        python -m pip install numpy
-        python -m pip install build
-        python -m pip install twine
-        python -m pip install uv
+        uv pip install numpy
 
     - name: Install Doxygen under windows
       uses: fabien-ors/install-doxygen-windows-action@v1
@@ -113,15 +103,17 @@ jobs:
       run : |
         cd ${{env.BUILD_DIR}}\python\${{env.BUILD_TYPE}}
         # Note: wheel must be declared not pure (see setup.py)
-        python -m build --wheel -C="--build-option=--plat-name=${{matrix.arch.pl}}"
+        uv build --wheel
+        uvx wheel tags --python-tag=cp310 --abi-tag=abi3 --platform-tag=${{ matrix.arch.pl }} "$(ls dist\*.whl)"
+        rm dist\*cp310-cp310*.whl
         cd ..\..\..
-        $PKG_PATH = Get-ChildItem -Path "${{env.BUILD_DIR}}/python/${{env.BUILD_TYPE}}/dist/*" -File
+        $PKG_PATH = Get-ChildItem -Path "${{env.BUILD_DIR}}/python/${{env.BUILD_TYPE}}/dist/*.whl" -File
         echo "MY_PKG=$PKG_PATH" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
 
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v6
       # Use specific artifact identifier for publishing all versions
       with:
-        name: windows-python-package-${{matrix.arch.ar}}-${{matrix.python.py}}
+        name: windows-python-package-${{matrix.arch.ar}}
         path: ${{env.MY_PKG}}
 
   test:
@@ -139,15 +131,14 @@ jobs:
           ]
         arch: [
             {pl: win_amd64, ar: x64, of: x64},
-            # GitHub's VM don't run on x86
           ]
 
     steps:
     - uses: actions/checkout@v4
 
-    - uses: actions/download-artifact@v4
+    - uses: actions/download-artifact@v7
       with:
-        name: windows-python-package-${{matrix.arch.ar}}-${{matrix.python.py}}
+        name: windows-python-package-${{matrix.arch.ar}}
 
     - name: Setup uv
       uses: astral-sh/setup-uv@v6
@@ -181,5 +172,4 @@ jobs:
     # Delete the artifacts (for freeing storage space under github)
     - uses: geekyeggo/delete-artifact@v5
       with:
-        name: windows-python-package-*
-
+        name: windows-python-package

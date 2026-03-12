@@ -23,13 +23,13 @@ runs:
         mv ${{ inputs.os-name }}-neutral.tar.gz $GITHUB_WORKSPACE/
 
     - name: Publish output logs as artefact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: ${{ inputs.os-name }}-nonreg-logs
         path: ${{ inputs.build-dir }}/tests/${{ inputs.os-name }}-logs.tar.gz
 
     - name: Publish output neutral files as artefact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: ${{ inputs.os-name }}-neutral-files
         path: ${{ github.workspace }}/${{ inputs.os-name }}-neutral.tar.gz

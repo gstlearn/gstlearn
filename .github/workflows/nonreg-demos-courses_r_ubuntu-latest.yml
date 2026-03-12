@@ -91,7 +91,7 @@ jobs:
 
     - name: Publish output logs as artefact
       if: always()
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: demos-courses-r-logs
         path: ${{env.BUILD_DIR}}/tests/demos-courses-r-logs.tar.gz
