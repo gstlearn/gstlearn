@@ -101,7 +101,6 @@ public:
    * @brief Return 'other' + 'cst'
    *
    * @tparam T Type of the matrix
-   * @param res Output Matrix
    * @param other Input matrix
    * @param cst Constant value to be added
    */
@@ -166,6 +165,7 @@ public:
    * @brief Operate: 'res' = 'other1' + 'other2'
    *
    * @tparam T Type of the matrix
+   * @param res Output matrix
    * @param other1 First Input matrix
    * @param other2 Second Input matrix
    */
@@ -211,6 +211,7 @@ public:
    * @brief Operate: 'res' = 'other' * 'cst'
    *
    * @tparam T Type of the matrix
+   * @param res Output matrix
    * @param other Input matrix
    * @param cst Constant value to be multiplied
    */
@@ -256,6 +257,7 @@ public:
    * @brief Operate: 'res' = 'other1' * 'other2' (where '*' designates the element-wise prodtc)
    *
    * @tparam T Type of the matrix
+   * @param res Output matrix
    * @param other1 First input matrix
    * @param other2 Second input matrix
    */
@@ -312,6 +314,7 @@ public:
    * @brief Operate: 'res' = 'val1' * 'other1' + 'val2' * 'other2' + 'val3' * 'other3' + 'addition'
    *
    * @tparam T
+   * @param res Output matrix
    * @param addition Constant to be added to the linear combination
    * @param val1 Weight of the first matrix
    * @param other1 First matrix
@@ -415,6 +418,7 @@ public:
    * @brief Operate: 'res' = 'other1' * 'other2'
    *
    * @tparam T
+   * @param res Output matrix
    * @param other1 First matrix
    * @param other2 Second matrix
    * @param transpose1 True if 'other1' must be transposed
@@ -474,6 +478,7 @@ public:
    * @brief Operate: 'res' = 'other' * 'vec'
    *
    * @tparam T
+   * @param res Output matrix
    * @param other First matrix
    * @param vec  Vector
    * @param transpose True if 'other' must be transposed
@@ -531,6 +536,7 @@ public:
    * @brief Operate: 'res' = 'vec' * 'other'
    *
    * @tparam T
+   * @param res Output vector
    * @param other First matrix
    * @param vec  Vector
    * @param transpose True if 'other' must be transposed
@@ -598,6 +604,7 @@ public:
    * @brief Operate: 'res' = 'a_t' * 'm' * 'a' or 'a' * 'm' * 'a_t' (where 'a_t' is the transpose of 'a')
    *
    * @tparam T
+   * @param res Output matrix
    * @param a First matrix
    * @param m Second matrix (may be omitted)
    * @param transpose True if first 'a' is transposed; otherwise second 'a' is transposed
@@ -668,6 +675,7 @@ public:
    * @brief Operate: 'res' = 'a_t' * 'vec' * 'a' or 'a' * 'vec' * 'a_t' (where 'a_t' is the transpose of 'a')
    *
    * @tparam T
+   * @param res Output matrix
    * @param a First matrix
    * @param vec Vector
    * @param transpose True if first 'a' is transposed; otherwise second 'a' is transposed
