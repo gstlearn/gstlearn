@@ -129,16 +129,16 @@ public:
                               const MatrixDense& other2,
                               bool transpose1 = false,
                               bool transpose2 = false);
-  static void _prodVecGeneral(VectorDouble& res,
-                              const MatrixDense& other,
-                              const VectorDouble& vec,
-                              bool transpose  = false,
-                              bool flagInvert = false);
-  static void _prodVecGeneral(vect& res,
-                              const MatrixDense& other,
-                              const constvect& vec,
-                              bool transpose  = false,
-                              bool flagInvert = false);
+  static void _prodVecAddGeneral(VectorDouble& res,
+                                 const MatrixDense& other,
+                                 const VectorDouble& vec,
+                                 bool transpose  = false,
+                                 bool flagInvert = false);
+  static void _prodVecAddGeneral(vect& res,
+                                 const MatrixDense& other,
+                                 const constvect& vec,
+                                 bool transpose  = false,
+                                 bool flagInvert = false);
   static void _prodnormGeneral(MatrixDense& res,
                                const MatrixDense& a,
                                const MatrixDense& m = MatrixDense(),

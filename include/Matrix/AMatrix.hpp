@@ -436,12 +436,14 @@ public:
    * @param other First matrix
    * @param vec  Vector
    * @param transpose True if 'other' must be transposed
+   * @param flagInit True if the resulting vector must be initialized beforehand
    */
   template<typename T>
   static void prodVec(VectorDouble& res,
                       const T& other,
                       const VectorDouble& vec,
-                      bool transpose = false)
+                      bool transpose = false,
+                      bool flagInit  = false)
   {
     static_assert(std::is_base_of_v<AMatrix, T>,
                   "Invalid type for Matrix product (template method). "
@@ -456,7 +458,8 @@ public:
     {
       res.resize(nrow);
     }
-    T::_prodVecGeneral(res, other, vec, transpose, false);
+    if (flagInit) res.fill(0.);
+    T::_prodVecAddGeneral(res, other, vec, transpose, false);
   }
 
   /**
@@ -467,12 +470,14 @@ public:
    * @param other First matrix
    * @param vec  Vector
    * @param transpose True if 'other' must be transposed
+   * @param flagInit True if the resulting vector must be initialized beforehand
    */
   template<typename T>
   static void prodVec(vect& res,
                       const T& other,
                       const constvect& vec,
-                      bool transpose = false)
+                      bool transpose = false,
+                      bool flagInit  = false)
   {
     static_assert(std::is_base_of_v<AMatrix, T>,
                   "Invalid type for Matrix product (template method). "
@@ -483,7 +488,8 @@ public:
                               vec.size(), 1, false,
                               nrow, ncol)) return;
     assert(res.size() == static_cast<size_t>(nrow));
-    T::_prodVecGeneral(res, other, vec, transpose, false);
+    if (flagInit) std::fill(res.begin(), res.end(), 0.0);
+    T::_prodVecAddGeneral(res, other, vec, transpose, false);
   }
 
   /**
@@ -512,12 +518,14 @@ public:
    * @param other First matrix
    * @param vec  Vector
    * @param transpose True if 'other' must be transposed
+   * @param flagInit True if the resulting vector must be initialized beforehand
    */
   template<typename T>
   static void prodVec(VectorDouble& res,
                       const VectorDouble& vec,
                       const T& other,
-                      bool transpose = false)
+                      bool transpose = false,
+                      bool flagInit  = false)
   {
     static_assert(std::is_base_of_v<AMatrix, T>,
                   "Invalid type for Matrix product (template method). "
@@ -532,7 +540,8 @@ public:
     {
       res.resize(ncol);
     }
-    T::_prodVecGeneral(res, other, vec, transpose, true);
+    if (flagInit) res.fill(0.);
+    T::_prodVecAddGeneral(res, other, vec, transpose, true);
   }
 
   /**
@@ -543,12 +552,14 @@ public:
    * @param other First matrix
    * @param vec  Vector
    * @param transpose True if 'other' must be transposed
+   * @param flagInit True if the resulting vector must be initialized beforehand
    */
   template<typename T>
   static void prodVec(vect& res,
                       const constvect& vec,
                       const T& other,
-                      bool transpose = false)
+                      bool transpose = false,
+                      bool flagInit  = false)
   {
     static_assert(std::is_base_of_v<AMatrix, T>,
                   "Invalid type for Matrix product (template method). "
@@ -559,7 +570,8 @@ public:
                               other.getNRows(), other.getNCols(), transpose,
                               nrow, ncol)) return;
     assert(res.size() == static_cast<size_t>(ncol));
-    T::_prodVecGeneral(res, other, vec, transpose, true);
+    if (flagInit) std::fill(res.begin(), res.end(), 0.0);
+    T::_prodVecAddGeneral(res, other, vec, transpose, true);
   }
 
   /**

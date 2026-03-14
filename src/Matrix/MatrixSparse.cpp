@@ -593,7 +593,7 @@ void MatrixSparse::_productGeneral(MatrixSparse& res,
 }
 
 /**
- * @brief Product of a matrix by a vector
+ * @brief Add the Product of a matrix by a vector
  *
  * @param res Resulting vector
  * @param other Input matrix
@@ -601,11 +601,11 @@ void MatrixSparse::_productGeneral(MatrixSparse& res,
  * @param transpose Should the matrix 'other' be transposed
  * @param flagInvert Product 'other' * 'vec' (F) or 'vec' * 'other' (T)
  */
-void MatrixSparse::_prodVecGeneral(VectorDouble& res,
-                                   const MatrixSparse& other,
-                                   const VectorDouble& vec,
-                                   bool transpose,
-                                   bool flagInvert)
+void MatrixSparse::_prodVecAddGeneral(VectorDouble& res,
+                                      const MatrixSparse& other,
+                                      const VectorDouble& vec,
+                                      bool transpose,
+                                      bool flagInvert)
 {
   Eigen::Map<const Eigen::VectorXd> vecm(vec.data(), vec.size());
   Eigen::Map<Eigen::VectorXd> resm(res.data(), res.size());
@@ -615,28 +615,28 @@ void MatrixSparse::_prodVecGeneral(VectorDouble& res,
     // In order to obtain the correct result as a vector, the product is coded in a transposed manner
     if (transpose)
     {
-      resm.noalias() = other.eigenMat() * vecm;
+      resm.noalias() += other.eigenMat() * vecm;
     }
     else
     {
-      resm.noalias() = other.eigenMat().transpose() * vecm;
+      resm.noalias() += other.eigenMat().transpose() * vecm;
     }
   }
   else
   {
     if (transpose)
     {
-      resm = other.eigenMat().transpose() * vecm;
+      resm.noalias() += other.eigenMat().transpose() * vecm;
     }
     else
     {
-      resm = other.eigenMat() * vecm;
+      resm.noalias() += other.eigenMat() * vecm;
     }
   }
 }
 
 /**
- * @brief Product of a matrix by a vector
+ * @brief Add the Product of a matrix by a vector
  *
  * @param res Resulting vector
  * @param other Input matrix
@@ -644,11 +644,11 @@ void MatrixSparse::_prodVecGeneral(VectorDouble& res,
  * @param transpose Should the matrix 'other' be transposed
  * @param flagInvert Product 'other' * 'vec' (F) or 'vec' * 'other' (T)
  */
-void MatrixSparse::_prodVecGeneral(vect& res,
-                                   const MatrixSparse& other,
-                                   const constvect& vec,
-                                   bool transpose,
-                                   bool flagInvert)
+void MatrixSparse::_prodVecAddGeneral(vect& res,
+                                      const MatrixSparse& other,
+                                      const constvect& vec,
+                                      bool transpose,
+                                      bool flagInvert)
 {
   Eigen::Map<const Eigen::VectorXd> vecm(vec.data(), vec.size());
   Eigen::Map<Eigen::VectorXd> resm(res.data(), res.size());
@@ -658,22 +658,22 @@ void MatrixSparse::_prodVecGeneral(vect& res,
     // In order to obtain the correct result as a vector, the product is coded in a transposed manner
     if (transpose)
     {
-      resm.noalias() = other.eigenMat() * vecm;
+      resm.noalias() += other.eigenMat() * vecm;
     }
     else
     {
-      resm.noalias() = other.eigenMat().transpose() * vecm;
+      resm.noalias() += other.eigenMat().transpose() * vecm;
     }
   }
   else
   {
     if (transpose)
     {
-      resm = other.eigenMat().transpose() * vecm;
+      resm.noalias() += other.eigenMat().transpose() * vecm;
     }
     else
     {
-      resm = other.eigenMat() * vecm;
+      resm.noalias() += other.eigenMat() * vecm;
     }
   }
 }
