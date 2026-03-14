@@ -469,10 +469,10 @@ public:
    * @param transpose True if 'other' must be transposed
    */
   template<typename T>
-  static void prodVecC(vect& res,
-                       const T& other,
-                       const constvect& vec,
-                       bool transpose = false)
+  static void prodVec(vect& res,
+                      const T& other,
+                      const constvect& vec,
+                      bool transpose = false)
   {
     static_assert(std::is_base_of_v<AMatrix, T>,
                   "Invalid type for Matrix product (template method). "
@@ -545,10 +545,10 @@ public:
    * @param transpose True if 'other' must be transposed
    */
   template<typename T>
-  static void prodVecC(vect& res,
-                       const constvect& vec,
-                       const T& other,
-                       bool transpose = false)
+  static void prodVec(vect& res,
+                      const constvect& vec,
+                      const T& other,
+                      bool transpose = false)
   {
     static_assert(std::is_base_of_v<AMatrix, T>,
                   "Invalid type for Matrix product (template method). "

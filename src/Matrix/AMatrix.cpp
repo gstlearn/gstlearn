@@ -457,11 +457,11 @@ void AMatrix::prodMatVecInPlaceC(const constvect x,
   vect temp;
   const auto* other1 = dynamic_cast<const MatrixDense*>(this);
   if (other1 != nullptr)
-    AMatrix::prodVecC(temp, *other1, x, transpose);
+    AMatrix::prodVec(temp, *other1, x, transpose);
   else
   {
     const auto* other2 = dynamic_cast<const MatrixSparse*>(this);
-    AMatrix::prodVecC(temp, *other2, x, transpose);
+    AMatrix::prodVec(temp, *other2, x, transpose);
   }
 
   (void)_isEqualVect(temp, y);
@@ -480,11 +480,11 @@ void AMatrix::addProdMatVecInPlaceC(const constvect x,
   vect temp;
   const auto* other1 = dynamic_cast<const MatrixDense*>(this);
   if (other1 != nullptr)
-    AMatrix::prodVecC(temp, *other1, x, transpose);
+    AMatrix::prodVec(temp, *other1, x, transpose);
   else
   {
     const auto* other2 = dynamic_cast<const MatrixSparse*>(this);
-    AMatrix::prodVecC(temp, *other2, x, transpose);
+    AMatrix::prodVec(temp, *other2, x, transpose);
   }
   (void)_isEqualVect(temp, y);
 }
@@ -548,11 +548,11 @@ void AMatrix::prodVecMatInPlaceC(const constvect x, vect y, bool transpose) cons
   vect temp;
   const auto* other1 = dynamic_cast<const MatrixDense*>(this);
   if (other1 != nullptr)
-    AMatrix::prodVecC(temp, x, *other1, transpose);
+    AMatrix::prodVec(temp, x, *other1, transpose);
   else
   {
     const auto* other2 = dynamic_cast<const MatrixSparse*>(this);
-    AMatrix::prodVecC(temp, x, *other2, transpose);
+    AMatrix::prodVec(temp, x, *other2, transpose);
   }
   (void)_isEqualVect(temp, y);
 }
@@ -570,11 +570,11 @@ void AMatrix::addProdVecMatInPlaceC(const constvect x,
   vect temp;
   const auto* other1 = dynamic_cast<const MatrixDense*>(this);
   if (other1 != nullptr)
-    AMatrix::prodVecC(temp, x, *other1, transpose);
+    AMatrix::prodVec(temp, x, *other1, transpose);
   else
   {
     const auto* other2 = dynamic_cast<const MatrixSparse*>(this);
-    AMatrix::prodVecC(temp, x, *other2, transpose);
+    AMatrix::prodVec(temp, x, *other2, transpose);
   }
   (void)_isEqualVect(temp, y);
 }
