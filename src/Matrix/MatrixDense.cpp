@@ -323,9 +323,53 @@ void MatrixDense::_productGeneral(MatrixDense& res,
  * @param transpose Should the matrix 'other' be transposed
  * @param flagInvert Product 'other' * 'vec' (F) or 'vec' * 'other' (T)
  */
-void MatrixDense::_productGeneral(VectorDouble& res,
+void MatrixDense::_prodVecGeneral(VectorDouble& res,
                                   const MatrixDense& other,
                                   const VectorDouble& vec,
+                                  bool transpose,
+                                  bool flagInvert)
+{
+  Eigen::Map<const Eigen::VectorXd> vecm(vec.data(), vec.size());
+  Eigen::Map<Eigen::VectorXd> resm(res.data(), res.size());
+
+  if (flagInvert)
+  {
+    // In order to obtain the correct result as a vector, the product is coded in a transposed manner
+    if (transpose)
+    {
+      resm.noalias() = other.eigenMat() * vecm;
+    }
+    else
+    {
+      resm.noalias() = other.eigenMat().transpose() * vecm;
+    }
+  }
+  else
+  {
+
+    if (transpose)
+    {
+      resm.noalias() = other.eigenMat().transpose() * vecm;
+    }
+    else
+    {
+      resm.noalias() = other.eigenMat() * vecm;
+    }
+  }
+}
+
+/**
+ * @brief Product of a matrix by a vector
+ *
+ * @param res Resulting vector
+ * @param other Input matrix
+ * @param vec  Input vector
+ * @param transpose Should the matrix 'other' be transposed
+ * @param flagInvert Product 'other' * 'vec' (F) or 'vec' * 'other' (T)
+ */
+void MatrixDense::_prodVecGeneral(vect& res,
+                                  const MatrixDense& other,
+                                  const constvect& vec,
                                   bool transpose,
                                   bool flagInvert)
 {

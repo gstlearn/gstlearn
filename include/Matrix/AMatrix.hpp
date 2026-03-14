@@ -438,7 +438,7 @@ public:
    * @param transpose True if 'other' must be transposed
    */
   template<typename T>
-  static void product(VectorDouble& res,
+  static void prodVec(VectorDouble& res,
                       const T& other,
                       const VectorDouble& vec,
                       bool transpose = false)
@@ -456,7 +456,7 @@ public:
     {
       res.resize(nrow);
     }
-    T::_productGeneral(res, other, vec, transpose, false);
+    T::_prodVecGeneral(res, other, vec, transpose, false);
   }
 
   /**
@@ -469,10 +469,10 @@ public:
    * @param transpose True if 'other' must be transposed
    */
   template<typename T>
-  static void product(vect& res,
-                      const T& other,
-                      constvect& vec,
-                      bool transpose = false)
+  static void prodVecC(vect& res,
+                       const T& other,
+                       const constvect& vec,
+                       bool transpose = false)
   {
     static_assert(std::is_base_of_v<AMatrix, T>,
                   "Invalid type for Matrix product (template method). "
@@ -483,7 +483,7 @@ public:
                               vec.size(), 1, false,
                               nrow, ncol)) return;
     assert(res.size() == static_cast<size_t>(nrow));
-    T::_productGeneral(res, other, vec, transpose, false);
+    T::_prodVecGeneral(res, other, vec, transpose, false);
   }
 
   /**
@@ -514,7 +514,7 @@ public:
    * @param transpose True if 'other' must be transposed
    */
   template<typename T>
-  static void product(VectorDouble& res,
+  static void prodVec(VectorDouble& res,
                       const VectorDouble& vec,
                       const T& other,
                       bool transpose = false)
@@ -532,7 +532,7 @@ public:
     {
       res.resize(ncol);
     }
-    T::_productGeneral(res, other, vec, transpose, true);
+    T::_prodVecGeneral(res, other, vec, transpose, true);
   }
 
   /**
@@ -545,10 +545,10 @@ public:
    * @param transpose True if 'other' must be transposed
    */
   template<typename T>
-  static void product(vect& res,
-                      constvect& vec,
-                      const T& other,
-                      bool transpose = false)
+  static void prodVecC(vect& res,
+                       const constvect& vec,
+                       const T& other,
+                       bool transpose = false)
   {
     static_assert(std::is_base_of_v<AMatrix, T>,
                   "Invalid type for Matrix product (template method). "
@@ -559,7 +559,7 @@ public:
                               other.getNRows(), other.getNCols(), transpose,
                               nrow, ncol)) return;
     assert(res.size() == static_cast<size_t>(ncol));
-    T::_productGeneral(res, other, vec, transpose, true);
+    T::_prodVecGeneral(res, other, vec, transpose, true);
   }
 
   /**
@@ -900,6 +900,7 @@ protected:
 
 private:
   bool _matrixNeedToReset(Id nrows, Id ncols);
+  static bool _isEqualVect(const constvect& a, const constvect& b, double eps = EPSILON6);
 
 private:
   mutable VectorDouble _diagonal;

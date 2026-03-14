@@ -151,9 +151,14 @@ public:
                               const MatrixSparse& other2,
                               bool transpose1 = false,
                               bool transpose2 = false);
-  static void _productGeneral(VectorDouble& res,
+  static void _prodVecGeneral(VectorDouble& res,
                               const MatrixSparse& other,
                               const VectorDouble& vec,
+                              bool transpose  = false,
+                              bool flagInvert = false);
+  static void _prodVecGeneral(vect& res,
+                              const MatrixSparse& other,
+                              const constvect& vec,
                               bool transpose  = false,
                               bool flagInvert = false);
   static void _prodnormGeneral(MatrixSparse& res,
