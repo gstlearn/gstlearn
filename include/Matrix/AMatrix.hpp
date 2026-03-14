@@ -16,6 +16,7 @@
 #include "Basic/VectorNumT.hpp"
 #include "Matrix/NF_Triplet.hpp"
 
+#include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
 namespace gstlrn
@@ -94,9 +95,10 @@ public:
   /*! Set all the values of the Matrix at once */
   virtual void fill(double value) = 0;
 
-  //////////////////////////////////
-  // Series of template functions //
-  //////////////////////////////////
+  ////////////////////////
+  // Template functions //
+  ////////////////////////
+#ifndef SWIG
   /**
    * @brief Return 'other' + 'cst'
    *
@@ -107,11 +109,8 @@ public:
   template<typename T>
   static T add(const T& other, double cst)
   {
-    static_assert(std::is_base_of_v<AMatrix, T>,
-                  "Invalid type for Matrix addition (template method). "
-                  "Only MatrixDense and MatrixSparse are allowed");
-    T res(other.getNRows(), other.getNCols());
-    res.addGeneral(res, other, cst);
+    T res;
+    res.add(res, other, cst);
     return res;
   }
 
@@ -133,7 +132,7 @@ public:
     {
       res.resize(other.getNRows(), other.getNCols());
     }
-    res.addGeneral(res, other, cst);
+    res._addGeneral(res, other, cst);
   }
 
   /**
@@ -146,18 +145,8 @@ public:
   template<typename T>
   static T add(const T& other1, const T& other2)
   {
-    static_assert(std::is_base_of_v<AMatrix, T>,
-                  "Invalid type for Matrix addition (template method). "
-                  "Only MatrixDense and MatrixSparse are allowed");
-    // Check dimensions
-    if (other1.getNRows() != other2.getNRows() ||
-        other1.getNCols() != other2.getNCols())
-    {
-      messerr("Matrix addition error: matrices have different dimensions");
-      return T();
-    }
-    T res(other1.getNRows(), other1.getNCols());
-    res.addGeneral(res, other1, other2);
+    T res;
+    res.add(res, other1, other2);
     return res;
   }
 
@@ -186,7 +175,7 @@ public:
     {
       res.resize(other1.getNRows(), other1.getNCols());
     }
-    res.addGeneral(res, other1, other2);
+    res._addGeneral(res, other1, other2);
   }
 
   /**
@@ -199,11 +188,8 @@ public:
   template<typename T>
   static T prod(const T& other, double cst)
   {
-    static_assert(std::is_base_of_v<AMatrix, T>,
-                  "Invalid type for Matrix product (template method). "
-                  "Only MatrixDense and MatrixSparse are allowed");
-    T res(other.getNRows(), other.getNCols());
-    res.prodGeneral(res, other, cst);
+    T res;
+    res.prod(res, other, cst);
     return res;
   }
 
@@ -225,7 +211,7 @@ public:
     {
       res.resize(other.getNRows(), other.getNCols());
     }
-    res.prodGeneral(res, other, cst);
+    res._prodGeneral(res, other, cst);
   }
 
   /**
@@ -238,18 +224,8 @@ public:
   template<typename T>
   static T prodHadamard(const T& other1, const T& other2)
   {
-    static_assert(std::is_base_of_v<AMatrix, T>,
-                  "Invalid type for Matrix Hadamard product (template method). "
-                  "Only MatrixDense and MatrixSparse are allowed");
-    // Check dimensions
-    if (other1.getNRows() != other2.getNRows() ||
-        other1.getNCols() != other2.getNCols())
-    {
-      messerr("Matrix Hadamard product error: matrices have different dimensions");
-      return T();
-    }
-    T res(other1.getNRows(), other1.getNCols());
-    res.prodGeneral(res, other1, other2);
+    T res;
+    res.prodHadamard(res, other1, other2);
     return res;
   }
 
@@ -278,7 +254,7 @@ public:
     {
       res.resize(other1.getNRows(), other1.getNCols());
     }
-    res.prodGeneral(res, other1, other2);
+    res._prodGeneral(res, other1, other2);
   }
 
   /**
@@ -302,10 +278,7 @@ public:
                              double val3     = 0.,
                              const T& other3 = T())
   {
-    static_assert(std::is_base_of_v<AMatrix, T>,
-                  "Invalid type for Matrix addition (template method). "
-                  "Only MatrixDense and MatrixSparse are allowed");
-    T res(other1.getNRows(), other1.getNCols());
+    T res;
     linearCombination(res, addition, val1, other1, val2, other2, val3, other3);
     return res;
   }
@@ -399,17 +372,7 @@ public:
                    bool transpose1 = false,
                    bool transpose2 = false)
   {
-    static_assert(std::is_base_of_v<AMatrix, T>,
-                  "Invalid type for Matrix product (template method). "
-                  "Only MatrixDense and MatrixSparse are allowed");
-    Id nrow;
-    Id ncol;
-    if (!_isProductCompatible(other1.getNRows(), other1.getNCols(), transpose1,
-                              other2.getNRows(), other2.getNCols(), transpose2,
-                              nrow, ncol))
-      return T();
-
-    T res(nrow, ncol);
+    T res;
     product(res, other1, other2, transpose1, transpose2);
     return res;
   }
@@ -444,14 +407,14 @@ public:
     {
       res.resize(nrow, ncol);
     }
-    res.productGeneral(res, other1, other2, transpose1, transpose2);
+    res._productGeneral(res, other1, other2, transpose1, transpose2);
   }
 
   /**
    * @brief Return: 'other' * 'vec'
    *
    * @tparam T
-   * @param other First matrix
+   * @param other First vector
    * @param vec  Vector
    * @param transpose True if 'other' must be transposed
    */
@@ -460,16 +423,7 @@ public:
                               const VectorDouble& vec,
                               bool transpose = false)
   {
-    static_assert(std::is_base_of_v<AMatrix, T>,
-                  "Invalid type for Matrix product (template method). "
-                  "Only MatrixDense and MatrixSparse are allowed");
-    Id nrow;
-    Id ncol;
-    if (!_isProductCompatible(other.getNRows(), other.getNCols(), transpose,
-                              vec.size(), 1, false,
-                              nrow, ncol)) return VectorDouble();
-
-    VectorDouble res(ncol);
+    VectorDouble res;
     product(res, other, vec, transpose);
     return res;
   }
@@ -478,7 +432,7 @@ public:
    * @brief Operate: 'res' = 'other' * 'vec'
    *
    * @tparam T
-   * @param res Output matrix
+   * @param res Output vector
    * @param other First matrix
    * @param vec  Vector
    * @param transpose True if 'other' must be transposed
@@ -502,7 +456,34 @@ public:
     {
       res.resize(nrow);
     }
-    T::productGeneral(res, other, vec, transpose, false);
+    T::_productGeneral(res, other, vec, transpose, false);
+  }
+
+  /**
+   * @brief Operate: 'res' = 'other' * 'vec'
+   *
+   * @tparam T
+   * @param res Output matrix
+   * @param other First matrix
+   * @param vec  Vector
+   * @param transpose True if 'other' must be transposed
+   */
+  template<typename T>
+  static void product(vect& res,
+                      const T& other,
+                      constvect& vec,
+                      bool transpose = false)
+  {
+    static_assert(std::is_base_of_v<AMatrix, T>,
+                  "Invalid type for Matrix product (template method). "
+                  "Only MatrixDense and MatrixSparse are allowed");
+    Id nrow;
+    Id ncol;
+    if (!_isProductCompatible(other.getNRows(), other.getNCols(), transpose,
+                              vec.size(), 1, false,
+                              nrow, ncol)) return;
+    assert(res.size() == static_cast<size_t>(nrow));
+    T::_productGeneral(res, other, vec, transpose, false);
   }
 
   /**
@@ -518,17 +499,8 @@ public:
                               const T& other,
                               bool transpose = false)
   {
-    static_assert(std::is_base_of_v<AMatrix, T>,
-                  "Invalid type for Matrix product (template method). "
-                  "Only MatrixDense and MatrixSparse are allowed");
-    Id nrow;
-    Id ncol;
-    if (!_isProductCompatible(vec.size(), 1, true,
-                              other.getNRows(), other.getNCols(), transpose,
-                              nrow, ncol)) return VectorDouble();
-
-    VectorDouble res(ncol);
-    T::productGeneral(res, other, vec, transpose, true);
+    VectorDouble res;
+    T::product(res, other, vec, transpose, true);
     return res;
   }
 
@@ -560,7 +532,34 @@ public:
     {
       res.resize(ncol);
     }
-    T::productGeneral(res, other, vec, transpose, true);
+    T::_productGeneral(res, other, vec, transpose, true);
+  }
+
+  /**
+   * @brief Operate: 'res' = 'vec' * 'other'
+   *
+   * @tparam T
+   * @param res Output vector
+   * @param other First matrix
+   * @param vec  Vector
+   * @param transpose True if 'other' must be transposed
+   */
+  template<typename T>
+  static void product(vect& res,
+                      constvect& vec,
+                      const T& other,
+                      bool transpose = false)
+  {
+    static_assert(std::is_base_of_v<AMatrix, T>,
+                  "Invalid type for Matrix product (template method). "
+                  "Only MatrixDense and MatrixSparse are allowed");
+    Id nrow;
+    Id ncol;
+    if (!_isProductCompatible(vec.size(), 1, true,
+                              other.getNRows(), other.getNCols(), transpose,
+                              nrow, ncol)) return;
+    assert(res.size() == static_cast<size_t>(ncol));
+    T::_productGeneral(res, other, vec, transpose, true);
   }
 
   /**
@@ -576,27 +575,8 @@ public:
                     const T& m     = T(),
                     bool transpose = false)
   {
-    static_assert(std::is_base_of_v<AMatrix, T>,
-                  "Invalid type for Matrix product (template method). "
-                  "Only MatrixDense and MatrixSparse are allowed");
-    Id n1;
-    if (!m.empty())
-    {
-      Id n2;
-      if (!_isProductCompatible(a.getNRows(), a.getNCols(), transpose,
-                                m.getNRows(), m.getNCols(), false,
-                                n1, n2)) return;
-      if (!_isProductCompatible(m.getNRows(), m.getNCols(), false,
-                                a.getNRows(), a.getNCols(), !transpose,
-                                n2, n1)) return;
-    }
-    else
-    {
-      n1 = (transpose) ? a.getNCols() : a.getNRows();
-    }
-
-    T res(n1, n1);
-    prodnormGeneral(res, a, m, transpose);
+    T res;
+    prodnorm(res, a, m, transpose);
     return res;
   }
 
@@ -638,7 +618,7 @@ public:
     {
       res.resize(n1, n1);
     }
-    res.prodnormGeneral(res, a, m, transpose);
+    res._prodnormGeneral(res, a, m, transpose);
   }
 
   /**
@@ -654,20 +634,8 @@ public:
                     const VectorDouble& vec,
                     bool transpose = false)
   {
-    static_assert(std::is_base_of_v<AMatrix, T>,
-                  "Invalid type for Matrix product (template method). "
-                  "Only MatrixDense and MatrixSparse are allowed");
-    Id n1;
-    Id n2;
-    if (!_isProductCompatible(a.getNRows(), a.getNCols(), transpose,
-                              vec.size(), 1, false,
-                              n1, n2)) return;
-    if (!_isProductCompatible(vec.size(), 1, true,
-                              a.getNRows(), a.getNCols(), !transpose,
-                              n2, n1)) return;
-
-    T res(n1, n1);
-    res.prodnormGeneral(res, a, vec, transpose);
+    T res;
+    res.prodnorm(res, a, vec, transpose);
     return res;
   }
 
@@ -702,7 +670,25 @@ public:
     {
       res.resize(n1, n1);
     }
-    res.prodnormGeneral(res, a, vec, transpose);
+    res._prodnormGeneral(res, a, vec, transpose);
+  }
+
+  /**
+   * @brief Check if two matrices are exactly identical
+   *
+   * @tparam T
+   * @param a First matrix
+   * @param b Second matrix
+   */
+  template<typename T>
+  static bool areIdentical(const T& a,
+                           const T& b,
+                           bool verbose = false)
+  {
+    static_assert(std::is_base_of_v<AMatrix, T>,
+                  "Invalid type for Matrix product (template method). "
+                  "Only MatrixDense and MatrixSparse are allowed");
+    return T::_areIdenticalGeneral(a, b, verbose);
   }
 
   virtual void reset(Id nrows, Id ncols);
@@ -711,13 +697,15 @@ public:
   virtual void resetFromVD(Id nrows, Id ncols, const VectorDouble& tab, bool byCol = true);
   virtual void resetFromVVD(const VectorVectorDouble& tab, bool byCol = true);
 
+#endif
+  ////// End of templates
+
   /*! Transpose the matrix in place*/
   virtual void transposeInPlace();
   /*! Transpose the matrix and return it as a copy*/
   virtual AMatrix* transpose() const;
 
   /*! Perform 'this' = 'x' * 'y' */
-
   virtual void prodMatMatInPlace(const AMatrix* x,
                                  const AMatrix* y,
                                  bool transposeX = false,
@@ -733,6 +721,25 @@ public:
   /*! Perform 'this' = 't(A)' %*% 'A' or 'A' %*% 't(A)' */
   virtual void prodNormMatInPlace(const AMatrix* a,
                                   bool transpose = false);
+  /*! Perform 'y' = 'this' * 'x' */
+  VectorDouble prodMatVec(const VectorDouble& x, bool transpose = false) const;
+  void prodMatVecInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false) const;
+#ifndef SWIG
+  void prodMatVecInPlaceC(const constvect x, vect y, bool transpose = false) const;
+  void addProdMatVecInPlaceC(const constvect x, vect y, bool transpose = false) const;
+#endif
+  /*! Perform 'y' = 'x' * 'this' */
+  VectorDouble prodVecMat(const VectorDouble& x, bool transpose = false) const;
+  void prodVecMatInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false) const;
+#ifndef SWIG
+  void prodVecMatInPlaceC(const constvect x, vect y, bool transpose = false) const;
+  void addProdVecMatInPlaceC(const constvect x, vect y, bool transpose = false) const;
+#endif
+
+  /*! Perform x %*% 'this' %*% y */
+  double prodVecMatVec(const VectorDouble& x, const VectorDouble& y) const;
+  /*! Perform 'this' = 'y' %*% 'this' or 'this' %*% 'y' */
+  void prodMat(const AMatrix* matY, bool transposeY = false);
 
   /*! Extract the contents of the matrix */
   virtual NF_Triplet getMatrixToTriplet(Id shiftRow = 0, Id shiftCol = 0) const;
@@ -759,20 +766,11 @@ public:
   /*! Returns the sum of absolute difference between argument and this */
   double compare(const AMatrix& mat) const;
   /*! Returns the number of rows */
-  Id getNRows() const
-  {
-    return _nRows;
-  }
+  Id getNRows() const { return _nRows; }
   /*! Returns the number of columns */
-  Id getNCols() const
-  {
-    return _nCols;
-  }
+  Id getNCols() const { return _nCols; }
   /*! Get the total number of elements of the (full) matrix (as for VectorT) */
-  Id size() const
-  {
-    return _nRows * _nCols;
-  }
+  Id size() const { return _nRows * _nCols; }
   /*! Returns the contents of the whole matrix as a VectorDouble */
   VectorDouble getValues(bool byCol = true) const;
   /*! Extract a Diagonal (main or secondary) of this */
@@ -789,27 +787,6 @@ public:
   VectorDouble getColumnByRowRange(Id icol, Id rowFrom, Id rowTo) const;
   /*! Check if the matrix does not contain any negative element */
   bool isNonNegative(bool verbose = false) const;
-
-  /*! Perform 'y' = 'this' * 'x' */
-  VectorDouble prodMatVec(const VectorDouble& x, bool transpose = false) const;
-  void prodMatVecInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false) const;
-#ifndef SWIG
-  void prodMatVecInPlaceC(const constvect x, vect y, bool transpose = false) const;
-  void addProdMatVecInPlaceC(const constvect x, vect y, bool transpose = false) const;
-#endif
-
-  /*! Perform 'y' = 'x' * 'this' */
-  VectorDouble prodVecMat(const VectorDouble& x, bool transpose = false) const;
-  void prodVecMatInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false) const;
-#ifndef SWIG
-  void prodVecMatInPlaceC(const constvect x, vect y, bool transpose = false) const;
-  void addProdVecMatInPlaceC(const constvect x, vect y, bool transpose = false) const;
-#endif
-
-  /*! Perform x %*% 'this' %*% y */
-  double prodVecMatVec(const VectorDouble& x, const VectorDouble& y) const;
-  /*! Perform 'this' = 'y' %*% 'this' or 'this' %*% 'y' */
-  void prodMat(const AMatrix* matY, bool transposeY = false);
 
   /*! Matrix inversion in place */
   Id invert();

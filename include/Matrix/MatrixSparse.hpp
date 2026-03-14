@@ -140,28 +140,33 @@ public:
   MatrixSparse& addCst(double a);
   MatrixSparse& prodCst(double a);
 
-  static void addGeneral(MatrixSparse& res, const MatrixSparse& other, double cst);
-  static void addGeneral(MatrixSparse& res, const MatrixSparse& other1, const MatrixSparse& other2);
-  static void prodGeneral(MatrixSparse& res, const MatrixSparse& other, double cst);
-  static void prodGeneral(MatrixSparse& res, const MatrixSparse& other1, const MatrixSparse& other2);
-  static void productGeneral(MatrixSparse& res,
-                             const MatrixSparse& other1,
-                             const MatrixSparse& other2,
-                             bool transpose1 = false,
-                             bool transpose2 = false);
-  static void productGeneral(VectorDouble& res,
-                             const MatrixSparse& other,
-                             const VectorDouble& vec,
-                             bool transpose  = false,
-                             bool flagInvert = false);
-  static void prodnormGeneral(MatrixSparse& res,
-                              const MatrixSparse& a,
-                              const MatrixSparse& m = MatrixSparse(),
-                              bool transpose        = false);
-  static void prodnormGeneral(MatrixSparse& res,
-                              const MatrixSparse& a,
+  // === INTERNAL USE ONLY ===
+  // Do not call directly; used by template.
+  static void _addGeneral(MatrixSparse& res, const MatrixSparse& other, double cst);
+  static void _addGeneral(MatrixSparse& res, const MatrixSparse& other1, const MatrixSparse& other2);
+  static void _prodGeneral(MatrixSparse& res, const MatrixSparse& other, double cst);
+  static void _prodGeneral(MatrixSparse& res, const MatrixSparse& other1, const MatrixSparse& other2);
+  static void _productGeneral(MatrixSparse& res,
+                              const MatrixSparse& other1,
+                              const MatrixSparse& other2,
+                              bool transpose1 = false,
+                              bool transpose2 = false);
+  static void _productGeneral(VectorDouble& res,
+                              const MatrixSparse& other,
                               const VectorDouble& vec,
-                              bool transpose = false);
+                              bool transpose  = false,
+                              bool flagInvert = false);
+  static void _prodnormGeneral(MatrixSparse& res,
+                               const MatrixSparse& a,
+                               const MatrixSparse& m = MatrixSparse(),
+                               bool transpose        = false);
+  static void _prodnormGeneral(MatrixSparse& res,
+                               const MatrixSparse& a,
+                               const VectorDouble& vec,
+                               bool transpose = false);
+  static bool _areIdenticalGeneral(const MatrixSparse& a,
+                                   const MatrixSparse& b,
+                                   bool verbose = false);
 
   MatrixSparse* getRowAsMatrixSparse(Id irow, double coeff = 1.) const;
   MatrixSparse* getColumnAsMatrixSparse(Id icol, double coeff = 1.) const;
@@ -236,15 +241,13 @@ public:
   VectorInt getNonZeroCols(Id irow) const;
   VectorInt getNonZeroRows(Id icol) const;
 
-#ifndef SWIG
-
 protected:
+#ifndef SWIG
   Id _addToDest(const constvect inv, vect outv) const override;
 #endif
 
-#ifndef SWIG
-
 public:
+#ifndef SWIG
   void setDiagonal(const Eigen::Map<const Eigen::VectorXd>& tab);
   void setDiagonal(const constvect tab);
 

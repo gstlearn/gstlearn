@@ -570,7 +570,7 @@ void MatrixSparse::_addProdVecMatInPlacePtr(constvect x, vect y, bool transpose)
   }
 }
 
-void MatrixSparse::productGeneral(MatrixSparse& res,
+void MatrixSparse::_productGeneral(MatrixSparse& res,
                                   const MatrixSparse& other1,
                                   const MatrixSparse& other2,
                                   bool transpose1,
@@ -601,7 +601,7 @@ void MatrixSparse::productGeneral(MatrixSparse& res,
  * @param transpose Should the matrix 'other' be transposed
  * @param flagInvert Product 'other' * 'vec' (F) or 'vec' * 'other' (T)
  */
-void MatrixSparse::productGeneral(VectorDouble& res,
+void MatrixSparse::_productGeneral(VectorDouble& res,
                                   const MatrixSparse& other,
                                   const VectorDouble& vec,
                                   bool transpose,
@@ -677,7 +677,7 @@ void MatrixSparse::prodMatMatInPlace(const AMatrix* x,
       else
         eigenMat() = xm->eigenMat() * ym->eigenMat();
     }
-    // (void)isSame(temp); // Not performed to save lot of time
+    (void)areIdentical(temp, *this);
   }
 }
 
@@ -788,7 +788,7 @@ void MatrixSparse::prodNormMatVecInPlace(const AMatrix* a,
 
   MatrixSparse temp;
   AMatrix::prodnorm(temp, *am, vec, transpose);
-  // (void)isSame(temp); // Not performed to save lot of time
+  (void)areIdentical(temp, *this);
 }
 
 void MatrixSparse::prodNormMatInPlace(const AMatrix* a, bool transpose)
@@ -817,7 +817,7 @@ void MatrixSparse::prodNormMatInPlace(const AMatrix* a, bool transpose)
 
   MatrixSparse temp;
   AMatrix::prodnorm(temp, *am, MatrixSparse(), transpose);
-  // (void)isSame(temp); // Not performed to save lot of time
+  (void)areIdentical(temp, *this);
 }
 
 void MatrixSparse::prodNormMatMatInPlace(const AMatrix* a,
@@ -850,7 +850,7 @@ void MatrixSparse::prodNormMatMatInPlace(const AMatrix* a,
 
   MatrixSparse temp;
   AMatrix::prodnorm(temp, *am, *mm, transpose);
-  // (void)isSame(temp); // Not performed to save lot of time
+  (void)areIdentical(temp, *this);
 }
 
 Id MatrixSparse::_invert()
@@ -1305,19 +1305,19 @@ void MatrixSparse::forceDimension(Id maxRows, Id maxCols)
 /*! New methodes for operator overloading */
 MatrixSparse& MatrixSparse::addCst(double a)
 {
-  addGeneral(*this, *this, a);
+  _addGeneral(*this, *this, a);
   return *this;
 }
 
 MatrixSparse& MatrixSparse::prodCst(double a)
 {
-  prodGeneral(*this, *this, a);
+  _prodGeneral(*this, *this, a);
   return *this;
 }
 
-void MatrixSparse::addGeneral(MatrixSparse& res,
-                              const MatrixSparse& other,
-                              double cst)
+void MatrixSparse::_addGeneral(MatrixSparse& res,
+                               const MatrixSparse& other,
+                               double cst)
 {
   if (isZero(cst))
   {
@@ -1340,16 +1340,16 @@ void MatrixSparse::addGeneral(MatrixSparse& res,
  * @param other1 First matrix
  * @param other2 Second matrix
  */
-void MatrixSparse::addGeneral(MatrixSparse& res,
-                              const MatrixSparse& other1,
-                              const MatrixSparse& other2)
+void MatrixSparse::_addGeneral(MatrixSparse& res,
+                               const MatrixSparse& other1,
+                               const MatrixSparse& other2)
 {
   res.eigenMat() = other1.eigenMat() + other2.eigenMat();
 }
 
-void MatrixSparse::prodGeneral(MatrixSparse& res,
-                               const MatrixSparse& other,
-                               double cst)
+void MatrixSparse::_prodGeneral(MatrixSparse& res,
+                                const MatrixSparse& other,
+                                double cst)
 {
   if (isOne(cst))
   {
@@ -1368,14 +1368,14 @@ void MatrixSparse::prodGeneral(MatrixSparse& res,
  * @param other1 First matrix
  * @param other2 Second matrix
  */
-void MatrixSparse::prodGeneral(MatrixSparse& res,
-                               const MatrixSparse& other1,
-                               const MatrixSparse& other2)
+void MatrixSparse::_prodGeneral(MatrixSparse& res,
+                                const MatrixSparse& other1,
+                                const MatrixSparse& other2)
 {
   res.eigenMat() = other1.eigenMat().cwiseProduct(other2.eigenMat());
 }
 
-void MatrixSparse::prodnormGeneral(MatrixSparse& res,
+void MatrixSparse::_prodnormGeneral(MatrixSparse& res,
                                    const MatrixSparse& a,
                                    const MatrixSparse& m,
                                    bool transpose)
@@ -1404,7 +1404,7 @@ void MatrixSparse::prodnormGeneral(MatrixSparse& res,
   }
 }
 
-void MatrixSparse::prodnormGeneral(MatrixSparse& res,
+void MatrixSparse::_prodnormGeneral(MatrixSparse& res,
                                    const MatrixSparse& a,
                                    const VectorDouble& vec,
                                    bool transpose)
@@ -1420,13 +1420,16 @@ void MatrixSparse::prodnormGeneral(MatrixSparse& res,
   }
 }
 
-/**
- * Check that Matrix 'm' is equal to the current Matrix
- *
- * @param m Matrix to be compared to the current Matrix
- * @param eps Epsilon for double equality comparison
- * @param printWhyNot Print the message is the answer is false
- * @return true if 'm'  is equal to the current Matrix
- */
+bool MatrixSparse::_areIdenticalGeneral(const MatrixSparse& a, const MatrixSparse& b, bool verbose)
+{
+  if (a.getNRows() != b.getNRows() || a.getNCols() != b.getNCols())
+    return false;
+
+  Eigen::SparseMatrix<double> diff = a.eigenMat() - b.eigenMat();
+  bool flag                        = diff.nonZeros() == 0;
+  if (!flag && verbose)
+    messerr("Matrices are not identical ");
+  return flag;
+}
 
 }; // namespace gstlrn

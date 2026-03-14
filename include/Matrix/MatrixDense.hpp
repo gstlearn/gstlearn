@@ -118,28 +118,33 @@ public:
   MatrixDense& addCst(double a);
   MatrixDense& prodCst(double a);
 
-  static void addGeneral(MatrixDense& res, const MatrixDense& other, double cst);
-  static void addGeneral(MatrixDense& res, const MatrixDense& other1, const MatrixDense& other2);
-  static void prodGeneral(MatrixDense& res, const MatrixDense& other, double cst);
-  static void prodGeneral(MatrixDense& res, const MatrixDense& other1, const MatrixDense& other2);
-  static void productGeneral(MatrixDense& res,
-                             const MatrixDense& other1,
-                             const MatrixDense& other2,
-                             bool transpose1 = false,
-                             bool transpose2 = false);
-  static void productGeneral(VectorDouble& res,
-                             const MatrixDense& other,
-                             const VectorDouble& vec,
-                             bool transpose  = false,
-                             bool flagInvert = false);
-  static void prodnormGeneral(MatrixDense& res,
-                              const MatrixDense& a,
-                              const MatrixDense& m = MatrixDense(),
-                              bool transpose       = false);
-  static void prodnormGeneral(MatrixDense& res,
-                              const MatrixDense& a,
+  // === INTERNAL USE ONLY ===
+  // Do not call directly; used by template.
+  static void _addGeneral(MatrixDense& res, const MatrixDense& other, double cst);
+  static void _addGeneral(MatrixDense& res, const MatrixDense& other1, const MatrixDense& other2);
+  static void _prodGeneral(MatrixDense& res, const MatrixDense& other, double cst);
+  static void _prodGeneral(MatrixDense& res, const MatrixDense& other1, const MatrixDense& other2);
+  static void _productGeneral(MatrixDense& res,
+                              const MatrixDense& other1,
+                              const MatrixDense& other2,
+                              bool transpose1 = false,
+                              bool transpose2 = false);
+  static void _productGeneral(VectorDouble& res,
+                              const MatrixDense& other,
                               const VectorDouble& vec,
-                              bool transpose = false);
+                              bool transpose  = false,
+                              bool flagInvert = false);
+  static void _prodnormGeneral(MatrixDense& res,
+                               const MatrixDense& a,
+                               const MatrixDense& m = MatrixDense(),
+                               bool transpose       = false);
+  static void _prodnormGeneral(MatrixDense& res,
+                               const MatrixDense& a,
+                               const VectorDouble& vec,
+                               bool transpose = false);
+  static bool _areIdenticalGeneral(const MatrixDense& a,
+                                   const MatrixDense& b,
+                                   bool verbose = false);
 
   template<bool transposeX, bool transposeY>
   void prodMatMatNoCheck(const MatrixDense& x, const MatrixDense& y)

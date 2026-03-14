@@ -283,11 +283,11 @@ double MatrixDense::sum() const
   return eigenMat().sum();
 }
 
-void MatrixDense::productGeneral(MatrixDense& res,
-                                 const MatrixDense& other1,
-                                 const MatrixDense& other2,
-                                 bool transpose1,
-                                 bool transpose2)
+void MatrixDense::_productGeneral(MatrixDense& res,
+                                  const MatrixDense& other1,
+                                  const MatrixDense& other2,
+                                  bool transpose1,
+                                  bool transpose2)
 {
   if (transpose1)
   {
@@ -323,11 +323,11 @@ void MatrixDense::productGeneral(MatrixDense& res,
  * @param transpose Should the matrix 'other' be transposed
  * @param flagInvert Product 'other' * 'vec' (F) or 'vec' * 'other' (T)
  */
-void MatrixDense::productGeneral(VectorDouble& res,
-                                 const MatrixDense& other,
-                                 const VectorDouble& vec,
-                                 bool transpose,
-                                 bool flagInvert)
+void MatrixDense::_productGeneral(VectorDouble& res,
+                                  const MatrixDense& other,
+                                  const VectorDouble& vec,
+                                  bool transpose,
+                                  bool flagInvert)
 {
   Eigen::Map<const Eigen::VectorXd> vecm(vec.data(), vec.size());
   Eigen::Map<Eigen::VectorXd> resm(res.data(), res.size());
@@ -409,7 +409,7 @@ void MatrixDense::prodMatMatInPlace(const AMatrix* x,
         a      = b * ym->eigenMat();
       }
     }
-    (void)isSame(temp);
+    (void)areIdentical(*this, temp);
   }
 }
 
@@ -454,7 +454,7 @@ void MatrixDense::prodNormMatMatInPlace(const AMatrix* a,
 
   MatrixDense temp;
   AMatrix::prodnorm(temp, *am, *mm, transpose);
-  (void)isSame(temp);
+  (void)areIdentical(*this, temp);
 }
 
 /**
@@ -492,7 +492,7 @@ void MatrixDense::prodNormMatVecInPlace(const AMatrix* a, const VectorDouble& ve
 
   MatrixDense temp;
   AMatrix::prodnorm(temp, *am, vec, transpose);
-  (void)isSame(temp);
+  (void)areIdentical(*this, temp);
 }
 
 void MatrixDense::prodNormMatInPlace(const AMatrix* a, bool transpose)
@@ -521,7 +521,7 @@ void MatrixDense::prodNormMatInPlace(const AMatrix* a, bool transpose)
 
   MatrixDense temp;
   AMatrix::prodnorm(temp, *am, MatrixDense(), transpose);
-  (void)isSame(temp);
+  (void)areIdentical(*this, temp);
 }
 
 void MatrixDense::fill(double value)
@@ -897,19 +897,19 @@ void MatrixDense::sum(const MatrixDense* mat1,
 /*! New methodes for operator overloading */
 MatrixDense& MatrixDense::addCst(double a)
 {
-  addGeneral(*this, *this, a);
+  _addGeneral(*this, *this, a);
   return *this;
 }
 
 MatrixDense& MatrixDense::prodCst(double a)
 {
-  prodGeneral(*this, *this, a);
+  _prodGeneral(*this, *this, a);
   return *this;
 }
 
-void MatrixDense::addGeneral(MatrixDense& res,
-                             const MatrixDense& other,
-                             double cst)
+void MatrixDense::_addGeneral(MatrixDense& res,
+                              const MatrixDense& other,
+                              double cst)
 {
   if (isZero(cst))
   {
@@ -927,16 +927,16 @@ void MatrixDense::addGeneral(MatrixDense& res,
  * @param other1 First matrix
  * @param other2 Second matrix
  */
-void MatrixDense::addGeneral(MatrixDense& res,
-                             const MatrixDense& other1,
-                             const MatrixDense& other2)
+void MatrixDense::_addGeneral(MatrixDense& res,
+                              const MatrixDense& other1,
+                              const MatrixDense& other2)
 {
   res.eigenMat() = other1.eigenMat() + other2.eigenMat();
 }
 
-void MatrixDense::prodGeneral(MatrixDense& res,
-                              const MatrixDense& other,
-                              double cst)
+void MatrixDense::_prodGeneral(MatrixDense& res,
+                               const MatrixDense& other,
+                               double cst)
 {
   if (isOne(cst))
   {
@@ -954,17 +954,17 @@ void MatrixDense::prodGeneral(MatrixDense& res,
  * @param other1 First matrix
  * @param other2 Second matrix
  */
-void MatrixDense::prodGeneral(MatrixDense& res,
-                              const MatrixDense& other1,
-                              const MatrixDense& other2)
+void MatrixDense::_prodGeneral(MatrixDense& res,
+                               const MatrixDense& other1,
+                               const MatrixDense& other2)
 {
   res.eigenMat() = other1.eigenMat().array() * other2.eigenMat().array();
 }
 
-void MatrixDense::prodnormGeneral(MatrixDense& res,
-                                  const MatrixDense& a,
-                                  const MatrixDense& m,
-                                  bool transpose)
+void MatrixDense::_prodnormGeneral(MatrixDense& res,
+                                   const MatrixDense& a,
+                                   const MatrixDense& m,
+                                   bool transpose)
 {
   if (m.empty())
   {
@@ -990,10 +990,10 @@ void MatrixDense::prodnormGeneral(MatrixDense& res,
   }
 }
 
-void MatrixDense::prodnormGeneral(MatrixDense& res,
-                                  const MatrixDense& a,
-                                  const VectorDouble& vec,
-                                  bool transpose)
+void MatrixDense::_prodnormGeneral(MatrixDense& res,
+                                   const MatrixDense& a,
+                                   const VectorDouble& vec,
+                                   bool transpose)
 {
   Eigen::Map<const Eigen::VectorXd> vecm(vec.data(), vec.size());
   if (transpose)
@@ -1004,6 +1004,25 @@ void MatrixDense::prodnormGeneral(MatrixDense& res,
   {
     res.eigenMat().noalias() = a.eigenMat() * vecm * a.eigenMat().transpose();
   }
+}
+
+bool MatrixDense::_areIdenticalGeneral(const MatrixDense& a, const MatrixDense& b, bool verbose)
+{
+  auto ncols = a.getNCols();
+  auto nrows = a.getNRows();
+  for (Id icol = 0; icol < ncols; icol++)
+    for (Id irow = 0; irow < nrows; irow++)
+    {
+      double v1 = a.getValue(irow, icol);
+      double v2 = b.getValue(irow, icol);
+      if (ABS(v1 - v2) > EPSILON6)
+      {
+        if (verbose)
+          messerr("Matrices are not identical at position (%d, %d)", irow, icol);
+        return false;
+      }
+    }
+  return true;
 }
 
 }; // namespace gstlrn
