@@ -14,6 +14,7 @@
 #include "Covariances/CovAniso.hpp"
 #include "Db/Db.hpp"
 #include "LinearOp/CholeskyDense.hpp"
+#include "LinearOp/CholeskySparse.hpp"
 #include "Matrix/EigenVectors.hpp"
 #include "Model/Model.hpp"
 #include "geoslib_define.h"
@@ -355,7 +356,7 @@ double InvNuggetOp::computeLogDet(Id nMC) const
 
   if (FFFF(_logDeterminant))
   {
-    CholeskyDense cholesky(*this);
+    CholeskySparse cholesky(*this);
     return cholesky.computeLogDeterminant();
   }
   return _logDeterminant;
