@@ -679,6 +679,7 @@ public:
    * @tparam T
    * @param a First matrix
    * @param b Second matrix
+   * @param verbose Verbose flag
    */
   template<typename T>
   static bool areIdentical(const T& a,

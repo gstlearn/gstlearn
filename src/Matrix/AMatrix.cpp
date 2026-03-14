@@ -454,7 +454,8 @@ void AMatrix::prodMatVecInPlaceC(const constvect x,
   std::fill(y.begin(), y.begin() + size, 0.0);
   _addProdMatVecInPlacePtr(x, y, transpose);
 
-  vect temp;
+  std::vector<double> storage(size); // allocation réelle
+  vect temp(storage);
   const auto* other1 = dynamic_cast<const MatrixDense*>(this);
   if (other1 != nullptr)
     AMatrix::prodVec(temp, *other1, x, transpose);
@@ -477,7 +478,8 @@ void AMatrix::addProdMatVecInPlaceC(const constvect x,
                            nullptr, static_cast<Id>(x.size()), false)) return;
   _addProdMatVecInPlacePtr(x, y, transpose);
 
-  vect temp;
+  std::vector<double> storage(y.size()); // allocation réelle
+  vect temp(storage);
   const auto* other1 = dynamic_cast<const MatrixDense*>(this);
   if (other1 != nullptr)
     AMatrix::prodVec(temp, *other1, x, transpose);
@@ -545,7 +547,8 @@ void AMatrix::prodVecMatInPlaceC(const constvect x, vect y, bool transpose) cons
   std::fill(y.begin(), y.begin() + size, 0.0);
   _addProdVecMatInPlacePtr(x, y, transpose);
 
-  vect temp;
+  std::vector<double> storage(size); // allocation réelle
+  vect temp(storage);
   const auto* other1 = dynamic_cast<const MatrixDense*>(this);
   if (other1 != nullptr)
     AMatrix::prodVec(temp, x, *other1, transpose);
@@ -567,7 +570,8 @@ void AMatrix::addProdVecMatInPlaceC(const constvect x,
                            nullptr, static_cast<Id>(x.size()), false)) return;
   _addProdVecMatInPlacePtr(x, y, transpose);
 
-  vect temp;
+  std::vector<double> storage(y.size()); // allocation réelle
+  vect temp(storage);
   const auto* other1 = dynamic_cast<const MatrixDense*>(this);
   if (other1 != nullptr)
     AMatrix::prodVec(temp, x, *other1, transpose);
