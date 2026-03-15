@@ -422,7 +422,8 @@ VectorInt DbGraphO::getIndicesNextUp(Id node) const
   VectorDouble v1(nech, 0.);
   VectorDouble v2(nech, 0.);
   v1[node] = 1.;
-  _downArcs.prodMatVecInPlaceC(v1, v2);
+  AMatrix::prodVec(v2, _downArcs, v1);
+  // _downArcs.prodMatVecInPlaceC(v1, v2);
   return _getRanks(v2);
 }
 

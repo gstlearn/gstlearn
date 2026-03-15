@@ -429,6 +429,26 @@ public:
   }
 
   /**
+   * @brief Return: 'other' * 'vec'
+   *
+   * @tparam T
+   * @param other First matrix
+   * @param vec  Vector
+   * @param transpose True if 'other' must be transposed
+   * @param flagInit True if the resulting vector must be initialized beforehand
+   */
+  template<typename T>
+  static VectorDouble prodVec(const T& other,
+                              const VectorDouble& vec,
+                              bool transpose = false,
+                              bool flagInit  = false)
+  {
+    VectorDouble res;
+    prodVec(res, other, vec, transpose, flagInit);
+    return res;
+  }
+
+  /**
    * @brief Operate: 'res' = 'other' * 'vec'
    *
    * @tparam T
@@ -507,6 +527,26 @@ public:
   {
     VectorDouble res;
     T::product(res, other, vec, transpose, true);
+    return res;
+  }
+
+  /**
+   * @brief Return: 'vec' * 'other'
+   *
+   * @tparam T
+   * @param other First matrix
+   * @param vec  Vector
+   * @param transpose True if 'other' must be transposed
+   * @param flagInit True if the resulting vector must be initialized beforehand
+   */
+  template<typename T>
+  static VectorDouble prodVec(const VectorDouble& vec,
+                              const T& other,
+                              bool transpose = false,
+                              bool flagInit  = false)
+  {
+    VectorDouble res;
+    T::prodVec(res, other, vec, transpose, flagInit);
     return res;
   }
 
@@ -735,8 +775,8 @@ public:
   virtual void prodNormMatInPlace(const AMatrix* a,
                                   bool transpose = false);
   /*! Perform 'y' = 'this' * 'x' */
-  VectorDouble prodMatVec(const VectorDouble& x, bool transpose = false) const;
-  void prodMatVecInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false) const;
+  // VectorDouble prodMatVec(const VectorDouble& x, bool transpose = false) const;
+  // void prodMatVecInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false) const;
 #ifndef SWIG
   void prodMatVecInPlaceC(const constvect x, vect y, bool transpose = false) const;
   void addProdMatVecInPlaceC(const constvect x, vect y, bool transpose = false) const;

@@ -253,14 +253,18 @@ int main(int argc, char* argv[])
   message("Reference Matrix\n");
   MRR.display();
   printVector(V1, "Reference Input Vector", true, true);
-  MRR.prodMatVecInPlace(V1, Vref);
+  AMatrix::prodVec(Vref, MRR, V1);
+  // MRR.prodMatVecInPlace(V1, Vref);
   printVector(Vref, "Reference Output Vector", true, true);
 
-  MSG.prodMatVecInPlace(V1, V2);
+  AMatrix::prodVec(V2, MSG, V1);
+  // MSG.prodMatVecInPlace(V1, V2);
   message("Are results for MRR and MSG similar: %d\n", static_cast<Id>(Vref.isEqual(V2)));
-  MSS.prodMatVecInPlace(V1, V2);
+  AMatrix::prodVec(V2, MSS, V1);
+  // MSS.prodMatVecInPlace(V1, V2);
   message("Are results for MRR and MSS similar: %d\n", static_cast<Id>(Vref.isEqual(V2)));
-  MSP->prodMatVecInPlace(V1, V2);
+  AMatrix::prodVec(V2, *MSP, V1);
+  // MSP->prodMatVecInPlace(V1, V2);
   message("Are results for MRR and MSP similar: %d\n", static_cast<Id>(Vref.isEqual(V2)));
 
   ////////////////
@@ -279,10 +283,12 @@ int main(int argc, char* argv[])
   MSS.solve(V1, V2);
   printVector(V2, "Reference Output Vector", true, true);
 
-  MSS.prodMatVecInPlace(V2, V3);
+  AMatrix::prodVec(V3, MSS, V2);
+  // MSS.prodMatVecInPlace(V2, V3);
   message("Are results correct for MSS: %d\n", static_cast<Id>(V1.isEqual(V3)));
   MSP->solve(V1, V2);
-  MSP->prodMatVecInPlace(V2, V3);
+  AMatrix::prodVec(V3, *MSP, V2);
+  // MSP->prodMatVecInPlace(V2, V3);
   message("Are results correct for MSP: %d\n", static_cast<Id>(V1.isEqual(V3)));
 
   ////////////
@@ -386,17 +392,20 @@ int main(int argc, char* argv[])
 
   message("Multiplying matrix (transposed) by sequence vector\n");
   myCol    = VH::sequenceVD(1., static_cast<double>(nrow));
-  myRowRes = MSG.prodMatVec(myCol, true);
+  myRowRes = AMatrix::prodVec(MSG, myCol, true);
+  // myRowRes = MSG.prodMatVec(myCol, true);
   printVector(myRowRes, "Resulting Vector", true, true);
 
   message("Multiplying matrix by sequence vector\n");
   myRow    = VH::sequenceVD(1., static_cast<double>(ncol));
-  myColRes = MSG.prodMatVec(myRow, false);
+  myColRes = AMatrix::prodVec(MSG, myRow, false);
+  // myColRes = MSG.prodMatVec(myRow, false);
   printVector(myColRes, "Resulting Vector", true, true);
 
   message("Multiplying sequence vector by matrix (transposed)\n");
   myRow    = VH::sequenceVD(1., static_cast<double>(ncol));
-  myColRes = MSG.prodVecMat(myRow, true);
+  myColRes = AMatrix::prodVec(MSG, myRow, true);
+  // myColRes = MSG.prodVecMat(myRow, true);
   printVector(myColRes, "Resulting Vector", true, true);
 
   message("Making the product of the matrix by itself\n");
@@ -468,17 +477,20 @@ int main(int argc, char* argv[])
 
   message("Multiplying matrix (transposed) by sequence vector\n");
   myCol    = VH::sequenceVD(1., static_cast<double>(nrow));
-  myRowRes = MSP->prodMatVec(myCol, true);
+  myRowRes = AMatrix::prodVec(*MSP, myCol, true);
+  // myRowRes = MSP->prodMatVec(myCol, true);
   printVector(myRowRes, "Resulting Vector", true, true);
 
   message("Multiplying matrix by sequence vector\n");
   myRow    = VH::sequenceVD(1., static_cast<double>(ncol));
-  myColRes = MSP->prodMatVec(myRow, false);
+  myColRes = AMatrix::prodVec(*MSP, myRow, false);
+  // myColRes = MSP->prodMatVec(myRow, false);
   printVector(myColRes, "Resulting Vector", true, true);
 
   message("Multiplying sequence vector by matrix (transposed)\n");
   myRow    = VH::sequenceVD(1., static_cast<double>(ncol));
-  myColRes = MSP->prodVecMat(myRow, true);
+  myColRes = AMatrix::prodVec(*MSP, myRow, true);
+  // myColRes = MSP->prodVecMat(myRow, true);
   printVector(myColRes, "Resulting Vector", true, true);
 
   message("Making the product of the matrix by itself\n");
@@ -629,7 +641,8 @@ int main(int argc, char* argv[])
   printVector(B, "Input Vector B =", true, true);
   MEigChol.solve(B, XEig);
   printVector(XEig, "Result Vector X =", true, true);
-  message("Is M * X = B: %d\n", static_cast<Id>(B.isEqual(MEig->prodMatVec(XEig))));
+  message("Is M * X = B: %d\n", static_cast<Id>(B.isEqual(AMatrix::prodVec(*MEig, XEig))));
+  // message("Is M * X = B: %d\n", static_cast<Id>(B.isEqual(MEig->prodMatVec(XEig))));
 
   // Solving a linear system after Cholesky decomposition (matrix RHS)
   mestitle(0, "Solving a Linear system after Cholesky decomposition (matrix RHS)");

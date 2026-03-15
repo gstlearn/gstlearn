@@ -933,7 +933,8 @@ Id MLayers::_subtractOptimalDrift(bool verbose,
   /* Find the optimal drift coefficients */
 
   atab.invert();
-  atab.prodMatVecInPlace(btab, coeff);
+  AMatrix::prodVec(coeff, atab, btab);
+  // atab.prodMatVecInPlace(btab, coeff);
 
   /* Optional printout of the result */
 
@@ -1071,7 +1072,8 @@ Id MLayers::_prepareCollocation(Id iechout,
 
   if (_computeLhsOne(seltab, iechout, _nlayers, coor,
                      prop1, prop2, covtab, baux)) return 1;
-  a->prodMatVecInPlace(baux, b2);
+  AMatrix::prodVec(b2, *a, baux);
+  // a->prodMatVecInPlace(baux, b2);
   double coefz = b2.innerProduct(zval);
   double coefa = b2.innerProduct(baux);
   (*ratio)     = (ABS(c0 - coefa) > 1.e-6) ? (botval - coefz) / (c0 - coefa) : 0.;
@@ -1113,7 +1115,8 @@ void MLayers::_estimateRegular(double c00,
       stdv = TEST;
     else
     {
-      a->prodMatVecInPlace(b, wgt);
+      AMatrix::prodVec(wgt, *a, b);
+      // a->prodMatVecInPlace(b, wgt);
       stdv = c00val - b.innerProduct(wgt);
       stdv = (stdv > 0) ? sqrt(stdv) : 0.;
     }
@@ -1163,10 +1166,12 @@ void MLayers::_estimateBayes(double c00,
 
   /* Perform the estimation */
 
-  a0.prodMatVecInPlace(ff0, fsf0);
+  AMatrix::prodVec(fsf0, a0, ff0);
+  // a0.prodMatVecInPlace(ff0, fsf0);
   for (Id iech = 0; iech < _nech; iech++)
     c2[iech] = b[iech] + fsf0[iech];
-  cc.prodMatVecInPlace(c2, wgt);
+  AMatrix::prodVec(wgt, cc, c2);
+  // cc.prodMatVecInPlace(c2, wgt);
 
   double estim1 = wgt.innerProduct(zval);
   double estim2 = ff0.innerProduct(post_mean);
@@ -1587,7 +1592,8 @@ Id MLayers::_calculateDriftBayes(bool verbose,
   /* Auxiliary calculations */
   ffc.prodMatMatInPlace(&fftab, acov);
   invH.prodMatMatInPlace(&ffc, &fftab, false, true);
-  ffc.prodMatVecInPlace(zval, fm1z);
+  AMatrix::prodVec(fm1z, ffc, zval);
+  // AMatrix::prodVec(fm1z, ffc, zval);
 
   /* Calculate the Posterior Variance-Covariance matrix */
   for (Id ipar = 0; ipar < _npar; ipar++)
@@ -1597,10 +1603,12 @@ Id MLayers::_calculateDriftBayes(bool verbose,
 
   /* Calculate the Posterior Mean vector */
 
-  invS.prodMatVecInPlace(_model->getPriorMeans(), post_mean);
+  AMatrix::prodVec(post_mean, invS, _model->getPriorMeans());
+  // invS.prodMatVecInPlace(_model->getPriorMeans(), post_mean);
   for (Id i = 0; i < _npar; i++)
     fm1z[i] += post_mean[i];
-  post_vars.prodMatVecInPlace(fm1z, post_mean);
+  AMatrix::prodVec(post_mean, post_vars, fm1z);
+  // post_vars.prodMatVecInPlace(fm1z, post_mean);
 
   /* Optional printout */
 
@@ -2078,7 +2086,8 @@ Id MLayers::kriging(bool verbose)
   else
   {
     a->invert();
-    a->prodMatVecInPlace(zval, dual);
+    AMatrix::prodVec(dual, *a, zval);
+    // AMatrix::prodVec(dual, *a, zval);
   }
 
   /* Perform the estimation over the grid nodes */

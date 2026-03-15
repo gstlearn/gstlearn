@@ -391,7 +391,7 @@ void CorAniso::setRotationAnglesAndRadius(const VectorDouble& angles,
         messerr("The range in Space dimension (%d) should not be too small", i);
       }
     }
-    scales_local  = ranges;
+    scales_local = ranges;
     scales_local /= _corfunc->getScadef();
   }
 
@@ -1782,7 +1782,8 @@ void CorAniso::appendParams(ListParams& listparams,
         this->_aniso.getRotation().rotateInverse(incr, temp);
         temp /= (radius * radius);
 
-        this->_dRot[i].prodMatVecInPlace(temp, res);
+        AMatrix::prodVec(res, this->_dRot[i], temp);
+        // this->_dRot[i].prodMatVecInPlace(temp, res);
 
         double dist2  = res.innerProduct(incr);
         double result = deriv * dist2;

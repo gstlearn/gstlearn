@@ -1079,6 +1079,14 @@ namespace gstlrn {
   /**
    * @brief List of methods from class MatrixDense exported for Target Language
    */
+  static VectorDouble prodMatVec(const VectorDouble& x, bool transpose = false)
+  {
+    return AMatrix::prodVec(*self, x, transpose, true);
+  }
+  static void prodMatVecInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false)
+  {
+    AMatrix::prodVec(y, *self, x, transpose, true);
+  }
   void linearCombination(double addition,
                          double val1,
                          const MatrixDense& other1,
@@ -1095,6 +1103,14 @@ namespace gstlrn {
   /**
    * @brief List of methods from class MatrixSparse exported for Target Language
    */
+  static VectorDouble prodMatVec(const VectorDouble& x, bool transpose = false)
+  {
+    return AMatrix::prodVec(*self, x, transpose, true);
+  }
+  static void prodMatVecInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false)
+  {
+    AMatrix::prodVec(y, *self, x, transpose, true);
+  }
   void linearCombination(double addition,
                          double val1,
                          const MatrixSparse& other1,
@@ -1175,6 +1191,7 @@ namespace gstlrn {
   {
     return VectorHelper::divideCst(v1, v2, flagOpposite);
   }
+
 }
 
 // Prevent memory leaks from 'create*' and 'clone' methods

@@ -177,7 +177,8 @@ double ALikelihood::computeLogLikelihood(bool flagPrint, bool verbose)
       printVector(_beta, "Optimal Drift coefficients = ", true, true);
 
     // Center the data by the optimal drift: Yc = Y - beta * X
-    VH::subtractInPlace(_X.prodMatVec(_beta), _Y, _Yc);
+    VH::subtractInPlace(AMatrix::prodVec(_X, _beta), _Y, _Yc);
+    // VH::subtractInPlace(_X.prodMatVec(_beta), _Y, _Yc);
   }
 
   // Calculate t(L-1) %*% D-1 %*% L-1 applied to Y (L and D from Vecchia)

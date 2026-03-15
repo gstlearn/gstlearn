@@ -799,11 +799,13 @@ Id KrigingAlgebra::_needZstar()
     if (_needDual()) return 1;
     if (_needSigma0()) return 1;
 
-    _Zstar = _Sigma0->prodMatVec(_bDual, true);
+    _Zstar = AMatrix::prodVec(*_Sigma0, _bDual, true);
+    // _Zstar = _Sigma0->prodMatVec(_bDual, true);
     if (_nbfl > 0)
     {
       if (_needX0()) return 1;
-      VectorDouble ext = _X0->prodMatVec(_cDual);
+      VectorDouble ext = AMatrix::prodVec(*_X0, _cDual);
+      // VectorDouble ext = _X0->prodMatVec(_cDual);
       VH::linearCombinationInPlace(1., _Zstar, 1., ext, _Zstar);
     }
     else
@@ -831,7 +833,8 @@ Id KrigingAlgebra::_needZstar()
     {
       if (_needY0()) return 1;
       if (_needBeta()) return 1;
-      VectorDouble mean = _Y0.prodMatVec(_Beta);
+      VectorDouble mean = AMatrix::prodVec(_Y0, _Beta);
+      // VectorDouble mean = _Y0->prodMatVec(_Beta);
       VH::linearCombinationInPlace(1., _Zstar, 1., mean, _Zstar);
     }
   }
@@ -845,7 +848,8 @@ Id KrigingAlgebra::_needZstar()
   if (_ncck > 0)
   {
     if (_needZ0p()) return 1;
-    VectorDouble Zstar0 = _Lambda0.prodMatVec(_Z0p, true);
+    VectorDouble Zstar0 = AMatrix::prodVec(_Lambda0, _Z0p, true);
+    // VectorDouble Zstar0 = _Lambda0.prodMatVec(_Z0p, true);
     VH::linearCombinationInPlace(1., _Zstar, 1., Zstar0, _Zstar);
   }
   return 0;
@@ -1072,17 +1076,20 @@ Id KrigingAlgebra::_needBeta()
   if (_needSigmac()) return 1;
   if (_needXtInvSigma()) return 1;
 
-  VectorDouble XtInvCZ = _XtInvSigma.prodMatVec(*_Z);
+  VectorDouble XtInvCZ = AMatrix::prodVec(_XtInvSigma, *_Z);
+  // VectorDouble XtInvCZ = _XtInvSigma.prodMatVec(*_Z);
 
   if (_flagBayes)
   {
     if (_needPriorMean()) return 1;
     if (_needInvPriorCov()) return 1;
-    VectorDouble InvSMBayes = _InvPriorCov.prodMatVec(*_PriorMeans);
+    VectorDouble InvSMBayes = AMatrix::prodVec(_InvPriorCov, *_PriorMeans);
+    // VectorDouble InvSMBayes = _InvPriorCov.prodMatVec(*_PriorMeans);
     VH::linearCombinationInPlace(1., XtInvCZ, 1., InvSMBayes, XtInvCZ);
   }
 
-  _Beta = _Sigmac.prodMatVec(XtInvCZ);
+  _Beta = AMatrix::prodVec(_Sigmac, XtInvCZ);
+  // _Beta = _Sigmac.prodMatVec(XtInvCZ);
   return 0;
 }
 
@@ -1320,16 +1327,20 @@ Id KrigingAlgebra::_needDual()
   if (_needZ()) return 1;
   if (_needInvSigma()) return 1;
 
-  _bDual = _InvSigma.prodMatVec(*_Z, true);
+  _bDual = AMatrix::prodVec(_InvSigma, *_Z, true);
+  // _bDual = _InvSigma.prodMatVec(*_Z, true);
   if (_nbfl > 0)
   {
     if (_needSigmac()) return 1;
     if (_needXtInvSigma()) return 1;
 
-    VectorDouble wp = _XtInvSigma.prodMatVec(*_Z, false);
-    _cDual          = _Sigmac.prodMatVec(wp, false);
+    VectorDouble wp = AMatrix::prodVec(_XtInvSigma, *_Z, false);
+    // VectorDouble wp = _XtInvSigma.prodMatVec(*_Z, false);
+    _cDual = AMatrix::prodVec(_Sigmac, wp, false);
+    // _cDual = _Sigmac.prodMatVec(wp, false);
 
-    VectorDouble p1 = _XtInvSigma.prodMatVec(_cDual, true);
+    VectorDouble p1 = AMatrix::prodVec(_XtInvSigma, _cDual, true);
+    // VectorDouble p1 = _XtInvSigma.prodMatVec(_cDual, true);
     VH::linearCombinationInPlace(1., _bDual, -1., p1, _bDual);
   }
   return 0;

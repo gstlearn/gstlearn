@@ -427,7 +427,8 @@ Id CalcSimuRefine::_kriging_solve(Id type, Id rank, Id nb, bool verbose)
   /* Derive the Kriging weights */
   VectorDouble col1(_WGT.row(type, rank).begin(), _WGT.row(type, rank).end());
   VectorDouble wgt1(col1.size());
-  lhs.prodMatVecInPlace(rhs, wgt1);
+  AMatrix::prodVec(wgt1, lhs, rhs);
+  // lhs.prodMatVecInPlace(rhs, wgt1);
 
   /* Calculate the variance */
   mode.setMember(ECalcMember::VAR);
@@ -553,6 +554,5 @@ bool CalcSimuRefine::_run()
 {
   return (_simulate() == 0);
 }
-
 
 } // namespace gstlrn

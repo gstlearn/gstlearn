@@ -514,7 +514,8 @@ void PCA::_pcaZ2F(Id iptr,
     if (!isoFlag[iech]) continue;
     _loadData(db, iech, data1);
     _center(data1, mean, sigma, true, false);
-    VectorDouble data2 = _Z2F.prodMatVec(data1, true);
+    VectorDouble data2 = AMatrix::prodVec(_Z2F, data1, true);
+    // VectorDouble data2 = _Z2F.prodMatVec(data1, true);
 
     for (Id ifac = 0; ifac < nvar; ifac++)
       db->setArray(iech, ifac + iptr, data2[ifac]);
@@ -549,7 +550,8 @@ void PCA::_pcaF2Z(Id iptr,
   {
     if (!isoFlag[iech]) continue;
     _loadData(db, iech, data1);
-    data2 = _F2Z.prodMatVec(data1, true);
+    data2 = AMatrix::prodVec(_F2Z, data1, true);
+    // data2 = _F2Z.prodMatVec(data1, true);
     _uncenter(data2, mean, sigma, true, false);
 
     for (Id ivar = 0; ivar < nvar; ivar++)

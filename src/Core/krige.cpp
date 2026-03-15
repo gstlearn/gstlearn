@@ -1971,7 +1971,8 @@ Id anakexp_f(DbGrid* db,
 
       /* Derive the kriging weights */
 
-      lhs_global.prodMatVecInPlace(rhs_global, wgt_global);
+      AMatrix::prodVec(wgt_global, lhs_global, rhs_global);
+      // lhs_global.prodMatVecInPlace(rhs_global, wgt_global);
     }
 
     /* Calculate the estimation */
@@ -2690,7 +2691,8 @@ Id anakexp_3D(DbGrid* db,
 
           /* Derive the kriging weights */
 
-          lhs_global.prodMatVecInPlace(rhs_global, wgt_global);
+          AMatrix::prodVec(wgt_global, lhs_global, rhs_global);
+          // lhs_global.prodMatVecInPlace(rhs_global, wgt_global);
         }
 
         /* Calculate the estimation */
@@ -3218,7 +3220,8 @@ Id st_crit_global(Db* db,
 
     c00 = model->evalCovMat(db, db, -1, -1, vech, vech).getValues();
     cs  = model->evalCovMat(db, db, -1, -1, ranks1, vech).getValues();
-    invc.prodMatVecInPlace(cs, temp_loc);
+    AMatrix::prodVec(temp_loc, invc, cs);
+    // invc.prodMatVecInPlace(cs, temp_loc);
     temp.setColumn(ecr, temp_loc);
 
     estim       = datm.innerProduct(temp_loc);
@@ -4402,7 +4405,8 @@ static void st_drift_update(Id np,
       value = YMAT(ip, il) * covgp[ip] - driftg[il];
     maux[il] = value;
   }
-  zmat.prodMatVecInPlace(maux, mu);
+  AMatrix::prodVec(mu, zmat, maux);
+  // zmat.prodMatVecInPlace(maux, mu);
 
   /* Update the vector of kriging weights */
 
@@ -4601,7 +4605,8 @@ Id inhomogeneous_kriging(Db* dbdat,
 
     /* Calculate the Kriging weights */
 
-    covpp.prodMatVecInPlace(rhs, lambda);
+    AMatrix::prodVec(lambda, covpp, rhs);
+    // covpp.prodMatVecInPlace(rhs, lambda);
     if (OptDbg::force())
       st_krige_wgt_print(0, nvar, nvar, nfeq, nbgh_ranks, nred, -1, NULL, lambda.data());
 

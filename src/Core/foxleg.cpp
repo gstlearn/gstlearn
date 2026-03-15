@@ -248,7 +248,8 @@ static Id st_solve_hgnc(Id npar,
     return (1);
   }
 
-  tempMat.prodMatVecInPlace(tempVec, hgnc);
+  AMatrix::prodVec(hgnc, tempMat, tempVec);
+  // tempMat.prodMatVecInPlace(tempVec, hgnc);
 
   for (Id i = 0; i < npar; i++)
   {
@@ -356,7 +357,8 @@ static Id st_possibilities(Id npar,
 {
   bool flag_imposs;
 
-  ai.prodMatVecInPlace(hgnc, temp);
+  AMatrix::prodVec(temp, ai, hgnc);
+  // ai.prodMatVecInPlace(hgnc, temp);
 
   Id n_imposs = 0;
   Id ipar2    = 0;
@@ -399,7 +401,8 @@ static Id st_define_constraints(Id mode,
 
   /* Calculate the constraints */
 
-  ai_red.prodMatVecInPlace(hgnc, temp);
+  AMatrix::prodVec(temp, ai_red, hgnc);
+  // ai_red.prodMatVecInPlace(hgnc, temp);
 
   iparac2 = 0;
   for (Id ic = 0; ic < 2; ic++)
@@ -856,7 +859,8 @@ static Id st_minimization_under_constraints(VectorInt& ind_util,
 
   /* Find an initial admissible point */
 
-  ai_red.prodMatVecInPlace(hgnc, b1);
+  AMatrix::prodVec(b1, ai_red, hgnc);
+  // ai_red.prodMatVecInPlace(hgnc, b1);
   st_minimum(ind_util, flag_actaux, bords_red, VectorDouble(), b1, hgnc, hgnadm);
   st_check(ind_util, hgnadm, acont);
 
@@ -889,8 +893,10 @@ static Id st_minimization_under_constraints(VectorInt& ind_util,
       b3.resize(NPARAC);
       for (iparac = 0; iparac < NPARAC; iparac++)
         b3[iparac] = hgnc[iparac] - hgnadm[iparac];
-      ai_red.prodMatVecInPlace(hgnadm, b1);
-      ai_red.prodMatVecInPlace(b3, b2);
+      AMatrix::prodVec(b1, ai_red, hgnadm);
+      // ai_red.prodMatVecInPlace(hgnadm, b1);
+      AMatrix::prodVec(b2, ai_red, b3);
+      // ai_red.prodMatVecInPlace(b3, b2);
       st_minimum(ind_util, flag_actaux, bords_red, b1, b2, hgnc, hgnadm);
       st_check(ind_util, hgnadm, acont);
 

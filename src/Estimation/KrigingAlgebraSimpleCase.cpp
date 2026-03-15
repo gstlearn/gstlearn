@@ -777,14 +777,16 @@ Id KrigingAlgebraSimpleCase::_computeZstarWithDual()
   if (_needDual()) return 1;
   if (_notFindSigma0()) return 1;
   vect vZstar(_Zstar);
-  _Sigma0->prodMatVecInPlaceC(*_bDual, vZstar, true);
+  AMatrix::prodVec(vZstar, *_Sigma0, *_bDual, true);
+  // _Sigma0->prodMatVecInPlaceC(*_bDual, vZstar, true);
   if (_nbfl > 0)
   {
     if (_notFindX0()) return 1;
     if (_needBeta()) return 1;
     _X0Beta.resize(_nbfl);
     if (_notFindX0()) return 1;
-    _X0->prodMatVecInPlace(*_Beta, _X0Beta);
+    AMatrix::prodVec(_X0Beta, *_X0, *_Beta);
+    // _X0->prodMatVecInPlace(*_Beta, _X0Beta);
     VH::linearCombinationInPlace(1., _Zstar, 1., _X0Beta, _Zstar);
   }
   else
@@ -918,9 +920,11 @@ Id KrigingAlgebraSimpleCase::_needXtInvSigmaZ()
   constvect vZ(*_Z);
   vect vres(*_XtInvSigmaZ);
   if (_flagCholesky)
-    _invSigmaX->prodMatVecInPlaceC(vZ, vres, true);
+    AMatrix::prodVec(vres, *_invSigmaX, vZ, true);
+  // _invSigmaX->prodMatVecInPlaceC(vZ, vres, true);
   else
-    _XtInvSigma->prodMatVecInPlaceC(vZ, vres); // TODO in place
+    AMatrix::prodVec(vres, *_XtInvSigma, vZ); // TODO in place
+  // _XtInvSigma->prodMatVecInPlaceC(vZ, vres);   // TODO in place
   return 0;
 }
 
@@ -974,7 +978,8 @@ Id KrigingAlgebraSimpleCase::_needBeta()
   if (_needSigmac()) return 1;
   if (_needXtInvSigmaZ()) return 1;
   _Beta->resize(_nbfl);
-  _invSigmac->prodMatVecInPlace(*_XtInvSigmaZ, *_Beta);
+  AMatrix::prodVec(*_Beta, *_invSigmac, *_XtInvSigmaZ);
+  // _invSigmac->prodMatVecInPlace(*_XtInvSigmaZ, *_Beta);
   return 0;
 }
 
@@ -1090,16 +1095,19 @@ Id KrigingAlgebraSimpleCase::_needDual()
   if (_flagCholesky)
     _cholSigma->solve(vZ, vB);
   else
-    _InvSigma->prodMatVecInPlaceC(vZ, vB, true);
+    AMatrix::prodVec(vB, *_InvSigma, vZ, true);
+  // _InvSigma->prodMatVecInPlaceC(vZ, vB, true);
   if (_nbfl > 0)
   {
     if (_needBeta()) return 1;
     _invSigmaXBeta->resize(_neq);
     vect vISXD(*_invSigmaXBeta);
     if (_flagCholesky)
-      _invSigmaX->prodMatVecInPlaceC(*_Beta, vISXD);
+      AMatrix::prodVec(vISXD, *_invSigmaX, *_Beta);
+    // _invSigmaX->prodMatVecInPlaceC(*_Beta, vISXD);
     else
-      _XtInvSigma->prodMatVecInPlaceC(*_Beta, vISXD, true);
+      AMatrix::prodVec(vISXD, *_XtInvSigma, *_Beta, true);
+    // _XtInvSigma->prodMatVecInPlaceC(*_Beta, vISXD, true);
     VH::linearCombinationInPlace(1., *_bDual, -1., *_invSigmaXBeta, *_bDual);
   }
   _dualHasChanged = false;

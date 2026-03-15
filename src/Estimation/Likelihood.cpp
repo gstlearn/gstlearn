@@ -108,7 +108,7 @@ void Likelihood::evalGrad(vect res)
   const auto invcov = _covChol.inverse();
   RankHandler rkh(_db);
   rkh.defineSampleRanks();
-  const auto &gradcov = _model->getCovGradients();
+  const auto& gradcov = _model->getCovGradients();
   _gradCovMat.resize(static_cast<Id>(_Yc.size()), static_cast<Id>(_Yc.size()));
   CholeskyDense XtCm1XChol;
   MatrixSymmetric invXtCm1X;
@@ -121,7 +121,8 @@ void Likelihood::evalGrad(vect res)
   {
     const auto& func = gradcov[iparam];
     _fillGradCovMat(rkh, func);
-    _gradCovMat.prodMatVecInPlace(_Cm1Yc, _temp);
+    AMatrix::prodVec(_temp, _gradCovMat, _Cm1Yc);
+    // _gradCovMat.prodMatVecInPlace(_Cm1Yc, _temp);
     double dquad = -_Cm1Yc.innerProduct(_temp);
     res[iparam]  = 0.0;
     if (_reml && _model->getNDriftEquation() > 0)

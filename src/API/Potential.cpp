@@ -1769,7 +1769,8 @@ void Potential::_convertDistance(Id ic0,
 
   VectorDouble zdual_red(neqm1);
   VectorDouble zval_red = VH::reduceOne(zval, icol0);
-  lhs_aux->prodMatVecInPlace(zval_red, zdual_red);
+  AMatrix::prodVec(zdual_red, *lhs_aux, zval_red);
+  // lhs_aux->prodMatVecInPlace(zval_red, zdual_red);
   delete lhs_aux;
 
   /* Evaluate the reference point */
@@ -2468,7 +2469,9 @@ Id Potential::kriging(DbGrid* dbout,
   if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
     printMatrix(zval, 1, _nequa, "\n[Z]", 0, 1);
   VectorDouble zdual(_nequa);
-  lhs.prodMatVecInPlace(zval, zdual);
+
+  AMatrix::prodVec(zdual, lhs, zval);
+  // lhs.prodMatVecInPlace(zval, zdual);
   if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
     printMatrix(zdual, 1, _nequa, "\n[Z] * [LHS]-1", 0, 1);
   // Evaluate Potential at Reference point
@@ -2583,7 +2586,8 @@ Id Potential::simulate(DbGrid* dbout,
     _fillDual(zval);
     if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
       printMatrix(zval, 1, _nequa, "\n[Z]", 0, 1);
-    lhs.prodMatVecInPlace(zval, zdual);
+    AMatrix::prodVec(zdual, lhs, zval);
+    // lhs.prodMatVecInPlace(zval, zdual);
     if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
       printMatrix(zdual, 1, _nequa, "\n[Z] *%* [A]-1", 0, 1);
 
@@ -2683,7 +2687,8 @@ Id Potential::xvalid(bool flag_dist_conv)
   _fillDual(zval);
   if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
     printMatrix(zval, 1, _nequa, "\n[Z]", 0, 1);
-  lhs.prodMatVecInPlace(zval, zdual);
+  AMatrix::prodVec(zdual, lhs, zval);
+  // lhs.prodMatVecInPlace(zval, zdual);
   if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
     printMatrix(zdual, 1, _nequa, "\n[Z] *%* [A]-1", 0, 1);
 

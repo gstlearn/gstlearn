@@ -531,7 +531,8 @@ bool KrigingSystem::isReady()
   _means = _model->getMeans();
   // Possible adjust the means in case of presence of 'matLC'
   _meansTarget = _means;
-  if (_krigopt.hasMatLC()) _meansTarget = _krigopt.getMatLC()->prodMatVec(_means);
+  if (_krigopt.hasMatLC()) _meansTarget = AMatrix::prodVec(*_krigopt.getMatLC(),_means);
+  // if (_krigopt.hasMatLC()) _meansTarget = _krigopt.getMatLC()->prodMatVec(_means);
 
   if ((_neigh != nullptr && _neigh->getType() == ENeigh::UNIQUE) || _flagBayes)
   {
