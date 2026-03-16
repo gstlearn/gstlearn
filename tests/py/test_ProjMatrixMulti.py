@@ -138,7 +138,10 @@ resnumpyM2P = np.concatenate(resnumpyM2P)
 print("---------------------")
 print("Test 10: mesh2Point (matrix free):")
 print("---------------------")
-print("Difference with manual computation " + str(np.round(np.sum(np.abs(resnumpyM2P - res)), 15)))
+print(
+    "Difference with manual computation "
+    + str(np.round(np.sum(np.abs(resnumpyM2P - res)), 15))
+)
 
 # %%
 np.random.seed(134)
@@ -166,7 +169,10 @@ resnumpyP2M = np.concatenate(resnumpyP2M)
 print("---------------------")
 print("Test 11: point2mesh (matrix-free):")
 print("---------------------")
-print("Difference with manual computation " + str(np.round(np.sum(np.abs(resnumpyP2M - res)), 15)))
+print(
+    "Difference with manual computation "
+    + str(np.round(np.sum(np.abs(resnumpyP2M - res)), 15))
+)
 
 # %%
 print("---------------------")

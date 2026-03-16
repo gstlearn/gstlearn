@@ -475,9 +475,9 @@ public:
    * @param flagInit True if the resulting vector must be initialized beforehand
    */
   template<typename T>
-  static void prodMV(vect& res,
+  static void prodMV(vect res,
                      const T& other,
-                     const constvect& vec,
+                     const constvect vec,
                      bool transpose = false,
                      bool flagInit  = true)
   {
@@ -559,8 +559,8 @@ public:
    * @param flagInit True if the resulting vector must be initialized beforehand
    */
   template<typename T>
-  static void prodVM(vect& res,
-                     const constvect& vec,
+  static void prodVM(vect res,
+                     const constvect vec,
                      const T& other,
                      bool transpose = false,
                      bool flagInit  = true)
