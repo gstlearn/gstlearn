@@ -933,7 +933,7 @@ Id MLayers::_subtractOptimalDrift(bool verbose,
   /* Find the optimal drift coefficients */
 
   atab.invert();
-  AMatrix::prodMV(coeff, atab, btab);
+  AMatrix::prodMVInPlace(coeff, atab, btab);
   // atab.prodMatVecInPlace(btab, coeff);
 
   /* Optional printout of the result */
@@ -1072,7 +1072,7 @@ Id MLayers::_prepareCollocation(Id iechout,
 
   if (_computeLhsOne(seltab, iechout, _nlayers, coor,
                      prop1, prop2, covtab, baux)) return 1;
-  AMatrix::prodMV(b2, *a, baux);
+  AMatrix::prodMVInPlace(b2, *a, baux);
   // a->prodMatVecInPlace(baux, b2);
   double coefz = b2.innerProduct(zval);
   double coefa = b2.innerProduct(baux);
@@ -1115,7 +1115,7 @@ void MLayers::_estimateRegular(double c00,
       stdv = TEST;
     else
     {
-      AMatrix::prodMV(wgt, *a, b);
+      AMatrix::prodMVInPlace(wgt, *a, b);
       // a->prodMatVecInPlace(b, wgt);
       stdv = c00val - b.innerProduct(wgt);
       stdv = (stdv > 0) ? sqrt(stdv) : 0.;
@@ -1166,11 +1166,11 @@ void MLayers::_estimateBayes(double c00,
 
   /* Perform the estimation */
 
-  AMatrix::prodMV(fsf0, a0, ff0);
+  AMatrix::prodMVInPlace(fsf0, a0, ff0);
   // a0.prodMatVecInPlace(ff0, fsf0);
   for (Id iech = 0; iech < _nech; iech++)
     c2[iech] = b[iech] + fsf0[iech];
-  AMatrix::prodMV(wgt, cc, c2);
+  AMatrix::prodMVInPlace(wgt, cc, c2);
   // cc.prodMatVecInPlace(c2, wgt);
 
   double estim1 = wgt.innerProduct(zval);
@@ -1181,7 +1181,7 @@ void MLayers::_estimateBayes(double c00,
 
   if (_flagStd)
   {
-    AMatrix::prodVM(temp, b, ss);
+    AMatrix::prodVMInPlace(temp, b, ss);
     // ss.prodVecMatInPlace(b, temp);
     for (Id ipar = 0; ipar < _npar; ipar++)
       temp[ipar] -= ff0[ipar];
@@ -1593,7 +1593,7 @@ Id MLayers::_calculateDriftBayes(bool verbose,
   /* Auxiliary calculations */
   ffc.prodMatMatInPlace(&fftab, acov);
   invH.prodMatMatInPlace(&ffc, &fftab, false, true);
-  AMatrix::prodMV(fm1z, ffc, zval);
+  AMatrix::prodMVInPlace(fm1z, ffc, zval);
   // AMatrix::prodXXX(fm1z, ffc, zval); // TODO: a verifier
 
   /* Calculate the Posterior Variance-Covariance matrix */
@@ -1604,11 +1604,11 @@ Id MLayers::_calculateDriftBayes(bool verbose,
 
   /* Calculate the Posterior Mean vector */
 
-  AMatrix::prodMV(post_mean, invS, _model->getPriorMeans());
+  AMatrix::prodMVInPlace(post_mean, invS, _model->getPriorMeans());
   // invS.prodMatVecInPlace(_model->getPriorMeans(), post_mean);
   for (Id i = 0; i < _npar; i++)
     fm1z[i] += post_mean[i];
-  AMatrix::prodMV(post_mean, post_vars, fm1z);
+  AMatrix::prodMVInPlace(post_mean, post_vars, fm1z);
   // post_vars.prodMatVecInPlace(fm1z, post_mean);
 
   /* Optional printout */
@@ -1794,7 +1794,7 @@ Id MLayers::_getVarioCHH(Vario_Order* vorder,
     }
 
     atab.invert();
-    AMatrix::prodVM(sill, btab, atab);
+    AMatrix::prodVMInPlace(sill, btab, atab);
     // atab.prodVecMatInPlace(btab, sill);
 
     /* Optional printout */
@@ -2088,7 +2088,7 @@ Id MLayers::kriging(bool verbose)
   else
   {
     a->invert();
-    AMatrix::prodMV(dual, *a, zval);
+    AMatrix::prodMVInPlace(dual, *a, zval);
     // AMatrix::prodXXX(dual, *a, zval); // TODO: a verifier
   }
 

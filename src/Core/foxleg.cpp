@@ -248,7 +248,7 @@ static Id st_solve_hgnc(Id npar,
     return (1);
   }
 
-  AMatrix::prodMV(hgnc, tempMat, tempVec);
+  AMatrix::prodMVInPlace(hgnc, tempMat, tempVec);
   // tempMat.prodMatVecInPlace(tempVec, hgnc);
 
   for (Id i = 0; i < npar; i++)
@@ -327,7 +327,7 @@ static Id st_calcul0(VectorDouble& param,
                      VectorDouble& tabmod2)
 {
   st_gradient(param, lower, upper, scale, tabwgt, Jr, param1, param2, tabmod1, tabmod2);
-  AMatrix::prodVM(grad, residuals, Jr);
+  AMatrix::prodVMInPlace(grad, residuals, Jr);
   // Jr.prodVecMatInPlace(residuals, grad);
   st_determine_gauss(Jr, gauss);
   st_fill_constraints(acont, grad, gauss);
@@ -358,7 +358,7 @@ static Id st_possibilities(Id npar,
 {
   bool flag_imposs;
 
-  AMatrix::prodMV(temp, ai, hgnc);
+  AMatrix::prodMVInPlace(temp, ai, hgnc);
   // ai.prodMatVecInPlace(hgnc, temp);
 
   Id n_imposs = 0;
@@ -402,7 +402,7 @@ static Id st_define_constraints(Id mode,
 
   /* Calculate the constraints */
 
-  AMatrix::prodMV(temp, ai_red, hgnc);
+  AMatrix::prodMVInPlace(temp, ai_red, hgnc);
   // ai_red.prodMatVecInPlace(hgnc, temp);
 
   iparac2 = 0;
@@ -860,7 +860,7 @@ static Id st_minimization_under_constraints(VectorInt& ind_util,
 
   /* Find an initial admissible point */
 
-  AMatrix::prodMV(b1, ai_red, hgnc);
+  AMatrix::prodMVInPlace(b1, ai_red, hgnc);
   // ai_red.prodMatVecInPlace(hgnc, b1);
   st_minimum(ind_util, flag_actaux, bords_red, VectorDouble(), b1, hgnc, hgnadm);
   st_check(ind_util, hgnadm, acont);
@@ -894,9 +894,9 @@ static Id st_minimization_under_constraints(VectorInt& ind_util,
       b3.resize(NPARAC);
       for (iparac = 0; iparac < NPARAC; iparac++)
         b3[iparac] = hgnc[iparac] - hgnadm[iparac];
-      AMatrix::prodMV(b1, ai_red, hgnadm);
+      AMatrix::prodMVInPlace(b1, ai_red, hgnadm);
       // ai_red.prodMatVecInPlace(hgnadm, b1);
-      AMatrix::prodMV(b2, ai_red, b3);
+      AMatrix::prodMVInPlace(b2, ai_red, b3);
       // ai_red.prodMatVecInPlace(b3, b2);
       st_minimum(ind_util, flag_actaux, bords_red, b1, b2, hgnc, hgnadm);
       st_check(ind_util, hgnadm, acont);

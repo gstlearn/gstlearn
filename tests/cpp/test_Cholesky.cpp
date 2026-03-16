@@ -92,7 +92,7 @@ int main(int argc, char* argv[])
   CholeskyDense cholDense(*M);
 
   // Checking the Cholesky decomposition
-  AMatrix::prodMV(vecref, *M, vecin);
+  AMatrix::prodMVInPlace(vecref, *M, vecin);
   // M->prodMatVecInPlace(vecin, vecref);
 
   cholSparse.LtX(vecin, vecout);

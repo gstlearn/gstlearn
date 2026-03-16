@@ -173,7 +173,7 @@ Id ProjConvolution::_addPoint2mesh(const constvect valonseismic,
   {
     constvect vec_S(valonseismic.data() + iz * slice_S, slice_S);
     vect vec_R(_work.data() + iz * slice_R, slice_R);
-    AMatrix::prodMV(vec_R, *_AProjHoriz, vec_S, true);
+    AMatrix::prodMVInPlace(vec_R, *_AProjHoriz, vec_S, true);
     // _AProjHoriz->prodMatVecInPlaceC(vec_S, vec_R, true);
   }
   _convolveT(_work, valonvertex);
@@ -209,7 +209,7 @@ Id ProjConvolution::_addMesh2point(const constvect valonvertex,
   {
     constvect vec_R(_work.data() + iz * slice_R, slice_R);
     vect vec_S(valonseismic.data() + iz * slice_S, slice_S);
-    AMatrix::prodMV(vec_S, *_AProjHoriz, vec_R, false);
+    AMatrix::prodMVInPlace(vec_S, *_AProjHoriz, vec_R, false);
     // _AProjHoriz->prodMatVecInPlaceC(vec_R, vec_S, false);
   }
 

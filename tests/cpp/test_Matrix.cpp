@@ -253,17 +253,17 @@ int main(int argc, char* argv[])
   message("Reference Matrix\n");
   MRR.display();
   printVector(V1, "Reference Input Vector", true, true);
-  AMatrix::prodMV(Vref, MRR, V1);
+  AMatrix::prodMVInPlace(Vref, MRR, V1);
   // MRR.prodMatVecInPlace(V1, Vref);
   printVector(Vref, "Reference Output Vector", true, true);
 
-  AMatrix::prodMV(V2, MSG, V1);
+  AMatrix::prodMVInPlace(V2, MSG, V1);
   // MSG.prodMatVecInPlace(V1, V2);
   message("Are results for MRR and MSG similar: %d\n", static_cast<Id>(Vref.isEqual(V2)));
-  AMatrix::prodMV(V2, MSS, V1);
+  AMatrix::prodMVInPlace(V2, MSS, V1);
   // MSS.prodMatVecInPlace(V1, V2);
   message("Are results for MRR and MSS similar: %d\n", static_cast<Id>(Vref.isEqual(V2)));
-  AMatrix::prodMV(V2, *MSP, V1);
+  AMatrix::prodMVInPlace(V2, *MSP, V1);
   // MSP->prodMatVecInPlace(V1, V2);
   message("Are results for MRR and MSP similar: %d\n", static_cast<Id>(Vref.isEqual(V2)));
 
@@ -283,11 +283,11 @@ int main(int argc, char* argv[])
   MSS.solve(V1, V2);
   printVector(V2, "Reference Output Vector", true, true);
 
-  AMatrix::prodMV(V3, MSS, V2);
+  AMatrix::prodMVInPlace(V3, MSS, V2);
   // MSS.prodMatVecInPlace(V2, V3);
   message("Are results correct for MSS: %d\n", static_cast<Id>(V1.isEqual(V3)));
   MSP->solve(V1, V2);
-  AMatrix::prodMV(V3, *MSP, V2);
+  AMatrix::prodMVInPlace(V3, *MSP, V2);
   // MSP->prodMatVecInPlace(V2, V3);
   message("Are results correct for MSP: %d\n", static_cast<Id>(V1.isEqual(V3)));
 
@@ -352,7 +352,7 @@ int main(int argc, char* argv[])
   MSG.display();
 
   message("Adding the matrix to itself\n");
-  AMatrix::add(MSG, MSG, MSG);
+  AMatrix::addInPlace(MSG, MSG, MSG);
   MSG.display();
 
   cx = 1.2;
@@ -443,7 +443,7 @@ int main(int argc, char* argv[])
   MSP->display();
 
   message("Adding the matrix to itself\n");
-  AMatrix::add(*MSP, *MSP, *MSP);
+  AMatrix::addInPlace(*MSP, *MSP, *MSP);
   MSP->display();
 
   message("Making the linear combination of the matrix (multiplied by %f) and itself (multiplied by %lf)\n", cx, cy);

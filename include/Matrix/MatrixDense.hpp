@@ -256,51 +256,51 @@ public:
   // Operators overloading
   MatrixDense& operator+=(double a)
   {
-    add(*this, *this, a);
+    addInPlace(*this, *this, a);
     return *this;
   }
 
   MatrixDense& operator-=(double a)
   {
-    add(*this, *this, -a);
+    addInPlace(*this, *this, -a);
     return *this;
   }
 
   MatrixDense operator+(double a) const
   {
     MatrixDense res;
-    add(res, *this, a);
+    addInPlace(res, *this, a);
     return res;
   }
 
   MatrixDense operator-(double a) const
   {
     MatrixDense res;
-    add(res, *this, -a);
+    addInPlace(res, *this, -a);
     return res;
   }
   MatrixDense& operator*=(double a)
   {
-    prod(*this, *this, a);
+    prodInPlace(*this, *this, a);
     return *this;
   }
 
   MatrixDense operator*(double a) const
   {
     MatrixDense res;
-    prod(res, *this, a);
+    prodInPlace(res, *this, a);
     return res;
   }
   MatrixDense& operator/=(double a)
   {
-    prod(*this, *this, 1.0 / a);
+    prodInPlace(*this, *this, 1.0 / a);
     return *this;
   }
 
   MatrixDense operator/(double a) const
   {
     MatrixDense res;
-    prod(res, *this, 1.0 / a);
+    prodInPlace(res, *this, 1.0 / a);
     return res;
   }
 

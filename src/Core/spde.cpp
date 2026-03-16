@@ -1046,9 +1046,9 @@ static void st_compute_blin(void)
         m.setValue(idim, jdim, 1. / (2. * p - idim - jdim + lambda));
     }
     (void)m.invert();
-    AMatrix::prodMV(v2, m, v1);
+    AMatrix::prodMVInPlace(v2, m, v1);
     // m.prodMatVecInPlace(v1, v2);
-    AMatrix::prodMV(Calcul.blin, tp, v2);
+    AMatrix::prodMVInPlace(Calcul.blin, tp, v2);
     // tp.prodMatVecInPlace(v2, Calcul.blin);
   }
   else
@@ -1979,7 +1979,7 @@ static MatrixSparse* st_spde_fill_S(AMesh* amesh, Model* model, const double* un
       /*! Perform 'this' = 'x' * 'y' */
       mat1.prodMatMatInPlace(&matw, &Calcul.hh, true, false);
       if (flag_nostat)
-        AMatrix::prodMV(matv, matw, Calcul.vv, true);
+        AMatrix::prodMVInPlace(matv, matw, Calcul.vv, true);
       // matw.prodMatVecInPlace(Calcul.vv, matv, true);
       mat.prodMatMatInPlace(&mat1, &matw);
 
@@ -5759,7 +5759,7 @@ Id m2d_gibbs_spde(Db* dbin,
 
           for (Id i = 0; i < nvertex; i++)
             zkrig[i] = vwork[i] = 0.;
-          AMatrix::prodMV(rhs, *Matelem.Aproj, ydat_loc, true);
+          AMatrix::prodMVInPlace(rhs, *Matelem.Aproj, ydat_loc, true);
           // Matelem.Aproj->prodMatVecInPlaceC(ydat_loc, rhs, true);
           st_kriging_cholesky(Qc, rhs.data(), vwork, zkrig.data());
           for (Id i = 0; i < nvertex; i++)
@@ -5767,7 +5767,7 @@ Id m2d_gibbs_spde(Db* dbin,
 
           // Project the Simulation from the vertices onto the Data
 
-          AMatrix::prodVM(ymean_loc, yvert_loc, *Matelem.Aproj, false);
+          AMatrix::prodVMInPlace(ymean_loc, yvert_loc, *Matelem.Aproj, false);
           // Matelem.Aproj->prodVecMatInPlace(yvert_loc, ymean_loc, false);
         }
 
@@ -5798,7 +5798,7 @@ Id m2d_gibbs_spde(Db* dbin,
       {
         constvect cyvert(&YVERT(ilayer, 0), nvertex);
         vect cgwork(&GWORK(ilayer, 0), ngrid);
-        AMatrix::prodVM(cgwork, cyvert, *Bproj, false);
+        AMatrix::prodVMInPlace(cgwork, cyvert, *Bproj, false);
         // Bproj->prodVecMatInPlaceC(cyvert, cgwork, false);
       }
 

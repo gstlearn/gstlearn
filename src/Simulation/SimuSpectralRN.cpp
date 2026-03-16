@@ -126,11 +126,11 @@ Id SimuSpectralRN::_compute(Db* dbout, const VectorBool& activeArray, VectorVect
   {
     if (!activeArray[iech]) continue;
     dbout->getCoordinatesInPlace(coor, iech);
-    AMatrix::prodMV(u, _omega, coor);
+    AMatrix::prodMVInPlace(u, _omega, coor);
     // _omega.prodMatVecInPlace(coor, u);
     for (Id ib = 0; ib < ns; ib++)
       u[ib] = cos(u[ib] + getPhi(ib));
-    AMatrix::prodMV(values, _gamma, u, true);
+    AMatrix::prodMVInPlace(values, _gamma, u, true);
     // _gamma.prodMatVecInPlace(u, values, true);
     for (Id ivar = 0; ivar < nvar; ivar++)
       tab[ivar][iech] = values[ivar];

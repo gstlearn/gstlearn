@@ -228,7 +228,7 @@ static Id st_gibbs(Id niter,
     for (Id icol = 0; icol < ncolor; icol++)
     {
       st_vector_compress(nvertex, colref[icol], z, colors, ind, zred);
-      AMatrix::prodVM(krig, zred, *Qcols[icol], false);
+      AMatrix::prodVMInPlace(krig, zred, *Qcols[icol], false);
       // Qcols[icol]->prodVecMatInPlace(zred, krig, false);
 
       for (Id ic = 0, nc = static_cast<Id>(ind.size()); ic < nc; ic++)
