@@ -76,7 +76,7 @@ void CholeskyEigenCG::evalInverse(const VectorDouble& vecin, VectorDouble& vecou
 void CholeskyEigenCG::_evalDirect(const VectorDouble& inv, VectorDouble& outv) const
 {
   if (!isValid()) return;
-  AMatrix::prodVec(outv, *_matCS, inv);
+  AMatrix::prodMV(outv, *_matCS, inv);
   // _matCS->prodMatVecInPlace(inv, outv);
 }
 

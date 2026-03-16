@@ -177,7 +177,7 @@ void Rotation::rotateDirect(const VectorDouble& inv, VectorDouble& outv) const
     // on the fly (avoiding copies)
     constvect cinv(inv.data(), _nDim);
     vect coutv(outv.data(), _nDim);
-    AMatrix::prodVec(coutv, _rotMat, cinv, false);
+    AMatrix::prodMV(coutv, _rotMat, cinv, false);
     // _rotMat.prodMatVecInPlaceC(cinv, coutv, false);
   }
 }
@@ -192,7 +192,7 @@ void Rotation::rotateInverse(const VectorDouble& inv, VectorDouble& outv) const
     // on the fly (avoiding copies)
     constvect cinv(inv.data(), _nDim);
     vect coutv(outv.data(), _nDim);
-    AMatrix::prodVec( coutv, _rotInv, cinv, false);
+    AMatrix::prodMV(coutv, _rotInv, cinv, false);
     // _rotInv.prodMatVecInPlaceC(cinv, coutv, false);
   }
 }

@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Polynomials/ClassicalPolynomial.hpp"
 #include "Basic/VectorNumT.hpp"
+#include "Matrix/AMatrix.hpp"
 #include "Matrix/MatrixSparse.hpp"
 #include "geoslib_define.h"
 
@@ -62,8 +63,8 @@ void ClassicalPolynomial::evalOpCumul(MatrixSparse* Op,
   {
     outv[i] += _coeffs[0] * inv[i];
   }
-
-  Op->prodMatVecInPlaceC(inv, *swap1);
+  AMatrix::prodMV(*swap1, *Op, inv);
+  // Op->prodMatVecInPlaceC(inv, *swap1);
 
   for (Id j = 1; j < static_cast<Id>(_coeffs.size()); j++)
   {
@@ -74,7 +75,8 @@ void ClassicalPolynomial::evalOpCumul(MatrixSparse* Op,
 
     if (j < static_cast<Id>(_coeffs.size()) - 1)
     {
-      Op->prodMatVecInPlaceC(*swap1, *swap2);
+      AMatrix::prodMV(*swap2, *Op, *swap1);
+      // Op->prodMatVecInPlaceC(*swap1, *swap2);
       swap3 = swap1;
       swap1 = swap2;
       swap2 = swap3;
@@ -140,7 +142,8 @@ void ClassicalPolynomial::evalOp(MatrixSparse* Op,
   Id degree = static_cast<Id>(_coeffs.size());
   for (Id j = degree - 2; j >= 0; j--)
   {
-    Op->prodMatVecInPlaceC(outv, ws);
+    AMatrix::prodMV(ws, *Op, outv);
+    // Op->prodMatVecInPlaceC(outv, ws);
     for (Id i = 0; i < n; i++)
     {
       outv[i] = _coeffs[j] * inv[i] + work[i];
@@ -201,7 +204,8 @@ void ClassicalPolynomial::evalOpTraining(
   {
     constvect stores(store[j + 1]);
     vect ws(work);
-    Op->prodMatVecInPlaceC(stores, ws);
+    AMatrix::prodMV(ws, *Op, stores);
+    // Op->prodMatVecInPlaceC(stores, ws);
     for (Id i = 0; i < n; i++)
     {
       store[j][i] = _coeffs[j] * inv[i] + work[i];

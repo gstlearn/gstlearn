@@ -72,6 +72,7 @@ Id MatrixSymmetricSim::_addToDest(const constvect inv, vect outv) const
 {
   if (_inverse)
   {
+    // AMatrix::prodMV(outv, _mat, inv, false, false);
     _mat.addProdMatVecInPlaceC(inv, outv);
     return 0;
   }
@@ -79,7 +80,7 @@ Id MatrixSymmetricSim::_addToDest(const constvect inv, vect outv) const
 }
 
 Id MatrixSymmetricSim::_addSimulateToDest(const constvect whitenoise,
-                                           vect outv) const
+                                          vect outv) const
 {
   if (_inverse) return _factor->addInvLtX(whitenoise, outv);
   return _factor->addLX(whitenoise, outv);

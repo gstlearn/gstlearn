@@ -121,7 +121,7 @@ void Likelihood::evalGrad(vect res)
   {
     const auto& func = gradcov[iparam];
     _fillGradCovMat(rkh, func);
-    AMatrix::prodVec(_temp, _gradCovMat, _Cm1Yc);
+    AMatrix::prodMV(_temp, _gradCovMat, _Cm1Yc);
     // _gradCovMat.prodMatVecInPlace(_Cm1Yc, _temp);
     double dquad = -_Cm1Yc.innerProduct(_temp);
     res[iparam]  = 0.0;
@@ -133,7 +133,6 @@ void Likelihood::evalGrad(vect res)
       res[iparam] += 0.5 * dlogdetreml;
     }
     double dlogdet = MatrixDense::traceProd(invcov, _gradCovMat); // Warning: _gradCovMat is modified so the line
-    // has to be after _gradCovMat.prodMatVecInPlace(_Cm1Y, _temp);
     res[iparam] += 0.5 * (dlogdet + dquad);
   }
 }

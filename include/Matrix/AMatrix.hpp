@@ -399,9 +399,9 @@ public:
                   "Only MatrixDense and MatrixSparse are allowed");
     Id nrow;
     Id ncol;
-    if (!_isProductCompatible(other1.getNRows(), other1.getNCols(), transpose1,
-                              other2.getNRows(), other2.getNCols(), transpose2,
-                              nrow, ncol)) return;
+    if (!_areCompatible(other1.getNRows(), other1.getNCols(), transpose1,
+                        other2.getNRows(), other2.getNCols(), transpose2,
+                        nrow, ncol)) return;
 
     if (res.getNRows() != nrow || res.getNCols() != ncol)
     {
@@ -414,37 +414,19 @@ public:
    * @brief Return: 'other' * 'vec'
    *
    * @tparam T
-   * @param other First vector
-   * @param vec  Vector
-   * @param transpose True if 'other' must be transposed
-   */
-  template<typename T>
-  static VectorDouble product(const T& other,
-                              const VectorDouble& vec,
-                              bool transpose = false)
-  {
-    VectorDouble res;
-    product(res, other, vec, transpose);
-    return res;
-  }
-
-  /**
-   * @brief Return: 'other' * 'vec'
-   *
-   * @tparam T
    * @param other First matrix
    * @param vec  Vector
    * @param transpose True if 'other' must be transposed
    * @param flagInit True if the resulting vector must be initialized beforehand
    */
   template<typename T>
-  static VectorDouble prodVec(const T& other,
-                              const VectorDouble& vec,
-                              bool transpose = false,
-                              bool flagInit  = false)
+  static VectorDouble prodMV(const T& other,
+                             const VectorDouble& vec,
+                             bool transpose = false,
+                             bool flagInit  = true)
   {
     VectorDouble res;
-    prodVec(res, other, vec, transpose, flagInit);
+    prodMV(res, other, vec, transpose, flagInit);
     return res;
   }
 
@@ -459,20 +441,20 @@ public:
    * @param flagInit True if the resulting vector must be initialized beforehand
    */
   template<typename T>
-  static void prodVec(VectorDouble& res,
-                      const T& other,
-                      const VectorDouble& vec,
-                      bool transpose = false,
-                      bool flagInit  = false)
+  static void prodMV(VectorDouble& res,
+                     const T& other,
+                     const VectorDouble& vec,
+                     bool transpose = false,
+                     bool flagInit  = true)
   {
     static_assert(std::is_base_of_v<AMatrix, T>,
                   "Invalid type for Matrix product (template method). "
                   "Only MatrixDense and MatrixSparse are allowed");
     Id nrow;
     Id ncol;
-    if (!_isProductCompatible(other.getNRows(), other.getNCols(), transpose,
-                              vec.size(), 1, false,
-                              nrow, ncol)) return;
+    if (!_areCompatible(other.getNRows(), other.getNCols(), transpose,
+                        vec.size(), 1, false,
+                        nrow, ncol)) return;
 
     if (res.size() != static_cast<size_t>(nrow))
     {
@@ -493,20 +475,20 @@ public:
    * @param flagInit True if the resulting vector must be initialized beforehand
    */
   template<typename T>
-  static void prodVec(vect& res,
-                      const T& other,
-                      const constvect& vec,
-                      bool transpose = false,
-                      bool flagInit  = false)
+  static void prodMV(vect& res,
+                     const T& other,
+                     const constvect& vec,
+                     bool transpose = false,
+                     bool flagInit  = true)
   {
     static_assert(std::is_base_of_v<AMatrix, T>,
                   "Invalid type for Matrix product (template method). "
                   "Only MatrixDense and MatrixSparse are allowed");
     Id nrow;
     Id ncol;
-    if (!_isProductCompatible(other.getNRows(), other.getNCols(), transpose,
-                              vec.size(), 1, false,
-                              nrow, ncol)) return;
+    if (!_areCompatible(other.getNRows(), other.getNCols(), transpose,
+                        vec.size(), 1, false,
+                        nrow, ncol)) return;
     assert(res.size() == static_cast<size_t>(nrow));
     if (flagInit) std::fill(res.begin(), res.end(), 0.0);
     T::_prodVecAddGeneral(res, other, vec, transpose, false);
@@ -519,34 +501,16 @@ public:
    * @param other First matrix
    * @param vec  Vector
    * @param transpose True if 'other' must be transposed
-   */
-  template<typename T>
-  static VectorDouble product(const VectorDouble& vec,
-                              const T& other,
-                              bool transpose = false)
-  {
-    VectorDouble res;
-    T::product(res, other, vec, transpose, true);
-    return res;
-  }
-
-  /**
-   * @brief Return: 'vec' * 'other'
-   *
-   * @tparam T
-   * @param other First matrix
-   * @param vec  Vector
-   * @param transpose True if 'other' must be transposed
    * @param flagInit True if the resulting vector must be initialized beforehand
    */
   template<typename T>
-  static VectorDouble prodVec(const VectorDouble& vec,
-                              const T& other,
-                              bool transpose = false,
-                              bool flagInit  = false)
+  static VectorDouble prodVM(const VectorDouble& vec,
+                             const T& other,
+                             bool transpose = false,
+                             bool flagInit  = true)
   {
     VectorDouble res;
-    T::prodVec(res, other, vec, transpose, flagInit);
+    T::prodVM(res, vec, other, transpose, flagInit);
     return res;
   }
 
@@ -561,20 +525,20 @@ public:
    * @param flagInit True if the resulting vector must be initialized beforehand
    */
   template<typename T>
-  static void prodVec(VectorDouble& res,
-                      const VectorDouble& vec,
-                      const T& other,
-                      bool transpose = false,
-                      bool flagInit  = false)
+  static void prodVM(VectorDouble& res,
+                     const VectorDouble& vec,
+                     const T& other,
+                     bool transpose = false,
+                     bool flagInit  = true)
   {
     static_assert(std::is_base_of_v<AMatrix, T>,
                   "Invalid type for Matrix product (template method). "
                   "Only MatrixDense and MatrixSparse are allowed");
     Id nrow;
     Id ncol;
-    if (!_isProductCompatible(vec.size(), 1, true,
-                              other.getNRows(), other.getNCols(), transpose,
-                              nrow, ncol)) return;
+    if (!_areCompatible(vec.size(), 1, true,
+                        other.getNRows(), other.getNCols(), transpose,
+                        nrow, ncol)) return;
 
     if (res.size() != static_cast<size_t>(ncol))
     {
@@ -595,20 +559,20 @@ public:
    * @param flagInit True if the resulting vector must be initialized beforehand
    */
   template<typename T>
-  static void prodVec(vect& res,
-                      const constvect& vec,
-                      const T& other,
-                      bool transpose = false,
-                      bool flagInit  = false)
+  static void prodVM(vect& res,
+                     const constvect& vec,
+                     const T& other,
+                     bool transpose = false,
+                     bool flagInit  = true)
   {
     static_assert(std::is_base_of_v<AMatrix, T>,
                   "Invalid type for Matrix product (template method). "
                   "Only MatrixDense and MatrixSparse are allowed");
     Id nrow;
     Id ncol;
-    if (!_isProductCompatible(vec.size(), 1, true,
-                              other.getNRows(), other.getNCols(), transpose,
-                              nrow, ncol)) return;
+    if (!_areCompatible(vec.size(), 1, true,
+                        other.getNRows(), other.getNCols(), transpose,
+                        nrow, ncol)) return;
     assert(res.size() == static_cast<size_t>(ncol));
     if (flagInit) std::fill(res.begin(), res.end(), 0.0);
     T::_prodVecAddGeneral(res, other, vec, transpose, true);
@@ -654,12 +618,12 @@ public:
     if (!m.empty())
     {
       Id n2;
-      if (!_isProductCompatible(a.getNRows(), a.getNCols(), transpose,
-                                m.getNRows(), m.getNCols(), false,
-                                n1, n2)) return;
-      if (!_isProductCompatible(m.getNRows(), m.getNCols(), false,
-                                a.getNRows(), a.getNCols(), !transpose,
-                                n2, n1)) return;
+      if (!_areCompatible(a.getNRows(), a.getNCols(), transpose,
+                          m.getNRows(), m.getNCols(), false,
+                          n1, n2)) return;
+      if (!_areCompatible(m.getNRows(), m.getNCols(), false,
+                          a.getNRows(), a.getNCols(), !transpose,
+                          n2, n1)) return;
     }
     else
     {
@@ -711,12 +675,12 @@ public:
                   "Only MatrixDense and MatrixSparse are allowed");
     Id n1;
     Id n2;
-    if (!_isProductCompatible(a.getNRows(), a.getNCols(), transpose,
-                              vec.size(), 1, false,
-                              n1, n2)) return;
-    if (!_isProductCompatible(vec.size(), 1, true,
-                              a.getNRows(), a.getNCols(), !transpose,
-                              n2, n1)) return;
+    if (!_areCompatible(a.getNRows(), a.getNCols(), transpose,
+                        vec.size(), 1, false,
+                        n1, n2)) return;
+    if (!_areCompatible(vec.size(), 1, true,
+                        a.getNRows(), a.getNCols(), !transpose,
+                        n2, n1)) return;
 
     if (res.getNRows() != n1 || res.getNCols() != n1)
     {
@@ -782,11 +746,11 @@ public:
   void addProdMatVecInPlaceC(const constvect x, vect y, bool transpose = false) const;
 #endif
   /*! Perform 'y' = 'x' * 'this' */
-  VectorDouble prodVecMat(const VectorDouble& x, bool transpose = false) const;
-  void prodVecMatInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false) const;
+  // VectorDouble prodVecMat(const VectorDouble& x, bool transpose = false) const;
+  // void prodVecMatInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false) const;
 #ifndef SWIG
-  void prodVecMatInPlaceC(const constvect x, vect y, bool transpose = false) const;
-  void addProdVecMatInPlaceC(const constvect x, vect y, bool transpose = false) const;
+  // void prodVecMatInPlaceC(const constvect x, vect y, bool transpose = false) const;
+  // void addProdVecMatInPlaceC(const constvect x, vect y, bool transpose = false) const;
 #endif
 
   /*! Perform x %*% 'this' %*% y */
@@ -942,14 +906,14 @@ protected:
                                  bool transpose,
                                  Id* nrow,
                                  Id* ncol);
-  static bool _isProductCompatible(Id nrow1,
-                                   Id ncol1,
-                                   bool transpose1,
-                                   Id nrow2,
-                                   Id ncol2,
-                                   bool transpose2,
-                                   Id& nrow,
-                                   Id& ncol);
+  static bool _areCompatible(Id nrow1,
+                             Id ncol1,
+                             bool transpose1,
+                             Id nrow2,
+                             Id ncol2,
+                             bool transpose2,
+                             Id& nrow,
+                             Id& ncol);
 
 private:
   bool _matrixNeedToReset(Id nrows, Id ncols);

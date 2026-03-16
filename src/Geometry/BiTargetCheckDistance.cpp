@@ -160,7 +160,8 @@ void BiTargetCheckDistance::_calculateDistance() const
     {
       MatrixSquare anisoMat(ndim);
       anisoMat.resetFromVD(ndim, ndim, _anisoRotMat);
-      anisoMat.prodVecMatInPlace(_movingIncr, _movingAux);
+      AMatrix::prodVM(_movingAux, _movingIncr, anisoMat);
+      // anisoMat.prodVecMatInPlace(_movingIncr, _movingAux);
       _movingIncr = _movingAux;
     }
     for (Id idim = 0; idim < ndim; idim++)

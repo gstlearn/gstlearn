@@ -401,11 +401,11 @@ void AMatrix::setIdentity(double value)
 //   VectorDouble temp;
 //   const auto* other1 = dynamic_cast<const MatrixDense*>(this);
 //   if (other1 != nullptr)
-//     AMatrix::prodVec(temp, *other1, x, transpose, true);
+//     AMatrix::prodMV(temp, *other1, x, transpose, true);
 //   else
 //   {
 //     const auto* other2 = dynamic_cast<const MatrixSparse*>(this);
-//     AMatrix::prodVec(temp, *other2, x, transpose, true);
+//     AMatrix::prodMV(temp, *other2, x, transpose, true);
 //   }
 //   (void)temp.isEqual(y);
 
@@ -433,11 +433,11 @@ void AMatrix::setIdentity(double value)
 //   VectorDouble temp;
 //   const auto* other1 = dynamic_cast<const MatrixDense*>(this);
 //   if (other1 != nullptr)
-//     AMatrix::prodVec(temp, *other1, x, transpose, true);
+//     AMatrix::prodMV(temp, *other1, x, transpose, true);
 //   else
 //   {
 //     const auto* other2 = dynamic_cast<const MatrixSparse*>(this);
-//     AMatrix::prodVec(temp, *other2, x, transpose, true);
+//     AMatrix::prodMV(temp, *other2, x, transpose, true);
 //   }
 //   (void)temp.isEqual(y);
 // }
@@ -458,11 +458,11 @@ void AMatrix::prodMatVecInPlaceC(const constvect x,
   vect temp(storage);
   const auto* other1 = dynamic_cast<const MatrixDense*>(this);
   if (other1 != nullptr)
-    AMatrix::prodVec(temp, *other1, x, transpose, true);
+    AMatrix::prodMV(temp, *other1, x, transpose, true);
   else
   {
     const auto* other2 = dynamic_cast<const MatrixSparse*>(this);
-    AMatrix::prodVec(temp, *other2, x, transpose, true);
+    AMatrix::prodMV(temp, *other2, x, transpose, true);
   }
 
   (void)_isEqualVect(temp, y);
@@ -482,106 +482,106 @@ void AMatrix::addProdMatVecInPlaceC(const constvect x,
   vect temp(storage);
   const auto* other1 = dynamic_cast<const MatrixDense*>(this);
   if (other1 != nullptr)
-    AMatrix::prodVec(temp, *other1, x, transpose, false);
+    AMatrix::prodMV(temp, *other1, x, transpose, false);
   else
   {
     const auto* other2 = dynamic_cast<const MatrixSparse*>(this);
-    AMatrix::prodVec(temp, *other2, x, transpose, false);
+    AMatrix::prodMV(temp, *other2, x, transpose, false);
   }
   (void)_isEqualVect(temp, y);
 }
 
-VectorDouble AMatrix::prodVecMat(const VectorDouble& x, bool transpose) const
-{
-  if (getFlagMatrixCheck() &&
-      !_isMatrixCompatible("AMatrix::prodVecMat",
-                           nullptr, static_cast<Id>(x.size()), true,
-                           this, 0, transpose)) return VectorDouble();
-  Id size = (transpose) ? _nRows : _nCols;
-  VectorDouble y(size, 0.);
-  _addProdVecMatInPlacePtr(x, y, transpose);
+// VectorDouble AMatrix::prodVecMat(const VectorDouble& x, bool transpose) const
+// {
+//   if (getFlagMatrixCheck() &&
+//       !_isMatrixCompatible("AMatrix::prodVecMat",
+//                            nullptr, static_cast<Id>(x.size()), true,
+//                            this, 0, transpose)) return VectorDouble();
+//   Id size = (transpose) ? _nRows : _nCols;
+//   VectorDouble y(size, 0.);
+//   _addProdVecMatInPlacePtr(x, y, transpose);
 
-  VectorDouble temp;
-  const auto* other1 = dynamic_cast<const MatrixDense*>(this);
-  if (other1 != nullptr)
-    AMatrix::prodVec(temp, x, *other1, transpose, true);
-  else
-  {
-    const auto* other2 = dynamic_cast<const MatrixSparse*>(this);
-    AMatrix::prodVec(temp, x, *other2, transpose, true);
-  }
-  (void)temp.isEqual(y);
+//   VectorDouble temp;
+//   const auto* other1 = dynamic_cast<const MatrixDense*>(this);
+//   if (other1 != nullptr)
+//     AMatrix::prodVM(temp, x, *other1, transpose, true);
+//   else
+//   {
+//     const auto* other2 = dynamic_cast<const MatrixSparse*>(this);
+//     AMatrix::prodVM(temp, x, *other2, transpose, true);
+//   }
+//   (void)temp.isEqual(y);
 
-  return y;
-}
+//   return y;
+// }
 
-void AMatrix::prodVecMatInPlace(const VectorDouble& x, VectorDouble& y, bool transpose) const
-{
-  if (getFlagMatrixCheck() &&
-      !_isMatrixCompatible("AMatrix::prodVecMat",
-                           nullptr, static_cast<Id>(x.size()), true,
-                           this, 0, transpose)) return;
-  Id size = (transpose) ? _nRows : _nCols;
-  y.fill(0., size);
-  _addProdVecMatInPlacePtr(x, y, transpose);
+// void AMatrix::prodVecMatInPlace(const VectorDouble& x, VectorDouble& y, bool transpose) const
+// {
+//   if (getFlagMatrixCheck() &&
+//       !_isMatrixCompatible("AMatrix::prodVecMatInPlace",
+//                            nullptr, static_cast<Id>(x.size()), true,
+//                            this, 0, transpose)) return;
+//   Id size = (transpose) ? _nRows : _nCols;
+//   y.fill(0., size);
+//   _addProdVecMatInPlacePtr(x, y, transpose);
 
-  VectorDouble temp;
-  const auto* other1 = dynamic_cast<const MatrixDense*>(this);
-  if (other1 != nullptr)
-    AMatrix::prodVec(temp, x, *other1, transpose, true);
-  else
-  {
-    const auto* other2 = dynamic_cast<const MatrixSparse*>(this);
-    AMatrix::prodVec(temp, x, *other2, transpose, true);
-  }
-  (void)temp.isEqual(y);
-}
+//   VectorDouble temp;
+//   const auto* other1 = dynamic_cast<const MatrixDense*>(this);
+//   if (other1 != nullptr)
+//     AMatrix::prodVM(temp, x, *other1, transpose, true);
+//   else
+//   {
+//     const auto* other2 = dynamic_cast<const MatrixSparse*>(this);
+//     AMatrix::prodVM(temp, x, *other2, transpose, true);
+//   }
+//   (void)temp.isEqual(y);
+// }
 
-void AMatrix::prodVecMatInPlaceC(const constvect x, vect y, bool transpose) const
-{
-  if (getFlagMatrixCheck() &&
-      !_isMatrixCompatible("AMatrix::prodVecMatInPlaceC",
-                           this, 0, transpose,
-                           nullptr, static_cast<Id>(x.size()), false)) return;
-  Id size = (transpose) ? _nCols : _nRows;
-  std::fill(y.begin(), y.begin() + size, 0.0);
-  _addProdVecMatInPlacePtr(x, y, transpose);
+// void AMatrix::prodVecMatInPlaceC(const constvect x, vect y, bool transpose) const
+// {
+//   if (getFlagMatrixCheck() &&
+//       !_isMatrixCompatible("AMatrix::prodVecMatInPlaceC",
+//                            this, 0, transpose,
+//                            nullptr, static_cast<Id>(x.size()), false)) return;
+//   Id size = (transpose) ? _nCols : _nRows;
+//   std::fill(y.begin(), y.begin() + size, 0.0);
+//   _addProdVecMatInPlacePtr(x, y, transpose);
 
-  std::vector<double> storage(size); // allocation réelle
-  vect temp(storage);
-  const auto* other1 = dynamic_cast<const MatrixDense*>(this);
-  if (other1 != nullptr)
-    AMatrix::prodVec(temp, x, *other1, transpose, true);
-  else
-  {
-    const auto* other2 = dynamic_cast<const MatrixSparse*>(this);
-    AMatrix::prodVec(temp, x, *other2, transpose, true);
-  }
-  (void)_isEqualVect(temp, y);
-}
+//   std::vector<double> storage(size); // allocation réelle
+//   vect temp(storage);
+//   const auto* other1 = dynamic_cast<const MatrixDense*>(this);
+//   if (other1 != nullptr)
+//     AMatrix::prodVM(temp, x, *other1, transpose, true);
+//   else
+//   {
+//     const auto* other2 = dynamic_cast<const MatrixSparse*>(this);
+//     AMatrix::prodVM(temp, x, *other2, transpose, true);
+//   }
+//   (void)_isEqualVect(temp, y);
+// }
 
-void AMatrix::addProdVecMatInPlaceC(const constvect x,
-                                    vect y,
-                                    bool transpose) const
-{
-  if (getFlagMatrixCheck() &&
-      !_isMatrixCompatible("AMatrix::addProdVecMatInPlaceC",
-                           this, 0, transpose,
-                           nullptr, static_cast<Id>(x.size()), false)) return;
-  _addProdVecMatInPlacePtr(x, y, transpose);
+// void AMatrix::addProdVecMatInPlaceC(const constvect x,
+//                                     vect y,
+//                                     bool transpose) const
+// {
+//   if (getFlagMatrixCheck() &&
+//       !_isMatrixCompatible("AMatrix::addProdVecMatInPlaceC",
+//                            this, 0, transpose,
+//                            nullptr, static_cast<Id>(x.size()), false)) return;
+//   _addProdVecMatInPlacePtr(x, y, transpose);
 
-  std::vector<double> storage(y.size()); // allocation réelle
-  vect temp(storage);
-  const auto* other1 = dynamic_cast<const MatrixDense*>(this);
-  if (other1 != nullptr)
-    AMatrix::prodVec(temp, x, *other1, transpose, false);
-  else
-  {
-    const auto* other2 = dynamic_cast<const MatrixSparse*>(this);
-    AMatrix::prodVec(temp, x, *other2, transpose, false);
-  }
-  (void)_isEqualVect(temp, y);
-}
+//   std::vector<double> storage(y.size()); // allocation réelle
+//   vect temp(storage);
+//   const auto* other1 = dynamic_cast<const MatrixDense*>(this);
+//   if (other1 != nullptr)
+//     AMatrix::prodVM(temp, x, *other1, transpose, false);
+//   else
+//   {
+//     const auto* other2 = dynamic_cast<const MatrixSparse*>(this);
+//     AMatrix::prodVM(temp, x, *other2, transpose, false);
+//   }
+//   (void)_isEqualVect(temp, y);
+// }
 
 bool AMatrix::_matrixNeedToReset(Id nrows, Id ncols)
 {
@@ -750,13 +750,12 @@ double AMatrix::prodVecMatVec(const VectorDouble& x, const VectorDouble& y) cons
   VectorDouble left(_nRows);
   const auto* other1 = dynamic_cast<const MatrixDense*>(this);
   if (other1 != nullptr)
-    AMatrix::prodVec(left, *other1, y, false, true);
+    AMatrix::prodMV(left, *other1, y, false, true);
   else
   {
     const auto* other2 = dynamic_cast<const MatrixSparse*>(this);
-    AMatrix::prodVec(left, *other2, y, false, true);
+    AMatrix::prodMV(left, *other2, y, false, true);
   }
-
   // prodMatVecInPlace(y, left, false);
   return x.innerProduct(left);
 }
@@ -949,14 +948,14 @@ bool AMatrix::_identifyRowAndCol(const AMatrix* mat,
   return true;
 }
 
-bool AMatrix::_isProductCompatible(Id nrow1,
-                                   Id ncol1,
-                                   bool transpose1,
-                                   Id nrow2,
-                                   Id ncol2,
-                                   bool transpose2,
-                                   Id& nrow,
-                                   Id& ncol)
+bool AMatrix::_areCompatible(Id nrow1,
+                             Id ncol1,
+                             bool transpose1,
+                             Id nrow2,
+                             Id ncol2,
+                             bool transpose2,
+                             Id& nrow,
+                             Id& ncol)
 {
   Id nr1 = (transpose1) ? ncol1 : nrow1;
   Id nc1 = (transpose1) ? nrow1 : ncol1;

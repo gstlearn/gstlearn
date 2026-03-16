@@ -1046,9 +1046,9 @@ static void st_compute_blin(void)
         m.setValue(idim, jdim, 1. / (2. * p - idim - jdim + lambda));
     }
     (void)m.invert();
-    AMatrix::prodVec(v2, m, v1);
+    AMatrix::prodMV(v2, m, v1);
     // m.prodMatVecInPlace(v1, v2);
-    AMatrix::prodVec(Calcul.blin, tp, v2);
+    AMatrix::prodMV(Calcul.blin, tp, v2);
     // tp.prodMatVecInPlace(v2, Calcul.blin);
   }
   else
@@ -1979,9 +1979,8 @@ static MatrixSparse* st_spde_fill_S(AMesh* amesh, Model* model, const double* un
       /*! Perform 'this' = 'x' * 'y' */
       mat1.prodMatMatInPlace(&matw, &Calcul.hh, true, false);
       if (flag_nostat)
-        AMatrix::prodVec(matv, matw, Calcul.vv, true);
-      // if (flag_nostat)
-      //   matw.prodMatVecInPlace(Calcul.vv, matv, true);
+        AMatrix::prodMV(matv, matw, Calcul.vv, true);
+      // matw.prodMatVecInPlace(Calcul.vv, matv, true);
       mat.prodMatMatInPlace(&mat1, &matw);
 
       for (Id j0 = 0; j0 < ncorner; j0++)
@@ -5760,7 +5759,7 @@ Id m2d_gibbs_spde(Db* dbin,
 
           for (Id i = 0; i < nvertex; i++)
             zkrig[i] = vwork[i] = 0.;
-          AMatrix::prodVec(rhs, *Matelem.Aproj, ydat_loc, true);
+          AMatrix::prodMV(rhs, *Matelem.Aproj, ydat_loc, true);
           // Matelem.Aproj->prodMatVecInPlaceC(ydat_loc, rhs, true);
           st_kriging_cholesky(Qc, rhs.data(), vwork, zkrig.data());
           for (Id i = 0; i < nvertex; i++)
@@ -5768,7 +5767,8 @@ Id m2d_gibbs_spde(Db* dbin,
 
           // Project the Simulation from the vertices onto the Data
 
-          Matelem.Aproj->prodVecMatInPlace(yvert_loc, ymean_loc, false);
+          AMatrix::prodVM(ymean_loc, yvert_loc, *Matelem.Aproj, false);
+          // Matelem.Aproj->prodVecMatInPlace(yvert_loc, ymean_loc, false);
         }
 
         // Perform a Gibbs iteration on the constraints
@@ -5798,7 +5798,8 @@ Id m2d_gibbs_spde(Db* dbin,
       {
         constvect cyvert(&YVERT(ilayer, 0), nvertex);
         vect cgwork(&GWORK(ilayer, 0), ngrid);
-        Bproj->prodVecMatInPlaceC(cyvert, cgwork, false);
+        AMatrix::prodVM(cgwork, cyvert, *Bproj, false);
+        // Bproj->prodVecMatInPlaceC(cyvert, cgwork, false);
       }
 
       /* Convert from Gaussian to Depth */

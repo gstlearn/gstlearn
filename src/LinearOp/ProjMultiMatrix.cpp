@@ -199,12 +199,14 @@ void ProjMultiMatrix::init()
 
 Id ProjMultiMatrix::_addPoint2mesh(const constvect inv, vect outv) const
 {
-  _Proj.addProdMatVecInPlaceC(inv, outv, true);
+  AMatrix::prodMV(outv, _Proj, inv, true, false);
+  // _Proj.addProdMatVecInPlaceC(inv, outv, true);
   return 0;
 }
 Id ProjMultiMatrix::_addMesh2point(const constvect inv, vect outv) const
 {
-  _Proj.addProdMatVecInPlaceC(inv, outv, false);
+  AMatrix::prodMV(outv, _Proj, inv, false, false);
+  // _Proj.addProdMatVecInPlaceC(inv, outv, false);
   return 0;
 }
 } // namespace gstlrn

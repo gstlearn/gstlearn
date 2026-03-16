@@ -1076,18 +1076,10 @@ namespace gstlrn {
 }
 
 %extend gstlrn::MatrixDense {
-  /**
-   * @brief List of methods from class MatrixDense exported for Target Language
-   */
-  static VectorDouble prodMatVec(const VectorDouble& x, bool transpose = false)
-  {
-    return AMatrix::prodVec(*self, x, transpose, true);
-  }
-  static void prodMatVecInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false)
-  {
-    AMatrix::prodVec(y, *self, x, transpose, true);
-  }
-  void linearCombination(double addition,
+/**
+  * @brief List of methods from class MatrixDense exported for Target Language
+  */
+  MatrixDense linearCombination(double addition,
                          double val1,
                          const MatrixDense& other1,
                          double val2     = 0.,
@@ -1095,23 +1087,31 @@ namespace gstlrn {
                          double val3     = 0.,
                          const MatrixDense& other3 = MatrixDense())
   {
-    MatrixDense::linearCombination(*$self, addition, val1, other1, val2, other2, val3, other3);
+    return AMatrix::linearCombination(addition, val1, other1, val2, other2, val3, other3);
+  }
+  VectorDouble prodMatVec(const VectorDouble& x, bool transpose = false)
+  {
+    return AMatrix::prodMV(*$self, x, transpose, true);
+  }
+  void prodMatVecInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false) const
+  {
+    AMatrix::prodMV(y, *$self, x, transpose, true);
+  }
+  VectorDouble prodVecMat(const VectorDouble& x, bool transpose = false) const
+  {
+    return AMatrix::prodVM(x, *$self, transpose, true);
+  }
+  void prodVecMatInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false) const
+  {
+    AMatrix::prodVM(y, x, *$self, transpose, true);
   }
 }
 
 %extend gstlrn::MatrixSparse {
-  /**
-   * @brief List of methods from class MatrixSparse exported for Target Language
-   */
-  static VectorDouble prodMatVec(const VectorDouble& x, bool transpose = false)
-  {
-    return AMatrix::prodVec(*self, x, transpose, true);
-  }
-  static void prodMatVecInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false)
-  {
-    AMatrix::prodVec(y, *self, x, transpose, true);
-  }
-  void linearCombination(double addition,
+/**
+  * @brief List of methods from class MatrixSparse exported for Target Language
+  */
+  MatrixSparse linearCombination(double addition,
                          double val1,
                          const MatrixSparse& other1,
                          double val2     = 0.,
@@ -1119,14 +1119,30 @@ namespace gstlrn {
                          double val3     = 0.,
                          const MatrixSparse& other3 = MatrixSparse())
   {
-    MatrixSparse::linearCombination(*$self, addition, val1, other1, val2, other2, val3, other3);
+    return AMatrix::linearCombination(addition, val1, other1, val2, other2, val3, other3);
+  }
+  VectorDouble prodMatVec(const VectorDouble& x, bool transpose = false)
+  {
+    return AMatrix::prodMV(*$self, x, transpose, true);
+  }
+  void prodMatVecInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false) const
+  {
+    AMatrix::prodMV(y, *$self, x, transpose, true);
+  }
+  VectorDouble prodVecMat(const VectorDouble& x, bool transpose = false) const
+  {
+     return AMatrix::prodVM(x, *$self, transpose, true);
+  }
+  void prodVecMatInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false) const
+  {
+    AMatrix::prodVM(y, x, *$self, transpose, true);
   }
 }
 
 %extend gstlrn::VectorHelper {
 /**
-   * @brief List of operators from class VectorHelper exported for Target Language
-   */
+  * @brief List of operators from class VectorHelper exported for Target Language
+  */
   static VectorDouble addVD(const VectorDouble& v1, const VectorDouble& v2)
   {
     return VectorHelper::add(v1, v2);

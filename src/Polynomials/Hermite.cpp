@@ -456,7 +456,7 @@ VectorDouble hermiteCoefMetal(double yc, const VectorDouble& phi)
   Id nbpoly = static_cast<Id>(phi.size());
   VectorDouble vec(nbpoly);
   MatrixSquare TAU = hermiteIncompleteIntegral(yc, nbpoly);
-  AMatrix::prodVec(vec, TAU, phi);
+  AMatrix::prodMV(vec, TAU, phi);
   // TAU.prodMatVecInPlace(phi, vec);
   return vec;
 }
