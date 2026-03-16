@@ -281,7 +281,7 @@ void Chebychev::evalOp(MatrixSparse* S, const constvect x, vect y) const
 
   T1 = MatrixSparse::diagConstant(nvertex, 1.);
   if (T1 == nullptr) my_throw("Problem in MatrixSparse::diagCOnstant");
-  AMatrix::linearCombination(*T1, 0., v2, *T1, v1, *S);
+  AMatrix::linearCombinationInPlace(*T1, 0., v2, *T1, v1, *S);
 
   /* Initialize the simulation */
 

@@ -2364,7 +2364,7 @@ static MatrixSparse* st_spde_build_Q(MatrixSparse* S,
 
   for (Id iterm = 1; iterm < nblin; iterm++)
   {
-    AMatrix::linearCombination(*Q, 0., 1., *Q, blin[iterm], *Bi);
+    AMatrix::linearCombinationInPlace(*Q, 0., 1., *Q, blin[iterm], *Bi);
     if (iterm < nblin - 1)
       Bi->prodMat(S);
   }
@@ -5798,7 +5798,7 @@ Id m2d_gibbs_spde(Db* dbin,
       {
         constvect cyvert(&YVERT(ilayer, 0), nvertex);
         vect cgwork(&GWORK(ilayer, 0), ngrid);
-        AMatrix::prodVMInPlace(cgwork, cyvert, *Bproj, false);
+        AMatrix::prodInPlace(cgwork, cyvert, *Bproj, false);
         // Bproj->prodVecMatInPlaceC(cyvert, cgwork, false);
       }
 

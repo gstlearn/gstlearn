@@ -302,7 +302,7 @@ MatrixSparse* PrecisionOpMatrix::_build_Q()
 
   for (Id iterm = 1; iterm < nblin; iterm++)
   {
-    AMatrix::linearCombination(*Q, 0., 1., *Q, blin[iterm], *Bi);
+    AMatrix::linearCombinationInPlace(*Q, 0., 1., *Q, blin[iterm], *Bi);
     if (iterm < nblin - 1) Bi->prodMat(S);
   }
   delete Bi;

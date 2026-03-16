@@ -198,15 +198,15 @@ int main(int argc, char* argv[])
   reset_to_initial_contents(M, MRR, MSG, MSS, MSP);
   message("Reference MRR (before linear combination)\n");
   MRR.display();
-  AMatrix::linearCombination(MRR, 0., cx, MRR, cy, MRR);
+  AMatrix::linearCombinationInPlace(MRR, 0., cx, MRR, cy, MRR);
   message("Reference MRR (after linear combination)\n");
   MRR.display();
 
-  AMatrix::linearCombination(MSG, 0., cx, MSG, cy, MSG);
+  AMatrix::linearCombinationInPlace(MSG, 0., cx, MSG, cy, MSG);
   message("Are results for MRR and MSG similar: %d\n", static_cast<Id>(MRR.isSame(MSG)));
-  AMatrix::linearCombination(MSS, 0., cx, MSS, cy, MSS);
+  AMatrix::linearCombinationInPlace(MSS, 0., cx, MSS, cy, MSS);
   message("Are results for MRR and MSS similar: %d\n", static_cast<Id>(MRR.isSame(MSS)));
-  AMatrix::linearCombination(*MSP, 0., cx, *MSP, cy, *MSP);
+  AMatrix::linearCombinationInPlace(*MSP, 0., cx, *MSP, cy, *MSP);
   message("Are results for MRR and MSP similar: %d\n", static_cast<Id>(MRR.isSame(*MSP)));
 
   //////////////////////////////////////////////////////////
@@ -359,7 +359,7 @@ int main(int argc, char* argv[])
   cy = -2.3;
   message("Making the linear combination of the matrix (multiplied by %f) and itself (multiplied by %lf)\n", cx, cy);
   MatrixSquare MSG3(MSG);
-  AMatrix::linearCombination(MSG, 0., cx, MSG, cy, MSG3);
+  AMatrix::linearCombinationInPlace(MSG, 0., cx, MSG, cy, MSG3);
   MSG.display();
 
   message("Multiplying current matrix column-wise by a vector (sequence)\n");
@@ -448,7 +448,7 @@ int main(int argc, char* argv[])
 
   message("Making the linear combination of the matrix (multiplied by %f) and itself (multiplied by %lf)\n", cx, cy);
   MatrixSparse MSP3(*MSP);
-  AMatrix::linearCombination(*MSP, 0., cx, *MSP, cy, MSP3);
+  AMatrix::linearCombinationInPlace(*MSP, 0., cx, *MSP, cy, MSP3);
   MSP->display();
 
   message("Multiplying current matrix column-wise by a vector (sequence)\n");

@@ -203,7 +203,7 @@ void Tensor::applyInverseInPlace(const VectorDouble& vec, VectorDouble& out) con
 
 void Tensor::applyInverseInPlace(constvect vec, vect out) const
 {
-  AMatrix::prodMVInPlace(out, _tensorInverse, vec);
+  AMatrix::prodInPlace(out, _tensorInverse, vec);
   // _tensorInverse.prodMatVecInPlaceC(vec, out);
 }
 void Tensor::applyInverse2InPlace(const VectorDouble& vec, VectorDouble& out) const
