@@ -426,7 +426,7 @@ public:
                              bool flagInit  = true)
   {
     VectorDouble res;
-    prodMVInPlace(res, other, vec, transpose, flagInit);
+    prodInPlace(res, other, vec, transpose, flagInit);
     return res;
   }
 
@@ -441,11 +441,11 @@ public:
    * @param flagInit True if the resulting vector must be initialized beforehand
    */
   template<typename T>
-  static void prodMVInPlace(VectorDouble& res,
-                            const T& other,
-                            const VectorDouble& vec,
-                            bool transpose = false,
-                            bool flagInit  = true)
+  static void prodInPlace(VectorDouble& res,
+                          const T& other,
+                          const VectorDouble& vec,
+                          bool transpose = false,
+                          bool flagInit  = true)
   {
     static_assert(std::is_base_of_v<AMatrix, T>,
                   "Invalid type for Matrix product (template method). "
@@ -525,11 +525,11 @@ public:
    * @param flagInit True if the resulting vector must be initialized beforehand
    */
   template<typename T>
-  static void prodVMInPlace(VectorDouble& res,
-                            const VectorDouble& vec,
-                            const T& other,
-                            bool transpose = false,
-                            bool flagInit  = true)
+  static void prodInPlace(VectorDouble& res,
+                          const VectorDouble& vec,
+                          const T& other,
+                          bool transpose = false,
+                          bool flagInit  = true)
   {
     static_assert(std::is_base_of_v<AMatrix, T>,
                   "Invalid type for Matrix product (template method). "

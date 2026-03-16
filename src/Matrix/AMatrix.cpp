@@ -750,11 +750,11 @@ double AMatrix::prodVecMatVec(const VectorDouble& x, const VectorDouble& y) cons
   VectorDouble left(_nRows);
   const auto* other1 = dynamic_cast<const MatrixDense*>(this);
   if (other1 != nullptr)
-    AMatrix::prodMVInPlace(left, *other1, y, false, true);
+    AMatrix::prodInPlace(left, *other1, y, false, true);
   else
   {
     const auto* other2 = dynamic_cast<const MatrixSparse*>(this);
-    AMatrix::prodMVInPlace(left, *other2, y, false, true);
+    AMatrix::prodInPlace(left, *other2, y, false, true);
   }
   // prodMatVecInPlace(y, left, false);
   return x.innerProduct(left);

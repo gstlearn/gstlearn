@@ -303,7 +303,7 @@ void Chebychev::evalOp(MatrixSparse* S, const constvect x, vect y) const
 
   for (Id ib = 2; ib < static_cast<Id>(_coeffs.size()); ib++)
   {
-    AMatrix::prodVMInPlace(tx, tm1, *T1, false);
+    AMatrix::prodInPlace(tx, tm1, *T1, false);
     // T1->prodVecMatInPlace(tm1, tx, false);
     for (Id i = 0; i < nvertex; i++)
     {
