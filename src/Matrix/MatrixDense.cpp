@@ -158,38 +158,6 @@ void MatrixDense::_transposeInPlace()
   _setNRows(ncols);
 }
 
-void MatrixDense::_addProdMatVecInPlacePtr(constvect x, vect y, bool transpose) const
-{
-  if (transpose)
-  {
-    Eigen::Map<const Eigen::VectorXd> xm(x.data(), getNRows());
-    Eigen::Map<Eigen::VectorXd> ym(y.data(), getNCols());
-    ym.noalias() += eigenMat().transpose() * xm;
-  }
-  else
-  {
-    Eigen::Map<const Eigen::VectorXd> xm(x.data(), getNCols());
-    Eigen::Map<Eigen::VectorXd> ym(y.data(), getNRows());
-    ym.noalias() += eigenMat() * xm;
-  }
-}
-
-void MatrixDense::_addProdVecMatInPlacePtr(constvect x, vect y, bool transpose) const
-{
-  if (transpose)
-  {
-    Eigen::Map<const Eigen::VectorXd> xm(x.data(), getNCols());
-    Eigen::Map<Eigen::VectorXd> ym(y.data(), getNRows());
-    ym.noalias() += xm.transpose() * eigenMat().transpose();
-  }
-  else
-  {
-    Eigen::Map<const Eigen::VectorXd> xm(x.data(), getNRows());
-    Eigen::Map<Eigen::VectorXd> ym(y.data(), getNCols());
-    ym.noalias() += xm.transpose() * eigenMat();
-  }
-}
-
 Id MatrixDense::_invert()
 {
   eigenMat() = eigenMat().inverse();

@@ -238,10 +238,6 @@ protected:
   double _getValueByRank(Id rank) const override;
   double& _getValueRef(Id irow, Id icol) override;
 
-#ifndef SWIG
-  void _addProdVecMatInPlacePtr(constvect x, vect y, bool transpose = false) const override;
-  void _addProdMatVecInPlacePtr(constvect x, vect y, bool transpose = false) const override;
-#endif
 
 private:
   void _recopy(const MatrixDense& r);

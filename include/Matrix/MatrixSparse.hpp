@@ -321,11 +321,6 @@ protected:
   double _getValueByRank(Id rank) const override;
   double& _getValueRef(Id irow, Id icol) override;
 
-#ifndef SWIG
-  void _addProdVecMatInPlacePtr(constvect x, vect y, bool transpose = false) const override;
-  void _addProdMatVecInPlacePtr(constvect x, vect y, bool transpose = false) const override;
-#endif
-
   bool _isPhysicallyPresent(Id /*irow*/, Id /*icol*/) const override { return true; }
   void _setValues(const double* values, bool byCol) override;
   void _clear() override;

@@ -841,15 +841,6 @@ protected:
   virtual double _getValueByRank(Id rank) const                   = 0;
   virtual double& _getValueRef(Id irow, Id icol)                  = 0;
 
-#ifndef SWIG
-  virtual void _addProdMatVecInPlacePtr(constvect x,
-                                        vect y,
-                                        bool transpose = false) const = 0;
-  virtual void _addProdVecMatInPlacePtr(constvect x,
-                                        vect y,
-                                        bool transpose = false) const = 0;
-#endif
-
   virtual bool _needToReset(Id nrows, Id ncols);
   virtual bool _isPhysicallyPresent(Id /*irow*/, Id /*icol*/) const
   {

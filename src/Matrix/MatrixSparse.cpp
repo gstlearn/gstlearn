@@ -538,38 +538,6 @@ Id MatrixSparse::scaleByDiag()
   return 0;
 }
 
-void MatrixSparse::_addProdMatVecInPlacePtr(constvect x, vect y, bool transpose) const
-{
-  if (transpose)
-  {
-    Eigen::Map<const Eigen::VectorXd> xm(x.data(), getNRows());
-    Eigen::Map<Eigen::VectorXd> ym(y.data(), getNCols());
-    ym += eigenMat().transpose() * xm;
-  }
-  else
-  {
-    Eigen::Map<const Eigen::VectorXd> xm(x.data(), getNCols());
-    Eigen::Map<Eigen::VectorXd> ym(y.data(), getNRows());
-    ym += eigenMat() * xm;
-  }
-}
-
-void MatrixSparse::_addProdVecMatInPlacePtr(constvect x, vect y, bool transpose) const
-{
-  if (transpose)
-  {
-    Eigen::Map<const Eigen::VectorXd> xm(x.data(), getNCols());
-    Eigen::Map<Eigen::VectorXd> ym(y.data(), getNRows());
-    ym += xm.transpose() * eigenMat().transpose();
-  }
-  else
-  {
-    Eigen::Map<const Eigen::VectorXd> xm(x.data(), getNRows());
-    Eigen::Map<Eigen::VectorXd> ym(y.data(), getNCols());
-    ym += xm.transpose() * eigenMat();
-  }
-}
-
 void MatrixSparse::_productGeneral(MatrixSparse& res,
                                    const MatrixSparse& other1,
                                    const MatrixSparse& other2,

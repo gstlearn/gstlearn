@@ -200,8 +200,8 @@ public:
   // DECLARE_TOTL; // don't know why the macro doesn't work here through SWIG R
   inline void toTL() const {};
 
-  vect asVect() { return vect(data(), size()); }
-  constvect asConstVect() const { return constvect(data(), size()); }
+  std::span<T> asVect() { return std::span<T>(data(), size()); }
+  std::span<const T> asConstVect() const { return std::span<const T>(data(), size()); }
 
 protected:
   Vector _v;
