@@ -1971,8 +1971,7 @@ Id anakexp_f(DbGrid* db,
 
       /* Derive the kriging weights */
 
-      AMatrix::prodInPlace(wgt_global, lhs_global, rhs_global);
-      // lhs_global.prodMatVecInPlace(rhs_global, wgt_global);
+      AMatrix::productInPlace(wgt_global, lhs_global, rhs_global);
     }
 
     /* Calculate the estimation */
@@ -2691,8 +2690,7 @@ Id anakexp_3D(DbGrid* db,
 
           /* Derive the kriging weights */
 
-          AMatrix::prodInPlace(wgt_global, lhs_global, rhs_global);
-          // lhs_global.prodMatVecInPlace(rhs_global, wgt_global);
+          AMatrix::productInPlace(wgt_global, lhs_global, rhs_global);
         }
 
         /* Calculate the estimation */
@@ -3121,10 +3119,8 @@ Id st_krige_data(Db* db,
   VectorDouble data = db->getColumnByLocator(ELoc::Z);
   for (Id i = 0; i < nutil; i++)
     datm[i] = data[rutil[i]] - model->getMean(0);
-  AMatrix::prodInPlace(aux1, datm, tutil);
-  // tutil.prodVecMatInPlace(datm, aux1);
-  AMatrix::prodInPlace(aux2, aux1, invsig);
-  // invsig.prodVecMatInPlace(aux1, aux2);
+  AMatrix::productInPlace(aux1, datm, tutil);
+  AMatrix::productInPlace(aux2, aux1, invsig);
 
   /* Perform the estimation at all non pivot samples */
 
@@ -3137,8 +3133,7 @@ Id st_krige_data(Db* db,
     c00            = model->evalCovMat(db, db, -1, -1, vech, vech).getValues();
     s              = model->evalCovMat(db, db, -1, -1, rutil, vech).getValues();
 
-    AMatrix::prodInPlace(aux3, s, tutil);
-    // tutil.prodVecMatInPlace(s, aux3);
+    AMatrix::productInPlace(aux3, s, tutil);
     double estim   = aux2.innerProduct(aux3);
     data_est[iech] = estim + model->getMean(0);
 
@@ -3151,8 +3146,7 @@ Id st_krige_data(Db* db,
         data_est[iech] = ABS(data_est[iech] - true_value);
     }
 
-    AMatrix::prodInPlace(aux4, aux3, invsig);
-    // invsig.prodVecMatInPlace(aux3, aux4);
+    AMatrix::productInPlace(aux4, aux3, invsig);
     double variance = aux3.innerProduct(aux4);
     data_var[iech]  = c00[0] - variance;
   }
@@ -3224,8 +3218,7 @@ Id st_crit_global(Db* db,
 
     c00 = model->evalCovMat(db, db, -1, -1, vech, vech).getValues();
     cs  = model->evalCovMat(db, db, -1, -1, ranks1, vech).getValues();
-    AMatrix::prodInPlace(temp_loc, invc, cs);
-    // invc.prodMatVecInPlace(cs, temp_loc);
+    AMatrix::productInPlace(temp_loc, invc, cs);
     temp.setColumn(ecr, temp_loc);
 
     estim       = datm.innerProduct(temp_loc);
@@ -3249,8 +3242,7 @@ Id st_crit_global(Db* db,
     cs  = model->evalCovMat(db, db, -1, -1, vech, ranks1).getValues();
     cs1 = model->evalCovMat(db, db, -1, -1, vech, rother).getValues();
 
-    AMatrix::prodInPlace(aux1, cs, temp);
-    // temp.prodVecMatInPlace(cs, aux1);
+    AMatrix::productInPlace(aux1, cs, temp);
     VH::linearCombinationInPlace(1., cs1, -1, aux1, cs1);
     VH::linearCombinationInPlace(1., olderr, -olddiv[ecr], cs1, cs1);
 
@@ -3492,10 +3484,8 @@ Id krigsampling_f(Db* dbin,
   VectorDouble data = dbin->getColumnByLocator(ELoc::Z);
   for (i = 0; i < nutil; i++)
     datm[i] = data[rutil[i]] - model->getMean(0);
-  AMatrix::prodInPlace(aux1, datm, tutil);
-  // tutil.prodVecMatInPlace(datm, aux1);
-  AMatrix::prodInPlace(aux2, aux1, invsig);
-  // invsig.prodVecMatInPlace(aux1, aux2);
+  AMatrix::productInPlace(aux1, datm, tutil);
+  AMatrix::productInPlace(aux2, aux1, invsig);
 
   /* Loop on the target samples */
 
@@ -3515,15 +3505,13 @@ Id krigsampling_f(Db* dbin,
     if (FLAG_STD)
       c00 = model->evalCovMat(dbout, dbout, -1, -1, vech, vech).getValues();
 
-    AMatrix::prodInPlace(aux3, s, tutil);
-    // tutil.prodVecMatInPlace(s, aux3);
+    AMatrix::productInPlace(aux3, s, tutil);
     estim = aux2.innerProduct(aux3) + model->getMean(0);
     DBOUT->setArray(IECH_OUT, IPTR_EST, estim);
 
     if (FLAG_STD)
     {
-      AMatrix::prodInPlace(aux4, aux3, invsig);
-      // invsig.prodVecMatInPlace(aux3, aux4);
+      AMatrix::productInPlace(aux4, aux3, invsig);
       sigma = aux3.innerProduct(aux4);
       sigma = c00[0] - sigma;
       sigma = (sigma > 0) ? sqrt(sigma) : 0.;
@@ -4414,8 +4402,7 @@ static void st_drift_update(Id np,
       value = YMAT(ip, il) * covgp[ip] - driftg[il];
     maux[il] = value;
   }
-  AMatrix::prodInPlace(mu, zmat, maux);
-  // zmat.prodMatVecInPlace(maux, mu);
+  AMatrix::productInPlace(mu, zmat, maux);
 
   /* Update the vector of kriging weights */
 
@@ -4614,8 +4601,7 @@ Id inhomogeneous_kriging(Db* dbdat,
 
     /* Calculate the Kriging weights */
 
-    AMatrix::prodInPlace(lambda, covpp, rhs);
-    // covpp.prodMatVecInPlace(rhs, lambda);
+    AMatrix::productInPlace(lambda, covpp, rhs);
     if (OptDbg::force())
       st_krige_wgt_print(0, nvar, nvar, nfeq, nbgh_ranks, nred, -1, NULL, lambda.data());
 

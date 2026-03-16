@@ -284,26 +284,26 @@ public:
   }
   MatrixSparse& operator*=(double a)
   {
-    prodInPlace(*this, *this, a);
+    productInPlace(*this, *this, a);
     return *this;
   }
 
   MatrixSparse operator*(double a) const
   {
     MatrixSparse res;
-    prodInPlace(res, *this, a);
+    productInPlace(res, *this, a);
     return res;
   }
   MatrixSparse& operator/=(double a)
   {
-    prodInPlace(*this, *this, 1.0 / a);
+    productInPlace(*this, *this, 1.0 / a);
     return *this;
   }
 
   MatrixSparse operator/(double a) const
   {
     MatrixSparse res;
-    prodInPlace(res, *this, 1.0 / a);
+    productInPlace(res, *this, 1.0 / a);
     return res;
   }
 

@@ -72,8 +72,14 @@ Id MatrixSymmetricSim::_addToDest(const constvect inv, vect outv) const
 {
   if (_inverse)
   {
-    // AMatrix::prodMV(outv, _mat, inv, false, false);
-    _mat.addProdMatVecInPlaceC(inv, outv);
+    const auto* other1 = dynamic_cast<const MatrixDense*>(&_mat);
+    if (other1 != nullptr)
+      AMatrix::productInPlace(outv, *other1, inv);
+    else
+    {
+      const auto* other2 = dynamic_cast<const MatrixSparse*>(&_mat);
+      AMatrix::productInPlace(outv, *other2, inv);
+    }
     return 0;
   }
   return _factor->addSolveX(inv, outv);

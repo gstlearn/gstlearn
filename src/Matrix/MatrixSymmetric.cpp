@@ -376,8 +376,7 @@ Id MatrixSymmetric::_getTriangleSize() const
 Id MatrixSymmetric::_matrix_qo(const VectorDouble& gmat, VectorDouble& xmat)
 {
   if (computeGeneralizedInverse(*this) != 0) return 1;
-  AMatrix::prodInPlace(xmat, *this, gmat);
-  // prodMatVecInPlace(gmat, xmat);
+  AMatrix::productInPlace(xmat, *this, gmat);
   return 0;
 }
 

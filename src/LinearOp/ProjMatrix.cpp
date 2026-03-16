@@ -90,8 +90,7 @@ Id ProjMatrix::_addMesh2point(const constvect inv, vect outv) const
     return 1;
   }
 
-  AMatrix::prodInPlace(outv, *this, inv, false, false);
-  // addProdMatVecInPlaceC(inv, outv, false);
+  AMatrix::productInPlace(outv, *this, inv, false, false);
   return 0;
 }
 
@@ -110,8 +109,7 @@ Id ProjMatrix::_addPoint2mesh(const constvect inv, vect outv) const
     return 1;
   }
 
-  AMatrix::prodInPlace(outv, *this, inv, true, false);
-  // addProdMatVecInPlaceC(inv, outv, true);
+  AMatrix::productInPlace(outv, *this, inv, true, false);
   return 0;
 }
 

@@ -186,10 +186,10 @@ public:
    * @param cst Constant value to be multiplied
    */
   template<typename T>
-  static T prod(const T& other, double cst)
+  static T product(const T& other, double cst)
   {
     T res;
-    res.prodInPlace(res, other, cst);
+    res.productInPlace(res, other, cst);
     return res;
   }
 
@@ -202,7 +202,7 @@ public:
    * @param cst Constant value to be multiplied
    */
   template<typename T>
-  static void prodInPlace(T& res, const T& other, double cst)
+  static void productInPlace(T& res, const T& other, double cst)
   {
     static_assert(std::is_base_of_v<AMatrix, T>,
                   "Invalid type for Matrix product (template method). "
@@ -215,7 +215,7 @@ public:
   }
 
   /**
-   * @brief Return: 'other1' * 'other2' (where '*' designates the element-wise prodtc)
+   * @brief Return: 'other1' * 'other2' (where '*' designates the element-wise product)
    *
    * @tparam T Type of the matrix
    * @param other1 First input matrix
@@ -336,19 +336,19 @@ public:
 
     if (val1 != 0.)
     {
-      prodInPlace(temp, other1, val1);
+      productInPlace(temp, other1, val1);
       addInPlace(cumul, cumul, temp);
     }
 
     if (val2 != 0.)
     {
-      prodInPlace(temp, other2, val2);
+      productInPlace(temp, other2, val2);
       addInPlace(cumul, cumul, temp);
     }
 
     if (val3 != 0.)
     {
-      prodInPlace(temp, other3, val3);
+      productInPlace(temp, other3, val3);
       addInPlace(cumul, cumul, temp);
     }
     if (addition != 0.)
@@ -373,7 +373,7 @@ public:
                    bool transpose2 = false)
   {
     T res;
-    prodInPlace(res, other1, other2, transpose1, transpose2);
+    productInPlace(res, other1, other2, transpose1, transpose2);
     return res;
   }
 
@@ -388,11 +388,11 @@ public:
    * @param transpose2 True if 'other2' must be transposed
    */
   template<typename T>
-  static void prodInPlace(T& res,
-                          const T& other1,
-                          const T& other2,
-                          bool transpose1 = false,
-                          bool transpose2 = false)
+  static void productInPlace(T& res,
+                             const T& other1,
+                             const T& other2,
+                             bool transpose1 = false,
+                             bool transpose2 = false)
   {
     static_assert(std::is_base_of_v<AMatrix, T>,
                   "Invalid type for Matrix product (template method). "
@@ -420,13 +420,13 @@ public:
    * @param flagInit True if the resulting vector must be initialized beforehand
    */
   template<typename T>
-  static VectorDouble prodMV(const T& other,
-                             const VectorDouble& vec,
-                             bool transpose = false,
-                             bool flagInit  = true)
+  static VectorDouble product(const T& other,
+                              const VectorDouble& vec,
+                              bool transpose = false,
+                              bool flagInit  = true)
   {
     VectorDouble res;
-    prodInPlace(res, other, vec, transpose, flagInit);
+    productInPlace(res, other, vec, transpose, flagInit);
     return res;
   }
 
@@ -441,11 +441,11 @@ public:
    * @param flagInit True if the resulting vector must be initialized beforehand
    */
   template<typename T>
-  static void prodInPlace(VectorDouble& res,
-                          const T& other,
-                          const VectorDouble& vec,
-                          bool transpose = false,
-                          bool flagInit  = true)
+  static void productInPlace(VectorDouble& res,
+                             const T& other,
+                             const VectorDouble& vec,
+                             bool transpose = false,
+                             bool flagInit  = true)
   {
     static_assert(std::is_base_of_v<AMatrix, T>,
                   "Invalid type for Matrix product (template method). "
@@ -475,11 +475,11 @@ public:
    * @param flagInit True if the resulting vector must be initialized beforehand
    */
   template<typename T>
-  static void prodInPlace(vect res,
-                          const T& other,
-                          const constvect vec,
-                          bool transpose = false,
-                          bool flagInit  = true)
+  static void productInPlace(vect res,
+                             const T& other,
+                             const constvect vec,
+                             bool transpose = false,
+                             bool flagInit  = true)
   {
     static_assert(std::is_base_of_v<AMatrix, T>,
                   "Invalid type for Matrix product (template method). "
@@ -504,13 +504,13 @@ public:
    * @param flagInit True if the resulting vector must be initialized beforehand
    */
   template<typename T>
-  static VectorDouble prodVM(const VectorDouble& vec,
-                             const T& other,
-                             bool transpose = false,
-                             bool flagInit  = true)
+  static VectorDouble product(const VectorDouble& vec,
+                              const T& other,
+                              bool transpose = false,
+                              bool flagInit  = true)
   {
     VectorDouble res;
-    T::prodInPlace(res, vec, other, transpose, flagInit);
+    T::productInPlace(res, vec, other, transpose, flagInit);
     return res;
   }
 
@@ -525,11 +525,11 @@ public:
    * @param flagInit True if the resulting vector must be initialized beforehand
    */
   template<typename T>
-  static void prodInPlace(VectorDouble& res,
-                          const VectorDouble& vec,
-                          const T& other,
-                          bool transpose = false,
-                          bool flagInit  = true)
+  static void productInPlace(VectorDouble& res,
+                             const VectorDouble& vec,
+                             const T& other,
+                             bool transpose = false,
+                             bool flagInit  = true)
   {
     static_assert(std::is_base_of_v<AMatrix, T>,
                   "Invalid type for Matrix product (template method). "
@@ -559,11 +559,11 @@ public:
    * @param flagInit True if the resulting vector must be initialized beforehand
    */
   template<typename T>
-  static void prodInPlace(vect res,
-                          const constvect vec,
-                          const T& other,
-                          bool transpose = false,
-                          bool flagInit  = true)
+  static void productInPlace(vect res,
+                             const constvect vec,
+                             const T& other,
+                             bool transpose = false,
+                             bool flagInit  = true)
   {
     static_assert(std::is_base_of_v<AMatrix, T>,
                   "Invalid type for Matrix product (template method). "
@@ -592,7 +592,7 @@ public:
                     bool transpose = false)
   {
     T res;
-    prodnorm(res, a, m, transpose);
+    prodnormInPlace(res, a, m, transpose);
     return res;
   }
 
@@ -606,10 +606,10 @@ public:
    * @param transpose True if first 'a' is transposed; otherwise second 'a' is transposed
    */
   template<typename T>
-  static void prodnorm(T& res,
-                       const T& a,
-                       const T& m     = T(),
-                       bool transpose = false)
+  static void prodnormInPlace(T& res,
+                              const T& a,
+                              const T& m     = T(),
+                              bool transpose = false)
   {
     static_assert(std::is_base_of_v<AMatrix, T>,
                   "Invalid type for Matrix product (template method). "
@@ -651,7 +651,7 @@ public:
                     bool transpose = false)
   {
     T res;
-    res.prodnorm(res, a, vec, transpose);
+    prodnormInPlace(res, a, vec, transpose);
     return res;
   }
 
@@ -665,10 +665,10 @@ public:
    * @param transpose True if first 'a' is transposed; otherwise second 'a' is transposed
    */
   template<typename T>
-  static void prodnorm(T& res,
-                       const T& a,
-                       const VectorDouble& vec,
-                       bool transpose = false)
+  static void prodnormInPlace(T& res,
+                              const T& a,
+                              const VectorDouble& vec,
+                              bool transpose = false)
   {
     static_assert(std::is_base_of_v<AMatrix, T>,
                   "Invalid type for Matrix product (template method). "
@@ -738,20 +738,6 @@ public:
   /*! Perform 'this' = 't(A)' %*% 'A' or 'A' %*% 't(A)' */
   virtual void prodNormMatInPlace(const AMatrix* a,
                                   bool transpose = false);
-  /*! Perform 'y' = 'this' * 'x' */
-  // VectorDouble prodMatVec(const VectorDouble& x, bool transpose = false) const;
-  // void prodMatVecInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false) const;
-#ifndef SWIG
-  void prodMatVecInPlaceC(const constvect x, vect y, bool transpose = false) const;
-  void addProdMatVecInPlaceC(const constvect x, vect y, bool transpose = false) const;
-#endif
-  /*! Perform 'y' = 'x' * 'this' */
-  // VectorDouble prodVecMat(const VectorDouble& x, bool transpose = false) const;
-  // void prodVecMatInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false) const;
-#ifndef SWIG
-  // void prodVecMatInPlaceC(const constvect x, vect y, bool transpose = false) const;
-  // void addProdVecMatInPlaceC(const constvect x, vect y, bool transpose = false) const;
-#endif
 
   /*! Perform x %*% 'this' %*% y */
   double prodVecMatVec(const VectorDouble& x, const VectorDouble& y) const;

@@ -421,7 +421,7 @@ void MatrixDense::prodMatMatInPlace(const AMatrix* x,
   else
   {
     MatrixDense temp;
-    AMatrix::prodInPlace(temp, *xm, *ym, transposeX, transposeY);
+    AMatrix::productInPlace(temp, *xm, *ym, transposeX, transposeY);
 
     if (transposeX)
     {
@@ -497,7 +497,7 @@ void MatrixDense::prodNormMatMatInPlace(const AMatrix* a,
   }
 
   MatrixDense temp;
-  AMatrix::prodnorm(temp, *am, *mm, transpose);
+  AMatrix::prodnormInPlace(temp, *am, *mm, transpose);
   (void)areIdentical(*this, temp);
 }
 
@@ -535,7 +535,7 @@ void MatrixDense::prodNormMatVecInPlace(const AMatrix* a, const VectorDouble& ve
   }
 
   MatrixDense temp;
-  AMatrix::prodnorm(temp, *am, vec, transpose);
+  AMatrix::prodnormInPlace(temp, *am, vec, transpose);
   (void)areIdentical(*this, temp);
 }
 
@@ -564,7 +564,7 @@ void MatrixDense::prodNormMatInPlace(const AMatrix* a, bool transpose)
   }
 
   MatrixDense temp;
-  AMatrix::prodnorm(temp, *am, MatrixDense(), transpose);
+  AMatrix::prodnormInPlace(temp, *am, MatrixDense(), transpose);
   (void)areIdentical(*this, temp);
 }
 

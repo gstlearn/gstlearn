@@ -4685,8 +4685,7 @@ Id Vario::_driftEstimateCoefficients(Db* db)
 
   /* Calculate: _BETA = (t(X) %*% X)-1 %*% t(X) %*% Y */
 
-  AMatrix::prodInPlace(_BETA, matdrf, b);
-  // matdrf.prodMatVecInPlace(b, _BETA);
+  AMatrix::productInPlace(_BETA, matdrf, b);
 
   /* Optional printout */
 

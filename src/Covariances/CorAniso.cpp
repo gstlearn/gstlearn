@@ -1782,8 +1782,7 @@ void CorAniso::appendParams(ListParams& listparams,
         this->_aniso.getRotation().rotateInverse(incr, temp);
         temp /= (radius * radius);
 
-        AMatrix::prodInPlace(res, this->_dRot[i], temp);
-        // this->_dRot[i].prodMatVecInPlace(temp, res);
+        AMatrix::productInPlace(res, this->_dRot[i], temp);
 
         double dist2  = res.innerProduct(incr);
         double result = deriv * dist2;

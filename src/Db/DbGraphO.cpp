@@ -410,8 +410,7 @@ VectorInt DbGraphO::getIndicesNextDown(Id node) const
   VectorDouble v1(nech, 0.);
   VectorDouble v2(nech, 0.);
   v1[node] = 1.;
-  AMatrix::prodInPlace(v2, v1, _downArcs);
-  // _downArcs.prodVecMatInPlace(v1, v2);
+  AMatrix::productInPlace(v2, v1, _downArcs);
   return _getRanks(v2);
 }
 
@@ -423,8 +422,7 @@ VectorInt DbGraphO::getIndicesNextUp(Id node) const
   VectorDouble v1(nech, 0.);
   VectorDouble v2(nech, 0.);
   v1[node] = 1.;
-  AMatrix::prodInPlace(v2, _downArcs, v1);
-  // _downArcs.prodMatVecInPlaceC(v1, v2);
+  AMatrix::productInPlace(v2, _downArcs, v1);
   return _getRanks(v2);
 }
 
@@ -456,8 +454,7 @@ bool DbGraphO::areConnected(Id node1, Id node2) const
   while (v2.sum() > 0.)
   {
     v1 = v2;
-    AMatrix::prodInPlace(v2, v1, _downArcs);
-    // _downArcs.prodVecMatInPlace(v1, v2);
+    AMatrix::productInPlace(v2, v1, _downArcs);
     if (v2[node2] > 0.) return true;
   }
   return false;
@@ -506,8 +503,7 @@ VectorInt DbGraphO::getOrderDown(Id node) const
   {
     rank++;
     v1 = v2;
-    AMatrix::prodInPlace(v2, v1, _downArcs);
-    // _downArcs.prodVecMatInPlace(v1, v2);
+    AMatrix::productInPlace(v2, v1, _downArcs);
     _updateOrder(rank, v2, order);
   }
 
@@ -545,8 +541,7 @@ void DbGraphO::_iterateCumul(const VectorInt& inds,
     Id rank = inds[ind];
     v1.fill(0.);
     v1[rank] = 1.;
-    AMatrix::prodInPlace(v2, v1, _downArcs);
-    // _downArcs.prodVecMatInPlace(v1, v2);
+    AMatrix::productInPlace(v2, v1, _downArcs);
     _updateCumul(rank, v2, cumul);
     VectorInt indbis = _getNoneZeroIndices(v2);
     _iterateCumul(indbis, cumul, v1, v2);

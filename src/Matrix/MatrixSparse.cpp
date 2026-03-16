@@ -704,7 +704,7 @@ void MatrixSparse::prodMatMatInPlace(const AMatrix* x,
   else
   {
     MatrixSparse temp;
-    AMatrix::prodInPlace(temp, *xm, *ym, transposeX, transposeY);
+    AMatrix::productInPlace(temp, *xm, *ym, transposeX, transposeY);
 
     if (transposeX)
     {
@@ -830,7 +830,7 @@ void MatrixSparse::prodNormMatVecInPlace(const AMatrix* a,
   }
 
   MatrixSparse temp;
-  AMatrix::prodnorm(temp, *am, vec, transpose);
+  AMatrix::prodnormInPlace(temp, *am, vec, transpose);
   (void)areIdentical(temp, *this);
 }
 
@@ -859,7 +859,7 @@ void MatrixSparse::prodNormMatInPlace(const AMatrix* a, bool transpose)
   }
 
   MatrixSparse temp;
-  AMatrix::prodnorm(temp, *am, MatrixSparse(), transpose);
+  AMatrix::prodnormInPlace(temp, *am, MatrixSparse(), transpose);
   (void)areIdentical(temp, *this);
 }
 
@@ -892,7 +892,7 @@ void MatrixSparse::prodNormMatMatInPlace(const AMatrix* a,
   }
 
   MatrixSparse temp;
-  AMatrix::prodnorm(temp, *am, *mm, transpose);
+  AMatrix::prodnormInPlace(temp, *am, *mm, transpose);
   (void)areIdentical(temp, *this);
 }
 

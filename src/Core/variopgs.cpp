@@ -2523,8 +2523,7 @@ static double st_rkl(Id maxpts,
   VectorDouble vec(2);
   vec[0]            = x;
   vec[1]            = y;
-  VectorDouble mean = AMatrix::prodMV(temp, vec);
-  // VectorDouble mean = temp.prodMatVec(vec);
+  VectorDouble mean = AMatrix::product(temp, vec);
   double v1 = law_df_bigaussian(vec, cste, corr1);
   mvndst2n(lower.data(), upper.data(), mean.data(), covar.getValues().data(),
            maxpts, abseps, releps, &error, &v2, &inform);
@@ -2737,8 +2736,7 @@ static double st_d2_dkldkj(Id index1,
   MatrixSymmetric invcorr1(*corr1);
   if (invcorr1.invert()) messageAbort("st_d2_dkldkj #2");
 
-  VectorDouble temp = AMatrix::prodMV(invcorr1, crosscor);
-  // VectorDouble temp = invcorr1.prodMatVec(crosscor);
+  VectorDouble temp = AMatrix::product(invcorr1, crosscor);
   double covar   = invcorr1.normVec(crosscor);
   double sdcovar = sqrt(corr2 - covar);
 
@@ -3152,8 +3150,7 @@ static double st_optim_onelag_pgs(Local_Pgs* local_pgs,
       VH::linearCombinationInPlace(-1., gr, 0., VectorDouble(), hsd);
       invGn = Gn;
       if (invGn.invert()) messageAbort("st_optim_lag");
-      hgn = AMatrix::prodMV(invGn, hsd);
-      // hgn = invGn.prodMatVec(hsd);
+      hgn = AMatrix::product(invGn, hsd);
     }
 
     /* Determine the lag (hgn, alpha*hsd) or a convex combination of both */

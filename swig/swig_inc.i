@@ -1091,19 +1091,19 @@ namespace gstlrn {
   }
   VectorDouble prodMatVec(const VectorDouble& x, bool transpose = false)
   {
-    return AMatrix::prodMV(*$self, x, transpose, true);
+    return AMatrix::product(*$self, x, transpose, true);
   }
   void prodMatVecInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false) const
   {
-    AMatrix::prodInPlace(y, *$self, x, transpose, true);
+    AMatrix::productInPlace(y, *$self, x, transpose, true);
   }
   VectorDouble prodVecMat(const VectorDouble& x, bool transpose = false) const
   {
-    return AMatrix::prodVM(x, *$self, transpose, true);
+    return AMatrix::product(x, *$self, transpose, true);
   }
   void prodVecMatInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false) const
   {
-    AMatrix::prodInPlace(y, x, *$self, transpose, true);
+    AMatrix::productInPlace(y, x, *$self, transpose, true);
   }
 }
 
@@ -1123,19 +1123,19 @@ namespace gstlrn {
   }
   VectorDouble prodMatVec(const VectorDouble& x, bool transpose = false)
   {
-    return AMatrix::prodMV(*$self, x, transpose, true);
+    return AMatrix::product(*$self, x, transpose, true);
   }
   void prodMatVecInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false) const
   {
-    AMatrix::prodInPlace(y, *$self, x, transpose, true);
+    AMatrix::productInPlace(y, *$self, x, transpose, true);
   }
   VectorDouble prodVecMat(const VectorDouble& x, bool transpose = false) const
   {
-     return AMatrix::prodVM(x, *$self, transpose, true);
+     return AMatrix::product(x, *$self, transpose, true);
   }
   void prodVecMatInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false) const
   {
-    AMatrix::prodInPlace(y, x, *$self, transpose, true);
+    AMatrix::productInPlace(y, x, *$self, transpose, true);
   }
 }
 

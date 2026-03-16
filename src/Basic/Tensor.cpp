@@ -190,45 +190,38 @@ void Tensor::setRotationAnglesAndRadius(const VectorDouble& angles, const Vector
 VectorDouble Tensor::applyDirect(const VectorDouble& vec) const
 {
   VectorDouble out = vec;
-  AMatrix::prodInPlace(out, _tensorDirect, vec);
-  // _tensorDirect.prodMatVecInPlaceC(vec, out);
+  AMatrix::productInPlace(out, _tensorDirect, vec);
   return out;
 }
 
 void Tensor::applyInverseInPlace(const VectorDouble& vec, VectorDouble& out) const
 {
-  AMatrix::prodInPlace(out, _tensorInverse, vec);
-  // _tensorInverse.prodMatVecInPlace(vec, out);
+  AMatrix::productInPlace(out, _tensorInverse, vec);
 }
 
 void Tensor::applyInverseInPlace(constvect vec, vect out) const
 {
-  AMatrix::prodInPlace(out, _tensorInverse, vec);
-  // _tensorInverse.prodMatVecInPlaceC(vec, out);
+  AMatrix::productInPlace(out, _tensorInverse, vec);
 }
 void Tensor::applyInverse2InPlace(const VectorDouble& vec, VectorDouble& out) const
 {
-  AMatrix::prodInPlace(out, _tensorInverse2, vec);
-  // _tensorInverse2.prodMatVecInPlaceC(vec, out);
+  AMatrix::productInPlace(out, _tensorInverse2, vec);
 }
 
 void Tensor::applyDirectInPlace(const VectorDouble& vec, VectorDouble& out) const
 {
-  AMatrix::prodInPlace(out, _tensorDirect, vec);
-  // _tensorDirect.prodMatVecInPlaceC(vec, out);
+  AMatrix::productInPlace(out, _tensorDirect, vec);
 }
 
 void Tensor::applyDirectSwapInPlace(const VectorDouble& vec, VectorDouble& out) const
 {
-  AMatrix::prodInPlace(out, _tensorDirectSwap, vec);
-  // _tensorDirectSwap.prodMatVecInPlaceC(vec, out);
+  AMatrix::productInPlace(out, _tensorDirectSwap, vec);
 }
 
 VectorDouble Tensor::applyInverse(const VectorDouble& vec) const
 {
   VectorDouble out = vec;
-  AMatrix::prodInPlace(out, _tensorInverse, vec);
-  // _tensorInverse.prodMatVecInPlaceC(vec, out);
+  AMatrix::productInPlace(out, _tensorInverse, vec);
   return out;
 }
 

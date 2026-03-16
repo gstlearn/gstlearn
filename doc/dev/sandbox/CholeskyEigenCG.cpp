@@ -77,7 +77,6 @@ void CholeskyEigenCG::_evalDirect(const VectorDouble& inv, VectorDouble& outv) c
 {
   if (!isValid()) return;
   AMatrix::prodMV(outv, *_matCS, inv);
-  // _matCS->prodMatVecInPlace(inv, outv);
 }
 
 /****************************************************************************/

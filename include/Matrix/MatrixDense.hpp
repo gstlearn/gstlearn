@@ -281,26 +281,26 @@ public:
   }
   MatrixDense& operator*=(double a)
   {
-    prodInPlace(*this, *this, a);
+    productInPlace(*this, *this, a);
     return *this;
   }
 
   MatrixDense operator*(double a) const
   {
     MatrixDense res;
-    prodInPlace(res, *this, a);
+    productInPlace(res, *this, a);
     return res;
   }
   MatrixDense& operator/=(double a)
   {
-    prodInPlace(*this, *this, 1.0 / a);
+    productInPlace(*this, *this, 1.0 / a);
     return *this;
   }
 
   MatrixDense operator/(double a) const
   {
     MatrixDense res;
-    prodInPlace(res, *this, 1.0 / a);
+    productInPlace(res, *this, 1.0 / a);
     return res;
   }
 

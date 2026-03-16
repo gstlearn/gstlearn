@@ -157,8 +157,7 @@ double ALikelihood::computeLogLikelihood(bool flagPrint, bool verbose)
 
     // Construct ZtCm1X = Zt * Cm1 * X and perform its Cholesky decomposition
     // workaround to create a shared_ptr which is not deleted at the end of the scope
-    VectorDouble ZtCm1X = AMatrix::prodVM(_Y, _Cm1X);
-    // VectorDouble ZtCm1X = _Cm1X.prodVecMat(_Y);
+    VectorDouble ZtCm1X = AMatrix::product(_Y, _Cm1X);
     CholeskyDense XtCm1XChol(_XtCm1X);
     if (!XtCm1XChol.isReady())
     {
@@ -178,8 +177,7 @@ double ALikelihood::computeLogLikelihood(bool flagPrint, bool verbose)
       printVector(_beta, "Optimal Drift coefficients = ", true, true);
 
     // Center the data by the optimal drift: Yc = Y - beta * X
-    VH::subtractInPlace(AMatrix::prodMV(_X, _beta), _Y, _Yc);
-    // VH::subtractInPlace(_X.prodMatVec(_beta), _Y, _Yc);
+    VH::subtractInPlace(AMatrix::product(_X, _beta), _Y, _Yc);
   }
 
   // Calculate t(L-1) %*% D-1 %*% L-1 applied to Y (L and D from Vecchia)
