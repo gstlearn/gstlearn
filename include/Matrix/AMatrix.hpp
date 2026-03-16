@@ -373,7 +373,7 @@ public:
                    bool transpose2 = false)
   {
     T res;
-    product(res, other1, other2, transpose1, transpose2);
+    prodInPlace(res, other1, other2, transpose1, transpose2);
     return res;
   }
 
@@ -388,11 +388,11 @@ public:
    * @param transpose2 True if 'other2' must be transposed
    */
   template<typename T>
-  static void product(T& res,
-                      const T& other1,
-                      const T& other2,
-                      bool transpose1 = false,
-                      bool transpose2 = false)
+  static void prodInPlace(T& res,
+                          const T& other1,
+                          const T& other2,
+                          bool transpose1 = false,
+                          bool transpose2 = false)
   {
     static_assert(std::is_base_of_v<AMatrix, T>,
                   "Invalid type for Matrix product (template method). "

@@ -704,7 +704,7 @@ void MatrixSparse::prodMatMatInPlace(const AMatrix* x,
   else
   {
     MatrixSparse temp;
-    AMatrix::product(temp, *xm, *ym, transposeX, transposeY);
+    AMatrix::prodInPlace(temp, *xm, *ym, transposeX, transposeY);
 
     if (transposeX)
     {

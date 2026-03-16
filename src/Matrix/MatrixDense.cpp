@@ -421,7 +421,7 @@ void MatrixDense::prodMatMatInPlace(const AMatrix* x,
   else
   {
     MatrixDense temp;
-    AMatrix::product(temp, *xm, *ym, transposeX, transposeY);
+    AMatrix::prodInPlace(temp, *xm, *ym, transposeX, transposeY);
 
     if (transposeX)
     {
