@@ -4,7 +4,6 @@ This file contains the logs between consecutive releases
 
 Release 1.11.0
 ==============
-- Correction in the calculation of Non-Centered Covariance
 - Adding new syntax for matrices (AMatrix class): overload and operators. 
 - In AMatrix, method addMat() is replaced linearCombination()
 - In AMatrix, the method fillRandom() has modified the order of the arguments
