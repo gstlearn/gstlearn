@@ -12,6 +12,7 @@
 #include "Basic/AException.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/OptCustom.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/WarningMacro.hpp"
@@ -928,7 +929,8 @@ void MatrixSparse::_allocate()
     {
       eigenMat().reserve(Eigen::VectorXi::Constant(getNCols(), static_cast<I32>(_nColMax)));
     }
-    if (isMultiThread()) omp_set_num_threads(getMultiThread());
+    const auto nbthread = static_cast<I32>(OptCustom::query("ompthreads", 1));
+    Eigen::setNbThreads(nbthread);
   }
 }
 

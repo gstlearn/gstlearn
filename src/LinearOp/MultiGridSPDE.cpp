@@ -114,7 +114,6 @@ ProjMatrix MultiGridSPDE::buildProlongator(const DbGrid* dbfine, const DbGrid* d
 
   NF_Triplet triplet;
   std::vector<NF_Triplet> privateTriplets(nbthread);
-  omp_set_num_threads(nbthread);
 
   mesh_c.buildAdjacencyMatrix();
   _cova->optimizationPreProcessForData(dbcoarse);
@@ -125,7 +124,7 @@ ProjMatrix MultiGridSPDE::buildProlongator(const DbGrid* dbfine, const DbGrid* d
   VectorDouble lambdas;
   VectorInt all_parents;
 #pragma omp threadprivate(rkh)
-#pragma omp parallel for firstprivate(indices_p1, lambdas, all_parents, ones, pin, pout, tabwork, cova, C, c0, weights, s1) schedule(guided)
+#pragma omp parallel for firstprivate(indices_p1, lambdas, all_parents, ones, pin, pout, tabwork, cova, C, c0, weights, s1) schedule(guided) num_threads(nbthread)
   for (Id i = 0; i < dbfine->getNSample(); i++)
   {
     indices_p1.clear();
@@ -198,7 +197,7 @@ ProjMatrix MultiGridSPDE::buildProlongator(const DbGrid* dbfine, const DbGrid* d
         privateTriplets[tid].add(i, all_parents[j], weights[j]);
   }
 
-#pragma omp parallel
+#pragma omp parallel num_threads(nbthread)
   {
 
     delete rkh;

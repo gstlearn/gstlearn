@@ -145,7 +145,6 @@ bool CalcKrigingSimpleCase::_run()
   bool use_parallel = !getModelGeneric()->isNoStat();
   Id nech_out       = getDbout()->getNSample();
   auto nbthread     = static_cast<I32>(OptCustom::query("ompthreads", 1)); // TODO : would like to use more threads
-  omp_set_num_threads(nbthread);
 
   SpacePoint pin(getModelGeneric()->getSpace());
   SpacePoint pout(getModelGeneric()->getSpace());
@@ -157,7 +156,7 @@ bool CalcKrigingSimpleCase::_run()
   const double* selcol = getDbout()->getColumnPtr(ELoc::SEL, 0);
   bool hassel = getDbout()->hasLocator(ELoc::SEL);
 #pragma omp threadprivate(neigh)
-#pragma omp parallel for firstprivate(pin, pout, tabwork, algebra, model) schedule(guided) if (use_parallel)
+#pragma omp parallel for firstprivate(pin, pout, tabwork, algebra, model) schedule(guided) num_threads(nbthread) if (use_parallel)
   for (Id iech_out = 0; iech_out < nech_out; iech_out++)
   {
     if (hassel && !selcol[iech_out]) continue; // Skip non-selected targets
@@ -181,7 +180,7 @@ bool CalcKrigingSimpleCase::_run()
     if (_iechSingleTarget >= 0) _storeResultsForExport(ksys, algebra, iech_out);
   }
 
-#pragma omp parallel
+#pragma omp parallel num_threads(nbthread) if (use_parallel)
   {
     delete neigh;
     neigh = nullptr;

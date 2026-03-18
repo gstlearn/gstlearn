@@ -24,7 +24,6 @@
 namespace gstlrn
 {
 
-static I32 _globalMultiThread = 0;
 static bool _flagMatrixCheck  = false;
 
 AMatrix::AMatrix(Id nrow, Id ncol)
@@ -1308,21 +1307,6 @@ void AMatrix::linearCombination(double val1,
       if (mat3 != nullptr) value += val3 * mat3->getValue(irow, icol);
       setValue(irow, icol, value);
     }
-}
-
-void setMultiThread(I32 nthreads)
-{
-  if (nthreads > 0) _globalMultiThread = nthreads;
-}
-
-I32 getMultiThread()
-{
-  return _globalMultiThread;
-}
-
-bool isMultiThread()
-{
-  return _globalMultiThread > 0;
 }
 
 void setFlagMatrixCheck(bool flagMatrixCheck)
