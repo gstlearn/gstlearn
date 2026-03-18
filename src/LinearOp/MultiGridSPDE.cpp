@@ -21,12 +21,14 @@
 #include "Enum/EKrigOpt.hpp"
 #include "Estimation/KrigOpt.hpp"
 #include "LinearOp/CholeskyDense.hpp"
-#include "LinearOp/CholeskySparse.hpp"
 #include "LinearOp/MultiGridSolver.hpp"
 #include "LinearOp/PrecisionOp.hpp"
+#include "LinearOp/PrecisionOpMatrix.hpp"
+#include "LinearOp/ProjMatrix.hpp"
+#include "LinearOp/PrecisionOp.hpp"
+#include "LinearOp/IProj.hpp"
 #include "LinearOp/ProjMatrix.hpp"
 #include "Matrix/MatrixDense.hpp"
-#include "Matrix/MatrixSparse.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Matrix/NF_Triplet.hpp"
 #include "Mesh/MeshETurbo.hpp"
@@ -34,12 +36,15 @@
 #include "Space/SpaceRN.hpp"
 #include "geoslib_define.h"
 #include "Polynomials/APolynomial.hpp"
+#include <memory>
 
 namespace gstlrn
 {
 
-MultiGridSPDE::MultiGridSPDE(const CovAniso* cov)
-  : _cova(cov)
+MultiGridSPDE::MultiGridSPDE(const CovAniso* cov, const DbGrid* gridfine, MultiGridSolver* solver)
+  : _solver(solver)
+  , _cova(std::make_unique<CovAniso>(*cov))
+  , _gridfine(gridfine)
 {
 }
 
@@ -63,37 +68,39 @@ std::pair<DbGrid, bool> MultiGridSPDE::buildNextGrid(const DbGrid* dbfine)
       dxs[d]   = L / (nxs[d] - 1); // new grid spacing
     }
   }
+
   DbGrid next_db = DbGrid();
   next_db.reset(nxs, dxs, x0, angles, ELoadBy::fromKey("SAMPLE"), {}, {}, {}, false, false);
   return std::make_pair(next_db, reduced);
 }
-
-Id MultiGridSPDE::buildGridHierarchy(const DbGrid* dbfine, Id nlevels)
+void MultiGridSPDE::buildGridHierarchy(Id nlevels_max, Id n_rings)
 {
+  n_rings = 1;
+  const DbGrid* dbfine = _gridfine;
+  std::pair<DbGrid, bool> current_coarse_pair;
 
-  Id nlevels_built = 1;
-  std::vector<MatrixSparse> prolongators;
-  std::vector<PrecisionOp> precisionOps;
-
-  for (Id i = 0; i < nlevels - 1; i++)
+  for (Id i = 0; i < nlevels_max - 1; i++)
   {
-    std::pair<DbGrid, bool> returnpair = buildNextGrid(dbfine);
-    if (!returnpair.second) break;
-    nlevels_built++;
-    prolongators.push_back(buildProlongator(dbfine, &returnpair.first));
-    MeshETurbo mesh(&returnpair.first);
-    precisionOps.push_back(PrecisionOp(&mesh, _cova));
-    dbfine = &returnpair.first;
-  }
-  return nlevels_built;
-}
-void MultiGridSPDE::prepare(MultiGridSolver* solver, const DbGrid* grid)
-{
-  DECLARE_UNUSED(solver);
-  if (_cova == nullptr) return;
-  MeshETurbo mesh(grid);
-}
+    auto next_pair = buildNextGrid(dbfine);
+    
+    if (!next_pair.second) break;
 
+    auto mesh = MeshETurbo(dbfine);
+    auto pop = std::make_unique<PrecisionOp>(&mesh, _cova.get(), false);
+    auto prolongator = buildProlongator(dbfine, &next_pair.first, n_rings);
+
+    _solver->addLevel(std::move(pop), std::make_unique<const ProjMatrix>(std::move(prolongator)));
+    current_coarse_pair = std::move(next_pair);
+    
+    dbfine = &current_coarse_pair.first;
+    
+  }
+
+  // 4. Last level(Coarse Solver)
+  MeshETurbo meshlast(dbfine);
+  auto pop = PrecisionOpMatrix(&meshlast, _cova.get());
+  _solver->setCoarseSolver(*pop.getQ());
+}
 ProjMatrix MultiGridSPDE::buildProlongator(const DbGrid* dbfine, const DbGrid* dbcoarse, Id n_rings)
 {
   MeshETurbo mesh_c(dbcoarse);
@@ -210,18 +217,22 @@ ProjMatrix MultiGridSPDE::buildProlongator(const DbGrid* dbfine, const DbGrid* d
     triplet.appendInPlace(privateTriplet);
   ProjMatrix result;
   result.resetFromTriplet(triplet);
-  // MatrixSparse result(dbfine->getNSample(), dbcoarse->getNSample());
-  // result.resetFromTriplet(triplet);
+
   return result;
 }
 
-MultiGridSolver* createMultiGridSolverSPDE(const CovAniso* cov, DbGrid* grid)
+MultiGridSolver* createMultiGridSolverSPDE(const CovAniso* cov, DbGrid* grid, 
+                                           Id nlevels_max, 
+                                           Id n_rings, 
+                                           Id niterPower, 
+                                           double ratiochebmin, 
+                                           double ratiochebmax, 
+                                           Id smoothIter)
 {
-
-  MultiGridSPDE spde(cov);
-
-  auto* solver = new MultiGridSolver();
-  spde.prepare(solver, grid);
+  auto* solver = new MultiGridSolver(ratiochebmin, ratiochebmax, smoothIter);
+  MultiGridSPDE spde(cov, grid, solver);
+  spde.buildGridHierarchy(nlevels_max, n_rings);
+  solver->prepare(niterPower);
   return solver;
 }
 

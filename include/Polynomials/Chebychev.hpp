@@ -48,9 +48,9 @@ protected:
 public:
   double eval(double x) const override;
   Id fit(const std::function<double(double)>& f,
-          double a   = 0.,
-          double b   = 1.,
-          double tol = EPSILON5) override;
+         double a   = 0.,
+         double b   = 1.,
+         double tol = EPSILON5) override;
 
   void init(Id ncMax = 10001, Id nDisc = 100, double a = 0., double b = 1., bool verbose = false);
   static Chebychev* createFromCoeffs(const VectorDouble& coeffs);
@@ -67,27 +67,25 @@ public:
   void setVerbose(bool verbose) { _verbose = verbose; }
 
   Id fit2(AFunction* f, double a = 0., double b = 1., double tol = EPSILON5);
-  VectorDouble smoother(ALinearOp* Op, const VectorDouble& ucurr, const VectorDouble& rhs, 
-                        double lambda_max, double ratiomin = 0.03,
-                        double ratiomax = 1.05, Id iterations = 3) const;
-  #ifndef SWIG
-  void smoother(ALinearOp* Op, 
-                VectorDouble& ucurr, 
-                const VectorDouble& rhs,  
-                double lambda_max, 
-                double ratiomin = 0.03, 
-                double ratiomax = 1.05,  
-                Id iterations=3) const;
-  #endif 
+  VectorDouble smoother(const ALinearOp& Op, const VectorDouble& ucurr, const VectorDouble& rhs, double lambda_max, double ratiomin = 0.03, double ratiomax = 1.05, Id iterations = 3) const;
+#ifndef SWIG
+  void smootherInPlace(const ALinearOp& Op,
+                       vect ucurr,
+                       constvect rhs,
+                       double lambda_max,
+                       double ratiomin = 0.03,
+                       double ratiomax = 1.05,
+                       Id iterations   = 3) const;
+#endif
 
 private:
   bool _isReady() const { return !_coeffs.empty(); }
   void _fillCoeffs(const std::function<double(double)>& f, double a, double b);
   Id _countCoeffs(const std::function<double(double)>& f,
-                   double x,
-                   double a,
-                   double b,
-                   double tol = EPSILON5) const;
+                  double x,
+                  double a,
+                  double b,
+                  double tol = EPSILON5) const;
 
   Id _ncMax;
   Id _nDisc;

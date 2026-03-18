@@ -21,7 +21,6 @@ CholeskySparse::CholeskySparse()
   , _factor(nullptr)
 {
 }
-
 CholeskySparse::CholeskySparse(const MatrixSparse& mat)
   : ACholesky(mat)
   , _factor(nullptr)

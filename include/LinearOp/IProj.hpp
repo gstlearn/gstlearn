@@ -20,9 +20,9 @@ public:
   IProj() = default;
   #ifndef SWIG
   IProj(const IProj&) = default;
-  IProj& operator=(const IProj&) = default;
-  IProj(IProj&&) = default;
-  IProj& operator=(IProj&&) = default;
+  IProj& operator=(const IProj&)  = default;
+  IProj(IProj&&) noexcept = default;
+  IProj& operator=(IProj&&)  noexcept = default;
   #endif
   virtual ~IProj() = default;
   

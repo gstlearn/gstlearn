@@ -384,17 +384,17 @@ void Chebychev::_addEvalOp(const ALinearOp* Op, const constvect inv, vect outv) 
 
 #endif
 
-VectorDouble Chebychev::smoother(ALinearOp* Op, const VectorDouble& ucurr, const VectorDouble& rhs, double lambda_max, double ratiomin, double ratiomax, Id iterations) const
+VectorDouble Chebychev::smoother(const ALinearOp& Op, const VectorDouble& ucurr, const VectorDouble& rhs, double lambda_max, double ratiomin, double ratiomax, Id iterations) const
 {
   VectorDouble res = ucurr;
-  smoother(Op, res, rhs, lambda_max, ratiomin, ratiomax, iterations);
+  smootherInPlace(Op, res, rhs, lambda_max, ratiomin, ratiomax, iterations);
   return res;
 }
 
-void Chebychev::smoother(ALinearOp* Op, VectorDouble& ucurr, const VectorDouble& rhs, double lambda_max, double ratiomin, double ratiomax, Id iterations) const
+void Chebychev::smootherInPlace(const ALinearOp& Op, vect ucurr, constvect rhs, double lambda_max, double ratiomin, double ratiomax, Id iterations) const
 {
-  _work.resize(Op->getSize());
-  _work2.resize(Op->getSize());
+  _work.resize(Op.getSize());
+  _work2.resize(Op.getSize());
 
   double beta  = lambda_max * ratiomax;
   double alpha = lambda_max * ratiomin;
@@ -403,7 +403,7 @@ void Chebychev::smoother(ALinearOp* Op, VectorDouble& ucurr, const VectorDouble&
   double c = (beta - alpha) / 2.0;
 
   // Init : u_1 = u_0 + (1/d)*r_0
-  Op->evalDirect(ucurr, _work);
+  Op.evalDirect(ucurr, _work);
   VH::subtractInPlace(_work, rhs, _work);
 
   _work /= d;
@@ -416,7 +416,7 @@ void Chebychev::smoother(ALinearOp* Op, VectorDouble& ucurr, const VectorDouble&
   for (int k = 1; k < iterations; ++k)
   {
     double rho_curr = 1.0 / (d / c - (c / d) * rho_prev / 4.0);
-    Op->evalDirect(ucurr, _work2);
+    Op.evalDirect(ucurr, _work2);
     VH::subtractInPlace(_work2, rhs, _work2);
 
     // Formule récursive pour u_{k+1}
