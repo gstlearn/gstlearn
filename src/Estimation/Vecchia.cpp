@@ -126,6 +126,12 @@ Id Vecchia::_getCase() const
   return icase;
 }
 
+MatrixSparse& Vecchia::getQMat() const
+{
+  _Qmat.prodNormMatVecInPlace(&_LFull, _DFull, true);
+  return _Qmat;
+}
+
 bool Vecchia::_identifyDbAndAbsoluteRank(const MatrixT<Id>& Ranks,
                                          Id irow,
                                          Id icol,
@@ -756,5 +762,11 @@ double Vecchia::_computeLogDet() const
 void Vecchia::_updateModel(bool verbose)
 {
   computeLower(_Ranks, verbose);
+}
+
+void Vecchia::_solveQ(constvect inv, vect outv) const
+{
+  productVecchia(inv, outv);
+
 }
 } // namespace gstlrn

@@ -10,6 +10,7 @@
 /******************************************************************************/
 
 #include "LinearOp/PrecisionOpMulti.hpp"
+#include "Basic/Message.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/CovAniso.hpp"
@@ -419,6 +420,11 @@ std::pair<double, double> PrecisionOpMulti::rangeEigenVal(Id ndiscr) const
 
 double PrecisionOpMulti::computeLogDet(Id nMC) const
 {
+  if (_getNVar() > 1)
+  {
+    messerr("computeLogDet is not implemented for multivariate case in the matrix-free version\n");
+    return TEST;
+  }
   double result = 0.;
   for (const auto& e: _pops)
   {

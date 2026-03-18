@@ -14,6 +14,7 @@
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "LinearOp/AShiftOp.hpp"
+#include "LinearOp/ASimulable.hpp"
 #include "LinearOp/IPrecisionOp.hpp"
 #include "LinearOp/ShiftOpMatrix.hpp"
 #include "LinearOp/ShiftOpStencil.hpp"
@@ -108,7 +109,8 @@ PrecisionOp::PrecisionOp(const AMesh* mesh,
 }
 
 PrecisionOp::PrecisionOp(const PrecisionOp& pmat)
-  : IPrecisionOp(pmat) // Explicitly call the base class copy constructor
+  : ASimulable(pmat) // Explicitly call the base class copy constructor
+  , IPrecisionOp(pmat)
   , _shiftOp(nullptr)
   , _cova(pmat._cova->clone())
   , _verbose(pmat._verbose)
@@ -153,6 +155,47 @@ PrecisionOp& PrecisionOp::operator=(const PrecisionOp& pmat)
     {
       _polynomials[e.first] = std::unique_ptr<APolynomial>(dynamic_cast<APolynomial*>(e.second->clone()));
     }
+  }
+  return *this;
+}
+
+PrecisionOp::PrecisionOp(PrecisionOp&& pmat) noexcept
+  : ASimulable(std::move(pmat))
+  , IPrecisionOp(std::move(pmat))
+  , _shiftOp(pmat._shiftOp)
+  , _cova(pmat._cova)
+  , _polynomials(std::move(pmat._polynomials))
+  , _verbose(pmat._verbose)
+  , _training(pmat._training)
+  , _destroyShiftOp(pmat._destroyShiftOp)
+  , _userPoly(pmat._userPoly)
+  , _work(std::move(pmat._work))
+  , _work2(std::move(pmat._work2))
+  , _work3(std::move(pmat._work3))
+{
+  pmat._shiftOp = nullptr;
+  pmat._cova    = nullptr;
+}
+
+PrecisionOp& PrecisionOp::operator=(PrecisionOp&& pmat) noexcept
+{
+  if (this != &pmat)
+  {
+    ASimulable::operator=(std::move(pmat));
+    IPrecisionOp::operator=(std::move(pmat));
+    _shiftOp       = pmat._shiftOp;
+    _cova          = pmat._cova;
+    _polynomials   = std::move(pmat._polynomials);
+    _verbose       = pmat._verbose;
+    _training      = pmat._training;
+    _destroyShiftOp= pmat._destroyShiftOp;
+    _userPoly      = pmat._userPoly;
+    _work          = std::move(pmat._work);
+    _work2         = std::move(pmat._work2);
+    _work3         = std::move(pmat._work3);
+
+    pmat._shiftOp = nullptr;
+    pmat._cova    = nullptr;
   }
   return *this;
 }

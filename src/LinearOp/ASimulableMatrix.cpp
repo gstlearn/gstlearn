@@ -8,30 +8,47 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#pragma once
-
+#include "LinearOp/ASimulableMatrix.hpp"
 #include "geoslib_define.h"
-#include "gstlearn_export.hpp"
-#include <Eigen/IterativeLinearSolvers>
+#include "Matrix/MatrixSparse.hpp"
 
 namespace gstlrn
 {
 
-class GSTLEARN_EXPORT APreconditioner
+ASimulableMatrix::ASimulableMatrix()
+:
+ _chol(nullptr)
 {
-public:
-  APreconditioner()
-    : _status(Eigen::Success)
-  {
-  }
+}
 
-  virtual ~APreconditioner() = default;
-#ifndef SWIG
-  Eigen::ComputationInfo info() const { return _status; }
-#endif
+ASimulableMatrix::~ASimulableMatrix()
+{
+  delete _chol;
+}
 
-private:
-  Eigen::ComputationInfo _status;
-};
+Id ASimulableMatrix::_addToDest(const constvect whitenoise, vect outv) const
+{
+  return getQMat().addToDest(whitenoise, outv);
+}
 
+const CholeskySparse& ASimulableMatrix::getChol() const
+{
+    if (_chol == nullptr)
+    {
+      _chol = new CholeskySparse(getQMat());
+    }
+    return *_chol;
+}
+
+Id ASimulableMatrix::_addSimulateToDest(const constvect whitenoise, vect outv) const
+{
+  return getChol().addSimulateToDest(whitenoise, outv);
+}
+
+double ASimulableMatrix::computeLogDet(Id nMC) const
+{
+  DECLARE_UNUSED(nMC)
+  const auto& chol = getChol();
+  return chol.computeLogDeterminant();
+}
 } // namespace gstlrn

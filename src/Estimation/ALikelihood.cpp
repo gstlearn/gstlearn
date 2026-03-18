@@ -11,6 +11,7 @@
 #include "Estimation/ALikelihood.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
+#include "LinearOp/ASimulableMatrix.hpp"
 #include "LinearOp/CholeskyDense.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Model/ModelGeneric.hpp"
@@ -30,6 +31,7 @@ ALikelihood::ALikelihood(ModelGeneric* model,
 
 ALikelihood::ALikelihood(const ALikelihood& r)
   : AModelOptim(r)
+  , ASimulableMatrix(r)
   , _db(r._db)
   , _Z(r._Z)
   , _Y(r._Y)
@@ -64,6 +66,31 @@ ALikelihood& ALikelihood::operator=(const ALikelihood& r)
 
 ALikelihood::~ALikelihood()
 {
+}
+
+double ALikelihood::computeLogDet(Id nMC) const
+{
+  DECLARE_UNUSED(nMC);
+  return -_computeLogDet();
+}
+
+Id ALikelihood::getSize() const
+{
+  return _Y.size();
+}
+
+Id ALikelihood::_addSimulateToDest(const constvect whitenoise, vect outv) const
+{
+  DECLARE_UNUSED(whitenoise);
+  DECLARE_UNUSED(outv);
+  messerr("To perform non conditional simulation with this covariance, use simtub instead");
+  return 0;
+}
+
+Id ALikelihood::_addToDest(constvect inv, vect outv) const
+{
+  _solveQ(inv, outv);
+  return 0;
 }
 
 void ALikelihood::initLikelihood(bool verbose)

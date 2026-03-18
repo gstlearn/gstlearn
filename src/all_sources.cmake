@@ -201,6 +201,7 @@ set(SRC
   LinearOp/SPDEOp.cpp
   LinearOp/SPDEOpMatrix.cpp
   LinearOp/ASimulable.cpp
+  LinearOp/ASimulableMatrix.cpp
   LinearOp/MatrixSymmetricSim.cpp
   LinearOp/LinearOpHelper.cpp
   LinearOp/MultiGridSolver.cpp

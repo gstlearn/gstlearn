@@ -34,6 +34,8 @@ public:
                                     bool reml    = false,
                                     bool verbose = false);
   void evalGrad(vect res) override;
+  MatrixSparse& getQMat() const override;
+
 
 private:
   void _fillGradCovMat(RankHandler& rkh, const covmaptype& gradcov);
@@ -41,7 +43,7 @@ private:
   void _computeCm1X() override;
   void _computeCm1Yc() override;
   double _computeLogDet() const override;
-
+  void _solveQ(constvect inv, vect outv) const override;
 private:
   std::shared_ptr<MatrixSymmetric> _cov;
   CholeskyDense _covChol;

@@ -24,7 +24,7 @@ namespace gstlrn
  */
 template<typename TLinOP>
 class ASimulableEigenCG : public Eigen::EigenBase<TLinOP>, // No Export because it's a template
-                          public ASimulable
+                          virtual public ASimulable
 {
 public:
   virtual ~ASimulableEigenCG() {};

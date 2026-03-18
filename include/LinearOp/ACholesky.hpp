@@ -24,9 +24,12 @@ class GSTLEARN_EXPORT ACholesky: public ASimulable
 {
 public:
   ACholesky(const AMatrix& mat);
-  ACholesky(const ACholesky& m);
-  ACholesky& operator=(const ACholesky& m);
-  virtual ~ACholesky() {}
+  
+  ACholesky(const ACholesky& m) = default;
+  ACholesky(ACholesky&& m) noexcept;
+  ACholesky& operator=(const ACholesky& m) = default;
+  ACholesky& operator=(ACholesky&& m) noexcept;
+  virtual ~ACholesky() = default;
 
   Id getSize() const override { return _size; }
   Id solve(const constvect vecin, vect vecout) const;

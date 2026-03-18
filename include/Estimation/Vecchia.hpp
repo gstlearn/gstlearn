@@ -41,6 +41,8 @@ public:
   virtual ~Vecchia();
 
 public:
+  MatrixSparse& getQMat() const override;
+
   static Vecchia* createForOptim(ModelGeneric* model,
                                  const Db* db1,
                                  Id nb_vecchia = 30,
@@ -65,6 +67,7 @@ public:
   VectorDouble computeAndGetY();
 
 private:
+  void _solveQ(constvect inv, vect outv) const override;
   void _init(bool verbose = false) override;
   void _updateModel(bool verbose = false) override;
   void _computeCm1X() override;
@@ -118,6 +121,7 @@ private:
   mutable VectorDouble _LdY;
   mutable VectorDouble _DFull;
   mutable MatrixSparse _LFull;
+  mutable MatrixSparse _Qmat;
   mutable CholeskyDense* _chol; // Cholesky decomposition of the covariance matrix
   // Local calculation results (to be deleted later)
   mutable Id _NumberAbs1; // Number of samples in Db1 (used for shift calculations)

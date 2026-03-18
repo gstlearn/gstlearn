@@ -20,17 +20,20 @@ ACholesky::ACholesky(const AMatrix& mat)
   _size = mat.getNRows();
 }
 
-ACholesky::ACholesky(const ACholesky& m)
-  : _size(m._size)
-  , _ready(m._ready)
+ACholesky::ACholesky(ACholesky&& m) noexcept
+  :
+  ASimulable(std::move(m)),
+  _size(m._size),
+  _ready(m._ready)
 {
 }
 
-ACholesky& ACholesky::operator=(const ACholesky& m)
+ACholesky& ACholesky::operator=(ACholesky&& m) noexcept
 {
   if (this != &m)
   {
-    _size  = m._size;
+    ASimulable::operator=(std::move(m));
+    _size = m._size;
     _ready = m._ready;
   }
   return *this;

@@ -24,7 +24,7 @@ class AMatrix;
 /**
  * Square Symmetric matrices
  */
-class GSTLEARN_EXPORT MatrixSymmetricSim : public ASimulable
+class GSTLEARN_EXPORT MatrixSymmetricSim : virtual public ASimulable
 {
 public:
   MatrixSymmetricSim(const AMatrix& m, bool inverse = true);

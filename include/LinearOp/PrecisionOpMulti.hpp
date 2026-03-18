@@ -37,7 +37,7 @@ class ASimulable;
 
 // This class is dedicated to the multivariate Model.
 // It creates a vector of precision operators (matrix-free).
-class GSTLEARN_EXPORT PrecisionOpMulti: public AStringable, public IPrecisionOp
+class GSTLEARN_EXPORT PrecisionOpMulti: public AStringable,  virtual public IPrecisionOp
 {
 public:
   PrecisionOpMulti(Model* model               = nullptr,

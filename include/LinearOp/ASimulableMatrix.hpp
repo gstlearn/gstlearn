@@ -9,35 +9,31 @@
 /*                                                                            */
 /******************************************************************************/
 #pragma once
-
+#include "LinearOp/CholeskySparse.hpp"
 #include "gstlearn_export.hpp"
-#include "LinearOp/IProj.hpp"
+#include "LinearOp/ASimulable.hpp"
 
-namespace gstlrn
-{
+namespace gstlrn{
 
-class GSTLEARN_EXPORT ProjZero : public IProj
+class MatrixSparse;
+class GSTLEARN_EXPORT ASimulableMatrix : public virtual ASimulable
 {
 public:
-  ProjZero(Id npoint, Id napex) : IProj(), _npoint(npoint), _napex(napex) {}
-  ProjZero(const ProjZero&) = default;
-#ifndef SWIG
-  ProjZero(ProjZero&&) noexcept = default;
-  ProjZero& operator=(ProjZero&&) noexcept = default;
-#endif
-  ProjZero& operator=(const ProjZero&) = default;
-  ~ProjZero() override = default;
-
-#ifndef SWIG
-protected:
-  Id _addPoint2mesh(const constvect inv, vect outv) const override { DECLARE_UNUSED(inv, outv); return 0; }
-  Id _addMesh2point(const constvect inv, vect outv) const override { DECLARE_UNUSED(inv, outv); return 0; }
-#endif
-public:
-  Id getNApex() const override { return _napex; }
-  Id getNPoint() const override { return _npoint; }
+  ASimulableMatrix();
+  virtual ~ASimulableMatrix();
+  double computeLogDet(Id nMC = 1) const override; 
+  virtual const MatrixSparse& getQMat() const = 0;
 
 private:
-  Id _npoint, _napex;
+  const CholeskySparse& getChol() const;
+#ifndef SWIG
+
+protected:
+  Id _addToDest(const constvect whitenoise, vect outv) const override;
+  Id _addSimulateToDest(const constvect whitenoise, vect outv) const override;
+#endif
+
+private:
+  mutable CholeskySparse* _chol; // when needed, e.g in a const method.
 };
 }

@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "LinearOp/PrecisionOpMultiMatrix.hpp"
 #include "Covariances/CovAniso.hpp"
+#include "LinearOp/ASimulableMatrix.hpp"
 #include "LinearOp/PrecisionOpMatrix.hpp"
 #include "LinearOp/PrecisionOpMulti.hpp"
 #include "Matrix/MatrixSparse.hpp"
@@ -89,11 +90,15 @@ const MatrixSparse* PrecisionOpMultiMatrix::getQ() const
 {
   if (_isSingle())
   {
-    return static_cast<const PrecisionOpMatrix*>(_pops[0])->getQ();
+    return dynamic_cast<const PrecisionOpMatrix*>(_pops[0])->getQ();
   }
   return &_Q;
 }
 
+const MatrixSparse& PrecisionOpMultiMatrix::getQMat() const
+{
+  return *getQ();
+}
 void PrecisionOpMultiMatrix::_prepareMatrix()
 {
   if (_isSingle()) return;
@@ -101,7 +106,7 @@ void PrecisionOpMultiMatrix::_prepareMatrix()
   MatrixSparse current(0, 0);
   for (Id istruct = 0; istruct < _getNCov(); istruct++)
   {
-    const MatrixSparse* Q = static_cast<const PrecisionOpMatrix*>(_pops[istruct])->getQ();
+    const MatrixSparse* Q = dynamic_cast<const PrecisionOpMatrix*>(_pops[istruct])->getQ();
 
     if (_model->getNVar() == 1)
     {
@@ -137,11 +142,27 @@ void PrecisionOpMultiMatrix::_buildQop(bool stencil)
   {
     CovAniso* cova = _model->getCovAniso(_getCovInd(icov));
     _pops.push_back(new PrecisionOpMatrix(_meshes(icov), cova));
-  }
+  } 
 }
 
-Id PrecisionOpMultiMatrix::_addToDest(const constvect vecin, vect vecout) const
+Id PrecisionOpMultiMatrix::_addToDest(const constvect whitenoise, vect outv) const 
 {
-  return getQ()->addToDest(vecin, vecout);
+   return PrecisionOpMulti::_addToDest(whitenoise, outv); 
 }
+
+Id PrecisionOpMultiMatrix::_addSimulateToDest(const constvect whitenoise, vect outv) const
+{
+   return PrecisionOpMulti::_addSimulateToDest(whitenoise, outv);  
+}
+
+double PrecisionOpMultiMatrix::computeLogDet(Id nMC) const  
+{
+   return ASimulableMatrix::computeLogDet(nMC); 
+}
+
+Id PrecisionOpMultiMatrix::getSize() const
+{
+  return PrecisionOpMulti::getSize();
+}
+
 }

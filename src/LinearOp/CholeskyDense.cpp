@@ -51,6 +51,27 @@ CholeskyDense& CholeskyDense::operator=(const CholeskyDense& m)
   return *this;
 }
 
+CholeskyDense::CholeskyDense(CholeskyDense&& m) noexcept
+  : ACholesky(std::move(m))
+  , _tl(std::move(m._tl))
+  , _xl(std::move(m._xl))
+  , _factor(std::move(m._factor))
+{
+}
+
+CholeskyDense& CholeskyDense::operator=(CholeskyDense&& m) noexcept
+{
+  if (this != &m)
+  {
+    ACholesky::operator=(std::move(m));
+    _tl     = std::move(m._tl);
+    _xl     = std::move(m._xl);
+    _factor = std::move(m._factor);
+    _empty  = m._empty;
+  }
+  return *this;
+}
+
 CholeskyDense::~CholeskyDense()
 {
   _clear();

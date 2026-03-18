@@ -57,10 +57,10 @@ public:
   bool getFlagSimu() const { return _flagSimu; }
   const VectorMeshes& getMeshesK() const { return _meshesK; }
   const VectorMeshes& getMeshesS() const { return _meshesS; }
-  const ProjMultiMatrix* getAinK() const { return _AinK; }
-  const ProjMultiMatrix* getAinS() const { return _AinS; }
-  const ProjMultiMatrix* getAoutK() const { return _AoutK; }
-  const ProjMultiMatrix* getAoutS() const { return _AoutS; }
+  const ProjMulti* getAinK() const { return _AinK; }
+  const ProjMulti* getAinS() const { return _AinS; }
+  const ProjMulti* getAoutK() const { return _AoutK; }
+  const ProjMulti* getAoutS() const { return _AoutS; }
   VectorDouble getDriftCoefficients() const { return _driftCoeffs; }
 
   Id getSeed() const { return _params.getSeedMC(); }
@@ -78,7 +78,7 @@ public:
   void addNuggetToResult(VectorDouble& result) const;
 
   Id setMeshes(bool flagForKrig, const VectorMeshes* meshes);
-  Id setProjIn(bool flagForKrig, const ProjMultiMatrix* proj);
+  Id setProjIn(bool flagForKrig, const ProjMulti* proj);
   Id setInvNoise(const ASimulable* invnoise);
   Id setDbAndProjOut(Db* dbout,
                      const ProjMultiMatrix* projK = nullptr,
@@ -99,8 +99,8 @@ private:
   void _defineMeshes(bool flagForKrige, bool verbose);
   Id _defineProjection(bool flagIn, bool flagForKrige, bool verbose);
   static void _printMeshesDetails(const VectorMeshes& meshes);
-  static void _printProjectionDetails(const ProjMultiMatrix* proj);
-  bool _isValidProjection(const Db* db, const VectorMeshes* meshes, const ProjMultiMatrix* proj);
+  static void _printProjectionDetails(const ProjMulti* proj);
+  bool _isValidProjection(const Db* db, const VectorMeshes* meshes, const ProjMulti* proj);
   void _cleanMeshes(bool flagForKrige);
   void _cleanProjection(bool flagIn, bool flagForKrige);
   void _cleanSpdeOperator();
@@ -113,10 +113,10 @@ private:
   Model* _model;
   const VectorMeshes* _meshesKInit;
   const VectorMeshes* _meshesSInit;
-  const ProjMultiMatrix* _projInKInit;
-  const ProjMultiMatrix* _projInSInit;
-  const ProjMultiMatrix* _projOutKInit;
-  const ProjMultiMatrix* _projOutSInit;
+  const ProjMulti* _projInKInit;
+  const ProjMulti* _projInSInit;
+  const ProjMulti* _projOutKInit;
+  const ProjMulti* _projOutSInit;
   const ASimulable* _invnoiseobjInit;
 
   // Local information
@@ -130,13 +130,13 @@ private:
   bool _createMeshesS;
   VectorMeshes _meshesS;
   bool _createAinK;
-  const ProjMultiMatrix* _AinK;
+  const ProjMulti* _AinK;
   bool _createAinS;
-  const ProjMultiMatrix* _AinS;
+  const ProjMulti* _AinS;
   bool _createAoutK;
-  const ProjMultiMatrix* _AoutK;
+  const ProjMulti* _AoutK;
   bool _createAoutS;
-  const ProjMultiMatrix* _AoutS;
+  const ProjMulti* _AoutS;
   PrecisionOpMulti* _QopK;
   PrecisionOpMulti* _QopS;
   PrecisionOpMultiMatrix* _Qom;
@@ -165,6 +165,7 @@ GSTLEARN_EXPORT Id krigingSPDE(Db* dbin,
                                const ProjMultiMatrix* projInS  = nullptr,
                                const ProjMultiMatrix* projOutK = nullptr,
                                const ProjMultiMatrix* projOutS = nullptr,
+                               const ASimulable* invnoiseobj   = nullptr,
                                const SPDEParam& params         = SPDEParam(),
                                bool verbose                    = false,
                                const NamingConvention& namconv = NamingConvention("KrigingSPDE"));
@@ -201,7 +202,8 @@ GSTLEARN_EXPORT double logLikelihoodSPDE(Db* dbin,
                                          Model* model,
                                          Id useCholesky                = -1,
                                          const VectorMeshes* meshes    = nullptr,
-                                         const ProjMultiMatrix* projIn = nullptr,
+                                         const ProjMulti* projIn = nullptr,
+                                         const ASimulable* invnoiseobj = nullptr,
                                          const SPDEParam& params       = SPDEParam(),
                                          bool verbose                  = false);
 

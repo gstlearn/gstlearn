@@ -15,6 +15,13 @@
 
 namespace gstlrn
 {
+
+CholeskySparse::CholeskySparse()
+  : ACholesky(MatrixSparse())
+  , _factor(nullptr)
+{
+}
+ 
 CholeskySparse::CholeskySparse(const MatrixSparse& mat)
   : ACholesky(mat)
   , _factor(nullptr)
@@ -22,29 +29,26 @@ CholeskySparse::CholeskySparse(const MatrixSparse& mat)
   (void)_prepare(mat);
 }
 
-CholeskySparse::CholeskySparse(const CholeskySparse& m)
-  : ACholesky(m)
-  , _factor(nullptr)
+CholeskySparse& CholeskySparse::operator=(CholeskySparse&& m) noexcept 
 {
-  if (m._factor != nullptr)
-  {
-    _factor = new Eigen::SimplicialLDLT<Sp>;
-    _factor = m._factor;
-  }
+    if (this != &m) {
+        // 1. On laisse la classe parente virtuelle gérer sa part
+        ACholesky::operator=(std::move(m));
+
+        // 2. On déplace le pointeur unique (le move de unique_ptr 
+        // transfère l'adresse et met 'other._factor' à nullptr)
+        this->_factor = std::move(m._factor);
+        
+        // Si vous avez d'autres membres simples, copiez-les ici.
+        // Exemple : this->_isFactorized = other._isFactorized;
+    }
+    return *this;
 }
 
-CholeskySparse& CholeskySparse::operator=(const CholeskySparse& m)
+CholeskySparse::CholeskySparse(CholeskySparse&& m) noexcept
+  : ACholesky(std::move(m))
+  , _factor(std::move(m._factor))
 {
-  if (this != &m)
-  {
-    ACholesky::operator=(m);
-    if (m._factor != nullptr)
-    {
-      _factor = new Eigen::SimplicialLDLT<Sp>;
-      _factor = m._factor;
-    }
-  }
-  return *this;
 }
 
 CholeskySparse::~CholeskySparse()
@@ -54,8 +58,7 @@ CholeskySparse::~CholeskySparse()
 
 void CholeskySparse::_clean()
 {
-  delete _factor;
-  _factor = nullptr;
+  _factor.reset();
 }
 
 /****************************************************************************/
@@ -99,7 +102,7 @@ Id CholeskySparse::_prepare(const MatrixSparse& mat) const
 {
   if (_factor != nullptr) return 0;
 
-  _factor = new Eigen::SimplicialLDLT<Sp>;
+  _factor = std::make_unique<Eigen::SimplicialLDLT<Sp>>();
   _factor->compute(mat.eigenMat());
   if (_factor == nullptr)
   {

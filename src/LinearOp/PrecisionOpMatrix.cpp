@@ -9,6 +9,8 @@
 /*                                                                            */
 /******************************************************************************/
 #include "LinearOp/AShiftOp.hpp"
+#include "LinearOp/ASimulableMatrix.hpp"
+#include "LinearOp/PrecisionOp.hpp"
 #include "Matrix/MatrixSparse.hpp"
 #include "geoslib_define.h"
 
@@ -37,6 +39,26 @@ PrecisionOpMatrix::PrecisionOpMatrix(const AMesh* mesh, CovAniso* cova, bool ver
   , _chol(nullptr)
 {
   _buildQ();
+}
+
+PrecisionOpMatrix::PrecisionOpMatrix(PrecisionOpMatrix&& pmat) noexcept
+  : PrecisionOp(std::move(pmat))
+  , ASimulableMatrix(pmat)
+  , _Q(std::move(pmat._Q))
+  , _chol(pmat._chol)
+{
+}
+
+PrecisionOpMatrix& PrecisionOpMatrix::operator=(PrecisionOpMatrix&& pmat) noexcept
+{
+  if (this != &pmat)
+  {
+    PrecisionOp::operator=(std::move(pmat));
+    ASimulableMatrix::operator=(pmat);
+    _Q    =pmat._Q;
+    _chol  =pmat._chol;
+  }
+  return *this;
 }
 
 const MatrixSparse* PrecisionOpMatrix::getS() const
@@ -157,15 +179,13 @@ void PrecisionOpMatrix::gradYQXOptim(const constvect X,
 
 Id PrecisionOpMatrix::_addToDest(const constvect inv, vect outv) const
 {
-  return _Q->addToDest(inv, outv);
+  return ASimulableMatrix::_addToDest(inv, outv);
 }
 
 Id PrecisionOpMatrix::_addSimulateToDest(const constvect whitenoise,
                                          vect outv) const
 {
-  if (_chol == nullptr) _chol = new CholeskySparse(*_Q);
-  _chol->addSimulateToDest(whitenoise, outv);
-  return 0;
+  return ASimulableMatrix::_addSimulateToDest(whitenoise, outv);
 }
 
 void PrecisionOpMatrix::evalInverse(const constvect vecin,
@@ -173,13 +193,6 @@ void PrecisionOpMatrix::evalInverse(const constvect vecin,
 {
   if (_chol == nullptr) _chol = new CholeskySparse(*_Q);
   _chol->solve(vecin, vecout);
-}
-
-double PrecisionOpMatrix::computeLogDet(Id nMC) const
-{
-  DECLARE_UNUSED(nMC);
-  if (_chol == nullptr) _chol = new CholeskySparse(*_Q);
-  return _chol->computeLogDeterminant();
 }
 
 void PrecisionOpMatrix::evalDeriv(
@@ -317,4 +330,9 @@ VectorDouble PrecisionOpMatrix::extractDiag() const
 {
   return _Q->extractDiag();
 }
+
+Id PrecisionOpMatrix::getSize() const
+{
+  return PrecisionOp::getSize();
 } // namespace gstlrn
+}

@@ -12,6 +12,8 @@
 
 #include "Matrix/MatrixSparse.hpp"
 #include "LinearOp/PrecisionOpMulti.hpp"
+#include "LinearOp/ASimulableMatrix.hpp"
+#include "geoslib_define.h"
 
 namespace gstlrn{
 class Model;
@@ -19,7 +21,7 @@ class Model;
 /**
  * Class for the precision matrix of the latent field in SPDE (matricial form)
  */
-class GSTLEARN_EXPORT PrecisionOpMultiMatrix : public PrecisionOpMulti
+class GSTLEARN_EXPORT PrecisionOpMultiMatrix : virtual public PrecisionOpMulti, virtual public ASimulableMatrix
 {
 public:
   PrecisionOpMultiMatrix(Model* model               = nullptr,
@@ -27,13 +29,16 @@ public:
   PrecisionOpMultiMatrix(const PrecisionOpMulti& m)            = delete;
   PrecisionOpMultiMatrix& operator=(const PrecisionOpMulti& m) = delete;
   virtual ~PrecisionOpMultiMatrix();
-
+  
+  const MatrixSparse& getQMat() const override;
   const MatrixSparse* getQ() const;
-
+  double computeLogDet(Id nMC = 1) const override;
+  Id getSize() const override;
+protected:
+  Id _addToDest(const constvect whitenoise, vect outv) const override;
+  Id _addSimulateToDest(const constvect whitenoise, vect outv) const override;
 private:
-#ifndef SWIG
-  Id _addToDest(const constvect vecin, vect vecout) const override;
-#endif
+
   MatrixSparse _prepareMatrixNoStat(Id icov, const MatrixSparse* Q) const;
   MatrixSparse _prepareMatrixStationary(Id icov, const MatrixSparse* Q) const;
   void _prepareMatrix();
