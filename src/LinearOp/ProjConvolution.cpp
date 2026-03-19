@@ -9,10 +9,8 @@
 /*                                                                            */
 /******************************************************************************/
 #include "LinearOp/ProjConvolution.hpp"
-#include "Basic/AStringable.hpp"
 #include "LinearOp/ProjMatrix.hpp"
 #include "Mesh/MeshETurbo.hpp"
-#include <vector>
 
 namespace gstlrn
 {
@@ -175,7 +173,7 @@ Id ProjConvolution::_addPoint2mesh(const constvect valonseismic,
   {
     constvect vec_S(valonseismic.data() + iz * slice_S, slice_S);
     vect vec_R(_work.data() + iz * slice_R, slice_R);
-    _AProjHoriz->prodMatVecInPlaceC(vec_S, vec_R, true);
+    AMatrix::productInPlace(vec_R, *_AProjHoriz, vec_S, true);
   }
   _convolveT(_work, valonvertex);
   return 0;
@@ -210,7 +208,7 @@ Id ProjConvolution::_addMesh2point(const constvect valonvertex,
   {
     constvect vec_R(_work.data() + iz * slice_R, slice_R);
     vect vec_S(valonseismic.data() + iz * slice_S, slice_S);
-    _AProjHoriz->prodMatVecInPlaceC(vec_R, vec_S, false);
+    AMatrix::productInPlace(vec_S, *_AProjHoriz, vec_R, false);
   }
 
   return 0;

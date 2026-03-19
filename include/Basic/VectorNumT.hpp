@@ -160,6 +160,7 @@ public:
   inline double normTo(const VectorNumT<T>& other) const;
   inline double correlation(const VectorNumT<T>& other) const;
   inline void normalizeInPlace(Id normType = 2);
+
 };
 
 template<typename T>
@@ -729,4 +730,6 @@ typedef VectorNumT<UChar> VectorUChar; // Use typedef because swig doesn't like 
 typedef VectorNumT<VectorInt> VectorVectorInt;
 typedef VectorNumT<VectorDouble> VectorVectorDouble;
 typedef VectorNumT<VectorFloat> VectorVectorFloat;
+
+
 } // namespace gstlrn

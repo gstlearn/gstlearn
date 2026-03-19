@@ -964,7 +964,7 @@ static void st_print_all(const char* title)
 
   /* 'H' Rotation */
 
-  printMatrix(Calcul.hh.getValues() , ndim, ndim, "Anisotropy H matrix", 0, 1);
+  printMatrix(Calcul.hh.getValues(), ndim, ndim, "Anisotropy H matrix", 0, 1);
   message("Square root of Determinant                    = %lf\n",
           Calcul.sqdeth);
   message("Correction factor                             = %lf\n",
@@ -1046,8 +1046,8 @@ static void st_compute_blin(void)
         m.setValue(idim, jdim, 1. / (2. * p - idim - jdim + lambda));
     }
     (void)m.invert();
-    m.prodMatVecInPlace(v1, v2);
-    tp.prodMatVecInPlace(v2, Calcul.blin);
+    AMatrix::productInPlace(v2, m, v1);
+    AMatrix::productInPlace(Calcul.blin, tp, v2);
   }
   else
   {
@@ -1977,7 +1977,7 @@ static MatrixSparse* st_spde_fill_S(AMesh* amesh, Model* model, const double* un
       /*! Perform 'this' = 'x' * 'y' */
       mat1.prodMatMatInPlace(&matw, &Calcul.hh, true, false);
       if (flag_nostat)
-        matw.prodMatVecInPlace(Calcul.vv, matv, true);
+        AMatrix::productInPlace(matv, matw, Calcul.vv, true);
       mat.prodMatMatInPlace(&mat1, &matw);
 
       for (Id j0 = 0; j0 < ncorner; j0++)
@@ -2361,7 +2361,7 @@ static MatrixSparse* st_spde_build_Q(MatrixSparse* S,
 
   for (Id iterm = 1; iterm < nblin; iterm++)
   {
-    Q->addMat(*Bi, 1., blin[iterm]);
+    AMatrix::linearCombinationInPlace(*Q, 0., 1., *Q, blin[iterm], *Bi);
     if (iterm < nblin - 1)
       Bi->prodMat(S);
   }
@@ -5756,14 +5756,14 @@ Id m2d_gibbs_spde(Db* dbin,
 
           for (Id i = 0; i < nvertex; i++)
             zkrig[i] = vwork[i] = 0.;
-          Matelem.Aproj->prodMatVecInPlaceC(ydat_loc, rhs, true);
+          AMatrix::productInPlace(rhs, *Matelem.Aproj, ydat_loc, true);
           st_kriging_cholesky(Qc, rhs.data(), vwork, zkrig.data());
           for (Id i = 0; i < nvertex; i++)
             yvert_loc[i] += zkrig[i];
 
           // Project the Simulation from the vertices onto the Data
 
-          Matelem.Aproj->prodVecMatInPlace(yvert_loc, ymean_loc, false);
+          AMatrix::productInPlace(ymean_loc, yvert_loc, *Matelem.Aproj, false);
         }
 
         // Perform a Gibbs iteration on the constraints
@@ -5793,7 +5793,7 @@ Id m2d_gibbs_spde(Db* dbin,
       {
         constvect cyvert(&YVERT(ilayer, 0), nvertex);
         vect cgwork(&GWORK(ilayer, 0), ngrid);
-        Bproj->prodVecMatInPlaceC(cyvert, cgwork, false);
+        AMatrix::productInPlace(cgwork, cyvert, *Bproj, false);
       }
 
       /* Convert from Gaussian to Depth */

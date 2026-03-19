@@ -2316,7 +2316,7 @@ static void st_deriv_eigen(Local_CorPgs* corpgs,
   MatrixSymmetric invGn(4);
   d2.fill(0.);
   st_build_correl(corpgs, corpgs->params, temp);
-  temp.linearCombination(-1., &temp);
+  AMatrix::linearCombinationInPlace(temp, 0., -1., temp);
 
   for (Id i = 0; i < 4; i++)
     temp.updValue(i, i, EOperator::ADD, eigval);
@@ -2521,10 +2521,10 @@ static double st_rkl(Id maxpts,
   cste[0] = 0.;
   cste[1] = 0.;
   VectorDouble vec(2);
-  vec[0]           = x;
-  vec[1]           = y;
-  VectorDouble mean = temp.prodMatVec(vec);
-  double v1         = law_df_bigaussian(vec, cste, corr1);
+  vec[0]            = x;
+  vec[1]            = y;
+  VectorDouble mean = AMatrix::product(temp, vec);
+  double v1 = law_df_bigaussian(vec, cste, corr1);
   mvndst2n(lower.data(), upper.data(), mean.data(), covar.getValues().data(),
            maxpts, abseps, releps, &error, &v2, &inform);
   return (v1 * v2);
@@ -2736,9 +2736,9 @@ static double st_d2_dkldkj(Id index1,
   MatrixSymmetric invcorr1(*corr1);
   if (invcorr1.invert()) messageAbort("st_d2_dkldkj #2");
 
-  VectorDouble temp = invcorr1.prodMatVec(crosscor);
-  double covar      = invcorr1.normVec(crosscor);
-  double sdcovar    = sqrt(corr2 - covar);
+  VectorDouble temp = AMatrix::product(invcorr1, crosscor);
+  double covar   = invcorr1.normVec(crosscor);
+  double sdcovar = sqrt(corr2 - covar);
 
   VectorDouble lowi = VH::reduceOne(lower, index2);
   VectorDouble uppi = VH::reduceOne(upper, index2);
@@ -3136,8 +3136,8 @@ static double st_optim_onelag_pgs(Local_Pgs* local_pgs,
       st_deriv_eigen(corpgs, eigval[3], eigvec, d1, d2);
       Srpen = Sr - penalize * log(eigval[3]);
       VH::linearCombinationInPlace(1., Grad, -penalize / eigval[3], d1, Grad);
-      Hess.linearCombination(npar, &Hess, penalize / (eigval[3] * eigval[3]), &d2);
-      JJ.linearCombination(npar, &JJ, penalize / (eigval[3] * eigval[3]), &d2);
+      AMatrix::linearCombinationInPlace(Hess, 0., npar, Hess, penalize / (eigval[3] * eigval[3]), d2);
+      AMatrix::linearCombinationInPlace(JJ, 0., npar, JJ, penalize / (eigval[3] * eigval[3]), d2);
       penalize /= 2.;
     }
     niter++;
@@ -3150,7 +3150,7 @@ static double st_optim_onelag_pgs(Local_Pgs* local_pgs,
       VH::linearCombinationInPlace(-1., gr, 0., VectorDouble(), hsd);
       invGn = Gn;
       if (invGn.invert()) messageAbort("st_optim_lag");
-      hgn = invGn.prodMatVec(hsd);
+      hgn = AMatrix::product(invGn, hsd);
     }
 
     /* Determine the lag (hgn, alpha*hsd) or a convex combination of both */
@@ -3223,8 +3223,8 @@ static double st_optim_onelag_pgs(Local_Pgs* local_pgs,
       {
         st_deriv_eigen(corpgs, eigval[3], eigvec, d1, d2);
         VH::linearCombinationInPlace(1, Grad, penalize / eigval[3], d1, Grad);
-        Hess.linearCombination(npar, &Hess, -penalize / (eigval[3] * eigval[3]), &d2);
-        JJ.linearCombination(npar, &JJ, -penalize / (eigval[3] * eigval[3]), &d2);
+        AMatrix::linearCombinationInPlace(Hess, 0., npar, Hess, -penalize / (eigval[3] * eigval[3]), d2);
+        AMatrix::linearCombinationInPlace(JJ, 0., npar, JJ, -penalize / (eigval[3] * eigval[3]), d2);
         penalize /= 2.;
       }
       if (rval > 0.75) delta = MAX(delta, 3. * sqrt(step.norm2()));

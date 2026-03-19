@@ -29,6 +29,11 @@ MatrixSymmetric::MatrixSymmetric(Id nrow)
 {
 }
 
+MatrixSymmetric::MatrixSymmetric(Id nrow, Id ncol)
+  : MatrixSquare(nrow, ncol)
+{
+}
+
 MatrixSymmetric::MatrixSymmetric(const MatrixSymmetric& m)
   : MatrixSquare(m)
 {
@@ -46,14 +51,14 @@ MatrixSymmetric::MatrixSymmetric(const AMatrix& m)
 
   copyElements(m);
 
-  if (!m.isSymmetric())
-  {
-    messerr("The input matrix should be Symmetric");
-    messerr("It has been symetrized by computing (this + this^T)/2");
-    this->transposeInPlace();
-    this->addMat(m);
-    this->prodScalar(0.5);
-  }
+  if (m.isSymmetric()) return;
+
+  messerr("The input matrix should be Symmetric");
+  messerr("It has been symetrized by computing (this + this^T)/2");
+
+  for (Id icol = 0; icol < m.getNCols(); icol++)
+    for (Id irow = 0; irow < m.getNRows(); irow++)
+      setValue(irow, icol, 0.5 * (m.getValue(irow, icol) + m.getValue(icol, irow)));
 }
 
 MatrixSymmetric& MatrixSymmetric::operator=(const MatrixSymmetric& m)
@@ -170,7 +175,7 @@ void MatrixSymmetric::solveSDP(constvect b, vect x) const
   /// TODO : check beforehand if matrix is invertible ?
   Eigen::Map<const Eigen::VectorXd> bm(b.data(), getNCols());
   Eigen::Map<Eigen::VectorXd> xm(x.data(), getNRows());
-  
+
   auto a = eigenMat();
 
   xm = a.inverse() * bm;
@@ -371,7 +376,7 @@ Id MatrixSymmetric::_getTriangleSize() const
 Id MatrixSymmetric::_matrix_qo(const VectorDouble& gmat, VectorDouble& xmat)
 {
   if (computeGeneralizedInverse(*this) != 0) return 1;
-  prodMatVecInPlace(gmat, xmat);
+  AMatrix::productInPlace(xmat, *this, gmat);
   return 0;
 }
 
@@ -920,7 +925,7 @@ bool MatrixSymmetric::sample(MatrixSymmetric& res,
 MatrixSymmetric* MatrixSymmetric::createRandomDefinitePositive(Id neq, Id seed)
 {
   MatrixSymmetric local(neq);
-  local.fillRandom(seed);
+  local.fillRandom(0, seed);
   auto* mat = new MatrixSymmetric(neq);
   mat->prodMatMatInPlace(&local, &local, true);
   return mat;

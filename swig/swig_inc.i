@@ -1075,10 +1075,74 @@ namespace gstlrn {
   }
 }
 
+%extend gstlrn::MatrixDense {
+/**
+  * @brief List of methods from class MatrixDense exported for Target Language
+  */
+  MatrixDense linearCombination(double addition,
+                         double val1,
+                         const MatrixDense& other1,
+                         double val2     = 0.,
+                         const MatrixDense& other2 = MatrixDense(),
+                         double val3     = 0.,
+                         const MatrixDense& other3 = MatrixDense())
+  {
+    return AMatrix::linearCombination(addition, val1, other1, val2, other2, val3, other3);
+  }
+  VectorDouble prodMatVec(const VectorDouble& x, bool transpose = false)
+  {
+    return AMatrix::product(*$self, x, transpose, true);
+  }
+  void prodMatVecInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false) const
+  {
+    AMatrix::productInPlace(y, *$self, x, transpose, true);
+  }
+  VectorDouble prodVecMat(const VectorDouble& x, bool transpose = false) const
+  {
+    return AMatrix::product(x, *$self, transpose, true);
+  }
+  void prodVecMatInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false) const
+  {
+    AMatrix::productInPlace(y, x, *$self, transpose, true);
+  }
+}
+
+%extend gstlrn::MatrixSparse {
+/**
+  * @brief List of methods from class MatrixSparse exported for Target Language
+  */
+  MatrixSparse linearCombination(double addition,
+                         double val1,
+                         const MatrixSparse& other1,
+                         double val2     = 0.,
+                         const MatrixSparse& other2 = MatrixSparse(),
+                         double val3     = 0.,
+                         const MatrixSparse& other3 = MatrixSparse())
+  {
+    return AMatrix::linearCombination(addition, val1, other1, val2, other2, val3, other3);
+  }
+  VectorDouble prodMatVec(const VectorDouble& x, bool transpose = false)
+  {
+    return AMatrix::product(*$self, x, transpose, true);
+  }
+  void prodMatVecInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false) const
+  {
+    AMatrix::productInPlace(y, *$self, x, transpose, true);
+  }
+  VectorDouble prodVecMat(const VectorDouble& x, bool transpose = false) const
+  {
+     return AMatrix::product(x, *$self, transpose, true);
+  }
+  void prodVecMatInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false) const
+  {
+    AMatrix::productInPlace(y, x, *$self, transpose, true);
+  }
+}
+
 %extend gstlrn::VectorHelper {
 /**
-   * @brief List of operators exported for Target Language
-   */
+  * @brief List of operators from class VectorHelper exported for Target Language
+  */
   static VectorDouble addVD(const VectorDouble& v1, const VectorDouble& v2)
   {
     return VectorHelper::add(v1, v2);
@@ -1111,7 +1175,6 @@ namespace gstlrn {
   {
     return VectorHelper::divideCst(v1, v2, flagOpposite);
   }
-
   static VectorInt addVI(const VectorInt& v1, const VectorInt& v2)
   {
     return VectorHelper::add(v1, v2);
@@ -1144,6 +1207,7 @@ namespace gstlrn {
   {
     return VectorHelper::divideCst(v1, v2, flagOpposite);
   }
+
 }
 
 // Prevent memory leaks from 'create*' and 'clone' methods

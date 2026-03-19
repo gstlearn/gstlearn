@@ -479,7 +479,7 @@ static Id st_grid1D_interpolate_spline(Db* dbgrid,
 
   M.resize(n, 0);
   R.invert();
-  R.prodMatVecInPlace(F, M);
+  AMatrix::productInPlace(M, R, F);
 
   C.resize(nm1, 0);
   Cp.resize(nm1, 0);

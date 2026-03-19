@@ -58,7 +58,7 @@ This library has been successfully tested with Ubuntu 18/20/22 LTS, Windows 10 a
 For **compiling and installing** *gstlearn* C++ library, the following tools must be available (See [Required Tools Installation](#required-tools-installation) instructions below):
 
 * Git client 2.30 or higher
-* CMake tool 3.20 or higher
+* CMake tool 3.26 or higher
 * A C++ compiler among:
   * Linux:
     * GCC 8.0 or higher

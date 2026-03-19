@@ -118,7 +118,7 @@ Id Rotation::getDerivativesInPlace(std::vector<MatrixSquare>& res) const
   GH::rotationMatrixDerivativesInPlace(static_cast<Id>(_nDim), _angles, res);
   for (auto& dR: res)
   {
-    dR.prodScalar(GV_PI / 180);
+    dR.prodCst(GV_PI / 180);
   }
   return 0;
 }
@@ -177,7 +177,7 @@ void Rotation::rotateDirect(const VectorDouble& inv, VectorDouble& outv) const
     // on the fly (avoiding copies)
     constvect cinv(inv.data(), _nDim);
     vect coutv(outv.data(), _nDim);
-    _rotMat.prodMatVecInPlaceC(cinv, coutv, false);
+    AMatrix::productInPlace(coutv, _rotMat, cinv, false);
   }
 }
 
@@ -191,7 +191,7 @@ void Rotation::rotateInverse(const VectorDouble& inv, VectorDouble& outv) const
     // on the fly (avoiding copies)
     constvect cinv(inv.data(), _nDim);
     vect coutv(outv.data(), _nDim);
-    _rotInv.prodMatVecInPlaceC(cinv, coutv, false);
+    AMatrix::productInPlace(coutv, _rotInv, cinv, false);
   }
 }
 

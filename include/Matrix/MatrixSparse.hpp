@@ -37,6 +37,7 @@ class EOperator;
 
 namespace gstlrn
 {
+class MatrixDense;
 /**
  * Sparse Matrix
  *
@@ -46,7 +47,7 @@ namespace gstlrn
  */
 class GSTLEARN_EXPORT MatrixSparse: public AMatrix, public virtual ALinearOp
 {
-public: 
+public:
   MatrixSparse(Id nrow = 0, Id ncol = 0, Id ncolmax = -1);
   MatrixSparse(const MatrixSparse& m);
   MatrixSparse& operator=(const MatrixSparse& m);
@@ -61,16 +62,14 @@ public:
 
   //// Interface to AStringable
   String toString(const AStringFormat* strfmt = nullptr) const override;
-  
+
   /// Interface for ALinearOp
 
   Id getSize() const override { return getNRows(); }
 
-
   static MatrixSparse* createFromMatrix(const MatrixSparse& mat);
 
   /// Interface for AMatrix
-
 
   /*! Returns if the current matrix is Sparse */
   bool isSparse() const override { return true; }
@@ -98,12 +97,6 @@ public:
   void setDiagonal(const VectorDouble& tab) override;
   /*! Set the contents of the (main) Diagonal to a constant value */
   void setDiagonalToConstant(double value = 1.) override;
-  /*! Add a value to each matrix component */
-  void addScalar(double v) override;
-  /*! Add value to matrix diagonal */
-  void addScalarDiag(double v) override;
-  /*! Multiply each matrix component by a value */
-  void prodScalar(double v) override;
   /*! Set all the values of the matrix at once */
   void fill(double value) override;
   /*! Multiply the matrix row-wise */
@@ -139,18 +132,46 @@ public:
   /*! Perform 'this' = 't(A)' %*% 'A' or 'A' %*% 't(A)' */
   void prodNormMatInPlace(const AMatrix* a,
                           bool transpose = false) override;
-  /*! Perform 'this' = 'val1' * 'mat1' + 'val2' * 'mat2' + 'val3' * 'mat3' */
-  void linearCombination(double val1,
-                         const AMatrix* mat1,
-                         double val2         = 1.,
-                         const AMatrix* mat2 = nullptr,
-                         double val3         = 1.,
-                         const AMatrix* mat3 = nullptr) override;
-  /*! Add a matrix (multiplied by a constant) */
-  void addMat(const AMatrix& y, double cx = 1., double cy = 1.) override;
 
   /*! Extract the contents of the matrix */
   NF_Triplet getMatrixToTriplet(Id shiftRow = 0, Id shiftCol = 0) const override;
+
+  /*! New methods for operator overloading */
+  MatrixSparse& addCst(double a);
+  MatrixSparse& prodCst(double a);
+
+  // === INTERNAL USE ONLY ===
+  // Do not call directly; used by template.
+  static void _addGeneral(MatrixSparse& res, const MatrixSparse& other, double cst);
+  static void _addGeneral(MatrixSparse& res, const MatrixSparse& other1, const MatrixSparse& other2);
+  static void _prodGeneral(MatrixSparse& res, const MatrixSparse& other, double cst);
+  static void _prodGeneral(MatrixSparse& res, const MatrixSparse& other1, const MatrixSparse& other2);
+  static void _productGeneral(MatrixSparse& res,
+                              const MatrixSparse& other1,
+                              const MatrixSparse& other2,
+                              bool transpose1 = false,
+                              bool transpose2 = false);
+  static void _prodVecAddGeneral(VectorDouble& res,
+                                 const MatrixSparse& other,
+                                 const VectorDouble& vec,
+                                 bool transpose  = false,
+                                 bool flagInvert = false);
+  static void _prodVecAddGeneral(vect& res,
+                                 const MatrixSparse& other,
+                                 const constvect& vec,
+                                 bool transpose  = false,
+                                 bool flagInvert = false);
+  static void _prodnormGeneral(MatrixSparse& res,
+                               const MatrixSparse& a,
+                               const MatrixSparse& m = MatrixSparse(),
+                               bool transpose        = false);
+  static void _prodnormGeneral(MatrixSparse& res,
+                               const MatrixSparse& a,
+                               const VectorDouble& vec,
+                               bool transpose = false);
+  static bool _areIdenticalGeneral(const MatrixSparse& a,
+                                   const MatrixSparse& b,
+                                   bool verbose = false);
 
   MatrixSparse* getRowAsMatrixSparse(Id irow, double coeff = 1.) const;
   MatrixSparse* getColumnAsMatrixSparse(Id icol, double coeff = 1.) const;
@@ -171,8 +192,10 @@ public:
                                         Id ncol,
                                         double zeroPercent = 0.1,
                                         Id seed            = 143743);
+  static MatrixDense* createFromSparse(const MatrixSparse& mat);
 
-  static MatrixSparse* Identity(Id nrow, double value = 1.);
+  static MatrixSparse*
+  Identity(Id nrow, double value = 1.);
   static MatrixSparse* addMatMat(const MatrixSparse* x,
                                  const MatrixSparse* y,
                                  double cx = 1.,
@@ -194,7 +217,7 @@ public:
   void resetFromTriplet(const NF_Triplet& NF_T);
 
   /*! Set all the values of the Matrix with random values */
-  void fillRandom(Id seed = 432432, double zeroPercent = 0);
+  void fillRandom(double zeroPercent = 0, Id seed = 432432) override;
 
 #ifndef SWIG
   Id addVecInPlace(const constvect x, vect y) const;
@@ -222,17 +245,68 @@ public:
   void forceDimension(Id maxRows, Id maxCols);
   VectorInt getNonZeroCols(Id irow) const;
   VectorInt getNonZeroRows(Id icol) const;
-#ifndef SWIG
 
 protected:
+#ifndef SWIG
   Id _addToDest(const constvect inv, vect outv) const override;
 #endif
 
-#ifndef SWIG
-
 public:
+#ifndef SWIG
   void setDiagonal(const Eigen::Map<const Eigen::VectorXd>& tab);
   void setDiagonal(const constvect tab);
+
+  // Operators overloading
+  MatrixSparse& operator+=(double a)
+  {
+    addInPlace(*this, *this, a);
+    return *this;
+  }
+
+  MatrixSparse& operator-=(double a)
+  {
+    addInPlace(*this, *this, -a);
+    return *this;
+  }
+
+  MatrixSparse operator+(double a) const
+  {
+    MatrixSparse res;
+    addInPlace(res, *this, a);
+    return res;
+  }
+
+  MatrixSparse operator-(double a) const
+  {
+    MatrixSparse res;
+    addInPlace(res, *this, -a);
+    return res;
+  }
+  MatrixSparse& operator*=(double a)
+  {
+    productInPlace(*this, *this, a);
+    return *this;
+  }
+
+  MatrixSparse operator*(double a) const
+  {
+    MatrixSparse res;
+    productInPlace(res, *this, a);
+    return res;
+  }
+  MatrixSparse& operator/=(double a)
+  {
+    productInPlace(*this, *this, 1.0 / a);
+    return *this;
+  }
+
+  MatrixSparse operator/(double a) const
+  {
+    MatrixSparse res;
+    productInPlace(res, *this, 1.0 / a);
+    return res;
+  }
+
 #endif
 
 protected:
@@ -246,11 +320,6 @@ protected:
   Id _getMatrixPhysicalSize() const override;
   double _getValueByRank(Id rank) const override;
   double& _getValueRef(Id irow, Id icol) override;
-
-#ifndef SWIG
-  void _addProdVecMatInPlacePtr(constvect x, vect y, bool transpose = false) const override;
-  void _addProdMatVecInPlacePtr(constvect x, vect y, bool transpose = false) const override;
-#endif
 
   bool _isPhysicallyPresent(Id /*irow*/, Id /*icol*/) const override { return true; }
   void _setValues(const double* values, bool byCol) override;

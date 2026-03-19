@@ -28,6 +28,7 @@ class GSTLEARN_EXPORT MatrixSymmetric: public MatrixSquare
 
 public:
   MatrixSymmetric(Id nrow = 0);
+  MatrixSymmetric(Id nrow, Id ncol);
   MatrixSymmetric(const MatrixSymmetric& m);
   MatrixSymmetric(const AMatrix& m);
   MatrixSymmetric& operator=(const MatrixSymmetric& m);
@@ -114,9 +115,10 @@ public:
   static Id _constraintsCount(Id nai, VectorInt& active);
   MatrixSymmetric compress0MatLC(const MatrixDense& matLC);
 
-  #ifndef SWIG
+#ifndef SWIG
   void solveSDP(constvect b, vect x) const;
-  #endif
+#endif
+
 private:
   Id _getTriangleSize() const;
 };

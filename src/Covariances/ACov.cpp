@@ -722,7 +722,7 @@ double ACov::evalAveragePointToDb(const SpacePoint& p1,
   }
 
   // Scaling
-  if (isZero(norme)) total /= norme;
+  if (!isZero(norme)) total /= norme;
 
   return total;
 }

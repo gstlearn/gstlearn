@@ -90,7 +90,7 @@ Id ProjMatrix::_addMesh2point(const constvect inv, vect outv) const
     return 1;
   }
 
-  addProdMatVecInPlaceC(inv, outv, false);
+  AMatrix::productInPlace(outv, *this, inv, false, false);
   return 0;
 }
 
@@ -109,7 +109,7 @@ Id ProjMatrix::_addPoint2mesh(const constvect inv, vect outv) const
     return 1;
   }
 
-  addProdMatVecInPlaceC(inv, outv, true);
+  AMatrix::productInPlace(outv, *this, inv, true, false);
   return 0;
 }
 
@@ -118,7 +118,8 @@ String ProjMatrix::toString(const AStringFormat* strfmt) const
   return MatrixSparse::toString(strfmt);
 }
 
-ProjMatrix* ProjMatrix::createFromMatrix(const MatrixSparse& mat) {
+ProjMatrix* ProjMatrix::createFromMatrix(const MatrixSparse& mat)
+{
 
   return new ProjMatrix(mat);
 }

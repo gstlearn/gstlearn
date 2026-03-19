@@ -23,6 +23,7 @@ class GSTLEARN_EXPORT MatrixSquare: public MatrixDense
 
 public:
   MatrixSquare(Id nrow = 0);
+  MatrixSquare(Id nrow, Id ncol);
   MatrixSquare(const MatrixSquare& r);
   MatrixSquare(const AMatrix& m);
   MatrixSquare& operator=(const MatrixSquare& r);

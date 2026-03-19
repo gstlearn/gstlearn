@@ -11,10 +11,10 @@
 #include "Polynomials/Chebychev.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/AFunction.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Core/fftn.hpp"
 #include "Matrix/MatrixSparse.hpp"
-#include "Basic/VectorHelper.hpp"
 
 #include <cmath>
 #include <functional>
@@ -281,7 +281,7 @@ void Chebychev::evalOp(MatrixSparse* S, const constvect x, vect y) const
 
   T1 = MatrixSparse::diagConstant(nvertex, 1.);
   if (T1 == nullptr) my_throw("Problem in MatrixSparse::diagCOnstant");
-  T1->addMat(*S, v2, v1);
+  AMatrix::linearCombinationInPlace(*T1, 0., v2, *T1, v1, *S);
 
   /* Initialize the simulation */
 
@@ -303,7 +303,7 @@ void Chebychev::evalOp(MatrixSparse* S, const constvect x, vect y) const
 
   for (Id ib = 2; ib < static_cast<Id>(_coeffs.size()); ib++)
   {
-    T1->prodVecMatInPlace(tm1, tx, false);
+    AMatrix::productInPlace(tx, tm1, *T1, false);
     for (Id i = 0; i < nvertex; i++)
     {
       tx[i] = 2. * tx[i] - tm2[i];
@@ -384,52 +384,49 @@ void Chebychev::_addEvalOp(const ALinearOp* Op, const constvect inv, vect outv) 
 
 #endif
 
-VectorDouble Chebychev::smoother(ALinearOp* Op, const VectorDouble& ucurr, const VectorDouble& rhs, double lambda_max, double ratiomin, 
-  double ratiomax,  Id iterations) const
+VectorDouble Chebychev::smoother(ALinearOp* Op, const VectorDouble& ucurr, const VectorDouble& rhs, double lambda_max, double ratiomin, double ratiomax, Id iterations) const
 {
-    VectorDouble res = ucurr;
-    smoother(Op, res, rhs, lambda_max, ratiomin, ratiomax, iterations);
-    return res;
+  VectorDouble res = ucurr;
+  smoother(Op, res, rhs, lambda_max, ratiomin, ratiomax, iterations);
+  return res;
 }
 
-void Chebychev::smoother(ALinearOp* Op, VectorDouble& ucurr, const VectorDouble& rhs,  
-                         double lambda_max, double ratiomin, double ratiomax,
-                         Id iterations) const
+void Chebychev::smoother(ALinearOp* Op, VectorDouble& ucurr, const VectorDouble& rhs, double lambda_max, double ratiomin, double ratiomax, Id iterations) const
 {
-    _work.resize(Op->getSize());
-    _work2.resize(Op->getSize());
+  _work.resize(Op->getSize());
+  _work2.resize(Op->getSize());
 
-    double beta = lambda_max * ratiomax;
-    double alpha = lambda_max * ratiomin;
-    
-    double d = (beta + alpha) / 2.0;
-    double c = (beta - alpha) / 2.0;
-    
-    // Init : u_1 = u_0 + (1/d)*r_0
-    Op->evalDirect(ucurr,_work);
-    VH::subtractInPlace(_work, rhs, _work);
+  double beta  = lambda_max * ratiomax;
+  double alpha = lambda_max * ratiomin;
 
-    _work /= d;
-    VectorHelper::addInPlace(_work, ucurr);
-    VectorDouble* delta = &_work;
+  double d = (beta + alpha) / 2.0;
+  double c = (beta - alpha) / 2.0;
 
-    // Récursion de Chebyshev (3-term recurrence)
-    double rho_prev = 2.0 * d / c;
-    
-    for (int k = 1; k < iterations; ++k) 
-    {
-        double rho_curr = 1.0 / (d/c - (c/d) * rho_prev / 4.0);
-        Op->evalDirect(ucurr, _work2);
-        VH::subtractInPlace(_work2, rhs, _work2);
-        
-        // Formule récursive pour u_{k+1}
-        *delta *= (rho_curr * rho_prev) * c / (4.0 * d);
-        _work2 *= rho_curr / c;
-        VH::addInPlace(_work2,*delta);
-        VH::addInPlace(*delta, ucurr);
-        
-        rho_prev = rho_curr;
-    }
+  // Init : u_1 = u_0 + (1/d)*r_0
+  Op->evalDirect(ucurr, _work);
+  VH::subtractInPlace(_work, rhs, _work);
+
+  _work /= d;
+  VectorHelper::addInPlace(_work, ucurr);
+  VectorDouble* delta = &_work;
+
+  // Récursion de Chebyshev (3-term recurrence)
+  double rho_prev = 2.0 * d / c;
+
+  for (int k = 1; k < iterations; ++k)
+  {
+    double rho_curr = 1.0 / (d / c - (c / d) * rho_prev / 4.0);
+    Op->evalDirect(ucurr, _work2);
+    VH::subtractInPlace(_work2, rhs, _work2);
+
+    // Formule récursive pour u_{k+1}
+    *delta *= (rho_curr * rho_prev) * c / (4.0 * d);
+    _work2 *= rho_curr / c;
+    VH::addInPlace(_work2, *delta);
+    VH::addInPlace(*delta, ucurr);
+
+    rho_prev = rho_curr;
+  }
 }
 
 } // namespace gstlrn

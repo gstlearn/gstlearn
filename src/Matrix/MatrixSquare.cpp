@@ -23,6 +23,11 @@ MatrixSquare::MatrixSquare(Id nrow)
 {
 }
 
+MatrixSquare::MatrixSquare(Id nrow, Id ncol)
+  : MatrixDense(nrow, ncol)
+{
+}
+
 MatrixSquare::MatrixSquare(const MatrixSquare& r)
   : MatrixDense(r)
 {
@@ -476,7 +481,6 @@ Id MatrixSquare::_solveLU(const MatrixSquare& tus,
   return 0;
 }
 
-
 /*****************************************************************************/
 /*!
  **  Get the solution of a linear system (after LU decomposition)
@@ -602,6 +606,5 @@ MatrixSquare* MatrixSquare::createFromTridiagonal(const VectorDouble& vecdiag,
   }
   return res;
 }
-
 
 } // namespace gstlrn
