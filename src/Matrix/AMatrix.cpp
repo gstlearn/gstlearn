@@ -24,8 +24,7 @@
 
 namespace gstlrn
 {
-
-static bool _flagMatrixCheck  = false;
+static bool _flagMatrixCheck = false;
 
 AMatrix::AMatrix(Id nrow, Id ncol)
   : AStringable()
@@ -1162,43 +1161,6 @@ void AMatrix::makePositiveColumn()
 void AMatrix::prodMat(const AMatrix* matY, bool transposeY)
 {
   prodMatMatInPlace(this, matY, false, transposeY);
-}
-
-
-/**
- * @brief Perfom the algebraic equation
- * this = val1 * mat1 + val2 * mat2 + val3 * mat3
- *
- * @param val1 Coefficient of first matrx
- * @param mat1 First matrix (optional)
- * @param val2 Coefficient of second matrix
- * @param mat2 Second matrix (optional)
- * @param val3 Coefficient of third matrix
- * @param mat3 Third matrix (optional)
- */
-void AMatrix::linearCombination(double val1,
-                                const AMatrix* mat1,
-                                double val2,
-                                const AMatrix* mat2,
-                                double val3,
-                                const AMatrix* mat3)
-{
-  // Check dimensions
-  if (mat1 != nullptr && !isSameSize(*mat1)) return;
-  if (mat2 != nullptr && !isSameSize(*mat2)) return;
-  if (mat3 != nullptr && !isSameSize(*mat3)) return;
-
-  // Calculations
-  for (Id irow = 0; irow < getNRows(); irow++)
-    for (Id icol = 0; icol < getNCols(); icol++)
-    {
-      if (!_isPhysicallyPresent(irow, icol)) continue;
-      double value = 0;
-      if (mat1 != nullptr) value += val1 * mat1->getValue(irow, icol);
-      if (mat2 != nullptr) value += val2 * mat2->getValue(irow, icol);
-      if (mat3 != nullptr) value += val3 * mat3->getValue(irow, icol);
-      setValue(irow, icol, value);
-    }
 }
 
 void setFlagMatrixCheck(bool flagMatrixCheck)
