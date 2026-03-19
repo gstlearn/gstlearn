@@ -901,7 +901,7 @@ Id MeshETurbo::_addWeights(Id icas,
   if (lhs.invertOutOfPlace(invlhs)) return 1;
 
   // Calculate the weights
-  invlhs.prodMatVecInPlaceC(_rhs, lambda);
+  AMatrix::productInPlace(lambda, invlhs, _rhs.asConstVect());
 
   // Check that all weights are positive
   for (Id icorner = 0; icorner < ncorner; icorner++)

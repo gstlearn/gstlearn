@@ -92,7 +92,7 @@ int main(int argc, char* argv[])
   CholeskyDense cholDense(*M);
 
   // Checking the Cholesky decomposition
-  M->prodMatVecInPlace(vecin, vecref);
+  AMatrix::productInPlace(vecref, *M, vecin);
 
   cholSparse.LtX(vecin, vecout);
   cholSparse.LX(vecout, vecout1);
@@ -102,7 +102,7 @@ int main(int argc, char* argv[])
     message(">>> Function 'LLt' is validated\n");
   else
   {
-    printVector(vecref ,"LLt (by Matrix)", true, true);
+    printVector(vecref, "LLt (by Matrix)", true, true);
     printVector(vecout1, "LLt (by CholeskySparse)", true, true);
     printVector(vecout2, "LLt (by CholeskyDense)", true, true);
     printError("LLt");

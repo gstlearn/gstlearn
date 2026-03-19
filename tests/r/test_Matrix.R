@@ -87,22 +87,6 @@ err = MSP$display()
 cst = rnorm(n = 1, mean = 0, sd = 1.0)
 
 #
-# Adding a constant to the diagonal of a matrix
-#
-addendum = 1.432
-
-err = mestitle(0,"Adding a constant value to the diagonal of a matrix")
-err = reset_to_initial_contents(M, MRR, MSG, MSS, MSP)
-
-err = MRR$addScalarDiag(addendum)
-err = MSG$addScalarDiag(addendum)
-print(paste0("Are results for MRR and MSG similar: ", MRR$isSame(MSG)))
-err = MSS$addScalarDiag(addendum)
-print(paste0("Are results for MRR and MSS similar: ", MRR$isSame(MSS)))
-err = MSP$addScalarDiag(addendum)
-print(paste0("Are results for MRR and MSP similar: ", MRR$isSame(MSP)))
-
-#
 # Multiplying the matrix by a constant
 #
 multiply = 3.2
@@ -110,26 +94,13 @@ multiply = 3.2
 err = mestitle(0,"Multiplying a Matrix by a constant")
 err = reset_to_initial_contents(M, MRR, MSG, MSS, MSP)
 
-err = MRR$prodScalar(multiply)
-err = MSG$prodScalar(multiply)
+err = MRR$prodCst(multiply)
+err = MSG$prodCst(multiply)
 print(paste0("Are results for MRR and MSG similar: ", MRR$isSame(MSG)))
-err = MSS$prodScalar(multiply)
+err = MSS$prodCst(multiply)
 print(paste0("Are results for MRR and MSS similar: ", MRR$isSame(MSS)))
-err = MSP$prodScalar(multiply)
+err = MSP$prodCst(multiply)
 print(paste0("Are results for MRR and MSP similar: ", MRR$isSame(MSP)))
-
-#
-# Adding a constant to a matrix
-# Note: This does not make sense for sparse or diagonal matrices
-#
-err = mestitle(0,"Adding a constant value to the whole matrix")
-err = reset_to_initial_contents(M, MRR, MSG, MSS, MSP)
-
-err = MRR$addScalar(addendum)
-err = MSG$addScalar(addendum)
-print(paste0("Are results for MRR and MSG similar: ", MRR$isSame(MSG)))
-err = MSS$addScalar(addendum)
-print(paste0("Are results for MRR and MSS similar: ", MRR$isSame(MSS)))
 
 #
 # Linear combination
@@ -140,12 +111,12 @@ err = reset_to_initial_contents(M, MRR, MSG, MSS, MSP)
 cx =  1.3
 cy = -0.3
 
-err = MRR$addMat(MRR,cx,cy)
-err = MSG$addMat(MSG,cx,cy)
+err = MRR$linearCombination(0., cx, MRR, cy, MRR)
+err = MSG$linearCombination(0., cx, MSG, cy, MSG)
 print(paste0("Are results for MRR and MSG similar: ", MRR$isSame(MSG)))
-err = MSS$addMat(MSS,cx,cy)
+err = MSS$linearCombination(0., cx, MSS, cy, MSS)
 print(paste0("Are results for MRR and MSS similar: ", MRR$isSame(MSS)))
-err = MSP$addMat(MSP,cx,cy)
+err = MSP$linearCombination(0., cx, MSP, cy, MSP)
 print(paste0("Are results for MRR and MSP similar: ", MRR$isSame(MSP)))
 
 #

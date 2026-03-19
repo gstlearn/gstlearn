@@ -673,9 +673,9 @@ Id krigingVecchia(Db* dbin,
 void Vecchia::productVecchia(constvect Y, vect res) const
 {
   _LdY.resize(_LFull.getNRows());
-  _LFull.prodMatVecInPlaceC(Y, _LdY, false);
+  AMatrix::productInPlace(_LdY.asVect(), _LFull, Y, false);
   _LdY *= _DFull;
-  _LFull.prodMatVecInPlaceC(_LdY, res, true);
+  AMatrix::productInPlace(res, _LFull, _LdY.asConstVect(), true);
 }
 
 void Vecchia::productMatVecchia(const MatrixDense& X, MatrixDense& resmat) const

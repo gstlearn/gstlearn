@@ -61,13 +61,13 @@ public:
   }
 
 #ifndef SWIG
-#ifdef USE_BOOST_SPAN
-  using span = boost::span<T>;
+#  ifdef USE_BOOST_SPAN
+  using span      = boost::span<T>;
   using constspan = boost::span<const T>;
-#else
-  using span = std::span<T>;
+#  else
+  using span      = std::span<T>;
   using constspan = std::span<const T>;
-#endif
+#  endif
   // Vue sur la "colonne k" (dernier indice) pour i,j fixes
   span row(size_t i, size_t j) noexcept
   {

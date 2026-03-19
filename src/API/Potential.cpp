@@ -1466,7 +1466,7 @@ Id Potential::_extdriftEval(double x0,
   /* Perform the estimation */
 
   VectorDouble result(4);
-  _wgtExt.prodVecMatInPlace(_dataExt, result);
+  AMatrix::productInPlace(result, _dataExt, _wgtExt);
 
   /* Retrieve the results */
 
@@ -1574,7 +1574,7 @@ void Potential::_calculatePoint(bool flag_grad,
   /* Perform the estimation */
 
   result.fill(TEST);
-  rhs.prodVecMatInPlace(zdual, result);
+  AMatrix::productInPlace(result, zdual, rhs);
 
   // Printout (optional)
 
@@ -1769,7 +1769,7 @@ void Potential::_convertDistance(Id ic0,
 
   VectorDouble zdual_red(neqm1);
   VectorDouble zval_red = VH::reduceOne(zval, icol0);
-  lhs_aux->prodMatVecInPlace(zval_red, zdual_red);
+  AMatrix::productInPlace(zdual_red, *lhs_aux, zval_red);
   delete lhs_aux;
 
   /* Evaluate the reference point */
@@ -1778,7 +1778,7 @@ void Potential::_convertDistance(Id ic0,
     coor0[idim] = ISO_COO(ic0, 0, idim);
   _buildRHS(false, nullptr, coor0, rhs_arg);
   rhs_red = dynamic_cast<MatrixDense*>(MatrixFactory::createReduceOne(&rhs_arg, icol0, -1, false, false));
-  rhs_red->prodVecMatInPlace(zdual_red, result);
+  AMatrix::productInPlace(result, zdual_red, *rhs_red);
   //  double potval = result[0]; // TODO: check why is potval not used
   delete rhs_red;
 
@@ -1788,7 +1788,7 @@ void Potential::_convertDistance(Id ic0,
     coor0[idim] = coor[idim] = ISO_COO(ic0, j0, idim);
   _buildRHS(true, nullptr, coor0, rhs_arg);
   rhs_red = dynamic_cast<MatrixDense*>(MatrixFactory::createReduceOne(&rhs_arg, icol0, -1, false, false));
-  rhs_red->prodVecMatInPlace(zdual_red, result);
+  AMatrix::productInPlace(result, zdual_red, *rhs_red);
   delete rhs_red;
 
   if (OptDbg::query(EDbg::CONVERGE))
@@ -1814,7 +1814,7 @@ void Potential::_convertDistance(Id ic0,
     }
     _buildRHS(true, nullptr, coor, rhs_arg);
     rhs_red = dynamic_cast<MatrixDense*>(MatrixFactory::createReduceOne(&rhs_arg, icol0, -1, false, false));
-    rhs_red->prodVecMatInPlace(zdual_red, result);
+    AMatrix::productInPlace(result, zdual_red, *rhs_red);
     delete rhs_red;
 
     if (OptDbg::query(EDbg::CONVERGE))
@@ -2468,7 +2468,8 @@ Id Potential::kriging(DbGrid* dbout,
   if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
     printMatrix(zval, 1, _nequa, "\n[Z]", 0, 1);
   VectorDouble zdual(_nequa);
-  lhs.prodMatVecInPlace(zval, zdual);
+
+  AMatrix::productInPlace(zdual, lhs, zval);
   if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
     printMatrix(zdual, 1, _nequa, "\n[Z] * [LHS]-1", 0, 1);
   // Evaluate Potential at Reference point
@@ -2583,7 +2584,7 @@ Id Potential::simulate(DbGrid* dbout,
     _fillDual(zval);
     if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
       printMatrix(zval, 1, _nequa, "\n[Z]", 0, 1);
-    lhs.prodMatVecInPlace(zval, zdual);
+    AMatrix::productInPlace(zdual, lhs, zval);
     if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
       printMatrix(zdual, 1, _nequa, "\n[Z] *%* [A]-1", 0, 1);
 
@@ -2683,7 +2684,7 @@ Id Potential::xvalid(bool flag_dist_conv)
   _fillDual(zval);
   if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
     printMatrix(zval, 1, _nequa, "\n[Z]", 0, 1);
-  lhs.prodMatVecInPlace(zval, zdual);
+  AMatrix::productInPlace(zdual, lhs, zval);
   if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
     printMatrix(zdual, 1, _nequa, "\n[Z] *%* [A]-1", 0, 1);
 

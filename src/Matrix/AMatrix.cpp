@@ -16,6 +16,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Matrix/MatrixFactory.hpp"
+#include "Matrix/MatrixSparse.hpp"
 #include "Matrix/NF_Triplet.hpp"
 #include "geoslib_define.h"
 
@@ -208,11 +209,13 @@ bool AMatrix::isValid(Id irow, Id icol, bool printWhyNot) const
  */
 bool AMatrix::isSameSize(const AMatrix& m) const
 {
-  if (_nRows == m.getNRows() && _nCols == m.getNCols()) return true;
+  if (_nRows == m.getNRows() &&
+      _nCols == m.getNCols()) return true;
 
   messerr("Dimensions of matrices do not match");
   messerr("- current matrix (%d x %d)", getNRows(), getNCols());
   messerr("- tested matrix  (%d x %d)", m.getNRows(), m.getNCols());
+
   return false;
 }
 
@@ -340,7 +343,7 @@ void AMatrix::_setValues(const double* values, bool byCol)
 }
 #endif
 
-void AMatrix::fillRandom(Id seed, double zeroPercent)
+void AMatrix::fillRandom(double zeroPercent, Id seed)
 {
   law_set_random_seed(seed);
 
@@ -384,106 +387,6 @@ void AMatrix::setIdentity(double value)
       setValue(irow, icol, value * (irow == icol));
 }
 
-VectorDouble AMatrix::prodMatVec(const VectorDouble& x, bool transpose) const
-{
-  if (getFlagMatrixCheck() &&
-      !_isMatrixCompatible("AMatrix::prodMatVec",
-                           this, 0, transpose,
-                           nullptr, static_cast<Id>(x.size()), false)) return VectorDouble();
-  Id size = (transpose) ? _nCols : _nRows;
-  VectorDouble y(size, 0.);
-  _addProdMatVecInPlacePtr(x, y, transpose);
-  return y;
-}
-
-/**
- * Returns 'y' = 'this' %*% 'x'
- * @param x Input vector
- * @param y Output vector
- * @param transpose True if the matrix 'this' must be transposed
- */
-void AMatrix::prodMatVecInPlace(const VectorDouble& x,
-                                VectorDouble& y,
-                                bool transpose) const
-{
-  if (getFlagMatrixCheck() &&
-      !_isMatrixCompatible("AMatrix::prodMatVecInPlace",
-                           this, 0, transpose,
-                           nullptr, static_cast<Id>(x.size()), false)) return;
-  Id size = (transpose) ? _nCols : _nRows;
-  y.fill(0., size);
-  _addProdMatVecInPlacePtr(x, y, transpose);
-}
-
-void AMatrix::prodMatVecInPlaceC(const constvect x,
-                                 vect y,
-                                 bool transpose) const
-{
-  if (getFlagMatrixCheck() &&
-      !_isMatrixCompatible("AMatrix::prodMatVecInPlaceC",
-                           this, 0, transpose,
-                           nullptr, static_cast<Id>(x.size()), false)) return;
-  Id size = (transpose) ? _nCols : _nRows;
-  std::fill(y.begin(), y.begin() + size, 0.0);
-  _addProdMatVecInPlacePtr(x, y, transpose);
-}
-
-void AMatrix::addProdMatVecInPlaceC(const constvect x,
-                                    vect y,
-                                    bool transpose) const
-{
-  if (getFlagMatrixCheck() &&
-      !_isMatrixCompatible("AMatrix::addProdMatVecInPlaceC",
-                           this, 0, transpose,
-                           nullptr, static_cast<Id>(x.size()), false)) return;
-  _addProdMatVecInPlacePtr(x, y, transpose);
-}
-
-VectorDouble AMatrix::prodVecMat(const VectorDouble& x, bool transpose) const
-{
-  if (getFlagMatrixCheck() &&
-      !_isMatrixCompatible("AMatrix::prodVecMat",
-                           nullptr, static_cast<Id>(x.size()), true,
-                           this, 0, transpose)) return VectorDouble();
-  Id size = (transpose) ? _nRows : _nCols;
-  VectorDouble y(size, 0.);
-  _addProdVecMatInPlacePtr(x, y, transpose);
-  return y;
-}
-
-void AMatrix::prodVecMatInPlace(const VectorDouble& x, VectorDouble& y, bool transpose) const
-{
-  if (getFlagMatrixCheck() &&
-      !_isMatrixCompatible("AMatrix::prodVecMat",
-                           nullptr, static_cast<Id>(x.size()), true,
-                           this, 0, transpose)) return;
-  Id size = (transpose) ? _nRows : _nCols;
-  y.fill(0., size);
-  _addProdVecMatInPlacePtr(x, y, transpose);
-}
-
-void AMatrix::prodVecMatInPlaceC(const constvect x, vect y, bool transpose) const
-{
-  if (getFlagMatrixCheck() &&
-      !_isMatrixCompatible("AMatrix::prodVecMatInPlaceC",
-                           this, 0, transpose,
-                           nullptr, static_cast<Id>(x.size()), false)) return;
-  Id size = (transpose) ? _nCols : _nRows;
-  std::fill(y.begin(), y.begin() + size, 0.0);
-  _addProdVecMatInPlacePtr(x, y, transpose);
-}
-
-void AMatrix::addProdVecMatInPlaceC(const constvect x,
-                                    vect y,
-                                    bool transpose) const
-{
-  if (getFlagMatrixCheck() &&
-      !_isMatrixCompatible("AMatrix::addProdVecMatInPlaceC",
-                           this, 0, transpose,
-                           nullptr, static_cast<Id>(x.size()), false)) return;
-  _addProdVecMatInPlacePtr(x, y, transpose);
-}
-
 bool AMatrix::_matrixNeedToReset(Id nrows, Id ncols)
 {
   return nrows != getNRows() || ncols != getNCols() || _needToReset(nrows, ncols);
@@ -509,24 +412,6 @@ void AMatrix::resize(Id nrows, Id ncols)
 
   // Reset the sizes (clear values)
   reset(nrows, ncols);
-}
-
-/**
- * Add the matrix 'y' to the current Matrix
- * @param y Matrix to be added
- * @param cx Multiplicative parameter for this
- * @param cy Multiplicative parameter for y
- */
-void AMatrix::addMat(const AMatrix& y, double cx, double cy)
-{
-  if (!isSameSize(y)) return;
-
-  for (Id irow = 0; irow < _nRows; irow++)
-    for (Id icol = 0; icol < _nCols; icol++)
-    {
-      if (!_isPhysicallyPresent(irow, icol)) continue;
-      setValue(irow, icol, cx * getValue(irow, icol) + cy * y.getValue(irow, icol));
-    }
 }
 
 /**
@@ -667,7 +552,14 @@ double AMatrix::prodVecMatVec(const VectorDouble& x, const VectorDouble& y) cons
                            nullptr, static_cast<Id>(y.size()), false)) return TEST;
 
   VectorDouble left(_nRows);
-  prodMatVecInPlace(y, left, false);
+  const auto* other1 = dynamic_cast<const MatrixDense*>(this);
+  if (other1 != nullptr)
+    AMatrix::productInPlace(left, *other1, y, false, true);
+  else
+  {
+    const auto* other2 = dynamic_cast<const MatrixSparse*>(this);
+    AMatrix::productInPlace(left, *other2, y, false, true);
+  }
   return x.innerProduct(left);
 }
 
@@ -763,7 +655,7 @@ bool AMatrix::_isIndexValid(Id irow, Id icol) const
   return true;
 }
 
-bool AMatrix::_isRowVectorConsistent(const VectorDouble& tab) const
+bool AMatrix::_isRowConsistent(const VectorDouble& tab) const
 {
   if (static_cast<Id>(tab.size()) != getNRows())
   {
@@ -773,7 +665,7 @@ bool AMatrix::_isRowVectorConsistent(const VectorDouble& tab) const
   return true;
 }
 
-bool AMatrix::_isColVectorConsistent(const VectorDouble& tab) const
+bool AMatrix::_isColumnConsistent(const VectorDouble& tab) const
 {
   if (static_cast<Id>(tab.size()) != getNCols())
   {
@@ -783,7 +675,7 @@ bool AMatrix::_isColVectorConsistent(const VectorDouble& tab) const
   return true;
 }
 
-bool AMatrix::_isVectorSizeConsistent(const VectorDouble& tab) const
+bool AMatrix::_isMatrixConsistent(const VectorDouble& tab) const
 {
   auto nrows = getNRows();
   auto ncols = getNCols();
@@ -791,30 +683,6 @@ bool AMatrix::_isVectorSizeConsistent(const VectorDouble& tab) const
   {
     messerr("The argument 'tab'(%d) does not have correct dimension (%d)",
             static_cast<Id>(tab.size()), nrows * ncols);
-    return false;
-  }
-  return true;
-}
-
-bool AMatrix::_isColumnSizeConsistent(const VectorDouble& tab) const
-{
-  auto nrows = getNRows();
-  if (static_cast<Id>(tab.size()) != nrows)
-  {
-    messerr("The argument 'tab'(%d) does not have correct dimension (%d)",
-            static_cast<Id>(tab.size()), nrows);
-    return false;
-  }
-  return true;
-}
-
-bool AMatrix::_isRowSizeConsistent(const VectorDouble& tab) const
-{
-  auto ncols = getNCols();
-  if (static_cast<Id>(tab.size()) != ncols)
-  {
-    messerr("The argument 'tab'(%d) does not have correct dimension (%d)",
-            static_cast<Id>(tab.size()), ncols);
     return false;
   }
   return true;
@@ -880,6 +748,29 @@ bool AMatrix::_identifyRowAndCol(const AMatrix* mat,
     *nrow = nr;
     *ncol = nc;
   }
+  return true;
+}
+
+bool AMatrix::_areCompatible(Id nrow1,
+                             Id ncol1,
+                             bool transpose1,
+                             Id nrow2,
+                             Id ncol2,
+                             bool transpose2,
+                             Id& nrow,
+                             Id& ncol)
+{
+  Id nr1 = (transpose1) ? ncol1 : nrow1;
+  Id nc1 = (transpose1) ? nrow1 : ncol1;
+  Id nr2 = (transpose2) ? ncol2 : nrow2;
+  Id nc2 = (transpose2) ? nrow2 : ncol2;
+  if (nc1 != nr2)
+  {
+    messerr("Linkage error: Ncol1 = %d should match Nrow2 = %d", nc1, nr2);
+    return false;
+  }
+  nrow = nr1;
+  ncol = nc2;
   return true;
 }
 
@@ -1273,6 +1164,7 @@ void AMatrix::prodMat(const AMatrix* matY, bool transposeY)
   prodMatMatInPlace(this, matY, false, transposeY);
 }
 
+
 /**
  * @brief Perfom the algebraic equation
  * this = val1 * mat1 + val2 * mat2 + val3 * mat3
@@ -1337,5 +1229,22 @@ void AMatrix::dumpRange(const char* title)
     message(" Range: [%lf ; %lf] (%d/%d)\n", stats.mini, stats.maxi, stats.nvalid, elements.size());
   else
     message(" All terms are set to zero\n");
+}
+
+/**
+ * @brief Temporary code for checking equality of two constvect
+ *
+ */
+bool AMatrix::_isEqualVect(const constvect& a, const constvect& b, double eps)
+{
+  Id size = a.size();
+  if (size != static_cast<Id>(b.size())) return false;
+
+  for (Id i = 0, n = size; i < n; i++)
+  {
+    if (ABS(a[i] - b[i]) > eps)
+      return false;
+  }
+  return true;
 }
 } // namespace gstlrn

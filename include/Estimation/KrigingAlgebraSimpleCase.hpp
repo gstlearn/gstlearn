@@ -214,8 +214,8 @@ private:
 
   // Following elements are defined for internal storage
   MatrixDense _Y0; // X0 - LambdaSK * X^t (Dim: _nrhs * _nbfl)
-  MatrixDense _LambdaUKtSigma0;
-  MatrixDense _MuUKtX0t;
+  MatrixSymmetric _LambdaUKtSigma0;
+  MatrixSymmetric _MuUKtX0t;
   MatrixDense _invSigmaXMuUK;
   VectorDouble _X0Beta;
 

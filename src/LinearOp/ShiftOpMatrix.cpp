@@ -380,7 +380,7 @@ void ShiftOpMatrix::prodLambdaOnSqrtTildeC(const VectorDouble& inv,
  *****************************************************************************/
 Id ShiftOpMatrix::_addToDest(const constvect inv, vect outv) const
 {
-  _S->addProdMatVecInPlaceC(inv, outv);
+  AMatrix::productInPlace(outv, *_S, inv);
   return 0;
 }
 
@@ -576,7 +576,7 @@ void ShiftOpMatrix::_loadHHGrad(const AMesh* amesh,
   }
 
   Id number = amesh->getNApexPerMesh();
-  hh.prodScalar(1. / number);
+  hh.prodCst(1. / number);
 }
 
 double ShiftOpMatrix::_computeGradLogDetHH(const AMesh* amesh,
@@ -895,7 +895,7 @@ Id ShiftOpMatrix::_buildS(const AMesh* amesh, double tol)
   if (ndim == 1)
   {
     _TildeC *= 3.;
-    _S->prodScalar(2.);
+    _S->prodCst(2.);
   }
 
   // Ending S construction
@@ -1102,8 +1102,8 @@ Id ShiftOpMatrix::_buildSGrad(const AMesh* amesh, double tol)
       A             = MatrixFactory::prodMatMat<MatrixSparse>(_S, tildeCGradMat);
       delete tildeCGradMat;
       At = A->transpose();
-      A->addMat(*At);
-      _SGrad[ind]->addMat(*A);
+      AMatrix::addInPlace(*A, *A, *At);
+      AMatrix::addInPlace(*_SGrad[ind], *_SGrad[ind], *A);
       delete At;
       delete A;
       ind++;

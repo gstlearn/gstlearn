@@ -330,7 +330,7 @@ MatrixDense argumentReturnMatrix(Id nrows,
                                  Id seed)
 {
   MatrixDense mat(nrows, ncols);
-  mat.fillRandom(seed);
+  mat.fillRandom(0, seed);
   return mat;
 }
 
@@ -350,7 +350,7 @@ MatrixSparse argumentReturnMatrixSparse(Id nrows,
                                         Id seed)
 {
   MatrixSparse mat(nrows, ncols);
-  mat.fillRandom(seed, zeroPercent);
+  mat.fillRandom(zeroPercent, seed);
   mat.display();
   return mat;
 }

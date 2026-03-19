@@ -44,7 +44,6 @@ class EOperator;
 
 class GSTLEARN_EXPORT MatrixDense: public AMatrix
 {
-
 public:
   MatrixDense(Id nrow = 0, Id ncol = 0);
   MatrixDense(const MatrixDense& r);
@@ -55,9 +54,9 @@ public:
   /// Has a specific implementation in the Target language
   DECLARE_TOTL;
   DECLARE_TOLATEX
-  #ifndef SWIG
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-  #endif 
+#ifndef SWIG
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+#endif
 
   /// Cloneable interface
   IMPLEMENT_CLONING(MatrixDense)
@@ -68,6 +67,7 @@ public:
   bool isDense() const override { return true; }
   /*! Returns if the current matrix is Sparse */
   bool isSparse() const override { return false; }
+
   /*! Get the value from a matrix cell */
   double getValue(Id irow, Id icol) const override;
   /*! Set the value for in a matrix cell */
@@ -77,10 +77,14 @@ public:
                 Id icol,
                 const EOperator& oper,
                 double value) override;
+  /*! Extract a Column */
+  VectorDouble getColumn(Id icol) const override;
   /*! Set the contents of a Column */
   void setColumn(Id icol, const VectorDouble& tab) override;
   /*! Set the contents of a Column to a constant value */
   void setColumnToConstant(Id icol, double value) override;
+  /*! Extract a Row */
+  VectorDouble getRow(Id irow) const override;
   /*! Set the contents of a Row */
   void setRow(Id irow, const VectorDouble& tab) override;
   /*! Set the contents of a Row to a constant value*/
@@ -89,14 +93,7 @@ public:
   void setDiagonal(const VectorDouble& tab) override;
   /*! Set the contents of the (main) Diagonal to a constant value */
   void setDiagonalToConstant(double value = 1.) override;
-  /*! Add a value to each matrix component */
-  void addScalar(double v) override;
-  /*! Add value to matrix diagonal */
-  void addScalarDiag(double v) override;
-  /*! Multiply each matrix component by a value */
-  void prodScalar(double v) override;
-  /*! Set all the values of the Matrix at once */
-  void fill(double value) override;
+
   /*! Multiply a Matrix row-wise */
   void multiplyRow(const VectorDouble& vec) override;
   /*! Multiply a Matrix column-wise */
@@ -105,22 +102,57 @@ public:
   void divideRow(const VectorDouble& vec) override;
   /*! Divide a Matrix column-wise */
   void divideColumn(const VectorDouble& vec) override;
+  /*! Set all the values of the Matrix at once */
+  void fill(double value) override;
 
   /*! Say if the matrix must be symmetric */
   bool mustBeSymmetric() const override { return false; }
 
-  /*! Extract a Row */
-  VectorDouble getRow(Id irow) const override;
-  /*! Extract a Column */
-  VectorDouble getColumn(Id icol) const override;
   /*! Multiply matrix 'x' by matrix 'y' and store the result in 'this' */
   void prodMatMatInPlace(const AMatrix* x,
                          const AMatrix* y,
                          bool transposeX = false,
                          bool transposeY = false) override;
+
+  /*! New methods overload */
+  MatrixDense& addCst(double a);
+  MatrixDense& prodCst(double a);
+
+  // === INTERNAL USE ONLY ===
+  // Do not call directly; used by template.
+  static void _addGeneral(MatrixDense& res, const MatrixDense& other, double cst);
+  static void _addGeneral(MatrixDense& res, const MatrixDense& other1, const MatrixDense& other2);
+  static void _prodGeneral(MatrixDense& res, const MatrixDense& other, double cst);
+  static void _prodGeneral(MatrixDense& res, const MatrixDense& other1, const MatrixDense& other2);
+  static void _productGeneral(MatrixDense& res,
+                              const MatrixDense& other1,
+                              const MatrixDense& other2,
+                              bool transpose1 = false,
+                              bool transpose2 = false);
+  static void _prodVecAddGeneral(VectorDouble& res,
+                                 const MatrixDense& other,
+                                 const VectorDouble& vec,
+                                 bool transpose  = false,
+                                 bool flagInvert = false);
+  static void _prodVecAddGeneral(vect& res,
+                                 const MatrixDense& other,
+                                 const constvect& vec,
+                                 bool transpose  = false,
+                                 bool flagInvert = false);
+  static void _prodnormGeneral(MatrixDense& res,
+                               const MatrixDense& a,
+                               const MatrixDense& m = MatrixDense(),
+                               bool transpose       = false);
+  static void _prodnormGeneral(MatrixDense& res,
+                               const MatrixDense& a,
+                               const VectorDouble& vec,
+                               bool transpose = false);
+  static bool _areIdenticalGeneral(const MatrixDense& a,
+                                   const MatrixDense& b,
+                                   bool verbose = false);
+
   template<bool transposeX, bool transposeY>
-  void prodMatMatNoCheck(const MatrixDense& x,
-                         const MatrixDense& y)
+  void prodMatMatNoCheck(const MatrixDense& x, const MatrixDense& y)
   {
     if constexpr (transposeX && transposeY)
     {
@@ -150,20 +182,9 @@ public:
   /*! Perform 'this' = 't(A)' %*% 'A' or 'A' %*% 't(A)' */
   void prodNormMatInPlace(const AMatrix* a,
                           bool transpose = false) override;
-  /*! Perform 'this' = 'val1' * 'mat1' + 'val2' * 'mat2' + 'val3' * 'mat3' */
-  void linearCombination(double val1,
-                         const AMatrix* mat1,
-                         double val2         = 1.,
-                         const AMatrix* mat2 = nullptr,
-                         double val3         = 1.,
-                         const AMatrix* mat3 = nullptr) override;
+
   /*! Add a matrix (multiplied by a constant) */
-  void addMat(const AMatrix& y, double cx = 1., double cy = 1.) override;
-  void addMatNoCheck(const MatrixDense& y, const double cx = 1., const double cy = 1.)
-  {
-    eigenMat() *= cx;
-    eigenMat().noalias() += cy * y.eigenMat();
-  }
+  void addMatNoCheck(const MatrixDense& y, const double cx = 1., const double cy = 1.);
 
   Id invert2(MatrixDense& res) const;
   void unsample(const AMatrix* A,
@@ -202,8 +223,9 @@ public:
   static void sum(const MatrixDense* mat1,
                   const MatrixDense* mat2,
                   MatrixDense* mat3);
-#endif // !SWIG
-double sum() const;
+#endif
+  double sum() const;
+
 protected:
   void _allocate() override;
   void _deallocate() override;
@@ -216,10 +238,6 @@ protected:
   double _getValueByRank(Id rank) const override;
   double& _getValueRef(Id irow, Id icol) override;
 
-#ifndef SWIG
-  void _addProdVecMatInPlacePtr(constvect x, vect y, bool transpose = false) const override;
-  void _addProdMatVecInPlacePtr(constvect x, vect y, bool transpose = false) const override;
-#endif
 
 private:
   void _recopy(const MatrixDense& r);
@@ -230,6 +248,58 @@ private:
 public:
   constvect getViewOnColumn(Id icol) const;
   vect getViewOnColumnModify(Id icol);
+
+  // Operators overloading
+  MatrixDense& operator+=(double a)
+  {
+    addInPlace(*this, *this, a);
+    return *this;
+  }
+
+  MatrixDense& operator-=(double a)
+  {
+    addInPlace(*this, *this, -a);
+    return *this;
+  }
+
+  MatrixDense operator+(double a) const
+  {
+    MatrixDense res;
+    addInPlace(res, *this, a);
+    return res;
+  }
+
+  MatrixDense operator-(double a) const
+  {
+    MatrixDense res;
+    addInPlace(res, *this, -a);
+    return res;
+  }
+  MatrixDense& operator*=(double a)
+  {
+    productInPlace(*this, *this, a);
+    return *this;
+  }
+
+  MatrixDense operator*(double a) const
+  {
+    MatrixDense res;
+    productInPlace(res, *this, a);
+    return res;
+  }
+  MatrixDense& operator/=(double a)
+  {
+    productInPlace(*this, *this, 1.0 / a);
+    return *this;
+  }
+
+  MatrixDense operator/(double a) const
+  {
+    MatrixDense res;
+    productInPlace(res, *this, 1.0 / a);
+    return res;
+  }
+
 #endif
 
 #ifndef SWIG
@@ -247,6 +317,7 @@ public:
 
 protected:
   std::vector<double, Eigen::aligned_allocator<double>> _eigenMatrix;
+
 private:
   Id _maxSize;
 };

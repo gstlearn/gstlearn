@@ -72,14 +72,21 @@ Id MatrixSymmetricSim::_addToDest(const constvect inv, vect outv) const
 {
   if (_inverse)
   {
-    _mat.addProdMatVecInPlaceC(inv, outv);
+    const auto* other1 = dynamic_cast<const MatrixDense*>(&_mat);
+    if (other1 != nullptr)
+      AMatrix::productInPlace(outv, *other1, inv);
+    else
+    {
+      const auto* other2 = dynamic_cast<const MatrixSparse*>(&_mat);
+      AMatrix::productInPlace(outv, *other2, inv);
+    }
     return 0;
   }
   return _factor->addSolveX(inv, outv);
 }
 
 Id MatrixSymmetricSim::_addSimulateToDest(const constvect whitenoise,
-                                           vect outv) const
+                                          vect outv) const
 {
   if (_inverse) return _factor->addInvLtX(whitenoise, outv);
   return _factor->addLX(whitenoise, outv);

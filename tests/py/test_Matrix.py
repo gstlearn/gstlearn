@@ -74,21 +74,6 @@ MSP.display()
 # Creating a Diagonal matrix (from M)
 cst = gl.law_gaussian()
 
-#
-# Adding a constant to the diagonal of a matrix
-#
-addendum = 1.432
-
-gl.mestitle(0, "Adding a constant value to the diagonal of a matrix")
-reset_to_initial_contents(M, MRR, MSG, MSS, MSP)
-
-MRR.addScalarDiag(addendum)
-MSG.addScalarDiag(addendum)
-print("Are results for MRR and MSG similar: ", MRR.isSame(MSG))
-MSS.addScalarDiag(addendum)
-print("Are results for MRR and MSS similar: ", MRR.isSame(MSS))
-MSP.addScalarDiag(addendum)
-print("Are results for MRR and MSP similar: ", MRR.isSame(MSP))
 
 #
 # Multiplying the matrix by a constant
@@ -98,27 +83,13 @@ multiply = 3.2
 gl.mestitle(0, "Multiplying a Matrix by a constant")
 reset_to_initial_contents(M, MRR, MSG, MSS, MSP)
 
-MRR.prodScalar(multiply)
-MSG.prodScalar(multiply)
+MRR.prodCst(multiply)
+MSG.prodCst(multiply)
 print("Are results for MRR and MSG similar: ", MRR.isSame(MSG))
-MSS.prodScalar(multiply)
+MSS.prodCst(multiply)
 print("Are results for MRR and MSS similar: ", MRR.isSame(MSS))
-MSP.prodScalar(multiply)
+MSP.prodCst(multiply)
 print("Are results for MRR and MSP similar: ", MRR.isSame(MSP))
-
-#
-# Adding a constant to a matrix
-# Note: This does not make sense for sparse or diagonal matrices
-#
-
-gl.mestitle(0, "Adding a constant value to the whole matrix")
-reset_to_initial_contents(M, MRR, MSG, MSS, MSP)
-
-MRR.addScalar(addendum)
-MSG.addScalar(addendum)
-print("Are results for MRR and MSG similar: ", MRR.isSame(MSG))
-MSS.addScalar(addendum)
-print("Are results for MRR and MSS similar: ", MRR.isSame(MSS))
 
 #
 # Linear combination
@@ -129,12 +100,12 @@ reset_to_initial_contents(M, MRR, MSG, MSS, MSP)
 cx = 1.3
 cy = -0.3
 
-MRR.addMat(MRR, cx, cy)
-MSG.addMat(MSG, cx, cy)
+MRR.linearCombination(0.0, cx, MRR, cy, MRR)
+MSG.linearCombination(0.0, cx, MSG, cy, MSG)
 print("Are results for MRR and MSG similar: ", MRR.isSame(MSG))
-MSS.addMat(MSS, cx, cy)
+MSS.linearCombination(0.0, cx, MSS, cy, MSS)
 print("Are results for MRR and MSS similar: ", MRR.isSame(MSS))
-MSP.addMat(MSP, cx, cy)
+MSP.linearCombination(0.0, cx, MSP, cy, MSP)
 print("Are results for MRR and MSP similar: ", MRR.isSame(MSP))
 
 #

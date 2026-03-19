@@ -1326,7 +1326,7 @@ MatrixSquare* sphering(const AMatrix* X)
   auto* prodsym = dynamic_cast<MatrixSymmetric*>(prod);
   if (prodsym == nullptr) return nullptr;
 
-  prodsym->prodScalar(1. / static_cast<double>(nech));
+  prodsym->prodCst(1. / static_cast<double>(nech));
   auto eigenvectors        = EigenVectors(*prodsym);
   const auto& eigen_values = eigenvectors.getEigenValues();
   MatrixSquare* S          = eigenvectors.getEigenVectors().clone();
