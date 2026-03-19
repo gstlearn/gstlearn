@@ -71,7 +71,7 @@ jobs:
         uv pip install pandas
         uv pip install scipy
         uv pip install dash
-        uv pip install scikit-sparse
+        uv pip install scikit-sparse==0.4.16
 
     - name: Setup R Version
       uses: r-lib/actions/setup-r@v2
