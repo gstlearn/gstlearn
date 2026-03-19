@@ -58,7 +58,7 @@ const std::map<std::string, qualifier> ECalcVarioAttr =
     {"GENERAL1", {true, false, false, false}},
     {"GENERAL2", {true, false, false, false}},
     {"GENERAL3", {true, false, false, false}},
-    {"COVARIANCE_NC", {false, true, false, true}},
+    {"COVARIANCE_NC", {false, false, false, true}},
     {"ORDER4", {true, false, false, true}},
     {"TRANS1", {true, false, false, false}},
     {"TRANS2", {true, false, false, false}},
