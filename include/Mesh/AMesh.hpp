@@ -15,6 +15,7 @@
 #include "Basic/VectorNumT.hpp"
 #include "Basic/VectorT.hpp"
 #include "Matrix/MatrixSparse.hpp"
+#include "Tree/Ball.hpp"
 
 namespace gstlrn
 {
@@ -158,6 +159,7 @@ private:
   VectorDouble _extendMin;
   VectorDouble _extendMax;
   mutable MatrixSparse* _adjacencyMatrix; //!< Mesh adjacency matrix (lazy evaluation)
+  mutable std::unique_ptr<Ball> _ballTree;
 };
 
 } // namespace gstlrn
