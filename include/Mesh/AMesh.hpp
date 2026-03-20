@@ -10,6 +10,8 @@
 /******************************************************************************/
 #pragma once
 
+#include <optional>
+
 #include "Basic/ASerializable.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/VectorNumT.hpp"
@@ -159,7 +161,7 @@ private:
   VectorDouble _extendMin;
   VectorDouble _extendMax;
   mutable MatrixSparse* _adjacencyMatrix; //!< Mesh adjacency matrix (lazy evaluation)
-  mutable std::unique_ptr<Ball> _ballTree;
+  mutable std::optional<Ball> _ballTree;
 };
 
 } // namespace gstlrn

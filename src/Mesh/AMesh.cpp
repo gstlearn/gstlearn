@@ -33,7 +33,7 @@ AMesh::AMesh()
   , _extendMin()
   , _extendMax()
   , _adjacencyMatrix(new MatrixSparse())
-  , _ballTree(nullptr)
+  , _ballTree()
 {
 }
 
@@ -532,8 +532,8 @@ Id AMesh::getMeshAndInPlaceWeightsFromCoordinates(const VectorDouble& coords, Ve
 
   /* Instantiate a Ball Tree for quick search */
   // Note: this Ball tree is defined in 3D despite the space dimension of mesh
-  if (_ballTree == nullptr)
-    _ballTree = std::make_unique<Ball>(this, 10, true);
+  if (!_ballTree)
+    _ballTree = Ball(this, 10, true);
   // if (verbose) ball.display(1);
 
   /* Loop on the samples */
