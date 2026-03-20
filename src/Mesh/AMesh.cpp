@@ -33,6 +33,7 @@ AMesh::AMesh()
   , _extendMin()
   , _extendMax()
   , _adjacencyMatrix(new MatrixSparse())
+  , _ballTree(nullptr)
 {
 }
 
@@ -531,7 +532,8 @@ Id AMesh::getMeshAndInPlaceWeightsFromCoordinates(const VectorDouble& coords, Ve
 
   /* Instantiate a Ball Tree for quick search */
   // Note: this Ball tree is defined in 3D despite the space dimension of mesh
-  Ball ball(this, 10, true);
+  if (_ballTree == nullptr)
+    _ballTree = std::make_unique<Ball>(this, 10, true);
   // if (verbose) ball.display(1);
 
   /* Loop on the samples */
@@ -539,8 +541,9 @@ Id AMesh::getMeshAndInPlaceWeightsFromCoordinates(const VectorDouble& coords, Ve
   VectorDouble distances;
 
   /* Loop on the elligible meshes */
-  Id nb_neigh = MIN(5, getNMeshes());;
-  (void)ball.queryOneInPlace(coords, nb_neigh, neighs, distances);
+  Id nb_neigh = MIN(5, getNMeshes());
+  ;
+  (void)_ballTree->queryOneInPlace(coords, nb_neigh, neighs, distances);
   Id found = _findBarycenter(coords, units, nb_neigh, neighs, weights);
 
   // If search has failed with a small number of neighbors, try with a larger one
@@ -548,7 +551,7 @@ Id AMesh::getMeshAndInPlaceWeightsFromCoordinates(const VectorDouble& coords, Ve
   {
     nb_neigh = MIN(50, getNMeshes());
 
-    (void)ball.queryOneInPlace(coords, nb_neigh, neighs, distances);
+    (void)_ballTree->queryOneInPlace(coords, nb_neigh, neighs, distances);
     found = _findBarycenter(coords, units, nb_neigh, neighs, weights);
   }
   if (found < 0)
