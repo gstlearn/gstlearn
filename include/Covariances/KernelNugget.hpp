@@ -15,30 +15,33 @@
 
 namespace gstlrn
 {
-class CovContext;
+  class CovContext;
 
-class GSTLEARN_EXPORT KernelNugget: public AKernel
-{
-public:
-  KernelNugget(const CovContext& ctx);
-  KernelNugget(const KernelNugget& r);
-  KernelNugget& operator=(const KernelNugget& r);
-  virtual ~KernelNugget();
-
-  String getFormula() const override;
-  String getCovName() const override { return "Nugget Effect"; }
-  Id getMinOrder() const override { return -1; }
-  bool getCompatibleSpaceR() const override { return true; }
-
-  Id hasRange() const override { return 0; }
-
-  bool isValidForSimulation(const ESimuType& simuType) const override
+  class GSTLEARN_EXPORT KernelNugget: public AKernel
   {
-    return (simuType == ESimuType::TB);
-  }
+  public:
+    KernelNugget(const CovContext& ctx);
+    KernelNugget(const KernelNugget& r);
+    KernelNugget& operator=(const KernelNugget& r);
+    virtual ~KernelNugget();
 
-protected:
-  double _evaluateCov(double h) const override;
-};
+    String getFormula() const override;
+
+    String getCovName() const override { return "Nugget Effect"; }
+
+    Id getMinOrder() const override { return -1; }
+
+    bool getCompatibleSpaceR() const override { return true; }
+
+    Id hasRange() const override { return 0; }
+
+    bool isValidForSimulation(const ESimuType& simuType) const override
+    {
+      return (simuType == ESimuType::TB);
+    }
+
+  protected:
+    double _evaluateCov(double h) const override;
+  };
 
 } // namespace gstlrn

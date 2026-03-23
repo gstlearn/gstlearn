@@ -37,28 +37,30 @@ int main(int argc, char* argv[])
 
   String filename;
 
-  filename         = getTestData("Scotland", "temperatures.ascii");
+  filename = getTestData("Scotland", "temperatures.ascii");
   Db* temperatures = Db::createFromNF(filename, verbose);
   temperatures->setLocator("January_temp", ELoc::Z, 0);
   temperatures->display();
 
-  filename     = getTestData("Scotland", "grid.ascii");
+  filename = getTestData("Scotland", "grid.ascii");
   DbGrid* grid = DbGrid::createFromNF(filename, verbose);
   grid->display();
 
-  filename     = getTestData("Scotland", "model.ascii");
+  filename = getTestData("Scotland", "model.ascii");
   Model* model = Model::createFromNF(filename, verbose);
 
   model->display();
 
-  filename     = getTestData("Scotland", "vario.ascii");
+  filename = getTestData("Scotland", "vario.ascii");
   Vario* vario = Vario::createFromNF(filename, verbose);
 
   vario->display();
 
-  auto structs       = {ECov::NUGGET, ECov::MATERN};
-  ConsItem consNug   = ConsItem::define(EConsElem::SILL, 0, 0, 0, EConsType::UPPER, 0.1);
-  ConsItem consParam = ConsItem::define(EConsElem::PARAM, 1, 0, 0, EConsType::EQUAL, 1.);
+  auto structs = {ECov::NUGGET, ECov::MATERN};
+  ConsItem consNug =
+    ConsItem::define(EConsElem::SILL, 0, 0, 0, EConsType::UPPER, 0.1);
+  ConsItem consParam =
+    ConsItem::define(EConsElem::PARAM, 1, 0, 0, EConsType::EQUAL, 1.);
   Constraints constraints;
   constraints.addItem(&consNug);
   constraints.addItem(&consParam);

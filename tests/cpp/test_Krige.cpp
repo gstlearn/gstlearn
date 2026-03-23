@@ -133,10 +133,10 @@ int main(int argc, char* argv[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
 
-  DbGrid* grid_res  = nullptr;
+  DbGrid* grid_res = nullptr;
   DbGrid* image_res = nullptr;
-  Db* data_res      = nullptr;
-  Model* model_res  = nullptr;
+  Db* data_res = nullptr;
+  Model* model_res = nullptr;
   AnamHermite* anam = nullptr;
   Global_Result gres;
   Krigtest_Res ktest;
@@ -163,7 +163,7 @@ int main(int argc, char* argv[])
   grid->display();
 
   // Generate the data base
-  Id nech  = 100;
+  Id nech = 100;
   Db* data = createLocalDb(nech, ndim, nvar, 342673);
   data->display(&dbfmt);
 
@@ -223,7 +223,15 @@ int main(int argc, char* argv[])
     message("\n<----- Declustering in Moving Neighborhood ----->\n");
     delete data_res;
     data_res = data->clone();
-    declustering(data_res, model, 3, neighM, grid, VectorDouble(), ndiscs, false, true);
+    declustering(data_res,
+                 model,
+                 3,
+                 neighM,
+                 grid,
+                 VectorDouble(),
+                 ndiscs,
+                 false,
+                 true);
   }
 
   if (mode == 0 || mode == 5)
@@ -231,11 +239,12 @@ int main(int argc, char* argv[])
     message("\n<----- Kriging Test in Moving Neighborhood ----->\n");
     delete grid_res;
     grid_res = grid->clone();
-    ktest    = krigtest(data, grid_res, model, neighM, 0);
+    ktest = krigtest(data, grid_res, model, neighM, 0);
     message("\nTesting KrigTest facility\n");
     message("- Space Dimension = %d\n", ktest.ndim);
     message("- Number of Neighbors = %d\n", ktest.nech);
-    message("- Number of Kriging System equations (covariance) = %d\n", ktest.CSize);
+    message("- Number of Kriging System equations (covariance) = %d\n",
+            ktest.CSize);
     message("- Number of Kriging System equations (drift) = %d\n", ktest.DSize);
     printVector(ktest.nbgh, "- Neighboring Sample Indices", true, true);
   }
@@ -282,7 +291,14 @@ int main(int argc, char* argv[])
     message("\n<----- Declustering in Unique Neighborhood ----->\n");
     delete data_res;
     data_res = data->clone();
-    declustering(data_res, model, 2, neighU, nullptr, VectorDouble(), VectorInt(), false,
+    declustering(data_res,
+                 model,
+                 2,
+                 neighU,
+                 nullptr,
+                 VectorDouble(),
+                 VectorInt(),
+                 false,
                  true);
   }
 
@@ -291,7 +307,7 @@ int main(int argc, char* argv[])
     message("\n<----- Global Estimate (Average) ----->\n");
     delete grid_res;
     grid_res = grid->clone();
-    gres     = global_arithmetic(data, grid_res, model, 0, true);
+    gres = global_arithmetic(data, grid_res, model, 0, true);
   }
 
   if (mode == 0 || mode == 12)
@@ -391,10 +407,11 @@ int main(int argc, char* argv[])
 
   if (mode == 0 || mode == 19)
   {
-    message("\n<----- Test Kriging Multiple Variables under Constraints ----->\n");
+    message(
+      "\n<----- Test Kriging Multiple Variables under Constraints ----->\n");
     delete grid_res;
     grid_res = grid->clone();
-    tab      = VH::simulateUniform(grid->getNSample(), 10., 20.);
+    tab = VH::simulateUniform(grid->getNSample(), 10., 20.);
     grid_res->addColumns(tab, "Constraints", ELoc::SUM);
     krigsum(data, grid_res, model, neighU, true);
     grid_res->display(&dbfmtKriging);
@@ -423,8 +440,8 @@ int main(int argc, char* argv[])
   // ====================== Testing Multivariate=======================
   // Create the Local Data Base
   message("\n<----- Test Kriging Multiple Variables with matLC ----->\n");
-  nvar  = 3;
-  data  = createLocalDb(10, 2, 3, 4901);
+  nvar = 3;
+  data = createLocalDb(10, 2, 3, 4901);
   model = createModel(nvar, 1, 0, 1);
 
   if (mode == 0 || mode == 21)

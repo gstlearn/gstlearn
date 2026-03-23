@@ -43,11 +43,11 @@ int main(int argc, char* argv[])
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Parameters
-  bool flagSK     = false;
+  bool flagSK = false;
   bool flagUnique = false;
-  bool verbose    = true;
-  Id nech         = 3;
-  Id nvar         = (flagUnique) ? 1 : 2;
+  bool verbose = true;
+  Id nech = 3;
+  Id nvar = (flagUnique) ? 1 : 2;
 
   // Generate the data base
   Db* data = Db::createFillRandom(nech, ndim, nvar, 0);
@@ -56,11 +56,17 @@ int main(int argc, char* argv[])
   data->display(dbfmt);
 
   // Create the Model
-  double scale           = 0.7;
+  double scale = 0.7;
   MatrixSymmetric* sills = MatrixSymmetric::createRandomDefinitePositive(nvar);
-  Model* model =
-    Model::createFromParam(ECov::EXPONENTIAL, scale, 0., 0., VectorDouble(),
-                           *sills, VectorDouble(), nullptr, false);
+  Model* model = Model::createFromParam(ECov::EXPONENTIAL,
+                                        scale,
+                                        0.,
+                                        0.,
+                                        VectorDouble(),
+                                        *sills,
+                                        VectorDouble(),
+                                        nullptr,
+                                        false);
   if (flagSK)
   {
     VectorDouble means = VH::simulateGaussian(nvar);
@@ -71,7 +77,7 @@ int main(int argc, char* argv[])
 
   // Unique Neighborhood
   ANeigh* neigh;
-  Id nmaxi      = nech;
+  Id nmaxi = nech;
   double radius = 5.;
   if (flagUnique)
     neigh = NeighUnique::create();

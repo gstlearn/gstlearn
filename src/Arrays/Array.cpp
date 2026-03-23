@@ -13,63 +13,59 @@
 
 namespace gstlrn
 {
-Array::Array(const VectorInt& ndims)
-    : AArray(ndims),
-      _values()
-{
-  _update();
-}
-
-Array::Array(const Array &r)
-    : AArray(r),
-      _values(r._values)
-{
-
-}
-
-Array& Array::operator=(const Array &r)
-{
-  if (this != &r)
+  Array::Array(const VectorInt& ndims)
+    : AArray(ndims)
+    , _values()
   {
-    AArray::operator=(r);
-    _values = r._values;
+    _update();
   }
-  return *this;
-}
 
-Array::~Array()
-{
+  Array::Array(const Array& r)
+    : AArray(r)
+    , _values(r._values)
+  {
+  }
 
-}
+  Array& Array::operator=(const Array& r)
+  {
+    if (this != &r)
+    {
+      AArray::operator=(r);
+      _values = r._values;
+    }
+    return *this;
+  }
 
-void Array::multiplyConstant(double val)
-{
-  for (auto& v : _values)
-    v *= val;
-}
-void Array::init(const VectorInt& ndims)
-{
-  AArray::init(ndims);
-  _update();
-}
+  Array::~Array() {}
 
-void Array::_update()
-{
-  auto total = getNPixels();
-  _values.resize(total,0.);
-}
+  void Array::multiplyConstant(double val)
+  {
+    for (auto& v: _values) v *= val;
+  }
 
-double Array::getValue(const VectorInt& indice) const
-{
-  if (! _isValidIndice(indice)) return TEST;
-  Id iad = indiceToRank(indice);
-  return _values[iad];
-}
+  void Array::init(const VectorInt& ndims)
+  {
+    AArray::init(ndims);
+    _update();
+  }
 
-void Array::setValue(const VectorInt& indice, double value)
-{
-  if (! _isValidIndice(indice)) return;
-  Id iad = indiceToRank(indice);
-  _values[iad] = value;
-}
-}
+  void Array::_update()
+  {
+    auto total = getNPixels();
+    _values.resize(total, 0.);
+  }
+
+  double Array::getValue(const VectorInt& indice) const
+  {
+    if (!_isValidIndice(indice)) return TEST;
+    Id iad = indiceToRank(indice);
+    return _values[iad];
+  }
+
+  void Array::setValue(const VectorInt& indice, double value)
+  {
+    if (!_isValidIndice(indice)) return;
+    Id iad = indiceToRank(indice);
+    _values[iad] = value;
+  }
+} // namespace gstlrn

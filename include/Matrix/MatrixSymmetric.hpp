@@ -17,109 +17,114 @@
 
 namespace gstlrn
 {
-class AMatrix;
-class EOperator;
+  class AMatrix;
+  class EOperator;
 
-/**
- * Square Symmetric matrices
- */
-class GSTLEARN_EXPORT MatrixSymmetric: public MatrixSquare
-{
-
-public:
-  MatrixSymmetric(Id nrow = 0);
-  MatrixSymmetric(Id nrow, Id ncol);
-  MatrixSymmetric(const MatrixSymmetric& m);
-  MatrixSymmetric(const AMatrix& m);
-  MatrixSymmetric& operator=(const MatrixSymmetric& m);
-  virtual ~MatrixSymmetric();
-
-  /// Has a specific implementation in the Target language
-  DECLARE_TOTL;
-  DECLARE_TOLATEX
-
-  /// ICloneable interface
-  IMPLEMENT_CLONING(MatrixSymmetric)
-
-  /// Interface to AMatrix
-  bool mustBeSymmetric() const final { return true; }
-  bool isSymmetric(double eps = EPSILON10, bool printWhyNot = false) const final
+  /**
+   * Square Symmetric matrices
+   */
+  class GSTLEARN_EXPORT MatrixSymmetric: public MatrixSquare
   {
-    DECLARE_UNUSED(printWhyNot);
-    DECLARE_UNUSED(eps);
-    return true;
-  }
-  void resetFromVVD(const VectorVectorDouble& tab, bool byCol = true) override;
 
-  void normMatrix(const AMatrix& y, const MatrixSquare& x = MatrixSquare(), bool transpose = false);
+  public:
+    MatrixSymmetric(Id nrow = 0);
+    MatrixSymmetric(Id nrow, Id ncol);
+    MatrixSymmetric(const MatrixSymmetric& m);
+    MatrixSymmetric(const AMatrix& m);
+    MatrixSymmetric& operator=(const MatrixSymmetric& m);
+    virtual ~MatrixSymmetric();
 
-  static MatrixSymmetric* createFromVVD(const VectorVectorDouble& X);
-  static MatrixSymmetric* createFromVD(const VectorDouble& X);
-  static MatrixSymmetric* createFromTLTU(Id neq,
-                                         const VectorDouble& tl);
-  static MatrixSymmetric* createFromTriangle(Id mode,
-                                             Id neq,
-                                             const VectorDouble& tl);
-  static MatrixSymmetric* createRandomDefinitePositive(Id neq, Id seed = 13242);
-  static MatrixSymmetric* createFromDiagonal(const VectorDouble& vecdiag);
-  static bool sample(MatrixSymmetric& res,
-                     const MatrixSymmetric& A,
-                     const VectorInt& rowKeep,
-                     bool flagInvert = false);
+    /// Has a specific implementation in the Target language
+    DECLARE_TOTL;
+    DECLARE_TOLATEX
 
-  Id computeGeneralizedInverse(MatrixSymmetric& tabout,
-                               double maxicond = 1.e20,
-                               double eps      = EPSILON20);
-  bool isDefinitePositive();
-  Id squareRootInPlace(MatrixSymmetric& tabout);
-  MatrixSymmetric squareRoot(double tol = EPSILON12);
-  Id minimizeWithConstraintsInPlace(const VectorDouble& gmat,
-                                    const MatrixDense& aemat,
-                                    const VectorDouble& bemat,
-                                    const MatrixDense& aimat,
-                                    const VectorDouble& bimat,
-                                    VectorDouble& xmat);
+    /// ICloneable interface
+    IMPLEMENT_CLONING(MatrixSymmetric)
 
-  bool _isPhysicallyPresent(Id irow, Id icol) const override;
-  void _setValues(const double* values, bool byCol = true) override;
-  Id _invert() override;
+    /// Interface to AMatrix
+    bool mustBeSymmetric() const final { return true; }
 
-  // Local functions (old style algebra)
-  Id _matrix_qo(const VectorDouble& gmat, VectorDouble& xmat);
-  Id _matrix_qoc(bool flag_invert,
-                 const VectorDouble& gmat,
-                 Id na,
-                 const MatrixDense& amat,
-                 const VectorDouble& bmat,
-                 VectorDouble& xmat,
-                 VectorDouble& lambda);
-  Id _constraintsError(const VectorInt& active,
-                       const MatrixDense& aimat,
-                       const VectorDouble& bimat,
-                       const VectorDouble& xmat,
-                       VectorDouble& vmat,
-                       VectorInt& flag);
-  static Id _constraintsConcatenateMat(Id nae,
-                                       Id nai,
-                                       Id neq,
-                                       const VectorInt& active,
-                                       const MatrixDense& tabemat,
-                                       const MatrixDense& tabimat,
-                                       MatrixDense& tabout);
-  static Id _constraintsConcatenateVD(Id nae,
-                                      Id nai,
-                                      const VectorInt& active,
-                                      const VectorDouble& tabemat,
-                                      const VectorDouble& tabimat,
-                                      VectorDouble& tabout);
-  static Id _constraintsCount(Id nai, VectorInt& active);
-  MatrixSymmetric compress0MatLC(const MatrixDense& matLC);
+    bool
+      isSymmetric(double eps = EPSILON10, bool printWhyNot = false) const final
+    {
+      DECLARE_UNUSED(printWhyNot);
+      DECLARE_UNUSED(eps);
+      return true;
+    }
+
+    void
+      resetFromVVD(const VectorVectorDouble& tab, bool byCol = true) override;
+
+    void normMatrix(const AMatrix& y,
+                    const MatrixSquare& x = MatrixSquare(),
+                    bool transpose = false);
+
+    static MatrixSymmetric* createFromVVD(const VectorVectorDouble& X);
+    static MatrixSymmetric* createFromVD(const VectorDouble& X);
+    static MatrixSymmetric* createFromTLTU(Id neq, const VectorDouble& tl);
+    static MatrixSymmetric*
+      createFromTriangle(Id mode, Id neq, const VectorDouble& tl);
+    static MatrixSymmetric*
+      createRandomDefinitePositive(Id neq, Id seed = 13242);
+    static MatrixSymmetric* createFromDiagonal(const VectorDouble& vecdiag);
+    static bool sample(MatrixSymmetric& res,
+                       const MatrixSymmetric& A,
+                       const VectorInt& rowKeep,
+                       bool flagInvert = false);
+
+    Id computeGeneralizedInverse(MatrixSymmetric& tabout,
+                                 double maxicond = 1.e20,
+                                 double eps = EPSILON20);
+    bool isDefinitePositive();
+    Id squareRootInPlace(MatrixSymmetric& tabout);
+    MatrixSymmetric squareRoot(double tol = EPSILON12);
+    Id minimizeWithConstraintsInPlace(const VectorDouble& gmat,
+                                      const MatrixDense& aemat,
+                                      const VectorDouble& bemat,
+                                      const MatrixDense& aimat,
+                                      const VectorDouble& bimat,
+                                      VectorDouble& xmat);
+
+    bool _isPhysicallyPresent(Id irow, Id icol) const override;
+    void _setValues(const double* values, bool byCol = true) override;
+    Id _invert() override;
+
+    // Local functions (old style algebra)
+    Id _matrix_qo(const VectorDouble& gmat, VectorDouble& xmat);
+    Id _matrix_qoc(bool flag_invert,
+                   const VectorDouble& gmat,
+                   Id na,
+                   const MatrixDense& amat,
+                   const VectorDouble& bmat,
+                   VectorDouble& xmat,
+                   VectorDouble& lambda);
+    Id _constraintsError(const VectorInt& active,
+                         const MatrixDense& aimat,
+                         const VectorDouble& bimat,
+                         const VectorDouble& xmat,
+                         VectorDouble& vmat,
+                         VectorInt& flag);
+    static Id _constraintsConcatenateMat(Id nae,
+                                         Id nai,
+                                         Id neq,
+                                         const VectorInt& active,
+                                         const MatrixDense& tabemat,
+                                         const MatrixDense& tabimat,
+                                         MatrixDense& tabout);
+    static Id _constraintsConcatenateVD(Id nae,
+                                        Id nai,
+                                        const VectorInt& active,
+                                        const VectorDouble& tabemat,
+                                        const VectorDouble& tabimat,
+                                        VectorDouble& tabout);
+    static Id _constraintsCount(Id nai, VectorInt& active);
+    MatrixSymmetric compress0MatLC(const MatrixDense& matLC);
 
 #ifndef SWIG
-  void solveSDP(constvect b, vect x) const;
+    void solveSDP(constvect b, vect x) const;
 #endif
 
-private:
-  Id _getTriangleSize() const;
-};
+  private:
+    Id _getTriangleSize() const;
+  };
 } // namespace gstlrn

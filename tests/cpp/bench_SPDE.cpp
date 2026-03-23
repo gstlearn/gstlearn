@@ -33,6 +33,7 @@
 #include "Stats/Classical.hpp"
 
 using namespace gstlrn;
+
 /****************************************************************************/
 /*!
  ** Main Program
@@ -50,17 +51,17 @@ int main(int argc, char* argv[])
 
   // Global parameters
   defineDefaultSpace(ESpaceType::RN, 2);
-  Id seed             = 123;
-  Id nsim             = 10;
-  Id ndat             = 50;
-  Id nxref            = 101;
+  Id seed = 123;
+  Id nsim = 10;
+  Id ndat = 50;
+  Id nxref = 101;
   double matern_param = 1.0;
 
   OptCst::define(ECst::NTDEC, 2);
   OptCst::define(ECst::NTROW, -1);
   bool flagExhaustiveTest = false;
-  bool flagStatistics     = true;
-  bool verbose            = false;
+  bool flagStatistics = true;
+  bool verbose = false;
 
   // Feature to be tested:
   // -1: all of them
@@ -90,7 +91,8 @@ int main(int argc, char* argv[])
   Db* dat = Db::createFillRandom(ndat);
 
   // Generate the output grid
-  DbGrid* grid = DbGrid::create({nxref, nxref}, {1. / (nxref - 1), 1. / (nxref - 1)});
+  DbGrid* grid =
+    DbGrid::create({nxref, nxref}, {1. / (nxref - 1), 1. / (nxref - 1)});
 
   // Printout of general environment
   if (showStats)
@@ -109,16 +111,25 @@ int main(int argc, char* argv[])
 
     // Generate the Model
     Model* model;
-    model = Model::createFromParam(ECov::MATERN, TEST, 1, matern_param,
-                                   {0.1, 0.3}, MatrixSymmetric(), {30., 0.});
+    model = Model::createFromParam(ECov::MATERN,
+                                   TEST,
+                                   1,
+                                   matern_param,
+                                   {0.1, 0.3},
+                                   MatrixSymmetric(),
+                                   {30., 0.});
     if (ncov >= 1)
-      model->addCovFromParam(ECov::MATERN, TEST, 1, matern_param,
-                             {0.3, 0.2}, MatrixSymmetric(), {-10., 0.});
+      model->addCovFromParam(ECov::MATERN,
+                             TEST,
+                             1,
+                             matern_param,
+                             {0.3, 0.2},
+                             MatrixSymmetric(),
+                             {-10., 0.});
     String sncov = (ncov == 0) ? "1" : "2";
 
     // Printout of general environment
-    if (showStats)
-      message("- Number of covariances  = %d\n", model->getNCov());
+    if (showStats) message("- Number of covariances  = %d\n", model->getNCov());
 
     // Building Shift Operator
     if (mode < 0 || mode == 0)
@@ -136,10 +147,9 @@ int main(int argc, char* argv[])
     {
       if (ifois_ref >= 0 && ifois != ifois_ref) continue;
 
-      Id useCholesky  = ifois;
-      String option   = (ifois == 0) ? ".NoChol" : ".Chol";
-      if (showStats)
-        message("- Cholesky Option        = %d\n", useCholesky);
+      Id useCholesky = ifois;
+      String option = (ifois == 0) ? ".NoChol" : ".Chol";
+      if (showStats) message("- Cholesky Option        = %d\n", useCholesky);
 
       // Kriging
       if (mode < 0 || mode == 1)
@@ -152,8 +162,20 @@ int main(int argc, char* argv[])
         law_set_random_seed(seed);
         SPDEParam params;
         params.setNMC(10);
-        (void)krigingSPDE(dat, grid, model, true, true, useCholesky,
-                          nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, params, verbose,
+        (void)krigingSPDE(dat,
+                          grid,
+                          model,
+                          true,
+                          true,
+                          useCholesky,
+                          nullptr,
+                          nullptr,
+                          nullptr,
+                          nullptr,
+                          nullptr,
+                          nullptr,
+                          params,
+                          verbose,
                           NamingConvention(namconv));
         timer.displayIntervalMilliseconds(namconv, 400);
       }
@@ -167,9 +189,19 @@ int main(int argc, char* argv[])
         namconv.append(option);
         namconv.append(sncov);
         law_set_random_seed(seed);
-        (void)simulateSPDE(nullptr, grid, model, nsim, useCholesky,
-                           nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
-                           SPDEParam(), verbose,
+        (void)simulateSPDE(nullptr,
+                           grid,
+                           model,
+                           nsim,
+                           useCholesky,
+                           nullptr,
+                           nullptr,
+                           nullptr,
+                           nullptr,
+                           nullptr,
+                           nullptr,
+                           SPDEParam(),
+                           verbose,
                            NamingConvention(namconv));
         timer.displayIntervalMilliseconds(namconv, 1350);
       }
@@ -183,9 +215,19 @@ int main(int argc, char* argv[])
         namconv.append(option);
         namconv.append(sncov);
         law_set_random_seed(seed);
-        (void)simulateSPDE(dat, grid, model, nsim, useCholesky,
-                           nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
-                           SPDEParam(), verbose,
+        (void)simulateSPDE(dat,
+                           grid,
+                           model,
+                           nsim,
+                           useCholesky,
+                           nullptr,
+                           nullptr,
+                           nullptr,
+                           nullptr,
+                           nullptr,
+                           nullptr,
+                           SPDEParam(),
+                           verbose,
                            NamingConvention(namconv));
         timer.displayIntervalMilliseconds(namconv, 3130);
       }
@@ -195,11 +237,13 @@ int main(int argc, char* argv[])
 
   // Produce some statistics for comparison
   if (flagStatistics)
-    dbStatisticsPrint(grid, {"Kriging*", "Simu*"},
+    dbStatisticsPrint(grid,
+                      {"Kriging*", "Simu*"},
                       EStatOption::fromKeys({"MINI", "MAXI", "MEAN", "STDV"}));
   if (flagExhaustiveTest)
   {
-    DbStringFormat* dbfmt = DbStringFormat::createFromFlags(false, false, false, false, true);
+    DbStringFormat* dbfmt =
+      DbStringFormat::createFromFlags(false, false, false, false, true);
     grid->display(dbfmt);
   }
   (void)grid->dumpToNF("Grid.NF");

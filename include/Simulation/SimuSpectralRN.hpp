@@ -18,39 +18,43 @@
 namespace gstlrn
 {
 
-class ACov;
-class ModelGeneric;
+  class ACov;
+  class ModelGeneric;
 
-/**
- * Class for operating the Spectral simulations on RN
- */
-class GSTLEARN_EXPORT SimuSpectralRN: public CalcSimuSpectral
-{
-public:
-  SimuSpectralRN(Id nbsimu        = 1,
-                 Id ns            = 10000,
-                 Id nd            = 100,
-                 Id seed          = 4324324,
-                 const ACov* cov0 = nullptr,
-                 bool verbose     = false);
-  SimuSpectralRN(const SimuSpectralRN& r)            = delete;
-  SimuSpectralRN& operator=(const SimuSpectralRN& r) = delete;
-  virtual ~SimuSpectralRN();
+  /**
+   * Class for operating the Spectral simulations on RN
+   */
+  class GSTLEARN_EXPORT SimuSpectralRN: public CalcSimuSpectral
+  {
+  public:
+    SimuSpectralRN(Id nbsimu = 1,
+                   Id ns = 10000,
+                   Id nd = 100,
+                   Id seed = 4324324,
+                   const ACov* cov0 = nullptr,
+                   bool verbose = false);
+    SimuSpectralRN(const SimuSpectralRN& r) = delete;
+    SimuSpectralRN& operator=(const SimuSpectralRN& r) = delete;
+    virtual ~SimuSpectralRN();
 
-  MatrixDense getOmega() { return _omega; };
-  MatrixDense getGamma() { return _gamma; };
+    MatrixDense getOmega() { return _omega; };
 
-protected:
-  bool _check() override;
-  Id _simulate(const ACov* cova) override;
-  Id _compute(Db* dbout, const VectorBool& activeArray, VectorVectorDouble& tab) override;
+    MatrixDense getGamma() { return _gamma; };
 
-private:
-  // spectrum for R^n
-  MatrixDense _gamma; // Matrix nrows=_ns, ncols= number of variables of _cova
-  MatrixDense _omega; // Matrix nrows=_ns, ncols= number of dimensions of _cova
+  protected:
+    bool _check() override;
+    Id _simulate(const ACov* cova) override;
+    Id _compute(Db* dbout,
+                const VectorBool& activeArray,
+                VectorVectorDouble& tab) override;
 
-  const ACov* _cov0;
-};
+  private:
+    // spectrum for R^n
+    MatrixDense _gamma; // Matrix nrows=_ns, ncols= number of variables of _cova
+    MatrixDense
+      _omega; // Matrix nrows=_ns, ncols= number of dimensions of _cova
+
+    const ACov* _cov0;
+  };
 
 } // namespace gstlrn

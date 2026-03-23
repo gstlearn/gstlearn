@@ -16,21 +16,19 @@
 
 namespace gstlrn
 {
-class Db;
-class Model;
+  class Db;
+  class Model;
 
-class GSTLEARN_EXPORT GibbsFactory
-{
-public:
-  GibbsFactory();
-  virtual ~GibbsFactory();
+  class GSTLEARN_EXPORT GibbsFactory
+  {
+  public:
+    GibbsFactory();
+    virtual ~GibbsFactory();
 
-  static AGibbs* createGibbs(Db* db,
-                             Model* model,
-                             bool flagMoving);
-  static AGibbs* createGibbs(Db* db,
-                             const std::vector<Model*>& models,
-                             double rho,
-                             bool flag_propagation);
-};
+    static AGibbs* createGibbs(Db* db, Model* model, bool flagMoving);
+    static AGibbs* createGibbs(Db* db,
+                               const std::vector<Model*>& models,
+                               double rho,
+                               bool flag_propagation);
+  };
 } // namespace gstlrn

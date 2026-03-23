@@ -15,33 +15,40 @@
 
 namespace gstlrn
 {
-class CovContext;
+  class CovContext;
 
-class GSTLEARN_EXPORT KernelCauchy: public AKernel
-{
-public:
-  KernelCauchy(const CovContext& ctx);
-  KernelCauchy(const KernelCauchy& r);
-  KernelCauchy& operator=(const KernelCauchy& r);
-  virtual ~KernelCauchy();
-
-  String getFormula() const override;
-  String getCovName() const override { return "Cauchy"; }
-  Id getMinOrder() const override { return -1; }
-  bool getCompatibleSpaceR() const override { return true; }
-
-  bool hasParam() const override { return true; }
-  double getParMax() const override { return MAX_PARAM; }
-  double getScadef() const override;
-
-  bool isValidForSimulation(const ESimuType& simuType) const override
+  class GSTLEARN_EXPORT KernelCauchy: public AKernel
   {
-    return (getSpaceType() == ESpaceType::RN && simuType == ESimuType::SPECTRAL);
-  }
-  MatrixDense simulateSpectralOmega(Id nb) const override;
+  public:
+    KernelCauchy(const CovContext& ctx);
+    KernelCauchy(const KernelCauchy& r);
+    KernelCauchy& operator=(const KernelCauchy& r);
+    virtual ~KernelCauchy();
 
-protected:
-  double _evaluateCov(double h) const override;
-};
+    String getFormula() const override;
+
+    String getCovName() const override { return "Cauchy"; }
+
+    Id getMinOrder() const override { return -1; }
+
+    bool getCompatibleSpaceR() const override { return true; }
+
+    bool hasParam() const override { return true; }
+
+    double getParMax() const override { return MAX_PARAM; }
+
+    double getScadef() const override;
+
+    bool isValidForSimulation(const ESimuType& simuType) const override
+    {
+      return (getSpaceType() == ESpaceType::RN
+              && simuType == ESimuType::SPECTRAL);
+    }
+
+    MatrixDense simulateSpectralOmega(Id nb) const override;
+
+  protected:
+    double _evaluateCov(double h) const override;
+  };
 
 } // namespace gstlrn

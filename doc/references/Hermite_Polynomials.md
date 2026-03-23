@@ -24,7 +24,7 @@ Many methods can be used to compute these draw.matrix:
 
 * the Monte-Carlo integration (easy)
 
-* the computation of the Hermite coefficient for $\phi$ and $\phi^2$ 
+* the computation of the Hermite coefficient for $\phi$ and $\phi^2$
 
 $$
 \int_{-\infty}^{+\infty} \eta_n(\alpha + \beta \, u)\, g(u) \, du = (1-\beta^2)^n \, \eta_n(\frac{\alpha}{\sqrt{1-\beta^2}})

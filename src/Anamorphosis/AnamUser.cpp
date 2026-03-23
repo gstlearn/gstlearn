@@ -12,85 +12,83 @@
 
 namespace gstlrn
 {
-AnamUser::AnamUser()
-  : AnamContinuous()
-  , _y2z_function(nullptr)
-  , _z2y_function(nullptr)
-{
-}
-
-AnamUser::AnamUser(const AnamUser& m)
-  : AnamContinuous(m)
-  , _y2z_function(m._y2z_function)
-  , _z2y_function(m._z2y_function)
-{
-}
-
-AnamUser& AnamUser::operator=(const AnamUser& m)
-{
-  if (this != &m)
+  AnamUser::AnamUser()
+    : AnamContinuous()
+    , _y2z_function(nullptr)
+    , _z2y_function(nullptr)
   {
-    AnamContinuous::operator=(m);
-    _y2z_function = m._y2z_function;
-    _z2y_function = m._z2y_function;
   }
-  return *this;
-}
 
-AnamUser::~AnamUser()
-{
-}
+  AnamUser::AnamUser(const AnamUser& m)
+    : AnamContinuous(m)
+    , _y2z_function(m._y2z_function)
+    , _z2y_function(m._z2y_function)
+  {
+  }
 
-String AnamUser::toString(const AStringFormat* /*strfmt*/) const
-{
-  std::stringstream sstr;
+  AnamUser& AnamUser::operator=(const AnamUser& m)
+  {
+    if (this != &m)
+    {
+      AnamContinuous::operator=(m);
+      _y2z_function = m._y2z_function;
+      _z2y_function = m._z2y_function;
+    }
+    return *this;
+  }
 
-  sstr << "User defined Anamorphosis" << std::endl;
+  AnamUser::~AnamUser() {}
 
-  return sstr.str();
-}
+  String AnamUser::toString(const AStringFormat* /*strfmt*/) const
+  {
+    std::stringstream sstr;
 
-void AnamUser::calculateMeanAndVariance()
-{
-  messerr("AnamUser: This funtion does not make sense");
-}
+    sstr << "User defined Anamorphosis" << std::endl;
 
-bool AnamUser::_deserializeAscii(std::istream& /*is*/)
-{
-  messerr("AnamUser: Cannot be deserialized");
-  return false;
-}
+    return sstr.str();
+  }
 
-bool AnamUser::_serializeAscii(std::ostream& /*os*/) const
-{
-  messerr("AnamUser: Cannot be serialized");
-  return false;
-}
+  void AnamUser::calculateMeanAndVariance()
+  {
+    messerr("AnamUser: This funtion does not make sense");
+  }
 
-double AnamUser::transformToRawValue(double h) const
-{
-  if (_y2z_function == nullptr) return TEST;
-  return _y2z_function(h);
-}
+  bool AnamUser::_deserializeAscii(std::istream& /*is*/)
+  {
+    messerr("AnamUser: Cannot be deserialized");
+    return false;
+  }
 
-double AnamUser::rawToTransformValue(double h) const
-{
-  if (_z2y_function == nullptr) return TEST;
-  return _z2y_function(h);
-}
+  bool AnamUser::_serializeAscii(std::ostream& /*os*/) const
+  {
+    messerr("AnamUser: Cannot be serialized");
+    return false;
+  }
+
+  double AnamUser::transformToRawValue(double h) const
+  {
+    if (_y2z_function == nullptr) return TEST;
+    return _y2z_function(h);
+  }
+
+  double AnamUser::rawToTransformValue(double h) const
+  {
+    if (_z2y_function == nullptr) return TEST;
+    return _z2y_function(h);
+  }
 #ifdef HDF5
-bool AnamUser::deserializeH5(H5::Group& grp)
-{
-  DECLARE_UNUSED(grp);
-  messerr("AnamUser: Cannot be deserialized");
-  return false;
-}
+  bool AnamUser::deserializeH5(H5::Group& grp)
+  {
+    DECLARE_UNUSED(grp);
+    messerr("AnamUser: Cannot be deserialized");
+    return false;
+  }
 
-bool AnamUser::serializeH5(H5::Group& grp) const
-{
-  DECLARE_UNUSED(grp);
-  messerr("AnamUser: Cannot be serialized");
-  return false;
-}
+  bool AnamUser::serializeH5(H5::Group& grp) const
+  {
+    DECLARE_UNUSED(grp);
+    messerr("AnamUser: Cannot be serialized");
+    return false;
+  }
 #endif
 } // namespace gstlrn

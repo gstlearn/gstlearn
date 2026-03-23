@@ -16,7 +16,7 @@ then
 fi
 
 flist=$(ls $in_dir/python/*.ipynb)
-for fsc in $flist 
+for fsc in $flist
 do
   echo "  Processing $fsc"
   jupyter nbconvert --clear-output --inplace $fsc

@@ -119,10 +119,10 @@ jobs:
   publish:
     needs: build
     if: ${{inputs.dry_publish == false}}
-    
+
     # Only ubuntu can upload to a server easily (ssh)
     runs-on: ubuntu-latest
-    
+
     steps:
       - env:
           PROJECT_FULL_VERSION: ${{needs.build.outputs.project_full_version}}

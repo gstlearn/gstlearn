@@ -57,7 +57,8 @@ int CholeskyEigenCG::getSize() const
 ** \param[out] vecout  Array of output values
 **
 *****************************************************************************/
-void CholeskyEigenCG::evalInverse(const VectorDouble& vecin, VectorDouble& vecout) const
+void CholeskyEigenCG::evalInverse(const VectorDouble& vecin,
+                                  VectorDouble& vecout) const
 {
   if (!isValid()) return;
 
@@ -73,7 +74,8 @@ void CholeskyEigenCG::evalInverse(const VectorDouble& vecin, VectorDouble& vecou
 ** \param[out] outv      Array of output values
 **
 *****************************************************************************/
-void CholeskyEigenCG::_evalDirect(const VectorDouble& inv, VectorDouble& outv) const
+void CholeskyEigenCG::_evalDirect(const VectorDouble& inv,
+                                  VectorDouble& outv) const
 {
   if (!isValid()) return;
   AMatrix::productInPlace(outv, *_matCS, inv);
@@ -126,8 +128,8 @@ int CholeskyEigenCG::simulate(const VectorDouble& b, VectorDouble& x) const
 
   Eigen::ArrayXd Ddm = 1.0 / _cholSolver.vectorD().array().sqrt();
   Eigen::VectorXd DW = ((bm.array()) * Ddm).matrix();
-  Eigen::VectorXd Y  = _cholSolver.matrixU().solve(DW);
-  xm                 = _cholSolver.permutationPinv() * Y;
+  Eigen::VectorXd Y = _cholSolver.matrixU().solve(DW);
+  xm = _cholSolver.permutationPinv() * Y;
 
   return 0;
 }
@@ -154,7 +156,6 @@ double CholeskyEigenCG::getLogDeterminant() const
   //    return log(_cholSolver.determinant()); // This should be avoided to prevent overflow for large matrix
   double det = 0.;
   auto& diag = _cholSolver.vectorD();
-  for (int i = 0; i < _matCS->getNRows(); ++i)
-    det += log(diag[i]);
+  for (int i = 0; i < _matCS->getNRows(); ++i) det += log(diag[i]);
   return 2. * det;
 }

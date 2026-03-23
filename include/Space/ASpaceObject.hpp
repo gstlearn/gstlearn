@@ -20,98 +20,98 @@
 
 namespace gstlrn
 {
-class ASpace;
-class SpacePoint;
+  class ASpace;
+  class SpacePoint;
 
-/**
- * This class is the base class for all objects that need to know what is its space definition.
- * All ASpaceObject can access to the number of space dimensions and can ask to calculate
- * a distance between two ASpaceObjects.
- *
- * This class also stores a unique (static) default global space that will be used as default space
- * when creating a ASpaceObject (without a predefined space). It is possible to modify the default
- * space definition at any time. Space definition of pre-existing ASpaceObjects remains the same.
- * (no more shared pointer)
- */
-class GSTLEARN_EXPORT ASpaceObject : public AStringable
-{
-public:
-  ASpaceObject(const ASpaceSharedPtr& space = ASpaceSharedPtr());
-  ASpaceObject(const ASpaceObject& r);
-  ASpaceObject& operator= (const ASpaceObject& r);
-  virtual ~ASpaceObject();
+  /**
+   * This class is the base class for all objects that need to know what is its space definition.
+   * All ASpaceObject can access to the number of space dimensions and can ask to calculate
+   * a distance between two ASpaceObjects.
+   *
+   * This class also stores a unique (static) default global space that will be used as default space
+   * when creating a ASpaceObject (without a predefined space). It is possible to modify the default
+   * space definition at any time. Space definition of pre-existing ASpaceObjects remains the same.
+   * (no more shared pointer)
+   */
+  class GSTLEARN_EXPORT ASpaceObject: public AStringable
+  {
+  public:
+    ASpaceObject(const ASpaceSharedPtr& space = ASpaceSharedPtr());
+    ASpaceObject(const ASpaceObject& r);
+    ASpaceObject& operator=(const ASpaceObject& r);
+    virtual ~ASpaceObject();
 
-  /// AStringable interface
-  String toString(const AStringFormat* strfmt = nullptr) const override;
+    /// AStringable interface
+    String toString(const AStringFormat* strfmt = nullptr) const override;
 
-public:
-  /// Accessor to the current object space context
-  ASpaceSharedPtr getSpace() const { return _space; }
-  /// Indicate if I am consistent with my current space context
-  bool isConsistent() const { return isConsistent(_space); }
+  public:
+    /// Accessor to the current object space context
+    ASpaceSharedPtr getSpace() const { return _space; }
 
-  void setSpace(ASpaceSharedPtr &&space) { _space = std::move(space); }
+    /// Indicate if I am consistent with my current space context
+    bool isConsistent() const { return isConsistent(_space); }
 
-  /// Return unitary vector for the current space context
-  VectorDouble getUnitaryVector() const;
+    void setSpace(ASpaceSharedPtr&& space) { _space = std::move(space); }
 
-  /// Indicate if I am consistent with the provided space
-  bool isConsistent(const ASpaceSharedPtr& space) const;
-  virtual bool isConsistent(const ASpace* space) const = 0;
+    /// Return unitary vector for the current space context
+    VectorDouble getUnitaryVector() const;
 
-  //////////////////////////////////////////////////////////
-  /// Shortcuts to ASpace methods
+    /// Indicate if I am consistent with the provided space
+    bool isConsistent(const ASpaceSharedPtr& space) const;
+    virtual bool isConsistent(const ASpace* space) const = 0;
 
-  /// Return the number of dimension of the current space context
-  size_t getNDim(Id ispace = -1) const;
-  /// Return the current space context origin coordinates
-  const VectorDouble& getOrigin(Id ispace = -1) const;
+    //////////////////////////////////////////////////////////
+    /// Shortcuts to ASpace methods
 
-  /// Return the distance between two space points for the current space context
-  double getDistance(const SpacePoint& p1,
-                     const SpacePoint& p2,
-                     Id ispace = 0) const;
+    /// Return the number of dimension of the current space context
+    size_t getNDim(Id ispace = -1) const;
+    /// Return the current space context origin coordinates
+    const VectorDouble& getOrigin(Id ispace = -1) const;
 
-  /// Return all the distances (space composits) between two space points for the current space context
-  VectorDouble getDistances(const SpacePoint& p1,
-                            const SpacePoint& p2) const;
+    /// Return the distance between two space points for the current space context
+    double getDistance(const SpacePoint& p1,
+                       const SpacePoint& p2,
+                       Id ispace = 0) const;
 
-  /// Return the increment vector between two space points for the current space context
-  VectorDouble getIncrement(const SpacePoint& p1,
-                            const SpacePoint& p2,
-                            Id ispace = 0) const;
-  void getIncrementInPlace(const SpacePoint& p1,
-                           const SpacePoint& p2,
-                           VectorDouble& ptemp,
-                           Id ispace = -1) const;
+    /// Return all the distances (space composits) between two space points for the current space context
+    VectorDouble getDistances(const SpacePoint& p1, const SpacePoint& p2) const;
 
-protected:
-  /// Modify the Space dimension of an already created item (and create RN space)
-  /// (To be used only during creation ... in particular when reading NF)
-  void setNDim(Id ndim);
+    /// Return the increment vector between two space points for the current space context
+    VectorDouble getIncrement(const SpacePoint& p1,
+                              const SpacePoint& p2,
+                              Id ispace = 0) const;
+    void getIncrementInPlace(const SpacePoint& p1,
+                             const SpacePoint& p2,
+                             VectorDouble& ptemp,
+                             Id ispace = -1) const;
 
-protected:
-  /// Current space context of the object
-  ASpaceSharedPtr _space;
+  protected:
+    /// Modify the Space dimension of an already created item (and create RN space)
+    /// (To be used only during creation ... in particular when reading NF)
+    void setNDim(Id ndim);
 
-private:
-  /// Dummy vector for the origin
-  VectorDouble _dummy;
-};
+  protected:
+    /// Current space context of the object
+    ASpaceSharedPtr _space;
 
-/// (Re)Defining the unique default global space
-GSTLEARN_EXPORT void defineDefaultSpace(const ESpaceType& type,
-                                        size_t ndim  = 2,
-                                        double param = 0.);
-/// Set the unique default global space from another one
-GSTLEARN_EXPORT void setDefaultSpace(const ASpaceSharedPtr& space);
+  private:
+    /// Dummy vector for the origin
+    VectorDouble _dummy;
+  };
 
-/// Return a clone of the unique default global space
+  /// (Re)Defining the unique default global space
+  GSTLEARN_EXPORT void defineDefaultSpace(const ESpaceType& type,
+                                          size_t ndim = 2,
+                                          double param = 0.);
+  /// Set the unique default global space from another one
+  GSTLEARN_EXPORT void setDefaultSpace(const ASpaceSharedPtr& space);
 
-GSTLEARN_EXPORT ESpaceType getDefaultSpaceType();
-GSTLEARN_EXPORT Id getDefaultSpaceDimension();
-GSTLEARN_EXPORT const ASpace* getDefaultSpace();
-GSTLEARN_EXPORT ASpaceSharedPtr getDefaultSpaceSh();
+  /// Return a clone of the unique default global space
 
-GSTLEARN_EXPORT bool isDefaultSpaceSphere();
-}
+  GSTLEARN_EXPORT ESpaceType getDefaultSpaceType();
+  GSTLEARN_EXPORT Id getDefaultSpaceDimension();
+  GSTLEARN_EXPORT const ASpace* getDefaultSpace();
+  GSTLEARN_EXPORT ASpaceSharedPtr getDefaultSpaceSh();
+
+  GSTLEARN_EXPORT bool isDefaultSpaceSphere();
+} // namespace gstlrn

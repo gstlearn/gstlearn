@@ -16,85 +16,89 @@
 
 namespace gstlrn
 {
-class DbGrid;
+  class DbGrid;
 
-class GSTLEARN_EXPORT RuleShift: public Rule
-{
-public:
-  RuleShift();
-  RuleShift(const RuleShift& m);
-  RuleShift& operator=(const RuleShift& m);
-  virtual ~RuleShift();
+  class GSTLEARN_EXPORT RuleShift: public Rule
+  {
+  public:
+    RuleShift();
+    RuleShift(const RuleShift& m);
+    RuleShift& operator=(const RuleShift& m);
+    virtual ~RuleShift();
 
-  /// ASerializable Interface
-  String getNFName() const override { return "RuleShift"; }
+    /// ASerializable Interface
+    String getNFName() const override { return "RuleShift"; }
 #ifdef HDF5
-  bool deserializeH5(H5::Group& grp) override;
-  bool serializeH5(H5::Group& grp) const override;
+    bool deserializeH5(H5::Group& grp) override;
+    bool serializeH5(H5::Group& grp) const override;
 #endif
 
-  String displaySpecific() const override;
+    String displaySpecific() const override;
 
-  Id resetFromNodes(const VectorInt& nodes, const VectorDouble& shift);
-  Id resetFromNames(const VectorString& nodnames, const VectorDouble& shift);
-  Id resetFromFaciesCount(Id nfacies, const VectorDouble& shift);
-  Id resetFromNumericalCoding(const VectorInt& n_type,
-                              const VectorInt& n_facs,
-                              const VectorDouble& shift);
+    Id resetFromNodes(const VectorInt& nodes, const VectorDouble& shift);
+    Id resetFromNames(const VectorString& nodnames, const VectorDouble& shift);
+    Id resetFromFaciesCount(Id nfacies, const VectorDouble& shift);
+    Id resetFromNumericalCoding(const VectorInt& n_type,
+                                const VectorInt& n_facs,
+                                const VectorDouble& shift);
 
-  static RuleShift* createFromNodes(const VectorInt& nodes,
-                                    const VectorDouble& shift);
-  static RuleShift* createFromNames(const VectorString& nodnames,
-                                    const VectorDouble& shift);
-  static RuleShift* createFromFaciesCount(Id nfacies,
-                                          const VectorDouble& shift);
-  static RuleShift* createFromNumericalCoding(const VectorInt& n_type,
-                                              const VectorInt& n_facs,
-                                              const VectorDouble& shift);
+    static RuleShift*
+      createFromNodes(const VectorInt& nodes, const VectorDouble& shift);
+    static RuleShift*
+      createFromNames(const VectorString& nodnames, const VectorDouble& shift);
+    static RuleShift*
+      createFromFaciesCount(Id nfacies, const VectorDouble& shift);
+    static RuleShift* createFromNumericalCoding(const VectorInt& n_type,
+                                                const VectorInt& n_facs,
+                                                const VectorDouble& shift);
 
-  Id particularities(Db* db,
-                     const Db* dbprop,
-                     Model* model,
-                     Id flag_grid_check,
-                     Id flag_stat) const override;
-  Id gaus2facResult(PropDef* propdef,
-                    Db* dbout,
-                    Id* flag_used,
-                    Id ipgs,
-                    Id isimu,
-                    Id nbsimu) const override;
-  Id evaluateBounds(PropDef* propdef,
-                    Db* dbin,
-                    Db* dbout,
-                    Id isimu,
-                    Id igrf,
-                    Id ipgs,
-                    Id nbsimu) const override;
+    Id particularities(Db* db,
+                       const Db* dbprop,
+                       Model* model,
+                       Id flag_grid_check,
+                       Id flag_stat) const override;
+    Id gaus2facResult(PropDef* propdef,
+                      Db* dbout,
+                      Id* flag_used,
+                      Id ipgs,
+                      Id isimu,
+                      Id nbsimu) const override;
+    Id evaluateBounds(PropDef* propdef,
+                      Db* dbin,
+                      Db* dbout,
+                      Id isimu,
+                      Id igrf,
+                      Id ipgs,
+                      Id nbsimu) const override;
 
-  bool checkModel(const Model* model, Id nvar = 0) const override;
+    bool checkModel(const Model* model, Id nvar = 0) const override;
 
-  double getShDown() const { return _shDown; }
-  double getShDsup() const { return _shDsup; }
-  double getSlope() const { return _slope; }
-  const VectorDouble& getShift() const { return _shift; }
-  double getShift(Id idim) const { return _shift[idim]; }
+    double getShDown() const { return _shDown; }
 
-protected:
-  bool _serializeAscii(std::ostream& os) const override;
-  bool _deserializeAscii(std::istream& is) override;
+    double getShDsup() const { return _shDsup; }
 
-private:
-  Id _st_shift_on_grid(Db* db, Id ndim, Id flag_grid_check) const;
+    double getSlope() const { return _slope; }
 
-private:
-  double _shDsup;      /* Upper limit */
-  double _shDown;      /* Downwards limit */
-  double _slope;       /* Slope used for shadow option */
-  VectorDouble _shift; /* Shadow or translation orientation */
+    const VectorDouble& getShift() const { return _shift; }
 
-  mutable double _incr;
-  mutable VectorDouble _xyz;
-  mutable VectorInt _ind1;
-  mutable VectorInt _ind2;
-};
+    double getShift(Id idim) const { return _shift[idim]; }
+
+  protected:
+    bool _serializeAscii(std::ostream& os) const override;
+    bool _deserializeAscii(std::istream& is) override;
+
+  private:
+    Id _st_shift_on_grid(Db* db, Id ndim, Id flag_grid_check) const;
+
+  private:
+    double _shDsup; /* Upper limit */
+    double _shDown; /* Downwards limit */
+    double _slope; /* Slope used for shadow option */
+    VectorDouble _shift; /* Shadow or translation orientation */
+
+    mutable double _incr;
+    mutable VectorDouble _xyz;
+    mutable VectorInt _ind1;
+    mutable VectorInt _ind2;
+  };
 } // namespace gstlrn

@@ -18,48 +18,49 @@
 
 namespace gstlrn
 {
-class ModelGeneric;
-class DbGrid;
-class Constraints;
-class MatrixDense;
-class MatrixSymmetric;
+  class ModelGeneric;
+  class DbGrid;
+  class Constraints;
+  class MatrixDense;
+  class MatrixSymmetric;
 
-/**
- * \brief
- * Class which, starting from an experimental variogram, enables fitting the
- * sills of all Covariance parts of a Model
- */
+  /**
+   * \brief
+   * Class which, starting from an experimental variogram, enables fitting the
+   * sills of all Covariance parts of a Model
+   */
 
-class GSTLEARN_EXPORT ModelFitSillsVMap: public AModelFitSills
-{
-public:
-  ModelFitSillsVMap(const DbGrid* dbmap,
-                    ModelCovList* model,
-                    const Constraints* constraints   = nullptr,
-                    const ModelOptimParam& mop = ModelOptimParam());
-  ModelFitSillsVMap(const ModelFitSillsVMap& m);
-  ModelFitSillsVMap& operator=(const ModelFitSillsVMap& m);
-  virtual ~ModelFitSillsVMap();
+  class GSTLEARN_EXPORT ModelFitSillsVMap: public AModelFitSills
+  {
+  public:
+    ModelFitSillsVMap(const DbGrid* dbmap,
+                      ModelCovList* model,
+                      const Constraints* constraints = nullptr,
+                      const ModelOptimParam& mop = ModelOptimParam());
+    ModelFitSillsVMap(const ModelFitSillsVMap& m);
+    ModelFitSillsVMap& operator=(const ModelFitSillsVMap& m);
+    virtual ~ModelFitSillsVMap();
 
-  IMPLEMENT_CLONING(ModelFitSillsVMap)
+    IMPLEMENT_CLONING(ModelFitSillsVMap)
 
-  Id fitSillMatrices() override;
+    Id fitSillMatrices() override;
 
-  static ModelFitSillsVMap* createForOptim(const DbGrid* dbmap,
-                                           ModelGeneric* model,
-                                           const Constraints* constraints   = nullptr,
-                                           const ModelOptimParam& mop = ModelOptimParam());
+    static ModelFitSillsVMap*
+      createForOptim(const DbGrid* dbmap,
+                     ModelGeneric* model,
+                     const Constraints* constraints = nullptr,
+                     const ModelOptimParam& mop = ModelOptimParam());
 
-private:
-  Id _prepare();
-  Id  _getDimensions();
-  void _computeVMap();
-  void _updateFromModel();
+  private:
+    Id _prepare();
+    Id _getDimensions();
+    void _computeVMap();
+    void _updateFromModel();
 
-private:
-  const DbGrid* _dbmap;
-  VectorInt _indg1;
-  VectorInt _indg2;
-  Id _nech;
-};
-}
+  private:
+    const DbGrid* _dbmap;
+    VectorInt _indg1;
+    VectorInt _indg2;
+    Id _nech;
+  };
+} // namespace gstlrn

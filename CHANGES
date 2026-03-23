@@ -5,14 +5,14 @@ This file contains the logs between consecutive releases
 Release 1.11.0
 ==============
 - Correcting the calculation of Non-centered covariance
-- Adding new syntax for matrices (AMatrix class): overload and operators. 
+- Adding new syntax for matrices (AMatrix class): overload and operators.
 - In AMatrix, method addMat() is replaced linearCombination()
 - In AMatrix, the method fillRandom() has modified the order of the arguments
 - In AMatrix, the method linearCombination() has changed prototype
 - In AMatrix, the method add() is now template and has changed implementation for Sparse
 - Testing new syntax for VectorDouble (in VectorHelper): overload of operators
 - Regrouping all estimation API functions in a single header file Estimations.hpp
-- Regrouping all simulation API functions in a single header file Simulations.hpp 
+- Regrouping all simulation API functions in a single header file Simulations.hpp
 - New algorithm to check and default the variable name for plot (in R and Python)
 - The generic error message (produced in CheckArg) has been made more explicit.
 - Adding a function for printing the name of the most concrete class to which a pointer belongs
@@ -39,7 +39,7 @@ Release 1.10.0
 - Adding the calculation of CORRELOGRAMS
 - Adding the general feature of ergodic or non-ergodic calculations for Mean and Variance (used for centering and scaling)
 - Some global functions: getAllMaxDimension(), getAllIsSpatialTemporal(), getAllFormula()
-- Class CovParamId now directly aggregates ParamId 
+- Class CovParamId now directly aggregates ParamId
 - Suppress argument 'verbose' in serialize() and deserialize(), ascii or H5.
 - Bayesian prior information (mean and Cov) are now hosted in DriftList within ModelGeneric. They are not passed as arguments in: kribayes(), simbayes, krigsim(), multilayers_kriging().
 - An additional shortcut for Variogram Cloud calculation
@@ -49,12 +49,12 @@ Release 1.10.0
 - Two new ways to calculate the experimental variogram (quick definition)
 - Adding method createFillRandom() in Table class
 - Neighborhood is optional (defaulted to Unique ... if not too many samples) in Kriging, Xvalid.
-- Class Db has a new method called displayStats() which provides some statistics on some variables (easier to use than DbStringFormat). 
-- General renaming: 
+- Class Db has a new method called displayStats() which provides some statistics on some variables (easier to use than DbStringFormat).
+- General renaming:
   . print_vector() into printVector()
   . print_matrix() into printMatrix()
   . print_trimat() into printTriMat()
-  . tab_printg(), tab_printi(), tab_printd(), tab_prints() into printElement() 
+  . tab_printg(), tab_printi(), tab_printd(), tab_prints() into printElement()
 - testInter_Gibbsmmulti.cpp has been moved from testInter into test directory (it is no more interactive)
 - Creation of a new class VectorMeshes (AStringable)
 - Compatibility with python 3.14 and R 4.5.2
@@ -65,7 +65,7 @@ _ Correction of the Migration algorithm (adding a test in Tuto_Migration.ipynb)
 - Improvement in DbGrid::createFromPolygon (better management of default value + ability to define the selection in the newly create Grid File)
 - Correct the Polygon extension calculation
 - New functions in Db: getRanksAbsoluteToRelativeVec() and getRanksRelativeToAbsolute()
-- For generating a VectorDouble containing the sequence of values, please now use VH::sequenceVD() 
+- For generating a VectorDouble containing the sequence of values, please now use VH::sequenceVD()
 - Db() offers the possibility to overload operators (robustified against illegal argument).
 - Db::createReduce() and Db::resetReduce() have a new mode for keeping only isotopic samples
 - Extend the ability to generate drift functions for any space and IRF order (setDriftIRF)
@@ -85,7 +85,7 @@ Release 1.9.0
 - The old-style memory management is not used anymore (mem_alloc, mem_free, ...)
 - Really install shared library export lib file under windows (issue #672)
 - Fix ProjComposition when composing more than 2 matrices (issue #674)
-- Fix Moving Neighborhood using XValid with K-Fold and Ball Tree 
+- Fix Moving Neighborhood using XValid with K-Fold and Ball Tree
 - Fix Maximum Likelihood for more complex variogram models contexts
 
 
@@ -163,10 +163,10 @@ Refactoring:
 - class MatrixSquareSymmetricSim is renamed into MatrixSymmetricSim
 - class MatrixSquareSymmetric is renamed into MatrixSymmetric
 - class MatrixRectangular has been merged into MatrixDense (replacing AMatrixDense)
-- Essential modification: API functions such as kriging, xvalid, ... are now using KrigOpt 
+- Essential modification: API functions such as kriging, xvalid, ... are now using KrigOpt
   argument to carry all the options used while kriging (calcul, ndisc for block, matLC, DGM, ...)
 - evalCov is now a concrete method of ACov and it calls _eval which is pure virtual and has to be implemented in new covariance classes.
-- eval is renamed evalCov in ACov (the version which takes const SpacePoint& in arguments) 
+- eval is renamed evalCov in ACov (the version which takes const SpacePoint& in arguments)
 - evalCov is renamed evalCorFunc in CovFunc class
 - evalCov is renamed computeCov in PrecisionOp class
 - evalCov is renamed evalCovFromIncr in Model
@@ -265,7 +265,7 @@ Release 1.4.0
 - The constructor of MeshETurbo() defines rotation using 'angles' rather than 'rotmat'
 - New class SpatialIndices and corresponding methods (CGI, LIC, GIC, ...) as in RGeostats (micro not yet available).
 - Names of variables used to compute the Variogram are stored in the Vario object
-- Empirical anamorphosis: plugging Normal score; parameterizing the dilution 
+- Empirical anamorphosis: plugging Normal score; parameterizing the dilution
 - Adding the file dev/Valgrind_Statistics for a follow up of software performances.
 
 Release 1.3.2
@@ -345,7 +345,7 @@ Release 1.1.0
 - Function correlation_ident() is renamed as correlationIdentify()
 - Function variogram_mlayers() is renamed as Vario::computeGeometryMLayers()
 - Function variovect_compute() is renamed as Vario::computeVarioVect()
-- New functions for Squeeze-and-Stretch in Grid format: 
+- New functions for Squeeze-and-Stretch in Grid format:
   DbGrid::createSqueezeAndStretchForward() for forward processing and
   DbGrid::createSqueezeAndStretchBackward() for backward processing
 - New method 'select' for ANeigh (gain of memory and time)
@@ -356,7 +356,7 @@ Release 1.1.0
 - Class PolySet is now called PolyElem
 - The Python function display_file.py has been renamed into show_file.py
 - reduceComplexity in Polygons
-- New name for argument of migrate* functions: ldmax -> distType 
+- New name for argument of migrate* functions: ldmax -> distType
   and change type for flag_inter and flag_fill (become boolean)
 - Correction in kribayes for multivariate aspect.
 - In DbGrid::createCoveringDb, argument names have changed: nodes -> nx, dcell -> dx, origin -> x0
@@ -383,7 +383,7 @@ Release 1.0.0
 - Fix filtering in kriging feature
 - New function for creating experimental variogram from R data frames (Vario_fromDF)
 - Improve experimental variogram calculation efficiency
-- Fix initGeographic when using figsize in Python (locdims was not defined) 
+- Fix initGeographic when using figsize in Python (locdims was not defined)
 - Make db_duplicate and db_tool_duplicate available thru swig
 - Add loadData, loadDoc and setNoScroll functions in R and Python
 - Fix inline equations rendering in html from jupyter notebooks
@@ -416,7 +416,7 @@ Release 0.4.0
 - Improvement of Table printout (row name not truncated anymore)
 - New class 'ResReg' for storing Regression formula (AStringable)
 - Integrate R documentation for functions in plot.R into the R package
-- Names in plot.R and plot.py are standardized: using camel-writing systematically 
+- Names in plot.R and plot.py are standardized: using camel-writing systematically
 - New method Db_fromPanda for creating Db from Panda Frame (numerical columns only)
 - New method Db_fromDF for creating Db from data.frame (numerical columns only)
 - Fix functions having "String()" default value in r (replaced by "")
@@ -438,7 +438,7 @@ Release 0.3.2
 Release 0.3.1
 =============
 - SWIG typemaps robustification
-- Publish acknowledge_gstlearn 
+- Publish acknowledge_gstlearn
 
 Release 0.3.0
 =============
@@ -547,7 +547,7 @@ Release 0.1.25
 ==============
 - Prevent from building Python / R according windows compiler (MinGw/Visual)
 - Boolean model
-- Fix anamorphosis 
+- Fix anamorphosis
 
 Release 0.1.7-24
 ================
@@ -594,4 +594,3 @@ Release 0.0.1
 This is the first version of the 'gstlearn' C++ Library!
 Previous changes are listed in the CHANGELOG file of the Geoslib Library (its ancestor).
 For more details, please look at doc/CHANGELOG.Geoslib.
-

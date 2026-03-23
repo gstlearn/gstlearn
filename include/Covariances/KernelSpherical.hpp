@@ -15,31 +15,38 @@
 
 namespace gstlrn
 {
-class CovContext;
-class TurningBandOperate;
+  class CovContext;
+  class TurningBandOperate;
 
-class GSTLEARN_EXPORT KernelSpherical: public AKernel
-{
-public:
-  KernelSpherical(const CovContext& ctx);
-  KernelSpherical(const KernelSpherical& r);
-  KernelSpherical& operator=(const KernelSpherical& r);
-  virtual ~KernelSpherical();
-
-  size_t getMaxNDim() const override { return 3; }
-  String getFormula() const override;
-  String getCovName() const override { return "Spherical"; }
-  Id getMinOrder() const override { return -1; }
-  bool getCompatibleSpaceR() const override { return true; }
-  bool isValidForSimulation(const ESimuType& simuType) const override
+  class GSTLEARN_EXPORT KernelSpherical: public AKernel
   {
-    return (simuType == ESimuType::TB);
-  }
-  double simulateTurningBand(double t0, TurningBandOperate& operTB) const override;
+  public:
+    KernelSpherical(const CovContext& ctx);
+    KernelSpherical(const KernelSpherical& r);
+    KernelSpherical& operator=(const KernelSpherical& r);
+    virtual ~KernelSpherical();
 
-protected:
-  double _evaluateCov(double h) const override;
-  double _evaluateCovFirstDerivative(double h) const override;
-};
+    size_t getMaxNDim() const override { return 3; }
+
+    String getFormula() const override;
+
+    String getCovName() const override { return "Spherical"; }
+
+    Id getMinOrder() const override { return -1; }
+
+    bool getCompatibleSpaceR() const override { return true; }
+
+    bool isValidForSimulation(const ESimuType& simuType) const override
+    {
+      return (simuType == ESimuType::TB);
+    }
+
+    double
+      simulateTurningBand(double t0, TurningBandOperate& operTB) const override;
+
+  protected:
+    double _evaluateCov(double h) const override;
+    double _evaluateCovFirstDerivative(double h) const override;
+  };
 
 } // namespace gstlrn

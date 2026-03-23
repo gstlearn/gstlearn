@@ -26,718 +26,802 @@
 
 namespace gstlrn
 {
-RuleShadow::RuleShadow()
-  : Rule()
-  , _shDsup(0.)
-  , _shDown(0.)
-  , _slope(0.)
-  , _shift()
-  , _dMax(TEST)
-  , _tgte(TEST)
-  , _incr(TEST)
-  , _xyz()
-  , _ind1()
-  , _ind2()
-{
-  setModeRule(ERule::SHADOW);
-}
-
-/**
- * Defining the Lithotype Rule in the case of Shadow
- * @param slope   Slope definition
- * @param sh_dsup Maximum threshold
- * @param sh_down Minimum threshold
- * @param shift   Shift orientation
- */
-RuleShadow::RuleShadow(double slope,
-                       double sh_dsup,
-                       double sh_down,
-                       const VectorDouble& shift)
-  : Rule()
-  , _shDsup(sh_dsup)
-  , _shDown(sh_down)
-  , _slope(slope)
-  , _shift(shift)
-  , _dMax(TEST)
-  , _tgte(TEST)
-  , _incr(TEST)
-  , _xyz()
-  , _ind1()
-  , _ind2()
-{
-  setModeRule(ERule::SHADOW);
-  VectorString nodnames = {"S", "T", "F1", "F2", "F3"};
-  setMainNodeFromNodNames(nodnames);
-  _normalizeShift();
-}
-
-RuleShadow::RuleShadow(const RuleShadow& m)
-  : Rule(m)
-  , _shDsup(m._shDsup)
-  , _shDown(m._shDown)
-  , _slope(m._slope)
-  , _shift(m._shift)
-  , _dMax(m._dMax)
-  , _tgte(m._tgte)
-  , _incr(m._incr)
-{
-}
-
-RuleShadow& RuleShadow::operator=(const RuleShadow& m)
-{
-  if (this != &m)
+  RuleShadow::RuleShadow()
+    : Rule()
+    , _shDsup(0.)
+    , _shDown(0.)
+    , _slope(0.)
+    , _shift()
+    , _dMax(TEST)
+    , _tgte(TEST)
+    , _incr(TEST)
+    , _xyz()
+    , _ind1()
+    , _ind2()
   {
-    Rule::operator=(m);
-    _shDsup = m._shDsup;
-    _shDown = m._shDown;
-    _slope  = m._slope;
-    _shift  = m._shift;
-    _dMax   = m._dMax;
-    _tgte   = m._tgte;
-    _incr   = m._incr;
+    setModeRule(ERule::SHADOW);
   }
-  return *this;
-}
 
-RuleShadow::~RuleShadow()
-{
-}
-
-bool RuleShadow::_deserializeAscii(std::istream& is)
-{
-  bool ret = true;
-  _shift.resize(3);
-
-  ret = ret && Rule::_deserializeAscii(is);
-
-  ret = ret && _recordRead<double>(is, "Slope for Shadow Rule", _slope);
-  ret = ret && _recordRead<double>(is, "Lower Threshold for Shadow Rule", _shDown);
-  ret = ret && _recordRead<double>(is, "Upper Threshold for Shadow Rule", _shDsup);
-  ret = ret && _recordRead<double>(is, "Shift along first direction", _shift[0]);
-  ret = ret && _recordRead<double>(is, "Shift along second direction", _shift[1]);
-  ret = ret && _recordRead<double>(is, "Shift along third direction", _shift[2]);
-  return ret;
-}
-
-bool RuleShadow::_serializeAscii(std::ostream& os) const
-{
-  double slope          = (FFFF(_slope)) ? 0. : _slope;
-  double shdown         = (FFFF(_shDown)) ? 0. : _shDown;
-  double shdsup         = (FFFF(_shDsup)) ? 0. : _shDsup;
-  VectorDouble shiftloc = _shift;
-  shiftloc.resize(3);
-
-  bool ret = true;
-
-  ret = ret && Rule::_serializeAscii(os);
-
-  ret = ret && _recordWrite<double>(os, "", slope);
-  ret = ret && _recordWrite<double>(os, "", shdown);
-  ret = ret && _recordWrite<double>(os, "Parameters for Shadow option", shdsup);
-  ret = ret && _recordWrite<double>(os, "", shiftloc[0]);
-  ret = ret && _recordWrite<double>(os, "", shiftloc[1]);
-  ret = ret && _recordWrite<double>(os, "Parameters for Shift option", shiftloc[2]);
-  return ret;
-}
-
-String RuleShadow::displaySpecific() const
-{
-  std::stringstream sstr;
-  sstr << toStrTitle(2, "Shadow Option");
-  sstr << toStrVector("Normalized Translation Vector = ", _shift);
-  sstr << "Slope for shadow                  = " << _slope << "(degrees)"
-       << std::endl;
-  sstr << "Upwards shift for the threshold   = " << _shDsup << std::endl;
-  sstr << "Downwards shift for the threshold = " << _shDown << std::endl;
-  sstr << std::endl;
-  sstr << "Note for non-stationary case:" << std::endl;
-  sstr << "- P1 gives the proportion of Island" << std::endl;
-  sstr << "- P2 gives the value of Upwards shift" << std::endl;
-  sstr << "- P3 gives the value of Downwards shift" << std::endl;
-  sstr << "(With the 'Shadow' option, only the first GRF is used)" << std::endl;
-
-  return sstr.str();
-}
-
-/****************************************************************************/
-/*!
- **  Define the particularities of the PGS model (for Shadow)
- **
- ** \return  Error return code
- **
- ** \param[in]  db              Db structure
- ** \param[in]  dbprop          Db structure used for proportions
- ** \param[in]  model           Model structure (only used for shift option)
- ** \param[in]  flag_grid_check 1 if grid is compulsory; 0 otherwise
- **                             (only for SHIFT)
- ** \param[in]  flag_stat       1 for stationary; 0 otherwise
- **
- *****************************************************************************/
-Id RuleShadow::particularities(Db* db,
-                               const Db* dbprop,
-                               Model* model,
-                               Id /*flag_grid_check*/,
-                               Id flag_stat) const
-{
-  double sh_dsup_max, sh_down_max;
-  Id ndim = (model != nullptr) ? static_cast<Id>(model->getNDim()) : 0;
-
-  _incr = MAXIMUM_BIG;
-  for (Id idim = 0; idim < ndim; idim++)
-    if (_shift[idim] != 0) _incr = MIN(_incr, db->getUnit(idim));
-
-  /* Calculate the maximum distance */
-
-  _tgte = tan(ut_deg2rad(_slope));
-  _st_shadow_max(dbprop, flag_stat, &sh_dsup_max, &sh_down_max);
-  _dMax = (_tgte > 0) ? (sh_dsup_max + sh_down_max) / _tgte : 0.;
-
-  return (0);
-}
-
-void RuleShadow::_st_shadow_max(const Db* dbprop,
-                                Id flag_stat,
-                                double* sh_dsup_max,
-                                double* sh_down_max) const
-{
-  Id iech;
-  double val2, val3;
-
-  if (flag_stat || dbprop == nullptr)
+  /**
+   * Defining the Lithotype Rule in the case of Shadow
+   * @param slope   Slope definition
+   * @param sh_dsup Maximum threshold
+   * @param sh_down Minimum threshold
+   * @param shift   Shift orientation
+   */
+  RuleShadow::RuleShadow(double slope,
+                         double sh_dsup,
+                         double sh_down,
+                         const VectorDouble& shift)
+    : Rule()
+    , _shDsup(sh_dsup)
+    , _shDown(sh_down)
+    , _slope(slope)
+    , _shift(shift)
+    , _dMax(TEST)
+    , _tgte(TEST)
+    , _incr(TEST)
+    , _xyz()
+    , _ind1()
+    , _ind2()
   {
-    /* Stationary case */
-
-    *sh_dsup_max = _shDsup;
-    *sh_down_max = _shDown;
+    setModeRule(ERule::SHADOW);
+    VectorString nodnames = {"S", "T", "F1", "F2", "F3"};
+    setMainNodeFromNodNames(nodnames);
+    _normalizeShift();
   }
-  else
+
+  RuleShadow::RuleShadow(const RuleShadow& m)
+    : Rule(m)
+    , _shDsup(m._shDsup)
+    , _shDown(m._shDown)
+    , _slope(m._slope)
+    , _shift(m._shift)
+    , _dMax(m._dMax)
+    , _tgte(m._tgte)
+    , _incr(m._incr)
   {
-    *sh_dsup_max = *sh_down_max = 0.;
-    for (iech = 0; iech < dbprop->getNSample(); iech++)
+  }
+
+  RuleShadow& RuleShadow::operator=(const RuleShadow& m)
+  {
+    if (this != &m)
     {
-      val2 = dbprop->getLocVariable(ELoc::P, iech, 1);
-      if (val2 > (*sh_dsup_max)) (*sh_dsup_max) = val2;
-      val3 = dbprop->getLocVariable(ELoc::P, iech, 2);
-      if (val3 > (*sh_down_max)) (*sh_down_max) = val3;
+      Rule::operator=(m);
+      _shDsup = m._shDsup;
+      _shDown = m._shDown;
+      _slope = m._slope;
+      _shift = m._shift;
+      _dMax = m._dMax;
+      _tgte = m._tgte;
+      _incr = m._incr;
     }
+    return *this;
   }
-}
 
-/****************************************************************************/
-/*!
- **  Evaluation of the value from a grid by inverse square distance
- **  interpolation from the 4 surrounding grid nodes
- **
- ** \return  Interpolated value or FFFF if out of grid
- **
- ** \param[in]  dbgrid Db structure
- ** \param[in]  isimu  Rank of the simulation
- ** \param[in]  icase  Rank of the Simulation storage
- ** \param[in]  nbsimu Number of simulations
- **
- ** \param[out]  xyz0  Working array
- **
- *****************************************************************************/
-double RuleShadow::_st_grid_eval(DbGrid* dbgrid,
-                                 Id isimu,
-                                 Id icase,
-                                 Id nbsimu,
-                                 VectorDouble& xyz0) const
-{
-  double top = 0.;
-  double bot = 0.;
-  Id ndim    = dbgrid->getNDim();
+  RuleShadow::~RuleShadow() {}
 
-  /* First point */
-  Id iech  = dbgrid->indiceToRank(_ind2);
-  double z = dbgrid->getSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, 1);
-  if (!FFFF(z))
+  bool RuleShadow::_deserializeAscii(std::istream& is)
   {
-    double d2 = 0.;
-    dbgrid->indicesToCoordinateInPlace(_ind2, xyz0);
+    bool ret = true;
+    _shift.resize(3);
+
+    ret = ret && Rule::_deserializeAscii(is);
+
+    ret = ret && _recordRead<double>(is, "Slope for Shadow Rule", _slope);
+    ret = ret
+       && _recordRead<double>(is, "Lower Threshold for Shadow Rule", _shDown);
+    ret = ret
+       && _recordRead<double>(is, "Upper Threshold for Shadow Rule", _shDsup);
+    ret =
+      ret && _recordRead<double>(is, "Shift along first direction", _shift[0]);
+    ret =
+      ret && _recordRead<double>(is, "Shift along second direction", _shift[1]);
+    ret =
+      ret && _recordRead<double>(is, "Shift along third direction", _shift[2]);
+    return ret;
+  }
+
+  bool RuleShadow::_serializeAscii(std::ostream& os) const
+  {
+    double slope = (FFFF(_slope)) ? 0. : _slope;
+    double shdown = (FFFF(_shDown)) ? 0. : _shDown;
+    double shdsup = (FFFF(_shDsup)) ? 0. : _shDsup;
+    VectorDouble shiftloc = _shift;
+    shiftloc.resize(3);
+
+    bool ret = true;
+
+    ret = ret && Rule::_serializeAscii(os);
+
+    ret = ret && _recordWrite<double>(os, "", slope);
+    ret = ret && _recordWrite<double>(os, "", shdown);
+    ret =
+      ret && _recordWrite<double>(os, "Parameters for Shadow option", shdsup);
+    ret = ret && _recordWrite<double>(os, "", shiftloc[0]);
+    ret = ret && _recordWrite<double>(os, "", shiftloc[1]);
+    ret = ret
+       && _recordWrite<double>(os, "Parameters for Shift option", shiftloc[2]);
+    return ret;
+  }
+
+  String RuleShadow::displaySpecific() const
+  {
+    std::stringstream sstr;
+    sstr << toStrTitle(2, "Shadow Option");
+    sstr << toStrVector("Normalized Translation Vector = ", _shift);
+    sstr << "Slope for shadow                  = " << _slope << "(degrees)"
+         << std::endl;
+    sstr << "Upwards shift for the threshold   = " << _shDsup << std::endl;
+    sstr << "Downwards shift for the threshold = " << _shDown << std::endl;
+    sstr << std::endl;
+    sstr << "Note for non-stationary case:" << std::endl;
+    sstr << "- P1 gives the proportion of Island" << std::endl;
+    sstr << "- P2 gives the value of Upwards shift" << std::endl;
+    sstr << "- P3 gives the value of Downwards shift" << std::endl;
+    sstr << "(With the 'Shadow' option, only the first GRF is used)"
+         << std::endl;
+
+    return sstr.str();
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Define the particularities of the PGS model (for Shadow)
+   **
+   ** \return  Error return code
+   **
+   ** \param[in]  db              Db structure
+   ** \param[in]  dbprop          Db structure used for proportions
+   ** \param[in]  model           Model structure (only used for shift option)
+   ** \param[in]  flag_grid_check 1 if grid is compulsory; 0 otherwise
+   **                             (only for SHIFT)
+   ** \param[in]  flag_stat       1 for stationary; 0 otherwise
+   **
+   *****************************************************************************/
+  Id RuleShadow::particularities(Db* db,
+                                 const Db* dbprop,
+                                 Model* model,
+                                 Id /*flag_grid_check*/,
+                                 Id flag_stat) const
+  {
+    double sh_dsup_max, sh_down_max;
+    Id ndim = (model != nullptr) ? static_cast<Id>(model->getNDim()) : 0;
+
+    _incr = MAXIMUM_BIG;
     for (Id idim = 0; idim < ndim; idim++)
-    {
-      double delta = _xyz[idim] - xyz0[idim];
-      d2 += delta * delta;
-    }
-    if (d2 <= 0.) return (z);
-    top += z / d2;
-    bot += 1. / d2;
+      if (_shift[idim] != 0) _incr = MIN(_incr, db->getUnit(idim));
+
+    /* Calculate the maximum distance */
+
+    _tgte = tan(ut_deg2rad(_slope));
+    _st_shadow_max(dbprop, flag_stat, &sh_dsup_max, &sh_down_max);
+    _dMax = (_tgte > 0) ? (sh_dsup_max + sh_down_max) / _tgte : 0.;
+
+    return (0);
   }
 
-  /* Second point */
-  _ind2[0] += 1;
-  iech = dbgrid->indiceToRank(_ind2);
-  z    = dbgrid->getSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, 1);
-  if (!FFFF(z))
+  void RuleShadow::_st_shadow_max(const Db* dbprop,
+                                  Id flag_stat,
+                                  double* sh_dsup_max,
+                                  double* sh_down_max) const
   {
-    double d2 = 0.;
-    dbgrid->indicesToCoordinateInPlace(_ind2, xyz0);
-    for (Id idim = 0; idim < ndim; idim++)
+    Id iech;
+    double val2, val3;
+
+    if (flag_stat || dbprop == nullptr)
     {
-      double delta = _xyz[idim] - xyz0[idim];
-      d2 += delta * delta;
+      /* Stationary case */
+
+      *sh_dsup_max = _shDsup;
+      *sh_down_max = _shDown;
     }
-    if (d2 <= 0.) return (z);
-    top += z / d2;
-    bot += 1. / d2;
-  }
-
-  /* Third point */
-  _ind2[1] += 1;
-  iech = dbgrid->indiceToRank(_ind2);
-  z    = dbgrid->getSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, 1);
-  if (!FFFF(z))
-  {
-    double d2 = 0.;
-    dbgrid->indicesToCoordinateInPlace(_ind2, xyz0);
-    for (Id idim = 0; idim < ndim; idim++)
-    {
-      double delta = _xyz[idim] - xyz0[idim];
-      d2 += delta * delta;
-    }
-    if (d2 <= 0.) return (z);
-    top += z / d2;
-    bot += 1. / d2;
-  }
-
-  /* Fourth point */
-  _ind2[0] -= 1;
-  iech = dbgrid->indiceToRank(_ind2);
-  z    = dbgrid->getSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, 1);
-  if (!FFFF(z))
-  {
-    double d2 = 0.;
-    dbgrid->indicesToCoordinateInPlace(_ind2, xyz0);
-    for (Id idim = 0; idim < ndim; idim++)
-    {
-      double delta = _xyz[idim] - xyz0[idim];
-      d2 += delta * delta;
-    }
-    if (d2 <= 0.) return (z);
-    top += z / d2;
-    bot += 1. / d2;
-  }
-
-  /* Final interpolation */
-  _ind2[1] -= 1;
-  z = (bot != 0) ? top / bot : TEST;
-  return (z);
-}
-
-/****************************************************************************/
-/*!
- **  Combine the underlying GRF into a facies value at data points (Shadow)
- **
- ** \return  Error return code
- **
- ** \param[in]  propdef    Props structure
- ** \param[in]  dbin       Db input structure
- ** \param[in]  dbout      Db output structure
- ** \param[in]  flag_used  1 if the gaussian is used; 0 otherwise
- ** \param[in]  ipgs       Rank of the PGS
- ** \param[in]  isimu      Rank of the simulation
- ** \param[in]  nbsimu     Number of simulations
- **
- ** \remark Attributes ELoc::GAUSFAC are mandatory
- ** \remark Attributes ELoc::FACIES are mandatory
- **
- *****************************************************************************/
-Id RuleShadow::gaus2facData(PropDef* propdef,
-                            Db* dbin,
-                            Db* /*dbout*/,
-                            Id* flag_used,
-                            Id ipgs,
-                            Id isimu,
-                            Id nbsimu)
-{
-  double y[2], facies, t1min, t1max, t2min, t2max, sh_dsup, sh_down;
-
-  /* Initializations */
-
-  check_mandatory_attribute("rule_gaus2fac_data_shadow", dbin, ELoc::GAUSFAC);
-
-  /* Processing the translation */
-
-  for (Id iech = 0; iech < dbin->getNSample(); iech++)
-  {
-    if (!dbin->isActive(iech)) continue;
-
-    /* Initializations */
-
-    facies = TEST;
-    for (Id igrf = 0; igrf < 2; igrf++)
-      y[igrf] = TEST;
-
-    if (rule_thresh_define_shadow(propdef, dbin, this, ITEST, iech, isimu,
-                                  nbsimu, &t1min, &t1max, &t2min, &t2max,
-                                  &sh_dsup, &sh_down)) return 1;
-
-    for (Id igrf = 0; igrf < 2; igrf++)
-    {
-      auto icase = get_rank_from_propdef(propdef, ipgs, igrf);
-      y[igrf] =
-        (flag_used[igrf]) ? dbin->getSimvar(ELoc::GAUSFAC, iech, isimu, 0,
-                                            icase, nbsimu, 1)
-                          : 0.;
-    }
-    facies = getFaciesFromGaussian(y[0], y[1]);
-
-    /* Combine the underlying GRFs to derive Facies*/
-
-    dbin->setSimvar(ELoc::FACIES, iech, isimu, 0, ipgs, nbsimu, 1, facies);
-  }
-  return 0;
-}
-
-/****************************************************************************/
-/*!
- **  Combine the underlying GRF into a facies value (Shadow case)
- **
- ** \return  Error return code
- **
- ** \param[in]  propdef    Props structure
- ** \param[in]  dbout      Db output structure
- ** \param[in]  flag_used  1 if the gaussian is used; 0 otherwise
- ** \param[in]  ipgs       Rank of the PGS
- ** \param[in]  isimu      Rank of the simulation
- ** \param[in]  nbsimu     Number of simulations
- **
- ** \remark Attributes ELoc::FACIES and ELoc::SIMU are mandatory
- **
- *****************************************************************************/
-Id RuleShadow::gaus2facResult(PropDef* propdef,
-                              Db* dbout,
-                              Id* /*flag_used*/,
-                              Id ipgs,
-                              Id isimu,
-                              Id nbsimu) const
-{
-  Id ndim, nech, iech, jech, error, idim, nstep, istep, flag, flag_shadow, igrf, icase;
-  double y[2], facies, dinc, dy, ys, yc_dsup, yc_down;
-  double t1min, t1max, t2min, t2max, s1min, s1max, s2min, s2max, sh_dsup, sh_down, seuil;
-
-  /* Initializations */
-
-  check_mandatory_attribute("rule_gaus2fac_result_shadow", dbout, ELoc::FACIES);
-  check_mandatory_attribute("rule_gaus2fac_result_shadow", dbout, ELoc::SIMU);
-  auto* dbgrid = dynamic_cast<DbGrid*>(dbout);
-  if (dbgrid == nullptr) return 1;
-
-  error = 1;
-  nstep = 0;
-  ndim  = dbgrid->getNDim();
-  nech  = dbgrid->getNSample();
-  icase = get_rank_from_propdef(propdef, ipgs, 0);
-  _xyz.resize(ndim);
-  _ind1.resize(ndim);
-  _ind2.resize(ndim);
-
-  /* Initializations */
-
-  VectorDouble del(nech);
-  dinc  = getIncr();
-  nstep = static_cast<Id>(floor(getDMax() / dinc));
-  dy    = dinc * getTgte();
-  for (idim = 0; idim < ndim; idim++)
-    del[idim] = dinc * _shift[idim];
-
-  /* Processing the translation */
-
-  for (iech = 0; iech < dbgrid->getNSample(); iech++)
-  {
-    if (!dbgrid->isActive(iech)) continue;
-
-    /* Initializations */
-
-    facies = TEST;
-    for (igrf = 0; igrf < 2; igrf++)
-      y[igrf] = TEST;
-
-    y[0] = dbgrid->getSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, 1);
-    if (FFFF(y[0])) break;
-    if (rule_thresh_define_shadow(propdef, dbgrid, this, SHADOW_WATER, iech,
-                                  isimu, nbsimu, &t1min, &t1max, &t2min, &t2max,
-                                  &yc_dsup, &yc_down)) goto label_end;
-    dbgrid->rankToIndice(iech, _ind2);
-    dbgrid->indicesToCoordinateInPlace(_ind2, _xyz);
-
-    if (y[0] >= t1max)
-      facies = SHADOW_ISLAND;
     else
     {
-      flag_shadow = 0;
-      dbgrid->rankToIndice(iech, _ind2);
-      dbgrid->indicesToCoordinateInPlace(_ind2, _xyz);
-      for (istep = 1; istep <= nstep && flag_shadow == 0; istep++)
+      *sh_dsup_max = *sh_down_max = 0.;
+      for (iech = 0; iech < dbprop->getNSample(); iech++)
       {
-        for (idim = 0; idim < ndim; idim++)
-          _xyz[idim] -= del[idim];
-        flag = point_to_grid(dbgrid, _xyz.data(), 0, _ind2.data());
-        if (flag > 0) break;
-        if (flag < 0) continue;
-        ys = _st_grid_eval(dbgrid, isimu, icase, nbsimu, _xyz);
-        if (FFFF(ys)) continue;
-        jech = dbgrid->indiceToRank(_ind2);
-        if (rule_thresh_define_shadow(propdef, dbgrid, this, SHADOW_WATER, jech,
-                                      isimu, nbsimu, &s1min, &s1max, &s2min,
-                                      &s2max, &sh_dsup, &sh_down)) return (1);
-        if (ys < s1max) continue; /* Upstream point not in island */
-        seuil       = t1max - yc_down + dy * istep;
-        flag_shadow = (MIN(ys, s1max + sh_dsup) > seuil);
+        val2 = dbprop->getLocVariable(ELoc::P, iech, 1);
+        if (val2 > (*sh_dsup_max)) (*sh_dsup_max) = val2;
+        val3 = dbprop->getLocVariable(ELoc::P, iech, 2);
+        if (val3 > (*sh_down_max)) (*sh_down_max) = val3;
       }
-      facies = (flag_shadow) ? SHADOW_SHADOW : SHADOW_WATER;
     }
-
-    /* Combine the underlying GRFs to derive Facies */
-
-    dbgrid->setSimvar(ELoc::FACIES, iech, isimu, 0, ipgs, nbsimu, 1, facies);
   }
 
-  /* Set the error return code */
-
-  error = 0;
-
-label_end:
-  return (error);
-}
-
-/****************************************************************************/
-/*!
- **  Set the bounds and possibly add replicates (Shadow)
- **
- ** \return  Error return code
- **
- ** \param[in]  propdef    PropDef structure
- ** \param[in]  dbin       Db structure
- ** \param[in]  dbout      Db grid structure
- ** \param[in]  isimu      Rank of the simulation (if EProcessOper::CONDITIONAL)
- ** \param[in]  igrf       Rank of the GRF
- ** \param[in]  ipgs       Rank of the GS
- ** \param[in]  nbsimu     Number of simulations (if EProcessOper::CONDITIONAL)
- **
- *****************************************************************************/
-Id RuleShadow::evaluateBounds(PropDef* propdef,
-                              Db* dbin,
-                              Db* dbout,
-                              Id isimu,
-                              Id igrf,
-                              Id ipgs,
-                              Id nbsimu) const
-{
-  Id iech, jech, nadd, nech, idim, facies, nstep, istep, valid;
-  double dist, t1min, t1max, t2min, t2max, s1min, s1max, s2min, s2max;
-  double dinc, seuil, alea, sh_dsup, sh_down, yc_down, dval;
-  const DbGrid* dbgrid;
-
-  /* Initializations */
-
-  if (dbin == nullptr) return (0);
-  nadd = jech = 0;
-  nech        = dbin->getNSample();
-  dist        = 0.;
-  dinc        = getIncr();
-  nstep       = static_cast<Id>(floor(getDMax() / dinc));
-  seuil = s1min = s1max = s2min = s2max = TEST;
-  dbgrid                                = dynamic_cast<const DbGrid*>(dbout);
-
-  /* Case of the shadow */
-
-  if (igrf == 1) return (0);
-
-  /* Loop on the data */
-  for (iech = 0; iech < nech; iech++)
+  /****************************************************************************/
+  /*!
+   **  Evaluation of the value from a grid by inverse square distance
+   **  interpolation from the 4 surrounding grid nodes
+   **
+   ** \return  Interpolated value or FFFF if out of grid
+   **
+   ** \param[in]  dbgrid Db structure
+   ** \param[in]  isimu  Rank of the simulation
+   ** \param[in]  icase  Rank of the Simulation storage
+   ** \param[in]  nbsimu Number of simulations
+   **
+   ** \param[out]  xyz0  Working array
+   **
+   *****************************************************************************/
+  double RuleShadow::_st_grid_eval(DbGrid* dbgrid,
+                                   Id isimu,
+                                   Id icase,
+                                   Id nbsimu,
+                                   VectorDouble& xyz0) const
   {
-    /* Convert the proportions into thresholds for data point */
-    if (!dbin->isActive(iech)) continue;
-    if (!point_inside_grid(dbin, iech, dbgrid)) continue;
-    facies = static_cast<Id>(dbin->getZVariable(iech, 0));
-    if (rule_thresh_define_shadow(propdef, dbin, this, facies, iech, isimu,
-                                  nbsimu, &t1min, &t1max, &t2min, &t2max,
-                                  &sh_dsup, &sh_down)) return (1);
-    yc_down = sh_down;
-    dbin->setLocVariable(ELoc::L, iech, get_rank_from_propdef(propdef, ipgs, igrf),
-                         t1min);
-    dbin->setLocVariable(ELoc::U, iech, get_rank_from_propdef(propdef, ipgs, igrf),
-                         t1max);
+    double top = 0.;
+    double bot = 0.;
+    Id ndim = dbgrid->getNDim();
 
-    /* The data belongs to the island, no replicate */
-
-    if (facies == SHADOW_ISLAND) continue;
-
-    /* In the case of data belonging to the SHADOW */
-    /* Generate one replicate in ISLAND at uniform distance upstream */
-
-    if (facies == SHADOW_SHADOW)
+    /* First point */
+    Id iech = dbgrid->indiceToRank(_ind2);
+    double z = dbgrid->getSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, 1);
+    if (!FFFF(z))
     {
-      /* Add one replicate */
-      jech = dbin->addSamples(1, 0.);
-      if (jech < 0) return (1);
-
-      /* Set the coordinates of the replicate */
-      /* - at a point where proportions are known */
-      /* - after truncation, the point can create shadow at target */
-
-      alea  = 1;
-      valid = 0;
-      while (!valid)
+      double d2 = 0.;
+      dbgrid->indicesToCoordinateInPlace(_ind2, xyz0);
+      for (Id idim = 0; idim < ndim; idim++)
       {
-        dist = 0.;
-        alea = law_uniform(0., 1.);
-        for (idim = 0; idim < dbin->getNDim(); idim++)
-        {
-          dval = alea * getDMax() * _shift[idim];
-          dbin->setCoordinate(jech, idim,
-                              dbin->getCoordinate(iech, idim) - dval);
-          dist += dval * dval;
-        }
-        dist = sqrt(dist);
-
-        /* Can the replicate be added */
-
-        if (replicateInvalid(dbin, dbout, jech))
-        {
-          (void)dbin->deleteSample(jech);
-          continue;
-        }
-
-        /* Get proportion at the tentative replicate */
-        if (rule_thresh_define_shadow(propdef, dbin, this, facies, jech, isimu,
-                                      nbsimu, &s1min, &s1max, &s2min, &s2max,
-                                      &sh_dsup, &sh_down))
-        {
-          (void)dbin->deleteSample(jech);
-          return (1);
-        }
-        seuil = t1max - yc_down + dist * getTgte();
-        if (seuil > s1max + sh_dsup) continue;
-        valid = 1;
+        double delta = _xyz[idim] - xyz0[idim];
+        d2 += delta * delta;
       }
-
-      /* Set the attributes of the replicate */
-      dbin->setLocVariable(ELoc::Z, jech, 0, SHADOW_ISLAND);
-      dbin->setLocVariable(ELoc::L, jech, get_rank_from_propdef(propdef, ipgs, igrf),
-                           MAX(seuil, s1max));
-      dbin->setLocVariable(ELoc::U, jech, get_rank_from_propdef(propdef, ipgs, igrf),
-                           THRESH_SUP);
-      nadd++;
+      if (d2 <= 0.) return (z);
+      top += z / d2;
+      bot += 1. / d2;
     }
 
-    /* In the case of data belonging to the WATER            */
-    /* Generate series of replicates (maximum number: nstep) */
-    /* whose "elevation" which will not create any shadow    */
-
-    if (facies == SHADOW_WATER)
+    /* Second point */
+    _ind2[0] += 1;
+    iech = dbgrid->indiceToRank(_ind2);
+    z = dbgrid->getSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, 1);
+    if (!FFFF(z))
     {
-      /* Loop on the replicates */
-      for (istep = 1; istep <= nstep; istep++)
+      double d2 = 0.;
+      dbgrid->indicesToCoordinateInPlace(_ind2, xyz0);
+      for (Id idim = 0; idim < ndim; idim++)
       {
+        double delta = _xyz[idim] - xyz0[idim];
+        d2 += delta * delta;
+      }
+      if (d2 <= 0.) return (z);
+      top += z / d2;
+      bot += 1. / d2;
+    }
+
+    /* Third point */
+    _ind2[1] += 1;
+    iech = dbgrid->indiceToRank(_ind2);
+    z = dbgrid->getSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, 1);
+    if (!FFFF(z))
+    {
+      double d2 = 0.;
+      dbgrid->indicesToCoordinateInPlace(_ind2, xyz0);
+      for (Id idim = 0; idim < ndim; idim++)
+      {
+        double delta = _xyz[idim] - xyz0[idim];
+        d2 += delta * delta;
+      }
+      if (d2 <= 0.) return (z);
+      top += z / d2;
+      bot += 1. / d2;
+    }
+
+    /* Fourth point */
+    _ind2[0] -= 1;
+    iech = dbgrid->indiceToRank(_ind2);
+    z = dbgrid->getSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, 1);
+    if (!FFFF(z))
+    {
+      double d2 = 0.;
+      dbgrid->indicesToCoordinateInPlace(_ind2, xyz0);
+      for (Id idim = 0; idim < ndim; idim++)
+      {
+        double delta = _xyz[idim] - xyz0[idim];
+        d2 += delta * delta;
+      }
+      if (d2 <= 0.) return (z);
+      top += z / d2;
+      bot += 1. / d2;
+    }
+
+    /* Final interpolation */
+    _ind2[1] -= 1;
+    z = (bot != 0) ? top / bot : TEST;
+    return (z);
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Combine the underlying GRF into a facies value at data points (Shadow)
+   **
+   ** \return  Error return code
+   **
+   ** \param[in]  propdef    Props structure
+   ** \param[in]  dbin       Db input structure
+   ** \param[in]  dbout      Db output structure
+   ** \param[in]  flag_used  1 if the gaussian is used; 0 otherwise
+   ** \param[in]  ipgs       Rank of the PGS
+   ** \param[in]  isimu      Rank of the simulation
+   ** \param[in]  nbsimu     Number of simulations
+   **
+   ** \remark Attributes ELoc::GAUSFAC are mandatory
+   ** \remark Attributes ELoc::FACIES are mandatory
+   **
+   *****************************************************************************/
+  Id RuleShadow::gaus2facData(PropDef* propdef,
+                              Db* dbin,
+                              Db* /*dbout*/,
+                              Id* flag_used,
+                              Id ipgs,
+                              Id isimu,
+                              Id nbsimu)
+  {
+    double y[2], facies, t1min, t1max, t2min, t2max, sh_dsup, sh_down;
+
+    /* Initializations */
+
+    check_mandatory_attribute("rule_gaus2fac_data_shadow", dbin, ELoc::GAUSFAC);
+
+    /* Processing the translation */
+
+    for (Id iech = 0; iech < dbin->getNSample(); iech++)
+    {
+      if (!dbin->isActive(iech)) continue;
+
+      /* Initializations */
+
+      facies = TEST;
+      for (Id igrf = 0; igrf < 2; igrf++) y[igrf] = TEST;
+
+      if (rule_thresh_define_shadow(propdef,
+                                    dbin,
+                                    this,
+                                    ITEST,
+                                    iech,
+                                    isimu,
+                                    nbsimu,
+                                    &t1min,
+                                    &t1max,
+                                    &t2min,
+                                    &t2max,
+                                    &sh_dsup,
+                                    &sh_down))
+        return 1;
+
+      for (Id igrf = 0; igrf < 2; igrf++)
+      {
+        auto icase = get_rank_from_propdef(propdef, ipgs, igrf);
+        y[igrf] =
+          (flag_used[igrf])
+            ? dbin->getSimvar(ELoc::GAUSFAC, iech, isimu, 0, icase, nbsimu, 1)
+            : 0.;
+      }
+      facies = getFaciesFromGaussian(y[0], y[1]);
+
+      /* Combine the underlying GRFs to derive Facies*/
+
+      dbin->setSimvar(ELoc::FACIES, iech, isimu, 0, ipgs, nbsimu, 1, facies);
+    }
+    return 0;
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Combine the underlying GRF into a facies value (Shadow case)
+   **
+   ** \return  Error return code
+   **
+   ** \param[in]  propdef    Props structure
+   ** \param[in]  dbout      Db output structure
+   ** \param[in]  flag_used  1 if the gaussian is used; 0 otherwise
+   ** \param[in]  ipgs       Rank of the PGS
+   ** \param[in]  isimu      Rank of the simulation
+   ** \param[in]  nbsimu     Number of simulations
+   **
+   ** \remark Attributes ELoc::FACIES and ELoc::SIMU are mandatory
+   **
+   *****************************************************************************/
+  Id RuleShadow::gaus2facResult(PropDef* propdef,
+                                Db* dbout,
+                                Id* /*flag_used*/,
+                                Id ipgs,
+                                Id isimu,
+                                Id nbsimu) const
+  {
+    Id ndim, nech, iech, jech, error, idim, nstep, istep, flag, flag_shadow,
+      igrf, icase;
+    double y[2], facies, dinc, dy, ys, yc_dsup, yc_down;
+    double t1min, t1max, t2min, t2max, s1min, s1max, s2min, s2max, sh_dsup,
+      sh_down, seuil;
+
+    /* Initializations */
+
+    check_mandatory_attribute("rule_gaus2fac_result_shadow",
+                              dbout,
+                              ELoc::FACIES);
+    check_mandatory_attribute("rule_gaus2fac_result_shadow", dbout, ELoc::SIMU);
+    auto* dbgrid = dynamic_cast<DbGrid*>(dbout);
+    if (dbgrid == nullptr) return 1;
+
+    error = 1;
+    nstep = 0;
+    ndim = dbgrid->getNDim();
+    nech = dbgrid->getNSample();
+    icase = get_rank_from_propdef(propdef, ipgs, 0);
+    _xyz.resize(ndim);
+    _ind1.resize(ndim);
+    _ind2.resize(ndim);
+
+    /* Initializations */
+
+    VectorDouble del(nech);
+    dinc = getIncr();
+    nstep = static_cast<Id>(floor(getDMax() / dinc));
+    dy = dinc * getTgte();
+    for (idim = 0; idim < ndim; idim++) del[idim] = dinc * _shift[idim];
+
+    /* Processing the translation */
+
+    for (iech = 0; iech < dbgrid->getNSample(); iech++)
+    {
+      if (!dbgrid->isActive(iech)) continue;
+
+      /* Initializations */
+
+      facies = TEST;
+      for (igrf = 0; igrf < 2; igrf++) y[igrf] = TEST;
+
+      y[0] = dbgrid->getSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, 1);
+      if (FFFF(y[0])) break;
+      if (rule_thresh_define_shadow(propdef,
+                                    dbgrid,
+                                    this,
+                                    SHADOW_WATER,
+                                    iech,
+                                    isimu,
+                                    nbsimu,
+                                    &t1min,
+                                    &t1max,
+                                    &t2min,
+                                    &t2max,
+                                    &yc_dsup,
+                                    &yc_down))
+        goto label_end;
+      dbgrid->rankToIndice(iech, _ind2);
+      dbgrid->indicesToCoordinateInPlace(_ind2, _xyz);
+
+      if (y[0] >= t1max)
+        facies = SHADOW_ISLAND;
+      else
+      {
+        flag_shadow = 0;
+        dbgrid->rankToIndice(iech, _ind2);
+        dbgrid->indicesToCoordinateInPlace(_ind2, _xyz);
+        for (istep = 1; istep <= nstep && flag_shadow == 0; istep++)
+        {
+          for (idim = 0; idim < ndim; idim++) _xyz[idim] -= del[idim];
+          flag = point_to_grid(dbgrid, _xyz.data(), 0, _ind2.data());
+          if (flag > 0) break;
+          if (flag < 0) continue;
+          ys = _st_grid_eval(dbgrid, isimu, icase, nbsimu, _xyz);
+          if (FFFF(ys)) continue;
+          jech = dbgrid->indiceToRank(_ind2);
+          if (rule_thresh_define_shadow(propdef,
+                                        dbgrid,
+                                        this,
+                                        SHADOW_WATER,
+                                        jech,
+                                        isimu,
+                                        nbsimu,
+                                        &s1min,
+                                        &s1max,
+                                        &s2min,
+                                        &s2max,
+                                        &sh_dsup,
+                                        &sh_down))
+            return (1);
+          if (ys < s1max) continue; /* Upstream point not in island */
+          seuil = t1max - yc_down + dy * istep;
+          flag_shadow = (MIN(ys, s1max + sh_dsup) > seuil);
+        }
+        facies = (flag_shadow) ? SHADOW_SHADOW : SHADOW_WATER;
+      }
+
+      /* Combine the underlying GRFs to derive Facies */
+
+      dbgrid->setSimvar(ELoc::FACIES, iech, isimu, 0, ipgs, nbsimu, 1, facies);
+    }
+
+    /* Set the error return code */
+
+    error = 0;
+
+  label_end:
+    return (error);
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Set the bounds and possibly add replicates (Shadow)
+   **
+   ** \return  Error return code
+   **
+   ** \param[in]  propdef    PropDef structure
+   ** \param[in]  dbin       Db structure
+   ** \param[in]  dbout      Db grid structure
+   ** \param[in]  isimu      Rank of the simulation (if EProcessOper::CONDITIONAL)
+   ** \param[in]  igrf       Rank of the GRF
+   ** \param[in]  ipgs       Rank of the GS
+   ** \param[in]  nbsimu     Number of simulations (if EProcessOper::CONDITIONAL)
+   **
+   *****************************************************************************/
+  Id RuleShadow::evaluateBounds(PropDef* propdef,
+                                Db* dbin,
+                                Db* dbout,
+                                Id isimu,
+                                Id igrf,
+                                Id ipgs,
+                                Id nbsimu) const
+  {
+    Id iech, jech, nadd, nech, idim, facies, nstep, istep, valid;
+    double dist, t1min, t1max, t2min, t2max, s1min, s1max, s2min, s2max;
+    double dinc, seuil, alea, sh_dsup, sh_down, yc_down, dval;
+    const DbGrid* dbgrid;
+
+    /* Initializations */
+
+    if (dbin == nullptr) return (0);
+    nadd = jech = 0;
+    nech = dbin->getNSample();
+    dist = 0.;
+    dinc = getIncr();
+    nstep = static_cast<Id>(floor(getDMax() / dinc));
+    seuil = s1min = s1max = s2min = s2max = TEST;
+    dbgrid = dynamic_cast<const DbGrid*>(dbout);
+
+    /* Case of the shadow */
+
+    if (igrf == 1) return (0);
+
+    /* Loop on the data */
+    for (iech = 0; iech < nech; iech++)
+    {
+      /* Convert the proportions into thresholds for data point */
+      if (!dbin->isActive(iech)) continue;
+      if (!point_inside_grid(dbin, iech, dbgrid)) continue;
+      facies = static_cast<Id>(dbin->getZVariable(iech, 0));
+      if (rule_thresh_define_shadow(propdef,
+                                    dbin,
+                                    this,
+                                    facies,
+                                    iech,
+                                    isimu,
+                                    nbsimu,
+                                    &t1min,
+                                    &t1max,
+                                    &t2min,
+                                    &t2max,
+                                    &sh_dsup,
+                                    &sh_down))
+        return (1);
+      yc_down = sh_down;
+      dbin->setLocVariable(ELoc::L,
+                           iech,
+                           get_rank_from_propdef(propdef, ipgs, igrf),
+                           t1min);
+      dbin->setLocVariable(ELoc::U,
+                           iech,
+                           get_rank_from_propdef(propdef, ipgs, igrf),
+                           t1max);
+
+      /* The data belongs to the island, no replicate */
+
+      if (facies == SHADOW_ISLAND) continue;
+
+      /* In the case of data belonging to the SHADOW */
+      /* Generate one replicate in ISLAND at uniform distance upstream */
+
+      if (facies == SHADOW_SHADOW)
+      {
+        /* Add one replicate */
         jech = dbin->addSamples(1, 0.);
         if (jech < 0) return (1);
 
         /* Set the coordinates of the replicate */
-        dist = 0.;
-        for (idim = 0; idim < dbin->getNDim(); idim++)
-        {
-          dval = dinc * _shift[idim] * istep;
-          dbin->setCoordinate(jech, idim,
-                              dbin->getCoordinate(iech, idim) - dval);
-          dist += dval * dval;
-        }
-        dist = sqrt(dist);
+        /* - at a point where proportions are known */
+        /* - after truncation, the point can create shadow at target */
 
-        /* Can the replicate be added */
-        if (replicateInvalid(dbin, dbout, jech))
+        alea = 1;
+        valid = 0;
+        while (!valid)
         {
-          (void)dbin->deleteSample(jech);
-          continue;
-        }
+          dist = 0.;
+          alea = law_uniform(0., 1.);
+          for (idim = 0; idim < dbin->getNDim(); idim++)
+          {
+            dval = alea * getDMax() * _shift[idim];
+            dbin->setCoordinate(jech,
+                                idim,
+                                dbin->getCoordinate(iech, idim) - dval);
+            dist += dval * dval;
+          }
+          dist = sqrt(dist);
 
-        /* Get proportion at the tentative replicate */
-        if (rule_thresh_define_shadow(propdef, dbin, this, facies, jech, isimu,
-                                      nbsimu, &s1min, &s1max, &s2min, &s2max,
-                                      &sh_dsup, &sh_down))
-        {
-          (void)dbin->deleteSample(jech);
-          return (1);
+          /* Can the replicate be added */
+
+          if (replicateInvalid(dbin, dbout, jech))
+          {
+            (void)dbin->deleteSample(jech);
+            continue;
+          }
+
+          /* Get proportion at the tentative replicate */
+          if (rule_thresh_define_shadow(propdef,
+                                        dbin,
+                                        this,
+                                        facies,
+                                        jech,
+                                        isimu,
+                                        nbsimu,
+                                        &s1min,
+                                        &s1max,
+                                        &s2min,
+                                        &s2max,
+                                        &sh_dsup,
+                                        &sh_down))
+          {
+            (void)dbin->deleteSample(jech);
+            return (1);
+          }
+          seuil = t1max - yc_down + dist * getTgte();
+          if (seuil > s1max + sh_dsup) continue;
+          valid = 1;
         }
 
         /* Set the attributes of the replicate */
-        seuil = t1max - yc_down + dist * getTgte();
-        if (seuil > s1max + sh_dsup)
-        {
-          /* The replicate is not necessary */
-          (void)dbin->deleteSample(jech);
-          continue;
-        }
-
-        dbin->setLocVariable(ELoc::Z, jech, 0, SHADOW_IDLE);
-        dbin->setLocVariable(ELoc::L, jech, get_rank_from_propdef(propdef, ipgs, igrf),
-                             THRESH_INF);
-        dbin->setLocVariable(ELoc::U, jech, get_rank_from_propdef(propdef, ipgs, igrf),
+        dbin->setLocVariable(ELoc::Z, jech, 0, SHADOW_ISLAND);
+        dbin->setLocVariable(ELoc::L,
+                             jech,
+                             get_rank_from_propdef(propdef, ipgs, igrf),
                              MAX(seuil, s1max));
+        dbin->setLocVariable(ELoc::U,
+                             jech,
+                             get_rank_from_propdef(propdef, ipgs, igrf),
+                             THRESH_SUP);
         nadd++;
       }
+
+      /* In the case of data belonging to the WATER            */
+      /* Generate series of replicates (maximum number: nstep) */
+      /* whose "elevation" which will not create any shadow    */
+
+      if (facies == SHADOW_WATER)
+      {
+        /* Loop on the replicates */
+        for (istep = 1; istep <= nstep; istep++)
+        {
+          jech = dbin->addSamples(1, 0.);
+          if (jech < 0) return (1);
+
+          /* Set the coordinates of the replicate */
+          dist = 0.;
+          for (idim = 0; idim < dbin->getNDim(); idim++)
+          {
+            dval = dinc * _shift[idim] * istep;
+            dbin->setCoordinate(jech,
+                                idim,
+                                dbin->getCoordinate(iech, idim) - dval);
+            dist += dval * dval;
+          }
+          dist = sqrt(dist);
+
+          /* Can the replicate be added */
+          if (replicateInvalid(dbin, dbout, jech))
+          {
+            (void)dbin->deleteSample(jech);
+            continue;
+          }
+
+          /* Get proportion at the tentative replicate */
+          if (rule_thresh_define_shadow(propdef,
+                                        dbin,
+                                        this,
+                                        facies,
+                                        jech,
+                                        isimu,
+                                        nbsimu,
+                                        &s1min,
+                                        &s1max,
+                                        &s2min,
+                                        &s2max,
+                                        &sh_dsup,
+                                        &sh_down))
+          {
+            (void)dbin->deleteSample(jech);
+            return (1);
+          }
+
+          /* Set the attributes of the replicate */
+          seuil = t1max - yc_down + dist * getTgte();
+          if (seuil > s1max + sh_dsup)
+          {
+            /* The replicate is not necessary */
+            (void)dbin->deleteSample(jech);
+            continue;
+          }
+
+          dbin->setLocVariable(ELoc::Z, jech, 0, SHADOW_IDLE);
+          dbin->setLocVariable(ELoc::L,
+                               jech,
+                               get_rank_from_propdef(propdef, ipgs, igrf),
+                               THRESH_INF);
+          dbin->setLocVariable(ELoc::U,
+                               jech,
+                               get_rank_from_propdef(propdef, ipgs, igrf),
+                               MAX(seuil, s1max));
+          nadd++;
+        }
+      }
+      jech++;
     }
-    jech++;
+
+    if (igrf == 0 && nadd > 0)
+    {
+      message("Initial count of data = %d\n", nech);
+      message("Number of replicates  = %d\n", nadd);
+    }
+    return (0);
   }
 
-  if (igrf == 0 && nadd > 0)
+  void RuleShadow::_normalizeShift()
   {
-    message("Initial count of data = %d\n", nech);
-    message("Number of replicates  = %d\n", nadd);
+    if (!_shift.empty()) _shift.normalizeInPlace();
   }
-  return (0);
-}
-
-void RuleShadow::_normalizeShift()
-{
-  if (!_shift.empty()) _shift.normalizeInPlace();
-}
 #ifdef HDF5
-bool RuleShadow::deserializeH5(H5::Group& grp)
-{
-  auto ruleG = SerializeHDF5::getGroup(grp, "RuleShadow");
-  if (!ruleG)
+  bool RuleShadow::deserializeH5(H5::Group& grp)
   {
-    return false;
+    auto ruleG = SerializeHDF5::getGroup(grp, "RuleShadow");
+    if (!ruleG)
+    {
+      return false;
+    }
+
+    /* Read the grid characteristics */
+    bool ret = true;
+    _shift.resize(3);
+
+    // ret      = ret && SerializeHDF5::readVec(*ruleG, "NX", nx);
+    ret = ret && SerializeHDF5::readValue(*ruleG, "Slope", _slope);
+    ret = ret && SerializeHDF5::readValue(*ruleG, "ShDown", _shDown);
+    ret = ret && SerializeHDF5::readValue(*ruleG, "ShDsup", _shDsup);
+    ret = ret && SerializeHDF5::readVec(*ruleG, "ShiftLoc", _shift);
+
+    ret = ret && Rule::deserializeH5(*ruleG);
+
+    return ret;
   }
 
-  /* Read the grid characteristics */
-  bool ret = true;
-  _shift.resize(3);
+  bool RuleShadow::serializeH5(H5::Group& grp) const
+  {
+    auto ruleG = grp.createGroup("RuleShadow");
 
-  // ret      = ret && SerializeHDF5::readVec(*ruleG, "NX", nx);
-  ret = ret && SerializeHDF5::readValue(*ruleG, "Slope", _slope);
-  ret = ret && SerializeHDF5::readValue(*ruleG, "ShDown", _shDown);
-  ret = ret && SerializeHDF5::readValue(*ruleG, "ShDsup", _shDsup);
-  ret = ret && SerializeHDF5::readVec(*ruleG, "ShiftLoc", _shift);
+    bool ret = true;
 
-  ret = ret && Rule::deserializeH5(*ruleG);
+    double slope = (FFFF(_slope)) ? 0. : _slope;
+    double shdown = (FFFF(_shDown)) ? 0. : _shDown;
+    double shdsup = (FFFF(_shDsup)) ? 0. : _shDsup;
+    VectorDouble shiftloc = _shift;
+    shiftloc.resize(3);
 
-  return ret;
-}
+    ret = ret && SerializeHDF5::writeValue(ruleG, "Slope", slope);
+    ret = ret && SerializeHDF5::writeValue(ruleG, "ShDown", shdown);
+    ret = ret && SerializeHDF5::writeValue(ruleG, "ShDsup", shdsup);
+    ret = ret && SerializeHDF5::writeVec(ruleG, "ShiftLoc", shiftloc);
 
-bool RuleShadow::serializeH5(H5::Group& grp) const
-{
-  auto ruleG = grp.createGroup("RuleShadow");
+    ret = ret && Rule::serializeH5(ruleG);
 
-  bool ret = true;
-
-  double slope          = (FFFF(_slope)) ? 0. : _slope;
-  double shdown         = (FFFF(_shDown)) ? 0. : _shDown;
-  double shdsup         = (FFFF(_shDsup)) ? 0. : _shDsup;
-  VectorDouble shiftloc = _shift;
-  shiftloc.resize(3);
-
-  ret = ret && SerializeHDF5::writeValue(ruleG, "Slope", slope);
-  ret = ret && SerializeHDF5::writeValue(ruleG, "ShDown", shdown);
-  ret = ret && SerializeHDF5::writeValue(ruleG, "ShDsup", shdsup);
-  ret = ret && SerializeHDF5::writeVec(ruleG, "ShiftLoc", shiftloc);
-
-  ret = ret && Rule::serializeH5(ruleG);
-
-  return ret;
-}
+    return ret;
+  }
 #endif
 } // namespace gstlrn

@@ -17,30 +17,36 @@
 
 namespace gstlrn
 {
-class GSTLEARN_EXPORT SimuPartitionParam: public AStringable
-{
-public:
-  SimuPartitionParam(Id nbtuba = 100,
-                     double intensity = 0.1,
-                     const VectorDouble& dilate = VectorDouble());
-  SimuPartitionParam(const SimuPartitionParam &r);
-  SimuPartitionParam& operator=(const SimuPartitionParam &r);
-  virtual ~SimuPartitionParam();
+  class GSTLEARN_EXPORT SimuPartitionParam: public AStringable
+  {
+  public:
+    SimuPartitionParam(Id nbtuba = 100,
+                       double intensity = 0.1,
+                       const VectorDouble& dilate = VectorDouble());
+    SimuPartitionParam(const SimuPartitionParam& r);
+    SimuPartitionParam& operator=(const SimuPartitionParam& r);
+    virtual ~SimuPartitionParam();
 
-  /// Interface to AStringable
-  String toString(const AStringFormat* strfmt = nullptr) const override;
+    /// Interface to AStringable
+    String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  VectorDouble getDilate() const { return _dilate; }
-  void setDilate(const VectorDouble& dilate) { _dilate = dilate; }
-  double getIntensity() const { return _intensity; }
-  void setIntensity(double intensity) { _intensity = intensity; }
-  Id getNbtuba() const { return _nbtuba; }
-  void setNbtuba(Id nbtuba) { _nbtuba = nbtuba; }
-  double getDilate(Id idim) const;
+    VectorDouble getDilate() const { return _dilate; }
 
-private:
-  Id _nbtuba;
-  double _intensity;
-  VectorDouble _dilate;
-};
-}
+    void setDilate(const VectorDouble& dilate) { _dilate = dilate; }
+
+    double getIntensity() const { return _intensity; }
+
+    void setIntensity(double intensity) { _intensity = intensity; }
+
+    Id getNbtuba() const { return _nbtuba; }
+
+    void setNbtuba(Id nbtuba) { _nbtuba = nbtuba; }
+
+    double getDilate(Id idim) const;
+
+  private:
+    Id _nbtuba;
+    double _intensity;
+    VectorDouble _dilate;
+  };
+} // namespace gstlrn

@@ -42,15 +42,15 @@ int main(int argc, char* argv[])
   DECLARE_UNUSED(argc, argv)
 
   Id error = 0;
-  Id ndim  = 2;
-  Id nvar  = 3;
+  Id ndim = 2;
+  Id nvar = 3;
 
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Grid of samples
-  VectorInt nx_S    = {100, 100};
+  VectorInt nx_S = {100, 100};
   VectorDouble dx_S = {0.01, 0.01};
-  DbGrid* grid      = DbGrid::create(nx_S, dx_S);
+  DbGrid* grid = DbGrid::create(nx_S, dx_S);
   if (grid == nullptr)
   {
     messerr("Error creating grid");
@@ -71,7 +71,15 @@ int main(int argc, char* argv[])
     delete grid;
     return 1;
   }
-  error = simtub(nullptr, grid, m1, nullptr, nvar, 432423, 100, false, false,
+  error = simtub(nullptr,
+                 grid,
+                 m1,
+                 nullptr,
+                 nvar,
+                 432423,
+                 100,
+                 false,
+                 false,
                  NamingConvention("U1"));
   if (error != 0)
   {
@@ -91,7 +99,15 @@ int main(int argc, char* argv[])
     delete m1;
     return 1;
   }
-  error = simtub(nullptr, grid, m2, nullptr, nvar, 432424, 100, false, false,
+  error = simtub(nullptr,
+                 grid,
+                 m2,
+                 nullptr,
+                 nvar,
+                 432424,
+                 100,
+                 false,
+                 false,
                  NamingConvention("U2"));
   if (error != 0)
   {
@@ -113,7 +129,15 @@ int main(int argc, char* argv[])
     delete m2;
     return 1;
   }
-  error = simtub(nullptr, grid, m3, nullptr, nvar, 432425, 100, false, false,
+  error = simtub(nullptr,
+                 grid,
+                 m3,
+                 nullptr,
+                 nvar,
+                 432425,
+                 100,
+                 false,
+                 false,
                  NamingConvention("U3"));
   if (error != 0)
   {
@@ -149,7 +173,7 @@ int main(int argc, char* argv[])
 
   // Data extraction - create sampling from grid
   mestitle(1, "Extracting data samples");
-  Id npSamples       = 500;
+  Id npSamples = 500;
   VectorString names = {"x1", "x2", "Z1", "Z2", "Z3"};
   Db data;
   data.resetSamplingDb(grid, 0., npSamples, names, 432426);
@@ -160,8 +184,8 @@ int main(int argc, char* argv[])
 
   // Computing the experimental variogram
   mestitle(1, "Computing experimental variogram on raw data");
-  Id nlag                = 10;
-  double dlag            = 0.025;
+  Id nlag = 10;
+  double dlag = 0.025;
   VarioParam* varioparam = VarioParam::createOmniDirection(nlag, dlag);
   if (varioparam == nullptr)
   {
@@ -178,14 +202,14 @@ int main(int argc, char* argv[])
 
   // Fitting the variogram model on the experimental variogram
   mestitle(1, "Fitting variogram model on raw data");
-  Model model_raw {};
+  Model model_raw{};
 
   Constraints ctr;
   Option_VarioFit ovf;
   Option_AutoFit oaf;
   oaf.setVerbose(false);
   auto types = ECov::fromKeys({"NUGGET", "EXPONENTIAL", "CUBIC"});
-  error      = model_raw.fit(&vario_raw, types, ctr, ovf, oaf, false);
+  error = model_raw.fit(&vario_raw, types, ctr, ovf, oaf, false);
   if (error != 0)
   {
     messerr("Error fitting model");
@@ -231,7 +255,7 @@ int main(int argc, char* argv[])
     ctr.display();
     ovf.display();
     oaf.display();
-    Model model_PCA {};
+    Model model_PCA{};
     error = model_PCA.fit(vario_PCA, types, ctr, ovf, oaf, true);
     if (error == 0)
     {
@@ -251,7 +275,7 @@ int main(int argc, char* argv[])
 
   // MAF computation using variogram at a specific lag
   Id ilag = 3; // lag index 3 (corresponding to ilag-1 in 0-based indexing)
-  error   = maf.maf_compute(&data, *varioparam, ilag - 1, 0, true);
+  error = maf.maf_compute(&data, *varioparam, ilag - 1, 0, true);
   if (error != 0)
   {
     messerr("Error computing MAF");
@@ -281,9 +305,9 @@ int main(int argc, char* argv[])
     ctr.display();
     ovf.display();
     oaf.display();
-    Model model_MAF {};
+    Model model_MAF{};
     auto types_maf = ECov::fromKeys({"NUGGET", "EXPONENTIAL", "SPHERICAL"});
-    error          = model_MAF.fit(vario_MAF, types_maf, ctr, ovf, oaf, true);
+    error = model_MAF.fit(vario_MAF, types_maf, ctr, ovf, oaf, true);
     if (error == 0)
     {
       mestitle(0, "Fitted Model for MAF");

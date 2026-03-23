@@ -83,7 +83,7 @@ jobs:
       with:
         packages: ggpubr, ggplot2, ggnewscale, vctrs, lares, rgl, Matrix, FNN, tidyr, geigen, callr, knitr, readxl, tictoc
         install-pandoc: false
-            
+
     - name: Install the customized SWIG from source
       uses: fabien-ors/install-swig-unix-action@v1
       with:
@@ -119,10 +119,10 @@ jobs:
   publish:
     needs: build
     if: ${{inputs.dry_publish == false}}
-    
+
     # Only ubuntu can upload to a server easily (ssh)
     runs-on: ubuntu-latest
-    
+
     steps:
       - env:
           PROJECT_FULL_VERSION: ${{needs.build.outputs.project_full_version}}
@@ -132,7 +132,7 @@ jobs:
           username: ${{ secrets.CG_USR }}
           password: ${{ secrets.CG_PWD }}
           dest-path: "/var/www/html/gstlearn/${{ env.PROJECT_FULL_VERSION }}"
-  
+
       # Delete the artifacts (for freeing storage space under github)
       - uses: geekyeggo/delete-artifact@v5
         with:

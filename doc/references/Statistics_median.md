@@ -7,4 +7,3 @@ The median $m$ of the set of values is a value such as half of the total observa
 * If $n$ is even, we can take $\frac{z_{\left(\frac{n}{2}\right)}+z_{\left(\frac{n}{2}+1\right)}}{2}$.
 
 The median is less sensitive than the mean to extreme values.
-

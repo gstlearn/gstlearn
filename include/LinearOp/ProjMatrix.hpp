@@ -16,55 +16,56 @@
 
 namespace gstlrn
 {
-class AMesh;
-class Db;
+  class AMesh;
+  class Db;
 
-class GSTLEARN_EXPORT ProjMatrix: public IProj, public MatrixSparse
-{
-public:
-  ProjMatrix();
-  ProjMatrix(const Db* db,
-             const AMesh* a_mesh,
-             Id rankZ     = -1,
-             bool verbose = false);
-  ProjMatrix(const ProjMatrix& m);
-  ProjMatrix(const MatrixSparse& m);
-  ProjMatrix& operator=(const ProjMatrix& m);
-  virtual ~ProjMatrix();
+  class GSTLEARN_EXPORT ProjMatrix: public IProj, public MatrixSparse
+  {
+  public:
+    ProjMatrix();
+    ProjMatrix(const Db* db,
+               const AMesh* a_mesh,
+               Id rankZ = -1,
+               bool verbose = false);
+    ProjMatrix(const ProjMatrix& m);
+    ProjMatrix(const MatrixSparse& m);
+    ProjMatrix& operator=(const ProjMatrix& m);
+    virtual ~ProjMatrix();
 
-  /// Has a specific implementation in the Target language
-  DECLARE_TOTL;
-  DECLARE_TOLATEX;
+    /// Has a specific implementation in the Target language
+    DECLARE_TOTL;
+    DECLARE_TOLATEX;
 
-  /// Cloneable interface
-  IMPLEMENT_CLONING(ProjMatrix)
+    /// Cloneable interface
+    IMPLEMENT_CLONING(ProjMatrix)
 
-  /// Interface for AStringable
-  String toString(const AStringFormat* strfmt = nullptr) const override;
+    /// Interface for AStringable
+    String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  static ProjMatrix* createFromMatrix(const MatrixSparse& mat);
+    static ProjMatrix* createFromMatrix(const MatrixSparse& mat);
 
-  /// Interface for IProj
+    /// Interface for IProj
 
 #ifndef SWIG
 
-protected:
-  Id _addMesh2point(const constvect inv, vect outv) const override;
-  Id _addPoint2mesh(const constvect inv, vect outv) const override;
+  protected:
+    Id _addMesh2point(const constvect inv, vect outv) const override;
+    Id _addPoint2mesh(const constvect inv, vect outv) const override;
 #endif
 
-public:
-  Id getNApex() const override { return getNCols(); }
-  Id getNPoint() const override { return getNRows(); }
+  public:
+    Id getNApex() const override { return getNCols(); }
 
-  static ProjMatrix* create(const Db* db,
+    Id getNPoint() const override { return getNRows(); }
+
+    static ProjMatrix* create(const Db* db,
+                              const AMesh* a_mesh,
+                              Id rankZ = -1,
+                              bool verbose = false);
+    void resetFromMeshAndDb(const Db* db,
                             const AMesh* a_mesh,
-                            Id rankZ     = -1,
+                            Id rankZ = -1,
                             bool verbose = false);
-  void resetFromMeshAndDb(const Db* db,
-                          const AMesh* a_mesh,
-                          Id rankZ     = -1,
-                          bool verbose = false);
-  void dumpVerticesUsed(Id npmax = -1) const;
-};
+    void dumpVerticesUsed(Id npmax = -1) const;
+  };
 } // namespace gstlrn

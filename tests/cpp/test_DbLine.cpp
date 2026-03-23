@@ -39,19 +39,23 @@ int main(int argc, char* argv[])
 
   // tab contains the
   VectorInt lineCounts = {3, 4, 2, 3};
-  VectorDouble x1      = {1., 1., 1., 2., 2., 2., 2., 3., 3., 4., 4., 4.};
-  VectorDouble x2      = {1., 2., 3., 1., 2., 3., 4., 3., 4., 2., 3., 4.};
-  VectorDouble z1      = {1.2, 2.5, 3.6, 1.4, 0.3, 0.2, 8.2, 0.3, 3.2, 1.2, 0.4, 0.1};
-  VectorDouble z2      = {3.1, 2.7, 3.2, 8.1, 5.3, 7.2, 9.2, 1.1, 0.3, 0.6, 1.5, 5.2};
+  VectorDouble x1 = {1., 1., 1., 2., 2., 2., 2., 3., 3., 4., 4., 4.};
+  VectorDouble x2 = {1., 2., 3., 1., 2., 3., 4., 3., 4., 2., 3., 4.};
+  VectorDouble z1 =
+    {1.2, 2.5, 3.6, 1.4, 0.3, 0.2, 8.2, 0.3, 3.2, 1.2, 0.4, 0.1};
+  VectorDouble z2 =
+    {3.1, 2.7, 3.2, 8.1, 5.3, 7.2, 9.2, 1.1, 0.3, 0.6, 1.5, 5.2};
   VectorDouble tab;
   copy(x1.begin(), x1.end(), std::back_inserter(tab));
   copy(x2.begin(), x2.end(), std::back_inserter(tab));
   copy(z1.begin(), z1.end(), std::back_inserter(tab));
   copy(z2.begin(), z2.end(), std::back_inserter(tab));
-  DbLine* dbline =
-    DbLine::createFromSamples(static_cast<Id>(x1.size()), ELoadBy::COLUMN, tab, lineCounts,
-                              {"x1", "x2", "z1", "z2"},
-                              {"x1", "x2", "z1", "z2"});
+  DbLine* dbline = DbLine::createFromSamples(static_cast<Id>(x1.size()),
+                                             ELoadBy::COLUMN,
+                                             tab,
+                                             lineCounts,
+                                             {"x1", "x2", "z1", "z2"},
+                                             {"x1", "x2", "z1", "z2"});
   if (dbline == nullptr) return 1;
   mestitle(1, "Reference DbLine File");
   dbline->display();
@@ -65,11 +69,15 @@ int main(int argc, char* argv[])
   dbline2->display();
 
   // Checking the second way to initiate the DbLine (using lineIds)
-  VectorInt lineIds    = {2, 2, 2, 5, 5, 5, 5, 1, 1, 6, 6, 6};
+  VectorInt lineIds = {2, 2, 2, 5, 5, 5, 5, 1, 1, 6, 6, 6};
   VectorInt ranksPerId = {1, 2, 3, 10, 11, 12, 13, 1, 2, 1, 2, 3};
-  DbLine* dbline3      = DbLine::createFromSamplesById(
-    static_cast<Id>(x1.size()), ELoadBy::COLUMN, tab, lineIds, ranksPerId,
-    {"x1", "x2", "z1", "z2"}, {"x1", "x2", "z1", "z2"});
+  DbLine* dbline3 = DbLine::createFromSamplesById(static_cast<Id>(x1.size()),
+                                                  ELoadBy::COLUMN,
+                                                  tab,
+                                                  lineIds,
+                                                  ranksPerId,
+                                                  {"x1", "x2", "z1", "z2"},
+                                                  {"x1", "x2", "z1", "z2"});
   if (dbline3 == nullptr) return 1;
   mestitle(1, "DbLine created using alternative solution");
   dbline3->display();

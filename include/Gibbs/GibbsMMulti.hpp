@@ -17,54 +17,54 @@
 
 namespace gstlrn
 {
-class Db;
-class Model;
-class MatrixSparse;
+  class Db;
+  class Model;
+  class MatrixSparse;
 
-class GSTLEARN_EXPORT GibbsMMulti: public GibbsMulti
-{
-public:
-  GibbsMMulti();
-  GibbsMMulti(Db* db, Model* model);
-  GibbsMMulti(const GibbsMMulti& r);
-  GibbsMMulti& operator=(const GibbsMMulti& r);
-  virtual ~GibbsMMulti();
+  class GSTLEARN_EXPORT GibbsMMulti: public GibbsMulti
+  {
+  public:
+    GibbsMMulti();
+    GibbsMMulti(Db* db, Model* model);
+    GibbsMMulti(const GibbsMMulti& r);
+    GibbsMMulti& operator=(const GibbsMMulti& r);
+    virtual ~GibbsMMulti();
 
-  void update(VectorVectorDouble& y, Id isimu, Id ipgs, Id iter) override;
-  Id covmatAlloc(bool verbose, bool verboseTimer = false) override;
+    void update(VectorVectorDouble& y, Id isimu, Id ipgs, Id iter) override;
+    Id covmatAlloc(bool verbose, bool verboseTimer = false) override;
 
-  void setEps(double eps) { _eps = eps; }
-  void cleanup() override;
+    void setEps(double eps) { _eps = eps; }
 
-  void setFlagStoreInternal(bool flagStoreInternal);
+    void cleanup() override;
 
-private:
-  Id _getNVar() const;
-  Id _getSize() const;
-  void _storeWeights(Id icol);
-  void _storeWeightsMS(Id icol, NF_Triplet& NF_T);
-  void _getWeights(Id icol) const;
-  void _calculateWeights(Id icol,
-                         VectorDouble& b,
-                         double tol = EPSILON3) const;
-  Id _storeAllWeights(bool verbose = false);
-  Id _getSizeOfWeights(const VectorDouble& weights) const;
-  double _getEstimate(Id ipgs, Id icol, const VectorVectorDouble& y) const;
-  void _allocate();
-  double _getVariance(Id icol) const;
-  Id _getColumn(Id iact, Id ivar) const;
-  void _splitCol(Id icol, Id* iact, Id* ivar) const;
-  void _updateStatWeights(Id* nzero);
+    void setFlagStoreInternal(bool flagStoreInternal);
 
-private:
-  std::shared_ptr<MatrixSparse> _Cmat;
-  CholeskySparse* _CmatChol;
-  double _eps;
-  bool _flagStoreInternal;
+  private:
+    Id _getNVar() const;
+    Id _getSize() const;
+    void _storeWeights(Id icol);
+    void _storeWeightsMS(Id icol, NF_Triplet& NF_T);
+    void _getWeights(Id icol) const;
+    void
+      _calculateWeights(Id icol, VectorDouble& b, double tol = EPSILON3) const;
+    Id _storeAllWeights(bool verbose = false);
+    Id _getSizeOfWeights(const VectorDouble& weights) const;
+    double _getEstimate(Id ipgs, Id icol, const VectorVectorDouble& y) const;
+    void _allocate();
+    double _getVariance(Id icol) const;
+    Id _getColumn(Id iact, Id ivar) const;
+    void _splitCol(Id icol, Id* iact, Id* ivar) const;
+    void _updateStatWeights(Id* nzero);
 
-  VectorVectorDouble _areas;
-  MatrixSparse* _matWgt;
+  private:
+    std::shared_ptr<MatrixSparse> _Cmat;
+    CholeskySparse* _CmatChol;
+    double _eps;
+    bool _flagStoreInternal;
 
-  mutable VectorDouble _weights;
-};
+    VectorVectorDouble _areas;
+    MatrixSparse* _matWgt;
+
+    mutable VectorDouble _weights;
+  };
 } // namespace gstlrn

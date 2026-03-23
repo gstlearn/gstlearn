@@ -12,7 +12,7 @@ Then, $$E[X]=\int_H x f(x) dx$$
 
 #### Sum of random variables
 
-If $X$ and $Y$ are two random variables with respective outputs spaces $H$ and $K$, with respective densities $f$ and $g$, with a joint density $f(x,y)$ and with a finite expectation. 
+If $X$ and $Y$ are two random variables with respective outputs spaces $H$ and $K$, with respective densities $f$ and $g$, with a joint density $f(x,y)$ and with a finite expectation.
 
 We have $$E[X+Y]=E[X]+E[Y]$$
 
@@ -40,11 +40,11 @@ $$E[aX]=aE[X]$$
 
 ### Positivity
 
-If $X$ is a positive random variable i.e $$P(X\geq 0)=1$$ then 
+If $X$ is a positive random variable i.e $$P(X\geq 0)=1$$ then
 
 $$E[X]\geq 0$$
 
-Where $X$ is a positive random variable, if $E[X]=0$, then 
+Where $X$ is a positive random variable, if $E[X]=0$, then
 
 $$P(X=0)=1$$
 
@@ -58,7 +58,7 @@ $$E[a] = a$$
 
 $$\textrm{Cov}(X,Y) = E[(X-E[X])(Y-E[Y])]$$
 
-### Properties 
+### Properties
 
 #### Symmetry
 
@@ -122,7 +122,7 @@ c_{n1} & \dots & c_{nn}\end{array}\right]$$
 
 $\Sigma$ is named the covariance matrix of the random vector $$Z=\left[\begin{array}{c}Z_1\\ \vdots\\ Z_n\end{array}\right]$$
 
-Note that we can rewrite 
+Note that we can rewrite
 
 $$\textrm{Var}\left(\sum_{i=1}^n\lambda_iZ_i\right) = \lambda^T \Sigma \lambda$$
 
@@ -159,7 +159,7 @@ $$\left[\begin{array}{cc}\sigma_0^2 & c_0^T \\
 c_0 & C\end{array}\right]$$
 
 
-where 
+where
 
 * $\sigma^2_0 = \textrm{Var}(Z_0)$
 * $c_0 = \textrm{Cov}(Z,Z_0)$
@@ -187,11 +187,11 @@ $$\rho(X,Y)=\frac{\textrm{Cov}(X,Y)}{\sqrt{\textrm{Var}(X)\textrm{Var}(Y)}}$$
 
 When the correlation coefficient is equal to $1$ or $-1$, we have
 
-$$Y=aX+b$$ 
+$$Y=aX+b$$
 
-with 
+with
 
-* $a>0$ if $\rho(X,Y)=1$ 
+* $a>0$ if $\rho(X,Y)=1$
 * $a<0$ if $\rho(X,Y)=-1$
 
 Note that $\rho(X,Y)$ can be equal to $0$ even if the variables are strongly linked.
@@ -199,4 +199,3 @@ Note that $\rho(X,Y)$ can be equal to $0$ even if the variables are strongly lin
 The usual example is a variable $X$ with a pair density ($f(-x)=f(x)$) and $Y=X^2$:
 
 $$\textrm{Cov}(X,Y)=\textrm{Cov}(X,X^2)=E[X^3]-E[X]E[X^2]=E[X^3]=\int_{\mathbb{R}} x^3f(x)dx =0$$
-

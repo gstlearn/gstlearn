@@ -3,7 +3,7 @@ title: "Multivariate Covariance and Variogram"
 author: "D. Renard"
 date: "5 avril 2022"
 output: html_document
-editor_options: 
+editor_options:
   chunk_output_type: console
 ---
 
@@ -66,9 +66,9 @@ grid["Z2"] = -3*grid["Short"] + 4*grid["Long"]
 Plotting the variables
 
 ```{r}
-p = plot.init() + 
-  plot.curve(grid["Z1"], col="black") + 
-  plot.curve(grid["Z2"], col="blue") + 
+p = plot.init() +
+  plot.curve(grid["Z1"], col="black") +
+  plot.curve(grid["Z2"], col="blue") +
   plot.decoration(title="Z1 and Z2")
 plot.end(p)
 ```
@@ -80,8 +80,8 @@ err = grid$setLocators("Z*",ELoc_Z())
 varioparam = VarioParam_createMultipleFromGrid(grid, nlag=100)
 vario = Vario_computeFromDb(varioparam, grid)
 
-p = plot.init() + 
-  plot(vario, ivar=0, jvar=0, col="black", cex=0, varioLinetype="solid") + 
+p = plot.init() +
+  plot(vario, ivar=0, jvar=0, col="black", cex=0, varioLinetype="solid") +
   plot(vario, ivar=1, jvar=1, col="blue", cex=0, varioLinetype="solid") +
   plot(vario, ivar=0, jvar=1, col="red", cex=0, varioLinetype="solid") +
   plot.decoration(title="Simple and Cross-Variograms")
@@ -94,8 +94,8 @@ Computing Covariances (Simple and Cross)
 err = grid$setLocators("Z*",ELoc_Z())
 covar = Vario_computeFromDb(varioparam, grid, calcul=ECalcVario_COVARIANCE())
 
-p = plot.init() + 
-  plot(covar, ivar=0, jvar=0, col="black", cex=0, varioLinetype="solid") + 
+p = plot.init() +
+  plot(covar, ivar=0, jvar=0, col="black", cex=0, varioLinetype="solid") +
   plot(covar, ivar=1, jvar=1, col="blue", cex=0, varioLinetype="solid") +
   plot(covar, ivar=0, jvar=1, col="red", cex=0, varioLinetype="solid") +
   plot.decoration(title="Simple and Cross-Covariances")
@@ -113,9 +113,9 @@ grid["Z3"] = c(v2[-{1:shift}],rep(NA,shift))
 Plotting the variables
 
 ```{r}
-p = plot.init() + 
-  plot.curve(grid["Z2"], col="black") + 
-  plot.curve(grid["Z3"], col="blue") + 
+p = plot.init() +
+  plot.curve(grid["Z2"], col="black") +
+  plot.curve(grid["Z3"], col="blue") +
   plot.decoration(title="Z2 and Z3")
 plot.end(p)
 ```
@@ -126,8 +126,8 @@ Calculate the cross-variogram
 grid$setLocators(c("Z2","Z3"),ELoc_Z(),cleanSameLocator=TRUE)
 covarh = Vario_computeFromDb(varioparam, grid, calcul=ECalcVario_VARIOGRAM())
 
-p = plot.init() + 
-  plot(covarh, ivar=0, jvar=0, col="black", cex=0, varioLinetype="solid") + 
+p = plot.init() +
+  plot(covarh, ivar=0, jvar=0, col="black", cex=0, varioLinetype="solid") +
   plot(covarh, ivar=1, jvar=1, col="blue", cex=0, varioLinetype="solid") +
   plot(covarh, ivar=0, jvar=1, col="red", cex=0, varioLinetype="solid") +
   plot.decoration(title="Simple and Cross-Variograms (shift)")
@@ -139,8 +139,8 @@ Calculate the cross-covariance
 ```{r}
 covarh = Vario_computeFromDb(varioparam, grid, calcul=ECalcVario_COVARIANCE())
 
-p = plot.init() + 
-  plot(covarh, ivar=0, jvar=0, col="black", cex=0, varioLinetype="solid") + 
+p = plot.init() +
+  plot(covarh, ivar=0, jvar=0, col="black", cex=0, varioLinetype="solid") +
   plot(covarh, ivar=1, jvar=1, col="blue", cex=0, varioLinetype="solid") +
   plot(covarh, ivar=0, jvar=1, col="red", cex=0, varioLinetype="solid") +
   plot.decoration(title="Simple and Cross-Covariances (shift)")

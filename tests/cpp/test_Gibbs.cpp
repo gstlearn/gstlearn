@@ -91,10 +91,8 @@ static void st_print_all(const VectorInt& colors,
                          const VectorDouble& sigma,
                          const MatrixSparse* Q)
 {
-  if (!consmin.empty())
-    printMatrix(consmin, 1, 10, "consmin");
-  if (!consmax.empty())
-    printMatrix(consmax, 1, 10, "consmax");
+  if (!consmin.empty()) printMatrix(consmin, 1, 10, "consmin");
+  if (!consmax.empty()) printMatrix(consmax, 1, 10, "consmax");
   printMatrix(sigma, 1, 10, "sigma");
   printMatrix(colors, 1, 10, "colors");
   Q->display();
@@ -218,7 +216,10 @@ static Id st_gibbs(Id niter,
                    VectorDouble& z,
                    VectorDouble& krig)
 {
-  mestitle(1, "Entering in Gibbs algorithm with niter=%d and ncolor=%d", niter, ncolor);
+  mestitle(1,
+           "Entering in Gibbs algorithm with niter=%d and ncolor=%d",
+           niter,
+           ncolor);
   VectorInt ind;
   VectorDouble zred;
 
@@ -232,10 +233,10 @@ static Id st_gibbs(Id niter,
 
       for (Id ic = 0, nc = static_cast<Id>(ind.size()); ic < nc; ic++)
       {
-        auto i        = ind[ic];
+        auto i = ind[ic];
         double valmin = (!consmin.empty()) ? consmin[i] : -10.;
         double valmax = (!consmax.empty()) ? consmax[i] : +10.;
-        z[i]          = st_simcond(iter, niter, valmin, valmax, krig[ic], sigma[i]);
+        z[i] = st_simcond(iter, niter, valmin, valmax, krig[ic], sigma[i]);
       }
     }
   }
@@ -251,7 +252,7 @@ int main(int argc, char* argv[])
 
 {
   bool flag_print = false;
-  bool flag_save  = true;
+  bool flag_save = true;
 
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
@@ -272,38 +273,40 @@ int main(int argc, char* argv[])
 
   // 2-D grid output file
 
-  VectorInt nx    = {100, 100};
+  VectorInt nx = {100, 100};
   VectorDouble x0 = {0., 0.};
   VectorDouble dx = {1., 1.};
-  DbGrid* dbgrid  = DbGrid::create(nx, dx, x0, VectorDouble(), ELoadBy::COLUMN);
+  DbGrid* dbgrid = DbGrid::create(nx, dx, x0, VectorDouble(), ELoadBy::COLUMN);
 
   // Model for SPDE
 
   double range_spde = 30.;
   double param_spde = 1.;
-  double sill_spde  = 1.;
-  Model* model1     = Model::createFromParam(ECov::MATERN, range_spde, sill_spde, param_spde);
+  double sill_spde = 1.;
+  Model* model1 =
+    Model::createFromParam(ECov::MATERN, range_spde, sill_spde, param_spde);
 
   // Model for constraints
 
   double range_cons = 50.;
   double param_cons = 2.;
-  double sill_cons  = 1.;
-  Model* model2     = Model::createFromParam(ECov::MATERN, range_cons, sill_cons, param_cons);
+  double sill_cons = 1.;
+  Model* model2 =
+    Model::createFromParam(ECov::MATERN, range_cons, sill_cons, param_cons);
 
   // Creating the meshing for extracting Q
 
   MeshETurbo mesh(dbgrid);
-  auto P                   = PrecisionOpMatrix(&mesh, model1->getCovAniso(0));
+  auto P = PrecisionOpMatrix(&mesh, model1->getCovAniso(0));
   const MatrixSparse* Qref = P.getQ();
-  auto* Q                  = new MatrixSparse(*Qref);
-  auto nvertex             = mesh.getNApices();
+  auto* Q = new MatrixSparse(*Qref);
+  auto nvertex = mesh.getNApices();
 
   // Coding the various colors
 
   VectorInt colors = Q->colorCoding();
   VectorInt colref = VH::unique(colors);
-  Id ncolor        = static_cast<Id>(colref.size());
+  Id ncolor = static_cast<Id>(colref.size());
 
   // Core allocation
 
@@ -316,16 +319,18 @@ int main(int argc, char* argv[])
 
   Id seed = 31415;
   law_set_random_seed(seed);
-  Id nsimu       = 2;
+  Id nsimu = 2;
   Id useCholesky = 1;
   (void)simulateSPDE(nullptr, dbgrid, model2, nsimu, useCholesky);
 
   auto rank = dbgrid->getNColumn();
   for (Id i = 0; i < nvertex; i++)
   {
-    consmin[i] = MIN(dbgrid->getArray(i, rank - 1), dbgrid->getArray(i, rank - 2));
-    consmax[i] = MAX(dbgrid->getArray(i, rank - 1), dbgrid->getArray(i, rank - 2));
-    z[i]       = (consmin[i] + consmax[i]) / 2.;
+    consmin[i] =
+      MIN(dbgrid->getArray(i, rank - 1), dbgrid->getArray(i, rank - 2));
+    consmax[i] =
+      MAX(dbgrid->getArray(i, rank - 1), dbgrid->getArray(i, rank - 2));
+    z[i] = (consmin[i] + consmax[i]) / 2.;
   }
 
   // Creating the variance
@@ -350,14 +355,23 @@ int main(int argc, char* argv[])
   for (Id icol = 0; icol < ncolor; icol++)
   {
     Qcols[icol] = Q->extractSubmatrixByColor(colors, colref[icol], true, false);
-    Id nrows    = Qcols[icol]->getNRows();
+    Id nrows = Qcols[icol]->getNRows();
     Qcols[icol]->forceDimension(nrows, ncols);
   }
 
   // Perform the Gibbs sampler
   Id niter = 10;
-  (void)st_gibbs(niter, ncolor, nvertex, colors, colref, Qcols, consmin, consmax,
-                 sigma, z, krig);
+  (void)st_gibbs(niter,
+                 ncolor,
+                 nvertex,
+                 colors,
+                 colref,
+                 Qcols,
+                 consmin,
+                 consmax,
+                 sigma,
+                 z,
+                 krig);
 
   // Add the newly created field to the grid for printout
   if (flag_save)
@@ -367,8 +381,7 @@ int main(int argc, char* argv[])
     dbgrid->display(&dbfmt);
   }
 
-  for (Id icol = 0; icol < ncolor; icol++)
-    delete Qcols[icol];
+  for (Id icol = 0; icol < ncolor; icol++) delete Qcols[icol];
   delete dbgrid;
   delete model1;
   delete model2;

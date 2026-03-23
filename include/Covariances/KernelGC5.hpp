@@ -18,30 +18,35 @@
 
 namespace gstlrn
 {
-class CovContext;
-class TurningBandOperate;
+  class CovContext;
+  class TurningBandOperate;
 
-class GSTLEARN_EXPORT KernelGC5: public AKernel
-{
-public:
-  KernelGC5(const CovContext& ctx);
-  KernelGC5(const KernelGC5& r);
-  KernelGC5& operator=(const KernelGC5& r);
-  virtual ~KernelGC5();
-
-  Id hasRange() const override { return -1; }
-  Id getMinOrder() const override { return 2; }
-  String getCovName() const override { return "Order-5 G.C."; }
-  bool getCompatibleSpaceR() const override { return true; }
-
-  bool isValidForSimulation(const ESimuType& simuType) const override
+  class GSTLEARN_EXPORT KernelGC5: public AKernel
   {
-    return (simuType == ESimuType::TB);
-  }
-  double simulateTurningBand(double t0, TurningBandOperate& operTB) const override;
+  public:
+    KernelGC5(const CovContext& ctx);
+    KernelGC5(const KernelGC5& r);
+    KernelGC5& operator=(const KernelGC5& r);
+    virtual ~KernelGC5();
 
-protected:
-  double _evaluateCov(double h) const override;
-};
+    Id hasRange() const override { return -1; }
+
+    Id getMinOrder() const override { return 2; }
+
+    String getCovName() const override { return "Order-5 G.C."; }
+
+    bool getCompatibleSpaceR() const override { return true; }
+
+    bool isValidForSimulation(const ESimuType& simuType) const override
+    {
+      return (simuType == ESimuType::TB);
+    }
+
+    double
+      simulateTurningBand(double t0, TurningBandOperate& operTB) const override;
+
+  protected:
+    double _evaluateCov(double h) const override;
+  };
 
 } // namespace gstlrn

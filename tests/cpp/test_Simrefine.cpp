@@ -37,8 +37,8 @@ int main(int argc, char* argv[])
   ASerializable::setPrefixName("test_Simrefine-");
 
   // Global parameters
-  Id ndim   = 2;
-  Id seed   = 3322;
+  Id ndim = 2;
+  Id seed = 3322;
   Id nxcell = 5;
   defineDefaultSpace(ESpaceType::RN, ndim);
 

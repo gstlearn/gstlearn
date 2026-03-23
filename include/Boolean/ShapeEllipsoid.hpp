@@ -18,27 +18,31 @@
 
 namespace gstlrn
 {
-class BooleanObject;
+  class BooleanObject;
 
-class GSTLEARN_EXPORT ShapeEllipsoid: public AShape
-{
-public:
-  ShapeEllipsoid(double proportion = 1.,
-                 double xext = 1.,
-                 double yext = 1.,
-                 double zext = 1.,
-                 double theta = 0.);
-  ShapeEllipsoid(const ShapeEllipsoid &r);
-  ShapeEllipsoid& operator=(const ShapeEllipsoid &r);
-  virtual ~ShapeEllipsoid();
+  class GSTLEARN_EXPORT ShapeEllipsoid: public AShape
+  {
+  public:
+    ShapeEllipsoid(double proportion = 1.,
+                   double xext = 1.,
+                   double yext = 1.,
+                   double zext = 1.,
+                   double theta = 0.);
+    ShapeEllipsoid(const ShapeEllipsoid& r);
+    ShapeEllipsoid& operator=(const ShapeEllipsoid& r);
+    virtual ~ShapeEllipsoid();
 
-  /// Interface for ICloneable
-  IMPLEMENT_CLONING(ShapeEllipsoid)
+    /// Interface for ICloneable
+    IMPLEMENT_CLONING(ShapeEllipsoid)
 
-  EShape getType() const override { return EShape::fromKey("ELLIPSOID"); }
-  Id  getNParams() const override { return 4; }
-  bool getFlagCutZ() const override { return false; }
-  BooleanObject* generateObject(Id ndim = 3) override;
-  bool belongObject(const VectorDouble& coor, const BooleanObject* object) const override;
-};
-}
+    EShape getType() const override { return EShape::fromKey("ELLIPSOID"); }
+
+    Id getNParams() const override { return 4; }
+
+    bool getFlagCutZ() const override { return false; }
+
+    BooleanObject* generateObject(Id ndim = 3) override;
+    bool belongObject(const VectorDouble& coor,
+                      const BooleanObject* object) const override;
+  };
+} // namespace gstlrn

@@ -10,37 +10,39 @@
 /******************************************************************************/
 #pragma once
 
-#include "Matrix/MatrixSparse.hpp"
 #include "LinearOp/PrecisionOpMulti.hpp"
+#include "Matrix/MatrixSparse.hpp"
 
-namespace gstlrn{
-class Model;
-
-/**
- * Class for the precision matrix of the latent field in SPDE (matricial form)
- */
-class GSTLEARN_EXPORT PrecisionOpMultiMatrix : public PrecisionOpMulti
+namespace gstlrn
 {
-public:
-  PrecisionOpMultiMatrix(Model* model               = nullptr,
-                         const VectorMeshes& meshes = VectorMeshes());
-  PrecisionOpMultiMatrix(const PrecisionOpMulti& m)            = delete;
-  PrecisionOpMultiMatrix& operator=(const PrecisionOpMulti& m) = delete;
-  virtual ~PrecisionOpMultiMatrix();
+  class Model;
 
-  const MatrixSparse* getQ() const;
+  /**
+   * Class for the precision matrix of the latent field in SPDE (matricial form)
+   */
+  class GSTLEARN_EXPORT PrecisionOpMultiMatrix: public PrecisionOpMulti
+  {
+  public:
+    PrecisionOpMultiMatrix(Model* model = nullptr,
+                           const VectorMeshes& meshes = VectorMeshes());
+    PrecisionOpMultiMatrix(const PrecisionOpMulti& m) = delete;
+    PrecisionOpMultiMatrix& operator=(const PrecisionOpMulti& m) = delete;
+    virtual ~PrecisionOpMultiMatrix();
 
-private:
+    const MatrixSparse* getQ() const;
+
+  private:
 #ifndef SWIG
-  Id _addToDest(const constvect vecin, vect vecout) const override;
+    Id _addToDest(const constvect vecin, vect vecout) const override;
 #endif
-  MatrixSparse _prepareMatrixNoStat(Id icov, const MatrixSparse* Q) const;
-  MatrixSparse _prepareMatrixStationary(Id icov, const MatrixSparse* Q) const;
-  void _prepareMatrix();
-  void _buildQop(bool stencil = false) override;
-  bool _isSingle() const { return _getNVar() == 1 && _getNCov() == 1;}
+    MatrixSparse _prepareMatrixNoStat(Id icov, const MatrixSparse* Q) const;
+    MatrixSparse _prepareMatrixStationary(Id icov, const MatrixSparse* Q) const;
+    void _prepareMatrix();
+    void _buildQop(bool stencil = false) override;
 
-private:
-  MatrixSparse _Q;
-};
-}
+    bool _isSingle() const { return _getNVar() == 1 && _getNCov() == 1; }
+
+  private:
+    MatrixSparse _Q;
+  };
+} // namespace gstlrn

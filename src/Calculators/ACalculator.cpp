@@ -14,44 +14,37 @@
 
 namespace gstlrn
 {
-ACalculator::ACalculator()
-{
-}
+  ACalculator::ACalculator() {}
 
-ACalculator::~ACalculator()
-{
-}
+  ACalculator::~ACalculator() {}
 
-/**
- * Run the calculator
- *
- * \return false if error, true otherwise
- */
-bool ACalculator::run()
-{
-  try
+  /**
+   * Run the calculator
+   *
+   * \return false if error, true otherwise
+   */
+  bool ACalculator::run()
   {
-    if (! _check())
-      my_throw("Check has failed. Calculation aborted");
-    if (! _preprocess())
-      my_throw("Pre-processing has failed. Calculation aborted");
-    if (! _run())
-      my_throw("Run has failed. Calculation aborted");
-    if (! _postprocess())
-      my_throw("Post-processing has failed.");
+    try
+    {
+      if (!_check()) my_throw("Check has failed. Calculation aborted");
+      if (!_preprocess())
+        my_throw("Pre-processing has failed. Calculation aborted");
+      if (!_run()) my_throw("Run has failed. Calculation aborted");
+      if (!_postprocess()) my_throw("Post-processing has failed.");
+    }
+    catch (const AException& e)
+    {
+      messerr("Calculator has failed: %s", e.what());
+      _rollback();
+      return false;
+    }
+    catch (const std::exception& e)
+    {
+      messerr("Calculator has failed: %s", e.what());
+      _rollback();
+      return false;
+    }
+    return true;
   }
-  catch(const AException& e)
-  {
-    messerr("Calculator has failed: %s",e.what());
-    _rollback();
-    return false;
-  }
-  catch(const std::exception& e)
-  {
-    messerr("Calculator has failed: %s",e.what());
-    _rollback();
-    return false;
-  }
-  return true;
-}
-}
+} // namespace gstlrn

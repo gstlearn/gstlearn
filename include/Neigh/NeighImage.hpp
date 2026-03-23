@@ -20,73 +20,83 @@
 
 namespace gstlrn
 {
-class Db;
-class DbGrid;
+  class Db;
+  class DbGrid;
 
-/**
- * \brief
- * Image Neighborhood definition.
- *
- * The Neighborhood is usually meant to select a sub-population from the input Data Base,
- * containing the active samples close to the target.
- *
- * This Neighborhood is only defined in the case when the Data and the Target belong
- * to the same grid.
- * This neighborhood is defined as a rectangular set of pixels, located around the target.
- * This rectangle is given by its half-extension in each space dimension (called 'radius')
- * As the number of pixels grows fast with the space dimension, it is offered to sample
- * them by specifying a skipping factor, so as to retain only 1 / (1 + skip) of them.
- */
-class GSTLEARN_EXPORT NeighImage: public ANeigh
-{
-public:
-  NeighImage(const VectorInt& radius      = VectorInt(),
-             Id skip                      = 0,
-             const ASpaceSharedPtr& space = ASpaceSharedPtr());
-  NeighImage(const NeighImage& r);
-  NeighImage& operator=(const NeighImage& r);
-  virtual ~NeighImage();
+  /**
+   * \brief
+   * Image Neighborhood definition.
+   *
+   * The Neighborhood is usually meant to select a sub-population from the input Data Base,
+   * containing the active samples close to the target.
+   *
+   * This Neighborhood is only defined in the case when the Data and the Target belong
+   * to the same grid.
+   * This neighborhood is defined as a rectangular set of pixels, located around the target.
+   * This rectangle is given by its half-extension in each space dimension (called 'radius')
+   * As the number of pixels grows fast with the space dimension, it is offered to sample
+   * them by specifying a skipping factor, so as to retain only 1 / (1 + skip) of them.
+   */
+  class GSTLEARN_EXPORT NeighImage: public ANeigh
+  {
+  public:
+    NeighImage(const VectorInt& radius = VectorInt(),
+               Id skip = 0,
+               const ASpaceSharedPtr& space = ASpaceSharedPtr());
+    NeighImage(const NeighImage& r);
+    NeighImage& operator=(const NeighImage& r);
+    virtual ~NeighImage();
 
-  /// ICloneable Interface
-  IMPLEMENT_CLONING(NeighImage)
+    /// ICloneable Interface
+    IMPLEMENT_CLONING(NeighImage)
 
-  /// ASerializable Interface
-  String getNFName() const override { return "NeighImage"; }
+    /// ASerializable Interface
+    String getNFName() const override { return "NeighImage"; }
 #ifdef HDF5
-  bool deserializeH5(H5::Group& grp) override;
-  bool serializeH5(H5::Group& grp) const override;
+    bool deserializeH5(H5::Group& grp) override;
+    bool serializeH5(H5::Group& grp) const override;
 #endif
 
-  /// Interface for ANeigh
-  void getNeigh(Id iech_out, VectorInt& ranks) override;
-  Id getNSampleMax(const Db* db) const override;
-  bool hasChanged(Id iech_out) const override;
-  ENeigh getType() const override { return ENeigh::fromKey("IMAGE"); }
+    /// Interface for ANeigh
+    void getNeigh(Id iech_out, VectorInt& ranks) override;
+    Id getNSampleMax(const Db* db) const override;
+    bool hasChanged(Id iech_out) const override;
 
-  /// Interface for AStringable
-  String toString(const AStringFormat* strfmt = nullptr) const override;
+    ENeigh getType() const override { return ENeigh::fromKey("IMAGE"); }
 
-  static NeighImage* create(const VectorInt& radius, Id skip = 0, const ASpaceSharedPtr& space = ASpaceSharedPtr());
-  static NeighImage* createFromNF(const String& NFFilename, bool verbose = true);
+    /// Interface for AStringable
+    String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  Id getSkip() const { return _skip; }
-  const VectorInt& getImageRadius() const { return _imageRadius; }
-  Id getImageRadius(Id idim) const { return _imageRadius[idim]; }
+    static NeighImage* create(const VectorInt& radius,
+                              Id skip = 0,
+                              const ASpaceSharedPtr& space = ASpaceSharedPtr());
+    static NeighImage*
+      createFromNF(const String& NFFilename, bool verbose = true);
 
-  void setImageRadius(const VectorInt& imageRadius) { _imageRadius = imageRadius; }
-  void setSkip(Id skip) { _skip = skip; }
+    Id getSkip() const { return _skip; }
 
-  DbGrid* buildImageGrid(const DbGrid* dbgrid, Id seed) const;
+    const VectorInt& getImageRadius() const { return _imageRadius; }
 
-protected:
-  bool _deserializeAscii(std::istream& is) override;
-  bool _serializeAscii(std::ostream& os) const override;
+    Id getImageRadius(Id idim) const { return _imageRadius[idim]; }
 
-private:
-  void _uimage(Id iech_out, VectorInt& ranks);
+    void setImageRadius(const VectorInt& imageRadius)
+    {
+      _imageRadius = imageRadius;
+    }
 
-private:
-  Id _skip;               /* Skipping factor */
-  VectorInt _imageRadius; /* Vector of image neighborhood radius */
-};
+    void setSkip(Id skip) { _skip = skip; }
+
+    DbGrid* buildImageGrid(const DbGrid* dbgrid, Id seed) const;
+
+  protected:
+    bool _deserializeAscii(std::istream& is) override;
+    bool _serializeAscii(std::ostream& os) const override;
+
+  private:
+    void _uimage(Id iech_out, VectorInt& ranks);
+
+  private:
+    Id _skip; /* Skipping factor */
+    VectorInt _imageRadius; /* Vector of image neighborhood radius */
+  };
 } // namespace gstlrn

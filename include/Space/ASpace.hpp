@@ -23,169 +23,171 @@
 
 namespace gstlrn
 {
-class SpacePoint;
-class Tensor;
+  class SpacePoint;
+  class Tensor;
 
-/**
- * @brief Base classe for space definitions
- *
- * If the space instance is a sub-space from a parent SpaceComposit
- * _offset is used. Otherwise it is set to 0.
- * Example : if I am RN(1) in RN(2)+RN(1), offset is 2
- */
-class GSTLEARN_EXPORT ASpace: public AStringable, public ICloneable
-{
-protected:
-  ASpace(size_t ndim);
-  ASpace(const ASpace& r);
-  ASpace& operator=(const ASpace& r);
-
-public:
-  virtual ~ASpace();
-
-public:
-  /// Interface for AStringable
-  String toString(const AStringFormat* strfmt = nullptr) const final;
-
-  /// Return the concrete space type
-  virtual ESpaceType getType() const = 0;
-
-  ///////////////////////////////////////////////
-  // Default behavior that can be overriden
-
-  /// Update the origin of the space
-  virtual void setOrigin(const VectorDouble& origin);
-
-  /// Get the number of dimensions
-  virtual size_t getNDim(Id ispace = -1) const;
-
-  /// Get the offset index for coordinates
-  virtual size_t getOffset(Id ispace = -1) const;
-
-  /// Return the space origin coordinates
-  virtual const VectorDouble& getOrigin(Id ispace = -1) const;
-
-  /// Get the number of space components
-  virtual size_t getNComponents() const;
-
-  /// Return the space component at index ispace
-  virtual std::shared_ptr<const ASpace> getComponent(Id ispace = -1) const;
-
-  /// Dump a space in a string (given the space index)
-  virtual String toStringIdx(const AStringFormat* strfmt, Id ispace) const;
-
-  /// Return true if the given space is equal to me (same dimension and space
-  /// definition)
-  virtual bool isEqual(const ASpace* space) const;
-
-  /// Return all the distances (one by space component) between two space points
-  virtual VectorDouble getDistances(const SpacePoint& p1,
-                                    const SpacePoint& p2) const;
-
-  virtual void getDistancePointVectInPlace(const SpacePoint& p1,
-                                           const std::vector<SpacePoint>& p2,
-                                           VectorDouble& res,
-                                           const VectorInt& ranks) const
+  /**
+   * @brief Base classe for space definitions
+   *
+   * If the space instance is a sub-space from a parent SpaceComposit
+   * _offset is used. Otherwise it is set to 0.
+   * Example : if I am RN(1) in RN(2)+RN(1), offset is 2
+   */
+  class GSTLEARN_EXPORT ASpace: public AStringable, public ICloneable
   {
-    DECLARE_UNUSED(p1, p2, res, ranks)
-    messerr("Not implemented for this space");
-  };
-  ///////////////////////////////////////////////
-  /// Not to be overriden
+  protected:
+    ASpace(size_t ndim);
+    ASpace(const ASpace& r);
+    ASpace& operator=(const ASpace& r);
 
-  /// Move the given space point by the given vector
-  void move(SpacePoint& p1, const VectorDouble& vec) const;
+  public:
+    virtual ~ASpace();
 
-  /// Return the distance between two space points
-  double getDistance(const SpacePoint& p1,
-                     const SpacePoint& p2,
-                     Id ispace = -1) const;
+  public:
+    /// Interface for AStringable
+    String toString(const AStringFormat* strfmt = nullptr) const final;
 
-  /// Return the distance between two space points with the given tensor
-  double getDistance(const SpacePoint& p1,
-                     const SpacePoint& p2,
-                     const Tensor& tensor,
-                     Id ispace = -1) const;
+    /// Return the concrete space type
+    virtual ESpaceType getType() const = 0;
 
-  /// Return the distance in frequential domain between two space points with the given tensor
-  double getFrequentialDistance(const SpacePoint& p1,
+    ///////////////////////////////////////////////
+    // Default behavior that can be overriden
+
+    /// Update the origin of the space
+    virtual void setOrigin(const VectorDouble& origin);
+
+    /// Get the number of dimensions
+    virtual size_t getNDim(Id ispace = -1) const;
+
+    /// Get the offset index for coordinates
+    virtual size_t getOffset(Id ispace = -1) const;
+
+    /// Return the space origin coordinates
+    virtual const VectorDouble& getOrigin(Id ispace = -1) const;
+
+    /// Get the number of space components
+    virtual size_t getNComponents() const;
+
+    /// Return the space component at index ispace
+    virtual std::shared_ptr<const ASpace> getComponent(Id ispace = -1) const;
+
+    /// Dump a space in a string (given the space index)
+    virtual String toStringIdx(const AStringFormat* strfmt, Id ispace) const;
+
+    /// Return true if the given space is equal to me (same dimension and space
+    /// definition)
+    virtual bool isEqual(const ASpace* space) const;
+
+    /// Return all the distances (one by space component) between two space points
+    virtual VectorDouble
+      getDistances(const SpacePoint& p1, const SpacePoint& p2) const;
+
+    virtual void getDistancePointVectInPlace(const SpacePoint& p1,
+                                             const std::vector<SpacePoint>& p2,
+                                             VectorDouble& res,
+                                             const VectorInt& ranks) const
+    {
+      DECLARE_UNUSED(p1, p2, res, ranks)
+      messerr("Not implemented for this space");
+    };
+
+    ///////////////////////////////////////////////
+    /// Not to be overriden
+
+    /// Move the given space point by the given vector
+    void move(SpacePoint& p1, const VectorDouble& vec) const;
+
+    /// Return the distance between two space points
+    double getDistance(const SpacePoint& p1,
+                       const SpacePoint& p2,
+                       Id ispace = -1) const;
+
+    /// Return the distance between two space points with the given tensor
+    double getDistance(const SpacePoint& p1,
+                       const SpacePoint& p2,
+                       const Tensor& tensor,
+                       Id ispace = -1) const;
+
+    /// Return the distance in frequential domain between two space points with the given tensor
+    double getFrequentialDistance(const SpacePoint& p1,
+                                  const SpacePoint& p2,
+                                  const Tensor& tensor,
+                                  Id ispace = -1) const;
+
+    /// Return the increment vector between two space points
+    VectorDouble getIncrement(const SpacePoint& p1,
+                              const SpacePoint& p2,
+                              Id ispace = -1) const;
+    void getIncrementInPlace(const SpacePoint& p1,
+                             const SpacePoint& p2,
+                             VectorDouble& ptemp,
+                             Id ispace = -1) const;
+
+    VectorDouble getUnitaryVector() const;
+    /// Project the coordinates in the given space
+    virtual VectorDouble
+      projCoord(const VectorDouble& coord, Id ispace = -1) const;
+
+    /// Customize the dimension offset index of the current space
+    /// TODO : to be made private
+    void setOffset(size_t offset) { _offset = offset; }
+
+    static std::shared_ptr<const ASpace>
+      getDefaultSpaceIfNull(const std::shared_ptr<const ASpace>& space);
+
+  protected:
+    /// Move the given space point by the given vector
+    virtual void _move(SpacePoint& p1, const VectorDouble& vec) const = 0;
+
+    /// Return the distance between two space points
+    virtual double _getDistance(const SpacePoint& p1,
+                                const SpacePoint& p2,
+                                Id ispace = -1) const = 0;
+
+    /// Return the distance between two space points with the given tensor
+    virtual double _getDistance(const SpacePoint& p1,
                                 const SpacePoint& p2,
                                 const Tensor& tensor,
-                                Id ispace = -1) const;
+                                Id ispace = -1) const = 0;
 
-  /// Return the increment vector between two space points
-  VectorDouble getIncrement(const SpacePoint& p1,
-                            const SpacePoint& p2,
-                            Id ispace = -1) const;
-  void getIncrementInPlace(const SpacePoint& p1,
-                           const SpacePoint& p2,
-                           VectorDouble& ptemp,
-                           Id ispace = -1) const;
+    /// Return the distance in frequential domain between two space points with the given tensor
+    virtual double _getFrequentialDistance(const SpacePoint& p1,
+                                           const SpacePoint& p2,
+                                           const Tensor& tensor,
+                                           Id ispace = -1) const = 0;
 
-  VectorDouble getUnitaryVector() const;
-  /// Project the coordinates in the given space
-  virtual VectorDouble projCoord(const VectorDouble& coord,
-                                 Id ispace = -1) const;
+    /// Return the increment vector between two space points
+    /// (prefer the in-place variant below in C++ code)
+    virtual VectorDouble _getIncrement(const SpacePoint& p1,
+                                       const SpacePoint& p2,
+                                       Id ispace = -1) const = 0;
 
-  /// Customize the dimension offset index of the current space
-  /// TODO : to be made private
-  void setOffset(size_t offset) { _offset = offset; }
+    /// Return the increment vector between two space points in a given vector
+    virtual void _getIncrementInPlace(const SpacePoint& p1,
+                                      const SpacePoint& p2,
+                                      VectorDouble& ptemp,
+                                      Id ispace = -1) const = 0;
 
-  static std::shared_ptr<const ASpace> getDefaultSpaceIfNull(const std::shared_ptr<const ASpace>& space);
+  protected:
+    /// Customize the dimension offset index of the current space
+    // void _setOffset(size_t offset) { _offset = offset; }
 
-protected:
-  /// Move the given space point by the given vector
-  virtual void _move(SpacePoint& p1, const VectorDouble& vec) const = 0;
+  protected:
+    /// Number of space dimensions
+    size_t _nDim;
+    /// Coordinates of the origin (size = _nDim)
+    VectorDouble _origin;
+    /// Dimension offset index (0 if single space, relative if sub-space)
+    size_t _offset;
 
-  /// Return the distance between two space points
-  virtual double _getDistance(const SpacePoint& p1,
-                              const SpacePoint& p2,
-                              Id ispace = -1) const = 0;
+    /// The next vectors are specified as working members in order to avoid too many allocations
+    mutable VectorDouble _work1;
+    mutable VectorDouble _work2;
 
-  /// Return the distance between two space points with the given tensor
-  virtual double _getDistance(const SpacePoint& p1,
-                              const SpacePoint& p2,
-                              const Tensor& tensor,
-                              Id ispace = -1) const = 0;
+    /// Privilege to SpaceComposit only
+    // friend class SpaceComposit; /// TODO : this has no effect (see _setOffset). Why ?
+  };
 
-  /// Return the distance in frequential domain between two space points with the given tensor
-  virtual double _getFrequentialDistance(const SpacePoint& p1,
-                                         const SpacePoint& p2,
-                                         const Tensor& tensor,
-                                         Id ispace = -1) const = 0;
-
-  /// Return the increment vector between two space points
-  /// (prefer the in-place variant below in C++ code)
-  virtual VectorDouble _getIncrement(const SpacePoint& p1,
-                                     const SpacePoint& p2,
-                                     Id ispace = -1) const = 0;
-
-  /// Return the increment vector between two space points in a given vector
-  virtual void _getIncrementInPlace(const SpacePoint& p1,
-                                    const SpacePoint& p2,
-                                    VectorDouble& ptemp,
-                                    Id ispace = -1) const = 0;
-
-protected:
-  /// Customize the dimension offset index of the current space
-  // void _setOffset(size_t offset) { _offset = offset; }
-
-protected:
-  /// Number of space dimensions
-  size_t _nDim;
-  /// Coordinates of the origin (size = _nDim)
-  VectorDouble _origin;
-  /// Dimension offset index (0 if single space, relative if sub-space)
-  size_t _offset;
-
-  /// The next vectors are specified as working members in order to avoid too many allocations
-  mutable VectorDouble _work1;
-  mutable VectorDouble _work2;
-
-  /// Privilege to SpaceComposit only
-  // friend class SpaceComposit; /// TODO : this has no effect (see _setOffset). Why ?
-};
-
-typedef std::shared_ptr<const ASpace> ASpaceSharedPtr;
-typedef std::vector<ASpaceSharedPtr> ASpaceSharedPtrVector;
+  typedef std::shared_ptr<const ASpace> ASpaceSharedPtr;
+  typedef std::vector<ASpaceSharedPtr> ASpaceSharedPtrVector;
 } // namespace gstlrn

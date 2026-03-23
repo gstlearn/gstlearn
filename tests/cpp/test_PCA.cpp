@@ -13,12 +13,12 @@
 /******************************************************************************/
 #include "Enum/ECov.hpp"
 
-#include "Space/ASpaceObject.hpp"
-#include "Model/Model.hpp"
 #include "Basic/File.hpp"
 #include "Db/Db.hpp"
-#include "Stats/PCA.hpp"
+#include "Model/Model.hpp"
 #include "Simulation/Simulations.hpp"
+#include "Space/ASpaceObject.hpp"
+#include "Stats/PCA.hpp"
 
 using namespace gstlrn;
 
@@ -27,13 +27,13 @@ using namespace gstlrn;
 ** Main Program for testing the sparse matrix algebra
 **
 *****************************************************************************/
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   double eps = 1.e-6;
-  Id error   = 1;
+  Id error = 1;
 
-  Id ndim   = 2;
-  Id nvar   = 1;
+  Id ndim = 2;
+  Id nvar = 1;
   Id nbsimu = 5;
 
   std::stringstream sfn;
@@ -41,11 +41,11 @@ int main(int argc, char *argv[])
   StdoutRedirect sr(sfn.str(), argc, argv);
 
   defineDefaultSpace(ESpaceType::RN, ndim);
-  CovContext ctxt(nvar,ndim);
+  CovContext ctxt(nvar, ndim);
 
   // Creating a Point Data base in the 1x1 square with 'nech' samples
   Id nech = 1000;
-  Db* db = Db::createFromBox(nech,{0.,0.},{1.,1.}, 432423);
+  Db* db = Db::createFromBox(nech, {0., 0.}, {1., 1.}, 432423);
 
   // Creating the Model(s) of the Underlying GRF(s)
   double range1 = 0.2;
@@ -53,14 +53,14 @@ int main(int argc, char *argv[])
   models->display();
 
   // Perform a non-conditional simulation on the Db and on the Grid
-  error = simtub(nullptr,db,models,nullptr,nbsimu);
+  error = simtub(nullptr, db, models, nullptr, nbsimu);
   db->display();
 
   // ============
   // Evaluate PCA
   // ============
 
-  mestitle(0,"Testing PCA");
+  mestitle(0, "Testing PCA");
   PCA pca;
   pca.pca_compute(db);
   pca.display();
@@ -71,16 +71,15 @@ int main(int argc, char *argv[])
   pca.dbF2Z(db, false, NamingConvention("PCA.Z", false));
 
   // Comparing initial and back-transformed variables
-  VectorString names1 = generateMultipleNames("Simu" , nbsimu, ".");
+  VectorString names1 = generateMultipleNames("Simu", nbsimu, ".");
   VectorString names2 = generateMultipleNames("PCA.Z", nbsimu, ".");
-  for (Id i = 0; i < nbsimu; i++)
-    (void) db->areSame(names1[i], names2[i], eps);
+  for (Id i = 0; i < nbsimu; i++) (void)db->areSame(names1[i], names2[i], eps);
 
   // ============
   // Evaluate MAF
   // ============
 
-  mestitle(0,"Testing MAF");
+  mestitle(0, "Testing MAF");
   db->setLocator("Simu*", ELoc::Z, 0);
   PCA maf;
   maf.maf_compute_interval(db, 0.95, 1.05);
@@ -93,10 +92,9 @@ int main(int argc, char *argv[])
 
   // Comparing initial and back-transformed variables
 
-  names1 = generateMultipleNames("Simu" , nbsimu, ".");
+  names1 = generateMultipleNames("Simu", nbsimu, ".");
   names2 = generateMultipleNames("MAF.Z", nbsimu, ".");
-  for (Id i = 0; i < nbsimu; i++)
-    (void) db->areSame(names1[i], names2[i], eps);
+  for (Id i = 0; i < nbsimu; i++) (void)db->areSame(names1[i], names2[i], eps);
 
   delete db;
   delete models;

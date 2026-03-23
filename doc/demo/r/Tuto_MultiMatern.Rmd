@@ -3,13 +3,13 @@ title: "Spectral simulation of multivariate Matern's covariance"
 author: "X. Freulon, and the gstlearn Core Team"
 date: "`r Sys.Date()`"
 output: pdf_document
-editor_options: 
+editor_options:
   chunk_output_type: console
 ---
 
 # Introduction
 
-The objective of this notebook is the define the multivariate Matern's covariance models to be implemented in **gstlearn**. The space is the euclidean model $\mathbb{R}^d$ with $d \geq 0$. 
+The objective of this notebook is the define the multivariate Matern's covariance models to be implemented in **gstlearn**. The space is the euclidean model $\mathbb{R}^d$ with $d \geq 0$.
 
 Here, we use the Matern's model defined in Bourotte et al. (2016).
 
@@ -26,7 +26,7 @@ where $\nu > 0$ is a smoothness parameter, and $K_{\nu}$ denotes the modified Be
 
 Its spectral density function is:
 $$
-\mathcal{S}(\boldsymbol{\omega}; \nu) = \frac{\Gamma(\nu + \frac{d}{2})}{\Gamma(\nu)\, \pi^{\frac{d}{2}}} 
+\mathcal{S}(\boldsymbol{\omega}; \nu) = \frac{\Gamma(\nu + \frac{d}{2})}{\Gamma(\nu)\, \pi^{\frac{d}{2}}}
 \frac{1}{(1+|\boldsymbol{\omega}|^2)^{\nu + \frac{d}{2}}}
 $$
 
@@ -34,9 +34,9 @@ The space anisotropy and scaling are first applied to the increments to convert 
 
 ## The multivariate model
 
-The multivariate Matern's model is defined from 
+The multivariate Matern's model is defined from
 
-1) The marginal models. 
+1) The marginal models.
 Each variable $i$ is characterized by $r_{i} > 0$ its relative scale factor, and $\nu_i > 0$ its smoothness parameter.
 
 2) A covariance matrix $\boldsymbol{\Sigma} = [\sigma_{ij}]_{1 \leq i,j \leq p}$.
@@ -46,9 +46,9 @@ $$
 C_{ij}^{\mathcal{M}}(\boldsymbol{h}) = \sigma_{ij} \times \mathcal{M}(r_{ij} \, d_s(\boldsymbol{h}); \nu_{ij}).
 $$
 
-with, the cross-parameters are computed from the marginal parameters: 
+with, the cross-parameters are computed from the marginal parameters:
 
-  i) $\nu_{ij} = (\nu_{i} + \nu_{j})/2$, and 
+  i) $\nu_{ij} = (\nu_{i} + \nu_{j})/2$, and
   ii) $r_{ij} = \sqrt{(r_{i}^2 + r_{j}^2)/2}$
 
 The family of simple and cross spectrum functions is:
@@ -60,16 +60,16 @@ $$
 d^s(\boldsymbol{\omega}) = \sqrt{\boldsymbol{\omega}^t R^t D(\boldsymbol{a}^2)R\boldsymbol{\omega} }
 $$
 
-**Note:** 
+**Note:**
 
 * The covariance matrix **must** verify the condition that  the matrix $[\sigma_{ij}/\tau_{ij}]_{i,j}$ be positive definite, with the *maximum* correlation matrix defined by
 $$
 \tau_{ij} = \frac{\Gamma(\nu_{ij})}{\Gamma(\nu_{i})^{1/2}\Gamma(\nu_{j})^{1/2}}\frac{r_i^{\nu_{i}}r_j^{\nu_{j}}}{r_{ij}^{2\nu_{ij}}}
 $$
 
-* The intrinsic case corresponds to $\nu_i = \nu$ and $r_i = r = 1$ (if all variable ranges are equal, they can be taken into account by the metric defined on space-time): 
+* The intrinsic case corresponds to $\nu_i = \nu$ and $r_i = r = 1$ (if all variable ranges are equal, they can be taken into account by the metric defined on space-time):
 $$
-C_{ij}(\boldsymbol{h}) = C_{ij}(0) \times 
+C_{ij}(\boldsymbol{h}) = C_{ij}(0) \times
 \mathcal{M}(d_s; \nu).
 $$
 
@@ -112,7 +112,7 @@ Some functions are defined for the QC of the simulations.
 #' @param nlag the number of variogram lags
 #' @param dir the increments defining the direction
 #' @param dx the mesh of the grid
-#' @value a list containing the parameters of the experimental variogram 
+#' @value a list containing the parameters of the experimental variogram
 #' (distance, value, number of pairs)
 compute_vario_on_grid <- function(val1, val2, nlag = 10, dir = c(1,0), dx = c(1,1)) {
   stopifnot(all(dim(val1) == dim(val2)))
@@ -153,9 +153,9 @@ compute_vario_on_grid <- function(val1, val2, nlag = 10, dir = c(1,0), dx = c(1,
 plot_hist_map_vario <- function(grid, names, model,
                                 main = NULL,
                                 flag.hist = TRUE, flag.map = TRUE, flag.vario = TRUE) {
-  
+
   stopifnot(length(names) == model$getNVar())
-  
+
   nx = grid$getNXs()
   dx = grid$getDXs()
   x0 = grid$getX0s()
@@ -174,7 +174,7 @@ plot_hist_map_vario <- function(grid, names, model,
       title(main = main, sub = names[ivar], font.main = 4, font.sub = 3, col.sub = "red")
     }
     if (flag.map) {
-      image(x = x, y = y, z = simu1, asp = 1, col = hcl.colors(100, "terrain"), 
+      image(x = x, y = y, z = simu1, asp = 1, col = hcl.colors(100, "terrain"),
             axes = FALSE)
       contour(x, y, simu1, levels = c(-1, 0, 1),
               add = TRUE, col = "brown")
@@ -187,10 +187,10 @@ plot_hist_map_vario <- function(grid, names, model,
     if (flag.vario) {
       for (jvar in ivar:length(names)) {
         c0 = model$evalCov(p1 = p1, p2 = p1, ivar = ivar-1, jvar = jvar-1)
-        if (ivar == jvar) {ylim = c(0, c0)} 
+        if (ivar == jvar) {ylim = c(0, c0)}
         else {ylim = abs(c0) * c(-1,1)}
         simu2 = matrix(grid[names[jvar]], nx[1], nx[2])
-        plot(NULL, NULL, xlim = c(0, nlag*max(dir_norm)), ylim = ylim, 
+        plot(NULL, NULL, xlim = c(0, nlag*max(dir_norm)), ylim = ylim,
              xlab = "Distance", ylab = "Variogram")
         abline(v = c(0), col = "black", lty = 3)
         abline(h = c(0), col = "black", lty = 3)
@@ -199,7 +199,7 @@ plot_hist_map_vario <- function(grid, names, model,
         for (idir in seq_len(dim(dir_list)[1])) {
           dir_lab = c(dir_lab, sprintf("[%d,%d]", dir_list[idir,1], dir_list[idir,2]))
           # experimental variogram
-          gam = compute_vario_on_grid(val1 = simu1, val2 = simu2, 
+          gam = compute_vario_on_grid(val1 = simu1, val2 = simu2,
                                       nlag = nlag, dir = dir_list[idir,], dx = dx)
           lines(gam$hh, gam$gg, col = dir_col[idir], lty = 2)
           points(gam$hh, gam$gg, col = dir_col[idir], pch = 19, cex = 0.2)
@@ -270,15 +270,15 @@ stopifnot(gsSigma$isDefinitePositive())
 # the Matern's covariance in gstlearn
 ctxt  = CovContext(nvar = p, ndim = d)
 gsMatern = CorMatern_create(
-  type = ECov_MATERN(), ctxt = ctxt, 
+  type = ECov_MATERN(), ctxt = ctxt,
   params = nu[1:p],
   kappas = rr[1:p],
-  ranges = ani_scales[1:d] , 
-  angles = ani_angles[1:d], 
+  ranges = ani_scales[1:d] ,
+  angles = ani_angles[1:d],
   flagRange = FALSE)
 
 # the model is defined by the covariance
-gsMod = ModelGeneric(ctxt = ctxt) 
+gsMod = ModelGeneric(ctxt = ctxt)
 err   = gsMod$setCov(cova = gsMatern)
 
 ```
@@ -295,8 +295,8 @@ for(idir in 1:length(dir_angles)) {
   plot(NULL, NULL, xlim = range(h), ylim = max(abs(sigma))*c(-1,1),
        xlab = "Distance", ylab = "Variogram")
   title(
-    main = paste0("Matern: d = ", d, " p = ", p), 
-    sub = paste("Direction = #", idir, " (angle = ", dir_angles[idir], "°)"), 
+    main = paste0("Matern: d = ", d, " p = ", p),
+    sub = paste("Direction = #", idir, " (angle = ", dir_angles[idir], "°)"),
     col.sub = "red"
   )
   abline(v = 0, col = "gray", lty = 3)
@@ -323,7 +323,7 @@ for(idir in 1:length(dir_angles)) {
   }
   legend("bottomright",
          legend = lab_var,
-         col = var_col[1:idx], 
+         col = var_col[1:idx],
          lty = 1)
 }
 
@@ -342,17 +342,17 @@ for (ivar in 1:p) {
 }
 
 for(idir in 1:length(dir_angles)) {
-  plot(NULL, NULL, 
+  plot(NULL, NULL,
        xlim = range(h), ylim = max(abs(s0))*c(-1,1),
        xlab = "Distance", ylab = "Spectrum")
   title(
-    main = paste0("Matern: d = ", d, " p = ", p), 
-    sub = paste("Direction = ", idir, "# (angle = ", dir_angles[idir], "°)"), 
+    main = paste0("Matern: d = ", d, " p = ", p),
+    sub = paste("Direction = ", idir, "# (angle = ", dir_angles[idir], "°)"),
     col.sub = "red"
   )
   abline(v = 0, col = "gray", lty = 3)
   abline(h = c(0, sort(unique(as.numeric(s0)))), col = "gray", lty = 3)
-  
+
   theta  = dir_angles[idir]*pi/180
   cs = cos(theta)
   sn = sin(theta)
@@ -375,7 +375,7 @@ for(idir in 1:length(dir_angles)) {
   }
   legend("bottomright",
          legend = lab_var,
-         col = var_col[1:idx], 
+         col = var_col[1:idx],
          lty = 1)
 }
 
@@ -395,8 +395,8 @@ nbsimu = 3
 
 modelGeneric = ModelGeneric(ctxt)
 err = modelGeneric$setCov(gsMatern)
-err = simuSpectral(dbin = NULL, dbout = grid, model = modelGeneric, nbsimu = nbsimu, 
-                   seed = seed, ns = ns, verbose = FALSE, 
+err = simuSpectral(dbin = NULL, dbout = grid, model = modelGeneric, nbsimu = nbsimu,
+                   seed = seed, ns = ns, verbose = FALSE,
                    namconv = NamingConvention(prefix))
 
 for (isim in 1:nbsimu) {
@@ -417,4 +417,3 @@ for (isim in 1:nbsimu) {
 * Bourotte, M., Allard, D., Porcu, E. (2016). A flexible class of non-separable cross-covariance functions for multi-variate space-time data. Spatial Statistics, 18, 125-146.
 
 * Emery, X., Arroyo, D., & Porcu, E. (2016). An improved spectral turning-bands algorithm for simulating stationary vector Gaussian random fields. Stochastic environmental research and risk assessment, 30(7), 1863-1873.
-

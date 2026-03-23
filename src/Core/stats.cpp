@@ -26,1486 +26,1552 @@
 
 /*! \cond */
 #define G_ADDRESS(ix, iy, iz, nxyz) ((ix) + nxyz[0] * ((iy) + nxyz[1] * (iz)))
-#define N1_TAB(ix, iy, iz)          (numtab1[G_ADDRESS(ix, iy, iz, nxyz1)])
-#define N2_TAB(ix, iy, iz)          (numtab2[G_ADDRESS(ix, iy, iz, nxyz2)])
-#define V1_TAB(ix, iy, iz)          (valtab1[G_ADDRESS(ix, iy, iz, nxyz1)])
-#define V2_TAB(ix, iy, iz)          (valtab2[G_ADDRESS(ix, iy, iz, nxyz2)])
-#define D1_TAB(ix, iy, iz)          (N1_TAB(ix, iy, iz) > 0 && \
-                            !FFFF(V1_TAB(ix, iy, iz)) &&       \
-                            V1_TAB(ix, iy, iz) > 0)
-#define RESIDUALS(icut, iech)     (residuals[(icut) * nech + (iech)])
-#define NBGH(ivois, idim)         (nbgh[ndim * (ivois) + (idim)])
-#define TABINI(iseed, idim)       (tabini[ndim * (iseed) + (idim)])
-#define TABCUR(iseed, idim)       (tabcur[ndim * (iseed) + (idim)])
-#define TRAJEC(iseed, iter, idim) (trsave[(niter * (iseed) + (iter)) * ndim + (idim)])
+#define N1_TAB(ix, iy, iz) (numtab1[G_ADDRESS(ix, iy, iz, nxyz1)])
+#define N2_TAB(ix, iy, iz) (numtab2[G_ADDRESS(ix, iy, iz, nxyz2)])
+#define V1_TAB(ix, iy, iz) (valtab1[G_ADDRESS(ix, iy, iz, nxyz1)])
+#define V2_TAB(ix, iy, iz) (valtab2[G_ADDRESS(ix, iy, iz, nxyz2)])
+#define D1_TAB(ix, iy, iz)                                                     \
+  (N1_TAB(ix, iy, iz) > 0 && !FFFF(V1_TAB(ix, iy, iz))                         \
+   && V1_TAB(ix, iy, iz) > 0)
+#define RESIDUALS(icut, iech) (residuals[(icut) * nech + (iech)])
+#define NBGH(ivois, idim) (nbgh[ndim * (ivois) + (idim)])
+#define TABINI(iseed, idim) (tabini[ndim * (iseed) + (idim)])
+#define TABCUR(iseed, idim) (tabcur[ndim * (iseed) + (idim)])
+#define TRAJEC(iseed, iter, idim)                                              \
+  (trsave[(niter * (iseed) + (iter)) * ndim + (idim)])
+
 /*! \endcond */
 
 namespace gstlrn
 {
 
-static Id DEBUG = 0;
+  static Id DEBUG = 0;
 
-/****************************************************************************/
-/*!
- **  Load the subgrid from the Input Db
- **
- ** \return Return the total probability of finding joins
- **
- ** \param[in]  verbose   Verbose flag
- ** \param[in]  flag_ffff 1 replace masked values by 0
- **                       0 replace masked values by FFFF
- ** \param[in]  iech0     Rank of the output grid cell
- ** \param[in]  nech0     Number of cells of the output grid
- ** \param[in]  ntot      Dimension of arrays 'numtab1' and 'valtab1'
- ** \param[in]  dbgrid    Db for the input grid
- ** \param[in]  ind0      Origin of the Output Db within the Input Db
- ** \param[in]  nxyz      Mesh of the Output Db (expressed in Input Db)
- ** \param[in]  ixyz      Indices of the starting node of the Output Db
- **
- ** \param[out] numtab1   Array containing the sample count
- ** \param[out] valtab1   Array containing the sample value
- **
- ** \remarks  The array ind0, ixyz and nxyz are dimensioned to ndim
- **
- *****************************************************************************/
-static double st_extract_subgrid(Id verbose,
-                                 Id flag_ffff,
-                                 Id iech0,
-                                 Id nech0,
-                                 Id ntot,
-                                 DbGrid* dbgrid,
-                                 Id* ind0,
-                                 Id* ixyz,
-                                 Id* nxyz,
-                                 double* numtab1,
-                                 double* valtab1)
-{
-  Id ix, iy, iz, jx, jy, jz, ind, ecr, ndim;
-  double proba, value;
-
-  /* Initializations */
-
-  ndim = dbgrid->getNDim();
-  VectorInt iwork2(ndim);
-  for (Id i = 0; i < ntot; i++)
+  /****************************************************************************/
+  /*!
+   **  Load the subgrid from the Input Db
+   **
+   ** \return Return the total probability of finding joins
+   **
+   ** \param[in]  verbose   Verbose flag
+   ** \param[in]  flag_ffff 1 replace masked values by 0
+   **                       0 replace masked values by FFFF
+   ** \param[in]  iech0     Rank of the output grid cell
+   ** \param[in]  nech0     Number of cells of the output grid
+   ** \param[in]  ntot      Dimension of arrays 'numtab1' and 'valtab1'
+   ** \param[in]  dbgrid    Db for the input grid
+   ** \param[in]  ind0      Origin of the Output Db within the Input Db
+   ** \param[in]  nxyz      Mesh of the Output Db (expressed in Input Db)
+   ** \param[in]  ixyz      Indices of the starting node of the Output Db
+   **
+   ** \param[out] numtab1   Array containing the sample count
+   ** \param[out] valtab1   Array containing the sample value
+   **
+   ** \remarks  The array ind0, ixyz and nxyz are dimensioned to ndim
+   **
+   *****************************************************************************/
+  static double st_extract_subgrid(Id verbose,
+                                   Id flag_ffff,
+                                   Id iech0,
+                                   Id nech0,
+                                   Id ntot,
+                                   DbGrid* dbgrid,
+                                   Id* ind0,
+                                   Id* ixyz,
+                                   Id* nxyz,
+                                   double* numtab1,
+                                   double* valtab1)
   {
-    numtab1[i] = 0;
-    valtab1[i] = 0.;
-  }
+    Id ix, iy, iz, jx, jy, jz, ind, ecr, ndim;
+    double proba, value;
 
-  for (Id idim = 0; idim < 3; idim++)
-  {
-    if (idim < ndim) continue;
-    ixyz[idim] = 0;
-    nxyz[idim] = 1;
-    ind0[idim] = 0;
-  }
-
-  ecr   = 0;
-  proba = 0.;
-  for (iz = 0; iz < nxyz[2]; iz++)
-    for (iy = 0; iy < nxyz[1]; iy++)
-      for (ix = 0; ix < nxyz[0]; ix++)
-      {
-
-        /* Get the address of a sample of the subgrid */
-
-        jx = ind0[0] + ixyz[0] * nxyz[0] + ix;
-        if (jx < 0 || jx > dbgrid->getNX(0)) continue;
-        jy = ind0[1] + ixyz[1] * nxyz[1] + iy;
-        if (jy < 0 || jy > dbgrid->getNX(1)) continue;
-        jz = ind0[2] + ixyz[2] * nxyz[2] + iz;
-        if (jz < 0 || jz > dbgrid->getNX(2)) continue;
-
-        /* Get the node index within the Input Db */
-
-        if (ndim >= 1) iwork2[0] = jx;
-        if (ndim >= 2) iwork2[1] = jy;
-        if (ndim >= 3) iwork2[2] = jz;
-        ind          = dbgrid->indiceToRank(iwork2);
-        numtab1[ecr] = 1.;
-        value        = dbgrid->isActive(ind) ? dbgrid->getZVariable(ind, 0) : TEST;
-        if (FFFF(value))
-          valtab1[ecr] = (flag_ffff) ? 0 : TEST;
-        else
-        {
-          valtab1[ecr] = value;
-          proba += value;
-        }
-        ecr++;
-      }
-
-  /* Optional verbose option */
-
-  if (verbose)
-  {
-    message("Output cell %3d/%3d = %d", iech0 + 1, nech0, nxyz[0]);
-    for (Id idim = 1; idim < ndim; idim++)
-      message("x%d", nxyz[idim]);
-    message(" cells of Input Grid (Proba=%lf)\n", proba);
-  }
-  return (proba);
-}
-
-/****************************************************************************/
-/*!
- **  Divide by 2 in integer (upper rounded value)
- **
- ** \return  1 if the input value is larger than 2; 0 otherwise
- **
- ** \param[in]  nxyz      Dimensions of the subgrid
- ** \param[in]  orient    Rank of the target direction
- **
- *****************************************************************************/
-static Id st_divide_by_2(Id* nxyz, Id orient)
-{
-  Id ival;
-
-  ival = nxyz[orient];
-  if (ival <= 1) return (0);
-
-  ival         = static_cast<Id>(floor((ival + 1.) / 2));
-  nxyz[orient] = ival;
-  return (1);
-}
-
-/****************************************************************************/
-/*!
- **  Perform the arithmetic mean
- **
- ** \param[in]  idim      Direction of calculation
- ** \param[in]  nxyz1     Dimensions of the initial subgrid
- ** \param[in]  nxyz2     Dimensions of the final subgrid
- **
- ** \param[out] numtab1   Array containing the sample count
- ** \param[out] numtab2   Array containing the sample count
- ** \param[out] valtab1   Array containing the sample value
- ** \param[out] valtab2   Array containing the sample value
- **
- *****************************************************************************/
-static void st_mean_arith(Id idim,
-                          const Id* nxyz1,
-                          const Id* nxyz2,
-                          const VectorDouble& numtab1,
-                          VectorDouble& numtab2,
-                          VectorDouble& valtab1,
-                          VectorDouble& valtab2)
-{
-  Id ix, iy, iz, ix1, ix2, iy1, iy2, iz1, iz2;
-
-  for (iz = 0; iz < nxyz2[2]; iz++)
-    for (iy = 0; iy < nxyz2[1]; iy++)
-      for (ix = 0; ix < nxyz2[0]; ix++)
-      {
-        N2_TAB(ix, iy, iz) = V2_TAB(ix, iy, iz) = 0.;
-        switch (idim)
-        {
-          case 0:
-            ix1 = 2 * ix;
-            ix2 = 2 * ix + 1;
-            if (D1_TAB(ix1, iy, iz))
-            {
-              N2_TAB(ix, iy, iz) += N1_TAB(ix1, iy, iz);
-              V2_TAB(ix, iy, iz) += N1_TAB(ix1, iy, iz) * V1_TAB(ix1, iy, iz);
-            }
-            if (ix2 < nxyz1[0] && D1_TAB(ix2, iy, iz))
-            {
-              N2_TAB(ix, iy, iz) += N1_TAB(ix2, iy, iz);
-              V2_TAB(ix, iy, iz) += N1_TAB(ix2, iy, iz) * V1_TAB(ix2, iy, iz);
-            }
-            break;
-
-          case 1:
-            iy1 = 2 * iy;
-            iy2 = 2 * iy + 1;
-            if (D1_TAB(ix, iy1, iz))
-            {
-              N2_TAB(ix, iy, iz) += N1_TAB(ix, iy1, iz);
-              V2_TAB(ix, iy, iz) += N1_TAB(ix, iy1, iz) * V1_TAB(ix, iy1, iz);
-            }
-            if (iy2 < nxyz1[1] && D1_TAB(ix, iy2, iz))
-            {
-              N2_TAB(ix, iy, iz) += N1_TAB(ix, iy2, iz);
-              V2_TAB(ix, iy, iz) += N1_TAB(ix, iy2, iz) * V1_TAB(ix, iy2, iz);
-            }
-            break;
-
-          case 2:
-            iz1 = 2 * iz;
-            iz2 = 2 * iz + 1;
-            if (D1_TAB(ix, iy, iz1))
-            {
-              N2_TAB(ix, iy, iz) += N1_TAB(ix, iy, iz1);
-              V2_TAB(ix, iy, iz) += N1_TAB(ix, iy, iz1) * V1_TAB(ix, iy, iz1);
-            }
-            if (iz2 < nxyz1[2] && D1_TAB(ix, iy, iz2))
-            {
-              N2_TAB(ix, iy, iz) += N1_TAB(ix, iy, iz2);
-              V2_TAB(ix, iy, iz) += N1_TAB(ix, iy, iz2) * V1_TAB(ix, iy, iz2);
-            }
-            break;
-        }
-        V2_TAB(ix, iy, iz) =
-          (N2_TAB(ix, iy, iz) > 0) ? V2_TAB(ix, iy, iz) / N2_TAB(ix, iy, iz) : TEST;
-      }
-}
-
-/****************************************************************************/
-/*!
- **  Perform the harmonic mean
- **
- ** \param[in]  idim      Direction of calculation
- ** \param[in]  nxyz1     Dimensions of the initial subgrid
- ** \param[in]  nxyz2     Dimensions of the final subgrid
- **
- ** \param[out] numtab1   Array containing the input  sample count
- ** \param[out] numtab2   Array containing the output sample count
- ** \param[out] valtab1   Array containing the input  sample value
- ** \param[out] valtab2   Array containing the output sample value
- **
- *****************************************************************************/
-static void st_mean_harmo(Id idim,
-                          const Id* nxyz1,
-                          const Id* nxyz2,
-                          const VectorDouble& numtab1,
-                          VectorDouble& numtab2,
-                          VectorDouble& valtab1,
-                          VectorDouble& valtab2)
-{
-  Id ix, iy, iz, ix1, ix2, iy1, iy2, iz1, iz2;
-
-  for (iz = 0; iz < nxyz2[2]; iz++)
-    for (iy = 0; iy < nxyz2[1]; iy++)
-      for (ix = 0; ix < nxyz2[0]; ix++)
-      {
-        N2_TAB(ix, iy, iz) = V2_TAB(ix, iy, iz) = 0.;
-        switch (idim)
-        {
-          case 0:
-            ix1 = 2 * ix;
-            ix2 = 2 * ix + 1;
-            if (D1_TAB(ix1, iy, iz))
-            {
-              N2_TAB(ix, iy, iz) += N1_TAB(ix1, iy, iz);
-              V2_TAB(ix, iy, iz) += N1_TAB(ix1, iy, iz) / V1_TAB(ix1, iy, iz);
-            }
-            if (ix2 < nxyz1[0] && D1_TAB(ix2, iy, iz))
-            {
-              N2_TAB(ix, iy, iz) += N1_TAB(ix2, iy, iz);
-              V2_TAB(ix, iy, iz) += N1_TAB(ix2, iy, iz) / V1_TAB(ix2, iy, iz);
-            }
-            break;
-
-          case 1:
-            iy1 = 2 * iy;
-            iy2 = 2 * iy + 1;
-            if (D1_TAB(ix, iy1, iz))
-            {
-              N2_TAB(ix, iy, iz) += N1_TAB(ix, iy1, iz);
-              V2_TAB(ix, iy, iz) += N1_TAB(ix, iy1, iz) / V1_TAB(ix, iy1, iz);
-            }
-            if (iy2 < nxyz1[1] && D1_TAB(ix, iy2, iz))
-            {
-              N2_TAB(ix, iy, iz) += N1_TAB(ix, iy2, iz);
-              V2_TAB(ix, iy, iz) += N1_TAB(ix, iy2, iz) / V1_TAB(ix, iy2, iz);
-            }
-            break;
-
-          case 2:
-            iz1 = 2 * iz;
-            iz2 = 2 * iz + 1;
-            if (D1_TAB(ix, iy, iz1))
-            {
-              N2_TAB(ix, iy, iz) += N1_TAB(ix, iy, iz1);
-              V2_TAB(ix, iy, iz) += N1_TAB(ix, iy, iz1) / V1_TAB(ix, iy, iz1);
-            }
-            if (iz2 < nxyz1[2] && D1_TAB(ix, iy, iz2))
-            {
-              N2_TAB(ix, iy, iz) += N1_TAB(ix, iy, iz2);
-              V2_TAB(ix, iy, iz) += N1_TAB(ix, iy, iz2) / V1_TAB(ix, iy, iz2);
-            }
-            break;
-        }
-        V2_TAB(ix, iy, iz) = (ABS(V2_TAB(ix, iy, iz)) > 1.e-10)
-                             ? N2_TAB(ix, iy, iz) / V2_TAB(ix, iy, iz)
-                             : TEST;
-      }
-}
-
-/****************************************************************************/
-/*!
- **  Update the dimensions and calculate the current number of cells
- **
- ** \return Number of cells
- **
- ** \param[in]  nxyz1     Dimensions of the initial subgrid
- ** \param[in]  numtab1   Array containing the sample count
- ** \param[in]  valtab1   Array containing the sample value
- **
- ** \param[out] nxyz2     Dimensions of the final subgrid
- ** \param[out] numtab2   Array containing the sample count
- ** \param[out] valtab2   Array containing the sample value
- **
- *****************************************************************************/
-static Id st_recopy(const Id* nxyz1,
-                    const VectorDouble& numtab1,
-                    const VectorDouble& valtab1,
-                    Id* nxyz2,
-                    VectorDouble& numtab2,
-                    VectorDouble& valtab2)
-{
-  Id i, ncell;
-
-  /* Update the dimension */
-
-  ncell = 1;
-  for (i = 0; i < 3; i++)
-  {
-    nxyz2[i] = nxyz1[i];
-    ncell *= nxyz1[i];
-  }
-
-  /* Update the contents of the arrays */
-
-  for (i = 0; i < ncell; i++)
-  {
-    numtab2[i] = numtab1[i];
-    valtab2[i] = valtab1[i];
-  }
-
-  return (ncell);
-}
-
-/****************************************************************************/
-/*!
- **  Print the generated grids (for counts and values)
- **
- ** \param[in]  subtitle  Subtitle
- ** \param[in]  nxyz      Dimensions of the grid
- **
- ** \param[out] numtab    Array containing the sample count
- ** \param[out] valtab    Array containing the sample value
- **
- ****************************************************************************/
-static void st_print_grid(const char* subtitle,
-                          const Id nxyz[3],
-                          VectorDouble& numtab,
-                          VectorDouble& valtab)
-{
-  String string;
-  Id iz, shift;
-
-  /* Initializations */
-
-  shift = nxyz[0] * nxyz[1];
-
-  /* Loop on the third dimension */
-
-  for (iz = 0; iz < nxyz[2]; iz++)
-  {
-    (void)gslSPrintf(string, "%s Values (iz=%d)\n", subtitle, iz + 1);
-    message(string.data());
-    VectorDouble valsub(valtab.begin() + shift * iz, valtab.begin() + shift * (iz + 1));
-    printMatrix(valsub, nxyz[0], nxyz[1]);
-    (void)gslSPrintf(string, "%s Counts (iz=%d)\n", subtitle, iz + 1);
-    message(string.data());
-    VectorDouble numsub(numtab.begin() + shift * iz, numtab.begin() + shift * (iz + 1));
-    printMatrix(numsub, nxyz[0], nxyz[1]);
-  }
-  message("\n");
-}
-
-/****************************************************************************/
-/*!
- **  Print statistics after basic upscaling operation
- **
- ** \param[in]  title     Title for the printout
- ** \param[in]  nxyz      Grid dimension
- ** \param[out] valtab    Array containing the sample value
- **
- *****************************************************************************/
-static void st_print_upscale(const char* title,
-                             Id* nxyz,
-                             const VectorDouble& valtab)
-{
-  double mini, maxi, value;
-  Id lec, ndef;
-
-  mini = MAXIMUM_BIG;
-  maxi = MINIMUM_BIG;
-  lec = ndef = 0;
-  for (Id iz = 0; iz < nxyz[2]; iz++)
-    for (Id iy = 0; iy < nxyz[1]; iy++)
-      for (Id ix = 0; ix < nxyz[0]; ix++)
-      {
-        value = valtab[lec++];
-        if (FFFF(value)) continue;
-        if (value < mini) mini = value;
-        if (value > maxi) maxi = value;
-        ndef++;
-      }
-
-  message("%11s ", title);
-  message("(%3d %3d %3d) : ", nxyz[0], nxyz[1], nxyz[2]);
-  message("%lf %lf (Def=%d)\n", mini, maxi, ndef);
-}
-
-/****************************************************************************/
-/*!
- **  Upscale the variable defined on a subgrid into one value
- **
- ** \param[in]  orient    Upscaling orientation (0 to 2)
- ** \param[in]  nxyz      Dimensions of the subgrid
- ** \param[in]  flag_save If the array must be saved for keypair
- **
- ** \param[out] numtab0   Array containing the sample count
- ** \param[out] numtab1   Array containing the sample count
- ** \param[out] numtab2   Array containing the sample count
- ** \param[out] valtab0   Array containing the sample value
- ** \param[out] valtab1   Array containing the sample value
- ** \param[out] valtab2   Array containing the sample value
- ** \param[out] res1      First result (Harmonic first)
- ** \param[out] res2      First result (Arithmetic first)
- **
- *****************************************************************************/
-static void st_upscale(Id orient,
-                       Id* nxyz,
-                       Id flag_save,
-                       VectorDouble& numtab0,
-                       VectorDouble& numtab1,
-                       VectorDouble& numtab2,
-                       VectorDouble& valtab0,
-                       VectorDouble& valtab1,
-                       VectorDouble& valtab2,
-                       double* res1,
-                       double* res2)
-{
-  Id idim, nxyz1[3], nxyz2[3], ncell, flag_debug;
-
-  /* Initializations */
-
-  flag_debug = OptDbg::query(EDbg::UPSCALE);
-
-  /**************************************/
-  /* Getting the minimum upscaled value */
-  /**************************************/
-
-  if (flag_debug)
-  {
-    mestitle(1, "Looking for the Minimum Upscaled Value");
-    st_print_grid("Initial", nxyz, numtab0, valtab0);
-  }
-  ncell = st_recopy(nxyz, numtab0, valtab0, nxyz1, numtab1, valtab1);
-  ncell = st_recopy(nxyz, numtab0, valtab0, nxyz2, numtab2, valtab2);
-  if (flag_save) st_print_upscale("Initial", nxyz1, valtab1);
-
-  while (ncell > 1)
-  {
-
-    /* Harmonic mean in the flow direction */
-
-    if (st_divide_by_2(nxyz2, orient))
-    {
-      st_mean_harmo(orient, nxyz1, nxyz2, numtab1, numtab2, valtab1, valtab2);
-      ncell = st_recopy(nxyz2, numtab2, valtab2, nxyz1, numtab1, valtab1);
-      if (flag_save) st_print_upscale("Harmonic", nxyz1, valtab1);
-      if (flag_debug) st_print_grid("Harmonic", nxyz1, numtab1, valtab1);
-    }
-
-    /* Arithmetic mean orthogonal to the flow direction */
-
-    for (idim = 0; idim < 3; idim++)
-    {
-      if (idim == orient) continue;
-      if (st_divide_by_2(nxyz2, idim))
-      {
-        st_mean_arith(idim, nxyz1, nxyz2, numtab1, numtab2, valtab1, valtab2);
-        ncell = st_recopy(nxyz2, numtab2, valtab2, nxyz1, numtab1, valtab1);
-        if (flag_save) st_print_upscale("Arithmetic", nxyz1, valtab1);
-        if (flag_debug) st_print_grid("Arithmetic", nxyz1, numtab1, valtab1);
-      }
-    }
-  }
-  *res1 = valtab1[0];
-
-  /**************************************/
-  /* Getting the maximum upscaled value */
-  /**************************************/
-
-  if (flag_debug)
-  {
-    mestitle(1, "Looking for the Maximum Upscaled Value\n");
-    st_print_grid("Initial", nxyz, numtab0, valtab0);
-  }
-  ncell = st_recopy(nxyz, numtab0, valtab0, nxyz1, numtab1, valtab1);
-  ncell = st_recopy(nxyz, numtab0, valtab0, nxyz2, numtab2, valtab2);
-  if (flag_save) st_print_upscale("Initial", nxyz1, valtab1);
-
-  while (ncell > 1)
-  {
-
-    /* Arithmetic mean orthogonal to the flow direction */
-
-    for (idim = 0; idim < 3; idim++)
-    {
-      if (idim == orient) continue;
-      if (st_divide_by_2(nxyz2, idim))
-      {
-        st_mean_arith(idim, nxyz1, nxyz2, numtab1, numtab2, valtab1, valtab2);
-        ncell = st_recopy(nxyz2, numtab2, valtab2, nxyz1, numtab1, valtab1);
-        if (flag_save) st_print_upscale("Arithmetic", nxyz1, valtab1);
-        if (flag_debug) st_print_grid("Arithmetic", nxyz1, numtab1, valtab1);
-      }
-    }
-
-    /* Harmonic mean in the flow direction */
-
-    if (st_divide_by_2(nxyz2, orient))
-    {
-      st_mean_harmo(orient, nxyz1, nxyz2, numtab1, numtab2, valtab1, valtab2);
-      ncell = st_recopy(nxyz2, numtab2, valtab2, nxyz1, numtab1, valtab1);
-      if (flag_save) st_print_upscale("Harmonic", nxyz1, valtab1);
-      if (flag_debug) st_print_grid("Harmonic", nxyz1, numtab1, valtab1);
-    }
-  }
-  *res2 = valtab1[0];
-}
-
-/****************************************************************************/
-/*!
- **  Check if the first grid is a subgrid of the second one
- **
- ** \return  1 if grids are multiple
- **
- ** \param[in]  verbose    Verbose flag
- ** \param[in]  title      Title of the work (used only for verbose case)
- ** \param[in]  dbgrid1    Db for the input grid
- ** \param[in]  dbgrid2    Db for the output grid
- **
- ** \param[out] ind0       Starting address
- ** \param[out] nxyz       Number of subdivisions
- ** \param[out] ntot       Total number of grid nodes
- **
- *****************************************************************************/
-static Id st_is_subgrid(Id verbose,
-                        const char* title,
-                        DbGrid* dbgrid1,
-                        DbGrid* dbgrid2,
-                        Id* ind0,
-                        Id* nxyz,
-                        Id* ntot)
-{
-  double d;
-  Id ndim;
-
-  /* Initializations */
-
-  ndim = dbgrid1->getNDim();
-
-  (*ntot) = 1;
-  for (Id idim = 0; idim < ndim; idim++)
-  {
     /* Initializations */
 
-    ind0[idim] = 0;
-    nxyz[idim] = 1;
-
-    /* Is origin of the output grid is located on a node of input grid */
-
-    d = (dbgrid2->getX0(idim) - dbgrid1->getX0(idim)) / dbgrid1->getDX(idim);
-    if (!isInteger(d))
+    ndim = dbgrid->getNDim();
+    VectorInt iwork2(ndim);
+    for (Id i = 0; i < ntot; i++)
     {
-      messerr(
-        "The origin of the Output Grid does not coincide with a node of the Input Grid");
-      return (0);
+      numtab1[i] = 0;
+      valtab1[i] = 0.;
     }
-    ind0[idim] = static_cast<Id>(floor(d + 0.5));
 
-    /* Are grid meshes multiple */
-
-    d = dbgrid2->getDX(idim) / dbgrid1->getDX(idim);
-    if (!isInteger(d))
+    for (Id idim = 0; idim < 3; idim++)
     {
-      messerr(
-        "The grid cell of the Output Grid is not a multiple of the grid cell of the Input Grid");
-      return (0);
+      if (idim < ndim) continue;
+      ixyz[idim] = 0;
+      nxyz[idim] = 1;
+      ind0[idim] = 0;
     }
-    nxyz[idim] = static_cast<Id>(floor(d + 0.5));
-    (*ntot) *= nxyz[idim];
+
+    ecr = 0;
+    proba = 0.;
+    for (iz = 0; iz < nxyz[2]; iz++)
+      for (iy = 0; iy < nxyz[1]; iy++)
+        for (ix = 0; ix < nxyz[0]; ix++)
+        {
+
+          /* Get the address of a sample of the subgrid */
+
+          jx = ind0[0] + ixyz[0] * nxyz[0] + ix;
+          if (jx < 0 || jx > dbgrid->getNX(0)) continue;
+          jy = ind0[1] + ixyz[1] * nxyz[1] + iy;
+          if (jy < 0 || jy > dbgrid->getNX(1)) continue;
+          jz = ind0[2] + ixyz[2] * nxyz[2] + iz;
+          if (jz < 0 || jz > dbgrid->getNX(2)) continue;
+
+          /* Get the node index within the Input Db */
+
+          if (ndim >= 1) iwork2[0] = jx;
+          if (ndim >= 2) iwork2[1] = jy;
+          if (ndim >= 3) iwork2[2] = jz;
+          ind = dbgrid->indiceToRank(iwork2);
+          numtab1[ecr] = 1.;
+          value = dbgrid->isActive(ind) ? dbgrid->getZVariable(ind, 0) : TEST;
+          if (FFFF(value))
+            valtab1[ecr] = (flag_ffff) ? 0 : TEST;
+          else
+          {
+            valtab1[ecr] = value;
+            proba += value;
+          }
+          ecr++;
+        }
+
+    /* Optional verbose option */
+
+    if (verbose)
+    {
+      message("Output cell %3d/%3d = %d", iech0 + 1, nech0, nxyz[0]);
+      for (Id idim = 1; idim < ndim; idim++) message("x%d", nxyz[idim]);
+      message(" cells of Input Grid (Proba=%lf)\n", proba);
+    }
+    return (proba);
   }
 
-  if (verbose)
+  /****************************************************************************/
+  /*!
+   **  Divide by 2 in integer (upper rounded value)
+   **
+   ** \return  1 if the input value is larger than 2; 0 otherwise
+   **
+   ** \param[in]  nxyz      Dimensions of the subgrid
+   ** \param[in]  orient    Rank of the target direction
+   **
+   *****************************************************************************/
+  static Id st_divide_by_2(Id* nxyz, Id orient)
   {
-    mestitle(1, title);
-    message("- Number of Cells =");
-    for (Id idim = 0; idim < ndim; idim++)
-      message(" %d", nxyz[idim]);
+    Id ival;
+
+    ival = nxyz[orient];
+    if (ival <= 1) return (0);
+
+    ival = static_cast<Id>(floor((ival + 1.) / 2));
+    nxyz[orient] = ival;
+    return (1);
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Perform the arithmetic mean
+   **
+   ** \param[in]  idim      Direction of calculation
+   ** \param[in]  nxyz1     Dimensions of the initial subgrid
+   ** \param[in]  nxyz2     Dimensions of the final subgrid
+   **
+   ** \param[out] numtab1   Array containing the sample count
+   ** \param[out] numtab2   Array containing the sample count
+   ** \param[out] valtab1   Array containing the sample value
+   ** \param[out] valtab2   Array containing the sample value
+   **
+   *****************************************************************************/
+  static void st_mean_arith(Id idim,
+                            const Id* nxyz1,
+                            const Id* nxyz2,
+                            const VectorDouble& numtab1,
+                            VectorDouble& numtab2,
+                            VectorDouble& valtab1,
+                            VectorDouble& valtab2)
+  {
+    Id ix, iy, iz, ix1, ix2, iy1, iy2, iz1, iz2;
+
+    for (iz = 0; iz < nxyz2[2]; iz++)
+      for (iy = 0; iy < nxyz2[1]; iy++)
+        for (ix = 0; ix < nxyz2[0]; ix++)
+        {
+          N2_TAB(ix, iy, iz) = V2_TAB(ix, iy, iz) = 0.;
+          switch (idim)
+          {
+            case 0:
+              ix1 = 2 * ix;
+              ix2 = 2 * ix + 1;
+              if (D1_TAB(ix1, iy, iz))
+              {
+                N2_TAB(ix, iy, iz) += N1_TAB(ix1, iy, iz);
+                V2_TAB(ix, iy, iz) += N1_TAB(ix1, iy, iz) * V1_TAB(ix1, iy, iz);
+              }
+              if (ix2 < nxyz1[0] && D1_TAB(ix2, iy, iz))
+              {
+                N2_TAB(ix, iy, iz) += N1_TAB(ix2, iy, iz);
+                V2_TAB(ix, iy, iz) += N1_TAB(ix2, iy, iz) * V1_TAB(ix2, iy, iz);
+              }
+              break;
+
+            case 1:
+              iy1 = 2 * iy;
+              iy2 = 2 * iy + 1;
+              if (D1_TAB(ix, iy1, iz))
+              {
+                N2_TAB(ix, iy, iz) += N1_TAB(ix, iy1, iz);
+                V2_TAB(ix, iy, iz) += N1_TAB(ix, iy1, iz) * V1_TAB(ix, iy1, iz);
+              }
+              if (iy2 < nxyz1[1] && D1_TAB(ix, iy2, iz))
+              {
+                N2_TAB(ix, iy, iz) += N1_TAB(ix, iy2, iz);
+                V2_TAB(ix, iy, iz) += N1_TAB(ix, iy2, iz) * V1_TAB(ix, iy2, iz);
+              }
+              break;
+
+            case 2:
+              iz1 = 2 * iz;
+              iz2 = 2 * iz + 1;
+              if (D1_TAB(ix, iy, iz1))
+              {
+                N2_TAB(ix, iy, iz) += N1_TAB(ix, iy, iz1);
+                V2_TAB(ix, iy, iz) += N1_TAB(ix, iy, iz1) * V1_TAB(ix, iy, iz1);
+              }
+              if (iz2 < nxyz1[2] && D1_TAB(ix, iy, iz2))
+              {
+                N2_TAB(ix, iy, iz) += N1_TAB(ix, iy, iz2);
+                V2_TAB(ix, iy, iz) += N1_TAB(ix, iy, iz2) * V1_TAB(ix, iy, iz2);
+              }
+              break;
+          }
+          V2_TAB(ix, iy, iz) = (N2_TAB(ix, iy, iz) > 0)
+                               ? V2_TAB(ix, iy, iz) / N2_TAB(ix, iy, iz)
+                               : TEST;
+        }
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Perform the harmonic mean
+   **
+   ** \param[in]  idim      Direction of calculation
+   ** \param[in]  nxyz1     Dimensions of the initial subgrid
+   ** \param[in]  nxyz2     Dimensions of the final subgrid
+   **
+   ** \param[out] numtab1   Array containing the input  sample count
+   ** \param[out] numtab2   Array containing the output sample count
+   ** \param[out] valtab1   Array containing the input  sample value
+   ** \param[out] valtab2   Array containing the output sample value
+   **
+   *****************************************************************************/
+  static void st_mean_harmo(Id idim,
+                            const Id* nxyz1,
+                            const Id* nxyz2,
+                            const VectorDouble& numtab1,
+                            VectorDouble& numtab2,
+                            VectorDouble& valtab1,
+                            VectorDouble& valtab2)
+  {
+    Id ix, iy, iz, ix1, ix2, iy1, iy2, iz1, iz2;
+
+    for (iz = 0; iz < nxyz2[2]; iz++)
+      for (iy = 0; iy < nxyz2[1]; iy++)
+        for (ix = 0; ix < nxyz2[0]; ix++)
+        {
+          N2_TAB(ix, iy, iz) = V2_TAB(ix, iy, iz) = 0.;
+          switch (idim)
+          {
+            case 0:
+              ix1 = 2 * ix;
+              ix2 = 2 * ix + 1;
+              if (D1_TAB(ix1, iy, iz))
+              {
+                N2_TAB(ix, iy, iz) += N1_TAB(ix1, iy, iz);
+                V2_TAB(ix, iy, iz) += N1_TAB(ix1, iy, iz) / V1_TAB(ix1, iy, iz);
+              }
+              if (ix2 < nxyz1[0] && D1_TAB(ix2, iy, iz))
+              {
+                N2_TAB(ix, iy, iz) += N1_TAB(ix2, iy, iz);
+                V2_TAB(ix, iy, iz) += N1_TAB(ix2, iy, iz) / V1_TAB(ix2, iy, iz);
+              }
+              break;
+
+            case 1:
+              iy1 = 2 * iy;
+              iy2 = 2 * iy + 1;
+              if (D1_TAB(ix, iy1, iz))
+              {
+                N2_TAB(ix, iy, iz) += N1_TAB(ix, iy1, iz);
+                V2_TAB(ix, iy, iz) += N1_TAB(ix, iy1, iz) / V1_TAB(ix, iy1, iz);
+              }
+              if (iy2 < nxyz1[1] && D1_TAB(ix, iy2, iz))
+              {
+                N2_TAB(ix, iy, iz) += N1_TAB(ix, iy2, iz);
+                V2_TAB(ix, iy, iz) += N1_TAB(ix, iy2, iz) / V1_TAB(ix, iy2, iz);
+              }
+              break;
+
+            case 2:
+              iz1 = 2 * iz;
+              iz2 = 2 * iz + 1;
+              if (D1_TAB(ix, iy, iz1))
+              {
+                N2_TAB(ix, iy, iz) += N1_TAB(ix, iy, iz1);
+                V2_TAB(ix, iy, iz) += N1_TAB(ix, iy, iz1) / V1_TAB(ix, iy, iz1);
+              }
+              if (iz2 < nxyz1[2] && D1_TAB(ix, iy, iz2))
+              {
+                N2_TAB(ix, iy, iz) += N1_TAB(ix, iy, iz2);
+                V2_TAB(ix, iy, iz) += N1_TAB(ix, iy, iz2) / V1_TAB(ix, iy, iz2);
+              }
+              break;
+          }
+          V2_TAB(ix, iy, iz) = (ABS(V2_TAB(ix, iy, iz)) > 1.e-10)
+                               ? N2_TAB(ix, iy, iz) / V2_TAB(ix, iy, iz)
+                               : TEST;
+        }
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Update the dimensions and calculate the current number of cells
+   **
+   ** \return Number of cells
+   **
+   ** \param[in]  nxyz1     Dimensions of the initial subgrid
+   ** \param[in]  numtab1   Array containing the sample count
+   ** \param[in]  valtab1   Array containing the sample value
+   **
+   ** \param[out] nxyz2     Dimensions of the final subgrid
+   ** \param[out] numtab2   Array containing the sample count
+   ** \param[out] valtab2   Array containing the sample value
+   **
+   *****************************************************************************/
+  static Id st_recopy(const Id* nxyz1,
+                      const VectorDouble& numtab1,
+                      const VectorDouble& valtab1,
+                      Id* nxyz2,
+                      VectorDouble& numtab2,
+                      VectorDouble& valtab2)
+  {
+    Id i, ncell;
+
+    /* Update the dimension */
+
+    ncell = 1;
+    for (i = 0; i < 3; i++)
+    {
+      nxyz2[i] = nxyz1[i];
+      ncell *= nxyz1[i];
+    }
+
+    /* Update the contents of the arrays */
+
+    for (i = 0; i < ncell; i++)
+    {
+      numtab2[i] = numtab1[i];
+      valtab2[i] = valtab1[i];
+    }
+
+    return (ncell);
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Print the generated grids (for counts and values)
+   **
+   ** \param[in]  subtitle  Subtitle
+   ** \param[in]  nxyz      Dimensions of the grid
+   **
+   ** \param[out] numtab    Array containing the sample count
+   ** \param[out] valtab    Array containing the sample value
+   **
+   ****************************************************************************/
+  static void st_print_grid(const char* subtitle,
+                            const Id nxyz[3],
+                            VectorDouble& numtab,
+                            VectorDouble& valtab)
+  {
+    String string;
+    Id iz, shift;
+
+    /* Initializations */
+
+    shift = nxyz[0] * nxyz[1];
+
+    /* Loop on the third dimension */
+
+    for (iz = 0; iz < nxyz[2]; iz++)
+    {
+      (void)gslSPrintf(string, "%s Values (iz=%d)\n", subtitle, iz + 1);
+      message(string.data());
+      VectorDouble valsub(valtab.begin() + shift * iz,
+                          valtab.begin() + shift * (iz + 1));
+      printMatrix(valsub, nxyz[0], nxyz[1]);
+      (void)gslSPrintf(string, "%s Counts (iz=%d)\n", subtitle, iz + 1);
+      message(string.data());
+      VectorDouble numsub(numtab.begin() + shift * iz,
+                          numtab.begin() + shift * (iz + 1));
+      printMatrix(numsub, nxyz[0], nxyz[1]);
+    }
     message("\n");
-    message("- Index of Origin =");
-    for (Id idim = 0; idim < ndim; idim++)
-      message(" %d", ind0[idim]);
-    message("\n");
   }
-  return (1);
-}
 
-/****************************************************************************/
-/*!
- **  Upscale one variable from a grid Db into another grid Db
- **
- ** \return  Error return code
- **
- ** \param[in]  dbgrid1    Db for the input grid
- ** \param[in]  dbgrid2    Db for the output grid
- ** \param[in]  orient     Upscaling direction (0 to 2)
- ** \param[in]  verbose    Verbose flag
- **
- *****************************************************************************/
-Id db_upscale(DbGrid* dbgrid1, DbGrid* dbgrid2, Id orient, Id verbose)
-{
-  double result1, result2, result, probtot;
-  Id error, ndim, ind0[3], nxyz[3], iech, iptr, ntot, ncol;
-  Id flag_save, iech_save;
-  VectorDouble numtab0;
-  VectorDouble numtab1;
-  VectorDouble numtab2;
-  VectorDouble valtab0;
-  VectorDouble valtab1;
-  VectorDouble valtab2;
-
-  /* Initializations */
-
-  error     = 1;
-  iech_save = static_cast<Id>(get_keypone("Upscale.Converge.Block", 0));
-  Id ndim2  = dbgrid2->getNDim();
-  VectorInt ixyz(ndim2);
-
-  /* Preliminary checks */
-
-  ndim = dbgrid1->getNDim();
-  if (ndim < 1 || ndim > 3)
+  /****************************************************************************/
+  /*!
+   **  Print statistics after basic upscaling operation
+   **
+   ** \param[in]  title     Title for the printout
+   ** \param[in]  nxyz      Grid dimension
+   ** \param[out] valtab    Array containing the sample value
+   **
+   *****************************************************************************/
+  static void
+    st_print_upscale(const char* title, Id* nxyz, const VectorDouble& valtab)
   {
-    messerr("This function is limited to 2-D or 3-D input grids");
-    goto label_end;
+    double mini, maxi, value;
+    Id lec, ndef;
+
+    mini = MAXIMUM_BIG;
+    maxi = MINIMUM_BIG;
+    lec = ndef = 0;
+    for (Id iz = 0; iz < nxyz[2]; iz++)
+      for (Id iy = 0; iy < nxyz[1]; iy++)
+        for (Id ix = 0; ix < nxyz[0]; ix++)
+        {
+          value = valtab[lec++];
+          if (FFFF(value)) continue;
+          if (value < mini) mini = value;
+          if (value > maxi) maxi = value;
+          ndef++;
+        }
+
+    message("%11s ", title);
+    message("(%3d %3d %3d) : ", nxyz[0], nxyz[1], nxyz[2]);
+    message("%lf %lf (Def=%d)\n", mini, maxi, ndef);
   }
-  if (!dbgrid1->isNVarComparedTo(1)) goto label_end;
-  if (orient < 1 || orient > ndim)
+
+  /****************************************************************************/
+  /*!
+   **  Upscale the variable defined on a subgrid into one value
+   **
+   ** \param[in]  orient    Upscaling orientation (0 to 2)
+   ** \param[in]  nxyz      Dimensions of the subgrid
+   ** \param[in]  flag_save If the array must be saved for keypair
+   **
+   ** \param[out] numtab0   Array containing the sample count
+   ** \param[out] numtab1   Array containing the sample count
+   ** \param[out] numtab2   Array containing the sample count
+   ** \param[out] valtab0   Array containing the sample value
+   ** \param[out] valtab1   Array containing the sample value
+   ** \param[out] valtab2   Array containing the sample value
+   ** \param[out] res1      First result (Harmonic first)
+   ** \param[out] res2      First result (Arithmetic first)
+   **
+   *****************************************************************************/
+  static void st_upscale(Id orient,
+                         Id* nxyz,
+                         Id flag_save,
+                         VectorDouble& numtab0,
+                         VectorDouble& numtab1,
+                         VectorDouble& numtab2,
+                         VectorDouble& valtab0,
+                         VectorDouble& valtab1,
+                         VectorDouble& valtab2,
+                         double* res1,
+                         double* res2)
   {
-    messerr("Inconsistency between Orientation (%d) and Space dimension (%d)",
-            orient, ndim);
-    goto label_end;
-  }
-  orient--;
+    Id idim, nxyz1[3], nxyz2[3], ncell, flag_debug;
 
-  /* Check that the output grid is a subgrid of the input grid */
+    /* Initializations */
 
-  if (!st_is_subgrid(verbose, "Upscaling", dbgrid1, dbgrid2, ind0, nxyz, &ntot))
-    goto label_end;
+    flag_debug = OptDbg::query(EDbg::UPSCALE);
 
-  /* Create the new variable in the output file */
+    /**************************************/
+    /* Getting the minimum upscaled value */
+    /**************************************/
 
-  ncol = 3;
-  iptr = dbgrid2->addColumnsByConstant(ncol, TEST);
-  if (iptr < 0) goto label_end;
-  dbgrid2->setLocatorsByUID(ncol, iptr, ELoc::Z, 0);
-
-  /* Core allocation */
-
-  numtab0.resize(ntot);
-  numtab1.resize(ntot);
-  numtab2.resize(ntot);
-  valtab0.resize(ntot);
-  valtab1.resize(ntot);
-  valtab2.resize(ntot);
-
-  /* Loop on the cells of the Output Grid */
-
-  for (iech = 0; iech < dbgrid2->getNSample(); iech++)
-  {
-    result1 = result2 = result = TEST;
-    OptDbg::setCurrentIndex(iech + 1);
-    flag_save = (iech == iech_save - 1);
-    if (dbgrid2->isActive(iech))
+    if (flag_debug)
     {
-      dbgrid2->rankToIndice(iech, ixyz);
+      mestitle(1, "Looking for the Minimum Upscaled Value");
+      st_print_grid("Initial", nxyz, numtab0, valtab0);
+    }
+    ncell = st_recopy(nxyz, numtab0, valtab0, nxyz1, numtab1, valtab1);
+    ncell = st_recopy(nxyz, numtab0, valtab0, nxyz2, numtab2, valtab2);
+    if (flag_save) st_print_upscale("Initial", nxyz1, valtab1);
 
-      /* Load the subgrid to be upscaled */
+    while (ncell > 1)
+    {
 
-      probtot = st_extract_subgrid(verbose, 0, iech, dbgrid2->getNSample(),
-                                   ntot, dbgrid1, ind0, ixyz.data(), nxyz,
-                                   numtab0.data(), valtab0.data());
+      /* Harmonic mean in the flow direction */
 
-      if (probtot > 0)
+      if (st_divide_by_2(nxyz2, orient))
       {
-
-        /* Upscale the corresponding subgrid of the Input Grid */
-
-        st_upscale(orient, nxyz, flag_save,
-                   numtab0, numtab1, numtab2,
-                   valtab0, valtab1, valtab2,
-                   &result1, &result2);
-        result = sqrt(result1 * result2);
+        st_mean_harmo(orient, nxyz1, nxyz2, numtab1, numtab2, valtab1, valtab2);
+        ncell = st_recopy(nxyz2, numtab2, valtab2, nxyz1, numtab1, valtab1);
+        if (flag_save) st_print_upscale("Harmonic", nxyz1, valtab1);
+        if (flag_debug) st_print_grid("Harmonic", nxyz1, numtab1, valtab1);
       }
-      else
+
+      /* Arithmetic mean orthogonal to the flow direction */
+
+      for (idim = 0; idim < 3; idim++)
       {
-        result = result1 = result2 = TEST;
+        if (idim == orient) continue;
+        if (st_divide_by_2(nxyz2, idim))
+        {
+          st_mean_arith(idim, nxyz1, nxyz2, numtab1, numtab2, valtab1, valtab2);
+          ncell = st_recopy(nxyz2, numtab2, valtab2, nxyz1, numtab1, valtab1);
+          if (flag_save) st_print_upscale("Arithmetic", nxyz1, valtab1);
+          if (flag_debug) st_print_grid("Arithmetic", nxyz1, numtab1, valtab1);
+        }
       }
     }
+    *res1 = valtab1[0];
 
-    /* Store the result */
+    /**************************************/
+    /* Getting the maximum upscaled value */
+    /**************************************/
 
-    dbgrid2->setLocVariable(ELoc::Z, iech, 0, result1);
-    dbgrid2->setLocVariable(ELoc::Z, iech, 1, result2);
-    dbgrid2->setLocVariable(ELoc::Z, iech, 2, result);
+    if (flag_debug)
+    {
+      mestitle(1, "Looking for the Maximum Upscaled Value\n");
+      st_print_grid("Initial", nxyz, numtab0, valtab0);
+    }
+    ncell = st_recopy(nxyz, numtab0, valtab0, nxyz1, numtab1, valtab1);
+    ncell = st_recopy(nxyz, numtab0, valtab0, nxyz2, numtab2, valtab2);
+    if (flag_save) st_print_upscale("Initial", nxyz1, valtab1);
+
+    while (ncell > 1)
+    {
+
+      /* Arithmetic mean orthogonal to the flow direction */
+
+      for (idim = 0; idim < 3; idim++)
+      {
+        if (idim == orient) continue;
+        if (st_divide_by_2(nxyz2, idim))
+        {
+          st_mean_arith(idim, nxyz1, nxyz2, numtab1, numtab2, valtab1, valtab2);
+          ncell = st_recopy(nxyz2, numtab2, valtab2, nxyz1, numtab1, valtab1);
+          if (flag_save) st_print_upscale("Arithmetic", nxyz1, valtab1);
+          if (flag_debug) st_print_grid("Arithmetic", nxyz1, numtab1, valtab1);
+        }
+      }
+
+      /* Harmonic mean in the flow direction */
+
+      if (st_divide_by_2(nxyz2, orient))
+      {
+        st_mean_harmo(orient, nxyz1, nxyz2, numtab1, numtab2, valtab1, valtab2);
+        ncell = st_recopy(nxyz2, numtab2, valtab2, nxyz1, numtab1, valtab1);
+        if (flag_save) st_print_upscale("Harmonic", nxyz1, valtab1);
+        if (flag_debug) st_print_grid("Harmonic", nxyz1, numtab1, valtab1);
+      }
+    }
+    *res2 = valtab1[0];
   }
 
-  /* Set the error return code */
-
-  error = 0;
-
-label_end:
-  OptDbg::setCurrentIndex(0);
-  return (error);
-}
-
-/****************************************************************************/
-/*!
- **  Calculate the euclidean distance between current and initial seed locations
- **
- ** \return Calculated squared distance
- **
- ** \param[in]  orient    Diffusion orientation (0 or the space rank dimension)
- ** \param[in]  ndim      Space dimension
- ** \param[in]  locini    Initial seed positions
- ** \param[in]  loccur    Current seed positions
- **
- *****************************************************************************/
-static double st_squared_distance(Id orient,
-                                  Id ndim,
-                                  const Id* locini,
-                                  const Id* loccur)
-{
-  double delta, dist;
-
-  dist = 0.;
-  for (Id idim = 0; idim < ndim; idim++)
+  /****************************************************************************/
+  /*!
+   **  Check if the first grid is a subgrid of the second one
+   **
+   ** \return  1 if grids are multiple
+   **
+   ** \param[in]  verbose    Verbose flag
+   ** \param[in]  title      Title of the work (used only for verbose case)
+   ** \param[in]  dbgrid1    Db for the input grid
+   ** \param[in]  dbgrid2    Db for the output grid
+   **
+   ** \param[out] ind0       Starting address
+   ** \param[out] nxyz       Number of subdivisions
+   ** \param[out] ntot       Total number of grid nodes
+   **
+   *****************************************************************************/
+  static Id st_is_subgrid(Id verbose,
+                          const char* title,
+                          DbGrid* dbgrid1,
+                          DbGrid* dbgrid2,
+                          Id* ind0,
+                          Id* nxyz,
+                          Id* ntot)
   {
-    if (orient != 0 && orient != (idim + 1)) continue;
-    delta = locini[idim] - loccur[idim];
-    dist += delta * delta;
-  }
-  return (dist);
-}
+    double d;
+    Id ndim;
 
-/****************************************************************************/
-/*!
- **  Converts from sample index into grid indices
- **
- ** \param[in]  ndim  Space dimension
- ** \param[in]  ntot  Total number of cells in subgrid
- ** \param[in]  nxyz  Dimensions of the subgrid
- ** \param[in]  iech  Rank of the sample
- **
- ** \param[out]  indg Grid indices
- **
- *****************************************************************************/
-static void st_sample_to_grid(Id ndim,
-                              Id ntot,
-                              const Id* nxyz,
-                              Id iech,
-                              Id* indg)
-{
-  for (Id idim = ndim - 1; idim >= 0; idim--)
-  {
-    ntot /= nxyz[idim];
-    indg[idim] = iech / ntot;
-    iech -= indg[idim] * ntot;
-  }
-}
+    /* Initializations */
 
-/****************************************************************************/
-/*!
- **  Converts from grid indices into sample index
- **
- ** \return The absolute index
- **
- ** \param[in]  ndim  Space dimension
- ** \param[in]  nxyz  Dimensions of the subgrid
- ** \param[in]  indg  Grid indices
- **
- *****************************************************************************/
-static Id st_grid_to_sample(Id ndim, const Id* nxyz, const Id* indg)
-{
-  Id idim, ival;
+    ndim = dbgrid1->getNDim();
 
-  ival = indg[ndim - 1];
-  if (ival < 0 || ival >= nxyz[ndim - 1]) return (-1);
-  for (idim = ndim - 2; idim >= 0; idim--)
-  {
-    if (indg[idim] < 0 || indg[idim] >= nxyz[idim]) return (-1);
-    ival = ival * nxyz[idim] + indg[idim];
-  }
-  return (ival);
-}
-
-/****************************************************************************/
-/*!
- **  Find the location of the cell (within the possible cells) which is the
- **  closest to the target cell provided as argument
- **
- ** \return Rank of the cell
- **
- ** \param[in]  ntot  Number of possibilities
- ** \param[in]  tab   Array containing the sample value
- ** \param[in]  cell  Cell location
- **
- *****************************************************************************/
-static Id st_fixed_position(Id ntot, const double* tab, Id cell)
-{
-  Id j;
-
-  for (Id i = 0; i < ntot; i++)
-  {
-    j = cell + i;
-    if (j < ntot && tab[j] > 0) return (j);
-    j = cell - i;
-    if (j >= 0 && tab[j] > 0) return (j);
-  }
-  return (ntot - 1);
-}
-
-/****************************************************************************/
-/*!
- **  Find the cell linked to the probability
- **
- ** \return Rank of the cell
- **
- ** \param[in]  ntot  Number of possibilities
- ** \param[in]  tab   Array containing the sample value
- ** \param[in]  proba Local probability
- **
- *****************************************************************************/
-static Id st_find_cell(Id ntot, const double* tab, double proba)
-{
-  double sum1, sum2;
-
-  sum1 = sum2 = 0.;
-  for (Id i = 0; i < ntot; i++)
-  {
-    sum2 += tab[i];
-    if (proba >= sum1 && proba < sum2) return (i);
-    sum1 = sum2;
-  }
-  return (ntot - 1);
-}
-
-/****************************************************************************/
-/*!
- **  Migrate the seed to one of the available neighboring cells
- **
- ** \param[in]  ndim      Space dimension
- ** \param[in]  n_nbgh    Number of neighboring cells
- ** \param[in]  nxyz      Dimensions of the subgrid
- ** \param[in]  nbgh      Array giving the neighboring cell location
- ** \param[in]  valwrk    Working array (Dimension: n_nbgh)
- ** \param[in]  valtab0   Array containing the sample value
- ** \param[in]  locwrk    Working array for shifted seed positions
- ** \param[in,out] loccur    Current seed position
- **
- *****************************************************************************/
-static void st_migrate_seed(Id ndim,
-                            Id n_nbgh,
-                            Id* nxyz,
-                            const Id* nbgh,
-                            double* valwrk,
-                            const double* valtab0,
-                            Id* locwrk,
-                            Id* loccur)
-{
-  Id iabs, ivois;
-  double probtot, proba;
-
-  /* Count the number of available neighboring cells */
-
-  probtot = 0.;
-  for (ivois = 0; ivois < n_nbgh; ivois++)
-  {
+    (*ntot) = 1;
     for (Id idim = 0; idim < ndim; idim++)
     {
-      locwrk[idim] = loccur[idim] + NBGH(ivois, idim);
-      locwrk[idim] = Grid::generateMirrorIndex(nxyz[idim], locwrk[idim]);
+      /* Initializations */
+
+      ind0[idim] = 0;
+      nxyz[idim] = 1;
+
+      /* Is origin of the output grid is located on a node of input grid */
+
+      d = (dbgrid2->getX0(idim) - dbgrid1->getX0(idim)) / dbgrid1->getDX(idim);
+      if (!isInteger(d))
+      {
+        messerr("The origin of the Output Grid does not coincide with a node "
+                "of the Input Grid");
+        return (0);
+      }
+      ind0[idim] = static_cast<Id>(floor(d + 0.5));
+
+      /* Are grid meshes multiple */
+
+      d = dbgrid2->getDX(idim) / dbgrid1->getDX(idim);
+      if (!isInteger(d))
+      {
+        messerr("The grid cell of the Output Grid is not a multiple of the "
+                "grid cell of the Input Grid");
+        return (0);
+      }
+      nxyz[idim] = static_cast<Id>(floor(d + 0.5));
+      (*ntot) *= nxyz[idim];
     }
-    iabs          = st_grid_to_sample(ndim, nxyz, locwrk);
-    valwrk[ivois] = valtab0[iabs];
-    probtot += valwrk[ivois];
-  }
 
-  /* Draw a migration at random */
-
-  if (probtot > 0)
-  {
-    proba = law_uniform(0., probtot);
-    ivois = st_find_cell(n_nbgh, valwrk, proba);
-    for (Id idim = 0; idim < ndim; idim++)
-      loccur[idim] += NBGH(ivois, idim);
-  }
-}
-
-/****************************************************************************/
-/*!
- **  Print the position (debug option)
- **
- ** \param[in]  ndim      Space dimension
- ** \param[in]  iseed     Rank of the trajectory (from 0)
- ** \param[in]  iter      Rank of the iteration (from 0)
- ** \param[in]  tab       Array containing the coordinates of the position
- **
- ** \remark  This very verbose option only functions if verbose is TRUE
- ** \remark  and the internal flag DEBUG is TRUE (this requires compiling)
- **
- *****************************************************************************/
-static void st_print_position(Id ndim, Id iseed, Id iter, Id* tab)
-{
-  if (!DEBUG) return;
-  message("Trajectory %d - Iteration %d:", iseed + 1, iter + 1);
-  for (Id idim = 0; idim < ndim; idim++)
-    message(" %4d", tab[idim]);
-  message("\n");
-}
-
-/****************************************************************************/
-/*!
- **  Calculate the average squared distance as a function of the iteration
- **
- ** \param[in]  orient    Diffusion orientation (0 or the space rank dimension)
- ** \param[in]  ndim      Space dimension
- ** \param[in]  ntot      Total number of cells in the subgrid
- ** \param[in]  nseed     Number of seeds
- ** \param[in]  niter     Number of iterations
- ** \param[in]  n_nbgh    Number of neighboring cells
- ** \param[in]  flag_save If the array must be saved for keypair
- ** \param[in]  probtot   Total probability of joins
- ** \param[in]  nxyz      Dimensions of the subgrid
- ** \param[in]  nbgh      Array giving the neighboring cell location
- ** \param[in]  tabini    Array of initial seed positions
- **                       Dimension: nseed * ndim
- ** \param[in]  tabcur    Array of current seed positions
- **                       Dimension: nseed * ndim
- ** \param[in]  tabwrk    Array of shifted seed positions
- **                       Dimension: ndim
- ** \param[in]  valwrk    Working array
- **                       Dimension: n_nbgh
- ** \param[in]  valtab0   Array containing the sample value
- ** \param[in]  verbose   Verbose option
- **
- ** \param[out] cvdist2   Array of squared distances by iteration
- ** \param[out] trsave    Array of trajectories (saved only if defined)
- **
- ** \remarks If the starting position is fixed, it is specified using:
- **              set_keypair("Fixed_Position",...)
- **
- *****************************************************************************/
-static void st_updiff(Id orient,
-                      Id ndim,
-                      Id ntot,
-                      Id nseed,
-                      Id niter,
-                      Id n_nbgh,
-                      Id flag_save,
-                      double probtot,
-                      Id* nxyz,
-                      Id* nbgh,
-                      Id* tabini,
-                      Id* tabcur,
-                      Id* tabwrk,
-                      double* valwrk,
-                      double* valtab0,
-                      Id verbose,
-                      double* cvdist2,
-                      double* trsave)
-{
-  double d2, dmoy, proba;
-  Id rank, fixed_position, flag_fixed;
-
-  /* Check if a fixed starting position has been defined */
-
-  fixed_position = static_cast<Id>(get_keypone("Fixed_Position", -1));
-  flag_fixed     = fixed_position >= 0;
-
-  /* Draw initial seed locations */
-
-  for (Id iseed = 0; iseed < nseed; iseed++)
-  {
-    if (flag_fixed)
+    if (verbose)
     {
-      rank = st_fixed_position(ntot, valtab0, fixed_position);
+      mestitle(1, title);
+      message("- Number of Cells =");
+      for (Id idim = 0; idim < ndim; idim++) message(" %d", nxyz[idim]);
+      message("\n");
+      message("- Index of Origin =");
+      for (Id idim = 0; idim < ndim; idim++) message(" %d", ind0[idim]);
+      message("\n");
     }
-    else
+    return (1);
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Upscale one variable from a grid Db into another grid Db
+   **
+   ** \return  Error return code
+   **
+   ** \param[in]  dbgrid1    Db for the input grid
+   ** \param[in]  dbgrid2    Db for the output grid
+   ** \param[in]  orient     Upscaling direction (0 to 2)
+   ** \param[in]  verbose    Verbose flag
+   **
+   *****************************************************************************/
+  Id db_upscale(DbGrid* dbgrid1, DbGrid* dbgrid2, Id orient, Id verbose)
+  {
+    double result1, result2, result, probtot;
+    Id error, ndim, ind0[3], nxyz[3], iech, iptr, ntot, ncol;
+    Id flag_save, iech_save;
+    VectorDouble numtab0;
+    VectorDouble numtab1;
+    VectorDouble numtab2;
+    VectorDouble valtab0;
+    VectorDouble valtab1;
+    VectorDouble valtab2;
+
+    /* Initializations */
+
+    error = 1;
+    iech_save = static_cast<Id>(get_keypone("Upscale.Converge.Block", 0));
+    Id ndim2 = dbgrid2->getNDim();
+    VectorInt ixyz(ndim2);
+
+    /* Preliminary checks */
+
+    ndim = dbgrid1->getNDim();
+    if (ndim < 1 || ndim > 3)
+    {
+      messerr("This function is limited to 2-D or 3-D input grids");
+      goto label_end;
+    }
+    if (!dbgrid1->isNVarComparedTo(1)) goto label_end;
+    if (orient < 1 || orient > ndim)
+    {
+      messerr("Inconsistency between Orientation (%d) and Space dimension (%d)",
+              orient,
+              ndim);
+      goto label_end;
+    }
+    orient--;
+
+    /* Check that the output grid is a subgrid of the input grid */
+
+    if (!st_is_subgrid(verbose,
+                       "Upscaling",
+                       dbgrid1,
+                       dbgrid2,
+                       ind0,
+                       nxyz,
+                       &ntot))
+      goto label_end;
+
+    /* Create the new variable in the output file */
+
+    ncol = 3;
+    iptr = dbgrid2->addColumnsByConstant(ncol, TEST);
+    if (iptr < 0) goto label_end;
+    dbgrid2->setLocatorsByUID(ncol, iptr, ELoc::Z, 0);
+
+    /* Core allocation */
+
+    numtab0.resize(ntot);
+    numtab1.resize(ntot);
+    numtab2.resize(ntot);
+    valtab0.resize(ntot);
+    valtab1.resize(ntot);
+    valtab2.resize(ntot);
+
+    /* Loop on the cells of the Output Grid */
+
+    for (iech = 0; iech < dbgrid2->getNSample(); iech++)
+    {
+      result1 = result2 = result = TEST;
+      OptDbg::setCurrentIndex(iech + 1);
+      flag_save = (iech == iech_save - 1);
+      if (dbgrid2->isActive(iech))
+      {
+        dbgrid2->rankToIndice(iech, ixyz);
+
+        /* Load the subgrid to be upscaled */
+
+        probtot = st_extract_subgrid(verbose,
+                                     0,
+                                     iech,
+                                     dbgrid2->getNSample(),
+                                     ntot,
+                                     dbgrid1,
+                                     ind0,
+                                     ixyz.data(),
+                                     nxyz,
+                                     numtab0.data(),
+                                     valtab0.data());
+
+        if (probtot > 0)
+        {
+
+          /* Upscale the corresponding subgrid of the Input Grid */
+
+          st_upscale(orient,
+                     nxyz,
+                     flag_save,
+                     numtab0,
+                     numtab1,
+                     numtab2,
+                     valtab0,
+                     valtab1,
+                     valtab2,
+                     &result1,
+                     &result2);
+          result = sqrt(result1 * result2);
+        }
+        else
+        {
+          result = result1 = result2 = TEST;
+        }
+      }
+
+      /* Store the result */
+
+      dbgrid2->setLocVariable(ELoc::Z, iech, 0, result1);
+      dbgrid2->setLocVariable(ELoc::Z, iech, 1, result2);
+      dbgrid2->setLocVariable(ELoc::Z, iech, 2, result);
+    }
+
+    /* Set the error return code */
+
+    error = 0;
+
+  label_end:
+    OptDbg::setCurrentIndex(0);
+    return (error);
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Calculate the euclidean distance between current and initial seed locations
+   **
+   ** \return Calculated squared distance
+   **
+   ** \param[in]  orient    Diffusion orientation (0 or the space rank dimension)
+   ** \param[in]  ndim      Space dimension
+   ** \param[in]  locini    Initial seed positions
+   ** \param[in]  loccur    Current seed positions
+   **
+   *****************************************************************************/
+  static double
+    st_squared_distance(Id orient, Id ndim, const Id* locini, const Id* loccur)
+  {
+    double delta, dist;
+
+    dist = 0.;
+    for (Id idim = 0; idim < ndim; idim++)
+    {
+      if (orient != 0 && orient != (idim + 1)) continue;
+      delta = locini[idim] - loccur[idim];
+      dist += delta * delta;
+    }
+    return (dist);
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Converts from sample index into grid indices
+   **
+   ** \param[in]  ndim  Space dimension
+   ** \param[in]  ntot  Total number of cells in subgrid
+   ** \param[in]  nxyz  Dimensions of the subgrid
+   ** \param[in]  iech  Rank of the sample
+   **
+   ** \param[out]  indg Grid indices
+   **
+   *****************************************************************************/
+  static void
+    st_sample_to_grid(Id ndim, Id ntot, const Id* nxyz, Id iech, Id* indg)
+  {
+    for (Id idim = ndim - 1; idim >= 0; idim--)
+    {
+      ntot /= nxyz[idim];
+      indg[idim] = iech / ntot;
+      iech -= indg[idim] * ntot;
+    }
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Converts from grid indices into sample index
+   **
+   ** \return The absolute index
+   **
+   ** \param[in]  ndim  Space dimension
+   ** \param[in]  nxyz  Dimensions of the subgrid
+   ** \param[in]  indg  Grid indices
+   **
+   *****************************************************************************/
+  static Id st_grid_to_sample(Id ndim, const Id* nxyz, const Id* indg)
+  {
+    Id idim, ival;
+
+    ival = indg[ndim - 1];
+    if (ival < 0 || ival >= nxyz[ndim - 1]) return (-1);
+    for (idim = ndim - 2; idim >= 0; idim--)
+    {
+      if (indg[idim] < 0 || indg[idim] >= nxyz[idim]) return (-1);
+      ival = ival * nxyz[idim] + indg[idim];
+    }
+    return (ival);
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Find the location of the cell (within the possible cells) which is the
+   **  closest to the target cell provided as argument
+   **
+   ** \return Rank of the cell
+   **
+   ** \param[in]  ntot  Number of possibilities
+   ** \param[in]  tab   Array containing the sample value
+   ** \param[in]  cell  Cell location
+   **
+   *****************************************************************************/
+  static Id st_fixed_position(Id ntot, const double* tab, Id cell)
+  {
+    Id j;
+
+    for (Id i = 0; i < ntot; i++)
+    {
+      j = cell + i;
+      if (j < ntot && tab[j] > 0) return (j);
+      j = cell - i;
+      if (j >= 0 && tab[j] > 0) return (j);
+    }
+    return (ntot - 1);
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Find the cell linked to the probability
+   **
+   ** \return Rank of the cell
+   **
+   ** \param[in]  ntot  Number of possibilities
+   ** \param[in]  tab   Array containing the sample value
+   ** \param[in]  proba Local probability
+   **
+   *****************************************************************************/
+  static Id st_find_cell(Id ntot, const double* tab, double proba)
+  {
+    double sum1, sum2;
+
+    sum1 = sum2 = 0.;
+    for (Id i = 0; i < ntot; i++)
+    {
+      sum2 += tab[i];
+      if (proba >= sum1 && proba < sum2) return (i);
+      sum1 = sum2;
+    }
+    return (ntot - 1);
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Migrate the seed to one of the available neighboring cells
+   **
+   ** \param[in]  ndim      Space dimension
+   ** \param[in]  n_nbgh    Number of neighboring cells
+   ** \param[in]  nxyz      Dimensions of the subgrid
+   ** \param[in]  nbgh      Array giving the neighboring cell location
+   ** \param[in]  valwrk    Working array (Dimension: n_nbgh)
+   ** \param[in]  valtab0   Array containing the sample value
+   ** \param[in]  locwrk    Working array for shifted seed positions
+   ** \param[in,out] loccur    Current seed position
+   **
+   *****************************************************************************/
+  static void st_migrate_seed(Id ndim,
+                              Id n_nbgh,
+                              Id* nxyz,
+                              const Id* nbgh,
+                              double* valwrk,
+                              const double* valtab0,
+                              Id* locwrk,
+                              Id* loccur)
+  {
+    Id iabs, ivois;
+    double probtot, proba;
+
+    /* Count the number of available neighboring cells */
+
+    probtot = 0.;
+    for (ivois = 0; ivois < n_nbgh; ivois++)
+    {
+      for (Id idim = 0; idim < ndim; idim++)
+      {
+        locwrk[idim] = loccur[idim] + NBGH(ivois, idim);
+        locwrk[idim] = Grid::generateMirrorIndex(nxyz[idim], locwrk[idim]);
+      }
+      iabs = st_grid_to_sample(ndim, nxyz, locwrk);
+      valwrk[ivois] = valtab0[iabs];
+      probtot += valwrk[ivois];
+    }
+
+    /* Draw a migration at random */
+
+    if (probtot > 0)
     {
       proba = law_uniform(0., probtot);
-      rank  = st_find_cell(ntot, valtab0, proba);
+      ivois = st_find_cell(n_nbgh, valwrk, proba);
+      for (Id idim = 0; idim < ndim; idim++) loccur[idim] += NBGH(ivois, idim);
     }
-    st_sample_to_grid(ndim, ntot, nxyz, rank, &TABINI(iseed, 0));
-    for (Id idim = 0; idim < ndim; idim++)
-      TABCUR(iseed, idim) = TABINI(iseed, idim);
-    if (verbose) st_print_position(ndim, iseed, -1, &TABCUR(iseed, 0));
   }
 
-  /* Loop on the iterations */
-
-  for (Id iter = 0; iter < niter; iter++)
+  /****************************************************************************/
+  /*!
+   **  Print the position (debug option)
+   **
+   ** \param[in]  ndim      Space dimension
+   ** \param[in]  iseed     Rank of the trajectory (from 0)
+   ** \param[in]  iter      Rank of the iteration (from 0)
+   ** \param[in]  tab       Array containing the coordinates of the position
+   **
+   ** \remark  This very verbose option only functions if verbose is TRUE
+   ** \remark  and the internal flag DEBUG is TRUE (this requires compiling)
+   **
+   *****************************************************************************/
+  static void st_print_position(Id ndim, Id iseed, Id iter, Id* tab)
   {
-    dmoy = 0.;
+    if (!DEBUG) return;
+    message("Trajectory %d - Iteration %d:", iseed + 1, iter + 1);
+    for (Id idim = 0; idim < ndim; idim++) message(" %4d", tab[idim]);
+    message("\n");
+  }
 
-    /* Loop on the seed points */
+  /****************************************************************************/
+  /*!
+   **  Calculate the average squared distance as a function of the iteration
+   **
+   ** \param[in]  orient    Diffusion orientation (0 or the space rank dimension)
+   ** \param[in]  ndim      Space dimension
+   ** \param[in]  ntot      Total number of cells in the subgrid
+   ** \param[in]  nseed     Number of seeds
+   ** \param[in]  niter     Number of iterations
+   ** \param[in]  n_nbgh    Number of neighboring cells
+   ** \param[in]  flag_save If the array must be saved for keypair
+   ** \param[in]  probtot   Total probability of joins
+   ** \param[in]  nxyz      Dimensions of the subgrid
+   ** \param[in]  nbgh      Array giving the neighboring cell location
+   ** \param[in]  tabini    Array of initial seed positions
+   **                       Dimension: nseed * ndim
+   ** \param[in]  tabcur    Array of current seed positions
+   **                       Dimension: nseed * ndim
+   ** \param[in]  tabwrk    Array of shifted seed positions
+   **                       Dimension: ndim
+   ** \param[in]  valwrk    Working array
+   **                       Dimension: n_nbgh
+   ** \param[in]  valtab0   Array containing the sample value
+   ** \param[in]  verbose   Verbose option
+   **
+   ** \param[out] cvdist2   Array of squared distances by iteration
+   ** \param[out] trsave    Array of trajectories (saved only if defined)
+   **
+   ** \remarks If the starting position is fixed, it is specified using:
+   **              set_keypair("Fixed_Position",...)
+   **
+   *****************************************************************************/
+  static void st_updiff(Id orient,
+                        Id ndim,
+                        Id ntot,
+                        Id nseed,
+                        Id niter,
+                        Id n_nbgh,
+                        Id flag_save,
+                        double probtot,
+                        Id* nxyz,
+                        Id* nbgh,
+                        Id* tabini,
+                        Id* tabcur,
+                        Id* tabwrk,
+                        double* valwrk,
+                        double* valtab0,
+                        Id verbose,
+                        double* cvdist2,
+                        double* trsave)
+  {
+    double d2, dmoy, proba;
+    Id rank, fixed_position, flag_fixed;
+
+    /* Check if a fixed starting position has been defined */
+
+    fixed_position = static_cast<Id>(get_keypone("Fixed_Position", -1));
+    flag_fixed = fixed_position >= 0;
+
+    /* Draw initial seed locations */
 
     for (Id iseed = 0; iseed < nseed; iseed++)
     {
+      if (flag_fixed)
+      {
+        rank = st_fixed_position(ntot, valtab0, fixed_position);
+      }
+      else
+      {
+        proba = law_uniform(0., probtot);
+        rank = st_find_cell(ntot, valtab0, proba);
+      }
+      st_sample_to_grid(ndim, ntot, nxyz, rank, &TABINI(iseed, 0));
+      for (Id idim = 0; idim < ndim; idim++)
+        TABCUR(iseed, idim) = TABINI(iseed, idim);
+      if (verbose) st_print_position(ndim, iseed, -1, &TABCUR(iseed, 0));
+    }
 
-      /* Migrate the seed */
+    /* Loop on the iterations */
 
-      st_migrate_seed(ndim, n_nbgh, nxyz, nbgh, valwrk, valtab0, tabwrk,
-                      &TABCUR(iseed, 0));
+    for (Id iter = 0; iter < niter; iter++)
+    {
+      dmoy = 0.;
+
+      /* Loop on the seed points */
+
+      for (Id iseed = 0; iseed < nseed; iseed++)
+      {
+
+        /* Migrate the seed */
+
+        st_migrate_seed(ndim,
+                        n_nbgh,
+                        nxyz,
+                        nbgh,
+                        valwrk,
+                        valtab0,
+                        tabwrk,
+                        &TABCUR(iseed, 0));
+
+        /* Optional printout */
+
+        if (verbose) st_print_position(ndim, iseed, iter, &TABCUR(iseed, 0));
+
+        /* Calculate the distance between current and initial positions */
+
+        d2 = st_squared_distance(orient,
+                                 ndim,
+                                 &TABINI(iseed, 0),
+                                 &TABCUR(iseed, 0));
+
+        /* Save the trajectory (optional) */
+
+        if (flag_save && trsave != nullptr)
+        {
+          for (Id idim = 0; idim < ndim; idim++)
+            TRAJEC(iseed, iter, idim) = TABCUR(iseed, idim);
+        }
+
+        /* Update the mean distance */
+
+        dmoy += d2;
+      }
+      cvdist2[iter] = dmoy / static_cast<double>(nseed);
+    }
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Update the quantities needed for calculating the linear regression
+   **  amongst a set of 2-D points
+   **
+   ** \param[in]      x         X value
+   ** \param[in]      y         Y value
+   **
+   ** \param[in,out]  count     Number of samples
+   ** \param[in,out]  sum_x     Sum of the X variable
+   ** \param[in,out]  sum_y     Sum of the Y variable
+   ** \param[in,out]  sum_xx    Sum of the X*X variable
+   ** \param[in,out]  sum_xy    Sum of the X*Y variable
+   **
+   *****************************************************************************/
+  static void st_update_regression(double x,
+                                   double y,
+                                   double* count,
+                                   double* sum_x,
+                                   double* sum_y,
+                                   double* sum_xx,
+                                   double* sum_xy)
+  {
+    (*count) += 1.;
+    (*sum_x) += x;
+    (*sum_y) += y;
+    (*sum_xx) += x * x;
+    (*sum_xy) += x * y;
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Derive the diffusion factor from the serie of squared distance as
+   **  a function of time
+   **
+   ** \return The diffusion coefficient
+   **
+   ** \param[in]  niter      Number of iterations
+   ** \param[in]  verbose    Verbose flag
+   ** \param[in]  pmid       Percentage of niter to store convergence
+   ** \param[in]  flag_save  If the array must be saved for keypair
+   ** \param[in]  cvdist2    Array containing the squared distances
+   **
+   ** \param[out] cvsave     Array containing the storage (Dimension: 3 * niter)
+   **
+   *****************************************************************************/
+  static double st_get_diff_coeff(Id niter,
+                                  Id verbose,
+                                  double pmid,
+                                  Id flag_save,
+                                  double* cvdist2,
+                                  double* cvsave)
+  {
+    double slope, origin, slope_ref, origin_ref, sum_x, sum_y, sum_xy, sum_xx,
+      count;
+    double mx, my, var, cov;
+    Id iter, rank_mid;
+
+    slope_ref = origin_ref = TEST;
+    rank_mid = static_cast<Id>(pmid * niter / 100.);
+    count = sum_x = sum_y = sum_xx = sum_xy = origin = slope = 0.;
+
+    for (Id jter = 0; jter < niter; jter++)
+    {
+      iter = niter - jter - 1;
+
+      /* Calculate the average slope */
+
+      st_update_regression(static_cast<double>(iter + 1),
+                           cvdist2[iter],
+                           &count,
+                           &sum_x,
+                           &sum_y,
+                           &sum_xx,
+                           &sum_xy);
+      if (count > 1)
+      {
+        mx = sum_x / count;
+        my = sum_y / count;
+        var = sum_xx / count - mx * mx;
+        cov = sum_xy / count - mx * my;
+        slope = cov / var;
+        origin = my - slope * mx;
+        if (iter == rank_mid)
+        {
+          slope_ref = slope;
+          origin_ref = origin;
+        }
+      }
 
       /* Optional printout */
 
-      if (verbose) st_print_position(ndim, iseed, iter, &TABCUR(iseed, 0));
-
-      /* Calculate the distance between current and initial positions */
-
-      d2 = st_squared_distance(orient, ndim, &TABINI(iseed, 0),
-                               &TABCUR(iseed, 0));
-
-      /* Save the trajectory (optional) */
-
-      if (flag_save && trsave != nullptr)
+      if (verbose && !FFFF(slope) && !FFFF(origin))
       {
-        for (Id idim = 0; idim < ndim; idim++)
-          TRAJEC(iseed, iter, idim) = TABCUR(iseed, idim);
+        message("  Rank=%5d Slope=%lf Origin=%lf (Count=%d)",
+                iter + 1,
+                slope,
+                origin,
+                static_cast<Id>(count));
+        if (iter == rank_mid) message(" - Stored");
+        message("\n");
       }
 
-      /* Update the mean distance */
+      /* Optional storage */
 
-      dmoy += d2;
-    }
-    cvdist2[iter] = dmoy / static_cast<double>(nseed);
-  }
-}
-
-/****************************************************************************/
-/*!
- **  Update the quantities needed for calculating the linear regression
- **  amongst a set of 2-D points
- **
- ** \param[in]      x         X value
- ** \param[in]      y         Y value
- **
- ** \param[in,out]  count     Number of samples
- ** \param[in,out]  sum_x     Sum of the X variable
- ** \param[in,out]  sum_y     Sum of the Y variable
- ** \param[in,out]  sum_xx    Sum of the X*X variable
- ** \param[in,out]  sum_xy    Sum of the X*Y variable
- **
- *****************************************************************************/
-static void st_update_regression(double x,
-                                 double y,
-                                 double* count,
-                                 double* sum_x,
-                                 double* sum_y,
-                                 double* sum_xx,
-                                 double* sum_xy)
-{
-  (*count) += 1.;
-  (*sum_x) += x;
-  (*sum_y) += y;
-  (*sum_xx) += x * x;
-  (*sum_xy) += x * y;
-}
-
-/****************************************************************************/
-/*!
- **  Derive the diffusion factor from the serie of squared distance as
- **  a function of time
- **
- ** \return The diffusion coefficient
- **
- ** \param[in]  niter      Number of iterations
- ** \param[in]  verbose    Verbose flag
- ** \param[in]  pmid       Percentage of niter to store convergence
- ** \param[in]  flag_save  If the array must be saved for keypair
- ** \param[in]  cvdist2    Array containing the squared distances
- **
- ** \param[out] cvsave     Array containing the storage (Dimension: 3 * niter)
- **
- *****************************************************************************/
-static double st_get_diff_coeff(Id niter,
-                                Id verbose,
-                                double pmid,
-                                Id flag_save,
-                                double* cvdist2,
-                                double* cvsave)
-{
-  double slope, origin, slope_ref, origin_ref, sum_x, sum_y, sum_xy, sum_xx,
-    count;
-  double mx, my, var, cov;
-  Id iter, rank_mid;
-
-  slope_ref = origin_ref = TEST;
-  rank_mid               = static_cast<Id>(pmid * niter / 100.);
-  count = sum_x = sum_y = sum_xx = sum_xy = origin = slope = 0.;
-
-  for (Id jter = 0; jter < niter; jter++)
-  {
-    iter = niter - jter - 1;
-
-    /* Calculate the average slope */
-
-    st_update_regression(static_cast<double>(iter + 1), cvdist2[iter], &count, &sum_x,
-                         &sum_y, &sum_xx, &sum_xy);
-    if (count > 1)
-    {
-      mx     = sum_x / count;
-      my     = sum_y / count;
-      var    = sum_xx / count - mx * mx;
-      cov    = sum_xy / count - mx * my;
-      slope  = cov / var;
-      origin = my - slope * mx;
-      if (iter == rank_mid)
+      if (flag_save)
       {
-        slope_ref  = slope;
-        origin_ref = origin;
+        cvsave[3 * iter + 0] = cvdist2[iter];
+        cvsave[3 * iter + 1] = slope;
+        cvsave[3 * iter + 2] = origin;
       }
     }
 
     /* Optional printout */
 
-    if (verbose && !FFFF(slope) && !FFFF(origin))
+    if (verbose) message("- Slope=%lf Origin=%lf\n", slope_ref, origin_ref);
+
+    /* Optional saving */
+
+    if (flag_save) set_keypair("Diffusion.Converge", 1, niter, 3, cvsave);
+
+    return (slope_ref);
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Calculate the diffusion factor from a grid Db into another grid Db
+   **
+   ** \return  Error return code
+   **
+   ** \param[in]  dbgrid1    Db for the input grid
+   ** \param[in]  dbgrid2    Db for the output grid
+   ** \param[in]  orient     Diffusion orientation (0 or the space rank dimension)
+   ** \param[in]  niter      Number of iterations
+   ** \param[in]  nseed      Number of seeds
+   ** \param[in]  seed       Seed for the random number generation
+   ** \param[in]  verbose    Verbose Option
+   **
+   ** \remarks The user may specify the type of storage
+   ** \remarks 0: average squared distance; 1: slope; 2: origin
+   ** \remarks      get.keypair("Diffusion.Converge.Option",0)
+   ** \remarks The neighborhood is Block(0) or Cross(1) according to
+   ** \remarks      get.keypair("Diffusion.Converge.Morpho",0)
+   **
+   ** \remarks The rank of the convergence if measured from a Starting to an Ending
+   ** \remarks percentages of the 'niter' iterations. The 'Mid' percentage gives
+   ** \remarks the value assigned to the output block
+   ** \remarks      get.keypair("Diffusion.Converge.PMid",70)
+   **
+   ** \remarks The user can specify the block of interest by using:
+   ** \remarks      get.keypair("Diffusion.Converge.Block")
+   ** \remarks For the target block, the array of squared distances as a function
+   ** \remarks of the iteration is returned using the keypair mechanism:
+   ** \remarks      set.keypair("Diffusion.Converge")
+   ** \remarks For the target block, the trajectories are saved using keypair;
+   ** \remarks      set.keypair("Diffusion.Trajectory.XX")
+   **
+   *****************************************************************************/
+  Id db_diffusion(DbGrid* dbgrid1,
+                  DbGrid* dbgrid2,
+                  Id orient,
+                  Id niter,
+                  Id nseed,
+                  Id seed,
+                  Id verbose)
+  {
+    double diff_coeff, pmid, probtot;
+    Id error, ndim, ind0[3], nxyz[3], iech, nech, iptr, opt_center;
+    Id ntot, iech_save, flag_save, opt_morpho, flag_traj, n_nbgh;
+    String name;
+    VectorInt nbgh;
+    VectorInt tabini;
+    VectorInt tabcur;
+    VectorInt tabwrk;
+    VectorDouble numtab0;
+    VectorDouble valtab0;
+    VectorDouble cvdist2;
+    VectorDouble cvsave;
+    VectorDouble trsave;
+    VectorDouble valwrk;
+
+    /* Initializations */
+
+    error = 1;
+    iech_save = static_cast<Id>(get_keypone("Diffusion.Converge.Block", 0));
+    opt_morpho = static_cast<Id>(get_keypone("Diffusion.Converge.Morpho", 1));
+    opt_center = static_cast<Id>(get_keypone("Diffusion.Converge.Center", 1));
+    flag_traj = static_cast<Id>(get_keypone("Diffusion.Flag.Trajectory", 0));
+    pmid = get_keypone("Diffusion.Converge.PMid", 70.);
+    if (seed != 0) law_set_random_seed(seed);
+
+    /* Preliminary checks */
+
+    ndim = dbgrid1->getNDim();
+    nech = dbgrid2->getNSample();
+    Id ndim2 = dbgrid2->getNDim();
+    VectorInt ixyz(ndim2, 0);
+    if (ndim < 1 || ndim > 3)
     {
-      message("  Rank=%5d Slope=%lf Origin=%lf (Count=%d)", iter + 1, slope,
-              origin, static_cast<Id>(count));
-      if (iter == rank_mid) message(" - Stored");
-      message("\n");
+      messerr("This function is limited to 2-D or 3-D input grids");
+      goto label_end;
+    }
+    if (orient != 0 && (orient < 1 || orient > ndim))
+    {
+      messerr("Argument 'orient' (%d) can be 0 or one of the space dimension",
+              orient);
+      goto label_end;
+    }
+    if (!dbgrid1->isNVarComparedTo(1)) goto label_end;
+    if (pmid < 5 || pmid > 95)
+    {
+      messerr("'PMid' must lie between 5% and 95%");
+      goto label_end;
     }
 
-    /* Optional storage */
+    /* Check that the output grid is a subgrid of the input grid */
 
-    if (flag_save)
+    if (!st_is_subgrid(verbose,
+                       "Diffusion Coefficient",
+                       dbgrid1,
+                       dbgrid2,
+                       ind0,
+                       nxyz,
+                       &ntot))
+      goto label_end;
+
+    /* Core allocation */
+
+    tabini.resize(ndim * nseed);
+    tabcur.resize(ndim * nseed);
+    tabwrk.resize(ndim);
+    numtab0.resize(ntot);
+    valtab0.resize(ntot);
+    cvdist2.resize(niter);
+    cvsave.resize(niter * 3);
+    if (flag_traj) trsave.resize(niter * nseed * ndim);
+
+    /* Allocate the neighboring displacement array */
+
+    nbgh = gridcell_neigh(ndim, opt_morpho, 1, opt_center, verbose);
+    n_nbgh = static_cast<Id>(nbgh.size()) / ndim;
+    valwrk.resize(n_nbgh);
+
+    /* Create the new variable in the output file */
+
+    iptr = dbgrid2->addColumnsByConstant(1, TEST);
+    if (iptr < 0) goto label_end;
+
+    /* Loop on the cells of the Output Grid */
+
+    for (iech = 0; iech < nech; iech++)
     {
-      cvsave[3 * iter + 0] = cvdist2[iter];
-      cvsave[3 * iter + 1] = slope;
-      cvsave[3 * iter + 2] = origin;
-    }
-  }
-
-  /* Optional printout */
-
-  if (verbose) message("- Slope=%lf Origin=%lf\n", slope_ref, origin_ref);
-
-  /* Optional saving */
-
-  if (flag_save) set_keypair("Diffusion.Converge", 1, niter, 3, cvsave);
-
-  return (slope_ref);
-}
-
-/****************************************************************************/
-/*!
- **  Calculate the diffusion factor from a grid Db into another grid Db
- **
- ** \return  Error return code
- **
- ** \param[in]  dbgrid1    Db for the input grid
- ** \param[in]  dbgrid2    Db for the output grid
- ** \param[in]  orient     Diffusion orientation (0 or the space rank dimension)
- ** \param[in]  niter      Number of iterations
- ** \param[in]  nseed      Number of seeds
- ** \param[in]  seed       Seed for the random number generation
- ** \param[in]  verbose    Verbose Option
- **
- ** \remarks The user may specify the type of storage
- ** \remarks 0: average squared distance; 1: slope; 2: origin
- ** \remarks      get.keypair("Diffusion.Converge.Option",0)
- ** \remarks The neighborhood is Block(0) or Cross(1) according to
- ** \remarks      get.keypair("Diffusion.Converge.Morpho",0)
- **
- ** \remarks The rank of the convergence if measured from a Starting to an Ending
- ** \remarks percentages of the 'niter' iterations. The 'Mid' percentage gives
- ** \remarks the value assigned to the output block
- ** \remarks      get.keypair("Diffusion.Converge.PMid",70)
- **
- ** \remarks The user can specify the block of interest by using:
- ** \remarks      get.keypair("Diffusion.Converge.Block")
- ** \remarks For the target block, the array of squared distances as a function
- ** \remarks of the iteration is returned using the keypair mechanism:
- ** \remarks      set.keypair("Diffusion.Converge")
- ** \remarks For the target block, the trajectories are saved using keypair;
- ** \remarks      set.keypair("Diffusion.Trajectory.XX")
- **
- *****************************************************************************/
-Id db_diffusion(DbGrid* dbgrid1,
-                DbGrid* dbgrid2,
-                Id orient,
-                Id niter,
-                Id nseed,
-                Id seed,
-                Id verbose)
-{
-  double diff_coeff, pmid, probtot;
-  Id error, ndim, ind0[3], nxyz[3], iech, nech, iptr, opt_center;
-  Id ntot, iech_save, flag_save, opt_morpho, flag_traj, n_nbgh;
-  String name;
-  VectorInt nbgh;
-  VectorInt tabini;
-  VectorInt tabcur;
-  VectorInt tabwrk;
-  VectorDouble numtab0;
-  VectorDouble valtab0;
-  VectorDouble cvdist2;
-  VectorDouble cvsave;
-  VectorDouble trsave;
-  VectorDouble valwrk;
-
-  /* Initializations */
-
-  error      = 1;
-  iech_save  = static_cast<Id>(get_keypone("Diffusion.Converge.Block", 0));
-  opt_morpho = static_cast<Id>(get_keypone("Diffusion.Converge.Morpho", 1));
-  opt_center = static_cast<Id>(get_keypone("Diffusion.Converge.Center", 1));
-  flag_traj  = static_cast<Id>(get_keypone("Diffusion.Flag.Trajectory", 0));
-  pmid       = get_keypone("Diffusion.Converge.PMid", 70.);
-  if (seed != 0) law_set_random_seed(seed);
-
-  /* Preliminary checks */
-
-  ndim     = dbgrid1->getNDim();
-  nech     = dbgrid2->getNSample();
-  Id ndim2 = dbgrid2->getNDim();
-  VectorInt ixyz(ndim2, 0);
-  if (ndim < 1 || ndim > 3)
-  {
-    messerr("This function is limited to 2-D or 3-D input grids");
-    goto label_end;
-  }
-  if (orient != 0 && (orient < 1 || orient > ndim))
-  {
-    messerr("Argument 'orient' (%d) can be 0 or one of the space dimension",
-            orient);
-    goto label_end;
-  }
-  if (!dbgrid1->isNVarComparedTo(1)) goto label_end;
-  if (pmid < 5 || pmid > 95)
-  {
-    messerr("'PMid' must lie between 5% and 95%");
-    goto label_end;
-  }
-
-  /* Check that the output grid is a subgrid of the input grid */
-
-  if (!st_is_subgrid(verbose, "Diffusion Coefficient", dbgrid1, dbgrid2, ind0,
-                     nxyz, &ntot)) goto label_end;
-
-  /* Core allocation */
-
-  tabini.resize(ndim * nseed);
-  tabcur.resize(ndim * nseed);
-  tabwrk.resize(ndim);
-  numtab0.resize(ntot);
-  valtab0.resize(ntot);
-  cvdist2.resize(niter);
-  cvsave.resize(niter * 3);
-  if (flag_traj)
-    trsave.resize(niter * nseed * ndim);
-
-  /* Allocate the neighboring displacement array */
-
-  nbgh   = gridcell_neigh(ndim, opt_morpho, 1, opt_center, verbose);
-  n_nbgh = static_cast<Id>(nbgh.size()) / ndim;
-  valwrk.resize(n_nbgh);
-
-  /* Create the new variable in the output file */
-
-  iptr = dbgrid2->addColumnsByConstant(1, TEST);
-  if (iptr < 0) goto label_end;
-
-  /* Loop on the cells of the Output Grid */
-
-  for (iech = 0; iech < nech; iech++)
-  {
-    diff_coeff = TEST;
-    OptDbg::setCurrentIndex(iech + 1);
-    flag_save = (iech == iech_save - 1);
-    if (dbgrid2->isActive(iech))
-    {
-      dbgrid2->rankToIndice(iech, ixyz);
-
-      /* Load the subgrid to be upscaled */
-
-      probtot = st_extract_subgrid(verbose, 1, iech, nech, ntot, dbgrid1, ind0,
-                                   ixyz.data(), nxyz, numtab0.data(),
-                                   valtab0.data());
-
-      if (probtot > 0)
+      diff_coeff = TEST;
+      OptDbg::setCurrentIndex(iech + 1);
+      flag_save = (iech == iech_save - 1);
+      if (dbgrid2->isActive(iech))
       {
+        dbgrid2->rankToIndice(iech, ixyz);
 
-        /* Upscale the diffusion */
+        /* Load the subgrid to be upscaled */
 
-        st_updiff(orient, ndim, ntot, nseed, niter, n_nbgh, flag_save, probtot,
-                  nxyz, nbgh.data(), tabini.data(), tabcur.data(),
-                  tabwrk.data(), valwrk.data(), valtab0.data(),
-                  verbose, cvdist2.data(), trsave.data());
+        probtot = st_extract_subgrid(verbose,
+                                     1,
+                                     iech,
+                                     nech,
+                                     ntot,
+                                     dbgrid1,
+                                     ind0,
+                                     ixyz.data(),
+                                     nxyz,
+                                     numtab0.data(),
+                                     valtab0.data());
 
-        /* Derive the diffusion coefficient */
-
-        diff_coeff = st_get_diff_coeff(niter, verbose, pmid, flag_save,
-                                       cvdist2.data(), cvsave.data());
-
-        /* Save the trajectory (optional) */
-
-        if (flag_save && !trsave.empty())
+        if (probtot > 0)
         {
-          for (Id iseed = 0; iseed < nseed; iseed++)
+
+          /* Upscale the diffusion */
+
+          st_updiff(orient,
+                    ndim,
+                    ntot,
+                    nseed,
+                    niter,
+                    n_nbgh,
+                    flag_save,
+                    probtot,
+                    nxyz,
+                    nbgh.data(),
+                    tabini.data(),
+                    tabcur.data(),
+                    tabwrk.data(),
+                    valwrk.data(),
+                    valtab0.data(),
+                    verbose,
+                    cvdist2.data(),
+                    trsave.data());
+
+          /* Derive the diffusion coefficient */
+
+          diff_coeff = st_get_diff_coeff(niter,
+                                         verbose,
+                                         pmid,
+                                         flag_save,
+                                         cvdist2.data(),
+                                         cvsave.data());
+
+          /* Save the trajectory (optional) */
+
+          if (flag_save && !trsave.empty())
           {
-            (void)gslSPrintf(name, "Diffusion.Trajectory.%d", iseed + 1);
-            for (Id iter = 0; iter < niter; iter++)
-              for (Id idim = 0; idim < ndim; idim++)
-                TRAJEC(iseed, iter, idim) = dbgrid2->getCoordinate(iech, idim) +
-                                            TRAJEC(iseed, iter, idim) * dbgrid1->getDX(idim);
-            set_keypair(name.data(), 1, niter, ndim, &TRAJEC(iseed, 0, 0));
+            for (Id iseed = 0; iseed < nseed; iseed++)
+            {
+              (void)gslSPrintf(name, "Diffusion.Trajectory.%d", iseed + 1);
+              for (Id iter = 0; iter < niter; iter++)
+                for (Id idim = 0; idim < ndim; idim++)
+                  TRAJEC(iseed, iter, idim) =
+                    dbgrid2->getCoordinate(iech, idim)
+                    + TRAJEC(iseed, iter, idim) * dbgrid1->getDX(idim);
+              set_keypair(name.data(), 1, niter, ndim, &TRAJEC(iseed, 0, 0));
+            }
           }
         }
       }
+
+      /* Store the result */
+
+      dbgrid2->setArray(iech, iptr, diff_coeff);
     }
 
-    /* Store the result */
+    /* Set the error return code */
 
-    dbgrid2->setArray(iech, iptr, diff_coeff);
+    error = 0;
+
+  label_end:
+    OptDbg::setCurrentIndex(0);
+    return (error);
   }
 
-  /* Set the error return code */
-
-  error = 0;
-
-label_end:
-  OptDbg::setCurrentIndex(0);
-  return (error);
-}
-
-/****************************************************************************/
-/*!
- **  Create residuals
- **
- ** \return  Error returned code
- **
- ** \param[in]  verbose Verbose flag
- ** \param[in]  nech    Number of samples
- ** \param[in]  tab     Array of sample values (Dimension: nech)
- ** \param[in]  ncut    Number of cutoffs
- ** \param[in]  zcut    Array of cutoff values (Dimension: ncut)
- **
- ** \param[out] nsorted   Number of sorted samples
- ** \param[out] mean      Average of the active data
- ** \param[out] residuals Array of residuals (Dimension: ncut * nech)
- ** \param[out] T         Array of for tonnage
- ** \param[out] Q         Array of for metal quantity
- **
- *****************************************************************************/
-Id stats_residuals(Id verbose,
-                   Id nech,
-                   const double* tab,
-                   Id ncut,
-                   double* zcut,
-                   Id* nsorted,
-                   double* mean,
-                   double* residuals,
-                   double* T,
-                   double* Q)
-{
-  double value, moyenne;
-  Id iech, icut, jcut, nactive;
-
-  /* Initializations */
-
-  nactive = (*nsorted) = 0;
-  moyenne              = 0.;
-  for (icut = 0; icut < ncut; icut++)
+  /****************************************************************************/
+  /*!
+   **  Create residuals
+   **
+   ** \return  Error returned code
+   **
+   ** \param[in]  verbose Verbose flag
+   ** \param[in]  nech    Number of samples
+   ** \param[in]  tab     Array of sample values (Dimension: nech)
+   ** \param[in]  ncut    Number of cutoffs
+   ** \param[in]  zcut    Array of cutoff values (Dimension: ncut)
+   **
+   ** \param[out] nsorted   Number of sorted samples
+   ** \param[out] mean      Average of the active data
+   ** \param[out] residuals Array of residuals (Dimension: ncut * nech)
+   ** \param[out] T         Array of for tonnage
+   ** \param[out] Q         Array of for metal quantity
+   **
+   *****************************************************************************/
+  Id stats_residuals(Id verbose,
+                     Id nech,
+                     const double* tab,
+                     Id ncut,
+                     double* zcut,
+                     Id* nsorted,
+                     double* mean,
+                     double* residuals,
+                     double* T,
+                     double* Q)
   {
-    T[icut] = Q[icut] = 0.;
+    double value, moyenne;
+    Id iech, icut, jcut, nactive;
+
+    /* Initializations */
+
+    nactive = (*nsorted) = 0;
+    moyenne = 0.;
+    for (icut = 0; icut < ncut; icut++)
+    {
+      T[icut] = Q[icut] = 0.;
+      for (iech = 0; iech < nech; iech++) RESIDUALS(icut, iech) = 0.;
+    }
+
+    /* Loop on the samples to calculate the indicators */
+
     for (iech = 0; iech < nech; iech++)
-      RESIDUALS(icut, iech) = 0.;
-  }
+    {
+      value = tab[iech];
+      if (FFFF(value)) continue;
+      moyenne += value;
+      nactive++;
 
-  /* Loop on the samples to calculate the indicators */
+      /* Loop on the cutoffs */
 
-  for (iech = 0; iech < nech; iech++)
-  {
-    value = tab[iech];
-    if (FFFF(value)) continue;
-    moyenne += value;
-    nactive++;
+      for (icut = 0; icut < ncut; icut++)
+      {
+        if (value < zcut[icut]) continue;
+        RESIDUALS(icut, iech) = 1.;
+        Q[icut] += value;
+        T[icut] += 1.;
+      }
+    }
+    if (nactive <= 0)
+    {
+      messerr("The calculation failed as there is no active sample");
+      return (1);
+    }
 
-    /* Loop on the cutoffs */
+    /* Calculate the tonnage and meal quantity per class */
 
+    moyenne /= static_cast<double>(nactive);
     for (icut = 0; icut < ncut; icut++)
     {
-      if (value < zcut[icut]) continue;
-      RESIDUALS(icut, iech) = 1.;
-      Q[icut] += value;
-      T[icut] += 1.;
+      T[icut] /= static_cast<double>(nactive);
+      Q[icut] /= static_cast<double>(nactive);
     }
-  }
-  if (nactive <= 0)
-  {
-    messerr("The calculation failed as there is no active sample");
-    return (1);
-  }
 
-  /* Calculate the tonnage and meal quantity per class */
+    /* Calculate the residuals */
 
-  moyenne /= static_cast<double>(nactive);
-  for (icut = 0; icut < ncut; icut++)
-  {
-    T[icut] /= static_cast<double>(nactive);
-    Q[icut] /= static_cast<double>(nactive);
-  }
-
-  /* Calculate the residuals */
-
-  for (iech = 0; iech < nech; iech++)
-  {
-    value = tab[iech];
-    if (FFFF(value)) continue;
-
-    /* Loop on the cutoffs */
-
-    for (icut = ncut - 1; icut >= 0; icut--)
+    for (iech = 0; iech < nech; iech++)
     {
-      value = RESIDUALS(icut, iech) / T[icut];
-      if (icut > 0)
+      value = tab[iech];
+      if (FFFF(value)) continue;
+
+      /* Loop on the cutoffs */
+
+      for (icut = ncut - 1; icut >= 0; icut--)
       {
-        jcut = icut - 1;
-        value -= RESIDUALS(jcut, iech) / T[jcut];
+        value = RESIDUALS(icut, iech) / T[icut];
+        if (icut > 0)
+        {
+          jcut = icut - 1;
+          value -= RESIDUALS(jcut, iech) / T[jcut];
+        }
+        else
+        {
+          value -= 1.;
+        }
+        RESIDUALS(icut, iech) = value;
       }
-      else
-      {
-        value -= 1.;
-      }
-      RESIDUALS(icut, iech) = value;
     }
+
+    /* Verbose optional option */
+
+    if (verbose)
+    {
+      mestitle(0, "Building residuals");
+      message("Number of sorted samples = %d\n", nactive);
+      for (icut = 0; icut < ncut; icut++)
+        message("Cutoff %2d (above %lf) - Tonnage = %lf - Metal = %lf\n",
+                icut + 1,
+                zcut[icut],
+                T[icut],
+                Q[icut]);
+    }
+
+    (*nsorted) = nactive;
+    (*mean) = moyenne;
+    return (0);
   }
-
-  /* Verbose optional option */
-
-  if (verbose)
-  {
-    mestitle(0, "Building residuals");
-    message("Number of sorted samples = %d\n", nactive);
-    for (icut = 0; icut < ncut; icut++)
-      message("Cutoff %2d (above %lf) - Tonnage = %lf - Metal = %lf\n",
-              icut + 1, zcut[icut], T[icut], Q[icut]);
-  }
-
-  (*nsorted) = nactive;
-  (*mean)    = moyenne;
-  return (0);
-}
 } // namespace gstlrn

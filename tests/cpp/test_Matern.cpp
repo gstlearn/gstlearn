@@ -30,28 +30,30 @@ int main(int argc, char* argv[])
   ASerializable::setPrefixName("test_a_template-");
 
   VectorDouble ranges = {1.0, 2.0};
-  VectorDouble angles = {30.0, 0.0};     // en degrés
-  VectorDouble rr     = {1.0, 1.0, 2.0}; // on va multiplier les ranges par 1. et 2.
+  VectorDouble angles = {30.0, 0.0}; // en degrés
+  VectorDouble rr = {1.0, 1.0, 2.0}; // on va multiplier les ranges par 1. et 2.
   VectorDouble params = {0.5, 1.0, 2.0};
   MatrixSymmetric gsSigma(3);
   gsSigma.setIdentity(1.);
 
-  bool flagRange  = true;
-  Id nvar         = 3;
+  bool flagRange = true;
+  Id nvar = 3;
   CovContext ctxt = CovContext(nvar);
-  CorMatern cor_tri(
-    ctxt,
-    ECov::MATERN,
-    params,
-    rr,
-    ranges,
-    angles,
-    flagRange);
+  CorMatern cor_tri(ctxt, ECov::MATERN, params, rr, ranges, angles, flagRange);
 
   ModelGeneric model = ModelGeneric(ctxt);
   model.setCov(&cor_tri);
   DbGrid* grid = DbGrid::create({100, 100});
-  simuSpectral(nullptr, grid, &model, nullptr, 1, 43431, 100, 100, nullptr, true,
+  simuSpectral(nullptr,
+               grid,
+               &model,
+               nullptr,
+               1,
+               43431,
+               100,
+               100,
+               nullptr,
+               true,
                NamingConvention("Simu"));
 
   return 0;

@@ -12,81 +12,81 @@
 
 namespace gstlrn
 {
-ProjComposition::ProjComposition(std::vector<const IProj*> projs)
-  : IProj()
-{
-  // Nothing to do except checking compatibility. Incompatible sizes are a
-  // developer bug and return codes of other functions are never really
-  // checked, but at least we can say we're doing it!
-
-  // Two special cases: empty list is treated later as an error and a single
-  // element is weird but why not (but it's just handled normally below)?
-  if (projs.size() == 0) return;
-
-  // Check compatibility and allocate work arrays. Use raw pointers to make
-  // iterating easier.
-  _works.resize(projs.size() - 1);
-  size_t idx      = 0;
-  const IProj* p1 = projs[idx++];
-  while (idx < projs.size())
+  ProjComposition::ProjComposition(std::vector<const IProj*> projs)
+    : IProj()
   {
-    // Check that this operator is compatible with the previous one.
-    const IProj* p2 = projs[idx];
-    if (p1->getNPoint() != p2->getNApex())
+    // Nothing to do except checking compatibility. Incompatible sizes are a
+    // developer bug and return codes of other functions are never really
+    // checked, but at least we can say we're doing it!
+
+    // Two special cases: empty list is treated later as an error and a single
+    // element is weird but why not (but it's just handled normally below)?
+    if (projs.size() == 0) return;
+
+    // Check compatibility and allocate work arrays. Use raw pointers to make
+    // iterating easier.
+    _works.resize(projs.size() - 1);
+    size_t idx = 0;
+    const IProj* p1 = projs[idx++];
+    while (idx < projs.size())
     {
-      // Abort.
-      return;
+      // Check that this operator is compatible with the previous one.
+      const IProj* p2 = projs[idx];
+      if (p1->getNPoint() != p2->getNApex())
+      {
+        // Abort.
+        return;
+      }
+      _works[idx - 1].resize(p1->getNPoint());
+      p1 = p2;
+      idx++;
     }
-    _works[idx - 1].resize(p1->getNPoint());
-    p1 = p2;
-    idx++;
+    for (const auto* p: projs) _projs.emplace_back(*p);
   }
-  for (const auto* p: projs) _projs.emplace_back(*p);
-}
 
-Id ProjComposition::_addPoint2mesh(const constvect in, vect out) const
-{
-  if (_projs.size() == 0) return -1;
-  if (_projs.size() == 1) return _projs[0].get().addPoint2mesh(in, out);
-
-  // Call point2mesh() to initialise temporary results to 0, but use
-  // addPoint2Mesh() at the end to preserve what's already in 'out'.
-  size_t idx = _projs.size() - 1;
-
-  // Unroll a bit the loop because first/last use different in/out arrays.
-  // This also means size == 1 is a special case (treated above).
-  Id ret = _projs[idx].get().point2mesh(in, _works[idx - 1]);
-  if (ret != 0) return ret;
-  idx--;
-
-  while (idx > 0)
+  Id ProjComposition::_addPoint2mesh(const constvect in, vect out) const
   {
-    ret = _projs[idx].get().point2mesh(_works[idx], _works[idx - 1]);
+    if (_projs.size() == 0) return -1;
+    if (_projs.size() == 1) return _projs[0].get().addPoint2mesh(in, out);
+
+    // Call point2mesh() to initialise temporary results to 0, but use
+    // addPoint2Mesh() at the end to preserve what's already in 'out'.
+    size_t idx = _projs.size() - 1;
+
+    // Unroll a bit the loop because first/last use different in/out arrays.
+    // This also means size == 1 is a special case (treated above).
+    Id ret = _projs[idx].get().point2mesh(in, _works[idx - 1]);
     if (ret != 0) return ret;
     idx--;
+
+    while (idx > 0)
+    {
+      ret = _projs[idx].get().point2mesh(_works[idx], _works[idx - 1]);
+      if (ret != 0) return ret;
+      idx--;
+    }
+
+    return _projs[idx].get().addPoint2mesh(_works[0], out);
   }
 
-  return _projs[idx].get().addPoint2mesh(_works[0], out);
-}
-
-Id ProjComposition::_addMesh2point(const constvect in, vect out) const
-{
-  if (_projs.size() == 0) return -1;
-  if (_projs.size() == 1) return _projs[0].get().addMesh2point(in, out);
-
-  size_t idx = 0;
-
-  Id ret = _projs[0].get().mesh2point(in, _works[0]);
-  if (ret != 0) return ret;
-  idx++;
-
-  while (idx < _projs.size() - 1)
+  Id ProjComposition::_addMesh2point(const constvect in, vect out) const
   {
-    ret = _projs[idx].get().mesh2point(_works[idx - 1], _works[idx]);
+    if (_projs.size() == 0) return -1;
+    if (_projs.size() == 1) return _projs[0].get().addMesh2point(in, out);
+
+    size_t idx = 0;
+
+    Id ret = _projs[0].get().mesh2point(in, _works[0]);
     if (ret != 0) return ret;
     idx++;
-  }
 
-  return _projs[idx].get().addMesh2point(_works[idx - 1], out);
-}
+    while (idx < _projs.size() - 1)
+    {
+      ret = _projs[idx].get().mesh2point(_works[idx - 1], _works[idx]);
+      if (ret != 0) return ret;
+      idx++;
+    }
+
+    return _projs[idx].get().addMesh2point(_works[idx - 1], out);
+  }
 } // namespace gstlrn

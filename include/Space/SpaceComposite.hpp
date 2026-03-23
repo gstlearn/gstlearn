@@ -20,100 +20,104 @@
 
 namespace gstlrn
 {
-class SpacePoint;
-class Tensor;
+  class SpacePoint;
+  class Tensor;
 
-class GSTLEARN_EXPORT SpaceComposite: public ASpace
-{
-public:
-  SpaceComposite(const std::vector<ASpaceSharedPtr>& vectspace = std::vector<ASpaceSharedPtr>());
-  SpaceComposite(const SpaceComposite& r);
-  SpaceComposite& operator=(const SpaceComposite& r);
-  virtual ~SpaceComposite();
+  class GSTLEARN_EXPORT SpaceComposite: public ASpace
+  {
+  public:
+    SpaceComposite(const std::vector<ASpaceSharedPtr>& vectspace =
+                     std::vector<ASpaceSharedPtr>());
+    SpaceComposite(const SpaceComposite& r);
+    SpaceComposite& operator=(const SpaceComposite& r);
+    virtual ~SpaceComposite();
 
-  /// ICloneable interface
-  IMPLEMENT_CLONING(SpaceComposite)
+    /// ICloneable interface
+    IMPLEMENT_CLONING(SpaceComposite)
 
-  static std::shared_ptr<SpaceComposite> create(const ASpaceSharedPtrVector& vectspace = ASpaceSharedPtrVector());
-  /// Return the concrete space type
-  ESpaceType getType() const override { return ESpaceType::COMPOSITE; }
+    static std::shared_ptr<SpaceComposite>
+      create(const ASpaceSharedPtrVector& vectspace = ASpaceSharedPtrVector());
 
-  /// Update the origin of the space
-  void setOrigin(const VectorDouble& origin) override;
+    /// Return the concrete space type
+    ESpaceType getType() const override { return ESpaceType::COMPOSITE; }
 
-  /// Get the number of dimensions
-  size_t getNDim(Id ispace = -1) const override;
+    /// Update the origin of the space
+    void setOrigin(const VectorDouble& origin) override;
 
-  /// Get the offset index for coordinates
-  size_t getOffset(Id ispace = -1) const override;
+    /// Get the number of dimensions
+    size_t getNDim(Id ispace = -1) const override;
 
-  /// Return the space origin coordinates
-  const VectorDouble& getOrigin(Id ispace = -1) const override;
+    /// Get the offset index for coordinates
+    size_t getOffset(Id ispace = -1) const override;
 
-  /// Get the number of space components
-  size_t getNComponents() const override;
+    /// Return the space origin coordinates
+    const VectorDouble& getOrigin(Id ispace = -1) const override;
 
-  /// Return the space component at index ispace
-  ASpaceSharedPtr getComponent(Id ispace = -1) const override;
+    /// Get the number of space components
+    size_t getNComponents() const override;
 
-  /// Dump a space in a string (given the space index)
-  String toStringIdx(const AStringFormat* strfmt = nullptr, Id ispace = 0) const override;
+    /// Return the space component at index ispace
+    ASpaceSharedPtr getComponent(Id ispace = -1) const override;
 
-  /// Return true if the given space is equal to me (same dimension and space
-  /// definition)
-  bool isEqual(const ASpace* space) const override;
+    /// Dump a space in a string (given the space index)
+    String toStringIdx(const AStringFormat* strfmt = nullptr,
+                       Id ispace = 0) const override;
 
-  /// Return all the distances (one by space component) between two space points
-  VectorDouble getDistances(const SpacePoint& p1,
-                            const SpacePoint& p2) const override;
+    /// Return true if the given space is equal to me (same dimension and space
+    /// definition)
+    bool isEqual(const ASpace* space) const override;
 
-  /////////////////////////////////////////////
+    /// Return all the distances (one by space component) between two space points
+    VectorDouble
+      getDistances(const SpacePoint& p1, const SpacePoint& p2) const override;
 
-  /// Add a space component to me (for exemple RN(1) for time dimension)
-  void addSpaceComponent(const ASpaceSharedPtr& comp);
+    /////////////////////////////////////////////
 
-protected:
-  /// Move the given space point by the given vector
-  void _move(SpacePoint& p1, const VectorDouble& vec) const override;
+    /// Add a space component to me (for exemple RN(1) for time dimension)
+    void addSpaceComponent(const ASpaceSharedPtr& comp);
 
-  /// Return the distance between two space points
-  double _getDistance(const SpacePoint& p1,
-                      const SpacePoint& p2,
-                      Id ispace = -1) const override;
+  protected:
+    /// Move the given space point by the given vector
+    void _move(SpacePoint& p1, const VectorDouble& vec) const override;
 
-  /// Return the distance between two space points with the given tensor
-  double _getDistance(const SpacePoint& p1,
-                      const SpacePoint& p2,
-                      const Tensor& tensor,
-                      Id ispace = -1) const override;
+    /// Return the distance between two space points
+    double _getDistance(const SpacePoint& p1,
+                        const SpacePoint& p2,
+                        Id ispace = -1) const override;
 
-  /// Return the distance in frequential domain between two space points with
-  /// the given tensor
-  double _getFrequentialDistance(const SpacePoint& p1,
-                                 const SpacePoint& p2,
-                                 const Tensor& tensor,
-                                 Id ispace = -1) const override;
+    /// Return the distance between two space points with the given tensor
+    double _getDistance(const SpacePoint& p1,
+                        const SpacePoint& p2,
+                        const Tensor& tensor,
+                        Id ispace = -1) const override;
 
-  /// Return the increment vector between two space points for the current space
-  /// context
-  VectorDouble _getIncrement(const SpacePoint& p1,
-                             const SpacePoint& p2,
-                             Id ispace = -1) const override;
+    /// Return the distance in frequential domain between two space points with
+    /// the given tensor
+    double _getFrequentialDistance(const SpacePoint& p1,
+                                   const SpacePoint& p2,
+                                   const Tensor& tensor,
+                                   Id ispace = -1) const override;
 
-  /// Return the increment vector between two space points in a given vector
-  void _getIncrementInPlace(const SpacePoint& p1,
-                            const SpacePoint& p2,
-                            VectorDouble& ptemp,
-                            Id ispace = -1) const override;
+    /// Return the increment vector between two space points for the current space
+    /// context
+    VectorDouble _getIncrement(const SpacePoint& p1,
+                               const SpacePoint& p2,
+                               Id ispace = -1) const override;
 
-private:
-  /// Space composits list
-  std::vector<std::shared_ptr<ASpace>> _comps;
-};
+    /// Return the increment vector between two space points in a given vector
+    void _getIncrementInPlace(const SpacePoint& p1,
+                              const SpacePoint& p2,
+                              VectorDouble& ptemp,
+                              Id ispace = -1) const override;
 
-GSTLEARN_EXPORT void defineDefaultSpaceRnT(size_t ndim = 2);
-GSTLEARN_EXPORT void defineDefaultSpaceS2T(double radius = 1.0); 
+  private:
+    /// Space composits list
+    std::vector<std::shared_ptr<ASpace>> _comps;
+  };
 
-GSTLEARN_EXPORT void displayDefaultSpace(); 
+  GSTLEARN_EXPORT void defineDefaultSpaceRnT(size_t ndim = 2);
+  GSTLEARN_EXPORT void defineDefaultSpaceS2T(double radius = 1.0);
+
+  GSTLEARN_EXPORT void displayDefaultSpace();
 
 } // namespace gstlrn

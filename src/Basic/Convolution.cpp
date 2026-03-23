@@ -17,265 +17,283 @@
 
 namespace gstlrn
 {
-Convolution::Convolution(DbGrid* dbgrid)
-  : _dbgrid(dbgrid)
-{
-}
-
-Convolution::Convolution(const Convolution& m)
-  : _dbgrid(m._dbgrid)
-{
-}
-
-Convolution& Convolution::operator=(const Convolution& m)
-{
-  if (this != &m)
+  Convolution::Convolution(DbGrid* dbgrid)
+    : _dbgrid(dbgrid)
   {
-    _dbgrid = m._dbgrid;
-  }
-  return *this;
-}
-
-Convolution::~Convolution()
-{
-}
-
-bool Convolution::_isDbGridDefined() const
-{
-  if (_dbgrid == nullptr)
-  {
-    messerr("You must define 'dbgrid' beforehand");
-    return false;
-  }
-  return true;
-}
-
-Id Convolution::ConvolveSparse(Id iatt,
-                               const VectorVectorInt& ranks,
-                               const MatrixDense& wgt,
-                               const VectorDouble& means,
-                               Id optionVerbose)
-{
-  if (!_isDbGridDefined()) return 1;
-  Id ndim    = _dbgrid->getNDim();
-  Id nvar    = _dbgrid->getNLoc(ELoc::Z);
-  Id nbneigh = static_cast<Id>(ranks.size());
-
-  // Preliminary checks
-  if (ndim != static_cast<Id>(ranks[0].size()))
-  {
-    messerr("The second dimension of 'ranks' (%d)", static_cast<Id>(ranks[0].size()));
-    messerr("must be equal to the space dimension (%d)", ndim);
-    return 1;
-  }
-  if (wgt.getNRows() != nbneigh * nvar)
-  {
-    messerr("The number of rows in the weight matrix (%d)", wgt.getNRows());
-    messerr("must be equal to the number of neighbors (%d)", nbneigh);
-    messerr("times the number of variables (%d)", nvar);
-    return 1;
-  }
-  if (wgt.getNCols() != nvar)
-  {
-    messerr("The number of columns in the weight matrix (%d)", wgt.getNCols());
-    messerr(" must be equal to the number of variables (%d)", nvar);
-    return 1;
   }
 
-  // Optional printout
-  if (optionVerbose)
+  Convolution::Convolution(const Convolution& m)
+    : _dbgrid(m._dbgrid)
   {
-    mestitle(1, "Convolution weights");
-    if (optionVerbose == 1)
+  }
+
+  Convolution& Convolution::operator=(const Convolution& m)
+  {
+    if (this != &m)
     {
-      Table table(nvar * nvar, 2);
-      table.setColumnName(0, "Minimum");
-      table.setColumnName(1, "Maximum");
-      for (Id ivar = 0, irow = 0; ivar < nvar; ivar++)
-      {
-        for (Id jvar = 0; jvar < nvar; jvar++, irow++)
-        {
-          VectorDouble vec = wgt.getColumnByRowRange(ivar, nbneigh * jvar, nbneigh * (jvar + 1));
-          table.setRowName(irow, "Weight of Z" + std::to_string(jvar + 1) +
-                                   " for Z*" + std::to_string(ivar + 1));
-          table.setValue(irow, 0, vec.minimum());
-          table.setValue(irow, 1, vec.maximum());
-        }
-      }
-      table.display();
+      _dbgrid = m._dbgrid;
     }
-    else
-      wgt.display();
+    return *this;
   }
 
-  VectorInt indTarget(ndim);
-  VectorInt current(ndim);
-  VectorDouble data(nvar);
-  VectorDouble result(nvar);
+  Convolution::~Convolution() {}
 
-  // Loop on the target samples
-  for (Id iech = 0, nech = _dbgrid->getNSample(); iech < nech; iech++)
+  bool Convolution::_isDbGridDefined() const
   {
-    if (!_dbgrid->isActive(iech)) continue;
-    _dbgrid->rankToIndice(iech, indTarget);
-
-    // Loop on the neighborhing samples
-    result.fill(0.);
-    bool correct = true;
-    for (Id ineigh = 0; ineigh < nbneigh && correct; ineigh++)
+    if (_dbgrid == nullptr)
     {
-      VH::add(current, indTarget, ranks[ineigh]);
-      correct = _dbgrid->getGrid().isInside(current);
+      messerr("You must define 'dbgrid' beforehand");
+      return false;
+    }
+    return true;
+  }
 
-      // Target is not estimated when one neighborhood sample is out of grid
-      if (!correct) continue;
+  Id Convolution::ConvolveSparse(Id iatt,
+                                 const VectorVectorInt& ranks,
+                                 const MatrixDense& wgt,
+                                 const VectorDouble& means,
+                                 Id optionVerbose)
+  {
+    if (!_isDbGridDefined()) return 1;
+    Id ndim = _dbgrid->getNDim();
+    Id nvar = _dbgrid->getNLoc(ELoc::Z);
+    Id nbneigh = static_cast<Id>(ranks.size());
 
-      // Load the mutlivariate set of values at location 'jech'
-      // Variable 'valid' is set to false if one data value is undefined
-      bool valid = true;
-      Id jech    = _dbgrid->indiceToRank(current);
-      for (Id ivar = 0; ivar < nvar && valid; ivar++)
-      {
-        double value = _dbgrid->getZVariable(jech, ivar);
-        if (FFFF(value))
-          valid = false;
-        else
-        {
-          if (!means.empty()) value -= means[ivar];
-          data[ivar] = value;
-        }
-      }
-
-      // Target is not estimated if one data value is undefined
-      if (!valid)
-      {
-        correct = false;
-        continue;
-      }
-
-      // Loop on data variable
-      for (Id jvar = 0; jvar < nvar; jvar++)
-      {
-        Id irow = jvar * nbneigh + ineigh;
-
-        // Loop on target variable
-        for (Id ivar = 0; ivar < nvar; ivar++)
-        {
-          result[ivar] += data[jvar] * wgt.getValue(irow, ivar);
-        }
-      }
+    // Preliminary checks
+    if (ndim != static_cast<Id>(ranks[0].size()))
+    {
+      messerr("The second dimension of 'ranks' (%d)",
+              static_cast<Id>(ranks[0].size()));
+      messerr("must be equal to the space dimension (%d)", ndim);
+      return 1;
+    }
+    if (wgt.getNRows() != nbneigh * nvar)
+    {
+      messerr("The number of rows in the weight matrix (%d)", wgt.getNRows());
+      messerr("must be equal to the number of neighbors (%d)", nbneigh);
+      messerr("times the number of variables (%d)", nvar);
+      return 1;
+    }
+    if (wgt.getNCols() != nvar)
+    {
+      messerr("The number of columns in the weight matrix (%d)",
+              wgt.getNCols());
+      messerr(" must be equal to the number of variables (%d)", nvar);
+      return 1;
     }
 
-    // Store the results
+    // Optional printout
+    if (optionVerbose)
+    {
+      mestitle(1, "Convolution weights");
+      if (optionVerbose == 1)
+      {
+        Table table(nvar * nvar, 2);
+        table.setColumnName(0, "Minimum");
+        table.setColumnName(1, "Maximum");
+        for (Id ivar = 0, irow = 0; ivar < nvar; ivar++)
+        {
+          for (Id jvar = 0; jvar < nvar; jvar++, irow++)
+          {
+            VectorDouble vec = wgt.getColumnByRowRange(ivar,
+                                                       nbneigh * jvar,
+                                                       nbneigh * (jvar + 1));
+            table.setRowName(irow,
+                             "Weight of Z" + std::to_string(jvar + 1)
+                               + " for Z*" + std::to_string(ivar + 1));
+            table.setValue(irow, 0, vec.minimum());
+            table.setValue(irow, 1, vec.maximum());
+          }
+        }
+        table.display();
+      }
+      else
+        wgt.display();
+    }
+
+    VectorInt indTarget(ndim);
+    VectorInt current(ndim);
+    VectorDouble data(nvar);
+    VectorDouble result(nvar);
+
+    // Loop on the target samples
+    for (Id iech = 0, nech = _dbgrid->getNSample(); iech < nech; iech++)
+    {
+      if (!_dbgrid->isActive(iech)) continue;
+      _dbgrid->rankToIndice(iech, indTarget);
+
+      // Loop on the neighborhing samples
+      result.fill(0.);
+      bool correct = true;
+      for (Id ineigh = 0; ineigh < nbneigh && correct; ineigh++)
+      {
+        VH::add(current, indTarget, ranks[ineigh]);
+        correct = _dbgrid->getGrid().isInside(current);
+
+        // Target is not estimated when one neighborhood sample is out of grid
+        if (!correct) continue;
+
+        // Load the mutlivariate set of values at location 'jech'
+        // Variable 'valid' is set to false if one data value is undefined
+        bool valid = true;
+        Id jech = _dbgrid->indiceToRank(current);
+        for (Id ivar = 0; ivar < nvar && valid; ivar++)
+        {
+          double value = _dbgrid->getZVariable(jech, ivar);
+          if (FFFF(value))
+            valid = false;
+          else
+          {
+            if (!means.empty()) value -= means[ivar];
+            data[ivar] = value;
+          }
+        }
+
+        // Target is not estimated if one data value is undefined
+        if (!valid)
+        {
+          correct = false;
+          continue;
+        }
+
+        // Loop on data variable
+        for (Id jvar = 0; jvar < nvar; jvar++)
+        {
+          Id irow = jvar * nbneigh + ineigh;
+
+          // Loop on target variable
+          for (Id ivar = 0; ivar < nvar; ivar++)
+          {
+            result[ivar] += data[jvar] * wgt.getValue(irow, ivar);
+          }
+        }
+      }
+
+      // Store the results
+      for (Id ivar = 0; ivar < nvar; ivar++)
+      {
+        double value = TEST;
+        if (correct)
+        {
+          value = result[ivar];
+          if (!means.empty()) value += means[ivar];
+        }
+        _dbgrid->setArray(iech, iatt + ivar, value);
+      }
+    }
+    return 0;
+  }
+
+  Id Convolution::ConvolveFFT(Id iatt,
+                              Id nvar,
+                              const DbGrid* marpat,
+                              const VectorDouble& means)
+  {
+    Id ndim = _dbgrid->getNDim();
+    Id nv2 = nvar * nvar;
+    VectorInt dims = _dbgrid->getNXs();
+    Id sImage = dims.prod();
+    auto rImage = static_cast<double>(sImage);
+
+    // Find the center of kernel
+    VectorInt cKernel = marpat->getCenterIndices(false);
+
+    // Find the center of the image
+    VectorInt cImage = _dbgrid->getCenterIndices(false);
+
+    // Find the shift between the two centers
+    VectorInt shift = cImage - cKernel;
+
+    // For each kernel, allocate arrays (real and imaginary parts)
+    // at the dimension of the final image.
+    VectorInt indices(ndim);
+    std::vector<VectorDouble> kernelRe;
+    std::vector<VectorDouble> kernelIm;
+    kernelRe.resize(nv2);
+    kernelIm.resize(nv2);
+    for (Id iv2 = 0; iv2 < nv2; iv2++)
+    {
+      kernelRe[iv2].fill(0., sImage);
+      kernelIm[iv2].fill(0., sImage);
+    }
+
+    // For each pair or variable (ivar, jvar), plunge the corresponding
+    // set of weights (given by 'marpat') in the "middle" of each 'kernel'
+    Id sKernel = marpat->getNXs().prod();
+    for (Id i = 0; i < sKernel; i++)
+    {
+      marpat->rankToIndice(i, indices);
+      indices += shift;
+      Id j = _dbgrid->indiceToRank(indices);
+
+      for (Id iv2 = 0; iv2 < nv2; iv2++)
+        kernelRe[iv2][j] = marpat->getLocVariable(ELoc::Z, i, iv2);
+    }
+
+    // Perform the FFT forward transform for each kernel
+    for (Id iv2 = 0; iv2 < nv2; iv2++)
+      if (fftn(ndim,
+               dims.data(),
+               kernelRe[iv2].data(),
+               kernelIm[iv2].data(),
+               1))
+        return 1;
+
+    // Retreive the vector of images (real and imaginary parts)
+    std::vector<VectorDouble> imageRe;
+    std::vector<VectorDouble> imageIm;
+    imageRe.resize(nvar);
+    imageIm.resize(nvar);
     for (Id ivar = 0; ivar < nvar; ivar++)
     {
-      double value = TEST;
-      if (correct)
-      {
-        value = result[ivar];
-        if (!means.empty()) value += means[ivar];
-      }
-      _dbgrid->setArray(iech, iatt + ivar, value);
+      imageRe[ivar] = _dbgrid->getColumnByLocator(ELoc::Z, ivar);
+      if (!means.empty()) imageRe[ivar] -= means[ivar];
+      imageIm[ivar].resize(sImage, 0.);
+
+      // Perform the FFT forward transform of each image
+      if (fftn(ndim,
+               dims.data(),
+               imageRe[ivar].data(),
+               imageIm[ivar].data(),
+               1))
+        return 1;
     }
-  }
-  return 0;
-}
 
-Id Convolution::ConvolveFFT(Id iatt,
-                            Id nvar,
-                            const DbGrid* marpat,
-                            const VectorDouble& means)
-{
-  Id ndim        = _dbgrid->getNDim();
-  Id nv2         = nvar * nvar;
-  VectorInt dims = _dbgrid->getNXs();
-  Id sImage      = dims.prod();
-  auto rImage    = static_cast<double>(sImage);
+    VectorDouble result(sImage);
+    VectorDouble localRe(sImage);
+    VectorDouble localIm(sImage);
 
-  // Find the center of kernel
-  VectorInt cKernel = marpat->getCenterIndices(false);
-
-  // Find the center of the image
-  VectorInt cImage = _dbgrid->getCenterIndices(false);
-
-  // Find the shift between the two centers
-  VectorInt shift = cImage - cKernel;
-
-  // For each kernel, allocate arrays (real and imaginary parts)
-  // at the dimension of the final image.
-  VectorInt indices(ndim);
-  std::vector<VectorDouble> kernelRe;
-  std::vector<VectorDouble> kernelIm;
-  kernelRe.resize(nv2);
-  kernelIm.resize(nv2);
-  for (Id iv2 = 0; iv2 < nv2; iv2++)
-  {
-    kernelRe[iv2].fill(0., sImage);
-    kernelIm[iv2].fill(0., sImage);
-  }
-
-  // For each pair or variable (ivar, jvar), plunge the corresponding
-  // set of weights (given by 'marpat') in the "middle" of each 'kernel'
-  Id sKernel = marpat->getNXs().prod();
-  for (Id i = 0; i < sKernel; i++)
-  {
-    marpat->rankToIndice(i, indices);
-    indices += shift;
-    Id j = _dbgrid->indiceToRank(indices);
-
-    for (Id iv2 = 0; iv2 < nv2; iv2++)
-      kernelRe[iv2][j] = marpat->getLocVariable(ELoc::Z, i, iv2);
-  }
-
-  // Perform the FFT forward transform for each kernel
-  for (Id iv2 = 0; iv2 < nv2; iv2++)
-    if (fftn(ndim, dims.data(), kernelRe[iv2].data(), kernelIm[iv2].data(), 1)) return 1;
-
-  // Retreive the vector of images (real and imaginary parts)
-  std::vector<VectorDouble> imageRe;
-  std::vector<VectorDouble> imageIm;
-  imageRe.resize(nvar);
-  imageIm.resize(nvar);
-  for (Id ivar = 0; ivar < nvar; ivar++)
-  {
-    imageRe[ivar] = _dbgrid->getColumnByLocator(ELoc::Z, ivar);
-    if (!means.empty()) imageRe[ivar] -= means[ivar];
-    imageIm[ivar].resize(sImage, 0.);
-
-    // Perform the FFT forward transform of each image
-    if (fftn(ndim, dims.data(), imageRe[ivar].data(), imageIm[ivar].data(), 1)) return 1;
-  }
-
-  VectorDouble result(sImage);
-  VectorDouble localRe(sImage);
-  VectorDouble localIm(sImage);
-
-  // Loop on the output variables
-  Id iv2 = 0;
-  for (Id ivar = 0; ivar < nvar; ivar++)
-  {
-    result.fill(0.);
-    for (Id jvar = 0; jvar < nvar; jvar++, iv2++)
+    // Loop on the output variables
+    Id iv2 = 0;
+    for (Id ivar = 0; ivar < nvar; ivar++)
     {
+      result.fill(0.);
+      for (Id jvar = 0; jvar < nvar; jvar++, iv2++)
+      {
 
-      // Perform the element-wise product of complex vectors
-      VH::multiplyComplexInPlace(kernelRe[iv2], kernelIm[iv2], imageRe[jvar],
-                                 imageIm[jvar], localRe, localIm);
+        // Perform the element-wise product of complex vectors
+        VH::multiplyComplexInPlace(kernelRe[iv2],
+                                   kernelIm[iv2],
+                                   imageRe[jvar],
+                                   imageIm[jvar],
+                                   localRe,
+                                   localIm);
 
-      // Compute the inverse FFT
-      if (fftn(ndim, dims.data(), localRe.data(), localIm.data(), -1, rImage)) return 1;
+        // Compute the inverse FFT
+        if (fftn(ndim, dims.data(), localRe.data(), localIm.data(), -1, rImage))
+          return 1;
 
-      // Cumulate the real part
-      result += localRe;
+        // Cumulate the real part
+        result += localRe;
+      }
+
+      // Perform the ultimate swap
+      fftshift(dims, result);
+
+      // Store the results in the Db
+      if (!means.empty()) result += means[ivar];
+      _dbgrid->setArrayByUID(result, iatt + ivar);
     }
-
-    // Perform the ultimate swap
-    fftshift(dims, result);
-
-    // Store the results in the Db
-    if (!means.empty()) result += means[ivar];
-    _dbgrid->setArrayByUID(result, iatt + ivar);
+    return 0;
   }
-  return 0;
-}
 } // namespace gstlrn

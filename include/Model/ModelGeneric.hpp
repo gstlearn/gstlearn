@@ -29,243 +29,260 @@
 
 namespace gstlrn
 {
-class Db;
+  class Db;
 
-class DbGrid;
-class CovCalcMode;
-class ATransform;
+  class DbGrid;
+  class CovCalcMode;
+  class ATransform;
 
-/**
- * \brief
- * Class containing the Model Information describing the formal Spatial (or Temporal) Characteristics
- * of the (set of) random variable(s) under study.
- *
- * The Model is essentially a container with two main contents:
- * - the **covariance** part: see ACov.hpp for more information
- * - the **drift** part: see DriftList.hpp for more information
- *
- * The additional member **CovContext** only serves in carrying the following information:
- * - the number of variables: if more than 1, the Model becomes multivariate
- * - the field extension: this information is needed to get a *stationary* version to any covariance
- * - the experimental mean vector and the variance-covariance matrix (used to calibrate the Model)
- */
-class GSTLEARN_EXPORT ModelGeneric: public ICloneable, public ASerializable
-{
-public:
-  ModelGeneric(const CovContext& ctxt = CovContext());
-  ModelGeneric(const ModelGeneric& r);
-  ModelGeneric& operator=(const ModelGeneric& r);
-  virtual ~ModelGeneric();
+  /**
+   * \brief
+   * Class containing the Model Information describing the formal Spatial (or Temporal) Characteristics
+   * of the (set of) random variable(s) under study.
+   *
+   * The Model is essentially a container with two main contents:
+   * - the **covariance** part: see ACov.hpp for more information
+   * - the **drift** part: see DriftList.hpp for more information
+   *
+   * The additional member **CovContext** only serves in carrying the following information:
+   * - the number of variables: if more than 1, the Model becomes multivariate
+   * - the field extension: this information is needed to get a *stationary* version to any covariance
+   * - the experimental mean vector and the variance-covariance matrix (used to calibrate the Model)
+   */
+  class GSTLEARN_EXPORT ModelGeneric: public ICloneable, public ASerializable
+  {
+  public:
+    ModelGeneric(const CovContext& ctxt = CovContext());
+    ModelGeneric(const ModelGeneric& r);
+    ModelGeneric& operator=(const ModelGeneric& r);
+    virtual ~ModelGeneric();
 
-public:
-  /// ICloneable interface
-  IMPLEMENT_CLONING(ModelGeneric)
+  public:
+    /// ICloneable interface
+    IMPLEMENT_CLONING(ModelGeneric)
 
-  /// ASeralizable Interface
-  String getNFName() const override { return "ModelGeneric"; }
+    /// ASeralizable Interface
+    String getNFName() const override { return "ModelGeneric"; }
 #ifdef HDF5
-  bool deserializeH5(H5::Group& grp) override;
-  bool serializeH5(H5::Group& grp) const override;
+    bool deserializeH5(H5::Group& grp) override;
+    bool serializeH5(H5::Group& grp) const override;
 #endif
 
-  // getters for member pointers
-  const ACov* getCov() const { return _cova.get(); }
-  const CovContext* getContext() const { return &_ctxt; }
-  const DriftList* getDriftList() const { return _driftList; }
+    // getters for member pointers
+    const ACov* getCov() const { return _cova.get(); }
 
-  ACov* _getCovModify() { return _cova.get(); }
-  CovContext* _getContextModify() { return &_ctxt; }
-  DriftList* _getDriftListModify() { return _driftList; }
-  std::vector<covmaptype>& getCovGradients() { return _gradCovFuncs; }
+    const CovContext* getContext() const { return &_ctxt; }
 
-  static ModelGeneric* create(const CovContext& ctxt = CovContext());
+    const DriftList* getDriftList() const { return _driftList; }
 
-public:
-  // Forwarding the methods from _cova
-  FORWARD_METHOD(getCov, evalCovMat)
-  FORWARD_METHOD(getCov, evalCovMatInPlace)
-  FORWARD_METHOD(getCov, evalCovMatInPlaceFromIdx)
-  FORWARD_METHOD(getCov, evalCovMatSym)
-  FORWARD_METHOD(getCov, evalCovMatSymInPlace)
-  FORWARD_METHOD(getCov, evalCovMatSymInPlaceFromIdx)
-  FORWARD_METHOD(getCov, eval0Mat)
-  FORWARD_METHOD(getCov, evalCovMat0)
-  FORWARD_METHOD(getCov, evalCovMat0InPlace)
-  FORWARD_METHOD(getCov, evalCovVecRHSInPlace)
-  FORWARD_METHOD(getCov, evalCovMatOptimInPlace)
-  FORWARD_METHOD(getCov, evalCovMatRHSInPlaceFromIdx)
-  FORWARD_METHOD(getCov, evalCovMatSparse)
-  FORWARD_METHOD(getCov, eval0)
-  FORWARD_METHOD(getCov, evalCov)
-  FORWARD_METHOD(getCov, evalNvarIpas)
-  FORWARD_METHOD(getCov, evalNvarIpasIncr)
-  FORWARD_METHOD(getCov, evalIvarNlag)
-  FORWARD_METHOD(getCov, evalIvarIpas)
-  FORWARD_METHOD(getCov, evalCvv)
-  FORWARD_METHOD(getCov, evalCvvShift)
-  FORWARD_METHOD(getCov, evalCvvM)
-  FORWARD_METHOD(getCov, evalCxv)
-  FORWARD_METHOD(getCov, evalCxvM)
-  FORWARD_METHOD(getCov, evalPointToDb)
-  FORWARD_METHOD(getCov, evalPointToDbAsSP)
-  FORWARD_METHOD(getCov, evalAverageDbToDb, TEST)
-  FORWARD_METHOD(getCov, evalAverageIncrToIncr, TEST)
-  FORWARD_METHOD(getCov, evalAveragePointToDb, TEST)
-  FORWARD_METHOD(getCov, isValidForSimulation, false)
-  FORWARD_METHOD(getCov, samplingDensityVariance, TEST)
-  FORWARD_METHOD(getCov, specificVolume, TEST)
-  FORWARD_METHOD(getCov, coefficientOfVariation, TEST)
-  FORWARD_METHOD(getCov, specificVolumeFromCoV, TEST)
-  FORWARD_METHOD(getCov, extensionVariance, TEST)
-  FORWARD_METHOD(getCov, calculateStDev, TEST)
-  FORWARD_METHOD(getCov, evaluateMatInPlace)
-  FORWARD_METHOD(getCov, evaluateOneGeneric, TEST)
-  FORWARD_METHOD(getCov, evaluateOneIncr, TEST)
-  FORWARD_METHOD(getCov, buildVmapOnDbGrid)
-  FORWARD_METHOD(getCov, sample)
-  FORWARD_METHOD(getCov, sampleUnitary)
-  FORWARD_METHOD(getCov, envelop)
-  FORWARD_METHOD(getCov, gofToVario, TEST)
-  FORWARD_METHOD(getCov, isNoStat)
-  FORWARD_METHOD(getCov, manage)
-  FORWARD_METHOD(getCov, optimizationPreProcessForData)
-  FORWARD_METHOD(getCov, optimizationPostProcess)
-  FORWARD_METHOD(getCov, simulateSpectralOmega, MatrixDense())
+    ACov* _getCovModify() { return _cova.get(); }
 
-  FORWARD_METHOD_NON_CONST(_getCovModify, setOptimEnabled)
-  FORWARD_METHOD_NON_CONST(_getCovModify, attachNoStatDb)
-  FORWARD_METHOD_NON_CONST(_getCovModify, makeStationary)
-  FORWARD_METHOD_NON_CONST(_getCovModify, evalCovGrad, VectorDouble())
+    CovContext* _getContextModify() { return &_ctxt; }
 
-  // Forwarding the methods from _driftList
+    DriftList* _getDriftListModify() { return _driftList; }
 
-  FORWARD_METHOD(getDriftList, getDrift)
-  FORWARD_METHOD(getDriftList, computeDrift, TEST)
-  FORWARD_METHOD(getDriftList, evalDriftValue, TEST)
-  FORWARD_METHOD(getDriftList, evalDriftMat)
-  FORWARD_METHOD(getDriftList, evalDriftMatInPlace)
-  FORWARD_METHOD(getDriftList, evalDriftMatByRanks)
-  FORWARD_METHOD(getDriftList, evalMeanVecByRanks)
-  FORWARD_METHOD(getDriftList, evalDriftMatByRanksInPlace)
-  FORWARD_METHOD(getDriftList, evalDriftMatByTargetInPlace)
-  FORWARD_METHOD(getDriftList, getNDrift)
-  FORWARD_METHOD(getDriftList, getNDriftEquation)
-  FORWARD_METHOD(getDriftList, getNExtDrift)
-  FORWARD_METHOD(getDriftList, isFlagLinked)
-  FORWARD_METHOD(getDriftList, getDriftMaxIRFOrder, -1)
-  FORWARD_METHOD(getDriftList, getRankFex)
-  FORWARD_METHOD(getDriftList, isDriftSampleDefined)
-  FORWARD_METHOD(getDriftList, isDriftFiltered)
-  FORWARD_METHOD(getDriftList, isDriftDefined)
-  FORWARD_METHOD(getDriftList, isDriftDifferentDefined)
-  FORWARD_METHOD(getDriftList, getDrifts)
-  FORWARD_METHOD(getDriftList, evalDrift, TEST)
-  FORWARD_METHOD(getDriftList, evalDriftBySample)
-  FORWARD_METHOD(getDriftList, evalDriftBySampleInPlace)
-  FORWARD_METHOD(getDriftList, evalDriftCoef)
-  FORWARD_METHOD(getDriftList, hasDrift, false)
+    std::vector<covmaptype>& getCovGradients() { return _gradCovFuncs; }
 
-  FORWARD_METHOD(getDriftList, getMean, TEST)
-  FORWARD_METHOD(getDriftList, getMeans)
-  FORWARD_METHOD(getDriftList, evalDriftVarCoef, TEST)
-  FORWARD_METHOD(getDriftList, evalDriftVarCoefs)
-  FORWARD_METHOD(getDriftList, getPriorMeans)
-  FORWARD_METHOD(getDriftList, getPriorCovs)
-  FORWARD_METHOD(getDriftList, getPriorCov, TEST)
+    static ModelGeneric* create(const CovContext& ctxt = CovContext());
 
-  FORWARD_METHOD_NON_CONST(_getDriftListModify, setFlagLinked)
-  FORWARD_METHOD_NON_CONST(_getDriftListModify, setBetaHat)
-  FORWARD_METHOD_NON_CONST(_getDriftListModify, setFiltered)
-  FORWARD_METHOD_NON_CONST(_getDriftListModify, delDrift)
-  FORWARD_METHOD_NON_CONST(_getDriftListModify, delAllDrifts)
-  FORWARD_METHOD_NON_CONST(_getDriftListModify, copyCovContext)
-  FORWARD_METHOD_NON_CONST(_getDriftListModify, setMeans)
-  FORWARD_METHOD_NON_CONST(_getDriftListModify, setMean)
-  FORWARD_METHOD_NON_CONST(_getDriftListModify, setPriorMeans)
-  FORWARD_METHOD_NON_CONST(_getDriftListModify, setPriorCovs)
+  public:
+    // clang-format off
+    // Forwarding the methods from _cova
+    FORWARD_METHOD(getCov, evalCovMat)
+    FORWARD_METHOD(getCov, evalCovMatInPlace)
+    FORWARD_METHOD(getCov, evalCovMatInPlaceFromIdx)
+    FORWARD_METHOD(getCov, evalCovMatSym)
+    FORWARD_METHOD(getCov, evalCovMatSymInPlace)
+    FORWARD_METHOD(getCov, evalCovMatSymInPlaceFromIdx)
+    FORWARD_METHOD(getCov, eval0Mat)
+    FORWARD_METHOD(getCov, evalCovMat0)
+    FORWARD_METHOD(getCov, evalCovMat0InPlace)
+    FORWARD_METHOD(getCov, evalCovVecRHSInPlace)
+    FORWARD_METHOD(getCov, evalCovMatOptimInPlace)
+    FORWARD_METHOD(getCov, evalCovMatRHSInPlaceFromIdx)
+    FORWARD_METHOD(getCov, evalCovMatSparse)
+    FORWARD_METHOD(getCov, eval0)
+    FORWARD_METHOD(getCov, evalCov)
+    FORWARD_METHOD(getCov, evalNvarIpas)
+    FORWARD_METHOD(getCov, evalNvarIpasIncr)
+    FORWARD_METHOD(getCov, evalIvarNlag)
+    FORWARD_METHOD(getCov, evalIvarIpas)
+    FORWARD_METHOD(getCov, evalCvv)
+    FORWARD_METHOD(getCov, evalCvvShift)
+    FORWARD_METHOD(getCov, evalCvvM)
+    FORWARD_METHOD(getCov, evalCxv)
+    FORWARD_METHOD(getCov, evalCxvM)
+    FORWARD_METHOD(getCov, evalPointToDb)
+    FORWARD_METHOD(getCov, evalPointToDbAsSP)
+    FORWARD_METHOD(getCov, evalAverageDbToDb, TEST)
+    FORWARD_METHOD(getCov, evalAverageIncrToIncr, TEST)
+    FORWARD_METHOD(getCov, evalAveragePointToDb, TEST)
+    FORWARD_METHOD(getCov, isValidForSimulation, false)
+    FORWARD_METHOD(getCov, samplingDensityVariance, TEST)
+    FORWARD_METHOD(getCov, specificVolume, TEST)
+    FORWARD_METHOD(getCov, coefficientOfVariation, TEST)
+    FORWARD_METHOD(getCov, specificVolumeFromCoV, TEST)
+    FORWARD_METHOD(getCov, extensionVariance, TEST)
+    FORWARD_METHOD(getCov, calculateStDev, TEST)
+    FORWARD_METHOD(getCov, evaluateMatInPlace)
+    FORWARD_METHOD(getCov, evaluateOneGeneric, TEST)
+    FORWARD_METHOD(getCov, evaluateOneIncr, TEST)
+    FORWARD_METHOD(getCov, buildVmapOnDbGrid)
+    FORWARD_METHOD(getCov, sample)
+    FORWARD_METHOD(getCov, sampleUnitary)
+    FORWARD_METHOD(getCov, envelop)
+    FORWARD_METHOD(getCov, gofToVario, TEST)
+    FORWARD_METHOD(getCov, isNoStat)
+    FORWARD_METHOD(getCov, manage)
+    FORWARD_METHOD(getCov, optimizationPreProcessForData)
+    FORWARD_METHOD(getCov, optimizationPostProcess)
+    FORWARD_METHOD(getCov, simulateSpectralOmega, MatrixDense())
 
-  // Forwarding the methods from _ctxt
-  FORWARD_METHOD(getContext, getNVar, -1)
-  FORWARD_METHOD(getContext, getNDim, -1)
-  FORWARD_METHOD(getContext, getSpace)
+    FORWARD_METHOD_NON_CONST(_getCovModify, setOptimEnabled)
+    FORWARD_METHOD_NON_CONST(_getCovModify, attachNoStatDb)
+    FORWARD_METHOD_NON_CONST(_getCovModify, makeStationary)
+    FORWARD_METHOD_NON_CONST(_getCovModify, evalCovGrad, VectorDouble())
 
-  FORWARD_METHOD(getContext, getCovar0)
-  FORWARD_METHOD(getContext, getField, TEST)
+    // Forwarding the methods from _driftList
 
-  FORWARD_METHOD_NON_CONST(_getContextModify, setField)
-  FORWARD_METHOD_NON_CONST(_getContextModify, setCovar0s)
-  FORWARD_METHOD_NON_CONST(_getContextModify, setCovar0)
+    FORWARD_METHOD(getDriftList, getDrift)
+    FORWARD_METHOD(getDriftList, computeDrift, TEST)
+    FORWARD_METHOD(getDriftList, evalDriftValue, TEST)
+    FORWARD_METHOD(getDriftList, evalDriftMat)
+    FORWARD_METHOD(getDriftList, evalDriftMatInPlace)
+    FORWARD_METHOD(getDriftList, evalDriftMatByRanks)
+    FORWARD_METHOD(getDriftList, evalMeanVecByRanks)
+    FORWARD_METHOD(getDriftList, evalDriftMatByRanksInPlace)
+    FORWARD_METHOD(getDriftList, evalDriftMatByTargetInPlace)
+    FORWARD_METHOD(getDriftList, getNDrift)
+    FORWARD_METHOD(getDriftList, getNDriftEquation)
+    FORWARD_METHOD(getDriftList, getNExtDrift)
+    FORWARD_METHOD(getDriftList, isFlagLinked)
+    FORWARD_METHOD(getDriftList, getDriftMaxIRFOrder, -1)
+    FORWARD_METHOD(getDriftList, getRankFex)
+    FORWARD_METHOD(getDriftList, isDriftSampleDefined)
+    FORWARD_METHOD(getDriftList, isDriftFiltered)
+    FORWARD_METHOD(getDriftList, isDriftDefined)
+    FORWARD_METHOD(getDriftList, isDriftDifferentDefined)
+    FORWARD_METHOD(getDriftList, getDrifts)
+    FORWARD_METHOD(getDriftList, evalDrift, TEST)
+    FORWARD_METHOD(getDriftList, evalDriftBySample)
+    FORWARD_METHOD(getDriftList, evalDriftBySampleInPlace)
+    FORWARD_METHOD(getDriftList, evalDriftCoef)
+    FORWARD_METHOD(getDriftList, hasDrift, false)
 
-  FORWARD_METHOD(getTransform, condExpVec, VectorDouble())
-  FORWARD_METHOD(getTransform, transformVec, VectorDouble())
-  FORWARD_METHOD(getTransform, inverseTransformVec, VectorDouble())
+    FORWARD_METHOD(getDriftList, getMean, TEST)
+    FORWARD_METHOD(getDriftList, getMeans)
+    FORWARD_METHOD(getDriftList, evalDriftVarCoef, TEST)
+    FORWARD_METHOD(getDriftList, evalDriftVarCoefs)
+    FORWARD_METHOD(getDriftList, getPriorMeans)
+    FORWARD_METHOD(getDriftList, getPriorCovs)
+    FORWARD_METHOD(getDriftList, getPriorCov, TEST)
 
-  void setField(double field);
-  bool isValid() const;
+    FORWARD_METHOD_NON_CONST(_getDriftListModify, setFlagLinked)
+    FORWARD_METHOD_NON_CONST(_getDriftListModify, setBetaHat)
+    FORWARD_METHOD_NON_CONST(_getDriftListModify, setFiltered)
+    FORWARD_METHOD_NON_CONST(_getDriftListModify, delDrift)
+    FORWARD_METHOD_NON_CONST(_getDriftListModify, delAllDrifts)
+    FORWARD_METHOD_NON_CONST(_getDriftListModify, copyCovContext)
+    FORWARD_METHOD_NON_CONST(_getDriftListModify, setMeans)
+    FORWARD_METHOD_NON_CONST(_getDriftListModify, setMean)
+    FORWARD_METHOD_NON_CONST(_getDriftListModify, setPriorMeans)
+    FORWARD_METHOD_NON_CONST(_getDriftListModify, setPriorCovs)
 
-  void setContext(const CovContext& ctxt);
-  void setCov(const ACov* cova);
+    // Forwarding the methods from _ctxt
+    FORWARD_METHOD(getContext, getNVar, -1)
+    FORWARD_METHOD(getContext, getNDim, -1)
+    FORWARD_METHOD(getContext, getSpace)
 
-  void setDriftList(const DriftList* driftlist);
-  void setDriftIRF(Id order = 0, Id nfex = 0);
-  void addDrift(const ADrift* drift); // TODO: check that the same driftM has not been already defined
-  void setDrifts(const VectorString& driftSymbols);
+    FORWARD_METHOD(getContext, getCovar0)
+    FORWARD_METHOD(getContext, getField, TEST)
+
+    FORWARD_METHOD_NON_CONST(_getContextModify, setField)
+    FORWARD_METHOD_NON_CONST(_getContextModify, setCovar0s)
+    FORWARD_METHOD_NON_CONST(_getContextModify, setCovar0)
+
+    FORWARD_METHOD(getTransform, condExpVec, VectorDouble())
+    FORWARD_METHOD(getTransform, transformVec, VectorDouble())
+    FORWARD_METHOD(getTransform, inverseTransformVec, VectorDouble())
+    // clang-format on
+
+    void setField(double field);
+    bool isValid() const;
+
+    void setContext(const CovContext& ctxt);
+    void setCov(const ACov* cova);
+
+    void setDriftList(const DriftList* driftlist);
+    void setDriftIRF(Id order = 0, Id nfex = 0);
+    void addDrift(
+      const ADrift*
+        drift); // TODO: check that the same driftM has not been already defined
+    void setDrifts(const VectorString& driftSymbols);
 
 #ifndef SWIG
-  void initParams(const MatrixSymmetric& vars, double href = 1., double min = 0., double max = INF);
+    void initParams(const MatrixSymmetric& vars,
+                    double href = 1.,
+                    double min = 0.,
+                    double max = INF);
 #endif
-  const ATransform* getTransform() const { return _transform.get(); }
-  ATransform* getTransformModify() { return _transform.get(); }
-  void setTransform(const ATransform* transform);
+    const ATransform* getTransform() const { return _transform.get(); }
 
-  std::shared_ptr<ListParams> generateListParams() const;
-  // Version for python test
-  static ListParams* createListParams(std::shared_ptr<ListParams>& lp);
-  void updateModel();
-  double computeLogLikelihood(const Db* db, bool verbose = false);
-  void fitNew(const Db* db               = nullptr,
-              Vario* vario               = nullptr,
-              const DbGrid* dbmap        = nullptr,
-              Constraints* constraints   = nullptr,
-              const ModelOptimParam& mop = ModelOptimParam(),
-              Id nb_neighVecchia         = ITEST,
-              bool verbose               = false,
-              bool trace                 = false,
-              bool reml                  = false);
-  bool hasTransform() const { return (_transform != nullptr); }
+    ATransform* getTransformModify() { return _transform.get(); }
 
-private:
-  virtual bool _isValid() const;
+    void setTransform(const ATransform* transform);
 
-protected:
-  virtual void _clear();
-  virtual void _create();
+    std::shared_ptr<ListParams> generateListParams() const;
+    // Version for python test
+    static ListParams* createListParams(std::shared_ptr<ListParams>& lp);
+    void updateModel();
+    double computeLogLikelihood(const Db* db, bool verbose = false);
+    void fitNew(const Db* db = nullptr,
+                Vario* vario = nullptr,
+                const DbGrid* dbmap = nullptr,
+                Constraints* constraints = nullptr,
+                const ModelOptimParam& mop = ModelOptimParam(),
+                Id nb_neighVecchia = ITEST,
+                bool verbose = false,
+                bool trace = false,
+                bool reml = false);
 
-protected:                     // TODO : pass into private to finish clean
-  std::shared_ptr<ACov> _cova; /* Generic Covariance structure */
-  mutable std::vector<covmaptype> _gradCovFuncs;
+    bool hasTransform() const { return (_transform != nullptr); }
 
-  DriftList* _driftList;                  /* Series of Drift functions */
-  CovContext _ctxt;                       /* Context */
-  std::shared_ptr<ATransform> _transform; /* Transformation associated to the Model */
-};
+  private:
+    virtual bool _isValid() const;
 
-GSTLEARN_EXPORT Id computeCovMatSVCLHSInPlace(MatrixSymmetric& cov,
-                                              const MatrixSymmetric& Sigma,
-                                              const MatrixDense& F1,
-                                              Id type = 1,
-                                              Id idx  = 0);
-GSTLEARN_EXPORT Id computeCovMatSVCRHSInPlace(MatrixDense& cov,
-                                              const MatrixSymmetric& Sigma,
-                                              const MatrixDense& F1,
-                                              const MatrixDense& F2,
-                                              Id type1 = 1,
-                                              Id idx1  = 0,
-                                              Id type2 = 1,
-                                              Id idx2  = 0);
-GSTLEARN_EXPORT Id computeDriftMatSVCRHSInPlace(MatrixDense& mat,
-                                                const MatrixDense& F,
-                                                Id type                  = 1,
-                                                Id idx                   = 0,
-                                                bool flagCenteredFactors = true);
+  protected:
+    virtual void _clear();
+    virtual void _create();
+
+  protected: // TODO : pass into private to finish clean
+    std::shared_ptr<ACov> _cova; /* Generic Covariance structure */
+    mutable std::vector<covmaptype> _gradCovFuncs;
+
+    DriftList* _driftList; /* Series of Drift functions */
+    CovContext _ctxt; /* Context */
+    std::shared_ptr<ATransform>
+      _transform; /* Transformation associated to the Model */
+  };
+
+  GSTLEARN_EXPORT Id computeCovMatSVCLHSInPlace(MatrixSymmetric& cov,
+                                                const MatrixSymmetric& Sigma,
+                                                const MatrixDense& F1,
+                                                Id type = 1,
+                                                Id idx = 0);
+  GSTLEARN_EXPORT Id computeCovMatSVCRHSInPlace(MatrixDense& cov,
+                                                const MatrixSymmetric& Sigma,
+                                                const MatrixDense& F1,
+                                                const MatrixDense& F2,
+                                                Id type1 = 1,
+                                                Id idx1 = 0,
+                                                Id type2 = 1,
+                                                Id idx2 = 0);
+  GSTLEARN_EXPORT Id
+    computeDriftMatSVCRHSInPlace(MatrixDense& mat,
+                                 const MatrixDense& F,
+                                 Id type = 1,
+                                 Id idx = 0,
+                                 bool flagCenteredFactors = true);
 } // namespace gstlrn

@@ -189,7 +189,7 @@
    * return NULL.
    */
   PyArrayObject* obj_to_array_no_conversion(PyObject* input,
-                                   
+
 Slot "ref":         int        typecode)
   {
     PyArrayObject* ary = NULL;

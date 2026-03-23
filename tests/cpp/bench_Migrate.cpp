@@ -23,6 +23,7 @@
 #include "Tree/Ball.hpp"
 
 using namespace gstlrn;
+
 /****************************************************************************/
 /*!
  ** Main Program
@@ -50,12 +51,12 @@ int main(int argc, char* argv[])
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Generate the Model and the Neighborhood (for simulation)
-  double range       = 0.3;
-  Model* model       = Model::createFromParam(ECov::CUBIC, range);
+  double range = 0.3;
+  Model* model = Model::createFromParam(ECov::CUBIC, range);
   NeighUnique* neigh = NeighUnique::create();
 
   // Generate the data set
-  Id nech  = 10000;
+  Id nech = 10000;
   Db* data = Db::createFillRandom(nech, ndim, 0);
   if (!flag_simu)
   {
@@ -69,7 +70,7 @@ int main(int argc, char* argv[])
   if (flag_stat) data->display();
 
   // Generate the output grid
-  Id nx        = 200;
+  Id nx = 200;
   DbGrid* grid = DbGrid::createCoveringDb(data, {nx, nx});
   if (!flag_simu)
   {
@@ -91,46 +92,99 @@ int main(int argc, char* argv[])
 
   // Migrate Grid -> Point (no interpolation)
   timer.reset();
-  (void)migrate(grid, data, "Simu", 1, dmax, false, false, false,
+  (void)migrate(grid,
+                data,
+                "Simu",
+                1,
+                dmax,
+                false,
+                false,
+                false,
                 NamingConvention("G2Pn", false, false));
-  timer.displayIntervalMilliseconds("Migrate Grid to Point (no interpolation)", 5);
+  timer.displayIntervalMilliseconds("Migrate Grid to Point (no interpolation)",
+                                    5);
 
   // Migrate Grid -> Point (with interpolation)
   timer.reset();
-  (void)migrate(grid, data, "Simu", 1, dmax, false, true, false,
+  (void)migrate(grid,
+                data,
+                "Simu",
+                1,
+                dmax,
+                false,
+                true,
+                false,
                 NamingConvention("G2Py", false, false));
-  timer.displayIntervalMilliseconds("Migrate Grid to Point (with interpolation)", 5);
+  timer.displayIntervalMilliseconds(
+    "Migrate Grid to Point (with interpolation)",
+    5);
 
   // Migrate Grid -> Grid
   timer.reset();
-  (void)migrate(grid, grid, "Simu", 1, dmax, false, false, false,
+  (void)migrate(grid,
+                grid,
+                "Simu",
+                1,
+                dmax,
+                false,
+                false,
+                false,
                 NamingConvention("G2Gn", false, false));
   timer.displayIntervalMilliseconds("Migrate Grid to Grid", 30);
 
   // Expand Grid -> Grid
   timer.reset();
-  (void)migrate(grid, grid, "Simu", 1, dmax, true, false, false,
+  (void)migrate(grid,
+                grid,
+                "Simu",
+                1,
+                dmax,
+                true,
+                false,
+                false,
                 NamingConvention("G2Gy", false, false));
   timer.displayIntervalMilliseconds("Expand Grid to Grid", 30);
 
   // Migrate Point -> Grid
   timer.reset();
-  (void)migrate(data, grid, "Simu", 1, dmax, false, false, false,
+  (void)migrate(data,
+                grid,
+                "Simu",
+                1,
+                dmax,
+                false,
+                false,
+                false,
                 NamingConvention("P2Gn", false, false));
   timer.displayIntervalMilliseconds("Migrate Point to Grid", 1500);
 
   // Expand Point -> Grid
   timer.reset();
-  (void)migrate(data, grid, "Simu", 1, dmax, true, false, false,
+  (void)migrate(data,
+                grid,
+                "Simu",
+                1,
+                dmax,
+                true,
+                false,
+                false,
                 NamingConvention("P2Gyr", false, false));
   timer.displayIntervalMilliseconds("Expand Point to Grid", 1500);
   vec = grid->getColumn("P2Gyr*");
 
   // Expand Point -> Grid (with balltree)
   timer.reset();
-  (void)migrate(data, grid, "Simu", 1, dmax, true, false, true,
+  (void)migrate(data,
+                grid,
+                "Simu",
+                1,
+                dmax,
+                true,
+                false,
+                true,
                 NamingConvention("P2Gyb", false, false));
-  timer.displayIntervalMilliseconds("Expand Point to Grid (with balltree)", 1500);
+  timer.displayIntervalMilliseconds("Expand Point to Grid (with balltree)",
+                                    1500);
   vecb = grid->getColumn("P2Gyb*");
 
   // Compare impact of balltree option on P2Gy
@@ -140,16 +194,31 @@ int main(int argc, char* argv[])
 
   // Expand Point -> Point
   timer.reset();
-  (void)migrate(data, data, "Simu", 1, dmax, true, false, false,
+  (void)migrate(data,
+                data,
+                "Simu",
+                1,
+                dmax,
+                true,
+                false,
+                false,
                 NamingConvention("P2Pyr", false, false));
   timer.displayIntervalMilliseconds("Expand Point to Point", 19000);
   vec = data->getColumn("P2Pyr*");
 
   // Expand Point -> Point (with balltree)
   timer.reset();
-  (void)migrate(data, data, "Simu", 1, dmax, true, false, true,
+  (void)migrate(data,
+                data,
+                "Simu",
+                1,
+                dmax,
+                true,
+                false,
+                true,
                 NamingConvention("P2Pyb", false, false));
-  timer.displayIntervalMilliseconds("Expand Point to Point (with balltree)", 19000);
+  timer.displayIntervalMilliseconds("Expand Point to Point (with balltree)",
+                                    19000);
   vecb = data->getColumn("P2Pyb*");
 
   // Compare impact of balltree option on P2Py

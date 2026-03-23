@@ -13,106 +13,110 @@
 #include "Basic/ASerializable.hpp"
 #include "Basic/Message.hpp"
 #include <cstring>
+
 namespace gstlrn
 {
 
-bool SerializeNeutralFile::fileOpenWrite(const ASerializable& parent,
-                                         const String& filename,
-                                         std::ofstream& os,
-                                         bool verbose)
-{
-  // Close the stream if opened
-  if (os.is_open()) os.close();
-  // Build the multi-platform filename
-  String filepath = ASerializable::buildFileName(2, filename, true);
-  // Open new stream
-  os.open(filepath, std::ios::out | std::ios::trunc);
-  if (!os.is_open())
+  bool SerializeNeutralFile::fileOpenWrite(const ASerializable& parent,
+                                           const String& filename,
+                                           std::ofstream& os,
+                                           bool verbose)
   {
-    if (verbose) messerr("Error while opening %s", filepath.c_str());
-    return false;
+    // Close the stream if opened
+    if (os.is_open()) os.close();
+    // Build the multi-platform filename
+    String filepath = ASerializable::buildFileName(2, filename, true);
+    // Open new stream
+    os.open(filepath, std::ios::out | std::ios::trunc);
+    if (!os.is_open())
+    {
+      if (verbose) messerr("Error while opening %s", filepath.c_str());
+      return false;
+    }
+    // Write the file type (class name)
+    os << parent.getNFName() << std::endl;
+    return os.good();
   }
-  // Write the file type (class name)
-  os << parent.getNFName() << std::endl;
-  return os.good();
-}
 
-bool SerializeNeutralFile::fileOpenRead(const ASerializable& parent,
-                                        const String& filename,
-                                        std::ifstream& is,
-                                        bool verbose)
-{
-  // Close the stream if opened
-  if (is.is_open()) is.close();
-
-  // Build the multi-platform filename
-  String filepath = ASerializable::buildFileName(1, filename, true);
-
-  // Open new stream
-  is.open(filepath, std::ios::in);
-  if (!is.is_open())
+  bool SerializeNeutralFile::fileOpenRead(const ASerializable& parent,
+                                          const String& filename,
+                                          std::ifstream& is,
+                                          bool verbose)
   {
-    if (verbose) messerr("Error while opening %s", filepath.c_str());
-    return false;
+    // Close the stream if opened
+    if (is.is_open()) is.close();
+
+    // Build the multi-platform filename
+    String filepath = ASerializable::buildFileName(1, filename, true);
+
+    // Open new stream
+    is.open(filepath, std::ios::in);
+    if (!is.is_open())
+    {
+      if (verbose) messerr("Error while opening %s", filepath.c_str());
+      return false;
+    }
+    // Read and check the file type (class name)
+    String type;
+    is >> type;
+    if (type != parent.getNFName())
+    {
+      if (verbose)
+        messerr("The file %s has the wrong type (read: %s, expected: %s)",
+                filepath.c_str(),
+                type.c_str(),
+                parent.getNFName().c_str());
+      is.close();
+      return false;
+    }
+    return is.good(); // Cannot be "end of file" already
   }
-  // Read and check the file type (class name)
-  String type;
-  is >> type;
-  if (type != parent.getNFName())
+
+  bool
+    SerializeNeutralFile::commentWrite(std::ostream& os, const String& comment)
   {
-    if (verbose)
-      messerr("The file %s has the wrong type (read: %s, expected: %s)", filepath.c_str(),
-              type.c_str(), parent.getNFName().c_str());
-    is.close();
-    return false;
+    if (os.good())
+    {
+      if (comment.empty())
+        os << std::endl;
+      else
+        os << "# " << comment << std::endl;
+    }
+    return os.good();
   }
-  return is.good(); // Cannot be "end of file" already
-}
 
-bool SerializeNeutralFile::commentWrite(std::ostream& os, const String& comment)
-{
-  if (os.good())
+  bool SerializeNeutralFile::tableWrite(std::ostream& os,
+                                        const String& string,
+                                        Id ntab,
+                                        const VectorDouble& tab)
   {
-    if (comment.empty())
-      os << std::endl;
-    else
-      os << "# " << comment << std::endl;
+    bool ret = true;
+    VectorDouble loctab(ntab);
+    for (Id i = 0; i < ntab; i++) loctab[i] = tab[i];
+    ret = ret && recordWriteVec<double>(os, string, loctab);
+    return ret;
   }
-  return os.good();
-}
 
-bool SerializeNeutralFile::tableWrite(std::ostream& os,
-                                      const String& string,
-                                      Id ntab,
-                                      const VectorDouble& tab)
-{
-  bool ret = true;
-  VectorDouble loctab(ntab);
-  for (Id i = 0; i < ntab; i++) loctab[i] = tab[i];
-  ret = ret && recordWriteVec<double>(os, string, loctab);
-  return ret;
-}
-
-bool SerializeNeutralFile::tableRead(std::istream& is,
-                                     const String& string,
-                                     Id ntab,
-                                     double* tab)
-{
-  bool ret = true;
-  VectorDouble loctab(ntab);
-  ret = ret && recordReadVec<double>(is, string, loctab, ntab);
-  if (!ret) return 1;
-  for (Id i = 0; i < ntab; i++) tab[i] = loctab[i];
-  return ret;
-}
-
-bool SerializeNeutralFile::onlyBlanks(const char* string)
-{
-  Id number = static_cast<Id>(strlen(string));
-  for (Id i = 0; i < number; i++)
+  bool SerializeNeutralFile::tableRead(std::istream& is,
+                                       const String& string,
+                                       Id ntab,
+                                       double* tab)
   {
-    if (string[i] != ' ') return false;
+    bool ret = true;
+    VectorDouble loctab(ntab);
+    ret = ret && recordReadVec<double>(is, string, loctab, ntab);
+    if (!ret) return 1;
+    for (Id i = 0; i < ntab; i++) tab[i] = loctab[i];
+    return ret;
   }
-  return true;
-}
+
+  bool SerializeNeutralFile::onlyBlanks(const char* string)
+  {
+    Id number = static_cast<Id>(strlen(string));
+    for (Id i = 0; i < number; i++)
+    {
+      if (string[i] != ' ') return false;
+    }
+    return true;
+  }
 } // namespace gstlrn

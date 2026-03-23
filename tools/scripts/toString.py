@@ -3,34 +3,37 @@ import re
 import sys
 import os
 
-# The aim of this script is to indentify all the classes which inherits  (recursively) from AStringable in order
-# to add the extension
+# The aim of this script is to indentify all the classes which inherits
+# (recursively) from AStringable in order to add the extension
+#
 # %extend {class_name} {{
 #  std::string __repr__() {{
 #    return $self->toString();
 #  }}
-# in the swig.i file such that toString is automatically called in the target languages when the name of the object is given.
+#
+# in the toString.i file such that toString is automatically called in the target
+# languages when the name of the object is given.
 
 
-def extract_class_and_bases(line):
+def extract_class_and_bases(all_lines):
     """
-    Analyzes a line of code and extracts the class name and the list of base classes inherited,
-    while removing the word 'public'. It handles both cases: brace on the same line or on the next line.
+    Analyzes all lines of code and extracts the class name and the list of base classes inherited,
+    while removing the word 'public'. It handles all cases: mono or multiline class declaration.
+    The class must be exported using GSTLEARN_EXPORT.
 
-    :param line: A line containing the class declaration, e.g.:
-                 "class GSTLEARN_EXPORT Db: public AStringable, public ASerializable, public ICloneable"
+    :param: all_lines: List of lines containing the class header
     :return: Tuple (class name, list of inherited base classes)
     """
-    # Modified regex to extract the class name and base classes, with or without braces on the same line
-    pattern = r"class\s+\w+\s+(\w+)\s*[:\s]*([^{\n]+)?\s*(\{)?"
-
-    match = re.match(pattern, line)
+    # Regex to extract the class name and all base classes (handle multiline inheritance list)
+    pattern = r"class\s+GSTLEARN_EXPORT\s+(\w+)\s*(?::\s*([^{]+))?"
+    # Catch all lines (using DOTALL)
+    match = re.search(pattern, all_lines, re.DOTALL)
 
     if match:
         # Class name
         class_name = match.group(1)
 
-        # Inherited base classes, separated by commas (if any)
+        # Inherited base classes, separated by commas and or carriage returns (if any)
         base_classes_raw = match.group(2)
         if base_classes_raw:
             base_classes_raw = base_classes_raw.split(",")
@@ -66,16 +69,17 @@ def find_classes_inheriting_from_AStringable(root_folder):
 
                 try:
                     with open(file_path, "r", encoding="utf-8") as f:
-                        for line in f:
-                            # Extract class and base classes
-                            class_name, base_classes = extract_class_and_bases(line)
+                        lines = f.readlines()
+                        # Extract class and base classes
+                        class_name, base_classes = extract_class_and_bases(
+                            "".join(lines)
+                        )
 
-                            if class_name:
-                                class_hierarchy[class_name] = base_classes
-
-                                # Check if the class inherits directly from AStringable
-                                if "AStringable" in base_classes:
-                                    direct_inheritors.append(class_name)
+                        if class_name:
+                            class_hierarchy[class_name] = base_classes
+                            # Check if the class inherits directly from AStringable
+                            if "AStringable" in base_classes:
+                                direct_inheritors.append(class_name)
                 except (UnicodeDecodeError, FileNotFoundError):
                     continue
 

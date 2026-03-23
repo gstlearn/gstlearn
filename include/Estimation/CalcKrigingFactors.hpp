@@ -19,45 +19,47 @@
 namespace gstlrn
 {
 
-class Db;
-class DbGrid;
-class KrigingSystem;
-class Model;
+  class Db;
+  class DbGrid;
+  class KrigingSystem;
+  class Model;
 
-class GSTLEARN_EXPORT CalcKrigingFactors: public ACalcInterpolator
-{
-public:
-  CalcKrigingFactors(bool flag_est = true, bool flag_std = true);
-  CalcKrigingFactors(const CalcKrigingFactors& r)            = delete;
-  CalcKrigingFactors& operator=(const CalcKrigingFactors& r) = delete;
-  virtual ~CalcKrigingFactors();
+  class GSTLEARN_EXPORT CalcKrigingFactors: public ACalcInterpolator
+  {
+  public:
+    CalcKrigingFactors(bool flag_est = true, bool flag_std = true);
+    CalcKrigingFactors(const CalcKrigingFactors& r) = delete;
+    CalcKrigingFactors& operator=(const CalcKrigingFactors& r) = delete;
+    virtual ~CalcKrigingFactors();
 
-  void setIuidFactors(const VectorInt& iuidFactors) { _iuidFactors = iuidFactors; }
+    void setIuidFactors(const VectorInt& iuidFactors)
+    {
+      _iuidFactors = iuidFactors;
+    }
 
-private:
-  bool _check() override;
-  bool _preprocess() override;
-  bool _run() override;
-  bool _postprocess() override;
-  void _rollback() override;
+  private:
+    bool _check() override;
+    bool _preprocess() override;
+    bool _run() override;
+    bool _postprocess() override;
+    void _rollback() override;
 
-  Id _getNFactors() const;
-  void _storeResultsForExport(const KrigingSystem& ksys);
-  bool _hasChangeSupport() const;
+    Id _getNFactors() const;
+    void _storeResultsForExport(const KrigingSystem& ksys);
+    bool _hasChangeSupport() const;
 
-private:
-  bool _flagEst;
-  bool _flagStd;
+  private:
+    bool _flagEst;
+    bool _flagStd;
 
-  VectorString _nameCoord;
+    VectorString _nameCoord;
 
-  Id _iptrEst;
-  Id _iptrStd;
+    Id _iptrEst;
+    Id _iptrStd;
 
-  VectorInt _iuidFactors;
+    VectorInt _iuidFactors;
 
-  Model* _modelLocal;
-};
-
+    Model* _modelLocal;
+  };
 
 } // namespace gstlrn

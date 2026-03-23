@@ -18,6 +18,7 @@
 #include "Simulation/Simulations.hpp"
 
 using namespace gstlrn;
+
 /****************************************************************************/
 /*!
  ** Main Program
@@ -35,11 +36,11 @@ int main(int argc, char* argv[])
 
   ///////////////////////
   // Creating the Db
-  VectorInt nx_S    = {100, 100};
+  VectorInt nx_S = {100, 100};
   VectorDouble dx_S = {0.01, 0.01};
-  double dx_P       = 0.25;
-  Id nx_B           = 5;
-  double dx_B       = dx_P / nx_B;
+  double dx_P = 0.25;
+  Id nx_B = 5;
+  double dx_B = dx_P / nx_B;
 
   // Generate initial grid
   DbGrid* grid = DbGrid::create(nx_S, dx_S);
@@ -57,8 +58,8 @@ int main(int argc, char* argv[])
   grid->setName("Simu", "Y");
 
   // Nonlinear transform (lognormal)
-  double m_Z     = 1.5;
-  double s_Z     = 0.5;
+  double m_Z = 1.5;
+  double s_Z = 0.5;
   VectorDouble Y = grid->getColumn("Y");
   VectorDouble Z(Y.size());
   for (Id i = 0; i < static_cast<Id>(Y.size()); i++)
@@ -66,7 +67,7 @@ int main(int argc, char* argv[])
   grid->addColumns(Z, "Z");
 
   // Extracting a subset
-  Id np    = 500;
+  Id np = 500;
   Db* data = Db::createSamplingDb(grid, 0., np, {"x1", "x2", "Y", "Z"});
   data->setLocator("Z", ELoc::Z, 0);
   data->display();

@@ -18,54 +18,72 @@
 namespace gstlrn
 {
 
-/**
- * This class is used:
- * - to define the constraints for the Model Automatic Fitting (authAssign true)
- * - to define the non-stationary parameters of a Model
- */
-class GSTLEARN_EXPORT CovParamId: public AStringable, public ICloneable
-{
-public:
-  CovParamId(Id igrf               = 0,
-             Id icov               = 0,
+  /**
+   * This class is used:
+   * - to define the constraints for the Model Automatic Fitting (authAssign true)
+   * - to define the non-stationary parameters of a Model
+   */
+  class GSTLEARN_EXPORT CovParamId: public AStringable, public ICloneable
+  {
+  public:
+    CovParamId(Id igrf = 0,
+               Id icov = 0,
+               const EConsElem& elem = EConsElem::fromKey("RANGE"),
+               Id iv1 = 0,
+               Id iv2 = 0);
+    CovParamId(const CovParamId& m);
+    CovParamId& operator=(const CovParamId& m);
+    virtual ~CovParamId();
+
+    /// ICloneable interface
+    IMPLEMENT_CLONING(CovParamId)
+
+    /// AStringable Interface
+    String toString(const AStringFormat* strfmt = nullptr) const override;
+
+    static CovParamId*
+      create(Id igrf = 0,
+             Id icov = 0,
              const EConsElem& elem = EConsElem::fromKey("RANGE"),
-             Id iv1                = 0,
-             Id iv2                = 0);
-  CovParamId(const CovParamId& m);
-  CovParamId& operator=(const CovParamId& m);
-  virtual ~CovParamId();
+             Id iv1 = 0,
+             Id iv2 = 0);
 
-  /// ICloneable interface
-  IMPLEMENT_CLONING(CovParamId)
+    Id init(Id igrf, Id icov, const EConsElem& type, Id iv1, Id iv2);
 
-  /// AStringable Interface
-  String toString(const AStringFormat* strfmt = nullptr) const override;
+    const EConsElem& getType() const { return _param.getType(); }
 
-  static CovParamId* create(Id igrf               = 0,
-                            Id icov               = 0,
-                            const EConsElem& elem = EConsElem::fromKey("RANGE"),
-                            Id iv1                = 0,
-                            Id iv2                = 0);
+    Id getIGrf() const { return _igrf; }
 
-  Id init(Id igrf, Id icov, const EConsElem& type, Id iv1, Id iv2);
+    Id getICov() const { return _icov; }
 
-  const EConsElem& getType() const { return _param.getType(); }
-  Id getIGrf() const { return _igrf; }
-  Id getICov() const { return _icov; }
-  Id getIV1() const { return _param.getIV1(); }
-  Id getIV2() const { return _param.getIV2(); }
+    Id getIV1() const { return _param.getIV1(); }
 
-  void setType(const EConsElem& type) { _param.setType(type); }
+    Id getIV2() const { return _param.getIV2(); }
 
-  bool matchIGrf(Id igrf0) const { return (igrf0 < 0 || _igrf == igrf0); }
-  bool matchICov(Id icov0) const { return (icov0 < 0 || _icov == icov0); }
-  bool matchType(const EConsElem& type0) const { return (_param.getType() == type0); }
-  bool matchIV1(Id iv10) const { return (iv10 < 0 || _param.getIV1() == iv10); }
-  bool matchIV2(Id iv20) const { return (iv20 < 0 || _param.getIV2() == iv20); }
+    void setType(const EConsElem& type) { _param.setType(type); }
 
-private:
-  Id _igrf; /* Rank of the Gaussian Random Function */
-  Id _icov; /* Structure rank */
-  ParamId _param;
-};
+    bool matchIGrf(Id igrf0) const { return (igrf0 < 0 || _igrf == igrf0); }
+
+    bool matchICov(Id icov0) const { return (icov0 < 0 || _icov == icov0); }
+
+    bool matchType(const EConsElem& type0) const
+    {
+      return (_param.getType() == type0);
+    }
+
+    bool matchIV1(Id iv10) const
+    {
+      return (iv10 < 0 || _param.getIV1() == iv10);
+    }
+
+    bool matchIV2(Id iv20) const
+    {
+      return (iv20 < 0 || _param.getIV2() == iv20);
+    }
+
+  private:
+    Id _igrf; /* Rank of the Gaussian Random Function */
+    Id _icov; /* Structure rank */
+    ParamId _param;
+  };
 } // namespace gstlrn

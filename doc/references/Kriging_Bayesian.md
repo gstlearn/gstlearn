@@ -1,10 +1,10 @@
 ## Bayesian framework
 
-In the Bayesian framework, we assume that 
+In the Bayesian framework, we assume that
 
 $\beta\sim\mathcal{N}(\beta_0,S)$
 
-We obtain 
+We obtain
 
 $\beta|Z\sim\mathcal{N}(\mu_c,\Sigma_c)$
 
@@ -26,7 +26,6 @@ $\textrm{Var}(Z^{Bayes}_0) = \textrm{Var}(Z^{SK}_0)-\lambda_{SK}^tX\Sigma_c X^t\
 
 - the variance of the estimation error
 
-$\sigma_{Bayes}^2 
+$\sigma_{Bayes}^2
 =\sigma_{SK}^2+(X_0-\lambda_{SK}^tX)\Sigma_c(X_0^t-X^t\lambda_{SK})
 $
-

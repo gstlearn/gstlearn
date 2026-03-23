@@ -9,65 +9,63 @@
 /*                                                                            */
 /******************************************************************************/
 #include "OutputFormat/GridXYZ.hpp"
-#include "OutputFormat/AOF.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
+#include "OutputFormat/AOF.hpp"
 
 namespace gstlrn
 {
-GridXYZ::GridXYZ(const char* filename, const Db* db)
-  : AOF(filename, db)
-{
-}
-
-GridXYZ::GridXYZ(const GridXYZ& r)
-    : AOF(r)
-{
-}
-
-GridXYZ& GridXYZ::operator=(const GridXYZ& r)
-{
-  if (this != &r)
+  GridXYZ::GridXYZ(const char* filename, const Db* db)
+    : AOF(filename, db)
   {
-    AOF::operator=(r);
   }
-  return *this;
-}
 
-GridXYZ::~GridXYZ()
-{
-}
+  GridXYZ::GridXYZ(const GridXYZ& r)
+    : AOF(r)
+  {
+  }
 
-Id GridXYZ::writeInFile()
-{
-  /* Open the file */
-
-  if (_fileWriteOpen()) return 1;
-
-  /* Write a comment */
-
-  fprintf(_file, "FDASCII 0 0 0 0 1E30\n");
-  fprintf(_file, "->\n");
-
-  /* Write the set of values */
-
-  Id lec = 0;
-  for (Id ix = 0; ix < _dbgrid->getNX(0); ix++)
-    for (Id iy = 0; iy < _dbgrid->getNX(1); iy++)
+  GridXYZ& GridXYZ::operator=(const GridXYZ& r)
+  {
+    if (this != &r)
     {
-      for (Id i = 0; i < _dbgrid->getNDim(); i++)
-        fprintf(_file, "%lf,", _dbgrid->getCoordinate(lec, i));
-      double value = _dbgrid->getArray(lec, _cols[0]);
-      if (FFFF(value))
-        fprintf(_file, "1E+30\n");
-      else
-        fprintf(_file, "%lf\n", value);
-      lec++;
+      AOF::operator=(r);
     }
+    return *this;
+  }
 
-  // Close the file
+  GridXYZ::~GridXYZ() {}
 
-  _fileClose();
-  return 0;
-}
-}
+  Id GridXYZ::writeInFile()
+  {
+    /* Open the file */
+
+    if (_fileWriteOpen()) return 1;
+
+    /* Write a comment */
+
+    fprintf(_file, "FDASCII 0 0 0 0 1E30\n");
+    fprintf(_file, "->\n");
+
+    /* Write the set of values */
+
+    Id lec = 0;
+    for (Id ix = 0; ix < _dbgrid->getNX(0); ix++)
+      for (Id iy = 0; iy < _dbgrid->getNX(1); iy++)
+      {
+        for (Id i = 0; i < _dbgrid->getNDim(); i++)
+          fprintf(_file, "%lf,", _dbgrid->getCoordinate(lec, i));
+        double value = _dbgrid->getArray(lec, _cols[0]);
+        if (FFFF(value))
+          fprintf(_file, "1E+30\n");
+        else
+          fprintf(_file, "%lf\n", value);
+        lec++;
+      }
+
+    // Close the file
+
+    _fileClose();
+    return 0;
+  }
+} // namespace gstlrn

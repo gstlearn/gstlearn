@@ -17,92 +17,100 @@
 
 namespace gstlrn
 {
-class Selectivity;
+  class Selectivity;
 
-class AAnam; // Forward declaration
+  class AAnam; // Forward declaration
 
-class GSTLEARN_EXPORT AnamDiscrete: public AAnam
-{
-public:
-  AnamDiscrete();
-  AnamDiscrete(const AnamDiscrete& m);
-  AnamDiscrete& operator=(const AnamDiscrete& m);
-  virtual ~AnamDiscrete();
+  class GSTLEARN_EXPORT AnamDiscrete: public AAnam
+  {
+  public:
+    AnamDiscrete();
+    AnamDiscrete(const AnamDiscrete& m);
+    AnamDiscrete& operator=(const AnamDiscrete& m);
+    virtual ~AnamDiscrete();
 
-  /// AStringable Interface
-  String toString(const AStringFormat* strfmt = nullptr) const override;
+    /// AStringable Interface
+    String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  /// ASerializable Interface
-  String getNFName() const override { return "AnamDiscrete"; }
+    /// ASerializable Interface
+    String getNFName() const override { return "AnamDiscrete"; }
 #ifdef HDF5
-  bool deserializeH5(H5::Group& grp) override;
-  bool serializeH5(H5::Group& grp) const override;
+    bool deserializeH5(H5::Group& grp) override;
+    bool serializeH5(H5::Group& grp) const override;
 #endif
 
-  /// AAnam interface
-  bool hasGaussian() const override { return false; }
-  Id getNClass() const override { return _nCut + 1; }
+    /// AAnam interface
+    bool hasGaussian() const override { return false; }
 
-  /// Interface for AnamDiscrete
-  virtual void calculateMeanAndVariance();
-  double getVariance() const override { return _variance; }
+    Id getNClass() const override { return _nCut + 1; }
 
-  Id getNCut() const { return _nCut; }
-  Id getNElem() const { return _nElem; }
-  const VectorDouble& getZCut() const { return _zCut; }
-  double getZCut(Id i) const { return _zCut[i]; }
-  double getMean() const { return _mean; }
+    /// Interface for AnamDiscrete
+    virtual void calculateMeanAndVariance();
 
-  void setMean(double mean) { _mean = mean; }
-  void setVariance(double variance) { _variance = variance; }
-  void setNCut(Id ncut);
-  void setZCut(const VectorDouble& zcut);
-  void setNElem(Id nelem);
-  void setStats(const VectorDouble& stats);
+    double getVariance() const override { return _variance; }
 
-  // Function for using Stats in DD anamorphosis
-  double getDDStatProp(Id iclass) const;
-  double getDDStatZmoy(Id iclass) const;
-  double getDDStatCnorm(Id iclass) const;
-  double getDDStatLambda(Id iclass) const;
-  double getDDStatU(Id iclass) const;
-  double getDDStatMul(Id iclass) const;
-  void setDDStatProp(Id iclass, double value);
-  void setDDStatZmoy(Id iclass, double value);
-  void setDDStatCnorm(Id iclass, double value);
-  void setDDStatLambda(Id iclass, double value);
-  void setDDStatU(Id iclass, double value);
-  void setDDStatMul(Id iclass, double value);
+    Id getNCut() const { return _nCut; }
 
-  // Function for using Stats in IR anamorphosis
-  double getIRStatT(Id iclass) const;
-  double getIRStatQ(Id iclass) const;
-  double getIRStatZ(Id iclass) const;
-  double getIRStatB(Id iclass) const;
-  double getIRStatR(Id iclass) const;
-  double getIRStatRV(Id iclass) const;
-  void setIRStatT(Id iclass, double value);
-  void setIRStatQ(Id iclass, double value);
-  void setIRStatZ(Id iclass, double value);
-  void setIRStatB(Id iclass, double value);
-  void setIRStatR(Id iclass, double value);
-  void setIRStatRV(Id iclass, double value);
+    Id getNElem() const { return _nElem; }
 
-  const MatrixDense& getStats() const { return _stats; }
+    const VectorDouble& getZCut() const { return _zCut; }
 
-protected:
-  bool _deserializeAscii(std::istream& is) override;
-  bool _serializeAscii(std::ostream& os) const override;
+    double getZCut(Id i) const { return _zCut[i]; }
 
-  bool _isClassValid(Id iclass) const;
-  void _resize();
+    double getMean() const { return _mean; }
 
-private:
-  Id _nCut;
-  Id _nElem;
-  double _mean;
-  double _variance;
-  VectorDouble _zCut;
-  MatrixDense _stats;
-};
+    void setMean(double mean) { _mean = mean; }
+
+    void setVariance(double variance) { _variance = variance; }
+
+    void setNCut(Id ncut);
+    void setZCut(const VectorDouble& zcut);
+    void setNElem(Id nelem);
+    void setStats(const VectorDouble& stats);
+
+    // Function for using Stats in DD anamorphosis
+    double getDDStatProp(Id iclass) const;
+    double getDDStatZmoy(Id iclass) const;
+    double getDDStatCnorm(Id iclass) const;
+    double getDDStatLambda(Id iclass) const;
+    double getDDStatU(Id iclass) const;
+    double getDDStatMul(Id iclass) const;
+    void setDDStatProp(Id iclass, double value);
+    void setDDStatZmoy(Id iclass, double value);
+    void setDDStatCnorm(Id iclass, double value);
+    void setDDStatLambda(Id iclass, double value);
+    void setDDStatU(Id iclass, double value);
+    void setDDStatMul(Id iclass, double value);
+
+    // Function for using Stats in IR anamorphosis
+    double getIRStatT(Id iclass) const;
+    double getIRStatQ(Id iclass) const;
+    double getIRStatZ(Id iclass) const;
+    double getIRStatB(Id iclass) const;
+    double getIRStatR(Id iclass) const;
+    double getIRStatRV(Id iclass) const;
+    void setIRStatT(Id iclass, double value);
+    void setIRStatQ(Id iclass, double value);
+    void setIRStatZ(Id iclass, double value);
+    void setIRStatB(Id iclass, double value);
+    void setIRStatR(Id iclass, double value);
+    void setIRStatRV(Id iclass, double value);
+
+    const MatrixDense& getStats() const { return _stats; }
+
+  protected:
+    bool _deserializeAscii(std::istream& is) override;
+    bool _serializeAscii(std::ostream& os) const override;
+
+    bool _isClassValid(Id iclass) const;
+    void _resize();
+
+  private:
+    Id _nCut;
+    Id _nElem;
+    double _mean;
+    double _variance;
+    VectorDouble _zCut;
+    MatrixDense _stats;
+  };
 } // namespace gstlrn

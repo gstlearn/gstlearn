@@ -22,64 +22,70 @@
 
 namespace gstlrn
 {
-class MatrixSparse;
+  class MatrixSparse;
 
-class GSTLEARN_EXPORT APolynomial: public AStringable, public ICloneable
-{
-public:
-  APolynomial();
-  APolynomial(const VectorDouble& coeffs);
-  APolynomial(const APolynomial& m);
-  APolynomial& operator=(const APolynomial& p);
-  virtual ~APolynomial();
+  class GSTLEARN_EXPORT APolynomial: public AStringable, public ICloneable
+  {
+  public:
+    APolynomial();
+    APolynomial(const VectorDouble& coeffs);
+    APolynomial(const APolynomial& m);
+    APolynomial& operator=(const APolynomial& p);
+    virtual ~APolynomial();
 
-  /// Interface for AStringable
-  String toString(const AStringFormat* strfmt = nullptr) const override;
+    /// Interface for AStringable
+    String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  void init(const VectorDouble& coeffs);
-  virtual double eval(double x) const = 0;
-  VectorDouble evalOp(const ALinearOp* Op, const VectorDouble& inv) const;
+    void init(const VectorDouble& coeffs);
+    virtual double eval(double x) const = 0;
+    VectorDouble evalOp(const ALinearOp* Op, const VectorDouble& inv) const;
 
 #ifndef SWIG
-  virtual void evalOp(MatrixSparse* Op, const constvect inv, vect outv) const = 0;
-  VectorDouble evalOp(MatrixSparse* Op, const constvect inv) const;
-  virtual void evalOpTraining(MatrixSparse* Op,
-                              const constvect inv,
-                              VectorVectorDouble& outv,
-                              VectorDouble& work) const
-  {
-    DECLARE_UNUSED(Op, inv, outv, work);
-  };
+    virtual void
+      evalOp(MatrixSparse* Op, const constvect inv, vect outv) const = 0;
+    VectorDouble evalOp(MatrixSparse* Op, const constvect inv) const;
 
-  virtual double evalOpByRank(MatrixSparse* Op, Id rank) const
-  {
-    DECLARE_UNUSED(Op);
-    DECLARE_UNUSED(rank);
-    return 0.;
-  }
+    virtual void evalOpTraining(MatrixSparse* Op,
+                                const constvect inv,
+                                VectorVectorDouble& outv,
+                                VectorDouble& work) const
+    {
+      DECLARE_UNUSED(Op, inv, outv, work);
+    };
 
-  // virtual void evalOp(const ALinearOpMulti* Op,const std::vector<Eigen::VectorXd>& inv, std::vector<Eigen::VectorXd>& outv) const;
-  void addEvalOp(const ALinearOp* Op, const constvect inv, vect outv) const;
-protected:
-  virtual void _addEvalOp(const ALinearOp* Op, const constvect inv, vect outv) const = 0;
+    virtual double evalOpByRank(MatrixSparse* Op, Id rank) const
+    {
+      DECLARE_UNUSED(Op);
+      DECLARE_UNUSED(rank);
+      return 0.;
+    }
+
+    // virtual void evalOp(const ALinearOpMulti* Op,const std::vector<Eigen::VectorXd>& inv, std::vector<Eigen::VectorXd>& outv) const;
+    void addEvalOp(const ALinearOp* Op, const constvect inv, vect outv) const;
+
+  protected:
+    virtual void
+      _addEvalOp(const ALinearOp* Op, const constvect inv, vect outv) const = 0;
 
 #endif
 
-public:
-  VectorDouble getCoeffs() const { return _coeffs; }
-  void setCoeffs(const VectorDouble& coeffs) { _coeffs = coeffs; }
+  public:
+    VectorDouble getCoeffs() const { return _coeffs; }
 
-  Id getDegree() const { return static_cast<Id>(_coeffs.size()); }
-  virtual Id fit(const std::function<double(double)>& f,
-                 double from = 0.,
-                 double to   = 1.,
-                 double tol  = EPSILON5)
-  {
-    DECLARE_UNUSED(f, from, to, tol);
-    return 1;
-  }
+    void setCoeffs(const VectorDouble& coeffs) { _coeffs = coeffs; }
 
-protected:
-  VectorDouble _coeffs;
-};
+    Id getDegree() const { return static_cast<Id>(_coeffs.size()); }
+
+    virtual Id fit(const std::function<double(double)>& f,
+                   double from = 0.,
+                   double to = 1.,
+                   double tol = EPSILON5)
+    {
+      DECLARE_UNUSED(f, from, to, tol);
+      return 1;
+    }
+
+  protected:
+    VectorDouble _coeffs;
+  };
 } // namespace gstlrn

@@ -15,36 +15,35 @@
 
 namespace gstlrn
 {
-KernelStorkey::KernelStorkey(const CovContext& ctxt)
-  : AKernel(ECov::STORKEY, ctxt)
-{
-}
-
-KernelStorkey::KernelStorkey(const KernelStorkey& r)
-  : AKernel(r)
-{
-}
-
-KernelStorkey& KernelStorkey::operator=(const KernelStorkey& r)
-{
-  if (this != &r)
+  KernelStorkey::KernelStorkey(const CovContext& ctxt)
+    : AKernel(ECov::STORKEY, ctxt)
   {
-    AKernel::operator=(r);
   }
-  return *this;
-}
 
-KernelStorkey::~KernelStorkey()
-{
-}
+  KernelStorkey::KernelStorkey(const KernelStorkey& r)
+    : AKernel(r)
+  {
+  }
 
-double KernelStorkey::_evaluateCov(double h) const
-{
-  double cov = 0.;
-  double pi2 = 2. * GV_PI;
-  if (h < 1)
-    cov = (2. * (1. - h) * (1. + cos(pi2 * h) / 2.) + 3 / pi2 * sin(pi2 * h)) / 3.;
-  return (cov);
-}
+  KernelStorkey& KernelStorkey::operator=(const KernelStorkey& r)
+  {
+    if (this != &r)
+    {
+      AKernel::operator=(r);
+    }
+    return *this;
+  }
 
-}
+  KernelStorkey::~KernelStorkey() {}
+
+  double KernelStorkey::_evaluateCov(double h) const
+  {
+    double cov = 0.;
+    double pi2 = 2. * GV_PI;
+    if (h < 1)
+      cov = (2. * (1. - h) * (1. + cos(pi2 * h) / 2.) + 3 / pi2 * sin(pi2 * h))
+          / 3.;
+    return (cov);
+  }
+
+} // namespace gstlrn

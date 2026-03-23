@@ -31,6 +31,7 @@
 /*********************/
 
 using namespace gstlrn;
+
 int main(int argc, char* argv[])
 {
   String filename;
@@ -48,23 +49,22 @@ int main(int argc, char* argv[])
   Id flag_vario, flag_grid, iatt_z, iatt_ind, ifac, nclass;
   VectorDouble props;
   RuleProp* ruleprop;
-  static int niter    = 100;
-  static int nboot    = 10;
+  static int niter = 100;
+  static int nboot = 10;
   static bool verbose = false;
 
   /* Initializations */
 
   npgs = ntot = 0;
-  dbin        = nullptr;
-  dbout       = nullptr;
-  vario       = nullptr;
-  neighU      = nullptr;
-  ruleprop    = nullptr;
+  dbin = nullptr;
+  dbout = nullptr;
+  vario = nullptr;
+  neighU = nullptr;
+  ruleprop = nullptr;
   for (i = 0; i < 2; i++)
   {
     rule[i] = nullptr;
-    for (j = 0; j < 2; j++)
-      model[i][j] = nullptr;
+    for (j = 0; j < 2; j++) model[i][j] = nullptr;
   }
 
   /* Standard output redirection to file */
@@ -74,7 +74,7 @@ int main(int argc, char* argv[])
   /* Create the output name (for storage of dump files) */
 
   VectorString subparts = separateKeywords(argv[1]);
-  int nargs             = static_cast<int>(subparts.size());
+  int nargs = static_cast<int>(subparts.size());
   String outname =
     concatenateStrings("", subparts[nargs - 2], subparts[nargs - 1], "-");
   ASerializable::setPrefixName(outname);
@@ -105,13 +105,13 @@ int main(int argc, char* argv[])
   /* Define the variogram (optional) */
 
   ascii_filename("Vario", 0, 0, filename);
-  vario      = Vario::createFromNF(filename, verbose);
+  vario = Vario::createFromNF(filename, verbose);
   flag_vario = (vario != nullptr);
 
   /* Define the output grid file */
 
   ascii_filename("Grid", 0, 0, filename);
-  dbout     = DbGrid::createFromNF(filename, verbose);
+  dbout = DbGrid::createFromNF(filename, verbose);
   flag_grid = (dbout != nullptr);
 
   /* Define the rules */
@@ -145,7 +145,7 @@ int main(int argc, char* argv[])
 
       /* Define the indicators */
 
-      nclass   = nfac[i];
+      nclass = nfac[i];
       iatt_ind = dbin->getNColumn();
       Limits limits(nclass);
       limits.toIndicator(dbin);
@@ -196,15 +196,46 @@ int main(int argc, char* argv[])
     if (npgs == 1)
     {
       ruleprop = RuleProp::createFromRule(rule[0], props);
-      if (simpgs(dbin, dbout, ruleprop, model[0][0], model[0][1],
-                 neighU, nbsimu, seed, 0, 0, 0, 0, nbtuba, nboot, niter, 1)) goto label_end;
+      if (simpgs(dbin,
+                 dbout,
+                 ruleprop,
+                 model[0][0],
+                 model[0][1],
+                 neighU,
+                 nbsimu,
+                 seed,
+                 0,
+                 0,
+                 0,
+                 0,
+                 nbtuba,
+                 nboot,
+                 niter,
+                 1))
+        goto label_end;
     }
     else
     {
       ruleprop = RuleProp::createFromRules(rule[0], rule[1], props);
-      if (simbipgs(dbin, dbout, ruleprop,
-                   model[0][0], model[0][1], model[1][0], model[1][1],
-                   neighU, nbsimu, seed, 0, 0, 0, 0, nbtuba, nboot, niter, 1)) goto label_end;
+      if (simbipgs(dbin,
+                   dbout,
+                   ruleprop,
+                   model[0][0],
+                   model[0][1],
+                   model[1][0],
+                   model[1][1],
+                   neighU,
+                   nbsimu,
+                   seed,
+                   0,
+                   0,
+                   0,
+                   0,
+                   nbtuba,
+                   nboot,
+                   niter,
+                   1))
+        goto label_end;
     }
     dbfmt.setFlags(true, false, true, true, true);
     dbout->display(&dbfmt);
@@ -222,8 +253,7 @@ label_end:
   for (i = 0; i < 2; i++)
   {
     rule[i] = rule_free(rule[i]);
-    for (j = 0; j < 2; j++)
-      delete model[i][j];
+    for (j = 0; j < 2; j++) delete model[i][j];
   }
   delete ruleprop;
   delete neighU;

@@ -19,66 +19,76 @@
 
 namespace gstlrn
 {
-class GSTLEARN_EXPORT FracEnviron: public AStringable, public ASerializable
-{
-public:
-  FracEnviron(double xmax   = 0.,
-              double ymax   = 0.,
-              double deltax = 0.,
-              double deltay = 0.,
-              double mean   = 0.,
-              double stdev  = 0.);
-  FracEnviron(const FracEnviron& r);
-  FracEnviron& operator=(const FracEnviron& r);
-  virtual ~FracEnviron();
+  class GSTLEARN_EXPORT FracEnviron: public AStringable, public ASerializable
+  {
+  public:
+    FracEnviron(double xmax = 0.,
+                double ymax = 0.,
+                double deltax = 0.,
+                double deltay = 0.,
+                double mean = 0.,
+                double stdev = 0.);
+    FracEnviron(const FracEnviron& r);
+    FracEnviron& operator=(const FracEnviron& r);
+    virtual ~FracEnviron();
 
-  /// Interface to AStringable
-  String toString(const AStringFormat* strfmt = nullptr) const override;
+    /// Interface to AStringable
+    String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  /// ASerializable Interface
-  String getNFName() const override { return "FracEnviron"; }
+    /// ASerializable Interface
+    String getNFName() const override { return "FracEnviron"; }
 #ifdef HDF5
-  bool deserializeH5(H5::Group& grp) override;
-  bool serializeH5(H5::Group& grp) const override;
+    bool deserializeH5(H5::Group& grp) override;
+    bool serializeH5(H5::Group& grp) const override;
 #endif
 
-  static FracEnviron* createFromNF(const String& NFFilename, bool verbose = true);
-  static FracEnviron* create(double xmax   = 0.,
-                             double ymax   = 0.,
-                             double deltax = 0.,
-                             double deltay = 0,
-                             double mean   = 0.,
-                             double stdev  = 0.);
+    static FracEnviron*
+      createFromNF(const String& NFFilename, bool verbose = true);
+    static FracEnviron* create(double xmax = 0.,
+                               double ymax = 0.,
+                               double deltax = 0.,
+                               double deltay = 0,
+                               double mean = 0.,
+                               double stdev = 0.);
 
-  Id getNFamilies() const { return static_cast<Id>(_families.size()); }
-  Id getNFaults() const { return static_cast<Id>(_faults.size()); }
+    Id getNFamilies() const { return static_cast<Id>(_families.size()); }
 
-  double getDeltax() const { return _deltax; }
-  double getDeltay() const { return _deltay; }
-  double getMean() const { return _mean; }
-  double getStdev() const { return _stdev; }
-  double getXmax() const { return _xmax; }
-  double getYmax() const { return _ymax; }
-  double getXextend() const;
+    Id getNFaults() const { return static_cast<Id>(_faults.size()); }
 
-  const FracFault& getFault(Id i) const { return _faults[i]; }
-  const FracFamily& getFamily(Id i) const { return _families[i]; }
+    double getDeltax() const { return _deltax; }
 
-  void addFamily(const FracFamily& family) { _families.push_back(family); }
-  void addFault(const FracFault& fault) { _faults.push_back(fault); }
+    double getDeltay() const { return _deltay; }
 
-protected:
-  bool _deserializeAscii(std::istream& is) override;
-  bool _serializeAscii(std::ostream& os) const override;
+    double getMean() const { return _mean; }
 
-private:
-  double _xmax;                      //!< Maximum horizontal distance
-  double _ymax;                      //!< Maximum vertical distance
-  double _deltax;                    //!< Dilation along the horizontal axis
-  double _deltay;                    //!< Dilation along the vertical axis
-  double _mean;                      //!< Mean of thickness distribution
-  double _stdev;                     //!< Standard deviation of thickness distribution
-  std::vector<FracFamily> _families; //!< Family definition
-  std::vector<FracFault> _faults;    //!< Fault definition
-};
+    double getStdev() const { return _stdev; }
+
+    double getXmax() const { return _xmax; }
+
+    double getYmax() const { return _ymax; }
+
+    double getXextend() const;
+
+    const FracFault& getFault(Id i) const { return _faults[i]; }
+
+    const FracFamily& getFamily(Id i) const { return _families[i]; }
+
+    void addFamily(const FracFamily& family) { _families.push_back(family); }
+
+    void addFault(const FracFault& fault) { _faults.push_back(fault); }
+
+  protected:
+    bool _deserializeAscii(std::istream& is) override;
+    bool _serializeAscii(std::ostream& os) const override;
+
+  private:
+    double _xmax; //!< Maximum horizontal distance
+    double _ymax; //!< Maximum vertical distance
+    double _deltax; //!< Dilation along the horizontal axis
+    double _deltay; //!< Dilation along the vertical axis
+    double _mean; //!< Mean of thickness distribution
+    double _stdev; //!< Standard deviation of thickness distribution
+    std::vector<FracFamily> _families; //!< Family definition
+    std::vector<FracFault> _faults; //!< Fault definition
+  };
 } // namespace gstlrn

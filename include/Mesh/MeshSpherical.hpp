@@ -17,77 +17,85 @@
 namespace gstlrn
 {
 
-/**
- * Meshing defined in the Spherical Space
- */
-class GSTLEARN_EXPORT MeshSpherical: public AMesh
-{
-public:
-  MeshSpherical(const MatrixDense& apices = MatrixDense(),
-                const MatrixInt& meshes   = MatrixInt());
-  MeshSpherical(const MeshSpherical& m);
-  MeshSpherical& operator=(const MeshSpherical& m);
-  virtual ~MeshSpherical();
+  /**
+   * Meshing defined in the Spherical Space
+   */
+  class GSTLEARN_EXPORT MeshSpherical: public AMesh
+  {
+  public:
+    MeshSpherical(const MatrixDense& apices = MatrixDense(),
+                  const MatrixInt& meshes = MatrixInt());
+    MeshSpherical(const MeshSpherical& m);
+    MeshSpherical& operator=(const MeshSpherical& m);
+    virtual ~MeshSpherical();
 
-  /// Interface to AStringable
-  String toString(const AStringFormat* strfmt = nullptr) const override;
+    /// Interface to AStringable
+    String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  /// ASeriazable interface
-  String getNFName() const override { return "MeshSpherical"; }
+    /// ASeriazable interface
+    String getNFName() const override { return "MeshSpherical"; }
 #ifdef HDF5
-  bool deserializeH5(H5::Group& grp) override;
-  bool serializeH5(H5::Group& grp) const override;
+    bool deserializeH5(H5::Group& grp) override;
+    bool serializeH5(H5::Group& grp) const override;
 #endif
 
-  /// Interface to AMesh
-  Id getNApices() const override;
-  Id getNMeshes() const override;
-  double getMeshSize(Id imesh) const override;
-  Id getApex(Id imesh, Id rank) const override;
-  double getCoor(Id imesh, Id rank, Id idim) const override;
-  double getApexCoor(Id i, Id idim) const override;
-  Id getEmbeddedNDim() const override { return 3; }
-  void getEmbeddedCoorPerMesh(Id imesh, Id ic, VectorDouble& coords) const override;
-  void getEmbeddedCoorPerApex(Id iapex, VectorDouble& coords) const override;
-  void getBarycenterInPlace(Id imesh, vect coord) const override;
+    /// Interface to AMesh
+    Id getNApices() const override;
+    Id getNMeshes() const override;
+    double getMeshSize(Id imesh) const override;
+    Id getApex(Id imesh, Id rank) const override;
+    double getCoor(Id imesh, Id rank, Id idim) const override;
+    double getApexCoor(Id i, Id idim) const override;
 
-  static MeshSpherical* createFromNF(const String& NFFilename, bool verbose = true);
-  static MeshSpherical* create(const MatrixDense& apices = MatrixDense(),
-                               const MatrixInt& meshes   = MatrixInt());
+    Id getEmbeddedNDim() const override { return 3; }
 
-  Id reset(Id ndim,
-           Id napexpermesh,
-           const VectorDouble& apices,
-           const VectorInt& meshes,
-           bool byCol,
-           bool verbose = false);
-  Id getVariety() const override { return 1; }
+    void getEmbeddedCoorPerMesh(Id imesh,
+                                Id ic,
+                                VectorDouble& coords) const override;
+    void getEmbeddedCoorPerApex(Id iapex, VectorDouble& coords) const override;
+    void getBarycenterInPlace(Id imesh, vect coord) const override;
 
-  const MatrixDense& getApices() const { return _apices; }
-  const MatrixInt& getMeshes() const { return _meshes; }
-  VectorVectorInt getMeshesAsVVI() const { return _meshes.getMatrix(); }
+    static MeshSpherical*
+      createFromNF(const String& NFFilename, bool verbose = true);
+    static MeshSpherical* create(const MatrixDense& apices = MatrixDense(),
+                                 const MatrixInt& meshes = MatrixInt());
 
-protected:
-  bool _deserializeAscii(std::istream& is) override;
-  bool _serializeAscii(std::ostream& os) const override;
+    Id reset(Id ndim,
+             Id napexpermesh,
+             const VectorDouble& apices,
+             const VectorInt& meshes,
+             bool byCol,
+             bool verbose = false);
 
-private:
-  void _defineBoundingBox();
-  VectorDouble _defineUnits() const;
-  Id _recopy(const MeshSpherical& m);
-  static double _closestValue(double ref, double coor, double period);
-  void _checkConsistency() const;
-  bool _weightsInMesh(const VectorDouble& coor,
-                      const VectorVectorDouble& corners,
-                      double meshsize,
-                      VectorDouble& weights,
-                      double eps = EPSILON5) const override;
-  static void _getCoordOnSphere(double longitude,
-                                double latitude,
-                                VectorDouble& coords);
+    Id getVariety() const override { return 1; }
 
-private:
-  MatrixDense _apices; // Dimension: NRow=napices; Ncol=Ndim(=2)
-  MatrixInt _meshes;   // Dimension: Nrow=Nmesh; Ncol=NApexPerMesh
-};
+    const MatrixDense& getApices() const { return _apices; }
+
+    const MatrixInt& getMeshes() const { return _meshes; }
+
+    VectorVectorInt getMeshesAsVVI() const { return _meshes.getMatrix(); }
+
+  protected:
+    bool _deserializeAscii(std::istream& is) override;
+    bool _serializeAscii(std::ostream& os) const override;
+
+  private:
+    void _defineBoundingBox();
+    VectorDouble _defineUnits() const;
+    Id _recopy(const MeshSpherical& m);
+    static double _closestValue(double ref, double coor, double period);
+    void _checkConsistency() const;
+    bool _weightsInMesh(const VectorDouble& coor,
+                        const VectorVectorDouble& corners,
+                        double meshsize,
+                        VectorDouble& weights,
+                        double eps = EPSILON5) const override;
+    static void _getCoordOnSphere(double longitude,
+                                  double latitude,
+                                  VectorDouble& coords);
+
+  private:
+    MatrixDense _apices; // Dimension: NRow=napices; Ncol=Ndim(=2)
+    MatrixInt _meshes; // Dimension: Nrow=Nmesh; Ncol=NApexPerMesh
+  };
 } // namespace gstlrn

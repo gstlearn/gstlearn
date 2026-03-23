@@ -24,473 +24,475 @@
 
 namespace gstlrn
 {
-ANeigh::ANeigh(const ASpaceSharedPtr& space)
-  : ASpaceObject(space)
-  , ASerializable()
-  , _dbin(nullptr)
-  , _dbout(nullptr)
-  , _dbgrid(nullptr)
-  , _iechMemo(-1)
-  , _flagSimu(false)
-  , _flagXvalid(false)
-  , _flagKFold(false)
-  , _useBallSearch(false)
-  , _ballLeafSize(10)
-  , _flagIsUnchanged(false)
-  , _nbghMemo()
-  , _ball()
-{
-}
-
-ANeigh::ANeigh(const ANeigh& r)
-  : ASpaceObject(r)
-  , ASerializable(r)
-  , _dbin(r._dbin)
-  , _dbout(r._dbout)
-  , _dbgrid(r._dbgrid)
-  , _iechMemo(r._iechMemo)
-  , _flagSimu(r._flagSimu)
-  , _flagXvalid(r._flagXvalid)
-  , _flagKFold(r._flagKFold)
-  , _useBallSearch(r._useBallSearch)
-  , _ballLeafSize(r._ballLeafSize)
-  , _flagIsUnchanged(r._flagIsUnchanged)
-  , _nbghMemo(r._nbghMemo)
-  , _ball(r._ball)
-{
-}
-
-ANeigh& ANeigh::operator=(const ANeigh& r)
-{
-  if (this != &r)
+  ANeigh::ANeigh(const ASpaceSharedPtr& space)
+    : ASpaceObject(space)
+    , ASerializable()
+    , _dbin(nullptr)
+    , _dbout(nullptr)
+    , _dbgrid(nullptr)
+    , _iechMemo(-1)
+    , _flagSimu(false)
+    , _flagXvalid(false)
+    , _flagKFold(false)
+    , _useBallSearch(false)
+    , _ballLeafSize(10)
+    , _flagIsUnchanged(false)
+    , _nbghMemo()
+    , _ball()
   {
-    ASpaceObject::operator=(r);
-    ASerializable::operator=(r);
-    _dbin            = r._dbin;
-    _dbout           = r._dbout;
-    _dbgrid          = r._dbgrid;
-    _iechMemo        = r._iechMemo;
-    _flagSimu        = r._flagSimu;
-    _flagXvalid      = r._flagXvalid;
-    _flagKFold       = r._flagKFold;
-    _useBallSearch   = r._useBallSearch;
-    _ballLeafSize    = r._ballLeafSize;
-    _flagIsUnchanged = r._flagIsUnchanged;
-    _nbghMemo        = r._nbghMemo;
-    _ball            = r._ball;
-  }
-  return *this;
-}
-
-ANeigh::~ANeigh()
-{
-}
-
-Id ANeigh::attach(const Db* dbin, const Db* dbout)
-{
-  if (dbin == nullptr || dbout == nullptr) return 1;
-  _dbin  = dbin;
-  _dbout = dbout;
-
-  // Check if the output Db is defined and is a grid
-  if (_dbout != nullptr) _dbgrid = dynamic_cast<const DbGrid*>(_dbout);
-
-  // Attach the Ball Tree search (if relevant)
-
-  attachBall();
-
-  setIsChanged();
-  return 0;
-}
-
-void ANeigh::attachBall()
-{
-  // Attach the Ball only if the option is switched ON
-  if (!_useBallSearch) return;
-
-  // Nothing can be done unless the Input Db is specifiied
-  if (_dbin == nullptr) return;
-
-  _ball.init(_dbin, _ballLeafSize);
-}
-
-void ANeigh::setIsChanged(bool status)
-{
-  _flagIsUnchanged = status;
-  _nbghMemo.clear();
-};
-
-void ANeigh::reset()
-{
-  _flagIsUnchanged = false;
-  _nbghMemo.clear();
-  _iechMemo   = -1;
-  _flagSimu   = false;
-  _flagXvalid = false;
-  _flagKFold  = false;
-}
-
-/**
- * Generic function for performing neighborhood selection.
- * This function ALWAYS modifies (and resizes) the returned array 'ranks'
- * @param iech_out Rank of the target point (in 'dbout')
- * @param ranks Input / Output vector of neighboring sample ranks
- */
-void ANeigh::select(Id iech_out, VectorInt& ranks)
-{
-  // Validating the call with respect to the input and output Dbs
-  if (_dbin == nullptr || _dbout == nullptr)
-  {
-    messageAbort("'dbin' and 'dbout' must have been attached beforehand");
-    return;
-  }
-  if (!_dbout->isSampleIndexValid(iech_out))
-  {
-    ranks.clear();
-    return;
   }
 
-  // Check if the current target coincides with the previous one
-  // Then do not do anything (even in presence of colocation)
-  if (_isSameTarget(iech_out))
+  ANeigh::ANeigh(const ANeigh& r)
+    : ASpaceObject(r)
+    , ASerializable(r)
+    , _dbin(r._dbin)
+    , _dbout(r._dbout)
+    , _dbgrid(r._dbgrid)
+    , _iechMemo(r._iechMemo)
+    , _flagSimu(r._flagSimu)
+    , _flagXvalid(r._flagXvalid)
+    , _flagKFold(r._flagKFold)
+    , _useBallSearch(r._useBallSearch)
+    , _ballLeafSize(r._ballLeafSize)
+    , _flagIsUnchanged(r._flagIsUnchanged)
+    , _nbghMemo(r._nbghMemo)
+    , _ball(r._ball)
   {
-    ranks            = _nbghMemo;
-    _flagIsUnchanged = true;
-    return;
   }
 
-  // Performing the selection of the neighboring samples
-
-  if (hasChanged(iech_out))
+  ANeigh& ANeigh::operator=(const ANeigh& r)
   {
-    getNeigh(iech_out, ranks);
-
-    // Set the flag telling if neighborhood has changed or not
-    // and memorize the new set of ranks
-    _checkUnchanged(iech_out, ranks);
+    if (this != &r)
+    {
+      ASpaceObject::operator=(r);
+      ASerializable::operator=(r);
+      _dbin = r._dbin;
+      _dbout = r._dbout;
+      _dbgrid = r._dbgrid;
+      _iechMemo = r._iechMemo;
+      _flagSimu = r._flagSimu;
+      _flagXvalid = r._flagXvalid;
+      _flagKFold = r._flagKFold;
+      _useBallSearch = r._useBallSearch;
+      _ballLeafSize = r._ballLeafSize;
+      _flagIsUnchanged = r._flagIsUnchanged;
+      _nbghMemo = r._nbghMemo;
+      _ball = r._ball;
+    }
+    return *this;
   }
-  else
+
+  ANeigh::~ANeigh() {}
+
+  Id ANeigh::attach(const Db* dbin, const Db* dbout)
   {
-    ranks            = _nbghMemo;
-    _flagIsUnchanged = true;
+    if (dbin == nullptr || dbout == nullptr) return 1;
+    _dbin = dbin;
+    _dbout = dbout;
+
+    // Check if the output Db is defined and is a grid
+    if (_dbout != nullptr) _dbgrid = dynamic_cast<const DbGrid*>(_dbout);
+
+    // Attach the Ball Tree search (if relevant)
+
+    attachBall();
+
+    setIsChanged();
+    return 0;
   }
 
-  // Stop the neighborhood search if not enough point is available
-  if (static_cast<Id>(ranks.size()) <= 0) return;
-}
+  void ANeigh::attachBall()
+  {
+    // Attach the Ball only if the option is switched ON
+    if (!_useBallSearch) return;
 
-/**
- * Checks if the current target matches the target previously treated
- * in the same procedure. If match is reached, then there is no need
- * to compute a new neighborhood: use the previous Vector of sample ranks.
- * Store the references of the new 'dbout' and 'iech_out' for next optimizations
- * @param iech_out Rank of the current target sample
- * @return
- */
-bool ANeigh::_isSameTarget(Id iech_out)
-{
-  // Check if the target remained unchanged
-  bool flagSame = true;
-  if (_iechMemo < 0 || iech_out != _iechMemo) flagSame = false;
-  if (_nbghMemo.empty()) flagSame = false;
+    // Nothing can be done unless the Input Db is specifiied
+    if (_dbin == nullptr) return;
 
-  _flagIsUnchanged = flagSame;
-  return flagSame;
-}
+    _ball.init(_dbin, _ballLeafSize);
+  }
 
-void ANeigh::_checkUnchanged(Id iech_out, const VectorInt& ranks)
-{
-  VectorInt rsorted = ranks;
-  std::sort(rsorted.begin(), rsorted.end());
+  void ANeigh::setIsChanged(bool status)
+  {
+    _flagIsUnchanged = status;
+    _nbghMemo.clear();
+  };
 
-  // Check if Neighborhood has changed
-
-  if (_nbghMemo.size() != ranks.size())
-    // Two series do not share the same dimension
-
+  void ANeigh::reset()
+  {
     _flagIsUnchanged = false;
-  else
-  {
-    // Two (sorted) series have the same size: check if they are equal
-
-    _flagIsUnchanged = (rsorted == _nbghMemo);
+    _nbghMemo.clear();
+    _iechMemo = -1;
+    _flagSimu = false;
+    _flagXvalid = false;
+    _flagKFold = false;
   }
 
-  // Store the vector of sample ranks for the current neighborhood search
-
-  _iechMemo = iech_out;
-  _nbghMemo = rsorted;
-}
-
-/** Display the neighborhood characteristics when the debug option is set
- * @param ranks Compressed Vector of sample ranks in neighborhood
- */
-void ANeigh::displayDebug(VectorInt& ranks) const
-{
-  if (OptDbg::query(EDbg::NBGH))
-    _display(ranks, true);
-}
-/****************************************************************************/
-/*!
- **  Print the information selected in the neighborhood
- **
- ** \param[in]  ranks     Array of the data ranks
- ** \li                   -1 if not selected
- ** \li                   >=0 gives the angular sector in ENeigh::MOVING
- ** \param[in]  flagCompress True or False (see remarks)
- **
- ** \remarks - When flagCompress=TRUE, the array ranks[] is dimensioned to the
- ** \remarks number of active samples and ranks[i] gives the absolute rank of
- ** \remarks each active sample,
- ** \remarks - when flagCompress=FALSE, the array ranks[] is dimensioned to the
- ** \remarks total number of samples and ranks[i] gives either -1 (not selected)
- ** \remarks or 0 (if selected). It can even give the angular sector
- ** \remarks if defined in a Moving Neighborhood
- *****************************************************************************/
-void ANeigh::_display(const VectorInt& ranks, bool flagCompress) const
-{
-  String string;
-  Id ndim  = _dbin->getNDim();
-  Id nerr  = _dbin->getNLoc(ELoc::V);
-  Id ncode = _dbin->getNLoc(ELoc::C);
-  Id nblex = _dbin->getNLoc(ELoc::BLEX);
-  Id nvar  = _dbin->getNLoc(ELoc::Z);
-  nvar     = 0;
-
-  /* Title */
-
-  mestitle(1, "Data selected in neighborhood");
-
-  // Rank
-  printElement("Rank");
-
-  // Sample number
-  printElement("Sample");
-
-  // Code
-  if (ncode > 0)
-    printElement("Code");
-  // Coordinates
-  for (Id idim = 0; idim < ndim; idim++)
+  /**
+   * Generic function for performing neighborhood selection.
+   * This function ALWAYS modifies (and resizes) the returned array 'ranks'
+   * @param iech_out Rank of the target point (in 'dbout')
+   * @param ranks Input / Output vector of neighboring sample ranks
+   */
+  void ANeigh::select(Id iech_out, VectorInt& ranks)
   {
-    string = getLocatorName(ELoc::X, idim);
-    printElement(string);
-  }
-
-  // Variables
-  if (nvar > 0)
-  {
-    for (Id ivar = 0; ivar < nvar; ivar++)
+    // Validating the call with respect to the input and output Dbs
+    if (_dbin == nullptr || _dbout == nullptr)
     {
-      string = getLocatorName(ELoc::Z, ivar);
-      printElement(string);
+      messageAbort("'dbin' and 'dbout' must have been attached beforehand");
+      return;
     }
-  }
-
-  // Variance of measurement errors
-  if (nerr > 0)
-  {
-    for (Id ierr = 0; ierr < nerr; ierr++)
+    if (!_dbout->isSampleIndexValid(iech_out))
     {
-      string = getLocatorName(ELoc::V, ierr);
-      printElement(string);
+      ranks.clear();
+      return;
     }
-  }
 
-  // Variable Block extensions
-  if (nblex > 0)
-  {
-    for (Id idim = 0; idim < ndim; idim++)
+    // Check if the current target coincides with the previous one
+    // Then do not do anything (even in presence of colocation)
+    if (_isSameTarget(iech_out))
     {
-      string = getLocatorName(ELoc::BLEX, idim);
-      printElement(string);
+      ranks = _nbghMemo;
+      _flagIsUnchanged = true;
+      return;
     }
-  }
 
-  // Sector
-  if (getType() == ENeigh::MOVING)
-    printElement("Sector");
-  message("\n");
+    // Performing the selection of the neighboring samples
 
-  /* Loop on the sample points */
+    if (hasChanged(iech_out))
+    {
+      getNeigh(iech_out, ranks);
 
-  Id nsel   = 0;
-  Id number = static_cast<Id>(ranks.size());
-  for (Id jech = 0; jech < number; jech++)
-  {
-    Id iech;
-    if (flagCompress)
-      iech = ranks[jech];
+      // Set the flag telling if neighborhood has changed or not
+      // and memorize the new set of ranks
+      _checkUnchanged(iech_out, ranks);
+    }
     else
-      iech = jech;
-    if (ranks[jech] < 0) continue;
+    {
+      ranks = _nbghMemo;
+      _flagIsUnchanged = true;
+    }
+
+    // Stop the neighborhood search if not enough point is available
+    if (static_cast<Id>(ranks.size()) <= 0) return;
+  }
+
+  /**
+   * Checks if the current target matches the target previously treated
+   * in the same procedure. If match is reached, then there is no need
+   * to compute a new neighborhood: use the previous Vector of sample ranks.
+   * Store the references of the new 'dbout' and 'iech_out' for next optimizations
+   * @param iech_out Rank of the current target sample
+   * @return
+   */
+  bool ANeigh::_isSameTarget(Id iech_out)
+  {
+    // Check if the target remained unchanged
+    bool flagSame = true;
+    if (_iechMemo < 0 || iech_out != _iechMemo) flagSame = false;
+    if (_nbghMemo.empty()) flagSame = false;
+
+    _flagIsUnchanged = flagSame;
+    return flagSame;
+  }
+
+  void ANeigh::_checkUnchanged(Id iech_out, const VectorInt& ranks)
+  {
+    VectorInt rsorted = ranks;
+    std::sort(rsorted.begin(), rsorted.end());
+
+    // Check if Neighborhood has changed
+
+    if (_nbghMemo.size() != ranks.size())
+      // Two series do not share the same dimension
+
+      _flagIsUnchanged = false;
+    else
+    {
+      // Two (sorted) series have the same size: check if they are equal
+
+      _flagIsUnchanged = (rsorted == _nbghMemo);
+    }
+
+    // Store the vector of sample ranks for the current neighborhood search
+
+    _iechMemo = iech_out;
+    _nbghMemo = rsorted;
+  }
+
+  /** Display the neighborhood characteristics when the debug option is set
+   * @param ranks Compressed Vector of sample ranks in neighborhood
+   */
+  void ANeigh::displayDebug(VectorInt& ranks) const
+  {
+    if (OptDbg::query(EDbg::NBGH)) _display(ranks, true);
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Print the information selected in the neighborhood
+   **
+   ** \param[in]  ranks     Array of the data ranks
+   ** \li                   -1 if not selected
+   ** \li                   >=0 gives the angular sector in ENeigh::MOVING
+   ** \param[in]  flagCompress True or False (see remarks)
+   **
+   ** \remarks - When flagCompress=TRUE, the array ranks[] is dimensioned to the
+   ** \remarks number of active samples and ranks[i] gives the absolute rank of
+   ** \remarks each active sample,
+   ** \remarks - when flagCompress=FALSE, the array ranks[] is dimensioned to the
+   ** \remarks total number of samples and ranks[i] gives either -1 (not selected)
+   ** \remarks or 0 (if selected). It can even give the angular sector
+   ** \remarks if defined in a Moving Neighborhood
+   *****************************************************************************/
+  void ANeigh::_display(const VectorInt& ranks, bool flagCompress) const
+  {
+    String string;
+    Id ndim = _dbin->getNDim();
+    Id nerr = _dbin->getNLoc(ELoc::V);
+    Id ncode = _dbin->getNLoc(ELoc::C);
+    Id nblex = _dbin->getNLoc(ELoc::BLEX);
+    Id nvar = _dbin->getNLoc(ELoc::Z);
+    nvar = 0;
+
+    /* Title */
+
+    mestitle(1, "Data selected in neighborhood");
 
     // Rank
-    printElement(nsel + 1);
+    printElement("Rank");
 
     // Sample number
-    printElement(iech + 1);
+    printElement("Sample");
 
     // Code
-    if (ncode > 0)
-      printElement(static_cast<Id>(_dbin->getLocVariable(ELoc::C, iech, 0)));
+    if (ncode > 0) printElement("Code");
     // Coordinates
     for (Id idim = 0; idim < ndim; idim++)
-      printElement(_dbin->getCoordinate(iech, idim));
+    {
+      string = getLocatorName(ELoc::X, idim);
+      printElement(string);
+    }
 
     // Variables
-    for (Id ivar = 0; ivar < nvar; ivar++)
-      printElement(_dbin->getLocVariable(ELoc::Z, iech, ivar));
-    // Variance of measurement errors
-    for (Id ierr = 0; ierr < nerr; ierr++)
-      printElement(_dbin->getLocVariable(ELoc::V, iech, ierr));
+    if (nvar > 0)
+    {
+      for (Id ivar = 0; ivar < nvar; ivar++)
+      {
+        string = getLocatorName(ELoc::Z, ivar);
+        printElement(string);
+      }
+    }
 
-    // Variable block extension
+    // Variance of measurement errors
+    if (nerr > 0)
+    {
+      for (Id ierr = 0; ierr < nerr; ierr++)
+      {
+        string = getLocatorName(ELoc::V, ierr);
+        printElement(string);
+      }
+    }
+
+    // Variable Block extensions
     if (nblex > 0)
     {
       for (Id idim = 0; idim < ndim; idim++)
-        printElement(_dbin->getLocVariable(ELoc::BLEX, iech, idim));
+      {
+        string = getLocatorName(ELoc::BLEX, idim);
+        printElement(string);
+      }
     }
 
     // Sector
-    if (getType() == ENeigh::MOVING)
-      printElement(ranks[jech] + 1);
-
+    if (getType() == ENeigh::MOVING) printElement("Sector");
     message("\n");
-    nsel++;
+
+    /* Loop on the sample points */
+
+    Id nsel = 0;
+    Id number = static_cast<Id>(ranks.size());
+    for (Id jech = 0; jech < number; jech++)
+    {
+      Id iech;
+      if (flagCompress)
+        iech = ranks[jech];
+      else
+        iech = jech;
+      if (ranks[jech] < 0) continue;
+
+      // Rank
+      printElement(nsel + 1);
+
+      // Sample number
+      printElement(iech + 1);
+
+      // Code
+      if (ncode > 0)
+        printElement(static_cast<Id>(_dbin->getLocVariable(ELoc::C, iech, 0)));
+      // Coordinates
+      for (Id idim = 0; idim < ndim; idim++)
+        printElement(_dbin->getCoordinate(iech, idim));
+
+      // Variables
+      for (Id ivar = 0; ivar < nvar; ivar++)
+        printElement(_dbin->getLocVariable(ELoc::Z, iech, ivar));
+      // Variance of measurement errors
+      for (Id ierr = 0; ierr < nerr; ierr++)
+        printElement(_dbin->getLocVariable(ELoc::V, iech, ierr));
+
+      // Variable block extension
+      if (nblex > 0)
+      {
+        for (Id idim = 0; idim < ndim; idim++)
+          printElement(_dbin->getLocVariable(ELoc::BLEX, iech, idim));
+      }
+
+      // Sector
+      if (getType() == ENeigh::MOVING) printElement(ranks[jech] + 1);
+
+      message("\n");
+      nsel++;
+    }
   }
-}
 
-/****************************************************************************/
-/*!
- **  Discard a sample for which all variables are undefined
- **
- **  Returns 1 if all variables are undefined; 0 otherwise
- **
- ** \param[in]  iech      Rank of the sample
- **
- ** \remarks When the Neighborhood is performed in the case of Simulations
- ** \remarks checking for all variables being undefined is performed
- ** \remarks on ELoc::SIMU rather than on ELoc::Z
- **
- *****************************************************************************/
-bool ANeigh::_discardUndefined(Id iech)
-{
-  if (_dbin->getNLoc(ELoc::Z) <= 0) return 0;
-
-  if (!_flagSimu)
+  /****************************************************************************/
+  /*!
+   **  Discard a sample for which all variables are undefined
+   **
+   **  Returns 1 if all variables are undefined; 0 otherwise
+   **
+   ** \param[in]  iech      Rank of the sample
+   **
+   ** \remarks When the Neighborhood is performed in the case of Simulations
+   ** \remarks checking for all variables being undefined is performed
+   ** \remarks on ELoc::SIMU rather than on ELoc::Z
+   **
+   *****************************************************************************/
+  bool ANeigh::_discardUndefined(Id iech)
   {
-    if (_dbin->isAllUndefined(iech)) return 0;
+    if (_dbin->getNLoc(ELoc::Z) <= 0) return 0;
+
+    if (!_flagSimu)
+    {
+      if (_dbin->isAllUndefined(iech)) return 0;
+    }
+    else
+    {
+      // Here the check is performed on all variables belonging to ELoc::SIMU
+      // The number of variables is equal to 'nbsimu' * 'nvar'
+      if (_dbin->isAllUndefinedByType(ELoc::SIMU, iech)) return 0;
+    }
+    return 1;
   }
-  else
+
+  /****************************************************************************/
+  /*!
+   **  Mask the data sample in the case of cross-validation
+   **
+   ** \return  1 if the sample is masked; 0 otherwise
+   **
+   ** \param[in]  iech_in  Rank in the input Db structure
+   ** \param[in]  iech_out Rank in the output Db structure
+   ** \param[in]  eps      Tolerance
+   **
+   *****************************************************************************/
+  Id ANeigh::_xvalid(Id iech_in, Id iech_out, double eps)
   {
-    // Here the check is performed on all variables belonging to ELoc::SIMU
-    // The number of variables is equal to 'nbsimu' * 'nvar'
-    if (_dbin->isAllUndefinedByType(ELoc::SIMU, iech)) return 0;
+    if (!getFlagXvalid()) return 0;
+    if (!getFlagKFold())
+    {
+      VectorDouble dvect(getNDim());
+      if (distance_inter(_dbin, _dbout, iech_in, iech_out, dvect) < eps)
+        return 1;
+    }
+    else
+    {
+      if (!_dbin->hasLocVariable(ELoc::C)) return 0;
+      if (_dbin->getLocVariable(ELoc::C, iech_in, 0)
+          == _dbout->getLocVariable(ELoc::C, iech_out, 0))
+        return 1;
+    }
+    return 0;
   }
-  return 1;
-}
 
-/****************************************************************************/
-/*!
- **  Mask the data sample in the case of cross-validation
- **
- ** \return  1 if the sample is masked; 0 otherwise
- **
- ** \param[in]  iech_in  Rank in the input Db structure
- ** \param[in]  iech_out Rank in the output Db structure
- ** \param[in]  eps      Tolerance
- **
- *****************************************************************************/
-Id ANeigh::_xvalid(Id iech_in, Id iech_out, double eps)
-{
-  if (!getFlagXvalid()) return 0;
-  if (!getFlagKFold())
+  bool ANeigh::_isDimensionValid(Id idim) const
   {
-    VectorDouble dvect(getNDim());
-    if (distance_inter(_dbin, _dbout, iech_in, iech_out, dvect) < eps) return 1;
+    if (idim < 0 || idim >= static_cast<Id>(getNDim()))
+    {
+      messerr("Error in 'idim'(%d). It should lie within [0,%d[",
+              idim,
+              getNDim());
+      return false;
+    }
+    return true;
   }
-  else
+
+  bool ANeigh::_deserializeAscii(std::istream& is)
   {
-    if (!_dbin->hasLocVariable(ELoc::C)) return 0;
-    if (_dbin->getLocVariable(ELoc::C, iech_in, 0) ==
-        _dbout->getLocVariable(ELoc::C, iech_out, 0)) return 1;
-  }
-  return 0;
-}
+    Id ndim = 0;
 
-bool ANeigh::_isDimensionValid(Id idim) const
-{
-  if (idim < 0 || idim >= static_cast<Id>(getNDim()))
+    bool ret = true;
+    ret = ret && _recordRead<Id>(is, "Space Dimension", ndim);
+    if (ret) setNDim(ndim);
+    return ret;
+  }
+
+  bool ANeigh::_serializeAscii(std::ostream& os) const
   {
-    messerr("Error in 'idim'(%d). It should lie within [0,%d[", idim, getNDim());
-    return false;
+    bool ret = true;
+    ret = ret
+       && _recordWrite<Id>(os, "Space Dimension", static_cast<Id>(getNDim()));
+
+    return ret;
   }
-  return true;
-}
 
-bool ANeigh::_deserializeAscii(std::istream& is)
-{
-  Id ndim = 0;
+  void ANeigh::setBallSearch(bool status, Id leaf_size)
+  {
+    if (leaf_size <= 0) status = false;
+    _useBallSearch = status;
+    _ballLeafSize = leaf_size;
+  }
 
-  bool ret = true;
-  ret      = ret && _recordRead<Id>(is, "Space Dimension", ndim);
-  if (ret) setNDim(ndim);
-  return ret;
-}
-
-bool ANeigh::_serializeAscii(std::ostream& os) const
-{
-  bool ret = true;
-  ret      = ret && _recordWrite<Id>(os, "Space Dimension", static_cast<Id>(getNDim()));
-
-  return ret;
-}
-
-void ANeigh::setBallSearch(bool status, Id leaf_size)
-{
-  if (leaf_size <= 0) status = false;
-  _useBallSearch = status;
-  _ballLeafSize  = leaf_size;
-}
-
-void ANeigh::_neighCompress(VectorInt& ranks)
-{
-  Id necr   = 0;
-  Id number = static_cast<Id>(ranks.size());
-  for (Id i = 0; i < number; i++)
-    if (ranks[i] >= 0) ranks[necr++] = i;
-  ranks.resize(necr);
-}
+  void ANeigh::_neighCompress(VectorInt& ranks)
+  {
+    Id necr = 0;
+    Id number = static_cast<Id>(ranks.size());
+    for (Id i = 0; i < number; i++)
+      if (ranks[i] >= 0) ranks[necr++] = i;
+    ranks.resize(necr);
+  }
 #ifdef HDF5
-bool ANeigh::deserializeH5(H5::Group& grp)
-{
-  auto aneighG = SerializeHDF5::getGroup(grp, "ANeigh");
-  if (!aneighG)
+  bool ANeigh::deserializeH5(H5::Group& grp)
   {
-    return false;
+    auto aneighG = SerializeHDF5::getGroup(grp, "ANeigh");
+    if (!aneighG)
+    {
+      return false;
+    }
+
+    /* Read the grid characteristics */
+    bool ret = true;
+    Id ndim = 0;
+
+    ret = ret && SerializeHDF5::readValue(*aneighG, "NDim", ndim);
+
+    if (ret) setNDim(ndim);
+
+    return ret;
   }
 
-  /* Read the grid characteristics */
-  bool ret = true;
-  Id ndim  = 0;
+  bool ANeigh::serializeH5(H5::Group& grp) const
+  {
+    auto aneighG = grp.createGroup("ANeigh");
 
-  ret = ret && SerializeHDF5::readValue(*aneighG, "NDim", ndim);
+    bool ret = true;
 
-  if (ret) setNDim(ndim);
+    ret =
+      ret
+      && SerializeHDF5::writeValue(aneighG, "NDim", static_cast<Id>(getNDim()));
 
-  return ret;
-}
-
-bool ANeigh::serializeH5(H5::Group& grp) const
-{
-  auto aneighG = grp.createGroup("ANeigh");
-
-  bool ret = true;
-
-  ret = ret && SerializeHDF5::writeValue(aneighG, "NDim", static_cast<Id>(getNDim()));
-
-  return ret;
-}
+    return ret;
+  }
 #endif
 } // namespace gstlrn

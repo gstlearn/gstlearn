@@ -51,7 +51,7 @@ The contents of this paragraph is described in the [**Tutorial for Db**](./02_Db
 
 - Adding and suppressing one or several variable(s)
 - Masking samples using selection (only keep inshore information)
-  
+
 3. Basic statistics
 
 - Summarize basic statistics as a table
@@ -66,7 +66,7 @@ The contents of this paragraph is described in the [**Tutorial for Db**](./02_Db
 - Experimental variogram: isotropic and directional variogram
 - Fitting a Model: automatic version, selecting basic structures, with constraints ,...
 - Variogram maps
-  
+
 2. Estimation using Kriging
 
 - The contents of this chapter is described in the [**Tutorial for Estimation**](./05_Kriging.html)
@@ -75,13 +75,13 @@ The contents of this paragraph is described in the [**Tutorial for Db**](./02_Db
 - Produce maps for estimation and standard deviation of the estimation errors
 - Neighborhood definition (unique, moving, possibility to introduce faults)
 - Cross-validation (K-Fold option)
-  
+
 3. Simulations
 
 - The contents of this chapter is described in the [**Tutorial for Simulations**](./07_Simulations.html)
 - Using Turning Bands method
 - Non-conditional or conditioning to data
-  
+
 4. Multivariate case
 
 - The contents of this chapter is described in the [**Tutorial for Multivariate**](./06_Multivariate.html)
@@ -92,10 +92,10 @@ The contents of this paragraph is described in the [**Tutorial for Db**](./02_Db
 # Advanced usage
 
 How to turn **gstlearn** for personal usage?
- 
+
 - Object principle (heritage)
 - Example: enhance one capability of Moving Neighborhood search
- 
+
 # Quick overview of SPDE
 
 - The contents of this chapter is described in the [**Tutorial for SPDE**](./09_SPDE.html)
@@ -103,4 +103,3 @@ How to turn **gstlearn** for personal usage?
 - Using API for performing estimation and  somulations
 - Highlighting the non-stationarity: variable anisotropy
 - Working in different spaces: on the sphere
-

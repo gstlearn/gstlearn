@@ -34,17 +34,32 @@ using namespace gstlrn;
 static Db* _createDb(Id nvar = 1, Id ndat = 5, Id seed = 4243)
 {
   Id ndim = 2;
-  Db* db  = Db::createFillRandom(ndat, ndim, nvar, 0, 0, 0., 0.,
-                                 VectorDouble(), VectorDouble(), VectorDouble(), seed);
+  Db* db = Db::createFillRandom(ndat,
+                                ndim,
+                                nvar,
+                                0,
+                                0,
+                                0.,
+                                0.,
+                                VectorDouble(),
+                                VectorDouble(),
+                                VectorDouble(),
+                                seed);
   VectorDouble sel(ndat, 1.);
   db->addSelection(sel, "sel");
   return db;
 }
 
-static Model* _createModel(Id nvar = 1, double range = 0.2, bool verbose = false)
+static Model*
+  _createModel(Id nvar = 1, double range = 0.2, bool verbose = false)
 {
   MatrixSymmetric* sills = MatrixSymmetric::createRandomDefinitePositive(nvar);
-  Model* model           = Model::createFromParam(ECov::EXPONENTIAL, range, TEST, 1., VectorDouble(), *sills);
+  Model* model = Model::createFromParam(ECov::EXPONENTIAL,
+                                        range,
+                                        TEST,
+                                        1.,
+                                        VectorDouble(),
+                                        *sills);
   delete sills;
   if (verbose) model->display();
   return model;
@@ -76,7 +91,7 @@ int main(int argc, char* argv[])
   ASerializable::setPrefixName("test_Vecchia-");
 
   // Global parameters
-  Id mode      = 0;
+  Id mode = 0;
   Id nbVecchia = 3;
   bool verbose = true;
 
@@ -84,17 +99,20 @@ int main(int argc, char* argv[])
   {
     mestitle(0, "Checking Vecchia Class (based on 2 Dbs with NA)");
     _dumpLimit(1);
-    auto dbfmt = DbStringFormat(FLAG_VARS | FLAG_ARRAY, VectorString(), VectorInt(), false);
+    auto dbfmt = DbStringFormat(FLAG_VARS | FLAG_ARRAY,
+                                VectorString(),
+                                VectorInt(),
+                                false);
     int indNa;
     bool addSelection = false;
 
-    indNa   = 3;
+    indNa = 3;
     Db* db1 = _createDb(1, 5, 3261);
     db1->setValue("z", indNa, TEST);
     if (addSelection) db1->setValue("sel", indNa, 0.);
     db1->display(&dbfmt);
 
-    indNa   = 2;
+    indNa = 2;
     Db* db2 = _createDb(1, 6, 4204);
     db2->setValue("z", indNa, TEST);
     if (addSelection) db2->setValue("sel", indNa, 0.);
@@ -114,8 +132,8 @@ int main(int argc, char* argv[])
   {
     mestitle(0, "Kriging with Vecchia approximation");
     _dumpLimit(1);
-    auto dbfmt   = DbStringFormat(FLAG_STATS, {"Vecchia*"});
-    Db* db       = _createDb(1, 5);
+    auto dbfmt = DbStringFormat(FLAG_STATS, {"Vecchia*"});
+    Db* db = _createDb(1, 5);
     Model* model = _createModel(1);
     DbGrid* grid = _createGrid();
     krigingVecchia(db, grid, model, nbVecchia, true);
@@ -129,8 +147,8 @@ int main(int argc, char* argv[])
   if (mode == 0 || mode == 3)
   {
     mestitle(0, "Log-Likelihood");
-    Db* db              = _createDb(1, 20000);
-    Model* model        = _createModel(1);
+    Db* db = _createDb(1, 20000);
+    Model* model = _createModel(1);
     const double result = logLikelihoodVecchia(db, model, nbVecchia, false);
     message("Log-likelihood = %f\n", result);
     delete db;
@@ -141,8 +159,8 @@ int main(int argc, char* argv[])
   {
     nbVecchia = 4;
     mestitle(0, "Kriging with Vecchia approximation (nvar=2)");
-    auto dbfmt   = DbStringFormat(FLAG_STATS, {"Vecchia*"});
-    Db* db       = _createDb(2, 10);
+    auto dbfmt = DbStringFormat(FLAG_STATS, {"Vecchia*"});
+    Db* db = _createDb(2, 10);
     Model* model = _createModel(2);
     DbGrid* grid = _createGrid(100);
     krigingVecchia(db, grid, model, nbVecchia, false);
@@ -157,14 +175,29 @@ int main(int argc, char* argv[])
   if (mode == 0 || mode == 5)
   {
     int ndat = 6;
-    mestitle(0, "Comparing Log-Likelihood with Vecchia approximation when all neighbors are used");
-    Db* db = Db::createFillRandom(ndat, 2, 1, 0, 0, 1., 0., 0., {0., 0.}, {1., 1.}, 1234, false);
+    mestitle(0,
+             "Comparing Log-Likelihood with Vecchia approximation when all "
+             "neighbors are used");
+    Db* db = Db::createFillRandom(ndat,
+                                  2,
+                                  1,
+                                  0,
+                                  0,
+                                  1.,
+                                  0.,
+                                  0.,
+                                  {0., 0.},
+                                  {1., 1.},
+                                  1234,
+                                  false);
     db->setColumn(VectorDouble(ndat, 0.01), "verr");
     db->setLocator("verr", ELoc::V);
     auto ran = VH::sequenceVD(1, 1 + ndat - 1, 1);
     db->setColumn(ran, "ranges");
     // Add duplicate
-    db->setSampleCoordinates(1, {db->getCoordinate(0, 0), db->getCoordinate(0, 1)});
+    db->setSampleCoordinates(1,
+                             {db->getCoordinate(0, 0),
+                              db->getCoordinate(0, 1)});
     Model* model = _createModel(1);
     model->getCovAniso(0)->attachNoStatDb(db);
     model->getCovAniso(0)->makeRangeNoStatDb("ranges", 0.);

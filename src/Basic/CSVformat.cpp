@@ -12,98 +12,95 @@
 
 namespace gstlrn
 {
-CSVformat::CSVformat(bool flagHeader,
-                     Id nSkip,
-                     char charSep,
-                     char charDec,
-                     const String& naString)
-  : AStringable()
-  , _flagHeader(flagHeader)
-  , _nSkip(nSkip)
-  , _charSep(charSep)
-  , _charDec(charDec)
-  , _naString(naString)
-{
-}
-
-CSVformat::CSVformat(const CSVformat& r)
-  : AStringable(r)
-  , _flagHeader(r._flagHeader)
-  , _nSkip(r._nSkip)
-  , _charSep(r._charSep)
-  , _charDec(r._charDec)
-  , _naString(r._naString)
-{
-}
-
-CSVformat& CSVformat::operator=(const CSVformat& r)
-{
-  if (this != &r)
+  CSVformat::CSVformat(bool flagHeader,
+                       Id nSkip,
+                       char charSep,
+                       char charDec,
+                       const String& naString)
+    : AStringable()
+    , _flagHeader(flagHeader)
+    , _nSkip(nSkip)
+    , _charSep(charSep)
+    , _charDec(charDec)
+    , _naString(naString)
   {
-    AStringable::operator=(r);
-    _flagHeader = r._flagHeader;
-    _nSkip      = r._nSkip;
-    _charSep    = r._charSep;
-    _charDec    = r._charDec;
-    _naString   = r._naString;
   }
-  return *this;
-}
 
-CSVformat::~CSVformat()
-{
-}
+  CSVformat::CSVformat(const CSVformat& r)
+    : AStringable(r)
+    , _flagHeader(r._flagHeader)
+    , _nSkip(r._nSkip)
+    , _charSep(r._charSep)
+    , _charDec(r._charDec)
+    , _naString(r._naString)
+  {
+  }
 
-CSVformat* CSVformat::create(bool flagHeader,
-                             Id nSkip,
-                             char charSep,
-                             char charDec,
-                             const String& naString)
-{
-  return new CSVformat(flagHeader, nSkip, charSep, charDec, naString);
-}
+  CSVformat& CSVformat::operator=(const CSVformat& r)
+  {
+    if (this != &r)
+    {
+      AStringable::operator=(r);
+      _flagHeader = r._flagHeader;
+      _nSkip = r._nSkip;
+      _charSep = r._charSep;
+      _charDec = r._charDec;
+      _naString = r._naString;
+    }
+    return *this;
+  }
 
-/**
- * @brief Create the CSVformat defined by its style (English or French)
- *
- * @param csvStyle ECSV defining the style of the CSV file
- * @param flagHeader True if the File contains a Header line
- * @param nSkip Number of lines to be skipped at the beginning of the File
- * @param naString String corresponding to missing values
- * @return CSVformat*
- */
-CSVformat* CSVformat::createStandard(const ECSV& csvStyle,
-                                     bool flagHeader,
-                                     Id nSkip,
-                                     const String& naString)
-{
-  // English style
-  if (csvStyle == ECSV::fromKey("ENGLISH"))
-    return new CSVformat(flagHeader, nSkip, ',', '.', naString);
+  CSVformat::~CSVformat() {}
 
-  // French style
-  if (csvStyle == ECSV::fromKey("FRENCH"))
-    return new CSVformat(flagHeader, nSkip, ';', ',', naString);
+  CSVformat* CSVformat::create(bool flagHeader,
+                               Id nSkip,
+                               char charSep,
+                               char charDec,
+                               const String& naString)
+  {
+    return new CSVformat(flagHeader, nSkip, charSep, charDec, naString);
+  }
 
-  // Tabulated style
-  return new CSVformat(flagHeader, nSkip, ' ', '.', naString);
-}
+  /**
+   * @brief Create the CSVformat defined by its style (English or French)
+   *
+   * @param csvStyle ECSV defining the style of the CSV file
+   * @param flagHeader True if the File contains a Header line
+   * @param nSkip Number of lines to be skipped at the beginning of the File
+   * @param naString String corresponding to missing values
+   * @return CSVformat*
+   */
+  CSVformat* CSVformat::createStandard(const ECSV& csvStyle,
+                                       bool flagHeader,
+                                       Id nSkip,
+                                       const String& naString)
+  {
+    // English style
+    if (csvStyle == ECSV::fromKey("ENGLISH"))
+      return new CSVformat(flagHeader, nSkip, ',', '.', naString);
 
-String CSVformat::toString(const AStringFormat* /*strfmt*/) const
-{
-  std::stringstream sstr;
+    // French style
+    if (csvStyle == ECSV::fromKey("FRENCH"))
+      return new CSVformat(flagHeader, nSkip, ';', ',', naString);
 
-  sstr << toStrTitle(1, "CSV Format");
+    // Tabulated style
+    return new CSVformat(flagHeader, nSkip, ' ', '.', naString);
+  }
 
-  if (_flagHeader)
-    sstr << "The first line contains a Header" << std::endl;
-  if (_nSkip > 0)
-    sstr << "The first" << _nSkip << "lines should be skipped" << std::endl;
+  String CSVformat::toString(const AStringFormat* /*strfmt*/) const
+  {
+    std::stringstream sstr;
 
-  sstr << "Separator character: '" << _charSep << "'" << std::endl;
-  sstr << "Decimal symbol: '" << _charDec << "'" << std::endl;
-  sstr << "Missing information string: '" << _naString << "'" << std::endl;
-  return sstr.str();
-}
+    sstr << toStrTitle(1, "CSV Format");
+
+    if (_flagHeader) sstr << "The first line contains a Header" << std::endl;
+    if (_nSkip > 0)
+      sstr << "The first" << _nSkip << "lines should be skipped" << std::endl;
+
+    sstr << "Separator character: '" << _charSep << "'" << std::endl;
+    sstr << "Decimal symbol: '" << _charDec << "'" << std::endl;
+    sstr << "Missing information string: '" << _naString << "'" << std::endl;
+    return sstr.str();
+  }
 
 } // namespace gstlrn

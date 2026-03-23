@@ -32,14 +32,14 @@ if(R_EXECUTABLE)
                   OUTPUT_VARIABLE R_ROOT_DIR
                   OUTPUT_STRIP_TRAILING_WHITESPACE)
   #message(STATUS "R_ROOT_DIR=" ${R_ROOT_DIR})
-  
+
   find_path(R_INCLUDE_DIR R.h
             HINTS ${R_ROOT_DIR}
             PATHS /usr/local/lib /usr/local/lib64 /usr/share
             PATH_SUFFIXES include R/include
             DOC "Path to file R.h")
   #message(STATUS "R_INCLUDE_DIR=" ${R_INCLUDE_DIR})
-  
+
   if (WIN32)
     find_file(R_LIBRARY R.dll
               HINTS ${R_ROOT_DIR}
@@ -51,7 +51,7 @@ if(R_EXECUTABLE)
                  DOC "R library (example libR.a, libR.dylib, etc.).")
   endif()
   #message(STATUS "R_LIBRARY=" ${R_LIBRARY})
-  
+
 endif()
 
 #---setting include dirs and libraries
@@ -98,5 +98,3 @@ execute_process(COMMAND ${CMAKE_COMMAND} -E cat ${CMAKE_CURRENT_BINARY_DIR}/GetV
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 message(STATUS "Found R: " ${R_LIBRARIES} " (found version \"" ${R_VERSION} "\")")
-
-

@@ -43,13 +43,13 @@ int main(int argc, char* argv[])
   Constraints constraints;
   DbStringFormat dbfmt;
   Id nbsimu, seed, nbtuba;
-  static int nboot    = 10;
-  static int niter    = 10;
+  static int nboot = 10;
+  static int niter = 10;
   static bool verbose = false;
 
   /* Initializations */
 
-  dbin  = nullptr;
+  dbin = nullptr;
   dbout = nullptr;
   vario = nullptr;
   model = nullptr;
@@ -63,8 +63,9 @@ int main(int argc, char* argv[])
 
   VectorString subparts = separateKeywords(argv[1]);
 
-  int nargs      = static_cast<int>(subparts.size());
-  String outname = concatenateStrings("", subparts[nargs - 2], subparts[nargs - 1], "-");
+  int nargs = static_cast<int>(subparts.size());
+  String outname =
+    concatenateStrings("", subparts[nargs - 2], subparts[nargs - 1], "-");
   // if (outname == "Jeu3-") verbose = true; // Pour voir le resultat de Jeu3 en particulier
   ASerializable::setPrefixName(outname);
 
@@ -126,12 +127,9 @@ int main(int argc, char* argv[])
 
   ascii_filename("Neigh", 0, 0, filename);
   neigh = NeighUnique::createFromNF(filename, verbose);
-  if (neigh == nullptr)
-    neigh = NeighImage::createFromNF(filename, verbose);
-  if (neigh == nullptr)
-    neigh = NeighBench::createFromNF(filename, verbose);
-  if (neigh == nullptr)
-    neigh = NeighMoving::createFromNF(filename, verbose);
+  if (neigh == nullptr) neigh = NeighImage::createFromNF(filename, verbose);
+  if (neigh == nullptr) neigh = NeighBench::createFromNF(filename, verbose);
+  if (neigh == nullptr) neigh = NeighMoving::createFromNF(filename, verbose);
 
   /* Look for simulations */
 
@@ -143,9 +141,22 @@ int main(int argc, char* argv[])
   {
     if (verbose) message("Performing Gibbs Sampler\n");
     dbin->clearLocators(ELoc::Z);
-    if (gibbs_sampler(dbin, model,
-                      1, seed, nboot, niter, false, false, true, false, false, 0,
-                      5., true, true, true))
+    if (gibbs_sampler(dbin,
+                      model,
+                      1,
+                      seed,
+                      nboot,
+                      niter,
+                      false,
+                      false,
+                      true,
+                      false,
+                      false,
+                      0,
+                      5.,
+                      true,
+                      true,
+                      true))
       messageAbort("gibbs_sampler");
     /* Set the current variable to the conditional expectation */
     dbin->setLocatorByUID(dbin->getNColumn() - 1, ELoc::Z, 0);
@@ -187,13 +198,20 @@ int main(int argc, char* argv[])
         if (dbin->getNLoc(ELoc::G) > 0)
         {
           double ballradius = 0.01;
-          if (krigingGradient(dbin, dbout, model, neigh,
-                              true, true, ballradius, true)) messageAbort("kriging");
+          if (krigingGradient(dbin,
+                              dbout,
+                              model,
+                              neigh,
+                              true,
+                              true,
+                              ballradius,
+                              true))
+            messageAbort("kriging");
         }
         else
         {
-          if (kriging(dbin, dbout, model, neigh,
-                      true, true, false)) messageAbort("kriging");
+          if (kriging(dbin, dbout, model, neigh, true, true, false))
+            messageAbort("kriging");
         }
         dbfmt.setFlags(true, false, true, true, true);
         dbout->display(&dbfmt);

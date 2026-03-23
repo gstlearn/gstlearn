@@ -18,74 +18,76 @@
 
 namespace gstlrn
 {
-class Db;
-class AMesh;
-class SpacePoint;
+  class Db;
+  class AMesh;
+  class SpacePoint;
 
-class GSTLEARN_EXPORT Ball
-{
-public:
-  Ball() = default;
+  class GSTLEARN_EXPORT Ball
+  {
+  public:
+    Ball() = default;
 
-  Ball(const Db* dbin,
-       const Db* dbout              = nullptr,
-       Id leaf_size                 = 10,
-       bool all_available           = true,
-       Id default_distance_function = 1,
-       bool useSel                  = false);
-  Ball(const AMesh* mesh,
-       Id leaf_size                 = 10,
-       bool all_available           = true,
-       Id default_distance_function = 1);
+    Ball(const Db* dbin,
+         const Db* dbout = nullptr,
+         Id leaf_size = 10,
+         bool all_available = true,
+         Id default_distance_function = 1,
+         bool useSel = false);
+    Ball(const AMesh* mesh,
+         Id leaf_size = 10,
+         bool all_available = true,
+         Id default_distance_function = 1);
 
-  void init(const Db* db,
-            Id leaf_size                 = 10,
-            bool all_available           = true,
-            Id default_distance_function = 1,
-            bool useSel                  = false);
+    void init(const Db* db,
+              Id leaf_size = 10,
+              bool all_available = true,
+              Id default_distance_function = 1,
+              bool useSel = false);
 
-  KNN queryAsVVD(const VectorVectorDouble& test, Id n_neighbors = 1);
-  KNN queryOne(const double* test, Id n_features, Id n_neighbors = 1);
-  KNN queryOneAsVD(const VectorDouble& test, Id n_neighbors = 1);
-  KNN queryOneAsVDFromSP(const SpacePoint& Pt, Id n_neighbors = 1);
-  VectorInt getIndices(const SpacePoint& Pt, Id n_neighbors = 1);
-  Id queryClosest(const VectorDouble& test);
-  Id queryOneInPlace(const VectorDouble& test,
-                     Id n_neighbors,
-                     VectorInt& indices,
-                     VectorDouble& distances,
-                     Id rank = 0);
-  void display(Id level = -1) const;
-  Id setAvailable(Id rank, bool status);
-  Id resetAvailable(bool status);
-  bool empty() const { return _tree.data.empty(); }
-  Id getNSample() const { return _tree.n_samples; }
+    KNN queryAsVVD(const VectorVectorDouble& test, Id n_neighbors = 1);
+    KNN queryOne(const double* test, Id n_features, Id n_neighbors = 1);
+    KNN queryOneAsVD(const VectorDouble& test, Id n_neighbors = 1);
+    KNN queryOneAsVDFromSP(const SpacePoint& Pt, Id n_neighbors = 1);
+    VectorInt getIndices(const SpacePoint& Pt, Id n_neighbors = 1);
+    Id queryClosest(const VectorDouble& test);
+    Id queryOneInPlace(const VectorDouble& test,
+                       Id n_neighbors,
+                       VectorInt& indices,
+                       VectorDouble& distances,
+                       Id rank = 0);
+    void display(Id level = -1) const;
+    Id setAvailable(Id rank, bool status);
+    Id resetAvailable(bool status);
 
-protected:
-  Id _getFeatureNumber() const { return _tree.n_features; }
-  Id _getLeafSize() const { return _tree.leaf_size; }
+    bool empty() const { return _tree.data.empty(); }
 
-private:
-  bool _isAvailableDefined() const;
-  static MatrixT<double> _getInformationFromDb(const Db* dbin,
-                                               const Db* dbout,
-                                               bool useSel,
-                                               Id* n_samples,
-                                               Id* n_features);
-  static MatrixT<double> _getInformationFromMesh(const AMesh* mesh,
+    Id getNSample() const { return _tree.n_samples; }
+
+  protected:
+    Id _getFeatureNumber() const { return _tree.n_features; }
+
+    Id _getLeafSize() const { return _tree.leaf_size; }
+
+  private:
+    bool _isAvailableDefined() const;
+    static MatrixT<double> _getInformationFromDb(const Db* dbin,
+                                                 const Db* dbout,
+                                                 bool useSel,
                                                  Id* n_samples,
                                                  Id* n_features);
+    static MatrixT<double>
+      _getInformationFromMesh(const AMesh* mesh, Id* n_samples, Id* n_features);
 
-private:
-  t_btree _tree;
-};
+  private:
+    t_btree _tree;
+  };
 
-GSTLEARN_EXPORT MatrixT<Id> findNN(const Db* dbin,
-                                   const Db* dbout              = nullptr,
-                                   Id nb_neigh                  = 3,
-                                   bool flagShuffle             = false,
-                                   bool verbose                 = false,
-                                   Id leaf_size                 = 10,
-                                   Id default_distance_function = 1,
-                                   bool likelihood              = false);
+  GSTLEARN_EXPORT MatrixT<Id> findNN(const Db* dbin,
+                                     const Db* dbout = nullptr,
+                                     Id nb_neigh = 3,
+                                     bool flagShuffle = false,
+                                     bool verbose = false,
+                                     Id leaf_size = 10,
+                                     Id default_distance_function = 1,
+                                     bool likelihood = false);
 } // namespace gstlrn

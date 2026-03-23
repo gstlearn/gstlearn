@@ -15,64 +15,77 @@
 
 namespace gstlrn
 {
-// Forward declaration
-class CovContext;
-class TurningBandOperate;
+  // Forward declaration
+  class CovContext;
+  class TurningBandOperate;
 
-class GSTLEARN_EXPORT KernelExponential:
+  class GSTLEARN_EXPORT KernelExponential:
 #ifndef SWIG
-  public AKernelWithAutoDiff<KernelExponential>
+    public AKernelWithAutoDiff<KernelExponential>
 #else
-  public AKernel
+    public AKernel
 #endif
-{
-public:
-  KernelExponential(const CovContext& ctxt)
-    : AKernelWithAutoDiff<KernelExponential>(ECov::EXPONENTIAL, ctxt)
   {
-  }
-
-  KernelExponential(const KernelExponential& r)
-    : AKernelWithAutoDiff<KernelExponential>(r)
-  {
-  }
-
-  KernelExponential& operator=(const KernelExponential& r)
-  {
-    if (this != &r)
+  public:
+    KernelExponential(const CovContext& ctxt)
+      : AKernelWithAutoDiff<KernelExponential>(ECov::EXPONENTIAL, ctxt)
     {
-      AKernelWithAutoDiff<KernelExponential>::operator=(r);
     }
-    return *this;
-  }
-  virtual ~KernelExponential();
 
-  String getFormula() const override;
-  double getScadef() const override;
-  String getCovName() const override { return "Exponential"; }
-  Id getMinOrder() const override { return -1; }
-  bool getCompatibleSpaceR() const override { return true; }
-  bool getCompatibleSpaceS() const override { return true; }
+    KernelExponential(const KernelExponential& r)
+      : AKernelWithAutoDiff<KernelExponential>(r)
+    {
+    }
 
-  bool isValidForSimulation(const ESimuType& simuType) const override
-  {
-    return (simuType == ESimuType::TB || simuType == ESimuType::SPECTRAL);
-  }
-  double simulateTurningBand(double t0, TurningBandOperate& operTB) const override;
+    KernelExponential& operator=(const KernelExponential& r)
+    {
+      if (this != &r)
+      {
+        AKernelWithAutoDiff<KernelExponential>::operator=(r);
+      }
+      return *this;
+    }
 
-  double evaluateSpectrum(double freq) const override;
+    virtual ~KernelExponential();
 
-  MatrixDense simulateSpectralOmega(Id nb) const override;
-  template<typename T>
-  T evalImpl(T h) const
-  {
-    if (h < 0) return 0;
-    return exp(-h);
-  }
+    String getFormula() const override;
+    double getScadef() const override;
 
-protected:
-  double _evaluateCovOnSphere(double alpha, double scale = 1., Id degree = 50) const override;
-  VectorDouble _evaluateSpectrumOnSphere(Id n, double scale = 1., bool flagScale = true) const override;
-  // double _evaluateCovFirstDerivative(double h) const override;
-};
+    String getCovName() const override { return "Exponential"; }
+
+    Id getMinOrder() const override { return -1; }
+
+    bool getCompatibleSpaceR() const override { return true; }
+
+    bool getCompatibleSpaceS() const override { return true; }
+
+    bool isValidForSimulation(const ESimuType& simuType) const override
+    {
+      return (simuType == ESimuType::TB || simuType == ESimuType::SPECTRAL);
+    }
+
+    double
+      simulateTurningBand(double t0, TurningBandOperate& operTB) const override;
+
+    double evaluateSpectrum(double freq) const override;
+
+    MatrixDense simulateSpectralOmega(Id nb) const override;
+
+    template<typename T>
+    T evalImpl(T h) const
+    {
+      if (h < 0) return 0;
+      return exp(-h);
+    }
+
+  protected:
+    double _evaluateCovOnSphere(double alpha,
+                                double scale = 1.,
+                                Id degree = 50) const override;
+    VectorDouble
+      _evaluateSpectrumOnSphere(Id n,
+                                double scale = 1.,
+                                bool flagScale = true) const override;
+    // double _evaluateCovFirstDerivative(double h) const override;
+  };
 } // namespace gstlrn

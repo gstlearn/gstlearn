@@ -12,37 +12,35 @@
 
 namespace gstlrn
 {
-RuleStringFormat::RuleStringFormat(Id level)
-    : AStringFormat(level),
-      _flagProp(false),
-      _flagThresh(false)
-{
-  if (level > 1)
+  RuleStringFormat::RuleStringFormat(Id level)
+    : AStringFormat(level)
+    , _flagProp(false)
+    , _flagThresh(false)
   {
-    _flagProp = true;
-    _flagThresh = true;
+    if (level > 1)
+    {
+      _flagProp = true;
+      _flagThresh = true;
+    }
   }
-}
 
-RuleStringFormat::RuleStringFormat(const RuleStringFormat& r)
-    : AStringFormat(r),
-      _flagProp(r._flagProp),
-      _flagThresh(r._flagThresh)
-{
-}
-
-RuleStringFormat& RuleStringFormat::operator=(const RuleStringFormat& r)
-{
-  if (this != &r)
+  RuleStringFormat::RuleStringFormat(const RuleStringFormat& r)
+    : AStringFormat(r)
+    , _flagProp(r._flagProp)
+    , _flagThresh(r._flagThresh)
   {
-    AStringFormat::operator=(r);
-    _flagProp = r._flagProp;
-    _flagThresh = r._flagThresh;
   }
-  return *this;
-}
 
-RuleStringFormat::~RuleStringFormat()
-{
-}
-}
+  RuleStringFormat& RuleStringFormat::operator=(const RuleStringFormat& r)
+  {
+    if (this != &r)
+    {
+      AStringFormat::operator=(r);
+      _flagProp = r._flagProp;
+      _flagThresh = r._flagThresh;
+    }
+    return *this;
+  }
+
+  RuleStringFormat::~RuleStringFormat() {}
+} // namespace gstlrn

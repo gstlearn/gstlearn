@@ -12,233 +12,245 @@
 #include "Basic/Optim.hpp"
 #include "Basic/Message.hpp"
 #include <nlopt.h>
+
 // #define DEBUG_OPTIM
 namespace gstlrn
 {
-Optim::Optim(opt_algorithm algo, Id dim)
-  : _opt(nlopt_create(static_cast<nlopt_algorithm>(algo), static_cast<unsigned int>(dim)))
-  , _authorizedAnalyticalGradients(true)
-{
-  if (!_opt) throw std::runtime_error("Échec de création de l'optimiseur NLopt");
-}
-
-Optim::~Optim()
-{
-  nlopt_destroy(_opt);
-}
-
-void Optim::setMaxIter(Id maxiter)
-{
-  nlopt_set_maxeval(_opt, static_cast<unsigned int>(maxiter));
-}
-
-void Optim::setObjective(std::function<double(const VectorDouble&)> objective)
-{
-  _objective = std::make_shared<std::function<double(const VectorDouble&)>>(
-    std::move(objective));
-  nlopt_set_min_objective(_opt, &Optim::callback, this);
-}
-
-void Optim::setGradient(std::function<void(vect)> gradient,
-                        const std::vector<size_t>& dispatch,
-                        const std::vector<size_t>& dispatchIndex)
-{
-  // If no link between parameters, use directly the provided gradient
-  if (dispatch.empty())
+  Optim::Optim(opt_algorithm algo, Id dim)
+    : _opt(nlopt_create(static_cast<nlopt_algorithm>(algo),
+                        static_cast<unsigned int>(dim)))
+    , _authorizedAnalyticalGradients(true)
   {
-    _gradient = std::make_shared<std::function<void(vect)>>(
-      std::move(gradient));
-  }
-  else
-  {
-    _gradient = std::make_shared<std::function<void(vect)>>(
-      [gradient, dispatch, dispatchIndex, this](vect grad_reduced)
-      {
-        // Full gradient, size = dispatch.size() (i.e. initial size of x)
-        this->_gradBuffer.resize(dispatch.size());
-        gradient(this->_gradBuffer);
-
-        // Initialize reduced gradient
-        std::fill(grad_reduced.begin(), grad_reduced.end(), 0.0);
-
-        // Aggregate contributions according to dispatch
-        for (size_t i = 0; i < dispatch.size(); ++i)
-          grad_reduced[dispatch[i]] += this->_gradBuffer[i];
-      });
-  }
-}
-
-// Used for debugging purposes (not used in the effective code)
-void Optim::evalGrad(vect res)
-{
-  if (_gradient)
-    (*_gradient)(res);
-  else
-    throw std::runtime_error("Gradient function not set");
-}
-
-void Optim::setGradientComponents(const std::vector<std::function<double(const VectorDouble&)>>& partials)
-{
-  _gradientPartials = partials;
-}
-
-void Optim::setXtolRel(double tol)
-{
-  nlopt_set_xtol_rel(_opt, tol);
-}
-void Optim::setLowerBounds(const VectorDouble& lb,
-                           const std::vector<size_t>& dispatch)
-{
-  if (dispatch.empty())
-  {
-    nlopt_set_lower_bounds(_opt, lb.data());
-    return;
+    if (!_opt)
+      throw std::runtime_error("Échec de création de l'optimiseur NLopt");
   }
 
-  // Dispatch non vide → construire les bornes réduites
-  Id n_reduced = 0;
-  for (auto j: dispatch) n_reduced = std::max(n_reduced, static_cast<Id>(j));
-  n_reduced += 1; // indices 0-based
-
-  VectorDouble lb_reduced(n_reduced, -HUGE_VAL);
-
-  for (size_t i = 0; i < lb.size(); ++i)
+  Optim::~Optim()
   {
-    size_t j      = dispatch[i];
-    lb_reduced[j] = std::max(lb_reduced[j], lb[i]);
+    nlopt_destroy(_opt);
   }
 
-  nlopt_set_lower_bounds(_opt, lb_reduced.data());
-}
-
-void Optim::setUpperBounds(const VectorDouble& ub,
-                           const std::vector<size_t>& dispatch)
-{
-  if (dispatch.empty())
+  void Optim::setMaxIter(Id maxiter)
   {
-    nlopt_set_upper_bounds(_opt, ub.data());
-    return;
+    nlopt_set_maxeval(_opt, static_cast<unsigned int>(maxiter));
   }
 
-  // Dispatch non vide → construire les bornes réduites
-  Id n_reduced = 0;
-  for (auto j: dispatch) n_reduced = std::max(n_reduced, static_cast<Id>(j));
-  n_reduced += 1; // indices 0-based
-
-  VectorDouble ub_reduced(n_reduced, HUGE_VAL);
-
-  for (size_t i = 0; i < ub.size(); ++i)
+  void Optim::setObjective(std::function<double(const VectorDouble&)> objective)
   {
-    size_t j      = dispatch[i];
-    ub_reduced[j] = std::min(ub_reduced[j], ub[i]);
+    _objective = std::make_shared<std::function<double(const VectorDouble&)>>(
+      std::move(objective));
+    nlopt_set_min_objective(_opt, &Optim::callback, this);
   }
 
-  nlopt_set_upper_bounds(_opt, ub_reduced.data());
-}
-
-double Optim::minimize(VectorDouble& x)
-{
-
-  // This part checks that the initial guess is within bounds
-  VectorDouble lb(nlopt_get_dimension(_opt));
-  VectorDouble ub(nlopt_get_dimension(_opt));
-
-  nlopt_get_lower_bounds(_opt, lb.data());
-  nlopt_get_upper_bounds(_opt, ub.data());
-
-  size_t dim = nlopt_get_dimension(_opt);
-
-  if (x.size() != dim)
+  void Optim::setGradient(std::function<void(vect)> gradient,
+                          const std::vector<size_t>& dispatch,
+                          const std::vector<size_t>& dispatchIndex)
   {
-    messerr("Dimension mismatch: initial guess has size %d but optimizer expects %d\n",
-            x.size(), dim);
-  }
-
-  for (size_t i = 0; i < dim; i++)
-  {
-    if (x[i] < lb[i] || x[i] > ub[i])
+    // If no link between parameters, use directly the provided gradient
+    if (dispatch.empty())
     {
-      messerr("Initial guess x[%d]=%lf is out of bounds [%lf, %lf]\n",
-              i, x[i], lb[i], ub[i]);
-    }
-  }
-
-  double minf;
-  nlopt_result res = nlopt_optimize(_opt, x.data(), &minf);
-  if (res < 0)
-  {
-    if (res < 0) message("Warning, optimization return code is %d\n", res);
-  }
-  return minf;
-}
-
-double Optim::callback(unsigned n, const double* x, double* grad, void* f_data)
-{
-  auto* that        = static_cast<Optim*>(f_data);
-  bool gradAnalytic = that->_authorizedAnalyticalGradients;
-  VectorDouble xvec(x, x + n);
-
-  // ---- Objectif ----
-  double result = (*(that->_objective))(xvec);
-  if (std::isnan(result) || std::isinf(result))
-  {
-#ifdef DEBUG_OPTIM
-    std::cerr << "[WARN] Objective returned NaN/Inf -> HUGE_VAL\n";
-#endif
-    return HUGE_VAL;
-  }
-
-  // ---- Gradient ----
-  if (grad != nullptr)
-  {
-    if (that->_gradient && gradAnalytic)
-    {
-      vect grad_span(grad, n);
-      (*(that->_gradient))(grad_span);
-    }
-    else if (!that->_gradientPartials.empty() && gradAnalytic)
-    {
-      if (that->_gradientPartials.size() != n)
-        throw std::runtime_error("Incorrect number of gradient components");
-
-      for (unsigned i = 0; i < n; ++i)
-      {
-        grad[i] = that->_gradientPartials[i](xvec);
-      }
+      _gradient =
+        std::make_shared<std::function<void(vect)>>(std::move(gradient));
     }
     else
     {
-      const double eps   = EPSILON8;
-      VectorDouble x_cur = xvec;
-      for (unsigned i = 0; i < n; ++i)
-      {
-        x_cur[i] += eps;
-        double f_plus = (*(that->_objective))(x_cur);
-        if (std::isnan(f_plus) || std::isinf(f_plus)) f_plus = result;
+      _gradient = std::make_shared<std::function<void(vect)>>(
+        [gradient, dispatch, dispatchIndex, this](vect grad_reduced)
+        {
+          // Full gradient, size = dispatch.size() (i.e. initial size of x)
+          this->_gradBuffer.resize(dispatch.size());
+          gradient(this->_gradBuffer);
 
-        x_cur[i] -= 2 * eps;
-        double f_minus = (*(that->_objective))(x_cur);
-        if (std::isnan(f_minus) || std::isinf(f_minus)) f_minus = result;
+          // Initialize reduced gradient
+          std::fill(grad_reduced.begin(), grad_reduced.end(), 0.0);
 
-        x_cur[i] += eps; // Restore original value
-        grad[i] = (f_plus - f_minus) / (2 * eps);
-      }
-    }
-
-    // ---- Protection gradient ----
-    for (unsigned i = 0; i < n; ++i)
-    {
-      if (std::isnan(grad[i]) || std::isinf(grad[i]))
-      {
-#ifdef DEBUG_OPTIM
-        std::cerr << "[WARN] Gradient[" << i << "] = NaN/Inf -> forced to 0\n";
-#endif
-        grad[i] = 0.0;
-      }
+          // Aggregate contributions according to dispatch
+          for (size_t i = 0; i < dispatch.size(); ++i)
+            grad_reduced[dispatch[i]] += this->_gradBuffer[i];
+        });
     }
   }
 
-  return result;
-}
+  // Used for debugging purposes (not used in the effective code)
+  void Optim::evalGrad(vect res)
+  {
+    if (_gradient)
+      (*_gradient)(res);
+    else
+      throw std::runtime_error("Gradient function not set");
+  }
+
+  void Optim::setGradientComponents(
+    const std::vector<std::function<double(const VectorDouble&)>>& partials)
+  {
+    _gradientPartials = partials;
+  }
+
+  void Optim::setXtolRel(double tol)
+  {
+    nlopt_set_xtol_rel(_opt, tol);
+  }
+
+  void Optim::setLowerBounds(const VectorDouble& lb,
+                             const std::vector<size_t>& dispatch)
+  {
+    if (dispatch.empty())
+    {
+      nlopt_set_lower_bounds(_opt, lb.data());
+      return;
+    }
+
+    // Dispatch non vide → construire les bornes réduites
+    Id n_reduced = 0;
+    for (auto j: dispatch) n_reduced = std::max(n_reduced, static_cast<Id>(j));
+    n_reduced += 1; // indices 0-based
+
+    VectorDouble lb_reduced(n_reduced, -HUGE_VAL);
+
+    for (size_t i = 0; i < lb.size(); ++i)
+    {
+      size_t j = dispatch[i];
+      lb_reduced[j] = std::max(lb_reduced[j], lb[i]);
+    }
+
+    nlopt_set_lower_bounds(_opt, lb_reduced.data());
+  }
+
+  void Optim::setUpperBounds(const VectorDouble& ub,
+                             const std::vector<size_t>& dispatch)
+  {
+    if (dispatch.empty())
+    {
+      nlopt_set_upper_bounds(_opt, ub.data());
+      return;
+    }
+
+    // Dispatch non vide → construire les bornes réduites
+    Id n_reduced = 0;
+    for (auto j: dispatch) n_reduced = std::max(n_reduced, static_cast<Id>(j));
+    n_reduced += 1; // indices 0-based
+
+    VectorDouble ub_reduced(n_reduced, HUGE_VAL);
+
+    for (size_t i = 0; i < ub.size(); ++i)
+    {
+      size_t j = dispatch[i];
+      ub_reduced[j] = std::min(ub_reduced[j], ub[i]);
+    }
+
+    nlopt_set_upper_bounds(_opt, ub_reduced.data());
+  }
+
+  double Optim::minimize(VectorDouble& x)
+  {
+
+    // This part checks that the initial guess is within bounds
+    VectorDouble lb(nlopt_get_dimension(_opt));
+    VectorDouble ub(nlopt_get_dimension(_opt));
+
+    nlopt_get_lower_bounds(_opt, lb.data());
+    nlopt_get_upper_bounds(_opt, ub.data());
+
+    size_t dim = nlopt_get_dimension(_opt);
+
+    if (x.size() != dim)
+    {
+      messerr("Dimension mismatch: initial guess has size %d but optimizer "
+              "expects %d\n",
+              x.size(),
+              dim);
+    }
+
+    for (size_t i = 0; i < dim; i++)
+    {
+      if (x[i] < lb[i] || x[i] > ub[i])
+      {
+        messerr("Initial guess x[%d]=%lf is out of bounds [%lf, %lf]\n",
+                i,
+                x[i],
+                lb[i],
+                ub[i]);
+      }
+    }
+
+    double minf;
+    nlopt_result res = nlopt_optimize(_opt, x.data(), &minf);
+    if (res < 0)
+    {
+      if (res < 0) message("Warning, optimization return code is %d\n", res);
+    }
+    return minf;
+  }
+
+  double
+    Optim::callback(unsigned n, const double* x, double* grad, void* f_data)
+  {
+    auto* that = static_cast<Optim*>(f_data);
+    bool gradAnalytic = that->_authorizedAnalyticalGradients;
+    VectorDouble xvec(x, x + n);
+
+    // ---- Objectif ----
+    double result = (*(that->_objective))(xvec);
+    if (std::isnan(result) || std::isinf(result))
+    {
+#ifdef DEBUG_OPTIM
+      std::cerr << "[WARN] Objective returned NaN/Inf -> HUGE_VAL\n";
+#endif
+      return HUGE_VAL;
+    }
+
+    // ---- Gradient ----
+    if (grad != nullptr)
+    {
+      if (that->_gradient && gradAnalytic)
+      {
+        vect grad_span(grad, n);
+        (*(that->_gradient))(grad_span);
+      }
+      else if (!that->_gradientPartials.empty() && gradAnalytic)
+      {
+        if (that->_gradientPartials.size() != n)
+          throw std::runtime_error("Incorrect number of gradient components");
+
+        for (unsigned i = 0; i < n; ++i)
+        {
+          grad[i] = that->_gradientPartials[i](xvec);
+        }
+      }
+      else
+      {
+        const double eps = EPSILON8;
+        VectorDouble x_cur = xvec;
+        for (unsigned i = 0; i < n; ++i)
+        {
+          x_cur[i] += eps;
+          double f_plus = (*(that->_objective))(x_cur);
+          if (std::isnan(f_plus) || std::isinf(f_plus)) f_plus = result;
+
+          x_cur[i] -= 2 * eps;
+          double f_minus = (*(that->_objective))(x_cur);
+          if (std::isnan(f_minus) || std::isinf(f_minus)) f_minus = result;
+
+          x_cur[i] += eps; // Restore original value
+          grad[i] = (f_plus - f_minus) / (2 * eps);
+        }
+      }
+
+      // ---- Protection gradient ----
+      for (unsigned i = 0; i < n; ++i)
+      {
+        if (std::isnan(grad[i]) || std::isinf(grad[i]))
+        {
+#ifdef DEBUG_OPTIM
+          std::cerr << "[WARN] Gradient[" << i
+                    << "] = NaN/Inf -> forced to 0\n";
+#endif
+          grad[i] = 0.0;
+        }
+      }
+    }
+
+    return result;
+  }
 
 } // namespace gstlrn

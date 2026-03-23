@@ -17,24 +17,24 @@
 
 namespace gstlrn
 {
-/**
- * This class concerns the non-stationarity defined as a function (hence its name).
- */
-class GSTLEARN_EXPORT NoStatFunctional : public ANoStat
-{
-public:
-	NoStatFunctional(const AFunctional* func);
-  NoStatFunctional(const NoStatFunctional &m) = delete;
-  NoStatFunctional& operator=(const NoStatFunctional &m) = delete;
-  virtual ~NoStatFunctional();
-  String toString(const AStringFormat* strfmt = nullptr) const override;
+  /**
+   * This class concerns the non-stationarity defined as a function (hence its name).
+   */
+  class GSTLEARN_EXPORT NoStatFunctional: public ANoStat
+  {
+  public:
+    NoStatFunctional(const AFunctional* func);
+    NoStatFunctional(const NoStatFunctional& m) = delete;
+    NoStatFunctional& operator=(const NoStatFunctional& m) = delete;
+    virtual ~NoStatFunctional();
+    String toString(const AStringFormat* strfmt = nullptr) const override;
 
-private :
-  void _informField(const VectorVectorDouble& coords,
-                    VectorDouble& tab,
-                    bool verbose = false) override; 
+  private:
+    void _informField(const VectorVectorDouble& coords,
+                      VectorDouble& tab,
+                      bool verbose = false) override;
 
-private:
-  const AFunctional* _func;
-};
-}
+  private:
+    const AFunctional* _func;
+  };
+} // namespace gstlrn

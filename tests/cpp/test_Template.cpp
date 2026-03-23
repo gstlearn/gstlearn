@@ -13,6 +13,7 @@
 #include "Basic/VectorHelper.hpp"
 
 using namespace gstlrn;
+
 /****************************************************************************/
 /*!
  ** Main Program

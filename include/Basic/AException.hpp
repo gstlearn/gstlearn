@@ -18,23 +18,23 @@
 
 namespace gstlrn
 {
- 
-class GSTLEARN_EXPORT AException : public std::exception
-{
-public:
-  AException(const std::string& msg = "");
-  virtual ~AException();
 
-  const char* what() const noexcept;
+  class GSTLEARN_EXPORT AException: public std::exception
+  {
+  public:
+    AException(const std::string& msg = "");
+    virtual ~AException();
 
-private:
-  std::string _msg;
-};
+    const char* what() const noexcept;
 
-[[noreturn]]
-GSTLEARN_EXPORT void throw_exp(const std::string& msg = "",
-                               const std::string& file = "",
-                               Id line = 0);
+  private:
+    std::string _msg;
+  };
+
+  [[noreturn]]
+  GSTLEARN_EXPORT void throw_exp(const std::string& msg = "",
+                                 const std::string& file = "",
+                                 Id line = 0);
 
 #define my_throw(msg) throw_exp(msg, __FILE__, __LINE__)
 

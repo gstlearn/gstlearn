@@ -20,6 +20,7 @@
 #include "Model/Model.hpp"
 
 using namespace gstlrn;
+
 /****************************************************************************/
 /*!
  ** Main Program
@@ -45,11 +46,16 @@ int main(int argc, char* argv[])
     mestitle(0, "Testing selection management");
     // Creating the Grid Rotated Db
     DbGrid* grid = DbGrid::create({6, 4}, {1., 2.}, {10., 20.}, {10., 0.});
-    auto nech    = grid->getNSample();
+    auto nech = grid->getNSample();
 
     // Creating the Model
-    Model* model = Model::createFromParam(ECov::CUBIC, 0., 1., 1., {10., 45.},
-                                          MatrixSymmetric(), {30., 0.});
+    Model* model = Model::createFromParam(ECov::CUBIC,
+                                          0.,
+                                          1.,
+                                          1.,
+                                          {10., 45.},
+                                          MatrixSymmetric(),
+                                          {30., 0.});
 
     // First selection generated with Bernoulli (proba=0.6)
     VectorDouble sel1 = VH::simulateBernoulli(nech, 0.6);
@@ -88,15 +94,21 @@ int main(int argc, char* argv[])
   if (mode == 0 || mode == 2)
   {
     mestitle(0, "Testing Db::getRanks functions");
-    Id ndim    = 2;
-    Id ndat    = 15;
-    auto* db   = Db::createFillRandom(ndat, ndim, 0, 0, 0, 0., 0.3);
+    Id ndim = 2;
+    Id ndat = 15;
+    auto* db = Db::createFillRandom(ndat, ndim, 0, 0, 0, 0., 0.3);
     auto dbfmt = DbStringFormat(FLAG_ARRAY, VectorString(), VectorInt(), false);
     db->display(&dbfmt);
 
-    printVector(db->getRankAbsoluteToRelativeVec(), "Vector of Relative ranks of active samples", true, true);
+    printVector(db->getRankAbsoluteToRelativeVec(),
+                "Vector of Relative ranks of active samples",
+                true,
+                true);
 
-    printVector(db->getRankRelativeToAbsoluteVec(), "Vector of Absolute ranks of active samples", true, true);
+    printVector(db->getRankRelativeToAbsoluteVec(),
+                "Vector of Absolute ranks of active samples",
+                true,
+                true);
     delete db;
   }
 
@@ -107,15 +119,15 @@ int main(int argc, char* argv[])
   if (mode == 0 || mode == 3)
   {
     mestitle(0, "Testing db_reduce facility");
-    Id nvar    = 3;
-    Id ndim    = 2;
-    Id ndat    = 15;
+    Id nvar = 3;
+    Id ndim = 2;
+    Id ndat = 15;
     auto dbfmt = DbStringFormat(FLAG_ARRAY, VectorString(), VectorInt(), false);
     VectorDouble hetero(nvar, 0.1);
     auto* db = Db::createFillRandom(ndat, ndim, nvar, 0, 0, 0., 0.1, hetero);
     db->display(&dbfmt);
     VectorString names = {"z-1", "z-3"};
-    VectorInt ranks    = VH::sequence(5., 3, 1);
+    VectorInt ranks = VH::sequence(5., 3, 1);
     Db* dbaux;
 
     message("\n---> Reducing by:\n");
@@ -127,7 +139,8 @@ int main(int argc, char* argv[])
 
     message("\n---> Reducing by:\n");
     message(" - selecting some variables (z-1 and z-3)\n");
-    message(" - selecting some sample ranks (5 samples starting from rank 3)\n");
+    message(
+      " - selecting some sample ranks (5 samples starting from rank 3)\n");
     dbaux = Db::createReduce(db, names, ranks);
     dbaux->display(&dbfmt);
     delete dbaux;
@@ -148,12 +161,12 @@ int main(int argc, char* argv[])
   if (mode == 0 || mode == 4)
   {
     mestitle(0, "Testing operator overload");
-    Id nvar    = 3;
-    Id ndim    = 2;
-    Id ndat    = 15;
+    Id nvar = 3;
+    Id ndim = 2;
+    Id ndat = 15;
     auto dbfmt = DbStringFormat(FLAG_ARRAY, VectorString(), VectorInt(), false);
     VectorDouble hetero(nvar, 0.1);
-    auto* db           = Db::createFillRandom(ndat, ndim, nvar, 0, 0, 0., 0.1, hetero);
+    auto* db = Db::createFillRandom(ndat, ndim, nvar, 0, 0, 0., 0.1, hetero);
     VectorString names = {"z-1", "z-3"};
     db->display(&dbfmt);
     double value = (*db)(3, "z-1");
@@ -180,7 +193,7 @@ int main(int argc, char* argv[])
   if (mode == 0 || mode == 4)
   {
     mestitle(0, "Testing getStatsAsTable facility");
-    Id ndat  = 100;
+    Id ndat = 100;
     auto* db = Db::createFillRandom(ndat, 2, 3, 0, 0, 0., 0.2, {0.1, 0.2, 0.1});
 
     db->getStatsAsTable({"x-1", "z*"}).display();
@@ -192,7 +205,7 @@ int main(int argc, char* argv[])
   if (mode == 0 || mode == 5)
   {
     mestitle(0, "Testing getStatsByCategoryAsTable facility");
-    Id ndat  = 100;
+    Id ndat = 100;
     auto* db = Db::createFillRandom(ndat, 2, 1, 0, 3);
 
     db->getStatsByCategoryAsTable("z", "code").display();

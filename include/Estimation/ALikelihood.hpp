@@ -21,45 +21,48 @@
 
 namespace gstlrn
 {
-class Db;
-class ModelGeneric;
+  class Db;
+  class ModelGeneric;
 
-class GSTLEARN_EXPORT ALikelihood: public AModelOptim
-{
-public:
-  ALikelihood(ModelGeneric* model,
-              const Db* db,
-              bool reml = false);
-  ALikelihood(const ALikelihood& r);
-  ALikelihood& operator=(const ALikelihood& r);
-  virtual ~ALikelihood();
+  class GSTLEARN_EXPORT ALikelihood: public AModelOptim
+  {
+  public:
+    ALikelihood(ModelGeneric* model, const Db* db, bool reml = false);
+    ALikelihood(const ALikelihood& r);
+    ALikelihood& operator=(const ALikelihood& r);
+    virtual ~ALikelihood();
 
-  double computeCost(bool flagPrint = false, bool verbose = false) override;
-  double computeLogLikelihood(bool flagPrint = false, bool verbose = false);
-  VectorDouble getBeta() const { return _beta; }
-  void initLikelihood(bool verbose = false);
-  void updateModel(bool verbose = false);
-protected:
-  void _initLikelihoodForOptim(bool verbose = false);
+    double computeCost(bool flagPrint = false, bool verbose = false) override;
+    double computeLogLikelihood(bool flagPrint = false, bool verbose = false);
 
-private:
-  virtual void _updateModel(bool verbose = false) { DECLARE_UNUSED(verbose); }
-  virtual void _computeCm1X()           = 0;
-  virtual void _computeCm1Yc()          = 0;
-  virtual double _computeLogDet() const = 0;
-  virtual void _init(bool verbose = false) { DECLARE_UNUSED(verbose); }
+    VectorDouble getBeta() const { return _beta; }
 
-protected:
-  const Db* _db;
-  VectorDouble _Z;  // Vector of multivariate data (raw)
-  VectorDouble _Y;  // Vector of multivariate data (Gaussian)
-  VectorDouble _Yc; // Centered data
-  MatrixDense _X;   // Matrix of drifts
-  VectorDouble _beta;
-  MatrixDense _Cm1X;
-  VectorDouble _Cm1Yc;
-  MatrixSymmetric _XtCm1X; // X^T * C^{-1} * X
-  bool _reml;
-  Id _nDrift;
-};
+    void initLikelihood(bool verbose = false);
+    void updateModel(bool verbose = false);
+
+  protected:
+    void _initLikelihoodForOptim(bool verbose = false);
+
+  private:
+    virtual void _updateModel(bool verbose = false) { DECLARE_UNUSED(verbose); }
+
+    virtual void _computeCm1X() = 0;
+    virtual void _computeCm1Yc() = 0;
+    virtual double _computeLogDet() const = 0;
+
+    virtual void _init(bool verbose = false) { DECLARE_UNUSED(verbose); }
+
+  protected:
+    const Db* _db;
+    VectorDouble _Z; // Vector of multivariate data (raw)
+    VectorDouble _Y; // Vector of multivariate data (Gaussian)
+    VectorDouble _Yc; // Centered data
+    MatrixDense _X; // Matrix of drifts
+    VectorDouble _beta;
+    MatrixDense _Cm1X;
+    VectorDouble _Cm1Yc;
+    MatrixSymmetric _XtCm1X; // X^T * C^{-1} * X
+    bool _reml;
+    Id _nDrift;
+  };
 } // namespace gstlrn

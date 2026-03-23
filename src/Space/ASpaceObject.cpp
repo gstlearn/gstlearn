@@ -18,171 +18,169 @@
 
 namespace gstlrn
 {
-/// Unique default global space
-static ASpaceSharedPtr defaultSpace = nullptr;
+  /// Unique default global space
+  static ASpaceSharedPtr defaultSpace = nullptr;
 
-ASpaceObject::ASpaceObject(const ASpaceSharedPtr& space)
-  : AStringable()
-  , _space(ASpace::getDefaultSpaceIfNull(space))
-{
-}
-
-ASpaceObject::ASpaceObject(const ASpaceObject& r)
-  : AStringable(r)
-  , _space(r._space)
-{
-}
-
-bool ASpaceObject::isConsistent(const ASpaceSharedPtr& space) const
-{
-  return (isConsistent(space.get()));
-}
-ASpaceObject& ASpaceObject::operator=(const ASpaceObject& r)
-{
-  if (this != &r)
+  ASpaceObject::ASpaceObject(const ASpaceSharedPtr& space)
+    : AStringable()
+    , _space(ASpace::getDefaultSpaceIfNull(space))
   {
-    AStringable::operator=(r);
-    _space = r._space;
   }
-  return *this;
-}
 
-ASpaceObject::~ASpaceObject()
-{
-}
-
-/// AStringable interface
-String ASpaceObject::toString(const AStringFormat* /*strfmt*/) const
-{
-  messerr("ASpaceObject: 'toString' not yet implemented");
-  return "";
-}
-
-VectorDouble ASpaceObject::getUnitaryVector() const
-{
-  return _space->getUnitaryVector();
-}
-
-size_t ASpaceObject::getNDim(Id ispace) const
-{
-  return (_space->getNDim(ispace));
-}
-
-const VectorDouble& ASpaceObject::getOrigin(Id ispace) const
-{
-  if (_space == nullptr)
-    return _dummy;
-  return (_space->getOrigin(ispace));
-}
-
-double ASpaceObject::getDistance(const SpacePoint& p1,
-                                 const SpacePoint& p2,
-                                 Id ispace) const
-{
-  return (_space->getDistance(p1, p2, ispace));
-}
-
-VectorDouble ASpaceObject::getDistances(const SpacePoint& p1,
-                                        const SpacePoint& p2) const
-{
-  return (_space->getDistances(p1, p2));
-}
-
-VectorDouble ASpaceObject::getIncrement(const SpacePoint& p1,
-                                        const SpacePoint& p2,
-                                        Id ispace) const
-{
-  return (_space->getIncrement(p1, p2, ispace));
-}
-
-void ASpaceObject::getIncrementInPlace(const SpacePoint& p1,
-                                       const SpacePoint& p2,
-                                       VectorDouble& ptemp,
-                                       Id ispace) const
-{
-  _space->getIncrementInPlace(p1, p2, ptemp, ispace);
-}
-
-/**
- * Modify the Space dimension of an already created item
- * (To be used only during creation ... in particular when reading NF)
- * @param ndim
- */
-void ASpaceObject::setNDim(Id ndim)
-{
-  if (_space->getType() != ESpaceType::RN)
-    my_throw("Object is not in Space RN");
-
-  _space = SpaceRN::create(ndim);
-}
-
-/**
- * Factory for defining the unique default global space
- * (optional parameter can be used for sphere radius for example)
- *
- * @param type Space type (RN, SN, ...)
- * @param ndim Number of dimensions
- * @param param Optional space parameter (ex: radius of the sphere)
- */
-void defineDefaultSpace(const ESpaceType& type, size_t ndim, double param)
-{
-
-  switch (type.getValue())
+  ASpaceObject::ASpaceObject(const ASpaceObject& r)
+    : AStringable(r)
+    , _space(r._space)
   {
-    case ESpaceType::E_SN:
+  }
+
+  bool ASpaceObject::isConsistent(const ASpaceSharedPtr& space) const
+  {
+    return (isConsistent(space.get()));
+  }
+
+  ASpaceObject& ASpaceObject::operator=(const ASpaceObject& r)
+  {
+    if (this != &r)
     {
-      ndim = 2;
-      if (param <= 0.) param = EARTH_RADIUS;
-      defaultSpace = SpaceSN::create(static_cast<Id>(ndim), param);
-      break;
+      AStringable::operator=(r);
+      _space = r._space;
     }
-    case ESpaceType::E_RN:
+    return *this;
+  }
+
+  ASpaceObject::~ASpaceObject() {}
+
+  /// AStringable interface
+  String ASpaceObject::toString(const AStringFormat* /*strfmt*/) const
+  {
+    messerr("ASpaceObject: 'toString' not yet implemented");
+    return "";
+  }
+
+  VectorDouble ASpaceObject::getUnitaryVector() const
+  {
+    return _space->getUnitaryVector();
+  }
+
+  size_t ASpaceObject::getNDim(Id ispace) const
+  {
+    return (_space->getNDim(ispace));
+  }
+
+  const VectorDouble& ASpaceObject::getOrigin(Id ispace) const
+  {
+    if (_space == nullptr) return _dummy;
+    return (_space->getOrigin(ispace));
+  }
+
+  double ASpaceObject::getDistance(const SpacePoint& p1,
+                                   const SpacePoint& p2,
+                                   Id ispace) const
+  {
+    return (_space->getDistance(p1, p2, ispace));
+  }
+
+  VectorDouble
+    ASpaceObject::getDistances(const SpacePoint& p1, const SpacePoint& p2) const
+  {
+    return (_space->getDistances(p1, p2));
+  }
+
+  VectorDouble ASpaceObject::getIncrement(const SpacePoint& p1,
+                                          const SpacePoint& p2,
+                                          Id ispace) const
+  {
+    return (_space->getIncrement(p1, p2, ispace));
+  }
+
+  void ASpaceObject::getIncrementInPlace(const SpacePoint& p1,
+                                         const SpacePoint& p2,
+                                         VectorDouble& ptemp,
+                                         Id ispace) const
+  {
+    _space->getIncrementInPlace(p1, p2, ptemp, ispace);
+  }
+
+  /**
+   * Modify the Space dimension of an already created item
+   * (To be used only during creation ... in particular when reading NF)
+   * @param ndim
+   */
+  void ASpaceObject::setNDim(Id ndim)
+  {
+    if (_space->getType() != ESpaceType::RN)
+      my_throw("Object is not in Space RN");
+
+    _space = SpaceRN::create(ndim);
+  }
+
+  /**
+   * Factory for defining the unique default global space
+   * (optional parameter can be used for sphere radius for example)
+   *
+   * @param type Space type (RN, SN, ...)
+   * @param ndim Number of dimensions
+   * @param param Optional space parameter (ex: radius of the sphere)
+   */
+  void defineDefaultSpace(const ESpaceType& type, size_t ndim, double param)
+  {
+
+    switch (type.getValue())
     {
-      defaultSpace = SpaceRN::create(static_cast<Id>(ndim));
-      break;
-    }
-    default:
-    {
-      my_throw("Unknown space type!");
+      case ESpaceType::E_SN:
+      {
+        ndim = 2;
+        if (param <= 0.) param = EARTH_RADIUS;
+        defaultSpace = SpaceSN::create(static_cast<Id>(ndim), param);
+        break;
+      }
+      case ESpaceType::E_RN:
+      {
+        defaultSpace = SpaceRN::create(static_cast<Id>(ndim));
+        break;
+      }
+      default:
+      {
+        my_throw("Unknown space type!");
+      }
     }
   }
-}
 
-/**
- * @brief Defining the default space from another one
- *
- * @param space
- */
-void setDefaultSpace(const ASpaceSharedPtr& space)
-{
-  defaultSpace = space;
-}
+  /**
+   * @brief Defining the default space from another one
+   *
+   * @param space
+   */
+  void setDefaultSpace(const ASpaceSharedPtr& space)
+  {
+    defaultSpace = space;
+  }
 
-ESpaceType getDefaultSpaceType()
-{
-  if (nullptr == defaultSpace) defineDefaultSpace(ESpaceType::RN, 2);
-  return defaultSpace->getType();
-}
+  ESpaceType getDefaultSpaceType()
+  {
+    if (nullptr == defaultSpace) defineDefaultSpace(ESpaceType::RN, 2);
+    return defaultSpace->getType();
+  }
 
-Id getDefaultSpaceDimension()
-{
-  if (nullptr == defaultSpace) defineDefaultSpace(ESpaceType::RN, 2);
-  return static_cast<Id>(defaultSpace->getNDim());
-}
+  Id getDefaultSpaceDimension()
+  {
+    if (nullptr == defaultSpace) defineDefaultSpace(ESpaceType::RN, 2);
+    return static_cast<Id>(defaultSpace->getNDim());
+  }
 
-const ASpace* getDefaultSpace()
-{
-  return getDefaultSpaceSh().get();
-}
+  const ASpace* getDefaultSpace()
+  {
+    return getDefaultSpaceSh().get();
+  }
 
-ASpaceSharedPtr getDefaultSpaceSh()
-{
-  if (nullptr == defaultSpace) defineDefaultSpace(ESpaceType::RN, 2);
-  return defaultSpace;
-}
+  ASpaceSharedPtr getDefaultSpaceSh()
+  {
+    if (nullptr == defaultSpace) defineDefaultSpace(ESpaceType::RN, 2);
+    return defaultSpace;
+  }
 
-bool isDefaultSpaceSphere()
-{
-  return (getDefaultSpaceType() == ESpaceType::SN);
-}
+  bool isDefaultSpaceSphere()
+  {
+    return (getDefaultSpaceType() == ESpaceType::SN);
+  }
 } // namespace gstlrn

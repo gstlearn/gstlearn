@@ -16,19 +16,21 @@
 
 namespace gstlrn
 {
-class ADrift;
-class DriftList;
+  class ADrift;
+  class DriftList;
 
-class GSTLEARN_EXPORT DriftFactory
-{
-public:
-  static ADrift* createDriftByRank(Id rank, Id rank_fex);
-  static ADrift* createDriftBySymbol(const String &symbol);
-  static ADrift* createDriftByIdentifier(const String &driftname);
-  static DriftList* createDriftListFromIRF(Id order = 0,
-                                           Id nfex = 0,
-                                           const CovContext &ctxt = CovContext());
-  static DriftList* createDriftListForGradients(const DriftList* olddrifts,
-                                                const CovContext& ctxt = CovContext());
-};
-}
+  class GSTLEARN_EXPORT DriftFactory
+  {
+  public:
+    static ADrift* createDriftByRank(Id rank, Id rank_fex);
+    static ADrift* createDriftBySymbol(const String& symbol);
+    static ADrift* createDriftByIdentifier(const String& driftname);
+    static DriftList*
+      createDriftListFromIRF(Id order = 0,
+                             Id nfex = 0,
+                             const CovContext& ctxt = CovContext());
+    static DriftList*
+      createDriftListForGradients(const DriftList* olddrifts,
+                                  const CovContext& ctxt = CovContext());
+  };
+} // namespace gstlrn

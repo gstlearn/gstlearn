@@ -16,56 +16,55 @@
 
 namespace gstlrn
 {
-SimuPartitionParam::SimuPartitionParam(Id nbtuba,
-                                       double intensity,
-                                       const VectorDouble& dilate)
-  : AStringable()
-  , _nbtuba(nbtuba)
-  , _intensity(intensity)
-  , _dilate(dilate)
-{
-}
-
-SimuPartitionParam::SimuPartitionParam(const SimuPartitionParam& r)
-  : AStringable(r)
-  , _nbtuba(r._nbtuba)
-  , _intensity(r._intensity)
-  , _dilate(r._dilate)
-{
-}
-
-SimuPartitionParam& SimuPartitionParam::operator=(const SimuPartitionParam& r)
-{
-  if (this != &r)
+  SimuPartitionParam::SimuPartitionParam(Id nbtuba,
+                                         double intensity,
+                                         const VectorDouble& dilate)
+    : AStringable()
+    , _nbtuba(nbtuba)
+    , _intensity(intensity)
+    , _dilate(dilate)
   {
-    AStringable::operator=(r);
-    _nbtuba    = r._nbtuba;
-    _intensity = r._intensity;
-    _dilate    = r._dilate;
   }
-  return *this;
-}
 
-SimuPartitionParam::~SimuPartitionParam()
-{
-}
+  SimuPartitionParam::SimuPartitionParam(const SimuPartitionParam& r)
+    : AStringable(r)
+    , _nbtuba(r._nbtuba)
+    , _intensity(r._intensity)
+    , _dilate(r._dilate)
+  {
+  }
 
-String SimuPartitionParam::toString(const AStringFormat* /*strfmt*/) const
-{
-  std::stringstream sstr;
+  SimuPartitionParam& SimuPartitionParam::operator=(const SimuPartitionParam& r)
+  {
+    if (this != &r)
+    {
+      AStringable::operator=(r);
+      _nbtuba = r._nbtuba;
+      _intensity = r._intensity;
+      _dilate = r._dilate;
+    }
+    return *this;
+  }
 
-  sstr << "Intensity of Poisson Law = " << _intensity << std::endl;
-  sstr << "Number of Bands used for valuation simulation = " << _nbtuba << std::endl;
-  if (!_dilate.empty())
-    sstr << toStrVector("Dilation (used for Poisson)", _dilate);
+  SimuPartitionParam::~SimuPartitionParam() {}
 
-  return sstr.str();
-}
+  String SimuPartitionParam::toString(const AStringFormat* /*strfmt*/) const
+  {
+    std::stringstream sstr;
 
-double SimuPartitionParam::getDilate(Id idim) const
-{
-  if (_dilate.empty()) return 0.;
-  return _dilate[idim];
-}
+    sstr << "Intensity of Poisson Law = " << _intensity << std::endl;
+    sstr << "Number of Bands used for valuation simulation = " << _nbtuba
+         << std::endl;
+    if (!_dilate.empty())
+      sstr << toStrVector("Dilation (used for Poisson)", _dilate);
+
+    return sstr.str();
+  }
+
+  double SimuPartitionParam::getDilate(Id idim) const
+  {
+    if (_dilate.empty()) return 0.;
+    return _dilate[idim];
+  }
 
 } // namespace gstlrn

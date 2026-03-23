@@ -15,29 +15,37 @@
 
 namespace gstlrn
 {
-// Forward declaration
-class CovContext;
+  // Forward declaration
+  class CovContext;
 
-class GSTLEARN_EXPORT KernelLinearSph: public AKernel
-{
-public:
-  KernelLinearSph(const CovContext& ctx);
-  KernelLinearSph(const KernelLinearSph& r);
-  KernelLinearSph& operator=(const KernelLinearSph& r);
-  virtual ~KernelLinearSph();
-
-  String getCovName() const override { return "LinearSph"; }
-  Id getMinOrder() const override { return -1; }
-  bool getCompatibleSpaceS() const override { return true; }
-
-  bool isValidForSimulation(const ESimuType& simuType) const override
+  class GSTLEARN_EXPORT KernelLinearSph: public AKernel
   {
-    return (getSpaceType() == ESpaceType::SN && simuType == ESimuType::SPECTRAL);
-  }
+  public:
+    KernelLinearSph(const CovContext& ctx);
+    KernelLinearSph(const KernelLinearSph& r);
+    KernelLinearSph& operator=(const KernelLinearSph& r);
+    virtual ~KernelLinearSph();
 
-protected:
-  double _evaluateCovOnSphere(double alpha, double scale = 1., Id degree = 50) const override;
-  VectorDouble _evaluateSpectrumOnSphere(Id n, double scale = 1., bool flagScale = true) const override;
-};
+    String getCovName() const override { return "LinearSph"; }
+
+    Id getMinOrder() const override { return -1; }
+
+    bool getCompatibleSpaceS() const override { return true; }
+
+    bool isValidForSimulation(const ESimuType& simuType) const override
+    {
+      return (getSpaceType() == ESpaceType::SN
+              && simuType == ESimuType::SPECTRAL);
+    }
+
+  protected:
+    double _evaluateCovOnSphere(double alpha,
+                                double scale = 1.,
+                                Id degree = 50) const override;
+    VectorDouble
+      _evaluateSpectrumOnSphere(Id n,
+                                double scale = 1.,
+                                bool flagScale = true) const override;
+  };
 
 } // namespace gstlrn

@@ -21,96 +21,121 @@
 
 namespace gstlrn
 {
-class KrigingSystem;
-class Db;
-class DbGrid;
+  class KrigingSystem;
+  class Db;
+  class DbGrid;
 
-class GSTLEARN_EXPORT Krigtest_Res
-{
-public:
-  Id ndim;                // Space dimension
-  Id nvar;                // Number of variables
-  Id nech;                // Number of Neighboring samples
-  Id CSize;               // Number of drift equations in the Drift part
-  Id DSize;               // Number of Equations of the Covariance part
-  Id nrhs;                // Number of R.H.S. vectors
-  VectorInt nbgh;         // Ranks of the neighboring samples
-  VectorVectorDouble xyz; // Coordinates of the neighboring samples [ndim][nech]
-  VectorDouble data;      // Usable values at neighboring samples [neq]
-  MatrixSymmetric lhs;    // L.H.S. Covariance part (neq * neq)
-  MatrixDense lhsF;       // L.H.S. Drift part
-  MatrixDense rhs;        // R.H.S. Covariance part (neq * nrhs)
-  MatrixDense rhsF;       // R.H.S. Drift part  (nbfl * nrhs)
-  MatrixDense wgt;        // Vector of weights (neq * nrhs)
-  MatrixDense mu;         // Vector of Lagrange parameters (nbfl * nrhs)
-  MatrixSquare var;       // Matrix of Target-Target Variance (nvar * nvar)
+  class GSTLEARN_EXPORT Krigtest_Res
+  {
+  public:
+    Id ndim; // Space dimension
+    Id nvar; // Number of variables
+    Id nech; // Number of Neighboring samples
+    Id CSize; // Number of drift equations in the Drift part
+    Id DSize; // Number of Equations of the Covariance part
+    Id nrhs; // Number of R.H.S. vectors
+    VectorInt nbgh; // Ranks of the neighboring samples
+    VectorVectorDouble
+      xyz; // Coordinates of the neighboring samples [ndim][nech]
+    VectorDouble data; // Usable values at neighboring samples [neq]
+    MatrixSymmetric lhs; // L.H.S. Covariance part (neq * neq)
+    MatrixDense lhsF; // L.H.S. Drift part
+    MatrixDense rhs; // R.H.S. Covariance part (neq * nrhs)
+    MatrixDense rhsF; // R.H.S. Drift part  (nbfl * nrhs)
+    MatrixDense wgt; // Vector of weights (neq * nrhs)
+    MatrixDense mu; // Vector of Lagrange parameters (nbfl * nrhs)
+    MatrixSquare var; // Matrix of Target-Target Variance (nvar * nvar)
 
-  /// Has a specific implementation in the Target language
-  DECLARE_TOTL;
-};
+    /// Has a specific implementation in the Target language
+    DECLARE_TOTL;
+  };
 
-// TODO : Create KrigingParam which inherits from InterpolatorParam
-class GSTLEARN_EXPORT CalcKriging: public ACalcInterpolator
-{
-public:
-  CalcKriging(bool flag_est = true, bool flag_std = true, bool flag_varZ = false);
-  CalcKriging(const CalcKriging& r)            = delete;
-  CalcKriging& operator=(const CalcKriging& r) = delete;
-  virtual ~CalcKriging();
+  // TODO : Create KrigingParam which inherits from InterpolatorParam
+  class GSTLEARN_EXPORT CalcKriging: public ACalcInterpolator
+  {
+  public:
+    CalcKriging(bool flag_est = true,
+                bool flag_std = true,
+                bool flag_varZ = false);
+    CalcKriging(const CalcKriging& r) = delete;
+    CalcKriging& operator=(const CalcKriging& r) = delete;
+    virtual ~CalcKriging();
 
-  void setFlagBayes(bool flagBayes) { _flagBayes = flagBayes; }
-  void setIechSingleTarget(Id iechSingleTarget) { _iechSingleTarget = iechSingleTarget; }
-  void setVerboseSingleTarget(bool verbose) { _verboseSingleTarget = verbose; }
-  void setAnam(AAnam* anam) { _anam = anam; }
-  void setFlagGam(bool flagGam) { _flagGam = flagGam; }
-  void setFlagXvalidEst(Id flagXvalidEst) { _flagXvalidEst = flagXvalidEst; }
-  void setFlagXvalidStd(Id flagXvalidStd) { _flagXvalidStd = flagXvalidStd; }
-  void setFlagXvalidVarZ(Id flagXvalidVarZ) { _flagXvalidVarZ = flagXvalidVarZ; }
-  void setFlagXvalid(bool flagXvalid) { _flagXvalid = flagXvalid; }
-  void setFlagKfold(bool flag_kfold) { _flagKfold = flag_kfold; }
-  void setFlagNeighOnly(bool flagNeighOnly) { _flagNeighOnly = flagNeighOnly; }
+    void setFlagBayes(bool flagBayes) { _flagBayes = flagBayes; }
 
-  Krigtest_Res getKtest() const { return _ktest; }
+    void setIechSingleTarget(Id iechSingleTarget)
+    {
+      _iechSingleTarget = iechSingleTarget;
+    }
 
-private:
-  bool _check() override;
-  bool _preprocess() override;
-  bool _run() override;
-  bool _postprocess() override;
-  void _rollback() override;
+    void setVerboseSingleTarget(bool verbose)
+    {
+      _verboseSingleTarget = verbose;
+    }
 
-  void _storeResultsForExport(const KrigingSystem& ksys);
+    void setAnam(AAnam* anam) { _anam = anam; }
 
-private:
-  bool _flagEst;
-  bool _flagStd;
-  bool _flagVarZ;
+    void setFlagGam(bool flagGam) { _flagGam = flagGam; }
 
-  VectorString _nameCoord;
+    void setFlagXvalidEst(Id flagXvalidEst) { _flagXvalidEst = flagXvalidEst; }
 
-  bool _flagBayes;
+    void setFlagXvalidStd(Id flagXvalidStd) { _flagXvalidStd = flagXvalidStd; }
 
-  Id _iechSingleTarget;
-  bool _verboseSingleTarget;
+    void setFlagXvalidVarZ(Id flagXvalidVarZ)
+    {
+      _flagXvalidVarZ = flagXvalidVarZ;
+    }
 
-  bool _flagGam;
-  AAnam* _anam;
+    void setFlagXvalid(bool flagXvalid) { _flagXvalid = flagXvalid; }
 
-  bool _flagXvalid;
-  bool _flagKfold;
-  Id _flagXvalidEst;
-  Id _flagXvalidStd;
-  Id _flagXvalidVarZ;
+    void setFlagKfold(bool flag_kfold) { _flagKfold = flag_kfold; }
 
-  bool _flagNeighOnly;
-  Id _nbNeigh;
+    void setFlagNeighOnly(bool flagNeighOnly)
+    {
+      _flagNeighOnly = flagNeighOnly;
+    }
 
-  Id _iptrEst;
-  Id _iptrStd;
-  Id _iptrVarZ;
-  Id _iptrNeigh;
+    Krigtest_Res getKtest() const { return _ktest; }
 
-  Krigtest_Res _ktest;
-};
+  private:
+    bool _check() override;
+    bool _preprocess() override;
+    bool _run() override;
+    bool _postprocess() override;
+    void _rollback() override;
+
+    void _storeResultsForExport(const KrigingSystem& ksys);
+
+  private:
+    bool _flagEst;
+    bool _flagStd;
+    bool _flagVarZ;
+
+    VectorString _nameCoord;
+
+    bool _flagBayes;
+
+    Id _iechSingleTarget;
+    bool _verboseSingleTarget;
+
+    bool _flagGam;
+    AAnam* _anam;
+
+    bool _flagXvalid;
+    bool _flagKfold;
+    Id _flagXvalidEst;
+    Id _flagXvalidStd;
+    Id _flagXvalidVarZ;
+
+    bool _flagNeighOnly;
+    Id _nbNeigh;
+
+    Id _iptrEst;
+    Id _iptrStd;
+    Id _iptrVarZ;
+    Id _iptrNeigh;
+
+    Krigtest_Res _ktest;
+  };
 
 } // namespace gstlrn

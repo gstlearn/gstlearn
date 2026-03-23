@@ -16,7 +16,7 @@ output:
 ```{r, include=FALSE}
 ## Global options for code chunks
 knitr::opts_chunk$set(
-  echo = TRUE, 
+  echo = TRUE,
   warning = FALSE,
   fig.width=3.5,fig.height=2.5,fig.align="center"
 )
@@ -149,7 +149,7 @@ dbStatisticsMono(dat,
 
 ## Assessors for Db class
 
-We can also consider the data base as a data frame and use the `[ ]` assessors. For instance, the full content of a `Db` can be displayed as a data.frame as follows. 
+We can also consider the data base as a data frame and use the `[ ]` assessors. For instance, the full content of a `Db` can be displayed as a data.frame as follows.
 
 ```{r}
 dat[]
@@ -169,7 +169,7 @@ But it can be more restrictive as in the following paragraph, where we only cons
 dat[10:15, c("rank", "Latitude", "Elevation")]
 ```
 
-We can also replace the variable name by their *Column* index (1-based in `[]`operator) in the data base. 
+We can also replace the variable name by their *Column* index (1-based in `[]`operator) in the data base.
 
 ```{r}
 dat[10:15, 3:4]

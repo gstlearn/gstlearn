@@ -37,8 +37,8 @@ int main(int argc, char* argv[])
   ASerializable::setPrefixName("test_Simpart-");
 
   // Global parameters
-  Id ndim   = 2;
-  Id seed   = 3322;
+  Id ndim = 2;
+  Id seed = 3322;
   Id nxcell = 100;
   defineDefaultSpace(ESpaceType::RN, ndim);
 
@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
 
   // ====================== Create Parameter File ===================
   message("\n<----- Creating Parameter File ----->\n");
-  Id nbtuba        = 50;
+  Id nbtuba = 50;
   double intensity = 0.1;
   SimuPartitionParam parparam(nbtuba, intensity);
   parparam.display();

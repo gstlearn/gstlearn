@@ -12,76 +12,75 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Space/ASpace.hpp"
 #include "Basic/VectorNumT.hpp"
+#include "Space/ASpace.hpp"
 
 namespace gstlrn
 {
-class SpacePoint;
+  class SpacePoint;
 
-class GSTLEARN_EXPORT SpaceSN: public ASpace
-{
-private:
-  SpaceSN(size_t ndim, double radius);
-  SpaceSN(const SpaceSN &r);
-  SpaceSN& operator=(const SpaceSN &r);
- 
-public:
-  virtual ~SpaceSN();
+  class GSTLEARN_EXPORT SpaceSN: public ASpace
+  {
+  private:
+    SpaceSN(size_t ndim, double radius);
+    SpaceSN(const SpaceSN& r);
+    SpaceSN& operator=(const SpaceSN& r);
 
-  /// ICloneable interface
-  IMPLEMENT_CLONING(SpaceSN)
+  public:
+    virtual ~SpaceSN();
 
-  /// Return the concrete space type
-  ESpaceType getType() const override { return ESpaceType::SN; };
+    /// ICloneable interface
+    IMPLEMENT_CLONING(SpaceSN)
 
-  static ASpaceSharedPtr create(Id ndim, double radius);
-  /// Return the sphere radius
-  double getRadius() const { return _radius; }
+    /// Return the concrete space type
+    ESpaceType getType() const override { return ESpaceType::SN; };
 
-  /// Dump a space in a string
-  String toStringIdx(const AStringFormat* strfmt,
-                     Id idx = -1) const override;
+    static ASpaceSharedPtr create(Id ndim, double radius);
 
-  /// Return true if the given space is equal to me
-  bool isEqual(const ASpace *space) const override;
+    /// Return the sphere radius
+    double getRadius() const { return _radius; }
 
-protected:
+    /// Dump a space in a string
+    String toStringIdx(const AStringFormat* strfmt, Id idx = -1) const override;
 
-  /// Move the given space point by the given vector
-  void _move(SpacePoint &p1, const VectorDouble &vec) const override;
+    /// Return true if the given space is equal to me
+    bool isEqual(const ASpace* space) const override;
 
-  /// Return the distance between two space points
-  double _getDistance(const SpacePoint& p1,
-                      const SpacePoint& p2,
-                      Id ispace = -1) const override;
+  protected:
+    /// Move the given space point by the given vector
+    void _move(SpacePoint& p1, const VectorDouble& vec) const override;
 
-  /// Return the distance between two space points with the given tensor
-  double _getDistance(const SpacePoint& p1,
-                      const SpacePoint& p2,
-                      const Tensor& tensor,
-                      Id ispace = -1) const override;
+    /// Return the distance between two space points
+    double _getDistance(const SpacePoint& p1,
+                        const SpacePoint& p2,
+                        Id ispace = -1) const override;
 
-  /// Return the distance in frequential domain between two space points with the given tensor
-  double _getFrequentialDistance(const SpacePoint& p1,
-                                 const SpacePoint& p2,
-                                 const Tensor& tensor,
-                                 Id ispace = -1) const override;
+    /// Return the distance between two space points with the given tensor
+    double _getDistance(const SpacePoint& p1,
+                        const SpacePoint& p2,
+                        const Tensor& tensor,
+                        Id ispace = -1) const override;
 
-  /// Return the increment vector between two space points for the current space context
-  VectorDouble _getIncrement(const SpacePoint& p1,
-                             const SpacePoint& p2,
-                             Id ispace = -1) const override;
-  
-  /// Return the increment vector between two space points in a given vector
-  void _getIncrementInPlace(const SpacePoint& p1,
-                            const SpacePoint& p2,
-                            VectorDouble& ptemp,
-                            Id ispace = -1) const override;
+    /// Return the distance in frequential domain between two space points with the given tensor
+    double _getFrequentialDistance(const SpacePoint& p1,
+                                   const SpacePoint& p2,
+                                   const Tensor& tensor,
+                                   Id ispace = -1) const override;
 
-private:
-  /// Sphere radius
-  double _radius;
-};
+    /// Return the increment vector between two space points for the current space context
+    VectorDouble _getIncrement(const SpacePoint& p1,
+                               const SpacePoint& p2,
+                               Id ispace = -1) const override;
 
-}
+    /// Return the increment vector between two space points in a given vector
+    void _getIncrementInPlace(const SpacePoint& p1,
+                              const SpacePoint& p2,
+                              VectorDouble& ptemp,
+                              Id ispace = -1) const override;
+
+  private:
+    /// Sphere radius
+    double _radius;
+  };
+
+} // namespace gstlrn

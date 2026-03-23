@@ -38,8 +38,8 @@ int main(int argc, char* argv[])
   ASerializable::setPrefixName("test_SimFFT-");
 
   // Global parameters
-  Id ndim   = 2;
-  Id seed   = 3322;
+  Id ndim = 2;
+  Id seed = 3322;
   Id nxcell = 100;
   defineDefaultSpace(ESpaceType::RN, ndim);
 
@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
 
   message("\n<----- Creating Parameter File ----->\n");
   bool flag_aliasing = true;
-  double percent     = 0.1;
+  double percent = 0.1;
   SimuFFTParam param(flag_aliasing, percent);
   param.display();
 

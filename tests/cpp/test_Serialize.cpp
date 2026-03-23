@@ -27,6 +27,7 @@
 #include "Variogram/VarioParam.hpp"
 
 using namespace gstlrn;
+
 /****************************************************************************/
 /*!
 ** Main Program for testing Serialize/Deserialize
@@ -43,24 +44,24 @@ int main(int argc, char* argv[])
 
   // Next flag indicates if the format is NF (true) or H5 (false)
   bool flagNeutral = false;
-  bool verbose     = false;
-  Id mode          = 0;
+  bool verbose = false;
+  Id mode = 0;
 
   // =================
   // Preliminary tasks
   // =================
 
-  Id nech           = 20;
-  Db* db            = Db::createFromBox(nech, {0., 0.}, {1., 1.}, 32432);
+  Id nech = 20;
+  Db* db = Db::createFromBox(nech, {0., 0.}, {1., 1.}, 32432);
   VectorDouble vec1 = VH::simulateGaussian(nech);
   db->addColumns(vec1, "myvar1", ELoc::Z, 0);
   VectorDouble vec2 = VH::simulateGaussian(nech);
   db->addColumns(vec2, "myvar2");
 
   DbGrid* dbg = DbGrid::create({12, 10}, {0.1, 0.3}, {0.2, 0.4});
-  vec1        = VH::simulateGaussian(dbg->getNSample());
+  vec1 = VH::simulateGaussian(dbg->getNSample());
   dbg->addColumns(vec1, "myvar1", ELoc::Z, 0);
-  vec2    = VH::simulateGaussian(dbg->getNSample());
+  vec2 = VH::simulateGaussian(dbg->getNSample());
   vec2[2] = TEST;
   vec2[5] = TEST;
   dbg->addColumns(vec2, "myvar2", ELoc::Z, 1);
@@ -248,19 +249,25 @@ int main(int argc, char* argv[])
   if (mode == 0 || mode == 7)
   {
     auto* model1 = Model::createFromParam(ECov::NUGGET);
-    model1->addCovFromParam(ECov::EXPONENTIAL, EPSILON6, 1., 1.2, {10, 20}, {}, {90, 0});
+    model1->addCovFromParam(ECov::EXPONENTIAL,
+                            EPSILON6,
+                            1.,
+                            1.2,
+                            {10, 20},
+                            {},
+                            {90, 0});
     model1->display();
 
     // Define the Non-stationrity
     auto* dbnostat1 = DbGrid::create({10, 10});
-    auto tab1       = dbnostat1->getColumns({"rank"});
+    auto tab1 = dbnostat1->getColumns({"rank"});
     dbnostat1->addColumns(tab1, "sills");
     model1->attachNoStatDb(dbnostat1);
     model1->getCovAniso(0)->makeSillNoStatDb("sills", 0, 0, dbnostat1);
     delete dbnostat1;
 
     auto* dbnostat2 = DbGrid::create({10, 10});
-    auto tab2       = dbnostat2->getColumns({"rank"});
+    auto tab2 = dbnostat2->getColumns({"rank"});
     dbnostat2->addColumns(tab2, "angles");
     dbnostat2->addColumns(tab2, "ranges");
     model1->getCovAniso(1)->makeAngleNoStatDb("angles", 0, dbnostat2);
@@ -272,7 +279,7 @@ int main(int argc, char* argv[])
 
     // Deserialize model2
     Model* model2 = nullptr;
-    model2        = Model::createFromNF("ModelNoStat.NF.h5", verbose);
+    model2 = Model::createFromNF("ModelNoStat.NF.h5", verbose);
     model2->display();
 
     delete model1;
@@ -286,8 +293,8 @@ int main(int argc, char* argv[])
   if (mode == 0 || mode == 8)
   {
     VectorVectorDouble table;
-    Id ncols      = 3;
-    Id nrows      = 10;
+    Id ncols = 3;
+    Id nrows = 10;
     Table* table1 = Table::create(nrows, ncols);
     for (Id irow = 0; irow < nrows; irow++)
       for (Id icol = 0; icol < ncols; icol++)
@@ -318,7 +325,8 @@ int main(int argc, char* argv[])
 
   if (mode == 0 || mode == 9)
   {
-    Rule* rule1 = Rule::createFromNames({"S", "F1", "T", "F2", "S", "F3", "F4"});
+    Rule* rule1 =
+      Rule::createFromNames({"S", "F1", "T", "F2", "S", "F3", "F4"});
     rule1->display();
 
     // Serialize
@@ -345,10 +353,10 @@ int main(int argc, char* argv[])
 
   if (mode == 0 || mode == 10)
   {
-    Id npolyline           = 100;
+    Id npolyline = 100;
     VectorDouble xpolyline = VH::simulateGaussian(npolyline);
     VectorDouble ypolyline = VH::simulateGaussian(npolyline);
-    auto* polyline1        = new PolyLine2D(xpolyline, ypolyline);
+    auto* polyline1 = new PolyLine2D(xpolyline, ypolyline);
     AStringFormat afmt(3);
     polyline1->display(&afmt);
 
@@ -376,18 +384,24 @@ int main(int argc, char* argv[])
 
   if (mode == 0 || mode == 11)
   {
-    Id nmaxi            = 20;
-    double radius       = 4.;
-    Id nmini            = 2;
-    Id nsect            = 5;
-    Id nsmax            = 3;
+    Id nmaxi = 20;
+    double radius = 4.;
+    Id nmini = 2;
+    Id nsect = 5;
+    Id nsmax = 3;
     VectorDouble coeffs = {2., 3.};
     VectorDouble angles = {25., 0.};
-    bool useBallTree    = true;
+    bool useBallTree = true;
 
-    NeighMoving* neigh1 = NeighMoving::create(false, nmaxi, radius,
-                                              nmini, nsect, nsmax,
-                                              coeffs, angles, useBallTree);
+    NeighMoving* neigh1 = NeighMoving::create(false,
+                                              nmaxi,
+                                              radius,
+                                              nmini,
+                                              nsect,
+                                              nsmax,
+                                              coeffs,
+                                              angles,
+                                              useBallTree);
     neigh1->display();
 
     // Serialize

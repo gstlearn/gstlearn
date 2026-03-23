@@ -5,7 +5,7 @@ date: "December 6th 2022"
 output:
   pdf_document: default
   html_document: default
-  editor_options: 
+  editor_options:
   chunk_output_type: console
 ---
 
@@ -172,13 +172,13 @@ q2 = VectorHelper_qnormVec(probas)
 
 # First components
 q1 = VectorHelper_quantiles(data$getColumns("Y1"), probas)
-plot(q1, q2, xlab = "Experimental quantiles", ylab = "Theoretical quantiles", 
+plot(q1, q2, xlab = "Experimental quantiles", ylab = "Theoretical quantiles",
      main = "First Intial Variable")
 abline(a = 0, b = 1, col = "red", lty = 3)
 
 # Second components
 q1 = VectorHelper_quantiles(data$getColumns("Y2"), probas)
-plot(q1, q2, xlab = "Experimental quantiles", ylab = "Theoretical quantiles", 
+plot(q1, q2, xlab = "Experimental quantiles", ylab = "Theoretical quantiles",
      main = "Second Intial Variable")
 abline(a = 0, b = 1, col = "red", lty = 3)
 
@@ -191,13 +191,13 @@ plot.end(p)
 
 # First components
 q1 = VectorHelper_quantiles(data$getColumns("U-1"), probas)
-plot(q1, q2, xlab = "Experimental quantiles", ylab = "Theoretical quantiles", 
+plot(q1, q2, xlab = "Experimental quantiles", ylab = "Theoretical quantiles",
      main = "First Final Variable")
 abline(a = 0, b = 1, col = "red", lty = 3)
 
 # Second components
 q1 = VectorHelper_quantiles(data$getColumns("U-2"), probas)
-plot(q1, q2, xlab = "Experimental quantiles", ylab = "Theoretical quantiles", 
+plot(q1, q2, xlab = "Experimental quantiles", ylab = "Theoretical quantiles",
      main = "Second Final Variable")
 abline(a = 0, b = 1, col = "red", lty = 3)
 
@@ -209,7 +209,7 @@ plot.end(p)
 
 # Back transform of simulated Gaussian variables
 
-If the *gaussianToRaw* function is used, the Hermite method should be used. The function does work and the ad-hoc function KNN is used instead. 
+If the *gaussianToRaw* function is used, the Hermite method should be used. The function does work and the ad-hoc function KNN is used instead.
 
 ```{r}
 # simulations
@@ -227,7 +227,7 @@ PPMT.anam <- function(this, X){
   np <- dim(X)[1]
   nd <- dim(X)[2]
   stopifnot(nd == dim(this$X)[2])
-  
+
   res<- get.knnx(data = this$X, query = X, k = 1+nd)
   Y  <- matrix(NaN, nrow = np, ncol = nd)
   for (i in 1:np) {
@@ -255,8 +255,8 @@ simu["Z.Y1"] <- Z[,1]
 simu["Z.Y2"] <- Z[,2]
 
 # superposition initial data and simulated data
-plot(Z[,1], Z[,2], 
-     main = "Simulated raw variable", xlab = "Z1", ylab = "Z2", 
+plot(Z[,1], Z[,2],
+     main = "Simulated raw variable", xlab = "Z1", ylab = "Z2",
      pch = 19, cex = 0.5)
 points(anam$Z[,1], anam$Z[,2], pch = 19, cex = 0.5, col = "red")
 legend("topleft", legend = c("data", "simulated"), pch = 19, col = c("red", "black"))

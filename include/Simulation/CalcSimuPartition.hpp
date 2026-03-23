@@ -17,47 +17,55 @@
 
 namespace gstlrn
 {
-class Db;
-class DbGrid;
-class Model;
+  class Db;
+  class DbGrid;
+  class Model;
 
-typedef struct
-{
-  double valref;
-  double valsim;
-} Stack;
+  typedef struct
+  {
+    double valref;
+    double valsim;
+  } Stack;
 
-class GSTLEARN_EXPORT CalcSimuPartition: public ACalcSimulation
-{
-public:
-  CalcSimuPartition(Id mode, Id nbsimu = 0, Id seed = 4324324, bool verbose = false);
-  CalcSimuPartition(const CalcSimuPartition& r)            = delete;
-  CalcSimuPartition& operator=(const CalcSimuPartition& r) = delete;
-  virtual ~CalcSimuPartition();
+  class GSTLEARN_EXPORT CalcSimuPartition: public ACalcSimulation
+  {
+  public:
+    CalcSimuPartition(Id mode,
+                      Id nbsimu = 0,
+                      Id seed = 4324324,
+                      bool verbose = false);
+    CalcSimuPartition(const CalcSimuPartition& r) = delete;
+    CalcSimuPartition& operator=(const CalcSimuPartition& r) = delete;
+    virtual ~CalcSimuPartition();
 
-  const SimuPartitionParam& getParparam() const { return _parparam; }
-  void setParparam(const SimuPartitionParam& parparam) { _parparam = parparam; }
+    const SimuPartitionParam& getParparam() const { return _parparam; }
 
-  void setMode(Id mode) { _mode = mode; }
-  void setVerbose(bool verbose) { _verbose = verbose; }
+    void setParparam(const SimuPartitionParam& parparam)
+    {
+      _parparam = parparam;
+    }
 
-private:
-  bool _check() override;
-  bool _preprocess() override;
-  bool _run() override;
-  bool _postprocess() override;
-  void _rollback() override;
+    void setMode(Id mode) { _mode = mode; }
 
-  bool _voronoi();
-  bool _poisson();
-  static double _stackSearch(const std::vector<Stack>& stacks, double valref);
+    void setVerbose(bool verbose) { _verbose = verbose; }
 
-private:
-  Id _mode;
-  bool _verbose;
-  Id _iattOut;
-  SimuPartitionParam _parparam;
-  Model* _modelLocal;
-};
+  private:
+    bool _check() override;
+    bool _preprocess() override;
+    bool _run() override;
+    bool _postprocess() override;
+    void _rollback() override;
+
+    bool _voronoi();
+    bool _poisson();
+    static double _stackSearch(const std::vector<Stack>& stacks, double valref);
+
+  private:
+    Id _mode;
+    bool _verbose;
+    Id _iattOut;
+    SimuPartitionParam _parparam;
+    Model* _modelLocal;
+  };
 
 } // namespace gstlrn

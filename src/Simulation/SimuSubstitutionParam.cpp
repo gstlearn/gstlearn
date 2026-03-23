@@ -18,299 +18,297 @@
 
 namespace gstlrn
 {
-SimuSubstitutionParam::SimuSubstitutionParam(Id nfacies,
-                                             double intensity,
-                                             bool flag_direct,
-                                             bool flag_coding,
-                                             bool flag_orient)
-  : AStringable()
-  , _nfacies(nfacies)
-  , _nstates(0)
-  , _colfac(-1)
-  , _flagDirect(flag_direct)
-  , _flagCoding(flag_coding)
-  , _flagOrient(flag_orient)
-  , _flagAuto(true)
-  , _intensity(intensity)
-  , _factor(0.)
-  , _colang()
-  , _vector()
-  , _trans()
-{
-  (void)isValid();
-}
-
-SimuSubstitutionParam::SimuSubstitutionParam(const SimuSubstitutionParam& r)
-  : AStringable(r)
-  , _nfacies(r._nfacies)
-  , _nstates(r._nstates)
-  , _colfac(r._colfac)
-  , _flagDirect(r._flagDirect)
-  , _flagCoding(r._flagCoding)
-  , _flagOrient(r._flagOrient)
-  , _flagAuto(r._flagAuto)
-  , _intensity(r._intensity)
-  , _factor(r._factor)
-  , _colang(r._colang)
-  , _vector(r._vector)
-  , _trans(r._trans)
-{
-}
-
-SimuSubstitutionParam& SimuSubstitutionParam::operator=(const SimuSubstitutionParam& r)
-{
-  if (this != &r)
+  SimuSubstitutionParam::SimuSubstitutionParam(Id nfacies,
+                                               double intensity,
+                                               bool flag_direct,
+                                               bool flag_coding,
+                                               bool flag_orient)
+    : AStringable()
+    , _nfacies(nfacies)
+    , _nstates(0)
+    , _colfac(-1)
+    , _flagDirect(flag_direct)
+    , _flagCoding(flag_coding)
+    , _flagOrient(flag_orient)
+    , _flagAuto(true)
+    , _intensity(intensity)
+    , _factor(0.)
+    , _colang()
+    , _vector()
+    , _trans()
   {
-    AStringable::operator=(r);
-    _nfacies    = r._nfacies;
-    _nstates    = r._nstates;
-    _colfac     = r._colfac;
-    _flagDirect = r._flagDirect;
-    _flagCoding = r._flagCoding;
-    _flagOrient = r._flagOrient;
-    _flagAuto   = r._flagAuto;
-    _intensity  = r._intensity;
-    _factor     = r._factor;
-    _colang     = r._colang;
-    _vector     = r._vector;
-    _trans      = r._trans;
+    (void)isValid();
   }
-  return *this;
-}
 
-SimuSubstitutionParam::~SimuSubstitutionParam()
-{
-}
-
-String SimuSubstitutionParam::toString(const AStringFormat* /*strfmt*/) const
-{
-  std::stringstream sstr;
-
-  sstr << "Number of Facies = " << _nfacies << std::endl;
-  if (!_flagAuto)
-    sstr << "Number of States = " << _nstates << std::endl;
-  sstr << "Intensity of Poisson Point Process = " << _intensity << std::endl;
-  if (_flagDirect)
-    sstr << "Direction information performed Internally" << std::endl;
-  else
-    sstr << "Direction information provided in the Db" << std::endl;
-  if (_flagCoding)
-    sstr << "Coding process performed internally" << std::endl;
-  else
-    sstr << "Coding not performed: Result is the Direction information" << std::endl;
-  if (_flagOrient)
-    sstr << toStrVector("Vector orthogonal to desorientation layering", _vector);
-  sstr << "Factor for desorientation strength (0: isotropic; 1: stratified) = " << _factor << std::endl;
-  sstr << toStrVector("Transition probability matrix", _trans, true, true);
-  if (_colfac >= 0)
-    sstr << "Attribute rank for desorientation factor = " << _colfac << std::endl;
-  if (!_colang.empty())
-    sstr << toStrVector("Attribute ranks for Desorientation Vector", _colang);
-
-  return sstr.str();
-}
-
-bool SimuSubstitutionParam::isValid(bool verbose)
-{
-  // Check the desorientation information
-
-  if (isFlagOrient())
+  SimuSubstitutionParam::SimuSubstitutionParam(const SimuSubstitutionParam& r)
+    : AStringable(r)
+    , _nfacies(r._nfacies)
+    , _nstates(r._nstates)
+    , _colfac(r._colfac)
+    , _flagDirect(r._flagDirect)
+    , _flagCoding(r._flagCoding)
+    , _flagOrient(r._flagOrient)
+    , _flagAuto(r._flagAuto)
+    , _intensity(r._intensity)
+    , _factor(r._factor)
+    , _colang(r._colang)
+    , _vector(r._vector)
+    , _trans(r._trans)
   {
+  }
 
-    /* Check the (constant) angle */
-
-    isValidOrientation(_vector, verbose);
-
-    /* Check the (constant) desorientation factor */
-
-    if (getColfac() < 0)
+  SimuSubstitutionParam&
+    SimuSubstitutionParam::operator=(const SimuSubstitutionParam& r)
+  {
+    if (this != &r)
     {
-      isValidFactor(&_factor, verbose);
+      AStringable::operator=(r);
+      _nfacies = r._nfacies;
+      _nstates = r._nstates;
+      _colfac = r._colfac;
+      _flagDirect = r._flagDirect;
+      _flagCoding = r._flagCoding;
+      _flagOrient = r._flagOrient;
+      _flagAuto = r._flagAuto;
+      _intensity = r._intensity;
+      _factor = r._factor;
+      _colang = r._colang;
+      _vector = r._vector;
+      _trans = r._trans;
     }
+    return *this;
   }
 
-  // Check the transition information
+  SimuSubstitutionParam::~SimuSubstitutionParam() {}
 
-  if (_trans.empty())
+  String SimuSubstitutionParam::toString(const AStringFormat* /*strfmt*/) const
   {
-    _trans = VectorDouble(_nfacies * _nfacies, 1. / _nfacies);
+    std::stringstream sstr;
+
+    sstr << "Number of Facies = " << _nfacies << std::endl;
+    if (!_flagAuto) sstr << "Number of States = " << _nstates << std::endl;
+    sstr << "Intensity of Poisson Point Process = " << _intensity << std::endl;
+    if (_flagDirect)
+      sstr << "Direction information performed Internally" << std::endl;
+    else
+      sstr << "Direction information provided in the Db" << std::endl;
+    if (_flagCoding)
+      sstr << "Coding process performed internally" << std::endl;
+    else
+      sstr << "Coding not performed: Result is the Direction information"
+           << std::endl;
+    if (_flagOrient)
+      sstr << toStrVector("Vector orthogonal to desorientation layering",
+                          _vector);
+    sstr
+      << "Factor for desorientation strength (0: isotropic; 1: stratified) = "
+      << _factor << std::endl;
+    sstr << toStrVector("Transition probability matrix", _trans, true, true);
+    if (_colfac >= 0)
+      sstr << "Attribute rank for desorientation factor = " << _colfac
+           << std::endl;
+    if (!_colang.empty())
+      sstr << toStrVector("Attribute ranks for Desorientation Vector", _colang);
+
+    return sstr.str();
   }
-  else
+
+  bool SimuSubstitutionParam::isValid(bool verbose)
   {
-    if (!_isValidTransition(verbose))
+    // Check the desorientation information
+
+    if (isFlagOrient())
+    {
+
+      /* Check the (constant) angle */
+
+      isValidOrientation(_vector, verbose);
+
+      /* Check the (constant) desorientation factor */
+
+      if (getColfac() < 0)
+      {
+        isValidFactor(&_factor, verbose);
+      }
+    }
+
+    // Check the transition information
+
+    if (_trans.empty())
+    {
       _trans = VectorDouble(_nfacies * _nfacies, 1. / _nfacies);
-  }
-
-  // Check the irreductibility
-
-  if (isFlagCoding())
-  {
-    if (!_isIrreductibility(verbose)) return false;
-  }
-
-  return true;
-}
-
-/****************************************************************************/
-/*!
- **  Check if the transition matrix is irreductible
- **
- ** \return  1 if the transition matrix is not irreductible; 0 otherwise
- **
- ** \param[in]  verbose  Verbose option
- **
- *****************************************************************************/
-bool SimuSubstitutionParam::_isIrreductibility(bool verbose)
-{
-
-  /* Check that the transition matrix is correct */
-
-  for (Id i = 0; i < _nfacies; i++)
-  {
-    double total = 0.;
-    for (Id j = 0; j < _nfacies; j++)
-    {
-      if (TRANS(i, j) < 0. || TRANS(i, j) > 1.) return false;
-      total += TRANS(i, j);
     }
-    if (total <= 0.) return false;
-    for (Id j = 0; j < _nfacies; j++)
-      TRANS(i, j) /= total;
-  }
-
-  /* Check the irreductibility */
-
-  VectorInt flag(_nfacies);
-  flag[0] = 0;
-  Id nend = 0;
-  Id ndeb = 0;
-  for (Id i = 1; i < _nfacies; i++)
-  {
-    flag[i] = 0;
-    if (TRANS(i, 0) > 0)
+    else
     {
-      flag[i] = 1;
-      nend++;
+      if (!_isValidTransition(verbose))
+        _trans = VectorDouble(_nfacies * _nfacies, 1. / _nfacies);
     }
+
+    // Check the irreductibility
+
+    if (isFlagCoding())
+    {
+      if (!_isIrreductibility(verbose)) return false;
+    }
+
+    return true;
   }
 
-  while (ndeb != nend)
+  /****************************************************************************/
+  /*!
+   **  Check if the transition matrix is irreductible
+   **
+   ** \return  1 if the transition matrix is not irreductible; 0 otherwise
+   **
+   ** \param[in]  verbose  Verbose option
+   **
+   *****************************************************************************/
+  bool SimuSubstitutionParam::_isIrreductibility(bool verbose)
   {
+
+    /* Check that the transition matrix is correct */
+
     for (Id i = 0; i < _nfacies; i++)
-      if (flag[i])
-        for (Id j = 0; j < _nfacies; j++)
-          if (i != j && TRANS(j, i) > 0) flag[j] = 1;
-    ndeb = nend;
-    for (Id i = nend = 0; i < _nfacies; i++)
-      nend += flag[i];
-  }
-  if (nend != _nfacies) return false;
-
-  /* Printout (conditional) */
-
-  if (verbose)
-    printMatrix(_trans, _nfacies, _nfacies, "Transitions", 0, 1);
-
-  return true;
-}
-
-/*****************************************************************************
- **
- ** Checks the validity of an orientation vector
- **
- ** \param[in]  verbose     Verbose option
- **
- *****************************************************************************/
-void SimuSubstitutionParam::isValidOrientation(VectorDouble& vector,
-                                               bool verbose)
-{
-  Id ndim      = static_cast<Id>(vector.size());
-  double total = 0.;
-  for (Id i = 0; i < ndim; i++)
-    total += vector[i] * vector[i];
-  if (total <= 0.)
-  {
-    if (verbose)
     {
-      messerr("The desorientation vector should not be zero");
-      messerr("It is set to the first Direction Unit vector");
+      double total = 0.;
+      for (Id j = 0; j < _nfacies; j++)
+      {
+        if (TRANS(i, j) < 0. || TRANS(i, j) > 1.) return false;
+        total += TRANS(i, j);
+      }
+      if (total <= 0.) return false;
+      for (Id j = 0; j < _nfacies; j++) TRANS(i, j) /= total;
     }
-    vector[0] = 1.;
-    total     = 1.;
-  }
-  for (Id i = 0; i < ndim; i++)
-    vector[i] /= sqrt(total);
-}
 
-/*****************************************************************************
- **
- ** Checks the validity of an orientation factor
- **
- ** \param[in,out] factor   Input and output factor values
- ** \param[in]  verbose     Verbose option
- **
- *****************************************************************************/
-void SimuSubstitutionParam::isValidFactor(double* factor, bool verbose)
-{
-  if (*factor < 0.)
-  {
-    if (verbose)
+    /* Check the irreductibility */
+
+    VectorInt flag(_nfacies);
+    flag[0] = 0;
+    Id nend = 0;
+    Id ndeb = 0;
+    for (Id i = 1; i < _nfacies; i++)
     {
-      messerr("The desorientation factor cannot be negative");
-      messerr("It is set to 0.");
+      flag[i] = 0;
+      if (TRANS(i, 0) > 0)
+      {
+        flag[i] = 1;
+        nend++;
+      }
     }
-    *factor = 0.;
-  }
-  if (*factor > 1.)
-  {
-    if (verbose)
+
+    while (ndeb != nend)
     {
-      messerr("The desorientation factor cannot be larger than 1");
-      messerr("It is set to 1.");
+      for (Id i = 0; i < _nfacies; i++)
+        if (flag[i])
+          for (Id j = 0; j < _nfacies; j++)
+            if (i != j && TRANS(j, i) > 0) flag[j] = 1;
+      ndeb = nend;
+      for (Id i = nend = 0; i < _nfacies; i++) nend += flag[i];
     }
-    *factor = 1.;
+    if (nend != _nfacies) return false;
+
+    /* Printout (conditional) */
+
+    if (verbose) printMatrix(_trans, _nfacies, _nfacies, "Transitions", 0, 1);
+
+    return true;
   }
-}
 
-bool SimuSubstitutionParam::isAngleLocal() const
-{
-  if (_colang.empty()) return false;
-  for (Id i = 0; i < static_cast<Id>(_colang.size()); i++)
-    if (_colang[i] >= 0) return true;
-  return false;
-}
-
-bool SimuSubstitutionParam::isLocal() const
-{
-  return isAngleLocal() || _colfac >= 0;
-}
-
-bool SimuSubstitutionParam::_isValidTransition(bool verbose, double eps)
-{
-  if (static_cast<Id>(_trans.size()) != _nfacies * _nfacies) return false;
-
-  for (Id irow = 0; irow < _nfacies; irow++)
+  /*****************************************************************************
+   **
+   ** Checks the validity of an orientation vector
+   **
+   ** \param[in]  verbose     Verbose option
+   **
+   *****************************************************************************/
+  void SimuSubstitutionParam::isValidOrientation(VectorDouble& vector,
+                                                 bool verbose)
   {
+    Id ndim = static_cast<Id>(vector.size());
     double total = 0.;
-    for (Id icol = 0; icol < _nfacies; icol++)
-    {
-      total += TRANS(irow, icol);
-    }
-    if (ABS(total - 1.) > eps)
+    for (Id i = 0; i < ndim; i++) total += vector[i] * vector[i];
+    if (total <= 0.)
     {
       if (verbose)
-        messerr("Transition: Sum of elements of row(%d) must be 1 (%lf)",
-                irow + 1, total);
-      return false;
+      {
+        messerr("The desorientation vector should not be zero");
+        messerr("It is set to the first Direction Unit vector");
+      }
+      vector[0] = 1.;
+      total = 1.;
+    }
+    for (Id i = 0; i < ndim; i++) vector[i] /= sqrt(total);
+  }
+
+  /*****************************************************************************
+   **
+   ** Checks the validity of an orientation factor
+   **
+   ** \param[in,out] factor   Input and output factor values
+   ** \param[in]  verbose     Verbose option
+   **
+   *****************************************************************************/
+  void SimuSubstitutionParam::isValidFactor(double* factor, bool verbose)
+  {
+    if (*factor < 0.)
+    {
+      if (verbose)
+      {
+        messerr("The desorientation factor cannot be negative");
+        messerr("It is set to 0.");
+      }
+      *factor = 0.;
+    }
+    if (*factor > 1.)
+    {
+      if (verbose)
+      {
+        messerr("The desorientation factor cannot be larger than 1");
+        messerr("It is set to 1.");
+      }
+      *factor = 1.;
     }
   }
-  return true;
-}
 
-Id SimuSubstitutionParam::getColang(Id idim) const
-{
-  if (idim < static_cast<Id>(_colang.size()))
-    return _colang[idim];
-  return 0.;
-}
+  bool SimuSubstitutionParam::isAngleLocal() const
+  {
+    if (_colang.empty()) return false;
+    for (Id i = 0; i < static_cast<Id>(_colang.size()); i++)
+      if (_colang[i] >= 0) return true;
+    return false;
+  }
+
+  bool SimuSubstitutionParam::isLocal() const
+  {
+    return isAngleLocal() || _colfac >= 0;
+  }
+
+  bool SimuSubstitutionParam::_isValidTransition(bool verbose, double eps)
+  {
+    if (static_cast<Id>(_trans.size()) != _nfacies * _nfacies) return false;
+
+    for (Id irow = 0; irow < _nfacies; irow++)
+    {
+      double total = 0.;
+      for (Id icol = 0; icol < _nfacies; icol++)
+      {
+        total += TRANS(irow, icol);
+      }
+      if (ABS(total - 1.) > eps)
+      {
+        if (verbose)
+          messerr("Transition: Sum of elements of row(%d) must be 1 (%lf)",
+                  irow + 1,
+                  total);
+        return false;
+      }
+    }
+    return true;
+  }
+
+  Id SimuSubstitutionParam::getColang(Id idim) const
+  {
+    if (idim < static_cast<Id>(_colang.size())) return _colang[idim];
+    return 0.;
+  }
 } // namespace gstlrn

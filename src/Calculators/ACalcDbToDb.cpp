@@ -17,432 +17,457 @@
 namespace gstlrn
 {
 
-ACalcDbToDb::ACalcDbToDb(bool mustShareSameSpaceDimension)
-  : ACalculator()
-  , _mustShareSpaceDimension(mustShareSameSpaceDimension)
-  , _dbin(nullptr)
-  , _dbout(nullptr)
-  , _namconv()
-  , _listVariablePermDbIn()
-  , _listVariablePermDbOut()
-  , _listVariableTempDbIn()
-  , _listVariableTempDbOut()
-  , _ndim(0)
-  , _nvar(0)
-{
-}
-
-ACalcDbToDb::~ACalcDbToDb()
-{
-}
-
-bool ACalcDbToDb::_checkSpaceDimension()
-{
-  Id ndim = 0;
-  if (_dbin != nullptr)
+  ACalcDbToDb::ACalcDbToDb(bool mustShareSameSpaceDimension)
+    : ACalculator()
+    , _mustShareSpaceDimension(mustShareSameSpaceDimension)
+    , _dbin(nullptr)
+    , _dbout(nullptr)
+    , _namconv()
+    , _listVariablePermDbIn()
+    , _listVariablePermDbOut()
+    , _listVariableTempDbIn()
+    , _listVariableTempDbOut()
+    , _ndim(0)
+    , _nvar(0)
   {
-    if (ndim > 0)
+  }
+
+  ACalcDbToDb::~ACalcDbToDb() {}
+
+  bool ACalcDbToDb::_checkSpaceDimension()
+  {
+    Id ndim = 0;
+    if (_dbin != nullptr)
     {
-      if (ndim != _dbin->getNDim())
+      if (ndim > 0)
       {
-        messerr("Inconsistent Space dimension:");
-        messerr("- Current dimension = %d", ndim);
-        messerr("- Space Dimension of 'dbin' = %d", _dbin->getNDim());
-        return false;
+        if (ndim != _dbin->getNDim())
+        {
+          messerr("Inconsistent Space dimension:");
+          messerr("- Current dimension = %d", ndim);
+          messerr("- Space Dimension of 'dbin' = %d", _dbin->getNDim());
+          return false;
+        }
+      }
+      else
+      {
+        ndim = _dbin->getNDim();
       }
     }
-    else
-    {
-      ndim = _dbin->getNDim();
-    }
-  }
-  _setNdim(ndim);
+    _setNdim(ndim);
 
-  if (!_mustShareSpaceDimension) return true;
+    if (!_mustShareSpaceDimension) return true;
 
-  if (_dbout != nullptr)
-  {
-    if (ndim > 0)
+    if (_dbout != nullptr)
     {
-      if (ndim != _dbout->getNDim())
+      if (ndim > 0)
       {
-        messerr("Inconsistent Space dimension:");
-        messerr("- Current dimension = %d", ndim);
-        messerr("- Space Dimension of 'dbout' = %d", _dbout->getNDim());
-        return false;
+        if (ndim != _dbout->getNDim())
+        {
+          messerr("Inconsistent Space dimension:");
+          messerr("- Current dimension = %d", ndim);
+          messerr("- Space Dimension of 'dbout' = %d", _dbout->getNDim());
+          return false;
+        }
+      }
+      else
+      {
+        ndim = _dbout->getNDim();
       }
     }
+    return true;
+  }
+
+  bool ACalcDbToDb::_setNvar(Id nvar, bool flagForce)
+  {
+    if (nvar <= 0) return true;
+    if (_nvar <= 0 || flagForce)
+      _nvar = nvar;
     else
     {
-      ndim = _dbout->getNDim();
-    }
-  }
-  return true;
-}
-
-bool ACalcDbToDb::_setNvar(Id nvar, bool flagForce)
-{
-  if (nvar <= 0) return true;
-  if (_nvar <= 0 || flagForce)
-    _nvar = nvar;
-  else
-  {
-    if (nvar < _nvar)
-    {
-      messerr("Inconsistent Variable Number:");
-      messerr("- Number already defined = %d", _nvar);
-      messerr("- Number of variables newly declared = %d", nvar);
-      return false;
-    }
-    _nvar = nvar;
-  }
-  return true;
-}
-
-bool ACalcDbToDb::_setNdim(Id ndim, bool flagForce)
-{
-  if (ndim <= 0) return true;
-  if (_ndim <= 0 || flagForce)
-    _ndim = ndim;
-  else
-  {
-    if (_ndim != ndim)
-    {
-      messerr("Inconsistent Space dimension:");
-      messerr("- Number already defined = %d", _ndim);
-      messerr("- Number of variables newly declared = %d", ndim);
-      return false;
-    }
-    _ndim = ndim;
-  }
-  return true;
-}
-
-bool ACalcDbToDb::_checkVariableNumber()
-{
-  Id nvar = 0;
-  if (_dbin != nullptr)
-  {
-    if (nvar > 0)
-    {
-      if (nvar != _dbin->getNLoc(ELoc::Z))
+      if (nvar < _nvar)
       {
         messerr("Inconsistent Variable Number:");
-        messerr("- Current number = %d", nvar);
-        messerr("- Number of variables in 'dbin' = %d",
-                _dbin->getNLoc(ELoc::Z));
+        messerr("- Number already defined = %d", _nvar);
+        messerr("- Number of variables newly declared = %d", nvar);
         return false;
       }
+      _nvar = nvar;
     }
+    return true;
+  }
+
+  bool ACalcDbToDb::_setNdim(Id ndim, bool flagForce)
+  {
+    if (ndim <= 0) return true;
+    if (_ndim <= 0 || flagForce)
+      _ndim = ndim;
     else
     {
-      nvar = _dbin->getNLoc(ELoc::Z);
-    }
-  }
-  _setNvar(nvar);
-  return true;
-}
-
-bool ACalcDbToDb::_check()
-{
-  if (!ACalculator::_check()) return false;
-
-  /**************************************************/
-  /* Cross-checking the Space Dimension consistency */
-  /**************************************************/
-
-  if (!_checkSpaceDimension()) return false;
-
-  /**************************************************/
-  /* Cross-Checking the Variable Number consistency */
-  /**************************************************/
-
-  if (!_checkVariableNumber()) return false;
-
-  return true;
-}
-
-bool ACalcDbToDb::_preprocess()
-{
-  return ACalculator::_preprocess();
-}
-
-/**
- * Returns a pointer to the relevant Db and issue a message if not defined
- * @param whichDb 1 for 'dbin'  and 2 for 'dbout'
- * @return A pointer to the Db or nullptr
- */
-Db* ACalcDbToDb::_whichDb(Id whichDb)
-{
-  Db* db;
-  if (whichDb == 1)
-    db = _dbin;
-  else
-    db = _dbout;
-  if (db == nullptr)
-  {
-    messerr("Impossible to add variables in non-defined Db");
-  }
-  return db;
-}
-
-String ACalcDbToDb::_identifyVariable(Id iuid) const
-{
-  return _dbin->getNameByUID(iuid);
-}
-
-/**
- * Store the IUID of the new variable in the relevant internal list
- * @param whichDb 1 for variable in 'dbin'; 2 for variable in 'dbout'
- * @param status  1 for variables to be stored; 2 for Temporary variable
- * @param iuids   Vector of UIDs of the new variable
- */
-void ACalcDbToDb::_storeInVariableList(Id whichDb,
-                                       Id status,
-                                       const VectorInt& iuids)
-{
-  Id number = static_cast<Id>(iuids.size());
-  if (number <= 0) return;
-
-  if (whichDb == 1)
-  {
-    if (status == 1)
-    {
-      for (Id i = 0; i < number; i++)
-        _listVariablePermDbIn.push_back(iuids[i]);
-    }
-    else
-    {
-      for (Id i = 0; i < number; i++)
-        _listVariableTempDbIn.push_back(iuids[i]);
-    }
-  }
-  else
-  {
-    if (status == 1)
-    {
-      for (Id i = 0; i < number; i++)
-        _listVariablePermDbOut.push_back(iuids[i]);
-    }
-    else
-    {
-      for (Id i = 0; i < number; i++)
-        _listVariableTempDbOut.push_back(iuids[i]);
-    }
-  }
-}
-Id ACalcDbToDb::_addVariableDb(Id whichDb,
-                               Id status,
-                               const ELoc& locatorType,
-                               Id locatorIndex,
-                               Id number,
-                               double valinit)
-{
-  Db* db = _whichDb(whichDb);
-  if (db == nullptr) return -1;
-  Id iuid = db->addColumnsByConstant(number, valinit, String(), locatorType,
-                                     locatorIndex);
-  if (iuid < 0) return -1;
-  VectorInt iuids = VH::sequence(number, iuid);
-  _storeInVariableList(whichDb, status, iuids);
-  return iuid;
-}
-
-/**
- * Define the characteristics of the variables created by a Db2Db Calculator
- * @param whichDb     1 if the variable belongs to 'dbin'; 2 if it belongs to 'dbout'
- * @param names       Names of the variables in 'dbin' (or empty)
- * @param locatorType Locator for the names of input variables (or ELoc::UNDEFINED)
- * @param nvar        Number of variables (when constructed from locator)
- * @param iptr        IUID of the (first) variable to be renamed
- * @param qualifier   Name which will serve as 'qualifier' (when provided)
- * @param count       Number of variable named from the same basic name (using version number)
- * @param flagSetLocator True if the locator must be defined
- * @param locatorShift Shift to calculate the rank of the locator currently defined
- */
-void ACalcDbToDb::_renameVariable(Id whichDb,
-                                  const VectorString& names,
-                                  const ELoc& locatorType,
-                                  Id nvar,
-                                  Id iptr,
-                                  const String& qualifier,
-                                  Id count,
-                                  bool flagSetLocator,
-                                  Id locatorShift)
-{
-  if (whichDb == 1)
-    _namconv.setNamesAndLocators(_dbin, names, locatorType, nvar,
-                                 _dbin, iptr, qualifier, count, flagSetLocator,
-                                 locatorShift);
-  else
-    _namconv.setNamesAndLocators(_dbin, names, locatorType, nvar,
-                                 _dbout, iptr, qualifier, count, flagSetLocator,
-                                 locatorShift);
-}
-
-void ACalcDbToDb::_cleanVariableDb(Id status)
-{
-  // Dispatch
-
-  if (status == 1)
-  {
-    // In 'dbin'
-    if (!_listVariablePermDbIn.empty())
-    {
-      for (Id i = 0; i < static_cast<Id>(_listVariablePermDbIn.size()); i++)
-        _dbin->deleteColumnByUID(_listVariablePermDbIn[i]);
-    }
-    _listVariablePermDbIn.clear();
-
-    // In 'dbout'
-    if (!_listVariablePermDbOut.empty())
-    {
-      for (Id i = 0; i < static_cast<Id>(_listVariablePermDbOut.size()); i++)
+      if (_ndim != ndim)
       {
-        _dbout->deleteColumnByUID(_listVariablePermDbOut[i]);
+        messerr("Inconsistent Space dimension:");
+        messerr("- Number already defined = %d", _ndim);
+        messerr("- Number of variables newly declared = %d", ndim);
+        return false;
+      }
+      _ndim = ndim;
+    }
+    return true;
+  }
+
+  bool ACalcDbToDb::_checkVariableNumber()
+  {
+    Id nvar = 0;
+    if (_dbin != nullptr)
+    {
+      if (nvar > 0)
+      {
+        if (nvar != _dbin->getNLoc(ELoc::Z))
+        {
+          messerr("Inconsistent Variable Number:");
+          messerr("- Current number = %d", nvar);
+          messerr("- Number of variables in 'dbin' = %d",
+                  _dbin->getNLoc(ELoc::Z));
+          return false;
+        }
+      }
+      else
+      {
+        nvar = _dbin->getNLoc(ELoc::Z);
       }
     }
-    _listVariablePermDbOut.clear();
+    _setNvar(nvar);
+    return true;
   }
-  else
+
+  bool ACalcDbToDb::_check()
   {
-    // In 'dbin'
-    if (!_listVariableTempDbIn.empty())
+    if (!ACalculator::_check()) return false;
+
+    /**************************************************/
+    /* Cross-checking the Space Dimension consistency */
+    /**************************************************/
+
+    if (!_checkSpaceDimension()) return false;
+
+    /**************************************************/
+    /* Cross-Checking the Variable Number consistency */
+    /**************************************************/
+
+    if (!_checkVariableNumber()) return false;
+
+    return true;
+  }
+
+  bool ACalcDbToDb::_preprocess()
+  {
+    return ACalculator::_preprocess();
+  }
+
+  /**
+   * Returns a pointer to the relevant Db and issue a message if not defined
+   * @param whichDb 1 for 'dbin'  and 2 for 'dbout'
+   * @return A pointer to the Db or nullptr
+   */
+  Db* ACalcDbToDb::_whichDb(Id whichDb)
+  {
+    Db* db;
+    if (whichDb == 1)
+      db = _dbin;
+    else
+      db = _dbout;
+    if (db == nullptr)
     {
-      for (Id i = 0; i < static_cast<Id>(_listVariableTempDbIn.size()); i++)
-        _dbin->deleteColumnByUID(_listVariableTempDbIn[i]);
+      messerr("Impossible to add variables in non-defined Db");
     }
-    _listVariableTempDbIn.clear();
+    return db;
+  }
 
-    // In 'dbout'
-    if (!_listVariableTempDbOut.empty())
+  String ACalcDbToDb::_identifyVariable(Id iuid) const
+  {
+    return _dbin->getNameByUID(iuid);
+  }
+
+  /**
+   * Store the IUID of the new variable in the relevant internal list
+   * @param whichDb 1 for variable in 'dbin'; 2 for variable in 'dbout'
+   * @param status  1 for variables to be stored; 2 for Temporary variable
+   * @param iuids   Vector of UIDs of the new variable
+   */
+  void ACalcDbToDb::_storeInVariableList(Id whichDb,
+                                         Id status,
+                                         const VectorInt& iuids)
+  {
+    Id number = static_cast<Id>(iuids.size());
+    if (number <= 0) return;
+
+    if (whichDb == 1)
     {
-      for (Id i = 0; i < static_cast<Id>(_listVariableTempDbOut.size()); i++)
-        _dbout->deleteColumnByUID(_listVariableTempDbOut[i]);
+      if (status == 1)
+      {
+        for (Id i = 0; i < number; i++)
+          _listVariablePermDbIn.push_back(iuids[i]);
+      }
+      else
+      {
+        for (Id i = 0; i < number; i++)
+          _listVariableTempDbIn.push_back(iuids[i]);
+      }
     }
-    _listVariableTempDbOut.clear();
+    else
+    {
+      if (status == 1)
+      {
+        for (Id i = 0; i < number; i++)
+          _listVariablePermDbOut.push_back(iuids[i]);
+      }
+      else
+      {
+        for (Id i = 0; i < number; i++)
+          _listVariableTempDbOut.push_back(iuids[i]);
+      }
+    }
   }
-}
 
-bool ACalcDbToDb::hasDbin(bool verbose) const
-{
-  if (_dbin == nullptr)
+  Id ACalcDbToDb::_addVariableDb(Id whichDb,
+                                 Id status,
+                                 const ELoc& locatorType,
+                                 Id locatorIndex,
+                                 Id number,
+                                 double valinit)
   {
-    if (verbose) messerr("The argument 'dbin' must be defined");
-    return false;
+    Db* db = _whichDb(whichDb);
+    if (db == nullptr) return -1;
+    Id iuid = db->addColumnsByConstant(number,
+                                       valinit,
+                                       String(),
+                                       locatorType,
+                                       locatorIndex);
+    if (iuid < 0) return -1;
+    VectorInt iuids = VH::sequence(number, iuid);
+    _storeInVariableList(whichDb, status, iuids);
+    return iuid;
   }
-  return true;
-}
-bool ACalcDbToDb::hasDbout(bool verbose) const
-{
-  if (_dbout == nullptr)
+
+  /**
+   * Define the characteristics of the variables created by a Db2Db Calculator
+   * @param whichDb     1 if the variable belongs to 'dbin'; 2 if it belongs to 'dbout'
+   * @param names       Names of the variables in 'dbin' (or empty)
+   * @param locatorType Locator for the names of input variables (or ELoc::UNDEFINED)
+   * @param nvar        Number of variables (when constructed from locator)
+   * @param iptr        IUID of the (first) variable to be renamed
+   * @param qualifier   Name which will serve as 'qualifier' (when provided)
+   * @param count       Number of variable named from the same basic name (using version number)
+   * @param flagSetLocator True if the locator must be defined
+   * @param locatorShift Shift to calculate the rank of the locator currently defined
+   */
+  void ACalcDbToDb::_renameVariable(Id whichDb,
+                                    const VectorString& names,
+                                    const ELoc& locatorType,
+                                    Id nvar,
+                                    Id iptr,
+                                    const String& qualifier,
+                                    Id count,
+                                    bool flagSetLocator,
+                                    Id locatorShift)
   {
-    if (verbose) messerr("The argument 'dbout' must be defined");
-    return false;
+    if (whichDb == 1)
+      _namconv.setNamesAndLocators(_dbin,
+                                   names,
+                                   locatorType,
+                                   nvar,
+                                   _dbin,
+                                   iptr,
+                                   qualifier,
+                                   count,
+                                   flagSetLocator,
+                                   locatorShift);
+    else
+      _namconv.setNamesAndLocators(_dbin,
+                                   names,
+                                   locatorType,
+                                   nvar,
+                                   _dbout,
+                                   iptr,
+                                   qualifier,
+                                   count,
+                                   flagSetLocator,
+                                   locatorShift);
   }
-  return true;
-}
 
-bool ACalcDbToDb::isGridIn(bool verbose) const
-{
-  if (!hasDbin(false)) return false;
-  if (!_dbin->isGrid())
+  void ACalcDbToDb::_cleanVariableDb(Id status)
   {
-    if (verbose) messerr("The argument 'dbin' should be a Grid File");
-    return false;
-  }
-  return true;
-}
+    // Dispatch
 
-bool ACalcDbToDb::isGridOut(bool verbose) const
-{
-  if (!hasDbout(false)) return false;
-  if (!_dbout->isGrid())
+    if (status == 1)
+    {
+      // In 'dbin'
+      if (!_listVariablePermDbIn.empty())
+      {
+        for (Id i = 0; i < static_cast<Id>(_listVariablePermDbIn.size()); i++)
+          _dbin->deleteColumnByUID(_listVariablePermDbIn[i]);
+      }
+      _listVariablePermDbIn.clear();
+
+      // In 'dbout'
+      if (!_listVariablePermDbOut.empty())
+      {
+        for (Id i = 0; i < static_cast<Id>(_listVariablePermDbOut.size()); i++)
+        {
+          _dbout->deleteColumnByUID(_listVariablePermDbOut[i]);
+        }
+      }
+      _listVariablePermDbOut.clear();
+    }
+    else
+    {
+      // In 'dbin'
+      if (!_listVariableTempDbIn.empty())
+      {
+        for (Id i = 0; i < static_cast<Id>(_listVariableTempDbIn.size()); i++)
+          _dbin->deleteColumnByUID(_listVariableTempDbIn[i]);
+      }
+      _listVariableTempDbIn.clear();
+
+      // In 'dbout'
+      if (!_listVariableTempDbOut.empty())
+      {
+        for (Id i = 0; i < static_cast<Id>(_listVariableTempDbOut.size()); i++)
+          _dbout->deleteColumnByUID(_listVariableTempDbOut[i]);
+      }
+      _listVariableTempDbOut.clear();
+    }
+  }
+
+  bool ACalcDbToDb::hasDbin(bool verbose) const
   {
-    if (verbose) messerr("The argument 'dbout' should be a Grid File");
-    return false;
+    if (_dbin == nullptr)
+    {
+      if (verbose) messerr("The argument 'dbin' must be defined");
+      return false;
+    }
+    return true;
   }
-  return true;
-}
 
-DbGrid* ACalcDbToDb::getGridin() const
-{
-  if (!hasDbin(false)) return nullptr;
-  auto* dbgrid = dynamic_cast<DbGrid*>(_dbin);
-  return dbgrid;
-}
-
-DbGrid* ACalcDbToDb::getGridout() const
-{
-  if (!hasDbout(false)) return nullptr;
-  auto* dbgrid = dynamic_cast<DbGrid*>(_dbout);
-  return dbgrid;
-}
-
-/*****************************************************************************/
-/*!
- **  Derive some information from the Output db (if Grid) to the Input Db
- **
- ** \return  Error return code
- **
- ** \param[in]  mode        1 for allocation; -1 for deallocation
- ** \param[in]  locatorType Type of the pointer (ELoc)
- **
- ** \remark This function is only valid when the Output Db is a grid
- ** \remark However, in case of a Point output Db, this function should not
- ** \remark be used: the external drift functions should already be present
- ** \remark in the output Db.
- ** \remark If this is not the case, an error is issued.
- **
- ** \remark When called with mode=1, the new variables are added
- ** \remark When called with mode=-1, the variables are deleted (by type)
- **
- *****************************************************************************/
-Id ACalcDbToDb::_expandInformation(Id mode, const ELoc& locatorType) const
-{
-  if (getDbin() == nullptr || getDbout() == nullptr) return 0;
-
-  // Check the number of fields to be expanded
-
-  Id ninfo;
-  if (getDbout()->isGrid() && locatorType == ELoc::X)
-    ninfo = getDbout()->getNDim();
-  else
-    ninfo = getDbout()->getNLoc(locatorType);
-  if (ninfo <= 0) return 0;
-
-  // Check the corresponding number of variables in the Input File
-
-  auto ninfoIn = getDbin()->getNLoc(locatorType);
-  if (ninfo == ninfoIn) return 0;
-
-  /* Case when the Output Db is not a grid */
-
-  if (!getDbout()->isGrid())
+  bool ACalcDbToDb::hasDbout(bool verbose) const
   {
-    messerr("The Output Db is not a Grid file");
-    messerr("The Input Db does not contain the correct number of External Drifts");
-    return 1;
+    if (_dbout == nullptr)
+    {
+      if (verbose) messerr("The argument 'dbout' must be defined");
+      return false;
+    }
+    return true;
   }
-  auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
 
-  /* Dispatch */
+  bool ACalcDbToDb::isGridIn(bool verbose) const
+  {
+    if (!hasDbin(false)) return false;
+    if (!_dbin->isGrid())
+    {
+      if (verbose) messerr("The argument 'dbin' should be a Grid File");
+      return false;
+    }
+    return true;
+  }
 
-  if (mode > 0)
+  bool ACalcDbToDb::isGridOut(bool verbose) const
   {
-    // Here, the naming Convention is modified in order to anticipate the
-    // locator of the newly created variables
-    NamingConvention* namconv = NamingConvention::create("Migrate");
-    namconv->setLocatorOutType(locatorType);
-    Id error = migrateByLocator(dbgrid, getDbin(), locatorType, 1,
-                                VectorDouble(), false, false, false, *namconv);
-    delete namconv;
-    if (error != 0) return 1;
+    if (!hasDbout(false)) return false;
+    if (!_dbout->isGrid())
+    {
+      if (verbose) messerr("The argument 'dbout' should be a Grid File");
+      return false;
+    }
+    return true;
   }
-  else
+
+  DbGrid* ACalcDbToDb::getGridin() const
   {
-    getDbin()->deleteColumnsByLocator(locatorType);
+    if (!hasDbin(false)) return nullptr;
+    auto* dbgrid = dynamic_cast<DbGrid*>(_dbin);
+    return dbgrid;
   }
-  return 0;
-}
+
+  DbGrid* ACalcDbToDb::getGridout() const
+  {
+    if (!hasDbout(false)) return nullptr;
+    auto* dbgrid = dynamic_cast<DbGrid*>(_dbout);
+    return dbgrid;
+  }
+
+  /*****************************************************************************/
+  /*!
+   **  Derive some information from the Output db (if Grid) to the Input Db
+   **
+   ** \return  Error return code
+   **
+   ** \param[in]  mode        1 for allocation; -1 for deallocation
+   ** \param[in]  locatorType Type of the pointer (ELoc)
+   **
+   ** \remark This function is only valid when the Output Db is a grid
+   ** \remark However, in case of a Point output Db, this function should not
+   ** \remark be used: the external drift functions should already be present
+   ** \remark in the output Db.
+   ** \remark If this is not the case, an error is issued.
+   **
+   ** \remark When called with mode=1, the new variables are added
+   ** \remark When called with mode=-1, the variables are deleted (by type)
+   **
+   *****************************************************************************/
+  Id ACalcDbToDb::_expandInformation(Id mode, const ELoc& locatorType) const
+  {
+    if (getDbin() == nullptr || getDbout() == nullptr) return 0;
+
+    // Check the number of fields to be expanded
+
+    Id ninfo;
+    if (getDbout()->isGrid() && locatorType == ELoc::X)
+      ninfo = getDbout()->getNDim();
+    else
+      ninfo = getDbout()->getNLoc(locatorType);
+    if (ninfo <= 0) return 0;
+
+    // Check the corresponding number of variables in the Input File
+
+    auto ninfoIn = getDbin()->getNLoc(locatorType);
+    if (ninfo == ninfoIn) return 0;
+
+    /* Case when the Output Db is not a grid */
+
+    if (!getDbout()->isGrid())
+    {
+      messerr("The Output Db is not a Grid file");
+      messerr(
+        "The Input Db does not contain the correct number of External Drifts");
+      return 1;
+    }
+    auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+
+    /* Dispatch */
+
+    if (mode > 0)
+    {
+      // Here, the naming Convention is modified in order to anticipate the
+      // locator of the newly created variables
+      NamingConvention* namconv = NamingConvention::create("Migrate");
+      namconv->setLocatorOutType(locatorType);
+      Id error = migrateByLocator(dbgrid,
+                                  getDbin(),
+                                  locatorType,
+                                  1,
+                                  VectorDouble(),
+                                  false,
+                                  false,
+                                  false,
+                                  *namconv);
+      delete namconv;
+      if (error != 0) return 1;
+    }
+    else
+    {
+      getDbin()->deleteColumnsByLocator(locatorType);
+    }
+    return 0;
+  }
 } // namespace gstlrn

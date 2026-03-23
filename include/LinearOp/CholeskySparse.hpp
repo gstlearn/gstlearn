@@ -18,9 +18,9 @@
 #include "Matrix/MatrixSparse.hpp"
 
 #ifndef SWIG
-#  include <Eigen/Core>
-#  include <Eigen/Dense>
-#  include <Eigen/src/Core/Matrix.h>
+#include <Eigen/Core>
+#include <Eigen/Dense>
+#include <Eigen/src/Core/Matrix.h>
 #endif
 
 #ifndef SWIG
@@ -28,41 +28,41 @@ DISABLE_WARNING_PUSH
 DISABLE_WARNING_COND_EXPR_CONSTANT
 DISABLE_WARNING_UNUSED_BUT_SET_VARIABLE
 DISABLE_WARNING_DECLARATION_HIDE_GLOBAL
-#  include <Eigen/Sparse>
+#include <Eigen/Sparse>
 DISABLE_WARNING_POP
 #endif
 
 namespace gstlrn
 {
-class MatrixSparse;
-using Sp = Eigen::SparseMatrix<double, 0, gstlrn::Id>;
+  class MatrixSparse;
+  using Sp = Eigen::SparseMatrix<double, 0, gstlrn::Id>;
 
-class GSTLEARN_EXPORT CholeskySparse: public ACholesky
-{
-public:
-  CholeskySparse(const MatrixSparse& mat = MatrixSparse());
-  CholeskySparse(const CholeskySparse& m);
-  CholeskySparse& operator=(const CholeskySparse& m);
-  virtual ~CholeskySparse();
+  class GSTLEARN_EXPORT CholeskySparse: public ACholesky
+  {
+  public:
+    CholeskySparse(const MatrixSparse& mat = MatrixSparse());
+    CholeskySparse(const CholeskySparse& m);
+    CholeskySparse& operator=(const CholeskySparse& m);
+    virtual ~CholeskySparse();
 
-  Id setMatrix(const MatrixSparse& mat);
-  Id stdev(VectorDouble& vcur,
-            const MatrixSparse* proj,
-            bool flagStDev = false) const;
+    Id setMatrix(const MatrixSparse& mat);
+    Id stdev(VectorDouble& vcur,
+             const MatrixSparse* proj,
+             bool flagStDev = false) const;
 
-  double computeLogDeterminant() const override;
-  Id addSolveX(const constvect vecin, vect vecout) const override;
-  Id addInvLtX(const constvect vecin, vect vecout) const override;
-  Id addLtX(const constvect vecin, vect vecout) const override;
-  Id addLX(const constvect vecin, vect vecout) const override;
-  Id addInvLX(const constvect vecin, vect vecout) const override;
+    double computeLogDeterminant() const override;
+    Id addSolveX(const constvect vecin, vect vecout) const override;
+    Id addInvLtX(const constvect vecin, vect vecout) const override;
+    Id addLtX(const constvect vecin, vect vecout) const override;
+    Id addLX(const constvect vecin, vect vecout) const override;
+    Id addInvLX(const constvect vecin, vect vecout) const override;
 
-private:
-  void _clean();
-  Id _prepare(const MatrixSparse& mat) const;
-  Id _stdev(VectorDouble& vcur, const MatrixSparse* proj) const;
+  private:
+    void _clean();
+    Id _prepare(const MatrixSparse& mat) const;
+    Id _stdev(VectorDouble& vcur, const MatrixSparse* proj) const;
 
-private:
-  mutable Eigen::SimplicialLDLT<Sp>* _factor;
-};
+  private:
+    mutable Eigen::SimplicialLDLT<Sp>* _factor;
+  };
 } // namespace gstlrn

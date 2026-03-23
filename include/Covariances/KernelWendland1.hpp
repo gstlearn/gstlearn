@@ -20,24 +20,26 @@
 
 namespace gstlrn
 {
-class CovContext;
+  class CovContext;
 
-class GSTLEARN_EXPORT KernelWendland1: public AKernel
-{
-public:
-  KernelWendland1(const CovContext& ctx);
-  KernelWendland1(const KernelWendland1& r);
-  KernelWendland1& operator=(const KernelWendland1& r);
-  virtual ~KernelWendland1();
+  class GSTLEARN_EXPORT KernelWendland1: public AKernel
+  {
+  public:
+    KernelWendland1(const CovContext& ctx);
+    KernelWendland1(const KernelWendland1& r);
+    KernelWendland1& operator=(const KernelWendland1& r);
+    virtual ~KernelWendland1();
 
-  size_t getMaxNDim() const override { return 3; }
+    size_t getMaxNDim() const override { return 3; }
 
-  String getCovName() const override { return "Wendland-3,1"; }
-  Id getMinOrder() const override { return -1; }
-  bool getCompatibleSpaceR() const override { return true; }
+    String getCovName() const override { return "Wendland-3,1"; }
 
-protected:
-  double _evaluateCov(double h) const override;
-};
+    Id getMinOrder() const override { return -1; }
+
+    bool getCompatibleSpaceR() const override { return true; }
+
+  protected:
+    double _evaluateCov(double h) const override;
+  };
 
 } // namespace gstlrn

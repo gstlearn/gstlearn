@@ -50,25 +50,43 @@ int main(int argc, char* argv[])
   bool verbose = true;
 
   // Generate the input data (in the 1x1 square) with 'nvar' variables and 'nfex' external drifts
-  Id ndat   = 10;
-  Id nvar   = 2;
-  Id nfex   = 2;
+  Id ndat = 10;
+  Id nvar = 2;
+  Id nfex = 2;
   Id seedin = 13227;
-  Db* dbin  = Db::createFillRandom(ndat, ndim, nvar, nfex, 0, 0., 0.,
-                                   VectorDouble(), VectorDouble(), VectorDouble(), seedin);
+  Db* dbin = Db::createFillRandom(ndat,
+                                  ndim,
+                                  nvar,
+                                  nfex,
+                                  0,
+                                  0.,
+                                  0.,
+                                  VectorDouble(),
+                                  VectorDouble(),
+                                  VectorDouble(),
+                                  seedin);
   if (verbose) dbin->display();
 
   // Generate the output data set
-  Id nout    = 20;
+  Id nout = 20;
   Id seedout = 134484;
-  Db* dbout  = Db::createFillRandom(nout, ndim, 0, nfex, 0, 0., 0.,
-                                    VectorDouble(), VectorDouble(), VectorDouble(), seedout);
+  Db* dbout = Db::createFillRandom(nout,
+                                   ndim,
+                                   0,
+                                   nfex,
+                                   0,
+                                   0.,
+                                   0.,
+                                   VectorDouble(),
+                                   VectorDouble(),
+                                   VectorDouble(),
+                                   seedout);
   if (verbose) dbout->display();
 
   // Create the Model
-  Id order                = 0;
+  Id order = 0;
   std::vector<ECov> types = {ECov::NUGGET, ECov::SPHERICAL};
-  Model* model            = Model::createFillRandom(ndim, nvar, types, 1., order, nfex);
+  Model* model = Model::createFillRandom(ndim, nvar, types, 1., order, nfex);
   if (verbose) model->display();
 
   // Creating a Moving Neighborhood
@@ -91,7 +109,7 @@ int main(int argc, char* argv[])
   if (verbose) X.dumpStatistics("LHS: Drift part");
 
   VectorVectorInt sampleRanks = dbin->getSampleRanks();
-  VectorDouble Z              = dbin->getValuesByRanks(sampleRanks);
+  VectorDouble Z = dbin->getValuesByRanks(sampleRanks);
 
   KrigingAlgebra Kcalc;
   Kcalc.setData(&Z, &sampleRanks);
@@ -105,8 +123,16 @@ int main(int argc, char* argv[])
   VectorDouble result;
   for (Id iout = 0; iout < nout; iout++)
   {
-    if (model->evalCovMatRHSInPlaceFromIdx(Sigma0, dbin, dbout, sampleRanks, iout, krigopt, false)) break;
-    if (verbose && iout == 0) Sigma0.dumpStatistics("RHS(target:1): Covariance part");
+    if (model->evalCovMatRHSInPlaceFromIdx(Sigma0,
+                                           dbin,
+                                           dbout,
+                                           sampleRanks,
+                                           iout,
+                                           krigopt,
+                                           false))
+      break;
+    if (verbose && iout == 0)
+      Sigma0.dumpStatistics("RHS(target:1): Covariance part");
     if (model->evalDriftMatByTargetInPlace(X0, dbout, iout, krigopt)) break;
     if (verbose && iout == 0) X0.dumpStatistics("RHS(target:1): Drift part");
 
@@ -115,7 +141,10 @@ int main(int argc, char* argv[])
     VH::concatenateInPlace(result, Kcalc.getEstimation());
     VH::concatenateInPlace(result, Kcalc.getStdv());
     VH::concatenateInPlace(result, Kcalc.getVarianceZstar());
-    printVector(result, "Sample " + std::to_string(iout + 1), true, false); // Print results at all target sites
+    printVector(result,
+                "Sample " + std::to_string(iout + 1),
+                true,
+                false); // Print results at all target sites
   }
 
   // Free classes

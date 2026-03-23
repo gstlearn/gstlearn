@@ -46,8 +46,13 @@ int main(int argc, char* argv[])
 
   // Creating the Model
   Model model(1, 2);
-  model.addCovFromParam(ECov::CUBIC, 0., 2., 1., {10., 45.},
-                        MatrixSymmetric(), {30., 0.});
+  model.addCovFromParam(ECov::CUBIC,
+                        0.,
+                        2.,
+                        1.,
+                        {10., 45.},
+                        MatrixSymmetric(),
+                        {30., 0.});
   model.display();
 
   // Simulating a variable on the grid

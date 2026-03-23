@@ -19,6 +19,7 @@
 #include "Variogram/VarioParam.hpp"
 
 using namespace gstlrn;
+
 /**
  * This file is used as a demonstration showing the versatility of 'gstlearn'.
  * It also exists in RMarkdown and Jupyter-notebook formats.
@@ -31,23 +32,29 @@ int main(int argc, char* argv[])
 
   defineDefaultSpace(ESpaceType::RN, 2);
   ASerializable::setPrefixName("test_Basic-");
-  law_set_old_style(true); // Added to ensure the similarity of non-regression tests per platform
+  law_set_old_style(
+    true); // Added to ensure the similarity of non-regression tests per platform
 
   // We create a grid of 150 by 100 square cells of 1m edge, called mygrid.
 
-  VectorInt nx    = {100, 150};
+  VectorInt nx = {100, 150};
   VectorDouble dx = {1., 1.};
-  DbGrid* mygrid  = DbGrid::create(nx, dx);
+  DbGrid* mygrid = DbGrid::create(nx, dx);
 
   // We create a Geostatistical Model constituted of a single Spherical anisotropic structure
   // with a sill of 1, a shortest range of 30m and a longest one of 50m.
   // The orientation of the long range is in direction 30 degrees counted counter-clockwise from East.
 
-  double sill         = 1.;
+  double sill = 1.;
   VectorDouble ranges = {50., 30.};
   VectorDouble angles = {30., 0.};
-  Model* mymodel      = Model::createFromParam(ECov::SPHERICAL, 1., sill, 1., ranges,
-                                               MatrixSymmetric(), angles);
+  Model* mymodel = Model::createFromParam(ECov::SPHERICAL,
+                                          1.,
+                                          sill,
+                                          1.,
+                                          ranges,
+                                          MatrixSymmetric(),
+                                          angles);
   mymodel->display();
 
   // We perform one non-conditional simulation using the Turning Band method
@@ -56,8 +63,16 @@ int main(int argc, char* argv[])
   // Typing the name of the grid data base is an easy way to get a summary of its contents.
 
   Id nbtuba = 1000;
-  Id seed   = 14341;
-  (void)simtub(nullptr, mygrid, mymodel, nullptr, 1, seed, nbtuba, false, false,
+  Id seed = 14341;
+  (void)simtub(nullptr,
+               mygrid,
+               mymodel,
+               nullptr,
+               1,
+               seed,
+               nbtuba,
+               false,
+               false,
                NamingConvention("Data"));
   mygrid->display();
 
@@ -69,11 +84,11 @@ int main(int argc, char* argv[])
 
   // We calculate a variogram along the two main directions of the Model, i.e. 30 and 120 degrees.
 
-  Id nlag                = 25;
-  double dlag            = 2.;
-  angles                 = {30., 120.};
+  Id nlag = 25;
+  double dlag = 2.;
+  angles = {30., 120.};
   VarioParam* varioparam = VarioParam::createSeveral2D(angles, nlag, dlag);
-  Vario* myvario         = Vario::computeFromDb(*varioparam, mypoints);
+  Vario* myvario = Vario::computeFromDb(*varioparam, mypoints);
   myvario->display();
 
   // In the next step, we consider that the initial model (mymodel) has been correctly

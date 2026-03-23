@@ -7,7 +7,7 @@ output:
   html_document:
     df_print: paged
     toc: true
-editor_options: 
+editor_options:
   chunk_output_type: console
 ---
 
@@ -18,7 +18,7 @@ editor_options:
 ```{r, include=FALSE}
 ## Global options for code chunks
 knitr::opts_chunk$set(
-  echo = TRUE, 
+  echo = TRUE,
   warning = FALSE,
   cache=FALSE,
   fig.width=5,fig.height=5,fig.align="center"
@@ -27,7 +27,7 @@ knitr::opts_chunk$set(
 
 ## Preamble
 
-In this preamble, we load the **gstlearn** library and clean the workspace. 
+In this preamble, we load the **gstlearn** library and clean the workspace.
 
 ```{r Loading_libraries, message=FALSE,results=FALSE}
 rm(list=ls())
@@ -59,7 +59,7 @@ err = vario_raw2dir$compute(dat)
 
 ## Fit model
 fitmod = Model()
-err = fitmod$fit(vario_raw2dir, 
+err = fitmod$fit(vario_raw2dir,
                  types=ECov_fromKeys(c("NUGGET", "SPHERICAL", "CUBIC")))
 fitmod$display()
 ```
@@ -88,7 +88,7 @@ Optionally, we can specify a seed number for the simulation (to ensure reproduci
 Let us generate a sample from the model `fitmod` we fitted on the observations. First, we simulate the model with a single turning band.
 
 ```{r Unconditional Simulation with 1 band}
-err = simtub(dbout=target, model=fitmod, 
+err = simtub(dbout=target, model=fitmod,
              nbsimu=1,
              nbtuba=1, seed=12454,
              namconv=NamingConvention("Simu1"))
@@ -107,7 +107,7 @@ plot.end(p)
 Let us now simulate the model using 10 turning bands.
 
 ```{r Unconditional Simulation with 10 band}
-err = simtub(dbout=target, model=fitmod, 
+err = simtub(dbout=target, model=fitmod,
              nbsimu=1,
              nbtuba=10, seed=12454,
              namconv=NamingConvention("Simu10"))
@@ -124,7 +124,7 @@ plot.end(p)
 Let us now simulate the model using 1000 turning bands.
 
 ```{r Unconditional Simulation with 1000 band}
-err = simtub(dbout=target, model=fitmod, 
+err = simtub(dbout=target, model=fitmod,
              nbsimu=1,
              nbtuba=1000, seed=12454,
              namconv=NamingConvention("Simu1000"))
@@ -144,7 +144,7 @@ plot.end(p)
 
 To perform conditional simulations, we use the same command as for unconditional simulations. We just need to supply two additional arguments: the data base containing the conditioning data (argument `dbin`), and the type of neighborhood used when conditioning the simulations (since this is done using kriging).
 
-Circling back to our example, let us consider the temperature observations in the data base `dat` as conditioning points. Our aim is to generate simulations of the model `fitmod` that honor these data. 
+Circling back to our example, let us consider the temperature observations in the data base `dat` as conditioning points. Our aim is to generate simulations of the model `fitmod` that honor these data.
 
 We first must control that our data follow more or less a gaussian distribution.
 
@@ -176,7 +176,7 @@ seed   = 13231
 
 ## Simulations
 err = simtub(dbin=dat, dbout=target,
-             model=fitmod, 
+             model=fitmod,
              neigh=neighU,
              nbsimu=nbsimu,
              nbtuba=nbtuba, seed=seed)
@@ -207,14 +207,14 @@ ggarrange(p1,p2,p3,p4,nrow=2,ncol=2)
 Let us now compute the mean of the simulations we just generated. To do so, we use the `statistics` method of the `Db` class.
 
 ```{r Compute_mean_of_simulations}
-target$statisticsBySample(names=c("Simu.January_temp*"), 
+target$statisticsBySample(names=c("Simu.January_temp*"),
                         opers=EStatOption_fromKeys(c("MEAN")))
 ```
 
 Let us compare the mean of the simulations with result from a simple kriging prediction of the temperature.
 
 ```{r Compute_kriging}
-err = kriging(dat, target, model=fitmod, 
+err = kriging(dat, target, model=fitmod,
               neigh = neighU,
               namconv=NamingConvention("KS"))
 ```
@@ -223,7 +223,7 @@ err = kriging(dat, target, model=fitmod,
 ## Plot correlation plot
 p = plot.init(c(8, 8))
 p = p + plot.correlation(target, "Stats.MEAN", "KS*estim", flagDiag=TRUE, bins=100)
-p = p + plot.decoration(xlab="Mean of Simulations", 
+p = p + plot.decoration(xlab="Mean of Simulations",
                         ylab="Simple Kriging Estimate",
                         title = "Correlation plot")
 plot.end(p)
@@ -268,8 +268,8 @@ err = model_ED$setDriftIRF(order=0,nfex=1)
 vario_resED = Vario_create(varioparam)
 err = vario_resED$compute(dat,model=model_ED)
 
-## Fit model on experimental variogram 
-err = model_ED$fit(vario_resED, 
+## Fit model on experimental variogram
+err = model_ED$fit(vario_resED,
                    types=ECov_fromKeys(c("SPHERICAL","CUBIC")))
 model_ED$display()
 ```
@@ -283,7 +283,7 @@ plot.init(c(8, 8)) + plot.varmod(vario_resED, model_ED)
 Now, to generate 10 conditional simulations from the model with external drift that we just create, we call the `simtub` function with the same synthax as before.
 
 ```{r Simulations-ED}
-err = simtub(dbin=dat, dbout=target, model=model_ED, 
+err = simtub(dbin=dat, dbout=target, model=model_ED,
              neigh=neighU,
              nbsimu=nbsimu,
              nbtuba=nbtuba, seed=seed)
@@ -314,11 +314,11 @@ ggarrange(p1,p2,p3,p4,nrow=2,ncol=2)
 Let us now compute the mean of the simulations we just generated, and compare it with a prediction by kriging with external drift.
 
 ```{r Compute_mean_of_simulations_and_compare-ED}
-target$statisticsBySample(names=c("Simu.January_temp*"), 
+target$statisticsBySample(names=c("Simu.January_temp*"),
                         opers=EStatOption_fromKeys(c("MEAN")))
 
 ## Compute kriging
-err = kriging(dat, target, model=model_ED, 
+err = kriging(dat, target, model=model_ED,
               neigh = neighU,
               namconv=NamingConvention("KED"))
 ```
@@ -330,7 +330,7 @@ p = p + plot.decoration(xlab="Mean of Simulations", ylab="Kriging with External 
 plot.end(p)
 ```
 
-## Application : Probability of exceedence 
+## Application : Probability of exceedence
 
 As an application, we show how to compute maps probabilities of exceeding a threshold. For instance, to compute the probabilities of being positive, we start by turning the simulation results into binary variables taking the value 1 if the simulated value is positive and 0 otherwise. Then, the probability of being positive is computed as the mean of these binary variables.
 
@@ -339,7 +339,7 @@ As an application, we show how to compute maps probabilities of exceeding a thre
 target["Simu.January_temp*"] = target["Simu.January_temp*"] > 0
 
 ## Average binary variables
-target$statisticsBySample(names=c("Simu.January_temp*"), 
+target$statisticsBySample(names=c("Simu.January_temp*"),
                         opers=EStatOption_fromKeys(c("MEAN")),
                         namconv=NamingConvention("Proba"))
 ```

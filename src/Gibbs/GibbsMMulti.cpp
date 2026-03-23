@@ -24,414 +24,416 @@
 static bool storeSparse = true;
 
 namespace gstlrn
-{ 
-
-GibbsMMulti::GibbsMMulti()
-  : GibbsMulti()
-  , _Cmat(nullptr)
-  , _CmatChol(nullptr)
-  , _eps(EPSILON6)
-  , _flagStoreInternal(true)
-  , _areas()
-  , _matWgt()
-  , _weights()
 {
-  _allocate();
-}
 
-GibbsMMulti::GibbsMMulti(Db* db, Model* model)
-  : GibbsMulti(db, model)
-  , _Cmat(nullptr)
-  , _CmatChol(nullptr)
-  , _eps(EPSILON6)
-  , _flagStoreInternal(true)
-  , _areas()
-  , _matWgt()
-  , _weights()
-{
-  _allocate();
-}
-
-GibbsMMulti::GibbsMMulti(const GibbsMMulti& r)
-  : GibbsMulti(r)
-  , _Cmat(r._Cmat)
-  , _CmatChol(r._CmatChol)
-  , _eps(r._eps)
-  , _flagStoreInternal(r._flagStoreInternal)
-  , _areas(r._areas)
-  , _matWgt(r._matWgt)
-  , _weights()
-{
-  _allocate();
-}
-
-GibbsMMulti& GibbsMMulti::operator=(const GibbsMMulti& r)
-{
-  if (this != &r)
+  GibbsMMulti::GibbsMMulti()
+    : GibbsMulti()
+    , _Cmat(nullptr)
+    , _CmatChol(nullptr)
+    , _eps(EPSILON6)
+    , _flagStoreInternal(true)
+    , _areas()
+    , _matWgt()
+    , _weights()
   {
-    GibbsMulti::operator=(r);
-    _Cmat              = r._Cmat;
-    _CmatChol          = r._CmatChol;
-    _eps               = r._eps;
-    _flagStoreInternal = r._flagStoreInternal;
-    _areas             = r._areas;
-    _matWgt            = r._matWgt;
-    _weights           = r._weights;
-  }
-  return *this;
-}
-
-GibbsMMulti::~GibbsMMulti()
-{
-  delete _CmatChol;
-  delete _matWgt;
-}
-
-void GibbsMMulti::_allocate()
-{
-  _weights.resize(_getSize());
-}
-
-/****************************************************************************/
-/*!
-**  Establish the covariance matrix for Gibbs
-**
-** \return  Error returned code
-**
-** \param[in]  verbose      Verbose flag
-** \param[in]  verboseTimer True to show elapse times
-**
-*****************************************************************************/
-Id GibbsMMulti::covmatAlloc(bool verbose, bool verboseTimer)
-{
-  // Initialization
-
-  if (verboseTimer) verbose = true;
-  if (verbose) mestitle(1, "Gibbs using Moving Neighborhood");
-  Db* db                = getDb();
-  Model* model          = getModel();
-  auto nvar             = _getNVar();
-  auto nact             = _getSampleRankNumber();
-  Id nvardb            = db->getNLoc(ELoc::Z);
-  bool flag_var_defined = nvardb > 0;
-
-  // Consistency check
-
-  if (flag_var_defined && nvar != nvardb)
-  {
-    messerr("Inconsistency in Number of Variables between Model (%d) and Db (%d)",
-            nvar, nvardb);
-    return 1;
+    _allocate();
   }
 
-  // Establish the covariance matrix as sparse (hopefully)
-
-  if (verbose)
-    message("Building Covariance Sparse Matrix (Dimension = %d)\n", nact);
-  Timer timer;
-  _Cmat = std::shared_ptr<MatrixSparse>(model->evalCovMatSparse(db, db, -1, -1, _getRanks(), _getRanks()));
-  if (_Cmat == nullptr) return 1;
-  if (verboseTimer)
-    timer.displayIntervalMilliseconds("Building Covariance");
-
-  // Cholesky decomposition
-
-  if (verbose) message("Cholesky Decomposition of Covariance Matrix\n");
-
-  _CmatChol = new CholeskySparse(*_Cmat);
-  if (!_CmatChol->isReady()) return 1;
-  if (verboseTimer)
-    timer.displayIntervalMilliseconds("Cholesky Decomposition");
-
-  // Evaluate storage capacity and store weights
-
-  if (verbose)
-    message("Calculating and storing the weights\n");
-  if (_storeAllWeights(verbose)) return 1;
-  if (verboseTimer)
-    timer.displayIntervalMilliseconds("Calculating and storing weights");
-
-  // Initialize the statistics (optional)
-
-  _statsInit();
-  return 0;
-}
-
-double GibbsMMulti::_getVariance(Id icol) const
-{
-  if (storeSparse) return (1. / _matWgt->getValue(icol, icol));
-  return (1. / _weights[icol]);
-}
-
-/****************************************************************************/
-/*!
-**  Perform one update of the Gibbs sampler
-**
-** \param[in]  y           Gaussian Vector
-** \param[in]  isimu       Rank of the simulation
-** \param[in]  ipgs        Rank of the GS
-** \param[in]  iter        Rank of the iteration
-**
-*****************************************************************************/
-void GibbsMMulti::update(VectorVectorDouble& y, Id isimu, Id ipgs, Id iter)
-{
-  double valsim, yk, vk;
-
-  auto nvar = _getNVar();
-  auto nact = _getSampleRankNumber();
-
-  /* Print the title */
-
-  if (OptDbg::query(EDbg::CONVERGE))
-    mestitle(1, "Gibbs Sampler (Simu:%d - GS:%d)", isimu + 1, ipgs + 1);
-
-  /* Loop on the target */
-
-  for (Id ivar0 = 0; ivar0 < nvar; ivar0++)
+  GibbsMMulti::GibbsMMulti(Db* db, Model* model)
+    : GibbsMulti(db, model)
+    , _Cmat(nullptr)
+    , _CmatChol(nullptr)
+    , _eps(EPSILON6)
+    , _flagStoreInternal(true)
+    , _areas()
+    , _matWgt()
+    , _weights()
   {
-    auto icase = getRank(ipgs, ivar0);
-    for (Id iact0 = 0; iact0 < nact; iact0++)
+    _allocate();
+  }
+
+  GibbsMMulti::GibbsMMulti(const GibbsMMulti& r)
+    : GibbsMulti(r)
+    , _Cmat(r._Cmat)
+    , _CmatChol(r._CmatChol)
+    , _eps(r._eps)
+    , _flagStoreInternal(r._flagStoreInternal)
+    , _areas(r._areas)
+    , _matWgt(r._matWgt)
+    , _weights()
+  {
+    _allocate();
+  }
+
+  GibbsMMulti& GibbsMMulti::operator=(const GibbsMMulti& r)
+  {
+    if (this != &r)
     {
-      // Load the vector of weights
-      auto icol = _getColumn(iact0, ivar0);
-      _getWeights(icol);
-
-      if (!_isConstraintTight(icase, iact0, &valsim))
-      {
-        // The term of y corresponding to the current (variable, sample)
-        // is set to 0 in order to avoid testing it next.
-        y[icase][iact0] = 0.;
-
-        // Calculate the estimate and the variance of estimation
-        vk = _getVariance(icol);
-        yk = _getEstimate(ipgs, icol, y) * vk;
-
-        // Simulate the new value
-        valsim = getSimulate(y, yk, sqrt(vk), icase, ipgs, ivar0, iact0, iter);
-      }
-      y[icase][iact0] = valsim;
+      GibbsMulti::operator=(r);
+      _Cmat = r._Cmat;
+      _CmatChol = r._CmatChol;
+      _eps = r._eps;
+      _flagStoreInternal = r._flagStoreInternal;
+      _areas = r._areas;
+      _matWgt = r._matWgt;
+      _weights = r._weights;
     }
+    return *this;
   }
 
-  // Update statistics (optional)
-
-  _updateStats(y, ipgs, iter);
-}
-
-Id GibbsMMulti::_getNVar() const
-{
-  Model* model = getModel();
-  return model->getNVar();
-}
-
-Id GibbsMMulti::_getSize() const
-{
-  auto nact = _getSampleRankNumber();
-  auto nvar = _getNVar();
-  return nact * nvar;
-}
-
-Id GibbsMMulti::_getColumn(Id iact, Id ivar) const
-{
-  auto nact = _getSampleRankNumber();
-  return (iact + ivar * nact);
-}
-
-void GibbsMMulti::_splitCol(Id icol, Id* iact, Id* ivar) const
-{
-  auto nact = _getSampleRankNumber();
-  *ivar    = icol / nact;
-  *iact    = icol - nact * (*ivar);
-}
-
-/**
- * Calculate the set of (multivariate) weights for a given sample / variable
- * @param icol    Rank of the column of interest
- * @param b       Right-hand side vector
- * @param tol     Tolerance below which weights are set to 0
- */
-void GibbsMMulti::_calculateWeights(Id icol,
-                                    VectorDouble& b,
-                                    double tol) const
-{
-  b.fill(0.);
-  b[icol] = 1.;
-
-  // Solve the linear system and returns the result in 'x'
-  _CmatChol->solve(b, _weights);
-
-  if (tol <= 0.) return;
-
-  // Discarding the values leading to small vector of weights
-  for (Id irow = 0, nrow = _getSize(); irow < nrow; irow++)
+  GibbsMMulti::~GibbsMMulti()
   {
-    double xloc = ABS(_weights[irow]);
-    if (xloc < tol) _weights[irow] = 0.;
-  }
-}
-
-void GibbsMMulti::_updateStatWeights(Id* nzero)
-{
-  for (Id irow = 0, nrow = _getSize(); irow < nrow; irow++)
-  {
-    double wgt = _weights[irow];
-    if (isZero(wgt)) (*nzero)++;
-  }
-}
-
-Id GibbsMMulti::_storeAllWeights(bool verbose)
-{
-  auto nrow = _getSize();
-  VectorDouble b(nrow);
-
-  // Decide if weights are stored internally or not
-
-  long ntotal = nrow * nrow;
-  if (verbose)
-  {
-    if (!_flagStoreInternal)
-      message("Weights are stored externally (HDF5 format)\n");
-    else
-      message("Weights are stored internally\n");
-    message("- Total core needs       = %ld\n", ntotal);
+    delete _CmatChol;
+    delete _matWgt;
   }
 
-  // Create the HDF5 file (optional)
-
-  if (!_flagStoreInternal)
+  void GibbsMMulti::_allocate()
   {
-#ifdef TODO
-    std::vector<hsize_t> dims(2);
-    dims[0] = nrow;
-    dims[1] = nrow;
-    _hdf5.openNewFile("h5data3.h5");
-    _hdf5.openNewDataSetDouble("Set3", 2, dims.data());
-#endif
+    _weights.resize(_getSize());
   }
 
-  // Loop on the samples
-
-  Id nzero = 0;
-  if (storeSparse)
+  /****************************************************************************/
+  /*!
+  **  Establish the covariance matrix for Gibbs
+  **
+  ** \return  Error returned code
+  **
+  ** \param[in]  verbose      Verbose flag
+  ** \param[in]  verboseTimer True to show elapse times
+  **
+  *****************************************************************************/
+  Id GibbsMMulti::covmatAlloc(bool verbose, bool verboseTimer)
   {
-    _matWgt = new MatrixSparse();
-    NF_Triplet NF_T;
-    for (Id icol = 0, ncol = _getSize(); icol < ncol; icol++)
-    {
-      _calculateWeights(icol, b);
-      _updateStatWeights(&nzero);
-      _storeWeightsMS(icol, NF_T);
-    }
-    _matWgt->resetFromTriplet(NF_T);
-  }
-  else
-  {
-    _areas.clear();
-    for (Id icol = 0, ncol = _getSize(); icol < ncol; icol++)
-    {
-      _calculateWeights(icol, b);
-      _updateStatWeights(&nzero);
-      _storeWeights(icol);
-    }
-  }
+    // Initialization
 
-  // Optional printout of the number of zero weights
-
-  if (verbose)
-  {
-    message("- Number of zero weights = %d\n", nzero);
-    double reduc = 100. * static_cast<double>(ntotal - nzero) / static_cast<double>(ntotal);
-    message("- Percentage             = %6.2lf\n", reduc);
-  }
-  return 0;
-}
-
-/**
- * Storing the weights when processing the current sample
- * @param icol  Rank of the column of interest
- */
-void GibbsMMulti::_storeWeights(Id icol)
-{
-  if (_flagStoreInternal)
-  {
-    // Store internally
-    _areas.push_back(_weights);
-  }
-  else
-  {
-    // Store in hdf5 file
-#ifdef TODO
-    _hdf5.writeDataDoublePartial(icol, _weights);
-#else
-    DECLARE_UNUSED(icol);
-#endif
-  }
-}
-
-void GibbsMMulti::_storeWeightsMS(Id icol, NF_Triplet& NF_T)
-{
-  for (Id irow = 0, nrow = _getSize(); irow < nrow; irow++)
-    if (ABS(_weights[irow]) > EPSILON10) NF_T.add(irow, icol, _weights[irow]);
-}
-
-void GibbsMMulti::_getWeights(Id icol) const
-{
-  if (_flagStoreInternal)
-  {
-    if (storeSparse) return;
-    // Load from the internal storage
-    _weights = _areas[icol];
-  }
-  else
-  {
-    // Read from the external file
-#ifdef TODO
-    _weights = HDF5format::getDataDoublePartial(icol);
-#endif
-  }
-}
-
-void GibbsMMulti::cleanup()
-{
-}
-
-void GibbsMMulti::setFlagStoreInternal(bool flagStoreInternal)
-{
-  if (!flagStoreInternal)
-    messerr("No HDF5 support: Cannot use External Storing of weights option!");
-  _flagStoreInternal = true;
-}
-
-double GibbsMMulti::_getEstimate(Id ipgs,
-                                 Id icol,
-                                 const VectorVectorDouble& y) const
-{
-  Id jact, jvar, jcase;
-  double yk = 0.;
-
-  if (storeSparse)
-  {
-    for (EigenSparseMatrix::InnerIterator it(_matWgt->eigenMat(), icol); it; ++it)
-    {
-      _splitCol(it.row(), &jact, &jvar);
-      jcase = getRank(ipgs, jvar);
-      yk -= y[jcase][jact] * it.value();
-    }
-  }
-  else
-  {
+    if (verboseTimer) verbose = true;
+    if (verbose) mestitle(1, "Gibbs using Moving Neighborhood");
+    Db* db = getDb();
+    Model* model = getModel();
     auto nvar = _getNVar();
     auto nact = _getSampleRankNumber();
-    Id irow = 0;
-    for (jvar = 0; jvar < nvar; jvar++)
+    Id nvardb = db->getNLoc(ELoc::Z);
+    bool flag_var_defined = nvardb > 0;
+
+    // Consistency check
+
+    if (flag_var_defined && nvar != nvardb)
     {
-      jcase = getRank(ipgs, jvar);
-      for (jact = 0; jact < nact; jact++, irow++)
+      messerr(
+        "Inconsistency in Number of Variables between Model (%d) and Db (%d)",
+        nvar,
+        nvardb);
+      return 1;
+    }
+
+    // Establish the covariance matrix as sparse (hopefully)
+
+    if (verbose)
+      message("Building Covariance Sparse Matrix (Dimension = %d)\n", nact);
+    Timer timer;
+    _Cmat = std::shared_ptr<MatrixSparse>(
+      model->evalCovMatSparse(db, db, -1, -1, _getRanks(), _getRanks()));
+    if (_Cmat == nullptr) return 1;
+    if (verboseTimer) timer.displayIntervalMilliseconds("Building Covariance");
+
+    // Cholesky decomposition
+
+    if (verbose) message("Cholesky Decomposition of Covariance Matrix\n");
+
+    _CmatChol = new CholeskySparse(*_Cmat);
+    if (!_CmatChol->isReady()) return 1;
+    if (verboseTimer)
+      timer.displayIntervalMilliseconds("Cholesky Decomposition");
+
+    // Evaluate storage capacity and store weights
+
+    if (verbose) message("Calculating and storing the weights\n");
+    if (_storeAllWeights(verbose)) return 1;
+    if (verboseTimer)
+      timer.displayIntervalMilliseconds("Calculating and storing weights");
+
+    // Initialize the statistics (optional)
+
+    _statsInit();
+    return 0;
+  }
+
+  double GibbsMMulti::_getVariance(Id icol) const
+  {
+    if (storeSparse) return (1. / _matWgt->getValue(icol, icol));
+    return (1. / _weights[icol]);
+  }
+
+  /****************************************************************************/
+  /*!
+  **  Perform one update of the Gibbs sampler
+  **
+  ** \param[in]  y           Gaussian Vector
+  ** \param[in]  isimu       Rank of the simulation
+  ** \param[in]  ipgs        Rank of the GS
+  ** \param[in]  iter        Rank of the iteration
+  **
+  *****************************************************************************/
+  void GibbsMMulti::update(VectorVectorDouble& y, Id isimu, Id ipgs, Id iter)
+  {
+    double valsim, yk, vk;
+
+    auto nvar = _getNVar();
+    auto nact = _getSampleRankNumber();
+
+    /* Print the title */
+
+    if (OptDbg::query(EDbg::CONVERGE))
+      mestitle(1, "Gibbs Sampler (Simu:%d - GS:%d)", isimu + 1, ipgs + 1);
+
+    /* Loop on the target */
+
+    for (Id ivar0 = 0; ivar0 < nvar; ivar0++)
+    {
+      auto icase = getRank(ipgs, ivar0);
+      for (Id iact0 = 0; iact0 < nact; iact0++)
       {
-        yk -= y[jcase][jact] * _weights[irow];
+        // Load the vector of weights
+        auto icol = _getColumn(iact0, ivar0);
+        _getWeights(icol);
+
+        if (!_isConstraintTight(icase, iact0, &valsim))
+        {
+          // The term of y corresponding to the current (variable, sample)
+          // is set to 0 in order to avoid testing it next.
+          y[icase][iact0] = 0.;
+
+          // Calculate the estimate and the variance of estimation
+          vk = _getVariance(icol);
+          yk = _getEstimate(ipgs, icol, y) * vk;
+
+          // Simulate the new value
+          valsim =
+            getSimulate(y, yk, sqrt(vk), icase, ipgs, ivar0, iact0, iter);
+        }
+        y[icase][iact0] = valsim;
       }
     }
+
+    // Update statistics (optional)
+
+    _updateStats(y, ipgs, iter);
   }
-  return yk;
-}
-}
+
+  Id GibbsMMulti::_getNVar() const
+  {
+    Model* model = getModel();
+    return model->getNVar();
+  }
+
+  Id GibbsMMulti::_getSize() const
+  {
+    auto nact = _getSampleRankNumber();
+    auto nvar = _getNVar();
+    return nact * nvar;
+  }
+
+  Id GibbsMMulti::_getColumn(Id iact, Id ivar) const
+  {
+    auto nact = _getSampleRankNumber();
+    return (iact + ivar * nact);
+  }
+
+  void GibbsMMulti::_splitCol(Id icol, Id* iact, Id* ivar) const
+  {
+    auto nact = _getSampleRankNumber();
+    *ivar = icol / nact;
+    *iact = icol - nact * (*ivar);
+  }
+
+  /**
+   * Calculate the set of (multivariate) weights for a given sample / variable
+   * @param icol    Rank of the column of interest
+   * @param b       Right-hand side vector
+   * @param tol     Tolerance below which weights are set to 0
+   */
+  void
+    GibbsMMulti::_calculateWeights(Id icol, VectorDouble& b, double tol) const
+  {
+    b.fill(0.);
+    b[icol] = 1.;
+
+    // Solve the linear system and returns the result in 'x'
+    _CmatChol->solve(b, _weights);
+
+    if (tol <= 0.) return;
+
+    // Discarding the values leading to small vector of weights
+    for (Id irow = 0, nrow = _getSize(); irow < nrow; irow++)
+    {
+      double xloc = ABS(_weights[irow]);
+      if (xloc < tol) _weights[irow] = 0.;
+    }
+  }
+
+  void GibbsMMulti::_updateStatWeights(Id* nzero)
+  {
+    for (Id irow = 0, nrow = _getSize(); irow < nrow; irow++)
+    {
+      double wgt = _weights[irow];
+      if (isZero(wgt)) (*nzero)++;
+    }
+  }
+
+  Id GibbsMMulti::_storeAllWeights(bool verbose)
+  {
+    auto nrow = _getSize();
+    VectorDouble b(nrow);
+
+    // Decide if weights are stored internally or not
+
+    long ntotal = nrow * nrow;
+    if (verbose)
+    {
+      if (!_flagStoreInternal)
+        message("Weights are stored externally (HDF5 format)\n");
+      else
+        message("Weights are stored internally\n");
+      message("- Total core needs       = %ld\n", ntotal);
+    }
+
+    // Create the HDF5 file (optional)
+
+    if (!_flagStoreInternal)
+    {
+#ifdef TODO
+      std::vector<hsize_t> dims(2);
+      dims[0] = nrow;
+      dims[1] = nrow;
+      _hdf5.openNewFile("h5data3.h5");
+      _hdf5.openNewDataSetDouble("Set3", 2, dims.data());
+#endif
+    }
+
+    // Loop on the samples
+
+    Id nzero = 0;
+    if (storeSparse)
+    {
+      _matWgt = new MatrixSparse();
+      NF_Triplet NF_T;
+      for (Id icol = 0, ncol = _getSize(); icol < ncol; icol++)
+      {
+        _calculateWeights(icol, b);
+        _updateStatWeights(&nzero);
+        _storeWeightsMS(icol, NF_T);
+      }
+      _matWgt->resetFromTriplet(NF_T);
+    }
+    else
+    {
+      _areas.clear();
+      for (Id icol = 0, ncol = _getSize(); icol < ncol; icol++)
+      {
+        _calculateWeights(icol, b);
+        _updateStatWeights(&nzero);
+        _storeWeights(icol);
+      }
+    }
+
+    // Optional printout of the number of zero weights
+
+    if (verbose)
+    {
+      message("- Number of zero weights = %d\n", nzero);
+      double reduc = 100. * static_cast<double>(ntotal - nzero)
+                   / static_cast<double>(ntotal);
+      message("- Percentage             = %6.2lf\n", reduc);
+    }
+    return 0;
+  }
+
+  /**
+   * Storing the weights when processing the current sample
+   * @param icol  Rank of the column of interest
+   */
+  void GibbsMMulti::_storeWeights(Id icol)
+  {
+    if (_flagStoreInternal)
+    {
+      // Store internally
+      _areas.push_back(_weights);
+    }
+    else
+    {
+      // Store in hdf5 file
+#ifdef TODO
+      _hdf5.writeDataDoublePartial(icol, _weights);
+#else
+      DECLARE_UNUSED(icol);
+#endif
+    }
+  }
+
+  void GibbsMMulti::_storeWeightsMS(Id icol, NF_Triplet& NF_T)
+  {
+    for (Id irow = 0, nrow = _getSize(); irow < nrow; irow++)
+      if (ABS(_weights[irow]) > EPSILON10) NF_T.add(irow, icol, _weights[irow]);
+  }
+
+  void GibbsMMulti::_getWeights(Id icol) const
+  {
+    if (_flagStoreInternal)
+    {
+      if (storeSparse) return;
+      // Load from the internal storage
+      _weights = _areas[icol];
+    }
+    else
+    {
+      // Read from the external file
+#ifdef TODO
+      _weights = HDF5format::getDataDoublePartial(icol);
+#endif
+    }
+  }
+
+  void GibbsMMulti::cleanup() {}
+
+  void GibbsMMulti::setFlagStoreInternal(bool flagStoreInternal)
+  {
+    if (!flagStoreInternal)
+      messerr(
+        "No HDF5 support: Cannot use External Storing of weights option!");
+    _flagStoreInternal = true;
+  }
+
+  double GibbsMMulti::_getEstimate(Id ipgs,
+                                   Id icol,
+                                   const VectorVectorDouble& y) const
+  {
+    Id jact, jvar, jcase;
+    double yk = 0.;
+
+    if (storeSparse)
+    {
+      for (EigenSparseMatrix::InnerIterator it(_matWgt->eigenMat(), icol); it;
+           ++it)
+      {
+        _splitCol(it.row(), &jact, &jvar);
+        jcase = getRank(ipgs, jvar);
+        yk -= y[jcase][jact] * it.value();
+      }
+    }
+    else
+    {
+      auto nvar = _getNVar();
+      auto nact = _getSampleRankNumber();
+      Id irow = 0;
+      for (jvar = 0; jvar < nvar; jvar++)
+      {
+        jcase = getRank(ipgs, jvar);
+        for (jact = 0; jact < nact; jact++, irow++)
+        {
+          yk -= y[jcase][jact] * _weights[irow];
+        }
+      }
+    }
+    return yk;
+  }
+} // namespace gstlrn

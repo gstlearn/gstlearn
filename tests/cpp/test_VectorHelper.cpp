@@ -26,7 +26,7 @@ int main(int argc, char* argv[])
   // Test 1: Basic whereElement functionality (without start parameter)
   message("\n=== Test 1: Basic whereElement ===\n");
   VectorInt vec1 = {10, 20, 30, 40, 50};
-  Id pos         = VH::whereElement(vec1, 30);
+  Id pos = VH::whereElement(vec1, 30);
   if (pos == 2)
     message("PASS: Found 30 at position 2\n");
   else
@@ -59,7 +59,8 @@ int main(int argc, char* argv[])
   // Search starting from position 3 (should not find it as we only search forward)
   pos = VH::whereElement(vec2, 25, 3);
   if (pos == -1)
-    message("PASS: Element 25 not found when starting from position 3 (returned -1)\n");
+    message("PASS: Element 25 not found when starting from position 3 "
+            "(returned -1)\n");
   else
     message("FAIL: Expected -1 when element is before start, got %d\n", pos);
 
@@ -68,14 +69,17 @@ int main(int argc, char* argv[])
   VectorInt indices = {0, 2, 5, 7, 10, 12, 15, 18, 20, 25};
   VectorInt targets = {0, 2, 5, 7, 10, 12, 15, 18, 20, 25};
 
-  Id lastPos    = 0;
+  Id lastPos = 0;
   bool allFound = true;
   for (Id i = 0; i < static_cast<Id>(targets.size()); i++)
   {
     pos = VH::whereElement(indices, targets[i], lastPos);
     if (pos >= 0)
     {
-      message("Found %d at position %d (started from %d)\n", targets[i], pos, lastPos);
+      message("Found %d at position %d (started from %d)\n",
+              targets[i],
+              pos,
+              lastPos);
       lastPos = pos; // Update for next search
     }
     else
@@ -109,7 +113,7 @@ int main(int argc, char* argv[])
 
   // Single element
   VectorInt singleVec = {42};
-  pos                 = VH::whereElement(singleVec, 42, 0);
+  pos = VH::whereElement(singleVec, 42, 0);
   if (pos == 0)
     message("PASS: Single element found at position 0\n");
   else
@@ -117,7 +121,7 @@ int main(int argc, char* argv[])
 
   // Start beyond vector size
   VectorInt vec3 = {1, 2, 3};
-  pos            = VH::whereElement(vec3, 2, 10);
+  pos = VH::whereElement(vec3, 2, 10);
   if (pos == -1)
     message("PASS: Start beyond vector size returns -1\n");
   else
@@ -204,7 +208,7 @@ int main(int argc, char* argv[])
   Vres.dump("Checking Vres = V2 * 4. + V1", false);
 
   mestitle(1, "Testing operations on Vectors of Integers");
-  Id nvar       = 10;
+  Id nvar = 10;
   VectorInt IV1 = VH::simulateInteger(nech, VectorDouble(nvar, 1. / nvar));
   IV1.dump("Vector IV1", false);
   VectorInt IV2 = VH::simulateInteger(nech, VectorDouble(nvar, 1. / nvar));

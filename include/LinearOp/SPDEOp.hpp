@@ -25,160 +25,177 @@ DECLARE_EIGEN_TRAITS(SPDEOp)
 namespace gstlrn
 {
 
-class IProj;
-class ALinearOp;
-class IPrecisionOp;
-class Chebychev;
+  class IProj;
+  class ALinearOp;
+  class IPrecisionOp;
+  class Chebychev;
 
-class GSTLEARN_EXPORT ASPDEOp: public virtual ALinearOp
-{
-public:
-  ASPDEOp(const IPrecisionOp* const popKriging = nullptr,
-          const IProj* const projInKriging     = nullptr,
-          const ASimulable* invNoise               = nullptr,
-          const IPrecisionOp* const popSimu    = nullptr,
-          const IProj* const projInSimu        = nullptr,
-          APreconditioner* precond = nullptr);
-  virtual ~ASPDEOp();
+  class GSTLEARN_EXPORT ASPDEOp: public virtual ALinearOp
+  {
+  public:
+    ASPDEOp(const IPrecisionOp* const popKriging = nullptr,
+            const IProj* const projInKriging = nullptr,
+            const ASimulable* invNoise = nullptr,
+            const IPrecisionOp* const popSimu = nullptr,
+            const IProj* const projInSimu = nullptr,
+            APreconditioner* precond = nullptr);
+    virtual ~ASPDEOp();
 
-  virtual VectorDouble stdev(const VectorDouble& dat,
-                             Id nMC                 = 1,
-                             Id seed                = 134343,
-                             const IProj* projK = nullptr,
-                             const IProj* projS = nullptr) const;
+    virtual VectorDouble stdev(const VectorDouble& dat,
+                               Id nMC = 1,
+                               Id seed = 134343,
+                               const IProj* projK = nullptr,
+                               const IProj* projS = nullptr) const;
 
-  Id getSize() const override;
-  Id getSizeSimu() const;
-  Id getIterations() const { return _solver->getIterations(); }
-  double getError() const { return _solver->getError(); }
+    Id getSize() const override;
+    Id getSizeSimu() const;
 
-  void setMaxIterations(Id n) { _solver->setMaxIterations(n); }
-  void setTolerance(double tol) { _solver->setTolerance(tol); }
+    Id getIterations() const { return _solver->getIterations(); }
 
-  VectorDouble kriging(const VectorDouble& dat, const IProj* proj = nullptr) const;
-  VectorDouble krigingWithGuess(const VectorDouble& dat, const VectorDouble& guess) const;
+    double getError() const { return _solver->getError(); }
 
-  VectorDouble computeDriftCoeffs(const VectorDouble& Z,
-                                  const MatrixDense& driftMat,
-                                  bool verbose = false) const;
-  VectorDouble simCond(const VectorDouble& dat,
-                       const IProj* projK = nullptr,
-                       const IProj* projS = nullptr) const;
-  VectorDouble simNonCond(const IProj* proj = nullptr) const;
-  VectorDouble getRangeEigenVal(Id ndiscr = 100) const;
-  const IPrecisionOp* getQKriging() const { return _QKriging; }
-  const IProj* getProjKriging() const { return _projInKriging; }
-  const ASimulable* getInvNoise() const { return _invNoise; }
-  const IPrecisionOp* getQSimu() const { return _QSimu; }
-  const IProj* getProjInSimu() const { return _projInSimu; }
+    void setMaxIterations(Id n) { _solver->setMaxIterations(n); }
+
+    void setTolerance(double tol) { _solver->setTolerance(tol); }
+
+    VectorDouble
+      kriging(const VectorDouble& dat, const IProj* proj = nullptr) const;
+    VectorDouble krigingWithGuess(const VectorDouble& dat,
+                                  const VectorDouble& guess) const;
+
+    VectorDouble computeDriftCoeffs(const VectorDouble& Z,
+                                    const MatrixDense& driftMat,
+                                    bool verbose = false) const;
+    VectorDouble simCond(const VectorDouble& dat,
+                         const IProj* projK = nullptr,
+                         const IProj* projS = nullptr) const;
+    VectorDouble simNonCond(const IProj* proj = nullptr) const;
+    VectorDouble getRangeEigenVal(Id ndiscr = 100) const;
+
+    const IPrecisionOp* getQKriging() const { return _QKriging; }
+
+    const IProj* getProjKriging() const { return _projInKriging; }
+
+    const ASimulable* getInvNoise() const { return _invNoise; }
+
+    const IPrecisionOp* getQSimu() const { return _QSimu; }
+
+    const IProj* getProjInSimu() const { return _projInSimu; }
 
 #ifndef SWIG
 
-public:
-  Id krigingWithGuess(const constvect inv,
-                      const constvect guess,
-                      vect out) const;
-  void evalInvCov(const constvect inv, vect result) const;
-  void simCond(const constvect data, vect outv) const;
-  void simNonCond(vect outv) const;
+  public:
+    Id krigingWithGuess(const constvect inv,
+                        const constvect guess,
+                        vect out) const;
+    void evalInvCov(const constvect inv, vect result) const;
+    void simCond(const constvect data, vect outv) const;
+    void simNonCond(vect outv) const;
 #endif
-  virtual double computeLogDetOp(Id nbsimu = 1) const;
-  double computeQuadratic(const VectorDouble& x) const;
-  double computeTotalLogDet(Id nMC = 5, Id seed = 13132) const;
-  double computeLogDetQ(Id nMC = 5) const;
-  double computeLogDetInvNoise() const;
-  static Id centerDataByDriftMat(VectorDouble& Z,
-                                 const MatrixDense& driftMat,
-                                 const VectorDouble& driftCoeffs);
-  static Id centerDataByMeanVec(VectorDouble& Z,
-                                const VectorDouble& meanVec);
-  void setVerbose(bool v) { _verbose = v; }
-  void setSolverVerbose(bool v) { _solver->setVerbose(v); }
-  double getMaxEigenValProj() const;
-  VectorDouble evalInverse(const VectorDouble& vecin);
+    virtual double computeLogDetOp(Id nbsimu = 1) const;
+    double computeQuadratic(const VectorDouble& x) const;
+    double computeTotalLogDet(Id nMC = 5, Id seed = 13132) const;
+    double computeLogDetQ(Id nMC = 5) const;
+    double computeLogDetInvNoise() const;
+    static Id centerDataByDriftMat(VectorDouble& Z,
+                                   const MatrixDense& driftMat,
+                                   const VectorDouble& driftCoeffs);
+    static Id centerDataByMeanVec(VectorDouble& Z, const VectorDouble& meanVec);
+
+    void setVerbose(bool v) { _verbose = v; }
+
+    void setSolverVerbose(bool v) { _solver->setVerbose(v); }
+
+    double getMaxEigenValProj() const;
+    VectorDouble evalInverse(const VectorDouble& vecin);
 #ifndef SWIG
 
-protected:
-  Id _addToDest(const constvect inv, vect outv) const override;
+  protected:
+    Id _addToDest(const constvect inv, vect outv) const override;
 
-private:
-  void _projOp(constvect inv, vect out) const;
-  void _addProjOp(const constvect inv, vect out) const;
-  std::pair<double, double> _computeRangeEigenVal(Id ndiscr = 100) const;
-  void _preparePoly(Chebychev& logPoly, Id ndiscr = 100) const;
-  Id _kriging(const constvect inv, vect out) const;
-  void _simNonCond(vect outv) const;
-  void _simCond(const constvect data, vect outvK, vect outvS) const;
-  Id _getNDat() const { return _ndat; }
-  virtual Id _solve(const constvect in, vect out) const;
-  Id _solveWithGuess(const constvect in,
-                     const constvect guess,
-                     vect out) const;
-  Id _buildRhs(const constvect inv) const;
+  private:
+    void _projOp(constvect inv, vect out) const;
+    void _addProjOp(const constvect inv, vect out) const;
+    std::pair<double, double> _computeRangeEigenVal(Id ndiscr = 100) const;
+    void _preparePoly(Chebychev& logPoly, Id ndiscr = 100) const;
+    Id _kriging(const constvect inv, vect out) const;
+    void _simNonCond(vect outv) const;
+    void _simCond(const constvect data, vect outvK, vect outvS) const;
+
+    Id _getNDat() const { return _ndat; }
+
+    virtual Id _solve(const constvect in, vect out) const;
+    Id _solveWithGuess(const constvect in,
+                       const constvect guess,
+                       vect out) const;
+    Id _buildRhs(const constvect inv) const;
 #endif
 
-private:
-  void _prepare(bool w1 = true, bool w2 = true) const;
-  void _addADinvAt(const constvect inv, vect outv) const;
+  private:
+    void _prepare(bool w1 = true, bool w2 = true) const;
+    void _addADinvAt(const constvect inv, vect outv) const;
 
+  protected:
+    const IPrecisionOp* const _QKriging;
+    const IProj* const _projInKriging;
+    const ASimulable* const _invNoise;
+    const IPrecisionOp* const _QSimu;
+    const IProj* const _projInSimu;
+    ALinearOpCGSolver* _solver;
+    APreconditioner* _precond;
+    bool _verbose;
 
-protected:
-  const IPrecisionOp* const _QKriging;
-  const IProj* const _projInKriging;
-  const ASimulable* const _invNoise;
-  const IPrecisionOp* const _QSimu;
-  const IProj* const _projInSimu;
-  ALinearOpCGSolver* _solver;
-  APreconditioner* _precond;
-  bool _verbose;
+  private:
+    Id _ndat;
+    mutable VectorDouble _workdat1;
+    mutable VectorDouble _workdat2;
+    mutable VectorDouble _workdat3;
+    mutable VectorDouble _workdat4;
+    mutable VectorDouble _workNoiseMesh;
+    mutable VectorDouble _workNoiseData;
+    mutable VectorDouble _rhs;
+    mutable VectorDouble _workmesh;
+  };
 
-private:
-  Id _ndat;
-  mutable VectorDouble _workdat1;
-  mutable VectorDouble _workdat2;
-  mutable VectorDouble _workdat3;
-  mutable VectorDouble _workdat4;
-  mutable VectorDouble _workNoiseMesh;
-  mutable VectorDouble _workNoiseData;
-  mutable VectorDouble _rhs;
-  mutable VectorDouble _workmesh;
-};
+  /****************************************************************************/
 
-/****************************************************************************/
-
-class GSTLEARN_EXPORT SPDEOp: public ASPDEOp,
+  class GSTLEARN_EXPORT SPDEOp: public ASPDEOp,
 #ifndef SWIG
-                              public ALinearOpEigenCG<SPDEOp>
+                                public ALinearOpEigenCG<SPDEOp>
 #else
-                              public virtual ALinearOp
+                                public virtual ALinearOp
 #endif
-{
-public:
-  SPDEOp(const IPrecisionOp* const popKriging = nullptr,
-         const IProj* const projInKriging     = nullptr,
-         const ASimulable* invNoise               = nullptr,
-         const IPrecisionOp* const popSimu    = nullptr,
-         const IProj* const projInSimu        = nullptr,
-         APreconditioner* precond = nullptr)
-    : ASPDEOp(popKriging, projInKriging, invNoise, popSimu, projInSimu, precond)
   {
-    if (precond == nullptr)
+  public:
+    SPDEOp(const IPrecisionOp* const popKriging = nullptr,
+           const IProj* const projInKriging = nullptr,
+           const ASimulable* invNoise = nullptr,
+           const IPrecisionOp* const popSimu = nullptr,
+           const IProj* const projInSimu = nullptr,
+           APreconditioner* precond = nullptr)
+      : ASPDEOp(popKriging,
+                projInKriging,
+                invNoise,
+                popSimu,
+                projInSimu,
+                precond)
     {
-      _solver = new LinearOpCGSolver<SPDEOp, IdentityPreconditioner>(this);
+      if (precond == nullptr)
+      {
+        _solver = new LinearOpCGSolver<SPDEOp, IdentityPreconditioner>(this);
+      }
+      auto* a = dynamic_cast<MultiGridSolver*>(_precond);
+      if (a != nullptr)
+      {
+        _solver = new LinearOpCGSolver<SPDEOp, MultiGridSolver>(this);
+        auto* b =
+          dynamic_cast<LinearOpCGSolver<SPDEOp, MultiGridSolver>*>(_solver);
+        b->getPreconditioner() = *a;
+      }
     }
-    auto *a = dynamic_cast<MultiGridSolver*>(_precond);
-    if (a != nullptr)
-    {
-      _solver = new LinearOpCGSolver<SPDEOp,MultiGridSolver>(this);
-      auto* b = dynamic_cast<LinearOpCGSolver<SPDEOp, MultiGridSolver>*>(_solver);
-      b->getPreconditioner() = *a;
-    }
-  }
 
-  virtual ~SPDEOp()
-  {
-  }
-};
+    virtual ~SPDEOp() {}
+  };
 
 } // namespace gstlrn
 
@@ -191,10 +208,10 @@ DECLARE_EIGEN_PRODUCT(SPDEOp)
 #if 0
 // To change the algorithm used by SPDEOp, add a new class as below and use
 // it instead of SPDEOp:
-#  ifndef SWIG
-#    include "LinearOp/ASimulableEigenCG.hpp"
+#ifndef SWIG
+#include "LinearOp/ASimulableEigenCG.hpp"
 DECLARE_EIGEN_TRAITS(ExampleSPDEOp)
-#  endif
+#endif
 
 namespace Eigen {
   namespace internal {
@@ -214,11 +231,11 @@ namespace Eigen {
 }
 
 class GSTLEARN_EXPORT ExampleSPDEOp : public ASPDEOp,
-#  ifndef SWIG
+#ifndef SWIG
   public ALinearOpEigenCG<ExampleSPDEOp>
-#  else
+#else
   public virtual ALinearOp
-#  endif
+#endif
 {
 public:
   ExampleSPDEOp(const PrecisionOpMulti* const popKriging = nullptr,
@@ -233,8 +250,8 @@ public:
   virtual ~ExampleSPDEOp() = default;
 };
 
-#  ifndef SWIG
+#ifndef SWIG
 DECLARE_EIGEN_PRODUCT(ExampleSPDEOp)
-#  endif
+#endif
 
 #endif

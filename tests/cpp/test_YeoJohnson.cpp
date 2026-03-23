@@ -66,7 +66,7 @@ int main(int argc, char* argv[])
   YeoJohnson transformRef(0.5);
 
   double test_points[] = {-3.0, -1.0, 0.0, 1.0, 2.0, 3.0};
-  double lambda[]      = {0.0, 0.5, 1.0, 2.0};
+  double lambda[] = {0.0, 0.5, 1.0, 2.0};
 
   for (double l: lambda)
   {
@@ -77,12 +77,13 @@ int main(int argc, char* argv[])
     {
 
       double y_test = transformTest.inverseTransform(x);
-      double y_ref  = transformRef.inverseTransform(x);
+      double y_ref = transformRef.inverseTransform(x);
       std::cout << "- Test point: " << x << "\n";
       std::cout << "  -Diff inverse: " << std::abs(y_test - y_ref) << "\n";
       double jacobian_test = transformTest.evalJacobian(x);
-      double jacobian_ref  = transformRef.evalJacobian(x);
-      std::cout << "  -Diff Jacobian: " << std::abs(jacobian_test - jacobian_ref) << "\n";
+      double jacobian_ref = transformRef.evalJacobian(x);
+      std::cout << "  -Diff Jacobian: "
+                << std::abs(jacobian_test - jacobian_ref) << "\n";
     }
   }
   return 0;

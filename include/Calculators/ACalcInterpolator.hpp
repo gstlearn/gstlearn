@@ -17,40 +17,47 @@
 
 namespace gstlrn
 {
-class ELoc;
-class ANeigh;
-// TODO : Create InterpolatorParam ASpaceParam which inherits from ASPaceObject and AParam, which inherits from ASerializable, AStringable, IClonable
-class GSTLEARN_EXPORT ACalcInterpolator: public ACalcDbToDb
-{
-public:
-  ACalcInterpolator();
-  ACalcInterpolator(const ACalcInterpolator& r)            = delete;
-  ACalcInterpolator& operator=(const ACalcInterpolator& r) = delete;
-  virtual ~ACalcInterpolator();
+  class ELoc;
+  class ANeigh;
 
-  void setModelGeneric(ModelGeneric* modelGeneric);
-  void setNeigh(ANeigh* neigh) { _neigh = neigh; }
-  void setKrigopt(const KrigOpt& krigopt) { _krigopt = krigopt; }
+  // TODO : Create InterpolatorParam ASpaceParam which inherits from ASPaceObject and AParam, which inherits from ASerializable, AStringable, IClonable
+  class GSTLEARN_EXPORT ACalcInterpolator: public ACalcDbToDb
+  {
+  public:
+    ACalcInterpolator();
+    ACalcInterpolator(const ACalcInterpolator& r) = delete;
+    ACalcInterpolator& operator=(const ACalcInterpolator& r) = delete;
+    virtual ~ACalcInterpolator();
 
-  ModelGeneric* getModelGeneric() const { return _modelGeneric; }
-  ANeigh* getNeigh() const { return _neigh; }
-  const KrigOpt& getKrigopt() const { return _krigopt; }
+    void setModelGeneric(ModelGeneric* modelGeneric);
 
-  bool hasModelGeneric(bool verbose = true) const;
-  bool hasNeigh(bool verbose = true) const;
+    void setNeigh(ANeigh* neigh) { _neigh = neigh; }
 
-protected:
-  bool _check() override;
-  bool _preprocess() override;
-  Id _getNCov() const { return _ncova; }
-  Id _calculateNCova();
-  Id _centerDataToGrid(DbGrid* dbgrid);
+    void setKrigopt(const KrigOpt& krigopt) { _krigopt = krigopt; }
 
-private:
-  // Next members are pointers (not to be deleted)
-  ModelGeneric* _modelGeneric;
-  ANeigh* _neigh;
-  KrigOpt _krigopt;
-  Id _ncova;
-};
+    ModelGeneric* getModelGeneric() const { return _modelGeneric; }
+
+    ANeigh* getNeigh() const { return _neigh; }
+
+    const KrigOpt& getKrigopt() const { return _krigopt; }
+
+    bool hasModelGeneric(bool verbose = true) const;
+    bool hasNeigh(bool verbose = true) const;
+
+  protected:
+    bool _check() override;
+    bool _preprocess() override;
+
+    Id _getNCov() const { return _ncova; }
+
+    Id _calculateNCova();
+    Id _centerDataToGrid(DbGrid* dbgrid);
+
+  private:
+    // Next members are pointers (not to be deleted)
+    ModelGeneric* _modelGeneric;
+    ANeigh* _neigh;
+    KrigOpt _krigopt;
+    Id _ncova;
+  };
 } // namespace gstlrn

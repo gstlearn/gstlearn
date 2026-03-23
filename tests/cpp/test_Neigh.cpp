@@ -15,6 +15,7 @@
 #include "Neigh/NeighUnique.hpp"
 
 using namespace gstlrn;
+
 /****************************************************************************/
 /*!
  ** Main Program
@@ -33,16 +34,16 @@ int main(int argc, char* argv[])
   StdoutRedirect sr(sfn.str(), argc, argv);
 
   // Generate the data base
-  Id nech              = 20;
+  Id nech = 20;
   VectorDouble coormin = {0., 0.};
   VectorDouble coormax = {100., 100.};
-  Db* db               = Db::createFromBox(nech, coormin, coormax, 12345);
-  VectorDouble tab     = VH::simulateGaussian(nech);
+  Db* db = Db::createFromBox(nech, coormin, coormax, 12345);
+  VectorDouble tab = VH::simulateGaussian(nech);
   db->addColumns(tab, "Variable", ELoc::Z);
   db->display();
 
   // Creating the target data base
-  nech       = 4;
+  nech = 4;
   Db* target = Db::createFromBox(nech, coormin, coormax, 12345);
   target->display();
 
@@ -59,15 +60,17 @@ int main(int argc, char* argv[])
   nbgh.clear();
   neighU->select(0, nbgh);
   printVector(nbgh, "For Target Point #0", true, true);
-  message("Is neighborhood Unchanged since last call = %d\n", neighU->isUnchanged());
+  message("Is neighborhood Unchanged since last call = %d\n",
+          neighU->isUnchanged());
   neighU->select(1, nbgh);
   printVector(nbgh, "For Target Point #1", true, true);
-  message("Is neighborhood Unchanged since last call = %d\n", neighU->isUnchanged());
+  message("Is neighborhood Unchanged since last call = %d\n",
+          neighU->isUnchanged());
   delete neighU;
 
   // Creating a Moving Neighborhood
-  Id nmaxi            = 5;
-  double radius       = 30.;
+  Id nmaxi = 5;
+  double radius = 30.;
   NeighMoving* neighM = NeighMoving::create(false, nmaxi, radius);
   neighM->attach(db, target);
   neighM->display();
@@ -79,16 +82,20 @@ int main(int argc, char* argv[])
   nbgh.clear();
   neighM->select(0, nbgh);
   printVector(nbgh, "For Target Point #0", true, true);
-  message("Is neighborhood Unchanged since last call = %d\n", neighM->isUnchanged());
+  message("Is neighborhood Unchanged since last call = %d\n",
+          neighM->isUnchanged());
   neighM->select(1, nbgh);
   printVector(nbgh, "For Target Point #1", true, true);
-  message("Is neighborhood Unchanged since last call = %d\n", neighM->isUnchanged());
+  message("Is neighborhood Unchanged since last call = %d\n",
+          neighM->isUnchanged());
   neighM->select(2, nbgh);
   printVector(nbgh, "For Target Point #2", true, true);
-  message("Is neighborhood Unchanged since last call = %d\n", neighM->isUnchanged());
+  message("Is neighborhood Unchanged since last call = %d\n",
+          neighM->isUnchanged());
   neighM->select(3, nbgh);
   printVector(nbgh, "For Target Point #3", true, true);
-  message("Is neighborhood Unchanged since last call = %d\n", neighM->isUnchanged());
+  message("Is neighborhood Unchanged since last call = %d\n",
+          neighM->isUnchanged());
   delete neighM;
 
   delete db;

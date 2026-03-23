@@ -10,37 +10,43 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
 #include "Basic/AFunctional.hpp"
+#include "gstlearn_export.hpp"
 
 namespace gstlrn
 {
-class MatrixSquare;
-class CovAniso;
+  class MatrixSquare;
+  class CovAniso;
 
-class GSTLEARN_EXPORT FunctionalSpirale : public AFunctional
-{
-public:
-  FunctionalSpirale();
-  FunctionalSpirale(double a, double b, double c, double d, double sx, double sy);
-  FunctionalSpirale(const FunctionalSpirale &m);
-  FunctionalSpirale& operator=(const FunctionalSpirale &m);
-  virtual ~FunctionalSpirale();
+  class GSTLEARN_EXPORT FunctionalSpirale: public AFunctional
+  {
+  public:
+    FunctionalSpirale();
+    FunctionalSpirale(double a,
+                      double b,
+                      double c,
+                      double d,
+                      double sx,
+                      double sy);
+    FunctionalSpirale(const FunctionalSpirale& m);
+    FunctionalSpirale& operator=(const FunctionalSpirale& m);
+    virtual ~FunctionalSpirale();
 
-  double getFunctionValue(const VectorDouble& coor) const override;
+    double getFunctionValue(const VectorDouble& coor) const override;
 
-  MatrixSquare getFunctionMatrix(const VectorDouble& coor) const;
-  VectorVectorDouble getFunctionVectors(const Db *db, const CovAniso* cova) const;
+    MatrixSquare getFunctionMatrix(const VectorDouble& coor) const;
+    VectorVectorDouble
+      getFunctionVectors(const Db* db, const CovAniso* cova) const;
 
-private:
-  static double _linearCombination(double x, double y, double a, double b);
+  private:
+    static double _linearCombination(double x, double y, double a, double b);
 
-private:
-  double _a;
-  double _b;
-  double _c;
-  double _d;
-  double _xcenter;
-  double _ycenter;
-};
-}
+  private:
+    double _a;
+    double _b;
+    double _c;
+    double _d;
+    double _xcenter;
+    double _ycenter;
+  };
+} // namespace gstlrn

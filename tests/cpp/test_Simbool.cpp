@@ -25,7 +25,11 @@
 
 using namespace gstlrn;
 
-static Db* createLocalDb(Id nech, Id ndim, Id nvar, bool flag_sel = false, double proba = 0.5)
+static Db* createLocalDb(Id nech,
+                         Id ndim,
+                         Id nvar,
+                         bool flag_sel = false,
+                         double proba = 0.5)
 {
   // Coordinates
   VectorDouble tab = VH::simulateGaussian(ndim * nech, 0., 50.);
@@ -72,10 +76,10 @@ int main(int argc, char* argv[])
 
   // Global parameters
   law_set_random_seed(32131);
-  Id ndim   = 2;
-  Id nvar   = 1;
+  Id ndim = 2;
+  Id nvar = 1;
   Id nxcell = 100;
-  Id nech   = 100;
+  Id nech = 100;
   VectorDouble coormin(ndim);
   VectorDouble coormax(ndim);
   defineDefaultSpace(ESpaceType::RN, ndim);

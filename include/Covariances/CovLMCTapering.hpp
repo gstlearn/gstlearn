@@ -10,79 +10,82 @@
 /******************************************************************************/
 #pragma once
 
+#include "Covariances/CovAnisoList.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Enum/ETape.hpp"
 #include "Space/ASpace.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
-#include "Covariances/CovAnisoList.hpp"
 
 namespace gstlrn
 {
-class ASpace;
-class SpacePoint;
-class CovAniso;
-class Model;
+  class ASpace;
+  class SpacePoint;
+  class CovAniso;
+  class Model;
 
-typedef struct
-{
-  String name; // Useless but allows checking the correct match
-  Id maxNDim;  /* Maximum dimension for validity */
-  double (*tapeFunc)(double);
-} Def_Tapering;
-
-/* Prototyping the internal covariance functions */
-GSTLEARN_EXPORT double _tape_spherical(double);
-GSTLEARN_EXPORT double _tape_cubic(double);
-GSTLEARN_EXPORT double _tape_triangle(double);
-GSTLEARN_EXPORT double _tape_penta(double);
-GSTLEARN_EXPORT double _tape_storkey(double);
-GSTLEARN_EXPORT double _tape_wendland1(double);
-GSTLEARN_EXPORT double _tape_wendland2(double);
-
-GSTLEARN_EXPORT Def_Tapering& D_TAPE(Id rank);
-
-class GSTLEARN_EXPORT CovLMCTapering : public CovAnisoList
-{
-public:
-  CovLMCTapering(const ETape& tapetype,
-                 double taperange,
-                 const CovContext& ctxt = CovContext());
-  CovLMCTapering(const CovLMCTapering &r);
-  CovLMCTapering& operator= (const CovLMCTapering &r);
-  virtual ~CovLMCTapering();
-
-  /// ICloneable interface
-  IMPLEMENT_CLONING(CovLMCTapering)
-
-  /// AStringable Interface
-  String toString(const AStringFormat* strfmt = nullptr) const override;
-
-  /// ACov interface
-  double eval0(Id ivar = 0,
-                       Id jvar = 0,
-                       const CovCalcMode* mode = nullptr) const override;
-  
-  Id init(const ETape& tapetype, double taperange);
-
-  std::string_view getName() const;
-  double getTapeRange() const { return _tapeRange; }
-  void setTapeRange(double range) { _tapeRange = range; }
-
-protected:
-  void _optimizationSetTarget(SpacePoint& pt) const override
+  typedef struct
   {
-    ACov::_optimizationSetTarget(pt); 
-  }
+    String name; // Useless but allows checking the correct match
+    Id maxNDim; /* Maximum dimension for validity */
+    double (*tapeFunc)(double);
+  } Def_Tapering;
 
-private:
-virtual double _eval(const SpacePoint& p1,
-                     const SpacePoint& p2,
-                     Id ivar,
-                     Id jvar,
-                     const CovCalcMode* mode = nullptr) const override;
-private:
-  ETape  _tapeType;
-  double _tapeRange;
-};
-}
+  /* Prototyping the internal covariance functions */
+  GSTLEARN_EXPORT double _tape_spherical(double);
+  GSTLEARN_EXPORT double _tape_cubic(double);
+  GSTLEARN_EXPORT double _tape_triangle(double);
+  GSTLEARN_EXPORT double _tape_penta(double);
+  GSTLEARN_EXPORT double _tape_storkey(double);
+  GSTLEARN_EXPORT double _tape_wendland1(double);
+  GSTLEARN_EXPORT double _tape_wendland2(double);
+
+  GSTLEARN_EXPORT Def_Tapering& D_TAPE(Id rank);
+
+  class GSTLEARN_EXPORT CovLMCTapering: public CovAnisoList
+  {
+  public:
+    CovLMCTapering(const ETape& tapetype,
+                   double taperange,
+                   const CovContext& ctxt = CovContext());
+    CovLMCTapering(const CovLMCTapering& r);
+    CovLMCTapering& operator=(const CovLMCTapering& r);
+    virtual ~CovLMCTapering();
+
+    /// ICloneable interface
+    IMPLEMENT_CLONING(CovLMCTapering)
+
+    /// AStringable Interface
+    String toString(const AStringFormat* strfmt = nullptr) const override;
+
+    /// ACov interface
+    double eval0(Id ivar = 0,
+                 Id jvar = 0,
+                 const CovCalcMode* mode = nullptr) const override;
+
+    Id init(const ETape& tapetype, double taperange);
+
+    std::string_view getName() const;
+
+    double getTapeRange() const { return _tapeRange; }
+
+    void setTapeRange(double range) { _tapeRange = range; }
+
+  protected:
+    void _optimizationSetTarget(SpacePoint& pt) const override
+    {
+      ACov::_optimizationSetTarget(pt);
+    }
+
+  private:
+    virtual double _eval(const SpacePoint& p1,
+                         const SpacePoint& p2,
+                         Id ivar,
+                         Id jvar,
+                         const CovCalcMode* mode = nullptr) const override;
+
+  private:
+    ETape _tapeType;
+    double _tapeRange;
+  };
+} // namespace gstlrn

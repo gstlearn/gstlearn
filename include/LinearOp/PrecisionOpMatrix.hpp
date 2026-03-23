@@ -15,66 +15,65 @@
 
 namespace gstlrn
 {
-class AMesh;
-class CovAniso;
-class Model;
-class ShiftOpMatrix;
+  class AMesh;
+  class CovAniso;
+  class Model;
+  class ShiftOpMatrix;
 
-/** This class is just a specialization of PrecisionOp when the shift
- * Operator is built with sparse matrices and therefore algebra can be performed with Cholesky.
- * It allows to return the precision matrix as a Sparse Matrix. */
-class GSTLEARN_EXPORT PrecisionOpMatrix: public PrecisionOp
-{
-public:
-  PrecisionOpMatrix(ShiftOpMatrix* shiftop = nullptr,
-                    const CovAniso* cova   = nullptr,
-                    bool verbose           = false);
-  PrecisionOpMatrix(const AMesh* mesh,
-                    CovAniso* cova,
-                    bool verbose = false);
-  virtual ~PrecisionOpMatrix();
+  /** This class is just a specialization of PrecisionOp when the shift
+   * Operator is built with sparse matrices and therefore algebra can be performed with Cholesky.
+   * It allows to return the precision matrix as a Sparse Matrix. */
+  class GSTLEARN_EXPORT PrecisionOpMatrix: public PrecisionOp
+  {
+  public:
+    PrecisionOpMatrix(ShiftOpMatrix* shiftop = nullptr,
+                      const CovAniso* cova = nullptr,
+                      bool verbose = false);
+    PrecisionOpMatrix(const AMesh* mesh, CovAniso* cova, bool verbose = false);
+    virtual ~PrecisionOpMatrix();
 
-  // Interface for PrecisionOp class
+    // Interface for PrecisionOp class
 #ifndef SWIG
-  void evalInverse(const constvect vecin, VectorDouble& vecout) override;
-  Id _addSimulateToDest(const constvect whitenoise, vect outv) const override;
-  Id _addToDest(const constvect inv, vect outv) const override;
+    void evalInverse(const constvect vecin, VectorDouble& vecout) override;
+    Id _addSimulateToDest(const constvect whitenoise, vect outv) const override;
+    Id _addToDest(const constvect inv, vect outv) const override;
 #endif
 
-  double computeLogDet(Id nMC = 1) const override;
-  VectorDouble extractDiag() const override;
+    double computeLogDet(Id nMC = 1) const override;
+    VectorDouble extractDiag() const override;
 
-  // void evalDerivPoly(const VectorDouble& inv, VectorDouble& outv,Id iapex,Id igparam) override;
+    // void evalDerivPoly(const VectorDouble& inv, VectorDouble& outv,Id iapex,Id igparam) override;
 #ifndef SWIG
-  void evalDeriv(const constvect inv,
-                 vect outv,
-                 Id iapex,
-                 Id igparam,
+    void evalDeriv(const constvect inv,
+                   vect outv,
+                   Id iapex,
+                   Id igparam,
+                   const EPowerPT& power) override;
+    void evalDerivOptim(vect outv,
+                        Id iapex,
+                        Id igparam,
+                        const EPowerPT& power) override;
+    void gradYQX(const constvect X,
+                 const constvect Y,
+                 vect result,
                  const EPowerPT& power) override;
-  void evalDerivOptim(vect outv,
-                      Id iapex,
-                      Id igparam,
+    void gradYQXOptim(const constvect X,
+                      const constvect Y,
+                      vect result,
                       const EPowerPT& power) override;
-  void gradYQX(const constvect X,
-               const constvect Y,
-               vect result,
-               const EPowerPT& power) override;
-  void gradYQXOptim(const constvect X,
-                    const constvect Y,
-                    vect result,
-                    const EPowerPT& power) override;
 #endif
-  const MatrixSparse* getQ() const { return _Q.get(); }
-  const MatrixSparse* getS() const;
-  const VectorDouble& getTildeC() const;
+    const MatrixSparse* getQ() const { return _Q.get(); }
 
-private:
-  void _buildQ();
-  MatrixSparse* _build_Q();
+    const MatrixSparse* getS() const;
+    const VectorDouble& getTildeC() const;
 
-private:
-  std::shared_ptr<MatrixSparse> _Q;
-  mutable CholeskySparse* _chol;
-};
+  private:
+    void _buildQ();
+    MatrixSparse* _build_Q();
+
+  private:
+    std::shared_ptr<MatrixSparse> _Q;
+    mutable CholeskySparse* _chol;
+  };
 
 } // namespace gstlrn

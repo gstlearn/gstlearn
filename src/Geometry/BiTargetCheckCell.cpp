@@ -14,59 +14,59 @@
 
 namespace gstlrn
 {
-BiTargetCheckCell::BiTargetCheckCell(const DbGrid* dbgrid)
-  : ABiTargetCheck()
-  , _dbgrid(dbgrid)
-{
-}
-
-BiTargetCheckCell::BiTargetCheckCell(const BiTargetCheckCell& r)
-  : ABiTargetCheck(r)
-  , _dbgrid(r._dbgrid)
-{
-}
-
-BiTargetCheckCell& BiTargetCheckCell::operator=(const BiTargetCheckCell& r)
-{
-  if (this != &r)
+  BiTargetCheckCell::BiTargetCheckCell(const DbGrid* dbgrid)
+    : ABiTargetCheck()
+    , _dbgrid(dbgrid)
   {
-    ABiTargetCheck::operator=(r);
-    _dbgrid = r._dbgrid;
   }
-  return *this;
-}
 
-BiTargetCheckCell::~BiTargetCheckCell()
-{
-}
+  BiTargetCheckCell::BiTargetCheckCell(const BiTargetCheckCell& r)
+    : ABiTargetCheck(r)
+    , _dbgrid(r._dbgrid)
+  {
+  }
 
-BiTargetCheckCell* BiTargetCheckCell::create(const DbGrid* dbgrid)
-{
-  return new BiTargetCheckCell(dbgrid);
-}
+  BiTargetCheckCell& BiTargetCheckCell::operator=(const BiTargetCheckCell& r)
+  {
+    if (this != &r)
+    {
+      ABiTargetCheck::operator=(r);
+      _dbgrid = r._dbgrid;
+    }
+    return *this;
+  }
 
-String BiTargetCheckCell::toString(const AStringFormat* /*strfmt*/) const
-{
-  std::stringstream sstr;
+  BiTargetCheckCell::~BiTargetCheckCell() {}
 
-  sstr << "Reject samples which do not belong to target Block" << std::endl;
+  BiTargetCheckCell* BiTargetCheckCell::create(const DbGrid* dbgrid)
+  {
+    return new BiTargetCheckCell(dbgrid);
+  }
 
-  return sstr.str();
-}
+  String BiTargetCheckCell::toString(const AStringFormat* /*strfmt*/) const
+  {
+    std::stringstream sstr;
 
-bool BiTargetCheckCell::isOK(const SpaceTarget& T1,
-                             const SpaceTarget& T2) const
-{
-  // Check if the sample belongs to the cell
-  bool valOK = _dbgrid->getGrid().sampleBelongsToCell(T2.getCoordsView(), T1.getCoordsView(), T1.getExtend());
-  return valOK;
-}
+    sstr << "Reject samples which do not belong to target Block" << std::endl;
 
-bool BiTargetCheckCell::isValid(const Db* dbin, const Db* dbout)
-{
-  DECLARE_UNUSED(dbin);
-  if (!dbout->isGrid()) return false;
-  _dbgrid = dynamic_cast<const DbGrid*>(dbout);
-  return true;
-}
-}
+    return sstr.str();
+  }
+
+  bool
+    BiTargetCheckCell::isOK(const SpaceTarget& T1, const SpaceTarget& T2) const
+  {
+    // Check if the sample belongs to the cell
+    bool valOK = _dbgrid->getGrid().sampleBelongsToCell(T2.getCoordsView(),
+                                                        T1.getCoordsView(),
+                                                        T1.getExtend());
+    return valOK;
+  }
+
+  bool BiTargetCheckCell::isValid(const Db* dbin, const Db* dbout)
+  {
+    DECLARE_UNUSED(dbin);
+    if (!dbout->isGrid()) return false;
+    _dbgrid = dynamic_cast<const DbGrid*>(dbout);
+    return true;
+  }
+} // namespace gstlrn

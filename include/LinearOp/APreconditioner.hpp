@@ -16,17 +16,21 @@
 namespace gstlrn
 {
 
-class GSTLEARN_EXPORT APreconditioner {
-public:
-    APreconditioner() : _status(Eigen::Success){}
+  class GSTLEARN_EXPORT APreconditioner
+  {
+  public:
+    APreconditioner()
+      : _status(Eigen::Success)
+    {
+    }
+
     virtual ~APreconditioner() = default;
-    #ifndef SWIG
-    Eigen::ComputationInfo info() const { return _status;  }
-    #endif
-       
-private:
-      Eigen::ComputationInfo _status;
+#ifndef SWIG
+    Eigen::ComputationInfo info() const { return _status; }
+#endif
 
-};
+  private:
+    Eigen::ComputationInfo _status;
+  };
 
-}
+} // namespace gstlrn

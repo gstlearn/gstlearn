@@ -21,7 +21,7 @@
 
 // Note : Keep order in this file!
 
-// Swig for Python doesn't like our assignment operators 
+// Swig for Python doesn't like our assignment operators
 %ignore *::operator=;
 
 // https://stackoverflow.com/a/26035360/3952924
@@ -106,7 +106,7 @@
   }
 
   template <typename Type> int convertToCpp(PyObject* obj, Type& value);
-  
+
   template <> int convertToCpp(PyObject* obj, Id& value)
   {
     // Test argument
@@ -136,13 +136,13 @@
       if (std::isnan(value) || std::isinf(value))
         value = getNA<double>();
     }
-    return myres; 
+    return myres;
   }
   template <> int convertToCpp(PyObject* obj, String& value)
   {
     // Test argument
     if (obj == NULL) return SWIG_TypeError;
-      
+
     int myres = SWIG_AsVal_std_string(obj, &value);
     //std::cout << "convertToCpp(String): value=" << value << std::endl;
     // No undefined
@@ -152,7 +152,7 @@
   {
     // Test argument
     if (obj == NULL) return SWIG_TypeError;
-    
+
     int myres = SWIG_AsVal_float(obj, &value);
     //std::cout << "convertToCpp(float): value=" << value << std::endl;
     if (SWIG_IsOK(myres))
@@ -160,17 +160,17 @@
       if (std::isnan(value) || std::isinf(value))
         value = getNA<float>();
     }
-    return myres; 
+    return myres;
   }
   template <> int convertToCpp(PyObject* obj, UChar& value)
   {
     // Test argument
     if (obj == NULL) return SWIG_TypeError;
-    
+
     long v = 0;
     int myres = SWIG_AsVal_long(obj, &v);
     //std::cout << "convertToCpp(UChar): value=" << v << std::endl;
-    if (myres == SWIG_OverflowError || 
+    if (myres == SWIG_OverflowError ||
         v < std::numeric_limits<UChar>::min() ||
         v > std::numeric_limits<UChar>::max()) // Out of bound value is error (no NA for UChar)
     {
@@ -190,7 +190,7 @@
   {
     // Test argument
     if (obj == NULL) return SWIG_TypeError;
-    
+
     long v = 0;
     int myres = SWIG_AsVal_long(obj, &v);
     //std::cout << "convertToCpp(bool): value=" << v << std::endl;
@@ -200,7 +200,7 @@
       value = true;
     return myres;
   }
-  
+
   template <typename Vector>
   int vectorToCpp(PyObject* obj, Vector& vec)
   {
@@ -228,7 +228,7 @@
     }
     else if (size > 0)
     {
-      // Real sequence 
+      // Real sequence
       vec.reserve(size);
       for (int i = 0; i < size && SWIG_IsOK(myres); i++)
       {
@@ -353,7 +353,7 @@
       mat.resetFromVVD(vvec);
     else
       myres = SWIG_TypeError;
-    
+
     // else size is zero (empty vector)
     return myres;
   }
@@ -402,7 +402,7 @@
   {
     if (obj == NULL) return SWIG_TypeError;
     if (obj == Py_None) return SWIG_NullReferenceError;
-  
+
     // Extract dimension of matrices
 
     if (! PyObject_HasAttrString(obj, "shape")) {
@@ -416,10 +416,10 @@
     }
     auto nrows = PyLong_AsLong(PyTuple_GetItem(shape, 0));
     auto ncols = PyLong_AsLong(PyTuple_GetItem(shape, 1));
-    
+
     // Reading the storage format
     PyObject* format_obj = PyObject_GetAttrString(obj, "format");
-    if (!format_obj) return SWIG_TypeError; 
+    if (!format_obj) return SWIG_TypeError;
     const char* format_str = PyUnicode_AsUTF8AndSize(format_obj, nullptr);
     if (!format_str) return SWIG_TypeError;
 
@@ -440,14 +440,14 @@
     // And build rows and cols indices vectors for creating triplets
     std::vector<int> rows(nnz);
     std::vector<int> cols(nnz);
-    if (strcmp(format_str, "coo") != 0) 
+    if (strcmp(format_str, "coo") != 0)
     {
       // The format is CSC or CSR
       std::vector<int> vindc;
       std::vector<int> viptr;
       PyObject* indices_obj = PyObject_GetAttrString(obj, "indices");
       PyObject* indptr_obj  = PyObject_GetAttrString(obj, "indptr");
-      
+
       if (strcmp(format_str, "csc") == 0)
       {
         // The format is CSC
@@ -496,7 +496,7 @@
 
 namespace gstlrn
 {
- 
+
 // Add numerical vector typecheck typemaps for dispatching functions
 %typemap(typecheck, noblock=1, fragment="ToCpp", precedence=SWIG_TYPECHECK_DOUBLE_ARRAY) const VectorInt&,    VectorInt,
                                                                                          const VectorDouble&, VectorDouble,
@@ -521,7 +521,7 @@ namespace gstlrn
   template <> NPY_TYPES numpyType<float>()   { return NPY_FLOAT; }
   template <> NPY_TYPES numpyType<UChar>()   { return NPY_UBYTE; }
   template <> NPY_TYPES numpyType<bool>()    { return NPY_BOOL; }
-  
+
   template<typename Type> struct TypeHelper;
   template <> struct TypeHelper<Id>     { static bool hasFixedSize() { return true; } };
   template <> struct TypeHelper<double> { static bool hasFixedSize() { return true; } };
@@ -530,7 +530,7 @@ namespace gstlrn
   template <> struct TypeHelper<UChar>  { static bool hasFixedSize() { return true; } };
   template <> struct TypeHelper<bool>   { static bool hasFixedSize() { return true; } };
   template <typename Type> bool hasFixedSize() { return TypeHelper<Type>::hasFixedSize(); }
-  
+
   template <typename InputType> struct OutTraits;
   template <> struct OutTraits<Id>      { using OutputType = NPY_INT_OUT_TYPE; };
   template <> struct OutTraits<double>  { using OutputType = double; };
@@ -538,7 +538,7 @@ namespace gstlrn
   template <> struct OutTraits<float>   { using OutputType = float; };
   template <> struct OutTraits<UChar>   { using OutputType = UChar; };
   template <> struct OutTraits<bool>    { using OutputType = bool; };
-  
+
   template <typename Type> typename OutTraits<Type>::OutputType convertFromCpp(const Type& value);
   template <> NPY_INT_OUT_TYPE convertFromCpp(const Id& value)
   {
@@ -577,7 +577,7 @@ namespace gstlrn
     //std::cout << "convertFromCpp(bool): value=" << value << std::endl;
     return value; // No special conversion provided
   }
-  
+
   template <typename Type> PyObject* objectFromCpp(const Type& value);
   template <> PyObject* objectFromCpp(const Id& value)
   {
@@ -603,7 +603,7 @@ namespace gstlrn
   {
     return PyBool_FromLong(static_cast<long>(convertFromCpp(value)));
   }
-  
+
   template <typename Vector>
   int vectorFromCpp(PyObject** obj, const Vector& vec)
   {
@@ -660,7 +660,7 @@ namespace gstlrn
       VectorType v; // Create an empty 1D NumPy array
       return vectorFromCpp(obj, v);
     }
-    
+
     // Check the size of sub-vectors
     bool same_size = true;
     SizeType size = vec.at(0).size();
@@ -669,7 +669,7 @@ namespace gstlrn
       if (same_size)
         same_size = (v.size() == size);
     }
-    
+
     // Conversion
     if (same_size && hasFixedSize<InputType>()) // Convert to a 2D NumPy array
     {
@@ -704,7 +704,7 @@ namespace gstlrn
         }
       }
     }
-    
+
     return myres;
   }
 
@@ -736,9 +736,9 @@ namespace gstlrn
 
   int matrixSparseFromCpp(PyObject** obj, const gstlrn::MatrixSparse& mat)
   {
-    if (mat.empty()) 
+    if (mat.empty())
       return SWIG_OK;
-    
+
     // Conversion to a 2D numpy array
     auto nrows = mat.getNRows();
     auto ncols = mat.getNCols();
@@ -750,7 +750,7 @@ namespace gstlrn
     npy_intp dim[1] = {nnz};
     PyObject *py_data_array = PyArray_SimpleNew(1, dim, NPY_DOUBLE);
     PyObject *py_rows_array = PyArray_SimpleNew(1, dim, NPY_INT);
-    PyObject *py_cols_array = PyArray_SimpleNew(1, dim, NPY_INT); 
+    PyObject *py_cols_array = PyArray_SimpleNew(1, dim, NPY_INT);
     if (!py_data_array || !py_rows_array || !py_cols_array) return SWIG_TypeError;
 
     // Copy data from C++ vectors to NumPy arrays
@@ -758,7 +758,7 @@ namespace gstlrn
     int*    rows_ptr = (int    *) PyArray_DATA((PyArrayObject*)py_rows_array);
     int*    cols_ptr = (int    *) PyArray_DATA((PyArrayObject*)py_cols_array);
 
-    for (npy_intp i = 0; i < nnz; ++i) 
+    for (npy_intp i = 0; i < nnz; ++i)
     {
       rows_ptr[i] = static_cast<int>(NFT.getRow(i));
       cols_ptr[i] = static_cast<int>(NFT.getCol(i));
@@ -772,17 +772,17 @@ namespace gstlrn
 
     // Create the Sparse matrix
     PyObject* result = PyObject_CallObject(coo_matrix, args);
-    if (!result) 
+    if (!result)
     {
       PyErr_Print();
       messerr("Failed to create coo_matrix from data");
       return SWIG_TypeError;
-    } 
-    
+    }
+
     Py_DECREF(py_data_array);
     Py_DECREF(py_rows_array);
     Py_DECREF(py_cols_array);
-    
+
     *obj = result;
     return SWIG_OK;
   }
@@ -1006,7 +1006,7 @@ def setitem(self, idx, item):
   if idx < 0 or idx >= self.length():
     raise IndexError("Index out or range")
   self.setAt(idx,item)
-  
+
 def getitem(self, idx):
   if idx < 0 or idx >= self.length():
     raise IndexError("Index out or range")
@@ -1036,12 +1036,12 @@ setattr(gl.VectorVectorFloat,  "__setitem__", setitem)
 # Thanks to Nicolas Desassis & Fabien Ors:
 
 def has_one_element(x):
-    """Check if the argument is a scalar or a single string or a 
+    """Check if the argument is a scalar or a single string or a
     tuple/list/array having only one element"""
     if isinstance(x, Iterable) and not isinstance(x, (str, bytes)):
         return len(x) == 1
     return True  # scalaire
-    
+
 def is_list_type(mylist, types):
     """Check if an input is an iterable (tuple, list or numpy array) containing
        elements of only a given type"""
@@ -1056,8 +1056,8 @@ def is_list_type(mylist, types):
     return all_type
 
 def check_nrows(db, nrows):
-    """Check if a number of rows matches with the number of samples of a Db, 
-    and returns the flag for use_sel (whether it matches the number of active 
+    """Check if a number of rows matches with the number of samples of a Db,
+    and returns the flag for use_sel (whether it matches the number of active
     samples or the total number of samples)"""
     if nrows == db.getNSampleActive() :
         use_sel = True
@@ -1073,14 +1073,14 @@ def check_nrows(db, nrows):
     return use_sel
 
 def find_column_names(self, columns):
-    """Extract names of columns from Db, given different possible types of arguments: 
+    """Extract names of columns from Db, given different possible types of arguments:
         names, indices, or locator"""
     if isinstance(columns, str) or is_list_type(columns, (str, np.str_)): #get variable(s) by name
         names = self.identifyNames(np.atleast_1d(columns))
-    
+
     elif isinstance(columns, (int, np.int_)):
         names = self.getNameByColIdx(columns)
-    
+
     elif isinstance(columns, slice):
         Nmax = self.getNColumn()
         names = []
@@ -1095,14 +1095,14 @@ def find_column_names(self, columns):
                 print("Warning: the index {} is out of bounds with {}, this index is ignored".format(i,Nfields))
             else:
                 names.append(self.getNameByColIdx(int(i)))
-        
+
     else:
         raise ValueError("Argument for columns of wrong type: {}".format(type(columns)))
-        
+
     return np.atleast_1d(names)
 
 def get_n_selected_rows(self, arg):
-    """Check if the argument given contains a rows selection [rows,columns], 
+    """Check if the argument given contains a rows selection [rows,columns],
     or only column selection [columns] then return the number of selected rows.
     If the argument is a tuple of length 2 and its first element is a valid argument
     for indexing rows, then the function returns the number of selected rows, -1 otherwise."""
@@ -1137,7 +1137,7 @@ def getdbitem(self,arg):
     columns: str or list of str. Names of the variables to extract.
              int, list of int, or slice. Indices of the variables to extract.
              gstlearn.ELoc. Locator of the variables to extract.
-             
+
     Returns
     -------
     numpy.ndarray
@@ -1156,13 +1156,13 @@ def getdbitem(self,arg):
     else:
         rows = slice(None,None,None) # extract all rows
         columns = arg
-    
+
     # extract columns
     col_names = find_column_names(self, columns)
     nbvar = len(col_names)
     temp = np.array(self.getColumns(col_names, self.useSel))
     temp = temp.reshape([nbvar,nrows]).T
-            
+
     # extract rows
     temp = temp[rows,]
     if len(temp.shape) == 2:
@@ -1170,25 +1170,25 @@ def getdbitem(self,arg):
         return temp[:,0]
 
     return temp
-        
-# This function will add a set of vectors (as a numpy array) to a db. 
-# If some of the names exist, the corresponding variables will be replaced 
+
+# This function will add a set of vectors (as a numpy array) to a db.
+# If some of the names exist, the corresponding variables will be replaced
 # and not added.
 
 def setdbitem(self,name,tab):
-    
+
     # analyze input arguments
-    n_sel_rows = get_n_selected_rows(self, name)   
+    n_sel_rows = get_n_selected_rows(self, name)
     if n_sel_rows >= 0:
         rows = name[0]
         columns = name[1]
     else:
         columns = name
-    
+
     # find existing column names
     arr_columns = np.atleast_1d(columns)
     col_names = find_column_names(self, columns) #existing names
-    
+
     # analyze input table
     if isinstance(tab, (float, np.floating, int, np.integer, bool, np.bool_)):
         nrows = get_n_rows(self)
@@ -1206,23 +1206,23 @@ def setdbitem(self,name,tab):
 
     if (n_sel_rows == 1):
         tab = np.squeeze(tab, axis=0)
-            
+
     # create list of column names to modify and/or create
     if len(col_names) == nvars: # modify existing variables only
         new_names = col_names
-     
+
     elif len(arr_columns) == nvars and is_list_type(arr_columns, (str,np.str_)):
         new_names = arr_columns
-        
+
     elif isinstance(columns, (str,np.str_)) and nvars > 1 and len(col_names)==0: # create new variables from a unique name
         new_names = gl.generateMultipleNames(columns, nvars)
-        
+
     else:
         raise ValueError("Wrong type or length of input ({0}): the input should correspond"
                          " either to a number of existing variables ({1}) equal to the"
                          " number of columns of the table (nvar={2}), or should be a name or "
                          "list of names of length nvar={2} in order to create new variables.".format(columns, len(col_names), nvars))
-            
+
     # loop on the column names to modify/create each column
     for i,name in enumerate(new_names):
         # check if existing name
@@ -1230,7 +1230,7 @@ def setdbitem(self,name,tab):
         if len(existing_names) > 1:
             raise ValueError("There is more than one variable name corresponding to '{}' "
                              "in the Db: {}".format(name, existing_names))
-            
+
         if n_sel_rows > 0:
             use_sel = self.useSel
             if len(existing_names) == 0: # create new variable
@@ -1239,26 +1239,26 @@ def setdbitem(self,name,tab):
                 tab_i.fill(np.nan) # NaNs outside of target rows
             elif len(existing_names) == 1: # modify existing variable
                 tab_i = self[name]
-                
+
             tab_i = np.squeeze(tab_i)
             if (n_sel_rows == 1):
                 tab_i[rows,] = tab[i]
             else:
                 tab_i[rows,] = tab[:,i]
-            
+
         else:
             use_sel = check_nrows(self, nrows)
             tab_i = np.empty(nrows)
             tab_i[:] = tab[:,i]
-        
+
         tab_i[np.isnan(tab_i)] = np.nan
         vect_double = np.double(tab_i)
         self.setColumn(vect_double.tolist(), name, gl.ELoc.UNDEFINED, 0, use_sel)
-        
+
     return
 
 setattr(gl.Db,"useSel",False)
-    
+
 setattr(gl.Db,"__getitem__",getdbitem)
 setattr(gl.Db,"__setitem__",setdbitem)
 

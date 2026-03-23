@@ -59,7 +59,7 @@ B_{\text{small}} = \tilde{U} S \tilde{U}^T,
 U := Q \tilde{U}.
 \]
 
-\paragraph{Power Iteration.}  
+\paragraph{Power Iteration.}
 To improve the quality of the low-rank approximation—especially when the spectrum of $M$ decays slowly—we may apply a few steps of the power iteration:
 \[
 Y \leftarrow (M M^T)^q M \Omega,
@@ -68,14 +68,14 @@ which amplifies dominant modes and improves the approximation of the leading eig
 
 \section*{Preconditioner Using the Woodbury Identity}
 
-Let us approximate $H \approx A + U S U^T$.  
+Let us approximate $H \approx A + U S U^T$.
 Using the Woodbury identity:
 \[
 (A + U S U^T)^{-1}
 = A^{-1} - A^{-1} U (S^{-1} + U^T A^{-1} U)^{-1} U^T A^{-1}.
 \]
 
-This exact expression requires two applications of $A^{-1}$.  
+This exact expression requires two applications of $A^{-1}$.
 To reduce cost, we factor the formula by introducing:
 \[
 W := A^{-1} U,
@@ -120,4 +120,3 @@ SIAM Review 53(2), 2011.
 \end{thebibliography}
 
 \end{document}
-

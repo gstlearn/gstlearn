@@ -21,639 +21,638 @@
 namespace gstlrn
 {
 
-CalcSimpleInterpolation::CalcSimpleInterpolation()
-  : ACalcInterpolator()
-  , _flagEst(true)
-  , _flagStd(false)
-  , _iattEst(-1)
-  , _iattStd(-1)
-  , _flagMovAve(false)
-  , _flagMovMed(false)
-  , _flagInvDist(false)
-  , _flagLstSqr(false)
-  , _flagNearest(false)
-  , _exponent(2.)
-  , _flagExpand(true)
-  , _dmax(TEST)
-  , _order(0)
-{
-}
-
-CalcSimpleInterpolation::~CalcSimpleInterpolation()
-{
-}
-
-bool CalcSimpleInterpolation::_check()
-{
-  if (!ACalcInterpolator::_check()) return false;
-
-  if (!hasDbin()) return false;
-  if (!hasDbout()) return false;
-
-  if (_getNVar() != 1)
+  CalcSimpleInterpolation::CalcSimpleInterpolation()
+    : ACalcInterpolator()
+    , _flagEst(true)
+    , _flagStd(false)
+    , _iattEst(-1)
+    , _iattStd(-1)
+    , _flagMovAve(false)
+    , _flagMovMed(false)
+    , _flagInvDist(false)
+    , _flagLstSqr(false)
+    , _flagNearest(false)
+    , _exponent(2.)
+    , _flagExpand(true)
+    , _dmax(TEST)
+    , _order(0)
   {
-    messerr("These methods are restricted to the Monovariate case");
-    return false;
   }
 
-  // Some simple interpolators require a Neighborhood
-  if (_flagMovAve || _flagMovMed || _flagLstSqr)
-  {
-    if (!hasNeigh()) return false;
-  }
+  CalcSimpleInterpolation::~CalcSimpleInterpolation() {}
 
-  // Model is required if the variance is demanded
-  if (_flagStd)
+  bool CalcSimpleInterpolation::_check()
   {
-    if (!hasModelGeneric())
+    if (!ACalcInterpolator::_check()) return false;
+
+    if (!hasDbin()) return false;
+    if (!hasDbout()) return false;
+
+    if (_getNVar() != 1)
     {
-      messerr("A Model is required for calculation of option 'St. Dev.'");
+      messerr("These methods are restricted to the Monovariate case");
       return false;
     }
-  }
-  return true;
-}
 
-bool CalcSimpleInterpolation::_preprocess()
-{
-  if (!ACalcInterpolator::_preprocess()) return false;
-
-  if (_flagEst)
-  {
-    _iattEst = _addVariableDb(2, 1, ELoc::UNDEFINED, 0, 1, 0.);
-    if (_iattEst < 0) return false;
-  }
-  if (_flagStd)
-  {
-    _iattStd = _addVariableDb(2, 1, ELoc::UNDEFINED, 0, 1, 0.);
-    if (_iattStd < 0) return false;
-  }
-  return true;
-}
-
-bool CalcSimpleInterpolation::_postprocess()
-{
-  /* Free the temporary variables */
-  _cleanVariableDb(2);
-
-  _renameVariable(2, VectorString(), ELoc::Z, 1, _iattEst, "estim", 1);
-  _renameVariable(2, VectorString(), ELoc::Z, 1, _iattStd, "stdev", 1);
-  return true;
-}
-
-void CalcSimpleInterpolation::_rollback()
-{
-  _cleanVariableDb(1);
-}
-
-/****************************************************************************/
-/*!
- **  Standard Kriging
- **
- ** \return  Error return code
- **
- *****************************************************************************/
-bool CalcSimpleInterpolation::_run()
-{
-  if (_flagMovAve)
-  {
-    if (_movave(getDbin(), getDbout(), getNeigh())) return false;
-  }
-
-  if (_flagMovMed)
-  {
-    if (_movmed(getDbin(), getDbout(), getNeigh())) return false;
-  }
-
-  if (_flagLstSqr)
-  {
-    if (_lstsqr(getDbin(), getDbout(), getNeigh())) return false;
-  }
-
-  if (_flagInvDist)
-  {
-    if (_invdist(getDbin(), getDbout())) return false;
-  }
-
-  if (_flagNearest)
-  {
-    if (_nearest(getDbin(), getDbout(), getNeigh())) return false;
-  }
-
-  return true;
-}
-
-
-
-/****************************************************************************/
-/*!
- **  Nearest Neighbour estimation
- **
- ** \return  Error return code
- **
- ** \param[in]  dbin        Input Db structure
- ** \param[in]  dbout       Output Db structure
- ** \param[in]  neigh       ANeigh structure
- **
- *****************************************************************************/
-Id CalcSimpleInterpolation::_nearest(Db* dbin,
-                                     Db* dbout,
-                                     ANeigh* neigh)
-{
-  VectorInt nbgh;
-
-  /* Loop on the targets to be processed */
-
-  for (Id iech = 0; iech < dbout->getNSample(); iech++)
-  {
-    mes_process("Estimation by Nearest Neighbor", dbout->getNSample(), iech);
-    if (!dbout->isActive(iech)) continue;
-    if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
+    // Some simple interpolators require a Neighborhood
+    if (_flagMovAve || _flagMovMed || _flagLstSqr)
     {
-      mestitle(1, "Target location");
-      db_sample_print(dbout, iech, 1, 0, 0, 0);
-    }
-    VectorDouble weights;
-
-    // Find the neighborhood
-    neigh->select(iech, nbgh);
-
-    // Perform the estimation
-    if (nbgh.size() > 0)
-    {
-      nbgh.resize(1);
-      weights.push_back(1.);
+      if (!hasNeigh()) return false;
     }
 
-    // Save the results
-    _saveResults(dbin, dbout, nbgh, iech, weights);
-  }
-  return 0;
-}
-
-/****************************************************************************/
-/*!
- **  Moving Average estimation
- **
- ** \return  Error return code
- **
- ** \param[in]  dbin        Input Db structure
- ** \param[in]  dbout       Output Db structure
- ** \param[in]  neigh       ANeigh structure
- **
- *****************************************************************************/
-Id CalcSimpleInterpolation::_movave(Db* dbin, Db* dbout, ANeigh* neigh)
-{
-  VectorInt nbgh;
-
-  /* Loop on the targets to be processed */
-
-  for (Id iech = 0; iech < dbout->getNSample(); iech++)
-  {
-    mes_process("Estimation by Moving Average", dbout->getNSample(), iech);
-    if (!dbout->isActive(iech)) continue;
-    OptDbg::setCurrentIndex(iech + 1);
-    if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
+    // Model is required if the variance is demanded
+    if (_flagStd)
     {
-      mestitle(1, "Target location");
-      db_sample_print(dbout, iech, 1, 0, 0, 0);
-    }
-    VectorDouble weights;
-
-    // Find the neighborhood
-    neigh->select(iech, nbgh);
-
-    // Perform the estimation
-    for (Id i = 0; i < static_cast<Id>(nbgh.size()); i++)
-    {
-      double value = dbin->getZVariable(nbgh[i], 0);
-      if (FFFF(value))
+      if (!hasModelGeneric())
       {
-        nbgh.clear();
-        weights.clear();
-        break;
+        messerr("A Model is required for calculation of option 'St. Dev.'");
+        return false;
       }
-      weights.push_back(1.);
     }
-
-    // Save the results
-    _saveResults(dbin, dbout, nbgh, iech, weights);
+    return true;
   }
-  return 0;
-}
 
-/****************************************************************************/
-/*!
- **  Moving Median estimation
- **
- ** \return  Error return code
- **
- ** \param[in]  dbin        Input Db structure
- ** \param[in]  dbout       Output Db structure
- ** \param[in]  neigh       ANeigh structure
- **
- *****************************************************************************/
-Id CalcSimpleInterpolation::_movmed(Db* dbin, Db* dbout, ANeigh* neigh)
-{
-  VectorInt nbgh;
-
-  /* Loop on the targets to be processed */
-
-  for (Id iech = 0; iech < dbout->getNSample(); iech++)
+  bool CalcSimpleInterpolation::_preprocess()
   {
-    mes_process("Estimation by Moving Median", dbout->getNSample(), iech);
-    if (!dbout->isActive(iech)) continue;
-    OptDbg::setCurrentIndex(iech + 1);
-    if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
+    if (!ACalcInterpolator::_preprocess()) return false;
+
+    if (_flagEst)
     {
-      mestitle(1, "Target location");
-      db_sample_print(dbout, iech, 1, 0, 0, 0);
+      _iattEst = _addVariableDb(2, 1, ELoc::UNDEFINED, 0, 1, 0.);
+      if (_iattEst < 0) return false;
     }
-    VectorDouble weights;
-    VectorInt nbghmed;
-
-    // Find the neighborhood
-    neigh->select(iech, nbgh);
-
-    // Perform the estimation
-    if (nbgh.size() > 0)
+    if (_flagStd)
     {
-      Id rank = static_cast<Id>(nbgh.size()) / 2;
-      nbghmed.push_back(nbgh[rank]);
-      weights.push_back(1.);
+      _iattStd = _addVariableDb(2, 1, ELoc::UNDEFINED, 0, 1, 0.);
+      if (_iattStd < 0) return false;
     }
-
-    // Save the results
-    _saveResults(dbin, dbout, nbghmed, iech, weights);
+    return true;
   }
-  return 0;
-}
 
-/****************************************************************************/
-/*!
- **  Polynomial estimation using Least Squares
- **
- ** \return  Error return code
- **
- ** \param[in]  dbin        Input Db structure
- ** \param[in]  dbout       Output Db structure
- ** \param[in]  neigh       ANeigh structure
- **
- *****************************************************************************/
-Id CalcSimpleInterpolation::_lstsqr(Db* dbin, Db* dbout, ANeigh* neigh) const
-{
-  Id ndim = dbin->getNDim();
-  VectorInt nbgh;
-  CovContext ctxt(1, ndim);
-  const DriftList* drft = DriftFactory::createDriftListFromIRF(_order, 0, ctxt);
-  Id ndrift             = drft->getNDrift();
-  VectorDouble X(ndrift);
-  VectorDouble B(ndrift);
-  MatrixSymmetric A(ndrift);
-
-  /* Loop on the targets to be processed */
-
-  for (Id iech = 0; iech < dbout->getNSample(); iech++)
+  bool CalcSimpleInterpolation::_postprocess()
   {
-    mes_process("Estimation by Inverse distance", dbout->getNSample(), iech);
-    OptDbg::setCurrentIndex(iech + 1);
-    if (!dbout->isActive(iech)) continue;
-    if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
+    /* Free the temporary variables */
+    _cleanVariableDb(2);
+
+    _renameVariable(2, VectorString(), ELoc::Z, 1, _iattEst, "estim", 1);
+    _renameVariable(2, VectorString(), ELoc::Z, 1, _iattStd, "stdev", 1);
+    return true;
+  }
+
+  void CalcSimpleInterpolation::_rollback()
+  {
+    _cleanVariableDb(1);
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Standard Kriging
+   **
+   ** \return  Error return code
+   **
+   *****************************************************************************/
+  bool CalcSimpleInterpolation::_run()
+  {
+    if (_flagMovAve)
     {
-      mestitle(1, "Target location");
-      db_sample_print(dbout, iech, 1, 0, 0, 0);
+      if (_movave(getDbin(), getDbout(), getNeigh())) return false;
     }
 
-    // Find the neighborhood
-    neigh->select(iech, nbgh);
-    Id nSize = static_cast<Id>(nbgh.size());
-    if (nSize < ndrift)
+    if (_flagMovMed)
     {
-      dbout->setArray(iech, _iattEst, TEST);
-      continue;
+      if (_movmed(getDbin(), getDbout(), getNeigh())) return false;
     }
 
-    // Evaluate the least square system
-    A.fill(0.);
-    for (Id i = 0; i < ndrift; i++) B[i] = 0.;
-    for (Id jech = 0; jech < nSize; jech++)
+    if (_flagLstSqr)
     {
-      Id jech1    = nbgh[jech];
-      double zval = dbin->getZVariable(jech1, 0);
-      if (FFFF(zval)) continue;
-      VectorDouble Vdata = drft->evalDriftBySample(dbin, jech1);
+      if (_lstsqr(getDbin(), getDbout(), getNeigh())) return false;
+    }
 
-      // Double loop on the drift terms
-      for (Id id1 = 0; id1 < ndrift; id1++)
+    if (_flagInvDist)
+    {
+      if (_invdist(getDbin(), getDbout())) return false;
+    }
+
+    if (_flagNearest)
+    {
+      if (_nearest(getDbin(), getDbout(), getNeigh())) return false;
+    }
+
+    return true;
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Nearest Neighbour estimation
+   **
+   ** \return  Error return code
+   **
+   ** \param[in]  dbin        Input Db structure
+   ** \param[in]  dbout       Output Db structure
+   ** \param[in]  neigh       ANeigh structure
+   **
+   *****************************************************************************/
+  Id CalcSimpleInterpolation::_nearest(Db* dbin, Db* dbout, ANeigh* neigh)
+  {
+    VectorInt nbgh;
+
+    /* Loop on the targets to be processed */
+
+    for (Id iech = 0; iech < dbout->getNSample(); iech++)
+    {
+      mes_process("Estimation by Nearest Neighbor", dbout->getNSample(), iech);
+      if (!dbout->isActive(iech)) continue;
+      if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH)
+          || OptDbg::query(EDbg::RESULTS))
       {
-        B[id1] += zval * Vdata[id1];
-        for (Id id2 = 0; id2 <= id1; id2++)
+        mestitle(1, "Target location");
+        db_sample_print(dbout, iech, 1, 0, 0, 0);
+      }
+      VectorDouble weights;
+
+      // Find the neighborhood
+      neigh->select(iech, nbgh);
+
+      // Perform the estimation
+      if (nbgh.size() > 0)
+      {
+        nbgh.resize(1);
+        weights.push_back(1.);
+      }
+
+      // Save the results
+      _saveResults(dbin, dbout, nbgh, iech, weights);
+    }
+    return 0;
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Moving Average estimation
+   **
+   ** \return  Error return code
+   **
+   ** \param[in]  dbin        Input Db structure
+   ** \param[in]  dbout       Output Db structure
+   ** \param[in]  neigh       ANeigh structure
+   **
+   *****************************************************************************/
+  Id CalcSimpleInterpolation::_movave(Db* dbin, Db* dbout, ANeigh* neigh)
+  {
+    VectorInt nbgh;
+
+    /* Loop on the targets to be processed */
+
+    for (Id iech = 0; iech < dbout->getNSample(); iech++)
+    {
+      mes_process("Estimation by Moving Average", dbout->getNSample(), iech);
+      if (!dbout->isActive(iech)) continue;
+      OptDbg::setCurrentIndex(iech + 1);
+      if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH)
+          || OptDbg::query(EDbg::RESULTS))
+      {
+        mestitle(1, "Target location");
+        db_sample_print(dbout, iech, 1, 0, 0, 0);
+      }
+      VectorDouble weights;
+
+      // Find the neighborhood
+      neigh->select(iech, nbgh);
+
+      // Perform the estimation
+      for (Id i = 0; i < static_cast<Id>(nbgh.size()); i++)
+      {
+        double value = dbin->getZVariable(nbgh[i], 0);
+        if (FFFF(value))
         {
-          A.addValue(id1, id2, Vdata[id1] * Vdata[id2]);
+          nbgh.clear();
+          weights.clear();
+          break;
+        }
+        weights.push_back(1.);
+      }
+
+      // Save the results
+      _saveResults(dbin, dbout, nbgh, iech, weights);
+    }
+    return 0;
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Moving Median estimation
+   **
+   ** \return  Error return code
+   **
+   ** \param[in]  dbin        Input Db structure
+   ** \param[in]  dbout       Output Db structure
+   ** \param[in]  neigh       ANeigh structure
+   **
+   *****************************************************************************/
+  Id CalcSimpleInterpolation::_movmed(Db* dbin, Db* dbout, ANeigh* neigh)
+  {
+    VectorInt nbgh;
+
+    /* Loop on the targets to be processed */
+
+    for (Id iech = 0; iech < dbout->getNSample(); iech++)
+    {
+      mes_process("Estimation by Moving Median", dbout->getNSample(), iech);
+      if (!dbout->isActive(iech)) continue;
+      OptDbg::setCurrentIndex(iech + 1);
+      if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH)
+          || OptDbg::query(EDbg::RESULTS))
+      {
+        mestitle(1, "Target location");
+        db_sample_print(dbout, iech, 1, 0, 0, 0);
+      }
+      VectorDouble weights;
+      VectorInt nbghmed;
+
+      // Find the neighborhood
+      neigh->select(iech, nbgh);
+
+      // Perform the estimation
+      if (nbgh.size() > 0)
+      {
+        Id rank = static_cast<Id>(nbgh.size()) / 2;
+        nbghmed.push_back(nbgh[rank]);
+        weights.push_back(1.);
+      }
+
+      // Save the results
+      _saveResults(dbin, dbout, nbghmed, iech, weights);
+    }
+    return 0;
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Polynomial estimation using Least Squares
+   **
+   ** \return  Error return code
+   **
+   ** \param[in]  dbin        Input Db structure
+   ** \param[in]  dbout       Output Db structure
+   ** \param[in]  neigh       ANeigh structure
+   **
+   *****************************************************************************/
+  Id CalcSimpleInterpolation::_lstsqr(Db* dbin, Db* dbout, ANeigh* neigh) const
+  {
+    Id ndim = dbin->getNDim();
+    VectorInt nbgh;
+    CovContext ctxt(1, ndim);
+    const DriftList* drft =
+      DriftFactory::createDriftListFromIRF(_order, 0, ctxt);
+    Id ndrift = drft->getNDrift();
+    VectorDouble X(ndrift);
+    VectorDouble B(ndrift);
+    MatrixSymmetric A(ndrift);
+
+    /* Loop on the targets to be processed */
+
+    for (Id iech = 0; iech < dbout->getNSample(); iech++)
+    {
+      mes_process("Estimation by Inverse distance", dbout->getNSample(), iech);
+      OptDbg::setCurrentIndex(iech + 1);
+      if (!dbout->isActive(iech)) continue;
+      if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH)
+          || OptDbg::query(EDbg::RESULTS))
+      {
+        mestitle(1, "Target location");
+        db_sample_print(dbout, iech, 1, 0, 0, 0);
+      }
+
+      // Find the neighborhood
+      neigh->select(iech, nbgh);
+      Id nSize = static_cast<Id>(nbgh.size());
+      if (nSize < ndrift)
+      {
+        dbout->setArray(iech, _iattEst, TEST);
+        continue;
+      }
+
+      // Evaluate the least square system
+      A.fill(0.);
+      for (Id i = 0; i < ndrift; i++) B[i] = 0.;
+      for (Id jech = 0; jech < nSize; jech++)
+      {
+        Id jech1 = nbgh[jech];
+        double zval = dbin->getZVariable(jech1, 0);
+        if (FFFF(zval)) continue;
+        VectorDouble Vdata = drft->evalDriftBySample(dbin, jech1);
+
+        // Double loop on the drift terms
+        for (Id id1 = 0; id1 < ndrift; id1++)
+        {
+          B[id1] += zval * Vdata[id1];
+          for (Id id2 = 0; id2 <= id1; id2++)
+          {
+            A.addValue(id1, id2, Vdata[id1] * Vdata[id2]);
+          }
         }
       }
+
+      // Solve the system
+      if (A.solve(B, X) > 0) continue;
+
+      // Evaluate the vector of drift terms at target
+      VectorDouble Vtarget = drft->evalDriftBySample(dbout, iech);
+
+      // Perform the estimation
+      double result = X.innerProduct(Vtarget);
+
+      // Assign the result
+      dbout->setArray(iech, _iattEst, result);
     }
+    return 0;
+  }
 
-    // Solve the system
-    if (A.solve(B, X) > 0) continue;
+  /****************************************************************************/
+  /*!
+   **  Inverse distance estimation
+   **
+   ** \return  Error return code
+   **
+   ** \param[in]  dbin        Input Db structure
+   ** \param[in]  dbout       Output Db structure
+   **
+   *****************************************************************************/
+  Id CalcSimpleInterpolation::_invdist(Db* dbin, Db* dbout)
+  {
+    if (!dbin->isGrid())
+    {
+      _pointInvdist(dbin, dbout);
+    }
+    else
+    {
+      auto* dbgrid = dynamic_cast<DbGrid*>(dbin);
+      _gridInvdist(dbgrid, dbout);
+    }
+    return 0;
+  }
 
-    // Evaluate the vector of drift terms at target
-    VectorDouble Vtarget = drft->evalDriftBySample(dbout, iech);
+  /****************************************************************************/
+  /*!
+   **  Inverse distance estimation when Input DB is a point file
+   **
+   ** \param[in]  dbin        Input Db
+   ** \param[in]  dbout       Output Db
+   **
+   *****************************************************************************/
+  void CalcSimpleInterpolation::_pointInvdist(Db* dbin, Db* dbout)
+  {
+    Id ndim = dbin->getNDim();
+    double dmin = dbout->getExtensionDiagonal() / 1.e5;
+    VectorDouble coor(ndim);
+    VectorDouble cooref(ndim);
 
-    // Perform the estimation
-    double result = X.innerProduct(Vtarget);
+    /* Loop on the targets to be processed */
+
+    for (Id iech = 0; iech < dbout->getNSample(); iech++)
+    {
+      mes_process("Estimation by Inverse distance", dbout->getNSample(), iech);
+      OptDbg::setCurrentIndex(iech + 1);
+      if (!dbout->isActive(iech)) continue;
+      if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH)
+          || OptDbg::query(EDbg::RESULTS))
+      {
+        mestitle(1, "Target location");
+        db_sample_print(dbout, iech, 1, 0, 0, 0);
+      }
+      VectorInt nbgh;
+      VectorDouble weights;
+      dbout->getCoordinatesInPlace(cooref, iech);
+
+      /* Loop on the data points */
+
+      for (Id iech_in = 0; iech_in < dbin->getNSample(); iech_in++)
+      {
+        if (!dbin->isActive(iech_in)) continue;
+        dbin->getCoordinatesInPlace(coor, iech_in);
+        double val_neigh = dbin->getZVariable(iech_in, 0);
+        if (FFFF(val_neigh)) continue;
+
+        /* Check that the data point is a valid neighbor */
+
+        double dist = ut_distance(ndim, coor.data(), cooref.data());
+        if (!FFFF(_dmax) && dist > _dmax) continue;
+        if (dist < dmin)
+        {
+          nbgh.clear();
+          weights.clear();
+          nbgh.push_back(iech_in);
+          weights.push_back(1.);
+          break;
+        }
+        double wgt = 1. / pow(dist, _exponent);
+        nbgh.push_back(iech_in);
+        weights.push_back(wgt);
+      }
+
+      // Save the results
+      _saveResults(dbin, dbout, nbgh, iech, weights);
+    }
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Inverse distance estimation when Input DB is a grid
+   **
+   ** \param[in]  dbin        Input Db
+   ** \param[in]  dbout       Output Db
+   **
+   *****************************************************************************/
+  void CalcSimpleInterpolation::_gridInvdist(DbGrid* dbin, Db* dbout)
+  {
+    Id ndim = dbin->getNDim();
+    Id maxneigh = static_cast<Id>(pow(2., static_cast<double>(ndim)));
+    double dmin = dbout->getExtensionDiagonal() / 1.e5;
+
+    VectorDouble coor(ndim);
+    VectorDouble cooref(ndim);
+    VectorDouble percent(ndim);
+    VectorInt indg(ndim);
+    VectorInt indref(ndim);
+
+    /* Loop on the targets to be processed */
+
+    for (Id iech = 0; iech < dbout->getNSample(); iech++)
+    {
+      mes_process("Estimation by Inverse distance", dbout->getNSample(), iech);
+      OptDbg::setCurrentIndex(iech + 1);
+      if (!dbout->isActive(iech)) continue;
+      if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH)
+          || OptDbg::query(EDbg::RESULTS))
+      {
+        mestitle(1, "Target location");
+        db_sample_print(dbout, iech, 1, 0, 0, 0);
+      }
+
+      /* Find the grid index corresponding to the target */
+
+      dbout->getCoordinatesInPlace(cooref, iech);
+      if (dbin->coordinateToIndicesInPlace(cooref, indref))
+      {
+        if (_flagEst) dbout->setArray(iech, _iattEst, TEST);
+        if (_flagStd) dbout->setArray(iech, _iattStd, TEST);
+        continue;
+      }
+
+      /* Loop on the neighbors */
+
+      VectorInt nbgh;
+      VectorDouble weights;
+      for (Id rank = 0; rank < maxneigh; rank++)
+      {
+        for (Id idim = 0; idim < ndim; idim++) indg[idim] = indref[idim];
+
+        /* Decompose the neighborhood rank */
+
+        Id idim = 0;
+        Id ind = rank;
+        while (ind > 0)
+        {
+          if (ind % 2 == 1) indg[idim] += 1;
+          ind /= 2;
+          idim++;
+        }
+
+        /* Check that the neighboring point lies within the grid */
+
+        bool incorrect = false;
+        for (idim = 0; idim < ndim && !incorrect; idim++)
+        {
+          if (indg[idim] >= dbin->getNX(idim))
+          {
+            if (_flagExpand)
+              indg[idim]--;
+            else
+              incorrect = true;
+          }
+        }
+
+        /* Process the new neighboring point */
+
+        if (incorrect)
+        {
+          nbgh.clear();
+          weights.clear();
+          break;
+        }
+
+        /* Check the value */
+
+        Id iech_neigh = dbin->indiceToRank(indg);
+        double val_neigh = dbin->getZVariable(iech_neigh, 0);
+        if (FFFF(val_neigh))
+        {
+          nbgh.clear();
+          weights.clear();
+          break;
+        }
+
+        /* Calculate the distance from neighborhood to target */
+
+        dbin->indicesToCoordinateInPlace(indg, coor, percent);
+        double dist = ut_distance(ndim, cooref.data(), coor.data());
+        if (dist < dmin)
+        {
+          nbgh.clear();
+          weights.clear();
+          nbgh.push_back(iech_neigh);
+          weights.push_back(1.);
+          break;
+        }
+        double wgt = 1. / pow(dist, _exponent);
+        nbgh.push_back(iech_neigh);
+        weights.push_back(wgt);
+      }
+
+      // Save the results
+      _saveResults(dbin, dbout, nbgh, iech, weights);
+    }
+  }
+
+  double CalcSimpleInterpolation::_estimCalc(const Db* dbin,
+                                             const VectorInt& nbgh,
+                                             const VectorDouble& weights)
+  {
+
+    double result = 0.;
+    for (Id i = 0, n = static_cast<Id>(nbgh.size()); i < n; i++)
+    {
+      Id iech = nbgh[i];
+      double value = dbin->getZVariable(iech, 0);
+      if (FFFF(value)) return TEST;
+      result += value * weights[i];
+
+      if (OptDbg::query(EDbg::RESULTS))
+        message("Data Value = %f - Weight = %lf\n", value, weights[i]);
+    }
+    if (OptDbg::query(EDbg::RESULTS)) message("Estimate = %f\n", result);
+    return result;
+  }
+
+  /**
+   * Calculate the (non-optimal) variance of estimation error
+   * @param dbin Db containing the data
+   * @param dbout Db containing the target
+   * @param nbgh List of ranks within 'dbin'
+   * @param iechout Rank of the target
+   * @param weights Vector of weights (same dimension as 'nbgh')
+   * @return
+   */
+  double CalcSimpleInterpolation::_stdevCalc(Db* dbin,
+                                             Db* dbout,
+                                             const VectorInt& nbgh,
+                                             Id iechout,
+                                             const VectorDouble& weights) const
+  {
+    Id ndim = dbin->getNDim();
+    VectorDouble coor(ndim);
+    VectorDouble M0x;
+    ModelGeneric* model = getModelGeneric();
+    SpacePoint pout(model->getSpace());
+
+    dbout->getCoordinatesInPlace(coor, iechout);
+    pout.setCoords(coor);
+
+    // Point Covariance at target
+    double c00 = model->evalCov(pout, pout);
+
+    // Vector of Covariances between Data and Target
+    model->evalPointToDb(M0x, pout, dbin, 0, 0, true, nbgh);
+    double c0x = M0x.innerProduct(weights);
+
+    // Covariance between Data and Data
+    MatrixDense Mxx = model->evalCovMat(dbin, dbin, 0, 0, nbgh, nbgh);
+    double cxx = Mxx.prodVecMatVec(weights, weights);
+
+    double result = sqrt(c00 - 2. * c0x + cxx);
+    if (OptDbg::query(EDbg::RESULTS)) message("St Dev = %f\n", result);
+
+    return result;
+  }
+
+  void CalcSimpleInterpolation::_saveResults(Db* dbin,
+                                             Db* dbout,
+                                             const VectorInt& nbgh,
+                                             Id iech,
+                                             VectorDouble& weights) const
+  {
+    double result = TEST;
+    double stdev = TEST;
+    if (nbgh.size() > 0)
+    {
+      weights.normalizeInPlace(1);
+      if (_flagEst) result = _estimCalc(dbin, nbgh, weights);
+      if (_flagStd) stdev = _stdevCalc(dbin, dbout, nbgh, iech, weights);
+    }
 
     // Assign the result
-    dbout->setArray(iech, _iattEst, result);
+    if (_flagEst) dbout->setArray(iech, _iattEst, result);
+    if (_flagStd) dbout->setArray(iech, _iattStd, stdev);
   }
-  return 0;
-}
-
-/****************************************************************************/
-/*!
- **  Inverse distance estimation
- **
- ** \return  Error return code
- **
- ** \param[in]  dbin        Input Db structure
- ** \param[in]  dbout       Output Db structure
- **
- *****************************************************************************/
-Id CalcSimpleInterpolation::_invdist(Db* dbin, Db* dbout)
-{
-  if (!dbin->isGrid())
-  {
-    _pointInvdist(dbin, dbout);
-  }
-  else
-  {
-    auto* dbgrid = dynamic_cast<DbGrid*>(dbin);
-    _gridInvdist(dbgrid, dbout);
-  }
-  return 0;
-}
-
-/****************************************************************************/
-/*!
- **  Inverse distance estimation when Input DB is a point file
- **
- ** \param[in]  dbin        Input Db
- ** \param[in]  dbout       Output Db
- **
- *****************************************************************************/
-void CalcSimpleInterpolation::_pointInvdist(Db* dbin, Db* dbout)
-{
-  Id ndim     = dbin->getNDim();
-  double dmin = dbout->getExtensionDiagonal() / 1.e5;
-  VectorDouble coor(ndim);
-  VectorDouble cooref(ndim);
-
-  /* Loop on the targets to be processed */
-
-  for (Id iech = 0; iech < dbout->getNSample(); iech++)
-  {
-    mes_process("Estimation by Inverse distance", dbout->getNSample(), iech);
-    OptDbg::setCurrentIndex(iech + 1);
-    if (!dbout->isActive(iech)) continue;
-    if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
-    {
-      mestitle(1, "Target location");
-      db_sample_print(dbout, iech, 1, 0, 0, 0);
-    }
-    VectorInt nbgh;
-    VectorDouble weights;
-    dbout->getCoordinatesInPlace(cooref, iech);
-
-    /* Loop on the data points */
-
-    for (Id iech_in = 0; iech_in < dbin->getNSample(); iech_in++)
-    {
-      if (!dbin->isActive(iech_in)) continue;
-      dbin->getCoordinatesInPlace(coor, iech_in);
-      double val_neigh = dbin->getZVariable(iech_in, 0);
-      if (FFFF(val_neigh)) continue;
-
-      /* Check that the data point is a valid neighbor */
-
-      double dist = ut_distance(ndim, coor.data(), cooref.data());
-      if (!FFFF(_dmax) && dist > _dmax) continue;
-      if (dist < dmin)
-      {
-        nbgh.clear();
-        weights.clear();
-        nbgh.push_back(iech_in);
-        weights.push_back(1.);
-        break;
-      }
-      double wgt = 1. / pow(dist, _exponent);
-      nbgh.push_back(iech_in);
-      weights.push_back(wgt);
-    }
-
-    // Save the results
-    _saveResults(dbin, dbout, nbgh, iech, weights);
-  }
-}
-
-/****************************************************************************/
-/*!
- **  Inverse distance estimation when Input DB is a grid
- **
- ** \param[in]  dbin        Input Db
- ** \param[in]  dbout       Output Db
- **
- *****************************************************************************/
-void CalcSimpleInterpolation::_gridInvdist(DbGrid* dbin, Db* dbout)
-{
-  Id ndim     = dbin->getNDim();
-  Id maxneigh = static_cast<Id>(pow(2., static_cast<double>(ndim)));
-  double dmin = dbout->getExtensionDiagonal() / 1.e5;
-
-  VectorDouble coor(ndim);
-  VectorDouble cooref(ndim);
-  VectorDouble percent(ndim);
-  VectorInt indg(ndim);
-  VectorInt indref(ndim);
-
-  /* Loop on the targets to be processed */
-
-  for (Id iech = 0; iech < dbout->getNSample(); iech++)
-  {
-    mes_process("Estimation by Inverse distance", dbout->getNSample(), iech);
-    OptDbg::setCurrentIndex(iech + 1);
-    if (!dbout->isActive(iech)) continue;
-    if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
-    {
-      mestitle(1, "Target location");
-      db_sample_print(dbout, iech, 1, 0, 0, 0);
-    }
-
-    /* Find the grid index corresponding to the target */
-
-    dbout->getCoordinatesInPlace(cooref, iech);
-    if (dbin->coordinateToIndicesInPlace(cooref, indref))
-    {
-      if (_flagEst)
-        dbout->setArray(iech, _iattEst, TEST);
-      if (_flagStd)
-        dbout->setArray(iech, _iattStd, TEST);
-      continue;
-    }
-
-    /* Loop on the neighbors */
-
-    VectorInt nbgh;
-    VectorDouble weights;
-    for (Id rank = 0; rank < maxneigh; rank++)
-    {
-      for (Id idim = 0; idim < ndim; idim++) indg[idim] = indref[idim];
-
-      /* Decompose the neighborhood rank */
-
-      Id idim = 0;
-      Id ind  = rank;
-      while (ind > 0)
-      {
-        if (ind % 2 == 1) indg[idim] += 1;
-        ind /= 2;
-        idim++;
-      }
-
-      /* Check that the neighboring point lies within the grid */
-
-      bool incorrect = false;
-      for (idim = 0; idim < ndim && !incorrect; idim++)
-      {
-        if (indg[idim] >= dbin->getNX(idim))
-        {
-          if (_flagExpand)
-            indg[idim]--;
-          else
-            incorrect = true;
-        }
-      }
-
-      /* Process the new neighboring point */
-
-      if (incorrect)
-      {
-        nbgh.clear();
-        weights.clear();
-        break;
-      }
-
-      /* Check the value */
-
-      Id iech_neigh    = dbin->indiceToRank(indg);
-      double val_neigh = dbin->getZVariable(iech_neigh, 0);
-      if (FFFF(val_neigh))
-      {
-        nbgh.clear();
-        weights.clear();
-        break;
-      }
-
-      /* Calculate the distance from neighborhood to target */
-
-      dbin->indicesToCoordinateInPlace(indg, coor, percent);
-      double dist = ut_distance(ndim, cooref.data(), coor.data());
-      if (dist < dmin)
-      {
-        nbgh.clear();
-        weights.clear();
-        nbgh.push_back(iech_neigh);
-        weights.push_back(1.);
-        break;
-      }
-      double wgt = 1. / pow(dist, _exponent);
-      nbgh.push_back(iech_neigh);
-      weights.push_back(wgt);
-    }
-
-    // Save the results
-    _saveResults(dbin, dbout, nbgh, iech, weights);
-  }
-}
-
-double CalcSimpleInterpolation::_estimCalc(const Db* dbin,
-                                           const VectorInt& nbgh,
-                                           const VectorDouble& weights)
-{
-
-  double result = 0.;
-  for (Id i = 0, n = static_cast<Id>(nbgh.size()); i < n; i++)
-  {
-    Id iech      = nbgh[i];
-    double value = dbin->getZVariable(iech, 0);
-    if (FFFF(value)) return TEST;
-    result += value * weights[i];
-
-    if (OptDbg::query(EDbg::RESULTS))
-      message("Data Value = %f - Weight = %lf\n", value, weights[i]);
-  }
-  if (OptDbg::query(EDbg::RESULTS)) message("Estimate = %f\n", result);
-  return result;
-}
-
-/**
- * Calculate the (non-optimal) variance of estimation error
- * @param dbin Db containing the data
- * @param dbout Db containing the target
- * @param nbgh List of ranks within 'dbin'
- * @param iechout Rank of the target
- * @param weights Vector of weights (same dimension as 'nbgh')
- * @return
- */
-double CalcSimpleInterpolation::_stdevCalc(Db* dbin,
-                                           Db* dbout,
-                                           const VectorInt& nbgh,
-                                           Id iechout,
-                                           const VectorDouble& weights) const
-{
-  Id ndim = dbin->getNDim();
-  VectorDouble coor(ndim);
-  VectorDouble M0x;
-  ModelGeneric* model = getModelGeneric();
-  SpacePoint pout(model->getSpace());
-
-  dbout->getCoordinatesInPlace(coor, iechout);
-  pout.setCoords(coor);
-
-  // Point Covariance at target
-  double c00 = model->evalCov(pout, pout);
-
-  // Vector of Covariances between Data and Target
-  model->evalPointToDb(M0x, pout, dbin, 0, 0, true, nbgh);
-  double c0x = M0x.innerProduct(weights);
-
-  // Covariance between Data and Data
-  MatrixDense Mxx = model->evalCovMat(dbin, dbin, 0, 0, nbgh, nbgh);
-  double cxx      = Mxx.prodVecMatVec(weights, weights);
-
-  double result = sqrt(c00 - 2. * c0x + cxx);
-  if (OptDbg::query(EDbg::RESULTS)) message("St Dev = %f\n", result);
-
-  return result;
-}
-
-void CalcSimpleInterpolation::_saveResults(Db* dbin,
-                                           Db* dbout,
-                                           const VectorInt& nbgh,
-                                           Id iech,
-                                           VectorDouble& weights) const
-{
-  double result = TEST;
-  double stdev  = TEST;
-  if (nbgh.size() > 0)
-  {
-    weights.normalizeInPlace(1);
-    if (_flagEst) result = _estimCalc(dbin, nbgh, weights);
-    if (_flagStd) stdev = _stdevCalc(dbin, dbout, nbgh, iech, weights);
-  }
-
-  // Assign the result
-  if (_flagEst) dbout->setArray(iech, _iattEst, result);
-  if (_flagStd) dbout->setArray(iech, _iattStd, stdev);
-}
 
 } // namespace gstlrn

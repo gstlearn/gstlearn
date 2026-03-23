@@ -14,48 +14,47 @@
 
 namespace gstlrn
 {
-KernelLinear::KernelLinear(const CovContext& ctxt)
-  : AKernel(ECov::LINEAR, ctxt)
-{
-}
-
-KernelLinear::KernelLinear(const KernelLinear& r)
-  : AKernel(r)
-{
-}
-
-KernelLinear& KernelLinear::operator=(const KernelLinear& r)
-{
-  if (this != &r)
+  KernelLinear::KernelLinear(const CovContext& ctxt)
+    : AKernel(ECov::LINEAR, ctxt)
   {
-    AKernel::operator=(r);
   }
-  return *this;
-}
 
-KernelLinear::~KernelLinear()
-{
-}
+  KernelLinear::KernelLinear(const KernelLinear& r)
+    : AKernel(r)
+  {
+  }
 
-double KernelLinear::_evaluateCov(double h) const
-{
-  double cov, r;
+  KernelLinear& KernelLinear::operator=(const KernelLinear& r)
+  {
+    if (this != &r)
+    {
+      AKernel::operator=(r);
+    }
+    return *this;
+  }
 
-  r = getContext().getField();
+  KernelLinear::~KernelLinear() {}
 
-  auto ndim = getContext().getNDim();
-  if (ndim == 1)
-    cov = r - h;
-  else if (ndim == 2)
-    cov = r * GV_PI / 2 - h;
-  else
-    cov = r * 2 - h;
+  double KernelLinear::_evaluateCov(double h) const
+  {
+    double cov, r;
 
-  return (cov);
-}
+    r = getContext().getField();
 
-double KernelLinear::simulateTurningBand(double t0, TurningBandOperate& operTB) const
-{
-  return operTB.IRFProcessOne(t0);
-}
-}
+    auto ndim = getContext().getNDim();
+    if (ndim == 1)
+      cov = r - h;
+    else if (ndim == 2)
+      cov = r * GV_PI / 2 - h;
+    else
+      cov = r * 2 - h;
+
+    return (cov);
+  }
+
+  double KernelLinear::simulateTurningBand(double t0,
+                                           TurningBandOperate& operTB) const
+  {
+    return operTB.IRFProcessOne(t0);
+  }
+} // namespace gstlrn

@@ -24,23 +24,31 @@ int main(int argc, char* argv[])
   StdoutRedirect sr(sfn.str(), argc, argv);
 
   // Create a simple grid for testing
-  VectorInt nx    = {10, 10};
+  VectorInt nx = {10, 10};
   VectorDouble dx = {1., 1.};
-  DbGrid* grid    = DbGrid::create(nx, dx);
+  DbGrid* grid = DbGrid::create(nx, dx);
 
   mestitle(0, "Testing NamingConvention for Multivariate Simulations");
 
   // Test 1: Non-conditional multivariate simulations (2 variables, 2 simulations)
   // Storage order: simulation-first (default)
-  message("\nTest 1: Non-conditional multivariate (nvar=2, nsim=2, simu-first)\n");
+  message(
+    "\nTest 1: Non-conditional multivariate (nvar=2, nsim=2, simu-first)\n");
   {
     Id nvar = 2;
     Id nsim = 2;
     Id iatt = grid->addColumnsByConstant(nvar * nsim, 0.);
 
     NamingConvention namconv("Test1", false, false, false);
-    namconv.setNamesAndLocatorsForSimulations(nullptr, VectorString(), ELoc::UNDEFINED,
-                                              nvar, grid, iatt, nsim, true, false);
+    namconv.setNamesAndLocatorsForSimulations(nullptr,
+                                              VectorString(),
+                                              ELoc::UNDEFINED,
+                                              nvar,
+                                              grid,
+                                              iatt,
+                                              nsim,
+                                              true,
+                                              false);
 
     message("Variable names: ");
     for (Id i = 0; i < nvar * nsim; i++)
@@ -60,8 +68,15 @@ int main(int argc, char* argv[])
 
     VectorString varnames = {"Fe", "Al"};
     NamingConvention namconv("Test2", false, false, false);
-    namconv.setNamesAndLocatorsForSimulations(nullptr, varnames, ELoc::UNDEFINED,
-                                              nvar, grid, iatt, nsim, true, false);
+    namconv.setNamesAndLocatorsForSimulations(nullptr,
+                                              varnames,
+                                              ELoc::UNDEFINED,
+                                              nvar,
+                                              grid,
+                                              iatt,
+                                              nsim,
+                                              true,
+                                              false);
 
     message("Variable names: ");
     for (Id i = 0; i < nvar * nsim; i++)
@@ -80,8 +95,15 @@ int main(int argc, char* argv[])
     Id iatt = grid->addColumnsByConstant(nvar * nsim, 0.);
 
     NamingConvention namconv("Test3", false, false, false);
-    namconv.setNamesAndLocatorsForSimulations(nullptr, VectorString(), ELoc::UNDEFINED,
-                                              nvar, grid, iatt, nsim, false, false);
+    namconv.setNamesAndLocatorsForSimulations(nullptr,
+                                              VectorString(),
+                                              ELoc::UNDEFINED,
+                                              nvar,
+                                              grid,
+                                              iatt,
+                                              nsim,
+                                              false,
+                                              false);
 
     message("Variable names: ");
     for (Id i = 0; i < nvar * nsim; i++)
@@ -100,8 +122,15 @@ int main(int argc, char* argv[])
     Id iatt = grid->addColumnsByConstant(nvar * nsim, 0.);
 
     NamingConvention namconv("Test4", false, false, false);
-    namconv.setNamesAndLocatorsForSimulations(nullptr, VectorString(), ELoc::UNDEFINED,
-                                              nvar, grid, iatt, nsim, true, false);
+    namconv.setNamesAndLocatorsForSimulations(nullptr,
+                                              VectorString(),
+                                              ELoc::UNDEFINED,
+                                              nvar,
+                                              grid,
+                                              iatt,
+                                              nsim,
+                                              true,
+                                              false);
 
     message("Variable names: ");
     for (Id i = 0; i < nvar * nsim; i++)
@@ -121,8 +150,15 @@ int main(int argc, char* argv[])
 
     VectorString varnames = {"Cu", "Pb", "Zn"};
     NamingConvention namconv("Test5", false, false, false);
-    namconv.setNamesAndLocatorsForSimulations(nullptr, varnames, ELoc::UNDEFINED,
-                                              nvar, grid, iatt, nsim, true, false);
+    namconv.setNamesAndLocatorsForSimulations(nullptr,
+                                              varnames,
+                                              ELoc::UNDEFINED,
+                                              nvar,
+                                              grid,
+                                              iatt,
+                                              nsim,
+                                              true,
+                                              false);
 
     message("Variable names:\n");
     for (Id i = 0; i < nvar * nsim; i++)

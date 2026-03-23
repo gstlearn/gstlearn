@@ -102,8 +102,8 @@ int main(int argc, char* argv[])
   StdoutRedirect sr(sfn.str(), argc, argv);
 
   ASerializable::setPrefixName("test_PGSSPDE-");
-  Id error  = 0;
-  Id ndim   = 2;
+  Id error = 0;
+  Id ndim = 2;
   Id nbsimu = 3;
   defineDefaultSpace(ESpaceType::RN, ndim);
 
@@ -112,8 +112,8 @@ int main(int argc, char* argv[])
 
   // Prepare dimension variables
   auto ndata = 100;
-  Id nx      = 101;
-  double dx  = 1. / (nx - 1);
+  Id nx = 101;
+  double dx = 1. / (nx - 1);
 
   // Prepare the output Grid
   DbGrid* grid = DbGrid::create({nx, nx}, {dx, dx});
@@ -121,24 +121,27 @@ int main(int argc, char* argv[])
   // Prepare facies proportions and corresponding Grid
   DbGrid* dbprop = DbGrid::create({nx, nx}, {dx, dx});
   VectorDouble props({0.2, 0.5, 0.3});
-  Id nfac            = static_cast<Id>(props.size());
+  Id nfac = static_cast<Id>(props.size());
   VectorString names = generateMultipleNames("Props", nfac);
   for (Id ifac = 0; ifac < nfac; ifac++)
     dbprop->addColumnsByConstant(1, props[ifac], names[ifac]);
   dbprop->setLocators(names, ELoc::P, 0);
 
   // Prepare the input data set
-  Db* dat        = Db::createFromBox(ndata, grid->getCoorMinimum(), grid->getCoorMaximum());
+  Db* dat =
+    Db::createFromBox(ndata, grid->getCoorMinimum(), grid->getCoorMaximum());
   VectorDouble z = VH::simulateGaussian(ndata);
   dat->addColumns(z, "Data", ELoc::Z);
   dat->display();
 
   // Creating the covariances involved in the Model(s) of the Underlying GRF(s)
-  double range1  = 0.20;
-  CovAniso* cov1 = CovAniso::createFromParam(ECov::MATERN, TEST, 1., 1., {range1, range1});
+  double range1 = 0.20;
+  CovAniso* cov1 =
+    CovAniso::createFromParam(ECov::MATERN, TEST, 1., 1., {range1, range1});
 
-  double range2  = 0.40;
-  CovAniso* cov2 = CovAniso::createFromParam(ECov::MATERN, TEST, 1., 2., {range2, range2});
+  double range2 = 0.40;
+  CovAniso* cov2 =
+    CovAniso::createFromParam(ECov::MATERN, TEST, 1., 2., {range2, range2});
 
   // Environment
   std::vector<Model*> models;

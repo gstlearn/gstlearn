@@ -14,135 +14,123 @@
 
 namespace gstlrn
 {
-CovParamId::CovParamId(Id igrf,
-                       Id icov,
-                       const EConsElem& elem,
-                       Id iv1,
-                       Id iv2)
-    : AStringable(),
-      _igrf(igrf),
-      _icov(icov),
-      _param(elem, iv1, iv2)
-{
-}
-
-CovParamId::CovParamId(const CovParamId &m)
-    : AStringable(m),
-      _igrf(m._igrf),
-      _icov(m._icov),
-      _param(m._param)
-{
-
-}
-
-CovParamId& CovParamId::operator=(const CovParamId &m)
-{
-  if (this != &m)
+  CovParamId::CovParamId(Id igrf,
+                         Id icov,
+                         const EConsElem& elem,
+                         Id iv1,
+                         Id iv2)
+    : AStringable()
+    , _igrf(igrf)
+    , _icov(icov)
+    , _param(elem, iv1, iv2)
   {
-    AStringable::operator=(m);
-    _igrf = m._igrf;
-    _icov = m._icov;
-    _param = m._param;
   }
-  return *this;
-}
 
-CovParamId::~CovParamId()
-{
-
-}
-
-CovParamId* CovParamId::create(Id igrf,
-                               Id icov,
-                               const EConsElem &elem,
-                               Id iv1,
-                               Id iv2)
-{
-  return new CovParamId(igrf, icov, elem, iv1, iv2);
-}
-
-Id CovParamId::init(Id igrf,
-                     Id icov,
-                     const EConsElem& type,
-                     Id v1,
-                     Id v2)
-{
-  _igrf  = igrf;
-  _icov  = icov;
-  _param.init(type, v1, v2);
-
-  // Check to avoid rotation of a Model defined on the sphere
-  bool flag_sphere = (getDefaultSpaceType() == ESpaceType::SN);
-  if (flag_sphere && type == EConsElem::ANGLE)
+  CovParamId::CovParamId(const CovParamId& m)
+    : AStringable(m)
+    , _igrf(m._igrf)
+    , _icov(m._icov)
+    , _param(m._param)
   {
-    messerr("When working on the Sphere Geometry");
-    messerr("Rotation must be specified using 'I' constraints (not 'A')");
-    return 1;
   }
-  return 0;
-}
 
-String CovParamId::toString(const AStringFormat* /*strfmt*/) const
-{
-  std::stringstream sstr;
-
-  switch (_param.getType().toEnum())
+  CovParamId& CovParamId::operator=(const CovParamId& m)
   {
-    case EConsElem::E_RANGE:
-      sstr << "Range      :"
-           << " IdCov=" << _icov + 1 << " IDir=" << _param.getIV1() + 1;
-      break;
-
-    case EConsElem::E_ANGLE:
-      sstr << "Angle      :"
-           << " IdCov=" << _icov + 1 << " IdAngle=" << _param.getIV1() + 1;
-      break;
-
-    case EConsElem::E_PARAM:
-      sstr << "Param      :"
-           << " IdCov" << _icov + 1;
-      break;
-
-    case EConsElem::E_SILL:
-      sstr << "Sill       :"
-           << " IdCov=" << _icov + 1 << " Ivar=" << _param.getIV1() << " Jvar=" << _param.getIV2();
-      break;
-
-    case EConsElem::E_SCALE:
-      sstr << "Scale      :"
-           << " IdCov=" << _icov + 1 << " IDir=" << _param.getIV1() + 1;
-      break;
-
-    case EConsElem::E_T_RANGE:
-      sstr << "Tapering   :"
-           << " IdCov=" << _icov + 1 << " IDir=" << _param.getIV1() + 1;
-      break;
-
-    case EConsElem::E_VELOCITY:
-      sstr << "Velocity   :"
-           << " IdCov=" << _icov + 1 << " Ivar=" << _param.getIV1() + 1
-           << " Jvar=" << _param.getIV2() + 1;
-      break;
-
-    case EConsElem::E_SPHEROT:
-      sstr << "S-Rotation :"
-           << " IdCov=" << _icov + 1 << " Ivar=" << _param.getIV1() + 1
-           << " Jvar=" << _param.getIV2() + 1;
-      break;
-
-    case EConsElem::E_TENSOR:
-      sstr << "Anis-Matrix :"
-           << " IdCov=" << _icov + 1 << " Ivar=" << _param.getIV1() + 1
-           << " Jvar=" << _param.getIV2() + 1;
-      break;
-
-    default:
-      return sstr.str();
+    if (this != &m)
+    {
+      AStringable::operator=(m);
+      _igrf = m._igrf;
+      _icov = m._icov;
+      _param = m._param;
+    }
+    return *this;
   }
-  if (_igrf > 0)
-    sstr << " (GRF=" << _igrf + 1 << ")";
-  sstr << std::endl;
 
-  return sstr.str();
-}
-}
+  CovParamId::~CovParamId() {}
+
+  CovParamId*
+    CovParamId::create(Id igrf, Id icov, const EConsElem& elem, Id iv1, Id iv2)
+  {
+    return new CovParamId(igrf, icov, elem, iv1, iv2);
+  }
+
+  Id CovParamId::init(Id igrf, Id icov, const EConsElem& type, Id v1, Id v2)
+  {
+    _igrf = igrf;
+    _icov = icov;
+    _param.init(type, v1, v2);
+
+    // Check to avoid rotation of a Model defined on the sphere
+    bool flag_sphere = (getDefaultSpaceType() == ESpaceType::SN);
+    if (flag_sphere && type == EConsElem::ANGLE)
+    {
+      messerr("When working on the Sphere Geometry");
+      messerr("Rotation must be specified using 'I' constraints (not 'A')");
+      return 1;
+    }
+    return 0;
+  }
+
+  String CovParamId::toString(const AStringFormat* /*strfmt*/) const
+  {
+    std::stringstream sstr;
+
+    switch (_param.getType().toEnum())
+    {
+      case EConsElem::E_RANGE:
+        sstr << "Range      :"
+             << " IdCov=" << _icov + 1 << " IDir=" << _param.getIV1() + 1;
+        break;
+
+      case EConsElem::E_ANGLE:
+        sstr << "Angle      :"
+             << " IdCov=" << _icov + 1 << " IdAngle=" << _param.getIV1() + 1;
+        break;
+
+      case EConsElem::E_PARAM:
+        sstr << "Param      :"
+             << " IdCov" << _icov + 1;
+        break;
+
+      case EConsElem::E_SILL:
+        sstr << "Sill       :"
+             << " IdCov=" << _icov + 1 << " Ivar=" << _param.getIV1()
+             << " Jvar=" << _param.getIV2();
+        break;
+
+      case EConsElem::E_SCALE:
+        sstr << "Scale      :"
+             << " IdCov=" << _icov + 1 << " IDir=" << _param.getIV1() + 1;
+        break;
+
+      case EConsElem::E_T_RANGE:
+        sstr << "Tapering   :"
+             << " IdCov=" << _icov + 1 << " IDir=" << _param.getIV1() + 1;
+        break;
+
+      case EConsElem::E_VELOCITY:
+        sstr << "Velocity   :"
+             << " IdCov=" << _icov + 1 << " Ivar=" << _param.getIV1() + 1
+             << " Jvar=" << _param.getIV2() + 1;
+        break;
+
+      case EConsElem::E_SPHEROT:
+        sstr << "S-Rotation :"
+             << " IdCov=" << _icov + 1 << " Ivar=" << _param.getIV1() + 1
+             << " Jvar=" << _param.getIV2() + 1;
+        break;
+
+      case EConsElem::E_TENSOR:
+        sstr << "Anis-Matrix :"
+             << " IdCov=" << _icov + 1 << " Ivar=" << _param.getIV1() + 1
+             << " Jvar=" << _param.getIV2() + 1;
+        break;
+
+      default: return sstr.str();
+    }
+    if (_igrf > 0) sstr << " (GRF=" << _igrf + 1 << ")";
+    sstr << std::endl;
+
+    return sstr.str();
+  }
+} // namespace gstlrn

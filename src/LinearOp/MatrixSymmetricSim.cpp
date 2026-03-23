@@ -20,89 +20,88 @@
 
 namespace gstlrn
 {
-MatrixSymmetricSim::MatrixSymmetricSim(const AMatrix& m,
-                                       bool inverse)
-  : ASimulable()
-  , _inverse(inverse)
-  , _factor(nullptr)
-  , _mat(m)
+  MatrixSymmetricSim::MatrixSymmetricSim(const AMatrix& m, bool inverse)
+    : ASimulable()
+    , _inverse(inverse)
+    , _factor(nullptr)
+    , _mat(m)
 
-{
-  if (!m.isSquare())
   {
-    messerr("The matrix must be square!");
-    return;
-  }
-
-  if (m.isSparse())
-  {
-    const auto& matCS = dynamic_cast<const MatrixSparse&>(m);
-    _factor           = new CholeskySparse(matCS);
-  }
-  else
-  {
-    const auto* matSym = dynamic_cast<const MatrixSymmetric*>(&m);
-    if (matSym == nullptr)
+    if (!m.isSquare())
     {
-      _matSymConverted = MatrixSymmetric(m);
-      _factor          = new CholeskyDense(_matSymConverted);
+      messerr("The matrix must be square!");
+      return;
+    }
+
+    if (m.isSparse())
+    {
+      const auto& matCS = dynamic_cast<const MatrixSparse&>(m);
+      _factor = new CholeskySparse(matCS);
     }
     else
     {
-      _factor = new CholeskyDense(*matSym);
+      const auto* matSym = dynamic_cast<const MatrixSymmetric*>(&m);
+      if (matSym == nullptr)
+      {
+        _matSymConverted = MatrixSymmetric(m);
+        _factor = new CholeskyDense(_matSymConverted);
+      }
+      else
+      {
+        _factor = new CholeskyDense(*matSym);
+      }
     }
-  }
-  if (_factor == nullptr)
-  {
-    messerr("The Input matrix is not valid");
-    messerr("It should be either:");
-    messerr("- a MatrixSparse");
-    messerr("- a MatrixSymmetric");
-    return;
-  }
-}
-
-MatrixSymmetricSim::~MatrixSymmetricSim()
-{
-  delete _factor;
-  _factor = nullptr;
-}
-
-Id MatrixSymmetricSim::_addToDest(const constvect inv, vect outv) const
-{
-  if (_inverse)
-  {
-    const auto* other1 = dynamic_cast<const MatrixDense*>(&_mat);
-    if (other1 != nullptr)
-      AMatrix::productInPlace(outv, *other1, inv);
-    else
+    if (_factor == nullptr)
     {
-      const auto* other2 = dynamic_cast<const MatrixSparse*>(&_mat);
-      AMatrix::productInPlace(outv, *other2, inv);
+      messerr("The Input matrix is not valid");
+      messerr("It should be either:");
+      messerr("- a MatrixSparse");
+      messerr("- a MatrixSymmetric");
+      return;
     }
-    return 0;
   }
-  return _factor->addSolveX(inv, outv);
-}
 
-Id MatrixSymmetricSim::_addSimulateToDest(const constvect whitenoise,
-                                          vect outv) const
-{
-  if (_inverse) return _factor->addInvLtX(whitenoise, outv);
-  return _factor->addLX(whitenoise, outv);
-}
+  MatrixSymmetricSim::~MatrixSymmetricSim()
+  {
+    delete _factor;
+    _factor = nullptr;
+  }
 
-Id MatrixSymmetricSim::getSize() const
-{
-  if (_factor == nullptr) return 0;
-  return _factor->getSize();
-}
+  Id MatrixSymmetricSim::_addToDest(const constvect inv, vect outv) const
+  {
+    if (_inverse)
+    {
+      const auto* other1 = dynamic_cast<const MatrixDense*>(&_mat);
+      if (other1 != nullptr)
+        AMatrix::productInPlace(outv, *other1, inv);
+      else
+      {
+        const auto* other2 = dynamic_cast<const MatrixSparse*>(&_mat);
+        AMatrix::productInPlace(outv, *other2, inv);
+      }
+      return 0;
+    }
+    return _factor->addSolveX(inv, outv);
+  }
 
-double MatrixSymmetricSim::computeLogDet(Id nMC) const
-{
-  DECLARE_UNUSED(nMC);
-  if (_factor == nullptr) return TEST;
-  Id sign = _inverse ? -1 : 1;
-  return sign * _factor->computeLogDeterminant();
-}
+  Id MatrixSymmetricSim::_addSimulateToDest(const constvect whitenoise,
+                                            vect outv) const
+  {
+    if (_inverse) return _factor->addInvLtX(whitenoise, outv);
+    return _factor->addLX(whitenoise, outv);
+  }
+
+  Id MatrixSymmetricSim::getSize() const
+  {
+    if (_factor == nullptr) return 0;
+    return _factor->getSize();
+  }
+
+  double MatrixSymmetricSim::computeLogDet(Id nMC) const
+  {
+    DECLARE_UNUSED(nMC);
+    if (_factor == nullptr) return TEST;
+    Id sign = _inverse ? -1 : 1;
+    return sign * _factor->computeLogDeterminant();
+  }
 } // namespace gstlrn

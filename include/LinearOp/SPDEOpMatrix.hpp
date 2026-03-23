@@ -19,35 +19,36 @@
 
 namespace gstlrn
 {
-class ProjMultiMatrix;
-class MatrixSparse;
-class PrecisionOpMultiMatrix;
+  class ProjMultiMatrix;
+  class MatrixSparse;
+  class PrecisionOpMultiMatrix;
 
-class GSTLEARN_EXPORT SPDEOpMatrix: public SPDEOp
-{
-public:
-  SPDEOpMatrix(const PrecisionOpMultiMatrix* pop = nullptr,
-               const ProjMultiMatrix* A          = nullptr,
-               const InvNuggetOp* invNoise       = nullptr);
-  virtual ~SPDEOpMatrix();
+  class GSTLEARN_EXPORT SPDEOpMatrix: public SPDEOp
+  {
+  public:
+    SPDEOpMatrix(const PrecisionOpMultiMatrix* pop = nullptr,
+                 const ProjMultiMatrix* A = nullptr,
+                 const InvNuggetOp* invNoise = nullptr);
+    virtual ~SPDEOpMatrix();
 
-  double computeLogDetOp(Id nbsimu) const override;
+    double computeLogDetOp(Id nbsimu) const override;
 
-  VectorDouble stdev(const VectorDouble& dat,
-                     Id nMC                 = 1,
-                     Id seed                = 134343,
-                     const IProj* projK = nullptr,
-                     const IProj* projS = nullptr) const override;
+    VectorDouble stdev(const VectorDouble& dat,
+                       Id nMC = 1,
+                       Id seed = 134343,
+                       const IProj* projK = nullptr,
+                       const IProj* projS = nullptr) const override;
 
 #ifndef SWIG
 
-private:
-  Id _addToDest(const constvect inv, vect outv) const override;
-  Id _solve(const constvect inv, vect outv) const override;
+  private:
+    Id _addToDest(const constvect inv, vect outv) const override;
+    Id _solve(const constvect inv, vect outv) const override;
 #endif
 
-private:
-  mutable std::shared_ptr<MatrixSparse> _QpAinvNoiseAt; // mutable is required to perform the Cholesky decomposition
-  mutable CholeskySparse* _chol;                        // when needed, e.g in a const method.
-};
+  private:
+    mutable std::shared_ptr<MatrixSparse>
+      _QpAinvNoiseAt; // mutable is required to perform the Cholesky decomposition
+    mutable CholeskySparse* _chol; // when needed, e.g in a const method.
+  };
 } // namespace gstlrn

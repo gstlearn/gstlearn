@@ -37,27 +37,26 @@ int main(int argc, char* argv[])
 
   ///////////////////////
   // Creating the Db
-  Id ngrid          = 101;
-  Id nxval          = 101;
-  VectorInt nx      = {nxval, ngrid};
+  Id ngrid = 101;
+  Id nxval = 101;
+  VectorInt nx = {nxval, ngrid};
   DbGrid* grid_data = DbGrid::create(nx);
 
-  Id conv_dim  = 11;
+  Id conv_dim = 11;
   double range = 3.;
   double total = 0.;
   VectorDouble convolution(conv_dim);
   for (Id i = 0; i < conv_dim; i++)
   {
-    double dist    = (i - conv_dim / 2.) / range;
+    double dist = (i - conv_dim / 2.) / range;
     convolution[i] = exp(-dist * dist);
     total += convolution[i];
   }
-  for (Id i = 0; i < conv_dim; i++)
-    convolution[i] /= total;
+  for (Id i = 0; i < conv_dim; i++) convolution[i] /= total;
   printVector(convolution, "Convolution", true, true);
 
-  Id ngrid_seismic     = ngrid - (conv_dim - 1);
-  nx                   = VectorInt({nxval, ngrid_seismic});
+  Id ngrid_seismic = ngrid - (conv_dim - 1);
+  nx = VectorInt({nxval, ngrid_seismic});
   DbGrid* grid_seismic = DbGrid::create(nx);
 
   // Creating the Model

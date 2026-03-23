@@ -18,93 +18,101 @@
  */
 namespace gstlrn
 {
-class GSTLEARN_EXPORT MatrixSquare: public MatrixDense
-{
-
-public:
-  MatrixSquare(Id nrow = 0);
-  MatrixSquare(Id nrow, Id ncol);
-  MatrixSquare(const MatrixSquare& r);
-  MatrixSquare(const AMatrix& m);
-  MatrixSquare& operator=(const MatrixSquare& r);
-  virtual ~MatrixSquare();
-
-  /// Has a specific implementation in the Target language
-  DECLARE_TOTL;
-  DECLARE_TOLATEX
-
-  /// ICloneable interface
-  IMPLEMENT_CLONING(MatrixSquare)
-
-  /// Interface for AMatrix
-  virtual double determinant(void) const;
-  /*! Check if the matrix is (non empty) square */
-  bool isSquare(bool printWhyNot = false) const override
+  class GSTLEARN_EXPORT MatrixSquare: public MatrixDense
   {
-    DECLARE_UNUSED(printWhyNot);
-    return true;
-  }
-  /*! Say if the matrix must be symmetric */
-  bool mustBeSymmetric() const override { return false; }
 
-  /*! Returns the size of the matrix (nrows=ncols) */
-  Id getNSize() const { return getNRows(); }
-  void resetFromVVD(const VectorVectorDouble& tab, bool byCol = true) override;
+  public:
+    MatrixSquare(Id nrow = 0);
+    MatrixSquare(Id nrow, Id ncol);
+    MatrixSquare(const MatrixSquare& r);
+    MatrixSquare(const AMatrix& m);
+    MatrixSquare& operator=(const MatrixSquare& r);
+    virtual ~MatrixSquare();
 
-  static MatrixSquare* createFromVVD(const VectorVectorDouble& X);
-  static MatrixSquare* createFromVD(const VectorDouble& X,
-                                    Id nrow,
-                                    bool byCol             = false,
-                                    bool invertColumnOrder = false);
-  static MatrixSquare* createFromTridiagonal(const VectorDouble& vecdiag,
-                                             const VectorDouble& vecinf,
-                                             const VectorDouble& vecsup);
+    /// Has a specific implementation in the Target language
+    DECLARE_TOTL;
+    DECLARE_TOLATEX
 
-  double trace() const;
+    /// ICloneable interface
+    IMPLEMENT_CLONING(MatrixSquare)
 
-  bool invert2x2(MatrixSquare& res) const;
-  bool invert3x3(MatrixSquare& res) const;
-  Id invertOutOfPlace(MatrixSquare& res) const;
+    /// Interface for AMatrix
+    virtual double determinant(void) const;
 
-  /*! Perform inner product */
-  void innerMatrix(const MatrixSquare& x,
-                   const AMatrix& r1,
-                   const AMatrix& r2);
-  /*! Multiply the diagonal by a vector */
-  void prodDiagByVector(const VectorDouble& diag);
-  /*! Divide the diagonal by a vector */
-  void divideDiagByVector(const VectorDouble& diag);
-  /*! Multiply by a Diagonal matrix provided as VectorDouble (in place) */
-  void prodByDiagInPlace(Id mode, const VectorDouble& c);
+    /*! Check if the matrix is (non empty) square */
+    bool isSquare(bool printWhyNot = false) const override
+    {
+      DECLARE_UNUSED(printWhyNot);
+      return true;
+    }
 
-  double normVec(const VectorDouble& vec);
-  Id decomposeLU(MatrixSquare& tls,
-                 MatrixSquare& tus,
-                 double eps = EPSILON20);
+    /*! Say if the matrix must be symmetric */
+    bool mustBeSymmetric() const override { return false; }
 
-protected:
-  bool _isNumbersValid(Id nrows, Id ncols) const override;
-  void _setNSize(Id nval);
+    /*! Returns the size of the matrix (nrows=ncols) */
+    Id getNSize() const { return getNRows(); }
 
-private:
-  Id _invertLU();
-  Id _solveLU(const MatrixSquare& tus,
-              const MatrixSquare& tls,
-              const double* b,
-              double* x);
-  Id _forwardLU(const MatrixSquare& tls, const double* b, double* x, double eps = EPSILON20);
-  Id _backwardLU(const MatrixSquare& tus, const double* b, double* x, double eps = EPSILON20);
-};
+    void
+      resetFromVVD(const VectorVectorDouble& tab, bool byCol = true) override;
 
-/*! Product 't(A)' %*% 'M' %*% 'A' or 'A' %*% 'M' %*% 't(A)' */
-GSTLEARN_EXPORT MatrixSquare* prodNormMatMat(const MatrixDense* a,
-                                             const MatrixDense* m,
-                                             bool transpose = false);
-/*! Product 't(A)' %*% 'A' or 'A' %*% 't(A)' */
-GSTLEARN_EXPORT MatrixSquare* prodNormMat(const MatrixDense& a,
-                                          bool transpose = false);
-/*! Product 't(A)' %*% 'vec' %*% 'A' or 'A' %*% 'vec' %*% 't(A)' */
-GSTLEARN_EXPORT MatrixSquare* prodNormMatVec(const MatrixDense& a,
-                                             const VectorDouble& vec,
-                                             bool transpose = false);
+    static MatrixSquare* createFromVVD(const VectorVectorDouble& X);
+    static MatrixSquare* createFromVD(const VectorDouble& X,
+                                      Id nrow,
+                                      bool byCol = false,
+                                      bool invertColumnOrder = false);
+    static MatrixSquare* createFromTridiagonal(const VectorDouble& vecdiag,
+                                               const VectorDouble& vecinf,
+                                               const VectorDouble& vecsup);
+
+    double trace() const;
+
+    bool invert2x2(MatrixSquare& res) const;
+    bool invert3x3(MatrixSquare& res) const;
+    Id invertOutOfPlace(MatrixSquare& res) const;
+
+    /*! Perform inner product */
+    void
+      innerMatrix(const MatrixSquare& x, const AMatrix& r1, const AMatrix& r2);
+    /*! Multiply the diagonal by a vector */
+    void prodDiagByVector(const VectorDouble& diag);
+    /*! Divide the diagonal by a vector */
+    void divideDiagByVector(const VectorDouble& diag);
+    /*! Multiply by a Diagonal matrix provided as VectorDouble (in place) */
+    void prodByDiagInPlace(Id mode, const VectorDouble& c);
+
+    double normVec(const VectorDouble& vec);
+    Id
+      decomposeLU(MatrixSquare& tls, MatrixSquare& tus, double eps = EPSILON20);
+
+  protected:
+    bool _isNumbersValid(Id nrows, Id ncols) const override;
+    void _setNSize(Id nval);
+
+  private:
+    Id _invertLU();
+    Id _solveLU(const MatrixSquare& tus,
+                const MatrixSquare& tls,
+                const double* b,
+                double* x);
+    Id _forwardLU(const MatrixSquare& tls,
+                  const double* b,
+                  double* x,
+                  double eps = EPSILON20);
+    Id _backwardLU(const MatrixSquare& tus,
+                   const double* b,
+                   double* x,
+                   double eps = EPSILON20);
+  };
+
+  /*! Product 't(A)' %*% 'M' %*% 'A' or 'A' %*% 'M' %*% 't(A)' */
+  GSTLEARN_EXPORT MatrixSquare* prodNormMatMat(const MatrixDense* a,
+                                               const MatrixDense* m,
+                                               bool transpose = false);
+  /*! Product 't(A)' %*% 'A' or 'A' %*% 't(A)' */
+  GSTLEARN_EXPORT MatrixSquare*
+    prodNormMat(const MatrixDense& a, bool transpose = false);
+  /*! Product 't(A)' %*% 'vec' %*% 'A' or 'A' %*% 'vec' %*% 't(A)' */
+  GSTLEARN_EXPORT MatrixSquare* prodNormMatVec(const MatrixDense& a,
+                                               const VectorDouble& vec,
+                                               bool transpose = false);
 } // namespace gstlrn

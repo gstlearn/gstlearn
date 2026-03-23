@@ -17,24 +17,26 @@
 
 namespace gstlrn
 {
-class GSTLEARN_EXPORT IPrecisionOp: public ASimulable
-{
-public:
-  IPrecisionOp()                    = default;
-  IPrecisionOp(const IPrecisionOp&) = default;
-  VectorDouble getRangeEigenVal(Id ndiscr = 100) const
+  class GSTLEARN_EXPORT IPrecisionOp: public ASimulable
   {
-    std::pair<double, double> ranges = rangeEigenVal(ndiscr);
-    VectorDouble result(2);
-    result[0] = ranges.first;
-    result[1] = ranges.second;
-    return result;
-  }
-  virtual ~IPrecisionOp() = default;
+  public:
+    IPrecisionOp() = default;
+    IPrecisionOp(const IPrecisionOp&) = default;
+
+    VectorDouble getRangeEigenVal(Id ndiscr = 100) const
+    {
+      std::pair<double, double> ranges = rangeEigenVal(ndiscr);
+      VectorDouble result(2);
+      result[0] = ranges.first;
+      result[1] = ranges.second;
+      return result;
+    }
+
+    virtual ~IPrecisionOp() = default;
 
 #ifndef SWIG
-  virtual std::pair<double, double> rangeEigenVal(Id ndiscr = 100) const = 0;
+    virtual std::pair<double, double> rangeEigenVal(Id ndiscr = 100) const = 0;
 #endif
-};
+  };
 
 } // namespace gstlrn

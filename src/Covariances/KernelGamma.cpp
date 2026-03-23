@@ -15,47 +15,47 @@
 
 namespace gstlrn
 {
-KernelGamma::KernelGamma(const CovContext& ctxt)
-  : AKernel(ECov::GAMMA, ctxt)
-{
-  setParam(1);
-}
-
-KernelGamma::KernelGamma(const KernelGamma& r)
-  : AKernel(r)
-{
-}
-
-KernelGamma& KernelGamma::operator=(const KernelGamma& r)
-{
-  if (this != &r)
+  KernelGamma::KernelGamma(const CovContext& ctxt)
+    : AKernel(ECov::GAMMA, ctxt)
   {
-    AKernel::operator=(r);
+    setParam(1);
   }
-  return *this;
-}
 
-KernelGamma::~KernelGamma()
-{
-}
+  KernelGamma::KernelGamma(const KernelGamma& r)
+    : AKernel(r)
+  {
+  }
 
-double KernelGamma::getScadef() const
-{
-  double param = getParam();
-  if (param < 0.05) param = 1.; // This test is too avoid passing too small number to next line
-  double scadef = pow(20., 1. / param) - 1.;
-  return (scadef);
-}
+  KernelGamma& KernelGamma::operator=(const KernelGamma& r)
+  {
+    if (this != &r)
+    {
+      AKernel::operator=(r);
+    }
+    return *this;
+  }
 
-double KernelGamma::_evaluateCov(double h) const
-{
-  double cov;
-  cov = 1. / pow(1. + h, getParam());
-  return (cov);
-}
+  KernelGamma::~KernelGamma() {}
 
-String KernelGamma::getFormula() const
-{
-  return "C(h)=\\frac{1}{\\left( 1+ \\frac{h}{a_t} \\right)^\\alpha";
-}
+  double KernelGamma::getScadef() const
+  {
+    double param = getParam();
+    if (param < 0.05)
+      param =
+        1.; // This test is too avoid passing too small number to next line
+    double scadef = pow(20., 1. / param) - 1.;
+    return (scadef);
+  }
+
+  double KernelGamma::_evaluateCov(double h) const
+  {
+    double cov;
+    cov = 1. / pow(1. + h, getParam());
+    return (cov);
+  }
+
+  String KernelGamma::getFormula() const
+  {
+    return "C(h)=\\frac{1}{\\left( 1+ \\frac{h}{a_t} \\right)^\\alpha";
+  }
 } // namespace gstlrn

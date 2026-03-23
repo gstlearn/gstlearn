@@ -14,5 +14,5 @@
 
 namespace gstlrn
 {
-GSTLEARN_EXPORT void acknowledge_gstlearn(void);
-}
+  GSTLEARN_EXPORT void acknowledge_gstlearn(void);
+} // namespace gstlrn

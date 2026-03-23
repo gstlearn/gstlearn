@@ -17,26 +17,26 @@
 
 namespace gstlrn
 {
-class GSTLEARN_EXPORT BiTargetCheckCell: public ABiTargetCheck
-{
-public:
-  BiTargetCheckCell(const DbGrid* dbgrid = nullptr);
-  BiTargetCheckCell(const BiTargetCheckCell& r);
-  BiTargetCheckCell& operator=(const BiTargetCheckCell& r);
-  virtual ~BiTargetCheckCell();
+  class GSTLEARN_EXPORT BiTargetCheckCell: public ABiTargetCheck
+  {
+  public:
+    BiTargetCheckCell(const DbGrid* dbgrid = nullptr);
+    BiTargetCheckCell(const BiTargetCheckCell& r);
+    BiTargetCheckCell& operator=(const BiTargetCheckCell& r);
+    virtual ~BiTargetCheckCell();
 
-  bool isOK(const SpaceTarget &T1,  const SpaceTarget &T2) const override;
-  bool isValid(const Db* dbin, const Db* dbout) override;
+    bool isOK(const SpaceTarget& T1, const SpaceTarget& T2) const override;
+    bool isValid(const Db* dbin, const Db* dbout) override;
 
-  /// ICloneable Interface
-  IMPLEMENT_CLONING(BiTargetCheckCell)
+    /// ICloneable Interface
+    IMPLEMENT_CLONING(BiTargetCheckCell)
 
-  /// Interface to AStringable
-  String toString(const AStringFormat* strfmt = nullptr) const override;
+    /// Interface to AStringable
+    String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  static BiTargetCheckCell* create(const DbGrid* dbgrid = nullptr);
+    static BiTargetCheckCell* create(const DbGrid* dbgrid = nullptr);
 
-private:
-  const DbGrid* _dbgrid;
-};
-}
+  private:
+    const DbGrid* _dbgrid;
+  };
+} // namespace gstlrn

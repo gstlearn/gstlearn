@@ -17,70 +17,89 @@
 
 namespace gstlrn
 {
-class GSTLEARN_EXPORT FracFamily: public AStringable, public ASerializable
-{
-public:
-  FracFamily(double orient  = 0.,
-             double dorient = 0.,
-             double theta0  = 0.,
-             double alpha   = 0.,
-             double ratcst  = 0.,
-             double prop1   = 0.,
-             double prop2   = 0.,
-             double aterm   = 0.,
-             double bterm   = 0.,
-             double range   = 0.);
-  FracFamily(const FracFamily& r);
-  FracFamily& operator=(const FracFamily& r);
-  virtual ~FracFamily();
+  class GSTLEARN_EXPORT FracFamily: public AStringable, public ASerializable
+  {
+  public:
+    FracFamily(double orient = 0.,
+               double dorient = 0.,
+               double theta0 = 0.,
+               double alpha = 0.,
+               double ratcst = 0.,
+               double prop1 = 0.,
+               double prop2 = 0.,
+               double aterm = 0.,
+               double bterm = 0.,
+               double range = 0.);
+    FracFamily(const FracFamily& r);
+    FracFamily& operator=(const FracFamily& r);
+    virtual ~FracFamily();
 
-  /// Interface for AStringable
-  String toString(const AStringFormat* strfmt = nullptr) const override;
+    /// Interface for AStringable
+    String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  /// ASerializable Interface
-  String getNFName() const override { return "Family"; }
+    /// ASerializable Interface
+    String getNFName() const override { return "Family"; }
 #ifdef HDF5
-  bool deserializeH5(H5::Group& grp) override;
-  bool serializeH5(H5::Group& grp) const override;
+    bool deserializeH5(H5::Group& grp) override;
+    bool serializeH5(H5::Group& grp) const override;
 #endif
 
-  double getAlpha() const { return _alpha; }
-  void setAlpha(double alpha) { _alpha = alpha; }
-  double getAterm() const { return _aterm; }
-  void setAterm(double aterm) { _aterm = aterm; }
-  double getBterm() const { return _bterm; }
-  void setBterm(double bterm) { _bterm = bterm; }
-  double getDorient() const { return _dorient; }
-  void setDorient(double dorient) { _dorient = dorient; }
-  double getOrient() const { return _orient; }
-  void setOrient(double orient) { _orient = orient; }
-  double getProp1() const { return _prop1; }
-  void setProp1(double prop1) { _prop1 = prop1; }
-  double getProp2() const { return _prop2; }
-  void setProp2(double prop2) { _prop2 = prop2; }
-  double getRange() const { return _range; }
-  void setRange(double range) { _range = range; }
-  double getRatcst() const { return _ratcst; }
-  void setRatcst(double ratcst) { _ratcst = ratcst; }
-  double getTheta0() const { return _theta0; }
-  void setTheta0(double theta0) { _theta0 = theta0; }
+    double getAlpha() const { return _alpha; }
 
-public:
-  bool _deserializeAscii(std::istream& is) override;
-  bool _serializeAscii(std::ostream& os) const override;
+    void setAlpha(double alpha) { _alpha = alpha; }
 
-private:
-  double _orient;  //!< Mean orientation
-  double _dorient; //!< Standard deviation for orientation
-  double _theta0;  //!< Reference Poisson intensity
-  double _alpha;   //!< Power dependency between layer & intensity
-  double _ratcst;  //!< Ratio of Constant vs. shaped intensity
-  double _prop1;   //!< Survival probability (constant term)
-  double _prop2;   //!< Survival probability (length dependent term)
-  double _aterm;   //!< Survival probability (cumulative length term)
-  double _bterm;   //!< Survival probability (layer thickness term)
-  double _range;   //!< Range of fracture repulsion area
+    double getAterm() const { return _aterm; }
 
-  friend class FracEnviron;
-};
+    void setAterm(double aterm) { _aterm = aterm; }
+
+    double getBterm() const { return _bterm; }
+
+    void setBterm(double bterm) { _bterm = bterm; }
+
+    double getDorient() const { return _dorient; }
+
+    void setDorient(double dorient) { _dorient = dorient; }
+
+    double getOrient() const { return _orient; }
+
+    void setOrient(double orient) { _orient = orient; }
+
+    double getProp1() const { return _prop1; }
+
+    void setProp1(double prop1) { _prop1 = prop1; }
+
+    double getProp2() const { return _prop2; }
+
+    void setProp2(double prop2) { _prop2 = prop2; }
+
+    double getRange() const { return _range; }
+
+    void setRange(double range) { _range = range; }
+
+    double getRatcst() const { return _ratcst; }
+
+    void setRatcst(double ratcst) { _ratcst = ratcst; }
+
+    double getTheta0() const { return _theta0; }
+
+    void setTheta0(double theta0) { _theta0 = theta0; }
+
+  public:
+    bool _deserializeAscii(std::istream& is) override;
+    bool _serializeAscii(std::ostream& os) const override;
+
+  private:
+    double _orient; //!< Mean orientation
+    double _dorient; //!< Standard deviation for orientation
+    double _theta0; //!< Reference Poisson intensity
+    double _alpha; //!< Power dependency between layer & intensity
+    double _ratcst; //!< Ratio of Constant vs. shaped intensity
+    double _prop1; //!< Survival probability (constant term)
+    double _prop2; //!< Survival probability (length dependent term)
+    double _aterm; //!< Survival probability (cumulative length term)
+    double _bterm; //!< Survival probability (layer thickness term)
+    double _range; //!< Range of fracture repulsion area
+
+    friend class FracEnviron;
+  };
 } // namespace gstlrn

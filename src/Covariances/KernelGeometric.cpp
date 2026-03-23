@@ -15,51 +15,53 @@
 
 namespace gstlrn
 {
-KernelGeometric::KernelGeometric(const CovContext& ctxt)
-  : AKernel(ECov::GEOMETRIC, ctxt)
-{
-  setParam(1);
-}
-
-KernelGeometric::KernelGeometric(const KernelGeometric& r)
-  : AKernel(r)
-{
-}
-
-KernelGeometric& KernelGeometric::operator=(const KernelGeometric& r)
-{
-  if (this != &r)
+  KernelGeometric::KernelGeometric(const CovContext& ctxt)
+    : AKernel(ECov::GEOMETRIC, ctxt)
   {
-    AKernel::operator=(r);
-  }
-  return *this;
-}
-
-KernelGeometric::~KernelGeometric()
-{
-}
-
-double KernelGeometric::_evaluateCovOnSphere(double alpha, double scale, Id degree) const
-{
-  DECLARE_UNUSED(degree);
-  double rho = scale;
-  return ((1. - rho) / sqrt(1. - 2. * rho * cos(alpha) + rho * rho));
-}
-
-VectorDouble KernelGeometric::_evaluateSpectrumOnSphere(Id n, double scale, bool flagScale) const
-{
-  double rho = scale;
-  VectorDouble sp(1 + n, 0.);
-
-  double rhoprod = 1.;
-  for (Id k = 0; k <= n; k++)
-  {
-    sp[k] = rhoprod;
-    rhoprod *= rho;
+    setParam(1);
   }
 
-  if (flagScale) sp.normalizeInPlace(1);
+  KernelGeometric::KernelGeometric(const KernelGeometric& r)
+    : AKernel(r)
+  {
+  }
 
-  return sp;
-}
+  KernelGeometric& KernelGeometric::operator=(const KernelGeometric& r)
+  {
+    if (this != &r)
+    {
+      AKernel::operator=(r);
+    }
+    return *this;
+  }
+
+  KernelGeometric::~KernelGeometric() {}
+
+  double KernelGeometric::_evaluateCovOnSphere(double alpha,
+                                               double scale,
+                                               Id degree) const
+  {
+    DECLARE_UNUSED(degree);
+    double rho = scale;
+    return ((1. - rho) / sqrt(1. - 2. * rho * cos(alpha) + rho * rho));
+  }
+
+  VectorDouble KernelGeometric::_evaluateSpectrumOnSphere(Id n,
+                                                          double scale,
+                                                          bool flagScale) const
+  {
+    double rho = scale;
+    VectorDouble sp(1 + n, 0.);
+
+    double rhoprod = 1.;
+    for (Id k = 0; k <= n; k++)
+    {
+      sp[k] = rhoprod;
+      rhoprod *= rho;
+    }
+
+    if (flagScale) sp.normalizeInPlace(1);
+
+    return sp;
+  }
 } // namespace gstlrn

@@ -39,10 +39,10 @@ int main(int argc, char* argv[])
   Timer timer;
 
   // Creating the Db
-  Id ndat  = 1000000;
-  Id ndim  = 2;
-  Id nvar  = 10;
-  Db* db1  = Db::createFillRandom(ndat, ndim, nvar);
+  Id ndat = 1000000;
+  Id ndim = 2;
+  Id nvar = 10;
+  Db* db1 = Db::createFillRandom(ndat, ndim, nvar);
   db1->display();
 
   // Saving as a Neutral file

@@ -20,7 +20,7 @@ set DIR = $GSTLEARN_DIR/$maindir
 cd $DIR
 
 # Check the list of targeted files:
-find . -type f -name 2 
+find . -type f -name 2
 
 # Delete the targeted files with control
 find . -type f -name 2 -exec rm -i {} \;

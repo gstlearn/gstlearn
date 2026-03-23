@@ -17,16 +17,16 @@
 #include "Basic/NamingConvention.hpp"
 #include "Enum/ESpaceType.hpp"
 
-#include "Space/ASpaceObject.hpp"
+#include "Basic/File.hpp"
+#include "Basic/Law.hpp"
+#include "Basic/OptDbg.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
-#include "Basic/Law.hpp"
-#include "Model/Model.hpp"
-#include "Basic/File.hpp"
-#include "Basic/OptDbg.hpp"
-#include "Neigh/NeighUnique.hpp"
-#include "Neigh/NeighMoving.hpp"
 #include "Estimation/Estimations.hpp"
+#include "Model/Model.hpp"
+#include "Neigh/NeighMoving.hpp"
+#include "Neigh/NeighUnique.hpp"
+#include "Space/ASpaceObject.hpp"
 
 using namespace gstlrn;
 
@@ -43,10 +43,10 @@ int main(int argc, char* argv[])
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Parameters
-  bool debug      = true;
-  Id nech         = 3;
-  Id nvar         = 3;
-  bool flagSK     = true;
+  bool debug = true;
+  Id nech = 3;
+  Id nvar = 3;
+  bool flagSK = true;
   bool flagUnique = false;
 
   // Generate the data base
@@ -59,12 +59,13 @@ int main(int argc, char* argv[])
   Db* target = Db::createFillRandom(1, ndim, nvar, 0);
 
   // Create the Model
-  Id order     = (flagSK) ? -1 : 0;
-  Model* model = Model::createFillRandom(ndim, nvar, {ECov::EXPONENTIAL}, 1., order);
+  Id order = (flagSK) ? -1 : 0;
+  Model* model =
+    Model::createFillRandom(ndim, nvar, {ECov::EXPONENTIAL}, 1., order);
 
   // Neighborhood
   ANeigh* neigh;
-  Id nmaxi      = nech;
+  Id nmaxi = nech;
   double radius = 5.;
   if (flagUnique)
     neigh = NeighUnique::create();

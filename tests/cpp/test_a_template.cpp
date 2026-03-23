@@ -25,10 +25,10 @@ int main(int argc, char* argv[])
   ASerializable::setPrefixName("test_a_template-"); // Here set the test name
   Id nx = 350;
 
-  auto mesh   = MeshETurbo({nx, nx}, {}, {}, {}, false);
-  auto range  = nx / 2.;
-  auto sill   = 1.;
-  auto param  = 1.;
+  auto mesh = MeshETurbo({nx, nx}, {}, {}, {}, false);
+  auto range = nx / 2.;
+  auto sill = 1.;
+  auto param = 1.;
   auto* model = Model::createFromParam(ECov::MATERN, range, sill, param);
   message("Number of apices = %d\n", mesh.getNApices());
 

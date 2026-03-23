@@ -25,249 +25,266 @@
 
 namespace gstlrn
 {
-CalcSimuSpectral::CalcSimuSpectral(Id nbsimu, Id ns, Id nd, Id seed, bool verbose)
-  : ACalcSimulation(nbsimu, seed)
-  , _verbose(verbose)
-  , _iattOut(-1)
-  , _ns(ns)
-  , _nd(nd)
-  , _phi()
-{
-}
-
-CalcSimuSpectral::~CalcSimuSpectral()
-{
-}
-
-Id CalcSimuSpectral::_getNDim() const
-{
-  if (getModelGeneric() == nullptr) return 0;
-  return getModelGeneric()->getNDim();
-}
-
-Id CalcSimuSpectral::_getNVar() const
-{
-  if (getModelGeneric() == nullptr) return 0;
-  return getModelGeneric()->getNVar();
-}
-
-bool CalcSimuSpectral::_check()
-{
-  if (!ACalcSimulation::_check()) return false;
-
-  if (!hasDbout()) return false;
-  if (!hasModelGeneric()) return false;
-  if (hasDbin(false))
+  CalcSimuSpectral::CalcSimuSpectral(Id nbsimu,
+                                     Id ns,
+                                     Id nd,
+                                     Id seed,
+                                     bool verbose)
+    : ACalcSimulation(nbsimu, seed)
+    , _verbose(verbose)
+    , _iattOut(-1)
+    , _ns(ns)
+    , _nd(nd)
+    , _phi()
   {
-    if (!hasNeigh()) return false;
-  }
-  if (getDbout()->getNDim() != _getNDim())
-  {
-    messerr("The Space dimension of 'dbout'(%d) should match the one of Model(%d)",
-            getDbout()->getNDim(), _getNDim());
-    return 1;
   }
 
-  // Check that the Model is compatible with Spectral Simulation
-  if (!isValidForSpectral()) return false;
+  CalcSimuSpectral::~CalcSimuSpectral() {}
 
-  if (_getNs() <= 0)
+  Id CalcSimuSpectral::_getNDim() const
   {
-    messerr("The number of simulated harmonic components should be positive");
-    return false;
+    if (getModelGeneric() == nullptr) return 0;
+    return getModelGeneric()->getNDim();
   }
-  return true;
-}
 
-/****************************************************************************/
-/*!
- **  Check if the Model can be simulated using Spectral Method
- **
- ** \return  True if the Model is valid; 0 otherwise
- **
- *****************************************************************************/
-bool CalcSimuSpectral::isValidForSpectral() const
-{
-  auto ncova            = _getNCov();
-  const auto* modellist = dynamic_cast<const ModelCovList*>(getModelGeneric());
-
-  // Loop on the simulations
-  for (Id is = 0, ns = MAX(ncova, 1); is < ns; is++)
+  Id CalcSimuSpectral::_getNVar() const
   {
-    if (ncova <= 0)
+    if (getModelGeneric() == nullptr) return 0;
+    return getModelGeneric()->getNVar();
+  }
+
+  bool CalcSimuSpectral::_check()
+  {
+    if (!ACalcSimulation::_check()) return false;
+
+    if (!hasDbout()) return false;
+    if (!hasModelGeneric()) return false;
+    if (hasDbin(false))
     {
-      const auto* cova = getModelGeneric()->getCov();
-      if (!cova->isValidForSimulation(ESimuType::SPECTRAL))
-      {
-        messerr("The covariance component %d of the Model is not valid for Spectral Simulation", is + 1);
-        return false;
-      }
+      if (!hasNeigh()) return false;
     }
-    else
+    if (getDbout()->getNDim() != _getNDim())
     {
-      const auto* covbase = dynamic_cast<const CovAniso*>(modellist->getCovBase(is));
-      if (!covbase->isValidForSimulation(ESimuType::SPECTRAL))
-      {
-        messerr("The covariance component %d of the Model is not valid for Spectral Simulation", is + 1);
-        return false;
-      }
+      messerr(
+        "The Space dimension of 'dbout'(%d) should match the one of Model(%d)",
+        getDbout()->getNDim(),
+        _getNDim());
+      return 1;
     }
-  }
-  return true;
-}
 
-/**
- * Simulate the spectrum components for Rn or S2 for one simulation
- *
- * @param cova the covariance function to be simulated
- */
-Id CalcSimuSpectral::simulate(const ACov* cova)
-{
-  // simulation of random phases, uniform on [0,2 pi]
-  auto ns    = _getNs();
-  _phi       = VectorDouble(ns);
-  double pi2 = 2. * GV_PI;
-  for (Id is = 0; is < ns; is++)
-    _phi[is] = pi2 * law_uniform();
+    // Check that the Model is compatible with Spectral Simulation
+    if (!isValidForSpectral()) return false;
 
-  return _simulate(cova);
-}
-
-/**
- * @brief Compute one non-conditional simulation on the samples of Dbout using Spectral Method
- */
-Id CalcSimuSpectral::compute(Db* dbout, Id isimu)
-{
-  auto nvar   = _getNVar();
-  auto nbsimu = getNbSimu();
-  auto nech   = dbout->getNSample();
-
-  VectorVectorDouble tab(nvar);
-  for (Id ivar = 0; ivar < nvar; ivar++) tab[ivar].resize(nech);
-  VectorBool activeArray = dbout->getActiveArray();
-
-  // The next line has been added to allow using method 'compute' independently
-  // In the calculator framework, it is simply bypassed
-  if (getDbout() == nullptr) setDbout(dbout);
-  if (_iattOut < 0)
-    _iattOut = dbout->addColumnsByConstant(nvar * nbsimu, 0., "Simu", ELoc::SIMU);
-
-  // Compute one simulation
-  if (_compute(dbout, activeArray, tab)) return 1;
-
-  // Save the resulting array
-  saveResults(dbout, 0, 0, isimu, activeArray, tab);
-
-  return 0;
-}
-
-bool CalcSimuSpectral::_preprocess()
-{
-  if (!ACalcSimulation::_preprocess()) return false;
-
-  auto nvar   = _getNVar();
-  auto nbsimu = getNbSimu();
-
-  // Add the attributes for storing the results
-  if (getDbin() != nullptr)
-  {
-    Id iptr_in = _addVariableDb(1, 2, ELoc::SIMU, 0, nvar * nbsimu);
-    if (iptr_in < 0) return false;
+    if (_getNs() <= 0)
+    {
+      messerr("The number of simulated harmonic components should be positive");
+      return false;
+    }
+    return true;
   }
 
-  // Factorize the matrix of sills
-  auto* modelLocal = dynamic_cast<Model*>(getModelGeneric());
-  if (modelLocal != nullptr)
-    modelLocal->computeAic();
-
-  _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 0, nvar * nbsimu);
-  return _iattOut >= 0;
-}
-
-bool CalcSimuSpectral::_postprocess()
-{
-  // Free the temporary variables
-  _cleanVariableDb(2);
-
-  // _renameVariable(2, VectorString(), ELoc::Z, _getNVar(), _iattOut, String(), getNbSimu());
-
-  NamingConvention namconv = getNamingConvention();
-  String prefix(namconv.getPrefix());
-  String delim(namconv.getDelim());
-  NamingConvention namconvS(namconv);
-
-  // Loop on the simulations
-  Id nbsimu = getNbSimu();
-  Id nvar   = _getNVar();
-  for (Id isimu = 0; isimu < nbsimu; isimu++)
-    for (Id ivar = 0; ivar < nvar; ivar++)
-    {
-      String ps(prefix);
-      ps.append(delim + "V" + std::to_string(ivar + 1));
-      ps.append(delim + "S" + std::to_string(isimu + 1));
-      namconvS.setPrefix(ps);
-      namconvS.setNamesAndLocators(nullptr, VectorString(), ELoc::Z, 1, getDbout(),
-                                   _iattOut + isimu * nvar + ivar, "", 1);
-    }
-  return true;
-}
-
-bool CalcSimuSpectral::_run()
-{
-  auto nbsimu = getNbSimu();
-  auto nvar   = _getNVar();
-  auto* db    = getDbout();
-  auto nech   = db->getNSample();
-
-  // Set the random seed
-  Id mem_seed = law_get_random_seed();
-  law_set_random_seed(getSeed());
-
-  auto ncova              = _getNCov();
-  const ACov* cova        = nullptr;
-  const CovAniso* covbase = nullptr;
-  const auto* modellist   = dynamic_cast<const ModelCovList*>(getModelGeneric());
-
-  VectorVectorDouble tab(nvar);
-  for (Id ivar = 0; ivar < nvar; ivar++) tab[ivar].resize(nech);
-  VectorBool activeArray = db->getActiveArray();
-
-  // Loop on the simulations
-  for (Id isimu = 0; isimu < nbsimu; isimu++)
+  /****************************************************************************/
+  /*!
+   **  Check if the Model can be simulated using Spectral Method
+   **
+   ** \return  True if the Model is valid; 0 otherwise
+   **
+   *****************************************************************************/
+  bool CalcSimuSpectral::isValidForSpectral() const
   {
+    auto ncova = _getNCov();
+    const auto* modellist =
+      dynamic_cast<const ModelCovList*>(getModelGeneric());
+
+    // Loop on the simulations
     for (Id is = 0, ns = MAX(ncova, 1); is < ns; is++)
     {
-      // Blank out the array 'tab'
-      for (Id ivar = 0; ivar < nvar; ivar++)
-        tab[ivar].fill(0.);
-
-      if (getVerbose())
-        messerr(">>> computing simulation %d for covariance %d", isimu + 1, is + 1);
       if (ncova <= 0)
-        cova = getModelGeneric()->getCov();
+      {
+        const auto* cova = getModelGeneric()->getCov();
+        if (!cova->isValidForSimulation(ESimuType::SPECTRAL))
+        {
+          messerr("The covariance component %d of the Model is not valid for "
+                  "Spectral Simulation",
+                  is + 1);
+          return false;
+        }
+      }
       else
       {
-        covbase = dynamic_cast<const CovAniso*>(modellist->getCovBase(is));
-        if (covbase->getType() == ECov::NUGGET) continue;
-        cova = dynamic_cast<const ACov*>(covbase);
+        const auto* covbase =
+          dynamic_cast<const CovAniso*>(modellist->getCovBase(is));
+        if (!covbase->isValidForSimulation(ESimuType::SPECTRAL))
+        {
+          messerr("The covariance component %d of the Model is not valid for "
+                  "Spectral Simulation",
+                  is + 1);
+          return false;
+        }
       }
-
-      if (simulate(cova)) return false;
-
-      // Compute one simulation
-      if (_compute(db, activeArray, tab)) return 1;
-
-      // Save the resulting array
-      if (ncova <= 0)
-        saveResults(db, 0, 0, isimu, activeArray, tab);
-      else
-        scaleAndSaveResults(db, covbase, 0, 0, isimu, activeArray, tab);
     }
+    return true;
   }
 
-  // Set the initial seed back
-  law_set_random_seed(mem_seed);
-  return true;
-}
+  /**
+   * Simulate the spectrum components for Rn or S2 for one simulation
+   *
+   * @param cova the covariance function to be simulated
+   */
+  Id CalcSimuSpectral::simulate(const ACov* cova)
+  {
+    // simulation of random phases, uniform on [0,2 pi]
+    auto ns = _getNs();
+    _phi = VectorDouble(ns);
+    double pi2 = 2. * GV_PI;
+    for (Id is = 0; is < ns; is++) _phi[is] = pi2 * law_uniform();
+
+    return _simulate(cova);
+  }
+
+  /**
+   * @brief Compute one non-conditional simulation on the samples of Dbout using Spectral Method
+   */
+  Id CalcSimuSpectral::compute(Db* dbout, Id isimu)
+  {
+    auto nvar = _getNVar();
+    auto nbsimu = getNbSimu();
+    auto nech = dbout->getNSample();
+
+    VectorVectorDouble tab(nvar);
+    for (Id ivar = 0; ivar < nvar; ivar++) tab[ivar].resize(nech);
+    VectorBool activeArray = dbout->getActiveArray();
+
+    // The next line has been added to allow using method 'compute' independently
+    // In the calculator framework, it is simply bypassed
+    if (getDbout() == nullptr) setDbout(dbout);
+    if (_iattOut < 0)
+      _iattOut =
+        dbout->addColumnsByConstant(nvar * nbsimu, 0., "Simu", ELoc::SIMU);
+
+    // Compute one simulation
+    if (_compute(dbout, activeArray, tab)) return 1;
+
+    // Save the resulting array
+    saveResults(dbout, 0, 0, isimu, activeArray, tab);
+
+    return 0;
+  }
+
+  bool CalcSimuSpectral::_preprocess()
+  {
+    if (!ACalcSimulation::_preprocess()) return false;
+
+    auto nvar = _getNVar();
+    auto nbsimu = getNbSimu();
+
+    // Add the attributes for storing the results
+    if (getDbin() != nullptr)
+    {
+      Id iptr_in = _addVariableDb(1, 2, ELoc::SIMU, 0, nvar * nbsimu);
+      if (iptr_in < 0) return false;
+    }
+
+    // Factorize the matrix of sills
+    auto* modelLocal = dynamic_cast<Model*>(getModelGeneric());
+    if (modelLocal != nullptr) modelLocal->computeAic();
+
+    _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 0, nvar * nbsimu);
+    return _iattOut >= 0;
+  }
+
+  bool CalcSimuSpectral::_postprocess()
+  {
+    // Free the temporary variables
+    _cleanVariableDb(2);
+
+    // _renameVariable(2, VectorString(), ELoc::Z, _getNVar(), _iattOut, String(), getNbSimu());
+
+    NamingConvention namconv = getNamingConvention();
+    String prefix(namconv.getPrefix());
+    String delim(namconv.getDelim());
+    NamingConvention namconvS(namconv);
+
+    // Loop on the simulations
+    Id nbsimu = getNbSimu();
+    Id nvar = _getNVar();
+    for (Id isimu = 0; isimu < nbsimu; isimu++)
+      for (Id ivar = 0; ivar < nvar; ivar++)
+      {
+        String ps(prefix);
+        ps.append(delim + "V" + std::to_string(ivar + 1));
+        ps.append(delim + "S" + std::to_string(isimu + 1));
+        namconvS.setPrefix(ps);
+        namconvS.setNamesAndLocators(nullptr,
+                                     VectorString(),
+                                     ELoc::Z,
+                                     1,
+                                     getDbout(),
+                                     _iattOut + isimu * nvar + ivar,
+                                     "",
+                                     1);
+      }
+    return true;
+  }
+
+  bool CalcSimuSpectral::_run()
+  {
+    auto nbsimu = getNbSimu();
+    auto nvar = _getNVar();
+    auto* db = getDbout();
+    auto nech = db->getNSample();
+
+    // Set the random seed
+    Id mem_seed = law_get_random_seed();
+    law_set_random_seed(getSeed());
+
+    auto ncova = _getNCov();
+    const ACov* cova = nullptr;
+    const CovAniso* covbase = nullptr;
+    const auto* modellist =
+      dynamic_cast<const ModelCovList*>(getModelGeneric());
+
+    VectorVectorDouble tab(nvar);
+    for (Id ivar = 0; ivar < nvar; ivar++) tab[ivar].resize(nech);
+    VectorBool activeArray = db->getActiveArray();
+
+    // Loop on the simulations
+    for (Id isimu = 0; isimu < nbsimu; isimu++)
+    {
+      for (Id is = 0, ns = MAX(ncova, 1); is < ns; is++)
+      {
+        // Blank out the array 'tab'
+        for (Id ivar = 0; ivar < nvar; ivar++) tab[ivar].fill(0.);
+
+        if (getVerbose())
+          messerr(">>> computing simulation %d for covariance %d",
+                  isimu + 1,
+                  is + 1);
+        if (ncova <= 0)
+          cova = getModelGeneric()->getCov();
+        else
+        {
+          covbase = dynamic_cast<const CovAniso*>(modellist->getCovBase(is));
+          if (covbase->getType() == ECov::NUGGET) continue;
+          cova = dynamic_cast<const ACov*>(covbase);
+        }
+
+        if (simulate(cova)) return false;
+
+        // Compute one simulation
+        if (_compute(db, activeArray, tab)) return 1;
+
+        // Save the resulting array
+        if (ncova <= 0)
+          saveResults(db, 0, 0, isimu, activeArray, tab);
+        else
+          scaleAndSaveResults(db, covbase, 0, 0, isimu, activeArray, tab);
+      }
+    }
+
+    // Set the initial seed back
+    law_set_random_seed(mem_seed);
+    return true;
+  }
 
 } // namespace gstlrn

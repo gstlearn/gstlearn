@@ -12,37 +12,35 @@
 
 namespace gstlrn
 {
-PCAStringFormat::PCAStringFormat(Id level)
-    : AStringFormat(level),
-      _flagCenter(true),
-      _flagStats(true)
-{
-  if (level == 0)
+  PCAStringFormat::PCAStringFormat(Id level)
+    : AStringFormat(level)
+    , _flagCenter(true)
+    , _flagStats(true)
   {
-    _flagCenter = false;
-    _flagStats = false;
+    if (level == 0)
+    {
+      _flagCenter = false;
+      _flagStats = false;
+    }
   }
-}
 
-PCAStringFormat::PCAStringFormat(const PCAStringFormat& r)
-    : AStringFormat(r),
-      _flagCenter(r._flagCenter),
-      _flagStats(r._flagStats)
-{
-}
-
-PCAStringFormat& PCAStringFormat::operator=(const PCAStringFormat& r)
-{
-  if (this != &r)
+  PCAStringFormat::PCAStringFormat(const PCAStringFormat& r)
+    : AStringFormat(r)
+    , _flagCenter(r._flagCenter)
+    , _flagStats(r._flagStats)
   {
-    AStringFormat::operator=(r);
-    _flagCenter = r._flagCenter;
-    _flagStats = r._flagStats;
   }
-  return *this;
-}
 
-PCAStringFormat::~PCAStringFormat()
-{
-}
-}
+  PCAStringFormat& PCAStringFormat::operator=(const PCAStringFormat& r)
+  {
+    if (this != &r)
+    {
+      AStringFormat::operator=(r);
+      _flagCenter = r._flagCenter;
+      _flagStats = r._flagStats;
+    }
+    return *this;
+  }
+
+  PCAStringFormat::~PCAStringFormat() {}
+} // namespace gstlrn

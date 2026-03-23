@@ -30,6 +30,7 @@
 #include <cmath>
 
 using namespace gstlrn;
+
 /****************************************************************************/
 /*!
  ** Main Program
@@ -42,7 +43,7 @@ int main(int argc, char* argv[])
   StdoutRedirect sr(sfn.str(), argc, argv);
 
   ASerializable::setPrefixName("test_SPDEManual-");
-  Id seed      = 10355;
+  Id seed = 10355;
   bool verbose = true;
   law_set_random_seed(seed);
 
@@ -78,7 +79,10 @@ int main(int argc, char* argv[])
   ///////////////////////////
   // Creating Data
   auto ndata = 1000;
-  auto* dat  = Db::createFromBox(ndata, grid->getCoorMinimum(), grid->getCoorMaximum(), 432432);
+  auto* dat = Db::createFromBox(ndata,
+                                grid->getCoorMinimum(),
+                                grid->getCoorMaximum(),
+                                432432);
 
   ///////////////////////////////////////////////
   // Non-conditional Simulation at Data locations
@@ -94,8 +98,7 @@ int main(int argc, char* argv[])
   B.point2mesh(datval, rhs);
 
   double nug = 0.1;
-  for (Id i = 0; i < napices; i++)
-    rhs[i] /= nug;
+  for (Id i = 0; i < napices; i++) rhs[i] /= nug;
 
   double vardata = 0.01;
   PrecisionOp Qkriging(&S, cova);
@@ -108,7 +111,6 @@ int main(int argc, char* argv[])
 
   vc = A.evalInverse(rhs);
   grid->addColumns(vc, "Kriging");
-
 
   // Statistics
   DbStringFormat dsf(FLAG_RESUME | FLAG_STATS);

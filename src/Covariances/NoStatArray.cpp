@@ -19,79 +19,80 @@
 namespace gstlrn
 {
 
-NoStatArray::NoStatArray(std::shared_ptr<const Db> dbref,
-                         const String& colname)
-  : _dbNoStat(std::move(dbref))
-  , _colName(colname)
-{
-}
-
-String NoStatArray::toString(const AStringFormat* strfmt) const
-{
-  std::stringstream sstr;
-  sstr << ANoStat::toString(strfmt);
-  AStringFormat sf;
-  if (strfmt != nullptr) sf = *strfmt;
-  return sstr.str();
-}
-
-void NoStatArray::_informField(const VectorVectorDouble& coords,
-                               VectorDouble& tab,
-                               bool verbose)
-{
-  // Identify the attribute in the Db
-
-  Id iatt = _dbNoStat->getUID(_colName);
-  if (iatt < 0)
+  NoStatArray::NoStatArray(std::shared_ptr<const Db> dbref,
+                           const String& colname)
+    : _dbNoStat(std::move(dbref))
+    , _colName(colname)
   {
-    messerr("The Non-stationary attribute  is not defined in _dbNoStat anymore");
-    return;
   }
 
-  // Migrate the information from Db onto the Vertex locations
-
-  if (_dbNoStat->isGrid())
+  String NoStatArray::toString(const AStringFormat* strfmt) const
   {
-    const auto* dbgrid = dynamic_cast<const DbGrid*>(_dbNoStat.get());
-    if (migrateGridToCoor(dbgrid, iatt, coords, tab)) return;
-  }
-  else
-  {
-    if (expandPointToCoor(_dbNoStat.get(), iatt, coords, tab)) return;
+    std::stringstream sstr;
+    sstr << ANoStat::toString(strfmt);
+    AStringFormat sf;
+    if (strfmt != nullptr) sf = *strfmt;
+    return sstr.str();
   }
 
-  Id ndef = tab.count(-1);
-  if (ndef > 0)
+  void NoStatArray::_informField(const VectorVectorDouble& coords,
+                                 VectorDouble& tab,
+                                 bool verbose)
   {
+    // Identify the attribute in the Db
 
-    // Calculate local statistics
-
-    double mean = tab.mean();
-    if (FFFF(mean))
+    Id iatt = _dbNoStat->getUID(_colName);
+    if (iatt < 0)
     {
-      messerr("This Non-Stationary parameter is not valid");
+      messerr(
+        "The Non-stationary attribute  is not defined in _dbNoStat anymore");
       return;
     }
 
-    if (verbose)
+    // Migrate the information from Db onto the Vertex locations
+
+    if (_dbNoStat->isGrid())
     {
-      message("For Non-Stationary Parameter, there are %d undefined values\n",
-              ndef);
-      message("They have been replaced by its average value (%lf)\n", mean);
+      const auto* dbgrid = dynamic_cast<const DbGrid*>(_dbNoStat.get());
+      if (migrateGridToCoor(dbgrid, iatt, coords, tab)) return;
+    }
+    else
+    {
+      if (expandPointToCoor(_dbNoStat.get(), iatt, coords, tab)) return;
     }
 
-    // Modify the TEST values to the mean value
+    Id ndef = tab.count(-1);
+    if (ndef > 0)
+    {
 
-    VH::fillUndef(tab, mean);
+      // Calculate local statistics
+
+      double mean = tab.mean();
+      if (FFFF(mean))
+      {
+        messerr("This Non-Stationary parameter is not valid");
+        return;
+      }
+
+      if (verbose)
+      {
+        message("For Non-Stationary Parameter, there are %d undefined values\n",
+                ndef);
+        message("They have been replaced by its average value (%lf)\n", mean);
+      }
+
+      // Modify the TEST values to the mean value
+
+      VH::fillUndef(tab, mean);
+    }
+
+    // Printout some statistics (optional)
+
+    if (verbose)
+    {
+      String str;
+      (void)gslSPrintf(str, "Statistics for Non-Stationary Parameter on Mesh");
+      VH::dumpStats(str, tab);
+    }
   }
-
-  // Printout some statistics (optional)
-
-  if (verbose)
-  {
-    String str;
-    (void)gslSPrintf(str, "Statistics for Non-Stationary Parameter on Mesh");
-    VH::dumpStats(str, tab);
-  }
-}
 } // namespace gstlrn

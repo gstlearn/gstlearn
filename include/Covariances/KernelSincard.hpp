@@ -15,31 +15,36 @@
 
 namespace gstlrn
 {
-class CovContext;
-class TurningBandOperate;
+  class CovContext;
+  class TurningBandOperate;
 
-class GSTLEARN_EXPORT KernelSincard: public AKernel
-{
-public:
-  KernelSincard(const CovContext& ctx);
-  KernelSincard(const KernelSincard& r);
-  KernelSincard& operator=(const KernelSincard& r);
-  virtual ~KernelSincard();
-
-  double getScadef() const override;
-  String getFormula() const override;
-  String getCovName() const override { return "Cardinal Sine"; }
-  Id getMinOrder() const override { return -1; }
-  bool getCompatibleSpaceR() const override { return true; }
-
-  bool isValidForSimulation(const ESimuType& simuType) const override
+  class GSTLEARN_EXPORT KernelSincard: public AKernel
   {
-    return (simuType == ESimuType::TB);
-  }
-  double simulateTurningBand(double t0, TurningBandOperate& operTB) const override;
+  public:
+    KernelSincard(const CovContext& ctx);
+    KernelSincard(const KernelSincard& r);
+    KernelSincard& operator=(const KernelSincard& r);
+    virtual ~KernelSincard();
 
-protected:
-  double _evaluateCov(double h) const override;
-};
+    double getScadef() const override;
+    String getFormula() const override;
+
+    String getCovName() const override { return "Cardinal Sine"; }
+
+    Id getMinOrder() const override { return -1; }
+
+    bool getCompatibleSpaceR() const override { return true; }
+
+    bool isValidForSimulation(const ESimuType& simuType) const override
+    {
+      return (simuType == ESimuType::TB);
+    }
+
+    double
+      simulateTurningBand(double t0, TurningBandOperate& operTB) const override;
+
+  protected:
+    double _evaluateCov(double h) const override;
+  };
 
 } // namespace gstlrn

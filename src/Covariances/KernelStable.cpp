@@ -16,47 +16,45 @@
 
 namespace gstlrn
 {
-KernelStable::KernelStable(const CovContext& ctxt)
-  : AKernel(ECov::STABLE, ctxt)
-{
-  setParam(1);
-}
-
-KernelStable::KernelStable(const KernelStable& r)
-  : AKernel(r)
-{
-}
-
-KernelStable& KernelStable::operator=(const KernelStable& r)
-{
-  if (this != &r)
+  KernelStable::KernelStable(const CovContext& ctxt)
+    : AKernel(ECov::STABLE, ctxt)
   {
-    AKernel::operator=(r);
+    setParam(1);
   }
-  return *this;
-}
 
-KernelStable::~KernelStable()
-{
-}
+  KernelStable::KernelStable(const KernelStable& r)
+    : AKernel(r)
+  {
+  }
 
-double KernelStable::getScadef() const
-{
-  return pow(3., 1. / getParam());
-}
+  KernelStable& KernelStable::operator=(const KernelStable& r)
+  {
+    if (this != &r)
+    {
+      AKernel::operator=(r);
+    }
+    return *this;
+  }
 
-double KernelStable::_evaluateCov(double h) const
-{
-  double cov = 1.;
-  if (h > 0) cov = exp(-pow(h, getParam()));
+  KernelStable::~KernelStable() {}
 
-  return (cov);
-}
+  double KernelStable::getScadef() const
+  {
+    return pow(3., 1. / getParam());
+  }
 
-double KernelStable::simulateTurningBand(double t0, TurningBandOperate& operTB) const
-{
-  if (getParam() > 1)
-    return operTB.cosineOne(t0);
-  return operTB.spectralOne(t0);
-}
+  double KernelStable::_evaluateCov(double h) const
+  {
+    double cov = 1.;
+    if (h > 0) cov = exp(-pow(h, getParam()));
+
+    return (cov);
+  }
+
+  double KernelStable::simulateTurningBand(double t0,
+                                           TurningBandOperate& operTB) const
+  {
+    if (getParam() > 1) return operTB.cosineOne(t0);
+    return operTB.spectralOne(t0);
+  }
 } // namespace gstlrn

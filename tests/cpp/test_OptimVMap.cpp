@@ -31,22 +31,35 @@ int main(int argc, char* argv[])
   StdoutRedirect sr(sfn.str(), argc, argv);
   ASerializable::setPrefixName("test_OptimVMap-");
 
-  Model* model    = Model::createFromParam(ECov::EXPONENTIAL, TEST, 2., 1., {0.1, 0.3}, MatrixSymmetric(), {30., 0});
-  Model* modelfit = Model::createFromParam(ECov::EXPONENTIAL, TEST, 1, 1, {1., 1}, MatrixSymmetric(), {0, 0});
+  Model* model = Model::createFromParam(ECov::EXPONENTIAL,
+                                        TEST,
+                                        2.,
+                                        1.,
+                                        {0.1, 0.3},
+                                        MatrixSymmetric(),
+                                        {30., 0});
+  Model* modelfit = Model::createFromParam(ECov::EXPONENTIAL,
+                                           TEST,
+                                           1,
+                                           1,
+                                           {1., 1},
+                                           MatrixSymmetric(),
+                                           {0, 0});
 
   mestitle(0, "Test fit from Variogram");
   mestitle(1, "True Model");
   model->display();
 
   // Simulating the Input file
-  Id nx          = 100;
-  double dx      = 1. / nx;
+  Id nx = 100;
+  double dx = 1. / nx;
   DbGrid* dbgrid = DbGrid::create({nx, nx}, {dx, dx});
   (void)simtub(nullptr, dbgrid, model);
   (void)dbgrid->dumpToNF("dbgrid.NF");
 
   // Calculating the experimental variogram Map
-  DbGrid* dbmap = db_vmap(dbgrid, 0, true, ECalcVario::VARIOGRAM, true, {50, 50});
+  DbGrid* dbmap =
+    db_vmap(dbgrid, 0, true, ECalcVario::VARIOGRAM, true, {50, 50});
   (void)dbmap->dumpToNF("VMap.NF");
 
   mestitle(1, "Initial Model");
@@ -56,9 +69,9 @@ int main(int argc, char* argv[])
   ModelOptimParam mop;
   mop.setFlagGoulard(true);
   bool verbose = false;
-  bool trace   = false;
-  modelfit->fitNew(nullptr, nullptr, dbmap, nullptr, mop,
-                   ITEST, verbose, trace);
+  bool trace = false;
+  modelfit
+    ->fitNew(nullptr, nullptr, dbmap, nullptr, mop, ITEST, verbose, trace);
 
   // Fitting procedure
   mestitle(1, "Fitted Model");

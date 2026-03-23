@@ -37,7 +37,7 @@ namespace gstlrn {
 %fragment("ToCpp", "header")
 {
   template <typename Type> int convertToCpp(SEXP obj, Type& value);
-  
+
   template <> int convertToCpp(SEXP obj, Id& value)
   {
     // Test argument
@@ -57,7 +57,7 @@ namespace gstlrn {
   {
     // Test argument
     if (obj == NULL) return SWIG_TypeError;
-      
+
     int myres = SWIG_TypeError;
     if (Rf_length(obj) > 0) // Prevent NULL value from becoming NA
     {
@@ -66,13 +66,13 @@ namespace gstlrn {
       if (SWIG_IsOK(myres) && !R_finite(value)) // NA, NaN, Inf or out of bounds value becomes NA
         value = getNA<double>();
     }
-    return myres; 
+    return myres;
   }
   template <> int convertToCpp(SEXP obj, String& value)
   {
     // Test argument
     if (obj == NULL) return SWIG_TypeError;
-      
+
     int myres = SWIG_TypeError;
     if (Rf_length(obj) > 0) // Prevent NULL value from being accepted
     {
@@ -86,7 +86,7 @@ namespace gstlrn {
   {
     // Test argument
     if (obj == NULL) return SWIG_TypeError;
-    
+
     int myres = SWIG_TypeError;
     if (Rf_length(obj) > 0) // Prevent NULL value from becoming NA
     {
@@ -95,20 +95,20 @@ namespace gstlrn {
       if (SWIG_IsOK(myres) && !R_finite(value)) // NA, NaN, Inf or out of bounds value becomes NA
         value = getNA<float>();
     }
-    return myres; 
+    return myres;
   }
   template <> int convertToCpp(SEXP obj, UChar& value)
   {
     // Test argument
     if (obj == NULL) return SWIG_TypeError;
-    
+
     int myres = SWIG_TypeError;
     if (Rf_length(obj) > 0) // Prevent NULL value from becoming NA
     {
       long v = 0;
       myres = SWIG_AsVal_long(obj, &v);
       //std::cout << "convertToCpp(UChar): value=" << v << std::endl;
-      if (myres == SWIG_OverflowError || 
+      if (myres == SWIG_OverflowError ||
           v < std::numeric_limits<UChar>::min() ||
           v > std::numeric_limits<UChar>::max()) // Out of bound value is error (no NA for UChar)
       {
@@ -129,7 +129,7 @@ namespace gstlrn {
   {
     // Test argument
     if (obj == NULL) return SWIG_TypeError;
-    
+
     long v = 0;
     int myres = SWIG_AsVal_long(obj, &v);
     //std::cout << "convertToCpp(bool): value=" << v << std::endl;
@@ -139,7 +139,7 @@ namespace gstlrn {
       value = true;
     return myres;
   }
-  
+
   // Certainly not the most efficient way to convert vectors,
   // but at least, I can test each value for particular NAs
   SEXP getElem(SEXP obj, int i)
@@ -151,14 +151,14 @@ namespace gstlrn {
     if (TYPEOF(obj) == VECSXP)  return VECTOR_ELT(obj, i);
     return SEXP();
   }
-  
+
   template <typename Vector>
   int vectorToCpp(SEXP obj, Vector& vec)
   {
     // Type definitions
     using ValueType = typename Vector::value_type;
     vec.clear();
-    
+
     // Test argument
     if (obj == NULL) return SWIG_TypeError;
     if (obj == R_NilValue) return SWIG_NullReferenceError;
@@ -191,7 +191,7 @@ namespace gstlrn {
     // Type definitions
     using InputVector = typename VectorVector::value_type;
     vvec.clear();
-    
+
     // Test argument
     if (obj == NULL) return SWIG_TypeError;
     if (obj == R_NilValue) return SWIG_NullReferenceError;
@@ -205,7 +205,7 @@ namespace gstlrn {
       InputVector vec;
       SEXP item = getElem(obj,0);
       // Try to convert
-      if (TYPEOF(item) == NILSXP) 
+      if (TYPEOF(item) == NILSXP)
         myres = vectorToCpp(obj, vec);
       else
         myres = vectorToCpp(item, vec);
@@ -305,7 +305,7 @@ namespace gstlrn {
     }
 
     NF_Triplet NFT;
-    for (int i = 0; i < nnz; i++) 
+    for (int i = 0; i < nnz; i++)
       NFT.add(rows[i], cols[i], data[i]);
     NFT.force(nrows, ncols);
     mat.resize(nrows, ncols);
@@ -330,13 +330,13 @@ namespace gstlrn {
 %typemap(rtypecheck, noblock=1) const gstlrn::VectorFloat&, gstlrn::VectorFloat               { length($arg) == 0 || (length($arg) > 0 &&  is.numeric(unlist($arg))) }
 %typemap(rtypecheck, noblock=1) const gstlrn::VectorUChar&, gstlrn::VectorUChar               { length($arg) == 0 || (length($arg) > 0 && (is.integer(unlist($arg)) || is.numeric(unlist($arg)))) }
 %typemap(rtypecheck, noblock=1) const gstlrn::VectorBool&, gstlrn::VectorBool                 { length($arg) == 0 || (length($arg) > 0 &&  is.logical(unlist($arg))) }
-%typemap(rtypecheck, noblock=1) const gstlrn::VectorVectorInt&, gstlrn::VectorVectorInt       { length($arg) == 0 || (length($arg) > 0 && 
+%typemap(rtypecheck, noblock=1) const gstlrn::VectorVectorInt&, gstlrn::VectorVectorInt       { length($arg) == 0 || (length($arg) > 0 &&
                                                                                (length($arg[[1]]) == 0 || (length($arg[[1]]) > 0 && (is.integer(unlist($arg[[1]])) || is.numeric(unlist($arg[[1]])))))) }
-%typemap(rtypecheck, noblock=1) const gstlrn::VectorVectorDouble&, gstlrn::VectorVectorDouble { length($arg) == 0 || (length($arg) > 0 && 
+%typemap(rtypecheck, noblock=1) const gstlrn::VectorVectorDouble&, gstlrn::VectorVectorDouble { length($arg) == 0 || (length($arg) > 0 &&
                                                                                (length($arg[[1]]) == 0 || (length($arg[[1]]) > 0 && is.numeric(unlist($arg[[1]]))))) }
 
 %fragment("FromCpp", "header")
-{  
+{
   template <typename InputType> struct OutTraits;
   template <> struct OutTraits<Id>      { using OutputType = Id; };
   template <> struct OutTraits<double>  { using OutputType = double; };
@@ -344,7 +344,7 @@ namespace gstlrn {
   template <> struct OutTraits<float>   { using OutputType = float; };
   template <> struct OutTraits<UChar>   { using OutputType = UChar; };
   template <> struct OutTraits<bool>    { using OutputType = bool; };
-  
+
   template <typename Type> typename OutTraits<Type>::OutputType convertFromCpp(const Type& value);
   template <> Id convertFromCpp(const Id& value)
   {
@@ -382,7 +382,7 @@ namespace gstlrn {
     //std::cout << "convertFromCpp(bool): value=" << value << std::endl;
     return value; // No special conversion provided
   }
-  
+
   template <typename Type> SEXP objectFromCpp(const Type& value);
   template <> SEXP objectFromCpp(const Id& value)
   {
@@ -408,14 +408,14 @@ namespace gstlrn {
   {
     return Rf_ScalarLogical(static_cast<int>(convertFromCpp(value)));
   }
-  
+
   template <typename Vector>
   int vectorFromCpp(SEXP* obj, const Vector& vec)
   {
     // Type definitions
     int myres = SWIG_TypeError;
     using SizeType = typename Vector::size_type;
- 
+
     // Test NA values
     auto vec2 = vec.getVector();
     SizeType size = vec2.size();
@@ -494,7 +494,7 @@ namespace gstlrn {
     SEXP R_j   = PROTECT(Rf_allocVector(INTSXP, nnz));      // column indices
     SEXP R_x   = PROTECT(Rf_allocVector(REALSXP, nnz));     // non-zero values
     SEXP R_dim = PROTECT(Rf_allocVector(INTSXP, 2));        // dimensions
-    
+
     int* dims = INTEGER(R_dim);    // Pointer to 'R_dim'
     int* rows = INTEGER(R_i);      // Pointer to 'R_i'
     int* cols = INTEGER(R_j);      // Pointer to 'R_j'
@@ -502,7 +502,7 @@ namespace gstlrn {
 
     dims[0] = static_cast<int>(nrows);
     dims[1] = static_cast<int>(ncols);
-    for (int i = 0; i < nnz; ++i) 
+    for (int i = 0; i < nnz; ++i)
     {
       rows[i] = static_cast<int>(NFT.getRow(i));
       cols[i] = static_cast<int>(NFT.getCol(i));
@@ -585,12 +585,12 @@ namespace gstlrn {
 %{
   #include <stdio.h>
   #include <string>
-  
+
   #include <R_ext/Print.h>
   #include <R_ext/Error.h>
   #include <R.h>
-  #include <Rinternals.h>     
-  
+  #include <Rinternals.h>
+
   // https://stackoverflow.com/a/70586898
   void replace_all(std::string& s,
                    const std::string& toReplace,
@@ -617,7 +617,7 @@ namespace gstlrn {
     buf.append(s, prevPos, s.size() - prevPos);
     s.swap(buf);
   }
-  
+
   void R_Write(const char *string)
   {
     if (string == NULL) return;
@@ -627,12 +627,12 @@ namespace gstlrn {
       Rprintf("%s", string);
     }
   }
-  
+
   void R_Warning(const char *string)
   {
     R_Write(string);
   }
-  
+
   #ifndef _WIN32
   #define R_INTERFACE_PTRS 1
   #include <Rinterface.h>
@@ -648,7 +648,7 @@ namespace gstlrn {
     if (strlen(reponse) > 0) (void) strcpy(answer,reponse);
   }
   #endif // Not _WIN32
-  
+
   void R_Exit(void)
   {
     Rf_error("Abort caught by C++ and return to R");
@@ -767,7 +767,7 @@ function(x, i)
       if (n < 1 || n > x$length())
         stop("Index out of range")
       x$getAt(n-1)
-    }) 
+    })
   }
   else {
     x$getAt(idx-1)
@@ -840,7 +840,7 @@ setMethod('[[<-', '_p_gstlrn__VectorNumTT_gstlrn__VectorNumTT_float_t_t',     se
   if (length(x) <= 0) return(TRUE)
   if (length(x) > 1) return(FALSE)
   if (is.na(x)) return(TRUE)
-  return(FALSE) 
+  return(FALSE)
 }
 
 "DbIdentifyRows" <- function(db, i)
@@ -859,7 +859,7 @@ setMethod('[[<-', '_p_gstlrn__VectorNumTT_gstlrn__VectorNumTT_float_t_t',     se
 "DbIdentifyCols" <- function(db, j)
 {
   namcol <- NA
-  
+
   # Decode the Column number
   if (is.numeric(j)) {
     # Translate into 0-based number if numeric
@@ -887,27 +887,27 @@ function (x,i,j,...,drop=TRUE)
   namcols <- NA
 
   if (nargs == 2) {
-  
+
     # Case of both arguments are defined
     rows = DbIdentifyRows(db, unlist(args[1]))
     namcols = DbIdentifyCols(db, unlist(args[2]))
-    
+
   } else if (nargs == 1) {
-  
+
     # Case where only one argument in defined: it is the column identification
     namcols = DbIdentifyCols(db, unlist(args[1]))
   }
-  
+
   isRowUndefined = is.undef(rows)
   if (isRowUndefined) rows = seq(0, nech_abs - 1)
-  
+
   isColUndefined = is.undef(namcols)
   if (isColUndefined) namcols = db$getAllNames()
-  
+
   row_names = rows
   ncol = length(namcols)
   nrow = length(rows)
-    
+
   if (ncol <= 0)
   {
     messerr("The variable does not exist")
@@ -935,7 +935,7 @@ function (x,i,j,...,drop=TRUE)
   dots = list(...)
   if (length(dots) > 0) args = append(args, dots)
   nargs = length(args)
-  
+
   nech_abs = db$getNSample()
   ncol_abs = db$getNColumn()
   value = as.numeric(unlist(value))
@@ -944,14 +944,14 @@ function (x,i,j,...,drop=TRUE)
   namcols <- NA
   new_names = "New"
   if (nargs == 2) {
-  
+
     # Both arguments are defined
     rows = DbIdentifyRows(db, unlist(args[1]))
     namcols = DbIdentifyCols(db, unlist(args[2]))
     new_names = j
 
   } else if (nargs == 1) {
-  
+
     # Only one argument is defined: it corresponds to the column
     namcols = DbIdentifyCols(db, unlist(args[1]))
     new_names = unlist(args[1])
@@ -959,10 +959,10 @@ function (x,i,j,...,drop=TRUE)
 
   isRowUndefined = is.undef(rows)
   if (isRowUndefined) rows = seq(0, nech_abs - 1)
-  
+
   # Next line is commented in order to allow having no existing column
   # This corresponds to the creation of the NEW variable
-  
+
   row_names = rows
   ncol = length(namcols)
   nrow = length(rows)
@@ -970,13 +970,13 @@ function (x,i,j,...,drop=TRUE)
   if (ncol <= 0)
   {
     # Case of a new variable
-    
+
     icol_new = db$addColumns(value, new_names)
   }
   else
   {
     # Case of already an existing variable: replacement
-    
+
     db$setValuesByNames(rows,namcols, value)
   }
   db
@@ -1047,7 +1047,7 @@ function (x,i,j,...,drop=TRUE)
   if (length(dots) > 0) args = append(args, dots)
   nargs = length(args)
   if (nargs != 2) stop("2 arguments are mandatory")
-  
+
   res = table$getValue(unlist(args[1]),unlist(args[2]))
   res
 }
@@ -1063,7 +1063,7 @@ function (x,i,j,...,drop=TRUE)
   if (length(dots) > 0) args = append(args, dots)
   nargs = length(args)
   if (nargs != 2) stop("2 arguments are mandatory")
-  
+
   table$setValue(unlist(args[1]),unlist(args[2]),as.numeric(unlist(value)))
   table
 }
@@ -1084,11 +1084,11 @@ setMethod('[<-',  '_p_gstlrn__Table',               setTableitem)
   if (nrow > 0 && ncol > 0)
   {
  	  names(df) = tab$getColumnNames()
-  	  if (length(tab$getColumnNames()) > 0) 
+  	  if (length(tab$getColumnNames()) > 0)
   		  colnames(df) <- tab$getColumnNames()
  	  else
   		colnames(df) = seq(1, ncol)
-  	if (length(tab$getRowNames()) > 0)    
+  	if (length(tab$getRowNames()) > 0)
   		rownames(df) <- tab$getRowNames()
   	else
   		rownames(df) = seq(1, nrow)
@@ -1105,16 +1105,16 @@ matrix_general_toLatex <- function(self, col_titles = NULL, row_titles = NULL, p
   values <- self$getValues()
   N <- self$getNRows()
   P <- self$getNCols()
-  
+
   # Reshape en matrice N x P
   matrix_vals <- matrix(values, nrow = N, ncol = P, byrow = FALSE)
-  
+
 # Déterminer l’alignement des colonnes
   num_cols <- P + ifelse(!is.null(row_titles), 1, 0)
   col_format <- paste(rep("c", num_cols), collapse = "")
-  
+
   lines <- c()
-  
+
   # Ligne d’en-tête
   if (!is.null(col_titles)) {
     if (!is.null(row_titles)) {
@@ -1124,23 +1124,23 @@ matrix_general_toLatex <- function(self, col_titles = NULL, row_titles = NULL, p
     }
     lines <- c(lines, paste(header, collapse = " & "))
   }
-  
+
   # Lignes du tableau
   for (i in seq_len(N)) {
     formatted_row <- formatC(matrix_vals[i, ], format = "f", digits = precision)
-    
+
     if (!is.null(row_titles)) {
       line <- c(row_titles[i], formatted_row)
     } else {
       line <- formatted_row
     }
-    
+
     lines <- c(lines, paste(line, collapse = " & "))
   }
-  
+
   # Concaténation LaTeX propre (sans \n)
   latex_body <- paste(lines, collapse = " \\\\")  # juste "\\" pour LaTeX
-  
+
   latex_code <- paste0(
     "$$",
     "\\left[\\begin{array}{", col_format, "}",
@@ -1194,7 +1194,7 @@ matrix_general_toLatex <- function(self, col_titles = NULL, row_titles = NULL, p
 
 #' Convert a variogram into a data.frame
 #'
-#' @param x    Pointer to the Vario 
+#' @param x    Pointer to the Vario
 #' @param idir Rank of the direction (0 based)
 #' @param ivar Rank of the first variable (0 based)
 #' @param jvar Rank of the second variable (0 based)
@@ -1203,7 +1203,7 @@ matrix_general_toLatex <- function(self, col_titles = NULL, row_titles = NULL, p
   sw = x$getSwVec(idir, ivar, jvar, FALSE)
   hh = x$getHhVec(idir, ivar, jvar, FALSE)
   gg = x$getGgVec(idir, ivar, jvar, FALSE, FALSE, FALSE)
-  
+
   vals = cbind(sw, hh, gg)
   df = data.frame(vals)
   names(df) = c("sw","hh","gg")
@@ -1215,11 +1215,11 @@ matrix_general_toLatex <- function(self, col_titles = NULL, row_titles = NULL, p
 	ndir = vario$getNDir()
 	nvar = vario$getNVar()
 	if (idir < 0 || idir >= ndir) return
-	if (ivar < 0 || ivar >= nvar) return 
-	if (jvar < 0 || jvar >= nvar) return 
+	if (ivar < 0 || ivar >= nvar) return
+	if (jvar < 0 || jvar >= nvar) return
 	nlag = vario$getNLagTotal(idir)
-	if (dim(df)[1] != nlag) return 
-	
+	if (dim(df)[1] != nlag) return
+
 	vario$setSwVec(idir, ivar, jvar, df$sw)
 	vario$setHhVec(idir, ivar, jvar, df$hh)
 	vario$setGgVec(idir, ivar, jvar, df$gg)
@@ -1277,7 +1277,7 @@ matrix_general_toLatex <- function(self, col_titles = NULL, row_titles = NULL, p
 "varioArguments" <- function(res)
 {
   nargs = length(res)
-  
+
   idir = 0
   ivar = 0
   jvar = 0
@@ -1317,7 +1317,7 @@ matrix_general_toLatex <- function(self, col_titles = NULL, row_titles = NULL, p
   if (deparse(substitute(j)) != "") args = append(args, list(j))
   dots = list(...)
   if (length(dots) > 0) args = append(args, dots)
-  
+
   res = varioArguments(args)
   values = vario$getGgs(res$idir, res$ivar, res$jvar, res$ilag)
   values
@@ -1331,8 +1331,8 @@ matrix_general_toLatex <- function(self, col_titles = NULL, row_titles = NULL, p
   if (deparse(substitute(j)) != "") args = append(args, list(j))
   dots = list(...)
   if (length(dots) > 0) args = append(args, dots)
-  
-  res = varioArguments(args)  
+
+  res = varioArguments(args)
   vario$setGgs(res$idir, res$ivar, res$jvar, res$ilag, as.numeric(unlist(value)))
   vario
 }
@@ -1342,11 +1342,11 @@ setMethod('[<-',  '_p_gstlrn__Vario',               setVarioitem)
 
 #"MatrixDense_create" <- function(mat)
 #{
-#  if (inherits(mat, "ExternalReference")) mat = slot(mat,"ref"); 
+#  if (inherits(mat, "ExternalReference")) mat = slot(mat,"ref");
 #  ;ans = .Call('R_swig_MatrixDense_create', mat, PACKAGE='gstlearn');
 #  ans <- if (is.null(ans)) ans
 #  else new("_p_gstlrn__Plane", ref=ans);
-#  
+#
 #  ans
 #}
 #attr(`MatrixDense_create`, 'returnType') = '_p_gstlrn__MatrixDense'
@@ -1355,11 +1355,11 @@ setMethod('[<-',  '_p_gstlrn__Vario',               setVarioitem)
 
 #"MatrixSparse_create" <- function(mat)
 #{
-#  if (inherits(mat, "ExternalReference")) mat = slot(mat,"ref"); 
+#  if (inherits(mat, "ExternalReference")) mat = slot(mat,"ref");
 #  ;ans = .Call('R_swig_MatrixSparse_create', mat, PACKAGE='gstlearn');
 #  ans <- if (is.null(ans)) ans
 #  else new("_p_Plane", ref=ans);
-#  
+#
 #  ans
 #}
 #attr(`MatrixSparse_create`, 'returnType') = '_p_gstlrn__MatrixSparse'
@@ -1387,7 +1387,7 @@ setMethod('[<-',  '_p_gstlrn__Vario',               setVarioitem)
 	# into NA.
 	for (field in names(Robj))
 	   	dat[field] = suppressWarnings(as.numeric(unlist(Robj[field])))
-	   	
+
 	if (length(coordnames) > 0)
 	{
 		## Check names
@@ -1398,7 +1398,7 @@ setMethod('[<-',  '_p_gstlrn__Vario',               setVarioitem)
   	  	else
    		{
 			## Add coordinates
-  			err = dat$setLocators(names = coordnames, locatorType = ELoc_X(), 
+  			err = dat$setLocators(names = coordnames, locatorType = ELoc_X(),
   			cleanSameLocator = TRUE)
   		}
   	}
