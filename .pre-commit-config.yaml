@@ -18,3 +18,12 @@ repos:
     rev: 'v22.1.1'
     hooks:
       - id: clang-format
+exclude: |
+    (?x)^(
+        doc/data|
+        doc/licenses|
+        .*\.ref$|
+        .*\.dat$|
+        .*\.out$|
+        .*\.asciidoc$
+    )
