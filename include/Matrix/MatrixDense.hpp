@@ -238,7 +238,6 @@ protected:
   double _getValueByRank(Id rank) const override;
   double& _getValueRef(Id irow, Id icol) override;
 
-
 private:
   void _recopy(const MatrixDense& r);
   bool _needToReset(Id nrows, Id ncols) override;

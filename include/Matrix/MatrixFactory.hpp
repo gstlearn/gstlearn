@@ -33,7 +33,6 @@ public:
                        const AMatrix* y,
                        bool transposeX = false,
                        bool transposeY = false);
-  static MatrixSquare* createMatrixSquare(const MatrixSquare* x, Id nrow);
   static AMatrix* createReduce(const AMatrix* x,
                                const VectorInt& selRows = VectorInt(),
                                const VectorInt& selCols = VectorInt(),
@@ -64,7 +63,6 @@ public:
  ** \remarks: To be called as follows:
  **      MatrixSparse* mat = MatrixFactory::prodMatMat<MatrixSparse>(x, y);
  **
- ** TODO : Why 2 methods for MatrixFactory::prodMatMat ?
  *****************************************************************************/
 template<typename T>
 T* MatrixFactory::prodMatMat(const AMatrix* x,

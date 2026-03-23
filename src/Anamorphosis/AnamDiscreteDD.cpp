@@ -324,7 +324,9 @@ MatrixDense AnamDiscreteDD::factors_maf(bool verbose)
       double prop = getDDStatProp(icut);
       tab.setValue(iclass, icut, ((bval - cval) - prop) / sqrt(prop * (1. - prop)));
     }
-  getPcaZ2Fs().prodMatMatInPlace(&tab, &maf);
+  MatrixSquare res;
+  AMatrix::prodMatMatInPlace(res, tab, maf);
+  setPcaZ2F(res);
 
   /* Verbose option */
 

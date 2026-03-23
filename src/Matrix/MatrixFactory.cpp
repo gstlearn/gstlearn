@@ -101,35 +101,6 @@ AMatrix* MatrixFactory::prodMatMat(const AMatrix* x,
   return res;
 }
 
-/****************************************************************************/
-/*!
- **  Create a Matrix similar to the input one with a given row number
- **
- ** \return Pointer to the newly created AMatrix matrix
- **
- ** \param[in]  x          First AMatrix matrix
- ** \param[in]  nrow       Number of rows
- **
- *****************************************************************************/
-MatrixSquare* MatrixFactory::createMatrixSquare(const MatrixSquare* x,
-                                                Id nrow)
-{
-  /// TODO : use typeinfo
-  const auto* mxsg     = dynamic_cast<const MatrixSquare*>(x);
-  const auto* mxsym = dynamic_cast<const MatrixSymmetric*>(x);
-
-  MatrixSquare* res = nullptr;
-  if (mxsg != nullptr)
-  {
-    res = new MatrixSquare(nrow);
-  }
-  else if (mxsym != nullptr)
-  {
-    res = new MatrixSymmetric(nrow);
-  }
-  return res;
-}
-
 /**
  * Create a submatrix from an input matrix
  * by specifying the list of rows and columns to be extracted or excluded
@@ -183,9 +154,9 @@ AMatrix* MatrixFactory::createReduce(const AMatrix* x,
   bool flagSame = (localSelRows == localSelCols);
 
   /// TODO : use typeinfo
-  AMatrix* res                 = nullptr;
-  const auto* mxrg      = dynamic_cast<const MatrixDense*>(x);
-  const auto* mxsg     = dynamic_cast<const MatrixSquare*>(x);
+  AMatrix* res      = nullptr;
+  const auto* mxrg  = dynamic_cast<const MatrixDense*>(x);
+  const auto* mxsg  = dynamic_cast<const MatrixSquare*>(x);
   const auto* mxsym = dynamic_cast<const MatrixSymmetric*>(x);
 
   if (mxsym != nullptr)

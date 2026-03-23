@@ -246,7 +246,7 @@ SpectrumOnRN* CorGaussianMixture::simulateOnRN(Id ns) const
     double xi = 0.0;
     if (_corRef->getType() == ECov::MATERN)
     {
-      xi = 1 / law_gamma(nu0, (kappa0 * kappa0 / 4));
+      xi = 1 / law_gamma(nu0, kappa0 * kappa0 / 4);
     }
     else if (_corRef->getType() == ECov::CAUCHY)
     {
@@ -299,7 +299,7 @@ SpectrumOnRN* CorGaussianMixture::simulateOnRN(Id ns) const
 
   // apply the geometrical anisotropy
   const auto& tensor = _corRef->getAniso().getTensorInverse();
-  omega.prodMat(&tensor);
+  AMatrix::prodMatMatInPlace(omega, omega, tensor);
 
   // simulation of the random phase
   VectorDouble phi(ns);

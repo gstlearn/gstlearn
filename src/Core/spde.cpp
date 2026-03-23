@@ -1975,10 +1975,10 @@ static MatrixSparse* st_spde_fill_S(AMesh* amesh, Model* model, const double* un
           matw.setValue(idim, icorn, matu.getValue(idim, icorn));
 
       /*! Perform 'this' = 'x' * 'y' */
-      mat1.prodMatMatInPlace(&matw, &Calcul.hh, true, false);
+      AMatrix::prodMatMatInPlace(mat1, matw, Calcul.hh);
       if (flag_nostat)
         AMatrix::productInPlace(matv, matw, Calcul.vv, true);
-      mat.prodMatMatInPlace(&mat1, &matw);
+      AMatrix::prodMatMatInPlace(mat, mat1, matw);
 
       for (Id j0 = 0; j0 < ncorner; j0++)
         for (Id j1 = 0; j1 < ncorner; j1++)
@@ -2159,15 +2159,17 @@ static MatrixSparse* st_extract_Q1_hetero(Id row_var,
                                           Id* ncols)
 {
   Id error;
-  MatrixSparse *Q, *Brow, *Bcol, *B1, *Bt, *Qn;
+  MatrixSparse *Q, *Brow, *Bcol, *Bt;
   SPDE_SS_Environ* SS;
 
   /* Initializations */
 
   error = 1;
-  Q = Brow = Bcol = B1 = Bt = Qn = nullptr;
-  SS                             = MATGRF(SPDE_CURRENT_IGRF);
-  SPDE_Matelem& Matelem1         = spde_get_current_matelem(0);
+  MatrixSparse B1;
+  MatrixSparse Qn;
+  Q = Brow = Bcol = Bt   = nullptr;
+  SS                     = MATGRF(SPDE_CURRENT_IGRF);
+  SPDE_Matelem& Matelem1 = spde_get_current_matelem(0);
 
   /* Identify the operating matrices */
 
@@ -2177,14 +2179,12 @@ static MatrixSparse* st_extract_Q1_hetero(Id row_var,
   if (Bcol == nullptr) goto label_end;
   Bt = Bcol->transpose();
   if (Bt == nullptr) goto label_end;
-  B1 = MatrixFactory::prodMatMat<MatrixSparse>(Brow, Matelem1.QC->Q);
-  if (B1 == nullptr) goto label_end;
-  Qn = MatrixFactory::prodMatMat<MatrixSparse>(B1, Bt);
-  if (Qn == nullptr) goto label_end;
+  AMatrix::prodMatMatInPlace(B1, *Brow, *Matelem1.QC->Q);
+  AMatrix::prodMatMatInPlace(Qn, B1, *Bt);
 
   /* Multiply by the corresponding sill */
 
-  Q = MatrixSparse::addMatMat(Qn, Qn, st_get_isill(0, row_var, col_var), 0.);
+  Q = MatrixSparse::addMatMat(&Qn, &Qn, st_get_isill(0, row_var, col_var), 0.);
   if (Q == nullptr) goto label_end;
 
   /* Set the error return code */
@@ -2194,9 +2194,7 @@ static MatrixSparse* st_extract_Q1_hetero(Id row_var,
   *ncols = (col_oper == 1) ? SS->ndata1[col_var] : SS->ntarget1[col_var];
 
 label_end:
-  delete B1;
   delete Bt;
-  delete Qn;
   if (error) delete Q;
   return (Q);
 }
@@ -2363,7 +2361,7 @@ static MatrixSparse* st_spde_build_Q(MatrixSparse* S,
   {
     AMatrix::linearCombinationInPlace(*Q, 0., 1., *Q, blin[iterm], *Bi);
     if (iterm < nblin - 1)
-      Bi->prodMat(S);
+      AMatrix::prodMatMatInPlace(*Bi, *Bi, *S);
   }
   delete Bi;
 
@@ -4760,15 +4758,16 @@ label_end:
  *****************************************************************************/
 static QChol* st_derive_Qc(double s2, QChol* Qc, SPDE_Matelem& Matelem)
 {
-  MatrixSparse *Bt, *B2, *Q, *B;
+  MatrixSparse *Bt, *Q, *B;
   Id error;
 
   // Initializations
 
   error = 1;
-  Bt = B2 = nullptr;
-  Q       = Matelem.QC->Q;
-  B       = Matelem.Aproj;
+  Bt    = nullptr;
+  Q     = Matelem.QC->Q;
+  B     = Matelem.Aproj;
+  MatrixSparse B2;
 
   // Clean the previous Qc (if it exists)
 
@@ -4780,12 +4779,11 @@ static QChol* st_derive_Qc(double s2, QChol* Qc, SPDE_Matelem& Matelem)
           s2);
   Bt = B->transpose();
   if (Bt == nullptr) goto label_end;
-  B2 = MatrixFactory::prodMatMat<MatrixSparse>(Bt, B);
-  if (B2 == nullptr) goto label_end;
+  AMatrix::prodMatMatInPlace(B2, *Bt, *B);
 
   Qc = st_qchol_manage(1, NULL);
   if (Qc == nullptr) goto label_end;
-  Qc->Q = MatrixSparse::addMatMat(Q, B2, s2, 1.);
+  Qc->Q = MatrixSparse::addMatMat(Q, &B2, s2, 1.);
   if (Qc->Q == nullptr) goto label_end;
 
   // Perform the Cholesky transform
@@ -4797,7 +4795,6 @@ static QChol* st_derive_Qc(double s2, QChol* Qc, SPDE_Matelem& Matelem)
 label_end:
   message("Done\n");
   delete Bt;
-  delete B2;
   if (error) Qc = st_qchol_manage(-1, Qc);
   return (Qc);
 }

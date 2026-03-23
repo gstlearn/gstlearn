@@ -4697,7 +4697,7 @@ Id Vario::_driftEstimateCoefficients(Db* db)
 
   /* Pre-process the vector X %*% (t(X) %*% X)-1 */
 
-  _DRFXA.prodMatMatInPlace(&_DRFTAB, &matdrf);
+  AMatrix::prodMatMatInPlace(_DRFXA, _DRFTAB, matdrf);
 
   return 0;
 }

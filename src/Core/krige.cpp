@@ -2983,7 +2983,7 @@ static Id st_sampling_krige_data(Db* db,
 
     eigvec->prodByDiagInPlace(3, eigval);
     auto* spart = dynamic_cast<MatrixDense*>(MatrixFactory::createGlue(sq, &v, true, false));
-    spart->prodMatMatInPlace(spart, eigvec);
+    AMatrix::prodMatMatInPlace(*spart, *spart, *eigvec);
     delete eigvec;
 
     if (beta > 0.)

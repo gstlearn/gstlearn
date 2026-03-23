@@ -830,7 +830,7 @@ Id KrigingAlgebraSimpleCase::_needVarZSK()
   if (!_VarZSK.empty()) return 0;
   if (_needLambdaSK()) return 1;
   _VarZSK.resize(_nrhs, _nrhs);
-  _VarZSK.prodMatMatInPlace(_LambdaSK.get(), _Sigma0.get(), true, false);
+  AMatrix::prodMatMatInPlace(_VarZSK, *_LambdaSK, *_Sigma0, true, false);
   return 0;
 }
 
@@ -861,9 +861,9 @@ Id KrigingAlgebraSimpleCase::_needStdv()
 
     _Stdv.resize(_nrhs, _nrhs);
     _LambdaUKtSigma0.resize(_nrhs, _nrhs);
-    _LambdaUKtSigma0.prodMatMatInPlace(&_LambdaUK, _Sigma0.get(), true);
+    AMatrix::prodMatMatInPlace(_LambdaUKtSigma0, _LambdaUK, *_Sigma0, true);
     _MuUKtX0t.resize(_nrhs, _nrhs);
-    _MuUKtX0t.prodMatMatInPlace(&_MuUK, _X0.get(), true, true);
+    AMatrix::prodMatMatInPlace(_MuUKtX0t, _MuUK, *_X0, true, true);
     AMatrix::linearCombinationInPlace(_Stdv, 0., 1., *_Sigma00, -1., _LambdaUKtSigma0, +1., _MuUKtX0t);
   }
 
@@ -937,7 +937,7 @@ Id KrigingAlgebraSimpleCase::_needXtInvSigma()
   else
   {
     _XtInvSigma->resize(_nbfl, _neq);
-    _XtInvSigma->prodMatMatInPlace(_X.get(), _InvSigma.get(), true, false);
+    AMatrix::prodMatMatInPlace(*_XtInvSigma, *_X, *_InvSigma, true, false);
   }
   _XtInvSigmaHasChanged = false;
   return 0;
@@ -949,9 +949,9 @@ Id KrigingAlgebraSimpleCase::_needSigmac()
   if (_needXtInvSigma()) return 1;
   _Sigmac.resize(_nbfl, _nbfl);
   if (_flagCholesky)
-    _Sigmac.prodMatMatInPlace(_invSigmaX.get(), _X.get(), true);
+    AMatrix::prodMatMatInPlace(_Sigmac, *_invSigmaX, *_X, true);
   else
-    _Sigmac.prodMatMatInPlace(_XtInvSigma.get(), _X.get());
+    AMatrix::prodMatMatInPlace(_Sigmac, *_XtInvSigma, *_X);
   // Compute the inverse matrix
   _invSigmac->resize(_nbfl, _nbfl);
   if (_Sigmac.invert2(*_invSigmac))
@@ -990,10 +990,9 @@ Id KrigingAlgebraSimpleCase::_needMuUK()
   _LambdaSKtX.resize(_nrhs, _nbfl);
   _Y0.resize(_nrhs, _nbfl);
 
-  _LambdaSKtX.prodMatMatInPlace(_LambdaSK.get(), _X.get(), true, false);
+  AMatrix::prodMatMatInPlace(_LambdaSKtX, *_LambdaSK, *_X, true, false);
   AMatrix::linearCombinationInPlace(_Y0, 0., 1., *_X0, -1., _LambdaSKtX);
-
-  _MuUK.prodMatMatInPlace(_invSigmac.get(), &_Y0, false, true);
+  AMatrix::prodMatMatInPlace(_MuUK, *_invSigmac, _Y0, false, true);
   return 0;
 }
 
@@ -1067,10 +1066,11 @@ Id KrigingAlgebraSimpleCase::_needLambdaUK()
   if (_needMuUK()) return 1;
 
   _invSigmaXMuUK.resize(_neq, _nrhs);
+
   if (_flagCholesky)
-    _invSigmaXMuUK.prodMatMatInPlace(_invSigmaX.get(), &_MuUK);
+    AMatrix::prodMatMatInPlace(_invSigmaXMuUK, *_invSigmaX, _MuUK);
   else
-    _invSigmaXMuUK.prodMatMatInPlace(_XtInvSigma.get(), &_MuUK, true);
+    AMatrix::prodMatMatInPlace(_invSigmaXMuUK, *_XtInvSigma, _MuUK, true);
 
   MatrixDense::sum(_LambdaSK.get(), &_invSigmaXMuUK, &_LambdaUK);
 

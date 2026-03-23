@@ -33,10 +33,7 @@ typedef Eigen::SparseMatrix<double, 0, gstlrn::Id> EigenSparseMatrix; // (always
 namespace gstlrn
 {
 class EOperator;
-} // namespace gstlrn
 
-namespace gstlrn
-{
 class MatrixDense;
 /**
  * Sparse Matrix
@@ -61,9 +58,6 @@ public:
 
   /// Cloneable interface
   IMPLEMENT_CLONING(MatrixSparse)
-
-  //// Interface to AStringable
-  String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// Interface for ALinearOp
 

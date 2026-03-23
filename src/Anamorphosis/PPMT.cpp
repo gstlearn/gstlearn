@@ -428,7 +428,8 @@ Id PPMT::fitFromMatrix(AMatrix* Y, Id niter, bool verbose)
     // Sphering
     if (verbose) message("- Sphering\n");
     _initSphering = sphering(Y);
-    Y->prodMat(_initSphering);
+    auto* Yd      = dynamic_cast<MatrixDense*>(Y);
+    AMatrix::prodMatMatInPlace(*Yd, *Yd, *_initSphering);
   }
 
   // Loop on the iterations
@@ -513,7 +514,7 @@ Id PPMT::rawToGaussian(Db* db,
   if (_flagPreprocessing)
   {
     _initGaussianizeForward(&Y);
-    Y.prodMat(_initSphering);
+    AMatrix::prodMatMatInPlace(Y, Y, *_initSphering);
   }
 
   // Loop on the iterations
@@ -570,8 +571,9 @@ Id PPMT::gaussianToRaw(Db* db,
   // Post-processing
   if (_flagPreprocessing)
   {
-    AMatrix* backSphering = _initSphering->transpose();
-    Y.prodMat(backSphering);
+    AMatrix* backSphering   = _initSphering->transpose();
+    auto* backSpheringDense = dynamic_cast<MatrixDense*>(backSphering);
+    AMatrix::prodMatMatInPlace(Y, Y, *backSpheringDense);
 
     _initGaussianizeBackward(&Y);
   }

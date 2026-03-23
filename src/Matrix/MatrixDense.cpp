@@ -257,6 +257,13 @@ void MatrixDense::_productGeneral(MatrixDense& res,
                                   bool transpose1,
                                   bool transpose2)
 {
+  if (&res == &other1 || &res == &other2)
+  {
+    MatrixDense temp(res.getNRows(), res.getNCols());
+    _productGeneral(temp, other1, other2, transpose1, transpose2);
+    res = temp;
+    return;
+  }
   if (transpose1)
   {
     if (transpose2)

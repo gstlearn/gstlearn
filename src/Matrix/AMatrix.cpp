@@ -310,7 +310,7 @@ void AMatrix::transposeInPlace()
 AMatrix* AMatrix::transpose() const
 {
   auto* mat = dynamic_cast<AMatrix*>(clone());
-  mat->transposeInPlace();
+  mat->_transposeInPlace();
   return mat;
 }
 
@@ -1158,11 +1158,6 @@ void AMatrix::makePositiveColumn()
   }
 }
 
-void AMatrix::prodMat(const AMatrix* matY, bool transposeY)
-{
-  prodMatMatInPlace(this, matY, false, transposeY);
-}
-
 void setFlagMatrixCheck(bool flagMatrixCheck)
 {
   _flagMatrixCheck = flagMatrixCheck;
@@ -1209,4 +1204,5 @@ bool AMatrix::_isEqualVect(const constvect& a, const constvect& b, double eps)
   }
   return true;
 }
+
 } // namespace gstlrn
