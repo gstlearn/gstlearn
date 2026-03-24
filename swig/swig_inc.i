@@ -153,6 +153,7 @@
   #include "LinearOp/MultiGridSolver.hpp"
   #include "LinearOp/MultiGridSPDE.hpp"
   #include "LinearOp/ASimulable.hpp"
+  #include "LinearOp/ASimulableMatrix.hpp"
   #include "LinearOp/LinearOpCGSolver.hpp"
   #include "LinearOp/ALinearOpMulti.hpp"
   #include "LinearOp/AShiftOp.hpp"

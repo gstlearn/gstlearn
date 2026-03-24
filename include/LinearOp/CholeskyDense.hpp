@@ -30,7 +30,9 @@ class GSTLEARN_EXPORT CholeskyDense: public ACholesky
 public:
   CholeskyDense(const MatrixSymmetric& mat = MatrixSymmetric());
   CholeskyDense(const CholeskyDense& m);
+  CholeskyDense(CholeskyDense&& m) noexcept;
   CholeskyDense& operator=(const CholeskyDense& m);
+  CholeskyDense& operator=(CholeskyDense&& m) noexcept;
   virtual ~CholeskyDense();
 
   Id setMatrix(const MatrixSymmetric& mat);

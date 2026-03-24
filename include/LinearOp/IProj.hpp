@@ -17,8 +17,15 @@ namespace gstlrn
 class GSTLEARN_EXPORT IProj
 {
 public:
-  IProj() { }
-  virtual ~IProj() { }
+  IProj() = default;
+  #ifndef SWIG
+  IProj(const IProj&) = default;
+  IProj& operator=(const IProj&) = default;
+  IProj(IProj&&) = default;
+  IProj& operator=(IProj&&) = default;
+  #endif
+  virtual ~IProj() = default;
+  
   VectorDouble point2mesh(const VectorDouble& inv) const;
   VectorDouble mesh2point(const VectorDouble& inv) const;
   Id point2mesh(const VectorDouble& inv, VectorDouble& outv) const;

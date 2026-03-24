@@ -82,6 +82,9 @@ public:
   {
   }
   inline VectorNumT(const VectorNumT& other) = default;
+  inline VectorNumT& operator=(const VectorNumT& other) = default;
+  //inline VectorNumT(VectorNumT&& other) = default;
+  //inline VectorNumT& operator=(VectorNumT&& other) = default;
 #ifndef SWIG
   inline VectorNumT(std::initializer_list<T> init)
     : Parent(init)

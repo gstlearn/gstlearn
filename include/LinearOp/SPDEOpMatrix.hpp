@@ -12,7 +12,6 @@
 
 #include "LinearOp/CholeskySparse.hpp"
 #include "LinearOp/IProj.hpp"
-#include "LinearOp/InvNuggetOp.hpp"
 #include "LinearOp/SPDEOp.hpp"
 #include "Matrix/MatrixSparse.hpp"
 #include "gstlearn_export.hpp"
@@ -22,13 +21,14 @@ namespace gstlrn
 class ProjMultiMatrix;
 class MatrixSparse;
 class PrecisionOpMultiMatrix;
+class ASimulableMatrix;
 
 class GSTLEARN_EXPORT SPDEOpMatrix: public SPDEOp
 {
 public:
   SPDEOpMatrix(const PrecisionOpMultiMatrix* pop = nullptr,
                const ProjMultiMatrix* A          = nullptr,
-               const InvNuggetOp* invNoise       = nullptr);
+               const ASimulableMatrix* invNoise       = nullptr);
   virtual ~SPDEOpMatrix();
 
   double computeLogDetOp(Id nbsimu) const override;

@@ -10,13 +10,14 @@
 /******************************************************************************/
 #pragma once
 
+#include "Basic/Message.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Estimation/AModelOptim.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
-
+#include "LinearOp/ASimulableMatrix.hpp"
 #include "Basic/NamingConvention.hpp"
 
 namespace gstlrn
@@ -24,7 +25,7 @@ namespace gstlrn
 class Db;
 class ModelGeneric;
 
-class GSTLEARN_EXPORT ALikelihood: public AModelOptim
+class GSTLEARN_EXPORT ALikelihood: public AModelOptim,  public ASimulableMatrix
 {
 public:
   ALikelihood(ModelGeneric* model,
@@ -33,16 +34,19 @@ public:
   ALikelihood(const ALikelihood& r);
   ALikelihood& operator=(const ALikelihood& r);
   virtual ~ALikelihood();
-
   double computeCost(bool flagPrint = false, bool verbose = false) override;
   double computeLogLikelihood(bool flagPrint = false, bool verbose = false);
   VectorDouble getBeta() const { return _beta; }
   void initLikelihood(bool verbose = false);
   void updateModel(bool verbose = false);
+  double computeLogDet(Id nMC = 1) const override;
+  Id getSize() const override;
 protected:
   void _initLikelihoodForOptim(bool verbose = false);
-
+  Id _addSimulateToDest(const constvect whitenoise, vect outv) const override;
+  Id _addToDest(constvect inv, vect outv) const override;
 private:
+  virtual void _solveQ(constvect inv, vect outv) const = 0;
   virtual void _updateModel(bool verbose = false) { DECLARE_UNUSED(verbose); }
   virtual void _computeCm1X()           = 0;
   virtual void _computeCm1Yc()          = 0;

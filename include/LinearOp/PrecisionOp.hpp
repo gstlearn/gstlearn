@@ -14,7 +14,6 @@
 #include "Covariances/CovAniso.hpp"
 #include "Enum/EPowerPT.hpp"
 #include "LinearOp/AShiftOp.hpp"
-#include "LinearOp/ASimulable.hpp"
 #include "LinearOp/IPrecisionOp.hpp"
 #include <map>
 #include <memory>
@@ -29,7 +28,7 @@ class AMesh;
 // Note that if the model is multivariate, the precision is built with a constant sill = 1.
 // Therefore it has to be used only through the PrecisionOpMulti class
 // which handles the sills matrix (possibly non stationary)
-class GSTLEARN_EXPORT PrecisionOp: public IPrecisionOp
+class GSTLEARN_EXPORT PrecisionOp: virtual public IPrecisionOp
 {
 public:
   PrecisionOp();
@@ -41,7 +40,9 @@ public:
               bool stencil = false,
               bool verbose = false);
   PrecisionOp(const PrecisionOp& pmat);
+  PrecisionOp(PrecisionOp&& pmat) noexcept;
   PrecisionOp& operator=(const PrecisionOp& pmat);
+  PrecisionOp& operator=(PrecisionOp&& pmat) noexcept;
   virtual ~PrecisionOp();
 
   // Interface functions for using PrecisionOp

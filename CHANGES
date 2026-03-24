@@ -11,6 +11,7 @@ Release 1.11.0
 - In AMatrix, the method linearCombination() has changed prototype
 - In AMatrix, the method add() is now template and has changed implementation for Sparse
 - Testing new syntax for VectorDouble (in VectorHelper): overload of operators
+- Add the possibility to use non nugget noise in the SPDE Matrix based version (new optional parameter for logLikelihoodSPDE and krigingSPDE function and creation of ASimulableMatrix class)
 - Regrouping all estimation API functions in a single header file Estimations.hpp
 - Regrouping all simulation API functions in a single header file Simulations.hpp 
 - New algorithm to check and default the variable name for plot (in R and Python)

@@ -11,7 +11,7 @@
 #pragma once
 
 #include "API/SPDEParam.hpp"
-#include "LinearOp/ASimulable.hpp"
+#include "LinearOp/ASimulableMatrix.hpp"
 #include "LinearOp/CholeskyDense.hpp"
 #include "Matrix/MatrixSparse.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
@@ -33,7 +33,7 @@ class MatrixSymmetric;
  * the logdeterminant.
  * It inherits from ASimulable, allowing it to be used in simulations.
  */
-class GSTLEARN_EXPORT InvNuggetOp: public virtual ASimulable, public virtual MatrixSparse
+class GSTLEARN_EXPORT InvNuggetOp: public virtual MatrixSparse
 {
 public:
   InvNuggetOp(const Db* dbin          = nullptr,
@@ -45,6 +45,7 @@ public:
   virtual ~InvNuggetOp();
   Id getSize() const override;
   const MatrixSparse* getInvNuggetMatrix() const { return dynamic_cast<const MatrixSparse*>(this); }
+  const MatrixSparse& getQMat() const override { return *getInvNuggetMatrix(); }
   const MatrixSparse* cloneInvNuggetMatrix() const;
   const MatrixSparse* cloneCholNuggetMatrix() const;
   double computeLogDet(Id nMC = 1) const override;

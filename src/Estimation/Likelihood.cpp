@@ -9,10 +9,12 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Estimation/Likelihood.hpp"
+#include "Basic/Message.hpp"
 #include "Db/Db.hpp"
 #include "Db/RankHandler.hpp"
 #include "Estimation/ALikelihood.hpp"
 #include "LinearOp/CholeskyDense.hpp"
+#include "Matrix/MatrixSparse.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Model/ModelGeneric.hpp"
 #include "Space/SpacePoint.hpp"
@@ -22,6 +24,13 @@
 
 namespace gstlrn
 {
+
+static MatrixSparse& getDummySparse()
+{
+  static MatrixSparse instance; 
+  return instance;
+}
+
 Likelihood::Likelihood(ModelGeneric* model,
                        const Db* db,
                        bool reml)
@@ -77,6 +86,20 @@ void Likelihood::_computeCm1X()
   {
     messerr("Problem when solving a Linear System after Cholesky decomposition");
   }
+}
+
+void Likelihood::_solveQ(constvect inv, vect outv) const
+{
+  if (_covChol.solve(inv, outv))
+  {
+    messerr("Problem when solving a Linear System after Cholesky decomposition");
+  }
+}
+
+MatrixSparse& Likelihood::getQMat() const
+{
+  messerr("getQMat is not implemented for Likelihood.");
+  return getDummySparse();
 }
 
 void Likelihood::_computeCm1Yc()

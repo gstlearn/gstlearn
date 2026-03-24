@@ -64,7 +64,7 @@ int main(int argc, char* argv[])
 
   // Estimation and simulations
   (void)krigingSPDE(dat, grid, model, true, false, useCholesky,
-                    nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, SPDEParam(), verbose,
+                    nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, SPDEParam(), verbose,
                     NamingConvention("K-spirale"));
   law_set_random_seed(132341);
 

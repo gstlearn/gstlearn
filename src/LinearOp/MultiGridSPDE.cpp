@@ -33,6 +33,7 @@
 #include "Space/SpacePoint.hpp"
 #include "Space/SpaceRN.hpp"
 #include "geoslib_define.h"
+#include "Polynomials/APolynomial.hpp"
 
 namespace gstlrn
 {

@@ -12,6 +12,7 @@
 
 #include "LinearOp/CholeskySparse.hpp"
 #include "LinearOp/PrecisionOp.hpp"
+#include "LinearOp/ASimulableMatrix.hpp"
 
 namespace gstlrn
 {
@@ -23,7 +24,7 @@ class ShiftOpMatrix;
 /** This class is just a specialization of PrecisionOp when the shift
  * Operator is built with sparse matrices and therefore algebra can be performed with Cholesky.
  * It allows to return the precision matrix as a Sparse Matrix. */
-class GSTLEARN_EXPORT PrecisionOpMatrix: public PrecisionOp
+class GSTLEARN_EXPORT PrecisionOpMatrix: virtual public PrecisionOp, virtual public  ASimulableMatrix
 {
 public:
   PrecisionOpMatrix(ShiftOpMatrix* shiftop = nullptr,
@@ -32,8 +33,14 @@ public:
   PrecisionOpMatrix(const AMesh* mesh,
                     CovAniso* cova,
                     bool verbose = false);
+  PrecisionOpMatrix(const PrecisionOpMatrix& pmat) = default;
+  PrecisionOpMatrix(PrecisionOpMatrix&& pmat) noexcept;
+  PrecisionOpMatrix& operator=(const PrecisionOpMatrix& pmat) = default;
+  PrecisionOpMatrix& operator=(PrecisionOpMatrix&& pmat) noexcept;
   virtual ~PrecisionOpMatrix();
 
+  Id getSize() const override;
+  const MatrixSparse& getQMat() const override { return *getQ(); }
   // Interface for PrecisionOp class
 #ifndef SWIG
   void evalInverse(const constvect vecin, VectorDouble& vecout) override;
@@ -41,7 +48,10 @@ public:
   Id _addToDest(const constvect inv, vect outv) const override;
 #endif
 
-  double computeLogDet(Id nMC = 1) const override;
+  double computeLogDet(Id nMC = 1) const override
+  {
+    return ASimulableMatrix::computeLogDet(nMC);
+  }
   VectorDouble extractDiag() const override;
 
   // void evalDerivPoly(const VectorDouble& inv, VectorDouble& outv,Id iapex,Id igparam) override;
@@ -69,6 +79,7 @@ public:
   const VectorDouble& getTildeC() const;
 
 private:
+  
   void _buildQ();
   MatrixSparse* _build_Q();
 

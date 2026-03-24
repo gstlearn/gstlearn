@@ -171,7 +171,7 @@ public:
     {
       _solver = new LinearOpCGSolver<SPDEOp,MultiGridSolver>(this);
       auto* b = dynamic_cast<LinearOpCGSolver<SPDEOp, MultiGridSolver>*>(_solver);
-      b->getPreconditioner() = *a;
+      b->getPreconditioner() = std::move(*a);
     }
   }
 

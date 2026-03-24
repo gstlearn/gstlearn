@@ -15,6 +15,13 @@
 
 namespace gstlrn
 {
+
+CholeskySparse::CholeskySparse()
+  : ACholesky(MatrixSparse())
+  , _factor(nullptr)
+{
+}
+
 CholeskySparse::CholeskySparse(const MatrixSparse& mat)
   : ACholesky(mat)
   , _factor(nullptr)
@@ -22,29 +29,20 @@ CholeskySparse::CholeskySparse(const MatrixSparse& mat)
   (void)_prepare(mat);
 }
 
-CholeskySparse::CholeskySparse(const CholeskySparse& m)
-  : ACholesky(m)
-  , _factor(nullptr)
-{
-  if (m._factor != nullptr)
-  {
-    _factor = new Eigen::SimplicialLDLT<Sp>;
-    _factor = m._factor;
-  }
-}
-
-CholeskySparse& CholeskySparse::operator=(const CholeskySparse& m)
+CholeskySparse& CholeskySparse::operator=(CholeskySparse&& m) noexcept
 {
   if (this != &m)
   {
-    ACholesky::operator=(m);
-    if (m._factor != nullptr)
-    {
-      _factor = new Eigen::SimplicialLDLT<Sp>;
-      _factor = m._factor;
-    }
+    ACholesky::operator=(std::move(m));
+    this->_factor = std::move(m._factor);
   }
   return *this;
+}
+
+CholeskySparse::CholeskySparse(CholeskySparse&& m) noexcept
+  : ACholesky(std::move(m))
+  , _factor(std::move(m._factor))
+{
 }
 
 CholeskySparse::~CholeskySparse()
@@ -54,8 +52,7 @@ CholeskySparse::~CholeskySparse()
 
 void CholeskySparse::_clean()
 {
-  delete _factor;
-  _factor = nullptr;
+  _factor.reset();
 }
 
 /****************************************************************************/
@@ -99,7 +96,7 @@ Id CholeskySparse::_prepare(const MatrixSparse& mat) const
 {
   if (_factor != nullptr) return 0;
 
-  _factor = new Eigen::SimplicialLDLT<Sp>;
+  _factor = std::make_unique<Eigen::SimplicialLDLT<Sp>>();
   _factor->compute(mat.eigenMat());
   if (_factor == nullptr)
   {

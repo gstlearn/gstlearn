@@ -153,7 +153,8 @@ int main(int argc, char* argv[])
         SPDEParam params;
         params.setNMC(10);
         (void)krigingSPDE(dat, grid, model, true, true, useCholesky,
-                          nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, params, verbose,
+                          nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+                          params, verbose,
                           NamingConvention(namconv));
         timer.displayIntervalMilliseconds(namconv, 400);
       }

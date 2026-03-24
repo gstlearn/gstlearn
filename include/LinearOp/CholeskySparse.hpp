@@ -15,7 +15,6 @@
 #include "Basic/VectorNumT.hpp"
 #include "Basic/WarningMacro.hpp"
 #include "LinearOp/ACholesky.hpp"
-#include "Matrix/MatrixSparse.hpp"
 
 #ifndef SWIG
 #  include <Eigen/Core>
@@ -34,21 +33,26 @@ DISABLE_WARNING_POP
 
 namespace gstlrn
 {
+
 class MatrixSparse;
 using Sp = Eigen::SparseMatrix<double, 0, gstlrn::Id>;
 
-class GSTLEARN_EXPORT CholeskySparse: public ACholesky
+class GSTLEARN_EXPORT CholeskySparse:  public ACholesky
 {
 public:
-  CholeskySparse(const MatrixSparse& mat = MatrixSparse());
-  CholeskySparse(const CholeskySparse& m);
-  CholeskySparse& operator=(const CholeskySparse& m);
+  CholeskySparse();
+  CholeskySparse(const MatrixSparse& mat);
+
+  CholeskySparse(const CholeskySparse& m) = delete;
+  CholeskySparse(CholeskySparse&& m) noexcept;
+  CholeskySparse& operator=(const CholeskySparse& m) = delete;
+  CholeskySparse& operator=(CholeskySparse&& m) noexcept;
   virtual ~CholeskySparse();
 
   Id setMatrix(const MatrixSparse& mat);
   Id stdev(VectorDouble& vcur,
-            const MatrixSparse* proj,
-            bool flagStDev = false) const;
+           const MatrixSparse* proj,
+           bool flagStDev = false) const;
 
   double computeLogDeterminant() const override;
   Id addSolveX(const constvect vecin, vect vecout) const override;
@@ -63,6 +67,6 @@ private:
   Id _stdev(VectorDouble& vcur, const MatrixSparse* proj) const;
 
 private:
-  mutable Eigen::SimplicialLDLT<Sp>* _factor;
+  mutable std::unique_ptr<Eigen::SimplicialLDLT<Sp>> _factor;
 };
 } // namespace gstlrn

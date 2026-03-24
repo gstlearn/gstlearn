@@ -43,6 +43,8 @@ public:
   AMatrix(Id nrow = 0, Id ncol = 0);
   AMatrix(const AMatrix& m);
   AMatrix& operator=(const AMatrix& m);
+  AMatrix(AMatrix&& m) = default;
+  AMatrix& operator=(AMatrix&& m) = default;
   virtual ~AMatrix();
 
   /// Interface to AStringable

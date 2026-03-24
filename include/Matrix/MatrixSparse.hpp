@@ -14,7 +14,7 @@
 
 #include "Basic/VectorNumT.hpp"
 #include "Basic/WarningMacro.hpp"
-#include "LinearOp/ALinearOp.hpp"
+#include "LinearOp/ASimulableMatrix.hpp"
 #include "Matrix/AMatrix.hpp"
 #include <Eigen/src/Core/Matrix.h>
 
@@ -45,12 +45,14 @@ class MatrixDense;
  * Storage relies on Eigen3 Library.
  * Storage relies on Eigen3 Library.
  */
-class GSTLEARN_EXPORT MatrixSparse: public AMatrix, public virtual ALinearOp
+class GSTLEARN_EXPORT MatrixSparse: public AMatrix, public virtual ASimulableMatrix
 {
 public:
   MatrixSparse(Id nrow = 0, Id ncol = 0, Id ncolmax = -1);
   MatrixSparse(const MatrixSparse& m);
   MatrixSparse& operator=(const MatrixSparse& m);
+  MatrixSparse(MatrixSparse&& m) = default;
+  MatrixSparse& operator=(MatrixSparse&& m) = default;
   virtual ~MatrixSparse();
 
   /// Has a specific implementation in the Target language
@@ -70,7 +72,7 @@ public:
   static MatrixSparse* createFromMatrix(const MatrixSparse& mat);
 
   /// Interface for AMatrix
-
+  const MatrixSparse& getQMat() const override { return *this; }
   /*! Returns if the current matrix is Sparse */
   bool isSparse() const override { return true; }
   /*! Returns if the matrix belongs to the MatrixSparse class (avoids dynamic_cast) */

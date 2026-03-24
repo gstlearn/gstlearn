@@ -165,6 +165,7 @@
 %include LinearOp/MultiGridSolver.hpp
 %include LinearOp/MultiGridSPDE.hpp
 %include LinearOp/ASimulable.hpp
+%include LinearOp/ASimulableMatrix.hpp
 %include Matrix/AMatrix.hpp
 %include Matrix/MatrixDense.hpp
 %include Matrix/MatrixSparse.hpp

@@ -17,6 +17,8 @@
 #include "Covariances/CovAniso.hpp"
 #include "Db/Db.hpp"
 #include "Enum/ECov.hpp"
+#include "LinearOp/ASimulable.hpp"
+#include "LinearOp/ASimulableMatrix.hpp"
 #include "LinearOp/InvNuggetOp.hpp"
 #include "LinearOp/MultiGridSolver.hpp"
 #include "LinearOp/PrecisionOpMulti.hpp"
@@ -176,7 +178,7 @@ Id SPDE::setMeshes(bool flagForKrig, const VectorMeshes* meshes)
   return 0;
 }
 
-Id SPDE::setProjIn(bool flagForKrig, const ProjMultiMatrix* proj)
+Id SPDE::setProjIn(bool flagForKrig, const ProjMulti* proj)
 {
   if (proj == nullptr) return 0;
   if (flagForKrig)
@@ -280,7 +282,7 @@ Id SPDE::setDbAndProjOut(Db* dbout,
   return 0;
 }
 
-bool SPDE::_isValidProjection(const Db* db, const VectorMeshes* meshes, const ProjMultiMatrix* proj)
+bool SPDE::_isValidProjection(const Db* db, const VectorMeshes* meshes, const ProjMulti* proj)
 {
   // Get the number of structures and variables
   Id ncov = _model->getNCov(true);
@@ -368,7 +370,7 @@ void SPDE::_printMeshesDetails(const VectorMeshes& meshes)
   }
 }
 
-void SPDE::_printProjectionDetails(const ProjMultiMatrix* proj)
+void SPDE::_printProjectionDetails(const ProjMulti* proj)
 {
   if (proj == nullptr) return;
   message("- Number of variables = %d\n", proj->getNVariable());
@@ -457,7 +459,7 @@ void SPDE::_defineMeshes(bool flagForKrige, bool verbose)
 
 void SPDE::_cleanProjection(bool flagIn, bool flagForKrige)
 {
-  const ProjMultiMatrix* dest =
+  const ProjMulti* dest =
     flagIn
       ? (flagForKrige ? _AinK : _AinS)
       : (flagForKrige ? _AoutK : _AoutS);
@@ -477,11 +479,11 @@ Id SPDE::_defineProjection(bool flagIn, bool flagForKrige, bool verbose)
   if (db == nullptr) return 0;
 
   auto& meshes = flagForKrige ? _meshesK : _meshesS;
-  const ProjMultiMatrix* src =
+  const ProjMulti* src =
     flagIn
       ? (flagForKrige ? _projInKInit : _projInSInit)
       : (flagForKrige ? _projOutKInit : _projOutSInit);
-  const ProjMultiMatrix** dest =
+  const ProjMulti** dest =
     flagIn
       ? (flagForKrige ? &_AinK : &_AinS)
       : (flagForKrige ? &_AoutK : &_AoutS);
@@ -541,13 +543,25 @@ Id SPDE::defineSpdeOperator(bool verbose)
     VectorMeshes& meshes = _meshesK;
     if (meshes.empty()) meshes = _meshesS;
     _Qom                 = new PrecisionOpMultiMatrix(_model, meshes);
-    const auto* invnoise = dynamic_cast<const InvNuggetOp*>(_invnoiseobj);
+    const auto* invnoise = dynamic_cast<const ASimulableMatrix*>(_invnoiseobj);
     if (invnoise == nullptr)
     {
-      messerr("You must provide 'invnoise' as a InvNuggetOp for Cholesky case");
+      messerr("You must provide 'invnoise' as a ASimulableMatrix for Cholesky case");
       return 1;
     }
-    _spdeop = new SPDEOpMatrix(_Qom, _AinK, invnoise);
+    const auto* proj = dynamic_cast<const ProjMultiMatrix*>(_AinK);
+    if (proj == nullptr && _AinK != nullptr)
+    {
+      messerr("You must provide 'AinK' as a ProjMultiMatrix for Cholesky case");
+      return 1;
+    
+    }
+    if (dynamic_cast<const ASimulableMatrix*>(_invnoiseobj) == nullptr)
+    {
+      messerr("The provided 'invnoise' should be a ASimulableMatrix for Cholesky case");
+      return 1;
+    }
+    _spdeop = new SPDEOpMatrix(_Qom, proj, invnoise);
   }
   else
   {
@@ -742,6 +756,7 @@ VectorDouble trendSPDE(Db* dbin,
  * @param projInS Matrix of projection used for Variance calculation (optional)
  * @param projOutK Matrix of projection on dbout used for Kriging (optional)
  * @param projOutS Matrix of projection on dbout used for Simulations (optional)
+ * @param invnoiseobj Object of the noise precision (optional)
  * @param params Set of SPDE parameters
  * @param verbose Verbose flag
  * @param namconv Naming convention
@@ -777,6 +792,7 @@ Id krigingSPDE(Db* dbin,
                const ProjMultiMatrix* projInS,
                const ProjMultiMatrix* projOutK,
                const ProjMultiMatrix* projOutS,
+               const ASimulable* invnoiseobj,
                const SPDEParam& params,
                bool verbose,
                const NamingConvention& namconv)
@@ -792,6 +808,7 @@ Id krigingSPDE(Db* dbin,
   spde.setMeshes(false, meshesS);
   spde.setProjIn(true, projInK);
   spde.setProjIn(false, projInS);
+  spde.setInvNoise(invnoiseobj);
   spde.setDbAndProjOut(dbout, projOutK, projOutS, false);
   if (verbose) mestitle(1, "Kriging in SPDE framework (Cholesky=%d)", static_cast<Id>(spde.getFlagCholesky()));
 
@@ -1051,6 +1068,7 @@ Id simPGSSPDE(Db* dbin,
  * @param useCholesky Define the choice regarding Cholesky (see _defineCholesky)
  * @param meshes Meshes description (optional)
  * @param projIn Matrix of projection (optional)
+ * @param invnoiseobj Inverse noise object (optional)
  * @param params Set of SPDE parameters
  * @param verbose True for verbose output
  * @return Returned value
@@ -1059,7 +1077,8 @@ double logLikelihoodSPDE(Db* dbin,
                          Model* model,
                          Id useCholesky,
                          const VectorMeshes* meshes,
-                         const ProjMultiMatrix* projIn,
+                         const ProjMulti* projIn,
+                         const ASimulable* invnoiseobj,
                          const SPDEParam& params,
                          bool verbose)
 {
@@ -1075,6 +1094,7 @@ double logLikelihoodSPDE(Db* dbin,
   SPDE spde(dbin, model, true, false, useCholesky, params);
   spde.setMeshes(true, meshes);
   spde.setProjIn(true, projIn);
+  spde.setInvNoise(invnoiseobj);
   if (verbose) mestitle(1, "Log-likelhood calculation in SPDE framework( Cholesky=%d)",
                         static_cast<Id>(spde.getFlagCholesky()));
 
