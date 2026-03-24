@@ -21,7 +21,7 @@ CholeskySparse::CholeskySparse()
   , _factor(nullptr)
 {
 }
- 
+
 CholeskySparse::CholeskySparse(const MatrixSparse& mat)
   : ACholesky(mat)
   , _factor(nullptr)
@@ -29,20 +29,14 @@ CholeskySparse::CholeskySparse(const MatrixSparse& mat)
   (void)_prepare(mat);
 }
 
-CholeskySparse& CholeskySparse::operator=(CholeskySparse&& m) noexcept 
+CholeskySparse& CholeskySparse::operator=(CholeskySparse&& m) noexcept
 {
-    if (this != &m) {
-        // 1. On laisse la classe parente virtuelle gérer sa part
-        ACholesky::operator=(std::move(m));
-
-        // 2. On déplace le pointeur unique (le move de unique_ptr 
-        // transfère l'adresse et met 'other._factor' à nullptr)
-        this->_factor = std::move(m._factor);
-        
-        // Si vous avez d'autres membres simples, copiez-les ici.
-        // Exemple : this->_isFactorized = other._isFactorized;
-    }
-    return *this;
+  if (this != &m)
+  {
+    ACholesky::operator=(std::move(m));
+    this->_factor = std::move(m._factor);
+  }
+  return *this;
 }
 
 CholeskySparse::CholeskySparse(CholeskySparse&& m) noexcept
