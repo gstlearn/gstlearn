@@ -10,10 +10,12 @@
 /******************************************************************************/
 #include "Simulation/CalcSimuSpectral.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/Message.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Db/Db.hpp"
+#include "Enum/ESimuType.hpp"
 #include "Model/Model.hpp"
 #include "Model/ModelGeneric.hpp"
 #include "Simulation/SimuSpectralRN.hpp"
@@ -69,7 +71,7 @@ bool CalcSimuSpectral::_check()
   }
 
   // Check that the Model is compatible with Spectral Simulation
-  if (!isValidForSpectral()) return false;
+  if (!isValidForSimulation(ESimuType::SPECTRAL)) return false;
 
   if (_getNs() <= 0)
   {
@@ -86,7 +88,7 @@ bool CalcSimuSpectral::_check()
  ** \return  True if the Model is valid; 0 otherwise
  **
  *****************************************************************************/
-bool CalcSimuSpectral::isValidForSpectral() const
+bool CalcSimuSpectral::isValidForSimulation(const ESimuType& simuType) const
 {
   auto ncova            = _getNCov();
   const auto* modellist = dynamic_cast<const ModelCovList*>(getModelGeneric());
@@ -97,18 +99,18 @@ bool CalcSimuSpectral::isValidForSpectral() const
     if (ncova <= 0)
     {
       const auto* cova = getModelGeneric()->getCov();
-      if (!cova->isValidForSimulation(ESimuType::SPECTRAL))
+      if (!cova->isValidForSimulation(simuType))
       {
-        messerr("The covariance component %d of the Model is not valid for Spectral Simulation", is + 1);
+        messerr("The covariance component %d of the Model is not valid for %s simulation", is + 1, simuType.getKey());
         return false;
       }
     }
     else
     {
       const auto* covbase = dynamic_cast<const CovAniso*>(modellist->getCovBase(is));
-      if (!covbase->isValidForSimulation(ESimuType::SPECTRAL))
+      if (!covbase->isValidForSimulation(simuType))
       {
-        messerr("The covariance component %d of the Model is not valid for Spectral Simulation", is + 1);
+        messerr("The covariance component %d of the Model is not valid for %s Simulation", is + 1, simuType.getKey());
         return false;
       }
     }
@@ -207,26 +209,23 @@ bool CalcSimuSpectral::_postprocess()
       ps.append(delim + "S" + std::to_string(isimu + 1));
       namconvS.setPrefix(ps);
       namconvS.setNamesAndLocators(nullptr, VectorString(), ELoc::Z, 1, getDbout(),
-                                   _iattOut + isimu * nvar + ivar, "", 1);
+                                   //                                   _iattOut + isimu * nvar + ivar, "", 1);
+                                   _iattOut + ivar * nbsimu + isimu, "", 1);
     }
   return true;
 }
 
 bool CalcSimuSpectral::_run()
 {
-  auto nbsimu = getNbSimu();
-  auto nvar   = _getNVar();
-  auto* db    = getDbout();
-  auto nech   = db->getNSample();
+  const ACov* cova = getModelGeneric()->getCov();
+  auto nvar        = _getNVar();
+  auto* db         = getDbout();
+  auto nech        = db->getNSample();
+  auto nbsimu      = getNbSimu();
 
   // Set the random seed
   Id mem_seed = law_get_random_seed();
   law_set_random_seed(getSeed());
-
-  auto ncova              = _getNCov();
-  const ACov* cova        = nullptr;
-  const CovAniso* covbase = nullptr;
-  const auto* modellist   = dynamic_cast<const ModelCovList*>(getModelGeneric());
 
   VectorVectorDouble tab(nvar);
   for (Id ivar = 0; ivar < nvar; ivar++) tab[ivar].resize(nech);
@@ -235,34 +234,17 @@ bool CalcSimuSpectral::_run()
   // Loop on the simulations
   for (Id isimu = 0; isimu < nbsimu; isimu++)
   {
-    for (Id is = 0, ns = MAX(ncova, 1); is < ns; is++)
-    {
-      // Blank out the array 'tab'
-      for (Id ivar = 0; ivar < nvar; ivar++)
-        tab[ivar].fill(0.);
+    if (getVerbose())
+      message(">>> computing simulation %d\n", isimu + 1);
 
-      if (getVerbose())
-        messerr(">>> computing simulation %d for covariance %d", isimu + 1, is + 1);
-      if (ncova <= 0)
-        cova = getModelGeneric()->getCov();
-      else
-      {
-        covbase = dynamic_cast<const CovAniso*>(modellist->getCovBase(is));
-        if (covbase->getType() == ECov::NUGGET) continue;
-        cova = dynamic_cast<const ACov*>(covbase);
-      }
+    // simulate the spectrum
+    simulate(cova);
 
-      if (simulate(cova)) return false;
+    // Compute one simulation
+    _compute(db, activeArray, tab);
 
-      // Compute one simulation
-      if (_compute(db, activeArray, tab)) return 1;
-
-      // Save the resulting array
-      if (ncova <= 0)
-        saveResults(db, 0, 0, isimu, activeArray, tab);
-      else
-        scaleAndSaveResults(db, covbase, 0, 0, isimu, activeArray, tab);
-    }
+    // Save the resulting array
+    saveResults(db, 0, 0, isimu, activeArray, tab);
   }
 
   // Set the initial seed back

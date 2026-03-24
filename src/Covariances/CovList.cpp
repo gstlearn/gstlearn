@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Covariances/CovList.hpp"
 #include "Basic/Iterators.hpp"
+#include "Basic/Law.hpp"
 #include "Basic/SerializeHDF5.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
@@ -21,8 +22,12 @@
 #include "Covariances/CovFactory.hpp"
 #include "Db/Db.hpp"
 #include "Enum/ECalcMember.hpp"
+#include "Enum/ESimuType.hpp"
+#include "Matrix/EigenVectors.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Model/ModelFitSillsVMap.hpp"
 #include "Model/ModelFitSillsVario.hpp"
+#include "Simulation/SpectrumOnRN.hpp"
 #include "Space/ASpace.hpp"
 #include "Space/SpacePoint.hpp"
 #include "geoslib_define.h"
@@ -611,11 +616,79 @@ bool CovList::isValidForSimulation(const ESimuType& simuType) const
     const ACov* cova = getCov(is);
     if (!cova->isValidForSimulation(simuType))
     {
-      messerr("The current structure is not valid for Simulation");
+      messerr("The current structure is not valid for Spectral Simulation on Rn");
       return false;
     }
   }
   return true;
+}
+
+bool CovList::isFactorized() const
+{
+  Id ns = getNCov();
+  for (int is = 0; is < ns; is++)
+  {
+    const ACov* cova = getCov(is);
+    if (cova->isFactorized())
+    {
+      return true;
+    }
+  }
+  return false;
+}
+
+Id CovList::getNFac() const
+{
+  // The number of factors is not defined for a list of covariances
+  return 0;
+}
+
+SpectrumOnRN* CovList::simulateOnRN(Id ns) const
+{
+  if (!isValidForSimulation(ESimuType::SPECTRAL))
+  {
+    messerr("Covariance not valid for spectral simulation on RN");
+    return nullptr;
+  }
+  Id ncov = getNCov();
+  Id nvar = getNVar();
+  // computing the mixing probability
+  VectorDouble pCov(ncov, 0.0);
+  double total_pCov = 0.0;
+  for (Id icov = 0; icov < ncov; icov++)
+  {
+    const CovBase* cov     = getCov(icov);
+    MatrixSymmetric sigma  = cov->eval0Mat();
+    auto eigenvectors      = EigenVectors(sigma, nullptr, true);
+    const VectorDouble& ll = eigenvectors.getEigenValues();
+    for (Id ivar = 0; ivar < nvar; ivar++)
+    {
+      pCov[icov] += ll[ivar];
+    }
+    total_pCov += pCov[icov];
+  }
+  // normalization
+  for (Id icov = 0; icov < ncov; icov++)
+  {
+    pCov[icov] /= total_pCov;
+  }
+  VectorInt nsCov   = law_multinomial(ns, pCov);
+  SpectrumOnRN* res = new SpectrumOnRNList(getNVar(), getNDim(), ns);
+  for (Id icov = 0; icov < ncov; icov++)
+  {
+    const CovBase* cov = getCov(icov);
+    res->addSpectrum(std::unique_ptr<SpectrumOnRN>(cov->simulateOnRN(nsCov[icov])));
+  }
+  return res;
+}
+
+double CovList::evalSpectrumOnRN(const VectorDouble& freq, Id ivar, Id jvar) const
+{
+  DECLARE_UNUSED(freq)
+  DECLARE_UNUSED(ivar)
+  DECLARE_UNUSED(jvar)
+  // TODO
+  return 0.0;
 }
 
 MatrixDense CovList::simulateSpectralOmega(Id ns) const

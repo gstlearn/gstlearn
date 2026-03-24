@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Enum/ESimuType.hpp"
 #include "Simulation/ACalcSimulation.hpp"
 #include "gstlearn_export.hpp"
 
@@ -35,8 +36,9 @@ public:
 
   VectorDouble getPhis() { return _phi; };
   double getPhi(Id i) { return _phi[i]; };
-  bool isValidForSpectral() const;
-  bool getVerbose() const { return _verbose; }
+  bool isValidForSimulation(const ESimuType& simuType) const;
+  bool getVerbose() const { return _verbose; }; // generic function to be implemented in some abstrac class
+  void setVerbose(bool verbose) {_verbose = verbose;} 
 
 protected:
   bool _check() override;

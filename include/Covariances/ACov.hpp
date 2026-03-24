@@ -27,6 +27,7 @@
 #include "Matrix/MatrixSquare.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Model/CovInternal.hpp"
+#include "Simulation/SpectrumOnRN.hpp"
 #include "Simulation/SpectrumRN.hpp"
 #include "Space/ASpace.hpp"
 #include "Space/ASpaceObject.hpp"
@@ -49,6 +50,7 @@ class CovInternal;
 class ListParams;
 class MatrixSparse;
 class SpectrumRN;
+class SpectrumOnRN;
 
 /**
  * \brief
@@ -97,6 +99,14 @@ public:
                  Id jvar                 = 0,
                  const CovCalcMode* mode = nullptr) const;
 
+  /// Interface for spectral simulation on RN
+  virtual bool isFactorized() const { return false; };
+  virtual Id getNFac() const { return 0; };
+  virtual MatrixDense getProjection(Id ifac = 0) const;
+  virtual double evalSpectrumOnRN(const VectorDouble& freq, Id ivar = 0, Id jvar = 0) const;
+  virtual SpectrumOnRN* simulateOnRN(Id ns = 1000) const;
+
+  // replace isValidForSpectralOnRN using simuType = ESimuType::SPECTRAL
   virtual bool isValidForSimulation(const ESimuType& simuType) const
   {
     DECLARE_UNUSED(simuType);
@@ -104,14 +114,16 @@ public:
   }
   virtual MatrixDense simulateSpectralOmega(Id ns) const;
   virtual SpectrumRN simulateSpectrumRN(Id ns, const ACov* cov0 = nullptr) const;
-  virtual double evalSpectrum(const VectorDouble& freq, Id ivar = 0, Id jvar = 0) const;
   virtual double evalSpectrumRatio(const VectorDouble& freq,
                                    Id ivar,
                                    Id jvar,
                                    const ACov* cov0 = nullptr) const;
+  /// Interface for spectral simulation on the sphere in R3 (S2)
   virtual VectorDouble evalSpectrumOnSphere(Id n,
                                             bool ScaleDistanceByRadius = false,
                                             bool flagScale             = true) const;
+
+
   virtual double evalCovOnSphere(double alpha,
                                  Id degree                  = 50,
                                  bool scaleDistanceByRadius = true,

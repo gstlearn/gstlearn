@@ -34,16 +34,12 @@ The space anisotropy and scaling are first applied to the increments to convert 
 
 ## The multivariate model
 
-The multivariate Matern's model is defined from 
-
-1) The marginal models. 
+The multivariate Matern's model is defined from the marginal models. 
 Each variable $i$ is characterized by $r_{i} > 0$ its relative scale factor, and $\nu_i > 0$ its smoothness parameter.
-
-2) A covariance matrix $\boldsymbol{\Sigma} = [\sigma_{ij}]_{1 \leq i,j \leq p}$.
 
 The family of simple and cross covariance functions is:
 $$
-C_{ij}^{\mathcal{M}}(\boldsymbol{h}) = \sigma_{ij} \times \mathcal{M}(r_{ij} \, d_s(\boldsymbol{h}); \nu_{ij}).
+C_{ij}^{\mathcal{M}}(\boldsymbol{h}) = \tau_{ij} \times \mathcal{M}(r_{ij} \, d_s(\boldsymbol{h}); \nu_{ij}).
 $$
 
 with, the cross-parameters are computed from the marginal parameters: 
@@ -53,7 +49,7 @@ with, the cross-parameters are computed from the marginal parameters:
 
 The family of simple and cross spectrum functions is:
 $$
-S_{ij}^{\mathcal{M}}(\boldsymbol{\omega}) = \sigma_{ij} \times \mathcal{S}(\frac{1}{r_{ij}} \, d^s(\boldsymbol{h}); \nu_{ij}) \, \frac{\Pi_{k=1}^d a_k}{r_{ij}^d}.
+S_{ij}^{\mathcal{M}}(\boldsymbol{\omega}) = \tau_{ij} \times \mathcal{S}(\frac{1}{r_{ij}} \, d^s(\boldsymbol{\omega}); \nu_{ij}) \, \frac{\Pi_{k=1}^d a_k}{r_{ij}^d}.
 $$
 where the $\mathcal{S}$ the spectrum of the standard covariance function and the *anisotropic* spectral distance $d^s$ defined by
 $$
@@ -62,18 +58,18 @@ $$
 
 **Note:** 
 
-* The covariance matrix **must** verify the condition that  the matrix $[\sigma_{ij}/\tau_{ij}]_{i,j}$ be positive definite, with the *maximum* correlation matrix defined by
+* The covariance matrix $[\tau_{ij}]_{i,j}$ is positive definite. Its is defined by
+
 $$
 \tau_{ij} = \frac{\Gamma(\nu_{ij})}{\Gamma(\nu_{i})^{1/2}\Gamma(\nu_{j})^{1/2}}\frac{r_i^{\nu_{i}}r_j^{\nu_{j}}}{r_{ij}^{2\nu_{ij}}}
 $$
 
 * The intrinsic case corresponds to $\nu_i = \nu$ and $r_i = r = 1$ (if all variable ranges are equal, they can be taken into account by the metric defined on space-time): 
+
 $$
 C_{ij}(\boldsymbol{h}) = C_{ij}(0) \times 
 \mathcal{M}(d_s; \nu).
 $$
-
-
 
 # Initialisation and parameters
 
@@ -187,8 +183,7 @@ plot_hist_map_vario <- function(grid, names, model,
     if (flag.vario) {
       for (jvar in ivar:length(names)) {
         c0 = model$evalCov(p1 = p1, p2 = p1, ivar = ivar-1, jvar = jvar-1)
-        if (ivar == jvar) {ylim = c(0, c0)} 
-        else {ylim = abs(c0) * c(-1,1)}
+        ylim = c(0, c0)
         simu2 = matrix(grid[names[jvar]], nx[1], nx[2])
         plot(NULL, NULL, xlim = c(0, nlag*max(dir_norm)), ylim = ylim, 
              xlab = "Distance", ylab = "Variogram")
@@ -251,21 +246,6 @@ for (i in 1:p){
     (gamma(nu[i])/rr[i]^(2*nu[i]))*(gamma(nu[j])/rr[j]^(2*nu[j])))
   }
 }
-sigma0 = matrix(rnorm(p*p), p, p)
-sigma0 = sigma0 %*% t(sigma0)
-sigma  = sigma0 * Tau
-stopifnot(all(eigen(sigma)$values >0))
-
-# Multi-variate Matern's models
-gsSigma = MatrixSymmetric(p)
-for (i in 1:p) {
-  for (j in 1:p) {
-    gsSigma$setValue(i-1, j-1, sigma[i, j])
-  }
-}
-
-# the covariance matrix is checked
-stopifnot(gsSigma$isDefinitePositive())
 
 # the Matern's covariance in gstlearn
 ctxt  = CovContext(nvar = p, ndim = d)
@@ -292,7 +272,7 @@ err   = gsMod$setCov(cova = gsMatern)
 # plot of the variogram/covariance models
 p1 = SpacePoint()
 for(idir in 1:length(dir_angles)) {
-  plot(NULL, NULL, xlim = range(h), ylim = max(abs(sigma))*c(-1,1),
+  plot(NULL, NULL, xlim = range(h), ylim = 1.1*c(0,1),
        xlab = "Distance", ylab = "Variogram")
   title(
     main = paste0("Matern: d = ", d, " p = ", p), 
@@ -300,7 +280,7 @@ for(idir in 1:length(dir_angles)) {
     col.sub = "red"
   )
   abline(v = 0, col = "gray", lty = 3)
-  abline(h = c(0, sort(unique(as.numeric(sigma)))), col = "gray", lty = 3)
+  abline(h = c(0, sort(unique(as.numeric(Tau)))), col = "gray", lty = 3)
   theta  = dir_angles[idir]*pi/180
   cs = cos(theta)
   sn = sin(theta)
@@ -329,7 +309,7 @@ for(idir in 1:length(dir_angles)) {
 
 ```
 
-## Spectums of the multi-variate model
+## Spectrums of the multi-variate model
 
 ```{r plot_of_spectrum, echo=FALSE, eval=TRUE}
 # plot of the spectrums
@@ -337,7 +317,7 @@ for(idir in 1:length(dir_angles)) {
 s0 = NULL
 for (ivar in 1:p) {
   for (jvar in ivar:p) {
-    s0 = c(s0, gsMatern$evalSpectrum(freq = H[1,], ivar = ivar-1, jvar = jvar-1))
+    s0 = c(s0, gsMatern$evalSpectrumOnRN(freq = H[1,], ivar = ivar-1, jvar = jvar-1))
   }
 }
 
@@ -368,7 +348,7 @@ for(idir in 1:length(dir_angles)) {
       # gstlearn
       val = rep(NaN, length(h))
       for (i in seq_along(h)) {
-          val[i] = gsMatern$evalSpectrum(freq = H[i,], ivar = ivar-1, jvar = jvar-1)
+          val[i] = gsMatern$evalSpectrumOnRN(freq = H[i,], ivar = ivar-1, jvar = jvar-1)
       }
       lines(h, val, col = var_col[idx], pch = 19, cex = 0.5)
     }
@@ -391,7 +371,7 @@ err = grid$deleteColumns(names = paste(prefix, "*", sep = "."))
 seed = 258425
 set.seed(seed)
 ns = 5000 # number of spectral waves
-nbsimu = 3
+nbsimu = 2
 
 modelGeneric = ModelGeneric(ctxt)
 err = modelGeneric$setCov(gsMatern)

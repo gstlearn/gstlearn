@@ -40,7 +40,7 @@ angles = c(30., 0, 0)
 # initialization of the simulator
 nb <- 1000 # number of spectral components
 ns <- 20   # number of simulations
-seed <- 13112 # Seed for the first simulation
+seed <- 42 # Seed for the first simulation
 
 # Define the title (used for plots)
 title = paste0(type_cov, " model")
@@ -58,19 +58,20 @@ dx   = c(1.)
 grid = DbGrid_create(nx = nx, dx = dx)
 
 # specification of the model using Model
-mod  = Model_createFromParam(type = ECov_fromKey(type_cov), range=1, 
+mod  = Model_createFromParam(type = ECov_fromKey(type_cov),
                              ranges = ranges[1:ndim], param = nu, flagRange=FALSE)
 # using the *SimuSpectral* interface
 sim = SimuSpectralRN(1, nb, 100, 123, NULL, TRUE)
 err = sim$setModelGeneric(mod)
-err = sim$simulate(mod$getCovAniso(0))
-gamma = sim$getGamma()$toTL()
-omega = sim$getOmega()$toTL()
-phi   = sim$getPhis()
+err = sim$simulate(NULL)
+# computing the mathematical expression
+gamma = sim$getSpectrum()$getGamma()$toTL()
+omega = sim$getSpectrum()$getOmega()$toTL()
+phi   = sim$getSpectrum()$getPhi()
 coor  = grid$getColumnsAsMatrix(names = c("x1"), useSel = FALSE)$toTL()
-val   = as.numeric(t(gamma) %*% cos(omega %*% t(coor) + phi))
+val   = sqrt(2) * as.numeric(t(gamma) %*% cos(omega %*% t(coor) + phi))
+# computing using the gstlearn functions
 err = sim$compute(dbout = grid)
-# 
 stopifnot (all(abs(val - grid["Simu"]) < 1e-6))
 
 # using the simuSpectral interface
@@ -131,7 +132,6 @@ grid2 = DbGrid_create(nx = c(100, 100), x0 = c(200, 200), dx = c(1,1))
 
 
 # computing the simulation on two intersecting grids
-seed <- 3132
 err = simuSpectral(NULL, dbout=grid1, model=mod, ns=nb, seed=seed , namconv = NamingConvention(prefix))
 err = simuSpectral(NULL, dbout=grid2, model=mod, ns=nb, seed=seed , namconv = NamingConvention(prefix))
 

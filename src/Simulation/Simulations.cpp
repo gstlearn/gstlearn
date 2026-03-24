@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Simulation/Simulations.hpp"
+#include "Basic/Message.hpp"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
 #include "Simulation/CalcSimuEden.hpp"

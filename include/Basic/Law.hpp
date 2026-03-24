@@ -44,6 +44,7 @@ GSTLEARN_EXPORT double law_stable(double alpha,
                                   double gamma,
                                   double delta);
 GSTLEARN_EXPORT Id law_binomial(Id n, double p);
+GSTLEARN_EXPORT VectorInt law_multinomial(Id size, const VectorDouble& proba);
 GSTLEARN_EXPORT double law_beta1(double parameter1, double parameter2);
 GSTLEARN_EXPORT double law_beta2(double parameter1, double parameter2);
 GSTLEARN_EXPORT double law_df_gaussian(double value);
@@ -58,6 +59,7 @@ GSTLEARN_EXPORT double law_df_quadgaussian(VectorDouble& vect,
                                            MatrixSymmetric& correl);
 GSTLEARN_EXPORT double law_df_multigaussian(VectorDouble& vect,
                                             MatrixSymmetric& correl);
+GSTLEARN_EXPORT VectorDouble law_multigaussian(const VectorDouble& mu, MatrixSymmetric& sigma);
 GSTLEARN_EXPORT VectorInt law_random_path(Id nech);
 GSTLEARN_EXPORT VectorDouble law_exp_sample(const double* tabin,
                                             Id mode,

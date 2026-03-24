@@ -151,10 +151,10 @@ VectorDouble CovAniso::evalSpectrumOnSphere(Id n, bool scaleDistanceByRadius, bo
   return getCorAniso()->evalSpectrumOnSphere(n, scaleDistanceByRadius, flagScale);
 }
 
-double CovAniso::evalSpectrum(const VectorDouble& freq, Id ivar, Id jvar) const
+double CovAniso::evalSpectrumOnRN(const VectorDouble& freq, Id ivar, Id jvar) const
 {
   if (!getCorAniso()->isValidForSimulation(ESimuType::SPECTRAL)) return TEST;
-  return _sillCur.getValue(ivar, jvar) * getCorAniso()->evalSpectrum(freq, ivar, jvar);
+  return _sillCur.getValue(ivar, jvar) * getCorAniso()->evalSpectrumOnRN(freq, ivar, jvar);
 }
 
 SpectrumRN CovAniso::simulateSpectrumRN(Id ns, const ACov* cov0) const

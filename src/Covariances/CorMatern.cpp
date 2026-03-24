@@ -16,6 +16,8 @@
 #include "Covariances/CovCalcMode.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
+#include "Simulation/SpectrumOnRN.hpp"
+#include "Simulation/SpectrumRN.hpp"
 #include "Space/ASpace.hpp"
 #include "Space/SpaceComposite.hpp"
 #include "Space/SpacePoint.hpp"
@@ -71,25 +73,23 @@ CorMatern::CorMatern(const CovContext& ctxt, const ECov& type, const VectorDoubl
   {
     double nui    = params[ivar];
     double scalei = kappas[ivar];
-    double gni    = exp(loggamma(nui));
-    double ratioi = gni / pow(scalei, 2. * nui);
     _Nu.setValue(ivar, ivar, nui);
     _Kappa.setValue(ivar, ivar, scalei);
     _C0.setValue(ivar, ivar, 1.);
-
+    double lgni = loggamma(nui);
     for (Id jvar = ivar + 1; jvar < _nVar; jvar++)
     {
-      double scalej  = kappas[jvar];
-      double scaleij = computeScale(scalei, scalej);
       double nuj     = params[jvar];
-      double nuij    = computeParam(nui, nuj);
-      double gnj     = exp(loggamma(nuj));
-      double gnij    = exp(loggamma(nuij));
-      double ratioj  = gnj / pow(scalej, 2. * nuj);
-      double ratioij = gnij / pow(scaleij, 2. * nuij);
-      double val     = ratioij / sqrt(ratioi * ratioj);
+      double scalej  = kappas[jvar];
+      double nuij    = computeNu(nui, nuj);
+      double scaleij = computeKappa(scalei, scalej);
       _Nu.setValue(ivar, jvar, nuij);
       _Kappa.setValue(ivar, jvar, scaleij);
+      double lgnj  = loggamma(nuj);
+      double lgnij = loggamma(nuij);
+      double val   = exp(lgnij - 0.5 * (lgni + lgnj));
+      double tau   = pow(scalei, nui) * pow(scalej, nuj) / pow(scaleij, 2. * nuij);
+      val *= tau;
       _C0.setValue(ivar, jvar, val);
     }
   }
@@ -174,7 +174,15 @@ CorMatern* CorMatern::create(
   return cov;
 }
 
-double CorMatern::evalSpectrum(const VectorDouble& freq, Id ivar, Id jvar) const
+double CorMatern::computeKappa(double kappai, double kappaj)
+{
+  double ci2   = kappai * kappai;
+  double cj2   = kappaj * kappaj;
+  double scale = sqrt(0.5 * (ci2 + cj2));
+  return scale;
+}
+
+double CorMatern::evalSpectrumOnRN(const VectorDouble& freq, Id ivar, Id jvar) const
 {
   double kappa        = _Kappa.getValue(ivar, jvar);
   VectorDouble scales = _corRef->getScales();
@@ -185,13 +193,13 @@ double CorMatern::evalSpectrum(const VectorDouble& freq, Id ivar, Id jvar) const
   }
   _cor.setRotationAnglesAndRadius(angles, VectorDouble(), scales);
   _cor.setParam(_Nu.getValue(ivar, jvar));
-  return _C0.getValue(ivar, jvar) * _cor.evalSpectrum(freq, ivar, jvar);
+  return _C0.getValue(ivar, jvar) * _cor.evalSpectrumOnRN(freq, ivar, jvar);
 }
 
 double CorMatern::evalSpectrumRatio(const VectorDouble& freq, Id ivar, Id jvar, const ACov* cov0) const
 {
   DECLARE_UNUSED(cov0)
-  return evalSpectrum(freq, ivar, jvar) / _corRef->evalSpectrum(freq);
+  return evalSpectrumOnRN(freq, ivar, jvar) / _corRef->evalSpectrumOnRN(freq);
 }
 
 MatrixDense CorMatern::simulateSpectralOmega(Id nb) const
@@ -199,15 +207,17 @@ MatrixDense CorMatern::simulateSpectralOmega(Id nb) const
   return _corRef->simulateSpectralOmega(nb);
 }
 
+/*
 SpectrumRN CorMatern::simulateSpectrumRN(Id ns, const ACov* cov0) const
 {
   DECLARE_UNUSED(cov0)
-  // simulation of the frequencies using _corRef
-  MatrixDense omega = simulateSpectralOmega(ns);
-  MatrixDense gamma(ns, getNVar());
+  Id nvar = getNVar();
+
+  // simulation of the frequencies
+  MatrixDense omega = _corRef->simulateSpectralOmega(ns);
 
   // simulation of the normalizing factors gamma
-  Id nvar = getNVar();
+  MatrixDense gamma(ns, getNVar());
   VectorDouble values(nvar);
   MatrixSymmetric H(nvar);
   for (Id ib = 0; ib < ns; ib++)
@@ -224,7 +234,7 @@ SpectrumRN CorMatern::simulateSpectrumRN(Id ns, const ACov* cov0) const
       {
         for (Id jvar = 0; jvar <= ivar; jvar++)
         {
-          double ratioIS = evalSpectrum(freq, ivar, jvar) / _corRef->evalSpectrum(freq);
+          double ratioIS = evalSpectrumOnRN(freq, ivar, jvar) / _corRef->evalSpectrumOnRN(freq);
           H.setValue(ivar, jvar, ratioIS);
         }
       }
@@ -244,6 +254,58 @@ SpectrumRN CorMatern::simulateSpectrumRN(Id ns, const ACov* cov0) const
   }
   return SpectrumRN(gamma, omega);
 }
+*/
+
+SpectrumOnRN* CorMatern::simulateOnRN(Id ns) const
+{
+  Id nvar = getNVar();
+
+  // simulation of the random frequencies using _corRef
+  MatrixDense omega = simulateSpectralOmega(ns);
+
+  // simulation of the normalizing factors gamma
+  MatrixDense gamma(ns, getNVar());
+  VectorDouble values(nvar);
+  MatrixSymmetric H(nvar);
+  for (Id ib = 0; ib < ns; ib++)
+  {
+    double val        = sqrt(-log(law_uniform()) * nvar / ns);
+    VectorDouble freq = omega.getRow(ib);
+    for (Id ivar = 0; ivar < nvar; ivar++)
+    {
+      for (Id jvar = 0; jvar <= ivar; jvar++)
+      {
+        double ratioIS = evalSpectrumOnRN(freq, ivar, jvar) / _corRef->evalSpectrumOnRN(freq);
+        H.setValue(ivar, jvar, ratioIS);
+      }
+    }
+    // square root of the symmetric matrix
+    if (H.squareRootInPlace(H) != 0)
+    {
+      message("Error in computing square root matrix\n");
+    }
+    Id icol        = law_int_uniform(0, nvar - 1);
+    VectorDouble v = H.getColumn(icol);
+    for (Id ivar = 0; ivar < nvar; ivar++)
+    {
+      values[ivar] = val * v[ivar];
+    }
+    gamma.setRow(ib, values);
+  }
+
+  // simulation of the random phase
+  VectorDouble phi(ns);
+  for (Id ib = 0; ib < ns; ib++)
+  {
+    phi[ib] = law_uniform(0.0, 2 * GV_PI);
+  }
+
+  // creating the spectrum
+  auto* res = new SpectrumOnRNSimple(getNVar(), getNDim(), ns);
+  res->setGamma(gamma);
+  res->addFactor(omega, phi);
+  return res;
+};
 
 CorMatern::~CorMatern()
 {

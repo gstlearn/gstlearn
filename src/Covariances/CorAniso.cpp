@@ -34,6 +34,7 @@
 #include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixSquare.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
+#include "Simulation/SpectrumOnRN.hpp"
 #include "Space/ASpace.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Space/SpacePoint.hpp"
@@ -432,13 +433,35 @@ SpectrumRN CorAniso::simulateSpectrumRN(Id ns, const ACov* cov0) const
     for (Id ib = 0; ib < ns; ib++)
     {
       VectorDouble freq = omega.getRow(ib);
-      double ratioIS    = evalSpectrum(freq, 0, 0) / cov0->evalSpectrum(freq, 0, 0);
+      double ratioIS    = evalSpectrumOnRN(freq, 0, 0) / cov0->evalSpectrumOnRN(freq, 0, 0);
       double val        = sqrt(-log(law_uniform()) * 2 / ns * ratioIS);
       gamma.setValue(ib, 0, val);
     }
   };
   return SpectrumRN(gamma, omega);
 }
+
+SpectrumOnRN* CorAniso::simulateOnRN(Id ns) const
+{
+  if (!isValidForSimulation(ESimuType::SPECTRAL)){
+     messerr("Covariance not valid for spectral simulation on RN");
+     return nullptr;
+  }
+  auto *res = new SpectrumOnRNSimple(getNVar(), getNDim(), ns);
+  MatrixDense gamma(ns, getNVar());
+  MatrixDense omega(ns, getNDim());
+  VectorDouble phi(ns);
+  omega = simulateSpectralOmega(ns);
+  for (Id ib = 0; ib < ns; ib++)
+    {
+      double val = sqrt(-log(law_uniform()) / ns);
+      gamma.setValue(ib, 0, val);
+      phi[ib] = law_uniform(0.0, 2*GV_PI);
+    }
+    res->setGamma(gamma);
+    res->addFactor(omega, phi);
+  return res;
+};
 
 bool CorAniso::isConsistent(const ASpace* space) const
 {
@@ -740,7 +763,7 @@ double CorAniso::getDetTensor() const
   return detTensor;
 }
 
-double CorAniso::evalSpectrum(const VectorDouble& freq, Id ivar, Id jvar) const
+double CorAniso::evalSpectrumOnRN(const VectorDouble& freq, Id ivar, Id jvar) const
 {
   DECLARE_UNUSED(ivar, jvar)
   if (!_corfunc->isValidForSimulation(ESimuType::SPECTRAL)) return TEST;
@@ -756,7 +779,9 @@ double CorAniso::evalSpectrumRatio(const VectorDouble& freq, Id ivar, Id jvar, c
 {
   double ratio = 1.0;
   if (cov0 != nullptr)
-    ratio = evalSpectrum(freq, ivar, jvar) / cov0->evalSpectrum(freq, ivar, jvar);
+  {
+    ratio = evalSpectrumOnRN(freq, ivar, jvar) / cov0->evalSpectrumOnRN(freq, ivar, jvar);
+  }
 
   return ratio;
 }
@@ -918,13 +943,13 @@ VectorDouble CorAniso::getAnisoCoeffs() const
 /**
  * For compatibility, this function returns 0 if the Covariance has no Third Parameter
  *
- * @return Third parameter
+ * @return the i-th parameter of the kernel
  */
-double CorAniso::getParam() const
+double CorAniso::getParam(Id ipar) const
 {
   if (!hasParam())
     return 0.;
-  return _corfunc->getParam();
+  return _corfunc->getParam(ipar);
 }
 
 void CorAniso::_initFromContext()
@@ -1184,7 +1209,7 @@ Array CorAniso::evalCovFFT(const VectorDouble& hmax,
   std::function<double(const VectorDouble&)> funcSpectrum;
   funcSpectrum = [this, ivar, jvar](const VectorDouble& freq)
   {
-    return evalSpectrum(freq, ivar, jvar) / pow(2, getNDim());
+    return evalSpectrumOnRN(freq, ivar, jvar) / pow(2, getNDim());
   };
   return evalCovFFTSpatial(hmax, N, funcSpectrum);
 }

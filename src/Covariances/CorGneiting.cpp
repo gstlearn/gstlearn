@@ -11,13 +11,18 @@
 
 #include "Covariances/CorGneiting.hpp"
 #include "Basic/LawStable.hpp"
+#include "Basic/Message.hpp"
 #include "Basic/VectorNumT.hpp"
+#include "Basic/VectorT.hpp"
 #include "Covariances/CorAniso.hpp"
 #include "Covariances/CorGaussianMixture.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Matrix/MatrixDense.hpp"
+#include "Simulation/SpectrumOnRN.hpp"
+#include "Simulation/SpectrumRN.hpp"
 #include "Space/ASpace.hpp"
 #include "Space/SpaceComposite.hpp"
+#include "Space/SpaceRN.hpp"
 #include "geoslib_define.h"
 #include <cmath>
 #include <memory>
@@ -177,10 +182,9 @@ CorGneiting* CorGneiting::create(
     messerr("Inconsistent separability coefficient = %f", separability);
     return nullptr;
   }
-
   // creation of the spatial covariance
   auto* corS = new CorGaussianMixture(
-    CovContext(nvar, ndim),
+    CovContext(nvar, SpaceRN::create(ndim)),
     ECov::fromValue(id_spatial),
     params,
     kappas,
@@ -188,7 +192,9 @@ CorGneiting* CorGneiting::create(
     angles,
     flagRange);
   // creation of the temporal covariance
-  auto* corT = new CorAniso(CovContext(1, 1), ECov::CAUCHY_GEN);
+  auto* corT = new CorAniso(
+    CovContext(1, SpaceRN::create(1)), 
+    ECov::CAUCHY_GEN);
   corT->setParam(alpha, 0);           // alpha in (0,2]
   corT->setParam(beta * ndim / 2, 1); // beta*d/2 with beta in (0,1]
   if (flagRange)
@@ -200,6 +206,15 @@ CorGneiting* CorGneiting::create(
     corT->setScaleDim(0, timeRange);
   }
   return new CorGneiting(corS, corT, separability);
+}
+
+Id CorGneiting::getNFac() const
+{
+  if (_separability < 1.0)
+  {
+    return 2;
+  }
+  return 1;
 }
 
 SpectrumRN CorGneiting::simulateSpectrumRN(Id ns, const ACov* cov0) const
@@ -242,6 +257,80 @@ SpectrumRN CorGneiting::simulateSpectrumRN(Id ns, const ACov* cov0) const
   }
   return SpectrumRN(gamma, omega);
 }
+
+SpectrumOnRN* CorGneiting::simulateOnRN(Id ns) const
+{
+  Id ndim   = getNDim();
+  Id nvar   = getNVar();
+  auto* res = new SpectrumOnRNFactorized(nvar, ndim, ns);
+
+  // definition of the projections
+  MatrixDense projS(ndim, ndim - 1);
+  projS.setDiagonalToConstant(1.0);
+  MatrixDense projT(ndim, 1);
+  projT.setValue(ndim - 1, 0, 1.0);
+  MatrixDense proj(ndim, ndim);
+  proj.setDiagonalToConstant(1.0);
+
+  SpectrumOnRN* sp = _corS->simulateOnRN(ns);
+  MatrixDense gamma(sp->getGamma());
+  res->setGamma(gamma);
+
+
+  if (_separability == 0.0)
+  {
+    // adding the space factor
+    res->addFactor(sp->getOmega(), sp->getPhi(), projS);
+
+    // simulating and adding the time factor
+    SpectrumOnRN* spT = _corT->simulateOnRN(ns);
+    res->addFactor(spT->getOmega(), spT->getPhi(), projT);
+  }
+  else
+  {
+    // space-time Gneiting factor
+    // parameters for the simulation of the time frequencies
+    double alpha       = _corT->getCorFunc()->getParam(0);
+    double beta        = _corT->getCorFunc()->getParam(1) * 2 * _separability / (ndim - 1); // the second parameter of the Cauchy is beta*ndim/2
+    double timeRange   = _corT->getScale(0);
+    MatrixDense omega0 = sp->getOmega0(); // spatial frequency without anisotropy
+    VectorDouble xi0   = sp->getXi0();    // random scales of the Gaussian mixture
+    // space-time frequency matrix
+    MatrixDense omega(ns, ndim);
+    // copy of the space frequencies
+    MatrixDense omegaS = sp->getOmega();
+    for (Id idim = 0; idim < omegaS.getNCols(); idim++)
+    {
+      omega.setColumn(idim, sp->getOmega().getColumn(idim));
+    }
+    // simulation of the conditional time frequencies
+    for (Id ib = 0; ib < ns; ib++)
+    {
+      double no2   = omega0.getRow(ib).norm2();
+      double xi    = xi0[ib];
+      double lb    = std::pow(no2 / (4.0 * xi), 1 / beta); // = lambda ^ (1/beta)
+      double sim_S = LawStable::law_stable_unilateral_exptilt(beta, lb);
+      double sim_T = LawStable::law_stable_bilateral(alpha);
+      double val   = std::pow(sim_S * lb, 1 / alpha) * sim_T / timeRange;
+      omega.setValue(ib, ndim - 1, val);
+    }
+    res->addFactor(omega, sp->getPhi(), proj);
+
+    // time factor (if necessary)
+    if (_separability < 1)
+    {
+      CovContext ctxt_time = CovContext(1, SpaceRN::create(1));
+      auto* corT           = new CorAniso(ctxt_time, ECov::CAUCHY_GEN);
+      beta          = _corT->getParam(1) * (1 - _separability);
+      corT->setParam(_corT->getParam(0), 0); // alpha in (0,2]
+      corT->setParam(beta, 1);               // beta*(1-delta) d/2 with beta in (0,1]
+      corT->setScaleDim(0, _corT->getScale(0));
+      SpectrumOnRN* spT = corT->simulateOnRN(ns);
+      res->addFactor(spT->getOmega(), spT->getPhi(), projT);
+    }
+  }
+  return res;
+};
 
 // void CorGneiting::_optimizationSetTarget(SpacePoint& pt) const
 // {

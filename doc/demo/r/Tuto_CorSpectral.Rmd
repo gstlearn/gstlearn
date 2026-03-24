@@ -852,7 +852,7 @@ MyCorAniso <- function(type = MyType_[3], sigma = 1.0, params = NULL,
   # -----------------------------------------
   list(
     type = function(){type},
-    class = function(){"CovAniso"},
+    class = function(){"CorAniso"},
     description = fn_description,
     getNDim = function(){ndim},
     getNVar = function(){nvar},
@@ -983,7 +983,7 @@ MyCorMatern <- function(type = MyType_[3],
   }
   # -----------------------------------------
   if (verbose) {
-    print(paste0("Creating a ", type, " CovMatern model:"))
+    print(paste0("Creating a ", type, " CorMatern model:"))
     print(paste0(" - dimension of the space :", ndim))
     print(paste0(" - number of variables    :", nvar))
     for (ivar in 1:nvar) {
@@ -996,7 +996,7 @@ MyCorMatern <- function(type = MyType_[3],
   # -----------------------------------------
   list(
     type = function(){type},
-    class = function(){"CovMatern"},
+    class = function(){"CorMatern"},
     description = fn_description,
     getNDim = function(){ndim},
     getNVar = function(){nvar},
@@ -1004,7 +1004,7 @@ MyCorMatern <- function(type = MyType_[3],
     covariance  = fn_covariance,
     spectrum = fn_spectrum,
     simulate = fn_simulate,
-    # CovMatern
+    # CorMatern
     getCovRef = function(){covRef_},
     getAnisotropy = function(){anisotropy},
     getNus = function() {Nu_},
@@ -1162,7 +1162,7 @@ MyCorGaussianMixture <- function(type = MyType_[3], nu = 1/2, kappa = rep(1.0, l
   # -----------------------------------------
   list(
     type = function(){type},
-    class = function(){"GaussianMixture"},
+    class = function(){"CorGaussianMixture"},
     description = fn_description,
     getNDim = function(){ndim},
     getNVar = function(){nvar},
@@ -1294,7 +1294,7 @@ MyCorGneiting <- function(type = MyType_[7], nu = 1/2, kappa = rep(1.0, length(n
   # ----------------------------------------------------------
     list(
     type = fn_type,
-    class = function(){"CovGneiting"},
+    class = function(){"CorGneiting"},
     description = fn_description,
     getNDim = function(){ndim+1},
     getNVar = function(){nvar},
@@ -1411,7 +1411,7 @@ for (idim in 1:4) {
 
 # parameters for the simulations
 ns   = 500    # number of spectral components
-nsim = 2      # number of simulations
+nsim = 3      # number of simulations
 nlag = 30     # number of lags of the experimental variograms on grid
 seed = 258425
 set.seed(seed)
