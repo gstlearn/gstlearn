@@ -1,13 +1,12 @@
 ---
-  title: "Kriging linear combinations"
-  author: "gstlearn core team"
-  date: "January 31, 2024"
-  output:
-    pdf_document: default
-    html_document: default
-    editor_options: 
-      chunk_output_type: console
-    chunk_output_type: console
+title: "Kriging linear combinations"
+author: "gstlearn core team"
+date: "January 31, 2024"
+output:
+  pdf_document: default
+  html_document: default
+editor_options:
+  chunk_output_type: console
 ---
 
 # Introduction
