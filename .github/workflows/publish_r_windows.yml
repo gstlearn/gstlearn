@@ -85,6 +85,11 @@ jobs:
     - name: Build & install HDF5 static libraries
       uses: ./.github/actions/hdf5_static_windows
 
+    - name : Inspect cmake version
+      run : |
+        which cmake
+        cmake --version
+
     - name : Configure build directory
       run : |
         cmake `
