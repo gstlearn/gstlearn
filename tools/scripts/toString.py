@@ -37,9 +37,10 @@ def extract_class_and_bases(all_lines):
         base_classes_raw = match.group(2)
         if base_classes_raw:
             base_classes_raw = base_classes_raw.split(",")
-            # Remove the word 'public' from each base class
+            # Remove the word 'public' and 'virtual' from each base class
             base_classes = [
-                base.replace("public", "").strip() for base in base_classes_raw
+                base.replace("public", "").replace("virtual", "").strip()
+                for base in base_classes_raw
             ]
         else:
             base_classes = []
@@ -47,6 +48,33 @@ def extract_class_and_bases(all_lines):
         return class_name, base_classes
     else:
         return None, []
+
+
+def get_all_descendants(target_class, hierarchy):
+    # Init list of descendants found
+    descendants = set()
+
+    # Parse the dictionary and expand the parents list
+    # until we find the target class or exhaust the hierarchy
+    for child, parents in hierarchy.items():
+        if len(parents) == 0:
+            continue
+        if target_class in parents:
+            descendants.add(child)
+            continue
+        while (target_class not in parents) and len(parents) > 0:
+            new_parents = set()
+            for parent in parents:
+                if parent in hierarchy:
+                    new_parents.update(hierarchy[parent])
+            if (parents == new_parents) or len(new_parents) == 0:
+                break  # No new parents found, stop the search
+            parents = new_parents
+            if target_class in parents:
+                descendants.add(child)
+                break  # Target class found, stop the search for this child
+
+    return list(descendants)
 
 
 def find_classes_inheriting_from_AStringable(root_folder):
@@ -74,7 +102,6 @@ def find_classes_inheriting_from_AStringable(root_folder):
                         class_name, base_classes = extract_class_and_bases(
                             "".join(lines)
                         )
-
                         if class_name:
                             class_hierarchy[class_name] = base_classes
                             # Check if the class inherits directly from AStringable
@@ -83,26 +110,7 @@ def find_classes_inheriting_from_AStringable(root_folder):
                 except (UnicodeDecodeError, FileNotFoundError):
                     continue
 
-    # List of classes inheriting indirectly from AStringable
-    all_inheritors = set(direct_inheritors)  # Start with direct inheritors
-
-    # Traverse remaining classes to check for indirect inheritance
-    newly_found = set(direct_inheritors)  # Classes already found
-
-    # Iterate until no more new classes are found
-    level = 2
-    while newly_found:
-        current_found = set()
-        for class_name in class_hierarchy:
-            if class_name not in all_inheritors:
-                for base_class in class_hierarchy[class_name]:
-                    if base_class in newly_found:
-                        current_found.add(class_name)
-                        break
-        newly_found = current_found
-        all_inheritors.update(newly_found)
-
-        level += 1
+    all_inheritors = get_all_descendants("AStringable", class_hierarchy)
 
     # Return the classes sorted alphabetically
     return all_inheritors
@@ -132,23 +140,5 @@ if __name__ == "__main__":
     include_path = os.path.join("..", "..", "include")
     Astringable_classes = sorted(find_classes_inheriting_from_AStringable(include_path))
     with open(output_txt_file, "w", encoding="utf-8") as file:
-        excluded = [
-            "AStringable",
-            "ATransformWithAutoDiff",
-            "PrecisionOpMulti",
-            "PrecisionOpMultiMatrix",
-            "MatrixSparse",
-            "Node",
-            "GibbsUPropMono",
-            "Tapering",
-            "GibbsUPropMultiMono",
-            "ElemNostat",
-            "GibbsMultiMono",
-            "RuleShift",
-            "GibbsUMultiMono",
-            "SpaceSN",
-            "RuleShadow",
-        ]
         for class_name in Astringable_classes:
-            if class_name not in excluded:
-                file.write(generate_swig_extend_code(class_name))
+            file.write(generate_swig_extend_code(class_name))

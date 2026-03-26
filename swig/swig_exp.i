@@ -30,7 +30,7 @@
 %template(VectorVectorInt)    gstlrn::VectorNumT< VectorNumT< long long > >;
 %template(VectorVectorDouble) gstlrn::VectorNumT< VectorNumT< double > >;
 %template(VectorVectorFloat)  gstlrn::VectorNumT< VectorNumT< float > >;
-//}
+
 %include Basic/ICloneable.hpp
 %include Basic/RepeatMacro.hpp
 %include Basic/RepeatMacroSwig.hpp
@@ -85,6 +85,7 @@
 %include Basic/NamingConvention.hpp
 
 %include Transform/ATransform.hpp
+%include Transform/ATransformWithAutoDiff.hpp
 %include Transform/TuckeyGH.hpp
 %include Transform/YeoJohnson.hpp
 
@@ -159,6 +160,7 @@
 %include Space/SpaceTarget.hpp
 %include Space/SpaceRN.hpp
 %include Space/SpaceShape.hpp
+%include Space/SpaceSN.hpp
 
 %include LinearOp/ALinearOp.hpp
 %include LinearOp/APreconditioner.hpp
@@ -233,10 +235,6 @@
 %include Neigh/NeighBench.hpp
 %include Neigh/NeighCell.hpp
 
-%include Transform/ATransform.hpp
-%include Transform/TuckeyGH.hpp
-%include Transform/YeoJohnson.hpp
-
 %include Variogram/AVario.hpp
 %include Variogram/VarioParam.hpp
 %include Variogram/Vario.hpp
@@ -252,6 +250,7 @@
 %include Model/ModelCovList.hpp
 %include Model/Model.hpp
 %include Model/ModelOptimParam.hpp
+%include Model/ElemNostat.hpp
 %include Model/Option_AutoFit.hpp
 %include Model/Option_VarioFit.hpp
 %include Model/Constraints.hpp
@@ -357,6 +356,9 @@
 %include Gibbs/GibbsMulti.hpp
 %include Gibbs/GibbsMMulti.hpp
 %include Gibbs/GibbsUMulti.hpp
+%include Gibbs/GibbsMultiMono.hpp
+%include Gibbs/GibbsUMultiMono.hpp
+%include Gibbs/GibbsUPropMono.hpp
 
 %include Morpho/Morpho.hpp
 
@@ -369,7 +371,10 @@
 %include Stats/Selectivity.hpp
 %include Stats/Regression.hpp
 
+%include LithoRule/Node.hpp
 %include LithoRule/Rule.hpp
+%include LithoRule/RuleShadow.hpp
+%include LithoRule/RuleShift.hpp
 %include LithoRule/RuleStringFormat.hpp
 %include LithoRule/RuleProp.hpp
 
