@@ -3,40 +3,43 @@ import re
 import sys
 import os
 
-# The aim of this script is to indentify all the classes which inherits  (recursively) from AStringable in order
-# to add the extension
+# The aim of this script is to indentify all the classes which inherits
+# (recursively) from AStringable in order to add the extension
+#
 # %extend {class_name} {{
 #  std::string __repr__() {{
 #    return $self->toString();
 #  }}
-# in the swig.i file such that toString is automatically called in the target languages when the name of the object is given.
+# 
+# in the toString.i file such that toString is automatically called in the target
+# languages when the name of the object is given.
 
-
-def extract_class_and_bases(line):
+def extract_class_and_bases(all_lines):
     """
-    Analyzes a line of code and extracts the class name and the list of base classes inherited,
-    while removing the word 'public'. It handles both cases: brace on the same line or on the next line.
+    Analyzes all lines of code and extracts the class name and the list of base classes inherited,
+    while removing the word 'public'. It handles all cases: mono or multiline class declaration.
+    The class must be exported using GSTLEARN_EXPORT.
 
-    :param line: A line containing the class declaration, e.g.:
-                 "class GSTLEARN_EXPORT Db: public AStringable, public ASerializable, public ICloneable"
+    :param: all_lines: List of lines containing the class header
     :return: Tuple (class name, list of inherited base classes)
     """
-    # Modified regex to extract the class name and base classes, with or without braces on the same line
-    pattern = r"class\s+\w+\s+(\w+)\s*[:\s]*([^{\n]+)?\s*(\{)?"
-
-    match = re.match(pattern, line)
+    # Regex to extract the class name and all base classes (handle multiline inheritance list)
+    pattern = r"class\s+GSTLEARN_EXPORT\s+(\w+)\s*(?::\s*([^{]+))?"
+    # Catch all lines (using DOTALL)
+    match = re.search(pattern, all_lines, re.DOTALL)
 
     if match:
         # Class name
         class_name = match.group(1)
 
-        # Inherited base classes, separated by commas (if any)
+        # Inherited base classes, separated by commas and or carriage returns (if any)
         base_classes_raw = match.group(2)
         if base_classes_raw:
             base_classes_raw = base_classes_raw.split(",")
-            # Remove the word 'public' from each base class
+            # Remove the word 'public' and 'virtual' from each base class
             base_classes = [
-                base.replace("public", "").strip() for base in base_classes_raw
+                base.replace("public", "").replace("virtual", "").strip()
+                for base in base_classes_raw
             ]
         else:
             base_classes = []
@@ -44,6 +47,33 @@ def extract_class_and_bases(line):
         return class_name, base_classes
     else:
         return None, []
+
+
+def get_all_descendants(target_class, hierarchy):
+    # Init list of descendants found
+    descendants = set()
+
+    # Parse the dictionary and expand the parents list
+    # until we find the target class or exhaust the hierarchy
+    for child, parents in hierarchy.items():
+        if len(parents) == 0:
+            continue
+        if target_class in parents:
+            descendants.add(child)
+            continue
+        while (target_class not in parents) and len(parents) > 0:
+            new_parents = set()
+            for parent in parents:
+                if parent in hierarchy:
+                    new_parents.update(hierarchy[parent])
+            if (parents == new_parents) or len(new_parents) == 0:
+                break  # No new parents found, stop the search
+            parents = new_parents
+            if target_class in parents:
+                descendants.add(child)
+                break  # Target class found, stop the search for this child
+
+    return list(descendants)
 
 
 def find_classes_inheriting_from_AStringable(root_folder):
@@ -66,39 +96,20 @@ def find_classes_inheriting_from_AStringable(root_folder):
 
                 try:
                     with open(file_path, "r", encoding="utf-8") as f:
-                        for line in f:
-                            # Extract class and base classes
-                            class_name, base_classes = extract_class_and_bases(line)
-
-                            if class_name:
-                                class_hierarchy[class_name] = base_classes
-
-                                # Check if the class inherits directly from AStringable
-                                if "AStringable" in base_classes:
-                                    direct_inheritors.append(class_name)
+                        lines = f.readlines()
+                        # Extract class and base classes
+                        class_name, base_classes = extract_class_and_bases(
+                            "".join(lines)
+                        )
+                        if class_name:
+                            class_hierarchy[class_name] = base_classes
+                            # Check if the class inherits directly from AStringable
+                            if "AStringable" in base_classes:
+                                direct_inheritors.append(class_name)
                 except (UnicodeDecodeError, FileNotFoundError):
                     continue
 
-    # List of classes inheriting indirectly from AStringable
-    all_inheritors = set(direct_inheritors)  # Start with direct inheritors
-
-    # Traverse remaining classes to check for indirect inheritance
-    newly_found = set(direct_inheritors)  # Classes already found
-
-    # Iterate until no more new classes are found
-    level = 2
-    while newly_found:
-        current_found = set()
-        for class_name in class_hierarchy:
-            if class_name not in all_inheritors:
-                for base_class in class_hierarchy[class_name]:
-                    if base_class in newly_found:
-                        current_found.add(class_name)
-                        break
-        newly_found = current_found
-        all_inheritors.update(newly_found)
-
-        level += 1
+    all_inheritors = get_all_descendants("AStringable", class_hierarchy)
 
     # Return the classes sorted alphabetically
     return all_inheritors
@@ -128,23 +139,5 @@ if __name__ == "__main__":
     include_path = os.path.join("..", "..", "include")
     Astringable_classes = sorted(find_classes_inheriting_from_AStringable(include_path))
     with open(output_txt_file, "w", encoding="utf-8") as file:
-        excluded = [
-            "AStringable",
-            "ATransformWithAutoDiff",
-            "PrecisionOpMulti",
-            "PrecisionOpMultiMatrix",
-            "MatrixSparse",
-            "Node",
-            "GibbsUPropMono",
-            "Tapering",
-            "GibbsUPropMultiMono",
-            "ElemNostat",
-            "GibbsMultiMono",
-            "RuleShift",
-            "GibbsUMultiMono",
-            "SpaceSN",
-            "RuleShadow",
-        ]
         for class_name in Astringable_classes:
-            if class_name not in excluded:
-                file.write(generate_swig_extend_code(class_name))
+            file.write(generate_swig_extend_code(class_name))
