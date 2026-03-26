@@ -1,8 +1,8 @@
 ---
-  title: "Spectral simulation on S2"
-  author: "Ch. Lantuejoul, X. Freulon, and the gstlearn Core Team"
-  date: "2024-04-04"
-  output: html_document
+title: "Spectral simulation on S2"
+author: "Ch. Lantuejoul, X. Freulon, and the gstlearn Core Team"
+date: "2024-04-04"
+output: html_document
 editor_options:
   chunk_output_type: console
 ---
