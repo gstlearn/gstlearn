@@ -62,11 +62,10 @@ jobs:
 
     - name: Install dependencies
       run: |
-        echo '{
-          "dependencies": [ "boost-math", "eigen3" ],
-          "builtin-baseline": "d5ec528843d29e3a52d745a64b469f810b2cedbf"
-        }' > vcpkg.json
-        vcpkg install
+        pacman -Syu --noconfirm
+        pacman -Sy --noconfirm mingw-w64-x86_64-cmake
+        pacman -Sy --noconfirm mingw-w64-x86_64-boost
+        pacman -Sy --noconfirm mingw-w64-x86_64-eigen3
 
     - name: Install Doxygen under windows
       uses: fabien-ors/install-doxygen-windows-action@v1
