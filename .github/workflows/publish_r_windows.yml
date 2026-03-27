@@ -60,11 +60,6 @@ jobs:
     - name: Install R dependencies (binary)
       run: Rscript -e "install.packages (c('ggplot2', 'ggpubr', 'ggnewscale', 'roxygen2', 'pkgbuild'), type='binary')"
 
-    - name : Inspect cmake version
-      run : |
-        which cmake
-        cmake --version
-
     - name: Fix CMake Path (system prefered to rtools)
       run: |
         $cmakePath = (Get-Command cmake.exe -TotalCount 2 | Select-Object -ExpandProperty Source | Where-Object { $_ -notlike "*rtools*" } | Select-Object -First 1)
@@ -73,11 +68,6 @@ jobs:
           echo "$cmakeDir" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
         }
       shell: powershell
-
-    - name : Inspect cmake version
-      run : |
-        which cmake
-        cmake --version
 
     - name: Install dependencies
       run: |
@@ -102,11 +92,6 @@ jobs:
 
     - name: Build & install HDF5 static libraries
       uses: ./.github/actions/hdf5_static_windows
-
-    - name : Inspect cmake version
-      run : |
-        which cmake
-        cmake --version
 
     - name : Configure build directory
       run : |
