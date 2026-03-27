@@ -1,0 +1,54 @@
+Starting multigrid solver...
+MultiGridSolver with 5 levels.
+ Level 0: Operator size = 40000
+ Level 1: Operator size = 10000
+ Level 2: Operator size = 2500
+ Level 3: Operator size = 625
+ Coarse solver: 169 x 169
+Residual norm: 0.156
+1
+Residual norm: 0.0485
+2
+Residual norm: 0.0268
+3
+Residual norm: 0.0153
+4
+Residual norm: 0.0105
+5
+Residual norm: 0.0051
+6
+Residual norm: 0.0034
+7
+Residual norm: 0.0016
+8
+Residual norm: 0.0011
+9
+Residual norm: 0.0006
+10
+Residual norm: 0.0004
+11
+Residual norm: 0.0002
+12
+Residual norm: 0.0001
+13
+Residual norm: 0.0001
+14
+Residual norm: 0.0
+15
+Residual norm: 0.0
+16
+Residual norm: 0.0
+17
+Residual norm: 0.0
+18
+Residual norm: 0.0
+19
+Residual norm: 0.0
+20
+Residual norm: 0.0
+21
+Residual norm: 0.0
+22
+-----------------------------------------------
+Convergence reached in 22 iterations.
+-----------------------------------------------

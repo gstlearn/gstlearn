@@ -16,7 +16,7 @@
 namespace gstlrn
 {
 
-double LinearOpHelper::powerIteration(ALinearOp* op, Id niter)
+double LinearOpHelper::powerIteration(const ALinearOp* op, Id niter)
 {
 
     Id size = op->getSize();

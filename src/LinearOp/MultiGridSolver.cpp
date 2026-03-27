@@ -10,49 +10,114 @@
 /******************************************************************************/
 
 #include "LinearOp/MultiGridSolver.hpp"
-
+#include "Basic/VectorHelper.hpp"
+#include "Basic/VectorNumT.hpp"
+#include "LinearOp/CholeskySparse.hpp"
+#include "LinearOp/IProj.hpp"
+#include "LinearOp/LinearOpHelper.hpp"
+#include "Matrix/MatrixSparse.hpp"
+#include "Polynomials/Chebychev.hpp"
 namespace gstlrn
 {
 
-MultiGridSolver::MultiGridSolver()
+MultiGridSolver::MultiGridSolver(double ratiochebmin, double ratiochebmax, size_t smoothIter)
+  : _nLevels(1)
+  , _ratiochebmin(ratiochebmin)
+  , _ratiochebmax(ratiochebmax)
+  , _smoothIter(smoothIter)
 {
-
-
 }
 
+MultiGridSolver::MultiGridSolver(MultiGridSolver&& other) noexcept = default;
 
-void MultiGridSolver::_vCycle(int lvl, constvect f, vect u) const
+MultiGridSolver& MultiGridSolver::operator=(MultiGridSolver&& other) noexcept = default;
+
+void MultiGridSolver::display() const
+{
+  std::cout << "MultiGridSolver with " << _nLevels << " levels." << std::endl;
+  for (size_t i = 0; i < _nLevels - 1; ++i)
   {
-    // 1. Base case : Solveur direct au niveau le plus grossier
-    if (lvl == _nLevels - 1)
-    {
-      _coarseSolver.solve(f, u);
-      return;
-    }
-
-    // 2. Pre-smoothing
-    //auto cheby = Chebychev();
-    //cheby.smoother(lvl, f, u);
-
-    // 3. Calcul du résidu : r = f - Op * u
-    // On utilise addToDest pour calculer le produit et soustra+++ire
-    //Eigen::VectorXd r = f;
-    //_operators[lvl]->addToDest(u, r); // Attention : gérer le signe selon ton implémentation de addToDest
-
-    // 4. Restriction : r_c = P.point2mesh(r)
-    //Eigen::VectorXd r_c = Eigen::VectorXd::Zero(_operators[lvl + 1]->getSize());
-    //_transferOps[lvl]->point2mesh(r, r_c);
-
-    // 5. Correction grossière récursive
-    //Eigen::VectorXd delta_c = Eigen::VectorXd::Zero(r_c.size());
-    //_vCycle(lvl + 1, r_c, delta_c);
-
-    // 6. Prolongation : u = u + P.mesh2point(delta_c)
-    // On utilise addMesh2point pour faire u += P * delta_c directement
-    //_transferOps[lvl]->addMesh2point(delta_c, u);
-
-    // 7. Post-smoothing
-    //_applyChebyshev(lvl, f, u);
+    std::cout << " Level " << i << ": Operator size = " << _operators[i]->getSize() << std::endl;
+  }
+  if (_coarseSolver)
+    std::cout << " Coarse solver: " << _coarseSolver->getSize() << " x " << _coarseSolver->getSize() << std::endl;
 }
 
+MultiGridSolver::~MultiGridSolver() = default;
+
+void MultiGridSolver::addLevel(std::unique_ptr<const ALinearOp>&& op, std::unique_ptr<const IProj>&& transferOp)
+{
+  _operators.push_back(std::move(op));
+  _transferOps.push_back(std::move(transferOp));
+  _work.push_back(VectorDouble(_operators.back()->getSize()));
+  _res.push_back(VectorDouble(_operators.back()->getSize()));
+  _rhs_storage.push_back(VectorDouble(_operators.back()->getSize()));
+  _err_storage.push_back(VectorDouble(_operators.back()->getSize()));
+  _chebys.emplace_back();
+  _nLevels++;
 }
+void MultiGridSolver::setCoarseSolver(const MatrixSparse& mat)
+{
+  _operators.push_back(std::make_unique<MatrixSparse>(mat));
+  _coarseSolver = std::make_unique<const CholeskySparse>(mat);
+  _work.push_back(VectorDouble(mat.getNRows()));
+  _res.push_back(VectorDouble(mat.getNRows()));
+  _rhs_storage.push_back(VectorDouble(mat.getNRows()));
+  _err_storage.push_back(VectorDouble(mat.getNRows()));
+}
+
+void MultiGridSolver::prepare(size_t niterPower)
+{
+  _maxEigenValues.clear();
+  for (size_t i = 0; i < _nLevels - 1; ++i)
+  {
+    _maxEigenValues.push_back(LH::powerIteration(_operators[i].get(), niterPower));
+  }
+}
+
+VectorDouble MultiGridSolver::vCycle(const VectorDouble& rhs, const VectorDouble& u, size_t lvl) const
+{
+  VectorDouble res = u;
+  _vCycle(lvl, rhs, res);
+  return res;
+}
+void MultiGridSolver::applyLevel(constvect rhs, vect x, size_t lvl) const
+{
+  const Chebychev* cheby = &_chebys[lvl];
+  double lmax            = _maxEigenValues[lvl];
+  Id smoothiter          = _smoothIter * std::pow(3, lvl);
+  cheby->smootherInPlace(*_operators[lvl].get(), x, rhs, lmax, _ratiochebmin, _ratiochebmax, smoothiter);
+}
+
+void MultiGridSolver::_vCycle(size_t lvl, constvect f, vect u) const
+{
+  if (lvl == _nLevels - 1)
+  {
+    _coarseSolver->solve(f, u);
+    return;
+  }
+
+  // 1. Pre-smoothing
+  applyLevel(f, u, lvl);
+
+  // 2. Residual : r = f - A*u
+  _operators[lvl]->evalDirect(u, _work[lvl]);
+
+  // subtractInPlace(in1, in2, res) -> res = in2 - in1
+  VH::subtractInPlace(_work[lvl], f, _res[lvl]);
+
+  // 3. Restriction
+  _transferOps[lvl]->point2mesh(_res[lvl], _rhs_storage[lvl + 1]);
+
+  // 4. Recursion
+  _err_storage[lvl + 1].fill(0, _err_storage[lvl + 1].size());
+  _vCycle(lvl + 1, _rhs_storage[lvl + 1], _err_storage[lvl + 1]);
+
+  // 5. Prolongation : u = u + P * e
+  _transferOps[lvl]->addMesh2point(_err_storage[lvl + 1], u);
+
+  // 6. Post-smoothing
+  applyLevel(f, u, lvl);
+}
+
+} // namespace gstlrn

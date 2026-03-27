@@ -30,6 +30,10 @@ public:
   ProjMatrix(const ProjMatrix& m);
   ProjMatrix(const MatrixSparse& m);
   ProjMatrix& operator=(const ProjMatrix& m);
+  #ifndef SWIG
+  ProjMatrix(ProjMatrix&&) = default;
+  ProjMatrix& operator=(ProjMatrix&&) = default;
+  #endif
   virtual ~ProjMatrix();
 
   /// Has a specific implementation in the Target language

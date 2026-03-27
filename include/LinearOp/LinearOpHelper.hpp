@@ -18,7 +18,7 @@ namespace gstlrn
 class GSTLEARN_EXPORT LinearOpHelper
 {
   public:
-    static double powerIteration(ALinearOp* op, Id niter = 30);
+    static double powerIteration(const ALinearOp* op, Id niter = 30);
     
 };
 
