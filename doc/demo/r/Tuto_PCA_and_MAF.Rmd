@@ -1,12 +1,11 @@
 ---
-  title: "Test of PCA and MAF in gstlearn"
-  author: "D. Renard, N. Desassis, X. Freulon"
-  date: "May 31, 2023"
-  output:
-    pdf_document: default
-    html_document: default
-  editor_options: 
-    chunk_output_type: console
+title: "Test of PCA and MAF in gstlearn"
+author: "D. Renard, N. Desassis, X. Freulon"
+date: "May 31, 2023"
+output:
+  pdf_document: default
+  html_document: default
+editor_options:
   chunk_output_type: console
 ---
 

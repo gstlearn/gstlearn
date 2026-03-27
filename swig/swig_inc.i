@@ -13,6 +13,7 @@
   #include "geoslib_old_f.h"
   
   #include "Transform/ATransform.hpp"
+  #include "Transform/ATransformWithAutoDiff.hpp"
   #include "Transform/TuckeyGH.hpp"
   #include "Transform/YeoJohnson.hpp"
   
@@ -118,6 +119,7 @@
   #include "Space/SpacePoint.hpp"
   #include "Space/SpaceTarget.hpp"
   #include "Space/SpaceRN.hpp"
+  #include "Space/SpaceSN.hpp"
   #include "Space/SpaceShape.hpp"
   
   #include "Skin/ISkinFunctions.hpp"
@@ -205,13 +207,13 @@
   #include "Model/ModelCovList.hpp"
   #include "Model/Model.hpp"
   #include "Model/ModelOptimParam.hpp"
+  #include "Model/ElemNostat.hpp"
   #include "Model/Option_AutoFit.hpp"
   #include "Model/Option_VarioFit.hpp"
   #include "Model/Constraints.hpp"
   #include "Model/ConsItem.hpp"
   #include "Model/CovParamId.hpp"
-  #include "Model/CovParamId.hpp"
-  
+
   #include "Covariances/ParamId.hpp"
   #include "Covariances/TabNoStat.hpp"
   #include "Covariances/TabNoStatCovAniso.hpp"
@@ -320,7 +322,10 @@
   
   #include "Gibbs/GibbsMMulti.hpp"
   #include "Gibbs/GibbsUMulti.hpp"
-  
+  #include "Gibbs/GibbsMultiMono.hpp"
+  #include "Gibbs/GibbsUMultiMono.hpp"
+  #include "Gibbs/GibbsUPropMono.hpp"
+
   #include "Morpho/Morpho.hpp"
   
   #include "Polygon/Polygons.hpp"
@@ -331,11 +336,14 @@
   #include "Stats/PCAStringFormat.hpp"
   #include "Stats/Selectivity.hpp"
   #include "Stats/Regression.hpp"
-  
+
+  #include "LithoRule/Node.hpp"
   #include "LithoRule/Rule.hpp"
   #include "LithoRule/RuleStringFormat.hpp"
   #include "LithoRule/RuleProp.hpp"
-  
+  #include "LithoRule/RuleShift.hpp"
+  #include "LithoRule/RuleShadow.hpp"
+
   #include "Estimation/Estimations.hpp"
   #include "Estimation/KrigingSystem.hpp"
   #include "Estimation/KrigingAlgebra.hpp"
