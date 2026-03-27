@@ -10,9 +10,10 @@ import os
 #  std::string __repr__() {{
 #    return $self->toString();
 #  }}
-# 
+#
 # in the toString.i file such that toString is automatically called in the target
 # languages when the name of the object is given.
+
 
 def extract_class_and_bases(all_lines):
     """
