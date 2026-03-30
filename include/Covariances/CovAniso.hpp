@@ -77,7 +77,7 @@ public:
                          bool scaleDistanceByRadius = true,
                          const CovCalcMode* mode    = nullptr) const override;
   VectorDouble evalSpectrumOnSphere(Id n, bool scaleDistanceByRadius = false, bool flagScale = true) const override;
-  double evalSpectrum(const VectorDouble& freq, Id ivar = 0, Id jvar = 0) const override;
+  double evalSpectrumOnRN(const VectorDouble& freq, Id ivar = 0, Id jvar = 0) const override;
 
   virtual double getIntegralRange(Id ndisc, double hmax) const;
   virtual String getFormula() const { return getCorAniso()->getFormula(); }
@@ -247,7 +247,6 @@ public:
                Id ivar                 = 0,
                Id jvar                 = 0,
                const CovCalcMode* mode = nullptr) const override;
-  SpectrumRN simulateSpectrumRN(Id ns, const ACov* cov0 = nullptr) const override;
 };
 
 GSTLEARN_EXPORT double scale2range(const ECov& type, double scale, double param = 1.);

@@ -11,6 +11,7 @@
 #pragma once
 
 #include "Covariances/AKernel.hpp"
+#include "Enum/ESimuType.hpp"
 #include "gstlearn_export.hpp"
 
 namespace gstlrn
@@ -35,6 +36,10 @@ public:
   double getScadef() const override;
   //  double getAlpha() const { return _alpha; };
   //  bool setAlpha(double alpha);
+
+  // Specific for Spectral Simulation Method
+  bool isValidForSimulation(const ESimuType& simuType) const override;
+  MatrixDense simulateSpectralOmega(Id nb) const override;
 
 protected:
   double _evaluateCov(double h) const override;

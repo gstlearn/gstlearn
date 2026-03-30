@@ -196,12 +196,12 @@ std::complex<double> CovDiffusionAdvection::evalSpatialSpectrum(VectorDouble fre
   double s1 = 1.;
 
   if (_markovLdefined)
-    s1 = 1. / (_markovL->evalSpectrum(freq));
+    s1 = 1. / (_markovL->evalSpectrumOnRN(freq));
 
   double s2 = 1.;
 
   if (_markovRdefined)
-    s2 = 1. / (_markovR->evalSpectrum(freq));
+    s2 = 1. / (_markovR->evalSpectrumOnRN(freq));
 
   std::complex<double> a(-_scaleTime * ABS(time * s1), -_scaleTime * velinner * time);
 

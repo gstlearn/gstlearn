@@ -15,7 +15,9 @@
 #include "Covariances/CorAniso.hpp"
 #include "Covariances/CovCalcMode.hpp"
 #include "Covariances/CovContext.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
+#include "Simulation/SpectrumOnRN.hpp"
 #include "Space/ASpace.hpp"
 #include "Space/SpaceComposite.hpp"
 #include "Space/SpacePoint.hpp"
@@ -210,9 +212,9 @@ void CorGaussianMixture::setScaleCor(Id idim, double scale)
 
 double CorGaussianMixture::computeKappa(double kappai, double kappaj) const
 {
-  double ci2    = kappai * kappai;
-  double cj2    = kappaj * kappaj;
-  double scale  = 1.0;
+  double ci2   = kappai * kappai;
+  double cj2   = kappaj * kappaj;
+  double scale = 1.0;
   if (_corRef->getType() == ECov::MATERN)
   {
     scale = sqrt(0.5 * (ci2 + cj2));
@@ -224,22 +226,22 @@ double CorGaussianMixture::computeKappa(double kappai, double kappaj) const
   return scale;
 }
 
-SpectrumRN CorGaussianMixture::simulateSpectrumRN(Id ns, const ACov* cov0) const
+SpectrumOnRN* CorGaussianMixture::simulateOnRN(Id ns) const
 {
-  DECLARE_UNUSED(cov0)
   Id nvar       = getNVar();
   Id ndim       = getNDim();
   double nu0    = _Nu.getDiagonal().minimum();
   double kappa0 = _Kappa.getDiagonal().maximum();
-  MatrixDense omega(ns, ndim);
-  MatrixDense gamma(ns, nvar);
-  MatrixDense omega0(ns, ndim);
+
   VectorDouble xi0(ns);
+  MatrixDense omega0(ns, ndim);
+  MatrixDense gamma(ns, nvar);
+  MatrixDense omega(ns, ndim);
   double ldf_xi  = 0.0;
   double ldf0_xi = 0.0;
   for (Id ib = 0; ib < ns; ib++)
   {
-    double ll = -2.0 * log(law_uniform()) / ns;
+    double ll = -log(law_uniform()) / ns;
     // simulation of random scale xi and the spatial frequency omega
     double xi = 0.0;
     if (_corRef->getType() == ECov::MATERN)
@@ -252,7 +254,7 @@ SpectrumRN CorGaussianMixture::simulateSpectrumRN(Id ns, const ACov* cov0) const
     }
     else // GAUSSIAN and nvar == 1
     {
-      xi = _Kappa.getValue(0,0) * _Kappa.getValue(0,0);
+      xi = _Kappa.getValue(0, 0) * _Kappa.getValue(0, 0);
     }
     for (Id idim = 0; idim < ndim; idim++)
     {
@@ -293,12 +295,25 @@ SpectrumRN CorGaussianMixture::simulateSpectrumRN(Id ns, const ACov* cov0) const
     // storing omega0 and xi for Gneiting
     xi0[ib] = xi;
     omega0.setRow(ib, omega.getRow(ib));
-  }
+  } // loop over the spectral components
+
   // apply the geometrical anisotropy
   const auto& tensor = _corRef->getAniso().getTensorInverse();
   omega.prodMat(&tensor);
-  return SpectrumRN(gamma, omega, omega0, xi0);
-}
+
+  // simulation of the random phase
+  VectorDouble phi(ns);
+  for (Id ib = 0; ib < ns; ib++)
+  {
+    phi[ib] = law_uniform(0.0, 2 * GV_PI);
+  }
+
+  // creation of the spectrum
+  auto* res = new SpectrumOnRNSimple(getNVar(), getNDim(), ns);
+  res->setGamma(gamma);
+  res->addFactor(omega, phi, MatrixDense(), omega0, xi0);
+  return res;
+};
 
 double CorGaussianMixture::_eval(const SpacePoint& p1,
                                  const SpacePoint& p2,

@@ -47,6 +47,11 @@ public:
   bool serializeH5(H5::Group& grp) const override;
 #endif
 
+  /// Interface for the spectral simulation
+  bool isValidForSimulation(const ESimuType& simuType) const override;
+  bool isFactorized() const override;
+  SpectrumOnRN* simulateOnRN(Id ns = 1000) const override;
+
   static ParamInfo createParamInfoForCholSill();
 
   bool isConsistent(const ASpace* space) const override;

@@ -72,6 +72,12 @@ public:
   bool serializeH5(H5::Group& grp) const override;
 #endif
 
+  /// Interface for spectral simulation on RN
+  bool isFactorized() const override;
+  SpectrumOnRN* simulateOnRN(Id ns = 1000) const override;
+  Id getNFac() const override;
+  double evalSpectrumOnRN(const VectorDouble& freq, Id ivar = 0, Id jvar = 0) const override;
+
   /// CovList Interface
   virtual void addCov(const CovBase& cov);
 

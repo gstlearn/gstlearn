@@ -33,7 +33,7 @@ ivar  3  jvar  3  pt:  1  res  0.5643
 ivar  3  jvar  3  pt:  2  res  0.1497 
 ivar  3  jvar  3  pt:  3  res  0.7122 
 ivar  3  jvar  3  pt:  4  res  0.4556 
->>> computing simulation 1 for covariance 1
+>>> computing simulation 1
 Simulation of the spectrum
 - Space dimension   = R2
 - Number of variables  = 3

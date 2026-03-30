@@ -277,6 +277,7 @@
 %include Covariances/CovGradientGeneric.hpp
 %include Covariances/CovGradientAnalytic.hpp
 %include Covariances/CorAniso.hpp
+%include Covariances/CorFactorized.hpp
 %include Covariances/CorGaussianMixture.hpp
 %include Covariances/CorGneiting.hpp
 %include Covariances/CorMatern.hpp
@@ -417,7 +418,7 @@
 %include Simulation/CalcSimuSpectral.hpp
 %include Simulation/SimuSpectralRN.hpp
 %include Simulation/SimuSpectralS2.hpp
-%include Simulation/SpectrumRN.hpp
+%include Simulation/SpectrumOnRN.hpp
 %include Simulation/BooleanObject.hpp
 %include Simulation/SimuBoolean.hpp
 %include Simulation/SimuBooleanParam.hpp

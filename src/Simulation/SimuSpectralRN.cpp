@@ -9,14 +9,17 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Simulation/SimuSpectralRN.hpp"
+#include "Basic/Message.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Db/Db.hpp"
+#include "Enum/ESimuType.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Model/Model.hpp"
 #include "Simulation/CalcSimuSpectral.hpp"
-#include "Simulation/SpectrumRN.hpp"
+#include "Simulation/SpectrumOnRN.hpp"
 #include "Stats/Classical.hpp"
+#include "geoslib_define.h"
 #include <cmath>
 
 namespace gstlrn
@@ -31,12 +34,14 @@ SimuSpectralRN::SimuSpectralRN(Id nbsimu, Id ns, Id nd, Id seed, const ACov* cov
   : CalcSimuSpectral(nbsimu, ns, nd, seed, verbose)
   , _gamma()
   , _omega()
+  , _sp()
   , _cov0(cov0)
 {
 }
 
 SimuSpectralRN::~SimuSpectralRN()
 {
+  delete _sp;
 }
 
 bool SimuSpectralRN::_check()
@@ -66,34 +71,31 @@ bool SimuSpectralRN::_check()
  */
 Id SimuSpectralRN::_simulate(const ACov* cova)
 {
-  Id ns   = _getNs();
-  Id ndim = _getNDim();
-  Id nvar = _getNVar();
+  DECLARE_UNUSED(cova)
+  const ACov* cov = getModelGeneric()->getCov();
+  if (cov == nullptr)
+  {
+    messerr("Covariance model not defined.");
+    return -1;
+  }
+  if (!cov->isValidForSimulation(ESimuType::SPECTRAL))
+  {
+    messerr("Covariance not valid for spectral simulation.");
+    return -2;
+  }
 
   // Optional printout
   if (getVerbose())
   {
     message("Simulation of the spectrum\n");
-    message("- Space dimension   = R%d\n", ndim);
-    message("- Number of variables  = %d\n", nvar);
-    message("- Number of spectral components = %d\n", ns);
+    message("- Space dimension   = R%d\n", _getNDim());
+    message("- Number of variables  = %d\n", _getNVar());
+    message("- Number of spectral components = %d\n", _getNs());
     if (_cov0 != nullptr)
       message("Simulation using importance sampling\n");
   }
-
-  // Cleaning any previously allocated memory
-  _gamma.reset(0, 0);
-  _omega.reset(0, 0);
-
-  // Simulation of the spectrum by the covariance
-  SpectrumRN sp = cova->simulateSpectrumRN(ns, _cov0);
-
-  if (sp.getNs() > 0)
-  {
-    _gamma = sp.getGamma();
-    _omega = sp.getOmega();
-    return 0;
-  }
+  delete _sp;
+  _sp = cov->simulateOnRN(_getNs());
   return 1;
 }
 
@@ -106,33 +108,19 @@ Id SimuSpectralRN::_simulate(const ACov* cova)
  */
 Id SimuSpectralRN::_compute(Db* dbout, const VectorBool& activeArray, VectorVectorDouble& tab)
 {
-  auto nvar = _getNVar();
-  auto ns   = _getNs();
-  auto ndim = dbout->getNDim();
   auto nech = dbout->getNSample();
-  VectorDouble coor(ndim);
-
+  if (_sp == nullptr)
+  {
+    messerr("SpectrumOnRN not initialized.\n");
+    return 1;
+  }
   // Optional printout
   if (getVerbose())
   {
     message("Spectral Simulation on a set of Isolated Points\n");
     message("- Number of samples = %d\n", nech);
   }
-
-  // Loop on the active samples
-  VectorDouble u(ns);
-  VectorDouble values(nvar);
-  for (Id iech = 0; iech < nech; iech++)
-  {
-    if (!activeArray[iech]) continue;
-    dbout->getCoordinatesInPlace(coor, iech);
-    AMatrix::productInPlace(u, _omega, coor);
-    for (Id ib = 0; ib < ns; ib++)
-      u[ib] = cos(u[ib] + getPhi(ib));
-    AMatrix::productInPlace(values, _gamma, u, true);
-    for (Id ivar = 0; ivar < nvar; ivar++)
-      tab[ivar][iech] = values[ivar];
-  }
+  _sp->compute(dbout, activeArray, tab);
   return 0;
 }
 

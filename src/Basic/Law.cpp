@@ -13,6 +13,8 @@
 #include "Basic/Message.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Matrix/EigenVectors.hpp"
+#include "Matrix/MatrixDense.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "geoslib_define.h"
 
 #include <cmath>
@@ -213,7 +215,7 @@ double law_gamma(double alpha, double rate)
         t     = c3 * tan(GV_PI * (law_uniform(-0.5, 0.5)));
         value = c1 + t;
       } while (value < 0 || law_uniform(0., 1.) > exp(c1 * log(value / c1) - t + log(1 + t * t / c2)));
-      return (value/rate);
+      return (value / rate);
     }
     double c1 = 1. + alpha / GV_EE;
     double c2 = 1 / alpha;
@@ -234,9 +236,9 @@ double law_gamma(double alpha, double rate)
         test  = (log(v) > c3 * log(value));
       }
     } while (test);
-    return (value/rate);
+    return (value / rate);
   }
-  std::gamma_distribution<double> d(alpha, 1/rate);
+  std::gamma_distribution<double> d(alpha, 1 / rate);
   value = d(Random_gen);
   return value;
 }
@@ -253,10 +255,12 @@ double law_gamma(double alpha, double rate)
  ** \param[in]  isLog return the log of the density function if true
  **
  *****************************************************************************/
-double law_df_gamma(double value, double alpha, double rate, bool isLog) {
+double law_df_gamma(double value, double alpha, double rate, bool isLog)
+{
   double res = 0.0;
-  res = - rate*value +  alpha*log(rate) + (alpha-1)*log(value) - loggamma(alpha);
-  if (!isLog) {
+  res        = -rate * value + alpha * log(rate) + (alpha - 1) * log(value) - loggamma(alpha);
+  if (!isLog)
+  {
     res = exp(res);
   }
   return (res);
@@ -274,7 +278,7 @@ double law_df_gamma(double value, double alpha, double rate, bool isLog) {
  *****************************************************************************/
 double law_IGamma(double alpha, double rate)
 {
-  return 1/law_gamma(alpha, rate);
+  return 1 / law_gamma(alpha, rate);
 }
 
 /*****************************************************************************/
@@ -289,10 +293,12 @@ double law_IGamma(double alpha, double rate)
  ** \param[in]  isLog return the log of the density function if true
  **
  *****************************************************************************/
-double law_df_IGamma(double value, double alpha, double rate, bool isLog) {
+double law_df_IGamma(double value, double alpha, double rate, bool isLog)
+{
   double res = 0.0;
-  res = - rate/value +  alpha*log(rate/value) - log(value) - loggamma(alpha);
-  if (!isLog) {
+  res        = -rate / value + alpha * log(rate / value) - log(value) - loggamma(alpha);
+  if (!isLog)
+  {
     res = exp(res);
   }
   return (res);
@@ -853,6 +859,22 @@ double law_df_multigaussian(VectorDouble& vec, MatrixSymmetric& correl)
   return (density);
 }
 
+VectorDouble law_multigaussian(const VectorDouble& mu, MatrixSymmetric& sigma)
+{
+  Id size = static_cast<Id>(mu.size());
+  VectorDouble nn(size);
+  VectorDouble res(size);
+  MatrixSymmetric lu = sigma.squareRoot();
+  for (Id ii = 0; ii < size; ii++)
+    nn[ii] = law_gaussian();
+  MatrixDense::productInPlace(res, lu, nn);  // TODO check if cholesky can t be used instead
+  
+  for (Id ii = 0; ii < size; ii++)
+    res[ii] += mu[ii];
+
+  return res;
+}
+
 VectorDouble law_df_poisson_vec(VectorInt is, double parameter)
 {
   Id size = static_cast<Id>(is.size());
@@ -1261,5 +1283,35 @@ Id sampleInteger(Id mini, Id maxi)
   Id retval    = (rand > 0) ? static_cast<Id>(trunc(rand + 0.5)) : static_cast<Id>(-trunc(-rand + 0.5));
   return retval;
 }
+
+VectorInt law_multinomial(Id size, const VectorDouble& proba)
+{
+  // computing the cumulative probability
+  Id nc = proba.length();
+  VectorDouble cumproba(nc, proba[0]);
+  for (Id ic = 1; ic < nc; ic++)
+  {
+    cumproba[ic] += (cumproba[ic - 1] + proba[ic]);
+  }
+  for (Id ic = 0; ic < nc; ic++)
+  {
+    cumproba[ic] /= cumproba[nc - 1];
+  }
+  // simulation
+  VectorInt res(nc, 0);
+  for (Id n = 0; n < size; n++)
+  {
+    double val  = law_uniform();
+    Id category = 0;
+    for (Id ic = 0; ic < nc ; ic++) {
+      if (val <= cumproba[ic]) {
+        category = ic;
+        break;
+      }
+    }
+    res[category]++;
+  }
+  return res;
+};
 
 } // namespace gstlrn

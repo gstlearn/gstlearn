@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Covariances/CovBase.hpp"
 #include "Basic/Iterators.hpp"
+#include "Basic/Law.hpp"
 #include "Basic/ListParams.hpp"
 #include "Basic/ParamInfo.hpp"
 #include "Basic/SerializeHDF5.hpp"
@@ -17,7 +18,9 @@
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Covariances/TabNoStatSills.hpp"
+#include "Simulation/SpectrumOnRN.hpp"
 #include "Db/Db.hpp"
+#include "Enum/ESimuType.hpp"
 #include "LinearOp/CholeskyDense.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
@@ -90,6 +93,67 @@ CovBase& CovBase::operator=(const CovBase& r)
 
 CovBase::~CovBase()
 {
+}
+
+/// Interface for the spectral simulation on RN
+bool CovBase::isValidForSimulation(const ESimuType& simuType) const
+{
+  return getCor()->isValidForSimulation(simuType);
+}
+
+bool CovBase::isFactorized() const
+{
+  return getCor()->isFactorized();
+}
+
+SpectrumOnRN* CovBase::simulateOnRN(Id ns) const
+{
+  if (!isValidForSimulation(ESimuType::SPECTRAL))
+  {
+    messerr("Covariance not valid for spectral simulation on RN");
+    return nullptr;
+  }
+
+  Id nvar         = getNVar();
+  const ACov* cor = getCor();
+  Id nvar_cor     = cor->getNVar();
+  if ((nvar_cor != nvar) && (nvar_cor != 1))
+  {
+    messerr("Inconsistent number of variables: nvar = %d vs. nvar_cor = %d", nvar, nvar_cor);
+    return nullptr;
+  }
+  // simulating the covariance
+  SpectrumOnRN* sp = cor->simulateOnRN(ns);
+  // rescaling according to the sill matrix
+  VectorDouble mu(nvar, 0.0);
+  MatrixSymmetric sigma = getSill();
+  MatrixDense gamma     = sp->getGamma();
+  MatrixDense gamma_sill(ns, nvar);
+  for (Id is = 0; is < ns; is++)
+  {
+    VectorDouble xi = law_multigaussian(mu, sigma);
+    if (nvar_cor == 1)
+    {
+      double gg = gamma.getValue(is, 0);
+      for (Id ivar = 0; ivar < nvar; ivar++)
+      {
+        xi[ivar] *= gg;
+      }
+    }
+    else
+    {
+      for (Id ivar = 0; ivar < nvar; ivar++)
+      {
+        xi[ivar] *= gamma.getValue(is, ivar);
+      }
+    }
+    gamma_sill.setRow(is, xi);
+  }
+  /*
+  auto* res = new SpectrumOnRNSimple(getNVar(), getNDim(), ns);
+  res->addFactor(sp->getOmega(), sp->getPhi());*/
+  sp->setGamma(gamma_sill);
+  return sp;
 }
 
 void CovBase::setCor(ACov* cor)

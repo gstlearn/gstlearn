@@ -160,7 +160,7 @@ rho = 0.9    # for the geometric model
 lambda = 10  # for the Poisson model
 nu = 5.0     # for the exponential model
 mu = 1.0; kappa = 2.0 # for the SPDE model
-ns = 100
+ns = 100     # number of spectral components
 ```
 
 
@@ -174,6 +174,7 @@ modelSph = Model_createFromParam(ECov_POISSON(), 1., 1., lambda)
 
 cova = modelSph$getCovAniso(0)
 covname = cova$getCovName()
+
 ```
 
 ## Variogram of the model
@@ -194,7 +195,7 @@ plot.init() +
 
 ```{r spectrum, echo=TRUE, eval = TRUE}
 nd = 100
-spevec = cova$evalSpectrumOnSphere(nd)
+spevec = cumsum(cova$evalSpectrumOnSphere(nd))
 plot.init() + 
   plot.XY(seq(nd+1), spevec) +
   plot.decoration(title=paste0(covname, " spectrum on S2"),
@@ -207,7 +208,9 @@ plot.init() +
 ```{r one_simulation, echo=TRUE, eval = TRUE}
 seed = 54251
 err  = grd$deleteColumns(names = paste0(covname, "*"))
-err = simuSpectral(dbin=NULL, dbout=grd, model=modelSph, ns=ns, nd=nd, seed=seed, verbose=TRUE, 
+modelSph2 = ModelGeneric()
+modelSph2$setCov(cova)
+err = simuSpectral(dbin=NULL, dbout=grd, model=modelSph2, ns=ns, nd=nd, seed=seed, verbose=TRUE, 
                    namconv = NamingConvention(covname))
 ```
 
@@ -267,7 +270,7 @@ for (idir in 1:length(dir_list)) {
 # covariance model
 mode = CovCalcMode()
 mode$setAsVario(TRUE)
-mod_vario = cova$evalCovOnSphereVec(alpha, mode = mode)
+mod_vario = cova$evalCovOnSphereVec(alpha, 50, FALSE, mode = mode)
 plot(NULL, NULL, xlim = range(alpha), ylim = 1.1 * range(c(0, max(mod_vario))), 
      xlab = "Geodetic distance (rad)", ylab = "Variogram",
      main = paste0(covname, " model on S2"))
@@ -296,7 +299,7 @@ legend("bottomright",
 ```{r multi_simulations, echo = TRUE, eval = TRUE}
 err = grd$deleteColumns(names = paste0(covname, "*"))
 nsim = 20 # number of simulation
-err = simuSpectral(dbin = NULL, dbout = grd, model = modelSph, seed = 2584, ns=ns, nbsimu=nsim, 
+err = simuSpectral(dbin = NULL, dbout = grd, model = modelSph2, seed = 2584, ns=ns, nbsimu=nsim, 
                    namconv = NamingConvention(covname))
 
 # simulation and experimental variograms

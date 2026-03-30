@@ -20,6 +20,7 @@ namespace gstlrn
 
 class ACov;
 class ModelGeneric;
+class SpectrumOnRN;
 
 /**
  * Class for operating the Spectral simulations on RN
@@ -39,6 +40,7 @@ public:
 
   MatrixDense getOmega() { return _omega; };
   MatrixDense getGamma() { return _gamma; };
+  SpectrumOnRN* getSpectrum() {return _sp;};
 
 protected:
   bool _check() override;
@@ -46,9 +48,14 @@ protected:
   Id _compute(Db* dbout, const VectorBool& activeArray, VectorVectorDouble& tab) override;
 
 private:
-  // spectrum for R^n
+  // spectrum for R^n (Not used...)
   MatrixDense _gamma; // Matrix nrows=_ns, ncols= number of variables of _cova
   MatrixDense _omega; // Matrix nrows=_ns, ncols= number of dimensions of _cova
+ 
+  // spectrum on R^n
+  SpectrumOnRN* _sp;
+
+
 
   const ACov* _cov0;
 };

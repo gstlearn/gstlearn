@@ -65,16 +65,16 @@ public:
   double getC0(Id ivar, Id jvar) const { return _C0.getValue(ivar, jvar); }
   double getNu(Id ivar, Id jvar) const { return _Nu.getValue(ivar, jvar); }
   double getKappa(Id ivar, Id jvar) const { return _Kappa.getValue(ivar, jvar); }
-  static double computeParam(double nui, double nuj) { return 0.5 * (nui + nuj); }
-  static double computeScale(double kappai, double kappaj) { return sqrt(0.5 * (kappai * kappai + kappaj * kappaj)); }
+  static double computeNu(double nui, double nuj) { return 0.5 * (nui + nuj); }
+  static double computeKappa(double kappai, double kappaj);
 
   bool isValidForSimulation(const ESimuType& simuType) const override
   {
     return (getSpaceType() == ESpaceType::RN && simuType == ESimuType::SPECTRAL);
   }
+  SpectrumOnRN* simulateOnRN(Id ns) const override;
   MatrixDense simulateSpectralOmega(Id nb) const override;
-  SpectrumRN simulateSpectrumRN(Id ns, const ACov* cov0 = nullptr) const override;
-  double evalSpectrum(const VectorDouble& freq, Id ivar = 0, Id jvar = 0) const override;
+  double evalSpectrumOnRN(const VectorDouble& freq, Id ivar, Id jvar) const override;
   double evalSpectrumRatio(const VectorDouble& freq,
                            Id ivar,
                            Id jvar,

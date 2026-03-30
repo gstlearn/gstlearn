@@ -17,6 +17,7 @@
 #include "Covariances/TabNoStat.hpp"
 #include "Covariances/TabNoStatCovAniso.hpp"
 #include "Enum/EConsElem.hpp"
+#include "Enum/ESimuType.hpp"
 #include "Model/CovInternal.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
@@ -38,7 +39,7 @@ class Rotation;
 class MatrixSquare;
 class MatrixDense;
 class CovInternal;
-class SpectrumRN;
+class SpectrumOnRN;
 /**
  * \brief
  * This class describes an **elementary covariance**.
@@ -98,9 +99,6 @@ public:
                          bool scaleDistanceByRadius = true,
                          const CovCalcMode* mode    = nullptr) const override;
   VectorDouble evalSpectrumOnSphere(Id n, bool scaleDistanceByRadius = false, bool flagScale = true) const override;
-  double evalSpectrumRatio(const VectorDouble& freq, Id ivar, Id jvar, const ACov* cov0) const override;
-
-  double evalSpectrum(const VectorDouble& freq, Id ivar = 0, Id jvar = 0) const override;
 
   virtual double getIntegralRange(Id ndisc, double hmax) const;
   virtual String getFormula() const { return _corfunc->getFormula(); }
@@ -114,8 +112,13 @@ public:
   void _optimizationPostProcess() const override;
 
   double simulateTurningBand(double t0, TurningBandOperate& operTB) const;
+
+  /// interface for spectral simulation
+  double evalSpectrumOnRN(const VectorDouble& freq, Id ivar = 0, Id jvar = 0) const override;
+  SpectrumOnRN* simulateOnRN(Id ns = 1000) const override;
+
   MatrixDense simulateSpectralOmega(Id nb) const override;
-  SpectrumRN simulateSpectrumRN(Id ns, const ACov* cov0 = nullptr) const override;
+  double evalSpectrumRatio(const VectorDouble& freq, Id ivar, Id jvar, const ACov* cov0) const override;
 
   static CorAniso* create(const CovContext& ctxt,
                           const ECov& type,
@@ -188,7 +191,7 @@ public:
   double getAnisoRotMat(Id idim, Id jdim) const { return _aniso.getMatrixDirect().getValue(idim, jdim); }
   double getAnisoCoeff(Id idim) const { return getAnisoCoeffs()[idim]; }
   const ECov& getType() const { return _corfunc->getType(); }
-  double getParam() const;
+  double getParam(Id ipar = 0) const;
   double getScadef() const { return _corfunc->getScadef(); }
   double getParMax() const { return _corfunc->getParMax(); }
   Id getMaxNDim() const { return static_cast<Id>(_corfunc->getMaxNDim()); }
@@ -215,7 +218,6 @@ public:
   }
   double normalizeOnSphere(Id n = 50) const;
 
-  
   void setFlagAnisoOnMesh(bool flagAnisoOnMesh) { _flagAnisoOnMesh = flagAnisoOnMesh; }
   inline bool getFlagAnisoOnMesh() const { return _flagAnisoOnMesh; }
   Id makeElemNoStatOnMesh(const EConsElem& econs, Id iv1, Id iv2, const Db* db = nullptr, const String& namecol = String());

@@ -12,9 +12,11 @@
 #include "Basic/Law.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
+#include "Enum/ESimuType.hpp"
 #include "Model/Model.hpp"
 #include "Simulation/CalcSimuSpectral.hpp"
 #include "Stats/Classical.hpp"
+#include "geoslib_define.h"
 
 #include <cmath>
 
@@ -41,17 +43,28 @@ SimuSpectralS2::~SimuSpectralS2()
  */
 Id SimuSpectralS2::_simulate(const ACov* cova)
 {
+  DECLARE_UNUSED(cova)
+  const ACov* cov = getModelGeneric()->getCov();
+  if (cov == nullptr)
+  {
+    messerr("Covariance model not defined.");
+    return -1;
+  }
+  if (!cov->isValidForSimulation(ESimuType::SPECTRAL))
+  {
+    messerr("Covariance not valid for spectral simulation.");
+    return -2;
+  }
+
   Id ns   = _getNs();
   Id nd   = _getNd();
-  Id ndim = _getNDim();
-  Id nvar = _getNVar();
 
   // Optional printout
   if (getVerbose())
   {
     message("Simulation of the spectrum\n");
-    message("- Space dimension   = S%d\n", ndim);
-    message("- Number of variables  = %d\n", nvar);
+    message("- Space dimension   = S%d\n", _getNDim());
+    message("- Number of variables  = %d\n", _getNVar());
     message("- Number of spectral components = %d\n", ns);
   }
 
@@ -63,7 +76,7 @@ Id SimuSpectralS2::_simulate(const ACov* cova)
   VH::sortInPlace(U);
   double maxU = U.maximum();
 
-  VectorDouble spectrum = cova->evalSpectrumOnSphere(nd);
+  VectorDouble spectrum = cov->evalSpectrumOnSphere(nd);
   if (spectrum.empty()) return 1;
 
   // Simulate vector N

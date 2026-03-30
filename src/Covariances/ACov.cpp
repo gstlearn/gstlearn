@@ -33,6 +33,7 @@
 #include "Matrix/MatrixSquare.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Matrix/NF_Triplet.hpp"
+#include "Simulation/SpectrumOnRN.hpp"
 #include "Space/ASpace.hpp"
 #include "Space/SpacePoint.hpp"
 #include "Variogram/Vario.hpp"
@@ -2558,12 +2559,18 @@ bool ACov::serializeH5(H5::Group& grp) const
 }
 #endif
 
-SpectrumRN ACov::simulateSpectrumRN(Id ns, const ACov* cov0) const
+SpectrumOnRN* ACov::simulateOnRN(Id ns) const
 {
   DECLARE_UNUSED(ns);
-  DECLARE_UNUSED(cov0);
-  messerrNotImplemented("ACov", "simulateSpectrumRN");
-  return SpectrumRN();
+  messerr("Not implemented");
+  return nullptr;
+}
+
+MatrixDense ACov::getProjection(Id ifac) const{
+  DECLARE_UNUSED(ifac)
+  MatrixDense proj_Id(getNDim(), getNDim());
+  proj_Id.setDiagonalToConstant();
+return proj_Id;
 }
 
 double ACov::evalCovOnSphere(double alpha, Id degree, bool scaleDistanceByRadius, const CovCalcMode* mode) const
@@ -2585,7 +2592,7 @@ VectorDouble ACov::evalSpectrumOnSphere(Id n, bool scaleDistanceByRadius, bool f
   return VectorDouble();
 }
 
-double ACov::evalSpectrum(const VectorDouble& freq, Id ivar, Id jvar) const
+double ACov::evalSpectrumOnRN(const VectorDouble& freq, Id ivar, Id jvar) const
 {
   DECLARE_UNUSED(freq);
   DECLARE_UNUSED(ivar);

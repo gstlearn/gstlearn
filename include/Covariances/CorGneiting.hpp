@@ -46,7 +46,7 @@ public:
     const VectorDouble& kappas, // scale parameter for each variable
     const VectorDouble& ranges, // spatial scales or ranges according to flagRange value
     const VectorDouble& angles = VectorDouble(),
-    double separability        = 1.0, // TODO: not used
+    double separability        = 1.0, // in [0,1] with a time-space separable model for 0, and "pure" Gneiting for 1
     bool flagRange             = false);
 
   IMPLEMENT_CLONING(CorGneiting)
@@ -57,6 +57,7 @@ public:
     return (space->getType() == ESpaceType::RN);
   }
 
+  Id getNFac() const override;
   Id getNVar() const override { return _corS->getNVar(); }
   double getC0(Id ivar, Id jvar) const { return _corS->getC0(ivar, jvar); }
   double getNu(Id ivar, Id jvar) const { return _corS->getNu(ivar, jvar); }
@@ -67,7 +68,10 @@ public:
   {
     return (simuType == ESimuType::SPECTRAL);
   }
-  SpectrumRN simulateSpectrumRN(Id ns, const ACov* cov0 = nullptr) const override;
+  SpectrumOnRN* simulateOnRN(Id ns) const override;
+
+  SpectrumOnRN* simulateSpace(Id ns) const {return _corS->simulateOnRN(ns);};
+  SpectrumOnRN* simulateTime(Id ns) const {return _corT->simulateOnRN(ns);};
 
 protected:
   double _eval(const SpacePoint& p1,

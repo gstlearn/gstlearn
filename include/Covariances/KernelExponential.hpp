@@ -53,7 +53,6 @@ public:
   Id getMinOrder() const override { return -1; }
   bool getCompatibleSpaceR() const override { return true; }
   bool getCompatibleSpaceS() const override { return true; }
-
   bool isValidForSimulation(const ESimuType& simuType) const override
   {
     return (simuType == ESimuType::TB || simuType == ESimuType::SPECTRAL);
