@@ -19,7 +19,6 @@
 #include "Covariances/CovContext.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Simulation/SpectrumOnRN.hpp"
-#include "Simulation/SpectrumRN.hpp"
 #include "Space/ASpace.hpp"
 #include "Space/SpaceComposite.hpp"
 #include "Space/SpaceRN.hpp"
@@ -215,47 +214,6 @@ Id CorGneiting::getNFac() const
     return 2;
   }
   return 1;
-}
-
-SpectrumRN CorGneiting::simulateSpectrumRN(Id ns, const ACov* cov0) const
-{
-  // simulation of the spatial spectrum and variables weights
-  SpectrumRN sp      = _corS->simulateSpectrumRN(ns, cov0);
-  Id ndim            = _corS->getNDim(); // spatial dimension
-  MatrixDense omegaS = sp.getOmega();
-  MatrixDense gamma  = sp.getGamma();
-
-  // simulation of the space-time spectrum
-
-  MatrixDense omega(ns, ndim + 1);
-  for (Id idim = 0; idim < ndim; idim++)
-  {
-    omega.setColumn(idim, omegaS.getColumn(idim));
-  }
-
-  // simulation of the time frequencies
-  double alpha       = _corT->getCorFunc()->getParam(0);
-  double beta        = _corT->getCorFunc()->getParam(1) * 2 / ndim; // the second parameter of the Cauchy is beta*ndim/2
-  double timeRange   = _corT->getScale(0);
-  MatrixDense omega0 = sp.getOmega0(); // spatial frequency without anisotropy
-  VectorDouble xi0   = sp.getXi();     // random scales of the Gaussian mixture
-
-  for (Id ib = 0; ib < ns; ib++)
-  {
-    double no2 = 0.0;
-    double xi  = xi0[ib];
-    for (Id idim = 0; idim < ndim; idim++)
-    {
-      double val = omega0.getValue(ib, idim);
-      no2 += (val * val);
-    }
-    double lb    = std::pow(no2 / (4.0 * xi), 1 / beta); // = lambda ^ (1/beta)
-    double sim_S = LawStable::law_stable_unilateral_exptilt(beta, lb);
-    double sim_T = LawStable::law_stable_bilateral(alpha);
-    double val   = std::pow(sim_S * lb, 1 / alpha) * sim_T / timeRange;
-    omega.setValue(ib, ndim, val);
-  }
-  return SpectrumRN(gamma, omega);
 }
 
 SpectrumOnRN* CorGneiting::simulateOnRN(Id ns) const

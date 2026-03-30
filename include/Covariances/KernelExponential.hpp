@@ -59,7 +59,6 @@ public:
   }
   double simulateTurningBand(double t0, TurningBandOperate& operTB) const override;
 
-  //bool hasCovOnSphere() const override { return true; }
   double evaluateSpectrum(double freq) const override;
 
   MatrixDense simulateSpectralOmega(Id nb) const override;

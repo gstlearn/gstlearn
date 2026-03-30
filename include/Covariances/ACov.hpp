@@ -27,8 +27,6 @@
 #include "Matrix/MatrixSquare.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Model/CovInternal.hpp"
-#include "Simulation/SpectrumOnRN.hpp"
-#include "Simulation/SpectrumRN.hpp"
 #include "Space/ASpace.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Space/SpacePoint.hpp"
@@ -49,7 +47,6 @@ class AFunctional;
 class CovInternal;
 class ListParams;
 class MatrixSparse;
-class SpectrumRN;
 class SpectrumOnRN;
 
 /**
@@ -113,7 +110,6 @@ public:
     return false;
   }
   virtual MatrixDense simulateSpectralOmega(Id ns) const;
-  virtual SpectrumRN simulateSpectrumRN(Id ns, const ACov* cov0 = nullptr) const;
   virtual double evalSpectrumRatio(const VectorDouble& freq,
                                    Id ivar,
                                    Id jvar,

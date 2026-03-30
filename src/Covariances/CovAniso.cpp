@@ -157,12 +157,6 @@ double CovAniso::evalSpectrumOnRN(const VectorDouble& freq, Id ivar, Id jvar) co
   return _sillCur.getValue(ivar, jvar) * getCorAniso()->evalSpectrumOnRN(freq, ivar, jvar);
 }
 
-SpectrumRN CovAniso::simulateSpectrumRN(Id ns, const ACov* cov0) const
-{
-  if (!getCorAniso()->isValidForSimulation(ESimuType::SPECTRAL)) return SpectrumRN();
-  return getCorAniso()->simulateSpectrumRN(ns, cov0);
-}
-
 bool CovAniso::isValidForSimulation(const ESimuType& simuType) const
 {
   return getCorAniso()->isValidForSimulation(simuType);

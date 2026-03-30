@@ -77,7 +77,6 @@ public:
 
   // simulation on RN using the spectral method
   bool isValidForSimulation(const ESimuType& simuType) const override;
-  SpectrumRN simulateSpectrum(Id ns) const;
   SpectrumOnRN* simulateOnRN(Id ns = 1000) const override;
 
 protected:

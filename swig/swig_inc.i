@@ -376,7 +376,6 @@
   #include "Simulation/CalcSimuSpectral.hpp"
   #include "Simulation/SimuSpectralRN.hpp"
   #include "Simulation/SimuSpectralS2.hpp"
-  #include "Simulation/SpectrumRN.hpp"
   #include "Simulation/SpectrumOnRN.hpp"
   #include "Simulation/BooleanObject.hpp"
   #include "Simulation/SimuBoolean.hpp"

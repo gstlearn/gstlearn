@@ -2559,14 +2559,6 @@ bool ACov::serializeH5(H5::Group& grp) const
 }
 #endif
 
-SpectrumRN ACov::simulateSpectrumRN(Id ns, const ACov* cov0) const
-{
-  DECLARE_UNUSED(ns);
-  DECLARE_UNUSED(cov0);
-  messerrNotImplemented("ACov", "simulateSpectrumRN");
-  return SpectrumRN();
-}
-
 SpectrumOnRN* ACov::simulateOnRN(Id ns) const
 {
   DECLARE_UNUSED(ns);

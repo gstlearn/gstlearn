@@ -29,7 +29,6 @@
 #include "Basic/Tensor.hpp"
 #include "Covariances/AKernel.hpp"
 #include "Covariances/CovContext.hpp"
-#include "Simulation/SpectrumOnRN.hpp"
 #include "Space/SpacePoint.hpp"
 #include <array>
 #include <vector>
@@ -40,7 +39,6 @@ class Rotation;
 class MatrixSquare;
 class MatrixDense;
 class CovInternal;
-class SpectrumRN;
 class SpectrumOnRN;
 /**
  * \brief
@@ -120,7 +118,6 @@ public:
   SpectrumOnRN* simulateOnRN(Id ns = 1000) const override;
 
   MatrixDense simulateSpectralOmega(Id nb) const override;
-  SpectrumRN simulateSpectrumRN(Id ns, const ACov* cov0 = nullptr) const override;
   double evalSpectrumRatio(const VectorDouble& freq, Id ivar, Id jvar, const ACov* cov0) const override;
 
   static CorAniso* create(const CovContext& ctxt,

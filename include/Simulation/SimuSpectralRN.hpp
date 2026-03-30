@@ -13,7 +13,6 @@
 #include "Basic/NamingConvention.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Simulation/CalcSimuSpectral.hpp"
-#include "Simulation/SpectrumOnRN.hpp"
 #include "gstlearn_export.hpp"
 
 namespace gstlrn
@@ -21,6 +20,7 @@ namespace gstlrn
 
 class ACov;
 class ModelGeneric;
+class SpectrumOnRN;
 
 /**
  * Class for operating the Spectral simulations on RN

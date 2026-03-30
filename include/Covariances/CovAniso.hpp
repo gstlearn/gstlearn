@@ -247,7 +247,6 @@ public:
                Id ivar                 = 0,
                Id jvar                 = 0,
                const CovCalcMode* mode = nullptr) const override;
-  SpectrumRN simulateSpectrumRN(Id ns, const ACov* cov0 = nullptr) const override;
 };
 
 GSTLEARN_EXPORT double scale2range(const ECov& type, double scale, double param = 1.);

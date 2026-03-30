@@ -11,7 +11,6 @@
 #include "Simulation/SimuSpectralRN.hpp"
 #include "Basic/Message.hpp"
 #include "Basic/VectorNumT.hpp"
-#include "Calculators/ACalcInterpolator.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Db/Db.hpp"
 #include "Enum/ESimuType.hpp"
@@ -19,7 +18,6 @@
 #include "Model/Model.hpp"
 #include "Simulation/CalcSimuSpectral.hpp"
 #include "Simulation/SpectrumOnRN.hpp"
-#include "Simulation/SpectrumRN.hpp"
 #include "Stats/Classical.hpp"
 #include "geoslib_define.h"
 #include <cmath>

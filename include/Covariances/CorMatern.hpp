@@ -74,7 +74,6 @@ public:
   }
   SpectrumOnRN* simulateOnRN(Id ns) const override;
   MatrixDense simulateSpectralOmega(Id nb) const override;
-//  SpectrumRN simulateSpectrumRN(Id ns, const ACov* cov0 = nullptr) const override;
   double evalSpectrumOnRN(const VectorDouble& freq, Id ivar, Id jvar) const override;
   double evalSpectrumRatio(const VectorDouble& freq,
                            Id ivar,

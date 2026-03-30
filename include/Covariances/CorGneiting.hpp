@@ -68,7 +68,6 @@ public:
   {
     return (simuType == ESimuType::SPECTRAL);
   }
-  SpectrumRN simulateSpectrumRN(Id ns, const ACov* cov0 = nullptr) const override;
   SpectrumOnRN* simulateOnRN(Id ns) const override;
 
   SpectrumOnRN* simulateSpace(Id ns) const {return _corS->simulateOnRN(ns);};

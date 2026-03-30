@@ -353,7 +353,6 @@ set(SRC
   Simulation/TurningBandDirection.cpp
   Simulation/TurningBandOperate.cpp
   Simulation/SimuSpectralRN.cpp
-  Simulation/SpectrumRN.cpp
   Simulation/SpectrumOnRN.cpp
   Simulation/SimuSpectralS2.cpp
   Simulation/BooleanObject.cpp

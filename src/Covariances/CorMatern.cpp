@@ -17,7 +17,6 @@
 #include "Covariances/CovContext.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Simulation/SpectrumOnRN.hpp"
-#include "Simulation/SpectrumRN.hpp"
 #include "Space/ASpace.hpp"
 #include "Space/SpaceComposite.hpp"
 #include "Space/SpacePoint.hpp"
@@ -206,55 +205,6 @@ MatrixDense CorMatern::simulateSpectralOmega(Id nb) const
 {
   return _corRef->simulateSpectralOmega(nb);
 }
-
-/*
-SpectrumRN CorMatern::simulateSpectrumRN(Id ns, const ACov* cov0) const
-{
-  DECLARE_UNUSED(cov0)
-  Id nvar = getNVar();
-
-  // simulation of the frequencies
-  MatrixDense omega = _corRef->simulateSpectralOmega(ns);
-
-  // simulation of the normalizing factors gamma
-  MatrixDense gamma(ns, getNVar());
-  VectorDouble values(nvar);
-  MatrixSymmetric H(nvar);
-  for (Id ib = 0; ib < ns; ib++)
-  {
-    double val = sqrt(-log(law_uniform()) * 2 * nvar / ns);
-    if (nvar == 1)
-    {
-      values[0] = val;
-    }
-    else
-    {
-      VectorDouble freq = omega.getRow(ib);
-      for (Id ivar = 0; ivar < nvar; ivar++)
-      {
-        for (Id jvar = 0; jvar <= ivar; jvar++)
-        {
-          double ratioIS = evalSpectrumOnRN(freq, ivar, jvar) / _corRef->evalSpectrumOnRN(freq);
-          H.setValue(ivar, jvar, ratioIS);
-        }
-      }
-      // square root of the symmetric matrix
-      if (H.squareRootInPlace(H) != 0)
-      {
-        message("Error in computing square root matrix\n");
-      }
-      Id icol        = law_int_uniform(0, nvar - 1);
-      VectorDouble v = H.getColumn(icol);
-      for (Id ivar = 0; ivar < nvar; ivar++)
-      {
-        values[ivar] = val * v[ivar];
-      }
-    }
-    gamma.setRow(ib, values);
-  }
-  return SpectrumRN(gamma, omega);
-}
-*/
 
 SpectrumOnRN* CorMatern::simulateOnRN(Id ns) const
 {

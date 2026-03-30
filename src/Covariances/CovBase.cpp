@@ -18,6 +18,7 @@
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Covariances/TabNoStatSills.hpp"
+#include "Simulation/SpectrumOnRN.hpp"
 #include "Db/Db.hpp"
 #include "Enum/ESimuType.hpp"
 #include "LinearOp/CholeskyDense.hpp"

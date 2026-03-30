@@ -22,7 +22,6 @@
 #include "Model/ModelFitSillsVMap.hpp"
 #include "Model/ModelFitSillsVario.hpp"
 #include "Simulation/SpectrumOnRN.hpp"
-#include "Simulation/SpectrumRN.hpp"
 #include "Space/ASpace.hpp"
 #include "Space/SpacePoint.hpp"
 #include "geoslib_define.h"
@@ -172,14 +171,6 @@ bool CorFactorized::isValidForSimulation(const ESimuType& simuType) const
     }
   }
   return true;
-}
-
-SpectrumRN CorFactorized::simulateSpectrum(Id ns) const
-{
-  // TODO: SpectrumRN should be replaced by SpectrumOnRN
-  DECLARE_UNUSED(ns)
-  messerr("deprecated methods: simulateOnRN should be used (nfac = %d)", getNFac());
-  return SpectrumRN();
 }
 
 SpectrumOnRN* CorFactorized::simulateOnRN(Id ns) const

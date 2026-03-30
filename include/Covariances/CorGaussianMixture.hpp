@@ -85,7 +85,6 @@ public:
   {
     return (getSpaceType() == ESpaceType::RN && simuType == ESimuType::SPECTRAL);
   }
-  SpectrumRN simulateSpectrumRN(Id ns, const ACov* cov0 = nullptr) const override;
   SpectrumOnRN* simulateOnRN(Id ns = 1000) const override;
 
 
