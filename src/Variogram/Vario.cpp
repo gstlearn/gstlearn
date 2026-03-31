@@ -1817,7 +1817,7 @@ Id Vario::getNext(Id ivar, Id jvar, Id idir, Id shift) const
   VectorDouble sw;
   auto nlag = getNLag(idir);
   Id count;
-  if (getFlagAsym()) return ITEST;
+  // if (getFlagAsym()) return ITEST; // This test does not seem usefull for the only type of call (from model_auto)
   auto iad = getDirSize(idir) - 1;
   count    = 0;
   for (Id ilag = 0; ilag < nlag && count < shift; ilag++)

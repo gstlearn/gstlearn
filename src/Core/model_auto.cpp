@@ -526,9 +526,7 @@ label_end:
  ** \param[out] npadir_ret Total number of lags for all directions
  **
  *****************************************************************************/
-static Id st_get_vario_dimension(Vario* vario,
-                                 Id* nbexp_ret,
-                                 Id* npadir_ret)
+static Id st_get_vario_dimension(Vario* vario, Id* nbexp_ret, Id* npadir_ret)
 {
   Id nbexp  = 0;
   Id npadir = 0;

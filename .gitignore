@@ -60,4 +60,5 @@ test_*.NF
 test_*.out
 test_*-Data
 test_*-Grid
+test_a_template.cpp
 .ruff_cache
