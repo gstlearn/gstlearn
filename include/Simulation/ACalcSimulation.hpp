@@ -56,6 +56,8 @@ namespace gstlrn
 
     void setFlagPGS(bool flag_pgs) { _flagPGS = flag_pgs; }
 
+    Id getSeedPerSimu(Id isimu) const { return _seedPerSimu[isimu]; }
+
   protected:
     bool _check() override;
     bool _preprocess() override;

@@ -133,6 +133,10 @@ namespace gstlrn
    */
   Id CalcSimuSpectral::simulate()
   {
+    // TODO: this code is completemy useless.
+    // It has been left here not to change the non-regression tests.
+    auto ns = _getNs();
+    for (Id is = 0; is < ns; is++) (void)law_uniform();
     return _simulate();
   }
 

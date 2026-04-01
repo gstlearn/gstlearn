@@ -53,12 +53,10 @@ namespace gstlrn
     Id nbsimu = getNbSimu();
     _seedPerSimu = VectorInt(nbsimu);
 
-    // Start from the Initial seed
-    law_set_random_seed(getSeed());
-
     // Initialize the random seed for each simulation
     // Note: the next lines are not performed in order not to modify
     // the state of the random generator for the current version of non-regression tests
+    // law_set_random_seed(getSeed());
     // for (Id isimu = 0; isimu < nbsimu; isimu++)
     // {
     //   // Ask for a random funtion to move the random generator and modify the seed
@@ -76,7 +74,7 @@ namespace gstlrn
     // for the current simulation rank.
     // This version is temporarily bypassed in order not to modify the results of the
     // non-regression tests.
-    Id seed = _seedPerSimu[isimu];
+    Id seed = getSeedPerSimu(isimu);
     DECLARE_UNUSED(seed);
     return 0;
   }
