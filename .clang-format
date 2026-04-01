@@ -1,4 +1,4 @@
-# This requires a version of clang-format above 21
+# This requires a version of clang-format above 22
 AlignAfterOpenBracket: true
 AlignArrayOfStructures: None
 AlignConsecutiveAssignments: None
@@ -16,12 +16,13 @@ AllowShortIfStatementsOnASingleLine: WithoutElse
 AllowShortLoopsOnASingleLine: true
 AlwaysBreakAfterDefinitionReturnType: None
 AlwaysBreakTemplateDeclarations: 'Yes'
-BinPackArguments: false
-BinPackParameters: false
+BinPackArguments: true
+BinPackParameters: OnePerLine
 BitFieldColonSpacing: After
 BraceWrapping:
   AfterControlStatement: Always
 BreakAfterReturnType: Automatic
+BreakAfterOpenBracketFunction: true
 BreakBeforeBinaryOperators: NonAssignment
 BreakBeforeBraces: Allman
 BreakConstructorInitializers: BeforeComma
