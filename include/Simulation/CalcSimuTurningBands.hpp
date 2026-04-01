@@ -85,10 +85,6 @@ namespace gstlrn
     bool _simulate();
     Id _computeTB(Db* db) override;
 
-    Id _getShift() const { return _shift; }
-
-    void _setShift(Id shift) override { _shift = shift; }
-
     bool _resizeTB();
     void _computePoint(Db* db,
                        const CovAniso* cova,
@@ -230,7 +226,6 @@ namespace gstlrn
     Id _nbtuba;
     Id _iattOut;
     Id _icase;
-    Id _shift;
     bool _flagCheck;
     bool _flagAllocationAlreadyDone;
     VectorString _nameCoord;

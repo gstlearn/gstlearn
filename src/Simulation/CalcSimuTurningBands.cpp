@@ -37,7 +37,6 @@ namespace gstlrn
     , _nbtuba(nbtuba)
     , _iattOut(-1)
     , _icase(0)
-    , _shift(0)
     , _flagCheck(flag_check)
     , _flagAllocationAlreadyDone(false)
     , _nameCoord()
@@ -1016,7 +1015,7 @@ namespace gstlrn
           _computePoint(db, cova, type, isimu, is, activeArray, tab);
 
         // Cumulate structures for current simulation
-        scaleAndSaveResults(db, cova, _getShift(), isimu, activeArray, tab);
+        scaleAndSaveResults(db, cova, isimu, activeArray, tab);
       }
     }
 

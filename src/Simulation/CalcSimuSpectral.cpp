@@ -164,7 +164,7 @@ namespace gstlrn
     if (_compute(dbout, activeArray, tab)) return 1;
 
     // Save the resulting array
-    saveResults(dbout, 0, isimu, activeArray, tab);
+    saveResults(dbout, isimu, activeArray, tab);
 
     return 0;
   }
@@ -254,7 +254,7 @@ namespace gstlrn
       _compute(db, activeArray, tab);
 
       // Save the resulting array
-      saveResults(db, 0, isimu, activeArray, tab);
+      saveResults(db, isimu, activeArray, tab);
     }
 
     // Set the initial seed back

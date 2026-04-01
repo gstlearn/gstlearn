@@ -25,6 +25,7 @@ namespace gstlrn
     : ACalcInterpolator(verbose)
     , _nbsimu(nbsimu)
     , _seed(seed)
+    , _shift(0)
     , _flagCheck(false)
     , _flagBayes(false)
     , _flagPGS(false)
@@ -650,13 +651,11 @@ namespace gstlrn
    * @brief Save one multivariate simulation result into the Db
    *
    * @param db Db where the result is stored
-   * @param shift Shift before writing the simulation result
    * @param isimu Simulation index
    * @param activeArray Array indicating active samples
    * @param tab   Array containing simulation values for all variables
    */
   void ACalcSimulation::saveResults(Db* db,
-                                    Id shift,
                                     Id isimu,
                                     const VectorBool& activeArray,
                                     const VectorVectorDouble& tab) const
@@ -671,7 +670,7 @@ namespace gstlrn
       for (Id ivar = 0; ivar < nvar; ivar++)
         db->setSimvar(ELoc::SIMU,
                       iech,
-                      shift + isimu,
+                      _getShift() + isimu,
                       ivar,
                       icase,
                       nbsimu,
@@ -687,14 +686,12 @@ namespace gstlrn
    *
    * @param db Db where the result is stored
    * @param cova Covariance where to read the AIC matrix
-   * @param shift Shift before writing the simulation result
    * @param isimu Simulation index
    * @param activeArray Array indicating active samples
    * @param tab   Array containing simulation values for all variables
    */
   void ACalcSimulation::scaleAndSaveResults(Db* db,
                                             const CovBase* cova,
-                                            Id shift,
                                             Id isimu,
                                             const VectorBool& activeArray,
                                             const VectorVectorDouble& tab) const
@@ -707,7 +704,7 @@ namespace gstlrn
           for (Id jvar = 0; jvar < nvar; jvar++)
             db->updSimvar(ELoc::SIMU,
                           iech,
-                          shift + isimu,
+                          _getShift() + isimu,
                           ivar,
                           _getIcase(),
                           nbsimu,

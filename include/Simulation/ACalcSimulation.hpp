@@ -32,18 +32,18 @@ namespace gstlrn
 
     Id getNVar() const;
 
+    void setShift(Id shift) { _shift = shift; }
+
     void setSeed(Id seed) { _seed = seed; }
 
     void setNbSimu(Id nbsimu) { _nbsimu = nbsimu; }
 
     void saveResults(Db* db,
-                     Id shift,
                      Id isimu,
                      const VectorBool& activeArray,
                      const VectorVectorDouble& tab) const;
     void scaleAndSaveResults(Db* db,
                              const CovBase* cova,
-                             Id shift,
                              Id isimu,
                              const VectorBool& activeArray,
                              const VectorVectorDouble& tab) const;
@@ -64,6 +64,8 @@ namespace gstlrn
 
     Id _getSeedPerSimu(Id isimu) const;
 
+    Id _getShift() const { return _shift; }
+
     bool _getFlagBayes() const { return _flagBayes; }
 
     bool _getFlagDGM() const { return _flagDGM; }
@@ -80,7 +82,7 @@ namespace gstlrn
 
     virtual Id _getIcase() const { return 0; }
 
-    virtual void _setShift(Id shift) { DECLARE_UNUSED(shift); }
+    void _setShift(Id shift) { _shift = shift; }
 
     void _computeGradient(Db* dbgrd, double delta);
     void _computeTangent(Db* dbtgt, double delta);
@@ -93,6 +95,7 @@ namespace gstlrn
   private:
     Id _nbsimu;
     Id _seed;
+    Id _shift;
     bool _flagCheck;
     bool _flagBayes;
     bool _flagPGS;
