@@ -17,8 +17,8 @@
 namespace gstlrn
 {
 
-ACalcDbToDb::ACalcDbToDb(bool mustShareSameSpaceDimension)
-  : ACalculator()
+ACalcDbToDb::ACalcDbToDb(bool mustShareSameSpaceDimension, bool verbose)
+  : ACalculator(verbose)
   , _mustShareSpaceDimension(mustShareSameSpaceDimension)
   , _dbin(nullptr)
   , _dbout(nullptr)

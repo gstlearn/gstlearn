@@ -66,21 +66,21 @@ namespace gstlrn
   ** \remark  it is always <= number of cells invaded.
   **
   *****************************************************************************/
-  Id fluid_propagation(DbGrid* dbgrid,
-                       const String& name_facies,
-                       const String& name_fluid,
-                       const String& name_perm,
-                       const String& name_poro,
-                       Id nfacies,
-                       Id nfluids,
-                       Id niter,
-                       const VectorInt& speeds,
-                       bool show_fluid,
-                       double number_max,
-                       double volume_max,
-                       Id seed,
-                       bool verbose,
-                       const NamingConvention& namconv)
+  Id fluidPropagation(DbGrid* dbgrid,
+                      const String& name_facies,
+                      const String& name_fluid,
+                      const String& name_perm,
+                      const String& name_poro,
+                      Id nfacies,
+                      Id nfluids,
+                      Id niter,
+                      const VectorInt& speeds,
+                      bool show_fluid,
+                      double number_max,
+                      double volume_max,
+                      Id seed,
+                      bool verbose,
+                      const NamingConvention& namconv)
   {
     CalcSimuEden seden(nfacies, nfluids, niter, 1, seed, verbose);
 
@@ -117,21 +117,21 @@ namespace gstlrn
    ** \param[in]  namconv Naming Convention
    **
    *****************************************************************************/
-  Id simfft(DbGrid* db,
-            ModelGeneric* model,
-            SimuFFTParam& param,
-            Id nbsimu,
-            Id seed,
-            bool verbose,
-            const NamingConvention& namconv)
+  Id simuFFT(DbGrid* db,
+             ModelGeneric* model,
+             SimuFFTParam& param,
+             Id nbsimu,
+             Id seed,
+             bool verbose,
+             const NamingConvention& namconv)
   {
-    CalcSimuFFT simfft(nbsimu, verbose, seed);
-    simfft.setDbout(db);
-    simfft.setModelGeneric(model);
-    simfft.setNamingConvention(namconv);
-    simfft.setParam(param);
+    CalcSimuFFT simufft(nbsimu, verbose, seed);
+    simufft.setDbout(db);
+    simufft.setModelGeneric(model);
+    simufft.setNamingConvention(namconv);
+    simufft.setParam(param);
 
-    Id error = (simfft.run()) ? 0 : 1;
+    Id error = (simufft.run()) ? 0 : 1;
     return error;
   }
 
@@ -157,11 +157,11 @@ namespace gstlrn
                                 Id seed,
                                 bool verbose)
   {
-    CalcSimuFFT simfft(1, verbose, seed);
-    simfft.setDbout(db);
-    simfft.setModelGeneric(model);
-    simfft.setParam(param);
-    return simfft.changeSupport(sigma);
+    CalcSimuFFT simufft(1, verbose, seed);
+    simufft.setDbout(db);
+    simufft.setModelGeneric(model);
+    simufft.setParam(param);
+    return simufft.changeSupport(sigma);
   }
 
   /*****************************************************************************
@@ -178,12 +178,12 @@ namespace gstlrn
    ** \param[in]  namconv     Naming Convention
    **
    *****************************************************************************/
-  Id tessellation_poisson(DbGrid* dbgrid,
-                          Model* model,
-                          const SimuPartitionParam& parparam,
-                          Id seed,
-                          bool verbose,
-                          const NamingConvention& namconv)
+  Id tessellationPoisson(DbGrid* dbgrid,
+                         Model* model,
+                         const SimuPartitionParam& parparam,
+                         Id seed,
+                         bool verbose,
+                         const NamingConvention& namconv)
   {
     CalcSimuPartition simpart(2, 1, seed, verbose);
     simpart.setDbout(dbgrid);
@@ -209,12 +209,12 @@ namespace gstlrn
    ** \param[in]  namconv     Naming Convention
    **
    *****************************************************************************/
-  Id tessellation_voronoi(DbGrid* dbgrid,
-                          Model* model,
-                          const SimuPartitionParam& parparam,
-                          Id seed,
-                          bool verbose,
-                          const NamingConvention& namconv)
+  Id tessellationVoronoi(DbGrid* dbgrid,
+                         Model* model,
+                         const SimuPartitionParam& parparam,
+                         Id seed,
+                         bool verbose,
+                         const NamingConvention& namconv)
   {
     CalcSimuPartition simpart(1, 1, seed, verbose);
     simpart.setDbout(dbgrid);
@@ -243,11 +243,11 @@ namespace gstlrn
    ** \remark will be (N-1) * 2^p + 1 where p is the param.getNmult()
    **
    *****************************************************************************/
-  DbGrid* simulation_refine(DbGrid* dbin,
-                            Model* model,
-                            const SimuRefineParam& param,
-                            Id seed,
-                            const NamingConvention& namconv)
+  DbGrid* simuRefine(DbGrid* dbin,
+                     Model* model,
+                     const SimuRefineParam& param,
+                     Id seed,
+                     const NamingConvention& namconv)
   {
     CalcSimuRefine simfine(1, seed);
     simfine.setDbin(dbin);
@@ -340,11 +340,11 @@ namespace gstlrn
    ** \param[in]  namconv     Naming convention
    **
    *****************************************************************************/
-  Id substitution(DbGrid* dbgrid,
-                  SimuSubstitutionParam& subparam,
-                  Id seed,
-                  Id verbose,
-                  const NamingConvention& namconv)
+  Id simuSubstitution(DbGrid* dbgrid,
+                      SimuSubstitutionParam& subparam,
+                      Id seed,
+                      Id verbose,
+                      const NamingConvention& namconv)
   {
     CalcSimuSubstitution simsub(1, seed, verbose);
     simsub.setDbout(dbgrid);
@@ -397,7 +397,7 @@ namespace gstlrn
     situba.setModelGeneric(model);
     situba.setNeigh(neigh);
     situba.setNamingConvention(namconv);
-    situba.setFlagDgm(flag_dgm);
+    situba.setFlagDGM(flag_dgm);
 
     // Run the calculator
     Id error = (situba.run()) ? 0 : 1;
@@ -444,7 +444,6 @@ namespace gstlrn
     situba.setModelGeneric(model);
     situba.setNeigh(neigh);
     situba.setNamingConvention(namconv);
-
     situba.setFlagBayes(true);
 
     // Run the calculator

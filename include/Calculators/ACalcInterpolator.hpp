@@ -23,7 +23,7 @@ class ANeigh;
 class GSTLEARN_EXPORT ACalcInterpolator: public ACalcDbToDb
 {
 public:
-  ACalcInterpolator();
+  ACalcInterpolator(bool verbose = false);
   ACalcInterpolator(const ACalcInterpolator& r)            = delete;
   ACalcInterpolator& operator=(const ACalcInterpolator& r) = delete;
   virtual ~ACalcInterpolator();

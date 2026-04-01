@@ -25,103 +25,109 @@
 namespace gstlrn
 {
 
-/**
- * ---------------------------------
- * Spectral simulation on Rn
- * ---------------------------------
- */
-SimuSpectralRN::SimuSpectralRN(Id nbsimu, Id ns, Id nd, Id seed, const ACov* cov0, bool verbose)
-  : CalcSimuSpectral(nbsimu, ns, nd, seed, verbose)
-  , _gamma()
-  , _omega()
-  , _sp()
-  , _cov0(cov0)
-{
-}
-
-SimuSpectralRN::~SimuSpectralRN()
-{
-  delete _sp;
-}
-
-bool SimuSpectralRN::_check()
-{
-  if (!CalcSimuSpectral::_check()) return false;
-
-  bool hasCov0 = (_cov0 != nullptr);
-  if (hasCov0)
+  /**
+   * ---------------------------------
+   * Spectral simulation on Rn
+   * ---------------------------------
+   */
+  SimuSpectralRN::SimuSpectralRN(Id nbsimu,
+                                 Id ns,
+                                 Id nd,
+                                 Id seed,
+                                 const ACov* cov0,
+                                 bool verbose)
+    : CalcSimuSpectral(nbsimu, ns, nd, seed, verbose)
+    , _gamma()
+    , _omega()
+    , _sp()
+    , _cov0(cov0)
   {
-    if (!_cov0->isValidForSimulation(ESimuType::SPECTRAL))
+  }
+
+  SimuSpectralRN::~SimuSpectralRN()
+  {
+    delete _sp;
+  }
+
+  bool SimuSpectralRN::_check()
+  {
+    if (!CalcSimuSpectral::_check()) return false;
+
+    bool hasCov0 = (_cov0 != nullptr);
+    if (hasCov0)
     {
-      messerr("Simulation of the harmonic components is not implemented for the auxiliary covariance");
-      return false;
+      if (!_cov0->isValidForSimulation(ESimuType::SPECTRAL))
+      {
+        messerr("Simulation of the harmonic components is not implemented for "
+                "the auxiliary covariance");
+        return false;
+      }
+      if (_cov0->getNVar() > 1)
+      {
+        messerr("The auxiliary covariance should be scalar");
+        return false;
+      }
     }
-    if (_cov0->getNVar() > 1)
+
+    return true;
+  }
+
+  /**
+   * Simulate the spectrum components for Rn
+   */
+  Id SimuSpectralRN::_simulate()
+  {
+    const ACov* cov = getModelGeneric()->getCov();
+    if (cov == nullptr)
     {
-      messerr("The auxiliary covariance should be scalar");
-      return false;
+      messerr("Covariance model not defined.");
+      return -1;
     }
-  }
+    if (!cov->isValidForSimulation(ESimuType::SPECTRAL))
+    {
+      messerr("Covariance not valid for spectral simulation.");
+      return -2;
+    }
 
-  return true;
-}
-
-/**
- * Simulate the spectrum components for Rn
- */
-Id SimuSpectralRN::_simulate(const ACov* cova)
-{
-  DECLARE_UNUSED(cova)
-  const ACov* cov = getModelGeneric()->getCov();
-  if (cov == nullptr)
-  {
-    messerr("Covariance model not defined.");
-    return -1;
-  }
-  if (!cov->isValidForSimulation(ESimuType::SPECTRAL))
-  {
-    messerr("Covariance not valid for spectral simulation.");
-    return -2;
-  }
-
-  // Optional printout
-  if (getVerbose())
-  {
-    message("Simulation of the spectrum\n");
-    message("- Space dimension   = R%d\n", _getNDim());
-    message("- Number of variables  = %d\n", _getNVar());
-    message("- Number of spectral components = %d\n", _getNs());
-    if (_cov0 != nullptr)
-      message("Simulation using importance sampling\n");
-  }
-  delete _sp;
-  _sp = cov->simulateOnRN(_getNs());
-  return 1;
-}
-
-/**
- * Compute the simulation on Dbout using Spectral Method
- *
- * @param dbout Db containing the results
- * @param activeArray Array of booleans indicating the active samples in dbout
- * @param tab Array for storing one (multivariate) simulation on 'dbout'
- */
-Id SimuSpectralRN::_compute(Db* dbout, const VectorBool& activeArray, VectorVectorDouble& tab)
-{
-  auto nech = dbout->getNSample();
-  if (_sp == nullptr)
-  {
-    messerr("SpectrumOnRN not initialized.\n");
+    // Optional printout
+    if (getVerbose())
+    {
+      message("Simulation of the spectrum\n");
+      message("- Space dimension   = R%d\n", _getNDim());
+      message("- Number of variables  = %d\n", _getNVar());
+      message("- Number of spectral components = %d\n", _getNs());
+      if (_cov0 != nullptr) message("Simulation using importance sampling\n");
+    }
+    delete _sp;
+    _sp = cov->simulateOnRN(_getNs());
     return 1;
   }
-  // Optional printout
-  if (getVerbose())
+
+  /**
+   * Compute the simulation on Dbout using Spectral Method
+   *
+   * @param dbout Db containing the results
+   * @param activeArray Array of booleans indicating the active samples in dbout
+   * @param tab Array for storing one (multivariate) simulation on 'dbout'
+   */
+  Id SimuSpectralRN::_compute(Db* dbout,
+                              const VectorBool& activeArray,
+                              VectorVectorDouble& tab)
   {
-    message("Spectral Simulation on a set of Isolated Points\n");
-    message("- Number of samples = %d\n", nech);
+    auto nech = dbout->getNSample();
+    if (_sp == nullptr)
+    {
+      messerr("SpectrumOnRN not initialized.\n");
+      return 1;
+    }
+    // Optional printout
+    if (getVerbose())
+    {
+      message("Spectral Simulation on a set of Isolated Points\n");
+      message("- Number of samples = %d\n", nech);
+    }
+    _sp->compute(dbout, activeArray, tab);
+    return 0;
   }
-  _sp->compute(dbout, activeArray, tab);
-  return 0;
-}
 
 } // namespace gstlrn
