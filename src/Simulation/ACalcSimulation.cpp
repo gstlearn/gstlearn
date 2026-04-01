@@ -76,7 +76,8 @@ namespace gstlrn
     // for the current simulation rank.
     // This version is temporarily bypassed in order not to modify the results of the
     // non-regression tests.
-    // return _seedPerSimu[isimu];
+    Id seed = _seedPerSimu[isimu];
+    DECLARE_UNUSED(seed);
     return 0;
   }
 
