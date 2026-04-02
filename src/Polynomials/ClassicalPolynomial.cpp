@@ -165,7 +165,7 @@ double ClassicalPolynomial::evalOpByRank(MatrixSparse* S, Id rank) const
   MatrixSparse* outv = nullptr;
   for (Id j = degree - 2; j >= 0; j--)
   {
-    if (j != degree - 2) work->prodMatMatInPlace(S, outv);
+    if (j != degree - 2) AMatrix::prodMatMatInPlace(*work, *S, *outv);
     if (j == 0) break;
     delete outv;
     outv = work->clone();

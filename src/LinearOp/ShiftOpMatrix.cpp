@@ -608,7 +608,7 @@ double ShiftOpMatrix::_computeGradLogDetHH(const AMesh* amesh,
     }
 
     work.normMatrix(rotmat, temp);
-    work2.prodMatMatInPlace(&work, &invHH);
+    AMatrix::prodMatMatInPlace(work2, work, invHH);
     double result = work2.trace();
     return result;
   }

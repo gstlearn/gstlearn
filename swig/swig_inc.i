@@ -1115,6 +1115,17 @@ namespace gstlrn {
   {
     AMatrix::productInPlace(y, x, *$self, transpose, true);
   }
+  void AMatrix::prodMat(const MatrixDense* matY, bool transposeY)
+  {
+    AMatrix::prodMatMatInPlace(*self, *self, *matY, false, transposeY);
+  }
+  void AMatrix::prodMatMatInPlace(const MatrixDense* x,
+                                  const MatrixDense* y,
+                                  bool transposeX = false,
+                                  bool transposeY = false)
+  {
+    AMatrix::prodMatMatInPlace(*self, *x, *y, transposeX, transposeY);
+  }
 }
 
 %extend gstlrn::MatrixSparse {
@@ -1146,6 +1157,17 @@ namespace gstlrn {
   void prodVecMatInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false) const
   {
     AMatrix::productInPlace(y, x, *$self, transpose, true);
+  }
+  void AMatrix::prodMat(const MatrixSparse* matY, bool transposeY)
+  {
+    AMatrix::prodMatMatInPlace(*self, *self, *matY, false, transposeY);
+  }
+  void AMatrix::prodMatMatInPlace(const MatrixSparse* x,
+                                  const MatrixSparse* y,
+                                  bool transposeX = false,
+                                  bool transposeY = false)
+  {
+    AMatrix::prodMatMatInPlace(*self, *x, *y, transposeX, transposeY);
   }
 }
 

@@ -9,9 +9,11 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Basic/ASerializable.hpp"
-#include "LinearOp/PrecisionOpMatrix.hpp"
-#include "Mesh/MeshETurbo.hpp"
-#include "Model/Model.hpp"
+#include "Matrix/AMatrix.hpp"
+#include "Matrix/MatrixDense.hpp"
+#include "Matrix/MatrixFactory.hpp"
+#include "Matrix/MatrixSquare.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "geoslib_define.h"
 
 using namespace gstlrn;
@@ -23,15 +25,11 @@ int main(int argc, char* argv[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
   ASerializable::setPrefixName("test_a_template-"); // Here set the test name
-  Id nx = 350;
 
-  auto mesh   = MeshETurbo({nx, nx}, {}, {}, {}, false);
-  auto range  = nx / 2.;
-  auto sill   = 1.;
-  auto param  = 1.;
-  auto* model = Model::createFromParam(ECov::MATERN, range, sill, param);
-  message("Number of apices = %d\n", mesh.getNApices());
+  auto M1    = MatrixSquare(7, 7);
+  auto M2    = MatrixSymmetric(7, 7);
+  AMatrix* M = MatrixFactory::prodMatMat(&M1, &M2);
+  M->printConcreteClassName();
 
-  auto QOpCs = PrecisionOpMatrix(&mesh, model->getCovAniso(0));
   return 0;
 }

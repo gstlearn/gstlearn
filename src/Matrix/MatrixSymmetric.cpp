@@ -882,8 +882,8 @@ Id MatrixSymmetric::squareRootInPlace(MatrixSymmetric& tabout)
     eigval[i] = sqrt(eigval[i]);
   MatrixSymmetric D(nrow);
   D.setDiagonal(eigval);
-  tabout.prodMatMatInPlace(&eigvec, &D, false, false);
-  tabout.prodMatMatInPlace(&tabout, &eigvec, false, true);
+  AMatrix::prodMatMatInPlace(tabout, eigvec, D, false, false);
+  AMatrix::prodMatMatInPlace(tabout, tabout, eigvec, false, true);
   return 0;
 }
 
@@ -927,7 +927,7 @@ MatrixSymmetric* MatrixSymmetric::createRandomDefinitePositive(Id neq, Id seed)
   MatrixSymmetric local(neq);
   local.fillRandom(0, seed);
   auto* mat = new MatrixSymmetric(neq);
-  mat->prodMatMatInPlace(&local, &local, true);
+  AMatrix::prodMatMatInPlace(*mat, local, local, true);
   return mat;
 }
 

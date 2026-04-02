@@ -736,7 +736,7 @@ void CovBase::updateCov()
   }
 
   if (nvaroptim > 0)
-    _sillCur.prodMatMatInPlace(&_cholSills, &_cholSills, false, true);
+    AMatrix::prodMatMatInPlace(_sillCur, _cholSills, _cholSills, false, true);
 }
 
 #ifdef HDF5

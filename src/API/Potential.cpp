@@ -1379,8 +1379,7 @@ Id Potential::_extdriftEstablish(DbGrid* dbout)
   if (a.invert()) return 1;
 
   MatrixDense b = _extdriftBuildRHS();
-
-  a.prodMatMatInPlace(&b, &_wgtExt);
+  AMatrix::prodMatMatInPlace(a, b, _wgtExt);
 
   return 0;
 }
@@ -2603,7 +2602,7 @@ Id Potential::simulate(DbGrid* dbout,
 
   // Establish the simulated error vector and get the dual form
   _fillDualSimulation(nbsimu, zvals);
-  lhs.prodMatMatInPlace(&zvals, &zduals);
+  AMatrix::prodMatMatInPlace(lhs, zvals, zduals);
   if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
     printMatrix(zduals.getValues(), nbsimu, _nequa, "\n[Simu-Err] *%* [A]-1", 0, 1);
 

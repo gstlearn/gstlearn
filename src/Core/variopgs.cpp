@@ -2524,7 +2524,7 @@ static double st_rkl(Id maxpts,
   vec[0]            = x;
   vec[1]            = y;
   VectorDouble mean = AMatrix::product(temp, vec);
-  double v1 = law_df_bigaussian(vec, cste, corr1);
+  double v1         = law_df_bigaussian(vec, cste, corr1);
   mvndst2n(lower.data(), upper.data(), mean.data(), covar.getValues().data(),
            maxpts, abseps, releps, &error, &v2, &inform);
   return (v1 * v2);
@@ -2563,14 +2563,14 @@ static double st_ikl(Id maxpts,
   index[1] = index2;
 
   // Build submatrices
-  VectorDouble low       = VH::reduce(lower, index);
-  VectorDouble upp       = VH::reduce(upper, index);
-  MatrixSymmetric* corr1 = dynamic_cast<MatrixSymmetric*>(MatrixFactory::createReduce(&correl, index, index, true, true));
-  MatrixSymmetric* corrc = dynamic_cast<MatrixSymmetric*>(MatrixFactory::createReduce(&correl, index, index, false, true));
-  MatrixSymmetric* corr2 = dynamic_cast<MatrixSymmetric*>(MatrixFactory::createReduce(&correl, index, index, false, false));
+  VectorDouble low = VH::reduce(lower, index);
+  VectorDouble upp = VH::reduce(upper, index);
+  auto* corr1      = dynamic_cast<MatrixSymmetric*>(MatrixFactory::createReduce(&correl, index, index, true, true));
+  auto* corrc      = dynamic_cast<MatrixSymmetric*>(MatrixFactory::createReduce(&correl, index, index, false, true));
+  auto* corr2      = dynamic_cast<MatrixSymmetric*>(MatrixFactory::createReduce(&correl, index, index, false, false));
   MatrixSymmetric inv_corr1(*corr1);
   if (inv_corr1.invert()) messageAbort("st_ikl #1");
-  MatrixSquare* temp = dynamic_cast<MatrixSquare*>(MatrixFactory::prodMatMat(corrc, &inv_corr1));
+  auto* temp = dynamic_cast<MatrixSquare*>(MatrixFactory::prodMatMat(corrc, &inv_corr1));
 
   // Derive covar
   MatrixSquare covar(2);
@@ -2737,8 +2737,8 @@ static double st_d2_dkldkj(Id index1,
   if (invcorr1.invert()) messageAbort("st_d2_dkldkj #2");
 
   VectorDouble temp = AMatrix::product(invcorr1, crosscor);
-  double covar   = invcorr1.normVec(crosscor);
-  double sdcovar = sqrt(corr2 - covar);
+  double covar      = invcorr1.normVec(crosscor);
+  double sdcovar    = sqrt(corr2 - covar);
 
   VectorDouble lowi = VH::reduceOne(lower, index2);
   VectorDouble uppi = VH::reduceOne(upper, index2);

@@ -1585,10 +1585,9 @@ Id MLayers::_calculateDriftBayes(bool verbose,
   invS.invert();
 
   /* Auxiliary calculations */
-  ffc.prodMatMatInPlace(&fftab, acov);
-  invH.prodMatMatInPlace(&ffc, &fftab, false, true);
+  AMatrix::prodMatMatInPlace(ffc, fftab, *acov);
+  AMatrix::prodMatMatInPlace(invH, ffc, fftab, false, true);
   AMatrix::productInPlace(fm1z, ffc, zval);
-  // AMatrix::prodXXX(fm1z, ffc, zval); // TODO: a verifier
 
   /* Calculate the Posterior Variance-Covariance matrix */
   for (Id ipar = 0; ipar < _npar; ipar++)
@@ -1619,8 +1618,8 @@ Id MLayers::_calculateDriftBayes(bool verbose,
 
   /* Auxiliary arrays prepared for estimation */
 
-  a0.prodMatMatInPlace(&fftab, &post_vars, true);
-  ss.prodMatMatInPlace(acov, &fftab, false, true);
+  AMatrix::prodMatMatInPlace(a0, fftab, post_vars, true);
+  AMatrix::prodMatMatInPlace(ss, *acov, fftab, false, true);
   for (Id ipar = 0; ipar < _npar; ipar++)
     for (Id jpar = 0; jpar < _npar; jpar++)
       invS.setValue(ipar, jpar, post_vars.getValue(ipar, jpar));

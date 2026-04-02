@@ -23,7 +23,68 @@ namespace gstlrn
 {
 class NF_Triplet;
 class EOperator;
+class MatrixSparse;
+class MatrixDense;
+class MatrixSquare;
+class MatrixSymmetric;
 
+template<class T>
+struct is_dense_matrix: std::false_type
+{
+};
+template<class T>
+struct is_sparse_matrix: std::false_type
+{
+};
+template<class T>
+struct is_square_matrix: std::false_type
+{
+};
+template<class T>
+struct is_symmetric_matrix: std::false_type
+{
+};
+
+// Spécialisations
+template<>
+struct is_dense_matrix<MatrixDense>: std::true_type
+{
+};
+template<>
+struct is_dense_matrix<MatrixSquare>: std::true_type
+{
+};
+template<>
+struct is_dense_matrix<MatrixSymmetric>: std::true_type
+{
+};
+template<>
+struct is_sparse_matrix<MatrixSparse>: std::true_type
+{
+};
+template<>
+struct is_square_matrix<MatrixSquare>: std::true_type
+{
+};
+template<>
+struct is_square_matrix<MatrixSymmetric>: std::true_type
+{
+};
+template<>
+struct is_symmetric_matrix<MatrixSymmetric>: std::true_type
+{
+};
+
+// Helper variables
+
+template<class T>
+inline constexpr bool is_dense_matrix_v = is_dense_matrix<T>::value;
+template<class T>
+inline constexpr bool is_sparse_matrix_v = is_sparse_matrix<T>::value;
+template<class T>
+inline constexpr bool is_square_v = is_square_matrix<T>::value;
+template<class T>
+inline constexpr bool is_symmetric_v = is_symmetric_matrix<T>::value;
 /**
  * This class is the root of the Matrix organization in gstlearn
  * A matrix is a 2-D organization: it is characterized by its number of rows
@@ -97,10 +158,41 @@ public:
   /*! Set all the values of the Matrix at once */
   virtual void fill(double value) = 0;
 
-  ////////////////////////
-  // Template functions //
-  ////////////////////////
-#ifndef SWIG
+  template<class MA, class MB, class MC>
+  static void prodMatMatInPlace(MA& A, const MB& B, const MC& C, bool transposeB = false, bool transposeC = false)
+  {
+    // Vérification générale : tous doivent être Dense ou Sparse
+    static_assert(
+      (is_dense_matrix_v<MA> || is_sparse_matrix_v<MA>) &&
+        (is_dense_matrix_v<MB> || is_sparse_matrix_v<MB>) &&
+        (is_dense_matrix_v<MC> || is_sparse_matrix_v<MC>),
+      "prodMatMatInPlace: All arguments must be Dense or Sparse matrices");
+
+    Id nrow;
+    Id ncol;
+
+    if (!_areCompatible(B.getNRows(), B.getNCols(), transposeB,
+                        C.getNRows(), C.getNCols(), transposeC,
+                        nrow, ncol))
+      return;
+
+    if (A.getNRows() != nrow || A.getNCols() != ncol)
+    {
+      A.resize(nrow, ncol);
+    }
+
+    if constexpr (is_sparse_matrix_v<MA>)
+    {
+      A._productGeneral(A, B, C, transposeB, transposeC);
+    }
+    else
+    {
+      static_assert(is_dense_matrix_v<MA> && is_dense_matrix_v<MB> && is_dense_matrix_v<MC>,
+                    "Dense product requires Dense-like matrices (MD/MSQ/MSYM)");
+      A._productGeneral(A, B, C, transposeB, transposeC);
+    }
+  }
+
   /**
    * @brief Return 'other' + 'cst'
    *
@@ -413,6 +505,35 @@ public:
   }
 
   /**
+   * @brief Operate: 'res' = 'res' * 'other1'
+   *
+   * @tparam T
+   * @param res Output matrix
+   * @param other2 First matrix
+   * @param transpose2 True if 'other2' must be transposed
+   */
+  template<typename T>
+  static void productInPlace(T& res,
+                             const T& other2,
+                             bool transpose2 = false)
+  {
+    static_assert(std::is_base_of_v<AMatrix, T>,
+                  "Invalid type for Matrix product (template method). "
+                  "Only MatrixDense and MatrixSparse are allowed");
+    Id nrow;
+    Id ncol;
+    if (!_areCompatible(res.getNRows(), res.getNCols(), false,
+                        other2.getNRows(), other2.getNCols(), transpose2,
+                        nrow, ncol)) return;
+
+    if (res.getNRows() != nrow || res.getNCols() != ncol)
+    {
+      res.resize(nrow, ncol);
+    }
+    res._productGeneral(res, res, other2, false, transpose2);
+  }
+
+  /**
    * @brief Return: 'other' * 'vec'
    *
    * @tparam T
@@ -716,7 +837,6 @@ public:
   virtual void resetFromVD(Id nrows, Id ncols, const VectorDouble& tab, bool byCol = true);
   virtual void resetFromVVD(const VectorVectorDouble& tab, bool byCol = true);
 
-#endif
   ////// End of templates
 
   /*! Transpose the matrix in place*/
@@ -743,8 +863,6 @@ public:
 
   /*! Perform x %*% 'this' %*% y */
   double prodVecMatVec(const VectorDouble& x, const VectorDouble& y) const;
-  /*! Perform 'this' = 'y' %*% 'this' or 'this' %*% 'y' */
-  void prodMat(const AMatrix* matY, bool transposeY = false);
 
   /*! Extract the contents of the matrix */
   virtual NF_Triplet getMatrixToTriplet(Id shiftRow = 0, Id shiftCol = 0) const;

@@ -22,7 +22,6 @@
 
 #include <Eigen/src/Core/Map.h>
 #include <Eigen/src/Core/Matrix.h>
-#include <iostream>
 
 DISABLE_WARNING_PUSH
 DISABLE_WARNING_COND_EXPR_CONSTANT
@@ -892,13 +891,6 @@ Id MatrixSparse::_solve(const VectorDouble& b, VectorDouble& x) const
   xm = solver.compute(eigenMat()).solve(bm);
 
   return 0;
-}
-
-String MatrixSparse::toString(const AStringFormat* strfmt) const
-{
-  std::stringstream sstr;
-  sstr << AMatrix::toString(strfmt) << std::endl;
-  return sstr.str();
 }
 
 void MatrixSparse::_allocate(Id nrow, Id ncol, Id ncolmax)

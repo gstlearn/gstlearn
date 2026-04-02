@@ -2697,7 +2697,7 @@ static Id st_estimate_wgt(ST_Seismic_Neigh* ngh,
   /* Calculate the kriging weights */
 
   lhs.invert();
-  lhs.prodMatMatInPlace(&rhs, &wgt);
+  AMatrix::prodMatMatInPlace(lhs, rhs, wgt);
 
   if (OptDbg::query(EDbg::KRIGING))
     st_wgt_print(ngh, NVAR, nech, nred, flag.data(), wgt.getValues().data());

@@ -866,7 +866,7 @@ VectorDouble PCA::mafOfIndex() const
   }
 
   MatrixDense local(nclass, ncut);
-  local.prodMatMatInPlace(&i_norm_val, &_Z2F);
+  AMatrix::prodMatMatInPlace(local, i_norm_val, _Z2F);
   VectorDouble maf_index = VH::concatenate(VH::initVDouble(nclass, 1.), local.getValues());
 
   return maf_index;
