@@ -26,7 +26,6 @@ namespace gstlrn
     , _nbsimu(nbsimu)
     , _seed(seed)
     , _shift(0)
-    , _flagCheck(false)
     , _flagBayes(false)
     , _flagPGS(false)
     , _flagGibbs(false)
@@ -118,9 +117,8 @@ namespace gstlrn
 
       for (Id iech = 0; iech < dbgrd->getNSample(); iech++)
         if (activeArray[iech])
-          dbgrd->setCoordinate(iech,
-                               idim,
-                               dbgrd->getCoordinate(iech, idim) + delta);
+          dbgrd->setCoordinate(
+            iech, idim, dbgrd->getCoordinate(iech, idim) + delta);
 
       /* Simulation at the shift location */
 
@@ -135,9 +133,8 @@ namespace gstlrn
 
       for (Id iech = 0; iech < dbgrd->getNSample(); iech++)
         if (activeArray[iech])
-          dbgrd->setCoordinate(iech,
-                               idim,
-                               dbgrd->getCoordinate(iech, idim) - delta);
+          dbgrd->setCoordinate(
+            iech, idim, dbgrd->getCoordinate(iech, idim) - delta);
 
       /* Scaling */
 
@@ -146,29 +143,14 @@ namespace gstlrn
         {
           if (!activeArray[iech]) continue;
           jsimu = isimu + idim * nbsimu + ndim * nbsimu;
-          double value2 = dbgrd->getSimvar(ELoc::SIMU,
-                                           iech,
-                                           jsimu,
-                                           0,
-                                           icase,
-                                           2 * ndim * nbsimu,
-                                           1);
+          double value2 = dbgrd->getSimvar(
+            ELoc::SIMU, iech, jsimu, 0, icase, 2 * ndim * nbsimu, 1);
           jsimu = isimu + idim * nbsimu;
-          double value1 = dbgrd->getSimvar(ELoc::SIMU,
-                                           iech,
-                                           jsimu,
-                                           0,
-                                           icase,
-                                           2 * ndim * nbsimu,
-                                           1);
-          dbgrd->setSimvar(ELoc::SIMU,
-                           iech,
-                           jsimu,
-                           0,
-                           icase,
-                           2 * ndim * nbsimu,
-                           1,
-                           (value2 - value1) / delta);
+          double value1 = dbgrd->getSimvar(
+            ELoc::SIMU, iech, jsimu, 0, icase, 2 * ndim * nbsimu, 1);
+          dbgrd->setSimvar(
+            ELoc::SIMU, iech, jsimu, 0, icase, 2 * ndim * nbsimu, 1,
+            (value2 - value1) / delta);
         }
     }
   }
@@ -209,8 +191,8 @@ namespace gstlrn
           value +=
             dbtgt->getLocVariable(ELoc::TGTE, iech, idim)
             * dbtgt->getSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, nvar);
-        dbtgt
-          ->setSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, nvar, value);
+        dbtgt->setSimvar(
+          ELoc::SIMU, iech, isimu, 0, icase, nbsimu, nvar, value);
       }
   }
 
@@ -242,15 +224,9 @@ namespace gstlrn
         for (Id iech = 0; iech < nech; iech++)
         {
           if (!activeArray[iech]) continue;
-          dbout->updSimvar(ELoc::SIMU,
-                           iech,
-                           isimu,
-                           ivar,
-                           _getIcase(),
-                           nbsimu,
-                           nvar,
-                           EOperator::ADD,
-                           getModelGeneric()->getMean(ivar));
+          dbout->updSimvar(
+            ELoc::SIMU, iech, isimu, ivar, _getIcase(), nbsimu, nvar,
+            EOperator::ADD, getModelGeneric()->getMean(ivar));
         }
       }
     }
@@ -299,36 +275,20 @@ namespace gstlrn
           {
             if (_getFlagGibbs())
             {
-              zvar = dbin->getSimvar(ELoc::GAUSFAC,
-                                     iech,
-                                     isimu,
-                                     ivar,
-                                     0,
-                                     nbsimu,
-                                     nvar);
+              zvar = dbin->getSimvar(
+                ELoc::GAUSFAC, iech, isimu, ivar, 0, nbsimu, nvar);
               if (OptDbg::query(EDbg::SIMULATE)) printElement(zvar);
             }
-            double simval = dbin->getSimvar(ELoc::SIMU,
-                                            iech,
-                                            isimu,
-                                            ivar,
-                                            _getIcase(),
-                                            nbsimu,
-                                            nvar);
+            double simval = dbin->getSimvar(
+              ELoc::SIMU, iech, isimu, ivar, _getIcase(), nbsimu, nvar);
             if (_getFlagDGM())
             {
               simval = r * simval + sqrt(1. - r * r) * law_gaussian();
             }
 
             double simunc = (FFFF(zvar) || FFFF(simval)) ? TEST : simval - zvar;
-            dbin->setSimvar(ELoc::SIMU,
-                            iech,
-                            isimu,
-                            ivar,
-                            _getIcase(),
-                            nbsimu,
-                            nvar,
-                            simunc);
+            dbin->setSimvar(
+              ELoc::SIMU, iech, isimu, ivar, _getIcase(), nbsimu, nvar, simunc);
           }
         }
       }
@@ -345,23 +305,12 @@ namespace gstlrn
         if (!dbin->isActive(iech)) continue;
         for (Id isimu = 0; isimu < nbsimu; isimu++)
         {
-          double zvar = dbin->getSimvar(ELoc::GAUSFAC,
-                                        iech,
-                                        isimu,
-                                        0,
-                                        _getIcase(),
-                                        nbsimu,
-                                        1);
+          double zvar = dbin->getSimvar(
+            ELoc::GAUSFAC, iech, isimu, 0, _getIcase(), nbsimu, 1);
           if (!FFFF(zvar))
-            dbin->updSimvar(ELoc::SIMU,
-                            iech,
-                            isimu,
-                            0,
-                            _getIcase(),
-                            nbsimu,
-                            1,
-                            EOperator::ADD,
-                            -zvar);
+            dbin->updSimvar(
+              ELoc::SIMU, iech, isimu, 0, _getIcase(), nbsimu, 1,
+              EOperator::ADD, -zvar);
         }
       }
     }
@@ -437,22 +386,11 @@ namespace gstlrn
             if (!_getFlagPGS())
               valdat = dbin->getZVariable(ip, ivar);
             else
-              valdat = dbin->getSimvar(ELoc::GAUSFAC,
-                                       ip,
-                                       isimu,
-                                       0,
-                                       _getIcase(),
-                                       nbsimu,
-                                       1);
+              valdat = dbin->getSimvar(
+                ELoc::GAUSFAC, ip, isimu, 0, _getIcase(), nbsimu, 1);
             if (FFFF(valdat)) continue;
-            dbgrid->setSimvar(ELoc::SIMU,
-                              rank,
-                              isimu,
-                              ivar,
-                              _getIcase(),
-                              nbsimu,
-                              nvar,
-                              valdat);
+            dbgrid->setSimvar(
+              ELoc::SIMU, rank, isimu, ivar, _getIcase(), nbsimu, nvar, valdat);
           }
       }
     }
@@ -500,22 +438,11 @@ namespace gstlrn
             if (!_getFlagPGS())
               valdat = dbin->getZVariable(ip_close, ivar);
             else
-              valdat = dbin->getSimvar(ELoc::GAUSFAC,
-                                       ip_close,
-                                       isimu,
-                                       0,
-                                       _getIcase(),
-                                       nbsimu,
-                                       1);
+              valdat = dbin->getSimvar(
+                ELoc::GAUSFAC, ip_close, isimu, 0, _getIcase(), nbsimu, 1);
             if (FFFF(valdat)) continue;
-            dbout->setSimvar(ELoc::SIMU,
-                             ik,
-                             isimu,
-                             ivar,
-                             _getIcase(),
-                             nbsimu,
-                             nvar,
-                             valdat);
+            dbout->setSimvar(
+              ELoc::SIMU, ik, isimu, ivar, _getIcase(), nbsimu, nvar, valdat);
           }
       }
     }
@@ -655,10 +582,11 @@ namespace gstlrn
    * @param activeArray Array indicating active samples
    * @param tab   Array containing simulation values for all variables
    */
-  void ACalcSimulation::saveResults(Db* db,
-                                    Id isimu,
-                                    const VectorBool& activeArray,
-                                    const VectorVectorDouble& tab) const
+  void ACalcSimulation::saveResults(
+    Db* db,
+    Id isimu,
+    const VectorBool& activeArray,
+    const VectorVectorDouble& tab) const
   {
     auto nbsimu = getNbSimu();
     auto nvar = getNVar();
@@ -668,14 +596,9 @@ namespace gstlrn
     {
       if (!activeArray[iech]) continue;
       for (Id ivar = 0; ivar < nvar; ivar++)
-        db->setSimvar(ELoc::SIMU,
-                      iech,
-                      _getShift() + isimu,
-                      ivar,
-                      icase,
-                      nbsimu,
-                      nvar,
-                      tab[ivar][iech]);
+        db->setSimvar(
+          ELoc::SIMU, iech, _getShift() + isimu, ivar, icase, nbsimu, nvar,
+          tab[ivar][iech]);
     }
   }
 
@@ -690,11 +613,12 @@ namespace gstlrn
    * @param activeArray Array indicating active samples
    * @param tab   Array containing simulation values for all variables
    */
-  void ACalcSimulation::scaleAndSaveResults(Db* db,
-                                            const CovBase* cova,
-                                            Id isimu,
-                                            const VectorBool& activeArray,
-                                            const VectorVectorDouble& tab) const
+  void ACalcSimulation::scaleAndSaveResults(
+    Db* db,
+    const CovBase* cova,
+    Id isimu,
+    const VectorBool& activeArray,
+    const VectorVectorDouble& tab) const
   {
     auto nbsimu = getNbSimu();
     auto nvar = getNVar();
@@ -702,15 +626,9 @@ namespace gstlrn
       if (activeArray[iech])
         for (Id ivar = 0; ivar < nvar; ivar++)
           for (Id jvar = 0; jvar < nvar; jvar++)
-            db->updSimvar(ELoc::SIMU,
-                          iech,
-                          _getShift() + isimu,
-                          ivar,
-                          _getIcase(),
-                          nbsimu,
-                          nvar,
-                          EOperator::ADD,
-                          tab[jvar][iech] * cova->getAic(ivar, jvar));
+            db->updSimvar(
+              ELoc::SIMU, iech, _getShift() + isimu, ivar, _getIcase(), nbsimu,
+              nvar, EOperator::ADD, tab[jvar][iech] * cova->getAic(ivar, jvar));
   }
 
   Id ACalcSimulation::getNVar() const
