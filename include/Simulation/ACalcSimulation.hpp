@@ -38,15 +38,17 @@ namespace gstlrn
 
     void setNbSimu(Id nbsimu) { _nbsimu = nbsimu; }
 
-    void saveResults(Db* db,
-                     Id isimu,
-                     const VectorBool& activeArray,
-                     const VectorVectorDouble& tab) const;
-    void scaleAndSaveResults(Db* db,
-                             const CovBase* cova,
-                             Id isimu,
-                             const VectorBool& activeArray,
-                             const VectorVectorDouble& tab) const;
+    void saveResults(
+      Db* db,
+      Id isimu,
+      const VectorBool& activeArray,
+      const VectorVectorDouble& tab) const;
+    void scaleAndSaveResults(
+      Db* db,
+      const CovBase* cova,
+      Id isimu,
+      const VectorBool& activeArray,
+      const VectorVectorDouble& tab) const;
 
     void setFlagBayes(bool flag_bayes) { _flagBayes = flag_bayes; }
 
@@ -96,7 +98,6 @@ namespace gstlrn
     Id _nbsimu;
     Id _seed;
     Id _shift;
-    bool _flagCheck;
     bool _flagBayes;
     bool _flagPGS;
     bool _flagGibbs;
