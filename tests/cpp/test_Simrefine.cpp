@@ -37,8 +37,8 @@ int main(int argc, char* argv[])
   ASerializable::setPrefixName("test_Simrefine-");
 
   // Global parameters
-  Id ndim   = 2;
-  Id seed   = 3322;
+  Id ndim = 2;
+  Id seed = 3322;
   Id nxcell = 5;
   defineDefaultSpace(ESpaceType::RN, ndim);
 
@@ -64,7 +64,7 @@ int main(int argc, char* argv[])
 
   // ====================== Perform Boolean simulation ===================
   message("\n<----- Perform Refinement Simulation ----->\n");
-  DbGrid* grid2 = simulation_refine(grid, model, param, seed);
+  DbGrid* grid2 = simuRefine(grid, model, param, seed);
   (void)grid2->dumpToNF("grid_large.NF");
 
   delete grid;

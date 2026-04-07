@@ -56,8 +56,8 @@ int main(int argc, char* argv[])
   (void)simtub(nullptr, grid, model);
 
   // Operate a transformation to convert into 3 (nested) facies
-  Id nfacies         = 3;
-  double thresh      = 1.;
+  Id nfacies = 3;
+  double thresh = 1.;
   VectorDouble vmini = {TEST, -thresh, thresh};
   VectorDouble vmaxi = {-thresh, thresh, TEST};
 
@@ -74,13 +74,20 @@ int main(int argc, char* argv[])
   // Speed: (dir + 6 * (facies * nfluids + fluid))
   // Direction = 0: +X; 1: -X; 2: +Y; 3: -Y; 4: +Z(up); 5: -Z(down)
 
-  Id sl            = 1;
-  Id sm            = 3;
-  Id sh            = 10;
-  VectorInt speeds = {sm, sm, sm, sm, sl, sl,
-                      sh, sh, sh, sh, sl, sl,
-                      sl, sl, sl, sl, sl, sl};
-  (void)fluid_propagation(grid, "Facies", "Fluid", "", "", nfacies, nfluids, 1, speeds);
+  Id sl = 1;
+  Id sm = 3;
+  Id sh = 10;
+  VectorInt speeds =
+    {sm, sm, sm, sm, sl, sl, sh, sh, sh, sh, sl, sl, sl, sl, sl, sl, sl, sl};
+  (void)fluidPropagation(grid,
+                         "Facies",
+                         "Fluid",
+                         "",
+                         "",
+                         nfacies,
+                         nfluids,
+                         1,
+                         speeds);
 
   grid->display(&dbfmt);
   (void)grid->dumpToNF("Grid.NF");

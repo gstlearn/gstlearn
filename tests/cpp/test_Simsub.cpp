@@ -35,8 +35,8 @@ int main(int argc, char* argv[])
   ASerializable::setPrefixName("test_Simsub-");
 
   // Global parameters
-  Id ndim   = 2;
-  Id seed   = 3322;
+  Id ndim = 2;
+  Id seed = 3322;
   Id nxcell = 100;
   defineDefaultSpace(ESpaceType::RN, ndim);
 
@@ -47,19 +47,19 @@ int main(int argc, char* argv[])
 
   // ====================== Create Parameter File ===================
   message("\n<----- Creating Parameter File ----->\n");
-  Id nfacies       = 3;
+  Id nfacies = 3;
   double intensity = 1.;
   SimuSubstitutionParam subparam(nfacies, intensity);
   subparam.display();
 
   // ====================== Perform Boolean simulation ===================
   message("\n<----- Perform Substitution Simulation ----->\n");
-  (void)substitution(grid, subparam, seed, false);
+  (void)simuSubstitution(grid, subparam, seed, false);
 
   subparam.setFactor(0.6);
   subparam.setVector({0., 1.});
   subparam.setFlagOrient(true);
-  (void)substitution(grid, subparam, seed, false);
+  (void)simuSubstitution(grid, subparam, seed, false);
 
   (void)grid->dumpToNF("grid.NF");
 

@@ -63,7 +63,7 @@ mod  = Model_createFromParam(type = ECov_fromKey(type_cov),
 # using the *SimuSpectral* interface
 sim = SimuSpectralRN(1, nb, 100, 123, NULL, TRUE)
 err = sim$setModelGeneric(mod)
-err = sim$simulate(NULL)
+err = sim$simulate()
 # computing the mathematical expression
 gamma = sim$getSpectrum()$getGamma()$toTL()
 omega = sim$getSpectrum()$getOmega()$toTL()

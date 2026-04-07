@@ -24,7 +24,7 @@ class ELoc;
 class GSTLEARN_EXPORT ACalcDbToDb: public ACalculator
 {
 public:
-  ACalcDbToDb(bool mustShareSameSpaceDimension = true);
+  ACalcDbToDb(bool mustShareSameSpaceDimension = true, bool verbose = false);
   ACalcDbToDb(const ACalcDbToDb& r)            = delete;
   ACalcDbToDb& operator=(const ACalcDbToDb& r) = delete;
   virtual ~ACalcDbToDb();

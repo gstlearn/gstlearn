@@ -254,7 +254,7 @@ err = modelGeneric$setCov(mg_in_gstlearn)
 # simulation
 gssimu = SimuSpectralRN(1, ns, 100, 123, NULL, TRUE)
 err = gssimu$setModelGeneric(modelGeneric)
-err = gssimu$simulate(mg_in_gstlearn)
+err = gssimu$simulate()
 
 # computation
 err = grd$deleteColumns(names = paste0(prefix, "*"))
