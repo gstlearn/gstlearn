@@ -31,6 +31,7 @@
 #include "Variogram/Vario.hpp"
 
 using namespace gstlrn;
+
 /****************************************************************************/
 /*!
 ** Main Program
@@ -43,8 +44,8 @@ int main(int argc, char* argv[])
   StdoutRedirect sr(sfn.str(), argc, argv);
 
   ASerializable::setPrefixName("test_SimbiPGS-");
-  Id error  = 0;
-  Id ndim   = 2;
+  Id error = 0;
+  Id ndim = 2;
   Id nbsimu = 2;
   defineDefaultSpace(ESpaceType::RN, ndim);
   CovContext ctxt(1, 2, 1.); // use default space
@@ -61,22 +62,22 @@ int main(int argc, char* argv[])
 
   // Creating the Model(s) of the Underlying GRF(s)
   double range1 = 0.2;
-  auto* model1  = Model::createFromParam(ECov::MATERN, range1, 1., 1.);
+  auto* model1 = Model::createFromParam(ECov::MATERN, range1, 1., 1.);
   model1->display();
   (void)model1->dumpToNF("PGSmodel1.NF");
 
   double range2 = 0.3;
-  auto* model2  = Model::createFromParam(ECov::EXPONENTIAL, range2, 1., 1.);
+  auto* model2 = Model::createFromParam(ECov::EXPONENTIAL, range2, 1., 1.);
   model2->display();
   (void)model2->dumpToNF("PGSmodel2.NF");
 
   double range3 = 0.2;
-  auto* model3  = Model::createFromParam(ECov::MATERN, range3, 1., 1.);
+  auto* model3 = Model::createFromParam(ECov::MATERN, range3, 1., 1.);
   model3->display();
   (void)model3->dumpToNF("PGSmodel3.NF");
 
   double range4 = 0.1;
-  auto* model4  = Model::createFromParam(ECov::SPHERICAL, range4, 1., 1.);
+  auto* model4 = Model::createFromParam(ECov::SPHERICAL, range4, 1., 1.);
   model4->display();
   (void)model4->dumpToNF("PGSmodel4.NF");
 
@@ -107,42 +108,46 @@ int main(int argc, char* argv[])
   RuleProp* rulepropbi = RuleProp::createFromRules(rule1, rule2, props2);
 
   // Perform a non-conditional BiPGS simulation on a grid
-  error = simbipgs(nullptr, dbgrid, rulepropbi,
-                   model1, model2, model3, model4, neighU, nbsimu);
+  error = simbipgs(
+    nullptr, dbgrid, rulepropbi, model1, model2, model3, model4, neighU,
+    nbsimu);
   dbgrid->setNameByLocator(ELoc::FACIES, "BiPGS-Facies");
   dbfmt = DbStringFormat(FLAG_STATS, {"BiPGS-Facies*"});
   dbgrid->display(&dbfmt);
   (void)dbgrid->dumpToNF("simubipgs.NF");
 
   // Performing a PGS simulation using Shift
-  VectorDouble shift     = {0.2, 0.3};
+  VectorDouble shift = {0.2, 0.3};
   VectorDouble propshift = {0.1, 0.2, 0.3, 0.4};
-  RuleShift* ruleshift   = RuleShift::createFromNames({"S", "S", "S", "F1", "F2", "F3", "F4"}, shift);
+  RuleShift* ruleshift =
+    RuleShift::createFromNames({"S", "S", "S", "F1", "F2", "F3", "F4"}, shift);
   ruleshift->display();
   (void)ruleshift->dumpToNF("PGSruleshift.NF");
 
   RuleProp* rulepropshift = RuleProp::createFromRule(ruleshift, propshift);
 
   // Perform a non-conditional PGS Shift simulation on a grid
-  error = simpgs(nullptr, dbgrid, rulepropshift, model1, nullptr, neighU, nbsimu);
+  error =
+    simpgs(nullptr, dbgrid, rulepropshift, model1, nullptr, neighU, nbsimu);
   dbgrid->setNameByLocator(ELoc::FACIES, "PGS-Shift-Facies");
   dbfmt = DbStringFormat(FLAG_STATS, {"PGS-Shift-Facies*"});
   dbgrid->display(&dbfmt);
   (void)dbgrid->dumpToNF("simushiftpgs.NF");
 
   // Performing a PGS simulation using Shadow
-  double slope     = 0.5;
-  double shdown    = -0.2;
-  double shdsup    = +0.5;
+  double slope = 0.5;
+  double shdown = -0.2;
+  double shdsup = +0.5;
   auto* ruleshadow = new RuleShadow(slope, shdsup, shdown, shift);
   ruleshadow->display();
   (void)ruleshadow->dumpToNF("PGSruleshadow.NF");
 
-  VectorDouble propshadow  = {0.4, 0.2, 0.3};
+  VectorDouble propshadow = {0.4, 0.2, 0.3};
   RuleProp* rulepropshadow = RuleProp::createFromRule(ruleshadow, propshadow);
 
   // Perform a non-conditional PGS Shadow simulation on a grid
-  error = simpgs(nullptr, dbgrid, rulepropshadow, model1, nullptr, neighU, nbsimu);
+  error =
+    simpgs(nullptr, dbgrid, rulepropshadow, model1, nullptr, neighU, nbsimu);
   dbgrid->setNameByLocator(ELoc::FACIES, "PGS-Shadow-Facies");
   dbfmt = DbStringFormat(FLAG_STATS, {"PGS-Shadow-Facies*"});
   dbgrid->display(&dbfmt);

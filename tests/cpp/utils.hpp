@@ -17,36 +17,36 @@
 #include <filesystem>
 
 #ifndef CMAKE_SOURCE_DIR
-#  warning "CMAKE_SOURCE_DIR not defined, using GSTLEARN_DIR env var instead"
-#  define CMAKE_SOURCE_DIR gslGetEnv("GSTLEAR_DIR")
+#warning "CMAKE_SOURCE_DIR not defined, using GSTLEARN_DIR env var instead"
+#define CMAKE_SOURCE_DIR gslGetEnv("GSTLEAR_DIR")
 #endif // CMAKE_SOURCE_DIR
 
 namespace gstlrn
 {
-/**
- * This method returns the absolute path to a Test Data file
- * This can only be used in non-regression test (NOT in any Python or R stand-alone script)
- *
- * @param subdir Sub directory (in doc/data folder) containing the required file
- * @param filename Name of the required data file
- *
- * @return
- */
-inline String getTestData(const String& subdir, const String& filename)
-{
-  std::filesystem::path p {CMAKE_SOURCE_DIR};
-  return (p / "doc" / "data" / subdir / filename).string();
-}
+  /**
+   * This method returns the absolute path to a Test Data file
+   * This can only be used in non-regression test (NOT in any Python or R stand-alone script)
+   *
+   * @param subdir Sub directory (in doc/data folder) containing the required file
+   * @param filename Name of the required data file
+   *
+   * @return
+   */
+  inline String getTestData(const String& subdir, const String& filename)
+  {
+    std::filesystem::path p{CMAKE_SOURCE_DIR};
+    return (p / "doc" / "data" / subdir / filename).string();
+  }
 
-/**
- * @brief Get the pathname of the Reference File object
- *
- * @param filename Name of the Reference file to be returned
- * @return String
- */
-inline String getReferenceFilename(const String& filename)
-{
-  std::filesystem::path p {CMAKE_SOURCE_DIR};
-  return (p / "doc" / "references" / filename).string();
-}
+  /**
+   * @brief Get the pathname of the Reference File object
+   *
+   * @param filename Name of the Reference file to be returned
+   * @return String
+   */
+  inline String getReferenceFilename(const String& filename)
+  {
+    std::filesystem::path p{CMAKE_SOURCE_DIR};
+    return (p / "doc" / "references" / filename).string();
+  }
 } // namespace gstlrn

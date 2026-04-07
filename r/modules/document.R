@@ -21,7 +21,7 @@ header = c(
   "<md-block>\n")
 trailer = c(
   "</md-block>")
-  
+
 #' Check if Internet is available
 #' This function requires the package 'lares' to be installed
 #' @return TRUE if Internet is available and FALSE otherwise
@@ -38,19 +38,19 @@ internetAvailable <- function()
 #' - if not, it is assumed to be present locally in './doc/<where>', '../../doc/<where>' or '../../<where>'
 #' - if not, if the GSTLEARN_DIR environment variable is defined, it is assumed to be present in '<GSTLEARN_DIR>/gstlearn/doc/<where>'
 #' - if not, if Internet is available, the file is downloaded from the gstlearn website in a temporary file
-#' 
+#'
 #' @param filename: Name of the file to be located
 #' @param where: 'data' or 'references'
 #' @param directory: Name of the data file directory (only used for 'where' = "data")
 #' @param verbose: TRUE to activate verbose mode
 #' @param version: Use a specific gstlearn version when searching the file on the web (string)
-#' 
+#'
 locateFile <- function (filename, where='references', directory=NULL, verbose=FALSE, version=package_version)
 {
   argfilename = filename
   if (verbose)
     print(paste("Current directory is", getwd()))
-  
+
   # Test current directory
   localname = file.path('.', filename)
   if (file.exists(localname))
@@ -64,7 +64,7 @@ locateFile <- function (filename, where='references', directory=NULL, verbose=FA
   {
     print(paste(localname, "not found in current directory..."))
   }
-  
+
   # Test locally in other directories
   if (!(where %in% c('references', 'data')))
   {
@@ -73,7 +73,7 @@ locateFile <- function (filename, where='references', directory=NULL, verbose=FA
   }
   if (where == 'data' && !is.null(directory))
     filename = file.path(directory, filename)
-  
+
   folders = list(file.path('.',"doc",where),
                  file.path('..','..',"doc",where),
                  file.path('..','..',where))
@@ -117,7 +117,7 @@ locateFile <- function (filename, where='references', directory=NULL, verbose=FA
     print(paste("Error: Cannot access to", filename, "(no Internet - 'lares' package is required)!"))
     return(NULL)
   }
-  
+
   # Download from Internet in a temporary file
   localname = paste0(urlGST, '/', version, '/', where, '/', directory, '/', argfilename)
   fullname = tempfile()
@@ -133,11 +133,11 @@ locateFile <- function (filename, where='references', directory=NULL, verbose=FA
 }
 
 #' Returns the decorated documentation (Markdown file) from 'references' directory
-#' 
+#'
 #' @param filename Name of the Markdown file containing the text to be displayed
 #' @param verbose: TRUE to activate verbose mode
 #' @param version: Use a specific gstlearn version when searching the file on the web (string)
-#' 
+#'
 #' TODO: the color does not function... to be fixed.
 #' remark: the returned string must be displayed in a RMarkdown chunk as follows:
 #'   {r, echo=FALSE, result='asis'}
@@ -149,13 +149,13 @@ loadDoc <- function(filename, verbose=FALSE, version=package_version)
     print(paste("'stringr' package must be installed!"))
     return("")
   }
-    
+
   filepath = locateFile(filename, verbose=verbose, version=version)
   if (is.null(filepath))
     return(paste("File ", filename, "not found!"))
-  
+
   multiline = readLines(filepath, warn=FALSE)
-  
+
   # Capture Markdown images (beginning ![description](filename) ending)
   pattern = '(.*)\\!\\[(.*)\\]\\((.+)\\)(.*)'
   for (i in 1:length(multiline))

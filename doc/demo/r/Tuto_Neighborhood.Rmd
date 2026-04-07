@@ -3,25 +3,25 @@ title: "Neighborhoods"
 author: "Meryem Meziane"
 date: "2023-11-28"
 output: html_document
-editor_options: 
+editor_options:
   chunk_output_type: console
 ---
 
-Loading libraries 
+Loading libraries
 ```{r}
 rm(list = ls())
 library("gstlearn")
-library("tidyr") # essentially, for drop_na function 
+library("tidyr") # essentially, for drop_na function
 ```
 
-# 1. Neighborhood 
+# 1. Neighborhood
 
-Setting global variables 
+Setting global variables
 ```{r}
-verbose = TRUE 
-flagGraphic = TRUE 
+verbose = TRUE
+flagGraphic = TRUE
 
-# space dimension 
+# space dimension
 ndim = 2
 defineDefaultSpace(ESpaceType_RN(),ndim)
 ```
@@ -55,7 +55,7 @@ data = Db_createFromBox(nech, coormin, coormax)
 
 ```
 
-Plotting the data 
+Plotting the data
 (if needed for more control over the graph parameters, use ggplot instead)
 
 ```{r}
@@ -74,16 +74,16 @@ nmaxi = 15
 radius = 0.3
 nsect = 8
 nsmax = 3
-neigh = NeighMoving_create(flag_xvalid = FALSE, 
+neigh = NeighMoving_create(flag_xvalid = FALSE,
                            nmaxi = nmaxi,
-                           radius = radius, 
-                           nmini = nmini, 
-                           nsect = nsect, 
+                           radius = radius,
+                           nmini = nmini,
+                           nsect = nsect,
                            nsmax = nsmax)
 neigh
 ```
 
-Attaching the neighborhood to the grid and selecting the neighbors retained 
+Attaching the neighborhood to the grid and selecting the neighbors retained
 ```{r}
 node = 55
 neigh$attach(data, grid)
@@ -93,34 +93,34 @@ dataSel = data$clone()
 dum = dataSel$addSelectionByRanks(ranks)
 ```
 
-Plotting the result 
+Plotting the result
 ```{r}
 plot.init()+
   plot.symbol(data,
              color = "red")+
   plot.symbol(dataSel,
-             color = "blue") + 
+             color = "blue") +
   plot.neigh(neigh = neigh,
-             grid = grid, 
-             node = node, 
+             grid = grid,
+             node = node,
              flagCell = FALSE)+
-  plot.decoration(title="Standard Neighborhood", 
+  plot.decoration(title="Standard Neighborhood",
                   xlab="Easting",
                   ylab="Northing")
 ```
 
-### 1.1.2 Defining variable block extensions 
+### 1.1.2 Defining variable block extensions
 
-In the following chunk, variables are generated in the grid containing the cell extension. This cell extension replaces the constant value of the mesh. The new values define blocks around each sample point that will be represented below 
+In the following chunk, variables are generated in the grid containing the cell extension. This cell extension replaces the constant value of the mesh. The new values define blocks around each sample point that will be represented below
 ```{r}
-# defining the parameters 
+# defining the parameters
 nech = grid$getNSample()
 mini = 0.5
 maxi = 2.5
 blx = numeric()
 bly = numeric()
 
-# adding the random values 
+# adding the random values
 for (i in 1:nech){
   blx = append(blx, runif(n = 1, min = mini, max = maxi))
   bly = append(bly, runif(n = 1, min = mini, max = maxi))
@@ -128,13 +128,13 @@ for (i in 1:nech){
 blx = dxref*blx
 bly = dxref*bly
 
-# incorporating the columns into the data base : 
+# incorporating the columns into the data base :
 dum = grid$addColumns(blx, "X-ext", ELoc_BLEX(), 0)
 dum = grid$addColumns(bly, "Y-ext", ELoc_BLEX(), 1)
 ```
 
 Displaying each block and its cell extension
-Until the next gstlearn version release, this needs to be done manually thanks to ggplot 
+Until the next gstlearn version release, this needs to be done manually thanks to ggplot
 ```{r}
 df = data[]
 colnames(df) = c("rank", "x1", "x2")
@@ -186,14 +186,14 @@ plot.init()+
   plot.decoration(title="Standard Neighborhood")
 ```
 
-Using the cell neighborhood to force the selection of all samples belonging to the block 
+Using the cell neighborhood to force the selection of all samples belonging to the block
 ```{r}
 nmini = 1
 neigh = NeighCell_create(FALSE, nmini)
 neigh
 ```
 
-Attaching the neighborhood to the grid and selecting the neighbors retained 
+Attaching the neighborhood to the grid and selecting the neighbors retained
 ```{r}
 node = 56
 neigh$attach(data, grid)
@@ -203,7 +203,7 @@ dataSel = data$clone()
 dum = dataSel$addSelectionByRanks(ranks)
 ```
 
-Plotting the result 
+Plotting the result
 ```{r}
  plot.init()+
    plot.symbol(data,
@@ -211,19 +211,19 @@ Plotting the result
    plot.symbol(dataSel,
               color='blue')+
    plot.neigh(neigh,
-              grid, 
+              grid,
               node,
               flagCell=TRUE)+
    plot.decoration(title="Standard Neighborhood")
 ```
 
-## 1.2 Data gathered along lines 
+## 1.2 Data gathered along lines
 
-This part is dedicated to data organized along lines, under the assumption that the typical distance between two consecutive flight lines is much larger than the typical distance between two observation along a line. 
-To illustrate this case, data will be generated at the nodes of a regular grid with dx>>dy. 
-The file is converted into a point file to make the rest of the procedure more flexible 
+This part is dedicated to data organized along lines, under the assumption that the typical distance between two consecutive flight lines is much larger than the typical distance between two observation along a line.
+To illustrate this case, data will be generated at the nodes of a regular grid with dx>>dy.
+The file is converted into a point file to make the rest of the procedure more flexible
 
-Creating the grid and the point file containing the data 
+Creating the grid and the point file containing the data
 ```{r}
 grid = DbGrid_create(nx=c(20,100), dx=c(10,1))
 iuid = grid$addColumns(VectorHelper_simulateUniform(grid$getNSample()),"z", ELoc_Z())
@@ -235,19 +235,19 @@ plot.init() + plot.symbol(grid,size=0.3)
 Checking the neighborhood search for a target located close to one line, say at coordinates (98,50)
 ```{r}
 target = Db_createFromOnePoint(c(98,50))
-# it's basically a db made from one single point 
+# it's basically a db made from one single point
 ```
 
 Creating a standard neighborhood with 10 samples per neighborhood and a radius of 7
 ```{r}
 nmini = 1
 nmaxi = 10
-radius = 7 
+radius = 7
 neigh = NeighMoving_create(FALSE, nmaxi, radius, nmini)
 neigh
 ```
 
-Attaching the neighborhood to the grid and selecting the neighbors retained 
+Attaching the neighborhood to the grid and selecting the neighbors retained
 ```{r}
 neigh$attach(point, target)
 ranks = VectorInt()
@@ -270,7 +270,7 @@ plot.init()+
 
 ```
 
-All samples are gathered on the closest line. This may be a problem when performing kriging on a first order random function. The linear system is singular if all samples are located on a straight line 
+All samples are gathered on the closest line. This may be a problem when performing kriging on a first order random function. The linear system is singular if all samples are located on a straight line
 ```{r}
 nmini = 1
 nmaxi = 10
@@ -281,7 +281,7 @@ neigh = NeighMoving_create(FALSE, nmaxi, radius, nmini, nsect, nsmax)
 neigh
 ```
 
-Attaching the neighborhood to the grid and selecting the neighbors retained 
+Attaching the neighborhood to the grid and selecting the neighbors retained
 ```{r}
 neigh$attach(point, target)
 ranks = VectorInt()
@@ -290,7 +290,7 @@ pointSel = point$clone()
 dum = pointSel$addSelectionByRanks(ranks)
 ```
 
-Plotting the result 
+Plotting the result
 ```{r}
 plot.init()+
   plot.symbol(point,
@@ -323,7 +323,7 @@ pointSel = point$clone()
 dum = pointSel$addSelectionByRanks(ranks)
 ```
 
-Plotting the result 
+Plotting the result
 ```{r}
 plot.init()+
   plot.symbol(point,
@@ -332,20 +332,20 @@ plot.init()+
   plot.symbol(pointSel,
              color = "blue",
              size = 0.3)+
-  plot.neigh(neigh = neigh, 
+  plot.neigh(neigh = neigh,
              grid = target,
              node = 0)+
   plot.decoration("Standard Nneighborhood with sectors")
 
 ```
 
-The rule now is to consider each sector in turn and select, within this sector, the sample(s) closest to the target (there are 10 maximum numbers of sample for 8 sectors so some sectors contain more than one point). 
+The rule now is to consider each sector in turn and select, within this sector, the sample(s) closest to the target (there are 10 maximum numbers of sample for 8 sectors so some sectors contain more than one point).
 Then, by increasing the number of angular sectors, it is possible to achieve a fairer distribution of the retained samples between the lines captured by the neighborhood
 
-Preparing the neighborhood 
+Preparing the neighborhood
 ```{r}
 nmini = 1
-nmaxi = 20 
+nmaxi = 20
 radius = 20
 nsect = 20
 nsmax = 1
@@ -358,19 +358,19 @@ neigh = NeighMoving_create(flag_xvalid = FALSE,
 neigh
 ```
 
-Attaching the points selected to the neighborhood 
+Attaching the points selected to the neighborhood
 ```{r}
 neigh$attach(point, target)
 ranks = VectorInt()
 neigh$select(0, ranks)
 pointSel = point$clone()
-dum = pointSel$addSelectionByRanks(ranks)   #adding selection on these samples 
+dum = pointSel$addSelectionByRanks(ranks)   #adding selection on these samples
 ```
 
-Plotting the result 
+Plotting the result
 ```{r}
 plot.init()+
-  plot.symbol(point, 
+  plot.symbol(point,
              color = "red",
              size = 0.3)+
   plot.symbol(pointSel,

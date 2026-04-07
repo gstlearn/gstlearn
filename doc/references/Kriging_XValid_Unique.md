@@ -8,7 +8,7 @@ This is an interesting case for:
 
 When working in **Unique** Neighborhood, all the  information (from the input data base) do not change for cross-validated target. But the Cross-validated information changes at each target.
 
-Hence the interest of benefiting of the inversion of the Kriging System (Covariance and Drift parts). 
+Hence the interest of benefiting of the inversion of the Kriging System (Covariance and Drift parts).
 
 In this note, we tackle the problem when a Drift part is present (the Simple Kriging case is much simpler). We also consider the multivariate case, although this is not explicitely mentioned in the equations (we even talk of the *Kriging* system, although it should become the *CoKriging* one in multivariate case).
 
@@ -18,7 +18,7 @@ $$
     \begin{bmatrix}
         \Sigma & X \\
         X^t  & 0
-    \end{bmatrix}^{-1} 
+    \end{bmatrix}^{-1}
     \begin{bmatrix}
         \lambda \\
         -\mu
@@ -97,7 +97,7 @@ Conversely, this writing impose to determine the new unknown matrix $\omega$ pre
 Expanding the first line, we get
 $$
     \omega = \Sigma_0  \lambda - X_0 \mu
-$$  
+$$
 
 From the second line
 
@@ -156,7 +156,7 @@ $$
   \end{bmatrix}^{-1}=
   \begin{bmatrix}
     C & -CBD^{-1} \\
-    -D^{-1}B^tC & D^{-1} + D^{-1}B^tCBD^{-1} 
+    -D^{-1}B^tC & D^{-1} + D^{-1}B^tCBD^{-1}
   \end{bmatrix}
 $$
 
@@ -174,7 +174,7 @@ $$
  a_1 = \sigma_{00} - \alpha^{-1}
 $$
 
-The top-right term of the Schur decomposition leads to 
+The top-right term of the Schur decomposition leads to
 
 $$
     \beta = -\alpha \times \Sigma_0 \times \Sigma^{-1}
@@ -203,8 +203,8 @@ $$
 Multiplying by $X^t$ on the left and by $X$ on the right, it comes
 
 $$
-    X^t \delta  X = 
-    (X^t  \Sigma^{-1} X) + 
+    X^t \delta  X =
+    (X^t  \Sigma^{-1} X) +
     (X^t \Sigma^{-1} \Sigma_0^t) \alpha (\Sigma_0 \Sigma^{-1} X)
 $$
 

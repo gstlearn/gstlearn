@@ -148,19 +148,19 @@ q2 = VectorHelper_qnormVec(probas)
 
 # First components
 q1 = VectorHelper_quantiles(data$getColumns("Y1"), probas)
-plot(q1, q2, xlab = "Experimental quantiles", ylab = "Theoretical quantiles", 
+plot(q1, q2, xlab = "Experimental quantiles", ylab = "Theoretical quantiles",
      main = "First Initial Variable")
 abline(a = 0, b = 1, col = "red", lty = 3)
 
 # Second components
 q1 = VectorHelper_quantiles(data$getColumns("Y2"), probas)
-plot(q1, q2, xlab = "Experimental quantiles", ylab = "Theoretical quantiles", 
+plot(q1, q2, xlab = "Experimental quantiles", ylab = "Theoretical quantiles",
      main = "Second Initial Variable")
 abline(a = 0, b = 1, col = "red", lty = 3)
 
 # Third components
 q1 = VectorHelper_quantiles(data$getColumns("Y3"), probas)
-plot(q1, q2, xlab = "Experimental quantiles", ylab = "Theoretical quantiles", 
+plot(q1, q2, xlab = "Experimental quantiles", ylab = "Theoretical quantiles",
      main = "Second Initial Variable")
 abline(a = 0, b = 1, col = "red", lty = 3)
 
@@ -185,19 +185,19 @@ plot.end(p)
 ```{r}
 # First components
 q1 = VectorHelper_quantiles(data$getColumns("U-1"), probas)
-plot(q1, q2, xlab = "Experimental quantiles", ylab = "Theoretical quantiles", 
+plot(q1, q2, xlab = "Experimental quantiles", ylab = "Theoretical quantiles",
      main = "First Final Variable")
 abline(a = 0, b = 1, col = "red", lty = 3)
 
 # Second components
 q1 = VectorHelper_quantiles(data$getColumns("U-2"), probas)
-plot(q1, q2, xlab = "Experimental quantiles", ylab = "Theoretical quantiles", 
+plot(q1, q2, xlab = "Experimental quantiles", ylab = "Theoretical quantiles",
      main = "Second Final Variable")
 abline(a = 0, b = 1, col = "red", lty = 3)
 
 # Third components
 q1 = VectorHelper_quantiles(data$getColumns("U-3"), probas)
-plot(q1, q2, xlab = "Experimental quantiles", ylab = "Theoretical quantiles", 
+plot(q1, q2, xlab = "Experimental quantiles", ylab = "Theoretical quantiles",
      main = "Second Final Variable")
 abline(a = 0, b = 1, col = "red", lty = 3)
 
@@ -229,7 +229,7 @@ PPMT.anam <- function(this, X){
   np <- dim(X)[1]
   nd <- dim(X)[2]
   stopifnot(nd == dim(this$X)[2])
-  
+
   res<- get.knnx(data = this$X, query = X, k = 1+nd)
   Y  <- matrix(NaN, nrow = np, ncol = nd)
   for (i in 1:np) {
@@ -276,7 +276,7 @@ plot.init() + plot.hist(simu, name = "x1", color = "gray", fill = "orange")
 plot.init() + plot.hist(simu, name = "x2", color = "gray", fill = "skyblue")
 plot.init() + plot.hist(simu, name = "x3", color = "gray", fill = "green")
 p = plot.init()
-p = p + plot.correlation(simu, namex = "x1", namey = "x2", bins=100, flagDiag = TRUE) 
+p = p + plot.correlation(simu, namex = "x1", namey = "x2", bins=100, flagDiag = TRUE)
 p = p + plot.decoration(title = "Gaussian mixture (simulation)")
 plot.end(p)
 p = plot.init()
@@ -301,8 +301,8 @@ fun_qq <- function(i1, nq = 100){
   p <- (1:(nq-1))/nq
   q_ini <- quantile(x = anam$Z[,i1], probs = p)
   q_sim <- quantile(x = Z[,i1], probs = p)
-  
-  plot(q_sim, q_ini, xlab = "Simulated values", ylab = "Initial values", asp = 1, 
+
+  plot(q_sim, q_ini, xlab = "Simulated values", ylab = "Initial values", asp = 1,
        main = paste0("Q-Q plot - Z", i1), type = "b")
   abline(a = 0, b = 1, col = "red", lty = 3)
   NULL

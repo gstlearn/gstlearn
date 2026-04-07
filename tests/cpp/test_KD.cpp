@@ -58,15 +58,15 @@ int main(int argc, char* argv[])
   DbGrid* grid = DbGrid::create({100, 100}, {0.01, 0.01});
 
   // Create grid of (single) Panel
-  double dx_P   = 0.250;
-  double x0_P   = 0.375;
+  double dx_P = 0.250;
+  double x0_P = 0.375;
   DbGrid* panel = DbGrid::create({1, 1}, {dx_P, dx_P}, {x0_P, x0_P});
   panel->display();
 
   // Discretization with blocs
-  Id nx_B       = 5;
-  double x0_B   = x0_P + dx_P / nx_B / 2.;
-  double dx_B   = dx_P / nx_B;
+  Id nx_B = 5;
+  double x0_B = x0_P + dx_P / nx_B / 2.;
+  double dx_B = dx_P / nx_B;
   DbGrid* blocs = DbGrid::create({nx_B, nx_B}, {dx_B, dx_B}, {x0_B, x0_B});
   blocs->display();
 
@@ -77,8 +77,8 @@ int main(int argc, char* argv[])
   grid->display();
 
   // Non-linear transform
-  double m_Z        = 1.5;
-  double s_Z        = 0.5;
+  double m_Z = 1.5;
+  double s_Z = 0.5;
   VectorDouble Zval = grid->getColumn("Y");
   for (Id i = 0; i < static_cast<Id>(Zval.size()); i++)
     Zval[i] = m_Z * exp(s_Z * Zval[i] - 0.5 * s_Z * s_Z);
@@ -86,7 +86,7 @@ int main(int argc, char* argv[])
   grid->display(&dbfmt);
 
   // Data extraction
-  Id np    = 500;
+  Id np = 500;
   Db* data = Db::createSamplingDb(grid, 0., np, {"x1", "x2", "Y", "Z"});
   data->setLocator("Z", ELoc::Z, 0);
   data->display(&dbfmt);
@@ -97,9 +97,8 @@ int main(int argc, char* argv[])
   anam->display();
 
   // Selectivity
-  Selectivity* selectivity =
-    Selectivity::createByCodes({ESelectivity::Q, ESelectivity::T},
-                               {0., 0.5}, true, true);
+  Selectivity* selectivity = Selectivity::createByCodes(
+    {ESelectivity::Q, ESelectivity::T}, {0., 0.5}, true, true);
 
   // Global experimental selectivity
   data->display();
@@ -136,9 +135,9 @@ int main(int argc, char* argv[])
   model->display();
 
   // Creating a Moving Neighborhood
-  Id nmini            = 5;
-  Id nmaxi            = 5;
-  double radius       = 1.;
+  Id nmini = 5;
+  Id nmaxi = 5;
+  double radius = 1.;
   NeighMoving* neighM = NeighMoving::create(false, nmaxi, radius, nmini);
   neighM->display();
 
@@ -146,14 +145,14 @@ int main(int argc, char* argv[])
 
   // Estimating the Gaussian Variable on the nodes of the Blocks
   data->display();
-  (void)kriging(data, blocs, model, neighM,
-                true, true, false, KrigOpt(),
-                NamingConvention("G_PTS"));
+  (void)kriging(
+    data, blocs, model, neighM, true, true, false, KrigOpt(),
+    NamingConvention("G_PTS"));
 
   // Calculating the Conditional Expectation
-  (void)ConditionalExpectation(blocs, anam, selectivity, "G_PTS*estim",
-                               "G_PTS*stdev", false, TEST, 0,
-                               NamingConvention("PTS_Recovery", false));
+  (void)ConditionalExpectation(
+    blocs, anam, selectivity, "G_PTS*estim", "G_PTS*stdev", false, TEST, 0,
+    NamingConvention("PTS_Recovery", false));
   blocs->display();
 
   // ====================== Point Disjunctive Kriging =====================
@@ -170,23 +169,26 @@ int main(int argc, char* argv[])
   data->display();
 
   // Simple Point Kriging over the blocks
-  (void)krigingFactors(data, blocs, model, neighM,
-                       true, true, KrigOpt(), NamingConvention("DK_Pts"));
+  (void)krigingFactors(
+    data, blocs, model, neighM, true, true, KrigOpt(),
+    NamingConvention("DK_Pts"));
   blocs->display();
 
   // Simple Block Kriging over the blocks
   VectorInt ndisc_B = {5, 5};
   KrigOpt krigopt;
   krigopt.setOptionCalcul(EKrigOpt::BLOCK, ndisc_B);
-  (void)krigingFactors(data, blocs, model, neighM,
-                       true, true, krigopt, NamingConvention("DK_Blk"));
+  (void)krigingFactors(
+    data, blocs, model, neighM, true, true, krigopt,
+    NamingConvention("DK_Blk"));
   blocs->display();
 
   // Simple Block Kriging over the panel(s)
   VectorInt ndisc_P = {10, 10};
   krigopt.setOptionCalcul(EKrigOpt::BLOCK, ndisc_P);
-  (void)krigingFactors(data, panel, model, neighM,
-                       true, true, krigopt, NamingConvention("DK_Blk"));
+  (void)krigingFactors(
+    data, panel, model, neighM, true, true, krigopt,
+    NamingConvention("DK_Blk"));
   panel->display();
 
   // ====================== Uniform Conditioning ==================================
@@ -196,15 +198,15 @@ int main(int argc, char* argv[])
   data->clearLocators(ELoc::Z);
   data->setLocator("Z", ELoc::Z, 0);
   data->display();
-  (void)kriging(data, blocs, model, neighM,
-                true, true, false, KrigOpt(),
-                NamingConvention("Z_PTS"));
+  (void)kriging(
+    data, blocs, model, neighM, true, true, false, KrigOpt(),
+    NamingConvention("Z_PTS"));
   blocs->display();
 
   // Perform the Uniform Conditioning over Blocks
-  (void)UniformConditioning(blocs, anam, selectivity,
-                            "Z_PTS*estim", "Z_PTS*stdev",
-                            NamingConvention("UC", false));
+  (void)UniformConditioning(
+    blocs, anam, selectivity, "Z_PTS*estim", "Z_PTS*stdev",
+    NamingConvention("UC", false));
   blocs->display();
   data->setLocator("Gauss.Z", ELoc::Z, 0);
 
@@ -218,30 +220,32 @@ int main(int argc, char* argv[])
   anam_b1->setRCoef(r1);
 
   // Regularization of the point model by the block support
-  Vario* vario_b1_Z = Vario::createRegularizeFromModel(*model, *varioparam,
-                                                       blocs->getDXs(),
-                                                       ndisc_B, blocs->getAngles());
+  Vario* vario_b1_Z = Vario::createRegularizeFromModel(
+    *model, *varioparam, blocs->getDXs(), ndisc_B, blocs->getAngles());
   Vario* vario_b1_Y = Vario::createTransformZToY(*vario_b1_Z, anam);
 
   // Fitting the regularized model on the point Gaussian variable
   auto* model_b1_Y = new Model(1, ndim);
   constraints.setConstantSillValue(1);
-  (void)model_b1_Y->fit(vario_b1_Y, {ECov::CUBIC, ECov::EXPONENTIAL}, constraints);
+  (void)
+    model_b1_Y->fit(vario_b1_Y, {ECov::CUBIC, ECov::EXPONENTIAL}, constraints);
 
   // Update the Model with Block Anamorphosis
   model_b1_Y->setAnam(anam_b1);
   model_b1_Y->display();
 
   // Simple Point Kriging over the blocs(s) with Model with Change of Support
-  (void)krigingFactors(data, blocs, model_b1_Y, neighM,
-                       true, true, KrigOpt(), NamingConvention("DK_DGM1"));
+  (void)krigingFactors(
+    data, blocs, model_b1_Y, neighM, true, true, KrigOpt(),
+    NamingConvention("DK_DGM1"));
   blocs->display();
 
   // Simple Point Kriging over the panel(s) with Model with Change of Support
   VectorInt ndisc_Bc = {nx_B, nx_B};
   krigopt.setOptionCalcul(EKrigOpt::BLOCK, ndisc_Bc);
-  (void)krigingFactors(data, panel, model_b1_Y, neighM,
-                       true, true, krigopt, NamingConvention("DK_DGM1"));
+  (void)krigingFactors(
+    data, panel, model_b1_Y, neighM, true, true, krigopt,
+    NamingConvention("DK_DGM1"));
   panel->display();
 
   // ====================== Block Disjunctive Kriging (DGM-2) =====================
@@ -254,14 +258,14 @@ int main(int argc, char* argv[])
   anam_b2->setRCoef(r2);
 
   // Regularization of the point model by the block support
-  Vario* vario_b2_Y = Vario::createRegularizeFromModel(*model, *varioparam,
-                                                       blocs->getDXs(),
-                                                       ndisc_B, blocs->getAngles());
+  Vario* vario_b2_Y = Vario::createRegularizeFromModel(
+    *model, *varioparam, blocs->getDXs(), ndisc_B, blocs->getAngles());
 
   // Fitting the regularized model on the point Gaussian variable
   auto* model_b2_Y = new Model(1, ndim);
   constraints.setConstantSillValue(r2 * r2);
-  (void)model_b2_Y->fit(vario_b2_Y, {ECov::CUBIC, ECov::EXPONENTIAL}, constraints);
+  (void)
+    model_b2_Y->fit(vario_b2_Y, {ECov::CUBIC, ECov::EXPONENTIAL}, constraints);
 
   // Normalization of the block model to a total sill equal to 1.0
   model_b2_Y->normalize(1.0);
@@ -272,22 +276,23 @@ int main(int argc, char* argv[])
   model_b2_Y->display();
 
   // Simple Point Kriging over the blocs(s) with Model with Change of Support
-  (void)krigingFactors(data, blocs, model_b2_Y, neighM,
-                       true, true, KrigOpt(), NamingConvention("DK_DGM2"));
+  (void)krigingFactors(
+    data, blocs, model_b2_Y, neighM, true, true, KrigOpt(),
+    NamingConvention("DK_DGM2"));
   blocs->display();
 
   // Simple Point Kriging over the panel(s) with Model with Change of Support
   krigopt.setOptionCalcul(EKrigOpt::BLOCK, ndisc_Bc);
-  (void)krigingFactors(data, panel, model_b2_Y, neighM,
-                       true, true, krigopt, NamingConvention("DK_DGM2"));
+  (void)krigingFactors(
+    data, panel, model_b2_Y, neighM, true, true, krigopt,
+    NamingConvention("DK_DGM2"));
   panel->display();
 
   // ====================== Selectivity Function ==================================
 
-  DisjunctiveKriging(blocs, anam, selectivity,
-                     blocs->getName("DK_Pts*estim"),
-                     blocs->getName("DK_Pts*stdev"),
-                     NamingConvention("QT", false));
+  DisjunctiveKriging(
+    blocs, anam, selectivity, blocs->getName("DK_Pts*estim"),
+    blocs->getName("DK_Pts*stdev"), NamingConvention("QT", false));
   blocs->display();
 
   // ====================== Free pointers ==================================

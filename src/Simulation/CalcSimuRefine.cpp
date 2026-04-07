@@ -73,15 +73,9 @@ namespace gstlrn
       nx2.resize(ndim);
       x02.resize(ndim);
       dx2.resize(ndim);
-      db2 = DbGrid::create(nx2,
-                           dx2,
-                           x02,
-                           dbin->getGrid().getRotAngles(),
-                           ELoadBy::SAMPLE,
-                           VectorDouble(),
-                           VectorString(),
-                           VectorString(),
-                           1);
+      db2 = DbGrid::create(
+        nx2, dx2, x02, dbin->getGrid().getRotAngles(), ELoadBy::SAMPLE,
+        VectorDouble(), VectorString(), VectorString(), 1);
       Id iatt2 = db2->addColumnsByConstant(1, TEST);
 
       /* Establish the Kriging system */
@@ -106,15 +100,9 @@ namespace gstlrn
       nx1.resize(ndim);
       x01.resize(ndim);
       dx1.resize(ndim);
-      db1 = DbGrid::create(nx1,
-                           dx1,
-                           x01,
-                           dbin->getGrid().getRotAngles(),
-                           ELoadBy::SAMPLE,
-                           VectorDouble(),
-                           VectorString(),
-                           VectorString(),
-                           1);
+      db1 = DbGrid::create(
+        nx1, dx1, x01, dbin->getGrid().getRotAngles(), ELoadBy::SAMPLE,
+        VectorDouble(), VectorString(), VectorString(), 1);
       iatt1 = db1->addColumnsByConstant(1, TEST);
 
       /* Truncate the output grid for next step */
@@ -302,14 +290,15 @@ namespace gstlrn
    ** \param[in]  idz    Shift along Z
    **
    *****************************************************************************/
-  double CalcSimuRefine::_read(DbGrid* db,
-                               Id iatt,
-                               Id ix0,
-                               Id iy0,
-                               Id iz0,
-                               Id idx,
-                               Id idy,
-                               Id idz)
+  double CalcSimuRefine::_read(
+    DbGrid* db,
+    Id iatt,
+    Id ix0,
+    Id iy0,
+    Id iz0,
+    Id idx,
+    Id idy,
+    Id idz)
   {
     auto ndim = _getNDim();
     VectorInt ind(ndim, 0);
@@ -347,12 +336,13 @@ namespace gstlrn
    ** \param[in]  value  Value to be written
    **
    *****************************************************************************/
-  void CalcSimuRefine::_write(DbGrid* db,
-                              Id iatt,
-                              Id ix0,
-                              Id iy0,
-                              Id iz0,
-                              double value)
+  void CalcSimuRefine::_write(
+    DbGrid* db,
+    Id iatt,
+    Id ix0,
+    Id iy0,
+    Id iz0,
+    double value)
   {
     VectorInt ind(3);
     ind[0] = ix0;
@@ -372,10 +362,11 @@ namespace gstlrn
    ** \param[in]  iatt1   Rank of the attribute to be written into db1
    **
    *****************************************************************************/
-  void CalcSimuRefine::_truncate_result(DbGrid* db2,
-                                        Id iatt2,
-                                        DbGrid* db1,
-                                        Id iatt1)
+  void CalcSimuRefine::_truncate_result(
+    DbGrid* db2,
+    Id iatt2,
+    DbGrid* db1,
+    Id iatt1)
   {
     for (Id ix = 0; ix < _nx1[0]; ix++)
       for (Id iy = 0; iy < _nx1[1]; iy++)
@@ -465,11 +456,9 @@ namespace gstlrn
     {
       message("\nDisplay of the Kriging weights\n");
       for (Id i = 0; i < nb; i++)
-        message("X=%10.3lf Y=%10.3lf Z=%10.3lf W=%10.6lf\n",
-                _XYZN[0][type][i],
-                _XYZN[1][type][i],
-                _XYZN[2][type][i],
-                _WGT[type][rank][i]);
+        message(
+          "X=%10.3lf Y=%10.3lf Z=%10.3lf W=%10.6lf\n", _XYZN[0][type][i],
+          _XYZN[1][type][i], _XYZN[2][type][i], _WGT[type][rank][i]);
       message("Variance of error           = %10.6lf\n", variance);
       message("Standard deviation of error = %10.6lf\n", _STDV[type][rank]);
     }
@@ -515,12 +504,13 @@ namespace gstlrn
    ** \param[in]  iz0    Index of the target along Z
    **
    *****************************************************************************/
-  void CalcSimuRefine::_simulate_target(DbGrid* db,
-                                        Id type,
-                                        Id iatt,
-                                        Id ix0,
-                                        Id iy0,
-                                        Id iz0)
+  void CalcSimuRefine::_simulate_target(
+    DbGrid* db,
+    Id type,
+    Id iatt,
+    Id ix0,
+    Id iy0,
+    Id iz0)
   {
     double value = 0.;
     if (iz0 == 0)
@@ -529,15 +519,11 @@ namespace gstlrn
       /* Case of the first layer */
 
       for (Id i = 0; i < 4; i++)
-        value += (_WGT[type][0][i]
-                  * _read(db,
-                          iatt,
-                          ix0,
-                          iy0,
-                          iz0,
-                          _IXYZ[0][type][i],
-                          _IXYZ[1][type][i],
-                          _IXYZ[2][type][i]));
+        value +=
+          (_WGT[type][0][i]
+           * _read(
+             db, iatt, ix0, iy0, iz0, _IXYZ[0][type][i], _IXYZ[1][type][i],
+             _IXYZ[2][type][i]));
       value += _STDV[type][0] * law_gaussian();
     }
     else
@@ -546,15 +532,11 @@ namespace gstlrn
       /* Case of a subsequent layer */
 
       for (Id i = 0; i < 5; i++)
-        value += (_WGT[type][1][i]
-                  * _read(db,
-                          iatt,
-                          ix0,
-                          iy0,
-                          iz0,
-                          _IXYZ[0][type][i],
-                          _IXYZ[1][type][i],
-                          _IXYZ[2][type][i]));
+        value +=
+          (_WGT[type][1][i]
+           * _read(
+             db, iatt, ix0, iy0, iz0, _IXYZ[0][type][i], _IXYZ[1][type][i],
+             _IXYZ[2][type][i]));
       value += _STDV[type][1] * law_gaussian();
     }
 

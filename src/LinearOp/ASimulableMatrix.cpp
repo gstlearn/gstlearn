@@ -9,46 +9,46 @@
 /*                                                                            */
 /******************************************************************************/
 #include "LinearOp/ASimulableMatrix.hpp"
-#include "geoslib_define.h"
 #include "Matrix/MatrixSparse.hpp"
+#include "geoslib_define.h"
 
 namespace gstlrn
 {
 
-ASimulableMatrix::ASimulableMatrix()
-:
- _chol(nullptr)
-{
-}
+  ASimulableMatrix::ASimulableMatrix()
+    : _chol(nullptr)
+  {
+  }
 
-ASimulableMatrix::~ASimulableMatrix()
-{
-  delete _chol;
-}
+  ASimulableMatrix::~ASimulableMatrix()
+  {
+    delete _chol;
+  }
 
-Id ASimulableMatrix::_addToDest(const constvect whitenoise, vect outv) const
-{
-  return getQMat().addToDest(whitenoise, outv);
-}
+  Id ASimulableMatrix::_addToDest(const constvect whitenoise, vect outv) const
+  {
+    return getQMat().addToDest(whitenoise, outv);
+  }
 
-const CholeskySparse& ASimulableMatrix::getChol() const
-{
+  const CholeskySparse& ASimulableMatrix::getChol() const
+  {
     if (_chol == nullptr)
     {
       _chol = new CholeskySparse(getQMat());
     }
     return *_chol;
-}
+  }
 
-Id ASimulableMatrix::_addSimulateToDest(const constvect whitenoise, vect outv) const
-{
-  return getChol().addSimulateToDest(whitenoise, outv);
-}
+  Id ASimulableMatrix::_addSimulateToDest(const constvect whitenoise, vect outv)
+    const
+  {
+    return getChol().addSimulateToDest(whitenoise, outv);
+  }
 
-double ASimulableMatrix::computeLogDet(Id nMC) const
-{
-  DECLARE_UNUSED(nMC)
-  const auto& chol = getChol();
-  return chol.computeLogDeterminant();
-}
+  double ASimulableMatrix::computeLogDet(Id nMC) const
+  {
+    DECLARE_UNUSED(nMC)
+    const auto& chol = getChol();
+    return chol.computeLogDeterminant();
+  }
 } // namespace gstlrn

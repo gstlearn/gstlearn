@@ -16,29 +16,29 @@
 
 namespace gstlrn
 {
-class GSTLEARN_EXPORT BiTargetCheckBench: public ABiTargetCheck
-{
-public:
-  BiTargetCheckBench(Id idim_bench, double width);
-  BiTargetCheckBench(const BiTargetCheckBench& r);
-  BiTargetCheckBench& operator=(const BiTargetCheckBench& r);
-  virtual ~BiTargetCheckBench();
+  class GSTLEARN_EXPORT BiTargetCheckBench: public ABiTargetCheck
+  {
+  public:
+    BiTargetCheckBench(Id idim_bench, double width);
+    BiTargetCheckBench(const BiTargetCheckBench& r);
+    BiTargetCheckBench& operator=(const BiTargetCheckBench& r);
+    virtual ~BiTargetCheckBench();
 
-  bool isOK(const SpaceTarget &T1, const SpaceTarget &T2) const override;
-  bool isValid(const Db* dbin, const Db* dbout) override;
+    bool isOK(const SpaceTarget& T1, const SpaceTarget& T2) const override;
+    bool isValid(const Db* dbin, const Db* dbout) override;
 
-  /// ICloneable Interface
-  IMPLEMENT_CLONING(BiTargetCheckBench)
+    /// ICloneable Interface
+    IMPLEMENT_CLONING(BiTargetCheckBench)
 
-  /// Interface to AStringable
-  String toString(const AStringFormat* strfmt = nullptr) const override;
+    /// Interface to AStringable
+    String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  static BiTargetCheckBench* create(Id idim_bench, double width);
+    static BiTargetCheckBench* create(Id idim_bench, double width);
 
-  double getWidth() const { return _width; }
+    double getWidth() const { return _width; }
 
-private:
-  Id       _idimBench;
-  double    _width;
-};
-}
+  private:
+    Id _idimBench;
+    double _width;
+  };
+} // namespace gstlrn

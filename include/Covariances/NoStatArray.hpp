@@ -18,26 +18,28 @@ class Db;
 
 namespace gstlrn
 {
-class GSTLEARN_EXPORT NoStatArray: public ANoStat
-{
-public:
-  NoStatArray() {};
-  NoStatArray(std::shared_ptr<const Db> dbref, const String& colname);
-  NoStatArray(const NoStatArray& m)            = delete;
-  NoStatArray& operator=(const NoStatArray& m) = delete;
-  virtual ~NoStatArray() {};
-  String toString(const AStringFormat* strfmt = nullptr) const override;
+  class GSTLEARN_EXPORT NoStatArray: public ANoStat
+  {
+  public:
+    NoStatArray() {};
+    NoStatArray(std::shared_ptr<const Db> dbref, const String& colname);
+    NoStatArray(const NoStatArray& m) = delete;
+    NoStatArray& operator=(const NoStatArray& m) = delete;
+    virtual ~NoStatArray() {};
+    String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  const String& getColName() const { return _colName; }
-  const std::shared_ptr<const Db>& getDbNoStat() const { return _dbNoStat; }
+    const String& getColName() const { return _colName; }
 
-private:
-  void _informField(const VectorVectorDouble& coords,
-                    VectorDouble& tab,
-                    bool verbose = false) override;
+    const std::shared_ptr<const Db>& getDbNoStat() const { return _dbNoStat; }
 
-protected:
-  std::shared_ptr<const Db> _dbNoStat;
-  const String _colName;
-};
+  private:
+    void _informField(
+      const VectorVectorDouble& coords,
+      VectorDouble& tab,
+      bool verbose = false) override;
+
+  protected:
+    std::shared_ptr<const Db> _dbNoStat;
+    const String _colName;
+  };
 } // namespace gstlrn

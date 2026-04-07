@@ -7,7 +7,7 @@ output:
   html_document:
     df_print: paged
     toc: true
-editor_options: 
+editor_options:
   chunk_output_type: console
 ---
 
@@ -18,7 +18,7 @@ editor_options:
 ```{r, include=FALSE}
 ## Global options for code chunks
 knitr::opts_chunk$set(
-  echo = TRUE, 
+  echo = TRUE,
   warning = FALSE,
   fig.width=5,fig.height=5,fig.align="center"
 )
@@ -49,13 +49,13 @@ dat$getExtremas()
 The first (resp. second) element of the list contains the min and max coordinates in the first (resp. second) space dimension. Based on this information, we create a grid covering all the points using the `DbGrid_create` function. We specify the coordinates of the origin (i.e. lower left corner) of the grid (argument `x0`), the step sizes in each dimension (argument `dx`) and the number of points in each dimension (argument `nx`).
 
 ```{r Creating_Grid}
-grid = DbGrid_create(x0=c(65,530),dx=c(4.94, 4.96),nx=c(82,138)) 
+grid = DbGrid_create(x0=c(65,530),dx=c(4.94, 4.96),nx=c(82,138))
 ```
 
 We then print a summary of the content of the grid using the `display` method of `Db` class, which we supply with a `DbStringFormat` object specifying that we would like information about the extent of the grid (argument `flag_extend` in the `DbStringFormat_createFromFlags` function).
 
 ```{r Creating_Grid_display_format}
-dbfmt = DbStringFormat_createFromFlags(flag_extend=TRUE) 
+dbfmt = DbStringFormat_createFromFlags(flag_extend=TRUE)
 grid$display(dbfmt)
 ```
 
@@ -89,7 +89,7 @@ plot.init() + plot.varmod(vario2dir, fitmod)
 cat(loadDoc("Kriging_Simple.md"), sep="\n")
 ```
 
-To perform simple kriging, we use the function called `kriging`. 
+To perform simple kriging, we use the function called `kriging`.
 We specify:
 
 * the `Db` object containing the data points (argument `dbin`) : the variable used for kriging is the (unique) variable of the data base  with a `z` locator (i.e. it should have locator `z1` and the other variables should not have a locator starting with `z`)
@@ -97,7 +97,7 @@ We specify:
 * the `Model` object containing the model used to define the kriging predictor (argument `model`): in particular, the mean used to define the predictor is the one set in the `Model` object
 * the type of neighborhood used in the prediction (argument `neigh`), eg. unique neighborhood (to use all the data points for each predictor) or moving neighborhood (to use only the data points in the vicinity of the target point in the prediction). This argument is defined using a "neighborhood" object (see example below).
 
-Additionally, it is possible to specify whether we wish to compute, at each target point, the kriging predictor (argument `flag_est`, default=`TRUE`), the kriging standard-deviation (argument `flag_std`, default=`TRUE`) and the kriging variance (argument `flag_varz`, default=`FALSE`). 
+Additionally, it is possible to specify whether we wish to compute, at each target point, the kriging predictor (argument `flag_est`, default=`TRUE`), the kriging standard-deviation (argument `flag_std`, default=`TRUE`) and the kriging variance (argument `flag_varz`, default=`FALSE`).
 
 The `kriging` function then adds new variables to the `Db` entered in the `dbout` argument corresponding to these variables. The names of these newly created variables will start by `Kriging`, but this prefix can be changed using the `namconv` argument of the `kriging function`
 
@@ -117,7 +117,7 @@ uniqueNeigh = NeighUnique()
 We now call the `kriging` function to perform the kriging prediction. We use the model `fitmod` that we previously fitted on our data, require to compute the kriging predictor and its standard-deviation (but not its variance), and change the prefix of the newly created variables to "SK".
 
 ```{r Simple_Kriging}
-err = kriging(dbin=dat, dbout=grid, model=fitmod, 
+err = kriging(dbin=dat, dbout=grid, model=fitmod,
               neigh=uniqueNeigh,
               flag_est=TRUE, flag_std=TRUE, flag_varz=FALSE,
               namconv=NamingConvention("SK")
@@ -135,13 +135,13 @@ Finally, we plot the kriging prediction over the grid using the `plot.raster` fu
 ```{r Plot_Simple_Kriging}
 p = plot.init(asp=1)
 p = p + plot.raster(grid,
-                  flagLegend = TRUE, palette="Spectral",legendName="°C") 
+                  flagLegend = TRUE, palette="Spectral",legendName="°C")
 p = p + plot.symbol(dat,flagCst = T,pch=18,cex=1.5)
 p = p + plot.decoration(title="Simple Kriging over whole Grid")
 plot.end(p)
 ```
 
-By default, the plotting function plots the variable with locator `z1`, which in our case corresponds to the kriging predictor (as the `kriging` function automatically assigns the locator `z1` to it). To plot another variable, we can simply specify their name. 
+By default, the plotting function plots the variable with locator `z1`, which in our case corresponds to the kriging predictor (as the `kriging` function automatically assigns the locator `z1` to it). To plot another variable, we can simply specify their name.
 
 For instance, we can plot the kriging standard deviation using the following code.
 
@@ -154,7 +154,7 @@ p = p + plot.decoration(title="Simple Kriging std-dev over whole Grid")
 plot.end(p)
 ```
 
-As mentioned above, the mean used in the simple kriging predictor is the one set in the `Model` object supplied in the `kriging` function. By default, this mean is zero. It can be changed using the `setMean` method of the `Model` object. 
+As mentioned above, the mean used in the simple kriging predictor is the one set in the `Model` object supplied in the `kriging` function. By default, this mean is zero. It can be changed using the `setMean` method of the `Model` object.
 
 For instance, considering the model `fitmod` previously fitted on the data, we can clone it (using the `clone` method), and assign it a new mean (equal to 4) as follows.
 
@@ -166,19 +166,19 @@ err = fitmodSK$setMean(mean=4)
 Then, simple kriging is performed using the same command as before, but with the newly created model.
 
 ```{r Simple_Kriging_4}
-err = kriging(dbin=dat, dbout=grid, model=fitmodSK, 
+err = kriging(dbin=dat, dbout=grid, model=fitmodSK,
               neigh=uniqueNeigh,
               flag_est=TRUE, flag_std=TRUE, flag_varz=FALSE,
               namconv=NamingConvention("Mean4_SK")
               )
 ```
 
-Finally, we plot the new kriging prediction over the grid and the data points. 
+Finally, we plot the new kriging prediction over the grid and the data points.
 
 ```{r Plot_Simple_Kriging_4}
 p = plot.init(asp=1)
 p = p + plot.raster(grid,
-                  flagLegend = TRUE, palette="Spectral",legendName="°C") 
+                  flagLegend = TRUE, palette="Spectral",legendName="°C")
 p = p + plot.symbol(dat,flagCst = T,pch=18,cex=1.5)
 p = p + plot.decoration(title="Simple Kriging over whole Grid: Mean=4")
 plot.end(p)
@@ -192,7 +192,7 @@ plot.end(p)
 #cat(loadDoc("Kriging_Ordinary.md"), sep="\n")
 ```
 
-In gstlearn, ordinary kriging is seen as the formulation of a kriging predictor on a model with a constant drift. Hence, to perform ordinary kriging, we use the `kriging` function with the same syntax as for simple kriging, but call it with a model that includes a constant drift. Adding a constant drift to a model is done with the `addDrift()` method. 
+In gstlearn, ordinary kriging is seen as the formulation of a kriging predictor on a model with a constant drift. Hence, to perform ordinary kriging, we use the `kriging` function with the same syntax as for simple kriging, but call it with a model that includes a constant drift. Adding a constant drift to a model is done with the `addDrift()` method.
 
 Note: Removing a drift from a model can be done using the `delDrift` method (while specifying the index of the drift we wish to remove) or using the `delAllDrifts()` (to remove all the drifts at once).
 
@@ -206,19 +206,19 @@ err = fitmodOK$addDrift(DriftM())
 Then, ordinary kriging is performed using the same command as before, but with the newly created model.
 
 ```{r ordinary_Kriging}
-err = kriging(dbin=dat, dbout=grid, model=fitmodOK, 
+err = kriging(dbin=dat, dbout=grid, model=fitmodOK,
               neigh=uniqueNeigh,
               flag_est=TRUE, flag_std=TRUE, flag_varz=FALSE,
               namconv=NamingConvention("OK")
               )
 ```
 
-Finally, we plot the new kriging prediction over the grid and the data points. 
+Finally, we plot the new kriging prediction over the grid and the data points.
 
 ```{r Plot_Ordinary_Kriging}
 p = plot.init(asp=1)
 p = p + plot.raster(grid,
-                  flagLegend = TRUE, palette="Spectral",legendName="°C") 
+                  flagLegend = TRUE, palette="Spectral",legendName="°C")
 p = p + plot.symbol(dat,flagCst = T,pch=18,cex=1.5)
 p = p + plot.decoration(title="Ordinary Kriging over whole Grid")
 plot.end(p)
@@ -239,9 +239,9 @@ Let us compare the results from the simple and ordinary kriging predictors. To d
 
 ```{r Comparing_Ordinary_and_Simple_Kriging_Estimations,results="hide"}
 p = plot.init()
-p = p + plot.correlation(grid,namex="OK.January_temp.estim",namey="SK.January_temp.estim", 
+p = p + plot.correlation(grid,namex="OK.January_temp.estim",namey="SK.January_temp.estim",
                      flagBiss=TRUE, flagSameAxes=TRUE, bins=100)
-p = p + plot.decoration(title="Estimation Simple vs. Ordinary", 
+p = p + plot.decoration(title="Estimation Simple vs. Ordinary",
                     xlab="Ordinary Kriging", ylab="Simple Kriging")
 plot.end(p)
 ```
@@ -250,9 +250,9 @@ We also compare the kriging standard-deviations obtained in both cases.
 
 ```{r Comparing_Ordinary_and_Simple_Kriging_StDev,results="hide"}
 p = plot.init()
-p = p + plot.correlation(grid,namex="OK.January_temp.stdev",namey="SK.January_temp.stdev", 
+p = p + plot.correlation(grid,namex="OK.January_temp.stdev",namey="SK.January_temp.stdev",
                      flagBiss=TRUE, flagSameAxes=TRUE, bins=100)
-p = p + plot.decoration(title="St. dev. Simple vs. Ordinary", 
+p = p + plot.decoration(title="St. dev. Simple vs. Ordinary",
                     xlab="Ordinary Kriging", ylab="Simple Kriging")
 plot.end(p)
 ```
@@ -261,7 +261,7 @@ plot.end(p)
 
 ### Working with selections
 
-We now load new grid. 
+We now load new grid.
 
 ```{r}
 fileNF = loadData("Scotland", "Scotland_Elevations.NF")
@@ -312,8 +312,8 @@ The function `xvalid` can be used to perform leave-one-out cross-validation with
 Going back to our running example, we perform a cross-validation on our data base `dat`. In particular we ask, at each point, for the cross-validation error and for the standardized error described above. We also specify, through the `nameconv` that we do not wish to modify the current locators in the data base (otherwise, the locator `z1` is "moved" to the variable containing the cross-validation error).
 
 ```{r Cross_Validation}
-err = xvalid(db=dat, model=fitmodOK, neigh=uniqueNeigh, 
-             flag_xvalid_est=1, flag_xvalid_std=1,  
+err = xvalid(db=dat, model=fitmodOK, neigh=uniqueNeigh,
+             flag_xvalid_est=1, flag_xvalid_std=1,
              namconv=NamingConvention_create("Xvalid", flag_locator = FALSE)
             )
 ```
@@ -326,7 +326,7 @@ p = p + plot.hist(dat,name="*esterr*",bins=30,fill="blue")
 p = p + plot.decoration(xlab="Estimation Errors", title="Cross-Validation")
 plot.end(p)
 ```
- 
+
 We plot the histogram of standardized errors.
 
 ```{r}
@@ -373,7 +373,7 @@ Then, (ordinary) kriging with moving neighborhood is performed using the same co
 
 ```{r Ordinary_Kriging_Small_Moving_Neighborhood}
 err = kriging(dbin=dat, dbout=grid, model=fitmodOK, neigh=smallNeigh,
-              flag_est=TRUE, flag_std=TRUE, 
+              flag_est=TRUE, flag_std=TRUE,
               namconv=NamingConvention("Small"))
 ```
 
@@ -396,7 +396,7 @@ Running the Ordinary Kriging then gives:
 
 ```{r Ordinary_Kriging_Large_Moving_Neighborhood}
 err = kriging(dat,grid,fitmodOK,movingNeigh,
-              flag_est=TRUE, flag_std=TRUE, 
+              flag_est=TRUE, flag_std=TRUE,
               namconv=NamingConvention("Reduced"))
 ```
 
@@ -421,7 +421,7 @@ Running the Ordinary Kriging then gives:
 
 ```{r Ordinary_Kriging_Moving_Neighborhood}
 err = kriging(dat,grid,fitmodOK,movingNeigh,
-              flag_est=TRUE, flag_std=TRUE, 
+              flag_est=TRUE, flag_std=TRUE,
               namconv=NamingConvention("Moving"))
 ```
 
@@ -449,9 +449,9 @@ Finally, let us compare the results obtained with a unique and a moving neighbor
 
 ```{r Comparing_unique_moving_estimation}
 p = plot.init()
-p = p + plot.correlation(grid,namex = "OK*estim",namey="Moving*estim", 
+p = p + plot.correlation(grid,namex = "OK*estim",namey="Moving*estim",
                          bins=100, flagDiag=TRUE)
-p = p + plot.decoration(title="Ordinary Kriging Estimation", 
+p = p + plot.decoration(title="Ordinary Kriging Estimation",
                     xlab="Unique", ylab="Moving")
 plot.end(p)
 ```
@@ -460,9 +460,9 @@ Then, we compare the kriging standard-deviations in both cases.
 
 ```{r Comparing_unique_moving_stdev}
 p = plot.init()
-p = p + plot.correlation(grid,namex = "OK*stdev",namey="Moving*stdev", 
+p = p + plot.correlation(grid,namex = "OK*stdev",namey="Moving*stdev",
                          bins=100, flagDiag=TRUE)
-p = p + plot.decoration(title="Ordinary Kriging St. Dev.", 
+p = p + plot.decoration(title="Ordinary Kriging St. Dev.",
                     xlab="Unique", ylab="Moving")
 plot.end(p)
 ```

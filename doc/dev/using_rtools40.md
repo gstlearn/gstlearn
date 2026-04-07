@@ -28,7 +28,7 @@ The idea is to:
 - use MSYS generator from RTools,
 - build C++ static library and prevent from building fortran/java libraries and tests
 
-#### Following these steps 
+#### Following these steps
 
 1- Download HDF5 CMake version here : https://www.hdfgroup.org/downloads/hdf5/source-code/#
 
@@ -41,7 +41,7 @@ Line 26, replace :
 if((msg = H5E__create_msg(cls, H5E_MAJOR, "Invalid arguments to routine
 "))==NULL)
 
-by 
+by
 
 if((msg = H5E__create_msg(cls, H5E_MAJOR, "Invalid arguments to routine"))==NULL)
 
@@ -57,7 +57,7 @@ Notes:
   - Currently (Jan. 2022), the gstlearn code is based on HDF5 1.10. (So we must use the flag -DDEFAULT_API_VERSION:STRING=v110)
   - We need static c++ library only (thus -DBUILD_SHARED_LIBS:BOOL=OFF & -DHDF5_BUILD_CPP_LIB:BOOL=ON)
   - We don't regenerate headers because that fails (-DHDF5_GENERATE_HEADERS:BOOL=OFF)
-  - We don't need tools, tests, fortran, java and szip/z_lib support (I bet !)  
+  - We don't need tools, tests, fortran, java and szip/z_lib support (I bet !)
 
 
 ### Finally, compile gstlearn & RGeostats (obsolete)

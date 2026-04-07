@@ -16,245 +16,252 @@
 
 namespace gstlrn
 {
-Constraints::Constraints(double constantSillValue, const VectorDouble& constantSills)
-  : AStringable()
-  , _constantSillValue(constantSillValue)
-  , _constantSills(constantSills)
-  , _consItems()
-{
-}
-
-Constraints::Constraints(const Constraints& m)
-  : AStringable(m)
-  , _constantSillValue(m._constantSillValue)
-  , _constantSills(m._constantSills)
-  , _consItems()
-{
-  for (const auto& e: m._consItems)
+  Constraints::Constraints(
+    double constantSillValue,
+    const VectorDouble& constantSills)
+    : AStringable()
+    , _constantSillValue(constantSillValue)
+    , _constantSills(constantSills)
+    , _consItems()
   {
-    _consItems.push_back(e->clone());
   }
-}
 
-Constraints& Constraints::operator=(const Constraints& m)
-{
-  if (this != &m)
+  Constraints::Constraints(const Constraints& m)
+    : AStringable(m)
+    , _constantSillValue(m._constantSillValue)
+    , _constantSills(m._constantSills)
+    , _consItems()
   {
-    AStringable::operator=(m);
-    _constantSillValue = m._constantSillValue;
-    _constantSills     = m._constantSills;
     for (const auto& e: m._consItems)
     {
       _consItems.push_back(e->clone());
     }
   }
-  return *this;
-}
 
-Constraints::~Constraints()
-{
-  for (Id i = 0, n = static_cast<Id>(_consItems.size()); i < n; i++) delete _consItems[i];
-  _consItems.clear();
-}
-
-void Constraints::addItem(const ConsItem* item)
-{
-  _consItems.push_back(item->clone());
-}
-
-void Constraints::addItemFromParamId(const EConsElem& elem,
-                                     Id icov,
-                                     Id iv1,
-                                     Id iv2,
-                                     const EConsType& type,
-                                     double value)
-{
-  ConsItem* item = ConsItem::createFromParamId(icov, elem, type, value, 0, iv1, iv2);
-  _consItems.push_back(item);
-}
-
-String Constraints::toString(const AStringFormat* strfmt) const
-{
-  std::stringstream sstr;
-  Id nitem = static_cast<Id>(_consItems.size());
-
-  if (nitem > 0)
-    sstr << toStrTitle(0, "Constraints to be fulfilled in Fitting procedure");
-
-  for (Id i = 0; i < nitem; i++)
+  Constraints& Constraints::operator=(const Constraints& m)
   {
-    sstr << "Constraint #" << i + 1 << std::endl;
-    sstr << _consItems[i]->toString(strfmt);
-  }
-
-  if (!FFFF(getConstantSillValue()))
-    sstr << "- Constraints on the sills =" << getConstantSillValue() << std::endl;
-
-  return sstr.str();
-}
-
-Id Constraints::isDefinedForSill() const
-{
-  if (_consItems.size() <= 0) return (0);
-  for (Id i = 0; i < static_cast<Id>(_consItems.size()); i++)
-  {
-    if (_consItems[i]->getType() == EConsElem::SILL) return (1);
-  }
-  return (0);
-}
-
-void Constraints::modifyConstraintsForSill()
-{
-  for (Id i = 0; i < getNConsItem(); i++)
-  {
-    const ConsItem* consitem = getConsItems(i);
-    if (consitem->getType() != EConsElem::SILL) continue;
-    if (consitem->getValue() > 0) setValue(i, sqrt(consitem->getValue()));
-  }
-}
-
-void Constraints::setValue(Id item, double value)
-{
-  _consItems[item]->setValue(value);
-}
-
-void Constraints::expandConstantSill(Id nvar)
-{
-  _constantSills.resize(nvar, _constantSillValue);
-}
-
-bool Constraints::isConstraintSillDefined() const
-{
-  if (!FFFF(_constantSillValue)) return true;
-  if (!_constantSills.empty()) return true;
-  return false;
-}
-
-/****************************************************************************/
-/*!
- **  Print the Auto Fitting Constraints Structure
- **
- ** \param[in]  constraints  Constraints structure
- **
- *****************************************************************************/
-void constraints_print(const Constraints& constraints)
-{
-  constraints.display();
-}
-
-/****************************************************************************/
-/*!
- **  If a constraint concerns a sill, take its square root
- **  as it corresponds to a constraints on AIC (not on a sill directly)
- **  due to the fact that it will be processed in FOXLEG (not in GOULARD)
- **  This transform only makes sense for MONOVARIATE case (the test should
- **  have been performed beforehand)
- **
- ** \return Error code (if the sill constraint is negative)
- **
- ** \param[in]  constraints  Constraints structure
- **
- *****************************************************************************/
-Id modify_constraints_on_sill(Constraints& constraints)
-
-{
-  Id ncons = constraints.getNConsItem();
-  for (Id i = 0; i < ncons; i++)
-  {
-    const ConsItem* consitem = constraints.getConsItems(i);
-    if (consitem->getType() != EConsElem::SILL) continue;
-    if (consitem->getValue() < 0) return (1);
-    constraints.setValue(i, sqrt(consitem->getValue()));
-
-    // For constraints on the Sill in monovariate case,
-    // Add a constraints on AIC for lower bound
-    if (consitem->getIV1() == 0 && consitem->getIV2() == 0 &&
-        consitem->getIcase() == EConsType::UPPER)
+    if (this != &m)
     {
-      auto* consjtem = new ConsItem(*consitem);
-      consjtem->setValue(-consjtem->getValue());
-      consjtem->setIcase(EConsType::LOWER);
-      constraints.addItem(consjtem);
+      AStringable::operator=(m);
+      _constantSillValue = m._constantSillValue;
+      _constantSills = m._constantSills;
+      for (const auto& e: m._consItems)
+      {
+        _consItems.push_back(e->clone());
+      }
+    }
+    return *this;
+  }
+
+  Constraints::~Constraints()
+  {
+    for (Id i = 0, n = static_cast<Id>(_consItems.size()); i < n; i++)
+      delete _consItems[i];
+    _consItems.clear();
+  }
+
+  void Constraints::addItem(const ConsItem* item)
+  {
+    _consItems.push_back(item->clone());
+  }
+
+  void Constraints::addItemFromParamId(
+    const EConsElem& elem,
+    Id icov,
+    Id iv1,
+    Id iv2,
+    const EConsType& type,
+    double value)
+  {
+    ConsItem* item =
+      ConsItem::createFromParamId(icov, elem, type, value, 0, iv1, iv2);
+    _consItems.push_back(item);
+  }
+
+  String Constraints::toString(const AStringFormat* strfmt) const
+  {
+    std::stringstream sstr;
+    Id nitem = static_cast<Id>(_consItems.size());
+
+    if (nitem > 0)
+      sstr << toStrTitle(0, "Constraints to be fulfilled in Fitting procedure");
+
+    for (Id i = 0; i < nitem; i++)
+    {
+      sstr << "Constraint #" << i + 1 << std::endl;
+      sstr << _consItems[i]->toString(strfmt);
+    }
+
+    if (!FFFF(getConstantSillValue()))
+      sstr << "- Constraints on the sills =" << getConstantSillValue()
+           << std::endl;
+
+    return sstr.str();
+  }
+
+  Id Constraints::isDefinedForSill() const
+  {
+    if (_consItems.size() <= 0) return (0);
+    for (Id i = 0; i < static_cast<Id>(_consItems.size()); i++)
+    {
+      if (_consItems[i]->getType() == EConsElem::SILL) return (1);
+    }
+    return (0);
+  }
+
+  void Constraints::modifyConstraintsForSill()
+  {
+    for (Id i = 0; i < getNConsItem(); i++)
+    {
+      const ConsItem* consitem = getConsItems(i);
+      if (consitem->getType() != EConsElem::SILL) continue;
+      if (consitem->getValue() > 0) setValue(i, sqrt(consitem->getValue()));
     }
   }
-  return (0);
-}
 
-/****************************************************************************/
-/*!
- **  Return the constraint value (if defined) or TEST
- **
- ** \return Returned value or TEST
- **
- ** \param[in,out]  constraints  Constraints structure
- ** \param[in]      icase        Parameter type (EConsType)
- ** \param[in]      igrf         Rank of the Gaussian Random Function
- ** \param[in]      icov         Rank of the structure (starting from 0)
- ** \param[in]      icons        Type of the constraint (EConsElem)
- ** \param[in]      iv1          Rank of the first variable
- ** \param[in]      iv2          Rank of the second variable
- **
- *****************************************************************************/
-double constraints_get(const Constraints& constraints,
-                       const EConsType& icase,
-                       Id igrf,
-                       Id icov,
-                       const EConsElem& icons,
-                       Id iv1,
-                       Id iv2)
-{
-  if (!constraints.isDefined()) return (TEST);
-
-  for (Id i = 0; i < constraints.getNConsItem(); i++)
+  void Constraints::setValue(Id item, double value)
   {
-    const ConsItem* item = constraints.getConsItems(i);
-    if (item->getIGrf() != igrf || item->getICov() != icov ||
-        item->getType() != icons || item->getIV1() != iv1)
-      continue;
-    if (icons == EConsElem::SILL && item->getIV2() != iv2) continue;
-
-    if (item->getIcase() == EConsType::EQUAL)
-    {
-      if (icase == EConsType::LOWER || icase == EConsType::UPPER)
-        return (item->getValue());
-    }
-    else
-    {
-      if (icase == item->getIcase()) return (item->getValue());
-    }
+    _consItems[item]->setValue(value);
   }
-  return (TEST);
-}
 
-/****************************************************************************/
-/*!
- **  Add constraints to the Option_AutoFit structure
- **
- ** \return Error return code
- **
- ** \param[in]  constraints  Constraints structure
- ** \param[in]  constantSill Constant value for the Sill as a constraint
- **
- *****************************************************************************/
-Id add_sill_constraints(Constraints& constraints, double constantSill)
-{
-  constraints.setConstantSillValue(constantSill);
+  void Constraints::expandConstantSill(Id nvar)
+  {
+    _constantSills.resize(nvar, _constantSillValue);
+  }
 
-  return (0);
-}
+  bool Constraints::isConstraintSillDefined() const
+  {
+    if (!FFFF(_constantSillValue)) return true;
+    if (!_constantSills.empty()) return true;
+    return false;
+  }
 
-/****************************************************************************/
-/*!
- **  Add constraints (all equal to 1) to the Option_AutoFit structure
- **
- ** \return Error return code
- **
- ** \param[in]  constraints   Constraints structure
- **
- *****************************************************************************/
-Id add_unit_sill_constraints(Constraints& constraints)
-{
-  constraints.setConstantSillValue(1.);
-  return (0);
-}
+  /****************************************************************************/
+  /*!
+   **  Print the Auto Fitting Constraints Structure
+   **
+   ** \param[in]  constraints  Constraints structure
+   **
+   *****************************************************************************/
+  void constraints_print(const Constraints& constraints)
+  {
+    constraints.display();
+  }
+
+  /****************************************************************************/
+  /*!
+   **  If a constraint concerns a sill, take its square root
+   **  as it corresponds to a constraints on AIC (not on a sill directly)
+   **  due to the fact that it will be processed in FOXLEG (not in GOULARD)
+   **  This transform only makes sense for MONOVARIATE case (the test should
+   **  have been performed beforehand)
+   **
+   ** \return Error code (if the sill constraint is negative)
+   **
+   ** \param[in]  constraints  Constraints structure
+   **
+   *****************************************************************************/
+  Id modify_constraints_on_sill(Constraints& constraints)
+
+  {
+    Id ncons = constraints.getNConsItem();
+    for (Id i = 0; i < ncons; i++)
+    {
+      const ConsItem* consitem = constraints.getConsItems(i);
+      if (consitem->getType() != EConsElem::SILL) continue;
+      if (consitem->getValue() < 0) return (1);
+      constraints.setValue(i, sqrt(consitem->getValue()));
+
+      // For constraints on the Sill in monovariate case,
+      // Add a constraints on AIC for lower bound
+      if (consitem->getIV1() == 0 && consitem->getIV2() == 0
+          && consitem->getIcase() == EConsType::UPPER)
+      {
+        auto* consjtem = new ConsItem(*consitem);
+        consjtem->setValue(-consjtem->getValue());
+        consjtem->setIcase(EConsType::LOWER);
+        constraints.addItem(consjtem);
+      }
+    }
+    return (0);
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Return the constraint value (if defined) or TEST
+   **
+   ** \return Returned value or TEST
+   **
+   ** \param[in,out]  constraints  Constraints structure
+   ** \param[in]      icase        Parameter type (EConsType)
+   ** \param[in]      igrf         Rank of the Gaussian Random Function
+   ** \param[in]      icov         Rank of the structure (starting from 0)
+   ** \param[in]      icons        Type of the constraint (EConsElem)
+   ** \param[in]      iv1          Rank of the first variable
+   ** \param[in]      iv2          Rank of the second variable
+   **
+   *****************************************************************************/
+  double constraints_get(
+    const Constraints& constraints,
+    const EConsType& icase,
+    Id igrf,
+    Id icov,
+    const EConsElem& icons,
+    Id iv1,
+    Id iv2)
+  {
+    if (!constraints.isDefined()) return (TEST);
+
+    for (Id i = 0; i < constraints.getNConsItem(); i++)
+    {
+      const ConsItem* item = constraints.getConsItems(i);
+      if (item->getIGrf() != igrf || item->getICov() != icov
+          || item->getType() != icons || item->getIV1() != iv1)
+        continue;
+      if (icons == EConsElem::SILL && item->getIV2() != iv2) continue;
+
+      if (item->getIcase() == EConsType::EQUAL)
+      {
+        if (icase == EConsType::LOWER || icase == EConsType::UPPER)
+          return (item->getValue());
+      }
+      else
+      {
+        if (icase == item->getIcase()) return (item->getValue());
+      }
+    }
+    return (TEST);
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Add constraints to the Option_AutoFit structure
+   **
+   ** \return Error return code
+   **
+   ** \param[in]  constraints  Constraints structure
+   ** \param[in]  constantSill Constant value for the Sill as a constraint
+   **
+   *****************************************************************************/
+  Id add_sill_constraints(Constraints& constraints, double constantSill)
+  {
+    constraints.setConstantSillValue(constantSill);
+
+    return (0);
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Add constraints (all equal to 1) to the Option_AutoFit structure
+   **
+   ** \return Error return code
+   **
+   ** \param[in]  constraints   Constraints structure
+   **
+   *****************************************************************************/
+  Id add_unit_sill_constraints(Constraints& constraints)
+  {
+    constraints.setConstantSillValue(1.);
+    return (0);
+  }
 } // namespace gstlrn

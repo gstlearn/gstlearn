@@ -14,50 +14,50 @@
 
 namespace gstlrn
 {
-AFunctional::AFunctional(Id ndim)
+  AFunctional::AFunctional(Id ndim)
     : _ndim(ndim)
-{
-}
+  {
+  }
 
-AFunctional::AFunctional(const AFunctional &m)
+  AFunctional::AFunctional(const AFunctional& m)
     : _ndim(m._ndim)
-{
-}
-
-AFunctional& AFunctional::operator=(const AFunctional &m)
-{
-  if (this != &m)
   {
-    _ndim = m._ndim;
   }
-  return *this;
-}
 
-AFunctional::~AFunctional()
-{
-}
-
-VectorDouble AFunctional::getFunctionValues(const Db *db, bool useSel) const
-{
-  if (db == nullptr) return VectorDouble();
-  if (_ndim != db->getNDim())
+  AFunctional& AFunctional::operator=(const AFunctional& m)
   {
-    messerr("You cannot evaluate the function on input Db: they do not have the same Space Dimension");
-    return VectorDouble();
+    if (this != &m)
+    {
+      _ndim = m._ndim;
+    }
+    return *this;
   }
-  VectorDouble coor(_ndim);
-  VectorDouble vec;
 
-  for (Id iech = 0; iech < db->getNSample(); iech++)
+  AFunctional::~AFunctional() {}
+
+  VectorDouble AFunctional::getFunctionValues(const Db* db, bool useSel) const
   {
-    if (useSel && ! db->isActive(iech)) continue;
+    if (db == nullptr) return VectorDouble();
+    if (_ndim != db->getNDim())
+    {
+      messerr(
+        "You cannot evaluate the function on input Db: they do not have the "
+        "same Space Dimension");
+      return VectorDouble();
+    }
+    VectorDouble coor(_ndim);
+    VectorDouble vec;
 
-    for (Id idim = 0; idim < _ndim; idim++)
-      coor[idim] = db->getCoordinate(iech,idim);
+    for (Id iech = 0; iech < db->getNSample(); iech++)
+    {
+      if (useSel && !db->isActive(iech)) continue;
 
-    double value = getFunctionValue(coor);
-    vec.push_back(value);
+      for (Id idim = 0; idim < _ndim; idim++)
+        coor[idim] = db->getCoordinate(iech, idim);
+
+      double value = getFunctionValue(coor);
+      vec.push_back(value);
+    }
+    return vec;
   }
-  return vec;
-}
-}
+} // namespace gstlrn

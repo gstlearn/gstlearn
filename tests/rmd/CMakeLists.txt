@@ -18,7 +18,7 @@ file(GLOB COURSES_SOURCES ${COURSES_DIR}/*.Rmd)
 set(TEST_SOURCES ${DEMO_SOURCES})
 list(APPEND TEST_SOURCES ${COURSES_SOURCES})
 # Without GLOB:
-#set(TEST_SOURCES 
+#set(TEST_SOURCES
 #    ../../doc/demo/r/Tuto_2D.Rmd)
 
 # Generation folder

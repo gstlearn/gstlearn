@@ -50,7 +50,7 @@ endif()
 add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/swig/generated_python.i
   COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_BINARY_DIR}/swig/generated_python.i
   COMMENT "Ensure that generated_python.i exists")
-  
+
 add_custom_target(python_wrap_macro
   COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/../tools/scripts/macrogenerate.py python ${CMAKE_BINARY_DIR}/swig/generated_python.i
   "python"
@@ -117,7 +117,7 @@ swig_add_library(
 )
 
 if (APPLE)
-  # To prevent 'import' from crashing under Mac (swig output suffix is .dynlib by default) 
+  # To prevent 'import' from crashing under Mac (swig output suffix is .dynlib by default)
   set_target_properties(python_build PROPERTIES SUFFIX ".so")
 endif()
 
@@ -208,7 +208,7 @@ file(GENERATE
 # Generate version.py automatically for each configuration
 # First step: replace variables (@VAR@)
 configure_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/version.py.in 
+  ${CMAKE_CURRENT_SOURCE_DIR}/version.py.in
   ${CMAKE_CURRENT_BINARY_DIR}/version.py.in
   @ONLY
 )

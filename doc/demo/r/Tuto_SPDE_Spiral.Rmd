@@ -3,7 +3,7 @@ title: "SPDE Spiral"
 author: "Didier Renard, Nicolas Desassis, Xavier Freulon"
 date: "2023-07-10"
 output: pdf_document
-editor_options: 
+editor_options:
   chunk_output_type: console
 ---
 <!-- SUMMARY: Perform Estimation with non-stationary covariance (anisotropy following a spiral) in the framework of SPDE  -->
@@ -35,7 +35,7 @@ model$display()
 Creating a output grid
 
 ```{r Grid}
-grid = DbGrid_create(c(101,101), c(1.,1.)) 
+grid = DbGrid_create(c(101,101), c(1.,1.))
 ```
 
 Perform several non-conditional simulations on the grid, using the Model and the non-stationarity.
@@ -98,4 +98,3 @@ p3 = plot.init(asp=1) + plot.raster(grid, name="SimuSPDE.data.3")
 p4 = plot.init(asp=1) + plot.raster(grid, name="SimuSPDE.data.4")
 ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
 ```
-

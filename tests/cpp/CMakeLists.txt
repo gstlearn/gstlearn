@@ -4,7 +4,7 @@
 # With GLOB:
 file(GLOB TEST_SOURCES *.cpp)
 # Without GLOB:
-#set(TEST_SOURCES 
+#set(TEST_SOURCES
 #    test_Cholesky.cpp)
 #  test_SPDEDrift.cpp)
 

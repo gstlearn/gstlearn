@@ -14,51 +14,51 @@
 
 namespace gstlrn
 {
-KernelGC5::KernelGC5(const CovContext& ctxt)
-  : AKernel(ECov::ORDER5_GC, ctxt)
-{
-}
-
-KernelGC5::KernelGC5(const KernelGC5& r)
-  : AKernel(r)
-{
-}
-
-KernelGC5& KernelGC5::operator=(const KernelGC5& r)
-{
-  if (this != &r)
+  KernelGC5::KernelGC5(const CovContext& ctxt)
+    : AKernel(ECov::ORDER5_GC, ctxt)
   {
-    AKernel::operator=(r);
   }
-  return *this;
-}
 
-KernelGC5::~KernelGC5()
-{
-}
+  KernelGC5::KernelGC5(const KernelGC5& r)
+    : AKernel(r)
+  {
+  }
 
-double KernelGC5::_evaluateCov(double h) const
-{
-  double cov;
-  double r  = getContext().getField();
-  auto ndim = getContext().getNDim();
-  double h2 = h * h;
-  double r2 = r * r;
-  double h4 = h2 * h2;
-  double r3 = r2 * r;
+  KernelGC5& KernelGC5::operator=(const KernelGC5& r)
+  {
+    if (this != &r)
+    {
+      AKernel::operator=(r);
+    }
+    return *this;
+  }
 
-  if (ndim == 1)
-    cov = h4 * (h - 5. * r) + r3 * (20. * h2 - 16. * r2);
-  else if (ndim == 2)
-    cov = h4 * (h - 225. * GV_PI * r / 128.) + r3 * (75. * GV_PI * h2 / 8. - 15. * GV_PI * r2);
-  else
-    cov = h4 * (h - 6. * r) + r3 * (40. * h2 - 96. * r2);
+  KernelGC5::~KernelGC5() {}
 
-  return (-cov);
-}
+  double KernelGC5::_evaluateCov(double h) const
+  {
+    double cov;
+    double r = getContext().getField();
+    auto ndim = getContext().getNDim();
+    double h2 = h * h;
+    double r2 = r * r;
+    double h4 = h2 * h2;
+    double r3 = r2 * r;
 
-double KernelGC5::simulateTurningBand(double t0, TurningBandOperate& operTB) const
-{
-  return operTB.IRFProcessOne(t0);
-}
-}
+    if (ndim == 1)
+      cov = h4 * (h - 5. * r) + r3 * (20. * h2 - 16. * r2);
+    else if (ndim == 2)
+      cov = h4 * (h - 225. * GV_PI * r / 128.)
+          + r3 * (75. * GV_PI * h2 / 8. - 15. * GV_PI * r2);
+    else
+      cov = h4 * (h - 6. * r) + r3 * (40. * h2 - 96. * r2);
+
+    return (-cov);
+  }
+
+  double
+    KernelGC5::simulateTurningBand(double t0, TurningBandOperate& operTB) const
+  {
+    return operTB.IRFProcessOne(t0);
+  }
+} // namespace gstlrn

@@ -14,23 +14,24 @@
 /******************************************************************************/
 #include "Enum/ECov.hpp"
 
-#include "Variogram/Vario.hpp"
-#include "Model/Model.hpp"
 #include "Basic/File.hpp"
-#include "Basic/Timer.hpp"
 #include "Basic/OptDbg.hpp"
+#include "Basic/Timer.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
+#include "Model/Model.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Simulation/Simulations.hpp"
+#include "Variogram/Vario.hpp"
 
 using namespace gstlrn;
+
 /****************************************************************************/
 /*!
 ** Main Program for bench marking the non-conditional simulation using Turning Bands
 **
 *****************************************************************************/
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   Timer timer;
 
@@ -42,19 +43,19 @@ int main(int argc, char *argv[])
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Parameters
-  Id ndat         = 3;
-  Id nvar         = 2;
-  Id nbsimu       = 4;
-  Id nbtuba       = 100;
-  bool flagSK     = false;
-  bool verbose    = true;
+  Id ndat = 3;
+  Id nvar = 2;
+  Id nbsimu = 4;
+  Id nbtuba = 100;
+  bool flagSK = false;
+  bool verbose = true;
 
   // Creating the data base
   Db* data = Db::createFillRandom(ndat, ndim, nvar);
-  
+
   // Creating a grid covering the same space
-  VectorInt nx = { 20, 20 };
-  VectorDouble dx = { 0.05, 0.05 };
+  VectorInt nx = {20, 20};
+  VectorDouble dx = {0.05, 0.05};
   DbGrid* grid = DbGrid::create(nx, dx);
 
   // Create the Model

@@ -12,61 +12,77 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Db/DbGrid.hpp"
 #include "Basic/VectorNumT.hpp"
+#include "Db/DbGrid.hpp"
 
 namespace gstlrn
 {
-class Db;
+  class Db;
 
-/**
- * Class for management of Directions used in Turning Band algorithm
- * Remark: The 3-D definition is compulsory (even in 2-D)
- */
-class GSTLEARN_EXPORT TurningBandDirection
-{
-public:
-  TurningBandDirection();
-  TurningBandDirection(const TurningBandDirection& r);
-  TurningBandDirection& operator=(const TurningBandDirection& r);
-  virtual ~TurningBandDirection();
+  /**
+   * Class for management of Directions used in Turning Band algorithm
+   * Remark: The 3-D definition is compulsory (even in 2-D)
+   */
+  class GSTLEARN_EXPORT TurningBandDirection
+  {
+  public:
+    TurningBandDirection();
+    TurningBandDirection(const TurningBandDirection& r);
+    TurningBandDirection& operator=(const TurningBandDirection& r);
+    virtual ~TurningBandDirection();
 
-  const VectorDouble& getAng() const { return _ang; }
-  double getAng(Id i) const { return _ang[i]; }
-  double getDXP()   const { return _dxp; }
-  double getDYP()   const { return _dyp; }
-  double getDZP()   const { return _dzp; }
-  double getT00()   const { return _t00; }
-  double getTmax()  const { return _tmax; }
-  double getTmin()  const { return _tmin; }
-  double getScale() const { return _scale; }
+    const VectorDouble& getAng() const { return _ang; }
 
-  void setAng(const VectorDouble& ang) { _ang = ang; }
-  void setAng(Id i, double value) { _ang[i] = value; }
-  void setDXP(double dxp)     { _dxp = dxp; }
-  void setDYP(double dyp)     { _dyp = dyp; }
-  void setDZP(double dzp)     { _dzp = dzp; }
-  void setT00(double t00)     { _t00 = t00; }
-  void setTmax(double tmax)   { _tmax = tmax; }
-  void setTmin(double tmin)   { _tmin = tmin; }
-  void setScale(double scale) { _scale = scale; }
+    double getAng(Id i) const { return _ang[i]; }
 
-  double projectPoint(const Db* db, Id iech) const;
-  double projectGrid(const DbGrid* db, Id ix, Id iy, Id iz) const;
+    double getDXP() const { return _dxp; }
 
-  void dump(bool flagGrid = true) const;
+    double getDYP() const { return _dyp; }
 
-private:
-  double _tmin; /* Minimum abscissa along line */
-  double _tmax; /* Maximum abscissa along line */
-  double _scale; /* Scaling factor */
-  double _t00; /* Origin along the line */
-  double _dxp; /* Increment along X */
-  double _dyp; /* Increment along Y */
-  double _dzp; /* Increment along Z */
-  VectorDouble _ang; /* Angles for the line orientation */
+    double getDZP() const { return _dzp; }
 
-  mutable VectorInt _indg;
-  mutable VectorDouble _xyz;
-};
-}
+    double getT00() const { return _t00; }
+
+    double getTmax() const { return _tmax; }
+
+    double getTmin() const { return _tmin; }
+
+    double getScale() const { return _scale; }
+
+    void setAng(const VectorDouble& ang) { _ang = ang; }
+
+    void setAng(Id i, double value) { _ang[i] = value; }
+
+    void setDXP(double dxp) { _dxp = dxp; }
+
+    void setDYP(double dyp) { _dyp = dyp; }
+
+    void setDZP(double dzp) { _dzp = dzp; }
+
+    void setT00(double t00) { _t00 = t00; }
+
+    void setTmax(double tmax) { _tmax = tmax; }
+
+    void setTmin(double tmin) { _tmin = tmin; }
+
+    void setScale(double scale) { _scale = scale; }
+
+    double projectPoint(const Db* db, Id iech) const;
+    double projectGrid(const DbGrid* db, Id ix, Id iy, Id iz) const;
+
+    void dump(bool flagGrid = true) const;
+
+  private:
+    double _tmin; /* Minimum abscissa along line */
+    double _tmax; /* Maximum abscissa along line */
+    double _scale; /* Scaling factor */
+    double _t00; /* Origin along the line */
+    double _dxp; /* Increment along X */
+    double _dyp; /* Increment along Y */
+    double _dzp; /* Increment along Z */
+    VectorDouble _ang; /* Angles for the line orientation */
+
+    mutable VectorInt _indg;
+    mutable VectorDouble _xyz;
+  };
+} // namespace gstlrn

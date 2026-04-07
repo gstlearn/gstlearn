@@ -1,6 +1,6 @@
 **Hermite expansion for Truncated variable**
 
-The observed variable is 
+The observed variable is
 
 $$
 Y_{y_c} = \phi_{y_c}(Y) = Y\times 1_{Y \geq y_c} + y_c \times 1_{Y < y_c} =

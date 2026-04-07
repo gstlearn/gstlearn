@@ -82,4 +82,3 @@ err = MSS$display()
 MSP = createFromAnyMatrix(M)
 print("Matrix MSP")
 err = MSP$display()
-

@@ -16,24 +16,27 @@
 
 namespace gstlrn
 {
-class GSTLEARN_EXPORT SimuFFTParam: public AStringable
-{
-public:
-  SimuFFTParam(bool flag_aliasing = true, double percent = 0.1);
-  SimuFFTParam(const SimuFFTParam &r);
-  SimuFFTParam& operator=(const SimuFFTParam &r);
-  virtual ~SimuFFTParam();
+  class GSTLEARN_EXPORT SimuFFTParam: public AStringable
+  {
+  public:
+    SimuFFTParam(bool flag_aliasing = true, double percent = 0.1);
+    SimuFFTParam(const SimuFFTParam& r);
+    SimuFFTParam& operator=(const SimuFFTParam& r);
+    virtual ~SimuFFTParam();
 
-  /// Interface to AStringable
-  String toString(const AStringFormat* strfmt = nullptr) const override;
+    /// Interface to AStringable
+    String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  bool isFlagAliasing() const { return _flagAliasing; }
-  void setFlagAliasing(bool flagAliasing) { _flagAliasing = flagAliasing; }
-  double getPercent() const { return _percent; }
-  void setPercent(double percent) { _percent = percent; }
+    bool isFlagAliasing() const { return _flagAliasing; }
 
-private:
-  bool _flagAliasing;
-  double _percent;
-};
-}
+    void setFlagAliasing(bool flagAliasing) { _flagAliasing = flagAliasing; }
+
+    double getPercent() const { return _percent; }
+
+    void setPercent(double percent) { _percent = percent; }
+
+  private:
+    bool _flagAliasing;
+    double _percent;
+  };
+} // namespace gstlrn

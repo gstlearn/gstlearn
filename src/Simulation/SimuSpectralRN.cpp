@@ -30,12 +30,13 @@ namespace gstlrn
    * Spectral simulation on Rn
    * ---------------------------------
    */
-  SimuSpectralRN::SimuSpectralRN(Id nbsimu,
-                                 Id ns,
-                                 Id nd,
-                                 Id seed,
-                                 const ACov* cov0,
-                                 bool verbose)
+  SimuSpectralRN::SimuSpectralRN(
+    Id nbsimu,
+    Id ns,
+    Id nd,
+    Id seed,
+    const ACov* cov0,
+    bool verbose)
     : CalcSimuSpectral(nbsimu, ns, nd, seed, verbose)
     , _gamma()
     , _omega()
@@ -58,8 +59,9 @@ namespace gstlrn
     {
       if (!_cov0->isValidForSimulation(ESimuType::SPECTRAL))
       {
-        messerr("Simulation of the harmonic components is not implemented for "
-                "the auxiliary covariance");
+        messerr(
+          "Simulation of the harmonic components is not implemented for "
+          "the auxiliary covariance");
         return false;
       }
       if (_cov0->getNVar() > 1)
@@ -110,9 +112,10 @@ namespace gstlrn
    * @param activeArray Array of booleans indicating the active samples in dbout
    * @param tab Array for storing one (multivariate) simulation on 'dbout'
    */
-  Id SimuSpectralRN::_compute(Db* dbout,
-                              const VectorBool& activeArray,
-                              VectorVectorDouble& tab)
+  Id SimuSpectralRN::_compute(
+    Db* dbout,
+    const VectorBool& activeArray,
+    VectorVectorDouble& tab)
   {
     auto nech = dbout->getNSample();
     if (_sp == nullptr)

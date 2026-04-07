@@ -12,9 +12,8 @@ $$\Sigma = \left[
 
 Note that this matrix is symmetric.
 
-If the variables (centered by their means) are stored in a matrix $Z_c$ (one column per variable), then 
+If the variables (centered by their means) are stored in a matrix $Z_c$ (one column per variable), then
 
 $$\Sigma = \frac{1}{n} Z_c^TZ_c$$ where $^T$ designates the transposition.
 
 In other words, $Z_c^T$ is the matrix where each line is a variable.
-

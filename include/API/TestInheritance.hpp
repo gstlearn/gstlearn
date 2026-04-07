@@ -17,20 +17,21 @@
 
 namespace gstlrn
 {
-class GSTLEARN_EXPORT TestInheritance: public AStringable
-{
-public:
-  TestInheritance();
-  TestInheritance(const TestInheritance& r)            = delete;
-  TestInheritance& operator=(const TestInheritance& r) = delete;
+  class GSTLEARN_EXPORT TestInheritance: public AStringable
+  {
+  public:
+    TestInheritance();
+    TestInheritance(const TestInheritance& r) = delete;
+    TestInheritance& operator=(const TestInheritance& r) = delete;
 
-  /// AStringable Interface
-  String toString(const AStringFormat* strfmt = nullptr) const override;
+    /// AStringable Interface
+    String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  void setIproj(IProj* ipr) { _iproj = ipr; }
-  virtual ~TestInheritance();
+    void setIproj(IProj* ipr) { _iproj = ipr; }
 
-private:
-  IProj* _iproj;
-};
+    virtual ~TestInheritance();
+
+  private:
+    IProj* _iproj;
+  };
 } // namespace gstlrn

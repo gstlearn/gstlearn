@@ -13,40 +13,43 @@
 #include "Matrix/MatrixSymmetric.hpp"
 #include "gstlearn_export.hpp"
 
-#include "LinearOp/ASimulable.hpp"
 #include "LinearOp/ACholesky.hpp"
+#include "LinearOp/ASimulable.hpp"
 #include "Matrix/AMatrix.hpp"
 
 namespace gstlrn
 {
-class AMatrix;
+  class AMatrix;
 
-/**
- * Square Symmetric matrices
- */
-class GSTLEARN_EXPORT MatrixSymmetricSim : virtual public ASimulable
-{
-public:
-  MatrixSymmetricSim(const AMatrix& m, bool inverse = true);
-  MatrixSymmetricSim(const MatrixSymmetricSim &m) = delete;
-  MatrixSymmetricSim& operator=(const MatrixSymmetricSim &m) = delete;
-  virtual ~MatrixSymmetricSim();
+  /**
+   * Square Symmetric matrices
+   */
+  class GSTLEARN_EXPORT MatrixSymmetricSim: virtual public ASimulable
+  {
+  public:
+    MatrixSymmetricSim(const AMatrix& m, bool inverse = true);
+    MatrixSymmetricSim(const MatrixSymmetricSim& m) = delete;
+    MatrixSymmetricSim& operator=(const MatrixSymmetricSim& m) = delete;
+    virtual ~MatrixSymmetricSim();
 
-  Id  getSize() const override;
-  bool isEmpty() const { return _factor == nullptr; }
-  double computeLogDet(Id nMC = 1) const override;
-  
-  /// Has a specific implementation in the Target language
-  DECLARE_TOTL;
+    Id getSize() const override;
 
-protected:
-  Id _addSimulateToDest(const constvect whitenoise, vect outv) const override;
-  Id _addToDest(const constvect inv, vect outv) const override;
+    bool isEmpty() const { return _factor == nullptr; }
 
-private:
-  bool _inverse;
-  ACholesky* _factor;
-  const AMatrix& _mat;
-  MatrixSymmetric _matSymConverted; // Used if the input matrix is not a MatrixSymmetric, just to avoid premature destruction
-};
-}
+    double computeLogDet(Id nMC = 1) const override;
+
+    /// Has a specific implementation in the Target language
+    DECLARE_TOTL;
+
+  protected:
+    Id _addSimulateToDest(const constvect whitenoise, vect outv) const override;
+    Id _addToDest(const constvect inv, vect outv) const override;
+
+  private:
+    bool _inverse;
+    ACholesky* _factor;
+    const AMatrix& _mat;
+    MatrixSymmetric
+      _matSymConverted; // Used if the input matrix is not a MatrixSymmetric, just to avoid premature destruction
+  };
+} // namespace gstlrn

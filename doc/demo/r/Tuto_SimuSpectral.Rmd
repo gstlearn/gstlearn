@@ -75,7 +75,7 @@ err = sim$compute(dbout = grid)
 stopifnot (all(abs(val - grid["Simu"]) < 1e-6))
 
 # using the simuSpectral interface
-err  = simuSpectral(NULL, dbout = grid, model = mod, nbsimu = ns, ns = nb, seed=seed, cov0 = NULL, 
+err  = simuSpectral(NULL, dbout = grid, model = mod, nbsimu = ns, ns = nb, seed=seed, cov0 = NULL,
                     namconv = NamingConvention(prefix))
 
 ```
@@ -86,7 +86,7 @@ knitr::kable(dbStatisticsMono(db = grid, names = paste(prefix, "*", sep = "."), 
              digits = 3, caption = title)
 
 # histogram
-p = plot.init() + 
+p = plot.init() +
   plot.hist(db = grid, name = var_name, bins = 25, col = "skyblue") +
   plot.decoration(title = title)
 plot.end(p)
@@ -94,10 +94,10 @@ plot.end(p)
 # experimental variogram for the first simulation and simulated model
 nlag = 50
 varioPar = VarioParam_createMultipleFromGrid(grid, nlag = nlag)
-err = grid$setLocator(name = var_name, locatorType = ELoc_Z(), 
+err = grid$setLocator(name = var_name, locatorType = ELoc_Z(),
                       cleanSameLocator = TRUE)
 vario = Vario_computeFromDb(varioPar, grid)
-p = plot.init() + 
+p = plot.init() +
   plot.varmod(vario = vario, model = mod, flagLegend=TRUE) +
   plot.decoration(title = title)
 plot.end(p)
@@ -105,7 +105,7 @@ plot.end(p)
 # variograms on all simulations
 vl = list()
 for (s in 1:ns) {
-  err = grid$setLocator(name = paste(prefix, "V1", paste0("S", s), sep = "."), 
+  err = grid$setLocator(name = paste(prefix, "V1", paste0("S", s), sep = "."),
                         locatorType = ELoc_Z(), cleanSameLocator = TRUE)
   vl[[1 + length(vl)]] <- Vario_computeFromDb(varioPar, grid)
 }
@@ -122,7 +122,7 @@ ndim = 2
 err = defineDefaultSpace(ESpaceType_RN(), ndim)
 
 # specification of the model (theoretical range is provided in 'a')
-mod  = Model_createFromParam(type = ECov_fromKey(type_cov), 
+mod  = Model_createFromParam(type = ECov_fromKey(type_cov),
                              ranges = ranges[1:ndim], param = nu, angles=angles[1:ndim],
                              flagRange=FALSE)
 
@@ -137,12 +137,12 @@ err = simuSpectral(NULL, dbout=grid2, model=mod, ns=nb, seed=seed , namconv = Na
 
 p = plot.init(asp=1) +
   plot.raster(grid1, name = var_name, palette = "Spectral", limits = 3.5 * c(-1,1)) +
-  plot.raster(grid2, name = var_name, palette = "Spectral", limits = 3.5 * c(-1,1)) + 
+  plot.raster(grid2, name = var_name, palette = "Spectral", limits = 3.5 * c(-1,1)) +
   plot.decoration(xlab = "Easting", ylab = "Northing", title = title)
 plot.end(p)
 
 # Control that the values on the intersection of the two grids are identical
-err = migrate(dbin = grid1, dbout = grid2, name = var_name, 
+err = migrate(dbin = grid1, dbout = grid2, name = var_name,
               namconv = NamingConvention("grid1"))
 p = plot.init() +
   plot.correlation(grid2, namex = var_name, namey = paste("grid1", var_name, sep = "."), asPoint = TRUE,
@@ -167,15 +167,15 @@ err = simuSpectral(NULL, dbout=db, model=mod,  ns=nb, seed=seed , namconv = Nami
 
 p1 = plot.init(asp=1) +
   plot.raster(grid1, name = var_name, palette = "Spectral") +
-  plot.symbol(db, color = "red") + 
+  plot.symbol(db, color = "red") +
   plot.decoration(xlab = "Easting", ylab = "Norhting", title = title)
 
 # control that the values on the intersection of the two grids are identical
 p2 = plot.init() +
-  plot.correlation(db, namex = var_name, namey = paste("grid1", var_name, sep = "."), 
-                   asPoint = TRUE, 
+  plot.correlation(db, namex = var_name, namey = paste("grid1", var_name, sep = "."),
+                   asPoint = TRUE,
                    flagDiag = TRUE, flagSameAxes = TRUE) +
-  plot.decoration(xlab = "simulation on db", ylab = "simulation on grid1", 
+  plot.decoration(xlab = "simulation on db", ylab = "simulation on grid1",
                   title = title)
 
 ggarrange(p1, p2, nrow = 1, ncol = 2)
@@ -185,9 +185,9 @@ ggarrange(p1, p2, nrow = 1, ncol = 2)
 # statistics
 tab = rbind(
   dbStatisticsMono(db = grid1, names = var_name, opers = opers)$toTL(),
-  dbStatisticsMono(db = grid2, names = c(var_name), opers = opers, 
+  dbStatisticsMono(db = grid2, names = c(var_name), opers = opers,
                    flagIso = TRUE)$toTL(),
-  dbStatisticsMono(db = db, names = c(var_name), opers = opers, 
+  dbStatisticsMono(db = db, names = c(var_name), opers = opers,
                    flagIso = TRUE)$toTL())
 rownames(tab) = c("grid1", "grid2", "scattered points")
 knitr::kable(tab,  digits = 3, caption = title)
@@ -198,11 +198,11 @@ coldir = c("green", "blue", "red")
 err = grid1$setLocator(var_name, ELoc_Z(), cleanSameLocator = TRUE)
 varioPar = VarioParam_createMultipleFromGrid(grid1, nlag=nlag)
 
-# computing the experimental variogram  
+# computing the experimental variogram
 vario = Vario_computeFromDb(varioPar, grid1)
 
-p = plot.init() + 
-  plot.varmod(vario = vario, model=mod, flagLegend=TRUE) + 
+p = plot.init() +
+  plot.varmod(vario = vario, model=mod, flagLegend=TRUE) +
   plot.decoration(title = title)
 plot.end(p)
 ```
@@ -214,7 +214,7 @@ ndim = 3
 err = defineDefaultSpace(ESpaceType_RN(), ndim)
 
 # specification of the model (theoretical range is provided in 'a')
-mod  = Model_createFromParam(type = ECov_fromKey(type_cov), 
+mod  = Model_createFromParam(type = ECov_fromKey(type_cov),
                              ranges = ranges[1:ndim], param = nu, angles=angles[1:ndim],
                              flagRange=FALSE)
 
@@ -235,12 +235,12 @@ knitr::kable(dbStatisticsMono(db = grid, names = var_name, opers = opers)$toTL()
              digits = 3, caption = title)
 
 # histogram
-p = plot.init() + 
+p = plot.init() +
   plot.hist(db = grid, name = var_name, bins = 25, col = "skyblue")
 plot.end(p)
 
 # map
-p = plot.init(asp=1) + 
+p = plot.init(asp=1) +
   plot.raster(grid, name = var_name, palette = "Spectral", limits = 3.5 * c(-1,1)) +
   plot.decoration(xlab = "Easting", ylab = "Northing", title = title)
 plot.end(p)
@@ -251,13 +251,11 @@ coldir = c("green", "red", "blue")
 err = grid$setLocator(var_name, ELoc_Z(), cleanSameLocator = TRUE)
 varioPar = VarioParam_createMultipleFromGrid(grid, nlag=nlag)
 
-# computing the experimental variogram  
+# computing the experimental variogram
 vario = Vario_computeFromDb(varioPar, grid)
 
-p = plot.init() + 
-  plot.varmod(vario = vario, model=mod, flagLegend=TRUE) + 
+p = plot.init() +
+  plot.varmod(vario = vario, model=mod, flagLegend=TRUE) +
   plot.decoration(title = title)
 plot.end(p)
 ```
-
-

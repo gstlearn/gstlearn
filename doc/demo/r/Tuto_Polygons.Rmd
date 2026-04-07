@@ -5,7 +5,7 @@ date: "5 february 2023"
 output:
   pdf_document: default
   html_document: default
-editor_options: 
+editor_options:
   chunk_output_type: console
 ---
 <!-- SUMMARY: Polygon definition and usage (for selection)  -->
@@ -19,7 +19,7 @@ library(gstlearn)
 ```
 
 This chapter gives some demonstration on the various possibilities offered by the Polygon class.
-Remember that the Polygon is an item which is specifically defined in 2-D space. However an extension to 3-D space has been programmed: the polyhedron is regarded as a 3-D object with a polygonal trace in the 2-D plane and a limite extension along the third direction. 
+Remember that the Polygon is an item which is specifically defined in 2-D space. However an extension to 3-D space has been programmed: the polyhedron is regarded as a 3-D object with a polygonal trace in the 2-D plane and a limite extension along the third direction.
 
 In this tutorial, we concentrate on the 2-D case.
 
@@ -161,4 +161,3 @@ flag_nested = TRUE
 inside = polygon$inside(c(xx, yy), flag_nested=flag_nested)
 cat("Is the Point (",xx,",",yy,") with flag_nested =",flag_nested,", inside the Polygon =",inside,"\n")
 ```
-

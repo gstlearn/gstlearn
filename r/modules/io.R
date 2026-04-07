@@ -16,7 +16,7 @@
 # - terra
 # Author: Xavier FREULON
 
-#' Convert a *sf* object into a *gstlearn* object. 
+#' Convert a *sf* object into a *gstlearn* object.
 #' The POLYGON and MULTIPOLYGON are converted into a Polygons.
 #' The crs information and attributes are not stored.
 #' The POINT and MULTIPOINT are converted into a Db.
@@ -32,7 +32,7 @@ sf_to_gstlearn <- function(x, quiet = TRUE)
     stop("Package 'sf' is mandatory to use this function!")
 
   val = NULL
-  
+
   # Conversion of polygons
   geo = st_geometry(x)
   if((class(geo)[1] == "sfc_POLYGON")|(class(geo)[1] == "sfc_MULTIPOLYGON")) {
@@ -63,15 +63,15 @@ sf_to_gstlearn <- function(x, quiet = TRUE)
       if(is.numeric(values)) {
         val[v] <- values
       } else {
-        if (! quiet) print(paste(">>> variable ", v, " is not converted (not numeric)"))  
+        if (! quiet) print(paste(">>> variable ", v, " is not converted (not numeric)"))
       }
     }
   }
   val
 }
 
-#' Convert a *gstlearn* object into a *sf* object. 
-#' The Polygons is converted into a MULTIPOLYGON. 
+#' Convert a *gstlearn* object into a *sf* object.
+#' The Polygons is converted into a MULTIPOLYGON.
 #' The Db is converted into a MULTIPOINT.
 #' The crs information should be provided.
 #'
@@ -80,16 +80,16 @@ sf_to_gstlearn <- function(x, quiet = TRUE)
 #' (e.g. "EPSG:4326" for long/lat in WGS84)
 #'
 #' @return returns the sf object
-#' 
+#'
 #' @note
-#' The argument 'crs' defines the type of coordinates ("coordinate Reference System") 
+#' The argument 'crs' defines the type of coordinates ("coordinate Reference System")
 #' using the format "AUTORITY:code".
 #' For example:
-#' - "EPSG:4326" for long/lat, WGS84, 
+#' - "EPSG:4326" for long/lat, WGS84,
 #' - "EPSG:2154" for projected coordinates RGF93 / Lambert 93 for France
-#' - "EPSG:9823" for projected coordinates RGF93 v2 / CC43 
+#' - "EPSG:9823" for projected coordinates RGF93 v2 / CC43
 #'
-#' The EPSG codes can be found at https://epsg.io/ 
+#' The EPSG codes can be found at https://epsg.io/
 #' Moreover ESRI codes can be found at https://spatialreference.org/ref/esri/
 #'
 gstlearn_to_sf <- function(x, crs = NA)
@@ -107,7 +107,7 @@ gstlearn_to_sf <- function(x, crs = NA)
       val = st_sf(geometry = st_sfc(st_multipolygon(lp)))
       st_set_crs(val, crs)
   }
-  
+
   if (class(x)[1] == "_p_gstlrn__Db") {
     df <- x[]
     val <- st_as_sf(df, coords = x$getNamesByLocator(ELoc_X()))
@@ -119,7 +119,7 @@ gstlearn_to_sf <- function(x, crs = NA)
  val
 }
 
-#' Convert a *terra* raster into a *gstlearn* DbGrid. 
+#' Convert a *terra* raster into a *gstlearn* DbGrid.
 #' The crs information is not stored.
 #'
 #' @param x a terra raster to be converted
@@ -127,7 +127,7 @@ gstlearn_to_sf <- function(x, crs = NA)
 #' @return returns the DbGrid object
 terra_to_gstlearn <- function(x)
 {
-  if (!require(terra, quietly = TRUE)) 
+  if (!require(terra, quietly = TRUE))
     stop("Package 'terra' is mandatory to use this function!")
   stopifnot(class(x)[1] == "SpatRaster")
   dx = res(x)[c(1,2)]
@@ -147,7 +147,7 @@ terra_to_gstlearn <- function(x)
   grd
 }
 
-#' Convert a *gstlearn* grid into a *terra* raster. (2 dimensional rasters) 
+#' Convert a *gstlearn* grid into a *terra* raster. (2 dimensional rasters)
 #' The crs information should be provided.
 #'
 #' @param x a gstlearn DbGrid to be converted
@@ -157,14 +157,14 @@ terra_to_gstlearn <- function(x)
 #' @return returns the sf object
 gstlearn_to_terra <- function(x, crs = NA)
 {
-  if (!require(terra, quietly = TRUE)) 
+  if (!require(terra, quietly = TRUE))
     stop("Package 'terra' is mandatory to use this function!")
   stopifnot(x$isGrid() & (x$getNDim() == 2))
   nx <- x$getNXs()
   dx <- x$getDXs()
   x_min <- (x$getX0s() - x$getDXs()/2)
   x_max <- (x$getX0s() + dx * (nx - 1) + x$getDXs()/2)
-  r <- rast(nrows = nx[2], ncols = nx[1], xmin = x_min[1], 
+  r <- rast(nrows = nx[2], ncols = nx[1], xmin = x_min[1],
     xmax = x_max[1], ymin = x_min[2], ymax = x_max[2])
   crs(r) <- crs
   var_nm <- x$getAllNames()[-c(1, 2, 3)]

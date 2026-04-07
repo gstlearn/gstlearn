@@ -12,115 +12,94 @@
 
 namespace gstlrn
 {
-ElemNostat::ElemNostat()
-  : AStringable()
-  , _locType(EConsElem::RANGE)
-  , _rankGRF(0)
-  , _rankStr(0)
-  , _rankV1(0)
-  , _rankV2(0)
-  , _val1(0)
-  , _val2(0)
-{
-}
-
-ElemNostat::ElemNostat(const ElemNostat& m)
-  : AStringable(m)
-  , _locType(m._locType)
-  , _rankGRF(m._rankGRF)
-  , _rankStr(m._rankStr)
-  , _rankV1(m._rankV1)
-  , _rankV2(m._rankV2)
-  , _val1(m._val1)
-  , _val2(m._val2)
-{
-}
-
-ElemNostat& ElemNostat::operator=(const ElemNostat& m)
-{
-  if (this != &m)
+  ElemNostat::ElemNostat()
+    : AStringable()
+    , _locType(EConsElem::RANGE)
+    , _rankGRF(0)
+    , _rankStr(0)
+    , _rankV1(0)
+    , _rankV2(0)
+    , _val1(0)
+    , _val2(0)
   {
-    AStringable::operator=(m);
-    _locType = m._locType;
-    _rankGRF = m._rankGRF;
-    _rankStr = m._rankStr;
-    _rankV1  = m._rankV1;
-    _rankV2  = m._rankV2;
-    _val1    = m._val1;
-    _val2    = m._val2;
   }
-  return *this;
-}
 
-ElemNostat::~ElemNostat()
-{
-}
-
-void ElemNostat::init(const EConsElem& loctype,
-                      Id rank_grf,
-                      Id rank_str,
-                      Id rank_v1,
-                      Id rank_v2)
-{
-  _locType = loctype;
-  _rankGRF = rank_grf;
-  _rankStr = rank_str;
-  _rankV1  = rank_v1;
-  _rankV2  = rank_v2;
-  _val1    = TEST;
-  _val2    = TEST;
-}
-
-String ElemNostat::toString(const AStringFormat* /*strfmt*/) const
-{
-  std::stringstream sstr;
-  switch (getLocType().toEnum())
+  ElemNostat::ElemNostat(const ElemNostat& m)
+    : AStringable(m)
+    , _locType(m._locType)
+    , _rankGRF(m._rankGRF)
+    , _rankStr(m._rankStr)
+    , _rankV1(m._rankV1)
+    , _rankV2(m._rankV2)
+    , _val1(m._val1)
+    , _val2(m._val2)
   {
-    case EConsElem::E_RANGE:
-      sstr << "Type = Range";
-      break;
-
-    case EConsElem::E_SCALE:
-      sstr << "Type = Scale";
-      break;
-
-    case EConsElem::E_ANGLE:
-      sstr << "Type = Angle";
-      break;
-
-    case EConsElem::E_PARAM:
-      sstr << "Type = Third";
-      break;
-
-    case EConsElem::E_SILL:
-      sstr << "Type = Sill";
-      break;
-
-    case EConsElem::E_SPHEROT:
-      sstr << "Type = Spherical Rotation";
-      break;
-
-    case EConsElem::E_T_RANGE:
-      sstr << "Type = T Range";
-      break;
-
-    case EConsElem::E_VELOCITY:
-      sstr << "Type = Velocity";
-      break;
-
-    case EConsElem::E_TENSOR:
-      sstr << "Anis-Matrix";
-      break;
-
-    default:
-      sstr << "Type = UNKNOWN";
-      break;
   }
-  sstr << " - Structure = " << getRankStr() + 1 << " - Variable = "
-       << getRankV1() + 1;
 
-  if (!isNA(getRankV2())) sstr << " - " << getRankV2() + 1;
+  ElemNostat& ElemNostat::operator=(const ElemNostat& m)
+  {
+    if (this != &m)
+    {
+      AStringable::operator=(m);
+      _locType = m._locType;
+      _rankGRF = m._rankGRF;
+      _rankStr = m._rankStr;
+      _rankV1 = m._rankV1;
+      _rankV2 = m._rankV2;
+      _val1 = m._val1;
+      _val2 = m._val2;
+    }
+    return *this;
+  }
 
-  return sstr.str();
-}
+  ElemNostat::~ElemNostat() {}
+
+  void ElemNostat::init(
+    const EConsElem& loctype,
+    Id rank_grf,
+    Id rank_str,
+    Id rank_v1,
+    Id rank_v2)
+  {
+    _locType = loctype;
+    _rankGRF = rank_grf;
+    _rankStr = rank_str;
+    _rankV1 = rank_v1;
+    _rankV2 = rank_v2;
+    _val1 = TEST;
+    _val2 = TEST;
+  }
+
+  String ElemNostat::toString(const AStringFormat* /*strfmt*/) const
+  {
+    std::stringstream sstr;
+    switch (getLocType().toEnum())
+    {
+      case EConsElem::E_RANGE: sstr << "Type = Range"; break;
+
+      case EConsElem::E_SCALE: sstr << "Type = Scale"; break;
+
+      case EConsElem::E_ANGLE: sstr << "Type = Angle"; break;
+
+      case EConsElem::E_PARAM: sstr << "Type = Third"; break;
+
+      case EConsElem::E_SILL: sstr << "Type = Sill"; break;
+
+      case EConsElem::E_SPHEROT: sstr << "Type = Spherical Rotation"; break;
+
+      case EConsElem::E_T_RANGE: sstr << "Type = T Range"; break;
+
+      case EConsElem::E_VELOCITY: sstr << "Type = Velocity"; break;
+
+      case EConsElem::E_TENSOR: sstr << "Anis-Matrix"; break;
+
+      default: sstr << "Type = UNKNOWN"; break;
+    }
+    sstr << " - Structure = " << getRankStr() + 1
+         << " - Variable = " << getRankV1() + 1;
+
+    if (!isNA(getRankV2())) sstr << " - " << getRankV2() + 1;
+
+    return sstr.str();
+  }
 } // namespace gstlrn

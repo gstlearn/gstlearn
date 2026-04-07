@@ -28,12 +28,13 @@ namespace gstlrn
 {
   static Id invdir[6] = {1, 0, 3, 2, 5, 4};
 
-  CalcSimuEden::CalcSimuEden(Id nfacies,
-                             Id nfluids,
-                             Id niter,
-                             Id nbsimu,
-                             Id seed,
-                             bool verbose)
+  CalcSimuEden::CalcSimuEden(
+    Id nfacies,
+    Id nfluids,
+    Id niter,
+    Id nbsimu,
+    Id seed,
+    bool verbose)
     : ACalcSimulation(nbsimu, seed)
     , AStringable()
     , _verbose(verbose)
@@ -211,11 +212,10 @@ namespace gstlrn
         {
           if (_getWT(ifacies + 1, ifluid + 1, 1, idir) <= 0)
           {
-            messerr("The Propagation Directional Speed is zero for: Fluid=%d - "
-                    "Facies=%d - Direction=%d",
-                    ifluid + 1,
-                    ifacies + 1,
-                    idir + 1);
+            messerr(
+              "The Propagation Directional Speed is zero for: Fluid=%d - "
+              "Facies=%d - Direction=%d",
+              ifluid + 1, ifacies + 1, idir + 1);
             messerr(
               "This may cause artifacts. Change it to a low value instead");
             return false;
@@ -234,8 +234,7 @@ namespace gstlrn
         {
           messerr(
             "For Facies (%d) and Fluid (%d), no positive speed is defined",
-            ifacies + 1,
-            ifluid + 1);
+            ifacies + 1, ifluid + 1);
           return false;
         }
       }
@@ -255,12 +254,11 @@ namespace gstlrn
           messerr(
             "Error for the Z+ Propagation Directional Speed for Facies=%d:",
             ifacies + 1);
-          messerr("Speed for Fluid=%d [%d] must not be smaller than Speed for "
-                  "Fluid=%d [%d]",
-                  jfluid + 1,
-                  _getWT(ifacies + 1, jfluid + 1, 1, DIR_UP),
-                  ifluid + 1,
-                  _getWT(ifacies + 1, ifluid + 1, 1, DIR_UP));
+          messerr(
+            "Speed for Fluid=%d [%d] must not be smaller than Speed for "
+            "Fluid=%d [%d]",
+            jfluid + 1, _getWT(ifacies + 1, jfluid + 1, 1, DIR_UP), ifluid + 1,
+            _getWT(ifacies + 1, ifluid + 1, 1, DIR_UP));
           return false;
         }
 
@@ -272,12 +270,11 @@ namespace gstlrn
           messerr(
             "Error for the Z- Propagation Directional Speed for Facies=%d:",
             ifacies + 1);
-          messerr("Speed for Fluid=%d [%d] must not be larger than Speed for "
-                  "Fluid=%d  [%d]",
-                  jfluid + 1,
-                  _getWT(ifacies + 1, jfluid + 1, 1, DIR_DOWN),
-                  ifluid + 1,
-                  _getWT(ifacies + 1, ifluid + 1, 1, DIR_DOWN));
+          messerr(
+            "Speed for Fluid=%d [%d] must not be larger than Speed for "
+            "Fluid=%d  [%d]",
+            jfluid + 1, _getWT(ifacies + 1, jfluid + 1, 1, DIR_DOWN),
+            ifluid + 1, _getWT(ifacies + 1, ifluid + 1, 1, DIR_DOWN));
           return false;
         }
       }
@@ -329,9 +326,8 @@ namespace gstlrn
       {
         message("Facies=%d - Fluid=%d -", ifacies + 1, ifluid + 1);
         for (Id idir = 0; idir < 6; idir++)
-          message(" Dir #%d=%d",
-                  idir + 1,
-                  _getWT(ifacies + 1, ifluid + 1, 1, idir));
+          message(
+            " Dir #%d=%d", idir + 1, _getWT(ifacies + 1, ifluid + 1, 1, idir));
         message("\n");
       }
   }
@@ -585,13 +581,10 @@ namespace gstlrn
         if (ifluid > 0)
         {
           if (verbose)
-            messerr("Cell %d: Inconsistent Fluid (%d) with Facies (%d) or Perm "
-                    "(%d) -> set to %d",
-                    iech + 1,
-                    ifluid,
-                    ifacies,
-                    perm,
-                    NO_FLUID);
+            messerr(
+              "Cell %d: Inconsistent Fluid (%d) with Facies (%d) or Perm "
+              "(%d) -> set to %d",
+              iech + 1, ifluid, ifacies, perm, NO_FLUID);
           n_shale_fluid++;
         }
         _setFLUID(iech, NO_FLUID);
@@ -609,8 +602,9 @@ namespace gstlrn
     /* Summary */
 
     if (n_shale_fluid > 0)
-      message("Number of cells with inconsistent facies and fluid = %d\n",
-              n_shale_fluid);
+      message(
+        "Number of cells with inconsistent facies and fluid = %d\n",
+        n_shale_fluid);
   }
 
   /****************************************************************************/
@@ -745,19 +739,15 @@ namespace gstlrn
           {
             if (dir == DIR_DOWN)
             {
-              if (_getWT(_getFACIES(ecr),
-                         _getFLUID(ecr),
-                         _getPERM(ecr),
-                         invdir[dir])
+              if (_getWT(
+                    _getFACIES(ecr), _getFLUID(ecr), _getPERM(ecr), invdir[dir])
                   > 0)
                 ref_fluid = fluid;
             }
             else if (dir == DIR_UP)
             {
-              if (_getWT(_getFACIES(ecr),
-                         _getFLUID(ecr),
-                         _getPERM(ecr),
-                         invdir[dir])
+              if (_getWT(
+                    _getFACIES(ecr), _getFLUID(ecr), _getPERM(ecr), invdir[dir])
                   < 0)
                 ref_fluid = fluid;
             }
@@ -817,11 +807,9 @@ namespace gstlrn
         totnum += number;
         totvol += volume;
         if (number > 0)
-          message("  . Facies %d - Fluid %d  : Number = %d - Volume = %lf\n",
-                  ifacies + 1,
-                  ifluid + 1,
-                  number,
-                  volume);
+          message(
+            "  . Facies %d - Fluid %d  : Number = %d - Volume = %lf\n",
+            ifacies + 1, ifluid + 1, number, volume);
       }
     if (totnum > 0)
     {
@@ -963,17 +951,14 @@ namespace gstlrn
       /* Normalize the Fluid statistics */
 
       for (Id ifluid = 0; ifluid < _nfluids; ifluid++)
-        dbgrid->updArray(iech,
-                         _iptrStatFluid + ifluid,
-                         EOperator::DIVIDE,
-                         static_cast<double>(niter));
+        dbgrid->updArray(
+          iech, _iptrStatFluid + ifluid, EOperator::DIVIDE,
+          static_cast<double>(niter));
 
       /* Update the Cork statistics */
 
-      dbgrid->updArray(iech,
-                       _iptrStatCork,
-                       EOperator::DIVIDE,
-                       static_cast<double>(niter));
+      dbgrid->updArray(
+        iech, _iptrStatCork, EOperator::DIVIDE, static_cast<double>(niter));
     }
   }
 
@@ -1058,21 +1043,11 @@ namespace gstlrn
     _cleanVariableDb(2);
 
     if (_iptrStatFluid >= 0)
-      _renameVariable(2,
-                      VectorString(),
-                      ELoc::Z,
-                      1,
-                      _iptrStatFluid,
-                      "Stat_Fluid",
-                      _niter);
+      _renameVariable(
+        2, VectorString(), ELoc::Z, 1, _iptrStatFluid, "Stat_Fluid", _niter);
     if (_iptrStatCork >= 0)
-      _renameVariable(2,
-                      VectorString(),
-                      ELoc::Z,
-                      1,
-                      _iptrStatCork,
-                      "Stat_Cork",
-                      _niter);
+      _renameVariable(
+        2, VectorString(), ELoc::Z, 1, _iptrStatCork, "Stat_Cork", _niter);
     if (_iptrFluid)
       _renameVariable(2, VectorString(), ELoc::Z, 1, _iptrFluid, "Fluid", 1);
     if (_iptrDate)

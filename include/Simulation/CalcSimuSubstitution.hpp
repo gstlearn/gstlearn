@@ -27,9 +27,10 @@ namespace gstlrn
   class GSTLEARN_EXPORT CalcSimuSubstitution: public ACalcSimulation
   {
   public:
-    CalcSimuSubstitution(Id nbsimu = 0,
-                         Id seed = 4324324,
-                         bool verbose = false);
+    CalcSimuSubstitution(
+      Id nbsimu = 0,
+      Id seed = 4324324,
+      bool verbose = false);
     CalcSimuSubstitution(const CalcSimuSubstitution& r) = delete;
     CalcSimuSubstitution& operator=(const CalcSimuSubstitution& r) = delete;
     virtual ~CalcSimuSubstitution();
@@ -50,9 +51,10 @@ namespace gstlrn
 
     bool _simulateCalculate();
     void _calculValue(Id ip, double factor, const VectorDouble& vector);
-    static VectorDouble _transToProp(const SimuSubstitutionParam& subparam,
-                                     bool verbose = false,
-                                     double eps = EPSILON5);
+    static VectorDouble _transToProp(
+      const SimuSubstitutionParam& subparam,
+      bool verbose = false,
+      double eps = EPSILON5);
 
   private:
     bool _verbose;

@@ -6,7 +6,7 @@ Author: Team gstlearn <gstlearn@groupes.mines-paristech.fr>,
 Depends:
     R (>= 3.6),
     ggplot2 (>= 3.4.4),
-    ggpubr, 
+    ggpubr,
     ggnewscale (>= 0.4.9)
 Suggests:
     vctrs,

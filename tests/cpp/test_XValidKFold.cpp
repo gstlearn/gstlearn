@@ -45,18 +45,18 @@ int main(int argc, char* argv[])
 
   // Main parameters
   VectorString names({"X", "Y", "S", "C", "V"});
-  VectorDouble vals({0.5, 1.0, 1.5, 1.0, 1.5, 8.0, 9.0,   // X
-                     0.5, 1.0, 1.0, 1.5, 1.5, 8.0, 9.0,   // Y
-                     1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0,   // Sel
-                     1.0, 1.0, 2.0, 2.0, 2.0, 3.0, 3.0,   // Code
+  VectorDouble vals({0.5, 1.0, 1.5, 1.0, 1.5, 8.0, 9.0, // X
+                     0.5, 1.0, 1.0, 1.5, 1.5, 8.0, 9.0, // Y
+                     1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, // Sel
+                     1.0, 1.0, 2.0, 2.0, 2.0, 3.0, 3.0, // Code
                      0.1, 0.2, 0.3, 0.4, 0.5, 1.6, 1.7}); // Variable
 
   // Number of data
   Id ndat = 7;
 
   // Neighborhood parameters
-  Id nmaxi      = 2;
-  Id leaf_size  = 5;
+  Id nmaxi = 2;
+  Id leaf_size = 5;
   double radius = 1;
 
   // Generate the input data base

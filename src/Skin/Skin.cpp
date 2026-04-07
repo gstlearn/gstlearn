@@ -19,416 +19,408 @@
 
 namespace gstlrn
 {
-static Id ndir[4]   = {0, 2, 4, 6};
-static Id invdir[6] = {1, 0, 3, 2, 5, 4};
-static Id id[6][3]  = {{1, 0, 0},
-                        {-1, 0, 0},
-                        {0, 1, 0},
-                        {0, -1, 0},
-                        {0, 0, 1},
-                        {0, 0, -1}};
+  static Id ndir[4] = {0, 2, 4, 6};
+  static Id invdir[6] = {1, 0, 3, 2, 5, 4};
+  static Id id[6][3] = {{1, 0, 0},  {-1, 0, 0}, {0, 1, 0},
+                        {0, -1, 0}, {0, 0, 1},  {0, 0, -1}};
 
-Skin::Skin(const ISkinFunctions* skf, DbGrid* dbgrid)
-  : _skf(skf)
-  , _dbgrid(dbgrid)
-  , _nxyz(0)
-  , _nval(0)
-  , _date(0)
-  , _nvalMax(0)
-  , _total(0.)
-  , _totalMax(0.)
-  , _address()
-  , _energy()
-{
-  if (dbgrid != nullptr)
-    _nxyz = _dbgrid->getNSample();
-}
-
-Skin::Skin(const Skin& r)
-  : _skf(r._skf)
-  , _dbgrid(r._dbgrid)
-  , _nxyz(r._nxyz)
-  , _nval(r._nval)
-  , _date(r._date)
-  , _nvalMax(r._nvalMax)
-  , _total(r._total)
-  , _totalMax(r._totalMax)
-  , _address(r._address)
-  , _energy(r._energy)
-{
-}
-
-Skin& Skin::operator=(const Skin& r)
-{
-  if (this != &r)
+  Skin::Skin(const ISkinFunctions* skf, DbGrid* dbgrid)
+    : _skf(skf)
+    , _dbgrid(dbgrid)
+    , _nxyz(0)
+    , _nval(0)
+    , _date(0)
+    , _nvalMax(0)
+    , _total(0.)
+    , _totalMax(0.)
+    , _address()
+    , _energy()
   {
-    _skf      = r._skf;
-    _dbgrid   = r._dbgrid;
-    _nxyz     = r._nxyz;
-    _nval     = r._nval;
-    _date     = r._date;
-    _nvalMax  = r._nvalMax;
-    _total    = r._total;
-    _totalMax = r._totalMax;
-    _address  = r._address;
-    _energy   = r._energy;
+    if (dbgrid != nullptr) _nxyz = _dbgrid->getNSample();
   }
-  return *this;
-}
 
-Skin::~Skin()
-{
-}
-
-/****************************************************************************/
-/*!
- **  Returns the weight for a given cell and direction
- **
- ** \return  The weight
- **
- ** \param[in]  ipos  Absolute grid index of the input grid node
- ** \param[in]  idir  Rank of the direction
- **
- *****************************************************************************/
-double Skin::_getWeight(Id ipos, Id idir)
-{
-  return _skf->getWeight(ipos, idir);
-}
-
-/****************************************************************************/
-/*!
- **  Returns the shifted node of a skin
- **
- ** \return  Absolute sample address (or ITEST)
- **
- ** \param[in]  indg0  Array of directional grid indices
- ** \param[in]  dir    Rank of the direction
- **
- *****************************************************************************/
-Id Skin::_gridShift(const VectorInt& indg0, Id dir)
-{
-  VectorInt indg = indg0;
-  auto ndim      = _getNDim();
-
-  /* Shift the target grid node and check if it belongs to the grid */
-
-  for (Id i = 0; i < ndim; i++)
+  Skin::Skin(const Skin& r)
+    : _skf(r._skf)
+    , _dbgrid(r._dbgrid)
+    , _nxyz(r._nxyz)
+    , _nval(r._nval)
+    , _date(r._date)
+    , _nvalMax(r._nvalMax)
+    , _total(r._total)
+    , _totalMax(r._totalMax)
+    , _address(r._address)
+    , _energy(r._energy)
   {
-    indg[i] = indg0[i] + id[dir][i];
-    if (indg[i] < 0 || indg[i] >= _dbgrid->getNX(i)) return ITEST;
   }
-  return _dbgrid->indiceToRank(indg);
-}
 
-/****************************************************************************/
-/*!
- **  Returns the shifted node of a skin
- **
- ** \return  The absolute sample address
- **
- ** \param[in]  lec   Absolute grid index of the input grid node
- ** \param[in]  dir   Rank of the direction
- **
- *****************************************************************************/
-Id Skin::gridShift(Id lec, Id dir)
-{
-  auto ndim = _getNDim();
-  VectorInt indg(ndim);
-
-  /* Convert an absolute address into the grid indices */
-
-  _dbgrid->rankToIndice(lec, indg);
-
-  /* Shift the target grid node and check if it belongs to the grid */
-
-  return _gridShift(indg, dir);
-}
-
-/*****************************************************************************/
-/*!
- **  Delete a cell from the skin
- **
- ** \param[in]  rank     Rank of the cell to be deleted
- **
- ** \remark  When deleting a cell from the skin, the last cell is copied
- ** \remark  in the place of the deleted one
- **
- *****************************************************************************/
-void Skin::_cellDelete(Id rank)
-{
-  /* Delete the target cell : move the last cell to the target location */
-
-  _nval--;
-  _address[rank] = _address[_nval];
-  _energy[rank]  = _energy[_nval];
-
-  /* Deallocate complementary room in the skin */
-
-  _address.resize(_nval);
-  _energy.resize(_nval);
-}
-
-/*****************************************************************************/
-/*!
- **  Checks if a cell already belongs to the skin
- **
- ** \return  Rank within the skin or -1 if the cell does not belong to the skin
- **
- ** \param[in]  ipos     Cell location
- **
- *****************************************************************************/
-Id Skin::_cellAlreadyFilled(Id ipos)
-{
-  for (Id i = 0; i < _nval; i++)
-    if (_address[i] == ipos) return (i);
-  return (-1);
-}
-
-/*****************************************************************************/
-/*!
- **  Modify the energy for a cell which already belongs to the skin
- **
- ** \param[out] rank     Location of the cell in the skin
- ** \param[in]  energy   Additional energy for the new cell
- **
- *****************************************************************************/
-void Skin::_cellModify(Id rank, double energy)
-{
-  _energy[rank] += energy;
-  _total += energy;
-  if (_total > _totalMax) _totalMax = _total;
-}
-
-/*****************************************************************************/
-/*!
- **  Add a cell to the skin (if not already in the skin)
- **
- ** \return  Error returned code
- **
- ** \param[in]  ipos     Cell location
- ** \param[in]  energy   Energy for the new cell
- **
- *****************************************************************************/
-Id Skin::_cellAdd(Id ipos, double energy)
-{
-  Id rank = _nval;
-  _address.resize(_nval + 1);
-  _energy.resize(_nval + 1);
-  _address[rank] = ipos;
-  _energy[rank]  = 0.;
-  _nval++;
-  if (_nval > _nvalMax) _nvalMax = _nval;
-
-  /* Upgrade the energy */
-
-  _cellModify(rank, energy);
-
-  return 0;
-}
-
-/*****************************************************************************/
-/*!
- **  Initialize the skin
- **
- ** \return  Error returned code
- **
- ** \param[in] verbose  Verbose flag
- **
- *****************************************************************************/
-Id Skin::init(bool verbose)
-{
-  auto ndim = _getNDim();
-  if (_skf == nullptr || ndim <= 0)
+  Skin& Skin::operator=(const Skin& r)
   {
-    messerr("SKF and DbGrid must be defined beforehand");
-    return 1;
-  }
-  VectorInt indg(ndim);
-  Id nb_mask  = 0;
-  Id nb_count = 0;
-  Id nb_done  = 0;
-  Id total    = _nxyz;
-
-  // Loop on all the cells
-
-  for (Id lec = 0; lec < total; lec++)
-  {
-    if (_skf->isAlreadyFilled(lec))
+    if (this != &r)
     {
-
-      /* The cell does not belong to the skin: it is already filled */
-
-      nb_done++;
-      continue;
+      _skf = r._skf;
+      _dbgrid = r._dbgrid;
+      _nxyz = r._nxyz;
+      _nval = r._nval;
+      _date = r._date;
+      _nvalMax = r._nvalMax;
+      _total = r._total;
+      _totalMax = r._totalMax;
+      _address = r._address;
+      _energy = r._energy;
     }
-    if (!_skf->isToBeFilled(lec))
+    return *this;
+  }
+
+  Skin::~Skin() {}
+
+  /****************************************************************************/
+  /*!
+   **  Returns the weight for a given cell and direction
+   **
+   ** \return  The weight
+   **
+   ** \param[in]  ipos  Absolute grid index of the input grid node
+   ** \param[in]  idir  Rank of the direction
+   **
+   *****************************************************************************/
+  double Skin::_getWeight(Id ipos, Id idir)
+  {
+    return _skf->getWeight(ipos, idir);
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Returns the shifted node of a skin
+   **
+   ** \return  Absolute sample address (or ITEST)
+   **
+   ** \param[in]  indg0  Array of directional grid indices
+   ** \param[in]  dir    Rank of the direction
+   **
+   *****************************************************************************/
+  Id Skin::_gridShift(const VectorInt& indg0, Id dir)
+  {
+    VectorInt indg = indg0;
+    auto ndim = _getNDim();
+
+    /* Shift the target grid node and check if it belongs to the grid */
+
+    for (Id i = 0; i < ndim; i++)
     {
-
-      /* The cell does not belong to the cell: it is masked off */
-
-      nb_mask++;
-      continue;
+      indg[i] = indg0[i] + id[dir][i];
+      if (indg[i] < 0 || indg[i] >= _dbgrid->getNX(i)) return ITEST;
     }
+    return _dbgrid->indiceToRank(indg);
+  }
 
-    /* The cell is eligible */
+  /****************************************************************************/
+  /*!
+   **  Returns the shifted node of a skin
+   **
+   ** \return  The absolute sample address
+   **
+   ** \param[in]  lec   Absolute grid index of the input grid node
+   ** \param[in]  dir   Rank of the direction
+   **
+   *****************************************************************************/
+  Id Skin::gridShift(Id lec, Id dir)
+  {
+    auto ndim = _getNDim();
+    VectorInt indg(ndim);
 
-    nb_count++;
-    Id local = 0;
+    /* Convert an absolute address into the grid indices */
+
     _dbgrid->rankToIndice(lec, indg);
+
+    /* Shift the target grid node and check if it belongs to the grid */
+
+    return _gridShift(indg, dir);
+  }
+
+  /*****************************************************************************/
+  /*!
+   **  Delete a cell from the skin
+   **
+   ** \param[in]  rank     Rank of the cell to be deleted
+   **
+   ** \remark  When deleting a cell from the skin, the last cell is copied
+   ** \remark  in the place of the deleted one
+   **
+   *****************************************************************************/
+  void Skin::_cellDelete(Id rank)
+  {
+    /* Delete the target cell : move the last cell to the target location */
+
+    _nval--;
+    _address[rank] = _address[_nval];
+    _energy[rank] = _energy[_nval];
+
+    /* Deallocate complementary room in the skin */
+
+    _address.resize(_nval);
+    _energy.resize(_nval);
+  }
+
+  /*****************************************************************************/
+  /*!
+   **  Checks if a cell already belongs to the skin
+   **
+   ** \return  Rank within the skin or -1 if the cell does not belong to the skin
+   **
+   ** \param[in]  ipos     Cell location
+   **
+   *****************************************************************************/
+  Id Skin::_cellAlreadyFilled(Id ipos)
+  {
+    for (Id i = 0; i < _nval; i++)
+      if (_address[i] == ipos) return (i);
+    return (-1);
+  }
+
+  /*****************************************************************************/
+  /*!
+   **  Modify the energy for a cell which already belongs to the skin
+   **
+   ** \param[out] rank     Location of the cell in the skin
+   ** \param[in]  energy   Additional energy for the new cell
+   **
+   *****************************************************************************/
+  void Skin::_cellModify(Id rank, double energy)
+  {
+    _energy[rank] += energy;
+    _total += energy;
+    if (_total > _totalMax) _totalMax = _total;
+  }
+
+  /*****************************************************************************/
+  /*!
+   **  Add a cell to the skin (if not already in the skin)
+   **
+   ** \return  Error returned code
+   **
+   ** \param[in]  ipos     Cell location
+   ** \param[in]  energy   Energy for the new cell
+   **
+   *****************************************************************************/
+  Id Skin::_cellAdd(Id ipos, double energy)
+  {
+    Id rank = _nval;
+    _address.resize(_nval + 1);
+    _energy.resize(_nval + 1);
+    _address[rank] = ipos;
+    _energy[rank] = 0.;
+    _nval++;
+    if (_nval > _nvalMax) _nvalMax = _nval;
+
+    /* Upgrade the energy */
+
+    _cellModify(rank, energy);
+
+    return 0;
+  }
+
+  /*****************************************************************************/
+  /*!
+   **  Initialize the skin
+   **
+   ** \return  Error returned code
+   **
+   ** \param[in] verbose  Verbose flag
+   **
+   *****************************************************************************/
+  Id Skin::init(bool verbose)
+  {
+    auto ndim = _getNDim();
+    if (_skf == nullptr || ndim <= 0)
+    {
+      messerr("SKF and DbGrid must be defined beforehand");
+      return 1;
+    }
+    VectorInt indg(ndim);
+    Id nb_mask = 0;
+    Id nb_count = 0;
+    Id nb_done = 0;
+    Id total = _nxyz;
+
+    // Loop on all the cells
+
+    for (Id lec = 0; lec < total; lec++)
+    {
+      if (_skf->isAlreadyFilled(lec))
+      {
+
+        /* The cell does not belong to the skin: it is already filled */
+
+        nb_done++;
+        continue;
+      }
+      if (!_skf->isToBeFilled(lec))
+      {
+
+        /* The cell does not belong to the cell: it is masked off */
+
+        nb_mask++;
+        continue;
+      }
+
+      /* The cell is eligible */
+
+      nb_count++;
+      Id local = 0;
+      _dbgrid->rankToIndice(lec, indg);
+      for (Id dir = 0; dir < ndir[ndim]; dir++)
+      {
+        Id ecr = _gridShift(indg, dir);
+        if (isNA(ecr)) continue;
+        if (!_skf->isAlreadyFilled(ecr)) continue;
+        local += static_cast<Id>(_skf->getWeight(ecr, invdir[dir]));
+      }
+      if (local > 0.)
+      {
+        if (_cellAdd(lec, local))
+        {
+          messerr("Core allocation problem in Skin algorithm");
+          return (1);
+        }
+      }
+    }
+
+    /* Print the statistics */
+
+    if (verbose)
+    {
+      mestitle(1, "Skin algorithm: Initial status");
+      message("- Total number of cells           = %d\n", total);
+      message("- Number of cells already filled  = %d\n", nb_done);
+      message("- Number of cells active          = %d\n", total - nb_mask);
+      message("- Number of cells to be processed = %d\n", nb_count);
+    }
+
+    if (nb_count <= 0 || _total <= 0.)
+    {
+      messerr("There is no cell to be processed");
+      return (1);
+    }
+    return (0);
+  }
+
+  /*****************************************************************************/
+  /*!
+   **  Returns the number of cells still to be processed
+   **
+   ** \return  Returns the number of cells still to be processed
+   **
+   *****************************************************************************/
+  Id Skin::remains(bool verbose)
+  {
+    _date++;
+    if (verbose)
+      message(
+        "Skin iteration:%5d - Length:%4d - Energy:%lf\n", _date, _nval, _total);
+    return (static_cast<Id>(_total));
+  }
+
+  /*****************************************************************************/
+  /*!
+   **  Find the next cell at random within the skin
+   **
+   ** \param[out] rank     Location of the cell in the skin
+   ** \param[out] ipos     Cell location
+   **
+   *****************************************************************************/
+  void Skin::getNext(Id* rank, Id* ipos)
+  {
+    /* Draw a random cell */
+
+    double tirage = _total * law_uniform(0., 1.);
+
+    /* Find the cell */
+
+    double total = 0.;
+    for (Id i = 0; i < _nval; i++)
+    {
+      total += _energy[i];
+      if (total >= tirage)
+      {
+        *rank = i;
+        *ipos = _address[i];
+        if (!_skf->isToBeFilled(*ipos))
+          messageAbort(
+            "Elligible cell (%d ipos=%d) of the skin is already filled", i,
+            *ipos);
+        return;
+      }
+    }
+    messageAbort("Cannot find a cell for propagation");
+  }
+
+  /*****************************************************************************/
+  /*!
+   **  Suppress the current cell from the skin
+   **
+   ** \return  Error return code
+   **
+   ** \param[in] rank0    Rank of the current cell in the skin
+   ** \param[in] ipos0    Cell location
+   **
+   *****************************************************************************/
+  Id Skin::unstack(Id rank0, Id ipos0)
+  {
+    auto ndim = _getNDim();
+    VectorInt indg(ndim);
+
+    /* Suppress the current cell from the skin */
+
+    _total -= _energy[rank0];
+    _cellDelete(rank0);
+
+    /* Update the neighboring cells */
+
+    Id local = 0;
+    _dbgrid->rankToIndice(ipos0, indg);
     for (Id dir = 0; dir < ndir[ndim]; dir++)
     {
       Id ecr = _gridShift(indg, dir);
       if (isNA(ecr)) continue;
-      if (!_skf->isAlreadyFilled(ecr)) continue;
-      local += static_cast<Id>(_skf->getWeight(ecr, invdir[dir]));
-    }
-    if (local > 0.)
-    {
-      if (_cellAdd(lec, local))
+
+      /* Discard the neighboring cell if it cannot filled */
+
+      if (!_skf->isToBeFilled(ecr)) continue;
+      local = static_cast<Id>(_skf->getWeight(ipos0, dir));
+      Id rank = _cellAlreadyFilled(ecr);
+      if (rank < 0)
       {
-        messerr("Core allocation problem in Skin algorithm");
-        return (1);
+
+        /* The cell does not already belong to the skin: add it */
+
+        if (_cellAdd(ecr, local)) return (1);
+      }
+      else
+      {
+        /* If the cell already belongs to the skin, upgrade its energy */
+
+        _cellModify(rank, local);
       }
     }
+    return (0);
   }
 
-  /* Print the statistics */
-
-  if (verbose)
+  /*****************************************************************************/
+  /*!
+   **  Print the computing information concerning the skin algorithm
+   **
+   *****************************************************************************/
+  void Skin::skinPrint() const
   {
-    mestitle(1, "Skin algorithm: Initial status");
-    message("- Total number of cells           = %d\n", total);
-    message("- Number of cells already filled  = %d\n", nb_done);
-    message("- Number of cells active          = %d\n", total - nb_mask);
-    message("- Number of cells to be processed = %d\n", nb_count);
+    mestitle(1, "Skin algorithm: Final status");
+    message("- Number of iterations          = %d\n", _date);
+    message("- Maximum skin length           = %d\n", _nvalMax);
+    message("- Maximum energy                = %lf\n", _totalMax);
   }
 
-  if (nb_count <= 0 || _total <= 0.)
+  Id Skin::_getNDim() const
   {
-    messerr("There is no cell to be processed");
-    return (1);
+    if (_dbgrid != nullptr) return _dbgrid->getNDim();
+    return 0;
   }
-  return (0);
-}
-
-/*****************************************************************************/
-/*!
- **  Returns the number of cells still to be processed
- **
- ** \return  Returns the number of cells still to be processed
- **
- *****************************************************************************/
-Id Skin::remains(bool verbose)
-{
-  _date++;
-  if (verbose)
-    message("Skin iteration:%5d - Length:%4d - Energy:%lf\n",
-            _date, _nval, _total);
-  return (static_cast<Id>(_total));
-}
-
-/*****************************************************************************/
-/*!
- **  Find the next cell at random within the skin
- **
- ** \param[out] rank     Location of the cell in the skin
- ** \param[out] ipos     Cell location
- **
- *****************************************************************************/
-void Skin::getNext(Id* rank, Id* ipos)
-{
-  /* Draw a random cell */
-
-  double tirage = _total * law_uniform(0., 1.);
-
-  /* Find the cell */
-
-  double total = 0.;
-  for (Id i = 0; i < _nval; i++)
-  {
-    total += _energy[i];
-    if (total >= tirage)
-    {
-      *rank = i;
-      *ipos = _address[i];
-      if (!_skf->isToBeFilled(*ipos))
-        messageAbort(
-          "Elligible cell (%d ipos=%d) of the skin is already filled", i,
-          *ipos);
-      return;
-    }
-  }
-  messageAbort("Cannot find a cell for propagation");
-}
-
-/*****************************************************************************/
-/*!
- **  Suppress the current cell from the skin
- **
- ** \return  Error return code
- **
- ** \param[in] rank0    Rank of the current cell in the skin
- ** \param[in] ipos0    Cell location
- **
- *****************************************************************************/
-Id Skin::unstack(Id rank0, Id ipos0)
-{
-  auto ndim = _getNDim();
-  VectorInt indg(ndim);
-
-  /* Suppress the current cell from the skin */
-
-  _total -= _energy[rank0];
-  _cellDelete(rank0);
-
-  /* Update the neighboring cells */
-
-  Id local = 0;
-  _dbgrid->rankToIndice(ipos0, indg);
-  for (Id dir = 0; dir < ndir[ndim]; dir++)
-  {
-    Id ecr = _gridShift(indg, dir);
-    if (isNA(ecr)) continue;
-
-    /* Discard the neighboring cell if it cannot filled */
-
-    if (!_skf->isToBeFilled(ecr)) continue;
-    local    = static_cast<Id>(_skf->getWeight(ipos0, dir));
-    Id rank = _cellAlreadyFilled(ecr);
-    if (rank < 0)
-    {
-
-      /* The cell does not already belong to the skin: add it */
-
-      if (_cellAdd(ecr, local)) return (1);
-    }
-    else
-    {
-      /* If the cell already belongs to the skin, upgrade its energy */
-
-      _cellModify(rank, local);
-    }
-  }
-  return (0);
-}
-
-/*****************************************************************************/
-/*!
- **  Print the computing information concerning the skin algorithm
- **
- *****************************************************************************/
-void Skin::skinPrint() const
-{
-  mestitle(1, "Skin algorithm: Final status");
-  message("- Number of iterations          = %d\n", _date);
-  message("- Maximum skin length           = %d\n", _nvalMax);
-  message("- Maximum energy                = %lf\n", _totalMax);
-}
-
-Id Skin::_getNDim() const
-{
-  if (_dbgrid != nullptr)
-    return _dbgrid->getNDim();
-  return 0;
-}
 } // namespace gstlrn

@@ -18,57 +18,59 @@
 
 namespace gstlrn
 {
-class Model;
-class DbGrid;
-class Constraints;
+  class Model;
+  class DbGrid;
+  class Constraints;
 
-/**
- * \brief
- * Class which, starting from an experimental variogram, enables fitting the
- * various parameters of a Covariance part of a Model
- */
-class GSTLEARN_EXPORT ModelOptimVMap: public AModelOptim
-{
-public:
-  ModelOptimVMap(ModelGeneric* model,
-                 const Constraints* constraints = nullptr,
-                 const ModelOptimParam& mop     = ModelOptimParam());
-  ModelOptimVMap(const ModelOptimVMap& m);
-  ModelOptimVMap& operator=(const ModelOptimVMap& m);
-  virtual ~ModelOptimVMap();
+  /**
+   * \brief
+   * Class which, starting from an experimental variogram, enables fitting the
+   * various parameters of a Covariance part of a Model
+   */
+  class GSTLEARN_EXPORT ModelOptimVMap: public AModelOptim
+  {
+  public:
+    ModelOptimVMap(
+      ModelGeneric* model,
+      const Constraints* constraints = nullptr,
+      const ModelOptimParam& mop = ModelOptimParam());
+    ModelOptimVMap(const ModelOptimVMap& m);
+    ModelOptimVMap& operator=(const ModelOptimVMap& m);
+    virtual ~ModelOptimVMap();
 
-  double computeCost(bool flagPrint = false, bool verbose = false) override;
+    double computeCost(bool flagPrint = false, bool verbose = false) override;
 
-  static ModelOptimVMap* createForOptim(ModelGeneric* model,
-                                        const DbGrid* dbmap,
-                                        const Constraints* constraints = nullptr,
-                                        const ModelOptimParam& mop     = ModelOptimParam());
-  void evalGrad(vect res) override;
+    static ModelOptimVMap* createForOptim(
+      ModelGeneric* model,
+      const DbGrid* dbmap,
+      const Constraints* constraints = nullptr,
+      const ModelOptimParam& mop = ModelOptimParam());
+    void evalGrad(vect res) override;
 
-private:
-  bool _checkConsistency();
-  Id _getDimensions();
-  void _allocateInternalArrays();
+  private:
+    bool _checkConsistency();
+    Id _getDimensions();
+    void _allocateInternalArrays();
 
-protected:
-  // Model fitting options
-  ModelOptimParam _mop;
+  protected:
+    // Model fitting options
+    ModelOptimParam _mop;
 
-  // Set of constraints
-  const Constraints* _constraints;
+    // Set of constraints
+    const Constraints* _constraints;
 
-  // Calculation option
-  CovCalcMode _calcmode;
+    // Calculation option
+    CovCalcMode _calcmode;
 
-  // Part relative to the Experimental VMap
-  const DbGrid* _dbmap;
+    // Part relative to the Experimental VMap
+    const DbGrid* _dbmap;
 
-  // Following members are simply there to accelerate the computation
-  VectorInt _indg1;
-  VectorInt _indg2;
-  Id _ndim;
-  Id _nvar;
-  Id _nech;
-  Id _npadir;
-};
-}
+    // Following members are simply there to accelerate the computation
+    VectorInt _indg1;
+    VectorInt _indg2;
+    Id _ndim;
+    Id _nvar;
+    Id _nech;
+    Id _npadir;
+  };
+} // namespace gstlrn

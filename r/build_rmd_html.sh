@@ -16,7 +16,7 @@ then
   while true; do
     read -p "Do you want to continue (Y/N) ?" yn
 
-    case $yn in 
+    case $yn in
         y ) break;;
         Y ) break;;
         n ) exit;;
@@ -35,7 +35,7 @@ fi
 mkdir -p $out_dir
 
 flist=$(ls $in_dir/r/*.Rmd)
-for fsc in $flist 
+for fsc in $flist
 do
   echo "  Processing $fsc"
   R CMD BATCH --no-save --no-restore "--args $fsc $out_dir html" $runner

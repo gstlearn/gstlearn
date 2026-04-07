@@ -10,26 +10,30 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
 #include "OutputFormat/AOF.hpp"
+#include "gstlearn_export.hpp"
 
 namespace gstlrn
 {
-class Db;
+  class Db;
 
-class GSTLEARN_EXPORT GridZycor: public AOF
-{
-public:
-  GridZycor(const char* filename, const Db* db = nullptr);
-  GridZycor(const GridZycor& r);
-  GridZycor& operator=(const GridZycor& r);
-  virtual ~GridZycor();
+  class GSTLEARN_EXPORT GridZycor: public AOF
+  {
+  public:
+    GridZycor(const char* filename, const Db* db = nullptr);
+    GridZycor(const GridZycor& r);
+    GridZycor& operator=(const GridZycor& r);
+    virtual ~GridZycor();
 
-  bool mustBeGrid() const override { return true; }
-  bool mustBeOneVariable() const override { return false; }
-  bool mustBeForNDim(Id ndim) const override { return ndim == 2; }
-  bool mustBeForRotation(Id mode) const override { return mode == 0; }
-  Id  writeInFile() override;
-  DbGrid* readGridFromFile() override;
-};
-}
+    bool mustBeGrid() const override { return true; }
+
+    bool mustBeOneVariable() const override { return false; }
+
+    bool mustBeForNDim(Id ndim) const override { return ndim == 2; }
+
+    bool mustBeForRotation(Id mode) const override { return mode == 0; }
+
+    Id writeInFile() override;
+    DbGrid* readGridFromFile() override;
+  };
+} // namespace gstlrn

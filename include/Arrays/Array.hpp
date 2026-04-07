@@ -10,29 +10,33 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
 #include "Arrays/AArray.hpp"
+#include "gstlearn_export.hpp"
 
 namespace gstlrn
 {
-class GSTLEARN_EXPORT Array : public AArray
-{
-public:
-  Array(const VectorInt& ndims = VectorInt());
-  Array(const Array &r);
-  Array& operator=(const Array &r);
-  virtual ~Array();
+  class GSTLEARN_EXPORT Array: public AArray
+  {
+  public:
+    Array(const VectorInt& ndims = VectorInt());
+    Array(const Array& r);
+    Array& operator=(const Array& r);
+    virtual ~Array();
 
-  void init(const VectorInt& ndims);
-  double getValue(const VectorInt& indice) const;
-  void setValue(const VectorInt& indice, double value);
-  const VectorDouble& getValues() const { return _values; }
-  void setValues(const VectorDouble& values) { _values = values; }
-  void multiplyConstant(double val);
-private:
-  void _update();
+    void init(const VectorInt& ndims);
+    double getValue(const VectorInt& indice) const;
+    void setValue(const VectorInt& indice, double value);
 
-private:
-  VectorDouble _values;
-};
-}
+    const VectorDouble& getValues() const { return _values; }
+
+    void setValues(const VectorDouble& values) { _values = values; }
+
+    void multiplyConstant(double val);
+
+  private:
+    void _update();
+
+  private:
+    VectorDouble _values;
+  };
+} // namespace gstlrn

@@ -19,17 +19,19 @@
 namespace gstlrn
 {
 
-class GaussianProcess;
-class Db;
-class ECov;
+  class GaussianProcess;
+  class Db;
+  class ECov;
 
-using DataFrame = std::map<std::string, VectorDouble>;
+  using DataFrame = std::map<std::string, VectorDouble>;
 
-GSTLEARN_EXPORT Db* createDbFromDataFrame(const DataFrame* dat,
-                                          const VectorString& coordinates);
+  GSTLEARN_EXPORT Db* createDbFromDataFrame(
+    const DataFrame* dat,
+    const VectorString& coordinates);
 
-GSTLEARN_EXPORT GaussianProcess* createModelFromData(const Db* dat,
-                                                     const VectorString& variables,
-                                                     const std::vector<ECov>& structs,
-                                                     bool addMeasurementError = false);
+  GSTLEARN_EXPORT GaussianProcess* createModelFromData(
+    const Db* dat,
+    const VectorString& variables,
+    const std::vector<ECov>& structs,
+    bool addMeasurementError = false);
 } // namespace gstlrn

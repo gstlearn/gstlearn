@@ -15,21 +15,22 @@
 
 namespace gstlrn
 {
-class GSTLEARN_EXPORT NoStatOnMesh: public NoStatArray
-{
-public:
-  NoStatOnMesh() {};
-  NoStatOnMesh(std::shared_ptr<const Db> dbref, const String& colname);
+  class GSTLEARN_EXPORT NoStatOnMesh: public NoStatArray
+  {
+  public:
+    NoStatOnMesh() {};
+    NoStatOnMesh(std::shared_ptr<const Db> dbref, const String& colname);
 
-  NoStatOnMesh(const NoStatOnMesh& m)            = delete;
-  NoStatOnMesh& operator=(const NoStatOnMesh& m) = delete;
+    NoStatOnMesh(const NoStatOnMesh& m) = delete;
+    NoStatOnMesh& operator=(const NoStatOnMesh& m) = delete;
 
-  void informMeshByMesh(const AMesh* amesh, bool verbose = false) override;
-  void informMeshByApex(const AMesh* amesh, bool verbose = false) override;
+    void informMeshByMesh(const AMesh* amesh, bool verbose = false) override;
+    void informMeshByApex(const AMesh* amesh, bool verbose = false) override;
 
-  virtual ~NoStatOnMesh() {};
+    virtual ~NoStatOnMesh() {};
 
-private:
-  void _informFieldByMesh(const AMesh* amesh, VectorDouble& tab, bool onMeshes);
-};
+  private:
+    void
+      _informFieldByMesh(const AMesh* amesh, VectorDouble& tab, bool onMeshes);
+  };
 } // namespace gstlrn

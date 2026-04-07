@@ -15,170 +15,168 @@
 
 namespace gstlrn
 {
-TabNoStatCovAniso::TabNoStatCovAniso()
-  : _nAngles(0)
-  , _nRanges(0)
-  , _nScales(0)
-  , _nTensor(0)
-  , _param(false)
-  , _definedForAnisotropy(false)
-  , _definedByAnglesAndScales(false)
-  , _definedForRotation(false)
-  , _definedForTensor(false)
-{
-}
+  TabNoStatCovAniso::TabNoStatCovAniso()
+    : _nAngles(0)
+    , _nRanges(0)
+    , _nScales(0)
+    , _nTensor(0)
+    , _param(false)
+    , _definedForAnisotropy(false)
+    , _definedByAnglesAndScales(false)
+    , _definedForRotation(false)
+    , _definedForTensor(false)
+  {
+  }
 
-TabNoStatCovAniso::TabNoStatCovAniso(const TabNoStatCovAniso& m)
-  : TabNoStat(m)
-{
-  _definedByAnglesAndScales = m._definedByAnglesAndScales;
-  _definedForAnisotropy     = m._definedForAnisotropy;
-  _definedForRotation       = m._definedForRotation;
-  _definedForTensor         = m._definedForTensor;
-  _nTensor                  = m._nTensor;
-  _nAngles                  = m._nAngles;
-  _nRanges                  = m._nRanges;
-  _nScales                  = m._nScales;
-  _param                    = m._param;
-}
-
-TabNoStatCovAniso& TabNoStatCovAniso::operator=(const TabNoStatCovAniso& m)
-{
-  TabNoStat::operator=(m);
-  if (this != &m)
+  TabNoStatCovAniso::TabNoStatCovAniso(const TabNoStatCovAniso& m)
+    : TabNoStat(m)
   {
     _definedByAnglesAndScales = m._definedByAnglesAndScales;
-    _definedForAnisotropy     = m._definedForAnisotropy;
-    _definedForRotation       = m._definedForRotation;
-    _definedForTensor         = m._definedForTensor;
-    _nTensor                  = m._nTensor;
-    _nAngles                  = m._nAngles;
-    _nRanges                  = m._nRanges;
-    _nScales                  = m._nScales;
-    _param                    = m._param;
+    _definedForAnisotropy = m._definedForAnisotropy;
+    _definedForRotation = m._definedForRotation;
+    _definedForTensor = m._definedForTensor;
+    _nTensor = m._nTensor;
+    _nAngles = m._nAngles;
+    _nRanges = m._nRanges;
+    _nScales = m._nScales;
+    _param = m._param;
   }
-  return *this;
-}
 
-/**
- * Look if a Non-stationary parameter for Anisotropy is defined
- * either by Tensor or by (angle/range/scale)
- * @return
- */
-bool TabNoStatCovAniso::isDefinedForAnisotropy() const
-{
-  return _definedForAnisotropy;
-}
-
-/*
- * Look if a Non-stationary parameter for Anisotropy is defined
- * only by angle / range / scale
- * @return
- */
-
-bool TabNoStatCovAniso::isDefinedForRotation() const
-{
-  return _definedForRotation;
-}
-
-void TabNoStatCovAniso::_clear()
-{
-  _nAngles                  = 0;
-  _nRanges                  = 0;
-  _nScales                  = 0;
-  _nTensor                  = 0;
-  _param                    = false;
-  _definedForAnisotropy     = false;
-  _definedByAnglesAndScales = false;
-  _definedForRotation       = false;
-  _definedForTensor         = false;
-}
-void TabNoStatCovAniso::_updateDescription()
-{
-  _definedForRotation   = (_nAngles > 0) || (_nRanges > 0) || (_nScales > 0);
-  _definedForTensor     = _nTensor > 0;
-  _definedForAnisotropy = _definedForRotation || _definedForTensor;
-}
-
-Id TabNoStatCovAniso::addElem(std::shared_ptr<ANoStat>& nostat, const EConsElem& econs, Id iv1, Id iv2)
-{
-  if (econs == EConsElem::RANGE)
+  TabNoStatCovAniso& TabNoStatCovAniso::operator=(const TabNoStatCovAniso& m)
   {
-    if (isElemDefined(EConsElem::SCALE, iv1, iv2) && _nScales == 1)
+    TabNoStat::operator=(m);
+    if (this != &m)
     {
-      removeElem(EConsElem::SCALE, iv1, iv2);
-      messerr("Warning, you gave a non-stationary specification for the range");
-      messerr("but it was already given for the scale.");
-      messerr("The new specification has replaced the previous one.");
+      _definedByAnglesAndScales = m._definedByAnglesAndScales;
+      _definedForAnisotropy = m._definedForAnisotropy;
+      _definedForRotation = m._definedForRotation;
+      _definedForTensor = m._definedForTensor;
+      _nTensor = m._nTensor;
+      _nAngles = m._nAngles;
+      _nRanges = m._nRanges;
+      _nScales = m._nScales;
+      _param = m._param;
     }
-    else if (_nScales > 0)
-    {
-      messerr("You try to specify non stationarities for range whereas");
-      messerr("you had already specified one for the scale in another dimension.");
-      messerr("It is invalid");
-      return 0;
-    }
+    return *this;
   }
-  if (econs == EConsElem::SCALE)
-  {
-    if (isElemDefined(EConsElem::RANGE, iv1, iv2) && _nRanges == 1)
-    {
-      removeElem(EConsElem::RANGE, iv1, iv2);
-      messerr("Warning, you gave a non-stationary specification for the scale");
-      messerr("but it was already given for the range.");
-      messerr("The new specification has replaced the previous one.");
-    }
-    else if (_nRanges > 0)
-    {
-      messerr("You try to specify non stationarities for scale whereas");
-      messerr("you had already specified one for the range in another dimension.");
-      messerr("It is invalid");
-      return 0;
-    }
-  }
-  Id res = TabNoStat::addElem(nostat, econs, iv1, iv2);
-  if (res == 0) return res;
-  if (econs == EConsElem::PARAM)
-    _param = true;
-  if (econs == EConsElem::TENSOR)
-    _nTensor += res;
-  if (econs == EConsElem::RANGE)
-    _nRanges += res;
-  if (econs == EConsElem::SCALE)
-    _nScales += res;
-  if (econs == EConsElem::ANGLE)
-    _nAngles += res;
-  updateDescription();
-  return res;
-}
 
-Id TabNoStatCovAniso::removeElem(const EConsElem& econs, Id iv1, Id iv2)
-{
-  Id res = TabNoStat::removeElem(econs, iv1, iv2);
-  if (res == 0) return res;
-  if (econs == EConsElem::PARAM)
+  /**
+   * Look if a Non-stationary parameter for Anisotropy is defined
+   * either by Tensor or by (angle/range/scale)
+   * @return
+   */
+  bool TabNoStatCovAniso::isDefinedForAnisotropy() const
+  {
+    return _definedForAnisotropy;
+  }
+
+  /*
+   * Look if a Non-stationary parameter for Anisotropy is defined
+   * only by angle / range / scale
+   * @return
+   */
+
+  bool TabNoStatCovAniso::isDefinedForRotation() const
+  {
+    return _definedForRotation;
+  }
+
+  void TabNoStatCovAniso::_clear()
+  {
+    _nAngles = 0;
+    _nRanges = 0;
+    _nScales = 0;
+    _nTensor = 0;
     _param = false;
-  if (econs == EConsElem::TENSOR)
-    _nTensor -= res;
-  if (econs == EConsElem::RANGE)
-    _nRanges -= res;
-  if (econs == EConsElem::SCALE)
-    _nScales -= res;
-  if (econs == EConsElem::ANGLE)
-    _nAngles -= res;
-  updateDescription();
-  return res;
-}
+    _definedForAnisotropy = false;
+    _definedByAnglesAndScales = false;
+    _definedForRotation = false;
+    _definedForTensor = false;
+  }
 
-bool TabNoStatCovAniso::_isValid(const EConsElem& econs) const
-{
-  return (econs == EConsElem::RANGE || econs == EConsElem::ANGLE ||
-          econs == EConsElem::SCALE || econs == EConsElem::TENSOR ||
-          econs == EConsElem::PARAM);
-}
+  void TabNoStatCovAniso::_updateDescription()
+  {
+    _definedForRotation = (_nAngles > 0) || (_nRanges > 0) || (_nScales > 0);
+    _definedForTensor = _nTensor > 0;
+    _definedForAnisotropy = _definedForRotation || _definedForTensor;
+  }
 
-TabNoStatCovAniso::~TabNoStatCovAniso()
-{
-}
+  Id TabNoStatCovAniso::addElem(
+    std::shared_ptr<ANoStat>& nostat,
+    const EConsElem& econs,
+    Id iv1,
+    Id iv2)
+  {
+    if (econs == EConsElem::RANGE)
+    {
+      if (isElemDefined(EConsElem::SCALE, iv1, iv2) && _nScales == 1)
+      {
+        removeElem(EConsElem::SCALE, iv1, iv2);
+        messerr(
+          "Warning, you gave a non-stationary specification for the range");
+        messerr("but it was already given for the scale.");
+        messerr("The new specification has replaced the previous one.");
+      }
+      else if (_nScales > 0)
+      {
+        messerr("You try to specify non stationarities for range whereas");
+        messerr(
+          "you had already specified one for the scale in another dimension.");
+        messerr("It is invalid");
+        return 0;
+      }
+    }
+    if (econs == EConsElem::SCALE)
+    {
+      if (isElemDefined(EConsElem::RANGE, iv1, iv2) && _nRanges == 1)
+      {
+        removeElem(EConsElem::RANGE, iv1, iv2);
+        messerr(
+          "Warning, you gave a non-stationary specification for the scale");
+        messerr("but it was already given for the range.");
+        messerr("The new specification has replaced the previous one.");
+      }
+      else if (_nRanges > 0)
+      {
+        messerr("You try to specify non stationarities for scale whereas");
+        messerr(
+          "you had already specified one for the range in another dimension.");
+        messerr("It is invalid");
+        return 0;
+      }
+    }
+    Id res = TabNoStat::addElem(nostat, econs, iv1, iv2);
+    if (res == 0) return res;
+    if (econs == EConsElem::PARAM) _param = true;
+    if (econs == EConsElem::TENSOR) _nTensor += res;
+    if (econs == EConsElem::RANGE) _nRanges += res;
+    if (econs == EConsElem::SCALE) _nScales += res;
+    if (econs == EConsElem::ANGLE) _nAngles += res;
+    updateDescription();
+    return res;
+  }
 
-}
+  Id TabNoStatCovAniso::removeElem(const EConsElem& econs, Id iv1, Id iv2)
+  {
+    Id res = TabNoStat::removeElem(econs, iv1, iv2);
+    if (res == 0) return res;
+    if (econs == EConsElem::PARAM) _param = false;
+    if (econs == EConsElem::TENSOR) _nTensor -= res;
+    if (econs == EConsElem::RANGE) _nRanges -= res;
+    if (econs == EConsElem::SCALE) _nScales -= res;
+    if (econs == EConsElem::ANGLE) _nAngles -= res;
+    updateDescription();
+    return res;
+  }
+
+  bool TabNoStatCovAniso::_isValid(const EConsElem& econs) const
+  {
+    return (
+      econs == EConsElem::RANGE || econs == EConsElem::ANGLE
+      || econs == EConsElem::SCALE || econs == EConsElem::TENSOR
+      || econs == EConsElem::PARAM);
+  }
+
+  TabNoStatCovAniso::~TabNoStatCovAniso() {}
+
+} // namespace gstlrn

@@ -15,42 +15,40 @@
 
 namespace gstlrn
 {
-KernelCosExp::KernelCosExp(const CovContext& ctxt)
-  : AKernel(ECov::COSEXP, ctxt)
-{
-  setParam(1);
-}
-
-KernelCosExp::KernelCosExp(const KernelCosExp& r)
-  : AKernel(r)
-{
-}
-
-KernelCosExp& KernelCosExp::operator=(const KernelCosExp& r)
-{
-  if (this != &r)
+  KernelCosExp::KernelCosExp(const CovContext& ctxt)
+    : AKernel(ECov::COSEXP, ctxt)
   {
-    AKernel::operator=(r);
+    setParam(1);
   }
-  return *this;
-}
 
-KernelCosExp::~KernelCosExp()
-{
-}
+  KernelCosExp::KernelCosExp(const KernelCosExp& r)
+    : AKernel(r)
+  {
+  }
 
-double KernelCosExp::getScadef() const
-{
-  return (2.995732);
-}
+  KernelCosExp& KernelCosExp::operator=(const KernelCosExp& r)
+  {
+    if (this != &r)
+    {
+      AKernel::operator=(r);
+    }
+    return *this;
+  }
 
-double KernelCosExp::_evaluateCov(double h) const
-{
-  double cov = 1.;
-  if (h > 100) return (0.);
-  cov       = exp(-h);
-  double h2 = h / getParam();
-  cov *= cos(2. * GV_PI * h2);
-  return (cov);
-}
+  KernelCosExp::~KernelCosExp() {}
+
+  double KernelCosExp::getScadef() const
+  {
+    return (2.995732);
+  }
+
+  double KernelCosExp::_evaluateCov(double h) const
+  {
+    double cov = 1.;
+    if (h > 100) return (0.);
+    cov = exp(-h);
+    double h2 = h / getParam();
+    cov *= cos(2. * GV_PI * h2);
+    return (cov);
+  }
 } // namespace gstlrn

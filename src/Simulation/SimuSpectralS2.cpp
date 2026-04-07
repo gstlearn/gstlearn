@@ -201,10 +201,8 @@ namespace gstlrn
 
   void SimuSpectralS2::_printSpSim(const spSim& spsim, Id status)
   {
-    message("Component %2d (%2d / %2d)\n",
-            spsim._k,
-            spsim._countP,
-            spsim._countM);
+    message(
+      "Component %2d (%2d / %2d)\n", spsim._k, spsim._countP, spsim._countM);
     if (status == 0) return;
 
     for (const auto& e1: spsim._tab)
@@ -242,9 +240,10 @@ namespace gstlrn
     message("- Number of components (-) = %d\n", totalM);
   }
 
-  Id SimuSpectralS2::_compute(Db* dbout,
-                              const VectorBool& activeArray,
-                              VectorVectorDouble& tab)
+  Id SimuSpectralS2::_compute(
+    Db* dbout,
+    const VectorBool& activeArray,
+    VectorVectorDouble& tab)
   {
     auto nech = dbout->getNSample();
 
@@ -309,9 +308,9 @@ namespace gstlrn
         VectorInt N_list = _getKeys1(spsimK);
 
         if (getVerbose())
-          message(">>> Simulating order K = %d: component number = %d\n",
-                  m,
-                  _getSumValue(spsimK));
+          message(
+            ">>> Simulating order K = %d: component number = %d\n", m,
+            _getSumValue(spsimK));
 
         // From n-1 to n
         Id NK_max = N_list.maximum();
@@ -326,8 +325,9 @@ namespace gstlrn
           else
           {
             double a = sqrt((2. * n + 1.) * (2. * n - 1.) / (n - m) / (n + m));
-            double b = sqrt((2. * n + 1.) / (2. * n - 3.) * (n - 1. - m)
-                            / (n - m) * (n - 1. + m) / (n + m));
+            double b = sqrt(
+              (2. * n + 1.) / (2. * n - 3.) * (n - 1. - m) / (n - m)
+              * (n - 1. + m) / (n + m));
             for (Id iech = 0; iech < nech; iech++)
               Plm[iech] = a * x[iech] * P1[iech] - b * P2[iech];
             P2 = P1;
@@ -344,12 +344,9 @@ namespace gstlrn
             {
               Id sumComp = nbrComp.sum();
               cumComp += sumComp;
-              message("K = %d and N = %d : %d / %d  jk = %d\n",
-                      m,
-                      n,
-                      sumComp,
-                      cumComp,
-                      jk);
+              message(
+                "K = %d and N = %d : %d / %d  jk = %d\n", m, n, sumComp,
+                cumComp, jk);
             }
 
             for (Id ii = 0, ncomp = static_cast<Id>(valComp.size()); ii < ncomp;

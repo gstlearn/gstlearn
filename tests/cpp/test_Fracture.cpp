@@ -25,6 +25,7 @@
 #include "Space/ASpaceObject.hpp"
 
 using namespace gstlrn;
+
 /****************************************************************************/
 /*!
  ** Main Program
@@ -39,9 +40,9 @@ int main(int argc, char* argv[])
   ASerializable::setPrefixName("test_Fractures-");
 
   // Global parameters
-  Id ndim      = 2;
+  Id ndim = 2;
   bool verbose = true;
-  Id ndisc     = 1000.;
+  Id ndisc = 1000.;
   law_set_random_seed(32131);
 
   defineDefaultSpace(ESpaceType::RN, ndim);
@@ -53,12 +54,12 @@ int main(int argc, char* argv[])
   grid->display();
 
   // Creating the Fracture Environment
-  double xmax     = grid->getExtend(0);
-  double ymax     = grid->getExtend(1);
-  double deltax   = 0.;
-  double deltay   = 0.;
-  double mean     = 20.;
-  double stdev    = 10.;
+  double xmax = grid->getExtend(0);
+  double ymax = grid->getExtend(1);
+  double deltax = 0.;
+  double deltay = 0.;
+  double mean = 20.;
+  double stdev = 10.;
   FracEnviron env(xmax, ymax, deltax, deltay, mean, stdev);
 
   // Creating the Fault Families
@@ -72,13 +73,13 @@ int main(int argc, char* argv[])
   FracFamily family2(30., 5., 0.2, 1., 1., 0.5, 0.2, 1.2, 2.4, 5.);
 
   // Creating the Major Fault
-  double coord    = 30.;
-  double forient  = 0.;
+  double coord = 30.;
+  double forient = 0.;
   FracFault fault(coord, forient);
-  double thetal   = 1.;
-  double thetar   = 2.;
-  double rangel   = 10.;
-  double ranger   = 20.;
+  double thetal = 1.;
+  double thetar = 2.;
+  double rangel = 10.;
+  double ranger = 20.;
   fault.addFaultPerFamily(thetal, thetar, rangel, ranger);
   fault.addFaultPerFamily(thetal, thetar, rangel, ranger);
 
@@ -96,10 +97,10 @@ int main(int argc, char* argv[])
 
   // Plunge the set of fractures on the Grid
   VectorDouble permtab = {20., 10., 15.};
-  double perm_mat      = 0.;
-  double perm_bench    = 5.;
-  (void)flist.fractureToBlock(grid, xmax, permtab, perm_mat, perm_bench,
-                              ndisc, verbose);
+  double perm_mat = 0.;
+  double perm_bench = 5.;
+  (void)flist.fractureToBlock(
+    grid, xmax, permtab, perm_mat, perm_bench, ndisc, verbose);
 
   grid->display(&dbfmt);
   (void)grid->dumpToNF("Grid.NF");

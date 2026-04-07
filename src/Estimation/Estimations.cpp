@@ -42,9 +42,9 @@ namespace gstlrn
       if (nech > maxNumber)
       {
         messerr("No neighborhood has been defined");
-        messerr("The number of active samples (%d) is too large (>%d)",
-                nech,
-                maxNumber);
+        messerr(
+          "The number of active samples (%d) is too large (>%d)", nech,
+          maxNumber);
         messerr("to allow the definition of a Unique Neighborhood by default");
         return nullptr;
       }
@@ -55,11 +55,12 @@ namespace gstlrn
     return neighUnique;
   }
 
-  Global_Result global_arithmetic(Db* dbin,
-                                  DbGrid* dbgrid,
-                                  ModelGeneric* model,
-                                  Id ivar0,
-                                  bool verbose)
+  Global_Result global_arithmetic(
+    Db* dbin,
+    DbGrid* dbgrid,
+    ModelGeneric* model,
+    Id ivar0,
+    bool verbose)
   {
     Global_Result gres;
     CalcGlobal global(ivar0, verbose);
@@ -72,11 +73,12 @@ namespace gstlrn
     return gres;
   }
 
-  Global_Result global_kriging(Db* dbin,
-                               Db* dbout,
-                               ModelGeneric* model,
-                               Id ivar0,
-                               bool verbose)
+  Global_Result global_kriging(
+    Db* dbin,
+    Db* dbout,
+    ModelGeneric* model,
+    Id ivar0,
+    bool verbose)
   {
     Global_Result gres;
     CalcGlobal global(ivar0, verbose);
@@ -104,13 +106,14 @@ namespace gstlrn
    ** \param[in]  namconv    Naming Convention
    **
    *****************************************************************************/
-  Id krimage(DbGrid* dbgrid,
-             Model* model,
-             ANeigh* neigh,
-             bool flagFFT,
-             bool verbose,
-             Id seed,
-             const NamingConvention& namconv)
+  Id krimage(
+    DbGrid* dbgrid,
+    Model* model,
+    ANeigh* neigh,
+    bool flagFFT,
+    bool verbose,
+    Id seed,
+    const NamingConvention& namconv)
   {
     CalcImage image;
 
@@ -142,11 +145,12 @@ namespace gstlrn
    ** \param[in]  namconv    Naming Convention
    **
    *****************************************************************************/
-  Id dbSmoother(DbGrid* dbgrid,
-                ANeigh* neigh,
-                Id type,
-                double range,
-                const NamingConvention& namconv)
+  Id dbSmoother(
+    DbGrid* dbgrid,
+    ANeigh* neigh,
+    Id type,
+    double range,
+    const NamingConvention& namconv)
   {
     CalcImage image;
 
@@ -176,15 +180,16 @@ namespace gstlrn
    * @param namconv Naming convention
    * @return
    */
-  GSTLEARN_EXPORT Id dbMorpho(DbGrid* dbgrid,
-                              const EMorpho& oper,
-                              double vmin,
-                              double vmax,
-                              Id option,
-                              const VectorInt& radius,
-                              bool flagDistErode,
-                              bool verbose,
-                              const NamingConvention& namconv)
+  GSTLEARN_EXPORT Id dbMorpho(
+    DbGrid* dbgrid,
+    const EMorpho& oper,
+    double vmin,
+    double vmax,
+    Id option,
+    const VectorInt& radius,
+    bool flagDistErode,
+    bool verbose,
+    const NamingConvention& namconv)
   {
     CalcImage image;
 
@@ -228,15 +233,16 @@ namespace gstlrn
    ** \param[in]  namconv     Naming convention
    **
    *****************************************************************************/
-  Id kriging(Db* dbin,
-             Db* dbout,
-             ModelGeneric* model,
-             ANeigh* neigh,
-             bool flag_est,
-             bool flag_std,
-             bool flag_varz,
-             const KrigOpt& krigopt,
-             const NamingConvention& namconv)
+  Id kriging(
+    Db* dbin,
+    Db* dbout,
+    ModelGeneric* model,
+    ANeigh* neigh,
+    bool flag_est,
+    bool flag_std,
+    bool flag_varz,
+    const KrigOpt& krigopt,
+    const NamingConvention& namconv)
   {
     auto* neighLocal = _defaultNeighborhood(neigh, dbin);
     auto* neighBench = dynamic_cast<NeighBench*>(neighLocal);
@@ -285,14 +291,15 @@ namespace gstlrn
    ** \param[in]  namconv     Naming convention
    **
    *****************************************************************************/
-  Id krigcell(Db* dbin,
-              Db* dbout,
-              ModelGeneric* model,
-              ANeigh* neigh,
-              bool flag_est,
-              bool flag_std,
-              const KrigOpt& krigopt,
-              const NamingConvention& namconv)
+  Id krigcell(
+    Db* dbin,
+    Db* dbout,
+    ModelGeneric* model,
+    ANeigh* neigh,
+    bool flag_est,
+    bool flag_std,
+    const KrigOpt& krigopt,
+    const NamingConvention& namconv)
   {
     auto* neighLocal = _defaultNeighborhood(neigh, dbin);
     CalcKriging krige(flag_est, flag_std, false);
@@ -322,13 +329,14 @@ namespace gstlrn
    ** \param[in]  namconv     Naming convention
    **
    *****************************************************************************/
-  Id kribayes(Db* dbin,
-              Db* dbout,
-              ModelGeneric* model,
-              ANeigh* neigh,
-              bool flag_est,
-              bool flag_std,
-              const NamingConvention& namconv)
+  Id kribayes(
+    Db* dbin,
+    Db* dbout,
+    ModelGeneric* model,
+    ANeigh* neigh,
+    bool flag_est,
+    bool flag_std,
+    const NamingConvention& namconv)
   {
     auto* neighLocal = _defaultNeighborhood(neigh, dbin);
     CalcKriging krige(flag_est, flag_std, false);
@@ -360,13 +368,14 @@ namespace gstlrn
    **                         (the current status is reset after the run)
    **
    *****************************************************************************/
-  Krigtest_Res krigtest(Db* dbin,
-                        Db* dbout,
-                        ModelGeneric* model,
-                        ANeigh* neigh,
-                        Id iech0,
-                        const KrigOpt& krigopt,
-                        bool verbose)
+  Krigtest_Res krigtest(
+    Db* dbin,
+    Db* dbout,
+    ModelGeneric* model,
+    ANeigh* neigh,
+    Id iech0,
+    const KrigOpt& krigopt,
+    bool verbose)
   {
     auto* neighLocal = _defaultNeighborhood(neigh, dbin);
     CalcKriging krige(true, true, false);
@@ -397,12 +406,13 @@ namespace gstlrn
    ** \param[in]  namconv    Naming convention
    **
    *****************************************************************************/
-  Id kriggam(Db* dbin,
-             Db* dbout,
-             ModelGeneric* model,
-             ANeigh* neigh,
-             AAnam* anam,
-             const NamingConvention& namconv)
+  Id kriggam(
+    Db* dbin,
+    Db* dbout,
+    ModelGeneric* model,
+    ANeigh* neigh,
+    AAnam* anam,
+    const NamingConvention& namconv)
   {
     CalcKriging krige(true, true, false);
     krige.setDbin(dbin);
@@ -435,20 +445,20 @@ namespace gstlrn
    * @param namconv Naming Convention
    * @return Error return code
    */
-  Id xvalid(Db* db,
-            ModelGeneric* model,
-            ANeigh* neigh,
-            bool flag_kfold,
-            Id flag_xvalid_est,
-            Id flag_xvalid_std,
-            Id flag_xvalid_varz,
-            const KrigOpt& krigopt,
-            const NamingConvention& namconv)
+  Id xvalid(
+    Db* db,
+    ModelGeneric* model,
+    ANeigh* neigh,
+    bool flag_kfold,
+    Id flag_xvalid_est,
+    Id flag_xvalid_std,
+    Id flag_xvalid_varz,
+    const KrigOpt& krigopt,
+    const NamingConvention& namconv)
   {
     auto* neighLocal = _defaultNeighborhood(neigh, db);
-    CalcKriging krige(flag_xvalid_est != 0,
-                      flag_xvalid_std != 0,
-                      flag_xvalid_varz != 0);
+    CalcKriging krige(
+      flag_xvalid_est != 0, flag_xvalid_std != 0, flag_xvalid_varz != 0);
     krige.setDbin(db);
     krige.setDbout(db);
     krige.setModelGeneric(model);
@@ -486,11 +496,12 @@ namespace gstlrn
    ** \remark 5 - The number of consecutive empty sectors
    **
    *****************************************************************************/
-  Id test_neigh(Db* dbin,
-                Db* dbout,
-                ModelGeneric* model,
-                ANeigh* neigh,
-                const NamingConvention& namconv)
+  Id test_neigh(
+    Db* dbin,
+    Db* dbout,
+    ModelGeneric* model,
+    ANeigh* neigh,
+    const NamingConvention& namconv)
   {
     auto* neighLocal = _defaultNeighborhood(neigh, dbin);
     CalcKriging krige(false, false, false);
@@ -527,14 +538,15 @@ namespace gstlrn
    ** \remark have to be defined
    **
    *****************************************************************************/
-  Id krigingFactors(Db* dbin,
-                    Db* dbout,
-                    Model* model,
-                    ANeigh* neigh,
-                    bool flag_est,
-                    bool flag_std,
-                    const KrigOpt& krigopt,
-                    const NamingConvention& namconv)
+  Id krigingFactors(
+    Db* dbin,
+    Db* dbout,
+    Model* model,
+    ANeigh* neigh,
+    bool flag_est,
+    bool flag_std,
+    const KrigOpt& krigopt,
+    const NamingConvention& namconv)
   {
     CalcKrigingFactors krige(flag_est, flag_std);
     krige.setDbin(dbin);
@@ -550,15 +562,16 @@ namespace gstlrn
     return error;
   }
 
-  Id krigingGradient(Db* dbin,
-                     Db* dbout,
-                     ModelGeneric* model,
-                     ANeigh* neigh,
-                     bool flag_est,
-                     bool flag_std,
-                     double ball_radius,
-                     bool flagForceNumeric,
-                     const NamingConvention& namconv)
+  Id krigingGradient(
+    Db* dbin,
+    Db* dbout,
+    ModelGeneric* model,
+    ANeigh* neigh,
+    bool flag_est,
+    bool flag_std,
+    double ball_radius,
+    bool flagForceNumeric,
+    const NamingConvention& namconv)
   {
     CalcKrigingGradient krigeGradient(flag_est, flag_std, ball_radius);
     krigeGradient.setDbin(dbin);
@@ -589,15 +602,16 @@ namespace gstlrn
    ** \param[in]  namconv     Naming convention
    **
    *****************************************************************************/
-  Id inverseDistance(Db* dbin,
-                     Db* dbout,
-                     double exponent,
-                     bool flag_expand,
-                     double dmax,
-                     bool flag_est,
-                     bool flag_std,
-                     Model* model,
-                     const NamingConvention& namconv)
+  Id inverseDistance(
+    Db* dbin,
+    Db* dbout,
+    double exponent,
+    bool flag_expand,
+    double dmax,
+    bool flag_est,
+    bool flag_std,
+    Model* model,
+    const NamingConvention& namconv)
   {
     CalcSimpleInterpolation interpol;
     interpol.setDbin(dbin);
@@ -631,13 +645,14 @@ namespace gstlrn
    ** \param[in]  namconv     Naming convention
    **
    *****************************************************************************/
-  GSTLEARN_EXPORT Id movingAverage(Db* dbin,
-                                   Db* dbout,
-                                   ANeigh* neigh,
-                                   bool flag_est,
-                                   bool flag_std,
-                                   Model* model,
-                                   const NamingConvention& namconv)
+  GSTLEARN_EXPORT Id movingAverage(
+    Db* dbin,
+    Db* dbout,
+    ANeigh* neigh,
+    bool flag_est,
+    bool flag_std,
+    Model* model,
+    const NamingConvention& namconv)
   {
     CalcSimpleInterpolation interpol;
     interpol.setDbin(dbin);
@@ -669,13 +684,14 @@ namespace gstlrn
    ** \param[in]  namconv     Naming convention
    **
    *****************************************************************************/
-  GSTLEARN_EXPORT Id movingMedian(Db* dbin,
-                                  Db* dbout,
-                                  ANeigh* neigh,
-                                  bool flag_est,
-                                  bool flag_std,
-                                  Model* model,
-                                  const NamingConvention& namconv)
+  GSTLEARN_EXPORT Id movingMedian(
+    Db* dbin,
+    Db* dbout,
+    ANeigh* neigh,
+    bool flag_est,
+    bool flag_std,
+    Model* model,
+    const NamingConvention& namconv)
   {
     CalcSimpleInterpolation interpol;
     interpol.setDbin(dbin);
@@ -706,12 +722,13 @@ namespace gstlrn
    ** \param[in]  namconv     Naming convention
    **
    *****************************************************************************/
-  GSTLEARN_EXPORT Id nearestNeighbor(Db* dbin,
-                                     Db* dbout,
-                                     bool flag_est,
-                                     bool flag_std,
-                                     Model* model,
-                                     const NamingConvention& namconv)
+  GSTLEARN_EXPORT Id nearestNeighbor(
+    Db* dbin,
+    Db* dbout,
+    bool flag_est,
+    bool flag_std,
+    Model* model,
+    const NamingConvention& namconv)
   {
     CalcSimpleInterpolation interpol;
     interpol.setDbin(dbin);
@@ -743,11 +760,12 @@ namespace gstlrn
    ** \param[in]  namconv     Naming Convention
    **
    *****************************************************************************/
-  GSTLEARN_EXPORT Id leastSquares(Db* dbin,
-                                  Db* dbout,
-                                  ANeigh* neigh,
-                                  Id order,
-                                  const NamingConvention& namconv)
+  GSTLEARN_EXPORT Id leastSquares(
+    Db* dbin,
+    Db* dbout,
+    ANeigh* neigh,
+    Id order,
+    const NamingConvention& namconv)
   {
     CalcSimpleInterpolation interpol;
     interpol.setDbin(dbin);

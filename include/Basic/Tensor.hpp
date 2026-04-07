@@ -19,72 +19,97 @@
 namespace gstlrn
 {
 
-class GSTLEARN_EXPORT Tensor: public AStringable /// TODO : public ASpaceObject
-{
-public:
-  Tensor(size_t ndim = 2);
-  Tensor(const Tensor& r);
-  Tensor& operator=(const Tensor& r);
-  virtual ~Tensor();
+  class GSTLEARN_EXPORT Tensor
+    : public AStringable /// TODO : public ASpaceObject
+  {
+  public:
+    Tensor(size_t ndim = 2);
+    Tensor(const Tensor& r);
+    Tensor& operator=(const Tensor& r);
+    virtual ~Tensor();
 
-  /// Interface for AStringable
-  String toString(const AStringFormat* strfmt = nullptr) const override;
+    /// Interface for AStringable
+    String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  void init(Id ndim);
-  void setTensorDirect2(const MatrixSymmetric& tensor);
+    void init(Id ndim);
+    void setTensorDirect2(const MatrixSymmetric& tensor);
 
-  void setRadiusIsotropic(double radius);
-  void setRadiusVec(const VectorDouble& radius);
-  void setRadiusDir(size_t idim, double radius);
+    void setRadiusIsotropic(double radius);
+    void setRadiusVec(const VectorDouble& radius);
+    void setRadiusDir(size_t idim, double radius);
 
-  void setRotation(const Rotation& rot);
-  void setRotationAngles(const VectorDouble& angles);
-  void setRotationAngle(size_t idim, double angle);
+    void setRotation(const Rotation& rot);
+    void setRotationAngles(const VectorDouble& angles);
+    void setRotationAngle(size_t idim, double angle);
 
-  void setRotationAnglesAndRadius(const VectorDouble& angles = VectorDouble(),
-                                  const VectorDouble& radius = VectorDouble());
+    void setRotationAnglesAndRadius(
+      const VectorDouble& angles = VectorDouble(),
+      const VectorDouble& radius = VectorDouble());
 
-  const VectorDouble& getAngles() const { return _rotation.getAngles(); }
-  const MatrixSquare& getTensorDirect() const { return _tensorDirect; }
-  const MatrixSquare& getTensorInverse() const { return _tensorInverse; }
-  const MatrixSymmetric& getTensorDirect2() const { return _tensorDirect2; }
-  const VectorDouble& getRadius() const { return _radius; }
-  double getAngle(Id i) const { return getAngles()[i]; }
-  double getRadius(Id i) const { return _radius[i]; }
-  const Rotation& getRotation() const { return _rotation; }
-  const MatrixSquare& getMatrixDirect() const { return _rotation.getMatrixDirect(); }
-  const MatrixSquare& getMatrixInverse() const { return _rotation.getMatrixInverse(); }
-  bool isIsotropic() const { return _isotropic; }
-  bool hasRotation() const { return !_rotation.isIdentity(); }
+    const VectorDouble& getAngles() const { return _rotation.getAngles(); }
 
-  double getValue(Id idim, Id jdim) const { return _rotation.getMatrixDirect(idim, jdim); }
+    const MatrixSquare& getTensorDirect() const { return _tensorDirect; }
 
-  VectorDouble applyDirect(const VectorDouble& vec) const;
-  VectorDouble applyInverse(const VectorDouble& vec) const;
-  void applyInverseInPlace(constvect vec, vect out) const;
+    const MatrixSquare& getTensorInverse() const { return _tensorInverse; }
 
-  void applyInverseInPlace(const VectorDouble& vec, VectorDouble& out) const;
-  void applyInverse2InPlace(const VectorDouble& vec, VectorDouble& out) const;
-  void applyDirectInPlace(const VectorDouble& vec, VectorDouble& out) const;
-  void applyDirectSwapInPlace(const VectorDouble& vec, VectorDouble& out) const;
+    const MatrixSymmetric& getTensorDirect2() const { return _tensorDirect2; }
 
-  bool isFlagDefinedByInverse2() const { return _flagDefinedBySquare; }
+    const VectorDouble& getRadius() const { return _radius; }
 
-private:
-  void _updateIsotropic();
-  void _fillTensors();
-  void _direct2ToInverse2();
+    double getAngle(Id i) const { return getAngles()[i]; }
 
-private:
-  size_t _nDim;                    /// Number of dimensions
-  MatrixSquare _tensorDirect;      /// Direct Tensor matrix (definite positive)
-  MatrixSquare _tensorInverse;     /// Inverse Tensor matrix (definite positive)
-  MatrixSymmetric _tensorDirect2;  /// Square of Direct tensor
-  MatrixSymmetric _tensorInverse2; /// Inverse of squared direct tensor
-  MatrixSquare _tensorDirectSwap;  /// If tensor = Radius x Rot, tensorSwap = Rot x Radius
-  VectorDouble _radius;            /// Ellipsoid radius
-  Rotation _rotation;              /// Ellipsoid rotation
-  bool _isotropic;                 /// True if the tensor is isotropic
-  bool _flagDefinedBySquare;       /// True if Tensor has been defined using the squared elements (direct)
-};
+    double getRadius(Id i) const { return _radius[i]; }
+
+    const Rotation& getRotation() const { return _rotation; }
+
+    const MatrixSquare& getMatrixDirect() const
+    {
+      return _rotation.getMatrixDirect();
+    }
+
+    const MatrixSquare& getMatrixInverse() const
+    {
+      return _rotation.getMatrixInverse();
+    }
+
+    bool isIsotropic() const { return _isotropic; }
+
+    bool hasRotation() const { return !_rotation.isIdentity(); }
+
+    double getValue(Id idim, Id jdim) const
+    {
+      return _rotation.getMatrixDirect(idim, jdim);
+    }
+
+    VectorDouble applyDirect(const VectorDouble& vec) const;
+    VectorDouble applyInverse(const VectorDouble& vec) const;
+    void applyInverseInPlace(constvect vec, vect out) const;
+
+    void applyInverseInPlace(const VectorDouble& vec, VectorDouble& out) const;
+    void applyInverse2InPlace(const VectorDouble& vec, VectorDouble& out) const;
+    void applyDirectInPlace(const VectorDouble& vec, VectorDouble& out) const;
+    void
+      applyDirectSwapInPlace(const VectorDouble& vec, VectorDouble& out) const;
+
+    bool isFlagDefinedByInverse2() const { return _flagDefinedBySquare; }
+
+  private:
+    void _updateIsotropic();
+    void _fillTensors();
+    void _direct2ToInverse2();
+
+  private:
+    size_t _nDim; /// Number of dimensions
+    MatrixSquare _tensorDirect; /// Direct Tensor matrix (definite positive)
+    MatrixSquare _tensorInverse; /// Inverse Tensor matrix (definite positive)
+    MatrixSymmetric _tensorDirect2; /// Square of Direct tensor
+    MatrixSymmetric _tensorInverse2; /// Inverse of squared direct tensor
+    MatrixSquare
+      _tensorDirectSwap; /// If tensor = Radius x Rot, tensorSwap = Rot x Radius
+    VectorDouble _radius; /// Ellipsoid radius
+    Rotation _rotation; /// Ellipsoid rotation
+    bool _isotropic; /// True if the tensor is isotropic
+    bool
+      _flagDefinedBySquare; /// True if Tensor has been defined using the squared elements (direct)
+  };
 } // namespace gstlrn

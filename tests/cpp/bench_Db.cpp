@@ -10,22 +10,23 @@
 /******************************************************************************/
 #include "Enum/ESpaceType.hpp"
 
-#include "Space/ASpaceObject.hpp"
-#include "Db/Db.hpp"
-#include "Db/DbStringFormat.hpp"
-#include "Model/Model.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Timer.hpp"
-#include "Neigh/NeighUnique.hpp"
+#include "Db/Db.hpp"
+#include "Db/DbStringFormat.hpp"
 #include "Estimation/Estimations.hpp"
+#include "Model/Model.hpp"
+#include "Neigh/NeighUnique.hpp"
+#include "Space/ASpaceObject.hpp"
 
 using namespace gstlrn;
+
 /****************************************************************************/
 /*!
  ** Main Program
  **
  *****************************************************************************/
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   bool verbose = false;
 
@@ -54,7 +55,7 @@ int main(int argc, char *argv[])
   timer.displayIntervalMilliseconds("Kriging in Unique Neighborhood", 310);
 
   // Produce some statistics for comparison
-  DbStringFormat *dbfmt = DbStringFormat::create(FLAG_STATS, {"z"});
+  DbStringFormat* dbfmt = DbStringFormat::create(FLAG_STATS, {"z"});
   data->display(dbfmt);
 
   delete dbfmt;

@@ -20,7 +20,7 @@ on:
 
 env:
   BUILD_DIR : build
-  
+
 jobs:
   get-version:
     runs-on: ubuntu-latest
@@ -88,10 +88,10 @@ jobs:
   call-publish:
     needs: [get-version, call-data, call-references, call-doxygen, call-courses, call-demos]
     if: ${{ (inputs.dry_publish == false) && (github.event_name != 'schedule') }}
-    
+
     # Only ubuntu can upload to a server easily (ssh)
     runs-on: ubuntu-latest
-    
+
     steps:
       - env:
           PROJECT_FULL_VERSION: ${{needs.get-version.outputs.project_full_version}}

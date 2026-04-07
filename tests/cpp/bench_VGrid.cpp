@@ -19,6 +19,7 @@
 #include "Variogram/Vario.hpp"
 
 using namespace gstlrn;
+
 /****************************************************************************/
 /*!
 ** Main Program for bench marking the variogram calculation on the Grid
@@ -37,9 +38,9 @@ int main(int argc, char* argv[])
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Creating a regular grid
-  VectorInt nx     = {600, 400};
-  VectorDouble dx  = {1.0, 1.0};
-  DbGrid* grid     = DbGrid::create(nx, dx);
+  VectorInt nx = {600, 400};
+  VectorDouble dx = {1.0, 1.0};
+  DbGrid* grid = DbGrid::create(nx, dx);
   VectorDouble tab = VH::simulateGaussian(grid->getNSample());
   grid->addColumns(tab, "Var", ELoc::Z);
   if (verbose) grid->display();
@@ -48,12 +49,13 @@ int main(int argc, char* argv[])
   // On Grid samples
   // ===============
 
-  Id nlag   = 10;
+  Id nlag = 10;
   Id ndimax = 1;
   timer.reset();
-  VarioParam* varioparamG =
-    VarioParam::createMultipleFromGrid(grid, nlag, 0., VectorDouble(), nullptr, ndimax);
-  Vario* varioG = Vario::computeFromDb(*varioparamG, grid, ECalcVario::VARIOGRAM);
+  VarioParam* varioparamG = VarioParam::createMultipleFromGrid(
+    grid, nlag, 0., VectorDouble(), nullptr, ndimax);
+  Vario* varioG =
+    Vario::computeFromDb(*varioparamG, grid, ECalcVario::VARIOGRAM);
   timer.displayIntervalMilliseconds("Variogram on Regular Grid", 1500);
   if (verbose && varioG != nullptr) varioG->display();
 

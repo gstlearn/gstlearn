@@ -41,9 +41,9 @@ int main(int argc, char* argv[])
   bool verbose = false;
 
   // Creating a grid covering the same space
-  VectorInt nx    = {200, 200};
+  VectorInt nx = {200, 200};
   VectorDouble dx = {0.005, 0.005};
-  DbGrid* grid    = DbGrid::create(nx, dx);
+  DbGrid* grid = DbGrid::create(nx, dx);
 
   // Creating a Model(s) for simulating a variable
   Model* model = Model::createFromParam(ECov::SPHERICAL, 0.2);

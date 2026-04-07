@@ -24,69 +24,87 @@
 
 namespace gstlrn
 {
-typedef std::unordered_map<ParamId, std::shared_ptr<ANoStat>, ParamIdHash, ParamIdEqual> mapNoStat;
+  typedef std::
+    unordered_map<ParamId, std::shared_ptr<ANoStat>, ParamIdHash, ParamIdEqual>
+      mapNoStat;
 
-class GSTLEARN_EXPORT TabNoStat: public AStringable, public ICloneable, public ASerializable
-{
-public:
-  TabNoStat();
-  TabNoStat(const TabNoStat& m);
-  TabNoStat& operator=(const TabNoStat& m);
-  virtual ~TabNoStat();
+  class GSTLEARN_EXPORT TabNoStat: public AStringable,
+                                   public ICloneable,
+                                   public ASerializable
+  {
+  public:
+    TabNoStat();
+    TabNoStat(const TabNoStat& m);
+    TabNoStat& operator=(const TabNoStat& m);
+    virtual ~TabNoStat();
 
-  /// ICloneable Interface
-  IMPLEMENT_CLONING(TabNoStat)
+    /// ICloneable Interface
+    IMPLEMENT_CLONING(TabNoStat)
 
-  /// ASerializable Interface
-  String getNFName() const override { return "TabNoStat"; }
+    /// ASerializable Interface
+    String getNFName() const override { return "TabNoStat"; }
 #ifdef HDF5
-  bool deserializeH5(H5::Group& grp) override;
-  bool serializeH5(H5::Group& grp) const override;
+    bool deserializeH5(H5::Group& grp) override;
+    bool serializeH5(H5::Group& grp) const override;
 #endif
 
-  bool isNoStat() const { return !_items.empty(); }
-  void informMeshByMesh(const AMesh* amesh) const;
-  void informMeshByApex(const AMesh* amesh) const;
-  void informDbIn(const Db* dbin) const;
-  void informDbOut(const Db* dbout) const;
-  void informMeshByMesh(const AMesh* amesh, const EConsElem& econs) const;
-  void informMeshByApex(const AMesh* amesh, const EConsElem& econs) const;
-  void informDbIn(const Db* dbin, const EConsElem& econs) const;
-  void informDbOut(const Db* dbout, const EConsElem& econs) const;
-  Id size() const { return static_cast<Id>(_items.size()); }
-  bool empty() const { return _items.empty(); }
-  void updateDescription();
-  const mapNoStat& getTable() const { return _items; }
-  bool isValid(const EConsElem& econs) const;
-  virtual Id addElem(std::shared_ptr<ANoStat>& nostat, const EConsElem& econs, Id iv1 = 0, Id iv2 = 0);
-  virtual Id removeElem(const EConsElem& econs, Id iv1 = 0, Id iv2 = 0);
-  void clear();
-  void setDbNoStatRef(const Db* dbref);
-  void setDbNoStatRef(std::shared_ptr<const Db>& dbref);
-  std::shared_ptr<const Db> getDbNoStatRef() const;
-  const Db* getDbNoStatRefRaw() const;
-  void informCoords(const VectorVectorDouble& coords,
-                    const EConsElem& econs,
-                    Id iv1,
-                    Id iv2,
-                    VectorDouble& result) const;
-  String toString(const AStringFormat* strfmt = nullptr) const override;
-  bool isElemDefined(const EConsElem& econs, Id iv1 = 0, Id iv2 = 0) const;
-  std::shared_ptr<ANoStat> getElem(const EConsElem& econs, Id iv1 = 0, Id iv2 = 0);
-  bool variableExistsInDb(const String& namecol) const;
-  String toStringInside(const AStringFormat* strfmt = nullptr, Id i = 0) const;
+    bool isNoStat() const { return !_items.empty(); }
 
-private:
-  virtual void _clear() {};
-  virtual void _updateDescription() {};
-  virtual bool _isValid(const EConsElem& econs) const
-  {
-    DECLARE_UNUSED(econs)
-    return false;
+    void informMeshByMesh(const AMesh* amesh) const;
+    void informMeshByApex(const AMesh* amesh) const;
+    void informDbIn(const Db* dbin) const;
+    void informDbOut(const Db* dbout) const;
+    void informMeshByMesh(const AMesh* amesh, const EConsElem& econs) const;
+    void informMeshByApex(const AMesh* amesh, const EConsElem& econs) const;
+    void informDbIn(const Db* dbin, const EConsElem& econs) const;
+    void informDbOut(const Db* dbout, const EConsElem& econs) const;
+
+    Id size() const { return static_cast<Id>(_items.size()); }
+
+    bool empty() const { return _items.empty(); }
+
+    void updateDescription();
+
+    const mapNoStat& getTable() const { return _items; }
+
+    bool isValid(const EConsElem& econs) const;
+    virtual Id addElem(
+      std::shared_ptr<ANoStat>& nostat,
+      const EConsElem& econs,
+      Id iv1 = 0,
+      Id iv2 = 0);
+    virtual Id removeElem(const EConsElem& econs, Id iv1 = 0, Id iv2 = 0);
+    void clear();
+    void setDbNoStatRef(const Db* dbref);
+    void setDbNoStatRef(std::shared_ptr<const Db>& dbref);
+    std::shared_ptr<const Db> getDbNoStatRef() const;
+    const Db* getDbNoStatRefRaw() const;
+    void informCoords(
+      const VectorVectorDouble& coords,
+      const EConsElem& econs,
+      Id iv1,
+      Id iv2,
+      VectorDouble& result) const;
+    String toString(const AStringFormat* strfmt = nullptr) const override;
+    bool isElemDefined(const EConsElem& econs, Id iv1 = 0, Id iv2 = 0) const;
+    std::shared_ptr<ANoStat>
+      getElem(const EConsElem& econs, Id iv1 = 0, Id iv2 = 0);
+    bool variableExistsInDb(const String& namecol) const;
+    String
+      toStringInside(const AStringFormat* strfmt = nullptr, Id i = 0) const;
+
+  private:
+    virtual void _clear() {};
+    virtual void _updateDescription() {};
+
+    virtual bool _isValid(const EConsElem& econs) const
+    {
+      DECLARE_UNUSED(econs)
+      return false;
+    };
+
+  private:
+    mapNoStat _items;
+    std::shared_ptr<const Db> _dbNoStatRef;
   };
-
-private:
-  mapNoStat _items;
-  std::shared_ptr<const Db> _dbNoStatRef;
-};
 } // namespace gstlrn

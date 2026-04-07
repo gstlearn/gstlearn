@@ -233,7 +233,7 @@ Notes:
 * Clang from llvm package is mandatory to support OpenMP
 * If you want to permanently define the `CC` and `CXX` environment variables, follow [this guide](https://phoenixnap.com/kb/set-environment-variable-mac#ftoc-heading-5)
 
-  
+
 #### Windows - Microsoft Visual Studio
 
 These requirements are also recommended to people who wants to compile *gstlearn* Python package. If you want to compile *gstlearn* R package under Windows, you should look at the next section.

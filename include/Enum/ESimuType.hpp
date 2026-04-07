@@ -12,9 +12,8 @@
 
 #include "Enum/AEnum.hpp"
 
-#define ENUM_SIMUTYPE ESimuType, UNDEFINED,            \
-                      UNDEFINED, 0, "Not defined yet", \
-                      TB, 1, "Turning Bands method",   \
-                      SPECTRAL, 2, "Spectral method"
+#define ENUM_SIMUTYPE                                                          \
+  ESimuType, UNDEFINED, UNDEFINED, 0, "Not defined yet", TB, 1,                \
+    "Turning Bands method", SPECTRAL, 2, "Spectral method"
 
 ENUM_DECLARE(ENUM_SIMUTYPE)

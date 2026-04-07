@@ -16,15 +16,16 @@
 namespace gstlrn
 {
 
-class GSTLEARN_EXPORT ISkinFunctions
-{
-public:
-  ISkinFunctions() {};
-  virtual ~ISkinFunctions() {};
+  class GSTLEARN_EXPORT ISkinFunctions
+  {
+  public:
+    ISkinFunctions() {};
+    virtual ~ISkinFunctions() {};
 
-  virtual Id isAlreadyFilled(Id /*ipos*/) const = 0;
-  virtual Id isToBeFilled(Id /*ipos*/) const    = 0;
-  virtual double getWeight(Id /*ipos*/, Id /*idir*/) const { return 1; }
-};
+    virtual Id isAlreadyFilled(Id /*ipos*/) const = 0;
+    virtual Id isToBeFilled(Id /*ipos*/) const = 0;
+
+    virtual double getWeight(Id /*ipos*/, Id /*idir*/) const { return 1; }
+  };
 
 } // namespace gstlrn

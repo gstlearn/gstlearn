@@ -13,33 +13,31 @@
 
 namespace gstlrn
 {
-KernelTriangle::KernelTriangle(const CovContext& ctxt)
-  : AKernel(ECov::TRIANGLE, ctxt)
-{
-}
-
-KernelTriangle::KernelTriangle(const KernelTriangle& r)
-  : AKernel(r)
-{
-}
-
-KernelTriangle& KernelTriangle::operator=(const KernelTriangle& r)
-{
-  if (this != &r)
+  KernelTriangle::KernelTriangle(const CovContext& ctxt)
+    : AKernel(ECov::TRIANGLE, ctxt)
   {
-    AKernel::operator=(r);
   }
-  return *this;
-}
 
-KernelTriangle::~KernelTriangle()
-{
-}
+  KernelTriangle::KernelTriangle(const KernelTriangle& r)
+    : AKernel(r)
+  {
+  }
 
-double KernelTriangle::_evaluateCov(double h) const
-{
-  double cov = MAX(0, 1. - h);
-  return (cov);
-}
+  KernelTriangle& KernelTriangle::operator=(const KernelTriangle& r)
+  {
+    if (this != &r)
+    {
+      AKernel::operator=(r);
+    }
+    return *this;
+  }
 
-}
+  KernelTriangle::~KernelTriangle() {}
+
+  double KernelTriangle::_evaluateCov(double h) const
+  {
+    double cov = MAX(0, 1. - h);
+    return (cov);
+  }
+
+} // namespace gstlrn

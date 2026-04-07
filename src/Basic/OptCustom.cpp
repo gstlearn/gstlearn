@@ -19,55 +19,56 @@
 
 namespace gstlrn
 {
-std::map<const String, double> OptCustom::_cst = std::map<const String, double>();
+  std::map<const String, double> OptCustom::_cst =
+    std::map<const String, double>();
 
-double OptCustom::query(const String& name, double valdef)
-{
-  for (const auto& e: _cst)
+  double OptCustom::query(const String& name, double valdef)
   {
-    if (e.first == name) return e.second;
-  }
-  return valdef;
-}
-
-void OptCustom::define(const String& name, double value)
-{
-  // Check if the entry already exists
-  for (auto& e: _cst)
-  {
-    if (e.first == name)
+    for (const auto& e: _cst)
     {
-      e.second = value;
-      return;
+      if (e.first == name) return e.second;
+    }
+    return valdef;
+  }
+
+  void OptCustom::define(const String& name, double value)
+  {
+    // Check if the entry already exists
+    for (auto& e: _cst)
+    {
+      if (e.first == name)
+      {
+        e.second = value;
+        return;
+      }
+    }
+
+    // Add the entry
+    _cst.insert({name, value});
+  }
+
+  void OptCustom::undefine(const String& name)
+  {
+    for (auto& e: _cst)
+    {
+      if (e.first == name)
+      {
+        _cst.erase(name);
+        return;
+      }
     }
   }
 
-  // Add the entry
-  _cst.insert({name, value});
-}
-
-void OptCustom::undefine(const String& name)
-{
-  for (auto& e: _cst)
+  void OptCustom::display(void)
   {
-    if (e.first == name)
+    std::stringstream sstr;
+
+    sstr << toStrTitle(1, "List of Custom Options");
+
+    for (const auto& e: _cst)
     {
-      _cst.erase(name);
-      return;
+      sstr << std::setw(50) << e.first << " : " << e.second << std::endl;
     }
+    messageFlush(sstr.str());
   }
-}
-
-void OptCustom::display(void)
-{
-  std::stringstream sstr;
-
-  sstr << toStrTitle(1, "List of Custom Options");
-
-  for (const auto& e: _cst)
-  {
-    sstr << std::setw(50) << e.first << " : " << e.second << std::endl;
-  }
-  messageFlush(sstr.str());
-}
 } // namespace gstlrn

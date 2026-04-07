@@ -13,51 +13,49 @@
 
 namespace gstlrn
 {
-BiTargetCheckFaults::BiTargetCheckFaults(const Faults* faults)
-  : ABiTargetCheck()
-  , _faults(faults)
-{
-}
-
-BiTargetCheckFaults::BiTargetCheckFaults(const BiTargetCheckFaults& r)
-  : ABiTargetCheck(r)
-  , _faults(r._faults)
-{
-}
-
-BiTargetCheckFaults& BiTargetCheckFaults::operator=(const BiTargetCheckFaults& r)
-{
-  if (this != &r)
+  BiTargetCheckFaults::BiTargetCheckFaults(const Faults* faults)
+    : ABiTargetCheck()
+    , _faults(faults)
   {
-    ABiTargetCheck::operator=(r);
-    _faults = r._faults;
   }
-  return *this;
-}
 
-BiTargetCheckFaults::~BiTargetCheckFaults()
-{
-}
+  BiTargetCheckFaults::BiTargetCheckFaults(const BiTargetCheckFaults& r)
+    : ABiTargetCheck(r)
+    , _faults(r._faults)
+  {
+  }
 
-BiTargetCheckFaults* BiTargetCheckFaults::create(const Faults* faults)
-{
-  return new BiTargetCheckFaults(faults);
-}
+  BiTargetCheckFaults&
+    BiTargetCheckFaults::operator=(const BiTargetCheckFaults& r)
+  {
+    if (this != &r)
+    {
+      ABiTargetCheck::operator=(r);
+      _faults = r._faults;
+    }
+    return *this;
+  }
 
-String BiTargetCheckFaults::toString(const AStringFormat* /*strfmt*/) const
-{
-  std::stringstream sstr;
+  BiTargetCheckFaults::~BiTargetCheckFaults() {}
 
-  if (_faults != nullptr)
-    sstr << "- Separated by Faults" << std::endl;
+  BiTargetCheckFaults* BiTargetCheckFaults::create(const Faults* faults)
+  {
+    return new BiTargetCheckFaults(faults);
+  }
 
-  return sstr.str();
-}
+  String BiTargetCheckFaults::toString(const AStringFormat* /*strfmt*/) const
+  {
+    std::stringstream sstr;
 
-bool BiTargetCheckFaults::isOK(const SpaceTarget& T1,
-                               const SpaceTarget& T2) const
-{
-  if (_faults == nullptr) return true;
-  return !_faults->isSplitByFaultSP(T1.getCoordAsSP(), T2.getCoordAsSP());
-}
-}
+    if (_faults != nullptr) sstr << "- Separated by Faults" << std::endl;
+
+    return sstr.str();
+  }
+
+  bool BiTargetCheckFaults::isOK(const SpaceTarget& T1, const SpaceTarget& T2)
+    const
+  {
+    if (_faults == nullptr) return true;
+    return !_faults->isSplitByFaultSP(T1.getCoordAsSP(), T2.getCoordAsSP());
+  }
+} // namespace gstlrn

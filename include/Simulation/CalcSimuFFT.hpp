@@ -52,11 +52,12 @@ namespace gstlrn
     static Id _getNOptimalEven(Id number, Id largeFactor = 11);
     static VectorInt _getFactors(Id number);
     void _gridDilate();
-    bool _checkCorrect(const VectorVectorDouble& xyz,
-                       Id ix,
-                       Id iy,
-                       Id iz,
-                       double percent);
+    bool _checkCorrect(
+      const VectorVectorDouble& xyz,
+      Id ix,
+      Id iy,
+      Id iz,
+      double percent);
     void _prepar(bool flag_amplitude, double eps = EPSILON5);
     void _defineRandom();
     void _setVariance(Id ix, Id iy, Id iz);

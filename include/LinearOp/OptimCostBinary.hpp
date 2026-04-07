@@ -15,70 +15,76 @@
 #include "Basic/VectorNumT.hpp"
 #include "LinearOp/IOptimCost.hpp"
 
-
 namespace gstlrn
 {
-class PrecisionOp; 
-class ProjMatrix;
+  class PrecisionOp;
+  class ProjMatrix;
 
-class GSTLEARN_EXPORT OptimCostBinary: public IOptimCost
-{
-
-public:
-  OptimCostBinary();
-  OptimCostBinary(const OptimCostBinary &m);
-  OptimCostBinary& operator = (const OptimCostBinary &m);
-  virtual ~OptimCostBinary();
-
-  void reset(PrecisionOp* pmat,
-             const ProjMatrix* projdata,
-             const ProjMatrix* projseis = nullptr,
-             const VectorDouble& propseis = VectorDouble(),
-             const VectorDouble& varseis = VectorDouble());
-  VectorDouble minimize(VectorDouble& indic,
-                        bool verbose = false,
-                        Id maxiter = 100,
-                        double eps = 5.e-4);
-  void calculateGradient(const VectorDouble& indic,
-                         const VectorDouble& lambda,
-                         double* out) override;
-  Id setMeanProportion(double meanprop);
-  /*!  Set the constant parameters for internal Pre-Conditioner */
-  static void setPreCondParams(Id chebncmax = 10001, double chebtol = 5.e-3)
+  class GSTLEARN_EXPORT OptimCostBinary: public IOptimCost
   {
-    DECLARE_UNUSED(chebncmax, chebtol);
-  }
-  Id isInitialized() const { return _isInitialized; }
-  Id getNPoint() const;
-  Id getNVertex() const;
-  void toggleSeismic(bool status);
 
-private:
-  double _evaluateCost(const VectorDouble& indic, const VectorDouble& lambda);
-  void _evaluateGrad(const VectorDouble &indic,
-                     const VectorDouble &lambda,
-                     double *normgrad);
-  void _contributeSeismic(const VectorDouble& lambda);
-  void _contributeSeismicDerivative(const VectorDouble& lambda);
+  public:
+    OptimCostBinary();
+    OptimCostBinary(const OptimCostBinary& m);
+    OptimCostBinary& operator=(const OptimCostBinary& m);
+    virtual ~OptimCostBinary();
 
-protected:
+    void reset(
+      PrecisionOp* pmat,
+      const ProjMatrix* projdata,
+      const ProjMatrix* projseis = nullptr,
+      const VectorDouble& propseis = VectorDouble(),
+      const VectorDouble& varseis = VectorDouble());
+    VectorDouble minimize(
+      VectorDouble& indic,
+      bool verbose = false,
+      Id maxiter = 100,
+      double eps = 5.e-4);
+    void calculateGradient(
+      const VectorDouble& indic,
+      const VectorDouble& lambda,
+      double* out) override;
+    Id setMeanProportion(double meanprop);
 
-private:
-  bool               _isInitialized;
-  bool               _flagSeismic;
-  double             _meanPropRaw;
-  double             _meanPropGaus;
-  PrecisionOp*       _pMat;
-  const ProjMatrix*  _projData;
-  const ProjMatrix*  _projSeis;
-  VectorDouble       _propSeis;
-  VectorDouble       _varSeis;
+    /*!  Set the constant parameters for internal Pre-Conditioner */
+    static void setPreCondParams(Id chebncmax = 10001, double chebtol = 5.e-3)
+    {
+      DECLARE_UNUSED(chebncmax, chebtol);
+    }
 
-  mutable VectorDouble _grad;
-  mutable VectorDouble _workp;   /* Dimension: Npoint  */
-  mutable VectorDouble _workx;   /* Dimension: Npoint  */
-  mutable VectorDouble _workv;   /* Dimension: Nvertex */
-  mutable VectorDouble _lambdav; /* Dimension: Nvertex */
-  mutable VectorDouble _works;   /* Dimension: Nseis   */
-};
-}
+    Id isInitialized() const { return _isInitialized; }
+
+    Id getNPoint() const;
+    Id getNVertex() const;
+    void toggleSeismic(bool status);
+
+  private:
+    double _evaluateCost(const VectorDouble& indic, const VectorDouble& lambda);
+    void _evaluateGrad(
+      const VectorDouble& indic,
+      const VectorDouble& lambda,
+      double* normgrad);
+    void _contributeSeismic(const VectorDouble& lambda);
+    void _contributeSeismicDerivative(const VectorDouble& lambda);
+
+  protected:
+
+  private:
+    bool _isInitialized;
+    bool _flagSeismic;
+    double _meanPropRaw;
+    double _meanPropGaus;
+    PrecisionOp* _pMat;
+    const ProjMatrix* _projData;
+    const ProjMatrix* _projSeis;
+    VectorDouble _propSeis;
+    VectorDouble _varSeis;
+
+    mutable VectorDouble _grad;
+    mutable VectorDouble _workp; /* Dimension: Npoint  */
+    mutable VectorDouble _workx; /* Dimension: Npoint  */
+    mutable VectorDouble _workv; /* Dimension: Nvertex */
+    mutable VectorDouble _lambdav; /* Dimension: Nvertex */
+    mutable VectorDouble _works; /* Dimension: Nseis   */
+  };
+} // namespace gstlrn

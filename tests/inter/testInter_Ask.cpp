@@ -15,6 +15,7 @@
  * This test is meant to check the interactive questioning
  */
 using namespace gstlrn;
+
 /****************************************************************************/
 /*!
 ** Main Program

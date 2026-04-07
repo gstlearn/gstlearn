@@ -18,7 +18,7 @@
 #include <cmath>
 
 #define VERBOSE 0
-#define INTER   0
+#define INTER 0
 
 using namespace gstlrn;
 
@@ -31,11 +31,11 @@ static void st_test_1(void)
 {
   mestitle(1, "Testing the distance between two points");
 
-  Id test      = 1;
+  Id test = 1;
   double long1 = 10.;
-  double lat1  = 4.;
+  double lat1 = 4.;
   double long2 = 20.;
-  double lat2  = 25.;
+  double lat2 = 25.;
   while (test)
   {
     if (INTER)
@@ -66,13 +66,13 @@ static void st_test_2(void)
 
   mestitle(1, "Testing angles of a spherical triangle");
 
-  Id test      = 1;
+  Id test = 1;
   double long1 = 10.;
-  double lat1  = 23.;
+  double lat1 = 23.;
   double long2 = 5.;
-  double lat2  = 11.;
+  double lat2 = 11.;
   double long3 = 31.;
-  double lat3  = 45.;
+  double lat3 = 45.;
   while (test)
   {
     if (INTER)
@@ -91,17 +91,20 @@ static void st_test_2(void)
       if (gslScanf("%lf", &lat3) == EOF) return;
     }
 
-    GH::geodeticAngles(long1, lat1, long2, lat2, long3, lat3, &a, &b, &c, &A, &B, &C);
-    message("a=%lf b=%lf c=%lf A=%lf B=%lf C=%lf\n",
-            deg(a), deg(b), deg(c), deg(A), deg(B), deg(C));
+    GH::geodeticAngles(
+      long1, lat1, long2, lat2, long3, lat3, &a, &b, &c, &A, &B, &C);
+    message(
+      "a=%lf b=%lf c=%lf A=%lf B=%lf C=%lf\n", deg(a), deg(b), deg(c), deg(A),
+      deg(B), deg(C));
     ra = (sin(a) == 0.) ? 1. : sin(A) / sin(a);
     rb = (sin(b) == 0.) ? 1. : sin(B) / sin(b);
     rc = (sin(c) == 0.) ? 1. : sin(C) / sin(c);
     message("ratio=%lf ratiob=%lf ratioc=%lf\n", ra, rb, rc);
-    perimeter = GH::geodeticTrianglePerimeter(long1, lat1, long2, lat2, long3, lat3);
+    perimeter =
+      GH::geodeticTrianglePerimeter(long1, lat1, long2, lat2, long3, lat3);
     message("Perimeter = %lf\n", deg(perimeter));
-    surface = GH::geodeticTriangleSurface(long1, lat1, long2, lat2, long3,
-                                          lat3);
+    surface =
+      GH::geodeticTriangleSurface(long1, lat1, long2, lat2, long3, lat3);
     message("Surface = %lf\n", surface);
 
     if (!INTER) break;

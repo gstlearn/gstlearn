@@ -17,40 +17,41 @@
 namespace gstlrn
 {
 
-/**
- * Inherits from this interface to make your class cloneable.
- * You must use IMPLEMENT_CLONING macro in concrete classes only.
- */
-class GSTLEARN_EXPORT ICloneable
-{
-public:
-  ICloneable() {};
-  virtual ~ICloneable() {};
+  /**
+   * Inherits from this interface to make your class cloneable.
+   * You must use IMPLEMENT_CLONING macro in concrete classes only.
+   */
+  class GSTLEARN_EXPORT ICloneable
+  {
+  public:
+    ICloneable() {};
+    virtual ~ICloneable() {};
 
-  virtual ICloneable* clone() const = 0;
+    virtual ICloneable* clone() const = 0;
 #ifndef SWIG
-  std::shared_ptr<ICloneable> cloneShared() const
-  {
-    return std::shared_ptr<ICloneable>(clone());
-  }
-  std::unique_ptr<ICloneable> cloneUnique() const
-  {
-    return std::unique_ptr<ICloneable>(clone());
-  }
+    std::shared_ptr<ICloneable> cloneShared() const
+    {
+      return std::shared_ptr<ICloneable>(clone());
+    }
+
+    std::unique_ptr<ICloneable> cloneUnique() const
+    {
+      return std::unique_ptr<ICloneable>(clone());
+    }
 #endif
-};
+  };
 
 // Thanks to here (macro way):
 // https://alfps.wordpress.com/2010/06/12/cppx-3-ways-to-mix-in-a-generic-cloning-implementation/
-#define IMPLEMENT_CLONING(Class)                   \
-                                                   \
-public:                                            \
-  inline virtual Class* clone() const override     \
-  {                                                \
-    static_assert(                                 \
-      !std::is_abstract<Class>::value,             \
-      "Class cannot be cloned as it is abstract"); \
-    assert(typeid(*this) == typeid(Class));        \
-    return (new Class(*this));                     \
+#define IMPLEMENT_CLONING(Class)                                               \
+                                                                               \
+public:                                                                        \
+  inline virtual Class* clone() const override                                 \
+  {                                                                            \
+    static_assert(                                                             \
+      !std::is_abstract<Class>::value,                                         \
+      "Class cannot be cloned as it is abstract");                             \
+    assert(typeid(*this) == typeid(Class));                                    \
+    return (new Class(*this));                                                 \
   }
 } // namespace gstlrn

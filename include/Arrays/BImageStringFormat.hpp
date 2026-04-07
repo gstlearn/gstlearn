@@ -10,34 +10,40 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
 #include "Basic/AStringFormat.hpp"
 #include "Basic/VectorNumT.hpp"
+#include "gstlearn_export.hpp"
 
 namespace gstlrn
 {
-class GSTLEARN_EXPORT BImageStringFormat: public AStringFormat
-{
-public:
-  BImageStringFormat(char zero               = '0',
-                     char one                = '1',
-                     const VectorInt& indMin = VectorInt(),
-                     const VectorInt& indMax = VectorInt());
-  BImageStringFormat(const BImageStringFormat& r);
-  BImageStringFormat& operator=(const BImageStringFormat& r);
-  virtual ~BImageStringFormat();
+  class GSTLEARN_EXPORT BImageStringFormat: public AStringFormat
+  {
+  public:
+    BImageStringFormat(
+      char zero = '0',
+      char one = '1',
+      const VectorInt& indMin = VectorInt(),
+      const VectorInt& indMax = VectorInt());
+    BImageStringFormat(const BImageStringFormat& r);
+    BImageStringFormat& operator=(const BImageStringFormat& r);
+    virtual ~BImageStringFormat();
 
-  char getCharOne() const { return _charOne; }
-  char getCharZero() const { return _charZero; }
-  VectorInt getIndMax() const { return _indMax; }
-  Id getIndMin(Id idim) const;
-  const VectorInt& getIndMin() const { return _indMin; }
-  Id getIndMax(Id idim) const;
+    char getCharOne() const { return _charOne; }
 
-private:
-  VectorInt _indMin;
-  VectorInt _indMax;
-  char _charZero;
-  char _charOne;
-};
-}
+    char getCharZero() const { return _charZero; }
+
+    VectorInt getIndMax() const { return _indMax; }
+
+    Id getIndMin(Id idim) const;
+
+    const VectorInt& getIndMin() const { return _indMin; }
+
+    Id getIndMax(Id idim) const;
+
+  private:
+    VectorInt _indMin;
+    VectorInt _indMax;
+    char _charZero;
+    char _charOne;
+  };
+} // namespace gstlrn

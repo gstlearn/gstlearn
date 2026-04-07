@@ -7,7 +7,7 @@ The **gstlearn** Python package is a cross-platform Python package wrapping the 
 More details for **gstlearn** are available here: https://gstlearn.org
 
 If you need to plot *gstlearn* outputs, you can import *gstlearn.plot* module which is based on *matplotlib*.
-  
+
 ## References
 
 The *gstlearn* Python package is a Python wrapper of the [gstlearn C++ Library](https://gstlearn.org).
@@ -196,7 +196,7 @@ git pull
 ````
 
 
-2. Then, these instructions will compile and install the *gstlearn* Python package in your usual Python *site-packages* directory. 
+2. Then, these instructions will compile and install the *gstlearn* Python package in your usual Python *site-packages* directory.
 
 
 #### GCC, Clang, ...
@@ -243,7 +243,7 @@ To build and launch non-regression Python tests, you need to execute the followi
 cmake --build build --target check_py
 cmake --build build --target check_ipynb
 ```
-    
+
 or even faster:
 
 ```

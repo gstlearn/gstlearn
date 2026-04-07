@@ -142,6 +142,3 @@ if (-e $FILEMSYS) then
 		echo "File" $FILEMSYS "should be deleted ... as similar to Reference"
     endif
 endif
-
-
-

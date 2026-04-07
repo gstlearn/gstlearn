@@ -13,64 +13,69 @@
 #include "Basic/VectorNumT.hpp"
 #include "gstlearn_export.hpp"
 
-#include "Space/SpacePoint.hpp"
 #include "Estimation/AModelOptim.hpp"
+#include "Space/SpacePoint.hpp"
 
 namespace gstlrn
 {
-class ModelGeneric;
-class Vario;
+  class ModelGeneric;
+  class Vario;
 
-/**
- * \brief
- * Class which, starting from an experimental variogram, enables fitting the
- * various parameters of a Covariance part of a Model
- */
-class GSTLEARN_EXPORT ModelOptimVario: public AModelOptim
-{
-public:
-  ModelOptimVario(ModelGeneric* model,
-                  const Constraints* constraints   = nullptr,
-                  const ModelOptimParam& mop = ModelOptimParam());
-  ModelOptimVario(const ModelOptimVario& m);
-  ModelOptimVario& operator=(const ModelOptimVario& m);
-  virtual ~ModelOptimVario();
-
-  double computeCost(bool flagPrint = false, bool verbose = false) override;
-  void evalGrad(vect res) override;
-
-  static ModelOptimVario* createForOptim(ModelGeneric* model,
-                                         const Vario* vario,
-                                         const Constraints* constraints   = nullptr,
-                                         const ModelOptimParam& mop = ModelOptimParam());
-
-protected:
-  struct OneLag
+  /**
+   * \brief
+   * Class which, starting from an experimental variogram, enables fitting the
+   * various parameters of a Covariance part of a Model
+   */
+  class GSTLEARN_EXPORT ModelOptimVario: public AModelOptim
   {
-    Id _ivar;
-    Id _jvar;
-    double _weight;
-    double _gg;
-    SpacePoint _P;
+  public:
+    ModelOptimVario(
+      ModelGeneric* model,
+      const Constraints* constraints = nullptr,
+      const ModelOptimParam& mop = ModelOptimParam());
+    ModelOptimVario(const ModelOptimVario& m);
+    ModelOptimVario& operator=(const ModelOptimVario& m);
+    virtual ~ModelOptimVario();
+
+    double computeCost(bool flagPrint = false, bool verbose = false) override;
+    void evalGrad(vect res) override;
+
+    static ModelOptimVario* createForOptim(
+      ModelGeneric* model,
+      const Vario* vario,
+      const Constraints* constraints = nullptr,
+      const ModelOptimParam& mop = ModelOptimParam());
+
+  protected:
+    struct OneLag
+    {
+      Id _ivar;
+      Id _jvar;
+      double _weight;
+      double _gg;
+      SpacePoint _P;
+    };
+
+  private:
+    Id _buildExperimental();
+    bool _checkConsistency();
+    OneLag
+      _createOneLag(Id ndim, Id idir, Id ivar, Id jvar, double gg, double dist)
+        const;
+    VectorDouble _resid;
+
+  protected:
+    // Model fitting options
+    ModelOptimParam _mop;
+
+    // Set of constraints
+    const Constraints* _constraints;
+
+    // Calculation option
+    CovCalcMode _calcmode;
+
+    // Part relative to the Experimental variograms
+    const Vario* _vario;
+    std::vector<OneLag> _lags;
   };
-
-private:
-  Id  _buildExperimental();
-  bool _checkConsistency();
-  OneLag _createOneLag(Id ndim, Id idir, Id ivar, Id jvar, double gg, double dist) const;
-  VectorDouble _resid;
-protected:
-  // Model fitting options
-  ModelOptimParam _mop;
-
-  // Set of constraints
-  const Constraints* _constraints;
-
-  // Calculation option
-  CovCalcMode _calcmode;
-
-  // Part relative to the Experimental variograms
-  const Vario* _vario;
-  std::vector<OneLag> _lags;
-};
-}
+} // namespace gstlrn

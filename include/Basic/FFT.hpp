@@ -19,13 +19,22 @@
 
 namespace gstlrn
 {
-GSTLEARN_EXPORT Id FFTn(Id ndim,
-                         const VectorInt& dims,
-                         VectorDouble& Re,
-                         VectorDouble& Im,
-                         Id iSign      = 1,
-                         double scaling = 1.);
-GSTLEARN_EXPORT Array evalCovFFTTimeSlice(const VectorDouble& hmax, double time, Id N, const std::function<std::complex<double>(VectorDouble, double)>& funcSpectrum);
-GSTLEARN_EXPORT Array evalCovFFTSpatial(const VectorDouble& hmax, Id N, const std::function<double(const VectorDouble&)>& funcSpectrum);
-GSTLEARN_EXPORT void fftshift(const VectorInt& dims, VectorDouble& data);
+  GSTLEARN_EXPORT Id FFTn(
+    Id ndim,
+    const VectorInt& dims,
+    VectorDouble& Re,
+    VectorDouble& Im,
+    Id iSign = 1,
+    double scaling = 1.);
+  GSTLEARN_EXPORT Array evalCovFFTTimeSlice(
+    const VectorDouble& hmax,
+    double time,
+    Id N,
+    const std::function<std::complex<double>(VectorDouble, double)>&
+      funcSpectrum);
+  GSTLEARN_EXPORT Array evalCovFFTSpatial(
+    const VectorDouble& hmax,
+    Id N,
+    const std::function<double(const VectorDouble&)>& funcSpectrum);
+  GSTLEARN_EXPORT void fftshift(const VectorInt& dims, VectorDouble& data);
 } // namespace gstlrn

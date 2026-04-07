@@ -11,7 +11,7 @@
 #
 # Initialization of plot.R
 #
-".onAttach" <- 
+".onAttach" <-
 function(libname, pkgname)
 {
 	#OptDbg_reset() # Remove this as it is obvious and it makes roxygen crashing

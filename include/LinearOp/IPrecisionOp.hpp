@@ -17,38 +17,39 @@
 
 namespace gstlrn
 {
-class GSTLEARN_EXPORT IPrecisionOp: virtual public ASimulable
-{
-public:
-  IPrecisionOp()                               = default;
-  IPrecisionOp(const IPrecisionOp&)            = default;
-  IPrecisionOp(IPrecisionOp&& m) noexcept
+  class GSTLEARN_EXPORT IPrecisionOp: virtual public ASimulable
   {
-    if (this != &m)
-      ASimulable::operator=(std::move(m));
-  }  
-  IPrecisionOp& operator=(const IPrecisionOp&) = default;
-  IPrecisionOp& operator=(IPrecisionOp&& m) noexcept
-  {
-    if (this != &m)
-      ASimulable::operator=(std::move(m));
-    return *this;
-  }
+  public:
+    IPrecisionOp() = default;
+    IPrecisionOp(const IPrecisionOp&) = default;
 
-  virtual ~IPrecisionOp()                      = default;
+    IPrecisionOp(IPrecisionOp&& m) noexcept
+    {
+      if (this != &m) ASimulable::operator=(std::move(m));
+    }
 
-  VectorDouble getRangeEigenVal(Id ndiscr = 100) const
-  {
-    std::pair<double, double> ranges = rangeEigenVal(ndiscr);
-    VectorDouble result(2);
-    result[0] = ranges.first;
-    result[1] = ranges.second;
-    return result;
-  }
+    IPrecisionOp& operator=(const IPrecisionOp&) = default;
+
+    IPrecisionOp& operator=(IPrecisionOp&& m) noexcept
+    {
+      if (this != &m) ASimulable::operator=(std::move(m));
+      return *this;
+    }
+
+    virtual ~IPrecisionOp() = default;
+
+    VectorDouble getRangeEigenVal(Id ndiscr = 100) const
+    {
+      std::pair<double, double> ranges = rangeEigenVal(ndiscr);
+      VectorDouble result(2);
+      result[0] = ranges.first;
+      result[1] = ranges.second;
+      return result;
+    }
 
 #ifndef SWIG
-  virtual std::pair<double, double> rangeEigenVal(Id ndiscr = 100) const = 0;
+    virtual std::pair<double, double> rangeEigenVal(Id ndiscr = 100) const = 0;
 #endif
-};
+  };
 
 } // namespace gstlrn

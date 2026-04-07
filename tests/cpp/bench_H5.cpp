@@ -3,6 +3,7 @@
 #include <Db/DbGrid.hpp>
 
 using namespace gstlrn;
+
 int test_NF(const DbGrid& db)
 {
   Timer tm;
@@ -17,8 +18,8 @@ int test_NF(const DbGrid& db)
     messerr("Cannot Deserialize `NF.dbgrid.ascii'");
     return 1;
   }
-  tm.displayIntervalMilliseconds("Serialize + Deserialize + Serialize Neutral File",
-                                 2500);
+  tm.displayIntervalMilliseconds(
+    "Serialize + Deserialize + Serialize Neutral File", 2500);
   return 0;
 }
 
@@ -38,7 +39,8 @@ int test_HDF5(const DbGrid& db)
     messerr("Cannot Deserialize `NF.dbgrid.h5'");
     return 1;
   }
-  tm.displayIntervalMilliseconds("Serialize + Deserialize + Serialize HDF5", 80);
+  tm.displayIntervalMilliseconds(
+    "Serialize + Deserialize + Serialize HDF5", 80);
 #endif
   return 0;
 }
@@ -49,9 +51,9 @@ int main(int argc, char* argv[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
 
-  const VectorInt dims {100, 100, 100};
+  const VectorInt dims{100, 100, 100};
   auto db = std::unique_ptr<DbGrid>(DbGrid::create(dims));
-  int ret {};
+  int ret{};
   ret += test_NF(*db);
   ret += test_HDF5(*db);
   return ret;

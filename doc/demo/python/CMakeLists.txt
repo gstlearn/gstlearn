@@ -55,7 +55,5 @@ foreach(DEMO_SOURCE_FILE ${DEMO_SOURCES})
 
     # Add dependency
     add_dependencies(build_demos_py ${DEMO_NAME}_ipynb_html)
-    
+
 endforeach(DEMO_SOURCE_FILE ${TEST_SOURCES})
-
-

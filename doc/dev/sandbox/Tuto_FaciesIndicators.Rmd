@@ -60,7 +60,7 @@ fac3 = array(fac,dim=c(nz,ny,nx))
 cat("dim(fac3)=",dim(fac3),"\n")
 ufacies = sort(unique(fac))
 cat("Unique facies are ", ufacies, "\n")
-nfacies = length(ufacies) 
+nfacies = length(ufacies)
 
 # Display the cross-section #20 (cross-flow) (col.flumy and fac.flumy are defined in the package)
 nsect = 20
@@ -99,7 +99,7 @@ arr_flat[arr_flat==11]  = 4
 arr_flat[arr_flat==12]  = 4
 ufacies = sort(unique(arr_flat))
 cat("Unique facies are ", ufacies, "\n")
-nfacies = length(ufacies) 
+nfacies = length(ufacies)
 ```
 
 # Proportions
@@ -112,7 +112,7 @@ round(100*table(arr_flat)/(nx*ny),2)
 ```
 
 # Import this array in gstlearn
-The Grid file is created first (defining the origin, mesh size and count). Then the facies variable is added giving the name and the locator. 
+The Grid file is created first (defining the origin, mesh size and count). Then the facies variable is added giving the name and the locator.
 
 ```{r create_db}
 ndim = 2
@@ -190,12 +190,11 @@ for (fac in ufacies) {
     compnew = morpho_labelling(0,0,image,-1)
     sizes   = morpho_labelsize(0,image)
     df$compnew = compnew
-    
+
     print(ggplot(df, aes(x, y, fill=compnew)) +
           geom_raster() + coord_fixed() +
           ggtitle(paste0("Connected components for F",fac)))
-    
+
     hist(sizes, breaks=50, main=paste0("Size of connected component for F",fac))
 }
 ```
-

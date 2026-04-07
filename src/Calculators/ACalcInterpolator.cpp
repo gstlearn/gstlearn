@@ -48,8 +48,8 @@ namespace gstlrn
         {
           messerr("Inconsistent Space dimension:");
           messerr("- Current dimension = %d", ndim);
-          messerr("- Space Dimension of 'model' = %d",
-                  _modelGeneric->getNDim());
+          messerr(
+            "- Space Dimension of 'model' = %d", _modelGeneric->getNDim());
           return false;
         }
       }
@@ -133,8 +133,9 @@ namespace gstlrn
           if (getDbout()->getNLoc(ELoc::F) != nfex)
           {
             messerr("The model requires %d external drift(s)", nfex);
-            messerr("but the output Db refers to %d external drift variables",
-                    getDbout()->getNLoc(ELoc::F));
+            messerr(
+              "but the output Db refers to %d external drift variables",
+              getDbout()->getNLoc(ELoc::F));
             return false;
           }
         }

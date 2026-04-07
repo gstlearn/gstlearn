@@ -10,25 +10,28 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
-#include "OutputFormat/AOF.hpp"
 #include "Db/Db.hpp"
+#include "OutputFormat/AOF.hpp"
+#include "gstlearn_export.hpp"
 
 namespace gstlrn
 {
-class Db;
+  class Db;
 
-class GSTLEARN_EXPORT GridXYZ: public AOF
-{
-public:
-  GridXYZ(const char* filename, const Db* db = nullptr);
-  GridXYZ(const GridXYZ& r);
-  GridXYZ& operator=(const GridXYZ& r);
-  virtual ~GridXYZ();
+  class GSTLEARN_EXPORT GridXYZ: public AOF
+  {
+  public:
+    GridXYZ(const char* filename, const Db* db = nullptr);
+    GridXYZ(const GridXYZ& r);
+    GridXYZ& operator=(const GridXYZ& r);
+    virtual ~GridXYZ();
 
-  bool mustBeGrid() const override { return true; }
-  bool mustBeOneVariable() const override { return true; }
-  bool mustBeForNDim(Id ndim) const override { return ndim == 2; }
-  Id  writeInFile() override;
-};
-}
+    bool mustBeGrid() const override { return true; }
+
+    bool mustBeOneVariable() const override { return true; }
+
+    bool mustBeForNDim(Id ndim) const override { return ndim == 2; }
+
+    Id writeInFile() override;
+  };
+} // namespace gstlrn

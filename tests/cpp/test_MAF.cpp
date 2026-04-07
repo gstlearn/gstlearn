@@ -13,29 +13,30 @@
 /******************************************************************************/
 #include "Enum/ECov.hpp"
 
+#include "Basic/OptDbg.hpp"
+#include "Db/Db.hpp"
 #include "Enum/EDbg.hpp"
 #include "Model/Model.hpp"
-#include "Db/Db.hpp"
 #include "Variogram/Vario.hpp"
 #include "Variogram/VarioParam.hpp"
-#include "Basic/OptDbg.hpp"
 #include "geoslib_define.h"
 #include "utils.hpp"
 
 using namespace gstlrn;
+
 /****************************************************************************/
 /*!
 ** Main Program for testing MAF
 **
 *****************************************************************************/
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
 
   DECLARE_UNUSED(argc, argv)
-  Id nlag                = 10;
+  Id nlag = 10;
   double lag = 0.025;
   VarioParam* varioparam = VarioParam::createOmniDirection(nlag, lag);
 

@@ -13,98 +13,105 @@
 
 namespace gstlrn
 {
-Timer::Timer()
-{
-  reset();
-}
-
-Timer::Timer(const Timer& m)
-  : _refTime(m._refTime)
-{
-}
-
-Timer& Timer::operator=(const Timer& m)
-{
-  if (this != &m)
+  Timer::Timer()
   {
-    _refTime = m._refTime;
+    reset();
   }
-  return *this;
-}
 
-Timer::~Timer()
-{
-}
+  Timer::Timer(const Timer& m)
+    : _refTime(m._refTime)
+  {
+  }
 
-/**
- * Defines the reference Timer (beginning of a Timer chunk)
- */
-void Timer::reset()
-{
-  _refTime = hrc::now();
-}
+  Timer& Timer::operator=(const Timer& m)
+  {
+    if (this != &m)
+    {
+      _refTime = m._refTime;
+    }
+    return *this;
+  }
 
-/**
- * Displays the time elapsed (in s) since the reference Timer
- * @param title         Title used for the internal display
- * @param expected_time Expected number of seconds (-1 if not used)
- * @param flag_reset    True if the Reference must be set to current Time
- */
-void Timer::displayIntervalSeconds(const String& title,
-                                   Id expected_time,
-                                   bool flag_reset)
-{
-  double seconds = getIntervalSeconds(flag_reset);
-  displaySeconds(title, seconds, expected_time);
-}
+  Timer::~Timer() {}
 
-double Timer::getIntervalSeconds(bool flag_reset)
-{
-  auto newTime = hrc::now();
-  sec fs       = newTime - _refTime;
-  if (flag_reset)
-    _refTime = newTime;
-  return fs.count();
-}
+  /**
+   * Defines the reference Timer (beginning of a Timer chunk)
+   */
+  void Timer::reset()
+  {
+    _refTime = hrc::now();
+  }
 
-void Timer::displaySeconds(const String& title, double seconds, Id expected_time)
-{
-  String loc_title = title.empty() ? "Timer" : title;
-  if (expected_time > 0)
-    messageNoDiff("%s: %d s. (Ref = %d s.)\n", title.c_str(), static_cast<Id>(seconds), expected_time);
-  else
-    messageNoDiff("%s: %d s.\n", title.c_str(), static_cast<Id>(seconds));
-}
+  /**
+   * Displays the time elapsed (in s) since the reference Timer
+   * @param title         Title used for the internal display
+   * @param expected_time Expected number of seconds (-1 if not used)
+   * @param flag_reset    True if the Reference must be set to current Time
+   */
+  void Timer::displayIntervalSeconds(
+    const String& title,
+    Id expected_time,
+    bool flag_reset)
+  {
+    double seconds = getIntervalSeconds(flag_reset);
+    displaySeconds(title, seconds, expected_time);
+  }
 
-/**
- * Displays the time elapsed (in ms) since the reference Timer
- * @param title         Title used for the internal display
- * @param expected_time Expected number of milliseconds (-1 if not used)
- * @param flag_reset    True if the Reference must be set to current Time
- */
-void Timer::displayIntervalMilliseconds(const String& title,
-                                        Id expected_time,
-                                        bool flag_reset)
-{
-  double msec = getIntervalMilliseconds(flag_reset);
-  displayMilliseconds(title, msec, expected_time);
-}
+  double Timer::getIntervalSeconds(bool flag_reset)
+  {
+    auto newTime = hrc::now();
+    sec fs = newTime - _refTime;
+    if (flag_reset) _refTime = newTime;
+    return fs.count();
+  }
 
-double Timer::getIntervalMilliseconds(bool flag_reset)
-{
-  auto newTime = hrc::now();
-  sec fs       = newTime - _refTime;
-  ms inter     = std::chrono::duration_cast<ms>(fs);
-  if (flag_reset) _refTime = newTime;
-  return (static_cast<double>(inter.count()));
-}
+  void
+    Timer::displaySeconds(const String& title, double seconds, Id expected_time)
+  {
+    String loc_title = title.empty() ? "Timer" : title;
+    if (expected_time > 0)
+      messageNoDiff(
+        "%s: %d s. (Ref = %d s.)\n", title.c_str(), static_cast<Id>(seconds),
+        expected_time);
+    else
+      messageNoDiff("%s: %d s.\n", title.c_str(), static_cast<Id>(seconds));
+  }
 
-void Timer::displayMilliseconds(const String& title, double msec, Id expected_time)
-{
-  String loc_title = title.empty() ? "Timer" : title;
-  if (expected_time > 0)
-    messageNoDiff("%s: %d ms. (Ref = %d ms.)\n", title.c_str(), static_cast<Id>(msec), expected_time);
-  else
-    messageNoDiff("%s: %d ms.\n", title.c_str(), static_cast<Id>(msec));
-}
+  /**
+   * Displays the time elapsed (in ms) since the reference Timer
+   * @param title         Title used for the internal display
+   * @param expected_time Expected number of milliseconds (-1 if not used)
+   * @param flag_reset    True if the Reference must be set to current Time
+   */
+  void Timer::displayIntervalMilliseconds(
+    const String& title,
+    Id expected_time,
+    bool flag_reset)
+  {
+    double msec = getIntervalMilliseconds(flag_reset);
+    displayMilliseconds(title, msec, expected_time);
+  }
+
+  double Timer::getIntervalMilliseconds(bool flag_reset)
+  {
+    auto newTime = hrc::now();
+    sec fs = newTime - _refTime;
+    ms inter = std::chrono::duration_cast<ms>(fs);
+    if (flag_reset) _refTime = newTime;
+    return (static_cast<double>(inter.count()));
+  }
+
+  void Timer::displayMilliseconds(
+    const String& title,
+    double msec,
+    Id expected_time)
+  {
+    String loc_title = title.empty() ? "Timer" : title;
+    if (expected_time > 0)
+      messageNoDiff(
+        "%s: %d ms. (Ref = %d ms.)\n", title.c_str(), static_cast<Id>(msec),
+        expected_time);
+    else
+      messageNoDiff("%s: %d ms.\n", title.c_str(), static_cast<Id>(msec));
+  }
 } // namespace gstlrn

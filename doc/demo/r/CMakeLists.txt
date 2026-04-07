@@ -52,10 +52,8 @@ foreach(DEMO_SOURCE_FILE ${DEMO_SOURCES})
 
     # Add dependency for the Rmd
     add_dependencies(${DEMO_NAME}_rmd_html prepare_build_demos_r)
-    
+
     # Add the Rmd to global dependency
     add_dependencies(build_demos_r ${DEMO_NAME}_rmd_html)
-    
+
 endforeach(DEMO_SOURCE_FILE ${TEST_SOURCES})
-
-

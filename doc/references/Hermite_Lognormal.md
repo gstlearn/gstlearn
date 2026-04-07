@@ -13,7 +13,7 @@ We consider the second order stationary model $Z_{\lambda}(x) = e^{\lambda Y(x) 
 * $Cov(Z_{\lambda}(x), Z_{\lambda}(x+h)) = E\{Z_{\lambda}(x)Z_{\lambda}(x+h)\} - 1 = e^{\lambda^2\rho(h)} - 1$
 
 
-The anamorphosis $\phi_{\lambda}$ maps the Gaussian field into the lognormal SOS model 
+The anamorphosis $\phi_{\lambda}$ maps the Gaussian field into the lognormal SOS model
 $Z_{\lambda} = \phi_{\lambda}(Y) = \sum_{n=0}^{+\infty}\phi_n{(\lambda)}H_n(Y)$.
 
 The Hermite coefficients are $\phi_n{(\lambda)} = \frac{(-\lambda)^n}{\sqrt{n!}}$ and we have

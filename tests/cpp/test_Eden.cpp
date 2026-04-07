@@ -77,17 +77,10 @@ int main(int argc, char* argv[])
   Id sl = 1;
   Id sm = 3;
   Id sh = 10;
-  VectorInt speeds =
-    {sm, sm, sm, sm, sl, sl, sh, sh, sh, sh, sl, sl, sl, sl, sl, sl, sl, sl};
-  (void)fluidPropagation(grid,
-                         "Facies",
-                         "Fluid",
-                         "",
-                         "",
-                         nfacies,
-                         nfluids,
-                         1,
-                         speeds);
+  VectorInt speeds = {sm, sm, sm, sm, sl, sl, sh, sh, sh,
+                      sh, sl, sl, sl, sl, sl, sl, sl, sl};
+  (void)fluidPropagation(
+    grid, "Facies", "Fluid", "", "", nfacies, nfluids, 1, speeds);
 
   grid->display(&dbfmt);
   (void)grid->dumpToNF("Grid.NF");

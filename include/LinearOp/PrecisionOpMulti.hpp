@@ -29,82 +29,89 @@
 
 namespace gstlrn
 {
-class CholeskyDense;
-class Model;
-class AStringable;
-class AStringFormat;
-class ASimulable;
+  class CholeskyDense;
+  class Model;
+  class AStringable;
+  class AStringFormat;
+  class ASimulable;
 
-// This class is dedicated to the multivariate Model.
-// It creates a vector of precision operators (matrix-free).
-class GSTLEARN_EXPORT PrecisionOpMulti: public AStringable,  virtual public IPrecisionOp
-{
-public:
-  PrecisionOpMulti(Model* model               = nullptr,
-                   const VectorMeshes& meshes = VectorMeshes(),
-                   bool stencil               = false,
-                   bool buildOp               = true);
-  PrecisionOpMulti(const PrecisionOpMulti& m)            = delete;
-  PrecisionOpMulti& operator=(const PrecisionOpMulti& m) = delete;
-  virtual ~PrecisionOpMulti();
+  // This class is dedicated to the multivariate Model.
+  // It creates a vector of precision operators (matrix-free).
+  class GSTLEARN_EXPORT PrecisionOpMulti: public AStringable,
+                                          virtual public IPrecisionOp
+  {
+  public:
+    PrecisionOpMulti(
+      Model* model = nullptr,
+      const VectorMeshes& meshes = VectorMeshes(),
+      bool stencil = false,
+      bool buildOp = true);
+    PrecisionOpMulti(const PrecisionOpMulti& m) = delete;
+    PrecisionOpMulti& operator=(const PrecisionOpMulti& m) = delete;
+    virtual ~PrecisionOpMulti();
 
-  /// AStringable Interface
-  String toString(const AStringFormat* strfmt = nullptr) const override;
+    /// AStringable Interface
+    String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  Id getSize() const override;
+    Id getSize() const override;
 
-  double computeLogDet(Id nMC = 1) const override;
-  std::pair<double, double> rangeEigenVal(Id ndiscr = 100) const override;
+    double computeLogDet(Id nMC = 1) const override;
+    std::pair<double, double> rangeEigenVal(Id ndiscr = 100) const override;
 
-protected:
+  protected:
 #ifndef SWIG
-  Id _addToDest(const constvect vecin, vect vecout) const override;
-  Id _addSimulateToDest(const constvect vecin, vect vecout) const override;
+    Id _addToDest(const constvect vecin, vect vecout) const override;
+    Id _addSimulateToDest(const constvect vecin, vect vecout) const override;
 #endif
 
-  void buildQop(bool stencil = false);
-  Id size(Id imesh) const;
-  Id _getNCov() const;
-  Id _getCovInd(Id i) const { return _covList[i]; }
-  Id _getNVar() const;
-  Id _getNMesh() const;
+    void buildQop(bool stencil = false);
+    Id size(Id imesh) const;
+    Id _getNCov() const;
 
-private:
-  bool _checkReady() const;
-  virtual void _buildQop(bool stencil = false);
-  bool _isValidModel(Model* model);
-  bool _isValidMeshes(const VectorMeshes& meshes);
-  bool _isNoStat(Id istruct) const { return _isNoStatForVariance[istruct]; }
-  bool _matchModelAndMeshes() const;
+    Id _getCovInd(Id i) const { return _covList[i]; }
 
-  Id _buildGlobalMatricesStationary(Id icov);
-  Id _buildLocalMatricesNoStat(Id icov);
-  Id _buildMatrices();
-  void _popsClear();
-  void _computeSize();
+    Id _getNVar() const;
+    Id _getNMesh() const;
 
-protected:
-  std::vector<PrecisionOp*> _pops;
-  VectorBool _isNoStatForVariance;
-  std::vector<MatrixSymmetric> _sills;
-  std::vector<std::vector<MatrixSymmetric>> _localSills; // Local Sills for non-stationary covariances
-  std::vector<VectorVectorDouble> _invCholSillsNoStat;
-  std::vector<VectorVectorDouble> _cholSillsNoStat;
-  std::vector<CholeskyDense> _invCholSillsStat; // Stationary Sills
-  std::vector<CholeskyDense> _cholSillsStat;    // Cholesky of the Sills
+  private:
+    bool _checkReady() const;
+    virtual void _buildQop(bool stencil = false);
+    bool _isValidModel(Model* model);
+    bool _isValidMeshes(const VectorMeshes& meshes);
 
-  Model* _model;        // Not to be deleted. TODO : make it const
-  VectorMeshes _meshes; // Not to be deleted
-  Id _size;
+    bool _isNoStat(Id istruct) const { return _isNoStatForVariance[istruct]; }
 
-private:
-  bool _isValid;
-  VectorInt _covList;
-  VectorInt _nmeshList;
-  bool _allStat;
-  bool _ready;
+    bool _matchModelAndMeshes() const;
 
-  mutable VectorVectorDouble _works;
-  mutable VectorDouble _workTot;
-};
+    Id _buildGlobalMatricesStationary(Id icov);
+    Id _buildLocalMatricesNoStat(Id icov);
+    Id _buildMatrices();
+    void _popsClear();
+    void _computeSize();
+
+  protected:
+    std::vector<PrecisionOp*> _pops;
+    VectorBool _isNoStatForVariance;
+    std::vector<MatrixSymmetric> _sills;
+    std::vector<std::vector<MatrixSymmetric>>
+      _localSills; // Local Sills for non-stationary covariances
+    std::vector<VectorVectorDouble> _invCholSillsNoStat;
+    std::vector<VectorVectorDouble> _cholSillsNoStat;
+    std::vector<CholeskyDense> _invCholSillsStat; // Stationary Sills
+    std::vector<CholeskyDense> _cholSillsStat; // Cholesky of the Sills
+
+    Model* _model; // Not to be deleted. TODO : make it const
+    VectorMeshes _meshes; // Not to be deleted
+    Id _size;
+
+  private:
+    bool _isValid;
+    VectorInt _covList;
+    VectorInt _nmeshList;
+    bool _allStat;
+    bool _ready;
+
+    mutable VectorVectorDouble _works;
+    mutable VectorDouble _workTot;
+  };
 } // namespace gstlrn

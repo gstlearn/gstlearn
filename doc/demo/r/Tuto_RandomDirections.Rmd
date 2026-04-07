@@ -12,9 +12,9 @@ output: pdf_document
 # Initialisation
 
 ```{r setup,include=FALSE, fig.show='hide'}
-knitr::opts_chunk$set(fig.width=5, fig.height=4, 
+knitr::opts_chunk$set(fig.width=5, fig.height=4,
                       out.height="70%", out.width="70%",
-                      fig.align = "center") 
+                      fig.align = "center")
 rm(list=ls())
 library("gstlearn")
 ```
@@ -55,7 +55,7 @@ UG2 = UG$getColumn(1)
 hist(UG1)
 hist(UG2)
 
-plot(UG1[1:1000], UG2[1:1000], 
+plot(UG1[1:1000], UG2[1:1000],
      xlab = "U", ylab = "V", main = "The first 1000 points")
 ```
 
@@ -101,10 +101,10 @@ The $n$-sphere is defined as
 $$
 S^n = \{s \in \mathbb{R}^{n+1} : ||x|| = 1\}
 $$
-and a direction in $\mathbb{R}^{n+1}$ is a point on the half $n$-sphere. 
+and a direction in $\mathbb{R}^{n+1}$ is a point on the half $n$-sphere.
 
-A simple approach to generating a uniform point on $S^n$ uses the fact that the multivariate normal distribution with independent standardized components is radially symmetric, i.e., it is invariant under orthogonal rotations. Therefore, if 
-$Y \sim \mathcal{N}({\bf 0}_{n+1}, {\bf I}_{n+1})$, then $S_n = Y /||Y||$ has the uniform distribution on the unit $n$-sphere. 
+A simple approach to generating a uniform point on $S^n$ uses the fact that the multivariate normal distribution with independent standardized components is radially symmetric, i.e., it is invariant under orthogonal rotations. Therefore, if
+$Y \sim \mathcal{N}({\bf 0}_{n+1}, {\bf I}_{n+1})$, then $S_n = Y /||Y||$ has the uniform distribution on the unit $n$-sphere.
 
 For the simulation of a direction, i.e. a point on $S^n_{+}$, the last axis is selected as a reference and points with a negative coordinate along this axis are replaced by their symmetric points relatively to the origin.
 
@@ -116,7 +116,7 @@ plot_dir <- function(np, nd = 3, meth = "vdc", ix = 1, iy = 2, seed=13364)
   tit <- paste0(nd, "-dimensions (", meth, ", np = ", np, ")")
   plot(cs, sn, xlim = 1.1*c(-1,1), ylim = 1.1*c(-1,1), type = "l",
        lty = 1, col = "red",
-       xlab = paste0("X",ix), ylab = paste0("X",iy), main = tit, asp = 1) 
+       xlab = paste0("X",ix), ylab = paste0("X",iy), main = tit, asp = 1)
   abline(h = 0, col = "gray", lty = 3)
   abline(v = 0, col = "gray", lty = 3)
 
@@ -150,7 +150,7 @@ for (meth in c("vdc", "prng")) {
   for (np in c(100, 1000, 10000)){
     for (ix in 1:(nd-1)) {
       for (iy in (ix+1):nd){
-        plot_dir(np, nd = nd, meth = meth, ix = ix, iy = iy) 
+        plot_dir(np, nd = nd, meth = meth, ix = ix, iy = iy)
       }
     }
   }
@@ -161,10 +161,10 @@ for (meth in c("vdc", "prng")) {
 # Directions in R^6
 np <- 1000
 nd <- 6
-meth <- "vdc" 
+meth <- "vdc"
 ix <- 1
 iy <- 4
-plot_dir(np, nd = nd, meth = meth, ix = ix, iy = iy)  
+plot_dir(np, nd = nd, meth = meth, ix = ix, iy = iy)
 ```
 
 # References
@@ -176,5 +176,3 @@ plot_dir(np, nd = nd, meth = meth, ix = ix, iy = iy)
 * Muller, M. E. (1959). A note on a method for generating points uniformly on n-dimensional spheres. Communications of the ACM, 2(4), 19-20.
 
 * Sibuya, M. (1962). A method for generating uniformly distributed points onN-dimensional spheres. Annals of the Institute of Statistical Mathematics, 14(1), 81-85.
-
-

@@ -152,7 +152,7 @@ jobs:
 
     - name: Install R dependencies (binary)
       run: Rscript -e "install.packages (c('ggplot2', 'ggpubr', 'ggnewscale'), type='binary')"
-        
+
     - name: Install R package
       run: Rscript -e "install.packages(\"$(ls *.tgz)\", repos=NULL, type='source')"
 

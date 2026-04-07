@@ -5,7 +5,7 @@
   output:
     pdf_document: default
     html_document: default
-    editor_options: 
+    editor_options:
     chunk_output_type: console
 ---
 <!-- SUMMARY: Performs centering of a Point data set on a regular grid (possibly rotated)  -->
@@ -34,7 +34,7 @@ manual_centering <- function(data, target) {
     x0 = target$getX0s()
     nx = target$getNXs()
     theta = target$getAngles()
-    
+
     xy_nm = data$getNamesByLocator(ELoc_X())
     # initial coordinates
     xy = matrix(NaN, nrow = data$getNSample(), ncol = length(xy_nm))
@@ -43,29 +43,29 @@ manual_centering <- function(data, target) {
     }
     # local coordinates
     uv = XY_to_UV(target, xy)
-    
+
     # centering
     for (i in seq_along(xy_nm)) {
       uv[,i] = dx[i] * floor((uv[,i] + dx[i]/2)/dx[i])
     }
-    
+
     # global coordinates
     xy_disc = UV_to_XY(target, uv)
-  
+
     # storing
     for (i in seq_along(xy_nm)) {
       data$setColumn(tab = xy_disc[,i], name = paste0(xy_nm[i], "_disc"))
     }
     data$setLocators(paste0(xy_nm, "_disc"), ELoc_X())
-  
+
     } else {err = 1}
-  err  
+  err
 }
 
 # Some auxiliary functions for the rotation
 translate <- function (X, dx) {
   stopifnot(dim(X)[2] == length(dx))
-  X_0 = outer(X = rep(1, dim(X)[1]), Y = dx, FUN = '*')  
+  X_0 = outer(X = rep(1, dim(X)[1]), Y = dx, FUN = '*')
   X + X_0
 }
 
@@ -79,9 +79,9 @@ UV_to_XY <- function(target, UV) {
 XY_to_UV <- function(target, XY) {
   stopifnot(target$getNDim() == dim(XY)[2])
   rot = Rotation(); rot$setAngles(target$getAngles())
-  r   = (matrix(rot$getMatrixDirectVec(), 
+  r   = (matrix(rot$getMatrixDirectVec(),
                 nrow = target$getNDim(), ncol = target$getNDim()))
-  translate(XY, dx = -target$getX0s()) %*% r 
+  translate(XY, dx = -target$getX0s()) %*% r
 }
 
 bounding_uv <- function(target, delta = 0) {
@@ -89,9 +89,9 @@ bounding_uv <- function(target, delta = 0) {
   nx = target$getNXs()
   duv = dx * (nx - 1)
   matrix(c(
-    0 - delta, 0 - delta, 
-    duv[1] + delta, 0 - delta, 
-    duv[1] + delta, duv[2] + delta, 
+    0 - delta, 0 - delta,
+    duv[1] + delta, 0 - delta,
+    duv[1] + delta, duv[2] + delta,
     0 - delta, duv[2] + delta,
     0 - delta, 0 - delta
     ), nrow = 5, ncol = 2, byrow = TRUE)
@@ -126,19 +126,19 @@ delta = 0.1 # margin around the grid bounding box
 target = DbGrid_create(nx = nx, dx = dx, x0 = x0, angles = angles)
 
 # In real coordinates
-bb = bounding_xy(target = target, delta = delta) 
+bb = bounding_xy(target = target, delta = delta)
 XY = as.matrix(cbind(target["x1"], target["x2"]))
 
 # Test of the identity
 UV = XY_to_UV(target, XY)
 xy = UV_to_XY(target, UV)
 
-# Simulation of uniform scattered points in the local coordinates 
+# Simulation of uniform scattered points in the local coordinates
 # inside the bounding box
 bb_uv   = bounding_uv(target, delta)
 bb_xy   = bounding_xy(target, delta)
 lim_uv  = bb_uv[c(1,3),]
-sim_uv  = lim_uv[1,] + 
+sim_uv  = lim_uv[1,] +
   matrix(runif(nech * 2), nrow=nech, ncol=2) %*% diag(lim_uv[2,] - lim_uv[1,])
 sim_xy  = UV_to_XY(target, sim_uv)
 
@@ -158,8 +158,8 @@ data_ini2$setLocators("Y", ELoc_Z())
 Display of the first data set
 
 ```{r Plotting_data1_initial}
-plot.init() + 
-  plot.XY(bb[,1], bb[,2], flagLine=TRUE, color='blue') + 
+plot.init() +
+  plot.XY(bb[,1], bb[,2], flagLine=TRUE, color='blue') +
   plot.symbol(target) +
   plot.symbol(data_ini1, color = "grey", size=4) +
   plot.decoration(title="First Data Set")
@@ -168,9 +168,9 @@ plot.init() +
 Display of the second data set
 
 ```{r Plotting_data2_initial}
-plot.init() + 
+plot.init() +
   plot.symbol(target) +
-  plot.symbol(data_ini2, col = "grey", size=4) + 
+  plot.symbol(data_ini2, col = "grey", size=4) +
   plot.decoration(title = "Second Data Set")
 ```
 
@@ -199,11 +199,11 @@ err = manual_centering(data_man1, target)
 Displaying the centered results
 
 ```{r Plotting_manual_centering_data1}
-plot.init() + 
-  plot.XY(bb[,1], bb[,2], flagLine=TRUE, color='blue') + 
+plot.init() +
+  plot.XY(bb[,1], bb[,2], flagLine=TRUE, color='blue') +
   plot.symbol(target) +
   plot.symbol(data_ini1, col = "grey", size=4) +
-  plot.symbol(data_man1, col='red', size=2) + 
+  plot.symbol(data_man1, col='red', size=2) +
   plot.decoration(title="First Data Set (centered manually)")
 ```
 
@@ -217,17 +217,17 @@ err = DbHelper_centerPointToGrid(data_auto1, target)
 Displaying the centered results
 
 ```{r Plotting_gstlearn_centering_data1}
-plot.init() + 
-  plot.XY(bb[,1], bb[,2], flagLine=TRUE, color='blue') + 
+plot.init() +
+  plot.XY(bb[,1], bb[,2], flagLine=TRUE, color='blue') +
   plot.symbol(target) +
   plot.symbol(data_ini1, col = "grey", size=4) +
-  plot.symbol(data_auto1, col='red', size=2) + 
+  plot.symbol(data_auto1, col='red', size=2) +
   plot.decoration(title="First Data Set (centered by gstlearn)")
 ```
 
 ## Data extracted from the target grid
 
-Performing the manual centering 
+Performing the manual centering
 
 ```{r Manual_centering_data2}
 data_man2 = data_ini2$clone()
@@ -237,10 +237,10 @@ err = manual_centering(data_man2, target)
 Displaying the centered results
 
 ```{r Plotting_manual_centering_data2}
-plot.init() + 
+plot.init() +
   plot.symbol(target) +
   plot.symbol(data_ini2, col = "grey", size=4) +
-  plot.symbol(data_man2, col='red', size=2) + 
+  plot.symbol(data_man2, col='red', size=2) +
   plot.decoration(title="Second Data Set (centered manually)")
 ```
 
@@ -254,10 +254,9 @@ err = DbHelper_centerPointToGrid(data_auto2, target)
 Displaying the centered results
 
 ```{r Plotting_gstlearn_centering_data2}
-plot.init() + 
+plot.init() +
   plot.symbol(target) +
   plot.symbol(data_ini2, col = "grey", size=4) +
-  plot.symbol(data_auto2, col='red', size=2) + 
+  plot.symbol(data_auto2, col='red', size=2) +
   plot.decoration(title="Second Data Set (centered by gstlearn)")
 ```
-

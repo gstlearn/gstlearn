@@ -24,7 +24,7 @@ a["var2"] = rnorm(nech)
 a$display()
 print(a["var*"])
 
-a["var*"] = a["var*"]>0 
+a["var*"] = a["var*"]>0
 print(a["var*"])
 
 a["newvar"] = c(runif(nech), rnorm(nech))

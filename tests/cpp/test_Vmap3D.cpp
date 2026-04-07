@@ -24,6 +24,7 @@
 #include "Variogram/Vario.hpp"
 
 using namespace gstlrn;
+
 /****************************************************************************/
 /*!
 ** Main Program for testing the sparse matrix algebra
@@ -47,7 +48,8 @@ int main(int argc, char* argv[])
   grid->display();
 
   // Creating the Model(s) of the Underlying GRF(s)
-  Model* model = Model::createFromParam(ECov::SPHERICAL, 0., 1., 0., {1., 1., 0.1});
+  Model* model =
+    Model::createFromParam(ECov::SPHERICAL, 0., 1., 0., {1., 1., 0.1});
   model->display();
 
   // Perform a non-conditional simulation on the Db and on the Grid
@@ -58,7 +60,8 @@ int main(int argc, char* argv[])
   // Calculating Variogram Map on Grid
   // =================================
 
-  DbGrid* vmap = db_vmap(grid, 0, true, ECalcVario::VARIOGRAM, true, {10, 10, 3});
+  DbGrid* vmap =
+    db_vmap(grid, 0, true, ECalcVario::VARIOGRAM, true, {10, 10, 3});
   DbStringFormat dbfmt(FLAG_STATS, {"VMAP*"});
   vmap->display(&dbfmt);
 

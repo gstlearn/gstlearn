@@ -7,7 +7,7 @@ output:
     toc: true
   pdf_document:
     toc: true
-editor_options: 
+editor_options:
   chunk_output_type: console
 ---
 
@@ -18,7 +18,7 @@ editor_options:
 ```{r setup, include=FALSE}
 ## Global options for code chunks
 knitr::opts_chunk$set(
-  echo = TRUE, 
+  echo = TRUE,
   warning = FALSE,
   cache=FALSE,
   fig.width=5,fig.height=5,fig.align="center"
@@ -27,7 +27,7 @@ knitr::opts_chunk$set(
 
 ### Preamble
 
-In this preamble, we load the **gstlearn** library and clean the workspace. 
+In this preamble, we load the **gstlearn** library and clean the workspace.
 
 ```{r Preamble, message=FALSE}
 rm(list=ls())
@@ -71,7 +71,7 @@ cat(loadDoc("Experimental_Variogram.md"), sep="\n")
 ```
 
 ```{r Experimental_Variogram, results=FALSE}
-varioParamOmni = VarioParam_createOmniDirection(nlag=40, dlag=10,toldis = 0.1) 
+varioParamOmni = VarioParam_createOmniDirection(nlag=40, dlag=10,toldis = 0.1)
 
 dat$setLocator("January_temp",ELoc_Z())
 varioexp = Vario(varioParamOmni)
@@ -90,7 +90,7 @@ We now plot the experimental variogram. In the resulting figure, the experimenta
 plot.init() + plot.varmod(varioexp)
 ```
 
-We can also adapt the size of experimental variogram points in the plot so that it is proportional to the number of pairs of points used to compute the value. 
+We can also adapt the size of experimental variogram points in the plot so that it is proportional to the number of pairs of points used to compute the value.
 
 ```{r Plot_Experimental_Variogram_continued}
 plot.init() + plot.varmod(varioexp,drawPsize=TRUE)
@@ -130,11 +130,11 @@ It is also possible to guide the model fitting by proposing a list of basic cova
 ECov_printAll()
 ```
 
-In practice, we start by creating a list of basic structures using the `ECov_fromKeys` function which we supply with a vector containing the names of the basic structures we would like to see in the model. To fit the model, we then once again call the `fit` method and supply it with both the experimental variogram and the newly created list of basic structures (argument `types`). Then the fitting procedures tries find the composition of models from the supplied list that best fits the experimental variogram. 
+In practice, we start by creating a list of basic structures using the `ECov_fromKeys` function which we supply with a vector containing the names of the basic structures we would like to see in the model. To fit the model, we then once again call the `fit` method and supply it with both the experimental variogram and the newly created list of basic structures (argument `types`). Then the fitting procedures tries find the composition of models from the supplied list that best fits the experimental variogram.
 
 Note that by default, the fitting algorithm tries to be parsimonious and can therefore "drop" some of the structures that we supply if it deems that a model with less structures provides a better fit. To force the fitting algorithm to keep all the structures from the list, we  simply need to add the argument `optvar=Option_VarioFit(TRUE)` to the `fit` method.
 
-In the next example, we once again define a model by fitting it on our experimental variogram. But this time, we specify that we want the resulting model to be a composition of basic structures restricted to these choices: a Nugget effect, a Cubic covariance and a Spherical covariance. 
+In the next example, we once again define a model by fitting it on our experimental variogram. But this time, we specify that we want the resulting model to be a composition of basic structures restricted to these choices: a Nugget effect, a Cubic covariance and a Spherical covariance.
 
 ```{r Model_Fitting_List1}
 types = ECov_fromKeys(c("NUGGET","CUBIC","SPHERICAL"))
@@ -175,7 +175,7 @@ When printing the content of the fitted model, we see that the constraints are i
 fitmod
 ```
 
-In the following example, we now apply equality constraints to the parameters. The first one applies to the basic structure of index $1$ (the cubic structure), and sets its range to the value $1000$. The second one also applies to the basic structure of index $1$ (the cubic structure), and sets its sill to the value $0.4$. 
+In the following example, we now apply equality constraints to the parameters. The first one applies to the basic structure of index $1$ (the cubic structure), and sets its range to the value $1000$. The second one also applies to the basic structure of index $1$ (the cubic structure), and sets its sill to the value $0.4$.
 
 ```{r Model_Fitting_Equality_1}
 constraints = Constraints()
@@ -253,7 +253,7 @@ modelVM
 
 #### Fitting of variogram map
 
-It is then possible to plot the variogram map resulting from the fitted model. To do so, we start by evaluating the fitted variogram model on the the experimental variogram map grid. This is done using the function `buildVmapOnDbGrid` which we supply with both the experimental variogram map and the fitted model. This function adds a additional variable to the `Db` containing the experimental variogram map corresponding to the evaluations of the variogram model. 
+It is then possible to plot the variogram map resulting from the fitted model. To do so, we start by evaluating the fitted variogram model on the the experimental variogram map grid. This is done using the function `buildVmapOnDbGrid` which we supply with both the experimental variogram map and the fitted model. This function adds a additional variable to the `Db` containing the experimental variogram map corresponding to the evaluations of the variogram model.
 
 ```{r Fitting_Variogram_Map_Draw}
 err = modelVM$buildVmapOnDbGrid(grid.vmap)
@@ -271,4 +271,3 @@ Finally, we plot together the experimental directional variograms and the model 
 ```{r Compare_Directional_Variograms_and_Variogram_Map}
 plot.init() + plot.varmod(vario.4dir, modelVM)
 ```
-

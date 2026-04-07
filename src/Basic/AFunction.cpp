@@ -12,8 +12,5 @@
 
 namespace gstlrn
 {
-AFunction::AFunction()
-{
-
-}
-}
+  AFunction::AFunction() {}
+} // namespace gstlrn

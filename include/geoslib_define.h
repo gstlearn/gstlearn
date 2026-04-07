@@ -18,32 +18,32 @@
 // WARNING: Make this include list as small as possible!
 #include <string>
 #ifdef USE_BOOST_SPAN
-#  include <boost/core/span.hpp>
+#include <boost/core/span.hpp>
 #else
-#  include <span>
+#include <span>
 #endif
 namespace gstlrn
 {
-typedef std::string String;
-typedef unsigned char UChar;
+  typedef std::string String;
+  typedef unsigned char UChar;
 
-/// Main type for gstlearn 64-bits integers, to be used in priority
-/// when an integer is needed.
-using Id = long long;
+  /// Main type for gstlearn 64-bits integers, to be used in priority
+  /// when an integer is needed.
+  using Id = long long;
 
-/// Secondary integer type. To be used instead of "int". No "int"
-/// should be voluntarily introduced in gstlearn.
-using I32 = int;
+  /// Secondary integer type. To be used instead of "int". No "int"
+  /// should be voluntarily introduced in gstlearn.
+  using I32 = int;
 
-#define EPSILON1  1.e-1
-#define EPSILON2  1.e-2
-#define EPSILON3  1.e-3
-#define EPSILON4  1.e-4
-#define EPSILON5  1.e-5
-#define EPSILON6  1.e-6
-#define EPSILON7  1.e-7
-#define EPSILON8  1.e-8
-#define EPSILON9  1.e-9
+#define EPSILON1 1.e-1
+#define EPSILON2 1.e-2
+#define EPSILON3 1.e-3
+#define EPSILON4 1.e-4
+#define EPSILON5 1.e-5
+#define EPSILON6 1.e-6
+#define EPSILON7 1.e-7
+#define EPSILON8 1.e-8
+#define EPSILON9 1.e-9
 #define EPSILON10 1.e-10
 #define EPSILON12 1.e-12
 #define EPSILON13 1.e-13
@@ -57,7 +57,7 @@ using I32 = int;
 
 // Macro for preventing warning : unused variable.
 // To be used like: DECLARE_UNUSED(a, b, c)
-#define DECLARE_UNUSED_(x)  (void)x;
+#define DECLARE_UNUSED_(x) (void)x;
 #define DECLARE_UNUSED(...) EXPAND(REPEAT(DECLARE_UNUSED_, __VA_ARGS__))
 
 // Declare the function which has a specific implementation
@@ -65,46 +65,49 @@ using I32 = int;
 // This function must be:
 // - declared in rgstlearn.i or pygstlearn.i
 // - be called as 'classname'_toTL
-#define DECLARE_TOTL                                                                       \
-  inline void toTL() const                                                                 \
-  {                                                                                        \
-    std::cerr << "Method 'toTL' Not implemented yet (missing dependencies?)" << std::endl; \
+#define DECLARE_TOTL                                                           \
+  inline void toTL() const                                                     \
+  {                                                                            \
+    std::cerr << "Method 'toTL' Not implemented yet (missing dependencies?)"   \
+              << std::endl;                                                    \
   };
 
 // Same for toLatex
-#define DECLARE_TOLATEX                                                                       \
-  inline void toLatex() const                                                                 \
-  {                                                                                           \
-    std::cerr << "Method 'toLatex' Not implemented yet (missing dependencies?)" << std::endl; \
+#define DECLARE_TOLATEX                                                        \
+  inline void toLatex() const                                                  \
+  {                                                                            \
+    std::cerr                                                                  \
+      << "Method 'toLatex' Not implemented yet (missing dependencies?)"        \
+      << std::endl;                                                            \
   };
 
 // No need to this stuff through SWIG (using target language NAs)
 // => Not really : Using customized SWIG 4.3.0, TEST is often a default argument value!
 // #ifndef SWIG
-#define TEST      1.234e30
+#define TEST 1.234e30
 #define TEST_COMP 1.000e30
-#define ITEST     -1234567
-// #endif
+#define ITEST -1234567
+  // #endif
 
 #define ASCII_TEST -999.
 
-#define BUFFER_LENGTH      10000
-#define STRING_LENGTH      100
-#define LOCAL_SIZE         10
-#define LONG_SIZE          10000
-#define GV_PI              3.14159265358979323846264338328
-#define GV_EE              2.732
-#define MIN(a, b)          (((a) < (b)) ? (a) : (b))
-#define MAX(a, b)          (((a) > (b)) ? (a) : (b))
-#define ABS(a)             (((a) < 0.) ? -(a) : (a))
-#define SIGN(s, a)         (((s) < 0.) ? -(a) : (a))
-#define M_R(tab, n, i, j)  (tab[(n) * (i) + (j)])
-#define IS_GAUSS_DEF(x)    (x > THRESH_INF && x < THRESH_SUP)
+#define BUFFER_LENGTH 10000
+#define STRING_LENGTH 100
+#define LOCAL_SIZE 10
+#define LONG_SIZE 10000
+#define GV_PI 3.14159265358979323846264338328
+#define GV_EE 2.732
+#define MIN(a, b) (((a) < (b)) ? (a) : (b))
+#define MAX(a, b) (((a) > (b)) ? (a) : (b))
+#define ABS(a) (((a) < 0.) ? -(a) : (a))
+#define SIGN(s, a) (((s) < 0.) ? -(a) : (a))
+#define M_R(tab, n, i, j) (tab[(n) * (i) + (j)])
+#define IS_GAUSS_DEF(x) (x > THRESH_INF && x < THRESH_SUP)
 #define ISNOT_GAUSS_DEF(x) (x <= THRESH_INF || x >= THRESH_SUP)
 
-#define MAX_INT   1000000000
+#define MAX_INT 1000000000
 #define MAX_PARAM 1000
-#define MAX_EXP   100 // Maximum value of h for exp(-h)
+#define MAX_EXP 100 // Maximum value of h for exp(-h)
 
 #define THRESH_INF -10
 #define THRESH_SUP 10
@@ -113,103 +116,103 @@ using I32 = int;
 
 // Hide warnings C4251 under windows: https://stackoverflow.com/a/22054743
 #ifndef SWIG
-DISABLE_WARNING_NOT_EXPORTED_FROM_DLL
-DISABLE_WARNING_BASE_NOT_EXPORTED_FROM_DLL
+  DISABLE_WARNING_NOT_EXPORTED_FROM_DLL
+  DISABLE_WARNING_BASE_NOT_EXPORTED_FROM_DLL
 
-#  ifdef USE_BOOST_SPAN
-typedef boost::span<const double> constvect;
-typedef boost::span<double> vect;
-using constvectint = boost::span<const Id>;
-using vectint      = boost::span<Id>;
-#  else
-typedef std::span<const double> constvect;
-typedef std::span<double> vect;
-using constvectint = std::span<const Id>;
-using vectint      = std::span<Id>;
-#  endif
+#ifdef USE_BOOST_SPAN
+  typedef boost::span<const double> constvect;
+  typedef boost::span<double> vect;
+  using constvectint = boost::span<const Id>;
+  using vectint = boost::span<Id>;
+#else
+  typedef std::span<const double> constvect;
+  typedef std::span<double> vect;
+  using constvectint = std::span<const Id>;
+  using vectint = std::span<Id>;
+#endif
 
 #endif
 
-/* The macro FORWARD_METHOD simplifies forwarding method calls
-   to an encapsulated object (obj). It acts as a proxy for accessing
-   member functions of the inner object, handling cases where
-   the object may be null and providing default behavior
-    when necessary.
-    Object Proxying:
-    If obj() is not nullptr, the macro forwards the call to the
-    method name of the inner object using perfect forwarding for
-    arguments.
-    Handling Null Objects:
-    If obj() is nullptr, the macro handles the return type as
-    follows:
-        For void methods, it simply returns.
-        For methods returning a reference, it returns a static,
-        default-constructed object.
-        For methods returning values, it constructs and returns
-        a default-initialized object using optional arguments
-        (__VA_ARGS__).
-    Const-Correctness:
-    The macro detects if the inner object is const and ensures the forwarded call is to the const version of the method.
-    Static Default Value:
-    For reference return types, a static default object is
-    used to provide a valid reference that persists beyond
-    the function scope.
-*/
+  /* The macro FORWARD_METHOD simplifies forwarding method calls
+     to an encapsulated object (obj). It acts as a proxy for accessing
+     member functions of the inner object, handling cases where
+     the object may be null and providing default behavior
+      when necessary.
+      Object Proxying:
+      If obj() is not nullptr, the macro forwards the call to the
+      method name of the inner object using perfect forwarding for
+      arguments.
+      Handling Null Objects:
+      If obj() is nullptr, the macro handles the return type as
+      follows:
+          For void methods, it simply returns.
+          For methods returning a reference, it returns a static,
+          default-constructed object.
+          For methods returning values, it constructs and returns
+          a default-initialized object using optional arguments
+          (__VA_ARGS__).
+      Const-Correctness:
+      The macro detects if the inner object is const and ensures the forwarded call is to the const version of the method.
+      Static Default Value:
+      For reference return types, a static default object is
+      used to provide a valid reference that persists beyond
+      the function scope.
+  */
 
 #ifndef SWIG
 
-#  define FORWARD_METHOD_NON_CONST(obj, name, ...)                           \
-    template<typename... Args>                                               \
-    auto name(Args&&... args) -> decltype(auto)                              \
-    {                                                                        \
-      if (obj() != nullptr)                                                  \
-      {                                                                      \
-        return obj()->name(std::forward<Args>(args)...);                     \
-      }                                                                      \
-      using ReturnType = decltype(obj()->name(std::forward<Args>(args)...)); \
-      if constexpr (std::is_void_v<ReturnType>)                              \
-      {                                                                      \
-        return;                                                              \
-      }                                                                      \
-      else if constexpr (std::is_reference_v<ReturnType>)                    \
-      {                                                                      \
-        static std::remove_reference_t<ReturnType> default_value {};         \
-        return static_cast<ReturnType>(default_value);                       \
-      }                                                                      \
-      else                                                                   \
-      {                                                                      \
-        return ReturnType(__VA_ARGS__);                                      \
-      }                                                                      \
-    }
+#define FORWARD_METHOD_NON_CONST(obj, name, ...)                               \
+  template<typename... Args>                                                   \
+  auto name(Args&&... args) -> decltype(auto)                                  \
+  {                                                                            \
+    if (obj() != nullptr)                                                      \
+    {                                                                          \
+      return obj()->name(std::forward<Args>(args)...);                         \
+    }                                                                          \
+    using ReturnType = decltype(obj()->name(std::forward<Args>(args)...));     \
+    if constexpr (std::is_void_v<ReturnType>)                                  \
+    {                                                                          \
+      return;                                                                  \
+    }                                                                          \
+    else if constexpr (std::is_reference_v<ReturnType>)                        \
+    {                                                                          \
+      static std::remove_reference_t<ReturnType> default_value{};              \
+      return static_cast<ReturnType>(default_value);                           \
+    }                                                                          \
+    else                                                                       \
+    {                                                                          \
+      return ReturnType(__VA_ARGS__);                                          \
+    }                                                                          \
+  }
 
-#  define FORWARD_METHOD(obj, name, ...)                                     \
-    template<typename... Args>                                               \
-    auto name(Args&&... args) const -> decltype(auto)                        \
-    {                                                                        \
-      if (obj() != nullptr)                                                  \
-      {                                                                      \
-        return obj()->name(std::forward<Args>(args)...);                     \
-      }                                                                      \
-      using ReturnType = decltype(obj()->name(std::forward<Args>(args)...)); \
-      if constexpr (std::is_void_v<ReturnType>)                              \
-      {                                                                      \
-        return;                                                              \
-      }                                                                      \
-      else if constexpr (std::is_reference_v<ReturnType>)                    \
-      {                                                                      \
-        static std::remove_reference_t<ReturnType> default_value {};         \
-        return static_cast<ReturnType>(default_value);                       \
-      }                                                                      \
-      else                                                                   \
-      {                                                                      \
-        return ReturnType(__VA_ARGS__);                                      \
-      }                                                                      \
-    }
+#define FORWARD_METHOD(obj, name, ...)                                         \
+  template<typename... Args>                                                   \
+  auto name(Args&&... args) const -> decltype(auto)                            \
+  {                                                                            \
+    if (obj() != nullptr)                                                      \
+    {                                                                          \
+      return obj()->name(std::forward<Args>(args)...);                         \
+    }                                                                          \
+    using ReturnType = decltype(obj()->name(std::forward<Args>(args)...));     \
+    if constexpr (std::is_void_v<ReturnType>)                                  \
+    {                                                                          \
+      return;                                                                  \
+    }                                                                          \
+    else if constexpr (std::is_reference_v<ReturnType>)                        \
+    {                                                                          \
+      static std::remove_reference_t<ReturnType> default_value{};              \
+      return static_cast<ReturnType>(default_value);                           \
+    }                                                                          \
+    else                                                                       \
+    {                                                                          \
+      return ReturnType(__VA_ARGS__);                                          \
+    }                                                                          \
+  }
 
 #else
 
-#  define FORWARD_METHOD(obj, name, ...)
-#  define FORWARD_METHOD_NON_CONST(obj, name, ...)
+#define FORWARD_METHOD(obj, name, ...)
+#define FORWARD_METHOD_NON_CONST(obj, name, ...)
 
 #endif
 } // namespace gstlrn

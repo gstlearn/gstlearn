@@ -20,65 +20,67 @@
 namespace gstlrn
 {
 
-class Db;
-class DbGrid;
-class KrigingSystem;
-class Model;
+  class Db;
+  class DbGrid;
+  class KrigingSystem;
+  class Model;
 
-class GSTLEARN_EXPORT Global_Result: public AStringable
-{
-public:
-  /// AStringable Interface
-  String toString(const AStringFormat* strfmt = nullptr) const override;
+  class GSTLEARN_EXPORT Global_Result: public AStringable
+  {
+  public:
+    /// AStringable Interface
+    String toString(const AStringFormat* strfmt = nullptr) const override;
 
-public:
-  Id ntot;              // Total Number of Data
-  Id np;                // Number of active Data
-  Id ng;                // Number of grid nodes for Domain discretization
-  double surface;       // Surface of Domain
-  double zest;          // Estimate
-  double sse;           // Standard deviation of estimation
-  double cvgeo;         // Coefficient of Variation
-  double cvv;           // Variance of Domain
-  VectorDouble weights; // Weights attached to data
+  public:
+    Id ntot; // Total Number of Data
+    Id np; // Number of active Data
+    Id ng; // Number of grid nodes for Domain discretization
+    double surface; // Surface of Domain
+    double zest; // Estimate
+    double sse; // Standard deviation of estimation
+    double cvgeo; // Coefficient of Variation
+    double cvv; // Variance of Domain
+    VectorDouble weights; // Weights attached to data
 
-  /// Has a specific implementation in the Target language (for R only)
-  DECLARE_TOTL;
-};
+    /// Has a specific implementation in the Target language (for R only)
+    DECLARE_TOTL;
+  };
 
-class GSTLEARN_EXPORT CalcGlobal: public ACalcInterpolator
-{
-public:
-  CalcGlobal(Id ivar0     = 0,
-             bool verbose = false);
-  CalcGlobal(const CalcGlobal& r)            = delete;
-  CalcGlobal& operator=(const CalcGlobal& r) = delete;
-  virtual ~CalcGlobal();
+  class GSTLEARN_EXPORT CalcGlobal: public ACalcInterpolator
+  {
+  public:
+    CalcGlobal(Id ivar0 = 0, bool verbose = false);
+    CalcGlobal(const CalcGlobal& r) = delete;
+    CalcGlobal& operator=(const CalcGlobal& r) = delete;
+    virtual ~CalcGlobal();
 
-  void setFlagArithmetic(bool flagArithmetic) { _flagArithmetic = flagArithmetic; }
-  void setFlagKriging(bool flagKriging) { _flagKriging = flagKriging; }
+    void setFlagArithmetic(bool flagArithmetic)
+    {
+      _flagArithmetic = flagArithmetic;
+    }
 
-  Global_Result getGRes() const { return _gRes; }
+    void setFlagKriging(bool flagKriging) { _flagKriging = flagKriging; }
 
-private:
-  bool _check() override;
-  bool _preprocess() override;
-  bool _run() override;
-  bool _postprocess() override;
-  void _rollback() override;
+    Global_Result getGRes() const { return _gRes; }
 
-  Id _globalKriging();
-  Id _globalArithmetic();
+  private:
+    bool _check() override;
+    bool _preprocess() override;
+    bool _run() override;
+    bool _postprocess() override;
+    void _rollback() override;
 
-private:
-  bool _flagArithmetic;
-  bool _flagKriging;
-  Id _ivar0;
-  bool _verbose;
-  Model* _modelLocal;
+    Id _globalKriging();
+    Id _globalArithmetic();
 
-  Global_Result _gRes;
-};
+  private:
+    bool _flagArithmetic;
+    bool _flagKriging;
+    Id _ivar0;
+    bool _verbose;
+    Model* _modelLocal;
 
+    Global_Result _gRes;
+  };
 
 } // namespace gstlrn
