@@ -28,6 +28,7 @@
 #include "Variogram/VarioParam.hpp"
 
 using namespace gstlrn;
+
 /****************************************************************************/
 /*!
 ** Main Program
@@ -41,24 +42,24 @@ int main(int argc, char* argv[])
 
   Id iptr;
 
-  Id nx              = 50;   // Number of grid mesh (in each direction)
-  Id niter           = 1000; // Number of Gibbs iterations
-  Id nburn           = 20;   // Number of burning steps
-  double range       = 10.;  // Isotropic range
-  double bound       = TEST;
-  double eps         = EPSILON6; // Epsilon for the Gibbs
-  bool storeInternal = false;    // Store internal: No HDF5 by default
-  bool storeVario    = false;
+  Id nx = 50; // Number of grid mesh (in each direction)
+  Id niter = 1000; // Number of Gibbs iterations
+  Id nburn = 20; // Number of burning steps
+  double range = 10.; // Isotropic range
+  double bound = TEST;
+  double eps = EPSILON6; // Epsilon for the Gibbs
+  bool storeInternal = false; // Store internal: No HDF5 by default
+  bool storeVario = false;
 
-  int seed    = 5452;
+  int seed = 5452;
   size_t ndim = 2;
-  int nvar    = 1;
-  int nbsimu  = 1;
+  int nvar = 1;
+  int nbsimu = 1;
   double sill = 1.;
-  int nlag    = 20;
+  int nlag = 20;
 
   VectorDouble ranges = {range, range};
-  bool verbose        = true;
+  bool verbose = true;
 
   // Setup constants
 
@@ -79,7 +80,8 @@ int main(int argc, char* argv[])
     db->addColumnsByConstant(1, TEST, "Lower", ELoc::L);
     db->addColumnsByConstant(1, TEST, "Upper", ELoc::U);
   }
-  if (db_locator_attribute_add(db, ELoc::GAUSFAC, nbsimu * nvar, 0, 0., &iptr)) return 1;
+  if (db_locator_attribute_add(db, ELoc::GAUSFAC, nbsimu * nvar, 0, 0., &iptr))
+    return 1;
 
   // Model
 
@@ -129,7 +131,8 @@ int main(int argc, char* argv[])
       db->setLocator(names[isimu], ELoc::Z, 0);
       Vario vario(varioparam);
       vario.compute(db, ECalcVario::VARIOGRAM);
-      (void)vario.dumpToNF(incrementStringVersion("Vario", static_cast<Id>(isimu) + 1));
+      (void)vario.dumpToNF(
+        incrementStringVersion("Vario", static_cast<Id>(isimu) + 1));
     }
   }
 

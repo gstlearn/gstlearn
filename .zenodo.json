@@ -1,5 +1,6 @@
 {
-  "description": "The Geostatistics &amp; Machine Learning C++ Library, Python and R Packages",
+  "description":
+    "The Geostatistics &amp; Machine Learning C++ Library, Python and R Packages",
   "creators": [
     {
       "name": "MINES Paris - PSL University"
@@ -54,5 +55,11 @@
     }
   ],
   "language": "eng",
-  "keywords": ["C++ Library", "Python Package", "R Package", "Geostatistics", "Machine Learning"]
+  "keywords": [
+    "C++ Library",
+    "Python Package",
+    "R Package",
+    "Geostatistics",
+    "Machine Learning"
+  ]
 }

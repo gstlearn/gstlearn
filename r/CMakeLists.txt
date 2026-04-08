@@ -32,7 +32,7 @@ set(R_PACKAGE_R_FOLDER             ${R_PACKAGE_DESTINATION_FOLDER}/R)
 set(R_PACKAGE_DATA_FOLDER          ${R_PACKAGE_DESTINATION_FOLDER}/data)
 set(R_PACKAGE_SRC_FOLDER           ${R_PACKAGE_DESTINATION_FOLDER}/src)
 
-######################################  
+######################################
 # DOCUMENTATION
 #
 # Ensure documentation.i is existing
@@ -68,7 +68,7 @@ add_custom_target(r_doc
 add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/swig/generated_r.i
 COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_BINARY_DIR}/swig/generated_r.i
 COMMENT "Ensure that generated_r.i exists")
-  
+
 add_custom_target(r_wrap_macro
   COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/../tools/scripts/macrogenerate.py r ${CMAKE_BINARY_DIR}/swig/generated_r.i
   "r"
@@ -139,7 +139,7 @@ swig_add_library(
 )
 
 if (APPLE)
-  # To prevent 'import' from crashing under Mac (swig output suffix is .dynlib by default) 
+  # To prevent 'import' from crashing under Mac (swig output suffix is .dynlib by default)
   set_target_properties(r_build PROPERTIES SUFFIX ".so")
 endif()
 
@@ -209,7 +209,7 @@ add_dependencies(r_build generate_output)
 # Generate NAMESPACE automatically for each configuration
 # First step: replace variables (@VAR@)
 configure_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/NAMESPACE.in 
+  ${CMAKE_CURRENT_SOURCE_DIR}/NAMESPACE.in
   ${CMAKE_CURRENT_BINARY_DIR}/NAMESPACE.in
   @ONLY
 )
@@ -222,7 +222,7 @@ file(GENERATE
 # Replace DESCRIPTION automatically for each configuration
 # First step: replace variables (@VAR@)
 configure_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/DESCRIPTION.in 
+  ${CMAKE_CURRENT_SOURCE_DIR}/DESCRIPTION.in
   ${CMAKE_CURRENT_BINARY_DIR}/DESCRIPTION.in
   @ONLY
 )

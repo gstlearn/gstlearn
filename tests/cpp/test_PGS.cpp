@@ -27,6 +27,7 @@
 #include "Variogram/Vario.hpp"
 
 using namespace gstlrn;
+
 /****************************************************************************/
 /*!
 ** Main Program for testing the sparse matrix algebra
@@ -40,7 +41,7 @@ int main(int argc, char* argv[])
 
   ASerializable::setPrefixName("test_PGS-");
   Id error = 0;
-  Id ndim  = 2;
+  Id ndim = 2;
   defineDefaultSpace(ESpaceType::RN, ndim);
   CovContext ctxt(1, 2, 1.);
 
@@ -50,7 +51,7 @@ int main(int argc, char* argv[])
 
   // Creating a Point Data base in the 1x1 square with 'nech' samples
   Id nech = 1000;
-  Db* db  = Db::createFromBox(nech, {0., 0.}, {1., 1.}, 432432);
+  Db* db = Db::createFromBox(nech, {0., 0.}, {1., 1.}, 432432);
   DbStringFormat dbfmt(FLAG_STATS);
   db->display(&dbfmt);
 
@@ -59,7 +60,7 @@ int main(int argc, char* argv[])
 
   // Setting constant global proportions
   VectorDouble props({0.2, 0.5, 0.3});
-  Id nfac            = static_cast<Id>(props.size());
+  Id nfac = static_cast<Id>(props.size());
   VectorString names = generateMultipleNames("Props", nfac);
   for (Id ifac = 0; ifac < nfac; ifac++)
     dbprop->addColumnsByConstant(1, props[ifac], names[ifac], ELoc::P, ifac);
@@ -121,11 +122,11 @@ int main(int argc, char* argv[])
   Model modelPGS1(ctxt);
   Model modelPGS2(ctxt);
   Constraints constraints;
-  constraints.addItemFromParamId(EConsElem::PARAM,0,0,0,EConsType::EQUAL, 2.5);
+  constraints.addItemFromParamId(
+    EConsElem::PARAM, 0, 0, 0, EConsType::EQUAL, 2.5);
   constraints.setConstantSillValue(1.);
 
-
-  VectorECov covs {ECov::MATERN, ECov::EXPONENTIAL};
+  VectorECov covs{ECov::MATERN, ECov::EXPONENTIAL};
   modelPGS1.fit(&vario1, covs, constraints);
   modelPGS1.display();
 
@@ -148,7 +149,8 @@ int main(int argc, char* argv[])
   (void)ruleprop2->getRule()->dumpToNF("ruleFit.NF");
 
   modelPGS1.display();
-  Vario* varioDerived = model_pgs(db, &varioparam1, ruleprop2, &modelPGS1, &modelPGS2);
+  Vario* varioDerived =
+    model_pgs(db, &varioparam1, ruleprop2, &modelPGS1, &modelPGS2);
   modelPGS1.display();
   varioDerived->dumpToNF("modelpgs.NF");
   varioDerived->display();

@@ -1,6 +1,6 @@
 **Variogram Cloud**
 
-The data is modeled as *samples of a regionalized* variable $z$, i.e. as evaluations at locations $x_1,..,x_n$ of a variable $z$ defined across a spatial domain: 
+The data is modeled as *samples of a regionalized* variable $z$, i.e. as evaluations at locations $x_1,..,x_n$ of a variable $z$ defined across a spatial domain:
 $$\lbrace z_i = z(x_i) : i = 1, ..., n\rbrace.$$
 
 The variogram cloud is the set of pair of points defined as

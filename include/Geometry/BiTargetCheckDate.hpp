@@ -16,26 +16,26 @@
 
 namespace gstlrn
 {
-class GSTLEARN_EXPORT BiTargetCheckDate: public ABiTargetCheck
-{
-public:
-  BiTargetCheckDate(double deltamin, double deltamax);
-  BiTargetCheckDate(const BiTargetCheckDate& r);
-  BiTargetCheckDate& operator=(const BiTargetCheckDate& r);
-  virtual ~BiTargetCheckDate();
+  class GSTLEARN_EXPORT BiTargetCheckDate: public ABiTargetCheck
+  {
+  public:
+    BiTargetCheckDate(double deltamin, double deltamax);
+    BiTargetCheckDate(const BiTargetCheckDate& r);
+    BiTargetCheckDate& operator=(const BiTargetCheckDate& r);
+    virtual ~BiTargetCheckDate();
 
-  /// ICloneable Interface
-  IMPLEMENT_CLONING(BiTargetCheckDate)
+    /// ICloneable Interface
+    IMPLEMENT_CLONING(BiTargetCheckDate)
 
-  bool isOK(const SpaceTarget &T1, const SpaceTarget &T2) const override;
+    bool isOK(const SpaceTarget& T1, const SpaceTarget& T2) const override;
 
-  /// Interface to AStringable
-  String toString(const AStringFormat* strfmt = nullptr) const override;
+    /// Interface to AStringable
+    String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  static BiTargetCheckDate* create(double deltamin, double deltamax);
+    static BiTargetCheckDate* create(double deltamin, double deltamax);
 
-private:
-  double _deltaMin;
-  double _deltaMax;
-};
-}
+  private:
+    double _deltaMin;
+    double _deltaMax;
+  };
+} // namespace gstlrn

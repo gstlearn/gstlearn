@@ -10,34 +10,39 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
 #include "OutputFormat/AOF.hpp"
+#include "gstlearn_export.hpp"
 
 namespace gstlrn
 {
-class Db;
+  class Db;
 
-class GSTLEARN_EXPORT GridIfpEn: public AOF
-{
-public:
-  GridIfpEn(const char* filename, const Db* db = nullptr);
-  GridIfpEn(const GridIfpEn& r);
-  GridIfpEn& operator=(const GridIfpEn& r);
-  virtual ~GridIfpEn();
+  class GSTLEARN_EXPORT GridIfpEn: public AOF
+  {
+  public:
+    GridIfpEn(const char* filename, const Db* db = nullptr);
+    GridIfpEn(const GridIfpEn& r);
+    GridIfpEn& operator=(const GridIfpEn& r);
+    virtual ~GridIfpEn();
 
-  bool mustBeGrid() const override { return true; }
-  bool mustBeOneVariable() const override { return false; }
-  bool mustBeForNDim(Id /*ndim*/) const override { return true; }
-  bool mustBeForRotation(Id mode) const override { return mode <= 1; }
-  Id  writeInFile() override;
-  DbGrid* readGridFromFile() override;
+    bool mustBeGrid() const override { return true; }
 
-private:
-  void _writeLine(Id mode,
-                  const char *comment,
-                  Id valint,
-                  double valrel,
-                  const char *combis);
-  Id _readLine(Id mode, const char *comment, Id *valint, double *valrel);
-};
-}
+    bool mustBeOneVariable() const override { return false; }
+
+    bool mustBeForNDim(Id /*ndim*/) const override { return true; }
+
+    bool mustBeForRotation(Id mode) const override { return mode <= 1; }
+
+    Id writeInFile() override;
+    DbGrid* readGridFromFile() override;
+
+  private:
+    void _writeLine(
+      Id mode,
+      const char* comment,
+      Id valint,
+      double valrel,
+      const char* combis);
+    Id _readLine(Id mode, const char* comment, Id* valint, double* valrel);
+  };
+} // namespace gstlrn

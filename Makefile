@@ -11,7 +11,7 @@
 #
 # Information:
 #  - print_version  Display project name, version and date
-# 
+#
 # C++ Library:
 #  - shared         Build gstlearn shared library
 #  - static         Build gstlearn static library
@@ -65,7 +65,7 @@
 #  - NO_INTERNET=1      To prevent python pip from looking for dependencies through Internet
 #                       (useful when there is no Internet available) (default =0)
 #  - NO_BYTE_COMPILE=1  To prevent R from byte-compiling the R package during the installation
-#                       (useful to accelerate installation process) (default =0) 
+#                       (useful to accelerate installation process) (default =0)
 #  - EIGEN3_ROOT=<path> Path to Eigen3 library (optional)
 #  - BOOST_ROOT=<path>  Path to Boost library (optional)
 #  - NLOPT_ROOT=<path>  Path to NLopt library (optional)
@@ -80,13 +80,13 @@
 ifeq ($(BUILD_DOC), 1)
   BUILD_DOC = ON
  else
-  BUILD_DOC = OFF 
+  BUILD_DOC = OFF
 endif
 
 ifeq ($(NO_INTERNET), 1)
   NO_INTERNET = ON
  else
-  NO_INTERNET = OFF 
+  NO_INTERNET = OFF
 endif
 
 ifeq ($(NO_BYTE_COMPILE), 1)
@@ -286,9 +286,8 @@ clang_check: clean_all
 
 .PHONY: clean clean_all
 
-clean: 
+clean:
 	@cmake --build $(BUILD_DIR) --target clean -- $(N_PROC_OPT)
 
 clean_all:
 	@rm -rf $(BUILD_DIR)
-

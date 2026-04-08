@@ -99,12 +99,12 @@ invisible(argumentDefTestVString(c()))
 # Testing Matrix typemaps
 
 mat = matrix(c(1,2,3,4,5,6), nrow=3, ncol=2)
-invisible(argumentTestMatrixDense(mat)) 
+invisible(argumentTestMatrixDense(mat))
 invisible(argumentTestMatrixSquare(mat)) # Should provoke an error
 invisible(argumentTestMatrixSymmetric(mat)) # Should provoke an error
 
 mat = matrix(c(1,2,3,4,5,6,7,8,9), nrow=3, ncol=3)
-invisible(argumentTestMatrixSquare(mat)) 
+invisible(argumentTestMatrixSquare(mat))
 invisible(argumentTestMatrixSymmetric(mat)) # Matrix auto. transformed
 
 mat = matrix(c(1,2,3,2,1,2,3,2,1), nrow=3, ncol=3)
@@ -116,7 +116,7 @@ rows = c(1,4,2,1)
 cols = c(1,4,2,3)
 data = c(4,5,7,9)
 # A is created on purpose with larger size (for the test)
-A = sparseMatrix(i = rows, j = cols, x = data, dims = c(5, 5)) 
+A = sparseMatrix(i = rows, j = cols, x = data, dims = c(5, 5))
 mat = argumentTestMatrixSparse(A)
 
 cat("Test successfully performed\n")

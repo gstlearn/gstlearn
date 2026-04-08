@@ -68,7 +68,7 @@ jobs:
     if: ${{ (inputs.dry_publish == false) && (github.event_name != 'schedule') }}
 
     runs-on: ubuntu-latest
-    
+
     steps:
       - uses: fabien-ors/pypi-publish-action@v3
         with:
@@ -76,7 +76,7 @@ jobs:
           username: __token__
           password: ${{secrets.TWINE_PYPI_PWD}}
           pattern: "*python-package-*"
-  
+
       # Delete the artifacts (for freeing storage space under github)
       - uses: geekyeggo/delete-artifact@v5
         with:
@@ -85,10 +85,10 @@ jobs:
   call-r-publish:
     needs: [define_cran_path, call-python-macos, call-python-windows, call-python-linux, call-r-macos, call-r-windows, call-r-linux]
     if: ${{ (inputs.dry_publish == false) && (github.event_name != 'schedule') }}
-    
+
     # Only ubuntu can upload to CRAN easily (ssh)
     runs-on: ubuntu-latest
-    
+
     steps:
       - env:
           CRAN_PATH: ${{needs.define_cran_path.outputs.cran_path}}

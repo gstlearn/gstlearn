@@ -10,25 +10,26 @@
 /******************************************************************************/
 #include "geoslib_define.h"
 
-#include "Basic/File.hpp"
 #include "Basic/CSVformat.hpp"
+#include "Basic/File.hpp"
 #include "Db/Db.hpp"
-#include "Db/DbStringFormat.hpp"
 #include "Db/DbHelper.hpp"
+#include "Db/DbStringFormat.hpp"
 #include "utils.hpp"
 
 using namespace gstlrn;
+
 /**
  * This test is meant to check the CSV loading procedure
  */
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
 
-  String filename = getTestData("Pollution","Pollution.dat");
-  Db* mydb = Db::createFromCSV(filename,CSVformat(),false);
+  String filename = getTestData("Pollution", "Pollution.dat");
+  Db* mydb = Db::createFromCSV(filename, CSVformat(), false);
 
   mydb->setLocator("X", ELoc::X, 0);
   mydb->setLocator("Y", ELoc::X, 1);

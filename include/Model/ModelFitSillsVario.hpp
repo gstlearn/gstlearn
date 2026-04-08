@@ -18,46 +18,48 @@
 
 namespace gstlrn
 {
-class ModelGeneric;
-class Vario;
-class Constraints;
-class MatrixDense;
-class MatrixSymmetric;
+  class ModelGeneric;
+  class Vario;
+  class Constraints;
+  class MatrixDense;
+  class MatrixSymmetric;
 
-/**
- * \brief
- * Class which, starting from an experimental variogram, enables fitting the
- * sills of all Covariance parts of a Model
- */
-class GSTLEARN_EXPORT ModelFitSillsVario: public AModelFitSills
-{
-public:
-  ModelFitSillsVario(const Vario* vario,
-                     ModelCovList* model,
-                     const Constraints* constraints   = nullptr,
-                     const ModelOptimParam& mop = ModelOptimParam());
-  ModelFitSillsVario(const ModelFitSillsVario& m);
-  ModelFitSillsVario& operator=(const ModelFitSillsVario& m);
-  virtual ~ModelFitSillsVario();
+  /**
+   * \brief
+   * Class which, starting from an experimental variogram, enables fitting the
+   * sills of all Covariance parts of a Model
+   */
+  class GSTLEARN_EXPORT ModelFitSillsVario: public AModelFitSills
+  {
+  public:
+    ModelFitSillsVario(
+      const Vario* vario,
+      ModelCovList* model,
+      const Constraints* constraints = nullptr,
+      const ModelOptimParam& mop = ModelOptimParam());
+    ModelFitSillsVario(const ModelFitSillsVario& m);
+    ModelFitSillsVario& operator=(const ModelFitSillsVario& m);
+    virtual ~ModelFitSillsVario();
 
-  IMPLEMENT_CLONING(ModelFitSillsVario)
+    IMPLEMENT_CLONING(ModelFitSillsVario)
 
-  Id fitSillMatrices() override;
+    Id fitSillMatrices() override;
 
-  static ModelFitSillsVario* createForOptim(const Vario* vario,
-                                            ModelGeneric* model,
-                                            const Constraints* constraints   = nullptr,
-                                            const ModelOptimParam& mop = ModelOptimParam());
+    static ModelFitSillsVario* createForOptim(
+      const Vario* vario,
+      ModelGeneric* model,
+      const Constraints* constraints = nullptr,
+      const ModelOptimParam& mop = ModelOptimParam());
 
-private:
-  Id _prepare();
-  Id _getDimensions();
-  void _computeGg();
-  void _compressArray(const VectorDouble& tabin, VectorDouble& tabout);
-  void _prepareGoulard();
-  void _updateFromModel();
+  private:
+    Id _prepare();
+    Id _getDimensions();
+    void _computeGg();
+    void _compressArray(const VectorDouble& tabin, VectorDouble& tabout);
+    void _prepareGoulard();
+    void _updateFromModel();
 
-private:
-  const Vario* _vario;
-};
-}
+  private:
+    const Vario* _vario;
+  };
+} // namespace gstlrn

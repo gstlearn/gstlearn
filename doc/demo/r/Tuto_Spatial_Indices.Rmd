@@ -2,7 +2,7 @@
 title: "Spatial_Indices"
 output: html_document
 date: '2024-07-15'
-editor_options: 
+editor_options:
   chunk_output_type: console
 ---
 
@@ -17,11 +17,11 @@ This Tutorial has been established from:
 ICES Cooperative Research Report
 Handbook of Geostatistics in R for fisheries and marine ecology
 
-Based on: 
+Based on:
 ICES Training Course
 Application of Geostatistics to analyse spatially explicit Survey data
 in an Ecosystem Approach
-December 2013-2014, Fontainebleau, Centre de Geosciences, Mines ParisTech 
+December 2013-2014, Fontainebleau, Centre de Geosciences, Mines ParisTech
 chapter:      Indices of spatial distribution
 Author:       Mathieu Woillez, Ifremer
 Date:         14/01/2015
@@ -45,8 +45,8 @@ poly.data = Polygons_createFromNF(loadData("halieutic", "Hake_Bob_Polygon.NF"))
 Visualizing the data set
 
 ```{r Plot_Data}
-plot.init() + 
-  plot.polygon(poly.data, fill="NA") + 
+plot.init() +
+  plot.polygon(poly.data, fill="NA") +
   plot.symbol(db.data, nameSize="A0", colour="blue") +
   plot.decoration(title="Age-0 hake density")
 ```
@@ -63,8 +63,8 @@ err = projec$operateOnPolygons(poly.data)
 Display in the projected system
 
 ```{r Plot_Data_Projected}
-plot.init() + 
-  plot.polygon(poly.data, fill="NA") + 
+plot.init() +
+  plot.polygon(poly.data, fill="NA") +
   plot.symbol(db.data, nameSize="A0", color="blue") +
   plot.decoration(title="Age-0 hake density (in projected space)")
 ```
@@ -110,24 +110,24 @@ cat("Isotropy =          ",cg$getIso(),"\n")
 Display the sample within the Polygon, together with the two inertia calculated beforehand: the one using the sample locations only (in blue) and the one using the weighted variable A0 into account (in red).
 
 ```{r}
-plot.init() + 
-  plot.polygon(poly.data, fill="NA") + 
+plot.init() +
+  plot.polygon(poly.data, fill="NA") +
   plot.symbol(db.data, color="black") +
   plot.decoration(title="Center of gravity and Inertia of densities and Samples") +
-  plot.XY(cgAxesA0[[1]], cgAxesA0[[2]], linewidth=1, col="red") + 
+  plot.XY(cgAxesA0[[1]], cgAxesA0[[2]], linewidth=1, col="red") +
   plot.XY(cgAxesA0[[3]], cgAxesA0[[4]], linewidth=1, col="red") +
-  plot.XY(cgAxesP0[[1]], cgAxesP0[[2]], linewidth=1, col="blue") + 
+  plot.XY(cgAxesP0[[1]], cgAxesP0[[2]], linewidth=1, col="blue") +
   plot.XY(cgAxesP0[[3]], cgAxesP0[[4]], linewidth=1, col="blue")
 ```
 
 The two populations (variables *A0* and *A1*) are displayed simultaneously.
 
 ```{r}
-plot.init() + 
-  plot.polygon(poly.data, fill="NA") + 
+plot.init() +
+  plot.polygon(poly.data, fill="NA") +
   plot.symbol(db.data, nameSize="A0", color="red") +
   plot.symbol(db.data, nameSize="A1", color="blue") +
-  plot.decoration(title="Age-0 and age-1 hake densities") 
+  plot.decoration(title="Age-0 and age-1 hake densities")
 ```
 
 The Local overlapping between two populations is addressed using the local index of collocation, that is, the non-centered correlation between their densities.
@@ -151,7 +151,7 @@ Calculate:
 - the Equivalent area
 
 The spreading area 'sparea' (expressed in square nautical miles) is derived from
- the curve expressing (Q-Q(T))/Q as a function of T. T being the cumulated area 
+ the curve expressing (Q-Q(T))/Q as a function of T. T being the cumulated area
 occupied by the density values, ranked in decreasing order. Q(T) the correspondi
 ng cumulated abundance and Q the overall abundance. The spreading area is simply
  defined as twice the area below this curve.
@@ -160,17 +160,17 @@ ng cumulated abundance and Q the overall abundance. The spreading area is simply
 err = cg$spatial("A0")
 
 VDD = cg$getQT("A0")
-plot.init() + 
-  plot.XY(VDD[[1]], VDD[[2]], flagPoint=TRUE) + 
-  plot.decoration(title="Curve: (Q - Q(T)) / Q", xlab="T", ylab="(Q-Q(T))/Q") 
+plot.init() +
+  plot.XY(VDD[[1]], VDD[[2]], flagPoint=TRUE) +
+  plot.decoration(title="Curve: (Q - Q(T)) / Q", xlab="T", ylab="(Q-Q(T))/Q")
 ```
 
 Calculate the patches and represent them by color.
 
 ```{r}
 centers = cg$getPatches("A0", 100, 10)
-plot.init() + 
-  plot.polygon(poly.data, fill="NA") + 
+plot.init() +
+  plot.polygon(poly.data, fill="NA") +
   plot.symbol(db.data, nameColor="Patch", palette=c("blue", "red", "green", "black"),
              asFactor=TRUE) +
   plot.decoration(title="Patches")

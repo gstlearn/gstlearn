@@ -13,61 +13,59 @@
 
 namespace gstlrn
 {
-BiTargetCheckBench::BiTargetCheckBench(Id idim_bench, double width)
-  : ABiTargetCheck()
-  , _idimBench(idim_bench)
-  , _width(width)
-{
-}
-
-BiTargetCheckBench::BiTargetCheckBench(const BiTargetCheckBench& r)
-  : ABiTargetCheck(r)
-  , _idimBench(r._idimBench)
-  , _width(r._width)
-{
-}
-
-BiTargetCheckBench& BiTargetCheckBench::operator=(const BiTargetCheckBench& r)
-{
-  if (this != &r)
+  BiTargetCheckBench::BiTargetCheckBench(Id idim_bench, double width)
+    : ABiTargetCheck()
+    , _idimBench(idim_bench)
+    , _width(width)
   {
-    ABiTargetCheck::operator=(r);
-    _idimBench = r._idimBench;
-    _width     = r._width;
   }
-  return *this;
-}
 
-BiTargetCheckBench::~BiTargetCheckBench()
-{
-}
+  BiTargetCheckBench::BiTargetCheckBench(const BiTargetCheckBench& r)
+    : ABiTargetCheck(r)
+    , _idimBench(r._idimBench)
+    , _width(r._width)
+  {
+  }
 
-BiTargetCheckBench* BiTargetCheckBench::create(Id idim_bench, double width)
-{
-  return new BiTargetCheckBench(idim_bench, width);
-}
+  BiTargetCheckBench& BiTargetCheckBench::operator=(const BiTargetCheckBench& r)
+  {
+    if (this != &r)
+    {
+      ABiTargetCheck::operator=(r);
+      _idimBench = r._idimBench;
+      _width = r._width;
+    }
+    return *this;
+  }
 
-String BiTargetCheckBench::toString(const AStringFormat* /*strfmt*/) const
-{
-  std::stringstream sstr;
+  BiTargetCheckBench::~BiTargetCheckBench() {}
 
-  sstr << "Bench width     = " << _width << std::endl;
+  BiTargetCheckBench* BiTargetCheckBench::create(Id idim_bench, double width)
+  {
+    return new BiTargetCheckBench(idim_bench, width);
+  }
 
-  return sstr.str();
-}
+  String BiTargetCheckBench::toString(const AStringFormat* /*strfmt*/) const
+  {
+    std::stringstream sstr;
 
-bool BiTargetCheckBench::isValid(const Db* dbin, const Db* dbout)
-{
-  DECLARE_UNUSED(dbout);
-  _idimBench = dbin->getNDim() - 1;
-  return true;
-}
+    sstr << "Bench width     = " << _width << std::endl;
 
-bool BiTargetCheckBench::isOK(const SpaceTarget& T1,
-                              const SpaceTarget& T2) const
-{
-  /* Discard sample located outside the bench */
+    return sstr.str();
+  }
 
-  return (ABS(T1.getCoord(_idimBench) - T2.getCoord(_idimBench)) <= _width);
-}
-}
+  bool BiTargetCheckBench::isValid(const Db* dbin, const Db* dbout)
+  {
+    DECLARE_UNUSED(dbout);
+    _idimBench = dbin->getNDim() - 1;
+    return true;
+  }
+
+  bool
+    BiTargetCheckBench::isOK(const SpaceTarget& T1, const SpaceTarget& T2) const
+  {
+    /* Discard sample located outside the bench */
+
+    return (ABS(T1.getCoord(_idimBench) - T2.getCoord(_idimBench)) <= _width);
+  }
+} // namespace gstlrn

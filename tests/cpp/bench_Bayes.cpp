@@ -45,8 +45,8 @@ int main(int argc, char* argv[])
 
   // Parameters
   bool verbose = false;
-  Id nech      = 3;
-  Id nvar      = 1;
+  Id nech = 3;
+  Id nvar = 1;
 
   // Generate the data base
   Db* data = Db::createFillRandom(nech, ndim, nvar, 0);
@@ -59,11 +59,10 @@ int main(int argc, char* argv[])
 
   // Create the Model
   double scale = 0.7;
-  MatrixSymmetric* sills =
-    MatrixSymmetric::createRandomDefinitePositive(nvar);
-  Model* model =
-    Model::createFromParam(ECov::EXPONENTIAL, scale, 0., 0., VectorDouble(),
-                           *sills, VectorDouble(), ASpaceSharedPtr(), false);
+  MatrixSymmetric* sills = MatrixSymmetric::createRandomDefinitePositive(nvar);
+  Model* model = Model::createFromParam(
+    ECov::EXPONENTIAL, scale, 0., 0., VectorDouble(), *sills, VectorDouble(),
+    ASpaceSharedPtr(), false);
   model->setDriftIRF(0, 0);
 
   // Neighborhood

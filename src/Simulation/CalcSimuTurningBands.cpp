@@ -29,10 +29,11 @@
 namespace gstlrn
 {
 
-  CalcSimuTurningBands::CalcSimuTurningBands(Id nbsimu,
-                                             Id nbtuba,
-                                             bool flag_check,
-                                             Id seed)
+  CalcSimuTurningBands::CalcSimuTurningBands(
+    Id nbsimu,
+    Id nbtuba,
+    bool flag_check,
+    Id seed)
     : ACalcSimulation(nbsimu, seed)
     , _nbtuba(nbtuba)
     , _iattOut(-1)
@@ -121,13 +122,9 @@ namespace gstlrn
           for (Id ib = 0; ib < nbtuba; ib++)
           {
             auto iad = _getAddressBand(ivar, is, ib, isimu);
-            message("Var=%d Simu=%d Is=%d Ib=%d iad=%d : %d\n",
-                    ivar,
-                    isimu,
-                    is,
-                    ib,
-                    iad,
-                    _seedBands[iad]);
+            message(
+              "Var=%d Simu=%d Is=%d Ib=%d iad=%d : %d\n", ivar, isimu, is, ib,
+              iad, _seedBands[iad]);
           }
   }
 
@@ -342,10 +339,8 @@ namespace gstlrn
           for (Id iy = 0; iy < 2; iy++)
             for (Id ix = 0; ix < 2; ix++)
             {
-              tt = _codirs[ibs].projectGrid(dbgrid,
-                                            ix * (nx - 1),
-                                            iy * (ny - 1),
-                                            iz * (nz - 1));
+              tt = _codirs[ibs].projectGrid(
+                dbgrid, ix * (nx - 1), iy * (ny - 1), iz * (nz - 1));
               if (tt < _getCodirTmin(ibs)) _setCodirTmin(ibs, tt);
               if (tt > _getCodirTmax(ibs)) _setCodirTmax(ibs, tt);
               double delta = _getCodirTmax(ibs) - _getCodirTmin(ibs);
@@ -470,8 +465,9 @@ namespace gstlrn
             Id optionSpectral = _getCorrec(type, is, ibs, operTB, correc);
             if (optionSpectral == 0)
             {
-              messerr("The structure (%s) cannot be simulated",
-                      type.getDescr().data());
+              messerr(
+                "The structure (%s) cannot be simulated",
+                type.getDescr().data());
               messerr("using the Turning Bands algorithm");
               return 1;
             }
@@ -494,11 +490,12 @@ namespace gstlrn
    ** \param[out] operTB TurningBandOperate structure
    **
    *****************************************************************************/
-  void CalcSimuTurningBands::_migrationInit(Id ibs,
-                                            Id is,
-                                            double scale,
-                                            TurningBandOperate& operTB,
-                                            double eps)
+  void CalcSimuTurningBands::_migrationInit(
+    Id ibs,
+    Id is,
+    double scale,
+    TurningBandOperate& operTB,
+    double eps)
   {
     DECLARE_UNUSED(is);
     static double vexp1 = 0.1;
@@ -546,9 +543,10 @@ namespace gstlrn
    ** \return Correction factor
    **
    *****************************************************************************/
-  double CalcSimuTurningBands::_dilutionInit(Id ibs,
-                                             Id is,
-                                             TurningBandOperate& operTB)
+  double CalcSimuTurningBands::_dilutionInit(
+    Id ibs,
+    Id is,
+    TurningBandOperate& operTB)
   {
     double scale = _getCodirScale(ibs);
     double tmin = _getCodirTmin(ibs);
@@ -590,9 +588,10 @@ namespace gstlrn
    ** \return Correction factor
    **
    *****************************************************************************/
-  double CalcSimuTurningBands::_spectralInit(Id ibs,
-                                             Id is,
-                                             TurningBandOperate& operTB)
+  double CalcSimuTurningBands::_spectralInit(
+    Id ibs,
+    Id is,
+    TurningBandOperate& operTB)
   {
     double scale = _getCodirScale(ibs);
     double param = _modelLocal->getParam(is);
@@ -702,9 +701,10 @@ namespace gstlrn
    **  \remark In Computational Geosciences 12:121-132
    **
    *****************************************************************************/
-  double CalcSimuTurningBands::_power1DInit(Id ibs,
-                                            Id is,
-                                            TurningBandOperate& operTB)
+  double CalcSimuTurningBands::_power1DInit(
+    Id ibs,
+    Id is,
+    TurningBandOperate& operTB)
   {
     double R, theta_1;
     static double log3s2, log1s2, logap1, logap1s2, logap3s2, as2, coeff,
@@ -757,9 +757,10 @@ namespace gstlrn
    **  \remark In Computational Geosciences 12:121-132
    **
    *****************************************************************************/
-  double CalcSimuTurningBands::_spline1DInit(Id ibs,
-                                             Id k,
-                                             TurningBandOperate& operTB)
+  double CalcSimuTurningBands::_spline1DInit(
+    Id ibs,
+    Id k,
+    TurningBandOperate& operTB)
   {
     double R;
     Id twokm1;
@@ -808,9 +809,10 @@ namespace gstlrn
    ** \remark  This procedure allocates memory that should be freed
    **
    *****************************************************************************/
-  double CalcSimuTurningBands::_irfProcessInit(Id ibs,
-                                               Id is,
-                                               TurningBandOperate& operTB)
+  double CalcSimuTurningBands::_irfProcessInit(
+    Id ibs,
+    Id is,
+    TurningBandOperate& operTB)
   {
     ECov type = _modelLocal->getCovType(is);
     double delta;
@@ -852,13 +854,14 @@ namespace gstlrn
     return _irfCorrec(type, theta1, scale);
   }
 
-  void CalcSimuTurningBands::_spreadRegularOnGrid(const DbGrid* dbgrid,
-                                                  const CovAniso* cova,
-                                                  Id ibs,
-                                                  double correc,
-                                                  TurningBandOperate& operTB,
-                                                  const VectorBool& activeArray,
-                                                  VectorDouble& tab)
+  void CalcSimuTurningBands::_spreadRegularOnGrid(
+    const DbGrid* dbgrid,
+    const CovAniso* cova,
+    Id ibs,
+    double correc,
+    TurningBandOperate& operTB,
+    const VectorBool& activeArray,
+    VectorDouble& tab)
   {
     double t0y, t0z, t0;
 
@@ -894,14 +897,14 @@ namespace gstlrn
     }
   }
 
-  void
-    CalcSimuTurningBands::_spreadSpectralOnGrid(const DbGrid* dbgrid,
-                                                const CovAniso* cova,
-                                                Id ibs,
-                                                double correc,
-                                                TurningBandOperate& operTB,
-                                                const VectorBool& activeArray,
-                                                VectorDouble& tab)
+  void CalcSimuTurningBands::_spreadSpectralOnGrid(
+    const DbGrid* dbgrid,
+    const CovAniso* cova,
+    Id ibs,
+    double correc,
+    TurningBandOperate& operTB,
+    const VectorBool& activeArray,
+    VectorDouble& tab)
   {
     double c1, s1, c0x, s0x, c0y, s0y, c0z, s0z, cxp, sxp, cyp, syp, czp, szp;
     Id ndim = dbgrid->getNDim();
@@ -942,14 +945,14 @@ namespace gstlrn
     }
   }
 
-  void
-    CalcSimuTurningBands::_spreadRegularOnPoint(const Db* db,
-                                                const CovAniso* cova,
-                                                Id ibs,
-                                                double correc,
-                                                TurningBandOperate& operTB,
-                                                const VectorBool& activeArray,
-                                                VectorDouble& tab)
+  void CalcSimuTurningBands::_spreadRegularOnPoint(
+    const Db* db,
+    const CovAniso* cova,
+    Id ibs,
+    double correc,
+    TurningBandOperate& operTB,
+    const VectorBool& activeArray,
+    VectorDouble& tab)
   {
     double t0;
     for (Id iech = 0, nech = db->getNSample(); iech < nech; iech++)
@@ -960,14 +963,14 @@ namespace gstlrn
     }
   }
 
-  void
-    CalcSimuTurningBands::_spreadSpectralOnPoint(const Db* db,
-                                                 const CovAniso* cova,
-                                                 Id ibs,
-                                                 double correc,
-                                                 TurningBandOperate& operTB,
-                                                 const VectorBool& activeArray,
-                                                 VectorDouble& tab)
+  void CalcSimuTurningBands::_spreadSpectralOnPoint(
+    const Db* db,
+    const CovAniso* cova,
+    Id ibs,
+    double correc,
+    TurningBandOperate& operTB,
+    const VectorBool& activeArray,
+    VectorDouble& tab)
   {
     double t0;
     for (Id iech = 0, nech = db->getNSample(); iech < nech; iech++)
@@ -1031,9 +1034,10 @@ namespace gstlrn
    * @param activeArray Array indicating active samples
    * @param tab Array containing simulation values for all bands
    */
-  void CalcSimuTurningBands::_normalizeForBands(const Db* db,
-                                                const VectorBool& activeArray,
-                                                VectorVectorDouble& tab)
+  void CalcSimuTurningBands::_normalizeForBands(
+    const Db* db,
+    const VectorBool& activeArray,
+    VectorVectorDouble& tab)
   {
     auto nech = db->getNSample();
     auto nvar = _getNVar();
@@ -1045,11 +1049,12 @@ namespace gstlrn
         if (activeArray[iech]) tab[ivar][iech] *= norme;
   }
 
-  Id CalcSimuTurningBands::_getCorrec(const ECov& type,
-                                      Id is,
-                                      Id ibs,
-                                      TurningBandOperate& operTB,
-                                      double& correc)
+  Id CalcSimuTurningBands::_getCorrec(
+    const ECov& type,
+    Id is,
+    Id ibs,
+    TurningBandOperate& operTB,
+    double& correc)
   {
     double scale;
     double param;
@@ -1128,13 +1133,14 @@ namespace gstlrn
    ** \param[out] tab        Array to store simulation values for one band
    **
    *****************************************************************************/
-  void CalcSimuTurningBands::_computePoint(Db* db,
-                                           const CovAniso* cova,
-                                           const ECov& type,
-                                           Id isimu,
-                                           Id is,
-                                           const VectorBool& activeArray,
-                                           VectorVectorDouble& tab)
+  void CalcSimuTurningBands::_computePoint(
+    Db* db,
+    const CovAniso* cova,
+    const ECov& type,
+    Id isimu,
+    Id is,
+    const VectorBool& activeArray,
+    VectorVectorDouble& tab)
   {
     TurningBandOperate operTB;
     double correc;
@@ -1152,21 +1158,11 @@ namespace gstlrn
 
         // Spreading the values on the points within 'tab'
         if (optionSpectral == 1)
-          _spreadSpectralOnPoint(db,
-                                 cova,
-                                 ibs,
-                                 correc,
-                                 operTB,
-                                 activeArray,
-                                 tab[ivar]);
+          _spreadSpectralOnPoint(
+            db, cova, ibs, correc, operTB, activeArray, tab[ivar]);
         else
-          _spreadRegularOnPoint(db,
-                                cova,
-                                ibs,
-                                correc,
-                                operTB,
-                                activeArray,
-                                tab[ivar]);
+          _spreadRegularOnPoint(
+            db, cova, ibs, correc, operTB, activeArray, tab[ivar]);
       }
 
     // Normalize by the count of bands
@@ -1187,13 +1183,14 @@ namespace gstlrn
    ** \param[out] tab        Array to store simulation values for one band
    **
    *****************************************************************************/
-  void CalcSimuTurningBands::_computeGrid(DbGrid* dbgrid,
-                                          const CovAniso* cova,
-                                          const ECov& type,
-                                          Id isimu,
-                                          Id is,
-                                          const VectorBool& activeArray,
-                                          VectorVectorDouble& tab)
+  void CalcSimuTurningBands::_computeGrid(
+    DbGrid* dbgrid,
+    const CovAniso* cova,
+    const ECov& type,
+    Id isimu,
+    Id is,
+    const VectorBool& activeArray,
+    VectorVectorDouble& tab)
   {
     TurningBandOperate operTB;
     double correc;
@@ -1211,21 +1208,11 @@ namespace gstlrn
 
         // Spreading the values on the grid within 'tab'
         if (optionSpectral == 1)
-          _spreadSpectralOnGrid(dbgrid,
-                                cova,
-                                ibs,
-                                correc,
-                                operTB,
-                                activeArray,
-                                tab[ivar]);
+          _spreadSpectralOnGrid(
+            dbgrid, cova, ibs, correc, operTB, activeArray, tab[ivar]);
         else
-          _spreadRegularOnGrid(dbgrid,
-                               cova,
-                               ibs,
-                               correc,
-                               operTB,
-                               activeArray,
-                               tab[ivar]);
+          _spreadRegularOnGrid(
+            dbgrid, cova, ibs, correc, operTB, activeArray, tab[ivar]);
       }
 
     // Normalize by the count of bands
@@ -1243,9 +1230,10 @@ namespace gstlrn
    ** \param[in]  scale   Range of the model
    **
    *****************************************************************************/
-  double CalcSimuTurningBands::_irfCorrec(const ECov& type,
-                                          double theta1,
-                                          double scale)
+  double CalcSimuTurningBands::_irfCorrec(
+    const ECov& type,
+    double theta1,
+    double scale)
   {
     switch (type.toEnum())
     {
@@ -1266,16 +1254,17 @@ namespace gstlrn
     return TEST;
   }
 
-  void CalcSimuTurningBands::_getOmegaPhi(Id ibs,
-                                          TurningBandOperate& operTB,
-                                          double* cxp,
-                                          double* sxp,
-                                          double* cyp,
-                                          double* syp,
-                                          double* czp,
-                                          double* szp,
-                                          double* c0z,
-                                          double* s0z)
+  void CalcSimuTurningBands::_getOmegaPhi(
+    Id ibs,
+    TurningBandOperate& operTB,
+    double* cxp,
+    double* sxp,
+    double* cyp,
+    double* syp,
+    double* czp,
+    double* szp,
+    double* c0z,
+    double* s0z)
   {
 
     double omega = operTB.getOmega();
@@ -1356,15 +1345,9 @@ namespace gstlrn
             if (!activeArray[iech]) continue;
             double nugget = law_gaussian();
             for (Id jvar = 0; jvar < nvar; jvar++)
-              db->updSimvar(ELoc::SIMU,
-                            iech,
-                            isimu,
-                            jvar,
-                            _getIcase(),
-                            nbsimu,
-                            nvar,
-                            EOperator::ADD,
-                            nugget * _modelLocal->getAic(is, ivar, jvar));
+              db->updSimvar(
+                ELoc::SIMU, iech, isimu, jvar, _getIcase(), nbsimu, nvar,
+                EOperator::ADD, nugget * _modelLocal->getAic(is, ivar, jvar));
           }
         }
 
@@ -1432,15 +1415,16 @@ namespace gstlrn
    ** \param[in]  flag_dgm   1 if the Discrete Gaussian Model is used
    **
    *****************************************************************************/
-  Id CalcSimuTurningBands::simulate(Db* dbin,
-                                    Db* dbout,
-                                    Model* model,
-                                    ANeigh* neigh,
-                                    Id icase,
-                                    Id flag_bayes,
-                                    bool flag_pgs,
-                                    bool flag_gibbs,
-                                    bool flag_dgm)
+  Id CalcSimuTurningBands::simulate(
+    Db* dbin,
+    Db* dbout,
+    Model* model,
+    ANeigh* neigh,
+    Id icase,
+    Id flag_bayes,
+    bool flag_pgs,
+    bool flag_gibbs,
+    bool flag_dgm)
   {
     setDbin(dbin);
     setDbout(dbout);
@@ -1470,12 +1454,13 @@ namespace gstlrn
    ** \param[in]  delta     Value of the increment
    **
    *****************************************************************************/
-  Id CalcSimuTurningBands::simulatePotential(Db* dbiso,
-                                             Db* dbgrd,
-                                             Db* dbtgt,
-                                             Db* dbout,
-                                             ModelGeneric* model,
-                                             double delta)
+  Id CalcSimuTurningBands::simulatePotential(
+    Db* dbiso,
+    Db* dbgrd,
+    Db* dbtgt,
+    Db* dbout,
+    ModelGeneric* model,
+    double delta)
   {
     setDbout(dbout);
     setModelGeneric(model);
@@ -1631,13 +1616,9 @@ namespace gstlrn
     /* Set the error return flag */
 
     if (!_flagAllocationAlreadyDone)
-      _renameVariable(2,
-                      VectorString(),
-                      ELoc::Z,
-                      _getNVar(),
-                      _iattOut,
-                      String(),
-                      getNbSimu());
+      _renameVariable(
+        2, VectorString(), ELoc::Z, _getNVar(), _iattOut, String(),
+        getNbSimu());
 
     if (_getFlagDGM())
     {

@@ -18,42 +18,47 @@
 
 namespace gstlrn
 {
-class SpacePoint;
+  class SpacePoint;
 
-class GSTLEARN_EXPORT Faults: public AStringable, public ASerializable
-{
-public:
-  Faults();
-  Faults(const Faults& r);
-  Faults& operator=(const Faults& r);
-  virtual ~Faults();
+  class GSTLEARN_EXPORT Faults: public AStringable, public ASerializable
+  {
+  public:
+    Faults();
+    Faults(const Faults& r);
+    Faults& operator=(const Faults& r);
+    virtual ~Faults();
 
-  /// Interface for AStringable
-  String toString(const AStringFormat* strfmt = nullptr) const override;
+    /// Interface for AStringable
+    String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  /// Aserializable Interface
-  String getNFName() const override { return "Faults"; }
+    /// Aserializable Interface
+    String getNFName() const override { return "Faults"; }
 #ifdef HDF5
-  bool deserializeH5(H5::Group& grp) override;
-  bool serializeH5(H5::Group& grp) const override;
+    bool deserializeH5(H5::Group& grp) override;
+    bool serializeH5(H5::Group& grp) const override;
 #endif
 
-  static Faults* createFromNF(const String& NFFilename, bool verbose = true);
+    static Faults* createFromNF(const String& NFFilename, bool verbose = true);
 
-  Id getNFaults() const { return static_cast<Id>(_faults.size()); }
-  void addFault(const PolyLine2D& fault);
+    Id getNFaults() const { return static_cast<Id>(_faults.size()); }
 
-  inline const std::vector<PolyLine2D>& getFaults() const { return _faults; }
-  inline const PolyLine2D& getFault(Id ifault) const { return _faults[ifault]; }
+    void addFault(const PolyLine2D& fault);
 
-  bool isSplitByFault(double xt1, double yt1, double xt2, double yt2) const;
-  bool isSplitByFaultSP(const SpacePoint& P1, const SpacePoint& P2) const;
+    inline const std::vector<PolyLine2D>& getFaults() const { return _faults; }
 
-protected:
-  bool _deserializeAscii(std::istream& is) override;
-  bool _serializeAscii(std::ostream& os) const override;
+    inline const PolyLine2D& getFault(Id ifault) const
+    {
+      return _faults[ifault];
+    }
 
-private:
-  std::vector<PolyLine2D> _faults;
-};
+    bool isSplitByFault(double xt1, double yt1, double xt2, double yt2) const;
+    bool isSplitByFaultSP(const SpacePoint& P1, const SpacePoint& P2) const;
+
+  protected:
+    bool _deserializeAscii(std::istream& is) override;
+    bool _serializeAscii(std::ostream& os) const override;
+
+  private:
+    std::vector<PolyLine2D> _faults;
+  };
 } // namespace gstlrn

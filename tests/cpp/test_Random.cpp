@@ -42,10 +42,11 @@ int main(int argc, char* argv[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
 
-  Id seed   = 432432;
+  Id seed = 432432;
   Id number = 10000;
   VectorDouble tab;
-  message("All subsequent tests are performed on a set of %d samples\n", number);
+  message(
+    "All subsequent tests are performed on a set of %d samples\n", number);
 
   // Sampling Uniform Distribution
 
@@ -88,7 +89,7 @@ int main(int argc, char* argv[])
   // Sampling Gamma distribution
 
   double alpha = 3.4;
-  double beta  = 1.2;
+  double beta = 1.2;
   tab.resize(number, 0.);
   message("\nGamma Distribution: alpha=%lf beta=%lf\n", alpha, beta);
   law_set_old_style(true);
@@ -101,16 +102,18 @@ int main(int argc, char* argv[])
   // Sampling Poisson distribution
 
   double lambda = 4.6;
-  number        = 100000; // Use larger sample for convergence
+  number = 100000; // Use larger sample for convergence
   tab.resize(number, 0.);
   Id ndec = static_cast<Id>(OptCst::query(ECst::NTDEC));
   OptCst::define(ECst::NTDEC, 4);
   message("\nPoisson Distribution: lambda=%lf\n", lambda);
   law_set_old_style(true);
-  for (Id i = 0; i < number; i++) tab[i] = static_cast<double>(law_poisson(lambda));
+  for (Id i = 0; i < number; i++)
+    tab[i] = static_cast<double>(law_poisson(lambda));
   VH::dumpStats("Old Style", tab);
   law_set_old_style(false);
-  for (Id i = 0; i < number; i++) tab[i] = static_cast<double>(law_poisson(lambda));
+  for (Id i = 0; i < number; i++)
+    tab[i] = static_cast<double>(law_poisson(lambda));
   VH::dumpStats("New Style", tab);
   OptCst::define(ECst::NTDEC, ndec);
 
@@ -121,8 +124,8 @@ int main(int argc, char* argv[])
 
   // Tossing few Uniform values in both styles
 
-  mini   = 2.;
-  maxi   = 4.;
+  mini = 2.;
+  maxi = 4.;
   number = 5;
   tab.resize(number, 0.);
   message("\nUniform Distribution: mini=%lf maxi=%lf\n", mini, maxi);

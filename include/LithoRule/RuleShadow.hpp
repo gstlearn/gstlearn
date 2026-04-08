@@ -16,92 +16,106 @@
 
 namespace gstlrn
 {
-class PropDef;
-class DbGrid;
+  class PropDef;
+  class DbGrid;
 
-class GSTLEARN_EXPORT RuleShadow: public Rule
-{
-public:
-  RuleShadow();
-  RuleShadow(double slope,
-             double sh_dsup,
-             double sh_down,
-             const VectorDouble& shift);
-  RuleShadow(const RuleShadow& m);
-  RuleShadow& operator=(const RuleShadow& m);
-  virtual ~RuleShadow();
+  class GSTLEARN_EXPORT RuleShadow: public Rule
+  {
+  public:
+    RuleShadow();
+    RuleShadow(
+      double slope,
+      double sh_dsup,
+      double sh_down,
+      const VectorDouble& shift);
+    RuleShadow(const RuleShadow& m);
+    RuleShadow& operator=(const RuleShadow& m);
+    virtual ~RuleShadow();
 
-  /// ASerializable Interface
-  String getNFName() const override { return "RuleShadow"; }
+    /// ASerializable Interface
+    String getNFName() const override { return "RuleShadow"; }
 #ifdef HDF5
-  bool deserializeH5(H5::Group& grp) override;
-  bool serializeH5(H5::Group& grp) const override;
+    bool deserializeH5(H5::Group& grp) override;
+    bool serializeH5(H5::Group& grp) const override;
 #endif
 
-  String displaySpecific() const override;
+    String displaySpecific() const override;
 
-  Id particularities(Db* db,
-                     const Db* dbprop,
-                     Model* model,
-                     Id flag_grid_check,
-                     Id flag_stat) const override;
-  Id gaus2facData(PropDef* propdef,
-                  Db* dbin,
-                  Db* dbout,
-                  Id* flag_used,
-                  Id ipgs,
-                  Id isimu,
-                  Id nbsimu) override;
-  Id gaus2facResult(PropDef* propdef,
-                    Db* dbout,
-                    Id* flag_used,
-                    Id ipgs,
-                    Id isimu,
-                    Id nbsimu) const override;
-  Id evaluateBounds(PropDef* propdef,
-                    Db* dbin,
-                    Db* dbout,
-                    Id isimu,
-                    Id igrf,
-                    Id ipgs,
-                    Id nbsimu) const override;
+    Id particularities(
+      Db* db,
+      const Db* dbprop,
+      Model* model,
+      Id flag_grid_check,
+      Id flag_stat) const override;
+    Id gaus2facData(
+      PropDef* propdef,
+      Db* dbin,
+      Db* dbout,
+      Id* flag_used,
+      Id ipgs,
+      Id isimu,
+      Id nbsimu) override;
+    Id gaus2facResult(
+      PropDef* propdef,
+      Db* dbout,
+      Id* flag_used,
+      Id ipgs,
+      Id isimu,
+      Id nbsimu) const override;
+    Id evaluateBounds(
+      PropDef* propdef,
+      Db* dbin,
+      Db* dbout,
+      Id isimu,
+      Id igrf,
+      Id ipgs,
+      Id nbsimu) const override;
 
-  double getShDown() const { return _shDown; }
-  double getShDsup() const { return _shDsup; }
-  double getSlope() const { return _slope; }
-  double getDMax() const { return _dMax; }
-  double getTgte() const { return _tgte; }
-  double getIncr() const { return _incr; }
-  const VectorDouble& getShift() const { return _shift; }
-  double getShift(Id idim) const { return _shift[idim]; }
+    double getShDown() const { return _shDown; }
 
-protected:
-  bool _serializeAscii(std::ostream& os) const override;
-  bool _deserializeAscii(std::istream& is) override;
+    double getShDsup() const { return _shDsup; }
 
-private:
-  void _st_shadow_max(const Db* dbprop,
-                      Id flag_stat,
-                      double* sh_dsup_max,
-                      double* sh_down_max) const;
-  double _st_grid_eval(DbGrid* dbgrid,
-                       Id isimu,
-                       Id icase,
-                       Id nbsimu,
-                       VectorDouble& xyz0) const;
-  void _normalizeShift();
+    double getSlope() const { return _slope; }
 
-private:
-  double _shDsup;      /* Upper limit */
-  double _shDown;      /* Downwards limit */
-  double _slope;       /* Slope used for shadow option */
-  VectorDouble _shift; /* Shadow or translation orientation */
+    double getDMax() const { return _dMax; }
 
-  mutable double _dMax;
-  mutable double _tgte;
-  mutable double _incr;
-  mutable VectorDouble _xyz;
-  mutable VectorInt _ind1;
-  mutable VectorInt _ind2;
-};
+    double getTgte() const { return _tgte; }
+
+    double getIncr() const { return _incr; }
+
+    const VectorDouble& getShift() const { return _shift; }
+
+    double getShift(Id idim) const { return _shift[idim]; }
+
+  protected:
+    bool _serializeAscii(std::ostream& os) const override;
+    bool _deserializeAscii(std::istream& is) override;
+
+  private:
+    void _st_shadow_max(
+      const Db* dbprop,
+      Id flag_stat,
+      double* sh_dsup_max,
+      double* sh_down_max) const;
+    double _st_grid_eval(
+      DbGrid* dbgrid,
+      Id isimu,
+      Id icase,
+      Id nbsimu,
+      VectorDouble& xyz0) const;
+    void _normalizeShift();
+
+  private:
+    double _shDsup; /* Upper limit */
+    double _shDown; /* Downwards limit */
+    double _slope; /* Slope used for shadow option */
+    VectorDouble _shift; /* Shadow or translation orientation */
+
+    mutable double _dMax;
+    mutable double _tgte;
+    mutable double _incr;
+    mutable VectorDouble _xyz;
+    mutable VectorInt _ind1;
+    mutable VectorInt _ind2;
+  };
 } // namespace gstlrn

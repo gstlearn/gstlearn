@@ -33,4 +33,3 @@ itabaux = VectorInt(VectorHelper_addVI(itab1, itab2))
 err = itabaux$dump("'out' = 'itab1' + 'itab2'", FALSE)
 itabaux = VectorInt(VectorHelper_addVICst(itab1, 2))
 err = itabaux$dump("'out' = 'itab1' + 2", FALSE)
-

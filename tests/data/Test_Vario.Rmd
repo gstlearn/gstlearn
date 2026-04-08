@@ -84,4 +84,3 @@ if (vario.calculated)
 plot(model.ref, vario=vario.ref, add=TRUE, col = "blue")
 plot(model.new, vario=vario.ref, add=TRUE, col = "black")
 ```
-

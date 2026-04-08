@@ -21,181 +21,181 @@
 #include <fstream>
 
 #if defined(_WIN32) || defined(_WIN64)
-#  include <fcntl.h>
-#  include <io.h>
-#  include <windows.h>
+#include <fcntl.h>
+#include <io.h>
+#include <windows.h>
 #endif
 namespace gstlrn
 {
-StdoutRedirect::StdoutRedirect(const String& file,
-                               Id argc,
-                               char* argv[],
-                               Id number)
-  : _flagActive(true)
-  ,
+  StdoutRedirect::StdoutRedirect(
+    const String& file,
+    Id argc,
+    char* argv[],
+    Id number)
+    : _flagActive(true)
+    ,
 #if defined(_WIN32) || defined(_WIN64)
-  _old_stdout(0)
+    _old_stdout(0)
 #else
-  _coutbuf(nullptr)
-  , _out()
+    _coutbuf(nullptr)
+    , _out()
 #endif
-{
-  DECLARE_UNUSED(argv);
-  _flagActive = (argc <= number);
-  if (!file.empty() && _flagActive)
-    start(file);
-}
-
-StdoutRedirect::~StdoutRedirect()
-{
-  if (_flagActive)
-    stop();
-}
-
-/**
- * Save current stdout handle and redirect std::cout to a file
- *
- * @param[in] file File path to be written
- */
-void StdoutRedirect::start(const String& file)
-{
-#if defined(_WIN32) || defined(_WIN64)
-  // https://stackoverflow.com/questions/54094127/redirecting-stdout-in-win32-does-not-redirect-stdout/54096218
-  _old_stdout       = GetStdHandle(STD_OUTPUT_HANDLE);
-  HANDLE new_stdout = CreateFileA(file.c_str(), GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-  SetStdHandle(STD_OUTPUT_HANDLE, new_stdout);
-  Id fd = _open_osfhandle((intptr_t)new_stdout, _O_WRONLY | _O_TEXT);
-  _dup2(fd, _fileno(stdout));
-  _close(fd);
-#else
-  _coutbuf = std::cout.rdbuf();
-  _out.open(file, std::fstream::out | std::fstream::trunc);
-  std::cout.rdbuf(_out.rdbuf());
-#endif
-}
-
-/**
- *  Restore original stdout
- */
-void StdoutRedirect::stop()
-{
-#if defined(_WIN32) || defined(_WIN64)
-  // https://stackoverflow.com/questions/32185512/output-to-console-from-a-win32-gui-application-on-windows-10
-  SetStdHandle(STD_OUTPUT_HANDLE, _old_stdout);
-  Id fd = _open_osfhandle((intptr_t)_old_stdout, _O_WRONLY | _O_TEXT);
-  if (fd >= 0) // fd could be negative for an unknown reason (https://github.com/gstlearn/gstlearn/issues/111)
   {
-    FILE* fp = _fdopen(fd, "w");
-    freopen_s(&fp, "CONOUT$", "w", stdout);
+    DECLARE_UNUSED(argv);
+    _flagActive = (argc <= number);
+    if (!file.empty() && _flagActive) start(file);
   }
-#else
-  std::cout.rdbuf(_coutbuf);
-  _out.close();
-#endif
-}
 
-// Skips the Byte Order Mark (BOM) that defines UTF-8 in some text files.
-// https://stackoverflow.com/a/17219495
-void skipBOM(std::ifstream& in)
-{
-  char test[3] = {0};
-  in.read(test, 3);
-  if (static_cast<unsigned char>(test[0]) == 0xEF &&
-      static_cast<unsigned char>(test[1]) == 0xBB &&
-      static_cast<unsigned char>(test[2]) == 0xBF)
+  StdoutRedirect::~StdoutRedirect()
   {
-    return;
+    if (_flagActive) stop();
   }
-  in.seekg(0);
-}
 
-FILE* gslFopen(const char* path, const char* mode)
-{
-  FILE* file;
+  /**
+   * Save current stdout handle and redirect std::cout to a file
+   *
+   * @param[in] file File path to be written
+   */
+  void StdoutRedirect::start(const String& file)
+  {
+#if defined(_WIN32) || defined(_WIN64)
+    // https://stackoverflow.com/questions/54094127/redirecting-stdout-in-win32-does-not-redirect-stdout/54096218
+    _old_stdout = GetStdHandle(STD_OUTPUT_HANDLE);
+    HANDLE new_stdout = CreateFileA(
+      file.c_str(), GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS,
+      FILE_ATTRIBUTE_NORMAL, NULL);
+    SetStdHandle(STD_OUTPUT_HANDLE, new_stdout);
+    Id fd = _open_osfhandle((intptr_t)new_stdout, _O_WRONLY | _O_TEXT);
+    _dup2(fd, _fileno(stdout));
+    _close(fd);
+#else
+    _coutbuf = std::cout.rdbuf();
+    _out.open(file, std::fstream::out | std::fstream::trunc);
+    std::cout.rdbuf(_out.rdbuf());
+#endif
+  }
+
+  /**
+   *  Restore original stdout
+   */
+  void StdoutRedirect::stop()
+  {
+#if defined(_WIN32) || defined(_WIN64)
+    // https://stackoverflow.com/questions/32185512/output-to-console-from-a-win32-gui-application-on-windows-10
+    SetStdHandle(STD_OUTPUT_HANDLE, _old_stdout);
+    Id fd = _open_osfhandle((intptr_t)_old_stdout, _O_WRONLY | _O_TEXT);
+    if (
+      fd
+      >= 0) // fd could be negative for an unknown reason (https://github.com/gstlearn/gstlearn/issues/111)
+    {
+      FILE* fp = _fdopen(fd, "w");
+      freopen_s(&fp, "CONOUT$", "w", stdout);
+    }
+#else
+    std::cout.rdbuf(_coutbuf);
+    _out.close();
+#endif
+  }
+
+  // Skips the Byte Order Mark (BOM) that defines UTF-8 in some text files.
+  // https://stackoverflow.com/a/17219495
+  void skipBOM(std::ifstream& in)
+  {
+    char test[3] = {0};
+    in.read(test, 3);
+    if (static_cast<unsigned char>(test[0]) == 0xEF
+        && static_cast<unsigned char>(test[1]) == 0xBB
+        && static_cast<unsigned char>(test[2]) == 0xBF)
+    {
+      return;
+    }
+    in.seekg(0);
+  }
+
+  FILE* gslFopen(const char* path, const char* mode)
+  {
+    FILE* file;
 
 #if defined(__linux__) || defined(__APPLE__)
-  file = fopen(path, mode);
+    file = fopen(path, mode);
 #else
-  errno_t err;
-  err = fopen_s(&file, path, mode);
-  if (err != 0) return nullptr;
+    errno_t err;
+    err = fopen_s(&file, path, mode);
+    if (err != 0) return nullptr;
 #endif
-  return file;
-}
+    return file;
+  }
 
-FILE* gslFopen(const String& path, const String& mode)
-{
-  return gslFopen(path.c_str(), mode.c_str());
-}
-
-bool gslFileExist(const char* path, const char* mode)
-{
-  FILE* file  = gslFopen(path, mode);
-  bool exists = file != nullptr;
-  if (exists) fclose(file);
-  return exists;
-}
-
-bool gslFileExist(const String& path, const String& mode)
-{
-  FILE* file  = gslFopen(path, mode);
-  bool exists = file != nullptr;
-  if (exists) fclose(file);
-  return exists;
-}
-
-String gslBaseName(const String& path, bool keepExtension)
-{
-  std::filesystem::path p {path};
-  return (keepExtension ? p.filename() : p.stem()).string();
-}
-
-String gslGetEnv(const String& name)
-{
-  String text;
-#if defined(_WIN32) || defined(_WIN64)
-  const DWORD buffSize = 65535;
-  static char buffer[buffSize];
-  if (GetEnvironmentVariable(name.c_str(), buffer, buffSize))
-    text = String(buffer);
-#elif defined(__linux__) || defined(__APPLE__)
-  char* value = std::getenv(name.c_str());
-  if (value != nullptr)
-    text = String(value);
-#endif
-  return text;
-}
-
-std::istream& gslSafeGetline(std::istream& is, String& t)
-{
-  t.clear();
-
-  // The characters in the stream are read one-by-one using a std::streambuf.
-  // That is faster than reading them one-by-one using the std::istream.
-  // Code that uses streambuf this way must be guarded by a sentry object.
-  // The sentry object performs various tasks,
-  // such as thread synchronization and updating the stream state.
-
-  std::istream::sentry se(is, true);
-  std::streambuf* sb = is.rdbuf();
-
-  for (;;)
+  FILE* gslFopen(const String& path, const String& mode)
   {
-    Id c = sb->sbumpc();
-    switch (c)
+    return gslFopen(path.c_str(), mode.c_str());
+  }
+
+  bool gslFileExist(const char* path, const char* mode)
+  {
+    FILE* file = gslFopen(path, mode);
+    bool exists = file != nullptr;
+    if (exists) fclose(file);
+    return exists;
+  }
+
+  bool gslFileExist(const String& path, const String& mode)
+  {
+    FILE* file = gslFopen(path, mode);
+    bool exists = file != nullptr;
+    if (exists) fclose(file);
+    return exists;
+  }
+
+  String gslBaseName(const String& path, bool keepExtension)
+  {
+    std::filesystem::path p{path};
+    return (keepExtension ? p.filename() : p.stem()).string();
+  }
+
+  String gslGetEnv(const String& name)
+  {
+    String text;
+#if defined(_WIN32) || defined(_WIN64)
+    const DWORD buffSize = 65535;
+    static char buffer[buffSize];
+    if (GetEnvironmentVariable(name.c_str(), buffer, buffSize))
+      text = String(buffer);
+#elif defined(__linux__) || defined(__APPLE__)
+    char* value = std::getenv(name.c_str());
+    if (value != nullptr) text = String(value);
+#endif
+    return text;
+  }
+
+  std::istream& gslSafeGetline(std::istream& is, String& t)
+  {
+    t.clear();
+
+    // The characters in the stream are read one-by-one using a std::streambuf.
+    // That is faster than reading them one-by-one using the std::istream.
+    // Code that uses streambuf this way must be guarded by a sentry object.
+    // The sentry object performs various tasks,
+    // such as thread synchronization and updating the stream state.
+
+    std::istream::sentry se(is, true);
+    std::streambuf* sb = is.rdbuf();
+
+    for (;;)
     {
-      case '\n':
-        return is;
-      case '\r':
-        if (sb->sgetc() == '\n') sb->sbumpc();
-        return is;
-      case std::streambuf::traits_type::eof():
-        // Also handle the case when the last line has no line ending
-        if (t.empty()) is.setstate(std::ios::eofbit);
-        return is;
-      default:
-        t += static_cast<char>(c);
+      Id c = sb->sbumpc();
+      switch (c)
+      {
+        case '\n': return is;
+        case '\r':
+          if (sb->sgetc() == '\n') sb->sbumpc();
+          return is;
+        case std::streambuf::traits_type::eof():
+          // Also handle the case when the last line has no line ending
+          if (t.empty()) is.setstate(std::ios::eofbit);
+          return is;
+        default: t += static_cast<char>(c);
+      }
     }
   }
-}
 } // namespace gstlrn

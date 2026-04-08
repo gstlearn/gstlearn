@@ -18,193 +18,196 @@
 
 namespace gstlrn
 {
-Faults::Faults()
-  : AStringable()
-  , ASerializable()
-  , _faults()
-{
-}
-
-Faults::Faults(const Faults& r)
-  : AStringable(r)
-  , ASerializable(r)
-  , _faults(r._faults)
-{
-}
-
-Faults& Faults::operator=(const Faults& r)
-{
-  if (this != &r)
+  Faults::Faults()
+    : AStringable()
+    , ASerializable()
+    , _faults()
   {
-    AStringable::operator=(r);
-    ASerializable::operator=(r);
-    _faults = r._faults;
   }
-  return *this;
-}
 
-Faults::~Faults()
-{
-}
-
-String Faults::toString(const AStringFormat* strfmt) const
-{
-  std::stringstream sstr;
-  auto nfaults = getNFaults();
-  if (nfaults <= 0) return sstr.str();
-
-  sstr << "Number of Faults = " << nfaults << std::endl;
-
-  for (Id i = 0; i < nfaults; i++)
+  Faults::Faults(const Faults& r)
+    : AStringable(r)
+    , ASerializable(r)
+    , _faults(r._faults)
   {
-    sstr << "Fault #" << i + 1 << std::endl;
-    sstr << _faults[i].toString(strfmt);
   }
-  return sstr.str();
-}
 
-bool Faults::_serializeAscii(std::ostream& os) const
-{
-  bool ret = true;
-  ret      = ret && _recordWrite<Id>(os, "Number of Faults", getNFaults());
-  for (Id i = 0; ret && i < getNFaults(); i++)
-    ret = ret && _faults[i]._serializeAscii(os);
-  return ret;
-}
-
-bool Faults::_deserializeAscii(std::istream& is)
-{
-  Id nfaults = 0;
-  bool ret   = true;
-  ret        = ret && _recordRead<Id>(is, "Number of Faults", nfaults);
-
-  for (Id i = 0; ret && i < nfaults; i++)
+  Faults& Faults::operator=(const Faults& r)
   {
-    PolyLine2D fault;
-    ret = ret && fault._deserializeAscii(is);
-    addFault(fault);
+    if (this != &r)
+    {
+      AStringable::operator=(r);
+      ASerializable::operator=(r);
+      _faults = r._faults;
+    }
+    return *this;
   }
-  return ret;
-}
 
-Faults* Faults::createFromNF(const String& NFFilename, bool verbose)
-{
-  auto* faults = new Faults();
-  if (faults->_fileOpenAndDeserialize(NFFilename, verbose)) return faults;
-  delete faults;
-  return nullptr;
-}
+  Faults::~Faults() {}
 
-void Faults::addFault(const PolyLine2D& fault)
-{
-  _faults.push_back(fault);
-}
-
-bool Faults::isSplitByFaultSP(const SpacePoint& P1, const SpacePoint& P2) const
-{
-  // This is limited to 2D case in RN
-
-  if (getDefaultSpaceType() != ESpaceType::RN || P1.getNDim() != 2)
+  String Faults::toString(const AStringFormat* strfmt) const
   {
-    messerr("This is limited to 2-D case in RN");
+    std::stringstream sstr;
+    auto nfaults = getNFaults();
+    if (nfaults <= 0) return sstr.str();
+
+    sstr << "Number of Faults = " << nfaults << std::endl;
+
+    for (Id i = 0; i < nfaults; i++)
+    {
+      sstr << "Fault #" << i + 1 << std::endl;
+      sstr << _faults[i].toString(strfmt);
+    }
+    return sstr.str();
+  }
+
+  bool Faults::_serializeAscii(std::ostream& os) const
+  {
+    bool ret = true;
+    ret = ret && _recordWrite<Id>(os, "Number of Faults", getNFaults());
+    for (Id i = 0; ret && i < getNFaults(); i++)
+      ret = ret && _faults[i]._serializeAscii(os);
+    return ret;
+  }
+
+  bool Faults::_deserializeAscii(std::istream& is)
+  {
+    Id nfaults = 0;
+    bool ret = true;
+    ret = ret && _recordRead<Id>(is, "Number of Faults", nfaults);
+
+    for (Id i = 0; ret && i < nfaults; i++)
+    {
+      PolyLine2D fault;
+      ret = ret && fault._deserializeAscii(is);
+      addFault(fault);
+    }
+    return ret;
+  }
+
+  Faults* Faults::createFromNF(const String& NFFilename, bool verbose)
+  {
+    auto* faults = new Faults();
+    if (faults->_fileOpenAndDeserialize(NFFilename, verbose)) return faults;
+    delete faults;
+    return nullptr;
+  }
+
+  void Faults::addFault(const PolyLine2D& fault)
+  {
+    _faults.push_back(fault);
+  }
+
+  bool
+    Faults::isSplitByFaultSP(const SpacePoint& P1, const SpacePoint& P2) const
+  {
+    // This is limited to 2D case in RN
+
+    if (getDefaultSpaceType() != ESpaceType::RN || P1.getNDim() != 2)
+    {
+      messerr("This is limited to 2-D case in RN");
+      return false;
+    }
+
+    double xt1 = P1.getCoord(0);
+    double yt1 = P1.getCoord(1);
+    double xt2 = P2.getCoord(0);
+    double yt2 = P2.getCoord(1);
+    return isSplitByFault(xt1, yt1, xt2, yt2);
+  }
+
+  bool
+    Faults::isSplitByFault(double xt1, double yt1, double xt2, double yt2) const
+  {
+    double xint, yint;
+
+    // Segment bounding box
+
+    double xtmin = MIN(xt1, xt2);
+    double xtmax = MAX(xt1, xt2);
+    double ytmin = MIN(yt1, yt2);
+    double ytmax = MAX(yt1, yt2);
+
+    // Loop on the Fault polylines
+
+    for (Id ifault = 0, nfault = getNFaults(); ifault < nfault; ifault++)
+    {
+      const PolyLine2D& fault = getFault(ifault);
+
+      const VectorDouble& x = fault.getX();
+      const VectorDouble& y = fault.getY();
+
+      // Check if bounding boxes overlap
+
+      if (x.maximum() < xtmin) continue;
+      if (xtmax < x.minimum()) continue;
+      if (y.maximum() < ytmin) continue;
+      if (ytmax < y.minimum()) continue;
+
+      // Loop on the segments of the polyline
+
+      double x1 = x[0];
+      double y1 = y[0];
+      for (Id ip = 1, np = fault.getNPoints(); ip < np; ip++)
+      {
+        const double x2 = x[ip];
+        const double y2 = y[ip];
+        if (GH::segmentIntersect(
+              x1, y1, x2, y2, xt1, yt1, xt2, yt2, &xint, &yint))
+          return true;
+        x1 = x2;
+        y1 = y2;
+      }
+    }
     return false;
   }
 
-  double xt1 = P1.getCoord(0);
-  double yt1 = P1.getCoord(1);
-  double xt2 = P2.getCoord(0);
-  double yt2 = P2.getCoord(1);
-  return isSplitByFault(xt1, yt1, xt2, yt2);
-}
-
-bool Faults::isSplitByFault(double xt1, double yt1, double xt2, double yt2) const
-{
-  double xint, yint;
-
-  // Segment bounding box
-
-  double xtmin = MIN(xt1, xt2);
-  double xtmax = MAX(xt1, xt2);
-  double ytmin = MIN(yt1, yt2);
-  double ytmax = MAX(yt1, yt2);
-
-  // Loop on the Fault polylines
-
-  for (Id ifault = 0, nfault = getNFaults(); ifault < nfault; ifault++)
-  {
-    const PolyLine2D& fault = getFault(ifault);
-
-    const VectorDouble& x = fault.getX();
-    const VectorDouble& y = fault.getY();
-
-    // Check if bounding boxes overlap
-
-    if (x.maximum() < xtmin) continue;
-    if (xtmax < x.minimum()) continue;
-    if (y.maximum() < ytmin) continue;
-    if (ytmax < y.minimum()) continue;
-
-    // Loop on the segments of the polyline
-
-    double x1 = x[0];
-    double y1 = y[0];
-    for (Id ip = 1, np = fault.getNPoints(); ip < np; ip++)
-    {
-      const double x2 = x[ip];
-      const double y2 = y[ip];
-      if (GH::segmentIntersect(x1, y1, x2, y2, xt1, yt1, xt2, yt2, &xint, &yint)) return true;
-      x1 = x2;
-      y1 = y2;
-    }
-  }
-  return false;
-}
-
 #ifdef HDF5
-bool Faults::deserializeH5(H5::Group& grp)
-{
-  auto faultG = SerializeHDF5::getGroup(grp, "Faults");
-  if (!faultG) return false;
-
-  /* Read the grid characteristics */
-  bool ret   = true;
-  Id nfaults = 0;
-
-  ret = ret && SerializeHDF5::readValue(*faultG, "NFaults", nfaults);
-
-  auto faultsG = SerializeHDF5::getGroup(*faultG, "Lines");
-  if (!faultsG) return false;
-  for (Id i = 0; ret && i < nfaults; i++)
+  bool Faults::deserializeH5(H5::Group& grp)
   {
-    String locName = "Line" + std::to_string(i);
-    auto lineG     = SerializeHDF5::getGroup(*faultsG, locName);
-    if (!lineG) return false;
+    auto faultG = SerializeHDF5::getGroup(grp, "Faults");
+    if (!faultG) return false;
 
-    PolyLine2D fault;
-    ret = ret && fault.deserializeH5(*lineG);
-    addFault(fault);
-  }
-  return ret;
-}
+    /* Read the grid characteristics */
+    bool ret = true;
+    Id nfaults = 0;
 
-bool Faults::serializeH5(H5::Group& grp) const
-{
-  auto faultG = grp.createGroup("Faults");
+    ret = ret && SerializeHDF5::readValue(*faultG, "NFaults", nfaults);
 
-  bool ret = true;
+    auto faultsG = SerializeHDF5::getGroup(*faultG, "Lines");
+    if (!faultsG) return false;
+    for (Id i = 0; ret && i < nfaults; i++)
+    {
+      String locName = "Line" + std::to_string(i);
+      auto lineG = SerializeHDF5::getGroup(*faultsG, locName);
+      if (!lineG) return false;
 
-  ret = ret && SerializeHDF5::writeValue(faultG, "NFaults", getNFaults());
-
-  auto faultsG = faultG.createGroup("Lines");
-  for (Id ifault = 0, nfaults = getNFaults(); ret && ifault < nfaults; ifault++)
-  {
-    String locName = "Line" + std::to_string(ifault);
-    auto lineG     = faultsG.createGroup(locName);
-
-    ret = ret && _faults[ifault].serializeH5(lineG);
+      PolyLine2D fault;
+      ret = ret && fault.deserializeH5(*lineG);
+      addFault(fault);
+    }
+    return ret;
   }
 
-  return ret;
-}
+  bool Faults::serializeH5(H5::Group& grp) const
+  {
+    auto faultG = grp.createGroup("Faults");
+
+    bool ret = true;
+
+    ret = ret && SerializeHDF5::writeValue(faultG, "NFaults", getNFaults());
+
+    auto faultsG = faultG.createGroup("Lines");
+    for (Id ifault = 0, nfaults = getNFaults(); ret && ifault < nfaults;
+         ifault++)
+    {
+      String locName = "Line" + std::to_string(ifault);
+      auto lineG = faultsG.createGroup(locName);
+
+      ret = ret && _faults[ifault].serializeH5(lineG);
+    }
+
+    return ret;
+  }
 #endif
 } // namespace gstlrn

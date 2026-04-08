@@ -18,48 +18,50 @@
 
 namespace gstlrn
 {
-KernelPoisson::KernelPoisson(const CovContext& ctxt)
-  : AKernel(ECov::POISSON, ctxt)
-{
-  setParam(1);
-}
-
-KernelPoisson::KernelPoisson(const KernelPoisson& r)
-  : AKernel(r)
-{
-}
-
-KernelPoisson& KernelPoisson::operator=(const KernelPoisson& r)
-{
-  if (this != &r)
+  KernelPoisson::KernelPoisson(const CovContext& ctxt)
+    : AKernel(ECov::POISSON, ctxt)
   {
-    AKernel::operator=(r);
+    setParam(1);
   }
-  return *this;
-}
 
-KernelPoisson::~KernelPoisson()
-{
-}
+  KernelPoisson::KernelPoisson(const KernelPoisson& r)
+    : AKernel(r)
+  {
+  }
 
-double KernelPoisson::_evaluateCovOnSphere(double alpha, double scale, Id degree) const
-{
-  DECLARE_UNUSED(scale);
-  DECLARE_UNUSED(degree);
-  double lambda = getParam();
-  double valbes = besselj(lambda * sin(alpha), 0);
-  return exp(lambda * (cos(alpha) - 1.)) * valbes;
-}
+  KernelPoisson& KernelPoisson::operator=(const KernelPoisson& r)
+  {
+    if (this != &r)
+    {
+      AKernel::operator=(r);
+    }
+    return *this;
+  }
 
-VectorDouble KernelPoisson::_evaluateSpectrumOnSphere(Id n, double scale, bool flagScale) const
-{
-  DECLARE_UNUSED(scale);
-  double lambda   = getParam();
-  VectorInt x     = VH::sequence(n + 1);
-  VectorDouble sp = law_df_poisson_vec(x, lambda);
+  KernelPoisson::~KernelPoisson() {}
 
-  if (flagScale) sp.normalizeInPlace(1);
+  double
+    KernelPoisson::_evaluateCovOnSphere(double alpha, double scale, Id degree)
+      const
+  {
+    DECLARE_UNUSED(scale);
+    DECLARE_UNUSED(degree);
+    double lambda = getParam();
+    double valbes = besselj(lambda * sin(alpha), 0);
+    return exp(lambda * (cos(alpha) - 1.)) * valbes;
+  }
 
-  return sp;
-}
+  VectorDouble
+    KernelPoisson::_evaluateSpectrumOnSphere(Id n, double scale, bool flagScale)
+      const
+  {
+    DECLARE_UNUSED(scale);
+    double lambda = getParam();
+    VectorInt x = VH::sequence(n + 1);
+    VectorDouble sp = law_df_poisson_vec(x, lambda);
+
+    if (flagScale) sp.normalizeInPlace(1);
+
+    return sp;
+  }
 } // namespace gstlrn

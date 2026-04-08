@@ -232,9 +232,10 @@ namespace gstlrn
    ** \param[in,out]  ip      Rank of the Plane
    **
    *****************************************************************************/
-  void CalcSimuSubstitution::_calculValue(Id ip,
-                                          double factor,
-                                          const VectorDouble& vector)
+  void CalcSimuSubstitution::_calculValue(
+    Id ip,
+    double factor,
+    const VectorDouble& vector)
   {
     Id ival = ((2. * _planes[ip].getRndval()) > (1. + factor)) ? -1 : 1;
     double cossin = 0.;
@@ -255,10 +256,10 @@ namespace gstlrn
    ** \param[in]  eps      Tolerance
    **
    *****************************************************************************/
-  VectorDouble
-    CalcSimuSubstitution::_transToProp(const SimuSubstitutionParam& subparam,
-                                       bool verbose,
-                                       double eps)
+  VectorDouble CalcSimuSubstitution::_transToProp(
+    const SimuSubstitutionParam& subparam,
+    bool verbose,
+    double eps)
   {
     VectorDouble props;
     VectorDouble propold;
@@ -368,13 +369,8 @@ namespace gstlrn
     /* Free the temporary variables */
     _cleanVariableDb(2);
 
-    _renameVariable(2,
-                    VectorString(),
-                    ELoc::Z,
-                    1,
-                    _iattOut,
-                    String(),
-                    getNbSimu());
+    _renameVariable(
+      2, VectorString(), ELoc::Z, 1, _iattOut, String(), getNbSimu());
     return true;
   }
 

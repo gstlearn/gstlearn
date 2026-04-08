@@ -46,21 +46,21 @@ namespace gstlrn
     Id seed = 321321,
     bool verbose = false,
     const NamingConvention& namconv = NamingConvention("Eden"));
-  GSTLEARN_EXPORT Id
-    simuFFT(DbGrid* db,
-            ModelGeneric* model,
-            SimuFFTParam& param,
-            Id nbsimu = 1,
-            Id seed = 432431,
-            bool verbose = false,
-            const NamingConvention& namconv = NamingConvention("FFT"));
-  GSTLEARN_EXPORT VectorDouble
-    getChangeSupport(DbGrid* db,
-                     ModelGeneric* model,
-                     const SimuFFTParam& param,
-                     const VectorDouble& sigma = VectorDouble(),
-                     Id seed = 14333,
-                     bool verbose = false);
+  GSTLEARN_EXPORT Id simuFFT(
+    DbGrid* db,
+    ModelGeneric* model,
+    SimuFFTParam& param,
+    Id nbsimu = 1,
+    Id seed = 432431,
+    bool verbose = false,
+    const NamingConvention& namconv = NamingConvention("FFT"));
+  GSTLEARN_EXPORT VectorDouble getChangeSupport(
+    DbGrid* db,
+    ModelGeneric* model,
+    const SimuFFTParam& param,
+    const VectorDouble& sigma = VectorDouble(),
+    Id seed = 14333,
+    bool verbose = false);
   GSTLEARN_EXPORT Id tessellationVoronoi(
     DbGrid* dbgrid,
     Model* model,
@@ -75,49 +75,49 @@ namespace gstlrn
     Id seed = 432432,
     bool verbose = false,
     const NamingConvention& namconv = NamingConvention("Poisson"));
-  GSTLEARN_EXPORT DbGrid*
-    simuRefine(DbGrid* dbin,
-               Model* model,
-               const SimuRefineParam& param,
-               Id seed = 432432,
-               const NamingConvention& namconv = NamingConvention("Refine"));
-  GSTLEARN_EXPORT Id
-    simuSpectral(Db* dbin,
-                 Db* dbout,
-                 ModelGeneric* model,
-                 ANeigh* neigh = nullptr,
-                 Id nbsimu = 1,
-                 Id seed = 135672,
-                 Id ns = 10000,
-                 Id nd = 100,
-                 const ACov* cov0 = nullptr,
-                 bool verbose = false,
-                 const NamingConvention& namconv = NamingConvention("Simu"));
+  GSTLEARN_EXPORT DbGrid* simuRefine(
+    DbGrid* dbin,
+    Model* model,
+    const SimuRefineParam& param,
+    Id seed = 432432,
+    const NamingConvention& namconv = NamingConvention("Refine"));
+  GSTLEARN_EXPORT Id simuSpectral(
+    Db* dbin,
+    Db* dbout,
+    ModelGeneric* model,
+    ANeigh* neigh = nullptr,
+    Id nbsimu = 1,
+    Id seed = 135672,
+    Id ns = 10000,
+    Id nd = 100,
+    const ACov* cov0 = nullptr,
+    bool verbose = false,
+    const NamingConvention& namconv = NamingConvention("Simu"));
   GSTLEARN_EXPORT Id simuSubstitution(
     DbGrid* dbgrid,
     SimuSubstitutionParam& subparam,
     Id seed = 43242,
     Id verbose = false,
     const NamingConvention& namconv = NamingConvention("SimSub"));
-  GSTLEARN_EXPORT Id
-    simtub(Db* dbin = nullptr,
-           Db* dbout = nullptr,
-           Model* model = nullptr,
-           ANeigh* neigh = nullptr,
-           Id nbsimu = 1,
-           Id seed = 43431,
-           Id nbtuba = 100,
-           bool flag_dgm = false,
-           bool flag_check = false,
-           const NamingConvention& namconv = NamingConvention("Simu"));
-  GSTLEARN_EXPORT Id
-    simbayes(Db* dbin,
-             Db* dbout,
-             Model* model,
-             ANeigh* neigh,
-             Id nbsimu = 1,
-             Id seed = 132141,
-             Id nbtuba = 100,
-             bool flag_check = false,
-             const NamingConvention& namconv = NamingConvention("SimBayes"));
+  GSTLEARN_EXPORT Id simtub(
+    Db* dbin = nullptr,
+    Db* dbout = nullptr,
+    Model* model = nullptr,
+    ANeigh* neigh = nullptr,
+    Id nbsimu = 1,
+    Id seed = 43431,
+    Id nbtuba = 100,
+    bool flag_dgm = false,
+    bool flag_check = false,
+    const NamingConvention& namconv = NamingConvention("Simu"));
+  GSTLEARN_EXPORT Id simbayes(
+    Db* dbin,
+    Db* dbout,
+    Model* model,
+    ANeigh* neigh,
+    Id nbsimu = 1,
+    Id seed = 132141,
+    Id nbtuba = 100,
+    bool flag_check = false,
+    const NamingConvention& namconv = NamingConvention("SimBayes"));
 } // namespace gstlrn

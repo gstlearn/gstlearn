@@ -373,11 +373,12 @@ namespace gstlrn
    **                      covariance is considered as small enough for dilation
    **
    *****************************************************************************/
-  bool CalcSimuFFT::_checkCorrect(const VectorVectorDouble& xyz,
-                                  Id ix,
-                                  Id iy,
-                                  Id iz,
-                                  double percent)
+  bool CalcSimuFFT::_checkCorrect(
+    const VectorVectorDouble& xyz,
+    Id ix,
+    Id iy,
+    Id iz,
+    double percent)
   {
     auto ndim = _getNDim();
     ModelGeneric* modelGeneric = getModelGeneric();
@@ -993,8 +994,9 @@ namespace gstlrn
           Id iiy = (iy < 0) ? _dims[1] + iy : iy;
           Id iiz = (iz < 0) ? _dims[2] + iz : iz;
           double rho = _rhoSigma(sigma, iix, iiy, iiz);
-          value += ((_nx[0] - ABS(ix)) * (_nx[1] - ABS(iy)) * (_nx[2] - ABS(iz))
-                    * rho);
+          value +=
+            ((_nx[0] - ABS(ix)) * (_nx[1] - ABS(iy)) * (_nx[2] - ABS(iz))
+             * rho);
         }
     return (value);
   }
@@ -1067,13 +1069,8 @@ namespace gstlrn
     /* Free the temporary variables */
     _cleanVariableDb(2);
 
-    _renameVariable(2,
-                    VectorString(),
-                    ELoc::Z,
-                    1,
-                    _iattOut,
-                    String(),
-                    getNbSimu());
+    _renameVariable(
+      2, VectorString(), ELoc::Z, 1, _iattOut, String(), getNbSimu());
     return true;
   }
 

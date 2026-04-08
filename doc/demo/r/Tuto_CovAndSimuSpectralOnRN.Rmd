@@ -31,7 +31,7 @@ matToGst <- function(mat) {
   for (i in 1:nc) {
       res$setColumn(icol = i-1, mat[,i])
     }
-  res    
+  res
 }
 covToGst <- function(mat) {
   nr = dim(mat)[1]
@@ -42,15 +42,15 @@ covToGst <- function(mat) {
     for (j in i:nr) {
       res$setValue(icol = i-1, irow = j-1, mat[i,j])
     }}
-  res    
+  res
 }
 
 create_random_covmat = function(nvar) {
   uu         = rnorm(nvar)
   s2         = rnorm(nvar)^2
   outer(
-    X = 1:nvar, 
-    Y = 1:nvar, 
+    X = 1:nvar,
+    Y = 1:nvar,
     FUN = function(i,j){sqrt(s2[i]*s2[j])*exp(-abs(uu[i]-uu[j]))})
 }
 
@@ -175,10 +175,10 @@ draw_model <- function(model, prefix, flag.st = FALSE) {
         lines(h, C0[ivar, jvar] - model$sample(h = h, codir = u0, ivar-1, jvar-1),
                 , col = angles_col[idir], lty = 1)
       } # loop over the directions
-      legend("bottomright", 
+      legend("bottomright",
              legend = leg, col = angles_col[1:ndir], lty = 1, lw = 1)
   }} # loops over the variables
-    
+
   } else {
     # space-time model
     ndir = 1 + c(1,4)[ndim-1] + 4
@@ -195,7 +195,7 @@ draw_model <- function(model, prefix, flag.st = FALSE) {
         lab_x   = "Distances"
         if (ndim == 2) {
           u0      = c(1.0, 0.0)
-        } 
+        }
         if (ndim == 3) {
           theta = angles_in_deg[kdir] * pi / 180
           u0    = c(cos(theta), sin(theta), 0.0)
@@ -228,7 +228,7 @@ draw_model <- function(model, prefix, flag.st = FALSE) {
           , col = var_col[idx], lty = 1)
       }}
       legend ("bottomright", legend = var_lab, col = var_col, lty = 1)
-    } # loop on the space-time directions 
+    } # loop on the space-time directions
   } # space-time model
 }
 ```
@@ -236,8 +236,8 @@ draw_model <- function(model, prefix, flag.st = FALSE) {
 
 ```{r fn_simu_model, echo=FALSE, eval=TRUE}
 # ------------------------------------------------------------------------------
-simu_model <- function(model, prefix, nsimu = 1, ns = 1000, flag.st = TRUE, 
-                       flag.QC = TRUE, 
+simu_model <- function(model, prefix, nsimu = 1, ns = 1000, flag.st = TRUE,
+                       flag.QC = TRUE,
                        flag.histo = TRUE, flag.map = TRUE, flag.vario = TRUE,
                        verbose = TRUE) {
   ndim = model$getNDim()
@@ -291,7 +291,7 @@ simu_model <- function(model, prefix, nsimu = 1, ns = 1000, flag.st = TRUE,
     }
   }
   nsec = length(sec_list)
-  
+
   # --------------
   # simulations
   # --------------
@@ -309,7 +309,7 @@ simu_model <- function(model, prefix, nsimu = 1, ns = 1000, flag.st = TRUE,
         } # loop over the variables
       } # loop over the sections
     } # loop over the simulations
-  
+
   # --------------
   # QC
   # --------------
@@ -320,10 +320,10 @@ simu_model <- function(model, prefix, nsimu = 1, ns = 1000, flag.st = TRUE,
           print(sprintf(">>> computing statistics on section %s", sec_list[[sec]]$section))
           }
       res[[1+length(res)]] <- QC_section(
-        model = model, 
-        grid  = sec_list[[sec]]$grid, 
-        prefix = prefix, 
-        nsimu = nsimu, isec = sec, 
+        model = model,
+        grid  = sec_list[[sec]]$grid,
+        prefix = prefix,
+        nsimu = nsimu, isec = sec,
         flag.histo = flag.histo, flag.map = flag.map, flag.vario = flag.vario,
         verbose = verbose)
     } # loop on sections
@@ -334,8 +334,8 @@ simu_model <- function(model, prefix, nsimu = 1, ns = 1000, flag.st = TRUE,
 }
 
 # QC of the simulations on the sections
-QC_section <- function(model, grid, prefix, nsimu, isec = 1, 
-                       flag.histo = TRUE, flag.map = TRUE, flag.vario = TRUE, 
+QC_section <- function(model, grid, prefix, nsimu, isec = 1,
+                       flag.histo = TRUE, flag.map = TRUE, flag.vario = TRUE,
                        verbose = TRUE) {
   opers = EStatOption_fromKeys(c("NUM", "MINI", "MAXI", "MEAN", "STDV"))
   ndim  = model$getNDim()
@@ -359,7 +359,7 @@ QC_section <- function(model, grid, prefix, nsimu, isec = 1,
     titre = sprintf("%s[%d] in section %s", prefix, ivar, sec_lab[isec])
     # histogram
     if (flag.histo) {
-    p = plot.init() + 
+    p = plot.init() +
       plot.hist(db = grid, name = s_nm, bins = 25, col = "skyblue") +
       plot.decoration(title = titre)
     plot.end(p)
@@ -376,15 +376,15 @@ QC_section <- function(model, grid, prefix, nsimu, isec = 1,
         dbg[s_nm] = grid[s_nm]
         p = p + plot.raster(db = dbg, name = s_nm)
       }
-      p = p + plot.decoration(title = titre, 
-              xlab = sec_coor[-isec][1], 
+      p = p + plot.decoration(title = titre,
+              xlab = sec_coor[-isec][1],
               ylab = sec_coor[-isec][2]
               )
       plot.end(p)
     }
     } # flag.map
   } # loop over the variables
-  
+
   # --------------------------------------------------------------------------
   # experimental variograms vs. model
   # --------------------------------------------------------------------------
@@ -412,26 +412,26 @@ QC_section <- function(model, grid, prefix, nsimu, isec = 1,
         v2    = grid$getColumns(names = v2_nm)
         if (length(dx) == 1) {
           varexp = compute_vario_on_1d_grid(
-            val  = v1, 
-            val2 = v2, 
+            val  = v1,
+            val2 = v2,
             nlag = nlag, dx = dx)
         } else if (length(dx) == 2) {
           varexp = compute_vario_on_2d_grid(
-              val  = matrix(v1, nrow = nx[1], ncol = nx[2]), 
-              val2 = matrix(v2, nrow = nx[1], ncol = nx[2]), 
+              val  = matrix(v1, nrow = nx[1], ncol = nx[2]),
+              val2 = matrix(v2, nrow = nx[1], ncol = nx[2]),
               nlag = nlag, lag = lag_list[,idir], dx = dx)
         } else if (length(dx) == 3) {
           varexp = compute_vario_on_2d_grid(
-              val  = matrix(v1, nrow = nx[-isec][1], ncol = nx[-isec][2]), 
-              val2 = matrix(v2, nrow = nx[-isec][1], ncol = nx[-isec][2]), 
+              val  = matrix(v1, nrow = nx[-isec][1], ncol = nx[-isec][2]),
+              val2 = matrix(v2, nrow = nx[-isec][1], ncol = nx[-isec][2]),
               nlag = nlag, lag = lag_list[,idir], dx = dx[-isec])
         }
         gg_simu[is, ] = varexp$gg
         if (is == 1) {hh_simu = varexp$hh}
       } # loop over the simulations
-      
+
       # plot for the ivar, jvar, idir
-      titre = sprintf("%s[%d, %d]: idir = %d in section %s", 
+      titre = sprintf("%s[%d, %d]: idir = %d in section %s",
                       prefix, ivar, jvar, idir, sec_lab[isec])
       plot(NULL, NULL, xlim = c(0, max(hh_simu)), ylim = 1.1*c(0, C0[ivar, jvar]),
          xlab = "Distance", ylab = "Variogram", main = titre)
@@ -442,13 +442,13 @@ QC_section <- function(model, grid, prefix, nsimu, isec = 1,
         lines(hh_simu, gg_simu[is, ], col = "gray", lw = 1, lty = 2)
       }
       for (n in seq_along(probs)) {
-        lines(hh_simu, 
-              apply(X = gg_simu, MARGIN = 2, 
-              FUN = quantile, probs = probs[n], na.rm = TRUE), 
+        lines(hh_simu,
+              apply(X = gg_simu, MARGIN = 2,
+              FUN = quantile, probs = probs[n], na.rm = TRUE),
           col = probs_col[n], lw = 1, lty = 2)
         }
-      lines(hh_simu, apply(X = gg_simu, MARGIN = 2, 
-        FUN = mean, na.rm = TRUE), 
+      lines(hh_simu, apply(X = gg_simu, MARGIN = 2,
+        FUN = mean, na.rm = TRUE),
         col = "red", lw = 1, lty = 1 )
       # model
       if (ndim == 1) {u0 = 1.0}
@@ -474,9 +474,9 @@ QC_section <- function(model, grid, prefix, nsimu, isec = 1,
   # --------------------------------------------------------------------------
   # statistics and results
   # --------------------------------------------------------------------------
-  list(prefix  = prefix, section = sec_lab[isec], 
+  list(prefix  = prefix, section = sec_lab[isec],
        grid = grid,
-       tab = dbStatisticsMono(db = grid, names = paste(prefix, "*", sep = "."), 
+       tab = dbStatisticsMono(db = grid, names = paste(prefix, "*", sep = "."),
                            opers = opers)$toTL()
   )
 }
@@ -503,19 +503,19 @@ with
 
 ```{r 1d_model, eval=TRUE}
 ctxt = CovContext(nvar = 1, space = SpaceRN_create(1))
-mod  = CorAniso_create(ctxt = ctxt, type = ECov_fromKey("CAUCHY_GEN"), 
-                      params = c(2.0, 1.0), 
-                      ranges = 2.0, 
+mod  = CorAniso_create(ctxt = ctxt, type = ECov_fromKey("CAUCHY_GEN"),
+                      params = c(2.0, 1.0),
+                      ranges = 2.0,
                       flagRange = FALSE)
 
 # QC of the model
 err = draw_model(model = mod, prefix = "CAUCHY_GEN")
-res = simu_model(model = mod, prefix = "CAUCHY_GEN", 
-                 nsimu = nsimu, ns = nb, 
+res = simu_model(model = mod, prefix = "CAUCHY_GEN",
+                 nsimu = nsimu, ns = nb,
                  flag.st = FALSE, verbose = TRUE)
 
 # statistics
-knitr::kable(res[[1]]$tab, digits = 3, 
+knitr::kable(res[[1]]$tab, digits = 3,
                caption = sprintf("Statistics for %s in section %s",
                            res[[1]]$prefix, res[[1]]$section))
 
@@ -525,19 +525,19 @@ knitr::kable(res[[1]]$tab, digits = 3,
 
 ```{r 2d_simulation, eval=TRUE}
 ctxt = CovContext(nvar = 1, space = SpaceRN_create(2))
-mod  = CorAniso_create(ctxt = ctxt, type = ECov_fromKey("MATERN"), 
-                      params = c(3/4), 
-                      ranges = c(1,2), angles = c(30,0), 
+mod  = CorAniso_create(ctxt = ctxt, type = ECov_fromKey("MATERN"),
+                      params = c(3/4),
+                      ranges = c(1,2), angles = c(30,0),
                       flagRange = FALSE)
 
 # QC of the model
 err = draw_model(model = mod, prefix = "MATERN")
-res = simu_model(model = mod, prefix = "MATERN", 
-                 nsimu = nsimu, ns = nb, 
+res = simu_model(model = mod, prefix = "MATERN",
+                 nsimu = nsimu, ns = nb,
                  flag.st = FALSE, verbose = TRUE)
 
 # statistics
-knitr::kable(res[[1]]$tab, digits = 3, 
+knitr::kable(res[[1]]$tab, digits = 3,
                caption = sprintf("Statistics for %s in section %s",
                            res[[1]]$prefix, res[[1]]$section))
 
@@ -548,9 +548,9 @@ knitr::kable(res[[1]]$tab, digits = 3,
 ```{r 2d_multi_simulation, eval=TRUE}
 type = "MATERN"
 ctxt = CovContext(nvar = 2, space = SpaceRN_create(2))
-mod  = CorGaussianMixture_create(ctxt = ctxt, type = ECov_fromKey(type), 
+mod  = CorGaussianMixture_create(ctxt = ctxt, type = ECov_fromKey(type),
                       params = c(3/4, 1.0), kappas =  c(1,1),
-                      ranges = c(2,4), angles = c(30,0), 
+                      ranges = c(2,4), angles = c(30,0),
                       flagRange = FALSE)
 
 # QC of the model
@@ -719,9 +719,9 @@ C2   = covToGst(matrix(c(1, 0.7, 0.7, 1), 2, 2))
 err = mod$addCov(cov = CovBase(cor = rho2, sills = C2))
 
 # Third factor: bi-matern covariance
-rho3  = CorGaussianMixture_create(ctxt = ctxt2d2v, type = ECov_fromKey("CAUCHY"), 
+rho3  = CorGaussianMixture_create(ctxt = ctxt2d2v, type = ECov_fromKey("CAUCHY"),
                       params = c(3/4, 1.0), kappas =  c(1,2),
-                      ranges = c(2,4), angles = c(0,0), 
+                      ranges = c(2,4), angles = c(0,0),
                       flagRange = FALSE)
 C3   = covToGst(diag(2))
 err = mod$addCov(cov = CovBase(cor = rho3, sills = C3))
@@ -748,17 +748,17 @@ beta  = 1.0
 # parameters for the space trace
 nu   = c(1/2, 3/4, 1)[1:nvar]
 rr   = c(1, 2, 1)[1:nvar]
-# space-time anisotropy 
+# space-time anisotropy
 timeRange = 2.0
 ranges = c(5,10)[1:ndim]
 angles = c(30, 0)[1:ndim]
 sep = 1.0
 
 ctxt = CovContext(nvar = nvar, space = SpaceRN_create(ndim = ndim))
-mod = CorGneiting_create(ctxt = ctxt, type = ECov_fromKey(type), 
-                       alpha = alpha, beta = beta, timeRange = timeRange, 
-                       params = nu, kappas = rr, 
-                       ranges = ranges, angles = angles, 
+mod = CorGneiting_create(ctxt = ctxt, type = ECov_fromKey(type),
+                       alpha = alpha, beta = beta, timeRange = timeRange,
+                       params = nu, kappas = rr,
+                       ranges = ranges, angles = angles,
                        flagRange = FALSE,
                        separability = sep)
 
@@ -783,17 +783,17 @@ beta  = 1.0
 # parameters for the space trace
 nu   = c(1/2, 3/4, 1)[1:nvar]
 rr   = c(1, 2, 1)[1:nvar]
-# space-time anisotropy 
+# space-time anisotropy
 timeRange = 2.0
 ranges = c(5,10)[1:ndim]
 angles = c(30, 0)[1:ndim]
 sep = 1.0
 
 ctxt = CovContext(nvar = nvar, space = SpaceRN_create(ndim = ndim))
-mod = CorGneiting_create(ctxt = ctxt, type = ECov_fromKey(type), 
-                       alpha = alpha, beta = beta, timeRange = timeRange, 
-                       params = nu, kappas = rr, 
-                       ranges = ranges, angles = angles, 
+mod = CorGneiting_create(ctxt = ctxt, type = ECov_fromKey(type),
+                       alpha = alpha, beta = beta, timeRange = timeRange,
+                       params = nu, kappas = rr,
+                       ranges = ranges, angles = angles,
                        flagRange = FALSE,
                        separability = sep)
 
@@ -818,17 +818,17 @@ beta  = 1.0
 # parameters for the space trace
 nu   = c(1/2, 3/4, 1)[1:nvar]
 rr   = c(1, 2, 1)[1:nvar]
-# space-time anisotropy 
+# space-time anisotropy
 timeRange = 2.0
 ranges = c(5,10)[1:ndim]
 angles = c(30, 0)[1:ndim]
 sep = 1.0
 
 ctxt = CovContext(nvar = nvar, space = SpaceRN_create(ndim = ndim))
-mod = CorGneiting_create(ctxt = ctxt, type = ECov_fromKey(type), 
-                       alpha = alpha, beta = beta, timeRange = timeRange, 
-                       params = nu, kappas = rr, 
-                       ranges = ranges, angles = angles, 
+mod = CorGneiting_create(ctxt = ctxt, type = ECov_fromKey(type),
+                       alpha = alpha, beta = beta, timeRange = timeRange,
+                       params = nu, kappas = rr,
+                       ranges = ranges, angles = angles,
                        flagRange = FALSE,
                        separability = sep)
 
@@ -853,17 +853,17 @@ beta  = 1.0
 # parameters for the space trace
 nu   = c(1/2, 3/4, 1)[1:nvar]
 rr   = c(1, 2, 1)[1:nvar]
-# space-time anisotropy 
+# space-time anisotropy
 timeRange = 2.0
 ranges = c(5,10)[1:ndim]
 angles = c(30, 0)[1:ndim]
 sep = 1.0
 
 ctxt = CovContext(nvar = nvar, space = SpaceRN_create(ndim = ndim))
-mod = CorGneiting_create(ctxt = ctxt, type = ECov_fromKey(type), 
-                       alpha = alpha, beta = beta, timeRange = timeRange, 
-                       params = nu, kappas = rr, 
-                       ranges = ranges, angles = angles, 
+mod = CorGneiting_create(ctxt = ctxt, type = ECov_fromKey(type),
+                       alpha = alpha, beta = beta, timeRange = timeRange,
+                       params = nu, kappas = rr,
+                       ranges = ranges, angles = angles,
                        flagRange = FALSE,
                        separability = sep)
 
@@ -888,17 +888,17 @@ beta  = 1.0
 # parameters for the space trace
 nu   = c(1/2, 3/4, 1)[1:nvar]
 rr   = c(1, 2, 1)[1:nvar]
-# space-time anisotropy 
+# space-time anisotropy
 timeRange = 2.0
 ranges = c(5,10)[1:ndim]
 angles = c(30, 0)[1:ndim]
 sep = 0.0
 
 ctxt = CovContext(nvar = nvar, space = SpaceRN_create(ndim = ndim))
-mod = CorGneiting_create(ctxt = ctxt, type = ECov_fromKey(type), 
-                       alpha = alpha, beta = beta, timeRange = timeRange, 
-                       params = nu, kappas = rr, 
-                       ranges = ranges, angles = angles, 
+mod = CorGneiting_create(ctxt = ctxt, type = ECov_fromKey(type),
+                       alpha = alpha, beta = beta, timeRange = timeRange,
+                       params = nu, kappas = rr,
+                       ranges = ranges, angles = angles,
                        flagRange = FALSE,
                        separability = sep)
 
@@ -923,17 +923,17 @@ beta  = 1.0
 # parameters for the space trace
 nu   = c(1/2, 3/4, 1)[1:nvar]
 rr   = c(1, 2, 1)[1:nvar]
-# space-time anisotropy 
+# space-time anisotropy
 timeRange = 2.0
 ranges = c(5,10)[1:ndim]
 angles = c(30, 0)[1:ndim]
 sep = 0.0
 
 ctxt = CovContext(nvar = nvar, space = SpaceRN_create(ndim = ndim))
-mod = CorGneiting_create(ctxt = ctxt, type = ECov_fromKey(type), 
-                       alpha = alpha, beta = beta, timeRange = timeRange, 
-                       params = nu, kappas = rr, 
-                       ranges = ranges, angles = angles, 
+mod = CorGneiting_create(ctxt = ctxt, type = ECov_fromKey(type),
+                       alpha = alpha, beta = beta, timeRange = timeRange,
+                       params = nu, kappas = rr,
+                       ranges = ranges, angles = angles,
                        flagRange = FALSE,
                        separability = sep)
 
@@ -961,16 +961,16 @@ beta  = 1.0
 # parameters for the space trace
 nu   = c(1/2, 3/4, 1)[1:nvar]
 rr   = c(1, 2, 1)[1:nvar]
-# space-time anisotropy 
+# space-time anisotropy
 timeRange = 2.0
 ranges = c(5,10)[1:ndim]
 angles = c(30, 0)[1:ndim]
 
 ctxt = CovContext(nvar = nvar, space = SpaceRN_create(ndim = ndim))
-mod = CorGneiting_create(ctxt = ctxt, type = ECov_fromKey(type), 
-                       alpha = alpha, beta = beta, timeRange = timeRange, 
-                       params = nu, kappas = rr, 
-                       ranges = ranges, angles = angles, 
+mod = CorGneiting_create(ctxt = ctxt, type = ECov_fromKey(type),
+                       alpha = alpha, beta = beta, timeRange = timeRange,
+                       params = nu, kappas = rr,
+                       ranges = ranges, angles = angles,
                        flagRange = FALSE,
                        separability = sep)
 
@@ -986,7 +986,7 @@ knitr::kable(res[[1]]$tab, digits = 3, caption = lab)
 
 lab = sprintf("Statistics for %s in section %s", res[[2]]$prefix, res[[2]]$section)
 knitr::kable(res[[2]]$tab, digits = 3, caption = lab)
- 
+
 lab = sprintf("Statistics for %s in section %s", res[[3]]$prefix, res[[3]]$section)
 knitr::kable(res[[3]]$tab, digits = 3, caption = lab)
 

@@ -18,6 +18,7 @@
 #include "Space/ASpaceObject.hpp"
 
 using namespace gstlrn;
+
 /****************************************************************************/
 /*!
  ** Main Program
@@ -53,15 +54,15 @@ int main(int argc, char* argv[])
   NF_Triplet NF_arcs;
   law_set_random_seed(1314);
   VectorInt ind1 = {0, 1, 2, 3, 4, 5, 2, 7, 8, 9, 10, 11, 8, 13, 14, 7, 15, 16};
-  VectorInt ind2 = {1, 2, 3, 4, 5, 6, 7, 8, 9,
+  VectorInt ind2 = {1,  2,  3,  4,  5,  6,  7,  8,  9,
                     10, 11, 12, 13, 14, 11, 15, 16, 17};
-  Id narcs       = static_cast<Id>(ind1.size());
+  Id narcs = static_cast<Id>(ind1.size());
   for (Id iarc = 0; iarc < narcs; iarc++)
     NF_arcs.add(ind1[iarc], ind2[iarc], law_uniform(0.3, 0.9));
 
-  DbGraphO* dbgraphO =
-    DbGraphO::createFromSamples(static_cast<Id>(x1.size()), ELoadBy::COLUMN, tab, NF_arcs,
-                                {"x1", "x2", "z1"}, {"x1", "x2", "z1"});
+  DbGraphO* dbgraphO = DbGraphO::createFromSamples(
+    static_cast<Id>(x1.size()), ELoadBy::COLUMN, tab, NF_arcs,
+    {"x1", "x2", "z1"}, {"x1", "x2", "z1"});
   if (dbgraphO == nullptr) return 1;
 
   mestitle(1, "Reference Oriented Graph File");
@@ -86,11 +87,13 @@ int main(int argc, char* argv[])
   printVector(iadup, "Nodes next to 7 upstream", true, true);
   // Check the end-of-stream points downwards
   VectorInt iadenddown = dbgraphO->getEndsDown();
-  printVector(iadenddown, "List of Node indices end-of-stream downwards", true, true);
+  printVector(
+    iadenddown, "List of Node indices end-of-stream downwards", true, true);
 
   // Check the end-of-stream points upwards
   VectorInt iadendup = dbgraphO->getEndsUp();
-  printVector(iadendup, "List of Node indices end-of-stream upwards", true, true);
+  printVector(
+    iadendup, "List of Node indices end-of-stream upwards", true, true);
   // Check the orphans
   VectorInt iadorphan = dbgraphO->getOrphans();
   printVector(iadorphan, "List of Node indices orphans", true, true);
@@ -99,10 +102,12 @@ int main(int argc, char* argv[])
   VectorInt order = dbgraphO->getOrderDown(3);
   printVector(order, "Vertices related to #2", true, true);
   // Check if two nodes are connected
-  message("Check if nodes 3 and 6 are connected = %d\n",
-          dbgraphO->areConnected(3, 6));
-  message("Check if nodes 3 and 8 are connected = %d\n",
-          dbgraphO->areConnected(3, 8));
+  message(
+    "Check if nodes 3 and 6 are connected = %d\n",
+    dbgraphO->areConnected(3, 6));
+  message(
+    "Check if nodes 3 and 8 are connected = %d\n",
+    dbgraphO->areConnected(3, 8));
 
   VectorDouble cumul = dbgraphO->getCumulDown(7);
   printVector(cumul, "Cumul of arc values starting from node 7", true, true);

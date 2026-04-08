@@ -39,94 +39,114 @@
 
 namespace gstlrn
 {
-class GSTLEARN_EXPORT AnamEmpirical: public AnamContinuous
-{
-public:
-  AnamEmpirical(Id ndisc          = 100,
-                double sigma2e    = TEST,
-                bool flagDilution = false,
-                bool flagGaussian = true);
-  AnamEmpirical(const AnamEmpirical& m);
-  AnamEmpirical& operator=(const AnamEmpirical& m);
-  virtual ~AnamEmpirical();
+  class GSTLEARN_EXPORT AnamEmpirical: public AnamContinuous
+  {
+  public:
+    AnamEmpirical(
+      Id ndisc = 100,
+      double sigma2e = TEST,
+      bool flagDilution = false,
+      bool flagGaussian = true);
+    AnamEmpirical(const AnamEmpirical& m);
+    AnamEmpirical& operator=(const AnamEmpirical& m);
+    virtual ~AnamEmpirical();
 
-  /// ICloneable Interface
-  IMPLEMENT_CLONING(AnamEmpirical)
+    /// ICloneable Interface
+    IMPLEMENT_CLONING(AnamEmpirical)
 
-  /// AStringable Interface
-  String toString(const AStringFormat* strfmt = nullptr) const override;
+    /// AStringable Interface
+    String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  /// ASerializable Interface
-  static AnamEmpirical* createFromNF(const String& NFFilename, bool verbose = true);
+    /// ASerializable Interface
+    static AnamEmpirical*
+      createFromNF(const String& NFFilename, bool verbose = true);
 
-  /// ASerializable Interface
-  String getNFName() const override { return "AnamEmpirical"; }
+    /// ASerializable Interface
+    String getNFName() const override { return "AnamEmpirical"; }
 #ifdef HDF5
-  bool deserializeH5(H5::Group& grp) override;
-  bool serializeH5(H5::Group& grp) const override;
+    bool deserializeH5(H5::Group& grp) override;
+    bool serializeH5(H5::Group& grp) const override;
 #endif
 
-  void reset(Id ndisc,
-             double pymin,
-             double pzmin,
-             double pymax,
-             double pzmax,
-             double aymin,
-             double azmin,
-             double aymax,
-             double azmax,
-             double sigma2e,
-             const VectorDouble& zdisc,
-             const VectorDouble& ydisc);
+    void reset(
+      Id ndisc,
+      double pymin,
+      double pzmin,
+      double pymax,
+      double pzmax,
+      double aymin,
+      double azmin,
+      double aymax,
+      double azmax,
+      double sigma2e,
+      const VectorDouble& zdisc,
+      const VectorDouble& ydisc);
 
-  /// AAnam Interface
-  const EAnam& getType() const override { return EAnam::fromKey("EMPIRICAL"); }
-  Id getNFactor() const override { return _nDisc; }
-  Id fitFromArray(const VectorDouble& tab,
-                  const VectorDouble& wt = VectorDouble()) override;
+    /// AAnam Interface
+    const EAnam& getType() const override
+    {
+      return EAnam::fromKey("EMPIRICAL");
+    }
 
-  /// AnamContinuous Interface
-  void calculateMeanAndVariance() override;
-  double rawToTransformValue(double zz) const override;
-  double transformToRawValue(double yy) const override;
-  bool isChangeSupportDefined() const override { return false; }
+    Id getNFactor() const override { return _nDisc; }
 
-  static AnamEmpirical* create(Id ndisc = 100, double sigma2e = TEST);
-  Id getNDisc() const { return _nDisc; }
-  double getSigma2e() const { return _sigma2e; }
-  const VectorDouble& getZDisc() const { return _ZDisc; }
-  const VectorDouble& getYDisc() const { return _YDisc; }
-  bool isFlagDilution() const { return _flagDilution; }
-  bool isFlagGaussian() const { return _flagGaussian; }
+    Id fitFromArray(
+      const VectorDouble& tab,
+      const VectorDouble& wt = VectorDouble()) override;
 
-  void setSigma2e(double sigma2e) { _sigma2e = sigma2e; }
-  void setNDisc(Id ndisc);
-  void setDisc(const VectorDouble& zdisc, const VectorDouble& ydisc);
-  void setFlagDilution(bool flagDilution) { _flagDilution = flagDilution; }
-  void setFlagGaussian(bool flagGaussian) { _flagGaussian = flagGaussian; }
+    /// AnamContinuous Interface
+    void calculateMeanAndVariance() override;
+    double rawToTransformValue(double zz) const override;
+    double transformToRawValue(double yy) const override;
 
-protected:
-  bool _deserializeAscii(std::istream& is) override;
-  bool _serializeAscii(std::ostream& os) const override;
+    bool isChangeSupportDefined() const override { return false; }
 
-private:
-  static Id _getStatistics(const VectorDouble& tab,
-                           Id* count,
-                           double* mean,
-                           double* mean2,
-                           double* mini,
-                           double* maxi,
-                           double* var);
-  Id _fitWithDilutionGaussian(const VectorDouble& tab);
-  Id _fitWithDilutionLognormal(const VectorDouble& tab);
-  Id _fitNormalScore(const VectorDouble& tab);
+    static AnamEmpirical* create(Id ndisc = 100, double sigma2e = TEST);
 
-private:
-  bool _flagDilution;
-  bool _flagGaussian;
-  Id _nDisc;
-  double _sigma2e;
-  VectorDouble _ZDisc;
-  VectorDouble _YDisc;
-};
+    Id getNDisc() const { return _nDisc; }
+
+    double getSigma2e() const { return _sigma2e; }
+
+    const VectorDouble& getZDisc() const { return _ZDisc; }
+
+    const VectorDouble& getYDisc() const { return _YDisc; }
+
+    bool isFlagDilution() const { return _flagDilution; }
+
+    bool isFlagGaussian() const { return _flagGaussian; }
+
+    void setSigma2e(double sigma2e) { _sigma2e = sigma2e; }
+
+    void setNDisc(Id ndisc);
+    void setDisc(const VectorDouble& zdisc, const VectorDouble& ydisc);
+
+    void setFlagDilution(bool flagDilution) { _flagDilution = flagDilution; }
+
+    void setFlagGaussian(bool flagGaussian) { _flagGaussian = flagGaussian; }
+
+  protected:
+    bool _deserializeAscii(std::istream& is) override;
+    bool _serializeAscii(std::ostream& os) const override;
+
+  private:
+    static Id _getStatistics(
+      const VectorDouble& tab,
+      Id* count,
+      double* mean,
+      double* mean2,
+      double* mini,
+      double* maxi,
+      double* var);
+    Id _fitWithDilutionGaussian(const VectorDouble& tab);
+    Id _fitWithDilutionLognormal(const VectorDouble& tab);
+    Id _fitNormalScore(const VectorDouble& tab);
+
+  private:
+    bool _flagDilution;
+    bool _flagGaussian;
+    Id _nDisc;
+    double _sigma2e;
+    VectorDouble _ZDisc;
+    VectorDouble _YDisc;
+  };
 } // namespace gstlrn

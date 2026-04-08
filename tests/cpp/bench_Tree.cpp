@@ -43,24 +43,26 @@ int main(int argc, char* argv[])
   // Global parameters
   Id ndim = 2;
   defineDefaultSpace(ESpaceType::RN, ndim);
-  bool flag_stats = false; // This is set to FALSE in order to avoid Diff in Time
+  bool flag_stats =
+    false; // This is set to FALSE in order to avoid Diff in Time
 
   // Bench marking the Ball tree algorithm in particular
   mestitle(1, "Ball Tree Efficiency");
   Id nfois = 10;
-  Id nech  = 10000;
+  Id nech = 10000;
   VectorInt times(nfois);
   if (!flag_stats)
-    message("To get statistics on Ball Tree Efficiency, turn 'flag_stats' to TRUE\n");
+    message(
+      "To get statistics on Ball Tree Efficiency, turn 'flag_stats' to TRUE\n");
 
   message("- Building BallTree: Db(n = %d * k) (in ms per k)\n", nech);
   for (Id ifois = 0; ifois < nfois; ifois++)
   {
     Id number = nech * (ifois + 1);
     timer.reset();
-    Db* data1 = Db::createFillRandom(number, ndim, 1, 0, 0, 0., 0.,
-                                     VectorDouble(), VectorDouble(),
-                                     VectorDouble(), 131343);
+    Db* data1 = Db::createFillRandom(
+      number, ndim, 1, 0, 0, 0., 0., VectorDouble(), VectorDouble(),
+      VectorDouble(), 131343);
     Ball ball(data1);
     times[ifois] = timer.getIntervalMilliseconds() / (ifois + 1);
 
@@ -68,18 +70,20 @@ int main(int argc, char* argv[])
   }
   if (flag_stats) printVector(times, String(), true, true);
 
-  message("- Migrate P2P: from Db1(n = %d * k) to Db2(n = %d) (in ms per k)\n", nech, nech);
+  message(
+    "- Migrate P2P: from Db1(n = %d * k) to Db2(n = %d) (in ms per k)\n", nech,
+    nech);
 
   for (Id ifois = 0; ifois < nfois; ifois++)
   {
     Id number = nech * (ifois + 1);
     timer.reset();
-    Db* data1 = Db::createFillRandom(number, ndim, 1, 0, 0, 0., 0.,
-                                     VectorDouble(), VectorDouble(),
-                                     VectorDouble(), 131343);
-    Db* data2 = Db::createFillRandom(nech, ndim, 1, 0, 0, 0., 0.,
-                                     VectorDouble(), VectorDouble(),
-                                     VectorDouble(), 413343);
+    Db* data1 = Db::createFillRandom(
+      number, ndim, 1, 0, 0, 0., 0., VectorDouble(), VectorDouble(),
+      VectorDouble(), 131343);
+    Db* data2 = Db::createFillRandom(
+      nech, ndim, 1, 0, 0, 0., 0., VectorDouble(), VectorDouble(),
+      VectorDouble(), 413343);
     (void)migrate(data1, data2, "z", 1, VectorDouble(), true, false, true);
     times[ifois] = timer.getIntervalMilliseconds() / (ifois + 1);
 
@@ -88,16 +92,20 @@ int main(int argc, char* argv[])
   }
   if (flag_stats) printVector(times, String(), true, true);
 
-  message("- Migrate P2P: from Db1(n = %d) to Db2(n = %d * k) (in ms per k)\n", nech, nech);
+  message(
+    "- Migrate P2P: from Db1(n = %d) to Db2(n = %d * k) (in ms per k)\n", nech,
+    nech);
 
   for (Id ifois = 0; ifois < nfois; ifois++)
   {
     Id number = nech * (ifois + 1);
     timer.reset();
-    Db* data1 = Db::createFillRandom(nech, ndim, 1, 0, 0, 0., 0.,
-                                     VectorDouble(), VectorDouble(), VectorDouble(), 131343);
-    Db* data2 = Db::createFillRandom(number, ndim, 1, 0, 0, 0., 0.,
-                                     VectorDouble(), VectorDouble(), VectorDouble(), 413343);
+    Db* data1 = Db::createFillRandom(
+      nech, ndim, 1, 0, 0, 0., 0., VectorDouble(), VectorDouble(),
+      VectorDouble(), 131343);
+    Db* data2 = Db::createFillRandom(
+      number, ndim, 1, 0, 0, 0., 0., VectorDouble(), VectorDouble(),
+      VectorDouble(), 413343);
     (void)migrate(data1, data2, "z", 1, VectorDouble(), true, false, true);
     times[ifois] = timer.getIntervalMilliseconds() / (ifois + 1);
 

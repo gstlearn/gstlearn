@@ -21,7 +21,8 @@
 
 using namespace gstlrn;
 
-VectorDouble getSortedDistance(Db* data, const VectorInt& ranks, const SpaceTarget& Pt)
+VectorDouble
+  getSortedDistance(Db* data, const VectorInt& ranks, const SpaceTarget& Pt)
 {
   Id size = static_cast<Id>(ranks.size());
   SpaceTarget Dt;
@@ -54,28 +55,29 @@ int main(int argc, char* argv[])
   Timer timer;
 
   // Main parameters
-  Id ndat      = 100000;
-  Id ntarget   = 1000;
-  Id nmaxi     = 20;
+  Id ndat = 100000;
+  Id ntarget = 1000;
+  Id nmaxi = 20;
   Id leaf_size = 20;
-  Id mode      = 0;
+  Id mode = 0;
   bool verbose = false;
 
   // Generate the input data base
-  Id ndim  = 2;
-  Id nvar  = 1;
+  Id ndim = 2;
+  Id nvar = 1;
   Db* data = Db::createFillRandom(ndat, ndim, nvar);
 
   // Generate the output data base
   Db* target = Db::createFillRandom(ntarget, ndim, 0);
 
   // Moving Neighborhood
-  double radius       = 0.5;
+  double radius = 0.5;
   NeighMoving* neigh1 = NeighMoving::create(false, nmaxi, radius);
   neigh1->attach(data, target);
 
-  NeighMoving* neigh2 = NeighMoving::create(false, nmaxi, radius, 1, 1, ITEST,
-                                            VectorDouble(), VectorDouble(), true, leaf_size);
+  NeighMoving* neigh2 = NeighMoving::create(
+    false, nmaxi, radius, 1, 1, ITEST, VectorDouble(), VectorDouble(), true,
+    leaf_size);
   neigh2->attach(data, target);
 
   // General printout
@@ -88,7 +90,9 @@ int main(int argc, char* argv[])
   message("- Number of targets = %d\n", ntarget);
   message("- Number of neighboring samples = %d\n", nmaxi);
   message("- Leaf Size for KNN = %d\n", leaf_size);
-  message("Computing time includes Data to Target distance evaluation for comparison\n");
+  message(
+    "Computing time includes Data to Target distance evaluation for "
+    "comparison\n");
 
   SpaceTarget Pt;
   VectorVectorDouble checkDistances1;

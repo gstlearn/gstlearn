@@ -10,26 +10,29 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
 #include "Basic/AStringFormat.hpp"
+#include "gstlearn_export.hpp"
 
 namespace gstlrn
 {
-class GSTLEARN_EXPORT RuleStringFormat: public AStringFormat
-{
-public:
-  RuleStringFormat(Id level = 1);
-  RuleStringFormat(const RuleStringFormat& r);
-  RuleStringFormat& operator=(const RuleStringFormat& r);
-  virtual ~RuleStringFormat();
+  class GSTLEARN_EXPORT RuleStringFormat: public AStringFormat
+  {
+  public:
+    RuleStringFormat(Id level = 1);
+    RuleStringFormat(const RuleStringFormat& r);
+    RuleStringFormat& operator=(const RuleStringFormat& r);
+    virtual ~RuleStringFormat();
 
-  bool getFlagProp() const { return _flagProp; }
-  bool getFlagThresh() const { return _flagThresh; }
-  void setFlagProp(bool flagProp) { _flagProp = flagProp; }
-  void setFlagThresh(bool flagThresh) { _flagThresh = flagThresh; }
+    bool getFlagProp() const { return _flagProp; }
 
-private:
-  bool _flagProp;
-  bool _flagThresh;
-};
-}
+    bool getFlagThresh() const { return _flagThresh; }
+
+    void setFlagProp(bool flagProp) { _flagProp = flagProp; }
+
+    void setFlagThresh(bool flagThresh) { _flagThresh = flagThresh; }
+
+  private:
+    bool _flagProp;
+    bool _flagThresh;
+  };
+} // namespace gstlrn

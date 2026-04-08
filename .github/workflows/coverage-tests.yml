@@ -14,4 +14,3 @@ jobs:
     uses: ./.github/workflows/coverage-tests_python.yml
   call-r:
     uses: ./.github/workflows/coverage-tests_r.yml
-    

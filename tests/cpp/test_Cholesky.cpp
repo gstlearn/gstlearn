@@ -20,6 +20,7 @@
 #include "Matrix/NF_Triplet.hpp"
 
 using namespace gstlrn;
+
 MatrixSparse* _createSparseMatrix(Id n, double proba)
 {
   // We create a square matrix
@@ -27,7 +28,7 @@ MatrixSparse* _createSparseMatrix(Id n, double proba)
   for (Id icol = 0; icol < n; icol++)
     for (Id irow = 0; irow < n; irow++)
     {
-      double value  = law_gaussian();
+      double value = law_gaussian();
       double tirage = law_uniform(0., 1.);
       if (icol != irow && tirage > proba) continue;
       NF_T.add(irow, icol, value);
@@ -36,7 +37,7 @@ MatrixSparse* _createSparseMatrix(Id n, double proba)
 
   // The symmetric matrix is obtained as t(A) %*% A -> M is symmetric
   MatrixSparse* At = A->transpose();
-  MatrixSparse* Q  = MatrixFactory::prodMatMat<MatrixSparse>(A, At);
+  MatrixSparse* Q = MatrixFactory::prodMatMat<MatrixSparse>(A, At);
 
   delete A;
   delete At;
@@ -59,7 +60,8 @@ MatrixSymmetric* _createDenseMatrix(Id n, const MatrixSparse* Q)
 
 void printError(const String& name)
 {
-  message(">>> Function '%s' is INVALID =======================\n", name.c_str());
+  message(
+    ">>> Function '%s' is INVALID =======================\n", name.c_str());
 }
 
 /****************************************************************************/
@@ -74,9 +76,9 @@ int main(int argc, char* argv[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
 
-  Id size            = 10;
-  double proba       = 0.05;
-  MatrixSparse* Q    = _createSparseMatrix(size, proba);
+  Id size = 10;
+  double proba = 0.05;
+  MatrixSparse* Q = _createSparseMatrix(size, proba);
   MatrixSymmetric* M = _createDenseMatrix(size, Q);
 
   // Create a vector random gaussian values
@@ -134,7 +136,8 @@ int main(int argc, char* argv[])
   else
   {
     printVector(vecin, "Function 'InvLX(LX)' (by Matrix)", true, true);
-    printVector(vecout1, "Function 'InvLX(LX)' (by CholeskySparse)", true, true);
+    printVector(
+      vecout1, "Function 'InvLX(LX)' (by CholeskySparse)", true, true);
     printVector(vecout2, "Function 'InvLX(LX)' (by CholeskyDense)", true, true);
     printError("InvLX(LX)");
   }
@@ -150,8 +153,10 @@ int main(int argc, char* argv[])
   else
   {
     printVector(vecin, "Function 'LtX(InvLtX)' (by Matrix)", true, true);
-    printVector(vecout1, "Function 'LtX(InvLtX)' (by CholeskySparse)", true, true);
-    printVector(vecout2, "Function 'LtX(InvLtX)' (by CholeskyDense)", true, true);
+    printVector(
+      vecout1, "Function 'LtX(InvLtX)' (by CholeskySparse)", true, true);
+    printVector(
+      vecout2, "Function 'LtX(InvLtX)' (by CholeskyDense)", true, true);
     printError("LtX(InvLtX)");
   }
 

@@ -18,6 +18,7 @@
 #include "Mesh/MeshETurbo.hpp"
 
 using namespace gstlrn;
+
 /****************************************************************************/
 /*!
  ** Main Program
@@ -40,7 +41,7 @@ int main(int argc, char* argv[])
   // Creating the small Grid Db
   // All characteristics along X and Y are different (on purpose)
   DbGrid* grid = DbGrid::create({5, 4}, {1., 2.}, {10., 20.});
-  auto nech    = grid->getNSample();
+  auto nech = grid->getNSample();
 
   // Add a selection to the Grid
   VectorDouble x1 = grid->getColumn("x1");
@@ -61,7 +62,7 @@ int main(int argc, char* argv[])
 
   // Check back-and-forth between relative and absolute
   const Indirection& indirect = mesh.getGridIndirect();
-  Id igrid_rel                = 3;
+  Id igrid_rel = 3;
   message("Starting from the Relative grid node = %d\n", igrid_rel);
   auto igrid_abs = indirect.getRToA(igrid_rel);
   message("Corresponding absolute grid node = %d\n", igrid_abs);

@@ -16,7 +16,7 @@ output:
 ```{r, include=FALSE}
 ## Global options for code chunks
 knitr::opts_chunk$set(
-  echo = TRUE, 
+  echo = TRUE,
   fig.width = 6,
   warning = FALSE
 )
@@ -28,7 +28,7 @@ The **gstlearn** R package is a cross-platform R package wrapping the [gstlearn 
 
 To install the **gstlearn** R Package, you need R 4.2 (or higher). You can then execute the following R command:
 ```{r eval=FALSE}
-# Uncomment next line for installing last release of gstlearn package (remove '#' character) 
+# Uncomment next line for installing last release of gstlearn package (remove '#' character)
 #install.packages("gstlearn",repos="https://soft.mines-paristech.fr/cran")
 ```
 
@@ -96,7 +96,7 @@ Their is currently no R documentation for the *gstlearn* R package. The user can
 * Some classes of the *gstlearn* C++ library have been extended in R:
   * Almost all classes are 'stringable' (those which inherit from `AStringable`), that means that you can type the object name in the R console prompt and hit 'Enter' key to obtain a detailed description of the object content. The same output text is obtained using the `display` method (e.g. `mygrid$display()`)
   * Some classes have an additional R method named `toTL` (i.e. 'to Target Language') that permits to convert an object into the corresponding R type. For example, the instruction `df = mygrid$toTL()` permits to create a R `data.frame` from a `Db` object. In that case, the newly created `data.frame` will contain all variables from the Db (but locators and grid parameters (for DbGrid) will be lost)
-		
+
 ### RGeostats to gstlearn
 
 For people who were using [RGeostats](http://rgeostats.free.fr), here is the description of some new concepts introduced in *gstlearn*. We are currently working hard to improve the user experience. Some of the following differences are drawbacks that will be fixed in a close future.
@@ -123,7 +123,7 @@ db = DbGrid_createFromNF("mygrid.backup.nf")
 
 When executing a method using the `$` slot, if you experience the following error...
 ```{r ,echo=FALSE}
-base::message("Erreur dans validObject(.Object) : 
+base::message("Erreur dans validObject(.Object) :
   objet de classe “MethodWithNext” incorrect: Error : C stack usage  7972404 is too close to the limit")
 ```
 
@@ -136,6 +136,3 @@ ASerializable_dumpToNF(db, "mygrid.backup.nf")
 ```
 
 More details here: https://github.com/gstlearn/gstlearn/issues/308
-
-
-

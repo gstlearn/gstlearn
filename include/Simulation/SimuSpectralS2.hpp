@@ -35,20 +35,22 @@ namespace gstlrn
   class GSTLEARN_EXPORT SimuSpectralS2: public CalcSimuSpectral
   {
   public:
-    SimuSpectralS2(Id nbsimu = 1,
-                   Id ns = 10000,
-                   Id nd = 100,
-                   Id seed = 4324324,
-                   bool verbose = false);
+    SimuSpectralS2(
+      Id nbsimu = 1,
+      Id ns = 10000,
+      Id nd = 100,
+      Id seed = 4324324,
+      bool verbose = false);
     SimuSpectralS2(const SimuSpectralS2& r) = delete;
     SimuSpectralS2& operator=(const SimuSpectralS2& r) = delete;
     virtual ~SimuSpectralS2();
 
   protected:
     Id _simulate() override;
-    Id _compute(Db* dbout,
-                const VectorBool& activeArray,
-                VectorVectorDouble& tab) override;
+    Id _compute(
+      Db* dbout,
+      const VectorBool& activeArray,
+      VectorVectorDouble& tab) override;
 
   private:
     static void _printSpSim(const spSim& spsim, Id status = 0);

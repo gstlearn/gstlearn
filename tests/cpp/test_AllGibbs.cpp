@@ -33,24 +33,24 @@ using namespace gstlrn;
 *****************************************************************************/
 int main(int argc, char* argv[])
 {
-  Id nx               = 10;
-  Id niter            = 10000;
-  Id nburn            = 100;
-  double range        = 10.;
-  double bound        = TEST;
+  Id nx = 10;
+  Id niter = 10000;
+  Id nburn = 100;
+  double range = 10.;
+  double bound = TEST;
   bool flag_sym_neigh = true;
 
-  Id seed               = 5452;
-  Id ndim               = 2;
-  Id nvar               = 1;
-  Id nbsimu             = 1;
-  double sill           = 1.;
-  Id nlag               = 20;
-  VectorDouble ranges   = {range, range};
-  bool verbose          = true;
-  bool flag_moving      = true;
+  Id seed = 5452;
+  Id ndim = 2;
+  Id nvar = 1;
+  Id nbsimu = 1;
+  double sill = 1.;
+  Id nlag = 20;
+  VectorDouble ranges = {range, range};
+  bool verbose = true;
+  bool flag_moving = true;
   bool flag_propagation = false;
-  bool flag_multi_mono  = false;
+  bool flag_multi_mono = false;
 
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
@@ -65,7 +65,7 @@ int main(int argc, char* argv[])
   // Data file
 
   VectorDouble dx = {1., 1.};
-  DbGrid* db      = DbGrid::create({nx, nx}, dx);
+  DbGrid* db = DbGrid::create({nx, nx}, dx);
   if (!FFFF(bound))
   {
     db->addColumnsByConstant(1, -bound, "Bounds", ELoc::L);
@@ -92,9 +92,11 @@ int main(int argc, char* argv[])
 
   // Gibbs
 
-  if (gibbs_sampler(db, model, nbsimu, seed, nburn, niter, flag_moving, false,
-                    flag_multi_mono, flag_propagation, flag_sym_neigh, 2, 5.,
-                    false, false, verbose)) return 1;
+  if (gibbs_sampler(
+        db, model, nbsimu, seed, nburn, niter, flag_moving, false,
+        flag_multi_mono, flag_propagation, flag_sym_neigh, 2, 5., false, false,
+        verbose))
+    return 1;
   DbStringFormat dbfmt(FLAG_STATS, {"*Gibbs*"});
   db->display(&dbfmt);
   (void)db->dumpToNF("Result");

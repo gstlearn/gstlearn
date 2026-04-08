@@ -21,11 +21,12 @@ namespace gstlrn
   class GSTLEARN_EXPORT CalcSimuSpectral: public ACalcSimulation
   {
   public:
-    CalcSimuSpectral(Id nbsimu = 1,
-                     Id ns = 10000,
-                     Id nd = 100,
-                     Id seed = 4324324,
-                     bool verbose = false);
+    CalcSimuSpectral(
+      Id nbsimu = 1,
+      Id ns = 10000,
+      Id nd = 100,
+      Id seed = 4324324,
+      bool verbose = false);
     CalcSimuSpectral(const CalcSimuSpectral& r) = delete;
     CalcSimuSpectral& operator=(const CalcSimuSpectral& r) = delete;
     virtual ~CalcSimuSpectral();
@@ -43,9 +44,10 @@ namespace gstlrn
     bool _run() override;
 
     virtual Id _simulate() = 0;
-    virtual Id _compute(Db* dbout,
-                        const VectorBool& activeArray,
-                        VectorVectorDouble& tab) = 0;
+    virtual Id _compute(
+      Db* dbout,
+      const VectorBool& activeArray,
+      VectorVectorDouble& tab) = 0;
 
     Id _getNs() const { return _ns; };
 

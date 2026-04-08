@@ -38,19 +38,19 @@ int main(int argc, char* argv[])
   StdoutRedirect sr(sfn.str(), argc, argv);
 
   Id error = 1;
-  Id ndim  = 2;
+  Id ndim = 2;
   defineDefaultSpace(ESpaceType::RN, ndim);
   CovContext ctxt(1, 2, 1.); // use default space
 
   // Creating a Point Data base in the 1x1 square with 'nech' samples
   Id nech = 1000;
-  Db* db  = Db::createFromBox(nech, {0., 0.}, {1., 1.}, 3242);
+  Db* db = Db::createFromBox(nech, {0., 0.}, {1., 1.}, 3242);
   db->display();
 
   // Creating a grid covering the same space
-  VectorInt nx    = {100, 100};
+  VectorInt nx = {100, 100};
   VectorDouble dx = {0.01, 0.01};
-  DbGrid* grid    = DbGrid::create(nx, dx);
+  DbGrid* grid = DbGrid::create(nx, dx);
   grid->display();
 
   // Creating the Model(s) of the Underlying GRF(s)
@@ -73,15 +73,15 @@ int main(int argc, char* argv[])
   // ===============
 
   mestitle(0, "Experimental variogram on Data Samples");
-  Id nlag                 = 20;
+  Id nlag = 20;
   VarioParam* varioparamP = VarioParam::createMultiple(2, nlag, 0.5 / nlag);
-  Vario* variop           = Vario::computeFromDb(*varioparamP, db, ECalcVario::VARIOGRAM);
+  Vario* variop = Vario::computeFromDb(*varioparamP, db, ECalcVario::VARIOGRAM);
   variop->display();
   delete varioparamP;
 
   // Fitting the experimental variogram of Underlying GRF (with constraint that total sill is 1)
   Model model(ctxt);
-  VectorECov covas {ECov::MATERN, ECov::EXPONENTIAL};
+  VectorECov covas{ECov::MATERN, ECov::EXPONENTIAL};
   model.fit(variop, covas, false);
   model.display();
   delete variop;
@@ -98,7 +98,8 @@ int main(int argc, char* argv[])
 
   mestitle(0, "Experimental variogram on Grid");
   VarioParam* varioparamG = VarioParam::createMultipleFromGrid(grid, nlag);
-  Vario* variog           = Vario::computeFromDb(*varioparamG, grid, ECalcVario::VARIOGRAM);
+  Vario* variog =
+    Vario::computeFromDb(*varioparamG, grid, ECalcVario::VARIOGRAM);
   variog->display();
   delete variog;
 
@@ -135,21 +136,25 @@ int main(int argc, char* argv[])
   // ======================================
 
   mestitle(0, "Calculation of all forms of Variograms on Standard Data");
-  Id nvar     = 2;
-  Id nsample  = 10;
-  auto mesh   = 1.;
-  auto* dbStd = DbGrid::createFillRandom({nsample}, nvar, 0, 0, 0., 0.,
-                                         VectorDouble(), VectorDouble(), VectorDouble(), {mesh});
+  Id nvar = 2;
+  Id nsample = 10;
+  auto mesh = 1.;
+  auto* dbStd = DbGrid::createFillRandom(
+    {nsample}, nvar, 0, 0, 0., 0., VectorDouble(), VectorDouble(),
+    VectorDouble(), {mesh});
   dbStd->getStatsAsTable().display();
 
   auto nblag = 4;
-  auto dlag  = mesh;
+  auto dlag = mesh;
   for (const auto& name: ECalcVario::getAllKeys())
   {
-    if (name == "UNDEFINED" || name == "GENERAL1" || name == "GENERAL2" || name == "GENERAL3") continue;
+    if (name == "UNDEFINED" || name == "GENERAL1" || name == "GENERAL2"
+        || name == "GENERAL3")
+      continue;
     for (bool flag_ergodic: {false, true})
     {
-      auto* varioStd = variogramCalculate(dbStd, ECalcVario::fromKey(name), flag_ergodic, nblag, dlag);
+      auto* varioStd = variogramCalculate(
+        dbStd, ECalcVario::fromKey(name), flag_ergodic, nblag, dlag);
       varioStd->display();
       delete varioStd;
     }
@@ -163,9 +168,9 @@ int main(int argc, char* argv[])
   mestitle(0, "Manipulation of variogram assessors");
 
   // Create a 2-D data set and calculate an omni-directional variogram
-  auto* dat        = Db::createFillRandom(10, 2, 2);
+  auto* dat = Db::createFillRandom(10, 2, 2);
   auto* varioParam = VarioParam::createOmniDirection(10, 0.1);
-  auto* vario      = Vario::computeFromDb(*varioParam, dat);
+  auto* vario = Vario::computeFromDb(*varioParam, dat);
   vario->display();
 
   bool compress = true;

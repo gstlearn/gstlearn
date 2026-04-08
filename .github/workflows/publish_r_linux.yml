@@ -108,7 +108,7 @@ jobs:
     - name: Install R dependencies
       run: Rscript -e "install.packages (c('ggplot2', 'ggpubr', 'ggnewscale'),
                                          repos='https://cran.rstudio.com/')"
-            
+
     - name: Install R package
       run: Rscript -e "install.packages(\"$(ls *.tar.gz)\", repos=NULL, type='source')"
 
@@ -118,10 +118,10 @@ jobs:
   publish:
     needs: test
     if: ${{inputs.dry_publish == false}}
-    
+
     # Only ubuntu can upload to CRAN easily (ssh)
     runs-on: ubuntu-latest
-    
+
     steps:
       # Publish packages to our CRAN
       - env:

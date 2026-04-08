@@ -1,16 +1,16 @@
-# Kriging 
+# Kriging
 
-Let suppose that 
+Let suppose that
 
 $Z(s_i) = X_i\beta + Y(s_i)$
 
 where $Y$ is a second order stationary random field with mean 0 and covariance function $C$.
 
-If $Z$ is a vector of observations, we denote 
+If $Z$ is a vector of observations, we denote
 $Z = X\beta + Y$ with $\Sigma$ the covariance of Y
 
-## Simple Kriging 
-If $\beta$ is known, we can obtain the simple kriging 
+## Simple Kriging
+If $\beta$ is known, we can obtain the simple kriging
 
 $Z_0^{SK} = X_0\beta + \Sigma_0^t\Sigma^{-1}(Z-X\beta) = X_0\beta + \lambda_{SK}^t(Z-X\beta)$
 
@@ -18,7 +18,7 @@ with:
 
 - the simple kriging weights
 
-$\lambda_{SK}=\Sigma^{-1}\Sigma_0$ 
+$\lambda_{SK}=\Sigma^{-1}\Sigma_0$
 
 - the variance of the estimator
 
@@ -98,9 +98,9 @@ $
 
 ## Universal kriging
 
-If $\beta$ is unknown, we can estimate it by 
+If $\beta$ is unknown, we can estimate it by
 
-$\hat\beta =  \Sigma_c X^t\Sigma^{-1}Z$ 
+$\hat\beta =  \Sigma_c X^t\Sigma^{-1}Z$
 
 Introducing the notation
 
@@ -108,7 +108,7 @@ $\Sigma_c =  (X^t\Sigma^{-1}X)^{-1} $
 
 then
 
-$\hat\beta = \Sigma_c X^t\Sigma^{-1}Z$ 
+$\hat\beta = \Sigma_c X^t\Sigma^{-1}Z$
 
 $\textrm{Var}(\hat\beta)=\Sigma_c$
 
@@ -120,7 +120,7 @@ We can rewrite everything with respect to $Z$
 
 $Z^{UK}_0 =  (\Sigma_0^t\Sigma^{-1} + (X_0 - \Sigma_0^t\Sigma^{-1}X)\Sigma_c X^t\Sigma^{-1})Z \\
 =(\lambda_{SK}^t+(X_0-\lambda_{SK}^tX) \Sigma_c X^t\Sigma^{-1})Z\\
-=\lambda_{UK}^tZ$ 
+=\lambda_{UK}^tZ$
 
 with
 
@@ -222,9 +222,9 @@ $
 
 $Z_0^{SK} = X_0\beta + \lambda_{SK}^t(Z-X\beta) =  \lambda_{SK}^tZ +(X_0 -\lambda_{SK}^tX)\beta$
 
-where 
+where
 
-$\lambda_{SK}=\Sigma^{-1}\Sigma_0$ 
+$\lambda_{SK}=\Sigma^{-1}\Sigma_0$
 
 - the variance of the estimator
 
@@ -236,7 +236,7 @@ $\sigma_{SK}^2 = \textrm{Var}(Z_0-Z_0^{SK}) = \sigma_0^2-\Sigma_0^t\Sigma^{-1}\S
 
 ## Universal Kriging
 
-$\hat\beta =  \Sigma_c X^t\Sigma^{-1}Z$ 
+$\hat\beta =  \Sigma_c X^t\Sigma^{-1}Z$
 
 $\textrm{Var}(\hat\beta)= \Sigma_c $
 
@@ -254,7 +254,7 @@ $\textrm{Var}(Z^{UK}_0) = \textrm{Var}(Z^{SK}_0)-\lambda_{SK}^tX\Sigma_c X^t\lam
 
 - the variance of the estimation error
 
-$\sigma_{UK}^2 
+$\sigma_{UK}^2
 =\sigma_{SK}^2+(X_0-\lambda_{SK}^tX) \Sigma_c (X_0^t-X^t\lambda_{SK})
 $
 
@@ -265,7 +265,7 @@ This is an interesting case for:
 - estimating a Target
 - in a multivariate case (say with N variables)
 - based on the information in the input Db (note that all 'N' variable(s) do not have to be known in the 'heterotopic' case)
-- when the Target contains information on some of the 'N' variables (these are the **collocated** variables) 
+- when the Target contains information on some of the 'N' variables (these are the **collocated** variables)
 
 When working in **Unique** Neighborhood, the relevant information (from the input data base) do not change for any of the targets. But the Collocated information changes at each target.
 

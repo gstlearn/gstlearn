@@ -16,98 +16,97 @@
 namespace gstlrn
 {
 
-SpaceTarget::SpaceTarget(const ASpaceSharedPtr& space,
-                         bool checkExtend,
-                         bool checkCode,
-                         bool checkDate)
-  : SpacePoint(space)
-  , _checkExtend(checkExtend)
-  , _checkCode(checkCode)
-  , _checkDate(checkDate)
-  , _extend()
-  , _code(TEST)
-  , _date(TEST)
-{
-  _initialize();
-}
-
-SpaceTarget::SpaceTarget(const SpaceTarget& r)
-  : SpacePoint(r)
-  , _checkExtend(r._checkExtend)
-  , _checkCode(r._checkCode)
-  , _checkDate(r._checkDate)
-  , _extend(r._extend)
-  , _code(r._code)
-  , _date(r._date)
-{
-}
-
-SpaceTarget& SpaceTarget::operator=(const SpaceTarget& r)
-{
-  if (this != &r)
+  SpaceTarget::SpaceTarget(
+    const ASpaceSharedPtr& space,
+    bool checkExtend,
+    bool checkCode,
+    bool checkDate)
+    : SpacePoint(space)
+    , _checkExtend(checkExtend)
+    , _checkCode(checkCode)
+    , _checkDate(checkDate)
+    , _extend()
+    , _code(TEST)
+    , _date(TEST)
   {
-    SpacePoint::operator=(r);
-    _checkExtend = r._checkExtend;
-    _checkCode   = r._checkCode;
-    _checkDate   = r._checkDate;
-    _extend      = r._extend;
-    _code        = r._code;
-    _date        = r._date;
+    _initialize();
   }
-  return *this;
-}
 
-SpaceTarget::~SpaceTarget()
-{
-}
-
-SpaceTarget* SpaceTarget::create(const VectorDouble& center,
-                                 const VectorDouble& extend,
-                                 double code,
-                                 double date,
-                                 const ASpaceSharedPtr& space)
-{
-  auto* st = new SpaceTarget(space);
-  st->setCoords(center);
-  st->setExtend(extend);
-  st->setCode(code);
-  st->setDate(date);
-  return st;
-}
-
-void SpaceTarget::_initialize()
-{
-  // Fill the extension with zeroes
-  if (_extend.empty())
-    _extend.fill(0., static_cast<Id>(getNDim()));
-}
-
-String SpaceTarget::toString(const AStringFormat* /*strfmt*/) const
-{
-  std::stringstream sstr;
-
-  sstr << "- Center    = " << toStrVectorVec(String(), getCoordsView());
-  if (_checkExtend)
+  SpaceTarget::SpaceTarget(const SpaceTarget& r)
+    : SpacePoint(r)
+    , _checkExtend(r._checkExtend)
+    , _checkCode(r._checkCode)
+    , _checkDate(r._checkDate)
+    , _extend(r._extend)
+    , _code(r._code)
+    , _date(r._date)
   {
-    if (!_extend.empty())
-      sstr << "- Extension = " << toStrVector(String(), _extend);
-    else
-      sstr << "- Extension = (undefined)" << std::endl;
   }
-  if (_checkCode)
+
+  SpaceTarget& SpaceTarget::operator=(const SpaceTarget& r)
   {
-    if (!FFFF(_code))
-      sstr << "- Code      = " << _code << std::endl;
-    else
-      sstr << "- Code      = (undefined)" << std::endl;
+    if (this != &r)
+    {
+      SpacePoint::operator=(r);
+      _checkExtend = r._checkExtend;
+      _checkCode = r._checkCode;
+      _checkDate = r._checkDate;
+      _extend = r._extend;
+      _code = r._code;
+      _date = r._date;
+    }
+    return *this;
   }
-  if (_checkDate)
+
+  SpaceTarget::~SpaceTarget() {}
+
+  SpaceTarget* SpaceTarget::create(
+    const VectorDouble& center,
+    const VectorDouble& extend,
+    double code,
+    double date,
+    const ASpaceSharedPtr& space)
   {
-    if (!FFFF(_date))
-      sstr << "- Date      = " << _date << std::endl;
-    else
-      sstr << "- Date      = (undefined)" << std::endl;
+    auto* st = new SpaceTarget(space);
+    st->setCoords(center);
+    st->setExtend(extend);
+    st->setCode(code);
+    st->setDate(date);
+    return st;
   }
-  return sstr.str();
-}
+
+  void SpaceTarget::_initialize()
+  {
+    // Fill the extension with zeroes
+    if (_extend.empty()) _extend.fill(0., static_cast<Id>(getNDim()));
+  }
+
+  String SpaceTarget::toString(const AStringFormat* /*strfmt*/) const
+  {
+    std::stringstream sstr;
+
+    sstr << "- Center    = " << toStrVectorVec(String(), getCoordsView());
+    if (_checkExtend)
+    {
+      if (!_extend.empty())
+        sstr << "- Extension = " << toStrVector(String(), _extend);
+      else
+        sstr << "- Extension = (undefined)" << std::endl;
+    }
+    if (_checkCode)
+    {
+      if (!FFFF(_code))
+        sstr << "- Code      = " << _code << std::endl;
+      else
+        sstr << "- Code      = (undefined)" << std::endl;
+    }
+    if (_checkDate)
+    {
+      if (!FFFF(_date))
+        sstr << "- Date      = " << _date << std::endl;
+      else
+        sstr << "- Date      = (undefined)" << std::endl;
+    }
+    return sstr.str();
+  }
 } // namespace gstlrn

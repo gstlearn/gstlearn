@@ -19,33 +19,33 @@
 namespace gstlrn
 {
 
-/**
- * Operate the list of Constant options.
- * These options correspond to various keywords chosen from a close list (see ECst.hpp).
- *
- * One option should be used according to the following example:
- *
- *     OptCst::define(ECst::NTCAR, 20)
- *
- * to set that the printing format for a variable should now be on 20 characters (max).
- *
- * To know the current status of all these environmental parameters,
- * use the display() function.
- */
+  /**
+   * Operate the list of Constant options.
+   * These options correspond to various keywords chosen from a close list (see ECst.hpp).
+   *
+   * One option should be used according to the following example:
+   *
+   *     OptCst::define(ECst::NTCAR, 20)
+   *
+   * to set that the printing format for a variable should now be on 20 characters (max).
+   *
+   * To know the current status of all these environmental parameters,
+   * use the display() function.
+   */
 
-class ECst;
+  class ECst;
 
-class GSTLEARN_EXPORT OptCst
-{
-public:
-  static double query(const ECst& option);
-  static double queryByKey(const String& name);
-  static void define(const ECst& option, double value);
-  static void defineByKey(const String& name, double value);
-  static void display(void);
+  class GSTLEARN_EXPORT OptCst
+  {
+  public:
+    static double query(const ECst& option);
+    static double queryByKey(const String& name);
+    static void define(const ECst& option, double value);
+    static void defineByKey(const String& name, double value);
+    static void display(void);
 
-private:
-  //  static std::map<const ECst, double> _cst;
-  static std::map<Id, double> _cst;
-};
+  private:
+    //  static std::map<const ECst, double> _cst;
+    static std::map<Id, double> _cst;
+  };
 } // namespace gstlrn

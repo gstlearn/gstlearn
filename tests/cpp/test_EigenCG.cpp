@@ -9,15 +9,16 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Basic/File.hpp"
-#include "LinearOp/ScaleOp.hpp"
 #include "LinearOp/LinearOpCGSolver.hpp"
+#include "LinearOp/ScaleOp.hpp"
 
-#include <iostream>
 #include <Eigen/IterativeLinearSolvers>
+#include <iostream>
 #include <unsupported/Eigen/IterativeSolvers>
 
 using namespace gstlrn;
-int main(int argc, char *argv[])
+
+int main(int argc, char* argv[])
 {
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
@@ -40,5 +41,4 @@ int main(int argc, char *argv[])
 
   I.evalDirect(o, c);
   std::cout << "c = " << c.toString();
-
 }

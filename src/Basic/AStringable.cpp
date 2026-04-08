@@ -19,61 +19,57 @@
 
 namespace gstlrn
 {
-AStringable::AStringable()
-{
-}
+  AStringable::AStringable() {}
 
-/**
- * Copy constructor: don't copy temporary file info
- */
-AStringable::AStringable(const AStringable& /*r*/)
-{
-}
-/**
- * Assignment operator: don't copy temporary file info
- */
-AStringable& AStringable::operator=(const AStringable& /*r*/)
-{
-  return *this;
-}
+  /**
+   * Copy constructor: don't copy temporary file info
+   */
+  AStringable::AStringable(const AStringable& /*r*/) {}
 
-AStringable::~AStringable()
-{
-}
-
-String AStringable::toString(const AStringFormat* /*strfmt*/) const
-{
-  std::stringstream sstr;
-  sstr << "toString is not yet implemented for " << typeid(*this).name() << std::endl;
-  return sstr.str();
-}
-
-/**
- * Send the String to the display function
- */
-void AStringable::display(const AStringFormat* strfmt) const
-{
-  if (strfmt != nullptr)
+  /**
+   * Assignment operator: don't copy temporary file info
+   */
+  AStringable& AStringable::operator=(const AStringable& /*r*/)
   {
-    if (strfmt->hasTitle())
-    {
-      message_extern(strfmt->getTitle().c_str());
-      message_extern("\n");
-    }
+    return *this;
   }
-  message_extern(toString(strfmt).c_str());
-}
 
-void AStringable::display(Id level) const
-{
-  AStringFormat sf(level);
-  display(&sf);
-}
+  AStringable::~AStringable() {}
 
-void AStringable::printConcreteClassName() const
-{
-  message_extern(typeid(*this).name());
-  message_extern("\n");
-}
+  String AStringable::toString(const AStringFormat* /*strfmt*/) const
+  {
+    std::stringstream sstr;
+    sstr << "toString is not yet implemented for " << typeid(*this).name()
+         << std::endl;
+    return sstr.str();
+  }
+
+  /**
+   * Send the String to the display function
+   */
+  void AStringable::display(const AStringFormat* strfmt) const
+  {
+    if (strfmt != nullptr)
+    {
+      if (strfmt->hasTitle())
+      {
+        message_extern(strfmt->getTitle().c_str());
+        message_extern("\n");
+      }
+    }
+    message_extern(toString(strfmt).c_str());
+  }
+
+  void AStringable::display(Id level) const
+  {
+    AStringFormat sf(level);
+    display(&sf);
+  }
+
+  void AStringable::printConcreteClassName() const
+  {
+    message_extern(typeid(*this).name());
+    message_extern("\n");
+  }
 
 } // namespace gstlrn

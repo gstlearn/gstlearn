@@ -10,137 +10,187 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
-#include "Variogram/VarioParam.hpp"
-#include "Matrix/MatrixSquare.hpp"
-#include "Matrix/MatrixSymmetric.hpp"
-#include "Matrix/MatrixDense.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/NamingConvention.hpp"
-
+#include "Matrix/MatrixDense.hpp"
+#include "Matrix/MatrixSquare.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
+#include "Variogram/VarioParam.hpp"
+#include "gstlearn_export.hpp"
 
 namespace gstlrn
 {
-class Db;
+  class Db;
 
-class GSTLEARN_EXPORT PCA: public AStringable
-{
+  class GSTLEARN_EXPORT PCA: public AStringable
+  {
 
-public:
-  PCA(Id nvar = 0);
-  PCA(const PCA &m);
-  PCA& operator= (const PCA &m);
-  virtual ~PCA();
+  public:
+    PCA(Id nvar = 0);
+    PCA(const PCA& m);
+    PCA& operator=(const PCA& m);
+    virtual ~PCA();
 
-  /// Interface for AStringable
-  String toString(const AStringFormat* strfmt = nullptr) const override;
+    /// Interface for AStringable
+    String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  void init(Id nvar);
+    void init(Id nvar);
 
-  const VectorDouble& getEigVals() const { return _eigval; }
-  double getEigVal(Id ivar) const { return _eigval[ivar]; }
-  const MatrixDense& getEigVecs() const { return _eigvec; }
-  double getEigVec(Id ivar, Id jvar) const { return _eigvec.getValue(ivar,jvar); }
-  VectorDouble getVarianceRatio() const;
-  const VectorDouble& getMeans() const { return _mean; }
-  double getMean(Id ivar) const { return _mean[ivar]; }
-  const MatrixSymmetric& getC0() const { return _c0; }
-  Id getNVar() const { return _nVar; }
-  const MatrixSquare& getF2Zs() const { return _F2Z; }
-  const MatrixSquare& getZ2Fs() const { return _Z2F; }
-  const VectorDouble& getSigmas() const { return _sigma; }
-  double getSigma(Id ivar) const { return _sigma[ivar]; }
+    const VectorDouble& getEigVals() const { return _eigval; }
 
-  void setMeans(const VectorDouble &mean) { _mean = mean; }
-  void setSigmas(const VectorDouble &sigma) { _sigma = sigma; }
-  void setZ2Fs(const MatrixSquare& z2f) { _Z2F = z2f; }
-  void setF2Zs(const MatrixSquare& f2z) { _F2Z = f2z; }
+    double getEigVal(Id ivar) const { return _eigval[ivar]; }
 
-  void setEigVals(VectorDouble& eigval) { _eigval = eigval; }
-  void setEigVal(Id ivar, double eigval) { _eigval[ivar] = eigval; }
-  void setEigVecs(const MatrixDense& eigvec) { _eigvec = eigvec; }
-  void setEigVec(Id ivar, Id jvar, double eigvec) { _eigvec.setValue(ivar,jvar,eigvec); }
+    const MatrixDense& getEigVecs() const { return _eigvec; }
 
-  Id pca_compute(const Db *db, bool verbose = false, bool optionPositive = true);
-  Id maf_compute(Db *db,
-                  const VarioParam &varioparam,
-                  Id ilag0 = 1,
-                  Id idir0 = 0,
-                  bool verbose = false);
-  Id maf_compute_interval(Db *db, double hmin, double hmax, bool verbose = false);
-  Id dbZ2F(Db* db,
-            bool verbose = false,
-            const NamingConvention& namconv = NamingConvention("F", false));
-  Id dbF2Z(Db* db,
-            bool verbose = false,
-            const NamingConvention& namconv = NamingConvention("Z", false));
-  VectorDouble mafOfIndex() const;
+    double getEigVec(Id ivar, Id jvar) const
+    {
+      return _eigvec.getValue(ivar, jvar);
+    }
 
-private:
-  double _getF2Z(Id ivar, Id ifac) const { return _F2Z.getValue(ivar, ifac); }
-  void   _setF2Z(Id ivar, Id ifac, double f2z) {  _F2Z.setValue(ivar, ifac, f2z); }
-  double _getZ2F(Id ifac, Id ivar) const { return _Z2F.getValue(ifac, ivar); }
-  void   _setZ2F(Id ifac, Id ivar, double z2f) {  _Z2F.setValue(ifac, ivar, z2f); }
+    VectorDouble getVarianceRatio() const;
 
-  static VectorBool _getVectorIsotopic(const Db* db);
-  static void _loadData(const Db* db, Id iech, VectorDouble& data);
-  Id  _calculateEigen(bool verbose = false, bool optionPositive = true);
-  Id  _calculateGEigen(bool verbose);
-  void _calculateNormalization(const Db *db,
-                               const VectorBool &isoFlag,
-                               bool verbose = false,
-                               bool flag_nm1 = false);
-  void _covariance0(const Db *db,
-                    const VectorBool &isoFlag,
-                    bool verbose = false,
-                    bool flag_nm1 = false);
-  void _variogramh(Db *db,
-                   const VarioParam &varioparam,
-                   Id ilag0,
-                   Id idir0,
-                   double hmin,
-                   double hmax,
-                   const VectorBool &isoFlag,
-                   bool verbose);
-  static void _center(VectorDouble& data,
-                      const VectorDouble& mean,
-                      const VectorDouble& sigma,
-                      bool flag_center = true,
-                      bool flag_scale  = false);
-  static void _uncenter(VectorDouble& data,
-                        const VectorDouble& mean,
-                        const VectorDouble& sigma,
-                        bool flag_center = true,
-                        bool flag_scale  = false);
-  void _pcaZ2F(Id iptr,
-               Db* db,
-               const VectorBool& isoFlag,
-               const VectorDouble& mean,
-               const VectorDouble& sigma);
-  void _pcaF2Z(Id iptr,
-               Db *db,
-               const VectorBool &isoFlag,
-               const VectorDouble &mean,
-               const VectorDouble &sigma);
-  void _pcaFunctions(bool verbose);
-  void _mafFunctions(bool verbose);
-  Id _mafCompute(Db *db,
-                  const VarioParam &varioparam,
-                  Id ilag0,
-                  Id idir0,
-                  double hmin,
-                  double hmax,
-                  bool verbose);
+    const VectorDouble& getMeans() const { return _mean; }
 
-private:
-  Id          _nVar;
-  VectorDouble _mean;
-  VectorDouble _sigma;
-  VectorDouble          _eigval;
-  MatrixDense     _eigvec;
-  MatrixSymmetric _c0;
-  MatrixSymmetric _gh;
-  MatrixSquare   _Z2F;
-  MatrixSquare   _F2Z;
-};
-}
+    double getMean(Id ivar) const { return _mean[ivar]; }
+
+    const MatrixSymmetric& getC0() const { return _c0; }
+
+    Id getNVar() const { return _nVar; }
+
+    const MatrixSquare& getF2Zs() const { return _F2Z; }
+
+    const MatrixSquare& getZ2Fs() const { return _Z2F; }
+
+    const VectorDouble& getSigmas() const { return _sigma; }
+
+    double getSigma(Id ivar) const { return _sigma[ivar]; }
+
+    void setMeans(const VectorDouble& mean) { _mean = mean; }
+
+    void setSigmas(const VectorDouble& sigma) { _sigma = sigma; }
+
+    void setZ2Fs(const MatrixSquare& z2f) { _Z2F = z2f; }
+
+    void setF2Zs(const MatrixSquare& f2z) { _F2Z = f2z; }
+
+    void setEigVals(VectorDouble& eigval) { _eigval = eigval; }
+
+    void setEigVal(Id ivar, double eigval) { _eigval[ivar] = eigval; }
+
+    void setEigVecs(const MatrixDense& eigvec) { _eigvec = eigvec; }
+
+    void setEigVec(Id ivar, Id jvar, double eigvec)
+    {
+      _eigvec.setValue(ivar, jvar, eigvec);
+    }
+
+    Id pca_compute(
+      const Db* db,
+      bool verbose = false,
+      bool optionPositive = true);
+    Id maf_compute(
+      Db* db,
+      const VarioParam& varioparam,
+      Id ilag0 = 1,
+      Id idir0 = 0,
+      bool verbose = false);
+    Id maf_compute_interval(
+      Db* db,
+      double hmin,
+      double hmax,
+      bool verbose = false);
+    Id dbZ2F(
+      Db* db,
+      bool verbose = false,
+      const NamingConvention& namconv = NamingConvention("F", false));
+    Id dbF2Z(
+      Db* db,
+      bool verbose = false,
+      const NamingConvention& namconv = NamingConvention("Z", false));
+    VectorDouble mafOfIndex() const;
+
+  private:
+    double _getF2Z(Id ivar, Id ifac) const { return _F2Z.getValue(ivar, ifac); }
+
+    void _setF2Z(Id ivar, Id ifac, double f2z)
+    {
+      _F2Z.setValue(ivar, ifac, f2z);
+    }
+
+    double _getZ2F(Id ifac, Id ivar) const { return _Z2F.getValue(ifac, ivar); }
+
+    void _setZ2F(Id ifac, Id ivar, double z2f)
+    {
+      _Z2F.setValue(ifac, ivar, z2f);
+    }
+
+    static VectorBool _getVectorIsotopic(const Db* db);
+    static void _loadData(const Db* db, Id iech, VectorDouble& data);
+    Id _calculateEigen(bool verbose = false, bool optionPositive = true);
+    Id _calculateGEigen(bool verbose);
+    void _calculateNormalization(
+      const Db* db,
+      const VectorBool& isoFlag,
+      bool verbose = false,
+      bool flag_nm1 = false);
+    void _covariance0(
+      const Db* db,
+      const VectorBool& isoFlag,
+      bool verbose = false,
+      bool flag_nm1 = false);
+    void _variogramh(
+      Db* db,
+      const VarioParam& varioparam,
+      Id ilag0,
+      Id idir0,
+      double hmin,
+      double hmax,
+      const VectorBool& isoFlag,
+      bool verbose);
+    static void _center(
+      VectorDouble& data,
+      const VectorDouble& mean,
+      const VectorDouble& sigma,
+      bool flag_center = true,
+      bool flag_scale = false);
+    static void _uncenter(
+      VectorDouble& data,
+      const VectorDouble& mean,
+      const VectorDouble& sigma,
+      bool flag_center = true,
+      bool flag_scale = false);
+    void _pcaZ2F(
+      Id iptr,
+      Db* db,
+      const VectorBool& isoFlag,
+      const VectorDouble& mean,
+      const VectorDouble& sigma);
+    void _pcaF2Z(
+      Id iptr,
+      Db* db,
+      const VectorBool& isoFlag,
+      const VectorDouble& mean,
+      const VectorDouble& sigma);
+    void _pcaFunctions(bool verbose);
+    void _mafFunctions(bool verbose);
+    Id _mafCompute(
+      Db* db,
+      const VarioParam& varioparam,
+      Id ilag0,
+      Id idir0,
+      double hmin,
+      double hmax,
+      bool verbose);
+
+  private:
+    Id _nVar;
+    VectorDouble _mean;
+    VectorDouble _sigma;
+    VectorDouble _eigval;
+    MatrixDense _eigvec;
+    MatrixSymmetric _c0;
+    MatrixSymmetric _gh;
+    MatrixSquare _Z2F;
+    MatrixSquare _F2Z;
+  };
+} // namespace gstlrn

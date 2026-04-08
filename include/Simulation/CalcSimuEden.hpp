@@ -47,12 +47,13 @@ namespace gstlrn
                                       public ISkinFunctions
   {
   public:
-    CalcSimuEden(Id nfacies = 0,
-                 Id nfluids = 0,
-                 Id niter = 1,
-                 Id nbsimu = 0,
-                 Id seed = 4324324,
-                 bool verbose = false);
+    CalcSimuEden(
+      Id nfacies = 0,
+      Id nfluids = 0,
+      Id niter = 1,
+      Id nbsimu = 0,
+      Id seed = 4324324,
+      bool verbose = false);
     CalcSimuEden(const CalcSimuEden& r) = delete;
     CalcSimuEden& operator=(const CalcSimuEden& r) = delete;
     virtual ~CalcSimuEden();

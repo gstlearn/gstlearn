@@ -50,7 +50,7 @@ jobs:
     - name: Fix dubious ownership
       run: |
         git config --global --add safe.directory $GITHUB_WORKSPACE
-        
+
     - name: Install dependencies
       run: |
         dnf update -y
@@ -68,7 +68,7 @@ jobs:
         # A list of supported versions can be found here:
         # https://github.com/MarkusJx/prebuilt-boost/blob/main/versions-manifest.json
         boost_version: 1.83.0
-      
+
     - name: Register the python version
       run: |
         echo "/opt/python/${{ matrix.python }}/bin" >> $GITHUB_PATH

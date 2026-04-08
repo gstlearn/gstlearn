@@ -13,7 +13,7 @@ output:
 fontsize: 8pt
 theme: Boadilla
 colortheme: beaver
-editor_options: 
+editor_options:
   chunk_output_type: console
 ---
 
@@ -22,9 +22,9 @@ editor_options:
 <!-- CATEGORY: Courses -->
 
 ```{r setup,include=FALSE, fig.show='hide'}
-knitr::opts_chunk$set(fig.width=4, fig.height=4, 
+knitr::opts_chunk$set(fig.width=4, fig.height=4,
                       out.width="50%",
-                      fig.align = "center") 
+                      fig.align = "center")
 ```
 
 \frametitle{Loading Data}
@@ -240,7 +240,7 @@ modelM
 multi.varmod(varioM,modelM)
 ```
 
---- 
+---
 
 \frametitle{Multivariable Factorial Kriging Analysis}
 
@@ -287,4 +287,3 @@ p = p + plot.correlation(grid, namex="Mono.Fill.P", namey="Multi.Fill.P", bins=1
 p = p + plot.decoration(xlab="P Filtered (Mono)",ylab="P Filtered (Multi)")
 plot.end(p)
 ```
-

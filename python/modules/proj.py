@@ -21,7 +21,7 @@ except ModuleNotFoundError as ex:
 """ Generate projected x', y' coordinates from x, y coordinates.
     x, y: Data coordinates
     crsFrom: Coordinate Reference System of the input coordinates. Can be anything accepted
-    by pyproj package, such as an authority string (eg “EPSG:4326”) 
+    by pyproj package, such as an authority string (eg “EPSG:4326”)
     crsTo: Coordinate Reference System of the output coordinates. Can be anything accepted
     by pyproj package, such as an authority string (eg “EPSG:2154”)
     Returns: Pair of vector of projected coordinates

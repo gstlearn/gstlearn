@@ -16,36 +16,41 @@
 
 namespace gstlrn
 {
-class CovContext;
+  class CovContext;
 
-class GSTLEARN_EXPORT KernelCauchyGen: public AKernel
-{
-public:
-  KernelCauchyGen(const CovContext& ctx);
-  KernelCauchyGen(const KernelCauchyGen& r);
-  KernelCauchyGen& operator=(const KernelCauchyGen& r);
-  virtual ~KernelCauchyGen();
+  class GSTLEARN_EXPORT KernelCauchyGen: public AKernel
+  {
+  public:
+    KernelCauchyGen(const CovContext& ctx);
+    KernelCauchyGen(const KernelCauchyGen& r);
+    KernelCauchyGen& operator=(const KernelCauchyGen& r);
+    virtual ~KernelCauchyGen();
 
-  String getFormula() const override;
-  String getCovName() const override { return "Generalized Cauchy"; };
-  Id getMinOrder() const override { return -1; };
-  bool getCompatibleSpaceR() const override { return true; };
+    String getFormula() const override;
 
-  bool hasParam() const override { return true; };
-  double getParMax() const override { return MAX_PARAM; };
-  double getScadef() const override;
-  //  double getAlpha() const { return _alpha; };
-  //  bool setAlpha(double alpha);
+    String getCovName() const override { return "Generalized Cauchy"; };
 
-  // Specific for Spectral Simulation Method
-  bool isValidForSimulation(const ESimuType& simuType) const override;
-  MatrixDense simulateSpectralOmega(Id nb) const override;
+    Id getMinOrder() const override { return -1; };
 
-protected:
-  double _evaluateCov(double h) const override;
+    bool getCompatibleSpaceR() const override { return true; };
 
-private:
-  //  double _alpha;
-};
+    bool hasParam() const override { return true; };
+
+    double getParMax() const override { return MAX_PARAM; };
+
+    double getScadef() const override;
+    //  double getAlpha() const { return _alpha; };
+    //  bool setAlpha(double alpha);
+
+    // Specific for Spectral Simulation Method
+    bool isValidForSimulation(const ESimuType& simuType) const override;
+    MatrixDense simulateSpectralOmega(Id nb) const override;
+
+  protected:
+    double _evaluateCov(double h) const override;
+
+  private:
+    //  double _alpha;
+  };
 
 } // namespace gstlrn

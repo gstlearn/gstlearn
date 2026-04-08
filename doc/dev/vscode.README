@@ -9,4 +9,3 @@ When a new upgrade is available (bouton left button witho VSCODE):
 sudo dpkg -i file.deb
 
 Finished.
-

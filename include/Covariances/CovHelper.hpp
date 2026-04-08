@@ -10,24 +10,25 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
 #include "Basic/VectorT.hpp"
+#include "gstlearn_export.hpp"
 
 namespace gstlrn
-{ 
-class GSTLEARN_EXPORT CovHelper
 {
-public:
-  CovHelper() {};
-  ~CovHelper() {} ;
-  CovHelper(const CovHelper&) = delete;
-  CovHelper& operator=(const CovHelper&) = delete;
+  class GSTLEARN_EXPORT CovHelper
+  {
+  public:
+    CovHelper() {};
+    ~CovHelper() {};
+    CovHelper(const CovHelper&) = delete;
+    CovHelper& operator=(const CovHelper&) = delete;
 
-  static VectorString getAllCovariances(Id ndim = 2,
-                                        Id minorder = -1,
-                                        bool hasrange = false,
-                                        bool flagSimtub = false,
-                                        bool flagSimuSpectral = false);
-};
+    static VectorString getAllCovariances(
+      Id ndim = 2,
+      Id minorder = -1,
+      bool hasrange = false,
+      bool flagSimtub = false,
+      bool flagSimuSpectral = false);
+  };
 
-}
+} // namespace gstlrn

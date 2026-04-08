@@ -17,35 +17,42 @@
 
 namespace gstlrn
 {
-class GSTLEARN_EXPORT FracDesc: public AStringable
-{
-public:
-  FracDesc();
-  FracDesc(const FracDesc& r);
-  FracDesc& operator=(const FracDesc& r);
-  virtual ~FracDesc();
+  class GSTLEARN_EXPORT FracDesc: public AStringable
+  {
+  public:
+    FracDesc();
+    FracDesc(const FracDesc& r);
+    FracDesc& operator=(const FracDesc& r);
+    virtual ~FracDesc();
 
-  /// Interface for AStringable
-  String toString(const AStringFormat* strfmt = nullptr) const override;
+    /// Interface for AStringable
+    String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  Id getNPoint() const { return static_cast<Id>(_x.size()); }
+    Id getNPoint() const { return static_cast<Id>(_x.size()); }
 
-  Id getFamily() const { return _family; }
-  void setFamily(Id family) { _family = family; }
-  double getOrient() const { return _orient; }
-  void setOrient(double orient) { _orient = orient; }
-  double getXXF(Id i) const { return _x[i]; }
-  double getYYF(Id i) const { return _y[i]; }
-  void setXXF(Id i, double value) { _x[i] = value; }
-  void setYYF(Id i, double value) { _y[i] = value; }
+    Id getFamily() const { return _family; }
 
-  void addPoint(double x, double y);
-  double fractureExtension(double cote, double dcote) const;
+    void setFamily(Id family) { _family = family; }
 
-private:
-  Id _family;
-  double _orient;
-  VectorDouble _x;
-  VectorDouble _y;
-};
+    double getOrient() const { return _orient; }
+
+    void setOrient(double orient) { _orient = orient; }
+
+    double getXXF(Id i) const { return _x[i]; }
+
+    double getYYF(Id i) const { return _y[i]; }
+
+    void setXXF(Id i, double value) { _x[i] = value; }
+
+    void setYYF(Id i, double value) { _y[i] = value; }
+
+    void addPoint(double x, double y);
+    double fractureExtension(double cote, double dcote) const;
+
+  private:
+    Id _family;
+    double _orient;
+    VectorDouble _x;
+    VectorDouble _y;
+  };
 } // namespace gstlrn

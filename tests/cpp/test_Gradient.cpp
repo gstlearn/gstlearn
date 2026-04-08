@@ -85,14 +85,16 @@ int main(int argc, char* argv[])
   // Gradient with Analytic solution
   mestitle(0, "With Analytical Solution");
   flagForceNumeric = false;
-  (void)krigingGradient(data, grid, model, neigh, true, true, ballradius, flagForceNumeric,
-                        NamingConvention("KrigGradAnalytic"));
+  (void)krigingGradient(
+    data, grid, model, neigh, true, true, ballradius, flagForceNumeric,
+    NamingConvention("KrigGradAnalytic"));
 
   // Gradient with Numeric solution
   mestitle(0, "With Numerical Solution");
   flagForceNumeric = true;
-  (void)krigingGradient(data, grid, model, neigh, true, true, ballradius, flagForceNumeric,
-                        NamingConvention("KrigGradNumeric"));
+  (void)krigingGradient(
+    data, grid, model, neigh, true, true, ballradius, flagForceNumeric,
+    NamingConvention("KrigGradNumeric"));
 
   // Free memory
   delete data;

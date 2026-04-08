@@ -17,56 +17,61 @@
 
 namespace gstlrn
 {
-class AMatrix;
-class MatrixDense;
+  class AMatrix;
+  class MatrixDense;
 
-class GSTLEARN_EXPORT ACholesky: public ASimulable
-{
-public:
-  ACholesky(const AMatrix& mat);
-  
-  ACholesky(const ACholesky& m) = default;
-  ACholesky(ACholesky&& m) noexcept;
-  ACholesky& operator=(const ACholesky& m) = default;
-  ACholesky& operator=(ACholesky&& m) noexcept;
-  virtual ~ACholesky() = default;
-
-  Id getSize() const override { return _size; }
-  Id solve(const constvect vecin, vect vecout) const;
-  Id InvLtX(const constvect whitenoise, vect vecout) const;
-  Id LtX(const constvect whitenoise, vect vecout) const;
-  Id LX(const constvect whitenoise, vect vecout) const;
-  Id InvLX(const constvect whitenoise, vect vecout) const;
-  Id solveMatrix(const MatrixDense& b, MatrixDense& x) const;
-  bool isReady() const { return _ready; }
-  VectorDouble invLtX(const VectorDouble& vecin) const;
-  VectorDouble LtX(const VectorDouble& vecin) const;
-  VectorDouble LX(const VectorDouble& vecin) const;
-  VectorDouble invLX(const VectorDouble& vecin) const;
-  VectorDouble solveX(const VectorDouble& vecin) const;
-
-  virtual double computeLogDeterminant() const                   = 0;
-  virtual Id addSolveX(const constvect vecin, vect vecout) const = 0;
-  virtual Id addInvLtX(const constvect vecin, vect vecout) const = 0;
-  virtual Id addLtX(const constvect vecin, vect vecout) const    = 0;
-  virtual Id addLX(const constvect vecin, vect vecout) const     = 0;
-  virtual Id addInvLX(const constvect vecin, vect vecout) const  = 0;
-
-protected:
-  void _setReady() const
+  class GSTLEARN_EXPORT ACholesky: public ASimulable
   {
-    _ready = true;
-    _empty = false;
-  }
+  public:
+    ACholesky(const AMatrix& mat);
 
-private:
-  Id _addToDest(const constvect vecin, vect vecout) const override;
-  Id _addSimulateToDest(const constvect whitenoise, vect vecout) const override;
-  double computeLogDet(Id nMC = 1) const override; // just for ASimulable interface
+    ACholesky(const ACholesky& m) = default;
+    ACholesky(ACholesky&& m) noexcept;
+    ACholesky& operator=(const ACholesky& m) = default;
+    ACholesky& operator=(ACholesky&& m) noexcept;
+    virtual ~ACholesky() = default;
 
-protected:
-  Id _size;
-  mutable bool _ready;
-  mutable bool _empty;
-};
+    Id getSize() const override { return _size; }
+
+    Id solve(const constvect vecin, vect vecout) const;
+    Id InvLtX(const constvect whitenoise, vect vecout) const;
+    Id LtX(const constvect whitenoise, vect vecout) const;
+    Id LX(const constvect whitenoise, vect vecout) const;
+    Id InvLX(const constvect whitenoise, vect vecout) const;
+    Id solveMatrix(const MatrixDense& b, MatrixDense& x) const;
+
+    bool isReady() const { return _ready; }
+
+    VectorDouble invLtX(const VectorDouble& vecin) const;
+    VectorDouble LtX(const VectorDouble& vecin) const;
+    VectorDouble LX(const VectorDouble& vecin) const;
+    VectorDouble invLX(const VectorDouble& vecin) const;
+    VectorDouble solveX(const VectorDouble& vecin) const;
+
+    virtual double computeLogDeterminant() const = 0;
+    virtual Id addSolveX(const constvect vecin, vect vecout) const = 0;
+    virtual Id addInvLtX(const constvect vecin, vect vecout) const = 0;
+    virtual Id addLtX(const constvect vecin, vect vecout) const = 0;
+    virtual Id addLX(const constvect vecin, vect vecout) const = 0;
+    virtual Id addInvLX(const constvect vecin, vect vecout) const = 0;
+
+  protected:
+    void _setReady() const
+    {
+      _ready = true;
+      _empty = false;
+    }
+
+  private:
+    Id _addToDest(const constvect vecin, vect vecout) const override;
+    Id _addSimulateToDest(const constvect whitenoise, vect vecout)
+      const override;
+    double
+      computeLogDet(Id nMC = 1) const override; // just for ASimulable interface
+
+  protected:
+    Id _size;
+    mutable bool _ready;
+    mutable bool _empty;
+  };
 } // namespace gstlrn

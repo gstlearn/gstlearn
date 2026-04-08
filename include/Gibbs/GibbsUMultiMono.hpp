@@ -17,32 +17,33 @@
 
 namespace gstlrn
 {
-class Db;
-class Model;
+  class Db;
+  class Model;
 
-/**
- * This class is designated for Gibbs with the following properties
- * - Unique (absent) Neighborhood
- * - Multivariate case: Multiple Monovariate systems
- * (even if the model is provided as multivariate)
- */
-class GSTLEARN_EXPORT GibbsUMultiMono: public GibbsMultiMono
-{
-public:
-  GibbsUMultiMono();
-  GibbsUMultiMono(Db* db, const std::vector<Model*>& models, double rho);
-  GibbsUMultiMono(const GibbsUMultiMono& r);
-  GibbsUMultiMono& operator=(const GibbsUMultiMono& r);
-  virtual ~GibbsUMultiMono();
+  /**
+   * This class is designated for Gibbs with the following properties
+   * - Unique (absent) Neighborhood
+   * - Multivariate case: Multiple Monovariate systems
+   * (even if the model is provided as multivariate)
+   */
+  class GSTLEARN_EXPORT GibbsUMultiMono: public GibbsMultiMono
+  {
+  public:
+    GibbsUMultiMono();
+    GibbsUMultiMono(Db* db, const std::vector<Model*>& models, double rho);
+    GibbsUMultiMono(const GibbsUMultiMono& r);
+    GibbsUMultiMono& operator=(const GibbsUMultiMono& r);
+    virtual ~GibbsUMultiMono();
 
-  void update(VectorVectorDouble& y, Id isimu, Id ipgs, Id iter) override;
-  Id covmatAlloc(bool verbose, bool verboseTimer = false) override;
+    void update(VectorVectorDouble& y, Id isimu, Id ipgs, Id iter) override;
+    Id covmatAlloc(bool verbose, bool verboseTimer = false) override;
 
-private:
-  double _getVariance(Id ivar, Id iact) const;
-  double _getEstimate(Id icase, Id ivar, Id iact, VectorVectorDouble& y) const;
+  private:
+    double _getVariance(Id ivar, Id iact) const;
+    double
+      _getEstimate(Id icase, Id ivar, Id iact, VectorVectorDouble& y) const;
 
-private:
-  std::vector<MatrixSquare> _covmat; // One matrix per variable
-};
+  private:
+    std::vector<MatrixSquare> _covmat; // One matrix per variable
+  };
 } // namespace gstlrn

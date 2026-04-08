@@ -15,14 +15,16 @@
 #include "Basic/VectorNumT.hpp"
 
 namespace gstlrn
-{ 
-class GSTLEARN_EXPORT IOptimCost {
+{
+  class GSTLEARN_EXPORT IOptimCost
+  {
 
-public:
-  IOptimCost() {};
-  virtual ~IOptimCost() {};
-  virtual void calculateGradient(const VectorDouble& indic,
-                                 const VectorDouble& sval,
-                                 double* normgrad) = 0;
-};
-}
+  public:
+    IOptimCost() {};
+    virtual ~IOptimCost() {};
+    virtual void calculateGradient(
+      const VectorDouble& indic,
+      const VectorDouble& sval,
+      double* normgrad) = 0;
+  };
+} // namespace gstlrn

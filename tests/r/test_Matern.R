@@ -20,7 +20,7 @@ compute_tau <- function(nu, r) {
   nv = length(nu)
   m = matrix(NaN, nv, nv)
   outer(X = 1:nv, Y = 1:nv, FUN = function(i,j) {
-    nu_ij = (nu[i]+nu[j])/2 
+    nu_ij = (nu[i]+nu[j])/2
     r_ij = sqrt((r[i]^2+r[j]^2)/2)
     gamma(nu_ij)/sqrt(gamma(nu[i])*gamma(nu[j])) *
       r[i]^nu[i] * r[j]^nu[j] / r_ij^(2*nu_ij)
@@ -51,20 +51,20 @@ gsSigma$isDefinitePositive()
 
 # XF: Old implementation
 # cor_mono = CorMatern(
-#   ranges = ranges, 
-#   angle = angles, 
-#   coeffScales = rr[ivar], 
-#   params = params[ivar], 
-#   sigma = gsSigma, 
+#   ranges = ranges,
+#   angle = angles,
+#   coeffScales = rr[ivar],
+#   params = params[ivar],
+#   sigma = gsSigma,
 #   flagRange = flag.range)
 
 cor_mono = CorMatern_create(
   type = ECov_MATERN(),
-  ctxt = CovContext(ndim = 2, nvar = 1), 
-  params = params[ivar], 
-  kappas =  rr[ivar], 
-  ranges = ranges, 
-  angle = angles, 
+  ctxt = CovContext(ndim = 2, nvar = 1),
+  params = params[ivar],
+  kappas =  rr[ivar],
+  ranges = ranges,
+  angle = angles,
   flagRange = flag.range)
 
 nvar = cor_mono$getNVar()
@@ -73,8 +73,8 @@ stopifnot(nvar == 1)
 # compute the correlations
 for (ivar in 1:nvar) {
   for (jvar in ivar:nvar) {
-    mod_mat = Model_createFromParam(type = ECov_MATERN(), 
-                                    ranges = ranges*r_ij[ivar, jvar], angles = angles, 
+    mod_mat = Model_createFromParam(type = ECov_MATERN(),
+                                    ranges = ranges*r_ij[ivar, jvar], angles = angles,
                                     sill = tau[ivar,jvar],
                                     param = nu_ij[ivar, jvar],
                                     flagRange = flag.range)
@@ -101,20 +101,20 @@ gsSigma$isDefinitePositive()
 
 # XF: Old implementation
 # cor_tri = CorMatern(
-#   ranges = ranges, 
-#   angle = angles, 
-#   coeffScales = rr, 
-#   params = params, 
-#   sigma = gsSigma, 
+#   ranges = ranges,
+#   angle = angles,
+#   coeffScales = rr,
+#   params = params,
+#   sigma = gsSigma,
 #   flagRange = flag.range)
 
 cor_tri = CorMatern_create(
   type = ECov_MATERN(),
-  ctxt = CovContext(ndim = 2, nvar = 3), 
-  params = params, 
-  kappas =  rr, 
-  ranges = ranges, 
-  angle = angles, 
+  ctxt = CovContext(ndim = 2, nvar = 3),
+  params = params,
+  kappas =  rr,
+  ranges = ranges,
+  angle = angles,
   flagRange = flag.range)
 
 nvar = cor_tri$getNVar()
@@ -133,8 +133,8 @@ stopifnot(all(abs(C0 - tau) < 1.e-12))
 # compute the correlations
 for (ivar in 1:nvar) {
   for (jvar in ivar:nvar) {
-    mod_mat = Model_createFromParam(type = ECov_MATERN(), 
-                                    ranges = ranges/r_ij[ivar, jvar], angles = angles, 
+    mod_mat = Model_createFromParam(type = ECov_MATERN(),
+                                    ranges = ranges/r_ij[ivar, jvar], angles = angles,
                                     sill = tau[ivar,jvar],
                                     param = nu_ij[ivar, jvar],
                                     flagRange = flag.range)
@@ -153,7 +153,7 @@ model = ModelGeneric(ctxt)
 a = model$setCov(cor_tri)
 grid = DbGrid_create(c(100,100))
 nmc = NamingConvention("Simu")
-simuSpectral(dbin = NULL, dbout = grid, model = model, nbsimu = 1, seed = 43431, ns = 100, nd = 100, 
+simuSpectral(dbin = NULL, dbout = grid, model = model, nbsimu = 1, seed = 43431, ns = 100, nd = 100,
 verbose = T, namconv = nmc)
 
 print("All tests are ok.")

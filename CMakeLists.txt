@@ -119,7 +119,7 @@ endif()
 
 if (BUILD_PYTHON)
   add_subdirectory(python)
-  set(SWIG ON)  
+  set(SWIG ON)
 endif()
 
 if (BUILD_R)

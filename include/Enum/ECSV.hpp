@@ -12,9 +12,8 @@
 
 #include "Enum/AEnum.hpp"
 
-#define ENUM_CSV ECSV, ENGLISH,             \
-                 FRENCH, 0, "French CSV",   \
-                 ENGLISH, 1, "English CSV", \
-                 TABULATED, 2, "Tabulated CSV"
+#define ENUM_CSV                                                               \
+  ECSV, ENGLISH, FRENCH, 0, "French CSV", ENGLISH, 1, "English CSV",           \
+    TABULATED, 2, "Tabulated CSV"
 
 ENUM_DECLARE(ENUM_CSV)

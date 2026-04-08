@@ -91,7 +91,7 @@ endif()
 #add_compile_options(-O0)
 
 # C++ header location (keep the trailing '/')
-set(INCLUDES 
+set(INCLUDES
     ${PROJECT_SOURCE_DIR}/include/)
 # C++ source path (prevent using GLOB)
 include(src/all_sources.cmake)
@@ -132,8 +132,8 @@ mark_as_advanced(USE_BOOST_SPAN)
 find_package(OpenMP REQUIRED)
 
 # Look for Eigen
-find_package(Eigen3 REQUIRED) 
-if(Eigen3_FOUND) 
+find_package(Eigen3 REQUIRED)
+if(Eigen3_FOUND)
     message(STATUS "Found Eigen3 version ${Eigen3_VERSION} in ${Eigen3_DIR}")
 endif()
 
@@ -197,7 +197,7 @@ foreach(FLAVOR ${FLAVORS})
   set_target_properties(${FLAVOR} PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
   # append a 'd' to the output file name of the debug build targets
   set_target_properties(${FLAVOR} PROPERTIES DEBUG_POSTFIX "d")
-  
+
   # Set library version
   set_target_properties(${FLAVOR} PROPERTIES VERSION ${PROJECT_FULL_VERSION})
 
@@ -227,7 +227,7 @@ foreach(FLAVOR ${FLAVORS})
     target_include_directories(${FLAVOR} PRIVATE ${HDF5_INCLUDE_DIRS})
     target_link_libraries(${FLAVOR} PRIVATE ${HDF5_LIBRARIES})
   endif()
-  
+
   # Link to specific libraries (only for Microsoft Visual Studio)
   if (MSVC)
     target_link_libraries(${FLAVOR} PUBLIC iphlpapi rpcrt4)
@@ -251,7 +251,7 @@ foreach(FLAVOR ${FLAVORS})
          NAMESPACE ${PROJECT_NAME}::
          FILE ${GSTLEARN_CMAKE_FILE}
          APPEND)
-         
+
 endforeach(FLAVOR ${FLAVORS})
 ############################## End loop on flavors
 

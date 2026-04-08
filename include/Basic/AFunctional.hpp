@@ -10,29 +10,30 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
 #include "Basic/VectorNumT.hpp"
+#include "gstlearn_export.hpp"
 
 namespace gstlrn
-{ 
-class Db;
-
-class GSTLEARN_EXPORT AFunctional
 {
-public:
-  AFunctional(Id ndim);
-  AFunctional(const AFunctional &m);
-  AFunctional& operator=(const AFunctional &m);
-  virtual ~AFunctional();
+  class Db;
 
-  virtual double getFunctionValue(const VectorDouble& pos) const = 0;
+  class GSTLEARN_EXPORT AFunctional
+  {
+  public:
+    AFunctional(Id ndim);
+    AFunctional(const AFunctional& m);
+    AFunctional& operator=(const AFunctional& m);
+    virtual ~AFunctional();
 
-  Id  getNdim() const { return _ndim; }
-  void setNdim(Id ndim) { _ndim = ndim; }
+    virtual double getFunctionValue(const VectorDouble& pos) const = 0;
 
-  VectorDouble getFunctionValues(const Db *db, bool useSel = true) const;
+    Id getNdim() const { return _ndim; }
 
-private:
-  Id _ndim;
-};
-}
+    void setNdim(Id ndim) { _ndim = ndim; }
+
+    VectorDouble getFunctionValues(const Db* db, bool useSel = true) const;
+
+  private:
+    Id _ndim;
+  };
+} // namespace gstlrn

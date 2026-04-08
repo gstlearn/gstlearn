@@ -27,11 +27,12 @@
 
 namespace gstlrn
 {
-  CalcSimuSpectral::CalcSimuSpectral(Id nbsimu,
-                                     Id ns,
-                                     Id nd,
-                                     Id seed,
-                                     bool verbose)
+  CalcSimuSpectral::CalcSimuSpectral(
+    Id nbsimu,
+    Id ns,
+    Id nd,
+    Id seed,
+    bool verbose)
     : ACalcSimulation(nbsimu, seed, verbose)
     , _iattOut(-1)
     , _ns(ns)
@@ -67,8 +68,7 @@ namespace gstlrn
     {
       messerr(
         "The Space dimension of 'dbout'(%d) should match the one of Model(%d)",
-        getDbout()->getNDim(),
-        _getNDim());
+        getDbout()->getNDim(), _getNDim());
       return 1;
     }
 
@@ -104,10 +104,10 @@ namespace gstlrn
         const auto* cova = getModelGeneric()->getCov();
         if (!cova->isValidForSimulation(simuType))
         {
-          messerr("The covariance component %d of the Model is not valid for "
-                  "%s simulation",
-                  is + 1,
-                  simuType.getKey());
+          messerr(
+            "The covariance component %d of the Model is not valid for "
+            "%s simulation",
+            is + 1, simuType.getKey());
           return false;
         }
       }
@@ -117,10 +117,10 @@ namespace gstlrn
           dynamic_cast<const CovAniso*>(modellist->getCovBase(is));
         if (!covbase->isValidForSimulation(simuType))
         {
-          messerr("The covariance component %d of the Model is not valid for "
-                  "%s Simulation",
-                  is + 1,
-                  simuType.getKey());
+          messerr(
+            "The covariance component %d of the Model is not valid for "
+            "%s Simulation",
+            is + 1, simuType.getKey());
           return false;
         }
       }
@@ -214,15 +214,9 @@ namespace gstlrn
         ps.append(delim + "S" + std::to_string(isimu + 1));
         namconvS.setPrefix(ps);
         namconvS.setNamesAndLocators(
-          nullptr,
-          VectorString(),
-          ELoc::Z,
-          1,
-          getDbout(),
+          nullptr, VectorString(), ELoc::Z, 1, getDbout(),
           //                                   _iattOut + isimu * nvar + ivar, "", 1);
-          _iattOut + ivar * nbsimu + isimu,
-          "",
-          1);
+          _iattOut + ivar * nbsimu + isimu, "", 1);
       }
     return true;
   }

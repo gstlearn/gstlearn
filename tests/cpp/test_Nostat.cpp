@@ -22,6 +22,7 @@
 #include <cmath>
 
 using namespace gstlrn;
+
 /****************************************************************************/
 /*!
  ** Main Program
@@ -45,7 +46,7 @@ int main(int argc, char* argv[])
   ASerializable::setPrefixName("test_Nostat-");
 
   // Creating the 2-D Db
-  VectorInt nx       = {101, 101};
+  VectorInt nx = {101, 101};
   DbGrid* workingDbc = DbGrid::create(nx);
 
   // Creating the Non-stationary Model
@@ -54,7 +55,7 @@ int main(int argc, char* argv[])
   FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
   CovAniso* cova = model->getCovAniso(0);
 
-  bool flagDirect  = true;
+  bool flagDirect = true;
   bool flagByAngle = false;
   bool flagInquiry = false;
 
@@ -85,16 +86,17 @@ int main(int argc, char* argv[])
   // Inquiry the value of the Non-stationary parameters at a given sample
   if (flagInquiry)
   {
-    Id target         = 1000;
+    Id target = 1000;
     VectorDouble vect = workingDbc->getSampleLocators(ELoc::NOSTAT, target);
     printVector(vect, "Non-stationary parameters at sample", true, true);
   }
 
   Id useCholesky = 0;
   law_set_random_seed(13256);
-  (void)simulateSPDE(nullptr, workingDbc, model, 1, useCholesky,
-                     nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, SPDEParam(), false,
-                     NamingConvention("Simu", true, false));
+  (void)simulateSPDE(
+    nullptr, workingDbc, model, 1, useCholesky, nullptr, nullptr, nullptr,
+    nullptr, nullptr, nullptr, SPDEParam(), false,
+    NamingConvention("Simu", true, false));
 
   DbStringFormat dbfmt(FLAG_STATS, {"Simu"});
   workingDbc->display(&dbfmt);

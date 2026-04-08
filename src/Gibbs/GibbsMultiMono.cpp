@@ -21,225 +21,224 @@
 
 namespace gstlrn
 {
-GibbsMultiMono::GibbsMultiMono()
-  : AGibbs()
-  , _models()
-  , _rho(0.)
-{
-}
-
-GibbsMultiMono::GibbsMultiMono(Db* db, const std::vector<Model*>& models, double rho)
-  : AGibbs(db)
-  , _models(models)
-  , _rho(rho)
-{
-}
-
-GibbsMultiMono::GibbsMultiMono(const GibbsMultiMono& r)
-  : AGibbs(r)
-  , _models(r._models)
-  , _rho(r._rho)
-{
-}
-
-GibbsMultiMono& GibbsMultiMono::operator=(const GibbsMultiMono& r)
-{
-  if (this != &r)
+  GibbsMultiMono::GibbsMultiMono()
+    : AGibbs()
+    , _models()
+    , _rho(0.)
   {
-    AGibbs::operator=(r);
-    _models = r._models;
-    _rho    = r._rho;
   }
-  return *this;
-}
 
-GibbsMultiMono::~GibbsMultiMono()
-{
-}
-
-/****************************************************************************/
-/*!
-**  Initializes the Gibbs sampler for a set of inequalities
-**
-** \return  Error return code
-**
-** \param[in]  y             Gaussian vector
-** \param[in]  isimu         Rank of the simulation
-** \param[in]  ipgs          Rank of the GS
-**
-*****************************************************************************/
-Id GibbsMultiMono::calculInitialize(VectorVectorDouble& y,
-                                     Id isimu,
-                                     Id ipgs)
-{
-  auto nact = _getSampleRankNumber();
-  auto nvar = getNvar();
-
-  /* Print the title */
-
-  if (OptDbg::query(EDbg::CONVERGE))
-    mestitle(1, "Initial Values for Gibbs Sampler (Simu:%d - GS:%d)",
-             isimu + 1, ipgs + 1);
-
-  /* Loop on the variables */
-
-  for (Id ivar = 0; ivar < nvar; ivar++)
+  GibbsMultiMono::GibbsMultiMono(
+    Db* db,
+    const std::vector<Model*>& models,
+    double rho)
+    : AGibbs(db)
+    , _models(models)
+    , _rho(rho)
   {
-    auto icase = getRank(ipgs, ivar);
+  }
 
-    /* Loop on the samples */
+  GibbsMultiMono::GibbsMultiMono(const GibbsMultiMono& r)
+    : AGibbs(r)
+    , _models(r._models)
+    , _rho(r._rho)
+  {
+  }
 
-    double sk = sqrt(getModels(ivar)->getTotalSill(0, 0));
-    for (Id iact = 0; iact < nact; iact++)
+  GibbsMultiMono& GibbsMultiMono::operator=(const GibbsMultiMono& r)
+  {
+    if (this != &r)
     {
-      double vmin, vmax;
-      if (_boundsCheck(ipgs, ivar, iact, &vmin, &vmax)) return 1;
-
-      /* Compute the median value of the interval */
-
-      double pmin    = (FFFF(vmin)) ? 0. : law_cdf_gaussian(vmin);
-      double pmax    = (FFFF(vmax)) ? 1. : law_cdf_gaussian(vmax);
-      y[icase][iact] = sk * law_invcdf_gaussian((pmin + pmax) / 2.);
+      AGibbs::operator=(r);
+      _models = r._models;
+      _rho = r._rho;
     }
-  }
-  return (0);
-}
-
-/**
- * Generate a simulated value
- * @param y     : Gaussian vector
- * @param yk    : Kriged value
- * @param sk    : Standard deviation
- * @param icase : Rank in the 'y' array
- * @param ipgs  : Rank of the current GS
- * @param ivar  : Rank of the current Variable
- * @param iact  : Rank of the target sample (relative)
- * @param iter  : Rank of the iteration
- * @return Simulated value
- */
-double GibbsMultiMono::getSimulate(VectorVectorDouble& y,
-                                   double yk,
-                                   double sk,
-                                   Id icase,
-                                   Id ipgs,
-                                   Id ivar,
-                                   Id iact,
-                                   Id iter)
-{
-  // Define the environment
-
-  auto iech = getSampleRank(iact);
-
-  // Read the Bounds
-
-  const Db* db = getDb();
-  double vmin  = db->getLocVariable(ELoc::L, iech, icase);
-  double vmax  = db->getLocVariable(ELoc::U, iech, icase);
-
-  // Apply optional decay
-
-  _getBoundsDecay(iter, &vmin, &vmax);
-
-  // In multi-mono case, correct from the previously (linked) variable
-
-  double yval;
-  double sval;
-  if (ivar > 0)
-  {
-    auto icase0 = getRank(ipgs, 0);
-    double rho = getRho();
-    double sqr = sqrt(1. - rho * rho);
-    yval       = yk * sqr + rho * y[icase0][iact];
-    sval       = sk * sqr;
-  }
-  else
-  {
-    yval = yk;
-    sval = sk;
+    return *this;
   }
 
-  /* Update the definition interval */
+  GibbsMultiMono::~GibbsMultiMono() {}
 
-  if (!FFFF(vmin)) vmin = (vmin - yval) / sval;
-  if (!FFFF(vmax)) vmax = (vmax - yval) / sval;
-
-  /* Draw an authorized normal value */
-
-  if (FFFF(vmin) && FFFF(vmax))
-    return (yk + sk * law_gaussian());
-  return (yk + sk * law_gaussian_between_bounds(vmin, vmax));
-}
-
-/****************************************************************************/
-/*!
-**  Check/Show the facies against gaussian at wells
-**
-** \return Error return code
-**
-** \param[in]  y          Gaussian vector
-** \param[in]  isimu      Rank of the simulation
-** \param[in]  ipgs       Rank of the GS
-**
-*****************************************************************************/
-Id GibbsMultiMono::checkGibbs(const VectorVectorDouble& y, Id isimu, Id ipgs)
-{
-  Db* db   = getDb();
-  auto nact = _getSampleRankNumber();
-  auto nvar = getNvar();
-  mestitle(1, "Checking gaussian values from Gibbs vs. bounds (PGS=%d Simu=%d)",
-           ipgs + 1, isimu + 1);
-
-  Id nerror = 0;
-  double sqr = sqrt(1. - _rho * _rho);
-
-  /* Loop on the variables */
-
-  for (Id ivar = 0; ivar < nvar; ivar++)
+  /****************************************************************************/
+  /*!
+  **  Initializes the Gibbs sampler for a set of inequalities
+  **
+  ** \return  Error return code
+  **
+  ** \param[in]  y             Gaussian vector
+  ** \param[in]  isimu         Rank of the simulation
+  ** \param[in]  ipgs          Rank of the GS
+  **
+  *****************************************************************************/
+  Id GibbsMultiMono::calculInitialize(VectorVectorDouble& y, Id isimu, Id ipgs)
   {
-    auto icase = getRank(ipgs, ivar);
-    auto icase0 = getRank(ipgs, 0);
+    auto nact = _getSampleRankNumber();
+    auto nvar = getNvar();
 
-    /* Loop on the data */
+    /* Print the title */
 
-    for (Id iact = 0; iact < nact; iact++)
+    if (OptDbg::query(EDbg::CONVERGE))
+      mestitle(
+        1, "Initial Values for Gibbs Sampler (Simu:%d - GS:%d)", isimu + 1,
+        ipgs + 1);
+
+    /* Loop on the variables */
+
+    for (Id ivar = 0; ivar < nvar; ivar++)
     {
-      auto iech   = getSampleRank(iact);
-      double vmin = db->getLocVariable(ELoc::L, iech, icase);
-      double vmax = db->getLocVariable(ELoc::U, iech, icase);
-      if (FFFF(vmin)) vmin = MINIMUM_BIG;
-      if (FFFF(vmax)) vmax = MAXIMUM_BIG;
+      auto icase = getRank(ipgs, ivar);
 
-      /* Read the gaussian value */
+      /* Loop on the samples */
 
-      double gaus = y[icase][iact];
-      if (ivar > 0)
-        gaus = sqr * gaus + _rho * y[icase0][iact];
-
-      /* Check inconsistency */
-
-      if ((!FFFF(vmin) && gaus < vmin) ||
-          (!FFFF(vmax) && gaus > vmax))
+      double sk = sqrt(getModels(ivar)->getTotalSill(0, 0));
+      for (Id iact = 0; iact < nact; iact++)
       {
-        message("- Sample (#%d):", iech + 1);
-        message(" Simu#%d of Y%d=%lf", isimu + 1, ivar + 1, gaus);
-        message(" does not lie within [");
-        if (FFFF(vmin))
-          message("NA,");
-        else
-          message("%lf", vmin);
-        message(";");
-        if (FFFF(vmax))
-          message(STRING_NA);
-        else
-          message("%lf", vmax);
-        message("]\n");
-        nerror++;
+        double vmin, vmax;
+        if (_boundsCheck(ipgs, ivar, iact, &vmin, &vmax)) return 1;
+
+        /* Compute the median value of the interval */
+
+        double pmin = (FFFF(vmin)) ? 0. : law_cdf_gaussian(vmin);
+        double pmax = (FFFF(vmax)) ? 1. : law_cdf_gaussian(vmax);
+        y[icase][iact] = sk * law_invcdf_gaussian((pmin + pmax) / 2.);
       }
     }
+    return (0);
   }
-  if (nerror <= 0) message("No problem found\n");
 
-  return nerror;
-}
+  /**
+   * Generate a simulated value
+   * @param y     : Gaussian vector
+   * @param yk    : Kriged value
+   * @param sk    : Standard deviation
+   * @param icase : Rank in the 'y' array
+   * @param ipgs  : Rank of the current GS
+   * @param ivar  : Rank of the current Variable
+   * @param iact  : Rank of the target sample (relative)
+   * @param iter  : Rank of the iteration
+   * @return Simulated value
+   */
+  double GibbsMultiMono::getSimulate(
+    VectorVectorDouble& y,
+    double yk,
+    double sk,
+    Id icase,
+    Id ipgs,
+    Id ivar,
+    Id iact,
+    Id iter)
+  {
+    // Define the environment
 
-}
+    auto iech = getSampleRank(iact);
+
+    // Read the Bounds
+
+    const Db* db = getDb();
+    double vmin = db->getLocVariable(ELoc::L, iech, icase);
+    double vmax = db->getLocVariable(ELoc::U, iech, icase);
+
+    // Apply optional decay
+
+    _getBoundsDecay(iter, &vmin, &vmax);
+
+    // In multi-mono case, correct from the previously (linked) variable
+
+    double yval;
+    double sval;
+    if (ivar > 0)
+    {
+      auto icase0 = getRank(ipgs, 0);
+      double rho = getRho();
+      double sqr = sqrt(1. - rho * rho);
+      yval = yk * sqr + rho * y[icase0][iact];
+      sval = sk * sqr;
+    }
+    else
+    {
+      yval = yk;
+      sval = sk;
+    }
+
+    /* Update the definition interval */
+
+    if (!FFFF(vmin)) vmin = (vmin - yval) / sval;
+    if (!FFFF(vmax)) vmax = (vmax - yval) / sval;
+
+    /* Draw an authorized normal value */
+
+    if (FFFF(vmin) && FFFF(vmax)) return (yk + sk * law_gaussian());
+    return (yk + sk * law_gaussian_between_bounds(vmin, vmax));
+  }
+
+  /****************************************************************************/
+  /*!
+  **  Check/Show the facies against gaussian at wells
+  **
+  ** \return Error return code
+  **
+  ** \param[in]  y          Gaussian vector
+  ** \param[in]  isimu      Rank of the simulation
+  ** \param[in]  ipgs       Rank of the GS
+  **
+  *****************************************************************************/
+  Id GibbsMultiMono::checkGibbs(const VectorVectorDouble& y, Id isimu, Id ipgs)
+  {
+    Db* db = getDb();
+    auto nact = _getSampleRankNumber();
+    auto nvar = getNvar();
+    mestitle(
+      1, "Checking gaussian values from Gibbs vs. bounds (PGS=%d Simu=%d)",
+      ipgs + 1, isimu + 1);
+
+    Id nerror = 0;
+    double sqr = sqrt(1. - _rho * _rho);
+
+    /* Loop on the variables */
+
+    for (Id ivar = 0; ivar < nvar; ivar++)
+    {
+      auto icase = getRank(ipgs, ivar);
+      auto icase0 = getRank(ipgs, 0);
+
+      /* Loop on the data */
+
+      for (Id iact = 0; iact < nact; iact++)
+      {
+        auto iech = getSampleRank(iact);
+        double vmin = db->getLocVariable(ELoc::L, iech, icase);
+        double vmax = db->getLocVariable(ELoc::U, iech, icase);
+        if (FFFF(vmin)) vmin = MINIMUM_BIG;
+        if (FFFF(vmax)) vmax = MAXIMUM_BIG;
+
+        /* Read the gaussian value */
+
+        double gaus = y[icase][iact];
+        if (ivar > 0) gaus = sqr * gaus + _rho * y[icase0][iact];
+
+        /* Check inconsistency */
+
+        if ((!FFFF(vmin) && gaus < vmin) || (!FFFF(vmax) && gaus > vmax))
+        {
+          message("- Sample (#%d):", iech + 1);
+          message(" Simu#%d of Y%d=%lf", isimu + 1, ivar + 1, gaus);
+          message(" does not lie within [");
+          if (FFFF(vmin))
+            message("NA,");
+          else
+            message("%lf", vmin);
+          message(";");
+          if (FFFF(vmax))
+            message(STRING_NA);
+          else
+            message("%lf", vmax);
+          message("]\n");
+          nerror++;
+        }
+      }
+    }
+    if (nerror <= 0) message("No problem found\n");
+
+    return nerror;
+  }
+
+} // namespace gstlrn

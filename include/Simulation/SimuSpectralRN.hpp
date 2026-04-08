@@ -28,12 +28,13 @@ namespace gstlrn
   class GSTLEARN_EXPORT SimuSpectralRN: public CalcSimuSpectral
   {
   public:
-    SimuSpectralRN(Id nbsimu = 1,
-                   Id ns = 10000,
-                   Id nd = 100,
-                   Id seed = 4324324,
-                   const ACov* cov0 = nullptr,
-                   bool verbose = false);
+    SimuSpectralRN(
+      Id nbsimu = 1,
+      Id ns = 10000,
+      Id nd = 100,
+      Id seed = 4324324,
+      const ACov* cov0 = nullptr,
+      bool verbose = false);
     SimuSpectralRN(const SimuSpectralRN& r) = delete;
     SimuSpectralRN& operator=(const SimuSpectralRN& r) = delete;
     virtual ~SimuSpectralRN();
@@ -47,9 +48,10 @@ namespace gstlrn
   protected:
     bool _check() override;
     Id _simulate() override;
-    Id _compute(Db* dbout,
-                const VectorBool& activeArray,
-                VectorVectorDouble& tab) override;
+    Id _compute(
+      Db* dbout,
+      const VectorBool& activeArray,
+      VectorVectorDouble& tab) override;
 
   private:
     // spectrum for R^n (Not used...)

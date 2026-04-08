@@ -40,8 +40,8 @@ int main(int argc, char* argv[])
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Parameters
-  Id nech     = 4;
-  Id nvar     = 1;
+  Id nech = 4;
+  Id nvar = 1;
   bool flagSK = false;
 
   // Generate the data base
@@ -51,16 +51,16 @@ int main(int argc, char* argv[])
   data->display(dbfmt);
 
   // Generate the target file
-  VectorInt nx    = {5, 5};
+  VectorInt nx = {5, 5};
   VectorDouble dx = {0.2, 0.2};
-  DbGrid* target  = DbGrid::create(nx, dx);
+  DbGrid* target = DbGrid::create(nx, dx);
 
   // Create the Model
   double scale = 0.7;
-  MatrixSymmetric* sills =
-    MatrixSymmetric::createRandomDefinitePositive(nvar);
-  Model* model = Model::createFromParam(ECov::EXPONENTIAL, scale, 0., 0., VectorDouble(),
-                                        *sills, VectorDouble(), nullptr, false);
+  MatrixSymmetric* sills = MatrixSymmetric::createRandomDefinitePositive(nvar);
+  Model* model = Model::createFromParam(
+    ECov::EXPONENTIAL, scale, 0., 0., VectorDouble(), *sills, VectorDouble(),
+    nullptr, false);
   if (flagSK)
   {
     VectorDouble means = VH::simulateGaussian(nvar);

@@ -10,21 +10,19 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
 #include "LinearOp/ALinearOp.hpp"
+#include "gstlearn_export.hpp"
 
 namespace gstlrn
 {
-class GSTLEARN_EXPORT LinearOpHelper
-{
+  class GSTLEARN_EXPORT LinearOpHelper
+  {
   public:
     static double powerIteration(const ALinearOp* op, Id niter = 30);
-    
-};
+  };
 
-class LH : public LinearOpHelper
-{
+  class LH: public LinearOpHelper
+  {
+  };
 
-};
-
-}
+} // namespace gstlrn

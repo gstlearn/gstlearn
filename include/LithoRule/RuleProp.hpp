@@ -19,80 +19,99 @@
 
 namespace gstlrn
 {
-class Db;
-class VarioParam;
+  class Db;
+  class VarioParam;
 
-class GSTLEARN_EXPORT RuleProp: public AStringable
-{
-public:
-  RuleProp();
-  RuleProp(const RuleProp& m);
-  RuleProp& operator=(const RuleProp& m);
-  virtual ~RuleProp();
+  class GSTLEARN_EXPORT RuleProp: public AStringable
+  {
+  public:
+    RuleProp();
+    RuleProp(const RuleProp& m);
+    RuleProp& operator=(const RuleProp& m);
+    virtual ~RuleProp();
 
-  /// Interface to AStringable
-  String toString(const AStringFormat* strfmt = nullptr) const override;
+    /// Interface to AStringable
+    String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  Id resetFromDb(const Db* dbprop,
-                 const VectorDouble& propcst = VectorDouble());
-  Id resetFromRule(const Rule* rule,
-                   const VectorDouble& propcst = VectorDouble());
-  Id resetFromRuleAndDb(const Rule* rule, const Db* dbprop);
-  Id resetFromRules(const Rule* rule1,
-                    const Rule* rule2,
-                    const VectorDouble& propcst = VectorDouble());
-  Id resetFromRulesAndDb(const Rule* rule1,
-                         const Rule* rule2,
-                         const Db* dbprop);
+    Id resetFromDb(
+      const Db* dbprop,
+      const VectorDouble& propcst = VectorDouble());
+    Id resetFromRule(
+      const Rule* rule,
+      const VectorDouble& propcst = VectorDouble());
+    Id resetFromRuleAndDb(const Rule* rule, const Db* dbprop);
+    Id resetFromRules(
+      const Rule* rule1,
+      const Rule* rule2,
+      const VectorDouble& propcst = VectorDouble());
+    Id resetFromRulesAndDb(
+      const Rule* rule1,
+      const Rule* rule2,
+      const Db* dbprop);
 
-  static RuleProp* createFromDb(const Db* dbprop,
-                                const VectorDouble& propcst = VectorDouble());
-  static RuleProp* createFromRule(const Rule* rule,
-                                  const VectorDouble& propcst = VectorDouble());
-  static RuleProp* createFromRuleAndDb(const Rule* rule, const Db* dbprop);
-  static RuleProp* createFromRules(const Rule* rule1,
-                                   const Rule* rule2,
-                                   const VectorDouble& propcst = VectorDouble());
-  static RuleProp* createFromRulesAndDb(const Rule* rule1,
-                                        const Rule* rule2,
-                                        const Db* dbprop);
+    static RuleProp* createFromDb(
+      const Db* dbprop,
+      const VectorDouble& propcst = VectorDouble());
+    static RuleProp* createFromRule(
+      const Rule* rule,
+      const VectorDouble& propcst = VectorDouble());
+    static RuleProp* createFromRuleAndDb(const Rule* rule, const Db* dbprop);
+    static RuleProp* createFromRules(
+      const Rule* rule1,
+      const Rule* rule2,
+      const VectorDouble& propcst = VectorDouble());
+    static RuleProp* createFromRulesAndDb(
+      const Rule* rule1,
+      const Rule* rule2,
+      const Db* dbprop);
 
-  const Db* getDbprop() const { return _dbprop; }
-  void setDbprop(const Db* dbprop) { _dbprop = dbprop; }
-  bool isFlagStat() const { return _flagStat; }
-  void setFlagStat(bool flagStat) { _flagStat = flagStat; }
-  const VectorDouble& getPropCst() const { return _propcst; }
-  void setPropCst(const VectorDouble& propcst) { _propcst = propcst; }
-  const Rule* getRule(Id rank = 0) const;
-  void addRule(const Rule* rule);
-  void clearRule();
-  Id getNRule() const { return static_cast<Id>(_rules.size()); }
+    const Db* getDbprop() const { return _dbprop; }
 
-  Id fit(Db* db,
-         const VarioParam* varioparam,
-         Id ngrfmax   = 1,
-         bool verbose = false);
-  Id gaussToCategory(Db* db,
-                     const NamingConvention& namconv = NamingConvention(
-                       "Facies",
-                       true,
-                       true,
-                       true,
-                       ELoc::fromKey("FACIES"))) const;
-  Id categoryToThresh(Db* db, const NamingConvention& namconv = NamingConvention("Bounds")) const;
-  Id computeAllThreshes(Db* db, const NamingConvention& namconv = NamingConvention("Thresh")) const;
+    void setDbprop(const Db* dbprop) { _dbprop = dbprop; }
 
-private:
-  void _clear();
-  bool _checkConsistency();
-  bool _isRuleRankValid(Id rank) const;
-  Id _getNFacies();
+    bool isFlagStat() const { return _flagStat; }
 
-private:
-  bool _flagStat;
-  VectorDouble _propcst;
-  const Db* _dbprop;
-  std::vector<const Rule*> _rules;
-  bool _ruleInternal; // TRUE if a fictitious rule has been established internally
-};
+    void setFlagStat(bool flagStat) { _flagStat = flagStat; }
+
+    const VectorDouble& getPropCst() const { return _propcst; }
+
+    void setPropCst(const VectorDouble& propcst) { _propcst = propcst; }
+
+    const Rule* getRule(Id rank = 0) const;
+    void addRule(const Rule* rule);
+    void clearRule();
+
+    Id getNRule() const { return static_cast<Id>(_rules.size()); }
+
+    Id fit(
+      Db* db,
+      const VarioParam* varioparam,
+      Id ngrfmax = 1,
+      bool verbose = false);
+    Id gaussToCategory(
+      Db* db,
+      const NamingConvention& namconv =
+        NamingConvention("Facies", true, true, true, ELoc::fromKey("FACIES")))
+      const;
+    Id categoryToThresh(
+      Db* db,
+      const NamingConvention& namconv = NamingConvention("Bounds")) const;
+    Id computeAllThreshes(
+      Db* db,
+      const NamingConvention& namconv = NamingConvention("Thresh")) const;
+
+  private:
+    void _clear();
+    bool _checkConsistency();
+    bool _isRuleRankValid(Id rank) const;
+    Id _getNFacies();
+
+  private:
+    bool _flagStat;
+    VectorDouble _propcst;
+    const Db* _dbprop;
+    std::vector<const Rule*> _rules;
+    bool
+      _ruleInternal; // TRUE if a fictitious rule has been established internally
+  };
 } // namespace gstlrn

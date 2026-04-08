@@ -1,4 +1,4 @@
-# Random variables 
+# Random variables
 
 A **random variable** $Z$ is a function over a sample space $\Omega$ to the space of outputs $H$.
 
@@ -9,7 +9,7 @@ $$
 
 The random variables are described using probabilities.
 
-## A. Discrete variables 
+## A. Discrete variables
 
 ## A.1. Probability mass function
 
@@ -50,7 +50,7 @@ We have $p_1+p_2+p_3+p_4+p_5+p_6=1$.
 
 ### A.1.3) General case of discrete variable
 
-$Z$ is a random variable with values in a countable space $H$. 
+$Z$ is a random variable with values in a countable space $H$.
 
 $Z$ is characterized by its probability mass function, $p(i)=p_i=P(Z=i)$ for all $i\in H$.
 
@@ -72,7 +72,7 @@ $$p_i = \frac{n!}{i!(n-i)!}p^i(1-p)^{n-i}$$
 
 ![Description](Figures/binomialpmf.png)
 
-## A.2. Cumulative distribution 
+## A.2. Cumulative distribution
 
 Instead of working with the probability mass function, we can use the cumulative distribution function $F$ defined by $$F(i) = P(Z\leq i)$$
 
@@ -89,13 +89,13 @@ $$P(a<Z \leq b) = F(b)-F(a)$$
 
 ## A.4. Expectation:
 
-The expectation of a random variable with probability mass function $p$ is given by 
+The expectation of a random variable with probability mass function $p$ is given by
 
 $$E[Z]=\sum_{i\in H}i \times P(Z=i)=\sum_{i\in H}i \times p_i$$
 
 The expectation can be seen as the theoretical mean.
 
-**Example:** 
+**Example:**
 
 If $Z$ is a Bernouilli variable with parameter $p$, $$E[Z]= 0 \times (1-p) + 1 \times p = p$$
 
@@ -122,7 +122,7 @@ The probability $Z_1$ to be a rich man is a Bernouilli variable.
 
 The probability $Z_2$ to be a Geostatistician is a Bernouilli variable.
 
-$$\begin{array}{c|c|c||c} 
+$$\begin{array}{c|c|c||c}
  & 0 & 1 \\
  \hline
  0 & p_{00} & p_{01} & p_{0.}\\
@@ -131,7 +131,7 @@ $$\begin{array}{c|c|c||c}
  \hline
   & p_{.0} & p_{.1} & 1\\
   \end{array}$$
-  
+
   Conditional distribution
 
 $$P(Z_1=i|Z_2=j) = \frac{P(Z_1=i,Z_2=j)}{P(Z_2=j)} = \frac{p_{ij}}{\sum_{i\in H_1} p_{ij}}$$
@@ -158,7 +158,7 @@ All the variables considered in this course will have a density.
 
 1) Gaussian distribution:
 
-The Gaussian distribution with mean $m$ and variance $\sigma^2$ has density 
+The Gaussian distribution with mean $m$ and variance $\sigma^2$ has density
 
 $$f(x)=\frac{1}{\sqrt{2\pi}\sigma}\displaystyle e^{-\frac{(x-m)^2}{2\sigma^2}}$$
 
@@ -177,7 +177,7 @@ $$F(x) = \left\{\begin{array}{ccc}0 & \textrm{ if } & x\geq a \\
 
 ![Description](Figures/uniformcdf.png)
 
-### Expectation 
+### Expectation
 
 The expectation plays the role of the mean for the random variable.
 
@@ -189,7 +189,7 @@ Expectation of a function:
 
 $$E[q(Z)] = \int_H q(t)f(t)dt$$
 
-### Variance 
+### Variance
 
 $$\textrm{Var}[Z] = E[(Z-E[Z])^2]$$
 
@@ -225,7 +225,7 @@ Here we will suppose that the random vector $(X,Y)$ has a density $f(x,y)$.
 
 ![g1](Figures/densitygauss.png)
 
-The density can be seen as the probability 
+The density can be seen as the probability
 
 $$P(x\leq X \leq x+dx \textrm{ and } y\leq Y\leq y+dy) =f(x,y)dxdy$$
 
@@ -253,11 +253,11 @@ $$f_Y(y)=\int_{H_1}f(x,y)dx$$
 
 We have two variables $X$ and $Y$ with joint density $f(x,y)$. Suppose we have observed $X=x$ and we would like to know the distribution of $Y$ knowing this information.
 
-It can be computed by 
+It can be computed by
 
 $$f_{Y|X=x}(y)=\frac{f(x,y)}{f(x)}$$
 
-It can be interpreted as 
+It can be interpreted as
 
 $$P(y\leq Y\leq y+dy| x\leq X \leq x+dx) = f_{Y|X=x}(y)dy$$
 

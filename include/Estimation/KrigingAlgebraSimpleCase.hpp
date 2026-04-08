@@ -21,219 +21,268 @@
 
 namespace gstlrn
 {
-/**
- * @brief Perform the Algebra for Kriging and CoKriging
- *
- * It requires the definition of:
- * - the vector of Data values *Z* (possibly multivariate and heterotopic)
- * - the Covariance matrix at data points *Sigma*
- * - the Drift matrix at data points *X* (UK if defined, SK otherwise)
- * - the Covariance matrix at target *Sigma00* (only for calculating variance)
- * - the Drift coefficients *Beta* (for SK)
- *
- * Note:
- * When using SK:
- * - the vector *Z* must be centered by the drift beforehand
- * - the vector *beta* corresponds to the vector of Means.
- */
+  /**
+   * @brief Perform the Algebra for Kriging and CoKriging
+   *
+   * It requires the definition of:
+   * - the vector of Data values *Z* (possibly multivariate and heterotopic)
+   * - the Covariance matrix at data points *Sigma*
+   * - the Drift matrix at data points *X* (UK if defined, SK otherwise)
+   * - the Covariance matrix at target *Sigma00* (only for calculating variance)
+   * - the Drift coefficients *Beta* (for SK)
+   *
+   * Note:
+   * When using SK:
+   * - the vector *Z* must be centered by the drift beforehand
+   * - the vector *beta* corresponds to the vector of Means.
+   */
 
-class RankHandler;
+  class RankHandler;
 
-class GSTLEARN_EXPORT KrigingAlgebraSimpleCase
-{
-public:
-  KrigingAlgebraSimpleCase(bool flagDual                  = false,
-                           const RankHandler* rankhandler = nullptr,
-                           const VectorDouble* Z          = nullptr,
-                           const VectorDouble& Means      = VectorDouble(),
-                           Id flagchol                    = false,
-                           bool neighUnique               = OptCustom::query("unique", 1));
-  KrigingAlgebraSimpleCase(KrigingAlgebraSimpleCase& r);
-  KrigingAlgebraSimpleCase& operator=(const KrigingAlgebraSimpleCase& r) = delete;
-  virtual ~KrigingAlgebraSimpleCase();
-  Id prepare();
+  class GSTLEARN_EXPORT KrigingAlgebraSimpleCase
+  {
+  public:
+    KrigingAlgebraSimpleCase(
+      bool flagDual = false,
+      const RankHandler* rankhandler = nullptr,
+      const VectorDouble* Z = nullptr,
+      const VectorDouble& Means = VectorDouble(),
+      Id flagchol = false,
+      bool neighUnique = OptCustom::query("unique", 1));
+    KrigingAlgebraSimpleCase(KrigingAlgebraSimpleCase& r);
+    KrigingAlgebraSimpleCase&
+      operator=(const KrigingAlgebraSimpleCase& r) = delete;
+    virtual ~KrigingAlgebraSimpleCase();
+    Id prepare();
 
-  void setDual(bool status);
-  void setNeighUnique(bool nu = false) { _neighUnique = nu; }
-  void resetNewData();
-  void setZ(std::shared_ptr<VectorDouble>& Z);
-  Id setData(const VectorDouble* Z          = nullptr,
-             const RankHandler* rankhandler = nullptr,
-             const VectorDouble& Means      = VectorDouble());
-  Id setLHS(const MatrixSymmetric* Sigma = nullptr,
-            const MatrixDense* X         = nullptr);
-  Id setRHS(MatrixDense* Sigma0 = nullptr,
-            MatrixDense* X0     = nullptr);
-  Id setVariance(const MatrixSymmetric* Sigma00 = nullptr);
+    void setDual(bool status);
 
-  void printStatus() const;
-  void dumpLHS(Id nbypas = 5) const;
-  void dumpRHS() const;
-  void dumpWGT();
-  void dumpAux();
+    void setNeighUnique(bool nu = false) { _neighUnique = nu; }
 
-  VectorDouble& getEstimation();
-  const VectorDouble& getStdv();
-  double getVarianceZstar(Id i);
-  VectorDouble getVarianceZstar();
-  const MatrixSymmetric* getStdvMat();
-  const MatrixSymmetric* getVarianceZstarMat();
-  const MatrixDense* getLambda();
-  const MatrixDense* getLambda0();
-  const MatrixDense* getMu();
-  double getLTerm();
-  Id updateRHS();
+    void resetNewData();
+    void setZ(std::shared_ptr<VectorDouble>& Z);
+    Id setData(
+      const VectorDouble* Z = nullptr,
+      const RankHandler* rankhandler = nullptr,
+      const VectorDouble& Means = VectorDouble());
+    Id setLHS(
+      const MatrixSymmetric* Sigma = nullptr,
+      const MatrixDense* X = nullptr);
+    Id setRHS(MatrixDense* Sigma0 = nullptr, MatrixDense* X0 = nullptr);
+    Id setVariance(const MatrixSymmetric* Sigma00 = nullptr);
 
-  bool isDual() const { return _flagDual; }
-  VectorDouble* getZ() { return _Z.get(); }
-  MatrixSymmetric* getSigma() { return _Sigma.get(); }
-  MatrixSymmetric* getSigma00() { return _Sigma00.get(); }
-  MatrixDense* getX() { return _X.get(); }
-  MatrixDense* getSigma0() { return _Sigma0.get(); }
-  void updateSampleRanks();
-  void updateRankHandler();
-  MatrixDense* getX0() { return _X0.get(); }
-  const VectorVectorInt* getSampleRanks() { return &_rankHandler->getSampleRanks(); }
-  VectorInt* getSampleRanksByVariable(Id ivar) { return &_rankHandler->getSampleRanksByVariable(ivar); }
-  RankHandler* getRankHandler() { return _rankHandler.get(); }
-  void setRankHandler(std::shared_ptr<RankHandler>& rkh) { _rankHandler = rkh; }
-  VectorInt* getNbgh() { return _nbgh.get(); }
-  void setMeans(const VectorDouble& means);
+    void printStatus() const;
+    void dumpLHS(Id nbypas = 5) const;
+    void dumpRHS() const;
+    void dumpWGT();
+    void dumpAux();
 
-private:
-  void _copyPtrForUniqueNeigh(KrigingAlgebraSimpleCase& r);
-  void _copyContentForMovingNeigh(const KrigingAlgebraSimpleCase& r);
-  void _copyOtherContent(const KrigingAlgebraSimpleCase& r);
-  void _copyMatsAndVecs(const KrigingAlgebraSimpleCase& r);
-  void _copyFlags(const KrigingAlgebraSimpleCase& r);
-  void _copyModelQuantities(const KrigingAlgebraSimpleCase& r);
+    VectorDouble& getEstimation();
+    const VectorDouble& getStdv();
+    double getVarianceZstar(Id i);
+    VectorDouble getVarianceZstar();
+    const MatrixSymmetric* getStdvMat();
+    const MatrixSymmetric* getVarianceZstarMat();
+    const MatrixDense* getLambda();
+    const MatrixDense* getLambda0();
+    const MatrixDense* getMu();
+    double getLTerm();
+    Id updateRHS();
 
-  static bool _checkDimensionMatrix(const String& name, const AMatrix* mat, Id* nrowsRef, Id* ncolsRef);
-  static bool _checkDimensionVD(const String& name, const VectorDouble* vec, Id* sizeRef);
-  static bool _checkDimensionVI(const String& name, const VectorInt* vec, Id* sizeRef);
-  static bool _checkDimensionVVI(const String& name, const VectorVectorInt* vec, Id* size1Ref, Id* size2Ref);
+    bool isDual() const { return _flagDual; }
 
-  static bool _isPresentMatrix(const String& name, const AMatrix* mat);
-  static bool _isPresentVector(const String& name, const VectorDouble* vec);
-  static bool _isPresentIVector(const String& name, const VectorInt* vec);
-  static bool _isPresentIIVector(const String& name, const VectorVectorInt* vec);
+    VectorDouble* getZ() { return _Z.get(); }
 
-  void _resetLinkedToLHS();
-  void _resetLinkedToRHS();
+    MatrixSymmetric* getSigma() { return _Sigma.get(); }
 
-  bool _notFindZ();
-  bool _notFindX();
-  bool _notFindX0();
-  bool _notFindSigma();
-  bool _notFindSigma0();
-  bool _notFindSigma00();
+    MatrixSymmetric* getSigma00() { return _Sigma00.get(); }
 
-  bool _notFindSampleRanks();
-  bool _notFindRankHandler();
+    MatrixDense* getX() { return _X.get(); }
 
-  void _resetLinkedToZ();
-  void _resetLinkedToX();
-  void _resetLinkedToX0();
-  void _resetLinkedToSigma();
-  void _resetLinkedToSigma0();
-  void _resetLinkedToSigma00();
+    MatrixDense* getSigma0() { return _Sigma0.get(); }
 
-  Id _needInvSigma();
-  Id _needXtInvSigma();
-  Id _needXtInvSigmaZ();
-  Id _needSigmac();
-  Id _needBeta();
-  Id _needDual();
+    void updateSampleRanks();
+    void updateRankHandler();
 
-  Id _needLambdaSK();
-  Id _needLambdaUK();
-  Id _needMuUK();
+    MatrixDense* getX0() { return _X0.get(); }
 
-  Id _needZstar();
-  Id _needStdv();
-  Id _needVarZSK();
-  Id _needVarZUK();
+    const VectorVectorInt* getSampleRanks()
+    {
+      return &_rankHandler->getSampleRanks();
+    }
 
-  Id _computeZstarWithDual();
-  Id _computeZstarSK();
+    VectorInt* getSampleRanksByVariable(Id ivar)
+    {
+      return &_rankHandler->getSampleRanksByVariable(ivar);
+    }
 
-  void _deleteBeta();
-  void _deleteInvSigma();
-  void _deleteLambdaSK();
-  void _deleteLambdaUK();
-  void _deleteMuUK();
-  void _deleteSigmac();
-  void _deleteXtInvSigma();
-  void _deleteXtInvSigmaZ();
-  void _deleteStdv();
-  void _deleteVarZSK();
-  void _deleteVarZUK();
-  void _deleteDual();
+    RankHandler* getRankHandler() { return _rankHandler.get(); }
 
-  static void _printMatrix(const String& name, const AMatrix* mat);
-  static void _printVector(const String& name, const VectorDouble* vec);
+    void setRankHandler(std::shared_ptr<RankHandler>& rkh)
+    {
+      _rankHandler = rkh;
+    }
 
-  bool _forbiddenWhenDual() const;
-  void _resetAll();
-  static void _printInversionErrorMessage(const MatrixSymmetric& mat);
+    VectorInt* getNbgh() { return _nbgh.get(); }
 
-private:
-  // Quantities to be defined by the user
-  std::shared_ptr<VectorDouble> _Z; // Data [flattened] (Dim: _neq)
-  std::shared_ptr<RankHandler> _rankHandler;
-  std::shared_ptr<VectorInt> _nbgh;
-  std::shared_ptr<MatrixDense> _X;           // Drift at Data (Dim: _neq * _nbfl)
-  std::shared_ptr<MatrixSymmetric> _Sigma;   // Covariance Matrix (Dim: _neq * _neq)
-  std::shared_ptr<MatrixSymmetric> _Sigma00; // Variance at Target (Dim: _nrhs * _nrhs)
-  std::shared_ptr<MatrixDense> _Sigma0;      // Covariance at Target (Dim: _neq * _nrhs)
-  std::shared_ptr<MatrixDense> _X0;          // Drift at Target (Dim: _nrhs * _nbfl)
+    void setMeans(const VectorDouble& means);
 
-  VectorDouble _Means; // Fixed drift coefficients
+  private:
+    void _copyPtrForUniqueNeigh(KrigingAlgebraSimpleCase& r);
+    void _copyContentForMovingNeigh(const KrigingAlgebraSimpleCase& r);
+    void _copyOtherContent(const KrigingAlgebraSimpleCase& r);
+    void _copyMatsAndVecs(const KrigingAlgebraSimpleCase& r);
+    void _copyFlags(const KrigingAlgebraSimpleCase& r);
+    void _copyModelQuantities(const KrigingAlgebraSimpleCase& r);
 
-  std::shared_ptr<MatrixSymmetric> _InvSigma; // Inv{Sigma} (Dim: _neq * _neq)
-  std::shared_ptr<CholeskyDense> _cholSigma;
-  std::shared_ptr<MatrixDense> _XtInvSigma;    // X^t * Inv{Sigma} (Dim: _nbfl * _neq);
-  std::shared_ptr<MatrixDense> _invSigmaX;     // Inv{Sigma} X (Dim: _neq * _nbfl);
-  std::shared_ptr<VectorDouble> _XtInvSigmaZ;  // X^t * Inv{Sigma} Z (Dim: _nbfl * _nvar);
-  std::shared_ptr<MatrixSymmetric> _invSigmac; // Inv{X^t * Inv{Sigma} * X} (Dim: _nbfl * _nbfl)
-  std::shared_ptr<VectorDouble> _Beta;         // Drift coefficients (Dim: _nbfl)
-  std::shared_ptr<MatrixDense> _LambdaSK;      // Weights for SK (Dim: _neq * _nrhs)
-                                               // Following elements are defined for Dual programming
-  std::shared_ptr<VectorDouble> _bDual;        // Fake Covariance part in Dual (Dim: _neq)
-  std::shared_ptr<VectorDouble> _invSigmaXBeta;
+    static bool _checkDimensionMatrix(
+      const String& name,
+      const AMatrix* mat,
+      Id* nrowsRef,
+      Id* ncolsRef);
+    static bool _checkDimensionVD(
+      const String& name,
+      const VectorDouble* vec,
+      Id* sizeRef);
+    static bool
+      _checkDimensionVI(const String& name, const VectorInt* vec, Id* sizeRef);
+    static bool _checkDimensionVVI(
+      const String& name,
+      const VectorVectorInt* vec,
+      Id* size1Ref,
+      Id* size2Ref);
 
-  VectorDouble _Zstar; // Estimated values (Dim: _nrhs)
+    static bool _isPresentMatrix(const String& name, const AMatrix* mat);
+    static bool _isPresentVector(const String& name, const VectorDouble* vec);
+    static bool _isPresentIVector(const String& name, const VectorInt* vec);
+    static bool
+      _isPresentIIVector(const String& name, const VectorVectorInt* vec);
 
-  MatrixDense _LambdaSKtX;
-  MatrixDense _LambdaUK;   // Weights for UK (Dim: _neq * _nrhs)
-  MatrixDense _MuUK;       // Lagrange multipliers (Dim: _nbfl * _nrhs)
-  MatrixSymmetric _Stdv;   // Estimation stdv. (Dim: _nrhs * _nrhs)
-  MatrixSymmetric _VarZSK; // Estimator variance in SK (Dim: _nrhs * _nrhs)
-  MatrixSymmetric _VarZUK; // Estimator variance in UK (Dim: _nrhs * _nrhs)
-  MatrixSymmetric _Sigmac;
+    void _resetLinkedToLHS();
+    void _resetLinkedToRHS();
 
-  // Following elements are defined for internal storage
-  MatrixDense _Y0; // X0 - LambdaSK * X^t (Dim: _nrhs * _nbfl)
-  MatrixSymmetric _LambdaUKtSigma0;
-  MatrixSymmetric _MuUKtX0t;
-  MatrixDense _invSigmaXMuUK;
-  VectorDouble _X0Beta;
+    bool _notFindZ();
+    bool _notFindX();
+    bool _notFindX0();
+    bool _notFindSigma();
+    bool _notFindSigma0();
+    bool _notFindSigma00();
 
-  // Additional parameters
-  Id _nvar;
-  Id _neq;
-  Id _nbfl;
-  Id _nrhs;
+    bool _notFindSampleRanks();
+    bool _notFindRankHandler();
 
-  //  Flags
-  bool _flagSK;
-  bool _flagDual;
-  bool _neighUnique;
-  bool _flagCholesky;
-  bool _dualHasChanged;
-  bool _invSigmaHasChanged;
-  bool _XtInvSigmaHasChanged;
+    void _resetLinkedToZ();
+    void _resetLinkedToX();
+    void _resetLinkedToX0();
+    void _resetLinkedToSigma();
+    void _resetLinkedToSigma0();
+    void _resetLinkedToSigma00();
 
-  VectorDouble _dummy;
-};
+    Id _needInvSigma();
+    Id _needXtInvSigma();
+    Id _needXtInvSigmaZ();
+    Id _needSigmac();
+    Id _needBeta();
+    Id _needDual();
+
+    Id _needLambdaSK();
+    Id _needLambdaUK();
+    Id _needMuUK();
+
+    Id _needZstar();
+    Id _needStdv();
+    Id _needVarZSK();
+    Id _needVarZUK();
+
+    Id _computeZstarWithDual();
+    Id _computeZstarSK();
+
+    void _deleteBeta();
+    void _deleteInvSigma();
+    void _deleteLambdaSK();
+    void _deleteLambdaUK();
+    void _deleteMuUK();
+    void _deleteSigmac();
+    void _deleteXtInvSigma();
+    void _deleteXtInvSigmaZ();
+    void _deleteStdv();
+    void _deleteVarZSK();
+    void _deleteVarZUK();
+    void _deleteDual();
+
+    static void _printMatrix(const String& name, const AMatrix* mat);
+    static void _printVector(const String& name, const VectorDouble* vec);
+
+    bool _forbiddenWhenDual() const;
+    void _resetAll();
+    static void _printInversionErrorMessage(const MatrixSymmetric& mat);
+
+  private:
+    // Quantities to be defined by the user
+    std::shared_ptr<VectorDouble> _Z; // Data [flattened] (Dim: _neq)
+    std::shared_ptr<RankHandler> _rankHandler;
+    std::shared_ptr<VectorInt> _nbgh;
+    std::shared_ptr<MatrixDense> _X; // Drift at Data (Dim: _neq * _nbfl)
+    std::shared_ptr<MatrixSymmetric>
+      _Sigma; // Covariance Matrix (Dim: _neq * _neq)
+    std::shared_ptr<MatrixSymmetric>
+      _Sigma00; // Variance at Target (Dim: _nrhs * _nrhs)
+    std::shared_ptr<MatrixDense>
+      _Sigma0; // Covariance at Target (Dim: _neq * _nrhs)
+    std::shared_ptr<MatrixDense> _X0; // Drift at Target (Dim: _nrhs * _nbfl)
+
+    VectorDouble _Means; // Fixed drift coefficients
+
+    std::shared_ptr<MatrixSymmetric> _InvSigma; // Inv{Sigma} (Dim: _neq * _neq)
+    std::shared_ptr<CholeskyDense> _cholSigma;
+    std::shared_ptr<MatrixDense>
+      _XtInvSigma; // X^t * Inv{Sigma} (Dim: _nbfl * _neq);
+    std::shared_ptr<MatrixDense>
+      _invSigmaX; // Inv{Sigma} X (Dim: _neq * _nbfl);
+    std::shared_ptr<VectorDouble>
+      _XtInvSigmaZ; // X^t * Inv{Sigma} Z (Dim: _nbfl * _nvar);
+    std::shared_ptr<MatrixSymmetric>
+      _invSigmac; // Inv{X^t * Inv{Sigma} * X} (Dim: _nbfl * _nbfl)
+    std::shared_ptr<VectorDouble> _Beta; // Drift coefficients (Dim: _nbfl)
+    std::shared_ptr<MatrixDense>
+      _LambdaSK; // Weights for SK (Dim: _neq * _nrhs)
+    // Following elements are defined for Dual programming
+    std::shared_ptr<VectorDouble>
+      _bDual; // Fake Covariance part in Dual (Dim: _neq)
+    std::shared_ptr<VectorDouble> _invSigmaXBeta;
+
+    VectorDouble _Zstar; // Estimated values (Dim: _nrhs)
+
+    MatrixDense _LambdaSKtX;
+    MatrixDense _LambdaUK; // Weights for UK (Dim: _neq * _nrhs)
+    MatrixDense _MuUK; // Lagrange multipliers (Dim: _nbfl * _nrhs)
+    MatrixSymmetric _Stdv; // Estimation stdv. (Dim: _nrhs * _nrhs)
+    MatrixSymmetric _VarZSK; // Estimator variance in SK (Dim: _nrhs * _nrhs)
+    MatrixSymmetric _VarZUK; // Estimator variance in UK (Dim: _nrhs * _nrhs)
+    MatrixSymmetric _Sigmac;
+
+    // Following elements are defined for internal storage
+    MatrixDense _Y0; // X0 - LambdaSK * X^t (Dim: _nrhs * _nbfl)
+    MatrixSymmetric _LambdaUKtSigma0;
+    MatrixSymmetric _MuUKtX0t;
+    MatrixDense _invSigmaXMuUK;
+    VectorDouble _X0Beta;
+
+    // Additional parameters
+    Id _nvar;
+    Id _neq;
+    Id _nbfl;
+    Id _nrhs;
+
+    //  Flags
+    bool _flagSK;
+    bool _flagDual;
+    bool _neighUnique;
+    bool _flagCholesky;
+    bool _dualHasChanged;
+    bool _invSigmaHasChanged;
+    bool _XtInvSigmaHasChanged;
+
+    VectorDouble _dummy;
+  };
 } // namespace gstlrn

@@ -55,7 +55,5 @@ foreach(COURSES_SOURCE_FILE ${COURSES_SOURCES})
 
     # Add dependency
     add_dependencies(build_courses_py ${COURSES_NAME}_ipynb_html)
-    
+
 endforeach(COURSES_SOURCE_FILE ${TEST_SOURCES})
-
-

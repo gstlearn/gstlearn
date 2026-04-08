@@ -15,25 +15,27 @@
 
 namespace gstlrn
 {
-// Forward declaration
-class CovContext;
+  // Forward declaration
+  class CovContext;
 
-class GSTLEARN_EXPORT KernelCosinus: public AKernel
-{
-public:
-  KernelCosinus(const CovContext& ctx);
-  KernelCosinus(const KernelCosinus& r);
-  KernelCosinus& operator=(const KernelCosinus& r);
-  virtual ~KernelCosinus();
+  class GSTLEARN_EXPORT KernelCosinus: public AKernel
+  {
+  public:
+    KernelCosinus(const CovContext& ctx);
+    KernelCosinus(const KernelCosinus& r);
+    KernelCosinus& operator=(const KernelCosinus& r);
+    virtual ~KernelCosinus();
 
-  size_t getMaxNDim() const override { return 1; }
+    size_t getMaxNDim() const override { return 1; }
 
-  String getCovName() const override { return "Cosinus"; }
-  Id getMinOrder() const override { return -1; }
-  bool getCompatibleSpaceR() const override { return true; }
+    String getCovName() const override { return "Cosinus"; }
 
-protected:
-  double _evaluateCov(double h) const override;
-};
+    Id getMinOrder() const override { return -1; }
+
+    bool getCompatibleSpaceR() const override { return true; }
+
+  protected:
+    double _evaluateCov(double h) const override;
+  };
 
 } // namespace gstlrn

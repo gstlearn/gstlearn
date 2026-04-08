@@ -43,10 +43,10 @@ int main(int argc, char* argv[])
 
   /* Initializations */
 
-  dbout             = nullptr;
-  vario             = nullptr;
-  model             = nullptr;
-  flag_norm_sill    = 0;
+  dbout = nullptr;
+  vario = nullptr;
+  model = nullptr;
+  flag_norm_sill = 0;
   flag_goulard_used = 1;
 
   /* Standard output redirection to file */
@@ -56,8 +56,9 @@ int main(int argc, char* argv[])
   /* Create the output name (for storage of dump files) */
 
   VectorString subparts = separateKeywords(argv[1]);
-  int nargs             = static_cast<int>(subparts.size());
-  String outname        = concatenateStrings("", subparts[nargs - 2], subparts[nargs - 1], "-");
+  int nargs = static_cast<int>(subparts.size());
+  String outname =
+    concatenateStrings("", subparts[nargs - 2], subparts[nargs - 1], "-");
   ASerializable::setPrefixName(outname);
 
   /* Setup constants */
@@ -77,8 +78,10 @@ int main(int argc, char* argv[])
   /* Define the options */
 
   ascii_filename("Option", 0, 0, filename);
-  if (ascii_option_defined(filename, "Norm_sill", &repval)) flag_norm_sill = repval;
-  if (ascii_option_defined(filename, "Goulard_used", &repval)) flag_goulard_used = repval;
+  if (ascii_option_defined(filename, "Norm_sill", &repval))
+    flag_norm_sill = repval;
+  if (ascii_option_defined(filename, "Goulard_used", &repval))
+    flag_goulard_used = repval;
 
   /* Define the output grid file */
 

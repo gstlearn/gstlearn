@@ -29,9 +29,11 @@ int main(int argc, char* argv[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
 
-  Db* db           = Db::createFillRandom(100, 2, 0);
-  Model* model     = Model::createFromParam(ECov::EXPONENTIAL, TEST, 2., 1., {0.1, 0.3}, MatrixSymmetric(), {30., 0});
-  Model* modelfit1 = Model::createFromParam(ECov::EXPONENTIAL, TEST, 1, 1, {1., 1.}, MatrixSymmetric(), {0., 0});
+  Db* db = Db::createFillRandom(100, 2, 0);
+  Model* model = Model::createFromParam(
+    ECov::EXPONENTIAL, TEST, 2., 1., {0.1, 0.3}, MatrixSymmetric(), {30., 0});
+  Model* modelfit1 = Model::createFromParam(
+    ECov::EXPONENTIAL, TEST, 1, 1, {1., 1.}, MatrixSymmetric(), {0., 0});
   modelfit1->setDriftIRF(0);
   Model* modelfit2 = modelfit1->clone();
   mestitle(0, "Test fit likelihood");
@@ -41,7 +43,7 @@ int main(int argc, char* argv[])
   Id mode = 0;
   simtub(nullptr, db, model, nullptr, 1, 234555, 3000);
   bool verbose = false;
-  bool trace   = false;
+  bool trace = false;
   bool use_gradient;
 
   if (mode == 0 || mode == 1)
@@ -50,8 +52,8 @@ int main(int argc, char* argv[])
     OptCustom::define("UseGradient", static_cast<Id>(use_gradient));
     message("Start Fitting Model with Vecchia Approximation\n");
     message("(Gradient Option is %d)\n", use_gradient);
-    modelfit1->fitNew(db, nullptr, nullptr, nullptr, ModelOptimParam(),
-                      30, verbose, trace);
+    modelfit1->fitNew(
+      db, nullptr, nullptr, nullptr, ModelOptimParam(), 30, verbose, trace);
 
     mestitle(1, "Fitted Model");
     modelfit1->display();
@@ -62,8 +64,8 @@ int main(int argc, char* argv[])
     OptCustom::define("UseGradient", static_cast<Id>(use_gradient));
     message("Start Fitting Model with Likelihood\n");
     message("(Gradient Option is %d)\n", use_gradient);
-    modelfit2->fitNew(db, nullptr, nullptr, nullptr, ModelOptimParam(),
-                      ITEST, verbose, trace);
+    modelfit2->fitNew(
+      db, nullptr, nullptr, nullptr, ModelOptimParam(), ITEST, verbose, trace);
 
     mestitle(1, "Fitted Model");
     modelfit2->display();

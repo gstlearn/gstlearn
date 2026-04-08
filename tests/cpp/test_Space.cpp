@@ -12,15 +12,16 @@
 #include "Space/ASpace.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Space/SpaceComposite.hpp"
-#include "Space/SpaceRN.hpp"
 #include "Space/SpacePoint.hpp"
+#include "Space/SpaceRN.hpp"
 #include <iostream>
 
 using namespace gstlrn;
+
 /**
  * Demonstration of space composite features
  */
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
@@ -29,11 +30,11 @@ int main(int argc, char *argv[])
   // 2D Space + Time (for example)
   auto R2 = SpaceRN::create(2);
   auto R1 = SpaceRN::create(1);
-  auto sp = SpaceComposite::create({R2 , R1});
+  auto sp = SpaceComposite::create({R2, R1});
   setDefaultSpace(sp);
 
   auto psp = getDefaultSpaceSh();
-  psp->display();  // Long description (level 1)
+  psp->display(); // Long description (level 1)
   psp->display(Id{}); // Short description (level 0)
 
   SpacePoint pt1({4.5, 6.5, 10});
@@ -45,13 +46,16 @@ int main(int argc, char *argv[])
 
   // Why this works only under linux ?
   // std::cout << "Global distances: " << pt1.getDistances(pt2) << std::endl;
-  std::cout << "Global distances: " << pt1.getDistances(pt2).toString() << std::endl;
+  std::cout << "Global distances: " << pt1.getDistances(pt2).toString()
+            << std::endl;
 
   std::cout << "Distance space #0: " << pt1.getDistance(pt2, 0) << std::endl;
   std::cout << "Distance space #1: " << pt1.getDistance(pt2, 1) << std::endl;
 
-  std::cout << "Increments space #0: " << pt1.getIncrement(pt2, 0).toString() << std::endl;
-  std::cout << "Increments space #1: " << pt1.getIncrement(pt2, 1).toString() << std::endl;
-  
+  std::cout << "Increments space #0: " << pt1.getIncrement(pt2, 0).toString()
+            << std::endl;
+  std::cout << "Increments space #1: " << pt1.getIncrement(pt2, 1).toString()
+            << std::endl;
+
   return 0;
 }

@@ -28,7 +28,7 @@
 #' @param flag_varz A Boolean scalar. If TRUE, the variance of the kriging value is computed
 #' Computation of the residual, the drift or the drift coefficients
 #' @param estim_list  A list of variables to be estimated with
-#' type %in% 1:4 with 
+#' type %in% 1:4 with
 #'  1 - "observed value"
 #'  2 - "residual"
 #'  3 - "drift"
@@ -38,12 +38,12 @@
 #'  If TRUE, the spatially varying factors are centered
 #' @param prefix A string to build the name of the variables storing the results
 #' @param verbose
-#' @value a error code (not implemented) 
-#' Notes: 
+#' @value a error code (not implemented)
+#' Notes:
 #' - error variance (ELoc_V()) not implemented
-kriging_SVC <- function(dbin, dbout, model, neigh, 
+kriging_SVC <- function(dbin, dbout, model, neigh,
                       flag_est = TRUE,  flag_std = FALSE, flag_varz = FALSE,
-                      estim_list = list(list(type = 1, idx = NULL), 
+                      estim_list = list(list(type = 1, idx = NULL),
                                         list(type = 2, idx = NULL),
                                         list(type = 3, idx = NULL)),
                       flag_centeredFactors = FALSE,
@@ -53,19 +53,19 @@ kriging_SVC <- function(dbin, dbout, model, neigh,
   #-----------------------------------------------------------------------
   nm_obs = dbin$getNamesByLocator(ELoc_Z())
   stopifnot(length(nm_obs) == 1)
-  
+
   # the factors
   nm_fac = dbin$getNamesByLocator(ELoc_F())
   nfac = 1+length(nm_fac)       # the constant is added (ifac in 0:nfac)
   nvar = model$getNVar()
   stopifnot(nvar <= nfac)
-  
+
   #-----------------------------------------------------------------------
-  # Targets  
+  # Targets
   #-----------------------------------------------------------------------
   iech_out = dbout$getColumns(names = "rank", useSel = TRUE)
   nout     = length(iech_out)
-  
+
   #-----------------------------------------------------------------------
   # Estimations
   #-----------------------------------------------------------------------
@@ -89,7 +89,7 @@ kriging_SVC <- function(dbin, dbout, model, neigh,
   if (flag_varz) {
     res_varz = matrix(NaN, nrow = dbout$getNSample(useSel = FALSE), ncol = n_estim)
   }
-  
+
   if(verbose) {
     print(paste0("SVC: number of spatial effects     = ", nvar))
     print(paste0("SVC: number of constant effects    = ", nfac - nvar))
@@ -103,18 +103,18 @@ kriging_SVC <- function(dbin, dbout, model, neigh,
       print(paste0("SVC: variable #", i_estim, " = ", estim_nm[i_estim]))
     }
   }
-  
+
   # --------------------------
-  # Initialization 
+  # Initialization
   # --------------------------
   model_mono = model$createReduce(0) # The SVC model is mono-variate (used to compute the drift matrix)
   err      = neigh$attach(dbin, dbout)
   nbghObs  = VectorInt()
   rankObs  = VectorVectorInt()
-  
+
   Kcalc    = KrigingAlgebra()
   krigopt  = KrigOpt()
-  
+
   # working matrices
   Sigma    = MatrixSymmetric() # covariance matrix of the observations
   matcov   = MatrixSymmetric() # working matrix for the covariance matrix evaluation
@@ -122,7 +122,7 @@ kriging_SVC <- function(dbin, dbout, model, neigh,
   X        = MatrixDense()     # Drift Matrix of the data
   X0       = MatrixDense()     # Drift matrix of the target
   Sigma00  = model$eval0Mat()  # Covariance of the target
-  
+
   # --------------------------
   # Loop on the target sites
   # --------------------------
@@ -139,15 +139,15 @@ kriging_SVC <- function(dbin, dbout, model, neigh,
       ns      = length(Z)
       # computing LHS
       # Sigma is a matrix [ns x ns] and X is a matrix [ns x nfac]
-      
+
       # The SVC model is mono-variate to compute the drift matrix
       err = model_mono$evalDriftMatInPlace(mat = X, db = dbin, nbgh = nbghObs, member = ECalcMember_fromKey("LHS"))
-      
+
       # The SVC model is defined by a multi-variate to compute the covariance matrix
       err = dbin$clearLocators(locatorType = ELoc_Z())
       err = model$evalCovMatSymInPlace(matcov, db1 = dbin, nbgh1 = nbghObs, cleanOptim = FALSE)
       err = dbin$setLocators(nm_obs, locatorType = ELoc_Z(), cleanSameLocator = TRUE)
-      
+
       err = computeCovMatSVCLHSInPlace(cov = Sigma, Sigma = matcov, F1 = X)
       if(flag_centeredFactors) {
         X_drift = MatrixDense(nrow = ns, ncol = 1)
@@ -159,7 +159,7 @@ kriging_SVC <- function(dbin, dbout, model, neigh,
       err     = Kcalc$setData(Z = Z, indices = rankObs)
       err     = Kcalc$setLHS(Sigma, X_drift)
     }
-    
+
     # ----------------------
     # computing RHS (start)
     # ----------------------
@@ -167,33 +167,33 @@ kriging_SVC <- function(dbin, dbout, model, neigh,
     RHS_Sigma00 = MatrixSymmetric()
     RHS_Sigma0  = MatrixDense()
     RHS_X0 = MatrixDense()
-    
+
     # drifts at target and covariance matrix Data-Target
-    
+
     # The SVC model is mono-variate to compute the drift matrix
     err = model_mono$evalDriftMatInPlace(mat = X0, db = dbout, nbgh = idxTarget, member = ECalcMember_fromKey("LHS"))
-    
+
     # The SVC model is defined by a multi-variate to compute the covariance matrix
     err = dbin$clearLocators(locatorType = ELoc_Z())
-    err = model$evalCovMatInPlace(mat = Sigma0, 
+    err = model$evalCovMatInPlace(mat = Sigma0,
                                   db1 = dbin,  nbgh1 = nbghObs,
-                                  db2 = dbout, nbgh2 = idxTarget, 
+                                  db2 = dbout, nbgh2 = idxTarget,
                                   cleanOptim = FALSE)
     err = dbin$setLocators(nm_obs, locatorType = ELoc_Z(), cleanSameLocator = TRUE)
-    
+
     for (i in 1:n_estim) {
       # variance of the target variable
       err = computeCovMatSVCRHSInPlace(cov = RHS_Sigma00, Sigma = Sigma00, F1 = X0, F2 = X0,
-                                        type1 = estim_list[[i]]$type, idx1 = estim_list[[i]]$idx, 
+                                        type1 = estim_list[[i]]$type, idx1 = estim_list[[i]]$idx,
                                         type2 = estim_list[[i]]$type, idx2 = estim_list[[i]]$idx
       )
-      
+
       # covariance between data and target variable
       err = computeCovMatSVCRHSInPlace(cov = RHS_Sigma0, Sigma = Sigma0, F1 = X, F2 = X0,
-                                        type1 = 1, idx1 = -1, 
+                                        type1 = 1, idx1 = -1,
                                         type2 = estim_list[[i]]$type, idx2 = estim_list[[i]]$idx
       )
-      
+
       # drift between data and target variable
       # TODO: resizing the output matrix to be inserted in the function
       if (flag_centeredFactors) {
@@ -201,10 +201,10 @@ kriging_SVC <- function(dbin, dbout, model, neigh,
       } else {
         err = RHS_X0$resize(nrows = 1, ncols = X0$getNCols())
       }
-      err = computeDriftMatSVCRHSInPlace(mat = RHS_X0, X0, 
+      err = computeDriftMatSVCRHSInPlace(mat = RHS_X0, X0,
                                           type = estim_list[[i]]$type, idx = estim_list[[i]]$idx,
                                           flagCenteredFactors = flag_centeredFactors)
-      
+
       err = Kcalc$setVariance(RHS_Sigma00)
       err = Kcalc$setRHS(Sigma0 = RHS_Sigma0, X0 = RHS_X0)
       if(flag_est){
@@ -218,7 +218,7 @@ kriging_SVC <- function(dbin, dbout, model, neigh,
       }
     } # loop over the estimations
   } # loop over the targets...
-  
+
   # --------------------------
   # Storing the computed variables
   # --------------------------
@@ -238,4 +238,3 @@ kriging_SVC <- function(dbin, dbout, model, neigh,
   }
   err
 }
-

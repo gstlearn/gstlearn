@@ -45,14 +45,15 @@ namespace gstlrn
     Id _kriging_define();
     void _neigh_simfine(Id type, Id rank, Id idx, Id idy, Id idz);
     void _merge_data(DbGrid* db1, Id iatt1, DbGrid* db2, Id iatt2);
-    double _read(DbGrid* db,
-                 Id iatt,
-                 Id ix0,
-                 Id iy0,
-                 Id iz0,
-                 Id idx,
-                 Id idy,
-                 Id idz);
+    double _read(
+      DbGrid* db,
+      Id iatt,
+      Id ix0,
+      Id iy0,
+      Id iz0,
+      Id idx,
+      Id idy,
+      Id idz);
     static void
       _write(DbGrid* db, Id iatt, Id ix0, Id iy0, Id iz0, double value);
     void _truncate_result(DbGrid* db2, Id iatt2, DbGrid* db1, Id iatt1);

@@ -2,7 +2,7 @@
 
 # This script is meant to update the reference output file starting from the resulting test file output file Release mode only)
 # This script requires the environment variable GSTLEARN_DIR
-# 
+#
 set DIR = $GSTLEARN_DIR/gstlearn
 
 set nargs = $#argv

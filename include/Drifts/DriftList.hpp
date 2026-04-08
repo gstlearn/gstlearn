@@ -25,198 +25,243 @@
 
 namespace gstlrn
 {
-class ASpace;
-class SpacePoint;
-class Db;
-class CovCalcMode;
-class ListParams;
-class ELoc;
+  class ASpace;
+  class SpacePoint;
+  class Db;
+  class CovCalcMode;
+  class ListParams;
+  class ELoc;
 
-/**
- * \brief
- * This class provides the information on **Drift** part of the Model. The drift plays the role of the average of the
- * target Random Function which may be constant or vary as a function with low frequency variations (by opposition to the
- * complementary part of the Spatial Characteristics which is described by its Covariance)
- *
- * This class essentially contains a list of basic (active)e drift functions: see ADrift.hpp for details.
- *
- * This class also carry other important informations:
- * - a vector giving the status of each basic drift functions: it may be *active* or *filtered*
- * - some additional information defining some relationship between the basic drift function: this is used for the special
- * case where the different Random Functions obey to algebraic relations.
- */
-class GSTLEARN_EXPORT DriftList: public AStringable, public ICloneable, public ASerializable
-{
-public:
-  DriftList(const CovContext& ctxt = CovContext());
-  DriftList(const DriftList& r);
-  DriftList& operator=(const DriftList& r);
-  virtual ~DriftList();
+  /**
+   * \brief
+   * This class provides the information on **Drift** part of the Model. The drift plays the role of the average of the
+   * target Random Function which may be constant or vary as a function with low frequency variations (by opposition to the
+   * complementary part of the Spatial Characteristics which is described by its Covariance)
+   *
+   * This class essentially contains a list of basic (active)e drift functions: see ADrift.hpp for details.
+   *
+   * This class also carry other important informations:
+   * - a vector giving the status of each basic drift functions: it may be *active* or *filtered*
+   * - some additional information defining some relationship between the basic drift function: this is used for the special
+   * case where the different Random Functions obey to algebraic relations.
+   */
+  class GSTLEARN_EXPORT DriftList: public AStringable,
+                                   public ICloneable,
+                                   public ASerializable
+  {
+  public:
+    DriftList(const CovContext& ctxt = CovContext());
+    DriftList(const DriftList& r);
+    DriftList& operator=(const DriftList& r);
+    virtual ~DriftList();
 
-  /// ICloneable interface
-  IMPLEMENT_CLONING(DriftList)
+    /// ICloneable interface
+    IMPLEMENT_CLONING(DriftList)
 
-  /// AStringable Interface
-  String toString(const AStringFormat* strfmt = nullptr) const override;
+    /// AStringable Interface
+    String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  /// ASerializable Interface
-  String getNFName() const override { return "DriftList"; }
+    /// ASerializable Interface
+    String getNFName() const override { return "DriftList"; }
 #ifdef HDF5
-  bool deserializeH5(H5::Group& grp) override;
-  bool serializeH5(H5::Group& grp) const override;
+    bool deserializeH5(H5::Group& grp) override;
+    bool serializeH5(H5::Group& grp) const override;
 #endif
 
-  Id getNVar() const { return _ctxt.getNVar(); }
-  Id getNDrift() const { return static_cast<Id>(_drifts.size()); }
-  bool hasDrift() const { return !_drifts.empty(); }
+    Id getNVar() const { return _ctxt.getNVar(); }
 
-  // Add one elementary drift structure
-  void addDrift(const ADrift* drift);
-  // Remove an elementary drift structure
-  void delDrift(size_t rank);
-  // Remove all elementary drift structures
-  void delAllDrifts();
+    Id getNDrift() const { return static_cast<Id>(_drifts.size()); }
 
-  const VectorBool& getFiltered() const { return _filtered; }
-  void setFiltered(const VectorBool& filtered) { _filtered = filtered; }
-  bool isDriftFiltered(Id i) const;
-  void setFiltered(Id i, bool filter);
-  Id getNDriftEquation() const;
-  bool hasExternalDrift() const;
-  bool isValid() const;
-  Id getNExtDrift() const;
-  const CovContext& getContext() const { return _ctxt; }
+    bool hasDrift() const { return !_drifts.empty(); }
 
-  /// TODO : to be removed (encapsulation)
-  ////////////////////////////////////////////////
-  const ADrift* getDrift(Id il) const;
-  Id getRankFex(Id il) const;
-  String getDriftName(Id il) const;
-  ////////////////////////////////////////////////
+    // Add one elementary drift structure
+    void addDrift(const ADrift* drift);
+    // Remove an elementary drift structure
+    void delDrift(size_t rank);
+    // Remove all elementary drift structures
+    void delAllDrifts();
 
-  const VectorDouble& getBetaHats() const { return _betaHat; }
+    const VectorBool& getFiltered() const { return _filtered; }
 
-  void setDriftCLByPart(Id ivar, Id ib, const VectorDouble& coef);
-  void resetDriftList();
+    void setFiltered(const VectorBool& filtered) { _filtered = filtered; }
 
-  bool isDriftSampleDefined(const Db* db,
-                            Id ib,
-                            Id nech,
-                            const VectorInt& nbgh,
-                            const ELoc& loctype) const;
-  double computeDrift(const Db* db, Id ib, Id iech) const;
+    bool isDriftFiltered(Id i) const;
+    void setFiltered(Id i, bool filter);
+    Id getNDriftEquation() const;
+    bool hasExternalDrift() const;
+    bool isValid() const;
+    Id getNExtDrift() const;
 
-  VectorVectorDouble getDrifts(const Db* db, bool useSel = true) const;
-  bool isFlagLinked() const { return _flagLinked; }
-  bool isFlagCombined() const { return _flagCombined; }
-  Id getDriftMaxIRFOrder() const;
-  bool isDriftDefined(const VectorInt& powers, Id rank_fex = 0) const;
-  bool isDriftDifferentDefined(const VectorInt& powers, Id rank_fex = -1) const;
+    const CovContext& getContext() const { return _ctxt; }
 
-  void copyCovContext(const CovContext& ctxt);
+    /// TODO : to be removed (encapsulation)
+    ////////////////////////////////////////////////
+    const ADrift* getDrift(Id il) const;
+    Id getRankFex(Id il) const;
+    String getDriftName(Id il) const;
 
-  void setFlagLinked(bool flagLinked) { _flagLinked = flagLinked; }
-  void setFlagCombined(bool flagCombined) { _flagCombined = flagCombined; }
-  void setBetaHat(const VectorDouble& betaHat) { _betaHat = betaHat; }
+    ////////////////////////////////////////////////
 
-  double evalDrift(const Db* db,
-                   Id iech,
-                   Id il,
-                   const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
-  double evalDriftCoef(const Db* db, Id iech, const VectorDouble& coeffs) const;
-  VectorDouble evalDriftCoefs(const Db* db,
-                              const VectorDouble& coeffs,
-                              bool useSel = false) const;
-  VectorDouble evalDriftBySample(const Db* db,
-                                 Id iech,
-                                 const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
-  void evalDriftBySampleInPlace(const Db* db,
-                                Id iech,
-                                const ECalcMember& member,
-                                VectorDouble& drftab) const;
-  MatrixDense evalDriftMat(const Db* db,
-                           const VectorInt& nbgh     = VectorInt(),
-                           const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
-  Id evalDriftMatInPlace(MatrixDense& mat,
-                         const Db* db,
-                         const VectorInt& nbgh     = VectorInt(),
-                         const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
-  Id evalDriftMatByRanksInPlace(MatrixDense& mat,
-                                const Db* db,
-                                const VectorVectorInt& sampleranks = VectorVectorInt(),
-                                const ECalcMember& member          = ECalcMember::fromKey("LHS")) const;
-  MatrixDense evalDriftMatByRanks(const Db* db,
-                                  const VectorVectorInt& sampleRanks = VectorVectorInt(),
-                                  const ECalcMember& member          = ECalcMember::fromKey("LHS")) const;
-  VectorDouble evalMeanVecByRanks(const Db* db,
-                                  const VectorVectorInt& sampleRanks = VectorVectorInt()) const;
-  Id evalDriftMatByTargetInPlace(MatrixDense& mat,
-                                 const Db* db,
-                                 Id iech2,
-                                 const KrigOpt& krigopt = KrigOpt()) const;
-  double evalDriftValue(const Db* db,
-                        Id iech,
-                        Id ivar,
-                        Id ib,
-                        const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
+    const VectorDouble& getBetaHats() const { return _betaHat; }
 
-  void setMeans(const VectorDouble& mean);
-  void setMean(const double mean, Id ivar = 0);
-  double getMean(Id ivar) const;
-  const VectorDouble& getMeans() const { return _mean; }
-  void setPriorMeans(const VectorDouble& priorMeans);
-  void setPriorCovs(const MatrixSymmetric& priorCovs);
-  const DriftList* createReduce(const VectorInt& validVars) const;
+    void setDriftCLByPart(Id ivar, Id ib, const VectorDouble& coef);
+    void resetDriftList();
 
-  const VectorDouble& getPriorMeans() const { return _priorMeans; }
-  const MatrixSymmetric& getPriorCovs() const { return _priorCovs; }
-  double getPriorCov(Id i1, Id i2) const;
+    bool isDriftSampleDefined(
+      const Db* db,
+      Id ib,
+      Id nech,
+      const VectorInt& nbgh,
+      const ELoc& loctype) const;
+    double computeDrift(const Db* db, Id ib, Id iech) const;
 
-  double evalDriftVarCoef(const Db* db,
-                          Id iech,
-                          Id ivar,
-                          const VectorDouble& coeffs) const;
-  VectorDouble evalDriftVarCoefs(const Db* db,
-                                 const VectorDouble& coeffs,
-                                 bool useSel = false) const;
-  virtual void appendParams(ListParams& listParams)
-  {
-    DECLARE_UNUSED(listParams);
-  }
-  void updateDriftList()
-  {
-  }
+    VectorVectorDouble getDrifts(const Db* db, bool useSel = true) const;
 
-  static void initParams(const MatrixSymmetric& vars, double href = 1.)
-  {
-    DECLARE_UNUSED(vars, href);
-  }
+    bool isFlagLinked() const { return _flagLinked; }
 
-private:
-  void _update();
-  bool _isDriftIndexValid(Id i) const;
-  bool _isDriftEquationValid(Id ib) const;
-  Id _getAddress(Id ivar, Id il, Id ib) const
-  {
-    return (ib + getNDriftEquation() * (il + getNDrift() * ivar));
-  }
-  double _getDriftCL(Id ivar, Id il, Id ib) const { return _driftCL[_getAddress(ivar, il, ib)]; }
-  void _setDriftCL(Id ivar, Id il, Id ib, double value) { _driftCL[_getAddress(ivar, il, ib)] = value; }
-  VectorInt _getActiveVariables(Id ivar0) const;
+    bool isFlagCombined() const { return _flagCombined; }
+
+    Id getDriftMaxIRFOrder() const;
+    bool isDriftDefined(const VectorInt& powers, Id rank_fex = 0) const;
+    bool
+      isDriftDifferentDefined(const VectorInt& powers, Id rank_fex = -1) const;
+
+    void copyCovContext(const CovContext& ctxt);
+
+    void setFlagLinked(bool flagLinked) { _flagLinked = flagLinked; }
+
+    void setFlagCombined(bool flagCombined) { _flagCombined = flagCombined; }
+
+    void setBetaHat(const VectorDouble& betaHat) { _betaHat = betaHat; }
+
+    double evalDrift(
+      const Db* db,
+      Id iech,
+      Id il,
+      const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
+    double
+      evalDriftCoef(const Db* db, Id iech, const VectorDouble& coeffs) const;
+    VectorDouble evalDriftCoefs(
+      const Db* db,
+      const VectorDouble& coeffs,
+      bool useSel = false) const;
+    VectorDouble evalDriftBySample(
+      const Db* db,
+      Id iech,
+      const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
+    void evalDriftBySampleInPlace(
+      const Db* db,
+      Id iech,
+      const ECalcMember& member,
+      VectorDouble& drftab) const;
+    MatrixDense evalDriftMat(
+      const Db* db,
+      const VectorInt& nbgh = VectorInt(),
+      const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
+    Id evalDriftMatInPlace(
+      MatrixDense& mat,
+      const Db* db,
+      const VectorInt& nbgh = VectorInt(),
+      const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
+    Id evalDriftMatByRanksInPlace(
+      MatrixDense& mat,
+      const Db* db,
+      const VectorVectorInt& sampleranks = VectorVectorInt(),
+      const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
+    MatrixDense evalDriftMatByRanks(
+      const Db* db,
+      const VectorVectorInt& sampleRanks = VectorVectorInt(),
+      const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
+    VectorDouble evalMeanVecByRanks(
+      const Db* db,
+      const VectorVectorInt& sampleRanks = VectorVectorInt()) const;
+    Id evalDriftMatByTargetInPlace(
+      MatrixDense& mat,
+      const Db* db,
+      Id iech2,
+      const KrigOpt& krigopt = KrigOpt()) const;
+    double evalDriftValue(
+      const Db* db,
+      Id iech,
+      Id ivar,
+      Id ib,
+      const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
+
+    void setMeans(const VectorDouble& mean);
+    void setMean(const double mean, Id ivar = 0);
+    double getMean(Id ivar) const;
+
+    const VectorDouble& getMeans() const { return _mean; }
+
+    void setPriorMeans(const VectorDouble& priorMeans);
+    void setPriorCovs(const MatrixSymmetric& priorCovs);
+    const DriftList* createReduce(const VectorInt& validVars) const;
+
+    const VectorDouble& getPriorMeans() const { return _priorMeans; }
+
+    const MatrixSymmetric& getPriorCovs() const { return _priorCovs; }
+
+    double getPriorCov(Id i1, Id i2) const;
+
+    double evalDriftVarCoef(
+      const Db* db,
+      Id iech,
+      Id ivar,
+      const VectorDouble& coeffs) const;
+    VectorDouble evalDriftVarCoefs(
+      const Db* db,
+      const VectorDouble& coeffs,
+      bool useSel = false) const;
+
+    virtual void appendParams(ListParams& listParams)
+    {
+      DECLARE_UNUSED(listParams);
+    }
+
+    void updateDriftList() {}
+
+    static void initParams(const MatrixSymmetric& vars, double href = 1.)
+    {
+      DECLARE_UNUSED(vars, href);
+    }
+
+  private:
+    void _update();
+    bool _isDriftIndexValid(Id i) const;
+    bool _isDriftEquationValid(Id ib) const;
+
+    Id _getAddress(Id ivar, Id il, Id ib) const
+    {
+      return (ib + getNDriftEquation() * (il + getNDrift() * ivar));
+    }
+
+    double _getDriftCL(Id ivar, Id il, Id ib) const
+    {
+      return _driftCL[_getAddress(ivar, il, ib)];
+    }
+
+    void _setDriftCL(Id ivar, Id il, Id ib, double value)
+    {
+      _driftCL[_getAddress(ivar, il, ib)] = value;
+    }
+
+    VectorInt _getActiveVariables(Id ivar0) const;
 
 #ifndef SWIG
 
-protected:
-  bool _flagLinked;             /* True when Drift equations are linked */
-  bool _flagCombined;           /* True when Drift is obtained by Linear Combination */
-  VectorDouble _driftCL;        /* Linear combination of Drift Coefficients */
-  std::vector<ADrift*> _drifts; /* Vector of elementary drift functions */
-  VectorDouble _betaHat;        /* Drift coefficients by ML */
-  VectorBool _filtered;         /* Vector of filtered flags (Dimension: as _drifts) */
-  CovContext _ctxt;             /* Context (space, number of variables, ...) */
-  VectorDouble _mean;           /*  Mean vector */
-  VectorDouble _priorMeans;     /* Prior mean vector (only for Bayesian hypothesis) */
-  MatrixSymmetric _priorCovs;   /* Prior covariance matrix (only for Bayesian hypothesis) */
+  protected:
+    bool _flagLinked; /* True when Drift equations are linked */
+    bool _flagCombined; /* True when Drift is obtained by Linear Combination */
+    VectorDouble _driftCL; /* Linear combination of Drift Coefficients */
+    std::vector<ADrift*> _drifts; /* Vector of elementary drift functions */
+    VectorDouble _betaHat; /* Drift coefficients by ML */
+    VectorBool _filtered; /* Vector of filtered flags (Dimension: as _drifts) */
+    CovContext _ctxt; /* Context (space, number of variables, ...) */
+    VectorDouble _mean; /*  Mean vector */
+    VectorDouble
+      _priorMeans; /* Prior mean vector (only for Bayesian hypothesis) */
+    MatrixSymmetric
+      _priorCovs; /* Prior covariance matrix (only for Bayesian hypothesis) */
 #endif
-};
+  };
 } // namespace gstlrn

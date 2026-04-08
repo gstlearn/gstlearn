@@ -24,1359 +24,1409 @@
 
 namespace gstlrn
 {
-KrigingAlgebraSimpleCase::KrigingAlgebraSimpleCase(bool flagDual,
-                                                   const RankHandler* rankHandler,
-                                                   const VectorDouble* Z,
-                                                   const VectorDouble& Means,
-                                                   Id flagchol,
-                                                   bool neighUnique)
-  : _Z(nullptr)
-  , _rankHandler(nullptr)
-  , _nbgh(nullptr)
-  , _X(nullptr)
-  , _Sigma(nullptr)
-  , _Sigma00(nullptr)
-  , _Sigma0(nullptr)
-  , _X0(nullptr)
-  , _Means()
-  , _InvSigma(nullptr)
-  , _cholSigma(nullptr)
-  , _XtInvSigma(nullptr)
-  , _invSigmaX(nullptr)
-  , _XtInvSigmaZ(nullptr)
-  , _invSigmac(nullptr)
-  , _Beta(nullptr)
-  , _LambdaSK(nullptr)
-  , _bDual(nullptr)
-  , _invSigmaXBeta(nullptr)
-  , _Zstar()
-  , _LambdaSKtX()
-  , _LambdaUK()
-  , _MuUK()
-  , _Stdv()
-  , _VarZSK()
-  , _VarZUK()
-  , _Y0()
-  , _LambdaUKtSigma0()
-  , _MuUKtX0t()
-  , _invSigmaXMuUK()
-  , _X0Beta()
-  , _nvar(0)
-  , _neq(0)
-  , _nbfl(0)
-  , _nrhs(0)
-  , _flagSK(true)
-  , _flagDual(flagDual)
-  , _neighUnique(neighUnique)
-  , _flagCholesky(flagchol == -1 ? (flagDual || _neighUnique) : flagchol)
-  , _dualHasChanged(true)
-  , _invSigmaHasChanged(true)
-{
-  _Sigma0 = std::make_shared<MatrixDense>();
-  _X0     = std::make_shared<MatrixDense>();
-
-  (void)setData(Z, rankHandler, Means);
-
-  _Sigma00 = std::make_shared<MatrixSymmetric>();
-  if (_flagCholesky)
+  KrigingAlgebraSimpleCase::KrigingAlgebraSimpleCase(
+    bool flagDual,
+    const RankHandler* rankHandler,
+    const VectorDouble* Z,
+    const VectorDouble& Means,
+    Id flagchol,
+    bool neighUnique)
+    : _Z(nullptr)
+    , _rankHandler(nullptr)
+    , _nbgh(nullptr)
+    , _X(nullptr)
+    , _Sigma(nullptr)
+    , _Sigma00(nullptr)
+    , _Sigma0(nullptr)
+    , _X0(nullptr)
+    , _Means()
+    , _InvSigma(nullptr)
+    , _cholSigma(nullptr)
+    , _XtInvSigma(nullptr)
+    , _invSigmaX(nullptr)
+    , _XtInvSigmaZ(nullptr)
+    , _invSigmac(nullptr)
+    , _Beta(nullptr)
+    , _LambdaSK(nullptr)
+    , _bDual(nullptr)
+    , _invSigmaXBeta(nullptr)
+    , _Zstar()
+    , _LambdaSKtX()
+    , _LambdaUK()
+    , _MuUK()
+    , _Stdv()
+    , _VarZSK()
+    , _VarZUK()
+    , _Y0()
+    , _LambdaUKtSigma0()
+    , _MuUKtX0t()
+    , _invSigmaXMuUK()
+    , _X0Beta()
+    , _nvar(0)
+    , _neq(0)
+    , _nbfl(0)
+    , _nrhs(0)
+    , _flagSK(true)
+    , _flagDual(flagDual)
+    , _neighUnique(neighUnique)
+    , _flagCholesky(flagchol == -1 ? (flagDual || _neighUnique) : flagchol)
+    , _dualHasChanged(true)
+    , _invSigmaHasChanged(true)
   {
-    _cholSigma = std::make_shared<CholeskyDense>(*_Sigma);
-    _invSigmaX = std::make_shared<MatrixDense>();
-  }
-  else
-  {
-    _InvSigma   = std::make_shared<MatrixSymmetric>();
-    _XtInvSigma = std::make_shared<MatrixDense>();
-  }
-
-  _XtInvSigmaZ = std::make_shared<VectorDouble>();
-  _invSigmac   = std::make_shared<MatrixSymmetric>();
-  _Beta        = std::make_shared<VectorDouble>();
-  _LambdaSK    = std::make_shared<MatrixDense>(); // Weights for SK (Dim: _neq * _nrhs)
-
-  // Following elements are defined for Dual programming
-  _bDual         = std::make_shared<VectorDouble>(); // Fake Covariance part in Dual (Dim: _neq)
-  _invSigmaXBeta = std::make_shared<VectorDouble>();
-
-  _Sigma       = std::make_shared<MatrixSymmetric>();
-  _X           = std::make_shared<MatrixDense>();
-  _rankHandler = std::make_shared<RankHandler>();
-  _nbgh        = std::make_shared<VectorInt>();
-}
-
-KrigingAlgebraSimpleCase::KrigingAlgebraSimpleCase(KrigingAlgebraSimpleCase& r)
-{
-
-  // Quantities that do not evolve with the target in unique Neighborhood
-
-  if (r._neighUnique)
-    _copyPtrForUniqueNeigh(r);
-  else
-    _copyContentForMovingNeigh(r);
-
-  // Quantities which always evolve with the target
-  _copyOtherContent(r); // Ptrs
-  _copyMatsAndVecs(r);  // Matrices and vectors
-
-  _copyFlags(r);           // various flags
-  _copyModelQuantities(r); // Quantities related to the model
-}
-
-void KrigingAlgebraSimpleCase::_copyModelQuantities(const KrigingAlgebraSimpleCase& r)
-{
-  // Quantities related to the model
-  _Means = r._Means;
-  _nvar  = r._nvar;
-  _nbfl  = r._nbfl;
-
-  // Unclear Status but copy can be done
-  _neq  = r._neq;
-  _nrhs = r._nrhs;
-}
-
-void KrigingAlgebraSimpleCase::_copyPtrForUniqueNeigh(KrigingAlgebraSimpleCase& r)
-{
-  _Z             = r._Z;
-  _rankHandler   = r._rankHandler;
-  _nbgh          = r._nbgh;
-  _X             = r._X;
-  _Sigma         = r._Sigma;
-  _InvSigma      = r._InvSigma;
-  _cholSigma     = r._cholSigma;
-  _XtInvSigma    = r._XtInvSigma;
-  _invSigmaX     = r._invSigmaX;
-  _XtInvSigmaZ   = r._XtInvSigmaZ;
-  _invSigmac     = r._invSigmac;
-  _Beta          = r._Beta;
-  _bDual         = r._bDual;
-  _invSigmaXBeta = r._invSigmaXBeta;
-}
-
-void KrigingAlgebraSimpleCase::_copyContentForMovingNeigh(const KrigingAlgebraSimpleCase& r)
-{
-
-  if (r._rankHandler == nullptr)
-    _rankHandler = std::make_shared<RankHandler>();
-  else
-    _rankHandler = std::shared_ptr<RankHandler>(new RankHandler(*r._rankHandler));
-
-  _Z = _rankHandler->getZflatten();
-
-  if (r._nbgh == nullptr)
-    _nbgh = std::make_shared<VectorInt>();
-  else
-    _nbgh = std::shared_ptr<VectorInt>(new VectorInt(*r._nbgh));
-
-  if (r._X == nullptr)
-    _X = std::make_shared<MatrixDense>();
-  else
-    _X = std::shared_ptr<MatrixDense>(r._X->clone());
-
-  if (r._Sigma == nullptr)
-    _Sigma = std::make_shared<MatrixSymmetric>();
-  else
-    _Sigma = std::shared_ptr<MatrixSymmetric>(r._Sigma->clone());
-
-  if (r._flagCholesky)
-  {
-    if (r._cholSigma == nullptr)
-      _cholSigma = std::make_shared<CholeskyDense>();
-    else
-      _cholSigma = std::shared_ptr<CholeskyDense>(new CholeskyDense(*r._Sigma));
-
-    if (r._invSigmaX == nullptr)
-      _invSigmaX = std::make_shared<MatrixDense>();
-    else
-      _invSigmaX = std::shared_ptr<MatrixDense>(_invSigmaX->clone());
-  }
-  else
-  {
-    if (r._InvSigma == nullptr)
-      _InvSigma = std::make_shared<MatrixSymmetric>();
-    else
-      _InvSigma = std::shared_ptr<MatrixSymmetric>(r._InvSigma->clone());
-
-    if (r._XtInvSigma == nullptr)
-      _XtInvSigma = std::make_shared<MatrixDense>();
-    else
-      _XtInvSigma = std::shared_ptr<MatrixDense>(r._XtInvSigma->clone());
-  }
-
-  if (r._XtInvSigmaZ == nullptr)
-    _XtInvSigmaZ = std::make_shared<VectorDouble>();
-  else
-    _XtInvSigmaZ = std::shared_ptr<VectorDouble>(new VectorDouble(*r._XtInvSigmaZ));
-
-  if (r._invSigmac == nullptr)
-    _invSigmac = std::make_shared<MatrixSymmetric>();
-  else
-    _invSigmac = std::shared_ptr<MatrixSymmetric>(r._invSigmac->clone());
-
-  if (r._Beta == nullptr)
-    _Beta = std::make_shared<VectorDouble>();
-  else
-    _Beta = std::shared_ptr<VectorDouble>(new VectorDouble(*r._Beta));
-
-  if (r._bDual == nullptr)
-    _bDual = std::make_shared<VectorDouble>();
-  else
-    _bDual = std::shared_ptr<VectorDouble>(new VectorDouble(*r._bDual));
-
-  if (r._invSigmaXBeta == nullptr)
-    _invSigmaXBeta = std::make_shared<VectorDouble>();
-  else
-    _invSigmaXBeta = std::shared_ptr<VectorDouble>(new VectorDouble(*r._invSigmaXBeta));
-}
-
-void KrigingAlgebraSimpleCase::_copyOtherContent(const KrigingAlgebraSimpleCase& r)
-{
-  if (r._Sigma00 == nullptr)
-    _Sigma00 = std::make_shared<MatrixSymmetric>();
-  else
-    _Sigma00 = std::shared_ptr<MatrixSymmetric>(r._Sigma00->clone());
-
-  if (r._Sigma0 == nullptr)
     _Sigma0 = std::make_shared<MatrixDense>();
-  else
-    _Sigma0 = std::shared_ptr<MatrixDense>(r._Sigma0->clone());
-
-  if (r._X0 == nullptr)
     _X0 = std::make_shared<MatrixDense>();
-  else
-    _X0 = std::shared_ptr<MatrixDense>(r._X0->clone());
 
-  if (r._LambdaSK == nullptr)
-    _LambdaSK = std::make_shared<MatrixDense>();
-  else
-    _LambdaSK = std::shared_ptr<MatrixDense>(r._LambdaSK->clone());
-}
+    (void)setData(Z, rankHandler, Means);
 
-void KrigingAlgebraSimpleCase::_copyMatsAndVecs(const KrigingAlgebraSimpleCase& r)
-{
-  // Vector Double or matrices are simply copied
-  _Zstar           = r._Zstar;
-  _LambdaSKtX      = r._LambdaSKtX;
-  _LambdaUK        = r._LambdaUK;
-  _MuUK            = r._MuUK;
-  _Stdv            = r._Stdv;
-  _VarZSK          = r._VarZSK;
-  _VarZUK          = r._VarZUK;
-  _Y0              = r._Y0;
-  _LambdaUKtSigma0 = r._LambdaUKtSigma0;
-  _MuUKtX0t        = r._MuUKtX0t;
-  _invSigmaXMuUK   = r._invSigmaXMuUK;
-  _X0Beta          = r._X0Beta;
-}
+    _Sigma00 = std::make_shared<MatrixSymmetric>();
+    if (_flagCholesky)
+    {
+      _cholSigma = std::make_shared<CholeskyDense>(*_Sigma);
+      _invSigmaX = std::make_shared<MatrixDense>();
+    }
+    else
+    {
+      _InvSigma = std::make_shared<MatrixSymmetric>();
+      _XtInvSigma = std::make_shared<MatrixDense>();
+    }
 
-void KrigingAlgebraSimpleCase::_copyFlags(const KrigingAlgebraSimpleCase& r)
-{
-  _flagSK               = r._flagSK;
-  _flagDual             = r._flagDual;
-  _neighUnique          = r._neighUnique;
-  _flagCholesky         = r._flagCholesky;
-  _dualHasChanged       = r._dualHasChanged;
-  _invSigmaHasChanged   = r._invSigmaHasChanged;
-  _XtInvSigmaHasChanged = r._XtInvSigmaHasChanged;
-}
+    _XtInvSigmaZ = std::make_shared<VectorDouble>();
+    _invSigmac = std::make_shared<MatrixSymmetric>();
+    _Beta = std::make_shared<VectorDouble>();
+    _LambdaSK =
+      std::make_shared<MatrixDense>(); // Weights for SK (Dim: _neq * _nrhs)
 
-KrigingAlgebraSimpleCase::~KrigingAlgebraSimpleCase()
-{
-}
+    // Following elements are defined for Dual programming
+    _bDual = std::make_shared<
+      VectorDouble>(); // Fake Covariance part in Dual (Dim: _neq)
+    _invSigmaXBeta = std::make_shared<VectorDouble>();
 
-void KrigingAlgebraSimpleCase::_resetAll()
-{
-  _resetLinkedToZ();
-  _resetLinkedToLHS();
-  _resetLinkedToRHS();
-  _resetLinkedToSigma00();
-}
-
-void KrigingAlgebraSimpleCase::setDual(bool status)
-{
-  _resetAll();
-  _flagDual = status;
-}
-
-void KrigingAlgebraSimpleCase::_resetLinkedToZ()
-{
-  _deleteDual();
-  _deleteXtInvSigmaZ();
-}
-void KrigingAlgebraSimpleCase::_resetLinkedToLHS()
-{
-  _resetLinkedToSigma();
-  _resetLinkedToX();
-}
-
-void KrigingAlgebraSimpleCase::_resetLinkedToRHS()
-{
-  _resetLinkedToSigma0();
-  _resetLinkedToX0();
-}
-
-void KrigingAlgebraSimpleCase::_resetLinkedToX()
-{
-  _deleteXtInvSigma();
-}
-
-void KrigingAlgebraSimpleCase::_resetLinkedToX0()
-{
-  _Zstar.clear();
-  _deleteMuUK();
-}
-void KrigingAlgebraSimpleCase::_resetLinkedToSigma()
-{
-  _deleteInvSigma();
-}
-void KrigingAlgebraSimpleCase::_resetLinkedToSigma0()
-{
-  _deleteStdv();
-  _deleteLambdaSK();
-  _deleteVarZSK();
-  _deleteVarZUK();
-}
-void KrigingAlgebraSimpleCase::_resetLinkedToSigma00()
-{
-  _deleteStdv();
-}
-void KrigingAlgebraSimpleCase::_deleteBeta()
-{
-  _deleteDual();
-  if (_Beta == nullptr) return;
-  _Beta->clear();
-}
-void KrigingAlgebraSimpleCase::_deleteInvSigma()
-{
-  _deleteDual();
-  _deleteLambdaSK();
-  _deleteXtInvSigma();
-  _invSigmaHasChanged = true;
-}
-void KrigingAlgebraSimpleCase::_deleteLambdaSK()
-{
-
-  _deleteLambdaUK();
-  _Zstar.clear();
-  _deleteVarZSK();
-  _deleteMuUK();
-  if (_LambdaSK == nullptr) return;
-  _LambdaSK->clear();
-}
-void KrigingAlgebraSimpleCase::_deleteLambdaUK()
-{
-  _deleteVarZUK();
-  _deleteStdv();
-  _Zstar.clear();
-  _LambdaUK.clear();
-}
-void KrigingAlgebraSimpleCase::_deleteMuUK()
-{
-  _deleteLambdaUK();
-  _deleteStdv();
-  _MuUK.clear();
-}
-void KrigingAlgebraSimpleCase::_deleteSigmac()
-{
-  _deleteBeta();
-  _deleteMuUK();
-  _deleteDual();
-  _Sigmac.clear();
-  if (_invSigmac == nullptr) return;
-  _invSigmac->clear();
-}
-
-void KrigingAlgebraSimpleCase::_deleteXtInvSigmaZ()
-{
-
-  _deleteLambdaUK();
-  _deleteBeta();
-  _deleteDual();
-
-  if (_XtInvSigmaZ == nullptr) return;
-  _XtInvSigmaZ->clear();
-}
-void KrigingAlgebraSimpleCase::_deleteXtInvSigma()
-{
-  _deleteLambdaUK();
-  _deleteBeta();
-  _deleteSigmac();
-
-  _XtInvSigmaHasChanged = true;
-}
-void KrigingAlgebraSimpleCase::_deleteStdv()
-{
-  _Stdv.clear();
-}
-void KrigingAlgebraSimpleCase::_deleteVarZSK()
-{
-  _deleteStdv();
-
-  _VarZSK.clear();
-}
-void KrigingAlgebraSimpleCase::_deleteVarZUK()
-{
-  _VarZUK.clear();
-}
-
-void KrigingAlgebraSimpleCase::_deleteDual()
-{
-  _Zstar.clear();
-  _dualHasChanged = true;
-}
-
-/**
- * @brief Method to be used when the data has changed (e.g. Moving Neighborhood)
- */
-void KrigingAlgebraSimpleCase::resetNewData()
-{
-  _neq = 0;
-}
-
-void KrigingAlgebraSimpleCase::setZ(std::shared_ptr<VectorDouble>& Z)
-{
-  _Z = Z;
-}
-/**
- * @brief Modify the Data Values (and Means)
- *
- * @param Z Data flattened vector (possibly multivariate)
- * @param rankhandler rank handler
- * @param Means  Vector of known Drift coefficients (optional)
- * @return Id
- *
- * @note If one element is not provided, its address (if already defined) is
- * @note kept unchanged (even if its contents may have been updated)
- */
-Id KrigingAlgebraSimpleCase::setData(const VectorDouble* Z,
-                                     const RankHandler* rankhandler,
-                                     const VectorDouble& Means)
-{
-  _resetLinkedToZ();
-
-  // Argument Z
-  if (Z != nullptr)
-  {
-    if (!_checkDimensionVD("Z", Z, &_neq)) return 1;
-    _Z = std::make_shared<VectorDouble>(*Z);
-  }
-  else
-  {
-    _Z = std::make_shared<VectorDouble>();
-  }
-
-  if (rankhandler != nullptr)
-  {
-    _rankHandler = std::make_shared<RankHandler>(*rankhandler);
-  }
-  else
-  {
+    _Sigma = std::make_shared<MatrixSymmetric>();
+    _X = std::make_shared<MatrixDense>();
     _rankHandler = std::make_shared<RankHandler>();
-    _neq         = 0;
-  }
-  // Argument Means
-
-  setMeans(Means);
-  return 0;
-}
-
-void KrigingAlgebraSimpleCase::setMeans(const VectorDouble& Means)
-{
-  if (!_checkDimensionVD("Means", &Means, &_nvar)) return;
-  _Means = Means;
-}
-
-/**
- * @brief Modify the elements linked to the LHS
- *
- * @param Sigma Data-Data Covariance matrix
- * @param X     Data Drift Matrix
- * @return Id
- *
- * @note If one element is not provided, its address (if already defined) is
- * @note kept unchanged (even if its contents may have been updated)
- */
-Id KrigingAlgebraSimpleCase::setLHS(const MatrixSymmetric* Sigma,
-                                    const MatrixDense* X)
-{
-  _resetLinkedToLHS();
-
-  // Argument Sigma
-  if (Sigma != nullptr)
-  {
-    if (!_checkDimensionMatrix("Sigma", Sigma, &_neq, &_neq)) return 1;
-    _Sigma = std::make_shared<MatrixSymmetric>(*Sigma);
+    _nbgh = std::make_shared<VectorInt>();
   }
 
-  // Argument X
-  if (X == nullptr || X->getNRows() <= 0 || X->getNCols() <= 0)
+  KrigingAlgebraSimpleCase::KrigingAlgebraSimpleCase(
+    KrigingAlgebraSimpleCase& r)
   {
-    _X      = nullptr;
-    _flagSK = true;
+
+    // Quantities that do not evolve with the target in unique Neighborhood
+
+    if (r._neighUnique)
+      _copyPtrForUniqueNeigh(r);
+    else
+      _copyContentForMovingNeigh(r);
+
+    // Quantities which always evolve with the target
+    _copyOtherContent(r); // Ptrs
+    _copyMatsAndVecs(r); // Matrices and vectors
+
+    _copyFlags(r); // various flags
+    _copyModelQuantities(r); // Quantities related to the model
   }
-  else
+
+  void KrigingAlgebraSimpleCase::_copyModelQuantities(
+    const KrigingAlgebraSimpleCase& r)
   {
-    if (!_checkDimensionMatrix("X", X, &_neq, &_nbfl)) return 1;
-    _X      = std::make_shared<MatrixDense>(*X);
+    // Quantities related to the model
+    _Means = r._Means;
+    _nvar = r._nvar;
+    _nbfl = r._nbfl;
+
+    // Unclear Status but copy can be done
+    _neq = r._neq;
+    _nrhs = r._nrhs;
+  }
+
+  void KrigingAlgebraSimpleCase::_copyPtrForUniqueNeigh(
+    KrigingAlgebraSimpleCase& r)
+  {
+    _Z = r._Z;
+    _rankHandler = r._rankHandler;
+    _nbgh = r._nbgh;
+    _X = r._X;
+    _Sigma = r._Sigma;
+    _InvSigma = r._InvSigma;
+    _cholSigma = r._cholSigma;
+    _XtInvSigma = r._XtInvSigma;
+    _invSigmaX = r._invSigmaX;
+    _XtInvSigmaZ = r._XtInvSigmaZ;
+    _invSigmac = r._invSigmac;
+    _Beta = r._Beta;
+    _bDual = r._bDual;
+    _invSigmaXBeta = r._invSigmaXBeta;
+  }
+
+  void KrigingAlgebraSimpleCase::_copyContentForMovingNeigh(
+    const KrigingAlgebraSimpleCase& r)
+  {
+
+    if (r._rankHandler == nullptr)
+      _rankHandler = std::make_shared<RankHandler>();
+    else
+      _rankHandler =
+        std::shared_ptr<RankHandler>(new RankHandler(*r._rankHandler));
+
+    _Z = _rankHandler->getZflatten();
+
+    if (r._nbgh == nullptr)
+      _nbgh = std::make_shared<VectorInt>();
+    else
+      _nbgh = std::shared_ptr<VectorInt>(new VectorInt(*r._nbgh));
+
+    if (r._X == nullptr)
+      _X = std::make_shared<MatrixDense>();
+    else
+      _X = std::shared_ptr<MatrixDense>(r._X->clone());
+
+    if (r._Sigma == nullptr)
+      _Sigma = std::make_shared<MatrixSymmetric>();
+    else
+      _Sigma = std::shared_ptr<MatrixSymmetric>(r._Sigma->clone());
+
+    if (r._flagCholesky)
+    {
+      if (r._cholSigma == nullptr)
+        _cholSigma = std::make_shared<CholeskyDense>();
+      else
+        _cholSigma =
+          std::shared_ptr<CholeskyDense>(new CholeskyDense(*r._Sigma));
+
+      if (r._invSigmaX == nullptr)
+        _invSigmaX = std::make_shared<MatrixDense>();
+      else
+        _invSigmaX = std::shared_ptr<MatrixDense>(_invSigmaX->clone());
+    }
+    else
+    {
+      if (r._InvSigma == nullptr)
+        _InvSigma = std::make_shared<MatrixSymmetric>();
+      else
+        _InvSigma = std::shared_ptr<MatrixSymmetric>(r._InvSigma->clone());
+
+      if (r._XtInvSigma == nullptr)
+        _XtInvSigma = std::make_shared<MatrixDense>();
+      else
+        _XtInvSigma = std::shared_ptr<MatrixDense>(r._XtInvSigma->clone());
+    }
+
+    if (r._XtInvSigmaZ == nullptr)
+      _XtInvSigmaZ = std::make_shared<VectorDouble>();
+    else
+      _XtInvSigmaZ =
+        std::shared_ptr<VectorDouble>(new VectorDouble(*r._XtInvSigmaZ));
+
+    if (r._invSigmac == nullptr)
+      _invSigmac = std::make_shared<MatrixSymmetric>();
+    else
+      _invSigmac = std::shared_ptr<MatrixSymmetric>(r._invSigmac->clone());
+
+    if (r._Beta == nullptr)
+      _Beta = std::make_shared<VectorDouble>();
+    else
+      _Beta = std::shared_ptr<VectorDouble>(new VectorDouble(*r._Beta));
+
+    if (r._bDual == nullptr)
+      _bDual = std::make_shared<VectorDouble>();
+    else
+      _bDual = std::shared_ptr<VectorDouble>(new VectorDouble(*r._bDual));
+
+    if (r._invSigmaXBeta == nullptr)
+      _invSigmaXBeta = std::make_shared<VectorDouble>();
+    else
+      _invSigmaXBeta =
+        std::shared_ptr<VectorDouble>(new VectorDouble(*r._invSigmaXBeta));
+  }
+
+  void KrigingAlgebraSimpleCase::_copyOtherContent(
+    const KrigingAlgebraSimpleCase& r)
+  {
+    if (r._Sigma00 == nullptr)
+      _Sigma00 = std::make_shared<MatrixSymmetric>();
+    else
+      _Sigma00 = std::shared_ptr<MatrixSymmetric>(r._Sigma00->clone());
+
+    if (r._Sigma0 == nullptr)
+      _Sigma0 = std::make_shared<MatrixDense>();
+    else
+      _Sigma0 = std::shared_ptr<MatrixDense>(r._Sigma0->clone());
+
+    if (r._X0 == nullptr)
+      _X0 = std::make_shared<MatrixDense>();
+    else
+      _X0 = std::shared_ptr<MatrixDense>(r._X0->clone());
+
+    if (r._LambdaSK == nullptr)
+      _LambdaSK = std::make_shared<MatrixDense>();
+    else
+      _LambdaSK = std::shared_ptr<MatrixDense>(r._LambdaSK->clone());
+  }
+
+  void KrigingAlgebraSimpleCase::_copyMatsAndVecs(
+    const KrigingAlgebraSimpleCase& r)
+  {
+    // Vector Double or matrices are simply copied
+    _Zstar = r._Zstar;
+    _LambdaSKtX = r._LambdaSKtX;
+    _LambdaUK = r._LambdaUK;
+    _MuUK = r._MuUK;
+    _Stdv = r._Stdv;
+    _VarZSK = r._VarZSK;
+    _VarZUK = r._VarZUK;
+    _Y0 = r._Y0;
+    _LambdaUKtSigma0 = r._LambdaUKtSigma0;
+    _MuUKtX0t = r._MuUKtX0t;
+    _invSigmaXMuUK = r._invSigmaXMuUK;
+    _X0Beta = r._X0Beta;
+  }
+
+  void KrigingAlgebraSimpleCase::_copyFlags(const KrigingAlgebraSimpleCase& r)
+  {
+    _flagSK = r._flagSK;
+    _flagDual = r._flagDual;
+    _neighUnique = r._neighUnique;
+    _flagCholesky = r._flagCholesky;
+    _dualHasChanged = r._dualHasChanged;
+    _invSigmaHasChanged = r._invSigmaHasChanged;
+    _XtInvSigmaHasChanged = r._XtInvSigmaHasChanged;
+  }
+
+  KrigingAlgebraSimpleCase::~KrigingAlgebraSimpleCase() {}
+
+  void KrigingAlgebraSimpleCase::_resetAll()
+  {
+    _resetLinkedToZ();
+    _resetLinkedToLHS();
+    _resetLinkedToRHS();
+    _resetLinkedToSigma00();
+  }
+
+  void KrigingAlgebraSimpleCase::setDual(bool status)
+  {
+    _resetAll();
+    _flagDual = status;
+  }
+
+  void KrigingAlgebraSimpleCase::_resetLinkedToZ()
+  {
+    _deleteDual();
+    _deleteXtInvSigmaZ();
+  }
+
+  void KrigingAlgebraSimpleCase::_resetLinkedToLHS()
+  {
+    _resetLinkedToSigma();
+    _resetLinkedToX();
+  }
+
+  void KrigingAlgebraSimpleCase::_resetLinkedToRHS()
+  {
+    _resetLinkedToSigma0();
+    _resetLinkedToX0();
+  }
+
+  void KrigingAlgebraSimpleCase::_resetLinkedToX()
+  {
+    _deleteXtInvSigma();
+  }
+
+  void KrigingAlgebraSimpleCase::_resetLinkedToX0()
+  {
+    _Zstar.clear();
+    _deleteMuUK();
+  }
+
+  void KrigingAlgebraSimpleCase::_resetLinkedToSigma()
+  {
+    _deleteInvSigma();
+  }
+
+  void KrigingAlgebraSimpleCase::_resetLinkedToSigma0()
+  {
+    _deleteStdv();
+    _deleteLambdaSK();
+    _deleteVarZSK();
+    _deleteVarZUK();
+  }
+
+  void KrigingAlgebraSimpleCase::_resetLinkedToSigma00()
+  {
+    _deleteStdv();
+  }
+
+  void KrigingAlgebraSimpleCase::_deleteBeta()
+  {
+    _deleteDual();
+    if (_Beta == nullptr) return;
+    _Beta->clear();
+  }
+
+  void KrigingAlgebraSimpleCase::_deleteInvSigma()
+  {
+    _deleteDual();
+    _deleteLambdaSK();
+    _deleteXtInvSigma();
+    _invSigmaHasChanged = true;
+  }
+
+  void KrigingAlgebraSimpleCase::_deleteLambdaSK()
+  {
+
+    _deleteLambdaUK();
+    _Zstar.clear();
+    _deleteVarZSK();
+    _deleteMuUK();
+    if (_LambdaSK == nullptr) return;
+    _LambdaSK->clear();
+  }
+
+  void KrigingAlgebraSimpleCase::_deleteLambdaUK()
+  {
+    _deleteVarZUK();
+    _deleteStdv();
+    _Zstar.clear();
+    _LambdaUK.clear();
+  }
+
+  void KrigingAlgebraSimpleCase::_deleteMuUK()
+  {
+    _deleteLambdaUK();
+    _deleteStdv();
+    _MuUK.clear();
+  }
+
+  void KrigingAlgebraSimpleCase::_deleteSigmac()
+  {
+    _deleteBeta();
+    _deleteMuUK();
+    _deleteDual();
+    _Sigmac.clear();
+    if (_invSigmac == nullptr) return;
+    _invSigmac->clear();
+  }
+
+  void KrigingAlgebraSimpleCase::_deleteXtInvSigmaZ()
+  {
+
+    _deleteLambdaUK();
+    _deleteBeta();
+    _deleteDual();
+
+    if (_XtInvSigmaZ == nullptr) return;
+    _XtInvSigmaZ->clear();
+  }
+
+  void KrigingAlgebraSimpleCase::_deleteXtInvSigma()
+  {
+    _deleteLambdaUK();
+    _deleteBeta();
+    _deleteSigmac();
+
+    _XtInvSigmaHasChanged = true;
+  }
+
+  void KrigingAlgebraSimpleCase::_deleteStdv()
+  {
+    _Stdv.clear();
+  }
+
+  void KrigingAlgebraSimpleCase::_deleteVarZSK()
+  {
+    _deleteStdv();
+
+    _VarZSK.clear();
+  }
+
+  void KrigingAlgebraSimpleCase::_deleteVarZUK()
+  {
+    _VarZUK.clear();
+  }
+
+  void KrigingAlgebraSimpleCase::_deleteDual()
+  {
+    _Zstar.clear();
+    _dualHasChanged = true;
+  }
+
+  /**
+   * @brief Method to be used when the data has changed (e.g. Moving Neighborhood)
+   */
+  void KrigingAlgebraSimpleCase::resetNewData()
+  {
+    _neq = 0;
+  }
+
+  void KrigingAlgebraSimpleCase::setZ(std::shared_ptr<VectorDouble>& Z)
+  {
+    _Z = Z;
+  }
+
+  /**
+   * @brief Modify the Data Values (and Means)
+   *
+   * @param Z Data flattened vector (possibly multivariate)
+   * @param rankhandler rank handler
+   * @param Means  Vector of known Drift coefficients (optional)
+   * @return Id
+   *
+   * @note If one element is not provided, its address (if already defined) is
+   * @note kept unchanged (even if its contents may have been updated)
+   */
+  Id KrigingAlgebraSimpleCase::setData(
+    const VectorDouble* Z,
+    const RankHandler* rankhandler,
+    const VectorDouble& Means)
+  {
+    _resetLinkedToZ();
+
+    // Argument Z
+    if (Z != nullptr)
+    {
+      if (!_checkDimensionVD("Z", Z, &_neq)) return 1;
+      _Z = std::make_shared<VectorDouble>(*Z);
+    }
+    else
+    {
+      _Z = std::make_shared<VectorDouble>();
+    }
+
+    if (rankhandler != nullptr)
+    {
+      _rankHandler = std::make_shared<RankHandler>(*rankhandler);
+    }
+    else
+    {
+      _rankHandler = std::make_shared<RankHandler>();
+      _neq = 0;
+    }
+    // Argument Means
+
+    setMeans(Means);
+    return 0;
+  }
+
+  void KrigingAlgebraSimpleCase::setMeans(const VectorDouble& Means)
+  {
+    if (!_checkDimensionVD("Means", &Means, &_nvar)) return;
+    _Means = Means;
+  }
+
+  /**
+   * @brief Modify the elements linked to the LHS
+   *
+   * @param Sigma Data-Data Covariance matrix
+   * @param X     Data Drift Matrix
+   * @return Id
+   *
+   * @note If one element is not provided, its address (if already defined) is
+   * @note kept unchanged (even if its contents may have been updated)
+   */
+  Id KrigingAlgebraSimpleCase::setLHS(
+    const MatrixSymmetric* Sigma,
+    const MatrixDense* X)
+  {
+    _resetLinkedToLHS();
+
+    // Argument Sigma
+    if (Sigma != nullptr)
+    {
+      if (!_checkDimensionMatrix("Sigma", Sigma, &_neq, &_neq)) return 1;
+      _Sigma = std::make_shared<MatrixSymmetric>(*Sigma);
+    }
+
+    // Argument X
+    if (X == nullptr || X->getNRows() <= 0 || X->getNCols() <= 0)
+    {
+      _X = nullptr;
+      _flagSK = true;
+    }
+    else
+    {
+      if (!_checkDimensionMatrix("X", X, &_neq, &_nbfl)) return 1;
+      _X = std::make_shared<MatrixDense>(*X);
+      _flagSK = (_nbfl <= 0);
+    }
+
+    return 0;
+  }
+
+  Id KrigingAlgebraSimpleCase::setVariance(const MatrixSymmetric* Sigma00)
+  {
+    if (Sigma00 != nullptr)
+    {
+      if (!_checkDimensionMatrix("Sigma00", Sigma00, &_nrhs, &_nrhs)) return 1;
+      _Sigma00 = std::make_shared<MatrixSymmetric>(*Sigma00);
+    }
+    return 0;
+  }
+
+  Id KrigingAlgebraSimpleCase::setRHS(MatrixDense* Sigma0, MatrixDense* X0)
+  {
+    _resetLinkedToRHS();
+
+    // Argument Sigma0
+    if (Sigma0 == nullptr)
+    {
+      _Sigma0 = std::make_shared<MatrixDense>();
+    }
+    else
+    {
+      if (!_checkDimensionMatrix("Sigma0", Sigma0, &_neq, &_nrhs)) return 1;
+      _Sigma0 = std::make_shared<MatrixDense>(*Sigma0);
+    }
+
+    _X0 = std::make_shared<MatrixDense>(*X0);
+    return 0;
+  }
+
+  Id KrigingAlgebraSimpleCase::updateRHS()
+  {
+    _resetLinkedToRHS();
+    return 0;
+  }
+
+  bool KrigingAlgebraSimpleCase::_checkDimensionVD(
+    const String& name,
+    const VectorDouble* vec,
+    Id* sizeRef)
+  {
+    Id size = static_cast<Id>(vec->size());
+    if (*sizeRef > 0 && size > 0 && size != *sizeRef)
+    {
+      messerr(
+        "Dimension of %s (%d) incorrect: it should be (%d)", name.c_str(), size,
+        *sizeRef);
+      return false;
+    }
+    if (size > 0) *sizeRef = size;
+    return true;
+  }
+
+  bool KrigingAlgebraSimpleCase::_checkDimensionVI(
+    const String& name,
+    const VectorInt* vec,
+    Id* sizeRef)
+  {
+    Id size = static_cast<Id>(vec->size());
+    if (*sizeRef > 0 && size != *sizeRef)
+    {
+      messerr(
+        "Dimension of %s (%d) incorrect: it should be (%d)", name.c_str(), size,
+        *sizeRef);
+      return false;
+    }
+    if (size > 0) *sizeRef = size;
+    return true;
+  }
+
+  bool KrigingAlgebraSimpleCase::_checkDimensionVVI(
+    const String& name,
+    const VectorVectorInt* vec,
+    Id* size1Ref,
+    Id* size2Ref)
+  {
+    Id count = static_cast<Id>(vec->size());
+    if (*size1Ref > 0 && count != *size1Ref)
+    {
+      messerr(
+        "First dimension of %s (%d) incorrect: it should be (%d)", name.c_str(),
+        count, *size1Ref);
+      return false;
+    }
+    if (count > 0) *size1Ref = count;
+
+    Id size = VH::count(*vec);
+    if (*size2Ref > 0 && size != *size2Ref)
+    {
+      messerr(
+        "Second dimension of %s (%d) incorrect: it should be (%d)",
+        name.c_str(), size, *size2Ref);
+      return false;
+    }
+    if (size > 0) *size2Ref = size;
+    return true;
+  }
+
+  bool KrigingAlgebraSimpleCase::_checkDimensionMatrix(
+    const String& name,
+    const AMatrix* mat,
+    Id* nrowsRef,
+    Id* ncolsRef)
+  {
+    Id nrows = mat->getNRows();
+    Id ncols = mat->getNCols();
+    if (*nrowsRef > 0 && nrows != *nrowsRef)
+    {
+      messerr(
+        "Number of Rows of %s (%d) incorrect: it should be (%d)", name.c_str(),
+        nrows, *nrowsRef);
+      return false;
+    }
+    if (*ncolsRef > 0 && ncols != *ncolsRef)
+    {
+      messerr(
+        "Number of Columns of %s (%d) incorrect: it should be (%d)",
+        name.c_str(), ncols, *ncolsRef);
+      return false;
+    }
+    if (nrows > 0) *nrowsRef = nrows;
+    if (ncols > 0) *ncolsRef = ncols;
+    return true;
+  }
+
+  VectorDouble& KrigingAlgebraSimpleCase::getEstimation()
+  {
+    _needZstar();
+    return _Zstar;
+  }
+
+  bool KrigingAlgebraSimpleCase::_forbiddenWhenDual() const
+  {
+    if (!_flagDual) return true;
+    messerr("This option is not available as 'Dual' is switched ON");
+    return false;
+  }
+
+  const VectorDouble& KrigingAlgebraSimpleCase::getStdv()
+  {
+    if (!_forbiddenWhenDual()) return _dummy;
+    if (_needStdv()) return _dummy;
+    return _Stdv.getDiagonal();
+  }
+
+  const MatrixSymmetric* KrigingAlgebraSimpleCase::getStdvMat()
+  {
+    if (!_forbiddenWhenDual()) return nullptr;
+    if (_needStdv()) return nullptr;
+    return &_Stdv;
+  }
+
+  double KrigingAlgebraSimpleCase::getVarianceZstar(Id i)
+  {
+    if (!_forbiddenWhenDual()) return TEST;
+    if (_flagSK)
+    {
+      if (_needVarZSK()) return TEST;
+      return _VarZSK(i, i);
+    }
+    if (_needVarZUK()) return TEST;
+    return _VarZUK(i, i);
+  }
+
+  VectorDouble KrigingAlgebraSimpleCase::getVarianceZstar()
+  {
+    if (!_forbiddenWhenDual()) return VectorDouble();
+    if (_flagSK)
+    {
+      if (_needVarZSK()) return VectorDouble();
+      return _VarZSK.getDiagonal();
+    }
+    if (_needVarZUK()) return VectorDouble();
+    return _VarZUK.getDiagonal();
+  }
+
+  const MatrixSymmetric* KrigingAlgebraSimpleCase::getVarianceZstarMat()
+  {
+    if (!_forbiddenWhenDual()) return nullptr;
+    if (_flagSK)
+    {
+      if (_needVarZSK()) return nullptr;
+      return &_VarZSK;
+    }
+    if (_needVarZUK()) return nullptr;
+    return &_VarZUK;
+  }
+
+  const MatrixDense* KrigingAlgebraSimpleCase::getLambda()
+  {
+    if (!_forbiddenWhenDual()) return nullptr;
+    if (_flagSK)
+    {
+      if (_needLambdaSK()) return nullptr;
+      return _LambdaSK.get();
+    }
+    if (_needLambdaUK()) return nullptr;
+    return &_LambdaUK;
+  }
+
+  const MatrixDense* KrigingAlgebraSimpleCase::getMu()
+  {
+    if (_needMuUK()) return nullptr;
+    return &_MuUK;
+  }
+
+  Id KrigingAlgebraSimpleCase::_needInvSigma()
+  {
+    if (!_invSigmaHasChanged) return 0;
+    if (_notFindSigma()) return 1;
+    if (_flagCholesky)
+    {
+      _cholSigma = std::make_shared<CholeskyDense>(*_Sigma);
+    }
+    else
+    {
+      _InvSigma->resize(_Sigma->getNRows(), _Sigma->getNCols());
+      if (_Sigma->invert2(*_InvSigma))
+      {
+        _printInversionErrorMessage(*_Sigma);
+        return 1;
+      }
+    }
+    _invSigmaHasChanged = false;
+    return 0;
+  }
+
+  double KrigingAlgebraSimpleCase::getLTerm()
+  {
+    if (!_flagDual)
+    {
+      messerr("This Option requires 'Dual' programming");
+      return TEST;
+    }
+    if (_needDual()) return 1;
+    if (_notFindZ()) return 1;
+
+    return (*_bDual).innerProduct(*_Z);
+  }
+
+  Id KrigingAlgebraSimpleCase::prepare()
+  {
+    if (!_neighUnique) return 0;
+
+    if (_flagDual)
+    {
+      if (_needDual()) return 1;
+    }
+    else
+    {
+
+      if (_nbfl > 0)
+      {
+        if (_needBeta()) return 1;
+      }
+      else if (_needInvSigma())
+        return 1;
+    }
+    return 0;
+  }
+
+  Id KrigingAlgebraSimpleCase::_computeZstarWithDual()
+  {
+    if (_needDual()) return 1;
+    if (_notFindSigma0()) return 1;
+    vect vZstar(_Zstar);
+    AMatrix::productInPlace(vZstar, *_Sigma0, *_bDual, true);
+    if (_nbfl > 0)
+    {
+      if (_notFindX0()) return 1;
+      if (_needBeta()) return 1;
+      _X0Beta.resize(_nbfl);
+      if (_notFindX0()) return 1;
+      AMatrix::productInPlace(_X0Beta, *_X0, *_Beta);
+      VH::linearCombinationInPlace(1., _Zstar, 1., _X0Beta, _Zstar);
+    }
+    else
+    {
+      if (!_Means.empty())
+        VH::linearCombinationInPlace(1., _Zstar, 1., _Means, _Zstar);
+    }
+    return 0;
+  }
+
+  Id KrigingAlgebraSimpleCase::_computeZstarSK()
+  {
+
+    if (_needLambdaSK()) return 1;
+    AMatrix::productInPlace(_Zstar, *_Z, *_LambdaSK, false);
+
+    // Adding Mean per Variable
+    if (!_Means.empty())
+      VH::linearCombinationInPlace(1., _Zstar, 1., _Means, _Zstar);
+    return 0;
+  }
+
+  Id KrigingAlgebraSimpleCase::_needZstar()
+  {
+    if (!_Zstar.empty()) return 0;
+
+    _Zstar.fill(0., _nrhs);
+    if (_flagDual) return _computeZstarWithDual();
+
+    if (_notFindZ()) return 1;
+    if (_flagSK) return _computeZstarSK();
+
+    if (_needLambdaUK()) return 1;
+
+    AMatrix::productInPlace(_Zstar, *_Z, _LambdaUK);
+    return 0;
+  }
+
+  Id KrigingAlgebraSimpleCase::_needVarZSK()
+  {
+    if (!_VarZSK.empty()) return 0;
+    if (_needLambdaSK()) return 1;
+    _VarZSK.resize(_nrhs, _nrhs);
+    AMatrix::prodMatMatInPlace(_VarZSK, *_LambdaSK, *_Sigma0, true, false);
+    return 0;
+  }
+
+  Id KrigingAlgebraSimpleCase::_needVarZUK()
+  {
+    if (!_VarZUK.empty()) return 0;
+    if (_needLambdaUK()) return 1;
+    _VarZUK.resize(_nrhs, _nrhs);
+    _VarZUK.prodNormMatMatInPlace(&_LambdaUK, _Sigma.get(), true);
+    return 0;
+  }
+
+  Id KrigingAlgebraSimpleCase::_needStdv()
+  {
+    if (!_Stdv.empty()) return 0;
+    if (_notFindSigma00()) return 1;
+    _Stdv.resize(_nrhs, _nrhs);
+
+    if (_flagSK)
+    {
+      if (_needVarZSK()) return 1;
+      AMatrix::linearCombinationInPlace(_Stdv, 0., 1., *_Sigma00, -1., _VarZSK);
+    }
+    else
+    {
+      if (_needLambdaUK()) return 1;
+      if (_needMuUK()) return 1;
+
+      _Stdv.resize(_nrhs, _nrhs);
+      _LambdaUKtSigma0.resize(_nrhs, _nrhs);
+      AMatrix::prodMatMatInPlace(_LambdaUKtSigma0, _LambdaUK, *_Sigma0, true);
+      _MuUKtX0t.resize(_nrhs, _nrhs);
+      AMatrix::prodMatMatInPlace(_MuUKtX0t, _MuUK, *_X0, true, true);
+      AMatrix::linearCombinationInPlace(
+        _Stdv, 0., 1., *_Sigma00, -1., _LambdaUKtSigma0, +1., _MuUKtX0t);
+    }
+
+    // Transform variance into standard deviation
+
+    for (Id icol = 0; icol < _nrhs; icol++)
+    {
+      vect colcur = _Stdv.getViewOnColumnModify(icol);
+
+      double* value = &colcur[icol];
+      if (*value < -EPSILON10)
+      {
+        messerr("Negative variance (%g) element %d", *value, icol);
+        return 1;
+      }
+      *value = sqrt(ABS(*value));
+    }
+    return 0;
+  }
+
+  bool KrigingAlgebraSimpleCase::_notFindX()
+  {
+    return !_isPresentMatrix("X", _X.get());
+  }
+
+  bool KrigingAlgebraSimpleCase::_notFindX0()
+  {
+    return !_isPresentMatrix("X0", _X0.get());
+  }
+
+  bool KrigingAlgebraSimpleCase::_notFindSigma()
+  {
+    return !_isPresentMatrix("Sigma", _Sigma.get());
+  }
+
+  bool KrigingAlgebraSimpleCase::_notFindSigma00()
+  {
+    return !_isPresentMatrix("Sigma00", _Sigma00.get());
+  }
+
+  bool KrigingAlgebraSimpleCase::_notFindSigma0()
+  {
+    return !_isPresentMatrix("Sigma0", _Sigma0.get());
+  }
+
+  Id KrigingAlgebraSimpleCase::_needXtInvSigmaZ()
+  {
+    if (!_XtInvSigmaZ->empty()) return 0;
+    if (_needXtInvSigma()) return 1;
+    if (_notFindZ()) return 1;
+    _XtInvSigmaZ->resize(_nbfl);
+    constvect vZ(*_Z);
+    vect vres(*_XtInvSigmaZ);
+    if (_flagCholesky)
+      AMatrix::productInPlace(vres, *_invSigmaX, vZ, true);
+    else
+      AMatrix::productInPlace(vres, *_XtInvSigma, vZ); // TODO in place
+    return 0;
+  }
+
+  Id KrigingAlgebraSimpleCase::_needXtInvSigma()
+  {
+    if (!_XtInvSigmaHasChanged) return 0;
+    if (_notFindX()) return 1;
+    if (_needInvSigma()) return 1;
+    if (_flagCholesky)
+    {
+      _invSigmaX->resize(_neq, _nbfl);
+      _cholSigma->solveMatInPlace(*_X, *_invSigmaX);
+    }
+    else
+    {
+      _XtInvSigma->resize(_nbfl, _neq);
+      AMatrix::prodMatMatInPlace(*_XtInvSigma, *_X, *_InvSigma, true, false);
+    }
+    _XtInvSigmaHasChanged = false;
+    return 0;
+  }
+
+  Id KrigingAlgebraSimpleCase::_needSigmac()
+  {
+    if (!_invSigmac->empty()) return 0;
+    if (_needXtInvSigma()) return 1;
+    _Sigmac.resize(_nbfl, _nbfl);
+    if (_flagCholesky)
+      AMatrix::prodMatMatInPlace(_Sigmac, *_invSigmaX, *_X, true);
+    else
+      AMatrix::prodMatMatInPlace(_Sigmac, *_XtInvSigma, *_X);
+    // Compute the inverse matrix
+    _invSigmac->resize(_nbfl, _nbfl);
+    if (_Sigmac.invert2(*_invSigmac))
+    {
+      _printInversionErrorMessage(_Sigmac);
+      return 1;
+    }
+    return 0;
+  }
+
+  void KrigingAlgebraSimpleCase::_printInversionErrorMessage(
+    const MatrixSymmetric& mat)
+  {
+    messerr(
+      "Problem when inverting Kriging Matrix (NRows=%d x NCols=%d)",
+      mat.getNRows(), mat.getNCols());
+  }
+
+  Id KrigingAlgebraSimpleCase::_needBeta()
+  {
+    if (!_Beta->empty()) return 0;
+    if (_needSigmac()) return 1;
+    if (_needXtInvSigmaZ()) return 1;
+    _Beta->resize(_nbfl);
+    AMatrix::productInPlace(*_Beta, *_invSigmac, *_XtInvSigmaZ);
+    return 0;
+  }
+
+  Id KrigingAlgebraSimpleCase::_needMuUK()
+  {
+    if (!_MuUK.empty()) return 0;
+    if (_flagSK) return 1;
+    if (_notFindX0()) return 1;
+    if (_needSigmac()) return 1;
+    if (_needLambdaSK()) return 1;
+
+    _MuUK.resize(_nbfl, _nrhs);
+    _LambdaSKtX.resize(_nrhs, _nbfl);
+    _Y0.resize(_nrhs, _nbfl);
+
+    AMatrix::prodMatMatInPlace(_LambdaSKtX, *_LambdaSK, *_X, true, false);
+    AMatrix::linearCombinationInPlace(_Y0, 0., 1., *_X0, -1., _LambdaSKtX);
+    AMatrix::prodMatMatInPlace(_MuUK, *_invSigmac, _Y0, false, true);
+    return 0;
+  }
+
+  void KrigingAlgebraSimpleCase::updateSampleRanks()
+  {
+    _neq = static_cast<Id>((*getSampleRanksByVariable(0)).size());
+    _nrhs = static_cast<Id>(getSampleRanks()->size());
+    _nvar = static_cast<Id>(getSampleRanks()->size());
+    _Sigma0->resize(_neq, _nrhs);
+    _resetLinkedToLHS();
+    _nbfl = _X->getNCols();
+    _X0->resize(_nrhs, _nbfl);
+    _flagSK = (_nbfl <= 0);
+    if (_flagSK && !_Means.empty())
+    {
+      for (Id i = 0; i < static_cast<Id>(_Z->size()); i++)
+        (*_Z)[i] -= _Means[0];
+    }
+  }
+
+  void KrigingAlgebraSimpleCase::updateRankHandler()
+  {
+    _neq = static_cast<Id>(getSampleRanksByVariable(0)->size());
+    _nrhs = static_cast<Id>(getSampleRanks()->size());
+    _nvar = static_cast<Id>(getSampleRanks()->size());
+    _Sigma0->resize(_neq, _nrhs);
+    _resetLinkedToLHS();
+    _nbfl = _X->getNCols();
+    _X0->resize(_nrhs, _nbfl);
     _flagSK = (_nbfl <= 0);
   }
 
-  return 0;
-}
-
-Id KrigingAlgebraSimpleCase::setVariance(const MatrixSymmetric* Sigma00)
-{
-  if (Sigma00 != nullptr)
+  Id KrigingAlgebraSimpleCase::_needLambdaSK()
   {
-    if (!_checkDimensionMatrix("Sigma00", Sigma00, &_nrhs, &_nrhs)) return 1;
-    _Sigma00 = std::make_shared<MatrixSymmetric>(*Sigma00);
-  }
-  return 0;
-}
-
-Id KrigingAlgebraSimpleCase::setRHS(MatrixDense* Sigma0,
-                                    MatrixDense* X0)
-{
-  _resetLinkedToRHS();
-
-  // Argument Sigma0
-  if (Sigma0 == nullptr)
-  {
-    _Sigma0 = std::make_shared<MatrixDense>();
-  }
-  else
-  {
-    if (!_checkDimensionMatrix("Sigma0", Sigma0, &_neq, &_nrhs)) return 1;
-    _Sigma0 = std::make_shared<MatrixDense>(*Sigma0);
-  }
-
-  _X0 = std::make_shared<MatrixDense>(*X0);
-  return 0;
-}
-
-Id KrigingAlgebraSimpleCase::updateRHS()
-{
-  _resetLinkedToRHS();
-  return 0;
-}
-bool KrigingAlgebraSimpleCase::_checkDimensionVD(const String& name,
-                                                 const VectorDouble* vec,
-                                                 Id* sizeRef)
-{
-  Id size = static_cast<Id>(vec->size());
-  if (*sizeRef > 0 && size > 0 && size != *sizeRef)
-  {
-    messerr("Dimension of %s (%d) incorrect: it should be (%d)",
-            name.c_str(), size, *sizeRef);
-    return false;
-  }
-  if (size > 0) *sizeRef = size;
-  return true;
-}
-
-bool KrigingAlgebraSimpleCase::_checkDimensionVI(const String& name,
-                                                 const VectorInt* vec,
-                                                 Id* sizeRef)
-{
-  Id size = static_cast<Id>(vec->size());
-  if (*sizeRef > 0 && size != *sizeRef)
-  {
-    messerr("Dimension of %s (%d) incorrect: it should be (%d)", name.c_str(), size,
-            *sizeRef);
-    return false;
-  }
-  if (size > 0) *sizeRef = size;
-  return true;
-}
-
-bool KrigingAlgebraSimpleCase::_checkDimensionVVI(const String& name,
-                                                  const VectorVectorInt* vec,
-                                                  Id* size1Ref,
-                                                  Id* size2Ref)
-{
-  Id count = static_cast<Id>(vec->size());
-  if (*size1Ref > 0 && count != *size1Ref)
-  {
-    messerr("First dimension of %s (%d) incorrect: it should be (%d)", name.c_str(),
-            count, *size1Ref);
-    return false;
-  }
-  if (count > 0) *size1Ref = count;
-
-  Id size = VH::count(*vec);
-  if (*size2Ref > 0 && size != *size2Ref)
-  {
-    messerr("Second dimension of %s (%d) incorrect: it should be (%d)", name.c_str(),
-            size, *size2Ref);
-    return false;
-  }
-  if (size > 0) *size2Ref = size;
-  return true;
-}
-
-bool KrigingAlgebraSimpleCase::_checkDimensionMatrix(const String& name,
-                                                     const AMatrix* mat,
-                                                     Id* nrowsRef,
-                                                     Id* ncolsRef)
-{
-  Id nrows = mat->getNRows();
-  Id ncols = mat->getNCols();
-  if (*nrowsRef > 0 && nrows != *nrowsRef)
-  {
-    messerr("Number of Rows of %s (%d) incorrect: it should be (%d)",
-            name.c_str(), nrows, *nrowsRef);
-    return false;
-  }
-  if (*ncolsRef > 0 && ncols != *ncolsRef)
-  {
-    messerr("Number of Columns of %s (%d) incorrect: it should be (%d)",
-            name.c_str(), ncols, *ncolsRef);
-    return false;
-  }
-  if (nrows > 0) *nrowsRef = nrows;
-  if (ncols > 0) *ncolsRef = ncols;
-  return true;
-}
-
-VectorDouble& KrigingAlgebraSimpleCase::getEstimation()
-{
-  _needZstar();
-  return _Zstar;
-}
-
-bool KrigingAlgebraSimpleCase::_forbiddenWhenDual() const
-{
-  if (!_flagDual) return true;
-  messerr("This option is not available as 'Dual' is switched ON");
-  return false;
-}
-
-const VectorDouble& KrigingAlgebraSimpleCase::getStdv()
-{
-  if (!_forbiddenWhenDual()) return _dummy;
-  if (_needStdv()) return _dummy;
-  return _Stdv.getDiagonal();
-}
-
-const MatrixSymmetric* KrigingAlgebraSimpleCase::getStdvMat()
-{
-  if (!_forbiddenWhenDual()) return nullptr;
-  if (_needStdv()) return nullptr;
-  return &_Stdv;
-}
-
-double KrigingAlgebraSimpleCase::getVarianceZstar(Id i)
-{
-  if (!_forbiddenWhenDual()) return TEST;
-  if (_flagSK)
-  {
-    if (_needVarZSK()) return TEST;
-    return _VarZSK(i, i);
-  }
-  if (_needVarZUK()) return TEST;
-  return _VarZUK(i, i);
-}
-
-VectorDouble KrigingAlgebraSimpleCase::getVarianceZstar()
-{
-  if (!_forbiddenWhenDual()) return VectorDouble();
-  if (_flagSK)
-  {
-    if (_needVarZSK()) return VectorDouble();
-    return _VarZSK.getDiagonal();
-  }
-  if (_needVarZUK()) return VectorDouble();
-  return _VarZUK.getDiagonal();
-}
-
-const MatrixSymmetric* KrigingAlgebraSimpleCase::getVarianceZstarMat()
-{
-  if (!_forbiddenWhenDual()) return nullptr;
-  if (_flagSK)
-  {
-    if (_needVarZSK()) return nullptr;
-    return &_VarZSK;
-  }
-  if (_needVarZUK()) return nullptr;
-  return &_VarZUK;
-}
-
-const MatrixDense* KrigingAlgebraSimpleCase::getLambda()
-{
-  if (!_forbiddenWhenDual()) return nullptr;
-  if (_flagSK)
-  {
-    if (_needLambdaSK()) return nullptr;
-    return _LambdaSK.get();
-  }
-  if (_needLambdaUK()) return nullptr;
-  return &_LambdaUK;
-}
-
-const MatrixDense* KrigingAlgebraSimpleCase::getMu()
-{
-  if (_needMuUK()) return nullptr;
-  return &_MuUK;
-}
-
-Id KrigingAlgebraSimpleCase::_needInvSigma()
-{
-  if (!_invSigmaHasChanged) return 0;
-  if (_notFindSigma()) return 1;
-  if (_flagCholesky)
-  {
-    _cholSigma = std::make_shared<CholeskyDense>(*_Sigma);
-  }
-  else
-  {
-    _InvSigma->resize(_Sigma->getNRows(), _Sigma->getNCols());
-    if (_Sigma->invert2(*_InvSigma))
+    if (!_LambdaSK->empty()) return 0;
+    if (_notFindSigma0()) return 1;
+    if (_needInvSigma()) return 1;
+    _LambdaSK->resize(_neq, _nrhs);
+    if (_flagCholesky)
     {
-      _printInversionErrorMessage(*_Sigma);
-      return 1;
+      _cholSigma->solveMatInPlace(*_Sigma0, *_LambdaSK);
     }
+    else
+    {
+      _LambdaSK->prodMatMatNoCheck<false, false>(*_InvSigma, *_Sigma0);
+    }
+    return 0;
   }
-  _invSigmaHasChanged = false;
-  return 0;
-}
 
-double KrigingAlgebraSimpleCase::getLTerm()
-{
-  if (!_flagDual)
+  bool KrigingAlgebraSimpleCase::_notFindSampleRanks()
   {
-    messerr("This Option requires 'Dual' programming");
-    return TEST;
+    return !_isPresentIIVector("SampleRanks", getSampleRanks());
   }
-  if (_needDual()) return 1;
-  if (_notFindZ()) return 1;
 
-  return (*_bDual).innerProduct(*_Z);
-}
-
-Id KrigingAlgebraSimpleCase::prepare()
-{
-  if (!_neighUnique) return 0;
-
-  if (_flagDual)
+  bool KrigingAlgebraSimpleCase::_notFindRankHandler()
   {
-    if (_needDual()) return 1;
+    return !(_rankHandler == nullptr);
   }
-  else
-  {
 
+  bool KrigingAlgebraSimpleCase::_notFindZ()
+  {
+    return !_isPresentVector("Z", _Z.get());
+  }
+
+  Id KrigingAlgebraSimpleCase::_needLambdaUK()
+  {
+    if (!_LambdaUK.empty()) return 0;
+    _LambdaUK.resize(_neq, _nrhs);
+
+    if (_needXtInvSigma()) return 1;
+    if (_needLambdaSK()) return 1;
+    if (_needMuUK()) return 1;
+
+    _invSigmaXMuUK.resize(_neq, _nrhs);
+
+    if (_flagCholesky)
+      AMatrix::prodMatMatInPlace(_invSigmaXMuUK, *_invSigmaX, _MuUK);
+    else
+      AMatrix::prodMatMatInPlace(_invSigmaXMuUK, *_XtInvSigma, _MuUK, true);
+
+    MatrixDense::sum(_LambdaSK.get(), &_invSigmaXMuUK, &_LambdaUK);
+
+    return 0;
+  }
+
+  Id KrigingAlgebraSimpleCase::_needDual()
+  {
+    if (!_dualHasChanged) return 0;
+    if (_notFindZ()) return 1;
+    if (_needInvSigma()) return 1;
+
+    _bDual->resize(_neq);
+    constvect vZ(*_Z);
+    vect vB(*_bDual);
+
+    if (_flagCholesky)
+      _cholSigma->solve(vZ, vB);
+    else
+      AMatrix::productInPlace(vB, *_InvSigma, vZ, true);
     if (_nbfl > 0)
     {
       if (_needBeta()) return 1;
+      _invSigmaXBeta->resize(_neq);
+      vect vISXD(*_invSigmaXBeta);
+      if (_flagCholesky)
+        AMatrix::productInPlace(vISXD, *_invSigmaX, *_Beta);
+      else
+        AMatrix::productInPlace(vISXD, *_XtInvSigma, *_Beta, true);
+      VH::linearCombinationInPlace(1., *_bDual, -1., *_invSigmaXBeta, *_bDual);
     }
-    else if (_needInvSigma())
-      return 1;
-  }
-  return 0;
-}
-Id KrigingAlgebraSimpleCase::_computeZstarWithDual()
-{
-  if (_needDual()) return 1;
-  if (_notFindSigma0()) return 1;
-  vect vZstar(_Zstar);
-  AMatrix::productInPlace(vZstar, *_Sigma0, *_bDual, true);
-  if (_nbfl > 0)
-  {
-    if (_notFindX0()) return 1;
-    if (_needBeta()) return 1;
-    _X0Beta.resize(_nbfl);
-    if (_notFindX0()) return 1;
-    AMatrix::productInPlace(_X0Beta, *_X0, *_Beta);
-    VH::linearCombinationInPlace(1., _Zstar, 1., _X0Beta, _Zstar);
-  }
-  else
-  {
-    if (!_Means.empty())
-      VH::linearCombinationInPlace(1., _Zstar, 1., _Means, _Zstar);
-  }
-  return 0;
-}
-
-Id KrigingAlgebraSimpleCase::_computeZstarSK()
-{
-
-  if (_needLambdaSK()) return 1;
-  AMatrix::productInPlace(_Zstar, *_Z, *_LambdaSK, false);
-
-  // Adding Mean per Variable
-  if (!_Means.empty())
-    VH::linearCombinationInPlace(1., _Zstar, 1., _Means, _Zstar);
-  return 0;
-}
-
-Id KrigingAlgebraSimpleCase::_needZstar()
-{
-  if (!_Zstar.empty()) return 0;
-
-  _Zstar.fill(0., _nrhs);
-  if (_flagDual)
-    return _computeZstarWithDual();
-
-  if (_notFindZ()) return 1;
-  if (_flagSK)
-    return _computeZstarSK();
-
-  if (_needLambdaUK()) return 1;
-
-  AMatrix::productInPlace(_Zstar, *_Z, _LambdaUK);
-  return 0;
-}
-
-Id KrigingAlgebraSimpleCase::_needVarZSK()
-{
-  if (!_VarZSK.empty()) return 0;
-  if (_needLambdaSK()) return 1;
-  _VarZSK.resize(_nrhs, _nrhs);
-  AMatrix::prodMatMatInPlace(_VarZSK, *_LambdaSK, *_Sigma0, true, false);
-  return 0;
-}
-
-Id KrigingAlgebraSimpleCase::_needVarZUK()
-{
-  if (!_VarZUK.empty()) return 0;
-  if (_needLambdaUK()) return 1;
-  _VarZUK.resize(_nrhs, _nrhs);
-  _VarZUK.prodNormMatMatInPlace(&_LambdaUK, _Sigma.get(), true);
-  return 0;
-}
-
-Id KrigingAlgebraSimpleCase::_needStdv()
-{
-  if (!_Stdv.empty()) return 0;
-  if (_notFindSigma00()) return 1;
-  _Stdv.resize(_nrhs, _nrhs);
-
-  if (_flagSK)
-  {
-    if (_needVarZSK()) return 1;
-    AMatrix::linearCombinationInPlace(_Stdv, 0., 1., *_Sigma00, -1., _VarZSK);
-  }
-  else
-  {
-    if (_needLambdaUK()) return 1;
-    if (_needMuUK()) return 1;
-
-    _Stdv.resize(_nrhs, _nrhs);
-    _LambdaUKtSigma0.resize(_nrhs, _nrhs);
-    AMatrix::prodMatMatInPlace(_LambdaUKtSigma0, _LambdaUK, *_Sigma0, true);
-    _MuUKtX0t.resize(_nrhs, _nrhs);
-    AMatrix::prodMatMatInPlace(_MuUKtX0t, _MuUK, *_X0, true, true);
-    AMatrix::linearCombinationInPlace(_Stdv, 0., 1., *_Sigma00, -1., _LambdaUKtSigma0, +1., _MuUKtX0t);
+    _dualHasChanged = false;
+    return 0;
   }
 
-  // Transform variance into standard deviation
-
-  for (Id icol = 0; icol < _nrhs; icol++)
+  void KrigingAlgebraSimpleCase::_printMatrix(
+    const String& name,
+    const AMatrix* mat)
   {
-    vect colcur = _Stdv.getViewOnColumnModify(icol);
-
-    double* value = &colcur[icol];
-    if (*value < -EPSILON10)
-    {
-      messerr("Negative variance (%g) element %d", *value, icol);
-      return 1;
-    }
-    *value = sqrt(ABS(*value));
+    if (mat == nullptr || mat->empty()) return;
+    message(" - %s (%d, %d)\n", name.c_str(), mat->getNRows(), mat->getNCols());
   }
-  return 0;
-}
 
-bool KrigingAlgebraSimpleCase::_notFindX()
-{
-  return !_isPresentMatrix("X", _X.get());
-}
-
-bool KrigingAlgebraSimpleCase::_notFindX0()
-{
-  return !_isPresentMatrix("X0", _X0.get());
-}
-
-bool KrigingAlgebraSimpleCase::_notFindSigma()
-{
-  return !_isPresentMatrix("Sigma", _Sigma.get());
-}
-
-bool KrigingAlgebraSimpleCase::_notFindSigma00()
-{
-  return !_isPresentMatrix("Sigma00", _Sigma00.get());
-}
-
-bool KrigingAlgebraSimpleCase::_notFindSigma0()
-{
-  return !_isPresentMatrix("Sigma0", _Sigma0.get());
-}
-
-Id KrigingAlgebraSimpleCase::_needXtInvSigmaZ()
-{
-  if (!_XtInvSigmaZ->empty()) return 0;
-  if (_needXtInvSigma()) return 1;
-  if (_notFindZ()) return 1;
-  _XtInvSigmaZ->resize(_nbfl);
-  constvect vZ(*_Z);
-  vect vres(*_XtInvSigmaZ);
-  if (_flagCholesky)
-    AMatrix::productInPlace(vres, *_invSigmaX, vZ, true);
-  else
-    AMatrix::productInPlace(vres, *_XtInvSigma, vZ); // TODO in place
-  return 0;
-}
-
-Id KrigingAlgebraSimpleCase::_needXtInvSigma()
-{
-  if (!_XtInvSigmaHasChanged) return 0;
-  if (_notFindX()) return 1;
-  if (_needInvSigma()) return 1;
-  if (_flagCholesky)
+  void KrigingAlgebraSimpleCase::_printVector(
+    const String& name,
+    const VectorDouble* vec)
   {
-    _invSigmaX->resize(_neq, _nbfl);
-    _cholSigma->solveMatInPlace(*_X, *_invSigmaX);
+    if (vec == nullptr) return;
+    if (vec->size() <= 0) return;
+    message(" - %s (%d)\n", name.c_str(), static_cast<Id>(vec->size()));
   }
-  else
+
+  void KrigingAlgebraSimpleCase::printStatus() const
   {
-    _XtInvSigma->resize(_nbfl, _neq);
-    AMatrix::prodMatMatInPlace(*_XtInvSigma, *_X, *_InvSigma, true, false);
-  }
-  _XtInvSigmaHasChanged = false;
-  return 0;
-}
+    mestitle(1, "List of arrays used in 'KrigingAlgebraSimpleCase'");
+    message("\nGeneral Parameters\n");
+    message("Number of Covariance Rows ('_neq') = %d\n", _neq);
+    message("Number of Drift equations ('_nbfl') = %d\n", _nbfl);
+    message("Number of Right_Hand sides ('_nrhs') = %d\n", _nrhs);
 
-Id KrigingAlgebraSimpleCase::_needSigmac()
-{
-  if (!_invSigmac->empty()) return 0;
-  if (_needXtInvSigma()) return 1;
-  _Sigmac.resize(_nbfl, _nbfl);
-  if (_flagCholesky)
-    AMatrix::prodMatMatInPlace(_Sigmac, *_invSigmaX, *_X, true);
-  else
-    AMatrix::prodMatMatInPlace(_Sigmac, *_XtInvSigma, *_X);
-  // Compute the inverse matrix
-  _invSigmac->resize(_nbfl, _nbfl);
-  if (_Sigmac.invert2(*_invSigmac))
-  {
-    _printInversionErrorMessage(_Sigmac);
-    return 1;
-  }
-  return 0;
-}
-
-void KrigingAlgebraSimpleCase::_printInversionErrorMessage(const MatrixSymmetric& mat)
-{
-  messerr("Problem when inverting Kriging Matrix (NRows=%d x NCols=%d)",
-          mat.getNRows(), mat.getNCols());
-}
-
-Id KrigingAlgebraSimpleCase::_needBeta()
-{
-  if (!_Beta->empty()) return 0;
-  if (_needSigmac()) return 1;
-  if (_needXtInvSigmaZ()) return 1;
-  _Beta->resize(_nbfl);
-  AMatrix::productInPlace(*_Beta, *_invSigmac, *_XtInvSigmaZ);
-  return 0;
-}
-
-Id KrigingAlgebraSimpleCase::_needMuUK()
-{
-  if (!_MuUK.empty()) return 0;
-  if (_flagSK) return 1;
-  if (_notFindX0()) return 1;
-  if (_needSigmac()) return 1;
-  if (_needLambdaSK()) return 1;
-
-  _MuUK.resize(_nbfl, _nrhs);
-  _LambdaSKtX.resize(_nrhs, _nbfl);
-  _Y0.resize(_nrhs, _nbfl);
-
-  AMatrix::prodMatMatInPlace(_LambdaSKtX, *_LambdaSK, *_X, true, false);
-  AMatrix::linearCombinationInPlace(_Y0, 0., 1., *_X0, -1., _LambdaSKtX);
-  AMatrix::prodMatMatInPlace(_MuUK, *_invSigmac, _Y0, false, true);
-  return 0;
-}
-
-void KrigingAlgebraSimpleCase::updateSampleRanks()
-{
-  _neq  = static_cast<Id>((*getSampleRanksByVariable(0)).size());
-  _nrhs = static_cast<Id>(getSampleRanks()->size());
-  _nvar = static_cast<Id>(getSampleRanks()->size());
-  _Sigma0->resize(_neq, _nrhs);
-  _resetLinkedToLHS();
-  _nbfl = _X->getNCols();
-  _X0->resize(_nrhs, _nbfl);
-  _flagSK = (_nbfl <= 0);
-  if (_flagSK && !_Means.empty())
-  {
-    for (Id i = 0; i < static_cast<Id>(_Z->size()); i++)
-      (*_Z)[i] -= _Means[0];
-  }
-}
-
-void KrigingAlgebraSimpleCase::updateRankHandler()
-{
-  _neq  = static_cast<Id>(getSampleRanksByVariable(0)->size());
-  _nrhs = static_cast<Id>(getSampleRanks()->size());
-  _nvar = static_cast<Id>(getSampleRanks()->size());
-  _Sigma0->resize(_neq, _nrhs);
-  _resetLinkedToLHS();
-  _nbfl = _X->getNCols();
-  _X0->resize(_nrhs, _nbfl);
-  _flagSK = (_nbfl <= 0);
-}
-Id KrigingAlgebraSimpleCase::_needLambdaSK()
-{
-  if (!_LambdaSK->empty()) return 0;
-  if (_notFindSigma0()) return 1;
-  if (_needInvSigma()) return 1;
-  _LambdaSK->resize(_neq, _nrhs);
-  if (_flagCholesky)
-  {
-    _cholSigma->solveMatInPlace(*_Sigma0, *_LambdaSK);
-  }
-  else
-  {
-    _LambdaSK->prodMatMatNoCheck<false, false>(*_InvSigma, *_Sigma0);
-  }
-  return 0;
-}
-
-bool KrigingAlgebraSimpleCase::_notFindSampleRanks()
-{
-  return !_isPresentIIVector("SampleRanks", getSampleRanks());
-}
-
-bool KrigingAlgebraSimpleCase::_notFindRankHandler()
-{
-  return !(_rankHandler == nullptr);
-}
-
-bool KrigingAlgebraSimpleCase::_notFindZ()
-{
-  return !_isPresentVector("Z", _Z.get());
-}
-
-Id KrigingAlgebraSimpleCase::_needLambdaUK()
-{
-  if (!_LambdaUK.empty()) return 0;
-  _LambdaUK.resize(_neq, _nrhs);
-
-  if (_needXtInvSigma()) return 1;
-  if (_needLambdaSK()) return 1;
-  if (_needMuUK()) return 1;
-
-  _invSigmaXMuUK.resize(_neq, _nrhs);
-
-  if (_flagCholesky)
-    AMatrix::prodMatMatInPlace(_invSigmaXMuUK, *_invSigmaX, _MuUK);
-  else
-    AMatrix::prodMatMatInPlace(_invSigmaXMuUK, *_XtInvSigma, _MuUK, true);
-
-  MatrixDense::sum(_LambdaSK.get(), &_invSigmaXMuUK, &_LambdaUK);
-
-  return 0;
-}
-
-Id KrigingAlgebraSimpleCase::_needDual()
-{
-  if (!_dualHasChanged) return 0;
-  if (_notFindZ()) return 1;
-  if (_needInvSigma()) return 1;
-
-  _bDual->resize(_neq);
-  constvect vZ(*_Z);
-  vect vB(*_bDual);
-
-  if (_flagCholesky)
-    _cholSigma->solve(vZ, vB);
-  else
-    AMatrix::productInPlace(vB, *_InvSigma, vZ, true);
-  if (_nbfl > 0)
-  {
-    if (_needBeta()) return 1;
-    _invSigmaXBeta->resize(_neq);
-    vect vISXD(*_invSigmaXBeta);
-    if (_flagCholesky)
-      AMatrix::productInPlace(vISXD, *_invSigmaX, *_Beta);
+    if (_flagSK)
+      message("Working with Known Mean(s)\n");
     else
-      AMatrix::productInPlace(vISXD, *_XtInvSigma, *_Beta, true);
-    VH::linearCombinationInPlace(1., *_bDual, -1., *_invSigmaXBeta, *_bDual);
+      message("Working with Unknown Mean(s)\n");
+
+    message("\nExternal Pointers\n");
+    _printMatrix("Sigma00", _Sigma00.get());
+    _printMatrix("Sigma", _Sigma.get());
+    _printMatrix("Sigma0", _Sigma0.get());
+    _printMatrix("X", _X.get());
+    _printMatrix("X0", _X0.get());
+    _printVector("Z", _Z.get());
+    _printVector("Means", &_Means);
+
+    message("\nInternal Memory (retrievable)\n");
+    _printVector("Zstar", &_Zstar);
+    _printVector("Beta", _Beta.get());
+    _printMatrix("LambdaSK", _LambdaSK.get());
+    _printMatrix("LambdaUK", &_LambdaUK);
+    _printMatrix("MuUK", &_MuUK);
+    _printMatrix("Stdv", &_Stdv);
+    _printMatrix("VarZSK", &_VarZSK);
+    _printMatrix("VarZUK", &_VarZUK);
+
+    message("\nInternal Memory (hidden)\n");
+    _printMatrix("XtInvSigma", _invSigmaX->transpose());
+    _printMatrix("Y0", &_Y0);
+    if (!_flagCholesky) _printMatrix("InvSigma", _InvSigma.get());
+    _printMatrix("Sigmac", _invSigmac.get());
   }
-  _dualHasChanged = false;
-  return 0;
-}
 
-void KrigingAlgebraSimpleCase::_printMatrix(const String& name, const AMatrix* mat)
-{
-  if (mat == nullptr || mat->empty()) return;
-  message(" - %s (%d, %d)\n", name.c_str(), mat->getNRows(), mat->getNCols());
-}
-
-void KrigingAlgebraSimpleCase::_printVector(const String& name, const VectorDouble* vec)
-{
-  if (vec == nullptr) return;
-  if (vec->size() <= 0) return;
-  message(" - %s (%d)\n", name.c_str(), static_cast<Id>(vec->size()));
-}
-
-void KrigingAlgebraSimpleCase::printStatus() const
-{
-  mestitle(1, "List of arrays used in 'KrigingAlgebraSimpleCase'");
-  message("\nGeneral Parameters\n");
-  message("Number of Covariance Rows ('_neq') = %d\n", _neq);
-  message("Number of Drift equations ('_nbfl') = %d\n", _nbfl);
-  message("Number of Right_Hand sides ('_nrhs') = %d\n", _nrhs);
-
-  if (_flagSK)
-    message("Working with Known Mean(s)\n");
-  else
-    message("Working with Unknown Mean(s)\n");
-
-  message("\nExternal Pointers\n");
-  _printMatrix("Sigma00", _Sigma00.get());
-  _printMatrix("Sigma", _Sigma.get());
-  _printMatrix("Sigma0", _Sigma0.get());
-  _printMatrix("X", _X.get());
-  _printMatrix("X0", _X0.get());
-  _printVector("Z", _Z.get());
-  _printVector("Means", &_Means);
-
-  message("\nInternal Memory (retrievable)\n");
-  _printVector("Zstar", &_Zstar);
-  _printVector("Beta", _Beta.get());
-  _printMatrix("LambdaSK", _LambdaSK.get());
-  _printMatrix("LambdaUK", &_LambdaUK);
-  _printMatrix("MuUK", &_MuUK);
-  _printMatrix("Stdv", &_Stdv);
-  _printMatrix("VarZSK", &_VarZSK);
-  _printMatrix("VarZUK", &_VarZUK);
-
-  message("\nInternal Memory (hidden)\n");
-  _printMatrix("XtInvSigma", _invSigmaX->transpose());
-  _printMatrix("Y0", &_Y0);
-  if (!_flagCholesky)
-    _printMatrix("InvSigma", _InvSigma.get());
-  _printMatrix("Sigmac", _invSigmac.get());
-}
-
-bool KrigingAlgebraSimpleCase::_isPresentMatrix(const String& name, const AMatrix* mat)
-{
-  if (mat != nullptr) return true;
-  messerr(">>> Matrix %s is missing (required)", name.c_str());
-  messerr("    (generated in KrigingAlgebraSimpleCase::_isPresentMatrix)");
-  return false;
-}
-
-bool KrigingAlgebraSimpleCase::_isPresentVector(const String& name,
-                                                const VectorDouble* vec)
-{
-  if (vec != nullptr) return true;
-  messerr(">>> Vector %s is missing (required)", name.c_str());
-  messerr("    (generated in KrigingAlgebraSimpleCase::_isPresentVector)");
-  return false;
-}
-
-bool KrigingAlgebraSimpleCase::_isPresentIVector(const String& name,
-                                                 const VectorInt* vec)
-{
-  if (vec != nullptr) return true;
-  messerr(">>> Vector %s is missing (required)", name.c_str());
-  messerr("    (generated in KrigingAlgebraSimpleCase::_isIPresentVector)");
-  return false;
-}
-
-bool KrigingAlgebraSimpleCase::_isPresentIIVector(const String& name, const VectorVectorInt* vec)
-{
-  if (vec != nullptr) return true;
-  messerr(">>> VectorVector %s is missing (required)", name.c_str());
-  messerr("    (generated in KrigingAlgebraSimpleCase::_isIIPresentVector)");
-  return false;
-}
-
-void KrigingAlgebraSimpleCase::dumpLHS(Id nbypas) const
-{
-  Id size = _neq;
-  if (!_flagSK) size += _nbfl;
-  Id npass = ((size - 1) / nbypas) + 1;
-
-  /* General Header */
-
-  mestitle(0, "LHS of Kriging matrix");
-  if (_Sigma != nullptr)
-    message("Dimension of the Covariance Matrix  = %d\n", _Sigma->getNRows());
-  if (_X != nullptr && !_flagSK)
-    message("Dimension of the Drift Matrix       = %d\n", _nbfl);
-
-  // LHS matrices
-  for (Id ipass = 0; ipass < npass; ipass++)
+  bool KrigingAlgebraSimpleCase::_isPresentMatrix(
+    const String& name,
+    const AMatrix* mat)
   {
-    Id ideb = ipass * nbypas;
-    Id ifin = MIN(size, ideb + nbypas);
-    message("\n");
+    if (mat != nullptr) return true;
+    messerr(">>> Matrix %s is missing (required)", name.c_str());
+    messerr("    (generated in KrigingAlgebraSimpleCase::_isPresentMatrix)");
+    return false;
+  }
+
+  bool KrigingAlgebraSimpleCase::_isPresentVector(
+    const String& name,
+    const VectorDouble* vec)
+  {
+    if (vec != nullptr) return true;
+    messerr(">>> Vector %s is missing (required)", name.c_str());
+    messerr("    (generated in KrigingAlgebraSimpleCase::_isPresentVector)");
+    return false;
+  }
+
+  bool KrigingAlgebraSimpleCase::_isPresentIVector(
+    const String& name,
+    const VectorInt* vec)
+  {
+    if (vec != nullptr) return true;
+    messerr(">>> Vector %s is missing (required)", name.c_str());
+    messerr("    (generated in KrigingAlgebraSimpleCase::_isIPresentVector)");
+    return false;
+  }
+
+  bool KrigingAlgebraSimpleCase::_isPresentIIVector(
+    const String& name,
+    const VectorVectorInt* vec)
+  {
+    if (vec != nullptr) return true;
+    messerr(">>> VectorVector %s is missing (required)", name.c_str());
+    messerr("    (generated in KrigingAlgebraSimpleCase::_isIIPresentVector)");
+    return false;
+  }
+
+  void KrigingAlgebraSimpleCase::dumpLHS(Id nbypas) const
+  {
+    Id size = _neq;
+    if (!_flagSK) size += _nbfl;
+    Id npass = ((size - 1) / nbypas) + 1;
+
+    /* General Header */
+
+    mestitle(0, "LHS of Kriging matrix");
+    if (_Sigma != nullptr)
+      message("Dimension of the Covariance Matrix  = %d\n", _Sigma->getNRows());
+    if (_X != nullptr && !_flagSK)
+      message("Dimension of the Drift Matrix       = %d\n", _nbfl);
+
+    // LHS matrices
+    for (Id ipass = 0; ipass < npass; ipass++)
+    {
+      Id ideb = ipass * nbypas;
+      Id ifin = MIN(size, ideb + nbypas);
+      message("\n");
+
+      // Header line
+      printElement("Rank");
+      for (Id j = ideb; j < ifin; j++) printElement(j + 1);
+      message("\n");
+
+      // LHS Matrix
+      for (Id i = 0; i < size; i++)
+      {
+        printElement(i + 1);
+        if (i < _neq)
+        {
+          for (Id j = ideb; j < ifin; j++)
+          {
+            if (j < _neq)
+              printElement(_Sigma->getValue(i, j));
+            else
+              printElement(_X->getValue(i, j - _neq));
+          }
+          message("\n");
+        }
+        else
+        {
+          for (Id j = ideb; j < ifin; j++)
+          {
+            if (j < _neq)
+              printElement(_X->getValue(j, i - _neq));
+            else
+              printElement(0.);
+          }
+          message("\n");
+        }
+      }
+    }
+  }
+
+  void KrigingAlgebraSimpleCase::dumpRHS() const
+  {
+    Id size = _Sigma0->getNRows();
+    // Note: X0 is transposed!
+    if (_X0 != nullptr) size += _X0->getNCols();
 
     // Header line
     printElement("Rank");
-    for (Id j = ideb; j < ifin; j++) printElement(j + 1);
+    for (Id irhs = 0; irhs < _nrhs; irhs++) printElement(irhs + 1);
     message("\n");
 
-    // LHS Matrix
+    // RHS Matrix
     for (Id i = 0; i < size; i++)
     {
       printElement(i + 1);
       if (i < _neq)
       {
-        for (Id j = ideb; j < ifin; j++)
-        {
-          if (j < _neq)
-            printElement(_Sigma->getValue(i, j));
-          else
-            printElement(_X->getValue(i, j - _neq));
-        }
-        message("\n");
+        for (Id irhs = 0; irhs < _nrhs; irhs++)
+          printElement(_Sigma0->getValue(i, irhs));
       }
       else
       {
-        for (Id j = ideb; j < ifin; j++)
-        {
-          if (j < _neq)
-            printElement(_X->getValue(j, i - _neq));
-          else
-            printElement(0.);
-        }
-        message("\n");
+        if (_X0 != nullptr)
+          for (Id irhs = 0; irhs < _nrhs; irhs++)
+            printElement(_X0->getValue(irhs, i - _neq));
       }
+      message("\n");
     }
   }
-}
 
-void KrigingAlgebraSimpleCase::dumpRHS() const
-{
-  Id size = _Sigma0->getNRows();
-  // Note: X0 is transposed!
-  if (_X0 != nullptr) size += _X0->getNCols();
-
-  // Header line
-  printElement("Rank");
-  for (Id irhs = 0; irhs < _nrhs; irhs++) printElement(irhs + 1);
-  message("\n");
-
-  // RHS Matrix
-  for (Id i = 0; i < size; i++)
+  // This method cannot be const as it may compute _lambda internally upon request
+  void KrigingAlgebraSimpleCase::dumpWGT()
   {
-    printElement(i + 1);
-    if (i < _neq)
+    MatrixDense* lambda;
+    if (_flagSK)
     {
-      for (Id irhs = 0; irhs < _nrhs; irhs++)
-        printElement(_Sigma0->getValue(i, irhs));
+      if (_needLambdaSK()) return;
+      lambda = _LambdaSK.get();
     }
     else
     {
-      if (_X0 != nullptr)
-        for (Id irhs = 0; irhs < _nrhs; irhs++)
-          printElement(_X0->getValue(irhs, i - _neq));
+      if (_needLambdaUK()) return;
+      lambda = &_LambdaUK;
     }
-    message("\n");
-  }
-}
+    if (_notFindSampleRanks()) return;
+    String string;
 
-// This method cannot be const as it may compute _lambda internally upon request
-void KrigingAlgebraSimpleCase::dumpWGT()
-{
-  MatrixDense* lambda;
-  if (_flagSK)
-  {
-    if (_needLambdaSK()) return;
-    lambda = _LambdaSK.get();
-  }
-  else
-  {
-    if (_needLambdaUK()) return;
-    lambda = &_LambdaUK;
-  }
-  if (_notFindSampleRanks()) return;
-  String string;
+    /* Header Line */
 
-  /* Header Line */
-
-  printElement("Rank");
-  printElement("Data");
-  for (Id irhs = 0; irhs < _nrhs; irhs++)
-  {
-    (void)gslSPrintf(string, "Z%d*", irhs + 1);
-    printElement(string);
-  }
-  message("\n");
-
-  // Matrix lines
-  VectorDouble sum(_nrhs);
-  Id lec = 0;
-  for (Id ivar = 0; ivar < _nvar; ivar++)
-  {
-    if (_nvar > 1) message("Using variable Z%-2d\n", ivar + 1);
-    Id nbyvar = static_cast<Id>(getSampleRanksByVariable(0)->size());
-    sum.fill(0.);
-
-    for (Id j = 0; j < nbyvar; j++)
-    {
-      printElement(lec + 1);
-      double value = (*_Z)[lec];
-      // Correct printout by the mean locally in case of SK
-      if (_flagSK && !_Means.empty()) value += _Means[ivar];
-      printElement(value);
-      for (Id irhs = 0; irhs < _nrhs; irhs++)
-      {
-        value = lambda->getValue(lec, irhs);
-        printElement(value);
-        sum[irhs] += value;
-      }
-      message("\n");
-      lec++;
-    }
-
-    // Display sum of weights
-    printElement("Sum of weights", String(), 2, -1);
-    for (Id irhs = 0; irhs < _nrhs; irhs++) printElement(sum[irhs]);
-    message("\n");
-  }
-}
-
-void KrigingAlgebraSimpleCase::dumpAux()
-{
-  if (_notFindSampleRanks()) return;
-  String string;
-
-  // For Simple Kriging, dump the information on Means
-  if (_nbfl <= 0)
-  {
-    if (!_Means.empty())
-    {
-      for (Id ivar = 0; ivar < _nvar; ivar++)
-        message("Mean for Variable Z%d = %lf\n", ivar + 1, _Means[ivar]);
-    }
-    return;
-  }
-
-  if (_needMuUK()) return;
-  if (_needBeta()) return;
-
-  // Header Line
-  printElement("Rank");
-  for (Id irhs = 0; irhs < _nrhs; irhs++)
-  {
-    (void)gslSPrintf(string, "Mu%d*", irhs + 1);
-    printElement(string);
-  }
-  printElement("Coeff");
-  message("\n");
-
-  for (Id ibfl = 0; ibfl < _nbfl; ibfl++)
-  {
-    printElement(ibfl + 1);
+    printElement("Rank");
+    printElement("Data");
     for (Id irhs = 0; irhs < _nrhs; irhs++)
-      printElement(_MuUK.getValue(ibfl, irhs));
-    printElement(_Beta->at(ibfl));
+    {
+      (void)gslSPrintf(string, "Z%d*", irhs + 1);
+      printElement(string);
+    }
     message("\n");
+
+    // Matrix lines
+    VectorDouble sum(_nrhs);
+    Id lec = 0;
+    for (Id ivar = 0; ivar < _nvar; ivar++)
+    {
+      if (_nvar > 1) message("Using variable Z%-2d\n", ivar + 1);
+      Id nbyvar = static_cast<Id>(getSampleRanksByVariable(0)->size());
+      sum.fill(0.);
+
+      for (Id j = 0; j < nbyvar; j++)
+      {
+        printElement(lec + 1);
+        double value = (*_Z)[lec];
+        // Correct printout by the mean locally in case of SK
+        if (_flagSK && !_Means.empty()) value += _Means[ivar];
+        printElement(value);
+        for (Id irhs = 0; irhs < _nrhs; irhs++)
+        {
+          value = lambda->getValue(lec, irhs);
+          printElement(value);
+          sum[irhs] += value;
+        }
+        message("\n");
+        lec++;
+      }
+
+      // Display sum of weights
+      printElement("Sum of weights", String(), 2, -1);
+      for (Id irhs = 0; irhs < _nrhs; irhs++) printElement(sum[irhs]);
+      message("\n");
+    }
   }
-}
+
+  void KrigingAlgebraSimpleCase::dumpAux()
+  {
+    if (_notFindSampleRanks()) return;
+    String string;
+
+    // For Simple Kriging, dump the information on Means
+    if (_nbfl <= 0)
+    {
+      if (!_Means.empty())
+      {
+        for (Id ivar = 0; ivar < _nvar; ivar++)
+          message("Mean for Variable Z%d = %lf\n", ivar + 1, _Means[ivar]);
+      }
+      return;
+    }
+
+    if (_needMuUK()) return;
+    if (_needBeta()) return;
+
+    // Header Line
+    printElement("Rank");
+    for (Id irhs = 0; irhs < _nrhs; irhs++)
+    {
+      (void)gslSPrintf(string, "Mu%d*", irhs + 1);
+      printElement(string);
+    }
+    printElement("Coeff");
+    message("\n");
+
+    for (Id ibfl = 0; ibfl < _nbfl; ibfl++)
+    {
+      printElement(ibfl + 1);
+      for (Id irhs = 0; irhs < _nrhs; irhs++)
+        printElement(_MuUK.getValue(ibfl, irhs));
+      printElement(_Beta->at(ibfl));
+      message("\n");
+    }
+  }
 
 } // namespace gstlrn

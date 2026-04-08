@@ -16,6 +16,7 @@
 #include "Matrix/MatrixSquare.hpp"
 
 using namespace gstlrn;
+
 /****************************************************************************/
 /*!
  ** Main Program
@@ -26,7 +27,7 @@ using namespace gstlrn;
 int main(int argc, char* argv[])
 {
   Timer timer;
-  double result     = 0.;
+  double result = 0.;
   double result_ref = 0.;
 
   std::stringstream sfn;
@@ -38,8 +39,8 @@ int main(int argc, char* argv[])
 
   // Assigning values in a matrix
 
-  Id nx             = 10000;
-  Id naffect        = 5000000;
+  Id nx = 10000;
+  Id naffect = 5000000;
   VectorDouble vecS = VH::simulateUniform(nx * nx);
   MatrixSquare matS(nx);
   matS.resetFromVD(nx, nx, vecS);
@@ -52,12 +53,13 @@ int main(int argc, char* argv[])
   timer.reset();
   for (Id itime = 0; itime < naffect; itime++)
   {
-    Id rank    = law_uniform(0, nx * nx);
+    Id rank = law_uniform(0, nx * nx);
     vecS[rank] = bidon;
   }
   timer.displayIntervalMilliseconds("Assignment to vector", 120);
 
-  message("- Assigning value to the square matrix of dimension %d x %d\n", nx, nx);
+  message(
+    "- Assigning value to the square matrix of dimension %d x %d\n", nx, nx);
   timer.reset();
   for (Id itime = 0; itime < naffect; itime++)
   {
@@ -69,13 +71,15 @@ int main(int argc, char* argv[])
   // Comparing several uses of VectorDouble calculations
   // ===================================================
   Id ntimes = 5000;
-  Id nsize  = 30000;
+  Id nsize = 30000;
 
   VectorDouble a = VH::simulateGaussian(nsize);
   VectorDouble b = VH::simulateGaussian(nsize);
 
   mestitle(1, "Comparing various ways of operating Vectors of Double values");
-  message("Operations are performed %d times over vectors of size %d\n", ntimes, nsize);
+  message(
+    "Operations are performed %d times over vectors of size %d\n", ntimes,
+    nsize);
 
   message("- using: sum_i a[i] * b[i]\n");
   timer.reset();
@@ -107,7 +111,8 @@ int main(int argc, char* argv[])
   }
   timer.displayIntervalMilliseconds("with iterators", 450);
   if (ABS(result - result_ref) > ABS(result_ref) * EPSILON6)
-    message("Results are different: Result = %lf; Ref = %lf\n", result, result_ref);
+    message(
+      "Results are different: Result = %lf; Ref = %lf\n", result, result_ref);
 
   message("- using pointers to double\n");
   timer.reset();
@@ -115,7 +120,7 @@ int main(int argc, char* argv[])
   {
     double* pta = a.data();
     double* ptb = b.data();
-    result      = 0.;
+    result = 0.;
     for (Id ielem = 0; ielem < nsize; ielem++)
     {
       result += (*pta) * (*ptb);
@@ -125,15 +130,16 @@ int main(int argc, char* argv[])
   }
   timer.displayIntervalMilliseconds("with pointers", 320);
   if (ABS(result - result_ref) > ABS(result_ref) * EPSILON6)
-    message("Results are different: Result = %lf; Ref = %lf\n", result, result_ref);
+    message(
+      "Results are different: Result = %lf; Ref = %lf\n", result, result_ref);
 
   message("- using VectorHelper\n");
   timer.reset();
-  for (Id itime = 0; itime < ntimes; itime++)
-    result = a.innerProduct(b);
+  for (Id itime = 0; itime < ntimes; itime++) result = a.innerProduct(b);
   timer.displayIntervalMilliseconds("with VectorHelper", 200);
   if (ABS(result - result_ref) > ABS(result_ref) * EPSILON6)
-    message("Results are different: Result = %lf; Ref = %lf\n", result, result_ref);
+    message(
+      "Results are different: Result = %lf; Ref = %lf\n", result, result_ref);
 
   message("- using VectorHelper (double)\n");
   timer.reset();
@@ -143,7 +149,8 @@ int main(int argc, char* argv[])
     result = VH::innerProduct(ptra, ptrb, nsize);
   timer.displayIntervalMilliseconds("with VectorHelper (double)", 200);
   if (ABS(result - result_ref) > ABS(result_ref) * EPSILON6)
-    message("Results are different: Result = %lf; Ref = %lf\n", result, result_ref);
+    message(
+      "Results are different: Result = %lf; Ref = %lf\n", result, result_ref);
 
   message("- using matrix algebra\n");
   MatrixDense mata;
@@ -159,19 +166,23 @@ int main(int argc, char* argv[])
   }
   timer.displayIntervalMilliseconds("with algebra", 1700);
   if (ABS(result - result_ref) > ABS(result_ref) * EPSILON6)
-    message("Results are different: Result = %lf; Ref = %lf\n", result, result_ref);
+    message(
+      "Results are different: Result = %lf; Ref = %lf\n", result, result_ref);
 
   /// Sorting the contents of a vector
 
   mestitle(1, "Testing sorting algorithms");
   Id nech = 10;
   Id size = 7;
-  message("We consider a vector of %d values and the corresponding vector of ranks\n", nech);
+  message(
+    "We consider a vector of %d values and the corresponding vector of ranks\n",
+    nech);
   message("Only the first %d positions are used\n", size);
-  message("This paragraph is not bench-marked as time consumption is too short\n");
+  message(
+    "This paragraph is not bench-marked as time consumption is too short\n");
 
   VectorDouble VinVal = VH::simulateUniform(nech);
-  VectorInt VinRank   = VH::sequence(nech, 4, 3);
+  VectorInt VinRank = VH::sequence(nech, 4, 3);
   printVector(VinVal, "Unsorted values", true, true);
   printVector(VinRank, "Unsorted ranks", true, true);
 
@@ -182,7 +193,8 @@ int main(int argc, char* argv[])
 
   VectorDouble VsortVal = VH::reorder(VinVal, order, size);
   if (!VoutVal.isEqual(VsortVal))
-    printVector(VsortVal, "Results are different: Re-ordered values", true, true);
+    printVector(
+      VsortVal, "Results are different: Re-ordered values", true, true);
 
   VectorInt VsortRank = VH::reorder(VinRank, order, size);
   printVector(VsortRank, "Ranks of Sorted values", true, true);
@@ -190,7 +202,8 @@ int main(int argc, char* argv[])
   VH::arrangeInPlace(0, VinRank, VinVal, true, size);
   VinVal.resize(size);
   if (!VoutVal.isEqual(VinVal))
-    printVector(VinVal, "Results are different: Re-arranged values", true, true);
+    printVector(
+      VinVal, "Results are different: Re-arranged values", true, true);
   VinRank.resize(size);
   if (!VsortRank.isEqual(VinRank))
     printVector(VinRank, "Re-arranged ranks", true, true);

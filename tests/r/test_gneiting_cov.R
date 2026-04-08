@@ -17,7 +17,7 @@ kernel_gauss  <- function(h){exp(-h^2)}
 kernel_generalized_cauchy <- function(u, alpha, beta) {(1+abs(u)^alpha)^{-beta}}
 kernel_cauchy <- function(u, nu) {kernel_generalized_cauchy(u, alpha = 2, beta = nu)}
 
-# computing a spectral model on R^d 
+# computing a spectral model on R^d
 #' @param sp a list containing spectral waves
 #'  - sp$omega a [np, d+1] matrix of space-time random frequencies
 #'  - sp$phi a [np] vector of the random phases
@@ -56,11 +56,11 @@ rot2D <- function(angles = 0.0) {
 }
 rot3D <- function(angles = rep(0.0, 3), flag.euler = TRUE) {
   # yaw
-  alpha = angles[1] * pi / 180 
+  alpha = angles[1] * pi / 180
   cs = cos(alpha); sn = sin(alpha)
   Rz = matrix(c(cs, sn, 0, -sn, cs, 0, 0, 0, 1), 3, 3)
   # pitch
-  beta = angles[2] * pi / 180 
+  beta = angles[2] * pi / 180
   cs = cos(beta); sn = sin(beta)
   Ry = matrix(c(cs, 0, -sn, 0, 1, 0, sn, 0, cs), 3, 3)
   # roll
@@ -78,7 +78,7 @@ rot3D <- function(angles = rep(0.0, 3), flag.euler = TRUE) {
 
 # Gneiting model for $d %\in% c(1,2,3)$
 GneitingModel <- function(alpha = 1.0, beta = 1.0, nu = 1/2, type = 1,
-                          ranges = c(1,1,1), rot = diag(length(ranges)-1), 
+                          ranges = c(1,1,1), rot = diag(length(ranges)-1),
                           verbose = FALSE) {
   # checking parameters
   d = length(ranges) - 1
@@ -102,27 +102,27 @@ GneitingModel <- function(alpha = 1.0, beta = 1.0, nu = 1/2, type = 1,
     fn_cov_s <- function(h){kernel_generalized_cauchy(h, alpha = 2, beta = nu)}
   }
   fn_cov_t <- function(u) {kernel_generalized_cauchy(u, alpha = alpha, beta = beta*d/2)}
-  
+
   if (d == 1) {
-    ani_factor = matrix(1/ranges[1], nrow = 1, ncol = 1)  
+    ani_factor = matrix(1/ranges[1], nrow = 1, ncol = 1)
   } else {
     ani_factor = diag(1/ranges[1:d])
   }
-  
+
   dist_aniso = function(h){
     h = as.matrix(h)
-    apply(X = as.matrix(h) %*% rot %*% ani_factor, 
-          MARGIN = 1, 
+    apply(X = as.matrix(h) %*% rot %*% ani_factor,
+          MARGIN = 1,
           FUN = function(u){sqrt(sum(u^2))})
   }
-  
+
   # space-time covariance function
   fn_cov <- function(H) {
     stopifnot(is.matrix(H)&(ncol(H) == d+1))
     ct = fn_cov_t(H[,d+1]/ranges[d+1])
     ct * fn_cov_s(dist_aniso(H[,1:d]) * ct^(1/d))
   }
-  
+
   # simulation
   fn_sim <- function(n, seed = NULL, flag.double = TRUE) {
     if(!is.null(seed)) {set.seed(seed)}
@@ -130,21 +130,21 @@ GneitingModel <- function(alpha = 1.0, beta = 1.0, nu = 1/2, type = 1,
     omega = matrix(NaN, nrow = n, ncol = d+1)
     # space spectral components with geometrical anisotropy
     if (type == 0) {
-      R   = rep(1, n) 
+      R   = rep(1, n)
     } else if (type == 1) {
       R   = 1/(4*rgamma(n = n, shape = nu))
     } else if (type == 2) {
       R   = rgamma(n = n, shape = nu)
     }
-    omega[, 1:d] = sqrt(2*R) * matrix(rnorm(n*d), nrow = n, ncol = d) 
+    omega[, 1:d] = sqrt(2*R) * matrix(rnorm(n*d), nrow = n, ncol = d)
     # time spectral components
-    lambda = (apply(X = as.matrix(omega[,1:d]), 
-                   MARGIN = 1, 
+    lambda = (apply(X = as.matrix(omega[,1:d]),
+                   MARGIN = 1,
                    FUN = function(u){sum(u^2)})/(4*R))^(1/beta)
-    
+
     sim_S = rep(NaN, length(lambda))
     for (i in seq_along(lambda)) {
-      sim_S[i] = simulate_stable_unilateral_exptilted(n = 1, alpha = beta, lambda = lambda[i], 
+      sim_S[i] = simulate_stable_unilateral_exptilted(n = 1, alpha = beta, lambda = lambda[i],
                                                    flag.double = flag.double)$X
     }
     sim_T = simulate_stable_bilateral(n = n, alpha = alpha)
@@ -152,15 +152,15 @@ GneitingModel <- function(alpha = 1.0, beta = 1.0, nu = 1/2, type = 1,
     omega[, 1:d] = omega[, 1:d] %*%
       ani_factor %*% t(rot)
     sp = list(
-      omega = omega, 
+      omega = omega,
       phi   = runif(n, min = 0.0, max = 2*pi),
       gamma = matrix(sqrt(-2*log(runif(n))/n), nrow = n, ncol = 1)
     )
     # computing the spectrum on the targets
     fn_compute = function(st, verbose = FALSE) {
-      compute_spectral(sp = sp, st = st, verbose = verbose) 
+      compute_spectral(sp = sp, st = st, verbose = verbose)
     }
-    
+
     list(
       spectrum = function(){sp},
       compute  = fn_compute
@@ -173,7 +173,7 @@ GneitingModel <- function(alpha = 1.0, beta = 1.0, nu = 1/2, type = 1,
     print(paste0(" - beta                   :", beta))
     print(paste0(" - nu                     :", nu))
   }
-  
+
   # return values
   list(
     type = fn_type,
@@ -183,7 +183,7 @@ GneitingModel <- function(alpha = 1.0, beta = 1.0, nu = 1/2, type = 1,
     nu    = function(){nu},
     scales = function(){ranges},
     rotation = function(){rot},
-    covariance = fn_cov, 
+    covariance = fn_cov,
     simulate = fn_sim)
 }
 
@@ -201,7 +201,7 @@ corT = CorAniso(ctxt = CovContext(nvar = 1, ndim = 1), type = ECov_CAUCHY_GEN())
 for (a_t in c(0.5, 1.0, 1.5, 2.0) ){
 for (alpha in c(0.25, 1.0, 1.5, 2.0)) {
 for (beta in c(1.0, 3/2, 1.0, 2)) {
-print(paste0(">>> Testing generalized Cauchy kernel with a_t = ", a_t, " alpha = ", alpha, " beta = ", beta))  
+print(paste0(">>> Testing generalized Cauchy kernel with a_t = ", a_t, " alpha = ", alpha, " beta = ", beta))
 err = corT$setScaleDim(idim = 0, scale = a_t)
 err = corT$setParam(param = alpha, ipar = 0)
 err = corT$setParam(param = beta, ipar = 1)
@@ -209,12 +209,12 @@ val_in_gstlearn = corT$sample(h = h, codir = c(1.0), ivar = 0, jvar = 0)
 val_in_R = kernel_generalized_cauchy(h/a_t, alpha, beta)
 stopifnot(all(abs(val_in_gstlearn - val_in_R) <= EPS_10))
 if (all(abs(val_in_gstlearn - val_in_R) <= EPS_10)) {
-print(paste0(">>> Test OK"))  
+print(paste0(">>> Test OK"))
 } else {
 print(paste0(">>> Test KO"))
 break
 }
-}    
+}
 }
 }
 
@@ -274,10 +274,10 @@ for (alpha in list_alpha) {
 for (beta in list_beta) {
 for (nu in nus)
   if (type == 0) {
-  print(paste0(">>> Testing Gneiting model with alpha = ", alpha, " beta = ", beta))  
+  print(paste0(">>> Testing Gneiting model with alpha = ", alpha, " beta = ", beta))
   params = c(alpha, beta*d/2)
   } else {
-  print(paste0(">>> Testing Gneiting model with alpha = ", alpha, " beta = ", beta, " nu = ", nu))  
+  print(paste0(">>> Testing Gneiting model with alpha = ", alpha, " beta = ", beta, " nu = ", nu))
   params = c(alpha, beta*d/2, nu)
   }
   # do the tests
@@ -286,9 +286,9 @@ for (nu in nus)
   # Gneiting model defined in gstlearn
   # XF: Old implementation
   # mg_in_gstlearn  = CorGneiting_create(
-  #   ctxt = CovContext(nvar = 1, ndim = d+1), 
+  #   ctxt = CovContext(nvar = 1, ndim = d+1),
   #   type = switch(paste(type), "0" = ECov_GNEITING_G(), "1" = ECov_GNEITING_M(), "2" = ECov_GNEITING_C()),
-  #   params = params, 
+  #   params = params,
   #   ranges = scales,      # vector of length d+1
   #   angles = angles[[d]], # vector of length d (no angles in time)
   #   separability = 1.0,   # scalar in [0,1]
@@ -296,7 +296,7 @@ for (nu in nus)
   # )
   # Gneiting model defined in gstlearn
   mg_in_gstlearn  = CorGneiting_create(
-  ctxt = CovContext(nvar = 1, ndim = d), 
+  ctxt = CovContext(nvar = 1, ndim = d),
   type = switch(paste(type), "0" = ECov_GNEITING_G(), "1" = ECov_GNEITING_M(), "2" = ECov_GNEITING_C()),
   alpha = alpha,
   beta = beta,
@@ -308,7 +308,7 @@ for (nu in nus)
   separability = 1.0,   # scalar in [0,1]
   flagRange = FALSE
   )
-  
+
   res_test = rep(TRUE, 3)
   # temporal trace
   u0  = c(rep(0.0, d), 1.0)
@@ -319,7 +319,7 @@ for (nu in nus)
   for (idir in seq_len(nrow(dir_u))) {
   u0 = dir_u[idir,]
   val_in_gstlearn = mg_in_gstlearn$sample(h = h, codir = u0, ivar = 0, jvar = 0)
-  val_in_R = mg_in_R$covariance(H = h %*% t(u0)) 
+  val_in_R = mg_in_R$covariance(H = h %*% t(u0))
   res_test[2] = all(res_test[2], (all(abs(val_in_gstlearn - val_in_R) < EPS_10)))
   }
 
@@ -327,7 +327,7 @@ for (nu in nus)
   for (idir in seq_len(nrow(dir_st))) {
   u0 = dir_st[idir,]
   val_in_gstlearn = mg_in_gstlearn$sample(h = h, codir = u0, ivar = 0, jvar = 0)
-  val_in_R = mg_in_R$covariance(H = h %*% t(u0)) 
+  val_in_R = mg_in_R$covariance(H = h %*% t(u0))
   res_test[3] = all(res_test[3], (all(abs(val_in_gstlearn - val_in_R) < EPS_10)))
   }
   # end of the test

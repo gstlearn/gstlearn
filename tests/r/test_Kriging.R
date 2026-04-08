@@ -176,7 +176,7 @@ performTest = function(ndim, cas, k, nvar,
 
   #  Create the Model
   model = Model_createFillRandom(ndim = ndim, nvar = nvar,
-                                 types = ECov_fromKeys(c("NUGGET", "EXPONENTIAL")), 
+                                 types = ECov_fromKeys(c("NUGGET", "EXPONENTIAL")),
                                  order = order, nfex = nfex)
   if (verbose) {
     err = model$display()
@@ -200,7 +200,7 @@ performTest = function(ndim, cas, k, nvar,
                 flag_est = flag_est, flag_std = flag_std, flag_varz = flag_varz,
                 namconv = NamingConvention(prefix_1))
   if (verbose) {
-    err = dbout$display() 
+    err = dbout$display()
   }
 
   #  Perform Kriging *by hand*
@@ -282,7 +282,7 @@ for(flag.sel.in in c(FALSE,TRUE)) {
       for(flag.NA in c(FALSE, TRUE)) {
         for (nvar in nvar_min:nvar_max) {
           for (k in seq_along(cas)) {
-            performTest(ndim, cas, k, nvar, 
+            performTest(ndim, cas, k, nvar,
                         flag.NA, flag.unique, flag.sel.out, flag.sel.in, verbose)
           }
         }

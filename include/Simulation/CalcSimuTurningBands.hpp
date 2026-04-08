@@ -30,10 +30,11 @@ namespace gstlrn
   class GSTLEARN_EXPORT CalcSimuTurningBands: public ACalcSimulation
   {
   public:
-    CalcSimuTurningBands(Id nbsimu = 0,
-                         Id nbtuba = 0,
-                         bool flag_check = false,
-                         Id seed = 4324324);
+    CalcSimuTurningBands(
+      Id nbsimu = 0,
+      Id nbtuba = 0,
+      bool flag_check = false,
+      Id seed = 4324324);
     CalcSimuTurningBands(const CalcSimuTurningBands& r) = delete;
     CalcSimuTurningBands& operator=(const CalcSimuTurningBands& r) = delete;
     virtual ~CalcSimuTurningBands();
@@ -44,21 +45,23 @@ namespace gstlrn
 
     Id getNDirs() const { return static_cast<Id>(_codirs.size()); }
 
-    Id simulate(Db* dbin,
-                Db* dbout,
-                Model* model,
-                ANeigh* neigh,
-                Id icase,
-                Id flag_bayes = false,
-                bool flag_pgs = false,
-                bool flag_gibbs = false,
-                bool flag_dgm = false);
-    Id simulatePotential(Db* dbiso,
-                         Db* dbgrd,
-                         Db* dbtgt,
-                         Db* dbout,
-                         ModelGeneric* model,
-                         double delta);
+    Id simulate(
+      Db* dbin,
+      Db* dbout,
+      Model* model,
+      ANeigh* neigh,
+      Id icase,
+      Id flag_bayes = false,
+      bool flag_pgs = false,
+      bool flag_gibbs = false,
+      bool flag_dgm = false);
+    Id simulatePotential(
+      Db* dbiso,
+      Db* dbgrd,
+      Db* dbtgt,
+      Db* dbout,
+      ModelGeneric* model,
+      double delta);
 
     bool isFlagCheck() const { return _flagCheck; }
 
@@ -86,20 +89,22 @@ namespace gstlrn
     Id _computeTB(Db* db) override;
 
     bool _resizeTB();
-    void _computePoint(Db* db,
-                       const CovAniso* cova,
-                       const ECov& type,
-                       Id isimu,
-                       Id is,
-                       const VectorBool& activeArray,
-                       VectorVectorDouble& tab);
-    void _computeGrid(DbGrid* db,
-                      const CovAniso* cova,
-                      const ECov& type,
-                      Id isimu,
-                      Id is,
-                      const VectorBool& activeArray,
-                      VectorVectorDouble& tab);
+    void _computePoint(
+      Db* db,
+      const CovAniso* cova,
+      const ECov& type,
+      Id isimu,
+      Id is,
+      const VectorBool& activeArray,
+      VectorVectorDouble& tab);
+    void _computeGrid(
+      DbGrid* db,
+      const CovAniso* cova,
+      const ECov& type,
+      Id isimu,
+      Id is,
+      const VectorBool& activeArray,
+      VectorVectorDouble& tab);
     void _computeNugget(Db* db);
 
     // Turning bands specific methods
@@ -157,21 +162,24 @@ namespace gstlrn
     void _setDensity();
     static ECov _particularCase(const CovAniso* cova, double eps = EPSILON7);
     Id _initializeSeedBands();
-    void _normalizeForBands(const Db* db,
-                            const VectorBool& activeArray,
-                            VectorVectorDouble& tab);
-    Id _getCorrec(const ECov& type,
-                  Id is,
-                  Id ibs,
-                  TurningBandOperate& operTB,
-                  double& correc);
+    void _normalizeForBands(
+      const Db* db,
+      const VectorBool& activeArray,
+      VectorVectorDouble& tab);
+    Id _getCorrec(
+      const ECov& type,
+      Id is,
+      Id ibs,
+      TurningBandOperate& operTB,
+      double& correc);
     static double _getScale(double alpha, double scale);
     static double _getScaleKB(double param, double scale);
-    void _migrationInit(Id ibs,
-                        Id is,
-                        double scale,
-                        TurningBandOperate& operTB,
-                        double eps = EPSILON5);
+    void _migrationInit(
+      Id ibs,
+      Id is,
+      double scale,
+      TurningBandOperate& operTB,
+      double eps = EPSILON5);
     double _dilutionInit(Id ibs, Id is, TurningBandOperate& operTB);
     double _spectralInit(Id ibs, Id is, TurningBandOperate& operTB);
     double _power1DInit(Id ibs, Id is, TurningBandOperate& operTB);
@@ -179,44 +187,49 @@ namespace gstlrn
     double _irfProcessInit(Id ibs, Id is, TurningBandOperate& operTB);
 
     static double _irfCorrec(const ECov& type, double theta1, double scale);
-    void _getOmegaPhi(Id ibs,
-                      TurningBandOperate& operTB,
-                      double* cxp,
-                      double* sxp,
-                      double* cyp,
-                      double* syp,
-                      double* czp,
-                      double* szp,
-                      double* c0z,
-                      double* s0z);
-    void _spreadRegularOnGrid(const DbGrid* dbgrid,
-                              const CovAniso* cova,
-                              Id ibs,
-                              double correc,
-                              TurningBandOperate& operTB,
-                              const VectorBool& activeArray,
-                              VectorDouble& tab);
-    void _spreadRegularOnPoint(const Db* db,
-                               const CovAniso* cova,
-                               Id ibs,
-                               double correc,
-                               TurningBandOperate& operTB,
-                               const VectorBool& activeArray,
-                               VectorDouble& tab);
-    void _spreadSpectralOnGrid(const DbGrid* dbgrid,
-                               const CovAniso* cova,
-                               Id ibs,
-                               double correc,
-                               TurningBandOperate& operTB,
-                               const VectorBool& activeArray,
-                               VectorDouble& tab);
-    void _spreadSpectralOnPoint(const Db* db,
-                                const CovAniso* cova,
-                                Id ibs,
-                                double correc,
-                                TurningBandOperate& operTB,
-                                const VectorBool& activeArray,
-                                VectorDouble& tab);
+    void _getOmegaPhi(
+      Id ibs,
+      TurningBandOperate& operTB,
+      double* cxp,
+      double* sxp,
+      double* cyp,
+      double* syp,
+      double* czp,
+      double* szp,
+      double* c0z,
+      double* s0z);
+    void _spreadRegularOnGrid(
+      const DbGrid* dbgrid,
+      const CovAniso* cova,
+      Id ibs,
+      double correc,
+      TurningBandOperate& operTB,
+      const VectorBool& activeArray,
+      VectorDouble& tab);
+    void _spreadRegularOnPoint(
+      const Db* db,
+      const CovAniso* cova,
+      Id ibs,
+      double correc,
+      TurningBandOperate& operTB,
+      const VectorBool& activeArray,
+      VectorDouble& tab);
+    void _spreadSpectralOnGrid(
+      const DbGrid* dbgrid,
+      const CovAniso* cova,
+      Id ibs,
+      double correc,
+      TurningBandOperate& operTB,
+      const VectorBool& activeArray,
+      VectorDouble& tab);
+    void _spreadSpectralOnPoint(
+      const Db* db,
+      const CovAniso* cova,
+      Id ibs,
+      double correc,
+      TurningBandOperate& operTB,
+      const VectorBool& activeArray,
+      VectorDouble& tab);
 
     // Debugging methods
     void _dumpBands() const;
