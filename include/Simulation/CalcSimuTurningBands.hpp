@@ -84,10 +84,12 @@ namespace gstlrn
     bool _run() override;
     bool _postprocess() override;
     void _rollback() override;
-
     bool _simulate();
-    Id _computeTB(Db* db) override;
-
+    Id _computeTB(
+      Db* db,
+      Id isimu,
+      const VectorBool& activeArray,
+      VectorVectorDouble& tab) override;
     bool _resizeTB();
     void _computePoint(
       Db* db,
@@ -105,7 +107,11 @@ namespace gstlrn
       Id is,
       const VectorBool& activeArray,
       VectorVectorDouble& tab);
-    void _computeNugget(Db* db);
+    void _computeNugget(
+      Db* db,
+      Id isimu,
+      const VectorBool& activeArray,
+      VectorVectorDouble& tab);
 
     // Turning bands specific methods
     Id _getIBS(Id isimu, Id is, Id ib) const;

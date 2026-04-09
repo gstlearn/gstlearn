@@ -13,7 +13,6 @@
 // through estimation, cross-validation and simulations
 
 #include "API/Potential.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/File.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Covariances/CovAniso.hpp"

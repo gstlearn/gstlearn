@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Basic/VectorT.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Calculators/ACalcInterpolator.hpp"
@@ -43,12 +44,12 @@ namespace gstlrn
       Id isimu,
       const VectorBool& activeArray,
       const VectorVectorDouble& tab) const;
-    void scaleAndSaveResults(
+    void scaleResults(
       Db* db,
       const CovBase* cova,
-      Id isimu,
       const VectorBool& activeArray,
-      const VectorVectorDouble& tab) const;
+      const VectorVectorDouble& tabLoc,
+      VectorVectorDouble& tab) const;
 
     void setFlagBayes(bool flag_bayes) { _flagBayes = flag_bayes; }
 
@@ -76,9 +77,16 @@ namespace gstlrn
 
     bool _getFlagPGS() const { return _flagPGS; }
 
-    virtual Id _computeTB(Db* db)
+    virtual Id _computeTB(
+      Db* db,
+      Id isimu,
+      const VectorBool& activeArray,
+      VectorVectorDouble& tab)
     {
       DECLARE_UNUSED(db);
+      DECLARE_UNUSED(isimu);
+      DECLARE_UNUSED(activeArray);
+      DECLARE_UNUSED(tab);
       return 0;
     };
 
@@ -86,11 +94,34 @@ namespace gstlrn
 
     void _setShift(Id shift) { _shift = shift; }
 
-    void _computeGradient(Db* dbgrd, double delta);
-    void _computeTangent(Db* dbtgt, double delta);
-    void _correctStationaryMean(Db* dbout);
-    void _difference(Db* dbin);
+    void _computeGradient(
+      Db* dbgrd,
+      Id isimu,
+      double delta,
+      const VectorBool& activeArray,
+      VectorVectorDouble& tab);
+    void _computeTangent(
+      Db* dbtgt,
+      Id isimu,
+      double delta,
+      const VectorBool& activeArray,
+      VectorVectorDouble& tab);
+    void _correctMean(
+      Db* db,
+      const VectorBool& activeArray,
+      VectorVectorDouble& tab);
+    void _difference(
+      Db* dbin,
+      Id isimu,
+      const VectorBool& activeArray,
+      VectorVectorDouble& tab);
     void _updateDataToTarget(Db* dbin, Db* dbout) const;
+    static void _allocateForOneSimulation(
+      const Db* db,
+      Id nvar,
+      VectorBool& activeArray,
+      VectorVectorDouble& tab,
+      bool flagActive = true);
     Id _checkGaussianDataToGrid(Db* dbin, Db* dbout) const;
     Id _conditionalKriging(Db* dbin, Db* dbout);
 
@@ -98,6 +129,7 @@ namespace gstlrn
     Id _nbsimu;
     Id _seed;
     Id _shift;
+    bool _flagCheck;
     bool _flagBayes;
     bool _flagPGS;
     bool _flagGibbs;

@@ -133,6 +133,8 @@ namespace gstlrn
    */
   Id CalcSimuSpectral::simulate()
   {
+    // When called outside the calculator framework, we need to set the random seed here
+    law_set_random_seed(getSeed());
     // TODO: this code is completemy useless.
     // It has been left here not to change the non-regression tests.
     auto ns = _getNs();
@@ -145,20 +147,16 @@ namespace gstlrn
    */
   Id CalcSimuSpectral::compute(Db* dbout, Id isimu)
   {
-    auto nvar = _getNVar();
-    auto nbsimu = getNbSimu();
-    auto nech = dbout->getNSample();
-
-    VectorVectorDouble tab(nvar);
-    for (Id ivar = 0; ivar < nvar; ivar++) tab[ivar].resize(nech);
-    VectorBool activeArray = dbout->getActiveArray();
+    VectorVectorDouble tab;
+    VectorBool activeArray;
+    _allocateForOneSimulation(dbout, _getNVar(), activeArray, tab);
 
     // The next line has been added to allow using method 'compute' independently
     // In the calculator framework, it is simply bypassed
     if (getDbout() == nullptr) setDbout(dbout);
     if (_iattOut < 0)
-      _iattOut =
-        dbout->addColumnsByConstant(nvar * nbsimu, 0., "Simu", ELoc::SIMU);
+      _iattOut = dbout->addColumnsByConstant(
+        _getNVar() * getNbSimu(), 0., "Simu", ELoc::SIMU);
 
     // Compute one simulation
     if (_compute(dbout, activeArray, tab)) return 1;
@@ -223,21 +221,18 @@ namespace gstlrn
 
   bool CalcSimuSpectral::_run()
   {
-    auto nvar = _getNVar();
     auto* db = getDbout();
-    auto nech = db->getNSample();
-    auto nbsimu = getNbSimu();
 
     // Set the random seed
-    Id mem_seed = law_get_random_seed();
+    // Id mem_seed = law_get_random_seed();
     law_set_random_seed(getSeed());
 
-    VectorVectorDouble tab(nvar);
-    for (Id ivar = 0; ivar < nvar; ivar++) tab[ivar].resize(nech);
-    VectorBool activeArray = db->getActiveArray();
+    VectorVectorDouble tab;
+    VectorBool activeArray;
+    _allocateForOneSimulation(db, _getNVar(), activeArray, tab);
 
     // Loop on the simulations
-    for (Id isimu = 0; isimu < nbsimu; isimu++)
+    for (Id isimu = 0, nbsimu = getNbSimu(); isimu < nbsimu; isimu++)
     {
       if (getVerbose()) message(">>> computing simulation %d\n", isimu + 1);
 
@@ -252,7 +247,7 @@ namespace gstlrn
     }
 
     // Set the initial seed back
-    law_set_random_seed(mem_seed);
+    // law_set_random_seed(mem_seed);
     return true;
   }
 

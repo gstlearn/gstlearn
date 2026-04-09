@@ -26,6 +26,7 @@ namespace gstlrn
     , _nbsimu(nbsimu)
     , _seed(seed)
     , _shift(0)
+    , _flagCheck(false)
     , _flagBayes(false)
     , _flagPGS(false)
     , _flagGibbs(false)
@@ -81,11 +82,14 @@ namespace gstlrn
 
   /*****************************************************************************/
   /*!
-   **  Perform non-conditional simulations on a set of gradient points using
+   **  Perform one non-conditional simulation on a set of gradient points using
    **  Turning Bands method.
    **
    ** \param[in]  dbgrd      Gradient Db structure
+   ** \param[in]  isimu      Index of the simulation
    ** \param[in]  delta      Value of the increment
+   ** \param[in]  activeArray  Array of active samples
+   ** \param[out] tab        Array containing the non-conditional simulation values
    **
    ** \remarks The simulated gradients are stored as follows:
    ** \remarks idim * nbsimu + isimu (for simulation at first point)
@@ -93,28 +97,34 @@ namespace gstlrn
    ** \remarks At the end, the simulated gradient is stored at first point
    **
    *****************************************************************************/
-  void ACalcSimulation::_computeGradient(Db* dbgrd, double delta)
+  void ACalcSimulation::_computeGradient(
+    Db* dbgrd,
+    Id isimu,
+    double delta,
+    const VectorBool& activeArray,
+    VectorVectorDouble& tab)
   {
     Id jsimu;
-    Id icase = 0;
     Id ndim = dbgrd->getNDim();
     auto nbsimu = getNbSimu();
-    VectorBool activeArray = dbgrd->getActiveArray();
+
+    // Core allocation
+    VectorBool activeLoc; // Not used
+    VectorVectorDouble tab1;
+    VectorVectorDouble tab2;
+    _allocateForOneSimulation(dbgrd, 1, activeLoc, tab1, false);
+    _allocateForOneSimulation(dbgrd, 1, activeLoc, tab2, false);
 
     for (Id idim = 0; idim < ndim; idim++)
     {
 
       /* Simulation at the initial location */
 
-      for (Id isimu = 0; isimu < nbsimu; isimu++)
-      {
-        jsimu = isimu + idim * nbsimu;
-        _setShift(jsimu);
-        _computeTB(dbgrd);
-      }
+      jsimu = isimu + idim * nbsimu;
+      _setShift(jsimu);
+      _computeTB(dbgrd, isimu, activeArray, tab1);
 
       /* Shift the information */
-
       for (Id iech = 0; iech < dbgrd->getNSample(); iech++)
         if (activeArray[iech])
           dbgrd->setCoordinate(
@@ -122,12 +132,9 @@ namespace gstlrn
 
       /* Simulation at the shift location */
 
-      for (Id isimu = 0; isimu < nbsimu; isimu++)
-      {
-        jsimu = isimu + idim * nbsimu + ndim * nbsimu;
-        _setShift(jsimu);
-        _computeTB(dbgrd);
-      }
+      jsimu = isimu + idim * nbsimu + ndim * nbsimu;
+      _setShift(jsimu);
+      _computeTB(dbgrd, isimu, activeArray, tab2);
 
       /* Un-Shift the information */
 
@@ -138,97 +145,83 @@ namespace gstlrn
 
       /* Scaling */
 
-      for (Id isimu = 0; isimu < nbsimu; isimu++)
-        for (Id iech = 0; iech < dbgrd->getNSample(); iech++)
-        {
-          if (!activeArray[iech]) continue;
-          jsimu = isimu + idim * nbsimu + ndim * nbsimu;
-          double value2 = dbgrd->getSimvar(
-            ELoc::SIMU, iech, jsimu, 0, icase, 2 * ndim * nbsimu, 1);
-          jsimu = isimu + idim * nbsimu;
-          double value1 = dbgrd->getSimvar(
-            ELoc::SIMU, iech, jsimu, 0, icase, 2 * ndim * nbsimu, 1);
-          dbgrd->setSimvar(
-            ELoc::SIMU, iech, jsimu, 0, icase, 2 * ndim * nbsimu, 1,
-            (value2 - value1) / delta);
-        }
+      for (Id iech = 0; iech < dbgrd->getNSample(); iech++)
+      {
+        if (!activeArray[iech]) continue;
+        tab[idim][iech] = (tab2[0][iech] - tab1[0][iech]) / delta;
+      }
     }
   }
 
   /*****************************************************************************/
   /*!
-   **  Perform non-conditional simulations on a set of tangent points using
+   **  Perform one non-conditional simulation on a set of tangent points using
    **  Turning Bands method.
    **
    ** \param[in]  dbtgt      Tangent Db structure
+   ** \param[in]  isimu      Index of the simulation
    ** \param[in]  delta      Value of the increment
+   ** \param[in]  activeArray  Array of active samples
+   ** \param[out] tab        Array containing the non-conditional simulation values
    **
    ** \remarks Warning: To perform the simulation of the tangent, we must
    ** \remarks simulated the gradients first. So we need to dimension the
    ** \remarks simulation outcome variables as for the gradients
    **
    *****************************************************************************/
-  void ACalcSimulation::_computeTangent(Db* dbtgt, double delta)
+  void ACalcSimulation::_computeTangent(
+    Db* dbtgt,
+    Id isimu,
+    double delta,
+    const VectorBool& activeArray,
+    VectorVectorDouble& tab)
   {
     Id icase = 0;
     auto nvar = getNVar();
+    auto ndim = dbtgt->getNDim();
     auto nbsimu = getNbSimu();
-    VectorBool activeArray = dbtgt->getActiveArray();
 
     /* Perform the simulation of the gradients at tangent points */
 
-    _computeGradient(dbtgt, delta);
+    _computeGradient(dbtgt, isimu, delta, activeArray, tab);
 
     /* Calculate the simulated tangent */
 
-    for (Id isimu = 0; isimu < nbsimu; isimu++)
-      for (Id iech = 0; iech < dbtgt->getNSample(); iech++)
-      {
-        if (!activeArray[iech]) continue;
+    for (Id iech = 0; iech < dbtgt->getNSample(); iech++)
+    {
+      if (!activeArray[iech]) continue;
 
-        double value = 0.;
-        for (Id idim = 0; idim < dbtgt->getNDim(); idim++)
-          value +=
-            dbtgt->getLocVariable(ELoc::TGTE, iech, idim)
-            * dbtgt->getSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, nvar);
-        dbtgt->setSimvar(
-          ELoc::SIMU, iech, isimu, 0, icase, nbsimu, nvar, value);
-      }
+      double value = 0.;
+      for (Id idim = 0; idim < ndim; idim++)
+        value +=
+          dbtgt->getLocVariable(ELoc::TGTE, iech, idim)
+          * dbtgt->getSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, nvar);
+      dbtgt->setSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, nvar, value);
+    }
   }
 
   /****************************************************************************/
   /*!
    **  Correct for the mean in the case of non-conditional simulations
    **
-   ** \param[in]  dbout     Output Db structure
+   ** \param[in]  db           Output Db structure
+   ** \param[in]  activeArray  Array of active samples
+   ** \param[out] tab          Array containing the non-conditional simulation values
    **
    *****************************************************************************/
-  void ACalcSimulation::_correctStationaryMean(Db* dbout)
+  void ACalcSimulation::_correctMean(
+    Db* db,
+    const VectorBool& activeArray,
+    VectorVectorDouble& tab)
   {
     if (_getFlagBayes()) return;
-    auto nbsimu = getNbSimu();
-    auto nvar = getNVar();
-    Id nech = dbout->getNSample();
 
-    VectorBool activeArray = dbout->getActiveArray();
-
-    // Loop on the simulations
-    for (Id isimu = 0; isimu < nbsimu; isimu++)
+    for (Id ivar = 0, nvar = getNVar(); ivar < nvar; ivar++)
     {
-
-      // Loop on the variables
-      for (Id ivar = 0; ivar < nvar; ivar++)
-      {
-
-        // Loop on the samples
-        for (Id iech = 0; iech < nech; iech++)
-        {
-          if (!activeArray[iech]) continue;
-          dbout->updSimvar(
-            ELoc::SIMU, iech, isimu, ivar, _getIcase(), nbsimu, nvar,
-            EOperator::ADD, getModelGeneric()->getMean(ivar));
-        }
-      }
+      double mean = getModelGeneric()->getMean(ivar);
+      if (FFFF(mean)) continue;
+      for (Id iech = 0; iech < db->getNSample(); iech++)
+        if (activeArray[iech]) tab[ivar][iech] += mean;
     }
   }
 
@@ -238,9 +231,16 @@ namespace gstlrn
    **  into simulation error
    **
    ** \param[in]  dbin       Input Db structure
+   ** \param[in]  isimu      Index of the simulation
+   ** \param[in]  activeArray  Array of active samples
+   ** \param[out] tab        Array containing the non-conditional simulation values
    **
    *****************************************************************************/
-  void ACalcSimulation::_difference(Db* dbin)
+  void ACalcSimulation::_difference(
+    Db* dbin,
+    Id isimu,
+    const VectorBool& activeArray,
+    VectorVectorDouble& tab)
   {
     auto nbsimu = getNbSimu();
     auto nvar = getNVar();
@@ -263,7 +263,7 @@ namespace gstlrn
 
       for (Id iech = 0; iech < dbin->getNSample(); iech++)
       {
-        if (!dbin->isActive(iech)) continue;
+        if (!activeArray[iech]) continue;
         for (Id ivar = 0; ivar < nvar; ivar++)
         {
           double zvar = TEST;
@@ -271,25 +271,18 @@ namespace gstlrn
           {
             zvar = dbin->getZVariable(iech, ivar);
           }
-          for (Id isimu = 0; isimu < nbsimu; isimu++)
+          if (_getFlagGibbs())
           {
-            if (_getFlagGibbs())
-            {
-              zvar = dbin->getSimvar(
-                ELoc::GAUSFAC, iech, isimu, ivar, 0, nbsimu, nvar);
-              if (OptDbg::query(EDbg::SIMULATE)) printElement(zvar);
-            }
-            double simval = dbin->getSimvar(
-              ELoc::SIMU, iech, isimu, ivar, _getIcase(), nbsimu, nvar);
-            if (_getFlagDGM())
-            {
-              simval = r * simval + sqrt(1. - r * r) * law_gaussian();
-            }
-
-            double simunc = (FFFF(zvar) || FFFF(simval)) ? TEST : simval - zvar;
-            dbin->setSimvar(
-              ELoc::SIMU, iech, isimu, ivar, _getIcase(), nbsimu, nvar, simunc);
+            zvar = dbin->getSimvar(
+              ELoc::GAUSFAC, iech, isimu, ivar, 0, nbsimu, nvar);
+            if (OptDbg::query(EDbg::SIMULATE)) printElement(zvar);
           }
+          double simval = tab[ivar][iech];
+          if (_getFlagDGM())
+            simval = r * simval + sqrt(1. - r * r) * law_gaussian();
+
+          double simunc = (FFFF(zvar) || FFFF(simval)) ? TEST : simval - zvar;
+          tab[ivar][iech] = simunc;
         }
       }
     }
@@ -302,16 +295,10 @@ namespace gstlrn
 
       for (Id iech = 0; iech < dbin->getNSample(); iech++)
       {
-        if (!dbin->isActive(iech)) continue;
-        for (Id isimu = 0; isimu < nbsimu; isimu++)
-        {
-          double zvar = dbin->getSimvar(
-            ELoc::GAUSFAC, iech, isimu, 0, _getIcase(), nbsimu, 1);
-          if (!FFFF(zvar))
-            dbin->updSimvar(
-              ELoc::SIMU, iech, isimu, 0, _getIcase(), nbsimu, 1,
-              EOperator::ADD, -zvar);
-        }
+        if (!activeArray[iech]) continue;
+        double zvar = dbin->getSimvar(
+          ELoc::GAUSFAC, iech, isimu, 0, _getIcase(), nbsimu, 1);
+        if (!FFFF(zvar)) tab[0][iech] -= zvar;
       }
     }
   }
@@ -609,32 +596,45 @@ namespace gstlrn
    *
    * @param db Db where the result is stored
    * @param cova Covariance where to read the AIC matrix
-   * @param isimu Simulation index
    * @param activeArray Array indicating active samples
+   * @param tabLoc Array containing the non-conditional simulation values for all variables
    * @param tab   Array containing simulation values for all variables
    */
-  void ACalcSimulation::scaleAndSaveResults(
+  void ACalcSimulation::scaleResults(
     Db* db,
     const CovBase* cova,
-    Id isimu,
     const VectorBool& activeArray,
-    const VectorVectorDouble& tab) const
+    const VectorVectorDouble& tabLoc,
+    VectorVectorDouble& tab) const
   {
-    auto nbsimu = getNbSimu();
     auto nvar = getNVar();
     for (Id iech = 0, nech = db->getNSample(); iech < nech; iech++)
       if (activeArray[iech])
+      {
         for (Id ivar = 0; ivar < nvar; ivar++)
           for (Id jvar = 0; jvar < nvar; jvar++)
-            db->updSimvar(
-              ELoc::SIMU, iech, _getShift() + isimu, ivar, _getIcase(), nbsimu,
-              nvar, EOperator::ADD, tab[jvar][iech] * cova->getAic(ivar, jvar));
+            tab[jvar][iech] += tabLoc[ivar][iech] * cova->getAic(ivar, jvar);
+      }
   }
 
   Id ACalcSimulation::getNVar() const
   {
     if (getModelGeneric() == nullptr) return 0;
     return getModelGeneric()->getNVar();
+  }
+
+  void ACalcSimulation::_allocateForOneSimulation(
+    const Db* db,
+    Id nvar,
+    VectorBool& activeArray,
+    VectorVectorDouble& tab,
+    bool flagActive)
+  {
+    auto nech = db->getNSample();
+    tab.resize(nvar);
+    for (Id ivar = 0; ivar < nvar; ivar++) tab[ivar].fill(0., nech);
+
+    if (flagActive) activeArray = db->getActiveArray();
   }
 
 } // namespace gstlrn

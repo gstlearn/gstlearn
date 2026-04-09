@@ -13,6 +13,7 @@
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/MathFunc.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
@@ -861,7 +862,7 @@ namespace gstlrn
     double correc,
     TurningBandOperate& operTB,
     const VectorBool& activeArray,
-    VectorDouble& tab)
+    VectorDouble& tabvar)
   {
     double t0y, t0z, t0;
 
@@ -888,7 +889,7 @@ namespace gstlrn
         for (Id ix = 0; ix < nx; ix++)
         {
           if (activeArray[ind])
-            tab[ind] += correc * cova->simulateTurningBand(t0, operTB);
+            tabvar[ind] += correc * cova->simulateTurningBand(t0, operTB);
           t0 += dxp;
 
           ind++;
@@ -904,7 +905,7 @@ namespace gstlrn
     double correc,
     TurningBandOperate& operTB,
     const VectorBool& activeArray,
-    VectorDouble& tab)
+    VectorDouble& tabvar)
   {
     double c1, s1, c0x, s0x, c0y, s0y, c0z, s0z, cxp, sxp, cyp, syp, czp, szp;
     Id ndim = dbgrid->getNDim();
@@ -933,7 +934,7 @@ namespace gstlrn
         for (Id ix = 0; ix < nx; ix++)
         {
           if (activeArray[ind])
-            tab[ind] += correc * cova->simulateTurningBand(c0x, operTB);
+            tabvar[ind] += correc * cova->simulateTurningBand(c0x, operTB);
           c1 = c0x * cxp - s0x * sxp;
           s1 = s0x * cxp + c0x * sxp;
           c0x = c1;
@@ -952,14 +953,14 @@ namespace gstlrn
     double correc,
     TurningBandOperate& operTB,
     const VectorBool& activeArray,
-    VectorDouble& tab)
+    VectorDouble& tabvar)
   {
     double t0;
     for (Id iech = 0, nech = db->getNSample(); iech < nech; iech++)
     {
       if (!activeArray[iech]) continue;
       t0 = _codirs[ibs].projectPoint(db, iech);
-      tab[iech] += correc * cova->simulateTurningBand(t0, operTB);
+      tabvar[iech] += correc * cova->simulateTurningBand(t0, operTB);
     }
   }
 
@@ -970,14 +971,14 @@ namespace gstlrn
     double correc,
     TurningBandOperate& operTB,
     const VectorBool& activeArray,
-    VectorDouble& tab)
+    VectorDouble& tabvar)
   {
     double t0;
     for (Id iech = 0, nech = db->getNSample(); iech < nech; iech++)
     {
       if (!activeArray[iech]) continue;
       t0 = _codirs[ibs].projectPoint(db, iech);
-      tab[iech] += correc * cova->simulateTurningBand(t0, operTB);
+      tabvar[iech] += correc * cova->simulateTurningBand(t0, operTB);
     }
   }
 
@@ -985,41 +986,44 @@ namespace gstlrn
    * @brief Compute one non conditional simulation on the samples of Db using Turning Bands method
    *
    * @param db The target Db
+   * @param isimu The rank of the simulation to compute
+   * @param activeArray Array indicating active samples
+   * @param tab Array to store the simulation values for all bands
    */
-  Id CalcSimuTurningBands::_computeTB(Db* db)
+  Id CalcSimuTurningBands::_computeTB(
+    Db* db,
+    Id isimu,
+    const VectorBool& activeArray,
+    VectorVectorDouble& tab)
   {
-    auto nech = db->getNSample();
-    auto nbsimu = getNbSimu();
-    auto ncova = _getNCov();
-    auto nvar = _getNVar();
-
-    VectorVectorDouble tab(nvar);
-    for (Id ivar = 0; ivar < nvar; ivar++) tab[ivar].resize(nech, 0.);
-    VectorBool activeArray = db->getActiveArray();
-
-    Id mem_seed = law_get_random_seed();
     auto* dbgrid = dynamic_cast<DbGrid*>(db);
+    bool flagGrid = (dbgrid != nullptr);
 
-    for (Id isimu = 0; isimu < nbsimu; isimu++)
+    VectorBool activeLoc; // Not used
+    VectorVectorDouble tabLoc;
+    _allocateForOneSimulation(db, getNVar(), activeLoc, tabLoc, false);
+
+    // Seed must be memorized as it will be modified when generating each band
+    // within _computeGrid() or _computePoint() facility.
+    Id mem_seed = law_get_random_seed();
+
+    for (Id icov = 0, ncova = _getNCov(); icov < ncova; icov++)
     {
-      for (Id is = 0; is < ncova; is++)
-      {
-        const CovAniso* cova = _modelLocal->getCovAniso(is);
-        ECov type = _particularCase(cova);
-        if (type == ECov::NUGGET) continue;
+      const CovAniso* cova = _modelLocal->getCovAniso(icov);
+      ECov type = _particularCase(cova);
+      if (type == ECov::NUGGET) continue;
 
-        // Blank out the array 'tab'
-        for (Id ivar = 0; ivar < nvar; ivar++) tab[ivar].fill(0.);
+      // Blank out the array 'tab'
+      tabLoc.fillWith(0.);
 
-        // Evaluate the multivariate simulation on the target samples
-        if (dbgrid != nullptr)
-          _computeGrid(dbgrid, cova, type, isimu, is, activeArray, tab);
-        else
-          _computePoint(db, cova, type, isimu, is, activeArray, tab);
+      // Evaluate the multivariate simulation on the target samples for current structure
+      if (flagGrid)
+        _computeGrid(dbgrid, cova, type, isimu, icov, activeArray, tabLoc);
+      else
+        _computePoint(db, cova, type, isimu, icov, activeArray, tabLoc);
 
-        // Cumulate structures for current simulation
-        scaleAndSaveResults(db, cova, isimu, activeArray, tab);
-      }
+      // Cumulate structures for current simulation
+      scaleResults(db, cova, activeArray, tabLoc, tab);
     }
 
     // Set the initial seed back
@@ -1045,8 +1049,8 @@ namespace gstlrn
     double norme = sqrt(1. / nbtuba);
 
     for (Id iech = 0; iech < nech; iech++)
-      for (Id ivar = 0; ivar < nvar; ivar++)
-        if (activeArray[iech]) tab[ivar][iech] *= norme;
+      if (activeArray[iech])
+        for (Id ivar = 0; ivar < nvar; ivar++) tab[ivar][iech] *= norme;
   }
 
   Id CalcSimuTurningBands::_getCorrec(
@@ -1313,9 +1317,16 @@ namespace gstlrn
    **  simulations
    **
    ** \param[in]  db         Db structure
+   ** \param[in]  isimu      Index of the simulation
+   ** \param[in]  activeArray  Array of active samples
+   ** \param[out] tab        Array containing the non-conditional simulation values
    **
    *****************************************************************************/
-  void CalcSimuTurningBands::_computeNugget(Db* db)
+  void CalcSimuTurningBands::_computeNugget(
+    Db* db,
+    Id isimu,
+    const VectorBool& activeArray,
+    VectorVectorDouble& tab)
   {
     /* Do nothing if there is no nugget effect in the model */
     if (!_modelLocal->hasNugget()) return;
@@ -1323,33 +1334,31 @@ namespace gstlrn
     Id nech = db->getNSample();
     auto ncova = _getNCov();
     auto nvar = _getNVar();
-    auto nbsimu = getNbSimu();
-    VectorBool activeArray = db->getActiveArray();
 
     // Memorize the seed
     Id mem_seed = law_get_random_seed();
 
     /* Performing the simulation */
 
-    for (Id isimu = 0; isimu < nbsimu; isimu++)
+    for (Id is = 0; is < ncova; is++)
+    {
+      ECov type = _modelLocal->getCovType(is);
+      if (type != ECov::NUGGET) continue;
+      const CovAniso* cova = _modelLocal->getCovAniso(is);
+
       for (Id ivar = 0; ivar < nvar; ivar++)
-        for (Id is = 0; is < ncova; is++)
+      {
+        law_set_random_seed(_getSeedBand(ivar, is, 0, isimu));
+
+        for (Id iech = 0; iech < nech; iech++)
         {
-          ECov type = _modelLocal->getCovType(is);
-
-          if (type != ECov::NUGGET) continue;
-          law_set_random_seed(_getSeedBand(ivar, is, 0, isimu));
-
-          for (Id iech = 0; iech < nech; iech++)
-          {
-            if (!activeArray[iech]) continue;
-            double nugget = law_gaussian();
-            for (Id jvar = 0; jvar < nvar; jvar++)
-              db->updSimvar(
-                ELoc::SIMU, iech, isimu, jvar, _getIcase(), nbsimu, nvar,
-                EOperator::ADD, nugget * _modelLocal->getAic(is, ivar, jvar));
-          }
+          if (!activeArray[iech]) continue;
+          double nugget = law_gaussian();
+          for (Id jvar = 0; jvar < nvar; jvar++)
+            tab[jvar][iech] += nugget * cova->getAic(ivar, jvar);
         }
+      }
+    }
 
     // Set the initial seed back
     law_set_random_seed(mem_seed);
@@ -1357,25 +1366,41 @@ namespace gstlrn
 
   bool CalcSimuTurningBands::_run()
   {
-    law_set_random_seed(getSeed());
     bool flag_cond = hasDbin(false);
+    VectorVectorDouble tabOut;
+    VectorVectorDouble tabIn;
+    VectorBool activeOut;
+    VectorBool activeIn;
+    _allocateForOneSimulation(getDbout(), getNVar(), activeOut, tabOut);
+    if (flag_cond)
+      _allocateForOneSimulation(getDbin(), getNVar(), activeIn, tabIn);
+
+    law_set_random_seed(getSeed());
 
     // Initializations
 
     if (!_simulate()) return false;
 
-    // Non conditional simulations on the data points
-    if (flag_cond)
+    // Loop on the simulations
+    for (Id isimu = 0; isimu < getNbSimu(); isimu++)
     {
-      _computeTB(getDbin());
-      _correctStationaryMean(getDbin());
-      _difference(getDbin());
-    }
+      tabOut.fillWith(0);
+      if (flag_cond) tabIn.fillWith(0);
 
-    // Non conditional simulations on the target points
-    _computeTB(getDbout());
-    _correctStationaryMean(getDbout());
-    _computeNugget(getDbout());
+      // Non conditional simulations on the target points
+      _computeTB(getDbout(), isimu, activeOut, tabOut);
+      _correctMean(getDbout(), activeOut, tabOut);
+      _computeNugget(getDbout(), isimu, activeOut, tabOut);
+      saveResults(getDbout(), isimu, activeOut, tabOut);
+
+      if (!flag_cond) continue;
+
+      // Non conditional simulations on the data points
+      _computeTB(getDbin(), isimu, activeIn, tabIn);
+      _correctMean(getDbin(), activeIn, tabIn);
+      _difference(getDbin(), isimu, activeIn, tabIn);
+      saveResults(getDbin(), isimu, activeIn, tabIn);
+    }
 
     /* Conditional simulations */
 
@@ -1484,19 +1509,52 @@ namespace gstlrn
     _modelLocal->computeAic();
 
     /* Non conditional simulations on the data points */
-    if (dbiso != nullptr) _computeTB(dbiso);
+    if (dbiso != nullptr)
+    {
+      VectorVectorDouble tab;
+      VectorBool activeArray;
+      _allocateForOneSimulation(getDbout(), getNVar(), activeArray, tab);
+      for (Id isimu = 0; isimu < getNbSimu(); isimu++)
+      {
+        _computeTB(dbiso, isimu, activeArray, tab);
+      }
+    }
 
     /* Non conditional simulations on the gradient points */
-    if (dbgrd != nullptr) _computeGradient(dbgrd, delta);
+    if (dbgrd != nullptr)
+    {
+      VectorVectorDouble tab;
+      VectorBool activeArray;
+      _allocateForOneSimulation(getDbout(), 1, activeArray, tab);
+      for (Id isimu = 0; isimu < getNbSimu(); isimu++)
+      {
+        _computeGradient(dbgrd, isimu, delta, activeArray, tab);
+      }
+    }
 
     /* Non conditional simulations on the tangent points */
-    if (dbtgt != nullptr) _computeTangent(dbtgt, delta);
+    if (dbtgt != nullptr)
+    {
+      VectorVectorDouble tab;
+      VectorBool activeArray;
+      _allocateForOneSimulation(getDbout(), 1, activeArray, tab);
+      for (Id isimu = 0; isimu < getNbSimu(); isimu++)
+      {
+        _computeTangent(dbtgt, isimu, delta, activeArray, tab);
+      }
+    }
 
     /* Non conditional simulations on the target samples */
-    _computeTB(dbout);
+    VectorVectorDouble tab;
+    VectorBool activeArray;
+    _allocateForOneSimulation(getDbout(), getNVar(), activeArray, tab);
+    for (Id isimu = 0; isimu < getNbSimu(); isimu++)
+    {
+      _computeTB(dbout, isimu, activeArray, tab);
 
-    /* Add the contribution of nugget effect (optional) */
-    _computeNugget(dbout);
+      /* Add the contribution of nugget effect (optional) */
+      _computeNugget(dbout, isimu, activeArray, tab);
+    }
 
     return 0;
   }

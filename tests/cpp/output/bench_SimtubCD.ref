@@ -82,14 +82,14 @@ Drift or Mean Information
 Simulation results
 ==================
 Simulation #1 of Z1  :  =       0.697
-Simulation #1 of Z2  :  =       1.553
-Simulation #2 of Z1  :  =       2.410
-Simulation #2 of Z2  :  =      -0.455
-Simulation #3 of Z1  :  =      -0.425
-Simulation #3 of Z2  :  =      -0.514
-Simulation #4 of Z1  :  =      -2.781
+Simulation #2 of Z1  :  =       1.553
+Simulation #3 of Z1  :  =       2.410
+Simulation #4 of Z1  :  =      -0.455
+Simulation #1 of Z2  :  =      -0.425
+Simulation #2 of Z2  :  =      -0.514
+Simulation #3 of Z2  :  =      -2.781
 Simulation #4 of Z2  :  =      -0.107
-#NO_DIFF# Non-conditional Simulation on Grid: 22 ms. (Ref = 6800 ms.)
+#NO_DIFF# Non-conditional Simulation on Grid: 10 ms. (Ref = 6800 ms.)
 
 Data Base Grid Characteristics
 ==============================

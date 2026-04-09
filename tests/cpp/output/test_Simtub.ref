@@ -142,8 +142,8 @@ Mean for Variable Z2 = 0.000000
 Simulation results
 ==================
 Simulation #1 of Z1  :  =      96.725
-Simulation #1 of Z2  :  =      99.280
-Simulation #2 of Z1  :  =      -0.447
+Simulation #2 of Z1  :  =      99.280
+Simulation #1 of Z2  :  =      -0.447
 Simulation #2 of Z2  :  =      -2.029
 
 Data Base Grid Characteristics
@@ -314,4 +314,4 @@ Data Base Statistics
  Mean value          =      -0.147
  Standard Deviation  =       0.974
  Variance            =       0.949
-#NO_DIFF# Turning Band Simulations: 215 ms. (Ref = 773 ms.)
+#NO_DIFF# Turning Band Simulations: 256 ms. (Ref = 773 ms.)
