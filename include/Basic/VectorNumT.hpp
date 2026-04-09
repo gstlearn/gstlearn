@@ -169,6 +169,7 @@ namespace gstlrn
     inline double normTo(const VectorNumT<T>& other) const;
     inline double correlation(const VectorNumT<T>& other) const;
     inline void normalizeInPlace(Id normType = 2);
+    inline void fillWith(double value);
   };
 
   template<typename T>
@@ -472,7 +473,6 @@ namespace gstlrn
       }
       result = std::sqrt(result);
     }
-
     return result;
   }
 
@@ -658,6 +658,24 @@ namespace gstlrn
     }
   }
 
+  template<typename T>
+  void VectorNumT<T>::fillWith(double value)
+  {
+    if (this->_v.empty()) return;
+
+    for (auto& v: this->_v)
+    {
+      if constexpr (std::is_arithmetic_v<T>)
+      {
+        v = value; // cas terminal : double / int
+      }
+      else
+      {
+        v.fillWith(value); // récursion pour conteneur
+      }
+    }
+  }
+
   /**
    * @brief Identify the VectorNumT
    *
@@ -727,8 +745,8 @@ namespace gstlrn
   typedef VectorNumT<Id> VectorInt;
   typedef VectorNumT<double> VectorDouble;
   typedef VectorNumT<float> VectorFloat;
-  typedef VectorNumT<UChar>
-    VectorUChar; // Use typedef because swig doesn't like 'unsigned char' in two words
+  // Use typedef because swig doesn't like 'unsigned char' in two words
+  typedef VectorNumT<UChar> VectorUChar;
   typedef VectorNumT<VectorInt> VectorVectorInt;
   typedef VectorNumT<VectorDouble> VectorVectorDouble;
   typedef VectorNumT<VectorFloat> VectorVectorFloat;
