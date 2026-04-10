@@ -11,9 +11,9 @@
 #pragma once
 #include "Basic/ICloneable.hpp"
 #include "Covariances/CovBase.hpp"
+#include "Enum/ESimuType.hpp"
 #include "Matrix/MatrixSquare.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
-#include "Enum/ESimuType.hpp"
 
 namespace gstlrn
 {

@@ -208,7 +208,7 @@ namespace gstlrn
     FORWARD_METHOD(getTransform, transformVec, VectorDouble())
     FORWARD_METHOD(getTransform, inverseTransformVec, VectorDouble())
 
-// clang-format on
+    // clang-format on
 
     void setField(double field);
     bool isValid() const;

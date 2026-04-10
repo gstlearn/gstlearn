@@ -138,7 +138,7 @@ namespace gstlrn
       const VectorDouble& angles = VectorDouble(),
       bool flagRange = true);
 
-// clang-format off
+    // clang-format off
 
     FORWARD_METHOD(castInCovAnisoListConst, getActiveFactor, ITEST)
     FORWARD_METHOD(castInCovAnisoListConst, getCovAniso)
@@ -187,7 +187,7 @@ namespace gstlrn
 
     FORWARD_METHOD_NON_CONST(_castInCovLMCTapering, setTapeRange)
 
-// clang-format on
+    // clang-format on
 
     Id setAnam(const AAnam* anam, const VectorInt& strcnt = VectorInt());
     Id unsetAnam();
