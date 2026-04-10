@@ -44,7 +44,7 @@ namespace gstlrn
       return static_cast<CovList*>(_getCovModify());
     }
 
-// clang-format off
+    // clang-format off
 
     FORWARD_METHOD_NON_CONST(getCovListModify, delCov)
     FORWARD_METHOD_NON_CONST(getCovListModify, delAllCov)
@@ -69,7 +69,7 @@ namespace gstlrn
     FORWARD_METHOD(getCovList, isAllActiveCovList)
     FORWARD_METHOD(getCovList, getFitSills, nullptr)
 
-// clang-format on
+    // clang-format on
 
     void setCovList(const CovList* covs);
     virtual void addCov(const CovBase& cov);

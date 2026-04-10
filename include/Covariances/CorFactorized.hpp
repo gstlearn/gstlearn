@@ -11,9 +11,9 @@
 
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovCalcMode.hpp"
+#include "Enum/ESimuType.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Model/AModelFitSills.hpp"
-#include "Enum/ESimuType.hpp"
 #include "Space/ASpace.hpp"
 #include "Space/SpaceComposite.hpp"
 #include "Space/SpacePoint.hpp"

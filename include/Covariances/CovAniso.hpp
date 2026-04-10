@@ -131,7 +131,7 @@ namespace gstlrn
       const VectorDouble& angles = VectorDouble(),
       bool flagRange = true);
 
-// clang-format off
+    // clang-format off
 
     FORWARD_METHOD_NON_CONST(getCorAnisoModify, setFlagAnisoOnMesh)
     FORWARD_METHOD_NON_CONST(getCorAnisoModify, getFlagAnisoOnMesh)
@@ -216,7 +216,7 @@ namespace gstlrn
 
     FORWARD_METHOD(getCorAniso, getDetTensor, false)
 
-// clang-format on
+    // clang-format on
 
     bool isValidForSimulation(const ESimuType& simuType) const override;
 

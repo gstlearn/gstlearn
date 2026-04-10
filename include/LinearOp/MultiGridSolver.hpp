@@ -16,8 +16,8 @@
 #include "LinearOp/APreconditioner.hpp"
 #include "LinearOp/CholeskySparse.hpp"
 #include "LinearOp/IProj.hpp"
-#include "Polynomials/Chebychev.hpp"
 #include "Matrix/MatrixSparse.hpp"
+#include "Polynomials/Chebychev.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 #include <Eigen/Core>
