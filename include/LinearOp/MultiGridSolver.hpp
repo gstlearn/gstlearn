@@ -25,8 +25,6 @@
 #include <memory>
 #include <vector>
 
-#pragma once
-
 namespace gstlrn
 {
 
