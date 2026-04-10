@@ -77,6 +77,8 @@ namespace gstlrn
 
     bool _getFlagPGS() const { return _flagPGS; }
 
+    virtual bool _prepareSeed() { return true; }
+
     virtual Id _computeTB(
       Db* db,
       Id isimu,
@@ -106,10 +108,7 @@ namespace gstlrn
       double delta,
       const VectorBool& activeArray,
       VectorVectorDouble& tab);
-    void _correctMean(
-      Db* db,
-      const VectorBool& activeArray,
-      VectorVectorDouble& tab);
+    void _correctMean(const VectorBool& activeArray, VectorVectorDouble& tab);
     void _difference(
       Db* dbin,
       Id isimu,

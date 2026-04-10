@@ -135,10 +135,6 @@ namespace gstlrn
   {
     // When called outside the calculator framework, we need to set the random seed here
     law_set_random_seed(getSeed());
-    // TODO: this code is completemy useless.
-    // It has been left here not to change the non-regression tests.
-    auto ns = _getNs();
-    for (Id is = 0; is < ns; is++) (void)law_uniform();
     return _simulate();
   }
 
@@ -223,8 +219,6 @@ namespace gstlrn
   {
     auto* db = getDbout();
 
-    // Set the random seed
-    // Id mem_seed = law_get_random_seed();
     law_set_random_seed(getSeed());
 
     VectorVectorDouble tab;
@@ -246,8 +240,6 @@ namespace gstlrn
       saveResults(db, isimu, activeArray, tab);
     }
 
-    // Set the initial seed back
-    // law_set_random_seed(mem_seed);
     return true;
   }
 

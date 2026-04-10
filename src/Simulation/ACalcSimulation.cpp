@@ -51,8 +51,11 @@ namespace gstlrn
 
   bool ACalcSimulation::_preprocess()
   {
+    if (!ACalcInterpolator::_preprocess()) return false;
+
     Id nbsimu = getNbSimu();
     _seedPerSimu = VectorInt(nbsimu);
+    if (!_prepareSeed()) return false;
 
     // Initialize the random seed for each simulation
     // Note: the next lines are not performed in order not to modify
@@ -65,7 +68,8 @@ namespace gstlrn
     //   _seedPerSimu[isimu] = law_get_random_seed();
     // }
 
-    return ACalcInterpolator::_preprocess();
+    return true;
+    ;
   }
 
   Id ACalcSimulation::_getSeedPerSimu(Id isimu) const
@@ -204,23 +208,22 @@ namespace gstlrn
   /*!
    **  Correct for the mean in the case of non-conditional simulations
    **
-   ** \param[in]  db           Output Db structure
    ** \param[in]  activeArray  Array of active samples
    ** \param[out] tab          Array containing the non-conditional simulation values
    **
    *****************************************************************************/
   void ACalcSimulation::_correctMean(
-    Db* db,
     const VectorBool& activeArray,
     VectorVectorDouble& tab)
   {
     if (_getFlagBayes()) return;
+    Id nech = tab[0].size();
 
     for (Id ivar = 0, nvar = getNVar(); ivar < nvar; ivar++)
     {
       double mean = getModelGeneric()->getMean(ivar);
       if (FFFF(mean)) continue;
-      for (Id iech = 0; iech < db->getNSample(); iech++)
+      for (Id iech = 0; iech < nech; iech++)
         if (activeArray[iech]) tab[ivar][iech] += mean;
     }
   }

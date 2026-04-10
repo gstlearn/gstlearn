@@ -84,7 +84,9 @@ namespace gstlrn
     bool _run() override;
     bool _postprocess() override;
     void _rollback() override;
-    bool _simulate();
+    bool _simulateTB();
+
+    bool _prepareSeed() override;
     Id _computeTB(
       Db* db,
       Id isimu,

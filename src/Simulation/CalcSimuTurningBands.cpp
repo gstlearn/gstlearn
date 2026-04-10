@@ -983,6 +983,19 @@ namespace gstlrn
   }
 
   /**
+   * @brief This method is meant to initialize the seeds for the Bands.
+   *
+   * @return Id Returned code
+   */
+  bool CalcSimuTurningBands::_prepareSeed()
+  {
+    law_set_random_seed(getSeed());
+
+    // return _simulateTB(); // TODO: to be deleted
+    return true;
+  }
+
+  /**
    * @brief Compute one non conditional simulation on the samples of Db using Turning Bands method
    *
    * @param db The target Db
@@ -1290,7 +1303,7 @@ namespace gstlrn
     *s0z = sin(omega * t00 + phi);
   }
 
-  bool CalcSimuTurningBands::_simulate()
+  bool CalcSimuTurningBands::_simulateTB()
   {
     // Dimension the Turning Bands environment
     if (!_resizeTB()) return false;
@@ -1375,11 +1388,9 @@ namespace gstlrn
     if (flag_cond)
       _allocateForOneSimulation(getDbin(), getNVar(), activeIn, tabIn);
 
-    law_set_random_seed(getSeed());
-
     // Initializations
 
-    if (!_simulate()) return false;
+    if (!_simulateTB()) return false; // TODO: to be deleted after test
 
     // Loop on the simulations
     for (Id isimu = 0; isimu < getNbSimu(); isimu++)
@@ -1389,7 +1400,7 @@ namespace gstlrn
 
       // Non conditional simulations on the target points
       _computeTB(getDbout(), isimu, activeOut, tabOut);
-      _correctMean(getDbout(), activeOut, tabOut);
+      _correctMean(activeOut, tabOut);
       _computeNugget(getDbout(), isimu, activeOut, tabOut);
       saveResults(getDbout(), isimu, activeOut, tabOut);
 
@@ -1397,7 +1408,7 @@ namespace gstlrn
 
       // Non conditional simulations on the data points
       _computeTB(getDbin(), isimu, activeIn, tabIn);
-      _correctMean(getDbin(), activeIn, tabIn);
+      _correctMean(activeIn, tabIn);
       _difference(getDbin(), isimu, activeIn, tabIn);
       saveResults(getDbin(), isimu, activeIn, tabIn);
     }
@@ -1411,7 +1422,10 @@ namespace gstlrn
 
     /* Copy value from data to coinciding grid node */
 
-    if (flag_cond) _updateDataToTarget(getDbin(), getDbout());
+    if (flag_cond)
+    {
+      _updateDataToTarget(getDbin(), getDbout());
+    }
 
     // Check the simulation at data location
 
