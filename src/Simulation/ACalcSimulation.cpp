@@ -61,10 +61,10 @@ namespace gstlrn
     law_set_random_seed(getSeed());
     for (Id isimu = 0; isimu < nbsimu; isimu++)
     {
-      // Ask for a random funtion to move the random generator and modify the seed
-      // (void)law_uniform();
-      // _seedPerSimu[isimu] = law_get_random_seed(); // TODO: good version. Delete next line
-      _seedPerSimu[isimu] = 0;
+      // Ask for a random funtion to move the random generator and
+      // modify the seed stored for each simulation rank
+      (void)law_uniform();
+      _seedPerSimu[isimu] = law_get_random_seed();
     }
     law_set_random_seed(mem_seed);
 
