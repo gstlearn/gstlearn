@@ -55,21 +55,20 @@ namespace gstlrn
 
     Id nbsimu = getNbSimu();
     _seedPerSimu = VectorInt(nbsimu);
-    if (!_prepareSeed()) return false;
 
     // Initialize the random seed for each simulation
-    // Note: the next lines are not performed in order not to modify
-    // the state of the random generator for the current version of non-regression tests
-    // law_set_random_seed(getSeed());
-    // for (Id isimu = 0; isimu < nbsimu; isimu++)
-    // {
-    //   // Ask for a random funtion to move the random generator and modify the seed
-    //   (void)law_uniform();
-    //   _seedPerSimu[isimu] = law_get_random_seed();
-    // }
+    Id mem_seed = getSeed();
+    law_set_random_seed(getSeed());
+    for (Id isimu = 0; isimu < nbsimu; isimu++)
+    {
+      // Ask for a random funtion to move the random generator and modify the seed
+      // (void)law_uniform();
+      // _seedPerSimu[isimu] = law_get_random_seed(); // TODO: good version. Delete next line
+      _seedPerSimu[isimu] = 0;
+    }
+    law_set_random_seed(mem_seed);
 
     return true;
-    ;
   }
 
   Id ACalcSimulation::_getSeedPerSimu(Id isimu) const

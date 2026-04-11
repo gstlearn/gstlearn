@@ -77,8 +77,6 @@ namespace gstlrn
 
     bool _getFlagPGS() const { return _flagPGS; }
 
-    virtual bool _prepareSeed() { return true; }
-
     virtual Id _computeTB(
       Db* db,
       Id isimu,

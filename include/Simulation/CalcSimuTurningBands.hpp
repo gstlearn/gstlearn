@@ -86,7 +86,6 @@ namespace gstlrn
     void _rollback() override;
     bool _simulateTB();
 
-    bool _prepareSeed() override;
     Id _computeTB(
       Db* db,
       Id isimu,

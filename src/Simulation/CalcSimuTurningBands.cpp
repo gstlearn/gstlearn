@@ -117,8 +117,8 @@ namespace gstlrn
     auto nbtuba = getNBtuba();
 
     mestitle(1, "Seeds");
-    for (Id ivar = 0; ivar < nvar; ivar++)
-      for (Id isimu = 0; isimu < nbsimu; isimu++)
+    for (Id isimu = 0; isimu < nbsimu; isimu++)
+      for (Id ivar = 0; ivar < nvar; ivar++)
         for (Id is = 0; is < ncova; is++)
           for (Id ib = 0; ib < nbtuba; ib++)
           {
@@ -452,7 +452,12 @@ namespace gstlrn
     // Store the initial seed
     Id mem_seed = law_get_random_seed();
 
-    // Loop on the turning bands
+    //
+    // Important remark: the order of the following loops must not be modified
+    // in order to keep the same seeds and not modify the results
+    //
+
+    // Loop for fixing the seed for each Simulation / Variable / Covariance / Band
     for (Id ivar = 0; ivar < nvar; ivar++)
       for (Id isimu = 0; isimu < nbsimu; isimu++)
         for (Id is = 0; is < ncova; is++)
@@ -464,14 +469,11 @@ namespace gstlrn
             _setSeedBand(ivar, is, ib, isimu, law_get_random_seed());
 
             Id optionSpectral = _getCorrec(type, is, ibs, operTB, correc);
-            if (optionSpectral == 0)
-            {
-              messerr(
-                "The structure (%s) cannot be simulated",
-                type.getDescr().data());
-              messerr("using the Turning Bands algorithm");
-              return 1;
-            }
+            if (optionSpectral > 0) continue;
+            messerr(
+              "The structure (%s) cannot be simulated", type.getDescr().data());
+            messerr("using the Turning Bands algorithm");
+            return 1;
           }
 
     // Set the initial seed back
@@ -654,7 +656,7 @@ namespace gstlrn
   /*!
    **  Calculate the scale for 1D process for the stable model
    **
-   ** \return  Scale parameter of the 1D process to simulate
+   ** \return  Scale parameter of the 1D process to be simulated
    **
    ** \param[in]  alpha       Third parameter of the stable covariance model
    ** \param[in]  scale       Scale parameter of the model
@@ -671,7 +673,7 @@ namespace gstlrn
   /*!
    **  Calculate the scale for 1D process for the Matern model (param<0.5)
    **
-   ** \return  Scale parameter of the 1D process to simulate (param<0.5)
+   ** \return  Scale parameter of the 1D process to be simulated (param<0.5)
    **
    ** \param[in]  param       Third parameter of the Matern covariance model
    ** \param[in]  scale       Scale parameter of the model
@@ -980,19 +982,6 @@ namespace gstlrn
       t0 = _codirs[ibs].projectPoint(db, iech);
       tabvar[iech] += correc * cova->simulateTurningBand(t0, operTB);
     }
-  }
-
-  /**
-   * @brief This method is meant to initialize the seeds for the Bands.
-   *
-   * @return Id Returned code
-   */
-  bool CalcSimuTurningBands::_prepareSeed()
-  {
-    law_set_random_seed(getSeed());
-
-    // return _simulateTB(); // TODO: to be deleted
-    return true;
   }
 
   /**
@@ -1388,10 +1377,6 @@ namespace gstlrn
     if (flag_cond)
       _allocateForOneSimulation(getDbin(), getNVar(), activeIn, tabIn);
 
-    // Initializations
-
-    if (!_simulateTB()) return false; // TODO: to be deleted after test
-
     // Loop on the simulations
     for (Id isimu = 0; isimu < getNbSimu(); isimu++)
     {
@@ -1637,6 +1622,10 @@ namespace gstlrn
   bool CalcSimuTurningBands::_preprocess()
   {
     if (!ACalcSimulation::_preprocess()) return false;
+
+    // Prepare the seeds for the Bands
+    law_set_random_seed(getSeed());
+    if (!_simulateTB()) return false;
 
     auto nvar = _getNVar();
     auto nbsimu = getNbSimu();
