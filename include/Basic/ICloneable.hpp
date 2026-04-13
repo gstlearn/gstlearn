@@ -51,7 +51,8 @@ public:                                                                        \
     static_assert(                                                             \
       !std::is_abstract<Class>::value,                                         \
       "Class cannot be cloned as it is abstract");                             \
-    assert(typeid(*this) == typeid(Class));                                    \
+    static_assert(                                                             \
+      std::is_base_of_v<Class, std::remove_cvref_t<decltype(*this)>>);         \
     return (new Class(*this));                                                 \
   }
 } // namespace gstlrn
