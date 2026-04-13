@@ -254,17 +254,16 @@ err = modelGeneric$setCov(mg_in_gstlearn)
 # simulation
 gssimu = SimuSpectralRN(1, ns, 100, 123, NULL, TRUE)
 err = gssimu$setModelGeneric(modelGeneric)
-err = gssimu$simulate()
+err = gssimu$simulateTest()
 
 # computation
 err = grd$deleteColumns(names = paste0(prefix, "*"))
-err = gssimu$compute(dbout = grd)
+err = gssimu$computeTest(dbout = grd)
 
 v_name  = paste(prefix, "V1", "simu", sep = ".")
 err = grd$setName("Simu", v_name)
 err = grd$setLocator(v_name,ELoc_Z())
 ```
-
 
 ```{r simulate_QC, echo=FALSE, eval=TRUE}
 opers   = EStatOption_fromKeys(c("NUM", "MINI", "MAXI", "MEAN", "STDV"))
@@ -397,7 +396,7 @@ for (is in 1:nsim) {
 # plotting variograms
 dd = seq(from = 0, to = max(hh_moy, na.rm = TRUE), length.out = 100)
 plot(NULL, NULL, xlim = range(dd), ylim = 1.1*c(0.0, max(gg_moy, na.rm = TRUE)),
-     xlab = "Distance", ylab = "Variogram",
+     xlab = "Distance", ylab = "Variogram", xaxs="i", yaxs="i",
      main = paste0(tit_main, ": ", nsim, " simulations"),
      sub  = tit_sub)
 abline(h = 0, col = "black")

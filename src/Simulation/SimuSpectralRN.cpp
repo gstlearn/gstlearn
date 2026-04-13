@@ -108,16 +108,18 @@ namespace gstlrn
   /**
    * Compute the simulation on Dbout using Spectral Method
    *
-   * @param dbout Db containing the results
+   * @param db Db containing the results
    * @param activeArray Array of booleans indicating the active samples in dbout
    * @param tab Array for storing one (multivariate) simulation on 'dbout'
    */
   Id SimuSpectralRN::_compute(
-    Db* dbout,
+    Db* db,
+    Id isimu,
     const VectorBool& activeArray,
     VectorVectorDouble& tab)
   {
-    auto nech = dbout->getNSample();
+    DECLARE_UNUSED(isimu);
+    auto nech = db->getNSample();
     if (_sp == nullptr)
     {
       messerr("SpectrumOnRN not initialized.\n");
@@ -129,7 +131,7 @@ namespace gstlrn
       message("Spectral Simulation on a set of Isolated Points\n");
       message("- Number of samples = %d\n", nech);
     }
-    _sp->compute(dbout, activeArray, tab);
+    _sp->compute(db, activeArray, tab);
     return 0;
   }
 

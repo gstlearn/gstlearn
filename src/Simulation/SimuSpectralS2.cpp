@@ -241,11 +241,13 @@ namespace gstlrn
   }
 
   Id SimuSpectralS2::_compute(
-    Db* dbout,
+    Db* db,
+    Id isimu,
     const VectorBool& activeArray,
     VectorVectorDouble& tab)
   {
-    auto nech = dbout->getNSample();
+    DECLARE_UNUSED(isimu);
+    auto nech = db->getNSample();
 
     Id nb = 0;
     Id N_max = -9999;
@@ -270,8 +272,8 @@ namespace gstlrn
     }
 
     // Simulation
-    VectorDouble phi = dbout->getOneCoordinate(0);
-    VectorDouble theta = dbout->getOneCoordinate(1);
+    VectorDouble phi = db->getOneCoordinate(0);
+    VectorDouble theta = db->getOneCoordinate(1);
     VectorDouble sim(nech, 0.);
     VectorDouble x(nech);
     VectorDouble w(nech);
