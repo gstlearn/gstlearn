@@ -31,9 +31,9 @@ namespace gstlrn
     CalcSimuSpectral& operator=(const CalcSimuSpectral& r) = delete;
     virtual ~CalcSimuSpectral();
 
-    // Perform the task for ONE simulation
-    Id simulate();
-    Id compute(Db* dbout, Id isimu = 0);
+    // Perform the task for ONE simulation (debugging option)
+    Id simulateTest();
+    Id computeTest(Db* dbout, Id isimu = 0);
 
     bool isValidForSimulation(const ESimuType& simuType) const;
 
@@ -42,12 +42,6 @@ namespace gstlrn
     bool _preprocess() override;
     bool _postprocess() override;
     bool _run() override;
-
-    virtual Id _simulate() = 0;
-    virtual Id _compute(
-      Db* dbout,
-      const VectorBool& activeArray,
-      VectorVectorDouble& tab) = 0;
 
     Id _getNs() const { return _ns; };
 

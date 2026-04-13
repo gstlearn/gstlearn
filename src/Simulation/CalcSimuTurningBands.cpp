@@ -992,7 +992,7 @@ namespace gstlrn
    * @param activeArray Array indicating active samples
    * @param tab Array to store the simulation values for all bands
    */
-  Id CalcSimuTurningBands::_computeTB(
+  Id CalcSimuTurningBands::_compute(
     Db* db,
     Id isimu,
     const VectorBool& activeArray,
@@ -1025,12 +1025,40 @@ namespace gstlrn
         _computePoint(db, cova, type, isimu, icov, activeArray, tabLoc);
 
       // Cumulate structures for current simulation
-      scaleResults(db, cova, activeArray, tabLoc, tab);
+      _scaleResults(db, cova, activeArray, tabLoc, tab);
     }
 
     // Set the initial seed back
     law_set_random_seed(mem_seed);
     return 0;
+  }
+
+  /**
+   * @brief Save the multivariate simulation result into the Db after:
+   * @brief - multiplying by the sill matrix
+   * @brief - adding to existing values
+   *
+   * @param db Db where the result is stored
+   * @param cova Covariance where to read the AIC matrix
+   * @param activeArray Array indicating active samples
+   * @param tabLoc Array containing the non-conditional simulation values for all variables
+   * @param tab   Array containing simulation values for all variables
+   */
+  void CalcSimuTurningBands::_scaleResults(
+    Db* db,
+    const CovBase* cova,
+    const VectorBool& activeArray,
+    const VectorVectorDouble& tabLoc,
+    VectorVectorDouble& tab) const
+  {
+    auto nvar = getNVar();
+    for (Id iech = 0, nech = db->getNSample(); iech < nech; iech++)
+      if (activeArray[iech])
+      {
+        for (Id ivar = 0; ivar < nvar; ivar++)
+          for (Id jvar = 0; jvar < nvar; jvar++)
+            tab[jvar][iech] += tabLoc[ivar][iech] * cova->getAic(ivar, jvar);
+      }
   }
 
   /**
@@ -1378,13 +1406,14 @@ namespace gstlrn
       _allocateForOneSimulation(getDbin(), getNVar(), activeIn, tabIn);
 
     // Loop on the simulations
-    for (Id isimu = 0; isimu < getNbSimu(); isimu++)
+    for (Id isimu = 0, nbsimu = getNbSimu(); isimu < nbsimu; isimu++)
     {
+      if (getVerbose()) message(">>> computing simulation %d\n", isimu + 1);
       tabOut.fillWith(0);
       if (flag_cond) tabIn.fillWith(0);
 
       // Non conditional simulations on the target points
-      _computeTB(getDbout(), isimu, activeOut, tabOut);
+      _compute(getDbout(), isimu, activeOut, tabOut);
       _correctMean(activeOut, tabOut);
       _computeNugget(getDbout(), isimu, activeOut, tabOut);
       saveResults(getDbout(), isimu, activeOut, tabOut);
@@ -1392,7 +1421,7 @@ namespace gstlrn
       if (!flag_cond) continue;
 
       // Non conditional simulations on the data points
-      _computeTB(getDbin(), isimu, activeIn, tabIn);
+      _compute(getDbin(), isimu, activeIn, tabIn);
       _correctMean(activeIn, tabIn);
       _difference(getDbin(), isimu, activeIn, tabIn);
       saveResults(getDbin(), isimu, activeIn, tabIn);
@@ -1514,9 +1543,7 @@ namespace gstlrn
       VectorBool activeArray;
       _allocateForOneSimulation(getDbout(), getNVar(), activeArray, tab);
       for (Id isimu = 0; isimu < getNbSimu(); isimu++)
-      {
-        _computeTB(dbiso, isimu, activeArray, tab);
-      }
+        _compute(dbiso, isimu, activeArray, tab);
     }
 
     /* Non conditional simulations on the gradient points */
@@ -1526,9 +1553,7 @@ namespace gstlrn
       VectorBool activeArray;
       _allocateForOneSimulation(getDbout(), 1, activeArray, tab);
       for (Id isimu = 0; isimu < getNbSimu(); isimu++)
-      {
         _computeGradient(dbgrd, isimu, delta, activeArray, tab);
-      }
     }
 
     /* Non conditional simulations on the tangent points */
@@ -1549,7 +1574,7 @@ namespace gstlrn
     _allocateForOneSimulation(getDbout(), getNVar(), activeArray, tab);
     for (Id isimu = 0; isimu < getNbSimu(); isimu++)
     {
-      _computeTB(dbout, isimu, activeArray, tab);
+      _compute(dbout, isimu, activeArray, tab);
 
       /* Add the contribution of nugget effect (optional) */
       _computeNugget(dbout, isimu, activeArray, tab);

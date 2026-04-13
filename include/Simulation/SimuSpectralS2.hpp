@@ -48,7 +48,8 @@ namespace gstlrn
   protected:
     Id _simulate() override;
     Id _compute(
-      Db* dbout,
+      Db* db,
+      Id isimu,
       const VectorBool& activeArray,
       VectorVectorDouble& tab) override;
 

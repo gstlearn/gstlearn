@@ -131,17 +131,18 @@ namespace gstlrn
   /**
    * Simulate the spectrum components for Rn or S2 for one simulation
    */
-  Id CalcSimuSpectral::simulate()
+  Id CalcSimuSpectral::simulateTest()
   {
     // When called outside the calculator framework, we need to set the random seed here
     law_set_random_seed(getSeed());
+
     return _simulate();
   }
 
   /**
    * @brief Compute one non-conditional simulation on the samples of Dbout using Spectral Method
    */
-  Id CalcSimuSpectral::compute(Db* dbout, Id isimu)
+  Id CalcSimuSpectral::computeTest(Db* dbout, Id isimu)
   {
     VectorVectorDouble tab;
     VectorBool activeArray;
@@ -155,7 +156,7 @@ namespace gstlrn
         _getNVar() * getNbSimu(), 0., "Simu", ELoc::SIMU);
 
     // Compute one simulation
-    if (_compute(dbout, activeArray, tab)) return 1;
+    if (_compute(dbout, isimu, activeArray, tab)) return 1;
 
     // Save the resulting array
     saveResults(dbout, isimu, activeArray, tab);
@@ -234,7 +235,7 @@ namespace gstlrn
       _simulate();
 
       // Compute one simulation
-      _compute(db, activeArray, tab);
+      _compute(db, isimu, activeArray, tab);
 
       // Save the resulting array
       saveResults(db, isimu, activeArray, tab);

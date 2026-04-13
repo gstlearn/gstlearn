@@ -49,12 +49,12 @@ namespace gstlrn
     bool _check() override;
     Id _simulate() override;
     Id _compute(
-      Db* dbout,
+      Db* db,
+      Id isimu,
       const VectorBool& activeArray,
       VectorVectorDouble& tab) override;
 
   private:
-    // spectrum for R^n (Not used...)
     // Matrix nrows=_ns, ncols= number of variables of _cova
     MatrixDense _gamma;
     // Matrix nrows=_ns, ncols= number of dimensions of _cova

@@ -109,6 +109,7 @@ namespace gstlrn
    * Compute the simulation on Dbout using Spectral Method
    *
    * @param db Db containing the results
+   * @param isimu Simulation index
    * @param activeArray Array of booleans indicating the active samples in dbout
    * @param tab Array for storing one (multivariate) simulation on 'dbout'
    */

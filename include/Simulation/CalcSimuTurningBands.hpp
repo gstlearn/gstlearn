@@ -86,11 +86,12 @@ namespace gstlrn
     void _rollback() override;
     bool _simulateTB();
 
-    Id _computeTB(
+    Id _compute(
       Db* db,
       Id isimu,
       const VectorBool& activeArray,
       VectorVectorDouble& tab) override;
+
     bool _resizeTB();
     void _computePoint(
       Db* db,
@@ -113,6 +114,12 @@ namespace gstlrn
       Id isimu,
       const VectorBool& activeArray,
       VectorVectorDouble& tab);
+    void _scaleResults(
+      Db* db,
+      const CovBase* cova,
+      const VectorBool& activeArray,
+      const VectorVectorDouble& tabLoc,
+      VectorVectorDouble& tab) const;
 
     // Turning bands specific methods
     Id _getIBS(Id isimu, Id is, Id ib) const;
@@ -254,8 +261,7 @@ namespace gstlrn
     double _theta;
     VectorInt _seedBands;
     std::vector<TurningBandDirection> _codirs;
-    Model*
-      _modelLocal; // Conversion of getModel() into a Model (more than ModelGeneric)
+    Model* _modelLocal; // Conversion of into a Model (more than ModelGeneric)
   };
 
 } // namespace gstlrn

@@ -125,7 +125,7 @@ namespace gstlrn
 
       jsimu = isimu + idim * nbsimu;
       _setShift(jsimu);
-      _computeTB(dbgrd, isimu, activeArray, tab1);
+      _compute(dbgrd, isimu, activeArray, tab1);
 
       /* Shift the information */
       for (Id iech = 0; iech < dbgrd->getNSample(); iech++)
@@ -137,7 +137,7 @@ namespace gstlrn
 
       jsimu = isimu + idim * nbsimu + ndim * nbsimu;
       _setShift(jsimu);
-      _computeTB(dbgrd, isimu, activeArray, tab2);
+      _compute(dbgrd, isimu, activeArray, tab2);
 
       /* Un-Shift the information */
 
@@ -589,34 +589,6 @@ namespace gstlrn
           ELoc::SIMU, iech, _getShift() + isimu, ivar, icase, nbsimu, nvar,
           tab[ivar][iech]);
     }
-  }
-
-  /**
-   * @brief Save the multivariate simulation result into the Db after:
-   * @brief - multiplying by the sill matrix
-   * @brief - adding to existing values
-   *
-   * @param db Db where the result is stored
-   * @param cova Covariance where to read the AIC matrix
-   * @param activeArray Array indicating active samples
-   * @param tabLoc Array containing the non-conditional simulation values for all variables
-   * @param tab   Array containing simulation values for all variables
-   */
-  void ACalcSimulation::scaleResults(
-    Db* db,
-    const CovBase* cova,
-    const VectorBool& activeArray,
-    const VectorVectorDouble& tabLoc,
-    VectorVectorDouble& tab) const
-  {
-    auto nvar = getNVar();
-    for (Id iech = 0, nech = db->getNSample(); iech < nech; iech++)
-      if (activeArray[iech])
-      {
-        for (Id ivar = 0; ivar < nvar; ivar++)
-          for (Id jvar = 0; jvar < nvar; jvar++)
-            tab[jvar][iech] += tabLoc[ivar][iech] * cova->getAic(ivar, jvar);
-      }
   }
 
   Id ACalcSimulation::getNVar() const

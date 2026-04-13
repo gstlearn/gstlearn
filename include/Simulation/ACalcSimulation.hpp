@@ -44,12 +44,6 @@ namespace gstlrn
       Id isimu,
       const VectorBool& activeArray,
       const VectorVectorDouble& tab) const;
-    void scaleResults(
-      Db* db,
-      const CovBase* cova,
-      const VectorBool& activeArray,
-      const VectorVectorDouble& tabLoc,
-      VectorVectorDouble& tab) const;
 
     void setFlagBayes(bool flag_bayes) { _flagBayes = flag_bayes; }
 
@@ -77,7 +71,9 @@ namespace gstlrn
 
     bool _getFlagPGS() const { return _flagPGS; }
 
-    virtual Id _computeTB(
+    virtual Id _simulate() { return 0; }
+
+    virtual Id _compute(
       Db* db,
       Id isimu,
       const VectorBool& activeArray,
@@ -88,7 +84,7 @@ namespace gstlrn
       DECLARE_UNUSED(activeArray);
       DECLARE_UNUSED(tab);
       return 0;
-    };
+    }
 
     virtual Id _getIcase() const { return 0; }
 
