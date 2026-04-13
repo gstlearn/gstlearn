@@ -1472,11 +1472,13 @@ namespace gstlrn
     Eigen::Map<const Eigen::VectorXd> vecm(vec.data(), vec.size());
     if (transpose)
     {
-      res.eigenMat() = a.eigenMat().transpose() * vecm * a.eigenMat();
+      res.eigenMat() =
+        a.eigenMat().transpose() * vecm.asDiagonal() * a.eigenMat();
     }
     else
     {
-      res.eigenMat() = a.eigenMat() * vecm * a.eigenMat().transpose();
+      res.eigenMat() =
+        a.eigenMat() * vecm.asDiagonal() * a.eigenMat().transpose();
     }
   }
 
