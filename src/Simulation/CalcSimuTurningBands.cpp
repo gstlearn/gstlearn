@@ -1427,27 +1427,23 @@ namespace gstlrn
       saveResults(getDbin(), isimu, activeIn, tabIn);
     }
 
-    /* Conditional simulations */
-
+    // Conditional simulations
     if (flag_cond)
     {
       if (_conditionalKriging(getDbin(), getDbout())) return 1;
     }
 
-    /* Copy value from data to coinciding grid node */
-
+    // Copy value from data to coinciding grid node
     if (flag_cond)
     {
       _updateDataToTarget(getDbin(), getDbout());
     }
 
     // Check the simulation at data location
-
     if (_flagCheck)
     {
       if (_checkGaussianDataToGrid(getDbin(), getDbout())) return false;
     }
-
     return true;
   }
 

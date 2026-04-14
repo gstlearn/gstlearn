@@ -122,7 +122,6 @@ namespace gstlrn
     Id _nbsimu;
     Id _seed;
     Id _shift;
-    bool _flagCheck;
     bool _flagBayes;
     bool _flagPGS;
     bool _flagGibbs;
