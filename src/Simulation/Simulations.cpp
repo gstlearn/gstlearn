@@ -378,7 +378,6 @@ namespace gstlrn
    ** \param[in]  seed       Seed for random number generator
    ** \param[in]  nbtuba     Number of turning bands
    ** \param[in]  flag_dgm   1 for Direct Block Simulation
-   ** \param[in]  flag_check 1 to check the proximity in Gaussian scale
    ** \param[in]  namconv    Naming convention
    **
    ** \remark  The arguments 'dbin' and 'neigh' are optional: they must
@@ -394,11 +393,10 @@ namespace gstlrn
     Id seed,
     Id nbtuba,
     bool flag_dgm,
-    bool flag_check,
     const NamingConvention& namconv)
   {
     // Instantiate the Calculator
-    CalcSimuTurningBands situba(nbsimu, nbtuba, flag_check, seed);
+    CalcSimuTurningBands situba(nbsimu, nbtuba, seed);
 
     // Set the members of the Calculator
     situba.setDbin(dbin);
@@ -427,7 +425,6 @@ namespace gstlrn
    ** \param[in]  nbsimu     Number of simulations
    ** \param[in]  seed       Seed for random number generator
    ** \param[in]  nbtuba     Number of turning bands
-   ** \param[in]  flag_check 1 to check the proximity in Gaussian scale
    ** \param[in]  namconv    Naming convention
    **
    ** \remark  The arguments 'dbin' and 'neigh' are optional: they must
@@ -442,11 +439,10 @@ namespace gstlrn
     Id nbsimu,
     Id seed,
     Id nbtuba,
-    bool flag_check,
     const NamingConvention& namconv)
   {
     // Instantiate the Calculator
-    CalcSimuTurningBands situba(nbsimu, nbtuba, flag_check, seed);
+    CalcSimuTurningBands situba(nbsimu, nbtuba, seed);
 
     // Set the members of the Calculator
     situba.setDbin(dbin);

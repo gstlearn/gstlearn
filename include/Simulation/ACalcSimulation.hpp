@@ -103,7 +103,7 @@ namespace gstlrn
       const VectorBool& activeArray,
       VectorVectorDouble& tab);
     void _correctMean(const VectorBool& activeArray, VectorVectorDouble& tab);
-    void _difference(
+    void _convertToDifference(
       Db* dbin,
       Id isimu,
       const VectorBool& activeArray,
@@ -115,7 +115,6 @@ namespace gstlrn
       VectorBool& activeArray,
       VectorVectorDouble& tab,
       bool flagActive = true);
-    Id _checkGaussianDataToGrid(Db* dbin, Db* dbout) const;
     Id _conditionalKriging(Db* dbin, Db* dbout);
 
   private:

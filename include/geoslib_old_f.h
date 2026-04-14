@@ -476,7 +476,6 @@ namespace gstlrn
     Id nbtuba,
     Id gibbs_nburn,
     Id gibbs_niter,
-    Id flag_check,
     Id flag_ce,
     Id flag_cstd,
     Id verbose);

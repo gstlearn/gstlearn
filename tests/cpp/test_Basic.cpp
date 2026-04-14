@@ -60,7 +60,7 @@ int main(int argc, char* argv[])
   Id nbtuba = 1000;
   Id seed = 14341;
   (void)simtub(
-    nullptr, mygrid, mymodel, nullptr, 1, seed, nbtuba, false, false,
+    nullptr, mygrid, mymodel, nullptr, 1, seed, nbtuba, false,
     NamingConvention("Data"));
   mygrid->display();
 

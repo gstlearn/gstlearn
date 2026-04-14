@@ -159,7 +159,7 @@ int main(int argc, char* argv[])
       /* Simulation case */
 
       if (verbose) message("Performing Simulations");
-      if (simtub(dbin, dbout, model, neigh, nbsimu, seed, nbtuba, 0))
+      if (simtub(dbin, dbout, model, neigh, nbsimu, seed, nbtuba))
         messageAbort("Simulations");
       dbfmt.setFlags(true, false, true, true, true);
       dbout->display(&dbfmt);

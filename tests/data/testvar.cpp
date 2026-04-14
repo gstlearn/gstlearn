@@ -107,7 +107,7 @@ int main(int argc, char* argv[])
 
   if (dbout != nullptr)
   {
-    if (simtub(nullptr, dbout, model, nullptr, nbsimu, seed, nbtuba, 0))
+    if (simtub(nullptr, dbout, model, nullptr, nbsimu, seed, nbtuba))
       messageAbort("Simulations");
     /* Set the current variable to the conditional expectation */
     dbout->setLocatorByUID(dbout->getNColumn() - 1, ELoc::Z, 0);

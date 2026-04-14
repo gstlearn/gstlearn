@@ -30,16 +30,11 @@
 namespace gstlrn
 {
 
-  CalcSimuTurningBands::CalcSimuTurningBands(
-    Id nbsimu,
-    Id nbtuba,
-    bool flag_check,
-    Id seed)
+  CalcSimuTurningBands::CalcSimuTurningBands(Id nbsimu, Id nbtuba, Id seed)
     : ACalcSimulation(nbsimu, seed)
     , _nbtuba(nbtuba)
     , _iattOut(-1)
     , _icase(0)
-    , _flagCheck(flag_check)
     , _flagAllocationAlreadyDone(false)
     , _nameCoord()
     , _npointSimulated(0)
@@ -1361,7 +1356,7 @@ namespace gstlrn
    ** \param[out] tab        Array containing the non-conditional simulation values
    **
    *****************************************************************************/
-  void CalcSimuTurningBands::_computeNugget(
+  void CalcSimuTurningBands::_simulateNugget(
     Db* db,
     Id isimu,
     const VectorBool& activeArray,
@@ -1424,7 +1419,7 @@ namespace gstlrn
       // Non conditional simulations on the target points
       _compute(getDbout(), isimu, activeOut, tabOut);
       _correctMean(activeOut, tabOut);
-      _computeNugget(getDbout(), isimu, activeOut, tabOut);
+      _simulateNugget(getDbout(), isimu, activeOut, tabOut);
       saveResults(getDbout(), isimu, activeOut, tabOut);
 
       if (!flag_cond) continue;
@@ -1432,7 +1427,7 @@ namespace gstlrn
       // Non conditional simulations on the data points
       _compute(getDbin(), isimu, activeIn, tabIn);
       _correctMean(activeIn, tabIn);
-      _difference(getDbin(), isimu, activeIn, tabIn);
+      _convertToDifference(getDbin(), isimu, activeIn, tabIn);
       saveResults(getDbin(), isimu, activeIn, tabIn);
     }
 
@@ -1448,11 +1443,6 @@ namespace gstlrn
       _updateDataToTarget(getDbin(), getDbout());
     }
 
-    // Check the simulation at data location
-    if (_flagCheck)
-    {
-      if (_checkGaussianDataToGrid(getDbin(), getDbout())) return false;
-    }
     return true;
   }
 
@@ -1582,7 +1572,7 @@ namespace gstlrn
       _compute(dbout, isimu, activeArray, tab);
 
       /* Add the contribution of nugget effect (optional) */
-      _computeNugget(dbout, isimu, activeArray, tab);
+      _simulateNugget(dbout, isimu, activeArray, tab);
     }
 
     return 0;

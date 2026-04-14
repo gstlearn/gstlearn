@@ -30,11 +30,7 @@ namespace gstlrn
   class GSTLEARN_EXPORT CalcSimuTurningBands: public ACalcSimulation
   {
   public:
-    CalcSimuTurningBands(
-      Id nbsimu = 0,
-      Id nbtuba = 0,
-      bool flag_check = false,
-      Id seed = 4324324);
+    CalcSimuTurningBands(Id nbsimu = 0, Id nbtuba = 0, Id seed = 4324324);
     CalcSimuTurningBands(const CalcSimuTurningBands& r) = delete;
     CalcSimuTurningBands& operator=(const CalcSimuTurningBands& r) = delete;
     virtual ~CalcSimuTurningBands();
@@ -62,10 +58,6 @@ namespace gstlrn
       Db* dbout,
       ModelGeneric* model,
       double delta);
-
-    bool isFlagCheck() const { return _flagCheck; }
-
-    void setFlagCheck(bool flag_check) { _flagCheck = flag_check; }
 
     void setIcase(Id icase) { _icase = icase; }
 
@@ -109,7 +101,7 @@ namespace gstlrn
       Id is,
       const VectorBool& activeArray,
       VectorVectorDouble& tab);
-    void _computeNugget(
+    void _simulateNugget(
       Db* db,
       Id isimu,
       const VectorBool& activeArray,
@@ -253,7 +245,6 @@ namespace gstlrn
     Id _nbtuba;
     Id _iattOut;
     Id _icase;
-    bool _flagCheck;
     bool _flagAllocationAlreadyDone;
     VectorString _nameCoord;
     Id _npointSimulated;

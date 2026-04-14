@@ -72,7 +72,7 @@ int main(int argc, char* argv[])
     return 1;
   }
   error = simtub(
-    nullptr, grid, m1, nullptr, nvar, 432423, 100, false, false,
+    nullptr, grid, m1, nullptr, nvar, 432423, 100, false,
     NamingConvention("U1"));
   if (error != 0)
   {
@@ -93,7 +93,7 @@ int main(int argc, char* argv[])
     return 1;
   }
   error = simtub(
-    nullptr, grid, m2, nullptr, nvar, 432424, 100, false, false,
+    nullptr, grid, m2, nullptr, nvar, 432424, 100, false,
     NamingConvention("U2"));
   if (error != 0)
   {
@@ -116,7 +116,7 @@ int main(int argc, char* argv[])
     return 1;
   }
   error = simtub(
-    nullptr, grid, m3, nullptr, nvar, 432425, 100, false, false,
+    nullptr, grid, m3, nullptr, nvar, 432425, 100, false,
     NamingConvention("U3"));
   if (error != 0)
   {

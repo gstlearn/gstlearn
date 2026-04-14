@@ -237,7 +237,7 @@ namespace gstlrn
    ** \param[out] tab        Array containing the non-conditional simulation values
    **
    *****************************************************************************/
-  void ACalcSimulation::_difference(
+  void ACalcSimulation::_convertToDifference(
     Db* dbin,
     Id isimu,
     const VectorBool& activeArray,
@@ -434,76 +434,6 @@ namespace gstlrn
           }
       }
     }
-  }
-
-  /****************************************************************************/
-  /*!
-   **  Check/Show the data (gaussian) against the closest grid node
-   **
-   ** \param[in]  dbin       Input Db structure
-   ** \param[in]  dbout      Output Db grid structure
-   **
-   ** \remark Attributes ELoc::SIMU and ELoc::GAUSFAC (for PGS) are mandatory
-   ** \remark Tests have only been produced for icase=0
-   **
-   *****************************************************************************/
-  Id ACalcSimulation::_checkGaussianDataToGrid(Db* dbin, Db* dbout) const
-  {
-    if (dbin == nullptr) return 0;
-    if (get_LOCATOR_NITEM(dbout, ELoc::SIMU) <= 0) return 0;
-    auto nbsimu = getNbSimu();
-    if (nbsimu <= 0) return 0;
-
-    auto* model = getModelGeneric();
-    auto* dbgrid = dynamic_cast<DbGrid*>(dbout);
-    if (dbgrid == nullptr) return 0;
-    Id ndim = dbin->getNDim();
-
-    mestitle(1, "Checking Gaussian of data against closest grid node");
-
-    /* Loop on the data */
-
-    Id number = 0;
-    VectorDouble coor(ndim);
-    for (Id iech = 0; iech < dbin->getNSample(); iech++)
-    {
-      if (!dbin->isActive(iech)) continue;
-
-      // Find the index of the closest grid node and derive tolerance
-      Id jech = index_point_to_grid(dbin, iech, 0, dbgrid, coor.data());
-      if (jech < 0) continue;
-      double eps = model->calculateStDev(dbin, iech, dbgrid, jech, false, 2.);
-      if (eps < 1.e-6) eps = 1.e-6;
-
-      for (Id isimu = 0; isimu < nbsimu; isimu++)
-      {
-        double valdat =
-          dbin->getSimvar(ELoc::GAUSFAC, iech, 0, 0, 0, nbsimu, 1);
-        double valres =
-          dbgrid->getSimvar(ELoc::SIMU, jech, isimu, 0, 0, nbsimu, 1);
-        if (ABS(valdat - valres) < eps) continue;
-        number++;
-
-        /* The data facies is different from the grid facies */
-
-        message("Inconsistency for Simulation (%d) between :\n", isimu + 1);
-        message("- Value (%lf) at Data (#%d) ", valdat, iech + 1);
-        message("at (");
-        for (Id idim = 0; idim < ndim; idim++)
-          message(" %lf", dbin->getCoordinate(iech, idim));
-        message(")\n");
-
-        message("- Value (%lf) at Grid (#%d) ", valres, jech + 1);
-        message("at (");
-        for (Id idim = 0; idim < ndim; idim++)
-          message(" %lf", dbgrid->getCoordinate(jech, idim));
-        message(")\n");
-
-        message("- Tolerance = %lf\n", eps);
-      }
-    }
-    if (number <= 0) message("No problem found\n");
-    return number;
   }
 
   /****************************************************************************/

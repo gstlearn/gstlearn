@@ -108,7 +108,6 @@ namespace gstlrn
     Id seed = 43431,
     Id nbtuba = 100,
     bool flag_dgm = false,
-    bool flag_check = false,
     const NamingConvention& namconv = NamingConvention("Simu"));
   GSTLEARN_EXPORT Id simbayes(
     Db* dbin,
@@ -118,6 +117,5 @@ namespace gstlrn
     Id nbsimu = 1,
     Id seed = 132141,
     Id nbtuba = 100,
-    bool flag_check = false,
     const NamingConvention& namconv = NamingConvention("SimBayes"));
 } // namespace gstlrn
