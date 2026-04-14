@@ -26,7 +26,6 @@ namespace gstlrn
     , _nbsimu(nbsimu)
     , _seed(seed)
     , _shift(0)
-    , _flagCheck(false)
     , _flagBayes(false)
     , _flagPGS(false)
     , _flagGibbs(false)
