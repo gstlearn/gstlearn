@@ -1320,6 +1320,15 @@ namespace gstlrn
     *s0z = sin(omega * t00 + phi);
   }
 
+  /**
+   * @brief The Turning Bands Method does not have a _simulate function which creates the
+   * environment for the current simulation only.
+   * Instead a preliminary step is performed in this function initialize all the relevant material
+   * for all simulations.
+   *
+   * @return true
+   * @return false
+   */
   bool CalcSimuTurningBands::_simulateTB()
   {
     // Dimension the Turning Bands environment
