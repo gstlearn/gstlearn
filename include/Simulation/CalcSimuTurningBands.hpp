@@ -101,11 +101,6 @@ namespace gstlrn
       Id is,
       const VectorBool& activeArray,
       VectorVectorDouble& tab);
-    void _simulateNugget(
-      Db* db,
-      Id isimu,
-      const VectorBool& activeArray,
-      VectorVectorDouble& tab);
     void _scaleResults(
       Db* db,
       const CovBase* cova,

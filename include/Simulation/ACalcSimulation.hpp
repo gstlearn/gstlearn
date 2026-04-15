@@ -116,6 +116,10 @@ namespace gstlrn
       VectorVectorDouble& tab,
       bool flagActive = true);
     Id _conditionalKriging(Db* dbin, Db* dbout);
+    void _simulateNugget(
+      Db* db,
+      const VectorBool& activeArray,
+      VectorVectorDouble& tab);
 
   private:
     Id _nbsimu;

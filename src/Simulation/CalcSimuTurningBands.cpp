@@ -1345,59 +1345,6 @@ namespace gstlrn
     return true;
   }
 
-  /*****************************************************************************/
-  /*!
-   **  Add the contribution of the nugget effect to the non-conditional
-   **  simulations
-   **
-   ** \param[in]  db         Db structure
-   ** \param[in]  isimu      Index of the simulation
-   ** \param[in]  activeArray  Array of active samples
-   ** \param[out] tab        Array containing the non-conditional simulation values
-   **
-   *****************************************************************************/
-  void CalcSimuTurningBands::_simulateNugget(
-    Db* db,
-    Id isimu,
-    const VectorBool& activeArray,
-    VectorVectorDouble& tab)
-  {
-    /* Do nothing if there is no nugget effect in the model */
-    if (!_modelLocal->hasNugget()) return;
-
-    Id nech = db->getNSample();
-    auto ncova = _getNCov();
-    auto nvar = _getNVar();
-
-    // Memorize the seed
-    // Id mem_seed = law_get_random_seed();
-
-    /* Performing the simulation */
-
-    for (Id is = 0; is < ncova; is++)
-    {
-      ECov type = _modelLocal->getCovType(is);
-      if (type != ECov::NUGGET) continue;
-      const CovAniso* cova = _modelLocal->getCovAniso(is);
-
-      for (Id ivar = 0; ivar < nvar; ivar++)
-      {
-        // law_set_random_seed(_getSeedBand(ivar, is, 0, isimu)); TODO: suppress ref to TB.
-
-        for (Id iech = 0; iech < nech; iech++)
-        {
-          if (!activeArray[iech]) continue;
-          double nugget = law_gaussian();
-          for (Id jvar = 0; jvar < nvar; jvar++)
-            tab[jvar][iech] += nugget * cova->getAic(ivar, jvar);
-        }
-      }
-    }
-
-    // Set the initial seed back
-    // law_set_random_seed(mem_seed);
-  }
-
   bool CalcSimuTurningBands::_run()
   {
     bool flag_cond = hasDbin(false);
@@ -1419,7 +1366,7 @@ namespace gstlrn
       // Non conditional simulations on the target points
       _compute(getDbout(), isimu, activeOut, tabOut);
       _correctMean(activeOut, tabOut);
-      _simulateNugget(getDbout(), isimu, activeOut, tabOut);
+      _simulateNugget(getDbout(), activeOut, tabOut);
       saveResults(getDbout(), isimu, activeOut, tabOut);
 
       if (!flag_cond) continue;
@@ -1572,7 +1519,7 @@ namespace gstlrn
       _compute(dbout, isimu, activeArray, tab);
 
       /* Add the contribution of nugget effect (optional) */
-      _simulateNugget(dbout, isimu, activeArray, tab);
+      _simulateNugget(dbout, activeArray, tab);
     }
 
     return 0;

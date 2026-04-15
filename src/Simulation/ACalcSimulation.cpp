@@ -436,6 +436,50 @@ namespace gstlrn
     }
   }
 
+  /*****************************************************************************/
+  /*!
+   **  Add the contribution of the nugget effect to the non-conditional
+   **  simulations
+   **
+   ** \param[in]  db         Db structure
+   ** \param[in]  activeArray  Array of active samples
+   ** \param[out] tab        Array containing the non-conditional simulation values
+   **
+   *****************************************************************************/
+  void ACalcSimulation::_simulateNugget(
+    Db* db,
+    const VectorBool& activeArray,
+    VectorVectorDouble& tab)
+  {
+    /* Do nothing if there is no nugget effect in the model */
+    auto* modelLocal = dynamic_cast<Model*>(getModelGeneric());
+    if (!modelLocal->hasNugget()) return;
+
+    Id nech = db->getNSample();
+    auto ncova = _getNCov();
+    auto nvar = _getNVar();
+
+    /* Performing the simulation */
+
+    for (Id is = 0; is < ncova; is++)
+    {
+      ECov type = modelLocal->getCovType(is);
+      if (type != ECov::NUGGET) continue;
+      const CovAniso* cova = modelLocal->getCovAniso(is);
+
+      for (Id ivar = 0; ivar < nvar; ivar++)
+      {
+        for (Id iech = 0; iech < nech; iech++)
+        {
+          if (!activeArray[iech]) continue;
+          double nugget = law_gaussian();
+          for (Id jvar = 0; jvar < nvar; jvar++)
+            tab[jvar][iech] += nugget * cova->getAic(ivar, jvar);
+        }
+      }
+    }
+  }
+
   /****************************************************************************/
   /*!
    **  Conditioning Kriging
