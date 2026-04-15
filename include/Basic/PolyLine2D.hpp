@@ -118,7 +118,7 @@ namespace gstlrn
     friend class Faults;
   };
 
-  double distanceBetweenPolylines(
+  GSTLEARN_EXPORT double distanceBetweenPolylines(
     const PolyLine2D& poly1,
     const PolyLine2D& poly2,
     const PolyPoint2D& pldist1,
