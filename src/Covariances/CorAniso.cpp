@@ -1888,7 +1888,9 @@ namespace gstlrn
       {
         if (getNDim() > 2 || idim < 1)
         {
-          _aniso.setRotationAngle(idim, _angles[idim].getValue());
+          double angleLocal =
+            (_angles.size() > 0) ? _angles[idim].getValue() : 0.;
+          _aniso.setRotationAngle(idim, angleLocal);
         }
         _aniso.setRadiusDir(idim, exp(_scales[idim].getValue()));
       }
