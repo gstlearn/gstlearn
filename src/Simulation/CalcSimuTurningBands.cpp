@@ -1370,7 +1370,7 @@ namespace gstlrn
     auto nvar = _getNVar();
 
     // Memorize the seed
-    Id mem_seed = law_get_random_seed();
+    // Id mem_seed = law_get_random_seed();
 
     /* Performing the simulation */
 
@@ -1382,7 +1382,7 @@ namespace gstlrn
 
       for (Id ivar = 0; ivar < nvar; ivar++)
       {
-        law_set_random_seed(_getSeedBand(ivar, is, 0, isimu));
+        // law_set_random_seed(_getSeedBand(ivar, is, 0, isimu)); TODO: suppress ref to TB.
 
         for (Id iech = 0; iech < nech; iech++)
         {
@@ -1395,7 +1395,7 @@ namespace gstlrn
     }
 
     // Set the initial seed back
-    law_set_random_seed(mem_seed);
+    // law_set_random_seed(mem_seed);
   }
 
   bool CalcSimuTurningBands::_run()

@@ -101,7 +101,7 @@ a=0.3 : [0.3]
 
 #NO_DIFF#XXX
 ----
-Computed manually : -120.377463
+Computed manually : -123.835883
 ----
 
 
@@ -113,16 +113,16 @@ Likelihood calculation:
 - Length of Information Vector = 100
 - Number of drift conditions   = 1
 Log-Determinant = -33.879144
-Quadratic term  = 90.846364
-Log-likelihood  = -120.377463
+Quadratic term  = 97.763204
+Log-likelihood  = -123.835883
 ----
 
 
 #NO_DIFF#XXX
 ----
 Log-Determinant = -33.200255
-Quadratic term  = 89.332909
-Log-likelihood  = -119.960180
+Quadratic term  = 96.886508
+Log-likelihood  = -123.736980
 ----
 
 
