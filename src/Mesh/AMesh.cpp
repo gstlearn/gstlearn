@@ -29,11 +29,11 @@ namespace gstlrn
   AMesh::AMesh()
     : AStringable()
     , ASerializable()
+    , _ballTree(nullptr)
     , _nDim(0)
     , _extendMin()
     , _extendMax()
     , _adjacencyMatrix(new MatrixSparse())
-    , _ballTree(nullptr)
   {
   }
 
@@ -530,8 +530,7 @@ namespace gstlrn
 
     /* Instantiate a Ball Tree for quick search */
     // Note: this Ball tree is defined in 3D despite the space dimension of mesh
-    if (_ballTree == nullptr)
-      _ballTree = std::make_unique<Ball>(this, 10, true);
+    if (_ballTree == nullptr) _createBalltree();
     // if (verbose) ball.display(1);
 
     /* Loop on the samples */
@@ -540,7 +539,7 @@ namespace gstlrn
 
     /* Loop on the elligible meshes */
     Id nb_neigh = MIN(5, getNMeshes());
-    ;
+
     (void)_ballTree->queryOneInPlace(coords, nb_neigh, neighs, distances);
     Id found = _findBarycenter(coords, units, nb_neigh, neighs, weights);
 
@@ -796,6 +795,11 @@ namespace gstlrn
     ret = ret && _recordWriteVec<double>(os, "Minimum Extension", _extendMin);
     ret = ret && _recordWriteVec<double>(os, "Maximum Extension", _extendMax);
     return ret;
+  }
+
+  void AMesh::_createBalltree() const
+  {
+    _ballTree = std::make_unique<Ball>(this, 10, true);
   }
 
   /****************************************************************************/

@@ -137,6 +137,7 @@
   #include "Calculators/CalcSimuPostPropByLayer.hpp"
 
   #include "Mesh/AMesh.hpp"
+  #include "Mesh/MeshEFaulted.hpp"
   #include "Mesh/MeshEStandard.hpp"
   #include "Mesh/MeshETurbo.hpp"
   #include "Mesh/MeshSpherical.hpp"
@@ -407,6 +408,7 @@
   #include "Fractures/FracList.hpp"
 
   #include "Tree/Ball.hpp"
+  #include "Tree/BallFaulted.hpp"
   #include "Tree/KNN.hpp"
 
   #include "Spatial/Projection.hpp"

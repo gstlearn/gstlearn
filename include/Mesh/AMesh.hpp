@@ -163,6 +163,9 @@ namespace gstlrn
     double _getMeshUnit(const VectorVectorDouble& corners) const;
 
   protected:
+    mutable std::unique_ptr<Ball> _ballTree;
+
+  protected:
     void _recopy(const AMesh& m);
     bool _deserializeAscii(std::istream& is) override;
     bool _serializeAscii(std::ostream& os) const override;
@@ -178,6 +181,7 @@ namespace gstlrn
       VectorInt& neighs,
       VectorDouble& weight) const;
     VectorDouble _defineUnits(void) const;
+    virtual void _createBalltree() const;
 
   private:
     Id _nDim;
@@ -185,7 +189,6 @@ namespace gstlrn
     VectorDouble _extendMax;
     mutable MatrixSparse*
       _adjacencyMatrix; //!< Mesh adjacency matrix (lazy evaluation)
-    mutable std::unique_ptr<Ball> _ballTree;
   };
 
 } // namespace gstlrn

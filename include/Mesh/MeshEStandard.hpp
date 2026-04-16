@@ -57,18 +57,18 @@ namespace gstlrn
     VectorInt getMeshList() const { return _meshes.getValues(); }
 
     VectorDouble getPointList(bool byCol = true) const;
-    Id reset(
+    virtual Id reset(
       const MatrixDense& apices,
       const MatrixInt& meshes,
       bool verbose = false);
-    Id reset(
+    virtual Id reset(
       Id ndim,
       Id napexpermesh,
       const VectorDouble& apices,
       const VectorInt& meshes,
       bool byCol = true,
       bool verbose = false);
-    Id resetFromTurbo(const MeshETurbo& turbo, bool verbose = false);
+    virtual Id resetFromTurbo(const MeshETurbo& turbo, bool verbose = false);
 
     const MatrixDense& getApices() const { return _apices; }
 
@@ -78,6 +78,7 @@ namespace gstlrn
     bool _deserializeAscii(std::istream& is) override;
     bool _serializeAscii(std::ostream& os) const override;
     void _defineBoundingBox(void);
+    Id _recopy(const MeshEStandard& m);
 
   private:
     bool _coorInMesh(
@@ -86,7 +87,6 @@ namespace gstlrn
       double meshsize,
       VectorDouble& weights) const;
     void _deallocate();
-    Id _recopy(const MeshEStandard& m);
     void _checkConsistency() const;
     void _setApex(Id imesh, Id rank, Id value);
     void _validate();
