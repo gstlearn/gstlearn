@@ -638,8 +638,8 @@ namespace gstlrn
     /* Loop on the intervals */
 
     n = 0;
-    a = (FFFF(binf)) ? -large : binf;
-    b = (FFFF(bsup)) ? large : bsup;
+    a = (FFFF(binf)) ? (FFFF(bsup) ? -large : -large + bsup) : binf;
+    b = (FFFF(bsup)) ? (FFFF(binf) ? large : large + binf) : bsup;
     aa = a;
     bb = b;
 
