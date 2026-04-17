@@ -504,6 +504,7 @@ namespace gstlrn
   {
     /* Do nothing if there is no nugget effect in the model */
     auto* modelLocal = dynamic_cast<Model*>(getModelGeneric());
+    if (modelLocal == nullptr) return;
     if (!modelLocal->hasNugget()) return;
 
     Id nech = db->getNSample();

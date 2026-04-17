@@ -35,8 +35,6 @@ namespace gstlrn
     Id simulateSpectral();
     Id computeSpectral(Db* dbout, Id isimu = 0);
 
-    bool isValidForSimulation(const ESimuType& simuType) const;
-
   protected:
     bool _check() override;
     bool _preprocess() override;
