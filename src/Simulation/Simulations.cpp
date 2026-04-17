@@ -276,7 +276,6 @@ namespace gstlrn
    * @param seed Seed used for the Random number generator
    * @param ns Number of spectral components
    * @param nd Maximum number of spectral orders on S2
-   * @param cov0 Auxiliary covariance used for importance sampling
    * @param verbose Verbose flag
    * @param namconv Naming Convention
    *
@@ -307,7 +306,7 @@ namespace gstlrn
       isSimuRN = (space->getType() == ESpaceType::RN);
     }
 
-    auto* neighLocal = ANeigh::createDefaultNeighborhood(neigh, dbin);
+    auto* neighLocal = ANeigh::createDefaultNeighborhood(neigh, dbin, dbout);
 
     // Instantiate the Calculator
     std::unique_ptr<CalcSimuSpectral> spectral;
@@ -400,7 +399,7 @@ namespace gstlrn
   {
     // Instantiate the Calculator
     CalcSimuTurningBands situba(nbsimu, nbtuba, seed);
-    ANeigh* neighLocal = ANeigh::createDefaultNeighborhood(neigh, dbin);
+    ANeigh* neighLocal = ANeigh::createDefaultNeighborhood(neigh, dbin, dbout);
 
     // Set the members of the Calculator
     situba.setDbin(dbin);

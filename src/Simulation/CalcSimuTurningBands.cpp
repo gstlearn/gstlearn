@@ -19,7 +19,7 @@
 #include "Db/DbGrid.hpp"
 #include "Geometry/GeometryHelper.hpp"
 #include "Model/Model.hpp"
-#include "Simulation/ACalcSimulation.hpp"
+#include "Simulation/ACalcSimuModel.hpp"
 #include "Simulation/TurningBandDirection.hpp"
 #include "Simulation/TurningBandOperate.hpp"
 #include "geoslib_f_private.h"
@@ -31,11 +31,9 @@ namespace gstlrn
 {
 
   CalcSimuTurningBands::CalcSimuTurningBands(Id nbsimu, Id nbtuba, Id seed)
-    : ACalcSimulation(nbsimu, seed)
+    : ACalcSimuModel(nbsimu, seed)
     , _nbtuba(nbtuba)
-    , _iattOut(-1)
     , _icase(0)
-    , _flagAllocationAlreadyDone(false)
     , _nameCoord()
     , _npointSimulated(0)
     , _field(0.)
@@ -1326,6 +1324,8 @@ namespace gstlrn
    */
   bool CalcSimuTurningBands::_simulateTB()
   {
+    law_set_random_seed(getSeed());
+
     // Dimension the Turning Bands environment
     if (!_resizeTB()) return false;
 
@@ -1479,14 +1479,7 @@ namespace gstlrn
 
   bool CalcSimuTurningBands::_check()
   {
-    if (!ACalcSimulation::_check()) return false;
-
-    if (!hasDbout()) return false;
-    if (!hasModelGeneric()) return false;
-    if (hasDbin(false))
-    {
-      if (!hasNeigh()) return false;
-    }
+    if (!ACalcSimuModel::_check()) return false;
 
     auto ndim = _getNDim();
     if (ndim > 3)
@@ -1540,34 +1533,12 @@ namespace gstlrn
 
   bool CalcSimuTurningBands::_preprocess()
   {
-    if (!ACalcSimulation::_preprocess()) return false;
+    if (!ACalcSimuModel::_preprocess()) return false;
 
     // Prepare the seeds for the Bands
-    law_set_random_seed(getSeed());
     if (!_simulateTB()) return false;
 
-    auto nvar = _getNVar();
-    auto nbsimu = getNbSimu();
-
-    /* Add the attributes for storing the results */
-
-    if (getDbin() != nullptr)
-    {
-      if (!_flagAllocationAlreadyDone)
-      {
-        Id iptr_in = _addVariableDb(1, 2, ELoc::SIMU, 0, nvar * nbsimu);
-        if (iptr_in < 0) return false;
-      }
-    }
-
-    if (!_flagAllocationAlreadyDone)
-    {
-      _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 0, nvar * nbsimu);
-      if (_iattOut < 0) return false;
-    }
-
     // Centering the Data (for DGM)
-
     if (_getFlagDGM())
     {
       // Centering (only if the output file is a Grid)
@@ -1585,20 +1556,12 @@ namespace gstlrn
 
   bool CalcSimuTurningBands::_postprocess()
   {
-    /* Free the temporary variables */
-    _cleanVariableDb(2);
+    if (!ACalcSimuModel::_postprocess()) return false;
 
     // Clean variables created for Expansion
 
     if (_expandInformation(-1, ELoc::F)) return false;
     if (_expandInformation(-1, ELoc::NOSTAT)) return false;
-
-    /* Set the error return flag */
-
-    if (!_flagAllocationAlreadyDone)
-      _renameVariable(
-        2, VectorString(), ELoc::Z, _getNVar(), _iattOut, String(),
-        getNbSimu());
 
     if (_getFlagDGM())
     {

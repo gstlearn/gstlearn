@@ -3,6 +3,8 @@ title: "Spectral simulation of random functions on $R^2$"
 author: "gstlearn Core Team"
 date: "2024-06-11"
 output: pdf_document
+editor_options:
+  chunk_output_type: console
 ---
 
 # Initialization

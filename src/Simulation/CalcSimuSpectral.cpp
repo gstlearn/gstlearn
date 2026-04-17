@@ -17,7 +17,7 @@
 #include "Enum/ESimuType.hpp"
 #include "Model/Model.hpp"
 #include "Model/ModelGeneric.hpp"
-#include "Simulation/ACalcSimulation.hpp"
+#include "Simulation/ACalcSimuModel.hpp"
 #include "Simulation/SimuSpectralRN.hpp"
 #include "Simulation/SimuSpectralS2.hpp"
 #include "Stats/Classical.hpp"
@@ -33,8 +33,7 @@ namespace gstlrn
     Id nd,
     Id seed,
     bool verbose)
-    : ACalcSimulation(nbsimu, seed, verbose)
-    , _iattOut(-1)
+    : ACalcSimuModel(nbsimu, seed, verbose)
     , _ns(ns)
     , _nd(nd)
   {
@@ -42,28 +41,11 @@ namespace gstlrn
 
   CalcSimuSpectral::~CalcSimuSpectral() {}
 
-  Id CalcSimuSpectral::_getNDim() const
-  {
-    if (getModelGeneric() == nullptr) return 0;
-    return getModelGeneric()->getNDim();
-  }
-
-  Id CalcSimuSpectral::_getNVar() const
-  {
-    if (getModelGeneric() == nullptr) return 0;
-    return getModelGeneric()->getNVar();
-  }
-
   bool CalcSimuSpectral::_check()
   {
-    if (!ACalcSimulation::_check()) return false;
+    if (!ACalcSimuModel::_check()) return false;
 
-    if (!hasDbout()) return false;
     if (!hasModelGeneric()) return false;
-    if (hasDbin(false))
-    {
-      if (!hasNeigh()) return false;
-    }
 
     // Check that the Model is compatible with Spectral Simulation
     if (!getModelGeneric()->isValidForSimulation(ESimuType::SPECTRAL))
@@ -99,9 +81,9 @@ namespace gstlrn
 
     // The next line has been added to allow using method 'computeSpectral' independently.
     if (getDbout() == nullptr) setDbout(dbout);
-    if (_iattOut < 0)
-      _iattOut = dbout->addColumnsByConstant(
-        _getNVar() * getNbSimu(), 0., "Simu", ELoc::SIMU);
+
+    // Initialize the output variable
+    _initializeOutputAttribute();
 
     // Compute one simulation
     if (_compute(dbout, isimu, activeArray, tab)) return 1;
@@ -114,53 +96,11 @@ namespace gstlrn
 
   bool CalcSimuSpectral::_preprocess()
   {
-    if (!ACalcSimulation::_preprocess()) return false;
-
-    auto nvar = _getNVar();
-    auto nbsimu = getNbSimu();
-
-    // Add the attributes for storing the results
-    if (getDbin() != nullptr)
-    {
-      Id iptr_in = _addVariableDb(1, 2, ELoc::SIMU, 0, nvar * nbsimu);
-      if (iptr_in < 0) return false;
-    }
+    if (!ACalcSimuModel::_preprocess()) return false;
 
     // Factorize the matrix of sills
     auto* modelLocal = dynamic_cast<Model*>(getModelGeneric());
     if (modelLocal != nullptr) modelLocal->computeAic();
-
-    _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 0, nvar * nbsimu);
-    return _iattOut >= 0;
-  }
-
-  bool CalcSimuSpectral::_postprocess()
-  {
-    // Free the temporary variables
-    _cleanVariableDb(2);
-
-    // _renameVariable(2, VectorString(), ELoc::Z, _getNVar(), _iattOut, String(), getNbSimu());
-
-    NamingConvention namconv = getNamingConvention();
-    String prefix(namconv.getPrefix());
-    String delim(namconv.getDelim());
-    NamingConvention namconvS(namconv);
-
-    // Loop on the simulations
-    Id nbsimu = getNbSimu();
-    Id nvar = _getNVar();
-    for (Id isimu = 0; isimu < nbsimu; isimu++)
-      for (Id ivar = 0; ivar < nvar; ivar++)
-      {
-        String ps(prefix);
-        ps.append(delim + "V" + std::to_string(ivar + 1));
-        ps.append(delim + "S" + std::to_string(isimu + 1));
-        namconvS.setPrefix(ps);
-        namconvS.setNamesAndLocators(
-          nullptr, VectorString(), ELoc::Z, 1, getDbout(),
-          //                                   _iattOut + isimu * nvar + ivar, "", 1);
-          _iattOut + ivar * nbsimu + isimu, "", 1);
-      }
     return true;
   }
 

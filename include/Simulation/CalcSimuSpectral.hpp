@@ -10,15 +10,14 @@
 /******************************************************************************/
 #pragma once
 
-#include "Enum/ESimuType.hpp"
-#include "Simulation/ACalcSimulation.hpp"
+#include "Simulation/ACalcSimuModel.hpp"
 #include "gstlearn_export.hpp"
 
 namespace gstlrn
 {
   class Model;
 
-  class GSTLEARN_EXPORT CalcSimuSpectral: public ACalcSimulation
+  class GSTLEARN_EXPORT CalcSimuSpectral: public ACalcSimuModel
   {
   public:
     CalcSimuSpectral(
@@ -38,17 +37,14 @@ namespace gstlrn
   protected:
     bool _check() override;
     bool _preprocess() override;
-    bool _postprocess() override;
+
+    // bool _postprocess() override;
 
     Id _getNs() const { return _ns; };
 
     Id _getNd() const { return _nd; };
 
-    Id _getNDim() const;
-    Id _getNVar() const;
-
   private:
-    Id _iattOut;
     Id _ns; // Number of spectral components
     Id _nd; // Maximum number of spectral orders on
   };

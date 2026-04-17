@@ -375,7 +375,7 @@ We visualize a conditional simulation in Gaussian scale
 if (graphics)
 {
     p = plot.init()
-    p = p + plot(mygrid,name="Simu.Y.Pb.1")
+    p = p + plot(mygrid,name="Simu.Y.Pb.S1")
     p = p + plot(mydb,nameColor="Pb",size=3)
     p = p + plot.decoration(title="One Simulation of Pb in Gaussian Scale")
     plot.end(p)
@@ -405,7 +405,7 @@ We visualize a Conditional Simulation in Raw Scale
 if (graphics)
 {
   p = plot.init()
-  p = p + plot(mygrid,name="Z.Simu.Y.Pb.1")
+  p = p + plot(mygrid,name="Z.Simu.Y.Pb.S1")
   p = p + plot(mydb,nameColor="Pb")
   p = p + plot.decoration(title="One simulation of Pb in Raw Scale")
   plot.end(p)

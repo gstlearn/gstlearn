@@ -252,7 +252,7 @@ modelGeneric = ModelGeneric()
 err = modelGeneric$setCov(mg_in_gstlearn)
 
 # simulation
-gssimu = SimuSpectralRN(1, ns, 100, 123, NULL, TRUE)
+gssimu = SimuSpectralRN(1, ns, 100, 123, TRUE)
 err = gssimu$setModelGeneric(modelGeneric)
 err = gssimu$simulateSpectral()
 

@@ -76,7 +76,7 @@ int main(int argc, char* argv[])
   // ====================== Simulation (turning bands) ====================
   message("\n<----- Simulation using Turning Bands ----->\n");
   simtub(
-    data, grid, model, nullptr, nbsimu, 425631, nfeatures, false,
+    nullptr, grid, model, nullptr, nbsimu, 425631, nfeatures, false,
     NamingConvention("SimuTB"));
   grid->getStatsAsTable({"SimuTB*"}).display();
   grid->getCorrelationAsTable({"SimuTB*"}).display();

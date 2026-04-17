@@ -462,14 +462,18 @@ namespace gstlrn
     ranks.resize(necr);
   }
 
-  ANeigh*
-    ANeigh::createDefaultNeighborhood(ANeigh* neigh, Db* dbin, Id maxNumber)
+  ANeigh* ANeigh::createDefaultNeighborhood(
+    ANeigh* neigh,
+    const Db* dbin,
+    const Db* dbout,
+    Id maxNumber)
   {
     // If a neighborhood is already defined, this is the correct solution
     if (neigh != nullptr) return neigh;
 
     // We are about to define a Unique Neighborhood by default
     // Let us first check that the number of active samples is not too large
+    Id ndim = -1;
     if (dbin != nullptr)
     {
       Id nech = dbin->getNSample(true);
@@ -482,10 +486,14 @@ namespace gstlrn
         messerr("to allow the definition of a Unique Neighborhood by default");
         return nullptr;
       }
+      ndim = dbin->getNDim();
     }
+
+    if (dbout != nullptr) ndim = MAX(ndim, dbout->getNDim());
 
     // Create a default unique neighborhood
     auto* neighUnique = new NeighUnique();
+    neighUnique->setNDim(ndim);
     return neighUnique;
   }
 

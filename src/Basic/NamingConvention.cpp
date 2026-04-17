@@ -561,12 +561,17 @@ namespace gstlrn
       {
         if (static_cast<Id>(names.size()) == nvar) loc_varname = names[ivar];
         if (loc_varname.empty() && nvar > 1)
-          loc_varname = std::to_string(ivar + 1);
+          // loc_varname = std::to_string(ivar + 1);
+          loc_varname = concatenateString("V", ivar + 1, "");
       }
       else
       {
         // Build the rank from the variable number (possibly overwritten by item number)
-        if (nvar > 1) loc_number = std::to_string(ivar + 1);
+        if (nvar > 1)
+        {
+          loc_number = std::to_string(ivar + 1);
+          loc_number = concatenateString("V", ivar + 1, "");
+        }
       }
 
       for (Id item = 0; item < nitems; item++)
@@ -576,7 +581,11 @@ namespace gstlrn
         if (_flagQualifier)
         {
           loc_qualifier = qualifier;
-          if (nitems > 1) loc_number = std::to_string(item + 1);
+          if (nitems > 1)
+          {
+            // loc_number = std::to_string(item + 1);
+            loc_number = concatenateString("S", item + 1, "");
+          }
         }
 
         // Compose the variable name

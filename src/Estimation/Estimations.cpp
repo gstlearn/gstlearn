@@ -218,7 +218,7 @@ namespace gstlrn
     const KrigOpt& krigopt,
     const NamingConvention& namconv)
   {
-    auto* neighLocal = ANeigh::createDefaultNeighborhood(neigh, dbin);
+    auto* neighLocal = ANeigh::createDefaultNeighborhood(neigh, dbin, dbout);
     auto* neighBench = dynamic_cast<NeighBench*>(neighLocal);
     if (krigopt.getCalcul() == EKrigOpt::POINT && !krigopt.hasColcok()
         && !krigopt.hasMatLC() && neighBench == nullptr && model->getNVar() == 1
@@ -277,7 +277,7 @@ namespace gstlrn
     const KrigOpt& krigopt,
     const NamingConvention& namconv)
   {
-    auto* neighLocal = ANeigh::createDefaultNeighborhood(neigh, dbin);
+    auto* neighLocal = ANeigh::createDefaultNeighborhood(neigh, dbin, dbout);
     CalcKriging krige(flag_est, flag_std, false);
     krige.setDbin(dbin);
     krige.setDbout(dbout);
@@ -315,7 +315,7 @@ namespace gstlrn
     bool flag_std,
     const NamingConvention& namconv)
   {
-    auto* neighLocal = ANeigh::createDefaultNeighborhood(neigh, dbin);
+    auto* neighLocal = ANeigh::createDefaultNeighborhood(neigh, dbin, dbout);
     CalcKriging krige(flag_est, flag_std, false);
     krige.setDbin(dbin);
     krige.setDbout(dbout);
@@ -355,7 +355,7 @@ namespace gstlrn
     const KrigOpt& krigopt,
     bool verbose)
   {
-    auto* neighLocal = ANeigh::createDefaultNeighborhood(neigh, dbin);
+    auto* neighLocal = ANeigh::createDefaultNeighborhood(neigh, dbin, dbout);
     CalcKriging krige(true, true, false);
     krige.setDbin(dbin);
     krige.setDbout(dbout);
@@ -483,7 +483,7 @@ namespace gstlrn
     ANeigh* neigh,
     const NamingConvention& namconv)
   {
-    auto* neighLocal = ANeigh::createDefaultNeighborhood(neigh, dbin);
+    auto* neighLocal = ANeigh::createDefaultNeighborhood(neigh, dbin, dbout);
     CalcKriging krige(false, false, false);
     krige.setDbin(dbin);
     krige.setDbout(dbout);

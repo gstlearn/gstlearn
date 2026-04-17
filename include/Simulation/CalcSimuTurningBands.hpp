@@ -16,7 +16,7 @@
 
 #include "Basic/VectorNumT.hpp"
 #include "Model/Model.hpp"
-#include "Simulation/ACalcSimulation.hpp"
+#include "Simulation/ACalcSimuModel.hpp"
 #include "Simulation/TurningBandDirection.hpp"
 
 #include "geoslib_define.h"
@@ -27,7 +27,7 @@ namespace gstlrn
   class ANeigh;
   class TurningBandOperate;
 
-  class GSTLEARN_EXPORT CalcSimuTurningBands: public ACalcSimulation
+  class GSTLEARN_EXPORT CalcSimuTurningBands: public ACalcSimuModel
   {
   public:
     CalcSimuTurningBands(Id nbsimu = 0, Id nbtuba = 0, Id seed = 4324324);
@@ -64,11 +64,6 @@ namespace gstlrn
     Id getNbtuba() const { return _nbtuba; }
 
     void setNbtuba(Id nbtuba) { _nbtuba = nbtuba; }
-
-    void setFlagAllocationAlreadyDone(Id flag)
-    {
-      _flagAllocationAlreadyDone = flag;
-    }
 
   private:
     bool _check() override;
@@ -237,9 +232,7 @@ namespace gstlrn
 
   private:
     Id _nbtuba;
-    Id _iattOut;
     Id _icase;
-    bool _flagAllocationAlreadyDone;
     VectorString _nameCoord;
     Id _npointSimulated;
     double _field;
