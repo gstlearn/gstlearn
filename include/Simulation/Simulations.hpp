@@ -90,7 +90,6 @@ namespace gstlrn
     Id seed = 135672,
     Id ns = 10000,
     Id nd = 100,
-    const ACov* cov0 = nullptr,
     bool verbose = false,
     const NamingConvention& namconv = NamingConvention("Simu"));
   GSTLEARN_EXPORT Id simuSubstitution(

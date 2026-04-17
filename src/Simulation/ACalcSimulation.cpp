@@ -123,7 +123,7 @@ namespace gstlrn
       /* Simulation at the initial location */
 
       jsimu = isimu + idim * nbsimu;
-      _setShift(jsimu);
+      setShift(jsimu);
       _compute(dbgrd, isimu, activeArray, tab1);
 
       /* Shift the information */
@@ -135,7 +135,7 @@ namespace gstlrn
       /* Simulation at the shift location */
 
       jsimu = isimu + idim * nbsimu + ndim * nbsimu;
-      _setShift(jsimu);
+      setShift(jsimu);
       _compute(dbgrd, isimu, activeArray, tab2);
 
       /* Un-Shift the information */

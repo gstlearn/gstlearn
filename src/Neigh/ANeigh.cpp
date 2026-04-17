@@ -461,6 +461,34 @@ namespace gstlrn
       if (ranks[i] >= 0) ranks[necr++] = i;
     ranks.resize(necr);
   }
+
+  ANeigh*
+    ANeigh::createDefaultNeighborhood(ANeigh* neigh, Db* dbin, Id maxNumber)
+  {
+    // If a neighborhood is already defined, this is the correct solution
+    if (neigh != nullptr) return neigh;
+
+    // We are about to define a Unique Neighborhood by default
+    // Let us first check that the number of active samples is not too large
+    if (dbin != nullptr)
+    {
+      Id nech = dbin->getNSample(true);
+      if (nech > maxNumber)
+      {
+        messerr("No neighborhood has been defined");
+        messerr(
+          "The number of active samples (%d) is too large (>%d)", nech,
+          maxNumber);
+        messerr("to allow the definition of a Unique Neighborhood by default");
+        return nullptr;
+      }
+    }
+
+    // Create a default unique neighborhood
+    auto* neighUnique = new NeighUnique();
+    return neighUnique;
+  }
+
 #ifdef HDF5
   bool ANeigh::deserializeH5(H5::Group& grp)
   {
@@ -494,4 +522,5 @@ namespace gstlrn
     return ret;
   }
 #endif
+
 } // namespace gstlrn

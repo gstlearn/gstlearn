@@ -6410,6 +6410,14 @@ namespace gstlrn
     return table;
   }
 
+  Table Db::getCorrelationAsTable(const VectorString& names) const
+  {
+    auto namesLoc = names;
+    if (namesLoc.empty()) namesLoc = getAllNames(false);
+    Table table = dbStatisticsCorrel(this, namesLoc);
+    return table;
+  }
+
   Table Db::getStatsByCategoryAsTable(
     const String& name,
     const String& category,

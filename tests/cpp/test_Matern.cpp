@@ -45,7 +45,7 @@ int main(int argc, char* argv[])
   model.setCov(&cor_tri);
   DbGrid* grid = DbGrid::create({100, 100});
   simuSpectral(
-    nullptr, grid, &model, nullptr, 1, 43431, 100, 100, nullptr, true,
+    nullptr, grid, &model, nullptr, 1, 43431, 100, 100, true,
     NamingConvention("Simu"));
 
   return 0;

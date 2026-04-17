@@ -13,11 +13,11 @@
 #include "Basic/Message.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Covariances/ACov.hpp"
-#include "Covariances/CovAniso.hpp"
 #include "Db/Db.hpp"
 #include "Enum/ESimuType.hpp"
 #include "Model/Model.hpp"
 #include "Model/ModelGeneric.hpp"
+#include "Simulation/ACalcSimulation.hpp"
 #include "Simulation/SimuSpectralRN.hpp"
 #include "Simulation/SimuSpectralS2.hpp"
 #include "Stats/Classical.hpp"
@@ -64,16 +64,10 @@ namespace gstlrn
     {
       if (!hasNeigh()) return false;
     }
-    if (getDbout()->getNDim() != _getNDim())
-    {
-      messerr(
-        "The Space dimension of 'dbout'(%d) should match the one of Model(%d)",
-        getDbout()->getNDim(), _getNDim());
-      return 1;
-    }
 
     // Check that the Model is compatible with Spectral Simulation
-    if (!isValidForSimulation(ESimuType::SPECTRAL)) return false;
+    if (!getModelGeneric()->isValidForSimulation(ESimuType::SPECTRAL))
+      return false;
 
     if (_getNs() <= 0)
     {
@@ -83,55 +77,10 @@ namespace gstlrn
     return true;
   }
 
-  /****************************************************************************/
-  /*!
-   **  Check if the Model can be simulated using Spectral Method
-   **
-   ** \return  True if the Model is valid; 0 otherwise
-   **
-   *****************************************************************************/
-  bool CalcSimuSpectral::isValidForSimulation(const ESimuType& simuType) const
-  {
-    auto ncova = _getNCov();
-    const auto* modellist =
-      dynamic_cast<const ModelCovList*>(getModelGeneric());
-
-    // Loop on the simulations
-    for (Id is = 0, ns = MAX(ncova, 1); is < ns; is++)
-    {
-      if (ncova <= 0)
-      {
-        const auto* cova = getModelGeneric()->getCov();
-        if (!cova->isValidForSimulation(simuType))
-        {
-          messerr(
-            "The covariance component %d of the Model is not valid for "
-            "%s simulation",
-            is + 1, simuType.getKey());
-          return false;
-        }
-      }
-      else
-      {
-        const auto* covbase =
-          dynamic_cast<const CovAniso*>(modellist->getCovBase(is));
-        if (!covbase->isValidForSimulation(simuType))
-        {
-          messerr(
-            "The covariance component %d of the Model is not valid for "
-            "%s Simulation",
-            is + 1, simuType.getKey());
-          return false;
-        }
-      }
-    }
-    return true;
-  }
-
   /**
    * Simulate the spectrum components for Rn or S2 for one simulation
    */
-  Id CalcSimuSpectral::simulateTest()
+  Id CalcSimuSpectral::simulateSpectral()
   {
     // When called outside the calculator framework, we need to set the random seed here
     law_set_random_seed(getSeed());
@@ -142,14 +91,13 @@ namespace gstlrn
   /**
    * @brief Compute one non-conditional simulation on the samples of Dbout using Spectral Method
    */
-  Id CalcSimuSpectral::computeTest(Db* dbout, Id isimu)
+  Id CalcSimuSpectral::computeSpectral(Db* dbout, Id isimu)
   {
     VectorVectorDouble tab;
     VectorBool activeArray;
     _allocateForOneSimulation(dbout, _getNVar(), activeArray, tab);
 
-    // The next line has been added to allow using method 'compute' independently
-    // In the calculator framework, it is simply bypassed
+    // The next line has been added to allow using method 'computeSpectral' independently.
     if (getDbout() == nullptr) setDbout(dbout);
     if (_iattOut < 0)
       _iattOut = dbout->addColumnsByConstant(

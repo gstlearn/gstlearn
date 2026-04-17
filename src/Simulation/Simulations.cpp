@@ -11,6 +11,7 @@
 #include "Simulation/Simulations.hpp"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
+#include "Neigh/ANeigh.hpp"
 #include "Simulation/CalcSimuEden.hpp"
 #include "Simulation/CalcSimuFFT.hpp"
 #include "Simulation/CalcSimuPartition.hpp"
@@ -290,7 +291,6 @@ namespace gstlrn
     Id seed,
     Id ns,
     Id nd,
-    const ACov* cov0,
     bool verbose,
     const NamingConvention& namconv)
   {
@@ -314,7 +314,7 @@ namespace gstlrn
     if (isSimuRN)
     {
       spectral =
-        std::make_unique<SimuSpectralRN>(nbsimu, ns, nd, seed, cov0, verbose);
+        std::make_unique<SimuSpectralRN>(nbsimu, ns, nd, seed, verbose);
     }
     else
     {
@@ -397,17 +397,19 @@ namespace gstlrn
   {
     // Instantiate the Calculator
     CalcSimuTurningBands situba(nbsimu, nbtuba, seed);
+    ANeigh* neighLocal = ANeigh::createDefaultNeighborhood(neigh, dbin);
 
     // Set the members of the Calculator
     situba.setDbin(dbin);
     situba.setDbout(dbout);
     situba.setModelGeneric(model);
-    situba.setNeigh(neigh);
+    situba.setNeigh(neighLocal);
     situba.setNamingConvention(namconv);
     situba.setFlagDGM(flag_dgm);
 
     // Run the calculator
     Id error = (situba.run()) ? 0 : 1;
+    if (neigh != neighLocal) delete neighLocal;
     return error;
   }
 

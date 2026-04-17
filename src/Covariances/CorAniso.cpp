@@ -443,11 +443,9 @@ namespace gstlrn
   bool CorAniso::isConsistent(const ASpace* space) const
   {
     // Check against the Space Type
-    if (getSpace()->getType() == ESpaceType::RN
-        && !_corfunc->getCompatibleSpaceR())
+    if (getSpaceType() == ESpaceType::RN && !_corfunc->getCompatibleSpaceR())
       return false;
-    if (getSpace()->getType() == ESpaceType::SN
-        && !_corfunc->getCompatibleSpaceS())
+    if (getSpaceType() == ESpaceType::SN && !_corfunc->getCompatibleSpaceS())
       return false;
 
     // Check against the space dimension

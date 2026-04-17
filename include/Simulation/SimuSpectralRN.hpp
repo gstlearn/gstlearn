@@ -33,7 +33,6 @@ namespace gstlrn
       Id ns = 10000,
       Id nd = 100,
       Id seed = 4324324,
-      const ACov* cov0 = nullptr,
       bool verbose = false);
     SimuSpectralRN(const SimuSpectralRN& r) = delete;
     SimuSpectralRN& operator=(const SimuSpectralRN& r) = delete;
@@ -46,7 +45,6 @@ namespace gstlrn
     SpectrumOnRN* getSpectrum() { return _sp; };
 
   protected:
-    bool _check() override;
     Id _simulate() override;
     Id _compute(
       Db* db,
@@ -61,7 +59,6 @@ namespace gstlrn
     MatrixDense _omega;
     // spectrum on R^n
     SpectrumOnRN* _sp;
-    const ACov* _cov0;
   };
 
 } // namespace gstlrn

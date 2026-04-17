@@ -643,7 +643,11 @@ namespace gstlrn
       if (!cova->isValidForSimulation(simuType))
       {
         messerr(
-          "The current structure is not valid for Spectral Simulation on Rn");
+          "The structure (%s) is not valid for %s", getCovName(is).data(),
+          simuType.getKey().data());
+        messerr(
+          "(Space=%s NDim=%d NVar=%d)", getSpaceType().getKey().data(),
+          getNDim(), getNVar());
         return false;
       }
     }
@@ -679,12 +683,16 @@ namespace gstlrn
     }
     Id ncov = getNCov();
     Id nvar = getNVar();
+
     // computing the mixing probability
     VectorDouble pCov(ncov, 0.0);
     double total_pCov = 0.0;
     for (Id icov = 0; icov < ncov; icov++)
     {
       const CovBase* cov = getCov(icov);
+      const auto* covAniso = dynamic_cast<const CovAniso*>(cov);
+      if (covAniso->getType() == ECov::NUGGET) continue;
+
       MatrixSymmetric sigma = cov->eval0Mat();
       auto eigenvectors = EigenVectors(sigma, nullptr, true);
       const VectorDouble& ll = eigenvectors.getEigenValues();
@@ -694,6 +702,7 @@ namespace gstlrn
       }
       total_pCov += pCov[icov];
     }
+
     // normalization
     for (Id icov = 0; icov < ncov; icov++)
     {
@@ -704,6 +713,9 @@ namespace gstlrn
     for (Id icov = 0; icov < ncov; icov++)
     {
       const CovBase* cov = getCov(icov);
+      const auto* covAniso = dynamic_cast<const CovAniso*>(cov);
+      if (covAniso->getType() == ECov::NUGGET) continue;
+
       res->addSpectrum(
         std::unique_ptr<SpectrumOnRN>(cov->simulateOnRN(nsCov[icov])));
     }

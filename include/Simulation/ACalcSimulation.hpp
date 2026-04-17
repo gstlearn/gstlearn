@@ -88,8 +88,6 @@ namespace gstlrn
 
     virtual Id _getIcase() const { return 0; }
 
-    void _setShift(Id shift) { _shift = shift; }
-
     void _computeGradient(
       Db* dbgrd,
       Id isimu,

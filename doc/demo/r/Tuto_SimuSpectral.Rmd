@@ -63,7 +63,7 @@ mod  = Model_createFromParam(type = ECov_fromKey(type_cov),
 # using the *SimuSpectral* interface
 sim = SimuSpectralRN(1, nb, 100, 123, NULL, TRUE)
 err = sim$setModelGeneric(mod)
-err = sim$simulateTest()
+err = sim$simulateSpectral()
 # computing the mathematical expression
 gamma = sim$getSpectrum()$getGamma()$toTL()
 omega = sim$getSpectrum()$getOmega()$toTL()
@@ -71,7 +71,7 @@ phi   = sim$getSpectrum()$getPhi()
 coor  = grid$getColumnsAsMatrix(names = c("x1"), useSel = FALSE)$toTL()
 val   = sqrt(2) * as.numeric(t(gamma) %*% cos(omega %*% t(coor) + phi))
 # computing using the gstlearn functions
-err = sim$computeTest(dbout = grid)
+err = sim$computeSpectral(dbout = grid)
 stopifnot (all(abs(val - grid["Simu"]) < 1e-6))
 
 # using the simuSpectral interface

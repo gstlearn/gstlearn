@@ -43,16 +43,7 @@ namespace gstlrn
   Id SimuSpectralS2::_simulate()
   {
     const ACov* cov = getModelGeneric()->getCov();
-    if (cov == nullptr)
-    {
-      messerr("Covariance model not defined.");
-      return -1;
-    }
-    if (!cov->isValidForSimulation(ESimuType::SPECTRAL))
-    {
-      messerr("Covariance not valid for spectral simulation.");
-      return -2;
-    }
+    if (cov == nullptr) return -1;
 
     Id ns = _getNs();
     Id nd = _getNd();

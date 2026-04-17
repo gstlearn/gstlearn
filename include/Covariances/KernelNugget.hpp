@@ -38,7 +38,7 @@ namespace gstlrn
 
     bool isValidForSimulation(const ESimuType& simuType) const override
     {
-      return (simuType == ESimuType::TB);
+      return (simuType == ESimuType::TB || simuType == ESimuType::SPECTRAL);
     }
 
   protected:

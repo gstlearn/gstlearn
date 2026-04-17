@@ -55,7 +55,7 @@ namespace gstlrn
     double vmax = TEST,
     const String& title = "");
   GSTLEARN_EXPORT Table dbStatisticsCorrel(
-    Db* db,
+    const Db* db,
     const VectorString& names,
     bool flagIso = true,
     const String& title = "");

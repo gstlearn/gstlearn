@@ -9,8 +9,8 @@ Release 12.1.0
 
 New architecture :
 ------------------
+- Suppressing 'cov0' in the API for Simulation using Spectral Method
 - Major refactoring
-
 
 Release 12.0.1
 ==============

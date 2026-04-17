@@ -32,8 +32,8 @@ namespace gstlrn
     virtual ~CalcSimuSpectral();
 
     // Perform the task for ONE simulation (debugging option)
-    Id simulateTest();
-    Id computeTest(Db* dbout, Id isimu = 0);
+    Id simulateSpectral();
+    Id computeSpectral(Db* dbout, Id isimu = 0);
 
     bool isValidForSimulation(const ESimuType& simuType) const;
 

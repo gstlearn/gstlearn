@@ -101,6 +101,9 @@ namespace gstlrn
 
     virtual bool getFlagContinuous() const { return false; }
 
+    static ANeigh*
+      createDefaultNeighborhood(ANeigh* neigh, Db* dbin, Id maxNumber = 500);
+
     void displayDebug(VectorInt& ranks) const;
     void select(Id iech_out, VectorInt& ranks);
 
