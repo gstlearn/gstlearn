@@ -15,6 +15,7 @@
 #include "LinearOp/ASimulable.hpp"
 #include "LinearOp/IPrecisionOp.hpp"
 #include "LinearOp/IProj.hpp"
+#include "LinearOp/InvNuggetOp.hpp"
 #include "LinearOp/PrecisionOpMulti.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Polynomials/Chebychev.hpp"
@@ -141,6 +142,62 @@ namespace gstlrn
     _kriging(_workdat4, outvK);
   }
 
+  void ASPDEOp::_simCondGibbs(
+    const constvect data,
+    const constvect gibbsLowerBound,
+    const constvect gibbsUpperBound,
+    vect outvK,
+    vect outvS,
+    Id nIter,
+    bool useCache) const
+  {
+    const InvNuggetOp* invNoise = dynamic_cast<const InvNuggetOp*>(_invNoise);
+
+    if (invNoise == nullptr)
+    {
+      messerr("SPDE Gibbs not available for this noise.");
+      return;
+    }
+
+    const MatrixSparse* invNoiseMatrix = invNoise->getInvNuggetMatrix();
+
+    if (!useCache || _workGibbsData.empty())
+    {
+      _workGibbsData.reserve(data.size());
+      _workGibbsData.assign(data.begin(), data.end());
+    }
+
+    for (Id i_gibbs = 0; i_gibbs < nIter; ++i_gibbs)
+    {
+      _simCond(_workGibbsData.asConstVect(), outvK, outvS);
+      VectorDouble means = _workdat3 + _workdat4;
+
+      for (Id i_data = 0; i_data < _getNDat(); ++i_data)
+      {
+        double lower_bound = gibbsLowerBound[i_data];
+        double upper_bound = gibbsUpperBound[i_data];
+
+        // If lower_bound == upper_bound don't use Gibbs
+        if (lower_bound == upper_bound) continue;
+
+        const double invNoiseSqrt =
+          std::sqrt(invNoiseMatrix->getValue(i_data, i_data));
+
+        const double mean = means[i_data];
+        lower_bound = FFFF(lower_bound) ? lower_bound
+                                        : (-mean + lower_bound) * invNoiseSqrt;
+        upper_bound = FFFF(upper_bound) ? upper_bound
+                                        : (-mean + upper_bound) * invNoiseSqrt;
+        const double noise =
+          law_gaussian_between_bounds(lower_bound, upper_bound);
+
+        _workGibbsData[i_data] = mean + noise / invNoiseSqrt;
+      }
+    }
+
+    _simCond(_workGibbsData.asConstVect(), outvK, outvS);
+  }
+
   void ASPDEOp::_simNonCond(vect outv) const
   {
     // Resize if necessary
@@ -261,6 +318,54 @@ namespace gstlrn
   }
 
   /**
+   * @brief Conditional simulation that allow for inequality constraints defined by 'gibbsLowerBound'
+   * and 'gibbsUpperBound'.
+   * Inequality are only defined when gibbsLowerBound[i_data] != gibbsLowerBound[i_data].
+   *
+   * @param dat Vector of Data
+   * @param gibbsLowerBound Vector of lower bound for inequalities
+   * @param gibbsUpperBound Vector of upper bound for inequalities
+   * @param projK Projection Matrix used for Kriging
+   * @param projS Projection matrix used for Simulations
+   * @param nIter Number of Monte-Carlo simulations
+   * @param useCache a boolean TRUE means use the previous conditional simulations as initial Data
+   * @return VectorDouble
+   */
+  VectorDouble ASPDEOp::simCondGibbs(
+    const VectorDouble& dat,
+    const VectorDouble& gibbsLowerBound,
+    const VectorDouble& gibbsUpperBound,
+    const IProj* projK,
+    const IProj* projS,
+    const Id nIter,
+    bool useCache) const
+  {
+    constvect datv(dat.data(), dat.size());
+    constvect gibbsLowerBoundv(gibbsLowerBound.data(), gibbsLowerBound.size());
+    constvect gibbsUpperBoundv(gibbsUpperBound.data(), gibbsUpperBound.size());
+    VectorDouble outMeshK(getSize());
+    vect outMeshKv(outMeshK);
+    VectorDouble outMeshS(getSizeSimu());
+    vect outMeshSv(outMeshS);
+
+    // Perform the conditional simulation
+    _simCondGibbs(
+      datv, gibbsLowerBoundv, gibbsUpperBoundv, outMeshKv, outMeshSv, nIter,
+      useCache);
+
+    // Project the result on the output mesh (optional)
+    if (projK == nullptr || projS == nullptr)
+    {
+      VH::addInPlace(outMeshSv, outMeshKv);
+      return outMeshK;
+    }
+    VectorDouble result(projS->getNPoint());
+    projK->mesh2point(outMeshKv, result);
+    projS->addMesh2point(outMeshSv, result);
+    return result;
+  }
+
+  /**
    * @brief Computing Standard deviation of the estimation error using MonteCarlo
    * on conditional simulations
    *
@@ -297,6 +402,14 @@ namespace gstlrn
     law_set_random_seed(memo);
 
     return temp_mean;
+  }
+
+  /**
+   * @brief Clear Gibbs cache
+   */
+  void ASPDEOp::clearGibbsCache() const
+  {
+    _workGibbsData.clear();
   }
 
   VectorDouble ASPDEOp::krigingWithGuess(
