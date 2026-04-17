@@ -58,6 +58,7 @@ namespace gstlrn
   protected:
     bool _check() override;
     bool _preprocess() override;
+    bool _run() override;
 
     Id _getSeedPerSimu(Id isimu) const;
 

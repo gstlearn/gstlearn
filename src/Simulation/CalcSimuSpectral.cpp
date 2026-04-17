@@ -164,32 +164,4 @@ namespace gstlrn
     return true;
   }
 
-  bool CalcSimuSpectral::_run()
-  {
-    auto* db = getDbout();
-
-    law_set_random_seed(getSeed());
-
-    VectorVectorDouble tab;
-    VectorBool activeArray;
-    _allocateForOneSimulation(db, _getNVar(), activeArray, tab);
-
-    // Loop on the simulations
-    for (Id isimu = 0, nbsimu = getNbSimu(); isimu < nbsimu; isimu++)
-    {
-      if (getVerbose()) message(">>> computing simulation %d\n", isimu + 1);
-
-      // simulate the spectrum
-      _simulate();
-
-      // Compute one simulation
-      _compute(db, isimu, activeArray, tab);
-
-      // Save the resulting array
-      saveResults(db, isimu, activeArray, tab);
-    }
-
-    return true;
-  }
-
 } // namespace gstlrn

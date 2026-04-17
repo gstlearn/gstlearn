@@ -76,7 +76,7 @@ int main(int argc, char* argv[])
   // ====================== Simulation (turning bands) ====================
   message("\n<----- Simulation using Turning Bands ----->\n");
   simtub(
-    nullptr, grid, model, nullptr, nbsimu, 425631, nfeatures, false,
+    data, grid, model, nullptr, nbsimu, 425631, nfeatures, false,
     NamingConvention("SimuTB"));
   grid->getStatsAsTable({"SimuTB*"}).display();
   grid->getCorrelationAsTable({"SimuTB*"}).display();
@@ -84,7 +84,7 @@ int main(int argc, char* argv[])
   // ====================== Simulation (spectral) ====================
   message("\n<----- Simulation using Spectral Method ----->\n");
   simuSpectral(
-    nullptr, grid, model, nullptr, nbsimu, 425631, nfeatures, 100, false,
+    data, grid, model, nullptr, nbsimu, 425631, nfeatures, 100, false,
     NamingConvention("SimuSPT"));
   grid->getStatsAsTable({"SimuSPT*"}).display();
   grid->getCorrelationAsTable({"SimuSPT*"}).display();

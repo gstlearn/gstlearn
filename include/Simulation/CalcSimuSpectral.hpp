@@ -41,7 +41,6 @@ namespace gstlrn
     bool _check() override;
     bool _preprocess() override;
     bool _postprocess() override;
-    bool _run() override;
 
     Id _getNs() const { return _ns; };
 

@@ -73,7 +73,6 @@ namespace gstlrn
   private:
     bool _check() override;
     bool _preprocess() override;
-    bool _run() override;
     bool _postprocess() override;
     void _rollback() override;
     bool _simulateTB();

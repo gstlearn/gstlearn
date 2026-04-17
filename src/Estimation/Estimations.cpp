@@ -198,7 +198,7 @@ namespace gstlrn
    ** \param[in]  dbin        Input Db structure
    ** \param[in]  dbout       Output Db structure
    ** \param[in]  model       ModelGeneric structure
-   ** \param[in]  neigh       ANeigh structure
+   ** \param[in]  neigh       ANeigh structure (optional)
    ** \param[in]  flag_est    Option for storing the estimation
    ** \param[in]  flag_std    Option for storing the standard deviation
    ** \param[in]  flag_varz   Option for storing the variance of the estimator

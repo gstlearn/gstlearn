@@ -13,7 +13,6 @@
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Db/Db.hpp"
-#include "Enum/ESimuType.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Model/Model.hpp"
 #include "Simulation/CalcSimuSpectral.hpp"

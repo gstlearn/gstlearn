@@ -271,7 +271,7 @@ namespace gstlrn
    * @param dbin Input Db where the conditioning data are read
    * @param dbout Output Db where the results are stored
    * @param model ModelGeneric structure
-   * @param neigh Neighborhood structure
+   * @param neigh Neighborhood structure (optional)
    * @param nbsimu Number of simulations processed simultaneously
    * @param seed Seed used for the Random number generator
    * @param ns Number of spectral components
@@ -307,6 +307,8 @@ namespace gstlrn
       isSimuRN = (space->getType() == ESpaceType::RN);
     }
 
+    auto* neighLocal = ANeigh::createDefaultNeighborhood(neigh, dbin);
+
     // Instantiate the Calculator
     std::unique_ptr<CalcSimuSpectral> spectral;
 
@@ -326,11 +328,12 @@ namespace gstlrn
     spectral->setDbin(dbin);
     spectral->setDbout(dbout);
     spectral->setModelGeneric(model);
-    spectral->setNeigh(neigh);
+    spectral->setNeigh(neighLocal);
     spectral->setNamingConvention(namconv);
 
     // Run the calculator
     Id error = (spectral->run()) ? 0 : 1;
+    if (neigh != neighLocal) delete neighLocal;
     return error;
   }
 

@@ -1345,54 +1345,6 @@ namespace gstlrn
     return true;
   }
 
-  bool CalcSimuTurningBands::_run()
-  {
-    bool flag_cond = hasDbin(false);
-    VectorVectorDouble tabOut;
-    VectorVectorDouble tabIn;
-    VectorBool activeOut;
-    VectorBool activeIn;
-    _allocateForOneSimulation(getDbout(), getNVar(), activeOut, tabOut);
-    if (flag_cond)
-      _allocateForOneSimulation(getDbin(), getNVar(), activeIn, tabIn);
-
-    // Loop on the simulations
-    for (Id isimu = 0, nbsimu = getNbSimu(); isimu < nbsimu; isimu++)
-    {
-      if (getVerbose()) message(">>> computing simulation %d\n", isimu + 1);
-      tabOut.fillWith(0);
-      if (flag_cond) tabIn.fillWith(0);
-
-      // Non conditional simulations on the target points
-      _compute(getDbout(), isimu, activeOut, tabOut);
-      _correctMean(activeOut, tabOut);
-      _simulateNugget(getDbout(), activeOut, tabOut);
-      saveResults(getDbout(), isimu, activeOut, tabOut);
-
-      if (!flag_cond) continue;
-
-      // Non conditional simulations on the data points
-      _compute(getDbin(), isimu, activeIn, tabIn);
-      _correctMean(activeIn, tabIn);
-      _convertToDifference(getDbin(), isimu, activeIn, tabIn);
-      saveResults(getDbin(), isimu, activeIn, tabIn);
-    }
-
-    // Conditional simulations
-    if (flag_cond)
-    {
-      if (_conditionalKriging(getDbin(), getDbout())) return 1;
-    }
-
-    // Copy value from data to coinciding grid node
-    if (flag_cond)
-    {
-      _updateDataToTarget(getDbin(), getDbout());
-    }
-
-    return true;
-  }
-
   /****************************************************************************/
   /*!
    **  Perform the Simulation Process using the Turning Bands Method
