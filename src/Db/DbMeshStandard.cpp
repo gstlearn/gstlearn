@@ -29,7 +29,7 @@ namespace gstlrn
     : Db()
     , _mesh()
   {
-    _mesh.reset(ndim, napexpermesh, apices, meshes, true, verbose);
+    _mesh.resetFromVectors(ndim, napexpermesh, apices, meshes, true, verbose);
     Id napices = _mesh.getNApices();
 
     addColumns(apices, "x", ELoc::X, 0, false, 0., ndim);

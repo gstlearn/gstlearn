@@ -51,7 +51,7 @@ namespace gstlrn
       const MatrixInt& meshes,
       const VectorInt& faultIds,
       bool verbose = false);
-    Id reset(
+    Id resetFromVectors(
       Id ndim,
       Id napexpermesh,
       const VectorDouble& apices,
@@ -65,7 +65,7 @@ namespace gstlrn
       const MatrixDense& apices,
       const MatrixInt& meshes,
       bool verbose = false) override;
-    Id reset(
+    Id resetFromVectors(
       Id ndim,
       Id napexpermesh,
       const VectorDouble& apices,

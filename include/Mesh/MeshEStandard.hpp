@@ -61,7 +61,7 @@ namespace gstlrn
       const MatrixDense& apices,
       const MatrixInt& meshes,
       bool verbose = false);
-    virtual Id reset(
+    virtual Id resetFromVectors(
       Id ndim,
       Id napexpermesh,
       const VectorDouble& apices,

@@ -173,7 +173,7 @@ namespace gstlrn
   ** \remark The argument 'byCol' concerns 'apices' and 'meshes'
   **
   *****************************************************************************/
-  Id MeshEStandard::reset(
+  Id MeshEStandard::resetFromVectors(
     Id ndim,
     Id napexpermesh,
     const VectorDouble& apices,

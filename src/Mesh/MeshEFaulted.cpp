@@ -85,10 +85,10 @@ namespace gstlrn
     const VectorInt& faultIds,
     bool verbose)
   {
-    MeshEStandard::reset(apices, meshes, verbose);
-
     // Core allocation
     _faultIds = faultIds;
+
+    MeshEStandard::reset(apices, meshes, verbose);
 
     return (0);
   }
@@ -108,7 +108,7 @@ namespace gstlrn
   ** \remark The argument 'byCol' concerns 'apices' and 'meshes'
   **
   *****************************************************************************/
-  Id MeshEFaulted::reset(
+  Id MeshEFaulted::resetFromVectors(
     Id ndim,
     Id napexpermesh,
     const VectorDouble& apices,
@@ -117,18 +117,19 @@ namespace gstlrn
     bool byCol,
     bool verbose)
   {
-    MeshEStandard::reset(ndim, napexpermesh, apices, meshes, byCol, verbose);
-
     // Core allocation
     _faultIds = faultIds;
+
+    MeshEStandard::resetFromVectors(
+      ndim, napexpermesh, apices, meshes, byCol, verbose);
 
     return (0);
   }
 
   Id MeshEFaulted::resetFromTurbo(const MeshETurbo& turbo, bool verbose)
   {
-    MeshEStandard::resetFromTurbo(turbo, verbose);
     _resetFaultIds();
+    MeshEStandard::resetFromTurbo(turbo, verbose);
 
     return 0;
   }
@@ -147,8 +148,8 @@ namespace gstlrn
     const MatrixInt& meshes,
     bool verbose)
   {
-    MeshEStandard::reset(apices, meshes, verbose);
     _resetFaultIds();
+    MeshEStandard::reset(apices, meshes, verbose);
 
     return 0;
   }
@@ -167,7 +168,7 @@ namespace gstlrn
   ** \remark The argument 'byCol' concerns 'apices' and 'meshes'
   **
   *****************************************************************************/
-  Id MeshEFaulted::reset(
+  Id MeshEFaulted::resetFromVectors(
     Id ndim,
     Id napexpermesh,
     const VectorDouble& apices,
@@ -175,14 +176,16 @@ namespace gstlrn
     bool byCol,
     bool verbose)
   {
-
-    MeshEStandard::reset(ndim, napexpermesh, apices, meshes, byCol, verbose);
     _resetFaultIds();
+    MeshEStandard::resetFromVectors(
+      ndim, napexpermesh, apices, meshes, byCol, verbose);
     return 0;
   }
 
   Id MeshEFaulted::getNVirtualFaultMeshes() const
   {
+    if (_faultIds.empty()) return 0;
+
     Id nFaultMeshes = 0;
     Id nmesh = getNMeshes();
 
