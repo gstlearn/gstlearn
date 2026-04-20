@@ -52,6 +52,7 @@ jobs:
 
     - name: Install R dependencies
       run: |
+        Rscript -e "install.packages ('https://cran.r-project.org/src/contrib/Archive/fs/fs_2.0.1.tar.gz')"
         Rscript -e "install.packages (c('ggpubr', 'ggplot2', 'ggnewscale', 'vctrs', 'lares', 'rgl', 'Matrix', 'FNN', 'tidyr', 'geigen', 'callr', 'knitr', 'readxl', 'tictoc'))"
 
     - name: Install the customized SWIG from source
