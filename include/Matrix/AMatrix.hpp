@@ -468,29 +468,43 @@ namespace gstlrn
         res.resize(other1.getNRows(), other1.getNCols());
       }
 
-      T temp(res.getNRows(), res.getNCols());
-      T cumul(res.getNRows(), res.getNCols());
-
-      if (val1 != 0.)
+      if (val1 != 0. && val2 != 0. && val3 != 0.)
       {
-        productInPlace(temp, other1, val1);
-        addInPlace(cumul, cumul, temp);
+        res.eigenMat() = (other1.eigenMat() * val1) + (other2.eigenMat() * val2)
+                       + (other3.eigenMat() * val3);
+      }
+      else if (val1 != 0. && val2 != 0.)
+      {
+        res.eigenMat() =
+          (other1.eigenMat() * val1) + (other2.eigenMat() * val2);
+      }
+      else if (val1 != 0. && val3 != 0.)
+      {
+        res.eigenMat() =
+          (other1.eigenMat() * val1) + (other3.eigenMat() * val3);
+      }
+      else if (val2 != 0. && val3 != 0.)
+      {
+        res.eigenMat() =
+          (other2.eigenMat() * val2) + (other3.eigenMat() * val3);
+      }
+      else if (val1 != 0.)
+      {
+        res.eigenMat() = (other1.eigenMat() * val1);
+      }
+      else if (val2 != 0.)
+      {
+        res.eigenMat() = (other2.eigenMat() * val2);
+      }
+      else if (val3 != 0.)
+      {
+        res.eigenMat() = (other3.eigenMat() * val3);
       }
 
-      if (val2 != 0.)
+      if (addition != 0.)
       {
-        productInPlace(temp, other2, val2);
-        addInPlace(cumul, cumul, temp);
+        addInPlace(res, res, addition);
       }
-
-      if (val3 != 0.)
-      {
-        productInPlace(temp, other3, val3);
-        addInPlace(cumul, cumul, temp);
-      }
-      if (addition != 0.) addInPlace(cumul, cumul, addition);
-
-      res = cumul;
     }
 
     /**
