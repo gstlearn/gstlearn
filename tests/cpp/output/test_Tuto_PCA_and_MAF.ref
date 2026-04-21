@@ -204,7 +204,7 @@ Variogram characteristics
 Number of variable(s)       = 3
 Number of direction(s)      = 1
 Space dimension             = 2
-Variable(s)                 = [U.1 U.2 U.3]
+Variable(s)                 = [U.V1 U.V2 U.V3]
 
 Variance-Covariance Matrix
                  [,  0]     [,  1]     [,  2]
@@ -468,7 +468,7 @@ Variogram characteristics
 Number of variable(s)       = 3
 Number of direction(s)      = 1
 Space dimension             = 2
-Variable(s)                 = [F.1 F.2 F.3]
+Variable(s)                 = [F.V1 F.V2 F.V3]
 
 Variance-Covariance Matrix
                  [,  0]     [,  1]     [,  2]

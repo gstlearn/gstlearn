@@ -49,18 +49,18 @@ grid
 We represent the non-conditional simulations
 
 ```{r Graphic_Non-conditional_simulations}
-p1 = plot.init(asp=1) + plot.raster(grid, name="SimuSPDE.1")
-p2 = plot.init(asp=1) + plot.raster(grid, name="SimuSPDE.2")
-p3 = plot.init(asp=1) + plot.raster(grid, name="SimuSPDE.3")
-p4 = plot.init(asp=1) + plot.raster(grid, name="SimuSPDE.4")
+p1 = plot.init(asp=1) + plot.raster(grid, name="SimuSPDE.S1")
+p2 = plot.init(asp=1) + plot.raster(grid, name="SimuSPDE.S2")
+p3 = plot.init(asp=1) + plot.raster(grid, name="SimuSPDE.S3")
+p4 = plot.init(asp=1) + plot.raster(grid, name="SimuSPDE.S4")
 ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
 ```
 
 Extracting a set of nodes randomly located in order to create a data file which will serve as conditioning. The data is extracted from the first non-conditional simulation.
 
 ```{r Data_extraction}
-data = Db_createSamplingDb(grid, number=100, names=c("x1", "x2", "SimuSPDE.1"))
-err = data$setName("*SimuSPDE.1", "data")
+data = Db_createSamplingDb(grid, number=100, names=c("x1", "x2", "SimuSPDE.S1"))
+err = data$setName("*SimuSPDE.S1", "data")
 data
 ```
 
@@ -92,9 +92,9 @@ grid
 Representing the conditional simulations
 
 ```{r Display_Conditional_Representations}
-p1 = plot.init(asp=1) + plot.raster(grid, name="SimuSPDE.data.1")
-p2 = plot.init(asp=1) + plot.raster(grid, name="SimuSPDE.data.2")
-p3 = plot.init(asp=1) + plot.raster(grid, name="SimuSPDE.data.3")
-p4 = plot.init(asp=1) + plot.raster(grid, name="SimuSPDE.data.4")
+p1 = plot.init(asp=1) + plot.raster(grid, name="SimuSPDE.data.S1")
+p2 = plot.init(asp=1) + plot.raster(grid, name="SimuSPDE.data.S2")
+p3 = plot.init(asp=1) + plot.raster(grid, name="SimuSPDE.data.S3")
+p4 = plot.init(asp=1) + plot.raster(grid, name="SimuSPDE.data.S4")
 ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
 ```

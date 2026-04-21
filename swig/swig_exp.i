@@ -40,7 +40,6 @@
 %include geoslib_d.h
 %include geoslib_f.h
 
-
 %include Enum/AEnum.hpp
 %include Enum/EKrigOpt.hpp
 %include Enum/ESPDECalcMode.hpp
@@ -80,7 +79,6 @@
 %include Basic/AStringable.hpp
 %include Basic/AStringFormat.hpp
 %include Basic/ASerializable.hpp
-
 %include Basic/Message.hpp
 %include Basic/NamingConvention.hpp
 

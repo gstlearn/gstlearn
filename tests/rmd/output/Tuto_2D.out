@@ -442,28 +442,28 @@ Column = 5 - Name = Neigh.Pb.NbNESect - Locator = NA
 Column = 6 - Name = Neigh.Pb.NbCESect - Locator = NA
 Column = 7 - Name = Kriging.Pb.estim - Locator = NA
 Column = 8 - Name = Kriging.Pb.stdev - Locator = NA
-Column = 9 - Name = Simu.Y.Pb.1 - Locator = z1
-Column = 10 - Name = Simu.Y.Pb.2 - Locator = z2
-Column = 11 - Name = Simu.Y.Pb.3 - Locator = z3
-Column = 12 - Name = Simu.Y.Pb.4 - Locator = z4
-Column = 13 - Name = Simu.Y.Pb.5 - Locator = z5
-Column = 14 - Name = Simu.Y.Pb.6 - Locator = z6
-Column = 15 - Name = Simu.Y.Pb.7 - Locator = z7
-Column = 16 - Name = Simu.Y.Pb.8 - Locator = z8
-Column = 17 - Name = Simu.Y.Pb.9 - Locator = z9
-Column = 18 - Name = Simu.Y.Pb.10 - Locator = z10
+Column = 9 - Name = Simu.Y.Pb.S1 - Locator = z1
+Column = 10 - Name = Simu.Y.Pb.S2 - Locator = z2
+Column = 11 - Name = Simu.Y.Pb.S3 - Locator = z3
+Column = 12 - Name = Simu.Y.Pb.S4 - Locator = z4
+Column = 13 - Name = Simu.Y.Pb.S5 - Locator = z5
+Column = 14 - Name = Simu.Y.Pb.S6 - Locator = z6
+Column = 15 - Name = Simu.Y.Pb.S7 - Locator = z7
+Column = 16 - Name = Simu.Y.Pb.S8 - Locator = z8
+Column = 17 - Name = Simu.Y.Pb.S9 - Locator = z9
+Column = 18 - Name = Simu.Y.Pb.S10 - Locator = z10
 NULL
-                    Mean    St. Dev.     Minimum     Maximum
- Simu.Y.Pb.1       0.243       1.540      -5.005       6.252
- Simu.Y.Pb.2       0.120       1.535      -5.932       6.299
- Simu.Y.Pb.3       0.088       1.561      -5.267       6.493
- Simu.Y.Pb.4       0.550       1.567      -4.711       6.481
- Simu.Y.Pb.5      -0.177       1.463      -4.892       5.080
- Simu.Y.Pb.6      -0.046       1.526      -5.146       5.780
- Simu.Y.Pb.7       0.483       1.510      -6.760       5.942
- Simu.Y.Pb.8       0.281       1.623      -6.199       6.288
- Simu.Y.Pb.9      -0.105       1.617      -6.527       5.630
-Simu.Y.Pb.10       0.384       1.577      -5.693       5.862
+                     Mean    St. Dev.     Minimum     Maximum
+ Simu.Y.Pb.S1       0.243       1.540      -5.005       6.252
+ Simu.Y.Pb.S2       0.120       1.535      -5.932       6.299
+ Simu.Y.Pb.S3       0.088       1.561      -5.267       6.493
+ Simu.Y.Pb.S4       0.550       1.567      -4.711       6.481
+ Simu.Y.Pb.S5      -0.177       1.463      -4.892       5.080
+ Simu.Y.Pb.S6      -0.046       1.526      -5.146       5.780
+ Simu.Y.Pb.S7       0.483       1.510      -6.760       5.942
+ Simu.Y.Pb.S8       0.281       1.623      -6.199       6.288
+ Simu.Y.Pb.S9      -0.105       1.617      -6.527       5.630
+Simu.Y.Pb.S10       0.384       1.577      -5.693       5.862
 NULL
 NULL
 
@@ -494,28 +494,28 @@ Column = 5 - Name = Neigh.Pb.NbNESect - Locator = NA
 Column = 6 - Name = Neigh.Pb.NbCESect - Locator = NA
 Column = 7 - Name = Kriging.Pb.estim - Locator = NA
 Column = 8 - Name = Kriging.Pb.stdev - Locator = NA
-Column = 9 - Name = Z.Simu.Y.Pb.1 - Locator = z1
-Column = 10 - Name = Z.Simu.Y.Pb.2 - Locator = z2
-Column = 11 - Name = Z.Simu.Y.Pb.3 - Locator = z3
-Column = 12 - Name = Z.Simu.Y.Pb.4 - Locator = z4
-Column = 13 - Name = Z.Simu.Y.Pb.5 - Locator = z5
-Column = 14 - Name = Z.Simu.Y.Pb.6 - Locator = z6
-Column = 15 - Name = Z.Simu.Y.Pb.7 - Locator = z7
-Column = 16 - Name = Z.Simu.Y.Pb.8 - Locator = z8
-Column = 17 - Name = Z.Simu.Y.Pb.9 - Locator = z9
-Column = 18 - Name = Z.Simu.Y.Pb.10 - Locator = z10
+Column = 9 - Name = Z.Simu.Y.Pb.S1 - Locator = z1
+Column = 10 - Name = Z.Simu.Y.Pb.S2 - Locator = z2
+Column = 11 - Name = Z.Simu.Y.Pb.S3 - Locator = z3
+Column = 12 - Name = Z.Simu.Y.Pb.S4 - Locator = z4
+Column = 13 - Name = Z.Simu.Y.Pb.S5 - Locator = z5
+Column = 14 - Name = Z.Simu.Y.Pb.S6 - Locator = z6
+Column = 15 - Name = Z.Simu.Y.Pb.S7 - Locator = z7
+Column = 16 - Name = Z.Simu.Y.Pb.S8 - Locator = z8
+Column = 17 - Name = Z.Simu.Y.Pb.S9 - Locator = z9
+Column = 18 - Name = Z.Simu.Y.Pb.S10 - Locator = z10
 NULL
-                      Mean    St. Dev.     Minimum     Maximum
- Z.Simu.Y.Pb.1       6.432       2.791       3.003      12.978
- Z.Simu.Y.Pb.2       6.233       2.734       3.003      12.978
- Z.Simu.Y.Pb.3       6.196       2.710       3.003      12.978
- Z.Simu.Y.Pb.4       6.975       3.001       3.003      12.978
- Z.Simu.Y.Pb.5       5.703       2.379       3.003      12.978
- Z.Simu.Y.Pb.6       5.942       2.598       3.003      12.978
- Z.Simu.Y.Pb.7       6.852       2.872       3.003      12.978
- Z.Simu.Y.Pb.8       6.536       2.905       3.003      12.978
- Z.Simu.Y.Pb.9       5.933       2.694       3.003      12.978
-Z.Simu.Y.Pb.10       6.710       2.909       3.003      12.978
+                       Mean    St. Dev.     Minimum     Maximum
+ Z.Simu.Y.Pb.S1       6.432       2.791       3.003      12.978
+ Z.Simu.Y.Pb.S2       6.233       2.734       3.003      12.978
+ Z.Simu.Y.Pb.S3       6.196       2.710       3.003      12.978
+ Z.Simu.Y.Pb.S4       6.975       3.001       3.003      12.978
+ Z.Simu.Y.Pb.S5       5.703       2.379       3.003      12.978
+ Z.Simu.Y.Pb.S6       5.942       2.598       3.003      12.978
+ Z.Simu.Y.Pb.S7       6.852       2.872       3.003      12.978
+ Z.Simu.Y.Pb.S8       6.536       2.905       3.003      12.978
+ Z.Simu.Y.Pb.S9       5.933       2.694       3.003      12.978
+Z.Simu.Y.Pb.S10       6.710       2.909       3.003      12.978
 NULL
 NULL
 
@@ -546,16 +546,16 @@ Column = 5 - Name = Neigh.Pb.NbNESect - Locator = NA
 Column = 6 - Name = Neigh.Pb.NbCESect - Locator = NA
 Column = 7 - Name = Kriging.Pb.estim - Locator = NA
 Column = 8 - Name = Kriging.Pb.stdev - Locator = NA
-Column = 9 - Name = Z.Simu.Y.Pb.1 - Locator = NA
-Column = 10 - Name = Z.Simu.Y.Pb.2 - Locator = NA
-Column = 11 - Name = Z.Simu.Y.Pb.3 - Locator = NA
-Column = 12 - Name = Z.Simu.Y.Pb.4 - Locator = NA
-Column = 13 - Name = Z.Simu.Y.Pb.5 - Locator = NA
-Column = 14 - Name = Z.Simu.Y.Pb.6 - Locator = NA
-Column = 15 - Name = Z.Simu.Y.Pb.7 - Locator = NA
-Column = 16 - Name = Z.Simu.Y.Pb.8 - Locator = NA
-Column = 17 - Name = Z.Simu.Y.Pb.9 - Locator = NA
-Column = 18 - Name = Z.Simu.Y.Pb.10 - Locator = NA
+Column = 9 - Name = Z.Simu.Y.Pb.S1 - Locator = NA
+Column = 10 - Name = Z.Simu.Y.Pb.S2 - Locator = NA
+Column = 11 - Name = Z.Simu.Y.Pb.S3 - Locator = NA
+Column = 12 - Name = Z.Simu.Y.Pb.S4 - Locator = NA
+Column = 13 - Name = Z.Simu.Y.Pb.S5 - Locator = NA
+Column = 14 - Name = Z.Simu.Y.Pb.S6 - Locator = NA
+Column = 15 - Name = Z.Simu.Y.Pb.S7 - Locator = NA
+Column = 16 - Name = Z.Simu.Y.Pb.S8 - Locator = NA
+Column = 17 - Name = Z.Simu.Y.Pb.S9 - Locator = NA
+Column = 18 - Name = Z.Simu.Y.Pb.S10 - Locator = NA
 Column = 19 - Name = Stats.MEAN - Locator = z1
 NULL
 NULL
@@ -639,39 +639,39 @@ Column = 6 - Name = Neigh.Pb.NbCESect - Locator = NA
 Column = 7 - Name = Kriging.Pb.estim - Locator = NA
 Column = 8 - Name = Kriging.Pb.stdev - Locator = NA
 Column = 9 - Name = Stats.MEAN - Locator = NA
-Column = 10 - Name = Simu.Y.Pb.1 - Locator = z1
-Column = 11 - Name = Simu.Y.Pb.2 - Locator = z2
-Column = 12 - Name = Simu.Y.Pb.3 - Locator = z3
-Column = 13 - Name = Simu.Y.Pb.4 - Locator = z4
-Column = 14 - Name = Simu.Y.Pb.5 - Locator = z5
-Column = 15 - Name = Simu.Y.Pb.6 - Locator = z6
-Column = 16 - Name = Simu.Y.Pb.7 - Locator = z7
-Column = 17 - Name = Simu.Y.Pb.8 - Locator = z8
-Column = 18 - Name = Simu.Y.Pb.9 - Locator = z9
-Column = 19 - Name = Simu.Y.Pb.10 - Locator = z10
-Column = 20 - Name = Simu.Y.Zn.1 - Locator = z11
-Column = 21 - Name = Simu.Y.Zn.2 - Locator = z12
-Column = 22 - Name = Simu.Y.Zn.3 - Locator = z13
-Column = 23 - Name = Simu.Y.Zn.4 - Locator = z14
-Column = 24 - Name = Simu.Y.Zn.5 - Locator = z15
-Column = 25 - Name = Simu.Y.Zn.6 - Locator = z16
-Column = 26 - Name = Simu.Y.Zn.7 - Locator = z17
-Column = 27 - Name = Simu.Y.Zn.8 - Locator = z18
-Column = 28 - Name = Simu.Y.Zn.9 - Locator = z19
-Column = 29 - Name = Simu.Y.Zn.10 - Locator = z20
+Column = 10 - Name = Simu.Y.Pb.S1 - Locator = z1
+Column = 11 - Name = Simu.Y.Pb.S2 - Locator = z2
+Column = 12 - Name = Simu.Y.Pb.S3 - Locator = z3
+Column = 13 - Name = Simu.Y.Pb.S4 - Locator = z4
+Column = 14 - Name = Simu.Y.Pb.S5 - Locator = z5
+Column = 15 - Name = Simu.Y.Pb.S6 - Locator = z6
+Column = 16 - Name = Simu.Y.Pb.S7 - Locator = z7
+Column = 17 - Name = Simu.Y.Pb.S8 - Locator = z8
+Column = 18 - Name = Simu.Y.Pb.S9 - Locator = z9
+Column = 19 - Name = Simu.Y.Pb.S10 - Locator = z10
+Column = 20 - Name = Simu.Y.Zn.S1 - Locator = z11
+Column = 21 - Name = Simu.Y.Zn.S2 - Locator = z12
+Column = 22 - Name = Simu.Y.Zn.S3 - Locator = z13
+Column = 23 - Name = Simu.Y.Zn.S4 - Locator = z14
+Column = 24 - Name = Simu.Y.Zn.S5 - Locator = z15
+Column = 25 - Name = Simu.Y.Zn.S6 - Locator = z16
+Column = 26 - Name = Simu.Y.Zn.S7 - Locator = z17
+Column = 27 - Name = Simu.Y.Zn.S8 - Locator = z18
+Column = 28 - Name = Simu.Y.Zn.S9 - Locator = z19
+Column = 29 - Name = Simu.Y.Zn.S10 - Locator = z20
 NULL
 NULL
-                      Mean    St. Dev.     Minimum     Maximum
- Z.Simu.Y.Pb.1       5.755       1.773       3.003      12.978
- Z.Simu.Y.Pb.2       5.806       1.796       3.003      12.978
- Z.Simu.Y.Pb.3       5.501       1.798       3.003      12.978
- Z.Simu.Y.Pb.4       5.782       1.803       3.003      12.978
- Z.Simu.Y.Pb.5       5.653       1.721       3.003      12.978
- Z.Simu.Y.Pb.6       5.578       1.710       3.003      12.978
- Z.Simu.Y.Pb.7       5.728       1.801       3.003      12.978
- Z.Simu.Y.Pb.8       5.682       1.748       3.003      12.978
- Z.Simu.Y.Pb.9       5.895       1.885       3.003      12.978
-Z.Simu.Y.Pb.10       5.635       1.706       3.003      12.978
+                       Mean    St. Dev.     Minimum     Maximum
+ Z.Simu.Y.Pb.S1       5.755       1.773       3.003      12.978
+ Z.Simu.Y.Pb.S2       5.806       1.796       3.003      12.978
+ Z.Simu.Y.Pb.S3       5.501       1.798       3.003      12.978
+ Z.Simu.Y.Pb.S4       5.782       1.803       3.003      12.978
+ Z.Simu.Y.Pb.S5       5.653       1.721       3.003      12.978
+ Z.Simu.Y.Pb.S6       5.578       1.710       3.003      12.978
+ Z.Simu.Y.Pb.S7       5.728       1.801       3.003      12.978
+ Z.Simu.Y.Pb.S8       5.682       1.748       3.003      12.978
+ Z.Simu.Y.Pb.S9       5.895       1.885       3.003      12.978
+Z.Simu.Y.Pb.S10       5.635       1.706       3.003      12.978
 NULL
 Bound( 1 ) : ] -Inf ; 4 [
 Bound( 2 ) : [ 4 ; 6 [
@@ -701,9 +701,9 @@ Column = 6 - Name = Xvalid.Pb.esterr - Locator = NA
 Column = 7 - Name = Xvalid.Pb.stderr - Locator = NA
 Column = 8 - Name = Y.Pb - Locator = NA
 Column = 9 - Name = Y.Zn - Locator = NA
-Column = 10 - Name = Indicator.Pb.Class.1 - Locator = z1
-Column = 11 - Name = Indicator.Pb.Class.2 - Locator = z2
-Column = 12 - Name = Indicator.Pb.Class.3 - Locator = z3
+Column = 10 - Name = Indicator.Pb.Class.S1 - Locator = z1
+Column = 11 - Name = Indicator.Pb.Class.S2 - Locator = z2
+Column = 12 - Name = Indicator.Pb.Class.S3 - Locator = z3
 NULL
 NULL
 
@@ -712,7 +712,7 @@ Variogram characteristics
 Number of variable(s)       = 3
 Number of direction(s)      = 1
 Space dimension             = 2
-Variable(s)                 = [Indicator.Pb.Class.1 Indicator.Pb.Class.2 Indicator.Pb.Class.3]
+Variable(s)                 = [Indicator.Pb.Class.S1 Indicator.Pb.Class.S2 Indicator.Pb.Class.S3]
 
 Variance-Covariance Matrix
                  [,  0]     [,  1]     [,  2]

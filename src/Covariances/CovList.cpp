@@ -691,7 +691,7 @@ namespace gstlrn
     {
       const CovBase* cov = getCov(icov);
       const auto* covAniso = dynamic_cast<const CovAniso*>(cov);
-      if (covAniso->getType() == ECov::NUGGET) continue;
+      if (covAniso != nullptr && covAniso->getType() == ECov::NUGGET) continue;
 
       MatrixSymmetric sigma = cov->eval0Mat();
       auto eigenvectors = EigenVectors(sigma, nullptr, true);
@@ -714,7 +714,7 @@ namespace gstlrn
     {
       const CovBase* cov = getCov(icov);
       const auto* covAniso = dynamic_cast<const CovAniso*>(cov);
-      if (covAniso->getType() == ECov::NUGGET) continue;
+      if (covAniso != nullptr && covAniso->getType() == ECov::NUGGET) continue;
 
       res->addSpectrum(
         std::unique_ptr<SpectrumOnRN>(cov->simulateOnRN(nsCov[icov])));

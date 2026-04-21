@@ -109,7 +109,7 @@ namespace gstlrn
     Id _nv;
     Id _nd;
     Id _ns;
-    MatrixDense _gamma; // matrix [ns, nv] of the variable weigths
+    MatrixDense _gamma; // matrix [ns, nv] of the weigths per variable
 
     // working variables
     VectorDouble

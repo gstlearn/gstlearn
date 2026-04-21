@@ -14,5 +14,5 @@ Variables
 Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x-1 - Locator = x1
 Column = 2 - Name = x-2 - Locator = x2
-Column = 3 - Name = Simu.1 - Locator = z1
-Column = 4 - Name = Simu.2 - Locator = z2
+Column = 3 - Name = Simu.V1 - Locator = z1
+Column = 4 - Name = Simu.V2 - Locator = z2

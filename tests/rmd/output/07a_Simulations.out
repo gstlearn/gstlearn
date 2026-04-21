@@ -10,10 +10,10 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Spherical
-- Sill         =      1.155
-- Range        =    135.133
-Total Sill     =      1.155
-Known Mean(s)     0.000
+- Sill         =       1.155
+- Range        =     135.133
+Total Sill     =       1.155
+Known Mean(s)      0.000
 NULL
 NULL
 
@@ -30,9 +30,9 @@ Number of active samples     = 3092
 
 Grid characteristics:
 ---------------------
-Origin :     65.000   535.000
-Mesh   :      4.938     4.963
-Number :         81       137
+Origin :      65.000    535.000
+Mesh   :       4.938      4.963
+Number :          81        137
 
 Variables
 ---------
@@ -42,8 +42,7 @@ Column = 2 - Name = Elevation - Locator = f1
 Column = 3 - Name = inshore - Locator = sel
 Column = 4 - Name = Simu1 - Locator = z1
 NULL
-Mean of observed temperatures: 2.815NULL
-
+Mean of observed temperatures: 2.815
 Model characteristics
 =====================
 Space dimension              = 2
@@ -55,12 +54,12 @@ Number of drift equation(s)  = 2
 Covariance Part
 ---------------
 Spherical
-- Sill         =      0.178
-- Range        =     30.039
+- Sill         =       0.178
+- Range        =      30.039
 Cubic
-- Sill         =      0.420
-- Range        =    451.351
-Total Sill     =      0.598
+- Sill         =       0.420
+- Range        =     451.351
+Total Sill     =       0.598
 
 Drift Part
 ----------

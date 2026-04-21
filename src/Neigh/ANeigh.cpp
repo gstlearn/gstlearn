@@ -493,7 +493,9 @@ namespace gstlrn
 
     // Create a default unique neighborhood
     auto* neighUnique = new NeighUnique();
-    neighUnique->setNDim(ndim);
+    // Changing the space dimension is only possible in RN
+    if (neighUnique->getSpace()->getType() == ESpaceType::RN)
+      neighUnique->setNDim(ndim);
     return neighUnique;
   }
 

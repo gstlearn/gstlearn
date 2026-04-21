@@ -165,7 +165,7 @@ ns = 100     # number of spectral components
 
 
 ```{r model_definition, echo=TRUE, eval = TRUE}
-err = defineDefaultSpace(ESpaceType_SN())
+err = defineDefaultSpace(ESpaceType_SN(), param=6371)
 # modelSph = Model_createFromParam(ECov_LINEARSPH())
 # modelSph = Model_createFromParam(ECov_GEOMETRIC(), rho)
 modelSph = Model_createFromParam(ECov_POISSON(), 1., 1., lambda)
@@ -174,7 +174,6 @@ modelSph = Model_createFromParam(ECov_POISSON(), 1., 1., lambda)
 
 cova = modelSph$getCovAniso(0)
 covname = cova$getCovName()
-
 ```
 
 ## Variogram of the model
@@ -229,7 +228,8 @@ knitr::kable(tab, digits = 6, caption = paste0("Statistics for simulation of ",
 Visualization 2D
 
 ```{r Visu2D}
-simu_name = paste0(covname, ".V1.S1")
+# simu_name = paste0(covname, ".V1.S1")
+simu_name = getNameConstructed(covname, NULL)
 p = plot.init(asp=1) +
   plot.raster(grd, name = simu_name, flagLegend = TRUE, legendName = "Y",
             palette = "Spectral") +
@@ -305,7 +305,8 @@ err = simuSpectral(dbin = NULL, dbout = grd, model = modelSph2, seed = 2584, ns=
 # simulation and experimental variograms
 varios <- matrix(NaN, nrow = nsim, ncol = ndisc)
 for (s in 1:nsim) {
-  nm  = paste0(covname, ".V1.S", s)
+#  nm  = paste0(covname, ".V1.S", s)
+  nm = getNameConstructed(covname, NULL, 1, 1, s, nsim)
   vs = vario_on_S2(grd = grd, nm_var = nm, lag = c(1,0), nlag = 90, ndisc = ndisc, dmax = pi)
   varios[s, 1:length(vs$hh)] <- vs$gg
 }

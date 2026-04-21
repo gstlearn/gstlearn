@@ -222,11 +222,11 @@ namespace gstlrn
       SpectrumOnRN* spf = cova->simulateOnRN(ns);
       res->addFactor(spf->getOmega(0), spf->getPhi(0), proj);
       const MatrixDense& gf = spf->getGamma();
-      if (gf.getNCols() == 1)
-      {
-        gamma.multiplyRow(gf.getColumn(0));
-      }
-      else
+      // if (gf.getNCols() == 1)
+      // {
+      //   gamma.multiplyRow(gf.getColumn(0));
+      // }
+      // else
       {
         // TODO: can we multiply term by term?
         for (Id i = 0; i < ns; i++)

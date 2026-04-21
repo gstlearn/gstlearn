@@ -1074,7 +1074,7 @@ namespace gstlrn
       const VectorString& names,
       bool flagIso = true,
       bool verbose = false,
-      const String& title = "");
+      const String& title = "") const;
     /**@}*/
 
     bool areSame(

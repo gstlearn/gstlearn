@@ -316,7 +316,7 @@ Data Base Grid Characteristics
 
 Data Base Statistics
 --------------------
-6 - Name Simu.Var.1 - Locator z1
+6 - Name Simu.Var.S1 - Locator z1
  Nb of data          =        2500
  Nb of active values =        2500
  Minimum value       =     -15.355
@@ -324,7 +324,7 @@ Data Base Statistics
  Mean value          =      -0.042
  Standard Deviation  =       4.699
  Variance            =      22.085
-7 - Name Simu.Var.2 - Locator z2
+7 - Name Simu.Var.S2 - Locator z2
  Nb of data          =        2500
  Nb of active values =        2500
  Minimum value       =     -18.139
@@ -332,7 +332,7 @@ Data Base Statistics
  Mean value          =      -1.060
  Standard Deviation  =       4.919
  Variance            =      24.200
-8 - Name Simu.Var.3 - Locator z3
+8 - Name Simu.Var.S3 - Locator z3
  Nb of data          =        2500
  Nb of active values =        2500
  Minimum value       =     -15.349
@@ -348,7 +348,7 @@ Data Base Grid Characteristics
 
 Data Base Statistics
 --------------------
-6 - Name SimBayes.Var.1 - Locator z1
+6 - Name SimBayes.Var.S1 - Locator z1
  Nb of data          =        2500
  Nb of active values =        2500
  Minimum value       =     -14.149
@@ -356,7 +356,7 @@ Data Base Statistics
  Mean value          =       1.158
  Standard Deviation  =       4.697
  Variance            =      22.065
-7 - Name SimBayes.Var.2 - Locator z2
+7 - Name SimBayes.Var.S2 - Locator z2
  Nb of data          =        2500
  Nb of active values =        2500
  Minimum value       =     -17.305
@@ -364,7 +364,7 @@ Data Base Statistics
  Mean value          =      -0.135
  Standard Deviation  =       4.918
  Variance            =      24.187
-8 - Name SimBayes.Var.3 - Locator z3
+8 - Name SimBayes.Var.S3 - Locator z3
  Nb of data          =        2500
  Nb of active values =        2500
  Minimum value       =     -14.657

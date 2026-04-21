@@ -11,46 +11,46 @@ Total number of samples      = 10
 
 Data Base Extension
 -------------------
-Coor #1 - Min =      5.055 - Max =     90.004 - Ext = 84.9489
-Coor #2 - Min =      1.354 - Max =     94.996 - Ext = 93.6414
+Coor #1 - Min =       5.055 - Max =      90.004 - Ext = 84.9489
+Coor #2 - Min =       1.354 - Max =      94.996 - Ext = 93.6414
 
 Data Base Statistics
 --------------------
 1 - Name x1 - Locator x1
- Nb of data          =         10
- Nb of active values =         10
- Minimum value       =      5.055
- Maximum value       =     90.004
- Mean value          =     41.520
- Standard Deviation  =     23.518
- Variance            =    553.079
+ Nb of data          =          10
+ Nb of active values =          10
+ Minimum value       =       5.055
+ Maximum value       =      90.004
+ Mean value          =      41.520
+ Standard Deviation  =      23.518
+ Variance            =     553.079
 2 - Name x2 - Locator x2
- Nb of data          =         10
- Nb of active values =         10
- Minimum value       =      1.354
- Maximum value       =     94.996
- Mean value          =     35.921
- Standard Deviation  =     33.053
- Variance            =   1092.518
+ Nb of data          =          10
+ Nb of active values =          10
+ Minimum value       =       1.354
+ Maximum value       =      94.996
+ Mean value          =      35.921
+ Standard Deviation  =      33.053
+ Variance            =    1092.518
 3 - Name z1 - Locator z1
- Nb of data          =         10
- Nb of active values =         10
- Minimum value       =      0.616
- Maximum value       =      8.390
- Mean value          =      5.187
- Standard Deviation  =      2.651
- Variance            =      7.027
+ Nb of data          =          10
+ Nb of active values =          10
+ Minimum value       =       0.616
+ Maximum value       =       8.390
+ Mean value          =       5.187
+ Standard Deviation  =       2.651
+ Variance            =       7.027
 
 Data Base Contents
 ------------------
-                   x1        x2        z1
-     [  0,]    57.057    22.931     6.790
-     [  1,]    46.235     6.756     5.749
-     [  2,]    26.752     1.354     7.369
-     [  3,]    60.937    88.942     6.211
-     [  4,]     5.055    62.643     8.390
-     [  5,]    18.088     4.048     1.335
-     [  6,]    90.004    21.970     8.359
+                     x1         x2         z1
+      [  0,]     57.057     22.931      6.790
+      [  1,]     46.235      6.756      5.749
+      [  2,]     26.752      1.354      7.369
+      [  3,]     60.937     88.942      6.211
+      [  4,]      5.055     62.643      8.390
+      [  5,]     18.088      4.048      1.335
+      [  6,]     90.004     21.970      8.359
 (Nrows=7[from 10])
 
 Data Base Grid Characteristics
@@ -65,66 +65,66 @@ Total number of samples      = 10000
 
 Grid characteristics:
 ---------------------
-Origin :      0.000     0.000
-Mesh   :      1.000     1.000
-Number :        100       100
+Origin :       0.000      0.000
+Mesh   :       1.000      1.000
+Number :         100        100
 
 Data Base Extension
 -------------------
-Coor #1 - Min =      0.000 - Max =     99.000 - Ext = 99
-Coor #2 - Min =      0.000 - Max =     99.000 - Ext = 99
+Coor #1 - Min =       0.000 - Max =      99.000 - Ext = 99
+Coor #2 - Min =       0.000 - Max =      99.000 - Ext = 99
 
 Data Base Statistics
 --------------------
-1 - Name Simu.z1.1 - Locator z1
- Nb of data          =      10000
- Nb of active values =      10000
- Minimum value       =      0.084
- Maximum value       =      8.920
- Mean value          =      4.988
- Standard Deviation  =      1.021
- Variance            =      1.043
-2 - Name Simu.z1.2 - Locator z2
- Nb of data          =      10000
- Nb of active values =      10000
- Minimum value       =      1.076
- Maximum value       =      9.111
- Mean value          =      5.067
- Standard Deviation  =      1.049
- Variance            =      1.101
-3 - Name Simu.z1.3 - Locator z3
- Nb of data          =      10000
- Nb of active values =      10000
- Minimum value       =      0.252
- Maximum value       =      8.524
- Mean value          =      4.892
- Standard Deviation  =      1.008
- Variance            =      1.016
-4 - Name Simu.z1.4 - Locator z4
- Nb of data          =      10000
- Nb of active values =      10000
- Minimum value       =      0.769
- Maximum value       =      8.997
- Mean value          =      5.381
- Standard Deviation  =      1.072
- Variance            =      1.150
-5 - Name Simu.z1.5 - Locator z5
- Nb of data          =      10000
- Nb of active values =      10000
- Minimum value       =      0.808
- Maximum value       =      8.990
- Mean value          =      5.169
- Standard Deviation  =      1.123
- Variance            =      1.260
+1 - Name Simu.z1.S1 - Locator z1
+ Nb of data          =       10000
+ Nb of active values =       10000
+ Minimum value       =       0.084
+ Maximum value       =       8.920
+ Mean value          =       4.988
+ Standard Deviation  =       1.021
+ Variance            =       1.043
+2 - Name Simu.z1.S2 - Locator z2
+ Nb of data          =       10000
+ Nb of active values =       10000
+ Minimum value       =       1.076
+ Maximum value       =       9.111
+ Mean value          =       5.067
+ Standard Deviation  =       1.049
+ Variance            =       1.101
+3 - Name Simu.z1.S3 - Locator z3
+ Nb of data          =       10000
+ Nb of active values =       10000
+ Minimum value       =       0.252
+ Maximum value       =       8.524
+ Mean value          =       4.892
+ Standard Deviation  =       1.008
+ Variance            =       1.016
+4 - Name Simu.z1.S4 - Locator z4
+ Nb of data          =       10000
+ Nb of active values =       10000
+ Minimum value       =       0.769
+ Maximum value       =       8.997
+ Mean value          =       5.381
+ Standard Deviation  =       1.072
+ Variance            =       1.150
+5 - Name Simu.z1.S5 - Locator z5
+ Nb of data          =       10000
+ Nb of active values =       10000
+ Minimum value       =       0.808
+ Maximum value       =       8.990
+ Mean value          =       5.169
+ Standard Deviation  =       1.123
+ Variance            =       1.260
 
 Data Base Contents
 ------------------
-            Simu.z1.1 Simu.z1.2 Simu.z1.3 Simu.z1.4 Simu.z1.5
-     [  0,]     5.534     5.373     4.855     5.063     4.980
-     [  1,]     5.077     5.723     5.448     5.098     5.161
-     [  2,]     4.892     4.703     5.066     4.696     5.198
-     [  3,]     5.287     4.497     5.650     5.122     5.716
-     [  4,]     5.037     4.313     6.441     5.312     5.138
-     [  5,]     4.642     3.917     6.248     5.260     5.410
-     [  6,]     3.606     4.437     6.393     5.068     5.795
+             Simu.z1.S1 Simu.z1.S2 Simu.z1.S3 Simu.z1.S4 Simu.z1.S5
+      [  0,]      5.534      5.373      4.855      5.063      4.980
+      [  1,]      5.077      5.723      5.448      5.098      5.161
+      [  2,]      4.892      4.703      5.066      4.696      5.198
+      [  3,]      5.287      4.497      5.650      5.122      5.716
+      [  4,]      5.037      4.313      6.441      5.312      5.138
+      [  5,]      4.642      3.917      6.248      5.260      5.410
+      [  6,]      3.606      4.437      6.393      5.068      5.795
 (Nrows=7[from 10000])

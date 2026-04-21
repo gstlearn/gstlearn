@@ -229,4 +229,14 @@ namespace gstlrn
     bool
       _cleanSameLocator; //!< Clean variables with the same locator beforehand
   };
+
+  GSTLEARN_EXPORT String getNameConstructed(
+    const String& prefix,
+    const Db* db = nullptr,
+    Id ivar = -1,
+    Id nvar = 0,
+    Id isimu = -1,
+    Id nbsimu = 0,
+    const String& extension = "",
+    const String& delim = ".");
 } // namespace gstlrn

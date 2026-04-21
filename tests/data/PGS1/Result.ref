@@ -84,7 +84,7 @@ Coor #2 - Min =       0.000 - Max =      99.000 - Ext = 99
 
 Data Base Statistics
 --------------------
-1 - Name Facies.1 - Locator facies1
+1 - Name Facies.S1 - Locator facies1
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =       1.000
@@ -92,7 +92,7 @@ Data Base Statistics
  Mean value          =       1.266
  Standard Deviation  =       0.569
  Variance            =       0.324
-2 - Name Facies.2 - Locator facies2
+2 - Name Facies.S2 - Locator facies2
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =       1.000
@@ -100,7 +100,7 @@ Data Base Statistics
  Mean value          =       1.734
  Standard Deviation  =       0.964
  Variance            =       0.929
-3 - Name Facies.3 - Locator facies3
+3 - Name Facies.S3 - Locator facies3
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =       1.000
@@ -108,7 +108,7 @@ Data Base Statistics
  Mean value          =       2.272
  Standard Deviation  =       0.843
  Variance            =       0.711
-4 - Name Facies.4 - Locator facies4
+4 - Name Facies.S4 - Locator facies4
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =       1.000
@@ -116,7 +116,7 @@ Data Base Statistics
  Mean value          =       2.563
  Standard Deviation  =       0.821
  Variance            =       0.675
-5 - Name Facies.5 - Locator facies5
+5 - Name Facies.S5 - Locator facies5
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =       1.000
@@ -127,7 +127,7 @@ Data Base Statistics
 
 Data Base Contents
 ------------------
-               Facies.1   Facies.2   Facies.3   Facies.4   Facies.5
+              Facies.S1  Facies.S2  Facies.S3  Facies.S4  Facies.S5
       [  0,]      1.000      1.000      1.000      3.000      3.000
       [  1,]      1.000      3.000      1.000      3.000      3.000
       [  2,]      1.000      3.000      1.000      3.000      3.000

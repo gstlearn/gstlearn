@@ -66,6 +66,7 @@ namespace gstlrn
   {
     // When called outside the calculator framework, we need to set the random seed here
     law_set_random_seed(getSeed());
+    if (!_check()) return 1;
 
     return _simulate();
   }

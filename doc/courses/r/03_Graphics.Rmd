@@ -83,7 +83,7 @@ Displaying the grid nodes only
 
 ```{r}
 p = plot.init(asp=1)
-p = p + plot.symbol(mygrid, nameSize="Simu.1", nameColor="Simu.2", flagLegend = TRUE,
+p = p + plot.symbol(mygrid, nameSize="Simu.S1", nameColor="Simu.S2", flagLegend = TRUE,
                    legendNameColor="myColor", legendNameSize="mySize")
 p = p + plot.decoration(title="Display of Grid Nodes")
 plot.end(p)
@@ -101,7 +101,7 @@ Displaying the cell contents in the rotated grid
 
 ```{r}
 p = plot.init(asp=1)
-p = p + plot.raster(mygrid, name="Simu.1")
+p = p + plot.raster(mygrid, name="Simu.S1")
 p = p + plot.decoration(title="Display of Rotated Grid")
 plot.end(p)
 ```
@@ -110,7 +110,7 @@ As a set of grid nodes
 
 ```{r}
 p = plot.init(asp=1)
-p = p + plot.symbol(mygrid, nameSize="Simu.1", nameColor="Simu.2", flagLegend = TRUE)
+p = p + plot.symbol(mygrid, nameSize="Simu.S1", nameColor="Simu.S2", flagLegend = TRUE)
 p = p + plot.decoration(title="Display of Rotated Grid Nodes")
 plot.end(p)
 ```

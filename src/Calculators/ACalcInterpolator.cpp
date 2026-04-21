@@ -57,6 +57,7 @@ namespace gstlrn
       {
         ndim = _modelGeneric->getNDim();
       }
+      _setNdim(ndim);
     }
 
     if (_neigh != nullptr)

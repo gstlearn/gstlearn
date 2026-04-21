@@ -39,7 +39,9 @@ namespace gstlrn
 
     if (!hasModelGeneric()) return false;
 
-    if (!hasDbout()) return false;
+    // The test on the Ouput file is not performed here so that the check() function
+    // can be used BEFORE any output file is defined.
+    // if (!hasDbout()) return false;
     if (hasDbin(false))
     {
       if (!hasNeigh()) return false;
@@ -57,6 +59,9 @@ namespace gstlrn
   bool ACalcSimuModel::_preprocess()
   {
     if (!ACalcSimulation::_preprocess()) return false;
+
+    // The test on the presence of the output file is performed here (before creating variables)
+    if (!hasDbout()) return false;
 
     Id nbsimu = getNbSimu();
     Id nvar = getNVar();

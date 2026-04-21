@@ -180,13 +180,13 @@ err = simtub(dbin = dat, dbout = grid, model = model, neigh = neighU, nbsimu = 4
 Plotting the conditional simulations
 
 ```{r plot_cond_simu}
-p1 = plot.init(asp=1) + plot.raster(grid, name="standardCD.Z.1", palette = "Spectral") +
+p1 = plot.init(asp=1) + plot.raster(grid, name="standardCD.Z.S1", palette = "Spectral") +
       plot.symbol(dat, col = "black", size=0.1) + plot.decoration(title = "Simulation CD1")
-p2 = plot.init(asp=1) + plot.raster(grid, name="standardCD.Z.2", palette = "Spectral") +
+p2 = plot.init(asp=1) + plot.raster(grid, name="standardCD.Z.S2", palette = "Spectral") +
       plot.symbol(dat, col = "black", size=0.1) + plot.decoration(title = "Simulation CD2")
-p3 = plot.init(asp=1) + plot.raster(grid, name="standardCD.Z.3", palette = "Spectral") +
+p3 = plot.init(asp=1) + plot.raster(grid, name="standardCD.Z.S3", palette = "Spectral") +
       plot.symbol(dat, col = "black", size=0.1) + plot.decoration(title = "Simulation CD3")
-p4 = plot.init(asp=1) + plot.raster(grid, name="standardCD.Z.4", palette = "Spectral") +
+p4 = plot.init(asp=1) + plot.raster(grid, name="standardCD.Z.S4", palette = "Spectral") +
       plot.symbol(dat, col = "black", size=0.1) + plot.decoration(title = "Simulation CD4")
 ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
 ```
@@ -204,13 +204,13 @@ err = simulateSPDE(dbin = NULL, dbout = grid, model = model, nbsimu=4,
 Plotting the non conditional simulations
 
 ```{r plot_nc_simu_spde, echo=TRUE, eval=TRUE}
-p1 = plot.init(asp=1) + plot.raster(grid, name="spdeNC.1", palette = "Spectral") +
+p1 = plot.init(asp=1) + plot.raster(grid, name="spdeNC.S1", palette = "Spectral") +
       plot.symbol(dat, col = "black", size=0.1) + plot.decoration(title = "Simulation NC1")
-p2 = plot.init(asp=1) + plot.raster(grid, name="spdeNC.2", palette = "Spectral") +
+p2 = plot.init(asp=1) + plot.raster(grid, name="spdeNC.S2", palette = "Spectral") +
       plot.symbol(dat, col = "black", size=0.1) + plot.decoration(title = "Simulation NC2")
-p3 = plot.init(asp=1) + plot.raster(grid, name="spdeNC.3", palette = "Spectral") +
+p3 = plot.init(asp=1) + plot.raster(grid, name="spdeNC.S3", palette = "Spectral") +
       plot.symbol(dat, col = "black", size=0.1) + plot.decoration(title = "Simulation NC3")
-p4 = plot.init(asp=1) + plot.raster(grid, name="spdeNC.4", palette = "Spectral") +
+p4 = plot.init(asp=1) + plot.raster(grid, name="spdeNC.S4", palette = "Spectral") +
       plot.symbol(dat, col = "black", size=0.1) + plot.decoration(title = "Simulation NC4")
 ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
 ```
@@ -226,13 +226,13 @@ err = simulateSPDE(dbin = dat, dbout = grid, model = model, nbsimu=4,
 Plotting the conditional simulations
 
 ```{r plot_cond_simu_spde, echo=TRUE, eval=TRUE}
-p1 = plot.init(asp=1) + plot.raster(grid, name="spdeCD.Z.1", palette = "Spectral") +
+p1 = plot.init(asp=1) + plot.raster(grid, name="spdeCD.Z.S1", palette = "Spectral") +
       plot.symbol(dat, col = "black", size=0.1) + plot.decoration(title = "Simulation CD1")
-p2 = plot.init(asp=1) + plot.raster(grid, name="spdeCD.Z.2", palette = "Spectral") +
+p2 = plot.init(asp=1) + plot.raster(grid, name="spdeCD.Z.S2", palette = "Spectral") +
       plot.symbol(dat, col = "black", size=0.1) + plot.decoration(title = "Simulation CD2")
-p3 = plot.init(asp=1) + plot.raster(grid, name="spdeCD.Z.3", palette = "Spectral") +
+p3 = plot.init(asp=1) + plot.raster(grid, name="spdeCD.Z.S3", palette = "Spectral") +
       plot.symbol(dat, col = "black", size=0.1) + plot.decoration(title = "Simulation CD3")
-p4 = plot.init(asp=1) + plot.raster(grid, name="spdeCD.Z.4", palette = "Spectral") +
+p4 = plot.init(asp=1) + plot.raster(grid, name="spdeCD.Z.S4", palette = "Spectral") +
       plot.symbol(dat, col = "black", size=0.1) + plot.decoration(title = "Simulation CD4")
 ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
 ```

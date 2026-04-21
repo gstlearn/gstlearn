@@ -95,8 +95,8 @@ err   = model$setMeans(m)
 # simulation of the spatially varying effects
 err   = simtub(dbin = NULL, dbout = grd, model = model, nbsimu = 1, nbtuba = 1000,
                namconv = NamingConvention("Y"))
-err = grd$setName(old_name = "Y.1", name = "A")
-err = grd$setName(old_name = "Y.2", name = "B")
+err = grd$setName(old_name = "Y.V1", name = "A")
+err = grd$setName(old_name = "Y.V2", name = "B")
 
 # simulation of the external drift Lognormal (m = 3, sigma = 0.25)
 m_N  <- 3

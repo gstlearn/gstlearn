@@ -592,7 +592,7 @@ As F.1 = -Y, its kriging should follow (F.1)^{SK} = (-Y)^{SK}
 p = plot.init()
 p = p + plot.correlation(blocs,
                  namex = "G_Pts.Gaussian.Z.estim",
-                 namey = "DK_Pts.F.1.estim",
+                 namey = "DK_Pts.F.S1.estim",
                  bins=100, flagDiag = FALSE)
 p = p + geom_abline(intercept = 0, slope = -1, colour = "red")
 p = p + plot.decoration(xlab = "Gaussian variable",
@@ -603,7 +603,7 @@ plot.end(p)
 p = plot.init()
 p = p + plot.correlation(blocs,
                  namex = "G_Pts.Gaussian.Z.stdev",
-                 namey = "DK_Pts.F.1.stdev",
+                 namey = "DK_Pts.F.S1.stdev",
                  bins=100, flagDiag = TRUE)
 p = p + plot.decoration(xlab = "Gaussian variable",
                 ylab = "H_1 = -Y",

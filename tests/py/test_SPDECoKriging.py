@@ -2,12 +2,6 @@ import gstlearn as gl
 import gstlearn.plot as gp
 import numpy as np
 
-
-def getName(radix, ivar, iext):
-    name = radix + ".Data." + str(ivar + 1) + iext
-    return name
-
-
 # %% General parameters
 flag_plot = False
 ndim = 2
@@ -15,7 +9,7 @@ nvar = 2
 order = 1
 gl.OptCst.defineByKey("NTROW", -1)
 gl.ASerializable.setPrefixName("test_SPDECoKriging-")
-exts = [".estim", ".stdev"]
+exts = ["estim", "stdev"]
 params = gl.SPDEParam()
 params.setNMC(100)
 
@@ -43,8 +37,8 @@ err = gl.simtub(None, dat, model, namconv=gl.NamingConvention("Data"))
 if order == 1:
     coeffX = +0.5
     coeffY = -0.5
-    dat["Data.1"] = dat["Data.1"] + dat["x-1"] * coeffX + means[0]
-    dat["Data.1"] = dat["Data.1"] + dat["x-2"] * coeffY + means[1]
+    dat["Data.V1"] = dat["Data.V1"] + dat["x-1"] * coeffX + means[0]
+    dat["Data.V1"] = dat["Data.V1"] + dat["x-2"] * coeffY + means[1]
 
 # %% Output Grid
 grid = gl.DbGrid.create(nx=[50, 50], dx=[2, 2])
@@ -81,8 +75,8 @@ err = gl.krigingSPDE(
 gl.dbStatisticsMono(grid, ["KM.*"]).display()
 for iext in exts:
     for ivar in range(nvar):
-        name1 = getName("Kriging", ivar, iext)
-        name2 = getName("KM", ivar, iext)
+        name1 = gl.getNameConstructed("Kriging", dat, ivar, nvar, 1, 1, iext)
+        name2 = gl.getNameConstructed("KM", dat, ivar, nvar, 1, 1, iext)
         print(
             "Difference with",
             name1,
@@ -109,8 +103,8 @@ err = gl.krigingSPDE(
 gl.dbStatisticsMono(grid, ["KF.*"]).display()
 for iext in exts:
     for ivar in range(nvar):
-        name1 = getName("Kriging", ivar, iext)
-        name2 = getName("KF", ivar, iext)
+        name1 = gl.getNameConstructed("Kriging", dat, ivar, nvar, 1, 1, iext)
+        name2 = gl.getNameConstructed("KF", dat, ivar, nvar, 1, 1, iext)
         print(
             "Difference with",
             name1,
@@ -120,8 +114,8 @@ for iext in exts:
 
 for iext in exts:
     for ivar in range(nvar):
-        name1 = getName("KF", ivar, iext)
-        name2 = getName("KM", ivar, iext)
+        name1 = gl.getNameConstructed("KF", dat, ivar, nvar, 1, 1, iext)
+        name2 = gl.getNameConstructed("KM", dat, ivar, nvar, 1, 1, iext)
         print(
             "Difference between Matrix-Free and Matrix ("
             + iext.replace(".", "")
@@ -141,24 +135,27 @@ if flag_plot:
     for iext in exts:
         for ivar in range(nvar):
             fig, ax = gp.init(flagEqual=True)
-            gp.raster(grid, getName("Kriging", ivar, iext))
-            gp.decoration(title=getName("Kriging", ivar, iext) + " (Traditional)")
+            name = gl.getNameConstructed("Kriging", dat, ivar, nvar, 1, 1, iext)
+            gp.raster(grid, name)
+            gp.decoration(title=name + " (Traditional)")
             gp.close()
 
     # Display the result per variable for SPDE Kriging (matrix)
     for iext in exts:
         for ivar in range(nvar):
             fig, ax = gp.init(flagEqual=True)
-            gp.raster(grid, getName("KM", ivar, iext))
-            gp.decoration(title=getName("KM", ivar, iext) + " (SPDE Matrix)")
+            name = gl.getNameConstructed("KM", dat, ivar, nvar, 1, 1, iext)
+            gp.raster(grid, name)
+            gp.decoration(title=name + " (SPDE Matrix)")
             gp.close()
 
     # Display the result per variable for SPDE Kriging (matrix-free)
     for iext in exts:
         for ivar in range(nvar):
             fig, ax = gp.init(flagEqual=True)
-            gp.raster(grid, getName("KF", ivar, iext))
-            gp.decoration(title=getName("KF", ivar, iext) + " (SPDE Matrix-Free)")
+            name = gl.getNameConstructed("KF", dat, ivar, nvar, 1, 1, iext)
+            gp.raster(grid, name)
+            gp.decoration(title=name + " (SPDE Matrix-Free)")
             gp.close()
 
     # Comparing the Krigings
@@ -167,8 +164,8 @@ if flag_plot:
             fig, ax = gp.init()
             gp.correlation(
                 grid,
-                getName("KM", ivar, iext),
-                getName("Kriging", ivar, iext),
+                gl.getNameConstructed("KM", dat, ivar, nvar, 1, 1, iext),
+                gl.getNameConstructed("Kriging", dat, ivar, nvar, 1, 1, iext),
                 bissLine=True,
                 bissColor="blue",
                 bins=100,
@@ -186,8 +183,8 @@ if flag_plot:
             fig, ax = gp.init()
             gp.correlation(
                 grid,
-                getName("KF", ivar, iext),
-                getName("Kriging", ivar, iext),
+                gl.getNameConstructed("KF", dat, ivar, nvar, 1, 1, iext),
+                gl.getNameConstructed("Kriging", dat, ivar, nvar, 1, 1, iext),
                 bissLine=True,
                 bissColor="blue",
                 bins=100,
@@ -205,8 +202,8 @@ if flag_plot:
             fig, ax = gp.init()
             gp.correlation(
                 grid,
-                getName("KF", ivar, iext),
-                getName("KM", ivar, iext),
+                gl.getNameConstructed("KF", dat, ivar, nvar, 1, 1, iext),
+                gl.getNameConstructed("KM", dat, ivar, nvar, 1, 1, iext),
                 bissLine=True,
                 bissColor="blue",
                 bins=100,

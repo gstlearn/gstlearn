@@ -20,7 +20,6 @@ flag.verbose = FALSE
 opers = EStatOption_fromKeys(c("NUM", "MINI", "MAXI", "MEAN", "STDV"))
 
 prefix = "Simu"
-var_name = paste(prefix, "V1", "S1", sep = ".")
 ```
 
 # Second order stationary random functions
@@ -42,6 +41,9 @@ nb <- 1000 # number of spectral components
 ns <- 20   # number of simulations
 seed <- 42 # Seed for the first simulation
 
+#var_name = paste(prefix, "V1", "S1", sep = ".")
+var_name = getNameConstructed(prefix, NULL, 1, 1, 1, ns)
+
 # Define the title (used for plots)
 title = paste0(type_cov, " model")
 if (type_cov == "MATERN") {title = paste0(title, " (nu = ", nu, ")")}
@@ -61,7 +63,7 @@ grid = DbGrid_create(nx = nx, dx = dx)
 mod  = Model_createFromParam(type = ECov_fromKey(type_cov),
                              ranges = ranges[1:ndim], param = nu, flagRange=FALSE)
 # using the *SimuSpectral* interface
-sim = SimuSpectralRN(1, nb, 100, 123, NULL, TRUE)
+sim = SimuSpectralRN(1, nb, 100, 123, TRUE)
 err = sim$setModelGeneric(mod)
 err = sim$simulateSpectral()
 # computing the mathematical expression
@@ -75,7 +77,7 @@ err = sim$computeSpectral(dbout = grid)
 stopifnot (all(abs(val - grid["Simu"]) < 1e-6))
 
 # using the simuSpectral interface
-err  = simuSpectral(NULL, dbout = grid, model = mod, nbsimu = ns, ns = nb, seed=seed, cov0 = NULL,
+err  = simuSpectral(NULL, dbout = grid, model = mod, nbsimu = ns, ns = nb, seed=seed,
                     namconv = NamingConvention(prefix))
 
 ```
@@ -105,7 +107,7 @@ plot.end(p)
 # variograms on all simulations
 vl = list()
 for (s in 1:ns) {
-  err = grid$setLocator(name = paste(prefix, "V1", paste0("S", s), sep = "."),
+  err = grid$setLocator(name = getNameConstructed(prefix, NULL, 1, 1, s, ns),
                         locatorType = ELoc_Z(), cleanSameLocator = TRUE)
   vl[[1 + length(vl)]] <- Vario_computeFromDb(varioPar, grid)
 }
@@ -130,10 +132,10 @@ mod  = Model_createFromParam(type = ECov_fromKey(type_cov),
 grid1 = DbGrid_create(nx = c(256, 256))
 grid2 = DbGrid_create(nx = c(100, 100), x0 = c(200, 200), dx = c(1,1))
 
-
 # computing the simulation on two intersecting grids
 err = simuSpectral(NULL, dbout=grid1, model=mod, ns=nb, seed=seed , namconv = NamingConvention(prefix))
 err = simuSpectral(NULL, dbout=grid2, model=mod, ns=nb, seed=seed , namconv = NamingConvention(prefix))
+var_name = getNameConstructed(prefix, NULL)
 
 p = plot.init(asp=1) +
   plot.raster(grid1, name = var_name, palette = "Spectral", limits = 3.5 * c(-1,1)) +
@@ -160,7 +162,6 @@ db["x2"] <- grid1$getColumn(name = "x2", useSel = TRUE)
 db[paste("grid1", var_name, sep = ".")] <- grid1$getColumn(name = var_name, useSel = TRUE)
 err = db$setLocators(c("x1", "x2"), ELoc_X(), cleanSameLocator = TRUE)
 err = grid1$clearSelection()
-
 
 # computing the simulation on scattered points
 err = simuSpectral(NULL, dbout=db, model=mod,  ns=nb, seed=seed , namconv = NamingConvention(prefix))

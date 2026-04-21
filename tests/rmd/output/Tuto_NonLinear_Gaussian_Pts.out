@@ -15,9 +15,9 @@ Total number of samples      = 10000
 
 Grid characteristics:
 ---------------------
-Origin :      0.000     0.000
-Mesh   :      0.010     0.010
-Number :        100       100
+Origin :       0.000      0.000
+Mesh   :       0.010      0.010
+Number :         100        100
 
 Variables
 ---------
@@ -38,9 +38,9 @@ Total number of samples      = 25
 
 Grid characteristics:
 ---------------------
-Origin :      0.000     0.000
-Mesh   :      0.250     0.250
-Number :          5         5
+Origin :       0.000      0.000
+Mesh   :       0.250      0.250
+Number :           5          5
 
 Variables
 ---------
@@ -60,9 +60,9 @@ Total number of samples      = 441
 
 Grid characteristics:
 ---------------------
-Origin :      0.000     0.000
-Mesh   :      0.050     0.050
-Number :         21        21
+Origin :       0.000      0.000
+Mesh   :       0.050      0.050
+Number :          21         21
 
 Variables
 ---------
@@ -120,28 +120,28 @@ Mean                          = 1.53264
 Variance                      = 0.720254
 Number of Hermite polynomials = 20
 Normalized coefficients for Hermite polynomials (punctual variable)
-               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
-     [  0,]     1.533    -0.798     0.280    -0.051    -0.021     0.023    -0.013
-     [  7,]     0.009     0.002    -0.012     0.008     0.003    -0.010     0.005
-     [ 14,]     0.006    -0.008    -0.002     0.007    -0.002    -0.004
+                 [,  0]     [,  1]     [,  2]     [,  3]     [,  4]     [,  5]     [,  6]
+      [  0,]      1.533     -0.798      0.280     -0.051     -0.021      0.023     -0.013
+      [  7,]      0.009      0.002     -0.012      0.008      0.003     -0.010      0.005
+      [ 14,]      0.006     -0.008     -0.002      0.007     -0.002     -0.004
 NULL
 
 Selectivity curves computed on data set
 ---------------------------------------
-      Z-Cut    T-estim    Q-estim    B-estim    M-estim
-      0.000      1.000      1.533      1.533      1.533
-      0.500      0.974      1.522      1.035      1.563
-      0.750      0.864      1.452      0.804      1.680
-      1.000      0.700      1.306      0.606      1.866
+       Z-Cut     T-estim     Q-estim     B-estim     M-estim
+       0.000       1.000       1.533       1.533       1.533
+       0.500       0.974       1.522       1.035       1.563
+       0.750       0.864       1.452       0.804       1.680
+       1.000       0.700       1.306       0.606       1.866
 NULL
 
 Selectivity curves computed on anamorphosis
 -------------------------------------------
-      Z-Cut    T-estim    Q-estim    B-estim    M-estim
-      0.000      1.000      1.533      1.533      1.533
-      0.500      0.976      1.523      1.035      1.561
-      0.750      0.864      1.451      0.803      1.680
-      1.000      0.706      1.313      0.607      1.859
+       Z-Cut     T-estim     Q-estim     B-estim     M-estim
+       0.000       1.000       1.533       1.533       1.533
+       0.500       0.976       1.523       1.035       1.561
+       0.750       0.864       1.451       0.803       1.680
+       1.000       0.706       1.313       0.607       1.859
 
 Data Base Characteristics
 =========================
@@ -174,15 +174,15 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Exponential
-- Sill         =      0.461
-- Range        =      0.051
-- Theo. Range  =      0.017
+- Sill         =       0.461
+- Range        =       0.051
+- Theo. Range  =       0.017
 Exponential
-- Sill         =      0.260
-- Range        =      0.256
-- Theo. Range  =      0.085
-Total Sill     =      0.721
-Known Mean(s)     0.000
+- Sill         =       0.260
+- Range        =       0.256
+- Theo. Range  =       0.085
+Total Sill     =       0.721
+Known Mean(s)      0.000
 NULL
 
 Model characteristics
@@ -196,15 +196,15 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Exponential
-- Sill         =      0.215
-- Range        =      0.033
-- Theo. Range  =      0.011
+- Sill         =       0.215
+- Range        =       0.033
+- Theo. Range  =       0.011
 Exponential
-- Sill         =      0.785
-- Range        =      0.140
-- Theo. Range  =      0.047
-Total Sill     =      1.000
-Known Mean(s)     0.000
+- Sill         =       0.785
+- Range        =       0.140
+- Theo. Range  =       0.047
+Total Sill     =       1.000
+Known Mean(s)      0.000
 NULL
 NULL
 NULL
@@ -228,9 +228,9 @@ Total number of samples      = 441
 
 Grid characteristics:
 ---------------------
-Origin :      0.000     0.000
-Mesh   :      0.050     0.050
-Number :         21        21
+Origin :       0.000      0.000
+Mesh   :       0.050      0.050
+Number :          21         21
 
 Variables
 ---------
@@ -270,9 +270,9 @@ Total number of samples      = 441
 
 Grid characteristics:
 ---------------------
-Origin :      0.000     0.000
-Mesh   :      0.050     0.050
-Number :         21        21
+Origin :       0.000      0.000
+Mesh   :       0.050      0.050
+Number :          21         21
 
 Variables
 ---------
@@ -298,12 +298,12 @@ Column = 18 - Name = Pts_Recovery.Q-stdev-0.75 - Locator = NA
 Column = 19 - Name = Pts_Recovery.Q-stdev-1 - Locator = NA
 Column = 20 - Name = T_1 - Locator = NA
 Column = 21 - Name = T_0.75 - Locator = NA
-Column = 22 - Name = DK_Pts.F.1.estim - Locator = z1
-Column = 23 - Name = DK_Pts.F.2.estim - Locator = z2
-Column = 24 - Name = DK_Pts.F.3.estim - Locator = z3
-Column = 25 - Name = DK_Pts.F.1.stdev - Locator = NA
-Column = 26 - Name = DK_Pts.F.2.stdev - Locator = NA
-Column = 27 - Name = DK_Pts.F.3.stdev - Locator = NA
+Column = 22 - Name = DK_Pts.F.S1.estim - Locator = z1
+Column = 23 - Name = DK_Pts.F.S2.estim - Locator = z2
+Column = 24 - Name = DK_Pts.F.S3.estim - Locator = z3
+Column = 25 - Name = DK_Pts.F.S1.stdev - Locator = NA
+Column = 26 - Name = DK_Pts.F.S2.stdev - Locator = NA
+Column = 27 - Name = DK_Pts.F.S3.stdev - Locator = NA
 NULL
 [1] 0
 
@@ -319,9 +319,9 @@ Total number of samples      = 441
 
 Grid characteristics:
 ---------------------
-Origin :      0.000     0.000
-Mesh   :      0.050     0.050
-Number :         21        21
+Origin :       0.000      0.000
+Mesh   :       0.050      0.050
+Number :          21         21
 
 Variables
 ---------
@@ -347,18 +347,18 @@ Column = 18 - Name = Pts_Recovery.Q-stdev-0.75 - Locator = NA
 Column = 19 - Name = Pts_Recovery.Q-stdev-1 - Locator = NA
 Column = 20 - Name = T_1 - Locator = NA
 Column = 21 - Name = T_0.75 - Locator = NA
-Column = 22 - Name = DK_Pts.F.1.estim - Locator = NA
-Column = 23 - Name = DK_Pts.F.2.estim - Locator = NA
-Column = 24 - Name = DK_Pts.F.3.estim - Locator = NA
-Column = 25 - Name = DK_Pts.F.1.stdev - Locator = NA
-Column = 26 - Name = DK_Pts.F.2.stdev - Locator = NA
-Column = 27 - Name = DK_Pts.F.3.stdev - Locator = NA
-Column = 28 - Name = DK_Blk.F.1.estim - Locator = z1
-Column = 29 - Name = DK_Blk.F.2.estim - Locator = z2
-Column = 30 - Name = DK_Blk.F.3.estim - Locator = z3
-Column = 31 - Name = DK_Blk.F.1.stdev - Locator = NA
-Column = 32 - Name = DK_Blk.F.2.stdev - Locator = NA
-Column = 33 - Name = DK_Blk.F.3.stdev - Locator = NA
+Column = 22 - Name = DK_Pts.F.S1.estim - Locator = NA
+Column = 23 - Name = DK_Pts.F.S2.estim - Locator = NA
+Column = 24 - Name = DK_Pts.F.S3.estim - Locator = NA
+Column = 25 - Name = DK_Pts.F.S1.stdev - Locator = NA
+Column = 26 - Name = DK_Pts.F.S2.stdev - Locator = NA
+Column = 27 - Name = DK_Pts.F.S3.stdev - Locator = NA
+Column = 28 - Name = DK_Blk.F.S1.estim - Locator = z1
+Column = 29 - Name = DK_Blk.F.S2.estim - Locator = z2
+Column = 30 - Name = DK_Blk.F.S3.estim - Locator = z3
+Column = 31 - Name = DK_Blk.F.S1.stdev - Locator = NA
+Column = 32 - Name = DK_Blk.F.S2.stdev - Locator = NA
+Column = 33 - Name = DK_Blk.F.S3.stdev - Locator = NA
 NULL
 NULL
 [1] 0
@@ -375,9 +375,9 @@ Total number of samples      = 25
 
 Grid characteristics:
 ---------------------
-Origin :      0.000     0.000
-Mesh   :      0.250     0.250
-Number :          5         5
+Origin :       0.000      0.000
+Mesh   :       0.250      0.250
+Number :           5          5
 
 Variables
 ---------
@@ -391,8 +391,8 @@ NULL
 
 Selectivity curves computed on fine grid
 ----------------------------------------
-      Z-Cut    T-estim    Q-estim    B-estim    M-estim
-      0.000      1.000      1.561      1.561      1.561
+       Z-Cut     T-estim     Q-estim     B-estim     M-estim
+       0.000       1.000       1.561       1.561       1.561
 NULL
 NULL
 NULL

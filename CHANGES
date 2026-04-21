@@ -4,6 +4,8 @@ This file contains the logs between consecutive releases
 
 Release 1.11.0
 ==============
+- A new global function 'getNameConstructed' is added to build the name of a variable.
+  It is usefull for multivariate and simulation case. Can also be called from Python or R.
 - functions simtub(), simcond() and simbayes() loose the argument 'flag_check'
 - Normalize the names of the simulation static functions: simuXXX()
 - Correcting the calculation of Non-centered covariance

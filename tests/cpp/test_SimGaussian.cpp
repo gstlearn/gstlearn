@@ -18,6 +18,7 @@
 #include "Neigh/NeighMoving.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Simulation/Simulations.hpp"
+#include "Simulation/SpectrumOnRN.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Stats/Classical.hpp"
 
@@ -47,9 +48,9 @@ int main(int argc, char* argv[])
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Build a Model (compatible for Turning Bands and for Spectral methods)
-  auto* sillSph = MatrixSymmetric::createRandomDefinitePositive(nvar);
+  auto* sillExp = MatrixSymmetric::createRandomDefinitePositive(nvar);
   Model* model = Model::createFromParam(
-    ECov::EXPONENTIAL, 0.2, 1., 1., VectorDouble(), *sillSph);
+    ECov::EXPONENTIAL, 0.2, 1., 1., VectorDouble(), *sillExp);
   auto* sillNugget = MatrixSymmetric::createRandomDefinitePositive(nvar);
   model->addCovFromParam(
     ECov::NUGGET, 0.1, 1., 1., VectorDouble(), *sillNugget);
@@ -84,7 +85,7 @@ int main(int argc, char* argv[])
   // ====================== Simulation (spectral) ====================
   message("\n<----- Simulation using Spectral Method ----->\n");
   simuSpectral(
-    data, grid, model, nullptr, nbsimu, 425631, nfeatures, 100, false,
+    nullptr, grid, model, nullptr, nbsimu, 425631, nfeatures, 100, false,
     NamingConvention("SimuSPT"));
   grid->getStatsAsTable({"SimuSPT*"}).display();
   grid->getCorrelationAsTable({"SimuSPT*"}).display();

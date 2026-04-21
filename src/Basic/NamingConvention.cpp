@@ -700,4 +700,69 @@ namespace gstlrn
 
     return sstr.str();
   }
+
+  /**
+   * Defines the name of one output variable.
+   *
+   * @param prefix Initial part of the returned name
+   * @param db  Pointer to the Db where the variable name is searched for (optional)
+   * @param ivar Index of the variable (1 based) or -1 if not applicable
+   * @param nvar Number of variables
+   * @param isimu Index of the simulation (1 based) or -1 if not applicable
+   * @param nbsimu Number of simulations
+   * @param extension Optional extension
+   * @param delim Delimiter for concatenating parts
+   *
+   * @remark The returned 'name' is constructed as follows:
+   *              'prefix' + 'delim' + 'varname' + 'delim' + 'qualifier'
+   *   where:
+   *   - 'prefix' is always provided
+   *   - 'varname' is determined as follows:
+   *     - If 'db' is provided, the variable name is extracted from 'db' using the locator (ELoc::Z, ivar)
+   *     - If 'db' is not provided and nvar>1 andivar>0, the variable name is generated as "V" + "ivar"
+   *     - Otherwise, 'varname' is empty and not included in the final name
+   *   - 'qualifier' is determined as follows:
+   *     - If 'extension' is provided, it is used as the qualifier
+   *     - If 'extension' is not provided and nbsimu > 1 and 'isimu' > 0, the qualifier is set as "S" + "isimu"
+   *     - Otherwise, 'qualifier' is empty and not included in the final name
+   *   - If the resulting name is empty, it defaults to "Dummy"
+   */
+  String getNameConstructed(
+    const String& prefix,
+    const Db* db,
+    Id ivar,
+    Id nvar,
+    Id isimu,
+    Id nbsimu,
+    const String& extension,
+    const String& delim)
+  {
+    String loc_varname;
+    if (db != nullptr)
+    {
+      if (db->getNLoc(ELoc::Z) > 0)
+        loc_varname = db->getNameByLocator(ELoc::Z, ivar);
+    }
+    else
+    {
+      if (nvar > 1 && ivar > 0) loc_varname = concatenateString("V", ivar, "");
+    }
+
+    String loc_qualifier;
+    if (!extension.empty())
+    {
+      loc_qualifier = extension;
+    }
+    else
+    {
+      if (nbsimu > 1 && isimu > 0)
+        loc_qualifier = concatenateString("S", isimu, "");
+    }
+
+    String name = concatenateStrings(delim, prefix, loc_varname, loc_qualifier);
+    if (name.empty()) name = "Dummy";
+
+    return name;
+  }
+
 } // namespace gstlrn

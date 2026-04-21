@@ -337,7 +337,7 @@ for (idir in 1:ndir){
 # plotting variograms
 dd     = seq(from = 0, to = max(hh, na.rm = TRUE), length.out = 100)
 plot(NULL, NULL, xlim = range(dd), ylim = 1.1*c(0.0, max(gg, na.rm = TRUE)),
-     xlab = "Distance", ylab = "Variogram",
+     xlab = "Distance", ylab = "Variogram", xaxs="i", yaxs="i",
      main = paste0(tit_main, ": one simulation"),
      sub  = tit_sub)
 abline(h = 0, col = "black")
@@ -379,7 +379,7 @@ gg  = array(NaN, dim = c(nlag, ndir, nsim))
 hh  = array(NaN, dim = c(nlag, ndir, nsim))
 for (is in 1:nsim) {
   err = grd$setLocator(
-    name = paste(prefix, "V1", paste0("S",is), sep = "."),
+    name = getNameConstructed(prefix, NULL, 1, 1, is, nsim),
     locatorType = ELoc_Z(),
     cleanSameLocator = TRUE)
   vario = Vario(varioPar)

@@ -5108,7 +5108,7 @@ namespace gstlrn
     const VectorString& names,
     bool flagIso,
     bool verbose,
-    const String& title)
+    const String& title) const
   {
     if (names.empty()) return VectorDouble();
     Table table = dbStatisticsCorrel(this, names, flagIso);

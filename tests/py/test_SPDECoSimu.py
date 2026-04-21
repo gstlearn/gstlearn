@@ -124,7 +124,8 @@ for i in range(nbsimu):
     resultMatH = spdeop.simCond(Z)
     for j in range(nvar):
         gl.VH.extractInPlace(resultMatH, local, j * ntarget)
-        iuid = grid.addColumns(local, getName("HF", j, i, False))
+        name = gl.getNameConstructed("HF.Data", None, j + 1, nvar, i + 1, nbsimu)
+        iuid = grid.addColumns(local, name)
 
 
 gl.dbStatisticsMono(grid, ["HF*"]).display()
@@ -135,11 +136,17 @@ grid.dumpToNF("grid.NF")
 ######################################################
 
 err = gl.migrate(
-    grid, dat, getName("GF", 0, 0, False), namconv=gl.NamingConvention("m1", False)
+    grid,
+    dat,
+    gl.getNameConstructed("GF.Data", None, 1, nvar, 1, nbsimu),
+    namconv=gl.NamingConvention("m1", False),
 )
 if nvar == 2:
     err = gl.migrate(
-        grid, dat, getName("GF", 1, 0, False), namconv=gl.NamingConvention("m2", False)
+        grid,
+        dat,
+        gl.getNameConstructed("GF.Data", None, 2, nvar, 1, nbsimu),
+        namconv=gl.NamingConvention("m2", False),
     )
 
 ##################
@@ -150,24 +157,27 @@ if flag_plot:
     for i in range(nbsimu):
         for j in range(nvar):
             fig, ax = gp.init(flagEqual=True)
-            gp.raster(grid, getName("HF", j, i, False), flagLegend=True)
-            gp.decoration(title="HF" + str(i + 1) + "V" + str(j + 1) + " (gstlearn)")
+            name = gl.getNameConstructed("HF.Data", None, j + 1, nvar, i + 1, nbsimu)
+            gp.raster(grid, name, flagLegend=True)
+            gp.decoration(title=name + " (gstlearn)")
             gp.close()
 
     # Display the GM simulations for all variables and all simulations
     for i in range(nbsimu):
         for j in range(nvar):
             fig, ax = gp.init(flagEqual=True)
-            gp.raster(grid, getName("GM", j, i, False), flagLegend=True)
-            gp.decoration(title="GM" + str(i + 1) + "V" + str(j + 1) + " (gstlearn)")
+            name = gl.getNameConstructed("GM.Data", None, j + 1, nvar, i + 1, nbsimu)
+            gp.raster(grid, name, flagLegend=True)
+            gp.decoration(title=name + " (gstlearn)")
             gp.close()
 
     # Display the GF simulations for all variables and all simulations
     for i in range(nbsimu):
         for j in range(nvar):
             fig, ax = gp.init(flagEqual=True)
-            gp.raster(grid, getName("GF", j, i, False), flagLegend=True)
-            gp.decoration(title="GF" + str(i + 1) + "V" + str(j + 1) + " (gstlearn)")
+            name = gl.getNameConstructed("GF.Data", None, j + 1, nvar, i + 1, nbsimu)
+            gp.raster(grid, name, flagLegend=True)
+            gp.decoration(title=name + " (gstlearn)")
             gp.close()
 
     if nvar == 1:
