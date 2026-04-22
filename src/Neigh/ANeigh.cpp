@@ -24,6 +24,20 @@
 
 namespace gstlrn
 {
+  // Value for the Maximum Number of Samples for returning a Unique Neighborhood
+  // (when the Neighborhood is constructed by default)
+  Id _maxSampleNumberForUnique = 500;
+
+  void ANeigh::setMaximumSampleNumberForUnique(Id number)
+  {
+    _maxSampleNumberForUnique = number;
+  }
+
+  Id ANeigh::getMaxSampleNumberForUnique()
+  {
+    return _maxSampleNumberForUnique;
+  }
+
   ANeigh::ANeigh(const ASpaceSharedPtr& space)
     : ASpaceObject(space)
     , ASerializable()
@@ -465,8 +479,7 @@ namespace gstlrn
   ANeigh* ANeigh::createDefaultNeighborhood(
     ANeigh* neigh,
     const Db* dbin,
-    const Db* dbout,
-    Id maxNumber)
+    const Db* dbout)
   {
     // If a neighborhood is already defined, this is the correct solution
     if (neigh != nullptr) return neigh;
@@ -477,12 +490,12 @@ namespace gstlrn
     if (dbin != nullptr)
     {
       Id nech = dbin->getNSample(true);
-      if (nech > maxNumber)
+      if (nech > getMaxSampleNumberForUnique())
       {
         messerr("No neighborhood has been defined");
         messerr(
           "The number of active samples (%d) is too large (>%d)", nech,
-          maxNumber);
+          getMaxSampleNumberForUnique());
         messerr("to allow the definition of a Unique Neighborhood by default");
         return nullptr;
       }

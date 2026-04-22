@@ -26,15 +26,15 @@ namespace gstlrn
    * will be named afterwards and will possibly be assigned a locator.
    *
    * The generic name is generated as follows:
-   *      'prefix'.'varname'.'qualifier'.'rank'
+   *      'prefix'.'varname'.'qualifier'|'rank'
    *
    * - prefix: string provided in the constructor of this class
    * - varname: name of the (input) variable on which the procedure is performed
    * - qualifier: type of element stored in the variable
-   * - rank: rank of the output variable (if several variables of the same type are generated)
+   * - rank: rank of the output variable (if several simulations are generated)
    *
    * The choice of the 'prefix' is done by the user when launching the procedure
-   * the other parameters are usually defined within the procedure.
+   * the other parameters are usually defined within the calling procedure.
    *
    * For example, when running 'kriging' function with several variables defined
    * in the input Db - say "Pb" abd "Zn" (they are assigned a Z-locator),
@@ -48,13 +48,13 @@ namespace gstlrn
    * - MyPrefix.Zn.stdev (St. Dev. of estimation error of Zn by CoKriging)
    *
    * Then the non-conditional simulation procedure generates variables such as:
-   * - MyPrefix.1 (for first simulation)
-   * - MyPrefix.2 (for second simulation)
+   * - MyPrefix.S1 (for first simulation)
+   * - MyPrefix.S2 (for second simulation)
    * ...
    *
    *  Then the conditional simulation procedure generates variables such as:
-   * - MyPrefix.var.1 (for first simulation)
-   * - MyPrefix.var.2 (for second simulation)
+   * - MyPrefix.var.S1 (for first simulation)
+   * - MyPrefix.var.S2 (for second simulation)
    * ...
    *
    * For multivariate simulations, the new setNamesAndLocatorsForSimulations method
@@ -66,12 +66,10 @@ namespace gstlrn
    * Conditional multivariate simulations (e.g., variables Fe and Al, 2 simulations):
    * - MyPrefix.Fe.S1, MyPrefix.Fe.S2, MyPrefix.Al.S1, MyPrefix.Al.S2
    *
-   * This ensures:
-   * - Clear distinction between Variables (V) and Simulations (S)
-   * - Consistent naming whether nsim=1 or nsim>1
-   * - Support for both storage orders (simulation-first or variable-first)
-   *
    * Ultimately, the newly created variables are assigned a locator.
+   *
+   * Note: the related method getNameEncoded provides a static way to retrieve
+   * the variable name based on the same convention (see comments).
    */
   class GSTLEARN_EXPORT NamingConvention: public AStringable
   {
@@ -196,6 +194,18 @@ namespace gstlrn
 
     String getDelim() const { return _delim; }
 
+    static String getNameEncoded(
+      const String& prefix,
+      const Db* db = nullptr,
+      Id ivar = 0,
+      Id nvar = 0,
+      Id isimu = 0,
+      Id nbsimu = 0,
+      const String& extension = "",
+      const String& delim = ".");
+
+    static void Naming_Old_Style(bool status);
+
   private:
     void _setNames(
       Db* dbout,
@@ -230,13 +240,9 @@ namespace gstlrn
       _cleanSameLocator; //!< Clean variables with the same locator beforehand
   };
 
-  GSTLEARN_EXPORT String getNameConstructed(
-    const String& prefix,
-    const Db* db = nullptr,
-    Id ivar = -1,
-    Id nvar = 0,
-    Id isimu = -1,
-    Id nbsimu = 0,
-    const String& extension = "",
-    const String& delim = ".");
+  // typedef NamingConvention NC;
+  class NC: public NamingConvention
+  {
+  };
+
 } // namespace gstlrn

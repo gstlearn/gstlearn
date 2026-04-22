@@ -228,7 +228,6 @@ namespace gstlrn
 
     // Debugging methods
     void _dumpBands() const;
-    void _dumpSeeds() const;
 
   private:
     Id _nbtuba;

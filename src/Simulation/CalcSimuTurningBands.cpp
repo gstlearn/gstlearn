@@ -102,26 +102,6 @@ namespace gstlrn
     return _seedBands[iad];
   }
 
-  void CalcSimuTurningBands::_dumpSeeds() const
-  {
-    auto nvar = _getNVar();
-    auto ncova = _getNCov();
-    auto nbsimu = getNbSimu();
-    auto nbtuba = getNBtuba();
-
-    mestitle(1, "Seeds");
-    for (Id isimu = 0; isimu < nbsimu; isimu++)
-      for (Id ivar = 0; ivar < nvar; ivar++)
-        for (Id is = 0; is < ncova; is++)
-          for (Id ib = 0; ib < nbtuba; ib++)
-          {
-            auto iad = _getAddressBand(ivar, is, ib, isimu);
-            message(
-              "Var=%d Simu=%d Is=%d Ib=%d iad=%d : %d\n", ivar, isimu, is, ib,
-              iad, _seedBands[iad]);
-          }
-  }
-
   Id CalcSimuTurningBands::_getIBS(Id isimu, Id is, Id ib) const
   {
     auto ncova = _getNCov();

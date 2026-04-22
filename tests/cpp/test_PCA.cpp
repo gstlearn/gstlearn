@@ -74,8 +74,8 @@ int main(int argc, char* argv[])
   for (Id i = 0; i < nbsimu; i++)
   {
     (void)db->areSame(
-      getNameConstructed("Simu", nullptr, 1, 1, i + 1, nbsimu),
-      getNameConstructed("PCA.Z", nullptr, i + 1, nbsimu), eps);
+      NC::getNameEncoded("Simu", nullptr, 1, 1, i + 1, nbsimu),
+      NC::getNameEncoded("PCA.Z", nullptr, i + 1, nbsimu), eps);
   }
 
   // ============
@@ -97,8 +97,8 @@ int main(int argc, char* argv[])
 
   for (Id i = 0; i < nbsimu; i++)
     (void)db->areSame(
-      getNameConstructed("Simu", nullptr, 1, 1, i + 1, nbsimu),
-      getNameConstructed("MAF.Z", nullptr, i + 1, nbsimu), eps);
+      NC::getNameEncoded("Simu", nullptr, 1, 1, i + 1, nbsimu),
+      NC::getNameEncoded("MAF.Z", nullptr, i + 1, nbsimu), eps);
 
   delete db;
   delete models;

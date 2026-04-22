@@ -124,7 +124,7 @@ for i in range(nbsimu):
     resultMatH = spdeop.simCond(Z)
     for j in range(nvar):
         gl.VH.extractInPlace(resultMatH, local, j * ntarget)
-        name = gl.getNameConstructed("HF.Data", None, j + 1, nvar, i + 1, nbsimu)
+        name = gl.NC.getNameEncoded("HF.Data", None, j + 1, nvar, i + 1, nbsimu)
         iuid = grid.addColumns(local, name)
 
 
@@ -138,14 +138,14 @@ grid.dumpToNF("grid.NF")
 err = gl.migrate(
     grid,
     dat,
-    gl.getNameConstructed("GF.Data", None, 1, nvar, 1, nbsimu),
+    gl.NC.getNameEncoded("GF.Data", None, 1, nvar, 1, nbsimu),
     namconv=gl.NamingConvention("m1", False),
 )
 if nvar == 2:
     err = gl.migrate(
         grid,
         dat,
-        gl.getNameConstructed("GF.Data", None, 2, nvar, 1, nbsimu),
+        gl.NC.getNameEncoded("GF.Data", None, 2, nvar, 1, nbsimu),
         namconv=gl.NamingConvention("m2", False),
     )
 
@@ -157,7 +157,7 @@ if flag_plot:
     for i in range(nbsimu):
         for j in range(nvar):
             fig, ax = gp.init(flagEqual=True)
-            name = gl.getNameConstructed("HF.Data", None, j + 1, nvar, i + 1, nbsimu)
+            name = gl.NC.getNameEncoded("HF.Data", None, j + 1, nvar, i + 1, nbsimu)
             gp.raster(grid, name, flagLegend=True)
             gp.decoration(title=name + " (gstlearn)")
             gp.close()
@@ -166,7 +166,7 @@ if flag_plot:
     for i in range(nbsimu):
         for j in range(nvar):
             fig, ax = gp.init(flagEqual=True)
-            name = gl.getNameConstructed("GM.Data", None, j + 1, nvar, i + 1, nbsimu)
+            name = gl.NC.getNameEncoded("GM.Data", None, j + 1, nvar, i + 1, nbsimu)
             gp.raster(grid, name, flagLegend=True)
             gp.decoration(title=name + " (gstlearn)")
             gp.close()
@@ -175,7 +175,7 @@ if flag_plot:
     for i in range(nbsimu):
         for j in range(nvar):
             fig, ax = gp.init(flagEqual=True)
-            name = gl.getNameConstructed("GF.Data", None, j + 1, nvar, i + 1, nbsimu)
+            name = gl.NC.getNameEncoded("GF.Data", None, j + 1, nvar, i + 1, nbsimu)
             gp.raster(grid, name, flagLegend=True)
             gp.decoration(title=name + " (gstlearn)")
             gp.close()

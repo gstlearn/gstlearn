@@ -824,7 +824,7 @@ MyCorAniso <- function(type = MyType_[3], sigma = 1.0, params = NULL,
       isim = 1
       for (ivar in 1:nvar) {
 #        nm_var  = sprintf("%s.V%d.S%d", prefix, ivar, isim)
-        nm_var = getNameConstructed(prefix, NULL, ivar, nvar, isim, isim)
+        nm_var = NamingConvention_getNameEncoded(prefix, NULL, ivar, nvar, isim, isim)
         dbout[nm_var] = val[ivar,]
       }
       NULL
@@ -969,7 +969,7 @@ MyCorMatern <- function(type = MyType_[3],
       isim = 1
       for (ivar in 1:nvar) {
 #        nm_var  = sprintf("%s.V%d.S%d", prefix, ivar, isim)
-        nm_var = getNameConstructed(prefix, NULL, ivar, nvar, isim, isim)
+        nm_var = NamingConvention_getNameEncoded(prefix, NULL, ivar, nvar, isim, isim)
         dbout[nm_var] = val[ivar,]
       }
       NULL
@@ -1134,7 +1134,7 @@ MyCorGaussianMixture <- function(type = MyType_[3], nu = 1/2, kappa = rep(1.0, l
       isim = 1
       for (ivar in 1:nvar) {
 #        nm_var  = sprintf("%s.V%d.%Sd", prefix, ivar, isim)
-        nm_var = getNameConstructed(prefix, NULL, ivar, nvar, isim, isim)
+        nm_var = NamingConvention_getNameEncoded(prefix, NULL, ivar, nvar, isim, isim)
         dbout[nm_var] = val[ivar,]
       }
       NULL
@@ -1271,7 +1271,7 @@ MyCorGneiting <- function(type = MyType_[7], nu = 1/2, kappa = rep(1.0, length(n
       isim = 1
       for (ivar in 1:nvar) {
 #        nm_var  = sprintf("%s.V%d.S%d", prefix, ivar, isim)
-        nm_var = getNameConstructed(prefix, NULL, ivar, nvar, isim, isim)
+        nm_var = NamingConvention_getNameEncoded(prefix, NULL, ivar, nvar, isim, isim)
         dbout[nm_var] = val[ivar,]
       }
       NULL
@@ -1676,7 +1676,7 @@ for (id in seq_len(length(list_test))) {
   isim = 1
   for (ivar in 1:nvar) {
 #   nm_var  = sprintf("%s.V%d.S%d", prefix, ivar, isim)
-    nm_var = getNameConstructed(prefix, NULL, ivar, nvar, isim, isim)
+    nm_var = NamingConvention_getNameEncoded(prefix, NULL, ivar, nvar, isim, isim)
     tab_var = c(tab_var, nm_var )
     val = grid[nm_var]
     # compute statistics
@@ -1733,7 +1733,7 @@ for (id in seq_len(length(list_test))) {
     ig = 0
     for (ivar in 1:nvar) {
 #      nm_vari  = sprintf("%s.V%d.S%d", prefix, ivar, isim)
-      nm_vari = getNameConstructed(prefix, NULL, ivar, nvar, isim, nsim)
+      nm_vari = NamingConvention_getNameEncoded(prefix, NULL, ivar, nvar, isim, nsim)
       sim_vari = matrix(grid[nm_vari], nx[idx_x], nx[idx_y])
       # statistics
       var_name = c(var_name, nm_vari)
@@ -1742,7 +1742,7 @@ for (id in seq_len(length(list_test))) {
       for (jvar in ivar:nvar) {
         ig = ig+1
 #        nm_varj = sprintf("%s.V%d.S%d", prefix, jvar, isim)
-        nm_varj = getNameConstructed(prefix, NULL, jvar, nvar, isim, nsim)
+        nm_varj = NamingConvention_getNameEncoded(prefix, NULL, jvar, nvar, isim, nsim)
         sim_varj = matrix(grid[nm_varj], nx[idx_x], nx[idx_y])
         # variogram
         for (idir in 1:nrow(dir_list)) {

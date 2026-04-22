@@ -354,6 +354,13 @@ namespace gstlrn
     return ss.str();
   }
 
+  String encodeString(const String& string, Id item, Id nChar)
+  {
+    std::stringstream ss;
+    ss << trim(string) << std::setw(nChar) << std::setfill('0') << item;
+    return ss.str();
+  }
+
   String concatenateStrings(
     const String& delim,
     const String& string1,

@@ -75,8 +75,8 @@ err = gl.krigingSPDE(
 gl.dbStatisticsMono(grid, ["KM.*"]).display()
 for iext in exts:
     for ivar in range(nvar):
-        name1 = gl.getNameConstructed("Kriging", dat, ivar, nvar, 1, 1, iext)
-        name2 = gl.getNameConstructed("KM", dat, ivar, nvar, 1, 1, iext)
+        name1 = gl.NC.getNameEncoded("Kriging", dat, ivar, nvar, 1, 1, iext)
+        name2 = gl.NC.getNameEncoded("KM", dat, ivar, nvar, 1, 1, iext)
         print(
             "Difference with",
             name1,
@@ -103,8 +103,8 @@ err = gl.krigingSPDE(
 gl.dbStatisticsMono(grid, ["KF.*"]).display()
 for iext in exts:
     for ivar in range(nvar):
-        name1 = gl.getNameConstructed("Kriging", dat, ivar, nvar, 1, 1, iext)
-        name2 = gl.getNameConstructed("KF", dat, ivar, nvar, 1, 1, iext)
+        name1 = gl.NC.getNameEncoded("Kriging", dat, ivar, nvar, 1, 1, iext)
+        name2 = gl.NC.getNameEncoded("KF", dat, ivar, nvar, 1, 1, iext)
         print(
             "Difference with",
             name1,
@@ -114,8 +114,8 @@ for iext in exts:
 
 for iext in exts:
     for ivar in range(nvar):
-        name1 = gl.getNameConstructed("KF", dat, ivar, nvar, 1, 1, iext)
-        name2 = gl.getNameConstructed("KM", dat, ivar, nvar, 1, 1, iext)
+        name1 = gl.NC.getNameEncoded("KF", dat, ivar, nvar, 1, 1, iext)
+        name2 = gl.NC.getNameEncoded("KM", dat, ivar, nvar, 1, 1, iext)
         print(
             "Difference between Matrix-Free and Matrix ("
             + iext.replace(".", "")
@@ -135,7 +135,7 @@ if flag_plot:
     for iext in exts:
         for ivar in range(nvar):
             fig, ax = gp.init(flagEqual=True)
-            name = gl.getNameConstructed("Kriging", dat, ivar, nvar, 1, 1, iext)
+            name = gl.NC.getNameEncoded("Kriging", dat, ivar, nvar, 1, 1, iext)
             gp.raster(grid, name)
             gp.decoration(title=name + " (Traditional)")
             gp.close()
@@ -144,7 +144,7 @@ if flag_plot:
     for iext in exts:
         for ivar in range(nvar):
             fig, ax = gp.init(flagEqual=True)
-            name = gl.getNameConstructed("KM", dat, ivar, nvar, 1, 1, iext)
+            name = gl.NC.getNameEncoded("KM", dat, ivar, nvar, 1, 1, iext)
             gp.raster(grid, name)
             gp.decoration(title=name + " (SPDE Matrix)")
             gp.close()
@@ -153,7 +153,7 @@ if flag_plot:
     for iext in exts:
         for ivar in range(nvar):
             fig, ax = gp.init(flagEqual=True)
-            name = gl.getNameConstructed("KF", dat, ivar, nvar, 1, 1, iext)
+            name = gl.NC.getNameEncoded("KF", dat, ivar, nvar, 1, 1, iext)
             gp.raster(grid, name)
             gp.decoration(title=name + " (SPDE Matrix-Free)")
             gp.close()
@@ -164,8 +164,8 @@ if flag_plot:
             fig, ax = gp.init()
             gp.correlation(
                 grid,
-                gl.getNameConstructed("KM", dat, ivar, nvar, 1, 1, iext),
-                gl.getNameConstructed("Kriging", dat, ivar, nvar, 1, 1, iext),
+                gl.NC.getNameEncoded("KM", dat, ivar, nvar, 1, 1, iext),
+                gl.NC.getNameEncoded("Kriging", dat, ivar, nvar, 1, 1, iext),
                 bissLine=True,
                 bissColor="blue",
                 bins=100,
@@ -183,8 +183,8 @@ if flag_plot:
             fig, ax = gp.init()
             gp.correlation(
                 grid,
-                gl.getNameConstructed("KF", dat, ivar, nvar, 1, 1, iext),
-                gl.getNameConstructed("Kriging", dat, ivar, nvar, 1, 1, iext),
+                gl.NC.getNameEncoded("KF", dat, ivar, nvar, 1, 1, iext),
+                gl.NC.getNameEncoded("Kriging", dat, ivar, nvar, 1, 1, iext),
                 bissLine=True,
                 bissColor="blue",
                 bins=100,
@@ -202,8 +202,8 @@ if flag_plot:
             fig, ax = gp.init()
             gp.correlation(
                 grid,
-                gl.getNameConstructed("KF", dat, ivar, nvar, 1, 1, iext),
-                gl.getNameConstructed("KM", dat, ivar, nvar, 1, 1, iext),
+                gl.NC.getNameEncoded("KF", dat, ivar, nvar, 1, 1, iext),
+                gl.NC.getNameEncoded("KM", dat, ivar, nvar, 1, 1, iext),
                 bissLine=True,
                 bissColor="blue",
                 bins=100,

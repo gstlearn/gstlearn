@@ -92,12 +92,6 @@ namespace gstlrn
     Id nd = 100,
     bool verbose = false,
     const NamingConvention& namconv = NamingConvention("Simu"));
-  GSTLEARN_EXPORT Id simuSubstitution(
-    DbGrid* dbgrid,
-    SimuSubstitutionParam& subparam,
-    Id seed = 43242,
-    Id verbose = false,
-    const NamingConvention& namconv = NamingConvention("SimSub"));
   GSTLEARN_EXPORT Id simtub(
     Db* dbin = nullptr,
     Db* dbout = nullptr,
@@ -108,6 +102,12 @@ namespace gstlrn
     Id nbtuba = 100,
     bool flag_dgm = false,
     const NamingConvention& namconv = NamingConvention("Simu"));
+  GSTLEARN_EXPORT Id simuSubstitution(
+    DbGrid* dbgrid,
+    SimuSubstitutionParam& subparam,
+    Id seed = 43242,
+    Id verbose = false,
+    const NamingConvention& namconv = NamingConvention("SimSub"));
   GSTLEARN_EXPORT Id simbayes(
     Db* dbin,
     Db* dbout,
