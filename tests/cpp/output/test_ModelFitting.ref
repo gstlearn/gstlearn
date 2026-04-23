@@ -11,12 +11,12 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Nugget Effect
-- Sill         =      2.000
+- Sill         =       2.000
 Spherical
-- Sill         =      3.000
-- Range        =      0.250
-Total Sill     =      5.000
-Known Mean(s)     0.000
+- Sill         =       3.000
+- Range        =       0.250
+Total Sill     =       5.000
+Known Mean(s)      0.000
 Initial Model used for Test
 
 Model characteristics
@@ -30,12 +30,12 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Nugget Effect
-- Sill         =      2.000
+- Sill         =       2.000
 Spherical
-- Sill         =      3.000
-- Range        =      0.250
-Total Sill     =      5.000
-Known Mean(s)     0.000
+- Sill         =       3.000
+- Range        =       0.250
+Total Sill     =       5.000
+Known Mean(s)      0.000
 
 Sill fitting from Variogram (old version)
 =========================================
@@ -51,12 +51,12 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Nugget Effect
-- Sill         =      2.741
+- Sill         =       3.073
 Spherical
-- Sill         =      5.954
-- Range        =      2.718
-Total Sill     =      8.694
-Known Mean(s)     0.000
+- Sill         =       8.004
+- Range        =       2.718
+Total Sill     =      11.077
+Known Mean(s)      0.000
 
 Model fitting from Variogram (new version)
 ==========================================
@@ -72,12 +72,12 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Nugget Effect
-- Sill         =      1.613
+- Sill         =       2.159
 Spherical
-- Sill         =      2.592
-- Range        =      0.291
-Total Sill     =      4.205
-Known Mean(s)     0.000
+- Sill         =       2.899
+- Range        =       0.360
+Total Sill     =       5.058
+Known Mean(s)      0.000
 
 Sill Fitting from Variogram Map (new version)
 =============================================
@@ -94,14 +94,14 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Nugget Effect
-- Sill         =      1.967
+- Sill         =       1.923
 Spherical
-- Sill         =      2.760
-- Ranges       =      0.222     0.258
-- Angles       =      0.001     0.000
+- Sill         =       3.037
+- Ranges       =       0.202      0.220
+- Angles       =       0.059      0.000
 - Rotation Matrix
-               [,  0]    [,  1]
-     [  0,]     1.000     0.000
-     [  1,]     0.000     1.000
-Total Sill     =      4.727
-Known Mean(s)     0.000
+                 [,  0]     [,  1]
+      [  0,]      1.000     -0.001
+      [  1,]      0.001      1.000
+Total Sill     =       4.960
+Known Mean(s)      0.000

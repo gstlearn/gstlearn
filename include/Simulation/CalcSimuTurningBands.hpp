@@ -72,13 +72,14 @@ namespace gstlrn
     void _rollback() override;
     bool _simulateTB();
 
+    Id _simulate() override;
     Id _compute(
       Db* db,
       Id isimu,
       const VectorBool& activeArray,
       VectorVectorDouble& tab) override;
 
-    bool _resizeTB();
+    bool _resize();
     void _computePoint(
       Db* db,
       const CovAniso* cova,
@@ -147,16 +148,16 @@ namespace gstlrn
 
     double _getCodirTmax(Id ibs) const { return _codirs[ibs].getTmax(); }
 
-    Id _getAddressBand(Id ivar, Id is, Id ib, Id isimu) const;
-    void _setSeedBand(Id ivar, Id is, Id ib, Id isimu, Id seed);
-    Id _getSeedBand(Id ivar, Id is, Id ib, Id isimu) const;
+    Id _getAddressBand(Id ivar, Id is, Id ib) const;
+    void _setSeedBand(Id ivar, Id is, Id ib, Id seed);
+    Id _getSeedBand(Id ivar, Id is, Id ib) const;
 
     void _rotateDirections(double a[3], double theta);
-    Id _generateDirections(const Db* dbout);
+    void _generateRandomDirections(const Db* dbout);
     void _minmax(const Db* db);
     void _setDensity();
     static ECov _particularCase(const CovAniso* cova, double eps = EPSILON7);
-    Id _initializeSeedBands();
+    void _initializeSeedBands();
     void _normalizeForBands(
       const Db* db,
       const VectorBool& activeArray,

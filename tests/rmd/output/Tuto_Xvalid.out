@@ -38,8 +38,8 @@ Column = 4 - Name = Xvalid.data.esterr - Locator = NA
 Column = 5 - Name = Xvalid.data.stderr - Locator = NA
 Column = 6 - Name = Xvalid2.data.estim - Locator = NA
 Column = 7 - Name = Xvalid2.data.stdev - Locator = NA
-[1]  1.000000 22.701345 83.641175  2.501800 -1.951677 -1.094985  0.550123
-[8]  1.782378
+[1]  1.0000000 22.7013445 83.6411751 -0.1525717  0.8498198  0.4767899  0.6972481
+[8]  1.7823778
 
 Target location
 ---------------
@@ -128,32 +128,32 @@ Punctual Estimation
 (Co-) Kriging weights
 =====================
        Rank       Data        Z1*
-          1      2.502      0.000
-          2      1.266      0.045
-          3      2.184      0.064
-          4     -2.917      0.063
-          5      0.870      0.055
-          6     -0.730      0.054
-          7      2.955      0.040
-          8     -0.573      0.064
-          9      0.824      0.553
-         10     -0.157      0.063
+          1     -0.153      0.000
+          2      2.491      0.045
+          3      0.639      0.064
+          4     -1.032      0.063
+          5      1.055      0.055
+          6      1.112      0.054
+          7      1.234      0.040
+          8      2.151      0.064
+          9      0.714      0.553
+         10     -1.439      0.063
 Sum of weights              1.000
 
 Drift or Mean Information
 =========================
        Rank       Mu1*      Coeff
-          1      0.256      0.446
+          1      0.256      0.612
 
 Cross-validation results
 ========================
 Target Sample = 1
 Variable Z1 
- - True value        =       2.502
- - Estimated value   =       0.550
- - Estimation Error  =      -1.952
+ - True value        =      -0.153
+ - Estimated value   =       0.697
+ - Estimation Error  =       0.850
  - Std. deviation    =       1.782
- - Normalized Error  =      -1.095
+ - Normalized Error  =       0.477
 NULL
 
 Target location
@@ -226,31 +226,31 @@ Punctual Estimation
 (Co-) Kriging weights
 =====================
        Rank       Data        Z1*
-          1      1.266      0.045
-          2      2.184      0.064
-          3     -2.917      0.063
-          4      0.870      0.055
-          5     -0.730      0.054
-          6      2.955      0.040
-          7     -0.573      0.064
-          8      0.824      0.553
-          9     -0.157      0.063
+          1      2.491      0.045
+          2      0.639      0.064
+          3     -1.032      0.063
+          4      1.055      0.055
+          5      1.112      0.054
+          6      1.234      0.040
+          7      2.151      0.064
+          8      0.714      0.553
+          9     -1.439      0.063
 Sum of weights              1.000
 
 Drift or Mean Information
 =========================
        Rank       Mu1*      Coeff
-          1      0.256      0.289
+          1      0.256      0.681
 
 Cross-validation results
 ========================
 Target Sample = 1
 Variable Z1 
- - True value        =       2.502
- - Estimated value   =       0.550
- - Estimation Error  =      -1.952
+ - True value        =      -0.153
+ - Estimated value   =       0.697
+ - Estimation Error  =       0.850
  - Std. deviation    =       1.782
- - Normalized Error  =      -1.095
+ - Normalized Error  =       0.477
 NULL
 
 
@@ -258,8 +258,8 @@ Table: Cross validation scores (K  = 10)
 
 |                       | Number| Minimum| Maximum|   Mean| St. Dev.|
 |:----------------------|------:|-------:|-------:|------:|--------:|
-|Y                      |    300|  -2.859|   2.595|  0.081|    0.965|
-|OK.xval.LOO.Y.esterr   |    300|  -1.897|   1.778| -0.011|    0.703|
-|OK.xval.LOO.Y.stderr   |    300|  -2.498|   2.560| -0.007|    1.033|
-|OK.xval.kfold.Y.esterr |    300|  -1.897|   1.890| -0.009|    0.713|
-|OK.xval.kfold.Y.stderr |    300|  -2.498|   2.590| -0.003|    1.038|
+|Y                      |    300|  -2.978|   3.030| -0.206|    1.034|
+|OK.xval.LOO.Y.esterr   |    300|  -2.185|   2.345|  0.001|    0.650|
+|OK.xval.LOO.Y.stderr   |    300|  -2.748|   3.108|  0.001|    0.941|
+|OK.xval.kfold.Y.esterr |    300|  -2.096|   2.341| -0.007|    0.656|
+|OK.xval.kfold.Y.stderr |    300|  -2.748|   3.103| -0.007|    0.936|

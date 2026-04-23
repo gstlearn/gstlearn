@@ -105,18 +105,6 @@ namespace gstlrn
         _getNVar() * getNbSimu(), 0., "Simu", ELoc::SIMU);
   }
 
-  Id ACalcSimuModel::_getSeedPerSimu(Id isimu) const
-  {
-    DECLARE_UNUSED(isimu);
-    // TODO: the correct version is to return the Initial seed value stored in _seedPerSimu
-    // for the current simulation rank.
-    // This version is temporarily bypassed in order not to modify the results of the
-    // non-regression tests.
-    Id seed = getSeedPerSimu(isimu);
-    DECLARE_UNUSED(seed);
-    return 0;
-  }
-
   bool ACalcSimuModel::_run()
   {
     bool flag_cond = hasDbin(false);
@@ -134,6 +122,8 @@ namespace gstlrn
       if (getVerbose()) message(">>> computing simulation %d\n", isimu + 1);
       tabOut.fillWith(0);
       if (flag_cond) tabIn.fillWith(0);
+
+      law_set_random_seed(getSeedPerSimu(isimu));
 
       // Preliminary task to be performed per simulation
       _simulate();

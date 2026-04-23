@@ -10,184 +10,180 @@ Simulation of the spectrum
 List of Orders
 --------------
 Component  0 ( 5 /  0)
- Key= 4  1 (+)
- Key= 6  2 (+)
- Key= 7  1 (+)
- Key=12  1 (+)
-Component  1 ( 5 /  3)
- Key= 7  1 (-)
- Key= 8  2 (-)  1 (+)
- Key= 9  1 (+)
- Key=10  1 (+)
- Key=12  2 (+)
-Component  2 ( 3 /  5)
- Key= 4  1 (-)
- Key= 8  1 (-)  2 (+)
- Key= 9  1 (-)
- Key=10  1 (-)
- Key=11  1 (-)
- Key=15  1 (+)
-Component  3 ( 5 /  8)
- Key= 4  1 (-)
- Key= 5  1 (-)
- Key= 6  3 (+)
- Key= 8  1 (-)
- Key=10  1 (-)
- Key=11  2 (-)  1 (+)
- Key=13  1 (-)  1 (+)
- Key=15  1 (-)
-Component  4 ( 1 /  5)
+ Key= 2  1 (+)
+ Key= 5  1 (+)
  Key= 6  1 (+)
- Key= 7  1 (-)
- Key=10  1 (-)
- Key=11  2 (-)
- Key=13  1 (-)
-Component  5 ( 2 /  4)
+ Key=10  2 (+)
+Component  1 ( 6 /  4)
+ Key= 3  1 (+)
+ Key= 6  1 (+)
+ Key= 8  1 (-)
+ Key= 9  1 (+)
+ Key=10  1 (-)  1 (+)
+ Key=11  1 (-)
+ Key=12  1 (-)  1 (+)
+ Key=13  1 (+)
+Component  2 ( 3 /  2)
+ Key= 7  1 (+)
  Key= 8  2 (-)  1 (+)
  Key=11  1 (+)
- Key=12  2 (-)
-Component  6 ( 4 /  4)
- Key= 8  1 (-)  3 (+)
- Key= 9  1 (-)  1 (+)
- Key=10  1 (-)
- Key=16  1 (-)
-Component  7 ( 2 /  4)
- Key= 7  2 (-)
- Key= 8  1 (-)  1 (+)
- Key=10  1 (+)
- Key=13  1 (-)
-Component  8 ( 3 /  2)
- Key= 8  1 (+)
- Key=10  1 (-)  2 (+)
- Key=13  1 (-)
-Component  9 ( 6 /  4)
- Key= 9  1 (-)
- Key=10  1 (+)
- Key=11  1 (-)  1 (+)
- Key=12  1 (-)  3 (+)
- Key=14  1 (+)
- Key=16  1 (-)
-Component 10 ( 2 /  5)
+Component  3 ( 4 /  9)
+ Key= 4  1 (-)
+ Key= 6  1 (-)  1 (+)
+ Key= 8  3 (-)  1 (+)
+ Key= 9  1 (+)
  Key=10  2 (-)  1 (+)
- Key=14  2 (-)
- Key=18  1 (+)
- Key=20  1 (-)
-Component 11 ( 4 /  3)
- Key=11  1 (-)  2 (+)
- Key=12  1 (-)  1 (+)
- Key=13  1 (-)  1 (+)
-Component 12 ( 2 /  4)
- Key=12  1 (-)  1 (+)
+ Key=13  1 (-)
+ Key=19  1 (-)
+Component  4 ( 5 /  5)
+ Key= 5  1 (+)
+ Key= 7  1 (-)  1 (+)
+ Key= 9  1 (-)
+ Key=10  1 (-)
+ Key=12  2 (-)  1 (+)
+ Key=13  1 (+)
+ Key=14  1 (+)
+Component  5 ( 5 /  5)
+ Key= 7  1 (-)
+ Key= 8  2 (+)
+ Key= 9  1 (-)  2 (+)
+ Key=11  1 (-)
+ Key=12  1 (+)
+ Key=13  2 (-)
+Component  6 ( 6 /  4)
+ Key= 6  1 (+)
+ Key= 7  1 (-)
+ Key= 8  1 (+)
+ Key= 9  1 (+)
+ Key=10  2 (+)
+ Key=11  1 (+)
+ Key=13  1 (-)
+ Key=14  1 (-)
+ Key=18  1 (-)
+Component  7 ( 5 /  6)
+ Key= 9  1 (+)
+ Key=10  2 (-)  1 (+)
+ Key=11  1 (+)
+ Key=12  2 (-)  1 (+)
  Key=13  2 (-)  1 (+)
- Key=15  1 (-)
-Component 13 ( 1 /  0)
+Component  8 ( 2 /  3)
+ Key= 8  1 (-)  1 (+)
+ Key= 9  2 (-)
+ Key=16  1 (+)
+Component  9 ( 4 /  3)
+ Key= 9  1 (-)  2 (+)
+ Key=10  1 (-)
+ Key=11  1 (-)  1 (+)
+ Key=16  1 (+)
+Component 10 ( 0 /  5)
+ Key=10  2 (-)
+ Key=11  3 (-)
+Component 11 ( 3 /  2)
+ Key=11  1 (-)
+ Key=12  2 (+)
+ Key=13  1 (-)  1 (+)
+Component 12 ( 1 /  0)
+ Key=17  1 (+)
+Component 13 ( 1 /  1)
+ Key=14  1 (-)  1 (+)
+Component 14 ( 1 /  0)
  Key=15  1 (+)
-Component 14 ( 0 /  1)
- Key=16  1 (-)
-Component 15 ( 0 /  1)
- Key=17  1 (-)
-Component 16 ( 1 /  0)
- Key=19  1 (+)
-Component 17 ( 0 /  1)
- Key=24  1 (-)
 
 Summary:
-- Number of Orders         = 18
-- Number of components (+) = 46
-- Number of components (-) = 54
+- Number of Orders         = 15
+- Number of components (+) = 51
+- Number of components (-) = 49
 
 >>> Simulation on Sphere
 ------------------------
 >>> point number    : 64800
 >>> component number: 100
->>> Maximum order   : 17
->>> Maximum degree  : 24
+>>> Maximum order   : 14
+>>> Maximum degree  : 19
 >>> Simulating order K = 0: component number = 5
-K = 0 and N = 4 : 1 / 1  jk = 0
-K = 0 and N = 6 : 2 / 3  jk = 1
-K = 0 and N = 7 : 1 / 4  jk = 3
-K = 0 and N = 12 : 1 / 5  jk = 4
->>> Simulating order K = 1: component number = 8
-K = 1 and N = 7 : 1 / 6  jk = 5
-K = 1 and N = 8 : 3 / 9  jk = 6
-K = 1 and N = 9 : 1 / 10  jk = 9
-K = 1 and N = 10 : 1 / 11  jk = 10
-K = 1 and N = 12 : 2 / 13  jk = 11
->>> Simulating order K = 2: component number = 8
-K = 2 and N = 4 : 1 / 14  jk = 13
-K = 2 and N = 8 : 3 / 17  jk = 14
-K = 2 and N = 9 : 1 / 18  jk = 17
-K = 2 and N = 10 : 1 / 19  jk = 18
+K = 0 and N = 2 : 1 / 1  jk = 0
+K = 0 and N = 5 : 1 / 2  jk = 1
+K = 0 and N = 6 : 1 / 3  jk = 2
+K = 0 and N = 10 : 2 / 5  jk = 3
+>>> Simulating order K = 1: component number = 10
+K = 1 and N = 3 : 1 / 6  jk = 5
+K = 1 and N = 6 : 1 / 7  jk = 6
+K = 1 and N = 8 : 1 / 8  jk = 7
+K = 1 and N = 9 : 1 / 9  jk = 8
+K = 1 and N = 10 : 2 / 11  jk = 9
+K = 1 and N = 11 : 1 / 12  jk = 11
+K = 1 and N = 12 : 2 / 14  jk = 12
+K = 1 and N = 13 : 1 / 15  jk = 14
+>>> Simulating order K = 2: component number = 5
+K = 2 and N = 7 : 1 / 16  jk = 15
+K = 2 and N = 8 : 3 / 19  jk = 16
 K = 2 and N = 11 : 1 / 20  jk = 19
-K = 2 and N = 15 : 1 / 21  jk = 20
 >>> Simulating order K = 3: component number = 13
-K = 3 and N = 4 : 1 / 22  jk = 21
-K = 3 and N = 5 : 1 / 23  jk = 22
-K = 3 and N = 6 : 3 / 26  jk = 23
-K = 3 and N = 8 : 1 / 27  jk = 26
-K = 3 and N = 10 : 1 / 28  jk = 27
-K = 3 and N = 11 : 3 / 31  jk = 28
-K = 3 and N = 13 : 2 / 33  jk = 31
-K = 3 and N = 15 : 1 / 34  jk = 33
->>> Simulating order K = 4: component number = 6
-K = 4 and N = 6 : 1 / 35  jk = 34
-K = 4 and N = 7 : 1 / 36  jk = 35
-K = 4 and N = 10 : 1 / 37  jk = 36
-K = 4 and N = 11 : 2 / 39  jk = 37
-K = 4 and N = 13 : 1 / 40  jk = 39
->>> Simulating order K = 5: component number = 6
-K = 5 and N = 8 : 3 / 43  jk = 40
-K = 5 and N = 11 : 1 / 44  jk = 43
-K = 5 and N = 12 : 2 / 46  jk = 44
->>> Simulating order K = 6: component number = 8
-K = 6 and N = 8 : 4 / 50  jk = 46
-K = 6 and N = 9 : 2 / 52  jk = 50
-K = 6 and N = 10 : 1 / 53  jk = 52
-K = 6 and N = 16 : 1 / 54  jk = 53
->>> Simulating order K = 7: component number = 6
-K = 7 and N = 7 : 2 / 56  jk = 54
-K = 7 and N = 8 : 2 / 58  jk = 56
-K = 7 and N = 10 : 1 / 59  jk = 58
-K = 7 and N = 13 : 1 / 60  jk = 59
+K = 3 and N = 4 : 1 / 21  jk = 20
+K = 3 and N = 6 : 2 / 23  jk = 21
+K = 3 and N = 8 : 4 / 27  jk = 23
+K = 3 and N = 9 : 1 / 28  jk = 27
+K = 3 and N = 10 : 3 / 31  jk = 28
+K = 3 and N = 13 : 1 / 32  jk = 31
+K = 3 and N = 19 : 1 / 33  jk = 32
+>>> Simulating order K = 4: component number = 10
+K = 4 and N = 5 : 1 / 34  jk = 33
+K = 4 and N = 7 : 2 / 36  jk = 34
+K = 4 and N = 9 : 1 / 37  jk = 36
+K = 4 and N = 10 : 1 / 38  jk = 37
+K = 4 and N = 12 : 3 / 41  jk = 38
+K = 4 and N = 13 : 1 / 42  jk = 41
+K = 4 and N = 14 : 1 / 43  jk = 42
+>>> Simulating order K = 5: component number = 10
+K = 5 and N = 7 : 1 / 44  jk = 43
+K = 5 and N = 8 : 2 / 46  jk = 44
+K = 5 and N = 9 : 3 / 49  jk = 46
+K = 5 and N = 11 : 1 / 50  jk = 49
+K = 5 and N = 12 : 1 / 51  jk = 50
+K = 5 and N = 13 : 2 / 53  jk = 51
+>>> Simulating order K = 6: component number = 10
+K = 6 and N = 6 : 1 / 54  jk = 53
+K = 6 and N = 7 : 1 / 55  jk = 54
+K = 6 and N = 8 : 1 / 56  jk = 55
+K = 6 and N = 9 : 1 / 57  jk = 56
+K = 6 and N = 10 : 2 / 59  jk = 57
+K = 6 and N = 11 : 1 / 60  jk = 59
+K = 6 and N = 13 : 1 / 61  jk = 60
+K = 6 and N = 14 : 1 / 62  jk = 61
+K = 6 and N = 18 : 1 / 63  jk = 62
+>>> Simulating order K = 7: component number = 11
+K = 7 and N = 9 : 1 / 64  jk = 63
+K = 7 and N = 10 : 3 / 67  jk = 64
+K = 7 and N = 11 : 1 / 68  jk = 67
+K = 7 and N = 12 : 3 / 71  jk = 68
+K = 7 and N = 13 : 3 / 74  jk = 71
 >>> Simulating order K = 8: component number = 5
-K = 8 and N = 8 : 1 / 61  jk = 60
-K = 8 and N = 10 : 3 / 64  jk = 61
-K = 8 and N = 13 : 1 / 65  jk = 64
->>> Simulating order K = 9: component number = 10
-K = 9 and N = 9 : 1 / 66  jk = 65
-K = 9 and N = 10 : 1 / 67  jk = 66
-K = 9 and N = 11 : 2 / 69  jk = 67
-K = 9 and N = 12 : 4 / 73  jk = 69
-K = 9 and N = 14 : 1 / 74  jk = 73
-K = 9 and N = 16 : 1 / 75  jk = 74
->>> Simulating order K = 10: component number = 7
-K = 10 and N = 10 : 3 / 78  jk = 75
-K = 10 and N = 14 : 2 / 80  jk = 78
-K = 10 and N = 18 : 1 / 81  jk = 80
-K = 10 and N = 20 : 1 / 82  jk = 81
->>> Simulating order K = 11: component number = 7
-K = 11 and N = 11 : 3 / 85  jk = 82
-K = 11 and N = 12 : 2 / 87  jk = 85
-K = 11 and N = 13 : 2 / 89  jk = 87
->>> Simulating order K = 12: component number = 6
-K = 12 and N = 12 : 2 / 91  jk = 89
-K = 12 and N = 13 : 3 / 94  jk = 91
-K = 12 and N = 15 : 1 / 95  jk = 94
->>> Simulating order K = 13: component number = 1
-K = 13 and N = 15 : 1 / 96  jk = 95
+K = 8 and N = 8 : 2 / 76  jk = 74
+K = 8 and N = 9 : 2 / 78  jk = 76
+K = 8 and N = 16 : 1 / 79  jk = 78
+>>> Simulating order K = 9: component number = 7
+K = 9 and N = 9 : 3 / 82  jk = 79
+K = 9 and N = 10 : 1 / 83  jk = 82
+K = 9 and N = 11 : 2 / 85  jk = 83
+K = 9 and N = 16 : 1 / 86  jk = 85
+>>> Simulating order K = 10: component number = 5
+K = 10 and N = 10 : 2 / 88  jk = 86
+K = 10 and N = 11 : 3 / 91  jk = 88
+>>> Simulating order K = 11: component number = 5
+K = 11 and N = 11 : 1 / 92  jk = 91
+K = 11 and N = 12 : 2 / 94  jk = 92
+K = 11 and N = 13 : 2 / 96  jk = 94
+>>> Simulating order K = 12: component number = 1
+K = 12 and N = 17 : 1 / 97  jk = 96
+>>> Simulating order K = 13: component number = 2
+K = 13 and N = 14 : 2 / 99  jk = 97
 >>> Simulating order K = 14: component number = 1
-K = 14 and N = 16 : 1 / 97  jk = 96
->>> Simulating order K = 15: component number = 1
-K = 15 and N = 17 : 1 / 98  jk = 97
->>> Simulating order K = 16: component number = 1
-K = 16 and N = 19 : 1 / 99  jk = 98
->>> Simulating order K = 17: component number = 1
-K = 17 and N = 24 : 1 / 100  jk = 99
+K = 14 and N = 15 : 1 / 100  jk = 99
 
 
 Table: Statistics for simulation of Poisson model on S2
 
 |        | Number|   Minimum|  Maximum|     Mean| St. Dev.|
 |:-------|------:|---------:|--------:|--------:|--------:|
-|Poisson |  64800| -3.038094| 2.919978| 0.042744| 0.967315|
+|Poisson |  64800| -3.431493| 3.228278| -0.00524| 1.032587|
 NULL

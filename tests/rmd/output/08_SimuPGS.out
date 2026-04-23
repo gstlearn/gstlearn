@@ -2,58 +2,58 @@ NULL
 Number of conditioning data (connected) = 4 
 Their ranks in the input Data Base = 4 12 15 16 
 Their ranks in the output Data Base = 6000 1270 6648 9712 
-List of their connected components indices = 1 NA NA 1 
+List of their connected components indices = 1 2 1 1 
 Acceptation score = FALSE 
 Connectivity for Simulation #1 : FALSE 
 Simulation SimuPGS.S1 is invalid
-Simulation SimuPGS.S2 is valid
+Simulation SimuPGS.S2 is invalid
 Simulation SimuPGS.S3 is invalid
 Simulation SimuPGS.S4 is valid
 Simulation SimuPGS.S5 is invalid
 Simulation SimuPGS.S6 is invalid
 Simulation SimuPGS.S7 is invalid
 Simulation SimuPGS.S8 is invalid
-Simulation SimuPGS.S9 is invalid
-Simulation SimuPGS.S10 is valid
-Simulation SimuPGS.S11 is invalid
+Simulation SimuPGS.S9 is valid
+Simulation SimuPGS.S10 is invalid
+Simulation SimuPGS.S11 is valid
 Simulation SimuPGS.S12 is invalid
 Simulation SimuPGS.S13 is invalid
 Simulation SimuPGS.S14 is valid
-Simulation SimuPGS.S15 is invalid
+Simulation SimuPGS.S15 is valid
 Simulation SimuPGS.S16 is invalid
 Simulation SimuPGS.S17 is invalid
 Simulation SimuPGS.S18 is invalid
-Simulation SimuPGS.S19 is invalid
-Simulation SimuPGS.S20 is invalid
+Simulation SimuPGS.S19 is valid
+Simulation SimuPGS.S20 is valid
 Simulation SimuPGS.S21 is invalid
 Simulation SimuPGS.S22 is invalid
-Simulation SimuPGS.S23 is valid
+Simulation SimuPGS.S23 is invalid
 Simulation SimuPGS.S24 is invalid
 Simulation SimuPGS.S25 is invalid
 Simulation SimuPGS.S26 is invalid
-Simulation SimuPGS.S27 is valid
-Simulation SimuPGS.S28 is invalid
+Simulation SimuPGS.S27 is invalid
+Simulation SimuPGS.S28 is valid
 Simulation SimuPGS.S29 is invalid
 Simulation SimuPGS.S30 is valid
 Simulation SimuPGS.S31 is invalid
 Simulation SimuPGS.S32 is valid
 Simulation SimuPGS.S33 is invalid
-Simulation SimuPGS.S34 is valid
+Simulation SimuPGS.S34 is invalid
 Simulation SimuPGS.S35 is invalid
-Simulation SimuPGS.S36 is invalid
+Simulation SimuPGS.S36 is valid
 Simulation SimuPGS.S37 is valid
 Simulation SimuPGS.S38 is invalid
 Simulation SimuPGS.S39 is invalid
 Simulation SimuPGS.S40 is valid
-Simulation SimuPGS.S41 is valid
-Simulation SimuPGS.S42 is valid
-Simulation SimuPGS.S43 is invalid
-Simulation SimuPGS.S44 is valid
+Simulation SimuPGS.S41 is invalid
+Simulation SimuPGS.S42 is invalid
+Simulation SimuPGS.S43 is valid
+Simulation SimuPGS.S44 is invalid
 Simulation SimuPGS.S45 is invalid
-Simulation SimuPGS.S46 is invalid
-Simulation SimuPGS.S47 is valid
-Simulation SimuPGS.S48 is invalid
+Simulation SimuPGS.S46 is valid
+Simulation SimuPGS.S47 is invalid
+Simulation SimuPGS.S48 is valid
 Simulation SimuPGS.S49 is invalid
 Simulation SimuPGS.S50 is invalid
-Number of valid simulations = 15 out of 50 
+Number of valid simulations = 16 out of 50 
 NULL

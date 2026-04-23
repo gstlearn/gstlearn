@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Simulation/ACalcSimulation.hpp"
+#include "Basic/Law.hpp"
 #include "Calculators/ACalcInterpolator.hpp"
 #include "Estimation/KrigingSystem.hpp"
 
@@ -35,6 +36,21 @@ namespace gstlrn
       messerr("You must define 'nbsimu' and 'nbtuba'");
       return false;
     }
+
+    // Memorize the current seed
+    Id mem_seed = law_get_random_seed();
+    law_set_random_seed(getSeed());
+
+    _seedPerSimu.resize(getNbSimu());
+    for (Id isimu = 0; isimu < getNbSimu(); isimu++)
+    {
+      // Next statement is simply meant to move the seed for random number generator
+      law_uniform();
+      _seedPerSimu[isimu] = law_get_random_seed();
+    }
+
+    // Restore the seed
+    law_set_random_seed(mem_seed);
     return true;
   }
 

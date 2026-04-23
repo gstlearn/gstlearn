@@ -1,7 +1,7 @@
 #NO_DIFF#XXX
 ----
-Range for Bottom =  90.831 105.0
-Range for Top =  105.001 119.101
+Range for Bottom =  90.977 104.998
+Range for Top =  105.009 118.72
 ----
 
 
@@ -31,8 +31,8 @@ Range for Top =  105.001 119.101
 
 #NO_DIFF#XXX
 ----
-Range for Bottom =  90.831 105.0
-Range for Top =  105.001 119.101
+Range for Bottom =  90.977 104.998
+Range for Top =  105.009 118.72
 ----
 
 
@@ -51,20 +51,20 @@ Total number of samples      = 450000
 
 Grid characteristics:
 ---------------------
-Origin :      0.000     0.000    91.000
-Mesh   :      1.000     1.000     1.000
-Number :        150       100        30
+Origin :       0.000      0.000     91.000
+Mesh   :       1.000      1.000      1.000
+Number :         150        100         30
 
 Data Base Statistics
 --------------------
 5 - Name Interpolation - Locator z1
- Nb of data          =     450000
- Nb of active values =     156484
- Minimum value       =     -6.055
- Maximum value       =      9.049
- Mean value          =      0.861
- Standard Deviation  =      2.189
- Variance            =      4.790
+ Nb of data          =      450000
+ Nb of active values =      152985
+ Minimum value       =      -6.714
+ Maximum value       =       8.720
+ Mean value          =       0.857
+ Standard Deviation  =       2.219
+ Variance            =       4.925
 
 Variables
 ---------

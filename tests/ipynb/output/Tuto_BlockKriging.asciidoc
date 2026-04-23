@@ -18,9 +18,9 @@ Total number of samples      = 300
 
 Grid characteristics:
 ---------------------
-Origin :      0.000     0.000
-Mesh   :     10.000    10.000
-Number :         20        15
+Origin :       0.000      0.000
+Mesh   :      10.000     10.000
+Number :          20         15
 
 Variables
 ---------
@@ -74,9 +74,9 @@ Total number of samples      = 300
 
 Grid characteristics:
 ---------------------
-Origin :      0.000     0.000
-Mesh   :     10.000    10.000
-Number :         20        15
+Origin :       0.000      0.000
+Mesh   :      10.000     10.000
+Number :          20         15
 
 Variables
 ---------
@@ -172,16 +172,16 @@ Punctual Estimation
 (Co-) Kriging weights
 =====================
        Rank       Data        Z1*
-          1      0.946      0.122
-          2     -0.605      0.016
-          3      0.801      0.004
-          4      0.447      0.027
-          5      0.932     -0.017
-          6     -0.248      0.513
-          7      0.166      0.038
-          8      1.070      0.048
-          9     -0.040      0.126
-         10     -1.474      0.091
+          1     -0.449      0.122
+          2      0.772      0.016
+          3     -1.256      0.004
+          4     -2.067      0.027
+          5      2.097     -0.017
+          6     -0.695      0.513
+          7     -1.060      0.038
+          8     -1.686      0.048
+          9      0.842      0.126
+         10      0.147      0.091
 Sum of weights              0.968
 
 Drift or Mean Information
@@ -192,7 +192,7 @@ Mean for Variable Z1 = 0.000000
 =====================
 Target Sample = 156
 Variable Z1 
- - Estimate  =      -0.103
+ - Estimate  =      -0.497
  - Std. Dev. =       0.709
  - Variance  =       0.503
  - Cov(h=0)  =       1.000
@@ -213,9 +213,9 @@ Total number of samples      = 300
 
 Grid characteristics:
 ---------------------
-Origin :      0.000     0.000
-Mesh   :     10.000    10.000
-Number :         20        15
+Origin :       0.000      0.000
+Mesh   :      10.000     10.000
+Number :          20         15
 
 Variables
 ---------
@@ -325,16 +325,16 @@ Block Estimation : Discretization = 5 x 5
 (Co-) Kriging weights
 =====================
        Rank       Data        Z1*
-          1      0.946      0.143
-          2     -0.605      0.021
-          3      0.801      0.007
-          4      0.447      0.034
-          5      0.932     -0.015
-          6     -0.248      0.414
-          7      0.166      0.048
-          8      1.070      0.056
-          9     -0.040      0.144
-         10     -1.474      0.104
+          1     -0.449      0.143
+          2      0.772      0.021
+          3     -1.256      0.007
+          4     -2.067      0.034
+          5      2.097     -0.015
+          6     -0.695      0.414
+          7     -1.060      0.048
+          8     -1.686      0.056
+          9      0.842      0.144
+         10      0.147      0.104
 Sum of weights              0.956
 
 Drift or Mean Information
@@ -345,7 +345,7 @@ Mean for Variable Z1 = 0.000000
 =====================
 Target Sample = 156
 Variable Z1 
- - Estimate  =      -0.065
+ - Estimate  =      -0.455
  - Std. Dev. =       0.372
  - Variance  =       0.138
  - Cov(h=0)  =       0.565
@@ -366,9 +366,9 @@ Total number of samples      = 300
 
 Grid characteristics:
 ---------------------
-Origin :      0.000     0.000
-Mesh   :     10.000    10.000
-Number :         20        15
+Origin :       0.000      0.000
+Mesh   :      10.000     10.000
+Number :          20         15
 
 Variables
 ---------
@@ -482,16 +482,16 @@ Block Estimation : Discretization = 5 x 5
 (Co-) Kriging weights
 =====================
        Rank       Data        Z1*
-          1      0.946      0.112
-          2     -0.605      0.052
-          3      0.801      0.031
-          4      0.447      0.052
-          5      0.932      0.025
-          6     -0.248      0.165
-          7      0.166      0.065
-          8      1.070      0.083
-          9     -0.040      0.155
-         10     -1.474      0.107
+          1     -0.449      0.112
+          2      0.772      0.052
+          3     -1.256      0.031
+          4     -2.067      0.052
+          5      2.097      0.025
+          6     -0.695      0.165
+          7     -1.060      0.065
+          8     -1.686      0.083
+          9      0.842      0.155
+         10      0.147      0.107
 Sum of weights              0.846
 
 Drift or Mean Information
@@ -502,7 +502,7 @@ Mean for Variable Z1 = 0.000000
 =====================
 Target Sample = 156
 Variable Z1 
- - Estimate  =       0.040
+ - Estimate  =      -0.282
  - Std. Dev. =       0.223
  - Variance  =       0.050
  - Cov(h=0)  =       0.279

@@ -55,7 +55,6 @@ namespace gstlrn
     bool _run() override;
 
     void _initializeOutputAttribute();
-    Id _getSeedPerSimu(Id isimu) const;
 
     bool _getFlagBayes() const { return _flagBayes; }
 

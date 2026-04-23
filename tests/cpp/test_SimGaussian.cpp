@@ -21,6 +21,7 @@
 #include "Simulation/SpectrumOnRN.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Stats/Classical.hpp"
+#include "Variogram/Vario.hpp"
 
 using namespace gstlrn;
 
@@ -45,6 +46,7 @@ int main(int argc, char* argv[])
   Id nbsimu = 3;
   Id ndat = 10;
   Id nvar = 2;
+  bool flagCond = false;
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Build a Model (compatible for Turning Bands and for Spectral methods)
@@ -62,6 +64,7 @@ int main(int argc, char* argv[])
 
   // Build a Data set and simulate the Conditioning information
   Db* data = Db::createFillRandom(ndat, ndim, 0);
+  Db* dbin = (flagCond) ? data : nullptr;
 
   // Simulate the conditioning information (one simulation)
   (void)simtub(
@@ -77,21 +80,27 @@ int main(int argc, char* argv[])
   // ====================== Simulation (turning bands) ====================
   message("\n<----- Simulation using Turning Bands ----->\n");
   simtub(
-    nullptr, grid, model, nullptr, nbsimu, 425631, nfeatures, false,
+    dbin, grid, model, nullptr, nbsimu, 425631, nfeatures, false,
     NamingConvention("SimuTB"));
   grid->getStatsAsTable({"SimuTB*"}).display();
   grid->getCorrelationAsTable({"SimuTB*"}).display();
+  grid->setLocators({"SimuTB"}, ELoc::Z, 0, true);
+  auto* varioTB = varioGridCalculate(grid);
 
   // ====================== Simulation (spectral) ====================
   message("\n<----- Simulation using Spectral Method ----->\n");
   simuSpectral(
-    nullptr, grid, model, nullptr, nbsimu, 425631, nfeatures, 100, false,
+    dbin, grid, model, nullptr, nbsimu, 425631, nfeatures, 100, false,
     NamingConvention("SimuSPT"));
   grid->getStatsAsTable({"SimuSPT*"}).display();
   grid->getCorrelationAsTable({"SimuSPT*"}).display();
+  grid->setLocators({"SimuSPT"}, ELoc::Z, 0, true);
+  auto* varioSPT = varioGridCalculate(grid);
 
   // ====================== Dump into Neutral File =========================
-  (void)grid->dumpToNF("Unique.NF", EFormatNF::DEFAULT);
+  (void)grid->dumpToNF("Grid", EFormatNF::DEFAULT);
+  (void)varioSPT->dumpToNF("Vario_SPT");
+  (void)varioTB->dumpToNF("Vario_TB");
 
   // ====================== Free pointers ==================================
   delete data;

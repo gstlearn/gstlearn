@@ -81,15 +81,15 @@ Drift or Mean Information
 
 Simulation results
 ==================
-Simulation #1 of Z1  :  =       0.697
-Simulation #2 of Z1  :  =       1.553
-Simulation #3 of Z1  :  =       2.410
-Simulation #4 of Z1  :  =      -0.455
-Simulation #1 of Z2  :  =      -0.425
-Simulation #2 of Z2  :  =      -0.514
-Simulation #3 of Z2  :  =      -2.781
-Simulation #4 of Z2  :  =      -0.107
-#NO_DIFF# Non-conditional Simulation on Grid: 9 ms. (Ref = 6800 ms.)
+Simulation #1 of Z1  :  =      -0.776
+Simulation #2 of Z1  :  =       1.918
+Simulation #3 of Z1  :  =      -1.279
+Simulation #4 of Z1  :  =       2.923
+Simulation #1 of Z2  :  =       1.028
+Simulation #2 of Z2  :  =      -1.937
+Simulation #3 of Z2  :  =       1.514
+Simulation #4 of Z2  :  =      -1.148
+#NO_DIFF# Non-conditional Simulation on Grid: 20 ms. (Ref = 6800 ms.)
 
 Data Base Grid Characteristics
 ==============================
@@ -99,64 +99,64 @@ Data Base Statistics
 4 - Name Simu.z-1.S1 - Locator z1
  Nb of data          =         400
  Nb of active values =         400
- Minimum value       =      -4.156
- Maximum value       =       8.136
- Mean value          =       1.296
- Standard Deviation  =       2.146
- Variance            =       4.604
+ Minimum value       =      -7.101
+ Maximum value       =       4.634
+ Mean value          =      -0.237
+ Standard Deviation  =       1.909
+ Variance            =       3.646
 5 - Name Simu.z-1.S2 - Locator z2
  Nb of data          =         400
  Nb of active values =         400
- Minimum value       =      -6.061
- Maximum value       =       5.906
- Mean value          =       0.006
- Standard Deviation  =       2.053
- Variance            =       4.215
+ Minimum value       =      -4.269
+ Maximum value       =       6.727
+ Mean value          =       1.118
+ Standard Deviation  =       1.906
+ Variance            =       3.631
 6 - Name Simu.z-1.S3 - Locator z3
  Nb of data          =         400
  Nb of active values =         400
- Minimum value       =      -3.632
- Maximum value       =       7.261
- Mean value          =       1.434
- Standard Deviation  =       2.011
- Variance            =       4.044
+ Minimum value       =      -4.800
+ Maximum value       =       6.549
+ Mean value          =      -0.344
+ Standard Deviation  =       2.031
+ Variance            =       4.125
 7 - Name Simu.z-1.S4 - Locator z4
  Nb of data          =         400
  Nb of active values =         400
- Minimum value       =      -5.390
- Maximum value       =       8.453
- Mean value          =       1.041
- Standard Deviation  =       2.371
- Variance            =       5.623
+ Minimum value       =      -3.449
+ Maximum value       =       7.339
+ Mean value          =       2.059
+ Standard Deviation  =       1.998
+ Variance            =       3.993
 8 - Name Simu.z-2.S1 - Locator z5
  Nb of data          =         400
  Nb of active values =         400
- Minimum value       =      -6.735
- Maximum value       =       4.015
- Mean value          =      -1.381
- Standard Deviation  =       1.673
- Variance            =       2.801
+ Minimum value       =      -4.306
+ Maximum value       =       5.098
+ Mean value          =      -0.173
+ Standard Deviation  =       1.554
+ Variance            =       2.415
 9 - Name Simu.z-2.S2 - Locator z6
  Nb of data          =         400
  Nb of active values =         400
- Minimum value       =      -4.473
- Maximum value       =       5.011
- Mean value          =       0.199
- Standard Deviation  =       1.639
- Variance            =       2.686
+ Minimum value       =      -4.469
+ Maximum value       =       4.282
+ Mean value          =      -0.546
+ Standard Deviation  =       1.443
+ Variance            =       2.082
 10 - Name Simu.z-2.S3 - Locator z7
  Nb of data          =         400
  Nb of active values =         400
- Minimum value       =      -5.269
- Maximum value       =       3.080
- Mean value          =      -1.018
- Standard Deviation  =       1.536
- Variance            =       2.359
+ Minimum value       =      -4.704
+ Maximum value       =       3.804
+ Mean value          =       0.136
+ Standard Deviation  =       1.415
+ Variance            =       2.001
 11 - Name Simu.z-2.S4 - Locator z8
  Nb of data          =         400
  Nb of active values =         400
- Minimum value       =      -7.386
- Maximum value       =       3.045
- Mean value          =      -1.668
- Standard Deviation  =       1.875
- Variance            =       3.517
+ Minimum value       =      -5.901
+ Maximum value       =       2.668
+ Mean value          =      -1.630
+ Standard Deviation  =       1.653
+ Variance            =       2.732

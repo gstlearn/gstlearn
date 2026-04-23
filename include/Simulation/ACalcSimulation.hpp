@@ -44,8 +44,6 @@ namespace gstlrn
   protected:
     bool _check() override;
 
-    Id _getSeedPerSimu(Id isimu) const;
-
     Id _getShift() const { return _shift; }
 
     virtual Id _getIcase() const { return 0; }

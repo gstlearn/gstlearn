@@ -454,16 +454,16 @@ Column = 17 - Name = Simu.Y.Pb.S9 - Locator = z9
 Column = 18 - Name = Simu.Y.Pb.S10 - Locator = z10
 NULL
                      Mean    St. Dev.     Minimum     Maximum
- Simu.Y.Pb.S1       0.243       1.540      -5.005       6.252
- Simu.Y.Pb.S2       0.120       1.535      -5.932       6.299
- Simu.Y.Pb.S3       0.088       1.561      -5.267       6.493
- Simu.Y.Pb.S4       0.550       1.567      -4.711       6.481
- Simu.Y.Pb.S5      -0.177       1.463      -4.892       5.080
- Simu.Y.Pb.S6      -0.046       1.526      -5.146       5.780
- Simu.Y.Pb.S7       0.483       1.510      -6.760       5.942
- Simu.Y.Pb.S8       0.281       1.623      -6.199       6.288
- Simu.Y.Pb.S9      -0.105       1.617      -6.527       5.630
-Simu.Y.Pb.S10       0.384       1.577      -5.693       5.862
+ Simu.Y.Pb.S1      -0.115       1.596      -6.086       5.532
+ Simu.Y.Pb.S2       0.389       1.662      -5.964       6.048
+ Simu.Y.Pb.S3      -0.023       1.561      -5.298       5.510
+ Simu.Y.Pb.S4       0.429       1.628      -4.976       6.186
+ Simu.Y.Pb.S5       0.185       1.611      -5.634       5.772
+ Simu.Y.Pb.S6       0.470       1.539      -5.185       6.369
+ Simu.Y.Pb.S7      -0.176       1.582      -5.715       5.146
+ Simu.Y.Pb.S8       0.857       1.575      -4.652       6.627
+ Simu.Y.Pb.S9       0.527       1.644      -5.386       6.371
+Simu.Y.Pb.S10       0.238       1.529      -5.155       5.338
 NULL
 NULL
 
@@ -506,16 +506,16 @@ Column = 17 - Name = Z.Simu.Y.Pb.S9 - Locator = z9
 Column = 18 - Name = Z.Simu.Y.Pb.S10 - Locator = z10
 NULL
                        Mean    St. Dev.     Minimum     Maximum
- Z.Simu.Y.Pb.S1       6.432       2.791       3.003      12.978
- Z.Simu.Y.Pb.S2       6.233       2.734       3.003      12.978
- Z.Simu.Y.Pb.S3       6.196       2.710       3.003      12.978
- Z.Simu.Y.Pb.S4       6.975       3.001       3.003      12.978
- Z.Simu.Y.Pb.S5       5.703       2.379       3.003      12.978
- Z.Simu.Y.Pb.S6       5.942       2.598       3.003      12.978
- Z.Simu.Y.Pb.S7       6.852       2.872       3.003      12.978
- Z.Simu.Y.Pb.S8       6.536       2.905       3.003      12.978
- Z.Simu.Y.Pb.S9       5.933       2.694       3.003      12.978
-Z.Simu.Y.Pb.S10       6.710       2.909       3.003      12.978
+ Z.Simu.Y.Pb.S1       5.898       2.613       3.003      12.978
+ Z.Simu.Y.Pb.S2       6.753       3.024       3.003      12.978
+ Z.Simu.Y.Pb.S3       6.028       2.635       3.003      12.978
+ Z.Simu.Y.Pb.S4       6.783       3.003       3.003      12.978
+ Z.Simu.Y.Pb.S5       6.380       2.844       3.003      12.978
+ Z.Simu.Y.Pb.S6       6.814       2.877       3.003      12.978
+ Z.Simu.Y.Pb.S7       5.782       2.527       3.003      12.978
+ Z.Simu.Y.Pb.S8       7.550       3.129       3.003      12.978
+ Z.Simu.Y.Pb.S9       6.970       3.077       3.003      12.978
+Z.Simu.Y.Pb.S10       6.427       2.785       3.003      12.978
 NULL
 NULL
 
@@ -662,16 +662,16 @@ Column = 29 - Name = Simu.Y.Zn.S10 - Locator = z20
 NULL
 NULL
                        Mean    St. Dev.     Minimum     Maximum
- Z.Simu.Y.Pb.S1       5.755       1.773       3.003      12.978
- Z.Simu.Y.Pb.S2       5.806       1.796       3.003      12.978
- Z.Simu.Y.Pb.S3       5.501       1.798       3.003      12.978
- Z.Simu.Y.Pb.S4       5.782       1.803       3.003      12.978
- Z.Simu.Y.Pb.S5       5.653       1.721       3.003      12.978
- Z.Simu.Y.Pb.S6       5.578       1.710       3.003      12.978
- Z.Simu.Y.Pb.S7       5.728       1.801       3.003      12.978
- Z.Simu.Y.Pb.S8       5.682       1.748       3.003      12.978
- Z.Simu.Y.Pb.S9       5.895       1.885       3.003      12.978
-Z.Simu.Y.Pb.S10       5.635       1.706       3.003      12.978
+ Z.Simu.Y.Pb.S1       5.825       1.854       3.003      12.978
+ Z.Simu.Y.Pb.S2       5.776       1.796       3.003      12.978
+ Z.Simu.Y.Pb.S3       5.812       1.764       3.003      12.978
+ Z.Simu.Y.Pb.S4       5.677       1.705       3.003      12.978
+ Z.Simu.Y.Pb.S5       6.121       1.959       3.003      12.978
+ Z.Simu.Y.Pb.S6       5.762       1.740       3.003      12.978
+ Z.Simu.Y.Pb.S7       5.910       1.787       3.003      12.978
+ Z.Simu.Y.Pb.S8       5.705       1.818       3.003      12.978
+ Z.Simu.Y.Pb.S9       5.843       1.859       3.003      12.978
+Z.Simu.Y.Pb.S10       5.735       1.771       3.003      12.978
 NULL
 Bound( 1 ) : ] -Inf ; 4 [
 Bound( 2 ) : [ 4 ; 6 [

@@ -46,7 +46,7 @@ namespace gstlrn
 
   CalcSimuTurningBands::~CalcSimuTurningBands() {}
 
-  bool CalcSimuTurningBands::_resizeTB()
+  bool CalcSimuTurningBands::_resize()
   {
     auto nbsimu = getNbSimu();
     auto nbtuba = getNBtuba();
@@ -69,36 +69,27 @@ namespace gstlrn
 
       Id size = nvar * ncova * nbtuba * nbsimu;
       _seedBands.resize(size, 0);
-
-      /* Allocate the structures for the directions */
-
-      Id nbands = nbsimu * nbtuba * ncova;
-      _codirs.resize(nbands);
-      for (Id i = 0; i < nbands; i++) _codirs[i] = TurningBandDirection();
     }
 
     return true;
   }
 
-  Id
-    CalcSimuTurningBands::_getAddressBand(Id ivar, Id is, Id ib, Id isimu) const
+  Id CalcSimuTurningBands::_getAddressBand(Id ivar, Id is, Id ib) const
   {
     auto nvar = _getNVar();
     auto ncova = _getNCov();
-    auto nbtuba = getNbtuba();
-    return ivar + nvar * ((is) + ncova * ((ib) + nbtuba * (isimu)));
+    return ivar + nvar * (is + ncova * ib);
   }
 
-  void
-    CalcSimuTurningBands::_setSeedBand(Id ivar, Id is, Id ib, Id isimu, Id seed)
+  void CalcSimuTurningBands::_setSeedBand(Id ivar, Id is, Id ib, Id seed)
   {
-    auto iad = _getAddressBand(ivar, is, ib, isimu);
+    auto iad = _getAddressBand(ivar, is, ib);
     _seedBands[iad] = seed;
   }
 
-  Id CalcSimuTurningBands::_getSeedBand(Id ivar, Id is, Id ib, Id isimu) const
+  Id CalcSimuTurningBands::_getSeedBand(Id ivar, Id is, Id ib) const
   {
-    auto iad = _getAddressBand(ivar, is, ib, isimu);
+    auto iad = _getAddressBand(ivar, is, ib);
     return _seedBands[iad];
   }
 
@@ -118,14 +109,21 @@ namespace gstlrn
    ** \param[in]  dbout   Db structure
    **
    *****************************************************************************/
-  Id CalcSimuTurningBands::_generateDirections(const Db* dbout)
+  void CalcSimuTurningBands::_generateRandomDirections(const Db* dbout)
   {
     double x[2];
     auto ndim = _getNDim();
     auto ncova = _getNCov();
     auto nbsimu = getNbSimu();
-    auto nbands = getNDirs();
     auto nbtuba = getNbtuba();
+
+    // Store the initial seed
+    Id mem_seed = law_get_random_seed();
+    law_set_random_seed(getSeed());
+
+    Id nbands = nbsimu * nbtuba * ncova;
+    _codirs.resize(nbands);
+    for (Id i = 0; i < nbands; i++) _codirs[i] = TurningBandDirection();
 
     /* Loop on the directions */
 
@@ -243,7 +241,8 @@ namespace gstlrn
           }
         }
 
-    return 0;
+    // Restore the initial seed
+    law_set_random_seed(mem_seed);
   }
 
   void CalcSimuTurningBands::_dumpBands() const
@@ -406,52 +405,28 @@ namespace gstlrn
 
   /****************************************************************************/
   /*!
-   **  Initialize the array of seeds for the generation of a simulation
+   **  Initialize the set of seeds for the generation of ONE simulation
    **  using the Turning Bands method
    **
    ** \return  Error return code : 1 for problem; 0 otherwise
    **
    *****************************************************************************/
-  Id CalcSimuTurningBands::_initializeSeedBands()
+  void CalcSimuTurningBands::_initializeSeedBands()
   {
     _setDensity();
     auto ncova = _getNCov();
     auto nvar = _getNVar();
-    auto nbsimu = getNbSimu();
     auto nbtuba = getNbtuba();
-    TurningBandOperate operTB;
-    double correc;
 
-    // Store the initial seed
-    Id mem_seed = law_get_random_seed();
-
-    //
-    // Important remark: the order of the following loops must not be modified
-    // in order to keep the same seeds and not modify the results
-    //
-
-    // Loop for fixing the seed for each Simulation / Variable / Covariance / Band
+    // Loop for fixing the seed for each Variable / Covariance / Band
     for (Id ivar = 0; ivar < nvar; ivar++)
-      for (Id isimu = 0; isimu < nbsimu; isimu++)
-        for (Id is = 0; is < ncova; is++)
-          for (Id ib = 0; ib < nbtuba; ib++)
-          {
-            Id ibs = _getIBS(isimu, is, ib);
-            ECov type = _particularCase(_modelLocal->getCovAniso(is));
-            operTB.reset();
-            _setSeedBand(ivar, is, ib, isimu, law_get_random_seed());
-
-            Id optionSpectral = _getCorrec(type, is, ibs, operTB, correc);
-            if (optionSpectral > 0) continue;
-            messerr(
-              "The structure (%s) cannot be simulated", type.getDescr().data());
-            messerr("using the Turning Bands algorithm");
-            return 1;
-          }
-
-    // Set the initial seed back
-    law_set_random_seed(mem_seed);
-    return 0;
+      for (Id is = 0; is < ncova; is++)
+        for (Id ib = 0; ib < nbtuba; ib++)
+        {
+          // Next statement is simply to move the seed for random number generator
+          (void)law_uniform();
+          _setSeedBand(ivar, is, ib, law_get_random_seed());
+        }
   }
 
   /*****************************************************************************/
@@ -957,6 +932,12 @@ namespace gstlrn
     }
   }
 
+  Id CalcSimuTurningBands::_simulate()
+  {
+    _initializeSeedBands();
+    return 0;
+  }
+
   /**
    * @brief Compute one non conditional simulation on the samples of Db using Turning Bands method
    *
@@ -1160,7 +1141,7 @@ namespace gstlrn
         operTB.setScale(_getCodirScale(ibs));
         operTB.setFlagScaled(false);
 
-        law_set_random_seed(_getSeedBand(ivar, is, ib, isimu));
+        law_set_random_seed(_getSeedBand(ivar, is, ib));
         Id optionSpectral = _getCorrec(type, is, ibs, operTB, correc);
 
         // Spreading the values on the points within 'tab'
@@ -1210,7 +1191,7 @@ namespace gstlrn
         operTB.setScale(_getCodirScale(ibs));
         operTB.setFlagScaled(true);
 
-        law_set_random_seed(_getSeedBand(ivar, is, ib, isimu));
+        law_set_random_seed(_getSeedBand(ivar, is, ib));
         Id optionSpectral = _getCorrec(type, is, ibs, operTB, correc);
 
         // Spreading the values on the grid within 'tab'
@@ -1307,17 +1288,14 @@ namespace gstlrn
     law_set_random_seed(getSeed());
 
     // Dimension the Turning Bands environment
-    if (!_resizeTB()) return false;
+    if (!_resize()) return false;
 
     // Generate the Bands directions
-    if (_generateDirections(getDbout())) return false;
+    _generateRandomDirections(getDbout());
 
     // Calculate the extension of the field
     _minmax(getDbout());
     _minmax(getDbin());
-
-    // Populate the bands
-    if (_initializeSeedBands()) return false;
 
     // Factorize the matrix of sills
     _modelLocal->computeAic();
@@ -1400,12 +1378,11 @@ namespace gstlrn
 
     /* Processing the Turning Bands algorithm */
 
-    if (_generateDirections(dbout)) return 1;
+    _generateRandomDirections(dbout);
     _minmax(dbout);
     _minmax(dbiso);
     _minmax(dbgrd);
     _minmax(dbtgt);
-    if (_initializeSeedBands()) return 1;
 
     // Factorize the matrix of sills
     _modelLocal->computeAic();
@@ -1417,7 +1394,10 @@ namespace gstlrn
       VectorBool activeArray;
       _allocateForOneSimulation(getDbout(), getNVar(), activeArray, tab);
       for (Id isimu = 0; isimu < getNbSimu(); isimu++)
+      {
+        if (_simulate()) return 1;
         _compute(dbiso, isimu, activeArray, tab);
+      }
     }
 
     /* Non conditional simulations on the gradient points */
@@ -1427,7 +1407,10 @@ namespace gstlrn
       VectorBool activeArray;
       _allocateForOneSimulation(getDbout(), 1, activeArray, tab);
       for (Id isimu = 0; isimu < getNbSimu(); isimu++)
+      {
+        if (_simulate()) return 1;
         _computeGradient(dbgrd, isimu, delta, activeArray, tab);
+      }
     }
 
     /* Non conditional simulations on the tangent points */
@@ -1438,6 +1421,7 @@ namespace gstlrn
       _allocateForOneSimulation(getDbout(), 1, activeArray, tab);
       for (Id isimu = 0; isimu < getNbSimu(); isimu++)
       {
+        if (_simulate()) return 1;
         _computeTangent(dbtgt, isimu, delta, activeArray, tab);
       }
     }
@@ -1448,6 +1432,7 @@ namespace gstlrn
     _allocateForOneSimulation(getDbout(), getNVar(), activeArray, tab);
     for (Id isimu = 0; isimu < getNbSimu(); isimu++)
     {
+      if (_simulate()) return 1;
       _compute(dbout, isimu, activeArray, tab);
 
       /* Add the contribution of nugget effect (optional) */

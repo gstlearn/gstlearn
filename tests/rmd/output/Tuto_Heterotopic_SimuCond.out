@@ -4,38 +4,38 @@ Table: Statistics on the initial simulations
 
 |   | Number| Minimum| Maximum|    Mean| St. Dev.|
 |:--|------:|-------:|-------:|-------:|--------:|
-|Z1 |  10000|  96.239| 103.799| 100.056|    1.034|
-|Z2 |  10000|  -3.874|   3.877|  -0.001|    1.047|
-[1] "Correlation = 0.727"
+|Z1 |  10000|  96.493| 103.839| 100.049|    0.965|
+|Z2 |  10000|  -3.951|   3.820|   0.117|    1.002|
+[1] "Correlation = 0.687"
 
 
 Table: Statistics on the heterotopic data set
 
 |               | Number| Minimum| Maximum|    Mean| St. Dev.|
 |:--------------|------:|-------:|-------:|-------:|--------:|
-|Z1.heterotopic |    150|  97.695| 102.961| 100.087|     1.02|
-|Z2.heterotopic |    160|  -2.507|   2.602|   0.073|     1.08|
+|Z1.heterotopic |    150|  97.574| 102.509| 100.072|    0.906|
+|Z2.heterotopic |    160|  -2.740|   3.303|   0.121|    1.024|
 
 
 Table: Statistics on the homotopic sub set
 
 |               | Number| Minimum| Maximum|    Mean| St. Dev.|
 |:--------------|------:|-------:|-------:|-------:|--------:|
-|Z1.heterotopic |    125|  97.695| 102.961| 100.128|    1.028|
-|Z2.heterotopic |    125|  -2.124|   2.602|   0.127|    1.057|
+|Z1.heterotopic |    125|  97.574| 102.509| 100.086|    0.887|
+|Z2.heterotopic |    125|  -2.740|   2.999|   0.067|    0.978|
 
 
 Table: Statistics on simulated data
 
 |             | Number| Minimum|  Maximum|     Mean| St. Dev.|
 |:------------|------:|-------:|--------:|--------:|--------:|
-|homotopic.Z1 |  10000| 95.8759| 103.4401| 100.0228|   0.9996|
-|homotopic.Z2 |  10000| -3.2586|   3.7649|   0.0872|   1.0332|
+|homotopic.Z1 |  10000| 96.5458| 103.5716| 100.0928|   0.9944|
+|homotopic.Z2 |  10000| -3.4499|   3.5386|   0.1245|   1.0067|
 
 
 Table: Statistics on simulated data
 
 |                           | Number| Minimum|  Maximum|     Mean| St. Dev.|
 |:--------------------------|------:|-------:|--------:|--------:|--------:|
-|heterotopic.Z1.heterotopic |  10000| 96.0065| 103.6438| 100.0153|   1.0215|
-|heterotopic.Z2.heterotopic |  10000| -3.3246|   3.5293|   0.0841|   1.0305|
+|heterotopic.Z1.heterotopic |  10000| 96.4406| 104.0570| 100.1219|   1.0049|
+|heterotopic.Z2.heterotopic |  10000| -3.5398|   3.7775|   0.1143|   1.0194|

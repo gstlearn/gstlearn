@@ -16,16 +16,16 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Exponential
-- Sill         =      2.000
-- Ranges       =      0.100     0.300
-- Theo. Ranges =      0.033     0.100
-- Angles       =     30.000     0.000
+- Sill         =       2.000
+- Ranges       =       0.100      0.300
+- Theo. Ranges =       0.033      0.100
+- Angles       =      30.000      0.000
 - Rotation Matrix
-               [,  0]    [,  1]
-     [  0,]     0.866    -0.500
-     [  1,]     0.500     0.866
-Total Sill     =      2.000
-Known Mean(s)     0.000
+                 [,  0]     [,  1]
+      [  0,]      0.866     -0.500
+      [  1,]      0.500      0.866
+Total Sill     =       2.000
+Known Mean(s)      0.000
 Start Fitting Model with Vecchia Approximation
 (Gradient Option is 0)
 
@@ -43,15 +43,15 @@ Number of drift equation(s)  = 1
 Covariance Part
 ---------------
 Exponential
-- Sill         =      2.158
-- Ranges       =      0.102     0.220
-- Theo. Ranges =      0.034     0.073
-- Angles       =     23.978     0.000
+- Sill         =       2.348
+- Ranges       =       0.102      0.518
+- Theo. Ranges =       0.034      0.173
+- Angles       =      32.583      0.000
 - Rotation Matrix
-               [,  0]    [,  1]
-     [  0,]     0.914    -0.406
-     [  1,]     0.406     0.914
-Total Sill     =      2.158
+                 [,  0]     [,  1]
+      [  0,]      0.843     -0.539
+      [  1,]      0.539      0.843
+Total Sill     =       2.348
 
 Drift Part
 ----------
@@ -73,15 +73,15 @@ Number of drift equation(s)  = 1
 Covariance Part
 ---------------
 Exponential
-- Sill         =      2.157
-- Ranges       =      0.102     0.219
-- Theo. Ranges =      0.034     0.073
-- Angles       =     23.905     0.000
+- Sill         =       2.345
+- Ranges       =       0.102      0.515
+- Theo. Ranges =       0.034      0.172
+- Angles       =      32.529      0.000
 - Rotation Matrix
-               [,  0]    [,  1]
-     [  0,]     0.914    -0.405
-     [  1,]     0.405     0.914
-Total Sill     =      2.157
+                 [,  0]     [,  1]
+      [  0,]      0.843     -0.538
+      [  1,]      0.538      0.843
+Total Sill     =       2.345
 
 Drift Part
 ----------
