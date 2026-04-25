@@ -1,0 +1,27 @@
+               Mean
+Data.V1       -0.36
+Data.V2        1.11
+
+SPDE Simulation using gstlearn (with Matrix) -> GM
+--------------------------------------------------
+                     Mean
+GM.Data.V1.S1       -1.24
+GM.Data.V1.S2        1.56
+GM.Data.V2.S1        1.33
+GM.Data.V2.S2       -1.09
+
+SPDE Simulation using gstlearn (Matrix-Free) -> GF
+--------------------------------------------------
+                     Mean
+GF.Data.V1.S1       -0.44
+GF.Data.V1.S2        1.46
+GF.Data.V2.S1        0.82
+GF.Data.V2.S2       -1.18
+
+SPDE Simulation performed by Hand -> HF
+---------------------------------------
+                     Mean
+HF.Data.V1.S1       -0.90
+HF.Data.V2.S1        1.08
+HF.Data.V1.S2        1.58
+HF.Data.V2.S2       -1.31
