@@ -118,11 +118,11 @@ Punctual Estimation
 (Co-) Kriging weights
 =====================
        Rank       Data        Z1*
-          1      0.828      0.150
-          2      0.340      0.048
-          3     -0.639      0.180
-          4     -0.410      0.040
-          5     -0.297      0.351
+          1      0.042      0.150
+          2      0.491      0.048
+          3     -0.634      0.180
+          4     -1.338      0.040
+          5     -1.884      0.351
 Sum of weights              0.769
 
 Drift or Mean Information
@@ -133,7 +133,7 @@ Mean for Variable Z1 = 0.000000
 =====================
 Target Sample = 15301
 Variable Z1 
- - Estimate  =      -0.096
+ - Estimate  =      -0.800
  - Std. Dev. =       0.860
  - Variance  =       0.739
  - Cov(h=0)  =       1.000
@@ -198,11 +198,11 @@ Block Estimation : Discretization = 5 x 5
 (Co-) Kriging weights
 =====================
        Rank       Data        Z1*
-          1      0.828      0.150
-          2      0.340      0.048
-          3     -0.639      0.180
-          4     -0.410      0.040
-          5     -0.297      0.351
+          1      0.042      0.150
+          2      0.491      0.048
+          3     -0.634      0.180
+          4     -1.338      0.040
+          5     -1.884      0.351
 Sum of weights              0.769
 
 Drift or Mean Information
@@ -213,7 +213,7 @@ Mean for Variable Z1 = 0.000000
 =====================
 Target Sample = 15301
 Variable Z1 
- - Estimate  =      -0.096
+ - Estimate  =      -0.800
  - Std. Dev. =       0.652
  - Variance  =       0.425
  - Cov(h=0)  =       0.686
@@ -305,11 +305,11 @@ Block Estimation : Discretization = 5 x 5
 (Co-) Kriging weights
 =====================
        Rank       Data        Z1*
-          1      0.828      0.075
-          2      0.340      0.082
-          3     -0.639      0.089
-          4     -0.410      0.094
-          5     -0.297      0.196
+          1      0.042      0.075
+          2      0.491      0.082
+          3     -0.634      0.089
+          4     -1.338      0.094
+          5     -1.884      0.196
 Sum of weights              0.535
 
 Drift or Mean Information
@@ -320,7 +320,7 @@ Mean for Variable Z1 = 0.000000
 =====================
 Target Sample = 15301
 Variable Z1 
- - Estimate  =      -0.063
+ - Estimate  =      -0.507
  - Std. Dev. =       0.266
  - Variance  =       0.071
  - Cov(h=0)  =       0.176

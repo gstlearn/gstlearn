@@ -72,19 +72,15 @@ namespace gstlrn
     void _rollback() override;
     bool _simulateTB();
 
-    Id _simulate() override;
-    Id _compute(
-      Db* db,
-      Id isimu,
-      const VectorBool& activeArray,
-      VectorVectorDouble& tab) override;
+    Id _simulate(Id isimu) override;
+    Id _compute(Db* db, const VectorBool& activeArray, VectorVectorDouble& tab)
+      override;
 
     bool _resize();
     void _computePoint(
       Db* db,
       const CovAniso* cova,
       const ECov& type,
-      Id isimu,
       Id is,
       const VectorBool& activeArray,
       VectorVectorDouble& tab);
@@ -92,7 +88,6 @@ namespace gstlrn
       DbGrid* db,
       const CovAniso* cova,
       const ECov& type,
-      Id isimu,
       Id is,
       const VectorBool& activeArray,
       VectorVectorDouble& tab);
@@ -104,7 +99,7 @@ namespace gstlrn
       VectorVectorDouble& tab) const;
 
     // Turning bands specific methods
-    Id _getIBS(Id isimu, Id is, Id ib) const;
+    Id _getIBS(Id is, Id ib) const;
 
     Id _getIcase() const override { return _icase; }
 
@@ -153,15 +148,14 @@ namespace gstlrn
     Id _getSeedBand(Id ivar, Id is, Id ib) const;
 
     void _rotateDirections(double a[3], double theta);
-    void _generateRandomDirections(const Db* dbout);
+    void _initializeDirections();
     void _minmax(const Db* db);
     void _setDensity();
     static ECov _particularCase(const CovAniso* cova, double eps = EPSILON7);
     void _initializeSeedBands();
     void _normalizeForBands(
-      const Db* db,
       const VectorBool& activeArray,
-      VectorVectorDouble& tab);
+      VectorVectorDouble& tab) const;
     Id _getCorrec(
       const ECov& type,
       Id is,
@@ -226,9 +220,8 @@ namespace gstlrn
       TurningBandOperate& operTB,
       const VectorBool& activeArray,
       VectorDouble& tab);
-
-    // Debugging methods
-    void _dumpBands() const;
+    void _extendBands();
+    void _initializeBox();
 
   private:
     Id _nbtuba;
@@ -237,6 +230,7 @@ namespace gstlrn
     Id _npointSimulated;
     double _field;
     double _theta;
+    VectorVectorDouble _box;
     VectorInt _seedBands;
     std::vector<TurningBandDirection> _codirs;
     Model* _modelLocal; // Conversion of into a Model (more than ModelGeneric)

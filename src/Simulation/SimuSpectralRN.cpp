@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Simulation/SimuSpectralRN.hpp"
+#include "Basic/Law.hpp"
 #include "Basic/Message.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/CovAniso.hpp"
@@ -45,8 +46,10 @@ namespace gstlrn
   /**
    * Simulate the spectrum components for Rn
    */
-  Id SimuSpectralRN::_simulate()
+  Id SimuSpectralRN::_simulate(Id isimu)
   {
+    law_set_random_seed(getSeedPerSimu(isimu));
+
     const ACov* cov = getModelGeneric()->getCov();
     if (cov == nullptr) return -1;
 
@@ -67,18 +70,14 @@ namespace gstlrn
    * Compute the simulation on Dbout using Spectral Method
    *
    * @param db Db containing the results
-   * @param isimu Simulation index
    * @param activeArray Array of booleans indicating the active samples in dbout
    * @param tab Array for storing one (multivariate) simulation on 'dbout'
    */
   Id SimuSpectralRN::_compute(
     Db* db,
-    Id isimu,
     const VectorBool& activeArray,
     VectorVectorDouble& tab)
   {
-    DECLARE_UNUSED(isimu);
-
     if (_sp == nullptr)
     {
       messerr("SpectrumOnRN not initialized.\n");

@@ -39,8 +39,10 @@ namespace gstlrn
   /**
    * Simulate the spectrum components for Rn
    */
-  Id SimuSpectralS2::_simulate()
+  Id SimuSpectralS2::_simulate(Id isimu)
   {
+    law_set_random_seed(getSeedPerSimu(isimu));
+
     const ACov* cov = getModelGeneric()->getCov();
     if (cov == nullptr) return -1;
 
@@ -232,11 +234,9 @@ namespace gstlrn
 
   Id SimuSpectralS2::_compute(
     Db* db,
-    Id isimu,
     const VectorBool& activeArray,
     VectorVectorDouble& tab)
   {
-    DECLARE_UNUSED(isimu);
     auto nech = db->getNSample();
 
     Id nb = 0;

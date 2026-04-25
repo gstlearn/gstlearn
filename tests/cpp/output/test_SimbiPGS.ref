@@ -90,17 +90,17 @@ Data Base Statistics
  Nb of active values =       10000
  Minimum value       =       1.000
  Maximum value       =       3.000
- Mean value          =       2.107
- Standard Deviation  =       0.671
- Variance            =       0.450
+ Mean value          =       2.124
+ Standard Deviation  =       0.677
+ Variance            =       0.458
 5 - Name PGS-Facies.2 - Locator facies2
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =       1.000
  Maximum value       =       3.000
- Mean value          =       2.082
- Standard Deviation  =       0.710
- Variance            =       0.504
+ Mean value          =       2.014
+ Standard Deviation  =       0.719
+ Variance            =       0.518
 
 Lithotype Rule
 ==============
@@ -122,23 +122,23 @@ Data Base Statistics
  Nb of active values =       10000
  Minimum value       =       1.000
  Maximum value       =       3.000
- Mean value          =       1.929
- Standard Deviation  =       0.817
- Variance            =       0.667
+ Mean value          =       2.024
+ Standard Deviation  =       0.824
+ Variance            =       0.678
 7 - Name BiPGS-Facies.2 - Locator facies2
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =       1.000
  Maximum value       =       3.000
- Mean value          =       1.895
- Standard Deviation  =       0.838
- Variance            =       0.702
+ Mean value          =       1.889
+ Standard Deviation  =       0.811
+ Variance            =       0.657
 8 - Name BiPGS-Facies.3 - Locator facies3
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =       1.000
  Maximum value       =       2.000
- Mean value          =       1.491
+ Mean value          =       1.521
  Standard Deviation  =       0.500
  Variance            =       0.250
 9 - Name BiPGS-Facies.4 - Locator facies4
@@ -146,9 +146,9 @@ Data Base Statistics
  Nb of active values =       10000
  Minimum value       =       1.000
  Maximum value       =       2.000
- Mean value          =       1.495
- Standard Deviation  =       0.500
- Variance            =       0.250
+ Mean value          =       1.468
+ Standard Deviation  =       0.499
+ Variance            =       0.249
 
 Lithotype Rule
 ==============
@@ -177,17 +177,17 @@ Data Base Statistics
  Nb of active values =       10000
  Minimum value       =       0.000
  Maximum value       =       4.000
- Mean value          =       1.625
- Standard Deviation  =       1.626
- Variance            =       2.643
+ Mean value          =       1.713
+ Standard Deviation  =       1.678
+ Variance            =       2.817
 11 - Name PGS-Shift-Facies.2 - Locator facies2
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =       0.000
  Maximum value       =       4.000
- Mean value          =       1.660
- Standard Deviation  =       1.657
- Variance            =       2.747
+ Mean value          =       1.529
+ Standard Deviation  =       1.594
+ Variance            =       2.541
 
 Lithotype Rule
 ==============
@@ -223,14 +223,14 @@ Data Base Statistics
  Nb of active values =       10000
  Minimum value       =       1.000
  Maximum value       =       3.000
- Mean value          =       2.241
- Standard Deviation  =       0.867
- Variance            =       0.751
+ Mean value          =       2.147
+ Standard Deviation  =       0.850
+ Variance            =       0.723
 13 - Name PGS-Shadow-Facies.2 - Locator facies2
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =       1.000
  Maximum value       =       3.000
- Mean value          =       2.262
- Standard Deviation  =       0.887
- Variance            =       0.786
+ Mean value          =       2.263
+ Standard Deviation  =       0.852
+ Variance            =       0.725

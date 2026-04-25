@@ -23,6 +23,7 @@ namespace gstlrn
   ACalcSimuModel::ACalcSimuModel(Id nbsimu, Id seed, bool verbose)
     : ACalcSimulation(nbsimu, seed, verbose)
     , _iattOut(-1)
+    , _flagCond(false)
     , _flagBayes(false)
     , _flagPGS(false)
     , _flagGibbs(false)
@@ -45,6 +46,7 @@ namespace gstlrn
     if (hasDbin(false))
     {
       if (!hasNeigh()) return false;
+      _flagCond = true;
     }
     if (!hasModelGeneric()) return false;
 
@@ -70,7 +72,7 @@ namespace gstlrn
 
     if (!_isAllocationAlreadyDone())
     {
-      if (getDbin() != nullptr)
+      if (_isConditional())
       {
         Id iptr_in = _addVariableDb(1, 2, ELoc::SIMU, 0, nvar * nbsimu);
         if (iptr_in < 0) return false;
@@ -107,52 +109,54 @@ namespace gstlrn
 
   bool ACalcSimuModel::_run()
   {
-    bool flag_cond = hasDbin(false);
     VectorVectorDouble tabOut;
     VectorVectorDouble tabIn;
     VectorBool activeOut;
     VectorBool activeIn;
     _allocateForOneSimulation(getDbout(), getNVar(), activeOut, tabOut);
-    if (flag_cond)
+    if (_isConditional())
       _allocateForOneSimulation(getDbin(), getNVar(), activeIn, tabIn);
+
+    // Set the seed
+    law_set_random_seed(getSeed());
 
     // Loop on the simulations
     for (Id isimu = 0, nbsimu = getNbSimu(); isimu < nbsimu; isimu++)
     {
       if (getVerbose()) message(">>> computing simulation %d\n", isimu + 1);
       tabOut.fillWith(0);
-      if (flag_cond) tabIn.fillWith(0);
+      if (_isConditional()) tabIn.fillWith(0);
 
       law_set_random_seed(getSeedPerSimu(isimu));
 
       // Preliminary task to be performed per simulation
-      _simulate();
+      _simulate(isimu);
 
       // Non conditional simulations on the target points
-      _compute(getDbout(), isimu, activeOut, tabOut);
+      _compute(getDbout(), activeOut, tabOut);
       _correctMean(activeOut, tabOut);
       _simulateNugget(getDbout(), activeOut, tabOut);
       saveResults(getDbout(), isimu, activeOut, tabOut);
 
-      if (!flag_cond) continue;
+      if (!_isConditional()) continue;
 
       // Non conditional simulations on the data points
-      _compute(getDbin(), isimu, activeIn, tabIn);
+      _compute(getDbin(), activeIn, tabIn);
       _correctMean(activeIn, tabIn);
-      _convertToDifference(getDbin(), isimu, activeIn, tabIn);
+      _convertToDifference(isimu, activeIn, tabIn);
       saveResults(getDbin(), isimu, activeIn, tabIn);
     }
 
     // Conditional simulations
-    if (flag_cond)
+    if (_isConditional())
     {
-      if (_conditionalKriging(getDbin(), getDbout())) return 1;
+      if (_conditionalKriging()) return 1;
     }
 
     // Copy value from data to coinciding grid node
-    if (flag_cond)
+    if (_isConditional())
     {
-      _updateDataToTarget(getDbin(), getDbout());
+      _updateDataToTarget();
     }
 
     return true;
@@ -200,7 +204,7 @@ namespace gstlrn
 
       jsimu = isimu + idim * nbsimu;
       setShift(jsimu);
-      _compute(dbgrd, isimu, activeArray, tab1);
+      _compute(dbgrd, activeArray, tab1);
 
       /* Shift the information */
       for (Id iech = 0; iech < dbgrd->getNSample(); iech++)
@@ -212,7 +216,7 @@ namespace gstlrn
 
       jsimu = isimu + idim * nbsimu + ndim * nbsimu;
       setShift(jsimu);
-      _compute(dbgrd, isimu, activeArray, tab2);
+      _compute(dbgrd, activeArray, tab2);
 
       /* Un-Shift the information */
 
@@ -307,18 +311,17 @@ namespace gstlrn
    **  Convert the non conditional simulations at the data points
    **  into simulation error
    **
-   ** \param[in]  dbin       Input Db structure
    ** \param[in]  isimu      Index of the simulation
    ** \param[in]  activeArray  Array of active samples
    ** \param[out] tab        Array containing the non-conditional simulation values
    **
    *****************************************************************************/
   void ACalcSimuModel::_convertToDifference(
-    Db* dbin,
     Id isimu,
     const VectorBool& activeArray,
     VectorVectorDouble& tab)
   {
+    auto* dbin = getDbin();
     auto nbsimu = getNbSimu();
     auto nvar = getNVar();
     double r = 1.;
@@ -385,9 +388,6 @@ namespace gstlrn
    **  Update the conditional simulations when the target coincides
    **  with a data point
    **
-   ** \param[in]  dbin      Input Db structure
-   ** \param[in]  dbout     Output Db structure
-   **
    ** \remarks This migration is not performed in the case where data point
    ** \remarks coincide with the target artificially. This is the case
    ** \remarks for the Discrete Gaussian Model (DGM) where data have been
@@ -395,9 +395,11 @@ namespace gstlrn
    ** \remarks within a cell
    **
    *****************************************************************************/
-  void ACalcSimuModel::_updateDataToTarget(Db* dbin, Db* dbout) const
+  void ACalcSimuModel::_updateDataToTarget() const
   {
+    auto* dbin = getDbin();
     if (dbin->getNSample() <= 0) return;
+    auto* dbout = getDbout();
     if (_getFlagDGM()) return;
     auto nvar = getNVar();
     Id ndim = dbin->getNDim();
@@ -563,15 +565,14 @@ namespace gstlrn
    **
    ** \return  Error return code
    **
-   ** \param[in]  dbin       input Db structure
-   ** \param[in]  dbout      output Db structure
-   **
    ** \remark: The model contains an anamorphosis with a change of support
    ** \remark: coefficient as soon as flag_dgm is TRUE
    **
    *****************************************************************************/
-  Id ACalcSimuModel::_conditionalKriging(Db* dbin, Db* dbout)
+  Id ACalcSimuModel::_conditionalKriging()
   {
+    auto* dbin = getDbin();
+    auto* dbout = getDbout();
     auto* neigh = getNeigh();
     auto* modelGeneric = getModelGeneric();
     Id nbsimu = getNbSimu();

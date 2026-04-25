@@ -43,15 +43,15 @@ Number of drift equation(s)  = 1
 Covariance Part
 ---------------
 Exponential
-- Sill         =       2.348
-- Ranges       =       0.102      0.518
-- Theo. Ranges =       0.034      0.173
-- Angles       =      32.583      0.000
+- Sill         =       1.601
+- Ranges       =       0.102      0.215
+- Theo. Ranges =       0.034      0.072
+- Angles       =      11.473      0.000
 - Rotation Matrix
                  [,  0]     [,  1]
-      [  0,]      0.843     -0.539
-      [  1,]      0.539      0.843
-Total Sill     =       2.348
+      [  0,]      0.980     -0.199
+      [  1,]      0.199      0.980
+Total Sill     =       1.601
 
 Drift Part
 ----------
@@ -73,15 +73,15 @@ Number of drift equation(s)  = 1
 Covariance Part
 ---------------
 Exponential
-- Sill         =       2.345
-- Ranges       =       0.102      0.515
-- Theo. Ranges =       0.034      0.172
-- Angles       =      32.529      0.000
+- Sill         =       1.604
+- Ranges       =       0.102      0.218
+- Theo. Ranges =       0.034      0.073
+- Angles       =      11.284      0.000
 - Rotation Matrix
                  [,  0]     [,  1]
-      [  0,]      0.843     -0.538
-      [  1,]      0.538      0.843
-Total Sill     =       2.345
+      [  0,]      0.981     -0.196
+      [  1,]      0.196      0.981
+Total Sill     =       1.604
 
 Drift Part
 ----------

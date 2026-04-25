@@ -64,16 +64,18 @@ namespace gstlrn
 
     bool _getFlagPGS() const { return _flagPGS; }
 
-    virtual Id _simulate() { return 0; }
+    bool _isConditional() const { return _flagCond; }
 
-    virtual Id _compute(
-      Db* db,
-      Id isimu,
-      const VectorBool& activeArray,
-      VectorVectorDouble& tab)
+    virtual Id _simulate(Id isimu)
+    {
+      DECLARE_UNUSED(isimu);
+      return 0;
+    }
+
+    virtual Id
+      _compute(Db* db, const VectorBool& activeArray, VectorVectorDouble& tab)
     {
       DECLARE_UNUSED(db);
-      DECLARE_UNUSED(isimu);
       DECLARE_UNUSED(activeArray);
       DECLARE_UNUSED(tab);
       return 0;
@@ -95,18 +97,17 @@ namespace gstlrn
       VectorVectorDouble& tab);
     void _correctMean(const VectorBool& activeArray, VectorVectorDouble& tab);
     void _convertToDifference(
-      Db* dbin,
       Id isimu,
       const VectorBool& activeArray,
       VectorVectorDouble& tab);
-    void _updateDataToTarget(Db* dbin, Db* dbout) const;
+    void _updateDataToTarget() const;
     static void _allocateForOneSimulation(
       const Db* db,
       Id nvar,
       VectorBool& activeArray,
       VectorVectorDouble& tab,
       bool flagActive = true);
-    Id _conditionalKriging(Db* dbin, Db* dbout);
+    Id _conditionalKriging();
     void _simulateNugget(
       Db* db,
       const VectorBool& activeArray,
@@ -114,6 +115,7 @@ namespace gstlrn
 
   private:
     Id _iattOut;
+    bool _flagCond;
     bool _flagBayes;
     bool _flagPGS;
     bool _flagGibbs;

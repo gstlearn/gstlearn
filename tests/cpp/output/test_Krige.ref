@@ -319,27 +319,27 @@ Data Base Statistics
 6 - Name Simu.Var.S1 - Locator z1
  Nb of data          =        2500
  Nb of active values =        2500
- Minimum value       =     -22.578
- Maximum value       =      20.529
- Mean value          =      -1.361
- Standard Deviation  =       5.648
- Variance            =      31.895
+ Minimum value       =     -17.190
+ Maximum value       =      16.274
+ Mean value          =       0.578
+ Standard Deviation  =       4.701
+ Variance            =      22.099
 7 - Name Simu.Var.S2 - Locator z2
  Nb of data          =        2500
  Nb of active values =        2500
- Minimum value       =     -23.857
- Maximum value       =      19.227
- Mean value          =      -0.272
- Standard Deviation  =       5.230
- Variance            =      27.352
+ Minimum value       =     -16.071
+ Maximum value       =      20.200
+ Mean value          =      -1.794
+ Standard Deviation  =       4.787
+ Variance            =      22.914
 8 - Name Simu.Var.S3 - Locator z3
  Nb of data          =        2500
  Nb of active values =        2500
- Minimum value       =     -16.278
- Maximum value       =      18.881
- Mean value          =       0.549
- Standard Deviation  =       5.785
- Variance            =      33.470
+ Minimum value       =     -18.591
+ Maximum value       =      16.748
+ Mean value          =      -0.868
+ Standard Deviation  =       5.626
+ Variance            =      31.651
 
 <----- Bayesian Simulations in Unique Neighborhood ----->
 
@@ -351,27 +351,27 @@ Data Base Statistics
 6 - Name SimBayes.Var.S1 - Locator z1
  Nb of data          =        2500
  Nb of active values =        2500
- Minimum value       =     -23.465
- Maximum value       =      19.446
- Mean value          =      -2.257
- Standard Deviation  =       5.641
- Variance            =      31.823
+ Minimum value       =     -17.245
+ Maximum value       =      16.225
+ Mean value          =       0.511
+ Standard Deviation  =       4.701
+ Variance            =      22.098
 7 - Name SimBayes.Var.S2 - Locator z2
  Nb of data          =        2500
  Nb of active values =        2500
- Minimum value       =     -25.141
- Maximum value       =      17.832
- Mean value          =      -1.587
- Standard Deviation  =       5.227
- Variance            =      27.323
+ Minimum value       =     -14.949
+ Maximum value       =      21.314
+ Mean value          =      -0.670
+ Standard Deviation  =       4.786
+ Variance            =      22.907
 8 - Name SimBayes.Var.S3 - Locator z3
  Nb of data          =        2500
  Nb of active values =        2500
- Minimum value       =     -16.290
- Maximum value       =      18.888
- Mean value          =       0.542
- Standard Deviation  =       5.790
- Variance            =      33.525
+ Minimum value       =     -19.279
+ Maximum value       =      16.134
+ Mean value          =      -1.523
+ Standard Deviation  =       5.626
+ Variance            =      31.648
 
 <----- Declustering in Unique Neighborhood ----->
 
@@ -400,10 +400,10 @@ CVsample                         = 341.740127
 CViid                            = 34.174013
 Cxx                              = 2.021313
 Cxv                              = 2.670522
-Cvv                              = 11.208478
+Cvv                              = 11.208494
 Estimation by arithmetic average = 0.002885
-Estimation St. dev. of the mean  = 2.808691
-CVgeo                            = 973.507288
+Estimation St. dev. of the mean  = 2.808694
+CVgeo                            = 973.508247
 Surface                          = 2500.000000
 Q (Estimation * Surface)         = 7.212815
 
@@ -526,11 +526,11 @@ Data Base Statistics
 5 - Name Filtering.Simu - Locator z1
  Nb of data          =        2500
  Nb of active values =        2116
- Minimum value       =     -16.234
- Maximum value       =       9.906
- Mean value          =       1.210
- Standard Deviation  =       4.249
- Variance            =      18.053
+ Minimum value       =     -11.638
+ Maximum value       =      16.466
+ Mean value          =       2.331
+ Standard Deviation  =       5.791
+ Variance            =      33.537
 
 Model characteristics
 =====================

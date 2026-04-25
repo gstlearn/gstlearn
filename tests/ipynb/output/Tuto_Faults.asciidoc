@@ -14,7 +14,7 @@ Number of direction(s)      = 1
 Space dimension             = 2
 Variable(s)                 = [Data]
 
-Variance-Covariance Matrix      0.871
+Variance-Covariance Matrix      0.915
 
 Direction #1
 ------------
@@ -27,15 +27,15 @@ Tolerance on distance       =      50.000 (Percent of the lag value)
 
 For variable 1
        Rank     Npairs   Distance      Value
-          1      5.000      5.298      0.106
-          2      7.000      9.910      0.317
-          3     16.000     15.056      0.559
-          4     13.000     19.965      0.801
-          5     18.000     24.846      0.733
-          6     21.000     29.884      1.476
-          7     19.000     34.891      1.178
-          8     15.000     40.427      1.546
-          9     19.000     44.683      1.150
+          1      5.000      5.298      0.095
+          2      7.000      9.910      0.221
+          3     16.000     15.056      1.044
+          4     13.000     19.965      1.184
+          5     18.000     24.846      1.416
+          6     21.000     29.884      0.824
+          7     19.000     34.891      1.443
+          8     15.000     40.427      1.126
+          9     19.000     44.683      1.081
 ----
 
 
@@ -56,7 +56,7 @@ Space dimension             = 2
 Calculation takes Faults into account
 Variable(s)                 = [Data]
 
-Variance-Covariance Matrix      0.871
+Variance-Covariance Matrix      0.915
 
 Direction #1
 ------------
@@ -69,15 +69,15 @@ Tolerance on distance       =      50.000 (Percent of the lag value)
 
 For variable 1
        Rank     Npairs   Distance      Value
-          1      5.000      5.298      0.106
-          2      5.000      9.895      0.436
-          3      9.000     14.755      0.891
-          4      8.000     19.703      1.195
-          5     10.000     24.800      0.959
-          6     12.000     29.845      1.996
-          7     11.000     34.600      0.496
-          8      9.000     40.303      1.564
-          9     11.000     44.188      1.738
+          1      5.000      5.298      0.095
+          2      5.000      9.895      0.284
+          3      9.000     14.755      1.385
+          4      8.000     19.703      0.767
+          5     10.000     24.800      1.222
+          6     12.000     29.845      0.799
+          7     11.000     34.600      1.440
+          8      9.000     40.303      1.457
+          9     11.000     44.188      1.207
 ----
 
 

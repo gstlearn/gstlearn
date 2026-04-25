@@ -46,12 +46,9 @@ namespace gstlrn
     virtual ~SimuSpectralS2();
 
   protected:
-    Id _simulate() override;
-    Id _compute(
-      Db* db,
-      Id isimu,
-      const VectorBool& activeArray,
-      VectorVectorDouble& tab) override;
+    Id _simulate(Id isimu) override;
+    Id _compute(Db* db, const VectorBool& activeArray, VectorVectorDouble& tab)
+      override;
 
   private:
     static void _printSpSim(const spSim& spsim, Id status = 0);

@@ -1,7 +1,7 @@
 #NO_DIFF#XXX
 ----
-Range for Bottom =  90.977 104.998
-Range for Top =  105.009 118.72
+Range for Bottom =  91.045 104.998
+Range for Top =  105.001 118.816
 ----
 
 
@@ -31,8 +31,8 @@ Range for Top =  105.009 118.72
 
 #NO_DIFF#XXX
 ----
-Range for Bottom =  90.977 104.998
-Range for Top =  105.009 118.72
+Range for Bottom =  91.045 104.998
+Range for Top =  105.001 118.816
 ----
 
 
@@ -59,12 +59,12 @@ Data Base Statistics
 --------------------
 5 - Name Interpolation - Locator z1
  Nb of data          =      450000
- Nb of active values =      152985
- Minimum value       =      -6.714
- Maximum value       =       8.720
- Mean value          =       0.857
- Standard Deviation  =       2.219
- Variance            =       4.925
+ Nb of active values =      141816
+ Minimum value       =      -5.863
+ Maximum value       =       8.816
+ Mean value          =       0.739
+ Standard Deviation  =       2.255
+ Variance            =       5.083
 
 Variables
 ---------

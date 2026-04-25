@@ -31,17 +31,17 @@ Data Base Statistics
 4 - Name Simu - Locator NA
  Nb of data          =       30401
  Nb of active values =       30401
- Minimum value       =      -2.558
- Maximum value       =       3.737
- Mean value          =       0.057
- Standard Deviation  =       0.944
- Variance            =       0.891
+ Minimum value       =      -3.388
+ Maximum value       =       3.881
+ Mean value          =      -0.106
+ Standard Deviation  =       0.975
+ Variance            =       0.952
 5 - Name Facies - Locator NA
  Nb of data          =       30401
  Nb of active values =       30401
  Minimum value       =       1.000
  Maximum value       =       3.000
- Mean value          =       2.033
+ Mean value          =       1.939
  Standard Deviation  =       0.545
  Variance            =       0.297
 6 - Name Fluid - Locator NA

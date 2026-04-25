@@ -9,7 +9,7 @@ Number of direction(s)      = 1
 Space dimension             = 2
 Variable(s)                 = [Simu]
 
-Variance-Covariance Matrix      0.830
+Variance-Covariance Matrix      0.969
 
 Direction #1
 ------------
@@ -22,15 +22,15 @@ Tolerance on distance       =      50.000 (Percent of the lag value)
 
 For variable 1
        Rank     Npairs   Distance      Value
-          1      4.000      0.991      0.010
-          2     12.000      2.013      0.059
-          3      5.000      2.913      0.126
-          4      9.000      4.149      0.491
-          5     12.000      5.006      0.322
-          6     18.000      6.029      0.364
-          7     17.000      6.907      0.397
-          8     26.000      8.045      0.881
-          9     29.000      8.957      0.264
+          1      4.000      0.991      0.022
+          2     12.000      2.013      0.037
+          3      5.000      2.913      0.174
+          4      9.000      4.149      0.216
+          5     12.000      5.006      0.544
+          6     18.000      6.029      0.475
+          7     17.000      6.907      1.006
+          8     26.000      8.045      1.035
+          9     29.000      8.957      0.588
 
 Model characteristics
 =====================
@@ -43,7 +43,7 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Linear
-- Slope        =       0.064
+- Slope        =       0.095
 
 Known Mean(s)      0.000
 

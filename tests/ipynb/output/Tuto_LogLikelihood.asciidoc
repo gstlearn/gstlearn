@@ -101,7 +101,7 @@ a=0.3 : [0.3]
 
 #NO_DIFF#XXX
 ----
-Computed manually : -130.026953
+Computed manually : -123.53108
 ----
 
 
@@ -113,16 +113,16 @@ Likelihood calculation:
 - Length of Information Vector = 100
 - Number of drift conditions   = 1
 Log-Determinant = -33.879144
-Quadratic term  = 110.145344
-Log-likelihood  = -130.026953
+Quadratic term  = 97.153597
+Log-likelihood  = -123.531080
 ----
 
 
 #NO_DIFF#XXX
 ----
 Log-Determinant = -33.200255
-Quadratic term  = 109.345886
-Log-likelihood  = -129.966669
+Quadratic term  = 96.521227
+Log-likelihood  = -123.554339
 ----
 
 
@@ -164,7 +164,7 @@ Column = 7 - Name = Simu.V2 - Locator = z2----
 
 #NO_DIFF#XXX
 ----
-No Constraint : [ 0.342363  3.359423  0.762885 -0.469073]
+No Constraint : [ 0.577168  2.760508  1.234083 -2.503257]
 ----
 
 
@@ -176,8 +176,8 @@ Likelihood calculation:
 - Length of Information Vector = 400
 - Number of drift conditions   = 4
 Log-Determinant = -676.517039
-Quadratic term  = 336.577258
-Log-likelihood  = -197.605523
+Quadratic term  = 468.251856
+Log-likelihood  = -263.442822
 ----
 
 
@@ -189,7 +189,7 @@ Log-likelihood  = -197.605523
 
 #NO_DIFF#XXX
 ----
-a0=0.5 and b0=1.5 : [ 0.5       3.138106  1.5      -1.503959]
+a0=0.5 and b0=1.5 : [ 0.5       2.86885   1.5      -2.876596]
 ----
 
 
@@ -201,7 +201,7 @@ a0=0.5 and b0=1.5 : [ 0.5       3.138106  1.5      -1.503959]
 
 #NO_DIFF#XXX
 ----
-a0=b0 and a1=b1 : [0.272276 3.997505 0.272276 3.997505]
+a0=b0 and a1=b1 : [0.467682 3.637803 0.467682 3.637803]
 ----
 
 
@@ -213,8 +213,8 @@ Likelihood calculation:
 - Length of Information Vector = 400
 - Number of drift conditions   = 2
 Log-Determinant = -676.517039
-Quadratic term  = 375.168879
-Log-likelihood  = -216.901334
+Quadratic term  = 537.995186
+Log-likelihood  = -298.314487
 ----
 
 
@@ -226,7 +226,7 @@ Log-likelihood  = -216.901334
 
 #NO_DIFF#XXX
 ----
-a0=b0 : [0.272276 3.457822 0.272276 0.219725]
+a0=b0 : [ 0.467682  2.914223  0.467682 -1.427255]
 ----
 
 
@@ -238,7 +238,7 @@ a0=b0 : [0.272276 3.457822 0.272276 0.219725]
 
 #NO_DIFF#XXX
 ----
-a0=b0 and a1=1 : [ 1.187531  1.        1.187531 -5.7566  ]
+a0=b0 and a1=1 : [ 1.180509  1.        1.180509 -6.081789]
 ----
 
 
@@ -298,7 +298,7 @@ Column = 8 - Name = Simu.V3 - Locator = z3----
 
 #NO_DIFF#XXX
 ----
-Coefficients : [ 0.983668  2.387316  1.904343 -2.856359  0.881955 -4.386253]
+Coefficients : [ 1.653835  1.164198  1.281702 -1.175631  0.543292 -2.921917]
 
 #NO_DIFF#XXX
 ----
@@ -306,5 +306,5 @@ Coefficients : [ 0.983668  2.387316  1.904343 -2.856359  0.881955 -4.386253]
 
 #NO_DIFF#XXX
 ----
-Coefficients : [ 1.813595  1.222126  1.813595 -2.728951  1.813595 -5.694245]
+Coefficients : [ 1.918096  0.793185  1.918096 -2.069108  1.918096 -4.852097]
 ----

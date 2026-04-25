@@ -811,115 +811,115 @@ Data Base Statistics
 10 - Name Simu.Y.Pb.S1 - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
- Minimum value       =      -5.202
- Maximum value       =       6.082
- Mean value          =      -0.065
- Standard Deviation  =       1.543
- Variance            =       2.380
+ Minimum value       =      -5.146
+ Maximum value       =       5.909
+ Mean value          =       0.295
+ Standard Deviation  =       1.646
+ Variance            =       2.708
 11 - Name Simu.Y.Pb.S2 - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
- Minimum value       =      -5.566
- Maximum value       =       7.262
- Mean value          =       0.119
- Standard Deviation  =       1.560
- Variance            =       2.435
+ Minimum value       =      -5.775
+ Maximum value       =       5.453
+ Mean value          =      -0.094
+ Standard Deviation  =       1.546
+ Variance            =       2.392
 12 - Name Simu.Y.Pb.S3 - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
- Minimum value       =      -4.967
- Maximum value       =       5.806
- Mean value          =       0.230
- Standard Deviation  =       1.470
- Variance            =       2.160
+ Minimum value       =      -5.496
+ Maximum value       =       6.225
+ Mean value          =       0.119
+ Standard Deviation  =       1.584
+ Variance            =       2.509
 13 - Name Simu.Y.Pb.S4 - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
- Minimum value       =      -5.689
- Maximum value       =       5.669
- Mean value          =       0.147
- Standard Deviation  =       1.669
- Variance            =       2.786
+ Minimum value       =      -4.897
+ Maximum value       =       6.261
+ Mean value          =       0.433
+ Standard Deviation  =       1.587
+ Variance            =       2.518
 14 - Name Simu.Y.Pb.S5 - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
- Minimum value       =      -5.309
- Maximum value       =       5.978
- Mean value          =       0.532
- Standard Deviation  =       1.545
- Variance            =       2.388
+ Minimum value       =      -4.759
+ Maximum value       =       6.695
+ Mean value          =       0.420
+ Standard Deviation  =       1.588
+ Variance            =       2.521
 15 - Name Simu.Y.Pb.S6 - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
- Minimum value       =      -4.776
- Maximum value       =       6.020
- Mean value          =       0.426
- Standard Deviation  =       1.518
- Variance            =       2.305
+ Minimum value       =      -5.215
+ Maximum value       =       7.209
+ Mean value          =       0.304
+ Standard Deviation  =       1.603
+ Variance            =       2.569
 16 - Name Simu.Y.Pb.S7 - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
- Minimum value       =      -5.950
- Maximum value       =       5.832
- Mean value          =       0.019
- Standard Deviation  =       1.612
- Variance            =       2.597
+ Minimum value       =      -4.939
+ Maximum value       =       6.154
+ Mean value          =       0.370
+ Standard Deviation  =       1.535
+ Variance            =       2.358
 17 - Name Simu.Y.Pb.S8 - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
- Minimum value       =      -5.800
- Maximum value       =       6.126
- Mean value          =       0.395
- Standard Deviation  =       1.608
- Variance            =       2.585
+ Minimum value       =      -5.058
+ Maximum value       =       6.995
+ Mean value          =       0.323
+ Standard Deviation  =       1.568
+ Variance            =       2.459
 18 - Name Simu.Y.Pb.S9 - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
- Minimum value       =      -6.717
- Maximum value       =       5.532
- Mean value          =       0.146
- Standard Deviation  =       1.590
- Variance            =       2.527
+ Minimum value       =      -4.184
+ Maximum value       =       5.380
+ Mean value          =       0.399
+ Standard Deviation  =       1.507
+ Variance            =       2.271
 19 - Name Simu.Y.Pb.S10 - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
- Minimum value       =      -5.042
- Maximum value       =       5.389
- Mean value          =       0.253
- Standard Deviation  =       1.590
- Variance            =       2.529
+ Minimum value       =      -5.266
+ Maximum value       =       6.048
+ Mean value          =       0.011
+ Standard Deviation  =       1.591
+ Variance            =       2.533
 20 - Name Stats.MINI - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
- Minimum value       =      -6.717
- Maximum value       =       1.016
- Mean value          =      -2.177
- Standard Deviation  =       0.961
- Variance            =       0.924
+ Minimum value       =      -5.775
+ Maximum value       =       0.847
+ Mean value          =      -2.099
+ Standard Deviation  =       0.936
+ Variance            =       0.876
 21 - Name Stats.MAXI - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
- Minimum value       =      -1.061
- Maximum value       =       7.262
- Mean value          =       2.611
- Standard Deviation  =       0.988
- Variance            =       0.977
+ Minimum value       =      -1.201
+ Maximum value       =       7.209
+ Mean value          =       2.681
+ Standard Deviation  =       1.024
+ Variance            =       1.048
 22 - Name Stats.MEAN - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
- Minimum value       =      -2.411
- Maximum value       =       2.459
- Mean value          =       0.220
- Standard Deviation  =       0.549
- Variance            =       0.301
+ Minimum value       =      -2.125
+ Maximum value       =       2.241
+ Mean value          =       0.258
+ Standard Deviation  =       0.577
+ Variance            =       0.333
 23 - Name Stats.STDV - Locator z1
  Nb of data          =        5100
  Nb of active values =        5100
- Minimum value       =       0.160
- Maximum value       =       3.021
- Mean value          =       1.434
- Standard Deviation  =       0.379
- Variance            =       0.143
+ Minimum value       =       0.267
+ Maximum value       =       2.773
+ Mean value          =       1.431
+ Standard Deviation  =       0.365
+ Variance            =       0.134
 
 Variables
 ---------
@@ -1096,113 +1096,113 @@ Data Base Statistics
  Nb of active values =        5100
  Minimum value       =       3.003
  Maximum value       =      12.978
- Mean value          =       5.925
- Standard Deviation  =       2.639
- Variance            =       6.962
+ Mean value          =       6.593
+ Standard Deviation  =       2.989
+ Variance            =       8.931
 11 - Name Z.Simu.Y.Pb.S2 - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       3.003
  Maximum value       =      12.978
- Mean value          =       6.237
- Standard Deviation  =       2.756
- Variance            =       7.595
+ Mean value          =       5.889
+ Standard Deviation  =       2.596
+ Variance            =       6.741
 12 - Name Z.Simu.Y.Pb.S3 - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       3.003
  Maximum value       =      12.978
- Mean value          =       6.351
- Standard Deviation  =       2.649
- Variance            =       7.018
+ Mean value          =       6.252
+ Standard Deviation  =       2.771
+ Variance            =       7.676
 13 - Name Z.Simu.Y.Pb.S4 - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       3.003
  Maximum value       =      12.978
- Mean value          =       6.357
- Standard Deviation  =       2.900
- Variance            =       8.411
+ Mean value          =       6.777
+ Standard Deviation  =       2.993
+ Variance            =       8.957
 14 - Name Z.Simu.Y.Pb.S5 - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       3.003
  Maximum value       =      12.978
- Mean value          =       6.948
- Standard Deviation  =       2.918
- Variance            =       8.514
+ Mean value          =       6.718
+ Standard Deviation  =       2.901
+ Variance            =       8.415
 15 - Name Z.Simu.Y.Pb.S6 - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       3.003
  Maximum value       =      12.978
- Mean value          =       6.756
- Standard Deviation  =       2.858
- Variance            =       8.166
+ Mean value          =       6.600
+ Standard Deviation  =       2.911
+ Variance            =       8.474
 16 - Name Z.Simu.Y.Pb.S7 - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       3.003
  Maximum value       =      12.978
- Mean value          =       6.108
- Standard Deviation  =       2.734
- Variance            =       7.476
+ Mean value          =       6.665
+ Standard Deviation  =       2.893
+ Variance            =       8.371
 17 - Name Z.Simu.Y.Pb.S8 - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       3.003
  Maximum value       =      12.978
- Mean value          =       6.731
- Standard Deviation  =       2.930
- Variance            =       8.582
+ Mean value          =       6.545
+ Standard Deviation  =       2.842
+ Variance            =       8.079
 18 - Name Z.Simu.Y.Pb.S9 - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       3.003
  Maximum value       =      12.978
- Mean value          =       6.308
- Standard Deviation  =       2.791
- Variance            =       7.791
+ Mean value          =       6.700
+ Standard Deviation  =       2.870
+ Variance            =       8.239
 19 - Name Z.Simu.Y.Pb.S10 - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       3.003
  Maximum value       =      12.978
- Mean value          =       6.485
- Standard Deviation  =       2.856
- Variance            =       8.155
+ Mean value          =       6.088
+ Standard Deviation  =       2.727
+ Variance            =       7.439
 20 - Name Stats.MINI - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       3.003
- Maximum value       =       7.237
- Mean value          =       3.369
- Standard Deviation  =       0.523
- Variance            =       0.274
+ Maximum value       =       6.887
+ Mean value          =       3.400
+ Standard Deviation  =       0.536
+ Variance            =       0.287
 21 - Name Stats.MAXI - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
- Minimum value       =       4.077
+ Minimum value       =       3.942
  Maximum value       =      12.978
- Mean value          =      11.402
- Standard Deviation  =       2.065
- Variance            =       4.265
+ Mean value          =      11.503
+ Standard Deviation  =       2.070
+ Variance            =       4.283
 22 - Name Stats.MEAN - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
- Minimum value       =       3.232
- Maximum value       =      11.183
- Mean value          =       6.420
- Standard Deviation  =       0.972
- Variance            =       0.944
+ Minimum value       =       3.340
+ Maximum value       =      10.577
+ Mean value          =       6.483
+ Standard Deviation  =       1.017
+ Variance            =       1.035
 23 - Name Stats.STDV - Locator z1
  Nb of data          =        5100
  Nb of active values =        5100
- Minimum value       =       0.262
- Maximum value       =       4.389
- Mean value          =       2.544
- Standard Deviation  =       0.735
- Variance            =       0.540
+ Minimum value       =       0.323
+ Maximum value       =       4.549
+ Mean value          =       2.577
+ Standard Deviation  =       0.734
+ Variance            =       0.538
 
 Variables
 ---------
@@ -1336,89 +1336,89 @@ Data Base Statistics
  Nb of active values =        5100
  Minimum value       =       3.003
  Maximum value       =      12.978
- Mean value          =       5.925
- Standard Deviation  =       2.639
- Variance            =       6.962
+ Mean value          =       6.593
+ Standard Deviation  =       2.989
+ Variance            =       8.931
 11 - Name Z.Simu.Y.Pb.S2 - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       3.003
  Maximum value       =      12.978
- Mean value          =       6.237
- Standard Deviation  =       2.756
- Variance            =       7.595
+ Mean value          =       5.889
+ Standard Deviation  =       2.596
+ Variance            =       6.741
 12 - Name Z.Simu.Y.Pb.S3 - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       3.003
  Maximum value       =      12.978
- Mean value          =       6.351
- Standard Deviation  =       2.649
- Variance            =       7.018
+ Mean value          =       6.252
+ Standard Deviation  =       2.771
+ Variance            =       7.676
 13 - Name Z.Simu.Y.Pb.S4 - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       3.003
  Maximum value       =      12.978
- Mean value          =       6.357
- Standard Deviation  =       2.900
- Variance            =       8.411
+ Mean value          =       6.777
+ Standard Deviation  =       2.993
+ Variance            =       8.957
 14 - Name Z.Simu.Y.Pb.S5 - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       3.003
  Maximum value       =      12.978
- Mean value          =       6.948
- Standard Deviation  =       2.918
- Variance            =       8.514
+ Mean value          =       6.718
+ Standard Deviation  =       2.901
+ Variance            =       8.415
 15 - Name Z.Simu.Y.Pb.S6 - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       3.003
  Maximum value       =      12.978
- Mean value          =       6.756
- Standard Deviation  =       2.858
- Variance            =       8.166
+ Mean value          =       6.600
+ Standard Deviation  =       2.911
+ Variance            =       8.474
 16 - Name Z.Simu.Y.Pb.S7 - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       3.003
  Maximum value       =      12.978
- Mean value          =       6.108
- Standard Deviation  =       2.734
- Variance            =       7.476
+ Mean value          =       6.665
+ Standard Deviation  =       2.893
+ Variance            =       8.371
 17 - Name Z.Simu.Y.Pb.S8 - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       3.003
  Maximum value       =      12.978
- Mean value          =       6.731
- Standard Deviation  =       2.930
- Variance            =       8.582
+ Mean value          =       6.545
+ Standard Deviation  =       2.842
+ Variance            =       8.079
 18 - Name Z.Simu.Y.Pb.S9 - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       3.003
  Maximum value       =      12.978
- Mean value          =       6.308
- Standard Deviation  =       2.791
- Variance            =       7.791
+ Mean value          =       6.700
+ Standard Deviation  =       2.870
+ Variance            =       8.239
 19 - Name Z.Simu.Y.Pb.S10 - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       3.003
  Maximum value       =      12.978
- Mean value          =       6.485
- Standard Deviation  =       2.856
- Variance            =       8.155
+ Mean value          =       6.088
+ Standard Deviation  =       2.727
+ Variance            =       7.439
 20 - Name Stats.MEAN - Locator z1
  Nb of data          =        5100
  Nb of active values =        5100
- Minimum value       =       3.232
- Maximum value       =      11.183
- Mean value          =       6.420
- Standard Deviation  =       0.972
- Variance            =       0.944
+ Minimum value       =       3.340
+ Maximum value       =      10.577
+ Mean value          =       6.483
+ Standard Deviation  =       1.017
+ Variance            =       1.035
 
 Variables
 ---------
@@ -1670,193 +1670,193 @@ Data Base Statistics
  Nb of active values =        5100
  Minimum value       =       1.147
  Maximum value       =      12.128
- Mean value          =       2.940
- Standard Deviation  =       1.685
- Variance            =       2.841
+ Mean value          =       2.775
+ Standard Deviation  =       1.509
+ Variance            =       2.276
 11 - Name Z.Simu.Y.Zn.S2 - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       1.147
  Maximum value       =      12.128
- Mean value          =       2.855
- Standard Deviation  =       1.557
- Variance            =       2.426
+ Mean value          =       2.931
+ Standard Deviation  =       1.737
+ Variance            =       3.016
 12 - Name Z.Simu.Y.Zn.S3 - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       1.147
  Maximum value       =      12.128
- Mean value          =       2.927
- Standard Deviation  =       1.738
- Variance            =       3.020
+ Mean value          =       2.984
+ Standard Deviation  =       1.780
+ Variance            =       3.169
 13 - Name Z.Simu.Y.Zn.S4 - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       1.147
  Maximum value       =      12.128
- Mean value          =       2.899
- Standard Deviation  =       1.636
- Variance            =       2.677
+ Mean value          =       2.830
+ Standard Deviation  =       1.567
+ Variance            =       2.455
 14 - Name Z.Simu.Y.Zn.S5 - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       1.147
  Maximum value       =      12.128
- Mean value          =       3.179
- Standard Deviation  =       1.932
- Variance            =       3.734
+ Mean value          =       2.845
+ Standard Deviation  =       1.598
+ Variance            =       2.555
 15 - Name Z.Simu.Y.Zn.S6 - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       1.147
  Maximum value       =      12.128
- Mean value          =       3.009
- Standard Deviation  =       1.880
- Variance            =       3.534
+ Mean value          =       2.883
+ Standard Deviation  =       1.752
+ Variance            =       3.071
 16 - Name Z.Simu.Y.Zn.S7 - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       1.147
  Maximum value       =      12.128
- Mean value          =       2.784
- Standard Deviation  =       1.498
- Variance            =       2.245
+ Mean value          =       2.991
+ Standard Deviation  =       1.769
+ Variance            =       3.130
 17 - Name Z.Simu.Y.Zn.S8 - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       1.147
  Maximum value       =      12.128
- Mean value          =       2.834
- Standard Deviation  =       1.574
- Variance            =       2.476
+ Mean value          =       2.871
+ Standard Deviation  =       1.660
+ Variance            =       2.756
 18 - Name Z.Simu.Y.Zn.S9 - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       1.147
  Maximum value       =      12.128
- Mean value          =       2.968
- Standard Deviation  =       1.726
- Variance            =       2.978
+ Mean value          =       2.925
+ Standard Deviation  =       1.686
+ Variance            =       2.843
 19 - Name Z.Simu.Y.Zn.S10 - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       1.147
  Maximum value       =      12.128
- Mean value          =       2.824
- Standard Deviation  =       1.546
- Variance            =       2.391
+ Mean value          =       2.829
+ Standard Deviation  =       1.511
+ Variance            =       2.283
 20 - Name Z.Simu.Y.Pb.S1 - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       3.003
  Maximum value       =      12.978
- Mean value          =       5.740
- Standard Deviation  =       1.772
- Variance            =       3.140
+ Mean value          =       5.724
+ Standard Deviation  =       1.762
+ Variance            =       3.106
 21 - Name Z.Simu.Y.Pb.S2 - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       3.003
  Maximum value       =      12.978
- Mean value          =       5.852
- Standard Deviation  =       1.815
- Variance            =       3.294
+ Mean value          =       5.793
+ Standard Deviation  =       1.811
+ Variance            =       3.281
 22 - Name Z.Simu.Y.Pb.S3 - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       3.003
  Maximum value       =      12.978
- Mean value          =       5.827
- Standard Deviation  =       1.783
- Variance            =       3.177
+ Mean value          =       5.833
+ Standard Deviation  =       1.721
+ Variance            =       2.961
 23 - Name Z.Simu.Y.Pb.S4 - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       3.003
  Maximum value       =      12.978
- Mean value          =       5.641
- Standard Deviation  =       1.636
- Variance            =       2.678
+ Mean value          =       5.842
+ Standard Deviation  =       1.732
+ Variance            =       2.999
 24 - Name Z.Simu.Y.Pb.S5 - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       3.003
  Maximum value       =      12.978
- Mean value          =       6.237
- Standard Deviation  =       1.997
- Variance            =       3.988
+ Mean value          =       5.730
+ Standard Deviation  =       1.784
+ Variance            =       3.183
 25 - Name Z.Simu.Y.Pb.S6 - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       3.003
  Maximum value       =      12.978
- Mean value          =       5.944
- Standard Deviation  =       1.880
- Variance            =       3.534
+ Mean value          =       5.535
+ Standard Deviation  =       1.602
+ Variance            =       2.566
 26 - Name Z.Simu.Y.Pb.S7 - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       3.003
  Maximum value       =      12.978
- Mean value          =       5.789
- Standard Deviation  =       1.766
- Variance            =       3.118
+ Mean value          =       5.788
+ Standard Deviation  =       1.783
+ Variance            =       3.179
 27 - Name Z.Simu.Y.Pb.S8 - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       3.003
  Maximum value       =      12.978
- Mean value          =       5.747
- Standard Deviation  =       1.826
- Variance            =       3.333
+ Mean value          =       5.848
+ Standard Deviation  =       1.941
+ Variance            =       3.767
 28 - Name Z.Simu.Y.Pb.S9 - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       3.003
  Maximum value       =      12.978
- Mean value          =       5.868
- Standard Deviation  =       1.853
- Variance            =       3.435
+ Mean value          =       5.887
+ Standard Deviation  =       1.814
+ Variance            =       3.291
 29 - Name Z.Simu.Y.Pb.S10 - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       3.003
  Maximum value       =      12.978
- Mean value          =       5.728
- Standard Deviation  =       1.772
- Variance            =       3.140
+ Mean value          =       5.840
+ Standard Deviation  =       1.791
+ Variance            =       3.208
 30 - Name Stats.MINI - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       1.147
- Maximum value       =       4.546
- Mean value          =       1.847
- Standard Deviation  =       0.289
- Variance            =       0.084
+ Maximum value       =       4.178
+ Mean value          =       1.835
+ Standard Deviation  =       0.286
+ Variance            =       0.082
 31 - Name Stats.MAXI - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
- Minimum value       =       3.751
+ Minimum value       =       3.445
  Maximum value       =      12.978
- Mean value          =       9.331
- Standard Deviation  =       2.098
- Variance            =       4.400
+ Mean value          =       9.193
+ Standard Deviation  =       2.062
+ Variance            =       4.252
 32 - Name Stats.MEAN - Locator NA
  Nb of data          =        5100
  Nb of active values =        5100
- Minimum value       =       2.519
- Maximum value       =      10.146
- Mean value          =       4.380
- Standard Deviation  =       0.616
- Variance            =       0.380
+ Minimum value       =       2.376
+ Maximum value       =       9.400
+ Mean value          =       4.334
+ Standard Deviation  =       0.595
+ Variance            =       0.354
 33 - Name Stats.STDV - Locator z1
  Nb of data          =        5100
  Nb of active values =        5100
- Minimum value       =       0.535
- Maximum value       =       3.784
- Mean value          =       2.142
- Standard Deviation  =       0.484
- Variance            =       0.234
+ Minimum value       =       0.579
+ Maximum value       =       3.887
+ Mean value          =       2.116
+ Standard Deviation  =       0.477
+ Variance            =       0.227
 
 Variables
 ---------

@@ -68,7 +68,7 @@ namespace gstlrn
     law_set_random_seed(getSeed());
     if (!_check()) return 1;
 
-    return _simulate();
+    return _simulate(0);
   }
 
   /**
@@ -87,7 +87,7 @@ namespace gstlrn
     _initializeOutputAttribute();
 
     // Compute one simulation
-    if (_compute(dbout, isimu, activeArray, tab)) return 1;
+    if (_compute(dbout, activeArray, tab)) return 1;
 
     // Save the resulting array
     saveResults(dbout, isimu, activeArray, tab);

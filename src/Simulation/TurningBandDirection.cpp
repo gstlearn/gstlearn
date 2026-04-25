@@ -108,6 +108,23 @@ namespace gstlrn
     return (t);
   }
 
+  /*****************************************************************************/
+  /*!
+   **  Calculates the projection of a point specified by its coordinates
+   **
+   ** \return  Projection value
+   **
+   ** \param[in]  coor    Coordinates of a sample
+   **
+   *****************************************************************************/
+  double TurningBandDirection::projectCoor(const VectorDouble& coor) const
+  {
+    Id ndim = coor.size();
+    double t = 0.;
+    for (Id idim = 0; idim < ndim; idim++) t += coor[idim] * _ang[idim];
+    return (t);
+  }
+
   void TurningBandDirection::dump(bool flagGrid) const
   {
     message("  Tmin=%lf Tmax=%lf Scale=%lf\n", _tmin, _tmax, _scale);

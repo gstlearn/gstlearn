@@ -357,7 +357,8 @@ namespace gstlrn
   String encodeString(const String& string, Id item, Id nChar)
   {
     std::stringstream ss;
-    ss << trim(string) << std::setw(nChar) << std::setfill('0') << item;
+    ss << trim(string) << std::setw(static_cast<int>(nChar))
+       << std::setfill('0') << item;
     return ss.str();
   }
 

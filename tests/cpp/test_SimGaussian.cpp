@@ -83,7 +83,11 @@ int main(int argc, char* argv[])
     dbin, grid, model, nullptr, nbsimu, 425631, nfeatures, false,
     NamingConvention("SimuTB"));
   grid->getStatsAsTable({"SimuTB*"}).display();
-  grid->getCorrelationAsTable({"SimuTB*"}).display();
+  for (Id ivar = 0; ivar < nvar; ivar++)
+  {
+    auto name = NC::getNameEncoded("SimuTB", nullptr, ivar + 1, nvar, -1);
+    grid->getCorrelationAsTable({name}).display();
+  }
   grid->setLocators({"SimuTB"}, ELoc::Z, 0, true);
   auto* varioTB = varioGridCalculate(grid);
 
@@ -93,7 +97,11 @@ int main(int argc, char* argv[])
     dbin, grid, model, nullptr, nbsimu, 425631, nfeatures, 100, false,
     NamingConvention("SimuSPT"));
   grid->getStatsAsTable({"SimuSPT*"}).display();
-  grid->getCorrelationAsTable({"SimuSPT*"}).display();
+  for (Id ivar = 0; ivar < nvar; ivar++)
+  {
+    auto name = NC::getNameEncoded("SimuSPT", nullptr, ivar + 1, nvar, -1);
+    grid->getCorrelationAsTable({name}).display();
+  }
   grid->setLocators({"SimuSPT"}, ELoc::Z, 0, true);
   auto* varioSPT = varioGridCalculate(grid);
 

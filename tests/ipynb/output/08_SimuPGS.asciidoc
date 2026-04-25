@@ -57,22 +57,23 @@ Column = 6 - Name = connect - Locator = NA----
 Number of conditioning data = 4
 Their ranks in the input Data Base = [4, 12, 15, 16]
 Their ranks in the output Data Base = [6000 1270 6648 9712]
-List of their connected components indices = [1. 2. 1. 1.]
+List of their connected components indices = [1. 1. 1. 2.]
 Acceptation score = False
 ----
 
 
 #NO_DIFF#XXX
 ----
-Simulation  SimuPGS.S4 is valid
-Simulation  SimuPGS.S9 is valid
-Simulation  SimuPGS.S11 is valid
+Simulation  SimuPGS.S2 is valid
+Simulation  SimuPGS.S3 is valid
+Simulation  SimuPGS.S5 is valid
+Simulation  SimuPGS.S6 is valid
+Simulation  SimuPGS.S8 is valid
+Simulation  SimuPGS.S10 is valid
+Simulation  SimuPGS.S12 is valid
 Simulation  SimuPGS.S13 is valid
 Simulation  SimuPGS.S14 is valid
 Simulation  SimuPGS.S15 is valid
-Simulation  SimuPGS.S17 is valid
-Simulation  SimuPGS.S18 is valid
-Simulation  SimuPGS.S19 is valid
 Simulation  SimuPGS.S20 is valid
 ----
 

@@ -61,13 +61,13 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Exponential
-- Sill         =       1.994
-- Ranges       =       0.096      0.291
-- Theo. Ranges =       0.032      0.097
-- Angles       =      32.458      0.000
+- Sill         =       1.668
+- Ranges       =       0.169      0.084
+- Theo. Ranges =       0.057      0.028
+- Angles       =     137.017      0.000
 - Rotation Matrix
                  [,  0]     [,  1]
-      [  0,]      0.844     -0.537
-      [  1,]      0.537      0.844
-Total Sill     =       1.994
+      [  0,]      0.732      0.682
+      [  1,]     -0.682      0.732
+Total Sill     =       1.668
 Known Mean(s)      0.000

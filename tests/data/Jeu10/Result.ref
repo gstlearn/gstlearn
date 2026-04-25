@@ -95,20 +95,20 @@ Data Base Statistics
 2 - Name Simu.z1 - Locator z1
  Nb of data          =       30616
  Nb of active values =       30616
- Minimum value       =    3201.064
- Maximum value       =    3465.870
- Mean value          =    3323.266
- Standard Deviation  =      56.168
- Variance            =    3154.861
+ Minimum value       =    3209.963
+ Maximum value       =    3416.355
+ Mean value          =    3323.445
+ Standard Deviation  =      38.236
+ Variance            =    1462.008
 
 Data Base Contents
 ------------------
                      f1    Simu.z1
-      [  0,]   2722.353   3350.417
-      [  1,]   2722.231   3340.727
-      [  2,]   2722.100   3343.757
-      [  3,]   2721.979   3342.566
-      [  4,]   2721.872   3337.267
-      [  5,]   2721.767   3327.554
-      [  6,]   2721.682   3322.173
+      [  0,]   2722.353   3325.082
+      [  1,]   2722.231   3330.063
+      [  2,]   2722.100   3335.163
+      [  3,]   2721.979   3331.951
+      [  4,]   2721.872   3337.235
+      [  5,]   2721.767   3342.890
+      [  6,]   2721.682   3340.189
 (Nrows=7[from 30616])

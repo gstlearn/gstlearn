@@ -89,50 +89,50 @@ Data Base Statistics
  Nb of active values =       10000
  Minimum value       =       1.000
  Maximum value       =       3.000
- Mean value          =       1.918
- Standard Deviation  =       0.928
- Variance            =       0.861
+ Mean value          =       1.553
+ Standard Deviation  =       0.825
+ Variance            =       0.680
 2 - Name Facies.S2 - Locator facies2
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =       1.000
  Maximum value       =       3.000
- Mean value          =       1.327
- Standard Deviation  =       0.690
- Variance            =       0.476
+ Mean value          =       1.162
+ Standard Deviation  =       0.490
+ Variance            =       0.240
 3 - Name Facies.S3 - Locator facies3
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =       1.000
  Maximum value       =       3.000
- Mean value          =       1.480
- Standard Deviation  =       0.758
- Variance            =       0.574
+ Mean value          =       1.711
+ Standard Deviation  =       0.861
+ Variance            =       0.741
 4 - Name Facies.S4 - Locator facies4
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =       1.000
  Maximum value       =       3.000
- Mean value          =       2.315
- Standard Deviation  =       0.935
- Variance            =       0.874
+ Mean value          =       2.633
+ Standard Deviation  =       0.764
+ Variance            =       0.583
 5 - Name Facies.S5 - Locator facies5
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =       1.000
  Maximum value       =       3.000
- Mean value          =       2.007
- Standard Deviation  =       0.768
- Variance            =       0.591
+ Mean value          =       2.241
+ Standard Deviation  =       0.808
+ Variance            =       0.652
 
 Data Base Contents
 ------------------
               Facies.S1  Facies.S2  Facies.S3  Facies.S4  Facies.S5
-      [  0,]      3.000      1.000      1.000      3.000      3.000
-      [  1,]      3.000      1.000      1.000      3.000      3.000
-      [  2,]      3.000      1.000      1.000      3.000      3.000
-      [  3,]      3.000      1.000      1.000      3.000      3.000
-      [  4,]      3.000      1.000      1.000      3.000      3.000
-      [  5,]      3.000      1.000      1.000      3.000      3.000
-      [  6,]      3.000      1.000      1.000      3.000      3.000
+      [  0,]      1.000      1.000      1.000      3.000      3.000
+      [  1,]      1.000      1.000      1.000      3.000      3.000
+      [  2,]      1.000      1.000      1.000      3.000      3.000
+      [  3,]      1.000      1.000      1.000      1.000      3.000
+      [  4,]      1.000      1.000      1.000      1.000      3.000
+      [  5,]      1.000      1.000      1.000      3.000      3.000
+      [  6,]      1.000      1.000      1.000      1.000      3.000
 (Nrows=7[from 10000])
