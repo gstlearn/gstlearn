@@ -19,7 +19,7 @@
 #include "Db/DbGrid.hpp"
 #include "Geometry/GeometryHelper.hpp"
 #include "Model/Model.hpp"
-#include "Simulation/ACalcSimuModel.hpp"
+#include "Simulation/ACalcSimuGaussian.hpp"
 #include "Simulation/TurningBandDirection.hpp"
 #include "Simulation/TurningBandOperate.hpp"
 #include "geoslib_f_private.h"
@@ -31,7 +31,7 @@ namespace gstlrn
 {
 
   CalcSimuTurningBands::CalcSimuTurningBands(Id nbsimu, Id nbtuba, Id seed)
-    : ACalcSimuModel(nbsimu, seed)
+    : ACalcSimuGaussian(nbsimu, seed)
     , _nbtuba(nbtuba)
     , _icase(0)
     , _nameCoord()
@@ -1446,7 +1446,7 @@ namespace gstlrn
 
   bool CalcSimuTurningBands::_check()
   {
-    if (!ACalcSimuModel::_check()) return false;
+    if (!ACalcSimuGaussian::_check()) return false;
 
     auto ndim = _getNDim();
     if (ndim > 3)
@@ -1500,7 +1500,7 @@ namespace gstlrn
 
   bool CalcSimuTurningBands::_preprocess()
   {
-    if (!ACalcSimuModel::_preprocess()) return false;
+    if (!ACalcSimuGaussian::_preprocess()) return false;
 
     // Prepare the seeds for the Bands
     if (!_simulateTB()) return false;
@@ -1527,7 +1527,7 @@ namespace gstlrn
 
   bool CalcSimuTurningBands::_postprocess()
   {
-    if (!ACalcSimuModel::_postprocess()) return false;
+    if (!ACalcSimuGaussian::_postprocess()) return false;
 
     // Clean variables created for Expansion
 

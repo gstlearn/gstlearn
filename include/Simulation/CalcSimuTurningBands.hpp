@@ -16,7 +16,7 @@
 
 #include "Basic/VectorNumT.hpp"
 #include "Model/Model.hpp"
-#include "Simulation/ACalcSimuModel.hpp"
+#include "Simulation/ACalcSimuGaussian.hpp"
 #include "Simulation/TurningBandDirection.hpp"
 
 #include "geoslib_define.h"
@@ -27,7 +27,7 @@ namespace gstlrn
   class ANeigh;
   class TurningBandOperate;
 
-  class GSTLEARN_EXPORT CalcSimuTurningBands: public ACalcSimuModel
+  class GSTLEARN_EXPORT CalcSimuTurningBands: public ACalcSimuGaussian
   {
   public:
     CalcSimuTurningBands(Id nbsimu = 0, Id nbtuba = 0, Id seed = 4324324);

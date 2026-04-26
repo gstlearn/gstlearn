@@ -17,7 +17,7 @@
 #include "Enum/ESimuType.hpp"
 #include "Model/Model.hpp"
 #include "Model/ModelGeneric.hpp"
-#include "Simulation/ACalcSimuModel.hpp"
+#include "Simulation/ACalcSimuGaussian.hpp"
 #include "Simulation/SimuSpectralRN.hpp"
 #include "Simulation/SimuSpectralS2.hpp"
 #include "Stats/Classical.hpp"
@@ -33,7 +33,7 @@ namespace gstlrn
     Id nd,
     Id seed,
     bool verbose)
-    : ACalcSimuModel(nbsimu, seed, verbose)
+    : ACalcSimuGaussian(nbsimu, seed, verbose)
     , _ns(ns)
     , _nd(nd)
   {
@@ -43,7 +43,7 @@ namespace gstlrn
 
   bool CalcSimuSpectral::_check()
   {
-    if (!ACalcSimuModel::_check()) return false;
+    if (!ACalcSimuGaussian::_check()) return false;
 
     if (!hasModelGeneric()) return false;
 
@@ -97,7 +97,7 @@ namespace gstlrn
 
   bool CalcSimuSpectral::_preprocess()
   {
-    if (!ACalcSimuModel::_preprocess()) return false;
+    if (!ACalcSimuGaussian::_preprocess()) return false;
 
     // Factorize the matrix of sills
     auto* modelLocal = dynamic_cast<Model*>(getModelGeneric());

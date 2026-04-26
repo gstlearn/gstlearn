@@ -8,7 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Simulation/ACalcSimuModel.hpp"
+#include "Simulation/ACalcSimuGaussian.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/OptDbg.hpp"
@@ -20,7 +20,7 @@
 namespace gstlrn
 {
 
-  ACalcSimuModel::ACalcSimuModel(Id nbsimu, Id seed, bool verbose)
+  ACalcSimuGaussian::ACalcSimuGaussian(Id nbsimu, Id seed, bool verbose)
     : ACalcSimulation(nbsimu, seed, verbose)
     , _iattOut(-1)
     , _flagCond(false)
@@ -32,9 +32,9 @@ namespace gstlrn
   {
   }
 
-  ACalcSimuModel::~ACalcSimuModel() {}
+  ACalcSimuGaussian::~ACalcSimuGaussian() {}
 
-  bool ACalcSimuModel::_check()
+  bool ACalcSimuGaussian::_check()
   {
     if (!ACalcSimulation::_check()) return false;
 
@@ -58,7 +58,7 @@ namespace gstlrn
     return true;
   }
 
-  bool ACalcSimuModel::_preprocess()
+  bool ACalcSimuGaussian::_preprocess()
   {
     if (!ACalcSimulation::_preprocess()) return false;
 
@@ -85,7 +85,7 @@ namespace gstlrn
     return true;
   }
 
-  bool ACalcSimuModel::_postprocess()
+  bool ACalcSimuGaussian::_postprocess()
   {
     /* Free the temporary variables */
     _cleanVariableDb(2);
@@ -100,14 +100,14 @@ namespace gstlrn
     return true;
   }
 
-  void ACalcSimuModel::_initializeOutputAttribute()
+  void ACalcSimuGaussian::_initializeOutputAttribute()
   {
     if (_iattOut < 0)
       _iattOut = getDbout()->addColumnsByConstant(
         _getNVar() * getNbSimu(), 0., "Simu", ELoc::SIMU);
   }
 
-  bool ACalcSimuModel::_run()
+  bool ACalcSimuGaussian::_run()
   {
     VectorVectorDouble tabOut;
     VectorVectorDouble tabIn;
@@ -179,7 +179,7 @@ namespace gstlrn
    ** \remarks At the end, the simulated gradient is stored at first point
    **
    *****************************************************************************/
-  void ACalcSimuModel::_computeGradient(
+  void ACalcSimuGaussian::_computeGradient(
     Db* dbgrd,
     Id isimu,
     double delta,
@@ -251,7 +251,7 @@ namespace gstlrn
    ** \remarks simulation outcome variables as for the gradients
    **
    *****************************************************************************/
-  void ACalcSimuModel::_computeTangent(
+  void ACalcSimuGaussian::_computeTangent(
     Db* dbtgt,
     Id isimu,
     double delta,
@@ -290,7 +290,7 @@ namespace gstlrn
    ** \param[out] tab          Array containing the non-conditional simulation values
    **
    *****************************************************************************/
-  void ACalcSimuModel::_correctMean(
+  void ACalcSimuGaussian::_correctMean(
     const VectorBool& activeArray,
     VectorVectorDouble& tab)
   {
@@ -316,7 +316,7 @@ namespace gstlrn
    ** \param[out] tab        Array containing the non-conditional simulation values
    **
    *****************************************************************************/
-  void ACalcSimuModel::_convertToDifference(
+  void ACalcSimuGaussian::_convertToDifference(
     Id isimu,
     const VectorBool& activeArray,
     VectorVectorDouble& tab)
@@ -395,7 +395,7 @@ namespace gstlrn
    ** \remarks within a cell
    **
    *****************************************************************************/
-  void ACalcSimuModel::_updateDataToTarget() const
+  void ACalcSimuGaussian::_updateDataToTarget() const
   {
     auto* dbin = getDbin();
     if (dbin->getNSample() <= 0) return;
@@ -524,7 +524,7 @@ namespace gstlrn
    ** \param[out] tab        Array containing the non-conditional simulation values
    **
    *****************************************************************************/
-  void ACalcSimuModel::_simulateNugget(
+  void ACalcSimuGaussian::_simulateNugget(
     Db* db,
     const VectorBool& activeArray,
     VectorVectorDouble& tab)
@@ -569,7 +569,7 @@ namespace gstlrn
    ** \remark: coefficient as soon as flag_dgm is TRUE
    **
    *****************************************************************************/
-  Id ACalcSimuModel::_conditionalKriging()
+  Id ACalcSimuGaussian::_conditionalKriging()
   {
     auto* dbin = getDbin();
     auto* dbout = getDbout();
@@ -622,7 +622,7 @@ namespace gstlrn
    * @param activeArray Array indicating active samples
    * @param tab   Array containing simulation values for all variables
    */
-  void ACalcSimuModel::saveResults(
+  void ACalcSimuGaussian::saveResults(
     Db* db,
     Id isimu,
     const VectorBool& activeArray,
@@ -642,13 +642,13 @@ namespace gstlrn
     }
   }
 
-  Id ACalcSimuModel::getNVar() const
+  Id ACalcSimuGaussian::getNVar() const
   {
     if (getModelGeneric() == nullptr) return 0;
     return getModelGeneric()->getNVar();
   }
 
-  void ACalcSimuModel::_allocateForOneSimulation(
+  void ACalcSimuGaussian::_allocateForOneSimulation(
     const Db* db,
     Id nvar,
     VectorBool& activeArray,

@@ -10,14 +10,14 @@
 /******************************************************************************/
 #pragma once
 
-#include "Simulation/ACalcSimuModel.hpp"
+#include "Simulation/ACalcSimuGaussian.hpp"
 #include "gstlearn_export.hpp"
 
 namespace gstlrn
 {
   class Model;
 
-  class GSTLEARN_EXPORT CalcSimuSpectral: public ACalcSimuModel
+  class GSTLEARN_EXPORT CalcSimuSpectral: public ACalcSimuGaussian
   {
   public:
     CalcSimuSpectral(

@@ -19,13 +19,13 @@ namespace gstlrn
 {
   class CovBase;
 
-  class GSTLEARN_EXPORT ACalcSimuModel: public ACalcSimulation
+  class GSTLEARN_EXPORT ACalcSimuGaussian: public ACalcSimulation
   {
   public:
-    ACalcSimuModel(Id nbsimu = 1, Id seed = 4324324, bool verbose = false);
-    ACalcSimuModel(const ACalcSimuModel& r) = delete;
-    ACalcSimuModel& operator=(const ACalcSimuModel& r) = delete;
-    virtual ~ACalcSimuModel();
+    ACalcSimuGaussian(Id nbsimu = 1, Id seed = 4324324, bool verbose = false);
+    ACalcSimuGaussian(const ACalcSimuGaussian& r) = delete;
+    ACalcSimuGaussian& operator=(const ACalcSimuGaussian& r) = delete;
+    virtual ~ACalcSimuGaussian();
 
     Id getNVar() const;
 

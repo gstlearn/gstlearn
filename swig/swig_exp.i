@@ -410,7 +410,7 @@
 
 %include Simulation/Simulations.hpp
 %include Simulation/ACalcSimulation.hpp
-%include Simulation/ACalcSimuModel.hpp
+%include Simulation/ACalcSimuGaussian.hpp
 %include Simulation/CalcSimuTurningBands.hpp
 %include Simulation/TurningBandDirection.hpp
 %include Simulation/TurningBandOperate.hpp
