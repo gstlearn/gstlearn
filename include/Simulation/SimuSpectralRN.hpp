@@ -45,9 +45,10 @@ namespace gstlrn
     SpectrumOnRN* getSpectrum() { return _sp; };
 
   protected:
-    Id _simulate(Id isimu) override;
-    Id _compute(Db* db, const VectorBool& activeArray, VectorVectorDouble& tab)
-      override;
+    bool _simulate(Id isimu) override;
+    void
+      _compute(Db* db, const VectorBool& activeArray, VectorVectorDouble& tab)
+        override;
 
   private:
     // Matrix nrows=_ns, ncols= number of variables of _cova

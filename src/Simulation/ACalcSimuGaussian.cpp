@@ -120,6 +120,9 @@ namespace gstlrn
     // Set the seed
     law_set_random_seed(getSeed());
 
+    // Initialize the simulation part which is common to all simulations
+    if (!_initializeSimulations()) return 1;
+
     // Loop on the simulations
     for (Id isimu = 0, nbsimu = getNbSimu(); isimu < nbsimu; isimu++)
     {

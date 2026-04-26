@@ -70,11 +70,13 @@ namespace gstlrn
     bool _preprocess() override;
     bool _postprocess() override;
     void _rollback() override;
-    bool _simulateTB();
 
-    Id _simulate(Id isimu) override;
-    Id _compute(Db* db, const VectorBool& activeArray, VectorVectorDouble& tab)
-      override;
+    bool _initializeSimulations() override;
+
+    bool _simulate(Id isimu) override;
+    void
+      _compute(Db* db, const VectorBool& activeArray, VectorVectorDouble& tab)
+        override;
 
     bool _resize();
     void _computePoint(

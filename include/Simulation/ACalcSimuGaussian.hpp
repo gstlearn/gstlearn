@@ -11,9 +11,8 @@
 #pragma once
 
 #include "Basic/VectorT.hpp"
-#include "gstlearn_export.hpp"
-
 #include "Simulation/ACalcSimulation.hpp"
+#include "gstlearn_export.hpp"
 
 namespace gstlrn
 {
@@ -66,19 +65,20 @@ namespace gstlrn
 
     bool _isConditional() const { return _flagCond; }
 
-    virtual Id _simulate(Id isimu)
+    virtual bool _initializeSimulations() { return true; }
+
+    virtual bool _simulate(Id isimu)
     {
       DECLARE_UNUSED(isimu);
-      return 0;
+      return true;
     }
 
-    virtual Id
+    virtual void
       _compute(Db* db, const VectorBool& activeArray, VectorVectorDouble& tab)
     {
       DECLARE_UNUSED(db);
       DECLARE_UNUSED(activeArray);
       DECLARE_UNUSED(tab);
-      return 0;
     }
 
     bool _isAllocationAlreadyDone() const { return _flagAllocationAlreadyDone; }

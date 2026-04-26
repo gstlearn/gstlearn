@@ -46,12 +46,12 @@ namespace gstlrn
   /**
    * Simulate the spectrum components for Rn
    */
-  Id SimuSpectralRN::_simulate(Id isimu)
+  bool SimuSpectralRN::_simulate(Id isimu)
   {
     law_set_random_seed(getSeedPerSimu(isimu));
 
     const ACov* cov = getModelGeneric()->getCov();
-    if (cov == nullptr) return -1;
+    if (cov == nullptr) return false;
 
     // Optional printout
     if (getVerbose())
@@ -63,7 +63,7 @@ namespace gstlrn
     }
     delete _sp;
     _sp = cov->simulateOnRN(_getNs());
-    return 1;
+    return true;
   }
 
   /**
@@ -73,16 +73,13 @@ namespace gstlrn
    * @param activeArray Array of booleans indicating the active samples in dbout
    * @param tab Array for storing one (multivariate) simulation on 'dbout'
    */
-  Id SimuSpectralRN::_compute(
+  void SimuSpectralRN::_compute(
     Db* db,
     const VectorBool& activeArray,
     VectorVectorDouble& tab)
   {
-    if (_sp == nullptr)
-    {
-      messerr("SpectrumOnRN not initialized.\n");
-      return 1;
-    }
+    if (_sp == nullptr) return;
+
     // Optional printout
     if (getVerbose())
     {
@@ -90,7 +87,6 @@ namespace gstlrn
       message("- Number of samples = %d\n", db->getNSample());
     }
     _sp->compute(db, activeArray, tab);
-    return 0;
   }
 
 } // namespace gstlrn

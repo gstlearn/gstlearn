@@ -949,7 +949,7 @@ namespace gstlrn
     }
   }
 
-  Id CalcSimuTurningBands::_simulate(Id isimu)
+  bool CalcSimuTurningBands::_simulate(Id isimu)
   {
     law_set_random_seed(getSeedPerSimu(isimu));
 
@@ -959,7 +959,7 @@ namespace gstlrn
 
     _extendBands();
 
-    return 0;
+    return true;
   }
 
   /**
@@ -969,7 +969,7 @@ namespace gstlrn
    * @param activeArray Array indicating active samples
    * @param tab Array to store the simulation values for all bands
    */
-  Id CalcSimuTurningBands::_compute(
+  void CalcSimuTurningBands::_compute(
     Db* db,
     const VectorBool& activeArray,
     VectorVectorDouble& tab)
@@ -999,8 +999,6 @@ namespace gstlrn
       // Cumulate structures for current simulation
       _scaleResults(db, cova, activeArray, tabLoc, tab);
     }
-
-    return 0;
   }
 
   /**
@@ -1293,10 +1291,8 @@ namespace gstlrn
    * @return true
    * @return false
    */
-  bool CalcSimuTurningBands::_simulateTB()
+  bool CalcSimuTurningBands::_initializeSimulations()
   {
-    law_set_random_seed(getSeed());
-
     // Dimension the Turning Bands environment
     if (!_resize()) return false;
 
@@ -1305,6 +1301,7 @@ namespace gstlrn
 
     // Initialize the Box
     _initializeBox();
+
     return true;
   }
 
@@ -1381,7 +1378,7 @@ namespace gstlrn
     }
 
     // Initialize the Turning Bands environment for all simulations
-    _simulateTB();
+    _initializeSimulations();
 
     // Calculating the bounding box
     _minmax(dbout);
@@ -1503,7 +1500,7 @@ namespace gstlrn
     if (!ACalcSimuGaussian::_preprocess()) return false;
 
     // Prepare the seeds for the Bands
-    if (!_simulateTB()) return false;
+    if (!_initializeSimulations()) return false;
 
     // Calculating the bounding box
     _minmax(getDbout());

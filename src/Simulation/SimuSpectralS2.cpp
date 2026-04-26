@@ -39,12 +39,12 @@ namespace gstlrn
   /**
    * Simulate the spectrum components for Rn
    */
-  Id SimuSpectralS2::_simulate(Id isimu)
+  bool SimuSpectralS2::_simulate(Id isimu)
   {
     law_set_random_seed(getSeedPerSimu(isimu));
 
     const ACov* cov = getModelGeneric()->getCov();
-    if (cov == nullptr) return -1;
+    if (cov == nullptr) return false;
 
     Id ns = _getNs();
     Id nd = _getNd();
@@ -67,7 +67,7 @@ namespace gstlrn
     double maxU = U.maximum();
 
     VectorDouble spectrum = cov->evalSpectrumOnSphere(nd);
-    if (spectrum.empty()) return 1;
+    if (spectrum.empty()) return false;
 
     // Simulate vector N
     Id n = 0;
@@ -135,7 +135,7 @@ namespace gstlrn
     // Optional printout
     if (getVerbose()) _printSpSims(1);
 
-    return 0;
+    return true;
   }
 
   VectorInt SimuSpectralS2::_getKeys1(const spSim& spsim)
@@ -232,7 +232,7 @@ namespace gstlrn
     message("- Number of components (-) = %d\n", totalM);
   }
 
-  Id SimuSpectralS2::_compute(
+  void SimuSpectralS2::_compute(
     Db* db,
     const VectorBool& activeArray,
     VectorVectorDouble& tab)
@@ -366,7 +366,6 @@ namespace gstlrn
 
     // Normalize
     tab[0] *= sqrt(2. / nb);
-    return 0;
   }
 
 } // namespace gstlrn

@@ -87,7 +87,7 @@ namespace gstlrn
     _initializeOutputAttribute();
 
     // Compute one simulation
-    if (_compute(dbout, activeArray, tab)) return 1;
+    _compute(dbout, activeArray, tab);
 
     // Save the resulting array
     saveResults(dbout, isimu, activeArray, tab);
