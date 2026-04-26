@@ -72,7 +72,6 @@ namespace gstlrn
     void _rollback() override;
 
     bool _initializeSimulations() override;
-
     bool _simulate(Id isimu) override;
     void
       _compute(Db* db, const VectorBool& activeArray, VectorVectorDouble& tab)

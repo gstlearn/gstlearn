@@ -117,12 +117,6 @@ namespace gstlrn
     if (_isConditional())
       _allocateForOneSimulation(getDbin(), getNVar(), activeIn, tabIn);
 
-    // Set the seed
-    law_set_random_seed(getSeed());
-
-    // Initialize the simulation part which is common to all simulations
-    if (!_initializeSimulations()) return 1;
-
     // Loop on the simulations
     for (Id isimu = 0, nbsimu = getNbSimu(); isimu < nbsimu; isimu++)
     {
@@ -133,7 +127,7 @@ namespace gstlrn
       law_set_random_seed(getSeedPerSimu(isimu));
 
       // Preliminary task to be performed per simulation
-      _simulate(isimu);
+      if (!_simulate(isimu)) return 1;
 
       // Non conditional simulations on the target points
       _compute(getDbout(), activeOut, tabOut);

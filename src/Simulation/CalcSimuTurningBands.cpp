@@ -250,6 +250,7 @@ namespace gstlrn
 
   void CalcSimuTurningBands::_initializeBox()
   {
+    if (!_box.empty()) return;
     Id ndim = _getNDim();
     _box.resize(ndim);
     for (Id idim = 0; idim < ndim; idim++)
@@ -270,7 +271,6 @@ namespace gstlrn
   void CalcSimuTurningBands::_minmax(const Db* db)
   {
     if (db == nullptr) return;
-    auto nbands = getNDirs();
 
     if (db->isGrid())
     {
@@ -286,35 +286,31 @@ namespace gstlrn
       VectorInt indg(3);
       VectorDouble xyz(3);
 
-      for (Id ibs = 0; ibs < nbands; ibs++)
-      {
-        for (Id iz = 0; iz < 2; iz++)
-          for (Id iy = 0; iy < 2; iy++)
-            for (Id ix = 0; ix < 2; ix++)
+      for (Id iz = 0; iz < 2; iz++)
+        for (Id iy = 0; iy < 2; iy++)
+          for (Id ix = 0; ix < 2; ix++)
+          {
+            indg[0] = ix * (nx - 1);
+            indg[1] = iy * (ny - 1);
+            indg[2] = iz * (nz - 1);
+            dbgrid->indicesToCoordinateInPlace(indg, xyz);
+            for (Id idim = 0; idim < dbgrid->getNDim(); idim++)
             {
-              indg[0] = ix * (nx - 1);
-              indg[1] = iy * (ny - 1);
-              indg[2] = iz * (nz - 1);
-              dbgrid->indicesToCoordinateInPlace(indg, xyz);
-              for (Id idim = 0; idim < dbgrid->getNDim(); idim++)
-              {
-                if (xyz[idim] < _box[idim][0]) _box[idim][0] = xyz[idim];
-                if (xyz[idim] > _box[idim][1]) _box[idim][1] = xyz[idim];
-              }
+              if (xyz[idim] < _box[idim][0]) _box[idim][0] = xyz[idim];
+              if (xyz[idim] > _box[idim][1]) _box[idim][1] = xyz[idim];
             }
-      }
+          }
     }
     else
     {
 
       /* Case of an isolated set of data */
 
-      for (Id iech = 0; iech < db->getNSample(); iech++)
+      for (Id iech = 0, nech = db->getNSample(); iech < nech; iech++)
       {
         if (!db->isActive(iech)) continue;
-        for (Id ibs = 0; ibs < nbands; ibs++)
         {
-          for (Id idim = 0; idim < db->getNDim(); idim++)
+          for (Id idim = 0, ndim = db->getNDim(); idim < ndim; idim++)
           {
             double coor = db->getCoordinate(iech, idim);
             if (coor < _box[idim][0]) _box[idim][0] = coor;
@@ -1499,7 +1495,6 @@ namespace gstlrn
   {
     if (!ACalcSimuGaussian::_preprocess()) return false;
 
-    // Prepare the seeds for the Bands
     if (!_initializeSimulations()) return false;
 
     // Calculating the bounding box
