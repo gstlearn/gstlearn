@@ -16,16 +16,16 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Exponential
-- Sill         =      2.000
-- Ranges       =      0.100     0.300
-- Theo. Ranges =      0.033     0.100
-- Angles       =     30.000     0.000
+- Sill         =       2.000
+- Ranges       =       0.100      0.300
+- Theo. Ranges =       0.033      0.100
+- Angles       =      30.000      0.000
 - Rotation Matrix
-               [,  0]    [,  1]
-     [  0,]     0.866    -0.500
-     [  1,]     0.500     0.866
-Total Sill     =      2.000
-Known Mean(s)     0.000
+                 [,  0]     [,  1]
+      [  0,]      0.866     -0.500
+      [  1,]      0.500      0.866
+Total Sill     =       2.000
+Known Mean(s)      0.000
 
 Initial Model
 -------------
@@ -41,11 +41,11 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Exponential
-- Sill         =      1.000
-- Range        =      1.000
-- Theo. Range  =      0.334
-Total Sill     =      1.000
-Known Mean(s)     0.000
+- Sill         =       1.000
+- Range        =       1.000
+- Theo. Range  =       0.334
+Total Sill     =       1.000
+Known Mean(s)      0.000
 
 Fitted Model
 ------------
@@ -61,13 +61,13 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Exponential
-- Sill         =      1.796
-- Ranges       =      0.112     0.319
-- Theo. Ranges =      0.037     0.106
-- Angles       =     28.627     0.000
+- Sill         =       1.791
+- Ranges       =       0.106      0.312
+- Theo. Ranges =       0.035      0.104
+- Angles       =      31.989      0.000
 - Rotation Matrix
-               [,  0]    [,  1]
-     [  0,]     0.878    -0.479
-     [  1,]     0.479     0.878
-Total Sill     =      1.796
-Known Mean(s)     0.000
+                 [,  0]     [,  1]
+      [  0,]      0.848     -0.530
+      [  1,]      0.530      0.848
+Total Sill     =       1.791
+Known Mean(s)      0.000

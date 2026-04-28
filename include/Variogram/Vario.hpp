@@ -634,7 +634,6 @@ namespace gstlrn
     Id ilag,
     Id idir,
     double dist);
-
   GSTLEARN_EXPORT Vario* variogramCalculate(
     Db* db,
     const ECalcVario& calculType = ECalcVario::fromKey("VARIOGRAM"),
@@ -646,7 +645,6 @@ namespace gstlrn
     double toldis = 0.5,
     double tolang = TEST,
     bool verbose = false);
-
   GSTLEARN_EXPORT Vario* varioGridCalculate(
     DbGrid* dbgrid,
     const ECalcVario& calculType = ECalcVario::fromKey("VARIOGRAM"),

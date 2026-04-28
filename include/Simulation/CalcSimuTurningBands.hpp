@@ -16,7 +16,7 @@
 
 #include "Basic/VectorNumT.hpp"
 #include "Model/Model.hpp"
-#include "Simulation/ACalcSimulation.hpp"
+#include "Simulation/ACalcSimuGaussian.hpp"
 #include "Simulation/TurningBandDirection.hpp"
 
 #include "geoslib_define.h"
@@ -27,14 +27,10 @@ namespace gstlrn
   class ANeigh;
   class TurningBandOperate;
 
-  class GSTLEARN_EXPORT CalcSimuTurningBands: public ACalcSimulation
+  class GSTLEARN_EXPORT CalcSimuTurningBands: public ACalcSimuGaussian
   {
   public:
-    CalcSimuTurningBands(
-      Id nbsimu = 0,
-      Id nbtuba = 0,
-      bool flag_check = false,
-      Id seed = 4324324);
+    CalcSimuTurningBands(Id nbsimu = 0, Id nbtuba = 0, Id seed = 4324324);
     CalcSimuTurningBands(const CalcSimuTurningBands& r) = delete;
     CalcSimuTurningBands& operator=(const CalcSimuTurningBands& r) = delete;
     virtual ~CalcSimuTurningBands();
@@ -63,37 +59,31 @@ namespace gstlrn
       ModelGeneric* model,
       double delta);
 
-    bool isFlagCheck() const { return _flagCheck; }
-
-    void setFlagCheck(bool flag_check) { _flagCheck = flag_check; }
-
     void setIcase(Id icase) { _icase = icase; }
 
     Id getNbtuba() const { return _nbtuba; }
 
     void setNbtuba(Id nbtuba) { _nbtuba = nbtuba; }
 
-    void setFlagAllocationAlreadyDone(Id flag)
-    {
-      _flagAllocationAlreadyDone = flag;
-    }
+    void setBox(const VectorVectorDouble& box) { _box = box; }
 
   private:
     bool _check() override;
     bool _preprocess() override;
-    bool _run() override;
     bool _postprocess() override;
     void _rollback() override;
 
-    bool _simulate();
-    Id _computeTB(Db* db) override;
+    bool _initializeSimulations() override;
+    bool _simulate(Id isimu) override;
+    void
+      _compute(Db* db, const VectorBool& activeArray, VectorVectorDouble& tab)
+        override;
 
-    bool _resizeTB();
+    bool _resize();
     void _computePoint(
       Db* db,
       const CovAniso* cova,
       const ECov& type,
-      Id isimu,
       Id is,
       const VectorBool& activeArray,
       VectorVectorDouble& tab);
@@ -101,14 +91,18 @@ namespace gstlrn
       DbGrid* db,
       const CovAniso* cova,
       const ECov& type,
-      Id isimu,
       Id is,
       const VectorBool& activeArray,
       VectorVectorDouble& tab);
-    void _computeNugget(Db* db);
+    void _scaleResults(
+      Db* db,
+      const CovBase* cova,
+      const VectorBool& activeArray,
+      const VectorVectorDouble& tabLoc,
+      VectorVectorDouble& tab) const;
 
     // Turning bands specific methods
-    Id _getIBS(Id isimu, Id is, Id ib) const;
+    Id _getIBS(Id is, Id ib) const;
 
     Id _getIcase() const override { return _icase; }
 
@@ -152,20 +146,19 @@ namespace gstlrn
 
     double _getCodirTmax(Id ibs) const { return _codirs[ibs].getTmax(); }
 
-    Id _getAddressBand(Id ivar, Id is, Id ib, Id isimu) const;
-    void _setSeedBand(Id ivar, Id is, Id ib, Id isimu, Id seed);
-    Id _getSeedBand(Id ivar, Id is, Id ib, Id isimu) const;
+    Id _getAddressBand(Id ivar, Id is, Id ib) const;
+    void _setSeedBand(Id ivar, Id is, Id ib, Id seed);
+    Id _getSeedBand(Id ivar, Id is, Id ib) const;
 
     void _rotateDirections(double a[3], double theta);
-    Id _generateDirections(const Db* dbout);
+    void _initializeDirections();
     void _minmax(const Db* db);
     void _setDensity();
     static ECov _particularCase(const CovAniso* cova, double eps = EPSILON7);
-    Id _initializeSeedBands();
+    void _initializeSeedBands();
     void _normalizeForBands(
-      const Db* db,
       const VectorBool& activeArray,
-      VectorVectorDouble& tab);
+      VectorVectorDouble& tab) const;
     Id _getCorrec(
       const ECov& type,
       Id is,
@@ -230,25 +223,20 @@ namespace gstlrn
       TurningBandOperate& operTB,
       const VectorBool& activeArray,
       VectorDouble& tab);
-
-    // Debugging methods
-    void _dumpBands() const;
-    void _dumpSeeds() const;
+    void _extendBands();
+    void _initializeBox();
 
   private:
     Id _nbtuba;
-    Id _iattOut;
     Id _icase;
-    bool _flagCheck;
-    bool _flagAllocationAlreadyDone;
     VectorString _nameCoord;
     Id _npointSimulated;
     double _field;
     double _theta;
+    VectorVectorDouble _box;
     VectorInt _seedBands;
     std::vector<TurningBandDirection> _codirs;
-    Model*
-      _modelLocal; // Conversion of getModel() into a Model (more than ModelGeneric)
+    Model* _modelLocal; // Conversion of into a Model (more than ModelGeneric)
   };
 
 } // namespace gstlrn

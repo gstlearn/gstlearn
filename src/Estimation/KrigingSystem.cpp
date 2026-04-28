@@ -1035,9 +1035,8 @@ namespace gstlrn
 
     /* Loop on the results */
 
-    Id ecr = 0;
-    for (Id isimu = 0; isimu < _nbsimu; isimu++)
-      for (Id ivar = 0; ivar < _nvar; ivar++, ecr++)
+    for (Id ivar = 0, ecr = 0; ivar < _nvar; ivar++)
+      for (Id isimu = 0; isimu < _nbsimu; isimu++, ecr++)
       {
         message("Simulation #%d of Z%-2d : ", isimu + 1, ivar + 1);
         double value =
@@ -1316,8 +1315,8 @@ namespace gstlrn
     if (!_flagFactorKriging)
     {
       messerr(
-        "Setting the Class Index only makes sense if 'flagFactorKriging' is "
-        "ON");
+        "Setting the Class Index only makes sense if 'flagFactorKriging' "
+        "is ON");
       messerr("Use 'setKrigOptFactorKriging()' beforehand");
       return 1;
     }

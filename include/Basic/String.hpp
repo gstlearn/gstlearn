@@ -74,6 +74,8 @@ namespace gstlrn
     const String& string2 = "",
     const String& string3 = "",
     const String& string4 = "");
+  GSTLEARN_EXPORT String
+    encodeString(const String& string, Id item, Id nChar = 5);
 
   GSTLEARN_EXPORT VectorString generateMultipleNames(
     const String& radix,

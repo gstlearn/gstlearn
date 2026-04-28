@@ -29,32 +29,6 @@
 
 namespace gstlrn
 {
-  ANeigh* _defaultNeighborhood(ANeigh* neigh, Db* dbin, Id maxNumber = 500)
-  {
-    // If a neighborhood is already defined, this is the correct solution
-    if (neigh != nullptr) return neigh;
-
-    // We are about to define a Unique Neighborhood by default
-    // Let us first check that the number of active samples is not too large
-    if (dbin != nullptr)
-    {
-      Id nech = dbin->getNSample(true);
-      if (nech > maxNumber)
-      {
-        messerr("No neighborhood has been defined");
-        messerr(
-          "The number of active samples (%d) is too large (>%d)", nech,
-          maxNumber);
-        messerr("to allow the definition of a Unique Neighborhood by default");
-        return nullptr;
-      }
-    }
-
-    // Create a default unique neighborhood
-    auto* neighUnique = new NeighUnique();
-    return neighUnique;
-  }
-
   Global_Result global_arithmetic(
     Db* dbin,
     DbGrid* dbgrid,
@@ -224,7 +198,7 @@ namespace gstlrn
    ** \param[in]  dbin        Input Db structure
    ** \param[in]  dbout       Output Db structure
    ** \param[in]  model       ModelGeneric structure
-   ** \param[in]  neigh       ANeigh structure
+   ** \param[in]  neigh       ANeigh structure (optional)
    ** \param[in]  flag_est    Option for storing the estimation
    ** \param[in]  flag_std    Option for storing the standard deviation
    ** \param[in]  flag_varz   Option for storing the variance of the estimator
@@ -244,7 +218,7 @@ namespace gstlrn
     const KrigOpt& krigopt,
     const NamingConvention& namconv)
   {
-    auto* neighLocal = _defaultNeighborhood(neigh, dbin);
+    auto* neighLocal = ANeigh::createDefaultNeighborhood(neigh, dbin, dbout);
     auto* neighBench = dynamic_cast<NeighBench*>(neighLocal);
     if (krigopt.getCalcul() == EKrigOpt::POINT && !krigopt.hasColcok()
         && !krigopt.hasMatLC() && neighBench == nullptr && model->getNVar() == 1
@@ -260,6 +234,7 @@ namespace gstlrn
       krige.setNamingConvention(namconv);
       Id result = krige.run();
       OptCustom::undefine("Optim");
+      if (neigh != neighLocal) delete neighLocal;
       return 1 - result;
     }
 
@@ -272,6 +247,7 @@ namespace gstlrn
     krige.setNamingConvention(namconv);
 
     Id error = (krige.run()) ? 0 : 1;
+    if (neigh != neighLocal) delete neighLocal;
     return error;
   }
 
@@ -301,7 +277,7 @@ namespace gstlrn
     const KrigOpt& krigopt,
     const NamingConvention& namconv)
   {
-    auto* neighLocal = _defaultNeighborhood(neigh, dbin);
+    auto* neighLocal = ANeigh::createDefaultNeighborhood(neigh, dbin, dbout);
     CalcKriging krige(flag_est, flag_std, false);
     krige.setDbin(dbin);
     krige.setDbout(dbout);
@@ -311,6 +287,7 @@ namespace gstlrn
     krige.setNamingConvention(namconv);
 
     Id error = (krige.run()) ? 0 : 1;
+    if (neigh != neighLocal) delete neighLocal;
     return error;
   }
 
@@ -338,7 +315,7 @@ namespace gstlrn
     bool flag_std,
     const NamingConvention& namconv)
   {
-    auto* neighLocal = _defaultNeighborhood(neigh, dbin);
+    auto* neighLocal = ANeigh::createDefaultNeighborhood(neigh, dbin, dbout);
     CalcKriging krige(flag_est, flag_std, false);
     krige.setDbin(dbin);
     krige.setDbout(dbout);
@@ -349,6 +326,7 @@ namespace gstlrn
     krige.setFlagBayes(true);
 
     Id error = (krige.run()) ? 0 : 1;
+    if (neigh != neighLocal) delete neighLocal;
     return error;
   }
 
@@ -377,7 +355,7 @@ namespace gstlrn
     const KrigOpt& krigopt,
     bool verbose)
   {
-    auto* neighLocal = _defaultNeighborhood(neigh, dbin);
+    auto* neighLocal = ANeigh::createDefaultNeighborhood(neigh, dbin, dbout);
     CalcKriging krige(true, true, false);
     krige.setDbin(dbin);
     krige.setDbout(dbout);
@@ -388,6 +366,7 @@ namespace gstlrn
     krige.setVerboseSingleTarget(verbose);
 
     (void)krige.run();
+    if (neigh != neighLocal) delete neighLocal;
 
     return krige.getKtest();
   }
@@ -456,7 +435,7 @@ namespace gstlrn
     const KrigOpt& krigopt,
     const NamingConvention& namconv)
   {
-    auto* neighLocal = _defaultNeighborhood(neigh, db);
+    auto* neighLocal = ANeigh::createDefaultNeighborhood(neigh, db);
     CalcKriging krige(
       flag_xvalid_est != 0, flag_xvalid_std != 0, flag_xvalid_varz != 0);
     krige.setDbin(db);
@@ -473,6 +452,7 @@ namespace gstlrn
     krige.setKrigopt(krigopt);
 
     Id error = (krige.run()) ? 0 : 1;
+    if (neigh != neighLocal) delete neighLocal;
     return error;
   }
 
@@ -503,7 +483,7 @@ namespace gstlrn
     ANeigh* neigh,
     const NamingConvention& namconv)
   {
-    auto* neighLocal = _defaultNeighborhood(neigh, dbin);
+    auto* neighLocal = ANeigh::createDefaultNeighborhood(neigh, dbin, dbout);
     CalcKriging krige(false, false, false);
     krige.setDbin(dbin);
     krige.setDbout(dbout);
@@ -514,6 +494,7 @@ namespace gstlrn
     krige.setFlagNeighOnly(true);
 
     Id error = (krige.run()) ? 0 : 1;
+    if (neigh != neighLocal) delete neighLocal;
     return error;
   }
 

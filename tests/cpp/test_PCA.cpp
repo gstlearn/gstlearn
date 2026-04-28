@@ -71,9 +71,12 @@ int main(int argc, char* argv[])
   pca.dbF2Z(db, false, NamingConvention("PCA.Z", false));
 
   // Comparing initial and back-transformed variables
-  VectorString names1 = generateMultipleNames("Simu", nbsimu, ".");
-  VectorString names2 = generateMultipleNames("PCA.Z", nbsimu, ".");
-  for (Id i = 0; i < nbsimu; i++) (void)db->areSame(names1[i], names2[i], eps);
+  for (Id i = 0; i < nbsimu; i++)
+  {
+    (void)db->areSame(
+      NC::getNameEncoded("Simu", nullptr, 1, 1, i + 1, nbsimu),
+      NC::getNameEncoded("PCA.Z", nullptr, i + 1, nbsimu), eps);
+  }
 
   // ============
   // Evaluate MAF
@@ -92,9 +95,10 @@ int main(int argc, char* argv[])
 
   // Comparing initial and back-transformed variables
 
-  names1 = generateMultipleNames("Simu", nbsimu, ".");
-  names2 = generateMultipleNames("MAF.Z", nbsimu, ".");
-  for (Id i = 0; i < nbsimu; i++) (void)db->areSame(names1[i], names2[i], eps);
+  for (Id i = 0; i < nbsimu; i++)
+    (void)db->areSame(
+      NC::getNameEncoded("Simu", nullptr, 1, 1, i + 1, nbsimu),
+      NC::getNameEncoded("MAF.Z", nullptr, i + 1, nbsimu), eps);
 
   delete db;
   delete models;

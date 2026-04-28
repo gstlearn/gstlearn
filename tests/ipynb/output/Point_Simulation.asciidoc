@@ -30,7 +30,7 @@ The number of samples = 200
 
 #NO_DIFF#XXX
 ----
-Number of samples = 145
+Number of samples = 163
 
 #NO_DIFF#XXX
 ----

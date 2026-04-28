@@ -2,40 +2,40 @@
 
 Table: Statistics on the initial simulations
 
-|   | Number| Minimum| Maximum|    Mean| St. Dev.|
-|:--|------:|-------:|-------:|-------:|--------:|
-|Z1 |  10000|  96.239| 103.799| 100.056|    1.034|
-|Z2 |  10000|  -3.874|   3.877|  -0.001|    1.047|
-[1] "Correlation = 0.727"
+|   | Number| Minimum| Maximum|   Mean| St. Dev.|
+|:--|------:|-------:|-------:|------:|--------:|
+|Z1 |  10000|  96.363| 103.175| 99.993|    0.968|
+|Z2 |  10000|  -3.333|   3.026| -0.103|    0.951|
+[1] "Correlation = 0.663"
 
 
 Table: Statistics on the heterotopic data set
 
-|               | Number| Minimum| Maximum|    Mean| St. Dev.|
-|:--------------|------:|-------:|-------:|-------:|--------:|
-|Z1.heterotopic |    150|  97.695| 102.961| 100.087|     1.02|
-|Z2.heterotopic |    160|  -2.507|   2.602|   0.073|     1.08|
+|               | Number| Minimum| Maximum|   Mean| St. Dev.|
+|:--------------|------:|-------:|-------:|------:|--------:|
+|Z1.heterotopic |    150|  97.825| 103.084| 100.11|    1.007|
+|Z2.heterotopic |    160|  -2.355|   2.674|  -0.01|    1.001|
 
 
 Table: Statistics on the homotopic sub set
 
 |               | Number| Minimum| Maximum|    Mean| St. Dev.|
 |:--------------|------:|-------:|-------:|-------:|--------:|
-|Z1.heterotopic |    125|  97.695| 102.961| 100.128|    1.028|
-|Z2.heterotopic |    125|  -2.124|   2.602|   0.127|    1.057|
+|Z1.heterotopic |    125|  97.825| 103.084| 100.084|    1.008|
+|Z2.heterotopic |    125|  -2.355|   2.674|   0.037|    1.069|
 
 
 Table: Statistics on simulated data
 
-|             | Number| Minimum|  Maximum|     Mean| St. Dev.|
-|:------------|------:|-------:|--------:|--------:|--------:|
-|homotopic.Z1 |  10000| 95.8759| 103.4401| 100.0228|   0.9996|
-|homotopic.Z2 |  10000| -3.2586|   3.7649|   0.0872|   1.0332|
+|             | Number| Minimum|  Maximum|    Mean| St. Dev.|
+|:------------|------:|-------:|--------:|-------:|--------:|
+|homotopic.Z1 |  10000| 96.8339| 103.3843| 99.9945|   0.9992|
+|homotopic.Z2 |  10000| -3.1433|   3.4464| -0.0402|   0.9285|
 
 
 Table: Statistics on simulated data
 
 |                           | Number| Minimum|  Maximum|     Mean| St. Dev.|
 |:--------------------------|------:|-------:|--------:|--------:|--------:|
-|heterotopic.Z1.heterotopic |  10000| 96.0065| 103.6438| 100.0153|   1.0215|
-|heterotopic.Z2.heterotopic |  10000| -3.3246|   3.5293|   0.0841|   1.0305|
+|heterotopic.Z1.heterotopic |  10000| 96.8339| 103.4271| 100.0370|   0.9964|
+|heterotopic.Z2.heterotopic |  10000| -3.1607|   3.5240|  -0.0103|   0.9284|

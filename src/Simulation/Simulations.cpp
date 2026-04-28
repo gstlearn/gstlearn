@@ -11,6 +11,7 @@
 #include "Simulation/Simulations.hpp"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
+#include "Neigh/ANeigh.hpp"
 #include "Simulation/CalcSimuEden.hpp"
 #include "Simulation/CalcSimuFFT.hpp"
 #include "Simulation/CalcSimuPartition.hpp"
@@ -109,7 +110,8 @@ namespace gstlrn
    **
    ** \return  Error return code
    **
-   ** \param[in]  db      Db structure
+   ** \param[in]  dbin    Input Db structure
+   ** \param[in]  dbout   Output Db Grid structure
    ** \param[in]  model   ModelGeneric structure
    ** \param[in]  param   SimuFFTParam structure
    ** \param[in]  nbsimu  Number of simulations
@@ -119,7 +121,8 @@ namespace gstlrn
    **
    *****************************************************************************/
   Id simuFFT(
-    DbGrid* db,
+    Db* dbin,
+    DbGrid* dbout,
     ModelGeneric* model,
     SimuFFTParam& param,
     Id nbsimu,
@@ -128,7 +131,8 @@ namespace gstlrn
     const NamingConvention& namconv)
   {
     CalcSimuFFT simufft(nbsimu, verbose, seed);
-    simufft.setDbout(db);
+    simufft.setDbin(dbin);
+    simufft.setDbout(dbout);
     simufft.setModelGeneric(model);
     simufft.setNamingConvention(namconv);
     simufft.setParam(param);
@@ -270,12 +274,11 @@ namespace gstlrn
    * @param dbin Input Db where the conditioning data are read
    * @param dbout Output Db where the results are stored
    * @param model ModelGeneric structure
-   * @param neigh Neighborhood structure
+   * @param neigh Neighborhood structure (optional)
    * @param nbsimu Number of simulations processed simultaneously
    * @param seed Seed used for the Random number generator
    * @param ns Number of spectral components
    * @param nd Maximum number of spectral orders on S2
-   * @param cov0 Auxiliary covariance used for importance sampling
    * @param verbose Verbose flag
    * @param namconv Naming Convention
    *
@@ -290,7 +293,6 @@ namespace gstlrn
     Id seed,
     Id ns,
     Id nd,
-    const ACov* cov0,
     bool verbose,
     const NamingConvention& namconv)
   {
@@ -307,6 +309,8 @@ namespace gstlrn
       isSimuRN = (space->getType() == ESpaceType::RN);
     }
 
+    auto* neighLocal = ANeigh::createDefaultNeighborhood(neigh, dbin, dbout);
+
     // Instantiate the Calculator
     std::unique_ptr<CalcSimuSpectral> spectral;
 
@@ -314,7 +318,7 @@ namespace gstlrn
     if (isSimuRN)
     {
       spectral =
-        std::make_unique<SimuSpectralRN>(nbsimu, ns, nd, seed, cov0, verbose);
+        std::make_unique<SimuSpectralRN>(nbsimu, ns, nd, seed, verbose);
     }
     else
     {
@@ -326,11 +330,12 @@ namespace gstlrn
     spectral->setDbin(dbin);
     spectral->setDbout(dbout);
     spectral->setModelGeneric(model);
-    spectral->setNeigh(neigh);
+    spectral->setNeigh(neighLocal);
     spectral->setNamingConvention(namconv);
 
     // Run the calculator
     Id error = (spectral->run()) ? 0 : 1;
+    if (neigh != neighLocal) delete neighLocal;
     return error;
   }
 
@@ -378,11 +383,16 @@ namespace gstlrn
    ** \param[in]  seed       Seed for random number generator
    ** \param[in]  nbtuba     Number of turning bands
    ** \param[in]  flag_dgm   1 for Direct Block Simulation
-   ** \param[in]  flag_check 1 to check the proximity in Gaussian scale
+   ** \param[in]  box        Surrounding Box provided by the user (see remarks)
    ** \param[in]  namconv    Naming convention
    **
    ** \remark  The arguments 'dbin' and 'neigh' are optional: they must
    ** \remark  be defined only for conditional simulations
+   **
+   ** \remark The argument 'box' is optional: it must be defined only if the user
+   ** \remark wants to provide a surrounding box for the Turning Bands simulation.
+   ** \remark Otherwise it is calculated automatically as the box containing
+   ** \remark both the input and output Db (when provided), parallel to main axes.
    **
    *****************************************************************************/
   Id simtub(
@@ -394,22 +404,25 @@ namespace gstlrn
     Id seed,
     Id nbtuba,
     bool flag_dgm,
-    bool flag_check,
+    const VectorVectorDouble& box,
     const NamingConvention& namconv)
   {
     // Instantiate the Calculator
-    CalcSimuTurningBands situba(nbsimu, nbtuba, flag_check, seed);
+    CalcSimuTurningBands situba(nbsimu, nbtuba, seed);
+    ANeigh* neighLocal = ANeigh::createDefaultNeighborhood(neigh, dbin, dbout);
 
     // Set the members of the Calculator
     situba.setDbin(dbin);
     situba.setDbout(dbout);
     situba.setModelGeneric(model);
-    situba.setNeigh(neigh);
+    situba.setNeigh(neighLocal);
     situba.setNamingConvention(namconv);
     situba.setFlagDGM(flag_dgm);
+    situba.setBox(box);
 
     // Run the calculator
     Id error = (situba.run()) ? 0 : 1;
+    if (neigh != neighLocal) delete neighLocal;
     return error;
   }
 
@@ -427,7 +440,6 @@ namespace gstlrn
    ** \param[in]  nbsimu     Number of simulations
    ** \param[in]  seed       Seed for random number generator
    ** \param[in]  nbtuba     Number of turning bands
-   ** \param[in]  flag_check 1 to check the proximity in Gaussian scale
    ** \param[in]  namconv    Naming convention
    **
    ** \remark  The arguments 'dbin' and 'neigh' are optional: they must
@@ -442,11 +454,10 @@ namespace gstlrn
     Id nbsimu,
     Id seed,
     Id nbtuba,
-    bool flag_check,
     const NamingConvention& namconv)
   {
     // Instantiate the Calculator
-    CalcSimuTurningBands situba(nbsimu, nbtuba, flag_check, seed);
+    CalcSimuTurningBands situba(nbsimu, nbtuba, seed);
 
     // Set the members of the Calculator
     situba.setDbin(dbin);

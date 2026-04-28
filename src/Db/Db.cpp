@@ -5108,7 +5108,7 @@ namespace gstlrn
     const VectorString& names,
     bool flagIso,
     bool verbose,
-    const String& title)
+    const String& title) const
   {
     if (names.empty()) return VectorDouble();
     Table table = dbStatisticsCorrel(this, names, flagIso);
@@ -5243,7 +5243,11 @@ namespace gstlrn
     for (Id i = 0; i < ncol; ++i)
     {
       // Here we create H5::DataSet by hand to augment them with attributes
-      auto data = dbG.createDataSet(names[i], H5::PredType::NATIVE_DOUBLE, ds);
+      // The name may not be empty. In this case, we use "Undefined" as a placeholder name
+      // (it is not possible to have an empty name in HDF5, but it is possible in Db)
+      String temp = names[i];
+      if (temp.empty()) temp = "Undefined";
+      auto data = dbG.createDataSet(temp, H5::PredType::NATIVE_DOUBLE, ds);
       // Locators are semantically close to Db columns and H5::Attribute has a
       // nicer API than string H5::DataSets. Putting Locators inside Attribute
       // also avoids checking array sizes during deserialization
@@ -6407,6 +6411,14 @@ namespace gstlrn
     auto namesLoc = names;
     if (namesLoc.empty()) namesLoc = getAllNames(false);
     Table table = dbStatisticsMono(this, namesLoc, opers, false);
+    return table;
+  }
+
+  Table Db::getCorrelationAsTable(const VectorString& names) const
+  {
+    auto namesLoc = names;
+    if (namesLoc.empty()) namesLoc = getAllNames(false);
+    Table table = dbStatisticsCorrel(this, namesLoc);
     return table;
   }
 

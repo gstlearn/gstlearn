@@ -46,14 +46,6 @@ namespace gstlrn
     Id seed = 321321,
     bool verbose = false,
     const NamingConvention& namconv = NamingConvention("Eden"));
-  GSTLEARN_EXPORT Id simuFFT(
-    DbGrid* db,
-    ModelGeneric* model,
-    SimuFFTParam& param,
-    Id nbsimu = 1,
-    Id seed = 432431,
-    bool verbose = false,
-    const NamingConvention& namconv = NamingConvention("FFT"));
   GSTLEARN_EXPORT VectorDouble getChangeSupport(
     DbGrid* db,
     ModelGeneric* model,
@@ -90,15 +82,8 @@ namespace gstlrn
     Id seed = 135672,
     Id ns = 10000,
     Id nd = 100,
-    const ACov* cov0 = nullptr,
     bool verbose = false,
     const NamingConvention& namconv = NamingConvention("Simu"));
-  GSTLEARN_EXPORT Id simuSubstitution(
-    DbGrid* dbgrid,
-    SimuSubstitutionParam& subparam,
-    Id seed = 43242,
-    Id verbose = false,
-    const NamingConvention& namconv = NamingConvention("SimSub"));
   GSTLEARN_EXPORT Id simtub(
     Db* dbin = nullptr,
     Db* dbout = nullptr,
@@ -108,8 +93,23 @@ namespace gstlrn
     Id seed = 43431,
     Id nbtuba = 100,
     bool flag_dgm = false,
-    bool flag_check = false,
+    const VectorVectorDouble& box = VectorVectorDouble(),
     const NamingConvention& namconv = NamingConvention("Simu"));
+  GSTLEARN_EXPORT Id simuFFT(
+    Db* dbin,
+    DbGrid* dbout,
+    ModelGeneric* model,
+    SimuFFTParam& param,
+    Id nbsimu = 1,
+    Id seed = 432431,
+    bool verbose = false,
+    const NamingConvention& namconv = NamingConvention("FFT"));
+  GSTLEARN_EXPORT Id simuSubstitution(
+    DbGrid* dbgrid,
+    SimuSubstitutionParam& subparam,
+    Id seed = 43242,
+    Id verbose = false,
+    const NamingConvention& namconv = NamingConvention("SimSub"));
   GSTLEARN_EXPORT Id simbayes(
     Db* dbin,
     Db* dbout,
@@ -118,6 +118,5 @@ namespace gstlrn
     Id nbsimu = 1,
     Id seed = 132141,
     Id nbtuba = 100,
-    bool flag_check = false,
     const NamingConvention& namconv = NamingConvention("SimBayes"));
 } // namespace gstlrn

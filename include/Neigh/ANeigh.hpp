@@ -101,6 +101,11 @@ namespace gstlrn
 
     virtual bool getFlagContinuous() const { return false; }
 
+    static ANeigh* createDefaultNeighborhood(
+      ANeigh* neigh,
+      const Db* dbin = nullptr,
+      const Db* dbout = nullptr);
+
     void displayDebug(VectorInt& ranks) const;
     void select(Id iech_out, VectorInt& ranks);
 
@@ -121,6 +126,9 @@ namespace gstlrn
 
     void setBallSearch(bool status, Id leaf_size = 10);
     void attachBall();
+
+    static void setMaximumSampleNumberForUnique(Id number);
+    static Id getMaxSampleNumberForUnique();
 
   protected:
     bool _isNbghMemoEmpty() const { return _nbghMemo.empty(); }

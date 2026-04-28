@@ -640,6 +640,7 @@ namespace gstlrn
       const VectorString& names = VectorString(),
       const std::vector<EStatOption>& opers = EStatOption::fromKeys(
         {"NUM", "MINI", "MAXI", "MEAN", "STDV", "VAR"})) const;
+    Table getCorrelationAsTable(const VectorString& names) const;
     Table getStatsByCategoryAsTable(
       const String& name,
       const String& category,
@@ -1073,7 +1074,7 @@ namespace gstlrn
       const VectorString& names,
       bool flagIso = true,
       bool verbose = false,
-      const String& title = "");
+      const String& title = "") const;
     /**@}*/
 
     bool areSame(

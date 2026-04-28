@@ -286,7 +286,7 @@ for (i in 1:nv) {
   p = plot.init() +
     plot.correlation(data,
                    namex = paste0("U",i),
-                   namey = paste0("PCA.", i),
+                   namey = paste0("PCA.V", i),
                    asPoint = TRUE, col = "red",
                    flagDiag = TRUE) +
     plot.decoration(xlab = "Eigen problem", ylab = "gstlearn", title = titre)
@@ -301,7 +301,7 @@ for (i in 1:nv) {
   p = plot.init() +
     plot.correlation(data,
                    namex = paste0("Z",i),
-                   namey = paste0("ZZ.PCA.", i),
+                   namey = paste0("ZZ.PCA.V", i),
                    asPoint = TRUE, col = "red",
                    flagDiag = TRUE) +
     plot.decoration(xlab = "Initial values", ylab = "Back transformed values", title = titre)
@@ -341,7 +341,7 @@ for (i in 1:nv) {
   p = plot.init() +
     plot.correlation(data,
                    namex = paste0("F",j),
-                   namey = paste0("MAF.", i),
+                   namey = paste0("MAF.V", i),
                    asPoint = TRUE, col = "red",
                    flagDiag = TRUE) +
     plot.decoration(xlab = "Eigen problem", ylab = "gstlearn", title = titre)
@@ -349,7 +349,7 @@ for (i in 1:nv) {
 }
 
 # back transform
-err = data$setLocators(paste0("MAF.", 1:nv), ELoc_Z(), cleanSameLocator = TRUE)
+err = data$setLocators(paste0("MAF.V", 1:nv), ELoc_Z(), cleanSameLocator = TRUE)
 err = maf$dbF2Z(data, verbose = FALSE, namconv = NamingConvention(prefix = "ZZ.MAF", FALSE))
 
 for (i in 1:nv) {
@@ -357,7 +357,7 @@ for (i in 1:nv) {
   p = plot.init() +
     plot.correlation(data,
                    namex = paste0("Z",i),
-                   namey = paste0("ZZ.MAF.", i),
+                   namey = paste0("ZZ.MAF.V", i),
                    asPoint = TRUE, col = "red",
                    flagDiag = TRUE) +
     plot.decoration(xlab = "Initial values", ylab = "Back transformed values", title = titre)

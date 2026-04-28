@@ -165,8 +165,8 @@ grd = DbGrid_create(x0=c(0.0,0.0), dx=c(0.01,0.01), nx=c(100,100))
 # simulation from a model
 model = Model_createFromParam(type = ECov_EXPONENTIAL(), range=0.2, sills = CO)
 err = simtub(dbin = NULL, dbout = grd, model = model, nbsimu = 1)
-err = grd$setName("Simu.1", "Y1")
-err = grd$setName("Simu.2", "Y2")
+err = grd$setName("Simu.V1", "Y1")
+err = grd$setName("Simu.V2", "Y2")
 grd["Z1"] = m[1] * exp(sig[1] * grd["Y1"] - sig[1]**2 / 2)
 grd["Z2"] = m[2] * exp(sig[2] * grd["Y2"] - sig[2]**2 / 2)
 

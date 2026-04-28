@@ -67,6 +67,7 @@ namespace gstlrn
 
     void setScale(double scale) { _scale = scale; }
 
+    double projectCoor(const VectorDouble& coor) const;
     double projectPoint(const Db* db, Id iech) const;
     double projectGrid(const DbGrid* db, Id ix, Id iy, Id iz) const;
 

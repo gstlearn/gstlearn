@@ -472,7 +472,6 @@ namespace gstlrn
       }
       result = std::sqrt(result);
     }
-
     return result;
   }
 
@@ -727,8 +726,8 @@ namespace gstlrn
   typedef VectorNumT<Id> VectorInt;
   typedef VectorNumT<double> VectorDouble;
   typedef VectorNumT<float> VectorFloat;
-  typedef VectorNumT<UChar>
-    VectorUChar; // Use typedef because swig doesn't like 'unsigned char' in two words
+  // Use typedef because swig doesn't like 'unsigned char' in two words
+  typedef VectorNumT<UChar> VectorUChar;
   typedef VectorNumT<VectorInt> VectorVectorInt;
   typedef VectorNumT<VectorDouble> VectorVectorDouble;
   typedef VectorNumT<VectorFloat> VectorVectorFloat;

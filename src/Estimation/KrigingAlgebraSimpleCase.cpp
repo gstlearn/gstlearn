@@ -912,7 +912,7 @@ namespace gstlrn
       vect colcur = _Stdv.getViewOnColumnModify(icol);
 
       double* value = &colcur[icol];
-      if (*value < -EPSILON10)
+      if (*value < -EPSILON8)
       {
         messerr("Negative variance (%g) element %d", *value, icol);
         return 1;

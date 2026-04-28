@@ -1,0 +1,58 @@
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 3
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Exponential
+- Sill         =       2.242
+- Range        =       0.200
+- Theo. Range  =       0.067
+Nugget Effect
+- Sill         =       2.242
+Gaussian
+- Sill         =       2.242
+- Range        =       0.150
+- Theo. Range  =       0.087
+Total Sill     =       6.727
+Known Mean(s)    100.000
+          Number     Minimum     Maximum        Mean    St. Dev.    Variance
+rank      10.000       1.000      10.000       5.500       2.872       8.250
+ x-1      10.000       0.015       0.762       0.481       0.227       0.051
+ x-2      10.000       0.150       0.851       0.456       0.196       0.038
+Data      10.000      92.812     102.886      99.770       2.799       7.835
+
+<----- Simulation using Turning Bands ----->
+                    Number     Minimum     Maximum        Mean    St. Dev.    Variance
+SimuTB.Data.S1   10000.000      91.341     108.717     100.158       2.404       5.777
+SimuTB.Data.S2   10000.000      88.843     110.750      99.840       2.584       6.675
+SimuTB.Data.S3   10000.000      89.731     110.275     100.420       2.538       6.444
+                *B.Data.S1  *B.Data.S2  *B.Data.S3
+SimuTB.Data.S1       1.000       0.060       0.099
+SimuTB.Data.S2       0.060       1.000       0.105
+SimuTB.Data.S3       0.099       0.105       1.000
+
+<----- Simulation using Spectral Method ----->
+                     Number     Minimum     Maximum        Mean    St. Dev.    Variance
+SimuSPT.Data.S1   10000.000      89.167     111.696     100.681       3.357      11.271
+SimuSPT.Data.S2   10000.000      90.652     109.822      99.972       2.633       6.935
+SimuSPT.Data.S3   10000.000      90.616     110.722     100.215       2.712       7.356
+                 *T.Data.S1  *T.Data.S2  *T.Data.S3
+SimuSPT.Data.S1       1.000       0.116       0.037
+SimuSPT.Data.S2       0.116       1.000       0.099
+SimuSPT.Data.S3       0.037       0.099       1.000
+
+<----- Simulation using FFT Method ----->
+                     Number     Minimum     Maximum        Mean    St. Dev.    Variance
+SimuFFT.Data.S1   10000.000      90.519     110.648     100.248       2.849       8.118
+SimuFFT.Data.S2   10000.000      88.296     110.982      99.924       3.035       9.209
+SimuFFT.Data.S3   10000.000      89.381     110.929      99.640       2.893       8.371
+                 *T.Data.S1  *T.Data.S2  *T.Data.S3
+SimuFFT.Data.S1       1.000       0.068      -0.022
+SimuFFT.Data.S2       0.068       1.000      -0.002
+SimuFFT.Data.S3      -0.022      -0.002       1.000

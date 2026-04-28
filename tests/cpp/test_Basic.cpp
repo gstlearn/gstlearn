@@ -60,8 +60,8 @@ int main(int argc, char* argv[])
   Id nbtuba = 1000;
   Id seed = 14341;
   (void)simtub(
-    nullptr, mygrid, mymodel, nullptr, 1, seed, nbtuba, false, false,
-    NamingConvention("Data"));
+    nullptr, mygrid, mymodel, nullptr, 1, seed, nbtuba, false,
+    VectorVectorDouble(), NamingConvention("Data"));
   mygrid->display();
 
   // We sample the grid on a set of 100 samples randomly located within the area covered by the grid.

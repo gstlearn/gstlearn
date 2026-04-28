@@ -50,7 +50,7 @@ File is organized as a regular grid
 Space dimension              = 2
 Number of Columns            = 6
 Total number of samples      = 100000
-Number of active samples     = 43700
+Number of active samples     = 40495
 
 Grid characteristics:
 ---------------------

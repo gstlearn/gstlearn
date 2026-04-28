@@ -65,7 +65,7 @@ namespace gstlrn
 
   bool KernelCauchyGen::isValidForSimulation(const ESimuType& simuType) const
   {
-    // spectral simulation si valid only for R^1
+    // spectral simulation is valid only for R^1
     return ((simuType == ESimuType::SPECTRAL) && (getContext().getNDim() == 1));
   }
 

@@ -24,6 +24,20 @@
 
 namespace gstlrn
 {
+  // Value for the Maximum Number of Samples for returning a Unique Neighborhood
+  // (when the Neighborhood is constructed by default)
+  Id _maxSampleNumberForUnique = 500;
+
+  void ANeigh::setMaximumSampleNumberForUnique(Id number)
+  {
+    _maxSampleNumberForUnique = number;
+  }
+
+  Id ANeigh::getMaxSampleNumberForUnique()
+  {
+    return _maxSampleNumberForUnique;
+  }
+
   ANeigh::ANeigh(const ASpaceSharedPtr& space)
     : ASpaceObject(space)
     , ASerializable()
@@ -461,6 +475,43 @@ namespace gstlrn
       if (ranks[i] >= 0) ranks[necr++] = i;
     ranks.resize(necr);
   }
+
+  ANeigh* ANeigh::createDefaultNeighborhood(
+    ANeigh* neigh,
+    const Db* dbin,
+    const Db* dbout)
+  {
+    // If a neighborhood is already defined, this is the correct solution
+    if (neigh != nullptr) return neigh;
+
+    // We are about to define a Unique Neighborhood by default
+    // Let us first check that the number of active samples is not too large
+    Id ndim = -1;
+    if (dbin != nullptr)
+    {
+      Id nech = dbin->getNSample(true);
+      if (nech > getMaxSampleNumberForUnique())
+      {
+        messerr("No neighborhood has been defined");
+        messerr(
+          "The number of active samples (%d) is too large (>%d)", nech,
+          getMaxSampleNumberForUnique());
+        messerr("to allow the definition of a Unique Neighborhood by default");
+        return nullptr;
+      }
+      ndim = dbin->getNDim();
+    }
+
+    if (dbout != nullptr) ndim = MAX(ndim, dbout->getNDim());
+
+    // Create a default unique neighborhood
+    auto* neighUnique = new NeighUnique();
+    // Changing the space dimension is only possible in RN
+    if (neighUnique->getSpace()->getType() == ESpaceType::RN)
+      neighUnique->setNDim(ndim);
+    return neighUnique;
+  }
+
 #ifdef HDF5
   bool ANeigh::deserializeH5(H5::Group& grp)
   {
@@ -494,4 +545,5 @@ namespace gstlrn
     return ret;
   }
 #endif
+
 } // namespace gstlrn

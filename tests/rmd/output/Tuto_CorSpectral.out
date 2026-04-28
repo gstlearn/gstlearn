@@ -32,9 +32,9 @@
 
 Table: Mono-variate statistics for the EXPONENTIAL covariance
 
-|                  | Number|     min|    max| median|   mean|     sd|
-|:-----------------|------:|-------:|------:|------:|------:|------:|
-|EXPONENTIAL.V1.S1 |  40000| -4.1702| 4.1482| 0.0362| 0.0711| 1.0552|
+|            | Number|     min|    max| median|   mean|     sd|
+|:-----------|------:|-------:|------:|------:|------:|------:|
+|EXPONENTIAL |  40000| -3.5265| 3.6768| 0.1534| 0.1406| 1.0186|
 
 [1] "Average variogram on various simulations"
 
@@ -48,19 +48,19 @@ Table: Mono-variate statistics for the EXPONENTIAL covariance
 
 Table: Mono-variate statistics for the EXPONENTIAL covariance
 
-|                  | Number|     min|    max|  median|    mean|     sd|
-|:-----------------|------:|-------:|------:|-------:|-------:|------:|
-|EXPONENTIAL.V1.S1 |  40000| -3.3703| 3.7813| -0.1042| -0.0919| 0.9353|
-|EXPONENTIAL.V1.S2 |  40000| -3.7650| 3.6877|  0.0383|  0.0185| 0.9830|
-|EXPONENTIAL.V1.S3 |  40000| -4.1881| 4.7297| -0.1576| -0.1776| 1.0252|
+|               | Number|     min|    max|  median|    mean|     sd|
+|:--------------|------:|-------:|------:|-------:|-------:|------:|
+|EXPONENTIAL.S1 |  40000| -3.6851| 3.8189|  0.0724|  0.0811| 1.0067|
+|EXPONENTIAL.S2 |  40000| -3.3703| 3.7813| -0.1042| -0.0919| 0.9353|
+|EXPONENTIAL.S3 |  40000| -3.6851| 3.8189|  0.0724|  0.0811| 1.0067|
 
-[1] "RMSE on vario CorAniso (ivar=1, jvar=1) in section xOy in dir#1 = 0.0251"
+[1] "RMSE on vario CorAniso (ivar=1, jvar=1) in section xOy in dir#1 = 0.0670"
 
-[1] "RMSE on vario CorAniso (ivar=1, jvar=1) in section xOy in dir#2 = 0.0688"
+[1] "RMSE on vario CorAniso (ivar=1, jvar=1) in section xOy in dir#2 = 0.0720"
 
-[1] "RMSE on vario CorAniso (ivar=1, jvar=1) in section xOy in dir#3 = 0.0572"
+[1] "RMSE on vario CorAniso (ivar=1, jvar=1) in section xOy in dir#3 = 0.0566"
 
-[1] "RMSE on vario CorAniso (ivar=1, jvar=1) in section xOy in dir#4 = 0.0346"
+[1] "RMSE on vario CorAniso (ivar=1, jvar=1) in section xOy in dir#4 = 0.0508"
 
 [1] "-------------------------------------------"
 [1] " End of test #1"
@@ -100,9 +100,9 @@ Table: Mono-variate statistics for the EXPONENTIAL covariance
 
 Table: Mono-variate statistics for the GAUSSIAN covariance
 
-|               | Number|     min|    max|  median|    mean|     sd|
-|:--------------|------:|-------:|------:|-------:|-------:|------:|
-|GAUSSIAN.V1.S1 |  40000| -3.2434| 3.1595| -0.0349| -0.0404| 0.9885|
+|         | Number|     min|    max| median|   mean|     sd|
+|:--------|------:|-------:|------:|------:|------:|------:|
+|GAUSSIAN |  40000| -3.2946| 3.3665| 0.0465| 0.0068| 1.0248|
 
 [1] "Average variogram on various simulations"
 
@@ -116,19 +116,19 @@ Table: Mono-variate statistics for the GAUSSIAN covariance
 
 Table: Mono-variate statistics for the GAUSSIAN covariance
 
-|               | Number|     min|    max|  median|    mean|     sd|
-|:--------------|------:|-------:|------:|-------:|-------:|------:|
-|GAUSSIAN.V1.S1 |  40000| -3.3354| 2.9588| -0.0306| -0.0378| 1.0068|
-|GAUSSIAN.V1.S2 |  40000| -3.3424| 3.4781|  0.0432|  0.0684| 1.0174|
-|GAUSSIAN.V1.S3 |  40000| -2.6777| 2.9485| -0.0564| -0.0508| 0.9613|
+|            | Number|     min|    max|  median|    mean|     sd|
+|:-----------|------:|-------:|------:|-------:|-------:|------:|
+|GAUSSIAN.S1 |  40000| -3.2276| 2.8831|  0.0947|  0.0714| 0.9957|
+|GAUSSIAN.S2 |  40000| -3.4055| 2.8449| -0.0331| -0.0465| 0.9961|
+|GAUSSIAN.S3 |  40000| -3.2403| 2.8936|  0.0967|  0.0794| 0.9948|
 
-[1] "RMSE on vario CorAniso (ivar=1, jvar=1) in section xOy in dir#1 = 0.0120"
+[1] "RMSE on vario CorAniso (ivar=1, jvar=1) in section xOy in dir#1 = 0.0342"
 
-[1] "RMSE on vario CorAniso (ivar=1, jvar=1) in section xOy in dir#2 = 0.0257"
+[1] "RMSE on vario CorAniso (ivar=1, jvar=1) in section xOy in dir#2 = 0.0493"
 
-[1] "RMSE on vario CorAniso (ivar=1, jvar=1) in section xOy in dir#3 = 0.0125"
+[1] "RMSE on vario CorAniso (ivar=1, jvar=1) in section xOy in dir#3 = 0.0161"
 
-[1] "RMSE on vario CorAniso (ivar=1, jvar=1) in section xOy in dir#4 = 0.0419"
+[1] "RMSE on vario CorAniso (ivar=1, jvar=1) in section xOy in dir#4 = 0.0300"
 
 [1] "-------------------------------------------"
 [1] " End of test #2"
@@ -168,9 +168,9 @@ Table: Mono-variate statistics for the GAUSSIAN covariance
 
 Table: Mono-variate statistics for the MATERN covariance
 
-|             | Number|     min|    max|  median|    mean|     sd|
-|:------------|------:|-------:|------:|-------:|-------:|------:|
-|MATERN.V1.S1 |  40000| -4.5456| 3.8758| -0.0812| -0.0412| 1.0148|
+|       | Number|     min|    max|  median|    mean|     sd|
+|:------|------:|-------:|------:|-------:|-------:|------:|
+|MATERN |  40000| -3.2587| 3.4717| -0.1828| -0.1608| 0.9814|
 
 [1] "Average variogram on various simulations"
 
@@ -184,19 +184,19 @@ Table: Mono-variate statistics for the MATERN covariance
 
 Table: Mono-variate statistics for the MATERN covariance
 
-|             | Number|     min|    max| median|   mean|     sd|
-|:------------|------:|-------:|------:|------:|------:|------:|
-|MATERN.V1.S1 |  40000| -3.2504| 3.4383| 0.0369| 0.0357| 1.0230|
-|MATERN.V1.S2 |  40000| -3.1104| 3.4201| 0.0202| 0.0363| 1.0214|
-|MATERN.V1.S3 |  40000| -3.4197| 3.2065| 0.2585| 0.2209| 1.0400|
+|          | Number|     min|    max| median|   mean|     sd|
+|:---------|------:|-------:|------:|------:|------:|------:|
+|MATERN.S1 |  40000| -3.5475| 3.6345| 0.2251| 0.2077| 1.0209|
+|MATERN.S2 |  40000| -3.3392| 3.5550| 0.0372| 0.0649| 0.9586|
+|MATERN.S3 |  40000| -3.5407| 3.6381| 0.2214| 0.2024| 1.0198|
 
-[1] "RMSE on vario CorAniso (ivar=1, jvar=1) in section xOy in dir#1 = 0.0094"
+[1] "RMSE on vario CorAniso (ivar=1, jvar=1) in section xOy in dir#1 = 0.1064"
 
-[1] "RMSE on vario CorAniso (ivar=1, jvar=1) in section xOy in dir#2 = 0.0636"
+[1] "RMSE on vario CorAniso (ivar=1, jvar=1) in section xOy in dir#2 = 0.0826"
 
-[1] "RMSE on vario CorAniso (ivar=1, jvar=1) in section xOy in dir#3 = 0.0357"
+[1] "RMSE on vario CorAniso (ivar=1, jvar=1) in section xOy in dir#3 = 0.0405"
 
-[1] "RMSE on vario CorAniso (ivar=1, jvar=1) in section xOy in dir#4 = 0.0398"
+[1] "RMSE on vario CorAniso (ivar=1, jvar=1) in section xOy in dir#4 = 0.0294"
 
 [1] "-------------------------------------------"
 [1] " End of test #3"
@@ -236,9 +236,9 @@ Table: Mono-variate statistics for the MATERN covariance
 
 Table: Mono-variate statistics for the CAUCHY covariance
 
-|             | Number|     min|    max|  median|    mean|     sd|
-|:------------|------:|-------:|------:|-------:|-------:|------:|
-|CAUCHY.V1.S1 |  40000| -4.4595| 2.5718| -0.4554| -0.4205| 0.9894|
+|       | Number|     min|    max| median|   mean|     sd|
+|:------|------:|-------:|------:|------:|------:|------:|
+|CAUCHY |  40000| -3.0265| 2.3921| 0.1677| 0.1331| 0.9051|
 
 [1] "Average variogram on various simulations"
 
@@ -252,19 +252,19 @@ Table: Mono-variate statistics for the CAUCHY covariance
 
 Table: Mono-variate statistics for the CAUCHY covariance
 
-|             | Number|     min|    max|  median|    mean|     sd|
-|:------------|------:|-------:|------:|-------:|-------:|------:|
-|CAUCHY.V1.S1 |  40000| -3.4784| 3.0092| -0.4695| -0.4404| 0.9135|
-|CAUCHY.V1.S2 |  40000| -2.7313| 3.2657| -0.1029| -0.0063| 0.9437|
-|CAUCHY.V1.S3 |  40000| -2.7385| 4.7617|  0.2888|  0.3197| 1.0080|
+|          | Number|     min|    max|  median|    mean|     sd|
+|:---------|------:|-------:|------:|-------:|-------:|------:|
+|CAUCHY.S1 |  40000| -3.9045| 3.1264| -0.2841| -0.3331| 1.0257|
+|CAUCHY.S2 |  40000| -2.6804| 3.2965|  0.3245|  0.3031| 0.9496|
+|CAUCHY.S3 |  40000| -3.9180| 3.1168| -0.2845| -0.3331| 1.0238|
 
-[1] "RMSE on vario CorAniso (ivar=1, jvar=1) in section xOy in dir#1 = 0.0278"
+[1] "RMSE on vario CorAniso (ivar=1, jvar=1) in section xOy in dir#1 = 0.0600"
 
-[1] "RMSE on vario CorAniso (ivar=1, jvar=1) in section xOy in dir#2 = 0.0112"
+[1] "RMSE on vario CorAniso (ivar=1, jvar=1) in section xOy in dir#2 = 0.0730"
 
-[1] "RMSE on vario CorAniso (ivar=1, jvar=1) in section xOy in dir#3 = 0.0125"
+[1] "RMSE on vario CorAniso (ivar=1, jvar=1) in section xOy in dir#3 = 0.0655"
 
-[1] "RMSE on vario CorAniso (ivar=1, jvar=1) in section xOy in dir#4 = 0.0575"
+[1] "RMSE on vario CorAniso (ivar=1, jvar=1) in section xOy in dir#4 = 0.0732"
 
 [1] "-------------------------------------------"
 [1] " End of test #4"
@@ -299,9 +299,9 @@ Table: Mono-variate statistics for the CAUCHY covariance
 
 Table: Mono-variate statistics for the MATERN covariance
 
-|             | Number|     min|    max|  median|    mean|     sd|
-|:------------|------:|-------:|------:|-------:|-------:|------:|
-|MATERN.V1.S1 |  40000| -3.9389| 4.2583| -0.0782| -0.0862| 1.0745|
+|       | Number|     min|    max|  median|    mean|     sd|
+|:------|------:|-------:|------:|-------:|-------:|------:|
+|MATERN |  40000| -4.2943| 3.6633| -0.0233| -0.0266| 1.0175|
 
 [1] "Average variogram on various simulations"
 
@@ -315,19 +315,19 @@ Table: Mono-variate statistics for the MATERN covariance
 
 Table: Mono-variate statistics for the MATERN covariance
 
-|             | Number|     min|    max|  median|    mean|     sd|
-|:------------|------:|-------:|------:|-------:|-------:|------:|
-|MATERN.V1.S1 |  40000| -3.8854| 3.8010| -0.1110| -0.1187| 0.9905|
-|MATERN.V1.S2 |  40000| -3.4009| 3.2051|  0.1133|  0.1051| 0.9509|
-|MATERN.V1.S3 |  40000| -3.9093| 3.7971|  0.0339|  0.0302| 0.9001|
+|          | Number|     min|    max|  median|    mean|     sd|
+|:---------|------:|-------:|------:|-------:|-------:|------:|
+|MATERN.S1 |  40000| -3.6602| 3.7594|  0.0372|  0.0347| 1.0573|
+|MATERN.S2 |  40000| -3.7888| 3.3073| -0.0576| -0.0543| 0.9343|
+|MATERN.S3 |  40000| -3.6515| 3.7469|  0.0351|  0.0327| 1.0561|
 
-[1] "RMSE on vario CorMatern (ivar=1, jvar=1) in section xOy in dir#1 = 0.1037"
+[1] "RMSE on vario CorMatern (ivar=1, jvar=1) in section xOy in dir#1 = 0.0580"
 
-[1] "RMSE on vario CorMatern (ivar=1, jvar=1) in section xOy in dir#2 = 0.1050"
+[1] "RMSE on vario CorMatern (ivar=1, jvar=1) in section xOy in dir#2 = 0.1243"
 
-[1] "RMSE on vario CorMatern (ivar=1, jvar=1) in section xOy in dir#3 = 0.0870"
+[1] "RMSE on vario CorMatern (ivar=1, jvar=1) in section xOy in dir#3 = 0.0535"
 
-[1] "RMSE on vario CorMatern (ivar=1, jvar=1) in section xOy in dir#4 = 0.0630"
+[1] "RMSE on vario CorMatern (ivar=1, jvar=1) in section xOy in dir#4 = 0.0253"
 
 [1] "-------------------------------------------"
 [1] " End of test #5"
@@ -408,10 +408,10 @@ Table: Mono-variate statistics for the MATERN covariance
 
 Table: Mono-variate statistics for the MATERN covariance
 
-|             | Number|     min|    max|  median|    mean|     sd|
-|:------------|------:|-------:|------:|-------:|-------:|------:|
-|MATERN.V1.S1 |  40000| -3.9931| 4.5359| -0.0654| -0.0654| 1.0866|
-|MATERN.V2.S1 |  40000| -3.9383| 3.7538| -0.1487| -0.1684| 1.0547|
+|          | Number|     min|    max|  median|    mean|     sd|
+|:---------|------:|-------:|------:|-------:|-------:|------:|
+|MATERN.V1 |  40000| -4.3676| 3.6986| -0.0266| -0.0277| 1.0131|
+|MATERN.V2 |  40000| -3.9335| 3.5245| -0.0463| -0.0377| 0.9893|
 
 [1] "Average variogram on various simulations"
 
@@ -427,36 +427,36 @@ Table: Mono-variate statistics for the MATERN covariance
 
 |             | Number|     min|    max|  median|    mean|     sd|
 |:------------|------:|-------:|------:|-------:|-------:|------:|
-|MATERN.V1.S1 |  40000| -4.1734| 3.7450| -0.0681| -0.0742| 1.0051|
-|MATERN.V2.S1 |  40000| -3.6151| 3.7549| -0.2899| -0.2807| 0.9492|
-|MATERN.V1.S2 |  40000| -3.5163| 3.3446|  0.0831|  0.0855| 0.9688|
-|MATERN.V2.S2 |  40000| -3.3351| 3.5264|  0.1890|  0.1926| 0.9307|
-|MATERN.V1.S3 |  40000| -3.6263| 3.9750|  0.0448|  0.0389| 0.8912|
-|MATERN.V2.S3 |  40000| -3.6208| 3.5840|  0.0048|  0.0052| 0.8973|
+|MATERN.V1.S1 |  40000| -3.7315| 3.9241|  0.0297|  0.0308| 1.0450|
+|MATERN.V2.S1 |  40000| -3.4231| 3.7255|  0.0688|  0.0650| 1.0541|
+|MATERN.V1.S2 |  40000| -3.8081| 3.2977| -0.0587| -0.0528| 0.9409|
+|MATERN.V2.S2 |  40000| -3.5115| 3.1140| -0.0734| -0.0716| 0.9169|
+|MATERN.V1.S3 |  40000| -3.7332| 3.9093|  0.0278|  0.0284| 1.0434|
+|MATERN.V2.S3 |  40000| -3.4225| 3.7192|  0.0686|  0.0635| 1.0533|
 
-[1] "RMSE on vario CorMatern (ivar=1, jvar=1) in section xOy in dir#1 = 0.0883"
+[1] "RMSE on vario CorMatern (ivar=1, jvar=1) in section xOy in dir#1 = 0.0453"
 
-[1] "RMSE on vario CorMatern (ivar=1, jvar=1) in section xOy in dir#2 = 0.0945"
+[1] "RMSE on vario CorMatern (ivar=1, jvar=1) in section xOy in dir#2 = 0.1173"
 
-[1] "RMSE on vario CorMatern (ivar=1, jvar=1) in section xOy in dir#3 = 0.0823"
+[1] "RMSE on vario CorMatern (ivar=1, jvar=1) in section xOy in dir#3 = 0.0615"
 
-[1] "RMSE on vario CorMatern (ivar=1, jvar=1) in section xOy in dir#4 = 0.0524"
+[1] "RMSE on vario CorMatern (ivar=1, jvar=1) in section xOy in dir#4 = 0.0349"
 
-[1] "RMSE on vario CorMatern (ivar=1, jvar=2) in section xOy in dir#1 = 0.0979"
+[1] "RMSE on vario CorMatern (ivar=1, jvar=2) in section xOy in dir#1 = 0.0665"
 
-[1] "RMSE on vario CorMatern (ivar=1, jvar=2) in section xOy in dir#2 = 0.1009"
+[1] "RMSE on vario CorMatern (ivar=1, jvar=2) in section xOy in dir#2 = 0.1350"
 
-[1] "RMSE on vario CorMatern (ivar=1, jvar=2) in section xOy in dir#3 = 0.0770"
+[1] "RMSE on vario CorMatern (ivar=1, jvar=2) in section xOy in dir#3 = 0.0536"
 
-[1] "RMSE on vario CorMatern (ivar=1, jvar=2) in section xOy in dir#4 = 0.0597"
+[1] "RMSE on vario CorMatern (ivar=1, jvar=2) in section xOy in dir#4 = 0.0303"
 
-[1] "RMSE on vario CorMatern (ivar=2, jvar=2) in section xOy in dir#1 = 0.1206"
+[1] "RMSE on vario CorMatern (ivar=2, jvar=2) in section xOy in dir#1 = 0.0839"
 
-[1] "RMSE on vario CorMatern (ivar=2, jvar=2) in section xOy in dir#2 = 0.1193"
+[1] "RMSE on vario CorMatern (ivar=2, jvar=2) in section xOy in dir#2 = 0.1560"
 
-[1] "RMSE on vario CorMatern (ivar=2, jvar=2) in section xOy in dir#3 = 0.0769"
+[1] "RMSE on vario CorMatern (ivar=2, jvar=2) in section xOy in dir#3 = 0.0934"
 
-[1] "RMSE on vario CorMatern (ivar=2, jvar=2) in section xOy in dir#4 = 0.0774"
+[1] "RMSE on vario CorMatern (ivar=2, jvar=2) in section xOy in dir#4 = 0.0212"
 
 [1] "-------------------------------------------"
 [1] " End of test #6"
@@ -491,9 +491,9 @@ Table: Mono-variate statistics for the MATERN covariance
 
 Table: Mono-variate statistics for the GAUSSIAN covariance
 
-|               | Number|     min|    max| median|   mean|     sd|
-|:--------------|------:|-------:|------:|------:|------:|------:|
-|GAUSSIAN.V1.S1 |  40000| -3.4942| 3.8924| 0.0169| 0.0479| 1.0598|
+|         | Number|     min|   max| median|    mean|     sd|
+|:--------|------:|-------:|-----:|------:|-------:|------:|
+|GAUSSIAN |  40000| -3.6871| 3.569| -0.037| -0.0095| 1.0103|
 
 [1] "Average variogram on various simulations"
 
@@ -507,19 +507,19 @@ Table: Mono-variate statistics for the GAUSSIAN covariance
 
 Table: Mono-variate statistics for the GAUSSIAN covariance
 
-|               | Number|     min|    max|  median|   mean|     sd|
-|:--------------|------:|-------:|------:|-------:|------:|------:|
-|GAUSSIAN.V1.S1 |  40000| -3.1876| 4.0649|  0.0804| 0.0879| 1.0085|
-|GAUSSIAN.V1.S2 |  40000| -3.6087| 3.6607|  0.0178| 0.0030| 1.0910|
-|GAUSSIAN.V1.S3 |  40000| -3.7203| 3.8219| -0.0051| 0.0128| 1.0189|
+|            | Number|     min|    max|  median|    mean|     sd|
+|:-----------|------:|-------:|------:|-------:|-------:|------:|
+|GAUSSIAN.S1 |  40000| -3.5445| 3.8243| -0.0607| -0.0709| 0.9957|
+|GAUSSIAN.S2 |  40000| -3.5364| 4.2514|  0.0466|  0.0198| 0.9939|
+|GAUSSIAN.S3 |  40000| -3.6894| 3.7950|  0.0699|  0.0580| 1.0395|
 
-[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=1) in section xOy in dir#1 = 0.0828"
+[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=1) in section xOy in dir#1 = 0.0202"
 
-[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=1) in section xOy in dir#2 = 0.0891"
+[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=1) in section xOy in dir#2 = 0.0318"
 
-[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=1) in section xOy in dir#3 = 0.0702"
+[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=1) in section xOy in dir#3 = 0.0688"
 
-[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=1) in section xOy in dir#4 = 0.0308"
+[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=1) in section xOy in dir#4 = 0.0321"
 
 [1] "-------------------------------------------"
 [1] " End of test #7"
@@ -554,9 +554,9 @@ Table: Mono-variate statistics for the GAUSSIAN covariance
 
 Table: Mono-variate statistics for the MATERN covariance
 
-|             | Number|    min|    max| median|   mean|     sd|
-|:------------|------:|------:|------:|------:|------:|------:|
-|MATERN.V1.S1 |  40000| -4.373| 3.7274| 0.0346| 0.0281| 1.0182|
+|       | Number|     min|    max|  median|    mean|     sd|
+|:------|------:|-------:|------:|-------:|-------:|------:|
+|MATERN |  40000| -3.6402| 3.9536| -0.0953| -0.0831| 1.0461|
 
 [1] "Average variogram on various simulations"
 
@@ -570,19 +570,19 @@ Table: Mono-variate statistics for the MATERN covariance
 
 Table: Mono-variate statistics for the MATERN covariance
 
-|             | Number|     min|    max|  median|    mean|     sd|
-|:------------|------:|-------:|------:|-------:|-------:|------:|
-|MATERN.V1.S1 |  40000| -3.3048| 3.2690|  0.0374|  0.0164| 0.9459|
-|MATERN.V1.S2 |  40000| -3.7609| 3.3138| -0.0569| -0.0495| 1.0563|
-|MATERN.V1.S3 |  40000| -3.7199| 3.0508| -0.1346| -0.1337| 0.9506|
+|          | Number|     min|    max| median|   mean|     sd|
+|:---------|------:|-------:|------:|------:|------:|------:|
+|MATERN.S1 |  40000| -3.8092| 3.5508|  0.055| 0.0470| 0.9708|
+|MATERN.S2 |  40000| -3.3309| 3.2958|  0.034| 0.0158| 0.9493|
+|MATERN.S3 |  40000| -3.7741| 3.5488|  0.058| 0.0471| 0.9718|
 
-[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=1) in section xOy in dir#1 = 0.0220"
+[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=1) in section xOy in dir#1 = 0.0609"
 
-[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=1) in section xOy in dir#2 = 0.0323"
+[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=1) in section xOy in dir#2 = 0.0554"
 
-[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=1) in section xOy in dir#3 = 0.0599"
+[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=1) in section xOy in dir#3 = 0.0498"
 
-[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=1) in section xOy in dir#4 = 0.0576"
+[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=1) in section xOy in dir#4 = 0.0966"
 
 [1] "-------------------------------------------"
 [1] " End of test #8"
@@ -663,10 +663,10 @@ Table: Mono-variate statistics for the MATERN covariance
 
 Table: Mono-variate statistics for the MATERN covariance
 
-|             | Number|     min|    max| median|   mean|     sd|
-|:------------|------:|-------:|------:|------:|------:|------:|
-|MATERN.V1.S1 |  40000| -3.2759| 4.1717| 0.0072| 0.0261| 1.0128|
-|MATERN.V2.S1 |  40000| -3.5084| 4.4435| 0.0401| 0.0465| 1.0289|
+|          | Number|     min|    max|  median|    mean|     sd|
+|:---------|------:|-------:|------:|-------:|-------:|------:|
+|MATERN.V1 |  40000| -3.5801| 3.6364|  0.0023|  0.0038| 1.0024|
+|MATERN.V2 |  40000| -3.3768| 3.6633| -0.0125| -0.0041| 0.9426|
 
 [1] "Average variogram on various simulations"
 
@@ -682,36 +682,36 @@ Table: Mono-variate statistics for the MATERN covariance
 
 |             | Number|     min|    max|  median|    mean|     sd|
 |:------------|------:|-------:|------:|-------:|-------:|------:|
-|MATERN.V1.S1 |  40000| -3.7839| 3.9784| -0.0304| -0.0424| 0.9741|
-|MATERN.V2.S1 |  40000| -3.9076| 4.4819| -0.2160| -0.2093| 1.0191|
-|MATERN.V1.S2 |  40000| -3.7699| 3.8286|  0.0402|  0.0374| 0.9944|
-|MATERN.V2.S2 |  40000| -3.6662| 3.6690|  0.0615|  0.0439| 0.9152|
-|MATERN.V1.S3 |  40000| -4.2622| 3.3540|  0.0035| -0.0026| 1.0055|
-|MATERN.V2.S3 |  40000| -3.8244| 3.1347|  0.0031|  0.0026| 0.9257|
+|MATERN.V1.S1 |  40000| -3.4219| 3.7114|  0.0252|  0.0198| 0.9701|
+|MATERN.V2.S1 |  40000| -3.6719| 3.9318|  0.1824|  0.1764| 0.9911|
+|MATERN.V1.S2 |  40000| -3.7777| 3.9847| -0.0310| -0.0425| 0.9745|
+|MATERN.V2.S2 |  40000| -3.9024| 4.4872| -0.2162| -0.2093| 1.0193|
+|MATERN.V1.S3 |  40000| -3.4907| 3.4895|  0.0308|  0.0186| 0.9584|
+|MATERN.V2.S3 |  40000| -3.6096| 3.8360|  0.1794|  0.1743| 0.9708|
 
-[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=1) in section xOy in dir#1 = 0.0371"
+[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=1) in section xOy in dir#1 = 0.0865"
 
-[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=1) in section xOy in dir#2 = 0.0269"
+[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=1) in section xOy in dir#2 = 0.0791"
 
-[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=1) in section xOy in dir#3 = 0.0358"
+[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=1) in section xOy in dir#3 = 0.0409"
 
-[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=1) in section xOy in dir#4 = 0.0399"
+[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=1) in section xOy in dir#4 = 0.0175"
 
-[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=2) in section xOy in dir#1 = 0.0477"
+[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=2) in section xOy in dir#1 = 0.0970"
 
-[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=2) in section xOy in dir#2 = 0.0410"
+[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=2) in section xOy in dir#2 = 0.0836"
 
-[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=2) in section xOy in dir#3 = 0.0297"
+[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=2) in section xOy in dir#3 = 0.0442"
 
-[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=2) in section xOy in dir#4 = 0.0428"
+[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=2) in section xOy in dir#4 = 0.0253"
 
-[1] "RMSE on vario CorGaussianMixture (ivar=2, jvar=2) in section xOy in dir#1 = 0.1005"
+[1] "RMSE on vario CorGaussianMixture (ivar=2, jvar=2) in section xOy in dir#1 = 0.1422"
 
-[1] "RMSE on vario CorGaussianMixture (ivar=2, jvar=2) in section xOy in dir#2 = 0.0987"
+[1] "RMSE on vario CorGaussianMixture (ivar=2, jvar=2) in section xOy in dir#2 = 0.0787"
 
-[1] "RMSE on vario CorGaussianMixture (ivar=2, jvar=2) in section xOy in dir#3 = 0.0290"
+[1] "RMSE on vario CorGaussianMixture (ivar=2, jvar=2) in section xOy in dir#3 = 0.0430"
 
-[1] "RMSE on vario CorGaussianMixture (ivar=2, jvar=2) in section xOy in dir#4 = 0.0811"
+[1] "RMSE on vario CorGaussianMixture (ivar=2, jvar=2) in section xOy in dir#4 = 0.0680"
 
 [1] "-------------------------------------------"
 [1] " End of test #9"
@@ -746,9 +746,9 @@ Table: Mono-variate statistics for the MATERN covariance
 
 Table: Mono-variate statistics for the CAUCHY covariance
 
-|             | Number|     min|    max|  median|    mean|     sd|
-|:------------|------:|-------:|------:|-------:|-------:|------:|
-|CAUCHY.V1.S1 |  40000| -4.1849| 3.5111| -0.2554| -0.2525| 1.0683|
+|       | Number|     min|    max|  median|    mean|     sd|
+|:------|------:|-------:|------:|-------:|-------:|------:|
+|CAUCHY |  40000| -3.8273| 3.0178| -0.1194| -0.1037| 0.9575|
 
 [1] "Average variogram on various simulations"
 
@@ -762,19 +762,19 @@ Table: Mono-variate statistics for the CAUCHY covariance
 
 Table: Mono-variate statistics for the CAUCHY covariance
 
-|             | Number|     min|    max| median|   mean|     sd|
-|:------------|------:|-------:|------:|------:|------:|------:|
-|CAUCHY.V1.S1 |  40000| -3.3449| 4.0646| 0.1157| 0.1065| 1.0188|
-|CAUCHY.V1.S2 |  40000| -3.6504| 3.9072| 0.2212| 0.1836| 1.0235|
-|CAUCHY.V1.S3 |  40000| -3.3526| 3.6883| 0.0368| 0.0435| 0.9938|
+|          | Number|     min|    max| median|   mean|     sd|
+|:---------|------:|-------:|------:|------:|------:|------:|
+|CAUCHY.S1 |  40000| -3.1053| 4.3256| 0.2165| 0.2246| 1.0252|
+|CAUCHY.S2 |  40000| -3.3522| 4.0414| 0.1145| 0.1047| 1.0214|
+|CAUCHY.S3 |  40000| -3.1049| 4.3161| 0.2166| 0.2246| 1.0255|
 
-[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=1) in section xOy in dir#1 = 0.0618"
+[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=1) in section xOy in dir#1 = 0.0634"
 
-[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=1) in section xOy in dir#2 = 0.0638"
+[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=1) in section xOy in dir#2 = 0.0644"
 
-[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=1) in section xOy in dir#3 = 0.0272"
+[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=1) in section xOy in dir#3 = 0.0288"
 
-[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=1) in section xOy in dir#4 = 0.0587"
+[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=1) in section xOy in dir#4 = 0.0593"
 
 [1] "-------------------------------------------"
 [1] " End of test #10"
@@ -855,10 +855,10 @@ Table: Mono-variate statistics for the CAUCHY covariance
 
 Table: Mono-variate statistics for the CAUCHY covariance
 
-|             | Number|     min|    max|  median|    mean|     sd|
-|:------------|------:|-------:|------:|-------:|-------:|------:|
-|CAUCHY.V1.S1 |  40000| -3.4034| 3.9511|  0.0230| -0.0052| 1.0163|
-|CAUCHY.V2.S1 |  40000| -3.0849| 2.9677| -0.0321| -0.0372| 0.9139|
+|          | Number|     min|    max|  median|    mean|     sd|
+|:---------|------:|-------:|------:|-------:|-------:|------:|
+|CAUCHY.V1 |  40000| -3.0690| 3.5484| -0.0158| -0.0030| 0.9292|
+|CAUCHY.V2 |  40000| -2.2295| 2.9123|  0.0323|  0.0763| 0.7615|
 
 [1] "Average variogram on various simulations"
 
@@ -874,36 +874,36 @@ Table: Mono-variate statistics for the CAUCHY covariance
 
 |             | Number|     min|    max|  median|    mean|     sd|
 |:------------|------:|-------:|------:|-------:|-------:|------:|
-|CAUCHY.V1.S1 |  40000| -3.9501| 3.1511| -0.1215| -0.1277| 1.0940|
-|CAUCHY.V2.S1 |  40000| -4.0015| 2.8310| -0.2533| -0.2995| 1.2009|
-|CAUCHY.V1.S2 |  40000| -3.7875| 4.1881|  0.0419|  0.0200| 1.0347|
-|CAUCHY.V2.S2 |  40000| -2.7846| 2.7477|  0.2033|  0.2297| 0.9525|
-|CAUCHY.V1.S3 |  40000| -3.3355| 3.0671| -0.2262| -0.2074| 0.9945|
-|CAUCHY.V2.S3 |  40000| -2.7425| 2.4015| -0.4221| -0.4107| 0.9063|
+|CAUCHY.V1.S1 |  40000| -4.0932| 2.5034| -0.4682| -0.4825| 1.0107|
+|CAUCHY.V2.S1 |  40000| -3.8857| 2.3825| -1.0378| -1.0488| 0.9745|
+|CAUCHY.V1.S2 |  40000| -3.9565| 3.1529| -0.1223| -0.1278| 1.0936|
+|CAUCHY.V2.S2 |  40000| -3.9990| 2.8338| -0.2536| -0.2995| 1.2008|
+|CAUCHY.V1.S3 |  40000| -3.9734| 2.5081| -0.4625| -0.4777| 1.0056|
+|CAUCHY.V2.S3 |  40000| -3.8595| 2.3185| -1.0233| -1.0317| 0.9628|
 
-[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=1) in section xOy in dir#1 = 0.0382"
+[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=1) in section xOy in dir#1 = 0.0554"
 
-[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=1) in section xOy in dir#2 = 0.0775"
+[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=1) in section xOy in dir#2 = 0.0994"
 
-[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=1) in section xOy in dir#3 = 0.0576"
+[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=1) in section xOy in dir#3 = 0.0609"
 
-[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=1) in section xOy in dir#4 = 0.0649"
+[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=1) in section xOy in dir#4 = 0.0638"
 
-[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=2) in section xOy in dir#1 = 0.0461"
+[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=2) in section xOy in dir#1 = 0.0608"
 
-[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=2) in section xOy in dir#2 = 0.0961"
+[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=2) in section xOy in dir#2 = 0.1439"
 
-[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=2) in section xOy in dir#3 = 0.0378"
+[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=2) in section xOy in dir#3 = 0.0834"
 
-[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=2) in section xOy in dir#4 = 0.0680"
+[1] "RMSE on vario CorGaussianMixture (ivar=1, jvar=2) in section xOy in dir#4 = 0.0523"
 
-[1] "RMSE on vario CorGaussianMixture (ivar=2, jvar=2) in section xOy in dir#1 = 0.0604"
+[1] "RMSE on vario CorGaussianMixture (ivar=2, jvar=2) in section xOy in dir#1 = 0.0755"
 
-[1] "RMSE on vario CorGaussianMixture (ivar=2, jvar=2) in section xOy in dir#2 = 0.1136"
+[1] "RMSE on vario CorGaussianMixture (ivar=2, jvar=2) in section xOy in dir#2 = 0.1763"
 
-[1] "RMSE on vario CorGaussianMixture (ivar=2, jvar=2) in section xOy in dir#3 = 0.0190"
+[1] "RMSE on vario CorGaussianMixture (ivar=2, jvar=2) in section xOy in dir#3 = 0.0923"
 
-[1] "RMSE on vario CorGaussianMixture (ivar=2, jvar=2) in section xOy in dir#4 = 0.0771"
+[1] "RMSE on vario CorGaussianMixture (ivar=2, jvar=2) in section xOy in dir#4 = 0.0615"
 
 [1] "-------------------------------------------"
 [1] " End of test #11"
@@ -965,9 +965,9 @@ Table: Mono-variate statistics for the CAUCHY covariance
 
 Table: Mono-variate statistics for the GNEITING_G covariance
 
-|                 | Number|     min|    max|  median|   mean|     sd|
-|:----------------|------:|-------:|------:|-------:|------:|------:|
-|GNEITING_G.V1.S1 |  40000| -3.7706| 3.8051| -0.0749| -0.064| 1.0474|
+|           | Number|     min|    max| median|   mean|     sd|
+|:----------|------:|-------:|------:|------:|------:|------:|
+|GNEITING_G |  40000| -3.8438| 3.5949| 0.0853| 0.0549| 0.9787|
 
 [1] "Average variogram on various simulations"
 
@@ -981,19 +981,19 @@ Table: Mono-variate statistics for the GNEITING_G covariance
 
 Table: Mono-variate statistics for the GNEITING_G covariance
 
-|                 | Number|     min|    max|  median|    mean|     sd|
-|:----------------|------:|-------:|------:|-------:|-------:|------:|
-|GNEITING_G.V1.S1 |  40000| -4.0281| 4.4352|  0.0468|  0.0505| 1.0285|
-|GNEITING_G.V1.S2 |  40000| -3.8208| 3.6692| -0.1011| -0.1009| 1.0291|
-|GNEITING_G.V1.S3 |  40000| -3.6342| 3.7735|  0.0331|  0.0453| 1.0205|
+|              | Number|     min|    max|  median|    mean|     sd|
+|:-------------|------:|-------:|------:|-------:|-------:|------:|
+|GNEITING_G.S1 |  40000| -3.4214| 3.5357| -0.0092| -0.0099| 0.9998|
+|GNEITING_G.S2 |  40000| -4.5572| 3.2524| -0.1080| -0.0954| 0.9968|
+|GNEITING_G.S3 |  40000| -4.0711| 4.5462| -0.0298| -0.0701| 1.0115|
 
-[1] "RMSE on vario CorGneiting (ivar=1, jvar=1) in section xOt in dir#1 = 0.0335"
+[1] "RMSE on vario CorGneiting (ivar=1, jvar=1) in section xOt in dir#1 = 0.0383"
 
-[1] "RMSE on vario CorGneiting (ivar=1, jvar=1) in section xOt in dir#2 = 0.0557"
+[1] "RMSE on vario CorGneiting (ivar=1, jvar=1) in section xOt in dir#2 = 0.0296"
 
-[1] "RMSE on vario CorGneiting (ivar=1, jvar=1) in section xOt in dir#3 = 0.0309"
+[1] "RMSE on vario CorGneiting (ivar=1, jvar=1) in section xOt in dir#3 = 0.0230"
 
-[1] "RMSE on vario CorGneiting (ivar=1, jvar=1) in section xOt in dir#4 = 0.0549"
+[1] "RMSE on vario CorGneiting (ivar=1, jvar=1) in section xOt in dir#4 = 0.0208"
 
 [1] "-------------------------------------------"
 [1] " End of test #12"
@@ -1055,9 +1055,9 @@ Table: Mono-variate statistics for the GNEITING_G covariance
 
 Table: Mono-variate statistics for the GNEITING_M covariance
 
-|                 | Number|     min|    max|  median|    mean|     sd|
-|:----------------|------:|-------:|------:|-------:|-------:|------:|
-|GNEITING_M.V1.S1 |  40000| -4.2151| 3.7895| -0.0763| -0.0648| 1.0145|
+|           | Number|     min|    max|  median|    mean|     sd|
+|:----------|------:|-------:|------:|-------:|-------:|------:|
+|GNEITING_M |  40000| -4.0502| 3.8218| -0.0273| -0.0134| 0.9611|
 
 [1] "Average variogram on various simulations"
 
@@ -1071,19 +1071,19 @@ Table: Mono-variate statistics for the GNEITING_M covariance
 
 Table: Mono-variate statistics for the GNEITING_M covariance
 
-|                 | Number|     min|    max|  median|    mean|     sd|
-|:----------------|------:|-------:|------:|-------:|-------:|------:|
-|GNEITING_M.V1.S1 |  40000| -3.2747| 3.2978| -0.0424| -0.0280| 1.0141|
-|GNEITING_M.V1.S2 |  40000| -3.6190| 3.3711|  0.0310|  0.0260| 1.0407|
-|GNEITING_M.V1.S3 |  40000| -2.9090| 3.3732|  0.1963|  0.1709| 0.9829|
+|              | Number|     min|    max|  median|    mean|     sd|
+|:-------------|------:|-------:|------:|-------:|-------:|------:|
+|GNEITING_M.S1 |  40000| -4.3843| 3.9347| -0.0073| -0.0122| 1.0504|
+|GNEITING_M.S2 |  40000| -3.2397| 3.2566| -0.0420| -0.0325| 1.0096|
+|GNEITING_M.S3 |  40000| -4.4176| 3.9704| -0.0062| -0.0122| 1.0511|
 
-[1] "RMSE on vario CorGneiting (ivar=1, jvar=1) in section xOt in dir#1 = 0.0337"
+[1] "RMSE on vario CorGneiting (ivar=1, jvar=1) in section xOt in dir#1 = 0.0720"
 
-[1] "RMSE on vario CorGneiting (ivar=1, jvar=1) in section xOt in dir#2 = 0.0613"
+[1] "RMSE on vario CorGneiting (ivar=1, jvar=1) in section xOt in dir#2 = 0.1136"
 
-[1] "RMSE on vario CorGneiting (ivar=1, jvar=1) in section xOt in dir#3 = 0.0182"
+[1] "RMSE on vario CorGneiting (ivar=1, jvar=1) in section xOt in dir#3 = 0.0330"
 
-[1] "RMSE on vario CorGneiting (ivar=1, jvar=1) in section xOt in dir#4 = 0.0377"
+[1] "RMSE on vario CorGneiting (ivar=1, jvar=1) in section xOt in dir#4 = 0.1020"
 
 [1] "-------------------------------------------"
 [1] " End of test #13"
@@ -1275,10 +1275,10 @@ Table: Mono-variate statistics for the GNEITING_M covariance
 
 Table: Mono-variate statistics for the GNEITING_M covariance
 
-|                 | Number|     min|    max|  median|    mean|     sd|
-|:----------------|------:|-------:|------:|-------:|-------:|------:|
-|GNEITING_M.V1.S1 |  40000| -3.7035| 3.7290| -0.0414| -0.0644| 0.9934|
-|GNEITING_M.V2.S1 |  40000| -3.6109| 3.7634| -0.0508| -0.0543| 0.9934|
+|              | Number|     min|    max|  median|    mean|    sd|
+|:-------------|------:|-------:|------:|-------:|-------:|-----:|
+|GNEITING_M.V1 |  40000| -3.4077| 3.9103| -0.0797| -0.0574| 0.999|
+|GNEITING_M.V2 |  40000| -3.4113| 3.6434| -0.0584| -0.0420| 0.929|
 
 [1] "Average variogram on various simulations"
 
@@ -1294,36 +1294,36 @@ Table: Mono-variate statistics for the GNEITING_M covariance
 
 |                 | Number|     min|    max|  median|    mean|     sd|
 |:----------------|------:|-------:|------:|-------:|-------:|------:|
-|GNEITING_M.V1.S1 |  40000| -3.8176| 3.3403| -0.1041| -0.1048| 0.9456|
-|GNEITING_M.V2.S1 |  40000| -3.6681| 3.7319| -0.1354| -0.1059| 1.0311|
-|GNEITING_M.V1.S2 |  40000| -3.6204| 3.9713| -0.1754| -0.1678| 0.9963|
-|GNEITING_M.V2.S2 |  40000| -4.5711| 2.8800| -0.9315| -0.9286| 0.9571|
-|GNEITING_M.V1.S3 |  40000| -3.7042| 3.7455| -0.0956| -0.0953| 1.0126|
-|GNEITING_M.V2.S3 |  40000| -3.2436| 3.6285| -0.0964| -0.1036| 0.9850|
+|GNEITING_M.V1.S1 |  40000| -3.3747| 3.9455|  0.0165|  0.0523| 1.0010|
+|GNEITING_M.V2.S1 |  40000| -3.1653| 4.4624|  0.0186|  0.0512| 1.1117|
+|GNEITING_M.V1.S2 |  40000| -3.8160| 3.3330| -0.1048| -0.1048| 0.9453|
+|GNEITING_M.V2.S2 |  40000| -3.6629| 3.7265| -0.1353| -0.1059| 1.0308|
+|GNEITING_M.V1.S3 |  40000| -3.3713| 3.9695|  0.0288|  0.0526| 0.9959|
+|GNEITING_M.V2.S3 |  40000| -3.1335| 4.4163|  0.0346|  0.0519| 1.1014|
 
-[1] "RMSE on vario CorGneiting (ivar=1, jvar=1) in section xOt in dir#1 = 0.0270"
+[1] "RMSE on vario CorGneiting (ivar=1, jvar=1) in section xOt in dir#1 = 0.1017"
 
-[1] "RMSE on vario CorGneiting (ivar=1, jvar=1) in section xOt in dir#2 = 0.0362"
+[1] "RMSE on vario CorGneiting (ivar=1, jvar=1) in section xOt in dir#2 = 0.0340"
 
-[1] "RMSE on vario CorGneiting (ivar=1, jvar=1) in section xOt in dir#3 = 0.0318"
+[1] "RMSE on vario CorGneiting (ivar=1, jvar=1) in section xOt in dir#3 = 0.0308"
 
-[1] "RMSE on vario CorGneiting (ivar=1, jvar=1) in section xOt in dir#4 = 0.0355"
+[1] "RMSE on vario CorGneiting (ivar=1, jvar=1) in section xOt in dir#4 = 0.0699"
 
-[1] "RMSE on vario CorGneiting (ivar=1, jvar=2) in section xOt in dir#1 = 0.0239"
+[1] "RMSE on vario CorGneiting (ivar=1, jvar=2) in section xOt in dir#1 = 0.1035"
 
-[1] "RMSE on vario CorGneiting (ivar=1, jvar=2) in section xOt in dir#2 = 0.0304"
+[1] "RMSE on vario CorGneiting (ivar=1, jvar=2) in section xOt in dir#2 = 0.0279"
 
-[1] "RMSE on vario CorGneiting (ivar=1, jvar=2) in section xOt in dir#3 = 0.0206"
+[1] "RMSE on vario CorGneiting (ivar=1, jvar=2) in section xOt in dir#3 = 0.0248"
 
-[1] "RMSE on vario CorGneiting (ivar=1, jvar=2) in section xOt in dir#4 = 0.0308"
+[1] "RMSE on vario CorGneiting (ivar=1, jvar=2) in section xOt in dir#4 = 0.0578"
 
-[1] "RMSE on vario CorGneiting (ivar=2, jvar=2) in section xOt in dir#1 = 0.0311"
+[1] "RMSE on vario CorGneiting (ivar=2, jvar=2) in section xOt in dir#1 = 0.1418"
 
-[1] "RMSE on vario CorGneiting (ivar=2, jvar=2) in section xOt in dir#2 = 0.0368"
+[1] "RMSE on vario CorGneiting (ivar=2, jvar=2) in section xOt in dir#2 = 0.0427"
 
-[1] "RMSE on vario CorGneiting (ivar=2, jvar=2) in section xOt in dir#3 = 0.0297"
+[1] "RMSE on vario CorGneiting (ivar=2, jvar=2) in section xOt in dir#3 = 0.0189"
 
-[1] "RMSE on vario CorGneiting (ivar=2, jvar=2) in section xOt in dir#4 = 0.0408"
+[1] "RMSE on vario CorGneiting (ivar=2, jvar=2) in section xOt in dir#4 = 0.0469"
 
 [1] "-------------------------------------------"
 [1] " End of test #14"
@@ -1385,9 +1385,9 @@ Table: Mono-variate statistics for the GNEITING_M covariance
 
 Table: Mono-variate statistics for the GNEITING_C covariance
 
-|                 | Number|     min|    max|  median|    mean|     sd|
-|:----------------|------:|-------:|------:|-------:|-------:|------:|
-|GNEITING_C.V1.S1 |  40000| -3.9109| 3.4241| -0.2298| -0.2086| 1.0066|
+|           | Number|     min|    max|  median|    mean|     sd|
+|:----------|------:|-------:|------:|-------:|-------:|------:|
+|GNEITING_C |  40000| -3.6667| 3.2427| -0.1693| -0.1665| 0.9843|
 
 [1] "Average variogram on various simulations"
 
@@ -1401,19 +1401,19 @@ Table: Mono-variate statistics for the GNEITING_C covariance
 
 Table: Mono-variate statistics for the GNEITING_C covariance
 
-|                 | Number|     min|    max| median|   mean|     sd|
-|:----------------|------:|-------:|------:|------:|------:|------:|
-|GNEITING_C.V1.S1 |  40000| -2.9772| 3.2978| 0.0343| 0.0419| 0.9753|
-|GNEITING_C.V1.S2 |  40000| -4.0340| 3.3822| 0.2566| 0.2395| 0.9662|
-|GNEITING_C.V1.S3 |  40000| -3.7288| 3.3961| 0.0891| 0.1006| 0.9551|
+|              | Number|     min|    max| median|   mean|     sd|
+|:-------------|------:|-------:|------:|------:|------:|------:|
+|GNEITING_C.S1 |  40000| -2.7863| 3.8441| 0.0630| 0.1075| 0.9416|
+|GNEITING_C.S2 |  40000| -2.9006| 3.2533| 0.0257| 0.0393| 0.9737|
+|GNEITING_C.S3 |  40000| -2.7654| 3.8123| 0.0663| 0.1075| 0.9429|
 
-[1] "RMSE on vario CorGneiting (ivar=1, jvar=1) in section xOt in dir#1 = 0.0457"
+[1] "RMSE on vario CorGneiting (ivar=1, jvar=1) in section xOt in dir#1 = 0.0941"
 
-[1] "RMSE on vario CorGneiting (ivar=1, jvar=1) in section xOt in dir#2 = 0.0389"
+[1] "RMSE on vario CorGneiting (ivar=1, jvar=1) in section xOt in dir#2 = 0.0736"
 
-[1] "RMSE on vario CorGneiting (ivar=1, jvar=1) in section xOt in dir#3 = 0.0601"
+[1] "RMSE on vario CorGneiting (ivar=1, jvar=1) in section xOt in dir#3 = 0.0940"
 
-[1] "RMSE on vario CorGneiting (ivar=1, jvar=1) in section xOt in dir#4 = 0.0725"
+[1] "RMSE on vario CorGneiting (ivar=1, jvar=1) in section xOt in dir#4 = 0.0522"
 
 [1] "-------------------------------------------"
 [1] " End of test #15"
@@ -1605,10 +1605,10 @@ Table: Mono-variate statistics for the GNEITING_C covariance
 
 Table: Mono-variate statistics for the GNEITING_C covariance
 
-|                 | Number|     min|    max|  median|   mean|     sd|
-|:----------------|------:|-------:|------:|-------:|------:|------:|
-|GNEITING_C.V1.S1 |  40000| -3.3653| 3.9800|  0.0022| 0.0210| 1.0397|
-|GNEITING_C.V2.S1 |  40000| -2.8720| 3.7352| -0.0008| 0.0279| 0.9676|
+|              | Number|     min|    max| median|    mean|     sd|
+|:-------------|------:|-------:|------:|------:|-------:|------:|
+|GNEITING_C.V1 |  40000| -4.2564| 2.9379| 0.0148| -0.0279| 1.0055|
+|GNEITING_C.V2 |  40000| -2.9447| 2.9704| 0.0874|  0.0924| 0.8735|
 
 [1] "Average variogram on various simulations"
 
@@ -1624,36 +1624,36 @@ Table: Mono-variate statistics for the GNEITING_C covariance
 
 |                 | Number|     min|    max|  median|    mean|     sd|
 |:----------------|------:|-------:|------:|-------:|-------:|------:|
-|GNEITING_C.V1.S1 |  40000| -4.3291| 2.9894| -0.2225| -0.2619| 0.9428|
-|GNEITING_C.V2.S1 |  40000| -2.9246| 2.7042| -0.3699| -0.3535| 0.8856|
-|GNEITING_C.V1.S2 |  40000| -3.0972| 4.5061| -0.0319|  0.0137| 1.0305|
-|GNEITING_C.V2.S2 |  40000| -2.9323| 4.2249|  0.1521|  0.2008| 1.0054|
-|GNEITING_C.V1.S3 |  40000| -3.4884| 4.2290| -0.0007| -0.0182| 0.9786|
-|GNEITING_C.V2.S3 |  40000| -3.0035| 3.8562| -0.0808| -0.0566| 0.9141|
+|GNEITING_C.V1.S1 |  40000| -3.7203| 3.7509| -0.1975| -0.1502| 1.1048|
+|GNEITING_C.V2.S1 |  40000| -3.2792| 3.4418| -0.2490| -0.1885| 1.0364|
+|GNEITING_C.V1.S2 |  40000| -4.3230| 2.9830| -0.2227| -0.2619| 0.9424|
+|GNEITING_C.V2.S2 |  40000| -2.9229| 2.7047| -0.3702| -0.3535| 0.8854|
+|GNEITING_C.V1.S3 |  40000| -3.9212| 3.8457| -0.1953| -0.1512| 1.0942|
+|GNEITING_C.V2.S3 |  40000| -3.2183| 3.4514| -0.2434| -0.1898| 1.0271|
 
-[1] "RMSE on vario CorGneiting (ivar=1, jvar=1) in section xOt in dir#1 = 0.0228"
+[1] "RMSE on vario CorGneiting (ivar=1, jvar=1) in section xOt in dir#1 = 0.0678"
 
-[1] "RMSE on vario CorGneiting (ivar=1, jvar=1) in section xOt in dir#2 = 0.0460"
+[1] "RMSE on vario CorGneiting (ivar=1, jvar=1) in section xOt in dir#2 = 0.1294"
 
-[1] "RMSE on vario CorGneiting (ivar=1, jvar=1) in section xOt in dir#3 = 0.0188"
+[1] "RMSE on vario CorGneiting (ivar=1, jvar=1) in section xOt in dir#3 = 0.0176"
 
-[1] "RMSE on vario CorGneiting (ivar=1, jvar=1) in section xOt in dir#4 = 0.0482"
+[1] "RMSE on vario CorGneiting (ivar=1, jvar=1) in section xOt in dir#4 = 0.0492"
 
-[1] "RMSE on vario CorGneiting (ivar=1, jvar=2) in section xOt in dir#1 = 0.0144"
+[1] "RMSE on vario CorGneiting (ivar=1, jvar=2) in section xOt in dir#1 = 0.0422"
 
-[1] "RMSE on vario CorGneiting (ivar=1, jvar=2) in section xOt in dir#2 = 0.0220"
+[1] "RMSE on vario CorGneiting (ivar=1, jvar=2) in section xOt in dir#2 = 0.1015"
 
-[1] "RMSE on vario CorGneiting (ivar=1, jvar=2) in section xOt in dir#3 = 0.0141"
+[1] "RMSE on vario CorGneiting (ivar=1, jvar=2) in section xOt in dir#3 = 0.0144"
 
-[1] "RMSE on vario CorGneiting (ivar=1, jvar=2) in section xOt in dir#4 = 0.0416"
+[1] "RMSE on vario CorGneiting (ivar=1, jvar=2) in section xOt in dir#4 = 0.0297"
 
-[1] "RMSE on vario CorGneiting (ivar=2, jvar=2) in section xOt in dir#1 = 0.0197"
+[1] "RMSE on vario CorGneiting (ivar=2, jvar=2) in section xOt in dir#1 = 0.0210"
 
-[1] "RMSE on vario CorGneiting (ivar=2, jvar=2) in section xOt in dir#2 = 0.0158"
+[1] "RMSE on vario CorGneiting (ivar=2, jvar=2) in section xOt in dir#2 = 0.0607"
 
-[1] "RMSE on vario CorGneiting (ivar=2, jvar=2) in section xOt in dir#3 = 0.0252"
+[1] "RMSE on vario CorGneiting (ivar=2, jvar=2) in section xOt in dir#3 = 0.0377"
 
-[1] "RMSE on vario CorGneiting (ivar=2, jvar=2) in section xOt in dir#4 = 0.0566"
+[1] "RMSE on vario CorGneiting (ivar=2, jvar=2) in section xOt in dir#4 = 0.0504"
 
 [1] "-------------------------------------------"
 [1] " End of test #16"

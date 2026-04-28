@@ -17,6 +17,14 @@
 
 namespace gstlrn
 {
+  // Default value for the Style used for Variable encoding
+  bool Old_Style = false;
+
+  void NamingConvention::Naming_Old_Style(bool status)
+  {
+    Old_Style = status;
+  }
+
   NamingConvention::NamingConvention(
     const String& prefix,
     bool flag_varname,
@@ -561,12 +569,23 @@ namespace gstlrn
       {
         if (static_cast<Id>(names.size()) == nvar) loc_varname = names[ivar];
         if (loc_varname.empty() && nvar > 1)
-          loc_varname = std::to_string(ivar + 1);
+        {
+          if (Old_Style)
+            loc_varname = std::to_string(ivar + 1);
+          else
+            loc_varname = concatenateString("V", ivar + 1, "");
+        }
       }
       else
       {
         // Build the rank from the variable number (possibly overwritten by item number)
-        if (nvar > 1) loc_number = std::to_string(ivar + 1);
+        if (nvar > 1)
+        {
+          if (Old_Style)
+            loc_number = std::to_string(ivar + 1);
+          else
+            loc_number = concatenateString("V", ivar + 1, "");
+        }
       }
 
       for (Id item = 0; item < nitems; item++)
@@ -576,7 +595,14 @@ namespace gstlrn
         if (_flagQualifier)
         {
           loc_qualifier = qualifier;
-          if (nitems > 1) loc_number = std::to_string(item + 1);
+          if (nitems > 1)
+          {
+            if (Old_Style)
+              loc_number = std::to_string(item + 1);
+            else
+              loc_number = concatenateString("S", item + 1, "");
+            // loc_number = encodeString("S", item + 1, 5);
+          }
         }
 
         // Compose the variable name
@@ -691,4 +717,89 @@ namespace gstlrn
 
     return sstr.str();
   }
+
+  /**
+   * Defines the name of one output variable.
+   *
+   * @param prefix Initial part of the returned name
+   * @param db  Pointer to the Db where the variable name is searched for (optional)
+   * @param ivar Index of the variable (1 based) or -1 if not applicable
+   * @param nvar Number of variables
+   * @param isimu Index of the simulation (1 based) or -1 if not applicable
+   * @param nbsimu Number of simulations
+   * @param extension Optional extension
+   * @param delim Delimiter for concatenating parts
+   *
+   * @remark The returned 'name' is constructed as follows:
+   *              'prefix' + 'delim' + 'varname' + 'delim' + 'qualifier'
+   *   where:
+   *   - 'prefix' is always provided
+   *   - 'varname' is determined as follows:
+   *     - If 'db' is provided, the variable name is extracted from 'db' using the locator (ELoc::Z, ivar)
+   *     - If 'db' is not provided:
+   *       . If ivar<0, the variable name is generated as "*"
+   *       . If nvar<=1, the variable name is ignored
+   *       . If nvar>1 && ivar>0, the variable name is generated as "V" + "ivar"
+   *   - 'qualifier' is determined as follows:
+   *     - If 'extension' is provided, it is used as the qualifier
+   *     - If 'extension' is not provided:
+   *       . If isimu<0, the qualifier is generated as "*"
+   *       . If nbsimu <= 1, the qualifier is ignored
+   *       . If nbsimu > 1 && isimu>0, the qualifier is set as "S" + "isimu"
+   *   - If the resulting name is empty, it defaults to "Dummy"
+   */
+  String NamingConvention::getNameEncoded(
+    const String& prefix,
+    const Db* db,
+    Id ivar,
+    Id nvar,
+    Id isimu,
+    Id nbsimu,
+    const String& extension,
+    const String& delim)
+  {
+    String loc_varname;
+    if (db != nullptr)
+    {
+      if (db->getNLoc(ELoc::Z) > 0)
+        loc_varname = db->getNameByLocator(ELoc::Z, ivar);
+    }
+    else
+    {
+      if (ivar < 0)
+      {
+        loc_varname = "*";
+      }
+      else
+      {
+        if (nvar > 1 && ivar > 0)
+          loc_varname = concatenateString("V", ivar, "");
+      }
+    }
+
+    String loc_qualifier;
+    if (!extension.empty())
+    {
+      loc_qualifier = extension;
+    }
+    else
+    {
+      if (isimu < 0)
+      {
+        loc_qualifier = "*";
+      }
+      else
+      {
+        if (nbsimu > 1 && isimu > 0)
+          loc_qualifier = concatenateString("S", isimu, "");
+        // loc_qualifier = encodeString("S", isimu + 1, 5);
+      }
+    }
+
+    String name = concatenateStrings(delim, prefix, loc_varname, loc_qualifier);
+    if (name.empty()) name = "Dummy";
+
+    return name;
+  }
+
 } // namespace gstlrn

@@ -11,12 +11,12 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Nugget Effect
-- Sill         =      2.000
+- Sill         =       2.000
 Spherical
-- Sill         =      3.000
-- Range        =      0.250
-Total Sill     =      5.000
-Known Mean(s)     0.000
+- Sill         =       3.000
+- Range        =       0.250
+Total Sill     =       5.000
+Known Mean(s)      0.000
 Initial Model used for Test
 
 Model characteristics
@@ -30,12 +30,12 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Nugget Effect
-- Sill         =      2.000
+- Sill         =       2.000
 Spherical
-- Sill         =      3.000
-- Range        =      0.250
-Total Sill     =      5.000
-Known Mean(s)     0.000
+- Sill         =       3.000
+- Range        =       0.250
+Total Sill     =       5.000
+Known Mean(s)      0.000
 
 Sill fitting from Variogram (old version)
 =========================================
@@ -51,12 +51,12 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Nugget Effect
-- Sill         =      2.741
+- Sill         =       3.732
 Spherical
-- Sill         =      5.954
-- Range        =      2.718
-Total Sill     =      8.694
-Known Mean(s)     0.000
+- Sill         =       8.260
+- Range        =       2.718
+Total Sill     =      11.992
+Known Mean(s)      0.000
 
 Model fitting from Variogram (new version)
 ==========================================
@@ -72,16 +72,15 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Nugget Effect
-- Sill         =      1.613
+- Sill         =       2.150
 Spherical
-- Sill         =      2.592
-- Range        =      0.291
-Total Sill     =      4.205
-Known Mean(s)     0.000
+- Sill         =       3.682
+- Range        =       0.310
+Total Sill     =       5.832
+Known Mean(s)      0.000
 
 Sill Fitting from Variogram Map (new version)
 =============================================
-Warning, optimization return code is -1
 
 Model characteristics
 =====================
@@ -94,14 +93,14 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Nugget Effect
-- Sill         =      1.967
+- Sill         =       2.189
 Spherical
-- Sill         =      2.760
-- Ranges       =      0.222     0.258
-- Angles       =      0.001     0.000
+- Sill         =       2.814
+- Ranges       =       0.387      0.310
+- Angles       =     162.646      0.000
 - Rotation Matrix
-               [,  0]    [,  1]
-     [  0,]     1.000     0.000
-     [  1,]     0.000     1.000
-Total Sill     =      4.727
-Known Mean(s)     0.000
+                 [,  0]     [,  1]
+      [  0,]      0.954      0.298
+      [  1,]     -0.298      0.954
+Total Sill     =       5.003
+Known Mean(s)      0.000

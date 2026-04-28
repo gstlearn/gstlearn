@@ -2,6 +2,8 @@
 title: "Scatter Plots"
 output: pdf_document
 date: '2024-02-21'
+editor_options:
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -47,13 +49,13 @@ In this section, we present the scatter plot, represented in two different manne
 - as a set of isolated points
 
 ```{r}
-res = correlationPairs(db, db, "Simu.1", "Simu.2")
+res = correlationPairs(db, db, "Simu.V1", "Simu.V2")
 ```
 
 
 
 ```{r}
-plot.init() + plot.correlation(db, "Simu.1", "Simu.2", asPoint=TRUE,
+plot.init() + plot.correlation(db, "Simu.V1", "Simu.V2", asPoint=TRUE,
                     flagBiss=TRUE, flagSameAxes=TRUE, flagRegr=TRUE)
 ```
 
@@ -61,7 +63,7 @@ plot.init() + plot.correlation(db, "Simu.1", "Simu.2", asPoint=TRUE,
 - as cells (of a fictitious grid) painted with color representing point density
 
 ```{r}
-plot.init() + plot.correlation(db, "Simu.1", "Simu.2", asPoint=FALSE,
+plot.init() + plot.correlation(db, "Simu.V1", "Simu.V2", asPoint=FALSE,
                     flagBiss=TRUE, flagSameAxes=TRUE, flagRegr=TRUE, bins=20)
 ```
 
@@ -80,13 +82,13 @@ We represent the H-Scatter plot:
 - as a set of isolated symbols
 
 ```{r}
-plot.init() + plot.hscatter(db, "Simu.1", "Simu.2", varioparam, ilag=8, asPoint=TRUE,
+plot.init() + plot.hscatter(db, "Simu.V1", "Simu.V2", varioparam, ilag=8, asPoint=TRUE,
                  flagBiss=TRUE, flagSameAxes=TRUE)
 ```
 
 - as cells (of a fictitious grid) painted with color representing point density
 
 ```{r}
-plot.init() + plot.hscatter(db, "Simu.1", "Simu.2", varioparam, ilag=1, asPoint=FALSE,
+plot.init() + plot.hscatter(db, "Simu.V1", "Simu.V2", varioparam, ilag=1, asPoint=FALSE,
                     flagBiss=TRUE, flagSameAxes=TRUE, bins=20)
 ```

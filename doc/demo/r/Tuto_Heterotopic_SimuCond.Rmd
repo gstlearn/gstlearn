@@ -47,8 +47,8 @@ err = mod$setMeans(c(100, 0))
 err = simtub(dbin = NULL, dbout = grd, model = mod, nbsimu = 1,
              namconv = NamingConvention("Y"))
 
-err = grd$setName("Y.1", "Z1")
-err = grd$setName("Y.2", "Z2")
+err = grd$setName("Y.V1", "Z1")
+err = grd$setName("Y.V2", "Z2")
 
 knitr::kable(dbStatisticsMono(grd, names = "Z*", opers = opers, flagIso = FALSE)$toTL(),
              digits = 3,

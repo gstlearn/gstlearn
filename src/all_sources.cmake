@@ -348,6 +348,7 @@ set(SRC
   OutputFormat/segy.cpp
   Simulation/Simulations.cpp
   Simulation/ACalcSimulation.cpp
+  Simulation/ACalcSimuGaussian.cpp
   Simulation/CalcSimuTurningBands.cpp
   Simulation/CalcSimuSpectral.cpp
   Simulation/TurningBandDirection.cpp

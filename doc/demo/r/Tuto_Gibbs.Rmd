@@ -374,11 +374,12 @@ err = gibbs_sampler(dbin = data, model = model,
       )
 
 # variograms
-qc_simulations(db = data, names = paste(prefix, 1:nbsimu, sep = "."),
+names = paste(prefix, 1:nbsimu, sep = ".S")
+qc_simulations(db = data, names = names,
                vario_param = varioParam, vario_model = model,
                title = paste0("Gibbs sampler: np = ", np), stat_keys = stat_keys)
 # statistics
-tab = dbStatisticsMono(data, names = paste(prefix, 1:nbsimu, sep = "."), opers = opers)$toTL()
+tab = dbStatisticsMono(data, names = names, opers = opers)$toTL()
 knitr::kable(tab, caption = paste0("Statistics for case ", prefix), digits = 3)
 ```
 
@@ -431,18 +432,19 @@ err = gibbs_sampler(dbin = data, model = model,
       )
 
 # QC of the simulations
-stat_keys = c("NUM","MINI","MAXI","MEAN","STDV")
-qc_simulations(db = data, names = paste(prefix, 1:nbsimu, sep = "."),
+stat_keys = c
+names = paste(prefix, 1:nbsimu, sep = ".S")
+qc_simulations(db = data, names = names,
                vario_param = varioParam, vario_model = model,
                title = paste0("Gibbs sampler: np = ", np), stat_keys = stat_keys)
 
-tab = dbStatisticsMono(data, names = paste(prefix, 1:nbsimu, sep = "."), opers = opers)$toTL()
+tab = dbStatisticsMono(data, names = names, opers = opers)$toTL()
 knitr::kable(tab, caption = paste0("Statistics for case ", prefix), digits = 3)
 
 # QC of inequality constraints
 qc_inBounds = rep(FALSE, nbsimu)
 for (s in 1:nbsimu){
-  vn = paste(prefix, s, sep = ".")
+  vn = paste(prefix, s, sep = ".S")
   qc_inBounds[s] <- sum(
     (data["upperBound"] >= data[vn])&(data["lowerBound"] <= data[vn]),
     na.rm = TRUE)

@@ -11,9 +11,9 @@ Total number of samples      = 1
 
 Grid characteristics:
 ---------------------
-Origin :      0.375     0.375
-Mesh   :      0.250     0.250
-Number :          1         1
+Origin :       0.375      0.375
+Mesh   :       0.250      0.250
+Number :           1          1
 
 Variables
 ---------
@@ -33,9 +33,9 @@ Total number of samples      = 25
 
 Grid characteristics:
 ---------------------
-Origin :      0.400     0.400
-Mesh   :      0.050     0.050
-Number :          5         5
+Origin :       0.400      0.400
+Mesh   :       0.050      0.050
+Number :           5          5
 
 Variables
 ---------
@@ -55,9 +55,9 @@ Total number of samples      = 10000
 
 Grid characteristics:
 ---------------------
-Origin :      0.000     0.000
-Mesh   :      0.010     0.010
-Number :        100       100
+Origin :       0.000      0.000
+Mesh   :       0.010      0.010
+Number :         100        100
 
 Variables
 ---------
@@ -72,45 +72,45 @@ Data Base Grid Characteristics
 Data Base Statistics
 --------------------
 1 - Name rank - Locator NA
- Nb of data          =      10000
- Nb of active values =      10000
- Minimum value       =      1.000
- Maximum value       =  10000.000
- Mean value          =   5000.500
- Standard Deviation  =   2886.751
+ Nb of data          =       10000
+ Nb of active values =       10000
+ Minimum value       =       1.000
+ Maximum value       =   10000.000
+ Mean value          =    5000.500
+ Standard Deviation  =    2886.751
  Variance            = 8333333.250
 2 - Name x1 - Locator x1
- Nb of data          =      10000
- Nb of active values =      10000
- Minimum value       =      0.000
- Maximum value       =      0.990
- Mean value          =      0.495
- Standard Deviation  =      0.289
- Variance            =      0.083
+ Nb of data          =       10000
+ Nb of active values =       10000
+ Minimum value       =       0.000
+ Maximum value       =       0.990
+ Mean value          =       0.495
+ Standard Deviation  =       0.289
+ Variance            =       0.083
 3 - Name x2 - Locator x2
- Nb of data          =      10000
- Nb of active values =      10000
- Minimum value       =      0.000
- Maximum value       =      0.990
- Mean value          =      0.495
- Standard Deviation  =      0.289
- Variance            =      0.083
+ Nb of data          =       10000
+ Nb of active values =       10000
+ Minimum value       =       0.000
+ Maximum value       =       0.990
+ Mean value          =       0.495
+ Standard Deviation  =       0.289
+ Variance            =       0.083
 4 - Name Y - Locator z1
- Nb of data          =      10000
- Nb of active values =      10000
- Minimum value       =     -4.299
- Maximum value       =      3.647
- Mean value          =      0.074
- Standard Deviation  =      1.012
- Variance            =      1.025
+ Nb of data          =       10000
+ Nb of active values =       10000
+ Minimum value       =      -3.258
+ Maximum value       =       3.635
+ Mean value          =      -0.007
+ Standard Deviation  =       0.988
+ Variance            =       0.976
 5 - Name Z - Locator NA
- Nb of data          =      10000
- Nb of active values =      10000
- Minimum value       =      0.154
- Maximum value       =      8.198
- Mean value          =      1.561
- Standard Deviation  =      0.845
- Variance            =      0.715
+ Nb of data          =       10000
+ Nb of active values =       10000
+ Minimum value       =       0.260
+ Maximum value       =       8.152
+ Mean value          =       1.493
+ Standard Deviation  =       0.798
+ Variance            =       0.636
 
 Data Base Characteristics
 =========================
@@ -118,64 +118,64 @@ Data Base Characteristics
 Data Base Statistics
 --------------------
 1 - Name rank - Locator NA
- Nb of data          =        500
- Nb of active values =        500
- Minimum value       =      1.000
- Maximum value       =    500.000
- Mean value          =    250.500
- Standard Deviation  =    144.337
- Variance            =  20833.250
+ Nb of data          =         500
+ Nb of active values =         500
+ Minimum value       =       1.000
+ Maximum value       =     500.000
+ Mean value          =     250.500
+ Standard Deviation  =     144.337
+ Variance            =   20833.250
 2 - Name x1 - Locator x1
- Nb of data          =        500
- Nb of active values =        500
- Minimum value       =      0.000
- Maximum value       =      0.990
- Mean value          =      0.494
- Standard Deviation  =      0.293
- Variance            =      0.086
+ Nb of data          =         500
+ Nb of active values =         500
+ Minimum value       =       0.000
+ Maximum value       =       0.990
+ Mean value          =       0.494
+ Standard Deviation  =       0.293
+ Variance            =       0.086
 3 - Name x2 - Locator x2
- Nb of data          =        500
- Nb of active values =        500
- Minimum value       =      0.000
- Maximum value       =      0.990
- Mean value          =      0.494
- Standard Deviation  =      0.282
- Variance            =      0.079
+ Nb of data          =         500
+ Nb of active values =         500
+ Minimum value       =       0.000
+ Maximum value       =       0.990
+ Mean value          =       0.494
+ Standard Deviation  =       0.282
+ Variance            =       0.079
 4 - Name Y - Locator NA
- Nb of data          =        500
- Nb of active values =        500
- Minimum value       =     -3.415
- Maximum value       =      3.033
- Mean value          =      0.019
- Standard Deviation  =      1.048
- Variance            =      1.098
+ Nb of data          =         500
+ Nb of active values =         500
+ Minimum value       =      -2.690
+ Maximum value       =       3.130
+ Mean value          =       0.017
+ Standard Deviation  =       0.959
+ Variance            =       0.920
 5 - Name Z - Locator z1
- Nb of data          =        500
- Nb of active values =        500
- Minimum value       =      0.240
- Maximum value       =      6.032
- Mean value          =      1.533
- Standard Deviation  =      0.849
- Variance            =      0.721
+ Nb of data          =         500
+ Nb of active values =         500
+ Minimum value       =       0.345
+ Maximum value       =       6.332
+ Mean value          =       1.501
+ Standard Deviation  =       0.789
+ Variance            =       0.623
 
 Hermitian Anamorphosis
 ----------------------
-Minimum absolute value for Y  = -3
-Maximum absolute value for Y  = 3.1
-Minimum absolute value for Z  = 0.2413
-Maximum absolute value for Z  = 6.07942
+Minimum absolute value for Y  = -3.7
+Maximum absolute value for Y  = 3
+Minimum absolute value for Z  = 0.368053
+Maximum absolute value for Z  = 6.41071
 Minimum practical value for Y = -3
-Maximum practical value for Y = 3.1
-Minimum practical value for Z = 0.2413
-Maximum practical value for Z = 6.07942
-Mean                          = 1.53264
-Variance                      = 0.720254
+Maximum practical value for Y = 3
+Minimum practical value for Z = 0.374295
+Maximum practical value for Z = 6.41071
+Mean                          = 1.50099
+Variance                      = 0.621339
 Number of Hermite polynomials = 20
 Normalized coefficients for Hermite polynomials (punctual variable)
-               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
-     [  0,]     1.533    -0.798     0.280    -0.051    -0.021     0.023    -0.013
-     [  7,]     0.009     0.002    -0.012     0.008     0.003    -0.010     0.005
-     [ 14,]     0.006    -0.008    -0.002     0.007    -0.002    -0.004
+                 [,  0]     [,  1]     [,  2]     [,  3]     [,  4]     [,  5]     [,  6]
+      [  0,]      1.501     -0.732      0.271     -0.087      0.018      0.023     -0.036
+      [  7,]      0.022      0.005     -0.025      0.017      0.010     -0.022      0.003
+      [ 14,]      0.016     -0.010     -0.006      0.011     -0.001     -0.007
 
 Data Base Characteristics
 =========================
@@ -197,15 +197,15 @@ Column = 4 - Name = Z - Locator = z1
 
 Selectivity
 -----------
-      Z-Cut    T-estim    Q-estim    B-estim    M-estim
-      0.000      1.000      1.533      1.533      1.533
-      0.500      0.974      1.522      1.035      1.563
+       Z-Cut     T-estim     Q-estim     B-estim     M-estim
+       0.000       1.000       1.501       1.501       1.501
+       0.500       0.976       1.490       1.002       1.527
 
 Selectivity
 -----------
-      Z-Cut    T-estim    Q-estim    B-estim    M-estim
-      0.000      1.000      1.533      1.533      1.533
-      0.500      0.976      1.523      1.035      1.561
+       Z-Cut     T-estim     Q-estim     B-estim     M-estim
+       0.000       1.000       1.501       1.501       1.501
+       0.500       0.981       1.493       1.002       1.521
 
 Variogram characteristics
 =========================
@@ -214,29 +214,29 @@ Number of direction(s)      = 1
 Space dimension             = 2
 Variable(s)                 = [Z]
 
-Variance-Covariance Matrix     0.721
+Variance-Covariance Matrix      0.623
 
 Direction #1
 ------------
 Number of lags              = 10
-Direction coefficients      =      1.000     0.000
-Direction angles (degrees)  =      0.000
-Tolerance on direction      =     90.000 (degrees)
-Calculation lag             =      0.025
-Tolerance on distance       =     50.000 (Percent of the lag value)
+Direction coefficients      =       1.000      0.000
+Direction angles (degrees)  =       0.000
+Tolerance on direction      =      90.000 (degrees)
+Calculation lag             =       0.025
+Tolerance on distance       =      50.000 (Percent of the lag value)
 
 For variable 1
-      Rank    Npairs  Distance     Value
-         0    46.000     0.010     0.133
-         1   485.000     0.027     0.454
-         2   900.000     0.051     0.538
-         3  1346.000     0.075     0.657
-         4  1713.000     0.101     0.596
-         5  2019.000     0.126     0.660
-         6  2440.000     0.150     0.663
-         7  2747.000     0.175     0.683
-         8  3035.000     0.200     0.730
-         9  3092.000     0.225     0.730
+       Rank     Npairs   Distance      Value
+          0     46.000      0.010      0.179
+          1    485.000      0.027      0.348
+          2    900.000      0.051      0.551
+          3   1346.000      0.075      0.537
+          4   1713.000      0.101      0.613
+          5   2019.000      0.126      0.575
+          6   2440.000      0.150      0.546
+          7   2747.000      0.175      0.603
+          8   3035.000      0.200      0.639
+          9   3092.000      0.225      0.611
 
 Model characteristics
 =====================
@@ -249,10 +249,10 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Spherical
-- Sill         =      0.667
-- Range        =      0.067
-Total Sill     =      0.667
-Known Mean(s)     0.000
+- Sill         =       0.588
+- Range        =       0.064
+Total Sill     =       0.588
+Known Mean(s)      0.000
 
 Data Base Characteristics
 =========================
@@ -280,29 +280,29 @@ Number of direction(s)      = 1
 Space dimension             = 2
 Variable(s)                 = [Gauss.Z]
 
-Variance-Covariance Matrix     0.997
+Variance-Covariance Matrix      1.006
 
 Direction #1
 ------------
 Number of lags              = 10
-Direction coefficients      =      1.000     0.000
-Direction angles (degrees)  =      0.000
-Tolerance on direction      =     90.000 (degrees)
-Calculation lag             =      0.025
-Tolerance on distance       =     50.000 (Percent of the lag value)
+Direction coefficients      =       1.000      0.000
+Direction angles (degrees)  =       0.000
+Tolerance on direction      =      90.000 (degrees)
+Calculation lag             =       0.025
+Tolerance on distance       =      50.000 (Percent of the lag value)
 
 For variable 1
-      Rank    Npairs  Distance     Value
-         0    46.000     0.010     0.250
-         1   485.000     0.027     0.570
-         2   900.000     0.051     0.711
-         3  1346.000     0.075     0.899
-         4  1713.000     0.101     0.945
-         5  2019.000     0.126     0.950
-         6  2440.000     0.150     0.940
-         7  2747.000     0.175     0.971
-         8  3035.000     0.200     1.017
-         9  3092.000     0.225     1.046
+       Rank     Npairs   Distance      Value
+          0     46.000      0.010      0.337
+          1    485.000      0.027      0.549
+          2    900.000      0.051      0.780
+          3   1346.000      0.075      0.910
+          4   1713.000      0.101      0.939
+          5   2019.000      0.126      0.933
+          6   2440.000      0.150      0.926
+          7   2747.000      0.175      1.027
+          8   3035.000      0.200      1.077
+          9   3092.000      0.225      0.990
 
 Model characteristics
 =====================
@@ -315,15 +315,15 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Exponential
-- Sill         =      0.127
-- Range        =      0.023
-- Theo. Range  =      0.008
+- Sill         =       0.698
+- Range        =       0.084
+- Theo. Range  =       0.028
 Exponential
-- Sill         =      0.873
-- Range        =      0.122
-- Theo. Range  =      0.041
-Total Sill     =      1.000
-Known Mean(s)     0.000
+- Sill         =       0.302
+- Range        =       0.146
+- Theo. Range  =       0.049
+Total Sill     =       1.000
+Known Mean(s)      0.000
 
 Moving Neighborhood
 ===================
@@ -362,9 +362,9 @@ Total number of samples      = 25
 
 Grid characteristics:
 ---------------------
-Origin :      0.400     0.400
-Mesh   :      0.050     0.050
-Number :          5         5
+Origin :       0.400      0.400
+Mesh   :       0.050      0.050
+Number :           5          5
 
 Variables
 ---------
@@ -400,9 +400,9 @@ Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = Y - Locator = NA
 Column = 4 - Name = Z - Locator = NA
 Column = 5 - Name = Gauss.Z - Locator = NA
-Column = 6 - Name = Factor.Gauss.Z.1 - Locator = z1
-Column = 7 - Name = Factor.Gauss.Z.2 - Locator = z2
-Column = 8 - Name = Factor.Gauss.Z.3 - Locator = z3
+Column = 6 - Name = Factor.Gauss.Z.S1 - Locator = z1
+Column = 7 - Name = Factor.Gauss.Z.S2 - Locator = z2
+Column = 8 - Name = Factor.Gauss.Z.S3 - Locator = z3
 
 Processing Factor 1 / 3
 
@@ -426,11 +426,11 @@ LHS of Kriging matrix
 Dimension of the Covariance Matrix  = 5
 
        Rank          1          2          3          4          5
-          1      1.000      0.184      0.256      0.168      0.361
-          2      0.184      1.000      0.168      0.256      0.317
-          3      0.256      0.168      1.000      0.403      0.439
-          4      0.168      0.256      0.403      1.000      0.403
-          5      0.361      0.317      0.439      0.403      1.000
+          1      1.000      0.156      0.226      0.140      0.338
+          2      0.156      1.000      0.140      0.226      0.290
+          3      0.226      0.140      1.000      0.384      0.424
+          4      0.140      0.226      0.384      1.000      0.384
+          5      0.338      0.290      0.424      0.384      1.000
 
 RHS of Kriging matrix
 =====================
@@ -440,20 +440,20 @@ Number of right-hand sides  = 1
 Punctual Estimation
 
        Rank          1
-          1      0.361
-          2      0.317
-          3      0.439
-          4      0.403
+          1      0.338
+          2      0.290
+          3      0.424
+          4      0.384
           5      1.000
 
 (Co-) Kriging weights
 =====================
        Rank       Data        Z1*
-          1     -0.786      0.000
-          2     -0.307      0.000
-          3     -0.324      0.000
-          4     -0.698      0.000
-          5      1.048      1.000
+          1     -0.690      0.000
+          2      1.607      0.000
+          3      0.418      0.000
+          4      0.982      0.000
+          5     -1.392      1.000
 Sum of weights              1.000
 
 Drift or Mean Information
@@ -464,7 +464,7 @@ Mean for Variable Z1 = 0.000000
 =====================
 Target Sample = 1
 Variable Z1 
- - Estimate  =       1.048
+ - Estimate  =      -1.392
  - Std. Dev. =       0.000
  - Variance  =       0.000
  - Cov(h=0)  =       1.000
@@ -491,11 +491,11 @@ LHS of Kriging matrix
 Dimension of the Covariance Matrix  = 5
 
        Rank          1          2          3          4          5
-          1      1.000      0.034      0.065      0.028      0.130
-          2      0.034      1.000      0.028      0.065      0.101
-          3      0.065      0.028      1.000      0.163      0.193
-          4      0.028      0.065      0.163      1.000      0.163
-          5      0.130      0.101      0.193      0.163      1.000
+          1      1.000      0.024      0.051      0.020      0.114
+          2      0.024      1.000      0.020      0.051      0.084
+          3      0.051      0.020      1.000      0.148      0.180
+          4      0.020      0.051      0.148      1.000      0.148
+          5      0.114      0.084      0.180      0.148      1.000
 
 RHS of Kriging matrix
 =====================
@@ -505,20 +505,20 @@ Number of right-hand sides  = 1
 Punctual Estimation
 
        Rank          1
-          1      0.130
-          2      0.101
-          3      0.193
-          4      0.163
+          1      0.114
+          2      0.084
+          3      0.180
+          4      0.148
           5      1.000
 
 (Co-) Kriging weights
 =====================
        Rank       Data        Z1*
-          1     -0.270      0.000
-          2     -0.641      0.000
-          3     -0.633      0.000
-          4     -0.362      0.000
-          5      0.070      1.000
+          1     -0.370      0.000
+          2      1.119      0.000
+          3     -0.584      0.000
+          4     -0.025      0.000
+          5      0.664      1.000
 Sum of weights              1.000
 
 Drift or Mean Information
@@ -529,7 +529,7 @@ Mean for Variable Z1 = 0.000000
 =====================
 Target Sample = 1
 Variable Z1 
- - Estimate  =       0.070
+ - Estimate  =       0.664
  - Std. Dev. =       0.000
  - Variance  =       0.000
  - Cov(h=0)  =       1.000
@@ -556,11 +556,11 @@ LHS of Kriging matrix
 Dimension of the Covariance Matrix  = 5
 
        Rank          1          2          3          4          5
-          1      1.000      0.006      0.017      0.005      0.047
-          2      0.006      1.000      0.005      0.017      0.032
-          3      0.017      0.005      1.000      0.066      0.085
-          4      0.005      0.017      0.066      1.000      0.066
-          5      0.047      0.032      0.085      0.066      1.000
+          1      1.000      0.004      0.012      0.003      0.038
+          2      0.004      1.000      0.003      0.012      0.025
+          3      0.012      0.003      1.000      0.057      0.076
+          4      0.003      0.012      0.057      1.000      0.057
+          5      0.038      0.025      0.076      0.057      1.000
 
 RHS of Kriging matrix
 =====================
@@ -570,20 +570,20 @@ Number of right-hand sides  = 1
 Punctual Estimation
 
        Rank          1
-          1      0.047
-          2      0.032
-          3      0.085
-          4      0.066
+          1      0.038
+          2      0.025
+          3      0.076
+          4      0.057
           5      1.000
 
 (Co-) Kriging weights
 =====================
        Rank       Data        Z1*
-          1      0.764      0.000
-          2      0.364      0.000
-          3      0.382      0.000
-          4      0.716      0.000
-          5     -0.814      1.000
+          1      0.711      0.000
+          2     -0.274      0.000
+          3     -0.482      0.000
+          4     -0.816      0.000
+          5      0.603      1.000
 Sum of weights              1.000
 
 Drift or Mean Information
@@ -594,7 +594,7 @@ Mean for Variable Z1 = 0.000000
 =====================
 Target Sample = 1
 Variable Z1 
- - Estimate  =      -0.814
+ - Estimate  =       0.603
  - Std. Dev. =       0.000
  - Variance  =       0.000
  - Cov(h=0)  =       1.000
@@ -611,9 +611,9 @@ Total number of samples      = 25
 
 Grid characteristics:
 ---------------------
-Origin :      0.400     0.400
-Mesh   :      0.050     0.050
-Number :          5         5
+Origin :       0.400      0.400
+Mesh   :       0.050      0.050
+Number :           5          5
 
 Variables
 ---------
@@ -630,12 +630,12 @@ Column = 9 - Name = PTS_Recovery.Q-estim-0 - Locator = NA
 Column = 10 - Name = PTS_Recovery.Q-estim-0.5 - Locator = NA
 Column = 11 - Name = PTS_Recovery.Q-stdev-0 - Locator = NA
 Column = 12 - Name = PTS_Recovery.Q-stdev-0.5 - Locator = NA
-Column = 13 - Name = DK_Pts.Factor.Gauss.Z.1.estim - Locator = z1
-Column = 14 - Name = DK_Pts.Factor.Gauss.Z.2.estim - Locator = z2
-Column = 15 - Name = DK_Pts.Factor.Gauss.Z.3.estim - Locator = z3
-Column = 16 - Name = DK_Pts.Factor.Gauss.Z.1.stdev - Locator = NA
-Column = 17 - Name = DK_Pts.Factor.Gauss.Z.2.stdev - Locator = NA
-Column = 18 - Name = DK_Pts.Factor.Gauss.Z.3.stdev - Locator = NA
+Column = 13 - Name = DK_Pts.Factor.Gauss.Z.S1.estim - Locator = z1
+Column = 14 - Name = DK_Pts.Factor.Gauss.Z.S2.estim - Locator = z2
+Column = 15 - Name = DK_Pts.Factor.Gauss.Z.S3.estim - Locator = z3
+Column = 16 - Name = DK_Pts.Factor.Gauss.Z.S1.stdev - Locator = NA
+Column = 17 - Name = DK_Pts.Factor.Gauss.Z.S2.stdev - Locator = NA
+Column = 18 - Name = DK_Pts.Factor.Gauss.Z.S3.stdev - Locator = NA
 
 Processing Factor 1 / 3
 
@@ -659,11 +659,11 @@ LHS of Kriging matrix
 Dimension of the Covariance Matrix  = 5
 
        Rank          1          2          3          4          5
-          1      1.000      0.184      0.256      0.168      0.361
-          2      0.184      1.000      0.168      0.256      0.317
-          3      0.256      0.168      1.000      0.403      0.439
-          4      0.168      0.256      0.403      1.000      0.403
-          5      0.361      0.317      0.439      0.403      1.000
+          1      1.000      0.156      0.226      0.140      0.338
+          2      0.156      1.000      0.140      0.226      0.290
+          3      0.226      0.140      1.000      0.384      0.424
+          4      0.140      0.226      0.384      1.000      0.384
+          5      0.338      0.290      0.424      0.384      1.000
 
 RHS of Kriging matrix
 =====================
@@ -673,21 +673,21 @@ Number of right-hand sides  = 1
 Block Estimation : Discretization = 5 x 5
 
        Rank          1
-          1      0.361
-          2      0.316
-          3      0.436
-          4      0.395
-          5      0.577
+          1      0.341
+          2      0.293
+          3      0.421
+          4      0.378
+          5      0.578
 
 (Co-) Kriging weights
 =====================
        Rank       Data        Z1*
-          1     -0.786      0.144
-          2     -0.307      0.114
-          3     -0.324      0.169
-          4     -0.698      0.127
-          5      1.048      0.364
-Sum of weights              0.917
+          1     -0.690      0.140
+          2      1.607      0.109
+          3      0.418      0.164
+          4      0.982      0.124
+          5     -1.392      0.381
+Sum of weights              0.919
 
 Drift or Mean Information
 =========================
@@ -697,10 +697,10 @@ Mean for Variable Z1 = 0.000000
 =====================
 Target Sample = 1
 Variable Z1 
- - Estimate  =       0.091
- - Std. Dev. =       0.272
- - Variance  =       0.074
- - Cov(h=0)  =       0.496
+ - Estimate  =      -0.262
+ - Std. Dev. =       0.268
+ - Variance  =       0.072
+ - Cov(h=0)  =       0.488
 
 Processing Factor 2 / 3
 
@@ -724,11 +724,11 @@ LHS of Kriging matrix
 Dimension of the Covariance Matrix  = 5
 
        Rank          1          2          3          4          5
-          1      1.000      0.034      0.065      0.028      0.130
-          2      0.034      1.000      0.028      0.065      0.101
-          3      0.065      0.028      1.000      0.163      0.193
-          4      0.028      0.065      0.163      1.000      0.163
-          5      0.130      0.101      0.193      0.163      1.000
+          1      1.000      0.024      0.051      0.020      0.114
+          2      0.024      1.000      0.020      0.051      0.084
+          3      0.051      0.020      1.000      0.148      0.180
+          4      0.020      0.051      0.148      1.000      0.148
+          5      0.114      0.084      0.180      0.148      1.000
 
 RHS of Kriging matrix
 =====================
@@ -738,21 +738,21 @@ Number of right-hand sides  = 1
 Block Estimation : Discretization = 5 x 5
 
        Rank          1
-          1      0.148
-          2      0.112
-          3      0.222
-          4      0.175
-          5      0.349
+          1      0.138
+          2      0.099
+          3      0.213
+          4      0.165
+          5      0.351
 
 (Co-) Kriging weights
 =====================
        Rank       Data        Z1*
-          1     -0.270      0.096
-          2     -0.641      0.069
-          3     -0.633      0.142
-          4     -0.362      0.098
-          5      0.070      0.286
-Sum of weights              0.692
+          1     -0.370      0.093
+          2      1.119      0.064
+          3     -0.584      0.140
+          4     -0.025      0.096
+          5      0.664      0.296
+Sum of weights              0.689
 
 Drift or Mean Information
 =========================
@@ -762,10 +762,10 @@ Mean for Variable Z1 = 0.000000
 =====================
 Target Sample = 1
 Variable Z1 
- - Estimate  =      -0.176
- - Std. Dev. =       0.318
- - Variance  =       0.101
- - Cov(h=0)  =       0.271
+ - Estimate  =       0.150
+ - Std. Dev. =       0.316
+ - Variance  =       0.100
+ - Cov(h=0)  =       0.269
 
 Processing Factor 3 / 3
 
@@ -789,11 +789,11 @@ LHS of Kriging matrix
 Dimension of the Covariance Matrix  = 5
 
        Rank          1          2          3          4          5
-          1      1.000      0.006      0.017      0.005      0.047
-          2      0.006      1.000      0.005      0.017      0.032
-          3      0.017      0.005      1.000      0.066      0.085
-          4      0.005      0.017      0.066      1.000      0.066
-          5      0.047      0.032      0.085      0.066      1.000
+          1      1.000      0.004      0.012      0.003      0.038
+          2      0.004      1.000      0.003      0.012      0.025
+          3      0.012      0.003      1.000      0.057      0.076
+          4      0.003      0.012      0.057      1.000      0.057
+          5      0.038      0.025      0.076      0.057      1.000
 
 RHS of Kriging matrix
 =====================
@@ -803,20 +803,20 @@ Number of right-hand sides  = 1
 Block Estimation : Discretization = 5 x 5
 
        Rank          1
-          1      0.069
-          2      0.043
-          3      0.132
-          4      0.085
-          5      0.222
+          1      0.065
+          2      0.038
+          3      0.129
+          4      0.082
+          5      0.226
 
 (Co-) Kriging weights
 =====================
        Rank       Data        Z1*
-          1      0.764      0.057
-          2      0.364      0.035
-          3      0.382      0.109
-          4      0.716      0.064
-          5     -0.814      0.205
+          1      0.711      0.055
+          2     -0.274      0.031
+          3     -0.482      0.109
+          4     -0.816      0.063
+          5      0.603      0.211
 Sum of weights              0.470
 
 Drift or Mean Information
@@ -827,10 +827,10 @@ Mean for Variable Z1 = 0.000000
 =====================
 Target Sample = 1
 Variable Z1 
- - Estimate  =      -0.023
- - Std. Dev. =       0.303
+ - Estimate  =       0.054
+ - Std. Dev. =       0.304
  - Variance  =       0.092
- - Cov(h=0)  =       0.162
+ - Cov(h=0)  =       0.164
 
 Data Base Grid Characteristics
 ==============================
@@ -844,9 +844,9 @@ Total number of samples      = 25
 
 Grid characteristics:
 ---------------------
-Origin :      0.400     0.400
-Mesh   :      0.050     0.050
-Number :          5         5
+Origin :       0.400      0.400
+Mesh   :       0.050      0.050
+Number :           5          5
 
 Variables
 ---------
@@ -863,18 +863,18 @@ Column = 9 - Name = PTS_Recovery.Q-estim-0 - Locator = NA
 Column = 10 - Name = PTS_Recovery.Q-estim-0.5 - Locator = NA
 Column = 11 - Name = PTS_Recovery.Q-stdev-0 - Locator = NA
 Column = 12 - Name = PTS_Recovery.Q-stdev-0.5 - Locator = NA
-Column = 13 - Name = DK_Pts.Factor.Gauss.Z.1.estim - Locator = NA
-Column = 14 - Name = DK_Pts.Factor.Gauss.Z.2.estim - Locator = NA
-Column = 15 - Name = DK_Pts.Factor.Gauss.Z.3.estim - Locator = NA
-Column = 16 - Name = DK_Pts.Factor.Gauss.Z.1.stdev - Locator = NA
-Column = 17 - Name = DK_Pts.Factor.Gauss.Z.2.stdev - Locator = NA
-Column = 18 - Name = DK_Pts.Factor.Gauss.Z.3.stdev - Locator = NA
-Column = 19 - Name = DK_Blk.Factor.Gauss.Z.1.estim - Locator = z1
-Column = 20 - Name = DK_Blk.Factor.Gauss.Z.2.estim - Locator = z2
-Column = 21 - Name = DK_Blk.Factor.Gauss.Z.3.estim - Locator = z3
-Column = 22 - Name = DK_Blk.Factor.Gauss.Z.1.stdev - Locator = NA
-Column = 23 - Name = DK_Blk.Factor.Gauss.Z.2.stdev - Locator = NA
-Column = 24 - Name = DK_Blk.Factor.Gauss.Z.3.stdev - Locator = NA
+Column = 13 - Name = DK_Pts.Factor.Gauss.Z.S1.estim - Locator = NA
+Column = 14 - Name = DK_Pts.Factor.Gauss.Z.S2.estim - Locator = NA
+Column = 15 - Name = DK_Pts.Factor.Gauss.Z.S3.estim - Locator = NA
+Column = 16 - Name = DK_Pts.Factor.Gauss.Z.S1.stdev - Locator = NA
+Column = 17 - Name = DK_Pts.Factor.Gauss.Z.S2.stdev - Locator = NA
+Column = 18 - Name = DK_Pts.Factor.Gauss.Z.S3.stdev - Locator = NA
+Column = 19 - Name = DK_Blk.Factor.Gauss.Z.S1.estim - Locator = z1
+Column = 20 - Name = DK_Blk.Factor.Gauss.Z.S2.estim - Locator = z2
+Column = 21 - Name = DK_Blk.Factor.Gauss.Z.S3.estim - Locator = z3
+Column = 22 - Name = DK_Blk.Factor.Gauss.Z.S1.stdev - Locator = NA
+Column = 23 - Name = DK_Blk.Factor.Gauss.Z.S2.stdev - Locator = NA
+Column = 24 - Name = DK_Blk.Factor.Gauss.Z.S3.stdev - Locator = NA
 
 Processing Factor 1 / 3
 
@@ -898,11 +898,11 @@ LHS of Kriging matrix
 Dimension of the Covariance Matrix  = 5
 
        Rank          1          2          3          4          5
-          1      1.000      0.439      0.439      0.511      0.361
-          2      0.439      1.000      0.327      0.717      0.181
-          3      0.439      0.327      1.000      0.420      0.256
-          4      0.511      0.717      0.420      1.000      0.208
-          5      0.361      0.181      0.256      0.208      1.000
+          1      1.000      0.424      0.424      0.506      0.338
+          2      0.424      1.000      0.301      0.735      0.153
+          3      0.424      0.301      1.000      0.403      0.226
+          4      0.506      0.735      0.403      1.000      0.179
+          5      0.338      0.153      0.226      0.179      1.000
 
 RHS of Kriging matrix
 =====================
@@ -912,21 +912,21 @@ Number of right-hand sides  = 1
 Block Estimation : Discretization = 10 x 10
 
        Rank          1
-          1      0.125
-          2      0.123
-          3      0.121
-          4      0.123
-          5      0.121
+          1      0.109
+          2      0.107
+          3      0.106
+          4      0.108
+          5      0.106
 
 (Co-) Kriging weights
 =====================
        Rank       Data        Z1*
-          1     -0.786      0.033
-          2      0.536      0.058
-          3      0.197      0.058
-          4     -0.859      0.024
-          5      1.048      0.079
-Sum of weights              0.252
+          1     -0.690      0.029
+          2     -0.464      0.054
+          3     -0.522      0.054
+          4     -0.293      0.018
+          5     -1.392      0.073
+Sum of weights              0.228
 
 Drift or Mean Information
 =========================
@@ -936,10 +936,10 @@ Mean for Variable Z1 = 0.000000
 =====================
 Target Sample = 1
 Variable Z1 
- - Estimate  =       0.079
- - Std. Dev. =       0.254
- - Variance  =       0.064
- - Cov(h=0)  =       0.095
+ - Estimate  =      -0.180
+ - Std. Dev. =       0.245
+ - Variance  =       0.060
+ - Cov(h=0)  =       0.084
 
 Processing Factor 2 / 3
 
@@ -963,11 +963,11 @@ LHS of Kriging matrix
 Dimension of the Covariance Matrix  = 5
 
        Rank          1          2          3          4          5
-          1      1.000      0.193      0.193      0.261      0.130
-          2      0.193      1.000      0.107      0.515      0.033
-          3      0.193      0.107      1.000      0.177      0.065
-          4      0.261      0.515      0.177      1.000      0.043
-          5      0.130      0.033      0.065      0.043      1.000
+          1      1.000      0.180      0.180      0.256      0.114
+          2      0.180      1.000      0.091      0.540      0.023
+          3      0.180      0.091      1.000      0.163      0.051
+          4      0.256      0.540      0.163      1.000      0.032
+          5      0.114      0.023      0.051      0.032      1.000
 
 RHS of Kriging matrix
 =====================
@@ -977,21 +977,21 @@ Number of right-hand sides  = 1
 Block Estimation : Discretization = 10 x 10
 
        Rank          1
-          1      0.032
-          2      0.032
-          3      0.031
-          4      0.032
-          5      0.031
+          1      0.028
+          2      0.028
+          3      0.027
+          4      0.028
+          5      0.027
 
 (Co-) Kriging weights
 =====================
        Rank       Data        Z1*
-          1     -0.270      0.017
-          2     -0.504      0.019
-          3     -0.680      0.022
-          4     -0.185      0.012
-          5      0.070      0.026
-Sum of weights              0.097
+          1     -0.370      0.016
+          2     -0.555      0.017
+          3     -0.515      0.020
+          4     -0.646      0.010
+          5      0.664      0.024
+Sum of weights              0.087
 
 Drift or Mean Information
 =========================
@@ -1001,10 +1001,10 @@ Mean for Variable Z1 = 0.000000
 =====================
 Target Sample = 1
 Variable Z1 
- - Estimate  =      -0.030
- - Std. Dev. =       0.155
- - Variance  =       0.024
- - Cov(h=0)  =       0.027
+ - Estimate  =      -0.017
+ - Std. Dev. =       0.148
+ - Variance  =       0.022
+ - Cov(h=0)  =       0.024
 
 Processing Factor 3 / 3
 
@@ -1028,11 +1028,11 @@ LHS of Kriging matrix
 Dimension of the Covariance Matrix  = 5
 
        Rank          1          2          3          4          5
-          1      1.000      0.085      0.085      0.133      0.047
-          2      0.085      1.000      0.035      0.369      0.006
-          3      0.085      0.035      1.000      0.074      0.017
-          4      0.133      0.369      0.074      1.000      0.009
-          5      0.047      0.006      0.017      0.009      1.000
+          1      1.000      0.076      0.076      0.129      0.038
+          2      0.076      1.000      0.027      0.397      0.004
+          3      0.076      0.027      1.000      0.066      0.012
+          4      0.129      0.397      0.066      1.000      0.006
+          5      0.038      0.004      0.012      0.006      1.000
 
 RHS of Kriging matrix
 =====================
@@ -1042,21 +1042,21 @@ Number of right-hand sides  = 1
 Block Estimation : Discretization = 10 x 10
 
        Rank          1
-          1      0.013
-          2      0.013
-          3      0.012
-          4      0.012
-          5      0.012
+          1      0.012
+          2      0.012
+          3      0.011
+          4      0.011
+          5      0.011
 
 (Co-) Kriging weights
 =====================
        Rank       Data        Z1*
-          1      0.764      0.010
-          2     -0.593      0.009
-          3     -0.239      0.010
-          4      0.793      0.007
-          5     -0.814      0.011
-Sum of weights              0.047
+          1      0.711      0.009
+          2      0.528      0.008
+          3      0.581      0.010
+          4      0.349      0.006
+          5      0.603      0.011
+Sum of weights              0.044
 
 Drift or Mean Information
 =========================
@@ -1066,10 +1066,10 @@ Mean for Variable Z1 = 0.000000
 =====================
 Target Sample = 1
 Variable Z1 
- - Estimate  =      -0.004
- - Std. Dev. =       0.107
+ - Estimate  =       0.025
+ - Std. Dev. =       0.104
  - Variance  =       0.011
- - Cov(h=0)  =       0.012
+ - Cov(h=0)  =       0.011
 
 Data Base Grid Characteristics
 ==============================
@@ -1083,21 +1083,21 @@ Total number of samples      = 1
 
 Grid characteristics:
 ---------------------
-Origin :      0.375     0.375
-Mesh   :      0.250     0.250
-Number :          1         1
+Origin :       0.375      0.375
+Mesh   :       0.250      0.250
+Number :           1          1
 
 Variables
 ---------
 Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
-Column = 3 - Name = DK_Blk.Factor.Gauss.Z.1.estim - Locator = z1
-Column = 4 - Name = DK_Blk.Factor.Gauss.Z.2.estim - Locator = z2
-Column = 5 - Name = DK_Blk.Factor.Gauss.Z.3.estim - Locator = z3
-Column = 6 - Name = DK_Blk.Factor.Gauss.Z.1.stdev - Locator = NA
-Column = 7 - Name = DK_Blk.Factor.Gauss.Z.2.stdev - Locator = NA
-Column = 8 - Name = DK_Blk.Factor.Gauss.Z.3.stdev - Locator = NA
+Column = 3 - Name = DK_Blk.Factor.Gauss.Z.S1.estim - Locator = z1
+Column = 4 - Name = DK_Blk.Factor.Gauss.Z.S2.estim - Locator = z2
+Column = 5 - Name = DK_Blk.Factor.Gauss.Z.S3.estim - Locator = z3
+Column = 6 - Name = DK_Blk.Factor.Gauss.Z.S1.stdev - Locator = NA
+Column = 7 - Name = DK_Blk.Factor.Gauss.Z.S2.stdev - Locator = NA
+Column = 8 - Name = DK_Blk.Factor.Gauss.Z.S3.stdev - Locator = NA
 
 Data Base Characteristics
 =========================
@@ -1117,9 +1117,9 @@ Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = Y - Locator = NA
 Column = 4 - Name = Z - Locator = z1
 Column = 5 - Name = Gauss.Z - Locator = NA
-Column = 6 - Name = Factor.Gauss.Z.1 - Locator = NA
-Column = 7 - Name = Factor.Gauss.Z.2 - Locator = NA
-Column = 8 - Name = Factor.Gauss.Z.3 - Locator = NA
+Column = 6 - Name = Factor.Gauss.Z.S1 - Locator = NA
+Column = 7 - Name = Factor.Gauss.Z.S2 - Locator = NA
+Column = 8 - Name = Factor.Gauss.Z.S3 - Locator = NA
 
 Target location
 ---------------
@@ -1141,11 +1141,11 @@ LHS of Kriging matrix
 Dimension of the Covariance Matrix  = 5
 
        Rank          1          2          3          4          5
-          1      1.000      0.184      0.256      0.168      0.361
-          2      0.184      1.000      0.168      0.256      0.317
-          3      0.256      0.168      1.000      0.403      0.439
-          4      0.168      0.256      0.403      1.000      0.403
-          5      0.361      0.317      0.439      0.403      1.000
+          1      1.000      0.156      0.226      0.140      0.338
+          2      0.156      1.000      0.140      0.226      0.290
+          3      0.226      0.140      1.000      0.384      0.424
+          4      0.140      0.226      0.384      1.000      0.384
+          5      0.338      0.290      0.424      0.384      1.000
 
 RHS of Kriging matrix
 =====================
@@ -1155,20 +1155,20 @@ Number of right-hand sides  = 1
 Punctual Estimation
 
        Rank          1
-          1      0.361
-          2      0.317
-          3      0.439
-          4      0.403
+          1      0.338
+          2      0.290
+          3      0.424
+          4      0.384
           5      1.000
 
 (Co-) Kriging weights
 =====================
        Rank       Data        Z1*
-          1      2.050      0.000
-          2      1.560      0.000
-          3      1.575      0.000
-          4      1.951      0.000
-          5      0.769      1.000
+          1      1.873      0.000
+          2      0.609      0.000
+          3      1.092      0.000
+          4      0.841      0.000
+          5      2.562      1.000
 Sum of weights              1.000
 
 Drift or Mean Information
@@ -1179,7 +1179,7 @@ Mean for Variable Z1 = 0.000000
 =====================
 Target Sample = 1
 Variable Z1 
- - Estimate  =       0.769
+ - Estimate  =       2.562
  - Std. Dev. =       0.000
  - Variance  =       0.000
  - Cov(h=0)  =       1.000
@@ -1196,9 +1196,9 @@ Total number of samples      = 25
 
 Grid characteristics:
 ---------------------
-Origin :      0.400     0.400
-Mesh   :      0.050     0.050
-Number :          5         5
+Origin :       0.400      0.400
+Mesh   :       0.050      0.050
+Number :           5          5
 
 Variables
 ---------
@@ -1215,18 +1215,18 @@ Column = 9 - Name = PTS_Recovery.Q-estim-0 - Locator = NA
 Column = 10 - Name = PTS_Recovery.Q-estim-0.5 - Locator = NA
 Column = 11 - Name = PTS_Recovery.Q-stdev-0 - Locator = NA
 Column = 12 - Name = PTS_Recovery.Q-stdev-0.5 - Locator = NA
-Column = 13 - Name = DK_Pts.Factor.Gauss.Z.1.estim - Locator = NA
-Column = 14 - Name = DK_Pts.Factor.Gauss.Z.2.estim - Locator = NA
-Column = 15 - Name = DK_Pts.Factor.Gauss.Z.3.estim - Locator = NA
-Column = 16 - Name = DK_Pts.Factor.Gauss.Z.1.stdev - Locator = NA
-Column = 17 - Name = DK_Pts.Factor.Gauss.Z.2.stdev - Locator = NA
-Column = 18 - Name = DK_Pts.Factor.Gauss.Z.3.stdev - Locator = NA
-Column = 19 - Name = DK_Blk.Factor.Gauss.Z.1.estim - Locator = NA
-Column = 20 - Name = DK_Blk.Factor.Gauss.Z.2.estim - Locator = NA
-Column = 21 - Name = DK_Blk.Factor.Gauss.Z.3.estim - Locator = NA
-Column = 22 - Name = DK_Blk.Factor.Gauss.Z.1.stdev - Locator = NA
-Column = 23 - Name = DK_Blk.Factor.Gauss.Z.2.stdev - Locator = NA
-Column = 24 - Name = DK_Blk.Factor.Gauss.Z.3.stdev - Locator = NA
+Column = 13 - Name = DK_Pts.Factor.Gauss.Z.S1.estim - Locator = NA
+Column = 14 - Name = DK_Pts.Factor.Gauss.Z.S2.estim - Locator = NA
+Column = 15 - Name = DK_Pts.Factor.Gauss.Z.S3.estim - Locator = NA
+Column = 16 - Name = DK_Pts.Factor.Gauss.Z.S1.stdev - Locator = NA
+Column = 17 - Name = DK_Pts.Factor.Gauss.Z.S2.stdev - Locator = NA
+Column = 18 - Name = DK_Pts.Factor.Gauss.Z.S3.stdev - Locator = NA
+Column = 19 - Name = DK_Blk.Factor.Gauss.Z.S1.estim - Locator = NA
+Column = 20 - Name = DK_Blk.Factor.Gauss.Z.S2.estim - Locator = NA
+Column = 21 - Name = DK_Blk.Factor.Gauss.Z.S3.estim - Locator = NA
+Column = 22 - Name = DK_Blk.Factor.Gauss.Z.S1.stdev - Locator = NA
+Column = 23 - Name = DK_Blk.Factor.Gauss.Z.S2.stdev - Locator = NA
+Column = 24 - Name = DK_Blk.Factor.Gauss.Z.S3.stdev - Locator = NA
 Column = 25 - Name = Z_PTS.Z.estim - Locator = z1
 Column = 26 - Name = Z_PTS.Z.stdev - Locator = NA
 
@@ -1242,9 +1242,9 @@ Total number of samples      = 25
 
 Grid characteristics:
 ---------------------
-Origin :      0.400     0.400
-Mesh   :      0.050     0.050
-Number :          5         5
+Origin :       0.400      0.400
+Mesh   :       0.050      0.050
+Number :           5          5
 
 Variables
 ---------
@@ -1261,18 +1261,18 @@ Column = 9 - Name = PTS_Recovery.Q-estim-0 - Locator = NA
 Column = 10 - Name = PTS_Recovery.Q-estim-0.5 - Locator = NA
 Column = 11 - Name = PTS_Recovery.Q-stdev-0 - Locator = NA
 Column = 12 - Name = PTS_Recovery.Q-stdev-0.5 - Locator = NA
-Column = 13 - Name = DK_Pts.Factor.Gauss.Z.1.estim - Locator = NA
-Column = 14 - Name = DK_Pts.Factor.Gauss.Z.2.estim - Locator = NA
-Column = 15 - Name = DK_Pts.Factor.Gauss.Z.3.estim - Locator = NA
-Column = 16 - Name = DK_Pts.Factor.Gauss.Z.1.stdev - Locator = NA
-Column = 17 - Name = DK_Pts.Factor.Gauss.Z.2.stdev - Locator = NA
-Column = 18 - Name = DK_Pts.Factor.Gauss.Z.3.stdev - Locator = NA
-Column = 19 - Name = DK_Blk.Factor.Gauss.Z.1.estim - Locator = NA
-Column = 20 - Name = DK_Blk.Factor.Gauss.Z.2.estim - Locator = NA
-Column = 21 - Name = DK_Blk.Factor.Gauss.Z.3.estim - Locator = NA
-Column = 22 - Name = DK_Blk.Factor.Gauss.Z.1.stdev - Locator = NA
-Column = 23 - Name = DK_Blk.Factor.Gauss.Z.2.stdev - Locator = NA
-Column = 24 - Name = DK_Blk.Factor.Gauss.Z.3.stdev - Locator = NA
+Column = 13 - Name = DK_Pts.Factor.Gauss.Z.S1.estim - Locator = NA
+Column = 14 - Name = DK_Pts.Factor.Gauss.Z.S2.estim - Locator = NA
+Column = 15 - Name = DK_Pts.Factor.Gauss.Z.S3.estim - Locator = NA
+Column = 16 - Name = DK_Pts.Factor.Gauss.Z.S1.stdev - Locator = NA
+Column = 17 - Name = DK_Pts.Factor.Gauss.Z.S2.stdev - Locator = NA
+Column = 18 - Name = DK_Pts.Factor.Gauss.Z.S3.stdev - Locator = NA
+Column = 19 - Name = DK_Blk.Factor.Gauss.Z.S1.estim - Locator = NA
+Column = 20 - Name = DK_Blk.Factor.Gauss.Z.S2.estim - Locator = NA
+Column = 21 - Name = DK_Blk.Factor.Gauss.Z.S3.estim - Locator = NA
+Column = 22 - Name = DK_Blk.Factor.Gauss.Z.S1.stdev - Locator = NA
+Column = 23 - Name = DK_Blk.Factor.Gauss.Z.S2.stdev - Locator = NA
+Column = 24 - Name = DK_Blk.Factor.Gauss.Z.S3.stdev - Locator = NA
 Column = 25 - Name = Z_PTS.Z.estim - Locator = NA
 Column = 26 - Name = Z_PTS.Z.stdev - Locator = NA
 Column = 27 - Name = UC.T-estim-0 - Locator = NA
@@ -1283,7 +1283,7 @@ Column = 31 - Name = UC.Q-estim-0 - Locator = NA
 Column = 32 - Name = UC.Q-estim-0.5 - Locator = NA
 Column = 33 - Name = UC.Q-stdev-0 - Locator = NA
 Column = 34 - Name = UC.Q-stdev-0.5 - Locator = z1
-Change of Support coefficient (DGM-1) =  0.708
+Change of Support coefficient (DGM-1) =  0.703
 
 Model characteristics
 =====================
@@ -1296,31 +1296,31 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Exponential
-- Sill         =      1.000
-- Range        =      0.851
-- Theo. Range  =      0.284
-Total Sill     =      1.000
+- Sill         =       1.000
+- Range        =       0.865
+- Theo. Range  =       0.289
+Total Sill     =       1.000
 
 Hermitian Anamorphosis
 ----------------------
-Minimum absolute value for Y  = -3
-Maximum absolute value for Y  = 3.1
-Minimum absolute value for Z  = 0.2413
-Maximum absolute value for Z  = 6.07942
+Minimum absolute value for Y  = -3.7
+Maximum absolute value for Y  = 3
+Minimum absolute value for Z  = 0.368053
+Maximum absolute value for Z  = 6.41071
 Minimum practical value for Y = -3
-Maximum practical value for Y = 3.1
-Minimum practical value for Z = 0.2413
-Maximum practical value for Z = 6.07942
-Mean                          = 1.53264
-Variance                      = 0.339173
+Maximum practical value for Y = 3
+Minimum practical value for Z = 0.374295
+Maximum practical value for Z = 6.41071
+Mean                          = 1.50099
+Variance                      = 0.28369
 Number of Hermite polynomials = 20
-Change of Support Coefficient = 0.707534
+Change of Support Coefficient = 0.70314
 Normalized coefficients for Hermite polynomials (punctual variable)
-               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
-     [  0,]     1.533    -0.798     0.280    -0.051    -0.021     0.023    -0.013
-     [  7,]     0.009     0.002    -0.012     0.008     0.003    -0.010     0.005
-     [ 14,]     0.006    -0.008    -0.002     0.007    -0.002    -0.004
-Known Mean(s)     0.000
+                 [,  0]     [,  1]     [,  2]     [,  3]     [,  4]     [,  5]     [,  6]
+      [  0,]      1.501     -0.732      0.271     -0.087      0.018      0.023     -0.036
+      [  7,]      0.022      0.005     -0.025      0.017      0.010     -0.022      0.003
+      [ 14,]      0.016     -0.010     -0.006      0.011     -0.001     -0.007
+Known Mean(s)      0.000
 
 Processing Factor 1 / 1
 
@@ -1344,11 +1344,11 @@ LHS of Kriging matrix
 Dimension of the Covariance Matrix  = 5
 
        Rank          1          2          3          4          5
-          1      1.000      0.390      0.390      0.420      0.420
-          2      0.390      1.000      0.352      0.420      0.420
-          3      0.390      0.352      1.000      0.420      0.420
-          4      0.420      0.420      0.420      1.000      0.501
-          5      0.420      0.420      0.420      0.501      1.000
+          1      1.000      0.387      0.387      0.416      0.416
+          2      0.387      1.000      0.350      0.416      0.416
+          3      0.387      0.350      1.000      0.416      0.416
+          4      0.416      0.416      0.416      1.000      0.494
+          5      0.416      0.416      0.416      0.494      1.000
 
 RHS of Kriging matrix
 =====================
@@ -1358,21 +1358,21 @@ Number of right-hand sides  = 1
 Punctual Estimation
 
        Rank          1
-          1      0.593
-          2      0.593
-          3      0.593
-          4      0.708
-          5      0.708
+          1      0.591
+          2      0.591
+          3      0.591
+          4      0.703
+          5      0.703
 
 (Co-) Kriging weights
 =====================
        Rank       Data        Z1*
-          1     -0.405      0.180
-          2     -0.610      0.192
-          3      0.786      0.192
-          4      0.324      0.314
-          5     -1.048      0.314
-Sum of weights              1.192
+          1     -3.775      0.182
+          2     -0.883      0.194
+          3      0.690      0.194
+          4     -0.418      0.312
+          5      1.392      0.312
+Sum of weights              1.193
 
 Drift or Mean Information
 =========================
@@ -1382,9 +1382,9 @@ Mean for Variable Z1 = 0.000000
 =====================
 Target Sample = 1
 Variable Z1 
- - Estimate  =      -0.267
- - Std. Dev. =       0.470
- - Variance  =       0.221
+ - Estimate  =      -0.419
+ - Std. Dev. =       0.474
+ - Variance  =       0.224
  - Cov(h=0)  =       1.000
 
 Data Base Grid Characteristics
@@ -1399,9 +1399,9 @@ Total number of samples      = 25
 
 Grid characteristics:
 ---------------------
-Origin :      0.400     0.400
-Mesh   :      0.050     0.050
-Number :          5         5
+Origin :       0.400      0.400
+Mesh   :       0.050      0.050
+Number :           5          5
 
 Variables
 ---------
@@ -1418,18 +1418,18 @@ Column = 9 - Name = PTS_Recovery.Q-estim-0 - Locator = NA
 Column = 10 - Name = PTS_Recovery.Q-estim-0.5 - Locator = NA
 Column = 11 - Name = PTS_Recovery.Q-stdev-0 - Locator = NA
 Column = 12 - Name = PTS_Recovery.Q-stdev-0.5 - Locator = NA
-Column = 13 - Name = DK_Pts.Factor.Gauss.Z.1.estim - Locator = NA
-Column = 14 - Name = DK_Pts.Factor.Gauss.Z.2.estim - Locator = NA
-Column = 15 - Name = DK_Pts.Factor.Gauss.Z.3.estim - Locator = NA
-Column = 16 - Name = DK_Pts.Factor.Gauss.Z.1.stdev - Locator = NA
-Column = 17 - Name = DK_Pts.Factor.Gauss.Z.2.stdev - Locator = NA
-Column = 18 - Name = DK_Pts.Factor.Gauss.Z.3.stdev - Locator = NA
-Column = 19 - Name = DK_Blk.Factor.Gauss.Z.1.estim - Locator = NA
-Column = 20 - Name = DK_Blk.Factor.Gauss.Z.2.estim - Locator = NA
-Column = 21 - Name = DK_Blk.Factor.Gauss.Z.3.estim - Locator = NA
-Column = 22 - Name = DK_Blk.Factor.Gauss.Z.1.stdev - Locator = NA
-Column = 23 - Name = DK_Blk.Factor.Gauss.Z.2.stdev - Locator = NA
-Column = 24 - Name = DK_Blk.Factor.Gauss.Z.3.stdev - Locator = NA
+Column = 13 - Name = DK_Pts.Factor.Gauss.Z.S1.estim - Locator = NA
+Column = 14 - Name = DK_Pts.Factor.Gauss.Z.S2.estim - Locator = NA
+Column = 15 - Name = DK_Pts.Factor.Gauss.Z.S3.estim - Locator = NA
+Column = 16 - Name = DK_Pts.Factor.Gauss.Z.S1.stdev - Locator = NA
+Column = 17 - Name = DK_Pts.Factor.Gauss.Z.S2.stdev - Locator = NA
+Column = 18 - Name = DK_Pts.Factor.Gauss.Z.S3.stdev - Locator = NA
+Column = 19 - Name = DK_Blk.Factor.Gauss.Z.S1.estim - Locator = NA
+Column = 20 - Name = DK_Blk.Factor.Gauss.Z.S2.estim - Locator = NA
+Column = 21 - Name = DK_Blk.Factor.Gauss.Z.S3.estim - Locator = NA
+Column = 22 - Name = DK_Blk.Factor.Gauss.Z.S1.stdev - Locator = NA
+Column = 23 - Name = DK_Blk.Factor.Gauss.Z.S2.stdev - Locator = NA
+Column = 24 - Name = DK_Blk.Factor.Gauss.Z.S3.stdev - Locator = NA
 Column = 25 - Name = Z_PTS.Z.estim - Locator = NA
 Column = 26 - Name = Z_PTS.Z.stdev - Locator = NA
 Column = 27 - Name = UC.T-estim-0 - Locator = NA
@@ -1465,11 +1465,11 @@ LHS of Kriging matrix
 Dimension of the Covariance Matrix  = 5
 
        Rank          1          2          3          4          5
-          1      1.000      0.420      0.420      0.390      0.420
-          2      0.420      1.000      0.501      0.420      0.501
-          3      0.420      0.501      1.000      0.420      0.501
-          4      0.390      0.420      0.420      1.000      0.420
-          5      0.420      0.501      0.501      0.420      1.000
+          1      1.000      0.416      0.416      0.387      0.416
+          2      0.416      1.000      0.494      0.416      0.494
+          3      0.416      0.494      1.000      0.416      0.494
+          4      0.387      0.416      0.416      1.000      0.416
+          5      0.416      0.494      0.494      0.416      1.000
 
 RHS of Kriging matrix
 =====================
@@ -1480,20 +1480,20 @@ Block Estimation : Discretization = 5 x 5
 
        Rank          1
           1      0.499
-          2      0.513
-          3      0.513
+          2      0.512
+          3      0.512
           4      0.499
-          5      0.513
+          5      0.512
 
 (Co-) Kriging weights
 =====================
        Rank       Data        Z1*
-          1      2.135      0.205
-          2      0.786      0.170
-          3     -0.536      0.170
-          4      0.307      0.205
-          5      0.859      0.170
-Sum of weights              0.921
+          1     -0.219      0.205
+          2      0.690      0.172
+          3      0.464      0.172
+          4     -1.607      0.205
+          5      0.293      0.172
+Sum of weights              0.926
 
 Drift or Mean Information
 =========================
@@ -1503,10 +1503,10 @@ Mean for Variable Z1 = 0.000000
 =====================
 Target Sample = 1
 Variable Z1 
- - Estimate  =       0.689
- - Std. Dev. =       0.427
- - Variance  =       0.182
- - Cov(h=0)  =       0.649
+ - Estimate  =      -0.127
+ - Std. Dev. =       0.429
+ - Variance  =       0.184
+ - Cov(h=0)  =       0.653
 
 Data Base Grid Characteristics
 ==============================
@@ -1520,24 +1520,24 @@ Total number of samples      = 1
 
 Grid characteristics:
 ---------------------
-Origin :      0.375     0.375
-Mesh   :      0.250     0.250
-Number :          1         1
+Origin :       0.375      0.375
+Mesh   :       0.250      0.250
+Number :           1          1
 
 Variables
 ---------
 Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
-Column = 3 - Name = DK_Blk.Factor.Gauss.Z.1.estim - Locator = NA
-Column = 4 - Name = DK_Blk.Factor.Gauss.Z.2.estim - Locator = NA
-Column = 5 - Name = DK_Blk.Factor.Gauss.Z.3.estim - Locator = NA
-Column = 6 - Name = DK_Blk.Factor.Gauss.Z.1.stdev - Locator = NA
-Column = 7 - Name = DK_Blk.Factor.Gauss.Z.2.stdev - Locator = NA
-Column = 8 - Name = DK_Blk.Factor.Gauss.Z.3.stdev - Locator = NA
+Column = 3 - Name = DK_Blk.Factor.Gauss.Z.S1.estim - Locator = NA
+Column = 4 - Name = DK_Blk.Factor.Gauss.Z.S2.estim - Locator = NA
+Column = 5 - Name = DK_Blk.Factor.Gauss.Z.S3.estim - Locator = NA
+Column = 6 - Name = DK_Blk.Factor.Gauss.Z.S1.stdev - Locator = NA
+Column = 7 - Name = DK_Blk.Factor.Gauss.Z.S2.stdev - Locator = NA
+Column = 8 - Name = DK_Blk.Factor.Gauss.Z.S3.stdev - Locator = NA
 Column = 9 - Name = DK_DGM1.Gauss.Z.estim - Locator = z1
 Column = 10 - Name = DK_DGM1.Gauss.Z.stdev - Locator = NA
-Change of Support coefficient (DGM-2) =  0.705
+Change of Support coefficient (DGM-2) =  0.700
 
 Model characteristics
 =====================
@@ -1550,11 +1550,11 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Exponential
-- Sill         =      1.000
-- Range        =      0.310
-- Theo. Range  =      0.103
-Total Sill     =      1.000
-Known Mean(s)     0.000
+- Sill         =       1.000
+- Range        =       0.290
+- Theo. Range  =       0.097
+Total Sill     =       1.000
+Known Mean(s)      0.000
 
 Model characteristics
 =====================
@@ -1567,31 +1567,31 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Exponential
-- Sill         =      1.000
-- Range        =      0.310
-- Theo. Range  =      0.103
-Total Sill     =      1.000
+- Sill         =       1.000
+- Range        =       0.290
+- Theo. Range  =       0.097
+Total Sill     =       1.000
 
 Hermitian Anamorphosis
 ----------------------
-Minimum absolute value for Y  = -3
-Maximum absolute value for Y  = 3.1
-Minimum absolute value for Z  = 0.2413
-Maximum absolute value for Z  = 6.07942
+Minimum absolute value for Y  = -3.7
+Maximum absolute value for Y  = 3
+Minimum absolute value for Z  = 0.368053
+Maximum absolute value for Z  = 6.41071
 Minimum practical value for Y = -3
-Maximum practical value for Y = 3.1
-Minimum practical value for Z = 0.2413
-Maximum practical value for Z = 6.07942
-Mean                          = 1.53264
-Variance                      = 0.336985
+Maximum practical value for Y = 3
+Minimum practical value for Z = 0.374295
+Maximum practical value for Z = 6.41071
+Mean                          = 1.50099
+Variance                      = 0.28088
 Number of Hermite polynomials = 20
-Change of Support Coefficient = 0.705377
+Change of Support Coefficient = 0.699878
 Normalized coefficients for Hermite polynomials (punctual variable)
-               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
-     [  0,]     1.533    -0.798     0.280    -0.051    -0.021     0.023    -0.013
-     [  7,]     0.009     0.002    -0.012     0.008     0.003    -0.010     0.005
-     [ 14,]     0.006    -0.008    -0.002     0.007    -0.002    -0.004
-Known Mean(s)     0.000
+                 [,  0]     [,  1]     [,  2]     [,  3]     [,  4]     [,  5]     [,  6]
+      [  0,]      1.501     -0.732      0.271     -0.087      0.018      0.023     -0.036
+      [  7,]      0.022      0.005     -0.025      0.017      0.010     -0.022      0.003
+      [ 14,]      0.016     -0.010     -0.006      0.011     -0.001     -0.007
+Known Mean(s)      0.000
 
 Processing Factor 1 / 1
 
@@ -1615,11 +1615,11 @@ LHS of Kriging matrix
 Dimension of the Covariance Matrix  = 5
 
        Rank          1          2          3          4          5
-          1      1.000      0.251      0.251      0.307      0.307
-          2      0.251      1.000      0.189      0.307      0.307
-          3      0.251      0.189      1.000      0.307      0.307
-          4      0.307      0.307      0.307      1.000      0.498
-          5      0.307      0.307      0.307      0.498      1.000
+          1      1.000      0.236      0.236      0.292      0.292
+          2      0.236      1.000      0.174      0.292      0.292
+          3      0.236      0.174      1.000      0.292      0.292
+          4      0.292      0.292      0.292      1.000      0.490
+          5      0.292      0.292      0.292      0.490      1.000
 
 RHS of Kriging matrix
 =====================
@@ -1629,21 +1629,21 @@ Number of right-hand sides  = 1
 Punctual Estimation
 
        Rank          1
-          1      0.435
-          2      0.435
-          3      0.435
-          4      0.705
-          5      0.705
+          1      0.417
+          2      0.417
+          3      0.417
+          4      0.700
+          5      0.700
 
 (Co-) Kriging weights
 =====================
        Rank       Data        Z1*
-          1     -0.405      0.127
-          2     -0.610      0.139
-          3      0.786      0.139
-          4      0.324      0.388
-          5     -1.048      0.388
-Sum of weights              1.181
+          1     -3.775      0.124
+          2     -0.883      0.135
+          3      0.690      0.135
+          4     -0.418      0.392
+          5      1.392      0.392
+Sum of weights              1.180
 
 Drift or Mean Information
 =========================
@@ -1653,9 +1653,9 @@ Mean for Variable Z1 = 0.000000
 =====================
 Target Sample = 1
 Variable Z1 
- - Estimate  =      -0.309
- - Std. Dev. =       0.526
- - Variance  =       0.276
+ - Estimate  =      -0.113
+ - Std. Dev. =       0.535
+ - Variance  =       0.286
  - Cov(h=0)  =       1.000
 
 Data Base Grid Characteristics
@@ -1670,9 +1670,9 @@ Total number of samples      = 25
 
 Grid characteristics:
 ---------------------
-Origin :      0.400     0.400
-Mesh   :      0.050     0.050
-Number :          5         5
+Origin :       0.400      0.400
+Mesh   :       0.050      0.050
+Number :           5          5
 
 Variables
 ---------
@@ -1689,18 +1689,18 @@ Column = 9 - Name = PTS_Recovery.Q-estim-0 - Locator = NA
 Column = 10 - Name = PTS_Recovery.Q-estim-0.5 - Locator = NA
 Column = 11 - Name = PTS_Recovery.Q-stdev-0 - Locator = NA
 Column = 12 - Name = PTS_Recovery.Q-stdev-0.5 - Locator = NA
-Column = 13 - Name = DK_Pts.Factor.Gauss.Z.1.estim - Locator = NA
-Column = 14 - Name = DK_Pts.Factor.Gauss.Z.2.estim - Locator = NA
-Column = 15 - Name = DK_Pts.Factor.Gauss.Z.3.estim - Locator = NA
-Column = 16 - Name = DK_Pts.Factor.Gauss.Z.1.stdev - Locator = NA
-Column = 17 - Name = DK_Pts.Factor.Gauss.Z.2.stdev - Locator = NA
-Column = 18 - Name = DK_Pts.Factor.Gauss.Z.3.stdev - Locator = NA
-Column = 19 - Name = DK_Blk.Factor.Gauss.Z.1.estim - Locator = NA
-Column = 20 - Name = DK_Blk.Factor.Gauss.Z.2.estim - Locator = NA
-Column = 21 - Name = DK_Blk.Factor.Gauss.Z.3.estim - Locator = NA
-Column = 22 - Name = DK_Blk.Factor.Gauss.Z.1.stdev - Locator = NA
-Column = 23 - Name = DK_Blk.Factor.Gauss.Z.2.stdev - Locator = NA
-Column = 24 - Name = DK_Blk.Factor.Gauss.Z.3.stdev - Locator = NA
+Column = 13 - Name = DK_Pts.Factor.Gauss.Z.S1.estim - Locator = NA
+Column = 14 - Name = DK_Pts.Factor.Gauss.Z.S2.estim - Locator = NA
+Column = 15 - Name = DK_Pts.Factor.Gauss.Z.S3.estim - Locator = NA
+Column = 16 - Name = DK_Pts.Factor.Gauss.Z.S1.stdev - Locator = NA
+Column = 17 - Name = DK_Pts.Factor.Gauss.Z.S2.stdev - Locator = NA
+Column = 18 - Name = DK_Pts.Factor.Gauss.Z.S3.stdev - Locator = NA
+Column = 19 - Name = DK_Blk.Factor.Gauss.Z.S1.estim - Locator = NA
+Column = 20 - Name = DK_Blk.Factor.Gauss.Z.S2.estim - Locator = NA
+Column = 21 - Name = DK_Blk.Factor.Gauss.Z.S3.estim - Locator = NA
+Column = 22 - Name = DK_Blk.Factor.Gauss.Z.S1.stdev - Locator = NA
+Column = 23 - Name = DK_Blk.Factor.Gauss.Z.S2.stdev - Locator = NA
+Column = 24 - Name = DK_Blk.Factor.Gauss.Z.S3.stdev - Locator = NA
 Column = 25 - Name = Z_PTS.Z.estim - Locator = NA
 Column = 26 - Name = Z_PTS.Z.stdev - Locator = NA
 Column = 27 - Name = UC.T-estim-0 - Locator = NA
@@ -1738,11 +1738,11 @@ LHS of Kriging matrix
 Dimension of the Covariance Matrix  = 5
 
        Rank          1          2          3          4          5
-          1      1.000      0.307      0.307      0.251      0.307
-          2      0.307      1.000      0.498      0.307      0.498
-          3      0.307      0.498      1.000      0.307      0.498
-          4      0.251      0.307      0.307      1.000      0.307
-          5      0.307      0.498      0.498      0.307      1.000
+          1      1.000      0.292      0.292      0.236      0.292
+          2      0.292      1.000      0.490      0.292      0.490
+          3      0.292      0.490      1.000      0.292      0.490
+          4      0.236      0.292      0.292      1.000      0.292
+          5      0.292      0.490      0.490      0.292      1.000
 
 RHS of Kriging matrix
 =====================
@@ -1752,21 +1752,21 @@ Number of right-hand sides  = 1
 Block Estimation : Discretization = 5 x 5
 
        Rank          1
-          1      0.288
-          2      0.303
-          3      0.303
-          4      0.288
-          5      0.303
+          1      0.270
+          2      0.285
+          3      0.285
+          4      0.270
+          5      0.285
 
 (Co-) Kriging weights
 =====================
        Rank       Data        Z1*
-          1      2.135      0.153
-          2      0.786      0.105
-          3     -0.536      0.105
-          4      0.307      0.153
-          5      0.859      0.105
-Sum of weights              0.620
+          1     -0.219      0.147
+          2      0.690      0.100
+          3      0.464      0.100
+          4     -1.607      0.147
+          5      0.293      0.100
+Sum of weights              0.596
 
 Drift or Mean Information
 =========================
@@ -1776,10 +1776,10 @@ Mean for Variable Z1 = 0.000000
 =====================
 Target Sample = 1
 Variable Z1 
- - Estimate  =       0.489
- - Std. Dev. =       0.394
- - Variance  =       0.155
- - Cov(h=0)  =       0.339
+ - Estimate  =      -0.123
+ - Std. Dev. =       0.390
+ - Variance  =       0.152
+ - Cov(h=0)  =       0.317
 
 Data Base Grid Characteristics
 ==============================
@@ -1793,21 +1793,21 @@ Total number of samples      = 1
 
 Grid characteristics:
 ---------------------
-Origin :      0.375     0.375
-Mesh   :      0.250     0.250
-Number :          1         1
+Origin :       0.375      0.375
+Mesh   :       0.250      0.250
+Number :           1          1
 
 Variables
 ---------
 Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
-Column = 3 - Name = DK_Blk.Factor.Gauss.Z.1.estim - Locator = NA
-Column = 4 - Name = DK_Blk.Factor.Gauss.Z.2.estim - Locator = NA
-Column = 5 - Name = DK_Blk.Factor.Gauss.Z.3.estim - Locator = NA
-Column = 6 - Name = DK_Blk.Factor.Gauss.Z.1.stdev - Locator = NA
-Column = 7 - Name = DK_Blk.Factor.Gauss.Z.2.stdev - Locator = NA
-Column = 8 - Name = DK_Blk.Factor.Gauss.Z.3.stdev - Locator = NA
+Column = 3 - Name = DK_Blk.Factor.Gauss.Z.S1.estim - Locator = NA
+Column = 4 - Name = DK_Blk.Factor.Gauss.Z.S2.estim - Locator = NA
+Column = 5 - Name = DK_Blk.Factor.Gauss.Z.S3.estim - Locator = NA
+Column = 6 - Name = DK_Blk.Factor.Gauss.Z.S1.stdev - Locator = NA
+Column = 7 - Name = DK_Blk.Factor.Gauss.Z.S2.stdev - Locator = NA
+Column = 8 - Name = DK_Blk.Factor.Gauss.Z.S3.stdev - Locator = NA
 Column = 9 - Name = DK_DGM1.Gauss.Z.estim - Locator = NA
 Column = 10 - Name = DK_DGM1.Gauss.Z.stdev - Locator = NA
 Column = 11 - Name = DK_DGM2.Gauss.Z.estim - Locator = z1
@@ -1825,9 +1825,9 @@ Total number of samples      = 25
 
 Grid characteristics:
 ---------------------
-Origin :      0.400     0.400
-Mesh   :      0.050     0.050
-Number :          5         5
+Origin :       0.400      0.400
+Mesh   :       0.050      0.050
+Number :           5          5
 
 Variables
 ---------
@@ -1844,18 +1844,18 @@ Column = 9 - Name = PTS_Recovery.Q-estim-0 - Locator = NA
 Column = 10 - Name = PTS_Recovery.Q-estim-0.5 - Locator = NA
 Column = 11 - Name = PTS_Recovery.Q-stdev-0 - Locator = NA
 Column = 12 - Name = PTS_Recovery.Q-stdev-0.5 - Locator = NA
-Column = 13 - Name = DK_Pts.Factor.Gauss.Z.1.estim - Locator = NA
-Column = 14 - Name = DK_Pts.Factor.Gauss.Z.2.estim - Locator = NA
-Column = 15 - Name = DK_Pts.Factor.Gauss.Z.3.estim - Locator = NA
-Column = 16 - Name = DK_Pts.Factor.Gauss.Z.1.stdev - Locator = NA
-Column = 17 - Name = DK_Pts.Factor.Gauss.Z.2.stdev - Locator = NA
-Column = 18 - Name = DK_Pts.Factor.Gauss.Z.3.stdev - Locator = NA
-Column = 19 - Name = DK_Blk.Factor.Gauss.Z.1.estim - Locator = NA
-Column = 20 - Name = DK_Blk.Factor.Gauss.Z.2.estim - Locator = NA
-Column = 21 - Name = DK_Blk.Factor.Gauss.Z.3.estim - Locator = NA
-Column = 22 - Name = DK_Blk.Factor.Gauss.Z.1.stdev - Locator = NA
-Column = 23 - Name = DK_Blk.Factor.Gauss.Z.2.stdev - Locator = NA
-Column = 24 - Name = DK_Blk.Factor.Gauss.Z.3.stdev - Locator = NA
+Column = 13 - Name = DK_Pts.Factor.Gauss.Z.S1.estim - Locator = NA
+Column = 14 - Name = DK_Pts.Factor.Gauss.Z.S2.estim - Locator = NA
+Column = 15 - Name = DK_Pts.Factor.Gauss.Z.S3.estim - Locator = NA
+Column = 16 - Name = DK_Pts.Factor.Gauss.Z.S1.stdev - Locator = NA
+Column = 17 - Name = DK_Pts.Factor.Gauss.Z.S2.stdev - Locator = NA
+Column = 18 - Name = DK_Pts.Factor.Gauss.Z.S3.stdev - Locator = NA
+Column = 19 - Name = DK_Blk.Factor.Gauss.Z.S1.estim - Locator = NA
+Column = 20 - Name = DK_Blk.Factor.Gauss.Z.S2.estim - Locator = NA
+Column = 21 - Name = DK_Blk.Factor.Gauss.Z.S3.estim - Locator = NA
+Column = 22 - Name = DK_Blk.Factor.Gauss.Z.S1.stdev - Locator = NA
+Column = 23 - Name = DK_Blk.Factor.Gauss.Z.S2.stdev - Locator = NA
+Column = 24 - Name = DK_Blk.Factor.Gauss.Z.S3.stdev - Locator = NA
 Column = 25 - Name = Z_PTS.Z.estim - Locator = NA
 Column = 26 - Name = Z_PTS.Z.stdev - Locator = NA
 Column = 27 - Name = UC.T-estim-0 - Locator = NA

@@ -688,11 +688,11 @@ setMethod(f = "show", signature = "_p_gstlrn__VectorNumTT_float_t",             
 
 setMethod(f = "show", signature = "_p_gstlrn__VectorTT_gstlrn__String_t",       definition = function(object){ VectorString_display(object) })
 
-setMethod(f = "show", signature = "_p_gstlrn__VectorNumTT_gstlrn__VectorNumTT_long_long_t_t", definition = function(object){ VectorVectorInt_display(object) })
+setMethod(f = "show", signature = "_p_gstlrn__VectorNumTT_VectorNumTT_long_long_t_t", definition = function(object){ VectorVectorInt_display(object) })
 
-setMethod(f = "show", signature = "_p_gstlrn__VectorNumTT_gstlrn__VectorNumTT_double_t_t", definition = function(object){ VectorVectorDouble_display(object) })
+setMethod(f = "show", signature = "_p_gstlrn__VectorNumTT_VectorNumTT_double_t_t", definition = function(object){ VectorVectorDouble_display(object) })
 
-setMethod(f = "show", signature = "_p_gstlrn__VectorNumTT_gstlrn__VectorNumTT_float_t_t",  definition = function(object){ VectorVectorFloat_display(object) })
+setMethod(f = "show", signature = "_p_gstlrn__VectorNumTT_VectorNumTT_float_t_t",  definition = function(object){ VectorVectorFloat_display(object) })
 
 ##
 ## Add function for fixing inheritance issue (known caveat):
@@ -809,12 +809,12 @@ setMethod('[',    '_p_gstlrn__VectorNumTT_float_t',                           ge
 setMethod('[<-',  '_p_gstlrn__VectorNumTT_float_t',                           setVitem)
 setMethod('[',    '_p_gstlrn__VectorNumTT_gstlrn__UChar_t',                   getVitem)
 setMethod('[<-',  '_p_gstlrn__VectorNumTT_gstlrn__UChar_t',                   setVitem)
-setMethod('[[',   '_p_gstlrn__VectorNumTT_gstlrn__VectorNumTT_long_long_t_t', getVitem)
-setMethod('[[<-', '_p_gstlrn__VectorNumTT_gstlrn__VectorNumTT_long_long_t_t', setVitem)
-setMethod('[[',   '_p_gstlrn__VectorNumTT_gstlrn__VectorNumTT_double_t_t',    getVitem)
-setMethod('[[<-', '_p_gstlrn__VectorNumTT_gstlrn__VectorNumTT_double_t_t',    setVitem)
-setMethod('[[',   '_p_gstlrn__VectorNumTT_gstlrn__VectorNumTT_float_t_t',     getVitem)
-setMethod('[[<-', '_p_gstlrn__VectorNumTT_gstlrn__VectorNumTT_float_t_t',     setVitem)
+setMethod('[[',   '_p_gstlrn__VectorNumTT_VectorNumTT_long_long_t_t', getVitem)
+setMethod('[[<-', '_p_gstlrn__VectorNumTT_VectorNumTT_long_long_t_t', setVitem)
+setMethod('[[',   '_p_gstlrn__VectorNumTT_VectorNumTT_double_t_t',    getVitem)
+setMethod('[[<-', '_p_gstlrn__VectorNumTT_VectorNumTT_double_t_t',    setVitem)
+setMethod('[[',   '_p_gstlrn__VectorNumTT_VectorNumTT_float_t_t',     getVitem)
+setMethod('[[<-', '_p_gstlrn__VectorNumTT_VectorNumTT_float_t_t',     setVitem)
 
 ##
 ## Add toTL for Vector* R classes

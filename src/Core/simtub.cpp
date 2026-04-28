@@ -855,7 +855,7 @@ namespace gstlrn
     {
       if (!flag_used[igrf]) continue;
       icase = get_rank_from_propdef(propdef, 0, igrf);
-      CalcSimuTurningBands situba(nbsimu, nbtuba, flag_check, local_seed);
+      CalcSimuTurningBands situba(nbsimu, nbtuba, local_seed);
       situba.setFlagAllocationAlreadyDone(true);
       local_seed = 0;
       if (situba.simulate(dbin, dbout, models[igrf], neigh, icase, false, true))
@@ -881,7 +881,7 @@ namespace gstlrn
 
     /* Check/show facies at data against facies at the closest grid node */
 
-    if (flag_cond && !flag_gaus && (flag_check || flag_show))
+    if (flag_cond && !flag_gaus && flag_show)
       st_check_facies_data2grid(
         dbin, dbout, flag_check, flag_show, 0, nechin, nfacies, nbsimu);
 
@@ -1298,7 +1298,7 @@ namespace gstlrn
       {
         if (!flag_used[ipgs][igrf]) continue;
         icase = get_rank_from_propdef(propdef, ipgs, igrf);
-        CalcSimuTurningBands situba(nbsimu, nbtuba, flag_check, local_seed);
+        CalcSimuTurningBands situba(nbsimu, nbtuba, local_seed);
         situba.setFlagAllocationAlreadyDone(true);
         local_seed = 0;
         if (situba.simulate(
@@ -1323,7 +1323,7 @@ namespace gstlrn
 
       /* Check/show facies at data against facies at the closest grid node */
 
-      if (flag_cond && !flag_gaus && (flag_check || flag_show))
+      if (flag_cond && !flag_gaus && flag_show)
         st_check_facies_data2grid(
           dbin, dbout, flag_check, flag_show, ipgs, nechin, nfac[ipgs], nbsimu);
     }
@@ -1873,8 +1873,7 @@ namespace gstlrn
 
       iter++;
       nbtest += nbsimu;
-      if (simtub(dbin, dbout, model, neigh, nbsimu, 0, nbtuba, 0))
-        goto label_end;
+      if (simtub(dbin, dbout, model, neigh, nbsimu, 0, nbtuba)) goto label_end;
 
       /* Check if the simulated outcomes are valid */
 
@@ -2106,7 +2105,7 @@ namespace gstlrn
       /* Processing the Turning Bands algorithm */
 
       {
-        CalcSimuTurningBands situba(1, nbtuba, false, seed);
+        CalcSimuTurningBands situba(1, nbtuba, seed);
         if (situba.simulate(nullptr, dbout, model, nullptr, 0)) goto label_end;
       }
 
@@ -2286,7 +2285,7 @@ namespace gstlrn
       /* Simulation in the non-masked part of the grid */
 
       {
-        CalcSimuTurningBands situba(1, nbtuba, false, seed);
+        CalcSimuTurningBands situba(1, nbtuba, seed);
         if (situba.simulate(nullptr, dbout, model, nullptr, 0)) goto label_end;
       }
 
@@ -2348,7 +2347,6 @@ namespace gstlrn
    ** \param[in]  nbtuba      Number of turning bands
    ** \param[in]  gibbs_nburn Initial number of iterations for bootstrapping
    ** \param[in]  gibbs_niter Maximum number of iterations
-   ** \param[in]  flag_check  1 to check the proximity in Gaussian scale
    ** \param[in]  flag_ce     1 if the conditional expectation
    **                         should be returned instead of simulations
    ** \param[in]  flag_cstd   1 if the conditional standard deviation
@@ -2369,7 +2367,6 @@ namespace gstlrn
     Id nbtuba,
     Id gibbs_nburn,
     Id gibbs_niter,
-    Id flag_check,
     Id flag_ce,
     Id flag_cstd,
     Id verbose)
@@ -2459,7 +2456,7 @@ namespace gstlrn
     /* Processing the Turning Bands algorithm */
 
     {
-      CalcSimuTurningBands situba(nbsimu, nbtuba, flag_check, seed);
+      CalcSimuTurningBands situba(nbsimu, nbtuba, seed);
       if (situba.simulate(dbin, dbout, model, neighU, 0, false, false, true))
         goto label_end;
     }

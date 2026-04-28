@@ -23,10 +23,10 @@ Column = 1 - Name = x-1 - Locator = x1
 Column = 2 - Name = x-2 - Locator = x2
 Column = 3 - Name = z - Locator = NA
 Column = 4 - Name = code - Locator = code
-Column = 5 - Name = MyVar.code.Class.1 - Locator = z1
-Column = 6 - Name = MyVar.code.Class.2 - Locator = z2
-Column = 7 - Name = MyVar.code.Class.3 - Locator = z3
-Column = 8 - Name = MyVar.code.Class.4 - Locator = z4
-Column = 9 - Name = MyVar.code.Class.5 - Locator = z5
-Column = 10 - Name = MyVar.code.Class.6 - Locator = z6
+Column = 5 - Name = MyVar.code.Class.S1 - Locator = z1
+Column = 6 - Name = MyVar.code.Class.S2 - Locator = z2
+Column = 7 - Name = MyVar.code.Class.S3 - Locator = z3
+Column = 8 - Name = MyVar.code.Class.S4 - Locator = z4
+Column = 9 - Name = MyVar.code.Class.S5 - Locator = z5
+Column = 10 - Name = MyVar.code.Class.S6 - Locator = z6
 NULL

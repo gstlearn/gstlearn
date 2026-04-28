@@ -219,8 +219,9 @@ err = simulateSPDE(dbin = NULL, dbout = grid, model = model, nbsimu = nsim,
 list_title = c("Using Turning Bands", "Using SPDE approach")
 list_key   = c("TB", "SPDE")
 for (i in seq_along(list_title)) {
+  ssname = paste(list_key[i], "nc.simu", sep = ".")
   err = qc_simulations(grid = grid,
-                       names = paste(list_key[i], "nc.simu", 1:nsim, sep = "."),
+                       names = paste(ssname, 1:nsim, sep = ".S"),
                        var_model = model, title = list_title[i], stat_keys = stat_keys)
 }
 ```
@@ -253,7 +254,7 @@ p = plot.init() +
 plot.end(p)
 
 # cross plot of kriging std. (SPDE vs. kriging)
-nm_sims = grid$getNames(names = "SPDE.Z.*")
+nm_sims = grid$getNames(names = "SPDE.Z.S*")
 tab = matrix(grid$getColumns(names = nm_sims) , nrow = grid$getNSample(),
              ncol = length(nm_sims))
 estim = apply(X = tab, MARGIN = 1, FUN = mean)
@@ -262,10 +263,10 @@ grid["SPDE.ZMC.estim"] = estim
 grid["SPDE.ZMC.stdev"] = stdev
 
 # conditional simulations
-p1 = plot.init(asp=1) + plot.raster(grid, name = "SPDE.Z.1", palette = "Spectral")
-p2 = plot.init(asp=1) + plot.raster(grid, name = "SPDE.Z.2", palette = "Spectral")
-p3 = plot.init(asp=1) + plot.raster(grid, name = "SPDE.Z.3", palette = "Spectral")
-p4 = plot.init(asp=1) + plot.raster(grid, name = "SPDE.Z.4", palette = "Spectral")
+p1 = plot.init(asp=1) + plot.raster(grid, name = "SPDE.Z.S1", palette = "Spectral")
+p2 = plot.init(asp=1) + plot.raster(grid, name = "SPDE.Z.S2", palette = "Spectral")
+p3 = plot.init(asp=1) + plot.raster(grid, name = "SPDE.Z.S3", palette = "Spectral")
+p4 = plot.init(asp=1) + plot.raster(grid, name = "SPDE.Z.S4", palette = "Spectral")
 ggarrange(p1, p2, p3, p4, nrow = 2, ncol = 2)
 
 # estimate by MC
@@ -333,8 +334,9 @@ err = simulateSPDE(dbin = NULL, dbout = grid, model = model, nbsimu = nsim,
 list_title = c("Using Turning Bands", "Using SPDE approach")
 list_key   = c("TB", "SPDE")
 for (i in seq_along(list_title)) {
+  ssname = paste(list_key[i], "nc.simu", sep = ".")
   err = qc_simulations(grid = grid,
-                       names = paste(list_key[i], "nc.simu", 1:nsim, sep = "."),
+                       names = paste(ssname, 1:nsim, sep = ".S"),
                        var_model = model, title = list_title[i], stat_keys = stat_keys)
 }
 ```
@@ -367,7 +369,7 @@ p = plot.init() +
 plot.end(p)
 
 # cross plot of kriging std. (SPDE vs. kriging)
-nm_sims = grid$getNames(names = "SPDE.Z.*")
+nm_sims = grid$getNames(names = "SPDE.Z.S*")
 tab = matrix(grid$getColumns(names = nm_sims) , nrow = grid$getNSample(), ncol = length(nm_sims))
 estim = apply(X = tab, MARGIN = 1, FUN = mean)
 stdev = apply(X = tab, MARGIN = 1, FUN = sd)
@@ -375,10 +377,10 @@ grid["SPDE.ZMC.estim"] = estim
 grid["SPDE.ZMC.stdev"] = stdev
 
 # conditional simulations
-p1 = plot.init(asp=1) + plot.raster(grid, name = "SPDE.Z.1", palette = "Spectral")
-p2 = plot.init(asp=1) + plot.raster(grid, name = "SPDE.Z.2", palette = "Spectral")
-p3 = plot.init(asp=1) + plot.raster(grid, name = "SPDE.Z.3", palette = "Spectral")
-p4 = plot.init(asp=1) + plot.raster(grid, name = "SPDE.Z.4", palette = "Spectral")
+p1 = plot.init(asp=1) + plot.raster(grid, name = "SPDE.Z.S1", palette = "Spectral")
+p2 = plot.init(asp=1) + plot.raster(grid, name = "SPDE.Z.S2", palette = "Spectral")
+p3 = plot.init(asp=1) + plot.raster(grid, name = "SPDE.Z.S3", palette = "Spectral")
+p4 = plot.init(asp=1) + plot.raster(grid, name = "SPDE.Z.S4", palette = "Spectral")
 ggarrange(p1, p2, p3, p4, nrow = 2, ncol = 2)
 
 # estimate by MC

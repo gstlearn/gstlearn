@@ -10,14 +10,12 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
-
-#include "geoslib_define.h"
-
-#include "Basic/Plane.hpp"
 #include "Basic/VectorNumT.hpp"
-#include "Simulation/ACalcSimulation.hpp"
+#include "Neigh/NeighUnique.hpp"
+#include "Simulation/ACalcSimuGaussian.hpp"
 #include "Simulation/SimuFFTParam.hpp"
+#include "geoslib_define.h"
+#include "gstlearn_export.hpp"
 
 namespace gstlrn
 {
@@ -26,7 +24,7 @@ namespace gstlrn
   class DbGrid;
   class Model;
 
-  class GSTLEARN_EXPORT CalcSimuFFT: public ACalcSimulation
+  class GSTLEARN_EXPORT CalcSimuFFT: public ACalcSimuGaussian
   {
   public:
     CalcSimuFFT(Id nbsimu = 0, bool verbose = false, Id seed = 4324324);
@@ -36,19 +34,20 @@ namespace gstlrn
 
     void setParam(const SimuFFTParam& param) { _param = param; }
 
-    void setVerbose(bool verbose) { _verbose = verbose; }
-
     VectorDouble changeSupport(const VectorDouble& sigma);
 
   private:
     bool _check() override;
     bool _preprocess() override;
-    bool _run() override;
-    bool _postprocess() override;
     void _rollback() override;
 
-    bool _simulateCalculate();
-    void _alloc();
+    bool _initializeSimulations() override;
+    bool _simulate(Id isimu) override;
+    void
+      _compute(Db* db, const VectorBool& activeArray, VectorVectorDouble& tab)
+        override;
+
+    void _allocate();
     static Id _getNOptimalEven(Id number, Id largeFactor = 11);
     static VectorInt _getFactors(Id number);
     void _gridDilate();
@@ -59,7 +58,6 @@ namespace gstlrn
       Id iz,
       double percent);
     void _prepar(bool flag_amplitude, double eps = EPSILON5);
-    void _defineRandom();
     void _setVariance(Id ix, Id iy, Id iz);
     void _defineSymmetry(void);
     void _defineSym1();
@@ -67,7 +65,7 @@ namespace gstlrn
     void _defineSym3();
     void _setZero(Id ix, Id iy, Id iz);
     void _setConjugate(Id ix, Id iy, Id iz, Id jx, Id jy, Id jz);
-    void _final(DbGrid* db, Id iad);
+
     double _support(double sigma);
     double _support1(double sigma);
     double _support2(double sigma);
@@ -75,8 +73,6 @@ namespace gstlrn
     double _rhoSigma(double sigma, Id ix, Id iy, Id iz);
 
   private:
-    Id _iattOut;
-    bool _verbose;
     SimuFFTParam _param;
     Id _nxyz;
     VectorInt _nx;
@@ -88,6 +84,7 @@ namespace gstlrn
     VectorDouble _rnd;
     VectorDouble _u;
     VectorDouble _v;
+    NeighUnique* _neigh; // This is a useless member, but needed for _check()
   };
 
 } // namespace gstlrn

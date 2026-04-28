@@ -252,19 +252,18 @@ modelGeneric = ModelGeneric()
 err = modelGeneric$setCov(mg_in_gstlearn)
 
 # simulation
-gssimu = SimuSpectralRN(1, ns, 100, 123, NULL, TRUE)
+gssimu = SimuSpectralRN(1, ns, 100, 123, TRUE)
 err = gssimu$setModelGeneric(modelGeneric)
-err = gssimu$simulate()
+err = gssimu$simulateSpectralTest()
 
 # computation
 err = grd$deleteColumns(names = paste0(prefix, "*"))
-err = gssimu$compute(dbout = grd)
+err = gssimu$computeSpectralTest(dbout = grd)
 
 v_name  = paste(prefix, "V1", "simu", sep = ".")
 err = grd$setName("Simu", v_name)
 err = grd$setLocator(v_name,ELoc_Z())
 ```
-
 
 ```{r simulate_QC, echo=FALSE, eval=TRUE}
 opers   = EStatOption_fromKeys(c("NUM", "MINI", "MAXI", "MEAN", "STDV"))
@@ -338,7 +337,7 @@ for (idir in 1:ndir){
 # plotting variograms
 dd     = seq(from = 0, to = max(hh, na.rm = TRUE), length.out = 100)
 plot(NULL, NULL, xlim = range(dd), ylim = 1.1*c(0.0, max(gg, na.rm = TRUE)),
-     xlab = "Distance", ylab = "Variogram",
+     xlab = "Distance", ylab = "Variogram", xaxs="i", yaxs="i",
      main = paste0(tit_main, ": one simulation"),
      sub  = tit_sub)
 abline(h = 0, col = "black")
@@ -380,7 +379,7 @@ gg  = array(NaN, dim = c(nlag, ndir, nsim))
 hh  = array(NaN, dim = c(nlag, ndir, nsim))
 for (is in 1:nsim) {
   err = grd$setLocator(
-    name = paste(prefix, "V1", paste0("S",is), sep = "."),
+    name = NamingConvention_getNameEncoded(prefix, NULL, 1, 1, is, nsim),
     locatorType = ELoc_Z(),
     cleanSameLocator = TRUE)
   vario = Vario(varioPar)
@@ -397,7 +396,7 @@ for (is in 1:nsim) {
 # plotting variograms
 dd = seq(from = 0, to = max(hh_moy, na.rm = TRUE), length.out = 100)
 plot(NULL, NULL, xlim = range(dd), ylim = 1.1*c(0.0, max(gg_moy, na.rm = TRUE)),
-     xlab = "Distance", ylab = "Variogram",
+     xlab = "Distance", ylab = "Variogram", xaxs="i", yaxs="i",
      main = paste0(tit_main, ": ", nsim, " simulations"),
      sub  = tit_sub)
 abline(h = 0, col = "black")

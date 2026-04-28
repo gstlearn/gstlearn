@@ -744,7 +744,7 @@ namespace gstlrn
    * @return A Table containing the correlation matrix
    */
   Table dbStatisticsCorrel(
-    Db* db,
+    const Db* db,
     const VectorString& names,
     bool flagIso,
     const String& title)

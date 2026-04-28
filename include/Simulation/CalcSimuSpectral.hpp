@@ -10,15 +10,14 @@
 /******************************************************************************/
 #pragma once
 
-#include "Enum/ESimuType.hpp"
-#include "Simulation/ACalcSimulation.hpp"
+#include "Simulation/ACalcSimuGaussian.hpp"
 #include "gstlearn_export.hpp"
 
 namespace gstlrn
 {
   class Model;
 
-  class GSTLEARN_EXPORT CalcSimuSpectral: public ACalcSimulation
+  class GSTLEARN_EXPORT CalcSimuSpectral: public ACalcSimuGaussian
   {
   public:
     CalcSimuSpectral(
@@ -31,33 +30,21 @@ namespace gstlrn
     CalcSimuSpectral& operator=(const CalcSimuSpectral& r) = delete;
     virtual ~CalcSimuSpectral();
 
-    // Perform the task for ONE simulation
-    Id simulate();
-    Id compute(Db* dbout, Id isimu = 0);
-
-    bool isValidForSimulation(const ESimuType& simuType) const;
+    // Perform the task for ONE simulation (debugging option)
+    Id simulateSpectralTest();
+    Id computeSpectralTest(Db* dbout, Id isimu = 0);
 
   protected:
     bool _check() override;
     bool _preprocess() override;
-    bool _postprocess() override;
-    bool _run() override;
 
-    virtual Id _simulate() = 0;
-    virtual Id _compute(
-      Db* dbout,
-      const VectorBool& activeArray,
-      VectorVectorDouble& tab) = 0;
+    // bool _postprocess() override;
 
     Id _getNs() const { return _ns; };
 
     Id _getNd() const { return _nd; };
 
-    Id _getNDim() const;
-    Id _getNVar() const;
-
   private:
-    Id _iattOut;
     Id _ns; // Number of spectral components
     Id _nd; // Maximum number of spectral orders on
   };

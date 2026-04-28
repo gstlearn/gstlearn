@@ -242,7 +242,7 @@ namespace gstlrn
     Db* db = _whichDb(whichDb);
     if (db == nullptr) return -1;
     Id iuid = db->addColumnsByConstant(
-      number, valinit, String(), locatorType, locatorIndex);
+      number, valinit, "tempVar", locatorType, locatorIndex);
     if (iuid < 0) return -1;
     VectorInt iuids = VH::sequence(number, iuid);
     _storeInVariableList(whichDb, status, iuids);
