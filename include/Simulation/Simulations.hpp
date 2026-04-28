@@ -46,14 +46,6 @@ namespace gstlrn
     Id seed = 321321,
     bool verbose = false,
     const NamingConvention& namconv = NamingConvention("Eden"));
-  GSTLEARN_EXPORT Id simuFFT(
-    DbGrid* db,
-    ModelGeneric* model,
-    SimuFFTParam& param,
-    Id nbsimu = 1,
-    Id seed = 432431,
-    bool verbose = false,
-    const NamingConvention& namconv = NamingConvention("FFT"));
   GSTLEARN_EXPORT VectorDouble getChangeSupport(
     DbGrid* db,
     ModelGeneric* model,
@@ -101,7 +93,17 @@ namespace gstlrn
     Id seed = 43431,
     Id nbtuba = 100,
     bool flag_dgm = false,
+    const VectorVectorDouble& box = VectorVectorDouble(),
     const NamingConvention& namconv = NamingConvention("Simu"));
+  GSTLEARN_EXPORT Id simuFFT(
+    Db* dbin,
+    DbGrid* dbout,
+    ModelGeneric* model,
+    SimuFFTParam& param,
+    Id nbsimu = 1,
+    Id seed = 432431,
+    bool verbose = false,
+    const NamingConvention& namconv = NamingConvention("FFT"));
   GSTLEARN_EXPORT Id simuSubstitution(
     DbGrid* dbgrid,
     SimuSubstitutionParam& subparam,

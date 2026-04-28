@@ -62,10 +62,10 @@ grid = DbGrid_create(nx = nx, dx = dx)
 # specification of the model using Model
 mod  = Model_createFromParam(type = ECov_fromKey(type_cov),
                              ranges = ranges[1:ndim], param = nu, flagRange=FALSE)
-# using the *SimuSpectral* interface
+# using the *SimuSpectralTest* interface
 sim = SimuSpectralRN(1, nb, 100, 123, TRUE)
 err = sim$setModelGeneric(mod)
-err = sim$simulateSpectral()
+err = sim$simulateSpectralTest()
 # computing the mathematical expression
 gamma = sim$getSpectrum()$getGamma()$toTL()
 omega = sim$getSpectrum()$getOmega()$toTL()
@@ -73,7 +73,7 @@ phi   = sim$getSpectrum()$getPhi()
 coor  = grid$getColumnsAsMatrix(names = c("x1"), useSel = FALSE)$toTL()
 val   = sqrt(2) * as.numeric(t(gamma) %*% cos(omega %*% t(coor) + phi))
 # computing using the gstlearn functions
-err = sim$computeSpectral(dbout = grid)
+err = sim$computeSpectralTest(dbout = grid)
 stopifnot (all(abs(val - grid["Simu"]) < 1e-6))
 
 # using the simuSpectral interface

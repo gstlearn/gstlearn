@@ -14,7 +14,7 @@
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Model/ModelGeneric.hpp"
-#include "Simulation/ACalcSimulation.hpp"
+#include "Neigh/NeighUnique.hpp"
 #include "Simulation/SimuFFTParam.hpp"
 
 #include <cmath>
@@ -25,9 +25,7 @@
 namespace gstlrn
 {
   CalcSimuFFT::CalcSimuFFT(Id nbsimu, bool verbose, Id seed)
-    : ACalcSimulation(nbsimu, seed)
-    , _iattOut(-1)
-    , _verbose(verbose)
+    : ACalcSimuGaussian(nbsimu, seed, verbose)
     , _param()
     , _nxyz(0)
     , _nx()
@@ -39,40 +37,27 @@ namespace gstlrn
     , _rnd()
     , _u()
     , _v()
+    , _neigh(nullptr)
   {
+    setFlagOnGridOnly(true);
+    _neigh = NeighUnique::create();
+    setNeigh(_neigh);
   }
 
-  CalcSimuFFT::~CalcSimuFFT() {}
-
-  bool CalcSimuFFT::_simulateCalculate()
+  CalcSimuFFT::~CalcSimuFFT()
   {
-    auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+    delete _neigh;
+  }
 
+  bool CalcSimuFFT::_initializeSimulations()
+  {
     /* Construction of the Simu_FFT structure and core allocation */
 
-    _alloc();
+    _allocate();
 
     /* Preparation of the FFT environment */
 
     _prepar(true);
-
-    /* Processing */
-
-    for (Id isimu = 0; isimu < getNbSimu(); isimu++)
-    {
-
-      /* Initiate the random normal values */
-
-      _defineRandom();
-
-      /* Apply the symmetry */
-
-      _defineSymmetry();
-
-      /* Perform the simulation */
-
-      _final(dbgrid, _iattOut + isimu);
-    }
 
     return true;
   }
@@ -82,7 +67,7 @@ namespace gstlrn
    **  Dimension the ST_FFT structure
    **
    *****************************************************************************/
-  void CalcSimuFFT::_alloc()
+  void CalcSimuFFT::_allocate()
   {
     auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
 
@@ -125,7 +110,7 @@ namespace gstlrn
     for (Id idim = 0; idim < _getNDim(); idim++) total *= _dims[idim];
     _sizes_alloc = total;
 
-    if (_verbose)
+    if (getVerbose())
     {
       message("Grid parameters after Optimal Dilation :\n");
       if (_getNDim() >= 1)
@@ -350,7 +335,7 @@ namespace gstlrn
 
     /* Optional printout */
 
-    if (_verbose)
+    if (getVerbose())
     {
       message("Grid Dilation parameters :\n");
       if (_getNDim() >= 1) message("- Number of Nodes along X = %d\n", ndx);
@@ -557,7 +542,7 @@ namespace gstlrn
 
       /* Printout statistics */
 
-      if (_verbose)
+      if (getVerbose())
       {
         message("Statistics on the Discrete Periodic Covariance\n");
         if (_param.isFlagAliasing())
@@ -577,9 +562,10 @@ namespace gstlrn
    **  Initiate a vector of random normal values
    **
    *****************************************************************************/
-  void CalcSimuFFT::_defineRandom()
-
+  bool CalcSimuFFT::_simulate(Id isimu)
   {
+    DECLARE_UNUSED(isimu);
+
     for (Id i = 0; i < _sizes_alloc; i++) _u[i] = _cmat[i] * law_gaussian();
     for (Id i = 0; i < _sizes_alloc; i++) _v[i] = _cmat[i] * law_gaussian();
 
@@ -604,6 +590,10 @@ namespace gstlrn
 
       default: break;
     }
+
+    _defineSymmetry();
+
+    return true;
   }
 
   /****************************************************************************/
@@ -866,13 +856,20 @@ namespace gstlrn
   /*!
    **  Perform a non-conditional simulation on the grid
    **
-   ** \param[in]  db    Db structure
-   ** \param[in]  iad   address for writing the simulation
+   ** \param[in]  db    Db Grid structure
+   ** \param[in]  activeArray    Array of active nodes for writing the simulation
+   ** \param[in]  tab   Table of parameters for writing the simulation
    **
    *****************************************************************************/
-  void CalcSimuFFT::_final(DbGrid* db, Id iad)
+  void CalcSimuFFT::_compute(
+    Db* db,
+    const VectorBool& activeArray,
+    VectorVectorDouble& tab)
   {
+    DECLARE_UNUSED(db);
+
     (void)fftn(_getNDim(), _dims.data(), _u.data(), _v.data(), 1, 1.);
+
     Id nx = MAX(_nx[0], 1);
     Id ny = MAX(_nx[1], 1);
     Id nz = MAX(_nx[2], 1);
@@ -884,10 +881,11 @@ namespace gstlrn
       for (Id iy = 0; iy < ny; iy++)
         for (Id ix = 0; ix < nx; ix++, ecr++)
         {
+          if (!activeArray[ecr]) continue;
           Id jx = ix + _shift[0];
           Id jy = iy + _shift[1];
           Id jz = iz + _shift[2];
-          db->updArray(ecr, iad, EOperator::DEFINE, U(jx, jy, jz));
+          tab[0][ecr] = U(jx, jy, jz);
         }
   }
 
@@ -1022,12 +1020,10 @@ namespace gstlrn
 
   bool CalcSimuFFT::_check()
   {
-    if (!ACalcSimulation::_check()) return false;
+    if (!ACalcSimuGaussian::_check()) return false;
 
-    if (!hasDbout()) return false;
-    if (!hasModelGeneric()) return false;
-    auto ndim = getModelGeneric()->getNDim();
-    auto nvar = getModelGeneric()->getNVar();
+    auto ndim = _getNDim();
+    auto nvar = getNVar();
     if (ndim < 1 || ndim > 3)
     {
       messerr("The FFT Method is not a relevant simulation model");
@@ -1049,29 +1045,9 @@ namespace gstlrn
 
   bool CalcSimuFFT::_preprocess()
   {
-    if (!ACalcSimulation::_preprocess()) return false;
+    if (!ACalcSimuGaussian::_preprocess()) return false;
 
-    _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 0, 1);
-    return (_iattOut >= 0);
-  }
-
-  bool CalcSimuFFT::_run()
-  {
-    law_set_random_seed(getSeed());
-
-    // Dispatch
-
-    return _simulateCalculate();
-  }
-
-  bool CalcSimuFFT::_postprocess()
-  {
-    /* Free the temporary variables */
-    _cleanVariableDb(2);
-
-    _renameVariable(
-      2, VectorString(), ELoc::Z, 1, _iattOut, String(), getNbSimu());
-    return true;
+    return _initializeSimulations();
   }
 
   void CalcSimuFFT::_rollback()
@@ -1083,7 +1059,7 @@ namespace gstlrn
   {
     // Allocation
 
-    _alloc();
+    _allocate();
 
     /* Preparation of the FFT environment */
 

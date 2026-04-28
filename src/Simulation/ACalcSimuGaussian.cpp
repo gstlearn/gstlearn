@@ -12,6 +12,7 @@
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/OptDbg.hpp"
+#include "Calculators/CalcMigrate.hpp"
 #include "Estimation/KrigingSystem.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/ANeigh.hpp"
@@ -28,6 +29,7 @@ namespace gstlrn
     , _flagPGS(false)
     , _flagGibbs(false)
     , _flagDGM(false)
+    , _flagOnGridOnly(false)
     , _flagAllocationAlreadyDone(false)
   {
   }
@@ -72,7 +74,7 @@ namespace gstlrn
 
     if (!_isAllocationAlreadyDone())
     {
-      if (_isConditional())
+      if (_isConditional() && !_flagOnGridOnly)
       {
         Id iptr_in = _addVariableDb(1, 2, ELoc::SIMU, 0, nvar * nbsimu);
         if (iptr_in < 0) return false;
@@ -82,7 +84,8 @@ namespace gstlrn
       if (_iattOut < 0) return false;
     }
 
-    return true;
+    // Perform the global statements valid whatever the simulation method
+    return _initializeSimulations();
   }
 
   bool ACalcSimuGaussian::_postprocess()
@@ -121,13 +124,14 @@ namespace gstlrn
     for (Id isimu = 0, nbsimu = getNbSimu(); isimu < nbsimu; isimu++)
     {
       if (getVerbose()) message(">>> computing simulation %d\n", isimu + 1);
-      tabOut.fillWith(0);
-      if (_isConditional()) tabIn.fillWith(0);
+      for (auto& v: tabOut) v.fill(0.);
+      if (_isConditional())
+        for (auto& v: tabIn) v.fill(0.);
 
       law_set_random_seed(getSeedPerSimu(isimu));
 
       // Preliminary task to be performed per simulation
-      if (!_simulate(isimu)) return 1;
+      if (!_simulate(isimu)) return false;
 
       // Non conditional simulations on the target points
       _compute(getDbout(), activeOut, tabOut);
@@ -135,13 +139,24 @@ namespace gstlrn
       _simulateNugget(getDbout(), activeOut, tabOut);
       saveResults(getDbout(), isimu, activeOut, tabOut);
 
-      if (!_isConditional()) continue;
+      if (!_isConditional() || _flagOnGridOnly) continue;
 
       // Non conditional simulations on the data points
       _compute(getDbin(), activeIn, tabIn);
       _correctMean(activeIn, tabIn);
       _convertToDifference(isimu, activeIn, tabIn);
       saveResults(getDbin(), isimu, activeIn, tabIn);
+    }
+
+    // If the simulation is conditional and can only be performed on the grid,
+    // we need to migrate from dbout to dbin and to establish simulated errors
+    if (_isConditional() && _flagOnGridOnly)
+    {
+      if (migrateByLocator(
+            getDbout(), getDbin(), ELoc::SIMU, 1, VectorDouble(), false, false,
+            true, NamingConvention("", true, true, false)))
+        return false;
+      _convertToDifferencesForGrid();
     }
 
     // Conditional simulations
@@ -303,6 +318,32 @@ namespace gstlrn
     }
   }
 
+  /**
+   * @brief In the case of conditional simulation when the simulation technique
+   * is only available on grid, replace the values migrated from the grid ad data points
+   * by the simulation error
+   *
+   */
+  void ACalcSimuGaussian::_convertToDifferencesForGrid() const
+  {
+    auto nbsimu = getNbSimu();
+    auto nvar = getNVar();
+    auto nech = getDbin()->getNSample();
+    auto* dbin = getDbin();
+
+    for (Id isimu = 0; isimu < nbsimu; isimu++)
+      for (Id ivar = 0; ivar < nvar; ivar++)
+        for (Id iech = 0; iech < nech; iech++)
+        {
+          double zvar = dbin->getZVariable(iech, ivar);
+          double simval =
+            dbin->getSimvar(ELoc::SIMU, iech, isimu, ivar, 0, nbsimu, nvar);
+          double simunc = (FFFF(zvar) || FFFF(simval)) ? TEST : simval - zvar;
+          dbin->setSimvar(
+            ELoc::SIMU, iech, isimu, ivar, 0, nbsimu, nvar, simunc);
+        }
+  }
+
   /*****************************************************************************/
   /*!
    **  Convert the non conditional simulations at the data points
@@ -321,6 +362,7 @@ namespace gstlrn
     auto* dbin = getDbin();
     auto nbsimu = getNbSimu();
     auto nvar = getNVar();
+
     double r = 1.;
     if (_getFlagDGM())
     {
@@ -344,16 +386,17 @@ namespace gstlrn
         for (Id ivar = 0; ivar < nvar; ivar++)
         {
           double zvar = TEST;
-          if (!_getFlagGibbs())
-          {
-            zvar = dbin->getZVariable(iech, ivar);
-          }
           if (_getFlagGibbs())
           {
             zvar = dbin->getSimvar(
               ELoc::GAUSFAC, iech, isimu, ivar, 0, nbsimu, nvar);
             if (OptDbg::query(EDbg::SIMULATE)) printElement(zvar);
           }
+          else
+          {
+            zvar = dbin->getZVariable(iech, ivar);
+          }
+
           double simval = tab[ivar][iech];
           if (_getFlagDGM())
             simval = r * simval + sqrt(1. - r * r) * law_gaussian();

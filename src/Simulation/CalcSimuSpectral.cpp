@@ -62,7 +62,7 @@ namespace gstlrn
   /**
    * Simulate the spectrum components for Rn or S2 for one simulation
    */
-  Id CalcSimuSpectral::simulateSpectral()
+  Id CalcSimuSpectral::simulateSpectralTest()
   {
     // When called outside the calculator framework, we need to set the random seed here
     law_set_random_seed(getSeed());
@@ -74,7 +74,7 @@ namespace gstlrn
   /**
    * @brief Compute one non-conditional simulation on the samples of Dbout using Spectral Method
    */
-  Id CalcSimuSpectral::computeSpectral(Db* dbout, Id isimu)
+  Id CalcSimuSpectral::computeSpectralTest(Db* dbout, Id isimu)
   {
     VectorVectorDouble tab;
     VectorBool activeArray;

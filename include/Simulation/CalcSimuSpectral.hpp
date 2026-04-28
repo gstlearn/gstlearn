@@ -31,8 +31,8 @@ namespace gstlrn
     virtual ~CalcSimuSpectral();
 
     // Perform the task for ONE simulation (debugging option)
-    Id simulateSpectral();
-    Id computeSpectral(Db* dbout, Id isimu = 0);
+    Id simulateSpectralTest();
+    Id computeSpectralTest(Db* dbout, Id isimu = 0);
 
   protected:
     bool _check() override;

@@ -65,6 +65,8 @@ namespace gstlrn
 
     void setNbtuba(Id nbtuba) { _nbtuba = nbtuba; }
 
+    void setBox(const VectorVectorDouble& box) { _box = box; }
+
   private:
     bool _check() override;
     bool _preprocess() override;

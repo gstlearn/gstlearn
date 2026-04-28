@@ -245,14 +245,7 @@ simu_model <- function(model, prefix, nsimu = 1, ns = 1000, flag.st = TRUE,
   simu_nm = NULL
   for (is in 1:nsimu) {
     for (ivar in 1:nvar) {
-      if (nvar > 1)
-      {
-        simu_nm = c(simu_nm, sprintf("%s.V%d.S%d", prefix, ivar, is))
-      }
-      else
-      {
-        simu_nm = c(simu_nm, sprintf("%s.S%d", prefix, is))
-      }
+        simu_nm = c(simu_nm, NamingConvention.NamingConvention.getNameEncoded(prefix, NULL, ivar, nvar, is, nsimu))
     }
   }
   # defining the sections

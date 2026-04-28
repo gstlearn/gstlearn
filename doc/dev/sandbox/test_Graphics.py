@@ -26,7 +26,7 @@ model = gl.Model.createFromParam(gl.ECov.CUBIC, 15)
 
 # Non conditionnal simulations (4)
 
-err = gl.simtub(None, grid, model, None, 4)
+err = gl.simtub(None, grid, model, None, nbsimu=4)
 
 # Representation of the 4 simulations of the Grid
 

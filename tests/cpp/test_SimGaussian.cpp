@@ -43,10 +43,13 @@ int main(int argc, char* argv[])
   // Global parameters
   law_set_random_seed(32131);
   Id ndim = 2;
+  Id ncell = 100;
   Id nbsimu = 3;
   Id ndat = 10;
-  Id nvar = 2;
-  bool flagCond = false;
+  Id nvar = 1;
+  Id nfeatures = 100;
+  Id mode = -1;
+  bool flagCond = true;
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Build a Model (compatible for Turning Bands and for Spectral methods)
@@ -68,47 +71,70 @@ int main(int argc, char* argv[])
 
   // Simulate the conditioning information (one simulation)
   (void)simtub(
-    nullptr, data, model, nullptr, 1, 5423, 100, false,
+    nullptr, data, model, nullptr, 1, 5423, 100, false, VectorVectorDouble(),
     NamingConvention("Data"));
   data->getStatsAsTable().display();
 
   // Generate the output grid
-  Id ncell = 100;
   DbGrid* grid = DbGrid::create({ncell, ncell}, {1. / ncell, 1. / ncell});
 
-  Id nfeatures = 100;
-  // ====================== Simulation (turning bands) ====================
-  message("\n<----- Simulation using Turning Bands ----->\n");
-  simtub(
-    dbin, grid, model, nullptr, nbsimu, 425631, nfeatures, false,
-    NamingConvention("SimuTB"));
-  grid->getStatsAsTable({"SimuTB*"}).display();
-  for (Id ivar = 0; ivar < nvar; ivar++)
+  if (mode < 0 || mode == 1)
   {
-    auto name = NC::getNameEncoded("SimuTB", nullptr, ivar + 1, nvar, -1);
-    grid->getCorrelationAsTable({name}).display();
+    // ====================== Simulation (turning bands) ====================
+    message("\n<----- Simulation using Turning Bands ----->\n");
+    simtub(
+      dbin, grid, model, nullptr, nbsimu, 425631, nfeatures, false,
+      VectorVectorDouble(), NamingConvention("SimuTB"));
+    grid->getStatsAsTable({"SimuTB*"}).display();
+    for (Id ivar = 0; ivar < nvar; ivar++)
+    {
+      auto name = NC::getNameEncoded("SimuTB", nullptr, ivar + 1, nvar, -1);
+      grid->getCorrelationAsTable({name}).display();
+    }
+    grid->setLocators({"SimuTB"}, ELoc::Z, 0, true);
+    auto* varioTB = varioGridCalculate(grid);
+    (void)varioTB->dumpToNF("Vario_TB");
   }
-  grid->setLocators({"SimuTB"}, ELoc::Z, 0, true);
-  auto* varioTB = varioGridCalculate(grid);
 
-  // ====================== Simulation (spectral) ====================
-  message("\n<----- Simulation using Spectral Method ----->\n");
-  simuSpectral(
-    dbin, grid, model, nullptr, nbsimu, 425631, nfeatures, 100, false,
-    NamingConvention("SimuSPT"));
-  grid->getStatsAsTable({"SimuSPT*"}).display();
-  for (Id ivar = 0; ivar < nvar; ivar++)
+  if (mode < 0 || mode == 2)
   {
-    auto name = NC::getNameEncoded("SimuSPT", nullptr, ivar + 1, nvar, -1);
-    grid->getCorrelationAsTable({name}).display();
+    // ====================== Simulation (spectral) ====================
+    message("\n<----- Simulation using Spectral Method ----->\n");
+    simuSpectral(
+      dbin, grid, model, nullptr, nbsimu, 425631, nfeatures, 100, false,
+      NamingConvention("SimuSPT"));
+    grid->getStatsAsTable({"SimuSPT*"}).display();
+    for (Id ivar = 0; ivar < nvar; ivar++)
+    {
+      auto name = NC::getNameEncoded("SimuSPT", nullptr, ivar + 1, nvar, -1);
+      grid->getCorrelationAsTable({name}).display();
+    }
+    grid->setLocators({"SimuSPT"}, ELoc::Z, 0, true);
+    auto* varioSPT = varioGridCalculate(grid);
+    (void)varioSPT->dumpToNF("Vario_SPT");
   }
-  grid->setLocators({"SimuSPT"}, ELoc::Z, 0, true);
-  auto* varioSPT = varioGridCalculate(grid);
+
+  if (mode < 0 || mode == 3)
+  {
+    // ====================== Simulation (FFT) ====================
+    message("\n<----- Simulation using FFT Method ----->\n");
+    auto simparam = SimuFFTParam(true, 0.1);
+    simuFFT(
+      dbin, grid, model, simparam, nbsimu, 425631, false,
+      NamingConvention("SimuFFT"));
+    grid->getStatsAsTable({"SimuFFT*"}).display();
+    for (Id ivar = 0; ivar < nvar; ivar++)
+    {
+      auto name = NC::getNameEncoded("SimuFFT", nullptr, ivar + 1, nvar, -1);
+      grid->getCorrelationAsTable({name}).display();
+    }
+    grid->setLocators({"SimuFFT"}, ELoc::Z, 0, true);
+    auto* varioFFT = varioGridCalculate(grid);
+    (void)varioFFT->dumpToNF("Vario_FFT");
+  }
 
   // ====================== Dump into Neutral File =========================
   (void)grid->dumpToNF("Grid", EFormatNF::DEFAULT);
-  (void)varioSPT->dumpToNF("Vario_SPT");
-  (void)varioTB->dumpToNF("Vario_TB");
 
   // ====================== Free pointers ==================================
   delete data;

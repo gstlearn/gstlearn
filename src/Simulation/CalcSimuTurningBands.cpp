@@ -250,8 +250,14 @@ namespace gstlrn
 
   void CalcSimuTurningBands::_initializeBox()
   {
-    if (!_box.empty()) return;
     Id ndim = _getNDim();
+    if (!_box.empty())
+    {
+      if (static_cast<Id>(_box.size()) == ndim
+          && static_cast<Id>(_box[0].size()) == 2)
+        return;
+    }
+
     _box.resize(ndim);
     for (Id idim = 0; idim < ndim; idim++)
     {
@@ -984,7 +990,7 @@ namespace gstlrn
       if (type == ECov::NUGGET) continue;
 
       // Blank out the array 'tab'
-      tabLoc.fillWith(0.);
+      for (auto& v: tabLoc) v.fill(0.);
 
       // Evaluate the multivariate simulation on the target samples for current structure
       if (flagGrid)

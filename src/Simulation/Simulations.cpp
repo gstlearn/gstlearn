@@ -110,7 +110,8 @@ namespace gstlrn
    **
    ** \return  Error return code
    **
-   ** \param[in]  db      Db structure
+   ** \param[in]  dbin    Input Db structure
+   ** \param[in]  dbout   Output Db Grid structure
    ** \param[in]  model   ModelGeneric structure
    ** \param[in]  param   SimuFFTParam structure
    ** \param[in]  nbsimu  Number of simulations
@@ -120,7 +121,8 @@ namespace gstlrn
    **
    *****************************************************************************/
   Id simuFFT(
-    DbGrid* db,
+    Db* dbin,
+    DbGrid* dbout,
     ModelGeneric* model,
     SimuFFTParam& param,
     Id nbsimu,
@@ -129,7 +131,8 @@ namespace gstlrn
     const NamingConvention& namconv)
   {
     CalcSimuFFT simufft(nbsimu, verbose, seed);
-    simufft.setDbout(db);
+    simufft.setDbin(dbin);
+    simufft.setDbout(dbout);
     simufft.setModelGeneric(model);
     simufft.setNamingConvention(namconv);
     simufft.setParam(param);
@@ -380,10 +383,16 @@ namespace gstlrn
    ** \param[in]  seed       Seed for random number generator
    ** \param[in]  nbtuba     Number of turning bands
    ** \param[in]  flag_dgm   1 for Direct Block Simulation
+   ** \param[in]  box        Surrounding Box provided by the user (see remarks)
    ** \param[in]  namconv    Naming convention
    **
    ** \remark  The arguments 'dbin' and 'neigh' are optional: they must
    ** \remark  be defined only for conditional simulations
+   **
+   ** \remark The argument 'box' is optional: it must be defined only if the user
+   ** \remark wants to provide a surrounding box for the Turning Bands simulation.
+   ** \remark Otherwise it is calculated automatically as the box containing
+   ** \remark both the input and output Db (when provided), parallel to main axes.
    **
    *****************************************************************************/
   Id simtub(
@@ -395,6 +404,7 @@ namespace gstlrn
     Id seed,
     Id nbtuba,
     bool flag_dgm,
+    const VectorVectorDouble& box,
     const NamingConvention& namconv)
   {
     // Instantiate the Calculator
@@ -408,6 +418,7 @@ namespace gstlrn
     situba.setNeigh(neighLocal);
     situba.setNamingConvention(namconv);
     situba.setFlagDGM(flag_dgm);
+    situba.setBox(box);
 
     // Run the calculator
     Id error = (situba.run()) ? 0 : 1;

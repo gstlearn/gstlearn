@@ -59,8 +59,7 @@ int main(int argc, char* argv[])
   param.display();
 
   message("\n<----- Perform FFT Simulation ----->\n");
-  (void)simuFFT(grid, model, param, 1, seed, true);
-
+  (void)simuFFT(nullptr, grid, model, param, 1, seed, true);
   (void)grid->dumpToNF("grid.NF");
 
   delete grid;

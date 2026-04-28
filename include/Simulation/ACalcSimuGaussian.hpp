@@ -42,6 +42,11 @@ namespace gstlrn
 
     void setFlagPGS(bool flag_pgs) { _flagPGS = flag_pgs; }
 
+    void setFlagOnGridOnly(bool flag_on_grid_only)
+    {
+      _flagOnGridOnly = flag_on_grid_only;
+    }
+
     void setFlagAllocationAlreadyDone(bool flag)
     {
       _flagAllocationAlreadyDone = flag;
@@ -100,6 +105,7 @@ namespace gstlrn
       Id isimu,
       const VectorBool& activeArray,
       VectorVectorDouble& tab);
+    void _convertToDifferencesForGrid() const;
     void _updateDataToTarget() const;
     static void _allocateForOneSimulation(
       const Db* db,
@@ -120,6 +126,7 @@ namespace gstlrn
     bool _flagPGS;
     bool _flagGibbs;
     bool _flagDGM;
+    bool _flagOnGridOnly;
     bool _flagAllocationAlreadyDone;
   };
 

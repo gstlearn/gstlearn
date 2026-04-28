@@ -169,7 +169,6 @@ namespace gstlrn
     inline double normTo(const VectorNumT<T>& other) const;
     inline double correlation(const VectorNumT<T>& other) const;
     inline void normalizeInPlace(Id normType = 2);
-    inline void fillWith(double value);
   };
 
   template<typename T>
@@ -654,24 +653,6 @@ namespace gstlrn
       else
       {
         v.normalizeInPlace(normType);
-      }
-    }
-  }
-
-  template<typename T>
-  void VectorNumT<T>::fillWith(double value)
-  {
-    if (this->_v.empty()) return;
-
-    for (auto& v: this->_v)
-    {
-      if constexpr (std::is_arithmetic_v<T>)
-      {
-        v = value; // cas terminal : double / int
-      }
-      else
-      {
-        v.fillWith(value); // récursion pour conteneur
       }
     }
   }
