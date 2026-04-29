@@ -379,7 +379,7 @@ gg  = array(NaN, dim = c(nlag, ndir, nsim))
 hh  = array(NaN, dim = c(nlag, ndir, nsim))
 for (is in 1:nsim) {
   err = grd$setLocator(
-    name = NamingConvention_getNameEncoded(prefix, NULL, 1, 1, is, nsim),
+    name = NC_getNameEncoded(prefix, NULL, 1, 1, is, nsim),
     locatorType = ELoc_Z(),
     cleanSameLocator = TRUE)
   vario = Vario(varioPar)
