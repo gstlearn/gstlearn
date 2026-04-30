@@ -44,7 +44,6 @@ namespace gstlrn
     if (_invNoise == nullptr) return;
     if (_QKriging == nullptr) return;
     _ndat = _projInKriging->getNPoint();
-    _prepare(true, true);
   }
 
   ASPDEOp::~ASPDEOp()
@@ -92,8 +91,6 @@ namespace gstlrn
 
   Id ASPDEOp::_addToDest(const constvect inv, vect outv) const
   {
-    _prepare();
-
     Id status = _QKriging->addToDest(
       inv, outv); // TODO: find why outv is set to zero in multistructure case
     if (status) return status;
@@ -103,6 +100,8 @@ namespace gstlrn
 
   void ASPDEOp::_addProjOp(const constvect inv, vect out) const
   {
+    _prepare();
+
     vect w1s(_workdat1);
     vect w2s(_workdat2);
     _projInKriging->mesh2point(inv, w1s);
@@ -469,6 +468,8 @@ namespace gstlrn
 
   Id ASPDEOp::_buildRhs(const constvect inv) const
   {
+    _prepare(true, false);
+
     _rhs.resize(getSize());
     vect w1(_workdat1);
     _invNoise->evalDirect(inv, w1);
@@ -478,11 +479,12 @@ namespace gstlrn
 
   void ASPDEOp::evalInvCov(const constvect inv, vect result) const
   {
+    _prepare(false, true);
+
     // InvNoise - InvNoise * Proj' * (Q + Proj * InvNoise * Proj')^-1 * Proj * InvNoise
 
     _rhs.resize(getSize());
     _workmesh.resize(getSize());
-    _workdat2.resize(_getNDat());
     _workdat3.resize(_getNDat());
 
     _invNoise->evalDirect(inv, result);
@@ -498,12 +500,13 @@ namespace gstlrn
     const MatrixDense& driftMat,
     bool verbose) const
   {
+    _prepare(true, false);
+
     Id xsize = (driftMat.getNCols());
     VectorDouble XtInvSigmaZ(xsize);
     MatrixSymmetric XtInvSigmaX(xsize);
     VectorDouble result(xsize);
 
-    _workdat1.resize(_getNDat());
     vect w1s(_workdat1);
     for (Id i = 0; i < xsize; i++)
     {
