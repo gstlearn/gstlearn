@@ -74,7 +74,5 @@ namespace gstlrn
     VectorInt _pointNumbers;
     VectorInt _apexNumbers;
     bool _silent;
-    mutable VectorDouble _work;
-    mutable VectorDouble _workmesh;
   };
 } // namespace gstlrn
