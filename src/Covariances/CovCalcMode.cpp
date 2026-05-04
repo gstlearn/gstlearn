@@ -22,6 +22,7 @@ namespace gstlrn
     , _member(member)
     , _asVario(asVario)
     , _unitary(unitary)
+    , _envelop(false)
     , _orderVario(orderVario)
   {
   }
@@ -31,6 +32,7 @@ namespace gstlrn
     , _member(r._member)
     , _asVario(r._asVario)
     , _unitary(r._unitary)
+    , _envelop(r._envelop)
     , _orderVario(r._orderVario)
   {
   }
@@ -43,6 +45,7 @@ namespace gstlrn
       _member = r._member;
       _asVario = r._asVario;
       _unitary = r._unitary;
+      _envelop = r._envelop;
       _orderVario = r._orderVario;
     }
     return *this;

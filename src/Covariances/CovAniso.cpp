@@ -115,7 +115,12 @@ namespace gstlrn
   double
     CovAniso::_getSillValue(Id ivar, Id jvar, const CovCalcMode* mode) const
   {
-    if (mode != nullptr && mode->getUnitary()) return 1.;
+    if (mode != nullptr)
+    {
+      if (mode->getUnitary()) return 1;
+      if (mode->getEnvelop())
+        return sqrt(getSill(ivar, ivar) * getSill(jvar, jvar));
+    }
     return getSill(ivar, jvar);
   }
 
