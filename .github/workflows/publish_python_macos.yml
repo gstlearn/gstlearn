@@ -54,7 +54,7 @@ jobs:
         brew install eigen
 
     - name: Setup uv
-      uses: astral-sh/setup-uv@v6
+      uses: astral-sh/setup-uv@v8.1.0
       with:
         python-version: ${{ matrix.python.py }}
         activate-environment: true
@@ -138,7 +138,7 @@ jobs:
         name: macos-python-package-${{matrix.arch.os}}
 
     - name: Setup uv
-      uses: astral-sh/setup-uv@v6
+      uses: astral-sh/setup-uv@v8.1.0
       with:
         python-version: ${{ matrix.python.py }}
         activate-environment: true
