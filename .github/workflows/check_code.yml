@@ -23,7 +23,7 @@ jobs:
   check-formatting:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Setup uv
       uses: astral-sh/setup-uv@v6
@@ -72,7 +72,7 @@ jobs:
         span: [USE_BOOST_SPAN=ON, USE_BOOST_SPAN=OFF]
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Install dependencies
       run: |
@@ -123,7 +123,7 @@ jobs:
           - {tidy: false, sa: false, dox: true}
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Install Ubuntu dependencies
       run: |

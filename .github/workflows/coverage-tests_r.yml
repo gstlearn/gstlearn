@@ -28,7 +28,7 @@ jobs:
             r_version: 4.2.3  # ggpubr install fails
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Setup R Version
       uses: r-lib/actions/setup-r@v2

@@ -43,7 +43,7 @@ jobs:
         ]
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     # Fix dubious ownership issue:
     # https://github.com/actions/checkout/issues/1048
@@ -142,7 +142,7 @@ jobs:
         ]
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - uses: actions/download-artifact@v7
       with:
