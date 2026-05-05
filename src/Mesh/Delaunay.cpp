@@ -535,7 +535,7 @@ namespace gstlrn
     // Store the information in the returned AMesh structure
 
     auto* amesh = new MeshEStandard();
-    amesh->reset(ndim, ncorner, points, meshes, false);
+    amesh->resetFromVectors(ndim, ncorner, points, meshes, false);
 
     return amesh;
   }

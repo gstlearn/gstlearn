@@ -74,6 +74,15 @@ namespace gstlrn
       const VectorDouble& dat,
       const IProj* projK = nullptr,
       const IProj* projS = nullptr) const;
+    VectorDouble simCondGibbs(
+      const VectorDouble& dat,
+      const VectorDouble& gibbsUpperBound,
+      const VectorDouble& gibbsLowerBound,
+      const IProj* projK = nullptr,
+      const IProj* projS = nullptr,
+      Id nIter = 5,
+      bool useCache = true) const;
+    void clearGibbsCache() const;
     VectorDouble simNonCond(const IProj* proj = nullptr) const;
     VectorDouble getRangeEigenVal(Id ndiscr = 100) const;
 
@@ -126,6 +135,14 @@ namespace gstlrn
     Id _kriging(const constvect inv, vect out) const;
     void _simNonCond(vect outv) const;
     void _simCond(const constvect data, vect outvK, vect outvS) const;
+    void _simCondGibbs(
+      const constvect data,
+      const constvect gibbsLowerBound,
+      const constvect gibbsUpperBound,
+      vect outvK,
+      vect outvS,
+      Id nIter,
+      bool cache) const;
 
     Id _getNDat() const { return _ndat; }
 
@@ -159,6 +176,7 @@ namespace gstlrn
     mutable VectorDouble _workNoiseData;
     mutable VectorDouble _rhs;
     mutable VectorDouble _workmesh;
+    mutable VectorDouble _workGibbsData;
   };
 
   /****************************************************************************/

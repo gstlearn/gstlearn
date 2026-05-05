@@ -40,6 +40,8 @@ namespace gstlrn
       bool all_available = true,
       Id default_distance_function = 1);
 
+    virtual ~Ball() = default;
+
     void init(
       const Db* db,
       Id leaf_size = 10,
@@ -51,9 +53,9 @@ namespace gstlrn
     KNN queryOne(const double* test, Id n_features, Id n_neighbors = 1);
     KNN queryOneAsVD(const VectorDouble& test, Id n_neighbors = 1);
     KNN queryOneAsVDFromSP(const SpacePoint& Pt, Id n_neighbors = 1);
-    VectorInt getIndices(const SpacePoint& Pt, Id n_neighbors = 1);
+    virtual VectorInt getIndices(const SpacePoint& Pt, Id n_neighbors = 1);
     Id queryClosest(const VectorDouble& test);
-    Id queryOneInPlace(
+    virtual Id queryOneInPlace(
       const VectorDouble& test,
       Id n_neighbors,
       VectorInt& indices,
@@ -83,7 +85,7 @@ namespace gstlrn
     static MatrixT<double>
       _getInformationFromMesh(const AMesh* mesh, Id* n_samples, Id* n_features);
 
-  private:
+  protected:
     t_btree _tree;
   };
 

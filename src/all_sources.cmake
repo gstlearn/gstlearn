@@ -296,6 +296,7 @@ set(SRC
   Mesh/Delaunay.cpp
   Mesh/MeshSpherical.cpp
   Mesh/MeshSphericalExt.cpp
+  Mesh/MeshEFaulted.cpp
   Mesh/MeshEStandard.cpp
   Mesh/VectorMeshes.cpp
   Morpho/Morpho.cpp
@@ -376,6 +377,7 @@ set(SRC
   Transform/TuckeyGH.cpp
   Transform/YeoJohnson.cpp
   Tree/Ball.cpp
+  Tree/BallFaulted.cpp
   Tree/KNN.cpp
   Tree/ball_algorithm.cpp
   Tree/neighbors_heap.cpp
