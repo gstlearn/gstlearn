@@ -63,7 +63,7 @@ jobs:
         uv pip install scikit-sparse==0.4.16
 
     - name: Run sccache-cache
-      uses: mozilla-actions/sccache-action@v0.0.9
+      uses: mozilla-actions/sccache-action@v0.0.10
 
     - name: Configure build directory for python package
       run: |
