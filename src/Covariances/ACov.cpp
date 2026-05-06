@@ -2487,13 +2487,12 @@ namespace gstlrn
     {
       (void)GH::rotationGetDirectionDefault(ndim, codir);
     }
-    Id nh = static_cast<Id>(hh.size());
-    VectorDouble gg(nh);
-    VectorDouble g1 = sample(hh, codir, ivar, ivar, mode);
-    VectorDouble g2 = sample(hh, codir, jvar, jvar, mode);
-
-    for (Id i = 0; i < nh; i++) gg[i] = isign * sqrt(ABS(g1[i] * g2[i]));
-
+    CovCalcMode modeLoc =
+      (mode != nullptr) ? *mode : CovCalcMode(ECalcMember::LHS);
+    modeLoc.setEnvelop(true);
+    VectorDouble gg = sample(hh, codir, ivar, jvar, &modeLoc);
+    if (isign < 0)
+      for (Id i = 0, n = gg.size(); i < n; i++) gg[i] = -gg[i];
     return gg;
   }
 
