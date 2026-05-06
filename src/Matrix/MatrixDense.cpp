@@ -89,13 +89,6 @@ namespace gstlrn
     return *(eigenMat().data() + irank);
   }
 
-  constvect MatrixDense::getColumnPtr(Id icol) const
-  {
-    const auto a = eigenMat().col(icol);
-    size_t n = getNRows();
-    return {a.data(), n};
-  }
-
   void MatrixDense::_setValueByRank(Id irank, double value)
   {
     *(eigenMat().data() + irank) = value;

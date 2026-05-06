@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Install dependencies
       run: |
@@ -45,7 +45,7 @@ jobs:
           pandoc
 
     - name: Setup uv
-      uses: astral-sh/setup-uv@v6
+      uses: astral-sh/setup-uv@v8.1.0
       with:
         python-version: ${{env.PYTHON_VERSION}}
         activate-environment: true
@@ -63,7 +63,7 @@ jobs:
         uv pip install scikit-sparse==0.4.16
 
     - name: Run sccache-cache
-      uses: mozilla-actions/sccache-action@v0.0.9
+      uses: mozilla-actions/sccache-action@v0.0.10
 
     - name: Configure build directory for python package
       run: |

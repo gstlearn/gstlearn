@@ -249,7 +249,7 @@ simu_model <- function(model, prefix, nsimu = 1, ns = 1000, flag.st = TRUE,
   simu_nm = NULL
   for (is in 1:nsimu) {
   for (ivar in 1:nvar) {
-    simu_nm = c(simu_nm, NamingConvention_getNameEncoded(prefix, NULL, ivar, nvar, is, nsimu))
+    simu_nm = c(simu_nm, NC_getNameEncoded(prefix, NULL, ivar, nvar, is, nsimu))
     }
   }
   # defining the sections
@@ -357,7 +357,7 @@ QC_section <- function(model, grid, prefix, nsimu, isec = 1,
   # histogram and raster for each variable of the first simulation
   # --------------------------------------------------------------------------
   for (ivar in 1:nvar) {
-    s_nm = NamingConvention_getNameEncoded(prefix, NULL, ivar, nvar, 1, nsimu)
+    s_nm = NC_getNameEncoded(prefix, NULL, ivar, nvar, 1, nsimu)
     titre = sprintf("%s[%d] in section %s", prefix, ivar, sec_lab[isec])
     # histogram
     if (flag.histo) {
@@ -408,8 +408,8 @@ QC_section <- function(model, grid, prefix, nsimu, isec = 1,
       gg_simu = array(NaN, dim = c(nsimu, nlag))
       hh_simu = array(NaN, dim = c(nlag))
       for (is in 1:nsimu) {
-        v1_nm = NamingConvention_getNameEncoded(prefix, NULL, ivar, nvar, is, nsimu)
-        v2_nm = NamingConvention_getNameEncoded(prefix, NULL, jvar, nvar, is, nsimu)
+        v1_nm = NC_getNameEncoded(prefix, NULL, ivar, nvar, is, nsimu)
+        v2_nm = NC_getNameEncoded(prefix, NULL, jvar, nvar, is, nsimu)
         v1    = grid$getColumns(names = v1_nm)
         v2    = grid$getColumns(names = v2_nm)
         if (length(dx) == 1) {

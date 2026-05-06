@@ -1440,4 +1440,7 @@ addMethods("CovAnisoList", c("ACov","CovList"))
 
 addMethods("Db", c("ASerializable"))
 addMethods("DbGrid", c("ASerializable"))
+
+# Shorten NamingConvention_getNameEncoded
+NC_getNameEncoded = NamingConvention_getNameEncoded
 %}

@@ -218,7 +218,6 @@ namespace gstlrn
     // Adding a Row or a Column (at the bottom or right of Rectangular Matrix)
     void addRow(Id nrow_added = 1);
     void addColumn(Id ncolumn_added = 1);
-    constvect getColumnPtr(Id icol) const;
 
     static MatrixDense* create(const MatrixDense* mat);
     static MatrixDense* create(Id nrow, Id ncol);

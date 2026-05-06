@@ -229,7 +229,7 @@ Visualization 2D
 
 ```{r Visu2D}
 # simu_name = paste0(covname, ".V1.S1")
-simu_name = NamingConvention_getNameEncoded(covname, NULL)
+simu_name = NC_getNameEncoded(covname, NULL)
 p = plot.init(asp=1) +
   plot.raster(grd, name = simu_name, flagLegend = TRUE, legendName = "Y",
             palette = "Spectral") +
@@ -306,7 +306,7 @@ err = simuSpectral(dbin = NULL, dbout = grd, model = modelSph2, seed = 2584, ns=
 varios <- matrix(NaN, nrow = nsim, ncol = ndisc)
 for (s in 1:nsim) {
 #  nm  = paste0(covname, ".V1.S", s)
-  nm = NamingConvention_getNameEncoded(covname, NULL, 1, 1, s, nsim)
+  nm = NC_getNameEncoded(covname, NULL, 1, 1, s, nsim)
   vs = vario_on_S2(grd = grd, nm_var = nm, lag = c(1,0), nlag = 90, ndisc = ndisc, dmax = pi)
   varios[s, 1:length(vs$hh)] <- vs$gg
 }

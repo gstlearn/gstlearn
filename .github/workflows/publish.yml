@@ -29,7 +29,7 @@ jobs:
       cran_path: ${{ steps.main_step.outputs.CRAN_PATH }}
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Define CRAN path on our server
       id: main_step

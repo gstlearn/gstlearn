@@ -507,7 +507,7 @@ namespace gstlrn
     vect w1s(_workdat1);
     for (Id i = 0; i < xsize; i++)
     {
-      auto xm = driftMat.getColumnPtr(i);
+      auto xm = driftMat.getViewOnColumn(i);
       evalInvCov(xm, w1s);
 
       constvect ym(Z.data(), Z.size());

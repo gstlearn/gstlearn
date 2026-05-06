@@ -823,7 +823,7 @@ MyCorAniso <- function(type = MyType_[3], sigma = 1.0, params = NULL,
       val = compute_simulation(sp = sp_, X = X, verbose = verbose)
       isim = 1
       for (ivar in 1:nvar) {
-        nm_var = NamingConvention_getNameEncoded(prefix, NULL, ivar, nvar, isim, isim)
+        nm_var = NC_getNameEncoded(prefix, NULL, ivar, nvar, isim, isim)
         dbout[nm_var] = val[ivar,]
       }
       NULL
@@ -967,7 +967,7 @@ MyCorMatern <- function(type = MyType_[3],
       val = compute_simulation(sp = sp_, X = X, verbose = verbose)
       isim = 1
       for (ivar in 1:nvar) {
-        nm_var = NamingConvention_getNameEncoded(prefix, NULL, ivar, nvar, isim, isim)
+        nm_var = NC_getNameEncoded(prefix, NULL, ivar, nvar, isim, isim)
         dbout[nm_var] = val[ivar,]
       }
       NULL
@@ -1131,7 +1131,7 @@ MyCorGaussianMixture <- function(type = MyType_[3], nu = 1/2, kappa = rep(1.0, l
       val = compute_simulation(sp = sp_, X = X, verbose = verbose)
       isim = 1
       for (ivar in 1:nvar) {
-        nm_var = NamingConvention_getNameEncoded(prefix, NULL, ivar, nvar, isim, isim)
+        nm_var = NC_getNameEncoded(prefix, NULL, ivar, nvar, isim, isim)
         dbout[nm_var] = val[ivar,]
       }
       NULL
@@ -1267,7 +1267,7 @@ MyCorGneiting <- function(type = MyType_[7], nu = 1/2, kappa = rep(1.0, length(n
       val = compute_simulation(sp = sp_, X = X, verbose = verbose)
       isim = 1
       for (ivar in 1:nvar) {
-        nm_var = NamingConvention_getNameEncoded(prefix, NULL, ivar, nvar, isim, isim)
+        nm_var = NC_getNameEncoded(prefix, NULL, ivar, nvar, isim, isim)
         dbout[nm_var] = val[ivar,]
       }
       NULL
@@ -1671,7 +1671,7 @@ for (id in seq_len(length(list_test))) {
   tab_var = NULL
   isim = 1
   for (ivar in 1:nvar) {
-    nm_var = NamingConvention_getNameEncoded(prefix, NULL, ivar, nvar, isim, isim)
+    nm_var = NC_getNameEncoded(prefix, NULL, ivar, nvar, isim, isim)
     tab_var = c(tab_var, nm_var )
     val = grid[nm_var]
     # compute statistics
@@ -1727,7 +1727,7 @@ for (id in seq_len(length(list_test))) {
     # processing the simulation
     ig = 0
     for (ivar in 1:nvar) {
-      nm_vari = NamingConvention_getNameEncoded(prefix, NULL, ivar, nvar, isim, nsim)
+      nm_vari = NC_getNameEncoded(prefix, NULL, ivar, nvar, isim, nsim)
       sim_vari = matrix(grid[nm_vari], nx[idx_x], nx[idx_y])
       # statistics
       var_name = c(var_name, nm_vari)
@@ -1735,7 +1735,7 @@ for (id in seq_len(length(list_test))) {
 
       for (jvar in ivar:nvar) {
         ig = ig+1
-        nm_varj = NamingConvention_getNameEncoded(prefix, NULL, jvar, nvar, isim, nsim)
+        nm_varj = NC_getNameEncoded(prefix, NULL, jvar, nvar, isim, nsim)
         sim_varj = matrix(grid[nm_varj], nx[idx_x], nx[idx_y])
         # variogram
         for (idir in 1:nrow(dir_list)) {

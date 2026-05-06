@@ -32,7 +32,7 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Install dependencies
       run: |
@@ -58,7 +58,7 @@ jobs:
         python-version: ${{env.PYTHON_VERSION}}
 
     - name: Run sccache-cache
-      uses: mozilla-actions/sccache-action@v0.0.9
+      uses: mozilla-actions/sccache-action@v0.0.10
 
     - name: Set up Visual Studio shell
       uses: egor-tensin/vs-shell@v2

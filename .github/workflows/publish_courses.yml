@@ -37,7 +37,7 @@ jobs:
       project_full_version: ${{ steps.main_step.outputs.PROJECT_FULL_VERSION }}
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Install dependencies
       run: |
@@ -55,7 +55,7 @@ jobs:
           pandoc
 
     - name: Setup uv
-      uses: astral-sh/setup-uv@v6
+      uses: astral-sh/setup-uv@v8.1.0
       with:
         python-version: ${{env.PYTHON_VERSION}}
         activate-environment: true
