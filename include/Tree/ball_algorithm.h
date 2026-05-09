@@ -97,6 +97,11 @@ namespace gstlrn
       Id i_pt,
       t_nheap& heap,
       double dist) const;
+    void query_radius_depth_first(
+      Id i_node,
+      const constvect pt,
+      double radius,
+      VectorInt& results) const;
   };
 
   /*

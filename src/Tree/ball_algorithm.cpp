@@ -273,6 +273,35 @@ namespace gstlrn
     return (0);
   }
 
+  void t_btree::query_radius_depth_first(
+    Id i_node,
+    const constvect pt,
+    double radius,
+    VectorInt& results) const
+  {
+    if (min_dist(i_node, pt) > radius) return;
+
+    const t_nodedata& node_info = this->node_data[i_node];
+    if (node_info.is_leaf)
+    {
+      const auto dist_func = this->default_distance_function == 1
+                             ? euclidean_distance
+                             : manhattan_distance;
+      for (Id i = node_info.idx_start; i < node_info.idx_end; i++)
+      {
+        Id j = this->idx_array[i];
+        if (!this->available[j]) continue;
+        double d = dist_func(pt.data(), this->data.getRow(j).data(), n_features);
+        if (d <= radius) results.push_back(j);
+      }
+    }
+    else
+    {
+      query_radius_depth_first(2 * i_node + 1, pt, radius, results);
+      query_radius_depth_first(2 * i_node + 2, pt, radius, results);
+    }
+  }
+
   void t_btree::display(Id level) const
   {
     mestitle(0, "Ball Tree");

@@ -55,6 +55,7 @@ namespace gstlrn
     KNN queryOneAsVDFromSP(const SpacePoint& Pt, Id n_neighbors = 1);
     virtual VectorInt getIndices(const SpacePoint& Pt, Id n_neighbors = 1);
     Id queryClosest(const VectorDouble& test);
+    void queryRadiusInPlace(const VectorDouble& test, double radius, VectorInt& indices) const;
     virtual Id queryOneInPlace(
       const VectorDouble& test,
       Id n_neighbors,
