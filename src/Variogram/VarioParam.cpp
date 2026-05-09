@@ -498,7 +498,7 @@ namespace gstlrn
         for (Id jjech = ideb; jjech < nech; jjech++)
         {
           Id jech = rindex[jjech];
-          if (db->getDistance1D(iech, jech) > maxdist) break;
+          if (db->getDistance1D(jech, iech) > maxdist) break;
           if (hasSel && !db->isActive(jech)) continue;
           if (hasWeight && FFFF(db->getWeight(jech))) continue;
           db->getSampleAsSTInPlace(jech, T2);
