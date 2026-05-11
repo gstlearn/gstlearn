@@ -291,7 +291,8 @@ namespace gstlrn
       {
         Id j = this->idx_array[i];
         if (!this->available[j]) continue;
-        double d = dist_func(pt.data(), this->data.getRow(j).data(), n_features);
+        double d =
+          dist_func(pt.data(), this->data.getRow(j).data(), n_features);
         if (d <= radius) results.push_back(j);
       }
     }

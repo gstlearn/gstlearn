@@ -3546,10 +3546,11 @@ namespace gstlrn
 
         ball.queryRadiusInPlace(coords, maxdist, neighbors);
 
-        for (Id jjech = 0, nneigh = (Id)neighbors.size(); jjech < nneigh; jjech++)
+        for (Id jjech = 0, nneigh = (Id)neighbors.size(); jjech < nneigh;
+             jjech++)
         {
           jech = neighbors[jjech];
-          if (jech <= iech) continue;  // count each unordered pair once
+          if (jech <= iech) continue; // count each unordered pair once
           if (hasSel && !db->isActive(jech)) continue;
           if (hasWeight && FFFF(db->getWeight(jech))) continue;
           db->getSampleAsSTInPlace(jech, T2);
