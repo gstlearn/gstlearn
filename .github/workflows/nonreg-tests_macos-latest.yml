@@ -42,6 +42,7 @@ jobs:
         brew install eigen
         brew install nlopt
         brew install hdf5
+        brew install python-tk # for gdal
         brew install gdal || true  # for terra
         echo "$(brew --prefix bison)/bin" >> $GITHUB_PATH
 
