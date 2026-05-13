@@ -239,7 +239,7 @@ namespace gstlrn
     const EPowerPT& power)
   {
     DECLARE_UNUSED(iapex, igparam)
-    if (_work.size() == 0) _work3.resize(getSize());
+    if (_work.size() == 0) _work.resize(getSize());
     if (_work5.size() == 0) _work5.resize(getSize());
 
     vect ws(_work);
