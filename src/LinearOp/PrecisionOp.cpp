@@ -360,14 +360,14 @@ namespace gstlrn
     const EPowerPT& power) const
   {
     constvect in = inv;
-    if (_work.size() == 0) _work.resize(getSize());
     if (_work2.size() == 0) _work2.resize(getSize());
-    vect worksp(_work);
     vect worksp2(_work2);
     // Pre-processing
 
     if (power == EPowerPT::ONE || power == EPowerPT::MINUSONE)
     {
+      if (_work.size() == 0) _work.resize(getSize());
+      vect worksp(_work);
       _shiftOp->prodLambda(inv, worksp, power);
       in = worksp;
     }
