@@ -389,7 +389,7 @@ namespace gstlrn
     vect outv,
     const EPowerPT& power) const
   {
-    const constvect* inPtr = &inv;
+    constvect in = inv;
     if (_work.size() == 0) _work.resize(getSize());
     if (_work2.size() == 0) _work2.resize(getSize());
     vect worksp(_work);
@@ -399,12 +399,12 @@ namespace gstlrn
     if (power == EPowerPT::ONE || power == EPowerPT::MINUSONE)
     {
       _shiftOp->prodLambda(inv, worksp, power);
-      inPtr = reinterpret_cast<constvect*>(&worksp);
+      in = worksp;
     }
 
     // Polynomial evaluation
 
-    if (_evalPoly(power, *inPtr, worksp2) != 0)
+    if (_evalPoly(power, in, worksp2) != 0)
       my_throw(
         "Computation in 'eval' interrupted due to problem in '_evalPoly'");
 
