@@ -39,9 +39,6 @@ namespace gstlrn
     , _training(false)
     , _destroyShiftOp(false)
     , _userPoly(false)
-    , _work()
-    , _work2()
-    , _work3()
   {
   }
 
@@ -57,16 +54,7 @@ namespace gstlrn
     , _training(false)
     , _destroyShiftOp(false)
     , _userPoly(false)
-    , _work()
-    , _work2()
-    , _work3()
   {
-    if (_shiftOp != nullptr)
-    {
-      _work.resize(_shiftOp->getSize());
-      _work2.resize(_shiftOp->getSize());
-      _work3.resize(_shiftOp->getSize());
-    }
   }
 
   PrecisionOp::PrecisionOp(
@@ -82,9 +70,6 @@ namespace gstlrn
     , _training(false)
     , _destroyShiftOp(true)
     , _userPoly(false)
-    , _work()
-    , _work2()
-    , _work3()
   {
     const auto* meshTurbo = dynamic_cast<const MeshETurbo*>(mesh);
 
@@ -105,9 +90,6 @@ namespace gstlrn
     {
       _shiftOp->normalizeLambdaBySills(mesh);
     }
-    _work.resize(_shiftOp->getSize());
-    _work2.resize(_shiftOp->getSize());
-    _work3.resize(_shiftOp->getSize());
   }
 
   PrecisionOp::PrecisionOp(const PrecisionOp& pmat)
@@ -119,9 +101,6 @@ namespace gstlrn
     , _training(false)
     , _destroyShiftOp(pmat._destroyShiftOp)
     , _userPoly(false)
-    , _work(pmat._work)
-    , _work2(pmat._work2)
-    , _work3(pmat._work3)
   {
     if (_destroyShiftOp)
       _shiftOp = dynamic_cast<AShiftOp*>(pmat._shiftOp->clone());
@@ -143,9 +122,6 @@ namespace gstlrn
       _training = pmat._training;
       _destroyShiftOp = pmat._destroyShiftOp;
       _userPoly = pmat._userPoly;
-      _work = pmat._work;
-      _work2 = pmat._work2;
-      _work3 = pmat._work3;
 
       if (_destroyShiftOp)
       {
@@ -173,9 +149,6 @@ namespace gstlrn
     , _training(pmat._training)
     , _destroyShiftOp(pmat._destroyShiftOp)
     , _userPoly(pmat._userPoly)
-    , _work(std::move(pmat._work))
-    , _work2(std::move(pmat._work2))
-    , _work3(std::move(pmat._work3))
   {
     pmat._shiftOp = nullptr;
     pmat._cova = nullptr;
@@ -194,9 +167,6 @@ namespace gstlrn
       _training = pmat._training;
       _destroyShiftOp = pmat._destroyShiftOp;
       _userPoly = pmat._userPoly;
-      _work = std::move(pmat._work);
-      _work2 = std::move(pmat._work2);
-      _work3 = std::move(pmat._work3);
 
       pmat._shiftOp = nullptr;
       pmat._cova = nullptr;
