@@ -165,9 +165,6 @@ namespace gstlrn
   protected:
     mutable VectorDouble _work;
     mutable VectorDouble _work2;
-    mutable VectorDouble _work3;
-    mutable VectorDouble _work4;
-    mutable VectorDouble _work5;
     mutable VectorVectorDouble _workPoly;
 #endif
   };
