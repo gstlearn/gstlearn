@@ -428,7 +428,7 @@ namespace gstlrn
         }
       }
 
-      if (_work5.size() == 0) _work5.resize(getSize());
+      if (_work.size() == 0) _work.resize(getSize());
 
       // TODO use clone is probably better...
       if (a == nullptr)
@@ -437,7 +437,7 @@ namespace gstlrn
         return 1;
       }
       static_cast<ClassicalPolynomial*>(_polynomials[power].get())
-        ->evalOpTraining(a->getS(), invs, _workPoly, _work5);
+        ->evalOpTraining(a->getS(), invs, _workPoly, _work);
 
       for (Id i = 0; i < static_cast<Id>(inv.size()); i++)
       {
@@ -454,12 +454,12 @@ namespace gstlrn
 
   void PrecisionOp::evalInverse(const constvect vecin, VectorDouble& vecout)
   {
-    if (_work.size() != vecin.size()) _work.resize(vecin.size());
+    if (_work2.size() != vecin.size()) _work2.resize(vecin.size());
     vect vecouts(vecout);
     _shiftOp->prodLambda(vecin, vecouts, EPowerPT::MINUSONE);
-    vect works(_work);
-    _evalPoly(EPowerPT::MINUSONE, vecout, works);
-    _shiftOp->prodLambda(works, vecouts, EPowerPT::MINUSONE);
+    vect works2(_work2);
+    _evalPoly(EPowerPT::MINUSONE, vecout, works2);
+    _shiftOp->prodLambda(works2, vecouts, EPowerPT::MINUSONE);
   }
 
   VectorDouble PrecisionOp::computeCov(Id imesh)
