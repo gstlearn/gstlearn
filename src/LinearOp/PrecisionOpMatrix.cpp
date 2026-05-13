@@ -137,13 +137,13 @@ namespace gstlrn
     vect result,
     const EPowerPT& power)
   {
-    if (_work2.size() == 0) _work2.resize(getSize());
     if (_work3.size() == 0) _work3.resize(getSize());
     if (_work4.size() == 0) _work4.resize(getSize());
+    if (_work5.size() == 0) _work5.resize(getSize());
 
-    vect w2s(_work2);
     vect w3s(_work3);
     vect w4s(_work4);
+    vect w5s(_work5);
     setTraining(false);
     evalPower(Y, w3s, power);
     setTraining(true);
@@ -173,10 +173,10 @@ namespace gstlrn
             (Y[iapex] * _work4[iapex] + X[iapex] * _work3[iapex]) * temp / val;
         }
 
-        evalDerivOptim(w2s, iapex, igparam, power);
+        evalDerivOptim(w5s, iapex, igparam, power);
         for (Id i = 0; i < getSize(); i++)
         {
-          result[iadress] += _work2[i] * Y[i];
+          result[iadress] += _work5[i] * Y[i];
         }
       }
     }
@@ -240,10 +240,10 @@ namespace gstlrn
   {
     DECLARE_UNUSED(iapex, igparam)
     if (_work.size() == 0) _work.resize(getSize());
-    if (_work5.size() == 0) _work5.resize(getSize());
+    if (_work2.size() == 0) _work2.resize(getSize());
 
     vect ws(_work);
-    vect w5s(_work5);
+    vect w2s(_work2);
     if (power == EPowerPT::MINUSONE)
       my_throw("'evalDeriv' is not yet implemented for 'POPT_MINUSONE'");
     if (power == EPowerPT::MINUSHALF)
@@ -252,7 +252,7 @@ namespace gstlrn
       my_throw("'evalDeriv' is not yet implemented for 'POPT_LOG'");
 
     // ((ClassicalPolynomial*) getPoly(power))->evalDerivOpOptim(getShiftOp(), ws,
-    //                                                           w5s, outv,
+    //                                                           w2s, outv,
     //                                                           _workPoly, iapex,
     //                                                           igparam);
 
