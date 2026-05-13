@@ -41,6 +41,15 @@ namespace gstlrn
 #endif
   };
 
+// std::remove_cvref_t not defined in C++17, however std::decay_t provides a
+// close-enough equivalent since this is not used here with functions or arrays, see:
+// https://devblogs.microsoft.com/cppblog/cpp17-20-features-and-fixes-in-vs-2019/
+#ifdef USE_BOOST_SPAN
+#define REMOVE_CVREF_T std::decay_t
+#else
+#define REMOVE_CVREF_T std::remove_cvref_t
+#endif
+
 // Thanks to here (macro way):
 // https://alfps.wordpress.com/2010/06/12/cppx-3-ways-to-mix-in-a-generic-cloning-implementation/
 #define IMPLEMENT_CLONING(Class)                                               \
@@ -52,7 +61,7 @@ public:                                                                        \
       !std::is_abstract<Class>::value,                                         \
       "Class cannot be cloned as it is abstract");                             \
     static_assert(                                                             \
-      std::is_base_of_v<Class, std::remove_cvref_t<decltype(*this)>>);         \
+      std::is_base_of_v<Class, REMOVE_CVREF_T<decltype(*this)>>);              \
     return (new Class(*this));                                                 \
   }
 } // namespace gstlrn

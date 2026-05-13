@@ -83,9 +83,9 @@ namespace gstlrn
     else
       sstr << "Object with unknown mode = " << _mode << std::endl;
     sstr << "- Type        = " << _token.getType().getDescr() << std::endl;
-    constvect center_ndim(_center.begin(), _center.begin() + _ndim);
+    constvect center_ndim(_center.data(), _center.data() + _ndim);
     sstr << "- Center      = " << toStrVectorVec(String(), center_ndim);
-    constvect extension_ndim(_extension.begin(), _extension.begin() + _ndim);
+    constvect extension_ndim(_extension.data(), _extension.data() + _ndim);
     sstr << "- Extension   = " << toStrVectorVec(String(), extension_ndim);
     sstr << "- Orientation = " << _orientation << std::endl;
 
