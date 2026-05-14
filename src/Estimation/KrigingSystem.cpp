@@ -77,7 +77,8 @@ namespace gstlrn
     , _xvalidEstim(true)
     , _xvalidStdev(true)
     , _xvalidVarZ(false)
-    , _valuesColcok()
+    , _valuesColCok()
+    , _indexTargetWithinData(-1)
     , _flagBayes(false)
     , _postMean()
     , _postCov()
@@ -637,7 +638,7 @@ namespace gstlrn
       }
 
       mestitle(1, "Target location");
-      if (!_krigopt.hasColcok())
+      if (!_krigopt.hasColCok())
         db_sample_print(_dbout, _iechOut, 1, 0, 0, 0);
       else
         db_sample_print(_dbout, _iechOut, 1, 1, 0, 0);
@@ -660,7 +661,15 @@ namespace gstlrn
       if (status) goto label_store;
     }
 
-    // Establish the pre-calculation involving the data information
+    if (_krigopt.hasColCok() && _neigh->getType() == ENeigh::MOVING)
+    {
+      // Next step may seem over-dimensionned: it is meant to reset
+      // the vector of active data, knowing that its previous version
+      // may have been perturbated by the presence of a pseudo-sample
+      // corresponding to the target (Collocated option in Moving Neighborhood)
+      status = resetData();
+      if (status) goto label_store;
+    }
 
     if (caseXvalidUnique) _neigh->setFlagXvalid(true);
 
@@ -691,26 +700,35 @@ namespace gstlrn
       if (_algebra.setRHS(&_Sigma0, &_X0)) return 1;
     };
 
-    // Special patch for Colocated CoKriging
-    if (_krigopt.hasColcok())
+    // Special patch for Collocated CoKriging
+    if (_krigopt.hasColCok())
     {
+      _indexTargetWithinData = _isTargetAndDataCoincideforColCok();
       if (_neigh->getType() == ENeigh::MOVING)
       {
-        _updateForColCokMoving();
+        // If the target coincides with a data point, do not do anything
+        // (otherwise the new CoKriging system would be regular)
+        if (_indexTargetWithinData < 0) _updateForColCokMoving();
       }
       else
       {
-        Id nvar = _model->getNVar();
-        _valuesColcok.resize(nvar);
-        _valuesColcok = _dbout->getLocVariables(ELoc::Z, _iechOut);
-        if (_X.empty()) _valuesColcok -= _means;
-        if (_algebra.setColCokUnique(&_valuesColcok, &_krigopt.getRankColcok()))
-          return 1;
+        if (_indexTargetWithinData < 0)
+        {
+          Id nvar = _model->getNVar();
+          _valuesColCok.resize(nvar);
+          _valuesColCok = _dbout->getLocVariables(ELoc::Z, _iechOut);
+          if (_algebra.setColCokUnique(
+                &_valuesColCok, &_krigopt.getRankColCok()))
+            return 1;
+        }
+        else
+        {
+          if (_algebra.setColCokUnique(nullptr, nullptr)) return 1;
+        }
       }
     }
 
     // Printout for debugging case
-
     if (!_neigh->isUnchanged() || _neigh->getFlagContinuous()
         || OptDbg::force())
     {
@@ -761,15 +779,12 @@ namespace gstlrn
     return 0;
   }
 
-  Id KrigingSystem::_updateForColCokMoving()
+  Id KrigingSystem::_isTargetAndDataCoincideforColCok()
   {
-    Id nvar = static_cast<Id>(_sampleRanks.size());
-    Id nbfl = _X.getNCols();
-    Id nrhs = _Sigma0.getNCols();
     Id ndim = _dbin->getNDim();
 
     // If the target coincides with a data point, do not do anything
-    // (otherwise the new CoKriging system will be regular)
+    // (otherwise the new CoKriging system would be regular)
     VectorDouble coor = _dbout->getSampleCoordinates(_iechOut);
     for (Id jech = 0, nech = static_cast<Id>(_nbgh.size()); jech < nech; jech++)
     {
@@ -777,22 +792,37 @@ namespace gstlrn
       bool flagCoincide = true;
       for (Id idim = 0; idim < ndim && flagCoincide; idim++)
       {
-        if (ABS(_dbin->getCoordinate(iech, idim)) > EPSILON3)
-          flagCoincide = false;
+        double compare = _dbin->getCoordinate(iech, idim);
+        if (ABS(compare - coor[idim]) > EPSILON3) flagCoincide = false;
       }
-      if (flagCoincide) return 0;
+      if (flagCoincide) return iech;
     }
+    return -1;
+  }
 
-    // Prepare the vector of values from the Target File for Colocated option
+  /**
+   * @brief Update some members due to an additional pseudo-sample corresponding to the Collocated option in Moving Neighborhood
+   *
+   * @return Id 1 if an error is found; 0 otherwise
+   */
+  Id KrigingSystem::_updateForColCokMoving()
+  {
+    Id nvar = static_cast<Id>(_sampleRanks.size());
+    Id nbfl = _X.getNCols();
+    Id nrhs = _Sigma0.getNCols();
+
+    // Prepare the vector of values from the Target File for Collocated option
     Id nAdd = 0;
     VectorDouble newValues(nvar, TEST);
     for (Id jvar = 0; jvar < nvar; jvar++)
     {
-      Id ivar = _krigopt.getRankColcok(jvar);
+      Id ivar = _krigopt.getRankColCok(jvar);
       if (ivar < 0 || ivar >= _dbout->getNLoc(ELoc::Z)) continue;
       double value = _dbout->getZVariable(_iechOut, ivar);
       if (FFFF(value)) continue;
-      newValues[ivar] = (nbfl > 0) ? value : value - _means[ivar];
+
+      // There is a new pseudo-data due to Collocated Option.
+      newValues[jvar] = (nbfl > 0) ? value : value - _means[jvar];
       nAdd++;
     }
     if (nAdd <= 0) return 0;
@@ -879,7 +909,7 @@ namespace gstlrn
       }
     _Sigma0 = newS0;
 
-    // Store the result of Colocated updating in Moving Neighborhood
+    // Store the result of Collocated updating in Moving Neighborhood
     if (!_isAuthorized()) return 1;
     _algebra.resetNewData();
     if (_algebra.setData(&_Z, &_sampleRanks, &_meansTarget)) return 1;

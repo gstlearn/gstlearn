@@ -71,11 +71,11 @@ namespace gstlrn
 
     Id getNvarLC() const;
 
-    const VectorInt& getRankColcok() const { return _rankColcok; }
+    const VectorInt& getRankColCok() const { return _rankColCok; }
 
-    Id getRankColcok(Id i) const { return _rankColcok[i]; }
+    Id getRankColCok(Id i) const { return _rankColCok[i]; }
 
-    bool hasColcok() const { return _flagColcok; }
+    bool hasColCok() const { return _flagColCok; }
 
     bool hasFlagDGM() const { return _flagDGM; }
 
@@ -88,7 +88,7 @@ namespace gstlrn
     double _getDisc1(Id idisc, Id idim) const;
     double _getDisc2(Id idisc, Id idim) const;
     bool _isValidCalcul(const Db* dbout, const ANeigh* neigh) const;
-    bool _isValidColcok(const Db* dbout, const ModelGeneric* model) const;
+    bool _isValidColCok(const Db* dbout, const ModelGeneric* model) const;
     bool _isValidMatLC(const ModelGeneric* model) const;
     bool _isValidDGM(const Db* dbout, const ModelGeneric* model) const;
 
@@ -108,9 +108,9 @@ namespace gstlrn
     // Discrete Gaussian Model
     bool _flagDGM;
 
-    // Colocated Kriging option
-    bool _flagColcok;
-    VectorInt _rankColcok;
+    // Collocated Kriging option
+    bool _flagColCok;
+    VectorInt _rankColCok;
 
     // Matrix used for variable combination
     const MatrixDense* _matLC; // Pointer not to be deleted

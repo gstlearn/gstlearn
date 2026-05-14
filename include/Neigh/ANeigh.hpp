@@ -52,7 +52,7 @@ namespace gstlrn
    * Several other topics are considered as belonging to the Neighborhood selection procedure,
    * such as:
    * - Possibility to add some information, collected from the Target File, in the
-   * Neighborhood calculated from the input data file: this is the Colocation option
+   * Neighborhood calculated from the input data file: this is the Collocation option
    * - Possibility to exclude the target (or samples sharing some characteristics with
    * the Target). This is the cross-validation option.
    */

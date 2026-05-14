@@ -220,7 +220,7 @@ namespace gstlrn
   {
     auto* neighLocal = ANeigh::createDefaultNeighborhood(neigh, dbin, dbout);
     auto* neighBench = dynamic_cast<NeighBench*>(neighLocal);
-    if (krigopt.getCalcul() == EKrigOpt::POINT && !krigopt.hasColcok()
+    if (krigopt.getCalcul() == EKrigOpt::POINT && !krigopt.hasColCok()
         && !krigopt.hasMatLC() && neighBench == nullptr && model->getNVar() == 1
         && OptCustom::query("NotOptimSimpleCase", 0) == 0
         && !dbout->hasLocator(ELoc::DOM))

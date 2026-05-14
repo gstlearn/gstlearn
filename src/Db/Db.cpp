@@ -6408,16 +6408,20 @@ namespace gstlrn
     const VectorString& names,
     const std::vector<EStatOption>& opers) const
   {
-    auto namesLoc = names;
-    if (namesLoc.empty()) namesLoc = getAllNames(false);
+    auto namesArg = names;
+    if (namesArg.empty()) namesArg = getAllNames(false);
+    VectorString namesLoc = expandNameList(namesArg);
+
     Table table = dbStatisticsMono(this, namesLoc, opers, false);
     return table;
   }
 
   Table Db::getCorrelationAsTable(const VectorString& names) const
   {
-    auto namesLoc = names;
-    if (namesLoc.empty()) namesLoc = getAllNames(false);
+    auto namesArg = names;
+    if (namesArg.empty()) namesArg = getAllNames(false);
+    VectorString namesLoc = expandNameList(namesArg);
+
     Table table = dbStatisticsCorrel(this, namesLoc);
     return table;
   }
@@ -6478,8 +6482,9 @@ namespace gstlrn
 
   Table Db::getContentsAsTable(const VectorString& names, bool useSel) const
   {
-    auto namesLoc = names;
-    if (namesLoc.empty()) namesLoc = getAllNames(false);
+    auto namesArg = names;
+    if (namesArg.empty()) namesArg = getAllNames(false);
+    VectorString namesLoc = expandNameList(namesArg);
 
     // Define the table
     Id nrows = getNSample(useSel);
