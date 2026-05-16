@@ -1853,7 +1853,7 @@ namespace gstlrn
    * Add a Selection by considering the input 'ranks' vector which give the ranks
    * of the active samples (starting from 0)
    * @param ranks   Vector of ranks of active samples
-   * @param name Name given to the newly created Selection variable
+   * @param name    Name given to the newly created Selection variable
    * @param combine How to combine with an already existing selection (see combineSelection() for details)
    * @return
    */

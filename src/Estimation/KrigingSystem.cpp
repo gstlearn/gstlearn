@@ -654,19 +654,9 @@ namespace gstlrn
 
     /* Establish the Kriging L.H.S. */
 
-    if (!_neigh->isUnchanged() || _neigh->getFlagContinuous()
-        || OptDbg::force())
+    if (!_neigh->isUnchanged() || _neigh->getFlagContinuous() || OptDbg::force()
+        || (_krigopt.hasColCok() && _neigh->getType() == ENeigh::MOVING))
     {
-      status = resetData();
-      if (status) goto label_store;
-    }
-
-    if (_krigopt.hasColCok() && _neigh->getType() == ENeigh::MOVING)
-    {
-      // Next step may seem over-dimensionned: it is meant to reset
-      // the vector of active data, knowing that its previous version
-      // may have been perturbated by the presence of a pseudo-sample
-      // corresponding to the target (Collocated option in Moving Neighborhood)
       status = resetData();
       if (status) goto label_store;
     }
@@ -714,8 +704,6 @@ namespace gstlrn
       {
         if (_indexTargetWithinData < 0)
         {
-          Id nvar = _model->getNVar();
-          _valuesColCok.resize(nvar);
           _valuesColCok = _dbout->getLocVariables(ELoc::Z, _iechOut);
           if (_algebra.setColCokUnique(
                 &_valuesColCok, &_krigopt.getRankColCok()))
@@ -775,6 +763,17 @@ namespace gstlrn
         _dumpSimulationResults(status);
       else
         _dumpKrigingResults(status);
+    }
+
+    if (_krigopt.hasColCok() && _indexTargetWithinData >= 0)
+
+    {
+      // Next step may seem over-dimensionned: it is meant to reset
+      // the vector of active data, knowing that its previous version
+      // may have been perturbated by the presence of a pseudo-sample
+      // corresponding to the target (Collocated option in Moving Neighborhood)
+      status = resetData();
+      if (status) goto label_store;
     }
     return 0;
   }

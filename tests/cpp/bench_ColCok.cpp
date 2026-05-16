@@ -15,7 +15,6 @@
 
 #include "Basic/AStringFormat.hpp"
 #include "Basic/File.hpp"
-#include "Basic/Law.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/VectorHelper.hpp"
@@ -35,13 +34,14 @@ void st_test(
   bool flagUnique,
   bool flagColCok,
   bool flagEnviron = false,
+  bool flagCoincide = false,
   Id iechref = 0,
   Id ndim = 2,
   Id nech = 3,
+  Id nout = 4,
   Id nvar = 3)
 {
   // Global parameters
-  law_set_random_seed(32131);
   AStringFormat format;
   defineDefaultSpace(ESpaceType::RN, ndim);
 
@@ -83,10 +83,11 @@ void st_test(
   // Define the target file (variables must also exist in Target for ColCok)
   // It contains two samples: the first is randomly located; the second coincides with the 'nech-1' data
   Db* target = Db::createFillRandom(
-    2, ndim, nvar, 0, 0, 0., 0., VectorDouble(), VectorDouble(), VectorDouble(),
-    534243);
-  for (Id idim = 0; idim < ndim; idim++)
-    target->setCoordinate(1, idim, data->getCoordinate(nech - 1, idim));
+    nout, ndim, nvar, 0, 0, 0., 0., VectorDouble(), VectorDouble(),
+    VectorDouble(), 534243);
+  if (flagCoincide)
+    for (Id idim = 0; idim < ndim; idim++)
+      target->setCoordinate(1, idim, data->getCoordinate(nech - 1, idim));
   if (flagEnviron)
   {
     message("Target\n");

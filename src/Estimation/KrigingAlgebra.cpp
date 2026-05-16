@@ -325,7 +325,7 @@ namespace gstlrn
     _deleteMuUK();
     _deleteLambda0();
 
-    _Y0.clear();
+    _Y0p.clear();
   }
 
   void KrigingAlgebra::_deleteZ0p()
@@ -1193,7 +1193,6 @@ namespace gstlrn
       MatrixDense LtY(_nrhs, _nbfl);
       AMatrix::prodMatMatInPlace(LtY, _Lambda0, _Y0p, true);
       AMatrix::linearCombinationInPlace(LtY, 0., 1., _Y0, -1., LtY);
-
       AMatrix::prodMatMatInPlace(_MuUK, _Sigmac, LtY, false, true);
     }
     else
