@@ -107,8 +107,7 @@ namespace gstlrn
   void NeighUnique::getNeigh(Id iech_out, VectorInt& ranks)
   {
     Id nech = _dbin->getNSample();
-    ranks.resize(nech);
-    ranks.fill(-1);
+    ranks.fill(-1, nech);
 
     // Select the neighborhood samples as the target sample has changed
     _unique(iech_out, ranks);

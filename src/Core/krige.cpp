@@ -494,7 +494,7 @@ namespace gstlrn
     else
     {
 
-      // Variable in the Output file: colocated case
+      // Variable in the Output file: collocated case
 
       jvar = RANK_COLCOK[ivar];
       if (jvar < 0)

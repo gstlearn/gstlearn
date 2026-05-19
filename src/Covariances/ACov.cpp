@@ -1553,7 +1553,11 @@ namespace gstlrn
       const VectorInt& index1i = index1[ivar1];
       for (const auto iabs1: index1i.getVector())
       {
-        SpacePoint& p1 = optimizationLoadInPlace(iabs1, 1, 1);
+        SpacePoint p1;
+        if (iabs1 >= 0)
+          p1 = optimizationLoadInPlace(iabs1, 1, 1);
+        else
+          p1 = p2;
 
         // Modify the covariance (if non stationary)
         if (flagNoStat) updateCovByPoints(1, iabs1, 2, iabs2);

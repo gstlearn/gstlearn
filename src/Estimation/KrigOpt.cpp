@@ -28,8 +28,8 @@ namespace gstlrn
     , _disc1()
     , _disc2()
     , _flagDGM(false)
-    , _flagColcok(false)
-    , _rankColcok()
+    , _flagColCok(false)
+    , _rankColCok()
     , _matLC()
     , _dbgrid()
   {
@@ -46,8 +46,8 @@ namespace gstlrn
     , _disc1(m._disc1)
     , _disc2(m._disc2)
     , _flagDGM(m._flagDGM)
-    , _flagColcok(m._flagColcok)
-    , _rankColcok(m._rankColcok)
+    , _flagColCok(m._flagColCok)
+    , _rankColCok(m._rankColCok)
     , _matLC(m._matLC)
     , _dbgrid(m._dbgrid)
   {
@@ -66,8 +66,8 @@ namespace gstlrn
       _disc1 = m._disc1;
       _disc2 = m._disc2;
       _flagDGM = m._flagDGM;
-      _flagColcok = m._flagColcok;
-      _rankColcok = m._rankColcok;
+      _flagColCok = m._flagColCok;
+      _rankColCok = m._rankColCok;
       _matLC = m._matLC;
       _dbgrid = m._dbgrid;
     }
@@ -151,8 +151,8 @@ namespace gstlrn
 
   Id KrigOpt::setColCok(const VectorInt& rank_colcok)
   {
-    _rankColcok = rank_colcok;
-    _flagColcok = !rank_colcok.empty();
+    _rankColCok = rank_colcok;
+    _flagColCok = !rank_colcok.empty();
     return 0;
   }
 
@@ -258,23 +258,23 @@ namespace gstlrn
     return true;
   }
 
-  bool KrigOpt::_isValidColcok(const Db* dbout, const ModelGeneric* model) const
+  bool KrigOpt::_isValidColCok(const Db* dbout, const ModelGeneric* model) const
   {
-    if (!_flagColcok) return true;
+    if (!_flagColCok) return true;
 
     Id nvar = model->getNVar();
 
-    /* Loop on the ranks of the colocated variables */
+    /* Loop on the ranks of the collocated variables */
 
     for (Id ivar = 0; ivar < nvar; ivar++)
     {
-      Id jvar = _rankColcok[ivar];
+      Id jvar = _rankColCok[ivar];
       if (jvar < 0) continue;
       if (jvar > dbout->getNLoc(ELoc::Z))
       {
-        messerr("Error in the Colocation array:");
+        messerr("Error in the Collocation array:");
         messerr(
-          "Input variable (#%d): rank of the colocated variable is %d",
+          "Input variable (#%d): rank of the collocated variable is %d",
           ivar + 1, jvar);
         messerr(
           "But the Output file only contains %d attributes(s)",
@@ -368,8 +368,8 @@ namespace gstlrn
     // Check against Block calculation options
     if (!_isValidCalcul(dbout, neigh)) return false;
 
-    // Check against Colocated CoKriging options
-    if (!_isValidColcok(dbout, model)) return false;
+    // Check against Collocated CoKriging options
+    if (!_isValidColCok(dbout, model)) return false;
 
     // Check against the matLC option
     if (!_isValidMatLC(model)) return false;

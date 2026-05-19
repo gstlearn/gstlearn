@@ -156,6 +156,7 @@ namespace gstlrn
     Model* _castInOldModel();
     VectorInt _xvalidUniqueIndices() const;
     Id _updateForColCokMoving();
+    Id _isTargetAndDataCoincideforColCok();
 
     // Deprecated function
     double _continuousMultiplier(Id rank1, Id rank2, double eps = EPSILON4);
@@ -206,8 +207,9 @@ namespace gstlrn
     bool _xvalidStdev;
     bool _xvalidVarZ;
 
-    /// Option for Colocation
-    VectorDouble _valuesColcok;
+    /// Option for Collocation
+    VectorDouble _valuesColCok;
+    Id _indexTargetWithinData;
 
     /// Option for Bayesian
     bool _flagBayes;

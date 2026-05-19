@@ -325,7 +325,7 @@ namespace gstlrn
     _deleteMuUK();
     _deleteLambda0();
 
-    _Y0.clear();
+    _Y0p.clear();
   }
 
   void KrigingAlgebra::_deleteZ0p()
@@ -647,7 +647,7 @@ namespace gstlrn
     }
     if (_flagDual)
     {
-      messerr("Colocated Cokriging is incompatible with 'Dual'");
+      messerr("Collocated Cokriging is incompatible with 'Dual'");
       return 1;
     }
 
@@ -659,10 +659,10 @@ namespace gstlrn
 
     _ncck = 0;
     _rankColVars.clear();
-    for (Id var = 0; var < _nvar; var++)
+    for (Id ivar = 0; ivar < _nvar; ivar++)
     {
-      if ((*rankColCok)[var] < 0) continue;
-      _rankColVars.push_back((*rankColCok)[var]);
+      if ((*rankColCok)[ivar] < 0) continue;
+      _rankColVars.push_back(ivar);
       _ncck++;
     }
 
@@ -1047,7 +1047,15 @@ namespace gstlrn
     if (_needColCok()) return 1;
 
     // Sample the active values for collocated information
-    _Z0p = VH::sample(*_Zp, _rankColVars);
+    _Z0p.resize(_ncck);
+    for (Id ivar = 0, kvar = 0; ivar < _nvar; ivar++)
+    {
+      Id jvar = (*_rankColCok)[ivar];
+      if (jvar < 0) continue;
+      _Z0p[kvar] = (*_Zp)[jvar];
+      if (_nbfl <= 0 && !_Means->empty()) _Z0p[kvar] -= (*_Means)[ivar];
+      kvar++;
+    }
     return 0;
   }
 
@@ -1107,7 +1115,6 @@ namespace gstlrn
     if (!_Sigma0p.empty()) return 0;
     if (_needSigma0()) return 1;
     if (_needColCok()) return 1;
-
     MatrixDense::sample(_Sigma0p, *_Sigma0, VectorInt(), _rankColVars);
     return 0;
   }
@@ -1117,7 +1124,6 @@ namespace gstlrn
     if (!_X0p.empty()) return 0;
     if (_needX0()) return 1;
     if (_needColCok()) return 1;
-
     MatrixDense::sample(_X0p, *_X0, _rankColVars, VectorInt());
     return 0;
   }
@@ -1187,7 +1193,6 @@ namespace gstlrn
       MatrixDense LtY(_nrhs, _nbfl);
       AMatrix::prodMatMatInPlace(LtY, _Lambda0, _Y0p, true);
       AMatrix::linearCombinationInPlace(LtY, 0., 1., _Y0, -1., LtY);
-
       AMatrix::prodMatMatInPlace(_MuUK, _Sigmac, LtY, false, true);
     }
     else

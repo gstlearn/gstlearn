@@ -163,7 +163,7 @@ namespace gstlrn
     }
 
     // Check if the current target coincides with the previous one
-    // Then do not do anything (even in presence of colocation)
+    // Then do not do anything (even in presence of collocation)
     if (_isSameTarget(iech_out))
     {
       ranks = _nbghMemo;
