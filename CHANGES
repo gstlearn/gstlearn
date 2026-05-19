@@ -4,6 +4,7 @@ This file contains the logs between consecutive releases
 
 Release 1.11.0
 ==============
+- Complete revisiting of Collocated CoKriging: insuring that Moving and Unique neighborhood versions are compliant (including the matrix trick in Unique), Checking and solving the coincidence test (when Target site coincides with one Data site... to avoid CoKriging matrix singularity)
 - Adding optional 'box' argument in simtub()
 - Suppressing 'cov0' in the API for Simulation using Spectral Method
 - A new function which allows defaulting an adequate neighborhood when the ANeigh argument is not specified in API
