@@ -22,7 +22,7 @@ env:
   CMAKE_BUILD_TYPE : Release
   BUILD_DIR : build
   PYTHON_VERSION : "3.14"
-  R_VERSION : "4.5.2"
+  R_VERSION : "4.6.0"
   SWIG_ROOT : ${{github.workspace}}/swig
   GSTLEARN_OUTPUT_DIR: ${{ github.workspace }}/build/gstlearn_dir
 
