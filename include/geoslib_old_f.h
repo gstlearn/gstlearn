@@ -46,6 +46,7 @@ namespace gstlrn
   class Faults;
   class AMesh;
   class SpaceTarget;
+  class PropDef;
 
   /***************************************/
   /* Prototyping the functions in math.c */
@@ -448,21 +449,6 @@ namespace gstlrn
   /* Prototyping the functions in simtub.c */
   /*****************************************/
 
-  GSTLEARN_EXPORT void
-    simu_define_func_update(void (*st_simu_update)(Db*, Id, Id, Id));
-  GSTLEARN_EXPORT void
-    simu_define_func_scale(void (*st_simu_scale)(Db*, Id, Id));
-  GSTLEARN_EXPORT void
-    simu_func_categorical_transf(Db* db, Id verbose, Id isimu, Id nbsimu);
-  GSTLEARN_EXPORT void
-    simu_func_continuous_update(Db* db, Id verbose, Id isimu, Id nbsimu);
-  GSTLEARN_EXPORT void
-    simu_func_categorical_update(Db* db, Id verbose, Id isimu0, Id nbsimu0);
-  GSTLEARN_EXPORT void
-    simu_func_continuous_scale(Db* db, Id verbose, Id nbsimu);
-  GSTLEARN_EXPORT void
-    simu_func_categorical_scale(Db* db, Id verbose, Id nbsimu);
-
   GSTLEARN_EXPORT void check_mandatory_attribute(
     const char* method,
     Db* db,
@@ -555,7 +541,7 @@ namespace gstlrn
     RuleShadow* rule,
     Model* model,
     const VectorDouble& props,
-    Id flag_stat,
+    bool flag_stat,
     Id nfacies);
 
   /*****************************************/

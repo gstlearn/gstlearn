@@ -382,9 +382,9 @@ namespace gstlrn
     return getNY2() > 0;
   }
 
-  VectorInt Rule::whichGRFUsed() const
+  VectorBool Rule::whichGRFUsed() const
   {
-    VectorInt flag(2);
+    VectorBool flag(2);
     for (Id igrf = 0; igrf < 2; igrf++) flag[igrf] = isYUsed(igrf);
     return flag;
   }
@@ -612,11 +612,10 @@ namespace gstlrn
   *****************************************************************************/
   Id Rule::getFaciesFromGaussian(double y1, double y2) const
   {
-    double facies;
-
+    double dFacies;
     if (FFFF(y1) || FFFF(y2)) return (0);
-    if (!_mainNode->gaussianToFacies(y1, y2, &facies)) return (0);
-    return (static_cast<Id>(facies));
+    if (!_mainNode->gaussianToFacies(y1, y2, &dFacies)) return (0);
+    return static_cast<Id>(dFacies);
   }
 
   VectorInt Rule::getNodes() const
@@ -842,10 +841,10 @@ namespace gstlrn
   **
   ** \return  Error return code
   **
-  ** \param[in]  propdef    Props structure
+  ** \param[in]  propdef    PropDef structure
   ** \param[in]  dbin       Db input structure
   ** \param[in]  dbout      Db output structure
-  ** \param[in]  flag_used  1 if the gaussian is used; 0 otherwise
+  ** \param[in]  flag_used  True if the gaussian is used; False otherwise
   ** \param[in]  ipgs       Rank of the PGS
   ** \param[in]  isimu      Rank of the simulation
   ** \param[in]  nbsimu     Number of simulations
@@ -855,15 +854,16 @@ namespace gstlrn
   **
   *****************************************************************************/
   Id Rule::gaus2facData(
-    PropDef* propdef,
+    const PropDef& propdef,
     Db* dbin,
     Db* /*dbout*/,
-    Id* flag_used,
+    const VectorBool& flag_used,
     Id ipgs,
     Id isimu,
-    Id nbsimu)
+    Id nbsimu) const
   {
-    double y[2], facies, t1min, t1max, t2min, t2max;
+    double t1min, t1max, t2min, t2max;
+    VectorDouble y;
 
     /* Initializations */
 
@@ -877,16 +877,17 @@ namespace gstlrn
 
       /* Initializations */
 
-      facies = TEST;
-      for (Id igrf = 0; igrf < 2; igrf++) y[igrf] = TEST;
-      if (rule_thresh_define(
-            propdef, dbin, this, ITEST, iech, isimu, nbsimu, 1, &t1min, &t1max,
-            &t2min, &t2max))
+      Id facies = ITEST;
+      y.fill(TEST, 2);
+
+      if (propdef.ruleThreshDefine(
+            dbin, this, ITEST, iech, isimu, nbsimu, 1, &t1min, &t1max, &t2min,
+            &t2max))
         return 1;
 
       for (Id igrf = 0; igrf < 2; igrf++)
       {
-        auto icase = get_rank_from_propdef(propdef, ipgs, igrf);
+        auto icase = propdef.getRank(ipgs, igrf);
         y[igrf] =
           (flag_used[igrf])
             ? dbin->getSimvar(ELoc::GAUSFAC, iech, isimu, 0, icase, nbsimu, 1)
@@ -896,7 +897,9 @@ namespace gstlrn
 
       /* Combine the underlying GRFs to derive Facies */
 
-      dbin->setSimvar(ELoc::FACIES, iech, isimu, 0, ipgs, nbsimu, 1, facies);
+      dbin->setSimvar(
+        ELoc::FACIES, iech, isimu, 0, ipgs, nbsimu, 1,
+        static_cast<double>(facies));
     }
     return 0;
   }
@@ -907,9 +910,9 @@ namespace gstlrn
   **
   ** \return  Error return code
   **
-  ** \param[in]  propdef    Props structure
+  ** \param[in]  propdef    PropDef structure
   ** \param[in]  dbout      Db output structure
-  ** \param[in]  flag_used  1 if the gaussian is used; 0 otherwise
+  ** \param[in]  flag_used  True if the gaussian is used; False otherwise
   ** \param[in]  ipgs       Rank of the PGS
   ** \param[in]  isimu      Rank of the simulation
   ** \param[in]  nbsimu     Number of simulations
@@ -918,41 +921,39 @@ namespace gstlrn
   **
   *****************************************************************************/
   Id Rule::gaus2facResult(
-    PropDef* propdef,
+    const PropDef& propdef,
     Db* dbout,
-    Id* flag_used,
+    const VectorBool& flag_used,
     Id ipgs,
     Id isimu,
     Id nbsimu) const
   {
-    Id ndim, iech, igrf, icase;
-    double t1min, t1max, t2min, t2max, facies, y[2];
-
-    /* Initializations */
-
     check_mandatory_attribute("rule_gaus2fac_result", dbout, ELoc::FACIES);
     check_mandatory_attribute("rule_gaus2fac_result", dbout, ELoc::SIMU);
-    ndim = dbout->getNDim();
+
+    double t1min, t1max, t2min, t2max;
+    VectorDouble y;
+    Id ndim = dbout->getNDim();
     VectorDouble xyz(ndim);
 
     /* Processing the translation */
 
-    for (iech = 0; iech < dbout->getNSample(); iech++)
+    for (Id iech = 0, nech = dbout->getNSample(); iech < nech; iech++)
     {
       if (!dbout->isActive(iech)) continue;
 
       /* Initializations */
 
-      facies = TEST;
-      for (igrf = 0; igrf < 2; igrf++) y[igrf] = TEST;
+      Id facies = ITEST;
+      y.fill(TEST, 2);
 
-      if (rule_thresh_define(
-            propdef, dbout, this, ITEST, iech, isimu, nbsimu, 1, &t1min, &t1max,
-            &t2min, &t2max))
+      if (propdef.ruleThreshDefine(
+            dbout, this, ITEST, iech, isimu, nbsimu, 1, &t1min, &t1max, &t2min,
+            &t2max))
         return 1;
-      for (igrf = 0; igrf < 2; igrf++)
+      for (Id igrf = 0; igrf < 2; igrf++)
       {
-        icase = get_rank_from_propdef(propdef, ipgs, igrf);
+        Id icase = propdef.getRank(ipgs, igrf);
         y[igrf] =
           (flag_used[igrf])
             ? dbout->getSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, 1)
@@ -962,7 +963,9 @@ namespace gstlrn
 
       /* Combine the underlying GRFs to derive Facies */
 
-      dbout->setSimvar(ELoc::FACIES, iech, isimu, 0, ipgs, nbsimu, 1, facies);
+      dbout->setSimvar(
+        ELoc::FACIES, iech, isimu, 0, ipgs, nbsimu, 1,
+        static_cast<double>(facies));
     }
     return 0;
   }
@@ -1014,7 +1017,7 @@ namespace gstlrn
   **
   *****************************************************************************/
   Id Rule::evaluateBounds(
-    PropDef* propdef,
+    const PropDef& propdef,
     Db* dbin,
     Db* /*dbout*/,
     Id isimu,
@@ -1037,23 +1040,19 @@ namespace gstlrn
     {
       if (!dbin->isActive(iech)) continue;
       facies = static_cast<Id>(dbin->getZVariable(iech, 0));
-      if (rule_thresh_define(
-            propdef, dbin, this, facies, iech, isimu, nbsimu, 1, &t1min, &t1max,
-            &t2min, &t2max))
+      if (propdef.ruleThreshDefine(
+            dbin, this, facies, iech, isimu, nbsimu, 1, &t1min, &t1max, &t2min,
+            &t2max))
         return (1);
       if (igrf == 0)
       {
-        dbin->setLocVariable(
-          ELoc::L, iech, get_rank_from_propdef(propdef, ipgs, igrf), t1min);
-        dbin->setLocVariable(
-          ELoc::U, iech, get_rank_from_propdef(propdef, ipgs, igrf), t1max);
+        dbin->setLocVariable(ELoc::L, iech, propdef.getRank(ipgs, igrf), t1min);
+        dbin->setLocVariable(ELoc::U, iech, propdef.getRank(ipgs, igrf), t1max);
       }
       else
       {
-        dbin->setLocVariable(
-          ELoc::L, iech, get_rank_from_propdef(propdef, ipgs, igrf), t2min);
-        dbin->setLocVariable(
-          ELoc::U, iech, get_rank_from_propdef(propdef, ipgs, igrf), t2max);
+        dbin->setLocVariable(ELoc::L, iech, propdef.getRank(ipgs, igrf), t2min);
+        dbin->setLocVariable(ELoc::U, iech, propdef.getRank(ipgs, igrf), t2max);
       }
     }
 

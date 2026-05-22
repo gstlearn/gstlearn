@@ -378,6 +378,7 @@
 %include LithoRule/RuleShift.hpp
 %include LithoRule/RuleStringFormat.hpp
 %include LithoRule/RuleProp.hpp
+%include LithoRule/PropDef.hpp
 
 %include Estimation/Estimations.hpp
 %include Estimation/KrigingSystem.hpp
@@ -413,6 +414,7 @@
 %include Simulation/ACalcSimulation.hpp
 %include Simulation/ACalcSimuGaussian.hpp
 %include Simulation/CalcSimuTurningBands.hpp
+%include Simulation/CalcSimuPGS.hpp
 %include Simulation/TurningBandDirection.hpp
 %include Simulation/TurningBandOperate.hpp
 %include Simulation/CalcSimuSpectral.hpp

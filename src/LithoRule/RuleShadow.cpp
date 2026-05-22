@@ -341,7 +341,7 @@ namespace gstlrn
    **
    ** \return  Error return code
    **
-   ** \param[in]  propdef    Props structure
+   ** \param[in]  propdef    PropDef structure
    ** \param[in]  dbin       Db input structure
    ** \param[in]  dbout      Db output structure
    ** \param[in]  flag_used  1 if the gaussian is used; 0 otherwise
@@ -354,15 +354,16 @@ namespace gstlrn
    **
    *****************************************************************************/
   Id RuleShadow::gaus2facData(
-    PropDef* propdef,
+    const PropDef& propdef,
     Db* dbin,
     Db* /*dbout*/,
-    Id* flag_used,
+    const VectorBool& flag_used,
     Id ipgs,
     Id isimu,
-    Id nbsimu)
+    Id nbsimu) const
   {
-    double y[2], facies, t1min, t1max, t2min, t2max, sh_dsup, sh_down;
+    double t1min, t1max, t2min, t2max, sh_dsup, sh_down;
+    VectorDouble y;
 
     /* Initializations */
 
@@ -376,17 +377,17 @@ namespace gstlrn
 
       /* Initializations */
 
-      facies = TEST;
-      for (Id igrf = 0; igrf < 2; igrf++) y[igrf] = TEST;
+      Id facies = ITEST;
+      y.fill(TEST, 2);
 
-      if (rule_thresh_define_shadow(
-            propdef, dbin, this, ITEST, iech, isimu, nbsimu, &t1min, &t1max,
-            &t2min, &t2max, &sh_dsup, &sh_down))
+      if (propdef.ruleThreshShadowDefine(
+            dbin, this, ITEST, iech, isimu, nbsimu, &t1min, &t1max, &t2min,
+            &t2max, &sh_dsup, &sh_down))
         return 1;
 
       for (Id igrf = 0; igrf < 2; igrf++)
       {
-        auto icase = get_rank_from_propdef(propdef, ipgs, igrf);
+        auto icase = propdef.getRank(ipgs, igrf);
         y[igrf] =
           (flag_used[igrf])
             ? dbin->getSimvar(ELoc::GAUSFAC, iech, isimu, 0, icase, nbsimu, 1)
@@ -396,7 +397,9 @@ namespace gstlrn
 
       /* Combine the underlying GRFs to derive Facies*/
 
-      dbin->setSimvar(ELoc::FACIES, iech, isimu, 0, ipgs, nbsimu, 1, facies);
+      dbin->setSimvar(
+        ELoc::FACIES, iech, isimu, 0, ipgs, nbsimu, 1,
+        static_cast<double>(facies));
     }
     return 0;
   }
@@ -407,7 +410,7 @@ namespace gstlrn
    **
    ** \return  Error return code
    **
-   ** \param[in]  propdef    Props structure
+   ** \param[in]  propdef    PropDef structure
    ** \param[in]  dbout      Db output structure
    ** \param[in]  flag_used  1 if the gaussian is used; 0 otherwise
    ** \param[in]  ipgs       Rank of the PGS
@@ -418,9 +421,9 @@ namespace gstlrn
    **
    *****************************************************************************/
   Id RuleShadow::gaus2facResult(
-    PropDef* propdef,
+    const PropDef& propdef,
     Db* dbout,
-    Id* /*flag_used*/,
+    const VectorBool& /*flag_used*/,
     Id ipgs,
     Id isimu,
     Id nbsimu) const
@@ -443,7 +446,7 @@ namespace gstlrn
     nstep = 0;
     ndim = dbgrid->getNDim();
     nech = dbgrid->getNSample();
-    icase = get_rank_from_propdef(propdef, ipgs, 0);
+    icase = propdef.getRank(ipgs, 0);
     _xyz.resize(ndim);
     _ind1.resize(ndim);
     _ind2.resize(ndim);
@@ -469,9 +472,9 @@ namespace gstlrn
 
       y[0] = dbgrid->getSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, 1);
       if (FFFF(y[0])) break;
-      if (rule_thresh_define_shadow(
-            propdef, dbgrid, this, SHADOW_WATER, iech, isimu, nbsimu, &t1min,
-            &t1max, &t2min, &t2max, &yc_dsup, &yc_down))
+      if (propdef.ruleThreshShadowDefine(
+            dbgrid, this, SHADOW_WATER, iech, isimu, nbsimu, &t1min, &t1max,
+            &t2min, &t2max, &yc_dsup, &yc_down))
         goto label_end;
       dbgrid->rankToIndice(iech, _ind2);
       dbgrid->indicesToCoordinateInPlace(_ind2, _xyz);
@@ -492,9 +495,9 @@ namespace gstlrn
           ys = _st_grid_eval(dbgrid, isimu, icase, nbsimu, _xyz);
           if (FFFF(ys)) continue;
           jech = dbgrid->indiceToRank(_ind2);
-          if (rule_thresh_define_shadow(
-                propdef, dbgrid, this, SHADOW_WATER, jech, isimu, nbsimu,
-                &s1min, &s1max, &s2min, &s2max, &sh_dsup, &sh_down))
+          if (propdef.ruleThreshShadowDefine(
+                dbgrid, this, SHADOW_WATER, jech, isimu, nbsimu, &s1min, &s1max,
+                &s2min, &s2max, &sh_dsup, &sh_down))
             return (1);
           if (ys < s1max) continue; /* Upstream point not in island */
           seuil = t1max - yc_down + dy * istep;
@@ -532,7 +535,7 @@ namespace gstlrn
    **
    *****************************************************************************/
   Id RuleShadow::evaluateBounds(
-    PropDef* propdef,
+    const PropDef& propdef,
     Db* dbin,
     Db* dbout,
     Id isimu,
@@ -567,15 +570,13 @@ namespace gstlrn
       if (!dbin->isActive(iech)) continue;
       if (!point_inside_grid(dbin, iech, dbgrid)) continue;
       facies = static_cast<Id>(dbin->getZVariable(iech, 0));
-      if (rule_thresh_define_shadow(
-            propdef, dbin, this, facies, iech, isimu, nbsimu, &t1min, &t1max,
-            &t2min, &t2max, &sh_dsup, &sh_down))
+      if (propdef.ruleThreshShadowDefine(
+            dbin, this, facies, iech, isimu, nbsimu, &t1min, &t1max, &t2min,
+            &t2max, &sh_dsup, &sh_down))
         return (1);
       yc_down = sh_down;
-      dbin->setLocVariable(
-        ELoc::L, iech, get_rank_from_propdef(propdef, ipgs, igrf), t1min);
-      dbin->setLocVariable(
-        ELoc::U, iech, get_rank_from_propdef(propdef, ipgs, igrf), t1max);
+      dbin->setLocVariable(ELoc::L, iech, propdef.getRank(ipgs, igrf), t1min);
+      dbin->setLocVariable(ELoc::U, iech, propdef.getRank(ipgs, igrf), t1max);
 
       /* The data belongs to the island, no replicate */
 
@@ -618,9 +619,9 @@ namespace gstlrn
           }
 
           /* Get proportion at the tentative replicate */
-          if (rule_thresh_define_shadow(
-                propdef, dbin, this, facies, jech, isimu, nbsimu, &s1min,
-                &s1max, &s2min, &s2max, &sh_dsup, &sh_down))
+          if (propdef.ruleThreshShadowDefine(
+                dbin, this, facies, jech, isimu, nbsimu, &s1min, &s1max, &s2min,
+                &s2max, &sh_dsup, &sh_down))
           {
             (void)dbin->deleteSample(jech);
             return (1);
@@ -633,11 +634,9 @@ namespace gstlrn
         /* Set the attributes of the replicate */
         dbin->setLocVariable(ELoc::Z, jech, 0, SHADOW_ISLAND);
         dbin->setLocVariable(
-          ELoc::L, jech, get_rank_from_propdef(propdef, ipgs, igrf),
-          MAX(seuil, s1max));
+          ELoc::L, jech, propdef.getRank(ipgs, igrf), MAX(seuil, s1max));
         dbin->setLocVariable(
-          ELoc::U, jech, get_rank_from_propdef(propdef, ipgs, igrf),
-          THRESH_SUP);
+          ELoc::U, jech, propdef.getRank(ipgs, igrf), THRESH_SUP);
         nadd++;
       }
 
@@ -672,9 +671,9 @@ namespace gstlrn
           }
 
           /* Get proportion at the tentative replicate */
-          if (rule_thresh_define_shadow(
-                propdef, dbin, this, facies, jech, isimu, nbsimu, &s1min,
-                &s1max, &s2min, &s2max, &sh_dsup, &sh_down))
+          if (propdef.ruleThreshShadowDefine(
+                dbin, this, facies, jech, isimu, nbsimu, &s1min, &s1max, &s2min,
+                &s2max, &sh_dsup, &sh_down))
           {
             (void)dbin->deleteSample(jech);
             return (1);
@@ -691,11 +690,9 @@ namespace gstlrn
 
           dbin->setLocVariable(ELoc::Z, jech, 0, SHADOW_IDLE);
           dbin->setLocVariable(
-            ELoc::L, jech, get_rank_from_propdef(propdef, ipgs, igrf),
-            THRESH_INF);
+            ELoc::L, jech, propdef.getRank(ipgs, igrf), THRESH_INF);
           dbin->setLocVariable(
-            ELoc::U, jech, get_rank_from_propdef(propdef, ipgs, igrf),
-            MAX(seuil, s1max));
+            ELoc::U, jech, propdef.getRank(ipgs, igrf), MAX(seuil, s1max));
           nadd++;
         }
       }

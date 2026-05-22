@@ -353,7 +353,7 @@ namespace gstlrn
   RuleProp*
     RuleProp::createFromDb(const Db* dbprop, const VectorDouble& propcst)
   {
-    RuleProp* ruleprop = new RuleProp;
+    auto* ruleprop = new RuleProp;
     if (ruleprop->resetFromDb(dbprop, propcst))
     {
       messerr("Problem when creating from Db");
@@ -366,7 +366,7 @@ namespace gstlrn
   RuleProp*
     RuleProp::createFromRule(const Rule* rule, const VectorDouble& propcst)
   {
-    RuleProp* ruleprop = new RuleProp;
+    auto* ruleprop = new RuleProp;
     if (ruleprop->resetFromRule(rule, propcst))
     {
       messerr("Problem when creating from Rule & Proportions");
@@ -378,7 +378,7 @@ namespace gstlrn
 
   RuleProp* RuleProp::createFromRuleAndDb(const Rule* rule, const Db* dbprop)
   {
-    RuleProp* ruleprop = new RuleProp;
+    auto* ruleprop = new RuleProp;
     if (ruleprop->resetFromRuleAndDb(rule, dbprop))
     {
       messerr("Problem when creating from Rule & Db");
@@ -393,7 +393,7 @@ namespace gstlrn
     const Rule* rule2,
     const VectorDouble& propcst)
   {
-    RuleProp* ruleprop = new RuleProp;
+    auto* ruleprop = new RuleProp;
     if (ruleprop->resetFromRules(rule1, rule2, propcst))
     {
       messerr("Problem when creating from Rules & Proportions");
@@ -408,7 +408,7 @@ namespace gstlrn
     const Rule* rule2,
     const Db* dbprop)
   {
-    RuleProp* ruleprop = new RuleProp;
+    auto* ruleprop = new RuleProp;
     if (ruleprop->resetFromRulesAndDb(rule1, rule2, dbprop))
     {
       messerr("Problem when creating from Rules & Proportions");

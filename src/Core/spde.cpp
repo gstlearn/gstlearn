@@ -35,6 +35,7 @@
 #include "Model/Model.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Space/SpaceSN.hpp"
+#include "geoslib_d.h"
 #include "geoslib_define.h"
 #include "geoslib_f_private.h"
 #include "geoslib_old_f.h"
@@ -166,9 +167,6 @@ namespace gstlrn
     MatrixSparse* Q;
     CholeskySparse* chol;
   };
-
-  static void (*SIMU_FUNC_UPDATE)(Db*, Id, Id, Id) = NULL;
-  static void (*SIMU_FUNC_SCALE)(Db*, Id, Id) = NULL;
 
   /*! \endcond */
   static Id DEBUG = 0;
@@ -471,31 +469,6 @@ namespace gstlrn
       SS->ntarget1.clear();
       SS->model = nullptr;
     }
-  }
-
-  /****************************************************************************/
-  /*!
-   **  Define the function to account for the current simulation outcome
-   **  in the calculation of the Modification arrays
-   **
-   ** \param[in]  st_simu_update  Pointer to the update function
-   **
-   *****************************************************************************/
-  void simu_define_func_update(void (*st_simu_update)(Db*, Id, Id, Id))
-  {
-    SIMU_FUNC_UPDATE = st_simu_update;
-  }
-
-  /****************************************************************************/
-  /*!
-   **  Define the function to scale the Modification arrays
-   **
-   ** \param[in]  st_simu_scale  Pointer to the scaling function
-   **
-   *****************************************************************************/
-  void simu_define_func_scale(void (*st_simu_scale)(Db*, Id, Id))
-  {
-    SIMU_FUNC_SCALE = st_simu_scale;
   }
 
   /****************************************************************************/

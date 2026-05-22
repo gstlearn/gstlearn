@@ -97,46 +97,6 @@ namespace gstlrn
     const VectorInt& ndisc = VectorInt(),
     Id flag_sel = false,
     bool verbose = false);
-  GSTLEARN_EXPORT Id simpgs(
-    Db* dbin,
-    Db* dbout,
-    RuleProp* ruleprop,
-    Model* model1,
-    Model* model2 = nullptr,
-    ANeigh* neigh = nullptr,
-    Id nbsimu = 1,
-    Id seed = 1321421,
-    Id flag_gaus = false,
-    Id flag_prop = false,
-    Id flag_check = false,
-    Id flag_show = false,
-    Id nbtuba = 100,
-    Id gibbs_nburn = 10,
-    Id gibbs_niter = 100,
-    double percent = 5.,
-    const NamingConvention& namconv =
-      NamingConvention("Facies", true, true, true, ELoc::fromKey("FACIES")));
-  GSTLEARN_EXPORT Id simbipgs(
-    Db* dbin,
-    Db* dbout,
-    RuleProp* ruleprop,
-    Model* model11,
-    Model* model12 = nullptr,
-    Model* model21 = nullptr,
-    Model* model22 = nullptr,
-    ANeigh* neigh = nullptr,
-    Id nbsimu = 1,
-    Id seed = 43243,
-    Id flag_gaus = false,
-    Id flag_prop = false,
-    Id flag_check = false,
-    Id flag_show = false,
-    Id nbtuba = 100,
-    Id gibbs_nburn = 10,
-    Id gibbs_niter = 100,
-    double percent = 5.,
-    const NamingConvention& namconv =
-      NamingConvention("Facies", true, true, true, ELoc::fromKey("FACIES")));
   GSTLEARN_EXPORT VectorDouble simsph_mesh(
     MeshSpherical* mesh,
     Model* model,

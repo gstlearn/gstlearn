@@ -62,7 +62,7 @@ namespace gstlrn
   {
     Db* db;
     mutable const Rule* rule;
-    PropDef* propdef;
+    const PropDef* propdef;
     Id flag_stat;
     Id flag_facies;
     ECalcVario calculType;
@@ -542,7 +542,7 @@ namespace gstlrn
     double rho2;
     Id iech, ifac, ngrf;
     Db* db = local_pgs->db;
-    PropDef* propdef = local_pgs->propdef;
+    const PropDef& propdef = *local_pgs->propdef;
     const Rule* rule = local_pgs->rule;
     Id flag_stat = local_pgs->flag_stat;
     double t1min, t1max, t2min, t2max;
@@ -557,7 +557,7 @@ namespace gstlrn
 
     if (flag_stat)
     {
-      rule->setProportions(propdef->proploc);
+      rule->setProportions(propdef._proploc);
     }
     else
     {
@@ -566,9 +566,8 @@ namespace gstlrn
       {
         if (!db->isActive(iech)) continue;
         ifac = static_cast<Id>(db->getZVariable(iech, 0));
-        if (rule_thresh_define(
-              propdef, db, rule, ifac, iech, 0, 0, 0, &t1min, &t1max, &t2min,
-              &t2max))
+        if (propdef.ruleThreshDefine(
+              db, rule, ifac, iech, 0, 0, 0, &t1min, &t1max, &t2min, &t2max))
           return;
         st_set_bounds(
           db, 1, ngrf, local_pgs->nfacies, ifac, iech, t1min, t1max, t2min,
@@ -659,9 +658,9 @@ namespace gstlrn
 
     for (Id ifac = 0; ifac < nfacies; ifac++)
     {
-      if (rule_thresh_define(
-            local_pgs->propdef, local_pgs->db, local_pgs->rule, ifac + 1, 0, 0,
-            0, 0, &t1min, &t1max, &t2min, &t2max))
+      if (local_pgs->propdef->ruleThreshDefine(
+            local_pgs->db, local_pgs->rule, ifac + 1, 0, 0, 0, 0, &t1min,
+            &t1max, &t2min, &t2max))
         return (1);
       if (!TEST_DISCRET)
       {
@@ -744,7 +743,7 @@ namespace gstlrn
     Id flag_one,
     Id flag_prop,
     Db* db,
-    PropDef* propdef,
+    const PropDef& propdef,
     const Rule* rule)
   {
     Id number, ifac, jfac, nloop, iptr;
@@ -804,15 +803,15 @@ namespace gstlrn
           {
             ifac = (flag_one) ? static_cast<Id>(db->getZVariable(iech, 0)) : i;
             jfac = (flag_one) ? ifac : ifac + 1;
-            if (rule_thresh_define(
-                  propdef, db, rule, jfac, iech, 0, 0, 0, &t1min, &t1max,
-                  &t2min, &t2max))
+            if (propdef.ruleThreshDefine(
+                  db, rule, jfac, iech, 0, 0, 0, &t1min, &t1max, &t2min,
+                  &t2max))
               return (1);
 
             /* Define the proportions */
 
             if (flag_prop)
-              db->setLocVariable(ELoc::P, iech, ifac, propdef->propmem[ifac]);
+              db->setLocVariable(ELoc::P, iech, ifac, propdef._propmem[ifac]);
 
             /* Define the bounds */
 
@@ -1333,7 +1332,7 @@ namespace gstlrn
     {
       (void)st_vario_pgs_variable(
         0, local_pgs->ngrf, local_pgs->nfacies, 1, 0, local_pgs->db,
-        local_pgs->propdef, local_pgs->rule);
+        *local_pgs->propdef, local_pgs->rule);
       st_set_rho(0., local_pgs);
       for (Id idir = 0; idir < local_pgs->vario->getNDir(); idir++)
       {
@@ -1561,7 +1560,7 @@ namespace gstlrn
       {
         number++;
         scores[ir] = st_rule_calcul(local_pgs, &RULES(ir, 0));
-        propdef_reset(local_pgs->propdef);
+        local_pgs->propdef->reset();
       }
 
       // When Multi_Score_Check, calculate the score even if already defined
@@ -2978,12 +2977,12 @@ namespace gstlrn
 
       /* Get the bounds */
 
-      (void)rule_thresh_define(
-        local_pgs->propdef, local_pgs->db, local_pgs->rule, ifac1, i1, 0, 0, 1,
-        lower.data(), upper.data(), &lower[2], &upper[2]);
-      (void)rule_thresh_define(
-        local_pgs->propdef, local_pgs->db, local_pgs->rule, ifac2, i2, 0, 0, 1,
-        &lower[1], &upper[1], &lower[3], &upper[3]);
+      (void)local_pgs->propdef->ruleThreshDefine(
+        local_pgs->db, local_pgs->rule, ifac1, i1, 0, 0, 1, lower.data(),
+        upper.data(), &lower[2], &upper[2]);
+      (void)local_pgs->propdef->ruleThreshDefine(
+        local_pgs->db, local_pgs->rule, ifac2, i2, 0, 0, 1, &lower[1],
+        &upper[1], &lower[3], &upper[3]);
 
       if (flag_reset)
       {
@@ -3651,11 +3650,38 @@ namespace gstlrn
     local_tracepgs->trace = VectorDouble();
   }
 
+  static void st_local_pgs_init(Local_Pgs* local_pgs)
+  {
+    /* Dispatch */
+
+    local_pgs->db = nullptr;
+    local_pgs->rule = nullptr;
+    local_pgs->flag_stat = 0;
+    local_pgs->flag_facies = 0;
+    local_pgs->calculType = ECalcVario::VARIOGRAM;
+    local_pgs->igrfcur = 0;
+    local_pgs->idircur = 0;
+    local_pgs->ipascur = 0;
+    local_pgs->ngrf = 0;
+    local_pgs->npair = 0;
+    local_pgs->nfacies = 0;
+    local_pgs->ifirst = 0;
+    local_pgs->ilast = 0;
+    local_pgs->d0 = VectorDouble();
+    local_pgs->d1 = VectorDouble();
+    local_pgs->memint = VectorDouble();
+    local_pgs->stat_proba = VectorDouble();
+    local_pgs->stat_thresh = VectorDouble();
+    local_pgs->model = nullptr;
+    local_pgs->vario = nullptr;
+    local_pgs->varioind = nullptr;
+    local_pgs->vorder = nullptr;
+  }
+
   /****************************************************************************/
   /*!
    **  Manage the Local_Pgs structure
    **
-   ** \param[in]  mode         0 initialization; 1 allocation; -1 deallocation
    ** \param[in,out] local_pgs Local_Pgs structure
    ** \param[in]  db           Db structure
    ** \param[in]  rule         Lithotype Rule definition
@@ -3671,15 +3697,14 @@ namespace gstlrn
    ** \param[in]  calculType   Type of the calculation (covariance, variogram, ...)
    **
    *****************************************************************************/
-  static void st_manage_pgs(
-    Id mode,
+  static void st_local_pgs_define(
     Local_Pgs* local_pgs,
-    Db* db = nullptr,
-    const Rule* rule = nullptr,
-    Vario* vario = nullptr,
-    Vario* varioind = nullptr,
-    Model* model = nullptr,
-    PropDef* propdef = nullptr,
+    Db* db,
+    const Rule* rule,
+    Vario* vario,
+    Vario* varioind,
+    Model* model,
+    const PropDef& propdef,
     Id flag_stat = 0,
     Id flag_facies = 0,
     Id flag_dist = 0,
@@ -3687,72 +3712,40 @@ namespace gstlrn
     Id nfacies = 0,
     const ECalcVario& calculType = ECalcVario::VARIOGRAM)
   {
-    /* Dispatch */
-
-    switch (mode)
+    local_pgs->db = db;
+    local_pgs->rule = rule;
+    local_pgs->propdef = &propdef;
+    local_pgs->flag_stat = flag_stat;
+    local_pgs->flag_facies = flag_facies;
+    local_pgs->calculType = calculType;
+    local_pgs->igrfcur = 0;
+    local_pgs->ipascur = 0;
+    local_pgs->ngrf = ngrf;
+    local_pgs->npair = 0;
+    local_pgs->nfacies = nfacies;
+    local_pgs->vario = vario;
+    local_pgs->varioind = varioind;
+    local_pgs->model = model;
+    if (model != nullptr)
     {
-      case 0:
-        local_pgs->db = nullptr;
-        local_pgs->rule = nullptr;
-        local_pgs->propdef = nullptr;
-        local_pgs->flag_stat = 0;
-        local_pgs->flag_facies = 0;
-        local_pgs->calculType = ECalcVario::VARIOGRAM;
-        local_pgs->igrfcur = 0;
-        local_pgs->idircur = 0;
-        local_pgs->ipascur = 0;
-        local_pgs->ngrf = 0;
-        local_pgs->npair = 0;
-        local_pgs->nfacies = 0;
-        local_pgs->ifirst = 0;
-        local_pgs->ilast = 0;
-        local_pgs->d0 = VectorDouble();
-        local_pgs->d1 = VectorDouble();
-        local_pgs->memint = VectorDouble();
-        local_pgs->stat_proba = VectorDouble();
-        local_pgs->stat_thresh = VectorDouble();
-        local_pgs->model = nullptr;
-        local_pgs->vario = nullptr;
-        local_pgs->varioind = nullptr;
-        local_pgs->vorder = nullptr;
-        break;
-
-      case 1:
-        local_pgs->db = db;
-        local_pgs->rule = rule;
-        local_pgs->propdef = propdef;
-        local_pgs->flag_stat = flag_stat;
-        local_pgs->flag_facies = flag_facies;
-        local_pgs->calculType = calculType;
-        local_pgs->igrfcur = 0;
-        local_pgs->ipascur = 0;
-        local_pgs->ngrf = ngrf;
-        local_pgs->npair = 0;
-        local_pgs->nfacies = nfacies;
-        local_pgs->vario = vario;
-        local_pgs->varioind = varioind;
-        local_pgs->model = model;
-        if (model != nullptr)
-        {
-          Id ndim = static_cast<Id>(model->getNDim());
-          local_pgs->d0.resize(ndim);
-          local_pgs->d1.resize(ndim);
-        }
-        local_pgs->vorder = vario_order_manage(1, flag_dist, 0, NULL);
-        if (flag_stat)
-        {
-          local_pgs->stat_proba.resize(nfacies * nfacies, 0.);
-          local_pgs->stat_thresh.resize(
-            nfacies * 2 * 2, 0.); // Do not use ngrf, use 2 instead
-        }
-        st_manage_corpgs(&local_pgs->corpgs);
-        st_manage_trace(&local_pgs->tracepgs);
-        break;
-
-      case -1:
-        local_pgs->vorder = vario_order_manage(-1, 0, 0, local_pgs->vorder);
-        break;
+      Id ndim = static_cast<Id>(model->getNDim());
+      local_pgs->d0.resize(ndim);
+      local_pgs->d1.resize(ndim);
     }
+    local_pgs->vorder = vario_order_manage(1, flag_dist, 0, NULL);
+    if (flag_stat)
+    {
+      local_pgs->stat_proba.resize(nfacies * nfacies, 0.);
+      local_pgs->stat_thresh.resize(
+        nfacies * 2 * 2, 0.); // Do not use ngrf, use 2 instead
+    }
+    st_manage_corpgs(&local_pgs->corpgs);
+    st_manage_trace(&local_pgs->tracepgs);
+  }
+
+  static void st_local_pgs_delete(Local_Pgs* local_pgs)
+  {
+    local_pgs->vorder = vario_order_manage(-1, 0, 0, local_pgs->vorder);
   }
 
   /****************************************************************************/
@@ -4080,17 +4073,17 @@ namespace gstlrn
     Id opt_correl)
   {
     Local_Pgs local_pgs;
-    Id flag_correl, flag_stat;
+    Id flag_correl;
     Id error, nfacies, ngrf;
-    PropDef* propdef;
+    PropDef propdef;
 
     /* Initializations */
 
     error = 1;
     ngrf = 0;
-    flag_stat = nfacies = 0;
-    propdef = nullptr;
-    st_manage_pgs(0, &local_pgs);
+    nfacies = 0;
+    bool flag_stat = false;
+    st_local_pgs_init(&local_pgs);
 
     /* Preliminary checks */
 
@@ -4103,12 +4096,12 @@ namespace gstlrn
 
     ngrf = rule->getNGRF();
     nfacies = rule->getNFacies();
-    propdef = proportion_manage(
-      1, 1, flag_stat, ngrf, 0, nfacies, 0, db, dbprop, propcst, propdef);
-    if (propdef == nullptr) goto label_end;
+    if (propdef.define(
+          true, flag_stat, {ngrf, 0}, {nfacies, 0}, db, dbprop, propcst))
+      goto label_end;
     flag_correl = ngrf > 1 && (opt_correl != 2 || rule->getRho() != 0);
     if (rule->particularities(db, dbprop, NULL, 1, flag_stat)) goto label_end;
-    proportion_rule_process(propdef, EProcessOper::COPY);
+    propdef.defineRuleMethod(EProcessOper::COPY);
 
     /**************************/
     /* Allocate the variables */
@@ -4123,9 +4116,9 @@ namespace gstlrn
 
     /* Initialize the Local_Pgs structure */
 
-    st_manage_pgs(
-      1, &local_pgs, db, rule, vario, nullptr, nullptr, propdef, flag_stat, 1,
-      0, ngrf, nfacies, vario->getCalcul());
+    st_local_pgs_define(
+      &local_pgs, db, rule, vario, nullptr, nullptr, propdef, flag_stat, 1, 0,
+      ngrf, nfacies, vario->getCalcul());
     st_define_corpgs(opt_correl, flag_rho, rule->getRho(), &local_pgs);
     st_define_trace(flag_rho, flag_correl, &local_pgs);
 
@@ -4152,12 +4145,8 @@ namespace gstlrn
 
   label_end:
     (void)st_extract_trace(&local_pgs);
-    st_manage_pgs(
-      -1, &local_pgs, db, rule, vario, nullptr, nullptr, propdef, flag_stat, 1,
-      0, ngrf, nfacies, vario->getCalcul());
+    st_local_pgs_delete(&local_pgs);
     (void)st_vario_pgs_variable(-1, ngrf, nfacies, 1, 0, db, propdef, rule);
-    proportion_manage(
-      -1, 1, flag_stat, ngrf, 0, nfacies, 0, db, dbprop, propcst, propdef);
     return (error);
   }
 
@@ -4355,8 +4344,8 @@ namespace gstlrn
     Id nfacies = local_pgs->nfacies;
     if (local_pgs->flag_stat)
     {
-      ploc[0] = local_pgs->propdef->propfix[ifac1];
-      ploc[1] = local_pgs->propdef->propfix[ifac2];
+      ploc[0] = local_pgs->propdef->getPropFix(ifac1);
+      ploc[1] = local_pgs->propdef->getPropFix(ifac2);
       low[0] = STAT_THRESH(ifac1, 0, 0);
       up[0] = STAT_THRESH(ifac1, 0, 1);
       low[1] = STAT_THRESH(ifac2, 0, 0);
@@ -4719,8 +4708,8 @@ namespace gstlrn
     for (Id ivar = 0; ivar < nfacies; ivar++)
       for (Id jvar = 0; jvar < nfacies; jvar++)
       {
-        double pivar = local_pgs->propdef->propfix[ivar];
-        double pjvar = local_pgs->propdef->propfix[jvar];
+        double pivar = local_pgs->propdef->getPropFix(ivar);
+        double pjvar = local_pgs->propdef->getPropFix(jvar);
         if (ivar == jvar)
           vario->setVar(pivar * (1. - pivar), ivar, jvar);
         else
@@ -4868,14 +4857,14 @@ namespace gstlrn
       messerr("RuleProp must be defined");
       return nullptr;
     }
-    Id flag_stat = ruleprop->isFlagStat();
+    bool flag_stat = ruleprop->isFlagStat();
     const Rule* rule = ruleprop->getRule();
     const VectorDouble& propcst = ruleprop->getPropCst();
     const Db* dbprop = ruleprop->getDbprop();
 
-    Local_Pgs local_pgs;
-    PropDef* propdef;
+    PropDef propdef;
     Model* new_model;
+    Local_Pgs local_pgs;
 
     /*******************/
     /* Initializations */
@@ -4887,8 +4876,7 @@ namespace gstlrn
     if (rule->getModeRule() == ERule::SHIFT) ngrf++;
 
     new_model = nullptr;
-    propdef = nullptr;
-    st_manage_pgs(0, &local_pgs);
+    st_local_pgs_init(&local_pgs);
     if (st_check_test_discret(rule->getModeRule(), 0)) goto label_end;
 
     /* Merge the models */
@@ -4958,23 +4946,23 @@ namespace gstlrn
     /* Core allocation */
     /*******************/
 
-    propdef = proportion_manage(
-      1, 1, flag_stat, ngrf, 0, nfacies, 0, db, dbprop, propcst, propdef);
-    if (propdef == nullptr) goto label_end;
+    if (propdef.define(
+          true, flag_stat, {ngrf, 0}, {nfacies, 0}, db, dbprop, propcst))
+      goto label_end;
 
     if (rule->particularities(db, dbprop, new_model, 0, flag_stat))
       goto label_end;
 
-    proportion_rule_process(propdef, EProcessOper::COPY);
+    propdef.defineRuleMethod(EProcessOper::COPY);
 
     /* Pre-calculation of integrals: Define the structure */
 
     if (TEST_DISCRET)
       CTABLES = ct_tables_manage(1, 0, 1, 200, 100, -1., 1., NULL);
 
-    st_manage_pgs(
-      1, &local_pgs, db, rule, vario, varioind, new_model, propdef, flag_stat,
-      0, 1, ngrf, nfacies, vario->getCalcul());
+    st_local_pgs_define(
+      &local_pgs, db, rule, vario, varioind, new_model, propdef, flag_stat, 0,
+      1, ngrf, nfacies, vario->getCalcul());
 
     /* Calculate the variogram and the variance matrix */
 
@@ -5001,13 +4989,9 @@ namespace gstlrn
   label_end:
     if (TEST_DISCRET)
       CTABLES = ct_tables_manage(-1, 0, 1, 200, 100, -1., 1., CTABLES);
-    st_manage_pgs(
-      -1, &local_pgs, db, rule, vario, varioind, new_model, propdef, flag_stat,
-      0, 1, ngrf, nfacies, vario->getCalcul());
+    st_local_pgs_delete(&local_pgs);
     delete new_model;
     (void)st_vario_pgs_variable(-1, ngrf, nfacies, 0, 1, db, propdef, rule);
-    proportion_manage(
-      -1, 1, flag_stat, ngrf, 0, nfacies, 0, db, dbprop, propcst, propdef);
     if (error)
     {
       delete vario;
@@ -5037,17 +5021,16 @@ namespace gstlrn
     const VectorDouble& propcst)
   {
     Local_Pgs local_pgs;
-    Id node_tot, nmax_tot, ny1, ny2, error, nfacies, ngrf, flag_stat;
+    Id node_tot, nmax_tot, ny1, ny2, error, nfacies, ngrf;
     double prop_tot;
-    PropDef* propdef;
+    PropDef propdef;
 
     /* Initializations */
 
     error = 1;
     ngrf = nfacies = 0;
-    flag_stat = 1;
-    propdef = nullptr;
-    st_manage_pgs(0, &local_pgs);
+    bool flag_stat = true;
+    st_local_pgs_init(&local_pgs);
 
     /* Preliminary checks */
 
@@ -5061,11 +5044,11 @@ namespace gstlrn
     /*******************/
 
     rule->statistics(0, &node_tot, &nfacies, &nmax_tot, &ny1, &ny2, &prop_tot);
-    propdef = proportion_manage(
-      1, 1, flag_stat, ngrf, 0, nfacies, 0, NULL, NULL, propcst, propdef);
-    if (propdef == nullptr) goto label_end;
+    if (propdef.define(
+          true, flag_stat, {ngrf, 0}, {nfacies, 0}, NULL, NULL, propcst))
+      goto label_end;
     if (rule->particularities(NULL, NULL, NULL, 1, flag_stat)) goto label_end;
-    proportion_rule_process(propdef, EProcessOper::COPY);
+    propdef.defineRuleMethod(EProcessOper::COPY);
 
     /****************************/
     /* Perform the calculations */
@@ -5073,9 +5056,9 @@ namespace gstlrn
 
     /* Initialize the Local_Pgs structure */
 
-    st_manage_pgs(
-      1, &local_pgs, db, rule, vario, varioind, nullptr, propdef, flag_stat, 1,
-      0, ngrf, nfacies, vario->getCalcul());
+    st_local_pgs_define(
+      &local_pgs, db, rule, vario, varioind, nullptr, propdef, flag_stat, 1, 0,
+      ngrf, nfacies, vario->getCalcul());
     st_define_corpgs(0, 0, rule->getRho(), &local_pgs);
     st_define_trace(0, 0, &local_pgs);
     st_set_rho(0., &local_pgs);
@@ -5096,11 +5079,7 @@ namespace gstlrn
 
   label_end:
     (void)st_extract_trace(&local_pgs);
-    st_manage_pgs(
-      -1, &local_pgs, db, rule, vario, varioind, NULL, propdef, flag_stat, 1, 0,
-      ngrf, nfacies, vario->getCalcul());
-    proportion_manage(
-      -1, 1, 1, ngrf, 0, nfacies, 0, NULL, NULL, propcst, propdef);
+    st_local_pgs_delete(&local_pgs);
     return (error);
   }
 
@@ -5264,7 +5243,7 @@ namespace gstlrn
       messerr("RuleProp must be defined");
       return nullptr;
     }
-    Id flag_stat = ruleprop->isFlagStat();
+    bool flag_stat = ruleprop->isFlagStat();
     const VectorDouble& propcst = ruleprop->getPropCst();
     const Db* dbprop = ruleprop->getDbprop();
 
@@ -5283,7 +5262,7 @@ namespace gstlrn
     Id error = 1;
     Rule* rule = nullptr;
     Relem* Pile_Relem = nullptr;
-    PropDef* propdef = nullptr;
+    PropDef propdef;
 
     NCOLOR = db->getNFacies();
     NGRF = ngrfmax;
@@ -5308,7 +5287,7 @@ namespace gstlrn
     }
 
     if (st_check_test_discret(ERule::STD, 0)) goto label_end;
-    st_manage_pgs(0, &local_pgs);
+    st_local_pgs_init(&local_pgs);
 
     vario = Vario::create(*varioparam);
     vario->setDb(db);
@@ -5318,10 +5297,10 @@ namespace gstlrn
     if (st_vario_pgs_check(0, 0, flag_stat, db, NULL, vario, varioind, NULL))
       goto label_end;
 
-    propdef = proportion_manage(
-      1, 1, flag_stat, NGRF, 0, NCOLOR, 0, db, dbprop, propcst, propdef);
-    if (propdef == nullptr) goto label_end;
-    proportion_rule_process(propdef, EProcessOper::COPY);
+    if (propdef.define(
+          true, flag_stat, {NGRF, 0}, {NCOLOR, 0}, db, dbprop, propcst))
+      goto label_end;
+    propdef.defineRuleMethod(EProcessOper::COPY);
 
     /* Pre-calculation of integrals: Define the structure */
 
@@ -5330,9 +5309,9 @@ namespace gstlrn
 
     /* Allocation */
 
-    st_manage_pgs(
-      1, &local_pgs, db, nullptr, vario, varioind, nullptr, propdef, flag_stat,
-      1, 0, NGRF, NCOLOR, vario->getCalcul());
+    st_local_pgs_define(
+      &local_pgs, db, nullptr, vario, varioind, nullptr, propdef, flag_stat, 1,
+      0, NGRF, NCOLOR, vario->getCalcul());
 
     if (flag_stat)
     {
@@ -5413,13 +5392,9 @@ namespace gstlrn
     st_relem_free(Pile_Relem);
     if (TEST_DISCRET)
       CTABLES = ct_tables_manage(-1, 0, 1, 200, 100, -1., 1., CTABLES);
-    st_manage_pgs(
-      -1, &local_pgs, db, nullptr, vario, varioind, nullptr, propdef, flag_stat,
-      1, 0, NGRF, NCOLOR, vario->getCalcul());
+    st_local_pgs_delete(&local_pgs);
     (void)st_vario_pgs_variable(-1, NGRF, NCOLOR, 1, 0, db, propdef, NULL);
 
-    proportion_manage(
-      -1, 1, flag_stat, NGRF, 0, NCOLOR, 0, db, dbprop, propcst, propdef);
     delete varioind;
     delete vario;
     if (error) rule = rule_free(rule);

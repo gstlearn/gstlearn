@@ -448,9 +448,9 @@ namespace gstlrn
 
   bool CalcAnamTransform::_FactorsToSelectivity()
   {
-    AnamHermite* anam_hermite = dynamic_cast<AnamHermite*>(_anam);
-    AnamDiscreteDD* anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(_anam);
-    AnamDiscreteIR* anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(_anam);
+    auto* anam_hermite = dynamic_cast<AnamHermite*>(_anam);
+    auto* anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(_anam);
+    auto* anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(_anam);
 
     /* Dispatch according to the type of Anamorphosis */
 
