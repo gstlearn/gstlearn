@@ -48,7 +48,7 @@ jobs:
         pacman -Sy --noconfirm mingw-w64-x86_64-hdf5
 
     - name: Install the customized SWIG from source
-      uses: fabien-ors/install-swig-windows-action@v2
+      uses: fabien-ors/install-swig-windows-action@v3
       with:
         swig-root: ${{env.SWIG_ROOT}}
         generator: "Visual Studio 17 2022"
