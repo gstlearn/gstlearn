@@ -120,15 +120,19 @@ namespace gstlrn
     const double lambda,
     bool doubleRejection)
   {
+    // Note: if a NA value is generated, the value is re-sampled.
     double val = 0.0;
-    if (doubleRejection)
+    do
     {
-      val = _unilateral_exptilt_doubleRejection(alpha, lambda);
-    }
-    else
-    {
-      val = _unilateral_exptilt_singleRejection(alpha, lambda);
-    }
+      if (doubleRejection)
+      {
+        val = _unilateral_exptilt_doubleRejection(alpha, lambda);
+      }
+      else
+      {
+        val = _unilateral_exptilt_singleRejection(alpha, lambda);
+      }
+    } while (std::isnan(val));
     return val;
   }
 
