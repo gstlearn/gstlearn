@@ -40,74 +40,62 @@ namespace gstlrn
    * If the proportion is variable, it uses Proportion locator in output DbGrid
    */
 
-  class GSTLEARN_EXPORT SimuBoolean: public ACalcSimulation, public AStringable
+  class GSTLEARN_EXPORT CalcSimuBoolean: public ACalcSimulation,
+                                         public AStringable
   {
   public:
-    SimuBoolean(Id nbsimu = 0, Id seed = 4324324);
-    SimuBoolean(const SimuBoolean& r) = delete;
-    SimuBoolean& operator=(const SimuBoolean& r) = delete;
-    virtual ~SimuBoolean();
+    CalcSimuBoolean(Id nbsimu = 0, Id seed = 4324324, bool verbose = false);
+    CalcSimuBoolean(const CalcSimuBoolean& r) = delete;
+    CalcSimuBoolean& operator=(const CalcSimuBoolean& r) = delete;
+    virtual ~CalcSimuBoolean();
 
     /// Interface to AStringable
     String toString(const AStringFormat* strfmt = nullptr) const override;
 
-    Id simulate(
-      Db* dbin,
-      DbGrid* dbout,
-      ModelBoolean* tokens,
-      const SimuBooleanParam& boolparam,
-      Id iptr_simu,
-      Id iptr_rank,
-      Id iptr_cover,
-      bool verbose = false);
+    const SimuBooleanParam& getBoolparam() const { return _boolparam; }
+
+    void setBoolParam(const SimuBooleanParam& boolparam)
+    {
+      _boolparam = boolparam;
+    }
+
+    void setTokens(const ModelBoolean* tokens) { _tokens = tokens; }
+
+    void setFlagSimu(bool flag) { _flagSimu = flag; }
+
+    void setFlagRank(bool flag) { _flagRank = flag; }
 
     VectorDouble extractObjects() const;
 
   private:
+    bool _check() override;
+    bool _preprocess() override;
     bool _run() override;
+    bool _postprocess() override;
+    void _rollback() override;
 
     void _clearAllObjects();
     Id _getNObjects(Id mode = 0) const;
-    Id _getRankUncovered(const Db* db, Id rank) const;
+    Id _getRankGrainUncovered(const Db* db, Id rank) const;
     Id _getObjectRank(Id mode, Id rank);
-    Id _deleteObject(Id mode, Db* dbin);
-    static Id _getAverageCount(
-      const DbGrid* dbout,
-      const ModelBoolean* tokens,
-      const SimuBooleanParam& boolparam);
-    static Id _countConditioningPore(const Db* db);
-    static Id _countConditioningGrain(const Db* db);
-    Id _generatePrimary(
-      Db* dbin,
-      DbGrid* dbout,
-      const ModelBoolean* tokens,
-      const SimuBooleanParam& boolparam,
-      bool verbose = false);
-    Id _generateSecondary(
-      Db* dbin,
-      DbGrid* dbout,
-      const ModelBoolean* tokens,
-      const SimuBooleanParam& boolparam,
-      bool verbose = false);
-    void _projectToGrid(
-      DbGrid* dbout,
-      const SimuBooleanParam& boolparam,
-      Id iptr_simu,
-      Id iptr_rank);
+    Id _getAverageCount() const;
+    Id _countConditioningPore() const;
+    Id _countConditioningGrain() const;
+    bool _deleteObject(Id mode, Db* dbin);
+    bool _generatePrimary();
+    bool _generateSecondary();
+    void _projectToGrid();
+    bool _simulate();
 
   private:
+    bool _flagSimu;
+    bool _flagRank;
+    SimuBooleanParam _boolparam;
+    const ModelBoolean* _tokens;
     std::vector<BooleanObject*> _objlist;
+    mutable Id _iptrSimu;
+    mutable Id _iptrRank;
     mutable Id _iptrCover;
   };
 
-  GSTLEARN_EXPORT Id simbool(
-    Db* dbin,
-    DbGrid* dbout,
-    ModelBoolean* tokens,
-    const SimuBooleanParam& boolparam = SimuBooleanParam(),
-    Id seed = 432431,
-    bool flag_simu = true,
-    bool flag_rank = true,
-    bool verbose = false,
-    const NamingConvention& namconv = NamingConvention("Boolean"));
 } // namespace gstlrn

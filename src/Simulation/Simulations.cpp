@@ -12,6 +12,7 @@
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/ANeigh.hpp"
+#include "Simulation/CalcSimuBoolean.hpp"
 #include "Simulation/CalcSimuEden.hpp"
 #include "Simulation/CalcSimuFFT.hpp"
 #include "Simulation/CalcSimuPartition.hpp"
@@ -469,6 +470,47 @@ namespace gstlrn
 
     // Run the calculator
     Id error = (situba.run()) ? 0 : 1;
+    return error;
+  }
+
+  /*****************************************************************************/
+  /*!
+   **  Performs the boolean simulation
+   **
+   ** \return  Error return code
+   **
+   ** \param[in]  dbin          Db structure containing the data (optional)
+   ** \param[in]  dbgrid        DbGrid structure containing the simulated grid
+   ** \param[in]  tokens        Tokens structure
+   ** \param[in]  boolparam     SimuBooleanParam structure
+   ** \param[in]  seed          Seed for the random number generator
+   ** \param[in]  flag_simu     Store the boolean simulation
+   ** \param[in]  flag_rank     Store the object rank
+   ** \param[in]  verbose       1 for a verbose output
+   ** \param[in]  namconv       Naming convention
+   **
+   *****************************************************************************/
+  Id simbool(
+    Db* dbin,
+    DbGrid* dbgrid,
+    ModelBoolean* tokens,
+    const SimuBooleanParam& boolparam,
+    Id seed,
+    bool flag_simu,
+    bool flag_rank,
+    bool verbose,
+    const NamingConvention& namconv)
+  {
+    CalcSimuBoolean simbool(1, seed, verbose);
+    simbool.setDbin(dbin);
+    simbool.setDbout(dbgrid);
+    simbool.setNamingConvention(namconv);
+    simbool.setTokens(tokens);
+    simbool.setBoolParam(boolparam);
+    simbool.setFlagRank(flag_rank);
+    simbool.setFlagSimu(flag_simu);
+
+    Id error = (simbool.run()) ? 0 : 1;
     return error;
   }
 

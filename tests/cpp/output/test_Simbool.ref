@@ -11,53 +11,21 @@ Total number of samples      = 10000
 
 Grid characteristics:
 ---------------------
-Origin :      0.000     0.000
-Mesh   :      1.000     1.000
-Number :        100       100
+Origin :       0.000      0.000
+Mesh   :       1.000      1.000
+Number :         100        100
 
 Variables
 ---------
 Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
-
-Data Base Characteristics
-=========================
-
-Data Base Statistics
---------------------
-1 - Name rank - Locator NA
- Nb of data          =        100
- Nb of active values =        100
- Minimum value       =      1.000
- Maximum value       =    100.000
- Mean value          =     50.500
- Standard Deviation  =     28.866
- Variance            =    833.250
-2 - Name x1 - Locator x1
- Nb of data          =        100
- Nb of active values =        100
- Minimum value       =   -158.624
- Maximum value       =    131.935
- Mean value          =      0.678
- Standard Deviation  =     50.083
- Variance            =   2508.331
-3 - Name x2 - Locator x2
- Nb of data          =        100
- Nb of active values =        100
- Minimum value       =   -112.354
- Maximum value       =    106.924
- Mean value          =     -7.383
- Standard Deviation  =     44.553
- Variance            =   1984.932
-4 - Name Var - Locator z1
- Nb of data          =        100
- Nb of active values =        100
- Minimum value       =      0.000
- Maximum value       =      1.000
- Mean value          =      0.120
- Standard Deviation  =      0.325
- Variance            =      0.106
+          Number     Minimum     Maximum        Mean    St. Dev.    Variance
+rank      92.000       1.000     100.000      49.207      28.673     822.142
+ x-1      92.000       0.004       0.987       0.523       0.287       0.083
+ x-2      92.000       0.001       0.941       0.483       0.251       0.063
+ sel      92.000       1.000       1.000       1.000       0.000       0.000
+   z      92.000      -2.653       2.180      -0.136       1.022       1.045
 
 <----- Creating Shape Dictionary ----->
 
@@ -83,49 +51,10 @@ Parallelepiped - Proportion=0.6
 - Orientation Angle: Constant=0
 
 <----- Perform Boolean Simulation ----->
-
-Data Base Grid Characteristics
-==============================
-
-Data Base Statistics
---------------------
-1 - Name rank - Locator NA
- Nb of data          =      10000
- Nb of active values =      10000
- Minimum value       =      1.000
- Maximum value       =  10000.000
- Mean value          =   5000.500
- Standard Deviation  =   2886.751
- Variance            = 8333333.250
-2 - Name x1 - Locator x1
- Nb of data          =      10000
- Nb of active values =      10000
- Minimum value       =      0.000
- Maximum value       =     99.000
- Mean value          =     49.500
- Standard Deviation  =     28.866
- Variance            =    833.250
-3 - Name x2 - Locator x2
- Nb of data          =      10000
- Nb of active values =      10000
- Minimum value       =      0.000
- Maximum value       =     99.000
- Mean value          =     49.500
- Standard Deviation  =     28.866
- Variance            =    833.250
-4 - Name Boolean.Facies - Locator NA
- Nb of data          =      10000
- Nb of active values =       4767
- Minimum value       =      1.000
- Maximum value       =      1.000
- Mean value          =      1.000
- Standard Deviation  =      0.000
- Variance            =      0.000
-5 - Name Boolean.Rank - Locator NA
- Nb of data          =      10000
- Nb of active values =       4767
- Minimum value       =      1.000
- Maximum value       =    101.000
- Mean value          =     42.353
- Standard Deviation  =     28.101
- Variance            =    789.644
+- Simulation with conditioning
+                      Number     Minimum     Maximum        Mean    St. Dev.    Variance
+            rank   10000.000       1.000   10000.000    5000.500    2886.751 8333333.250
+              x1   10000.000       0.000      99.000      49.500      28.866     833.250
+              x2   10000.000       0.000      99.000      49.500      28.866     833.250
+Boolean.z.Facies    5587.000       1.000       1.000       1.000       0.000       0.000
+  Boolean.z.Rank    5587.000       1.000     108.000      45.946      30.208     912.496

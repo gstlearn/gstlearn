@@ -30,9 +30,8 @@ namespace gstlrn
     Id nbsimu,
     Id seed,
     bool verbose)
-    : ACalcSimulation(nbsimu, seed)
+    : ACalcSimulation(nbsimu, seed, verbose)
     , _mode(mode)
-    , _verbose(verbose)
     , _iattOut(-1)
     , _parparam()
     , _modelLocal(nullptr)
@@ -74,7 +73,7 @@ namespace gstlrn
     /* Derive the number of points */
 
     Id nbpoints = static_cast<Id>(volume * _parparam.getIntensity());
-    if (_verbose)
+    if (getVerbose())
       message(
         "Boolean simulation. Intensity = %lf - Nb. seeds = %d\n",
         _parparam.getIntensity(), nbpoints);
@@ -119,13 +118,6 @@ namespace gstlrn
    ** Generate a simulation on a regular 3D grid using Poisson Polyhedra Model
    **
    ** \returns Error return code
-   **
-   ** \param[in]  dbgrid      Db structure (should be a grid)
-   ** \param[in]  model       Model used for the valuation of tesselation
-   ** \param[in]  seed        Seed
-   ** \param[in]  intensity   Intensity of the Poisson Process
-   ** \param[in]  nbtuba      Number of bands (for the gaussian field simulation)
-   ** \param[in]  verbose     Verbose option
    **
    *****************************************************************************/
   bool CalcSimuPartition::_poisson()
@@ -196,7 +188,7 @@ namespace gstlrn
 
     /* Printout statistics on the information process */
 
-    if (_verbose) message("Number of planes generated = %d\n", np);
+    if (getVerbose()) message("Number of planes generated = %d\n", np);
 
     /******************/
     /* Coding process */
@@ -281,6 +273,7 @@ namespace gstlrn
       messerr("The model must be of type 'Model' (not ModelGeneric)");
       return false;
     }
+
     return true;
   }
 
@@ -288,7 +281,7 @@ namespace gstlrn
   {
     if (!ACalcSimulation::_preprocess()) return false;
 
-    _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 0, 1);
+    _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 0, getNbSimu());
     return (_iattOut >= 0);
   }
 

@@ -29,7 +29,7 @@ namespace gstlrn
   class GSTLEARN_EXPORT BooleanObject: public AStringable
   {
   public:
-    BooleanObject(const AShape* shape);
+    BooleanObject(const AShape* shape, Id ndim);
     BooleanObject(const BooleanObject& r);
     BooleanObject& operator=(const BooleanObject& r);
     virtual ~BooleanObject();
@@ -79,6 +79,8 @@ namespace gstlrn
       Id rank);
     Id coverageUpdate(Db* db, Id iptr_cover, Id val);
     VectorDouble getValues() const;
+    static bool isPore(const Db* db, Id iech);
+    static bool isGrain(const Db* db, Id iech);
 
   private:
     static bool _invalidTokenFromIntensity(
@@ -86,23 +88,23 @@ namespace gstlrn
       const ModelBoolean* tokens,
       const VectorDouble& coor,
       double eps = EPSILON3);
-    static bool _isPore(const Db* db, Id iech);
-    static bool _isGrain(const Db* db, Id iech);
+
     void _defineBoundingBox(double eps = EPSILON3);
     void _extensionLinkage();
-    bool _isInObject(const VectorDouble& coor, Id ndim);
+    bool _isInObject(const VectorDouble& coor);
 
-    bool _isInBoundingBox(const VectorDouble& coor, Id ndim);
+    bool _isInBoundingBox(const VectorDouble& coor);
     static Id _getCoverageAtSample(const Db* db, Id iptr_cover, Id iech);
     static void
       _updateCoverageAtSample(Db* db, Id iptr_cover, Id iech, Id ival);
-    static void _drawCoordinate(
+    static void _generateCoordinatesInPlace(
       const DbGrid* dbout,
       const SimuBooleanParam& boolparam,
       VectorDouble& coor);
 
   private:
     Id _mode; // 1 for Primary; 2 for Secondary object
+    Id _ndim; // Space dimension
     const AShape* _token; // Token to which the Object belongs
     std::array<double, 3> _center; // Coordinates of the center of the object
     std::array<double, 3> _extension; // Extension of the object

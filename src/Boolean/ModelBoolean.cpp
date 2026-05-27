@@ -84,15 +84,13 @@ namespace gstlrn
   {
     Id nb_token = static_cast<Id>(_shapes.size());
 
-    /* Calculate the total probability */
-
+    // Calculate the total probability
     double total = 0.;
     for (Id itok = 0; itok < nb_token; itok++)
       total += _shapes[itok]->getProportion();
     if (total <= 0.) return nullptr;
 
-    /* Find the type of token to be generated */
-
+    // Find the type of token to be generated
     double value = total * law_uniform(0., 1.);
     Id rank = -1;
     double cumul = 0.;

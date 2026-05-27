@@ -20,9 +20,10 @@
 
 namespace gstlrn
 {
-  BooleanObject::BooleanObject(const AShape* ashape)
+  BooleanObject::BooleanObject(const AShape* ashape, Id ndim)
     : AStringable()
     , _mode(0)
+    , _ndim(ndim)
     , _token(ashape)
     , _center({0., 0., 0.})
     , _extension(
@@ -40,6 +41,7 @@ namespace gstlrn
   BooleanObject::BooleanObject(const BooleanObject& r)
     : AStringable(r)
     , _mode(r._mode)
+    , _ndim(r._ndim)
     , _token(r._token)
     , _center(r._center)
     , _extension(r._extension)
@@ -55,6 +57,7 @@ namespace gstlrn
     {
       AStringable::operator=(r);
       _mode = r._mode;
+      _ndim = r._ndim;
       _token = r._token;
       _center = r._center;
       _extension = r._extension;
@@ -71,13 +74,19 @@ namespace gstlrn
   {
     std::stringstream sstr;
 
-    if (_mode == 1)
+    if (_mode == 0)
+      sstr << "Tentative Object" << std::endl;
+    else if (_mode == 1)
       sstr << "Primary Object" << std::endl;
-    else
+    else if (_mode == 2)
       sstr << "Secondary Object" << std::endl;
+    else
+      sstr << "Object with unknown mode = " << _mode << std::endl;
     sstr << "- Type        = " << _token->getType().getDescr() << std::endl;
-    sstr << "- Center      = " << toStrVectorVec(String(), _center);
-    sstr << "- Extension   = " << toStrVectorVec(String(), _extension);
+    constvect center_ndim(_center.begin(), _center.begin() + _ndim);
+    sstr << "- Center      = " << toStrVectorVec(String(), center_ndim);
+    constvect extension_ndim(_extension.begin(), _extension.begin() + _ndim);
+    sstr << "- Extension   = " << toStrVectorVec(String(), extension_ndim);
     sstr << "- Orientation = " << _orientation << std::endl;
 
     return sstr.str();
@@ -85,8 +94,7 @@ namespace gstlrn
 
   void BooleanObject::setCenter(const VectorDouble& center)
   {
-    for (Id idim = 0; idim < static_cast<Id>(center.size()); idim++)
-      _center[idim] = center[idim];
+    for (Id idim = 0; idim < _ndim; idim++) _center[idim] = center[idim];
   }
 
   VectorDouble BooleanObject::getValues() const
@@ -137,12 +145,12 @@ namespace gstlrn
     }
   }
 
-  void BooleanObject::_drawCoordinate(
+  void BooleanObject::_generateCoordinatesInPlace(
     const DbGrid* dbout,
     const SimuBooleanParam& boolparam,
     VectorDouble& coor)
   {
-    Id ndim = dbout->getNDim();
+    Id ndim = static_cast<Id>(coor.size());
     for (Id idim = 0; idim < ndim; idim++)
     {
       double origin = dbout->getX0(idim);
@@ -168,7 +176,6 @@ namespace gstlrn
     Id ndim = dbout->getNDim();
 
     // Define the (primary) location of the object
-
     Id iter = 0;
     VectorDouble coor(ndim);
     if (!cdgrain.empty())
@@ -181,20 +188,17 @@ namespace gstlrn
       {
         iter++;
         if (iter > boolparam.getMaxiter()) return nullptr;
-        _drawCoordinate(dbout, boolparam, coor);
+        _generateCoordinatesInPlace(dbout, boolparam, coor);
       } while (_invalidTokenFromIntensity(dbout, tokens, coor));
     }
 
     // Generate an object of the correct Token type
-
     BooleanObject* object = tokens->generateObject(ndim);
 
     /* Operate the linkage */
-
     object->_extensionLinkage();
 
-    /* Store the coordinates of the object center */
-
+    // Store the coordinates of the object center
     double valrand;
     if (!cdgrain.empty())
     {
@@ -222,7 +226,7 @@ namespace gstlrn
           object->setCenter(
             idim, coor[idim] + object->getExtension(idim) * valrand);
         }
-      } while (!object->_isInObject(cdgrain, ndim));
+      } while (!object->_isInObject(cdgrain));
     }
     else
       object->setCenter(coor);
@@ -286,13 +290,12 @@ namespace gstlrn
    ** \return  True if the pixel is in the object, False otherwise
    **
    ** \param[in]  coor     location of the pixel
-   ** \param[in]  ndim     Space dimension
    **
    *****************************************************************************/
-  bool BooleanObject::_isInObject(const VectorDouble& coor, Id ndim)
+  bool BooleanObject::_isInObject(const VectorDouble& coor)
   {
-    VectorDouble incr(ndim);
-    for (Id idim = 0; idim < ndim; idim++)
+    VectorDouble incr(_ndim);
+    for (Id idim = 0; idim < _ndim; idim++)
       incr[idim] = coor[idim] - _center[idim];
 
     if (_orientation)
@@ -310,7 +313,7 @@ namespace gstlrn
 
     if (ABS(incr[0]) > _extension[0] / 2.) return false;
     if (ABS(incr[1]) > _extension[1] / 2.) return false;
-    if (ndim > 2)
+    if (_ndim > 2)
     {
       if (!_token->getFlagCutZ())
       {
@@ -337,13 +340,12 @@ namespace gstlrn
    **  \return True if the pixel is in the box and False otherwise
    **
    ** \param[in]  coor     location of the pixel
-   ** \param[in]  ndim     Space dimension
    **
    *****************************************************************************/
-  bool BooleanObject::_isInBoundingBox(const VectorDouble& coor, Id ndim)
+  bool BooleanObject::_isInBoundingBox(const VectorDouble& coor)
 
   {
-    for (Id idim = 0; idim < ndim; idim++)
+    for (Id idim = 0; idim < _ndim; idim++)
     {
       if (coor[idim] < _box[idim][0]) return false;
       if (coor[idim] > _box[idim][1]) return false;
@@ -351,12 +353,12 @@ namespace gstlrn
     return true;
   }
 
-  bool BooleanObject::_isPore(const Db* db, Id iech)
+  bool BooleanObject::isPore(const Db* db, Id iech)
   {
     return (db->getZVariable(iech, 0) == 0);
   }
 
-  bool BooleanObject::_isGrain(const Db* db, Id iech)
+  bool BooleanObject::isGrain(const Db* db, Id iech)
   {
     return (db->getZVariable(iech, 0) != 0);
   }
@@ -387,14 +389,23 @@ namespace gstlrn
   bool BooleanObject::isCompatiblePore(const Db* db)
   {
     if (db == nullptr) return true;
-    Id ndim = db->getNDim();
     for (Id iech = 0; iech < db->getNSample(); iech++)
     {
+      // Discard if the data is maked off or corresponds to a Grain
       if (!db->isActive(iech)) continue;
-      if (!_isPore(db, iech)) continue;
+      if (!isPore(db, iech)) continue;
+
+      // The data is a Pore
       VectorDouble coor = db->getSampleCoordinates(iech);
-      if (!_isInBoundingBox(coor, ndim)) continue;
-      if (_isInObject(coor, ndim)) return false;
+
+      // Check if the data is in the bounding box of the object
+      if (!_isInBoundingBox(coor)) continue;
+
+      // Check if the data is in the object
+      if (!_isInObject(coor)) continue;
+
+      // The current object is refused because it contains a constraining pore
+      return false;
     }
     return true;
   }
@@ -410,14 +421,13 @@ namespace gstlrn
   {
     if (db == nullptr) return true;
 
-    Id ndim = db->getNDim();
     for (Id iech = 0; iech < db->getNSample(); iech++)
     {
       if (!db->isActive(iech)) continue;
-      if (!_isGrain(db, iech)) continue;
+      if (!isGrain(db, iech)) continue;
       VectorDouble coor = db->getSampleCoordinates(iech);
-      if (!_isInBoundingBox(coor, ndim)) continue;
-      if (!_isInObject(coor, ndim)) continue;
+      if (!_isInBoundingBox(coor)) continue;
+      if (!_isInObject(coor)) continue;
     }
     return true;
   }
@@ -433,16 +443,14 @@ namespace gstlrn
   bool BooleanObject::isCompatibleGrainDelete(const Db* db, Id iptr_cover)
   {
     if (db == nullptr) return true;
-    Id ndim = db->getNDim();
-
     for (Id iech = 0; iech < db->getNSample(); iech++)
     {
       if (!db->isActive(iech)) continue;
-      if (!_isGrain(db, iech)) continue;
+      if (!isGrain(db, iech)) continue;
       VectorDouble coor = db->getSampleCoordinates(iech);
-      if (!_isInBoundingBox(coor, ndim)) continue;
+      if (!_isInBoundingBox(coor)) continue;
       if (_getCoverageAtSample(db, iptr_cover, iech) > 1) continue;
-      if (_isInObject(coor, ndim)) return false;
+      if (_isInObject(coor)) return false;
     }
     return true;
   }
@@ -463,27 +471,17 @@ namespace gstlrn
   Id BooleanObject::coverageUpdate(Db* db, Id iptr_cover, Id val)
   {
     if (db == nullptr) return 0;
-    Id ndim = db->getNDim();
     Id not_covered = 0;
     for (Id iech = 0; iech < db->getNSample(); iech++)
     {
       if (!db->isActive(iech)) continue;
-      if (!_isGrain(db, iech)) continue;
+      if (!isGrain(db, iech)) continue;
       VectorDouble coor = db->getSampleCoordinates(iech);
-      if (_isInBoundingBox(coor, ndim))
+      if (_isInBoundingBox(coor))
       {
-        if (_isInObject(coor, ndim))
+        if (_isInObject(coor))
         {
-          if (val < 0)
-          {
-            // Deletion
-            _updateCoverageAtSample(db, iptr_cover, iech, -1);
-          }
-          else
-          {
-            // Addition
-            _updateCoverageAtSample(db, iptr_cover, iech, +1);
-          }
+          _updateCoverageAtSample(db, iptr_cover, iech, val);
         }
       }
       if (_getCoverageAtSample(db, iptr_cover, iech) <= 0) not_covered++;
@@ -499,13 +497,12 @@ namespace gstlrn
     Id rank)
   {
     Id ix0, ix1, iy0, iy1, iz0, iz1;
-    Id ndim = dbout->getNDim();
-    VectorDouble coor(ndim);
-    VectorInt indice(ndim);
+    VectorDouble coor(_ndim);
+    VectorInt indice(_ndim);
 
     /* Look for the nodes in the box of influence of the object */
 
-    if (ndim >= 1)
+    if (_ndim >= 1)
     {
       ix0 =
         static_cast<Id>((_box[0][0] - dbout->getX0(0)) / dbout->getDX(0) - 1);
@@ -519,7 +516,7 @@ namespace gstlrn
       ix0 = 0;
       ix1 = 0;
     }
-    if (ndim >= 2)
+    if (_ndim >= 2)
     {
       iy0 =
         static_cast<Id>((_box[1][0] - dbout->getX0(1)) / dbout->getDX(1) - 1);
@@ -533,7 +530,7 @@ namespace gstlrn
       iy0 = 0;
       iy1 = 0;
     }
-    if (ndim >= 3)
+    if (_ndim >= 3)
     {
       iz0 =
         static_cast<Id>((_box[2][0] - dbout->getX0(2)) / dbout->getDX(2) - 1);
@@ -554,15 +551,15 @@ namespace gstlrn
       for (Id iy = iy0; iy <= iy1; iy++)
         for (Id iz = iz0; iz <= iz1; iz++)
         {
-          if (ndim >= 1) coor[0] = dbout->getX0(0) + ix * dbout->getDX(0);
-          if (ndim >= 2) coor[1] = dbout->getX0(1) + iy * dbout->getDX(1);
-          if (ndim >= 3) coor[2] = dbout->getX0(2) + iz * dbout->getDX(2);
+          if (_ndim >= 1) coor[0] = dbout->getX0(0) + ix * dbout->getDX(0);
+          if (_ndim >= 2) coor[1] = dbout->getX0(1) + iy * dbout->getDX(1);
+          if (_ndim >= 3) coor[2] = dbout->getX0(2) + iz * dbout->getDX(2);
 
-          if (!_isInObject(coor, ndim)) continue;
+          if (!_isInObject(coor)) continue;
 
-          if (ndim >= 1) indice[0] = ix;
-          if (ndim >= 2) indice[1] = iy;
-          if (ndim >= 3) indice[2] = iz;
+          if (_ndim >= 1) indice[0] = ix;
+          if (_ndim >= 2) indice[1] = iy;
+          if (_ndim >= 3) indice[2] = iz;
 
           Id iad = dbout->indiceToRank(indice);
 
