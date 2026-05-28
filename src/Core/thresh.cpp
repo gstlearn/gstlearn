@@ -8,25 +8,15 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Basic/OptDbg.hpp"
 #include "Basic/String.hpp"
 #include "Db/Db.hpp"
-#include "Db/DbGrid.hpp"
 #include "LithoRule/PropDef.hpp"
 #include "LithoRule/Rule.hpp"
 #include "LithoRule/RuleProp.hpp"
 #include "LithoRule/RuleShadow.hpp"
-#include "LithoRule/RuleShift.hpp"
 #include "Model/Model.hpp"
 #include "Variogram/Vario.hpp"
 #include "geoslib_old_f.h"
-
-/*! \cond */
-#define INDLOC(ifac1, ifac2) ((ifac2) * propdef->nfac[0] + (ifac1))
-#define PROPFIX(ifac1, ifac2) (propdef->propfix[INDLOC(ifac1, ifac2)])
-#define PROPWRK(ifac1, ifac2) (propdef->propwrk[INDLOC(ifac1, ifac2)])
-
-/*! \endcond */
 
 namespace gstlrn
 {
@@ -48,473 +38,6 @@ namespace gstlrn
 
   /****************************************************************************/
   /*!
-   **  Locate the current proportions
-   **
-   ** \param[in]  propdef    PropDef structure
-   ** \param[in]  ifac_ref   Conditional (first variable) facies
-   **                        (Only used for EProcessOper::CONDITIONAL)
-   **
-   ****************************************************************************/
-  static Id st_proportion_locate(PropDef* propdef, Id ifac_ref)
-  {
-    Id ifac;
-
-    switch (propdef->mode.toEnum())
-    {
-      case EProcessOper::E_COPY:
-      case EProcessOper::E_MARGINAL:
-        for (ifac = 0; ifac < propdef->nfaccur; ifac++)
-          propdef->proploc[ifac] = propdef->propwrk[ifac];
-        break;
-
-      case EProcessOper::E_CONDITIONAL:
-        for (ifac = 0; ifac < propdef->nfaccur; ifac++)
-          propdef->proploc[ifac] = PROPWRK(ifac_ref - 1, ifac);
-        break;
-
-      default: messerr("Unknown process operation"); break;
-    }
-    return (0);
-  }
-
-  /****************************************************************************/
-  /*!
-   **  Transform the proportions (from CST to WRK)
-   **
-   ** \return  -1 if the proportion is not defined; 0 otherwise
-   **
-   ** \param[in]  propdef   PropDef structure
-   **
-   ****************************************************************************/
-  static Id st_proportion_transform(PropDef* propdef)
-
-  {
-    double total, pp;
-    Id ifac1, ifac2;
-
-    /* Dispatch */
-
-    switch (propdef->mode.toEnum())
-    {
-      case EProcessOper::E_COPY:
-        for (ifac1 = 0; ifac1 < propdef->nfac[0]; ifac1++)
-        {
-          pp = PROPFIX(ifac1, 0);
-          if (FFFF(pp)) return (-1);
-          PROPWRK(ifac1, 0) = pp;
-        }
-        break;
-
-      case EProcessOper::E_MARGINAL:
-        for (ifac1 = 0; ifac1 < propdef->nfac[0]; ifac1++)
-        {
-          PROPWRK(ifac1, 0) = 0.;
-          for (ifac2 = 0; ifac2 < propdef->nfac[1]; ifac2++)
-          {
-            pp = PROPFIX(ifac1, ifac2);
-            if (FFFF(pp)) return (-1);
-            PROPWRK(ifac1, 0) += pp;
-          }
-        }
-        break;
-
-      case EProcessOper::E_CONDITIONAL:
-        for (ifac1 = 0; ifac1 < propdef->nfac[0]; ifac1++)
-          for (ifac2 = 0; ifac2 < propdef->nfac[1]; ifac2++)
-          {
-            pp = PROPFIX(ifac1, ifac2);
-            if (FFFF(pp)) return (-1);
-            PROPWRK(ifac1, ifac2) = pp;
-          }
-
-        for (ifac1 = 0; ifac1 < propdef->nfac[0]; ifac1++)
-        {
-          total = 0.;
-          for (ifac2 = 0; ifac2 < propdef->nfac[1]; ifac2++)
-            total += PROPWRK(ifac1, ifac2);
-
-          for (ifac2 = 0; ifac2 < propdef->nfac[1]; ifac2++)
-            PROPWRK(ifac1, ifac2) = (total <= 0.)
-                                    ? 1. / propdef->nfac[1]
-                                    : PROPWRK(ifac1, ifac2) / total;
-        }
-        break;
-
-      default:
-        messageAbort("This should never happen in st_proportion_transform");
-        break;
-    }
-    return (0);
-  }
-
-  /****************************************************************************/
-  /*!
-   **  Set the method to compute Proportions
-   **
-   ** \param[in]  propdef  PropDef structure
-   ** \param[in]  mode     Type of operation (EProcessOper)
-   **
-   ****************************************************************************/
-  void proportion_rule_process(PropDef* propdef, const EProcessOper& mode)
-  {
-    /* Assignments */
-
-    propdef->mode = mode;
-
-    /* Assign the current value for the number of facies */
-
-    if (mode == EProcessOper::COPY || mode == EProcessOper::MARGINAL)
-      propdef->nfaccur = propdef->nfac[0];
-    if (mode == EProcessOper::CONDITIONAL) propdef->nfaccur = propdef->nfac[1];
-
-    /* In the stationary case, transform the proportions (from CST to WRK) */
-
-    if (propdef->case_stat) st_proportion_transform(propdef);
-  }
-
-  /****************************************************************************/
-  /*!
-   **  Print the (non-stationary) proportions
-   **
-   ** \param[in]  propdef   PropDef structure
-   **
-   *****************************************************************************/
-  void proportion_print(PropDef* propdef)
-
-  {
-    if (propdef == nullptr) return;
-    mestitle(0, "Proportions");
-
-    printMatrix(
-      propdef->propfix, propdef->nfac[1], propdef->nfac[0], "Initial :", 0, 1);
-
-    printMatrix(
-      propdef->propwrk, propdef->nfac[1], propdef->nfac[0], "Working :", 0, 1);
-
-    printMatrix(propdef->proploc, propdef->nfaccur, 1, "Current :", 0, 1);
-  }
-
-  /****************************************************************************/
-  /*!
-   **  Check if the proportion has changed since the previous usage
-   **  and store the current proportions for future comparison
-   **
-   ** \return  1 if the proportions are unchanged; 0 otherwise
-   **
-   ** \param[in]  propdef PropDef structure
-   **
-   ****************************************************************************/
-  static Id st_proportion_changed(PropDef* propdef)
-
-  {
-    /* Compare with the memory proportion array */
-
-    Id modify = !propdef->proploc.isEqual(propdef->propmem);
-    if (!modify) return (1);
-
-    /* Print the proportions (optional) */
-
-    if (OptDbg::query(EDbg::PROPS)) proportion_print(propdef);
-
-    for (Id ifac = 0; ifac < propdef->nfaccur; ifac++)
-      propdef->propmem[ifac] = propdef->proploc[ifac];
-
-    return (0);
-  }
-
-  /****************************************************************************/
-  /*!
-   **  Set the (non-stationary) proportions
-   **
-   ** \return  Error return code
-   ** \return  - the target point does not lie within the proportion grid
-   ** \return  - in conditional processing, the reference facies does not exist
-   **
-   ** \param[in]  propdef    PropDef structure
-   ** \param[in]  db         Db input structure
-   ** \param[in]  iech       Rank of the data in the input Db
-   ** \param[in]  isimu      Rank of the simulation (EProcessOper::CONDITIONAL)
-   ** \param[in]  nbsimu     Number of simulations
-   **
-   ** \param[out] jech       Rank of the auxiliary data in the input Db
-   **
-   ** \remark  At the end of this function, the local proportions are stored
-   ** \remark  in the array proploc of the structure PropDef
-   ** \remark  The argument 'isimu' is only used for
-   ** \remark            propdef->mode == EProcessOper::CONDITIONAL (simbipgs)
-   **
-   *****************************************************************************/
-  static Id st_proportion_define(
-    PropDef* propdef,
-    const Db* db,
-    Id iech,
-    Id isimu,
-    Id nbsimu,
-    Id* jech)
-  {
-    Id ifac, ifac_ref;
-
-    /* Non-stationary case : Load the proportions in propcst */
-
-    (*jech) = 0;
-    if (!propdef->case_stat)
-    {
-      if (propdef->case_prop_interp)
-      {
-
-        /* Case where the proportions must be interpolated */
-
-        (*jech) = index_point_to_grid(
-          db, iech, 1, propdef->dbprop, propdef->coor.data());
-        if ((*jech) < 0)
-        {
-          messerr(
-            "At the data #%d, the proportion matrix is undefined", iech + 1);
-          return (1);
-        }
-
-        /* Load the proportions (into CST) */
-
-        double total = 0.;
-        for (ifac = 0; ifac < propdef->nfacprod; ifac++)
-        {
-          propdef->propfix[ifac] =
-            propdef->dbprop->getLocVariable(ELoc::P, *jech, ifac);
-          total += propdef->propfix[ifac];
-        }
-        // Discard case where the proportions are not available
-        if (total <= 0.) return 1;
-      }
-      else
-      {
-
-        /* The proportions are already available from the dbin */
-
-        for (ifac = 0; ifac < propdef->nfacprod; ifac++)
-          propdef->propfix[ifac] = db->getLocVariable(ELoc::P, iech, ifac);
-      }
-
-      /* Transform proportions (from CST to WRK) */
-
-      st_proportion_transform(propdef);
-    }
-
-    /* Locate the current proportions (from WRK to LOC) */
-
-    ifac_ref = -1;
-    if (propdef->mode == EProcessOper::CONDITIONAL)
-    {
-      ifac_ref = static_cast<Id>(
-        db->getSimvar(ELoc::FACIES, iech, isimu, 0, 0, nbsimu, 1));
-      if (ifac_ref < 1 || ifac_ref > propdef->nfac[0]) return (1);
-    }
-    st_proportion_locate(propdef, ifac_ref);
-
-    return (0);
-  }
-
-  /****************************************************************************/
-  /*!
-   **  Set the (non-stationary) proportions and define thresholds (for shadow only)
-   **
-   ** \return  Error return code
-   **
-   ** \param[in]  propdef    PropDef structure
-   ** \param[in]  db         Db input structure
-   ** \param[in]  rule       Rule structure
-   ** \param[in]  facies     Facies of interest (or GV_ITEST)
-   ** \param[in]  iech       Rank of the data in the input Db
-   ** \param[in]  isimu      Rank of the simulation (EProcessOper::CONDITIONAL)
-   ** \param[in]  nbsimu     Number of simulations (EProcessOper::CONDITIONAL)
-   **
-   ** \param[out] t1min      Minimum threshold for Y1
-   ** \param[out] t1max      Maximum threshold for Y1
-   ** \param[out] t2min      Minimum threshold for Y2
-   ** \param[out] t2max      Maximum threshold for Y2
-   ** \param[out] sh_dsup    Local or global upwards shift (shadow)
-   ** \param[out] sh_down    Local or global downwards shift (shadow)
-   **
-   *****************************************************************************/
-  Id rule_thresh_define_shadow(
-    PropDef* propdef,
-    Db* db,
-    const RuleShadow* rule,
-    Id facies,
-    Id iech,
-    Id isimu,
-    Id nbsimu,
-    double* t1min,
-    double* t1max,
-    double* t2min,
-    double* t2max,
-    double* sh_dsup,
-    double* sh_down)
-  {
-    Id unmodify, facloc, jech;
-
-    /* Set the debugging information */
-
-    OptDbg::setCurrentIndex(iech + 1);
-    auto* dbgrid = dynamic_cast<DbGrid*>(db);
-
-    /* Processing an "unknown" facies */
-
-    if (!isNA(facies) && (facies < 1 || facies > propdef->nfaccur))
-    {
-      *t1min = *t2min = get_rule_extreme(-1);
-      *t1max = *t2max = get_rule_extreme(+1);
-      return (0);
-    }
-
-    /* Define the proportions */
-
-    if (st_proportion_define(propdef, dbgrid, iech, isimu, nbsimu, &jech))
-    {
-      *t1min = *t2min = get_rule_extreme(-1);
-      *t1max = *t2max = get_rule_extreme(+1);
-      return (0);
-    }
-
-    /* Check if the proportions have been changed */
-
-    unmodify = st_proportion_changed(propdef);
-
-    /* In case of Shadow, return the upwards and downwards values */
-
-    *sh_dsup = (propdef->case_stat) ? rule->getShDsup() : propdef->proploc[1];
-    *sh_down = (propdef->case_stat) ? rule->getShDown() : propdef->proploc[2];
-
-    /* In the special cases, only the first proportion is significant */
-
-    propdef->proploc[1] = (1 - propdef->proploc[0]) / 2;
-    propdef->proploc[2] = (1 - propdef->proploc[0]) / 2;
-
-    /* Set the proportions and translate proportions into thresholds */
-
-    if (!unmodify)
-    {
-      if (rule->setProportions(propdef->proploc)) return (1);
-    }
-
-    /* Convert the proportions into thresholds */
-
-    facloc = (isNA(facies)) ? 1 : facies;
-    auto bounds = rule->getThresh(facloc);
-    *t1min = bounds[0];
-    *t1max = bounds[1];
-    *t2min = bounds[2];
-    *t2max = bounds[3];
-
-    return (0);
-  }
-
-  /****************************************************************************/
-  /*!
-   **  Set the (non-stationary) proportions and define thresholds
-   **
-   ** \return  Error return code
-   **
-   ** \param[in]  propdef    PropDef structure
-   ** \param[in]  db         Db input structure
-   ** \param[in]  rule       Rule structure
-   ** \param[in]  facies     Facies of interest (or ITEST) starting from 1
-   ** \param[in]  iech       Rank of the data in the input Db
-   ** \param[in]  isimu      Rank of the simulation (EProcessOper::CONDITIONAL)
-   ** \param[in]  nbsimu     Number of simulations
-   ** \param[in]  flag_check 1 if the consistency check with the actual
-   **                        proportion of the current facies must be done
-   **
-   ** \param[out] t1min      Minimum threshold for Y1
-   ** \param[out] t1max      Maximum threshold for Y1
-   ** \param[out] t2min      Minimum threshold for Y2
-   ** \param[out] t2max      Maximum threshold for Y2
-   **
-   *****************************************************************************/
-  Id rule_thresh_define(
-    PropDef* propdef,
-    Db* db,
-    const Rule* rule,
-    Id facies,
-    Id iech,
-    Id isimu,
-    Id nbsimu,
-    Id flag_check,
-    double* t1min,
-    double* t1max,
-    double* t2min,
-    double* t2max)
-  {
-    Id unmodify, facloc, jech;
-
-    /* Set the debugging information */
-
-    OptDbg::setCurrentIndex(iech + 1);
-
-    /* Processing an "unknown" facies */
-
-    if (!isNA(facies) && (facies < 1 || facies > propdef->nfaccur))
-    {
-      *t1min = *t2min = get_rule_extreme(-1);
-      *t1max = *t2max = get_rule_extreme(+1);
-      return (0);
-    }
-
-    /* Define the proportions */
-
-    if (st_proportion_define(propdef, db, iech, isimu, nbsimu, &jech))
-    {
-      *t1min = *t2min = get_rule_extreme(-1);
-      *t1max = *t2max = get_rule_extreme(+1);
-      return (0);
-    }
-
-    /* Check if the proportions have been changed */
-
-    unmodify = st_proportion_changed(propdef);
-
-    /* Check that the facies is compatible with the proportions */
-
-    if (flag_check && !isNA(facies) && rule->getModeRule() == ERule::STD)
-    {
-      if (propdef->proploc[facies - 1] <= 0.)
-      {
-        messerr(
-          "The presence of facies (%d) at sample (%d) is not consistent with "
-          "the zero proportion",
-          facies, iech + 1);
-        if (!propdef->case_stat)
-          messerr(
-            "Check the proportions in the cell (%d) of the Proportion Db",
-            jech + 1);
-        return (1);
-      }
-    }
-
-    /* Set the proportions and translate proportions into thresholds */
-
-    if (!unmodify)
-    {
-      if (rule->setProportions(propdef->proploc)) return (1);
-
-      /* In the case of SHIFT, update the thresholds */
-
-      if (rule->getModeRule() == ERule::SHIFT && 0) rule->updateShift();
-    }
-
-    /* Convert the proportions into thresholds */
-
-    facloc = (isNA(facies)) ? 1 : facies;
-    auto bounds = rule->getThresh(facloc);
-    *t1min = bounds[0];
-    *t1max = bounds[1];
-    *t2min = bounds[2];
-    *t2max = bounds[3];
-
-    return (0);
-  }
-
-  /****************************************************************************/
-  /*!
    **  Apply the Rule transformation to the GRFs of a Db
    **  (Shadow case)
    **
@@ -525,7 +48,7 @@ namespace gstlrn
    ** \param[in]  rule      Lithotype Rule definition
    ** \param[in]  model     First Model structure (only for SHIFT)
    ** \param[in]  props     Array of proportions for the facies
-   ** \param[in]  flag_stat 1 for stationary; 0 otherwise
+   ** \param[in]  flag_stat true for stationary; false otherwise
    ** \param[in]  nfacies   Number of facies
    **
    ** \remark The input variable must be locatorized as Z or ELoc::SIMU
@@ -538,32 +61,30 @@ namespace gstlrn
     RuleShadow* rule,
     Model* model,
     const VectorDouble& props,
-    Id flag_stat,
+    bool flag_stat,
     Id nfacies)
   {
-    Id iptr, error, flag_used[2], nbsimu, igrf, ngrf;
-    PropDef* propdef;
+    Id iptr, error, nbsimu, igrf, ngrf;
+    PropDef propdef;
 
     /* Initializations */
 
     error = 1;
     nbsimu = 1;
     iptr = -1;
-    propdef = nullptr;
 
     /* Preliminary checks */
 
     ngrf = rule->getNGRF();
-    for (igrf = 0; igrf < 2; igrf++) flag_used[igrf] = rule->isYUsed(igrf);
-
-    propdef = proportion_manage(
-      1, 1, flag_stat, ngrf, 0, nfacies, 0, db, dbprop, props, propdef);
-    if (propdef == nullptr) goto label_end;
+    VectorBool flagUsed = rule->whichGRFUsed();
+    if (propdef.define(
+          true, flag_stat, {ngrf, 0}, {nfacies, 0}, db, dbprop, props))
+      goto label_end;
 
     /* General setting for lithotype */
 
     rule->particularities(db, dbprop, model, 1, flag_stat);
-    proportion_rule_process(propdef, EProcessOper::COPY);
+    propdef.defineRuleMethod(EProcessOper::COPY);
 
     /**********************/
     /* Add the attributes */
@@ -577,7 +98,7 @@ namespace gstlrn
     /* Identify the Non conditional simulations at target points */
     for (igrf = 0; igrf < 2; igrf++)
     {
-      if (!flag_used[igrf]) continue;
+      if (!flagUsed[igrf]) continue;
       iptr = db->getUIDByLocator(ELoc::SIMU, igrf);
       if (iptr < 0)
       {
@@ -597,7 +118,7 @@ namespace gstlrn
     /* Combine the conditional simulation for each GRF */
 
     for (Id isimu = 0; isimu < nbsimu; isimu++)
-      if (rule->gaus2facResult(propdef, db, flag_used, 0, isimu, nbsimu))
+      if (rule->gaus2facResult(propdef, db, flagUsed, 0, isimu, nbsimu))
         goto label_end;
 
     /* Set the error return flag */
@@ -605,8 +126,6 @@ namespace gstlrn
     error = 0;
 
   label_end:
-    proportion_manage(
-      -1, 1, flag_stat, ngrf, 0, nfacies, 0, db, dbprop, props, propdef);
     return (error);
   }
 
@@ -641,16 +160,16 @@ namespace gstlrn
       messerr("RuleProp must be defined");
       return 1;
     }
-    Id flag_stat = ruleprop->isFlagStat();
+    bool flag_stat = ruleprop->isFlagStat();
     const Rule* rule = ruleprop->getRule();
     const VectorDouble& propcst = ruleprop->getPropCst();
     const Db* dbprop = ruleprop->getDbprop();
 
     Id error = 1;
     Id iptr = -1;
-    PropDef* propdef = nullptr;
+    PropDef propdef;
     Id ngrf = rule->getNGRF();
-    VectorInt flagUsed = rule->whichGRFUsed();
+    VectorBool flagUsed = rule->whichGRFUsed();
     Id nfacies = rule->getNFacies();
     bool flagReturn = false;
 
@@ -667,11 +186,11 @@ namespace gstlrn
       goto label_end;
     }
 
-    propdef = proportion_manage(
-      1, 1, flag_stat, ngrf, 0, nfacies, 0, db, dbprop, propcst, propdef);
-    if (propdef == nullptr) goto label_end;
+    if (propdef.define(
+          true, flag_stat, {ngrf, 0}, {nfacies, 0}, db, dbprop, propcst))
+      goto label_end;
     if (rule->particularities(db, dbprop, model, 1, flag_stat)) goto label_end;
-    proportion_rule_process(propdef, EProcessOper::COPY);
+    propdef.defineRuleMethod(EProcessOper::COPY);
 
     /**********************/
     /* Add the attributes */
@@ -691,8 +210,7 @@ namespace gstlrn
 
     /* Translate Gaussian into Facies */
 
-    if (rule->gaus2facResult(propdef, db, flagUsed.data(), 0, 0, 1))
-      goto label_end;
+    if (rule->gaus2facResult(propdef, db, flagUsed, 0, 0, 1)) goto label_end;
 
     // Returning to the initial locators (if the initial variable
     // had a ELoc::Z locator which has been temporarily modified into ELoc::SIMU)
@@ -705,8 +223,6 @@ namespace gstlrn
     error = 0;
 
   label_end:
-    proportion_manage(
-      -1, 1, flag_stat, ngrf, 0, nfacies, 0, db, dbprop, propcst, propdef);
     return (error);
   }
 
@@ -722,7 +238,7 @@ namespace gstlrn
    ** \param[in]  rule      Lithotype Rule definition
    ** \param[in]  model     First Model structure (only for SHIFT)
    ** \param[in]  props     Array of proportions for the facies
-   ** \param[in]  flag_stat 1 for stationary; 0 otherwise
+   ** \param[in]  flag_stat true for stationary; false otherwise
    ** \param[in]  nfacies   Number of facies
    **
    *****************************************************************************/
@@ -732,86 +248,66 @@ namespace gstlrn
     RuleShadow* rule,
     Model* model,
     const VectorDouble& props,
-    Id flag_stat,
+    bool flag_stat,
     Id nfacies)
   {
-    Id flag_used[2], iptr, igrf;
-    VectorDouble coor;
-
-    /* Initializations */
-
-    Id error = 1;
-    Id ngrf = 0;
-    Id ndim = 0;
-    PropDef* propdef = nullptr;
-
-    /**********************/
-    /* Preliminary checks */
-    /**********************/
+    Id iptr;
 
     /* Input Db */
 
     if (db == nullptr)
     {
       messerr("The Db is not defined");
-      goto label_end;
+      return 1;
     }
-    if (!db->isNVarComparedTo(1)) goto label_end;
+    if (!db->isNVarComparedTo(1)) return 1;
 
     /* Rule */
 
     if (rule == nullptr)
     {
       messerr("The Rule is not defined");
-      goto label_end;
+      return 1;
     }
-    ngrf = rule->getNGRF();
-    for (igrf = 0; igrf < 2; igrf++) flag_used[igrf] = rule->isYUsed(igrf);
+    Id ngrf = rule->getNGRF();
+    VectorBool flagUsed = rule->whichGRFUsed();
 
     /*******************/
     /* Core allocation */
     /*******************/
 
-    ndim = db->getNDim();
-    coor.resize(ndim);
+    Id ndim = db->getNDim();
+    PropDef propdef;
+    VectorDouble coor(ndim);
 
-    propdef = proportion_manage(
-      1, 1, flag_stat, ngrf, 0, nfacies, 0, db, dbprop, props, propdef);
-    if (propdef == nullptr) goto label_end;
+    if (propdef.define(
+          true, flag_stat, {ngrf, 0}, {nfacies, 0}, db, dbprop, props))
+      return 1;
 
     /* General setting for lithotype */
 
-    rule->particularities(db, dbprop, model, 1, flag_stat);
-    proportion_rule_process(propdef, EProcessOper::COPY);
+    if (rule->particularities(db, dbprop, model, 1, flag_stat)) return 1;
+    propdef.defineRuleMethod(EProcessOper::COPY);
 
     /**********************/
     /* Add the attributes */
     /**********************/
 
     /* Lower bound at input data points */
-    if (db_locator_attribute_add(db, ELoc::L, ngrf, 0, 0., &iptr))
-      goto label_end;
+    if (db_locator_attribute_add(db, ELoc::L, ngrf, 0, 0., &iptr)) return 1;
 
     /* Upper bound at input data points */
-    if (db_locator_attribute_add(db, ELoc::U, ngrf, 0, 0., &iptr))
-      goto label_end;
+    if (db_locator_attribute_add(db, ELoc::U, ngrf, 0, 0., &iptr)) return 1;
 
     /* Calculate the thresholds and store them in the Db file */
 
-    for (igrf = 0; igrf < ngrf; igrf++)
+    for (Id igrf = 0; igrf < ngrf; igrf++)
     {
-      if (!flag_used[igrf]) continue;
-      if (rule->evaluateBounds(propdef, db, db, 0, igrf, 0, 0)) goto label_end;
+      if (!flagUsed[igrf]) continue;
+      if (rule->evaluateBounds(propdef, db, db, 0, igrf, 0, 0)) return 1;
     }
 
-    /* Set the error return flag */
-
-    error = 0;
-
-  label_end:
-    proportion_manage(
-      -1, 1, flag_stat, ngrf, 0, nfacies, 0, db, dbprop, props, propdef);
-    return (error);
+    return 0;
   }
 
   /****************************************************************************/
@@ -844,16 +340,16 @@ namespace gstlrn
       messerr("RuleProp must be defined");
       return 1;
     }
-    Id flag_stat = ruleprop->isFlagStat();
+    bool flag_stat = ruleprop->isFlagStat();
     const Rule* rule = ruleprop->getRule();
     const VectorDouble& propcst = ruleprop->getPropCst();
     const Db* dbprop = ruleprop->getDbprop();
 
     Id error = 1;
     Id iptrl, iptru;
-    PropDef* propdef = nullptr;
+    PropDef propdef;
 
-    VectorInt flagUsed = rule->whichGRFUsed();
+    VectorBool flagUsed = rule->whichGRFUsed();
     Id nfacies = rule->getNFacies();
     Id ngrf = rule->getNGRF();
 
@@ -870,14 +366,14 @@ namespace gstlrn
     /* Core allocation */
     /*******************/
 
-    propdef = proportion_manage(
-      1, 1, flag_stat, ngrf, 0, nfacies, 0, db, dbprop, propcst, propdef);
-    if (propdef == nullptr) goto label_end;
+    if (propdef.define(
+          true, flag_stat, {ngrf, 0}, {nfacies, 0}, db, dbprop, propcst))
+      goto label_end;
 
     /* General setting for lithotype */
 
     if (rule->particularities(db, dbprop, model, 1, flag_stat)) goto label_end;
-    proportion_rule_process(propdef, EProcessOper::COPY);
+    propdef.defineRuleMethod(EProcessOper::COPY);
 
     /**********************/
     /* Add the attributes */
@@ -908,181 +404,7 @@ namespace gstlrn
     error = 0;
 
   label_end:
-    proportion_manage(
-      -1, 1, flag_stat, ngrf, 0, nfacies, 0, db, dbprop, propcst, propdef);
     return (error);
-  }
-
-  /****************************************************************************/
-  /*!
-   **  Set memory proportion so as to provoke the update at first usage
-   **
-   ** \param[in]  propdef     Pointer to Propdef structure
-   **
-   ****************************************************************************/
-  void propdef_reset(PropDef* propdef)
-  {
-    if (propdef == nullptr) return;
-    if (propdef->propmem.empty()) return;
-
-    for (Id ifac = 0; ifac < static_cast<Id>(propdef->propmem.size()); ifac++)
-      propdef->propmem[ifac] = -1;
-  }
-
-  /****************************************************************************/
-  /*!
-   **  Allocate or deallocate a proportion array
-   **
-   ** \return  Pointer on the returned PropDef structure
-   **
-   ** \param[in]  mode        1 for allocation; -1 for deallocation
-   ** \param[in]  flag_facies 1 if Gibbs is used for facies
-   ** \param[in]  flag_stat   1 if the proportions are stationary
-   ** \param[in]  ngrf1       Number of GRFs for the first PGS
-   ** \param[in]  ngrf2       Number of GRFs for the second PGS
-   ** \param[in]  nfac1       Number of facies for the first PGS
-   ** \param[in]  nfac2       Number of facies for the second PGS
-   ** \param[in]  db          Db structure containing the data
-   ** \param[in]  dbprop      Db structure containing the proportions
-   **                         (only used in the non-stationary case)
-   ** \param[in]  propcst     Constant set of proportions (used if flag_stat)
-   ** \param[in]  proploc     PropDef structure (used for mode<0)
-   **
-   ****************************************************************************/
-  PropDef* proportion_manage(
-    Id mode,
-    Id flag_facies,
-    Id flag_stat,
-    Id ngrf1,
-    Id ngrf2,
-    Id nfac1,
-    Id nfac2,
-    Db* db,
-    const Db* dbprop,
-    const VectorDouble& propcst,
-    PropDef* proploc)
-  {
-    Id ifac, error, nfacprod;
-    const Db* db_loc;
-    PropDef* propdef;
-
-    /* Initializations */
-
-    error = 1;
-    nfacprod = nfac1;
-    if (nfac2 > 0) nfacprod *= nfac2;
-
-    /* Dispatch */
-
-    if (mode > 0)
-    {
-      propdef = new PropDef;
-      propdef->case_facies = flag_facies;
-      propdef->case_stat = flag_stat;
-      propdef->case_prop_interp = (dbprop != nullptr && dbprop->isGrid());
-      propdef->ngrf[0] = ngrf1;
-      propdef->ngrf[1] = ngrf2;
-      propdef->nfac[0] = nfac1;
-      propdef->nfac[1] = nfac2;
-      propdef->nfaccur = nfac1;
-      propdef->nfacprod = nfacprod;
-      propdef->mode = EProcessOper::UNDEFINED;
-      if (propdef->nfaccur <= 0)
-      {
-        messerr(" The number of facies may not be zero");
-        goto label_end;
-      }
-      propdef->propfix.resize(nfacprod, 0.);
-      propdef->propwrk.resize(nfacprod, 0.);
-      propdef->proploc.resize(nfacprod, 0.);
-      propdef->propmem.resize(nfacprod, 0.);
-
-      if (flag_facies)
-      {
-
-        // Case of facies: Use of the proportions
-
-        if (!flag_stat)
-        {
-          // Non-stationary case
-
-          db_loc = (propdef->case_prop_interp) ? dbprop : db;
-          if (db_loc == nullptr)
-          {
-            messerr("You have requested Non-stationary proportions");
-            messerr("No file is provided containing Proportion variables");
-            messerr("Please provide variables with 'proportion' locators");
-            messerr("either in the input 'Db' or in 'dbprop'");
-            goto label_end;
-          }
-          const auto* db_loc_grid = dynamic_cast<const DbGrid*>(db_loc);
-          if (db_loc_grid == nullptr)
-          {
-            messerr("The 'Db' used for Proportions must be a Grid");
-            goto label_end;
-          }
-          if (db_loc->getNLoc(ELoc::P) != nfacprod)
-          {
-            messerr(
-              "In the non-stationary case, the number of proportion variables "
-              "(%d)",
-              db_loc->getNLoc(ELoc::P));
-            messerr(
-              "must be equal to the number of facies (%d) in the Lithotype "
-              "Rule",
-              nfacprod);
-            goto label_end;
-          }
-          propdef->dbprop = db_loc_grid;
-          propdef->coor.resize(db_loc->getNDim());
-        }
-        else
-        {
-
-          // Stationary case
-
-          double pref = 1. / static_cast<double>(nfacprod);
-          for (ifac = 0; ifac < nfacprod; ifac++)
-          {
-            propdef->propfix[ifac] = (propcst.empty()) ? pref : propcst[ifac];
-            propdef->propwrk[ifac] = (propcst.empty()) ? pref : propcst[ifac];
-            propdef->proploc[ifac] = (propcst.empty()) ? pref : propcst[ifac];
-            propdef->propmem[ifac] = (propcst.empty()) ? pref : propcst[ifac];
-          }
-        }
-
-        /* Set memory proportion so as to provoke the update at first usage */
-
-        propdef_reset(propdef);
-      }
-    }
-    else
-    {
-      propdef = proploc;
-      if (propdef == nullptr) return (propdef);
-
-      /* Deallocation */
-
-      propdef->nfaccur = 0;
-      propdef->nfacprod = 0;
-      propdef->dbprop = nullptr;
-
-      delete propdef;
-      propdef = nullptr;
-    }
-
-    /* Set the error return code */
-
-    error = 0;
-
-  label_end:
-
-    if (error)
-    {
-      delete propdef;
-      propdef = nullptr;
-    }
-    return (propdef);
   }
 
   /****************************************************************************/
@@ -1118,7 +440,7 @@ namespace gstlrn
       messerr("RuleProp must be defined");
       return 1;
     }
-    Id flag_stat = ruleprop->isFlagStat();
+    bool flag_stat = ruleprop->isFlagStat();
     const Rule* rule = ruleprop->getRule();
     if (rule->getModeRule() != ERule::STD)
     {
@@ -1136,7 +458,7 @@ namespace gstlrn
     Id error = 1;
     Id ngrf = 0;
     Id nfacies = 0;
-    PropDef* propdef = nullptr;
+    PropDef propdef;
 
     /**********************/
     /* Preliminary checks */
@@ -1150,12 +472,11 @@ namespace gstlrn
     /*******************/
 
     nfacies = rule->getNFacies();
-    propdef = proportion_manage(
-      1, 1, flag_stat, ngrf, 0, nfacies, 0, db, dbprop, propcst, propdef);
-    if (propdef == nullptr) goto label_end;
-
+    if (propdef.define(
+          true, flag_stat, {ngrf, 0}, {nfacies, 0}, db, dbprop, propcst))
+      goto label_end;
     if (rule->particularities(db, dbprop, model, 1, flag_stat)) goto label_end;
-    proportion_rule_process(propdef, EProcessOper::COPY);
+    propdef.defineRuleMethod(EProcessOper::COPY);
 
     /**********************/
     /* Add the attributes */
@@ -1172,9 +493,9 @@ namespace gstlrn
       rank = 0;
       for (Id ifac = 0; ifac < nfacies; ifac++)
       {
-        if (rule_thresh_define(
-              propdef, db, rule, ifac + 1, iech, 0, 0, 0, &t1min, &t1max,
-              &t2min, &t2max))
+        if (propdef.ruleThreshDefine(
+              db, rule, ifac + 1, iech, 0, 0, 0, &t1min, &t1max, &t2min,
+              &t2max))
           goto label_end;
         db->setArray(iech, iptr + rank, t1min);
         rank++;
@@ -1214,8 +535,6 @@ namespace gstlrn
     error = 0;
 
   label_end:
-    proportion_manage(
-      -1, 1, flag_stat, ngrf, 0, nfacies, 0, db, dbprop, propcst, propdef);
 
     return (error);
   }

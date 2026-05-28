@@ -52,36 +52,6 @@ namespace gstlrn
 
   typedef struct
   {
-    Id case_facies; /* TRUE when Gibbs used for Facies */
-    Id case_stat; /* TRUE if proportions are constant */
-    Id case_prop_interp; /* TRUE when props are given in proportion file */
-    Id ngrf[2]; /* Number of GRF for the PGSs */
-    Id nfac[2]; /* Number of facies for the PGSs */
-    Id nfaccur; /* Number of facies for current PGS */
-    Id nfacprod; /* Product of the number of facies */
-    Id nfacmax; /* Maximum number of facies over all PGS */
-    Id mode; /* Type of process */
-    VectorDouble propfix;
-    VectorDouble propmem;
-    VectorDouble propwrk;
-    VectorDouble proploc;
-    VectorDouble coor;
-    const Db* dbprop; /* Pointer to the Proportion file */
-  } Props;
-
-  class Rule;
-  class PropDef;
-
-  typedef struct
-  {
-    Id ipgs;
-    Id flag_used[2];
-    const Rule* rule;
-    PropDef* propdef;
-  } Modif_Categorical;
-
-  typedef struct
-  {
     double coor[3];
     double intercept;
     double value;

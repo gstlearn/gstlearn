@@ -27,6 +27,8 @@ namespace gstlrn
     ACalcSimulation& operator=(const ACalcSimulation& r) = delete;
     virtual ~ACalcSimulation();
 
+    bool isConditional() const { return getDbin() != nullptr; }
+
     Id getSeed() const { return _seed; }
 
     Id getNbSimu() const { return _nbsimu; }

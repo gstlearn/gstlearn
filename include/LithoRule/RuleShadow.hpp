@@ -48,22 +48,22 @@ namespace gstlrn
       Id flag_grid_check,
       Id flag_stat) const override;
     Id gaus2facData(
-      PropDef* propdef,
+      const PropDef& propdef,
       Db* dbin,
       Db* dbout,
-      Id* flag_used,
+      const VectorBool& flag_used,
       Id ipgs,
       Id isimu,
-      Id nbsimu) override;
+      Id nbsimu) const override;
     Id gaus2facResult(
-      PropDef* propdef,
+      const PropDef& propdef,
       Db* dbout,
-      Id* flag_used,
+      const VectorBool& flag_used,
       Id ipgs,
       Id isimu,
       Id nbsimu) const override;
     Id evaluateBounds(
-      PropDef* propdef,
+      const PropDef& propdef,
       Db* dbin,
       Db* dbout,
       Id isimu,

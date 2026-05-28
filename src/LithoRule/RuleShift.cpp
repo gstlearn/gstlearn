@@ -213,8 +213,7 @@ namespace gstlrn
 
     /* Translate the shift into grid increments */
 
-    if (_st_shift_on_grid(db, ndim, flag_grid_check)) return (1);
-    return (0);
+    return _st_shift_on_grid(db, ndim, flag_grid_check);
   }
 
   Id RuleShift::_st_shift_on_grid(Db* db, Id ndim, Id flag_grid_check) const
@@ -272,7 +271,7 @@ namespace gstlrn
   **
   ** \return  Error return code
   **
-  ** \param[in]  propdef    Props structure
+  ** \param[in]  propdef    PropDef structure
   ** \param[in]  dbout      Db output structure
   ** \param[in]  flag_used  1 if the gaussian is used; 0 otherwise
   ** \param[in]  ipgs       Rank of the PGS
@@ -283,46 +282,45 @@ namespace gstlrn
   **
   *****************************************************************************/
   Id RuleShift::gaus2facResult(
-    PropDef* propdef,
+    const PropDef& propdef,
     Db* dbout,
-    Id* /*flag_used*/,
+    const VectorBool& /*flag_used*/,
     Id ipgs,
     Id isimu,
     Id nbsimu) const
   {
-    Id ndim, iech, jech, idim, igrf, icase;
-    double t1min, t1max, t2min, t2max, facies, y[2];
-
-    /* Initializations */
-
-    check_mandatory_attribute("rule_gaus2fac_result", dbout, ELoc::FACIES);
-    check_mandatory_attribute("rule_gaus2fac_result", dbout, ELoc::SIMU);
     auto* dbgrid = dynamic_cast<DbGrid*>(dbout);
     if (dbgrid == nullptr) return 1;
-    ndim = dbgrid->getNDim();
+    check_mandatory_attribute("rule_gaus2fac_result", dbout, ELoc::FACIES);
+    check_mandatory_attribute("rule_gaus2fac_result", dbout, ELoc::SIMU);
+
+    double t1min, t1max, t2min, t2max;
+    VectorDouble y;
+    Id ndim = dbgrid->getNDim();
     _xyz.resize(ndim);
     _ind1.resize(ndim);
     _ind2.resize(ndim);
 
     /* Processing the translation */
 
-    for (iech = 0; iech < dbgrid->getNSample(); iech++)
+    for (Id iech = 0, nech = dbgrid->getNSample(); iech < nech; iech++)
     {
       if (!dbgrid->isActive(iech)) continue;
 
-      facies = TEST;
-      for (igrf = 0; igrf < 2; igrf++) y[igrf] = TEST;
-      icase = get_rank_from_propdef(propdef, ipgs, 0);
+      Id facies = ITEST;
+      y.fill(TEST, 2);
+
+      Id icase = propdef.getRank(ipgs, 0);
       y[0] = dbgrid->getSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, 1);
       if (FFFF(y[0])) break;
 
-      if (rule_thresh_define(
-            propdef, dbgrid, this, ITEST, iech, isimu, nbsimu, 1, &t1min,
-            &t1max, &t2min, &t2max))
+      if (propdef.ruleThreshDefine(
+            dbgrid, this, ITEST, iech, isimu, nbsimu, 1, &t1min, &t1max, &t2min,
+            &t2max))
         return 1;
       dbgrid->rankToIndice(iech, _ind2);
-      for (idim = 0; idim < ndim; idim++) _ind2[idim] -= _ind1[idim];
-      jech = dbgrid->indiceToRank(_ind2);
+      for (Id idim = 0; idim < ndim; idim++) _ind2[idim] -= _ind1[idim];
+      Id jech = dbgrid->indiceToRank(_ind2);
       if (jech >= 0)
         y[1] = dbgrid->getSimvar(ELoc::SIMU, jech, isimu, 0, icase, nbsimu, 1);
       else
@@ -331,7 +329,9 @@ namespace gstlrn
 
       /* Combine the underlying GRFs to derive Facies */
 
-      dbgrid->setSimvar(ELoc::FACIES, iech, isimu, 0, ipgs, nbsimu, 1, facies);
+      dbgrid->setSimvar(
+        ELoc::FACIES, iech, isimu, 0, ipgs, nbsimu, 1,
+        static_cast<double>(facies));
     }
     return 0;
   }
@@ -352,7 +352,7 @@ namespace gstlrn
   **
   *****************************************************************************/
   Id RuleShift::evaluateBounds(
-    PropDef* propdef,
+    const PropDef& propdef,
     Db* dbin,
     Db* dbout,
     Id isimu,
@@ -360,41 +360,38 @@ namespace gstlrn
     Id ipgs,
     Id nbsimu) const
   {
-    Id iech, jech, nadd, nech, idim, facies;
     double t1min, t1max, t2min, t2max, s1min, s1max, s2min, s2max;
 
     /* Initializations */
 
     if (dbin == nullptr) return (0);
-    nadd = 0;
-    nech = dbin->getNSample();
+    Id nadd = 0;
+    Id nech = dbin->getNSample();
 
     /* Dispatch */
 
     if (igrf == 1) return (0);
 
     /* Loop on the data */
-    for (iech = 0; iech < nech; iech++)
+    for (Id iech = 0; iech < nech; iech++)
     {
       /* Convert the proportions into thresholds for data point */
       if (!dbin->isActive(iech)) continue;
-      facies = static_cast<Id>(dbin->getZVariable(iech, 0));
-      if (rule_thresh_define(
-            propdef, dbin, this, facies, iech, isimu, nbsimu, 1, &t1min, &t1max,
-            &t2min, &t2max))
+      Id facies = static_cast<Id>(dbin->getZVariable(iech, 0));
+      if (propdef.ruleThreshDefine(
+            dbin, this, facies, iech, isimu, nbsimu, 1, &t1min, &t1max, &t2min,
+            &t2max))
         return (1);
-      dbin->setLocVariable(
-        ELoc::L, iech, get_rank_from_propdef(propdef, ipgs, igrf), t1min);
-      dbin->setLocVariable(
-        ELoc::U, iech, get_rank_from_propdef(propdef, ipgs, igrf), t1max);
+      dbin->setLocVariable(ELoc::L, iech, propdef.getRank(ipgs, igrf), t1min);
+      dbin->setLocVariable(ELoc::U, iech, propdef.getRank(ipgs, igrf), t1max);
       if (facies == SHADOW_ISLAND) continue;
 
       /* Add one replicate */
-      jech = dbin->addSamples(1, 0.);
+      Id jech = dbin->addSamples(1, 0.);
       if (jech < 0) return (1);
 
       /* Set the coordinates of the replicate */
-      for (idim = 0; idim < dbin->getNDim(); idim++)
+      for (Id idim = 0; idim < dbin->getNDim(); idim++)
         dbin->setCoordinate(
           jech, idim, dbin->getCoordinate(iech, idim) - _shift[idim]);
 
@@ -406,9 +403,9 @@ namespace gstlrn
       }
 
       /* Convert the proportions into thresholds for replicate */
-      if (rule_thresh_define(
-            propdef, dbin, this, facies, jech, isimu, nbsimu, 1, &s1min, &s1max,
-            &s2min, &s2max))
+      if (propdef.ruleThreshDefine(
+            dbin, this, facies, jech, isimu, nbsimu, 1, &s1min, &s1max, &s2min,
+            &s2max))
       {
         (void)dbin->deleteSample(jech);
         return (1);
@@ -419,10 +416,8 @@ namespace gstlrn
         dbin->setLocVariable(ELoc::Z, jech, 0, SHADOW_WATER);
       if (facies == SHADOW_SHADOW)
         dbin->setLocVariable(ELoc::Z, jech, 0, SHADOW_ISLAND);
-      dbin->setLocVariable(
-        ELoc::L, jech, get_rank_from_propdef(propdef, ipgs, igrf), s2min);
-      dbin->setLocVariable(
-        ELoc::U, jech, get_rank_from_propdef(propdef, ipgs, igrf), s2max);
+      dbin->setLocVariable(ELoc::L, jech, propdef.getRank(ipgs, igrf), s2min);
+      dbin->setLocVariable(ELoc::U, jech, propdef.getRank(ipgs, igrf), s2max);
       nadd++;
     }
 

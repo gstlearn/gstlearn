@@ -32,6 +32,7 @@ set(SRC
   Gibbs/GibbsUMultiMono.cpp
   Gibbs/AGibbs.cpp
   Gibbs/GibbsUMulti.cpp
+  LithoRule/PropDef.cpp
   LithoRule/RuleProp.cpp
   LithoRule/Rule.cpp
   LithoRule/RuleStringFormat.cpp
@@ -352,6 +353,7 @@ set(SRC
   Simulation/ACalcSimuGaussian.cpp
   Simulation/CalcSimuTurningBands.cpp
   Simulation/CalcSimuSpectral.cpp
+  Simulation/CalcSimuPGS.cpp
   Simulation/TurningBandDirection.cpp
   Simulation/TurningBandOperate.cpp
   Simulation/SimuSpectralRN.cpp

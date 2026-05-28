@@ -415,6 +415,7 @@ namespace gstlrn
   //  https://stackoverflow.com/a/61158013/3952924
   typedef VectorT<UChar>
     VectorBool; // Use UChar because std::vector of bool has a specific implementation
+  typedef VectorT<VectorBool> VectorVectorBool;
   typedef VectorT<String> VectorString;
 
 } // namespace gstlrn

@@ -8,9 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Enum/EFormatNF.hpp"
-#include "geoslib_f.h"
-
 #include "Basic/File.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/Limits.hpp"
@@ -18,13 +15,16 @@
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
+#include "Enum/EFormatNF.hpp"
 #include "LithoRule/Rule.hpp"
 #include "LithoRule/RuleProp.hpp"
 #include "LithoRule/RuleStringFormat.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/NeighUnique.hpp"
+#include "Simulation/CalcSimuPGS.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Variogram/Vario.hpp"
+#include "geoslib_f.h"
 
 /*********************/
 /* Program principal */

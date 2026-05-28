@@ -9,7 +9,7 @@
 /*                                                                            */
 /*                                                                            */
 /* This file is meant to demonstrate the process of performing                */
-/* non-conditional simulations using in turn simpgs and simbipgs              */
+/* non-conditional simulations using simpgs and simbipgs                      */
 /*                                                                            */
 /******************************************************************************/
 #include "geoslib_f.h"
@@ -17,7 +17,6 @@
 #include "Enum/ECov.hpp"
 
 #include "Basic/File.hpp"
-#include "Covariances/CovAniso.hpp"
 #include "Covariances/CovAnisoList.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
@@ -28,6 +27,7 @@
 #include "LithoRule/RuleShift.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/NeighUnique.hpp"
+#include "Simulation/CalcSimuPGS.hpp"
 #include "Variogram/Vario.hpp"
 
 using namespace gstlrn;
@@ -43,8 +43,7 @@ int main(int argc, char* argv[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
 
-  ASerializable::setPrefixName("test_SimbiPGS-");
-  Id error = 0;
+  ASerializable::setPrefixName("test_SimPGS-");
   Id ndim = 2;
   Id nbsimu = 2;
   defineDefaultSpace(ESpaceType::RN, ndim);
@@ -57,7 +56,7 @@ int main(int argc, char* argv[])
   // Creating an output Grid Db
   DbGrid* dbgrid = DbGrid::create({100, 100}, {0.01, 0.01}, {0., 0.});
 
-  // Creating the proportions for simPGS
+  // Creating the proportions
   VectorDouble props1({0.2, 0.5, 0.3});
 
   // Creating the Model(s) of the Underlying GRF(s)
@@ -90,17 +89,18 @@ int main(int argc, char* argv[])
   rule1->display();
   (void)rule1->dumpToNF("PGSrule1.NF");
 
-  // Creating the RuleProp structure for simPGS
+  // Creating the RuleProp structure
   RuleProp* ruleprop1 = RuleProp::createFromRule(rule1, props1);
 
   // Perform a non-conditional PGS simulation on a grid
-  error = simpgs(nullptr, dbgrid, ruleprop1, model1, model2, neighU, nbsimu);
+
+  (void)simpgs(nullptr, dbgrid, ruleprop1, model1, model2, neighU, nbsimu);
   dbgrid->setNameByLocator(ELoc::FACIES, "PGS-Facies");
   dbfmt = DbStringFormat(FLAG_STATS, {"PGS-Facies*"});
   dbgrid->display(&dbfmt);
   (void)dbgrid->dumpToNF("simupgs.NF");
 
-  // Creating the RuleProp for simBiPGS
+  // Creating the RuleProp
   VectorDouble props2({0.1, 0.2, 0.1, 0.3, 0.1, 0.2});
   Rule* rule2 = Rule::createFromNames({"S", "F1", "F2"});
   rule2->display();
@@ -108,7 +108,7 @@ int main(int argc, char* argv[])
   RuleProp* rulepropbi = RuleProp::createFromRules(rule1, rule2, props2);
 
   // Perform a non-conditional BiPGS simulation on a grid
-  error = simbipgs(
+  (void)simbipgs(
     nullptr, dbgrid, rulepropbi, model1, model2, model3, model4, neighU,
     nbsimu);
   dbgrid->setNameByLocator(ELoc::FACIES, "BiPGS-Facies");
@@ -127,8 +127,7 @@ int main(int argc, char* argv[])
   RuleProp* rulepropshift = RuleProp::createFromRule(ruleshift, propshift);
 
   // Perform a non-conditional PGS Shift simulation on a grid
-  error =
-    simpgs(nullptr, dbgrid, rulepropshift, model1, nullptr, neighU, nbsimu);
+  (void)simpgs(nullptr, dbgrid, rulepropshift, model1, nullptr, neighU, nbsimu);
   dbgrid->setNameByLocator(ELoc::FACIES, "PGS-Shift-Facies");
   dbfmt = DbStringFormat(FLAG_STATS, {"PGS-Shift-Facies*"});
   dbgrid->display(&dbfmt);
@@ -146,7 +145,7 @@ int main(int argc, char* argv[])
   RuleProp* rulepropshadow = RuleProp::createFromRule(ruleshadow, propshadow);
 
   // Perform a non-conditional PGS Shadow simulation on a grid
-  error =
+  (void)
     simpgs(nullptr, dbgrid, rulepropshadow, model1, nullptr, neighU, nbsimu);
   dbgrid->setNameByLocator(ELoc::FACIES, "PGS-Shadow-Facies");
   dbfmt = DbStringFormat(FLAG_STATS, {"PGS-Shadow-Facies*"});
@@ -167,5 +166,5 @@ int main(int argc, char* argv[])
   delete model2;
   delete model3;
   delete model4;
-  return static_cast<int>(error);
+  return 0;
 }

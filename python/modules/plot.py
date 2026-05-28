@@ -1420,6 +1420,7 @@ def _ax_raster(
     corner=None,
     flagLegend=False,
     legendName=None,
+    flagBinary=False,
     **kwargs,
 ):
     """
@@ -1431,6 +1432,7 @@ def _ax_raster(
     useSel : Boolean to indicate if the selection has to be considered
     flagLegend: Flag for representing the Color Bar
     legendName: Name given to the Legend (set to 'name' if not defined)
+    flagBinary: when True, the variable is represented in binary (values > 0 are represented with the same color)
     **kwargs : arguments passed to matplotlib.pyplot.pcolormesh
     """
     name = _getDefaultVariableName(dbgrid, name)
@@ -1440,6 +1442,12 @@ def _ax_raster(
     x0, y0, X, Y, Xrot, Yrot, data, tr = _getGridVariable(
         dbgrid, name, useSel, posX=posX, posY=posY, corner=corner
     )
+
+    if flagBinary:
+        data = (data > 0).astype(int)
+        kwargs.setdefault("cmap", "gray")
+        kwargs.setdefault("vmin", 0)
+        kwargs.setdefault("vmax", 1)
 
     res = ax.pcolormesh(X, Y, data, transform=tr + ax.transData, **kwargs)
 

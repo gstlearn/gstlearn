@@ -24,6 +24,7 @@
 #include "Model/Constraints.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/NeighUnique.hpp"
+#include "Simulation/CalcSimuPGS.hpp"
 #include "Variogram/Vario.hpp"
 
 using namespace gstlrn;

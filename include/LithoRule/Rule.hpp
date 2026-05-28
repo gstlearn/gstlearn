@@ -25,6 +25,7 @@ namespace gstlrn
   class Db;
   class Model;
   class PropDef;
+  class RuleShadow;
 
   class GSTLEARN_EXPORT Rule: public AStringable, public ASerializable
   {
@@ -72,22 +73,22 @@ namespace gstlrn
       Id flag_stat) const;
     virtual bool checkModel(const Model* model, Id nvar = 0) const;
     virtual Id gaus2facData(
-      PropDef* propdef,
+      const PropDef& propdef,
       Db* dbin,
       Db* dbout,
-      Id* flag_used,
+      const VectorBool& flag_used,
       Id ipgs,
       Id isimu,
-      Id nbsimu);
+      Id nbsimu) const;
     virtual Id gaus2facResult(
-      PropDef* propdef,
+      const PropDef& propdef,
       Db* dbout,
-      Id* flag_used,
+      const VectorBool& flag_used,
       Id ipgs,
       Id isimu,
       Id nbsimu) const;
     virtual Id evaluateBounds(
-      PropDef* propdef,
+      const PropDef& propdef,
       Db* dbin,
       Db* dbout,
       Id isimu,
@@ -128,7 +129,7 @@ namespace gstlrn
     Id getNY1() const;
     Id getNY2() const;
     bool isYUsed(Id igrf) const;
-    VectorInt whichGRFUsed() const;
+    VectorBool whichGRFUsed() const;
     double getProportion(Id facies);
 #ifndef SWIG
     std::array<double, 4> getThresh(Id facies) const;
@@ -188,6 +189,6 @@ namespace gstlrn
     RuleShadow* rule,
     Model* model1,
     const VectorDouble& props,
-    Id flag_stat,
+    bool flag_stat,
     Id nfacies);
 } // namespace gstlrn
