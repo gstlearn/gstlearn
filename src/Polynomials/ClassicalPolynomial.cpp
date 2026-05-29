@@ -90,7 +90,7 @@ namespace gstlrn
   {
     Id n = static_cast<Id>(inv.size());
 
-    vect swap1, swap2, swap3;
+    vect swap1, swap2;
 
     if (static_cast<Id>(_work.size()) != n)
     {
@@ -108,6 +108,7 @@ namespace gstlrn
     {
       outv[i] += _coeffs[0] * inv[i];
     }
+    if (_coeffs.size() == 1) return;
 
     Op->evalDirect(inv, swap1);
 
@@ -121,9 +122,7 @@ namespace gstlrn
       if (j < static_cast<Id>(_coeffs.size()) - 1)
       {
         Op->evalDirect(swap1, swap2);
-        swap3 = swap1;
-        swap1 = swap2;
-        swap2 = swap3;
+        std::swap(swap1, swap2);
       }
     }
   }
