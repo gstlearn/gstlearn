@@ -42,32 +42,37 @@ namespace gstlrn
 
   void CalcSimuBoolean::_clearAllObjects()
   {
-    if (_objlist.empty()) return;
-    for (Id iobj = 0; iobj < _getNObjects(); iobj++) delete _objlist[iobj];
+    if (!_objlist.empty()) _objlist.clear();
   }
 
   String CalcSimuBoolean::toString(const AStringFormat* strfmt) const
   {
     std::stringstream sstr;
 
-    for (Id iobj = 0; iobj < _getNObjects(); iobj++)
+    for (Id iobj = 0, nobj = _getNObjects(); iobj < nobj; iobj++)
     {
       sstr << "Characteristics of the Object: " << iobj + 1 << std::endl;
-      sstr << _objlist[iobj]->toString(strfmt);
+      sstr << _objlist[iobj].toString(strfmt);
     }
     return sstr.str();
   }
 
-  bool CalcSimuBoolean::_simulate()
+  void CalcSimuBoolean::_resetCoverage() const
   {
-    /* Define the global variables */
-    law_set_random_seed(getSeed());
+    if (!isConditional()) return;
+    {
+      for (Id iech = 0, nech = getDbin()->getNSample(); iech < nech; iech++)
+        getDbin()->setArray(iech, _iptrCover, 0);
+    }
+  }
 
-    /* Count the number of conditioning pores and grains */
-    if (getVerbose()) mestitle(0, "Boolean simulation");
-
+  bool CalcSimuBoolean::_simulate(Id isimu)
+  {
     // Clear any existing object
     _clearAllObjects();
+
+    // Clear the coverage information in the Db (if any)
+    _resetCoverage();
 
     // Simulate the Initial grains (optional if dbin == nullptr)
     if (!_generatePrimary()) return false;
@@ -79,20 +84,20 @@ namespace gstlrn
     // if (getVerbose()) display();
 
     // Project the objects on the output grid
-    _projectToGrid();
+    _projectToGrid(isimu);
 
     return true;
   }
 
-  void CalcSimuBoolean::_projectToGrid()
+  void CalcSimuBoolean::_projectToGrid(Id isimu)
   {
     auto* dbout = dynamic_cast<DbGrid*>(getDbout());
     if (dbout == nullptr) return;
     for (Id iobj = 0, nobj = _getNObjects(); iobj < nobj; iobj++)
     {
-      _objlist[iobj]->projectToGrid(
-        dbout, _iptrSimu, _iptrRank, static_cast<Id>(_boolparam.getFacies()),
-        iobj + 1);
+      _objlist[iobj].projectToGrid(
+        dbout, _iptrSimu + isimu, _iptrRank + isimu,
+        static_cast<Id>(_boolparam.getFacies()), iobj + 1);
     }
   }
 
@@ -154,12 +159,13 @@ namespace gstlrn
   Id CalcSimuBoolean::_getNObjects(Id mode) const
   {
     if (mode == 0) return static_cast<Id>(_objlist.size());
+
     Id number = 0;
-    for (Id iobj = 0, nobj = static_cast<Id>(_objlist.size()); iobj < nobj;
-         iobj++)
+    for (const auto& obj: _objlist)
     {
-      if (_objlist[iobj]->getMode() == mode) number++;
+      if (obj.getMode() == mode) ++number;
     }
+
     return number;
   }
 
@@ -180,7 +186,7 @@ namespace gstlrn
     {
       message("- Conditioning option               = YES\n");
       mestitle(1, "Simulating the initial tokens");
-      message("- Number of grains to be covered    = %d\n", nbgrain);
+      message("- Number of conditioning grains     = %d\n", nbgrain);
       message("- Number of conditioning pores      = %d\n", nbpore);
     }
 
@@ -219,7 +225,7 @@ namespace gstlrn
 
       /* Add the object to the list */
       object->setMode(1);
-      _objlist.push_back(object);
+      _objlist.push_back(*object);
 
       // Update the coverage
       draw_more = object->coverageUpdate(dbin, _iptrCover, 1);
@@ -227,8 +233,8 @@ namespace gstlrn
 
     if (getVerbose())
     {
-      message("- Number of Initial Objects = %d\n", _getNObjects(1));
-      message("- Number of iterations      = %d\n", iter);
+      message("- Number of Initial Objects         = %d\n", _getNObjects(1));
+      message("- Number of iterations              = %d\n", iter);
     }
 
     return true;
@@ -274,7 +280,7 @@ namespace gstlrn
 
         // Add the object to the list
         object->setMode(2);
-        _objlist.push_back(object);
+        _objlist.push_back(*object);
 
         // Update the coverage
         object->coverageUpdate(dbin, _iptrCover, 1);
@@ -309,7 +315,7 @@ namespace gstlrn
     Id number = 0;
     for (Id iobj = 0, nobj = nb_objects; iobj < nobj; iobj++)
     {
-      if (_objlist[iobj]->getMode() != mode) continue;
+      if (_objlist[iobj].getMode() != mode) continue;
       if (number == rank) return iobj;
       number++;
     }
@@ -338,17 +344,14 @@ namespace gstlrn
 
     /* Check if the object can be deleted */
 
-    BooleanObject* object = _objlist[iref];
-    if (!object->isCompatibleGrainDelete(dbin, _iptrCover)) return false;
+    BooleanObject& object = _objlist[iref];
+    if (!object.isCompatibleGrainDelete(dbin, _iptrCover)) return false;
 
     /* Erase the object from the list*/
     _objlist.erase(_objlist.begin() + iref);
 
     // Update the coverage
-    object->coverageUpdate(dbin, _iptrCover, -1);
-
-    // Delete the object
-    delete object;
+    object.coverageUpdate(dbin, _iptrCover, -1);
 
     return true;
   }
@@ -387,7 +390,7 @@ namespace gstlrn
 
     for (Id iobj = 0, nobj = _getNObjects(); iobj < nobj; iobj++)
     {
-      VectorDouble tab = _objlist[iobj]->getValues();
+      VectorDouble tab = _objlist[iobj].getValues();
       tabs.insert(tab.end(), tab.begin(), tab.end());
     }
     return tabs;
@@ -429,7 +432,7 @@ namespace gstlrn
     _iptrCover = -1;
     if (getDbin() != nullptr)
     {
-      _iptrCover = _addVariableDb(1, 1, ELoc::SIMU, 0, getNbSimu(), 0.);
+      _iptrCover = _addVariableDb(1, 2, ELoc::SIMU, 0, 1, 0.);
       if (_iptrCover < 0) return false;
     }
     _iptrSimu = -1;
@@ -451,7 +454,17 @@ namespace gstlrn
 
   bool CalcSimuBoolean::_run()
   {
-    return (_simulate());
+    /* Define the global variables */
+    law_set_random_seed(getSeed());
+
+    for (Id isimu = 0, nbsimu = getNbSimu(); isimu < nbsimu; isimu++)
+    {
+      if (getVerbose())
+        message("\nSimulating realization #%d of %d\n", isimu + 1, getNbSimu());
+
+      if (!_simulate(isimu)) return false;
+    }
+    return true;
   }
 
   bool CalcSimuBoolean::_postprocess()

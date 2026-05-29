@@ -483,6 +483,7 @@ namespace gstlrn
    ** \param[in]  dbgrid        DbGrid structure containing the simulated grid
    ** \param[in]  tokens        Tokens structure
    ** \param[in]  boolparam     SimuBooleanParam structure
+   ** \param[in]  nbsimu        Number of simulations
    ** \param[in]  seed          Seed for the random number generator
    ** \param[in]  flag_simu     Store the boolean simulation
    ** \param[in]  flag_rank     Store the object rank
@@ -495,13 +496,14 @@ namespace gstlrn
     DbGrid* dbgrid,
     ModelBoolean* tokens,
     const SimuBooleanParam& boolparam,
+    Id nbsimu,
     Id seed,
     bool flag_simu,
     bool flag_rank,
     bool verbose,
     const NamingConvention& namconv)
   {
-    CalcSimuBoolean simbool(1, seed, verbose);
+    CalcSimuBoolean simbool(nbsimu, seed, verbose);
     simbool.setDbin(dbin);
     simbool.setDbout(dbgrid);
     simbool.setNamingConvention(namconv);

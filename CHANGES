@@ -4,7 +4,8 @@ This file contains the logs between consecutive releases
 
 Release 1.11.0
 ==============
-- The class SimuBoolean is now CalcSimuBoolean (a calculator class)
+- The Boolean simulation procedure now allows to perform several simulations in one step.
+- The class SimuBoolean has been renamed into CalcSimuBoolean (a calculator class)
 - Complete revisiting of Collocated CoKriging: insuring that Moving and Unique neighborhood versions are compliant (including the matrix trick in Unique), Checking and solving the coincidence test (when Target site coincides with one Data site... to avoid CoKriging matrix singularity)
 - Adding optional 'box' argument in simtub()
 - Suppressing 'cov0' in the API for Simulation using Spectral Method

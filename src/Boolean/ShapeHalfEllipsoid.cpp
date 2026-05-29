@@ -55,7 +55,7 @@ namespace gstlrn
   BooleanObject* ShapeHalfEllipsoid::generateObject(Id ndim)
 
   {
-    auto* object = new BooleanObject(this, ndim);
+    auto* object = new BooleanObject(*this, ndim);
     if (ndim >= 1) object->setExtension(0, generateParam(0));
     if (ndim >= 2) object->setExtension(1, generateParam(1));
     if (ndim >= 3) object->setExtension(2, generateParam(2));

@@ -84,15 +84,16 @@ namespace gstlrn
     bool _deleteObject(Id mode, Db* dbin);
     bool _generatePrimary();
     bool _generateSecondary();
-    void _projectToGrid();
-    bool _simulate();
+    void _projectToGrid(Id isimu);
+    bool _simulate(Id isimu);
+    void _resetCoverage() const;
 
   private:
     bool _flagSimu;
     bool _flagRank;
     SimuBooleanParam _boolparam;
     const ModelBoolean* _tokens;
-    std::vector<BooleanObject*> _objlist;
+    std::vector<BooleanObject> _objlist;
     mutable Id _iptrSimu;
     mutable Id _iptrRank;
     mutable Id _iptrCover;

@@ -29,7 +29,7 @@ namespace gstlrn
   class GSTLEARN_EXPORT BooleanObject: public AStringable
   {
   public:
-    BooleanObject(const AShape* shape, Id ndim);
+    BooleanObject(const AShape& shape, Id ndim);
     BooleanObject(const BooleanObject& r);
     BooleanObject& operator=(const BooleanObject& r);
     virtual ~BooleanObject();
@@ -59,7 +59,7 @@ namespace gstlrn
 
     double getValue(Id rank) const { return _values[rank]; }
 
-    const AShape* getToken() const { return _token; }
+    const AShape& getToken() const { return _token; }
 
     static BooleanObject* generate(
       const DbGrid* dbout,
@@ -105,7 +105,7 @@ namespace gstlrn
   private:
     Id _mode; // 1 for Primary; 2 for Secondary object
     Id _ndim; // Space dimension
-    const AShape* _token; // Token to which the Object belongs
+    const AShape& _token; // Token to which the Object belongs
     std::array<double, 3> _center; // Coordinates of the center of the object
     std::array<double, 3> _extension; // Extension of the object
     double _orientation; // Orientation angle for the object (degree)

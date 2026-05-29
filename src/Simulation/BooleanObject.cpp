@@ -20,7 +20,7 @@
 
 namespace gstlrn
 {
-  BooleanObject::BooleanObject(const AShape* ashape, Id ndim)
+  BooleanObject::BooleanObject(const AShape& ashape, Id ndim)
     : AStringable()
     , _mode(0)
     , _ndim(ndim)
@@ -58,7 +58,7 @@ namespace gstlrn
       AStringable::operator=(r);
       _mode = r._mode;
       _ndim = r._ndim;
-      _token = r._token;
+      // _token = r._token; // This must be ignored
       _center = r._center;
       _extension = r._extension;
       _orientation = r._orientation;
@@ -82,7 +82,7 @@ namespace gstlrn
       sstr << "Secondary Object" << std::endl;
     else
       sstr << "Object with unknown mode = " << _mode << std::endl;
-    sstr << "- Type        = " << _token->getType().getDescr() << std::endl;
+    sstr << "- Type        = " << _token.getType().getDescr() << std::endl;
     constvect center_ndim(_center.begin(), _center.begin() + _ndim);
     sstr << "- Center      = " << toStrVectorVec(String(), center_ndim);
     constvect extension_ndim(_extension.begin(), _extension.begin() + _ndim);
@@ -101,7 +101,7 @@ namespace gstlrn
   {
     VectorDouble tab;
     tab.push_back(static_cast<double>(_mode));
-    tab.push_back(static_cast<double>(_token->getType().getValue()));
+    tab.push_back(static_cast<double>(_token.getType().getValue()));
     for (const auto c: _center) tab.push_back(c);
     for (const auto e: _extension) tab.push_back(e);
     tab.push_back(_orientation);
@@ -133,7 +133,7 @@ namespace gstlrn
     _box[1][0] = _center[1] - dy / 2;
     _box[1][1] = _center[1] + dy / 2;
 
-    if (!_token->getFlagCutZ())
+    if (!_token.getFlagCutZ())
     {
       _box[2][0] = _center[2] - dz / 2;
       _box[2][1] = _center[2] + dz / 2;
@@ -218,7 +218,7 @@ namespace gstlrn
           }
           else
           {
-            if (!object->getToken()->getFlagCutZ())
+            if (!object->getToken().getFlagCutZ())
               valrand = law_uniform(0., 1.) - 0.5;
             else
               valrand = law_uniform(0., 1.);
@@ -245,12 +245,12 @@ namespace gstlrn
    *****************************************************************************/
   void BooleanObject::_extensionLinkage()
   {
-    if (_token->getFactorX2Y() > 0.)
-      _extension[1] = _extension[0] * _token->getFactorX2Y();
-    if (_token->getFactorX2Z() > 0.)
-      _extension[2] = _extension[0] * _token->getFactorX2Z();
-    if (_token->getFactorY2Z() > 0.)
-      _extension[2] = _extension[1] * _token->getFactorY2Z();
+    if (_token.getFactorX2Y() > 0.)
+      _extension[1] = _extension[0] * _token.getFactorX2Y();
+    if (_token.getFactorX2Z() > 0.)
+      _extension[2] = _extension[0] * _token.getFactorX2Z();
+    if (_token.getFactorY2Z() > 0.)
+      _extension[2] = _extension[1] * _token.getFactorY2Z();
   }
 
   /*****************************************************************************/
@@ -315,7 +315,7 @@ namespace gstlrn
     if (ABS(incr[1]) > _extension[1] / 2.) return false;
     if (_ndim > 2)
     {
-      if (!_token->getFlagCutZ())
+      if (!_token.getFlagCutZ())
       {
         if (ABS(incr[2]) > _extension[2] / 2.) return false;
       }
@@ -328,7 +328,7 @@ namespace gstlrn
 
     /* Check the pixel according to the grain definition */
 
-    bool answer = _token->belongObject(incr, this);
+    bool answer = _token.belongObject(incr, this);
 
     return answer;
   }
@@ -389,7 +389,7 @@ namespace gstlrn
   bool BooleanObject::isCompatiblePore(const Db* db)
   {
     if (db == nullptr) return true;
-    for (Id iech = 0; iech < db->getNSample(); iech++)
+    for (Id iech = 0, nech = db->getNSample(); iech < nech; iech++)
     {
       // Discard if the data is maked off or corresponds to a Grain
       if (!db->isActive(iech)) continue;
@@ -421,7 +421,7 @@ namespace gstlrn
   {
     if (db == nullptr) return true;
 
-    for (Id iech = 0; iech < db->getNSample(); iech++)
+    for (Id iech = 0, nech = db->getNSample(); iech < nech; iech++)
     {
       if (!db->isActive(iech)) continue;
       if (!isGrain(db, iech)) continue;
@@ -443,7 +443,7 @@ namespace gstlrn
   bool BooleanObject::isCompatibleGrainDelete(const Db* db, Id iptr_cover)
   {
     if (db == nullptr) return true;
-    for (Id iech = 0; iech < db->getNSample(); iech++)
+    for (Id iech = 0, nech = db->getNSample(); iech < nech; iech++)
     {
       if (!db->isActive(iech)) continue;
       if (!isGrain(db, iech)) continue;
@@ -472,7 +472,7 @@ namespace gstlrn
   {
     if (db == nullptr) return 0;
     Id not_covered = 0;
-    for (Id iech = 0; iech < db->getNSample(); iech++)
+    for (Id iech = 0, nech = db->getNSample(); iech < nech; iech++)
     {
       if (!db->isActive(iech)) continue;
       if (!isGrain(db, iech)) continue;

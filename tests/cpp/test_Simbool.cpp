@@ -43,6 +43,8 @@ int main(int argc, char* argv[])
   Id nvar = 1;
   Id nxcell = 100;
   Id nech = 100;
+  Id nbsimu = 4;
+  bool verbose = true;
   bool flagConditional = true;
   defineDefaultSpace(ESpaceType::RN, ndim);
 
@@ -52,7 +54,8 @@ int main(int argc, char* argv[])
   grid->display();
 
   // Generate the data base
-  auto* data = Db::createFillRandom(nech, ndim, nvar, 0, 0, 0., 0.1);
+  auto* data = Db::createFillRandom(
+    nech, ndim, nvar, 0, 0, 0., 0.1, VectorDouble(), {0., 0.}, {50., 50.});
   data->getStatsAsTable().display();
 
   // ====================== Create Shape Dictionary ===================
@@ -67,18 +70,26 @@ int main(int argc, char* argv[])
 
   // ====================== Perform Boolean simulation ===================
   message("\n<----- Perform Boolean Simulation ----->\n");
+  auto simuparam = SimuBooleanParam(200);
   if (flagConditional)
   {
     message("- Simulation with conditioning\n");
-    (void)simbool(data, grid, tokens, SimuBooleanParam(200));
+    (void)simbool(
+      data, grid, tokens, simuparam, nbsimu, 13671, true, true, verbose);
   }
   else
   {
     message("- Simulation without conditioning\n");
-    (void)simbool(nullptr, grid, tokens, SimuBooleanParam(200));
+    (void)simbool(
+      nullptr, grid, tokens, simuparam, nbsimu, 3231, true, true, verbose);
   }
 
   grid->getStatsAsTable().display();
+
+  if (flagConditional)
+  {
+    data->display();
+  }
 
   (void)grid->dumpToNF("grid.NF");
 

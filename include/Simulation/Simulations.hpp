@@ -126,6 +126,7 @@ namespace gstlrn
     DbGrid* dbgrid,
     ModelBoolean* tokens,
     const SimuBooleanParam& boolparam = SimuBooleanParam(),
+    Id nbsimu = 1,
     Id seed = 432431,
     bool flag_simu = true,
     bool flag_rank = true,
