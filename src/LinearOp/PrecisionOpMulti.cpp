@@ -449,4 +449,13 @@ namespace gstlrn
     }
     return result;
   }
+
+  PrecisionOp* PrecisionOpMulti::getPrecision(Id idx) {
+    if (idx < 0 || idx > _getNCov())
+    {
+      return nullptr;
+    }
+    return _pops[idx];
+  }
+  
 } // namespace gstlrn
