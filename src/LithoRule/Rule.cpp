@@ -20,6 +20,7 @@
 #include "LithoRule/RuleStringFormat.hpp"
 #include "Model/Model.hpp"
 
+#include <iomanip>
 #include <sstream>
 
 #define THRESH_IDLE 0
@@ -38,6 +39,10 @@ namespace gstlrn
 {
   static const VectorString symbol = {"F", "S", "T"};
   static Id GAUSS_MODE = 1;
+  constexpr std::array<Id, 5> DEFAULT_COLORS = {0x1f77b4ff, 0xff7f0eff,
+                                                0x2ca02cff, 0xd62728ff,
+                                                0x9467bdff};
+  constexpr Id DEFAULT_COLOR = 0x000000ff;
 
   /****************************************************************************/
   /*!
@@ -94,6 +99,10 @@ namespace gstlrn
     , _flagProp(0)
     , _rho(rho)
     , _mainNode(nullptr)
+    , _facies()
+    , _props()
+    , _facnames()
+    , _faccols()
   {
   }
 
@@ -104,6 +113,10 @@ namespace gstlrn
     , _flagProp(m._flagProp)
     , _rho(m._rho)
     , _mainNode(new Node(*m._mainNode))
+    , _facies(m._facies)
+    , _props(m._props)
+    , _facnames(m._facnames)
+    , _faccols(m._faccols)
   {
   }
 
@@ -117,6 +130,10 @@ namespace gstlrn
       _flagProp = m._flagProp;
       _rho = m._rho;
       _mainNode = new Node(*m._mainNode);
+      _facies = m._facies;
+      _props = m._props;
+      _facnames = m._facnames;
+      _faccols = m._faccols;
     }
     return *this;
   }
@@ -324,9 +341,22 @@ namespace gstlrn
 
     sstr << displaySpecific();
 
-    sstr << std::endl;
+    // Description of the Nodes
+    sstr << toStrTitle(1, "Node Characteristics");
     sstr << _mainNode->nodePrint(dsf.getFlagProp(), dsf.getFlagThresh());
 
+    // Description of the Facies
+    sstr << toStrTitle(1, "Facies Characteristics");
+    for (Id ifac = 0; ifac < nfac_tot; ifac++)
+    {
+      sstr << "Facies " << ifac + 1;
+      if (_flagProp) sstr << " Proportion = " << _props[ifac];
+      sstr << " - Name = " << getFaciesName(ifac);
+      sstr << " - Color = #" << std::hex << std::setw(8) << std::setfill('0')
+           << getFaciesColor(ifac) << std::dec;
+      sstr << " - Assigned Value = " << getFaciesValue(ifac);
+      sstr << std::endl;
+    }
     return sstr.str();
   }
 
@@ -1127,6 +1157,29 @@ namespace gstlrn
     }
     return rule;
   }
+
+  String Rule::getFaciesName(Id facies) const
+  {
+    if (facies < static_cast<Id>(_facnames.size())) return _facnames[facies];
+    std::stringstream name;
+    name << "F" << facies + 1;
+    return name.str();
+  }
+
+  Id Rule::getFaciesColor(Id facies) const
+  {
+    if (facies < static_cast<Id>(_faccols.size())) return _faccols[facies];
+    if (facies < static_cast<Id>(DEFAULT_COLORS.size()))
+      return DEFAULT_COLORS[facies];
+    return DEFAULT_COLOR;
+  }
+
+  Id Rule::getFaciesValue(Id facies) const
+  {
+    if (facies < static_cast<Id>(_facvalues.size())) return _facvalues[facies];
+    return facies;
+  }
+
 #ifdef HDF5
   bool Rule::deserializeH5(H5::Group& grp)
   {

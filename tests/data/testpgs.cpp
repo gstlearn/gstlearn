@@ -225,7 +225,8 @@ label_end:
   delete dbout;
   for (i = 0; i < 2; i++)
   {
-    rule[i] = rule_free(rule[i]);
+    delete rule[i];
+    rule[i] = nullptr;
     for (j = 0; j < 2; j++) delete model[i][j];
   }
   delete ruleprop;
