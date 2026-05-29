@@ -129,10 +129,10 @@ namespace gstlrn
     double computeLogDet(Id nMC = 1) const override;
     virtual VectorDouble extractDiag() const;
 
-  protected:
     APolynomial* getPoly(const EPowerPT& power);
 
 #ifndef SWIG
+  protected:
     Id
       _addEvalPoly(const EPowerPT& power, const constvect inv, vect outv) const;
     Id _addToDest(const constvect inv, vect outv) const override;
