@@ -120,7 +120,6 @@ namespace gstlrn
     // Resize if necessary
     _workdat3.resize(_getNDat());
     _workdat4.resize(_getNDat());
-    _workmesh.resize(getSizeSimu());
     _workNoiseMesh.resize(getSizeSimu());
     _workNoiseData.resize(_getNDat());
 
@@ -200,7 +199,6 @@ namespace gstlrn
   void ASPDEOp::_simNonCond(vect outv) const
   {
     // Resize if necessary
-    _workmesh.resize(getSizeSimu());
     _workNoiseMesh.resize(getSizeSimu());
 
     // Non conditional simulation on mesh
