@@ -46,7 +46,11 @@ int main(int argc, char* argv[])
 
   rule->display();
   (void)rule->dumpToNF("truerule.NF");
+  delete rule;
 
+  message("Display Rule after Serialize/Deserialize\n");
+  rule = Rule::createFromNF("truerule.NF");
+  rule->display();
   delete rule;
 
   return static_cast<int>(error);

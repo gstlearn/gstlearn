@@ -1271,6 +1271,10 @@ namespace gstlrn
       setMainNodeFromNodNames(nodes);
     }
 
+    ret = ret && SerializeHDF5::readVec(*ruleG, "FaciesNames", _facnames);
+    ret = ret && SerializeHDF5::readVec(*ruleG, "FaciesColors", _faccols);
+    ret = ret && SerializeHDF5::readVec(*ruleG, "FaciesValues", _facvalues);
+
     return ret;
   }
 
@@ -1287,6 +1291,9 @@ namespace gstlrn
     ret = ret && SerializeHDF5::writeValue(ruleG, "Rho", getRho());
     ret = ret && SerializeHDF5::writeVec(ruleG, "Nodes", nodes);
 
+    ret = ret && SerializeHDF5::writeVec(ruleG, "FaciesNames", _facnames);
+    ret = ret && SerializeHDF5::writeVec(ruleG, "FaciesColors", _faccols);
+    ret = ret && SerializeHDF5::writeVec(ruleG, "FaciesValues", _facvalues);
     return ret;
   }
 #endif
