@@ -103,6 +103,7 @@ namespace gstlrn
     , _props()
     , _facnames()
     , _faccols()
+    , _facvalues()
   {
   }
 
@@ -117,6 +118,7 @@ namespace gstlrn
     , _props(m._props)
     , _facnames(m._facnames)
     , _faccols(m._faccols)
+    , _facvalues(m._facvalues)
   {
   }
 
@@ -134,6 +136,7 @@ namespace gstlrn
       _props = m._props;
       _facnames = m._facnames;
       _faccols = m._faccols;
+      _facvalues = m._facvalues;
     }
     return *this;
   }
@@ -276,7 +279,7 @@ namespace gstlrn
       else
         name << symbol[NODE_TYPE(inode)];
 
-      // Allocate the new node
+      // Allocate the Node
 
       auto* node_loc = new Node(name.str(), NODE_TYPE(inode), facies);
       if (inode == 0) _mainNode = node_loc;
@@ -309,6 +312,8 @@ namespace gstlrn
         case THRESH_Y2: n2tab[NODE_RANK(inode) - 1] = node_loc; break;
       }
     }
+
+    _initCharacteristics();
     return 0;
   }
 
@@ -851,6 +856,7 @@ namespace gstlrn
     Id n_y1 = 0;
     Id n_y2 = 0;
     _mainNode = new Node("main", n_type, n_facs, &ipos, &n_fac, &n_y1, &n_y2);
+    _initCharacteristics();
   }
 
   void Rule::setMainNodeFromNodNames(const VectorString& nodnames)
@@ -863,6 +869,7 @@ namespace gstlrn
     Id n_y1 = 0;
     Id n_y2 = 0;
     _mainNode = new Node("main", n_type, n_facs, &ipos, &n_fac, &n_y1, &n_y2);
+    _initCharacteristics();
   }
 
   /****************************************************************************/
@@ -1178,6 +1185,64 @@ namespace gstlrn
   {
     if (facies < static_cast<Id>(_facvalues.size())) return _facvalues[facies];
     return facies;
+  }
+
+  void Rule::setFaciesName(Id facies, const String& name)
+  {
+    if (facies < 0 || facies >= getNFacies()) return;
+    _facnames[facies] = name;
+  }
+
+  void Rule::setFaciesColor(Id facies, Id color)
+  {
+    if (facies < 0 || facies >= getNFacies()) return;
+    _faccols[facies] = color;
+  }
+
+  void Rule::setFaciesValue(Id facies, Id value)
+  {
+    if (facies < 0 || facies >= getNFacies()) return;
+    _facvalues[facies] = value;
+  }
+
+  void Rule::_initCharacteristics()
+  {
+    Id nfac = getNFacies();
+
+    // Names
+    if (nfac != static_cast<Id>(_facnames.size()))
+    {
+      _facnames.resize(nfac);
+
+      for (Id ifac = 0; ifac < nfac; ifac++)
+      {
+        std::stringstream name;
+        name << "F" << ifac + 1;
+        _facnames[ifac] = name.str();
+      }
+    }
+
+    // Colors
+    if (nfac != static_cast<Id>(_faccols.size()))
+    {
+      _faccols.resize(nfac);
+
+      for (Id ifac = 0; ifac < nfac; ifac++)
+      {
+        if (ifac < static_cast<Id>(DEFAULT_COLORS.size()))
+          _faccols[ifac] = DEFAULT_COLORS[ifac];
+        else
+          _faccols[ifac] = DEFAULT_COLOR;
+      }
+    }
+
+    // Assignment values
+    if (nfac != static_cast<Id>(_facvalues.size()))
+    {
+      _facvalues.resize(nfac);
+
+      for (Id ifac = 0; ifac < nfac; ifac++) _facvalues[ifac] = ifac;
+    }
   }
 
 #ifdef HDF5

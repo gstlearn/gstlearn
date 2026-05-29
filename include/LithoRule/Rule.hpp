@@ -144,6 +144,10 @@ namespace gstlrn
     Id getFaciesColor(Id facies) const;
     Id getFaciesValue(Id facies) const;
 
+    void setFaciesName(Id facies, const String& name);
+    void setFaciesColor(Id facies, Id color);
+    void setFaciesValue(Id facies, Id value);
+
   protected:
     bool _serializeAscii(std::ostream& os) const override;
     bool _deserializeAscii(std::istream& is) override;
@@ -168,6 +172,7 @@ namespace gstlrn
       VectorInt& n_type,
       VectorInt& n_facs);
     void _clear();
+    void _initCharacteristics();
 
   private:
     ERule _modeRule; /* Type of usage (ERule) */
