@@ -19,9 +19,9 @@ Total number of samples      = 10000
 
 Grid characteristics:
 ---------------------
-Origin :      0.000     0.000
-Mesh   :      1.000     1.000
-Number :        100       100
+Origin :       0.000      0.000
+Mesh   :       1.000      1.000
+Number :         100        100
 
 Variables
 ---------
@@ -71,9 +71,9 @@ Total number of samples      = 10000
 
 Grid characteristics:
 ---------------------
-Origin :      0.000     0.000
-Mesh   :      1.000     1.000
-Number :        100       100
+Origin :       0.000      0.000
+Mesh   :       1.000      1.000
+Number :         100        100
 
 Variables
 ---------
@@ -81,7 +81,25 @@ Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = NC.Facies - Locator = NA
-Column = 4 - Name = NC.Rank - Locator = NA----
+Column = 4 - Name = NC.Rank - Locator = z1----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----                        Number     Minimum     Maximum        Mean    St. Dev.    Variance
+Category: 0.000000      14.000       0.000       0.000       0.000       0.000       0.000
+Category: 1.000000       6.000       1.000       1.000       1.000       0.000       0.000----
 
 
 #NO_DIFF#XXX
@@ -104,52 +122,6 @@ Column = 4 - Name = NC.Rank - Locator = NA----
 
 #NO_DIFF#XXX
 ----
-
-Boolean simulation
-==================
-- Conditioning option               = YES
-
-Simulating the initial tokens
------------------------------
-- Number of grains to be covered    = 9
-- Number of conditioning pores      = 11
-- Number of Initial Objects = 8
-- Number of iterations      = 8
-
-Simulating the secondary tokens
--------------------------------
-- Ending number of primary objects  = 0
-- Total number of objects           = 93
-
-Data Base Grid Characteristics
-==============================
-
-Data Base Summary
------------------
-File is organized as a regular grid
-Space dimension              = 2
-Number of Columns            = 7
-Total number of samples      = 10000
-
-Grid characteristics:
----------------------
-Origin :      0.000     0.000
-Mesh   :      1.000     1.000
-Number :        100       100
-
-Variables
----------
-Column = 0 - Name = rank - Locator = NA
-Column = 1 - Name = x1 - Locator = x1
-Column = 2 - Name = x2 - Locator = x2
-Column = 3 - Name = NC.Facies - Locator = NA
-Column = 4 - Name = NC.Rank - Locator = NA
-Column = 5 - Name = CD1.Facies1.Facies - Locator = NA
-Column = 6 - Name = CD1.Facies1.Rank - Locator = NA----
-
-
-#NO_DIFF#XXX
-----
 #NO_DIFF#XXX
 ----
 
@@ -158,54 +130,6 @@ Column = 6 - Name = CD1.Facies1.Rank - Locator = NA----
 ----
 #NO_DIFF#XXX
 ----
-
-
-#NO_DIFF#XXX
-----
-
-Boolean simulation
-==================
-- Conditioning option               = YES
-
-Simulating the initial tokens
------------------------------
-- Number of grains to be covered    = 13
-- Number of conditioning pores      = 7
-- Number of Initial Objects = 12
-- Number of iterations      = 14
-
-Simulating the secondary tokens
--------------------------------
-- Ending number of primary objects  = 0
-- Total number of objects           = 96
-
-Data Base Grid Characteristics
-==============================
-
-Data Base Summary
------------------
-File is organized as a regular grid
-Space dimension              = 2
-Number of Columns            = 9
-Total number of samples      = 10000
-
-Grid characteristics:
----------------------
-Origin :      0.000     0.000
-Mesh   :      1.000     1.000
-Number :        100       100
-
-Variables
----------
-Column = 0 - Name = rank - Locator = NA
-Column = 1 - Name = x1 - Locator = x1
-Column = 2 - Name = x2 - Locator = x2
-Column = 3 - Name = NC.Facies - Locator = NA
-Column = 4 - Name = NC.Rank - Locator = NA
-Column = 5 - Name = CD1.Facies1.Facies - Locator = NA
-Column = 6 - Name = CD1.Facies1.Rank - Locator = NA
-Column = 7 - Name = CD2.Facies2.Facies - Locator = NA
-Column = 8 - Name = CD2.Facies2.Rank - Locator = NA----
 
 
 #NO_DIFF#XXX

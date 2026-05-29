@@ -13,6 +13,7 @@
 #include "Basic/NamingConvention.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Model/ModelGeneric.hpp"
+#include "Simulation/SimuBooleanParam.hpp"
 #include "Simulation/SimuFFTParam.hpp"
 #include "Simulation/SimuPartitionParam.hpp"
 #include "Simulation/SimuRefineParam.hpp"
@@ -29,6 +30,7 @@ namespace gstlrn
   class SimuPartitionParam;
   class SimuRefineParam;
   class SimuSubstitutionParam;
+  class ModelBoolean;
 
   GSTLEARN_EXPORT Id fluidPropagation(
     DbGrid* dbgrid,
@@ -119,4 +121,15 @@ namespace gstlrn
     Id seed = 132141,
     Id nbtuba = 100,
     const NamingConvention& namconv = NamingConvention("SimBayes"));
+  GSTLEARN_EXPORT Id simbool(
+    Db* dbin,
+    DbGrid* dbgrid,
+    ModelBoolean* tokens,
+    const SimuBooleanParam& boolparam = SimuBooleanParam(),
+    Id nbsimu = 1,
+    Id seed = 432431,
+    bool flag_simu = true,
+    bool flag_rank = true,
+    bool verbose = false,
+    const NamingConvention& namconv = NamingConvention("Boolean"));
 } // namespace gstlrn

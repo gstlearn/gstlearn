@@ -48,8 +48,6 @@ namespace gstlrn
 
     void setMode(Id mode) { _mode = mode; }
 
-    void setVerbose(bool verbose) { _verbose = verbose; }
-
   private:
     bool _check() override;
     bool _preprocess() override;
@@ -63,7 +61,6 @@ namespace gstlrn
 
   private:
     Id _mode;
-    bool _verbose;
     Id _iattOut;
     SimuPartitionParam _parparam;
     Model* _modelLocal;

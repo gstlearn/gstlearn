@@ -418,11 +418,11 @@
 %include Simulation/TurningBandDirection.hpp
 %include Simulation/TurningBandOperate.hpp
 %include Simulation/CalcSimuSpectral.hpp
+%include Simulation/CalcSimuBoolean.hpp
 %include Simulation/SimuSpectralRN.hpp
 %include Simulation/SimuSpectralS2.hpp
 %include Simulation/SpectrumOnRN.hpp
 %include Simulation/BooleanObject.hpp
-%include Simulation/SimuBoolean.hpp
 %include Simulation/SimuBooleanParam.hpp
 %include Simulation/SimuSpherical.hpp
 %include Simulation/SimuSphericalParam.hpp

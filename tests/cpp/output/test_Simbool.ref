@@ -11,53 +11,21 @@ Total number of samples      = 10000
 
 Grid characteristics:
 ---------------------
-Origin :      0.000     0.000
-Mesh   :      1.000     1.000
-Number :        100       100
+Origin :       0.000      0.000
+Mesh   :       1.000      1.000
+Number :         100        100
 
 Variables
 ---------
 Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
-
-Data Base Characteristics
-=========================
-
-Data Base Statistics
---------------------
-1 - Name rank - Locator NA
- Nb of data          =        100
- Nb of active values =        100
- Minimum value       =      1.000
- Maximum value       =    100.000
- Mean value          =     50.500
- Standard Deviation  =     28.866
- Variance            =    833.250
-2 - Name x1 - Locator x1
- Nb of data          =        100
- Nb of active values =        100
- Minimum value       =   -158.624
- Maximum value       =    131.935
- Mean value          =      0.678
- Standard Deviation  =     50.083
- Variance            =   2508.331
-3 - Name x2 - Locator x2
- Nb of data          =        100
- Nb of active values =        100
- Minimum value       =   -112.354
- Maximum value       =    106.924
- Mean value          =     -7.383
- Standard Deviation  =     44.553
- Variance            =   1984.932
-4 - Name Var - Locator z1
- Nb of data          =        100
- Nb of active values =        100
- Minimum value       =      0.000
- Maximum value       =      1.000
- Mean value          =      0.120
- Standard Deviation  =      0.325
- Variance            =      0.106
+          Number     Minimum     Maximum        Mean    St. Dev.    Variance
+rank      92.000       1.000     100.000      49.207      28.673     822.142
+ x-1      92.000       0.195      49.375      26.129      14.368     206.430
+ x-2      92.000       0.075      47.052      24.133      12.543     157.339
+ sel      92.000       1.000       1.000       1.000       0.000       0.000
+   z      92.000      -2.653       2.180      -0.136       1.022       1.045
 
 <----- Creating Shape Dictionary ----->
 
@@ -83,49 +51,95 @@ Parallelepiped - Proportion=0.6
 - Orientation Angle: Constant=0
 
 <----- Perform Boolean Simulation ----->
+- Simulation with conditioning
 
-Data Base Grid Characteristics
-==============================
+Simulating realization #1 of 4
+- Conditioning option               = YES
 
-Data Base Statistics
---------------------
-1 - Name rank - Locator NA
- Nb of data          =      10000
- Nb of active values =      10000
- Minimum value       =      1.000
- Maximum value       =  10000.000
- Mean value          =   5000.500
- Standard Deviation  =   2886.751
- Variance            = 8333333.250
-2 - Name x1 - Locator x1
- Nb of data          =      10000
- Nb of active values =      10000
- Minimum value       =      0.000
- Maximum value       =     99.000
- Mean value          =     49.500
- Standard Deviation  =     28.866
- Variance            =    833.250
-3 - Name x2 - Locator x2
- Nb of data          =      10000
- Nb of active values =      10000
- Minimum value       =      0.000
- Maximum value       =     99.000
- Mean value          =     49.500
- Standard Deviation  =     28.866
- Variance            =    833.250
-4 - Name Boolean.Facies - Locator NA
- Nb of data          =      10000
- Nb of active values =       4767
- Minimum value       =      1.000
- Maximum value       =      1.000
- Mean value          =      1.000
- Standard Deviation  =      0.000
- Variance            =      0.000
-5 - Name Boolean.Rank - Locator NA
- Nb of data          =      10000
- Nb of active values =       4767
- Minimum value       =      1.000
- Maximum value       =    101.000
- Mean value          =     42.353
- Standard Deviation  =     28.101
- Variance            =    789.644
+Simulating the initial tokens
+-----------------------------
+- Number of conditioning grains     = 92
+- Number of conditioning pores      = 0
+- Number of Initial Objects         = 50
+- Number of iterations              = 50
+
+Simulating the secondary tokens
+-------------------------------
+- Ending number of primary objects  = 40
+- Total number of objects           = 74
+
+Simulating realization #2 of 4
+- Conditioning option               = YES
+
+Simulating the initial tokens
+-----------------------------
+- Number of conditioning grains     = 92
+- Number of conditioning pores      = 0
+- Number of Initial Objects         = 44
+- Number of iterations              = 44
+
+Simulating the secondary tokens
+-------------------------------
+- Ending number of primary objects  = 36
+- Total number of objects           = 69
+
+Simulating realization #3 of 4
+- Conditioning option               = YES
+
+Simulating the initial tokens
+-----------------------------
+- Number of conditioning grains     = 92
+- Number of conditioning pores      = 0
+- Number of Initial Objects         = 45
+- Number of iterations              = 45
+
+Simulating the secondary tokens
+-------------------------------
+- Ending number of primary objects  = 38
+- Total number of objects           = 83
+
+Simulating realization #4 of 4
+- Conditioning option               = YES
+
+Simulating the initial tokens
+-----------------------------
+- Number of conditioning grains     = 92
+- Number of conditioning pores      = 0
+- Number of Initial Objects         = 42
+- Number of iterations              = 42
+
+Simulating the secondary tokens
+-------------------------------
+- Ending number of primary objects  = 36
+- Total number of objects           = 83
+                         Number     Minimum     Maximum        Mean    St. Dev.    Variance
+               rank   10000.000       1.000   10000.000    5000.500    2886.751 8333333.250
+                 x1   10000.000       0.000      99.000      49.500      28.866     833.250
+                 x2   10000.000       0.000      99.000      49.500      28.866     833.250
+Boolean.z.Facies.S1    3703.000       1.000       1.000       1.000       0.000       0.000
+Boolean.z.Facies.S2    3556.000       1.000       1.000       1.000       0.000       0.000
+Boolean.z.Facies.S3    3911.000       1.000       1.000       1.000       0.000       0.000
+Boolean.z.Facies.S4    4467.000       1.000       1.000       1.000       0.000       0.000
+  Boolean.z.Rank.S1    3703.000       1.000      74.000      37.396      23.142     535.533
+  Boolean.z.Rank.S2    3556.000       1.000      69.000      31.813      20.300     412.079
+  Boolean.z.Rank.S3    3911.000       1.000      83.000      39.099      23.174     537.028
+  Boolean.z.Rank.S4    4467.000       1.000      83.000      41.818      24.007     576.312
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 5
+Total number of samples      = 100
+Number of active samples     = 92
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x-1 - Locator = x1
+Column = 2 - Name = x-2 - Locator = x2
+Column = 3 - Name = sel - Locator = sel
+Column = 4 - Name = z - Locator = z1

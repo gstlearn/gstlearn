@@ -61,7 +61,7 @@ namespace gstlrn
   BooleanObject* ShapeHalfSinusoid::generateObject(Id ndim)
 
   {
-    auto* object = new BooleanObject(this);
+    auto* object = new BooleanObject(*this, ndim);
     if (ndim >= 1) object->setValue(0, generateParam(0));
     if (ndim >= 2) object->setValue(1, generateParam(1));
     if (ndim >= 3) object->setValue(2, generateParam(2));

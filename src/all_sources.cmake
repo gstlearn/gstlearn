@@ -354,13 +354,13 @@ set(SRC
   Simulation/CalcSimuTurningBands.cpp
   Simulation/CalcSimuSpectral.cpp
   Simulation/CalcSimuPGS.cpp
+  Simulation/CalcSimuBoolean.cpp
   Simulation/TurningBandDirection.cpp
   Simulation/TurningBandOperate.cpp
   Simulation/SimuSpectralRN.cpp
   Simulation/SpectrumOnRN.cpp
   Simulation/SimuSpectralS2.cpp
   Simulation/BooleanObject.cpp
-  Simulation/SimuBoolean.cpp
   Simulation/SimuBooleanParam.cpp
   Simulation/SimuSpherical.cpp
   Simulation/SimuSphericalParam.cpp
