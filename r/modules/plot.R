@@ -995,6 +995,7 @@ multi.varmod <- function(vario, model=NA, ivar=-1, jvar=-1, idir=-1,
 #' @param flagAbsSize Using the absolute value of the variable for graphic representation
 #' @param flagCst Represent the location of the active samples only
 #' @param useSel Use of the optional selection
+#' @param rule Optional rule for categorical representation (when 'asFactor' is TRUE)
 #' @param asFactor Transform color variable into factor to use discrete palette
 #' @param sizeRange Range of the size of the symbols (when 'nameSize' is not defined)
 #' @param posX Rank of the coordinate used as the first coordinate
@@ -1004,62 +1005,251 @@ multi.varmod <- function(vario, model=NA, ivar=-1, jvar=-1, idir=-1,
 #' @param flagLegend Display the legend for point representation (color and size)
 #' @param legendNameColor Name of the Legend for point representation by color
 #' @param legendNameSize Name of the Legend for point representation by size
+#' @param borderColor Color of the symbol borders (optional)
+#' @param borderWidth Width of the symbol borders
 #' @param ... List of arguments passed to geom_point()
 #' @return The description of the contents of the graphic layer
-plot.symbol <- function(db, nameColor=NULL, nameSize=NULL,
-    flagAbsSize = FALSE, flagCst=FALSE, useSel=TRUE, asFactor=FALSE,
-    sizeRange=c(0.5, 3.), posX=0, posY=1,
-    palette=NULL, naColor="transparent", flagLegend=FALSE,
-    legendNameColor=NA, legendNameSize=NA,
-    ...)
+plot.symbol <- function(db,
+                        nameColor = NULL,
+                        nameSize = NULL,
+                        flagAbsSize = FALSE,
+                        flagCst = FALSE,
+                        useSel = TRUE,
+                        rule = NULL,
+                        asFactor = FALSE,
+                        sizeRange = c(0.5, 3.),
+                        posX = 0,
+                        posY = 1,
+                        palette = NULL,
+                        naColor = "transparent",
+                        flagLegend = FALSE,
+                        legendNameColor = NA,
+                        legendNameSize = NA,
+                        borderColor = NULL,
+                        borderWidth = 0.5,
+                        ...)
 {
-  p = list()
+  p <- list()
 
   # Get the name of the variable to be displayed by default
-  nameSize = .getDefaultVariableName(db, nameSize, nameColor)
-  if (is.null(nameSize)) {
+  if (is.null(nameColor) && is.null(nameSize))
+    nameSize <- .getDefaultVariableName(db, nameSize, nameColor)
+  if (is.null(nameColor) && is.null(nameSize))
     return(NULL)
-  }
 
   # Creating the necessary data frame
-  df = .readPointCoor(db, useSel, posX, posY)
-  aes_plt = aes(x=x, y=y)
+  df <- .readPointCoor(db, useSel, posX, posY)
+  aes_plt <- aes(x = x, y = y)
 
+  isFacies <- !is.null(rule)
+
+  # ---------------------------------------------------------
   # Color of symbol
-  if (! is.null(nameColor)) {
-    colval  = db$getColumn(nameColor, TRUE)
-    if (asFactor) colval = factor(colval)
+  # ---------------------------------------------------------
 
-    df["colour"] = colval
-    aes_plt$colour = substitute(colval)
+  if (!is.null(nameColor)) {
+    colval <- db$getColumn(nameColor, TRUE)
+
+    if (isFacies) {
+      nfac <- rule$getNFacies()
+      ind <- seq_len(nfac) - 1
+
+      facies <- data.frame(
+        value = sapply(ind, rule$getFaciesValue),
+        name = sapply(ind, rule$getFaciesName),
+        color = sapply(
+          ind,
+          function(i) sprintf("#%08X", rule$getFaciesColor(i))
+        ),
+        stringsAsFactors = FALSE
+      )
+
+      match_idx <- match(colval, facies$value)
+
+      colval <- factor(
+        facies$name[match_idx],
+        levels = facies$name
+      )
+
+      facies_cols <- setNames(
+        facies$color,
+        facies$name
+      )
+    } else {
+      if (asFactor) {
+        colval <- factor(colval)
+      }
+    }
+
+    df$colour <- colval
+    aes_plt$colour <- substitute(colval)
   }
 
+  # ---------------------------------------------------------
   # Size of symbol
-  if (! is.null(nameSize) && ! flagCst) {
-    sizval  = db$getColumn(nameSize, TRUE)
-    if (flagAbsSize) sizval = abs(sizval)
+  # ---------------------------------------------------------
 
-    df["size"] = sizval
-    aes_plt$size = substitute(sizval)
+  if (!is.null(nameSize) && !flagCst) {
+    sizval <- db$getColumn(nameSize, TRUE)
+
+    if (flagAbsSize) {
+      sizval <- abs(sizval)
+    }
+
+    df$size <- sizval
+    aes_plt$size <- substitute(sizval)
   }
 
-  layer <- geom_point(data = df, aes_plt,
-              na.rm=TRUE, show.legend = .showLegend(flagLegend), ...)
+  # ---------------------------------------------------------
+  # Geometry
+  # ---------------------------------------------------------
+
+  if (!is.null(borderColor))
+  {
+    if (!is.null(nameSize) && !flagCst)
+    {
+      df$size_border <- df$size + borderWidth
+
+      border_layer <- geom_point(
+        data = df,
+        aes(
+          x = x,
+          y = y,
+          size = size_border
+        ),
+        colour = borderColor,
+        show.legend = FALSE,
+        ...
+      )
+    }
+    else
+    {
+      border_layer <- geom_point(
+        data = df,
+        aes(x = x, y = y),
+        size = borderWidth + 2,
+        colour = borderColor,
+        show.legend = FALSE,
+        ...
+      )
+    }
+
+    p <- append(p, list(border_layer))
+  }
+
+  # Dessin du symbole coloré
+  layer <- geom_point(
+    data = df,
+    mapping = aes_plt,
+    na.rm = TRUE,
+    show.legend = .showLegend(flagLegend),
+    ...
+  )
+
   p <- append(p, list(layer))
 
-  # Define the Legend
-  if (! is.null(nameColor)) {
-    p <- append(p, .defineColour(palette, naColor = naColor,
-      flagDiscrete = asFactor, title = legendNameColor))
+  # ---------------------------------------------------------
+  # Color legend
+  # ---------------------------------------------------------
+
+  if (!is.null(nameColor)) {
+    if (is.na(legendNameColor)) {
+      legendNameColor <- nameColor
+    }
+
+    if (isFacies) {
+      p <- append(
+        p,
+        list(
+          scale_colour_manual(
+            values = facies_cols,
+            drop = FALSE,
+            na.translate = FALSE,
+            name = legendNameColor
+          )
+        )
+      )
+    } else {
+      p <- append(
+        p,
+        .defineColour(
+          palette,
+          naColor = naColor,
+          flagDiscrete = asFactor,
+          title = legendNameColor
+        )
+      )
+    }
+
     p <- .appendNewScale(p, "colour")
-    p <- append(p, plot.decoration(title = nameColor, flagDefaultTitle = TRUE))
-  }
-  if (! is.null(nameSize) && ! flagCst) {
-    p <- append(p, .defineSize(sizval, sizeRange, title = legendNameSize))
-    p <- .appendNewScale(p, "size")
-    p <- append(p, plot.decoration(title = nameSize, flagDefaultTitle = TRUE))
+
+    p <- append(
+      p,
+      plot.decoration(
+        title = nameColor,
+        flagDefaultTitle = TRUE
+      )
+    )
   }
 
+  # ---------------------------------------------------------
+  # Size legend
+  # ---------------------------------------------------------
+
+  if (!is.null(nameSize) && !flagCst) {
+    p <- append(
+      p,
+      .defineSize(
+        sizval,
+        sizeRange,
+        title = legendNameSize
+      )
+    )
+
+    p <- .appendNewScale(p, "size")
+
+    p <- append(
+      p,
+      plot.decoration(
+        title = nameSize,
+        flagDefaultTitle = TRUE
+      )
+    )
+  }
+
+  # Control legend visibility
+
+  if (!flagLegend)
+  {
+    p <- append(
+      p,
+      list(
+        guides(
+          colour = "none",
+          size = "none"
+        )
+      )
+    )
+  }
+  else
+  {
+    if (is.null(nameColor)) {
+      p <- append(
+        p,
+        list(
+          guides(colour = "none")
+        )
+      )
+    }
+    if (is.null(nameSize)) {
+      p <- append(
+        p,
+        list(
+          guides(size = "none")
+        )
+      )
+    }
+  }
   p
 }
 
@@ -1082,9 +1272,8 @@ plot.literal <- function(db, name=NULL, digit=2, useSel=TRUE, posX=0, posY=1,
 
   # Get the name of the variable to be displayed by default
   name = .getDefaultVariableName(db, name)
-  if (is.null(name)) {
+  if (is.null(name))
     return(NULL)
-  }
 
   # Creating the necessary data frame
   df = .readPointCoor(db, useSel, posX, posY)
@@ -1105,6 +1294,7 @@ plot.literal <- function(db, name=NULL, digit=2, useSel=TRUE, posX=0, posY=1,
 #' @param dbgrid Grid data base from gstlearn
 #' @param name Name of the variable to be represented
 #' @param useSel Use of an optional selection
+#' @param rule optional Rule for categorical representation
 #' @param posX rank of the coordinate which will serve as the first coordinate
 #' @param posY rank of the coordinate which will serve as the second coordinate
 #' @param corner A vector (same space dimension as 'dbgrid') which defines a pixel belonging to the extracted section
@@ -1115,51 +1305,152 @@ plot.literal <- function(db, name=NULL, digit=2, useSel=TRUE, posX=0, posY=1,
 #' @param flagLegend Display the legend for grid representation as an image
 #' @param ... Arguments passed to geom_raster() or geom_polygon()
 #' @return The description of the contents of the figure
-plot.raster <- function(dbgrid, name = NULL, useSel = TRUE, posX=0, posY=1, corner=NA,
-    palette=NULL, naColor="transparent", limits=NULL, legendName=NA, flagLegend=FALSE, ...)
+#'
+
+plot.raster <- function(dbgrid,
+                        name = NULL,
+                        useSel = TRUE,
+                        rule = NULL,
+                        posX = 0,
+                        posY = 1,
+                        corner = NA,
+                        palette = NULL,
+                        naColor = "transparent",
+                        limits = NULL,
+                        legendName = NA,
+                        flagLegend = FALSE,
+                        ...)
 {
-  if (! .isGrid(dbgrid)) stop()
+  if (!.isGrid(dbgrid))
+    stop()
 
   if (!require(ggnewscale, quietly = TRUE))
     stop("Package ggnewscale is mandatory to use this function!")
 
-  p = list()
+  p <- list()
 
-  # Get the name of the variable to be displayed
-  name = .getDefaultVariableName(dbgrid, name)
-  if (is.null(name)) {
+  # Variable name
+  name <- .getDefaultVariableName(dbgrid, name)
+  if (is.null(name))
     return(NULL)
+
+  # Read grid
+  df <- .readGridCoor(dbgrid, name, useSel, posX, posY, corner)
+
+  isFacies <- !is.null(rule)
+
+  # =========================
+  # FACIES MODE
+  # =========================
+  if (isFacies)
+  {
+    nfac <- rule$getNFacies()
+    if (nfac <= 0)
+      return(NULL)
+    ind <- seq_len(nfac) - 1
+
+    facies <- data.frame(
+      value = sapply(ind, rule$getFaciesValue),
+      name  = sapply(ind, rule$getFaciesName),
+      color = sapply(
+        ind,
+        function(i) sprintf("#%08X", rule$getFaciesColor(i))
+      ),
+      stringsAsFactors = FALSE
+    )
+
+    df$data <- factor(
+      df$data,
+      levels = facies$value,
+      labels = facies$name
+    )
   }
 
-  # Reading the Grid information
-  df = .readGridCoor(dbgrid, name, useSel, posX, posY, corner)
-
-  # Define the contents
-  if (dbgrid$getAngles()[1] == 0 && ! dbgrid$hasSingleBlock())
+  # =========================
+  # GEOMETRY
+  # =========================
+  if (dbgrid$getAngles()[1] == 0 && !dbgrid$hasSingleBlock())
   {
     layer <- geom_raster(
-      data = df, mapping = aes(x = x, y = y, fill = data),
-      show.legend = .showLegend(flagLegend), ...
+      data = df,
+      mapping = aes(
+        x = x,
+        y = y,
+        fill = data
+      ),
+      show.legend = .showLegend(flagLegend),
+      ...
     )
   }
   else
   {
-    ids = seq(1, dbgrid$getNTotal())
-    coords = dbgrid$getAllCellsEdges()
-    positions = data.frame(id = rep(ids, each = 4), x = coords[[1]], y = coords[[2]])
-    values = data.frame(id = ids, value = df$data)
-    df <- merge(values, positions, by = c("id"))
+    ids <- seq_len(dbgrid$getNTotal())
+
+    coords <- dbgrid$getAllCellsEdges()
+
+    positions <- data.frame(
+      id = rep(ids, each = 4),
+      x = coords[[1]],
+      y = coords[[2]]
+    )
+
+    values <- data.frame(
+      id = ids,
+      value = df$data
+    )
+
+    dfpoly <- merge(values, positions, by = "id")
+
     layer <- geom_polygon(
-      data = df, mapping = aes(x = x, y = y, fill = value, group = id),
-      show.legend = .showLegend(flagLegend), ...
+      data = dfpoly,
+      mapping = aes(
+        x = x,
+        y = y,
+        fill = value,
+        group = id
+      ),
+      show.legend = .showLegend(flagLegend),
+      ...
     )
   }
+
   p <- append(p, list(layer))
 
-  # Define the color Scale
-  p <- append(p, .defineFill(palette, naColor = naColor, limits = limits, title = legendName))
+  # =========================
+  # COLOR SCALE
+  # =========================
+  if (isFacies)
+  {
+    facies_cols <- setNames(facies$color, facies$name)
+
+    p <- append(
+      p,
+      list(
+        scale_fill_manual(
+          values = facies_cols,
+          drop = FALSE,
+          name = legendName
+        )
+      )
+    )
+  }
+  else
+  {
+    p <- append(
+      p,
+      .defineFill(
+        palette,
+        naColor = naColor,
+        limits = limits,
+        title = legendName
+      )
+    )
+  }
+
   p <- .appendNewScale(p, "fill")
-  if (!flagLegend) p <- append(p, guides(fill = "none"))
+
+  if (!flagLegend)
+    p <- append(p, list(guides(fill = "none")))
 
   p
 }
@@ -1186,9 +1477,8 @@ plot.contour <- function(dbgrid, name=NULL, useSel = TRUE, posX=0, posY=1, corne
 
   # Get the name of the variable to be displayed
   name = .getDefaultVariableName(dbgrid, name)
-  if (is.null(name)) {
+  if (is.null(name))
     return(NULL)
-  }
 
   # Reading the Grid information
   df = .readGridCoor(dbgrid, name, useSel, posX, posY, corner)
@@ -1522,51 +1812,104 @@ plot.hscatter <- function(db, namex, namey, varioparam, ilag=0, idir=0, asPoint=
 #' @param rule A Rule object from gstlearn library
 #' @param proportions The vector of facies proportions. When defined it is used to dimension the facies rectangles
 #' @param maxG Maximum gaussian value (in absolute value)
-#' @param cols List of colors (optional)
 #' @param flagLegend Display the legend
 #' @param legendName Name of the Legend
 #' @param ... List of arguments passed to geom_rect()
 #' @return The ggplot object
-plot.rule <- function(rule, proportions=NULL, maxG = 3., cols=NA,
-	flagLegend=FALSE, legendName="Facies", ...)
+plot.rule <- function(rule,
+                      proportions = NULL,
+                      maxG = 3.,
+                      flagLegend = FALSE,
+                      legendName = "Facies",
+                      ...)
 {
-  p = list()
-  nrect = rule$getNFacies()
-  if (! is.null(proportions))
+  p <- list()
+
+  if (!is.null(proportions)) {
     rule$setProportions(proportions)
-  else
+  } else {
     rule$setProportions()
-  if (missing(cols)) cols = .getColors()
-
-  df = data.frame(xmin=rep(0,nrect),xmax=rep(0,nrect),
-      ymin=rep(0,nrect),ymax=rep(0,nrect), colors=rep(0,nrect))
-  for (ifac in 1:nrect)
-  {
-    rect = rule$getThresh(ifac) # This function is 1-based
-    df$xmin[ifac] = max(rect[1], -maxG)
-    df$xmax[ifac] = min(rect[2], +maxG)
-    df$ymin[ifac] = max(rect[3], -maxG)
-    df$ymax[ifac] = min(rect[4], +maxG)
-    df$colors[ifac] = ifac
   }
 
-  p = append(p, geom_rect(data = df, mapping=aes(xmin = xmin, xmax = xmax,
-             ymin = ymin, ymax = ymax, fill = as.factor(colors)), na.rm=TRUE, ...))
+  nfac <- rule$getNFacies()
 
-  p <- append(p, .defineFill(cols, flagDiscrete = TRUE, ...))
-  p <- .appendNewScale(p, "fill")
-
-  # Set the legend
-  if (flagLegend)
-  {
-    p <- append(p, list(labs(color = legendName)))
-  }
-  else
-  {
-    p <- append(p, list(guides(color = "none")))
+  if (nfac <= 0) {
+    return(p)
   }
 
-  p = append(p, plot.geometry(xlim=c(-maxG,+maxG), ylim=c(-maxG,+maxG)))
+  ind <- seq_len(nfac) - 1
+
+  facies <- data.frame(
+    name = sapply(ind, rule$getFaciesName),
+    color = sapply(
+      ind,
+      function(i) sprintf("#%08X", rule$getFaciesColor(i))
+    ),
+    stringsAsFactors = FALSE
+  )
+
+  df <- data.frame(
+    xmin = numeric(nfac),
+    xmax = numeric(nfac),
+    ymin = numeric(nfac),
+    ymax = numeric(nfac),
+    stringsAsFactors = FALSE
+  )
+
+  for (ifac in seq_len(nfac))
+  {
+    rect <- rule$getThresh(ifac)
+
+    df$xmin[ifac] <- max(rect[1], -maxG)
+    df$xmax[ifac] <- min(rect[2], maxG)
+    df$ymin[ifac] <- max(rect[3], -maxG)
+    df$ymax[ifac] <- min(rect[4], maxG)
+  }
+
+  df$facies <- factor(
+    facies$name,
+    levels = facies$name
+  )
+
+  p <- append(
+    p,
+    geom_rect(
+      data = df,
+      mapping = aes(
+        xmin = xmin,
+        xmax = xmax,
+        ymin = ymin,
+        ymax = ymax,
+        fill = facies
+      ),
+      na.rm = TRUE,
+      ...
+    )
+  )
+
+  p <- append(
+    p,
+    list(
+      scale_fill_manual(
+        values = setNames(facies$color, facies$name),
+        drop = FALSE,
+        name = legendName
+      )
+    )
+  )
+
+  if (!flagLegend) {
+    p <- append(p, list(guides(fill = "none")))
+  }
+
+  p <- append(
+    p,
+    plot.geometry(
+      xlim = c(-maxG, maxG),
+      ylim = c(-maxG, maxG)
+    )
+  )
+
   p
 }
 

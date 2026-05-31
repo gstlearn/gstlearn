@@ -974,7 +974,6 @@ namespace gstlrn
     VectorDouble xyz(ndim);
 
     /* Processing the translation */
-
     for (Id iech = 0, nech = dbout->getNSample(); iech < nech; iech++)
     {
       if (!dbout->isActive(iech)) continue;
@@ -997,13 +996,15 @@ namespace gstlrn
             : 0.;
       }
       facies = getFaciesFromGaussian(y[0], y[1]);
+      Id value = getFaciesValue(facies - 1);
 
       /* Combine the underlying GRFs to derive Facies */
 
       dbout->setSimvar(
         ELoc::FACIES, iech, isimu, 0, ipgs, nbsimu, 1,
-        static_cast<double>(facies));
+        static_cast<double>(value));
     }
+
     return 0;
   }
 

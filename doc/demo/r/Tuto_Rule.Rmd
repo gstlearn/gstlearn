@@ -1,0 +1,107 @@
+---
+title: "Tutorial 2D"
+author: "D. Renard"
+date: "25 juin 2022"
+output:
+  pdf_document: default
+  html_document: default
+editor_options:
+  chunk_output_type: console
+---
+
+<!-- SUMMARY: Tutorial to demonstrate the use of the Rule -->
+
+<!-- CATEGORY: Case_studies -->
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+rm(list=ls())
+library(gstlearn)
+```
+
+Global variables
+
+```{r}
+ndim = 2
+err = defineDefaultSpace(ESpaceType_RN(), ndim)
+err = set_test_discrete(FALSE)
+```
+
+# Defining the Rule
+
+Creating the Rule and defining specifically the name of the second facies (its rank is entered as 1 as the argument is 0-based) and the assigned value for the third facies. The other values are kept unchanged, as set by default.
+
+```{r}
+rule = Rule_createFromNames(c("S", "T", "F1", "F2", "F3"))
+err = rule$setFaciesName(1, "MyFacies")
+err = rule$setFaciesValue(2, 6)
+```
+
+We can check the additional characteristics attached to the Rule.
+
+```{r}
+err = rule$display()
+```
+
+These characteristics are used for the representation of the Rule itself.
+
+```{r}
+plot.init() +
+  plot.rule(rule, flagLegend=TRUE) +
+  plot.decoration(title="Rule Definition")
+```
+
+We perform a non-conditional simulation using PGS method.
+
+```{r}
+grid = DbGrid_create(nx=c(110,110))
+model1 = Model_createFromParam(ECov_CUBIC(), ranges=c(20,30))
+model2 = Model_createFromParam(ECov_EXPONENTIAL(), 30, 1., 1.)
+
+nbsimu = 1
+ruleprop = RuleProp_createFromRule(rule)
+err = simpgs(dbin=NULL, dbout=grid, ruleprop=ruleprop,
+             model1=model1, model2=model2)
+```
+
+Representing the grid of facies with the colors as defined in the Rule. The Legend is adapted.
+
+```{r}
+p = plot.init()
+p = p + plot(grid, name="Facies", rule=rule, flagLegend=TRUE,
+             legendName="Facies")
+p = p + plot.decoration(title = "Facies")
+plot.end(p)
+```
+
+We sample the previous simulated grid in order to generate a Data base constituted of isolated points (named "data")
+
+```{r}
+ndat = 20
+randomlist = sample(0:grid$getNSample()-1, size = ndat, replace = TRUE)
+data = Db_createReduce(grid, ranks=randomlist)
+```
+
+The graphic representation of symbol (using the "nameColor" argument) is adapted to the representation of categorial information.
+
+```{r}
+p = plot.init()
+  p = p + plot.symbol(db = data,
+             nameColor = "Facies", rule=rule,
+             size = 3, flagLegend=TRUE)
+  p = p + plot.decoration(title = "Sampling locations")
+  plot.end(p)
+```
+
+The following plot demonstrates the possibility of overlaying the two previous graphic representations. Note that the symbols are represented with an additional colored edge (white).
+
+```{r}
+p = plot.init()
+  p = p + plot(grid, name="Facies", rule=rule, flagLegend=TRUE,
+             legendName="Facies")
+  p = p + plot.symbol(db = data,
+             nameColor = "Facies", rule=rule, borderColor="white",
+             size = 3, flagLegend=TRUE)
+  p = p + plot.decoration(title = "Facies and Sampling")
+  plot.end(p)
+```

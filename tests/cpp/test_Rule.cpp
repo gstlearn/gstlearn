@@ -12,7 +12,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Basic/File.hpp"
-#include "Covariances/KernelMatern.hpp"
 #include "LithoRule/Rule.hpp"
 #include "Simulation/CalcSimuPGS.hpp"
 #include "geoslib_f.h"
@@ -34,7 +33,6 @@ int main(int argc, char* argv[])
   Id error = 0;
   Id ndim = 2;
   defineDefaultSpace(ESpaceType::RN, ndim);
-  CovContext ctxt(1, 2, 1.);
 
   // Prepare the Discrete process with Discretized Option
   set_test_discrete(false);

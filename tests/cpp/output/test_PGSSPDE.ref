@@ -27,19 +27,19 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Matern (Third Parameter = 1)
-- Sill         =      1.000
-- Range        =      0.200
-- Theo. Range  =      0.058
+- Sill         =       1.000
+- Range        =       0.200
+- Theo. Range  =       0.058
 Matern (Third Parameter = 2)
-- Sill         =      1.000
-- Range        =      0.400
-- Theo. Range  =      0.082
-Total Sill     =      2.000
-Known Mean(s)     0.000
+- Sill         =       1.000
+- Range        =       0.400
+- Theo. Range  =       0.082
+Total Sill     =       2.000
+Known Mean(s)      0.000
 
 RuleProp in Stationary Case
 ===========================
-- Constant Proportions     0.200     0.500     0.300
+- Constant Proportions      0.200      0.500      0.300
 
 
 Lithotype Rule
@@ -49,9 +49,17 @@ Lithotype Rule
 - Number of thresholds along G1 = 2
 - Number of thresholds along G2 = 0
 
+Node Characteristics
+--------------------
 Node F1 - Facies 1
 Node F2 - Facies 2
 Node F3 - Facies 3
+
+Facies Characteristics
+----------------------
+Facies 1 - Name = F1 - Color = #1f77b4ff - Assigned Value = 0
+Facies 2 - Name = F2 - Color = #ff7f0eff - Assigned Value = 1
+Facies 3 - Name = F3 - Color = #2ca02cff - Assigned Value = 2
 
 Data Base Grid Characteristics
 ==============================
@@ -59,50 +67,50 @@ Data Base Grid Characteristics
 Data Base Statistics
 --------------------
 1 - Name rank - Locator NA
- Nb of data          =      10201
- Nb of active values =      10201
- Minimum value       =      1.000
- Maximum value       =  10201.000
- Mean value          =   5101.000
- Standard Deviation  =   2944.775
+ Nb of data          =       10201
+ Nb of active values =       10201
+ Minimum value       =       1.000
+ Maximum value       =   10201.000
+ Mean value          =    5101.000
+ Standard Deviation  =    2944.775
  Variance            = 8671700.000
 2 - Name x1 - Locator x1
- Nb of data          =      10201
- Nb of active values =      10201
- Minimum value       =      0.000
- Maximum value       =      1.000
- Mean value          =      0.500
- Standard Deviation  =      0.292
- Variance            =      0.085
+ Nb of data          =       10201
+ Nb of active values =       10201
+ Minimum value       =       0.000
+ Maximum value       =       1.000
+ Mean value          =       0.500
+ Standard Deviation  =       0.292
+ Variance            =       0.085
 3 - Name x2 - Locator x2
- Nb of data          =      10201
- Nb of active values =      10201
- Minimum value       =      0.000
- Maximum value       =      1.000
- Mean value          =      0.500
- Standard Deviation  =      0.292
- Variance            =      0.085
+ Nb of data          =       10201
+ Nb of active values =       10201
+ Minimum value       =       0.000
+ Maximum value       =       1.000
+ Mean value          =       0.500
+ Standard Deviation  =       0.292
+ Variance            =       0.085
 4 - Name SimPGSSPDE - Locator NA
- Nb of data          =      10201
- Nb of active values =      10201
- Minimum value       =      1.000
- Maximum value       =      3.000
- Mean value          =      2.192
- Standard Deviation  =      0.690
- Variance            =      0.476
+ Nb of data          =       10201
+ Nb of active values =       10201
+ Minimum value       =       1.000
+ Maximum value       =       3.000
+ Mean value          =       2.192
+ Standard Deviation  =       0.690
+ Variance            =       0.476
 5 - Name SimPGSSPDE.1 - Locator NA
- Nb of data          =      10201
- Nb of active values =      10201
- Minimum value       =      1.000
- Maximum value       =      3.000
- Mean value          =      2.187
- Standard Deviation  =      0.727
- Variance            =      0.529
+ Nb of data          =       10201
+ Nb of active values =       10201
+ Minimum value       =       1.000
+ Maximum value       =       3.000
+ Mean value          =       2.187
+ Standard Deviation  =       0.727
+ Variance            =       0.529
 6 - Name SimPGSSPDE.2 - Locator z1
- Nb of data          =      10201
- Nb of active values =      10201
- Minimum value       =      1.000
- Maximum value       =      3.000
- Mean value          =      2.188
- Standard Deviation  =      0.735
- Variance            =      0.540
+ Nb of data          =       10201
+ Nb of active values =       10201
+ Minimum value       =       1.000
+ Maximum value       =       3.000
+ Mean value          =       2.188
+ Standard Deviation  =       0.735
+ Variance            =       0.540
