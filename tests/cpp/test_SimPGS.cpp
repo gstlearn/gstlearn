@@ -117,7 +117,7 @@ int main(int argc, char* argv[])
   (void)dbgrid->dumpToNF("simubipgs.NF");
 
   // Performing a PGS simulation using Shift
-  VectorDouble shift = {0.2, 0.3};
+  VectorDouble shift = {0.2, 0.35};
   VectorDouble propshift = {0.1, 0.2, 0.3, 0.4};
   RuleShift* ruleshift =
     RuleShift::createFromNames({"S", "S", "S", "F1", "F2", "F3", "F4"}, shift);

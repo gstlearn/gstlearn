@@ -174,7 +174,7 @@ Lithotype Rule
 
 Shift Option
 ............
-Translation Vector      0.200      0.300
+Translation Vector      0.200      0.350
 (With the 'Shift' option, only the first GRF is used)
 
 Node Characteristics
@@ -201,17 +201,17 @@ Data Base Statistics
  Nb of active values =       10000
  Minimum value       =       1.000
  Maximum value       =      49.000
- Mean value          =      23.273
- Standard Deviation  =      22.815
- Variance            =     520.546
+ Mean value          =      25.095
+ Standard Deviation  =      22.978
+ Variance            =     527.998
 11 - Name PGS-Shift-Facies.2 - Locator facies2
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =       1.000
  Maximum value       =      49.000
- Mean value          =      23.089
- Standard Deviation  =      22.983
- Variance            =     528.225
+ Mean value          =      24.937
+ Standard Deviation  =      23.133
+ Variance            =     535.153
 
 Lithotype Rule
 ==============
@@ -222,7 +222,7 @@ Lithotype Rule
 
 Shadow Option
 .............
-Normalized Translation Vector =       0.555      0.832
+Normalized Translation Vector =       0.496      0.868
 Slope for shadow                  = 0.5(degrees)
 Upwards shift for the threshold   = 0.5
 Downwards shift for the threshold = -0.2
@@ -255,14 +255,14 @@ Data Base Statistics
  Nb of active values =       10000
  Minimum value       =       1.000
  Maximum value       =       3.000
- Mean value          =       2.147
- Standard Deviation  =       0.850
- Variance            =       0.723
+ Mean value          =       2.274
+ Standard Deviation  =       0.892
+ Variance            =       0.796
 13 - Name PGS-Shadow-Facies.2 - Locator facies2
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =       1.000
  Maximum value       =       3.000
- Mean value          =       2.263
- Standard Deviation  =       0.852
- Variance            =       0.725
+ Mean value          =       2.252
+ Standard Deviation  =       0.849
+ Variance            =       0.720
