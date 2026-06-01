@@ -326,11 +326,10 @@ namespace gstlrn
       else
         y[1] = TEST;
       facies = getFaciesFromGaussian(y[0], y[1]);
-      Id value = getFaciesValue(facies - 1);
+      double value =
+        (facies > 0) ? static_cast<double>(getFaciesValue(facies - 1)) : TEST;
 
-      dbgrid->setSimvar(
-        ELoc::FACIES, iech, isimu, 0, ipgs, nbsimu, 1,
-        static_cast<double>(value));
+      dbgrid->setSimvar(ELoc::FACIES, iech, isimu, 0, ipgs, nbsimu, 1, value);
     }
     return 0;
   }

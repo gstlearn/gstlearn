@@ -198,20 +198,20 @@ Data Base Statistics
 --------------------
 10 - Name PGS-Shift-Facies.1 - Locator facies1
  Nb of data          =       10000
- Nb of active values =       10000
+ Nb of active values =        5200
  Minimum value       =       1.000
- Maximum value       =      49.000
- Mean value          =      25.095
- Standard Deviation  =      22.978
- Variance            =     527.998
+ Maximum value       =       4.000
+ Mean value          =       3.028
+ Standard Deviation  =       0.965
+ Variance            =       0.931
 11 - Name PGS-Shift-Facies.2 - Locator facies2
  Nb of data          =       10000
- Nb of active values =       10000
+ Nb of active values =        5200
  Minimum value       =       1.000
- Maximum value       =      49.000
- Mean value          =      24.937
- Standard Deviation  =      23.133
- Variance            =     535.153
+ Maximum value       =       4.000
+ Mean value          =       2.725
+ Standard Deviation  =       1.132
+ Variance            =       1.281
 
 Lithotype Rule
 ==============
