@@ -6,6 +6,7 @@ Release 1.11.0
 ==============
 - The Boolean simulation procedure now allows to perform several simulations in one step.
 - The class SimuBoolean has been renamed into CalcSimuBoolean (a calculator class)
+- Adding capability for Rule to handle Name, Color and assigned value per Facies (used in graphics in particular)
 - Complete revisiting of Collocated CoKriging: insuring that Moving and Unique neighborhood versions are compliant (including the matrix trick in Unique), Checking and solving the coincidence test (when Target site coincides with one Data site... to avoid CoKriging matrix singularity)
 - Adding optional 'box' argument in simtub()
 - Suppressing 'cov0' in the API for Simulation using Spectral Method

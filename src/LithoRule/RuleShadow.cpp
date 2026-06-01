@@ -395,8 +395,6 @@ namespace gstlrn
       }
       facies = getFaciesFromGaussian(y[0], y[1]);
 
-      /* Combine the underlying GRFs to derive Facies*/
-
       dbin->setSimvar(
         ELoc::FACIES, iech, isimu, 0, ipgs, nbsimu, 1,
         static_cast<double>(facies));

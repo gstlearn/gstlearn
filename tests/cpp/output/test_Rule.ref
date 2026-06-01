@@ -14,8 +14,8 @@ Node F3 - Facies 3
 
 Facies Characteristics
 ----------------------
-Facies 1 - Name = F1 - Color = #1f77b4ff - Assigned Value = 0
-Facies 2 - Name = MyFacies - Color = #ff7f0eff - Assigned Value = 1
+Facies 1 - Name = F1 - Color = #1f77b4ff - Assigned Value = 1
+Facies 2 - Name = MyFacies - Color = #ff7f0eff - Assigned Value = 2
 Facies 3 - Name = F3 - Color = #2ca02cff - Assigned Value = 6
 Display Rule after Serialize/Deserialize
 
@@ -34,6 +34,6 @@ Node F3 - Facies 3
 
 Facies Characteristics
 ----------------------
-Facies 1 - Name = F1 - Color = #1f77b4ff - Assigned Value = 0
-Facies 2 - Name = MyFacies - Color = #ff7f0eff - Assigned Value = 1
+Facies 1 - Name = F1 - Color = #1f77b4ff - Assigned Value = 1
+Facies 2 - Name = MyFacies - Color = #ff7f0eff - Assigned Value = 2
 Facies 3 - Name = F3 - Color = #2ca02cff - Assigned Value = 6

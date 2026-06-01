@@ -637,7 +637,7 @@ namespace gstlrn
   /*!
   **  Convert the two underlying GRFs into facies
   **
-  ** \return  The facies rank or 0 (facies not found)
+  ** \return  The facies rank (starting from 1) or 0 (facies not found)
   **
   ** \param[in]  y1     Value of the first underlying GRF
   ** \param[in]  y2     Value of the second underlying GRF
@@ -931,12 +931,11 @@ namespace gstlrn
             : 0.;
       }
       facies = getFaciesFromGaussian(y[0], y[1]);
-
-      /* Combine the underlying GRFs to derive Facies */
+      Id value = getFaciesValue(facies - 1);
 
       dbin->setSimvar(
         ELoc::FACIES, iech, isimu, 0, ipgs, nbsimu, 1,
-        static_cast<double>(facies));
+        static_cast<double>(value));
     }
     return 0;
   }
@@ -997,8 +996,6 @@ namespace gstlrn
       }
       facies = getFaciesFromGaussian(y[0], y[1]);
       Id value = getFaciesValue(facies - 1);
-
-      /* Combine the underlying GRFs to derive Facies */
 
       dbout->setSimvar(
         ELoc::FACIES, iech, isimu, 0, ipgs, nbsimu, 1,
@@ -1168,41 +1165,40 @@ namespace gstlrn
 
   String Rule::getFaciesName(Id facies) const
   {
-    if (facies < static_cast<Id>(_facnames.size())) return _facnames[facies];
-    std::stringstream name;
-    name << "F" << facies + 1;
-    return name.str();
+    if (!checkArg("getFaciesName: Argument 'facies'", 0, getNFacies()))
+      return String();
+    return _facnames[facies];
   }
 
   Id Rule::getFaciesColor(Id facies) const
   {
-    if (facies < static_cast<Id>(_faccols.size())) return _faccols[facies];
-    if (facies < static_cast<Id>(DEFAULT_COLORS.size()))
-      return DEFAULT_COLORS[facies];
-    return DEFAULT_COLOR;
+    if (!checkArg("getFaciesColor: Argument 'facies'", 0, getNFacies()))
+      return DEFAULT_COLOR;
+    return _faccols[facies];
   }
 
   Id Rule::getFaciesValue(Id facies) const
   {
-    if (facies < static_cast<Id>(_facvalues.size())) return _facvalues[facies];
-    return facies;
+    if (!checkArg("getFaciesValue: Argument 'facies'", 0, getNFacies()))
+      return static_cast<Id>(-1);
+    return _facvalues[facies];
   }
 
   void Rule::setFaciesName(Id facies, const String& name)
   {
-    if (facies < 0 || facies >= getNFacies()) return;
+    if (!checkArg("setFaciesName: Argument 'facies'", 0, getNFacies())) return;
     _facnames[facies] = name;
   }
 
   void Rule::setFaciesColor(Id facies, Id color)
   {
-    if (facies < 0 || facies >= getNFacies()) return;
+    if (!checkArg("setFaciesColor: Argument 'facies'", 0, getNFacies())) return;
     _faccols[facies] = color;
   }
 
   void Rule::setFaciesValue(Id facies, Id value)
   {
-    if (facies < 0 || facies >= getNFacies()) return;
+    if (!checkArg("setFaciesValue: Argument 'facies'", 0, getNFacies())) return;
     _facvalues[facies] = value;
   }
 
@@ -1242,7 +1238,7 @@ namespace gstlrn
     {
       _facvalues.resize(nfac);
 
-      for (Id ifac = 0; ifac < nfac; ifac++) _facvalues[ifac] = ifac;
+      for (Id ifac = 0; ifac < nfac; ifac++) _facvalues[ifac] = ifac + 1;
     }
   }
 

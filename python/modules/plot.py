@@ -273,7 +273,6 @@ def _getFirstElement(tab):
 
 
 def _dataWithRule(data, rule):
-
     # Nombre de faciès
     nfac = rule.getNFacies()
 

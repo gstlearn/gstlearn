@@ -84,9 +84,9 @@ Node F3 - Facies 3
 
 Facies Characteristics
 ----------------------
-Facies 1 - Name = F1 - Color = #1f77b4ff - Assigned Value = 0
-Facies 2 - Name = F2 - Color = #ff7f0eff - Assigned Value = 1
-Facies 3 - Name = F3 - Color = #2ca02cff - Assigned Value = 2
+Facies 1 - Name = F1 - Color = #1f77b4ff - Assigned Value = 1
+Facies 2 - Name = F2 - Color = #ff7f0eff - Assigned Value = 2
+Facies 3 - Name = F3 - Color = #2ca02cff - Assigned Value = 3
 
 Data Base Grid Characteristics
 ==============================
@@ -124,8 +124,8 @@ Node F2 - Facies 2
 
 Facies Characteristics
 ----------------------
-Facies 1 - Name = F1 - Color = #1f77b4ff - Assigned Value = 0
-Facies 2 - Name = F2 - Color = #ff7f0eff - Assigned Value = 1
+Facies 1 - Name = F1 - Color = #1f77b4ff - Assigned Value = 1
+Facies 2 - Name = F2 - Color = #ff7f0eff - Assigned Value = 2
 
 Data Base Grid Characteristics
 ==============================
@@ -186,10 +186,10 @@ Node F4 - Facies 4
 
 Facies Characteristics
 ----------------------
-Facies 1 - Name = F1 - Color = #1f77b4ff - Assigned Value = 0
-Facies 2 - Name = F2 - Color = #ff7f0eff - Assigned Value = 1
-Facies 3 - Name = F3 - Color = #2ca02cff - Assigned Value = 2
-Facies 4 - Name = F4 - Color = #d62728ff - Assigned Value = 3
+Facies 1 - Name = F1 - Color = #1f77b4ff - Assigned Value = 1
+Facies 2 - Name = F2 - Color = #ff7f0eff - Assigned Value = 2
+Facies 3 - Name = F3 - Color = #2ca02cff - Assigned Value = 3
+Facies 4 - Name = F4 - Color = #d62728ff - Assigned Value = 4
 
 Data Base Grid Characteristics
 ==============================
@@ -199,19 +199,19 @@ Data Base Statistics
 10 - Name PGS-Shift-Facies.1 - Locator facies1
  Nb of data          =       10000
  Nb of active values =       10000
- Minimum value       =       0.000
- Maximum value       =       4.000
- Mean value          =       1.713
- Standard Deviation  =       1.678
- Variance            =       2.817
+ Minimum value       =       1.000
+ Maximum value       =      49.000
+ Mean value          =      23.273
+ Standard Deviation  =      22.815
+ Variance            =     520.546
 11 - Name PGS-Shift-Facies.2 - Locator facies2
  Nb of data          =       10000
  Nb of active values =       10000
- Minimum value       =       0.000
- Maximum value       =       4.000
- Mean value          =       1.529
- Standard Deviation  =       1.594
- Variance            =       2.541
+ Minimum value       =       1.000
+ Maximum value       =      49.000
+ Mean value          =      23.089
+ Standard Deviation  =      22.983
+ Variance            =     528.225
 
 Lithotype Rule
 ==============
@@ -241,9 +241,9 @@ Node F3 - Facies 3
 
 Facies Characteristics
 ----------------------
-Facies 1 - Name = F1 - Color = #1f77b4ff - Assigned Value = 0
-Facies 2 - Name = F2 - Color = #ff7f0eff - Assigned Value = 1
-Facies 3 - Name = F3 - Color = #2ca02cff - Assigned Value = 2
+Facies 1 - Name = F1 - Color = #1f77b4ff - Assigned Value = 1
+Facies 2 - Name = F2 - Color = #ff7f0eff - Assigned Value = 2
+Facies 3 - Name = F3 - Color = #2ca02cff - Assigned Value = 3
 
 Data Base Grid Characteristics
 ==============================
