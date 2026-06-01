@@ -305,7 +305,8 @@ namespace gstlrn
       return false;
     }
 
-    const auto dim = ds.getSimpleExtentDims(0);
+    hsize_t dim{};
+    ds.getSimpleExtentDims(&dim);
     vec.resize(dim);
 
     // Use a vector of char* managed by HDF5 to read string data
@@ -317,6 +318,8 @@ namespace gstlrn
     for (size_t i = 0; i < data_ptr.size(); ++i)
     {
       vec[i] = data_ptr[i];
+      // data_ptr[i] allocated by H5
+      free(data_ptr[i]);
     }
 
     return true;
