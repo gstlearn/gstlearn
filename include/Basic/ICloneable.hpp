@@ -42,7 +42,7 @@ namespace gstlrn
   };
 
 // std::remove_cvref_t not defined in C++17, however std::decay_t provides a
-// close-enough equivalent since this is not used here with functions or arrays, see:
+// close-enough equivalent since this is not used here with functions or arrays
 // https://devblogs.microsoft.com/cppblog/cpp17-20-features-and-fixes-in-vs-2019/
 #ifdef USE_BOOST_SPAN
 #define REMOVE_CVREF_T std::decay_t

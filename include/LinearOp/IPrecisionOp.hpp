@@ -52,10 +52,11 @@ namespace gstlrn
 #endif
   };
 
-  // For some reason VS2017 crashes at runtime when a derived class calls this constructor
-  // if = default is in the class declaration, but works if it's inline here (which makes
-  // the constructor "user-provided" and may cause the difference?). This is a bug,
-  // most likely due to a mix of dllexport, default keyword and virtual (base) classes?
+  // For some reason VS2017 crashes at runtime when a derived class calls this
+  // constructor if = default is in the class declaration, but works if it's
+  // inline here (which makes the constructor "user-provided" and may cause the
+  // difference?). This is a bug, most likely due to a mix of dllexport, default
+  // keyword and virtual (base) classes?
   inline IPrecisionOp::IPrecisionOp() = default;
 
 } // namespace gstlrn
