@@ -77,7 +77,7 @@ namespace gstlrn
 
   private:
     mutable VectorDouble _w1, _w2; // local work arrays
-    mutable vect _work1, _work2;   // shared work arrays
+    mutable vect _work1, _work2; // shared work arrays
 #endif
   };
 } // namespace gstlrn

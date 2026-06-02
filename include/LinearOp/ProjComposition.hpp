@@ -53,6 +53,6 @@ namespace gstlrn
 
     ProjVect _projs;
     mutable VectorDouble _w1, _w2; // local work arrays
-    mutable vect _work1, _work2;   // shared work arrays
+    mutable vect _work1, _work2; // shared work arrays
   };
 } // namespace gstlrn

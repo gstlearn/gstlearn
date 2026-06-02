@@ -154,6 +154,7 @@ namespace gstlrn
 
   protected:
     void _prepare(bool w1 = true, bool w2 = true) const;
+
   private:
     void _addADinvAt(const constvect inv, vect outv) const;
 

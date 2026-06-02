@@ -239,11 +239,11 @@ namespace gstlrn
     const EPowerPT& power)
   {
     DECLARE_UNUSED(iapex, igparam)
-    //if (_work.size() == 0) _work.resize(getSize());
-    //if (_work2.size() == 0) _work2.resize(getSize());
+    // if (_work.size() == 0) _work.resize(getSize());
+    // if (_work2.size() == 0) _work2.resize(getSize());
 
-    //vect ws(_work);
-    //vect w2s(_work2);
+    // vect ws(_work);
+    // vect w2s(_work2);
     if (power == EPowerPT::MINUSONE)
       my_throw("'evalDeriv' is not yet implemented for 'POPT_MINUSONE'");
     if (power == EPowerPT::MINUSHALF)

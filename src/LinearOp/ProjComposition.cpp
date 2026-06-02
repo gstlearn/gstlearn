@@ -24,7 +24,7 @@ namespace gstlrn
     if (projs.size() == 0) return;
 
     // Check compatibility. Use raw pointers to make iterating easier.
-    size_t idx      = 0;
+    size_t idx = 0;
     const IProj* p1 = projs[idx++];
     while (idx < projs.size())
     {
@@ -41,7 +41,8 @@ namespace gstlrn
     for (const auto* p: projs) _projs.emplace_back(*p);
   }
 
-  Id ProjComposition::setWorkArrays(vect work1, vect work2) {
+  Id ProjComposition::setWorkArrays(vect work1, vect work2)
+  {
     // Set work arrays (typically a space reused by other operators to save
     // memory). This function just checks that they are large enough.
 
@@ -57,14 +58,17 @@ namespace gstlrn
       max_size = std::max(max_size, (size_t)_projs[i].get().getNPoint());
     }
 
-    if (work1.size() < max_size || (_projs.size() > 2 && work2.size() < max_size)) return -1;
+    if (work1.size() < max_size
+        || (_projs.size() > 2 && work2.size() < max_size))
+      return -1;
 
     _work1 = work1;
     _work2 = work2;
     return 0;
   }
 
-  Id ProjComposition::initWorkArrays(vect& work1, vect& work2) const {
+  Id ProjComposition::initWorkArrays(vect& work1, vect& work2) const
+  {
     if (_projs.size() < 2) return 0; // no work array needed
 
     size_t max_size = 0;

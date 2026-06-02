@@ -132,6 +132,7 @@ namespace gstlrn
     APolynomial* getPoly(const EPowerPT& power);
 
 #ifndef SWIG
+
   protected:
     Id
       _addEvalPoly(const EPowerPT& power, const constvect inv, vect outv) const;

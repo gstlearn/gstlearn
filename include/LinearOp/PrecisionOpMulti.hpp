@@ -58,7 +58,7 @@ namespace gstlrn
     double computeLogDet(Id nMC = 1) const override;
     std::pair<double, double> rangeEigenVal(Id ndiscr = 100) const override;
 
-	PrecisionOp* getPrecision(Id idx);
+    PrecisionOp* getPrecision(Id idx);
 
   protected:
 #ifndef SWIG

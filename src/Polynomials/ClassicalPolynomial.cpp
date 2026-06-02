@@ -83,7 +83,8 @@ namespace gstlrn
     }
   }
 
-  Id ClassicalPolynomial::setWorkArrays(vect work1, vect work2) {
+  Id ClassicalPolynomial::setWorkArrays(vect work1, vect work2)
+  {
     // Set work arrays (typically a space reused by other operators to save
     // memory). The size can't be checked here (the required size is only
     // known when calling one of the eval functions), so it is up to the
@@ -96,7 +97,9 @@ namespace gstlrn
     return 0;
   }
 
-  Id ClassicalPolynomial::initWorkArrays(vect& work1, vect& work2, size_t size) const {
+  Id ClassicalPolynomial::initWorkArrays(vect& work1, vect& work2, size_t size)
+    const
+  {
     if (_work1.size() > 0)
     {
       if (_work1.size() < size) return -1;
