@@ -988,6 +988,10 @@ multi.varmod <- function(vario, model=NA, ivar=-1, jvar=-1, idir=-1,
   p
 }
 
+.faciesColor <- function(c) {
+  sprintf("#%06X", as.integer(c))
+}
+
 #' Plotting a point data base where samples are displayed with different color and/or size
 #' @param db Data Base containing the information to be displayed
 #' @param nameColor Name of the variable to be represented in color
@@ -1057,10 +1061,7 @@ plot.symbol <- function(db,
       facies <- data.frame(
         value = sapply(ind, rule$getFaciesValue),
         name = sapply(ind, rule$getFaciesName),
-        color = sapply(
-          ind,
-          function(i) sprintf("#%08X", rule$getFaciesColor(i))
-        ),
+        color = sapply(ind, function(i) .faciesColor(rule$getFaciesColor(i))),
         stringsAsFactors = FALSE
       )
 
@@ -1290,6 +1291,33 @@ plot.literal <- function(db, name=NULL, digit=2, useSel=TRUE, posX=0, posY=1,
   layer
 }
 
+.dataWithRule <- function(data, rule) {
+  nfac <- rule$getNFacies()
+
+  if (nfac <= 0) {
+    stop("The rule does not contain any facies")
+  }
+
+  ind0 <- seq_len(nfac) - 1 # indices Rule (0-based)
+
+  values <- sapply(ind0, rule$getFaciesValue)
+  labels <- sapply(ind0, rule$getFaciesName)
+  colors <- sapply(ind0, function(i) .faciesColor(rule$getFaciesColor(i)))
+
+  out <- rep(-1L, length(data))
+
+  for (i in seq_len(nfac)) {
+    sel <- !is.na(data) & data == values[i]
+    out[sel] <- i
+  }
+
+  list(
+    data   = out,
+    labels = labels,
+    colors = colors
+  )
+}
+
 #' Represent the contents of a variable defined on a grid as an Image
 #' @param dbgrid Grid data base from gstlearn
 #' @param name Name of the variable to be represented
@@ -1303,6 +1331,7 @@ plot.literal <- function(db, name=NULL, digit=2, useSel=TRUE, posX=0, posY=1,
 #' @param limits Bounds applied to the variable to be represented
 #' @param legendName Name of the Legend for representation as an image
 #' @param flagLegend Display the legend for grid representation as an image
+#' @param flagBinary When True, the variable is represented in binary (values > 0 are represented with the same color)
 #' @param ... Arguments passed to geom_raster() or geom_polygon()
 #' @return The description of the contents of the figure
 #'
@@ -1319,71 +1348,94 @@ plot.raster <- function(dbgrid,
                         limits = NULL,
                         legendName = NA,
                         flagLegend = FALSE,
+                        flagBinary = FALSE,
                         ...)
 {
-  if (!.isGrid(dbgrid))
+  if (!.isGrid(dbgrid)) {
     stop()
+  }
 
-  if (!require(ggnewscale, quietly = TRUE))
-    stop("Package ggnewscale is mandatory to use this function!")
+  if (!requireNamespace("ggnewscale", quietly = TRUE)) {
+    stop("Package 'ggnewscale' is mandatory")
+  }
 
   p <- list()
 
-  # Variable name
+  ## Variable
+
   name <- .getDefaultVariableName(dbgrid, name)
-  if (is.null(name))
+
+  if (is.null(name)) {
     return(NULL)
+  }
 
-  # Read grid
-  df <- .readGridCoor(dbgrid, name, useSel, posX, posY, corner)
+  ## Read grid
 
-  isFacies <- !is.null(rule)
+  df <- .readGridCoor(
+    dbgrid,
+    name,
+    useSel,
+    posX,
+    posY,
+    corner
+  )
 
-  # =========================
-  # FACIES MODE
-  # =========================
-  if (isFacies)
-  {
-    nfac <- rule$getNFacies()
-    if (nfac <= 0)
-      return(NULL)
-    ind <- seq_len(nfac) - 1
+  ## Binary representation
 
-    facies <- data.frame(
-      value = sapply(ind, rule$getFaciesValue),
-      name  = sapply(ind, rule$getFaciesName),
-      color = sapply(
-        ind,
-        function(i) sprintf("#%08X", rule$getFaciesColor(i))
-      ),
-      stringsAsFactors = FALSE
-    )
+  if (flagBinary) {
+    df$data <- as.integer(df$data > 0)
+
+    if (is.null(palette)) {
+      palette <- c("black", "white")
+    }
+
+    if (is.null(limits)) {
+      limits <- c(0, 1)
+    }
+  }
+
+  ## Apply rule
+
+  facies_cols <- NULL
+
+  if (!is.null(rule)) {
+    tmp <- .dataWithRule(df$data, rule)
+
+    tmp$data[tmp$data < 0] <- NA
 
     df$data <- factor(
-      df$data,
-      levels = facies$value,
-      labels = facies$name
+      tmp$data,
+      levels = seq_along(tmp$labels),
+      labels = tmp$labels
+    )
+
+    facies_cols <- setNames(
+      tmp$colors,
+      tmp$labels
     )
   }
 
-  # =========================
-  # GEOMETRY
-  # =========================
-  if (dbgrid$getAngles()[1] == 0 && !dbgrid$hasSingleBlock())
-  {
-    layer <- geom_raster(
-      data = df,
-      mapping = aes(
-        x = x,
-        y = y,
-        fill = data
-      ),
-      show.legend = .showLegend(flagLegend),
-      ...
+  ## Geometry
+
+  if (dbgrid$getAngles()[1] == 0 &&
+    !dbgrid$hasSingleBlock()) {
+    p <- append(
+      p,
+      list(
+        geom_raster(
+          data = df,
+          inherit.aes = FALSE,
+          mapping = aes(
+            x = x,
+            y = y,
+            fill = data
+          ),
+          show.legend = flagLegend,
+          ...
+        )
+      )
     )
-  }
-  else
-  {
+  } else {
     ids <- seq_len(dbgrid$getNTotal())
 
     coords <- dbgrid$getAllCellsEdges()
@@ -1399,47 +1451,50 @@ plot.raster <- function(dbgrid,
       value = df$data
     )
 
-    dfpoly <- merge(values, positions, by = "id")
+    dfpoly <- merge(
+      values,
+      positions,
+      by = "id"
+    )
 
-    layer <- geom_polygon(
-      data = dfpoly,
-      mapping = aes(
-        x = x,
-        y = y,
-        fill = value,
-        group = id
-      ),
-      show.legend = .showLegend(flagLegend),
-      ...
+    p <- append(
+      p,
+      list(
+        geom_polygon(
+          data = dfpoly,
+          inherit.aes = FALSE,
+          mapping = aes(
+            x = x,
+            y = y,
+            group = id,
+            fill = value
+          ),
+          show.legend = flagLegend,
+          ...
+        )
+      )
     )
   }
 
-  p <- append(p, list(layer))
+  ## Color scale
 
-  # =========================
-  # COLOR SCALE
-  # =========================
-  if (isFacies)
-  {
-    facies_cols <- setNames(facies$color, facies$name)
-
+  if (!is.null(rule)) {
     p <- append(
       p,
       list(
         scale_fill_manual(
           values = facies_cols,
           drop = FALSE,
+          na.value = naColor,
           name = legendName
         )
       )
     )
-  }
-  else
-  {
+  } else {
     p <- append(
       p,
       .defineFill(
-        palette,
+        palette = palette,
         naColor = naColor,
         limits = limits,
         title = legendName
@@ -1447,10 +1502,23 @@ plot.raster <- function(dbgrid,
     )
   }
 
-  p <- .appendNewScale(p, "fill")
+  ## Legend
 
-  if (!flagLegend)
-    p <- append(p, list(guides(fill = "none")))
+  if (!flagLegend) {
+    p <- append(
+      p,
+      list(
+        guides(fill = "none")
+      )
+    )
+  }
+
+  ## Allow subsequent fill scales
+
+  p <- .appendNewScale(
+    p,
+    "fill"
+  )
 
   p
 }
@@ -1814,6 +1882,7 @@ plot.hscatter <- function(db, namex, namey, varioparam, ilag=0, idir=0, asPoint=
 #' @param maxG Maximum gaussian value (in absolute value)
 #' @param flagLegend Display the legend
 #' @param legendName Name of the Legend
+#' @param flagGaussian Display the Gaussian axes
 #' @param ... List of arguments passed to geom_rect()
 #' @return The ggplot object
 plot.rule <- function(rule,
@@ -1821,10 +1890,12 @@ plot.rule <- function(rule,
                       maxG = 3.,
                       flagLegend = FALSE,
                       legendName = "Facies",
+                      flagGaussian = TRUE,
                       ...)
 {
   p <- list()
 
+  ## Mise à jour des proportions
   if (!is.null(proportions)) {
     rule$setProportions(proportions)
   } else {
@@ -1839,15 +1910,14 @@ plot.rule <- function(rule,
 
   ind <- seq_len(nfac) - 1
 
+  ## Informations sur les facies
   facies <- data.frame(
     name = sapply(ind, rule$getFaciesName),
-    color = sapply(
-      ind,
-      function(i) sprintf("#%08X", rule$getFaciesColor(i))
-    ),
+    color = sapply(ind, function(i) .faciesColor(rule$getFaciesColor(i))),
     stringsAsFactors = FALSE
   )
 
+  ## Rectangles
   df <- data.frame(
     xmin = numeric(nfac),
     xmax = numeric(nfac),
@@ -1856,34 +1926,33 @@ plot.rule <- function(rule,
     stringsAsFactors = FALSE
   )
 
-  for (ifac in seq_len(nfac))
-  {
+  for (ifac in seq_len(nfac)) {
     rect <- rule$getThresh(ifac)
 
-    df$xmin[ifac] <- max(rect[1], -maxG)
-    df$xmax[ifac] <- min(rect[2], maxG)
-    df$ymin[ifac] <- max(rect[3], -maxG)
-    df$ymax[ifac] <- min(rect[4], maxG)
+    ## Pas de clipping : comportement identique à matplotlib
+    df$xmin[ifac] <- rect[1]
+    df$xmax[ifac] <- rect[2]
+    df$ymin[ifac] <- rect[3]
+    df$ymax[ifac] <- rect[4]
   }
 
-  df$facies <- factor(
-    facies$name,
-    levels = facies$name
-  )
+  df$facies <- factor(facies$name, levels = facies$name)
 
   p <- append(
     p,
-    geom_rect(
-      data = df,
-      mapping = aes(
-        xmin = xmin,
-        xmax = xmax,
-        ymin = ymin,
-        ymax = ymax,
-        fill = facies
-      ),
-      na.rm = TRUE,
-      ...
+    list(
+      geom_rect(
+        data = df,
+        inherit.aes = FALSE,
+        aes(
+          xmin = xmin,
+          xmax = xmax,
+          ymin = ymin,
+          ymax = ymax,
+          fill = facies
+        ),
+        na.rm = TRUE
+      )
     )
   )
 
@@ -1898,17 +1967,41 @@ plot.rule <- function(rule,
     )
   )
 
+  ## Légende
   if (!flagLegend) {
-    p <- append(p, list(guides(fill = "none")))
+    p <- append(
+      p,
+      list(guides(fill = "none"))
+    )
+  } else {
+    p <- append(
+      p,
+      list(
+        theme(
+          legend.position = "right"
+        )
+      )
+    )
   }
 
-  p <- append(
-    p,
-    plot.geometry(
-      xlim = c(-maxG, maxG),
-      ylim = c(-maxG, maxG)
+  ## Géométrie
+  if (flagGaussian) {
+    p <- append(
+      p,
+        coord_cartesian(
+          xlim = c(-maxG, maxG),
+          ylim = c(-maxG, maxG)
+        )
     )
-  )
+  } else {
+    p <- append(
+      p,
+        coord_cartesian(
+          xlim = c(0, 1),
+          ylim = c(0, 1)
+        )
+    )
+  }
 
   p
 }

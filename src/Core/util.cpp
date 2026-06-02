@@ -730,56 +730,46 @@ namespace gstlrn
    **
    ** \param[in]  ncolor    Number of colors
    ** \param[in]  flag_half 1 if only half of possibilities must be envisaged
-   ** \param[in]  verbose   1 for a verbose option
-   **
-   ** \param[out] nposs  Number of possibilities
-   **
-   ** \remarks The calling function must free the returned array.
-   ** \remarks The array has 'ncolor' columns and 'ncomb' subsets
-   ** \remarks The elements of each row are set to 0 or 1 (subset rank)
+   ** \param[in]  verbose   true for a verbose option
    **
    *****************************************************************************/
-  VectorInt ut_split_into_two(Id ncolor, Id flag_half, Id verbose, Id* nposs)
+  VectorVectorInt ut_split_into_two(Id ncolor, Id flag_half, bool verbose)
   {
-    Id p, nmax, ncomb, np, lec;
-    VectorInt mattab;
-
-    /* Initializations */
-
-    p = (flag_half) ? static_cast<Id>(floor(static_cast<double>(ncolor) / 2.))
-                    : ncolor - 1;
-    nmax = static_cast<Id>(pow(2, ncolor));
-    np = 0;
+    Id p = (flag_half)
+           ? static_cast<Id>(floor(static_cast<double>(ncolor) / 2.))
+           : ncolor - 1;
+    Id nmax = static_cast<Id>(pow(2, ncolor));
 
     /* Core allocation */
 
-    mattab.resize(ncolor * nmax);
+    VectorVectorInt mattab(nmax);
+    for (Id i = 0; i < nmax; i++) mattab[i].resize(ncolor, 0);
 
+    Id np = 0;
+    Id ncomb;
     for (Id nsub = 1; nsub <= p; nsub++)
     {
       VectorInt comb = ut_combinations(ncolor, nsub, &ncomb);
-      lec = 0;
+      Id lec = 0;
       for (Id i = 0; i < ncomb; i++)
       {
-        for (Id j = 0; j < nsub; j++, lec++) MATTAB(np, comb[lec] - 1) = 1;
+        for (Id j = 0; j < nsub; j++, lec++) mattab[np][comb[lec] - 1] = 1;
         np++;
       }
     }
 
     /* Resize */
 
-    mattab.resize(ncolor * np);
-    *nposs = np;
+    mattab.resize(np);
 
     /* Verbose option */
 
     if (verbose)
     {
       message("Initial number of values = %d (Half=%d)\n", ncolor, flag_half);
-      lec = 0;
       for (Id i = 0; i < np; i++)
       {
-        for (Id j = 0; j < ncolor; j++, lec++) message(" %d", mattab[lec]);
+        for (Id j = 0; j < ncolor; j++) message(" %d", mattab[i][j]);
         message("\n");
       }
     }

@@ -12,7 +12,10 @@
 #include "Basic/AStringable.hpp"
 #include "Db/Db.hpp"
 #include "LithoRule/Rule.hpp"
+#include "PluriGaussian/CalcModelPGS.hpp"
 #include "geoslib_f_private.h"
+#include <algorithm>
+#include <vector>
 
 namespace gstlrn
 {
@@ -22,37 +25,7 @@ namespace gstlrn
     , _propcst()
     , _dbprop(nullptr)
     , _rules()
-    , _ruleInternal(false)
   {
-  }
-
-  RuleProp::RuleProp(const RuleProp& m)
-    : AStringable(m)
-    , _flagStat(m._flagStat)
-    , _propcst(m._propcst)
-    , _dbprop(m._dbprop)
-    , _rules(m._rules)
-    , _ruleInternal(m._ruleInternal)
-  {
-  }
-
-  RuleProp& RuleProp::operator=(const RuleProp& m)
-  {
-    if (this != &m)
-    {
-      AStringable::operator=(m);
-      _flagStat = m._flagStat;
-      _propcst = m._propcst;
-      _dbprop = m._dbprop;
-      _rules = m._rules;
-      _ruleInternal = m._ruleInternal;
-    }
-    return *this;
-  }
-
-  RuleProp::~RuleProp()
-  {
-    _clear();
   }
 
   /**
@@ -68,13 +41,12 @@ namespace gstlrn
     _flagStat = true;
     _dbprop = dbprop;
     _propcst = propcst;
-    _ruleInternal = true;
 
     if (!_checkConsistency()) return 1;
 
     // A generic rule is created on the fly
     auto nfacies = _getNFacies();
-    _rules.push_back(Rule::createFromFaciesCount(nfacies));
+    _rules[0] = std::unique_ptr<Rule>(Rule::createFromFaciesCount(nfacies));
 
     return 0;
   }
@@ -85,9 +57,8 @@ namespace gstlrn
 
     _flagStat = true;
     _propcst = propcst;
-    _ruleInternal = false;
 
-    if (rule != nullptr) _rules.push_back(rule);
+    if (rule != nullptr) _rules[0] = std::unique_ptr<Rule>(rule->clone());
     if (!_checkConsistency()) return 1;
     return 0;
   }
@@ -98,9 +69,8 @@ namespace gstlrn
 
     _flagStat = true;
     _dbprop = dbprop;
-    _ruleInternal = false;
 
-    _rules.push_back(rule);
+    if (rule != nullptr) _rules[0] = std::unique_ptr<Rule>(rule->clone());
     if (!_checkConsistency()) return 1;
     return 0;
   }
@@ -114,10 +84,9 @@ namespace gstlrn
 
     _flagStat = true;
     _propcst = propcst;
-    _ruleInternal = false;
 
-    _rules.push_back(rule1);
-    _rules.push_back(rule2);
+    if (rule1 != nullptr) _rules[0] = std::unique_ptr<Rule>(rule1->clone());
+    if (rule2 != nullptr) _rules[1] = std::unique_ptr<Rule>(rule2->clone());
     if (!_checkConsistency()) return 1;
     return 0;
   }
@@ -131,10 +100,9 @@ namespace gstlrn
 
     _flagStat = true;
     _dbprop = dbprop;
-    _ruleInternal = false;
 
-    _rules.push_back(rule1);
-    _rules.push_back(rule2);
+    if (rule1 != nullptr) _rules[0] = std::unique_ptr<Rule>(rule1->clone());
+    if (rule2 != nullptr) _rules[1] = std::unique_ptr<Rule>(rule2->clone());
     if (!_checkConsistency()) return 1;
     return 0;
   }
@@ -142,10 +110,7 @@ namespace gstlrn
   void RuleProp::_clear()
   {
     _dbprop = nullptr;
-    if (_ruleInternal)
-    {
-      for (Id ir = 0; ir < getNRule(); ir++) delete _rules[ir];
-    }
+    clearRule();
   }
 
   String RuleProp::toString(const AStringFormat* strfmt) const
@@ -171,8 +136,7 @@ namespace gstlrn
     // Rules
     for (Id ir = 0; ir < getNRule(); ir++)
     {
-      const Rule* rule = _rules[ir];
-      sstr << rule->toString(strfmt);
+      sstr << _rules[ir]->toString(strfmt);
     }
 
     return sstr.str();
@@ -274,31 +238,64 @@ namespace gstlrn
 
   const Rule* RuleProp::getRule(Id rank) const
   {
+    if (getNRule() <= 0) return nullptr;
     if (!_isRuleRankValid(rank)) return nullptr;
-    return _rules[rank];
+    return _rules[rank].get();
   }
 
-  void RuleProp::addRule(const Rule* rule)
+  void RuleProp::addRule(const Rule& rule)
   {
-    _rules.push_back(rule);
+    _rules[getNRule()] = std::unique_ptr<Rule>(rule.clone());
   }
 
   void RuleProp::clearRule()
   {
-    _rules.clear();
+    _rules = {};
   }
 
-  Id RuleProp::fit(
+  Id RuleProp::getNRule() const
+  {
+    return std::count_if(
+      _rules.begin(), _rules.end(),
+      [](const std::unique_ptr<Rule>& r) { return r != nullptr; });
+  }
+
+  /**
+   * @brief Returns the list of potential Rule arrangements, sorted by incrasing scores
+   *
+   * @param db Descritpion of the input Data Base
+   * @param varioparam Description of the manner to calculate the experimental indicator variograms
+   * @param ngrfmax Maximim number of GRFs to be tested in the optimal Rules
+   * @param use_discrete When True, use the numerical integration of Gaussian(s)
+   * @param verbose Verbose flag
+   *
+   * @return List of potential Rule arrangements defined by pointers
+   */
+  std::vector<Rule> RuleProp::fit(
     Db* db,
     const VarioParam* varioparam,
     Id ngrfmax,
+    bool use_discrete,
     bool verbose)
   {
-    Rule* ruleFit = _rule_auto(db, varioparam, this, ngrfmax, verbose);
-    if (ruleFit == nullptr) return 1;
-    clearRule();
-    addRule(ruleFit);
-    return 0;
+    CalcModelPGS ruleauto(db, varioparam, this);
+    ruleauto.setRunType(3);
+    ruleauto.setUseDb(true);
+    ruleauto.setNgrfMax(ngrfmax);
+    ruleauto.setUseDiscrete(use_discrete);
+    ruleauto.setVerbose(verbose);
+
+    Id error = (ruleauto.run()) ? 0 : 1;
+
+    std::vector<Rule> sortedRules;
+    if (!error)
+    {
+      sortedRules = ruleauto.getSortedRules();
+      auto& ruleOpt = sortedRules[0];
+      clearRule();
+      addRule(ruleOpt);
+    }
+    return sortedRules;
   }
 
   /**
@@ -403,18 +400,4 @@ namespace gstlrn
     return ruleprop;
   }
 
-  RuleProp* RuleProp::createFromRulesAndDb(
-    const Rule* rule1,
-    const Rule* rule2,
-    const Db* dbprop)
-  {
-    auto* ruleprop = new RuleProp;
-    if (ruleprop->resetFromRulesAndDb(rule1, rule2, dbprop))
-    {
-      messerr("Problem when creating from Rules & Proportions");
-      delete ruleprop;
-      return nullptr;
-    }
-    return ruleprop;
-  }
 } // namespace gstlrn

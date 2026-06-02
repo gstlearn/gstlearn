@@ -39,17 +39,6 @@ namespace gstlrn
   class SimuSubstitutionParam;
   class SimuRefineParam;
 
-  /***************************/
-  /* Functions for Variogram */
-  /***************************/
-
-  GSTLEARN_EXPORT Vario* variogram_pgs(
-    Db* db,
-    const VarioParam* varioparam,
-    const RuleProp* ruleprop,
-    Id flag_rho = false,
-    Id opt_correl = 2);
-
   /***********************/
   /* Functions for Model */
   /***********************/
@@ -68,13 +57,6 @@ namespace gstlrn
     const Option_AutoFit& mauto_arg = Option_AutoFit(),
     const Constraints& cons_arg = Constraints(),
     const Option_VarioFit& optvar_arg = Option_VarioFit());
-  GSTLEARN_EXPORT void set_test_discrete(bool flag_discret);
-  GSTLEARN_EXPORT Vario* model_pgs(
-    Db* db,
-    const VarioParam* varioparam,
-    const RuleProp* ruleprop,
-    const Model* model1,
-    const Model* model2 = nullptr);
 
   /**********************************/
   /* High-level Interface Functions */

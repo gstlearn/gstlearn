@@ -15,6 +15,7 @@
 #include "LithoRule/Rule.hpp"
 #include "gstlearn_export.hpp"
 
+#include <memory>
 #include <vector>
 
 namespace gstlrn
@@ -26,9 +27,6 @@ namespace gstlrn
   {
   public:
     RuleProp();
-    RuleProp(const RuleProp& m);
-    RuleProp& operator=(const RuleProp& m);
-    virtual ~RuleProp();
 
     /// Interface to AStringable
     String toString(const AStringFormat* strfmt = nullptr) const override;
@@ -60,10 +58,6 @@ namespace gstlrn
       const Rule* rule1,
       const Rule* rule2,
       const VectorDouble& propcst = VectorDouble());
-    static RuleProp* createFromRulesAndDb(
-      const Rule* rule1,
-      const Rule* rule2,
-      const Db* dbprop);
 
     const Db* getDbprop() const { return _dbprop; }
 
@@ -78,15 +72,16 @@ namespace gstlrn
     void setPropCst(const VectorDouble& propcst) { _propcst = propcst; }
 
     const Rule* getRule(Id rank = 0) const;
-    void addRule(const Rule* rule);
+    void addRule(const Rule& rule);
     void clearRule();
 
-    Id getNRule() const { return static_cast<Id>(_rules.size()); }
+    Id getNRule() const;
 
-    Id fit(
+    std::vector<Rule> fit(
       Db* db,
       const VarioParam* varioparam,
-      Id ngrfmax = 1,
+      Id ngrfmax,
+      bool use_discrete = false,
       bool verbose = false);
     Id gaussToCategory(
       Db* db,
@@ -109,9 +104,7 @@ namespace gstlrn
   private:
     bool _flagStat;
     VectorDouble _propcst;
-    const Db* _dbprop;
-    std::vector<const Rule*> _rules;
-    bool
-      _ruleInternal; // TRUE if a fictitious rule has been established internally
+    const Db* _dbprop; // not to be deleted
+    std::array<std::unique_ptr<Rule>, 2> _rules;
   };
 } // namespace gstlrn

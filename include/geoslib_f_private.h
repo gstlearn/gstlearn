@@ -32,17 +32,6 @@ namespace gstlrn
   class EMorpho;
   class MatrixSymmetric;
 
-  /*******************************************/
-  /* Prototyping the functions in variopgs.c */
-  /*******************************************/
-
-  Rule* _rule_auto(
-    Db* db,
-    const VarioParam* varioparam,
-    const RuleProp* ruleprop,
-    Id ngrfmax = 1,
-    Id verbose = false);
-
   /*****************************************/
   /* Prototyping the functions in thresh.c */
   /*****************************************/

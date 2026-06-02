@@ -108,9 +108,6 @@ int main(int argc, char* argv[])
   Id nbsimu = 3;
   defineDefaultSpace(ESpaceType::RN, ndim);
 
-  // Prepare the Discrete process with Discretized Option
-  set_test_discrete(false);
-
   // Prepare dimension variables
   auto ndata = 100;
   Id nx = 101;

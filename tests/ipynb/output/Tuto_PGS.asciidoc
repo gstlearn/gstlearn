@@ -1,0 +1,160 @@
+#NO_DIFF#XXX
+----
+
+<IPython.core.display.Javascript object>----
+
+
+#NO_DIFF#XXX
+----
+
+|===
+| |X |Y |LANU |HyGeo |NO3 |BG
+|0 |428575.6629 |5.541444e+06 |2 |1 |0.5 |-99.0
+|1 |431573.6549 |5.542124e+06 |2 |1 |150.0 |-99.0
+|2 |431565.6549 |5.542160e+06 |2 |1 |150.0 |-99.0
+|3 |435820.6447 |5.543920e+06 |3 |1 |78.0 |-99.0
+|4 |435955.6443 |5.543910e+06 |3 |1 |64.0 |-99.0
+|===
+----
+
+
+#NO_DIFF#XXX
+----
+Polygons
+--------
+Number of Polygon Sets = 1----
+
+
+#NO_DIFF#XXX
+----
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 3
+Total number of samples      = 1691
+
+Variables
+---------
+Column = 0 - Name = X - Locator = x1
+Column = 1 - Name = Y - Locator = x2
+Column = 2 - Name = LANU - Locator = z1----
+
+
+#NO_DIFF#XXX
+----                        Number
+Category: 1.000000     461.000
+Category: 2.000000     794.000
+Category: 3.000000      78.000
+Category: 4.000000     347.000
+Category: 5.000000      11.000----
+
+
+#NO_DIFF#XXX
+----
+Lithotype Rule
+==============
+- Number of nodes               = 9
+- Number of facies              = 5
+- Number of thresholds along G1 = 4
+- Number of thresholds along G2 = 0
+- Description: S S S S F1 F2 F3 F4 F5 
+
+
+Facies Characteristics
+----------------------
+Facies 1 - Name = First Facies - Color = Orange - Assigned Value = 1
+Facies 2 - Name = Second Facies - Color = Blue - Assigned Value = 2
+Facies 3 - Name = Third Facies - Color = Yellow - Assigned Value = 3
+Facies 4 - Name = Fourth Facies - Color = Green - Assigned Value = 4
+Facies 5 - Name = Fifth Facies - Color = Red - Assigned Value = 5----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 3
+Total number of samples      = 1691
+
+Variables
+---------
+Column = 0 - Name = X - Locator = x1
+Column = 1 - Name = Y - Locator = x2
+Column = 2 - Name = LANU - Locator = z1----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+Proportion of facies 1 = 0.273
+Proportion of facies 2 = 0.47
+Proportion of facies 3 = 0.046
+Proportion of facies 4 = 0.205
+Proportion of facies 5 = 0.007
+----
+
+
+#NO_DIFF#XXX
+----            Number     Minimum     Maximum        Mean    St. Dev.    Variance
+Prop.1     752.000       0.014       0.867       0.267       0.153       0.023
+Prop.2     752.000       0.002       0.937       0.481       0.211       0.044
+Prop.3     752.000       0.000       0.427       0.053       0.052       0.003
+Prop.4     752.000       0.002       0.975       0.193       0.184       0.034
+Prop.5     752.000       0.000       0.129       0.007       0.014       0.000----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+Number of GRF = 1
+Number of Rules (after sorting and merging) = 1177
+----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----

@@ -115,45 +115,4 @@ namespace gstlrn
     std::vector<SPDE_SS_Option> options;
   } SPDE_Option;
 
-  typedef struct
-  {
-    Id nconf; // Number of covariance configurations
-    Id ndisc; // Number of discretization steps
-    Id flag_cumul; // 1 if storing integer from -infinity to value
-    // 0 if storing the value per discretized class
-    double cmin; // Minimum correlation value
-    double cmax; // Maximum correlation value
-    double dc; // Covariance class interval
-    double dp; // Probability quantum for discretization
-    VectorDouble v; // Vector of thresholds (Dim: ndisc+1)
-    VectorVectorDouble res; // Dimension: [nconf][size]
-  } CTables;
-
-  struct Local_Relem;
-
-  struct Local_Split
-  {
-    Id oper; // Rank of operator
-    Id nrule; // Number of generated rules
-    Id nbyrule; // Number of symbols in the Rules
-    VectorInt Srules; // List of rules (Dim: [nitem][NRULE])
-    VectorInt Sfipos; // Position of facies (Dim: [nprod][NCOLOR])
-    Local_Relem* old_relem; // Not allocated
-    std::vector<Local_Relem*> relems;
-  };
-
-  struct Local_Relem
-  {
-    VectorInt facies; // List of facies
-    Id nrule; // Number of generated rules
-    Id nbyrule; // Number of symbols in the Rules
-    Id nsplit; // Number of splits
-    VectorInt Rrules; // List of rules (Dim: [nitem][NRULE])
-    VectorInt Rfipos; // Position of facies (Dim: [nprod][NCOLOR])
-    Local_Split* old_split; // Not allocated
-    std::vector<Local_Split*> splits;
-  };
-
-  typedef struct Local_Relem Relem;
-  typedef struct Local_Split Split;
 } // namespace gstlrn

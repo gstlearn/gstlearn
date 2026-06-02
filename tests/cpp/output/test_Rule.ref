@@ -5,18 +5,14 @@ Lithotype Rule
 - Number of facies              = 3
 - Number of thresholds along G1 = 1
 - Number of thresholds along G2 = 1
+- Description: S T F1 F2 F3 
 
-Node Characteristics
---------------------
-Node F1 - Facies 1
-Node F2 - Facies 2
-Node F3 - Facies 3
 
 Facies Characteristics
 ----------------------
-Facies 1 - Name = F1 - Color = #1f77b4ff - Assigned Value = 1
-Facies 2 - Name = MyFacies - Color = #ff7f0eff - Assigned Value = 2
-Facies 3 - Name = F3 - Color = #2ca02cff - Assigned Value = 6
+Facies 1 - Name = F1 - Color = Blue - Assigned Value = 1
+Facies 2 - Name = MyFacies - Color = Orange - Assigned Value = 2
+Facies 3 - Name = F3 - Color = Green - Assigned Value = 6
 Display Rule after Serialize/Deserialize
 
 Lithotype Rule
@@ -25,15 +21,11 @@ Lithotype Rule
 - Number of facies              = 3
 - Number of thresholds along G1 = 1
 - Number of thresholds along G2 = 1
+- Description: S T F1 F2 F3 
 
-Node Characteristics
---------------------
-Node F1 - Facies 1
-Node F2 - Facies 2
-Node F3 - Facies 3
 
 Facies Characteristics
 ----------------------
-Facies 1 - Name = F1 - Color = #1f77b4ff - Assigned Value = 1
-Facies 2 - Name = MyFacies - Color = #ff7f0eff - Assigned Value = 2
-Facies 3 - Name = F3 - Color = #2ca02cff - Assigned Value = 6
+Facies 1 - Name = F1 - Color = Blue - Assigned Value = 1
+Facies 2 - Name = MyFacies - Color = Orange - Assigned Value = 2
+Facies 3 - Name = F3 - Color = Green - Assigned Value = 6

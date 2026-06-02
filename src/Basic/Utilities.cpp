@@ -833,8 +833,6 @@ namespace gstlrn
    **
    ** \param[out] ncomb Number of combinations
    **
-   ** \remarks The calling function must free the returned array.
-   **
    *****************************************************************************/
   VectorInt ut_combinations(Id n, Id maxk, Id* ncomb)
   {

@@ -63,20 +63,6 @@ namespace gstlrn
 
   RuleShift::~RuleShift() {}
 
-  /**
-   * Definition of the Lithotype RuleShift
-   * @param nodes List of "integer" nodes (should only include "S", no "T")
-   * @param shift Vector defining the Shift
-   */
-  Id
-    RuleShift::resetFromNodes(const VectorInt& nodes, const VectorDouble& shift)
-  {
-    _shift = shift;
-    setModeRule(ERule::SHIFT);
-    setMainNodeFromNodNames(nodes);
-    return 0;
-  }
-
   Id RuleShift::resetFromNames(
     const VectorString& nodnames,
     const VectorDouble& shift)
@@ -101,7 +87,7 @@ namespace gstlrn
     return 0;
   }
 
-  Id RuleShift::resetFromNumericalCoding(
+  Id RuleShift::_resetFromNumericalCoding(
     const VectorInt& n_type,
     const VectorInt& n_facs,
     const VectorDouble& shift)
@@ -427,20 +413,6 @@ namespace gstlrn
     return (0);
   }
 
-  RuleShift* RuleShift::createFromNodes(
-    const VectorInt& nodes,
-    const VectorDouble& shift)
-  {
-    auto* ruleshift = new RuleShift();
-    if (ruleshift->resetFromNodes(nodes, shift))
-    {
-      messerr("Problem when creating RuleShift from Nodes");
-      delete ruleshift;
-      return nullptr;
-    }
-    return ruleshift;
-  }
-
   RuleShift* RuleShift::createFromNames(
     const VectorString& nodnames,
     const VectorDouble& shift)
@@ -455,33 +427,6 @@ namespace gstlrn
     return ruleshift;
   }
 
-  RuleShift*
-    RuleShift::createFromFaciesCount(Id nfacies, const VectorDouble& shift)
-  {
-    auto* ruleshift = new RuleShift();
-    if (ruleshift->resetFromFaciesCount(nfacies, shift))
-    {
-      messerr("Problem when creating RuleShift from Count of Facies");
-      delete ruleshift;
-      return nullptr;
-    }
-    return ruleshift;
-  }
-
-  RuleShift* RuleShift::createFromNumericalCoding(
-    const VectorInt& n_type,
-    const VectorInt& n_facs,
-    const VectorDouble& shift)
-  {
-    auto* ruleshift = new RuleShift();
-    if (ruleshift->resetFromNumericalCoding(n_type, n_facs, shift))
-    {
-      messerr("Problem when creating RuleShift from Numerical Coding");
-      delete ruleshift;
-      return nullptr;
-    }
-    return ruleshift;
-  }
 #ifdef HDF5
   bool RuleShift::deserializeH5(H5::Group& grp)
   {

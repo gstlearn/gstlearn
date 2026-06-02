@@ -4,6 +4,9 @@ This file contains the logs between consecutive releases
 
 Release 1.11.0
 ==============
+- The classes CalcModelPGS and subsequently CorPGS, TracePGS, PileRelem and PileSplit have been designed.
+- The file Core/variopgs.cpp has been deleted.
+- Files math.cpp and CTable.hpp have been replaced by new class PluriGaussian/DiscretePGS
 - The Boolean simulation procedure now allows to perform several simulations in one step.
 - The class SimuBoolean has been renamed into CalcSimuBoolean (a calculator class)
 - Adding capability for Rule to handle Name, Color and assigned value per Facies (used in graphics in particular)

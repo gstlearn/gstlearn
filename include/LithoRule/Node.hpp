@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
 #include "Basic/AStringable.hpp"
@@ -60,10 +61,11 @@ namespace gstlrn
       double* t2max);
     void proportionToThresh(
       double rho,
-      double t1min,
-      double t1max,
-      double t2min,
-      double t2max);
+      double t1min = TEST,
+      double t1max = TEST,
+      double t2min = TEST,
+      double t2max = TEST,
+      bool flagGaussian = true);
     Id gaussianToFacies(double y1, double y2, double* facies);
     void getInfo(Id* nodes) const;
 
@@ -144,8 +146,11 @@ namespace gstlrn
       Id* n_fac,
       Id* n_y1,
       Id* n_y2) const;
-    static double _transform(Id mode, double value);
-    double _threshFromPropcum(double rho);
+    static double _transform(Id mode, double value, bool flagGaussian = true);
+    double _threshFromPropcum(
+      double rho,
+      bool flagGaussian = true,
+      double eps = EPSILON4);
     double _threshDichotomy(double rho) const;
 
   private:

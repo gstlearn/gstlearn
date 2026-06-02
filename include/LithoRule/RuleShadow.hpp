@@ -32,6 +32,9 @@ namespace gstlrn
     RuleShadow& operator=(const RuleShadow& m);
     virtual ~RuleShadow();
 
+    /// ICloneable Interface
+    IMPLEMENT_CLONING(RuleShadow)
+
     /// ASerializable Interface
     String getNFName() const override { return "RuleShadow"; }
 #ifdef HDF5

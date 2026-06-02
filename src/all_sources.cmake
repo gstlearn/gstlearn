@@ -130,11 +130,9 @@ set(SRC
   Covariances/CovHelper.cpp
   Polygon/Polygons.cpp
   Polygon/PolyElem.cpp
-  Core/math.cpp
   Core/stats.cpp
   Core/io.cpp
   Core/db.cpp
-  Core/variopgs.cpp
   Core/model_auto.cpp
   Core/cluster.cpp
   Core/simtub.cpp
@@ -224,6 +222,7 @@ set(SRC
   Variogram/Vario.cpp
   Variogram/VarioParam.cpp
   Variogram/DirParam.cpp
+  Variogram/VarioOrder.cpp
   Basic/Optim.cpp
   Basic/ParamInfo.cpp
   Basic/ListParams.cpp
@@ -383,4 +382,10 @@ set(SRC
   Tree/KNN.cpp
   Tree/ball_algorithm.cpp
   Tree/neighbors_heap.cpp
+  PluriGaussian/TracePGS.cpp
+  PluriGaussian/CorPGS.cpp
+  PluriGaussian/DiscretePGS.cpp
+  PluriGaussian/CalcModelPGS.cpp
+  PluriGaussian/PileRelem.cpp
+  PluriGaussian/PileSplit.cpp
 )
