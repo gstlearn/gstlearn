@@ -26,6 +26,7 @@ License: BSD 3-clause
 */
 
 #include "Tree/ball_algorithm.h"
+#include "Basic/Message.hpp"
 #include "Space/SpacePoint.hpp"
 
 namespace gstlrn
@@ -273,6 +274,36 @@ namespace gstlrn
     return (0);
   }
 
+  void t_btree::query_radius_depth_first(
+    Id i_node,
+    const constvect pt,
+    double radius,
+    VectorInt& results) const
+  {
+    if (min_dist(i_node, pt) > radius) return;
+
+    const t_nodedata& node_info = this->node_data[i_node];
+    if (node_info.is_leaf)
+    {
+      const auto dist_func = this->default_distance_function == 1
+                             ? euclidean_distance
+                             : manhattan_distance;
+      for (Id i = node_info.idx_start; i < node_info.idx_end; i++)
+      {
+        Id j = this->idx_array[i];
+        if (!this->available[j]) continue;
+        double d =
+          dist_func(pt.data(), this->data.getRow(j).data(), n_features);
+        if (d <= radius) results.push_back(j);
+      }
+    }
+    else
+    {
+      query_radius_depth_first(2 * i_node + 1, pt, radius, results);
+      query_radius_depth_first(2 * i_node + 2, pt, radius, results);
+    }
+  }
+
   void t_btree::display(Id level) const
   {
     mestitle(0, "Ball Tree");
@@ -335,16 +366,30 @@ namespace gstlrn
    */
   double euclidean_distance(const double* x1, const double* x2, Id n_features)
   {
-    // TODO[space]: Default space is used here! Hopefully, it's RN (euclidean)... but n_features must be 2!
-    thread_local SpacePoint p1;
-    thread_local SpacePoint p2;
-    if (p1.getSpace() != getDefaultSpaceSh())
+    // Use space-aware distance (e.g. great-circle on a sphere) when the
+    // default space dimension matches n_features.  Fall back to plain
+    // Euclidean when they differ — e.g. a 1-D Db with a 2-D default space —
+    // to avoid the silent coordinate-size mismatch in SpacePoint::setCoords.
+    auto space = getDefaultSpaceSh();
+    if (space != nullptr && static_cast<Id>(space->getNDim()) == n_features)
     {
-      p1.setSpace(getDefaultSpaceSh());
-      p2.setSpace(getDefaultSpaceSh());
+      thread_local SpacePoint p1;
+      thread_local SpacePoint p2;
+      if (p1.getSpace() != space)
+      {
+        p1.setSpace(ASpaceSharedPtr(space));
+        p2.setSpace(ASpaceSharedPtr(space));
+      }
+      p1.setCoords(x1, n_features);
+      p2.setCoords(x2, n_features);
+      return p1.getDistance(p2);
     }
-    p1.setCoords(x1, n_features);
-    p2.setCoords(x2, n_features);
-    return p1.getDistance(p2);
+    double d2 = 0.;
+    for (Id i = 0; i < n_features; i++)
+    {
+      const double delta = x1[i] - x2[i];
+      d2 += delta * delta;
+    }
+    return std::sqrt(d2);
   }
 } // namespace gstlrn

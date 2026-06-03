@@ -33,6 +33,7 @@
 #include "Polynomials/Hermite.hpp"
 #include "Space/SpaceRN.hpp"
 #include "Stats/Classical.hpp"
+#include "Tree/Ball.hpp"
 #include "Variogram/Vario.hpp"
 #include "Variogram/VarioParam.hpp"
 
@@ -3528,44 +3529,72 @@ namespace gstlrn
     bool hasDate = varioparam.isDateUsed(db);
     double dist = 0.;
 
-    /* Loop on the first point */
-
-    for (Id iiech = 0; iiech < nech - 1; iiech++)
+    if (!hasDate)
     {
-      iech = rindex[iiech];
-      if (hasSel && !db->isActive(iech)) continue;
-      if (hasWeight && FFFF(db->getWeight(iech))) continue;
-      db->getSampleAsSTInPlace(iech, T1);
+      // Use a Ball tree range query to efficiently find candidate pairs
+      // within maxdist in 3D, replacing the O(n^2) sorted-array scan.
+      Ball ball(db, nullptr, 10, true, 1, false);
+      VectorDouble coords(db->getNDim());
+      VectorInt neighbors;
 
-      ideb = (hasDate) ? 0 : iiech + 1;
-      for (Id jjech = ideb; jjech < nech; jjech++)
+      for (iech = 0; iech < nech; iech++)
       {
-        jech = rindex[jjech];
-        if (db->getDistance1D(iech, jech) > maxdist) break;
-        if (hasSel && !db->isActive(jech)) continue;
-        if (hasWeight && FFFF(db->getWeight(jech))) continue;
-        db->getSampleAsSTInPlace(jech, T2);
+        if (hasSel && !db->isActive(iech)) continue;
+        if (hasWeight && FFFF(db->getWeight(iech))) continue;
+        db->getSampleAsSTInPlace(iech, T1);
+        db->getCoordinatesInPlace(coords, iech);
 
-        // Reject the point as soon as one BiTargetChecker is not correct
-        if (!keepPair(idir, T1, T2, &dist)) continue;
+        ball.queryRadiusInPlace(coords, maxdist, neighbors);
 
-        /* Get the rank of the lag */
-
-        ilag = dirparam.getLagRank(dist);
-        if (isNA(ilag)) continue;
-
-        /* Case of internal storage */
-
-        if (vorder != nullptr)
+        for (Id jjech = 0, nneigh = (Id)neighbors.size(); jjech < nneigh;
+             jjech++)
         {
-          vario_order_add(vorder, iech, jech, NULL, NULL, ilag, idir, dist);
+          jech = neighbors[jjech];
+          if (jech <= iech) continue; // count each unordered pair once
+          if (hasSel && !db->isActive(jech)) continue;
+          if (hasWeight && FFFF(db->getWeight(jech))) continue;
+          db->getSampleAsSTInPlace(jech, T2);
+
+          if (!keepPair(idir, T1, T2, &dist)) continue;
+
+          ilag = dirparam.getLagRank(dist);
+          if (isNA(ilag)) continue;
+
+          if (vorder != nullptr)
+            vario_order_add(vorder, iech, jech, NULL, NULL, ilag, idir, dist);
+          else
+            (this->*_evaluate)(db, nvar, iech, jech, idir, ilag, dist, true);
         }
-        else
+      }
+    }
+    else
+    {
+      /* Date-aware path: fall back to sorted-array scan */
+      for (Id iiech = 0; iiech < nech - 1; iiech++)
+      {
+        iech = rindex[iiech];
+        if (hasSel && !db->isActive(iech)) continue;
+        if (hasWeight && FFFF(db->getWeight(iech))) continue;
+        db->getSampleAsSTInPlace(iech, T1);
+
+        ideb = 0;
+        for (Id jjech = ideb; jjech < nech; jjech++)
         {
+          jech = rindex[jjech];
+          if (db->getDistance1D(jech, iech) > maxdist) break;
+          if (hasSel && !db->isActive(jech)) continue;
+          if (hasWeight && FFFF(db->getWeight(jech))) continue;
+          db->getSampleAsSTInPlace(jech, T2);
 
-          /* Evaluate the variogram */
+          if (!keepPair(idir, T1, T2, &dist)) continue;
 
-          (this->*_evaluate)(db, nvar, iech, jech, idir, ilag, dist, true);
+          ilag = dirparam.getLagRank(dist);
+          if (isNA(ilag)) continue;
+
+          if (vorder != nullptr)
+            vario_order_add(vorder, iech, jech, NULL, NULL, ilag, idir, dist);
+          else
+            (this->*_evaluate)(db, nvar, iech, jech, idir, ilag, dist, true);
         }
       }
     }
@@ -3705,7 +3734,7 @@ namespace gstlrn
       for (Id jjech = ideb; jjech < nech; jjech++)
       {
         jech = rindex[jjech];
-        if (db->getDistance1D(iech, jech) > maxdist) break;
+        if (db->getDistance1D(jech, iech) > maxdist) break;
         if (hasSel && !db->isActive(jech)) continue;
         if (hasWeight && FFFF(db->getWeight(jech))) continue;
         db->getSampleAsSTInPlace(jech, T2);
@@ -4168,7 +4197,7 @@ namespace gstlrn
         for (Id jjech = ideb; jjech < nech; jjech++)
         {
           Id jech = rindex[jjech];
-          if (db->getDistance1D(iech, jech) > maxdist) break;
+          if (db->getDistance1D(jech, iech) > maxdist) break;
           if (hasSel && !db->isActive(jech)) continue;
           if (hasWeight && FFFF(db->getWeight(jech))) continue;
           db->getSampleAsSTInPlace(jech, T2);
@@ -4369,7 +4398,7 @@ namespace gstlrn
       for (Id jjech = iiech + 1; jjech < nech; jjech++)
       {
         jech = rindex[jjech];
-        if (db->getDistance1D(iech, jech) > maxdist) break;
+        if (db->getDistance1D(jech, iech) > maxdist) break;
         if (hasSel && !db->isActive(jech)) continue;
         if (hasWeight && FFFF(db->getWeight(jech))) continue;
         db->getSampleAsSTInPlace(jech, T2);
