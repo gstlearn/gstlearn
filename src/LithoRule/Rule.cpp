@@ -1268,9 +1268,15 @@ namespace gstlrn
       setMainNodeFromNodNames(nodes);
     }
 
-    ret = ret && SerializeHDF5::readVec(*ruleG, "FaciesNames", _facnames);
-    ret = ret && SerializeHDF5::readVec(*ruleG, "FaciesColors", _faccols);
-    ret = ret && SerializeHDF5::readVec(*ruleG, "FaciesValues", _facvalues);
+    // The rest is optional (to cope with old versions of Rule class)
+    bool ret2 = ret;
+    ret2 = ret2 && SerializeHDF5::readVec(*ruleG, "FaciesNames", _facnames);
+    if (ret2)
+    {
+      ret2 = ret2 && SerializeHDF5::readVec(*ruleG, "FaciesColors", _faccols);
+      ret2 = ret2 && SerializeHDF5::readVec(*ruleG, "FaciesValues", _facvalues);
+      return ret2;
+    }
 
     return ret;
   }
