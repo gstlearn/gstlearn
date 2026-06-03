@@ -42,7 +42,7 @@ namespace gstlrn
     MultiGridSolver(const MultiGridSolver& other) = delete;
     MultiGridSolver(MultiGridSolver&& other) noexcept = default;
     MultiGridSolver& operator=(const MultiGridSolver& other) = delete;
-    MultiGridSolver& operator=(MultiGridSolver&& other) noexcept = default;
+    MultiGridSolver& operator=(MultiGridSolver&& other) /*noexcept*/ = default;
     virtual ~MultiGridSolver() = default;
 
     MultiGridSolver& compute(const ALinearOp& /*default*/) { return *this; }
