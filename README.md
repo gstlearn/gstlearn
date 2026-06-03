@@ -16,9 +16,13 @@ The name 'gstlearn' stands for several purposes:
 * A Python package
 * A R package
 
-If you only want to use Python or R packages, you should switch to corresponding README:
-* Python: [README](https://github.com/gstlearn/gstlearn/tree/main/python) or directly [install the package](https://soft.mines-paristech.fr/gstlearn/courses-latest/python/01_gstlearn_start.html)
-* R: [README](https://github.com/gstlearn/gstlearn/tree/main/r) or directly [install the package](https://soft.mines-paristech.fr/gstlearn/courses-latest/r/01_gstlearn_start.html)
+If you simply want to use the Python or R package, you only need to install it:
+* Python: [install the package](https://soft.mines-paristech.fr/gstlearn/courses-latest/python/01_gstlearn_start.html)
+* R: [install the package](https://soft.mines-paristech.fr/gstlearn/courses-latest/r/01_gstlearn_start.html)
+
+If you want to compile the Python or R package, you should switch to corresponding README:
+* Python: [README](https://github.com/gstlearn/gstlearn/tree/main/python)
+* R: [README](https://github.com/gstlearn/gstlearn/tree/main/r)
 
 See [https://gstlearn.org](https://gstlearn.org) for more details.
 
@@ -238,6 +242,8 @@ Notes:
 
 These requirements are also recommended to people who wants to compile *gstlearn* Python package. If you want to compile *gstlearn* R package under Windows, you should look at the next section.
 
+Additionnal dependencies are needed for Python, please switch to appropriate [README](https://github.com/gstlearn/gstlearn/tree/main/python)
+
 ##### Install all tools
 
 Download and install the following tools using default options during installation:
@@ -299,6 +305,8 @@ The *Path* environment variable (*System variables*) must be updated to make *do
 #### Windows - MinGW (via RTools):
 
 These requirements are also recommended to people who wants to compile *gstlearn* R package. If you want to compile *gstlearn* Python package under Windows, you should look at the previous section. This is not the only way to install MinGW. But using MinGW provided with RTools permits us to also handle *gstlearn* R package compilation.
+
+Additionnal dependencies are needed for R, please switch to appropriate [README](https://github.com/gstlearn/gstlearn/tree/main/r)
 
 ##### Install R and RTools
 
