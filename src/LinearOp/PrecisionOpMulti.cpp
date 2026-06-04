@@ -439,7 +439,7 @@ namespace gstlrn
     {
       messerr(
         "computeLogDet is not implemented for multivariate case in the "
-        "matrix-free version\n");
+        "matrix-free version");
       return TEST;
     }
     double result = 0.;
@@ -454,6 +454,9 @@ namespace gstlrn
   {
     if (idx < 0 || idx > _getNCov())
     {
+      messerr(
+        "The index passed to getPrecision() must be between 0 and %d\n",
+        _getNCov()-1);
       return nullptr;
     }
     return _pops[idx];
