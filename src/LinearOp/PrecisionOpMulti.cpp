@@ -456,7 +456,7 @@ namespace gstlrn
     {
       messerr(
         "The index passed to getPrecision() must be between 0 and %d\n",
-        _getNCov()-1);
+        _getNCov() - 1);
       return nullptr;
     }
     return _pops[idx];
