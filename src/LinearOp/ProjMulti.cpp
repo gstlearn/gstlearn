@@ -188,27 +188,20 @@ namespace gstlrn
 
   Id ProjMulti::_addPoint2mesh(const constvect inv, vect outv) const
   {
-    vect wms;
     Id iadvar = 0;
     for (Id i = 0; i < _nlatent; i++)
     {
       Id iad = 0;
-      Id nvertex = _apexNumbers[i];
-      _workmesh.resize(nvertex);
-      std::fill(_workmesh.begin(), _workmesh.end(), 0.);
+      vect outs(outv.data() + iadvar, _apexNumbers[i]);
       for (Id j = 0; j < _nvariable; j++)
       {
         if (_projs[j][i])
         {
           constvect view(inv.data() + iad, _pointNumbers[j]);
-          wms = vect(_workmesh);
-          _projs[j][i]->get().addPoint2mesh(view, wms);
+          _projs[j][i]->get().addPoint2mesh(view, outs);
         }
         iad += _pointNumbers[j];
       }
-
-      vect outs(outv.data() + iadvar, _workmesh.size());
-      VectorHelper::addInPlace(wms, outs);
       iadvar += _apexNumbers[i];
     }
     return 0;
@@ -216,26 +209,20 @@ namespace gstlrn
 
   Id ProjMulti::_addMesh2point(const constvect inv, vect outv) const
   {
-    vect ws;
     Id iadvar = 0;
     for (Id i = 0; i < _nvariable; i++)
     {
       Id iad = 0;
-      Id npoint = _pointNumbers[i];
-      _work.resize(npoint);
-      std::fill(_work.begin(), _work.end(), 0.);
+      vect outs(outv.data() + iadvar, _pointNumbers[i]);
       for (Id j = 0; j < _nlatent; j++)
       {
         if (_projs[i][j])
         {
           constvect view(inv.data() + iad, _apexNumbers[j]);
-          ws = vect(_work);
-          _projs[i][j]->get().addMesh2point(view, ws);
+          _projs[i][j]->get().addMesh2point(view, outs);
         }
         iad += _apexNumbers[j];
       }
-      vect outs(outv.data() + iadvar, _work.size());
-      VectorHelper::addInPlace(ws, outs);
       iadvar += _pointNumbers[i];
     }
     return 0;

@@ -152,8 +152,10 @@ namespace gstlrn
     Id _buildRhs(const constvect inv) const;
 #endif
 
-  private:
+  protected:
     void _prepare(bool w1 = true, bool w2 = true) const;
+
+  private:
     void _addADinvAt(const constvect inv, vect outv) const;
 
   protected:
@@ -166,8 +168,6 @@ namespace gstlrn
     APreconditioner* _precond;
     bool _verbose;
 
-  private:
-    Id _ndat;
     mutable VectorDouble _workdat1;
     mutable VectorDouble _workdat2;
     mutable VectorDouble _workdat3;
@@ -177,6 +177,9 @@ namespace gstlrn
     mutable VectorDouble _rhs;
     mutable VectorDouble _workmesh;
     mutable VectorDouble _workGibbsData;
+
+  private:
+    Id _ndat;
   };
 
   /****************************************************************************/

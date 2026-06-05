@@ -43,10 +43,19 @@ namespace gstlrn
       return (_projs.size() == 0 ? 0 : _projs.back().get().getNPoint());
     }
 
+#ifndef SWIG
+
+    Id setWorkArrays(vect work1, vect work2 = {});
+
+  protected:
+    Id initWorkArrays(vect& work1, vect& work2) const;
+#endif
+
   private:
     using ProjVect = std::vector<std::reference_wrapper<const IProj>>;
 
     ProjVect _projs;
-    mutable VectorVectorDouble _works;
+    mutable VectorDouble _w1, _w2; // local work arrays
+    mutable vect _work1, _work2; // shared work arrays
   };
 } // namespace gstlrn

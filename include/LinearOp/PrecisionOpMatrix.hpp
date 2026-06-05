@@ -90,6 +90,9 @@ namespace gstlrn
   private:
     std::shared_ptr<MatrixSparse> _Q;
     mutable CholeskySparse* _chol;
+    mutable VectorDouble _work3;
+    mutable VectorDouble _work4;
+    mutable VectorDouble _work5;
   };
 
 } // namespace gstlrn

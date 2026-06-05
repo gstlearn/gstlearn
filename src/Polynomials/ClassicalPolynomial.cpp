@@ -83,6 +83,48 @@ namespace gstlrn
     }
   }
 
+  Id ClassicalPolynomial::setWorkArrays(vect work1, vect work2)
+  {
+    // Set work arrays (typically a space reused by other operators to save
+    // memory). The size can't be checked here (the required size is only
+    // known when calling one of the eval functions), so it is up to the
+    // caller to ensure they are always large-enough!
+
+    if (work1.empty() || work2.empty()) return -1;
+
+    _work1 = work1;
+    _work2 = work2;
+    return 0;
+  }
+
+  Id ClassicalPolynomial::initWorkArrays(vect& work1, vect& work2, size_t size)
+    const
+  {
+    if (_work1.size() > 0)
+    {
+      if (_work1.size() < size) return -1;
+      work1 = vect(_work1.data(), size);
+    }
+    else
+    {
+      if (_w1.size() < size) _w1.resize(size);
+      work1 = vect(_w1.data(), size);
+    }
+
+    if (_work2.size() > 0)
+    {
+      if (_work2.size() < size) return -1;
+      work2 = vect(_work2.data(), size);
+    }
+    else
+    {
+      if (_w2.size() < size) _w2.resize(size);
+      work2 = vect(_w2.data(), size);
+    }
+
+    return 0;
+  }
+
   void ClassicalPolynomial::_addEvalOp(
     const ALinearOp* Op,
     const constvect inv,
@@ -90,24 +132,14 @@ namespace gstlrn
   {
     Id n = static_cast<Id>(inv.size());
 
-    vect swap1, swap2, swap3;
-
-    if (static_cast<Id>(_work.size()) != n)
-    {
-      _work.resize(n);
-    }
-    if (static_cast<Id>(_work2.size()) != n)
-    {
-      _work2.resize(n);
-    }
-
-    swap1 = vect(_work);
-    swap2 = vect(_work2);
+    vect swap1, swap2;
+    if (initWorkArrays(swap1, swap2, n) != 0) return;
 
     for (Id i = 0; i < n; i++)
     {
       outv[i] += _coeffs[0] * inv[i];
     }
+    if (_coeffs.size() == 1) return;
 
     Op->evalDirect(inv, swap1);
 
@@ -121,9 +153,7 @@ namespace gstlrn
       if (j < static_cast<Id>(_coeffs.size()) - 1)
       {
         Op->evalDirect(swap1, swap2);
-        swap3 = swap1;
-        swap1 = swap2;
-        swap2 = swap3;
+        std::swap(swap1, swap2);
       }
     }
   }

@@ -39,9 +39,6 @@ namespace gstlrn
     , _training(false)
     , _destroyShiftOp(false)
     , _userPoly(false)
-    , _work()
-    , _work2()
-    , _work3()
   {
   }
 
@@ -57,16 +54,7 @@ namespace gstlrn
     , _training(false)
     , _destroyShiftOp(false)
     , _userPoly(false)
-    , _work()
-    , _work2()
-    , _work3()
   {
-    if (_shiftOp != nullptr)
-    {
-      _work.resize(_shiftOp->getSize());
-      _work2.resize(_shiftOp->getSize());
-      _work3.resize(_shiftOp->getSize());
-    }
   }
 
   PrecisionOp::PrecisionOp(
@@ -82,9 +70,6 @@ namespace gstlrn
     , _training(false)
     , _destroyShiftOp(true)
     , _userPoly(false)
-    , _work()
-    , _work2()
-    , _work3()
   {
     const auto* meshTurbo = dynamic_cast<const MeshETurbo*>(mesh);
 
@@ -105,9 +90,6 @@ namespace gstlrn
     {
       _shiftOp->normalizeLambdaBySills(mesh);
     }
-    _work.resize(_shiftOp->getSize());
-    _work2.resize(_shiftOp->getSize());
-    _work3.resize(_shiftOp->getSize());
   }
 
   PrecisionOp::PrecisionOp(const PrecisionOp& pmat)
@@ -119,9 +101,6 @@ namespace gstlrn
     , _training(false)
     , _destroyShiftOp(pmat._destroyShiftOp)
     , _userPoly(false)
-    , _work(pmat._work)
-    , _work2(pmat._work2)
-    , _work3(pmat._work3)
   {
     if (_destroyShiftOp)
       _shiftOp = dynamic_cast<AShiftOp*>(pmat._shiftOp->clone());
@@ -143,9 +122,6 @@ namespace gstlrn
       _training = pmat._training;
       _destroyShiftOp = pmat._destroyShiftOp;
       _userPoly = pmat._userPoly;
-      _work = pmat._work;
-      _work2 = pmat._work2;
-      _work3 = pmat._work3;
 
       if (_destroyShiftOp)
       {
@@ -173,9 +149,6 @@ namespace gstlrn
     , _training(pmat._training)
     , _destroyShiftOp(pmat._destroyShiftOp)
     , _userPoly(pmat._userPoly)
-    , _work(std::move(pmat._work))
-    , _work2(std::move(pmat._work2))
-    , _work3(std::move(pmat._work3))
   {
     pmat._shiftOp = nullptr;
     pmat._cova = nullptr;
@@ -194,9 +167,6 @@ namespace gstlrn
       _training = pmat._training;
       _destroyShiftOp = pmat._destroyShiftOp;
       _userPoly = pmat._userPoly;
-      _work = std::move(pmat._work);
-      _work2 = std::move(pmat._work2);
-      _work3 = std::move(pmat._work3);
 
       pmat._shiftOp = nullptr;
       pmat._cova = nullptr;
@@ -389,22 +359,22 @@ namespace gstlrn
     vect outv,
     const EPowerPT& power) const
   {
-    const constvect* inPtr = &inv;
-    if (_work.size() == 0) _work.resize(getSize());
+    constvect in = inv;
     if (_work2.size() == 0) _work2.resize(getSize());
-    vect worksp(_work);
     vect worksp2(_work2);
     // Pre-processing
 
     if (power == EPowerPT::ONE || power == EPowerPT::MINUSONE)
     {
+      if (_work.size() == 0) _work.resize(getSize());
+      vect worksp(_work);
       _shiftOp->prodLambda(inv, worksp, power);
-      inPtr = reinterpret_cast<constvect*>(&worksp);
+      in = worksp;
     }
 
     // Polynomial evaluation
 
-    if (_evalPoly(power, *inPtr, worksp2) != 0)
+    if (_evalPoly(power, in, worksp2) != 0)
       my_throw(
         "Computation in 'eval' interrupted due to problem in '_evalPoly'");
 
@@ -458,7 +428,7 @@ namespace gstlrn
         }
       }
 
-      if (_work5.size() == 0) _work5.resize(getSize());
+      if (_work.size() == 0) _work.resize(getSize());
 
       // TODO use clone is probably better...
       if (a == nullptr)
@@ -467,7 +437,7 @@ namespace gstlrn
         return 1;
       }
       static_cast<ClassicalPolynomial*>(_polynomials[power].get())
-        ->evalOpTraining(a->getS(), invs, _workPoly, _work5);
+        ->evalOpTraining(a->getS(), invs, _workPoly, _work);
 
       for (Id i = 0; i < static_cast<Id>(inv.size()); i++)
       {
@@ -484,12 +454,12 @@ namespace gstlrn
 
   void PrecisionOp::evalInverse(const constvect vecin, VectorDouble& vecout)
   {
-    if (_work.size() != vecin.size()) _work.resize(vecin.size());
+    if (_work2.size() != vecin.size()) _work2.resize(vecin.size());
     vect vecouts(vecout);
     _shiftOp->prodLambda(vecin, vecouts, EPowerPT::MINUSONE);
-    vect works(_work);
-    _evalPoly(EPowerPT::MINUSONE, vecout, works);
-    _shiftOp->prodLambda(works, vecouts, EPowerPT::MINUSONE);
+    vect works2(_work2);
+    _evalPoly(EPowerPT::MINUSONE, vecout, works2);
+    _shiftOp->prodLambda(works2, vecouts, EPowerPT::MINUSONE);
   }
 
   VectorDouble PrecisionOp::computeCov(Id imesh)
