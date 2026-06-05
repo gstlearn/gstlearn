@@ -536,8 +536,6 @@ namespace gstlrn
 
     if (!getDbout()->isGrid()) return;
     auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
-    check_mandatory_attribute(
-      "st_check_facies_data2grid", dbgrid, ELoc::FACIES);
     number = 0;
     if (_flagCheck)
       mestitle(

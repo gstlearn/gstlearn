@@ -326,12 +326,10 @@ namespace gstlrn
       else
         y[1] = TEST;
       facies = getFaciesFromGaussian(y[0], y[1]);
+      double value =
+        (facies > 0) ? static_cast<double>(getFaciesValue(facies - 1)) : TEST;
 
-      /* Combine the underlying GRFs to derive Facies */
-
-      dbgrid->setSimvar(
-        ELoc::FACIES, iech, isimu, 0, ipgs, nbsimu, 1,
-        static_cast<double>(facies));
+      dbgrid->setSimvar(ELoc::FACIES, iech, isimu, 0, ipgs, nbsimu, 1, value);
     }
     return 0;
   }

@@ -19,6 +19,8 @@ except ModuleNotFoundError as ex:
     )
     raise ModuleNotFoundError(msg) from ex
 
+from matplotlib import colors
+from matplotlib.patches import Patch
 import numpy as np
 import gstlearn as gl
 import gstlearn.plot as gp
@@ -268,6 +270,37 @@ def _getFirstElement(tab):
             return first[0]
         return first
     return None  # Return None if `tab` is empty or not subscriptable.
+
+
+def _dataWithRule(data, rule):
+    # Nombre de faciès
+    nfac = rule.getNFacies()
+
+    # Mapping : valeur réelle -> indice interne
+    mapping = {rule.getFaciesValue(ifac): ifac for ifac in range(nfac)}
+
+    # Couleurs des faciès
+    colors = [f"#{rule.getFaciesColor(ifac):08x}" for ifac in range(nfac)]
+
+    # Labels des faciès
+    labels = [rule.getFaciesName(ifac) for ifac in range(nfac)]
+
+    # Colormap discrète
+    cmap = mcolors.ListedColormap(colors)
+
+    # Normalisation discrète
+    norm = mcolors.BoundaryNorm(np.arange(-0.5, nfac + 0.5, 1), cmap.N)
+
+    # Valeur par défaut pour faciès inconnus
+    fill_value = -1
+
+    # Remapping
+    idata = np.full(data.shape, fill_value, dtype=int)
+
+    for value, index in mapping.items():
+        idata[data == value] = index
+
+    return idata, cmap, norm, labels, colors
 
 
 def close():
@@ -983,6 +1016,7 @@ def _ax_symbol(
     nameCoorX=None,
     nameCoorY=None,
     useSel=True,
+    rule=None,
     c="r",
     s=20,
     sizmin=10,
@@ -995,6 +1029,7 @@ def _ax_symbol(
     flagLegendSize=False,
     legendNameColor=None,
     legendNameSize=None,
+    edgecolors=None,
     posX=0,
     posY=1,
     **kwargs,
@@ -1007,6 +1042,7 @@ def _ax_symbol(
     nameColor: Name of the variable containing the color per sample
     nameSize: Name of the variable containing the size per sample
     useSel : Boolean to indicate if the selection has to be considered
+    rule: Optional rule to be applied for categorical variable
     c: Constant color (used if 'nameColor' is not defined)
     s: Constant size (used if 'nameSize' is not defined)
     sizmin: Size corresponding to the smallest value (used if 'nameSize' is defined)
@@ -1019,6 +1055,7 @@ def _ax_symbol(
     flagLegendSize: Flag for representing the Size Legend
     legendNameColor: Title for the Color Legend (set to 'nameColor' if not defined)
     legendNameSize: Title for the Size Legend (set to 'size_name' if not defined)
+    edgecolors: color of the symbol edge (passed to matplotlib.pyplot.scatter)
     posX: rank of the first coordinate
     posY: rank of the second coordinate
     **kwargs : arguments passed to matplotllib.pyplot.scatter
@@ -1037,6 +1074,11 @@ def _ax_symbol(
         name = name + " " + nameColor
         colval = _getVariable(db, nameColor, posX, posY, None, useSel, False)
         valid = np.logical_and(valid, ~np.isnan(colval))
+
+        if rule is not None:
+            colval, cmap, norm, labels, colfacs = _dataWithRule(colval, rule)
+            kwargs["cmap"] = cmap
+            kwargs["norm"] = norm
     else:
         colval = np.full(nb, c)
 
@@ -1066,14 +1108,31 @@ def _ax_symbol(
         sizval = np.full(nb, s)
 
     res = ax.scatter(
-        x=tabx[valid], y=taby[valid], s=sizval[valid], c=colval[valid], **kwargs
+        x=tabx[valid],
+        y=taby[valid],
+        s=sizval[valid],
+        c=colval[valid],
+        edgecolors=edgecolors,
+        **kwargs,
     )
 
     if len(ax.get_title()) <= 0:
         ax.decoration(title=name)
 
     if flagLegendColor and nameColor is not None:
-        _legendContinuous(ax, res, legendNameColor)
+        if rule is None:
+            _legendContinuous(ax, res, legendNameColor)
+        else:
+            handles = [
+                Patch(facecolor=colfacs[i], label=labels[i]) for i in range(len(labels))
+            ]
+            ax.legend(
+                handles=handles,
+                title=legendNameColor,
+                loc="center left",
+                bbox_to_anchor=(1.02, 0.5),
+                borderaxespad=0.0,
+            )
 
     if flagLegendSize and nameSize is not None:
         _legendDiscrete(ax, sizmin, sizmax, sizvmin, sizvmax, c, legendNameSize)
@@ -1415,6 +1474,7 @@ def _ax_raster(
     dbgrid,
     name=None,
     useSel=True,
+    rule=None,
     posX=0,
     posY=1,
     corner=None,
@@ -1430,6 +1490,7 @@ def _ax_raster(
     dbgrid: DbGrid containing the variable to be plotted
     name: Name of the variable to be represented (by default, the first Z locator, or the last field)
     useSel : Boolean to indicate if the selection has to be considered
+    rule: Optional rule to be applied for categorical variable
     flagLegend: Flag for representing the Color Bar
     legendName: Name given to the Legend (set to 'name' if not defined)
     flagBinary: when True, the variable is represented in binary (values > 0 are represented with the same color)
@@ -1449,10 +1510,27 @@ def _ax_raster(
         kwargs.setdefault("vmin", 0)
         kwargs.setdefault("vmax", 1)
 
+    if rule is not None:
+        data, cmap, norm, labels, colfacs = _dataWithRule(data, rule)
+        kwargs["cmap"] = cmap
+        kwargs["norm"] = norm
+
     res = ax.pcolormesh(X, Y, data, transform=tr + ax.transData, **kwargs)
 
     if flagLegend:
-        _legendContinuous(ax, res, legendName)
+        if rule is None:
+            _legendContinuous(ax, res, legendName)
+        else:
+            handles = [
+                Patch(facecolor=colfacs[i], label=labels[i]) for i in range(len(labels))
+            ]
+            ax.legend(
+                handles=handles,
+                title=legendName,
+                loc="center left",
+                bbox_to_anchor=(1.02, 0.5),
+                borderaxespad=0.0,
+            )
 
     if len(ax.get_title()) <= 0:
         ax.decoration(title=dbgrid.getName(name)[0])
@@ -1980,19 +2058,18 @@ def rule(ruleobj, *args, **kwargs):
     return _ax_rule(ax, ruleobj=ruleobj, *args, **kwargs)
 
 
-def _ax_rule(ax, ruleobj, proportions=[], cmap=None, maxG=3.0):
+def _ax_rule(ax, ruleobj, proportions=[], maxG=3.0):
     if _isNotCorrect(object=ruleobj, types=["Rule"]):
         return None
 
     nfac = ruleobj.getNFacies()
     ruleobj.setProportions(proportions)
 
-    cols = getColorMap(nfac, cmap)
-
     for ifac in range(nfac):
         bds = ruleobj.getThresh(ifac + 1)
+        col = f"#{ruleobj.getFaciesColor(ifac):08x}"
         rect = ptc.Rectangle(
-            (bds[0], bds[2]), bds[1] - bds[0], bds[3] - bds[2], color=cols(ifac)
+            (bds[0], bds[2]), bds[1] - bds[0], bds[3] - bds[2], color=col
         )
         ax.add_patch(rect)
 

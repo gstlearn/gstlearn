@@ -22,22 +22,6 @@ namespace gstlrn
 {
   /****************************************************************************/
   /*!
-   **  Free a Rule structure
-   **
-   ** \return  Pointer to the newly freed Rule structure
-   **
-   ** \param[in]  rule Rule structure to be freed
-   **
-   *****************************************************************************/
-  Rule* rule_free(const Rule* rule)
-
-  {
-    delete rule;
-    return (nullptr);
-  }
-
-  /****************************************************************************/
-  /*!
    **  Apply the Rule transformation to the GRFs of a Db
    **  (Shadow case)
    **

@@ -1345,7 +1345,8 @@ namespace gstlrn
 
     /* Deallocation of the Rule */
 
-    local_pgs->rule = rule_free(local_pgs->rule);
+    delete local_pgs->rule;
+    local_pgs->rule = nullptr;
 
     score = st_extract_trace(local_pgs);
     return (score);
@@ -5397,7 +5398,11 @@ namespace gstlrn
 
     delete varioind;
     delete vario;
-    if (error) rule = rule_free(rule);
+    if (error)
+    {
+      delete rule;
+      rule = nullptr;
+    }
     return (rule);
   }
 } // namespace gstlrn

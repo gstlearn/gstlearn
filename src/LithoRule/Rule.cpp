@@ -20,6 +20,7 @@
 #include "LithoRule/RuleStringFormat.hpp"
 #include "Model/Model.hpp"
 
+#include <iomanip>
 #include <sstream>
 
 #define THRESH_IDLE 0
@@ -38,6 +39,10 @@ namespace gstlrn
 {
   static const VectorString symbol = {"F", "S", "T"};
   static Id GAUSS_MODE = 1;
+  constexpr std::array<Id, 5> DEFAULT_COLORS = {0x1f77b4ff, 0xff7f0eff,
+                                                0x2ca02cff, 0xd62728ff,
+                                                0x9467bdff};
+  constexpr Id DEFAULT_COLOR = 0x000000ff;
 
   /****************************************************************************/
   /*!
@@ -94,6 +99,11 @@ namespace gstlrn
     , _flagProp(0)
     , _rho(rho)
     , _mainNode(nullptr)
+    , _facies()
+    , _props()
+    , _facnames()
+    , _faccols()
+    , _facvalues()
   {
   }
 
@@ -104,6 +114,11 @@ namespace gstlrn
     , _flagProp(m._flagProp)
     , _rho(m._rho)
     , _mainNode(new Node(*m._mainNode))
+    , _facies(m._facies)
+    , _props(m._props)
+    , _facnames(m._facnames)
+    , _faccols(m._faccols)
+    , _facvalues(m._facvalues)
   {
   }
 
@@ -117,6 +132,11 @@ namespace gstlrn
       _flagProp = m._flagProp;
       _rho = m._rho;
       _mainNode = new Node(*m._mainNode);
+      _facies = m._facies;
+      _props = m._props;
+      _facnames = m._facnames;
+      _faccols = m._faccols;
+      _facvalues = m._facvalues;
     }
     return *this;
   }
@@ -259,7 +279,7 @@ namespace gstlrn
       else
         name << symbol[NODE_TYPE(inode)];
 
-      // Allocate the new node
+      // Allocate the Node
 
       auto* node_loc = new Node(name.str(), NODE_TYPE(inode), facies);
       if (inode == 0) _mainNode = node_loc;
@@ -292,6 +312,8 @@ namespace gstlrn
         case THRESH_Y2: n2tab[NODE_RANK(inode) - 1] = node_loc; break;
       }
     }
+
+    _initCharacteristics();
     return 0;
   }
 
@@ -324,9 +346,22 @@ namespace gstlrn
 
     sstr << displaySpecific();
 
-    sstr << std::endl;
+    // Description of the Nodes
+    sstr << toStrTitle(1, "Node Characteristics");
     sstr << _mainNode->nodePrint(dsf.getFlagProp(), dsf.getFlagThresh());
 
+    // Description of the Facies
+    sstr << toStrTitle(1, "Facies Characteristics");
+    for (Id ifac = 0; ifac < nfac_tot; ifac++)
+    {
+      sstr << "Facies " << ifac + 1;
+      if (_flagProp) sstr << " Proportion = " << _props[ifac];
+      sstr << " - Name = " << getFaciesName(ifac);
+      sstr << " - Color = #" << std::hex << std::setw(8) << std::setfill('0')
+           << getFaciesColor(ifac) << std::dec;
+      sstr << " - Assigned Value = " << getFaciesValue(ifac);
+      sstr << std::endl;
+    }
     return sstr.str();
   }
 
@@ -602,7 +637,7 @@ namespace gstlrn
   /*!
   **  Convert the two underlying GRFs into facies
   **
-  ** \return  The facies rank or 0 (facies not found)
+  ** \return  The facies rank (starting from 1) or 0 (facies not found)
   **
   ** \param[in]  y1     Value of the first underlying GRF
   ** \param[in]  y2     Value of the second underlying GRF
@@ -821,6 +856,7 @@ namespace gstlrn
     Id n_y1 = 0;
     Id n_y2 = 0;
     _mainNode = new Node("main", n_type, n_facs, &ipos, &n_fac, &n_y1, &n_y2);
+    _initCharacteristics();
   }
 
   void Rule::setMainNodeFromNodNames(const VectorString& nodnames)
@@ -833,6 +869,7 @@ namespace gstlrn
     Id n_y1 = 0;
     Id n_y2 = 0;
     _mainNode = new Node("main", n_type, n_facs, &ipos, &n_fac, &n_y1, &n_y2);
+    _initCharacteristics();
   }
 
   /****************************************************************************/
@@ -894,12 +931,11 @@ namespace gstlrn
             : 0.;
       }
       facies = getFaciesFromGaussian(y[0], y[1]);
-
-      /* Combine the underlying GRFs to derive Facies */
+      Id value = getFaciesValue(facies - 1);
 
       dbin->setSimvar(
         ELoc::FACIES, iech, isimu, 0, ipgs, nbsimu, 1,
-        static_cast<double>(facies));
+        static_cast<double>(value));
     }
     return 0;
   }
@@ -937,7 +973,6 @@ namespace gstlrn
     VectorDouble xyz(ndim);
 
     /* Processing the translation */
-
     for (Id iech = 0, nech = dbout->getNSample(); iech < nech; iech++)
     {
       if (!dbout->isActive(iech)) continue;
@@ -960,13 +995,13 @@ namespace gstlrn
             : 0.;
       }
       facies = getFaciesFromGaussian(y[0], y[1]);
-
-      /* Combine the underlying GRFs to derive Facies */
+      Id value = getFaciesValue(facies - 1);
 
       dbout->setSimvar(
         ELoc::FACIES, iech, isimu, 0, ipgs, nbsimu, 1,
-        static_cast<double>(facies));
+        static_cast<double>(value));
     }
+
     return 0;
   }
 
@@ -1127,6 +1162,86 @@ namespace gstlrn
     }
     return rule;
   }
+
+  String Rule::getFaciesName(Id facies) const
+  {
+    if (!checkArg("getFaciesName: Argument 'facies'", 0, getNFacies()))
+      return String();
+    return _facnames[facies];
+  }
+
+  Id Rule::getFaciesColor(Id facies) const
+  {
+    if (!checkArg("getFaciesColor: Argument 'facies'", 0, getNFacies()))
+      return DEFAULT_COLOR;
+    return _faccols[facies];
+  }
+
+  Id Rule::getFaciesValue(Id facies) const
+  {
+    if (!checkArg("getFaciesValue: Argument 'facies'", 0, getNFacies()))
+      return static_cast<Id>(-1);
+    return _facvalues[facies];
+  }
+
+  void Rule::setFaciesName(Id facies, const String& name)
+  {
+    if (!checkArg("setFaciesName: Argument 'facies'", 0, getNFacies())) return;
+    _facnames[facies] = name;
+  }
+
+  void Rule::setFaciesColor(Id facies, Id color)
+  {
+    if (!checkArg("setFaciesColor: Argument 'facies'", 0, getNFacies())) return;
+    _faccols[facies] = color;
+  }
+
+  void Rule::setFaciesValue(Id facies, Id value)
+  {
+    if (!checkArg("setFaciesValue: Argument 'facies'", 0, getNFacies())) return;
+    _facvalues[facies] = value;
+  }
+
+  void Rule::_initCharacteristics()
+  {
+    Id nfac = getNFacies();
+
+    // Names
+    if (nfac != static_cast<Id>(_facnames.size()))
+    {
+      _facnames.resize(nfac);
+
+      for (Id ifac = 0; ifac < nfac; ifac++)
+      {
+        std::stringstream name;
+        name << "F" << ifac + 1;
+        _facnames[ifac] = name.str();
+      }
+    }
+
+    // Colors
+    if (nfac != static_cast<Id>(_faccols.size()))
+    {
+      _faccols.resize(nfac);
+
+      for (Id ifac = 0; ifac < nfac; ifac++)
+      {
+        if (ifac < static_cast<Id>(DEFAULT_COLORS.size()))
+          _faccols[ifac] = DEFAULT_COLORS[ifac];
+        else
+          _faccols[ifac] = DEFAULT_COLOR;
+      }
+    }
+
+    // Assignment values
+    if (nfac != static_cast<Id>(_facvalues.size()))
+    {
+      _facvalues.resize(nfac);
+
+      for (Id ifac = 0; ifac < nfac; ifac++) _facvalues[ifac] = ifac + 1;
+    }
+  }
+
 #ifdef HDF5
   bool Rule::deserializeH5(H5::Group& grp)
   {
@@ -1153,6 +1268,16 @@ namespace gstlrn
       setMainNodeFromNodNames(nodes);
     }
 
+    // The rest is optional (to cope with old versions of Rule class)
+    bool ret2 = ret;
+    ret2 = ret2 && SerializeHDF5::readVec(*ruleG, "FaciesNames", _facnames);
+    if (ret2)
+    {
+      ret2 = ret2 && SerializeHDF5::readVec(*ruleG, "FaciesColors", _faccols);
+      ret2 = ret2 && SerializeHDF5::readVec(*ruleG, "FaciesValues", _facvalues);
+      return ret2;
+    }
+
     return ret;
   }
 
@@ -1169,6 +1294,9 @@ namespace gstlrn
     ret = ret && SerializeHDF5::writeValue(ruleG, "Rho", getRho());
     ret = ret && SerializeHDF5::writeVec(ruleG, "Nodes", nodes);
 
+    ret = ret && SerializeHDF5::writeVec(ruleG, "FaciesNames", _facnames);
+    ret = ret && SerializeHDF5::writeVec(ruleG, "FaciesColors", _faccols);
+    ret = ret && SerializeHDF5::writeVec(ruleG, "FaciesValues", _facvalues);
     return ret;
   }
 #endif

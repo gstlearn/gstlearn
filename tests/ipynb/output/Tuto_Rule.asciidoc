@@ -1,0 +1,60 @@
+#NO_DIFF#XXX
+----
+
+<IPython.core.display.Javascript object>----
+
+
+#NO_DIFF#XXX
+----
+
+Lithotype Rule
+==============
+- Number of nodes               = 5
+- Number of facies              = 3
+- Number of thresholds along G1 = 1
+- Number of thresholds along G2 = 1
+
+Node Characteristics
+--------------------
+Node F1 - Facies 1
+Node F2 - Facies 2
+Node F3 - Facies 3
+
+Facies Characteristics
+----------------------
+Facies 1 - Name = F1 - Color = #1f77b4ff - Assigned Value = 1
+Facies 2 - Name = MyFacies - Color = #ff7f0eff - Assigned Value = 2
+Facies 3 - Name = F3 - Color = #2ca02cff - Assigned Value = 6
+----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----            Number     Minimum     Maximum        Mean    St. Dev.    Variance
+  rank   12100.000       1.000   12100.000    6050.500    3492.969 12200833.250
+    x1   12100.000       0.000     109.000      54.500      31.753    1008.250
+    x2   12100.000       0.000     109.000      54.500      31.753    1008.250
+Facies   12100.000       1.000       6.000       2.954       2.055       4.222----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----

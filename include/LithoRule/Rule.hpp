@@ -140,6 +140,14 @@ namespace gstlrn
 
     void updateShift() const;
 
+    String getFaciesName(Id facies) const;
+    Id getFaciesColor(Id facies) const;
+    Id getFaciesValue(Id facies) const;
+
+    void setFaciesName(Id facies, const String& name);
+    void setFaciesColor(Id facies, Id color);
+    void setFaciesValue(Id facies, Id value);
+
   protected:
     bool _serializeAscii(std::ostream& os) const override;
     bool _deserializeAscii(std::istream& is) override;
@@ -164,6 +172,7 @@ namespace gstlrn
       VectorInt& n_type,
       VectorInt& n_facs);
     void _clear();
+    void _initCharacteristics();
 
   private:
     ERule _modeRule; /* Type of usage (ERule) */
@@ -172,13 +181,15 @@ namespace gstlrn
     Node* _mainNode;
 
     mutable VectorInt _facies;
-    mutable VectorDouble _props;
+    mutable VectorDouble _props; // Constant proportion per facies
+    mutable VectorString _facnames; // Name assigned to each facies
+    mutable VectorInt _faccols; // Color assigned to each facies
+    mutable VectorInt _facvalues; // Value attached to each facies
   };
 
   GSTLEARN_EXPORT void set_rule_mode(Id rule_mode);
   GSTLEARN_EXPORT Id get_rule_mode(void);
   GSTLEARN_EXPORT double get_rule_extreme(Id mode);
-  GSTLEARN_EXPORT Rule* rule_free(const Rule* rule);
   GSTLEARN_EXPORT Model* model_rule_combine(
     const Model* model1,
     const Model* model2,

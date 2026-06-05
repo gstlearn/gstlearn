@@ -347,10 +347,19 @@ Lithotype Rule
 - Number of thresholds along G1 = 2
 - Number of thresholds along G2 = 1
 
+Node Characteristics
+--------------------
 Node F1 - Facies 1
 Node F2 - Facies 2
 Node F3 - Facies 3
 Node F4 - Facies 4
+
+Facies Characteristics
+----------------------
+Facies 1 - Name = F1 - Color = #1f77b4ff - Assigned Value = 1
+Facies 2 - Name = F2 - Color = #ff7f0eff - Assigned Value = 2
+Facies 3 - Name = F3 - Color = #2ca02cff - Assigned Value = 3
+Facies 4 - Name = F4 - Color = #d62728ff - Assigned Value = 4
 
 Lithotype Rule
 ==============
@@ -359,10 +368,19 @@ Lithotype Rule
 - Number of thresholds along G1 = 2
 - Number of thresholds along G2 = 1
 
+Node Characteristics
+--------------------
 Node F1 - Facies 1
 Node F2 - Facies 2
 Node F3 - Facies 3
 Node F4 - Facies 4
+
+Facies Characteristics
+----------------------
+Facies 1 - Name = F1 - Color = #1f77b4ff - Assigned Value = 1
+Facies 2 - Name = F2 - Color = #ff7f0eff - Assigned Value = 2
+Facies 3 - Name = F3 - Color = #2ca02cff - Assigned Value = 3
+Facies 4 - Name = F4 - Color = #d62728ff - Assigned Value = 4
 Number of Vertices = 100
 Line Vertex Coordinates
                  [,  0]     [,  1]
