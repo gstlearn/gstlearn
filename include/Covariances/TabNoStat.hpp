@@ -20,13 +20,38 @@
 #include "Enum/EConsElem.hpp"
 #include "geoslib_define.h"
 #include <memory>
+
+#ifdef USE_BOOST_SPAN
+// Hash containers use user-specified hash operators (e.g., ParamIdHash) that
+// return a 64 bits hash. This is internally folded into a bucket index which
+// depends on the current container size. With VS2017 (and maybe other
+// versions), this is done internally by std::_Hash::_Hashval() in xhash by
+// masking (&) with the size. This can cause some hash collisions, because in
+// effect this amounts to only looking at the lowest-order bits of the full
+// hash (those that match the size).
+//
+// boost::unordered_map implements a smarter folding strategy that uses all
+// bits, to avoid this.
+//
+// gcc does not seem to have this problem, even though the folding of the hash
+// is apparently also done by default with a modulo (which is the same), see
+// the _Mod_range_hashing struct in hashtable_policy.h?
+#include <boost/unordered_map.hpp>
+#else
 #include <unordered_map>
+#endif
 
 namespace gstlrn
 {
+#ifdef USE_BOOST_SPAN
+  typedef boost::
+    unordered_map<ParamId, std::shared_ptr<ANoStat>, ParamIdHash, ParamIdEqual>
+      mapNoStat;
+#else
   typedef std::
     unordered_map<ParamId, std::shared_ptr<ANoStat>, ParamIdHash, ParamIdEqual>
       mapNoStat;
+#endif
 
   class GSTLEARN_EXPORT TabNoStat: public AStringable,
                                    public ICloneable,
