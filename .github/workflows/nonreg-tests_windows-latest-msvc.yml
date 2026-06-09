@@ -45,12 +45,12 @@ jobs:
     - name: Build & install nlopt static libraries
       uses: ./.github/actions/nlopt_static_windows
       env:
-        CMAKE_GENERATOR: "Visual Studio 17 2022"
+        CMAKE_GENERATOR: "Visual Studio 18 2026"
 
     - name: Build & install HDF5 static libraries
       uses: ./.github/actions/hdf5_static_windows
       env:
-        CMAKE_GENERATOR: "Visual Studio 17 2022"
+        CMAKE_GENERATOR: "Visual Studio 18 2026"
 
     - name: Setup Python
       uses: ./.github/actions/setup_python
