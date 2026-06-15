@@ -689,7 +689,8 @@ namespace gstlrn
 
     // Saving the results
     Id iptr = dbout->addColumns(result, String(), ELoc::UNDEFINED, 0, true);
-    namconv.setNamesAndLocators(dbout, iptr, "estim", nvar);
+    namconv.setNamesAndLocators(
+      dbin, VectorString(), ELoc::Z, nvar, dbout, iptr, "estim");
 
     return 0;
   }
