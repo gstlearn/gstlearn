@@ -34,6 +34,7 @@
 #include "Space/SpaceRN.hpp"
 #include "Stats/Classical.hpp"
 #include "Variogram/Vario.hpp"
+#include "Variogram/VarioOrder.hpp"
 #include "Variogram/VarioParam.hpp"
 
 namespace gstlrn
@@ -930,7 +931,7 @@ namespace gstlrn
     }
 
     if (flagDirs)
-      for (Id idir = 0; idir < getNDir(); idir++) _directionResize(idir);
+      for (Id idir = 0; idir < ndir; idir++) _directionResize(idir);
   }
 
   void Vario::_directionResize(Id idir)
@@ -1836,6 +1837,30 @@ namespace gstlrn
     return _utilize[idir];
   }
 
+  void Vario::setAllGg(Id idir, const VectorDouble& gg)
+  {
+    if (!_isDirectionValid(idir)) return;
+    _gg[idir] = gg;
+  }
+
+  void Vario::setAllHh(Id idir, const VectorDouble& hh)
+  {
+    if (!_isDirectionValid(idir)) return;
+    _hh[idir] = hh;
+  }
+
+  void Vario::setAllSw(Id idir, const VectorDouble& sw)
+  {
+    if (!_isDirectionValid(idir)) return;
+    _sw[idir] = sw;
+  }
+
+  void Vario::setAllUtilize(Id idir, const VectorDouble& utilize)
+  {
+    if (!_isDirectionValid(idir)) return;
+    _utilize[idir] = utilize;
+  }
+
   Id Vario::getCenter(Id ivar, Id jvar, Id idir) const
   {
     if (!_isDirectionValid(idir)) return ITEST;
@@ -2561,7 +2586,7 @@ namespace gstlrn
   Id Vario::_calculateGeneral(Db* db, bool flag_sample, Id verr_mode)
   {
     bool flag_verr = false;
-    Vario_Order* vorder = nullptr;
+    VarioOrder vorder;
 
     /* Particular case of Transitive Covariogram */
     /* It is only coded in the by_sample case and uses the regression technique */
@@ -2572,17 +2597,14 @@ namespace gstlrn
 
     if (db->getNLoc(ELoc::V) > 0 && verr_mode > 0)
     {
-      vorder = vario_order_manage(1, 1, 0, vorder);
+      vorder = VarioOrder(1, 0);
       flag_verr = true;
     }
 
     // Auxiliary check for Drift removal. This is triggered only if the drift
     // contains at least one drift function different from Universality condition
 
-    if (_flag_UK)
-    {
-      if (vorder == nullptr) vorder = vario_order_manage(1, 1, 0, vorder);
-    }
+    if (_flag_UK) vorder = VarioOrder(1, 0);
 
     /* Complementary checks */
 
@@ -2629,7 +2651,7 @@ namespace gstlrn
         if (_calculateGeneralBySample(db, idir, rindex.data())) return 1;
       }
 
-      if (vorder != nullptr) _calculateFromGeometry(db, idir, vorder);
+      if (!vorder.empty()) _calculateFromGeometry(db, idir, vorder);
     }
 
     /* Posterior calculations when presence of Variance of Measurement errors */
@@ -2651,7 +2673,7 @@ namespace gstlrn
 
     /* Set the error return code */
 
-    vario_order_manage(-1, 1, 0, vorder);
+    vorder.clear();
     return 0;
   }
 
@@ -2662,10 +2684,10 @@ namespace gstlrn
    ** \return  Error returned code
    **
    ** \param[in]  db         Db description
-   ** \param[in]  vorder     Vario_Order structure
+   ** \param[in]  vorder     VarioOrder structure
    **
    *****************************************************************************/
-  Id Vario::_updateUK(Db* db, Vario_Order* vorder)
+  Id Vario::_updateUK(Db* db, VarioOrder& vorder)
   {
     Option_VarioFit optvar;
     Option_AutoFit mauto;
@@ -2691,7 +2713,7 @@ namespace gstlrn
         // Loop on the lags
         for (Id ilag = 0, nlag = getNLag(idir); ilag < nlag; ilag++)
         {
-          vario_order_get_bounds(vorder, idir, ilag, &ifirst, &ilast);
+          vorder.getBounds(idir, ilag, &ifirst, &ilast);
           if (ifirst > ilast) continue;
           _calculateBiasLocal(db, idir, ilag, vorder, ifirst, ilast);
         }
@@ -2727,7 +2749,7 @@ namespace gstlrn
         // Loop on the lags
         for (Id ilag = 0, nlag = getNLag(idir); ilag < nlag; ilag++)
         {
-          vario_order_get_bounds(vorder, idir, ilag, &ifirst, &ilast);
+          vorder.getBounds(idir, ilag, &ifirst, &ilast);
           if (ifirst > ilast) continue;
           _calculateBiasLocal(db, idir, ilag, vorder, ifirst, ilast);
         }
@@ -2743,7 +2765,7 @@ namespace gstlrn
    ** \param[in]  db        Db description
    ** \param[in]  idir      Rank of the current direction
    ** \param[in]  ilag      Rank of the current lag
-   ** \param[in]  vorder    Vario_Order structure
+   ** \param[in]  vorder    VarioOrder structure
    ** \param[in]  ifirst    Rank of the first lag
    ** \param[in]  ilast     Rank of the last lag
    **
@@ -2754,7 +2776,7 @@ namespace gstlrn
     Db* db,
     Id idir,
     Id ilag,
-    Vario_Order* vorder,
+    VarioOrder& vorder,
     Id ifirst,
     Id ilast)
   {
@@ -2769,7 +2791,7 @@ namespace gstlrn
     double totnum = 0.;
     for (Id ipair = ifirst; ipair < ilast; ipair++)
     {
-      vario_order_get_indices(vorder, ipair, &iech, &jech, &dist);
+      vorder.getIndices(ipair, &iech, &jech, &dist);
       double v1 = _getIVAR(db, iech, 0);
       double v2 = _getIVAR(db, jech, 0);
       if (FFFF(v1) || FFFF(v2)) continue;
@@ -3286,11 +3308,11 @@ namespace gstlrn
    **
    ** \param[in]  db        Db description
    ** \param[in]  idir      Rank of the direction
-   ** \param[in]  vorder    Vario_Order structure
+   ** \param[in]  vorder    VarioOrder structure
    ** \param[in]  verr_mode Mode of variogram correction (1, 2 or 3)
    **
    *****************************************************************************/
-  Id Vario::_updateVerr(Db* db, Id idir, Vario_Order* vorder, Id verr_mode)
+  Id Vario::_updateVerr(Db* db, Id idir, VarioOrder& vorder, Id verr_mode)
   {
     Id ifirst, ilast, iech, jech, number, nfois;
     double dist, value, g_old, diff, sumt, sumb, wgt, sval, gval;
@@ -3305,7 +3327,7 @@ namespace gstlrn
 
     for (Id ilag = 0; ilag < nlag; ilag++)
     {
-      vario_order_get_bounds(vorder, idir, ilag, &ifirst, &ilast);
+      vorder.getBounds(idir, ilag, &ifirst, &ilast);
       if (ifirst > ilast) continue;
 
       /* Dispatch according to the method */
@@ -3318,7 +3340,7 @@ namespace gstlrn
           value = 0.;
           for (Id ipair = ifirst; ipair < ilast; ipair++)
           {
-            vario_order_get_indices(vorder, ipair, &iech, &jech, &dist);
+            vorder.getIndices(ipair, &iech, &jech, &dist);
             value += _s(db, iech, jech);
             number++;
           }
@@ -3336,7 +3358,7 @@ namespace gstlrn
             sumt = sumb = 0.;
             for (Id ipair = ifirst; ipair < ilast; ipair++)
             {
-              vario_order_get_indices(vorder, ipair, &iech, &jech, &dist);
+              vorder.getIndices(ipair, &iech, &jech, &dist);
               sval = _s(db, iech, jech);
               gval = _g(db, iech, jech);
               value = sval + getGg(idir, 0, 0, ilag);
@@ -3361,7 +3383,7 @@ namespace gstlrn
             sumt = sumb = 0.;
             for (Id ipair = ifirst; ipair < ilast; ipair++)
             {
-              vario_order_get_indices(vorder, ipair, &iech, &jech, &dist);
+              vorder.getIndices(ipair, &iech, &jech, &dist);
               sval = _s(db, iech, jech);
               gval = _g(db, iech, jech);
               value = sval + getGgByIndex(idir, ilag);
@@ -3450,10 +3472,10 @@ namespace gstlrn
    **
    ** \param[in]  db     Db description
    ** \param[in]  idir   Rank of the direction
-   ** \param[in]  vorder Vario_Order structure
+   ** \param[in]  vorder VarioOrder structure
    **
    *****************************************************************************/
-  void Vario::_calculateFromGeometry(Db* db, Id idir, Vario_Order* vorder)
+  void Vario::_calculateFromGeometry(Db* db, Id idir, VarioOrder& vorder)
   {
     Id iech, jech, ifirst, ilast;
     double dist;
@@ -3467,13 +3489,13 @@ namespace gstlrn
 
     for (Id ilag = 0; ilag < nlag; ilag++)
     {
-      vario_order_get_bounds(vorder, idir, ilag, &ifirst, &ilast);
+      vorder.getBounds(idir, ilag, &ifirst, &ilast);
 
       /* Loop on the pairs contributing to this lag */
 
       for (Id ipair = ifirst; ipair < ilast; ipair++)
       {
-        vario_order_get_indices(vorder, ipair, &iech, &jech, &dist);
+        vorder.getIndices(ipair, &iech, &jech, &dist);
 
         /* Evaluate the variogram */
 
@@ -3503,18 +3525,18 @@ namespace gstlrn
    ** \param[in]  db     Db description
    ** \param[in]  idir   Rank of the direction
    ** \param[in]  rindex Array of sorted samples
-   ** \param[in]  vorder Vario_Order structure
+   ** \param[in]  vorder VarioOrder structure
    **
    *****************************************************************************/
   Id Vario::_calculateGeneralByPair(
     Db* db,
     Id idir,
     const Id* rindex,
-    Vario_Order* vorder)
+    VarioOrder& vorder)
   {
     SpaceTarget T1(getSpace(), false);
     SpaceTarget T2(getSpace(), false);
-    Id iech, jech, ilag, npair, ideb;
+    Id iech, jech, ilag, ideb;
 
     DirParam dirparam = getDirParam(idir);
     Id nech = db->getNSample();
@@ -3556,9 +3578,9 @@ namespace gstlrn
 
         /* Case of internal storage */
 
-        if (vorder != nullptr)
+        if (!vorder.empty())
         {
-          vario_order_add(vorder, iech, jech, NULL, NULL, ilag, idir, dist);
+          vorder.add(iech, jech, NULL, NULL, ilag, idir, dist);
         }
         else
         {
@@ -3572,9 +3594,9 @@ namespace gstlrn
 
     /* Internal storage */
 
-    if (vorder != nullptr)
+    if (!vorder.empty())
     {
-      vario_order_final(vorder, &npair);
+      vorder.final();
     }
     else
     {
@@ -4113,11 +4135,11 @@ namespace gstlrn
    **
    ** \param[in]  db     Db description
    **
-   ** \param[out] vorder Vario_Order structure
+   ** \param[out] vorder VarioOrder structure
    ** \param[out] npair  Number of pairs
    **
    *****************************************************************************/
-  Id Vario::computeGeometry(Db* db, Vario_Order* vorder, Id* npair)
+  Id Vario::computeGeometry(Db* db, VarioOrder& vorder, Id* npair)
   {
     SpaceTarget T1(getSpace(), false);
     SpaceTarget T2(getSpace(), false);
@@ -4183,14 +4205,14 @@ namespace gstlrn
 
           /* Case of internal storage */
 
-          vario_order_add(vorder, iech, jech, NULL, NULL, ilag, idir, dist);
+          vorder.add(iech, jech, NULL, NULL, ilag, idir, dist);
         }
       }
     }
 
     /* Sort the geometry */
 
-    vorder = vario_order_final(vorder, npair);
+    *npair = vorder.final();
 
     return 0;
   }
@@ -4929,17 +4951,16 @@ namespace gstlrn
    ** \param[in]  db     Db description
    ** \param[in]  seltab Number of sample definition (0, 1 or 2)
    **
-   ** \param[out]  vorder Vario_Order structure
+   ** \param[out]  vorder VarioOrder structure
    **
    *****************************************************************************/
-  Id Vario::computeGeometryMLayers(
-    Db* db,
-    VectorInt& seltab,
-    Vario_Order* vorder) const
+  Id
+    Vario::computeGeometryMLayers(Db* db, VectorInt& seltab, VarioOrder& vorder)
+      const
   {
     SpaceTarget T1(getSpace(), false);
     SpaceTarget T2(getSpace(), false);
-    Id iiech, jjech, npair;
+    Id iiech, jjech;
 
     /* Initializations */
 
@@ -4986,14 +5007,13 @@ namespace gstlrn
 
               /* Internal storage */
 
-              vario_order_add(
-                vorder, iiech, jjech, &iech, &jech, ilag, idir, ABS(dist));
+              vorder.add(iiech, jjech, &iech, &jech, ilag, idir, ABS(dist));
             }
           }
         }
       }
     }
-    vario_order_final(vorder, &npair);
+    (void)vorder.final();
     return (0);
   }
 

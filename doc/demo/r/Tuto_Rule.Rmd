@@ -24,7 +24,6 @@ Global variables
 ```{r}
 ndim = 2
 err = defineDefaultSpace(ESpaceType_RN(), ndim)
-err = set_test_discrete(FALSE)
 ```
 
 # Defining the Rule

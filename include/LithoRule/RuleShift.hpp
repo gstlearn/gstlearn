@@ -26,6 +26,9 @@ namespace gstlrn
     RuleShift& operator=(const RuleShift& m);
     virtual ~RuleShift();
 
+    /// ICloneable Interface
+    IMPLEMENT_CLONING(RuleShift)
+
     /// ASerializable Interface
     String getNFName() const override { return "RuleShift"; }
 #ifdef HDF5
@@ -35,24 +38,11 @@ namespace gstlrn
 
     String displaySpecific() const override;
 
-    Id resetFromNodes(const VectorInt& nodes, const VectorDouble& shift);
     Id resetFromNames(const VectorString& nodnames, const VectorDouble& shift);
     Id resetFromFaciesCount(Id nfacies, const VectorDouble& shift);
-    Id resetFromNumericalCoding(
-      const VectorInt& n_type,
-      const VectorInt& n_facs,
-      const VectorDouble& shift);
 
     static RuleShift*
-      createFromNodes(const VectorInt& nodes, const VectorDouble& shift);
-    static RuleShift*
       createFromNames(const VectorString& nodnames, const VectorDouble& shift);
-    static RuleShift*
-      createFromFaciesCount(Id nfacies, const VectorDouble& shift);
-    static RuleShift* createFromNumericalCoding(
-      const VectorInt& n_type,
-      const VectorInt& n_facs,
-      const VectorDouble& shift);
 
     Id particularities(
       Db* db,
@@ -93,6 +83,10 @@ namespace gstlrn
     bool _deserializeAscii(std::istream& is) override;
 
   private:
+    Id _resetFromNumericalCoding(
+      const VectorInt& n_type,
+      const VectorInt& n_facs,
+      const VectorDouble& shift);
     Id _st_shift_on_grid(Db* db, Id ndim, Id flag_grid_check) const;
 
   private:

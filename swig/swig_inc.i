@@ -200,6 +200,7 @@
   #include "Variogram/DirParam.hpp"
   #include "Variogram/VMap.hpp"
   #include "Variogram/VCloud.hpp"
+  #include "Variogram/VarioOrder.hpp"
 
   #include "Basic/ParamInfo.hpp"
   #include "Basic/ListParams.hpp"
@@ -417,6 +418,11 @@
   #include "Spatial/Projection.hpp"
   #include "Spatial/SpatialIndices.hpp"
 
+  #include "PluriGaussian/TracePGS.hpp"
+  #include "PluriGaussian/CorPGS.hpp"
+  #include "PluriGaussian/DiscretePGS.hpp"
+  #include "PluriGaussian/CalcModelPGS.hpp"
+
   #include "Core/Acknowledge.hpp"
   #include "Core/Seismic.hpp"
 
@@ -463,9 +469,10 @@
 %template(VectorConstProjMatrix)   std::vector< const gstlrn::ProjMatrix*>;
 %template(VectorConstIProj)        std::vector< const gstlrn::IProj*>;
 %template(VVectorConstProjMatrix)  std::vector< std::vector< const gstlrn::ProjMatrix*> >;
-%template(VVectorConstIProj) std::vector< std::vector< const gstlrn::IProj*> >;
+%template(VVectorConstIProj)       std::vector< std::vector< const gstlrn::IProj*> >;
 %template(VecMeshes)               std::vector< const gstlrn::AMesh*>;
-%template(VectorMatrixSquare)      std::vector<gstlrn::MatrixSquare >;
+%template(VectorMatrixSquare)      std::vector< gstlrn::MatrixSquare >;
+%template(VectorRule)              std::vector< gstlrn::Rule>;
 
 ///////////////////////////////////////
 // Conversion Target language => C++ //

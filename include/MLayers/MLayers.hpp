@@ -21,6 +21,7 @@ namespace gstlrn
   class Model;
   class MatrixSquare;
   class Vario;
+  class VarioOrder;
 
   class GSTLEARN_EXPORT MLayers: public AStringable
   {
@@ -190,7 +191,7 @@ namespace gstlrn
       VectorDouble& post_mean,
       MatrixSquare& post_vars) const;
     Id _evaluateLag(
-      Vario_Order* vorder,
+      VarioOrder& vorder,
       Id ifirst,
       Id ilast,
       VectorDouble& zval,
@@ -202,7 +203,7 @@ namespace gstlrn
       MatrixSquare& atab,
       VectorDouble& btab);
     Id _getVarioCHH(
-      Vario_Order* vorder,
+      VarioOrder& vorder,
       VectorDouble& zval,
       Id idir,
       Vario* vario);

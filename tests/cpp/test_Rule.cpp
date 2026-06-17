@@ -8,13 +8,12 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /*                                                                            */
-/* This file is meant to demonstrate the managment of Rule object            */
+/* This file is meant to demonstrate the managment of Rule object             */
 /*                                                                            */
 /******************************************************************************/
 #include "Basic/File.hpp"
 #include "LithoRule/Rule.hpp"
 #include "Simulation/CalcSimuPGS.hpp"
-#include "geoslib_f.h"
 
 using namespace gstlrn;
 
@@ -33,9 +32,6 @@ int main(int argc, char* argv[])
   Id error = 0;
   Id ndim = 2;
   defineDefaultSpace(ESpaceType::RN, ndim);
-
-  // Prepare the Discrete process with Discretized Option
-  set_test_discrete(false);
 
   // Creating the Rule
   Rule* rule = Rule::createFromNames({"S", "T", "F1", "F2", "F3"});

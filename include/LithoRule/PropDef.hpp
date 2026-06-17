@@ -108,7 +108,6 @@ namespace gstlrn
     std::array<Id, 2> _nfac{}; /* Number of facies for the PGSs */
     Id _nfaccur; /* Number of facies for current PGS */
     Id _nfacprod; /* Product of the number of facies */
-    Id _nfacmax; /* Maximum number of facies over all PGS */
     EProcessOper _mode; /* Type of process */
     mutable VectorDouble _propfix;
     mutable VectorDouble _propmem;

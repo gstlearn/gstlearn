@@ -50,9 +50,6 @@ int main(int argc, char* argv[])
   CovContext ctxt(1, 2, 1.); // use default space
   DbStringFormat dbfmt;
 
-  // Prepare the Discrete process with Discretized Option
-  set_test_discrete(false);
-
   // Creating an output Grid Db
   DbGrid* dbgrid = DbGrid::create({100, 100}, {0.01, 0.01}, {0., 0.});
 
@@ -125,6 +122,13 @@ int main(int argc, char* argv[])
   (void)ruleshift->dumpToNF("PGSruleshift.NF");
 
   RuleProp* rulepropshift = RuleProp::createFromRule(ruleshift, propshift);
+  const ERule modeRule = rulepropshift->getRule()->getModeRule();
+  if (modeRule != ERule::SHIFT)
+  {
+    messerr(
+      "In the PGS application, only Shift Rule is authorized for this test");
+    return 1;
+  }
 
   // Perform a non-conditional PGS Shift simulation on a grid
   (void)simpgs(nullptr, dbgrid, rulepropshift, model1, nullptr, neighU, nbsimu);

@@ -560,6 +560,7 @@ namespace gstlrn
   ** \param[in]  t1max Maximum bound for the first GRF
   ** \param[in]  t2min Minimum bound for the second GRF
   ** \param[in]  t2max Maximum bound for the second GRF
+  ** \param[in]  flagGaussian true if the bounds are expressed in Gaussian scale
   **
   *****************************************************************************/
   void Node::proportionToThresh(
@@ -567,32 +568,44 @@ namespace gstlrn
     double t1min,
     double t1max,
     double t2min,
-    double t2max)
+    double t2max,
+    bool flagGaussian)
   {
+    // If the correlation is not zero, the bounds must be expressed in Gaussian space
+    if (rho != 0.) flagGaussian = true;
+
+    if (isNA(t1min)) t1min = (flagGaussian) ? get_rule_extreme(-1) : 0.;
+    if (isNA(t1max)) t1max = (flagGaussian) ? get_rule_extreme(+1) : 1.;
+    if (isNA(t2min)) t2min = (flagGaussian) ? get_rule_extreme(-1) : 0.;
+    if (isNA(t2max)) t2max = (flagGaussian) ? get_rule_extreme(+1) : 1.;
     _t1min = t1min;
     _t1max = t1max;
     _t2min = t2min;
     _t2max = t2max;
-    _cdf1min = _transform(-1, t1min);
-    _cdf1max = _transform(-1, t1max);
-    _cdf2min = _transform(-1, t2min);
-    _cdf2max = _transform(-1, t2max);
+    _cdf1min = _transform(-1, t1min, flagGaussian);
+    _cdf1max = _transform(-1, t1max, flagGaussian);
+    _cdf2min = _transform(-1, t2min, flagGaussian);
+    _cdf2max = _transform(-1, t2max, flagGaussian);
 
-    _thresh = _threshFromPropcum(rho);
+    _thresh = _threshFromPropcum(rho, flagGaussian);
 
     if (_orient == THRESH_Y1)
     {
       if (_r1 != nullptr)
-        _r1->proportionToThresh(rho, t1min, _thresh, t2min, t2max);
+        _r1->proportionToThresh(
+          rho, t1min, _thresh, t2min, t2max, flagGaussian);
       if (_r2 != nullptr)
-        _r2->proportionToThresh(rho, _thresh, t1max, t2min, t2max);
+        _r2->proportionToThresh(
+          rho, _thresh, t1max, t2min, t2max, flagGaussian);
     }
     else
     {
       if (_r1 != nullptr)
-        _r1->proportionToThresh(rho, t1min, t1max, t2min, _thresh);
+        _r1->proportionToThresh(
+          rho, t1min, t1max, t2min, _thresh, flagGaussian);
       if (_r2 != nullptr)
-        _r2->proportionToThresh(rho, t1min, t1max, _thresh, t2max);
+        _r2->proportionToThresh(
+          rho, t1min, t1max, _thresh, t2max, flagGaussian);
     }
   }
 
@@ -604,10 +617,12 @@ namespace gstlrn
   **
   ** \param[in]  mode    <0 from gaussian to real; >0 from real to gaussian
   ** \param[in]  value   Input value
+  ** \param[in]  flagGaussian true if the bounds are expressed in Gaussian scale
   **
   *****************************************************************************/
-  double Node::_transform(Id mode, double value)
+  double Node::_transform(Id mode, double value, bool flagGaussian)
   {
+    if (!flagGaussian) return (value);
     if (mode < 0)
     {
       if (get_rule_mode()) return (law_cdf_gaussian(value));
@@ -625,12 +640,13 @@ namespace gstlrn
   ** return  Threshold value or TEST if an error occurs
   **
   ** \param[in]  rho  Correlation between the GRFs
+  ** \param[in]  flagGaussian  true if the bounds are expressed in Gaussian scale
+  ** \param[in]  eps  Tolerance for the dichotomy method
   **
   *****************************************************************************/
-  double Node::_threshFromPropcum(double rho)
+  double Node::_threshFromPropcum(double rho, bool flagGaussian, double eps)
   {
     double gval, sump;
-    static double eps_small = 1.e-04;
 
     /* Initializations */
 
@@ -647,22 +663,22 @@ namespace gstlrn
 
       if (_orient == THRESH_Y1)
       {
-        if (ABS(sump) > eps_small)
+        if (ABS(sump) > eps)
           gval = (_cdf1min * _p2 + _cdf1max * _p1) / sump;
         else
           gval = _cdf1min;
       }
       else
       {
-        if (ABS(sump) > eps_small)
+        if (ABS(sump) > eps)
           gval = (_cdf2min * _p2 + _cdf2max * _p1) / sump;
         else
           gval = _cdf2min;
       }
 
-      if (gval < eps_small) gval = 0.;
-      if (gval > 1. - eps_small) gval = 1.;
-      return _transform(1, gval);
+      if (gval < eps) gval = 0.;
+      if (gval > 1. - eps) gval = 1.;
+      return _transform(1, gval, flagGaussian);
     }
 
     /* Case of two correlated GRFs */
@@ -825,4 +841,5 @@ namespace gstlrn
     Id n_y2 = 0;
     _getInfo(nodes, 0, 0, 0, &rank, &n_fac, &n_y1, &n_y2);
   }
+
 } // namespace gstlrn

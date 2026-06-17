@@ -75,8 +75,8 @@ namespace gstlrn
   /* Prototyping the functions in util.c */
   /***************************************/
 
-  GSTLEARN_EXPORT VectorInt
-    ut_split_into_two(Id ncolor, Id flag_half, Id verbose, Id* nposs);
+  GSTLEARN_EXPORT VectorVectorInt
+    ut_split_into_two(Id ncolor, Id flag_half, bool verbose);
 
   GSTLEARN_EXPORT double
     ut_distance(Id ndim, const double* tab1, const double* tab2);
