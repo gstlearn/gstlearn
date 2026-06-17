@@ -28,8 +28,6 @@ env:
   BUILD_DIR : build
   CMAKE_GENERATOR : "MSYS Makefiles"
   SWIG_ROOT : ${{github.workspace}}\swig
-  DOXYGEN_ROOT : ${{github.workspace}}\doxygen
-  DOXYGEN_VERSION : "1.9.8"
   CMAKE_TOOLCHAIN_FILE : C:\vcpkg\scripts\buildsystems\vcpkg.cmake
   VCPKG_LIBRARY_LINKAGE: static
 
@@ -76,10 +74,8 @@ jobs:
         pacman -Sy --noconfirm mingw-w64-x86_64-eigen3
 
     - name: Install Doxygen under windows
-      uses: fabien-ors/install-doxygen-windows-action@v1
-      with:
-        doxygen-root: ${{env.DOXYGEN_ROOT}}
-        doxygen-version: ${{env.DOXYGEN_VERSION}}
+      run: |
+        choco install doxygen.install graphviz
 
     - name: Install the customized SWIG from source
       uses: fabien-ors/install-swig-windows-action@v3
@@ -102,8 +98,7 @@ jobs:
           -DBUILD_R=ON `
           -DHDF5_USE_STATIC_LIBRARIES=ON `
           -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig `
-          -DBUILD_DOC=ON `
-          -DDoxygen_ROOT=${{env.DOXYGEN_ROOT}}
+          -DBUILD_DOC=ON
       env:
         HDF5_ROOT: "C:/Program Files/HDF5/cmake/"
 
