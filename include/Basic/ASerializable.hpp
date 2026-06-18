@@ -126,7 +126,7 @@ namespace gstlrn
 #ifdef HDF5
     EFormatNF _defaultFormatNF{EFormatNF::H5};
 #else
-	EFormatNF _defaultFormatNF{EFormatNF::ASCII};
+    EFormatNF _defaultFormatNF{EFormatNF::ASCII};
 #endif
   };
 
