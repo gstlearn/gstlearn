@@ -2027,7 +2027,7 @@ namespace gstlrn
 
   bool Vario::_deserializeAscii(std::istream& is)
   {
-    Id flag_calcul = 2;
+    Id flag_calcul = 1;
     Id ndim = 0;
     Id nvar = 0;
     Id ndir = 0;
@@ -2056,7 +2056,7 @@ namespace gstlrn
 
     // Reading the variable names
     _variableNames.resize(nvar, "Unknown");
-    if (flag_calcul == 2)
+    if (flag_calcul == 1)
     {
       // Reading the variable names
       for (Id ivar = 0; ivar < nvar; ivar++)
