@@ -123,7 +123,11 @@ namespace gstlrn
 
   private:
     static String _myPrefixName;
+#ifdef HDF5
     EFormatNF _defaultFormatNF{EFormatNF::H5};
+#else
+	EFormatNF _defaultFormatNF{EFormatNF::ASCII};
+#endif
   };
 
   template<typename T>
