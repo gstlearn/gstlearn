@@ -4,6 +4,10 @@ Vario
 1 # Number of directions
 1.000000 # Scale
 1 # Calculation Flag
+# Variable names
+Unknown
+Unknown
+#
 # Variance
 0.997415 0.361160 
 0.361160 0.756587 
