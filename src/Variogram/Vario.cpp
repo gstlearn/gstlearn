@@ -2048,7 +2048,7 @@ namespace gstlrn
     bool ret = true;
     ret = ret && _recordRead<Id>(is, "Space Dimension", ndim);
     ret = ret && _recordRead<Id>(is, "Number of Variables", nvar);
-    ret = ret && _recordRead<Id>(is, "Number of Variogram Directions", ndir);
+    ret = ret && _recordRead<Id>(is, "Number of directions", ndir);
     ret = ret && _recordRead<double>(is, "Scale", scale);
 
     // Reading the calculation flag
@@ -2089,13 +2089,14 @@ namespace gstlrn
 
     for (Id idir = 0; ret && idir < ndir; idir++)
     {
+      ret = ret && _recordRead<Id>(is, "Regular lags", flag_regular);
+      ret = ret && _recordRead<Id>(is, "Number of lags", nlag);
+      ret = ret && _recordRead<Id>(is, "", opt_code);
       ret = ret
-         && _recordRead<Id>(is, "Regular Variogram Calculation", flag_regular);
-      ret = ret && _recordRead<Id>(is, "Number of Variogram Lags", nlag);
-      ret = ret && _recordRead<Id>(is, "Variogram Code Option", opt_code);
-      ret = ret && _recordRead<double>(is, "Tolerance on Code", tolcode);
-      ret = ret && _recordRead<double>(is, "Lag Value", dlag);
-      ret = ret && _recordRead<double>(is, "Tolerance on Distance", toldis);
+         && _recordRead<double>(
+              is, "Code selection: Option - Tolerance", tolcode);
+      ret = ret && _recordRead<double>(is, "Lag value", dlag);
+      ret = ret && _recordRead<double>(is, "Tolerance on distance", toldis);
       ret = ret && _recordRead<Id>(is, "Grid Definition", isDefinedForGrid);
 
       VectorDouble codir;
@@ -2105,17 +2106,19 @@ namespace gstlrn
 
         // Direction definition
 
-        ret = ret && _recordRead<double>(is, "Tolerance on Direction", tolang);
-        ret =
-          ret && _recordReadVec<double>(is, "Direction vector", codir, ndim);
+        ret = ret && _recordRead<double>(is, "Tolerance on angle", tolang);
+        ret = ret
+           && _recordReadVec<double>(is, "Direction coefficients", codir, ndim);
       }
       else
       {
         // Grid definition
 
-        ret = ret && _recordReadVec<Id>(is, "Grid Increment", grincr, ndim);
-        ret =
-          ret && _recordReadVec<double>(is, "Direction vector", codir, ndim);
+        ret = ret
+           && _recordReadVec<Id>(
+                is, "Direction increments on grid", grincr, ndim);
+        ret = ret
+           && _recordReadVec<double>(is, "Direction coefficients", codir, ndim);
       }
       if (!ret) return ret;
 
@@ -2136,14 +2139,11 @@ namespace gstlrn
           double sw = 0.;
           double hh = 0.;
           double gg = 0.;
-          ret =
-            ret && _recordRead<double>(is, "Experimental Variogram Weight", sw);
+          ret = ret && _recordRead<double>(is, "", sw);
           setSwByIndex(idir, i, sw);
-          ret = ret
-             && _recordRead<double>(is, "Experimental Variogram Distance", hh);
+          ret = ret && _recordRead<double>(is, "", hh);
           setHhByIndex(idir, i, hh);
-          ret =
-            ret && _recordRead<double>(is, "Experimental Variogram Value", gg);
+          ret = ret && _recordRead<double>(is, "", gg);
           setGgByIndex(idir, i, gg);
         }
       }
