@@ -158,7 +158,7 @@ jobs:
 
     steps:
     # Upload packages to pypi
-    - uses: fabien-ors/pypi-publish-action@v3
+    - uses: fabien-ors/pypi-publish-action@v4
       with:
         repo: pypi
         username: __token__

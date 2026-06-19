@@ -94,9 +94,18 @@ jobs:
         CXX: ${{matrix.arch.pat}}/opt/llvm/bin/clang++
 
     - name : Build the package and save generated file name in the environment
+      env :
+        OS_TYPE : ${{matrix.arch.os}}
       run : |
         cmake --build ${{env.BUILD_DIR}} --parallel 3 --target r_install
-        echo "MY_PKG=$(ls ${{env.BUILD_DIR}}/r/${{env.CMAKE_BUILD_TYPE}}/gstlearn_*.tgz)" >> "$GITHUB_ENV"
+        PKG_ARCHIVE=$(ls ${{env.BUILD_DIR}}/r/${{env.CMAKE_BUILD_TYPE}}/gstlearn_*.tgz)
+        echo "Archive file is $PKG_ARCHIVE and OS_TYPE is $OS_TYPE"
+        if [ "$OS_TYPE" = "macos-14" ]; then
+          tar -xzf $PKG_ARCHIVE
+          sed -i '' 's/darwin23/darwin20/g' gstlearn/DESCRIPTION
+          tar -czf $PKG_ARCHIVE gstlearn
+        fi
+        echo "MY_PKG=$PKG_ARCHIVE" >> "$GITHUB_ENV"
 
     - name: Define the CRAN path on our server
       id: define_cran_path
@@ -132,7 +141,7 @@ jobs:
         arch: [
             {ar: x86_64, os: macos-15-intel},
             {ar: arm64,  os: macos-14},
-         ]
+          ]
 
     steps:
     - uses: actions/checkout@v6
@@ -170,7 +179,7 @@ jobs:
       # Publish packages to our CRAN
       - env:
           CRAN_PATH: ${{needs.build.outputs.cran_path}}
-        uses: fabien-ors/cran-publish-action@v4
+        uses: fabien-ors/cran-publish-action@v5
         with:
           host: ${{secrets.CG_HOST}}
           username: ${{secrets.CG_USR}}
