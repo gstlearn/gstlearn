@@ -2,6 +2,9 @@ This file contains the logs between consecutive releases
 ********************************************************
 # Make last version consistent with CMakeLists.txt
 
+Release 1.12.0
+==============
+
 Release 1.11.0
 ==============
 - The classes CalcModelPGS and subsequently CorPGS, TracePGS, PileRelem and PileSplit have been designed.
