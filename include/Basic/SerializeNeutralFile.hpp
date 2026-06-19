@@ -231,7 +231,7 @@ namespace gstlrn
           std::stringstream sword(word);
           sword >> val;
         }
-        if (ecr > nvalues)
+        if (ecr >= nvalues)
         {
           messerr("Too many values read");
           vec.clear();
