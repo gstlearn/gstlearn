@@ -244,7 +244,7 @@ Data Base Grid Characteristics
 
 Data Base Statistics
 --------------------
-4 - Name Vecchia.estim - Locator z1
+4 - Name Vecchia.z.estim - Locator z1
  Nb of data          =           4
  Nb of active values =           4
  Minimum value       =       0.000
@@ -265,7 +265,7 @@ Data Base Grid Characteristics
 
 Data Base Statistics
 --------------------
-4 - Name Vecchia.estim.S1 - Locator z1
+4 - Name Vecchia.z-1.estim - Locator z1
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =      -0.710
@@ -273,7 +273,7 @@ Data Base Statistics
  Mean value          =       0.084
  Standard Deviation  =       0.160
  Variance            =       0.026
-5 - Name Vecchia.estim.S2 - Locator z2
+5 - Name Vecchia.z-2.estim - Locator z2
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =      -1.071
