@@ -302,7 +302,8 @@ namespace gstlrn
 
       if (verbose)
       {
-        message("For Db_1 %3d : %3d", iech, iech);
+        message("For Db_1 %3d :", iech);
+        printElement(iech, "");
         printVector(neighs, "", true, false);
       }
       irel++;
@@ -327,7 +328,7 @@ namespace gstlrn
         if (verbose)
         {
           message("For Db_2 %3d :", iech + shift);
-          printVector(neighs, " ", true, false);
+          printVector(neighs, "", true, false);
         }
         irel++;
       }

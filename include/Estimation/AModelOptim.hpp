@@ -26,6 +26,10 @@ namespace gstlrn
   {
   public:
     AModelOptim(ModelGeneric* model = nullptr, bool verbose = false);
+    AModelOptim(const AModelOptim& r);
+    AModelOptim& operator=(const AModelOptim& r);
+    virtual ~AModelOptim();
+
 #ifndef SWIG
     void setEnvironment(
       const MatrixSymmetric& vars,
@@ -34,13 +38,9 @@ namespace gstlrn
       double min = 0.,
       double max = INF);
 #endif
-    AModelOptim& operator=(const AModelOptim& r);
-    AModelOptim(const AModelOptim& r);
+
     void setAuthorizedAnalyticalGradients(bool authorized);
-
     bool getAuthorizedAnalyticalGradients() const;
-
-    virtual ~AModelOptim();
 
     void setGradients(
       std::vector<std::function<double(const VectorDouble&)>>& gradients);

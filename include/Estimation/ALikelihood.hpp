@@ -10,7 +10,6 @@
 /******************************************************************************/
 #pragma once
 
-#include "Basic/Message.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Estimation/AModelOptim.hpp"
@@ -32,6 +31,7 @@ namespace gstlrn
     ALikelihood(const ALikelihood& r);
     ALikelihood& operator=(const ALikelihood& r);
     virtual ~ALikelihood();
+
     double computeCost(bool flagPrint = false, bool verbose = false) override;
     double computeLogLikelihood(bool flagPrint = false, bool verbose = false);
 
@@ -46,6 +46,7 @@ namespace gstlrn
     void _initLikelihoodForOptim(bool verbose = false);
     Id _addSimulateToDest(const constvect whitenoise, vect outv) const override;
     Id _addToDest(constvect inv, vect outv) const override;
+    bool _calculateBeta(bool verbose = false);
 
   private:
     virtual void _solveQ(constvect inv, vect outv) const = 0;

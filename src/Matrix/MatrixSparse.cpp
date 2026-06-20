@@ -47,7 +47,7 @@ namespace gstlrn
 
   MatrixSparse::MatrixSparse(const MatrixSparse& m)
     : AMatrix(m)
-    // , ALinearOp(m)
+    // , ASimulableMatrix(m)
     , _eigenMatrix(m._eigenMatrix)
   {
   }
@@ -57,7 +57,7 @@ namespace gstlrn
     if (this != &m)
     {
       AMatrix::operator=(m);
-      // ALinearOp::operator=(m);
+      // ASimulableMatrix::operator=(m);
       if (!m.empty())
       {
         _eigenMatrix = m._eigenMatrix;
