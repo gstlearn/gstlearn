@@ -76,6 +76,7 @@ namespace gstlrn
     void clearRule();
 
     Id getNRule() const;
+    Id getNGRF() const;
 
     std::vector<Rule> fit(
       Db* db,

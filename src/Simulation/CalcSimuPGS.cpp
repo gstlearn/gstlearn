@@ -161,8 +161,9 @@ namespace gstlrn
             igrf + 1, ipgs + 1, _models[ipgs][igrf]->getNVar());
           return false;
         }
-        if (_models[ipgs][igrf]->stabilize(_percent, true)) return false;
-        if (_models[ipgs][igrf]->standardize(true)) return false;
+        if (_models[ipgs][igrf]->stabilize(_percent, getVerbose()))
+          return false;
+        if (_models[ipgs][igrf]->standardize(getVerbose())) return false;
       }
     }
 

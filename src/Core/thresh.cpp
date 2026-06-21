@@ -59,6 +59,11 @@ namespace gstlrn
 
     /* Preliminary checks */
 
+    if (rule == nullptr)
+    {
+      messerr("The Rule is not defined");
+      return 1;
+    }
     ngrf = rule->getNGRF();
     VectorBool flagUsed = rule->whichGRFUsed();
     if (propdef.define(
@@ -146,6 +151,11 @@ namespace gstlrn
     }
     bool flag_stat = ruleprop->isFlagStat();
     const Rule* rule = ruleprop->getRule();
+    if (rule == nullptr)
+    {
+      messerr("The Rule is not defined in the RuleProp");
+      return 1;
+    }
     const VectorDouble& propcst = ruleprop->getPropCst();
     const Db* dbprop = ruleprop->getDbprop();
 
@@ -326,6 +336,11 @@ namespace gstlrn
     }
     bool flag_stat = ruleprop->isFlagStat();
     const Rule* rule = ruleprop->getRule();
+    if (rule == nullptr)
+    {
+      messerr("The Rule is not defined in the RuleProp");
+      return 1;
+    }
     const VectorDouble& propcst = ruleprop->getPropCst();
     const Db* dbprop = ruleprop->getDbprop();
 
@@ -426,6 +441,11 @@ namespace gstlrn
     }
     bool flag_stat = ruleprop->isFlagStat();
     const Rule* rule = ruleprop->getRule();
+    if (rule == nullptr)
+    {
+      messerr("The Rule is not defined in the RuleProp");
+      return 1;
+    }
     if (rule->getModeRule() != ERule::STD)
     {
       messerr("This function is only programmed for standard rule");
