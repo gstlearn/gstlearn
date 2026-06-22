@@ -21,7 +21,7 @@ env:
   CMAKE_BUILD_TYPE : Release
   BUILD_DIR : build
   PYTHON_VERSION : "3.14"
-  R_VERSION : "4.5.2"
+  R_VERSION : "4.6.0"
   SWIG_ROOT : ${{github.workspace}}/swig
   LLVM_ROOT : /opt/homebrew
   GSTLEARN_OUTPUT_DIR: ${{ github.workspace }}/build/gstlearn_dir
@@ -31,7 +31,7 @@ jobs:
     runs-on: macos-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Install dependencies
       run: |
@@ -42,31 +42,19 @@ jobs:
         brew install eigen
         brew install nlopt
         brew install hdf5
-        brew install gdal  # for terra
+        brew install gdal || true  # for terra
         echo "$(brew --prefix bison)/bin" >> $GITHUB_PATH
 
-    - name: Setup uv
-      uses: astral-sh/setup-uv@v6
+    - name: Setup Python
+      uses: ./.github/actions/setup_python
       with:
         python-version: ${{env.PYTHON_VERSION}}
-        activate-environment: true
 
-    - name: Install python dependencies
-      run: |
-        uv pip install numpy
-        uv pip install mlxtend
-
-    - name: Setup R Version
-      uses: r-lib/actions/setup-r@v2
+    - name: Setup R
+      uses: ./.github/actions/setup_r
       with:
         r-version: ${{env.R_VERSION}}
-
-    - name: Install R packages
-      uses: r-lib/actions/setup-r-dependencies@v2
-      with:
-        packages: ggpubr, ggplot2, ggnewscale, sf
-        extra-packages: cran::terra@1.8-86
-        install-pandoc: false
+        extra-repositories: "https://mac.r-project.org"
 
     - name: Install the customized SWIG from source
       uses: fabien-ors/install-swig-unix-action@v1
@@ -75,7 +63,7 @@ jobs:
         generator: "Unix Makefiles"
 
     - name: Run sccache-cache
-      uses: mozilla-actions/sccache-action@v0.0.9
+      uses: mozilla-actions/sccache-action@v0.0.10
 
     - name: Configure build directory
       run: |
@@ -101,26 +89,8 @@ jobs:
       run: |
         cmake --build ${{env.BUILD_DIR}} --target check
 
-    - name: Compress output logs and neutral files
-      if: success() || failure()
-      run: |
-        cd ${{env.BUILD_DIR}}/tests
-        find . -type f -name "*.out" -print0 | tar -czvf macos-logs.tar.gz --null -T -
-        cd ${{ env.GSTLEARN_OUTPUT_DIR }}
-        find . -type f -name "*.*" -print0 | tar -czvf macos-neutral.tar.gz --null -T -
-        mv macos-neutral.tar.gz ${{github.workspace}}/
-
-    - name: Publish output logs as artefact
+    - name: Compress and upload artifacts
       if: always()
-      uses: actions/upload-artifact@v4
+      uses: ./.github/actions/compress_and_upload_nonreg_artifacts
       with:
-        name: macos-nonreg-logs
-        path: ${{env.BUILD_DIR}}/tests/macos-logs.tar.gz
-
-    - name: Publish output neutral files as artefact
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: macos-neutral-files
-        path: ${{github.workspace}}/macos-neutral.tar.gz
-
+        os-name: macos

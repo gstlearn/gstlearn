@@ -23,6 +23,7 @@
 #include "Tree/Ball.hpp"
 
 using namespace gstlrn;
+
 /****************************************************************************/
 /*!
  ** Main Program
@@ -44,15 +45,15 @@ int main(int argc, char* argv[])
 
   // Global parameters
   bool verbose = false;
-  Id ndim      = 2;
-  Id mode      = 0;
+  Id ndim = 2;
+  Id mode = 0;
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Constructing the Data Set
-  Id nech  = 100;
-  Db* data = Db::createFillRandom(nech, ndim, 1, 0, 0, 0., 0.,
-                                  VectorDouble(), VectorDouble(),
-                                  VectorDouble(), 131343);
+  Id nech = 100;
+  Db* data = Db::createFillRandom(
+    nech, ndim, 1, 0, 0, 0., 0., VectorDouble(), VectorDouble(), VectorDouble(),
+    131343);
   if (verbose) data->display();
 
   Id nb_neigh = 5;
@@ -72,7 +73,7 @@ int main(int argc, char* argv[])
 
     // My target sample
     VectorDouble target = {0.4, 0.2};
-    SpacePoint pt1(target);
+    SpacePoint pt1(target); // Use default space
 
     // Inquiring the Ball tree
     mestitle(1, "Various ways of inquiring the Ball Tree");
@@ -98,14 +99,14 @@ int main(int argc, char* argv[])
     // ===========================
     mestitle(0, "Use of the Ball Tree with Constraints (FNN search)");
     bool all_available = false;
-    verbose            = true;
+    verbose = true;
 
     // Constructing the Ball Tree from Db(s)
     Ball ball(data, nullptr, 10, all_available);
     if (verbose) ball.display(1);
 
     // Loop on the samples for the FNN search
-    SpacePoint pt2;
+    SpacePoint pt2; // Use default space
     // VectorInt ranks = law_random_path(nech);
     VectorInt ranks = VH::sequence(nech);
     for (Id jech = 0; jech < nech; jech++)
@@ -113,7 +114,8 @@ int main(int argc, char* argv[])
       Id iech = ranks[jech];
       data->getSampleAsSPInPlace(pt2, iech);
       ball.setAvailable(iech, true);
-      (void)ball.queryOneInPlace(pt2.getCoordsUnprotected(), nb_neigh, neighs, distances);
+      (void)ball.queryOneInPlace(
+        pt2.getCoordsUnprotected(), nb_neigh, neighs, distances);
       printVector(neighs, "Indices of the neighbors", true, true);
     }
   }
@@ -126,12 +128,12 @@ int main(int argc, char* argv[])
     mestitle(0, "Demonstrating the findNN algorithm");
     bool flagShuffle = true;
 
-    nech    = 20;
-    Db* aux = Db::createFillRandom(nech, ndim, 1, 0, 0, 0., 0.,
-                                   VectorDouble(), VectorDouble(),
-                                   VectorDouble(), 24813);
+    nech = 20;
+    Db* aux = Db::createFillRandom(
+      nech, ndim, 1, 0, 0, 0., 0., VectorDouble(), VectorDouble(),
+      VectorDouble(), 24813);
 
-    auto mat   = findNN(data, aux, nb_neigh, flagShuffle);
+    auto mat = findNN(data, aux, nb_neigh, flagShuffle);
     auto nrows = static_cast<Id>(mat.getNRows());
     auto ncols = static_cast<Id>(mat.getNCols());
     for (Id irow = 0; irow < nrows; irow++)
@@ -173,7 +175,7 @@ int main(int argc, char* argv[])
 
     // Defining a Target point in Longitude / Latitude
     VectorDouble target = {70., 70.};
-    SpacePoint pt1(target);
+    SpacePoint pt1(target); // Use default space
 
     // Inquiring the Ball tree
     mestitle(1, "Various ways of inquiring the Ball Tree");

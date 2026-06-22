@@ -9,7 +9,7 @@ endif()
 # https://stackoverflow.com/questions/32411963/why-is-cmake-file-glob-evil
 file(GLOB TEST_SOURCES test*.R)
 # Without GLOB:
-#set(TEST_SOURCES 
+#set(TEST_SOURCES
 #    test_Arguments.R)
 
 # Remove test_one
@@ -82,9 +82,3 @@ foreach(TEST_SOURCE_FILE ${TEST_SOURCES})
     add_test(NAME ${TEST_NAME}_r_cmp
              COMMAND git diff --no-index -I "#NO_DIFF#" --ignore-blank-lines --ignore-all-space --ignore-cr-at-eol ${REF_FILE} ${TEST_DST_DIR}/${TEST_NAME}.out)
 endforeach(TEST_SOURCE_FILE ${TEST_SOURCES})
-
-
-
-
-
-

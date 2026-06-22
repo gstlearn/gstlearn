@@ -15,32 +15,30 @@
 
 namespace gstlrn
 {
-KernelCosinus::KernelCosinus(const CovContext& ctxt)
-  : AKernel(ECov::COSINUS, ctxt)
-{
-}
-
-KernelCosinus::KernelCosinus(const KernelCosinus& r)
-  : AKernel(r)
-{
-}
-
-KernelCosinus& KernelCosinus::operator=(const KernelCosinus& r)
-{
-  if (this != &r)
+  KernelCosinus::KernelCosinus(const CovContext& ctxt)
+    : AKernel(ECov::COSINUS, ctxt)
   {
-    AKernel::operator=(r);
   }
-  return *this;
-}
 
-KernelCosinus::~KernelCosinus()
-{
-}
+  KernelCosinus::KernelCosinus(const KernelCosinus& r)
+    : AKernel(r)
+  {
+  }
 
-double KernelCosinus::_evaluateCov(double h) const
-{
-  double cov = cos(2. * GV_PI * h);
-  return (cov);
-}
+  KernelCosinus& KernelCosinus::operator=(const KernelCosinus& r)
+  {
+    if (this != &r)
+    {
+      AKernel::operator=(r);
+    }
+    return *this;
+  }
+
+  KernelCosinus::~KernelCosinus() {}
+
+  double KernelCosinus::_evaluateCov(double h) const
+  {
+    double cov = cos(2. * GV_PI * h);
+    return (cov);
+  }
 } // namespace gstlrn

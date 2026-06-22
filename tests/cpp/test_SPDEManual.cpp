@@ -18,8 +18,9 @@
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
-#include "LinearOp/PrecisionOpMultiConditional.hpp"
+#include "LinearOp/InvNuggetOp.hpp"
 #include "LinearOp/ProjMatrix.hpp"
+#include "LinearOp/SPDEOp.hpp"
 #include "LinearOp/ShiftOpMatrix.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Mesh/MeshETurbo.hpp"
@@ -29,6 +30,7 @@
 #include <cmath>
 
 using namespace gstlrn;
+
 /****************************************************************************/
 /*!
  ** Main Program
@@ -41,7 +43,7 @@ int main(int argc, char* argv[])
   StdoutRedirect sr(sfn.str(), argc, argv);
 
   ASerializable::setPrefixName("test_SPDEManual-");
-  Id seed      = 10355;
+  Id seed = 10355;
   bool verbose = true;
   law_set_random_seed(seed);
 
@@ -77,7 +79,8 @@ int main(int argc, char* argv[])
   ///////////////////////////
   // Creating Data
   auto ndata = 1000;
-  auto* dat  = Db::createFromBox(ndata, grid->getCoorMinimum(), grid->getCoorMaximum(), 432432);
+  auto* dat = Db::createFromBox(
+    ndata, grid->getCoorMinimum(), grid->getCoorMaximum(), 432432);
 
   ///////////////////////////////////////////////
   // Non-conditional Simulation at Data locations
@@ -93,27 +96,19 @@ int main(int argc, char* argv[])
   B.point2mesh(datval, rhs);
 
   double nug = 0.1;
-  for (Id i = 0; i < napices; i++)
-    rhs[i] /= nug;
+  for (Id i = 0; i < napices; i++) rhs[i] /= nug;
 
   double vardata = 0.01;
   PrecisionOp Qkriging(&S, cova);
-  PrecisionOpMultiConditional A;
-  A.push_back(&Qkriging, &B);
-  A.setVarianceData(vardata);
 
-  VectorVectorDouble Rhs, resultvc;
+  auto* modelNug = Model::createFromParam(ECov::NUGGET, 0., vardata);
+  InvNuggetOp Bnug(dat, modelNug);
+  SPDEOp A(&Qkriging, &B, &Bnug);
+
   VectorDouble vc(napices);
 
-  resultvc.push_back(vc);
-  Rhs.push_back(rhs);
-  A.evalInverse(Rhs, resultvc);
-  grid->addColumns(resultvc[0], "Kriging");
-
-  // // New class
-  // TODO: this code should be developed (using new interfaces for SPDE class)
-  // before we can get rid of PrecisionOpMultiConditional class
-  //
+  vc = A.evalInverse(rhs);
+  grid->addColumns(vc, "Kriging");
 
   // Statistics
   DbStringFormat dsf(FLAG_RESUME | FLAG_STATS);
@@ -124,5 +119,6 @@ int main(int argc, char* argv[])
   delete dat;
   delete grid;
   delete model;
+  delete modelNug;
   return 0;
 }

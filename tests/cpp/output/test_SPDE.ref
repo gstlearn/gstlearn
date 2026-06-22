@@ -11,132 +11,132 @@ Total number of samples      = 120000
 
 Grid characteristics:
 ---------------------
-Origin :      0.000     0.000
-Mesh   :      1.000     1.000
-Number :        400       300
+Origin :       0.000      0.000
+Mesh   :       1.000      1.000
+Number :         400        300
 
 Data Base Extension
 -------------------
-Coor #1 - Min =      0.000 - Max =    399.000 - Ext = 399
-Coor #2 - Min =      0.000 - Max =    299.000 - Ext = 299
+Coor #1 - Min =       0.000 - Max =     399.000 - Ext = 399
+Coor #2 - Min =       0.000 - Max =     299.000 - Ext = 299
 
 Data Base Statistics
 --------------------
 1 - Name rank - Locator NA
- Nb of data          =     120000
- Nb of active values =     120000
- Minimum value       =      1.000
- Maximum value       = 120000.000
- Mean value          =  60000.500
- Standard Deviation  =  34641.016
+ Nb of data          =      120000
+ Nb of active values =      120000
+ Minimum value       =       1.000
+ Maximum value       =  120000.000
+ Mean value          =   60000.500
+ Standard Deviation  =   34641.016
  Variance            = 1199999999.917
 2 - Name x1 - Locator x1
- Nb of data          =     120000
- Nb of active values =     120000
- Minimum value       =      0.000
- Maximum value       =    399.000
- Mean value          =    199.500
- Standard Deviation  =    115.470
- Variance            =  13333.250
+ Nb of data          =      120000
+ Nb of active values =      120000
+ Minimum value       =       0.000
+ Maximum value       =     399.000
+ Mean value          =     199.500
+ Standard Deviation  =     115.470
+ Variance            =   13333.250
 3 - Name x2 - Locator x2
- Nb of data          =     120000
- Nb of active values =     120000
- Minimum value       =      0.000
- Maximum value       =    299.000
- Mean value          =    149.500
- Standard Deviation  =     86.602
- Variance            =   7499.917
-4 - Name SimuSPDE.1 - Locator z1
- Nb of data          =     120000
- Nb of active values =     120000
- Minimum value       =     -3.171
- Maximum value       =      2.968
- Mean value          =     -0.030
- Standard Deviation  =      0.980
- Variance            =      0.960
-5 - Name SimuSPDE.2 - Locator z2
- Nb of data          =     120000
- Nb of active values =     120000
- Minimum value       =     -3.347
- Maximum value       =      3.070
- Mean value          =     -0.332
- Standard Deviation  =      0.858
- Variance            =      0.737
-6 - Name SimuSPDE.3 - Locator z3
- Nb of data          =     120000
- Nb of active values =     120000
- Minimum value       =     -3.051
- Maximum value       =      2.551
- Mean value          =      0.271
- Standard Deviation  =      0.816
- Variance            =      0.666
-7 - Name SimuSPDE.4 - Locator z4
- Nb of data          =     120000
- Nb of active values =     120000
- Minimum value       =     -3.567
- Maximum value       =      3.269
- Mean value          =      0.148
- Standard Deviation  =      1.067
- Variance            =      1.139
-8 - Name SimuSPDE.5 - Locator z5
- Nb of data          =     120000
- Nb of active values =     120000
- Minimum value       =     -2.895
- Maximum value       =      3.002
- Mean value          =      0.197
- Standard Deviation  =      0.969
- Variance            =      0.938
-9 - Name SimuSPDE.6 - Locator z6
- Nb of data          =     120000
- Nb of active values =     120000
- Minimum value       =     -3.735
- Maximum value       =      2.775
- Mean value          =     -0.097
- Standard Deviation  =      1.043
- Variance            =      1.087
-10 - Name SimuSPDE.7 - Locator z7
- Nb of data          =     120000
- Nb of active values =     120000
- Minimum value       =     -2.959
- Maximum value       =      3.616
- Mean value          =      0.519
- Standard Deviation  =      0.995
- Variance            =      0.990
-11 - Name SimuSPDE.8 - Locator z8
- Nb of data          =     120000
- Nb of active values =     120000
- Minimum value       =     -2.629
- Maximum value       =      3.288
- Mean value          =      0.410
- Standard Deviation  =      0.963
- Variance            =      0.928
-12 - Name SimuSPDE.9 - Locator z9
- Nb of data          =     120000
- Nb of active values =     120000
- Minimum value       =     -3.734
- Maximum value       =      2.430
- Mean value          =     -0.171
- Standard Deviation  =      0.869
- Variance            =      0.755
-13 - Name SimuSPDE.10 - Locator z10
- Nb of data          =     120000
- Nb of active values =     120000
- Minimum value       =     -4.301
- Maximum value       =      3.287
- Mean value          =      0.025
- Standard Deviation  =      1.204
- Variance            =      1.449
+ Nb of data          =      120000
+ Nb of active values =      120000
+ Minimum value       =       0.000
+ Maximum value       =     299.000
+ Mean value          =     149.500
+ Standard Deviation  =      86.602
+ Variance            =    7499.917
+4 - Name SimuSPDE.S1 - Locator z1
+ Nb of data          =      120000
+ Nb of active values =      120000
+ Minimum value       =      -3.171
+ Maximum value       =       2.968
+ Mean value          =      -0.030
+ Standard Deviation  =       0.980
+ Variance            =       0.960
+5 - Name SimuSPDE.S2 - Locator z2
+ Nb of data          =      120000
+ Nb of active values =      120000
+ Minimum value       =      -3.347
+ Maximum value       =       3.070
+ Mean value          =      -0.332
+ Standard Deviation  =       0.858
+ Variance            =       0.737
+6 - Name SimuSPDE.S3 - Locator z3
+ Nb of data          =      120000
+ Nb of active values =      120000
+ Minimum value       =      -3.051
+ Maximum value       =       2.551
+ Mean value          =       0.271
+ Standard Deviation  =       0.816
+ Variance            =       0.666
+7 - Name SimuSPDE.S4 - Locator z4
+ Nb of data          =      120000
+ Nb of active values =      120000
+ Minimum value       =      -3.567
+ Maximum value       =       3.269
+ Mean value          =       0.148
+ Standard Deviation  =       1.067
+ Variance            =       1.139
+8 - Name SimuSPDE.S5 - Locator z5
+ Nb of data          =      120000
+ Nb of active values =      120000
+ Minimum value       =      -2.895
+ Maximum value       =       3.002
+ Mean value          =       0.197
+ Standard Deviation  =       0.969
+ Variance            =       0.938
+9 - Name SimuSPDE.S6 - Locator z6
+ Nb of data          =      120000
+ Nb of active values =      120000
+ Minimum value       =      -3.735
+ Maximum value       =       2.775
+ Mean value          =      -0.097
+ Standard Deviation  =       1.043
+ Variance            =       1.087
+10 - Name SimuSPDE.S7 - Locator z7
+ Nb of data          =      120000
+ Nb of active values =      120000
+ Minimum value       =      -2.959
+ Maximum value       =       3.616
+ Mean value          =       0.519
+ Standard Deviation  =       0.995
+ Variance            =       0.990
+11 - Name SimuSPDE.S8 - Locator z8
+ Nb of data          =      120000
+ Nb of active values =      120000
+ Minimum value       =      -2.629
+ Maximum value       =       3.288
+ Mean value          =       0.410
+ Standard Deviation  =       0.963
+ Variance            =       0.928
+12 - Name SimuSPDE.S9 - Locator z9
+ Nb of data          =      120000
+ Nb of active values =      120000
+ Minimum value       =      -3.734
+ Maximum value       =       2.430
+ Mean value          =      -0.171
+ Standard Deviation  =       0.869
+ Variance            =       0.755
+13 - Name SimuSPDE.S10 - Locator z10
+ Nb of data          =      120000
+ Nb of active values =      120000
+ Minimum value       =      -4.301
+ Maximum value       =       3.287
+ Mean value          =       0.025
+ Standard Deviation  =       1.204
+ Variance            =       1.449
 
 Data Base Contents
 ------------------
-                   rank          x1          x2  SimuSPDE.1  SimuSPDE.2  SimuSPDE.3  SimuSPDE.4
-     [  0,]       1.000       0.000       0.000      -0.123      -1.676       2.140       0.982
-     [  1,]       2.000       1.000       0.000      -0.089      -1.454       2.218       0.981
-     [  2,]       3.000       2.000       0.000      -0.055      -1.231       2.296       0.980
-     [  3,]       4.000       3.000       0.000      -0.022      -1.009       2.375       0.978
-     [  4,]       5.000       4.000       0.000       0.012      -0.786       2.453       0.977
-     [  5,]       6.000       5.000       0.000       0.031      -0.633       2.369       0.981
-     [  6,]       7.000       6.000       0.000       0.040      -0.532       2.163       0.988
+                    rank          x1          x2 SimuSPDE.S1 SimuSPDE.S2 SimuSPDE.S3 SimuSPDE.S4
+      [  0,]       1.000       0.000       0.000      -0.123      -1.676       2.140       0.982
+      [  1,]       2.000       1.000       0.000      -0.089      -1.454       2.218       0.981
+      [  2,]       3.000       2.000       0.000      -0.055      -1.231       2.296       0.980
+      [  3,]       4.000       3.000       0.000      -0.022      -1.009       2.375       0.978
+      [  4,]       5.000       4.000       0.000       0.012      -0.786       2.453       0.977
+      [  5,]       6.000       5.000       0.000       0.031      -0.633       2.369       0.981
+      [  6,]       7.000       6.000       0.000       0.040      -0.532       2.163       0.988
 (Ncols=7[from 13],Nrows=7[from 120000])
 
 Variables
@@ -144,13 +144,13 @@ Variables
 Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
-Column = 3 - Name = SimuSPDE.1 - Locator = z1
-Column = 4 - Name = SimuSPDE.2 - Locator = z2
-Column = 5 - Name = SimuSPDE.3 - Locator = z3
-Column = 6 - Name = SimuSPDE.4 - Locator = z4
-Column = 7 - Name = SimuSPDE.5 - Locator = z5
-Column = 8 - Name = SimuSPDE.6 - Locator = z6
-Column = 9 - Name = SimuSPDE.7 - Locator = z7
-Column = 10 - Name = SimuSPDE.8 - Locator = z8
-Column = 11 - Name = SimuSPDE.9 - Locator = z9
-Column = 12 - Name = SimuSPDE.10 - Locator = z10
+Column = 3 - Name = SimuSPDE.S1 - Locator = z1
+Column = 4 - Name = SimuSPDE.S2 - Locator = z2
+Column = 5 - Name = SimuSPDE.S3 - Locator = z3
+Column = 6 - Name = SimuSPDE.S4 - Locator = z4
+Column = 7 - Name = SimuSPDE.S5 - Locator = z5
+Column = 8 - Name = SimuSPDE.S6 - Locator = z6
+Column = 9 - Name = SimuSPDE.S7 - Locator = z7
+Column = 10 - Name = SimuSPDE.S8 - Locator = z8
+Column = 11 - Name = SimuSPDE.S9 - Locator = z9
+Column = 12 - Name = SimuSPDE.S10 - Locator = z10

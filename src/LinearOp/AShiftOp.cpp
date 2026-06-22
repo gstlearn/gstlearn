@@ -34,43 +34,41 @@ AShiftOp& AShiftOp::operator=(const AShiftOp& shift)
   if (this != &shift)
   {
     _napices = shift._napices;
-    _cova    = shift._cova;
-    _Lambda  = shift._Lambda;
+    _cova = shift._cova;
+    _Lambda = shift._Lambda;
   }
   return *this;
 }
 
-AShiftOp::~AShiftOp()
-{
-}
+AShiftOp::~AShiftOp() {}
 
-void AShiftOp::prodLambda(const VectorDouble& x,
-                          vect y,
-                          const EPowerPT& power) const
+void AShiftOp::prodLambda(const VectorDouble& x, vect y, const EPowerPT& power)
+  const
 {
   constvect xv(x.data(), x.size());
   prodLambda(xv, y, power);
 }
 
-void AShiftOp::prodLambda(const constvect x,
-                          VectorDouble& y,
-                          const EPowerPT& power) const
+void AShiftOp::prodLambda(
+  const constvect x,
+  VectorDouble& y,
+  const EPowerPT& power) const
 {
   vect yv(y.data(), y.size());
   prodLambda(x, yv, power);
 }
 
-void AShiftOp::prodLambda(const constvect x,
-                          vect y,
-                          const EPowerPT& power) const
+void
+  AShiftOp::prodLambda(const constvect x, vect y, const EPowerPT& power) const
 {
   std::fill(y.begin(), y.end(), 0.);
   addProdLambda(x, y, power);
 }
 
-void AShiftOp::prodLambda(const VectorDouble& x,
-                          VectorDouble& y,
-                          const EPowerPT& power) const
+void AShiftOp::prodLambda(
+  const VectorDouble& x,
+  VectorDouble& y,
+  const EPowerPT& power) const
 {
   constvect xv(x.data(), x.size());
   vect yv(y.data(), y.size());
@@ -80,8 +78,7 @@ void AShiftOp::prodLambda(const VectorDouble& x,
 double AShiftOp::logDetLambda() const
 {
   double res = 0.;
-  for (const auto& e: _Lambda)
-    res += log(e);
+  for (const auto& e: _Lambda) res += log(e);
   return 2. * res;
 }
 
@@ -90,29 +87,25 @@ double AShiftOp::getMaxEigenValue() const
   double val = _getMaxEigenValue();
   return val;
 }
-void AShiftOp::addProdLambda(const constvect x,
-                             vect y,
-                             const EPowerPT& power) const
+
+void AShiftOp::addProdLambda(const constvect x, vect y, const EPowerPT& power)
+  const
 {
   if (power == EPowerPT::ONE)
   {
-    for (Id i = 0, n = getSize(); i < n; i++)
-      y[i] += x[i] * getLambda(i);
+    for (Id i = 0, n = getSize(); i < n; i++) y[i] += x[i] * getLambda(i);
   }
   else if (power == EPowerPT::MINUSONE)
   {
-    for (Id i = 0, n = getSize(); i < n; i++)
-      y[i] += x[i] / getLambda(i);
+    for (Id i = 0, n = getSize(); i < n; i++) y[i] += x[i] / getLambda(i);
   }
   else if (power == EPowerPT::HALF)
   {
-    for (Id i = 0, n = getSize(); i < n; i++)
-      y[i] += x[i] * sqrt(getLambda(i));
+    for (Id i = 0, n = getSize(); i < n; i++) y[i] += x[i] * sqrt(getLambda(i));
   }
   else if (power == EPowerPT::MINUSHALF)
   {
-    for (Id i = 0, n = getSize(); i < n; i++)
-      y[i] += x[i] / sqrt(getLambda(i));
+    for (Id i = 0, n = getSize(); i < n; i++) y[i] += x[i] / sqrt(getLambda(i));
   }
   else
   {
@@ -120,7 +113,8 @@ void AShiftOp::addProdLambda(const constvect x,
   }
 }
 
-std::shared_ptr<CovAniso> AShiftOp::cloneAndCast(const std::shared_ptr<CovAniso>& cova)
+std::shared_ptr<CovAniso>
+  AShiftOp::cloneAndCast(const std::shared_ptr<CovAniso>& cova)
 {
   return std::shared_ptr<CovAniso>(cova->clone());
 }
@@ -142,7 +136,7 @@ void AShiftOp::normalizeLambdaBySills(const AMesh* mesh)
     for (Id imesh = 0; imesh < number; imesh++)
     {
       _cova->updateCovByMesh(imesh, false);
-      double sill      = _cova->getSill(0, 0);
+      double sill = _cova->getSill(0, 0);
       double invsillsq = 1. / sqrt(sill);
       _Lambda[imesh] *= invsillsq;
     }

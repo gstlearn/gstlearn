@@ -23,41 +23,25 @@ jobs:
   check-formatting:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Setup uv
-      uses: astral-sh/setup-uv@v6
+      uses: astral-sh/setup-uv@v8.1.0
       with:
         activate-environment: true
 
     - name: Install formatters
       run: |
-        uv pip install clang-format cmake-format ruff
+        uv pip install pre-commit
 
-    - name: Pass ruff format on Python sources
+    - name: Run pre-commit on all files
       run: |
-        ruff format --check
-
-    - name: Pass ruff check on Python sources [NOT ENFORCED]
-      continue-on-error: true
-      run: |
-        ruff check
-
-    - name: Use clang-format to detect formatting issues
-      if: false                   # disabled for now, waiting for clang-format
-      run: |
-        git ls-files | grep -E "\.cpp$|\.cxx$|\.h$|\.hpp$" | xargs clang-format -n -Werror
+        uv run pre-commit run --all-files
 
     - name: Check line endings (Unix rather than DOS)
       if: false
       run: |
         ! git ls-files | xargs file "{}" ";" | grep CRLF
-
-    - name: Check files not ending with a newline [NOT ENFORCED]
-      run: |
-        for f in $(git ls-files | grep -Ev 'png$|ico$' ); do
-          test $(tail -c 1 $f | wc -l) -eq 0 && echo $f || true
-        done
 
     - name: Check for files containing Unicode characters [NOT ENFORCED]
       run: |
@@ -80,7 +64,7 @@ jobs:
   # Check compiler warnings #
   # ----------------------- #
   check-warnings:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         opt: [Debug, Release]
@@ -88,16 +72,20 @@ jobs:
         span: [USE_BOOST_SPAN=ON, USE_BOOST_SPAN=OFF]
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
-    - name: Install macOS dependencies
+    - name: Install dependencies
       run: |
-        brew install llvm
-        brew install boost
-        brew install eigen
-        brew install nlopt
-        brew install hdf5
-        echo "$(brew --prefix llvm)/bin" >> $GITHUB_PATH
+        sudo rm /etc/apt/sources.list.d/microsoft-prod.list
+        sudo apt-get update
+        sudo apt-get install -yq \
+          libhdf5-dev \
+          libopenmpi-dev \
+          libboost-dev \
+          libeigen3-dev \
+          libnlopt-dev \
+          libomp-dev \
+          clang-tools
 
     - name: Create & configure gstlearn build directory
       run: |
@@ -118,8 +106,8 @@ jobs:
         git ls-files \
         | grep -E "src|include" \
         | grep -E "\.cpp$|\.hpp$" \
-        | xargs -n1 -P$(sysctl -n hw.physicalcpu) -t \
-            xcrun clang-check -p build --extra-arg=-Werror
+        | xargs -n1 -P$(nproc) -t \
+            clang-check -p build --extra-arg=-Werror
 
 
   # ------------- #
@@ -135,7 +123,7 @@ jobs:
           - {tidy: false, sa: false, dox: true}
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Install Ubuntu dependencies
       run: |

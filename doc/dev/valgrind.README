@@ -3,7 +3,7 @@ spent in the different parts of the software.
 
 For example, to test the module 'name.cpp':
 
-- compile and link the target program: the result is called 'name.out'. 
+- compile and link the target program: the result is called 'name.out'.
   You DO NOT HAVE to use any debugging parameter
   For example, if 'name.cpp' stands in tests/cpp, then the result is located in
   build/tests/cpp/Release
@@ -11,10 +11,9 @@ For example, to test the module 'name.cpp':
 - run valgrind with the following syntax:
   	valgrind --tool=callgrind ./'name.out'
   This creates a local file named 'callgrind.out.xxx'
-  
+
   You can avoid creating this file (although you do not save time) by typing:
   	valgrind --tool=callgrind ./'name.out' --callgrind-out-file=""
-  
+
 - check the graphs of time expenses with the following syntax:
   kcachegrind 'callgrind.out.xxx'
-  

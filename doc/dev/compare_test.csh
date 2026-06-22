@@ -92,9 +92,8 @@ set FILECMP = $RADIX_TO/$option/$directest/$namecmp
 
 if ($ajout == "full") then
 	diff -b $FILETMP $FILECMP --side | more
-else if ($ajout == "large") then 
+else if ($ajout == "large") then
 	diff -b $FILETMP $FILECMP --width=200 --side | more
 else
 	diff -b $FILETMP $FILECMP
 endif
-

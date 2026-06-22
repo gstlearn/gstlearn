@@ -10,12 +10,14 @@
 /******************************************************************************/
 #include "Simulation/CalcSimuPartition.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/Plane.hpp"
 #include "Calculators/CalcMigrate.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
+#include "Model/Model.hpp"
 #include "Simulation/ACalcSimulation.hpp"
-#include "Simulation/CalcSimuTurningBands.hpp"
 #include "Simulation/SimuPartitionParam.hpp"
+#include "Simulation/Simulations.hpp"
 
 #include <cmath>
 
@@ -23,351 +25,290 @@
 
 namespace gstlrn
 {
-CalcSimuPartition::CalcSimuPartition(Id mode,
-                                     Id nbsimu,
-                                     Id seed,
-                                     bool verbose)
-  : ACalcSimulation(nbsimu, seed)
-  , _mode(mode)
-  , _verbose(verbose)
-  , _iattOut(-1)
-  , _parparam()
-  , _modelLocal(nullptr)
-{
-}
-
-CalcSimuPartition::~CalcSimuPartition()
-{
-}
-
-/*****************************************************************************
- **
- ** Generate a simulation on a regular 3D grid using Voronoi Mosaic Model
- **
- ** \returns Error return code
- **
- *****************************************************************************/
-bool CalcSimuPartition::_voronoi()
-{
-  auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
-  auto ndim      = _getNDim();
-  VectorDouble simgrid(dbgrid->getNSample());
-
-  /************************************/
-  /* Simulation of the Gaussian field */
-  /************************************/
-
-  double volume = 1.;
-  VectorDouble field(ndim);
-  VectorDouble origin(ndim);
-  for (Id i = 0; i < ndim; i++)
+  CalcSimuPartition::CalcSimuPartition(
+    Id mode,
+    Id nbsimu,
+    Id seed,
+    bool verbose)
+    : ACalcSimulation(nbsimu, seed, verbose)
+    , _mode(mode)
+    , _iattOut(-1)
+    , _parparam()
+    , _modelLocal(nullptr)
   {
-    double dil = _parparam.getDilate(i);
-    field[i]   = dbgrid->getDX(i) * dbgrid->getNX(i);
-    origin[i]  = dbgrid->getX0(i) - dbgrid->getDX(i) / 2. - dil * field[i] / 2.;
-    field[i]   = field[i] * (1. + dil);
-    volume *= field[i];
   }
 
-  /* Derive the number of points */
+  CalcSimuPartition::~CalcSimuPartition() {}
 
-  Id nbpoints = static_cast<Id>(volume * _parparam.getIntensity());
-  if (_verbose)
-    message("Boolean simulation. Intensity = %lf - Nb. seeds = %d\n",
-            _parparam.getIntensity(), nbpoints);
-
-  /* Simulate the uniform points */
-
-  VectorDouble coor(nbpoints * ndim, 0.);
-  for (Id idim = 0; idim < ndim; idim++)
-    for (Id ip = 0; ip < nbpoints; ip++)
-      COOR(ip, idim) = origin[idim] + field[idim] * law_uniform(0., 1.);
-
-  /* Create the Point Data Base */
-
-  Db* dbpoint = Db::createFromSamples(nbpoints, ELoadBy::SAMPLE, coor);
-  dbpoint->setLocatorsByUID(ndim, 0, ELoc::X, 0);
-  VectorDouble simpoint(dbpoint->getNSample());
-
-  /* Perform the simulation at the seed points */
-  if (simtub(NULL, dbpoint, _modelLocal, NULL, 1,
-             getSeed(), _parparam.getNbtuba())) return false;
-
-  /* Expand the data values over the grid nodes */
-
-  Id iattp = dbpoint->getNColumn() - 1;
-  if (expandPointToGrid(dbpoint, dbgrid, iattp, -1, 0, -1, -1, -1, -1, 0,
-                        VectorDouble(), simgrid)) return 1;
-
-  /* Save the grid in dbgrid */
-
-  dbgrid->setColumnByUID(simgrid, _iattOut);
-
-  delete dbpoint;
-  return true;
-}
-
-/*****************************************************************************
- **
- ** Generate a simulation on a regular 3D grid using Poisson Polyhedra Model
- **
- ** \returns Error return code
- **
- ** \param[in]  dbgrid      Db structure (should be a grid)
- ** \param[in]  model       Model used for the valuation of tesselation
- ** \param[in]  seed        Seed
- ** \param[in]  intensity   Intensity of the Poisson Process
- ** \param[in]  nbtuba      Number of bands (for the gaussian field simulation)
- ** \param[in]  verbose     Verbose option
- **
- *****************************************************************************/
-bool CalcSimuPartition::_poisson()
-{
-  auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
-
-  std::vector<Stack> stacks;
-  std::vector<Plane> planes;
-
-  law_set_random_seed(getSeed());
-  Id np    = 0;
-  Id iattg = -1;
-
-  /* Preliminary checks */
-
-  Id ndim = dbgrid->getNDim();
-
-  /************************************/
-  /* Simulation of the Gaussian field */
-  /************************************/
-
-  if (simtub(NULL, dbgrid, _modelLocal, NULL, 1, getSeed(), _parparam.getNbtuba()))
-    return false;
-  iattg = dbgrid->getNColumn() - 1;
-
-  /***********************/
-  /* Information process */
-  /***********************/
-
-  /* Calculate the number of planes */
-
-  double diagonal = dbgrid->getExtensionDiagonal();
-  np              = law_poisson(diagonal * _parparam.getIntensity() * GV_PI);
-  if (np <= 0) return false;
-
-  /* Generate the Poisson planes */
-
-  planes = Plane::poissonPlanesGenerate(dbgrid, np);
-
-  /* Assigning a value to the half-space that contains the center */
-
-  for (Id ip = 0; ip < np; ip++)
-    planes[ip].setValue((planes[ip].getRndval() > 0.5) ? -1 : 1);
-
-  /* Simulating the directing function */
-
-  VectorDouble cen(ndim);
-  for (Id iech = 0; iech < dbgrid->getNSample(); iech++)
+  /*****************************************************************************
+   **
+   ** Generate a simulation on a regular 3D grid using Voronoi Mosaic Model
+   **
+   ** \returns Error return code
+   **
+   *****************************************************************************/
+  bool CalcSimuPartition::_voronoi()
   {
-    if (!dbgrid->isActive(iech)) continue;
-    dbgrid->getCoordinatesInPlace(cen, iech);
+    auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+    auto ndim = _getNDim();
+    VectorDouble simgrid(dbgrid->getNSample());
 
-    /* Loop on the planes */
+    /************************************/
+    /* Simulation of the Gaussian field */
+    /************************************/
 
-    double valtot = 0.;
+    double volume = 1.;
+    VectorDouble field(ndim);
+    VectorDouble origin(ndim);
+    for (Id i = 0; i < ndim; i++)
+    {
+      double dil = _parparam.getDilate(i);
+      field[i] = dbgrid->getDX(i) * dbgrid->getNX(i);
+      origin[i] =
+        dbgrid->getX0(i) - dbgrid->getDX(i) / 2. - dil * field[i] / 2.;
+      field[i] = field[i] * (1. + dil);
+      volume *= field[i];
+    }
+
+    /* Derive the number of points */
+
+    Id nbpoints = static_cast<Id>(volume * _parparam.getIntensity());
+    if (getVerbose())
+      message(
+        "Boolean simulation. Intensity = %lf - Nb. seeds = %d\n",
+        _parparam.getIntensity(), nbpoints);
+
+    /* Simulate the uniform points */
+
+    VectorDouble coor(nbpoints * ndim, 0.);
+    for (Id idim = 0; idim < ndim; idim++)
+      for (Id ip = 0; ip < nbpoints; ip++)
+        COOR(ip, idim) = origin[idim] + field[idim] * law_uniform(0., 1.);
+
+    /* Create the Point Data Base */
+
+    Db* dbpoint = Db::createFromSamples(nbpoints, ELoadBy::SAMPLE, coor);
+    dbpoint->setLocatorsByUID(ndim, 0, ELoc::X, 0);
+    VectorDouble simpoint(dbpoint->getNSample());
+
+    /* Perform the simulation at the seed points */
+    if (simtub(
+          NULL, dbpoint, _modelLocal, NULL, 1, getSeed(),
+          _parparam.getNbtuba()))
+      return false;
+
+    /* Expand the data values over the grid nodes */
+
+    Id iattp = dbpoint->getNColumn() - 1;
+    if (expandPointToGrid(
+          dbpoint, dbgrid, iattp, -1, 0, -1, -1, -1, -1, 0, VectorDouble(),
+          simgrid))
+      return 1;
+
+    /* Save the grid in dbgrid */
+
+    dbgrid->setColumnByUID(simgrid, _iattOut);
+
+    delete dbpoint;
+    return true;
+  }
+
+  /*****************************************************************************
+   **
+   ** Generate a simulation on a regular 3D grid using Poisson Polyhedra Model
+   **
+   ** \returns Error return code
+   **
+   *****************************************************************************/
+  bool CalcSimuPartition::_poisson()
+  {
+    auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+
+    std::vector<Stack> stacks;
+    std::vector<Plane> planes;
+
+    law_set_random_seed(getSeed());
+    Id np = 0;
+    Id iattg = -1;
+
+    /* Preliminary checks */
+
+    Id ndim = dbgrid->getNDim();
+
+    /************************************/
+    /* Simulation of the Gaussian field */
+    /************************************/
+
+    if (simtub(
+          NULL, dbgrid, _modelLocal, NULL, 1, getSeed(), _parparam.getNbtuba()))
+      return false;
+    iattg = dbgrid->getNColumn() - 1;
+
+    /***********************/
+    /* Information process */
+    /***********************/
+
+    /* Calculate the number of planes */
+
+    double diagonal = dbgrid->getExtensionDiagonal();
+    np = law_poisson(diagonal * _parparam.getIntensity() * GV_PI);
+    if (np <= 0) return false;
+
+    /* Generate the Poisson planes */
+
+    planes = Plane::poissonPlanesGenerate(dbgrid, np);
+
+    /* Assigning a value to the half-space that contains the center */
+
     for (Id ip = 0; ip < np; ip++)
+      planes[ip].setValue((planes[ip].getRndval() > 0.5) ? -1 : 1);
+
+    /* Simulating the directing function */
+
+    VectorDouble cen(ndim);
+    for (Id iech = 0; iech < dbgrid->getNSample(); iech++)
     {
-      double prod = 0.;
-      for (Id i = 0; i < static_cast<Id>(cen.size()); i++)
-        prod += planes[ip].getCoor(i) * cen[i];
-      valtot += (prod + planes[ip].getIntercept() > 0) ? planes[ip].getRndval() : -planes[ip].getRndval();
-    }
-    dbgrid->setArray(iech, _iattOut, valtot);
-  }
+      if (!dbgrid->isActive(iech)) continue;
+      dbgrid->getCoordinatesInPlace(cen, iech);
 
-  /* Printout statistics on the information process */
+      /* Loop on the planes */
 
-  if (_verbose)
-    message("Number of planes generated = %d\n", np);
-
-  /******************/
-  /* Coding process */
-  /******************/
-
-  for (Id iech = 0; iech < dbgrid->getNSample(); iech++)
-  {
-    if (!dbgrid->isActive(iech)) continue;
-    double valref = dbgrid->getArray(iech, _iattOut);
-    if (FFFF(valref)) continue;
-
-    /* Check if the value has already been treated */
-
-    double valsim = _stackSearch(stacks, valref);
-    if (FFFF(valsim))
-    {
-
-      /* Not in the stack: read the value from the Gaussian field */
-
-      valsim = dbgrid->getArray(iech, iattg);
-
-      /* Add this new value to the stack */
-
-      Stack stack;
-      stack.valref = valref;
-      stack.valsim = valsim;
-      stacks.push_back(stack);
+      double valtot = 0.;
+      for (Id ip = 0; ip < np; ip++)
+      {
+        double prod = 0.;
+        for (Id i = 0; i < static_cast<Id>(cen.size()); i++)
+          prod += planes[ip].getCoor(i) * cen[i];
+        valtot += (prod + planes[ip].getIntercept() > 0)
+                  ? planes[ip].getRndval()
+                  : -planes[ip].getRndval();
+      }
+      dbgrid->setArray(iech, _iattOut, valtot);
     }
 
-    /* Substitute the values in the Gaussian field */
+    /* Printout statistics on the information process */
 
-    dbgrid->setArray(iech, iattg, valsim);
+    if (getVerbose()) message("Number of planes generated = %d\n", np);
+
+    /******************/
+    /* Coding process */
+    /******************/
+
+    for (Id iech = 0; iech < dbgrid->getNSample(); iech++)
+    {
+      if (!dbgrid->isActive(iech)) continue;
+      double valref = dbgrid->getArray(iech, _iattOut);
+      if (FFFF(valref)) continue;
+
+      /* Check if the value has already been treated */
+
+      double valsim = _stackSearch(stacks, valref);
+      if (FFFF(valsim))
+      {
+
+        /* Not in the stack: read the value from the Gaussian field */
+
+        valsim = dbgrid->getArray(iech, iattg);
+
+        /* Add this new value to the stack */
+
+        Stack stack;
+        stack.valref = valref;
+        stack.valsim = valsim;
+        stacks.push_back(stack);
+      }
+
+      /* Substitute the values in the Gaussian field */
+
+      dbgrid->setArray(iech, iattg, valsim);
+    }
+
+    // Delete the internal Simulation
+
+    dbgrid->deleteColumnByUID(iattg);
+
+    return true;
   }
 
-  // Delete the internal Simulation
-
-  dbgrid->deleteColumnByUID(iattg);
-
-  return true;
-}
-
-double CalcSimuPartition::_stackSearch(const std::vector<Stack>& stacks,
-                                       double valref)
-{
-  for (Id i = 0; i < static_cast<Id>(stacks.size()); i++)
+  double CalcSimuPartition::_stackSearch(
+    const std::vector<Stack>& stacks,
+    double valref)
   {
-    if (isEqual(stacks[i].valref, valref)) return stacks[i].valsim;
+    for (Id i = 0; i < static_cast<Id>(stacks.size()); i++)
+    {
+      if (isEqual(stacks[i].valref, valref)) return stacks[i].valsim;
+    }
+    return TEST;
   }
-  return TEST;
-}
 
-bool CalcSimuPartition::_check()
-{
-  if (!ACalcSimulation::_check()) return false;
-
-  if (!hasDbout()) return false;
-  if (!hasModel()) return false;
-  auto ndim = _getNDim();
-  if (ndim > 3)
+  bool CalcSimuPartition::_check()
   {
-    messerr("The Partition Method is not a relevant simulation model");
-    messerr("for this Space Dimension (%d)", ndim);
-    return false;
+    if (!ACalcSimulation::_check()) return false;
+
+    if (!hasDbout()) return false;
+    if (!hasModelGeneric()) return false;
+    auto ndim = _getNDim();
+    if (ndim > 3)
+    {
+      messerr("The Partition Method is not a relevant simulation model");
+      messerr("for this Space Dimension (%d)", ndim);
+      return false;
+    }
+    if (!getDbout()->isGrid())
+    {
+      messerr("The argument 'dbout' should be a grid");
+      return false;
+    }
+    if (_mode != 1 && _mode != 2)
+    {
+      messerr("Argument 'mode'(%d) should be:");
+      messerr(" 1 for Voronoi Tesselation");
+      messerr(" 2 for Poisson Hyperplanes");
+      return false;
+    }
+
+    _modelLocal = dynamic_cast<Model*>(getModelGeneric());
+    if (_modelLocal == nullptr)
+    {
+      messerr("The model must be of type 'Model' (not ModelGeneric)");
+      return false;
+    }
+
+    return true;
   }
-  if (!getDbout()->isGrid())
+
+  bool CalcSimuPartition::_preprocess()
   {
-    messerr("The argument 'dbout' should be a grid");
-    return false;
+    if (!ACalcSimulation::_preprocess()) return false;
+
+    _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 0, getNbSimu());
+    return (_iattOut >= 0);
   }
-  if (_mode != 1 && _mode != 2)
+
+  bool CalcSimuPartition::_run()
   {
-    messerr("Argument 'mode'(%d) should be:");
-    messerr(" 1 for Voronoi Tesselation");
-    messerr(" 2 for Poisson Hyperplanes");
-    return false;
+    law_set_random_seed(getSeed());
+
+    // Dispatch
+
+    if (_mode == 1) return (_voronoi());
+
+    return (_poisson());
   }
 
-  _modelLocal = dynamic_cast<Model*>(getModel());
-  if (_modelLocal == nullptr)
+  bool CalcSimuPartition::_postprocess()
   {
-    messerr("The model must be of type 'Model' (not ModelGeneric)");
-    return false;
+    /* Free the temporary variables */
+    _cleanVariableDb(2);
+
+    _renameVariable(
+      2, VectorString(), ELoc::Z, 1, _iattOut, String(), getNbSimu());
+    return true;
   }
-  return true;
-}
 
-bool CalcSimuPartition::_preprocess()
-{
-  if (!ACalcSimulation::_preprocess()) return false;
-
-  _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 0, 1);
-  return (_iattOut >= 0);
-}
-
-bool CalcSimuPartition::_run()
-{
-  law_set_random_seed(getSeed());
-
-  // Dispatch
-
-  if (_mode == 1)
-    return (_voronoi());
-
-  return (_poisson());
-}
-
-bool CalcSimuPartition::_postprocess()
-{
-  /* Free the temporary variables */
-  _cleanVariableDb(2);
-
-  _renameVariable(2, VectorString(), ELoc::Z, 1, _iattOut, String(), getNbSimu());
-  return true;
-}
-
-void CalcSimuPartition::_rollback()
-{
-  _cleanVariableDb(1);
-}
-
-/*****************************************************************************
- **
- ** Generate a simulation on a regular 3D grid using Poisson Polyhedra Model
- **
- ** \returns Error return code
- **
- ** \param[in]  dbgrid      Db structure (should be a grid)
- ** \param[in]  model       Model used for the valuation of tesselation
- ** \param[in]  parparam    SimuPartitionParam structure
- ** \param[in]  seed        Seed
- ** \param[in]  verbose     Verbose option
- ** \param[in]  namconv     Naming Convention
- **
- *****************************************************************************/
-Id tessellation_poisson(DbGrid* dbgrid,
-                        Model* model,
-                        const SimuPartitionParam& parparam,
-                        Id seed,
-                        Id verbose,
-                        const NamingConvention& namconv)
-{
-  CalcSimuPartition simpart(2, 1, seed, verbose);
-  simpart.setDbout(dbgrid);
-  simpart.setModel(model);
-  simpart.setNamingConvention(namconv);
-  simpart.setParparam(parparam);
-
-  Id error = (simpart.run()) ? 0 : 1;
-  return error;
-}
-
-/*****************************************************************************
- **
- ** Generate a simulation on a regular 3D grid using Voronoi Mosaic Model
- **
- ** \returns Error return code
- **
- ** \param[in]  dbgrid      Db structure (should be a grid)
- ** \param[in]  model       Model used for the valuation of tesselation
- ** \param[in]  parparam    SimuPartitionParam structure
- ** \param[in]  seed        Seed
- ** \param[in]  verbose     Verbose option
- ** \param[in]  namconv     Naming Convention
- **
- *****************************************************************************/
-Id tessellation_voronoi(DbGrid* dbgrid,
-                        Model* model,
-                        const SimuPartitionParam& parparam,
-                        Id seed,
-                        Id verbose,
-                        const NamingConvention& namconv)
-{
-  CalcSimuPartition simpart(1, 1, seed, verbose);
-  simpart.setDbout(dbgrid);
-  simpart.setModel(model);
-  simpart.setNamingConvention(namconv);
-  simpart.setParparam(parparam);
-
-  Id error = (simpart.run()) ? 0 : 1;
-  return error;
-}
+  void CalcSimuPartition::_rollback()
+  {
+    _cleanVariableDb(1);
+  }
 
 } // namespace gstlrn

@@ -17,166 +17,180 @@
 
 namespace gstlrn
 {
-FracFault::FracFault(double coord, double orient)
-  : AStringable()
-  , ASerializable()
-  , _coord(coord)
-  , _orient(orient)
-  , _thetal()
-  , _thetar()
-  , _rangel()
-  , _ranger()
-{
-}
-
-FracFault::FracFault(const FracFault& r)
-  : AStringable(r)
-  , ASerializable(r)
-  , _coord(r._coord)
-  , _orient(r._orient)
-  , _thetal(r._thetal)
-  , _thetar(r._thetar)
-  , _rangel(r._rangel)
-  , _ranger(r._ranger)
-{
-}
-
-FracFault& FracFault::operator=(const FracFault& r)
-{
-  if (this != &r)
+  FracFault::FracFault(double coord, double orient)
+    : AStringable()
+    , ASerializable()
+    , _coord(coord)
+    , _orient(orient)
+    , _thetal()
+    , _thetar()
+    , _rangel()
+    , _ranger()
   {
-    AStringable::operator=(r);
-    ASerializable::operator=(r);
-    _coord  = r._coord;
-    _orient = r._orient;
-    _thetal = r._thetal;
-    _thetar = r._thetar;
-    _rangel = r._rangel;
-    _ranger = r._ranger;
   }
-  return *this;
-}
 
-FracFault::~FracFault()
-{
-}
-
-String FracFault::toString(const AStringFormat* /*strfmt*/) const
-{
-  std::stringstream sstr;
-
-  sstr << "Location of the Fault           = " << _coord << std::endl;
-  sstr << "Fault orientation               = " << _orient << " (degree)" << std::endl;
-
-  Id number = static_cast<Id>(_thetal.size());
-  for (Id j = 0; j < number; j++)
+  FracFault::FracFault(const FracFault& r)
+    : AStringable(r)
+    , ASerializable(r)
+    , _coord(r._coord)
+    , _orient(r._orient)
+    , _thetal(r._thetal)
+    , _thetar(r._thetar)
+    , _rangel(r._rangel)
+    , _ranger(r._ranger)
   {
-    sstr << toStrTitle(2, "Family #%d/%d", j + 1, number);
-    sstr << "Intensity maximum value (left)  = " << _thetal[j] << std::endl;
-    sstr << "Intensity range (left)          = " << _rangel[j] << std::endl;
-    sstr << "Intensity maximum value (right) = " << _thetar[j] << std::endl;
-    sstr << "Intensity range (right)         = " << _ranger[j] << std::endl;
   }
-  return sstr.str();
-}
 
-/****************************************************************************/
-/*!
- **  Calculate the abscissae of a fault at a given elevation
- **
- ** \return The fault abscissae
- **
- ** \param[in]  cote   Ordinate of the fracture starting point
- **
- *****************************************************************************/
-double FracFault::faultAbscissae(double cote) const
-{
-  return (_coord + cote * tan(ut_deg2rad(_orient)));
-}
+  FracFault& FracFault::operator=(const FracFault& r)
+  {
+    if (this != &r)
+    {
+      AStringable::operator=(r);
+      ASerializable::operator=(r);
+      _coord = r._coord;
+      _orient = r._orient;
+      _thetal = r._thetal;
+      _thetar = r._thetar;
+      _rangel = r._rangel;
+      _ranger = r._ranger;
+    }
+    return *this;
+  }
 
-void FracFault::addFaultPerFamily(double thetal,
-                                  double thetar,
-                                  double rangel,
-                                  double ranger)
-{
-  auto nfam = getNFamilies();
-  _thetal.resize(nfam + 1);
-  _thetar.resize(nfam + 1);
-  _rangel.resize(nfam + 1);
-  _ranger.resize(nfam + 1);
+  FracFault::~FracFault() {}
 
-  _thetal[nfam] = thetal;
-  _thetar[nfam] = thetar;
-  _rangel[nfam] = rangel;
-  _ranger[nfam] = ranger;
-}
+  String FracFault::toString(const AStringFormat* /*strfmt*/) const
+  {
+    std::stringstream sstr;
 
-bool FracFault::_deserializeAscii(std::istream& is)
-{
-  bool ret  = true;
-  auto nfam = getNFamilies();
-  ret       = ret && _recordRead<double>(is, "Abscissa of the first Fault point", _coord);
-  ret       = ret && _recordRead<double>(is, "Fault orientation", _orient);
-  ret       = ret && _recordRead<Id>(is, "Number of Families", nfam);
-  ret       = ret && _recordReadVec<double>(is, "Maximum Density on the left", _thetal, nfam);
-  ret       = ret && _recordReadVec<double>(is, "Maximum Density on the right", _thetar, nfam);
-  ret       = ret && _recordReadVec<double>(is, "Decrease Range on the left", _rangel, nfam);
-  ret       = ret && _recordReadVec<double>(is, "Decrease Range on the right", _ranger, nfam);
-  return ret;
-}
+    sstr << "Location of the Fault           = " << _coord << std::endl;
+    sstr << "Fault orientation               = " << _orient << " (degree)"
+         << std::endl;
 
-bool FracFault::_serializeAscii(std::ostream& os) const
-{
-  bool ret = true;
-  ret      = ret && _recordWrite<double>(os, "Abscissa of the first Fault point", _coord);
-  ret      = ret && _recordWrite<double>(os, "Fault orientation", _orient);
-  ret      = ret && _recordWrite<Id>(os, "Number of Families", getNFamilies());
-  ret      = ret && _recordWriteVec<double>(os, "Maximum Density on the left", _thetal);
-  ret      = ret && _recordWriteVec<double>(os, "Maximum Density on the right", _thetar);
-  ret      = ret && _recordWriteVec<double>(os, "Decrease Range on the left", _rangel);
-  ret      = ret && _recordWriteVec<double>(os, "Decrease Range on the right", _ranger);
-  return ret;
-}
+    Id number = static_cast<Id>(_thetal.size());
+    for (Id j = 0; j < number; j++)
+    {
+      sstr << toStrTitle(2, "Family #%d/%d", j + 1, number);
+      sstr << "Intensity maximum value (left)  = " << _thetal[j] << std::endl;
+      sstr << "Intensity range (left)          = " << _rangel[j] << std::endl;
+      sstr << "Intensity maximum value (right) = " << _thetar[j] << std::endl;
+      sstr << "Intensity range (right)         = " << _ranger[j] << std::endl;
+    }
+    return sstr.str();
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Calculate the abscissae of a fault at a given elevation
+   **
+   ** \return The fault abscissae
+   **
+   ** \param[in]  cote   Ordinate of the fracture starting point
+   **
+   *****************************************************************************/
+  double FracFault::faultAbscissae(double cote) const
+  {
+    return (_coord + cote * tan(ut_deg2rad(_orient)));
+  }
+
+  void FracFault::addFaultPerFamily(
+    double thetal,
+    double thetar,
+    double rangel,
+    double ranger)
+  {
+    auto nfam = getNFamilies();
+    _thetal.resize(nfam + 1);
+    _thetar.resize(nfam + 1);
+    _rangel.resize(nfam + 1);
+    _ranger.resize(nfam + 1);
+
+    _thetal[nfam] = thetal;
+    _thetar[nfam] = thetar;
+    _rangel[nfam] = rangel;
+    _ranger[nfam] = ranger;
+  }
+
+  bool FracFault::_deserializeAscii(std::istream& is)
+  {
+    bool ret = true;
+    auto nfam = getNFamilies();
+    ret = ret
+       && _recordRead<double>(is, "Abscissa of the first Fault point", _coord);
+    ret = ret && _recordRead<double>(is, "Fault orientation", _orient);
+    ret = ret && _recordRead<Id>(is, "Number of Families", nfam);
+    ret = ret
+       && _recordReadVec<double>(
+            is, "Maximum Density on the left", _thetal, nfam);
+    ret = ret
+       && _recordReadVec<double>(
+            is, "Maximum Density on the right", _thetar, nfam);
+    ret = ret
+       && _recordReadVec<double>(
+            is, "Decrease Range on the left", _rangel, nfam);
+    ret = ret
+       && _recordReadVec<double>(
+            is, "Decrease Range on the right", _ranger, nfam);
+    return ret;
+  }
+
+  bool FracFault::_serializeAscii(std::ostream& os) const
+  {
+    bool ret = true;
+    ret = ret
+       && _recordWrite<double>(os, "Abscissa of the first Fault point", _coord);
+    ret = ret && _recordWrite<double>(os, "Fault orientation", _orient);
+    ret = ret && _recordWrite<Id>(os, "Number of Families", getNFamilies());
+    ret = ret
+       && _recordWriteVec<double>(os, "Maximum Density on the left", _thetal);
+    ret = ret
+       && _recordWriteVec<double>(os, "Maximum Density on the right", _thetar);
+    ret =
+      ret && _recordWriteVec<double>(os, "Decrease Range on the left", _rangel);
+    ret = ret
+       && _recordWriteVec<double>(os, "Decrease Range on the right", _ranger);
+    return ret;
+  }
 
 #ifdef HDF5
-bool FracFault::deserializeH5(H5::Group& grp)
-{
-  auto faultG = SerializeHDF5::getGroup(grp, "Faults");
-  if (!faultG)
+  bool FracFault::deserializeH5(H5::Group& grp)
   {
-    return false;
+    auto faultG = SerializeHDF5::getGroup(grp, "Faults");
+    if (!faultG)
+    {
+      return false;
+    }
+
+    /* Read the grid characteristics */
+    bool ret = true;
+    Id nfamilies;
+
+    ret = ret && SerializeHDF5::readValue(*faultG, "Abscissa", _coord);
+    ret = ret && SerializeHDF5::readValue(*faultG, "Orientation", _orient);
+    ret = ret && SerializeHDF5::readValue(*faultG, "NFamilies", nfamilies);
+    ret = ret && SerializeHDF5::readVec(*faultG, "MaxDensityLeft", _thetal);
+    ret = ret && SerializeHDF5::readVec(*faultG, "MaxDensityRight", _thetar);
+    ret = ret && SerializeHDF5::readVec(*faultG, "DecreaseRangeLeft", _rangel);
+    ret = ret && SerializeHDF5::readVec(*faultG, "DecreaseRangeRight", _ranger);
+
+    return ret;
   }
 
-  /* Read the grid characteristics */
-  bool ret = true;
-  Id nfamilies;
+  bool FracFault::serializeH5(H5::Group& grp) const
+  {
+    auto faultG = grp.createGroup("FracFault");
 
-  ret = ret && SerializeHDF5::readValue(*faultG, "Abscissa", _coord);
-  ret = ret && SerializeHDF5::readValue(*faultG, "Orientation", _orient);
-  ret = ret && SerializeHDF5::readValue(*faultG, "NFamilies", nfamilies);
-  ret = ret && SerializeHDF5::readVec(*faultG, "MaxDensityLeft", _thetal);
-  ret = ret && SerializeHDF5::readVec(*faultG, "MaxDensityRight", _thetar);
-  ret = ret && SerializeHDF5::readVec(*faultG, "DecreaseRangeLeft", _rangel);
-  ret = ret && SerializeHDF5::readVec(*faultG, "DecreaseRangeRight", _ranger);
+    bool ret = true;
 
-  return ret;
-}
+    ret = ret && SerializeHDF5::writeValue(faultG, "Abscissa", _coord);
+    ret = ret && SerializeHDF5::writeValue(faultG, "Orientation", _orient);
+    ret = ret && SerializeHDF5::writeValue(faultG, "NFamilies", getNFamilies());
+    ret = ret && SerializeHDF5::writeVec(faultG, "MaxDensityLeft", _thetal);
+    ret = ret && SerializeHDF5::writeVec(faultG, "MaxDensityRight", _thetar);
+    ret = ret && SerializeHDF5::writeVec(faultG, "DecreaseRangeLeft", _rangel);
+    ret = ret && SerializeHDF5::writeVec(faultG, "DecreaseRangeRight", _ranger);
 
-bool FracFault::serializeH5(H5::Group& grp) const
-{
-  auto faultG = grp.createGroup("FracFault");
-
-  bool ret = true;
-
-  ret = ret && SerializeHDF5::writeValue(faultG, "Abscissa", _coord);
-  ret = ret && SerializeHDF5::writeValue(faultG, "Orientation", _orient);
-  ret = ret && SerializeHDF5::writeValue(faultG, "NFamilies", getNFamilies());
-  ret = ret && SerializeHDF5::writeVec(faultG, "MaxDensityLeft", _thetal);
-  ret = ret && SerializeHDF5::writeVec(faultG, "MaxDensityRight", _thetar);
-  ret = ret && SerializeHDF5::writeVec(faultG, "DecreaseRangeLeft", _rangel);
-  ret = ret && SerializeHDF5::writeVec(faultG, "DecreaseRangeRight", _ranger);
-
-  return ret;
-}
+    return ret;
+  }
 #endif
 } // namespace gstlrn

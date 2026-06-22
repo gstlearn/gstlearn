@@ -3,7 +3,7 @@
 # This script is meant to update the reference output file starting from the resulting test file output file Release mode only)
 # It specifically concerns the auxiliary files (Vario and Model) taht are produced by the tests
 # and not compared by the procedure compare_test.
-# 
+#
 
 # Reference directory
 set command_location = `dirname $0`
@@ -35,4 +35,3 @@ if (-f $FILECMP) then
 	set FILEREF = $DIR/tests/$name1/$nametest/$nameradix."ref"
 	cp $FILECMP $FILEREF
 endif
-

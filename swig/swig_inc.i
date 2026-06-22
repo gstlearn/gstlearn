@@ -1,5 +1,6 @@
 %feature(director) IProj;
 %feature(director) ACov;
+%feature(director) AFunction;
 %feature(director) AFunctional;
 %feature(director) ABiTargetCheck;
 
@@ -10,11 +11,12 @@
   #include "geoslib_d.h"
   #include "geoslib_f.h"
   #include "geoslib_old_f.h"
-  
+
   #include "Transform/ATransform.hpp"
+  #include "Transform/ATransformWithAutoDiff.hpp"
   #include "Transform/TuckeyGH.hpp"
   #include "Transform/YeoJohnson.hpp"
-  
+
   #include "Enum/AEnum.hpp"
   #include "Enum/EKrigOpt.hpp"
   #include "Enum/ESPDECalcMode.hpp"
@@ -47,7 +49,8 @@
   #include "Enum/ECalcMember.hpp"
   #include "Enum/EPostUpscale.hpp"
   #include "Enum/EPostStat.hpp"
-  
+  #include "Enum/ESimuType.hpp"
+
   #include "Basic/VectorT.hpp"
   #include "Basic/VectorNumT.hpp"
   #include "Basic/ICloneable.hpp"
@@ -81,7 +84,7 @@
   #include "Basic/Indirection.hpp"
   #include "Basic/Message.hpp"
   #include "Basic/WarningMacro.hpp"
-  
+
   #include "Geometry/GeometryHelper.hpp"
   #include "Geometry/Rotation.hpp"
   #include "Geometry/ABiTargetCheck.hpp"
@@ -92,14 +95,14 @@
   #include "Geometry/BiTargetCheckCode.hpp"
   #include "Geometry/BiTargetCheckDate.hpp"
   #include "Geometry/BiTargetCheckGeometry.hpp"
-  
+
   #include "Arrays/AArray.hpp"
   #include "Arrays/Array.hpp"
   #include "Arrays/BImage.hpp"
   #include "Arrays/BImageStringFormat.hpp"
-  
+
   #include "Faults/Faults.hpp"
-  
+
   #include "Boolean/ShapeParameter.hpp"
   #include "Boolean/AShape.hpp"
   #include "Boolean/ShapeParallelepiped.hpp"
@@ -109,18 +112,19 @@
   #include "Boolean/ShapeHalfParaboloid.hpp"
   #include "Boolean/ShapeHalfSinusoid.hpp"
   #include "Boolean/ModelBoolean.hpp"
-  
+
   #include "Space/ASpace.hpp"
   #include "Space/SpaceComposite.hpp"
   #include "Space/ASpaceObject.hpp"
   #include "Space/SpacePoint.hpp"
   #include "Space/SpaceTarget.hpp"
   #include "Space/SpaceRN.hpp"
+  #include "Space/SpaceSN.hpp"
   #include "Space/SpaceShape.hpp"
-  
+
   #include "Skin/ISkinFunctions.hpp"
   #include "Skin/Skin.hpp"
-  
+
   #include "Calculators/ACalculator.hpp"
   #include "Calculators/ACalcDbVarCreator.hpp"
   #include "Calculators/ACalcDbToDb.hpp"
@@ -131,28 +135,34 @@
   #include "Calculators/CalcSimuPost.hpp"
   #include "Calculators/CalcSimuPostDemo.hpp"
   #include "Calculators/CalcSimuPostPropByLayer.hpp"
-  
+
   #include "Mesh/AMesh.hpp"
+  #include "Mesh/MeshEFaulted.hpp"
   #include "Mesh/MeshEStandard.hpp"
   #include "Mesh/MeshETurbo.hpp"
   #include "Mesh/MeshSpherical.hpp"
   #include "Mesh/MeshSphericalExt.hpp"
   #include "Mesh/VectorMeshes.hpp"
-  
+
   #include "Polynomials/APolynomial.hpp"
   #include "Polynomials/ClassicalPolynomial.hpp"
   #include "Polynomials/Hermite.hpp"
   #include "Polynomials/MonteCarlo.hpp"
-  
+
   #include "LinearOp/CGParam.hpp"
   #include "LinearOp/LogStats.hpp"
   #include "LinearOp/ALinearOp.hpp"
+  #include "LinearOp/APreconditioner.hpp"
+  #include "LinearOp/MultiGridSolver.hpp"
+  #include "LinearOp/MultiGridSPDE.hpp"
   #include "LinearOp/ASimulable.hpp"
+  #include "LinearOp/ASimulableMatrix.hpp"
   #include "LinearOp/LinearOpCGSolver.hpp"
   #include "LinearOp/ALinearOpMulti.hpp"
   #include "LinearOp/AShiftOp.hpp"
   #include "LinearOp/ShiftOpStencil.hpp"
   #include "LinearOp/ShiftOpMatrix.hpp"
+  #include "LinearOp/IPrecisionOp.hpp"
   #include "LinearOp/PrecisionOp.hpp"
   #include "LinearOp/PrecisionOpMatrix.hpp"
   #include "LinearOp/TurboOptimizer.hpp"
@@ -165,7 +175,6 @@
   #include "LinearOp/ProjComposition.hpp"
   #include "LinearOp/PrecisionOpMulti.hpp"
   #include "LinearOp/PrecisionOpMultiMatrix.hpp"
-  #include "LinearOp/PrecisionOpMultiConditional.hpp"
   #include "LinearOp/IOptimCost.hpp"
   #include "LinearOp/OptimCostBinary.hpp"
   #include "LinearOp/OptimCostColored.hpp"
@@ -176,6 +185,7 @@
   #include "LinearOp/ACholesky.hpp"
   #include "LinearOp/CholeskyDense.hpp"
   #include "LinearOp/CholeskySparse.hpp"
+  #include "LinearOp/LinearOpHelper.hpp"
 
   #include "Neigh/ANeigh.hpp"
   #include "Neigh/NeighUnique.hpp"
@@ -183,14 +193,15 @@
   #include "Neigh/NeighMoving.hpp"
   #include "Neigh/NeighBench.hpp"
   #include "Neigh/NeighCell.hpp"
-  
+
   #include "Variogram/AVario.hpp"
   #include "Variogram/VarioParam.hpp"
   #include "Variogram/Vario.hpp"
   #include "Variogram/DirParam.hpp"
   #include "Variogram/VMap.hpp"
   #include "Variogram/VCloud.hpp"
-  
+  #include "Variogram/VarioOrder.hpp"
+
   #include "Basic/ParamInfo.hpp"
   #include "Basic/ListParams.hpp"
   #include "Model/ModelGeneric.hpp"
@@ -198,19 +209,20 @@
   #include "Model/ModelCovList.hpp"
   #include "Model/Model.hpp"
   #include "Model/ModelOptimParam.hpp"
+  #include "Model/ElemNostat.hpp"
   #include "Model/Option_AutoFit.hpp"
   #include "Model/Option_VarioFit.hpp"
   #include "Model/Constraints.hpp"
   #include "Model/ConsItem.hpp"
   #include "Model/CovParamId.hpp"
-  #include "Model/CovParamId.hpp"
-  
+
   #include "Covariances/ParamId.hpp"
   #include "Covariances/TabNoStat.hpp"
   #include "Covariances/TabNoStatCovAniso.hpp"
   #include "Covariances/TabNoStatSills.hpp"
   #include "Covariances/ANoStat.hpp"
   #include "Covariances/NoStatArray.hpp"
+  #include "Covariances/NoStatOnMesh.hpp"
   #include "Covariances/NoStatFunctional.hpp"
   #include "Covariances/ACov.hpp"
   #include "Covariances/CovBase.hpp"
@@ -222,6 +234,7 @@
   #include "Covariances/CovGradientGeneric.hpp"
   #include "Covariances/CovGradientAnalytic.hpp"
   #include "Covariances/CorAniso.hpp"
+  #include "Covariances/CorFactorized.hpp"
   #include "Covariances/CorGaussianMixture.hpp"
   #include "Covariances/CorGneiting.hpp"
   #include "Covariances/CorMatern.hpp"
@@ -264,13 +277,13 @@
   #include "Covariances/KernelLinearSph.hpp"
   #include "Covariances/CovDiffusionAdvection.hpp"
   #include "Covariances/CovHelper.hpp"
-  
+
   #include "Drifts/ADrift.hpp"
   #include "Drifts/DriftList.hpp"
   #include "Drifts/DriftM.hpp"
   #include "Drifts/DriftF.hpp"
   #include "Drifts/DriftFactory.hpp"
-  
+
   #include "Matrix/AMatrix.hpp"
   #include "Matrix/MatrixDense.hpp"
   #include "Matrix/MatrixSparse.hpp"
@@ -288,7 +301,7 @@
   #include "API/Style.hpp"
   #include "API/SPDEParam.hpp"
   #include "API/Potential.hpp"
-  
+
   #include "Db/Db.hpp"
   #include "Db/DbGrid.hpp"
   #include "Db/DbLine.hpp"
@@ -298,7 +311,7 @@
   #include "Db/DbStringFormat.hpp"
   #include "Db/DbHelper.hpp"
   #include "Db/RankHandler.hpp"
-  
+
   #include "Anamorphosis/CalcAnamTransform.hpp"
   #include "Anamorphosis/AAnam.hpp"
   #include "Anamorphosis/AnamContinuous.hpp"
@@ -309,25 +322,33 @@
   #include "Anamorphosis/AnamDiscreteDD.hpp"
   #include "Anamorphosis/AnamDiscreteIR.hpp"
   #include "Anamorphosis/PPMT.hpp"
-  
+
   #include "Gibbs/GibbsMMulti.hpp"
   #include "Gibbs/GibbsUMulti.hpp"
-  
+  #include "Gibbs/GibbsMultiMono.hpp"
+  #include "Gibbs/GibbsUMultiMono.hpp"
+  #include "Gibbs/GibbsUPropMono.hpp"
+
   #include "Morpho/Morpho.hpp"
-  
+
   #include "Polygon/Polygons.hpp"
   #include "Polygon/PolyElem.hpp"
-  
+
   #include "Stats/Classical.hpp"
   #include "Stats/PCA.hpp"
   #include "Stats/PCAStringFormat.hpp"
   #include "Stats/Selectivity.hpp"
   #include "Stats/Regression.hpp"
-  
+
+  #include "LithoRule/Node.hpp"
   #include "LithoRule/Rule.hpp"
   #include "LithoRule/RuleStringFormat.hpp"
   #include "LithoRule/RuleProp.hpp"
-  
+  #include "LithoRule/RuleShift.hpp"
+  #include "LithoRule/RuleShadow.hpp"
+  #include "LithoRule/PropDef.hpp"
+
+  #include "Estimation/Estimations.hpp"
   #include "Estimation/KrigingSystem.hpp"
   #include "Estimation/KrigingAlgebra.hpp"
   #include "Estimation/CalcKriging.hpp"
@@ -355,18 +376,22 @@
   #include "OutputFormat/GridXYZ.hpp"
   #include "OutputFormat/GridZycor.hpp"
   #include "OutputFormat/segy.h"
-  
+
   #include "Polynomials/Chebychev.hpp"
+
+  #include "Simulation/Simulations.hpp"
   #include "Simulation/ACalcSimulation.hpp"
+  #include "Simulation/ACalcSimuGaussian.hpp"
   #include "Simulation/CalcSimuTurningBands.hpp"
+  #include "Simulation/CalcSimuPGS.hpp"
   #include "Simulation/TurningBandDirection.hpp"
   #include "Simulation/TurningBandOperate.hpp"
-  #include "Simulation/ASimuSpectral.hpp"
+  #include "Simulation/CalcSimuSpectral.hpp"
+  #include "Simulation/CalcSimuBoolean.hpp"
   #include "Simulation/SimuSpectralRN.hpp"
-  #include "Simulation/SpectrumRN.hpp"
   #include "Simulation/SimuSpectralS2.hpp"
+  #include "Simulation/SpectrumOnRN.hpp"
   #include "Simulation/BooleanObject.hpp"
-  #include "Simulation/SimuBoolean.hpp"
   #include "Simulation/SimuBooleanParam.hpp"
   #include "Simulation/SimuSpherical.hpp"
   #include "Simulation/SimuSphericalParam.hpp"
@@ -379,18 +404,24 @@
   #include "Simulation/SimuRefineParam.hpp"
   #include "Simulation/CalcSimuRefine.hpp"
   #include "Simulation/CalcSimuEden.hpp"
-  
+
   #include "Fractures/FracEnviron.hpp"
   #include "Fractures/FracFamily.hpp"
   #include "Fractures/FracFault.hpp"
   #include "Fractures/FracDesc.hpp"
   #include "Fractures/FracList.hpp"
-  
+
   #include "Tree/Ball.hpp"
+  #include "Tree/BallFaulted.hpp"
   #include "Tree/KNN.hpp"
-    
+
   #include "Spatial/Projection.hpp"
   #include "Spatial/SpatialIndices.hpp"
+
+  #include "PluriGaussian/TracePGS.hpp"
+  #include "PluriGaussian/CorPGS.hpp"
+  #include "PluriGaussian/DiscretePGS.hpp"
+  #include "PluriGaussian/CalcModelPGS.hpp"
 
   #include "Core/Acknowledge.hpp"
   #include "Core/Seismic.hpp"
@@ -423,14 +454,14 @@
 %template(DoNotUseVVectorLongStd)   std::vector< std::vector< long > >;
 %template(DoNotUseVVectorLLongStd)  std::vector< std::vector< long long > >;
 %template(DoNotUseVVectorDoubleStd) std::vector< std::vector< double > >;
-%template(DoNotUseVVectorFloatStd)  std::vector< std::vector< float > >; 
+%template(DoNotUseVVectorFloatStd)  std::vector< std::vector< float > >;
 
 %template(VectorECov)              std::vector< gstlrn::ECov >;
 %template(VectorEStatOption)       std::vector< gstlrn::EStatOption >;
 %template(VectorESelectivity)      std::vector< gstlrn::ESelectivity >;
 %template(VectorDirParam)          std::vector< gstlrn::DirParam >;
 %template(VectorPolyElem)          std::vector< gstlrn::PolyElem >;
-%template(VectorInterval)          std::vector< gstlrn::Interval >; 
+%template(VectorInterval)          std::vector< gstlrn::Interval >;
 %template(VectorEPostStat)         std::vector< gstlrn::EPostStat >;
 %template(VectorSpacePoint)        std::vector< gstlrn::SpacePoint >;
 %template(VectorABiTargetCheck)    std::vector< gstlrn::ABiTargetCheck* >;
@@ -438,17 +469,18 @@
 %template(VectorConstProjMatrix)   std::vector< const gstlrn::ProjMatrix*>;
 %template(VectorConstIProj)        std::vector< const gstlrn::IProj*>;
 %template(VVectorConstProjMatrix)  std::vector< std::vector< const gstlrn::ProjMatrix*> >;
-%template(VVectorConstIProj) std::vector< std::vector< const gstlrn::IProj*> >;
+%template(VVectorConstIProj)       std::vector< std::vector< const gstlrn::IProj*> >;
 %template(VecMeshes)               std::vector< const gstlrn::AMesh*>;
-%template(VectorMatrixSquare)      std::vector<gstlrn::MatrixSquare >;
+%template(VectorMatrixSquare)      std::vector< gstlrn::MatrixSquare >;
+%template(VectorRule)              std::vector< gstlrn::Rule>;
 
-////////////////////////////////////////////////
-// Conversion Target language => C++
-
+///////////////////////////////////////
+// Conversion Target language => C++ //
+///////////////////////////////////////
 namespace gstlrn {
 
 // Note : Before including this file :
-//        - vectorToCpp, vectorVectorToCpp, matrixDenseToCpp, matrixSparseToCpp and convertToCpp 
+//        - vectorToCpp, vectorVectorToCpp, matrixDenseToCpp, matrixSparseToCpp and convertToCpp
 //          functions must be defined in ToCpp fragment
 
 // Convert scalar arguments by value
@@ -490,7 +522,7 @@ namespace gstlrn {
 %typemap(in, fragment="ToCpp") Id*     (Id val),     const Id*     (Id val),
                                Id&     (Id val),     const Id&     (Id val),
                                double* (double val), const double* (double val),
-                               double& (double val), const double& (double val), 
+                               double& (double val), const double& (double val),
                                float*   (float val), const float*   (float val),
                                float&   (float val), const float&   (float val),
                                UChar*   (UChar val), const UChar*   (UChar val),
@@ -517,7 +549,7 @@ namespace gstlrn {
                                VectorFloat  (void *argp),
                                VectorUChar  (void *argp),
                                VectorBool   (void *argp)
-{ 
+{
   // Try to convert from any target language vector
   int errcode = vectorToCpp($input, $1);
   if (!SWIG_IsOK(errcode))
@@ -805,8 +837,6 @@ namespace gstlrn {
   }
 }
 
-
-
 %typemap(in, fragment="ToCpp") const MatrixDense&     (void *argp, MatrixDense mat),
                                const MatrixDense*     (void *argp, MatrixDense mat),
                                const MatrixSquare&   (void *argp, MatrixSquare mat),
@@ -891,8 +921,8 @@ namespace gstlrn {
 // Conversion C++ => Target language
 //
 // Note : Before including this file :
-//        - vectorFromCpp, vectorVectorFromCpp, 
-//        - matrixDenseFromCpp, matrixSparseFromCpp, objectFromCpp 
+//        - vectorFromCpp, vectorVectorFromCpp,
+//        - matrixDenseFromCpp, matrixSparseFromCpp, objectFromCpp
 //          functions must be defined in FromCpp fragment
 
 %typemap(out, fragment="FromCpp") Id,
@@ -920,8 +950,8 @@ namespace gstlrn {
   $result = objectFromCpp(*$1);
 }
 
-%typemap(out, fragment="FromCpp") VectorInt, 
-                                  VectorDouble, 
+%typemap(out, fragment="FromCpp") VectorInt,
+                                  VectorDouble,
                                   VectorString,
                                   VectorFloat,
                                   VectorUChar,
@@ -962,8 +992,8 @@ namespace gstlrn {
     SWIG_exception_fail(SWIG_ArgError(errcode), "in method $symname, wrong return value: $type");
 }
 
-//%typemap(out, fragment="FromCpp") MatrixDense, 
-//                                  MatrixSquare, 
+//%typemap(out, fragment="FromCpp") MatrixDense,
+//                                  MatrixSquare,
 //                                  MatrixSymmetric
 //{
 //  int errcode = matrixDenseFromCpp(&($result), $1);
@@ -994,7 +1024,7 @@ namespace gstlrn {
 //    SWIG_exception_fail(SWIG_ArgError(errcode), "in method $symname, wrong return value: $type");
 //}
 
-//%typemap(out, fragment="FromCpp") MatrixSparse 
+//%typemap(out, fragment="FromCpp") MatrixSparse
 //{
 //  int errcode = matrixSparseFromCpp(&($result), $1);
 //  if (!SWIG_IsOK(errcode))
@@ -1067,6 +1097,163 @@ namespace gstlrn {
   }
 }
 
+%extend gstlrn::MatrixDense {
+/**
+  * @brief List of methods from class MatrixDense exported for Target Language
+  */
+  MatrixDense linearCombination(double addition,
+                         double val1,
+                         const MatrixDense& other1,
+                         double val2     = 0.,
+                         const MatrixDense& other2 = MatrixDense(),
+                         double val3     = 0.,
+                         const MatrixDense& other3 = MatrixDense())
+  {
+    return AMatrix::linearCombination(addition, val1, other1, val2, other2, val3, other3);
+  }
+  VectorDouble prodMatVec(const VectorDouble& x, bool transpose = false)
+  {
+    return AMatrix::product(*$self, x, transpose, true);
+  }
+  void prodMatVecInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false) const
+  {
+    AMatrix::productInPlace(y, *$self, x, transpose, true);
+  }
+  VectorDouble prodVecMat(const VectorDouble& x, bool transpose = false) const
+  {
+    return AMatrix::product(x, *$self, transpose, true);
+  }
+  void prodVecMatInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false) const
+  {
+    AMatrix::productInPlace(y, x, *$self, transpose, true);
+  }
+  void AMatrix::prodMat(const MatrixDense* matY, bool transposeY)
+  {
+    AMatrix::prodMatMatInPlace(*self, *self, *matY, false, transposeY);
+  }
+  void AMatrix::prodMatMatInPlace(const MatrixDense* x,
+                                  const MatrixDense* y,
+                                  bool transposeX = false,
+                                  bool transposeY = false)
+  {
+    AMatrix::prodMatMatInPlace(*self, *x, *y, transposeX, transposeY);
+  }
+}
+
+%extend gstlrn::MatrixSparse {
+/**
+  * @brief List of methods from class MatrixSparse exported for Target Language
+  */
+  MatrixSparse linearCombination(double addition,
+                         double val1,
+                         const MatrixSparse& other1,
+                         double val2     = 0.,
+                         const MatrixSparse& other2 = MatrixSparse(),
+                         double val3     = 0.,
+                         const MatrixSparse& other3 = MatrixSparse())
+  {
+    return AMatrix::linearCombination(addition, val1, other1, val2, other2, val3, other3);
+  }
+  VectorDouble prodMatVec(const VectorDouble& x, bool transpose = false)
+  {
+    return AMatrix::product(*$self, x, transpose, true);
+  }
+  void prodMatVecInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false) const
+  {
+    AMatrix::productInPlace(y, *$self, x, transpose, true);
+  }
+  VectorDouble prodVecMat(const VectorDouble& x, bool transpose = false) const
+  {
+     return AMatrix::product(x, *$self, transpose, true);
+  }
+  void prodVecMatInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false) const
+  {
+    AMatrix::productInPlace(y, x, *$self, transpose, true);
+  }
+  void AMatrix::prodMat(const MatrixSparse* matY, bool transposeY)
+  {
+    AMatrix::prodMatMatInPlace(*self, *self, *matY, false, transposeY);
+  }
+  void AMatrix::prodMatMatInPlace(const MatrixSparse* x,
+                                  const MatrixSparse* y,
+                                  bool transposeX = false,
+                                  bool transposeY = false)
+  {
+    AMatrix::prodMatMatInPlace(*self, *x, *y, transposeX, transposeY);
+  }
+}
+
+%extend gstlrn::VectorHelper {
+/**
+  * @brief List of operators from class VectorHelper exported for Target Language
+  */
+  static VectorDouble addVD(const VectorDouble& v1, const VectorDouble& v2)
+  {
+    return VectorHelper::add(v1, v2);
+  }
+  static VectorDouble addVDCst(const VectorDouble& v1, double v2)
+  {
+    return VectorHelper::addCst(v1, v2);
+  }
+  static VectorDouble subtractVD(const VectorDouble& v1, const VectorDouble& v2)
+  {
+    return VectorHelper::subtract(v1, v2);
+  }
+  static VectorDouble subtractVDCst(const VectorDouble& v1, double v2, bool flagOpposite = false)
+  {
+    return VectorHelper::subtractCst(v1, v2, flagOpposite);
+  }
+  static VectorDouble multiplyVD(const VectorDouble& v1, const VectorDouble& v2)
+  {
+    return VectorHelper::multiply(v1, v2);
+  }
+  static VectorDouble multiplyVDCst(const VectorDouble& v1, double v2)
+  {
+    return VectorHelper::multiplyCst(v1, v2);
+  }
+  static VectorDouble divideVD(const VectorDouble& v1, const VectorDouble& v2)
+  {
+    return VectorHelper::divide(v1, v2);
+  }
+  static VectorDouble divideVDCst(const VectorDouble& v1, double v2, bool flagOpposite = false)
+  {
+    return VectorHelper::divideCst(v1, v2, flagOpposite);
+  }
+  static VectorInt addVI(const VectorInt& v1, const VectorInt& v2)
+  {
+    return VectorHelper::add(v1, v2);
+  }
+  static VectorInt addVICst(const VectorInt& v1, Id v2)
+  {
+    return VectorHelper::addCst(v1, v2);
+  }
+  static VectorInt subtractVI(const VectorInt& v1, const VectorInt& v2)
+  {
+    return VectorHelper::subtract(v1, v2);
+  }
+  static VectorInt subtractVICst(const VectorInt& v1, Id v2, bool flagOpposite = false)
+  {
+    return VectorHelper::subtractCst(v1, v2, flagOpposite);
+  }
+  static VectorInt multiplyVI(const VectorInt& v1, const VectorInt& v2)
+  {
+    return VectorHelper::multiply(v1, v2);
+  }
+  static VectorInt multiplyVICst(const VectorInt& v1, Id v2)
+  {
+    return VectorHelper::multiplyCst(v1, v2);
+  }
+  static VectorInt divideVI(const VectorInt& v1, const VectorInt& v2)
+  {
+    return VectorHelper::divide(v1, v2);
+  }
+  static VectorInt divideVICst(const VectorInt& v1, Id v2, bool flagOpposite = false)
+  {
+    return VectorHelper::divideCst(v1, v2, flagOpposite);
+  }
+
+}
+
 // Prevent memory leaks from 'create*' and 'clone' methods
 
 // The following file should contain all 'createFrom*' methods
@@ -1084,7 +1271,7 @@ namespace gstlrn {
 
 //quick and dirty way to handle shared_ptrs for one python test
 // This is not a good practice, but it works for now
-// better solution would be to use a shared_ptr 
+// better solution would be to use a shared_ptr
 %typemap(in) const std::shared_ptr<const gstlrn::ASimulable> & {
   gstlrn::ASimulable* ptr = nullptr;
   int res = SWIG_ConvertPtr($input, (void**)&ptr, SWIGTYPE_p_gstlrn__ASimulable, 0);

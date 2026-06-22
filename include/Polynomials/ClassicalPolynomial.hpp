@@ -20,61 +20,64 @@ class AShiftOp;
 
 namespace gstlrn
 {
-class ALinearOp;
+  class ALinearOp;
 
-class GSTLEARN_EXPORT ClassicalPolynomial: public APolynomial
-{
-public:
-  ClassicalPolynomial();
-  ClassicalPolynomial(const VectorDouble&);
-  virtual ~ClassicalPolynomial();
+  class GSTLEARN_EXPORT ClassicalPolynomial: public APolynomial
+  {
+  public:
+    ClassicalPolynomial();
+    ClassicalPolynomial(const VectorDouble&);
+    virtual ~ClassicalPolynomial();
 
-  /// ICloneable interface
-  IMPLEMENT_CLONING(ClassicalPolynomial)
+    /// ICloneable interface
+    IMPLEMENT_CLONING(ClassicalPolynomial)
 
-  double eval(double x) const override;
-  // void evalDerivOp(ShiftOpMatrix* shiftOp,
-  //                         const constvect& inv,
-  //                         vect& outv,
-  //                         Id iapex,
-  //                         Id igparam);
-  // static void evalDerivOpOptim(ShiftOpMatrix* shiftOp,
-  //                              vect& temp1,
-  //                              vect& temp2,
-  //                              vect& outv,
-  //                              const VectorVectorDouble& workpoly,
-  //                              Id iapex,
-  //                              Id igparam);
+    double eval(double x) const override;
+    // void evalDerivOp(ShiftOpMatrix* shiftOp,
+    //                         const constvect& inv,
+    //                         vect& outv,
+    //                         Id iapex,
+    //                         Id igparam);
+    // static void evalDerivOpOptim(ShiftOpMatrix* shiftOp,
+    //                              vect& temp1,
+    //                              vect& temp2,
+    //                              vect& outv,
+    //                              const VectorVectorDouble& workpoly,
+    //                              Id iapex,
+    //                              Id igparam);
 #ifndef SWIG
-  // void evalDerivOp(ShiftOpMatrix* shiftOp,const VectorDouble& inv,
-  //                  VectorDouble& outv,Id iapex,Id igparam)const;
+    // void evalDerivOp(ShiftOpMatrix* shiftOp,const VectorDouble& inv,
+    //                  VectorDouble& outv,Id iapex,Id igparam)const;
 
-  // void evalDerivOpOptim(ShiftOpMatrix* shiftOp,Eigen::VectorXd& temp1,Eigen::VectorXd& temp2,
-  //                      Eigen::VectorXd& outv,const std::vector<Eigen::VectorXd>& workpoly,Id iapex,Id igparam)const;
-  // void evalOp(const ALinearOpMulti* /*Op*/,
-  //            const std::vector<Eigen::VectorXd>& /*inv*/,
-  //           std::vector<Eigen::VectorXd>& /*outv*/) const override { }
+    // void evalDerivOpOptim(ShiftOpMatrix* shiftOp,Eigen::VectorXd& temp1,Eigen::VectorXd& temp2,
+    //                      Eigen::VectorXd& outv,const std::vector<Eigen::VectorXd>& workpoly,Id iapex,Id igparam)const;
+    // void evalOp(const ALinearOpMulti* /*Op*/,
+    //            const std::vector<Eigen::VectorXd>& /*inv*/,
+    //           std::vector<Eigen::VectorXd>& /*outv*/) const override { }
 
-  void evalOpTraining(MatrixSparse* Op,
-                      const constvect inv,
-                      VectorVectorDouble& store,
-                      VectorDouble& work) const override;
-  void evalOpCumul(MatrixSparse* Op, const constvect inv, vect outv) const;
-  void evalOp(MatrixSparse* Op, const constvect inv, vect outv) const override;
-  double evalOpByRank(MatrixSparse* S, Id rank) const override;
+    void evalOpTraining(
+      MatrixSparse* Op,
+      const constvect inv,
+      VectorVectorDouble& store,
+      VectorDouble& work) const override;
+    void evalOpCumul(MatrixSparse* Op, const constvect inv, vect outv) const;
+    void
+      evalOp(MatrixSparse* Op, const constvect inv, vect outv) const override;
+    double evalOpByRank(MatrixSparse* S, Id rank) const override;
 #endif
 
 #ifndef SWIG
 
-  void _addEvalOp(const ALinearOp* Op, const constvect inv, vect outv) const override;
+    void _addEvalOp(const ALinearOp* Op, const constvect inv, vect outv)
+      const override;
+    Id setWorkArrays(vect work1, vect work2);
 
+  protected:
+    Id initWorkArrays(vect& work1, vect& work2, size_t size) const;
+
+  private:
+    mutable VectorDouble _w1, _w2; // local work arrays
+    mutable vect _work1, _work2; // shared work arrays
 #endif
-
-#ifndef SWIG
-
-private:
-  mutable VectorDouble _work;
-  mutable VectorDouble _work2;
-#endif
-};
+  };
 } // namespace gstlrn

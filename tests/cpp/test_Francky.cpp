@@ -16,7 +16,7 @@
 #include "Covariances/CovAniso.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
-#include "Estimation/CalcKriging.hpp"
+#include "Estimation/Estimations.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/NeighUnique.hpp"
 
@@ -51,14 +51,14 @@ int main(int argc, char* argv[])
 
   // Creating the 2-D Data Db with a Normal Variable
   auto ndata = 100;
-  Db* dat    = Db::createFromBox(ndata, {0., 0.}, {100., 100.}, 3243);
+  Db* dat = Db::createFromBox(ndata, {0., 0.}, {100., 100.}, 3243);
 
   // Creating the Neighborhood (Unique)
   NeighUnique* neighU = NeighUnique::create();
 
   // Creating the Non-stationary Model
-  Model* model = Model::createFromParam(ECov::MATERN, 1., 1., 1., {10., 40.},
-                                        MatrixSymmetric(), {30., 0.});
+  Model* model = Model::createFromParam(
+    ECov::MATERN, 1., 1., 1., {10., 40.}, MatrixSymmetric(), {30., 0.});
 
   FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
 
@@ -67,9 +67,10 @@ int main(int argc, char* argv[])
   // Simulating variable at data location (using SPDE)
   Id useCholesky = 0;
   law_set_random_seed(13256);
-  (void)simulateSPDE(nullptr, dat, model, 1, useCholesky,
-                     nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, SPDEParam(), false,
-                     NamingConvention("Data", true, false));
+  (void)simulateSPDE(
+    nullptr, dat, model, 1, useCholesky, nullptr, nullptr, nullptr, nullptr,
+    nullptr, nullptr, SPDEParam(), false,
+    NamingConvention("Data", true, false));
   (void)dat->dumpToNF("Data.NF");
 
   // Testing Kriging (traditional method)

@@ -14,73 +14,107 @@
 
 #include "Enum/EProcessOper.hpp"
 
+#include <array>
+
 namespace gstlrn
 {
-class Db;
-class DbGrid;
-class Rule;
-class RuleShadow;
+  class Db;
+  class DbGrid;
+  class Rule;
+  class RuleShadow;
 
-class GSTLEARN_EXPORT PropDef
-{
-  // TODO To be transformed in private URGENT
-public:
-  Id case_facies; /* TRUE when Gibbs used for Facies */
-  Id case_stat; /* TRUE if proportions are constant */
-  Id case_prop_interp; /* TRUE when props are given in proportion file */
-  Id ngrf[2]; /* Number of GRF for the PGSs */
-  Id nfac[2]; /* Number of facies for the PGSs */
-  Id nfaccur; /* Number of facies for current PGS */
-  Id nfacprod; /* Product of the number of facies */
-  Id nfacmax; /* Maximum number of facies over all PGS */
-  EProcessOper mode; /* Type of process */
-  VectorDouble propfix;
-  VectorDouble propmem;
-  VectorDouble propwrk;
-  VectorDouble proploc;
-  VectorDouble coor;
-  const DbGrid *dbprop; /* Pointer to the Proportion file */
-};
+  class GSTLEARN_EXPORT PropDef
+  {
+  public:
+    PropDef() = default;
+    PropDef(const PropDef& m) = default;
+    PropDef& operator=(const PropDef& m) = default;
+    virtual ~PropDef() = default;
 
-GSTLEARN_EXPORT Id get_rank_from_propdef(PropDef* propdef, Id ipgs, Id igrf);
-GSTLEARN_EXPORT Id rule_thresh_define_shadow(PropDef* propdef,
-                                              Db* dbin,
-                                              const RuleShadow* rule,
-                                              Id facies,
-                                              Id iech,
-                                              Id isimu,
-                                              Id nbsimu,
-                                              double* t1min,
-                                              double* t1max,
-                                              double* t2min,
-                                              double* t2max,
-                                              double* dsup,
-                                              double* down);
-GSTLEARN_EXPORT Id rule_thresh_define(PropDef* propdef,
-                                       Db* dbin,
-                                       const Rule* rule,
-                                       Id facies,
-                                       Id iech,
-                                       Id isimu,
-                                       Id nbsimu,
-                                       Id flag_check,
-                                       double* t1min,
-                                       double* t1max,
-                                       double* t2min,
-                                       double* t2max);
-GSTLEARN_EXPORT void proportion_rule_process(PropDef* propdef,
-                                             const EProcessOper& mode);
-GSTLEARN_EXPORT PropDef* proportion_manage(Id mode,
-                                           Id flag_facies,
-                                           Id flag_stat,
-                                           Id ngrf1,
-                                           Id ngrf2,
-                                           Id nfac1,
-                                           Id nfac2,
-                                           Db* db,
-                                           const Db* dbprop,
-                                           const VectorDouble& propcst,
-                                           PropDef* proploc);
-GSTLEARN_EXPORT void propdef_reset(PropDef* propdef);
-GSTLEARN_EXPORT void proportion_print(PropDef* propdef);
-}
+    void printInfo() const;
+    Id getRank(Id ipgs, Id igrf) const;
+    void defineRuleMethod(const EProcessOper& oper);
+    void reset() const;
+
+    Id proportionDefine(const Db* db, Id iech, Id isimu, Id nbsimu, Id* jech)
+      const;
+    Id define(
+      bool flag_facies,
+      bool flag_stat,
+      const std::array<Id, 2>& ngrf,
+      const std::array<Id, 2>& nfac,
+      Db* db,
+      const Db* dbprop,
+      const VectorDouble& propcst);
+    Id ruleThreshDefine(
+      Db* db,
+      const Rule* rule,
+      Id facies,
+      Id iech,
+      Id isimu,
+      Id nbsimu,
+      Id flag_check,
+      double* t1min,
+      double* t1max,
+      double* t2min,
+      double* t2max) const;
+    Id ruleThreshShadowDefine(
+      Db* db,
+      const RuleShadow* rule,
+      Id facies,
+      Id iech,
+      Id isimu,
+      Id nbsimu,
+      double* t1min,
+      double* t1max,
+      double* t2min,
+      double* t2max,
+      double* sh_dsup,
+      double* sh_down) const;
+
+    static void updateContinuous(Db* db, bool verbose, Id isimu, Id nbsimu);
+    void updateCategorical(Db* db, bool verbose, Id ipgs, Id isimu, Id nbsimu)
+      const;
+    static void scaleContinuous(Db* db, bool verbose, Id nbsimu);
+    void scaleCategorical(Db* db, bool verbose, Id ipgs, Id nbsimu) const;
+    void transformCategorical(
+      const Rule* rule,
+      Db* db,
+      bool verbose,
+      const VectorBool& flag_used,
+      Id ipgs,
+      Id isimu,
+      Id nbsimu) const;
+
+    double getPropFix(Id ifac) const { return _propfix[ifac]; }
+
+  private:
+    Id _proportionTransform() const;
+    Id _proportionLocate(Id ifac_ref) const;
+    Id _getINDLOC(Id ifac1, Id ifac2) const;
+    double _getPROPFIX(Id ifac, Id ifac2) const;
+    double _getPROPWRK(Id ifac, Id ifac2) const;
+    void _setPROPWRK(Id ifac, Id ifac2, double prop) const;
+    bool _proportionChanged() const;
+    Id _getFacies(Id ipgs, Id ifac) const;
+
+    // TODO To be transformed in private URGENT
+
+  public:
+    bool _caseFacies; /* TRUE when Gibbs is used for Facies */
+    bool _caseStat; /* TRUE if proportions are constant */
+    bool _casePropInterp; /* TRUE when props are given in proportion file */
+    std::array<Id, 2> _ngrf{}; /* Number of GRF for the PGSs */
+    std::array<Id, 2> _nfac{}; /* Number of facies for the PGSs */
+    Id _nfaccur; /* Number of facies for current PGS */
+    Id _nfacprod; /* Product of the number of facies */
+    EProcessOper _mode; /* Type of process */
+    mutable VectorDouble _propfix;
+    mutable VectorDouble _propmem;
+    mutable VectorDouble _propwrk;
+    mutable VectorDouble _proploc;
+    mutable VectorDouble _coor;
+    const DbGrid* _dbprop; /* Pointer not to be deleted */
+  };
+
+} // namespace gstlrn

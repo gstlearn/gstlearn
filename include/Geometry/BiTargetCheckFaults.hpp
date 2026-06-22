@@ -12,30 +12,30 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Geometry/ABiTargetCheck.hpp"
 #include "Faults/Faults.hpp"
+#include "Geometry/ABiTargetCheck.hpp"
 
 namespace gstlrn
-{ 
-class GSTLEARN_EXPORT BiTargetCheckFaults: public ABiTargetCheck
 {
-public:
-  BiTargetCheckFaults(const Faults* faults);
-  BiTargetCheckFaults(const BiTargetCheckFaults& r);
-  BiTargetCheckFaults& operator=(const BiTargetCheckFaults& r);
-  virtual ~BiTargetCheckFaults();
+  class GSTLEARN_EXPORT BiTargetCheckFaults: public ABiTargetCheck
+  {
+  public:
+    BiTargetCheckFaults(const Faults* faults);
+    BiTargetCheckFaults(const BiTargetCheckFaults& r);
+    BiTargetCheckFaults& operator=(const BiTargetCheckFaults& r);
+    virtual ~BiTargetCheckFaults();
 
-  /// ICloneable Interface
-  IMPLEMENT_CLONING(BiTargetCheckFaults)
+    /// ICloneable Interface
+    IMPLEMENT_CLONING(BiTargetCheckFaults)
 
-  bool isOK(const SpaceTarget &T1, const SpaceTarget &T2) const override;
+    bool isOK(const SpaceTarget& T1, const SpaceTarget& T2) const override;
 
-  /// Interface to AStringable
-  String toString(const AStringFormat* strfmt = nullptr) const override;
+    /// Interface to AStringable
+    String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  static BiTargetCheckFaults* create(const Faults* faults);
+    static BiTargetCheckFaults* create(const Faults* faults);
 
-private:
-  const Faults* _faults;
-};
-}
+  private:
+    const Faults* _faults;
+  };
+} // namespace gstlrn

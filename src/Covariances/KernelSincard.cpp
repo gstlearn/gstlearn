@@ -16,49 +16,49 @@
 
 namespace gstlrn
 {
-KernelSincard::KernelSincard(const CovContext& ctxt)
-  : AKernel(ECov::SINCARD, ctxt)
-{
-}
-
-KernelSincard::KernelSincard(const KernelSincard& r)
-  : AKernel(r)
-{
-}
-
-KernelSincard& KernelSincard::operator=(const KernelSincard& r)
-{
-  if (this != &r)
+  KernelSincard::KernelSincard(const CovContext& ctxt)
+    : AKernel(ECov::SINCARD, ctxt)
   {
-    AKernel::operator=(r);
   }
-  return *this;
-}
 
-KernelSincard::~KernelSincard()
-{
-}
+  KernelSincard::KernelSincard(const KernelSincard& r)
+    : AKernel(r)
+  {
+  }
 
-double KernelSincard::getScadef() const
-{
-  return (20.371);
-}
+  KernelSincard& KernelSincard::operator=(const KernelSincard& r)
+  {
+    if (this != &r)
+    {
+      AKernel::operator=(r);
+    }
+    return *this;
+  }
 
-double KernelSincard::_evaluateCov(double h) const
-{
-  static double MIN_SIN = 1.e-5;
-  double cov            = 1.;
-  if (h > MIN_SIN) cov = sin(h) / h;
-  return (cov);
-}
+  KernelSincard::~KernelSincard() {}
 
-String KernelSincard::getFormula() const
-{
-  return "C(h)=\\frac{sin(\\frac{h}{a})}{\\frac{h}{a}}";
-}
+  double KernelSincard::getScadef() const
+  {
+    return (20.371);
+  }
 
-double KernelSincard::simulateTurningBand(double t0, TurningBandOperate& operTB) const
-{
-  return operTB.cosineOne(t0);
-}
-}
+  double KernelSincard::_evaluateCov(double h) const
+  {
+    static double MIN_SIN = 1.e-5;
+    double cov = 1.;
+    if (h > MIN_SIN) cov = sin(h) / h;
+    return (cov);
+  }
+
+  String KernelSincard::getFormula() const
+  {
+    return "C(h)=\\frac{sin(\\frac{h}{a})}{\\frac{h}{a}}";
+  }
+
+  double KernelSincard::simulateTurningBand(
+    double t0,
+    TurningBandOperate& operTB) const
+  {
+    return operTB.cosineOne(t0);
+  }
+} // namespace gstlrn

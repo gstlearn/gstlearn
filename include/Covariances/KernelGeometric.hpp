@@ -11,31 +11,39 @@
 #pragma once
 
 #include "Covariances/AKernel.hpp"
+#include "Enum/ESimuType.hpp"
 #include "gstlearn_export.hpp"
 
 namespace gstlrn
 {
-class CovContext;
+  class CovContext;
 
-class GSTLEARN_EXPORT KernelGeometric: public AKernel
-{
-public:
-  KernelGeometric(const CovContext& ctx);
-  KernelGeometric(const KernelGeometric& r);
-  KernelGeometric& operator=(const KernelGeometric& r);
-  virtual ~KernelGeometric();
+  class GSTLEARN_EXPORT KernelGeometric: public AKernel
+  {
+  public:
+    KernelGeometric(const CovContext& ctx);
+    KernelGeometric(const KernelGeometric& r);
+    KernelGeometric& operator=(const KernelGeometric& r);
+    virtual ~KernelGeometric();
 
-  String getCovName() const override { return "Geometric"; }
-  Id getMinOrder() const override { return -1; }
-  bool getCompatibleSpaceS() const override { return true; }
-  bool hasCovOnSphere() const override { return true; }
-  bool hasSpectrumOnSphere() const override { return true; }
+    String getCovName() const override { return "Geometric"; }
 
-protected:
-  double _evaluateCovOnSphere(double alpha,
-                              double scale = 1.,
-                              Id degree    = 50) const override;
-  VectorDouble _evaluateSpectrumOnSphere(Id n, double scale = 1.) const override;
-};
+    Id getMinOrder() const override { return -1; }
+
+    bool getCompatibleSpaceS() const override { return true; }
+
+    bool isValidForSimulation(const ESimuType& simuType) const override
+    {
+      return (
+        getSpaceType() == ESpaceType::SN && simuType == ESimuType::SPECTRAL);
+    }
+
+  protected:
+    double _evaluateCovOnSphere(double alpha, double scale = 1., Id degree = 50)
+      const override;
+    VectorDouble
+      _evaluateSpectrumOnSphere(Id n, double scale = 1., bool flagScale = true)
+        const override;
+  };
 
 } // namespace gstlrn

@@ -22,86 +22,105 @@
 namespace gstlrn
 {
 
-/**
- * This class is used:
- * - to define the constraints for the Model Automatic Fitting (authAssign true)
- * - to define the non-stationary parameters of a Model
- */
-class GSTLEARN_EXPORT ConsItem : public AStringable, public ICloneable
-{
-public:
-  ConsItem(const CovParamId& paramid,
-           const EConsType& type = EConsType::fromKey("DEFAULT"),
-           double value = 0.);
-  ConsItem(const ConsItem &m);
-  ConsItem& operator= (const ConsItem &m);
-  virtual ~ConsItem();
-
-  /// ICloneable interface
-  IMPLEMENT_CLONING(ConsItem)
-
-  /// AStringable Interface
-  String toString(const AStringFormat* strfmt = nullptr) const override;
-
-  static ConsItem* create(const CovParamId &paramid,
-                          const EConsType &type = EConsType::fromKey("DEFAULT"),
-                          double value = 0.);
-  static ConsItem* createFromParamId(Id icov = 0,
-                                     const EConsElem& elem = EConsElem::fromKey("UNKNOWN"),
-                                     const EConsType &type = EConsType::fromKey("DEFAULT"),
-                                     double value = 0.,
-                                     Id igrf = 0,
-                                     Id iv1 = 0,
-                                     Id iv2 = 0);
-
-  // Pipe to the CovParamId class
-  const EConsElem& getType() const { return _paramId.getType(); }
-  Id getIGrf()  const { return _paramId.getIGrf(); }
-  Id getICov()  const { return _paramId.getICov(); }
-  Id getIV1()   const { return _paramId.getIV1(); }
-  Id getIV2()   const { return _paramId.getIV2(); }
-
-  void setValue(double value)          { _value = value; }
-  void setIcase(const EConsType& type) { _type = type;   }
-  const EConsType& getIcase() const { return _type; }
-  double getValue() const { return _value; }
-
-  bool matchIGrf(Id igrf0)              const { return _paramId.matchIGrf(igrf0); }
-  bool matchICov(Id icov0)              const { return _paramId.matchICov(icov0); }
-  bool matchType(const EConsElem& type0) const { return _paramId.matchType(type0); }
-  bool matchIV1(Id iv10)                const { return _paramId.matchIV1(iv10); }
-  bool matchIV2(Id iv20)                const { return _paramId.matchIV2(iv20); }
-
-  const CovParamId& getParamId() const { return _paramId; }
-
   /**
-   * This function creates a constraints on a parameter
-   * This constraint will be used subsequently during the variogram fitting
-   * @param elem The type of item on which the constraints applies (EConsElem.hpp)
-   * @param icov The rank of the covariance
-   * @param iv1  The rank of the first variable
-   * @param iv2  The rank of the second variable
-   * @param type The type of constraints (EConsType.hpp)
-   * @param value The value assigned to the constraint
-   *
-   * @remark Do not forget to delete object after usage
-   * @return
+   * This class is used:
+   * - to define the constraints for the Model Automatic Fitting (authAssign true)
+   * - to define the non-stationary parameters of a Model
    */
-  static ConsItem define(const EConsElem& elem = EConsElem::fromKey("UNKNOWN"),
-                         Id icov = 0,
-                         Id iv1 = 0,
-                         Id iv2 = 0,
-                         const EConsType& type = EConsType::fromKey("DEFAULT"),
-                         double value = 0.);
+  class GSTLEARN_EXPORT ConsItem: public AStringable, public ICloneable
+  {
+  public:
+    ConsItem(
+      const CovParamId& paramid,
+      const EConsType& type = EConsType::fromKey("DEFAULT"),
+      double value = 0.);
+    ConsItem(const ConsItem& m);
+    ConsItem& operator=(const ConsItem& m);
+    virtual ~ConsItem();
 
-private:
-  Id _init(const CovParamId &paramid,
-            const EConsType &type,
-            double value = TEST);
+    /// ICloneable interface
+    IMPLEMENT_CLONING(ConsItem)
 
-private:
-  CovParamId _paramId;
-  EConsType  _type;       /* 0: Parameter; -1: Lower; 1: Upper; 2: Equal */
-  double     _value;      /* Assigned value */
-};
-}
+    /// AStringable Interface
+    String toString(const AStringFormat* strfmt = nullptr) const override;
+
+    static ConsItem* create(
+      const CovParamId& paramid,
+      const EConsType& type = EConsType::fromKey("DEFAULT"),
+      double value = 0.);
+    static ConsItem* createFromParamId(
+      Id icov = 0,
+      const EConsElem& elem = EConsElem::fromKey("RANGE"),
+      const EConsType& type = EConsType::fromKey("DEFAULT"),
+      double value = 0.,
+      Id igrf = 0,
+      Id iv1 = 0,
+      Id iv2 = 0);
+
+    // Pipe to the CovParamId class
+    const EConsElem& getType() const { return _paramId.getType(); }
+
+    Id getIGrf() const { return _paramId.getIGrf(); }
+
+    Id getICov() const { return _paramId.getICov(); }
+
+    Id getIV1() const { return _paramId.getIV1(); }
+
+    Id getIV2() const { return _paramId.getIV2(); }
+
+    void setValue(double value) { _value = value; }
+
+    void setIcase(const EConsType& type) { _type = type; }
+
+    const EConsType& getIcase() const { return _type; }
+
+    double getValue() const { return _value; }
+
+    bool matchIGrf(Id igrf0) const { return _paramId.matchIGrf(igrf0); }
+
+    bool matchICov(Id icov0) const { return _paramId.matchICov(icov0); }
+
+    bool matchType(const EConsElem& type0) const
+    {
+      return _paramId.matchType(type0);
+    }
+
+    bool matchIV1(Id iv10) const { return _paramId.matchIV1(iv10); }
+
+    bool matchIV2(Id iv20) const { return _paramId.matchIV2(iv20); }
+
+    const CovParamId& getParamId() const { return _paramId; }
+
+    /**
+     * This function creates a constraints on a parameter
+     * This constraint will be used subsequently during the variogram fitting
+     * @param elem The type of item on which the constraints applies (EConsElem.hpp)
+     * @param icov The rank of the covariance
+     * @param iv1  The rank of the first variable
+     * @param iv2  The rank of the second variable
+     * @param type The type of constraints (EConsType.hpp)
+     * @param value The value assigned to the constraint
+     *
+     * @remark Do not forget to delete object after usage
+     * @return
+     */
+    static ConsItem define(
+      const EConsElem& elem = EConsElem::fromKey("RANGE"),
+      Id icov = 0,
+      Id iv1 = 0,
+      Id iv2 = 0,
+      const EConsType& type = EConsType::fromKey("DEFAULT"),
+      double value = 0.);
+
+  private:
+    Id _init(
+      const CovParamId& paramid,
+      const EConsType& type,
+      double value = TEST);
+
+  private:
+    CovParamId _paramId;
+    EConsType _type; /* 0: Parameter; -1: Lower; 1: Upper; 2: Equal */
+    double _value; /* Assigned value */
+  };
+} // namespace gstlrn

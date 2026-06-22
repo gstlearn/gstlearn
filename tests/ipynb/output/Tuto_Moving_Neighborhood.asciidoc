@@ -1,0 +1,36 @@
+#NO_DIFF#XXX
+----
+
+<IPython.core.display.Javascript object>----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+Number of samples selected = 21
+----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+--------
+
+
+#NO_DIFF#XXX
+----
+Number of samples selected = 8
+----
+
+
+#NO_DIFF#XXX
+--------

@@ -36,16 +36,15 @@ jobs:
     strategy:
       matrix:
         # Last releases from here https://cran.r-project.org/src/base/R-4/
-        r_version: [4.2.3, 4.3.3, 4.4.3, 4.5.2]
+        r_version: [4.2.3, 4.3.3, 4.4.3, 4.5.3, 4.6.0]
+        # Only one arm64 and one x86_64 Mac OS version are needed
         arch: [
-            {ar: arm64,  os: macos-14, pat: /opt/homebrew},
-            {ar: arm64,  os: macos-15, pat: /opt/homebrew},
             {ar: x86_64, os: macos-15-intel, pat: /usr/local},
-            {ar: arm64,  os: macos-26, pat: /opt/homebrew},
+            {ar: arm64,  os: macos-14, pat: /opt/homebrew},
          ]
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Install dependencies
       run: |
@@ -95,9 +94,18 @@ jobs:
         CXX: ${{matrix.arch.pat}}/opt/llvm/bin/clang++
 
     - name : Build the package and save generated file name in the environment
+      env :
+        OS_TYPE : ${{matrix.arch.os}}
       run : |
         cmake --build ${{env.BUILD_DIR}} --parallel 3 --target r_install
-        echo "MY_PKG=$(ls ${{env.BUILD_DIR}}/r/${{env.CMAKE_BUILD_TYPE}}/gstlearn_*.tgz)" >> "$GITHUB_ENV"
+        PKG_ARCHIVE=$(ls ${{env.BUILD_DIR}}/r/${{env.CMAKE_BUILD_TYPE}}/gstlearn_*.tgz)
+        echo "Archive file is $PKG_ARCHIVE and OS_TYPE is $OS_TYPE"
+        if [ "$OS_TYPE" = "macos-14" ]; then
+          tar -xzf $PKG_ARCHIVE
+          sed -i '' 's/darwin23/darwin20/g' gstlearn/DESCRIPTION
+          tar -czf $PKG_ARCHIVE gstlearn
+        fi
+        echo "MY_PKG=$PKG_ARCHIVE" >> "$GITHUB_ENV"
 
     - name: Define the CRAN path on our server
       id: define_cran_path
@@ -116,7 +124,7 @@ jobs:
       run: |
         cat ${{env.BUILD_DIR}}/r/${{env.CMAKE_BUILD_TYPE}}/create_doc.out
 
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v6
       # Use specific artifact identifier for publishing all versions
       with:
         name: macos-r-package-${{matrix.arch.os}}-${{matrix.r_version}}
@@ -128,18 +136,17 @@ jobs:
     strategy:
       matrix:
         # Last releases from here https://cran.r-project.org/src/base/R-4/
-        r_version: [4.2.3, 4.3.3, 4.4.3, 4.5.2]
+        r_version: [4.2.3, 4.3.3, 4.4.3, 4.5.3, 4.6.0]
+        # Only one arm64 and one x86_64 Mac OS version are needed
         arch: [
-            {ar: arm64,  os: macos-14},
-            {ar: arm64,  os: macos-15},
             {ar: x86_64, os: macos-15-intel},
-            {ar: arm64,  os: macos-26},
-         ]
+            {ar: arm64,  os: macos-14},
+          ]
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
-    - uses: actions/download-artifact@v4
+    - uses: actions/download-artifact@v7
       with:
         name: macos-r-package-${{matrix.arch.os}}-${{matrix.r_version}}
 
@@ -154,17 +161,12 @@ jobs:
 
     - name: Install R dependencies (binary)
       run: Rscript -e "install.packages (c('ggplot2', 'ggpubr', 'ggnewscale'), type='binary')"
-        
+
     - name: Install R package
       run: Rscript -e "install.packages(\"$(ls *.tgz)\", repos=NULL, type='source')"
 
     - name: Test installed R package
-      run: |
-        Rscript -e "library('gstlearn'); acknowledge_gstlearn()"
-        Rscript tests/r/test_Arguments.R
-        Rscript tests/r/test_Assessors.R
-        Rscript tests/r/test_Matrix.R
-        Rscript tests/r/test_dumpToNF.R
+      uses: ./.github/actions/run_r_tests
 
   publish:
     needs: test
@@ -174,11 +176,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Publish packages to our CRAN
       - env:
           CRAN_PATH: ${{needs.build.outputs.cran_path}}
-
-        # Publish packages to our CRAN
-        uses: fabien-ors/cran-publish-action@v4
+        uses: fabien-ors/cran-publish-action@v5
         with:
           host: ${{secrets.CG_HOST}}
           username: ${{secrets.CG_USR}}

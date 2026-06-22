@@ -18,29 +18,34 @@
 
 namespace gstlrn
 {
-class BooleanObject;
+  class BooleanObject;
 
-class GSTLEARN_EXPORT ShapeHalfSinusoid: public AShape
-{
-public:
-  ShapeHalfSinusoid(double proportion = 1.,
-                    double period = 10.,
-                    double amplitude = 1.,
-                    double thickness = 1.,
-                    double xext = 1.,
-                    double zext = 1.,
-                    double theta = 0.);
-  ShapeHalfSinusoid(const ShapeHalfSinusoid &r);
-  ShapeHalfSinusoid& operator=(const ShapeHalfSinusoid &r);
-  virtual ~ShapeHalfSinusoid();
+  class GSTLEARN_EXPORT ShapeHalfSinusoid: public AShape
+  {
+  public:
+    ShapeHalfSinusoid(
+      double proportion = 1.,
+      double period = 10.,
+      double amplitude = 1.,
+      double thickness = 1.,
+      double xext = 1.,
+      double zext = 1.,
+      double theta = 0.);
+    ShapeHalfSinusoid(const ShapeHalfSinusoid& r);
+    ShapeHalfSinusoid& operator=(const ShapeHalfSinusoid& r);
+    virtual ~ShapeHalfSinusoid();
 
-  /// Interface for ICloneable
-  IMPLEMENT_CLONING(ShapeHalfSinusoid)
+    /// Interface for ICloneable
+    IMPLEMENT_CLONING(ShapeHalfSinusoid)
 
-  EShape getType() const override { return EShape::fromKey("HALFSINUSOID"); }
-  Id  getNParams() const override { return 6; }
-  bool getFlagCutZ() const override { return true; }
-  BooleanObject* generateObject(Id ndim = 3) override;
-  bool belongObject(const VectorDouble& coor, const BooleanObject* object) const override;
-};
-}
+    EShape getType() const override { return EShape::fromKey("HALFSINUSOID"); }
+
+    Id getNParams() const override { return 6; }
+
+    bool getFlagCutZ() const override { return true; }
+
+    BooleanObject* generateObject(Id ndim = 3) override;
+    bool belongObject(const VectorDouble& coor, const BooleanObject* object)
+      const override;
+  };
+} // namespace gstlrn

@@ -1,0 +1,755 @@
+---
+title: "Spectral simulation of random functions on $R^2$"
+author: "gstlearn Core Team"
+date: "2026-03-19"
+output: pdf_document
+editor_options:
+  chunk_output_type: console
+---
+
+# Initialization
+
+Using the API defined by *gstlearn*.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+rm(list = ls())
+library(gstlearn)
+library(ggplot2)
+library(ggpubr)
+
+# global parameters
+flag.verbose  = FALSE
+opers = EStatOption_fromKeys(c("NUM", "MINI", "MAXI", "MEAN", "STDV"))
+```
+
+
+```{r auxiliary_function, echo=FALSE, eval=TRUE}
+# Some functions to test the spectral simulations
+
+matToGst <- function(mat) {
+  nr = dim(mat)[1]
+  nc = dim(mat)[2]
+  stopifnot(is.matrix(mat))
+  res = MatrixDense(nr, nc)
+  for (i in 1:nc) {
+    res$setColumn(icol = i-1, mat[,i])
+  }
+  res
+}
+
+covToGst <- function(mat) {
+  nr = dim(mat)[1]
+  nc = dim(mat)[2]
+  stopifnot(is.matrix(mat)&(nr == nc))
+  res = MatrixSymmetric(nr)
+  for (i in 1:nr) {
+    for (j in i:nr) {
+      res$setValue(icol = i-1, irow = j-1, mat[i,j])
+    }}
+  res
+}
+
+create_random_covmat = function(nvar) {
+  uu         = rnorm(nvar)
+  s2         = rnorm(nvar)^2
+  outer(
+    X = 1:nvar,
+    Y = 1:nvar,
+    FUN = function(i,j){sqrt(s2[i]*s2[j])*exp(-abs(uu[i]-uu[j]))})
+}
+
+#' -----------------------------------------------------------------------------
+#' @param val a vector with the value of the first variable
+#' @param val2 a vectro with the value of the second variable (optional for cross variagram)
+#' @param nlag a integer giving the the number of lags
+#' @param dx   a value defining the grid mesh
+#' @value return a list defining the experimental variogram (nc, hh, gg)
+compute_vario_on_1d_grid<-function(val, val2 = NULL, nlag = 50, dx = 1.0) {
+  nx = length(val)
+  stopifnot(is.null(val2)|(length(val2) == nx))
+  stopifnot((nlag > 0)&(nlag < nx))
+  stopifnot(dx > 0)
+  gg = rep(NaN, nlag)
+  hh = rep(NaN, nlag)
+  nc = rep(NaN, nlag)
+  lag_norm = dx
+  for (ilag in 1:nlag) {
+    idx_deb = 1:(nx-ilag)
+    idx_end = idx_deb + ilag
+    if (is.null(val2)) {
+      tmp = 1/2 * as.numeric((val[idx_deb] - val[idx_deb + ilag])^2)
+    } else {
+      tmp = 1/2 * as.numeric((val[idx_deb] - val[idx_deb + ilag])*
+                               (val2[idx_deb] - val2[idx_deb + ilag]))
+    }
+    nc[ilag] = length(tmp)
+    if (nc[ilag] > 0) {
+      hh[ilag] = lag_norm * ilag
+      gg[ilag] = sum(tmp)/nc[ilag]
+    }
+  }
+  list(
+    nc = nc,
+    hh = hh,
+    gg = gg
+  )
+}
+
+#' -----------------------------------------------------------------------------
+#' @param val a matrix with the value of the first variable
+#' @param val2 a matrix with the value of the second variable (optional for cross variagram)
+#' @param nlag a integer giving the the number of lags
+#' @param lag  a vector of grid increments defining the lag
+#' @param dx   a vector defining the grid mesh
+#' @value return a list defining the experimental variogram (nc, hh, gg)
+compute_vario_on_2d_grid <- function(val, val2 = NULL, nlag = 10, lag = c(1,0), dx = c(1,1)) {
+  stopifnot(is.matrix(val))
+  stopifnot(is.null(val2)|(is.matrix(val2)&(all(dim(val) == dim(val2)))))
+  stopifnot((nlag > 0)&(nlag*max(abs(lag)) < min(dim(val))))
+  stopifnot((length(lag) == 2)&(length(dx) == 2))
+  nx = dim(val)
+  gg = rep(NaN, nlag)
+  hh = rep(NaN, nlag)
+  nc = rep(NaN, nlag)
+  lag_norm = sqrt(sum((lag*dx)^2))
+  for (ilag in 1:nlag) {
+    idx_deb = max(1,1-ilag*lag[1]):min(nx[1], nx[1]-ilag*lag[1])
+    jdx_deb = max(1,1-ilag*lag[2]):min(nx[2], nx[2]-ilag*lag[2])
+    idx_end = idx_deb + ilag*lag[1]
+    jdx_end = jdx_deb + ilag*lag[2]
+    if (is.null(val2)) {
+      tmp = 1/2 * as.numeric((val[idx_deb, jdx_deb] - val[idx_end, jdx_end])^2)
+    } else {
+      tmp = 1/2 * as.numeric((val[idx_deb, jdx_deb] - val[idx_end, jdx_end])*
+                               (val2[idx_deb, jdx_deb] - val2[idx_end, jdx_end])
+      )
+    }
+    nc[ilag] = length(tmp)
+    if (nc[ilag] > 0) {
+      hh[ilag] = lag_norm * ilag
+      gg[ilag] = sum(tmp)/nc[ilag]
+    }
+  }
+  list(
+    nc = nc,
+    hh = hh,
+    gg = gg
+  )
+}
+
+draw_model <- function(model, prefix, flag.st = FALSE) {
+  ndim = model$getNDim()
+  stopifnot(ndim %in% 1:3)
+  nvar = model$getNVar()
+  C0 = matrix(NaN, nvar, nvar)
+  u0 = c(rep(0, ndim-1), 1.0)
+  for (ivar in 1:nvar)  {
+    for (jvar in 1:nvar) {
+      C0[ivar, jvar] = model$sample(h = 0.0, codir = u0, ivar-1, jvar-1)
+    }
+  }
+  angles_in_deg = c(0, 45, 90, 135)
+  angles_col = c("red", "orange", "darkgreen", "skyblue")
+  var_col = palette.colors(n = nvar*(nvar+1)/2, palette = palette.pals()[1])
+  h = seq(from = 0, to = 10, length.out = 100)
+  if (!flag.st) {
+    stopifnot(ndim %in% c(1,2))
+    ndir = c(1,4)[ndim]
+    for (ivar in 1:nvar) {
+      for (jvar in ivar:nvar) {
+        titre = sprintf("%s[%d, %d]", prefix, ivar, jvar)
+        plot(NULL, NULL, xlim = range(h), ylim = c(0, C0[ivar, jvar]),
+             xlab = "Distances", ylab = "Variogram", main = titre)
+        abline(h = c(0, C0[ivar, jvar]), col = "gray", lty = 3)
+        abline(v = c(0), col = "gray", lty = 3)
+        leg = NULL
+        for (idir in 1:ndir) {
+          if (ndim == 1) {
+            u0 = 1.0
+            leg = c(leg, "model")
+          } else {
+            theta = angles_in_deg[idir] * pi / 180
+            u0    = c(cos(theta), sin(theta))
+            leg = c(leg, sprintf("theta = %.0f°", angles_in_deg[idir]))
+          }
+          lines(h, C0[ivar, jvar] - model$sample(h = h, codir = u0, ivar-1, jvar-1),
+                , col = angles_col[idir], lty = 1)
+        } # loop over the directions
+        legend("bottomright",
+               legend = leg, col = angles_col[1:ndir], lty = 1, lw = 1)
+      }} # loops over the variables
+
+  } else {
+    # space-time model
+    ndir = 1 + c(1,4)[ndim-1] + 4
+    for (idir in 1:ndir) {
+      if (idir == 1) {
+        # time trace
+        lab_dir = "time trace"
+        lab_x   = "Time distances"
+        u0      = c(rep(0.0, ndim - 1), 1.0)
+      } else if (idir %in% 2:(1+c(1,4)[ndim-1])) {
+        # space trace
+        kdir    = idir - 1
+        lab_dir = sprintf("space trace in dir%d#", kdir)
+        lab_x   = "Distances"
+        if (ndim == 2) {
+          u0      = c(1.0, 0.0)
+        }
+        if (ndim == 3) {
+          theta = angles_in_deg[kdir] * pi / 180
+          u0    = c(cos(theta), sin(theta), 0.0)
+        }
+      } else {
+        # random direction
+        u0 = rnorm(ndim)
+        u0 = u0 /sqrt(sum(u0^2))
+        if (ndim == 2){
+          lab_dir = sprintf("u0 = [%.2f, %.2f]", u0[1], u0[2])
+        }
+        if (ndim == 3) {
+          lab_dir = sprintf("u0 = [%.2f, %.2f, %.2f]", u0[1], u0[2], u0[3])
+        }
+        lab_x   = "Space-time distances"
+      }
+      titre = sprintf("%s[R%d]: %s", prefix, ndim-1, lab_dir)
+      # the graphic
+      plot(NULL, NULL, xlim = range(h), ylim = 1.1*c(0, max(as.numeric(C0))),
+           xlab = lab_x, ylab = "Variogram", main = titre)
+      abline(h = c(0, as.numeric(C0)), col = "gray", lty = 3)
+      abline(v = c(0), col = "gray", lty = 3)
+      var_lab = NULL
+      idx = 0
+      for (ivar in 1:nvar) {
+        for (jvar in ivar:nvar) {
+          idx = idx + 1
+          var_lab = c(var_lab, sprintf("{v%d, v%d}", ivar, jvar))
+          lines(h, C0[ivar, jvar] - model$sample(h = h, codir = u0, ivar-1, jvar-1),
+                , col = var_col[idx], lty = 1)
+        }}
+      legend ("bottomright", legend = var_lab, col = var_col, lty = 1)
+    } # loop on the space-time directions
+  } # space-time model
+}
+
+# ------------------------------------------------------------------------------
+simu_model <- function(model, prefix, nsimu = 1, ns = 1000, flag.st = TRUE,
+                       flag.QC = TRUE,
+                       flag.histo = TRUE, flag.map = TRUE, flag.vario = TRUE,
+                       verbose = TRUE) {
+  ndim = model$getNDim()
+  nvar = model$getNVar()
+  opers = EStatOption_fromKeys(c("NUM", "MINI", "MAXI", "MEAN", "STDV"))
+  # defining the name of the simulated variables
+  simu_nm = NULL
+  for (is in 1:nsimu) {
+    for (ivar in 1:nvar) {
+        simu_nm = c(simu_nm, NamingConvention.NamingConvention.getNameEncoded(prefix, NULL, ivar, nvar, is, nsimu))
+    }
+  }
+  # defining the sections
+  sec_list = list()
+  # Spatial covariance on R^1 or R^2
+  if (!flag.st == TRUE) {
+    stopifnot(ndim %in% 1:2)
+    if (ndim == 1) {
+      sec_list[[1+length(sec_list)]] <- list(
+        grid = DbGrid_create(nx = 1000, dx = 0.5),
+        section = "Ot",
+        coordinates = c("t")
+      )
+    }
+    if (ndim == 2) {
+      sec_list[[1+length(sec_list)]] <- list(
+        grid = DbGrid_create(nx = c(100, 100), dx = c(0.5, 0.5)),
+        section = "xOy",
+        coordinates = c("x", "y")
+      )
+    }
+  } else {
+    # Space-time covariance on R^1xTime or R^2xTime
+    stopifnot(ndim %in% 2:3)
+    if (ndim == 2) {
+      sec_list[[1+length(sec_list)]] <- list(
+        grid = DbGrid_create(nx = c(100, 100), dx = c(0.5, 0.5)),
+        section = "xOt",
+        coordinates = c("x", "t")
+      )
+    } else {
+      for (isec in 1:3) {
+        nx = c(100, 100, 100)
+        nx[isec] = 1
+        sec_list[[1+length(sec_list)]] <- list(
+          grid = DbGrid_create(nx = nx, dx = c(0.5, 0.5, 0.5)),
+          section = c("yOt", "xOt", "xOy")[isec],
+          coordinates = c("x", "y", "t")[-isec]
+        )
+      }
+    }
+  }
+  nsec = length(sec_list)
+
+  # --------------
+  # simulations
+  # --------------
+  for (is in 1:nsimu) {
+    if (verbose) {print(sprintf(">>> simulation %d/%d", is, nsimu))}
+    sp  = model$simulateOnRN(ns = ns)
+    # computing the simulations on 1D or 2D sections
+    for (sec in 1:nsec) {
+      if (verbose) {
+        print(sprintf(" - computing values on section %s", sec_list[[sec]]$section))
+      }
+      val = sp$computeToMatrix(sec_list[[sec]]$grid)$toTL()
+      for (ivar in 1:nvar) {
+        sec_list[[sec]]$grid[simu_nm[ivar+(is-1)*nvar]] = val[,ivar]
+      } # loop over the variables
+    } # loop over the sections
+  } # loop over the simulations
+
+  # --------------
+  # QC
+  # --------------
+  if (flag.QC) {
+    res = list()
+    for (sec in 1:nsec) {
+      if (verbose) {
+        print(sprintf(">>> computing statistics on section %s", sec_list[[sec]]$section))
+      }
+      res[[1+length(res)]] <- QC_section(
+        model = model,
+        grid  = sec_list[[sec]]$grid,
+        prefix = prefix,
+        nsimu = nsimu, isec = sec,
+        flag.histo = flag.histo, flag.map = flag.map, flag.vario = flag.vario,
+        verbose = verbose)
+    } # loop on sections
+    res
+  } else {
+    sec_list
+  }
+}
+
+# QC of the simulations on the sections
+QC_section <- function(model, grid, prefix, nsimu, isec = 1,
+                       flag.histo = TRUE, flag.map = TRUE, flag.vario = TRUE,
+                       verbose = TRUE, flag.st = FALSE) {
+  opers = EStatOption_fromKeys(c("NUM", "MINI", "MAXI", "MEAN", "STDV"))
+  ndim  = model$getNDim()
+  stopifnot((grid$isGrid())&(ndim == grid$getNDim()))
+  nx = grid$getNXs()
+  dx = grid$getDXs()
+  sec_lab  = c("yOt", "xOt", "xOy")
+  sec_coor = c("x", "y", "t")
+  nvar  = model$getNVar()
+  C0 = matrix(NaN, nvar, nvar)
+  for (ivar in 1:nvar) {
+    for (jvar in 1:nvar) {
+      C0[ivar, jvar] = model$sample(h = 0, codir = rep(0,ndim), ivar - 1, jvar - 1)
+    }
+  }
+  # --------------------------------------------------------------------------
+  # histogram and raster for each variable of the first simulation
+  # --------------------------------------------------------------------------
+  for (ivar in 1:nvar) {
+    s_nm = NC_getNameEncoded(prefix, NULL, ivar, nvar, 1, nsim)
+    titre = sprintf("%s[%d] in section %s", prefix, ivar, sec_lab[isec])
+    # histogram
+    if (flag.histo) {
+      p = plot.init() +
+        plot.hist(db = grid, name = s_nm, bins = 25, col = "skyblue") +
+        plot.decoration(title = titre)
+      plot.end(p)
+    } # flag.histo
+    # base map
+    if (flag.map) {
+      if (ndim > 1) {
+        p = plot.init(asp = 1)
+        if (ndim == 2) {
+          p = p + plot.raster(db = grid, name = s_nm)
+        }
+        if (ndim == 3) {
+          dbg = DbGrid_create(nx = nx[-isec], dx = dx[-isec])
+          dbg[s_nm] = grid[s_nm]
+          p = p + plot.raster(db = dbg, name = s_nm)
+        }
+        p = p + plot.decoration(title = titre,
+                                xlab = sec_coor[-isec][1],
+                                ylab = sec_coor[-isec][2]
+        )
+        plot.end(p)
+      }
+    } # flag.map
+  } # loop over the variables
+
+  # --------------------------------------------------------------------------
+  # experimental variograms vs. model
+  # --------------------------------------------------------------------------
+  if (flag.vario) {
+    nlag  = 50
+    probs = c(0.25, 0.5, 0.75)
+    probs_col = c("blue", "orange", "green")
+    if (ndim == 1) {
+      lag_list = matrix(c(1), nrow = 1, ncol = 1)
+    } else {
+      lag_list = matrix(c(1, 0, 1, 1, 0, 1, -1, 1), nrow = 2, ncol = 4)
+    }
+    ndir = dim(lag_list)[2]
+    # --------------------------------------------------------------------------
+    for (ivar in 1:nvar) {
+      for (jvar in ivar:nvar) {
+        for (idir in 1:ndir) {
+          # computing the variograms...
+          gg_simu = array(NaN, dim = c(nsimu, nlag))
+          hh_simu = array(NaN, dim = c(nlag))
+          for (is in 1:nsimu) {
+            v1_nm = NC_getNameEncoded(prefix, NULL, ivar, nvar, is, nsim)
+            v2_nm = NC_getNameEncoded(prefix, NULL, jvar, nvar, is, nsim)
+            v1    = grid$getColumns(names = v1_nm)
+            v2    = grid$getColumns(names = v2_nm)
+            if (length(dx) == 1) {
+              varexp = compute_vario_on_1d_grid(
+                val  = v1,
+                val2 = v2,
+                nlag = nlag, dx = dx)
+            } else if (length(dx) == 2) {
+              varexp = compute_vario_on_2d_grid(
+                val  = matrix(v1, nrow = nx[1], ncol = nx[2]),
+                val2 = matrix(v2, nrow = nx[1], ncol = nx[2]),
+                nlag = nlag, lag = lag_list[,idir], dx = dx)
+            } else if (length(dx) == 3) {
+              varexp = compute_vario_on_2d_grid(
+                val  = matrix(v1, nrow = nx[-isec][1], ncol = nx[-isec][2]),
+                val2 = matrix(v2, nrow = nx[-isec][1], ncol = nx[-isec][2]),
+                nlag = nlag, lag = lag_list[,idir], dx = dx[-isec])
+            }
+            gg_simu[is, ] = varexp$gg
+            if (is == 1) {hh_simu = varexp$hh}
+          } # loop over the simulations
+
+          # plot for the ivar, jvar, idir
+          titre = sprintf("%s[%d, %d]: idir = %d in section %s",
+                          prefix, ivar, jvar, idir, sec_lab[isec])
+          plot(NULL, NULL, xlim = c(0, max(hh_simu)), ylim = 1.1*c(0, C0[ivar, jvar]),
+               xlab = "Distance", ylab = "Variogram", main = titre)
+          abline(h = c(0, C0[ivar, jvar]), col = "gray", lw = 1, lty = 3)
+          abline(v = c(0), col = "gray", lw = 1, lty = 3)
+          # experimental variogram
+          for (is in 1:nsimu) {
+            lines(hh_simu, gg_simu[is, ], col = "gray", lw = 1, lty = 2)
+          }
+          for (n in seq_along(probs)) {
+            lines(hh_simu,
+                  apply(X = gg_simu, MARGIN = 2,
+                        FUN = quantile, probs = probs[n], na.rm = TRUE),
+                  col = probs_col[n], lw = 1, lty = 2)
+          }
+          lines(hh_simu, apply(X = gg_simu, MARGIN = 2,
+                               FUN = mean, na.rm = TRUE),
+                col = "red", lw = 1, lty = 1 )
+          # model
+          if (ndim == 1) {u0 = 1.0}
+          if (ndim == 2) {u0 = lag_list[,idir]*dx}
+          if (ndim == 3) {
+            u0 = rep(0.0, ndim)
+            u0[-isec] = lag_list[,idir]
+            u0 = u0 * dx
+          }
+          u0 = u0/sqrt(sum(u0^2))
+          h = seq(from = 0.0, to = max(hh_simu), length.out = 200)
+          lines(h, C0[ivar, jvar] - mod$sample(h = h, codir = u0, ivar-1, jvar-1),
+                col = "black", lw = 2, lty = 1)
+          # legend
+          legend("bottomright",
+                 legend = c("mean", paste0("Q", round(100*probs,0)), "empirical", "model"),
+                 col = c("red", probs_col, "gray", "black"),
+                 lw = c(1, rep(1, length(probs_col)), 1, 2),
+                 lty = c(1, rep(2, length(probs_col)), 1, 1)
+          )
+        }}} # loops on the variables and directions
+  } # flag.vario
+  # --------------------------------------------------------------------------
+  # statistics and results
+  # --------------------------------------------------------------------------
+  list(prefix  = prefix, section = sec_lab[isec],
+       grid = grid,
+       tab = dbStatisticsMono(db = grid, names = paste(prefix, ".*", sep=""),opers = opers)$toTL()
+  )
+}
+
+```
+
+
+```{r params, echo=TRUE, eval=TRUE}
+nsim = 20
+ns   = 5000
+# target grid in 2d
+ndim = 2
+dx   = c(0.5, 0.5, 0.5)[1:ndim]
+nx   = c(100, 100, 100)[1:ndim]
+grid = DbGrid_create(nx = nx, dx = dx)
+```
+
+# 2d univariate (CorAniso)
+
+```{r 2d1v_coraniso, eval=TRUE}
+idx  = 3
+type = c("EXPONENTIAL", "GAUSSIAN", "MATERN")[idx]
+nvar = 1
+# parameters for the space trace
+nu   = c(NA, NA, 3/4)[idx]
+# space anisotropy
+timeRange = 2.0
+ranges = c(5,10)[1:ndim]
+angles = c(30, 0)[1:ndim]
+
+# covariance model
+ctxt = CovContext(nvar = nvar, space = SpaceRN_create(ndim))
+mod  = CorAniso_create(ctxt = ctxt, type = ECov_fromKey(type),
+                      params = nu,
+                      ranges = ranges, angles = angles,
+                      flagRange = FALSE)
+err = draw_model(model = mod, prefix = type)
+
+# simulation using "gstlearn API"
+model = ModelGeneric(ctxt = ctxt)
+err   = model$setCov(mod)
+err   = simuSpectral(dbin = NULL, dbout = grid, model = model, nbsimu = nsim, ns = ns,
+                   verbose = flag.verbose,
+                   namconv = NamingConvention(type))
+
+# QC
+res = QC_section (model = model$getCov(), grid = grid, prefix = type, nsimu = nsim, isec = 1,
+                       flag.histo = TRUE, flag.map = TRUE, flag.vario = TRUE,
+                       verbose = flag.verbose)
+knitr::kable(res$tab , digits = 3, caption = sprintf("Statistics for %s", res$prefix))
+```
+
+# Factorized covariance in 2d
+
+```{r cov_2d1v_fac, echo=TRUE, eval=TRUE}
+
+type = "Fac2d_exp_gauss"
+ctxt1d = CovContext(nvar = 1, space = SpaceRN_create(1))
+ctxt2d = CovContext(nvar = 1, space = SpaceRN_create(2))
+
+mod  = CorFactorized_create(ctxt = ctxt2d)
+# first factor: exponential covariance along Ox
+err = mod$addFactor(
+  CorAniso_create(ctxt = ctxt1d, type = ECov_fromKey("EXPONENTIAL"),
+                          params = NULL, ranges = 5.0, flagRange = FALSE),
+        proj = matToGst(matrix(c(1,0), 2, 1))
+)
+# Second factor: gaussian covariance along Oy
+err = mod$addFactor(
+  CorAniso_create(ctxt = ctxt1d, type = ECov_fromKey("GAUSSIAN"),
+                          params = NULL, ranges = 5.0, flagRange = FALSE),
+        proj = matToGst(matrix(c(0,1), 2, 1))
+)
+
+err = draw_model(model = mod, prefix = type)
+
+# simulation using "gstlearn API"
+model = ModelGeneric(ctxt = ctxt)
+err   = model$setCov(mod)
+err   = simuSpectral(dbin = NULL, dbout = grid, model = model, nbsimu = nsim, ns = ns,
+                   verbose = flag.verbose,
+                   namconv = NamingConvention(type))
+
+# QC
+res = QC_section (model = model$getCov(), grid = grid, prefix = type, nsimu = nsim, isec = 1,
+                       flag.histo = TRUE, flag.map = TRUE, flag.vario = TRUE,
+                       verbose = flag.verbose)
+knitr::kable(res$tab , digits = 3, caption = sprintf("Statistics for %s", res$prefix))
+```
+
+# 2d trivariate matern
+
+```{r matern_2d2v, echo=TRUE, eval=TRUE}
+type = "MATERN"
+nsim = 13
+
+ctxt = CovContext(nvar = 3, space = SpaceRN_create(2))
+mod  = CorGaussianMixture_create(ctxt = ctxt, type = ECov_fromKey(type),
+                      params = c(3/4, 1.0, 1/2), kappas =  c(1,1, 1/2),
+                      ranges = c(2,4), angles = c(30,0),
+                      flagRange = FALSE)
+
+err = draw_model(model = mod, prefix = type)
+
+# simulation using "gstlearn API"
+model = ModelGeneric(ctxt = ctxt)
+err   = model$setCov(mod)
+
+err   = grid$deleteColumns(names = paste(type, "*", sep = "."))
+err   = simuSpectral(dbin = NULL, dbout = grid, model = model, nbsimu = nsim, ns = ns,
+                   verbose = flag.verbose,
+                   namconv = NamingConvention(type))
+
+res = QC_section (model = model$getCov(), grid = grid, prefix = type, nsimu = nsim, isec = 1,
+                       flag.histo = TRUE, flag.map = TRUE, flag.vario = TRUE,
+                       verbose = flag.verbose)
+knitr::kable(res$tab , digits = 3, caption = sprintf("Statistics for %s", res$prefix))
+```
+
+# 1d gneiting
+
+```{r gneiting_R1xT_1v_sep, echo=TRUE, eval=TRUE}
+nsim = 17
+# TEST of separability
+type = c("GNEITING_G", "GNEITING_M", "GNEITING_C")[3]
+ndim = 1
+nvar = 1
+sep = 1/2
+# parameters for the time trace
+alpha = 2.0
+beta  = 1.0
+# parameters for the space trace
+nu   = c(1/2, 3/4, 1)[1:nvar]
+rr   = c(1, 2, 1)[1:nvar]
+# space-time anisotropy
+timeRange = 2.0
+ranges = c(5,10)[1:ndim]
+angles = c(30, 0)[1:ndim]
+
+ctxt = CovContext(nvar = nvar, space = SpaceRN_create(ndim = ndim))
+mod = CorGneiting_create(ctxt = ctxt, type = ECov_fromKey(type),
+                       alpha = alpha, beta = beta, timeRange = timeRange,
+                       params = nu, kappas = rr,
+                       ranges = ranges, angles = angles,
+                       flagRange = FALSE,
+                       separability = sep)
+
+
+err = draw_model(model = mod, prefix = type, flag.st = TRUE)
+
+# simulation using "gstlearn API"
+model = ModelGeneric(ctxt = ctxt)
+err   = model$setCov(mod)
+
+# creation of a 2D x Time grid: section xOt
+nx = c(100, 100)
+dx = c(0.5, 0.5)
+grid = DbGrid_create(nx = nx, dx = dx)
+err   = simuSpectral(dbin = NULL, dbout = grid, model = model, nbsimu = nsim, ns = ns,
+                     verbose = flag.verbose,
+                     namconv = NamingConvention(type))
+
+res = QC_section (model = model$getCov(),
+                    grid = grid, prefix = type, nsimu = nsim, isec = 2,
+                    flag.histo = TRUE, flag.map = TRUE, flag.vario = TRUE,
+                    verbose = flag.verbose, flag.st = TRUE)
+# printing the statistics
+knitr::kable(res$tab , digits = 3, caption = sprintf("Statistics for %s", res$prefix))
+
+```
+
+
+
+```{r gneiting_R1xT_2v_sep, echo=TRUE, eval=TRUE}
+nsim = 17
+# TEST of separability
+type = c("GNEITING_G", "GNEITING_M", "GNEITING_C")[2]
+ndim = 1
+nvar = 2
+sep = 0
+# parameters for the time trace
+alpha = 2.0
+beta  = 1.0
+# parameters for the space trace
+nu   = c(1/2, 3/4, 1)[1:nvar]
+rr   = c(1, 2, 1)[1:nvar]
+# space-time anisotropy
+timeRange = 2.0
+ranges = c(5,10)[1:ndim]
+angles = c(30, 0)[1:ndim]
+
+ctxt = CovContext(nvar = nvar, space = SpaceRN_create(ndim = ndim))
+mod = CorGneiting_create(ctxt = ctxt, type = ECov_fromKey(type),
+                       alpha = alpha, beta = beta, timeRange = timeRange,
+                       params = nu, kappas = rr,
+                       ranges = ranges, angles = angles,
+                       flagRange = FALSE,
+                       separability = sep)
+
+
+err = draw_model(model = mod, prefix = type, flag.st = TRUE)
+
+# simulation using "gstlearn API"
+model = ModelGeneric(ctxt = ctxt)
+err   = model$setCov(mod)
+
+# creation of a 2D x Time grid: section xOt
+nx = c(100, 100)
+dx = c(0.5, 0.5)
+grid = DbGrid_create(nx = nx, dx = dx)
+err   = simuSpectral(dbin = NULL, dbout = grid, model = model, nbsimu = nsim, ns = ns,
+                     verbose = flag.verbose,
+                     namconv = NamingConvention(type))
+
+res = QC_section (model = model$getCov(),
+                    grid = grid, prefix = type, nsimu = nsim, isec = 2,
+                    flag.histo = TRUE, flag.map = TRUE, flag.vario = TRUE,
+                    verbose = flag.verbose, flag.st = TRUE)
+# printing the statistics
+knitr::kable(res$tab , digits = 3, caption = sprintf("Statistics for %s", res$prefix))
+
+```
+
+# 2d gneiting
+
+```{r gneiting_R2xT_2v_sep, echo=TRUE, eval=TRUE}
+nsim = 13
+# TEST of separability
+type = c("GNEITING_G", "GNEITING_M", "GNEITING_C")[3]
+ndim = 2
+nvar = 2
+sep = 1/2
+# parameters for the time trace
+alpha = 2.0
+beta  = 1.0
+# parameters for the space trace
+nu   = c(1/2, 3/4, 1)[1:nvar]
+rr   = c(1, 2, 1)[1:nvar]
+# space-time anisotropy
+timeRange = 2.0
+ranges = c(5,10)[1:ndim]
+angles = c(30, 0)[1:ndim]
+
+ctxt = CovContext(nvar = nvar, space = SpaceRN_create(ndim = ndim))
+mod = CorGneiting_create(ctxt = ctxt, type = ECov_fromKey(type),
+                       alpha = alpha, beta = beta, timeRange = timeRange,
+                       params = nu, kappas = rr,
+                       ranges = ranges, angles = angles,
+                       flagRange = FALSE,
+                       separability = sep)
+
+
+err = draw_model(model = mod, prefix = type, flag.st = TRUE)
+
+# simulation using "gstlearn API"
+model = ModelGeneric(ctxt = ctxt)
+err   = model$setCov(mod)
+
+# creation of a 2D x Time grid: section xOt
+res = list()
+for (isec in 1:3) {
+  print(sprintf(">>>>> simulation of section %d", isec))
+  nx = c(100, 100, 100)
+  dx = c(0.5, 0.5, 0.5)
+  nx[isec] <- 1
+  grid = DbGrid_create(nx = nx, dx = dx)
+
+  err   = simuSpectral(dbin = NULL, dbout = grid, model = model, nbsimu = nsim, ns = ns,
+                     verbose = flag.verbose,
+                     namconv = NamingConvention(type))
+
+  res[[1+length(res)]] = QC_section (model = model$getCov(),
+                    grid = grid, prefix = type, nsimu = nsim, isec = isec,
+                    flag.histo = TRUE, flag.map = TRUE, flag.vario = TRUE,
+                    verbose = flag.verbose, flag.st = TRUE)
+}
+
+
+```

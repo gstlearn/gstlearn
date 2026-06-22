@@ -13,11 +13,12 @@
 #include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
-#include "Simulation/CalcSimuTurningBands.hpp"
+#include "Simulation/Simulations.hpp"
 #include "Variogram/Vario.hpp"
 #include "Variogram/VarioParam.hpp"
 
 using namespace gstlrn;
+
 /****************************************************************************/
 /*!
  ** Main Program
@@ -56,7 +57,7 @@ int main(int argc, char* argv[])
 
   // Calculate the experimental variogram
   VarioParam* varioparam = VarioParam::createOmniDirection(10);
-  Vario* vario           = Vario::create(*varioparam);
+  Vario* vario = Vario::create(*varioparam);
   vario->compute(db);
   vario->display();
   vario->dumpToNF("Vario2D");
@@ -83,13 +84,13 @@ int main(int argc, char* argv[])
   mestitle(0, "Testing Model Fitting in 4-D");
 
   // Defining a Data Base
-  db               = Db::createFromBox(100, {0., 0., 0., 0.}, {100., 100., 100., 100.});
+  db = Db::createFromBox(100, {0., 0., 0., 0.}, {100., 100., 100., 100.});
   VectorDouble tab = VH::simulateGaussian(db->getNSampleActive(), 0., 1.);
   db->addColumns(tab, "Var", ELoc::Z);
 
   // Calculate the experimental variogram
   varioparam = VarioParam::createOmniDirection(20);
-  vario      = Vario::create(*varioparam);
+  vario = Vario::create(*varioparam);
   vario->compute(db);
   vario->display();
   vario->dumpToNF("Vario4D");

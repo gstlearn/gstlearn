@@ -5,7 +5,7 @@ date: "January 31, 2023"
 output:
   pdf_document: default
   html_document: default
-editor_options: 
+editor_options:
   chunk_output_type: console
 ---
 
@@ -15,7 +15,7 @@ editor_options:
 
 # Introduction
 
-This case study is meant to demonstrate how to use gstlearn for non-linear geostatistics with the Gaussian model. 
+This case study is meant to demonstrate how to use gstlearn for non-linear geostatistics with the Gaussian model.
 
 We consider three supports:
 
@@ -25,7 +25,7 @@ We consider three supports:
 
 * The support of the reporting, the **panels**, noted $V$.
 
-The variable of interest $z$ is defined over the domain $S \subset \mathbb{R}^d$ with $d = 2$. The domain is uniformly divided into panels and each panel is regularly subdivided into blocs, hence defining two regular grids, the grid of panels and the grid of blocs. 
+The variable of interest $z$ is defined over the domain $S \subset \mathbb{R}^d$ with $d = 2$. The domain is uniformly divided into panels and each panel is regularly subdivided into blocs, hence defining two regular grids, the grid of panels and the grid of blocs.
 
 > **Hence, we will have a data set and two grids.**
 
@@ -37,21 +37,21 @@ The regionalised variable $z(x)$ for $x \in D \subset \mathbb{R}^d$ is modeled a
 
 * $\phi$ is a continous and one to one and mapping, called the Gaussian anamorphosis.
 
-> As $Var(Z) < +\infty$, $\phi \in L^2(g)$ and 
-> it can be expressed as a linear combination of Hermite polynomials 
+> As $Var(Z) < +\infty$, $\phi \in L^2(g)$ and
+> it can be expressed as a linear combination of Hermite polynomials
 > $\phi(y) = \sum_{n = 1}^{+\infty} \phi_n H_n(y)$.
 
-Non linear Geostatistics implements non linear estimators of non linear transforms of the variable of interest $Z$. Two issues are addressed, the selection and the change of support, with the following tasks common in geosciences (i.e., in a mining context or for environmental studies), 
+Non linear Geostatistics implements non linear estimators of non linear transforms of the variable of interest $Z$. Two issues are addressed, the selection and the change of support, with the following tasks common in geosciences (i.e., in a mining context or for environmental studies),
 
-* predicting recovered quantities with selection over the actual value. 
+* predicting recovered quantities with selection over the actual value.
 
 > For example, recovered mineral resources will be defined by the selected ore at a given cutoff, $T(z_c) = 1_{Z \geq z_c}$, and the metal contained in the selected ore, $Q(z_c) =  Z \times 1_{Z \geq z_c}$.
 
-* taking into account the support of the selection. 
+* taking into account the support of the selection.
 
-> The average value of the volume $v$ is noted $Z(v) = \frac{1}{|v|} \int_v Z(u) du$. 
+> The average value of the volume $v$ is noted $Z(v) = \frac{1}{|v|} \int_v Z(u) du$.
 
-A first task is to predict marginal distribution of $Z(v)$, or the histogram, knowing the histogram of $Z$ and its spatial structure. A second task is to predict the conditional distribution of $Z(v)$ given the spatial the prior spatial model and some observations. The first question is referred to as the global recoverable resources, and the second one as the local recoverable resources. 
+A first task is to predict marginal distribution of $Z(v)$, or the histogram, knowing the histogram of $Z$ and its spatial structure. A second task is to predict the conditional distribution of $Z(v)$ given the spatial the prior spatial model and some observations. The first question is referred to as the global recoverable resources, and the second one as the local recoverable resources.
 
 Three estimators will be illustrated:
 
@@ -59,7 +59,7 @@ Three estimators will be illustrated:
 
 * the disjunctive kriging (**DK**)
 
-> EC and DK can be used to evaluate **point** recovery functions at a non observed point $x_0$, $1_{Z(x_0) \geq z_c}$ and $Z(x_0) \times 1_{Z(x_0) \geq z_c}$. 
+> EC and DK can be used to evaluate **point** recovery functions at a non observed point $x_0$, $1_{Z(x_0) \geq z_c}$ and $Z(x_0) \times 1_{Z(x_0) \geq z_c}$.
 > They can also be used to evaluate **bloc** recovery functions for a block $v$, $1_{Z(v) \geq z_c}$ and $Z(v) \times 1_{Z(v) \geq z_c}$.
 > DK can also evaluate recovery functions average on a bigger support, e.g. $\frac{1}{N} \sum_{i=1}^{N} 1_{Z(v_i) \geq z_c}$ is the recovered ore on the panels $V = \cup_{i=1}^{N}v_i$.
 
@@ -212,7 +212,7 @@ p = p + plot.decoration(xlab = "Z", title = "Sampled data (Z variable)")
 plot.end(p)
 
 stats = dbStatisticsMono(data, c("Y","Z"), opers=opers)
-knitr::kable(stats$toTL(), digits=2, 
+knitr::kable(stats$toTL(), digits=2,
              caption = "Statistics of the sampled data on the point support")
 
 varZ <- stats$getValue(1,4)^2
@@ -252,7 +252,7 @@ table
 ```{r, echo=TRUE, eval=TRUE}
 data["Gaussian.Z"] <- VectorHelper_normalScore(data["Z"])
 p = plot.init()
-p = p + plot.hist(data, name = "Gaussian.Z", bins = 25, col = "gray", fill = "yellow") 
+p = p + plot.hist(data, name = "Gaussian.Z", bins = 25, col = "gray", fill = "yellow")
 p = p + plot.decoration(xlab = "Normal score")
 plot.end(p)
 
@@ -261,9 +261,9 @@ data$display()
 
 # Variography
 
-Define the variogram calculation parameters: 
+Define the variogram calculation parameters:
 
-* omni-directional variogram, 
+* omni-directional variogram,
 
 * 10 lags of 0.025.
 
@@ -273,7 +273,7 @@ varioparam = VarioParam_createOmniDirection(nlag=10, dlag=0.025)
 
 ## Variography of the raw variable
 
-Define the variogram calculation parameters: 
+Define the variogram calculation parameters:
 
 ```{r, echo=TRUE, eval=TRUE}
 # Computing the experimental variogram
@@ -282,8 +282,8 @@ vario_raw = Vario_computeFromDb(varioparam, db=data)
 
 # Fitting the variogram model on the experimental variogram
 model_raw = Model_create()
-err = model_raw$fit(vario_raw, 
-                    types = ECov_fromKeys(c("NUGGET", "EXPONENTIAL", "EXPONENTIAL")), 
+err = model_raw$fit(vario_raw,
+                    types = ECov_fromKeys(c("NUGGET", "EXPONENTIAL", "EXPONENTIAL")),
                     constraints=Constraints(varZ))
 model_raw$display()
 
@@ -302,8 +302,8 @@ vario = Vario_computeFromDb(varioparam, data)
 
 # Fitting the Model on the experimental variogram with a sill equal to one.
 model = Model()
-err = model$fit(vario, 
-                types = ECov_fromKeys(c("EXPONENTIAL", "EXPONENTIAL")), 
+err = model$fit(vario,
+                types = ECov_fromKeys(c("EXPONENTIAL", "EXPONENTIAL")),
                 constraints=Constraints(1.))
 model$display()
 
@@ -348,31 +348,31 @@ The workflow is:
 1. Pre-processing of the input dataset using an anamorphosis. It is required for CE and DK.
 
    * CE: computation of the Gaussian values from the raw values
-   
-   * DK: computation of the values of the Hermite polynomials from the raw values 
-   
+
+   * DK: computation of the values of the Hermite polynomials from the raw values
+
    * UC: No pre-processing is required.
-   
+
 2. Computing the kriging
 
-   * CE: computation of simple kriging of the Gaussian variable (estimation value and standard deviation). The standard function **kriging** is used. Ordinary kriging may be used. 
-   
+   * CE: computation of simple kriging of the Gaussian variable (estimation value and standard deviation). The standard function **kriging** is used. Ordinary kriging may be used.
+
    * DK: computation of the kriging of the Hermite polynomials from the raw values. The function  **krigingFactors** is used to loop over the factors and define the proper covariance function.
-   
+
    * UC: computation of ordinary/simple kriging of the raw variable (estimation value and variance of the estimator). The standard function **kriging** is used.
-   
+
    Here, we have
-   
+
    **kriging(data, target, model, ....)**, or **krigingFactors(data, target, model, ...)**
-   
+
 3. Post-processing to calculate the estimator of the selectivity curves or any nonlinear transform from the kriging of the factors or Gaussian variable.
 
-   * CE: dedicated function **ConditionExpectation(db, anam, selectivity, ...)** 
-   
+   * CE: dedicated function **ConditionExpectation(db, anam, selectivity, ...)**
+
    * DK: dedicated function **DisjunctiveKriging(db, anam, selectivity, ...)**
-   
+
    * UC: dedicated function **UniformConditioning(db, anam, selectivity, ...)**
-   
+
 Two versions are now considered: the point estimate and the block estimate.
 
 # Point estimate
@@ -389,7 +389,7 @@ The Conditional Expectation is used to estimate **selectivity curves** for a poi
 
 ### Preprocessing
 
-The Gaussian variable has been computed earlier. 
+The Gaussian variable has been computed earlier.
 
 ### Kriging of the Gaussian variable
 
@@ -399,17 +399,17 @@ Simple Kriging is used to estimate the point value of the Gaussian variable at t
 err = model$delDrift(0)
 err = model$setMean(0.)
 data$setLocator("Gaussian.Z", ELoc_Z(), cleanSameLocator=TRUE)
-err = kriging(data, blocs, model, neigh, 
+err = kriging(data, blocs, model, neigh,
               namconv= NamingConvention("G_Pts"))
 
 p = plot.init()
-p = p + plot(blocs, name="G_Pts.Gaussian.Z.estim", 
+p = p + plot(blocs, name="G_Pts.Gaussian.Z.estim",
          flagLegend=TRUE, legendName = "Estimation")
 p = p + plot.decoration(title = "Punctual Simple Kriging of Y")
 plot.end(p)
 
 p = plot.init()
-p = p + plot(blocs, name="G_Pts.Gaussian.Z.stdev", 
+p = p + plot(blocs, name="G_Pts.Gaussian.Z.stdev",
          flagLegend=TRUE, legendName = "Std. Dev.")
 p = p + plot.decoration(title = "Punctual Simple Kriging of Y")
 plot.end(p)
@@ -431,10 +431,10 @@ $$
 For change of support calculation DGM kriging (**krigdgm**) should be used. **To be checked ?**
 
 ```{r ec_estim, echo=TRUE, eval=TRUE}
-err = ConditionalExpectation(db = blocs, 
-                             anam = anam, 
-                             selectivity = selectivity, 
-                             name_est="G_Pts*estim", 
+err = ConditionalExpectation(db = blocs,
+                             anam = anam,
+                             selectivity = selectivity,
+                             name_est="G_Pts*estim",
                              name_std="G_Pts*stdev",
                              namconv = NamingConvention("Pts_Recovery", FALSE))
 
@@ -464,7 +464,7 @@ p = p + plot.decoration(title = "Point conditional expectation")
 plot.end(p)
 ```
 
-**Values computed by the anamorphosis are invalid.... 
+**Values computed by the anamorphosis are invalid....
 Est-ce toujours vrai (DR) ? Si non, supprimer le paragraphe QC suivant.**
 
 ```{r QC_Conditional_Expectation}
@@ -478,13 +478,13 @@ blocs["T_1"] <- 1 - VectorHelper_pnormVec((Ycuts[4] - blocs["G_Pts.Gaussian.Z.es
 blocs["T_1"][indsel] = NA
 
 p = plot.init()
-p = p + plot.correlation(blocs, namex="Pts_Recovery.T-estim-1", namey="T_1", 
+p = p + plot.correlation(blocs, namex="Pts_Recovery.T-estim-1", namey="T_1",
                          bins=100, flagDiag=TRUE)
 p = p + plot.decoration(xlab = "Computed value", ylab = "Theoretical value",
                 title = "Conditional Expectation: T(1.0)")
 plot.end(p)
 print(paste0(">>> Sum of differences for T(1.00): ",
-             sum(blocs["T_1"] != blocs["Pts_Recovery.T-estim-1"], 
+             sum(blocs["T_1"] != blocs["Pts_Recovery.T-estim-1"],
                  na.rm=TRUE)))
 
 # Tonnage à zc = 0.75
@@ -494,7 +494,7 @@ blocs["T_0.75"] <- 1 - VectorHelper_pnormVec((Ycuts[3] -
 blocs["T_0.75"][indsel] = NA
 
 p = plot.init()
-p = p + plot.correlation(blocs, namex="Pts_Recovery.T-estim-0.75", namey="T_0.75", 
+p = p + plot.correlation(blocs, namex="Pts_Recovery.T-estim-0.75", namey="T_0.75",
                         bins=100, flagDiag=TRUE)
 p = p + plot.decoration(xlab = "Computed value", ylab = "Theoretical value",
                 title = "Conditional Expectation: T(0.75)")
@@ -531,7 +531,7 @@ err = model$setActiveFactor(0)
 Computing the point factors (i.e., the values of the Hermite polynomials). The following plot gives the proportion of the variance explained by the factors. It indicates the relevant number of factors that should be considered afterwards.
 
 ```{r}
-plot(1:(anam$getNFactor()-1),anam$cumulateVarianceRatio(1.), 
+plot(1:(anam$getNFactor()-1),anam$cumulateVarianceRatio(1.),
      ylim = c(0,1),
      xlab = "Number of factors", ylab = "Variance proportion",
      type = "b", pch = 19, col = "gray")
@@ -546,7 +546,7 @@ asCov = FALSE # Pb. if asCov = FALSE (should be 1 - rho^n and not (1-rho)^n)
 
 # model of the factors
 p = plot.init()
-for (i in 1:nf) 
+for (i in 1:nf)
 {
   model$setActiveFactor(i)
   p <- p + plot.model(model, hmax=hmax, asCov = asCov)
@@ -579,7 +579,7 @@ What is performed? Compute the (simple) kriging of the factors. Simple Kriging i
 ```{r dk_pts_estim, echo=TRUE, eval=TRUE}
 err = krigingFactors(dbin   = data,   # Input data set (a Db structure)
                      dbout  = blocs,  # Output data set (a DbGrid structure)
-                     model  = model, neigh, 
+                     model  = model, neigh,
                      namconv = NamingConvention("DK_Pts"))
 blocs$display()
 ```
@@ -590,9 +590,9 @@ As F.1 = -Y, its kriging should follow (F.1)^{SK} = (-Y)^{SK}
 ```{r}
 # H_1 = -Y
 p = plot.init()
-p = p + plot.correlation(blocs, 
+p = p + plot.correlation(blocs,
                  namex = "G_Pts.Gaussian.Z.estim",
-                 namey = "DK_Pts.F.1.estim", 
+                 namey = "DK_Pts.F.S1.estim",
                  bins=100, flagDiag = FALSE)
 p = p + geom_abline(intercept = 0, slope = -1, colour = "red")
 p = p + plot.decoration(xlab = "Gaussian variable",
@@ -601,9 +601,9 @@ p = p + plot.decoration(xlab = "Gaussian variable",
 plot.end(p)
 
 p = plot.init()
-p = p + plot.correlation(blocs, 
+p = p + plot.correlation(blocs,
                  namex = "G_Pts.Gaussian.Z.stdev",
-                 namey = "DK_Pts.F.1.stdev", 
+                 namey = "DK_Pts.F.S1.stdev",
                  bins=100, flagDiag = TRUE)
 p = p + plot.decoration(xlab = "Gaussian variable",
                 ylab = "H_1 = -Y",
@@ -613,7 +613,7 @@ plot.end(p)
 
 ### Computation of the disjunctive kriging
 
-The final aim is to estimate a *nonlinear* function of the Gaussian variable 
+The final aim is to estimate a *nonlinear* function of the Gaussian variable
 $$\psi(Y(x)) = \sum_{n=0}^{nf} \psi_n \, H_n(Y(x))$$
 As kriging is a linear operator and the Hermite polynomials are orthogonal,
 $$(\psi(Y(x))^{DK} =  \sum_{n=0}^{nf} \psi_n \, H_n^{SK}(Y(x))$$
@@ -627,13 +627,13 @@ We have first to calculate the Hermite coefficients of the selectivity curve or 
   Hence, $\psi_n = \phi_n$
 
 * Recovered ore, or the indicator above the cutoff, $\psi(y) = 1_{y \geq y_c}$,
-  
+
   Hence, $\psi_0 = 1- G(y_c)$ and $\psi_n = -\frac{g(y_c)}{\sqrt{n}} H_{n-1}(y_c)$ for $n>0$.
 
 * Recovered metal above the cutoff, $\psi(y) = \phi(y)\times 1_{y \geq y_c}$,
 
   Hence, $\psi_n = \sum_{p \geq 0} \phi_p \, \alpha_{n,p}(y_c)$ with $\alpha_{n,p}(y_c) = \int_{y_c}^{+\infty} H_n(u)H_p(u) g(u)du$.
-  
+
 We should also be able to compute non linear transforms such as:
 
 * The value over a limit, $\psi(y) = \max (y_c, y)$,
@@ -647,10 +647,10 @@ We should also be able to compute non linear transforms such as:
 * etc.
 
 ```{r dk_back, echo=TRUE, eval=FALSE}
-err = DisjunctiveKriging(db = blocs, 
-                         anam = anam, 
-                         selectivity = selectivity, 
-                         name_est="DK_Pts.F.*.estim", 
+err = DisjunctiveKriging(db = blocs,
+                         anam = anam,
+                         selectivity = selectivity,
+                         name_est="DK_Pts.F.*.estim",
                          name_std="DK_Pts.F.*.stdev",
                          namconv = NamingConvention("DK_Pts.Recovery", FALSE))
 ```
@@ -682,21 +682,21 @@ Comparing Point and Block estimations and standard deviation of Estimation error
 p = plot.init()
 p = p + plot.correlation(blocs, namex = "DK_Pts*1.estim", namey = "DK_Blk*1.estim",
                      bins = 100, flagDiag=TRUE)
-p = p + plot.decoration(xlab = "Point estimation", ylab = "Block estimation", 
+p = p + plot.decoration(xlab = "Point estimation", ylab = "Block estimation",
                 title = "First factor (Gaussian model)")
 plot.end(p)
 
 p = plot.init()
 p = p + plot.correlation(blocs, namex = "DK_Pts*2.estim", namey = "DK_Blk*2.estim",
                      bins = 100, flagDiag=TRUE)
-p = p + plot.decoration(xlab = "Point estimation", ylab = "Block estimation", 
+p = p + plot.decoration(xlab = "Point estimation", ylab = "Block estimation",
                  title = "Second factor (Gaussian model)")
 plot.end(p)
 
 p = plot.init()
 p = p + plot.correlation(blocs, namex = "DK_Pts*3.estim", namey = "DK_Blk*3.estim",
                  bins=100, flagDiag = TRUE)
-p = p + plot.decoration(xlab = "Point estimation", ylab = "Block estimation", 
+p = p + plot.decoration(xlab = "Point estimation", ylab = "Block estimation",
                  title = "Third factor (Gaussian model)")
 plot.end(p)
 ```
@@ -708,7 +708,7 @@ Can be used to estimate the average of the point selectivity curve on a panel.
 XF: factors should be used instead if DK has to be computed.
 
 ```{r dk_panels_estim, echo=TRUE, eval=TRUE}
-# The number of estimated factors is defined by the number of selected variables 
+# The number of estimated factors is defined by the number of selected variables
 # in the input data base
 ndisc_P = c(10, 10)
 data$setLocator("Gaussian.Z", ELoc_Z(), cleanSameLocator = TRUE)
@@ -716,7 +716,7 @@ krigopt = KrigOpt()
 krigopt$setOptionCalcul(calcul= EKrigOpt_BLOCK(), ndisc = ndisc_P)
 err = kriging(dbin   = data,   # Input data set (a Db structure).
               dbout  = panels, # Output data set (a DbGrid structure)
-              model  = model, neigh = neigh, 
+              model  = model, neigh = neigh,
               krigopt = krigopt,
               namconv = NamingConvention("DK_Blk"))
 panels$display()
@@ -724,14 +724,14 @@ panels$display()
 
 ```{r dk_panels_map, echo=TRUE, eval=TRUE}
 p = plot.init()
-p = p + plot(panels, name="DK_Blk.*.estim", flagLegend = TRUE) 
-p = p + plot.decoration(xlab = "Easting", ylab = "Northing", 
+p = p + plot(panels, name="DK_Blk.*.estim", flagLegend = TRUE)
+p = p + plot.decoration(xlab = "Easting", ylab = "Northing",
             title = "Estimate of the first factor (panels)")
 plot.end(p)
 
 p = plot.init()
 p = p + plot(panels, name="DK_Blk.*.stdev", flagLegend = TRUE)
-p = p + plot.decoration(xlab = "Easting", ylab = "Northing", 
+p = p + plot.decoration(xlab = "Easting", ylab = "Northing",
               title = "Std. of the first factor estimate (panels)")
 plot.end(p)
 ```
@@ -748,7 +748,7 @@ Estimators are tested on the fine grid: the reference simulated values are estim
 * Mean absolute standardized error $MASE = \frac{1}{N} \sum_{i = 1}^N |\frac{z_i - z_i^*}{\sigma_i^*}|$
 * Root mean square standardized error $RMSSE = \sqrt{\frac{1}{N} \sum_{i = 1}^N (\frac{z_i - z_i^*}{\sigma_i^*})^2}$
 
-TODO: 
+TODO:
 - results with the disjunctive kriging are dubious (see xplot for Z and Ind)
 - k-fold cross validation to be implemented ?
 
@@ -777,19 +777,19 @@ table
 err = model_raw$delDrift(0)
 err = model_raw$setMean(mean(data["Z"]))
 data$setLocator("Z", ELoc_Z(), cleanSameLocator=TRUE)
-err = kriging(data, grid, model_raw, neigh, 
+err = kriging(data, grid, model_raw, neigh,
               namconv= NamingConvention("SK"))
 
 # Conditional expectation
 err = model_Y$delDrift(0)
 err = model_Y$setMean(0.)
 data$setLocator("Gaussian.Z", ELoc_Z(), cleanSameLocator=TRUE)
-err = kriging(data, grid, model_Y, neigh, 
+err = kriging(data, grid, model_Y, neigh,
               namconv= NamingConvention("SK"))
-err = ConditionalExpectation(db = grid, 
-                             anam = anam, 
-                             selectivity = Z_est, 
-                             name_est="SK.Gaussian.Z.estim", 
+err = ConditionalExpectation(db = grid,
+                             anam = anam,
+                             selectivity = Z_est,
+                             name_est="SK.Gaussian.Z.estim",
                              name_std="SK.Gaussian.Z.stdev",
                              namconv = NamingConvention("CE", FALSE))
 grid$setName("CE.Z-estim", "CE.Z.estim")
@@ -799,7 +799,7 @@ grid$setName("CE.Z-stdev", "CE.Z.stdev")
 data$setLocator("F.*", ELoc_Z(), cleanSameLocator=TRUE)
 err = krigingFactors(dbin   = data,   # Input data set (a Db structure)
                      dbout  = grid,  # Ouput data set (a DbGrid structure)
-                     model  = model, neigh, 
+                     model  = model, neigh,
                      namconv = NamingConvention("SK"))
 
 ```
@@ -807,10 +807,10 @@ err = krigingFactors(dbin   = data,   # Input data set (a Db structure)
 
 ```{r}
 # Disjunctive kriging for Z
-err = DisjunctiveKriging(db = grid, 
-                         anam = anam, 
-                         selectivity = Z_est , 
-                         name_est="SK.F.*.estim", 
+err = DisjunctiveKriging(db = grid,
+                         anam = anam,
+                         selectivity = Z_est ,
+                         name_est="SK.F.*.estim",
                          name_std="SK.F.*.stdev",
                          namconv = NamingConvention("DK", FALSE))
 err = grid$setName("DK.Z-estim", "DK.Z.estim")
@@ -819,10 +819,10 @@ err = grid$setName("DK.Z-stdev", "DK.Z.stdev")
 # Disjunctive kriging for T and Q
 Z_est = Selectivity_createByKeys(keys = c("T", "Q"), zcuts=zcuts,
                                   flag_est=TRUE, flag_std=TRUE)
-err = DisjunctiveKriging(db = grid, 
-                         anam = anam, 
-                         selectivity = Z_est , 
-                         name_est="SK.F.*.estim", 
+err = DisjunctiveKriging(db = grid,
+                         anam = anam,
+                         selectivity = Z_est ,
+                         name_est="SK.F.*.estim",
                          name_std="SK.F.*.stdev",
                          namconv = NamingConvention("DK", FALSE))
 ```
@@ -842,11 +842,11 @@ for (i in seq_along(Y)) {
 # Lognormal
 m = 1.0 ; sigma = 1.5
 psi.LN = hermiteLognormal(mean = m, sigma = sigma, nbpoly = N)
-plot(Y, H %*% psi.LN, type = "l", col = "red", 
-     xlab = "Gaussian value", ylab = "Raw value", 
+plot(Y, H %*% psi.LN, type = "l", col = "red",
+     xlab = "Gaussian value", ylab = "Raw value",
      main = paste0("Lognormal m=", m, " and sigma = ", sigma))
 lines(Y, m * exp(sigma*Y - 1/2 * sigma^2), col = "blue", lwd = 2, lty = 2)
-legend("topleft", legend = c("Hermite", "Theoretical"), 
+legend("topleft", legend = c("Hermite", "Theoretical"),
        col = c("red", "blue"), lty = c(1,2))
 # QC of the indicator decomposition (OK)
 # psi.LN.qc = rep(NaN, N)
@@ -857,12 +857,12 @@ legend("topleft", legend = c("Hermite", "Theoretical"),
 # Indicator
 yc = ycuts[1]
 psi.ind = hermiteCoefIndicator(yc = yc, nbpoly = N)
-plot(Y, H %*% psi.ind, type = "l", col = "red", 
-     xlab = "Gaussian value", ylab = "Raw value", 
+plot(Y, H %*% psi.ind, type = "l", col = "red",
+     xlab = "Gaussian value", ylab = "Raw value",
      main = paste0("Indicator of ", yc))
 lines (Y, as.numeric(Y >= yc), col = "blue", lty = 2)
 abline(h = c(0,1), col = "gray", lty = 2)
-legend("topleft", legend = c("Hermite", "Theoretical"), 
+legend("topleft", legend = c("Hermite", "Theoretical"),
        col = c("red", "blue"), lty = c(1,2))
 # QC of the indicator decomposition (OK)
 # psi.ind.qc = rep(NaN, N)
@@ -874,12 +874,12 @@ legend("topleft", legend = c("Hermite", "Theoretical"),
 # Metal
 yc = 2.0
 psi.metal = hermiteCoefMetal(yc = yc, phi = psi.LN)
-plot(Y, H %*% psi.metal, type = "l", col = "red", 
-     xlab = "Gaussian value", ylab = "Raw value", 
+plot(Y, H %*% psi.metal, type = "l", col = "red",
+     xlab = "Gaussian value", ylab = "Raw value",
      main = paste0("Metal for cutoff = ", yc))
-lines (Y, m * exp(sigma * Y - 1/2 * sigma^2) * as.numeric(Y >= yc), 
+lines (Y, m * exp(sigma * Y - 1/2 * sigma^2) * as.numeric(Y >= yc),
        col = "blue", lty = 2)
-legend("topleft", legend = c("Hermite", "Theoretical"), 
+legend("topleft", legend = c("Hermite", "Theoretical"),
        col = c("red", "blue"), lty = c(1,2))
 # QC of the metal decomposition (OK)
 # psi.metal.qc = matrix(hermiteIncompleteIntegral(yc, N)$getValues(), N, N) %*% psi.LN
@@ -902,14 +902,14 @@ grid[nm_qc_stdev] <- sqrt(Hn.std^2 %*% (psi[-1][1:nfactor]^2)  + sum(psi[-1][(nf
 
 # Raw variable
 p = plot.init()
-p = p + plot.correlation(grid, namex = nm_estim, namey = nm_qc_estim, 
+p = p + plot.correlation(grid, namex = nm_estim, namey = nm_qc_estim,
                          bins=100, flagDiag=TRUE)
 p = p + plot.decoration(xlab = nm_estim, ylab = nm_qc_estim,
                 title = "Disjunctive Kriging - Estimation value")
 plot.end(p)
 
 p = plot.init()
-p = p + plot.correlation(grid, namex = nm_stdev, namey = nm_qc_stdev, 
+p = p + plot.correlation(grid, namex = nm_stdev, namey = nm_qc_stdev,
                          bins=100, flagDiag=TRUE)
 p = p + plot.decoration(xlab = nm_stdev, ylab = nm_qc_stdev,
                 title = "Disjunctive Kriging - Standard deviation")
@@ -960,7 +960,7 @@ nm <-c("Z",
 # Correlation actual values vs. estimated values
 for (est in c("SK", "DK", "CE")) {
   p = plot.init()
-  p = p + plot.correlation(grid, namex=paste0(est, ".Z.estim"), namey="Z", 
+  p = p + plot.correlation(grid, namex=paste0(est, ".Z.estim"), namey="Z",
                            bins=100, flagDiag = TRUE)
   p = p + plot.decoration(xlab = "Estimated value", ylab = "Actual value",
                           title = paste(est, " of raw variable"))
@@ -969,14 +969,14 @@ for (est in c("SK", "DK", "CE")) {
 
 # Comparison of the estimators
 p = plot.init()
-p = p + plot.correlation(grid, namex="CE.Z.estim", namey="SK.Z.estim", 
+p = p + plot.correlation(grid, namex="CE.Z.estim", namey="SK.Z.estim",
                          bins=100, flagDiag = TRUE)
 p = p + plot.decoration(xlab = "Conditional expectation", ylab = "Simple kriging",
                 title = "Point raw variable")
 plot.end(p)
 
 p = plot.init()
-p = p + plot.correlation(grid, namex="DK.Z.estim", namey="SK.Z.estim", 
+p = p + plot.correlation(grid, namex="DK.Z.estim", namey="SK.Z.estim",
                          bins=100, flagDiag = TRUE)
 p = p + plot.decoration(xlab = "Disjunctive Kriging", ylab = "Simple kriging",
                 title = "Point raw variable")
@@ -985,19 +985,19 @@ plot.end(p)
 # Maps of the estimators
 for (est in c("SK", "DK", "CE")){
   for (type in c("estim", "stdev")){
-    
+
     p = plot.init()
     p = p + plot(grid, paste0(est, ".Z.", type),
-                 flagLegend=TRUE, legendName=type) 
-    p = p + plot.decoration(xlab = "Easting", ylab = "Northing", 
-                            title = paste("Estimator = ", est)) 
+                 flagLegend=TRUE, legendName=type)
+    p = p + plot.decoration(xlab = "Easting", ylab = "Northing",
+                            title = paste("Estimator = ", est))
     plot.end(p)
-    
+
     if (type == "estim") col_fill = "orange"
     if (type == "stdev") col_fill = "skyblue"
-    
+
     p = plot.init()
-    p = p + plot.hist(grid, name = paste0(est, ".Z.", type), bins = 50, 
+    p = p + plot.hist(grid, name = paste0(est, ".Z.", type), bins = 50,
                       col = "gray", fill = col_fill)
     p = p + plot.decoration(xlab = paste0(est, ".Z.", type),
                             title = paste("Estimator = ", est))
@@ -1055,7 +1055,7 @@ res_xval$setLocator("code", ELoc_C(), cleanSameLocator=TRUE)
 # the db should have:
 # - db: the data base with a "code" variable defining the folds
 # - fn_estim: a R function which defines the interpolation process. Its prototype is int f(dbin, dbout)
-# - nameconv: the naming convention 
+# - nameconv: the naming convention
 # the outputs are
 # - err: code of error
 # - db: computed variables (estimated value and the estimation Std.)
@@ -1065,7 +1065,7 @@ kfold_compute <- function(db, fn_estim, namconv = NamingConvention("kfold")){
   err = 0
   err
 }
-# the evaluation of the estimator is: 
+# the evaluation of the estimator is:
 # 1) define the fn_estim
 # 2) compute the cross validation using the *kfold_compute* function
 # 3) compute the scoring using the *scoringRules* function
@@ -1077,7 +1077,7 @@ kfold_compute <- function(db, fn_estim, namconv = NamingConvention("kfold")){
 
 # Discussion and further works
 
-Still to be done: 
+Still to be done:
 
 * mise en oeuvre de la validation croisée et comparaison avec les ressources récupérables calculée sur la simulation initiale.
 

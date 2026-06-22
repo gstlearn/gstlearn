@@ -11,31 +11,38 @@
 #pragma once
 
 #include "Covariances/AKernel.hpp"
+#include "Enum/ESimuType.hpp"
 #include "gstlearn_export.hpp"
 
 namespace gstlrn
 {
-class CovContext;
+  class CovContext;
 
-class GSTLEARN_EXPORT KernelNugget: public AKernel
-{
-public:
-  KernelNugget(const CovContext& ctx);
-  KernelNugget(const KernelNugget& r);
-  KernelNugget& operator=(const KernelNugget& r);
-  virtual ~KernelNugget();
+  class GSTLEARN_EXPORT KernelNugget: public AKernel
+  {
+  public:
+    KernelNugget(const CovContext& ctx);
+    KernelNugget(const KernelNugget& r);
+    KernelNugget& operator=(const KernelNugget& r);
+    virtual ~KernelNugget();
 
-  String getFormula() const override;
-  String getCovName() const override { return "Nugget Effect"; }
-  Id getMinOrder() const override { return -1; }
-  bool getCompatibleSpaceR() const override { return true; }
+    String getFormula() const override;
 
-  Id hasRange() const override { return 0; }
+    String getCovName() const override { return "Nugget Effect"; }
 
-  bool isValidForTurningBand() const override { return true; }
+    Id getMinOrder() const override { return -1; }
 
-protected:
-  double _evaluateCov(double h) const override;
-};
+    bool getCompatibleSpaceR() const override { return true; }
+
+    Id hasRange() const override { return 0; }
+
+    bool isValidForSimulation(const ESimuType& simuType) const override
+    {
+      return (simuType == ESimuType::TB || simuType == ESimuType::SPECTRAL);
+    }
+
+  protected:
+    double _evaluateCov(double h) const override;
+  };
 
 } // namespace gstlrn

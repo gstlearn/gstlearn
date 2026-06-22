@@ -20,51 +20,60 @@
 
 namespace gstlrn
 {
-class ModelGeneric;
+  class ModelGeneric;
 
-class GSTLEARN_EXPORT AModelOptim
-{
-public:
-  AModelOptim(ModelGeneric* model = nullptr,
-              bool verbose        = false);
+  class GSTLEARN_EXPORT AModelOptim
+  {
+  public:
+    AModelOptim(ModelGeneric* model = nullptr, bool verbose = false);
 #ifndef SWIG
-  void setEnvironment(const MatrixSymmetric& vars, double href, double epsilon = EPSILON6, double min = 0., double max = INF);
+    void setEnvironment(
+      const MatrixSymmetric& vars,
+      double href,
+      double epsilon = EPSILON6,
+      double min = 0.,
+      double max = INF);
 #endif
-  AModelOptim& operator=(const AModelOptim& r);
+    AModelOptim& operator=(const AModelOptim& r);
+    AModelOptim(const AModelOptim& r);
+    void setAuthorizedAnalyticalGradients(bool authorized);
 
-  void setAuthorizedAnalyticalGradients(bool authorized);
+    bool getAuthorizedAnalyticalGradients() const;
 
-  bool getAuthorizedAnalyticalGradients() const;
+    virtual ~AModelOptim();
 
-  virtual ~AModelOptim();
+    void setGradients(
+      std::vector<std::function<double(const VectorDouble&)>>& gradients);
 
-  void setGradients(std::vector<std::function<double(const VectorDouble&)>>& gradients);
+    void setVerbose(bool verbose = false, bool trace = false);
 
-  void setVerbose(bool verbose = false, bool trace = false);
+    double eval(const VectorDouble& x);
 
-  double eval(const VectorDouble& x);
+    virtual void evalGrad(vect res);
+    double run();
 
-  virtual void evalGrad(vect res);
-  double run();
+    void resetIter();
 
-  void resetIter();
+    virtual double
+      computeCost(bool flagPrint = false, bool verbose = false) = 0;
 
-  virtual double computeCost(bool flagPrint = false, bool verbose = false) = 0;
-  std::shared_ptr<ListParams> getParams() const { return _params; }
-  void evalGradInEffectiveDimension(vect res);
+    std::shared_ptr<ListParams> getParams() const { return _params; }
 
-private:
-  void _printSummary(double minf, const VectorDouble& x) const;
+    void evalGradInEffectiveDimension(vect res);
 
-protected:
-  ModelGeneric* _model; // Pointer to the model being optimized
+  private:
+    void _printSummary(double minf, const VectorDouble& x) const;
 
-private:
-  std::shared_ptr<ListParams> _params; // Parameters of the model to be optimized
-  Optim* _opt;
-  bool _verbose;
-  bool _trace;
-  VectorDouble _x;
-  Id _iter;
-};
+  protected:
+    ModelGeneric* _model; // Pointer to the model being optimized
+
+  private:
+    std::shared_ptr<ListParams>
+      _params; // Parameters of the model to be optimized
+    Optim* _opt;
+    bool _verbose;
+    bool _trace;
+    VectorDouble _x;
+    Id _iter;
+  };
 } // namespace gstlrn

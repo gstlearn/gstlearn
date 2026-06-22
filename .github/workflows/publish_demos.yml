@@ -26,7 +26,7 @@ env:
   CMAKE_BUILD_TYPE: Release
   BUILD_DIR : build
   PYTHON_VERSION : "3.14"
-  R_VERSION : "4.5.2"
+  R_VERSION : "4.6.0"
   SWIG_ROOT : ${{github.workspace}}/swig
 
 jobs:
@@ -37,7 +37,7 @@ jobs:
       project_full_version: ${{ steps.main_step.outputs.PROJECT_FULL_VERSION }}
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Install dependencies
       run: |
@@ -55,7 +55,7 @@ jobs:
           pandoc
 
     - name: Setup uv
-      uses: astral-sh/setup-uv@v6
+      uses: astral-sh/setup-uv@v8.1.0
       with:
         python-version: ${{env.PYTHON_VERSION}}
         activate-environment: true
@@ -71,7 +71,7 @@ jobs:
         uv pip install pandas
         uv pip install scipy
         uv pip install dash
-        uv pip install scikit-sparse
+        uv pip install scikit-sparse==0.4.16
 
     - name: Setup R Version
       uses: r-lib/actions/setup-r@v2
@@ -110,7 +110,7 @@ jobs:
         echo "DEMO_FOLDER=${{env.BUILD_DIR}}/demo" >> "$GITHUB_ENV"
         echo "PROJECT_FULL_VERSION=${PROJECT_FULL_VERSION}" >> "$GITHUB_OUTPUT"
 
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v6
       with:
         # This will become the folder name in the server
         name: demos
@@ -119,10 +119,10 @@ jobs:
   publish:
     needs: build
     if: ${{inputs.dry_publish == false}}
-    
+
     # Only ubuntu can upload to a server easily (ssh)
     runs-on: ubuntu-latest
-    
+
     steps:
       - env:
           PROJECT_FULL_VERSION: ${{needs.build.outputs.project_full_version}}

@@ -7,7 +7,7 @@ output:
   html_document:
     df_print: paged
     toc: true
-editor_options: 
+editor_options:
   chunk_output_type: console
 ---
 
@@ -52,7 +52,7 @@ mygrid$display()
 We construct a Selection
 
 ```{r}
-mygrid["sel"] = 1. - 
+mygrid["sel"] = 1. -
   (mygrid["x1"] > 0) * (mygrid["x1"] < 15) * (mygrid["x2"] > 40) * (mygrid["x2"] < 50)
 err = mygrid$setLocator("sel",ELoc_SEL())
 mygrid
@@ -62,9 +62,9 @@ Displaying the grid cells
 
 ```{r}
 p = plot.init(asp=1)
-p = p + plot.raster(mygrid, flagLegend=TRUE, legendName="coucou", 
+p = p + plot.raster(mygrid, flagLegend=TRUE, legendName="raster",
                     palette="viridis")
-p = p + plot.contour(mygrid,  flagLegend=TRUE, legendName="isolines", bins=10, 
+p = p + plot.contour(mygrid,  flagLegend=TRUE, legendName="isolines", bins=10,
                     palette = "inferno")
 p = p + plot.decoration(title="Display of Grid Cells")
 plot.end(p)
@@ -83,7 +83,7 @@ Displaying the grid nodes only
 
 ```{r}
 p = plot.init(asp=1)
-p = p + plot.symbol(mygrid, nameSize="Simu.1", nameColor="Simu.2", flagLegend = TRUE, 
+p = p + plot.symbol(mygrid, nameSize="Simu.S1", nameColor="Simu.S2", flagLegend = TRUE,
                    legendNameColor="myColor", legendNameSize="mySize")
 p = p + plot.decoration(title="Display of Grid Nodes")
 plot.end(p)
@@ -101,7 +101,7 @@ Displaying the cell contents in the rotated grid
 
 ```{r}
 p = plot.init(asp=1)
-p = p + plot.raster(mygrid, name="Simu.1")
+p = p + plot.raster(mygrid, name="Simu.S1")
 p = p + plot.decoration(title="Display of Rotated Grid")
 plot.end(p)
 ```
@@ -110,7 +110,7 @@ As a set of grid nodes
 
 ```{r}
 p = plot.init(asp=1)
-p = p + plot.symbol(mygrid, nameSize="Simu.1", nameColor="Simu.2", flagLegend = TRUE)
+p = p + plot.symbol(mygrid, nameSize="Simu.S1", nameColor="Simu.S2", flagLegend = TRUE)
 p = p + plot.decoration(title="Display of Rotated Grid Nodes")
 plot.end(p)
 ```
@@ -161,10 +161,10 @@ mymodel = Model_createFromParam(ECov_SPHERICAL(), ranges = c(50, 30), angles = c
 simtub(NULL, mygrid, mymodel, nbsimu=2, nbtuba=1000, namconv=NamingConvention("Simu"))
 
 # Representing the two figures on the same pa
-p1 = plot.init(asp=1) + plot.raster(mygrid, name="Simu.1", 
+p1 = plot.init(asp=1) + plot.raster(mygrid, name="Simu.S1",
                                     flagLegend=TRUE, legendName="Colors #1")
 p1 = p1 + plot.decoration(title="Simulation 1", xlab="Easting", ylab="Northing")
-p2 = plot.init(asp=1) + plot.raster(mygrid, name="Simu.2", flagLegend=FALSE)
+p2 = plot.init(asp=1) + plot.raster(mygrid, name="Simu.S2", flagLegend=FALSE)
 p2 = p2 + plot.decoration(title="Simulation 2", xlab="Easting", ylab="")
 p = ggarrange(p1, p2, ncol = 2, nrow = 1, align="hv")
 plot.end(p)
@@ -291,9 +291,8 @@ Display a vertical slice (XOZ) for the index IY=3
 
 ```{r}
 p = plot.init(asp=1)
-p = p + plot.raster(g3D, name="rank", flagLegend=TRUE, legendName="Rank", 
+p = p + plot.raster(g3D, name="rank", flagLegend=TRUE, legendName="Rank",
                   posY=2, corner=c(0,3,0))
 p = p + plot.decoration(title="Vertical Slice XOZ (IY=3)")
 plot.end(p)
 ```
-

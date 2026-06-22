@@ -61,7 +61,7 @@ q()
 
 Save the workspace (y).
 
-The content of your session is saved in the file **.Rdata** (with the **.Rhistory**) of your working directory. 
+The content of your session is saved in the file **.Rdata** (with the **.Rhistory**) of your working directory.
 
 *Caution*: these files are hidden.
 
@@ -214,7 +214,7 @@ outer(A,B,"*")
 
 ## Loops
 
-Dimension and initialize a vector: **numeric** 
+Dimension and initialize a vector: **numeric**
 
 Loop from 1 to 10: store loop index in a vector; then print the vector
 
@@ -246,4 +246,3 @@ x = seq(0,20)
 y = my.func(x)
 plot(x,y,main="Plotting my function")
 ```
-

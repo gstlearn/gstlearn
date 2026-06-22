@@ -15,7 +15,7 @@
 #include "Basic/Timer.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
-#include "Estimation/CalcKriging.hpp"
+#include "Estimation/Estimations.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Space/ASpaceObject.hpp"
@@ -43,10 +43,10 @@ int main(int argc, char* argv[])
 
   // Generate the data base
 
-  Db* data = Db::createFillRandom(100, 3, 1, 0, 0, 0, 0, VectorDouble(), {0, 0, 0}, {100, 100, 100});
+  Db* data = Db::createFillRandom(
+    100, 3, 1, 0, 0, 0, 0, VectorDouble(), {0, 0, 0}, {100, 100, 100});
 
-  if (graphic)
-    (void)data->dumpToNF("Data.NF");
+  if (graphic) (void)data->dumpToNF("Data.NF");
 
   // Generate the output grid
   VectorInt nx = {100, 100, 100};
@@ -71,8 +71,7 @@ int main(int argc, char* argv[])
   grid->display(gridfmt);
   delete gridfmt;
 
-  if (graphic)
-    (void)grid->dumpToNF("Grid.NF");
+  if (graphic) (void)grid->dumpToNF("Grid.NF");
 
   delete neighU;
   delete data;

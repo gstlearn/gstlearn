@@ -22,11 +22,11 @@
 #include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
-#include "Estimation/CalcKriging.hpp"
+#include "Estimation/Estimations.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/NeighMoving.hpp"
 #include "Neigh/NeighUnique.hpp"
-#include "Simulation/CalcSimuTurningBands.hpp"
+#include "Simulation/Simulations.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Stats/Classical.hpp"
 
@@ -65,9 +65,9 @@ static Db* createLocalDb(Id nech, Id ndim, Id nvar)
 Id st_mini_test()
 {
   // Global parameters
-  Id nbsimu     = 2;
-  Id mode       = 0; // 1: NCsimu; 2: Kriging; 3: CDsimu; 0: All
-  bool debug    = true;
+  Id nbsimu = 2;
+  Id mode = 0; // 1: NCsimu; 2: Kriging; 3: CDsimu; 0: All
+  bool debug = true;
   bool end_test = false;
   OptCst::define(ECst::NTCOL, -1);
 
@@ -84,18 +84,20 @@ Id st_mini_test()
 
   // Modify the variables by adding their mean
   VectorDouble z1 = db->getColumn("z-1");
-  z1.addCst(means[0]);
+  z1 += means[0];
   db->setColumn(z1, "z-1");
 
   VectorDouble z2 = db->getColumn("z-2");
-  z2.addCst(means[1]);
+  z2 += means[1];
   db->setColumn(z2, "z-2");
 
-  DbStringFormat* dbfmt = DbStringFormat::createFromFlags(false, false, false, false, true);
+  DbStringFormat* dbfmt =
+    DbStringFormat::createFromFlags(false, false, false, false, true);
   db->display(dbfmt);
 
   MatrixSymmetric* sills = MatrixSymmetric::createFromVD({3, 1, 1, 2});
-  Model* model           = Model::createFromParam(ECov::SPHERICAL, 1, 1, 1, VectorDouble(), *sills);
+  Model* model =
+    Model::createFromParam(ECov::SPHERICAL, 1, 1, 1, VectorDouble(), *sills);
   delete sills;
   model->setMeans(means);
 
@@ -108,16 +110,13 @@ Id st_mini_test()
   if (debug) OptDbg::setReference(1);
 
   // Perform non-conditional simulations
-  if (mode == 0 || mode == 1)
-    (void)simtub(nullptr, grid, model, neigh, nbsimu);
+  if (mode == 0 || mode == 1) (void)simtub(nullptr, grid, model, neigh, nbsimu);
 
   // Perform Kriging
-  if (mode == 0 || mode == 2)
-    (void)kriging(db, grid, model, neigh);
+  if (mode == 0 || mode == 2) (void)kriging(db, grid, model, neigh);
 
   // Perform conditional simulations
-  if (mode == 0 || mode == 3)
-    (void)simtub(db, grid, model, neigh, nbsimu);
+  if (mode == 0 || mode == 3) (void)simtub(db, grid, model, neigh, nbsimu);
 
   grid->display(dbfmt);
 
@@ -145,9 +144,9 @@ int main(int argc, char* argv[])
 
   // Global parameters
   law_set_random_seed(32131);
-  Id ndim          = 2;
-  Id nvar          = 1;
-  Id nbsimu        = 3;
+  Id ndim = 2;
+  Id nvar = 1;
+  Id nbsimu = 3;
   DbGrid* grid_res = nullptr;
   defineDefaultSpace(ESpaceType::RN, ndim);
   DbStringFormat dbfmt(FLAG_STATS, {"Simu*"});
@@ -161,7 +160,7 @@ int main(int argc, char* argv[])
   grid->display();
 
   // Generate the data base
-  Id nech  = 100;
+  Id nech = 100;
   Db* data = createLocalDb(nech, ndim, nvar);
   data->display(&dbfmt);
 

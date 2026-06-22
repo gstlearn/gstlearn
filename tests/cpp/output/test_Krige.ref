@@ -316,30 +316,30 @@ Data Base Grid Characteristics
 
 Data Base Statistics
 --------------------
-6 - Name Simu.Var.1 - Locator z1
+6 - Name Simu.Var.S1 - Locator z1
  Nb of data          =        2500
  Nb of active values =        2500
- Minimum value       =     -17.688
- Maximum value       =      15.692
- Mean value          =      -0.043
- Standard Deviation  =       4.620
- Variance            =      21.346
-7 - Name Simu.Var.2 - Locator z2
+ Minimum value       =     -17.190
+ Maximum value       =      16.274
+ Mean value          =       0.578
+ Standard Deviation  =       4.701
+ Variance            =      22.099
+7 - Name Simu.Var.S2 - Locator z2
  Nb of data          =        2500
  Nb of active values =        2500
- Minimum value       =     -16.348
- Maximum value       =      13.752
- Mean value          =      -1.101
- Standard Deviation  =       4.912
- Variance            =      24.130
-8 - Name Simu.Var.3 - Locator z3
+ Minimum value       =     -16.071
+ Maximum value       =      20.200
+ Mean value          =      -1.794
+ Standard Deviation  =       4.787
+ Variance            =      22.914
+8 - Name Simu.Var.S3 - Locator z3
  Nb of data          =        2500
  Nb of active values =        2500
- Minimum value       =     -15.579
- Maximum value       =      14.975
- Mean value          =       0.370
- Standard Deviation  =       4.692
- Variance            =      22.016
+ Minimum value       =     -18.591
+ Maximum value       =      16.748
+ Mean value          =      -0.868
+ Standard Deviation  =       5.626
+ Variance            =      31.651
 
 <----- Bayesian Simulations in Unique Neighborhood ----->
 
@@ -348,30 +348,30 @@ Data Base Grid Characteristics
 
 Data Base Statistics
 --------------------
-6 - Name SimBayes.Var.1 - Locator z1
+6 - Name SimBayes.Var.S1 - Locator z1
  Nb of data          =        2500
  Nb of active values =        2500
- Minimum value       =     -16.829
- Maximum value       =      16.512
- Mean value          =       0.800
- Standard Deviation  =       4.618
- Variance            =      21.330
-7 - Name SimBayes.Var.2 - Locator z2
+ Minimum value       =     -17.245
+ Maximum value       =      16.225
+ Mean value          =       0.511
+ Standard Deviation  =       4.701
+ Variance            =      22.098
+7 - Name SimBayes.Var.S2 - Locator z2
  Nb of data          =        2500
  Nb of active values =        2500
- Minimum value       =     -17.096
- Maximum value       =      13.052
- Mean value          =      -1.776
- Standard Deviation  =       4.910
- Variance            =      24.106
-8 - Name SimBayes.Var.3 - Locator z3
+ Minimum value       =     -14.949
+ Maximum value       =      21.314
+ Mean value          =      -0.670
+ Standard Deviation  =       4.786
+ Variance            =      22.907
+8 - Name SimBayes.Var.S3 - Locator z3
  Nb of data          =        2500
  Nb of active values =        2500
- Minimum value       =     -16.244
- Maximum value       =      14.361
- Mean value          =      -0.332
- Standard Deviation  =       4.696
- Variance            =      22.051
+ Minimum value       =     -19.279
+ Maximum value       =      16.134
+ Mean value          =      -1.523
+ Standard Deviation  =       5.626
+ Variance            =      31.648
 
 <----- Declustering in Unique Neighborhood ----->
 
@@ -400,10 +400,10 @@ CVsample                         = 341.740127
 CViid                            = 34.174013
 Cxx                              = 2.021313
 Cxv                              = 2.670522
-Cvv                              = 11.208491
+Cvv                              = 11.208494
 Estimation by arithmetic average = 0.002885
 Estimation St. dev. of the mean  = 2.808694
-CVgeo                            = 973.508065
+CVgeo                            = 973.508247
 Surface                          = 2500.000000
 Q (Estimation * Surface)         = 7.212815
 
@@ -526,11 +526,11 @@ Data Base Statistics
 5 - Name Filtering.Simu - Locator z1
  Nb of data          =        2500
  Nb of active values =        2116
- Minimum value       =      -6.780
- Maximum value       =      15.076
- Mean value          =       4.212
- Standard Deviation  =       3.672
- Variance            =      13.483
+ Minimum value       =     -11.638
+ Maximum value       =      16.466
+ Mean value          =       2.331
+ Standard Deviation  =       5.791
+ Variance            =      33.537
 
 Model characteristics
 =====================

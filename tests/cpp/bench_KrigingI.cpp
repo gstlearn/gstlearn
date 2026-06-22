@@ -8,17 +8,17 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Enum/ESpaceType.hpp"
 #include "Enum/ECov.hpp"
+#include "Enum/ESpaceType.hpp"
 
-#include "Space/ASpaceObject.hpp"
-#include "Db/Db.hpp"
-#include "Db/DbStringFormat.hpp"
-#include "Model/Model.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Timer.hpp"
+#include "Db/Db.hpp"
+#include "Db/DbStringFormat.hpp"
+#include "Estimation/Estimations.hpp"
+#include "Model/Model.hpp"
 #include "Neigh/NeighImage.hpp"
-#include "Estimation/CalcImage.hpp"
+#include "Space/ASpaceObject.hpp"
 
 using namespace gstlrn;
 
@@ -27,7 +27,7 @@ using namespace gstlrn;
  ** Main Program
  **
  *****************************************************************************/
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   bool verbose = false;
 
@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
   defineDefaultSpace(ESpaceType::RN, 2);
 
   // Generate the grid
-  VectorInt nx = {360,240};
+  VectorInt nx = {360, 240};
   DbGrid* image = DbGrid::create(nx);
   image->addColumnsByConstant(1, 1.2, "Var", ELoc::Z);
   if (verbose) image->display();
@@ -51,10 +51,10 @@ int main(int argc, char *argv[])
   if (verbose) model->display();
 
   // Image Neighborhood
-  NeighImage* neighI = NeighImage::create({10,10}, 3);
+  NeighImage* neighI = NeighImage::create({10, 10}, 3);
   if (verbose) neighI->display();
 
-  bool flagFFT     = true;
+  bool flagFFT = true;
 
   Timer timer;
   krimage(image, model, neighI, flagFFT);

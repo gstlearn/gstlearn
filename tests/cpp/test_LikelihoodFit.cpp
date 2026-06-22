@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
   StdoutRedirect sr(sfn.str(), argc, argv);
 
   bool verbose = true;
-  bool trace   = false;
+  bool trace = false;
   Model* model = Model::createFromParam(ECov::EXPONENTIAL, 20, 1, 1);
   String filename;
   Db* db = nullptr;
@@ -40,13 +40,13 @@ int main(int argc, char* argv[])
     message("-----------------------------------------------------\n");
     message("Test on Pollution dataset\n");
     filename = getTestData("Pollution", "Pollution.dat");
-    db       = Db::createFromCSV(filename, CSVformat(), false);
+    db = Db::createFromCSV(filename, CSVformat(), false);
     db->setLocators({"X", "Y"}, ELoc::X);
     db->setLocator("Zn", ELoc::Z);
     db->setLocator("Pb");
     model->setDriftIRF(0);
-    model->fitNew(db, nullptr, nullptr, nullptr, ModelOptimParam(),
-                  ITEST, verbose, trace);
+    model->fitNew(
+      db, nullptr, nullptr, nullptr, ModelOptimParam(), ITEST, verbose, trace);
     model->display();
     delete db;
   }
@@ -55,14 +55,14 @@ int main(int argc, char* argv[])
     message("-----------------------------------------------------\n");
     message("Test on Scotland Temperatures dataset\n");
     filename = getTestData("Scotland", "Scotland_Temperatures.csv");
-    db       = Db::createFromCSV(filename, CSVformat(), false);
+    db = Db::createFromCSV(filename, CSVformat(), false);
 
     db->setLocators({"Longitude", "Latitude"}, ELoc::X);
     db->setLocator("January_temp", ELoc::Z);
 
     model->setDriftIRF(0);
-    model->fitNew(db, nullptr, nullptr, nullptr, ModelOptimParam(),
-                  ITEST, verbose, trace);
+    model->fitNew(
+      db, nullptr, nullptr, nullptr, ModelOptimParam(), ITEST, verbose, trace);
     model->display();
     delete db;
   }
@@ -71,19 +71,19 @@ int main(int argc, char* argv[])
     message("-----------------------------------------------------\n");
     message("Test on Scotland Temperatures dataset without API\n");
     filename = getTestData("Scotland", "Scotland_Temperatures.csv");
-    db       = Db::createFromCSV(filename, CSVformat(), false);
+    db = Db::createFromCSV(filename, CSVformat(), false);
 
     db->setLocators({"Longitude", "Latitude"}, ELoc::X);
     db->setLocator("January_temp", ELoc::Z);
 
     model->setDriftIRF(0);
 
-    bool reml            = false;
-    Id nb_neighVecchia   = ITEST;
+    bool reml = false;
+    Id nb_neighVecchia = ITEST;
     ModelOptimParam* mop = ModelOptimParam::create(false);
 
-    auto* ll = AModelOptimFactory::create(model, db, nullptr, nullptr, nullptr,
-                                          *mop, nb_neighVecchia, reml);
+    auto* ll = AModelOptimFactory::create(
+      model, db, nullptr, nullptr, nullptr, *mop, nb_neighVecchia, reml);
     ll->setVerbose(verbose, trace);
 
     ll->run();

@@ -8,52 +8,19 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Enum/ELoadBy.hpp"
-#include "Enum/ESpaceType.hpp"
-
 #include "Basic/File.hpp"
 #include "Basic/Law.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Boolean/ModelBoolean.hpp"
 #include "Boolean/ShapeEllipsoid.hpp"
 #include "Boolean/ShapeParallelepiped.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
-#include "Db/DbStringFormat.hpp"
-#include "Simulation/SimuBoolean.hpp"
+#include "Enum/ESpaceType.hpp"
+#include "Simulation/CalcSimuBoolean.hpp"
+#include "Simulation/Simulations.hpp"
 #include "Space/ASpaceObject.hpp"
 
 using namespace gstlrn;
-
-static Db* createLocalDb(Id nech, Id ndim, Id nvar, bool flag_sel = false, double proba = 0.5)
-{
-  // Coordinates
-  VectorDouble tab = VH::simulateGaussian(ndim * nech, 0., 50.);
-  // Variable
-  for (Id ivar = 0; ivar < nvar; ivar++)
-  {
-    VectorDouble tabvar;
-    if (flag_sel)
-      tabvar = VH::simulateBernoulli(nech, proba);
-    else
-      tabvar = VH::simulateGaussian(nech);
-    tab.insert(tab.end(), tabvar.begin(), tabvar.end());
-  }
-
-  Db* data = Db::createFromSamples(nech, ELoadBy::COLUMN, tab);
-  data->setNameByUID(1, "x1");
-  data->setNameByUID(2, "x2");
-
-  data->setLocatorByUID(1, ELoc::X, 0);
-  data->setLocatorByUID(2, ELoc::X, 1);
-
-  for (Id ivar = 0; ivar < nvar; ivar++)
-  {
-    data->setNameByUID(3 + ivar, "Var");
-    data->setLocatorByUID(3 + ivar, ELoc::Z, ivar);
-  }
-  return data;
-}
 
 /****************************************************************************/
 /*!
@@ -72,14 +39,14 @@ int main(int argc, char* argv[])
 
   // Global parameters
   law_set_random_seed(32131);
-  Id ndim   = 2;
-  Id nvar   = 1;
+  Id ndim = 2;
+  Id nvar = 1;
   Id nxcell = 100;
-  Id nech   = 100;
-  VectorDouble coormin(ndim);
-  VectorDouble coormax(ndim);
+  Id nech = 100;
+  Id nbsimu = 4;
+  bool verbose = true;
+  bool flagConditional = true;
   defineDefaultSpace(ESpaceType::RN, ndim);
-  DbStringFormat dbfmt(FLAG_STATS);
 
   // Generate the output grid
   VectorInt nx = {nxcell, nxcell};
@@ -87,8 +54,9 @@ int main(int argc, char* argv[])
   grid->display();
 
   // Generate the data base
-  Db* data = createLocalDb(nech, ndim, nvar, true, 0.1);
-  data->display(&dbfmt);
+  auto* data = Db::createFillRandom(
+    nech, ndim, nvar, 0, 0, 0., 0.1, VectorDouble(), {0., 0.}, {50., 50.});
+  data->getStatsAsTable().display();
 
   // ====================== Create Shape Dictionary ===================
   message("\n<----- Creating Shape Dictionary ----->\n");
@@ -102,9 +70,26 @@ int main(int argc, char* argv[])
 
   // ====================== Perform Boolean simulation ===================
   message("\n<----- Perform Boolean Simulation ----->\n");
-  (void)simbool(nullptr, grid, tokens);
+  auto simuparam = SimuBooleanParam(200);
+  if (flagConditional)
+  {
+    message("- Simulation with conditioning\n");
+    (void)simbool(
+      data, grid, tokens, simuparam, nbsimu, 13671, true, true, verbose);
+  }
+  else
+  {
+    message("- Simulation without conditioning\n");
+    (void)simbool(
+      nullptr, grid, tokens, simuparam, nbsimu, 3231, true, true, verbose);
+  }
 
-  grid->display(&dbfmt);
+  grid->getStatsAsTable().display();
+
+  if (flagConditional)
+  {
+    data->display();
+  }
 
   (void)grid->dumpToNF("grid.NF");
 

@@ -32,6 +32,7 @@ set(SRC
   Gibbs/GibbsUMultiMono.cpp
   Gibbs/AGibbs.cpp
   Gibbs/GibbsUMulti.cpp
+  LithoRule/PropDef.cpp
   LithoRule/RuleProp.cpp
   LithoRule/Rule.cpp
   LithoRule/RuleStringFormat.cpp
@@ -106,6 +107,7 @@ set(SRC
   Covariances/CovProportional.cpp
   Covariances/ANoStat.cpp
   Covariances/NoStatArray.cpp
+  Covariances/NoStatOnMesh.cpp
   Covariances/NoStatFunctional.cpp
   Covariances/CovGradientGeneric.cpp
   Covariances/CovGradientAnalytic.cpp
@@ -118,6 +120,7 @@ set(SRC
   Covariances/CovCalcMode.cpp
   Covariances/CovContext.cpp
   Covariances/CorAniso.cpp
+  Covariances/CorFactorized.cpp
   Covariances/CorGaussianMixture.cpp
   Covariances/CorGneiting.cpp
   Covariances/CorMatern.cpp
@@ -127,11 +130,9 @@ set(SRC
   Covariances/CovHelper.cpp
   Polygon/Polygons.cpp
   Polygon/PolyElem.cpp
-  Core/math.cpp
   Core/stats.cpp
   Core/io.cpp
   Core/db.cpp
-  Core/variopgs.cpp
   Core/model_auto.cpp
   Core/cluster.cpp
   Core/simtub.cpp
@@ -192,7 +193,6 @@ set(SRC
   LinearOp/IProj.cpp
   LinearOp/PrecisionOpMulti.cpp
   LinearOp/PrecisionOpMultiMatrix.cpp
-  LinearOp/PrecisionOpMultiConditional.cpp
   LinearOp/OptimCostColored.cpp
   LinearOp/ProjConvolution.cpp
   LinearOp/ACholesky.cpp
@@ -201,7 +201,11 @@ set(SRC
   LinearOp/SPDEOp.cpp
   LinearOp/SPDEOpMatrix.cpp
   LinearOp/ASimulable.cpp
+  LinearOp/ASimulableMatrix.cpp
   LinearOp/MatrixSymmetricSim.cpp
+  LinearOp/LinearOpHelper.cpp
+  LinearOp/MultiGridSolver.cpp
+  LinearOp/MultiGridSPDE.cpp
   MLayers/MLayers.cpp
   Space/SpaceSN.cpp
   Space/SpaceRN.cpp
@@ -218,6 +222,7 @@ set(SRC
   Variogram/Vario.cpp
   Variogram/VarioParam.cpp
   Variogram/DirParam.cpp
+  Variogram/VarioOrder.cpp
   Basic/Optim.cpp
   Basic/ParamInfo.cpp
   Basic/ListParams.cpp
@@ -291,6 +296,7 @@ set(SRC
   Mesh/Delaunay.cpp
   Mesh/MeshSpherical.cpp
   Mesh/MeshSphericalExt.cpp
+  Mesh/MeshEFaulted.cpp
   Mesh/MeshEStandard.cpp
   Mesh/VectorMeshes.cpp
   Morpho/Morpho.cpp
@@ -310,6 +316,7 @@ set(SRC
   Neigh/NeighMoving.cpp
   Neigh/NeighBench.cpp
   Neigh/NeighCell.cpp
+  Estimation/Estimations.cpp
   Estimation/AModelOptim.cpp
   Estimation/ALikelihood.cpp
   Estimation/AModelOptimFactory.cpp
@@ -340,16 +347,19 @@ set(SRC
   OutputFormat/GridF2G.cpp
   OutputFormat/vtk.cpp
   OutputFormat/segy.cpp
+  Simulation/Simulations.cpp
   Simulation/ACalcSimulation.cpp
+  Simulation/ACalcSimuGaussian.cpp
   Simulation/CalcSimuTurningBands.cpp
+  Simulation/CalcSimuSpectral.cpp
+  Simulation/CalcSimuPGS.cpp
+  Simulation/CalcSimuBoolean.cpp
   Simulation/TurningBandDirection.cpp
   Simulation/TurningBandOperate.cpp
-  Simulation/ASimuSpectral.cpp
   Simulation/SimuSpectralRN.cpp
-  Simulation/SpectrumRN.cpp
+  Simulation/SpectrumOnRN.cpp
   Simulation/SimuSpectralS2.cpp
   Simulation/BooleanObject.cpp
-  Simulation/SimuBoolean.cpp
   Simulation/SimuBooleanParam.cpp
   Simulation/SimuSpherical.cpp
   Simulation/SimuSphericalParam.cpp
@@ -368,7 +378,14 @@ set(SRC
   Transform/TuckeyGH.cpp
   Transform/YeoJohnson.cpp
   Tree/Ball.cpp
+  Tree/BallFaulted.cpp
   Tree/KNN.cpp
   Tree/ball_algorithm.cpp
   Tree/neighbors_heap.cpp
+  PluriGaussian/TracePGS.cpp
+  PluriGaussian/CorPGS.cpp
+  PluriGaussian/DiscretePGS.cpp
+  PluriGaussian/CalcModelPGS.cpp
+  PluriGaussian/PileRelem.cpp
+  PluriGaussian/PileSplit.cpp
 )

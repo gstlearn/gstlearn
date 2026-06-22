@@ -15,44 +15,43 @@
 
 namespace gstlrn
 {
-SimuFFTParam::SimuFFTParam(bool flag_aliasing,
-                           double percent)
-  : AStringable()
-  , _flagAliasing(flag_aliasing)
-  , _percent(percent)
-{
-}
-
-SimuFFTParam::SimuFFTParam(const SimuFFTParam& r)
-  : AStringable(r)
-  , _flagAliasing(r._flagAliasing)
-  , _percent(r._percent)
-{
-}
-
-SimuFFTParam& SimuFFTParam::operator=(const SimuFFTParam& r)
-{
-  if (this != &r)
+  SimuFFTParam::SimuFFTParam(bool flag_aliasing, double percent)
+    : AStringable()
+    , _flagAliasing(flag_aliasing)
+    , _percent(percent)
   {
-    AStringable::operator=(r);
-    _flagAliasing = r._flagAliasing;
-    _percent      = r._percent;
   }
-  return *this;
-}
 
-SimuFFTParam::~SimuFFTParam()
-{
-}
+  SimuFFTParam::SimuFFTParam(const SimuFFTParam& r)
+    : AStringable(r)
+    , _flagAliasing(r._flagAliasing)
+    , _percent(r._percent)
+  {
+  }
 
-String SimuFFTParam::toString(const AStringFormat* /*strfmt*/) const
-{
-  std::stringstream sstr;
+  SimuFFTParam& SimuFFTParam::operator=(const SimuFFTParam& r)
+  {
+    if (this != &r)
+    {
+      AStringable::operator=(r);
+      _flagAliasing = r._flagAliasing;
+      _percent = r._percent;
+    }
+    return *this;
+  }
 
-  if (_flagAliasing)
-    sstr << "Perform intermediate mesh discretization in order to reduce aliasing" << std::endl;
-  sstr << "Percentage of Covariance used for field extension" << std::endl;
+  SimuFFTParam::~SimuFFTParam() {}
 
-  return sstr.str();
-}
+  String SimuFFTParam::toString(const AStringFormat* /*strfmt*/) const
+  {
+    std::stringstream sstr;
+
+    if (_flagAliasing)
+      sstr << "Perform intermediate mesh discretization in order to reduce "
+              "aliasing"
+           << std::endl;
+    sstr << "Percentage of Covariance used for field extension" << std::endl;
+
+    return sstr.str();
+  }
 } // namespace gstlrn

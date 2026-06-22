@@ -3,7 +3,7 @@ title: "Starting gstlearn with R"
 author: "gstlearn Team"
 date: "May 2022"
 output: pdf_document
-editor_options: 
+editor_options:
   chunk_output_type: console
 ---
 
@@ -25,7 +25,7 @@ library(gstlearn)
 This script:
 - constructs a regular grid
 - load values generated randomly
-    
+
 ```{r}
 # Grid size
 nx = 60

@@ -12,17 +12,17 @@ Total number of samples      = 1750
 
 Grid characteristics:
 ---------------------
-Origin :    -40.000    20.000
-Mesh   :      1.000     2.000
-Number :         70        25
+Origin :     -40.000     20.000
+Mesh   :       1.000      2.000
+Number :          70         25
 
 Variables
 ---------
 Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
-Column = 3 - Name = Simu.1 - Locator = z1
-Column = 4 - Name = Simu.2 - Locator = z2
+Column = 3 - Name = Simu.S1 - Locator = z1
+Column = 4 - Name = Simu.S2 - Locator = z2
 NULL
 
 Data Base Grid Characteristics
@@ -38,17 +38,17 @@ Number of active samples     = 1694
 
 Grid characteristics:
 ---------------------
-Origin :    -40.000    20.000
-Mesh   :      1.000     2.000
-Number :         70        25
+Origin :     -40.000     20.000
+Mesh   :       1.000      2.000
+Number :          70         25
 
 Variables
 ---------
 Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
-Column = 3 - Name = Simu.1 - Locator = z1
-Column = 4 - Name = Simu.2 - Locator = z2
+Column = 3 - Name = Simu.S1 - Locator = z1
+Column = 4 - Name = Simu.S2 - Locator = z2
 Column = 5 - Name = sel - Locator = sel
 
 Data Base Grid Characteristics
@@ -63,26 +63,26 @@ Total number of samples      = 1750
 
 Grid characteristics:
 ---------------------
-Origin :    -40.000    20.000
-Mesh   :      1.000     2.000
-Number :         70        25
-Rotation Angles        =     10.000     0.000
+Origin :     -40.000     20.000
+Mesh   :       1.000      2.000
+Number :          70         25
+Rotation Angles        =      10.000      0.000
 Direct Rotation Matrix
-               [,  0]    [,  1]
-     [  0,]     0.985    -0.174
-     [  1,]     0.174     0.985
+                 [,  0]     [,  1]
+      [  0,]      0.985     -0.174
+      [  1,]      0.174      0.985
 Inverse Rotation Matrix
-               [,  0]    [,  1]
-     [  0,]     0.985     0.174
-     [  1,]    -0.174     0.985
+                 [,  0]     [,  1]
+      [  0,]      0.985      0.174
+      [  1,]     -0.174      0.985
 
 Variables
 ---------
 Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
-Column = 3 - Name = Simu.1 - Locator = z1
-Column = 4 - Name = Simu.2 - Locator = z2
+Column = 3 - Name = Simu.S1 - Locator = z1
+Column = 4 - Name = Simu.S2 - Locator = z2
 
 Data Base Characteristics
 =========================
@@ -100,8 +100,8 @@ Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = rank.1 - Locator = NA
 Column = 2 - Name = x1 - Locator = x1
 Column = 3 - Name = x2 - Locator = x2
-Column = 4 - Name = Simu.1 - Locator = z1
-Column = 5 - Name = Simu.2 - Locator = z2
+Column = 4 - Name = Simu.S1 - Locator = z1
+Column = 5 - Name = Simu.S2 - Locator = z2
 NULL
 [1] 0
 
@@ -117,9 +117,9 @@ Total number of samples      = 3000
 
 Grid characteristics:
 ---------------------
-Origin :      0.000     0.000     0.000
-Mesh   :      1.000     1.000     1.000
-Number :         10        15        20
+Origin :       0.000      0.000      0.000
+Mesh   :       1.000      1.000      1.000
+Number :          10         15         20
 
 Variables
 ---------

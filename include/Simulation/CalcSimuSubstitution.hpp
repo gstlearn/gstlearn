@@ -21,43 +21,46 @@
 namespace gstlrn
 {
 
-class Db;
-class DbGrid;
+  class Db;
+  class DbGrid;
 
-class GSTLEARN_EXPORT CalcSimuSubstitution: public ACalcSimulation
-{
-public:
-  CalcSimuSubstitution(Id nbsimu = 0, Id seed = 4324324, bool verbose = false);
-  CalcSimuSubstitution(const CalcSimuSubstitution& r)            = delete;
-  CalcSimuSubstitution& operator=(const CalcSimuSubstitution& r) = delete;
-  virtual ~CalcSimuSubstitution();
+  class GSTLEARN_EXPORT CalcSimuSubstitution: public ACalcSimulation
+  {
+  public:
+    CalcSimuSubstitution(
+      Id nbsimu = 0,
+      Id seed = 4324324,
+      bool verbose = false);
+    CalcSimuSubstitution(const CalcSimuSubstitution& r) = delete;
+    CalcSimuSubstitution& operator=(const CalcSimuSubstitution& r) = delete;
+    virtual ~CalcSimuSubstitution();
 
-  const SimuSubstitutionParam& getSubparam() const { return _subparam; }
-  void setSubparam(const SimuSubstitutionParam& subparam) { _subparam = subparam; }
+    const SimuSubstitutionParam& getSubparam() const { return _subparam; }
 
-private:
-  bool _check() override;
-  bool _preprocess() override;
-  bool _run() override;
-  bool _postprocess() override;
-  void _rollback() override;
+    void setSubparam(const SimuSubstitutionParam& subparam)
+    {
+      _subparam = subparam;
+    }
 
-  bool _simulate();
-  void _calculValue(Id ip, double factor, const VectorDouble& vector);
-  static VectorDouble _transToProp(const SimuSubstitutionParam& subparam,
-                                   bool verbose = false,
-                                   double eps   = EPSILON5);
+  private:
+    bool _check() override;
+    bool _preprocess() override;
+    bool _run() override;
+    bool _postprocess() override;
+    void _rollback() override;
 
-private:
-  bool _verbose;
-  Id _iattOut;
-  SimuSubstitutionParam _subparam;
-  std::vector<Plane> _planes;
-};
+    bool _simulateCalculate();
+    void _calculValue(Id ip, double factor, const VectorDouble& vector);
+    static VectorDouble _transToProp(
+      const SimuSubstitutionParam& subparam,
+      bool verbose = false,
+      double eps = EPSILON5);
 
-GSTLEARN_EXPORT Id substitution(DbGrid* dbgrid,
-                                 SimuSubstitutionParam& subparam,
-                                 Id seed                        = 43242,
-                                 Id verbose                     = false,
-                                 const NamingConvention& namconv = NamingConvention("SimSub"));
+  private:
+    bool _verbose;
+    Id _iattOut;
+    SimuSubstitutionParam _subparam;
+    std::vector<Plane> _planes;
+  };
+
 } // namespace gstlrn

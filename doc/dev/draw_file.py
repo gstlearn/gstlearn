@@ -117,7 +117,7 @@ elif filetype == "Vario":
         gp.varmod(vario, model)
         plt.show()
     else:
-        gp.variogram(vario, idir=-1)
+        gp.variogram(vario, idir=-1, ivar=-1, jvar=-1)
         plt.show()
 
 elif filetype == "Model":

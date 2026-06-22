@@ -17,32 +17,35 @@
 
 namespace gstlrn
 {
-class GSTLEARN_EXPORT AArray: public AStringable
-{
-public:
-  AArray(const VectorInt& ndims = VectorInt());
-  AArray(const AArray& r);
-  AArray& operator=(const AArray& r);
-  virtual ~AArray();
+  class GSTLEARN_EXPORT AArray: public AStringable
+  {
+  public:
+    AArray(const VectorInt& ndims = VectorInt());
+    AArray(const AArray& r);
+    AArray& operator=(const AArray& r);
+    virtual ~AArray();
 
-  /// Interface for AStringable
-  String toString(const AStringFormat* strfmt = nullptr) const override;
+    /// Interface for AStringable
+    String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  void init(const VectorInt& ndims);
-  Id indiceToRank(const VectorInt& indice) const;
-  VectorInt rankToIndice(Id rank) const;
-  void rankToIndice(Id rank, VectorInt& indices) const;
+    void init(const VectorInt& ndims);
+    Id indiceToRank(const VectorInt& indice) const;
+    VectorInt rankToIndice(Id rank) const;
+    void rankToIndice(Id rank, VectorInt& indices) const;
 
-  Id getNDim() const { return static_cast<Id>(_ndims.size()); }
-  Id getNPixels() const { return _ndims.prod(); }
-  const VectorInt& getNDims() const { return _ndims; }
-  VectorInt getNDimsExt(Id ndimMax) const;
-  Id getNDims(Id idim) const;
+    Id getNDim() const { return static_cast<Id>(_ndims.size()); }
 
-protected:
-  bool _isValidIndice(const VectorInt& indice) const;
+    Id getNPixels() const { return _ndims.prod(); }
 
-private:
-  VectorInt _ndims;
-};
+    const VectorInt& getNDims() const { return _ndims; }
+
+    VectorInt getNDimsExt(Id ndimMax) const;
+    Id getNDims(Id idim) const;
+
+  protected:
+    bool _isValidIndice(const VectorInt& indice) const;
+
+  private:
+    VectorInt _ndims;
+  };
 } // namespace gstlrn

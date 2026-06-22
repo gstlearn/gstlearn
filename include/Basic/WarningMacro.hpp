@@ -12,6 +12,8 @@
 
 // Thanks to https://www.fluentcpp.com/2019/08/30/how-to-disable-a-warning-in-cpp/
 
+// clang-format off
+
 #if defined(__clang__) // First, test __clang__ before __GNUC__ and _MSC_VER (because Clang defines both)
   #define DO_PRAGMA(X) _Pragma(#X)
   #define DISABLE_WARNING_PUSH           DO_PRAGMA(clang diagnostic push)
@@ -100,3 +102,5 @@
   // other warnings you want to deactivate...
 
 #endif
+
+// clang-format on

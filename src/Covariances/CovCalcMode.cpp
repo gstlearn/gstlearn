@@ -10,49 +10,55 @@
 /******************************************************************************/
 #include "Covariances/CovCalcMode.hpp"
 
-namespace gstlrn {
-
-CovCalcMode::CovCalcMode(const ECalcMember& member,
-                         bool asVario,
-                         bool unitary,
-                         Id orderVario)
-  : AStringable()
-  , _member(member)
-  , _asVario(asVario)
-  , _unitary(unitary)
-  , _orderVario(orderVario)
+namespace gstlrn
 {
-}
 
-CovCalcMode::CovCalcMode(const CovCalcMode& r)
-  : AStringable(r)
-  , _member(r._member)
-  , _asVario(r._asVario)
-  , _unitary(r._unitary)
-  , _orderVario(r._orderVario)
-{
-}
-
-CovCalcMode& CovCalcMode::operator=(const CovCalcMode& r)
-{
-  if (this != &r)
+  CovCalcMode::CovCalcMode(
+    const ECalcMember& member,
+    bool asVario,
+    bool unitary,
+    Id orderVario)
+    : AStringable()
+    , _member(member)
+    , _asVario(asVario)
+    , _unitary(unitary)
+    , _envelop(false)
+    , _orderVario(orderVario)
   {
-    AStringable::operator=(r);
-    _member     = r._member;
-    _asVario    = r._asVario;
-    _unitary    = r._unitary;
-    _orderVario = r._orderVario;
   }
-  return *this;
-}
 
-CovCalcMode::~CovCalcMode() {}
+  CovCalcMode::CovCalcMode(const CovCalcMode& r)
+    : AStringable(r)
+    , _member(r._member)
+    , _asVario(r._asVario)
+    , _unitary(r._unitary)
+    , _envelop(r._envelop)
+    , _orderVario(r._orderVario)
+  {
+  }
 
-CovCalcMode* CovCalcMode::create(const ECalcMember& member,
-                                 bool asVario,
-                                 bool unitary,
-                                 Id orderVario)
-{
-  return new CovCalcMode(member, asVario, unitary, orderVario);
-}
-}
+  CovCalcMode& CovCalcMode::operator=(const CovCalcMode& r)
+  {
+    if (this != &r)
+    {
+      AStringable::operator=(r);
+      _member = r._member;
+      _asVario = r._asVario;
+      _unitary = r._unitary;
+      _envelop = r._envelop;
+      _orderVario = r._orderVario;
+    }
+    return *this;
+  }
+
+  CovCalcMode::~CovCalcMode() {}
+
+  CovCalcMode* CovCalcMode::create(
+    const ECalcMember& member,
+    bool asVario,
+    bool unitary,
+    Id orderVario)
+  {
+    return new CovCalcMode(member, asVario, unitary, orderVario);
+  }
+} // namespace gstlrn

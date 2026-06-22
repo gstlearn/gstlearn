@@ -101,7 +101,7 @@ a=0.3 : [0.3]
 
 #NO_DIFF#XXX
 ----
-Computed manually : -120.377463
+Computed manually : -123.53108
 ----
 
 
@@ -113,16 +113,16 @@ Likelihood calculation:
 - Length of Information Vector = 100
 - Number of drift conditions   = 1
 Log-Determinant = -33.879144
-Quadratic term  = 90.846364
-Log-likelihood  = -120.377463
+Quadratic term  = 97.153597
+Log-likelihood  = -123.531080
 ----
 
 
 #NO_DIFF#XXX
 ----
 Log-Determinant = -33.200255
-Quadratic term  = 89.332909
-Log-likelihood  = -119.960180
+Quadratic term  = 96.521227
+Log-likelihood  = -123.554339
 ----
 
 
@@ -146,8 +146,8 @@ Column = 2 - Name = x-2 - Locator = x2
 Column = 3 - Name = f-1 - Locator = f1
 Column = 4 - Name = f-2 - Locator = f2
 Column = 5 - Name = drift - Locator = NA
-Column = 6 - Name = Simu.1 - Locator = z1
-Column = 7 - Name = Simu.2 - Locator = z2----
+Column = 6 - Name = Simu.V1 - Locator = z1
+Column = 7 - Name = Simu.V2 - Locator = z2----
 
 
 #NO_DIFF#XXX
@@ -164,7 +164,7 @@ Column = 7 - Name = Simu.2 - Locator = z2----
 
 #NO_DIFF#XXX
 ----
-No Constraint : [ 0.58471   3.06693   1.693381 -1.421991]
+No Constraint : [ 0.577168  2.760508  1.234083 -2.503257]
 ----
 
 
@@ -176,8 +176,8 @@ Likelihood calculation:
 - Length of Information Vector = 400
 - Number of drift conditions   = 4
 Log-Determinant = -676.517039
-Quadratic term  = 484.076013
-Log-likelihood  = -271.354901
+Quadratic term  = 468.251856
+Log-likelihood  = -263.442822
 ----
 
 
@@ -189,7 +189,7 @@ Log-likelihood  = -271.354901
 
 #NO_DIFF#XXX
 ----
-a0=0.5 and b0=1.5 : [ 0.5      3.18586  1.5     -1.15049]
+a0=0.5 and b0=1.5 : [ 0.5       2.86885   1.5      -2.876596]
 ----
 
 
@@ -201,7 +201,7 @@ a0=0.5 and b0=1.5 : [ 0.5      3.18586  1.5     -1.15049]
 
 #NO_DIFF#XXX
 ----
-a0=b0 and a1=b1 : [0.399932 3.815084 0.399932 3.815084]
+a0=b0 and a1=b1 : [0.467682 3.637803 0.467682 3.637803]
 ----
 
 
@@ -213,8 +213,8 @@ Likelihood calculation:
 - Length of Information Vector = 400
 - Number of drift conditions   = 2
 Log-Determinant = -676.517039
-Quadratic term  = 519.260332
-Log-likelihood  = -288.947060
+Quadratic term  = 537.995186
+Log-likelihood  = -298.314487
 ----
 
 
@@ -226,7 +226,7 @@ Log-likelihood  = -288.947060
 
 #NO_DIFF#XXX
 ----
-a0=b0 : [0.399932 3.326353 0.399932 0.39397 ]
+a0=b0 : [ 0.467682  2.914223  0.467682 -1.427255]
 ----
 
 
@@ -238,7 +238,7 @@ a0=b0 : [0.399932 3.326353 0.399932 0.39397 ]
 
 #NO_DIFF#XXX
 ----
-a0=b0 and a1=1 : [ 1.266229  1.        1.266229 -5.262681]
+a0=b0 and a1=1 : [ 1.180509  1.        1.180509 -6.081789]
 ----
 
 
@@ -291,14 +291,14 @@ Column = 2 - Name = x-2 - Locator = x2
 Column = 3 - Name = f-1 - Locator = f1
 Column = 4 - Name = f-2 - Locator = f2
 Column = 5 - Name = drift - Locator = NA
-Column = 6 - Name = Simu.1 - Locator = z1
-Column = 7 - Name = Simu.2 - Locator = z2
-Column = 8 - Name = Simu.3 - Locator = z3----
+Column = 6 - Name = Simu.V1 - Locator = z1
+Column = 7 - Name = Simu.V2 - Locator = z2
+Column = 8 - Name = Simu.V3 - Locator = z3----
 
 
 #NO_DIFF#XXX
 ----
-Coefficients : [ 0.679814  2.990676  1.092411 -0.961489 -0.969794 -0.317018]
+Coefficients : [ 1.653835  1.164198  1.281702 -1.175631  0.543292 -2.921917]
 
 #NO_DIFF#XXX
 ----
@@ -306,5 +306,5 @@ Coefficients : [ 0.679814  2.990676  1.092411 -0.961489 -0.969794 -0.317018]
 
 #NO_DIFF#XXX
 ----
-Coefficients : [ 1.887024  1.295792  1.887024 -2.0771    1.887024 -4.327899]
+Coefficients : [ 1.918096  0.793185  1.918096 -2.069108  1.918096 -4.852097]
 ----

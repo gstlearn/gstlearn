@@ -13,33 +13,31 @@
 
 namespace gstlrn
 {
-ADrift::ADrift()
-  : AStringable()
-{
-}
-
-ADrift::ADrift(const ADrift& r)
-  : AStringable(r)
-{
-}
-
-ADrift& ADrift::operator=(const ADrift& r)
-{
-  if (this != &r)
+  ADrift::ADrift()
+    : AStringable()
   {
-    AStringable::operator=(r);
   }
-  return *this;
-}
 
-ADrift::~ADrift()
-{
-}
+  ADrift::ADrift(const ADrift& r)
+    : AStringable(r)
+  {
+  }
 
-String ADrift::toString(const AStringFormat* /*strfmt*/) const
-{
-  std::stringstream sstr;
-  sstr << getDriftName();
-  return sstr.str();
-}
-}
+  ADrift& ADrift::operator=(const ADrift& r)
+  {
+    if (this != &r)
+    {
+      AStringable::operator=(r);
+    }
+    return *this;
+  }
+
+  ADrift::~ADrift() {}
+
+  String ADrift::toString(const AStringFormat* /*strfmt*/) const
+  {
+    std::stringstream sstr;
+    sstr << getDriftName();
+    return sstr.str();
+  }
+} // namespace gstlrn

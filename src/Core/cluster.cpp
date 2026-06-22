@@ -26,616 +26,610 @@ License: BSD 3-clause
 #include "geoslib_old_f.h"
 #include <climits>
 
-#define DATA(iech, ivar)  (data[(iech) * nvar + (ivar)])
+#define DATA(iech, ivar) (data[(iech) * nvar + (ivar)])
 #define DATA1(iech, ivar) (data1[(iech) * nvar + (ivar)])
 #define DATA2(iech, ivar) (data2[(iech) * nvar + (ivar)])
-#define CDATA(icl, ivar)  (cdata[(icl) * nvar + (ivar)])
-#define DISTMATRIX(i, j)  (distmatrix[(i) * nech + (j)])
+#define CDATA(icl, ivar) (cdata[(icl) * nvar + (ivar)])
+#define DISTMATRIX(i, j) (distmatrix[(i) * nech + (j)])
 
 namespace gstlrn
 {
-/*****************************************************************************/
-/*!
- **  Calculate the distance between two samples
- **
- ** \param[in]  nvar      Number of variables
- ** \param[in]  data1     Array of values for first part
- ** \param[in]  data2     Array of values for second part
- ** \param[in]  index1    Rank of the first sample
- ** \param[in]  index2    Rank of the second sample
- **
- *****************************************************************************/
-static double st_distance(Id nvar,
-                          const VectorDouble& data1,
-                          const VectorDouble& data2,
-                          Id index1,
-                          Id index2)
-{
-  double result, term, weight;
-
-  result = weight = 0.;
-  for (Id ivar = 0; ivar < nvar; ivar++)
+  /*****************************************************************************/
+  /*!
+   **  Calculate the distance between two samples
+   **
+   ** \param[in]  nvar      Number of variables
+   ** \param[in]  data1     Array of values for first part
+   ** \param[in]  data2     Array of values for second part
+   ** \param[in]  index1    Rank of the first sample
+   ** \param[in]  index2    Rank of the second sample
+   **
+   *****************************************************************************/
+  static double st_distance(
+    Id nvar,
+    const VectorDouble& data1,
+    const VectorDouble& data2,
+    Id index1,
+    Id index2)
   {
-    term = DATA1(index1, ivar) - DATA2(index2, ivar);
-    result += term * term;
-    weight += 1.;
-  }
-  if (weight > 0) result /= weight;
-  return (result);
-}
+    double result, term, weight;
 
-/*****************************************************************************/
-/*!
- **  Initial random assignment of samples to clusters
- **
- ** \param[in]  nclusters Number if clusters
- ** \param[in]  nech      Number of samples
- **
- ** \param[out] clusterid Array of cluster number for each sample
- **
- *****************************************************************************/
-static void st_randomassign(Id nclusters,
-                            Id nech,
-                            VectorInt& clusterid)
-{
-  Id i, j;
-  Id k = 0;
-  double p;
-
-  Id n = nech - nclusters;
-  /* Draw the number of elements in each cluster from a multinomial
-   * distribution, reserving ncluster elements to set independently
-   * in order to guarantee that none of the clusters are empty.
-   */
-  for (i = 0; i < nclusters - 1; i++)
-  {
-    p = 1.0 / (nclusters - i);
-    j = law_binomial(n, p);
-    n -= j;
-    j += k + 1; /* Assign at least one element to cluster i */
-    for (; k < j; k++)
-      clusterid[k] = i;
-  }
-
-  /* Assign the remaining elements to the last cluster */
-  for (; k < nech; k++)
-    clusterid[k] = i;
-
-  /* Create a random permutation of the cluster assignments */
-  for (i = 0; i < nech; i++)
-  {
-    j            = (Id)(i + (nech - i) * law_uniform(0., 1.));
-    k            = clusterid[j];
-    clusterid[j] = clusterid[i];
-    clusterid[i] = k;
-  }
-}
-
-/*****************************************************************************/
-/*!
- **  Print the list of cluster per sample
- **
- ** \param[in]  nclusters Number if clusters
- ** \param[in]  nech      Number of samples
- ** \param[in]  clusterid Array of cluster number for each sample
- **
- *****************************************************************************/
-static void st_printclusterlist(Id nclusters,
-                                Id nech,
-                                const VectorInt& clusterid)
-{
-  message("Population of %d clusters\n", nclusters);
-  for (Id i = 0; i < nech; i++)
-    message("Sample %3d: cluster %d\n", i + 1, clusterid[i]);
-}
-
-/*****************************************************************************/
-/*!
- **  Print the number of samples per cluster
- **
- ** \param[in]  nclusters Number if clusters
- ** \param[in]  nech      Number of samples
- ** \param[in]  clusterid Array of cluster number for each sample
- **
- *****************************************************************************/
-static void st_printclustercount(Id nclusters,
-                                 Id nech,
-                                 const VectorInt& clusterid)
-{
-  Id j, count;
-
-  message("Population of %d clusters\n", nclusters);
-  for (Id i = 0; i < nclusters; i++)
-  {
-    count = 0;
-    for (Id k = 0; k < nech; k++)
+    result = weight = 0.;
+    for (Id ivar = 0; ivar < nvar; ivar++)
     {
-      j = clusterid[k];
-      if (i == j) count++;
+      term = DATA1(index1, ivar) - DATA2(index2, ivar);
+      result += term * term;
+      weight += 1.;
     }
-    message("Cluster %2d : %d\n", i + 1, count);
-  }
-}
-
-/*****************************************************************************/
-/*!
- **  Find the center of a cluster
- **
- ** \param[in]  nclusters Number if clusters
- ** \param[in]  nvar      Number of samples
- ** \param[in]  nech      Number of variables
- ** \param[in]  data      Array of values
- ** \param[in]  clusterid Array of cluster number for each sample
- **
- ** \param[out] cdata     Array containing the centroids
- ** \param[out] cmask     Array containing the number of sample per cluster
- **
- *****************************************************************************/
-static void st_getclustermeans(const VectorDouble& data,
-                               Id nvar,
-                               Id nech,
-                               Id nclusters,
-                               const VectorInt& clusterid,
-                               VectorDouble& cdata,
-                               VectorInt& cmask)
-{
-  Id i, j, k;
-
-  for (i = 0; i < nclusters; i++)
-  {
-    cmask[i] = 0;
-    for (j = 0; j < nvar; j++)
-      CDATA(i, j) = 0.;
+    if (weight > 0) result /= weight;
+    return (result);
   }
 
-  for (k = 0; k < nech; k++)
+  /*****************************************************************************/
+  /*!
+   **  Initial random assignment of samples to clusters
+   **
+   ** \param[in]  nclusters Number if clusters
+   ** \param[in]  nech      Number of samples
+   **
+   ** \param[out] clusterid Array of cluster number for each sample
+   **
+   *****************************************************************************/
+  static void st_randomassign(Id nclusters, Id nech, VectorInt& clusterid)
   {
-    i = clusterid[k];
-    cmask[i]++;
-    for (j = 0; j < nvar; j++)
-      CDATA(i, j) += DATA(k, j);
+    Id i, j;
+    Id k = 0;
+    double p;
+
+    Id n = nech - nclusters;
+    /* Draw the number of elements in each cluster from a multinomial
+     * distribution, reserving ncluster elements to set independently
+     * in order to guarantee that none of the clusters are empty.
+     */
+    for (i = 0; i < nclusters - 1; i++)
+    {
+      p = 1.0 / (nclusters - i);
+      j = law_binomial(n, p);
+      n -= j;
+      j += k + 1; /* Assign at least one element to cluster i */
+      for (; k < j; k++) clusterid[k] = i;
+    }
+
+    /* Assign the remaining elements to the last cluster */
+    for (; k < nech; k++) clusterid[k] = i;
+
+    /* Create a random permutation of the cluster assignments */
+    for (i = 0; i < nech; i++)
+    {
+      j = (Id)(i + (nech - i) * law_uniform(0., 1.));
+      k = clusterid[j];
+      clusterid[j] = clusterid[i];
+      clusterid[i] = k;
+    }
   }
 
-  for (i = 0; i < nclusters; i++)
-    for (j = 0; j < nvar; j++)
-      if (cmask[i] > 0) CDATA(i, j) /= cmask[i];
-}
-
-/*****************************************************************************/
-/*!
- **  Find the median of a cluster
- **
- ** \param[in]  nclusters Number if clusters
- ** \param[in]  nvar      Number of samples
- ** \param[in]  nech      Number of variables
- ** \param[in]  data      Array of values
- ** \param[in]  clusterid Array of cluster number for each sample
- **
- ** \param[out] cdata     Array containing the centroids
- ** \param[out] cache     Array for storing data of a cluster
- **
- *****************************************************************************/
-static void st_getclustermedian(const VectorDouble& data,
-                                Id nvar,
-                                Id nech,
-                                Id nclusters,
-                                const VectorInt& clusterid,
-                                VectorDouble& cdata,
-                                VectorDouble& cache)
-{
-  Id i, j, k, count;
-
-  for (i = 0; i < nclusters; i++)
+  /*****************************************************************************/
+  /*!
+   **  Print the list of cluster per sample
+   **
+   ** \param[in]  nclusters Number if clusters
+   ** \param[in]  nech      Number of samples
+   ** \param[in]  clusterid Array of cluster number for each sample
+   **
+   *****************************************************************************/
+  static void
+    st_printclusterlist(Id nclusters, Id nech, const VectorInt& clusterid)
   {
-    for (j = 0; j < nvar; j++)
+    message("Population of %d clusters\n", nclusters);
+    for (Id i = 0; i < nech; i++)
+      message("Sample %3d: cluster %d\n", i + 1, clusterid[i]);
+  }
+
+  /*****************************************************************************/
+  /*!
+   **  Print the number of samples per cluster
+   **
+   ** \param[in]  nclusters Number if clusters
+   ** \param[in]  nech      Number of samples
+   ** \param[in]  clusterid Array of cluster number for each sample
+   **
+   *****************************************************************************/
+  static void
+    st_printclustercount(Id nclusters, Id nech, const VectorInt& clusterid)
+  {
+    Id j, count;
+
+    message("Population of %d clusters\n", nclusters);
+    for (Id i = 0; i < nclusters; i++)
     {
       count = 0;
-      for (k = 0; k < nech; k++)
+      for (Id k = 0; k < nech; k++)
       {
-        if (i == clusterid[k])
-        {
-          cache[count] = DATA(k, j);
-          count++;
-        }
+        j = clusterid[k];
+        if (i == j) count++;
       }
-      if (count > 0)
-        CDATA(i, j) = ut_median(cache, count);
-      else
-        CDATA(i, j) = 0.;
+      message("Cluster %2d : %d\n", i + 1, count);
     }
   }
-}
 
-/*****************************************************************************/
-/*!
- **  Evaluate the distance matrix
- **
- ** \param[in]  data      Array of values
- ** \param[in]  nvar      Number of samples
- ** \param[in]  nech      Number of variables
- **
- ** \param[out] distmatrix Matrix of distances
- **
- *****************************************************************************/
-static void st_get_distmatrix(const VectorDouble& data,
-                              Id nvar,
-                              Id nech,
-                              VectorDouble& distmatrix)
-{
-  /* Core allocation */
-
-  distmatrix.resize(nech * nech);
-
-  /* Calculate the distance matrix */
-
-  for (Id i = 0; i < nech; i++)
-    for (Id j = 0; j < i; j++)
-      DISTMATRIX(i, j) = st_distance(nvar, data, data, i, j);
-}
-
-/*****************************************************************************/
-/*!
- **  Find the center of a cluster
- **
- ** \param[in]  distmatrix Matrix of distances
- ** \param[in]  nech       Number of variables
- ** \param[in]  nclusters  Number if clusters
- ** \param[in]  clusterid  Array of cluster number for each sample
- **
- ** \param[out] centroids  Array of centroids
- ** \param[out] errors     Array containing within-cluster distances
- **
- *****************************************************************************/
-static void st_getclustermedoids(Id nech,
-                                 Id nclusters,
-                                 const VectorDouble& distmatrix,
-                                 const VectorInt& clusterid,
-                                 VectorInt& centroids,
-                                 VectorDouble& errors)
-{
-  double d;
-  Id j;
-
-  for (Id i = 0; i < nclusters; i++)
-    errors[i] = MAXIMUM_BIG;
-
-  for (Id i = 0; i < nech; i++)
+  /*****************************************************************************/
+  /*!
+   **  Find the center of a cluster
+   **
+   ** \param[in]  nclusters Number if clusters
+   ** \param[in]  nvar      Number of samples
+   ** \param[in]  nech      Number of variables
+   ** \param[in]  data      Array of values
+   ** \param[in]  clusterid Array of cluster number for each sample
+   **
+   ** \param[out] cdata     Array containing the centroids
+   ** \param[out] cmask     Array containing the number of sample per cluster
+   **
+   *****************************************************************************/
+  static void st_getclustermeans(
+    const VectorDouble& data,
+    Id nvar,
+    Id nech,
+    Id nclusters,
+    const VectorInt& clusterid,
+    VectorDouble& cdata,
+    VectorInt& cmask)
   {
-    d = 0.0;
-    j = clusterid[i];
-    for (Id k = 0; k < nech; k++)
-    {
-      if (i == k || clusterid[k] != j) continue;
-      d += (i < k ? DISTMATRIX(k, i) : DISTMATRIX(i, k));
-      if (d > errors[j]) break;
-    }
-    if (d < errors[j])
-    {
-      errors[j]    = d;
-      centroids[j] = i;
-    }
-  }
-}
-
-/*****************************************************************************/
-/*!
- **  Perform k-means clustering on a given set of variables.
- **  The number of clusters is given in input
- **
- ** \returns Array of cluster coordinates
- **
- ** \param[in]  data      Array of values
- ** \param[in]  nvar      Number of samples
- ** \param[in]  nech      Number of variables
- ** \param[in]  nclusters Number if clusters
- ** \param[in]  npass     Number of times clustering is performed
- ** \param[in]  mode      0 for k-means and 1 for k-medians
- ** \param[in]  verbose   Verbose option
- **
- ****************************************************************************/
-VectorDouble kclusters(const VectorDouble& data,
-                       Id nvar,
-                       Id nech,
-                       Id nclusters,
-                       Id npass,
-                       Id mode,
-                       Id verbose)
-{
-  Id i, j, k, niter, period, flag_same;
-  double total, previous, distance, tdistance, distot;
-  VectorInt clusterid;
-  VectorInt tclusterid;
-  VectorInt counts;
-  VectorInt saved;
-  VectorInt cmask;
-  VectorInt mapping;
-  VectorDouble cache;
-  VectorDouble cdata;
-
-  /* Initializations */
-
-  if (nclusters >= nech)
-  {
-    messerr(
-      "The number of clusters (%d) cannot be larger than the number of points (%d)",
-      nclusters, nech);
-    goto label_end;
-  }
-
-  /* Core allocation */
-
-  clusterid.resize(nech, 0);
-  tclusterid.resize(nech);
-  saved.resize(nech);
-  cache.resize(nech);
-  counts.resize(nclusters);
-  cmask.resize(nclusters);
-  mapping.resize(nclusters);
-  cdata.resize(nclusters * nvar);
-
-  distot = MAXIMUM_BIG;
-
-  for (Id ipass = 0; ipass < npass; ipass++)
-  {
-    if (verbose) message("Pass #%d\n", ipass + 1);
-    total  = MAXIMUM_BIG;
-    niter  = 0;
-    period = 10;
-
-    /* First, randomly assign elements to clusters. */
-    if (verbose) message("Assign the clusters randomly\n");
-    st_randomassign(nclusters, nech, tclusterid);
+    Id i, j, k;
 
     for (i = 0; i < nclusters; i++)
-      counts[i] = 0;
-    for (i = 0; i < nech; i++)
-      counts[tclusterid[i]]++;
-
-    /* Start the loop */
-    while (1)
     {
-      previous = total;
-      total    = 0.0;
-
-      /* Save the current cluster */
-      if (niter % period == 0)
-      {
-        for (i = 0; i < nech; i++)
-          saved[i] = tclusterid[i];
-        if (period < INT_MAX / 2) period *= 2;
-      }
-      niter++;
-
-      /* Find the center */
-      if (mode == 0)
-        st_getclustermeans(data, nvar, nech, nclusters, tclusterid, cdata,
-                           cmask);
-      else
-        st_getclustermedian(data, nvar, nech, nclusters, tclusterid, cdata,
-                            cache);
-
-      for (i = 0; i < nech; i++)
-      {
-        /* Calculate the distances */
-        k = tclusterid[i];
-        if (counts[k] == 1) continue;
-
-        distance = st_distance(nvar, data, cdata, i, k);
-        for (j = 0; j < nclusters; j++)
-        {
-          if (j == k) continue;
-          tdistance = st_distance(nvar, data, cdata, i, j);
-          if (tdistance < distance)
-          {
-            distance = tdistance;
-            counts[tclusterid[i]]--;
-            tclusterid[i] = j;
-            counts[j]++;
-          }
-        }
-        total += distance;
-      }
-      if (verbose)
-        message("Iteration #%d - Total Distance = %lf\n", niter, total);
-      if (total >= previous) break;
-
-      /* Check for identical clustering */
-      flag_same = 1;
-      for (i = 0; i < nech && flag_same; i++)
-        if (saved[i] != tclusterid[i]) flag_same = 0;
-      if (flag_same) break;
+      cmask[i] = 0;
+      for (j = 0; j < nvar; j++) CDATA(i, j) = 0.;
     }
 
-    if (npass <= 1)
+    for (k = 0; k < nech; k++)
     {
-      distot = total;
-      break;
+      i = clusterid[k];
+      cmask[i]++;
+      for (j = 0; j < nvar; j++) CDATA(i, j) += DATA(k, j);
     }
 
     for (i = 0; i < nclusters; i++)
-      mapping[i] = -1;
-    for (i = 0; i < nech; i++)
+      for (j = 0; j < nvar; j++)
+        if (cmask[i] > 0) CDATA(i, j) /= cmask[i];
+  }
+
+  /*****************************************************************************/
+  /*!
+   **  Find the median of a cluster
+   **
+   ** \param[in]  nclusters Number if clusters
+   ** \param[in]  nvar      Number of samples
+   ** \param[in]  nech      Number of variables
+   ** \param[in]  data      Array of values
+   ** \param[in]  clusterid Array of cluster number for each sample
+   **
+   ** \param[out] cdata     Array containing the centroids
+   ** \param[out] cache     Array for storing data of a cluster
+   **
+   *****************************************************************************/
+  static void st_getclustermedian(
+    const VectorDouble& data,
+    Id nvar,
+    Id nech,
+    Id nclusters,
+    const VectorInt& clusterid,
+    VectorDouble& cdata,
+    VectorDouble& cache)
+  {
+    Id i, j, k, count;
+
+    for (i = 0; i < nclusters; i++)
     {
-      j = tclusterid[i];
-      k = clusterid[i];
-      if (mapping[k] == -1)
-        mapping[k] = j;
-      else if (mapping[k] != j)
+      for (j = 0; j < nvar; j++)
       {
-        if (total < distot)
+        count = 0;
+        for (k = 0; k < nech; k++)
         {
-          distot = total;
-          for (j = 0; j < nech; j++)
-            clusterid[j] = tclusterid[j];
+          if (i == clusterid[k])
+          {
+            cache[count] = DATA(k, j);
+            count++;
+          }
         }
-        break;
+        if (count > 0)
+          CDATA(i, j) = ut_median(cache, count);
+        else
+          CDATA(i, j) = 0.;
       }
     }
   }
 
-  /* Final printout (optional) */
-
-  if (verbose)
+  /*****************************************************************************/
+  /*!
+   **  Evaluate the distance matrix
+   **
+   ** \param[in]  data      Array of values
+   ** \param[in]  nvar      Number of samples
+   ** \param[in]  nech      Number of variables
+   **
+   ** \param[out] distmatrix Matrix of distances
+   **
+   *****************************************************************************/
+  static void st_get_distmatrix(
+    const VectorDouble& data,
+    Id nvar,
+    Id nech,
+    VectorDouble& distmatrix)
   {
-    message("Minimum distance = %lf\n", distot);
-    st_printclusterlist(nclusters, nech, tclusterid);
-    st_printclustercount(nclusters, nech, tclusterid);
+    /* Core allocation */
+
+    distmatrix.resize(nech * nech);
+
+    /* Calculate the distance matrix */
+
+    for (Id i = 0; i < nech; i++)
+      for (Id j = 0; j < i; j++)
+        DISTMATRIX(i, j) = st_distance(nvar, data, data, i, j);
   }
 
-  /* Set the error return code */
-
-label_end:
-  return (cdata);
-}
-
-/*****************************************************************************/
-/*!
- **  Perform k-medoids clustering on a given set of variables.
- **  The number of clusters is given in input
- **
- ** \returns Array of cluster indices
- **
- ** \param[in]  data      Array of values
- ** \param[in]  nvar      Number of samples
- ** \param[in]  nech      Number of variables
- ** \param[in]  nclusters Number if clusters
- ** \param[in]  npass     Number of times clustering is performed
- ** \param[in]  verbose   Verbose option
- **
- *****************************************************************************/
-VectorInt kmedoids(const VectorDouble& data,
-                   Id nvar,
-                   Id nech,
-                   Id nclusters,
-                   Id npass,
-                   Id verbose)
-{
-  Id i, j, niter, period, flag_same;
-  double distot, total, previous, distance;
-  VectorDouble distmatrix;
-  VectorInt clusterid;
-  VectorInt centroids;
-  VectorInt saved;
-  VectorInt tclusterid;
-  VectorDouble errors;
-
-  /* Initializations */
-
-  if (nclusters >= nech)
+  /*****************************************************************************/
+  /*!
+   **  Find the center of a cluster
+   **
+   ** \param[in]  distmatrix Matrix of distances
+   ** \param[in]  nech       Number of variables
+   ** \param[in]  nclusters  Number if clusters
+   ** \param[in]  clusterid  Array of cluster number for each sample
+   **
+   ** \param[out] centroids  Array of centroids
+   ** \param[out] errors     Array containing within-cluster distances
+   **
+   *****************************************************************************/
+  static void st_getclustermedoids(
+    Id nech,
+    Id nclusters,
+    const VectorDouble& distmatrix,
+    const VectorInt& clusterid,
+    VectorInt& centroids,
+    VectorDouble& errors)
   {
-    messerr(
-      "The number of clusters (%d) cannot be larger than the number of points (%d)",
-      nclusters, nech);
-    goto label_end;
-  }
+    double d;
+    Id j;
 
-  /* Core allocation */
+    for (Id i = 0; i < nclusters; i++) errors[i] = MAXIMUM_BIG;
 
-  clusterid.resize(nech, 0);
-  tclusterid.resize(nech);
-  saved.resize(nech);
-  centroids.resize(nclusters);
-  errors.resize(nclusters);
-
-  /* Calculate the distance matrix */
-
-  st_get_distmatrix(data, nvar, nech, distmatrix);
-  distot = MAXIMUM_BIG;
-
-  for (Id ipass = 0; ipass < npass; ipass++)
-  {
-    if (verbose) message("Pass #%d\n", ipass + 1);
-    total  = MAXIMUM_BIG;
-    niter  = 0;
-    period = 10;
-
-    /* First, randomly assign elements to clusters. */
-    if (verbose) message("Assign the clusters randomly\n");
-    st_randomassign(nclusters, nech, tclusterid);
-
-    while (1)
+    for (Id i = 0; i < nech; i++)
     {
-      previous = total;
-      total    = 0.0;
-
-      /* Save the current cluster */
-      if (niter % period == 0)
+      d = 0.0;
+      j = clusterid[i];
+      for (Id k = 0; k < nech; k++)
       {
-        for (i = 0; i < nech; i++)
-          saved[i] = tclusterid[i];
-        if (period < INT_MAX / 2) period *= 2;
+        if (i == k || clusterid[k] != j) continue;
+        d += (i < k ? DISTMATRIX(k, i) : DISTMATRIX(i, k));
+        if (d > errors[j]) break;
       }
-      niter++;
+      if (d < errors[j])
+      {
+        errors[j] = d;
+        centroids[j] = i;
+      }
+    }
+  }
 
-      /* Find the center */
-      st_getclustermedoids(nech, nclusters, distmatrix, tclusterid, centroids,
-                           errors);
+  /*****************************************************************************/
+  /*!
+   **  Perform k-means clustering on a given set of variables.
+   **  The number of clusters is given in input
+   **
+   ** \returns Array of cluster coordinates
+   **
+   ** \param[in]  data      Array of values
+   ** \param[in]  nvar      Number of samples
+   ** \param[in]  nech      Number of variables
+   ** \param[in]  nclusters Number if clusters
+   ** \param[in]  npass     Number of times clustering is performed
+   ** \param[in]  mode      0 for k-means and 1 for k-medians
+   ** \param[in]  verbose   Verbose option
+   **
+   ****************************************************************************/
+  VectorDouble kclusters(
+    const VectorDouble& data,
+    Id nvar,
+    Id nech,
+    Id nclusters,
+    Id npass,
+    Id mode,
+    Id verbose)
+  {
+    Id i, j, k, niter, period, flag_same;
+    double total, previous, distance, tdistance, distot;
+    VectorInt clusterid;
+    VectorInt tclusterid;
+    VectorInt counts;
+    VectorInt saved;
+    VectorInt cmask;
+    VectorInt mapping;
+    VectorDouble cache;
+    VectorDouble cdata;
+
+    /* Initializations */
+
+    if (nclusters >= nech)
+    {
+      messerr(
+        "The number of clusters (%d) cannot be larger than the number of "
+        "points (%d)",
+        nclusters, nech);
+      goto label_end;
+    }
+
+    /* Core allocation */
+
+    clusterid.resize(nech, 0);
+    tclusterid.resize(nech);
+    saved.resize(nech);
+    cache.resize(nech);
+    counts.resize(nclusters);
+    cmask.resize(nclusters);
+    mapping.resize(nclusters);
+    cdata.resize(nclusters * nvar);
+
+    distot = MAXIMUM_BIG;
+
+    for (Id ipass = 0; ipass < npass; ipass++)
+    {
+      if (verbose) message("Pass #%d\n", ipass + 1);
+      total = MAXIMUM_BIG;
+      niter = 0;
+      period = 10;
+
+      /* First, randomly assign elements to clusters. */
+      if (verbose) message("Assign the clusters randomly\n");
+      st_randomassign(nclusters, nech, tclusterid);
+
+      for (i = 0; i < nclusters; i++) counts[i] = 0;
+      for (i = 0; i < nech; i++) counts[tclusterid[i]]++;
+
+      /* Start the loop */
+      while (1)
+      {
+        previous = total;
+        total = 0.0;
+
+        /* Save the current cluster */
+        if (niter % period == 0)
+        {
+          for (i = 0; i < nech; i++) saved[i] = tclusterid[i];
+          if (period < INT_MAX / 2) period *= 2;
+        }
+        niter++;
+
+        /* Find the center */
+        if (mode == 0)
+          st_getclustermeans(
+            data, nvar, nech, nclusters, tclusterid, cdata, cmask);
+        else
+          st_getclustermedian(
+            data, nvar, nech, nclusters, tclusterid, cdata, cache);
+
+        for (i = 0; i < nech; i++)
+        {
+          /* Calculate the distances */
+          k = tclusterid[i];
+          if (counts[k] == 1) continue;
+
+          distance = st_distance(nvar, data, cdata, i, k);
+          for (j = 0; j < nclusters; j++)
+          {
+            if (j == k) continue;
+            tdistance = st_distance(nvar, data, cdata, i, j);
+            if (tdistance < distance)
+            {
+              distance = tdistance;
+              counts[tclusterid[i]]--;
+              tclusterid[i] = j;
+              counts[j]++;
+            }
+          }
+          total += distance;
+        }
+        if (verbose)
+          message("Iteration #%d - Total Distance = %lf\n", niter, total);
+        if (total >= previous) break;
+
+        /* Check for identical clustering */
+        flag_same = 1;
+        for (i = 0; i < nech && flag_same; i++)
+          if (saved[i] != tclusterid[i]) flag_same = 0;
+        if (flag_same) break;
+      }
+
+      if (npass <= 1)
+      {
+        distot = total;
+        break;
+      }
+
+      for (i = 0; i < nclusters; i++) mapping[i] = -1;
+      for (i = 0; i < nech; i++)
+      {
+        j = tclusterid[i];
+        k = clusterid[i];
+        if (mapping[k] == -1)
+          mapping[k] = j;
+        else if (mapping[k] != j)
+        {
+          if (total < distot)
+          {
+            distot = total;
+            for (j = 0; j < nech; j++) clusterid[j] = tclusterid[j];
+          }
+          break;
+        }
+      }
+    }
+
+    /* Final printout (optional) */
+
+    if (verbose)
+    {
+      message("Minimum distance = %lf\n", distot);
+      st_printclusterlist(nclusters, nech, tclusterid);
+      st_printclustercount(nclusters, nech, tclusterid);
+    }
+
+    /* Set the error return code */
+
+  label_end:
+    return (cdata);
+  }
+
+  /*****************************************************************************/
+  /*!
+   **  Perform k-medoids clustering on a given set of variables.
+   **  The number of clusters is given in input
+   **
+   ** \returns Array of cluster indices
+   **
+   ** \param[in]  data      Array of values
+   ** \param[in]  nvar      Number of samples
+   ** \param[in]  nech      Number of variables
+   ** \param[in]  nclusters Number if clusters
+   ** \param[in]  npass     Number of times clustering is performed
+   ** \param[in]  verbose   Verbose option
+   **
+   *****************************************************************************/
+  VectorInt kmedoids(
+    const VectorDouble& data,
+    Id nvar,
+    Id nech,
+    Id nclusters,
+    Id npass,
+    Id verbose)
+  {
+    Id i, j, niter, period, flag_same;
+    double distot, total, previous, distance;
+    VectorDouble distmatrix;
+    VectorInt clusterid;
+    VectorInt centroids;
+    VectorInt saved;
+    VectorInt tclusterid;
+    VectorDouble errors;
+
+    /* Initializations */
+
+    if (nclusters >= nech)
+    {
+      messerr(
+        "The number of clusters (%d) cannot be larger than the number of "
+        "points (%d)",
+        nclusters, nech);
+      goto label_end;
+    }
+
+    /* Core allocation */
+
+    clusterid.resize(nech, 0);
+    tclusterid.resize(nech);
+    saved.resize(nech);
+    centroids.resize(nclusters);
+    errors.resize(nclusters);
+
+    /* Calculate the distance matrix */
+
+    st_get_distmatrix(data, nvar, nech, distmatrix);
+    distot = MAXIMUM_BIG;
+
+    for (Id ipass = 0; ipass < npass; ipass++)
+    {
+      if (verbose) message("Pass #%d\n", ipass + 1);
+      total = MAXIMUM_BIG;
+      niter = 0;
+      period = 10;
+
+      /* First, randomly assign elements to clusters. */
+      if (verbose) message("Assign the clusters randomly\n");
+      st_randomassign(nclusters, nech, tclusterid);
+
+      while (1)
+      {
+        previous = total;
+        total = 0.0;
+
+        /* Save the current cluster */
+        if (niter % period == 0)
+        {
+          for (i = 0; i < nech; i++) saved[i] = tclusterid[i];
+          if (period < INT_MAX / 2) period *= 2;
+        }
+        niter++;
+
+        /* Find the center */
+        st_getclustermedoids(
+          nech, nclusters, distmatrix, tclusterid, centroids, errors);
+
+        for (i = 0; i < nech; i++)
+        {
+          /* Calculate the distance */
+
+          distance = MAXIMUM_BIG;
+          for (Id icluster = 0; icluster < nclusters; icluster++)
+          {
+            double tdistance;
+            j = centroids[icluster];
+            if (i == j)
+            {
+              distance = 0.0;
+              tclusterid[i] = icluster;
+              break;
+            }
+            tdistance = (i > j) ? DISTMATRIX(i, j) : DISTMATRIX(j, i);
+            if (tdistance < distance)
+            {
+              distance = tdistance;
+              tclusterid[i] = icluster;
+            }
+          }
+          total += distance;
+        }
+        if (verbose)
+          message("Iteration #%d - Total Distance = %lf\n", niter, total);
+        if (total >= previous) break;
+
+        /* Check for identical clustering */
+        flag_same = 1;
+        for (i = 0; i < nech && flag_same; i++)
+          if (saved[i] != tclusterid[i]) flag_same = 0;
+        if (flag_same) break;
+      }
+
+      if (npass <= 1)
+      {
+        distot = total;
+        for (j = 0; j < nech; j++)
+        {
+          clusterid[j] = centroids[tclusterid[j]];
+        }
+        break;
+      }
 
       for (i = 0; i < nech; i++)
       {
-        /* Calculate the distance */
-
-        distance = MAXIMUM_BIG;
-        for (Id icluster = 0; icluster < nclusters; icluster++)
+        if (clusterid[i] != centroids[tclusterid[i]])
         {
-          double tdistance;
-          j = centroids[icluster];
-          if (i == j)
+          if (total < distot)
           {
-            distance      = 0.0;
-            tclusterid[i] = icluster;
-            break;
+            distot = total;
+            for (j = 0; j < nech; j++)
+            {
+              clusterid[j] = centroids[tclusterid[j]];
+            }
           }
-          tdistance = (i > j) ? DISTMATRIX(i, j) : DISTMATRIX(j, i);
-          if (tdistance < distance)
-          {
-            distance      = tdistance;
-            tclusterid[i] = icluster;
-          }
+          break;
         }
-        total += distance;
-      }
-      if (verbose)
-        message("Iteration #%d - Total Distance = %lf\n", niter, total);
-      if (total >= previous) break;
-
-      /* Check for identical clustering */
-      flag_same = 1;
-      for (i = 0; i < nech && flag_same; i++)
-        if (saved[i] != tclusterid[i]) flag_same = 0;
-      if (flag_same) break;
-    }
-
-    if (npass <= 1)
-    {
-      distot = total;
-      for (j = 0; j < nech; j++)
-      {
-        clusterid[j] = centroids[tclusterid[j]];
-      }
-      break;
-    }
-
-    for (i = 0; i < nech; i++)
-    {
-      if (clusterid[i] != centroids[tclusterid[i]])
-      {
-        if (total < distot)
-        {
-          distot = total;
-          for (j = 0; j < nech; j++)
-          {
-            clusterid[j] = centroids[tclusterid[j]];
-          }
-        }
-        break;
       }
     }
+
+    /* Set the error return code */
+
+  label_end:
+    return (clusterid);
   }
-
-  /* Set the error return code */
-
-label_end:
-  return (clusterid);
-}
-}
+} // namespace gstlrn

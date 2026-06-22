@@ -7,7 +7,7 @@ But if you still have errors in the Problems view:
 1- Close eclipse
 
 2- Remove markers from the .metadata directory :
-  
+
   .plugins/org.eclipse.core.resources/.projects/gstlearn/.markers
 
 3- Open eclipse
@@ -39,5 +39,4 @@ R:
 - rstudio : rsession
 
 5. Continue the debug session (F5), prompt should become available
-6. Execute the problematic command in the target language 
- 
+6. Execute the problematic command in the target language

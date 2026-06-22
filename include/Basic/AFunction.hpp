@@ -13,15 +13,14 @@
 #include "gstlearn_export.hpp"
 
 namespace gstlrn
-{ 
-class GSTLEARN_EXPORT AFunction
 {
-public:
-  AFunction();
-  virtual ~AFunction(){};
+  class GSTLEARN_EXPORT AFunction
+  {
+  public:
+    AFunction();
+    virtual ~AFunction() {};
 
-public :
-  virtual double eval(double x) const {return x;};
-
-};
-}
+  public:
+    virtual double eval(double x) const { return x; };
+  };
+} // namespace gstlrn

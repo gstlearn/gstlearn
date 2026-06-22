@@ -74,7 +74,7 @@ Data Base Statistics
  Mean value          =        0.11
  Standard Deviation  =        0.72
  Variance            =        0.52
-5 - Name NCS-spirale.1 - Locator NA
+5 - Name NCS-spirale.S1 - Locator NA
  Nb of data          =       10201
  Nb of active values =       10201
  Minimum value       =       -3.51
@@ -82,7 +82,7 @@ Data Base Statistics
  Mean value          =        0.14
  Standard Deviation  =        1.00
  Variance            =        0.99
-6 - Name NCS-spirale.2 - Locator NA
+6 - Name NCS-spirale.S2 - Locator NA
  Nb of data          =       10201
  Nb of active values =       10201
  Minimum value       =       -2.91
@@ -90,7 +90,7 @@ Data Base Statistics
  Mean value          =        0.19
  Standard Deviation  =        0.90
  Variance            =        0.81
-7 - Name NCS-spirale.3 - Locator NA
+7 - Name NCS-spirale.S3 - Locator NA
  Nb of data          =       10201
  Nb of active values =       10201
  Minimum value       =       -4.30
@@ -98,7 +98,7 @@ Data Base Statistics
  Mean value          =       -0.22
  Standard Deviation  =        1.07
  Variance            =        1.15
-8 - Name CDS-spirale.variable.1 - Locator z1
+8 - Name CDS-spirale.variable.S1 - Locator z1
  Nb of data          =       10201
  Nb of active values =       10201
  Minimum value       =       -3.34
@@ -106,7 +106,7 @@ Data Base Statistics
  Mean value          =        0.10
  Standard Deviation  =        1.01
  Variance            =        1.02
-9 - Name CDS-spirale.variable.2 - Locator z2
+9 - Name CDS-spirale.variable.S2 - Locator z2
  Nb of data          =       10201
  Nb of active values =       10201
  Minimum value       =       -2.72
@@ -114,7 +114,7 @@ Data Base Statistics
  Mean value          =        0.18
  Standard Deviation  =        0.95
  Variance            =        0.91
-10 - Name CDS-spirale.variable.3 - Locator z3
+10 - Name CDS-spirale.variable.S3 - Locator z3
  Nb of data          =       10201
  Nb of active values =       10201
  Minimum value       =       -3.05

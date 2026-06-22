@@ -44,14 +44,14 @@ err = mod$setMeans(c(100, 0))
 
 ```{r data_set, echo=TRUE, eval=TRUE}
 # Initial simulation
-err = simtub(dbin = NULL, dbout = grd, model = mod, nbsimu = 1, 
+err = simtub(dbin = NULL, dbout = grd, model = mod, nbsimu = 1,
              namconv = NamingConvention("Y"))
 
-err = grd$setName("Y.1", "Z1")
-err = grd$setName("Y.2", "Z2")
+err = grd$setName("Y.V1", "Z1")
+err = grd$setName("Y.V2", "Z2")
 
 knitr::kable(dbStatisticsMono(grd, names = "Z*", opers = opers, flagIso = FALSE)$toTL(),
-             digits = 3, 
+             digits = 3,
              caption = "Statistics on the initial simulations")
 print(paste0("Correlation = ", round(cor(grd["Z1"], grd["Z2"]), 3)))
 ```
@@ -61,7 +61,7 @@ Deriving a heterotopic data base
 ```{r data_heterotopic, echo=TRUE, eval=TRUE}
 np = 200
 
-dat = Db_createSamplingDb(db = grd, number = np, names = c("x1", "x2", "Z1", "Z2"), 
+dat = Db_createSamplingDb(db = grd, number = np, names = c("x1", "x2", "Z1", "Z2"),
                           seed = 123)
 
 # discarding 1/4 of the initial data on Z1
@@ -76,12 +76,12 @@ Z2 <- dat["Z2"]
 Z2[sel] <- NaN
 dat["Z2.heterotopic"] <- Z2
 
-knitr::kable(dbStatisticsMono(dat, names = "Z*.heterotopic", opers = opers, 
-                              flagIso = FALSE)$toTL(), digits = 3, 
+knitr::kable(dbStatisticsMono(dat, names = "Z*.heterotopic", opers = opers,
+                              flagIso = FALSE)$toTL(), digits = 3,
              caption = "Statistics on the heterotopic data set")
 
-knitr::kable(dbStatisticsMono(dat, names = "Z*.heterotopic", opers = opers, 
-                              flagIso = TRUE)$toTL(), digits = 3, 
+knitr::kable(dbStatisticsMono(dat, names = "Z*.heterotopic", opers = opers,
+                              flagIso = TRUE)$toTL(), digits = 3,
              caption = "Statistics on the homotopic sub set")
 ```
 
@@ -90,16 +90,16 @@ knitr::kable(dbStatisticsMono(dat, names = "Z*.heterotopic", opers = opers,
 ## - with homotopic data set
 
 ```{r simu_homotopic, echo=TRUE, eval=TRUE}
-err = dat$setLocators(names = paste(c("Z1", "Z2"), sep = "."), 
+err = dat$setLocators(names = paste(c("Z1", "Z2"), sep = "."),
                       locatorType = ELoc_Z(), cleanSameLocator = TRUE)
-err = simtub(dbin = dat, dbout = grd, model = mod, neigh = neigh, nbsimu = 1, 
+err = simtub(dbin = dat, dbout = grd, model = mod, neigh = neigh, nbsimu = 1,
              seed = 2597,
              namconv = NamingConvention("homotopic"))
 
 # statistics
 knitr::kable(
   rbind(
-    dbStatisticsMono(grd, names = paste0("homotopic*"), opers = opers, 
+    dbStatisticsMono(grd, names = paste0("homotopic*"), opers = opers,
                      flagIso = FALSE)$toTL()
   ), digits = 4, caption = "Statistics on simulated data"
 )
@@ -107,9 +107,9 @@ knitr::kable(
 # histogram and base map
 p1 = plot.init() + plot.hist(grd, name = "homotopic.Z1")
 p2 = plot.init() + plot.hist(grd, name = "homotopic.Z2")
-p3 = plot.init(asp=1) + plot.raster(grd, name = "homotopic.Z1", palette = "Spectral", 
+p3 = plot.init(asp=1) + plot.raster(grd, name = "homotopic.Z1", palette = "Spectral",
                              flagLegend = TRUE, legendName = "Z1")
-p4 = plot.init(asp=1) + plot.raster(grd, name = "homotopic.Z2", palette = "Spectral", 
+p4 = plot.init(asp=1) + plot.raster(grd, name = "homotopic.Z2", palette = "Spectral",
                              flagLegend = TRUE, legendName = "Z2")
 ggarrange(p1, p2, p3, p4, nrow = 2, ncol = 2)
 ```
@@ -117,16 +117,16 @@ ggarrange(p1, p2, p3, p4, nrow = 2, ncol = 2)
 ## - with heterotopic data set
 
 ```{r simu_heterotopic, echo=TRUE, eval=TRUE}
-err = dat$setLocators(names = paste(c("Z1", "Z2"), "heterotopic", sep = "."), 
+err = dat$setLocators(names = paste(c("Z1", "Z2"), "heterotopic", sep = "."),
                       locatorType = ELoc_Z(), cleanSameLocator = TRUE)
-err = simtub(dbin = dat, dbout = grd, model = mod, neigh = neigh, nbsimu = 1, 
+err = simtub(dbin = dat, dbout = grd, model = mod, neigh = neigh, nbsimu = 1,
              seed = 2597,
              namconv = NamingConvention("heterotopic"))
 
 # statistics
 knitr::kable(
   rbind(
-    dbStatisticsMono(grd, names = paste0("heterotopic*"), opers = opers, 
+    dbStatisticsMono(grd, names = paste0("heterotopic*"), opers = opers,
                      flagIso = FALSE)$toTL()
   ), digits = 4, caption = "Statistics on simulated data"
 )
@@ -134,12 +134,11 @@ knitr::kable(
 # histogram and base map
 p1 = plot.init() + plot.hist(grd, name = "heterotopic.Z1.heterotopic")
 p2 = plot.init() + plot.hist(grd, name = "heterotopic.Z2.heterotopic")
-p3 = plot.init(asp=1) + plot.raster(grd, name = "heterotopic.Z1.heterotopic", 
-                             palette = "Spectral", 
+p3 = plot.init(asp=1) + plot.raster(grd, name = "heterotopic.Z1.heterotopic",
+                             palette = "Spectral",
                              flagLegend = TRUE, legendName = "Z1")
-p4 = plot.init(asp=1) + plot.raster(grd, name = "heterotopic.Z2.heterotopic", 
-                             palette = "Spectral", 
+p4 = plot.init(asp=1) + plot.raster(grd, name = "heterotopic.Z2.heterotopic",
+                             palette = "Spectral",
                              flagLegend = TRUE, legendName = "Z2")
 ggarrange(p1, p2, p3, p4, nrow = 2, ncol = 2)
 ```
-

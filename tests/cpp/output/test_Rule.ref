@@ -1,0 +1,31 @@
+
+Lithotype Rule
+==============
+- Number of nodes               = 5
+- Number of facies              = 3
+- Number of thresholds along G1 = 1
+- Number of thresholds along G2 = 1
+- Description: S T F1 F2 F3 
+
+
+Facies Characteristics
+----------------------
+Facies 1 - Name = F1 - Color = Blue - Assigned Value = 1
+Facies 2 - Name = MyFacies - Color = Orange - Assigned Value = 2
+Facies 3 - Name = F3 - Color = Green - Assigned Value = 6
+Display Rule after Serialize/Deserialize
+
+Lithotype Rule
+==============
+- Number of nodes               = 5
+- Number of facies              = 3
+- Number of thresholds along G1 = 1
+- Number of thresholds along G2 = 1
+- Description: S T F1 F2 F3 
+
+
+Facies Characteristics
+----------------------
+Facies 1 - Name = F1 - Color = Blue - Assigned Value = 1
+Facies 2 - Name = MyFacies - Color = Orange - Assigned Value = 2
+Facies 3 - Name = F3 - Color = Green - Assigned Value = 6

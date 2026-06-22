@@ -1,17 +1,19 @@
 ---
-  title: "Spectral simulation on S2"
-  author: "Ch. Lantuejoul, X. Freulon, and the gstlearn Core Team"
-  date: "2024-04-04"
-  output: html_document
+title: "Spectral simulation on S2"
+author: "Ch. Lantuejoul, X. Freulon, and the gstlearn Core Team"
+date: "2024-04-04"
+output: html_document
+editor_options:
+  chunk_output_type: console
 ---
-  
+
 # Introduction
 
 The objective of this notebook is the simulation of second order isotropic random fields defined on the three dimensional sphere using the spectral algorithm proposed in Ch. Lantuéjoul et al. (2019).
 
 Any point on the sphere $\mathbb{S}_2$ can be defined by two spherical coordinates, its colatitude $\theta \in [0, \pi]$ and its longitude $\varphi \in [0, 2\pi]$. If we consider the points of the sphere as points of $\mathbb{R}^3$ the relationship between its Cartesian coordinates and its spherical coordinates is:
 $$
-\left\{ 
+\left\{
 \begin{array}{ccl}
 x & = & \sin (\theta) \, \cos (\varphi) \\
 y & = & \sin (\theta) \, \sin (\varphi) \\
@@ -30,11 +32,11 @@ $$
 
 * The spectral component $Z(s) = 2\sqrt{2\pi} \, \Re(Y_{N, K}(s)\, e^{i\Phi})$  is a standardized random field with covariance function $C$ with,
 
-  i) $N \sim \nu_C = \sum_{n = 0}^{+\infty} a_n \delta_n$, 
-  ii) $K|N \sim \mathcal{U}(\{-N, \dots, +N\})$, and 
+  i) $N \sim \nu_C = \sum_{n = 0}^{+\infty} a_n \delta_n$,
+  ii) $K|N \sim \mathcal{U}(\{-N, \dots, +N\})$, and
   iii) $\Phi \sim \mathcal{U}([0, 2\pi[)$.
 
-In the previous equations, 
+In the previous equations,
 
 * $P_n(t)$, $-1 \leq t \leq 1$ are the Legendre polynomials,
 
@@ -54,14 +56,14 @@ $$
 $$
 with the initial values $P_0(x) = 1$ and $P_1(x) = x$.
 
-The Legendre polynomials are orthogonal but not normalized: 
+The Legendre polynomials are orthogonal but not normalized:
 
 $$
 \int_{-1}^{+1} P_m(u)P_n(u)du = \frac{2}{2n+1}\delta_{m,n}.
 $$
 
-For numerical stability, we use normalized polynomials 
-$\tilde{P}_l(x) = P_l(x)\times \sqrt{2n+1}$. 
+For numerical stability, we use normalized polynomials
+$\tilde{P}_l(x) = P_l(x)\times \sqrt{2n+1}$.
 In this case, the recursion formula is:
 $$
 \tilde{P}_{n+1}(x) = \frac{\sqrt{(2n+3)(2n+1)}}{n+1}\,x\, \tilde{P}_{n}(x) - \frac{n}{n+1}\sqrt{\frac{2n+3}{2n-1}} \tilde{P}_{n-1}(x),
@@ -137,7 +139,7 @@ err = grd$setName("x1", "phi")
 err = grd$setName("x2", "theta")
 ```
 
-## Display 
+## Display
 
 Initialization of S2 for 3d viewer
 
@@ -158,12 +160,12 @@ rho = 0.9    # for the geometric model
 lambda = 10  # for the Poisson model
 nu = 5.0     # for the exponential model
 mu = 1.0; kappa = 2.0 # for the SPDE model
-ns = 100
+ns = 100     # number of spectral components
 ```
 
 
 ```{r model_definition, echo=TRUE, eval = TRUE}
-err = defineDefaultSpace(ESpaceType_SN())
+err = defineDefaultSpace(ESpaceType_SN(), param=6371)
 # modelSph = Model_createFromParam(ECov_LINEARSPH())
 # modelSph = Model_createFromParam(ECov_GEOMETRIC(), rho)
 modelSph = Model_createFromParam(ECov_POISSON(), 1., 1., lambda)
@@ -182,34 +184,33 @@ alpha   = seq(from = 0, to = pi, length.out = 100)
 mode = CovCalcMode()
 mode$setAsVario(TRUE)
 covvec = cova$evalCovOnSphereVec(alpha,50, FALSE, mode=mode)
-plot.init() + 
+plot.init() +
   plot.XY(alpha, covvec) +
   plot.decoration(title=paste0(covname, " model on S2"),
-                  xlab = "Geodetic distance (rad)", ylab = "Variogram") 
+                  xlab = "Geodetic distance (rad)", ylab = "Variogram")
 ```
 
 ## Spectrum of the model
 
 ```{r spectrum, echo=TRUE, eval = TRUE}
 nd = 100
-spevec = cova$evalSpectrumOnSphere(nd, flagCumul=TRUE)
-plot.init() + 
+spevec = cumsum(cova$evalSpectrumOnSphere(nd))
+plot.init() +
   plot.XY(seq(nd+1), spevec) +
   plot.decoration(title=paste0(covname, " spectrum on S2"),
-                  xlab = "Degrees", ylab = "Cumulated spectrum") + 
+                  xlab = "Degrees", ylab = "Cumulated spectrum") +
   plot.geometry(ylim=c(0,NA))
 ```
-
-
 
 ## Simulation
 
 ```{r one_simulation, echo=TRUE, eval = TRUE}
 seed = 54251
 err  = grd$deleteColumns(names = paste0(covname, "*"))
-simu = SimuSpectralS2(cova = cova)
-err  = simu$simulate(ns = ns, seed = seed, verbose = TRUE, nd = 100)
-err  = simu$compute(dbout = grd, verbose = TRUE, namconv = NamingConvention(covname))
+modelSph2 = ModelGeneric()
+modelSph2$setCov(cova)
+err = simuSpectral(dbin=NULL, dbout=grd, model=modelSph2, ns=ns, nd=nd, seed=seed, verbose=TRUE,
+                   namconv = NamingConvention(covname))
 ```
 
 ## QC
@@ -220,20 +221,21 @@ Statistics
 
 opers = EStatOption_fromKeys(c("NUM", "MINI", "MAXI", "MEAN", "STDV"))
 tab = dbStatisticsMono(grd, names = paste0(covname, "*"), opers = opers)$toTL()
-knitr::kable(tab, digits = 6, caption = paste0("Statistics for simulation of ", 
+knitr::kable(tab, digits = 6, caption = paste0("Statistics for simulation of ",
                                                covname, " model on S2"))
 ```
 
 Visualization 2D
 
 ```{r Visu2D}
-simu_name = paste0(covname, ".V1.simu")
+# simu_name = paste0(covname, ".V1.S1")
+simu_name = NC_getNameEncoded(covname, NULL)
 p = plot.init(asp=1) +
-  plot.raster(grd, name = simu_name, flagLegend = TRUE, legendName = "Y", 
+  plot.raster(grd, name = simu_name, flagLegend = TRUE, legendName = "Y",
             palette = "Spectral") +
-  plot.decoration(xlab = "Longitude", ylab = "Colatitutde", 
+  plot.decoration(xlab = "Longitude", ylab = "Colatitutde",
                   title = paste0(covname, " model on S2"))
-plot.end(p) 
+plot.end(p)
 ```
 
 Visualization 3D
@@ -261,15 +263,15 @@ alpha   = seq(from = 0, to = pi, length.out = 100)
 # computing the variograms
 var_list = list()
 for (idir in 1:length(dir_list)) {
-  var_list[[1+length(var_list)]] = vario_on_S2(grd = grd, nm_var = simu_name, 
+  var_list[[1+length(var_list)]] = vario_on_S2(grd = grd, nm_var = simu_name,
          lag = dir_list[[idir]]$lag, nlag = 90, ndisc = ndisc, dmax = pi)
 }
 
 # covariance model
 mode = CovCalcMode()
 mode$setAsVario(TRUE)
-mod_vario = cova$evalCovOnSphereVec(alpha, mode = mode)
-plot(NULL, NULL, xlim = range(alpha), ylim = 1.1 * range(c(0, max(mod_vario))), 
+mod_vario = cova$evalCovOnSphereVec(alpha, 50, FALSE, mode = mode)
+plot(NULL, NULL, xlim = range(alpha), ylim = 1.1 * range(c(0, max(mod_vario))),
      xlab = "Geodetic distance (rad)", ylab = "Variogram",
      main = paste0(covname, " model on S2"))
 abline(h = c(0, 1), col = "gray", lty = 2)
@@ -282,11 +284,11 @@ for (ivar in 1:length(var_list)) {
   points(var_list[[ivar]]$hh, var_list[[ivar]]$gg, col = dir_col[ivar], pch = 1)
   leg = c(leg, paste0("[", dir_list[[ivar]]$lag[1], ",", dir_list[[ivar]]$lag[2],"]"))
 }
-  
-legend("bottomright", 
-       legend = leg, 
-       col = c("black", dir_col), 
-       pch = c(NA_integer_, rep(1, length(dir_col))), 
+
+legend("bottomright",
+       legend = leg,
+       col = c("black", dir_col),
+       pch = c(NA_integer_, rep(1, length(dir_col))),
        lty = c(1, rep(3, length(dir_col))),
        lw  = c(2, rep(1, length(dir_col)))
 )
@@ -297,12 +299,14 @@ legend("bottomright",
 ```{r multi_simulations, echo = TRUE, eval = TRUE}
 err = grd$deleteColumns(names = paste0(covname, "*"))
 nsim = 20 # number of simulation
-err = simuSpectral(dbin = NULL, dbout = grd, cova = cova, seed = 2584, ns=ns, nbsimu=nsim, namconv = NamingConvention(covname))
+err = simuSpectral(dbin = NULL, dbout = grd, model = modelSph2, seed = 2584, ns=ns, nbsimu=nsim,
+                   namconv = NamingConvention(covname))
 
 # simulation and experimental variograms
 varios <- matrix(NaN, nrow = nsim, ncol = ndisc)
 for (s in 1:nsim) {
-  nm  = paste0(covname, ".V1.S", s)
+#  nm  = paste0(covname, ".V1.S", s)
+  nm = NC_getNameEncoded(covname, NULL, 1, 1, s, nsim)
   vs = vario_on_S2(grd = grd, nm_var = nm, lag = c(1,0), nlag = 90, ndisc = ndisc, dmax = pi)
   varios[s, 1:length(vs$hh)] <- vs$gg
 }
@@ -310,7 +314,7 @@ dist = vs$hh
 
 # plot
 plot(NULL, NULL, xlim = range(dist, na.rm = TRUE), ylim = range(varios, na.rm = TRUE),
-     xlab = "Geodetic distance (rad)", ylab = "Variogram", 
+     xlab = "Geodetic distance (rad)", ylab = "Variogram",
      main = paste0(covname, " model on S2"))
 abline(h = c(0), lty = 3, col = "gray")
 abline(v = c(0, pi/2, pi), lty = 3, col = "gray")
@@ -334,7 +338,7 @@ lines(dist, v_Q10[1:length(dist)], col = "green", lw = 1, lty = 1)
 lines(dist, v_Q90[1:length(dist)], col = "blue", lw = 1, lty = 1)
 
 # position of the legend to be adapted?
-legend("topright", 
+legend("topright",
        legend = c("model", "experiment", "mean", "Q10", "Q90"),
        col = c("black", "gray", "orange", "green", "blue"),
        lw = c(2, 1, 2, 1, 1),

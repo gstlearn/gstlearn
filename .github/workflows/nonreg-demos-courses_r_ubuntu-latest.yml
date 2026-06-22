@@ -20,7 +20,7 @@ on:
 env:
   CMAKE_BUILD_TYPE : Release
   BUILD_DIR : build
-  R_VERSION : "4.5.2"
+  R_VERSION : "4.6.0"
   SWIG_ROOT : ${{github.workspace}}/swig
   SCCACHE_IDLE_TIMEOUT: 0
 
@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Install dependencies
       run: |
@@ -43,6 +43,7 @@ jobs:
           libeigen3-dev \
           libnlopt-dev \
           libpng-dev \
+          libglu1-mesa-dev \
           pandoc
 
     - name: Setup R Version
@@ -52,6 +53,7 @@ jobs:
 
     - name: Install R dependencies
       run: |
+        Rscript -e "install.packages ('https://cran.r-project.org/src/contrib/Archive/fs/fs_2.0.1.tar.gz')"
         Rscript -e "install.packages (c('ggpubr', 'ggplot2', 'ggnewscale', 'vctrs', 'lares', 'rgl', 'Matrix', 'FNN', 'tidyr', 'geigen', 'callr', 'knitr', 'readxl', 'tictoc'))"
 
     - name: Install the customized SWIG from source
@@ -61,7 +63,7 @@ jobs:
         generator: "Unix Makefiles"
 
     - name: Run sccache-cache
-      uses: mozilla-actions/sccache-action@v0.0.9
+      uses: mozilla-actions/sccache-action@v0.0.10
 
     - name: Configure build directory for R package
       run: |
@@ -91,7 +93,7 @@ jobs:
 
     - name: Publish output logs as artefact
       if: always()
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: demos-courses-r-logs
         path: ${{env.BUILD_DIR}}/tests/demos-courses-r-logs.tar.gz

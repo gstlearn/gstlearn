@@ -15,46 +15,44 @@
 
 namespace gstlrn
 {
-SimuRefineParam::SimuRefineParam(Id nmult, bool flag_SK)
-  : AStringable()
-  , _nmult(nmult)
-  , _flagSK(flag_SK)
-{
-}
-
-SimuRefineParam::SimuRefineParam(const SimuRefineParam& r)
-  : AStringable(r)
-  , _nmult(r._nmult)
-  , _flagSK(r._flagSK)
-{
-}
-
-SimuRefineParam& SimuRefineParam::operator=(const SimuRefineParam& r)
-{
-  if (this != &r)
+  SimuRefineParam::SimuRefineParam(Id nmult, bool flag_SK)
+    : AStringable()
+    , _nmult(nmult)
+    , _flagSK(flag_SK)
   {
-    AStringable::operator=(r);
-    _nmult  = r._nmult;
-    _flagSK = r._flagSK;
   }
-  return *this;
-}
 
-SimuRefineParam::~SimuRefineParam()
-{
-}
+  SimuRefineParam::SimuRefineParam(const SimuRefineParam& r)
+    : AStringable(r)
+    , _nmult(r._nmult)
+    , _flagSK(r._flagSK)
+  {
+  }
 
-String SimuRefineParam::toString(const AStringFormat* /*strfmt*/) const
-{
-  std::stringstream sstr;
+  SimuRefineParam& SimuRefineParam::operator=(const SimuRefineParam& r)
+  {
+    if (this != &r)
+    {
+      AStringable::operator=(r);
+      _nmult = r._nmult;
+      _flagSK = r._flagSK;
+    }
+    return *this;
+  }
 
-  sstr << "Refinement Factor = " << _nmult << std::endl;
-  if (_flagSK)
-    sstr << "Refinement using Simple Kriging" << std::endl;
-  else
-    sstr << "Refinement using Ordinary Kriging" << std::endl;
+  SimuRefineParam::~SimuRefineParam() {}
 
-  return sstr.str();
-}
+  String SimuRefineParam::toString(const AStringFormat* /*strfmt*/) const
+  {
+    std::stringstream sstr;
+
+    sstr << "Refinement Factor = " << _nmult << std::endl;
+    if (_flagSK)
+      sstr << "Refinement using Simple Kriging" << std::endl;
+    else
+      sstr << "Refinement using Ordinary Kriging" << std::endl;
+
+    return sstr.str();
+  }
 
 } // namespace gstlrn

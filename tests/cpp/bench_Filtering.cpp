@@ -16,16 +16,16 @@
 #include "Covariances/CovContext.hpp"
 #include "Enum/ESpaceType.hpp"
 
-#include "Space/ASpaceObject.hpp"
+#include "Basic/File.hpp"
+#include "Basic/Law.hpp"
+#include "Basic/OptDbg.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
-#include "Basic/Law.hpp"
+#include "Estimation/Estimations.hpp"
 #include "Model/Model.hpp"
-#include "Basic/File.hpp"
-#include "Basic/OptDbg.hpp"
-#include "Neigh/NeighUnique.hpp"
 #include "Neigh/NeighMoving.hpp"
-#include "Estimation/CalcKriging.hpp"
+#include "Neigh/NeighUnique.hpp"
+#include "Space/ASpaceObject.hpp"
 
 using namespace gstlrn;
 
@@ -42,10 +42,10 @@ int main(int argc, char* argv[])
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Parameters
-  bool verbose    = true;
-  Id nech         = 3;
-  Id nvar         = 2;
-  bool flagSK     = true;
+  bool verbose = true;
+  Id nech = 3;
+  Id nvar = 2;
+  bool flagSK = true;
 
   // Generate the data base
   Db* data = Db::createFillRandom(nech, ndim, nvar, 0);
@@ -59,9 +59,9 @@ int main(int argc, char* argv[])
   target->setCoordinate(0, 1, data->getCoordinate(0, 1));
 
   // Create the Model
-  Id order     = (flagSK) ? -1 : 0;
-  Model* model = Model::createFillRandom(ndim, nvar, {ECov::NUGGET, ECov::SPHERICAL},
-                                         1., order);
+  Id order = (flagSK) ? -1 : 0;
+  Model* model = Model::createFillRandom(
+    ndim, nvar, {ECov::NUGGET, ECov::SPHERICAL}, 1., order);
   model->setCovFiltered(0, true);
   model->display();
 

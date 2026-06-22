@@ -15,34 +15,30 @@
 
 namespace gstlrn
 {
-AException::AException(const std::string& msg)
-: std::exception()
-, _msg(msg)
-{
-}
-
-AException::~AException()
-{
-}
-
-const char* AException::what() const noexcept
-{
-  return _msg.c_str();
-}
-
-void throw_exp(const std::string& msg,
-               const std::string& file,
-               Id line)
-{
-  std::stringstream sstr;
-  if (!file.empty())
+  AException::AException(const std::string& msg)
+    : std::exception()
+    , _msg(msg)
   {
-    sstr << file;
-    if (line > 0) sstr << "@" << line;
-    sstr << ": ";
   }
-  sstr << msg;
-  std::cout << "Error: " << sstr.str() << std::endl;
-  throw(AException(sstr.str()));
-}
-}
+
+  AException::~AException() {}
+
+  const char* AException::what() const noexcept
+  {
+    return _msg.c_str();
+  }
+
+  void throw_exp(const std::string& msg, const std::string& file, Id line)
+  {
+    std::stringstream sstr;
+    if (!file.empty())
+    {
+      sstr << file;
+      if (line > 0) sstr << "@" << line;
+      sstr << ": ";
+    }
+    sstr << msg;
+    std::cout << "Error: " << sstr.str() << std::endl;
+    throw(AException(sstr.str()));
+  }
+} // namespace gstlrn

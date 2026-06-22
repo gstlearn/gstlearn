@@ -35,21 +35,10 @@ ivar  3  jvar  3  pt:  3  res  0.7122
 ivar  3  jvar  3  pt:  4  res  0.4556 
 >>> computing simulation 1
 Simulation of the spectrum
-- Space dimension   = 2
-- Number of variables  = 3
-- Number of spectral components = 100
-Simulation of the spectrum
-- Space dimension   = 2
+- Space dimension   = R2
 - Number of variables  = 3
 - Number of spectral components = 100
 Spectral Simulation on a set of Isolated Points
 - Number of samples = 10000
-- Space dimension   = 2
-- Number of variables = 3
-Spectral Simulation on a set of Isolated Points
-- Number of samples = 10000
-- Space dimension   = 2
-- Number of spectral components = 100
-- Number of variables = 3
 [1] 0
 [1] "All tests are ok."

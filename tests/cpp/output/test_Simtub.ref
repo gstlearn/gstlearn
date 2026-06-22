@@ -141,31 +141,31 @@ Mean for Variable Z2 = 0.000000
 
 Simulation results
 ==================
-Simulation #1 of Z1  :  =      96.725
-Simulation #1 of Z2  :  =      99.280
-Simulation #2 of Z1  :  =      -0.447
-Simulation #2 of Z2  :  =      -2.029
+Simulation #1 of Z1  :  =     101.102
+Simulation #2 of Z1  :  =     101.575
+Simulation #1 of Z2  :  =      -0.568
+Simulation #2 of Z2  :  =       1.287
 
 Data Base Grid Characteristics
 ==============================
 
 Data Base Contents
 ------------------
-                    rank          x1          x2    Simu.1.1    Simu.1.2    Simu.2.1    Simu.2.2
-      [  0,]       1.000       0.000       0.000      96.880      99.244      -0.630      -2.179
-      [  1,]       2.000       1.000       0.000      98.771     103.643       1.013       1.800
-      [  2,]       3.000       0.000       1.000     101.805      99.874      -0.123       0.567
-      [  3,]       4.000       1.000       1.000     101.490      99.498      -0.409       0.254
-             *.z-1.estim *.z-2.estim *.z-1.stdev *.z-2.stdev  Simu.z-1.1  Simu.z-1.2  Simu.z-2.1
-      [  0,]     100.009       0.090       1.714       1.404      96.725      99.280      -0.447
-      [  1,]      99.961       0.046       1.712       1.357      98.766     103.757       1.182
-      [  2,]     100.480       0.672       1.379       1.126     101.200     100.516       0.580
-      [  3,]      99.920      -0.041       1.720       1.392     101.551      99.427      -0.114
-              Simu.z-2.2
-      [  0,]      -2.029
-      [  1,]       2.192
-      [  2,]       1.345
-      [  3,]       0.271
+                    rank          x1          x2  Simu.V1.S1  Simu.V1.S2  Simu.V2.S1  Simu.V2.S2
+      [  0,]       1.000       0.000       0.000     101.367     101.858      -0.414       1.205
+      [  1,]       2.000       1.000       0.000     100.608      95.529      -0.781      -1.622
+      [  2,]       3.000       0.000       1.000      97.985     101.931       0.103       1.897
+      [  3,]       4.000       1.000       1.000     100.250      97.777       1.715      -1.155
+             *.z-1.estim *.z-2.estim *.z-1.stdev *.z-2.stdev Simu.z-1.S1 Simu.z-1.S2 Simu.z-2.S1
+      [  0,]     100.009       0.090       1.714       1.404     101.102     101.575      -0.568
+      [  1,]      99.961       0.046       1.712       1.357     100.192      95.393      -1.211
+      [  2,]     100.480       0.672       1.379       1.126      97.781     101.178      -0.406
+      [  3,]      99.920      -0.041       1.720       1.392     100.101      97.665       1.807
+             Simu.z-2.S2
+      [  0,]       1.287
+      [  1,]      -1.591
+      [  2,]       2.504
+      [  3,]      -1.086
 
 Data Base Grid Characteristics
 ==============================
@@ -205,27 +205,27 @@ Data Base Statistics
 2 - Name x1 - Locator x1
  Nb of data          =         100
  Nb of active values =         100
- Minimum value       =       0.270
- Maximum value       =      49.893
- Mean value          =      26.791
- Standard Deviation  =      14.936
- Variance            =     223.085
+ Minimum value       =       0.132
+ Maximum value       =      48.934
+ Mean value          =      24.459
+ Standard Deviation  =      14.653
+ Variance            =     214.725
 3 - Name x2 - Locator x2
  Nb of data          =         100
  Nb of active values =         100
- Minimum value       =       0.086
- Maximum value       =      49.895
- Mean value          =      27.026
- Standard Deviation  =      14.453
- Variance            =     208.877
+ Minimum value       =       0.711
+ Maximum value       =      49.414
+ Mean value          =      26.034
+ Standard Deviation  =      14.238
+ Variance            =     202.713
 4 - Name Var - Locator z1
  Nb of data          =         100
  Nb of active values =         100
- Minimum value       =      -2.803
- Maximum value       =       2.138
- Mean value          =       0.015
- Standard Deviation  =       0.962
- Variance            =       0.925
+ Minimum value       =      -1.945
+ Maximum value       =       2.786
+ Mean value          =       0.122
+ Standard Deviation  =       0.956
+ Variance            =       0.914
 
 Model characteristics
 =====================
@@ -258,30 +258,30 @@ Data Base Grid Characteristics
 
 Data Base Statistics
 --------------------
-4 - Name Simu.Var.1 - Locator z1
+4 - Name Simu.Var.S1 - Locator z1
  Nb of data          =        2500
  Nb of active values =        2500
- Minimum value       =      -4.008
- Maximum value       =       2.591
- Mean value          =       0.018
- Standard Deviation  =       0.918
- Variance            =       0.844
-5 - Name Simu.Var.2 - Locator z2
+ Minimum value       =      -2.677
+ Maximum value       =       3.207
+ Mean value          =       0.184
+ Standard Deviation  =       0.949
+ Variance            =       0.901
+5 - Name Simu.Var.S2 - Locator z2
  Nb of data          =        2500
  Nb of active values =        2500
- Minimum value       =      -3.558
- Maximum value       =       3.089
- Mean value          =      -0.025
- Standard Deviation  =       1.052
- Variance            =       1.106
-6 - Name Simu.Var.3 - Locator z3
+ Minimum value       =      -2.780
+ Maximum value       =       3.264
+ Mean value          =       0.182
+ Standard Deviation  =       0.967
+ Variance            =       0.935
+6 - Name Simu.Var.S3 - Locator z3
  Nb of data          =        2500
  Nb of active values =        2500
- Minimum value       =      -3.799
- Maximum value       =       2.566
- Mean value          =      -0.147
- Standard Deviation  =       0.972
- Variance            =       0.945
+ Minimum value       =      -2.895
+ Maximum value       =       3.363
+ Mean value          =       0.110
+ Standard Deviation  =       0.901
+ Variance            =       0.812
 
 <----- Simulation (Unique Neighborhood) ----->
 
@@ -290,28 +290,28 @@ Data Base Grid Characteristics
 
 Data Base Statistics
 --------------------
-4 - Name Simu.Var.1 - Locator z1
+4 - Name Simu.Var.S1 - Locator z1
  Nb of data          =        2500
  Nb of active values =        2500
- Minimum value       =      -4.011
- Maximum value       =       2.598
- Mean value          =       0.021
- Standard Deviation  =       0.919
- Variance            =       0.845
-5 - Name Simu.Var.2 - Locator z2
+ Minimum value       =      -2.667
+ Maximum value       =       3.228
+ Mean value          =       0.184
+ Standard Deviation  =       0.948
+ Variance            =       0.898
+5 - Name Simu.Var.S2 - Locator z2
  Nb of data          =        2500
  Nb of active values =        2500
- Minimum value       =      -3.558
- Maximum value       =       3.130
- Mean value          =      -0.026
- Standard Deviation  =       1.054
- Variance            =       1.111
-6 - Name Simu.Var.3 - Locator z3
+ Minimum value       =      -2.772
+ Maximum value       =       3.264
+ Mean value          =       0.184
+ Standard Deviation  =       0.965
+ Variance            =       0.931
+6 - Name Simu.Var.S3 - Locator z3
  Nb of data          =        2500
  Nb of active values =        2500
- Minimum value       =      -3.804
- Maximum value       =       2.580
- Mean value          =      -0.147
- Standard Deviation  =       0.974
- Variance            =       0.949
-#NO_DIFF# Turning Band Simulations: 219 ms. (Ref = 773 ms.)
+ Minimum value       =      -2.894
+ Maximum value       =       3.343
+ Mean value          =       0.114
+ Standard Deviation  =       0.902
+ Variance            =       0.814
+#NO_DIFF# Turning Band Simulations: 192 ms. (Ref = 773 ms.)

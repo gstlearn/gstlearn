@@ -20,9 +20,9 @@ fontsize: 8pt
 <!-- CATEGORY: Courses -->
 
 ```{r setup,include=FALSE, fig.show='hide'}
-knitr::opts_chunk$set(fig.width=4, fig.height=4, 
+knitr::opts_chunk$set(fig.width=4, fig.height=4,
                       out.width="50%",
-                      fig.align = "center") 
+                      fig.align = "center")
 ```
 
 \frametitle{Preamble}
@@ -97,7 +97,7 @@ vario_gauss2dir = Vario_create(varioparam)
 err = vario_gauss2dir$compute(dat)
 
 fitmodgauss = Model()
-err = fitmodgauss$fit(vario_gauss2dir, 
+err = fitmodgauss$fit(vario_gauss2dir,
                       types=ECov_fromKeys(c("NUGGET", "SPHERICAL","CUBIC")),
                       constraints = Constraints(1))
 ```
@@ -110,7 +110,7 @@ plot.init() + plot.varmod(vario_gauss2dir, fitmodgauss)
 
 \frametitle{Kriging of the Gaussian scores}
 
-```{r Kriging_gaussian_scores } 
+```{r Kriging_gaussian_scores }
 neighU = NeighUnique_create()
 
 err = kriging(dat, grid, fitmodgauss, neighU)
@@ -185,7 +185,7 @@ plot.end(p)
 ```{r Conditional_Probability_above_0}
 selectivity = Selectivity_createByKeys(c("PROP"), zcuts=c(0),
                                        flag_est=TRUE, flag_std=TRUE)
-err = ConditionalExpectation(grid, anam, selectivity, 
+err = ConditionalExpectation(grid, anam, selectivity,
                              "K*.estim", "K*.stdev",
                              namconv=NamingConvention("CE",FALSE,TRUE,FALSE))
 ```
@@ -237,5 +237,3 @@ p = p + plot(dat, flagCst=TRUE)
 p = p + plot.decoration(title = "Conditional probability (Standard Deviation)")
 plot.end(p)
 ```
-
-

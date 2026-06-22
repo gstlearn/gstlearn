@@ -24,6 +24,7 @@
 #define VERBOSE 0
 
 using namespace gstlrn;
+
 /****************************************************************************/
 /*!
 ** Main Program
@@ -51,24 +52,24 @@ int main(int argc, char* argv[])
 
   // Create the 2-D grid output file
 
-  VectorInt nx    = {400, 300};
+  VectorInt nx = {400, 300};
   VectorDouble dx = {1., 1.};
   VectorDouble x0 = {0., 0.};
-  DbGrid* dbgrid  = DbGrid::create(nx, dx, x0, VectorDouble(), ELoadBy::COLUMN,
-                                   VectorDouble(), VectorString(),
-                                   VectorString(), 1);
+  DbGrid* dbgrid = DbGrid::create(
+    nx, dx, x0, VectorDouble(), ELoadBy::COLUMN, VectorDouble(), VectorString(),
+    VectorString(), 1);
 
   // Model
 
   double range = 79.8;
-  double sill  = 1.;
+  double sill = 1.;
   double param = 1.;
   Model* model = Model::createFromParam(ECov::MATERN, range, sill, param);
 
   // Perform the non-conditional simulation
 
-  Id seed        = 31415;
-  Id nsimu       = 10;
+  Id seed = 31415;
+  Id nsimu = 10;
   Id useCholesky = 1;
   law_set_random_seed(seed);
   (void)simulateSPDE(nullptr, dbgrid, model, nsimu, useCholesky);

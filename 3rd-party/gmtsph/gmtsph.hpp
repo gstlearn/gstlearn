@@ -48,23 +48,25 @@ Website: https://gstlearn.org
 */
 #pragma once
 
-int trmesh_(int *n,
-            double *x,
-            double *y,
-            double *z__,
-            int *list,
-            int *lptr,
-            int *lend,
-            int *lnew,
-            int *near__,
-            int *next,
-            double *dist,
-            int *ier);
-int trlist_(int *n,
-            int *list,
-            int *lptr,
-            int *lend,
-            int *nrow,
-            int *nt,
-            int *ltri,
-            int *ier);
+int trmesh_(
+  int* n,
+  double* x,
+  double* y,
+  double* z__,
+  int* list,
+  int* lptr,
+  int* lend,
+  int* lnew,
+  int* near__,
+  int* next,
+  double* dist,
+  int* ier);
+int trlist_(
+  int* n,
+  int* list,
+  int* lptr,
+  int* lend,
+  int* nrow,
+  int* nt,
+  int* ltri,
+  int* ier);

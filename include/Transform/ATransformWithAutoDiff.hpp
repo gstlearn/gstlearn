@@ -12,45 +12,42 @@
 
 #include "Transform/ATransform.hpp"
 #ifndef SWIG
-#  include <boost/math/differentiation/autodiff.hpp>
+#include <boost/math/differentiation/autodiff.hpp>
 #endif
 
 // Classe intermédiaire générique utilisant Boost.Autodiff
 namespace gstlrn
 {
-template<typename Derived>
-class GSTLEARN_EXPORT ATransformWithAutoDiff: public ATransform
-{
-
-public:
-  ATransformWithAutoDiff()
-    : ATransform()
+  template<typename Derived>
+  class GSTLEARN_EXPORT ATransformWithAutoDiff: public ATransform
   {
-  }
- 
-  double transform(double x) const override
-  {
-    return evalGeneric<double>(x); 
-  }
 
-  double evalJacobian(double h) const override
-  {
-    // Création variable autodiff pour 1re dérivée
-    auto x = boost::math::differentiation::make_fvar<double, 1>(h);
+  public:
+    ATransformWithAutoDiff()
+      : ATransform()
+    {
+    }
 
-    // Appel version générique (autodiff)
-    auto y = evalGeneric(x);
+    double transform(double x) const override { return evalGeneric<double>(x); }
 
-    return y.derivative(1); // ∂f/∂x
-  }
+    double evalJacobian(double h) const override
+    {
+      // Création variable autodiff pour 1re dérivée
+      auto x = boost::math::differentiation::make_fvar<double, 1>(h);
 
-protected:
-  // Implémentation spécifique dans la classe dérivée
-  template<typename T>
-  T evalGeneric(T h) const
-  {
-    // Redirige vers l'implémentation de la classe fille
-    return static_cast<const Derived*>(this)->evalImpl(h);
-  }
-};
-}
+      // Appel version générique (autodiff)
+      auto y = evalGeneric(x);
+
+      return y.derivative(1); // ∂f/∂x
+    }
+
+  protected:
+    // Implémentation spécifique dans la classe dérivée
+    template<typename T>
+    T evalGeneric(T h) const
+    {
+      // Redirige vers l'implémentation de la classe fille
+      return static_cast<const Derived*>(this)->evalImpl(h);
+    }
+  };
+} // namespace gstlrn

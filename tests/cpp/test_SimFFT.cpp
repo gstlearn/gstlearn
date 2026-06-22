@@ -17,6 +17,7 @@
 #include "Model/Model.hpp"
 #include "Simulation/CalcSimuFFT.hpp"
 #include "Simulation/SimuFFTParam.hpp"
+#include "Simulation/Simulations.hpp"
 #include "Space/ASpaceObject.hpp"
 
 using namespace gstlrn;
@@ -34,11 +35,11 @@ int main(int argc, char* argv[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
 
-  ASerializable::setPrefixName("test_SimFFT-");
+  ASerializable::setPrefixName("test_SimuFFT-");
 
   // Global parameters
-  Id ndim   = 2;
-  Id seed   = 3322;
+  Id ndim = 2;
+  Id seed = 3322;
   Id nxcell = 100;
   defineDefaultSpace(ESpaceType::RN, ndim);
 
@@ -53,13 +54,12 @@ int main(int argc, char* argv[])
 
   message("\n<----- Creating Parameter File ----->\n");
   bool flag_aliasing = true;
-  double percent     = 0.1;
+  double percent = 0.1;
   SimuFFTParam param(flag_aliasing, percent);
   param.display();
 
   message("\n<----- Perform FFT Simulation ----->\n");
-  (void)simfft(grid, model, param, 1, seed, true);
-
+  (void)simuFFT(nullptr, grid, model, param, 1, seed, true);
   (void)grid->dumpToNF("grid.NF");
 
   delete grid;

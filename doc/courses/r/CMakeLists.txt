@@ -53,10 +53,8 @@ foreach(COURSES_SOURCE_FILE ${COURSES_SOURCES})
 
     # Add dependency for the Rmd
     add_dependencies(${COURSES_NAME}_rmd_html prepare_build_courses_r)
-    
+
     # Add the Rmd to global dependency
     add_dependencies(build_courses_r ${COURSES_NAME}_rmd_html)
-    
+
 endforeach(COURSES_SOURCE_FILE ${TEST_SOURCES})
-
-

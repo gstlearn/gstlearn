@@ -16,5 +16,3 @@ endif()
 if (BUILD_PYTHON OR BUILD_R)
   add_dependencies(build_courses ${BUILD_DEP})
 endif()
-
-

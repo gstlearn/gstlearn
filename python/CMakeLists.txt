@@ -11,7 +11,7 @@ set(PYTHON_PACKAGE_NAME ${PROJECT_NAME})
 
 # Look for Python3
 #set(CMAKE_FIND_DEBUG_MODE TRUE)
-find_package(Python3 REQUIRED COMPONENTS Interpreter Development.Module NumPy)
+find_package(Python3 REQUIRED COMPONENTS Interpreter Development.SABIModule NumPy)
 string(REGEX MATCH "^([0-9]+)\\.([0-9]+)\\.([0-9]+)"
   Python3_NumPy_VERSION_MATCH ${Python3_NumPy_VERSION})
 set(Python3_NumPy_VERSION_MAJOR ${CMAKE_MATCH_1})
@@ -50,7 +50,7 @@ endif()
 add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/swig/generated_python.i
   COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_BINARY_DIR}/swig/generated_python.i
   COMMENT "Ensure that generated_python.i exists")
-  
+
 add_custom_target(python_wrap_macro
   COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/../tools/scripts/macrogenerate.py python ${CMAKE_BINARY_DIR}/swig/generated_python.i
   "python"
@@ -117,7 +117,7 @@ swig_add_library(
 )
 
 if (APPLE)
-  # To prevent 'import' from crashing under Mac (swig output suffix is .dynlib by default) 
+  # To prevent 'import' from crashing under Mac (swig output suffix is .dynlib by default)
   set_target_properties(python_build PROPERTIES SUFFIX ".so")
 endif()
 
@@ -169,7 +169,7 @@ if (MSVC OR APPLE)
   # Link to python's libraries (needed for MSVC and MacOS)
   # Prefer using Python3::Module (which works for MacOS) in place of ${Python3_LIBRARIES}
   # https://gitlab.kitware.com/cmake/cmake/-/issues/17664
-  target_link_libraries(python_build PRIVATE Python3::Module)
+  target_link_libraries(python_build PRIVATE Python3::SABIModule)
 endif()
 
 if (CLANG)
@@ -208,7 +208,7 @@ file(GENERATE
 # Generate version.py automatically for each configuration
 # First step: replace variables (@VAR@)
 configure_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/version.py.in 
+  ${CMAKE_CURRENT_SOURCE_DIR}/version.py.in
   ${CMAKE_CURRENT_BINARY_DIR}/version.py.in
   @ONLY
 )

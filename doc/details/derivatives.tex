@@ -20,7 +20,7 @@ with:
 
 We define the rotated coordinate \( \tilde{h} = R h \), so:
 \[
-r(h)^2 = \tilde{h}^\top \Lambda \tilde{h}
+{r(h)}^2 = \tilde{h}^\top \Lambda \tilde{h}
 \]
 
 \section*{2D Case}
@@ -62,7 +62,7 @@ Let \( d = 3 \), and \( R \in SO(3) \) be a rotation matrix parameterized by Eul
 
 \subsection*{Derivative with respect to scale \( s_i \)}
 
-Same as in 2D:
+Same as in 2D\@:
 \[
 \frac{\partial k(h)}{\partial s_i} = - \frac{C'(r)}{r} \cdot \frac{\tilde{h}_i^2}{s_i^3}
 \]
@@ -114,7 +114,7 @@ We want to maximize the log-likelihood function:
 
 Let's denote
 
-\[\hat\beta(\theta) = (X'Q_\theta X)^{-1}X'Q_\theta y\]
+\[\hat\beta(\theta) = {(X'Q_\theta X)}^{-1}X'Q_\theta y\]
 We can easily show that  \[\hat\beta(\theta) = \arg\max_\beta \ell(\theta,\beta)\]
 
 So we can define the profiled log-likelihood as:
@@ -122,78 +122,78 @@ So we can define the profiled log-likelihood as:
 
 We can rewrite it as:
 
-\[p\ell(\theta) = \frac{1}{2} \log |Q_\theta| -\frac{1}{2}\hat r(\theta)'Q_\theta\hat r(\theta) 
+\[p\ell(\theta) = \frac{1}{2} \log |Q_\theta| -\frac{1}{2}\hat r(\theta)'Q_\theta\hat r(\theta)
 \]
 where \(\hat r(\theta) = y-X\hat\beta(\theta)\).
 
 Let's denote \( \hat y(\theta) = X\hat\beta(\theta) \).
 
 The derivative of the profiled log-likelihood with respect to \(\theta\) is given by:
-\[\frac{\partial p\ell(\theta)}{\partial \theta} = \frac{1}{2} \mathrm{tr}\left(Q_\theta^{-1} \frac{\partial Q_\theta}{\partial \theta}\right) 
- -  \hat r(\theta)^\top Q_\theta \frac{\partial \hat r(\theta)}{\partial \theta}
- -  \frac{1}{2}\hat r(\theta)^\top  \frac{\partial Q_\theta}{\partial \theta} \hat r(\theta) \]     
- 
+\[\frac{\partial p\ell(\theta)}{\partial \theta} = \frac{1}{2} \mathrm{tr}\left(Q_\theta^{-1} \frac{\partial Q_\theta}{\partial \theta}\right)
+ -  \hat {r(\theta)}^\top Q_\theta \frac{\partial \hat r(\theta)}{\partial \theta}
+ -  \frac{1}{2}\hat {r(\theta)}^\top  \frac{\partial Q_\theta}{\partial \theta} \hat r(\theta) \]
+
  Now let's compute the derivatives of \(\hat r(\theta)\):
 
-\[\hat r(\theta) = y - X\hat\beta(\theta) = y - X(X'Q_\theta X)^{-1}X'Q_\theta y\]
+\[\hat r(\theta) = y - X\hat\beta(\theta) = y - X{(X'Q_\theta X)}^{-1}X'Q_\theta y\]
 The derivative of \(\hat r(\theta)\) with respect to \(\theta\) is:
 
 \begin{align}
-\frac{\partial \hat r(\theta)}{\partial \theta} &= -X\frac{\partial \hat\beta(\theta)}{\partial \theta} 
+\frac{\partial \hat r(\theta)}{\partial \theta} &= -X\frac{\partial \hat\beta(\theta)}{\partial \theta}
 \end{align}
 
-with 
+with
 
 \begin{align}
-  \frac{\partial \hat \beta(\theta)}{\partial \theta} &= -(X'Q_\theta X)^{-1}X'\frac{\partial Q_\theta}{\partial \theta}X (X'Q_\theta X)^{-1} X'Q_\theta y + (X'Q_\theta X)^{-1}X' \frac{\partial Q_\theta}{\partial \theta}y\\
-&=(X'Q_\theta X)^{-1}X'\frac{\partial Q_\theta}{\partial \theta} \hat r(\theta)
+  \frac{\partial \hat \beta(\theta)}{\partial \theta} &= -{(X'Q_\theta X)}^{-1}X'\frac{\partial Q_\theta}{\partial \theta}X {(X'Q_\theta X)}^{-1} X'Q_\theta y + {(X'Q_\theta X)}^{-1}X' \frac{\partial Q_\theta}{\partial \theta}y\\
+&={(X'Q_\theta X)}^{-1}X'\frac{\partial Q_\theta}{\partial \theta} \hat r(\theta)
 \end{align}
 
-So 
+So
 
-\[\frac{\partial \hat r(\theta)}{\partial \theta} = -X(X'Q_\theta X)^{-1}X'\frac{\partial Q_\theta}{\partial \theta} \hat r(\theta)\]
+\[\frac{\partial \hat r(\theta)}{\partial \theta} = -X{(X'Q_\theta X)}^{-1}X'\frac{\partial Q_\theta}{\partial \theta} \hat r(\theta)\]
 And we can compute
 
 \begin{align*}
-  \hat r(\theta)^\top Q_\theta \frac{\partial \hat r(\theta)}{\partial \theta} &= - \hat r(\theta)^\top Q_\theta X(X'Q_\theta X)^{-1}X'\frac{\partial Q_\theta}{\partial \theta} \hat r(\theta)\\
-&= - (y-\hat y(\theta))^\top Q_\theta X(X'Q_\theta X)^{-1}X'\frac{\partial Q_\theta}{\partial \theta} \hat r(\theta)\\
-&= - y^\top Q_\theta X(X'Q_\theta X)^{-1}X'\frac{\partial Q_\theta}{\partial \theta} \hat r(\theta)+ \hat y(\theta)^\top Q_\theta X(X'Q_\theta X)^{-1}X'\frac{\partial Q_\theta}{\partial \theta} \hat r(\theta)\\
-&= - y^\top Q_\theta X(X'Q_\theta X)^{-1}X'\frac{\partial Q_\theta}{\partial \theta} \hat r(\theta) + y^\top Q_\theta X(X'Q_\theta X)^{-1}X' Q_\theta X(X'Q_\theta X)^{-1}X'\frac{\partial Q_\theta}{\partial \theta} \hat r(\theta)\\
-&=  - y^\top Q_\theta X(X'Q_\theta X)^{-1}X'\frac{\partial Q_\theta}{\partial \theta} \hat r(\theta)+ y^\top Q_\theta X(X'Q_\theta X)^{-1}X'\frac{\partial Q_\theta}{\partial \theta} \hat r(\theta)\\
+  \hat {r(\theta)}^\top Q_\theta \frac{\partial \hat r(\theta)}{\partial \theta} &= - \hat {r(\theta)}^\top Q_\theta X{(X'Q_\theta X)}^{-1}X'\frac{\partial Q_\theta}{\partial \theta} \hat r(\theta)\\
+&= - {(y-\hat y(\theta))}^\top Q_\theta X{(X'Q_\theta X)}^{-1}X'\frac{\partial Q_\theta}{\partial \theta} \hat r(\theta)\\
+&= - y^\top Q_\theta X{(X'Q_\theta X)}^{-1}X'\frac{\partial Q_\theta}{\partial \theta} \hat r(\theta)+ \hat {y(\theta)}^\top Q_\theta X{(X'Q_\theta X)}^{-1}X'\frac{\partial Q_\theta}{\partial \theta} \hat r(\theta)\\
+&= - y^\top Q_\theta X{(X'Q_\theta X)}^{-1}X'\frac{\partial Q_\theta}{\partial \theta} \hat r(\theta) + y^\top Q_\theta X{(X'Q_\theta X)}^{-1}X' Q_\theta X{(X'Q_\theta X)}^{-1}X'\frac{\partial Q_\theta}{\partial \theta} \hat r(\theta)\\
+&=  - y^\top Q_\theta X{(X'Q_\theta X)}^{-1}X'\frac{\partial Q_\theta}{\partial \theta} \hat r(\theta)+ y^\top Q_\theta X{(X'Q_\theta X)}^{-1}X'\frac{\partial Q_\theta}{\partial \theta} \hat r(\theta)\\
 &= 0
 \end{align*}
 
 
 
 Finally, we can rewrite the derivative of the profiled log-likelihood as:
-\[\frac{\partial p\ell(\theta)}{\partial \theta} = \frac{1}{2} \mathrm{tr}\left(Q_\theta^{-1} \frac{\partial Q_\theta}{\partial \theta}\right) 
- -  \frac{1}{2}\hat r(\theta)^\top  \frac{\partial Q_\theta}{\partial \theta} \hat r(\theta) \]
+\[\frac{\partial p\ell(\theta)}{\partial \theta} = \frac{1}{2} \mathrm{tr}\left(Q_\theta^{-1} \frac{\partial Q_\theta}{\partial \theta}\right)
+ -  \frac{1}{2}\hat {r(\theta)}^\top  \frac{\partial Q_\theta}{\partial \theta} \hat r(\theta) \]
 
 
  For the second derivative, we have:
 
  \begin{align*}
 \frac{\partial^2 p\ell}{\partial \theta_i\partial\theta_j}(\theta) &= -\frac{1}{2} \mathrm{tr}\left(Q_\theta^{-1} \frac{\partial Q_\theta}{\partial \theta_i} Q_\theta^{-1} \frac{\partial Q_\theta}{\partial \theta_j}\right) +
-\frac{1}{2} \mathrm{tr}\left(Q_\theta^{-1} \frac{\partial^2 Q_\theta}{\partial \theta_i\partial\theta_j}\right)-  
-\frac{1}{2}\hat r(\theta)^\top  \frac{\partial^2 Q_\theta}{\partial \theta_i\partial\theta_j} \hat r(\theta)\\
-&-\hat r(\theta)^\top\frac{\partial Q_\theta}{\partial \theta_i} \frac{\partial\hat r(\theta)}{\partial \theta_j}\\
+\frac{1}{2} \mathrm{tr}\left(Q_\theta^{-1} \frac{\partial^2 Q_\theta}{\partial \theta_i\partial\theta_j}\right)-
+\frac{1}{2}\hat {r(\theta)}^\top  \frac{\partial^2 Q_\theta}{\partial \theta_i\partial\theta_j} \hat r(\theta)\\
+&-\hat {r(\theta)}^\top\frac{\partial Q_\theta}{\partial \theta_i} \frac{\partial\hat r(\theta)}{\partial \theta_j}\\
 &= -\frac{1}{2} \mathrm{tr}\left(Q_\theta^{-1} \frac{\partial Q_\theta}{\partial \theta_i} Q_\theta^{-1} \frac{\partial Q_\theta}{\partial \theta_j}\right) +
-\frac{1}{2} \mathrm{tr}\left(Q_\theta^{-1} \frac{\partial^2 Q_\theta}{\partial \theta_i\partial\theta_j}\right)-  
-\frac{1}{2}\hat r(\theta)^\top  \frac{\partial^2 Q_\theta}{\partial \theta_i\partial\theta_j} \hat r(\theta)\\
-&+\hat r(\theta)^\top\frac{\partial Q_\theta}{\partial \theta_i}X(X'Q_\theta X)^{-1}X'\frac{\partial Q_\theta}{\partial \theta_j} \hat r(\theta)\\
+\frac{1}{2} \mathrm{tr}\left(Q_\theta^{-1} \frac{\partial^2 Q_\theta}{\partial \theta_i\partial\theta_j}\right)-
+\frac{1}{2}\hat {r(\theta)}^\top  \frac{\partial^2 Q_\theta}{\partial \theta_i\partial\theta_j} \hat r(\theta)\\
+&+\hat {r(\theta)}^\top\frac{\partial Q_\theta}{\partial \theta_i}X{(X'Q_\theta X)}^{-1}X'\frac{\partial Q_\theta}{\partial \theta_j} \hat r(\theta)\\
  \end{align*}
 
-We can deduce the terms of the "Fisher information matrix" by taking the expectation of the second derivative of the profiled log-likelihood:
+We can deduce the terms of the \textbf{Fisher information matrix} by taking the expectation of the second derivative of the profiled log-likelihood:
 
 \begin{align*}
   E\left[\frac{\partial^2 p\ell}{\partial \theta_i\partial\theta_j}(\theta)\right] &=-\frac{1}{2} \mathrm{tr}\left(Q_\theta^{-1} \frac{\partial Q_\theta}{\partial \theta_i} Q_\theta^{-1} \frac{\partial Q_\theta}{\partial \theta_j}\right) +
-  \frac{1}{2} \mathrm{tr}\left(Q_\theta^{-1} \frac{\partial^2 Q_\theta}{\partial \theta_i\partial\theta_j}\right)-  
-  \frac{1}{2}\mathrm{tr}\left(  \frac{\partial^2 Q_\theta}{\partial \theta_i\partial\theta_j} E\left[\hat r(\theta)\hat r(\theta)^\top\right]\right)\\
-  &+\mathrm{tr}\left( \frac{\partial Q_\theta}{\partial \theta_i}X(X'Q_\theta X)^{-1}X'\frac{\partial Q_\theta}{\partial \theta_j}E\left[ \hat r(\theta)\hat r(\theta)^\top\right]\right)\\
-  &=-\frac{1}{2} \mathrm{tr}\left(Q_\theta^{-1} \frac{\partial Q_\theta}{\partial \theta_i} Q_\theta^{-1} \frac{\partial Q_\theta}{\partial \theta_j}\right) +  
-  \frac{1}{2}\mathrm{tr}\left(  \frac{\partial^2 Q_\theta}{\partial \theta_i\partial\theta_j} X(X'Q_\theta X)^{-1}X'\right)\\
-  &+\mathrm{tr}\left( \frac{\partial Q_\theta}{\partial \theta_i}X(X'Q_\theta X)^{-1}X'\frac{\partial Q_\theta}{\partial \theta_j}Q_\theta^{-1}\right)\\
-  &-\mathrm{tr}\left( \frac{\partial Q_\theta}{\partial \theta_i}X(X'Q_\theta X)^{-1}X'\frac{\partial Q_\theta}{\partial \theta_j}X(X'Q_\theta X)^{-1}X'\right)\\
+  \frac{1}{2} \mathrm{tr}\left(Q_\theta^{-1} \frac{\partial^2 Q_\theta}{\partial \theta_i\partial\theta_j}\right)-
+  \frac{1}{2}\mathrm{tr}\left(  \frac{\partial^2 Q_\theta}{\partial \theta_i\partial\theta_j} E\left[\hat r(\theta)\hat {r(\theta)}^\top\right]\right)\\
+  &+\mathrm{tr}\left( \frac{\partial Q_\theta}{\partial \theta_i}X{(X'Q_\theta X)}^{-1}X'\frac{\partial Q_\theta}{\partial \theta_j}E\left[ \hat r(\theta)\hat {r(\theta)}^\top\right]\right)\\
+  &=-\frac{1}{2} \mathrm{tr}\left(Q_\theta^{-1} \frac{\partial Q_\theta}{\partial \theta_i} Q_\theta^{-1} \frac{\partial Q_\theta}{\partial \theta_j}\right) +
+  \frac{1}{2}\mathrm{tr}\left(  \frac{\partial^2 Q_\theta}{\partial \theta_i\partial\theta_j} X{(X'Q_\theta X)}^{-1}X'\right)\\
+  &+\mathrm{tr}\left( \frac{\partial Q_\theta}{\partial \theta_i}X{(X'Q_\theta X)}^{-1}X'\frac{\partial Q_\theta}{\partial \theta_j}Q_\theta^{-1}\right)\\
+  &-\mathrm{tr}\left( \frac{\partial Q_\theta}{\partial \theta_i}X{(X'Q_\theta X)}^{-1}X'\frac{\partial Q_\theta}{\partial \theta_j}X{(X'Q_\theta X)}^{-1}X'\right)\\
 \end{align*}
 
 \end{document}

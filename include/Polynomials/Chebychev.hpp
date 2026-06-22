@@ -22,65 +22,106 @@ class AShiftOp;
 
 namespace gstlrn
 {
-class AFunction;
+  class AFunction;
 
-class GSTLEARN_EXPORT Chebychev: public APolynomial
-{
-public:
-  Chebychev();
-  virtual ~Chebychev();
+  class GSTLEARN_EXPORT Chebychev: public APolynomial
+  {
+  public:
+    Chebychev();
+    virtual ~Chebychev();
 
-  /// ICloneable interface
-  IMPLEMENT_CLONING(Chebychev)
+    /// ICloneable interface
+    IMPLEMENT_CLONING(Chebychev)
 
-  /// Interface for Apolynomial
+    /// Interface for Apolynomial
 #ifndef SWIG
-  void evalOp(MatrixSparse* S, const constvect x, vect y) const override;
+    void evalOp(MatrixSparse* S, const constvect x, vect y) const override;
 
-protected:
-  void _addEvalOp(const ALinearOp* Op, const constvect inv, vect outv) const override;
+  protected:
+    void _addEvalOp(const ALinearOp* Op, const constvect inv, vect outv)
+      const override;
 
-  /* void evalOp(const ALinearOpMulti *Op,
-              const std::vector<Eigen::VectorXd> &inv,
-              std::vector<Eigen::VectorXd> &outv) const override; */
+    /* void evalOp(const ALinearOpMulti *Op,
+                const std::vector<Eigen::VectorXd> &inv,
+                std::vector<Eigen::VectorXd> &outv) const override; */
 #endif
 
-public:
-  double eval(double x) const override;
-  Id fit(const std::function<double(double)>& f,
-          double a   = 0.,
-          double b   = 1.,
-          double tol = EPSILON5) override;
+  public:
+    double eval(double x) const override;
+    Id fit(
+      const std::function<double(double)>& f,
+      double a = 0.,
+      double b = 1.,
+      double tol = EPSILON5) override;
 
-  void init(Id ncMax = 10001, Id nDisc = 100, double a = 0., double b = 1., bool verbose = false);
-  static Chebychev* createFromCoeffs(const VectorDouble& coeffs);
-  void setCoeffs(const VectorDouble& coeffs) { _coeffs = coeffs; }
-  Id getNcMax() const { return _ncMax; }
-  Id getNDisc() const { return _nDisc; }
-  double getA() const { return _a; }
-  double getB() const { return _b; }
-  bool getVerbose() const { return _verbose; }
-  void setA(double a) { _a = a; }
-  void setB(double b) { _b = b; }
-  void setNcMax(Id ncMax) { _ncMax = ncMax; }
-  void setNDisc(Id nDisc) { _nDisc = nDisc; }
-  void setVerbose(bool verbose) { _verbose = verbose; }
+    void init(
+      Id ncMax = 10001,
+      Id nDisc = 100,
+      double a = 0.,
+      double b = 1.,
+      bool verbose = false);
+    static Chebychev* createFromCoeffs(const VectorDouble& coeffs);
 
-  Id fit2(AFunction* f, double a = 0., double b = 1., double tol = EPSILON5);
+    void setCoeffs(const VectorDouble& coeffs) { _coeffs = coeffs; }
 
-private:
-  bool _isReady() const { return !_coeffs.empty(); }
-  void _fillCoeffs(const std::function<double(double)>& f, double a, double b);
-  Id _countCoeffs(const std::function<double(double)>& f,
-                   double x,
-                   double a,
-                   double b,
-                   double tol = EPSILON5) const;
+    Id getNcMax() const { return _ncMax; }
 
-  Id _ncMax;
-  Id _nDisc;
-  double _a;
-  double _b;
-  bool _verbose;
-};
+    Id getNDisc() const { return _nDisc; }
+
+    double getA() const { return _a; }
+
+    double getB() const { return _b; }
+
+    bool getVerbose() const { return _verbose; }
+
+    void setA(double a) { _a = a; }
+
+    void setB(double b) { _b = b; }
+
+    void setNcMax(Id ncMax) { _ncMax = ncMax; }
+
+    void setNDisc(Id nDisc) { _nDisc = nDisc; }
+
+    void setVerbose(bool verbose) { _verbose = verbose; }
+
+    Id fit2(AFunction* f, double a = 0., double b = 1., double tol = EPSILON5);
+    VectorDouble smoother(
+      const ALinearOp& Op,
+      const VectorDouble& ucurr,
+      const VectorDouble& rhs,
+      double lambda_max,
+      double ratiomin = 0.03,
+      double ratiomax = 1.05,
+      Id iterations = 3) const;
+#ifndef SWIG
+    void smootherInPlace(
+      const ALinearOp& Op,
+      vect ucurr,
+      constvect rhs,
+      double lambda_max,
+      double ratiomin = 0.03,
+      double ratiomax = 1.05,
+      Id iterations = 3) const;
+#endif
+
+  private:
+    bool _isReady() const { return !_coeffs.empty(); }
+
+    void
+      _fillCoeffs(const std::function<double(double)>& f, double a, double b);
+    Id _countCoeffs(
+      const std::function<double(double)>& f,
+      double x,
+      double a,
+      double b,
+      double tol = EPSILON5) const;
+
+    Id _ncMax;
+    Id _nDisc;
+    double _a;
+    double _b;
+    bool _verbose;
+    mutable VectorDouble _work;
+    mutable VectorDouble _work2;
+  };
 } // namespace gstlrn

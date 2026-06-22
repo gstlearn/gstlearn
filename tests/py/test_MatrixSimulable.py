@@ -8,8 +8,7 @@ np.random.seed(12334)
 # %%
 A = gl.MatrixSparse(4, 4)
 A.fillRandom()
-A.prodMat(A.transpose())
-
+gl.AMatrix.prodMatMatInPlace(A, A, A, False, True)
 Apython = A.toTL().todense()
 AChol = np.linalg.cholesky(Apython)
 x = np.random.normal(size=4)

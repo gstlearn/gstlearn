@@ -5,7 +5,7 @@ date: "25 juin 2022"
 output:
   pdf_document: default
   html_document: default
-editor_options: 
+editor_options:
   chunk_output_type: console
 ---
 
@@ -116,7 +116,7 @@ The variogram is represented graphically for a quick check
 
 ```{r}
 if (graphics)
-    plot.init() + plot.varmod(myVarioOmni) + 
+    plot.init() + plot.varmod(myVarioOmni) +
     plot.decoration(title="Omni-directional Variogram for Pb")
 ```
 
@@ -134,7 +134,7 @@ if (verbose)
 
 ```{r}
 if (graphics)
-    plot.init() + plot.varmod(myvario) + 
+    plot.init() + plot.varmod(myvario) +
     plot.decoration(title="Multi-Directional Variogram of Pb")
 ```
 
@@ -148,7 +148,7 @@ if (verbose)
 
 ```{r}
 if (graphics)
-    plot.init() + plot(myvmap, name="*Var") + 
+    plot.init() + plot(myvmap, name="*Var") +
     plot.decoration(title="Variogram Map")
 ```
 
@@ -270,7 +270,7 @@ if (graphics)
 
 # Estimating by Kriging
 
-We now perform the Estimation by Ordinary Kriging. 
+We now perform the Estimation by Ordinary Kriging.
 The Neighborhood is changed into a Unique Neighborhood.
 
 ```{r}
@@ -375,7 +375,7 @@ We visualize a conditional simulation in Gaussian scale
 if (graphics)
 {
     p = plot.init()
-    p = p + plot(mygrid,name="Simu.Y.Pb.1")
+    p = p + plot(mygrid,name="Simu.Y.Pb.S1")
     p = p + plot(mydb,nameColor="Pb",size=3)
     p = p + plot.decoration(title="One Simulation of Pb in Gaussian Scale")
     plot.end(p)
@@ -405,7 +405,7 @@ We visualize a Conditional Simulation in Raw Scale
 if (graphics)
 {
   p = plot.init()
-  p = p + plot(mygrid,name="Z.Simu.Y.Pb.1")
+  p = p + plot(mygrid,name="Z.Simu.Y.Pb.S1")
   p = p + plot(mydb,nameColor="Pb")
   p = p + plot.decoration(title="One simulation of Pb in Raw Scale")
   plot.end(p)
@@ -553,4 +553,3 @@ if (verbose)
   mydb$display(dbfmt)
 }
 ```
-

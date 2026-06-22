@@ -21,9 +21,9 @@ jobs:
         python: ["3.10", "3.11", "3.12", "3.13", "3.14"]
         # See the list here: https://github.com/actions/runner-images#available-images
         os: [ubuntu-22.04, ubuntu-24.04, windows-2022, windows-2025, macos-14, macos-15, macos-15-intel, macos-26]
-          
+
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Setup Python
       uses: actions/setup-python@v5
@@ -36,8 +36,4 @@ jobs:
         python -m pip install gstlearn[conv]
 
     - name: Run the python tests
-      run: |
-        python tests/py/test_Arguments.py
-        python tests/py/test_Assessors.py
-        python tests/py/test_Matrix.py
-        python tests/py/test_h5.py
+      uses: ./.github/actions/run_python_tests

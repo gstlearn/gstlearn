@@ -1,0 +1,122 @@
+\documentclass{article}
+\usepackage{amsmath, amssymb}
+\usepackage{bm}
+\usepackage{graphicx}
+
+\title{Low-rank Preconditioning for Systems of the Form $A + B C^{-1} B^T$}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section*{Problem Setting}
+
+We consider the linear system:
+\[
+H x = (A + B C^{-1} B^T) x = b,
+\]
+where:
+\begin{itemize}
+  \item $A \in \mathbb{R}^{n \times n}$ is symmetric positive definite (SPD),
+  \item $C \in \mathbb{R}^{m \times m}$ is SPD and cheap to invert,
+  \item $B \in \mathbb{R}^{n \times m}$ is general,
+  \item Applying $A^{-1}$ is expensive (e.g., via a Chebyshev polynomial approximation).
+\end{itemize}
+
+We aim to construct an efficient preconditioner for this system, suitable for use with the Conjugate Gradient (CG) method, while reducing the number of applications of $A^{-1}$.
+
+\section*{Low-rank Approximation of the Schur Complement}
+
+We define the Schur complement term:
+\[
+M := B C^{-1} B^T,
+\quad \text{so that} \quad
+H = A + M.
+\]
+
+To reduce computational cost, we approximate $M$ by a low-rank symmetric matrix:
+\[
+M \approx U S U^T,
+\]
+where $U \in \mathbb{R}^{n \times k}$ and $S \in \mathbb{R}^{k \times k}$ is symmetric positive semidefinite.
+
+This approximation is constructed using a \textbf{randomized range finder} technique (see \cite{halko2011finding}). Given a Gaussian random matrix $\Omega \in \mathbb{R}^{n \times (k+p)}$, we compute:
+\[
+Y = M \Omega,
+\quad \text{then perform a QR decomposition:} \quad
+Y = QR,
+\]
+where $Q$ is an orthonormal basis of the approximate range of $M$. The projection:
+\[
+B_{\text{small}} = Q^T M Q
+\]
+is then spectrally decomposed:
+\[
+B_{\text{small}} = \tilde{U} S \tilde{U}^T,
+\quad \text{and we set} \quad
+U := Q \tilde{U}.
+\]
+
+\paragraph{Power Iteration.}
+To improve the quality of the low-rank approximation—especially when the spectrum of $M$ decays slowly—we may apply a few steps of the power iteration:
+\[
+Y \leftarrow (M M^T)^q M \Omega,
+\]
+which amplifies dominant modes and improves the approximation of the leading eigenspace of $M$.
+
+\section*{Preconditioner Using the Woodbury Identity}
+
+Let us approximate $H \approx A + U S U^T$.
+Using the Woodbury identity:
+\[
+(A + U S U^T)^{-1}
+= A^{-1} - A^{-1} U (S^{-1} + U^T A^{-1} U)^{-1} U^T A^{-1}.
+\]
+
+This exact expression requires two applications of $A^{-1}$.
+To reduce cost, we factor the formula by introducing:
+\[
+W := A^{-1} U,
+\quad
+W^T := U^T A^{-1},
+\quad
+T := W^T U,
+\quad
+M_{\text{inv}} := (S + T)^{-1}.
+\]
+
+We then write the preconditioner as:
+\[
+P^{-1} = A^{-1} - W M_{\text{inv}} W^T.
+\]
+
+Applying $P^{-1}$ to a vector $v$ is done as follows:
+\begin{enumerate}
+  \item Compute $z = A^{-1} v$,
+  \item Correct: $P^{-1} v = z - (W M_{\text{inv}}W^T)v$.
+\end{enumerate}
+
+This requires only one application of $A^{-1}$ per vector, and all other operations are low-dimensional.
+
+\section*{Remarks}
+
+\begin{itemize}
+  \item The low-rank approximation of $M$ can be significantly cheaper to construct than assembling or inverting the full matrix.
+  \item The preconditioner remains symmetric positive definite if $S$ is SPD, allowing for use with CG.
+  \item This approach combines randomized numerical linear algebra with classical techniques (e.g., Woodbury) to reduce iteration cost.
+\end{itemize}
+
+\section*{References}
+
+\begin{thebibliography}{9}
+
+\bibitem{halko2011finding}
+N. Halko, P.-G. Martinsson, J. A. Tropp,\\
+\textit{Finding structure with randomness: Probabilistic algorithms for constructing approximate matrix decompositions},\\
+SIAM Review 53(2), 2011.
+
+\end{thebibliography}
+
+\end{document}

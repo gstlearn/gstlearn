@@ -12,26 +12,24 @@
 
 namespace gstlrn
 {
-ABiTargetCheck::ABiTargetCheck()
-  : AStringable()
-{
-}
-
-ABiTargetCheck::ABiTargetCheck(const ABiTargetCheck& r)
-  : AStringable(r)
-{
-}
-
-ABiTargetCheck& ABiTargetCheck::operator=(const ABiTargetCheck& r)
-{
-  if (this != &r)
+  ABiTargetCheck::ABiTargetCheck()
+    : AStringable()
   {
-    AStringable::operator=(r);
   }
-  return *this;
-}
 
-ABiTargetCheck::~ABiTargetCheck()
-{
-}
-}
+  ABiTargetCheck::ABiTargetCheck(const ABiTargetCheck& r)
+    : AStringable(r)
+  {
+  }
+
+  ABiTargetCheck& ABiTargetCheck::operator=(const ABiTargetCheck& r)
+  {
+    if (this != &r)
+    {
+      AStringable::operator=(r);
+    }
+    return *this;
+  }
+
+  ABiTargetCheck::~ABiTargetCheck() {}
+} // namespace gstlrn

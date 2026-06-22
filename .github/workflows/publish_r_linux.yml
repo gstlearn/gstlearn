@@ -38,7 +38,7 @@ jobs:
       image: gstlearn/manylinux_2_28-gstlearn-r
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     # Fix dubious ownership issue:
     # https://github.com/actions/checkout/issues/1048
@@ -84,7 +84,7 @@ jobs:
       run: |
         cat ${{env.BUILD_DIR}}/r/${{env.CMAKE_BUILD_TYPE}}/create_doc.out
 
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v6
       with:
         name: linux-r-package
         path: ${{env.MY_PKG}}
@@ -98,9 +98,9 @@ jobs:
       image: gstlearn/manylinux_2_28-gstlearn-r
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
-    - uses: actions/download-artifact@v4
+    - uses: actions/download-artifact@v7
       with:
         name: linux-r-package
 
@@ -108,31 +108,25 @@ jobs:
     - name: Install R dependencies
       run: Rscript -e "install.packages (c('ggplot2', 'ggpubr', 'ggnewscale'),
                                          repos='https://cran.rstudio.com/')"
-            
+
     - name: Install R package
       run: Rscript -e "install.packages(\"$(ls *.tar.gz)\", repos=NULL, type='source')"
 
     - name: Test installed R package
-      run: |
-        Rscript -e "library('gstlearn'); acknowledge_gstlearn()"
-        Rscript tests/r/test_Arguments.R
-        Rscript tests/r/test_Assessors.R
-        Rscript tests/r/test_Matrix.R
-        Rscript tests/r/test_dumpToNF.R
+      uses: ./.github/actions/run_r_tests
 
   publish:
     needs: test
     if: ${{inputs.dry_publish == false}}
-    
+
     # Only ubuntu can upload to CRAN easily (ssh)
     runs-on: ubuntu-latest
-    
+
     steps:
+      # Publish packages to our CRAN
       - env:
           CRAN_PATH: ${{needs.build.outputs.cran_path}}
-
-        # Publish packages to our CRAN
-        uses: fabien-ors/cran-publish-action@v4
+        uses: fabien-ors/cran-publish-action@v5
         with:
           host: ${{secrets.CG_HOST}}
           username: ${{secrets.CG_USR}}

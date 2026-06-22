@@ -5,7 +5,7 @@ precision matrix $\mathbf{Q = \Sigma^{-1}}$. $\mathbf{Q}$ is factorized by the C
 
 Thus, the Gaussian vector can be rewritten $\mathbf{Z = (L^T)^{-1} \, U}$ with $\mathbf{U \sim \mathcal{N}(0, I_n)}$.
 
-Finally the Gaussian vector collecting the values of the random field at the grid nodes $Y$ 
+Finally the Gaussian vector collecting the values of the random field at the grid nodes $Y$
 is achieved by the interpolation of $\mathbf{Z}$ on the mesh $\mathbf{Y_g = A_{g} \, Z}$.
 
 To compute a non conditional simulation on the grid:

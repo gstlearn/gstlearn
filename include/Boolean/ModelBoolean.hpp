@@ -18,34 +18,38 @@
 
 namespace gstlrn
 {
-class AShape;
+  class AShape;
 
-class GSTLEARN_EXPORT ModelBoolean: public AStringable
-{
-public:
-  ModelBoolean(double thetaCst = 1., bool flagStat = true);
-  ModelBoolean(const ModelBoolean& r);
-  ModelBoolean& operator=(const ModelBoolean& r);
-  virtual ~ModelBoolean();
+  class GSTLEARN_EXPORT ModelBoolean: public AStringable
+  {
+  public:
+    ModelBoolean(double thetaCst = 1., bool flagStat = true);
+    ModelBoolean(const ModelBoolean& r);
+    ModelBoolean& operator=(const ModelBoolean& r);
+    virtual ~ModelBoolean();
 
-  /// Interface to AStringable
-  String toString(const AStringFormat* strfmt = nullptr) const override;
+    /// Interface to AStringable
+    String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  Id getNbTokens() const { return static_cast<Id>(_shapes.size()); }
-  void addToken(const AShape& token);
-  void normalizeProportions();
-  BooleanObject* generateObject(Id ndim) const;
-  const AShape* getToken(Id itok) const { return _shapes[itok]; }
+    Id getNbTokens() const { return static_cast<Id>(_shapes.size()); }
 
-  bool isFlagStat() const { return _flagStat; }
-  double getThetaCst() const { return _thetaCst; }
+    void addToken(const AShape& token);
+    void normalizeProportions();
+    BooleanObject* generateObject(Id ndim) const;
 
-  void setFlagStat(bool flagStat) { _flagStat = flagStat; }
-  void setThetaCst(double thetaCst) { _thetaCst = thetaCst; }
+    const AShape* getToken(Id itok) const { return _shapes[itok]; }
 
-private:
-  bool _flagStat;
-  double _thetaCst;
-  std::vector<AShape*> _shapes; // List of the Token
-};
+    bool isFlagStat() const { return _flagStat; }
+
+    double getThetaCst() const { return _thetaCst; }
+
+    void setFlagStat(bool flagStat) { _flagStat = flagStat; }
+
+    void setThetaCst(double thetaCst) { _thetaCst = thetaCst; }
+
+  private:
+    bool _flagStat;
+    double _thetaCst;
+    std::vector<AShape*> _shapes; // List of the Token
+  };
 } // namespace gstlrn

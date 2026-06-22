@@ -122,8 +122,8 @@ Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = rank.1 - Locator = NA
 Column = 2 - Name = x1 - Locator = x1
 Column = 3 - Name = x2 - Locator = x2
-Column = 4 - Name = Simu.1 - Locator = z1
-Column = 5 - Name = Simu.2 - Locator = z2
+Column = 4 - Name = Simu.S1 - Locator = z1
+Column = 5 - Name = Simu.S2 - Locator = z2
 Column = 6 - Name = sel - Locator = sel
 ----
 
@@ -173,10 +173,10 @@ Total number of samples      = 3
 
 Data Base Contents
 ------------------
-                 rank         x         y         z
-     [  0,]     1.000     1.000     1.000     1.000
-     [  1,]     2.000     2.000     2.000     3.000
-     [  2,]     3.000     3.000     3.000     5.000
+                   rank          x          y          z
+      [  0,]      1.000      1.000      1.000      1.000
+      [  1,]      2.000      2.000      2.000      3.000
+      [  2,]      3.000      3.000      3.000      5.000
 
 Variables
 ---------

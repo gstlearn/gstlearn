@@ -14,7 +14,7 @@ Afin de permettre de disposer des (anciens) constructeurs multiples, on les
 remplace par des methodes de type "reset", c'est a dire des methodes qui
 remplissent un objet (deja instancie)... d'ou le nom.
 
-Ces methodes "reset" necessitent une ecriture en deux lignes du type 
+Ces methodes "reset" necessitent une ecriture en deux lignes du type
 (on prend la classe Polygons comme illustration):
 
 Polygons poly;
@@ -35,7 +35,7 @@ L'utilisation dans le code (en C++) est realise de la maniere suivante:
 
 Polygons* poly = Polygons::createFromNeutralFile(...)
 
-Il faut rappeler que l'utilisateur ne doit pas oublier de "rembourser" la 
+Il faut rappeler que l'utilisateur ne doit pas oublier de "rembourser" la
 memoire apres utilisation.
 
 CAS PARTICULIER
@@ -44,7 +44,7 @@ CAS PARTICULIER
 Il est parfois souhaitable de gagner en flexibilite en retournant un objet
 plutot que son pointeur. C'est le cas pour les objets de petite taille
 (pour lesquels une recopie n'est pas prejudiciable).
-Je propose qu'on utilise un radical different comme "define", d'ou 
+Je propose qu'on utilise un radical different comme "define", d'ou
 l'ecriture:
 
 Polygons poly = Polygons::defineFromNeutralFile(...)
@@ -74,4 +74,3 @@ Lorsque la terminologie resetFrom "ne colle pas" pour remplacer un constructeur 
 Exemple avec les 3 constructeurs de la classe Neigh qui permettent de construire un voisinage unique / glissant ou image.
 Clairement, le resetFrom n'a pas de sens pour remplacer ces constructeurs...
 Par contre, créer une classe ANeigh et des classes filles NeighUnique, NeighMoving et NeighImage est la bonne mani�re de proc�der.
-

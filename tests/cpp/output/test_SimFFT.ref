@@ -11,9 +11,9 @@ Total number of samples      = 10000
 
 Grid characteristics:
 ---------------------
-Origin :      0.000     0.000
-Mesh   :      1.000     1.000
-Number :        100       100
+Origin :       0.000      0.000
+Mesh   :       1.000      1.000
+Number :         100        100
 
 Variables
 ---------
@@ -32,10 +32,10 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Spherical
-- Sill         =      1.000
-- Range        =     10.000
-Total Sill     =      1.000
-Known Mean(s)     0.000
+- Sill         =       1.000
+- Range        =      10.000
+Total Sill     =       1.000
+Known Mean(s)      0.000
 
 <----- Creating Parameter File ----->
 Perform intermediate mesh discretization in order to reduce aliasing
@@ -54,3 +54,16 @@ Statistics on the Discrete Periodic Covariance
 - Total of positive frequencies = 1.000000
 - Total of negative frequencies = 0.000000
 
+Grid Dilation parameters :
+- Number of Nodes along X = 10
+- Number of Nodes along Y = 10
+Grid parameters after Optimal Dilation :
+- Number of Nodes along X = 110
+- Number of Nodes along Y = 110
+- Total count of grid nodes = 12100
+Statistics on the Discrete Periodic Covariance
+- Anti-aliasing switched ON (Iteration=1)
+- Total of positive frequencies = 1.000000
+- Total of negative frequencies = 0.000000
+
+>>> computing simulation 1

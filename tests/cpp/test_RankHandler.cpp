@@ -39,13 +39,14 @@ int main(int argc, char* argv[])
   OptCst::define(ECst::NTCOL, -1);
 
   // Creating the Db
-  Id ndat                  = 20;
-  Id ndim                  = 2;
-  Id nvar                  = 3;
-  double selRatio          = 0.2;
+  Id ndat = 20;
+  Id ndim = 2;
+  Id nvar = 3;
+  double selRatio = 0.2;
   VectorDouble heteroRatio = {0.3, 0.2, 0.1};
-  Db* db                   = Db::createFillRandom(ndat, ndim, nvar, 0, 0, 0., selRatio, heteroRatio);
-  DbStringFormat* dbfmt    = DbStringFormat::create(FLAG_RESUME | FLAG_ARRAY);
+  Db* db =
+    Db::createFillRandom(ndat, ndim, nvar, 0, 0, 0., selRatio, heteroRatio);
+  DbStringFormat* dbfmt = DbStringFormat::create(FLAG_RESUME | FLAG_ARRAY);
   db->display(dbfmt);
 
   // Instanciate the RankHandler
@@ -66,7 +67,9 @@ int main(int argc, char* argv[])
   message("Number of elligible samples: %d\n", rkhd->getNumber());
   message("Total count of sample references = %d\n", rkhd->getTotalCount());
   for (Id ivar = 0; ivar < nvar; ivar++)
-    message("Number of references for Variable %d = %d\n", ivar, rkhd->getCount(ivar));
+    message(
+      "Number of references for Variable %d = %d\n", ivar,
+      rkhd->getCount(ivar));
 
   // Complete dump
   rkhd->dump(true);

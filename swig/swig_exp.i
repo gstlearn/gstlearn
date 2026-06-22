@@ -8,7 +8,6 @@
 
 %include gstlearn_export.hpp // Do not forget this file in priority (for SWIG preprocessor)
 
-
 // Export VectorXXX classes
 %include Basic/VectorT.hpp
 %template(VectorTInt)         gstlrn::VectorT< long long >;
@@ -30,7 +29,7 @@
 %template(VectorVectorInt)    gstlrn::VectorNumT< VectorNumT< long long > >;
 %template(VectorVectorDouble) gstlrn::VectorNumT< VectorNumT< double > >;
 %template(VectorVectorFloat)  gstlrn::VectorNumT< VectorNumT< float > >;
-//}
+
 %include Basic/ICloneable.hpp
 %include Basic/RepeatMacro.hpp
 %include Basic/RepeatMacroSwig.hpp
@@ -39,10 +38,6 @@
 %include geoslib_enum.h
 %include geoslib_d.h
 %include geoslib_f.h
-
-%include Transform/ATransform.hpp
-%include Transform/TuckeyGH.hpp
-%include Transform/YeoJohnson.hpp
 
 %include Enum/AEnum.hpp
 %include Enum/EKrigOpt.hpp
@@ -77,14 +72,19 @@
 %include Enum/EPostUpscale.hpp
 %include Enum/EPostStat.hpp
 %include Enum/EFormatNF.hpp
+%include Enum/ESimuType.hpp
 
 %include Basic/ArgumentTest.hpp
 %include Basic/AStringable.hpp
 %include Basic/AStringFormat.hpp
 %include Basic/ASerializable.hpp
-
 %include Basic/Message.hpp
 %include Basic/NamingConvention.hpp
+
+%include Transform/ATransform.hpp
+%include Transform/ATransformWithAutoDiff.hpp
+%include Transform/TuckeyGH.hpp
+%include Transform/YeoJohnson.hpp
 
 %include Calculators/ACalculator.hpp
 %include Calculators/ACalcDbVarCreator.hpp
@@ -157,9 +157,14 @@
 %include Space/SpaceTarget.hpp
 %include Space/SpaceRN.hpp
 %include Space/SpaceShape.hpp
+%include Space/SpaceSN.hpp
 
 %include LinearOp/ALinearOp.hpp
+%include LinearOp/APreconditioner.hpp
+%include LinearOp/MultiGridSolver.hpp
+%include LinearOp/MultiGridSPDE.hpp
 %include LinearOp/ASimulable.hpp
+%include LinearOp/ASimulableMatrix.hpp
 %include Matrix/AMatrix.hpp
 %include Matrix/MatrixDense.hpp
 %include Matrix/MatrixSparse.hpp
@@ -170,6 +175,7 @@
 %include Matrix/MatrixFactory.hpp
 %include Matrix/MatrixInt.hpp
 %include Matrix/Table.hpp
+%include LinearOp/LinearOpHelper.hpp
 
 %include MLayers/MLayers.hpp
 
@@ -178,6 +184,7 @@
 
 %include Mesh/AMesh.hpp
 %include Mesh/MeshEStandard.hpp
+%include Mesh/MeshEFaulted.hpp
 %include Mesh/MeshETurbo.hpp
 %include Mesh/MeshSpherical.hpp
 %include Mesh/MeshSphericalExt.hpp
@@ -197,6 +204,7 @@
 %include LinearOp/AShiftOp.hpp
 %include LinearOp/ShiftOpStencil.hpp
 %include LinearOp/ShiftOpMatrix.hpp
+%include LinearOp/IPrecisionOp.hpp
 %include LinearOp/PrecisionOp.hpp
 %include LinearOp/PrecisionOpMatrix.hpp
 %include LinearOp/SPDEOp.hpp
@@ -210,7 +218,6 @@
 %include LinearOp/ProjMultiMatrix.hpp
 %include LinearOp/PrecisionOpMulti.hpp
 %include LinearOp/PrecisionOpMultiMatrix.hpp
-%include LinearOp/PrecisionOpMultiConditional.hpp
 %include LinearOp/ProjConvolution.hpp
 %include LinearOp/IOptimCost.hpp
 %include LinearOp/OptimCostBinary.hpp
@@ -234,6 +241,7 @@
 %include Variogram/DirParam.hpp
 %include Variogram/VMap.hpp
 %include Variogram/VCloud.hpp
+%include Variogram/VarioOrder.hpp
 
 %include Basic/ParamInfo.hpp
 %include Basic/ListParams.hpp
@@ -242,6 +250,7 @@
 %include Model/ModelCovList.hpp
 %include Model/Model.hpp
 %include Model/ModelOptimParam.hpp
+%include Model/ElemNostat.hpp
 %include Model/Option_AutoFit.hpp
 %include Model/Option_VarioFit.hpp
 %include Model/Constraints.hpp
@@ -255,6 +264,7 @@
 %include Covariances/TabNoStatSills.hpp
 %include Covariances/ANoStat.hpp
 %include Covariances/NoStatArray.hpp
+%include Covariances/NoStatOnMesh.hpp
 %include Covariances/NoStatFunctional.hpp
 %include Covariances/ACov.hpp
 %include Covariances/CovBase.hpp
@@ -266,6 +276,7 @@
 %include Covariances/CovGradientGeneric.hpp
 %include Covariances/CovGradientAnalytic.hpp
 %include Covariances/CorAniso.hpp
+%include Covariances/CorFactorized.hpp
 %include Covariances/CorGaussianMixture.hpp
 %include Covariances/CorGneiting.hpp
 %include Covariances/CorMatern.hpp
@@ -346,6 +357,9 @@
 %include Gibbs/GibbsMulti.hpp
 %include Gibbs/GibbsMMulti.hpp
 %include Gibbs/GibbsUMulti.hpp
+%include Gibbs/GibbsMultiMono.hpp
+%include Gibbs/GibbsUMultiMono.hpp
+%include Gibbs/GibbsUPropMono.hpp
 
 %include Morpho/Morpho.hpp
 
@@ -358,10 +372,15 @@
 %include Stats/Selectivity.hpp
 %include Stats/Regression.hpp
 
+%include LithoRule/Node.hpp
 %include LithoRule/Rule.hpp
+%include LithoRule/RuleShadow.hpp
+%include LithoRule/RuleShift.hpp
 %include LithoRule/RuleStringFormat.hpp
 %include LithoRule/RuleProp.hpp
+%include LithoRule/PropDef.hpp
 
+%include Estimation/Estimations.hpp
 %include Estimation/KrigingSystem.hpp
 %include Estimation/KrigingAlgebra.hpp
 %include Estimation/CalcKriging.hpp
@@ -391,16 +410,19 @@
 %include OutputFormat/GridZycor.hpp
 %include OutputFormat/segy.h
 
+%include Simulation/Simulations.hpp
 %include Simulation/ACalcSimulation.hpp
+%include Simulation/ACalcSimuGaussian.hpp
 %include Simulation/CalcSimuTurningBands.hpp
+%include Simulation/CalcSimuPGS.hpp
 %include Simulation/TurningBandDirection.hpp
 %include Simulation/TurningBandOperate.hpp
-%include Simulation/ASimuSpectral.hpp
+%include Simulation/CalcSimuSpectral.hpp
+%include Simulation/CalcSimuBoolean.hpp
 %include Simulation/SimuSpectralRN.hpp
-%include Simulation/SpectrumRN.hpp
 %include Simulation/SimuSpectralS2.hpp
+%include Simulation/SpectrumOnRN.hpp
 %include Simulation/BooleanObject.hpp
-%include Simulation/SimuBoolean.hpp
 %include Simulation/SimuBooleanParam.hpp
 %include Simulation/SimuSpherical.hpp
 %include Simulation/SimuSphericalParam.hpp
@@ -421,10 +443,16 @@
 %include Fractures/FracList.hpp
 
 %include Tree/Ball.hpp
+%include Tree/BallFaulted.hpp
 %include Tree/KNN.hpp
 
 %include Spatial/Projection.hpp
 %include Spatial/SpatialIndices.hpp
+
+%include PluriGaussian/TracePGS.hpp
+%include PluriGaussian/CorPGS.hpp
+%include PluriGaussian/DiscretePGS.hpp
+%include PluriGaussian/CalcModelPGS.hpp
 
 %include Core/Acknowledge.hpp
 %include Core/Seismic.hpp

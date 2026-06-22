@@ -20,26 +20,30 @@
 
 namespace gstlrn
 {
-class CovContext;
+  class CovContext;
 
-class GSTLEARN_EXPORT KernelWendland2: public AKernel
-{
-public:
-  KernelWendland2(const CovContext& ctx);
-  KernelWendland2(const KernelWendland2& r);
-  KernelWendland2& operator=(const KernelWendland2& r);
-  virtual ~KernelWendland2();
+  class GSTLEARN_EXPORT KernelWendland2: public AKernel
+  {
+  public:
+    KernelWendland2(const CovContext& ctx);
+    KernelWendland2(const KernelWendland2& r);
+    KernelWendland2& operator=(const KernelWendland2& r);
+    virtual ~KernelWendland2();
 
-  size_t getMaxNDim() const override { return 3; }
-  String getCovName() const override { return "Wendland-4,2"; }
-  Id getMinOrder() const override { return -1; }
-  bool getCompatibleSpaceR() const override { return true; }
-  bool hasCovDerivative() const override { return true; }
+    size_t getMaxNDim() const override { return 3; }
 
-protected:
-  double _evaluateCov(double h) const override;
-  double _evaluateCovDerivative(Id degree, double h) const override;
-  double _evaluateCovFirstDerivativeOverH(double h) const override;
-};
+    String getCovName() const override { return "Wendland-4,2"; }
+
+    Id getMinOrder() const override { return -1; }
+
+    bool getCompatibleSpaceR() const override { return true; }
+
+    bool hasCovDerivative() const override { return true; }
+
+  protected:
+    double _evaluateCov(double h) const override;
+    double _evaluateCovDerivative(Id degree, double h) const override;
+    double _evaluateCovFirstDerivativeOverH(double h) const override;
+  };
 
 } // namespace gstlrn

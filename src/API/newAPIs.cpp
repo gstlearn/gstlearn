@@ -19,49 +19,50 @@
 
 namespace gstlrn
 {
-Db* createDbFromDataFrame(const DataFrame* dat,
-                          const VectorString& coordinates)
-{
-  auto* db = new Db();
-  for (const auto& [name, values]: *dat)
+  Db*
+    createDbFromDataFrame(const DataFrame* dat, const VectorString& coordinates)
   {
+    auto* db = new Db();
+    for (const auto& [name, values]: *dat)
+    {
 
-    db->setColumn(values, name);
-  }
-  db->setLocators(coordinates, ELoc::X);
-  return db;
-}
-
-GaussianProcess* createModelFromData(const Db* dat,
-                                     const VectorString& variables,
-                                     const std::vector<ECov>& structs,
-                                     bool addMeasurementError)
-{
-
-  auto* gp = new GaussianProcess();
-  CovContext ctxt(static_cast<Id>(variables.size()), dat->getNDim());
-  Model model(ctxt);
-  if (structs.empty())
-  {
-    messerr("No covariance structures provided.");
-    return nullptr;
+      db->setColumn(values, name);
+    }
+    db->setLocators(coordinates, ELoc::X);
+    return db;
   }
 
-  if (addMeasurementError)
+  GaussianProcess* createModelFromData(
+    const Db* dat,
+    const VectorString& variables,
+    const std::vector<ECov>& structs,
+    bool addMeasurementError)
   {
-    CovAniso nugget(ctxt, ECov::NUGGET);
-    model.addCov(nugget);
-  }
 
-  for (size_t i = 0; i < structs.size(); ++i)
-  {
-    CovAniso covi(ctxt, structs[i]);
-    model.addCov(covi);
+    auto* gp = new GaussianProcess();
+    CovContext ctxt(static_cast<Id>(variables.size()), dat->getNDim());
+    Model model(ctxt);
+    if (structs.empty())
+    {
+      messerr("No covariance structures provided.");
+      return nullptr;
+    }
+
+    if (addMeasurementError)
+    {
+      CovAniso nugget(ctxt, ECov::NUGGET);
+      model.addCov(nugget);
+    }
+
+    for (size_t i = 0; i < structs.size(); ++i)
+    {
+      CovAniso covi(ctxt, structs[i]);
+      model.addCov(covi);
+    }
+    model.setDriftIRF(0);
+    gp->init(&model, dat);
+    auto data = gp->getData();
+    data->setLocators(variables, ELoc::Z);
+    return gp;
   }
-  model.setDriftIRF(0);
-  gp->init(&model, dat);
-  auto data = gp->getData();
-  data->setLocators(variables, ELoc::Z);
-  return gp;
-}
 } // namespace gstlrn

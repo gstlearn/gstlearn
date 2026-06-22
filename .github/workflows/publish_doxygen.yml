@@ -33,7 +33,7 @@ jobs:
       project_full_version: ${{ steps.main_step.outputs.PROJECT_FULL_VERSION }}
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Install dependencies
       run: |
@@ -54,7 +54,7 @@ jobs:
           -DBUILD_PYTHON=OFF \
           -DBUILD_R=OFF \
           -DBUILD_DOC=ON
-          
+
     - name: Build doxygen documentation and save generated folder name in the environment
       id: main_step
       run: |
@@ -63,7 +63,7 @@ jobs:
         echo "HTML_FOLDER=${{env.BUILD_DIR}}/doxygen/html" >> "$GITHUB_ENV"
         echo "PROJECT_FULL_VERSION=${PROJECT_FULL_VERSION}" >> "$GITHUB_OUTPUT"
 
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v6
       with:
         # This will become the folder name in the server
         name: doxygen
@@ -72,10 +72,10 @@ jobs:
   publish:
     needs: build
     if: ${{inputs.dry_publish == false}}
-    
+
     # Only ubuntu can upload to a server easily (ssh)
     runs-on: ubuntu-latest
-    
+
     steps:
       - env:
           PROJECT_FULL_VERSION: ${{needs.build.outputs.project_full_version}}

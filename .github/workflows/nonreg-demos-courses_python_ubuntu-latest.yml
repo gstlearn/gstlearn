@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Install dependencies
       run: |
@@ -45,7 +45,7 @@ jobs:
           pandoc
 
     - name: Setup uv
-      uses: astral-sh/setup-uv@v6
+      uses: astral-sh/setup-uv@v8.1.0
       with:
         python-version: ${{env.PYTHON_VERSION}}
         activate-environment: true
@@ -55,15 +55,15 @@ jobs:
         uv pip install numpy
         uv pip install jupyter
         uv pip install notebook==6.1.6
-        uv pip install matplotlib
+        uv pip install matplotlib==3.10.9
         uv pip install plotly
         uv pip install pandas
         uv pip install scipy
         uv pip install dash
-        uv pip install scikit-sparse
+        uv pip install scikit-sparse==0.4.16
 
     - name: Run sccache-cache
-      uses: mozilla-actions/sccache-action@v0.0.9
+      uses: mozilla-actions/sccache-action@v0.0.10
 
     - name: Configure build directory for python package
       run: |
@@ -92,7 +92,7 @@ jobs:
 
     - name: Publish output logs as artefact
       if: always()
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: demos-courses-python-logs
         path: ${{env.BUILD_DIR}}/tests/demos-courses-python-logs.tar.gz

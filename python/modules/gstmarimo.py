@@ -12,8 +12,6 @@
 # to be included in Marimo interface
 # Reminder: all methods staring by "W" are dedicated to UI
 
-from click import option
-from distro import name
 import gstlearn as gl
 import numpy as np
 import pandas as pd
@@ -398,18 +396,33 @@ def WdefineSimtub(nbtuba=100, nbsimu=1, seed=13134):
         start=1, stop=None, value=nbsimu, label="Number of Simulations"
     )
     WSimSeed = mo.ui.number(start=0, stop=None, value=seed, label="Seed")
-    return mo.ui.array([WSimNbtuba, WSimNbsimu, WSimSeed])
+
+    WDisplaySimu = mo.ui.switch(
+        True, label="Display Simulations rather than Average / Dispersion"
+    )
+    WDisplayBinary = mo.ui.switch(False, label="Display in Binary Mode")
+
+    return mo.ui.array([WSimNbtuba, WSimNbsimu, WSimSeed, WDisplaySimu, WDisplayBinary])
 
 
 def WshowSimtub(WAll, flagTitle=True, gapv=2):
-    [WSimNbtuba, WSimNbsimu, WSimSeed] = WAll
-    WSimTitle = _WgetTitle("Parameters for Turning Bands Simulations", flagTitle)
-    return mo.vstack([WSimTitle, WSimNbtuba, WSimNbsimu, WSimSeed], gap=gapv)
+    [WSimNbtuba, WSimNbsimu, WSimSeed, WDisplaySimu, WDisplayBinary] = WAll
+    WSimTitle = _WgetTitle("Turning Bands Method", flagTitle)
+    return mo.vstack(
+        [WSimTitle, WSimNbtuba, WSimNbsimu, WSimSeed, WDisplaySimu, WDisplayBinary],
+        gap=gapv,
+    )
 
 
 def WgetSimtub(WAll):
-    [WSimNbtuba, WSimNbsimu, WSimSeed] = WAll
-    return WSimNbtuba.value, WSimNbsimu.value, WSimSeed.value
+    [WSimNbtuba, WSimNbsimu, WSimSeed, WDisplaySimu, WDisplayBinary] = WAll
+    return (
+        WSimNbtuba.value,
+        WSimNbsimu.value,
+        WSimSeed.value,
+        WDisplaySimu.value,
+        WDisplayBinary.value,
+    )
 
 
 # =========================
@@ -984,15 +997,37 @@ def plotVario(ax, vario=None, model=None, title=None, showPairs=True):
     ax.decoration(title=title)
 
 
-def plotGrid(ax, grid, name, title=None, flagLegend=False, nlevel=10, levels=None):
+# Plot a grid with optional isolines
+# * ax: Marimo axis
+# * grid: DbGrid to plot
+# * name: Name of the variable to plot (must be in the DbGrid)
+# * title: Title of the plot (optional)
+# * flagLegend: Whether to display the legend (default: False)
+# * flagBinary: Whether to use a binary color map (default: False)
+# * nlevel: Number of isoline levels (default: 10, set to 0 for no isolines or flagBinary=True)
+# * levels: Optional list of specific levels for isolines (overrides nlevel if provided)
+def plotGrid(
+    ax,
+    grid,
+    name,
+    title=None,
+    flagLegend=False,
+    flagBinary=False,
+    nlevel=10,
+    levels=None,
+):
     if grid is None:
         return
     if name is None or grid.getColIdx(name) <= 0:
         return
     if title is None:
         title = f"Grid: {name}"
-    ax.raster(dbgrid=grid, name=name, alpha=0.5, flagLegend=flagLegend)
-    if nlevel > 0:
+    if flagBinary:
+        flagLegend = False
+    ax.raster(
+        dbgrid=grid, name=name, alpha=0.5, flagLegend=flagLegend, flagBinary=flagBinary
+    )
+    if nlevel > 0 and not flagBinary:
         ax.isoline(
             dbgrid=grid,
             name=name,

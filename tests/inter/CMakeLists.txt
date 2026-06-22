@@ -1,5 +1,5 @@
 # List the source files
-set(TEST_SOURCES 
+set(TEST_SOURCES
   testInter_Ask.cpp)
 
 # Generation folder

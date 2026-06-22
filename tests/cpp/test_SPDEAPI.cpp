@@ -34,8 +34,8 @@ int main(int argc, char* argv[])
   StdoutRedirect sr(sfn.str(), argc, argv);
 
   ASerializable::setPrefixName("test_SPDEAPI-");
-  Id seed      = 10355;
-  Id nbsimu    = 3;
+  Id seed = 10355;
+  Id nbsimu = 3;
   bool verbose = false;
   law_set_random_seed(seed);
 
@@ -52,29 +52,32 @@ int main(int argc, char* argv[])
   model->display();
 
   // Creating Data
-  Id ndata        = 100;
-  Db* dat         = Db::createFromBox(ndata, {0., 0.}, {100., 100.}, 43246);
-  VectorDouble z  = VH::simulateGaussian(ndata);
-  Id useCholesky  = 0;
+  Id ndata = 100;
+  Db* dat = Db::createFromBox(ndata, {0., 0.}, {100., 100.}, 43246);
+  VectorDouble z = VH::simulateGaussian(ndata);
+  Id useCholesky = 0;
   law_set_random_seed(132341);
-  (void)simulateSPDE(nullptr, dat, model, 1, useCholesky,
-                     nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, SPDEParam(), verbose,
-                     NamingConvention("variable", false, false));
+  (void)simulateSPDE(
+    nullptr, dat, model, 1, useCholesky, nullptr, nullptr, nullptr, nullptr,
+    nullptr, nullptr, SPDEParam(), verbose,
+    NamingConvention("variable", false, false));
   dat->display();
 
   // Estimation and simulations
-  (void)krigingSPDE(dat, grid, model, true, false, useCholesky,
-                    nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, SPDEParam(), verbose,
-                    NamingConvention("K-spirale"));
+  (void)krigingSPDE(
+    dat, grid, model, true, false, useCholesky, nullptr, nullptr, nullptr,
+    nullptr, nullptr, nullptr, nullptr, SPDEParam(), verbose,
+    NamingConvention("K-spirale"));
   law_set_random_seed(132341);
 
-  (void)simulateSPDE(nullptr, grid, model, nbsimu, useCholesky,
-                     nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, SPDEParam(), verbose,
-                     NamingConvention("NCS-spirale"));
+  (void)simulateSPDE(
+    nullptr, grid, model, nbsimu, useCholesky, nullptr, nullptr, nullptr,
+    nullptr, nullptr, nullptr, SPDEParam(), verbose,
+    NamingConvention("NCS-spirale"));
   law_set_random_seed(132341);
-  (void)simulateSPDE(dat, grid, model, nbsimu, useCholesky,
-                     nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, SPDEParam(), verbose,
-                     NamingConvention("CDS-spirale"));
+  (void)simulateSPDE(
+    dat, grid, model, nbsimu, useCholesky, nullptr, nullptr, nullptr, nullptr,
+    nullptr, nullptr, SPDEParam(), verbose, NamingConvention("CDS-spirale"));
 
   (void)grid->dumpToNF("grid.NF");
   DbStringFormat dbfmt(FLAG_STATS, {"spde*"});

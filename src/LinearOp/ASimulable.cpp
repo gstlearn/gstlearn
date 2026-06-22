@@ -17,48 +17,49 @@
 namespace gstlrn
 {
 
-ASimulable::ASimulable()
-{
-}
-VectorDouble ASimulable::evalSimulate(const VectorDouble& whitenoise) const
-{
-  VectorDouble res;
-  evalSimulate(whitenoise, res);
-  return res;
-}
+  ASimulable::ASimulable() {}
 
-VectorDouble ASimulable::simulate() const
-{
-  VectorDouble whitenoise(getSize());
-  VH::simulateGaussianInPlace(whitenoise);
-  VectorDouble res(getSize());
-  evalSimulate(whitenoise, res);
-  return res;
-}
-Id ASimulable::evalSimulate(const VectorDouble& whitenoise,
-                            VectorDouble& outv) const
-{
-  outv.resize(whitenoise.size());
-  constvect ws(whitenoise);
-  vect outs(outv);
-  return evalSimulate(ws, outs);
-}
+  VectorDouble ASimulable::evalSimulate(const VectorDouble& whitenoise) const
+  {
+    VectorDouble res;
+    evalSimulate(whitenoise, res);
+    return res;
+  }
 
-Id ASimulable::evalSimulate(const constvect whitenoise, vect result) const
-{
-  std::fill(result.begin(), result.end(), 0.);
-  return _addSimulateToDest(whitenoise, result);
-}
+  VectorDouble ASimulable::simulate() const
+  {
+    VectorDouble whitenoise(getSize());
+    VH::simulateGaussianInPlace(whitenoise);
+    VectorDouble res(getSize());
+    evalSimulate(whitenoise, res);
+    return res;
+  }
 
-Id ASimulable::addSimulateToDest(const constvect whitenoise, vect outv) const
-{
-  return _addSimulateToDest(whitenoise, outv);
-}
+  Id ASimulable::evalSimulate(
+    const VectorDouble& whitenoise,
+    VectorDouble& outv) const
+  {
+    outv.resize(whitenoise.size());
+    constvect ws(whitenoise);
+    vect outs(outv);
+    return evalSimulate(ws, outs);
+  }
 
-double ASimulable::computeLogDet(Id nMC) const
-{
-  DECLARE_UNUSED(nMC);
-  messerr("computeLogDet not implemented in ASimulable");
-  return TEST;
-}
+  Id ASimulable::evalSimulate(const constvect whitenoise, vect result) const
+  {
+    std::fill(result.begin(), result.end(), 0.);
+    return _addSimulateToDest(whitenoise, result);
+  }
+
+  Id ASimulable::addSimulateToDest(const constvect whitenoise, vect outv) const
+  {
+    return _addSimulateToDest(whitenoise, outv);
+  }
+
+  double ASimulable::computeLogDet(Id nMC) const
+  {
+    DECLARE_UNUSED(nMC);
+    messerr("computeLogDet not implemented in ASimulable");
+    return TEST;
+  }
 } // namespace gstlrn

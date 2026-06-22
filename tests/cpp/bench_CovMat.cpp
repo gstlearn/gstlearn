@@ -17,13 +17,14 @@
 #include "Basic/Timer.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
-#include "Estimation/CalcKriging.hpp"
+#include "Estimation/Estimations.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Space/ASpaceObject.hpp"
 #include <string>
 
 using namespace gstlrn;
+
 void st_bench_writing_in_matrix(Id nrows, Id ncols, Timer& timer)
 {
   mestitle(1, "Writing into the Rectangular Covariance Matrix");
@@ -32,15 +33,13 @@ void st_bench_writing_in_matrix(Id nrows, Id ncols, Timer& timer)
   // consecutive writes: loop in row then col
   timer.reset();
   for (Id irow = 0; irow < nrows; irow++)
-    for (Id icol = 0; icol < ncols; icol++)
-      mat.setValue(irow, icol, 12.);
+    for (Id icol = 0; icol < ncols; icol++) mat.setValue(irow, icol, 12.);
   timer.displayIntervalMilliseconds("Writing consecutively by row then by col");
 
   // consecutive writes: loop in col then row
   timer.reset();
   for (Id icol = 0; icol < ncols; icol++)
-    for (Id irow = 0; irow < nrows; irow++)
-      mat.setValue(irow, icol, 12.);
+    for (Id irow = 0; irow < nrows; irow++) mat.setValue(irow, icol, 12.);
   timer.displayIntervalMilliseconds("Writing consecutively by col then by row");
 
   VectorInt rowRand = law_random_path(nrows);
@@ -80,26 +79,27 @@ int main(int argc, char* argv[])
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Generate the input data base
-  Id nall  = 100;
+  Id nall = 100;
   Db* dbin = Db::createFillRandom(nall, ndim);
   dbin->addSelectionRandom(0.9);
   Id ndat = dbin->getNSample(true);
   if (verbose) dbin->display();
 
   // Generate the output data base
-  Id nout   = 100000;
+  Id nout = 100000;
   Db* dbout = Db::createFillRandom(nout, ndim);
   if (verbose) dbout->display();
 
   // Create the Model
   double range = 0.6;
-  double sill  = 1.2;
+  double sill = 1.2;
   Model* model = Model::createFromParam(ECov::SPHERICAL, range, sill);
   if (verbose) model->display();
 
   // Printout
   message("RHS between:\n");
-  message("- each active sample (%d out of %d) of the input data base\n", ndat, nall);
+  message(
+    "- each active sample (%d out of %d) of the input data base\n", ndat, nall);
   message("- each one of the %d target sites\n", nout);
   message("(For checking purpose, a Selection has been added)\n");
   message("Statistics are provided on the averaged RHS\n");
@@ -122,12 +122,12 @@ int main(int argc, char* argv[])
     {
       dbout->getSampleAsSPInPlace(p2, i);
       model->evalPointToDb(rhs1, p2, dbin);
-      cumul.add(rhs1);
+      cumul += rhs1;
     }
     timer.displayIntervalMilliseconds("Establishing RHS", 3900);
 
     // Some printout for comparison
-    cumul.divideCst(nout);
+    cumul /= nout;
     VH::dumpRange("", cumul);
   }
 
@@ -153,12 +153,12 @@ int main(int argc, char* argv[])
     {
       dbout->getSampleAsSPInPlace(p2, i);
       model->evalPointToDbAsSP(rhs2, p1s, p2);
-      cumul.add(rhs2);
+      cumul += rhs2;
     }
     timer.displayIntervalMilliseconds("Establishing RHS (semi-optimized)", 600);
 
     // Some printout for comparison
-    cumul.divideCst(nout);
+    cumul /= nout;
     VH::dumpRange("", cumul);
   }
 
@@ -168,7 +168,9 @@ int main(int argc, char* argv[])
     // =================
 
     mestitle(1, "Optimized solution");
-    message("Input samples are pre-transformed into vector of (anisotropic) space points\n");
+    message(
+      "Input samples are pre-transformed into vector of (anisotropic) space "
+      "points\n");
     message("Simple loop between each target and the previous vector\n");
     model->setOptimEnabled(true);
 
@@ -176,13 +178,13 @@ int main(int argc, char* argv[])
     timer.reset();
     OptCustom::define("OptimCovMat", mode);
     (void)model->evalCovMatInPlace(mat, dbin, dbout);
-    timer.displayIntervalMilliseconds("Establishing RHS V" + std::to_string(mode));
+    timer.displayIntervalMilliseconds(
+      "Establishing RHS V" + std::to_string(mode));
 
     // Some printout for comparison
     cumul.fill(0.);
-    for (Id i = 0; i < nout; i++)
-      cumul.add(mat.getColumn(i));
-    cumul.divideCst(nout);
+    for (Id i = 0; i < nout; i++) cumul += mat.getColumn(i);
+    cumul /= nout;
     VH::dumpRange("", cumul);
   }
 

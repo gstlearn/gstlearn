@@ -17,7 +17,7 @@
 #include "Basic/Timer.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
-#include "Estimation/CalcKriging.hpp"
+#include "Estimation/Estimations.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Space/ASpaceObject.hpp"
@@ -45,20 +45,20 @@ int main(int argc, char* argv[])
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Generate the data base
-  Id nech      = 100;
-  Id nvar      = 1;
+  Id nech = 100;
+  Id nvar = 1;
   bool verbose = false;
-  Db* data     = Db::createFillRandom(nech, ndim, nvar);
+  Db* data = Db::createFillRandom(nech, ndim, nvar);
 
   // Generate the output grid
-  Id ncell        = 100;
-  VectorInt nx    = {ncell, ncell};
+  Id ncell = 100;
+  VectorInt nx = {ncell, ncell};
   VectorDouble dx = {1. / ncell, 1. / ncell};
-  DbGrid* grid    = DbGrid::create(nx, dx);
+  DbGrid* grid = DbGrid::create(nx, dx);
 
   // Create the Model
   double range = 1. / 5.;
-  double sill  = 2.;
+  double sill = 2.;
   Model* model = Model::createFromParam(ECov::SPHERICAL, range, sill);
 
   // Unique Neighborhood

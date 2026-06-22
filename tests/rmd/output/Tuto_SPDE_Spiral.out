@@ -42,10 +42,10 @@ Variables
 Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
-Column = 3 - Name = SimuSPDE.1 - Locator = z1
-Column = 4 - Name = SimuSPDE.2 - Locator = z2
-Column = 5 - Name = SimuSPDE.3 - Locator = z3
-Column = 6 - Name = SimuSPDE.4 - Locator = z4
+Column = 3 - Name = SimuSPDE.S1 - Locator = z1
+Column = 4 - Name = SimuSPDE.S2 - Locator = z2
+Column = 5 - Name = SimuSPDE.S3 - Locator = z3
+Column = 6 - Name = SimuSPDE.S4 - Locator = z4
 
 Data Base Characteristics
 =========================
@@ -85,10 +85,10 @@ Variables
 Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
-Column = 3 - Name = SimuSPDE.1 - Locator = NA
-Column = 4 - Name = SimuSPDE.2 - Locator = NA
-Column = 5 - Name = SimuSPDE.3 - Locator = NA
-Column = 6 - Name = SimuSPDE.4 - Locator = NA
+Column = 3 - Name = SimuSPDE.S1 - Locator = NA
+Column = 4 - Name = SimuSPDE.S2 - Locator = NA
+Column = 5 - Name = SimuSPDE.S3 - Locator = NA
+Column = 6 - Name = SimuSPDE.S4 - Locator = NA
 Column = 7 - Name = KrigingSPDE.data.estim - Locator = z1
 
 Data Base Grid Characteristics
@@ -112,12 +112,12 @@ Variables
 Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
-Column = 3 - Name = SimuSPDE.1 - Locator = NA
-Column = 4 - Name = SimuSPDE.2 - Locator = NA
-Column = 5 - Name = SimuSPDE.3 - Locator = NA
-Column = 6 - Name = SimuSPDE.4 - Locator = NA
+Column = 3 - Name = SimuSPDE.S1 - Locator = NA
+Column = 4 - Name = SimuSPDE.S2 - Locator = NA
+Column = 5 - Name = SimuSPDE.S3 - Locator = NA
+Column = 6 - Name = SimuSPDE.S4 - Locator = NA
 Column = 7 - Name = KrigingSPDE.data.estim - Locator = NA
-Column = 8 - Name = SimuSPDE.data.1 - Locator = z1
-Column = 9 - Name = SimuSPDE.data.2 - Locator = z2
-Column = 10 - Name = SimuSPDE.data.3 - Locator = z3
-Column = 11 - Name = SimuSPDE.data.4 - Locator = z4
+Column = 8 - Name = SimuSPDE.data.S1 - Locator = z1
+Column = 9 - Name = SimuSPDE.data.S2 - Locator = z2
+Column = 10 - Name = SimuSPDE.data.S3 - Locator = z3
+Column = 11 - Name = SimuSPDE.data.S4 - Locator = z4

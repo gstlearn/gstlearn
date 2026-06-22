@@ -12,9 +12,10 @@
 #include "Basic/File.hpp"
 #include "Basic/Law.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
-#include "Simulation/CalcSimuTurningBands.hpp"
+#include "Simulation/Simulations.hpp"
 
 using namespace gstlrn;
 
@@ -34,8 +35,6 @@ int main(int argc, char* argv[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
 
-  DbStringFormat dbfmt(FLAG_STATS);
-
   ASerializable::setPrefixName("test_Limits-");
   Id seed = 10355;
   law_set_random_seed(seed);
@@ -45,30 +44,28 @@ int main(int argc, char* argv[])
 
   // Creating the Model
   Model model(1, 2);
-  model.addCovFromParam(ECov::CUBIC, 0., 2., 1., {10., 45.},
-                        MatrixSymmetric(), {30., 0.});
+  model.addCovFromParam(
+    ECov::CUBIC, 0., 2., 1., {10., 45.}, MatrixSymmetric(), {30., 0.});
   model.display();
 
   // Simulating a variable on the grid
   (void)simtub(nullptr, grid, &model, nullptr);
-  dbfmt = DbStringFormat(FLAG_STATS, {"Simu"});
+  DbStringFormat dbfmt = DbStringFormat(FLAG_STATS, {"Simu"});
   grid->display(&dbfmt);
 
   // Creating a set of Limits
-  Limits limits({-1., -0.5, 0., 0.5, 1.});
+  Limits limits({-5., -0.5, 0., 0.5, 5.});
   limits.display();
 
   // Other option
   grid->setLocator("Simu", ELoc::Z, 0);
   limits.toIndicator(grid, "Simu", 0);
-  dbfmt = DbStringFormat(FLAG_ARRAY, {"Simu", "Indicator.Simu.Mean"});
-  grid->display(&dbfmt);
+  grid->getStatsAsTable().display();
 
   // Convert into Indicators
   grid->setLocator("Simu", ELoc::Z, 0);
   limits.toIndicator(grid, "Simu", 1);
-  dbfmt = DbStringFormat(FLAG_ARRAY, {"Indicator.Simu.Class*"});
-  grid->display(&dbfmt);
+  grid->getStatsAsTable().display();
 
   delete grid;
   return 0;

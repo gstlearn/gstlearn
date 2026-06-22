@@ -15,7 +15,7 @@
 #include "Basic/Timer.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
-#include "Estimation/CalcKriging.hpp"
+#include "Estimation/Estimations.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/NeighBench.hpp"
 #include "Space/ASpaceObject.hpp"
@@ -42,23 +42,23 @@ int main(int argc, char* argv[])
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Generate the data base
-  Id nech  = 1000;
-  Id nvar  = 1;
+  Id nech = 1000;
+  Id nvar = 1;
   Db* data = Db::createFillRandom(nech, ndim, nvar);
 
   // Generate the output grid
-  Id ncell        = 100;
-  VectorInt nx    = {ncell, ncell};
+  Id ncell = 100;
+  VectorInt nx = {ncell, ncell};
   VectorDouble dx = {1. / ncell, 1. / ncell};
-  DbGrid* grid    = DbGrid::create(nx, dx);
+  DbGrid* grid = DbGrid::create(nx, dx);
 
   // Create the Model
   double range = 1. / 5.;
-  double sill  = 2.;
+  double sill = 2.;
   Model* model = Model::createFromParam(ECov::SPHERICAL, range, sill);
 
   // Bench Neighborhood
-  double width       = 0.5;
+  double width = 0.5;
   NeighBench* neighB = NeighBench::create(false, width);
 
   // Print the test environment
@@ -76,8 +76,7 @@ int main(int argc, char* argv[])
   grid->display(dbfmt);
   delete dbfmt;
 
-  if (graphic)
-    (void)grid->dumpToNF("Grid.NF");
+  if (graphic) (void)grid->dumpToNF("Grid.NF");
   delete neighB;
   delete data;
   delete grid;

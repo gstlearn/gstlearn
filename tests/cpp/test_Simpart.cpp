@@ -16,6 +16,7 @@
 #include "Model/Model.hpp"
 #include "Simulation/CalcSimuPartition.hpp"
 #include "Simulation/SimuPartitionParam.hpp"
+#include "Simulation/Simulations.hpp"
 #include "Space/ASpaceObject.hpp"
 
 using namespace gstlrn;
@@ -36,8 +37,8 @@ int main(int argc, char* argv[])
   ASerializable::setPrefixName("test_Simpart-");
 
   // Global parameters
-  Id ndim   = 2;
-  Id seed   = 3322;
+  Id ndim = 2;
+  Id seed = 3322;
   Id nxcell = 100;
   defineDefaultSpace(ESpaceType::RN, ndim);
 
@@ -52,16 +53,16 @@ int main(int argc, char* argv[])
 
   // ====================== Create Parameter File ===================
   message("\n<----- Creating Parameter File ----->\n");
-  Id nbtuba        = 50;
+  Id nbtuba = 50;
   double intensity = 0.1;
   SimuPartitionParam parparam(nbtuba, intensity);
   parparam.display();
 
   // ====================== Perform Boolean simulation ===================
   message("\n<----- Perform Partition Simulation ----->\n");
-  (void)tessellation_poisson(grid, model, parparam, seed, false);
+  (void)tessellationPoisson(grid, model, parparam, seed, false);
 
-  (void)tessellation_voronoi(grid, model, parparam, seed, false);
+  (void)tessellationVoronoi(grid, model, parparam, seed, false);
 
   (void)grid->dumpToNF("grid.NF");
 

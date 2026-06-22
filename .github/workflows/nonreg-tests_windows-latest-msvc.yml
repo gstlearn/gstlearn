@@ -29,10 +29,10 @@ env:
 jobs:
 
   build:
-    runs-on: windows-2022
+    runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Install dependencies
       run: |
@@ -45,26 +45,20 @@ jobs:
     - name: Build & install nlopt static libraries
       uses: ./.github/actions/nlopt_static_windows
       env:
-        CMAKE_GENERATOR: "Visual Studio 17 2022"
+        CMAKE_GENERATOR: "Visual Studio 18 2026"
 
     - name: Build & install HDF5 static libraries
       uses: ./.github/actions/hdf5_static_windows
       env:
-        CMAKE_GENERATOR: "Visual Studio 17 2022"
+        CMAKE_GENERATOR: "Visual Studio 18 2026"
 
-    - name: Setup uv
-      uses: astral-sh/setup-uv@v6
+    - name: Setup Python
+      uses: ./.github/actions/setup_python
       with:
         python-version: ${{env.PYTHON_VERSION}}
-        activate-environment: true
-
-    - name: Install python dependencies
-      run: |
-        uv pip install numpy
-        uv pip install mlxtend
 
     - name: Run sccache-cache
-      uses: mozilla-actions/sccache-action@v0.0.9
+      uses: mozilla-actions/sccache-action@v0.0.10
 
     - name: Set up Visual Studio shell
       uses: egor-tensin/vs-shell@v2
@@ -90,26 +84,8 @@ jobs:
       run: |
         cmake --build ${{env.BUILD_DIR}} --target check
 
-    - name: Compress output logs and neutral files
-      if: success() || failure()
-      shell: bash
-      run: |
-        cd ${{env.BUILD_DIR}}/tests
-        find . -type f -name "*.out" -print0 | tar -czvf msvc-logs.tar.gz --null -T -
-        cd $GITHUB_WORKSPACE/build/gstlearn_dir
-        find . -type f -name "*.*" -print0 | tar -czvf msvc-neutral.tar.gz --null -T -
-        mv msvc-neutral.tar.gz $GITHUB_WORKSPACE/
-
-    - name: Publish output logs as artefact
+    - name: Compress and upload artifacts
       if: always()
-      uses: actions/upload-artifact@v4
+      uses: ./.github/actions/compress_and_upload_nonreg_artifacts
       with:
-        name: msvc-nonreg-logs
-        path: ${{env.BUILD_DIR}}/tests/msvc-logs.tar.gz
-
-    - name: Publish output neutral files as artefact
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: msvc-neutral-files
-        path: ${{github.workspace}}/msvc-neutral.tar.gz
+        os-name: msvc

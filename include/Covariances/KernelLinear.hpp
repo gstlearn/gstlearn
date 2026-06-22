@@ -11,33 +11,42 @@
 #pragma once
 
 #include "Covariances/AKernel.hpp"
+#include "Enum/ESimuType.hpp"
 #include "gstlearn_export.hpp"
 
 /* Be careful ! This is not a real covariance */
 
 namespace gstlrn
 {
-class CovContext;
-class TurningBandOperate;
+  class CovContext;
+  class TurningBandOperate;
 
-class GSTLEARN_EXPORT KernelLinear: public AKernel
-{
-public:
-  KernelLinear(const CovContext& ctx);
-  KernelLinear(const KernelLinear& r);
-  KernelLinear& operator=(const KernelLinear& r);
-  virtual ~KernelLinear();
+  class GSTLEARN_EXPORT KernelLinear: public AKernel
+  {
+  public:
+    KernelLinear(const CovContext& ctx);
+    KernelLinear(const KernelLinear& r);
+    KernelLinear& operator=(const KernelLinear& r);
+    virtual ~KernelLinear();
 
-  Id hasRange() const override { return -1; }
-  Id getMinOrder() const override { return 0; }
-  String getCovName() const override { return "Linear"; }
-  bool getCompatibleSpaceR() const override { return true; }
+    Id hasRange() const override { return -1; }
 
-  bool isValidForTurningBand() const override { return true; }
-  double simulateTurningBand(double t0, TurningBandOperate& operTB) const override;
+    Id getMinOrder() const override { return 0; }
 
-protected:
-  double _evaluateCov(double h) const override;
-};
+    String getCovName() const override { return "Linear"; }
+
+    bool getCompatibleSpaceR() const override { return true; }
+
+    bool isValidForSimulation(const ESimuType& simuType) const override
+    {
+      return (simuType == ESimuType::TB);
+    }
+
+    double
+      simulateTurningBand(double t0, TurningBandOperate& operTB) const override;
+
+  protected:
+    double _evaluateCov(double h) const override;
+  };
 
 } // namespace gstlrn

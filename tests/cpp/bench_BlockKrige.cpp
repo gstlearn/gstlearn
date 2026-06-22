@@ -15,19 +15,19 @@
 #include "Basic/NamingConvention.hpp"
 #include "Enum/ESpaceType.hpp"
 
-#include "Matrix/MatrixSymmetric.hpp"
-#include "Space/ASpaceObject.hpp"
+#include "Basic/File.hpp"
+#include "Basic/Law.hpp"
+#include "Basic/OptDbg.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
-#include "Basic/Law.hpp"
-#include "Basic/VectorHelper.hpp"
+#include "Estimation/Estimations.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Model/Model.hpp"
-#include "Basic/File.hpp"
-#include "Basic/OptDbg.hpp"
-#include "Neigh/NeighUnique.hpp"
 #include "Neigh/NeighMoving.hpp"
-#include "Estimation/CalcKriging.hpp"
+#include "Neigh/NeighUnique.hpp"
+#include "Space/ASpaceObject.hpp"
 
 using namespace gstlrn;
 
@@ -44,10 +44,10 @@ int main(int argc, char* argv[])
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Parameters
-  bool verbose    = true;
-  Id nech         = 4;
-  Id nvar         = 1;
-  bool flagSK     = false;
+  bool verbose = true;
+  Id nech = 4;
+  Id nvar = 1;
+  bool flagSK = false;
 
   // Generate the data base
   Db* data = Db::createFillRandom(nech, ndim, nvar, 0);
@@ -63,10 +63,10 @@ int main(int argc, char* argv[])
 
   // Create the Model
   double scale = 0.7;
-  MatrixSymmetric* sills =
-    MatrixSymmetric::createRandomDefinitePositive(nvar);
-  Model* model = Model::createFromParam(ECov::EXPONENTIAL, scale, 0., 0., VectorDouble(),
-                                        *sills, VectorDouble(), nullptr, false);
+  MatrixSymmetric* sills = MatrixSymmetric::createRandomDefinitePositive(nvar);
+  Model* model = Model::createFromParam(
+    ECov::EXPONENTIAL, scale, 0., 0., VectorDouble(), *sills, VectorDouble(),
+    nullptr, false);
   if (flagSK)
   {
     VectorDouble means = VH::simulateGaussian(nvar);
@@ -78,9 +78,9 @@ int main(int argc, char* argv[])
 
   // Neighborhood
   ANeigh* neigh;
-  Id nmaxi      = nech;
+  Id nmaxi = nech;
   double radius = 5.;
-  neigh         = NeighMoving::create(false, nmaxi, radius);
+  neigh = NeighMoving::create(false, nmaxi, radius);
 
   // Define the verbose option
   if (verbose) OptDbg::setReference(1);

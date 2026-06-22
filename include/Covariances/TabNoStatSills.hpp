@@ -16,22 +16,22 @@
 
 namespace gstlrn
 {
-class GSTLEARN_EXPORT TabNoStatSills: public TabNoStat
-{
-public:
-  TabNoStatSills();
-  TabNoStatSills(const TabNoStatSills& m);
-  TabNoStatSills& operator=(const TabNoStatSills& m);
-  virtual ~TabNoStatSills();
+  class GSTLEARN_EXPORT TabNoStatSills: public TabNoStat
+  {
+  public:
+    TabNoStatSills();
+    TabNoStatSills(const TabNoStatSills& m);
+    TabNoStatSills& operator=(const TabNoStatSills& m);
+    virtual ~TabNoStatSills();
 
-  IMPLEMENT_CLONING(TabNoStatSills)
+    IMPLEMENT_CLONING(TabNoStatSills)
 
-  bool isDefinedForVariance() const;
-  Id getNSills() const;
+    bool isDefinedForVariance() const;
+    Id getNSills() const;
 
-  String toString(const AStringFormat* strfmt = nullptr) const override;
+    String toString(const AStringFormat* strfmt = nullptr) const override;
 
-private:
-  bool _isValid(const EConsElem& econs) const override;
-};
+  private:
+    bool _isValid(const EConsElem& econs) const override;
+  };
 } // namespace gstlrn

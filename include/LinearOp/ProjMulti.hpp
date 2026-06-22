@@ -13,55 +13,66 @@
 #include "Basic/AStringable.hpp"
 #include "LinearOp/IProj.hpp"
 #include "gstlearn_export.hpp"
+
+#include <functional>
+#include <optional>
 #include <vector>
 
 namespace gstlrn
 {
-class GSTLEARN_EXPORT ProjMulti: public IProj, public AStringable
-{
-public:
-  ProjMulti(const std::vector<std::vector<const IProj*>>& projs, bool silent = false);
+  class GSTLEARN_EXPORT ProjMulti: public IProj, public AStringable
+  {
+  public:
+    using ProjVect = std::vector<
+      std::vector<std::optional<std::reference_wrapper<const IProj>>>>;
 
-  /// AStringable Interface
-  String toString(const AStringFormat* strfmt = nullptr) const override;
+    ProjMulti(
+      const std::vector<std::vector<const IProj*>>& projs,
+      bool silent = false);
 
-  Id getNApex() const override;
-  Id getNPoint() const override;
-  Id getNVariable() const { return _nvariable; }
-  Id getNLatent() const { return _nlatent; }
-  virtual ~ProjMulti();
-  bool empty() const { return _projs.empty(); }
+    /// AStringable Interface
+    String toString(const AStringFormat* strfmt = nullptr) const override;
+
+    Id getNApex() const override;
+    Id getNPoint() const override;
+
+    Id getNVariable() const { return _nvariable; }
+
+    Id getNLatent() const { return _nlatent; }
+
+    ~ProjMulti() override = default;
+
+    bool empty() const { return _projs.empty(); }
 
 #ifndef SWIG
 
-protected:
-  Id _addPoint2mesh(const constvect inv, vect outv) const override;
-  Id _addMesh2point(const constvect inv, vect outv) const override;
+  protected:
+    Id _addPoint2mesh(const constvect inv, vect outv) const override;
+    Id _addMesh2point(const constvect inv, vect outv) const override;
 #endif
 
-private:
-  bool _checkArg(const std::vector<std::vector<const IProj*>>& projs) const;
-  void _init();
-  virtual void _clear() {};
+  private:
+    bool _checkArg(const ProjVect& projs) const;
+    void _init();
 
-protected:
-  Id findFirstNoNullOnRow(Id j) const;
-  Id findFirstNoNullOnCol(Id j) const;
-  const VectorInt& getNPoints() const { return _pointNumbers; }
-  const VectorInt& getNApexs() const { return _apexNumbers; }
+  protected:
+    Id findFirstNoNullOnRow(Id j) const;
+    Id findFirstNoNullOnCol(Id j) const;
 
-protected:
-  std::vector<std::vector<const IProj*>> _projs; // NOT TO BE DELETED
+    const VectorInt& getNPoints() const { return _pointNumbers; }
 
-private:
-  Id _pointNumber;
-  Id _apexNumber;
-  Id _nlatent;
-  Id _nvariable;
-  VectorInt _pointNumbers;
-  VectorInt _apexNumbers;
-  bool _silent;
-  mutable VectorDouble _work;
-  mutable VectorDouble _workmesh;
-};
+    const VectorInt& getNApexs() const { return _apexNumbers; }
+
+  protected:
+    ProjVect _projs;
+
+  private:
+    Id _pointNumber;
+    Id _apexNumber;
+    Id _nlatent;
+    Id _nvariable;
+    VectorInt _pointNumbers;
+    VectorInt _apexNumbers;
+    bool _silent;
+  };
 } // namespace gstlrn

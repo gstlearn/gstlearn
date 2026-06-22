@@ -13,35 +13,33 @@
 
 namespace gstlrn
 {
-KernelWendland0::KernelWendland0(const CovContext& ctxt)
-  : AKernel(ECov::WENDLAND0, ctxt)
-{
-}
-
-KernelWendland0::KernelWendland0(const KernelWendland0& r)
-  : AKernel(r)
-{
-}
-
-KernelWendland0& KernelWendland0::operator=(const KernelWendland0& r)
-{
-  if (this != &r)
+  KernelWendland0::KernelWendland0(const CovContext& ctxt)
+    : AKernel(ECov::WENDLAND0, ctxt)
   {
-    AKernel::operator=(r);
   }
-  return *this;
-}
 
-KernelWendland0::~KernelWendland0()
-{
-}
+  KernelWendland0::KernelWendland0(const KernelWendland0& r)
+    : AKernel(r)
+  {
+  }
 
-double KernelWendland0::_evaluateCov(double h) const
-{
-  double cov = 0.;
-  double h2  = h * h;
-  if (h < 1) cov = 1. - 2 * h + h2;
-  return (cov);
-}
+  KernelWendland0& KernelWendland0::operator=(const KernelWendland0& r)
+  {
+    if (this != &r)
+    {
+      AKernel::operator=(r);
+    }
+    return *this;
+  }
 
-}
+  KernelWendland0::~KernelWendland0() {}
+
+  double KernelWendland0::_evaluateCov(double h) const
+  {
+    double cov = 0.;
+    double h2 = h * h;
+    if (h < 1) cov = 1. - 2 * h + h2;
+    return (cov);
+  }
+
+} // namespace gstlrn

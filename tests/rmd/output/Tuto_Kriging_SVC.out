@@ -20,14 +20,14 @@ The Best Linear Unbiased Predictor (BLUP) of $Z$ at the target point $\mathbf{o}
 
 $$\hat{Z}(\mathbf{o}) = \sum_{\alpha \in A} \lambda^{\alpha}Z(\alpha)$$
 
-with the kriging weights obtained minimizing the variance of the estimation error with the unbiasedness conditions. 
+with the kriging weights obtained minimizing the variance of the estimation error with the unbiasedness conditions.
 
 The observations used to predict the variable $Z$ at the target $\mathbf{o}$ may be altered by some Gaussian additive
-noise ($\epsilon \sim \mathcal{N}(0,1)$): 
+noise ($\epsilon \sim \mathcal{N}(0,1)$):
 
-$$\tilde{Z}(\alpha)= Z(\alpha) + \tau \, \varepsilon_{\alpha}$$ 
+$$\tilde{Z}(\alpha)= Z(\alpha) + \tau \, \varepsilon_{\alpha}$$
 
-In this case, the kriging system can be written using matrix notation as 
+In this case, the kriging system can be written using matrix notation as
 
 $$\left[
 \begin{array}{cc}
@@ -45,7 +45,7 @@ $$\left[
 \mathbf{c} \\
 \mathbf{d}
 \end{array}
-\right]$$ 
+\right]$$
 
 where the matrices and vectors used in the kriging system are:
 
@@ -67,14 +67,14 @@ $\Lambda = [\lambda^{\alpha}]_{\alpha \in A}$,
 -   the vector of the Lagrange coefficients ,
 $\mathbf{m}=[\mu_l]_{l \in 0:L}$.
 
-The variance of the kriging error is given by: 
+The variance of the kriging error is given by:
 $$
 \text{Var}(Z(\mathbf{o}) - \hat{Z}(\mathbf{o})) = C(0) -  \Lambda^T \, \mathbf{c}  - \mathbf{m}^T \, \mathbf{d}
 $$
 
 With this model, different Best Linear Unbiased Estimators (BLUPs) can be considered to estimate different target variables. The first/left part of the kriging system is unchanged; only its second/right part must be modified to take into account the actual target variable. They are respectively,
 
-i)  the estimation of the unobserved **variable** at target $\mathbf{o}$, $\hat{Z}(\mathbf{o})$, 
+i)  the estimation of the unobserved **variable** at target $\mathbf{o}$, $\hat{Z}(\mathbf{o})$,
 $$
 \begin{array}{ccccc}
 \mathbf{c} & = & \left[\text{Cov}(\tilde{Z}(\alpha), Z(\mathbf{o}))\right]_{\alpha \in A} & = & [C(\alpha - \mathbf{o})]_{\alpha \in A}\\
@@ -85,7 +85,7 @@ $$
 The variance of the variable to be estimated is
 $\text{Var}(Z(\mathbf{o})) = C(0)$.
 
-ii) the estimation of the **residual** at target $\mathbf{o}$, $\hat{Y}(\mathbf{o})$, 
+ii) the estimation of the **residual** at target $\mathbf{o}$, $\hat{Y}(\mathbf{o})$,
 $$
 \begin{array}{ccccc}
 \mathbf{c} & = & \left[\text{Cov}(\tilde{Z}(\alpha), Y(\mathbf{o}))\right]_{\alpha \in A} & = & [C(\alpha - \mathbf{o})]_{\alpha \in A}\\
@@ -96,7 +96,7 @@ $$
 The variance of the residual to be estimated is
 $\text{Var}(Z(\mathbf{o}) - m(\mathbf{o})) = C(0)$.
 
-iii) the estimation of the **drift** at target $\mathbf{o}$, $\hat{m}(\mathbf{o}) = \hat{(\sum_{l\in 0:L} a_l\, f^l(0))}$, 
+iii) the estimation of the **drift** at target $\mathbf{o}$, $\hat{m}(\mathbf{o}) = \hat{(\sum_{l\in 0:L} a_l\, f^l(0))}$,
 $$
 \begin{array}{ccccc}
 \mathbf{c} & = &\left[\text{Cov}(\tilde{Z}(\alpha), \sum_{l\in 0:L} a_l\, f^l(\mathbf{o})\right]_{\alpha \in A} & = & [0]_{\alpha \in A}\\
@@ -108,7 +108,7 @@ The variance of the drift to be estimated is
 $\text{Var}(m(\mathbf{o})) = 0$.
 
 iv) the estimation of the unknown **coefficients** at target
-$\mathbf{o}$ for ${l_0} \in 0:L$, $\hat{a}_{l_0}]$, 
+$\mathbf{o}$ for ${l_0} \in 0:L$, $\hat{a}_{l_0}]$,
 $$
 \begin{array}{ccccc}
 \mathbf{c} & = &\left[\text{Cov}(\tilde{Z}(\alpha), a_{l_0}\right]_{\alpha \in A} & = & [0]_{\alpha \in A}\\
@@ -127,10 +127,10 @@ $$
 ### The linear model with spatially varying effects
 
 A more complex model can be considered: some coefficients of the residual are varying (or not) across the domain of interest, the others are fixed. Latter on, the spatially varying coefficients are called the *spatial effects*, and the constant coefficients the *fixed effects*.
-The spatially effects are interpreted as the realization of some stationary random functions. The model for the variable of interest is therefore: 
+The spatially effects are interpreted as the realization of some stationary random functions. The model for the variable of interest is therefore:
 $$
 {Z}(\alpha) = \sum_{l = 0}^{P} A_l(\alpha) \, f^l(\alpha) + \sum_{l = P+1}^{L} a_l \, f^l(\alpha).
-$$ 
+$$
 The error $\varepsilon \sim \mathcal{N}(0,\tau)$ may be added to the observations. This model includes the previous case:
 
 -   we obtain the estimation of $Z$ by kriging with external drift (**KED**) if $P = 0$ and $\tau = 0$ with $L$ fixed effects,
@@ -153,12 +153,12 @@ the model of the variable of interest is second order non stationary random func
 -   $C(s,s') = \text{Cov}(Z(s), Z(s')) = \sum_{l,l'\in 0:P} f^{l}(s) C_{l,l'}(s - s') f^{l'}(s')$.
 
 Using this model, different BLUPs can be proposed,
-$$\hat{X} = \sum_{\alpha \in A} \lambda^{\alpha} \tilde{Z}(\alpha)$$ 
+$$\hat{X} = \sum_{\alpha \in A} \lambda^{\alpha} \tilde{Z}(\alpha)$$
 The weights are defined by the kriging system but the matrix of the covariance between observations $\mathbf{C}$ and the vector of the covariance between observations and the target $\mathbf{c}$ are computed using non stationary covariance functions.
 
 With this model, different Best Linear Unbiased Estimators (BLUPs) can be considered. The first part of the kriging system is unchanged and only its second part must be modified to take into account the actual target variable to be estimated. They are respectively:
 
-i)  the estimation of the unobserved **variable** at target $\mathbf{o}$, $\hat{Z}(\mathbf{o})$ 
+i)  the estimation of the unobserved **variable** at target $\mathbf{o}$, $\hat{Z}(\mathbf{o})$
 $$
 \begin{array}{ccccc}
 \mathbf{c} & = &\left[\text{Cov}(\tilde{Z}(\alpha), Z(\mathbf{o}))\right]_{\alpha \in A} & = & [\sum_{l,l' \in 0:P} f^{l}(\alpha) C_{l,l'}(\alpha - \mathbf{o}) f^{l'}(0)]_{\alpha \in A}\\
@@ -180,7 +180,7 @@ $$
 The variance of the variable to be estimated is
 $\text{Var}(Z(\mathbf{o}) - m(\mathbf{o})) = C(\mathbf{o},\mathbf{o})$.
 
-iii) the estimation of the **drift** at target $\mathbf{o}$ $\hat{m}(\mathbf{o}) = \hat{(\sum_{l\in 0:L} a_l\, f^l(0))}$ 
+iii) the estimation of the **drift** at target $\mathbf{o}$ $\hat{m}(\mathbf{o}) = \hat{(\sum_{l\in 0:L} a_l\, f^l(0))}$
 $$
 \begin{array}{ccccc}
 \mathbf{c} & = &\left[\text{Cov}(\tilde{Z}(\alpha), \sum_{l\in 0:L} a_l\, f^l(\mathbf{o})\right]_{\alpha \in A} & = & [0]_{\alpha \in A}\\
@@ -191,7 +191,7 @@ $$
 The variance of the variable to be estimated is $\text{Var}(m(\mathbf{o})) = 0$.
 
 iv) the estimation of the spatial **effects** at target $\mathbf{o}$ for
-${l_0} \in 0:P$, $\hat{A}_{l_0}(\mathbf{o})]$ 
+${l_0} \in 0:P$, $\hat{A}_{l_0}(\mathbf{o})]$
 $$
 \begin{array}{ccccc}
 \mathbf{c} & = &\left[\text{Cov}(\tilde{Z}(\alpha), A_{l_0}(\mathbf{o})\right]_{\alpha \in A} & = & [\sum_{l \in 0:P} f^{l}(\alpha) C_{l,l'}(\alpha - \mathbf{o}) ]_{\alpha \in A}\\
@@ -203,7 +203,7 @@ The variance of the variable to be estimated is
 $\text{Var}(A_{l_0}(\mathbf{o})) = C_{l_0, l_0}(0)$.
 
 v)  the estimation of the fixed* *effects** at target $\mathbf{o}$ for
-${l_0} \in (P+1):L$, $\hat{a}_{l_0}]$, 
+${l_0} \in (P+1):L$, $\hat{a}_{l_0}]$,
 $$
 \begin{array}{ccccc}
 \mathbf{c} & = &\left[\text{Cov}(\tilde{Z}(\alpha), a_{l_0}\right]_{\alpha \in A} & = & [0]_{\alpha \in A}\\
@@ -211,10 +211,10 @@ $$
 \end{array}
 $$
 
-The variance of the variable to be estimated is 
+The variance of the variable to be estimated is
 $\text{Var}(a_{l_0}) = 0$.
 
-As in previous section, the variance of the estimation error of the variable $X$ is given by: 
+As in previous section, the variance of the estimation error of the variable $X$ is given by:
 $$
 \text{Var}(X - \hat{X}) = Var(X)  -  \Lambda^T \, \mathbf{c}  - \mathbf{m}^T \, \mathbf{d}
 $$
@@ -223,34 +223,34 @@ $$
 
 In this section, we detail the estimation of the spatially varying effect $A_{l_0}(\mathbf{o})$, for target $\mathbf{o}$ and for $l_0 \in 0:P$, using the Best Linear Unbiased Predicator (BLUP):
 
--   The linear predictor (LP) gives: 
+-   The linear predictor (LP) gives:
 $$
 \hat{A}_{l_0}(\mathbf{o}) = \sum_{\alpha \in A} \lambda_{l_0}^{\alpha} \, \tilde{Z}(\alpha)
 $$
 
 -   The unbiased condition (U)
 $\mathbb{E}\{A_{l_0}(\mathbf{o}) - \hat{A}_{l_0}(\mathbf{o})\} = 0$
-defines the $L+1$ conditions ($l \in 0:L$): 
+defines the $L+1$ conditions ($l \in 0:L$):
 $$
 \sum_{\alpha \in A} \lambda_{l_0}^{\alpha} \, f^l(\alpha) = \delta_{l_0}^l.
 $$
 
--   The optimal condition (B) implies that the variance of the estimation error be minimal under the unbiased conditions 
+-   The optimal condition (B) implies that the variance of the estimation error be minimal under the unbiased conditions
 $$
-\text{Var} \{A_{l_0}(\mathbf{o}) - \hat{A}_{l_0}(\mathbf{o})\} = C_{{l_0}{l_0}}(\mathbf{o}) - 
+\text{Var} \{A_{l_0}(\mathbf{o}) - \hat{A}_{l_0}(\mathbf{o})\} = C_{{l_0}{l_0}}(\mathbf{o}) -
 2 \, \sum_{\alpha \in A} \lambda_{l_0}^{\alpha} c_{l_0}(\mathbf{o}, \alpha) +
 \sum_{\alpha, \beta \in A} \lambda_{l_0}^{\alpha} [C(\alpha, \beta) + \tau^2 \delta(\alpha - \beta)] \lambda_{l_0}^{\beta},
-$$ 
-with the non stationary covariance functions 
+$$
+with the non stationary covariance functions
 $$
 C(s, s') = \text{Cov} (Z(s), Z(s')) = \sum_{l,l' \in 0:P} f^{l}(s) \, C_{l,l'}(s - s') \,  f^{l'}(s')
 $$
-and 
+and
 $$
 c_l(s, s') = \text{Cov} (A_l(s), Z(s')) = \sum_{l' \in 0:P} C_{l,l'}(s - s') f^{l'}(s').
 $$
 
-The kriging system to solve is therefore: 
+The kriging system to solve is therefore:
 $$
 \begin{array}{ccc}
 \sum_{\beta \in A} [C(\alpha, \beta) + \tau^2\delta(\alpha-\beta)] \, \lambda_{l_0}^{\beta} +
@@ -266,7 +266,7 @@ $$\left[
 \mathbf{C} + \tau^2 \mathbf{I} & \mathbf{F} \\
 \mathbf{F}'                    & \mathbf{0}
 \end{array}
-\right] 
+\right]
 \times
 \left[
 \begin{array}{c}
@@ -278,7 +278,7 @@ $$\left[
 \mathbf{c} \\
 \mathbf{d}
 \end{array}
-\right]$$ 
+\right]$$
 where
 
 -   the $[n, n]$ matrices defined by $\mathbf{M} = [C(\alpha, \beta)]$ and $\mathbf{I} = [\delta(\alpha - \beta)]$,
@@ -293,9 +293,9 @@ The number of observations is noted $n = \#\{A\}$.
 
 The number of linear predictors is noted $L$.
 
-The variance of the estimation error is: 
+The variance of the estimation error is:
 $$
-\mathbf{Var} (A_{l_0}(\mathbf{o}) - \hat{A}_{l_0}(\mathbf{o})) = 
+\mathbf{Var} (A_{l_0}(\mathbf{o}) - \hat{A}_{l_0}(\mathbf{o})) =
 C_{l_0, l_0}(\mathbf{o},\mathbf{o}) - \sum_{\alpha \in A} \lambda_{l_0}^{\alpha} c_{l_0}(\mathbf{o},\alpha) -
 \mu_{l_0}  =
 C_{l_0, l_0}(\mathbf{o},\mathbf{o}) - \Lambda^T \mathbf{c} - \mathbf{m}^T\mathbf{d}
@@ -303,20 +303,19 @@ $$
 
 The BLU predictor of the observed field $Z$ requires to solve a similar kriging system where only the $[L+1]$ vector $\mathbf{d} = [\delta_{l_0}^l \, f^{l}(\mathbf{o})]$ of the right part of the kriging system is modified.
 
-The variance of the estimation error is: 
+The variance of the estimation error is:
 $$
-\mathbf{Var} (Z(\mathbf{o}) - \hat{Z}(\mathbf{o})) = 
+\mathbf{Var} (Z(\mathbf{o}) - \hat{Z}(\mathbf{o})) =
 C(\mathbf{o},\mathbf{o}) - \sum_{\alpha \in A} \lambda_{l_0}^{\alpha} c_{l_0}(\mathbf{o},\alpha) -\sum_{l \in 0:L} \mu_l f^l(\mathbf{o}) =
 C(\mathbf{o},\mathbf{o}) - \Lambda^T \mathbf{c} - \mathbf{m}^T\mathbf{d}
 $$
 
 Finally, the estimation of a fixed effect $a_{l_0}$ ($l_0 \in 0:L$) requires to modify the right part of the kriging system with the $[n]$ vector $\mathbf{c} = \mathbf{0}$ and the $[L+1]$ vector $\mathbf{d} = [\delta_{l_0}^l]$.
 
-The variance of this estimation error is therefore: 
+The variance of this estimation error is therefore:
 $$
 \mathbf{Var} (\hat{a}_{l_0}) = - \mu_{l_0}
 $$
-
 </md-block>
 
 
@@ -324,18 +323,18 @@ Table: Statistics on the grid
 
 |   | Number| Minimum| Maximum|  Mean| St. Dev.|
 |:--|------:|-------:|-------:|-----:|--------:|
-|A  |   1941|   -3.96|    7.84|  1.59|     1.96|
-|B  |   1941|   -0.62|   11.36|  6.22|     2.09|
-|N  |   1941|    2.42|    4.79|  3.46|     0.47|
-|Z  |   1941|   -2.88|   45.78| 23.06|     8.70|
+|A  |   1941|   -1.43|    9.70|  3.03|     2.10|
+|B  |   1941|    1.07|   17.22|  8.97|     3.09|
+|N  |   1941|    2.02|    4.57|  3.11|     0.52|
+|Z  |   1941|    2.24|   65.16| 30.72|    11.08|
 
 
 Table: Statistics on the observed data
 
 |   | Number| Minimum| Maximum|  Mean| St. Dev.|
 |:--|------:|-------:|-------:|-----:|--------:|
-|N  |     80|    2.36|    4.73|  3.29|     0.52|
-|Z  |     80|    2.23|   42.09| 22.08|     8.52|
+|N  |     80|    2.07|    4.45|  3.10|     0.62|
+|Z  |     80|   10.21|   62.22| 28.97|    11.33|
 [1] ">>> Estimation of Z using KED"
 [1] ">>> Estimation of RES using KED"
 [1] ">>> Estimation of DRIFT using KED"
@@ -347,27 +346,27 @@ Table: Statistics on drift coefficients (actual values and estimated)
 
 |                     | Number| Minimum| Maximum|  Mean| St. Dev.|
 |:--------------------|------:|-------:|-------:|-----:|--------:|
-|KEDM.obs.Z.estim     |   1941|    2.23|   42.09| 23.04|     7.90|
-|KEDM.obs.Z.stdev     |   1941|    0.00|    1.44|  0.80|     0.26|
-|KEDM.res.Z.estim     |   1941|  -15.87|   16.94| -0.86|     6.70|
-|KEDM.res.Z.stdev     |   1941|    1.06|    1.84|  1.49|     0.13|
-|KEDM.drift.Z.estim   |   1941|   12.87|   44.78| 23.90|     5.57|
-|KEDM.drift.Z.stdev   |   1941|    1.03|    1.75|  1.27|     0.13|
-|KEDM.coeff.0.Z.estim |   1941|  -28.23|   96.57| 12.78|    26.89|
-|KEDM.coeff.0.Z.stdev |   1941|    2.82|    5.95|  4.28|     0.77|
-|KEDM.coeff.1.Z.estim |   1941|  -17.71|   16.03|  3.40|     7.01|
-|KEDM.coeff.1.Z.stdev |   1941|    0.83|    1.88|  1.24|     0.24|
+|KEDM.obs.Z.estim     |   1941|   10.21|   63.39| 30.31|    10.28|
+|KEDM.obs.Z.stdev     |   1941|    0.00|    1.35|  0.79|     0.26|
+|KEDM.res.Z.estim     |   1941|  -22.09|   23.17|  1.21|     8.91|
+|KEDM.res.Z.stdev     |   1941|    1.10|    1.80|  1.50|     0.13|
+|KEDM.drift.Z.estim   |   1941|   18.19|   48.50| 29.10|     5.01|
+|KEDM.drift.Z.stdev   |   1941|    1.06|    1.82|  1.28|     0.14|
+|KEDM.coeff.0.Z.estim |   1941|  -34.96|   57.55|  9.75|    19.30|
+|KEDM.coeff.0.Z.stdev |   1941|    3.59|    5.82|  4.54|     0.45|
+|KEDM.coeff.1.Z.estim |   1941|   -6.72|   24.78|  6.55|     7.43|
+|KEDM.coeff.1.Z.stdev |   1941|    1.05|    2.04|  1.45|     0.25|
 
 
 Table: Statistics on the residual (MOVING)
 
-|                | Number| Minimum| Maximum|   Mean| St. Dev.|
-|:---------------|------:|-------:|-------:|------:|--------:|
-|KEDM.diff.Z     |   1941|  -13.15|   13.93|   0.01|     3.72|
-|KEDM.diff.RES   |   1941|  -16.98|   15.84|   0.86|     6.70|
-|KEDM.diff.DRIFT |   1941|  -22.97|   20.66|  -0.84|     7.77|
-|KEDM.diff.A     |   1941|  -93.14|   29.13| -11.19|    25.53|
-|KEDM.diff.B     |   1941|  -10.45|   26.84|   2.82|     7.59|
+|                | Number| Minimum| Maximum|  Mean| St. Dev.|
+|:---------------|------:|-------:|-------:|-----:|--------:|
+|KEDM.diff.Z     |   1941|  -10.46|   13.71|  0.42|     3.55|
+|KEDM.diff.RES   |   1941|  -23.18|   22.22| -1.20|     8.91|
+|KEDM.diff.DRIFT |   1941|  -25.54|   26.88|  1.62|     9.86|
+|KEDM.diff.A     |   1941|  -56.36|   41.93| -6.73|    20.60|
+|KEDM.diff.B     |   1941|  -12.98|   17.11|  2.42|     6.44|
 [1] "SVC: number of spatial effects     = 2"
 [1] "SVC: number of constant effects    = 0"
 [1] "SVC: the spatially varying factors are not centered (2 universal conditions)"
@@ -383,51 +382,51 @@ Table: Statistics on drift coefficients (actual values and estimated)
 
 |                    | Number| Minimum| Maximum|  Mean| St. Dev.|
 |:-------------------|------:|-------:|-------:|-----:|--------:|
-|SVC.obs.Z.estim     |   1941|    2.23|   42.09| 23.05|     8.16|
-|SVC.obs.Z.stdev     |   1941|    0.00|    8.37|  4.04|     1.76|
-|SVC.res.Z.estim     |   1941|  -23.39|   15.87| -4.48|     7.57|
-|SVC.res.Z.stdev     |   1941|    3.71|   10.97|  6.39|     1.52|
-|SVC.drift.Z.estim   |   1941|   19.20|   38.26| 27.53|     3.83|
-|SVC.drift.Z.stdev   |   1941|    3.71|    8.55|  4.85|     1.05|
-|SVC.coeff.0.Z.estim |   1941|   -3.70|    2.17| -0.95|     1.03|
-|SVC.coeff.0.Z.stdev |   1941|   10.37|   11.32| 10.89|     0.19|
-|SVC.coeff.1.Z.estim |   1941|    1.85|   12.72|  6.95|     1.93|
-|SVC.coeff.1.Z.stdev |   1941|    2.39|    4.30|  3.38|     0.33|
+|SVC.obs.Z.estim     |   1941|    9.27|   63.31| 30.12|    10.27|
+|SVC.obs.Z.stdev     |   1941|    0.00|    8.04|  3.64|     1.51|
+|SVC.res.Z.estim     |   1941|  -16.92|   33.02|  2.00|    10.18|
+|SVC.res.Z.stdev     |   1941|    3.58|   10.79|  5.80|     1.28|
+|SVC.drift.Z.estim   |   1941|   20.85|   37.90| 28.12|     3.50|
+|SVC.drift.Z.stdev   |   1941|    3.58|    8.37|  4.41|     1.11|
+|SVC.coeff.0.Z.estim |   1941|    4.75|   11.78|  7.70|     1.51|
+|SVC.coeff.0.Z.stdev |   1941|    9.94|   11.18| 10.66|     0.24|
+|SVC.coeff.1.Z.estim |   1941|    1.89|   15.01|  7.28|     2.83|
+|SVC.coeff.1.Z.stdev |   1941|    2.51|    4.90|  3.68|     0.46|
 
 
 Table: Statistics on the residual (UNIQUE)
 
 |               | Number| Minimum| Maximum|  Mean| St. Dev.|
 |:--------------|------:|-------:|-------:|-----:|--------:|
-|SVC.diff.Z     |   1941|  -13.72|   12.91|  0.01|     3.75|
-|SVC.diff.RES   |   1941|  -15.72|   23.47|  4.48|     7.57|
-|SVC.diff.DRIFT |   1941|  -29.23|   17.30| -4.47|     8.16|
-|SVC.diff.A     |   1941|   -2.52|    6.80|  2.54|     1.67|
-|SVC.diff.B     |   1941|   -4.02|    2.53| -0.73|     0.99|
+|SVC.diff.Z     |   1941|  -10.21|   13.50|  0.60|     3.54|
+|SVC.diff.RES   |   1941|  -32.99|   17.04| -2.00|    10.18|
+|SVC.diff.DRIFT |   1941|  -24.55|   35.93|  2.60|    10.94|
+|SVC.diff.A     |   1941|   -8.63|   -0.92| -4.67|     1.39|
+|SVC.diff.B     |   1941|   -1.74|    5.19|  1.70|     1.06|
 
 
 Table: Statistics for Z
 
 |                 | Number| Minimum| Maximum|  Mean| St. Dev.|
 |:----------------|------:|-------:|-------:|-----:|--------:|
-|Z                |   1941|   -2.88|   45.78| 23.06|     8.70|
-|KEDM.obs.Z.estim |   1941|    2.23|   42.09| 23.04|     7.90|
-|SVC.obs.Z.estim  |   1941|    2.23|   42.09| 23.05|     8.16|
+|Z                |   1941|    2.24|   65.16| 30.72|    11.08|
+|KEDM.obs.Z.estim |   1941|   10.21|   63.39| 30.31|    10.28|
+|SVC.obs.Z.estim  |   1941|    9.27|   63.31| 30.12|    10.27|
 
 
 Table: Statistics for A
 
-|                     | Number| Minimum| Maximum|  Mean| St. Dev.|
-|:--------------------|------:|-------:|-------:|-----:|--------:|
-|A                    |   1941|   -3.96|    7.84|  1.59|     1.96|
-|KEDM.coeff.0.Z.estim |   1941|  -28.23|   96.57| 12.78|    26.89|
-|SVC.coeff.0.Z.estim  |   1941|   -3.70|    2.17| -0.95|     1.03|
+|                     | Number| Minimum| Maximum| Mean| St. Dev.|
+|:--------------------|------:|-------:|-------:|----:|--------:|
+|A                    |   1941|   -1.43|    9.70| 3.03|     2.10|
+|KEDM.coeff.0.Z.estim |   1941|  -34.96|   57.55| 9.75|    19.30|
+|SVC.coeff.0.Z.estim  |   1941|    4.75|   11.78| 7.70|     1.51|
 
 
 Table: Statistics for B
 
 |                     | Number| Minimum| Maximum| Mean| St. Dev.|
 |:--------------------|------:|-------:|-------:|----:|--------:|
-|B                    |   1941|   -0.62|   11.36| 6.22|     2.09|
-|KEDM.coeff.1.Z.estim |   1941|  -17.71|   16.03| 3.40|     7.01|
-|SVC.coeff.1.Z.estim  |   1941|    1.85|   12.72| 6.95|     1.93|
+|B                    |   1941|    1.07|   17.22| 8.97|     3.09|
+|KEDM.coeff.1.Z.estim |   1941|   -6.72|   24.78| 6.55|     7.43|
+|SVC.coeff.1.Z.estim  |   1941|    1.89|   15.01| 7.28|     2.83|

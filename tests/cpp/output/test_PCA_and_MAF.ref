@@ -1,0 +1,623 @@
+
+Created Grid
+============
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 3
+Total number of samples      = 10000
+
+Grid characteristics:
+---------------------
+Origin :       0.000      0.000
+Mesh   :       0.010      0.010
+Number :         100        100
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+
+Simulating Structure #1 (Nugget)
+--------------------------------
+
+Simulating Structure #2 (Exponential)
+-------------------------------------
+
+Simulating Structure #3 (Cubic)
+-------------------------------
+
+Creating correlated variables
+-----------------------------
+
+Extracting data samples
+-----------------------
+
+Extracted Data
+==============
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 6
+Total number of samples      = 500
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Z1 - Locator = z1
+Column = 4 - Name = Z2 - Locator = z2
+Column = 5 - Name = Z3 - Locator = z3
+
+Computing experimental variogram on raw data
+--------------------------------------------
+
+Fitting variogram model on raw data
+-----------------------------------
+
+Fitted Model for Raw Data
+=========================
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 3
+Number of basic structure(s) = 2
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Exponential
+- Sill matrix:
+                 [,  0]     [,  1]     [,  2]
+      [  0,]      0.002     -0.014     -0.009
+      [  1,]     -0.014      0.109      0.072
+      [  2,]     -0.009      0.072      0.047
+- Range        =       0.131
+- Theo. Range  =       0.044
+Cubic
+- Sill matrix:
+                 [,  0]     [,  1]     [,  2]
+      [  0,]      0.074     -0.063      0.000
+      [  1,]     -0.063     10.109     -0.233
+      [  2,]      0.000     -0.233      2.276
+- Range        =       0.252
+Total Sill
+                 [,  0]     [,  1]     [,  2]
+      [  0,]      0.076     -0.076     -0.009
+      [  1,]     -0.076     10.218     -0.161
+      [  2,]     -0.009     -0.161      2.323
+
+Known Mean(s)      0.000      0.000      0.000
+
+Testing PCA
+===========
+
+PCA computation
+===============
+Number of variables         = 3
+Number of samples in the Db = 500
+Number of isotropic samples = 500
+Mean
+                 [,  0]
+      [  0,]      0.995
+      [  1,]      2.598
+      [  2,]      3.132
+St. Dev.
+                 [,  0]
+      [  0,]      0.278
+      [  1,]      3.406
+      [  2,]      1.518
+
+Variance-Covariance matrix for distance 0
+                 [,  0]     [,  1]     [,  2]
+      [  0,]      0.077     -0.180      0.035
+      [  1,]     -0.180     11.602     -0.470
+      [  2,]      0.035     -0.470      2.304
+Eigen values
+                 [,  0]
+      [  0,]     11.628
+      [  1,]      2.280
+      [  2,]      0.074
+Eigen Vectors
+                 [,  0]     [,  1]     [,  2]
+      [  0,]     -0.016      0.012      1.000
+      [  1,]      0.999      0.051      0.015
+      [  2,]     -0.050      0.999     -0.012
+PCA Z->F
+                 [,  0]     [,  1]     [,  2]
+      [  0,]     -0.005      0.008      3.676
+      [  1,]      0.293      0.033      0.056
+      [  2,]     -0.015      0.661     -0.045
+PCA F->Z
+                 [,  0]     [,  1]     [,  2]
+      [  0,]     -0.054      3.405     -0.172
+      [  1,]      0.017      0.076      1.508
+      [  2,]      0.272      0.004     -0.003
+
+PCA Contents
+------------
+Means
+                 [,  0]
+      [  0,]      0.995
+      [  1,]      2.598
+      [  2,]      3.132
+Covariance Matrix
+                 [,  0]     [,  1]     [,  2]
+      [  0,]      0.077     -0.180      0.035
+      [  1,]     -0.180     11.602     -0.470
+      [  2,]      0.035     -0.470      2.304
+Variogram Matrix at lag h
+                 [,  0]     [,  1]     [,  2]
+      [  0,]      0.000      0.000      0.000
+      [  1,]      0.000      0.000      0.000
+      [  2,]      0.000      0.000      0.000
+Matrix MZ2F to transform standardized Variables Z into Factors F
+                 [,  0]     [,  1]     [,  2]
+      [  0,]     -0.005      0.008      3.676
+      [  1,]      0.293      0.033      0.056
+      [  2,]     -0.015      0.661     -0.045
+Y = (Z - m) * MZ2F)
+Matrix MF2Z to back-transform Factors F into standardized Variables Z
+                 [,  0]     [,  1]     [,  2]
+      [  0,]     -0.054      3.405     -0.172
+      [  1,]      0.017      0.076      1.508
+      [  2,]      0.272      0.004     -0.003
+Z = m + Y * MF2Z
+
+Transform from Z to Factors
+===========================
+
+Statistics on Factors
+---------------------
+             Number    Minimum    Maximum       Mean   St. Dev.   Variance
+Factor-1        500     -2.372      2.020      0.000      0.999      0.998
+Factor-2        500     -2.926      2.160      0.000      0.999      0.998
+Factor-3        500     -2.863      3.406      0.000      0.999      0.998
+
+Number of isotopic active samples = 500
+Correlation matrix
+                 [,  0]     [,  1]     [,  2]
+      [  0,]      1.000      0.000      0.000
+      [  1,]      0.000      1.000      0.000
+      [  2,]      0.000      0.000      1.000
+
+
+Computing and fitting variogram on PCA factors
+----------------------------------------------
+
+Variogram characteristics
+=========================
+Number of variable(s)       = 3
+Number of direction(s)      = 1
+Space dimension             = 2
+Variable(s)                 = [U.V1 U.V2 U.V3]
+
+Variance-Covariance Matrix
+                 [,  0]     [,  1]     [,  2]
+      [  0,]      0.998      0.000      0.000
+      [  1,]      0.000      0.998      0.000
+      [  2,]      0.000      0.000      0.998
+
+Direction #1
+------------
+Number of lags              = 10
+Direction coefficients      =       1.000      0.000
+Direction angles (degrees)  =       0.000
+Tolerance on direction      =      90.000 (degrees)
+Calculation lag             =       0.025
+Tolerance on distance       =      50.000 (Percent of the lag value)
+
+For variable 1
+       Rank     Npairs   Distance      Value
+          0     58.000      0.010      0.008
+          1    470.000      0.027      0.063
+          2    857.000      0.051      0.198
+          3   1343.000      0.076      0.375
+          4   1714.000      0.101      0.491
+          5   2062.000      0.125      0.669
+          6   2449.000      0.150      0.752
+          7   2674.000      0.175      0.814
+          8   3061.000      0.200      0.886
+          9   3128.000      0.225      0.908
+
+For variables 2 and 1
+       Rank     Npairs   Distance      Value
+          0     58.000      0.010      0.000
+          1    470.000      0.027      0.005
+          2    857.000      0.051      0.016
+          3   1343.000      0.076      0.030
+          4   1714.000      0.101      0.036
+          5   2062.000      0.125      0.053
+          6   2449.000      0.150      0.052
+          7   2674.000      0.175      0.033
+          8   3061.000      0.200      0.038
+          9   3128.000      0.225      0.036
+
+For variable 2
+       Rank     Npairs   Distance      Value
+          0     58.000      0.010      0.009
+          1    470.000      0.027      0.077
+          2    857.000      0.051      0.205
+          3   1343.000      0.076      0.423
+          4   1714.000      0.101      0.597
+          5   2062.000      0.125      0.777
+          6   2449.000      0.150      0.915
+          7   2674.000      0.175      0.954
+          8   3061.000      0.200      1.003
+          9   3128.000      0.225      1.037
+
+For variables 3 and 1
+       Rank     Npairs   Distance      Value
+          0     58.000      0.010      0.000
+          1    470.000      0.027      0.006
+          2    857.000      0.051      0.009
+          3   1343.000      0.076      0.025
+          4   1714.000      0.101      0.054
+          5   2062.000      0.125      0.070
+          6   2449.000      0.150      0.061
+          7   2674.000      0.175      0.058
+          8   3061.000      0.200      0.098
+          9   3128.000      0.225      0.105
+
+For variables 3 and 2
+       Rank     Npairs   Distance      Value
+          0     58.000      0.010     -0.001
+          1    470.000      0.027     -0.007
+          2    857.000      0.051     -0.023
+          3   1343.000      0.076     -0.043
+          4   1714.000      0.101     -0.060
+          5   2062.000      0.125     -0.092
+          6   2449.000      0.150     -0.103
+          7   2674.000      0.175     -0.117
+          8   3061.000      0.200     -0.062
+          9   3128.000      0.225     -0.026
+
+For variable 3
+       Rank     Npairs   Distance      Value
+          0     58.000      0.010      0.010
+          1    470.000      0.027      0.082
+          2    857.000      0.051      0.217
+          3   1343.000      0.076      0.418
+          4   1714.000      0.101      0.649
+          5   2062.000      0.125      0.829
+          6   2449.000      0.150      0.928
+          7   2674.000      0.175      1.004
+          8   3061.000      0.200      1.029
+          9   3128.000      0.225      0.980
+- Anisotropy                ON
+- Anisotropy Rotation       ON
+- Global Rotation           OFF
+- Rotation around Z only    OFF
+- Lock third dimension      OFF
+- Lock 2-D Isotropy         OFF
+- Keep Intrinsic structure  OFF
+- Use the Goulard option    ON
+- Keep all structures       OFF
+
+Optimization parameters
+-----------------------
+- Optimization weighting mode       2
+- Maximum number of iterations      1000
+- Stopping criterion                1e-06
+- Stopping Criterion (scaled)       1e-06
+- Minimum increment value           1e-05
+- Variance percentage for stripping 5
+- Initial increment value           1
+
+Suppressing the unnecessary basic structures
+============================================
+Structure 'Nugget Effect' in model #1 is suppressed
+
+Fitted Model for PCA
+====================
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 3
+Number of basic structure(s) = 2
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Exponential
+- Sill matrix:
+                 [,  0]     [,  1]     [,  2]
+      [  0,]   2887.661   -480.362    353.309
+      [  1,]   -480.362   2328.791   1309.393
+      [  2,]    353.309   1309.393    875.586
+- Range        =    6871.983
+- Theo. Range  =    2293.924
+Cubic
+- Sill matrix:
+                 [,  0]     [,  1]     [,  2]
+      [  0,]      0.625      0.087      0.054
+      [  1,]      0.087      0.811     -0.194
+      [  2,]      0.054     -0.194      0.952
+- Range        =       0.241
+Total Sill
+                 [,  0]     [,  1]     [,  2]
+      [  0,]   2888.286   -480.275    353.363
+      [  1,]   -480.275   2329.603   1309.199
+      [  2,]    353.363   1309.199    876.538
+
+Known Mean(s)      0.000      0.000      0.000
+
+Testing MAF
+===========
+
+MAF computation
+===============
+Number of variables         = 3
+Number of samples in the Db = 500
+Number of isotropic samples = 500
+Mean
+                 [,  0]
+      [  0,]      0.995
+      [  1,]      2.598
+      [  2,]      3.132
+St. Dev.
+                 [,  0]
+      [  0,]      0.278
+      [  1,]      3.406
+      [  2,]      1.518
+
+Variance-Covariance matrix for distance 0
+                 [,  0]     [,  1]     [,  2]
+      [  0,]      0.077     -0.180      0.035
+      [  1,]     -0.180     11.602     -0.470
+      [  2,]      0.035     -0.470      2.304
+
+Number of lags              = 10
+Direction coefficients      =       1.000      0.000
+Direction angles (degrees)  =       0.000
+Tolerance on direction      =      90.000 (degrees)
+Calculation lag             =       0.025
+Tolerance on distance       =      50.000 (Percent of the lag value)
+Reference Lag               = 2
+Number of samples in the Db = 500
+Number of isotopic pairs    = 857
+
+Variogram matrix for distance h
+                 [,  0]     [,  1]     [,  2]
+      [  0,]      0.016     -0.027     -0.004
+      [  1,]     -0.027      2.305     -0.009
+      [  2,]     -0.004     -0.009      0.465
+GEigen values
+                 [,  0]
+      [  0,]      0.235
+      [  1,]      0.212
+      [  2,]      0.173
+GEigen Vectors
+                 [,  0]     [,  1]     [,  2]
+      [  0,]      2.808      1.622      1.731
+      [  1,]     -0.004      0.271     -0.129
+      [  2,]     -0.455      0.247      0.414
+MAF Z->F
+                 [,  0]     [,  1]     [,  2]
+      [  0,]      2.808      1.622      1.731
+      [  1,]     -0.004      0.271     -0.129
+      [  2,]     -0.455      0.247      0.414
+MAF F->Z
+                 [,  0]     [,  1]     [,  2]
+      [  0,]      0.202     -0.340     -0.950
+      [  1,]      0.085      2.731      0.499
+      [  2,]      0.171     -2.007      1.074
+
+PCA Contents
+------------
+Means
+                 [,  0]
+      [  0,]      0.995
+      [  1,]      2.598
+      [  2,]      3.132
+Covariance Matrix
+                 [,  0]     [,  1]     [,  2]
+      [  0,]      0.077     -0.180      0.035
+      [  1,]     -0.180     11.602     -0.470
+      [  2,]      0.035     -0.470      2.304
+Variogram Matrix at lag h
+                 [,  0]     [,  1]     [,  2]
+      [  0,]      0.016     -0.027     -0.004
+      [  1,]     -0.027      2.305     -0.009
+      [  2,]     -0.004     -0.009      0.465
+Matrix MZ2F to transform standardized Variables Z into Factors F
+                 [,  0]     [,  1]     [,  2]
+      [  0,]      2.808      1.622      1.731
+      [  1,]     -0.004      0.271     -0.129
+      [  2,]     -0.455      0.247      0.414
+Y = (Z - m) * MZ2F)
+Matrix MF2Z to back-transform Factors F into standardized Variables Z
+                 [,  0]     [,  1]     [,  2]
+      [  0,]      0.202     -0.340     -0.950
+      [  1,]      0.085      2.731      0.499
+      [  2,]      0.171     -2.007      1.074
+Z = m + Y * MF2Z
+
+Transform from Z to Factors
+===========================
+
+Statistics on Factors
+---------------------
+             Number    Minimum    Maximum       Mean   St. Dev.   Variance
+Factor-1        500     -3.115      3.822      0.000      0.999      0.998
+Factor-2        500     -2.602      2.462      0.000      0.999      0.998
+Factor-3        500     -2.886      2.039      0.000      0.999      0.998
+
+Number of isotopic active samples = 500
+Correlation matrix
+                 [,  0]     [,  1]     [,  2]
+      [  0,]      1.000      0.000      0.000
+      [  1,]      0.000      1.000      0.000
+      [  2,]      0.000      0.000      1.000
+
+
+Computing and fitting variogram on MAF factors
+----------------------------------------------
+
+Variogram characteristics
+=========================
+Number of variable(s)       = 3
+Number of direction(s)      = 1
+Space dimension             = 2
+Variable(s)                 = [F.V1 F.V2 F.V3]
+
+Variance-Covariance Matrix
+                 [,  0]     [,  1]     [,  2]
+      [  0,]      0.998      0.000      0.000
+      [  1,]      0.000      0.998      0.000
+      [  2,]      0.000      0.000      0.998
+
+Direction #1
+------------
+Number of lags              = 10
+Direction coefficients      =       1.000      0.000
+Direction angles (degrees)  =       0.000
+Tolerance on direction      =      90.000 (degrees)
+Calculation lag             =       0.025
+Tolerance on distance       =      50.000 (Percent of the lag value)
+
+For variable 1
+       Rank     Npairs   Distance      Value
+          0     58.000      0.010      0.011
+          1    470.000      0.027      0.086
+          2    857.000      0.051      0.235
+          3   1343.000      0.076      0.461
+          4   1714.000      0.101      0.682
+          5   2062.000      0.125      0.893
+          6   2449.000      0.150      1.019
+          7   2674.000      0.175      1.092
+          8   3061.000      0.200      1.069
+          9   3128.000      0.225      1.018
+
+For variables 2 and 1
+       Rank     Npairs   Distance      Value
+          0     58.000      0.010      0.000
+          1    470.000      0.027      0.003
+          2    857.000      0.051      0.000
+          3   1343.000      0.076     -0.002
+          4   1714.000      0.101      0.033
+          5   2062.000      0.125      0.032
+          6   2449.000      0.150      0.017
+          7   2674.000      0.175      0.036
+          8   3061.000      0.200      0.049
+          9   3128.000      0.225      0.028
+
+For variable 2
+       Rank     Npairs   Distance      Value
+          0     58.000      0.010      0.009
+          1    470.000      0.027      0.074
+          2    857.000      0.051      0.212
+          3   1343.000      0.076      0.414
+          4   1714.000      0.101      0.580
+          5   2062.000      0.125      0.770
+          6   2449.000      0.150      0.854
+          7   2674.000      0.175      0.895
+          8   3061.000      0.200      1.006
+          9   3128.000      0.225      1.033
+
+For variables 3 and 1
+       Rank     Npairs   Distance      Value
+          0     58.000      0.010      0.000
+          1    470.000      0.027     -0.002
+          2    857.000      0.051      0.000
+          3   1343.000      0.076     -0.015
+          4   1714.000      0.101     -0.014
+          5   2062.000      0.125     -0.022
+          6   2449.000      0.150     -0.037
+          7   2674.000      0.175     -0.030
+          8   3061.000      0.200     -0.045
+          9   3128.000      0.225     -0.073
+
+For variables 3 and 2
+       Rank     Npairs   Distance      Value
+          0     58.000      0.010      0.000
+          1    470.000      0.027      0.007
+          2    857.000      0.051      0.000
+          3   1343.000      0.076      0.011
+          4   1714.000      0.101      0.048
+          5   2062.000      0.125      0.039
+          6   2449.000      0.150      0.051
+          7   2674.000      0.175      0.036
+          8   3061.000      0.200      0.051
+          9   3128.000      0.225      0.058
+
+For variable 3
+       Rank     Npairs   Distance      Value
+          0     58.000      0.010      0.008
+          1    470.000      0.027      0.062
+          2    857.000      0.051      0.173
+          3   1343.000      0.076      0.341
+          4   1714.000      0.101      0.475
+          5   2062.000      0.125      0.613
+          6   2449.000      0.150      0.721
+          7   2674.000      0.175      0.785
+          8   3061.000      0.200      0.843
+          9   3128.000      0.225      0.874
+- Anisotropy                ON
+- Anisotropy Rotation       ON
+- Global Rotation           OFF
+- Rotation around Z only    OFF
+- Lock third dimension      OFF
+- Lock 2-D Isotropy         OFF
+- Keep Intrinsic structure  OFF
+- Use the Goulard option    ON
+- Keep all structures       OFF
+
+Optimization parameters
+-----------------------
+- Optimization weighting mode       2
+- Maximum number of iterations      1000
+- Stopping criterion                1e-06
+- Stopping Criterion (scaled)       1e-06
+- Minimum increment value           1e-05
+- Variance percentage for stripping 5
+- Initial increment value           1
+
+Suppressing the unnecessary basic structures
+============================================
+Structure 'Nugget Effect' in model #1 is suppressed
+Structure 'Exponential' in model #1 is suppressed
+
+Fitted Model for MAF
+====================
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 3
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Spherical
+- Sill matrix:
+                 [,  0]     [,  1]     [,  2]
+      [  0,]      1.176      0.037     -0.046
+      [  1,]      0.037      1.052      0.055
+      [  2,]     -0.046      0.055      0.883
+- Range        =       0.255
+Total Sill
+                 [,  0]     [,  1]     [,  2]
+      [  0,]      1.176      0.037     -0.046
+      [  1,]      0.037      1.052      0.055
+      [  2,]     -0.046      0.055      0.883
+
+Known Mean(s)      0.000      0.000      0.000

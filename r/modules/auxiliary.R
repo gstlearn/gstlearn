@@ -40,10 +40,10 @@ compare_variograms <- function(var_list, title, idir = 0) {
     for (i in 1:nsim) {
       gg_sim[,i] = var_list[[i]]$getGgVec(idir = idir-1, ivar = 0, jvar = 0)
     }
-    
+
     v_mean = apply(X = gg_sim, MARGIN = 1, FUN = mean)
     v_sd   = apply(X = gg_sim, MARGIN = 1, FUN = sd)
-    
+
     # initial plot
     sdir = sprintf("Direction = %1d", idir)
     plot(NULL, NULL, xlim = c(0, max(hh)), ylim = 1.2*c(0, 1.0),
@@ -51,7 +51,7 @@ compare_variograms <- function(var_list, title, idir = 0) {
 	 main = paste0(title, "\n", sdir))
     abline(h = 0, lty = 3, col = "gray")
     abline(v = 0, lty = 3, col = "gray")
-    
+
     # experimental variogram
     lines(hh, v_mean, col = "orange", lw = 2)
     lines(hh, v_mean + 2 * v_sd, col = "orange", lty = 2)
@@ -59,9 +59,9 @@ compare_variograms <- function(var_list, title, idir = 0) {
     for (s in 1:nsim) {
       lines(hh, gg_sim[,s] , col = "gray", lty = 3)
     }
-    
+
     # legend
-    legend("bottomright", 
+    legend("bottomright",
            legend = c("model", "mean variogram", "+/- 2 x Std.",
 	   "empirical variograms"),
            lty = c(1, 1, 2, 3), lw = c(2, 2, 1, 1),
@@ -82,7 +82,7 @@ compare_variograms <- function(var_list, title, idir = 0) {
 #' @param nlag number of lag to be computed
 #' @param ndisc number of bins for the discretisation of the [0, dmax] interval
 #' @param dmax maximum distance (in radians)
-vario_on_S2 <- function(grd, nm_var, lag = c(1,0), nlag = 20, nm_theta = "theta", nm_phi = "phi", 
+vario_on_S2 <- function(grd, nm_var, lag = c(1,0), nlag = 20, nm_theta = "theta", nm_phi = "phi",
                         ndisc = 10, dmax = pi) {
   gg = rep(0.0, ndisc)
   hh = rep(0.0, ndisc)

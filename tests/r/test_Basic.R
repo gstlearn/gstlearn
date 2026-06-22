@@ -78,11 +78,11 @@ mygrid$display()
 
 ########################
 #p1 = plot.init(asp=1)
-#p1 = p1 + plot.raster(mygrid, name="Simu.Data.1", limits=c(-3.5, 3.5))
+#p1 = p1 + plot.raster(mygrid, name="Simu.Data.S1", limits=c(-3.5, 3.5))
 #p1 = p1 + plot.symbol(mypoints, nameSize="Data", color="yellow", sizeRange=c(0.1, 2))
 #p1 = p1 + plot.decoration(title="Simulation 1", xlab="Easting", ylab="Northing")
 #p2 = plot.init(asp=1)
-#p2 = p2 + plot.raster(mygrid, name="Simu.Data.2", flagLegend=TRUE, legendName="Simu2", limits=c(-3.5, 3.5))
+#p2 = p2 + plot.raster(mygrid, name="Simu.Data.S2", flagLegend=TRUE, legendName="Simu2", limits=c(-3.5, 3.5))
 #p2 = p2 + plot.symbol(mypoints, nameSize="Data", color="yellow", sizeRange=c(0.1, 2))
 #p2 = p2 + plot.decoration(title="Simulation 2", xlab="Easting", ylab="")
 #p = ggarrange(p1, p2, ncol = 2, nrow = 1)

@@ -11,36 +11,43 @@
 #pragma once
 
 #include "Covariances/AKernel.hpp"
+#include "Enum/ESimuType.hpp"
 #include "gstlearn_export.hpp"
 
 namespace gstlrn
 {
-class CovContext;
+  class CovContext;
 
-class GSTLEARN_EXPORT KernelPoisson: public AKernel
-{
-public:
-  KernelPoisson(const CovContext& ctxt);
-  KernelPoisson(const KernelPoisson& r);
-  KernelPoisson& operator=(const KernelPoisson& r);
-  virtual ~KernelPoisson();
+  class GSTLEARN_EXPORT KernelPoisson: public AKernel
+  {
+  public:
+    KernelPoisson(const CovContext& ctxt);
+    KernelPoisson(const KernelPoisson& r);
+    KernelPoisson& operator=(const KernelPoisson& r);
+    virtual ~KernelPoisson();
 
-  String getCovName() const override { return "Poisson"; }
-  bool hasParam() const override { return true; }
-  double getParMax() const override { return MAX_PARAM; }
-  Id getMinOrder() const override { return -1; }
-  bool getCompatibleSpaceS() const override { return true; }
-  bool hasCovOnRn() const override { return false; }
-  bool hasCovOnSphere() const override { return true; }
-  bool hasSpectrumOnSphere() const override { return true; }
+    String getCovName() const override { return "Poisson"; }
 
-  bool isValidForSpectral() const override { return true; }
+    bool hasParam() const override { return true; }
 
-protected:
-  double _evaluateCovOnSphere(double alpha,
-                              double scale = 1.,
-                              Id degree    = 50) const override;
-  VectorDouble _evaluateSpectrumOnSphere(Id n, double scale = 1.) const override;
-};
+    double getParMax() const override { return MAX_PARAM; }
+
+    Id getMinOrder() const override { return -1; }
+
+    bool getCompatibleSpaceS() const override { return true; }
+
+    bool isValidForSimulation(const ESimuType& simuType) const override
+    {
+      return (
+        getSpaceType() == ESpaceType::SN && simuType == ESimuType::SPECTRAL);
+    }
+
+  protected:
+    double _evaluateCovOnSphere(double alpha, double scale = 1., Id degree = 50)
+      const override;
+    VectorDouble
+      _evaluateSpectrumOnSphere(Id n, double scale = 1., bool flagScale = true)
+        const override;
+  };
 
 } // namespace gstlrn

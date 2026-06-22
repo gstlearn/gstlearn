@@ -13,72 +13,71 @@
 
 namespace gstlrn
 {
-SimuSphericalParam::SimuSphericalParam(Id special,
-                                       Id nbf,
-                                       Id nfmax,
-                                       Id degmax,
-                                       Id ndisc,
-                                       double tol)
-  : AStringable()
-  , _special(special)
-  , _nbf(nbf)
-  , _nfmax(nfmax)
-  , _degmax(degmax)
-  , _ndisc(ndisc)
-  , _tol(tol)
-{
-}
-
-SimuSphericalParam::SimuSphericalParam(const SimuSphericalParam& r)
-  : AStringable(r)
-  , _special(r._special)
-  , _nbf(r._nbf)
-  , _nfmax(r._nfmax)
-  , _degmax(r._degmax)
-  , _ndisc(r._ndisc)
-  , _tol(r._tol)
-{
-}
-
-SimuSphericalParam& SimuSphericalParam::operator=(const SimuSphericalParam& r)
-{
-  if (this != &r)
+  SimuSphericalParam::SimuSphericalParam(
+    Id special,
+    Id nbf,
+    Id nfmax,
+    Id degmax,
+    Id ndisc,
+    double tol)
+    : AStringable()
+    , _special(special)
+    , _nbf(nbf)
+    , _nfmax(nfmax)
+    , _degmax(degmax)
+    , _ndisc(ndisc)
+    , _tol(tol)
   {
-    AStringable::operator=(r);
-    _special = r._special;
-    _nbf     = r._nbf;
-    _nfmax   = r._nfmax;
-    _degmax  = r._degmax;
-    _ndisc   = r._ndisc;
-    _tol     = r._tol;
   }
-  return *this;
-}
 
-SimuSphericalParam::~SimuSphericalParam()
-{
-}
+  SimuSphericalParam::SimuSphericalParam(const SimuSphericalParam& r)
+    : AStringable(r)
+    , _special(r._special)
+    , _nbf(r._nbf)
+    , _nfmax(r._nfmax)
+    , _degmax(r._degmax)
+    , _ndisc(r._ndisc)
+    , _tol(r._tol)
+  {
+  }
 
-String SimuSphericalParam::toString(const AStringFormat* /*strfmt*/) const
-{
-  std::stringstream sstr;
+  SimuSphericalParam& SimuSphericalParam::operator=(const SimuSphericalParam& r)
+  {
+    if (this != &r)
+    {
+      AStringable::operator=(r);
+      _special = r._special;
+      _nbf = r._nbf;
+      _nfmax = r._nfmax;
+      _degmax = r._degmax;
+      _ndisc = r._ndisc;
+      _tol = r._tol;
+    }
+    return *this;
+  }
 
-  sstr << toStrTitle(1, "Option for constructing the covariance spectrum");
-  if (_special == 0)
-    sstr << "For all standard covariances" << std::endl;
-  else if (_special == 1)
-    sstr << "For Chentsov construction" << std::endl;
-  else if (_special == 2)
-    sstr << "For particular Exponential Model" << std::endl;
+  SimuSphericalParam::~SimuSphericalParam() {}
 
-  sstr << "Number of basic functions = " << _nbf << std::endl;
-  if (_nfmax > 0)
-    sstr << "Maximum number of frequencies = " << _nfmax << std::endl;
+  String SimuSphericalParam::toString(const AStringFormat* /*strfmt*/) const
+  {
+    std::stringstream sstr;
 
-  sstr << "Number of discretization  = " << _ndisc << std::endl;
-  sstr << "Spectrum Tolerance        = " << _tol << std::endl;
+    sstr << toStrTitle(1, "Option for constructing the covariance spectrum");
+    if (_special == 0)
+      sstr << "For all standard covariances" << std::endl;
+    else if (_special == 1)
+      sstr << "For Chentsov construction" << std::endl;
+    else if (_special == 2)
+      sstr << "For particular Exponential Model" << std::endl;
 
-  return sstr.str();
-}
+    sstr << "Number of basic functions = " << _nbf << std::endl;
+    if (_nfmax > 0)
+      sstr << "Maximum number of frequencies = " << _nfmax << std::endl;
+
+    sstr << "Number of discretization  = " << _ndisc << std::endl;
+    sstr << "Spectrum Tolerance        = " << _tol << std::endl;
+
+    return sstr.str();
+  }
 
 } // namespace gstlrn

@@ -11,35 +11,40 @@
 #pragma once
 
 #include "Covariances/AKernel.hpp"
+#include "Enum/ESimuType.hpp"
 #include "gstlearn_export.hpp"
 
 namespace gstlrn
 {
-// Forward declaration
-class CovContext;
+  // Forward declaration
+  class CovContext;
 
-class GSTLEARN_EXPORT KernelLinearSph: public AKernel
-{
-public:
-  KernelLinearSph(const CovContext& ctx);
-  KernelLinearSph(const KernelLinearSph& r);
-  KernelLinearSph& operator=(const KernelLinearSph& r);
-  virtual ~KernelLinearSph();
+  class GSTLEARN_EXPORT KernelLinearSph: public AKernel
+  {
+  public:
+    KernelLinearSph(const CovContext& ctx);
+    KernelLinearSph(const KernelLinearSph& r);
+    KernelLinearSph& operator=(const KernelLinearSph& r);
+    virtual ~KernelLinearSph();
 
-  String getCovName() const override { return "LinearSph"; }
-  Id getMinOrder() const override { return -1; }
-  bool getCompatibleSpaceS() const override { return true; }
-  bool hasCovOnRn() const override { return false; }
-  bool hasCovOnSphere() const override { return true; }
-  bool hasSpectrumOnSphere() const override { return true; }
+    String getCovName() const override { return "LinearSph"; }
 
-  bool isValidForSpectral() const override { return true; }
+    Id getMinOrder() const override { return -1; }
 
-protected:
-  double _evaluateCovOnSphere(double alpha,
-                              double scale = 1.,
-                              Id degree    = 50) const override;
-  VectorDouble _evaluateSpectrumOnSphere(Id n, double scale = 1.) const override;
-};
+    bool getCompatibleSpaceS() const override { return true; }
+
+    bool isValidForSimulation(const ESimuType& simuType) const override
+    {
+      return (
+        getSpaceType() == ESpaceType::SN && simuType == ESimuType::SPECTRAL);
+    }
+
+  protected:
+    double _evaluateCovOnSphere(double alpha, double scale = 1., Id degree = 50)
+      const override;
+    VectorDouble
+      _evaluateSpectrumOnSphere(Id n, double scale = 1., bool flagScale = true)
+        const override;
+  };
 
 } // namespace gstlrn

@@ -15,69 +15,69 @@
 
 namespace gstlrn
 {
-CovProportional::CovProportional(ACov* cor, const MatrixSymmetric& sill)
-  : CovBase(cor, sill)
-{
-  _ctxt.setNVar(sill.getNCols());
-  _workMat.resize(_ctxt.getNVar(), _ctxt.getNVar());
-  _workMat.setIdentity();
-  if (cor != nullptr)
+  CovProportional::CovProportional(ACov* cor, const MatrixSymmetric& sill)
+    : CovBase(cor, sill)
+  {
+    _ctxt.setNVar(sill.getNCols());
+    _workMat.resize(_ctxt.getNVar(), _ctxt.getNVar());
+    _workMat.setIdentity();
+    if (cor != nullptr)
+      if (cor->getNVar() != 1)
+      {
+        messerr("Correlation function should have only 1 variable");
+        messerr("You should use CovBase instead of CovProportional");
+        messerr("Undefined behaviour");
+        return;
+      }
+  }
+
+  CovProportional::CovProportional(const CovProportional& r)
+    : CovBase(r)
+  {
+    _workMat = r._workMat;
+  }
+
+  CovProportional& CovProportional::operator=(const CovProportional& r)
+  {
+    if (this != &r)
+    {
+      CovBase::operator=(r);
+      _workMat = r._workMat;
+    }
+    return *this;
+  }
+
+  CovProportional::~CovProportional() {}
+
+  void CovProportional::setCor(ACov* cor)
+  {
     if (cor->getNVar() != 1)
     {
       messerr("Correlation function should have only 1 variable");
-      messerr("You should use CovBase instead of CovProportional");
-      messerr("Undefined behaviour");
       return;
     }
-}
-
-CovProportional::CovProportional(const CovProportional& r)
-  : CovBase(r)
-{
-  _workMat = r._workMat;
-}
-
-CovProportional& CovProportional::operator=(const CovProportional& r)
-{
-  if (this != &r)
-  {
-    CovBase::operator=(r);
-    _workMat = r._workMat;
+    CovBase::setCor(cor);
   }
-  return *this;
-}
 
-CovProportional::~CovProportional()
-{
-}
-
-void CovProportional::setCor(ACov* cor)
-{
-  if (cor->getNVar() != 1)
+  double CovProportional::_eval(
+    const SpacePoint& p1,
+    const SpacePoint& p2,
+    Id ivar,
+    Id jvar,
+    const CovCalcMode* mode) const
   {
-    messerr("Correlation function should have only 1 variable");
-    return;
+    return _sillCur.getValue(ivar, jvar)
+         * getCor()->evalCov(p1, p2, 0, 0, mode);
   }
-  CovBase::setCor(cor);
-}
 
-double CovProportional::_eval(const SpacePoint& p1,
-                              const SpacePoint& p2,
-                              Id ivar,
-                              Id jvar,
-                              const CovCalcMode* mode) const
-{
-  return _sillCur.getValue(ivar, jvar) * getCor()->evalCov(p1, p2, 0, 0, mode);
-}
+  bool CovProportional::isValidForSimulation(const ESimuType& simuType) const
+  {
+    return getCor()->isValidForSimulation(simuType);
+  }
 
-bool CovProportional::isValidForSpectral() const
-{
-  return getCor()->isValidForSpectral();
-}
-
-MatrixDense CovProportional::simulateSpectralOmega(Id ns) const
-{
-  return getCor()->simulateSpectralOmega(ns);
-}
+  MatrixDense CovProportional::simulateSpectralOmega(Id ns) const
+  {
+    return getCor()->simulateSpectralOmega(ns);
+  }
 
 } // namespace gstlrn

@@ -20,7 +20,6 @@ flag.verbose = FALSE
 opers = EStatOption_fromKeys(c("NUM", "MINI", "MAXI", "MEAN", "STDV"))
 
 prefix = "Simu"
-var_name = paste(prefix, "V1", "S1", sep = ".")
 ```
 
 # Second order stationary random functions
@@ -40,7 +39,10 @@ angles = c(30., 0, 0)
 # initialization of the simulator
 nb <- 1000 # number of spectral components
 ns <- 20   # number of simulations
-seed <- 13112 # Seed for the first simulation
+seed <- 42 # Seed for the first simulation
+
+#var_name = paste(prefix, "V1", "S1", sep = ".")
+var_name = NC_getNameEncoded(prefix, NULL, 1, 1, 1, ns)
 
 # Define the title (used for plots)
 title = paste0(type_cov, " model")
@@ -58,25 +60,25 @@ dx   = c(1.)
 grid = DbGrid_create(nx = nx, dx = dx)
 
 # specification of the model using Model
-mod  = Model_createFromParam(type = ECov_fromKey(type_cov), 
+mod  = Model_createFromParam(type = ECov_fromKey(type_cov),
                              ranges = ranges[1:ndim], param = nu, flagRange=FALSE)
-# using the *SimuSpectral* interface
-sim = SimuSpectralRN(mod$getCov())
-err = sim$simulate(ns = nb, seed = 123, verbose = TRUE)
-# 
-gamma = sim$getGamma()$toTL()
-omega = sim$getOmega()$toTL()
-phi   = sim$getPhi()
+# using the *SimuSpectralTest* interface
+sim = SimuSpectralRN(1, nb, 100, 123, TRUE)
+err = sim$setModelGeneric(mod)
+err = sim$simulateSpectralTest()
+# computing the mathematical expression
+gamma = sim$getSpectrum()$getGamma()$toTL()
+omega = sim$getSpectrum()$getOmega()$toTL()
+phi   = sim$getSpectrum()$getPhi()
 coor  = grid$getColumnsAsMatrix(names = c("x1"), useSel = FALSE)$toTL()
-val   = as.numeric(t(gamma) %*% cos(omega %*% t(coor) + phi))
-
-# # using the interface
-err = sim$compute(dbout = grid, verbose = TRUE, namconv = NamingConvention(prefix))
-# 
-stopifnot (all(abs(val - grid[paste(prefix, "V1", "simu", sep = ".")]) < 1e-6))
+val   = sqrt(2) * as.numeric(t(gamma) %*% cos(omega %*% t(coor) + phi))
+# computing using the gstlearn functions
+err = sim$computeSpectralTest(dbout = grid)
+stopifnot (all(abs(val - grid["Simu"]) < 1e-6))
 
 # using the simuSpectral interface
-err  = simuSpectral(NULL, dbout = grid, cova = mod$getCov(), nbsimu = ns, ns = nb, seed=seed, cov0 = NULL, namconv = NamingConvention(prefix))
+err  = simuSpectral(NULL, dbout = grid, model = mod, nbsimu = ns, ns = nb, seed=seed,
+                    namconv = NamingConvention(prefix))
 
 ```
 
@@ -86,7 +88,7 @@ knitr::kable(dbStatisticsMono(db = grid, names = paste(prefix, "*", sep = "."), 
              digits = 3, caption = title)
 
 # histogram
-p = plot.init() + 
+p = plot.init() +
   plot.hist(db = grid, name = var_name, bins = 25, col = "skyblue") +
   plot.decoration(title = title)
 plot.end(p)
@@ -94,10 +96,10 @@ plot.end(p)
 # experimental variogram for the first simulation and simulated model
 nlag = 50
 varioPar = VarioParam_createMultipleFromGrid(grid, nlag = nlag)
-err = grid$setLocator(name = var_name, locatorType = ELoc_Z(), 
+err = grid$setLocator(name = var_name, locatorType = ELoc_Z(),
                       cleanSameLocator = TRUE)
 vario = Vario_computeFromDb(varioPar, grid)
-p = plot.init() + 
+p = plot.init() +
   plot.varmod(vario = vario, model = mod, flagLegend=TRUE) +
   plot.decoration(title = title)
 plot.end(p)
@@ -105,7 +107,7 @@ plot.end(p)
 # variograms on all simulations
 vl = list()
 for (s in 1:ns) {
-  err = grid$setLocator(name = paste(prefix, "V1", paste0("S", s), sep = "."), 
+  err = grid$setLocator(name = NC_getNameEncoded(prefix, NULL, 1, 1, s, ns),
                         locatorType = ELoc_Z(), cleanSameLocator = TRUE)
   vl[[1 + length(vl)]] <- Vario_computeFromDb(varioPar, grid)
 }
@@ -122,7 +124,7 @@ ndim = 2
 err = defineDefaultSpace(ESpaceType_RN(), ndim)
 
 # specification of the model (theoretical range is provided in 'a')
-mod  = Model_createFromParam(type = ECov_fromKey(type_cov), 
+mod  = Model_createFromParam(type = ECov_fromKey(type_cov),
                              ranges = ranges[1:ndim], param = nu, angles=angles[1:ndim],
                              flagRange=FALSE)
 
@@ -130,20 +132,19 @@ mod  = Model_createFromParam(type = ECov_fromKey(type_cov),
 grid1 = DbGrid_create(nx = c(256, 256))
 grid2 = DbGrid_create(nx = c(100, 100), x0 = c(200, 200), dx = c(1,1))
 
-
 # computing the simulation on two intersecting grids
-seed <- 3132
-err = simuSpectral(NULL, grid1, mod$getCov(), 1, nb, seed=seed , namconv = NamingConvention(prefix))
-err = simuSpectral(NULL, grid2, mod$getCov(), 1, nb, seed=seed , namconv = NamingConvention(prefix))
+err = simuSpectral(NULL, dbout=grid1, model=mod, ns=nb, seed=seed , namconv = NamingConvention(prefix))
+err = simuSpectral(NULL, dbout=grid2, model=mod, ns=nb, seed=seed , namconv = NamingConvention(prefix))
+var_name = NC_getNameEncoded(prefix, NULL)
 
 p = plot.init(asp=1) +
   plot.raster(grid1, name = var_name, palette = "Spectral", limits = 3.5 * c(-1,1)) +
-  plot.raster(grid2, name = var_name, palette = "Spectral", limits = 3.5 * c(-1,1)) + 
+  plot.raster(grid2, name = var_name, palette = "Spectral", limits = 3.5 * c(-1,1)) +
   plot.decoration(xlab = "Easting", ylab = "Northing", title = title)
 plot.end(p)
 
 # Control that the values on the intersection of the two grids are identical
-err = migrate(dbin = grid1, dbout = grid2, name = var_name, 
+err = migrate(dbin = grid1, dbout = grid2, name = var_name,
               namconv = NamingConvention("grid1"))
 p = plot.init() +
   plot.correlation(grid2, namex = var_name, namey = paste("grid1", var_name, sep = "."), asPoint = TRUE,
@@ -162,21 +163,20 @@ db[paste("grid1", var_name, sep = ".")] <- grid1$getColumn(name = var_name, useS
 err = db$setLocators(c("x1", "x2"), ELoc_X(), cleanSameLocator = TRUE)
 err = grid1$clearSelection()
 
-
 # computing the simulation on scattered points
-err = simuSpectral(NULL, db, mod$getCov(), 1, nb, seed=seed , namconv = NamingConvention(prefix))
+err = simuSpectral(NULL, dbout=db, model=mod,  ns=nb, seed=seed , namconv = NamingConvention(prefix))
 
 p1 = plot.init(asp=1) +
   plot.raster(grid1, name = var_name, palette = "Spectral") +
-  plot.symbol(db, color = "red") + 
+  plot.symbol(db, color = "red") +
   plot.decoration(xlab = "Easting", ylab = "Norhting", title = title)
 
 # control that the values on the intersection of the two grids are identical
 p2 = plot.init() +
-  plot.correlation(db, namex = var_name, namey = paste("grid1", var_name, sep = "."), 
-                   asPoint = TRUE, 
+  plot.correlation(db, namex = var_name, namey = paste("grid1", var_name, sep = "."),
+                   asPoint = TRUE,
                    flagDiag = TRUE, flagSameAxes = TRUE) +
-  plot.decoration(xlab = "simulation on db", ylab = "simulation on grid1", 
+  plot.decoration(xlab = "simulation on db", ylab = "simulation on grid1",
                   title = title)
 
 ggarrange(p1, p2, nrow = 1, ncol = 2)
@@ -186,9 +186,9 @@ ggarrange(p1, p2, nrow = 1, ncol = 2)
 # statistics
 tab = rbind(
   dbStatisticsMono(db = grid1, names = var_name, opers = opers)$toTL(),
-  dbStatisticsMono(db = grid2, names = c(var_name), opers = opers, 
+  dbStatisticsMono(db = grid2, names = c(var_name), opers = opers,
                    flagIso = TRUE)$toTL(),
-  dbStatisticsMono(db = db, names = c(var_name), opers = opers, 
+  dbStatisticsMono(db = db, names = c(var_name), opers = opers,
                    flagIso = TRUE)$toTL())
 rownames(tab) = c("grid1", "grid2", "scattered points")
 knitr::kable(tab,  digits = 3, caption = title)
@@ -199,11 +199,11 @@ coldir = c("green", "blue", "red")
 err = grid1$setLocator(var_name, ELoc_Z(), cleanSameLocator = TRUE)
 varioPar = VarioParam_createMultipleFromGrid(grid1, nlag=nlag)
 
-# computing the experimental variogram  
+# computing the experimental variogram
 vario = Vario_computeFromDb(varioPar, grid1)
 
-p = plot.init() + 
-  plot.varmod(vario = vario, model=mod, flagLegend=TRUE) + 
+p = plot.init() +
+  plot.varmod(vario = vario, model=mod, flagLegend=TRUE) +
   plot.decoration(title = title)
 plot.end(p)
 ```
@@ -215,7 +215,7 @@ ndim = 3
 err = defineDefaultSpace(ESpaceType_RN(), ndim)
 
 # specification of the model (theoretical range is provided in 'a')
-mod  = Model_createFromParam(type = ECov_fromKey(type_cov), 
+mod  = Model_createFromParam(type = ECov_fromKey(type_cov),
                              ranges = ranges[1:ndim], param = nu, angles=angles[1:ndim],
                              flagRange=FALSE)
 
@@ -226,7 +226,7 @@ x0 <- c(10, 1000, 2)
 grid = DbGrid_create(nx = nx, x0 = x0, dx = dx)
 
 # computing the simulation on the grid
-err = simuSpectral(NULL, grid, mod$getCov(), 1, nb, seed=seed , namconv = NamingConvention(prefix))
+err = simuSpectral(NULL, dbout=grid, model=mod, ns=nb, seed=seed , namconv = NamingConvention(prefix))
 
 ```
 
@@ -236,12 +236,12 @@ knitr::kable(dbStatisticsMono(db = grid, names = var_name, opers = opers)$toTL()
              digits = 3, caption = title)
 
 # histogram
-p = plot.init() + 
+p = plot.init() +
   plot.hist(db = grid, name = var_name, bins = 25, col = "skyblue")
 plot.end(p)
 
 # map
-p = plot.init(asp=1) + 
+p = plot.init(asp=1) +
   plot.raster(grid, name = var_name, palette = "Spectral", limits = 3.5 * c(-1,1)) +
   plot.decoration(xlab = "Easting", ylab = "Northing", title = title)
 plot.end(p)
@@ -252,13 +252,11 @@ coldir = c("green", "red", "blue")
 err = grid$setLocator(var_name, ELoc_Z(), cleanSameLocator = TRUE)
 varioPar = VarioParam_createMultipleFromGrid(grid, nlag=nlag)
 
-# computing the experimental variogram  
+# computing the experimental variogram
 vario = Vario_computeFromDb(varioPar, grid)
 
-p = plot.init() + 
-  plot.varmod(vario = vario, model=mod, flagLegend=TRUE) + 
+p = plot.init() +
+  plot.varmod(vario = vario, model=mod, flagLegend=TRUE) +
   plot.decoration(title = title)
 plot.end(p)
 ```
-
-

@@ -7,6 +7,8 @@ output:
     toc: true
   pdf_document:
     toc: true
+editor_options:
+  chunk_output_type: console
 ---
 
 <!-- SUMMARY: Categorical Simulations using PluriGaussian model. Automatic model fitting. Connectivity test (using acceptation-rejection technique)  -->
@@ -14,9 +16,9 @@ output:
 <!-- CATEGORY: Courses -->
 
 ```{r setup,include=FALSE, fig.show='hide'}
-knitr::opts_chunk$set(fig.width=4, fig.height=4, 
+knitr::opts_chunk$set(fig.width=4, fig.height=4,
                       out.width="50%",
-                      fig.align = "center") 
+                      fig.align = "center")
 ```
 
 # Preamble
@@ -90,7 +92,7 @@ ruleprop = RuleProp_createFromRule(rule, props)
 vario = variogram_pgs(data, varioparam, ruleprop)
 
 model_gaus = Model()
-err = model_gaus$fit(vario, types=ECov_fromKeys(c("CUBIC")), 
+err = model_gaus$fit(vario, types=ECov_fromKeys(c("CUBIC")),
                      constraints=Constraints(1.))
 
 plot.init(dims = c(6, 6)) + plot.varmod(vario, model_gaus, asCov = TRUE)
@@ -101,7 +103,7 @@ plot.init(dims = c(6, 6)) + plot.varmod(vario, model_gaus, asCov = TRUE)
 PluriGaussian Simulation
 
 ```{r Perform_PGS}
-err = simpgs(dbin=data, dbout=grid, ruleprop=ruleprop, model1=model_gaus, 
+err = simpgs(dbin=data, dbout=grid, ruleprop=ruleprop, model1=model_gaus,
              neigh=neigh, nbsimu=nbsimu,
              namconv = NamingConvention("SimuPGS"))
 ```
@@ -109,16 +111,16 @@ err = simpgs(dbin=data, dbout=grid, ruleprop=ruleprop, model1=model_gaus,
 
 ```{r Show_several_simulation_outcome}
 p1 = plot.init(dims=c(6,6)) +
-  plot(grid, name="SimuPGS.1", palette=cmap) +
+  plot(grid, name=NC_getNameEncoded("SimuPGS", NULL, 1, 1, 1, nbsimu), palette=cmap) +
   plot(data, nameColor="facies", nameSize="connect", palette=cmap)
 p2 = plot.init(dims=c(6,6)) +
-  plot(grid, name="SimuPGS.2", palette=cmap) +
+  plot(grid, name=NC_getNameEncoded("SimuPGS", NULL, 1, 1, 2, nbsimu), palette=cmap) +
   plot(data, nameColor="facies", nameSize="connect", palette=cmap)
 p3 = plot.init(dims=c(6,6)) +
-  plot(grid, name="SimuPGS.3", palette=cmap,) +
+  plot(grid, name=NC_getNameEncoded("SimuPGS", NULL, 1, 1, 3, nbsimu), palette=cmap,) +
   plot(data, nameColor="facies", nameSize="connect", palette=cmap)
 p4 = plot.init(dims=c(6,6)) +
-  plot(grid, name="SimuPGS.4", palette=cmap) +
+  plot(grid, name=NC_getNameEncoded("SimuPGS", NULL, 1, 1, 4, nbsimu), palette=cmap) +
   plot(data, nameColor="facies", nameSize="connect", palette=cmap)
 ggarrange(p1,p2,p3,p4, nrow=2, ncol=2)
 ```
@@ -141,24 +143,24 @@ accept <- function(data, grid, name, verbose=FALSE, transBinary=TRUE, faccc=2)
     cat("Their ranks in the input Data Base =",rankData,"\n")
     cat("Their ranks in the output Data Base =",rankGrid,"\n")
 	}
-  
+
   # Perform the labelling into connected components
   err = grid$setLocator(name, ELoc_Z(), cleanSameLocator=TRUE)
   err = dbMorpho(grid, EMorpho_CC(), vmin=faccc-0.5, vmax=faccc+0.5)
   cc_list = grid[rankGrid,"Morpho*"]
   if (verbose)
     cat("List of their connected components indices =",cc_list,"\n")
-  
+
   # Check that the data points belong to the same connected component
   number = length(unique(cc_list))
   retval = (number == 1)
   if (verbose)
     cat("Acceptation score =",retval,"\n")
-        
+
   # Convert the valid Simulation outcome into a binary image
   if (retval && transBinary)
     grid[name] = (grid["Morpho*"] == cc_list[1])
-    
+
   grid$deleteColumn("Morpho*")
   retval
 }
@@ -167,7 +169,7 @@ accept <- function(data, grid, name, verbose=FALSE, transBinary=TRUE, faccc=2)
 Experiment the Acceptation Function on one Simulation outcome
 
 ```{r Check_acceptation_function_on_one_simulation}
-isValid = accept(data, grid, "SimuPGS.1", TRUE)
+isValid = accept(data, grid, NC_getNameEncoded("SimuPGS", NULL, 1, 1, 1, nbsimu), TRUE)
 cat("Connectivity for Simulation #1 :",isValid,"\n")
 ```
 
@@ -176,13 +178,13 @@ Probability Map
 * For each simulation, convert a pixel into 1 if it matches the Target Facies and 0 otherwise
 * Calculate the mean per pixel over all simulation outcomes
 
-This operation provides the probability that each pixel belongs to the Target Facies, calculated over all simulations that fulfill the Connectivity Constraint. 
+This operation provides the probability that each pixel belongs to the Target Facies, calculated over all simulations that fulfill the Connectivity Constraint.
 
 ```{r Select_valid_simulation_outcomes}
 nb.valid = 0
 for (i in 1:nbsimu)
 {
-  name = paste("SimuPGS.",i, sep="")
+  name = NC_getNameEncoded("SimuPGS", NULL, 1, 1, i, nbsimu)
   cat("Simulation",name)
   isValid = accept(data, grid, name)
   if (isValid)
@@ -214,4 +216,3 @@ p = plot.init(dims=c(6,6)) +
   plot.decoration(title="Probability of Connecting Wells")
 plot.end(p)
 ```
-

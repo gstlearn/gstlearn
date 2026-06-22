@@ -1,0 +1,21 @@
+name: 'Setup Python'
+description: 'Setup Python with uv and install common gstlearn dependencies'
+inputs:
+  python-version:
+    description: 'Python version to install'
+    required: true
+runs:
+  using: "composite"
+  steps:
+
+    - name: Setup uv
+      uses: astral-sh/setup-uv@v8.1.0
+      with:
+        python-version: ${{ inputs.python-version }}
+        activate-environment: true
+
+    - name: Install Python dependencies
+      shell: bash
+      run: |
+        uv pip install numpy
+        uv pip install mlxtend

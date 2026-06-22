@@ -93,16 +93,16 @@ model = Model_createFromParam(ECov_MATERN(), sills = c0, range = 0.5, param = 1)
 err   = model$setMeans(m)
 
 # simulation of the spatially varying effects
-err   = simtub(dbin = NULL, dbout = grd, model = model, nbsimu = 1, nbtuba = 1000, 
+err   = simtub(dbin = NULL, dbout = grd, model = model, nbsimu = 1, nbtuba = 1000,
                namconv = NamingConvention("Y"))
-err = grd$setName(old_name = "Y.1", name = "A")
-err = grd$setName(old_name = "Y.2", name = "B")
+err = grd$setName(old_name = "Y.V1", name = "A")
+err = grd$setName(old_name = "Y.V2", name = "B")
 
 # simulation of the external drift Lognormal (m = 3, sigma = 0.25)
 m_N  <- 3
 sigma_N <- 0.25
 model_N = Model_createFromParam(ECov_CUBIC(), sill = 1.0, ranges = c(0.75, 0.75))
-err   = simtub(dbin = NULL, dbout = grd, model = model_N, nbsimu = 1, nbtuba = 1000, 
+err   = simtub(dbin = NULL, dbout = grd, model = model_N, nbsimu = 1, nbtuba = 1000,
                namconv = NamingConvention("N"))
 grd["N"] <- m_N * exp(sigma_N * grd["N"] - 1/2 * sigma_N^2)
 
@@ -140,15 +140,15 @@ n_neigh = 20
 
 ```{r data_set_plots, echo=FALSE, eval=TRUE}
 var_list = c("A", "B", "N", "Z")
-var_dscr = c("First varying Coefficient", "Second varying Coefficient", 
+var_dscr = c("First varying Coefficient", "Second varying Coefficient",
              "External predictor", "Observed value")
 stopifnot(length(var_list) == length(var_dscr))
 
 plot_simulated_data <- function(ivar) {
   stopifnot(ivar %in% 1:4)
   var_range = round(range(grd[var_list[ivar]], na.rm = TRUE), digits = 1)
-  plot.init(asp = 1) + 
-    plot.raster(grd, name = var_list[ivar], 
+  plot.init(asp = 1) +
+    plot.raster(grd, name = var_list[ivar],
                 flagLegend = FALSE, palette = pal, limits=var_range) +
     # plot.decoration(title = paste(var_dscr[ivar], var_list[ivar], sep = ": "))
     plot.decoration(title = paste(var_list[ivar], sep = ": "))
@@ -163,18 +163,18 @@ ggarrange(
 )
 
 # Statistics on the simulated values
-knitr::kable(dbStatisticsMono(db = grd, names = var_list, opers = opers)$toTL(), 
+knitr::kable(dbStatisticsMono(db = grd, names = var_list, opers = opers)$toTL(),
              caption = "Statistics on the grid", digits = 2)
 
 # Statistics on the observed data
-knitr::kable(dbStatisticsMono(db = data, names = var_list[c(3,4)], opers = opers)$toTL(), 
+knitr::kable(dbStatisticsMono(db = data, names = var_list[c(3,4)], opers = opers)$toTL(),
              caption = "Statistics on the observed data", digits = 2)
 
 # Z vs. N
-p = plot.init() + 
+p = plot.init() +
   plot.correlation(grd, namex = var_list[4], namey = var_list[3], asPoint = FALSE, bins = 100) +
   plot.decoration(
-    xlab = paste0(var_list[4], " (", var_dscr[4], ")"), 
+    xlab = paste0(var_list[4], " (", var_dscr[4], ")"),
     ylab = paste0(var_list[3], " (", var_dscr[3], ")"))
 plot.end(p)
 
@@ -203,7 +203,7 @@ plot_res <- function(iest) {
     p_list[[1+length(p_list)]] <- plot.init(asp=1) +
       plot.raster(grd, name = vv, flagLegend = FALSE, legendName = suffix_dsc[i],
                   palette = pal, limits=range_vv)  +
-      plot.symbol(data) + 
+      plot.symbol(data) +
       plot.decoration(title = tit)
   }
   ggarrange(plotlist = p_list, nrow = 1, ncol = length(p_list))
@@ -211,16 +211,16 @@ plot_res <- function(iest) {
 
 plot_corr <- function(iest) {
   # correlation
-    p_corr <- plot.init() + plot.correlation(grd, 
-                     namex = paste(var_key, nm_obs, suffix_key[1], sep = "."), 
-                     namey = estim_list[[iest]]$name, 
+    p_corr <- plot.init() + plot.correlation(grd,
+                     namex = paste(var_key, nm_obs, suffix_key[1], sep = "."),
+                     namey = estim_list[[iest]]$name,
                      asPoint = FALSE, flagDiag = TRUE, diagColor = "red", bins = 100) +
     plot.decoration(
-      xlab = paste0("Estimated value"), 
+      xlab = paste0("Estimated value"),
       ylab = paste0("Actual value"),
       title = estim_list[[iest]]$name
       )
-    
+
     plot.end(p_corr)
 }
 
@@ -299,7 +299,7 @@ define_estim <- function(estim, model, verbose = FALSE) {
     model$display()
   }
   invisible()
-}  
+}
 ```
 
 ## Estimation
@@ -315,25 +315,25 @@ for (iest in seq_along(estim_list)) {
   # reset the model
   err = define_estim(estim = estim_list[[iest]], model = modED, verbose = FALSE)
   if (estim_list[[iest]]$type != 4) {
-    var_key = paste(prefix_section, ESTIM_KEY[estim_list[[iest]]$type], sep = ".")    
+    var_key = paste(prefix_section, ESTIM_KEY[estim_list[[iest]]$type], sep = ".")
   } else {
     var_key = paste(prefix_section, ESTIM_KEY[estim_list[[iest]]$type], estim_list[[iest]]$idx, sep = ".")
   }
-  
+
   # computing the kriging
   err = kriging(data, dbout = grd, model = modED, neigh = neigh, krigopt = KrigOpt(),
                 flag_est = flag_est, flag_std = flag_std,
                 namconv = NamingConvention(var_key))
-  
+
   # rescaling the drift component by the deterministic predictor to get the effect estimate
   if ((estim_list[[iest]]$type == 4)&(estim_list[[iest]]$idx > 0)) {
     if (flag_est) {
-      grd[paste(var_key, nm_obs, suffix_key[1], sep = ".")] = 
+      grd[paste(var_key, nm_obs, suffix_key[1], sep = ".")] =
         grd[paste(var_key, nm_obs, suffix_key[1], sep = ".")] /
         grd[nm_fac[estim_list[[iest]]$idx]]
     }
     if (flag_std) {
-      grd[paste(var_key, nm_obs, suffix_key[2], sep = ".")] = 
+      grd[paste(var_key, nm_obs, suffix_key[2], sep = ".")] =
         grd[paste(var_key, nm_obs, suffix_key[2], sep = ".")] /
         abs(grd[nm_fac[estim_list[[iest]]$idx]])
     }
@@ -361,26 +361,26 @@ iest = 5; plot_res(iest); plot_corr(iest)
 
 # statistics on the estimations
 knitr::kable(dbStatisticsMono(grd, names = paste(prefix_section, "*", sep = "."),
-                              opers = opers)$toTL(), 
+                              opers = opers)$toTL(),
              caption = "Statistics on drift coefficients (actual values and estimated)", digits = 2)
 
 # statistics on the residual
 for (iest in 1:length(estim_list)) {
   if (estim_list[[iest]]$idx < 0) {
-    vv = paste(sep = ".", prefix_section, ESTIM_KEY[estim_list[[iest]]$type], 
+    vv = paste(sep = ".", prefix_section, ESTIM_KEY[estim_list[[iest]]$type],
                nm_obs, "estim")
   } else {
-    vv = paste(sep = ".", prefix_section, ESTIM_KEY[estim_list[[iest]]$type], 
-               estim_list[[iest]]$idx, 
+    vv = paste(sep = ".", prefix_section, ESTIM_KEY[estim_list[[iest]]$type],
+               estim_list[[iest]]$idx,
                nm_obs, "estim")
   }
   grd[paste(sep = ".", prefix_section, "diff", estim_list[[iest]]$name)] =
     grd[estim_list[[iest]]$name] - grd[vv]
 }
 
-knitr::kable(dbStatisticsMono(db = grd, 
-                              names = c(paste(prefix_section, "diff", "*", sep = "."), "Y"), 
-                              opers = opers)$toTL(), 
+knitr::kable(dbStatisticsMono(db = grd,
+                              names = c(paste(prefix_section, "diff", "*", sep = "."), "Y"),
+                              opers = opers)$toTL(),
              caption = paste0("Statistics on the residual (", neigh_txt, ")"), digits = 2)
 
 err = grd$deleteColumns(names = paste(prefix_section, "diff", "*", sep="."))
@@ -420,7 +420,7 @@ err = grd$clearLocators(locatorType = ELoc_Z())
 err = grd$deleteColumns(names = paste0(prefix_section, ".*.", c("estim", "stdev"), ".*"))
 
 err = kriging_SVC(dbin = data, dbout = grd, model = model_svc, neigh = neigh,
-                flag_est = flag_est, flag_std = flag_std, flag_varz = flag_varz, 
+                flag_est = flag_est, flag_std = flag_std, flag_varz = flag_varz,
                 estim_list = estim_list,
                 prefix = prefix_section, verbose = verbose
 )
@@ -446,26 +446,26 @@ iest = 5; plot_res(iest); plot_corr(iest)
 
 # statistics on the estimations
 knitr::kable(dbStatisticsMono(grd, names = paste(prefix_section, "*", sep = "."),
-                              opers = opers)$toTL(), 
+                              opers = opers)$toTL(),
              caption = "Statistics on drift coefficients (actual values and estimated)", digits = 2)
 
 # statistics on the residual
 for (iest in 1:length(estim_list)) {
   if (estim_list[[iest]]$idx < 0) {
-    vv = paste(sep = ".", prefix_section, ESTIM_KEY[estim_list[[iest]]$type], 
+    vv = paste(sep = ".", prefix_section, ESTIM_KEY[estim_list[[iest]]$type],
                nm_obs, "estim")
   } else {
-    vv = paste(sep = ".", prefix_section, ESTIM_KEY[estim_list[[iest]]$type], 
-               estim_list[[iest]]$idx, 
+    vv = paste(sep = ".", prefix_section, ESTIM_KEY[estim_list[[iest]]$type],
+               estim_list[[iest]]$idx,
                nm_obs, "estim")
   }
   grd[paste(sep = ".", prefix_section, "diff", estim_list[[iest]]$name)] =
     grd[estim_list[[iest]]$name] - grd[vv]
 }
 
-knitr::kable(dbStatisticsMono(db = grd, 
-                              names = c(paste(prefix_section, "diff", "*", sep = "."), "Y"), 
-                              opers = opers)$toTL(), 
+knitr::kable(dbStatisticsMono(db = grd,
+                              names = c(paste(prefix_section, "diff", "*", sep = "."), "Y"),
+                              opers = opers)$toTL(),
              caption = paste0("Statistics on the residual (", neigh_txt, ")"), digits = 2)
 
 err = grd$deleteColumns(names = paste(prefix_section, "diff", "*", sep="."))
@@ -486,35 +486,35 @@ for (iest in 1:length(estim_list)) {
   }
   nm_svc = paste(prefix_svc, var_key, sep = ".")
   nm_ked  = paste(prefix_ked, var_key, sep = ".")
-  
+
   # correlation estim with KED vs. estim with SVC
-  p = plot.init() + 
-    plot.correlation(grd, 
+  p = plot.init() +
+    plot.correlation(grd,
                      namex = paste(nm_svc, "estim", sep = "."),
-                     namey = paste(nm_ked, "estim", sep = "."), 
+                     namey = paste(nm_ked, "estim", sep = "."),
                      asPoint = FALSE, flagDiag = TRUE, diagColor = "red", bins = 100) +
-    plot.decoration(xlab = "Estimated value (SVC)", ylab = "Estimated value (KED)", 
+    plot.decoration(xlab = "Estimated value (SVC)", ylab = "Estimated value (KED)",
                     title = paste0("KED vs. SVC", ": ", estim_list[[iest]]$name))
   plot.end(p)
-  
+
   # comparison
   if (iest %in% c(1,4,5)) {
     # actual value
     vnm = actual_var[iest]
     range_var = range(grd[vnm], na.rm = TRUE)
-    p0 = plot.init(asp=1) + 
+    p0 = plot.init(asp=1) +
       plot.raster(grd, name = vnm, flagLegend = FALSE, palette = pal, limits = range_var) +
       plot.decoration(title = vnm)
     # estimation using SVC
     vnm = paste(nm_svc, "estim", sep = ".")
     range_var = range(grd[vnm], na.rm = TRUE)
-    p =   plot.init(asp=1) + 
+    p =   plot.init(asp=1) +
       plot.raster(grd, name = vnm, flagLegend = FALSE, palette = pal, limits = range_var) +
       plot.decoration(title = vnm)
     # estimation using KED
     vnm = paste(nm_ked, "estim", sep = ".")
     range_var = range(grd[vnm], na.rm = TRUE)
-    q = plot.init(asp=1) + 
+    q = plot.init(asp=1) +
       plot.raster(grd, name = vnm, flagLegend = FALSE, palette = pal, limits = range_var) +
       plot.decoration(title = vnm)
     plot.end(ggarrange(p0, p, q, nrow = 1, ncol = 3))
@@ -528,7 +528,7 @@ stat_qc <- function(iest) {
   nm_ked  = paste(prefix_ked,  lvar, sep = ".")[iest]
   nm_svc = paste(prefix_svc, lvar, sep = ".")[iest]
   nm_v = c(estim_list[[iest]]$name, paste(c(nm_ked, nm_svc), "estim", sep = "."))
-  knitr::kable(dbStatisticsMono(db = grd, names = nm_v, , opers = opers)$toTL(), 
+  knitr::kable(dbStatisticsMono(db = grd, names = nm_v, , opers = opers)$toTL(),
                caption = paste0("Statistics for ", actual_var[iest]), digits = 2)
 }
 
@@ -536,4 +536,3 @@ stat_qc(1)
 stat_qc(4)
 stat_qc(5)
 ```
-

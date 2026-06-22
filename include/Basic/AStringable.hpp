@@ -22,22 +22,24 @@
 
 namespace gstlrn
 {
-class AMatrix;
+  class AMatrix;
 
-class GSTLEARN_EXPORT AStringable
-{
-public:
-  AStringable();
-  AStringable(const AStringable& r);
-  AStringable& operator=(const AStringable& r);
-  virtual ~AStringable();
+  class GSTLEARN_EXPORT AStringable
+  {
+  public:
+    AStringable();
+    AStringable(const AStringable& r);
+    AStringable& operator=(const AStringable& r);
+    virtual ~AStringable();
 
-  virtual String toString(const AStringFormat* strfmt = nullptr) const;
+    virtual String toString(const AStringFormat* strfmt = nullptr) const;
 
-  virtual void display(const AStringFormat* strfmt = nullptr) const final;
+    virtual void display(const AStringFormat* strfmt = nullptr) const final;
 #ifndef SWIG // TODO : overload not available in customized SWIG 4.2.3 and more
-  virtual void display(Id level) const final;
+    virtual void display(Id level) const final;
 #endif
-};
+
+    void printConcreteClassName() const;
+  };
 
 } // namespace gstlrn

@@ -6,7 +6,7 @@ I. Creation of the vector<vector<Projmatrix*>> from a vector<ProjMatrix*>
 ---------------------------------------------------------------------
 Test1: with a nullptr element:
 --------
-Projmatrix shouldn't be nullptr.
+ProjMatrix shouldn't be nullptr.
 ---------------------
 Test2: with different Point Numbers:
 --------

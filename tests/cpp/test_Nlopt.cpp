@@ -44,19 +44,19 @@ static void _firstTest()
 {
   mestitle(0, "Minimization of a Function");
   VectorDouble x = {1.};
-  auto* opt      = new Optim(NELDERMEAD, static_cast<Id>(x.size()));
+  auto* opt = new Optim(NELDERMEAD, static_cast<Id>(x.size()));
 
   // Bounds for each parameter
   VectorDouble lb = {1., 10.};
   opt->setLowerBounds(lb);
   VectorDouble ub = {5., 10.};
   opt->setUpperBounds(ub);
-  auto func = [](const VectorDouble& x)
-  { return myfunc2(x); };
+  auto func = [](const VectorDouble& x) { return myfunc2(x); };
   opt->setObjective(func);
   opt->setXtolRel(EPSILON4);
   double minf = opt->minimize(x);
-  std::cout << "Optimum: x = " << x[0] << " -> Minimum value = " << minf << std::endl;
+  std::cout << "Optimum: x = " << x[0] << " -> Minimum value = " << minf
+            << std::endl;
 }
 
 int main(int argc, char* argv[])

@@ -9,7 +9,8 @@
 /*                                                                            */
 /******************************************************************************/
 #include "LinearOp/SPDEOpMatrix.hpp"
-#include "LinearOp/InvNuggetOp.hpp"
+#include "LinearOp/ASimulableMatrix.hpp"
+#include "LinearOp/IProj.hpp"
 #include "LinearOp/PrecisionOpMultiMatrix.hpp"
 #include "LinearOp/ProjMultiMatrix.hpp"
 #include "Matrix/MatrixSparse.hpp"
@@ -17,87 +18,89 @@
 
 namespace gstlrn
 {
-SPDEOpMatrix::SPDEOpMatrix(const PrecisionOpMultiMatrix* pop,
-                           const ProjMultiMatrix* A,
-                           const InvNuggetOp* invNoise)
-  : SPDEOp(pop, A, invNoise, nullptr, nullptr)
-  , _QpAinvNoiseAt(std::make_shared<MatrixSparse>(0, 0))
-  , _chol(nullptr)
-{
-  _QpAinvNoiseAt->resize(pop->getSize(), pop->getSize());
-  if (A != nullptr)
+  SPDEOpMatrix::SPDEOpMatrix(
+    const PrecisionOpMultiMatrix* pop,
+    const ProjMultiMatrix* A,
+    const ASimulableMatrix* invNoise)
+    : SPDEOp(pop, A, invNoise, nullptr, nullptr)
+    , _QpAinvNoiseAt(std::make_shared<MatrixSparse>(0, 0))
+    , _chol(nullptr)
   {
-    _QpAinvNoiseAt->prodNormMatMatInPlace(A->getProj(), invNoise, true);
+    _QpAinvNoiseAt->resize(pop->getSize(), pop->getSize());
+    if (A != nullptr)
+    {
+      _QpAinvNoiseAt->prodNormMatMatInPlace(
+        A->getProj(), &invNoise->getQMat(), true);
+    }
+    AMatrix::addInPlace(*_QpAinvNoiseAt, *_QpAinvNoiseAt, *pop->getQ());
   }
-  _QpAinvNoiseAt->addMat(*pop->getQ());
-}
 
-SPDEOpMatrix::~SPDEOpMatrix()
-{
-  delete _chol;
-}
+  SPDEOpMatrix::~SPDEOpMatrix()
+  {
+    delete _chol;
+  }
 
-Id SPDEOpMatrix::_solve(const constvect inv, vect outv) const
-{
-  if (_chol == nullptr)
-    _chol = new CholeskySparse(*_QpAinvNoiseAt);
-  return _chol->solve(inv, outv);
-}
+  Id SPDEOpMatrix::_solve(const constvect inv, vect outv) const
+  {
+    if (_chol == nullptr) _chol = new CholeskySparse(*_QpAinvNoiseAt);
+    return _chol->solve(inv, outv);
+  }
 
-/*****************************************************************************/
-/*!
-**  Evaluate the product (by the SPDEOpMatrix)
-**
-** \param[in]  inv     Array of input values
-**
-** \param[out] outv    Array of output values
-**
-*****************************************************************************/
-Id SPDEOpMatrix::_addToDest(const constvect inv, vect outv) const
-{
-  return _QpAinvNoiseAt->addToDest(inv, outv);
-}
+  /*****************************************************************************/
+  /*!
+  **  Evaluate the product (by the SPDEOpMatrix)
+  **
+  ** \param[in]  inv     Array of input values
+  **
+  ** \param[out] outv    Array of output values
+  **
+  *****************************************************************************/
+  Id SPDEOpMatrix::_addToDest(const constvect inv, vect outv) const
+  {
+    return _QpAinvNoiseAt->addToDest(inv, outv);
+  }
 
-double SPDEOpMatrix::computeLogDetOp(Id nbsimu) const
-{
-  DECLARE_UNUSED(nbsimu);
+  double SPDEOpMatrix::computeLogDetOp(Id nbsimu) const
+  {
+    DECLARE_UNUSED(nbsimu);
 
-  if (_chol == nullptr)
-    _chol = new CholeskySparse(*_QpAinvNoiseAt); // TODO avoid to do it twice
-  return _chol->computeLogDeterminant();
-}
+    if (_chol == nullptr)
+      _chol = new CholeskySparse(*_QpAinvNoiseAt); // TODO avoid to do it twice
+    return _chol->computeLogDeterminant();
+  }
 
-/**
- * @brief Computing Standard deviation of the estimation error
- * using partial_invert of a Sparse Cholesky matrix
- *
- * @param dat Vector of Data
- * @param nMC  Number of Monte-Carlo simulations (unused)
- * @param seed Random seed for the Monte-Carlo simulations (unused)
- * @param projK Projection Matrix used for Kriging
- * @param projS Projection matrix used for Simulations (unused)
- * @return VectorDouble
- */
-VectorDouble SPDEOpMatrix::stdev(const VectorDouble& dat,
-                                 Id nMC,
-                                 Id seed,
-                                 const ProjMulti* projK,
-                                 const ProjMulti* projS) const
-{
-  DECLARE_UNUSED(dat);
-  DECLARE_UNUSED(nMC);
-  DECLARE_UNUSED(seed);
-  DECLARE_UNUSED(projS);
+  /**
+   * @brief Computing Standard deviation of the estimation error
+   * using partial_invert of a Sparse Cholesky matrix
+   *
+   * @param dat Vector of Data
+   * @param nMC  Number of Monte-Carlo simulations (unused)
+   * @param seed Random seed for the Monte-Carlo simulations (unused)
+   * @param projK Projection Matrix used for Kriging
+   * @param projS Projection matrix used for Simulations (unused)
+   * @return VectorDouble
+   */
+  VectorDouble SPDEOpMatrix::stdev(
+    const VectorDouble& dat,
+    Id nMC,
+    Id seed,
+    const IProj* projK,
+    const IProj* projS) const
+  {
+    DECLARE_UNUSED(dat);
+    DECLARE_UNUSED(nMC);
+    DECLARE_UNUSED(seed);
+    DECLARE_UNUSED(projS);
 
-  if (_chol == nullptr)
-    _chol = new CholeskySparse(*_QpAinvNoiseAt); // TODO avoid to do it twice
+    if (_chol == nullptr)
+      _chol = new CholeskySparse(*_QpAinvNoiseAt); // TODO avoid to do it twice
 
-  const auto* proj            = dynamic_cast<const ProjMultiMatrix*>(projK);
-  const MatrixSparse* projmat = proj->getProj();
+    const auto* proj = dynamic_cast<const ProjMultiMatrix*>(projK);
+    const MatrixSparse* projmat = proj->getProj();
 
-  VectorDouble result(projmat->getNRows());
-  _chol->stdev(result, projmat, true); // true for standard deviation
+    VectorDouble result(projmat->getNRows());
+    _chol->stdev(result, projmat, true); // true for standard deviation
 
-  return result;
-}
+    return result;
+  }
 } // namespace gstlrn

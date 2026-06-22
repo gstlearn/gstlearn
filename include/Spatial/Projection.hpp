@@ -12,36 +12,38 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Db/Db.hpp"
 #include "Basic/VectorNumT.hpp"
+#include "Db/Db.hpp"
 
 namespace gstlrn
 {
-class Db;
-class Polygons;
+  class Db;
+  class Polygons;
 
-class GSTLEARN_EXPORT Projection
-{
-public:
-  Projection(bool flag_mean, double xcenter=TEST, double ycenter=TEST);
-  Projection(bool flag_mean, Db* db);
-  Projection(const Projection& r);
-  Projection& operator=(const Projection& r);
-  virtual ~Projection();
+  class GSTLEARN_EXPORT Projection
+  {
+  public:
+    Projection(bool flag_mean, double xcenter = TEST, double ycenter = TEST);
+    Projection(bool flag_mean, Db* db);
+    Projection(const Projection& r);
+    Projection& operator=(const Projection& r);
+    virtual ~Projection();
 
-  void operateInPlace(VectorDouble& coor) const;
-  VectorDouble operateInvert(const VectorDouble& coor) const;
-  Id operateVecInPlace(VectorDouble& x, VectorDouble& y) const;
-  Id operateOnDb(Db *db) const;
-  Id operateOnPolygons(Polygons* poly) const;
+    void operateInPlace(VectorDouble& coor) const;
+    VectorDouble operateInvert(const VectorDouble& coor) const;
+    Id operateVecInPlace(VectorDouble& x, VectorDouble& y) const;
+    Id operateOnDb(Db* db) const;
+    Id operateOnPolygons(Polygons* poly) const;
 
-  bool isFlagMean() const { return _flagMean; }
-  double getXcenter() const { return _xcenter; }
-  double getYcenter() const { return _ycenter; }
+    bool isFlagMean() const { return _flagMean; }
 
-private:
-  bool _flagMean;
-  double _xcenter;
-  double _ycenter;
-};
-}
+    double getXcenter() const { return _xcenter; }
+
+    double getYcenter() const { return _ycenter; }
+
+  private:
+    bool _flagMean;
+    double _xcenter;
+    double _ycenter;
+  };
+} // namespace gstlrn

@@ -16,24 +16,27 @@
 
 namespace gstlrn
 {
-class GSTLEARN_EXPORT SimuRefineParam: public AStringable
-{
-public:
-  SimuRefineParam(Id nmult = 1, bool flag_SK = true);
-  SimuRefineParam(const SimuRefineParam &r);
-  SimuRefineParam& operator=(const SimuRefineParam &r);
-  virtual ~SimuRefineParam();
+  class GSTLEARN_EXPORT SimuRefineParam: public AStringable
+  {
+  public:
+    SimuRefineParam(Id nmult = 1, bool flag_SK = true);
+    SimuRefineParam(const SimuRefineParam& r);
+    SimuRefineParam& operator=(const SimuRefineParam& r);
+    virtual ~SimuRefineParam();
 
-  /// Interface to AStringable
-  String toString(const AStringFormat* strfmt = nullptr) const override;
+    /// Interface to AStringable
+    String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  bool isFlagSK() const { return _flagSK; }
-  void setFlagKs(bool flagKS) { _flagSK = flagKS; }
-  Id getNmult() const { return _nmult; }
-  void setNmult(Id nmult) { _nmult = nmult; }
+    bool isFlagSK() const { return _flagSK; }
 
-private:
-  Id _nmult;
-  bool _flagSK;
-};
-}
+    void setFlagKs(bool flagKS) { _flagSK = flagKS; }
+
+    Id getNmult() const { return _nmult; }
+
+    void setNmult(Id nmult) { _nmult = nmult; }
+
+  private:
+    Id _nmult;
+    bool _flagSK;
+  };
+} // namespace gstlrn

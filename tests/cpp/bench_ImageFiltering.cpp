@@ -11,19 +11,18 @@
 
 // This test is mean to check the Factorial Kriging Analysis On Grid
 
-#include "Enum/ECst.hpp"
-#include "Enum/ESpaceType.hpp"
-
-#include "Space/ASpaceObject.hpp"
+#include "Basic/File.hpp"
+#include "Basic/Law.hpp"
+#include "Basic/OptCst.hpp"
+#include "Basic/OptDbg.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
-#include "Basic/Law.hpp"
+#include "Enum/ECst.hpp"
+#include "Enum/ESpaceType.hpp"
+#include "Estimation/Estimations.hpp"
 #include "Model/Model.hpp"
-#include "Basic/File.hpp"
-#include "Basic/OptDbg.hpp"
-#include "Basic/OptCst.hpp"
 #include "Neigh/NeighImage.hpp"
-#include "Estimation/CalcImage.hpp"
+#include "Space/ASpaceObject.hpp"
 
 using namespace gstlrn;
 
@@ -41,26 +40,27 @@ int main(int argc, char* argv[])
   OptCst::define(ECst::NTROW, -1);
 
   // Parameters
-  bool debug         = false;
-  bool verbose       = true;
-  Id nx              = 100;
-  Id ny              = 100;
-  Id nvar            = 3;
-  Id skip            = 0;
-  bool flagSK        = true;
-  bool flagFFT       = true;
-  VectorInt radius   = {10, 10};
-  VectorDouble means = {0., 100., -50.}; // Must be adapted to the number of variables
+  bool debug = false;
+  bool verbose = true;
+  Id nx = 100;
+  Id ny = 100;
+  Id nvar = 3;
+  Id skip = 0;
+  bool flagSK = true;
+  bool flagFFT = true;
+  VectorInt radius = {10, 10};
+  VectorDouble means = {0., 100.,
+                        -50.}; // Must be adapted to the number of variables
 
   // Generate the target file
-  DbGrid* db = DbGrid::createFillRandom({nx, ny}, nvar, 0, 0, 0., 0., VectorDouble(), means);
+  DbGrid* db = DbGrid::createFillRandom(
+    {nx, ny}, nvar, 0, 0, 0., 0., VectorDouble(), means);
   db->display();
 
   // Create the Model
-  Id order     = (flagSK) ? -1 : 0;
-  Model* model = Model::createFillRandom(ndim, nvar,
-                                         {ECov::NUGGET, ECov::SPHERICAL},
-                                         1., order);
+  Id order = (flagSK) ? -1 : 0;
+  Model* model = Model::createFillRandom(
+    ndim, nvar, {ECov::NUGGET, ECov::SPHERICAL}, 1., order);
   model->setCovFiltered(0, true);
   if (flagSK) model->setMeans(means);
   model->display();
@@ -72,8 +72,8 @@ int main(int argc, char* argv[])
   // Define the verbose option
   if (debug) OptDbg::setReference(1);
 
-  // Test on Collocated CoKriging in Unique Neighborhood
-  (void) krimage(db, model, neigh, flagFFT, verbose);
+  // Test on Image Filtering in Unique Neighborhood
+  (void)krimage(db, model, neigh, flagFFT, verbose);
   dbfmt = DbStringFormat::create(FLAG_STATS, {"Filtering*"});
   db->display(dbfmt);
 

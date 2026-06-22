@@ -1,9 +1,9 @@
 ---
 title: "Latex interface"
+date: "2025-09-23"
 output:
   pdf_document: default
   html_document: default
-date: "2025-09-23"
 editor_options:
   chunk_output_type: console
 ---

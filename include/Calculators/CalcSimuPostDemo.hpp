@@ -14,37 +14,38 @@
 
 #include "Calculators/CalcSimuPost.hpp"
 
-#include "Enum/EPostUpscale.hpp"
 #include "Enum/EPostStat.hpp"
+#include "Enum/EPostUpscale.hpp"
 
-#include "Db/DbGrid.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/VectorNumT.hpp"
+#include "Db/DbGrid.hpp"
 
 namespace gstlrn
 {
-class GSTLEARN_EXPORT CalcSimuPostDemo: public CalcSimuPost
-{
-public:
-  CalcSimuPostDemo();
-  CalcSimuPostDemo(const CalcSimuPostDemo &r) = delete;
-  CalcSimuPostDemo& operator=(const CalcSimuPostDemo &r) = delete;
-  virtual ~CalcSimuPostDemo();
+  class GSTLEARN_EXPORT CalcSimuPostDemo: public CalcSimuPost
+  {
+  public:
+    CalcSimuPostDemo();
+    CalcSimuPostDemo(const CalcSimuPostDemo& r) = delete;
+    CalcSimuPostDemo& operator=(const CalcSimuPostDemo& r) = delete;
+    virtual ~CalcSimuPostDemo();
 
-protected:
-  Id _getTransfoNvar() const override;
-  void _transformFunction(const VectorDouble& _Z_n_k_s,
-                          VectorDouble& Y_p_k_s) const override;
-};
+  protected:
+    Id _getTransfoNvar() const override;
+    void _transformFunction(const VectorDouble& _Z_n_k_s, VectorDouble& Y_p_k_s)
+      const override;
+  };
 
-GSTLEARN_EXPORT Id simuPostDemo(Db *dbin,
-                                 DbGrid *dbout,
-                                 const VectorString &names,
-                                 bool flag_match = false,
-                                 const EPostUpscale &upscale = EPostUpscale::fromKey("MEAN"),
-                                 const std::vector<EPostStat> &stats = EPostStat::fromKeys({"MEAN"}),
-                                 bool verbose = false,
-                                 const VectorInt& check_targets = VectorInt(),
-                                 Id check_level = 0,
-                                 const NamingConvention &namconv = NamingConvention("Post"));
-}
+  GSTLEARN_EXPORT Id simuPostDemo(
+    Db* dbin,
+    DbGrid* dbout,
+    const VectorString& names,
+    bool flag_match = false,
+    const EPostUpscale& upscale = EPostUpscale::fromKey("MEAN"),
+    const std::vector<EPostStat>& stats = EPostStat::fromKeys({"MEAN"}),
+    bool verbose = false,
+    const VectorInt& check_targets = VectorInt(),
+    Id check_level = 0,
+    const NamingConvention& namconv = NamingConvention("Post"));
+} // namespace gstlrn

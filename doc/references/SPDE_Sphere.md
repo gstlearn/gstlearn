@@ -1,12 +1,12 @@
 **SPDE on the Sphere**
 
-The aim of this tutorial is to show how to use gstlearn to simulate the solution of 
+The aim of this tutorial is to show how to use gstlearn to simulate the solution of
 
 $$(\kappa^2-\Delta_{\mathcal{S}_R})^{\alpha/2}Z = \sigma\mathcal{W}$$
 
 on the sphere $\mathcal{S}_R$ of radius $R$.
 
-- $\Delta_{{\mathcal{S}_R}}$ is the Laplace-Beltrami operator, i.e, it acts on each point of the sphere as the usual Laplacian on the tangent plane at this point. 
+- $\Delta_{{\mathcal{S}_R}}$ is the Laplace-Beltrami operator, i.e, it acts on each point of the sphere as the usual Laplacian on the tangent plane at this point.
 
 - $\kappa$ is the inverse of the scale parameter
 

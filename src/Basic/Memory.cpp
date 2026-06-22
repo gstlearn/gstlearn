@@ -9,8 +9,9 @@
 /*                                                                            */
 /******************************************************************************/
 
-#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
-#  include <windows.h>
+#if defined(WIN32) || defined(_WIN32)                                          \
+  || defined(__WIN32) && !defined(__CYGWIN__)
+#include <windows.h>
 
 unsigned long long getTotalSystemMemory()
 {
@@ -20,11 +21,11 @@ unsigned long long getTotalSystemMemory()
   return status.ullTotalPhys;
 }
 #elif defined(__APPLE__)
-#  include "geoslib_define.h"
+#include "geoslib_define.h"
 
-#  include <sys/sysctl.h>
-#  include <sys/types.h>
-#  include <sys/vmmeter.h>
+#include <sys/sysctl.h>
+#include <sys/types.h>
+#include <sys/vmmeter.h>
 
 unsigned long long getTotalSystemMemory()
 {
@@ -33,7 +34,7 @@ unsigned long long getTotalSystemMemory()
   struct vmtotal vmt;
   size_t vmt_size, uint_size;
 
-  vmt_size  = sizeof(vmt);
+  vmt_size = sizeof(vmt);
   uint_size = sizeof(page_size);
 
   rc = sysctlbyname("vm.vmtotal", &vmt, &vmt_size, NULL, 0);
@@ -47,12 +48,12 @@ unsigned long long getTotalSystemMemory()
 
 #else // assume Linux
 
-#  include <unistd.h>
+#include <unistd.h>
 
 unsigned long long getTotalSystemMemory()
 {
   long avail_pages = sysconf(_SC_AVPHYS_PAGES);
-  long page_size   = sysconf(_SC_PAGE_SIZE);
+  long page_size = sysconf(_SC_PAGE_SIZE);
   if (avail_pages < 0 || page_size < 0) return 0;
   return avail_pages * page_size;
 }

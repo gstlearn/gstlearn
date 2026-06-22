@@ -14,12 +14,12 @@ Number of basic functions = 1000
 Number of discretization  = 360
 Spectrum Tolerance        = 1e-05
 Random generation seed    = 23234
-Number of frequencies     = 27
-Cumulated Spectrum        = 1.003436
+Number of frequencies     = 156
+Cumulated Spectrum        = 0.999990
 Sum of negative weights   = 0.000000
-Maximum degree            = 26
-Minimum order             = -25
-Maximum order             = 23
+Maximum degree            = 155
+Minimum order             = -144
+Maximum order             = 139
 ----
 
 

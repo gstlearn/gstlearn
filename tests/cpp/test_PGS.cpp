@@ -24,9 +24,12 @@
 #include "Model/Constraints.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/NeighUnique.hpp"
+#include "PluriGaussian/CalcModelPGS.hpp"
+#include "Simulation/CalcSimuPGS.hpp"
 #include "Variogram/Vario.hpp"
 
 using namespace gstlrn;
+
 /****************************************************************************/
 /*!
 ** Main Program for testing the sparse matrix algebra
@@ -34,24 +37,22 @@ using namespace gstlrn;
 *****************************************************************************/
 int main(int argc, char* argv[])
 {
-  bessel_set_old_style(true);
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
 
   ASerializable::setPrefixName("test_PGS-");
   Id error = 0;
-  Id ndim  = 2;
+  Id ndim = 2;
   defineDefaultSpace(ESpaceType::RN, ndim);
   CovContext ctxt(1, 2, 1.);
 
   // Prepare the Discrete process with Discretized Option
-  set_test_discrete(false);
-  bool flagStationary = false;
+  bool flagStationary = true;
 
   // Creating a Point Data base in the 1x1 square with 'nech' samples
   Id nech = 1000;
-  Db* db  = Db::createFromBox(nech, {0., 0.}, {1., 1.}, 432432);
+  Db* db = Db::createFromBox(nech, {0., 0.}, {1., 1.}, 432432);
   DbStringFormat dbfmt(FLAG_STATS);
   db->display(&dbfmt);
 
@@ -60,7 +61,7 @@ int main(int argc, char* argv[])
 
   // Setting constant global proportions
   VectorDouble props({0.2, 0.5, 0.3});
-  Id nfac            = static_cast<Id>(props.size());
+  Id nfac = static_cast<Id>(props.size());
   VectorString names = generateMultipleNames("Props", nfac);
   for (Id ifac = 0; ifac < nfac; ifac++)
     dbprop->addColumnsByConstant(1, props[ifac], names[ifac], ELoc::P, ifac);
@@ -108,55 +109,67 @@ int main(int argc, char* argv[])
   VarioParam varioparam2;
   varioparam2.addDir(dirparam2);
 
+  //=====================================================
   // Determination of the variogram of the Underlying GRF
-  Vario* vario = variogram_pgs(db, &varioparam1, ruleprop);
+  //=====================================================
+  mestitle(1, "Determination of the variogram of the Underlying GRF");
+  Vario* vario = variogram_pgs(db, &varioparam1, ruleprop, false);
   vario->display();
+
+  // Defining constraints (sum of sills is 1) for next fits
+  Constraints constraints;
+  constraints.addItemFromParamId(
+    EConsElem::PARAM, 0, 0, 0, EConsType::EQUAL, 2.5);
+  constraints.setConstantSillValue(1.);
+  VectorECov covs{ECov::MATERN, ECov::EXPONENTIAL};
+
+  // Extracting the variogram of the First GRF and fitting it
   Vario vario1(*vario);
   vario1.resetReduce({0}, VectorInt(), true);
-  Vario vario2(*vario);
-  vario2.resetReduce({1}, VectorInt(), true);
   vario1.display();
-  vario2.display();
-
-  // Fitting the experimental variogram of Underlying GRF (with constraint that total sill is 1)
   Model modelPGS1(ctxt);
-  Model modelPGS2(ctxt);
-  Constraints constraints;
-  constraints.setConstantSillValue(1.);
-
-  VectorECov covs {ECov::MATERN, ECov::EXPONENTIAL};
   modelPGS1.fit(&vario1, covs, constraints);
   modelPGS1.display();
-
   (void)vario1.dumpToNF("variopgs1.NF");
   (void)modelPGS1.dumpToNF("modelfitpgs1.NF");
 
+  // Extracting the variogram of the Second GRF and fitting it
+  Vario vario2(*vario);
+  vario2.resetReduce({1}, VectorInt(), true);
+  vario2.display();
+  Model modelPGS2(ctxt);
   modelPGS2.fit(&vario2, covs, constraints);
   modelPGS2.display();
-
   (void)vario2.dumpToNF("variopgs2.NF");
   (void)modelPGS2.dumpToNF("modelfitpgs2.NF");
 
+  //==================================
+  // Determination of the Optimal Rule
+  //==================================
+  mestitle(1, "Determination of the Optimal Rule");
   RuleProp* ruleprop2;
   if (flagStationary)
     ruleprop2 = RuleProp::createFromRule(nullptr, props);
   else
     ruleprop2 = RuleProp::createFromDb(dbprop, VectorDouble());
-  error = ruleprop2->fit(db, &varioparam2, 2, true);
-  ruleprop2->getRule()->display();
-  (void)ruleprop2->getRule()->dumpToNF("ruleFit.NF");
 
-  modelPGS1.display();
-  Vario* varioDerived = model_pgs(db, &varioparam1, ruleprop2, &modelPGS1, &modelPGS2);
-  modelPGS1.display();
+  auto sortedRules = ruleprop2->fit(db, &varioparam2, 2, false, true);
+  const auto rule2 = sortedRules[0];
+  rule2.display();
+  (void)rule2.dumpToNF("ruleFit.NF");
+
+  //===========================================================
+  // Determination of the Reconstructed Variogram of Indicators
+  //===========================================================
+  mestitle(1, "Determination of the Reconstructed Variogram of Indicators");
+  Vario* varioDerived =
+    model_pgs(db, &varioparam1, ruleprop2, &modelPGS1, &modelPGS2);
   varioDerived->dumpToNF("modelpgs.NF");
   varioDerived->display();
 
   Vario varioIndic(varioparam1);
   varioIndic.computeIndic(db, ECalcVario::VARIOGRAM);
   (void)varioIndic.dumpToNF("varioindic.NF");
-
-  modelPGS1.display();
 
   delete db;
   delete dbprop;

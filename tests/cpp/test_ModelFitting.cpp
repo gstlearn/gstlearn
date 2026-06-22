@@ -30,7 +30,7 @@
 #include "Model/Model.hpp"
 #include "Model/ModelOptimVMap.hpp"
 #include "Model/ModelOptimVario.hpp"
-#include "Simulation/CalcSimuTurningBands.hpp"
+#include "Simulation/Simulations.hpp"
 #include "Variogram/VMap.hpp"
 #include "Variogram/Vario.hpp"
 #include "Variogram/VarioParam.hpp"
@@ -41,22 +41,23 @@ using namespace gstlrn;
 
 static Vario* _computeVariogram(Db* db2D, const ECalcVario& calcul)
 {
-  double hmax            = db2D->getExtensionDiagonal();
-  Id nlag                = 10;
-  double dlag            = hmax / 2. / nlag;
+  double hmax = db2D->getExtensionDiagonal();
+  Id nlag = 10;
+  double dlag = hmax / 2. / nlag;
   VarioParam* varioparam = VarioParam::createOmniDirection(nlag, dlag);
-  Vario* vario           = Vario::computeFromDb(*varioparam, db2D, calcul);
+  Vario* vario = Vario::computeFromDb(*varioparam, db2D, calcul);
   (void)vario->dumpToNF("Vario.NF");
   delete varioparam;
   return vario;
 }
 
-static void _firstTest(Db* db2D,
-                       Model* model,
-                       const ModelOptimParam& mop,
-                       const ECalcVario& calcul,
-                       bool verbose,
-                       bool trace)
+static void _firstTest(
+  Db* db2D,
+  Model* model,
+  const ModelOptimParam& mop,
+  const ECalcVario& calcul,
+  bool verbose,
+  bool trace)
 {
   DECLARE_UNUSED(verbose);
   mestitle(0, "Sill fitting from Variogram (old version)");
@@ -69,38 +70,38 @@ static void _firstTest(Db* db2D,
   delete vario;
 }
 
-static void _secondTest(Db* db2D,
-                        Model* model,
-                        const ModelOptimParam& mop,
-                        const ECalcVario& calcul,
-                        bool verbose,
-                        bool trace)
+static void _secondTest(
+  Db* db2D,
+  Model* model,
+  const ModelOptimParam& mop,
+  const ECalcVario& calcul,
+  bool verbose,
+  bool trace)
 {
   mestitle(0, "Model fitting from Variogram (new version)");
 
   Vario* vario = _computeVariogram(db2D, calcul);
-  model->fitNew(nullptr, vario, nullptr, nullptr, mop, ITEST,
-                verbose, trace);
+  model->fitNew(nullptr, vario, nullptr, nullptr, mop, ITEST, verbose, trace);
   (void)model->dumpToNF("FromVario.NF");
   model->display();
 
   delete vario;
 }
 
-static void _thirdTest(DbGrid* dbgrid,
-                       Model* model,
-                       const ModelOptimParam& mop,
-                       const ECalcVario& calcul,
-                       bool verbose,
-                       bool trace)
+static void _thirdTest(
+  DbGrid* dbgrid,
+  Model* model,
+  const ModelOptimParam& mop,
+  const ECalcVario& calcul,
+  bool verbose,
+  bool trace)
 {
   mestitle(0, "Sill Fitting from Variogram Map (new version)");
 
   DbGrid* dbmap = db_vmap(dbgrid, 0, true, calcul, true, {50, 50});
   (void)dbmap->dumpToNF("VMap.NF");
 
-  model->fitNew(nullptr, nullptr, dbmap, nullptr, mop, ITEST,
-                verbose, trace);
+  model->fitNew(nullptr, nullptr, dbmap, nullptr, mop, ITEST, verbose, trace);
   (void)model->dumpToNF("FromVMap.NF");
   model->display();
 
@@ -122,33 +123,33 @@ int main(int argc, char* argv[])
   ASerializable::setPrefixName("test_ModelFitting-");
 
   // Global parameters
-  Id nvar                 = 1;
+  Id nvar = 1;
   const ECalcVario calcul = ECalcVario::VARIOGRAM;
 
   // Creating the Model used to simulate the Data
-  auto* model_simu           = new Model(nvar);
+  auto* model_simu = new Model(nvar);
   MatrixSymmetric sill_nugget = _buildSillMatrix(nvar, 2.);
-  model_simu->addCovFromParam(ECov::NUGGET, 0., 0., 0., VectorDouble(),
-                              sill_nugget);
+  model_simu->addCovFromParam(
+    ECov::NUGGET, 0., 0., 0., VectorDouble(), sill_nugget);
 
-  double range1         = 0.25;
-  double param1         = 1.;
+  double range1 = 0.25;
+  double param1 = 1.;
   MatrixSymmetric sill1 = _buildSillMatrix(nvar, 3.);
-  model_simu->addCovFromParam(ECov::SPHERICAL, range1, 0., param1,
-                              VectorDouble(), sill1);
+  model_simu->addCovFromParam(
+    ECov::SPHERICAL, range1, 0., param1, VectorDouble(), sill1);
   message("Model used for simulating the Data\n");
   model_simu->display();
   model_simu->dumpToNF("Model_Ref.NF");
 
   // Data set
-  Id nech  = 100;
+  Id nech = 100;
   Db* db2D = Db::createFromBox(nech, {0., 0.}, {1., 1.});
   (void)simtub(nullptr, db2D, model_simu);
   (void)db2D->dumpToNF("db.NF");
 
   // Grid Data set
-  Id nx          = 100;
-  double dx      = 1. / nx;
+  Id nx = 100;
+  double dx = 1. / nx;
   DbGrid* dbgrid = DbGrid::create({nx, nx}, {dx, dx});
   (void)simtub(nullptr, dbgrid, model_simu);
   (void)dbgrid->dumpToNF("dbgrid.NF");
@@ -158,9 +159,9 @@ int main(int argc, char* argv[])
   model_simu->display();
 
   // Optimization tests
-  Id mode      = 0;
+  Id mode = 0;
   bool verbose = false;
-  bool trace   = false;
+  bool trace = false;
   Model* model_test;
   ModelOptimParam mop;
   mop.setWmode(2);

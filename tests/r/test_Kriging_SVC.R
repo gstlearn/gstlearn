@@ -21,7 +21,7 @@ p_sel = 0.2
 verbose  = TRUE
 flag_est = TRUE
 flag_std = TRUE
-flag_varz = FALSE # TODO: it does not work for the estimation of the coefficient 
+flag_varz = FALSE # TODO: it does not work for the estimation of the coefficient
 
 # Function SVC
 ESTIM_KEY = c("obs", "res", "drift", "coeff")
@@ -34,13 +34,13 @@ nout    = 10
 seedout = 134484
 nvar = 1
 nfac = 2
-dbin   = Db_createFillRandom(ndat = ndat, ndim = ndim, 
-                             nvar = 1+nfac, nfex = nfac, ncode = 0, 
-                             varmax = 0., selRatio = p_sel, heteroRatio = VectorDouble(), 
+dbin   = Db_createFillRandom(ndat = ndat, ndim = ndim,
+                             nvar = 1+nfac, nfex = nfac, ncode = 0,
+                             varmax = 0., selRatio = p_sel, heteroRatio = VectorDouble(),
                              coormin = VectorDouble(), coormax = VectorDouble(), seed = seedin)
-dbout   = Db_createFillRandom(ndat = nout, ndim = ndim, 
-                              nvar = 0, nfex = nfac, ncode = 0, 
-                              varmax = 0., selRatio = p_sel, heteroRatio = VectorDouble(), 
+dbout   = Db_createFillRandom(ndat = nout, ndim = ndim,
+                              nvar = 0, nfex = nfac, ncode = 0,
+                              varmax = 0., selRatio = p_sel, heteroRatio = VectorDouble(),
                               coormin = VectorDouble(), coormax = VectorDouble(), seed = seedout)
 nm_fac = dbin$getNamesByLocator(locatorType = ELoc_F())
 nm_var = dbin$getNamesByLocator(locatorType = ELoc_Z())
@@ -89,7 +89,7 @@ for (i in seq_along(estim_list)) {
 # Using the test function
 # ----------------------------------------------------------------------------
 err = kriging_SVC(dbin = dbin, dbout = dbout, model = model, neigh = neigh,
-                flag_est = flag_est, flag_std = flag_std, flag_varz = flag_varz, 
+                flag_est = flag_est, flag_std = flag_std, flag_varz = flag_varz,
                 estim_list = estim_list,
                 prefix = "SVC", verbose = verbose
 )
@@ -101,17 +101,17 @@ pr = NULL
 if (nfac == 0) {pr = "OK"}
 if (nfac >  0) {pr = "KED"}
 for (i in seq_along(estim_list)) {
-  
+
   # estimation of the observed variable
   if (estim_list[[i]]$type == 1) {
     # Kriging the values
     prefix = paste(pr, ESTIM_KEY[estim_list[[i]]$type], sep = ".")
-    err = kriging(dbin = dbin, dbout = dbout, model = model, neigh = neigh, 
-                  flag_est = flag_est, flag_std = flag_std, flag_varz = flag_varz, 
+    err = kriging(dbin = dbin, dbout = dbout, model = model, neigh = neigh,
+                  flag_est = flag_est, flag_std = flag_std, flag_varz = flag_varz,
                   namconv = NamingConvention(prefix)
     )
   }
-  
+
   # estimation of the residual
   if (estim_list[[i]]$type == 2) {
     prefix = paste(pr, ESTIM_KEY[estim_list[[i]]$type], sep = ".")
@@ -122,12 +122,12 @@ for (i in seq_along(estim_list)) {
     if(verbose) {
       err = model$display()
     }
-    err = kriging(dbin = dbin, dbout = dbout, model = model, neigh = neigh, 
-                  flag_est = flag_est, flag_std = flag_std, flag_varz = flag_varz, 
+    err = kriging(dbin = dbin, dbout = dbout, model = model, neigh = neigh,
+                  flag_est = flag_est, flag_std = flag_std, flag_varz = flag_varz,
                   namconv = NamingConvention(prefix)
     )
   }
-  
+
   # estimation of the drift
   if (estim_list[[i]]$type == 3) {
     prefix = paste(pr, ESTIM_KEY[estim_list[[i]]$type], sep = ".")
@@ -138,12 +138,12 @@ for (i in seq_along(estim_list)) {
     if(verbose) {
       err = model$display()
     }
-    err = kriging(dbin = dbin, dbout = dbout, model = model, neigh = neigh, 
-                  flag_est = flag_est, flag_std = flag_std, flag_varz = flag_varz, 
+    err = kriging(dbin = dbin, dbout = dbout, model = model, neigh = neigh,
+                  flag_est = flag_est, flag_std = flag_std, flag_varz = flag_varz,
                   namconv = NamingConvention(prefix)
     )
   }
-  
+
   # Kriging the coefficients
   if (estim_list[[i]]$type == 4) {
     ifac = estim_list[[i]]$idx
@@ -158,9 +158,9 @@ for (i in seq_along(estim_list)) {
       err = model$display()
     }
     prefix = paste(pr, ESTIM_KEY[4], ifac, sep = ".")
-    
-    err = kriging(dbin = dbin, dbout = dbout, model = model, neigh = neigh, 
-                  flag_est = flag_est, flag_std = flag_std, flag_varz = flag_varz, 
+
+    err = kriging(dbin = dbin, dbout = dbout, model = model, neigh = neigh,
+                  flag_est = flag_est, flag_std = flag_std, flag_varz = flag_varz,
                   namconv = NamingConvention(prefix)
     )
     if (ifac > 0) {
@@ -178,7 +178,7 @@ for (i in seq_along(estim_list)) {
       }
     }
   }
-  
+
 }
 # QC of the results
 if (length(nms)) {
@@ -197,7 +197,7 @@ if (length(nms)) {
 }
 
 opers = EStatOption_fromKeys(c("NUM", "MINI", "MAXI", "MEAN", "STDV"))
-knitr::kable(dbStatisticsMono(db = dbout, names = paste0(c(pr, "SVC"),".*"), 
+knitr::kable(dbStatisticsMono(db = dbout, names = paste0(c(pr, "SVC"),".*"),
                               opers = opers)$toTL(), digits = 4, caption = "Statistics")
 
 
@@ -213,11 +213,11 @@ nvar   = length(fac)
 model = Model_createFromEnvironment(nvar = nvar, ndim = ndim)
 model_mono = Model_createFromEnvironment(nvar = 1, ndim = ndim)
 for (i in 1:nvar) {
-  err = model$addCovFromParam(type = ECov_MATERN(), 
-                              sills = diag(as.numeric(1:nvar == i)), 
+  err = model$addCovFromParam(type = ECov_MATERN(),
+                              sills = diag(as.numeric(1:nvar == i)),
                               param = param[i], range = ranges[i])
-  err = model_mono$addCovFromParam(type = ECov_MATERN(), 
-                                   sill = fac[i]^2, 
+  err = model_mono$addCovFromParam(type = ECov_MATERN(),
+                                   sill = fac[i]^2,
                                    param = param[i], range = ranges[i])
 }
 err = model$setDriftIRF(order = 0, nfex = nvar-1)
@@ -233,13 +233,13 @@ ndat   = 13
 seedin = 13227
 nout    = 17
 seedout = 134484
-dbin   = Db_createFillRandom(ndat = ndat, ndim = ndim, 
-                             nvar = nvar, nfex = 0, ncode = 0, 
-                             varmax = 0., selRatio = p_sel, heteroRatio = VectorDouble(), 
+dbin   = Db_createFillRandom(ndat = ndat, ndim = ndim,
+                             nvar = nvar, nfex = 0, ncode = 0,
+                             varmax = 0., selRatio = p_sel, heteroRatio = VectorDouble(),
                              coormin = VectorDouble(), coormax = VectorDouble(), seed = seedin)
-dbout   = Db_createFillRandom(ndat = nout, ndim = ndim, 
-                              nvar = 0, nfex = 0, ncode = 0, 
-                              varmax = 0., selRatio = p_sel, heteroRatio = VectorDouble(), 
+dbout   = Db_createFillRandom(ndat = nout, ndim = ndim,
+                              nvar = 0, nfex = 0, ncode = 0,
+                              varmax = 0., selRatio = p_sel, heteroRatio = VectorDouble(),
                               coormin = VectorDouble(), coormax = VectorDouble(), seed = seedout)
 
 nm_var = dbin$getNamesByLocator(locatorType = ELoc_Z())
@@ -253,12 +253,12 @@ for (ifac in seq_along(fac[-1])) {
   dbout[paste("f", ifac, sep = "-")] = rep(fac[-1][ifac], dbout$getNSample())
 }
 err = dbin$setLocators(
-  names = paste0("f-", 1:(nvar-1)), 
-  locatorType = ELoc_F(), 
+  names = paste0("f-", 1:(nvar-1)),
+  locatorType = ELoc_F(),
   cleanSameLocator = TRUE)
 err = dbout$setLocators(
-  names = paste0("f-", 1:(nvar-1)), 
-  locatorType = ELoc_F(), 
+  names = paste0("f-", 1:(nvar-1)),
+  locatorType = ELoc_F(),
   cleanSameLocator = TRUE)
 
 nm_fac = dbin$getNamesByLocator(locatorType = ELoc_F())
@@ -307,12 +307,12 @@ for (i in seq_along(estim_list)) {
     }
     err = model_mono$getDriftList()$setFiltered(i = 0, filter = FALSE)
     prefix = paste(pr, ESTIM_KEY[estim_list[[i]]$type], sep = ".")
-    err = kriging(dbin = dbin, dbout = dbout, model = model_mono, neigh = neigh, 
-                  flag_est = flag_est, flag_std = flag_std, flag_varz = flag_varz, 
+    err = kriging(dbin = dbin, dbout = dbout, model = model_mono, neigh = neigh,
+                  flag_est = flag_est, flag_std = flag_std, flag_varz = flag_varz,
                   namconv = NamingConvention(prefix)
     )
   }
-  
+
   # estimation of the residual
   if (estim_list[[i]]$type == 2) {
     for (icov in 0:2) {
@@ -320,11 +320,11 @@ for (i in seq_along(estim_list)) {
     }
     err = model_mono$getDriftList()$setFiltered(i = 0, filter = TRUE)
     prefix = paste(pr, ESTIM_KEY[estim_list[[i]]$type], sep = ".")
-    err = kriging(dbin = dbin, dbout = dbout, model = model_mono, neigh = neigh, 
-                  flag_est = flag_est, flag_std = flag_std, flag_varz = flag_varz, 
+    err = kriging(dbin = dbin, dbout = dbout, model = model_mono, neigh = neigh,
+                  flag_est = flag_est, flag_std = flag_std, flag_varz = flag_varz,
                   namconv = NamingConvention(prefix)
     )  }
-  
+
   # estimation of the drift
   if (estim_list[[i]]$type == 3) {
     for (icov in 0:2) {
@@ -332,12 +332,12 @@ for (i in seq_along(estim_list)) {
     }
     err = model_mono$getDriftList()$setFiltered(i = 0, filter = FALSE)
     prefix = paste(pr, ESTIM_KEY[estim_list[[i]]$type], sep = ".")
-    err = kriging(dbin = dbin, dbout = dbout, model = model_mono, neigh = neigh, 
-                  flag_est = flag_est, flag_std = flag_std, flag_varz = flag_varz, 
+    err = kriging(dbin = dbin, dbout = dbout, model = model_mono, neigh = neigh,
+                  flag_est = flag_est, flag_std = flag_std, flag_varz = flag_varz,
                   namconv = NamingConvention(prefix)
-    )  
+    )
   }
-  
+
   # Kriging the coefficients
   if (estim_list[[i]]$type == 4) {
     ifac = estim_list[[i]]$idx
@@ -346,11 +346,11 @@ for (i in seq_along(estim_list)) {
     }
     err = model_mono$getDriftList()$setFiltered(i = 0, filter = (ifac != 0))
     prefix = paste(pr, ESTIM_KEY[estim_list[[i]]$type], ifac, sep = ".")
-    err = kriging(dbin = dbin, dbout = dbout, model = model_mono, neigh = neigh, 
-                  flag_est = flag_est, flag_std = flag_std, flag_varz = flag_varz, 
+    err = kriging(dbin = dbin, dbout = dbout, model = model_mono, neigh = neigh,
+                  flag_est = flag_est, flag_std = flag_std, flag_varz = flag_varz,
                   namconv = NamingConvention(prefix)
     )
-    
+
     if (ifac > 0) {
       if(flag_est){
         nm_est = paste(prefix, nm_var, "estim", sep = ".")
@@ -386,7 +386,7 @@ if (length(nms)) {
 }
 
 opers = EStatOption_fromKeys(c("NUM", "MINI", "MAXI", "MEAN", "STDV"))
-knitr::kable(dbStatisticsMono(db = dbout, names = paste0(c(pr, "SVC"),".*"), 
+knitr::kable(dbStatisticsMono(db = dbout, names = paste0(c(pr, "SVC"),".*"),
                               opers = opers)$toTL(), digits = 4, caption = "Statistics")
 # SVC in general
 
@@ -402,7 +402,7 @@ param  = c(1/2, 1, 3/2)[1:L]
 ranges = c(0.25, 0.5, 1.0)[1:L]
 
 model = Model_createFromEnvironment(nvar = L, ndim = ndim)
-err   = model$addCovFromParam(type = ECov_MATERN(), 
+err   = model$addCovFromParam(type = ECov_MATERN(),
                               sills = sigma,
                               param = param[1], range = ranges[1])
 err   = model$setDriftIRF(order = 0, nfex = P)
@@ -416,13 +416,13 @@ ndat   = 10
 seedin = 13227
 nout    = 3
 seedout = 134484
-dbin   = Db_createFillRandom(ndat = ndat, ndim = ndim, 
-                             nvar = 1, nfex = P, ncode = 0, 
-                             varmax = 0., selRatio = p_sel, heteroRatio = VectorDouble(), 
+dbin   = Db_createFillRandom(ndat = ndat, ndim = ndim,
+                             nvar = 1, nfex = P, ncode = 0,
+                             varmax = 0., selRatio = p_sel, heteroRatio = VectorDouble(),
                              coormin = VectorDouble(), coormax = VectorDouble(), seed = seedin)
-dbout   = Db_createFillRandom(ndat = nout, ndim = ndim, 
-                              nvar = 0, nfex = P, ncode = 0, 
-                              varmax = 0., selRatio = p_sel, heteroRatio = VectorDouble(), 
+dbout   = Db_createFillRandom(ndat = nout, ndim = ndim,
+                              nvar = 0, nfex = P, ncode = 0,
+                              varmax = 0., selRatio = p_sel, heteroRatio = VectorDouble(),
                               coormin = VectorDouble(), coormax = VectorDouble(), seed = seedout)
 
 nm_var = dbin$getNamesByLocator(locatorType = ELoc_Z())
@@ -458,7 +458,5 @@ err = kriging_SVC(dbin = dbin, dbout = dbout, model = model, neigh = neigh,
 # ----------------------------------------------------------------------------
 # statistics
 # ----------------------------------------------------------------------------
-knitr::kable(dbStatisticsMono(db = dbout, names = paste0(c("SVC"),".*"), 
+knitr::kable(dbStatisticsMono(db = dbout, names = paste0(c("SVC"),".*"),
                               opers = opers)$toTL(), digits = 4, caption = "Statistics")
-
-

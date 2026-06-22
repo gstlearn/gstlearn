@@ -19,6 +19,8 @@ except ModuleNotFoundError as ex:
     )
     raise ModuleNotFoundError(msg) from ex
 
+from matplotlib import colors
+from matplotlib.patches import Patch
 import numpy as np
 import gstlearn as gl
 import gstlearn.plot as gp
@@ -78,6 +80,12 @@ def _isNotCorrect(object, types):
 
 
 def _getDefaultVariableName(db, name):
+    """
+    Returns a valid variable name.
+    If the argument 'name' has been provided, it is checked in the DataBase 'db'.
+    Otherwise the default variable name is the first Z locator if it exists, or the last
+    variable in the DataBase.
+    """
     if name is None:
         if db.getNLoc(gl.ELoc.Z) > 0:
             name = db.getNameByLocator(gl.ELoc.Z, 0)
@@ -85,7 +93,7 @@ def _getDefaultVariableName(db, name):
             name = db.getLastName()
     else:
         if db.getUID(name) < 0:
-            name = db.getLastName()
+            return None
     return name
 
 
@@ -262,6 +270,40 @@ def _getFirstElement(tab):
             return first[0]
         return first
     return None  # Return None if `tab` is empty or not subscriptable.
+
+
+def _facies_color(color):
+    """Convertit un entier 0xRRGGBB en chaîne '#rrggbb'."""
+    return f"#{int(color) & 0xFFFFFF:06x}"
+
+
+def _dataWithRule(data, rule):
+    # Nombre de faciès
+    nfac = rule.getNFacies()
+
+    # Mapping : valeur réelle -> indice interne
+    mapping = {rule.getFaciesValue(ifac): ifac for ifac in range(nfac)}
+
+    # Couleurs des faciès
+    colors = [_facies_color(rule.getFaciesColor(ifac)) for ifac in range(nfac)]
+
+    # Labels des faciès
+    labels = [rule.getFaciesName(ifac) for ifac in range(nfac)]
+
+    # Colormap discrète
+    cmap = mcolors.ListedColormap(colors)
+
+    # Normalisation discrète
+    norm = mcolors.BoundaryNorm(np.arange(-0.5, nfac + 0.5, 1), cmap.N)
+
+    # Valeur par défaut pour faciès inconnus
+    fill_value = -1
+
+    # Remapping
+    mapping_array = np.vectorize(lambda x: mapping.get(x, fill_value))
+    idata = mapping_array(data)
+
+    return idata, cmap, norm, labels, colors
 
 
 def close():
@@ -467,11 +509,11 @@ def _getGridVariable(
 def _onlyPositiveX(vario=None, model=None, ivar=0, jvar=0, asCov=False):
     status = False
     if vario is not None:
-        if vario.drawOnlyPositiveX(ivar, jvar):
+        if vario.representOnlyPositiveX(ivar, jvar):
             status = True
 
     if model is not None:
-        if model.drawOnlyPositiveX(ivar, jvar, asCov):
+        if gl.Model.representOnlyPositiveX(ivar, jvar, asCov):
             status = True
     return status
 
@@ -479,10 +521,10 @@ def _onlyPositiveX(vario=None, model=None, ivar=0, jvar=0, asCov=False):
 def _onlyPositiveY(vario=None, model=None, ivar=0, jvar=0, asCov=False):
     status = False
     if vario is not None:
-        if vario.drawOnlyPositiveY(ivar, jvar):
+        if vario.representOnlyPositiveY(ivar, jvar):
             status = True
     if model is not None:
-        if model.drawOnlyPositiveY(ivar, jvar, asCov):
+        if gl.Model.representOnlyPositiveY(ivar, jvar, asCov):
             status = True
     return status
 
@@ -977,6 +1019,7 @@ def _ax_symbol(
     nameCoorX=None,
     nameCoorY=None,
     useSel=True,
+    rule=None,
     c="r",
     s=20,
     sizmin=10,
@@ -989,6 +1032,7 @@ def _ax_symbol(
     flagLegendSize=False,
     legendNameColor=None,
     legendNameSize=None,
+    edgecolors=None,
     posX=0,
     posY=1,
     **kwargs,
@@ -1001,6 +1045,7 @@ def _ax_symbol(
     nameColor: Name of the variable containing the color per sample
     nameSize: Name of the variable containing the size per sample
     useSel : Boolean to indicate if the selection has to be considered
+    rule: Optional rule to be applied for categorical variable
     c: Constant color (used if 'nameColor' is not defined)
     s: Constant size (used if 'nameSize' is not defined)
     sizmin: Size corresponding to the smallest value (used if 'nameSize' is defined)
@@ -1013,6 +1058,7 @@ def _ax_symbol(
     flagLegendSize: Flag for representing the Size Legend
     legendNameColor: Title for the Color Legend (set to 'nameColor' if not defined)
     legendNameSize: Title for the Size Legend (set to 'size_name' if not defined)
+    edgecolors: color of the symbol edge (passed to matplotlib.pyplot.scatter)
     posX: rank of the first coordinate
     posY: rank of the second coordinate
     **kwargs : arguments passed to matplotllib.pyplot.scatter
@@ -1031,6 +1077,11 @@ def _ax_symbol(
         name = name + " " + nameColor
         colval = _getVariable(db, nameColor, posX, posY, None, useSel, False)
         valid = np.logical_and(valid, ~np.isnan(colval))
+
+        if rule is not None:
+            colval, cmap, norm, labels, colfacs = _dataWithRule(colval, rule)
+            kwargs["cmap"] = cmap
+            kwargs["norm"] = norm
     else:
         colval = np.full(nb, c)
 
@@ -1060,14 +1111,31 @@ def _ax_symbol(
         sizval = np.full(nb, s)
 
     res = ax.scatter(
-        x=tabx[valid], y=taby[valid], s=sizval[valid], c=colval[valid], **kwargs
+        x=tabx[valid],
+        y=taby[valid],
+        s=sizval[valid],
+        c=colval[valid],
+        edgecolors=edgecolors,
+        **kwargs,
     )
 
     if len(ax.get_title()) <= 0:
         ax.decoration(title=name)
 
     if flagLegendColor and nameColor is not None:
-        _legendContinuous(ax, res, legendNameColor)
+        if rule is None:
+            _legendContinuous(ax, res, legendNameColor)
+        else:
+            handles = [
+                Patch(facecolor=colfacs[i], label=labels[i]) for i in range(len(labels))
+            ]
+            ax.legend(
+                handles=handles,
+                title=legendNameColor,
+                loc="center left",
+                bbox_to_anchor=(1.02, 0.5),
+                borderaxespad=0.0,
+            )
 
     if flagLegendSize and nameSize is not None:
         _legendDiscrete(ax, sizmin, sizmax, sizvmin, sizvmax, c, legendNameSize)
@@ -1119,6 +1187,8 @@ def _ax_literal(
         return
 
     name = _getDefaultVariableName(db, name)
+    if name is None:
+        return None
 
     labval = _getVariable(db, name, posX, posY, None, useSel, False)
     valid = ~np.isnan(labval)
@@ -1407,11 +1477,13 @@ def _ax_raster(
     dbgrid,
     name=None,
     useSel=True,
+    rule=None,
     posX=0,
     posY=1,
     corner=None,
     flagLegend=False,
     legendName=None,
+    flagBinary=False,
     **kwargs,
 ):
     """
@@ -1421,20 +1493,54 @@ def _ax_raster(
     dbgrid: DbGrid containing the variable to be plotted
     name: Name of the variable to be represented (by default, the first Z locator, or the last field)
     useSel : Boolean to indicate if the selection has to be considered
+    rule: Optional rule to be applied for categorical variable
     flagLegend: Flag for representing the Color Bar
     legendName: Name given to the Legend (set to 'name' if not defined)
+    flagBinary: when True, the variable is represented in binary (values > 0 are represented with the same color)
     **kwargs : arguments passed to matplotlib.pyplot.pcolormesh
     """
     name = _getDefaultVariableName(dbgrid, name)
+    if name is None:
+        return None
 
     x0, y0, X, Y, Xrot, Yrot, data, tr = _getGridVariable(
         dbgrid, name, useSel, posX=posX, posY=posY, corner=corner
     )
 
+    if flagBinary:
+        data = (data > 0).astype(int)
+        kwargs.setdefault("cmap", "gray")
+        kwargs.setdefault("vmin", 0)
+        kwargs.setdefault("vmax", 1)
+
+    if rule is not None:
+        data, cmap, norm, labels, colfacs = _dataWithRule(data, rule)
+        data = np.ma.masked_equal(data, -1)
+        cmap.set_bad(color=(0, 0, 0, 0))  # ou "black"
+        kwargs["cmap"] = cmap
+        kwargs["norm"] = norm
+    else:
+        data = np.ma.masked_invalid(data)
+        cmap = kwargs.get("cmap", None)
+        if hasattr(cmap, "set_bad"):
+            cmap.set_bad(color=(0, 0, 0, 0))
+
     res = ax.pcolormesh(X, Y, data, transform=tr + ax.transData, **kwargs)
 
     if flagLegend:
-        _legendContinuous(ax, res, legendName)
+        if rule is None:
+            _legendContinuous(ax, res, legendName)
+        else:
+            handles = [
+                Patch(facecolor=colfacs[i], label=labels[i]) for i in range(len(labels))
+            ]
+            ax.legend(
+                handles=handles,
+                title=legendName,
+                loc="center left",
+                bbox_to_anchor=(1.02, 0.5),
+                borderaxespad=0.0,
+            )
 
     if len(ax.get_title()) <= 0:
         ax.decoration(title=dbgrid.getName(name)[0])
@@ -1484,6 +1590,8 @@ def _ax_isoline(
     **kwargs : arguments passed to matplotlib.pyplot.contour
     """
     name = _getDefaultVariableName(dbgrid, name)
+    if name is None:
+        return None
 
     x0, y0, X, Y, Xrot, Yrot, data, tr = _getGridVariable(
         dbgrid, name, useSel, posX=posX, posY=posY, corner=corner, shading="nearest"
@@ -1960,23 +2068,56 @@ def rule(ruleobj, *args, **kwargs):
     return _ax_rule(ax, ruleobj=ruleobj, *args, **kwargs)
 
 
-def _ax_rule(ax, ruleobj, proportions=[], cmap=None, maxG=3.0):
+def _ax_rule(
+    ax,
+    ruleobj,
+    proportions=[],
+    maxG=3.0,
+    flagLegend=False,
+    legendName="Facies",
+    flagGaussian=True,
+):
     if _isNotCorrect(object=ruleobj, types=["Rule"]):
         return None
 
     nfac = ruleobj.getNFacies()
-    ruleobj.setProportions(proportions)
+    ruleobj.setProportions(proportions, flagGaussian)
 
-    cols = getColorMap(nfac, cmap)
+    handles = []
 
     for ifac in range(nfac):
         bds = ruleobj.getThresh(ifac + 1)
+
+        col = _facies_color(ruleobj.getFaciesColor(ifac))
+
         rect = ptc.Rectangle(
-            (bds[0], bds[2]), bds[1] - bds[0], bds[3] - bds[2], color=cols(ifac)
+            (bds[0], bds[2]),
+            bds[1] - bds[0],
+            bds[3] - bds[2],
+            facecolor=col,
         )
         ax.add_patch(rect)
 
-    ax.geometry(xlim=[-maxG, +maxG], ylim=[-maxG, +maxG])
+        handles.append(
+            Patch(
+                facecolor=col,
+                label=ruleobj.getFaciesName(ifac),
+            )
+        )
+
+    if flagGaussian:
+        ax.geometry(xlim=[-maxG, +maxG], ylim=[-maxG, +maxG])
+    else:
+        ax.geometry(xlim=[0, 1], ylim=[0, 1])
+
+    if flagLegend:
+        ax.legend(
+            handles=handles,
+            title=legendName,
+            loc="center left",
+            bbox_to_anchor=(1.02, 0.5),
+            borderaxespad=0.0,
+        )
 
     return ax
 
@@ -2501,19 +2642,65 @@ def _ax_neighWeights(
             )
 
 
-def drawCircles(m, M, middle=False):
+def drawCircles(m, M, middle=False, x0=0, y0=0):
     x = np.linspace(-m, m, 100)
-    plt.plot(x, np.sqrt(m**2 - x**2), c="g")
-    plt.plot(x, -np.sqrt(m**2 - x**2), c="g")
+    plt.plot(x + x0, np.sqrt(m**2 - x**2) + y0, c="g")
+    plt.plot(x + x0, -np.sqrt(m**2 - x**2) + y0, c="g")
 
     x = np.linspace(-M, M, 100)
-    plt.plot(x, np.sqrt(M**2 - x**2), c="g")
-    plt.plot(x, -np.sqrt(M**2 - x**2), c="g")
+    plt.plot(x + x0, np.sqrt(M**2 - x**2) + y0, c="g")
+    plt.plot(x + x0, -np.sqrt(M**2 - x**2) + y0, c="g")
     if middle:
         mid = 0.5 * (m + M)
         x = np.linspace(-mid, mid, 100)
-        plt.plot(x, np.sqrt(mid**2 - x**2), c="r")
-        plt.plot(x, -np.sqrt(mid**2 - x**2), c="r")
+        plt.plot(x + x0, np.sqrt(mid**2 - x**2) + y0, c="r")
+        plt.plot(x + x0, -np.sqrt(mid**2 - x**2) + y0, c="r")
+
+
+def drawLineLimited(x0, y0, dx, dy, offset=0, col="black", ls="solid", lw=1, eps=0.05):
+    """
+    Trace une ligne passant par (x0, y0) avec direction (dx, dy),
+    limitée aux bords de la figure, avec un décalage vertical 'offset'.
+    """
+    ax = plt.gca()
+    xmin, xmax = ax.get_xlim()
+    deltax = xmax - xmin
+    xmin = xmin + deltax * eps
+    xmax = xmax - deltax * eps
+    ymin, ymax = ax.get_ylim()
+    deltay = ymax - ymin
+    ymin = ymin + deltay * eps
+    ymax = ymax - deltay * eps
+
+    # calculer t pour intersections avec les 4 côtés
+    t_vals = []
+    if dx != 0:
+        t_vals.extend([(xmin - x0) / dx, (xmax - x0) / dx])
+    if dy != 0:
+        t_vals.extend([(ymin - y0 - offset) / dy, (ymax - y0 - offset) / dy])
+
+    points = []
+    for t in t_vals:
+        xi = x0 + t * dx
+        yi = y0 + t * dy + offset
+        if xmin - 1e-12 <= xi <= xmax + 1e-12 and ymin - 1e-12 <= yi <= ymax + 1e-12:
+            points.append((xi, yi))
+
+    if len(points) >= 2:
+        (x1, y1), (x2, y2) = points[:2]
+        ax.plot([x1, x2], [y1, y2], c=col, linestyle=ls, linewidth=lw)
+
+
+def drawCone(angle, tolang=0, x0=0, y0=0, col="red"):
+    gp.drawDirection(angle, x0=x0, y0=y0, col=col, ls="-")
+    gp.drawDirection(angle + tolang, x0=x0, y0=y0, col=col, ls="solid")
+    gp.drawDirection(angle - tolang, x0=x0, y0=y0, col=col, ls="solid")
+
+
+def drawDirection(angle, x0=0, y0=0, col="black", ls="solid", lw=1):
+    a = np.deg2rad(angle)
+    dx, dy = np.cos(a), np.sin(a)
+    drawLineLimited(x0, y0, dx, dy, col=col, ls=ls, lw=lw)
 
 
 def drawDir(angle, col, R=10000):
@@ -2524,17 +2711,32 @@ def drawDir(angle, col, R=10000):
     plt.plot(-u, -v, c=col)
 
 
-def drawCylrad(angle, cylrad, R=10000, col="purple"):
+def drawCylrad(angle, cylrad, col="purple", x0=0, y0=0):
+    if cylrad == gl.TEST:
+        return
+
     a = np.deg2rad(angle)
+    dx, dy = np.cos(a), np.sin(a)
     x = cylrad / np.sin(a - np.pi / 2)
 
-    u = R * np.array([0, np.cos(a)])
-    v = R * np.array([0, np.sin(a)])
+    # tracer les 4 droites avec décalage
+    drawLineLimited(x0, y0, dx, dy, offset=x, col=col)
+    drawLineLimited(x0, y0, dx, dy, offset=-x, col=col)
+    drawLineLimited(x0, y0, dx, dy, offset=x * -1, col=col)
+    drawLineLimited(x0, y0, dx, dy, offset=-x * -1, col=col)
 
-    plt.plot(u, (v + x), c=col)
-    plt.plot(-u, -(v + x), c=col)
-    plt.plot(u, (v - x), c=col)
-    plt.plot(-u, -(v - x), c=col)
+
+def drawBench(angle, bench, col="blue", x0=0, y0=0):
+    if bench == gl.TEST:
+        return
+
+    a = np.deg2rad(angle)
+    dx, dy = np.cos(a), np.sin(a)
+    x = bench / np.sin(a - np.pi / 2)
+
+    # tracer les 4 droites avec décalage
+    drawLineLimited(x0, y0, dx, dy, offset=x, col=col)
+    drawLineLimited(x0, y0, dx, dy, offset=-x, col=col)
 
 
 # Function to retrieve the limits of a lag

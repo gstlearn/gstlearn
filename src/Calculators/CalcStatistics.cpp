@@ -21,178 +21,183 @@
 
 namespace gstlrn
 {
-CalcStatistics::CalcStatistics()
-  : ACalcDbToDb()
-  , _iattOut(-1)
-  , _dboutMustBeGrid(false)
-  , _flagStats(false)
-  , _oper(EStatOption::UNKNOWN)
-  , _radius(0)
-  , _flagRegr(false)
-  , _flagCst(false)
-  , _regrMode(0)
-  , _nameResp()
-  , _nameAux()
-  , _model(nullptr)
-{
-}
-
-CalcStatistics::~CalcStatistics()
-{
-}
-
-bool CalcStatistics::_check()
-{
-  if (!ACalcDbToDb::_check()) return false;
-
-  if (!hasDbin()) return false;
-  if (!hasDbout()) return false;
-
-  auto nvar = getDbin()->getNLoc(ELoc::Z);
-  if (nvar <= 0)
+  CalcStatistics::CalcStatistics()
+    : ACalcDbToDb()
+    , _iattOut(-1)
+    , _dboutMustBeGrid(false)
+    , _flagStats(false)
+    , _oper(EStatOption::UNDEFINED)
+    , _radius(0)
+    , _flagRegr(false)
+    , _flagCst(false)
+    , _regrMode(0)
+    , _nameResp()
+    , _nameAux()
+    , _model(nullptr)
   {
-    messerr("These methods require some variable to be defined");
-    return false;
   }
 
-  if (getDboutMustBeGrid())
+  CalcStatistics::~CalcStatistics() {}
+
+  bool CalcStatistics::_check()
   {
-    if (!getDbout()->isGrid())
+    if (!ACalcDbToDb::_check()) return false;
+
+    if (!hasDbin()) return false;
+    if (!hasDbout()) return false;
+
+    auto nvar = getDbin()->getNLoc(ELoc::Z);
+    if (nvar <= 0)
     {
-      messerr("This method requires 'dbout' to be a Grid");
+      messerr("These methods require some variable to be defined");
       return false;
     }
-  }
 
-  if (_flagRegr)
-  {
-    if (!_flagCst && _nameAux.empty())
+    if (getDboutMustBeGrid())
     {
-      messerr("This method requires Explanatory variables and/or constant term");
-      return false;
+      if (!getDbout()->isGrid())
+      {
+        messerr("This method requires 'dbout' to be a Grid");
+        return false;
+      }
     }
+
+    if (_flagRegr)
+    {
+      if (!_flagCst && _nameAux.empty())
+      {
+        messerr(
+          "This method requires Explanatory variables and/or constant term");
+        return false;
+      }
+    }
+
+    return true;
   }
 
-  return true;
-}
-
-bool CalcStatistics::_preprocess()
-{
-  if (!ACalcDbToDb::_preprocess()) return false;
-
-  if (_flagStats)
-    _iattOut = _addVariableDb(2, 1, ELoc::UNKNOWN, 0, _getNVar(), 0.);
-
-  if (_flagRegr)
-    _iattOut = _addVariableDb(1, 1, ELoc::UNKNOWN, 0, 1, 0.);
-
-  if (_iattOut < 0) return false;
-  return true;
-}
-
-bool CalcStatistics::_postprocess()
-{
-  /* Free the temporary variables */
-  _cleanVariableDb(2);
-
-  if (_flagStats)
-    _renameVariable(2, VectorString(), ELoc::Z, _getNVar(), _iattOut, String(), 1);
-
-  if (_flagRegr)
-    _renameVariable(1, VectorString(), ELoc::Z, 1, _iattOut, String(), 1);
-  return true;
-}
-
-void CalcStatistics::_rollback()
-{
-  _cleanVariableDb(1);
-}
-
-/****************************************************************************/
-/*!
- **  Standard Kriging
- **
- ** \return  Error return code
- **
- *****************************************************************************/
-bool CalcStatistics::_run()
-{
-  if (_flagStats)
+  bool CalcStatistics::_preprocess()
   {
-    auto* dbgrid       = dynamic_cast<DbGrid*>(getDbout());
-    VectorString names = getDbin()->getNamesByLocator(ELoc::Z);
-    if (dbStatisticsInGridTool(getDbin(), dbgrid, names, _oper, _radius, _iattOut))
-      return false;
+    if (!ACalcDbToDb::_preprocess()) return false;
+
+    if (_flagStats)
+      _iattOut = _addVariableDb(2, 1, ELoc::UNDEFINED, 0, _getNVar(), 0.);
+
+    if (_flagRegr) _iattOut = _addVariableDb(1, 1, ELoc::UNDEFINED, 0, 1, 0.);
+
+    if (_iattOut < 0) return false;
+    return true;
   }
-  if (_flagRegr)
+
+  bool CalcStatistics::_postprocess()
   {
-    Regression reg = regression(getDbin(), _nameResp, _nameAux, _regrMode, _flagCst,
-                                getDbout(), _model);
-    if (reg.apply(getDbin(), _iattOut, _nameResp, _nameAux, _regrMode, _flagCst,
-                  getDbout(), _model)) return false;
+    /* Free the temporary variables */
+    _cleanVariableDb(2);
+
+    if (_flagStats)
+      _renameVariable(
+        2, VectorString(), ELoc::Z, _getNVar(), _iattOut, String(), 1);
+
+    if (_flagRegr)
+      _renameVariable(1, VectorString(), ELoc::Z, 1, _iattOut, String(), 1);
+    return true;
   }
-  return true;
-}
 
-/****************************************************************************/
-/*!
- **  Calculates the statistics on variables of an input Db per cell of an output Grid
- **
- ** \return  Error return code
- **
- ** \param[in]  db      Input Db
- ** \param[in]  dbgrid  Output DbGrid
- ** \param[in]  oper    The statistical calculation
- ** \param[in]  radius  Neighborhood radius
- ** \param[in]  namconv Naming convention
- **
- *****************************************************************************/
-Id dbStatisticsOnGrid(Db* db,
-                      DbGrid* dbgrid,
-                      const EStatOption& oper,
-                      Id radius,
-                      const NamingConvention& namconv)
-{
-  CalcStatistics stats;
-  stats.setDbin(db);
-  stats.setDbout(dbgrid);
-  stats.setNamingConvention(namconv);
+  void CalcStatistics::_rollback()
+  {
+    _cleanVariableDb(1);
+  }
 
-  stats.setFlagStats(true);
-  stats.setDboutMustBeGrid(true);
-  stats.setOper(oper);
-  stats.setRadius(radius);
+  /****************************************************************************/
+  /*!
+   **  Standard Kriging
+   **
+   ** \return  Error return code
+   **
+   *****************************************************************************/
+  bool CalcStatistics::_run()
+  {
+    if (_flagStats)
+    {
+      auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+      VectorString names = getDbin()->getNamesByLocator(ELoc::Z);
+      if (dbStatisticsInGridTool(
+            getDbin(), dbgrid, names, _oper, _radius, _iattOut))
+        return false;
+    }
+    if (_flagRegr)
+    {
+      Regression reg = regression(
+        getDbin(), _nameResp, _nameAux, _regrMode, _flagCst, getDbout(),
+        _model);
+      if (reg.apply(
+            getDbin(), _iattOut, _nameResp, _nameAux, _regrMode, _flagCst,
+            getDbout(), _model))
+        return false;
+    }
+    return true;
+  }
 
-  // Run the calculator
-  Id error = (stats.run()) ? 0 : 1;
-  return error;
-}
+  /****************************************************************************/
+  /*!
+   **  Calculates the statistics on variables of an input Db per cell of an output Grid
+   **
+   ** \return  Error return code
+   **
+   ** \param[in]  db      Input Db
+   ** \param[in]  dbgrid  Output DbGrid
+   ** \param[in]  oper    The statistical calculation
+   ** \param[in]  radius  Neighborhood radius
+   ** \param[in]  namconv Naming convention
+   **
+   *****************************************************************************/
+  Id dbStatisticsOnGrid(
+    Db* db,
+    DbGrid* dbgrid,
+    const EStatOption& oper,
+    Id radius,
+    const NamingConvention& namconv)
+  {
+    CalcStatistics stats;
+    stats.setDbin(db);
+    stats.setDbout(dbgrid);
+    stats.setNamingConvention(namconv);
 
-Id dbRegression(Db* db1,
-                const String& nameResp,
-                const VectorString& nameAux,
-                Id mode,
-                bool flagCst,
-                Db* db2,
-                const Model* model,
-                const NamingConvention& namconv)
-{
-  if (db2 == nullptr) db2 = db1;
+    stats.setFlagStats(true);
+    stats.setDboutMustBeGrid(true);
+    stats.setOper(oper);
+    stats.setRadius(radius);
 
-  CalcStatistics stats;
-  stats.setDbin(db1);
-  stats.setDbout(db2);
-  stats.setNamingConvention(namconv);
+    // Run the calculator
+    Id error = (stats.run()) ? 0 : 1;
+    return error;
+  }
 
-  stats.setFlagRegr(true);
-  stats.setRegrMode(mode);
-  stats.setFlagCst(flagCst);
-  stats.setName0(nameResp);
-  stats.setNamaux(nameAux);
-  stats.setModel(model);
+  Id dbRegression(
+    Db* db1,
+    const String& nameResp,
+    const VectorString& nameAux,
+    Id mode,
+    bool flagCst,
+    Db* db2,
+    const Model* model,
+    const NamingConvention& namconv)
+  {
+    if (db2 == nullptr) db2 = db1;
 
-  // Run the calculator
-  Id error = (stats.run()) ? 0 : 1;
-  return error;
-}
+    CalcStatistics stats;
+    stats.setDbin(db1);
+    stats.setDbout(db2);
+    stats.setNamingConvention(namconv);
+
+    stats.setFlagRegr(true);
+    stats.setRegrMode(mode);
+    stats.setFlagCst(flagCst);
+    stats.setName0(nameResp);
+    stats.setNamaux(nameAux);
+    stats.setModel(model);
+
+    // Run the calculator
+    Id error = (stats.run()) ? 0 : 1;
+    return error;
+  }
 } // namespace gstlrn

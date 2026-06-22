@@ -9,6 +9,7 @@
 #                                                                              #
 ################################################################################
 
+from matplotlib import axis
 import numpy as np
 import gstlearn as gl
 
@@ -187,6 +188,7 @@ def ScatterOnDb(
     m_line="black",
     m_size=15,
     m_width=2,
+    showscale=False,
     **plot_args,
 ):
     if __invalidFileDimension(db, 3):
@@ -204,6 +206,7 @@ def ScatterOnDb(
         marker_line_width=m_width,
         marker_size=m_size,
         line=dict(color=color, width=width),
+        showscale=showscale,
         **plot_args,
     )
     return meshing
@@ -429,14 +432,16 @@ def IsoSurfaceOnDbGrid(
     return surfaces
 
 
-def SurfaceOnDbGrid(grid, name, useSel=False, showscale=False, **plot_args):
+def SurfaceOnDbGrid(
+    grid, name, useSel=False, showscale=False, opacity=0.9, **plot_args
+):
     if __invalidFileDimension(grid, 2):
         return None
 
     shape = list(np.flip(grid.getNXs()))
     values = grid.getColumn(name, useSel).reshape(shape)
 
-    surface = go.Surface(z=values, showscale=showscale, opacity=0.9, **plot_args)
+    surface = go.Surface(z=values, showscale=showscale, opacity=opacity, **plot_args)
 
     return surface
 
@@ -540,7 +545,6 @@ def GradientDb(
         sizeref=size,
         **plot_args,
     )
-
     return objects
 
 
@@ -695,3 +699,206 @@ def PolarAxis(color="black", width=3, dilate=1.2):
     line = Line(tab[0, :], tab[1, :], tab[2, :], color=color, width=width)
 
     return line
+
+
+def Sphere(
+    radius, center, color="red", opacity=0.5, ntheta=180, showscale=False, **plot_args
+):
+    if radius <= 0:
+        return None
+
+    # Center
+    x0, y0, z0 = center
+
+    # angles
+    phi = np.linspace(0, np.pi, ntheta)  # latitude
+    theta = np.linspace(0, 2 * np.pi, ntheta)  # longitude
+
+    phi, theta = np.meshgrid(phi, theta)
+
+    # coordonnées cartésiennes
+    x = radius * np.sin(phi) * np.cos(theta) + x0
+    y = radius * np.sin(phi) * np.sin(theta) + y0
+    z = radius * np.cos(phi) + z0
+
+    # créer la surface
+    sphere = go.Surface(
+        x=x,
+        y=y,
+        z=z,
+        opacity=opacity,
+        showscale=showscale,
+        surfacecolor=np.ones_like(z),
+        colorscale=[[0, color], [1, color]],
+        **plot_args,
+    )
+
+    return sphere
+
+
+def Cone(
+    apex,
+    axis,
+    angle_deg,
+    orientation=1,
+    length=5,
+    color="orange",
+    opacity=0.5,
+    n_theta=180,
+    **plot_args,
+):
+    if angle_deg == gl.TEST or angle_deg >= 90 or angle_deg <= 0:
+        return None
+
+    x0, y0, z0 = apex
+    axis_vec = np.array(axis)
+    if orientation == -1:
+        axis_vec = -axis_vec
+
+    # normaliser l’axe
+    axis_vec /= np.linalg.norm(axis_vec)
+
+    # vecteurs perpendiculaires
+    if np.allclose(axis_vec[:2], 0):
+        v = np.array([1, 0, 0])
+    else:
+        v = np.cross(axis_vec, [0, 0, 1])
+        v /= np.linalg.norm(v)
+    u = np.cross(axis_vec, v)
+
+    # angle en radians
+    alpha = np.deg2rad(angle_deg)
+
+    # cercle de base
+    r = length * np.tan(alpha)  # rayon à l’extrémité du cône
+    theta = np.linspace(0, 2 * np.pi, n_theta)
+    circle = (
+        apex
+        + axis_vec * length
+        + r * (np.outer(np.cos(theta), u) + np.outer(np.sin(theta), v))
+    )
+
+    # points du cône (triangles vers le sommet)
+    x = np.hstack([circle[:, 0], np.full(n_theta, x0)])
+    y = np.hstack([circle[:, 1], np.full(n_theta, y0)])
+    z = np.hstack([circle[:, 2], np.full(n_theta, z0)])
+
+    # Mesh3d simple
+    cone = go.Mesh3d(
+        x=x, y=y, z=z, color=color, opacity=opacity, showscale=False, **plot_args
+    )
+
+    return cone
+
+
+def Cylinder(
+    center,
+    axis,
+    radius=1,
+    length=5,
+    color="green",
+    opacity=0.5,
+    n_theta=180,
+    n_height=20,
+    **plot_args,
+):
+    if radius == gl.TEST or radius <= 0.0:
+        return None
+
+    center = np.array(center, dtype=float)
+    axis_vec = np.array(axis, dtype=float)
+    axis_vec /= np.linalg.norm(axis_vec)
+
+    # vecteurs orthogonaux
+    if abs(axis_vec[0]) < 0.1 and abs(axis_vec[1]) < 0.1:
+        arbitrary = np.array([0, 1, 0])
+    else:
+        arbitrary = np.array([0, 0, 1])
+
+    u = np.cross(axis_vec, arbitrary)
+    u /= np.linalg.norm(u)
+    v = np.cross(axis_vec, u)  # vecteur orthogonal complet
+
+    # coordonnées paramétriques
+    theta = np.linspace(0, 2 * np.pi, n_theta)
+    t = np.linspace(-length / 2, length / 2, n_height)
+    cos_theta = np.cos(theta)
+    sin_theta = np.sin(theta)
+
+    X = np.zeros((n_height, n_theta))
+    Y = np.zeros((n_height, n_theta))
+    Z = np.zeros((n_height, n_theta))
+
+    for i, ti in enumerate(t):
+        circle = (
+            np.array(center)
+            + axis_vec * ti
+            + radius * (np.outer(cos_theta, u) + np.outer(sin_theta, v))
+        )
+        X[i, :] = circle[:, 0]
+        Y[i, :] = circle[:, 1]
+        Z[i, :] = circle[:, 2]
+
+    Cylindre = go.Mesh3d(
+        x=X.flatten(),
+        y=Y.flatten(),
+        z=Z.flatten(),
+        color=color,
+        opacity=opacity,
+        showscale=False,
+        **plot_args,
+    )
+
+    return Cylindre
+
+
+def Bench(
+    center,
+    bench,
+    orientation=1,
+    length=5,
+    color="lightblue",
+    opacity=0.5,
+    n1=10,
+    n2=10,
+    **plot_args,
+):
+    if bench == gl.TEST or bench <= 0.0:
+        return None
+
+    codir = (0, 0, 1)
+    center = np.array(center, dtype=float)
+    codir = np.array(codir, dtype=float)
+    codir /= np.linalg.norm(codir)  # vecteur unitaire perpendiculaire aux plans
+
+    # calcul des centres des deux plans
+    plane_center = center + (bench if orientation == 1 else -bench) * codir
+
+    # vecteurs directeurs pour les plans (orthogonaux à codir)
+    if np.allclose(codir[:2], 0):
+        arbitrary = np.array([1, 0, 0])
+    else:
+        arbitrary = np.array([0, 0, 1])
+
+    dir1 = np.cross(codir, arbitrary)
+    dir1 /= np.linalg.norm(dir1)
+    dir2 = np.cross(codir, dir1)
+
+    # fonction interne pour créer un plan
+    s = np.linspace(-length / 2, length / 2, n1)
+    t = np.linspace(-length / 2, length / 2, n2)
+    S, T = np.meshgrid(s, t)
+    X = plane_center[0] + S * dir1[0] + T * dir2[0]
+    Y = plane_center[1] + S * dir1[1] + T * dir2[1]
+    Z = plane_center[2] + S * dir1[2] + T * dir2[2]
+    Plane = go.Mesh3d(
+        x=X.flatten(),
+        y=Y.flatten(),
+        z=Z.flatten(),
+        color=color,
+        opacity=opacity,
+        showscale=False,
+        **plot_args,
+    )
+
+    return Plane

@@ -1,6 +1,5 @@
 rtab1
 [2.1 3.2 4.1 NA 8.3]
-Vector of < double > 
 Moyenne =  4.425
 Mediane =  3.65
 Minimum =  2.1
@@ -9,24 +8,19 @@ Variance =  7.3425
 St. dev. =  2.7097
 rtab2
 [-1.1 NA 6.1 4.1 -0.2]
-'rtab1 = 'rtab1 + 'rtab2'
-[1 NA 10.2 NA 8.1]
-'rtab1' = 'rtab1' + 12
-[13 NA 22.2 NA 20.1]
 'out' = 'rtab1' + 'rtab2'
-[11.9 NA 28.3 NA 19.9]
+[1 NA 10.2 NA 8.1]
+'out' = 'rtab1' + 3.2
+[5.3 6.4 7.3 NA 11.5]
 itab1
 [1 2 3 4 5 6]
-Vector of < Id > 
 Moyenne =  3.5
 Mediane =  3.5
 Variance =  3.5
 St. dev. =  1.8708
 itab2
 [0 1 2 4 8 -5]
-'itab1 = 'itab1 + 'itab2'
-[1 3 5 8 13 1]
-'itab1' = 'itab1' + 12
-[13 15 17 20 25 13]
 'out' = 'itab1' + 'itab2'
-[13 16 19 24 33 8]
+[1 3 5 8 13 1]
+'out' = 'itab1' + 2
+[3 4 5 6 7 8]

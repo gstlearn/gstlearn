@@ -11,33 +11,43 @@
 #pragma once
 
 #include "Covariances/AKernel.hpp"
+#include "Enum/ESimuType.hpp"
 #include "gstlearn_export.hpp"
 
 namespace gstlrn
 {
-class CovContext;
-class TurningBandOperate;
+  class CovContext;
+  class TurningBandOperate;
 
-class GSTLEARN_EXPORT KernelStable: public AKernel
-{
-public:
-  KernelStable(const CovContext& ctx);
-  KernelStable(const KernelStable& r);
-  KernelStable& operator=(const KernelStable& r);
-  virtual ~KernelStable();
+  class GSTLEARN_EXPORT KernelStable: public AKernel
+  {
+  public:
+    KernelStable(const CovContext& ctx);
+    KernelStable(const KernelStable& r);
+    KernelStable& operator=(const KernelStable& r);
+    virtual ~KernelStable();
 
-  bool hasParam() const override { return true; }
-  double getScadef() const override;
-  double getParMax() const override { return 2; }
+    bool hasParam() const override { return true; }
 
-  String getCovName() const override { return "Stable"; }
-  Id getMinOrder() const override { return -1; }
-  bool getCompatibleSpaceR() const override { return true; }
+    double getScadef() const override;
 
-  bool isValidForTurningBand() const override { return true; }
-  double simulateTurningBand(double t0, TurningBandOperate& operTB) const override;
+    double getParMax() const override { return 2; }
 
-protected:
-  double _evaluateCov(double h) const override;
-};
+    String getCovName() const override { return "Stable"; }
+
+    Id getMinOrder() const override { return -1; }
+
+    bool getCompatibleSpaceR() const override { return true; }
+
+    bool isValidForSimulation(const ESimuType& simuType) const override
+    {
+      return (simuType == ESimuType::TB);
+    }
+
+    double
+      simulateTurningBand(double t0, TurningBandOperate& operTB) const override;
+
+  protected:
+    double _evaluateCov(double h) const override;
+  };
 } // namespace gstlrn

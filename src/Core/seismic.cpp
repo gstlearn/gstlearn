@@ -24,3364 +24,3408 @@
 #define LTABLE 8
 #define NTABLE 513
 
-#define ARRAY(ix, iy)   (array[(iy) * NX + (ix)])
-#define LIMIT(ix, iy)   (limit[(iy) * NX + (ix)])
-#define VV(itr, iz)     (db_v->getArray(iatt_v, NTRACE * (iz) + itr) / VFACT)
-#define LB(ivar, jvar)  (lb[(jvar) * NVAR + (ivar)])
+#define ARRAY(ix, iy) (array[(iy) * NX + (ix)])
+#define LIMIT(ix, iy) (limit[(iy) * NX + (ix)])
+#define VV(itr, iz) (db_v->getArray(iatt_v, NTRACE * (iz) + itr) / VFACT)
+#define LB(ivar, jvar) (lb[(jvar) * NVAR + (ivar)])
 #define IND(iech, ivar) ((iech) + (ivar) * nech)
-#define RHS(i, iv, jv)  (rhs[IND(i, iv) + neqmax * (jv)])
-#define ARRAY(ix, iy)   (array[(iy) * NX + (ix)])
-#define LIMIT(ix, iy)   (limit[(iy) * NX + (ix)])
-#define VV(itr, iz)     (db_v->getArray(iatt_v, NTRACE * (iz) + itr) / VFACT)
-#define LB(ivar, jvar)  (lb[(jvar) * NVAR + (ivar)])
+#define RHS(i, iv, jv) (rhs[IND(i, iv) + neqmax * (jv)])
+#define ARRAY(ix, iy) (array[(iy) * NX + (ix)])
+#define LIMIT(ix, iy) (limit[(iy) * NX + (ix)])
+#define VV(itr, iz) (db_v->getArray(iatt_v, NTRACE * (iz) + itr) / VFACT)
+#define LB(ivar, jvar) (lb[(jvar) * NVAR + (ivar)])
+
 /*! \endcond */
 
 namespace gstlrn
 {
-static MatrixSquare covtab;
-static double DX, DZ;
-static Id NX, NY, NZ, NVAR, NTRACE;
-static double VFACT = 1000.;
-static Id IECH_OUT  = -1;
-typedef struct
-{
-  Id nvois;
-  Id nactive;
-  Id n_v1;
-  Id n_v2;
-  VectorInt ix_ngh;
-  VectorInt iz_ngh;
-  VectorDouble v1_ngh;
-  VectorDouble v2_ngh;
-} ST_Seismic_Neigh;
+  static MatrixSquare covtab;
+  static double DX, DZ;
+  static Id NX, NY, NZ, NVAR, NTRACE;
+  static double VFACT = 1000.;
+  static Id IECH_OUT = -1;
 
-/****************************************************************************/
-/*!
- **  Calculate the extrema of the velocity array vv[]
- **
- ** \return  Error return code
- **
- ** \param[in]  nech Number of samples in the array vv[]
- ** \param[in]  vv   Array of interest
- **
- ** \param[out]  v0   Initial velocity value
- ** \param[out]  v1   Last velocity value
- ** \param[out]  vmin Minimum value
- ** \param[out]  vmax Maximum value
- **
- *****************************************************************************/
-static Id st_velocity_minmax(Id nech,
-                             double* vv,
-                             double* v0,
-                             double* v1,
-                             double* vmin,
-                             double* vmax)
-{
-  Id i, number;
-  double vvdef, delta;
-
-  (*v0)   = MAXIMUM_BIG;
-  (*v1)   = MAXIMUM_BIG;
-  (*vmin) = MAXIMUM_BIG;
-  (*vmax) = MINIMUM_BIG;
-
-  /* Check the extreme (defined) values */
-
-  for (i = number = 0; i < nech; i++)
+  typedef struct
   {
-    if (FFFF(vv[i])) continue;
-    if (vv[i] <= 0) continue;
-    if (vv[i] < (*vmin)) (*vmin) = vv[i];
-    if (vv[i] > (*vmax)) (*vmax) = vv[i];
-    number++;
-  }
+    Id nvois;
+    Id nactive;
+    Id n_v1;
+    Id n_v2;
+    VectorInt ix_ngh;
+    VectorInt iz_ngh;
+    VectorDouble v1_ngh;
+    VectorDouble v2_ngh;
+  } ST_Seismic_Neigh;
 
-  /* Final checks */
-
-  if (number <= 0)
+  /****************************************************************************/
+  /*!
+   **  Calculate the extrema of the velocity array vv[]
+   **
+   ** \return  Error return code
+   **
+   ** \param[in]  nech Number of samples in the array vv[]
+   ** \param[in]  vv   Array of interest
+   **
+   ** \param[out]  v0   Initial velocity value
+   ** \param[out]  v1   Last velocity value
+   ** \param[out]  vmin Minimum value
+   ** \param[out]  vmax Maximum value
+   **
+   *****************************************************************************/
+  static Id st_velocity_minmax(
+    Id nech,
+    double* vv,
+    double* v0,
+    double* v1,
+    double* vmin,
+    double* vmax)
   {
-    messerr("The velocity field is not defined: no active value");
-    return (1);
-  }
+    Id i, number;
+    double vvdef, delta;
 
-  /* All velocity values are correctly defined */
+    (*v0) = MAXIMUM_BIG;
+    (*v1) = MAXIMUM_BIG;
+    (*vmin) = MAXIMUM_BIG;
+    (*vmax) = MINIMUM_BIG;
 
-  if (number == nech) return (0);
+    /* Check the extreme (defined) values */
 
-  /* Calculate an arbitrary small velocity value */
-
-  delta = (*vmax) - (*vmin);
-  vvdef = (*vmin) - delta / 2.;
-  if (delta <= 0 || vvdef <= 0.) vvdef = (*vmin) / 2.;
-
-  /* Replace unknown or negative or zero values by an arbitrary small value */
-
-  for (i = 0; i < nech; i++)
-  {
-    if (FFFF(vv[i]) || vv[i] <= 0.) vv[i] = vvdef;
-  }
-  (*v0) = vv[0];
-  (*v1) = vv[nech - 1];
-
-  return (0);
-}
-
-/****************************************************************************/
-/*!
- **  Compute regularly-sampled monotonically increasing function x(y)
- **  from regularly-sampled monotonically increasing function y(x)
- **  by inverse linear interpolation
- **
- ** \param[in]  nx   number of samples of y(x)
- ** \param[in]  dx   x sampling interval; dx>0.0 is required
- ** \param[in]  x0   first x
- ** \param[in]  y    array[nx] of y(x) values; y[0] < ... < y[nx-1] required
- ** \param[in]  ny   number of samples of x(y)
- ** \param[in]  dy   y sampling interval; dy>0.0 is required
- ** \param[in]  y0   first y
- ** \param[in]  xylo x value assigned to x(y) when y is less than smallest y(x)
- ** \param[in]  xyhi x value assigned to x(y) when y is greater than largest y(x)
- **
- ** \param[out]  x   array[ny] of x(y) values
- **
- *****************************************************************************/
-static void st_yxtoxy(Id nx,
-                      double dx,
-                      double x0,
-                      const double* y,
-                      Id ny,
-                      double dy,
-                      double y0,
-                      double xylo,
-                      double xyhi,
-                      double* x)
-{
-  Id nxi, nyo, jxi1, jxi2, jyo;
-  double dxi, fxi, dyo, fyo, fyi, yo, xi1, yi1, yi2;
-
-  nxi = nx;
-  dxi = dx;
-  fxi = x0;
-  nyo = ny;
-  dyo = dy;
-  fyo = y0;
-  fyi = y[0];
-
-  /* loop over output y less than smallest input y */
-  for (jyo = 0, yo = fyo; jyo < nyo; jyo++, yo += dyo)
-  {
-    if (yo >= fyi) break;
-    x[jyo] = xylo;
-  }
-
-  /* loop over output y between smallest and largest input y */
-  if (jyo == nyo - 1 && yo == fyi)
-  {
-    x[jyo++] = fxi;
-    yo += dyo;
-  }
-  jxi1 = 0;
-  jxi2 = 1;
-  xi1  = fxi;
-  while (jxi2 < nxi && jyo < nyo)
-  {
-    yi1 = y[jxi1];
-    yi2 = y[jxi2];
-    if (yi1 <= yo && yo <= yi2)
+    for (i = number = 0; i < nech; i++)
     {
-      x[jyo++] = xi1 + dxi * (yo - yi1) / (yi2 - yi1);
+      if (FFFF(vv[i])) continue;
+      if (vv[i] <= 0) continue;
+      if (vv[i] < (*vmin)) (*vmin) = vv[i];
+      if (vv[i] > (*vmax)) (*vmax) = vv[i];
+      number++;
+    }
+
+    /* Final checks */
+
+    if (number <= 0)
+    {
+      messerr("The velocity field is not defined: no active value");
+      return (1);
+    }
+
+    /* All velocity values are correctly defined */
+
+    if (number == nech) return (0);
+
+    /* Calculate an arbitrary small velocity value */
+
+    delta = (*vmax) - (*vmin);
+    vvdef = (*vmin) - delta / 2.;
+    if (delta <= 0 || vvdef <= 0.) vvdef = (*vmin) / 2.;
+
+    /* Replace unknown or negative or zero values by an arbitrary small value */
+
+    for (i = 0; i < nech; i++)
+    {
+      if (FFFF(vv[i]) || vv[i] <= 0.) vv[i] = vvdef;
+    }
+    (*v0) = vv[0];
+    (*v1) = vv[nech - 1];
+
+    return (0);
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Compute regularly-sampled monotonically increasing function x(y)
+   **  from regularly-sampled monotonically increasing function y(x)
+   **  by inverse linear interpolation
+   **
+   ** \param[in]  nx   number of samples of y(x)
+   ** \param[in]  dx   x sampling interval; dx>0.0 is required
+   ** \param[in]  x0   first x
+   ** \param[in]  y    array[nx] of y(x) values; y[0] < ... < y[nx-1] required
+   ** \param[in]  ny   number of samples of x(y)
+   ** \param[in]  dy   y sampling interval; dy>0.0 is required
+   ** \param[in]  y0   first y
+   ** \param[in]  xylo x value assigned to x(y) when y is less than smallest y(x)
+   ** \param[in]  xyhi x value assigned to x(y) when y is greater than largest y(x)
+   **
+   ** \param[out]  x   array[ny] of x(y) values
+   **
+   *****************************************************************************/
+  static void st_yxtoxy(
+    Id nx,
+    double dx,
+    double x0,
+    const double* y,
+    Id ny,
+    double dy,
+    double y0,
+    double xylo,
+    double xyhi,
+    double* x)
+  {
+    Id nxi, nyo, jxi1, jxi2, jyo;
+    double dxi, fxi, dyo, fyo, fyi, yo, xi1, yi1, yi2;
+
+    nxi = nx;
+    dxi = dx;
+    fxi = x0;
+    nyo = ny;
+    dyo = dy;
+    fyo = y0;
+    fyi = y[0];
+
+    /* loop over output y less than smallest input y */
+    for (jyo = 0, yo = fyo; jyo < nyo; jyo++, yo += dyo)
+    {
+      if (yo >= fyi) break;
+      x[jyo] = xylo;
+    }
+
+    /* loop over output y between smallest and largest input y */
+    if (jyo == nyo - 1 && yo == fyi)
+    {
+      x[jyo++] = fxi;
       yo += dyo;
     }
-    else
+    jxi1 = 0;
+    jxi2 = 1;
+    xi1 = fxi;
+    while (jxi2 < nxi && jyo < nyo)
     {
-      jxi1++;
-      jxi2++;
-      xi1 += dxi;
-    }
-  }
-
-  /* loop over output y greater than largest input y */
-  while (jyo < nyo)
-    x[jyo++] = xyhi;
-}
-
-/****************************************************************************/
-/*!
- **  Function for tabulating dsinc()
- **
- ** \return  Value of the dsinc() function
- **
- ** \param[in]  x Argument of the function
- **
- *****************************************************************************/
-static double dsinc(double x)
-
-{
-  double pix;
-
-  if (x == 0.0) return 1.0;
-  pix = GV_PI * x;
-  return (sin(pix) / pix);
-}
-
-/****************************************************************************/
-/*!
- **  Solve a symmetric Toeplitz linear system of equations Rf=g for f
- **
- ** \param[in]  n dimension of system
- ** \param[in]  r array[n] of top row of Toeplitz matrix
- ** \param[in]  g array[n] of right-hand-side column vector
- **
- ** \param[out]  f array[n] of solution (left-hand-side) column vector
- ** \param[out]  a array[n] of solution to Ra=v (Claerbout, FGDP, p. 57)
- **
- ** \remark This routine does NOT solve the case when the main diagonal is
- ** \remark zero, it just silently returns.
- ** \remark The left column of the Toeplitz matrix is assumed to be equal to
- ** \remark the top row (as specified in r); i.e., the Toeplitz matrix is
- ** \remark assumed symmetric.
- **
- *****************************************************************************/
-static void stoepd(Id n, const double* r, const double* g, double* f, double* a)
-{
-  Id i, j;
-  double v, e, c, w, bot;
-
-  if (r[0] == 0.0) return;
-
-  a[0] = 1.0;
-  v    = r[0];
-  f[0] = g[0] / r[0];
-
-  for (j = 1; j < n; j++)
-  {
-
-    /* solve Ra=v as in Claerbout, FGDP, p. 57 */
-    a[j] = 0.0;
-    f[j] = 0.0;
-    for (i = 0, e = 0.0; i < j; i++)
-      e += a[i] * r[j - i];
-    c = e / v;
-    v -= c * e;
-    for (i = 0; i <= j / 2; i++)
-    {
-      bot = a[j - i] - c * a[i];
-      a[i] -= c * a[j - i];
-      a[j - i] = bot;
-    }
-
-    /* use a and v above to get f[i], i = 0,1,2,...,j */
-    for (i = 0, w = 0.0; i < j; i++)
-      w += f[i] * r[j - i];
-    c = (w - g[j]) / v;
-    for (i = 0; i <= j; i++)
-      f[i] -= c * a[j - i];
-  }
-}
-
-/****************************************************************************/
-/*!
- **  Compute least-squares optimal sinc interpolation coefficients.
- **
- ** \param[in]  d     fractional distance to interpolation point; 0.0<=d<=1.0
- ** \param[in]  lsinc length of sinc approximation; lsinc%2==0 and lsinc<=20
- **
- ** \param[out]  sinc array[lsinc] containing interpolation coefficients
- **
- ** \remark The coefficients are a least-squares-best approximation to the
- ** \remark ideal sinc function for frequencies from zero up to a computed
- ** \remark maximum frequency.
- ** \remark For a given interpolator length, lsinc, mksinc computes the
- ** \remark maximum frequency, fmax (expressed as a fraction of the Nyquist
- ** \remark frequency), using the following empirically derived relation (from
- ** \remark a Western Geophysical Technical Memorandum by Ken Larner):
- ** \remark        fmax = min(0.066+0.265*log(lsinc),1.0)
- ** \remark Note that fmax increases as lsinc increases, up to a maximum of 1.
- ** \remark Use the coefficients to interpolate a uniformly-sampled function
- ** \remark y(i) as follows:
- ** \remark             lsinc-1
- ** \remark     y(i+d) =  sum  sinc[j]*y(i+j+1-lsinc/2)
- ** \remark               j=0
- ** \remark Interpolation error is greatest for d=0.5, but for frequencies less
- ** \remark than fmax, the error should be less than 1.0 percent.
-
- *****************************************************************************/
-static void st_mksinc(double d, Id lsinc, double* sinc)
-{
-  Id j;
-  double s[20], a[20], c[20], work[20], fmax;
-
-  /* compute auto-correlation and cross-correlation arrays */
-  fmax = 0.066 + 0.265 * log(static_cast<double>(lsinc));
-  fmax = (fmax < 1.0) ? fmax : 1.0;
-  for (j = 0; j < lsinc; j++)
-  {
-    a[j] = dsinc(fmax * j);
-    c[j] = dsinc(fmax * (lsinc / 2. - j - 1. + d));
-  }
-
-  /* solve symmetric Toeplitz system for the sinc approximation */
-  stoepd(lsinc, a, c, s, work);
-  for (j = 0; j < lsinc; j++)
-    sinc[j] = s[j];
-}
-
-/****************************************************************************/
-/*!
- **  Interpolation of a uniformly-sampled complex function y(x)
- **  via a table of 8-coefficient interpolators
- **
- ** \param[in]  ntable  number of tabulated interpolation operators; ntable>=2
- ** \param[in]  table   array of tabulated 8-point interpolation operators
- ** \param[in]  nxin    number of x values at which y(x) is input
- ** \param[in]  dxin    x sampling interval for input y(x)
- ** \param[in]  fxin    x value of first sample input
- ** \param[in]  yin     array of input y(x) values:  yin[0] = y(fxin), etc.
- ** \param[in]  yinl    value used to extrapolate yin values to left of yin[0]
- ** \param[in]  yinr    value used to extrapolate yin values to right of
- **                     yin[nxin-1]
- ** \param[in]  nxout   number of x values a which y(x) is output
- ** \param[in]  xout    array of x values at which y(x) is output
- **
- ** \param[out]  yout   array of output y(x) values:  yout[0] = y(xout[0]), etc.
- **
- ** \remark ntable must not be less than 2.
- ** \remark The table of interpolation operators must be as follows:
- ** \remark Let d be the distance, expressed as a fraction of dxin, from a
- ** \remark particular xout value to the sampled location xin just to the left
- ** \remark of xout.  Then:
- ** \remark for d = 0., table[0][0:7] = 0., 0., 0., 1., 0., 0., 0., 0.
- ** \remark are the weights applied to the 8 input samples nearest xout.
- ** \remark for d = 1., table[ntable-1][0:7] = 0., 0., 0., 0., 1., 0., 0., 0.
- ** \remark are the weights applied to the 8 input samples nearest xout.
- ** \remark for d = (float)itable/(float)(ntable-1), table[itable][0:7] are the
- ** \remark weights applied to the 8 input samples nearest xout.
- ** \remark If the actual sample distance d does not exactly equal one of the
- ** \remark values for which interpolators are tabulated, then the interpolator
- ** \remark corresponding to the nearest value of d is used.
- ** \remark Because extrapolation of the input function y(x) is defined by the
- ** \remark left and right values yinl and yinr, the xout values are not
- ** \remark restricted to lie within the range of sample locations defined by
- ** \remark nxin, dxin, and fxin.
- *****************************************************************************/
-static void st_intt8r(Id ntable,
-                      double table[][LTABLE],
-                      Id nxin,
-                      double dxin,
-                      double fxin,
-                      const double* yin,
-                      double yinl,
-                      double yinr,
-                      Id nxout,
-                      const double* xout,
-                      double* yout)
-{
-  Id ioutb, nxinm8, ixout, ixoutn, kyin, ktable, itable;
-  double xoutb, xoutf, xoutn, frac, fntablem1, yini, sum;
-
-  /* compute constants */
-  ioutb     = -3 - 8;
-  xoutf     = fxin;
-  xoutb     = 8.0 - xoutf / dxin;
-  fntablem1 = static_cast<double>(ntable - 1);
-  nxinm8    = nxin - 8;
-
-  /* loop over output samples */
-  for (ixout = 0; ixout < nxout; ixout++)
-  {
-
-    /* determine pointers into table and yin */
-    sum    = 0.;
-    xoutn  = xoutb + xout[ixout] / dxin;
-    ixoutn = static_cast<Id>(xoutn);
-    kyin   = ioutb + ixoutn;
-    frac   = xoutn - static_cast<double>(ixoutn);
-    ktable = static_cast<Id>((frac >= 0.0) ? frac * fntablem1 + 0.5 : (frac + 1.0) * fntablem1 - 0.5);
-
-    /* if totally within input array, use fast method */
-    if (kyin >= 0 && kyin <= nxinm8)
-    {
-      sum = yin[kyin + 0] * table[ktable][0] + yin[kyin + 1] * table[ktable][1] + yin[kyin + 2] * table[ktable][2] + yin[kyin + 3] * table[ktable][3] + yin[kyin + 4] * table[ktable][4] + yin[kyin + 5] * table[ktable][5] + yin[kyin + 6] * table[ktable][6] + yin[kyin + 7] * table[ktable][7];
-
-      /* else handle end effects with care */
-    }
-    else
-    {
-
-      /* sum over 8 tabulated coefficients */
-      for (itable = 0; itable < 8; itable++, kyin++)
+      yi1 = y[jxi1];
+      yi2 = y[jxi2];
+      if (yi1 <= yo && yo <= yi2)
       {
-        if (kyin < 0)
-          yini = yinl;
-        else if (kyin >= nxin)
-          yini = yinr;
-        else
-          yini = yin[kyin];
-        sum += yini * table[ktable][itable];
+        x[jyo++] = xi1 + dxi * (yo - yi1) / (yi2 - yi1);
+        yo += dyo;
+      }
+      else
+      {
+        jxi1++;
+        jxi2++;
+        xi1 += dxi;
       }
     }
-    yout[ixout] = sum;
+
+    /* loop over output y greater than largest input y */
+    while (jyo < nyo) x[jyo++] = xyhi;
   }
-}
 
-/****************************************************************************/
-/*!
- **  Interpolation of a uniformly-sampled real function y(x) via a
- **  table of 8-coefficient sinc approximations
- **
- ** \param[out]  table array of weights
- **
- *****************************************************************************/
-static void st_weights(double table[][LTABLE])
+  /****************************************************************************/
+  /*!
+   **  Function for tabulating dsinc()
+   **
+   ** \return  Value of the dsinc() function
+   **
+   ** \param[in]  x Argument of the function
+   **
+   *****************************************************************************/
+  static double dsinc(double x)
 
-{
-  Id jtable;
-  double frac;
-
-  /* Tabulate sinc interpolation coefficients */
-
-  for (jtable = 1; jtable < NTABLE - 1; jtable++)
   {
-    frac = static_cast<double>(jtable) / static_cast<double>(NTABLE - 1);
-    st_mksinc(frac, LTABLE, &table[jtable][0]);
+    double pix;
+
+    if (x == 0.0) return 1.0;
+    pix = GV_PI * x;
+    return (sin(pix) / pix);
   }
-  for (jtable = 0; jtable < LTABLE; jtable++)
+
+  /****************************************************************************/
+  /*!
+   **  Solve a symmetric Toeplitz linear system of equations Rf=g for f
+   **
+   ** \param[in]  n dimension of system
+   ** \param[in]  r array[n] of top row of Toeplitz matrix
+   ** \param[in]  g array[n] of right-hand-side column vector
+   **
+   ** \param[out]  f array[n] of solution (left-hand-side) column vector
+   ** \param[out]  a array[n] of solution to Ra=v (Claerbout, FGDP, p. 57)
+   **
+   ** \remark This routine does NOT solve the case when the main diagonal is
+   ** \remark zero, it just silently returns.
+   ** \remark The left column of the Toeplitz matrix is assumed to be equal to
+   ** \remark the top row (as specified in r); i.e., the Toeplitz matrix is
+   ** \remark assumed symmetric.
+   **
+   *****************************************************************************/
+  static void
+    stoepd(Id n, const double* r, const double* g, double* f, double* a)
   {
-    table[0][jtable]          = 0.0;
-    table[NTABLE - 1][jtable] = 0.0;
-  }
-  table[0][LTABLE / 2 - 1]      = 1.0;
-  table[NTABLE - 1][LTABLE / 2] = 1.0;
-}
+    Id i, j;
+    double v, e, c, w, bot;
 
-/****************************************************************************/
-/*!
- **  Debugging printout for the seismic time-to-depth conversion
- **
- ** \param[in]  rankz   Rank for Depth (0 for Input; 1 for Output)
- ** \param[in]  nz      number of depth samples
- ** \param[in]  z0      first depth value
- ** \param[in]  dz      depth sampling interval
- ** \param[in]  rankt   Rank for Time (0 for Input; 1 for Output)
- ** \param[in]  nt      number of time samples
- ** \param[in]  t0      first time value
- ** \param[in]  dt      time sampling interval
- ** \param[in]  vmin    Minimum velocity value
- ** \param[in]  vmax    Maximum velocity value
- **
- ****************************************************************************/
-static void st_seismic_debug(Id rankz,
-                             Id nz,
-                             double z0,
-                             double dz,
-                             Id rankt,
-                             Id nt,
-                             double t0,
-                             double dt,
-                             double vmin,
-                             double vmax)
-{
-  Id i;
+    if (r[0] == 0.0) return;
 
-  for (i = 0; i < 2; i++)
-  {
-    if (i == 0)
-      message("Input:\n");
-    else
-      message("Output:\n");
+    a[0] = 1.0;
+    v = r[0];
+    f[0] = g[0] / r[0];
 
-    if (i == rankz)
+    for (j = 1; j < n; j++)
     {
-      message("\tNumber of depth samples = %d\n", nz);
-      message("\tDepth sampling interval = %g (m)\n", dz);
-      message("\tDepth of first sample   = %g (m)\n", z0);
-      message("\tDepth of last sample    = %g (m)\n", z0 + (nz - 1) * dz);
-    }
 
-    if (i == rankt)
-    {
-      message("\tNumber of time samples = %d\n", nt);
-      message("\tTime sampling interval = %g (ms)\n", dt);
-      message("\tTime of first sample   = %g (ms)\n", t0);
-      message("\tTime of last sample    = %g (ms)\n", t0 + (nt - 1) * dt);
-    }
-    if (i == 0)
-    {
-      message("Velocity:\n");
-      message("\tMinimum value          = %g (m/s)\n", vmin);
-      message("\tMaximum value          = %g (m/s)\n", vmax);
+      /* solve Ra=v as in Claerbout, FGDP, p. 57 */
+      a[j] = 0.0;
+      f[j] = 0.0;
+      for (i = 0, e = 0.0; i < j; i++) e += a[i] * r[j - i];
+      c = e / v;
+      v -= c * e;
+      for (i = 0; i <= j / 2; i++)
+      {
+        bot = a[j - i] - c * a[i];
+        a[i] -= c * a[j - i];
+        a[j - i] = bot;
+      }
+
+      /* use a and v above to get f[i], i = 0,1,2,...,j */
+      for (i = 0, w = 0.0; i < j; i++) w += f[i] * r[j - i];
+      c = (w - g[j]) / v;
+      for (i = 0; i <= j; i++) f[i] -= c * a[j - i];
     }
   }
-  message("\n");
-}
 
-/****************************************************************************/
-/*!
- **  Define the Time Grid characteristics from the Depth Grid
- **
- ** \return  Error return code
- **
- ** \param[in]  verbose Verbose flag
- ** \param[in]  db_z    Depth Grid structure
- ** \param[in]  iatt_v  Attribute address of the Velocity (Id Depth Grid)
- **
- ** \param[out] nx      Number of grid nodes along each direction
- ** \param[out] x0      Origin of the grid along each direction
- ** \param[out] dx      Mesh of the grid along each direction
- **
- *****************************************************************************/
-Id seismic_z2t_grid(Id verbose,
-                    DbGrid* db_z,
-                    Id iatt_v,
-                    Id* nx,
-                    double* x0,
-                    double* dx)
-{
-  double z0, t0, v0, v1, dz, dt, vmin, vmax;
-  Id ndim, nech, nt, nz, i;
+  /****************************************************************************/
+  /*!
+   **  Compute least-squares optimal sinc interpolation coefficients.
+   **
+   ** \param[in]  d     fractional distance to interpolation point; 0.0<=d<=1.0
+   ** \param[in]  lsinc length of sinc approximation; lsinc%2==0 and lsinc<=20
+   **
+   ** \param[out]  sinc array[lsinc] containing interpolation coefficients
+   **
+   ** \remark The coefficients are a least-squares-best approximation to the
+   ** \remark ideal sinc function for frequencies from zero up to a computed
+   ** \remark maximum frequency.
+   ** \remark For a given interpolator length, lsinc, mksinc computes the
+   ** \remark maximum frequency, fmax (expressed as a fraction of the Nyquist
+   ** \remark frequency), using the following empirically derived relation (from
+   ** \remark a Western Geophysical Technical Memorandum by Ken Larner):
+   ** \remark        fmax = min(0.066+0.265*log(lsinc),1.0)
+   ** \remark Note that fmax increases as lsinc increases, up to a maximum of 1.
+   ** \remark Use the coefficients to interpolate a uniformly-sampled function
+   ** \remark y(i) as follows:
+   ** \remark             lsinc-1
+   ** \remark     y(i+d) =  sum  sinc[j]*y(i+j+1-lsinc/2)
+   ** \remark               j=0
+   ** \remark Interpolation error is greatest for d=0.5, but for frequencies less
+   ** \remark than fmax, the error should be less than 1.0 percent.
 
-  /* Initializations */
-
-  if (!db_z->isGrid())
+   *****************************************************************************/
+  static void st_mksinc(double d, Id lsinc, double* sinc)
   {
-    messerr("This procedure requires an input Grid Db");
-    return 1;
-  }
-  ndim = db_z->getNDim();
-  nech = db_z->getNSample();
+    Id j;
+    double s[20], a[20], c[20], work[20], fmax;
 
-  /* Core allocation */
-
-  for (i = 0; i < ndim; i++)
-  {
-    nx[i] = db_z->getNX(i);
-    dx[i] = db_z->getDX(i);
-    x0[i] = db_z->getX0(i);
-  }
-
-  /* Read the velocity variable */
-
-  VectorDouble vv = db_z->getColumnByUID(iatt_v);
-  if (st_velocity_minmax(nech, vv.data(), &v0, &v1, &vmin, &vmax)) return 1;
-
-  /* Update the vertical direction */
-
-  nz = db_z->getNX(ndim - 1);
-  z0 = db_z->getX0(ndim - 1);
-  dz = db_z->getDX(ndim - 1);
-  dt = 2. * dz / vmin;
-  t0 = 2. * z0 / v0;
-  nt = static_cast<Id>(1 + (nz - 1) * (2. * dz) / (dt * vmax));
-  dt *= VFACT;
-  t0 *= VFACT;
-  dx[ndim - 1] = dt;
-  x0[ndim - 1] = t0;
-  nx[ndim - 1] = nt;
-
-  /* Optional printout */
-
-  if (verbose) st_seismic_debug(0, nz, z0, dz, 1, nt, t0, dt, vmin, vmax);
-
-  return 0;
-}
-
-/****************************************************************************/
-/*!
- **  Define the Depth Grid characteristics from the Time Grid
- **
- ** \return  Error return code
- **
- ** \param[in]  verbose Verbose flag
- ** \param[in]  db_t    Time Grid structure
- ** \param[in]  iatt_v  Attribute address of the Velocity (in Time grid)
- **
- ** \param[out] nx      Number of grid nodes along each direction
- ** \param[out] x0      Origin of the grid along each direction
- ** \param[out] dx      Mesh of the grid along each direction
- **
- *****************************************************************************/
-Id seismic_t2z_grid(Id verbose,
-                    DbGrid* db_t,
-                    Id iatt_v,
-                    Id* nx,
-                    double* x0,
-                    double* dx)
-{
-  double z0, t0, v0, v1, dz, dt, vmin, vmax;
-  Id ndim, nech, nt, nz, i;
-
-  /* Initializations */
-
-  if (!db_t->isGrid())
-  {
-    messerr("This procedure requires an input Grid Db");
-    return (1);
-  }
-  ndim = db_t->getNDim();
-  nech = db_t->getNSample();
-
-  /* Core allocation */
-
-  for (i = 0; i < ndim; i++)
-  {
-    nx[i] = db_t->getNX(i);
-    dx[i] = db_t->getDX(i);
-    x0[i] = db_t->getX0(i);
-  }
-
-  /* Read the velocity variable */
-
-  VectorDouble vv = db_t->getColumnByUID(iatt_v);
-  if (st_velocity_minmax(nech, vv.data(), &v0, &v1, &vmin, &vmax)) return 1;
-
-  /* Update the vertical direction */
-
-  nt = db_t->getNX(ndim - 1);
-  t0 = db_t->getX0(ndim - 1);
-  dt = db_t->getDX(ndim - 1);
-  dz = vmin * dt / 2.;
-  z0 = v0 * t0 / 2.;
-  nz = static_cast<Id>(1 + (nt - 1) * (dt * vmax) / (2. * dz));
-  dz /= VFACT;
-  z0 /= VFACT;
-  dx[ndim - 1] = dz;
-  x0[ndim - 1] = z0;
-  nx[ndim - 1] = nz;
-
-  /* Optional printout */
-
-  if (verbose) st_seismic_debug(1, nz, z0, dz, 0, nt, t0, dt, vmin, vmax);
-
-  return 0;
-}
-
-/****************************************************************************/
-/*!
- **  Copy a trace between the Db and a given array
- **
- ** \param[in]  mode  Type of operation
- ** \li               0 : Copy from Db into array
- ** \li               1 : Copy from array into Db
- ** \param[in]  db    Db structure
- ** \param[in]  iatt  Rank of the variable
- ** \param[in]  ival  Rank of the column
- ** \param[in]  tab   Array containing the column of values
- **
- *****************************************************************************/
-static void st_copy(Id mode, DbGrid* db, Id iatt, Id ival, double* tab)
-{
-  Id ndim = db->getNDim();
-  Id nech = db->getNSample();
-  Id nval = db->getNX(ndim - 1);
-  Id nby  = nech / nval;
-
-  /* Dispatch */
-
-  switch (mode)
-  {
-    case 0: /* Copy from Db into array */
-      for (Id i = 0; i < nval; i++)
-        tab[i] = db->getArray(nby * i + ival, iatt);
-      break;
-
-    case 1: /* Copy from array into Db */
-      for (Id i = 0; i < nval; i++)
-        db->setArray(iatt + nby * i + ival, iatt, tab[i]);
-      break;
-  }
-}
-
-/****************************************************************************/
-/*!
- **  Check that the Depth and Time grid coincide
- **
- ** \return  1 if the two files coincide; 0 otherwise
- **
- ** \param[in]  db_z    Depth Grid structure
- ** \param[in]  db_t    Time Grid structure (optional)
- **
- ** \remark  In case of error, a message is displayed
- **
- *****************************************************************************/
-static Id st_match(DbGrid* db_z, DbGrid* db_t)
-{
-  Id idim, ndim, nech, nz, error;
-
-  /* Initializations */
-
-  NTRACE = 0;
-  error  = 1;
-  nech   = db_z->getNSample();
-  ndim   = db_z->getNDim();
-  nz     = db_z->getNX(ndim - 1);
-
-  /* Check the grid characteristics */
-
-  if (db_t != nullptr)
-  {
-    if (!db_t->isSameGrid(db_z->getGrid())) goto label_end;
-  }
-
-  /* Set the error return code */
-
-  error = 0;
-
-label_end:
-  if (error)
-  {
-    messerr("Error for one of the following reasons:");
-    messerr("- Different space dimensions: Depth(%d) - Time(%d)",
-            db_z->getNDim(), db_t->getNDim());
-    for (idim = 0; idim < ndim - 1; idim++)
+    /* compute auto-correlation and cross-correlation arrays */
+    fmax = 0.066 + 0.265 * log(static_cast<double>(lsinc));
+    fmax = (fmax < 1.0) ? fmax : 1.0;
+    for (j = 0; j < lsinc; j++)
     {
-      messerr("- Number of mesh (axe #%d): Depth(%d) - Time(%d)",
-              db_z->getNX(idim), db_t->getNX(idim));
-      messerr("- Origin of the Grid (axe #%d): Depth(%d) - Time(%d)",
-              db_z->getX0(idim), db_t->getX0(idim));
-      messerr("- Mesh of the Grid (axe #%d): Depth(%d) - Time(%d)",
-              db_z->getDX(idim), db_t->getDX(idim));
+      a[j] = dsinc(fmax * j);
+      c[j] = dsinc(fmax * (lsinc / 2. - j - 1. + d));
     }
+
+    /* solve symmetric Toeplitz system for the sinc approximation */
+    stoepd(lsinc, a, c, s, work);
+    for (j = 0; j < lsinc; j++) sinc[j] = s[j];
   }
-  else
-    NTRACE = nech / nz;
 
-  return (error);
-}
-
-/****************************************************************************/
-/*!
-**  Resample from depth to time
-**
-** \param[in]  db_z     Depth Db
-** \param[in]  iatt_z   Address of the first variable of the Depth Db
-** \param[in]  nz       Number of meshes of the Depth Db
-** \param[in]  z0       First Depth
-** \param[in]  dz       Mesh of the Depth Db
-** \param[in]  db_t     Time Db
-** \param[in]  iatt_t   Address of the first variable of the Time Db
-** \param[in]  nt       Number of meshes of the Time Db
-** \param[in]  t0       First Time
-** \param[in]  t1       Last Time
-** \param[in]  dt       Mesh of the Time Db
-** \param[in]  db_v     Velocity Db
-** \param[in]  iatt_v   Address of the velocity variable in Depth Db
-** \param[in]  natt     Number of seismic attributes
-**
-** \param[out] tz       Working array (dimension: nt)
-** \param[out] zt       Working array (dimension: nz)
-** \param[out] at       Working array (dimension: nt)
-** \param[out] az       Working array (dimension: nz)
-**
-** \remark Linear interpolation and constant extrapolation is used to
-** \remark determine interval velocities at times not specified.
-**
-*****************************************************************************/
-static void st_seismic_z2t_convert(DbGrid* db_z,
-                                   Id iatt_z,
-                                   Id nz,
-                                   double z0,
-                                   double /*z1*/,
-                                   double dz,
-                                   DbGrid* db_t,
-                                   Id iatt_t,
-                                   Id nt,
-                                   double t0,
-                                   double t1,
-                                   double dt,
-                                   DbGrid* db_v,
-                                   Id iatt_v,
-                                   Id natt,
-                                   double* tz,
-                                   double* zt,
-                                   double* at,
-                                   double* az)
-{
-  double t, vz0, vz1, table[NTABLE][LTABLE];
-  Id itrace, iz, it, iatt;
-
-  /* Calculate the interpolation weights */
-
-  st_weights(table);
-
-  /* Loop on the vertical lines */
-
-  for (itrace = 0; itrace < NTRACE; itrace++)
+  /****************************************************************************/
+  /*!
+   **  Interpolation of a uniformly-sampled complex function y(x)
+   **  via a table of 8-coefficient interpolators
+   **
+   ** \param[in]  ntable  number of tabulated interpolation operators; ntable>=2
+   ** \param[in]  table   array of tabulated 8-point interpolation operators
+   ** \param[in]  nxin    number of x values at which y(x) is input
+   ** \param[in]  dxin    x sampling interval for input y(x)
+   ** \param[in]  fxin    x value of first sample input
+   ** \param[in]  yin     array of input y(x) values:  yin[0] = y(fxin), etc.
+   ** \param[in]  yinl    value used to extrapolate yin values to left of yin[0]
+   ** \param[in]  yinr    value used to extrapolate yin values to right of
+   **                     yin[nxin-1]
+   ** \param[in]  nxout   number of x values a which y(x) is output
+   ** \param[in]  xout    array of x values at which y(x) is output
+   **
+   ** \param[out]  yout   array of output y(x) values:  yout[0] = y(xout[0]), etc.
+   **
+   ** \remark ntable must not be less than 2.
+   ** \remark The table of interpolation operators must be as follows:
+   ** \remark Let d be the distance, expressed as a fraction of dxin, from a
+   ** \remark particular xout value to the sampled location xin just to the left
+   ** \remark of xout.  Then:
+   ** \remark for d = 0., table[0][0:7] = 0., 0., 0., 1., 0., 0., 0., 0.
+   ** \remark are the weights applied to the 8 input samples nearest xout.
+   ** \remark for d = 1., table[ntable-1][0:7] = 0., 0., 0., 0., 1., 0., 0., 0.
+   ** \remark are the weights applied to the 8 input samples nearest xout.
+   ** \remark for d = (float)itable/(float)(ntable-1), table[itable][0:7] are the
+   ** \remark weights applied to the 8 input samples nearest xout.
+   ** \remark If the actual sample distance d does not exactly equal one of the
+   ** \remark values for which interpolators are tabulated, then the interpolator
+   ** \remark corresponding to the nearest value of d is used.
+   ** \remark Because extrapolation of the input function y(x) is defined by the
+   ** \remark left and right values yinl and yinr, the xout values are not
+   ** \remark restricted to lie within the range of sample locations defined by
+   ** \remark nxin, dxin, and fxin.
+   *****************************************************************************/
+  static void st_intt8r(
+    Id ntable,
+    double table[][LTABLE],
+    Id nxin,
+    double dxin,
+    double fxin,
+    const double* yin,
+    double yinl,
+    double yinr,
+    Id nxout,
+    const double* xout,
+    double* yout)
   {
+    Id ioutb, nxinm8, ixout, ixoutn, kyin, ktable, itable;
+    double xoutb, xoutf, xoutn, frac, fntablem1, yini, sum;
 
-    /* Transform v(z) into t(z) */
+    /* compute constants */
+    ioutb = -3 - 8;
+    xoutf = fxin;
+    xoutb = 8.0 - xoutf / dxin;
+    fntablem1 = static_cast<double>(ntable - 1);
+    nxinm8 = nxin - 8;
 
-    tz[0] = 2. * z0 / VV(itrace, 0);
-    for (iz = 1; iz < nz; ++iz)
-      tz[iz] = tz[iz - 1] + 2. * dz / VV(itrace, iz - 1);
-
-    /* Transform t(z) into z(t) */
-
-    vz0 = VV(itrace, 0);
-    vz1 = VV(itrace, nz - 1);
-    st_yxtoxy(nz, dz, z0, tz, nt, dt, t0, 0., 0., zt);
-
-    /* for t values before t0, use first velocity to calculate z(t) */
-    for (it = 0, t = t0; t <= tz[0]; ++it, t += dt)
-      zt[it] = vz0 * t / 2.;
-
-    /* for t values from t1 down, calculate z(t) */
-    for (it = nt - 1, t = t1; t >= tz[nz - 1]; it--, t -= dt)
-      zt[it] = vz1 * t1 / 2. + vz1 * (t - tz[nz - 1]) / 2.;
-
-    /* Convert attributes from Depth to Time */
-
-    for (iatt = 0; iatt < natt; iatt++)
+    /* loop over output samples */
+    for (ixout = 0; ixout < nxout; ixout++)
     {
-      st_copy(0, db_z, iatt_z + iatt, itrace, az);
-      st_intt8r(NTABLE, table, nz, dz, z0, az, 0., 0., nt, zt, at);
-      st_copy(1, db_t, iatt_t + iatt, itrace, at);
-    }
-  }
-}
 
-/****************************************************************************/
-/*!
- **  Resample from time to depth
- **
- ** \param[in]  db_t     Time Db
- ** \param[in]  iatt_t   Address of the first variable of the Time Db
- ** \param[in]  nt       Number of meshes of the Time Db
- ** \param[in]  t0       First Time
- ** \param[in]  t1       Last Time
- ** \param[in]  dt       Mesh of the Time Db
- ** \param[in]  db_z     Depth Db
- ** \param[in]  iatt_z   Address of the first variable of the Depth Db
- ** \param[in]  nz       Number of meshes of the Depth Db
- ** \param[in]  z0       First Depth
- ** \param[in]  z1       Last Depth
- ** \param[in]  dz       Mesh of the Depth Db
- ** \param[in]  db_v     Velocity Db
- ** \param[in]  iatt_v   Address of the velocity variable in Depth Db
- ** \param[in]  natt     Number of seismic attributes
- **
- ** \param[out] tz       Working array (dimension: nt)
- ** \param[out] zt       Working array (dimension: nz)
- ** \param[out] at       Working array (dimension: nt)
- ** \param[out] az       Working array (dimension: nz)
- **
- ** \remark Linear interpolation and constant extrapolation is used to
- ** \remark determine interval velocities at times not specified.
- **
- *****************************************************************************/
-static void st_seismic_t2z_convert(DbGrid* db_t,
-                                   Id iatt_t,
-                                   Id nt,
-                                   double t0,
-                                   double t1,
-                                   double dt,
-                                   DbGrid* db_z,
-                                   Id iatt_z,
-                                   Id nz,
-                                   double z0,
-                                   double z1,
-                                   double dz,
-                                   DbGrid* db_v,
-                                   Id iatt_v,
-                                   Id natt,
-                                   double* tz,
-                                   double* zt,
-                                   double* at,
-                                   double* az)
-{
-  double z, vt0, vt1, table[NTABLE][LTABLE];
-  Id itrace, it, iz, iatt;
+      /* determine pointers into table and yin */
+      sum = 0.;
+      xoutn = xoutb + xout[ixout] / dxin;
+      ixoutn = static_cast<Id>(xoutn);
+      kyin = ioutb + ixoutn;
+      frac = xoutn - static_cast<double>(ixoutn);
+      ktable = static_cast<Id>(
+        (frac >= 0.0) ? frac * fntablem1 + 0.5
+                      : (frac + 1.0) * fntablem1 - 0.5);
 
-  /* Calculate the interpolation weights */
+      /* if totally within input array, use fast method */
+      if (kyin >= 0 && kyin <= nxinm8)
+      {
+        sum =
+          yin[kyin + 0] * table[ktable][0] + yin[kyin + 1] * table[ktable][1]
+          + yin[kyin + 2] * table[ktable][2] + yin[kyin + 3] * table[ktable][3]
+          + yin[kyin + 4] * table[ktable][4] + yin[kyin + 5] * table[ktable][5]
+          + yin[kyin + 6] * table[ktable][6] + yin[kyin + 7] * table[ktable][7];
 
-  st_weights(table);
+        /* else handle end effects with care */
+      }
+      else
+      {
 
-  /* Loop on the vertical traces */
-
-  for (itrace = 0; itrace < NTRACE; itrace++)
-  {
-
-    /* Transform v(t) into z(t) */
-
-    zt[0] = t0 * VV(itrace, 0) / 2.;
-    for (it = 1; it < nt; it++)
-      zt[it] = zt[it - 1] + dt * VV(itrace, it - 1) / 2.;
-
-    /* Transform z(t) into t(z) */
-
-    vt0 = VV(itrace, 0);
-    vt1 = VV(itrace, nt - 1);
-    st_yxtoxy(nt, dt, t0, zt, nz, dz, z0, 0., 0., tz);
-
-    /* for z values before z0, use first velocity to calculate t(z) */
-    for (iz = 0, z = z0; z <= zt[0]; iz++, z += dz)
-      tz[iz] = 2. * z / vt0;
-
-    /* for z values from z1 down, calculate t(z) */
-    for (iz = nz - 1, z = z1; z >= zt[nt - 1]; iz--, z -= dz)
-      tz[iz] = t1 + 2. * (z - zt[nt - 1]) / vt1;
-
-    /* Convert attributes from Time to Depth */
-
-    for (iatt = 0; iatt < natt; iatt++)
-    {
-      st_copy(0, db_t, iatt_t + iatt, itrace, at);
-      st_intt8r(NTABLE, table, nt, dt, t0, at, 0., 0., nz, tz, az);
-      st_copy(1, db_z, iatt_z + iatt, itrace, az);
-    }
-  }
-}
-
-/****************************************************************************/
-/*!
- **  Local function to read the Data Base
- **
- ** \return  Returned value
- **
- ** \param[in]  db        Db structure
- ** \param[in]  iatt_in   Address of the first input attribute
- ** \param[in]  iatt      Rank of the internal attribute
- ** \param[in]  itrace    Rank of the trace
- ** \param[in]  it        Rank of the sample on the trace
- **
- *****************************************************************************/
-static double TR_IN(Db* db, Id iatt_in, Id iatt, Id itrace, Id it)
-{
-  return (db->getArray(iatt_in + iatt, NTRACE * (it) + (itrace)));
-}
-
-/****************************************************************************/
-/*!
- **  Local function to write into the Data Base
- **
- ** \param[in]  db        Db structure
- ** \param[in]  iatt_out  Address of the first input attribute
- ** \param[in]  iatt      Rank of the internal attribute
- ** \param[in]  itr       Rank of the trace
- ** \param[in]  it        Rank of the sample on the trace
- ** \param[in]  value     Value to be stored
- **
- *****************************************************************************/
-static void TR_OUT(Db* db,
-                   Id iatt_out,
-                   Id iatt,
-                   Id itr,
-                   Id it,
-                   double value)
-{
-  db->setArray(iatt_out + iatt, NTRACE * (it) + (itr), value);
-}
-
-/****************************************************************************/
-/*!
- **  Do unary arithmetic operation on traces
- **
- ** \return  Error return code
- **
- ** \param[in]  db        Db structure
- ** \param[in]  oper      Operator flag (ENUM_SEISMICS)
- ** \param[in]  natt      Number of seismic attributes
- ** \param[in]  nt        Number of samples on input trace
- ** \param[in]  iatt_in   Address of the first input attribute
- ** \param[in]  iatt_out  Address of the first output attribute
- ** \param[in]  dt        time sampling interval
- **
- ** \remark Operations inv, slog and slog10 are "punctuated", meaning that if,
- ** \remark the input contains 0 values, 0 values are returned.
- **
- *****************************************************************************/
-static Id st_seismic_operate(Db* db,
-                             Id oper,
-                             Id natt,
-                             Id nt,
-                             Id iatt_in,
-                             Id iatt_out,
-                             double dt)
-{
-  Id it, iatt, itrace, count;
-  double x, y, max, denom, sum;
-
-  /* Dispatch */
-
-  for (itrace = 0; itrace < NTRACE; itrace++)
-  {
-    switch (oper)
-    {
-      case SEISMIC_NOP:
-        break;
-
-      case SEISMIC_FABS:
-        for (iatt = 0; iatt < natt; iatt++)
-          for (it = 0; it < nt; it++)
-          {
-            x = TR_IN(db, iatt_in, iatt, itrace, it);
-            TR_OUT(db, iatt_out, iatt, itrace, it,
-                   (FFFF(x)) ? TEST : ABS(TR_IN(db, iatt_in, iatt, itrace, it)));
-          }
-        break;
-
-      case SEISMIC_SSQRT:
-        for (iatt = 0; iatt < natt; iatt++)
-          for (it = 0; it < nt; it++)
-          {
-            x = TR_IN(db, iatt_in, iatt, itrace, it);
-            TR_OUT(db, iatt_out, iatt, itrace, it,
-                   FFFF(x) ? TEST : SIGN(x, sqrt(ABS(x))));
-          }
-        break;
-
-      case SEISMIC_SQR:
-        for (iatt = 0; iatt < natt; iatt++)
-          for (it = 0; it < nt; it++)
-          {
-            x = TR_IN(db, iatt_in, iatt, itrace, it);
-            TR_OUT(db, iatt_out, iatt, itrace, it, (FFFF(x)) ? TEST : x * x);
-          }
-        break;
-
-      case SEISMIC_SSQR:
-        for (iatt = 0; iatt < natt; iatt++)
-          for (it = 0; it < nt; it++)
-          {
-            x = TR_IN(db, iatt_in, iatt, itrace, it);
-            TR_OUT(db, iatt_out, iatt, itrace, it, (FFFF(x)) ? TEST : SIGN(x, x * x));
-          }
-        break;
-
-      case SEISMIC_SIGN:
-        for (iatt = 0; iatt < natt; iatt++)
-          for (it = 0; it < nt; it++)
-          {
-            x = TR_IN(db, iatt_in, iatt, itrace, it);
-            TR_OUT(db, iatt_out, iatt, itrace, it, (FFFF(x)) ? TEST : SIGN(x, 1));
-          }
-        break;
-
-      case SEISMIC_EXP:
-        for (iatt = 0; iatt < natt; iatt++)
-          for (it = 0; it < nt; it++)
-          {
-            x = TR_IN(db, iatt_in, iatt, itrace, it);
-            TR_OUT(db, iatt_out, iatt, itrace, it, (FFFF(x)) ? TEST : exp(x));
-          }
-        break;
-
-      case SEISMIC_SLOG:
-        for (iatt = 0; iatt < natt; iatt++)
-          for (it = 0; it < nt; it++)
-          {
-            x = TR_IN(db, iatt_in, iatt, itrace, it);
-            TR_OUT(db, iatt_out, iatt, itrace, it,
-                   (FFFF(x) || ABS(x) <= 0) ? TEST : SIGN(x, log(ABS(x))));
-          }
-        break;
-
-      case SEISMIC_SLOG10:
-        for (iatt = 0; iatt < natt; iatt++)
-          for (it = 0; it < nt; it++)
-          {
-            x = TR_IN(db, iatt_in, iatt, itrace, it);
-            TR_OUT(db, iatt_out, iatt, itrace, it,
-                   (FFFF(x) || ABS(x) <= 0) ? TEST : SIGN(x, log10(ABS(x))));
-          }
-        break;
-
-      case SEISMIC_COS:
-        for (iatt = 0; iatt < natt; iatt++)
-          for (it = 0; it < nt; it++)
-          {
-            x = TR_IN(db, iatt_in, iatt, itrace, it);
-            TR_OUT(db, iatt_out, iatt, itrace, it, (FFFF(x)) ? TEST : cos(x));
-          }
-        break;
-
-      case SEISMIC_SIN:
-        for (iatt = 0; iatt < natt; iatt++)
-          for (it = 0; it < nt; it++)
-            TR_OUT(db, iatt_out, iatt, itrace, it,
-                   sin(TR_IN(db, iatt_in, iatt, itrace, it)));
-        break;
-
-      case SEISMIC_TAN:
-        for (iatt = 0; iatt < natt; iatt++)
-          for (it = 0; it < nt; it++)
-          {
-            x = TR_IN(db, iatt_in, iatt, itrace, it);
-            TR_OUT(db, iatt_out, iatt, itrace, it, (FFFF(x)) ? TEST : tan(x));
-          }
-        break;
-
-      case SEISMIC_COSH:
-        for (iatt = 0; iatt < natt; iatt++)
-          for (it = 0; it < nt; it++)
-          {
-            x = TR_IN(db, iatt_in, iatt, itrace, it);
-            TR_OUT(db, iatt_out, iatt, itrace, it, (FFFF(x)) ? TEST : cosh(x));
-          }
-        break;
-
-      case SEISMIC_SINH:
-        for (iatt = 0; iatt < natt; iatt++)
-          for (it = 0; it < nt; it++)
-          {
-            x = TR_IN(db, iatt_in, iatt, itrace, it);
-            TR_OUT(db, iatt_out, iatt, itrace, it, (FFFF(x)) ? TEST : sinh(x));
-          }
-        break;
-
-      case SEISMIC_TANH:
-        for (iatt = 0; iatt < natt; iatt++)
-          for (it = 0; it < nt; it++)
-          {
-            x = TR_IN(db, iatt_in, iatt, itrace, it);
-            TR_OUT(db, iatt_out, iatt, itrace, it, (FFFF(x)) ? TEST : tanh(x));
-          }
-        break;
-
-      case SEISMIC_NORM:
-        for (iatt = 0; iatt < natt; iatt++)
+        /* sum over 8 tabulated coefficients */
+        for (itable = 0; itable < 8; itable++, kyin++)
         {
-          max = 0.0;
-          for (it = 0; it < nt; it++)
-          {
-            x = ABS(TR_IN(db, iatt_in, iatt, itrace, it));
-            if (!FFFF(x) && max < x) max = x;
-          }
-          if (max != 0.0)
+          if (kyin < 0)
+            yini = yinl;
+          else if (kyin >= nxin)
+            yini = yinr;
+          else
+            yini = yin[kyin];
+          sum += yini * table[ktable][itable];
+        }
+      }
+      yout[ixout] = sum;
+    }
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Interpolation of a uniformly-sampled real function y(x) via a
+   **  table of 8-coefficient sinc approximations
+   **
+   ** \param[out]  table array of weights
+   **
+   *****************************************************************************/
+  static void st_weights(double table[][LTABLE])
+
+  {
+    Id jtable;
+    double frac;
+
+    /* Tabulate sinc interpolation coefficients */
+
+    for (jtable = 1; jtable < NTABLE - 1; jtable++)
+    {
+      frac = static_cast<double>(jtable) / static_cast<double>(NTABLE - 1);
+      st_mksinc(frac, LTABLE, &table[jtable][0]);
+    }
+    for (jtable = 0; jtable < LTABLE; jtable++)
+    {
+      table[0][jtable] = 0.0;
+      table[NTABLE - 1][jtable] = 0.0;
+    }
+    table[0][LTABLE / 2 - 1] = 1.0;
+    table[NTABLE - 1][LTABLE / 2] = 1.0;
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Debugging printout for the seismic time-to-depth conversion
+   **
+   ** \param[in]  rankz   Rank for Depth (0 for Input; 1 for Output)
+   ** \param[in]  nz      number of depth samples
+   ** \param[in]  z0      first depth value
+   ** \param[in]  dz      depth sampling interval
+   ** \param[in]  rankt   Rank for Time (0 for Input; 1 for Output)
+   ** \param[in]  nt      number of time samples
+   ** \param[in]  t0      first time value
+   ** \param[in]  dt      time sampling interval
+   ** \param[in]  vmin    Minimum velocity value
+   ** \param[in]  vmax    Maximum velocity value
+   **
+   ****************************************************************************/
+  static void st_seismic_debug(
+    Id rankz,
+    Id nz,
+    double z0,
+    double dz,
+    Id rankt,
+    Id nt,
+    double t0,
+    double dt,
+    double vmin,
+    double vmax)
+  {
+    Id i;
+
+    for (i = 0; i < 2; i++)
+    {
+      if (i == 0)
+        message("Input:\n");
+      else
+        message("Output:\n");
+
+      if (i == rankz)
+      {
+        message("\tNumber of depth samples = %d\n", nz);
+        message("\tDepth sampling interval = %g (m)\n", dz);
+        message("\tDepth of first sample   = %g (m)\n", z0);
+        message("\tDepth of last sample    = %g (m)\n", z0 + (nz - 1) * dz);
+      }
+
+      if (i == rankt)
+      {
+        message("\tNumber of time samples = %d\n", nt);
+        message("\tTime sampling interval = %g (ms)\n", dt);
+        message("\tTime of first sample   = %g (ms)\n", t0);
+        message("\tTime of last sample    = %g (ms)\n", t0 + (nt - 1) * dt);
+      }
+      if (i == 0)
+      {
+        message("Velocity:\n");
+        message("\tMinimum value          = %g (m/s)\n", vmin);
+        message("\tMaximum value          = %g (m/s)\n", vmax);
+      }
+    }
+    message("\n");
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Define the Time Grid characteristics from the Depth Grid
+   **
+   ** \return  Error return code
+   **
+   ** \param[in]  verbose Verbose flag
+   ** \param[in]  db_z    Depth Grid structure
+   ** \param[in]  iatt_v  Attribute address of the Velocity (Id Depth Grid)
+   **
+   ** \param[out] nx      Number of grid nodes along each direction
+   ** \param[out] x0      Origin of the grid along each direction
+   ** \param[out] dx      Mesh of the grid along each direction
+   **
+   *****************************************************************************/
+  Id seismic_z2t_grid(
+    Id verbose,
+    DbGrid* db_z,
+    Id iatt_v,
+    Id* nx,
+    double* x0,
+    double* dx)
+  {
+    double z0, t0, v0, v1, dz, dt, vmin, vmax;
+    Id ndim, nech, nt, nz, i;
+
+    /* Initializations */
+
+    if (!db_z->isGrid())
+    {
+      messerr("This procedure requires an input Grid Db");
+      return 1;
+    }
+    ndim = db_z->getNDim();
+    nech = db_z->getNSample();
+
+    /* Core allocation */
+
+    for (i = 0; i < ndim; i++)
+    {
+      nx[i] = db_z->getNX(i);
+      dx[i] = db_z->getDX(i);
+      x0[i] = db_z->getX0(i);
+    }
+
+    /* Read the velocity variable */
+
+    VectorDouble vv = db_z->getColumnByUID(iatt_v);
+    if (st_velocity_minmax(nech, vv.data(), &v0, &v1, &vmin, &vmax)) return 1;
+
+    /* Update the vertical direction */
+
+    nz = db_z->getNX(ndim - 1);
+    z0 = db_z->getX0(ndim - 1);
+    dz = db_z->getDX(ndim - 1);
+    dt = 2. * dz / vmin;
+    t0 = 2. * z0 / v0;
+    nt = static_cast<Id>(1 + (nz - 1) * (2. * dz) / (dt * vmax));
+    dt *= VFACT;
+    t0 *= VFACT;
+    dx[ndim - 1] = dt;
+    x0[ndim - 1] = t0;
+    nx[ndim - 1] = nt;
+
+    /* Optional printout */
+
+    if (verbose) st_seismic_debug(0, nz, z0, dz, 1, nt, t0, dt, vmin, vmax);
+
+    return 0;
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Define the Depth Grid characteristics from the Time Grid
+   **
+   ** \return  Error return code
+   **
+   ** \param[in]  verbose Verbose flag
+   ** \param[in]  db_t    Time Grid structure
+   ** \param[in]  iatt_v  Attribute address of the Velocity (in Time grid)
+   **
+   ** \param[out] nx      Number of grid nodes along each direction
+   ** \param[out] x0      Origin of the grid along each direction
+   ** \param[out] dx      Mesh of the grid along each direction
+   **
+   *****************************************************************************/
+  Id seismic_t2z_grid(
+    Id verbose,
+    DbGrid* db_t,
+    Id iatt_v,
+    Id* nx,
+    double* x0,
+    double* dx)
+  {
+    double z0, t0, v0, v1, dz, dt, vmin, vmax;
+    Id ndim, nech, nt, nz, i;
+
+    /* Initializations */
+
+    if (!db_t->isGrid())
+    {
+      messerr("This procedure requires an input Grid Db");
+      return (1);
+    }
+    ndim = db_t->getNDim();
+    nech = db_t->getNSample();
+
+    /* Core allocation */
+
+    for (i = 0; i < ndim; i++)
+    {
+      nx[i] = db_t->getNX(i);
+      dx[i] = db_t->getDX(i);
+      x0[i] = db_t->getX0(i);
+    }
+
+    /* Read the velocity variable */
+
+    VectorDouble vv = db_t->getColumnByUID(iatt_v);
+    if (st_velocity_minmax(nech, vv.data(), &v0, &v1, &vmin, &vmax)) return 1;
+
+    /* Update the vertical direction */
+
+    nt = db_t->getNX(ndim - 1);
+    t0 = db_t->getX0(ndim - 1);
+    dt = db_t->getDX(ndim - 1);
+    dz = vmin * dt / 2.;
+    z0 = v0 * t0 / 2.;
+    nz = static_cast<Id>(1 + (nt - 1) * (dt * vmax) / (2. * dz));
+    dz /= VFACT;
+    z0 /= VFACT;
+    dx[ndim - 1] = dz;
+    x0[ndim - 1] = z0;
+    nx[ndim - 1] = nz;
+
+    /* Optional printout */
+
+    if (verbose) st_seismic_debug(1, nz, z0, dz, 0, nt, t0, dt, vmin, vmax);
+
+    return 0;
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Copy a trace between the Db and a given array
+   **
+   ** \param[in]  mode  Type of operation
+   ** \li               0 : Copy from Db into array
+   ** \li               1 : Copy from array into Db
+   ** \param[in]  db    Db structure
+   ** \param[in]  iatt  Rank of the variable
+   ** \param[in]  ival  Rank of the column
+   ** \param[in]  tab   Array containing the column of values
+   **
+   *****************************************************************************/
+  static void st_copy(Id mode, DbGrid* db, Id iatt, Id ival, double* tab)
+  {
+    Id ndim = db->getNDim();
+    Id nech = db->getNSample();
+    Id nval = db->getNX(ndim - 1);
+    Id nby = nech / nval;
+
+    /* Dispatch */
+
+    switch (mode)
+    {
+      case 0: /* Copy from Db into array */
+        for (Id i = 0; i < nval; i++)
+          tab[i] = db->getArray(nby * i + ival, iatt);
+        break;
+
+      case 1: /* Copy from array into Db */
+        for (Id i = 0; i < nval; i++)
+          db->setArray(iatt + nby * i + ival, iatt, tab[i]);
+        break;
+    }
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Check that the Depth and Time grid coincide
+   **
+   ** \return  1 if the two files coincide; 0 otherwise
+   **
+   ** \param[in]  db_z    Depth Grid structure
+   ** \param[in]  db_t    Time Grid structure (optional)
+   **
+   ** \remark  In case of error, a message is displayed
+   **
+   *****************************************************************************/
+  static Id st_match(DbGrid* db_z, DbGrid* db_t)
+  {
+    Id idim, ndim, nech, nz, error;
+
+    /* Initializations */
+
+    NTRACE = 0;
+    error = 1;
+    nech = db_z->getNSample();
+    ndim = db_z->getNDim();
+    nz = db_z->getNX(ndim - 1);
+
+    /* Check the grid characteristics */
+
+    if (db_t != nullptr)
+    {
+      if (!db_t->isSameGrid(db_z->getGrid())) goto label_end;
+    }
+
+    /* Set the error return code */
+
+    error = 0;
+
+  label_end:
+    if (error)
+    {
+      messerr("Error for one of the following reasons:");
+      messerr(
+        "- Different space dimensions: Depth(%d) - Time(%d)", db_z->getNDim(),
+        db_t->getNDim());
+      for (idim = 0; idim < ndim - 1; idim++)
+      {
+        messerr(
+          "- Number of mesh (axe #%d): Depth(%d) - Time(%d)", db_z->getNX(idim),
+          db_t->getNX(idim));
+        messerr(
+          "- Origin of the Grid (axe #%d): Depth(%d) - Time(%d)",
+          db_z->getX0(idim), db_t->getX0(idim));
+        messerr(
+          "- Mesh of the Grid (axe #%d): Depth(%d) - Time(%d)",
+          db_z->getDX(idim), db_t->getDX(idim));
+      }
+    }
+    else
+      NTRACE = nech / nz;
+
+    return (error);
+  }
+
+  /****************************************************************************/
+  /*!
+  **  Resample from depth to time
+  **
+  ** \param[in]  db_z     Depth Db
+  ** \param[in]  iatt_z   Address of the first variable of the Depth Db
+  ** \param[in]  nz       Number of meshes of the Depth Db
+  ** \param[in]  z0       First Depth
+  ** \param[in]  dz       Mesh of the Depth Db
+  ** \param[in]  db_t     Time Db
+  ** \param[in]  iatt_t   Address of the first variable of the Time Db
+  ** \param[in]  nt       Number of meshes of the Time Db
+  ** \param[in]  t0       First Time
+  ** \param[in]  t1       Last Time
+  ** \param[in]  dt       Mesh of the Time Db
+  ** \param[in]  db_v     Velocity Db
+  ** \param[in]  iatt_v   Address of the velocity variable in Depth Db
+  ** \param[in]  natt     Number of seismic attributes
+  **
+  ** \param[out] tz       Working array (dimension: nt)
+  ** \param[out] zt       Working array (dimension: nz)
+  ** \param[out] at       Working array (dimension: nt)
+  ** \param[out] az       Working array (dimension: nz)
+  **
+  ** \remark Linear interpolation and constant extrapolation is used to
+  ** \remark determine interval velocities at times not specified.
+  **
+  *****************************************************************************/
+  static void st_seismic_z2t_convert(
+    DbGrid* db_z,
+    Id iatt_z,
+    Id nz,
+    double z0,
+    double /*z1*/,
+    double dz,
+    DbGrid* db_t,
+    Id iatt_t,
+    Id nt,
+    double t0,
+    double t1,
+    double dt,
+    DbGrid* db_v,
+    Id iatt_v,
+    Id natt,
+    double* tz,
+    double* zt,
+    double* at,
+    double* az)
+  {
+    double t, vz0, vz1, table[NTABLE][LTABLE];
+    Id itrace, iz, it, iatt;
+
+    /* Calculate the interpolation weights */
+
+    st_weights(table);
+
+    /* Loop on the vertical lines */
+
+    for (itrace = 0; itrace < NTRACE; itrace++)
+    {
+
+      /* Transform v(z) into t(z) */
+
+      tz[0] = 2. * z0 / VV(itrace, 0);
+      for (iz = 1; iz < nz; ++iz)
+        tz[iz] = tz[iz - 1] + 2. * dz / VV(itrace, iz - 1);
+
+      /* Transform t(z) into z(t) */
+
+      vz0 = VV(itrace, 0);
+      vz1 = VV(itrace, nz - 1);
+      st_yxtoxy(nz, dz, z0, tz, nt, dt, t0, 0., 0., zt);
+
+      /* for t values before t0, use first velocity to calculate z(t) */
+      for (it = 0, t = t0; t <= tz[0]; ++it, t += dt) zt[it] = vz0 * t / 2.;
+
+      /* for t values from t1 down, calculate z(t) */
+      for (it = nt - 1, t = t1; t >= tz[nz - 1]; it--, t -= dt)
+        zt[it] = vz1 * t1 / 2. + vz1 * (t - tz[nz - 1]) / 2.;
+
+      /* Convert attributes from Depth to Time */
+
+      for (iatt = 0; iatt < natt; iatt++)
+      {
+        st_copy(0, db_z, iatt_z + iatt, itrace, az);
+        st_intt8r(NTABLE, table, nz, dz, z0, az, 0., 0., nt, zt, at);
+        st_copy(1, db_t, iatt_t + iatt, itrace, at);
+      }
+    }
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Resample from time to depth
+   **
+   ** \param[in]  db_t     Time Db
+   ** \param[in]  iatt_t   Address of the first variable of the Time Db
+   ** \param[in]  nt       Number of meshes of the Time Db
+   ** \param[in]  t0       First Time
+   ** \param[in]  t1       Last Time
+   ** \param[in]  dt       Mesh of the Time Db
+   ** \param[in]  db_z     Depth Db
+   ** \param[in]  iatt_z   Address of the first variable of the Depth Db
+   ** \param[in]  nz       Number of meshes of the Depth Db
+   ** \param[in]  z0       First Depth
+   ** \param[in]  z1       Last Depth
+   ** \param[in]  dz       Mesh of the Depth Db
+   ** \param[in]  db_v     Velocity Db
+   ** \param[in]  iatt_v   Address of the velocity variable in Depth Db
+   ** \param[in]  natt     Number of seismic attributes
+   **
+   ** \param[out] tz       Working array (dimension: nt)
+   ** \param[out] zt       Working array (dimension: nz)
+   ** \param[out] at       Working array (dimension: nt)
+   ** \param[out] az       Working array (dimension: nz)
+   **
+   ** \remark Linear interpolation and constant extrapolation is used to
+   ** \remark determine interval velocities at times not specified.
+   **
+   *****************************************************************************/
+  static void st_seismic_t2z_convert(
+    DbGrid* db_t,
+    Id iatt_t,
+    Id nt,
+    double t0,
+    double t1,
+    double dt,
+    DbGrid* db_z,
+    Id iatt_z,
+    Id nz,
+    double z0,
+    double z1,
+    double dz,
+    DbGrid* db_v,
+    Id iatt_v,
+    Id natt,
+    double* tz,
+    double* zt,
+    double* at,
+    double* az)
+  {
+    double z, vt0, vt1, table[NTABLE][LTABLE];
+    Id itrace, it, iz, iatt;
+
+    /* Calculate the interpolation weights */
+
+    st_weights(table);
+
+    /* Loop on the vertical traces */
+
+    for (itrace = 0; itrace < NTRACE; itrace++)
+    {
+
+      /* Transform v(t) into z(t) */
+
+      zt[0] = t0 * VV(itrace, 0) / 2.;
+      for (it = 1; it < nt; it++)
+        zt[it] = zt[it - 1] + dt * VV(itrace, it - 1) / 2.;
+
+      /* Transform z(t) into t(z) */
+
+      vt0 = VV(itrace, 0);
+      vt1 = VV(itrace, nt - 1);
+      st_yxtoxy(nt, dt, t0, zt, nz, dz, z0, 0., 0., tz);
+
+      /* for z values before z0, use first velocity to calculate t(z) */
+      for (iz = 0, z = z0; z <= zt[0]; iz++, z += dz) tz[iz] = 2. * z / vt0;
+
+      /* for z values from z1 down, calculate t(z) */
+      for (iz = nz - 1, z = z1; z >= zt[nt - 1]; iz--, z -= dz)
+        tz[iz] = t1 + 2. * (z - zt[nt - 1]) / vt1;
+
+      /* Convert attributes from Time to Depth */
+
+      for (iatt = 0; iatt < natt; iatt++)
+      {
+        st_copy(0, db_t, iatt_t + iatt, itrace, at);
+        st_intt8r(NTABLE, table, nt, dt, t0, at, 0., 0., nz, tz, az);
+        st_copy(1, db_z, iatt_z + iatt, itrace, az);
+      }
+    }
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Local function to read the Data Base
+   **
+   ** \return  Returned value
+   **
+   ** \param[in]  db        Db structure
+   ** \param[in]  iatt_in   Address of the first input attribute
+   ** \param[in]  iatt      Rank of the internal attribute
+   ** \param[in]  itrace    Rank of the trace
+   ** \param[in]  it        Rank of the sample on the trace
+   **
+   *****************************************************************************/
+  static double TR_IN(Db* db, Id iatt_in, Id iatt, Id itrace, Id it)
+  {
+    return (db->getArray(iatt_in + iatt, NTRACE * (it) + (itrace)));
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Local function to write into the Data Base
+   **
+   ** \param[in]  db        Db structure
+   ** \param[in]  iatt_out  Address of the first input attribute
+   ** \param[in]  iatt      Rank of the internal attribute
+   ** \param[in]  itr       Rank of the trace
+   ** \param[in]  it        Rank of the sample on the trace
+   ** \param[in]  value     Value to be stored
+   **
+   *****************************************************************************/
+  static void TR_OUT(Db* db, Id iatt_out, Id iatt, Id itr, Id it, double value)
+  {
+    db->setArray(iatt_out + iatt, NTRACE * (it) + (itr), value);
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Do unary arithmetic operation on traces
+   **
+   ** \return  Error return code
+   **
+   ** \param[in]  db        Db structure
+   ** \param[in]  oper      Operator flag (ENUM_SEISMICS)
+   ** \param[in]  natt      Number of seismic attributes
+   ** \param[in]  nt        Number of samples on input trace
+   ** \param[in]  iatt_in   Address of the first input attribute
+   ** \param[in]  iatt_out  Address of the first output attribute
+   ** \param[in]  dt        time sampling interval
+   **
+   ** \remark Operations inv, slog and slog10 are "punctuated", meaning that if,
+   ** \remark the input contains 0 values, 0 values are returned.
+   **
+   *****************************************************************************/
+  static Id st_seismic_operate(
+    Db* db,
+    Id oper,
+    Id natt,
+    Id nt,
+    Id iatt_in,
+    Id iatt_out,
+    double dt)
+  {
+    Id it, iatt, itrace, count;
+    double x, y, max, denom, sum;
+
+    /* Dispatch */
+
+    for (itrace = 0; itrace < NTRACE; itrace++)
+    {
+      switch (oper)
+      {
+        case SEISMIC_NOP: break;
+
+        case SEISMIC_FABS:
+          for (iatt = 0; iatt < natt; iatt++)
             for (it = 0; it < nt; it++)
             {
               x = TR_IN(db, iatt_in, iatt, itrace, it);
-              TR_OUT(db, iatt_out, iatt, itrace, it, (FFFF(x)) ? TEST : x / max);
+              TR_OUT(
+                db, iatt_out, iatt, itrace, it,
+                (FFFF(x)) ? TEST : ABS(TR_IN(db, iatt_in, iatt, itrace, it)));
             }
-        }
-        break;
+          break;
 
-      case SEISMIC_DB:
-        for (iatt = 0; iatt < natt; iatt++)
-          for (it = 0; it < nt; it++)
-          {
-            x = TR_IN(db, iatt_in, iatt, itrace, it);
-            TR_OUT(db, iatt_out, iatt, itrace, it,
-                   (FFFF(TEST) || ABS(x) <= 0) ? TEST : 20.0 * SIGN(x, log10(ABS(x))));
-          }
-        break;
-
-      case SEISMIC_NEG:
-        for (iatt = 0; iatt < natt; iatt++)
-          for (it = 0; it < nt; it++)
-          {
-            x = TR_IN(db, iatt_in, iatt, itrace, it);
-            TR_OUT(db, iatt_out, iatt, itrace, it, (FFFF(x)) ? TEST : -x);
-          }
-        break;
-
-      case SEISMIC_ONLY_POS:
-        for (iatt = 0; iatt < natt; iatt++)
-          for (it = 0; it < nt; it++)
-          {
-            x = TR_IN(db, iatt_in, iatt, itrace, it);
-            TR_OUT(db, iatt_out, iatt, itrace, it, (FFFF(x) || x <= 0) ? TEST : x);
-          }
-        break;
-
-      case SEISMIC_ONLY_NEG:
-        for (iatt = 0; iatt < natt; iatt++)
-          for (it = 0; it < nt; it++)
-          {
-            x = TR_IN(db, iatt_in, iatt, itrace, it);
-            TR_OUT(db, iatt_out, iatt, itrace, it, (FFFF(x) || x >= 0) ? TEST : x);
-          }
-        break;
-
-      case SEISMIC_SUM:
-        for (iatt = 0; iatt < natt; iatt++)
-        {
-          for (it = 0; it < nt; it++)
-            TR_OUT(db, iatt_out, iatt, itrace, it,
-                   TR_IN(db, iatt_in, iatt, itrace, it));
-          for (it = 1; it < nt; it++)
-          {
-            x = TR_IN(db, iatt_in, iatt, itrace, it);
-            y = TR_IN(db, iatt_in, iatt, itrace, it - 1);
-            TR_OUT(db, iatt_out, iatt, itrace, it,
-                   (FFFF(x) || FFFF(y)) ? TEST : (x + y) * (2. * dt));
-          }
-        }
-        break;
-
-      case SEISMIC_DIFF:
-        for (iatt = 0; iatt < natt; iatt++)
-        {
-
-          /* do centered differences for the rest */
-          for (it = 2; it < nt - 2; it++)
-          {
-            x = TR_IN(db, iatt_in, iatt, itrace, it + 1);
-            y = TR_IN(db, iatt_in, iatt, itrace, it - 1);
-            TR_OUT(db, iatt_out, iatt, itrace, it,
-                   (FFFF(x) || FFFF(y)) ? TEST : (x - y) / (2. * dt));
-          }
-
-          /* simple difference for tr.data[0] */
-          x = TR_IN(db, iatt_in, iatt, itrace, 1);
-          y = TR_IN(db, iatt_in, iatt, itrace, 0);
-          TR_OUT(db, iatt_out, iatt, itrace, 0,
-                 (FFFF(x) || FFFF(y)) ? TEST : (x - y) / dt);
-          x = TR_IN(db, iatt_in, iatt, itrace, nt - 1);
-          y = TR_IN(db, iatt_in, iatt, itrace, nt - 2);
-          TR_OUT(db, iatt_out, iatt, itrace, nt - 1,
-                 (FFFF(x) || FFFF(y)) ? TEST : (x - y) / dt);
-
-          /* centered difference for tr.data[1] */
-          x = TR_IN(db, iatt_in, iatt, itrace, 2);
-          y = TR_IN(db, iatt_in, iatt, itrace, 0);
-          TR_OUT(db, iatt_out, iatt, itrace, 1,
-                 (FFFF(x) || FFFF(y)) ? TEST : (x - y) / (2. * dt));
-          x = TR_IN(db, iatt_in, iatt, itrace, nt - 1);
-          y = TR_IN(db, iatt_in, iatt, itrace, nt - 3);
-          TR_OUT(db, iatt_out, iatt, itrace, nt - 2,
-                 (FFFF(x) || FFFF(y)) ? TEST : (x - y) / (2. * dt));
-        }
-        break;
-
-      case SEISMIC_REFL:
-        for (iatt = 0; iatt < natt; iatt++)
-        {
-          for (it = nt - 1; it > 0; --it)
-          {
-            x = TR_IN(db, iatt_in, iatt, itrace, it);
-            y = TR_IN(db, iatt_in, iatt, itrace, it - 1);
-            if (FFFF(x) || FFFF(y))
-              TR_OUT(db, iatt_out, iatt, itrace, it, TEST);
-            else
+        case SEISMIC_SSQRT:
+          for (iatt = 0; iatt < natt; iatt++)
+            for (it = 0; it < nt; it++)
             {
-              denom = (x + y);
-              TR_OUT(db, iatt_out, iatt, itrace, it,
-                     (denom == 0.) ? TEST : (x - y) / denom);
+              x = TR_IN(db, iatt_in, iatt, itrace, it);
+              TR_OUT(
+                db, iatt_out, iatt, itrace, it,
+                FFFF(x) ? TEST : SIGN(x, sqrt(ABS(x))));
             }
-          }
-          TR_OUT(db, iatt_out, iatt, itrace, 0, TEST);
-        }
-        break;
+          break;
 
-      case SEISMIC_MOD_2PI:
-        for (iatt = 0; iatt < natt; iatt++)
-          for (it = 0; it < nt; it++)
-          {
-            x = TR_IN(db, iatt_in, iatt, itrace, it);
-            if (FFFF(x))
-              TR_OUT(db, iatt_out, iatt, itrace, it, TEST);
-            else
+        case SEISMIC_SQR:
+          for (iatt = 0; iatt < natt; iatt++)
+            for (it = 0; it < nt; it++)
             {
-              y = x;
-              while (y < 0)
-                y += 2. * GV_PI;
-              while (y >= 2. * GV_PI)
-                y -= 2. * GV_PI;
-              TR_OUT(db, iatt_out, iatt, itrace, it, y);
+              x = TR_IN(db, iatt_in, iatt, itrace, it);
+              TR_OUT(db, iatt_out, iatt, itrace, it, (FFFF(x)) ? TEST : x * x);
+            }
+          break;
+
+        case SEISMIC_SSQR:
+          for (iatt = 0; iatt < natt; iatt++)
+            for (it = 0; it < nt; it++)
+            {
+              x = TR_IN(db, iatt_in, iatt, itrace, it);
+              TR_OUT(
+                db, iatt_out, iatt, itrace, it,
+                (FFFF(x)) ? TEST : SIGN(x, x * x));
+            }
+          break;
+
+        case SEISMIC_SIGN:
+          for (iatt = 0; iatt < natt; iatt++)
+            for (it = 0; it < nt; it++)
+            {
+              x = TR_IN(db, iatt_in, iatt, itrace, it);
+              TR_OUT(
+                db, iatt_out, iatt, itrace, it, (FFFF(x)) ? TEST : SIGN(x, 1));
+            }
+          break;
+
+        case SEISMIC_EXP:
+          for (iatt = 0; iatt < natt; iatt++)
+            for (it = 0; it < nt; it++)
+            {
+              x = TR_IN(db, iatt_in, iatt, itrace, it);
+              TR_OUT(db, iatt_out, iatt, itrace, it, (FFFF(x)) ? TEST : exp(x));
+            }
+          break;
+
+        case SEISMIC_SLOG:
+          for (iatt = 0; iatt < natt; iatt++)
+            for (it = 0; it < nt; it++)
+            {
+              x = TR_IN(db, iatt_in, iatt, itrace, it);
+              TR_OUT(
+                db, iatt_out, iatt, itrace, it,
+                (FFFF(x) || ABS(x) <= 0) ? TEST : SIGN(x, log(ABS(x))));
+            }
+          break;
+
+        case SEISMIC_SLOG10:
+          for (iatt = 0; iatt < natt; iatt++)
+            for (it = 0; it < nt; it++)
+            {
+              x = TR_IN(db, iatt_in, iatt, itrace, it);
+              TR_OUT(
+                db, iatt_out, iatt, itrace, it,
+                (FFFF(x) || ABS(x) <= 0) ? TEST : SIGN(x, log10(ABS(x))));
+            }
+          break;
+
+        case SEISMIC_COS:
+          for (iatt = 0; iatt < natt; iatt++)
+            for (it = 0; it < nt; it++)
+            {
+              x = TR_IN(db, iatt_in, iatt, itrace, it);
+              TR_OUT(db, iatt_out, iatt, itrace, it, (FFFF(x)) ? TEST : cos(x));
+            }
+          break;
+
+        case SEISMIC_SIN:
+          for (iatt = 0; iatt < natt; iatt++)
+            for (it = 0; it < nt; it++)
+              TR_OUT(
+                db, iatt_out, iatt, itrace, it,
+                sin(TR_IN(db, iatt_in, iatt, itrace, it)));
+          break;
+
+        case SEISMIC_TAN:
+          for (iatt = 0; iatt < natt; iatt++)
+            for (it = 0; it < nt; it++)
+            {
+              x = TR_IN(db, iatt_in, iatt, itrace, it);
+              TR_OUT(db, iatt_out, iatt, itrace, it, (FFFF(x)) ? TEST : tan(x));
+            }
+          break;
+
+        case SEISMIC_COSH:
+          for (iatt = 0; iatt < natt; iatt++)
+            for (it = 0; it < nt; it++)
+            {
+              x = TR_IN(db, iatt_in, iatt, itrace, it);
+              TR_OUT(
+                db, iatt_out, iatt, itrace, it, (FFFF(x)) ? TEST : cosh(x));
+            }
+          break;
+
+        case SEISMIC_SINH:
+          for (iatt = 0; iatt < natt; iatt++)
+            for (it = 0; it < nt; it++)
+            {
+              x = TR_IN(db, iatt_in, iatt, itrace, it);
+              TR_OUT(
+                db, iatt_out, iatt, itrace, it, (FFFF(x)) ? TEST : sinh(x));
+            }
+          break;
+
+        case SEISMIC_TANH:
+          for (iatt = 0; iatt < natt; iatt++)
+            for (it = 0; it < nt; it++)
+            {
+              x = TR_IN(db, iatt_in, iatt, itrace, it);
+              TR_OUT(
+                db, iatt_out, iatt, itrace, it, (FFFF(x)) ? TEST : tanh(x));
+            }
+          break;
+
+        case SEISMIC_NORM:
+          for (iatt = 0; iatt < natt; iatt++)
+          {
+            max = 0.0;
+            for (it = 0; it < nt; it++)
+            {
+              x = ABS(TR_IN(db, iatt_in, iatt, itrace, it));
+              if (!FFFF(x) && max < x) max = x;
+            }
+            if (max != 0.0)
+              for (it = 0; it < nt; it++)
+              {
+                x = TR_IN(db, iatt_in, iatt, itrace, it);
+                TR_OUT(
+                  db, iatt_out, iatt, itrace, it, (FFFF(x)) ? TEST : x / max);
+              }
+          }
+          break;
+
+        case SEISMIC_DB:
+          for (iatt = 0; iatt < natt; iatt++)
+            for (it = 0; it < nt; it++)
+            {
+              x = TR_IN(db, iatt_in, iatt, itrace, it);
+              TR_OUT(
+                db, iatt_out, iatt, itrace, it,
+                (FFFF(TEST) || ABS(x) <= 0) ? TEST
+                                            : 20.0 * SIGN(x, log10(ABS(x))));
+            }
+          break;
+
+        case SEISMIC_NEG:
+          for (iatt = 0; iatt < natt; iatt++)
+            for (it = 0; it < nt; it++)
+            {
+              x = TR_IN(db, iatt_in, iatt, itrace, it);
+              TR_OUT(db, iatt_out, iatt, itrace, it, (FFFF(x)) ? TEST : -x);
+            }
+          break;
+
+        case SEISMIC_ONLY_POS:
+          for (iatt = 0; iatt < natt; iatt++)
+            for (it = 0; it < nt; it++)
+            {
+              x = TR_IN(db, iatt_in, iatt, itrace, it);
+              TR_OUT(
+                db, iatt_out, iatt, itrace, it, (FFFF(x) || x <= 0) ? TEST : x);
+            }
+          break;
+
+        case SEISMIC_ONLY_NEG:
+          for (iatt = 0; iatt < natt; iatt++)
+            for (it = 0; it < nt; it++)
+            {
+              x = TR_IN(db, iatt_in, iatt, itrace, it);
+              TR_OUT(
+                db, iatt_out, iatt, itrace, it, (FFFF(x) || x >= 0) ? TEST : x);
+            }
+          break;
+
+        case SEISMIC_SUM:
+          for (iatt = 0; iatt < natt; iatt++)
+          {
+            for (it = 0; it < nt; it++)
+              TR_OUT(
+                db, iatt_out, iatt, itrace, it,
+                TR_IN(db, iatt_in, iatt, itrace, it));
+            for (it = 1; it < nt; it++)
+            {
+              x = TR_IN(db, iatt_in, iatt, itrace, it);
+              y = TR_IN(db, iatt_in, iatt, itrace, it - 1);
+              TR_OUT(
+                db, iatt_out, iatt, itrace, it,
+                (FFFF(x) || FFFF(y)) ? TEST : (x + y) * (2. * dt));
             }
           }
-        break;
+          break;
 
-      case SEISMIC_INV:
-        for (iatt = 0; iatt < natt; iatt++)
-          for (it = 0; it < nt; it++)
+        case SEISMIC_DIFF:
+          for (iatt = 0; iatt < natt; iatt++)
           {
-            x = TR_IN(db, iatt_in, iatt, itrace, it);
-            TR_OUT(db, iatt_out, iatt, itrace, it,
-                   (FFFF(x) || x == 0.) ? TEST : 1. / x);
-          }
-        break;
 
-      case SEISMIC_AVG:
-        for (iatt = 0; iatt < natt; iatt++)
+            /* do centered differences for the rest */
+            for (it = 2; it < nt - 2; it++)
+            {
+              x = TR_IN(db, iatt_in, iatt, itrace, it + 1);
+              y = TR_IN(db, iatt_in, iatt, itrace, it - 1);
+              TR_OUT(
+                db, iatt_out, iatt, itrace, it,
+                (FFFF(x) || FFFF(y)) ? TEST : (x - y) / (2. * dt));
+            }
+
+            /* simple difference for tr.data[0] */
+            x = TR_IN(db, iatt_in, iatt, itrace, 1);
+            y = TR_IN(db, iatt_in, iatt, itrace, 0);
+            TR_OUT(
+              db, iatt_out, iatt, itrace, 0,
+              (FFFF(x) || FFFF(y)) ? TEST : (x - y) / dt);
+            x = TR_IN(db, iatt_in, iatt, itrace, nt - 1);
+            y = TR_IN(db, iatt_in, iatt, itrace, nt - 2);
+            TR_OUT(
+              db, iatt_out, iatt, itrace, nt - 1,
+              (FFFF(x) || FFFF(y)) ? TEST : (x - y) / dt);
+
+            /* centered difference for tr.data[1] */
+            x = TR_IN(db, iatt_in, iatt, itrace, 2);
+            y = TR_IN(db, iatt_in, iatt, itrace, 0);
+            TR_OUT(
+              db, iatt_out, iatt, itrace, 1,
+              (FFFF(x) || FFFF(y)) ? TEST : (x - y) / (2. * dt));
+            x = TR_IN(db, iatt_in, iatt, itrace, nt - 1);
+            y = TR_IN(db, iatt_in, iatt, itrace, nt - 3);
+            TR_OUT(
+              db, iatt_out, iatt, itrace, nt - 2,
+              (FFFF(x) || FFFF(y)) ? TEST : (x - y) / (2. * dt));
+          }
+          break;
+
+        case SEISMIC_REFL:
+          for (iatt = 0; iatt < natt; iatt++)
+          {
+            for (it = nt - 1; it > 0; --it)
+            {
+              x = TR_IN(db, iatt_in, iatt, itrace, it);
+              y = TR_IN(db, iatt_in, iatt, itrace, it - 1);
+              if (FFFF(x) || FFFF(y))
+                TR_OUT(db, iatt_out, iatt, itrace, it, TEST);
+              else
+              {
+                denom = (x + y);
+                TR_OUT(
+                  db, iatt_out, iatt, itrace, it,
+                  (denom == 0.) ? TEST : (x - y) / denom);
+              }
+            }
+            TR_OUT(db, iatt_out, iatt, itrace, 0, TEST);
+          }
+          break;
+
+        case SEISMIC_MOD_2PI:
+          for (iatt = 0; iatt < natt; iatt++)
+            for (it = 0; it < nt; it++)
+            {
+              x = TR_IN(db, iatt_in, iatt, itrace, it);
+              if (FFFF(x))
+                TR_OUT(db, iatt_out, iatt, itrace, it, TEST);
+              else
+              {
+                y = x;
+                while (y < 0) y += 2. * GV_PI;
+                while (y >= 2. * GV_PI) y -= 2. * GV_PI;
+                TR_OUT(db, iatt_out, iatt, itrace, it, y);
+              }
+            }
+          break;
+
+        case SEISMIC_INV:
+          for (iatt = 0; iatt < natt; iatt++)
+            for (it = 0; it < nt; it++)
+            {
+              x = TR_IN(db, iatt_in, iatt, itrace, it);
+              TR_OUT(
+                db, iatt_out, iatt, itrace, it,
+                (FFFF(x) || x == 0.) ? TEST : 1. / x);
+            }
+          break;
+
+        case SEISMIC_AVG:
+          for (iatt = 0; iatt < natt; iatt++)
+          {
+            sum = count = 0;
+            for (it = 0; it < nt; it++)
+            {
+              x = TR_IN(db, iatt_in, iatt, itrace, it);
+              if (FFFF(x)) continue;
+              count++;
+              sum += x;
+            }
+            for (it = 0; it < nt; it++)
+            {
+              x = TR_IN(db, iatt_in, iatt, itrace, it);
+              TR_OUT(
+                db, iatt_out, iatt, itrace, it,
+                (FFFF(x) || count <= 0) ? TEST : x - sum / count);
+            }
+          }
+          break;
+
+        default: messerr("Non recognized operation"); return (1);
+      }
+    }
+
+    return (0);
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Defining some wavelets for modeling of seimic data
+   **
+   ** \return  Array containing the discretized wavelet, allocated here
+   ** \return  Dimension = 2 * ntw + 1
+   **
+   ** \param[in]  verbose   1 for a verbose output; 0 otherwise
+   ** \param[in]  type      Type of the wavelet (ENUM_WAVELETS)
+   ** \param[in]  ntw       half-length of the wavelet excluding center (samples)
+   ** \param[in]  tindex    time index to locate the spike (Spike)
+   ** \param[in]  dt        time step
+   ** \param[in]  fpeak     peak frequency of the Ricker wavelet
+   ** \param[in]  period    wavelet period (s) (Ricker)
+   ** \param[in]  amplitude wavelet amplitude (Ricker)
+   ** \param[in]  distort   wavelet distortion factor (Ricker)
+   **
+   *****************************************************************************/
+  static VectorDouble st_seismic_wavelet(
+    Id verbose,
+    Id type,
+    Id ntw,
+    Id tindex,
+    double dt,
+    double fpeak,
+    double period,
+    double amplitude,
+    double distort)
+  {
+    Id it, ntw2;
+    double t, t1, t0, tnorm, value, wsym;
+    VectorDouble wavelet;
+
+    /* Initializations */
+
+    ntw2 = 2 * ntw + 1;
+    t0 = ntw * dt;
+    wavelet.resize(ntw2, 0);
+
+    /* Dispatch */
+
+    switch (type)
+    {
+      case WAVELET_NONE: wavelet[0] = 1.; break;
+
+      case WAVELET_RICKER1:
+        for (it = 0; it < ntw2; it++)
         {
-          sum = count = 0;
-          for (it = 0; it < nt; it++)
-          {
-            x = TR_IN(db, iatt_in, iatt, itrace, it);
-            if (FFFF(x)) continue;
-            count++;
-            sum += x;
-          }
-          for (it = 0; it < nt; it++)
-          {
-            x = TR_IN(db, iatt_in, iatt, itrace, it);
-            TR_OUT(db, iatt_out, iatt, itrace, it,
-                   (FFFF(x) || count <= 0) ? TEST : x - sum / count);
-          }
+          t1 = it * dt;
+          value = GV_PI * fpeak * (t1 - t0);
+          value = value * value;
+          wavelet[it] = (1. - 2. * value) * exp(-value);
         }
         break;
 
-      default:
-        messerr("Non recognized operation");
-        return (1);
+      case WAVELET_RICKER2:
+        t = 0.;
+        for (it = 0; it <= ntw; it++, t += dt)
+        {
+          tnorm = t / period;
+          value = (2.5 * tnorm) * (2.5 * tnorm);
+          wsym = amplitude * (1. - 2. * value) * exp(-value);
+          wavelet[ntw + it] = wsym * (1. - 2. * distort * tnorm);
+          wavelet[ntw - it] = wsym * (1. + 2. * distort * tnorm);
+        }
+        break;
+
+      case WAVELET_AKB:
+        for (it = 0; it < ntw2; it++)
+        {
+          t1 = it * dt;
+          value = fpeak * (t1 - t0);
+          value = value * value;
+          wavelet[it] = -amplitude * (t1 - t0) * exp(-2. * value);
+        }
+        break;
+
+      case WAVELET_SPIKE: wavelet[tindex] = 1.0; break;
+
+      case WAVELET_UNIT:
+        for (it = 0; it < ntw2; it++) wavelet[it] = 1.0;
+        break;
+
+      default: messerr("This wavelet type (%d) is unknown", type); break;
+    }
+
+    /* Print the wavelet */
+
+    if (verbose) printVector(wavelet, "Wavelet");
+
+    return wavelet;
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Compute the convolution of two input vector arrays
+   **
+   ** \param[in]  nx  length of x array
+   ** \param[in]  ix0 sample index of first x
+   ** \param[in]  x   array[nx] to be convolved with y
+   ** \param[in]  ny  length of y array
+   ** \param[in]  iy0 sample index of first y
+   ** \param[in]  y   array[ny] with which x is to be convolved
+   ** \param[in]  nz  length of z array
+   ** \param[in]  iz0 sample index of first z
+   **
+   ** \param[out]  z  array[nz] containing x convolved with y
+   **
+   ** \remark The operation z = x convolved with y is defined to be
+   ** \remark            ix0+nx-1
+   ** \remark     z[i] =   sum    x[j]*y[i-j]  ;  i = iz0,...,iz0+nz-1
+   ** \remark             j=ix0
+   ** \remark
+   ** \remark The x samples are contained in x[0], x[1], ..., x[nx-1];
+   ** \remark likewise for the y and z samples.  The sample indices of the
+   ** \remark first x, y, and z values determine the location of the origin
+   ** \remark for each array.  For example, if z is to be a weighted average
+   ** \remark of the nearest 5 samples of y, one might use
+   ** \remark         x[0] = x[1] = x[2] = x[3] = x[4] = 1/5
+   ** \remark         conv(5,-2,x,ny,0,y,nz,0,z)
+   ** \remark In this example, the filter x is symmetric, with index of first
+   ** \remark sample = -2.
+   **
+   *****************************************************************************/
+  static void st_seismic_convolve(
+    Id nx,
+    Id ix0,
+    const double* x,
+    Id ny,
+    Id iy0,
+    const double* y,
+    Id nz,
+    Id iz0,
+    double* z)
+  {
+    Id ix1, iy1, iz1, i, j, j0, j1;
+    double sum;
+
+    ix1 = ix0 + nx - 1;
+    iy1 = iy0 + ny - 1;
+    iz1 = iz0 + nz - 1;
+    x -= ix0;
+    y -= iy0;
+    z -= iz0;
+
+    for (i = iz0; i <= iz1; ++i)
+    {
+      j0 = i - iy1;
+      if (j0 < ix0) j0 = ix0;
+      j1 = i - iy0;
+      if (j1 > ix1) j1 = ix1;
+      sum = 0.;
+      for (j = j0; j <= j1; ++j) sum += x[j] * y[i - j];
+      z[i] = sum;
     }
   }
 
-  return (0);
-}
-
-/****************************************************************************/
-/*!
- **  Defining some wavelets for modeling of seimic data
- **
- ** \return  Array containing the discretized wavelet, allocated here
- ** \return  Dimension = 2 * ntw + 1
- **
- ** \param[in]  verbose   1 for a verbose output; 0 otherwise
- ** \param[in]  type      Type of the wavelet (ENUM_WAVELETS)
- ** \param[in]  ntw       half-length of the wavelet excluding center (samples)
- ** \param[in]  tindex    time index to locate the spike (Spike)
- ** \param[in]  dt        time step
- ** \param[in]  fpeak     peak frequency of the Ricker wavelet
- ** \param[in]  period    wavelet period (s) (Ricker)
- ** \param[in]  amplitude wavelet amplitude (Ricker)
- ** \param[in]  distort   wavelet distortion factor (Ricker)
- **
- *****************************************************************************/
-static VectorDouble st_seismic_wavelet(Id verbose,
-                                       Id type,
-                                       Id ntw,
-                                       Id tindex,
-                                       double dt,
-                                       double fpeak,
-                                       double period,
-                                       double amplitude,
-                                       double distort)
-{
-  Id it, ntw2;
-  double t, t1, t0, tnorm, value, wsym;
-  VectorDouble wavelet;
-
-  /* Initializations */
-
-  ntw2 = 2 * ntw + 1;
-  t0   = ntw * dt;
-  wavelet.resize(ntw2, 0);
-
-  /* Dispatch */
-
-  switch (type)
+  /****************************************************************************/
+  /*!
+   **  Resample from depth to time
+   **
+   ** \return  Error return code
+   **
+   ** \param[in]  db_z     Depth Grid structure
+   ** \param[in]  iatt_v   Address of the Velocity variable (in Depth grid)
+   **
+   ** \param[out]  db_t    Time Grid structure
+   **
+   ** \remark Linear interpolation and constant extrapolation is used to
+   ** \remark determine interval velocities at times not specified.
+   **
+   *****************************************************************************/
+  Id seismic_z2t_convert(DbGrid* db_z, Id iatt_v, DbGrid* db_t)
   {
-    case WAVELET_NONE:
-      wavelet[0] = 1.;
-      break;
+    DbGrid* db_v;
+    double z0, z1, t0, t1, dz, dt;
+    Id nz, nt, ndim, natt, iatt_t, iatt_z, error;
+    VectorDouble zt;
+    VectorDouble tz;
+    VectorDouble az;
+    VectorDouble at;
 
-    case WAVELET_RICKER1:
-      for (it = 0; it < ntw2; it++)
+    /* Initializations */
+
+    if (st_match(db_z, db_t)) return (1);
+    error = 1;
+    db_v = db_z;
+    ndim = db_z->getNDim();
+    natt = db_z->getNLoc(ELoc::Z);
+    nz = db_z->getNX(ndim - 1);
+    nt = db_t->getNX(ndim - 1);
+    z0 = db_z->getX0(ndim - 1);
+    t0 = db_t->getX0(ndim - 1);
+    dz = db_z->getDX(ndim - 1);
+    dt = db_t->getDX(ndim - 1);
+    t1 = t0 + (nt - 1) * dt;
+    z1 = z0 + (nz - 1) * dz;
+
+    /* Create the output variables */
+
+    iatt_t = db_t->addColumnsByConstant(natt, 0.);
+    if (iatt_t < 0) goto label_end;
+    iatt_z = db_z->getUIDByLocator(ELoc::Z, 0);
+
+    /* Core allocation */
+
+    zt.resize(nt);
+    tz.resize(nz);
+    az.resize(nz);
+    at.resize(nt);
+
+    /* Perform the conversion from Depth to Time */
+
+    st_seismic_z2t_convert(
+      db_z, iatt_z, nz, z0, z1, dz, db_t, iatt_t, nt, t0, t1, dt, db_v, iatt_v,
+      natt, tz.data(), zt.data(), at.data(), az.data());
+
+    /* Set the error return code */
+
+    error = 0;
+
+  label_end:
+    return (error);
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Resample from time to depth
+   **
+   ** \return  Error return code
+   **
+   ** \param[in]  db_t     Time Grid structure
+   ** \param[in]  iatt_v   Address of the Velocity variable (in Time grid)
+   **
+   ** \param[out]  db_z    Depth Grid structure
+   **
+   ** \remark Linear interpolation and constant extrapolation is used to
+   ** \remark determine interval velocities at times not specified.
+   **
+   *****************************************************************************/
+  Id seismic_t2z_convert(DbGrid* db_t, Id iatt_v, DbGrid* db_z)
+  {
+    DbGrid* db_v;
+    double z0, z1, t0, t1, dz, dt;
+    Id nz, nt, ndim, natt, iatt_z, iatt_t, error;
+    VectorDouble zt;
+    VectorDouble tz;
+    VectorDouble az;
+    VectorDouble at;
+
+    /* Initializations */
+
+    if (st_match(db_z, db_t)) return (1);
+    error = 1;
+    db_v = db_t;
+    ndim = db_t->getNDim();
+    natt = db_t->getNLoc(ELoc::Z);
+    nz = db_z->getNX(ndim - 1);
+    nt = db_t->getNX(ndim - 1);
+    z0 = db_z->getX0(ndim - 1);
+    t0 = db_t->getX0(ndim - 1);
+    dz = db_z->getDX(ndim - 1);
+    dt = db_t->getDX(ndim - 1);
+    t1 = t0 + (nt - 1) * dt;
+    z1 = z0 + (nz - 1) * dz;
+
+    /* Create the output variables */
+
+    iatt_z = db_z->addColumnsByConstant(natt, 0.);
+    if (iatt_z < 0) goto label_end;
+    iatt_t = db_t->getUIDByLocator(ELoc::Z, 0);
+
+    /* Core allocation */
+
+    zt.resize(nt);
+    tz.resize(nz);
+    az.resize(nz);
+    at.resize(nt);
+
+    /* Perform the conversion from Time to Depth */
+
+    st_seismic_t2z_convert(
+      db_t, iatt_t, nt, t0, t1, dt, db_z, iatt_z, nz, z0, z1, dz, db_v, iatt_v,
+      natt, tz.data(), zt.data(), at.data(), az.data());
+
+    /* Set the error return code */
+
+    error = 0;
+
+  label_end:
+    return (error);
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Do unary arithmetic operation on traces
+   **
+   ** \return  Error return code
+   **
+   ** \param[in]  db      Db structure
+   ** \param[in]  oper    Operator flag (ENUM_SEISMICS)
+   **
+   ** \remark Operations inv, slog and slog10 are "punctuated", meaning that if,
+   ** \remark the input contains 0 values, 0 values are returned.
+   **
+   *****************************************************************************/
+  Id seismic_operate(DbGrid* db, Id oper)
+  {
+    Id ndim, natt, nt, iatt_in, iatt_out;
+    double dt;
+
+    /* Initializations */
+
+    if (st_match(db, nullptr)) return (1);
+    ndim = db->getNDim();
+    natt = db->getNLoc(ELoc::Z);
+    nt = db->getNX(ndim - 1);
+    dt = db->getDX(ndim - 1);
+
+    /* Create the output variables */
+
+    iatt_in = db->getUIDByLocator(ELoc::Z, 0);
+    if (iatt_in < 0) return (1);
+    iatt_out = db->addColumnsByConstant(natt, 0.);
+    if (iatt_out < 0) return (1);
+
+    if (st_seismic_operate(db, oper, natt, nt, iatt_in, iatt_out, dt))
+      return (1);
+
+    return (0);
+  }
+
+  /****************************************************************************/
+  /*!
+  **  Loads the values of a Db column in the output array
+  **  Completes undefined values
+  **
+  ** \param[in]  nz          Number of elements in the column
+  ** \param[in]  shift       The shift of the trace before convolution
+  ** \param[in]  val_before  Replacement value for undefined element
+  **                         before first defined sample
+  ** \param[in]  val_middle  Replacement value for undefined element
+  **                         between defined samples
+  ** \param[in]  val_after   Replacement value for undefined element
+  **                         after last defined sample
+  ** \param[in]  tab0        Input array (Dimension: nz)
+  **
+  ** \param[out] tab1        Output array (Dimension: nz)
+  **
+  *****************************************************************************/
+  static void st_seismic_affect(
+    Db* /*db*/,
+    Id nz,
+    Id shift,
+    double val_before,
+    double val_middle,
+    double val_after,
+    const double* tab0,
+    double* tab1)
+  {
+    Id iz, flag_already;
+    double value;
+
+    /* Set the complete column to val_before and val_after */
+
+    for (iz = 0; iz < shift; iz++) tab1[iz] = val_before;
+    for (iz = shift; iz < nz + 2 * shift; iz++) tab1[iz] = val_after;
+
+    /* Loop on the elements of the column */
+
+    flag_already = 0;
+    for (iz = 0; iz < nz; iz++)
+    {
+      value = tab0[iz];
+      if (FFFF(value))
       {
-        t1          = it * dt;
-        value       = GV_PI * fpeak * (t1 - t0);
-        value       = value * value;
-        wavelet[it] = (1. - 2. * value) * exp(-value);
+        value = (flag_already) ? val_middle : val_before;
       }
-      break;
-
-    case WAVELET_RICKER2:
-      t = 0.;
-      for (it = 0; it <= ntw; it++, t += dt)
+      else
       {
-        tnorm             = t / period;
-        value             = (2.5 * tnorm) * (2.5 * tnorm);
-        wsym              = amplitude * (1. - 2. * value) * exp(-value);
-        wavelet[ntw + it] = wsym * (1. - 2. * distort * tnorm);
-        wavelet[ntw - it] = wsym * (1. + 2. * distort * tnorm);
+        flag_already = 1;
       }
-      break;
+      tab1[iz + shift] = value;
+    }
+  }
 
-    case WAVELET_AKB:
-      for (it = 0; it < ntw2; it++)
+  /****************************************************************************/
+  /*!
+   **  Converts an impedance into a contrast
+   **
+   ** \param[in]  nz       Number of elements in the column
+   **
+   ** \param[out] tab      Output array (Dimension: nz)
+   **
+   *****************************************************************************/
+  static void st_seismic_contrast(Id nz, double* tab)
+  {
+    Id iz;
+    double denom, x, y;
+
+    /* Loop on the elements of the column */
+
+    for (iz = nz - 1; iz > 0; --iz)
+    {
+      x = tab[iz];
+      y = tab[iz - 1];
+      if (FFFF(x) || FFFF(y))
+        tab[iz] = TEST;
+      else
       {
-        t1          = it * dt;
-        value       = fpeak * (t1 - t0);
-        value       = value * value;
-        wavelet[it] = -amplitude * (t1 - t0) * exp(-2. * value);
+        denom = (x + y);
+        tab[iz] = (denom == 0.) ? TEST : (x - y) / denom;
       }
-      break;
-
-    case WAVELET_SPIKE:
-      wavelet[tindex] = 1.0;
-      break;
-
-    case WAVELET_UNIT:
-      for (it = 0; it < ntw2; it++)
-        wavelet[it] = 1.0;
-      break;
-
-    default:
-      messerr("This wavelet type (%d) is unknown", type);
-      break;
-  }
-
-  /* Print the wavelet */
-
-  if (verbose) printVector(wavelet, "Wavelet");
-
-  return wavelet;
-}
-
-/****************************************************************************/
-/*!
- **  Compute the convolution of two input vector arrays
- **
- ** \param[in]  nx  length of x array
- ** \param[in]  ix0 sample index of first x
- ** \param[in]  x   array[nx] to be convolved with y
- ** \param[in]  ny  length of y array
- ** \param[in]  iy0 sample index of first y
- ** \param[in]  y   array[ny] with which x is to be convolved
- ** \param[in]  nz  length of z array
- ** \param[in]  iz0 sample index of first z
- **
- ** \param[out]  z  array[nz] containing x convolved with y
- **
- ** \remark The operation z = x convolved with y is defined to be
- ** \remark            ix0+nx-1
- ** \remark     z[i] =   sum    x[j]*y[i-j]  ;  i = iz0,...,iz0+nz-1
- ** \remark             j=ix0
- ** \remark
- ** \remark The x samples are contained in x[0], x[1], ..., x[nx-1];
- ** \remark likewise for the y and z samples.  The sample indices of the
- ** \remark first x, y, and z values determine the location of the origin
- ** \remark for each array.  For example, if z is to be a weighted average
- ** \remark of the nearest 5 samples of y, one might use
- ** \remark         x[0] = x[1] = x[2] = x[3] = x[4] = 1/5
- ** \remark         conv(5,-2,x,ny,0,y,nz,0,z)
- ** \remark In this example, the filter x is symmetric, with index of first
- ** \remark sample = -2.
- **
- *****************************************************************************/
-static void st_seismic_convolve(Id nx,
-                                Id ix0,
-                                const double* x,
-                                Id ny,
-                                Id iy0,
-                                const double* y,
-                                Id nz,
-                                Id iz0,
-                                double* z)
-{
-  Id ix1, iy1, iz1, i, j, j0, j1;
-  double sum;
-
-  ix1 = ix0 + nx - 1;
-  iy1 = iy0 + ny - 1;
-  iz1 = iz0 + nz - 1;
-  x -= ix0;
-  y -= iy0;
-  z -= iz0;
-
-  for (i = iz0; i <= iz1; ++i)
-  {
-    j0 = i - iy1;
-    if (j0 < ix0) j0 = ix0;
-    j1 = i - iy0;
-    if (j1 > ix1) j1 = ix1;
-    sum = 0.;
-    for (j = j0; j <= j1; ++j)
-      sum += x[j] * y[i - j];
-    z[i] = sum;
-  }
-}
-
-/****************************************************************************/
-/*!
- **  Resample from depth to time
- **
- ** \return  Error return code
- **
- ** \param[in]  db_z     Depth Grid structure
- ** \param[in]  iatt_v   Address of the Velocity variable (in Depth grid)
- **
- ** \param[out]  db_t    Time Grid structure
- **
- ** \remark Linear interpolation and constant extrapolation is used to
- ** \remark determine interval velocities at times not specified.
- **
- *****************************************************************************/
-Id seismic_z2t_convert(DbGrid* db_z, Id iatt_v, DbGrid* db_t)
-{
-  DbGrid* db_v;
-  double z0, z1, t0, t1, dz, dt;
-  Id nz, nt, ndim, natt, iatt_t, iatt_z, error;
-  VectorDouble zt;
-  VectorDouble tz;
-  VectorDouble az;
-  VectorDouble at;
-
-  /* Initializations */
-
-  if (st_match(db_z, db_t)) return (1);
-  error = 1;
-  db_v  = db_z;
-  ndim  = db_z->getNDim();
-  natt  = db_z->getNLoc(ELoc::Z);
-  nz    = db_z->getNX(ndim - 1);
-  nt    = db_t->getNX(ndim - 1);
-  z0    = db_z->getX0(ndim - 1);
-  t0    = db_t->getX0(ndim - 1);
-  dz    = db_z->getDX(ndim - 1);
-  dt    = db_t->getDX(ndim - 1);
-  t1    = t0 + (nt - 1) * dt;
-  z1    = z0 + (nz - 1) * dz;
-
-  /* Create the output variables */
-
-  iatt_t = db_t->addColumnsByConstant(natt, 0.);
-  if (iatt_t < 0) goto label_end;
-  iatt_z = db_z->getUIDByLocator(ELoc::Z, 0);
-
-  /* Core allocation */
-
-  zt.resize(nt);
-  tz.resize(nz);
-  az.resize(nz);
-  at.resize(nt);
-
-  /* Perform the conversion from Depth to Time */
-
-  st_seismic_z2t_convert(db_z, iatt_z, nz, z0, z1, dz, db_t, iatt_t, nt, t0, t1,
-                         dt, db_v, iatt_v, natt,
-                         tz.data(), zt.data(),
-                         at.data(), az.data());
-
-  /* Set the error return code */
-
-  error = 0;
-
-label_end:
-  return (error);
-}
-
-/****************************************************************************/
-/*!
- **  Resample from time to depth
- **
- ** \return  Error return code
- **
- ** \param[in]  db_t     Time Grid structure
- ** \param[in]  iatt_v   Address of the Velocity variable (in Time grid)
- **
- ** \param[out]  db_z    Depth Grid structure
- **
- ** \remark Linear interpolation and constant extrapolation is used to
- ** \remark determine interval velocities at times not specified.
- **
- *****************************************************************************/
-Id seismic_t2z_convert(DbGrid* db_t, Id iatt_v, DbGrid* db_z)
-{
-  DbGrid* db_v;
-  double z0, z1, t0, t1, dz, dt;
-  Id nz, nt, ndim, natt, iatt_z, iatt_t, error;
-  VectorDouble zt;
-  VectorDouble tz;
-  VectorDouble az;
-  VectorDouble at;
-
-  /* Initializations */
-
-  if (st_match(db_z, db_t)) return (1);
-  error = 1;
-  db_v  = db_t;
-  ndim  = db_t->getNDim();
-  natt  = db_t->getNLoc(ELoc::Z);
-  nz    = db_z->getNX(ndim - 1);
-  nt    = db_t->getNX(ndim - 1);
-  z0    = db_z->getX0(ndim - 1);
-  t0    = db_t->getX0(ndim - 1);
-  dz    = db_z->getDX(ndim - 1);
-  dt    = db_t->getDX(ndim - 1);
-  t1    = t0 + (nt - 1) * dt;
-  z1    = z0 + (nz - 1) * dz;
-
-  /* Create the output variables */
-
-  iatt_z = db_z->addColumnsByConstant(natt, 0.);
-  if (iatt_z < 0) goto label_end;
-  iatt_t = db_t->getUIDByLocator(ELoc::Z, 0);
-
-  /* Core allocation */
-
-  zt.resize(nt);
-  tz.resize(nz);
-  az.resize(nz);
-  at.resize(nt);
-
-  /* Perform the conversion from Time to Depth */
-
-  st_seismic_t2z_convert(db_t, iatt_t, nt, t0, t1, dt, db_z, iatt_z, nz, z0, z1,
-                         dz, db_v, iatt_v, natt,
-                         tz.data(), zt.data(),
-                         at.data(), az.data());
-
-  /* Set the error return code */
-
-  error = 0;
-
-label_end:
-  return (error);
-}
-
-/****************************************************************************/
-/*!
- **  Do unary arithmetic operation on traces
- **
- ** \return  Error return code
- **
- ** \param[in]  db      Db structure
- ** \param[in]  oper    Operator flag (ENUM_SEISMICS)
- **
- ** \remark Operations inv, slog and slog10 are "punctuated", meaning that if,
- ** \remark the input contains 0 values, 0 values are returned.
- **
- *****************************************************************************/
-Id seismic_operate(DbGrid* db, Id oper)
-{
-  Id ndim, natt, nt, iatt_in, iatt_out;
-  double dt;
-
-  /* Initializations */
-
-  if (st_match(db, nullptr)) return (1);
-  ndim = db->getNDim();
-  natt = db->getNLoc(ELoc::Z);
-  nt   = db->getNX(ndim - 1);
-  dt   = db->getDX(ndim - 1);
-
-  /* Create the output variables */
-
-  iatt_in = db->getUIDByLocator(ELoc::Z, 0);
-  if (iatt_in < 0) return (1);
-  iatt_out = db->addColumnsByConstant(natt, 0.);
-  if (iatt_out < 0) return (1);
-
-  if (st_seismic_operate(db, oper, natt, nt, iatt_in, iatt_out, dt)) return (1);
-
-  return (0);
-}
-
-/****************************************************************************/
-/*!
-**  Loads the values of a Db column in the output array
-**  Completes undefined values
-**
-** \param[in]  nz          Number of elements in the column
-** \param[in]  shift       The shift of the trace before convolution
-** \param[in]  val_before  Replacement value for undefined element
-**                         before first defined sample
-** \param[in]  val_middle  Replacement value for undefined element
-**                         between defined samples
-** \param[in]  val_after   Replacement value for undefined element
-**                         after last defined sample
-** \param[in]  tab0        Input array (Dimension: nz)
-**
-** \param[out] tab1        Output array (Dimension: nz)
-**
-*****************************************************************************/
-static void st_seismic_affect(Db* /*db*/,
-                              Id nz,
-                              Id shift,
-                              double val_before,
-                              double val_middle,
-                              double val_after,
-                              const double* tab0,
-                              double* tab1)
-{
-  Id iz, flag_already;
-  double value;
-
-  /* Set the complete column to val_before and val_after */
-
-  for (iz = 0; iz < shift; iz++)
-    tab1[iz] = val_before;
-  for (iz = shift; iz < nz + 2 * shift; iz++)
-    tab1[iz] = val_after;
-
-  /* Loop on the elements of the column */
-
-  flag_already = 0;
-  for (iz = 0; iz < nz; iz++)
-  {
-    value = tab0[iz];
-    if (FFFF(value))
-    {
-      value = (flag_already) ? val_middle : val_before;
     }
-    else
+    tab[0] = TEST;
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Convolve with a given wavelet
+   **
+   ** \return  Array containing the discretized wavelet, allocated here
+   **
+   ** \param[in]  db            Db structure
+   ** \param[in]  flag_operate  1 to perform the convolution; 0 otherwise
+   ** \param[in]  flag_contrast 1 to perform contrast; 0 otherwise
+   ** \param[in]  type        Type of the wavelet (ENUM_WAVELETS)
+   ** \param[in]  ntw         half-length of the wavelet excluding center (samples)
+   ** \param[in]  option      option used to perform the convolution
+   ** \li                     -1 : erode the edge (on ntw pixels)
+   ** \li                      0 : truncate the wavelet on the edge
+   ** \li                     +1 : extend the trace with padding before convolution
+   ** \li                     +2 : extend the trace with the last informed values
+   ** \param[in]  tindex      time index to locate the spike (Spike)
+   ** \param[in]  fpeak       peak frequency of the Ricker wavelet
+   ** \param[in]  period      wavelet period (s) (Ricker)
+   ** \param[in]  amplitude   wavelet amplitude (Ricker)
+   ** \param[in]  distort     wavelet distortion factor (Ricker)
+   ** \param[in]  val_before  Replacement value for undefined element
+   **                         before first defined sample
+   ** \param[in]  val_middle  Replacement value for undefined element
+   **                         between defined samples
+   ** \param[in]  val_after   Replacement value for undefined element
+   **                         after last defined sample
+   ** \param[in]  wavelet     Wavelet defined as input (Dimension: 2*ntw+1)
+   **
+   *****************************************************************************/
+  Id seismic_convolve(
+    DbGrid* db,
+    Id flag_operate,
+    Id flag_contrast,
+    Id type,
+    Id ntw,
+    Id option,
+    Id tindex,
+    double fpeak,
+    double period,
+    double amplitude,
+    double distort,
+    double val_before,
+    double val_middle,
+    double val_after,
+    VectorDouble& wavelet)
+  {
+    Id ndim, iatt, natt, itrace, iz, nz, iatt_in, iatt_out, error, size, shift;
+    double dz;
+    VectorDouble tab0;
+    VectorDouble tab1;
+    VectorDouble tab2;
+
+    /* Initializations */
+
+    if (st_match(db, nullptr)) return (1);
+    ndim = db->getNDim();
+    natt = db->getNLoc(ELoc::Z);
+    nz = db->getNX(ndim - 1);
+    dz = db->getDX(ndim - 1);
+    error = 0;
+
+    /* Generation of the wavelet */
+
+    if (type >= 0)
     {
-      flag_already = 1;
+      wavelet = st_seismic_wavelet(
+        !flag_operate, type, ntw, tindex, dz, fpeak, period, amplitude,
+        distort);
     }
-    tab1[iz + shift] = value;
-  }
-}
+    if (wavelet.empty()) goto label_end;
+    if (!flag_operate) goto label_end;
 
-/****************************************************************************/
-/*!
- **  Converts an impedance into a contrast
- **
- ** \param[in]  nz       Number of elements in the column
- **
- ** \param[out] tab      Output array (Dimension: nz)
- **
- *****************************************************************************/
-static void st_seismic_contrast(Id nz, double* tab)
-{
-  Id iz;
-  double denom, x, y;
+    /* Create the output variables */
 
-  /* Loop on the elements of the column */
+    error = 1;
+    iatt_in = db->getUIDByLocator(ELoc::Z, 0);
+    if (iatt_in < 0) return (1);
+    iatt_out = db->addColumnsByConstant(natt, 0.);
+    if (iatt_out < 0) return (1);
 
-  for (iz = nz - 1; iz > 0; --iz)
-  {
-    x = tab[iz];
-    y = tab[iz - 1];
-    if (FFFF(x) || FFFF(y))
-      tab[iz] = TEST;
-    else
+    /* Core allocation */
+
+    shift = (option > 0) ? ntw : 0;
+    size = nz + 2 * shift;
+    tab0.resize(size);
+    tab1.resize(size);
+    tab2.resize(size);
+
+    /* Loop on the attributes */
+
+    for (itrace = 0; itrace < NTRACE; itrace++)
     {
-      denom   = (x + y);
-      tab[iz] = (denom == 0.) ? TEST : (x - y) / denom;
-    }
-  }
-  tab[0] = TEST;
-}
-
-/****************************************************************************/
-/*!
- **  Convolve with a given wavelet
- **
- ** \return  Array containing the discretized wavelet, allocated here
- **
- ** \param[in]  db            Db structure
- ** \param[in]  flag_operate  1 to perform the convolution; 0 otherwise
- ** \param[in]  flag_contrast 1 to perform contrast; 0 otherwise
- ** \param[in]  type        Type of the wavelet (ENUM_WAVELETS)
- ** \param[in]  ntw         half-length of the wavelet excluding center (samples)
- ** \param[in]  option      option used to perform the convolution
- ** \li                     -1 : erode the edge (on ntw pixels)
- ** \li                      0 : truncate the wavelet on the edge
- ** \li                     +1 : extend the trace with padding before convolution
- ** \li                     +2 : extend the trace with the last informed values
- ** \param[in]  tindex      time index to locate the spike (Spike)
- ** \param[in]  fpeak       peak frequency of the Ricker wavelet
- ** \param[in]  period      wavelet period (s) (Ricker)
- ** \param[in]  amplitude   wavelet amplitude (Ricker)
- ** \param[in]  distort     wavelet distortion factor (Ricker)
- ** \param[in]  val_before  Replacement value for undefined element
- **                         before first defined sample
- ** \param[in]  val_middle  Replacement value for undefined element
- **                         between defined samples
- ** \param[in]  val_after   Replacement value for undefined element
- **                         after last defined sample
- ** \param[in]  wavelet     Wavelet defined as input (Dimension: 2*ntw+1)
- **
- *****************************************************************************/
-Id seismic_convolve(DbGrid* db,
-                    Id flag_operate,
-                    Id flag_contrast,
-                    Id type,
-                    Id ntw,
-                    Id option,
-                    Id tindex,
-                    double fpeak,
-                    double period,
-                    double amplitude,
-                    double distort,
-                    double val_before,
-                    double val_middle,
-                    double val_after,
-                    VectorDouble& wavelet)
-{
-  Id ndim, iatt, natt, itrace, iz, nz, iatt_in, iatt_out, error, size, shift;
-  double dz;
-  VectorDouble tab0;
-  VectorDouble tab1;
-  VectorDouble tab2;
-
-  /* Initializations */
-
-  if (st_match(db, nullptr)) return (1);
-  ndim  = db->getNDim();
-  natt  = db->getNLoc(ELoc::Z);
-  nz    = db->getNX(ndim - 1);
-  dz    = db->getDX(ndim - 1);
-  error = 0;
-
-  /* Generation of the wavelet */
-
-  if (type >= 0)
-  {
-    wavelet = st_seismic_wavelet(!flag_operate, type, ntw, tindex, dz, fpeak,
-                                 period, amplitude, distort);
-  }
-  if (wavelet.empty()) goto label_end;
-  if (!flag_operate) goto label_end;
-
-  /* Create the output variables */
-
-  error   = 1;
-  iatt_in = db->getUIDByLocator(ELoc::Z, 0);
-  if (iatt_in < 0) return (1);
-  iatt_out = db->addColumnsByConstant(natt, 0.);
-  if (iatt_out < 0) return (1);
-
-  /* Core allocation */
-
-  shift = (option > 0) ? ntw : 0;
-  size  = nz + 2 * shift;
-  tab0.resize(size);
-  tab1.resize(size);
-  tab2.resize(size);
-
-  /* Loop on the attributes */
-
-  for (itrace = 0; itrace < NTRACE; itrace++)
-  {
-    for (iatt = 0; iatt < natt; iatt++)
-    {
-
-      for (iz = 0; iz < nz; iz++)
-        tab0[iz] = TR_IN(db, iatt_in, iatt, itrace, iz);
-
-      /* Perform the constrast (if required) */
-
-      if (flag_contrast) st_seismic_contrast(nz, tab0.data());
-
-      /* Set the padding values, if needed */
-
-      if (option == 2)
+      for (iatt = 0; iatt < natt; iatt++)
       {
-        val_before = tab0[0];
-        val_after  = tab0[nz - 1];
+
+        for (iz = 0; iz < nz; iz++)
+          tab0[iz] = TR_IN(db, iatt_in, iatt, itrace, iz);
+
+        /* Perform the constrast (if required) */
+
+        if (flag_contrast) st_seismic_contrast(nz, tab0.data());
+
+        /* Set the padding values, if needed */
+
+        if (option == 2)
+        {
+          val_before = tab0[0];
+          val_after = tab0[nz - 1];
+        }
+
+        /* Load the input attribute */
+
+        st_seismic_affect(
+          db, nz, shift, val_before, val_middle, val_after, tab0.data(),
+          tab1.data());
+
+        /* Perform the convolution */
+
+        st_seismic_convolve(
+          2 * ntw + 1, -ntw, wavelet.data(), size, 0, tab1.data(), size, 0,
+          tab2.data());
+
+        /* In case of edge erosion, set the edge to FFFF */
+
+        if (option < 0)
+          for (iz = 0; iz < ntw; iz++) tab2[iz] = tab2[nz - iz - 1] = TEST;
+
+        /* Save the output attribute */
+
+        for (iz = 0; iz < nz; iz++)
+          TR_OUT(
+            db, iatt_out, iatt, itrace, iz,
+            (FFFF(TR_IN(db, iatt_in, iatt, itrace, iz))) ? TEST
+                                                         : tab2[iz + shift]);
       }
-
-      /* Load the input attribute */
-
-      st_seismic_affect(db, nz, shift, val_before, val_middle, val_after,
-                        tab0.data(), tab1.data());
-
-      /* Perform the convolution */
-
-      st_seismic_convolve(2 * ntw + 1, -ntw, wavelet.data(), size, 0, tab1.data(), size, 0,
-                          tab2.data());
-
-      /* In case of edge erosion, set the edge to FFFF */
-
-      if (option < 0)
-        for (iz = 0; iz < ntw; iz++)
-          tab2[iz] = tab2[nz - iz - 1] = TEST;
-
-      /* Save the output attribute */
-
-      for (iz = 0; iz < nz; iz++)
-        TR_OUT(db, iatt_out, iatt, itrace, iz,
-               (FFFF(TR_IN(db, iatt_in, iatt, itrace, iz))) ? TEST : tab2[iz + shift]);
     }
+
+    /* Set the error return code */
+
+    error = 0;
+
+  label_end:
+    if (type >= 0) wavelet.clear();
+    return (error);
   }
 
-  /* Set the error return code */
-
-  error = 0;
-
-label_end:
-  if (type >= 0) wavelet.clear();
-  return (error);
-}
-
-/****************************************************************************/
-/*!
- **  Returns the absolute index of the sample in the grid
- **
- ** \return  Returned absolute address
- **
- ** \param[in]  db        Grid Db structure
- ** \param[in]  ix        Rank of the target trace
- ** \param[in]  iz        Rank of the target sample within the target trace
- **
- *****************************************************************************/
-static Id st_absolute_index(DbGrid* db, Id ix, Id iz)
-{
-  Id ndim = db->getNDim();
-  VectorInt indg(ndim, 0);
-
-  indg[0] = ix;
-  indg[1] = 0;
-  indg[2] = iz;
-  return db->indiceToRank(indg);
-}
-
-/****************************************************************************/
-/*!
- **  Remove the sample which coincides with the target site
- **  from the neighborhood
- **
- ** \param[in,out]  ngh        ST_Seismic_Neigh structure
- **
- *****************************************************************************/
-static void st_sample_remove_central(ST_Seismic_Neigh* ngh)
-
-{
-  Id lec, ecr;
-
-  ngh->n_v1 = ngh->n_v2 = 0;
-  for (lec = ecr = 0; lec < ngh->nactive; lec++)
+  /****************************************************************************/
+  /*!
+   **  Returns the absolute index of the sample in the grid
+   **
+   ** \return  Returned absolute address
+   **
+   ** \param[in]  db        Grid Db structure
+   ** \param[in]  ix        Rank of the target trace
+   ** \param[in]  iz        Rank of the target sample within the target trace
+   **
+   *****************************************************************************/
+  static Id st_absolute_index(DbGrid* db, Id ix, Id iz)
   {
-    if (ngh->ix_ngh[lec] == 0 && ngh->iz_ngh[lec] == 0) continue;
-    ngh->ix_ngh[ecr] = ngh->ix_ngh[lec];
-    ngh->iz_ngh[ecr] = ngh->iz_ngh[lec];
-    ngh->v1_ngh[ecr] = ngh->v1_ngh[lec];
-    ngh->v2_ngh[ecr] = ngh->v2_ngh[lec];
-    if (!FFFF(ngh->v1_ngh[lec])) ngh->n_v1++;
-    if (!FFFF(ngh->v2_ngh[lec])) ngh->n_v2++;
-    ecr++;
+    Id ndim = db->getNDim();
+    VectorInt indg(ndim, 0);
+
+    indg[0] = ix;
+    indg[1] = 0;
+    indg[2] = iz;
+    return db->indiceToRank(indg);
   }
-  ngh->nactive = ecr;
-}
 
-/****************************************************************************/
-/*!
- **  Add the sample to the neighborhood
- **
- ** \param[in]  db         Grid Db structure
- ** \param[in]  iatt_z1    Address of the first data attribute
- ** \param[in]  iatt_z2    Address of the second data attribute
- ** \param[in]  flag_test  Flag to check if the sample must be added
- ** \li                    0 : only if at least one variable is defined
- ** \li                    1 : only if the first variable is defined
- ** \li                    2 : only if the second variable is defined
- ** \param[in]  ix         Rank of the trace
- ** \param[in]  iz         Rank of the target sample within the target trace
- ** \param[in,out] ngh     ST_Seismic_Neigh structure
- **
- *****************************************************************************/
-static void st_sample_add(DbGrid* db,
-                          Id iatt_z1,
-                          Id iatt_z2,
-                          Id flag_test,
-                          Id ix,
-                          Id iz,
-                          ST_Seismic_Neigh* ngh)
-{
-  Id iech, i, found;
-  double v1, v2;
+  /****************************************************************************/
+  /*!
+   **  Remove the sample which coincides with the target site
+   **  from the neighborhood
+   **
+   ** \param[in,out]  ngh        ST_Seismic_Neigh structure
+   **
+   *****************************************************************************/
+  static void st_sample_remove_central(ST_Seismic_Neigh* ngh)
 
-  if (ngh->nactive >= ngh->nvois) messageAbort("Overflow in st_sample_add");
-
-  /* Check if the sample has already been allocated */
-
-  for (i = 0, found = -1; i < ngh->nactive && found < 0; i++)
-    if (ngh->ix_ngh[i] == ix && ngh->iz_ngh[i] == iz) found = i;
-  if (found >= 0) return;
-
-  /* Calculate the absolute sample address */
-
-  iech = st_absolute_index(db, ix, iz);
-  if (!db->isActive(iech)) return;
-
-  /* Read the new values */
-
-  v1 = db->getArray(iech, iatt_z1);
-  if (flag_test == 1 && FFFF(v1)) return;
-  v2 = db->getArray(iech, iatt_z2);
-  if (flag_test == 2 && FFFF(v2)) return;
-  if (flag_test == 0 && FFFF(v1) && FFFF(v2)) return;
-
-  /* Store the new information in the neighborhood */
-
-  ngh->ix_ngh[ngh->nactive] = ix;
-  ngh->iz_ngh[ngh->nactive] = iz;
-  ngh->v1_ngh[ngh->nactive] = v1;
-  ngh->v2_ngh[ngh->nactive] = v2;
-  if (!FFFF(v1)) ngh->n_v1++;
-  if (!FFFF(v2)) ngh->n_v2++;
-  ngh->nactive++;
-}
-
-/****************************************************************************/
-/*!
- **  Check the presence of neighboring traces
- **
- ** \param[in]  db        Grid Db structure
- ** \param[in]  ivar      Rank of the variable of interest
- **
- ** \param[out] npres     Number of informed traces
- ** \param[out] presence  Array giving the number of valid samples per trace
- **
- *****************************************************************************/
-static void st_estimate_check_presence(DbGrid* db,
-                                       Id ivar,
-                                       Id* npres,
-                                       VectorInt& presence)
-{
-  Id ix, iz, iech;
-
-  /* Loop on the traces */
-
-  *npres = 0;
-  for (ix = 0; ix < NX; ix++)
   {
+    Id lec, ecr;
 
-    /* Loop on the values along the trace */
-
-    presence[ix] = 0;
-    for (iz = 0; iz < NZ; iz++)
+    ngh->n_v1 = ngh->n_v2 = 0;
+    for (lec = ecr = 0; lec < ngh->nactive; lec++)
     {
-      iech = st_absolute_index(db, ix, iz);
-      if (!FFFF(db->getZVariable(iech, ivar))) presence[ix]++;
+      if (ngh->ix_ngh[lec] == 0 && ngh->iz_ngh[lec] == 0) continue;
+      ngh->ix_ngh[ecr] = ngh->ix_ngh[lec];
+      ngh->iz_ngh[ecr] = ngh->iz_ngh[lec];
+      ngh->v1_ngh[ecr] = ngh->v1_ngh[lec];
+      ngh->v2_ngh[ecr] = ngh->v2_ngh[lec];
+      if (!FFFF(ngh->v1_ngh[lec])) ngh->n_v1++;
+      if (!FFFF(ngh->v2_ngh[lec])) ngh->n_v2++;
+      ecr++;
     }
-    if (presence[ix] > 0) (*npres)++;
+    ngh->nactive = ecr;
   }
-}
 
-/****************************************************************************/
-/*!
- **  Initialize the ST_Seismic_Neigh structure
- **
- ** \param[in]  ngh      ST_Seismic_Neigh structure to be freed (if mode<0)
- **
- *****************************************************************************/
-static void st_estimate_neigh_init(ST_Seismic_Neigh* ngh)
-
-{
-  Id i;
-
-  ngh->nactive = 0;
-  ngh->n_v1    = 0;
-  ngh->n_v2    = 0;
-  for (i = 0; i < ngh->nvois; i++)
+  /****************************************************************************/
+  /*!
+   **  Add the sample to the neighborhood
+   **
+   ** \param[in]  db         Grid Db structure
+   ** \param[in]  iatt_z1    Address of the first data attribute
+   ** \param[in]  iatt_z2    Address of the second data attribute
+   ** \param[in]  flag_test  Flag to check if the sample must be added
+   ** \li                    0 : only if at least one variable is defined
+   ** \li                    1 : only if the first variable is defined
+   ** \li                    2 : only if the second variable is defined
+   ** \param[in]  ix         Rank of the trace
+   ** \param[in]  iz         Rank of the target sample within the target trace
+   ** \param[in,out] ngh     ST_Seismic_Neigh structure
+   **
+   *****************************************************************************/
+  static void st_sample_add(
+    DbGrid* db,
+    Id iatt_z1,
+    Id iatt_z2,
+    Id flag_test,
+    Id ix,
+    Id iz,
+    ST_Seismic_Neigh* ngh)
   {
-    ngh->ix_ngh[i] = ITEST;
-    ngh->iz_ngh[i] = ITEST;
-    ngh->v1_ngh[i] = TEST;
-    ngh->v2_ngh[i] = TEST;
+    Id iech, i, found;
+    double v1, v2;
+
+    if (ngh->nactive >= ngh->nvois) messageAbort("Overflow in st_sample_add");
+
+    /* Check if the sample has already been allocated */
+
+    for (i = 0, found = -1; i < ngh->nactive && found < 0; i++)
+      if (ngh->ix_ngh[i] == ix && ngh->iz_ngh[i] == iz) found = i;
+    if (found >= 0) return;
+
+    /* Calculate the absolute sample address */
+
+    iech = st_absolute_index(db, ix, iz);
+    if (!db->isActive(iech)) return;
+
+    /* Read the new values */
+
+    v1 = db->getArray(iech, iatt_z1);
+    if (flag_test == 1 && FFFF(v1)) return;
+    v2 = db->getArray(iech, iatt_z2);
+    if (flag_test == 2 && FFFF(v2)) return;
+    if (flag_test == 0 && FFFF(v1) && FFFF(v2)) return;
+
+    /* Store the new information in the neighborhood */
+
+    ngh->ix_ngh[ngh->nactive] = ix;
+    ngh->iz_ngh[ngh->nactive] = iz;
+    ngh->v1_ngh[ngh->nactive] = v1;
+    ngh->v2_ngh[ngh->nactive] = v2;
+    if (!FFFF(v1)) ngh->n_v1++;
+    if (!FFFF(v2)) ngh->n_v2++;
+    ngh->nactive++;
   }
-}
 
-/****************************************************************************/
-/*!
- **  Manage the ST_Seismic_Neigh structure
- **
- ** \return  Address of the newly managed ST_Seismic_Neigh structure
- **
- ** \param[in]  mode     Type of management
- ** \li                  1 for allocation
- ** \li                 -1 for deallocation
- ** \param[in]  nvois    Maximum number of samples in the neighborhood
- ** \param[in]  ngh      ST_Seismic_Neigh structure to be freed (if mode<0)
- **
- *****************************************************************************/
-static ST_Seismic_Neigh* st_estimate_neigh_management(Id mode,
-                                                      Id nvois,
-                                                      ST_Seismic_Neigh* ngh)
-{
-  /* Dispatch */
-
-  if (mode > 0)
+  /****************************************************************************/
+  /*!
+   **  Check the presence of neighboring traces
+   **
+   ** \param[in]  db        Grid Db structure
+   ** \param[in]  ivar      Rank of the variable of interest
+   **
+   ** \param[out] npres     Number of informed traces
+   ** \param[out] presence  Array giving the number of valid samples per trace
+   **
+   *****************************************************************************/
+  static void st_estimate_check_presence(
+    DbGrid* db,
+    Id ivar,
+    Id* npres,
+    VectorInt& presence)
   {
+    Id ix, iz, iech;
 
-    /* Allocation */
+    /* Loop on the traces */
 
-    ngh = new ST_Seismic_Neigh;
-    if (ngh == nullptr) return (ngh);
-    ngh->nvois   = nvois;
+    *npres = 0;
+    for (ix = 0; ix < NX; ix++)
+    {
+
+      /* Loop on the values along the trace */
+
+      presence[ix] = 0;
+      for (iz = 0; iz < NZ; iz++)
+      {
+        iech = st_absolute_index(db, ix, iz);
+        if (!FFFF(db->getZVariable(iech, ivar))) presence[ix]++;
+      }
+      if (presence[ix] > 0) (*npres)++;
+    }
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Initialize the ST_Seismic_Neigh structure
+   **
+   ** \param[in]  ngh      ST_Seismic_Neigh structure to be freed (if mode<0)
+   **
+   *****************************************************************************/
+  static void st_estimate_neigh_init(ST_Seismic_Neigh* ngh)
+
+  {
+    Id i;
+
     ngh->nactive = 0;
-    ngh->n_v1    = 0;
-    ngh->n_v2    = 0;
+    ngh->n_v1 = 0;
+    ngh->n_v2 = 0;
+    for (i = 0; i < ngh->nvois; i++)
+    {
+      ngh->ix_ngh[i] = ITEST;
+      ngh->iz_ngh[i] = ITEST;
+      ngh->v1_ngh[i] = TEST;
+      ngh->v2_ngh[i] = TEST;
+    }
+  }
 
-    ngh->ix_ngh.resize(nvois);
-    ngh->iz_ngh.resize(nvois);
-    ngh->v1_ngh.resize(nvois);
-    ngh->v2_ngh.resize(nvois);
+  /****************************************************************************/
+  /*!
+   **  Manage the ST_Seismic_Neigh structure
+   **
+   ** \return  Address of the newly managed ST_Seismic_Neigh structure
+   **
+   ** \param[in]  mode     Type of management
+   ** \li                  1 for allocation
+   ** \li                 -1 for deallocation
+   ** \param[in]  nvois    Maximum number of samples in the neighborhood
+   ** \param[in]  ngh      ST_Seismic_Neigh structure to be freed (if mode<0)
+   **
+   *****************************************************************************/
+  static ST_Seismic_Neigh*
+    st_estimate_neigh_management(Id mode, Id nvois, ST_Seismic_Neigh* ngh)
+  {
+    /* Dispatch */
+
+    if (mode > 0)
+    {
+
+      /* Allocation */
+
+      ngh = new ST_Seismic_Neigh;
+      if (ngh == nullptr) return (ngh);
+      ngh->nvois = nvois;
+      ngh->nactive = 0;
+      ngh->n_v1 = 0;
+      ngh->n_v2 = 0;
+
+      ngh->ix_ngh.resize(nvois);
+      ngh->iz_ngh.resize(nvois);
+      ngh->v1_ngh.resize(nvois);
+      ngh->v2_ngh.resize(nvois);
+
+      st_estimate_neigh_init(ngh);
+    }
+    else
+    {
+      if (ngh == nullptr) return (ngh);
+      ngh->ix_ngh.clear();
+      ngh->iz_ngh.clear();
+      ngh->v1_ngh.clear();
+      ngh->v2_ngh.clear();
+      delete ngh;
+      ngh = nullptr;
+    }
+    return (ngh);
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Check if the neighborhood has changed
+   **
+   ** \return  1 if the Neighborhood is unchanged
+   **
+   ** \param[in]  ngh_old   Previous ST_Seismic_Neigh structure
+   ** \param[in]  ngh_cur   Current ST_Seismic_Neigh structure
+   **
+   *****************************************************************************/
+  static Id st_estimate_neigh_unchanged(
+    ST_Seismic_Neigh* ngh_old,
+    ST_Seismic_Neigh* ngh_cur)
+  {
+    Id i, flag_unchanged;
+
+    flag_unchanged = 0;
+    if (ngh_old == nullptr || ngh_cur == nullptr) goto label_end;
+    if (ngh_old->nactive != ngh_cur->nactive) goto label_end;
+    if (ngh_cur->nactive <= 0) goto label_end;
+
+    /* Loop on the samples of the Old and the New Neighborhood */
+
+    for (i = 0; i < ngh_old->nactive; i++)
+    {
+      if (ngh_cur->ix_ngh[i] != ngh_old->ix_ngh[i]
+          || ngh_cur->iz_ngh[i] != ngh_old->iz_ngh[i])
+        goto label_end;
+    }
+
+    /* The neighborhood is unchanged */
+
+    flag_unchanged = 1;
+
+  label_end:
+
+    /* Optional printout */
+
+    if (OptDbg::query(EDbg::NBGH) && !OptDbg::force() && flag_unchanged)
+      message("The neighborhood is unchanged\n");
+
+    return (flag_unchanged);
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Copy the current neighborhood into the old one
+   **
+   ** \param[in]  ngh_cur   Current ST_Seismic_Neigh structure
+   **
+   ** \param[out]  ngh_old  Old ST_Seismic_Neigh structure
+   **
+   *****************************************************************************/
+  static void
+    st_estimate_neigh_copy(ST_Seismic_Neigh* ngh_cur, ST_Seismic_Neigh* ngh_old)
+  {
+    Id i;
+
+    /* Blank out the old structure */
+
+    st_estimate_neigh_init(ngh_old);
+
+    /* Copy the current neighborhood into the old one */
+
+    for (i = 0; i < ngh_cur->nactive; i++)
+    {
+      ngh_old->ix_ngh[i] = ngh_cur->ix_ngh[i];
+      ngh_old->iz_ngh[i] = ngh_cur->iz_ngh[i];
+      ngh_old->v1_ngh[i] = ngh_cur->v1_ngh[i];
+      ngh_old->v2_ngh[i] = ngh_cur->v2_ngh[i];
+    }
+    ngh_old->nactive = ngh_cur->nactive;
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Print the Kriging Information
+   **
+   ** \param[in]  ngh       Current ST_Seismic_Neigh structure
+   ** \param[in]  ix0       Rank of the target trace
+   ** \param[in]  iz0       Rank of the target sample within the target trace
+   **
+   *****************************************************************************/
+  static void st_estimate_neigh_print(ST_Seismic_Neigh* ngh, Id ix0, Id iz0)
+  {
+    Id i;
+
+    /* Header */
+
+    mestitle(0, "Neighborhood information");
+
+    message(
+      "For (ix0=%d - iz0=%d) - Number = %d\n", ix0 + 1, iz0 + 1, ngh->nactive);
+
+    if (ngh->nactive <= 0) return;
+    printElement("Sample");
+    printElement("Delta-X");
+    printElement("Delta-Z");
+    printElement("V1");
+    printElement("V2");
+    message("\n");
+    for (i = 0; i < ngh->nactive; i++)
+    {
+      printElement(i + 1);
+      printElement(ngh->ix_ngh[i]);
+      printElement(ngh->iz_ngh[i]);
+      printElement(ngh->v1_ngh[i]);
+      printElement(ngh->v2_ngh[i]);
+      message("\n");
+    }
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Establish the neighborhood
+   **
+   ** \return  Error return code
+   **
+   ** \param[in]  db        Grid Db structure
+   ** \param[in]  flag_exc  1 if the target sample must be excluded
+   ** \param[in]  iatt_z1   Address of the first data attribute
+   ** \param[in]  iatt_z2   Address of the second data attribute
+   ** \param[in]  ix0       Rank of the target trace
+   ** \param[in]  iz0       Rank of the target sample within the target trace
+   ** \param[in]  nbench    Vertical Radius of the neighborhood (center excluded)
+   ** \param[in]  nv2max    Maximum number of traces of second variable on each
+   **                       side of the target trace
+   ** \param[in]  presence  Array giving the number of valid samples per trace
+   **
+   ** \param[out]  ngh      Current ST_Seismic_Neigh structure
+   **
+   *****************************************************************************/
+  static Id st_estimate_neigh_create(
+    DbGrid* db,
+    Id flag_exc,
+    Id iatt_z1,
+    Id iatt_z2,
+    Id ix0,
+    Id iz0,
+    Id nbench,
+    Id nv2max,
+    Id /*npres*/[2],
+    VectorVectorInt& presence,
+    ST_Seismic_Neigh* ngh)
+  {
+    Id i, idx, ix, iz, jz, count, flag_valid;
+
+    /* Blank out the ST_Seismic_Neigh structure */
 
     st_estimate_neigh_init(ngh);
-  }
-  else
-  {
-    if (ngh == nullptr) return (ngh);
-    ngh->ix_ngh.clear();
-    ngh->iz_ngh.clear();
-    ngh->v1_ngh.clear();
-    ngh->v2_ngh.clear();
-    delete ngh;
-    ngh = nullptr;
-  }
-  return (ngh);
-}
 
-/****************************************************************************/
-/*!
- **  Check if the neighborhood has changed
- **
- ** \return  1 if the Neighborhood is unchanged
- **
- ** \param[in]  ngh_old   Previous ST_Seismic_Neigh structure
- ** \param[in]  ngh_cur   Current ST_Seismic_Neigh structure
- **
- *****************************************************************************/
-static Id st_estimate_neigh_unchanged(ST_Seismic_Neigh* ngh_old,
-                                      ST_Seismic_Neigh* ngh_cur)
-{
-  Id i, flag_unchanged;
+    /* Load the primary variable first (and its collocated variable) */
 
-  flag_unchanged = 0;
-  if (ngh_old == nullptr || ngh_cur == nullptr) goto label_end;
-  if (ngh_old->nactive != ngh_cur->nactive) goto label_end;
-  if (ngh_cur->nactive <= 0) goto label_end;
+    for (ix = 0; ix < NX; ix++)
+    {
+      if (presence[0][ix] <= 0) continue;
 
-  /* Loop on the samples of the Old and the New Neighborhood */
+      for (iz = -nbench; iz <= nbench; iz++)
+      {
+        jz = iz + iz0;
+        if (jz < 0 || jz >= NZ) continue;
+        st_sample_add(db, iatt_z1, iatt_z2, 1, ix, jz, ngh);
+      }
+    }
 
-  for (i = 0; i < ngh_old->nactive; i++)
-  {
-    if (ngh_cur->ix_ngh[i] != ngh_old->ix_ngh[i] || ngh_cur->iz_ngh[i] != ngh_old->iz_ngh[i]) goto label_end;
-  }
-
-  /* The neighborhood is unchanged */
-
-  flag_unchanged = 1;
-
-label_end:
-
-  /* Optional printout */
-
-  if (OptDbg::query(EDbg::NBGH) && !OptDbg::force() && flag_unchanged)
-    message("The neighborhood is unchanged\n");
-
-  return (flag_unchanged);
-}
-
-/****************************************************************************/
-/*!
- **  Copy the current neighborhood into the old one
- **
- ** \param[in]  ngh_cur   Current ST_Seismic_Neigh structure
- **
- ** \param[out]  ngh_old  Old ST_Seismic_Neigh structure
- **
- *****************************************************************************/
-static void st_estimate_neigh_copy(ST_Seismic_Neigh* ngh_cur,
-                                   ST_Seismic_Neigh* ngh_old)
-{
-  Id i;
-
-  /* Blank out the old structure */
-
-  st_estimate_neigh_init(ngh_old);
-
-  /* Copy the current neighborhood into the old one */
-
-  for (i = 0; i < ngh_cur->nactive; i++)
-  {
-    ngh_old->ix_ngh[i] = ngh_cur->ix_ngh[i];
-    ngh_old->iz_ngh[i] = ngh_cur->iz_ngh[i];
-    ngh_old->v1_ngh[i] = ngh_cur->v1_ngh[i];
-    ngh_old->v2_ngh[i] = ngh_cur->v2_ngh[i];
-  }
-  ngh_old->nactive = ngh_cur->nactive;
-}
-
-/****************************************************************************/
-/*!
- **  Print the Kriging Information
- **
- ** \param[in]  ngh       Current ST_Seismic_Neigh structure
- ** \param[in]  ix0       Rank of the target trace
- ** \param[in]  iz0       Rank of the target sample within the target trace
- **
- *****************************************************************************/
-static void st_estimate_neigh_print(ST_Seismic_Neigh* ngh, Id ix0, Id iz0)
-{
-  Id i;
-
-  /* Header */
-
-  mestitle(0, "Neighborhood information");
-
-  message("For (ix0=%d - iz0=%d) - Number = %d\n", ix0 + 1, iz0 + 1,
-          ngh->nactive);
-
-  if (ngh->nactive <= 0) return;
-  printElement("Sample");
-  printElement("Delta-X");
-  printElement("Delta-Z");
-  printElement("V1");
-  printElement("V2");
-  message("\n");
-  for (i = 0; i < ngh->nactive; i++)
-  {
-    printElement(i + 1);
-    printElement(ngh->ix_ngh[i]);
-    printElement(ngh->iz_ngh[i]);
-    printElement(ngh->v1_ngh[i]);
-    printElement(ngh->v2_ngh[i]);
-    message("\n");
-  }
-}
-
-/****************************************************************************/
-/*!
- **  Establish the neighborhood
- **
- ** \return  Error return code
- **
- ** \param[in]  db        Grid Db structure
- ** \param[in]  flag_exc  1 if the target sample must be excluded
- ** \param[in]  iatt_z1   Address of the first data attribute
- ** \param[in]  iatt_z2   Address of the second data attribute
- ** \param[in]  ix0       Rank of the target trace
- ** \param[in]  iz0       Rank of the target sample within the target trace
- ** \param[in]  nbench    Vertical Radius of the neighborhood (center excluded)
- ** \param[in]  nv2max    Maximum number of traces of second variable on each
- **                       side of the target trace
- ** \param[in]  presence  Array giving the number of valid samples per trace
- **
- ** \param[out]  ngh      Current ST_Seismic_Neigh structure
- **
- *****************************************************************************/
-static Id st_estimate_neigh_create(DbGrid* db,
-                                   Id flag_exc,
-                                   Id iatt_z1,
-                                   Id iatt_z2,
-                                   Id ix0,
-                                   Id iz0,
-                                   Id nbench,
-                                   Id nv2max,
-                                   Id /*npres*/[2],
-                                   VectorVectorInt& presence,
-                                   ST_Seismic_Neigh* ngh)
-{
-  Id i, idx, ix, iz, jz, count, flag_valid;
-
-  /* Blank out the ST_Seismic_Neigh structure */
-
-  st_estimate_neigh_init(ngh);
-
-  /* Load the primary variable first (and its collocated variable) */
-
-  for (ix = 0; ix < NX; ix++)
-  {
-    if (presence[0][ix] <= 0) continue;
+    /* Load the information from the current trace (if any) */
 
     for (iz = -nbench; iz <= nbench; iz++)
     {
       jz = iz + iz0;
       if (jz < 0 || jz >= NZ) continue;
-      st_sample_add(db, iatt_z1, iatt_z2, 1, ix, jz, ngh);
-    }
-  }
-
-  /* Load the information from the current trace (if any) */
-
-  for (iz = -nbench; iz <= nbench; iz++)
-  {
-    jz = iz + iz0;
-    if (jz < 0 || jz >= NZ) continue;
-    st_sample_add(db, iatt_z1, iatt_z2, 0, ix0, jz, ngh);
-  }
-
-  /* Load the information from the closest traces (for V2) */
-  /* located before the current trace */
-
-  count = 0;
-  for (idx = 1; idx < NX; idx++)
-  {
-    ix = ix0 - idx;
-    if (ix < 0 || ix >= NX) continue;
-    if (presence[1][ix] <= 0) continue;
-    count++;
-    if (count > nv2max) break;
-
-    /* Add the samples of the trace of interest */
-
-    for (iz = -nbench; iz <= nbench; iz++)
-    {
-      jz = iz + iz0;
-      if (jz < 0 || jz >= NZ) continue;
-      st_sample_add(db, iatt_z1, iatt_z2, 0, ix, jz, ngh);
-    }
-  }
-
-  /* Load the information from the closest traces (for V2) */
-  /* located before the current trace */
-
-  count = 0;
-  for (idx = 1; idx < NX; idx++)
-  {
-    ix = ix0 + idx;
-    if (ix < 0 || ix >= NX) continue;
-    if (presence[1][ix] <= 0) continue;
-    count++;
-    if (count > nv2max) break;
-
-    /* Add the samples of the trace of interest */
-
-    for (iz = -nbench; iz <= nbench; iz++)
-    {
-      jz = iz + iz0;
-      if (jz < 0 || jz >= NZ) continue;
-      st_sample_add(db, iatt_z1, iatt_z2, 0, ix, jz, ngh);
-    }
-  }
-
-  /* Convert location indices into index distances from the target */
-
-  for (i = 0; i < ngh->nactive; i++)
-  {
-    ngh->ix_ngh[i] -= ix0;
-    ngh->iz_ngh[i] -= iz0;
-  }
-
-  /* Optional printout */
-
-  if (OptDbg::query(EDbg::NBGH)) st_estimate_neigh_print(ngh, ix0, iz0);
-
-  /* Check the validity of the neighborhood */
-
-  flag_valid = (ngh->n_v1 >= 1 && ngh->n_v2 >= 1);
-
-  /* Exclude the target site (simulation case) */
-
-  if (flag_exc) st_sample_remove_central(ngh);
-
-  /* In case of error, clean the neighborhood */
-
-  if (!flag_valid) st_estimate_neigh_init(ngh);
-  return (!flag_valid);
-}
-
-/****************************************************************************/
-/*!
- **  Establish the Kriging flag
- **
- ** \param[in]  ngh       Current ST_Seismic_Neigh structure
- ** \param[in]  nfeq      Number of drift condition per variable
- **
- ** \param[out] flag      Array containing the Kriging flag
- ** \param[out] nred      Reduced number of equations
- **
- *****************************************************************************/
-static void st_estimate_flag(ST_Seismic_Neigh* ngh,
-                             Id nfeq,
-                             VectorInt& flag,
-                             Id* nred)
-{
-  double value;
-  Id i, ivar, nech, neqmax, nvalid;
-
-  /* Initializations */
-
-  nech   = ngh->nactive;
-  neqmax = NVAR * (nech + nfeq);
-
-  /* Initialize the flag array */
-
-  flag.fill(1.);
-
-  /* Cancel the flag array */
-
-  for (ivar = 0; ivar < NVAR; ivar++)
-    for (i = 0; i < nech; i++)
-    {
-      value = (ivar == 0) ? ngh->v1_ngh[i] : ngh->v2_ngh[i];
-      if (FFFF(value)) flag[ivar * nech + i] = 0;
+      st_sample_add(db, iatt_z1, iatt_z2, 0, ix0, jz, ngh);
     }
 
-  /* Cancel the drift */
+    /* Load the information from the closest traces (for V2) */
+    /* located before the current trace */
 
-  for (ivar = 0; ivar < NVAR; ivar++)
-  {
-    /* Count the number of valid information per variable */
+    count = 0;
+    for (idx = 1; idx < NX; idx++)
+    {
+      ix = ix0 - idx;
+      if (ix < 0 || ix >= NX) continue;
+      if (presence[1][ix] <= 0) continue;
+      count++;
+      if (count > nv2max) break;
 
-    nvalid = 0;
-    for (i = 0; i < nech; i++)
-      nvalid += flag[ivar * nech + i];
-    if (nvalid <= 0) flag[NVAR * nech + ivar] = 0;
+      /* Add the samples of the trace of interest */
+
+      for (iz = -nbench; iz <= nbench; iz++)
+      {
+        jz = iz + iz0;
+        if (jz < 0 || jz >= NZ) continue;
+        st_sample_add(db, iatt_z1, iatt_z2, 0, ix, jz, ngh);
+      }
+    }
+
+    /* Load the information from the closest traces (for V2) */
+    /* located before the current trace */
+
+    count = 0;
+    for (idx = 1; idx < NX; idx++)
+    {
+      ix = ix0 + idx;
+      if (ix < 0 || ix >= NX) continue;
+      if (presence[1][ix] <= 0) continue;
+      count++;
+      if (count > nv2max) break;
+
+      /* Add the samples of the trace of interest */
+
+      for (iz = -nbench; iz <= nbench; iz++)
+      {
+        jz = iz + iz0;
+        if (jz < 0 || jz >= NZ) continue;
+        st_sample_add(db, iatt_z1, iatt_z2, 0, ix, jz, ngh);
+      }
+    }
+
+    /* Convert location indices into index distances from the target */
+
+    for (i = 0; i < ngh->nactive; i++)
+    {
+      ngh->ix_ngh[i] -= ix0;
+      ngh->iz_ngh[i] -= iz0;
+    }
+
+    /* Optional printout */
+
+    if (OptDbg::query(EDbg::NBGH)) st_estimate_neigh_print(ngh, ix0, iz0);
+
+    /* Check the validity of the neighborhood */
+
+    flag_valid = (ngh->n_v1 >= 1 && ngh->n_v2 >= 1);
+
+    /* Exclude the target site (simulation case) */
+
+    if (flag_exc) st_sample_remove_central(ngh);
+
+    /* In case of error, clean the neighborhood */
+
+    if (!flag_valid) st_estimate_neigh_init(ngh);
+    return (!flag_valid);
   }
 
-  /* Count the number of valid equations */
+  /****************************************************************************/
+  /*!
+   **  Establish the Kriging flag
+   **
+   ** \param[in]  ngh       Current ST_Seismic_Neigh structure
+   ** \param[in]  nfeq      Number of drift condition per variable
+   **
+   ** \param[out] flag      Array containing the Kriging flag
+   ** \param[out] nred      Reduced number of equations
+   **
+   *****************************************************************************/
+  static void
+    st_estimate_flag(ST_Seismic_Neigh* ngh, Id nfeq, VectorInt& flag, Id* nred)
+  {
+    double value;
+    Id i, ivar, nech, neqmax, nvalid;
 
-  *nred = 0;
-  for (i = 0; i < neqmax; i++)
-    (*nred) += flag[i];
-}
+    /* Initializations */
 
-/****************************************************************************/
-/*!
- **  Establish the constant terms for the variance calculations
- **
- ** \param[in]  model     Model structure
- **
- ** \param[out] var0      Array containing the C00 terms (Dimension: NVAR)
- **
- *****************************************************************************/
-static void st_estimate_var0(Model* model, VectorDouble& var0)
-{
-  VectorDouble d1(model->getNDim());
-  CovCalcMode mode(ECalcMember::VAR);
-  model->evaluateMatInPlace(nullptr, d1, covtab, true, 1., &mode);
+    nech = ngh->nactive;
+    neqmax = NVAR * (nech + nfeq);
 
-  for (Id ivar = 0; ivar < NVAR; ivar++)
-    var0[ivar] = covtab.getValue(ivar, ivar);
-}
+    /* Initialize the flag array */
 
-/****************************************************************************/
-/*!
- **  Establish the constant terms for the variance calculations
- **
- ** \param[in]  model    Model structure
- **
- ** \param[out] c00      Array containing the C00 terms (Dimension: NVAR * NVAR)
- **
- *****************************************************************************/
-static void st_estimate_c00(Model* model, MatrixSquare& c00)
-{
-  VectorDouble d1(model->getNDim());
-  CovCalcMode mode(ECalcMember::VAR);
-  model->evaluateMatInPlace(nullptr, d1, covtab, true, 1., &mode);
+    flag.fill(1.);
 
-  for (Id ivar = 0; ivar < NVAR; ivar++)
-    for (Id jvar = 0; jvar < NVAR; jvar++)
-      c00.setValue(ivar, jvar, covtab.getValue(ivar, jvar));
-}
+    /* Cancel the flag array */
 
-/****************************************************************************/
-/*!
- **  Establish the Kriging L.H.S.
- **
- ** \param[in]  ngh       Current ST_Seismic_Neigh structure
- ** \param[in]  model     Model structure
- ** \param[in]  nfeq      Number of drift condition per variable
- ** \param[in]  nred      Reduced number of equations
- ** \param[in]  flag      Array giving the flag
- **
- ** \param[out] lhs       Array containing the Kriging L.H.S.
- **
- *****************************************************************************/
-static void st_estimate_lhs(ST_Seismic_Neigh* ngh,
-                            Model* model,
-                            Id nfeq,
-                            Id nred,
-                            const VectorInt& flag,
-                            MatrixSquare& lhs)
-{
-  VectorDouble d1(3);
-  Id nech   = ngh->nactive;
-  Id neqmax = NVAR * (nech + nfeq);
+    for (ivar = 0; ivar < NVAR; ivar++)
+      for (i = 0; i < nech; i++)
+      {
+        value = (ivar == 0) ? ngh->v1_ngh[i] : ngh->v2_ngh[i];
+        if (FFFF(value)) flag[ivar * nech + i] = 0;
+      }
 
-  /* Initialize the L.H.S. array */
+    /* Cancel the drift */
 
-  lhs.reset(neqmax, neqmax);
-  lhs.fill(0.);
-
-  /* Establish the covariance part */
-
-  for (Id iech = 0; iech < nech; iech++)
-    for (Id jech = 0; jech < nech; jech++)
+    for (ivar = 0; ivar < NVAR; ivar++)
     {
-      d1[0] = DX * (ngh->ix_ngh[iech] - ngh->ix_ngh[jech]);
-      d1[2] = DZ * (ngh->iz_ngh[iech] - ngh->iz_ngh[jech]);
+      /* Count the number of valid information per variable */
+
+      nvalid = 0;
+      for (i = 0; i < nech; i++) nvalid += flag[ivar * nech + i];
+      if (nvalid <= 0) flag[NVAR * nech + ivar] = 0;
+    }
+
+    /* Count the number of valid equations */
+
+    *nred = 0;
+    for (i = 0; i < neqmax; i++) (*nred) += flag[i];
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Establish the constant terms for the variance calculations
+   **
+   ** \param[in]  model     Model structure
+   **
+   ** \param[out] var0      Array containing the C00 terms (Dimension: NVAR)
+   **
+   *****************************************************************************/
+  static void st_estimate_var0(Model* model, VectorDouble& var0)
+  {
+    VectorDouble d1(model->getNDim());
+    CovCalcMode mode(ECalcMember::VAR);
+    model->evaluateMatInPlace(nullptr, d1, covtab, true, 1., &mode);
+
+    for (Id ivar = 0; ivar < NVAR; ivar++)
+      var0[ivar] = covtab.getValue(ivar, ivar);
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Establish the constant terms for the variance calculations
+   **
+   ** \param[in]  model    Model structure
+   **
+   ** \param[out] c00      Array containing the C00 terms (Dimension: NVAR * NVAR)
+   **
+   *****************************************************************************/
+  static void st_estimate_c00(Model* model, MatrixSquare& c00)
+  {
+    VectorDouble d1(model->getNDim());
+    CovCalcMode mode(ECalcMember::VAR);
+    model->evaluateMatInPlace(nullptr, d1, covtab, true, 1., &mode);
+
+    for (Id ivar = 0; ivar < NVAR; ivar++)
+      for (Id jvar = 0; jvar < NVAR; jvar++)
+        c00.setValue(ivar, jvar, covtab.getValue(ivar, jvar));
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Establish the Kriging L.H.S.
+   **
+   ** \param[in]  ngh       Current ST_Seismic_Neigh structure
+   ** \param[in]  model     Model structure
+   ** \param[in]  nfeq      Number of drift condition per variable
+   ** \param[in]  nred      Reduced number of equations
+   ** \param[in]  flag      Array giving the flag
+   **
+   ** \param[out] lhs       Array containing the Kriging L.H.S.
+   **
+   *****************************************************************************/
+  static void st_estimate_lhs(
+    ST_Seismic_Neigh* ngh,
+    Model* model,
+    Id nfeq,
+    Id nred,
+    const VectorInt& flag,
+    MatrixSquare& lhs)
+  {
+    VectorDouble d1(3);
+    Id nech = ngh->nactive;
+    Id neqmax = NVAR * (nech + nfeq);
+
+    /* Initialize the L.H.S. array */
+
+    lhs.reset(neqmax, neqmax);
+    lhs.fill(0.);
+
+    /* Establish the covariance part */
+
+    for (Id iech = 0; iech < nech; iech++)
+      for (Id jech = 0; jech < nech; jech++)
+      {
+        d1[0] = DX * (ngh->ix_ngh[iech] - ngh->ix_ngh[jech]);
+        d1[2] = DZ * (ngh->iz_ngh[iech] - ngh->iz_ngh[jech]);
+        model->evaluateMatInPlace(nullptr, d1, covtab, true);
+
+        for (Id ivar = 0; ivar < NVAR; ivar++)
+          for (Id jvar = 0; jvar < NVAR; jvar++)
+            lhs.setValue(
+              IND(iech, ivar), IND(jech, jvar), covtab.getValue(ivar, jvar));
+      }
+
+    /* Establish the drift part */
+
+    if (nfeq)
+    {
+      for (Id iech = 0; iech < nech; iech++)
+        for (Id ivar = 0; ivar < NVAR; ivar++)
+          for (Id jvar = 0; jvar < NVAR; jvar++)
+          {
+            lhs.setValue(IND(iech, ivar), IND(jvar, NVAR), ivar == jvar);
+            lhs.setValue(IND(jvar, NVAR), IND(iech, ivar), ivar == jvar);
+          }
+    }
+
+    /* Compress from isotopic to heterotopic (if necessary) */
+
+    if (nred != neqmax)
+    {
+      Id lec = 0;
+      Id ecr = 0;
+      VectorDouble lhstab = lhs.getValues();
+      for (Id i = 0; i < neqmax; i++)
+        for (Id j = 0; j < neqmax; j++, lec++)
+          if (flag[i] && flag[j]) lhstab[ecr++] = lhstab[lec];
+      lhs.setValues(lhstab);
+      lhs.reset(nred, nred);
+    }
+
+    if (OptDbg::query(EDbg::KRIGING))
+      krige_lhs_print(nech, neqmax, nred, flag.data(), lhs.getValues().data());
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Establish the Kriging R.H.S.
+   **
+   ** \param[in]  ngh       Current ST_Seismic_Neigh structure
+   ** \param[in]  model     Model structure
+   ** \param[in]  nfeq      Number of drift condition per variable
+   ** \param[in]  nred      Reduced number of equations
+   ** \param[in]  flag      Array giving the flag
+   **
+   ** \param[out] rhs       Array containing the Kriging R.H.S.
+   **
+   *****************************************************************************/
+  static void st_estimate_rhs(
+    ST_Seismic_Neigh* ngh,
+    Model* model,
+    Id nfeq,
+    Id nred,
+    const VectorInt& flag,
+    MatrixDense& rhs)
+  {
+    VectorDouble d1(3);
+    Id nech = ngh->nactive;
+    Id neqmax = NVAR * (nech + nfeq);
+    CovCalcMode mode;
+    mode.setMember(ECalcMember::RHS);
+
+    /* Initialize the L.H.S. array */
+
+    rhs.reset(neqmax, NVAR);
+    rhs.fill(0.);
+
+    /* Establish the covariance part */
+
+    for (Id iech = 0; iech < nech; iech++)
+    {
+      d1[0] = DX * ngh->ix_ngh[iech];
+      d1[2] = DZ * ngh->iz_ngh[iech];
       model->evaluateMatInPlace(nullptr, d1, covtab, true);
 
       for (Id ivar = 0; ivar < NVAR; ivar++)
         for (Id jvar = 0; jvar < NVAR; jvar++)
-          lhs.setValue(IND(iech, ivar), IND(jech, jvar), covtab.getValue(ivar, jvar));
+          rhs.setValue(IND(iech, ivar), jvar, covtab.getValue(ivar, jvar));
     }
 
-  /* Establish the drift part */
+    /* Establish the drift part */
 
-  if (nfeq)
-  {
-    for (Id iech = 0; iech < nech; iech++)
+    if (nfeq)
+    {
       for (Id ivar = 0; ivar < NVAR; ivar++)
         for (Id jvar = 0; jvar < NVAR; jvar++)
-        {
-          lhs.setValue(IND(iech, ivar), IND(jvar, NVAR), (ivar == jvar));
-          lhs.setValue(IND(jvar, NVAR), IND(iech, ivar), (ivar == jvar));
-        }
-  }
-
-  /* Compress from isotopic to heterotopic (if necessary) */
-
-  if (nred != neqmax)
-  {
-    Id lec              = 0;
-    Id ecr              = 0;
-    VectorDouble lhstab = lhs.getValues();
-    for (Id i = 0; i < neqmax; i++)
-      for (Id j = 0; j < neqmax; j++, lec++)
-        if (flag[i] && flag[j])
-          lhstab[ecr++] = lhstab[lec];
-    lhs.setValues(lhstab);
-    lhs.reset(nred, nred);
-  }
-
-  if (OptDbg::query(EDbg::KRIGING))
-    krige_lhs_print(nech, neqmax, nred, flag.data(), lhs.getValues().data());
-}
-
-/****************************************************************************/
-/*!
- **  Establish the Kriging R.H.S.
- **
- ** \param[in]  ngh       Current ST_Seismic_Neigh structure
- ** \param[in]  model     Model structure
- ** \param[in]  nfeq      Number of drift condition per variable
- ** \param[in]  nred      Reduced number of equations
- ** \param[in]  flag      Array giving the flag
- **
- ** \param[out] rhs       Array containing the Kriging R.H.S.
- **
- *****************************************************************************/
-static void st_estimate_rhs(ST_Seismic_Neigh* ngh,
-                            Model* model,
-                            Id nfeq,
-                            Id nred,
-                            const VectorInt& flag,
-                            MatrixDense& rhs)
-{
-  VectorDouble d1(3);
-  Id nech   = ngh->nactive;
-  Id neqmax = NVAR * (nech + nfeq);
-  CovCalcMode mode;
-  mode.setMember(ECalcMember::RHS);
-
-  /* Initialize the L.H.S. array */
-
-  rhs.reset(neqmax, NVAR);
-  rhs.fill(0.);
-
-  /* Establish the covariance part */
-
-  for (Id iech = 0; iech < nech; iech++)
-  {
-    d1[0] = DX * ngh->ix_ngh[iech];
-    d1[2] = DZ * ngh->iz_ngh[iech];
-    model->evaluateMatInPlace(nullptr, d1, covtab, true);
-
-    for (Id ivar = 0; ivar < NVAR; ivar++)
-      for (Id jvar = 0; jvar < NVAR; jvar++)
-        rhs.setValue(IND(iech, ivar), jvar, covtab.getValue(ivar, jvar));
-  }
-
-  /* Establish the drift part */
-
-  if (nfeq)
-  {
-    for (Id ivar = 0; ivar < NVAR; ivar++)
-      for (Id jvar = 0; jvar < NVAR; jvar++)
-        rhs.setValue(IND(jvar, NVAR), ivar, (ivar == jvar));
-  }
-
-  /* Compress from isotopic to heterotopic */
-
-  if (nred != neqmax)
-  {
-    VectorDouble rhstab = rhs.getValues();
-    Id ecr              = 0;
-    Id lec              = 0;
-    for (Id ivar = 0; ivar < NVAR; ivar++)
-      for (Id i = 0; i < neqmax; i++, lec++)
-        if (flag[i])
-          rhstab[ecr++] = rhstab[lec];
-    rhs.setValues(rhstab);
-    rhs.reset(nred, NVAR);
-  }
-
-  if (OptDbg::query(EDbg::KRIGING))
-    krige_rhs_print(NVAR, nech, neqmax, nred, flag.data(), rhs.getValues().data());
-}
-
-/****************************************************************************/
-/*!
- **  Print the kriging weights
- **
- ** \param[in]  ngh     ST_Seismic_Neigh structure
- ** \param[in]  nvar    Number of variables
- ** \param[in]  nech    Number of active points
- ** \param[in]  nred    Reduced number of equations
- ** \param[in]  flag    Flag array
- ** \param[in]  wgt     Array of Kriging weights
- **
- *****************************************************************************/
-static void st_wgt_print(ST_Seismic_Neigh* ngh,
-                         Id nvar,
-                         Id nech,
-                         Id nred,
-                         const Id* flag,
-                         const double* wgt)
-{
-  double sum[2], value;
-  Id iwgt, ivar, jvar, iech, lec, cumflag;
-  String string;
-
-  /* Header */
-
-  mestitle(0, "(Co-) Kriging weights");
-
-  /* First line */
-
-  printElement("Rank");
-  printElement("Delta-X");
-  printElement("Delta-Z");
-  printElement("Data");
-  for (ivar = 0; ivar < nvar; ivar++)
-  {
-    (void)gslSPrintf(string, "Z%d*", ivar + 1);
-    printElement(string);
-  }
-  message("\n");
-
-  /* Display the information and the weights */
-
-  for (jvar = lec = cumflag = 0; jvar < nvar; jvar++)
-  {
-    if (nvar > 1) message("Using variable Z%-2d\n", jvar + 1);
-
-    /* Loop on the samples */
-
-    for (ivar = 0; ivar < nvar; ivar++)
-      sum[ivar] = 0.;
-    for (iech = 0; iech < nech; iech++, lec++)
-    {
-      printElement(iech + 1);
-      printElement(ngh->ix_ngh[iech]);
-      printElement(ngh->iz_ngh[iech]);
-      if (jvar == 0)
-        printElement(ngh->v1_ngh[iech]);
-      else
-        printElement(ngh->v2_ngh[iech]);
-
-      for (ivar = 0; ivar < nvar; ivar++)
-      {
-        iwgt  = nred * ivar + cumflag;
-        value = (flag[lec]) ? wgt[iwgt] : TEST;
-        if (!FFFF(value)) sum[ivar] += value;
-        printElement(value);
-      }
-      if (flag[lec]) cumflag++;
-      message("\n");
+          rhs.setValue(IND(jvar, NVAR), ivar, ivar == jvar);
     }
 
-    printElement("Sum of weights", String(), 4, -1);
+    /* Compress from isotopic to heterotopic */
+
+    if (nred != neqmax)
+    {
+      VectorDouble rhstab = rhs.getValues();
+      Id ecr = 0;
+      Id lec = 0;
+      for (Id ivar = 0; ivar < NVAR; ivar++)
+        for (Id i = 0; i < neqmax; i++, lec++)
+          if (flag[i]) rhstab[ecr++] = rhstab[lec];
+      rhs.setValues(rhstab);
+      rhs.reset(nred, NVAR);
+    }
+
+    if (OptDbg::query(EDbg::KRIGING))
+      krige_rhs_print(
+        NVAR, nech, neqmax, nred, flag.data(), rhs.getValues().data());
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Print the kriging weights
+   **
+   ** \param[in]  ngh     ST_Seismic_Neigh structure
+   ** \param[in]  nvar    Number of variables
+   ** \param[in]  nech    Number of active points
+   ** \param[in]  nred    Reduced number of equations
+   ** \param[in]  flag    Flag array
+   ** \param[in]  wgt     Array of Kriging weights
+   **
+   *****************************************************************************/
+  static void st_wgt_print(
+    ST_Seismic_Neigh* ngh,
+    Id nvar,
+    Id nech,
+    Id nred,
+    const Id* flag,
+    const double* wgt)
+  {
+    double sum[2], value;
+    Id iwgt, ivar, jvar, iech, lec, cumflag;
+    String string;
+
+    /* Header */
+
+    mestitle(0, "(Co-) Kriging weights");
+
+    /* First line */
+
+    printElement("Rank");
+    printElement("Delta-X");
+    printElement("Delta-Z");
+    printElement("Data");
     for (ivar = 0; ivar < nvar; ivar++)
-      printElement(sum[ivar]);
+    {
+      (void)gslSPrintf(string, "Z%d*", ivar + 1);
+      printElement(string);
+    }
     message("\n");
-  }
-}
 
-/****************************************************************************/
-/*!
-**  Establish the Kriging Weights
-**
-** \return  Error return code
-**
-** \param[in]  ngh       Current ST_Seismic_Neigh structure
-** \param[in]  nred      Reduced number of Kriging equations
-** \param[in]  flag      Array giving the flag
-** \param[in]  lhs       Array of Kriging L.H.S.
-** \param[in]  rhs       Array of Kriging R.H.S.
-**
-** \param[out] wgt       Array containing the Kriging Weights
-**
-*****************************************************************************/
-static Id st_estimate_wgt(ST_Seismic_Neigh* ngh,
-                          Model* /*model*/,
-                          Id nred,
-                          const VectorInt& flag,
-                          MatrixSquare& lhs,
-                          const MatrixDense& rhs,
-                          MatrixDense& wgt)
-{
-  Id nech = ngh->nactive;
-  if (nech <= 0) return (0);
+    /* Display the information and the weights */
 
-  /* Calculate the kriging weights */
+    for (jvar = lec = cumflag = 0; jvar < nvar; jvar++)
+    {
+      if (nvar > 1) message("Using variable Z%-2d\n", jvar + 1);
 
-  lhs.invert();
-  lhs.prodMatMatInPlace(&rhs, &wgt);
+      /* Loop on the samples */
 
-  if (OptDbg::query(EDbg::KRIGING))
-    st_wgt_print(ngh, NVAR, nech, nred, flag.data(), wgt.getValues().data());
-
-  return (0);
-}
-
-/****************************************************************************/
-/*!
-**  Perform the Kriging
-**
-** \param[in]  db        Grid Db structure
-** \param[in]  ngh       Current ST_Seismic_Neigh structure
-** \param[in]  flag_std  1 for the calculation of the St. Dev.
-** \param[in]  nred      Reduced number of equations
-** \param[in]  flag      Array giving the flag
-** \param[in]  wgt       Array containing the Kriging weights
-** \param[in]  rhs       Array containing the R.H.S. member
-** \param[in]  var0      Array containing the C00 terms
-** \param[in]  iatt_est  Array of pointers to the kriged result
-** \param[in]  iatt_std  Array of pointers to the variance of estimation
-**
-*****************************************************************************/
-static void st_estimate_result(Db* db,
-                               ST_Seismic_Neigh* ngh,
-                               Id flag_std,
-                               Id /*nfeq*/,
-                               Id nred,
-                               const VectorInt& flag,
-                               const MatrixDense& wgt,
-                               const MatrixDense& rhs,
-                               const VectorDouble& var0,
-                               Id* iatt_est,
-                               Id* iatt_std)
-{
-  Id i, ivar, jvar, nech, lec;
-  double result, value, stdev;
-
-  /* Initializations */
-
-  nech = ngh->nactive;
-  if (OptDbg::query(EDbg::RESULTS)) mestitle(0, "(Co-) Kriging results");
-
-  /* Loop on the variables */
-
-  for (ivar = 0; ivar < NVAR; ivar++)
-  {
-
-    /* Estimation */
-
-    result = stdev = 0.;
-    lec            = 0;
-    for (jvar = 0; jvar < NVAR; jvar++)
-      for (i = 0; i < nech; i++)
+      for (ivar = 0; ivar < nvar; ivar++) sum[ivar] = 0.;
+      for (iech = 0; iech < nech; iech++, lec++)
       {
-        if (!flag[jvar * nech + i]) continue;
-        value = (jvar == 0) ? ngh->v1_ngh[i] : ngh->v2_ngh[i];
-        result += wgt.getValue(lec++, ivar) * value;
+        printElement(iech + 1);
+        printElement(ngh->ix_ngh[iech]);
+        printElement(ngh->iz_ngh[iech]);
+        if (jvar == 0)
+          printElement(ngh->v1_ngh[iech]);
+        else
+          printElement(ngh->v2_ngh[iech]);
+
+        for (ivar = 0; ivar < nvar; ivar++)
+        {
+          iwgt = nred * ivar + cumflag;
+          value = (flag[lec]) ? wgt[iwgt] : TEST;
+          if (!FFFF(value)) sum[ivar] += value;
+          printElement(value);
+        }
+        if (flag[lec]) cumflag++;
+        message("\n");
       }
-    db->setArray(IECH_OUT, iatt_est[ivar], result);
 
-    /* Variance of estimation */
-
-    if (flag_std)
-    {
-      stdev = var0[ivar];
-      lec   = 0;
-      for (i = 0; i < nred; i++)
-        stdev -= rhs.getValue(lec + i, ivar) * wgt.getValue(lec + i, ivar);
-      stdev = (stdev > 0) ? sqrt(stdev) : 0.;
-      db->setArray(IECH_OUT, iatt_std[ivar], stdev);
-    }
-
-    if (OptDbg::query(EDbg::RESULTS))
-    {
-      printElement(ivar + 1);
-      printElement(result, " - Estimate  = ");
-      if (flag_std) printElement(stdev, " - St. Dev.  = ");
+      printElement("Sum of weights", String(), 4, -1);
+      for (ivar = 0; ivar < nvar; ivar++) printElement(sum[ivar]);
       message("\n");
     }
   }
-}
 
-/****************************************************************************/
-/*!
-**  Perform the Simulation
-**
-** \param[in]  db        Grid Db structure
-** \param[in]  ix0       Rank of the target trace
-** \param[in]  iz0       Rank of the target sample within the target trace
-** \param[in]  ngh       Current ST_Seismic_Neigh structure
-** \param[in]  nbsimu    Number of simulations
-** \param[in]  nred      Reduced number of equations
-** \param[in]  flag      Array giving the flag
-** \param[in]  wgt       Array containing the Kriging weights
-** \param[in]  rhs       Array containing the R.H.S. member
-** \param[in]  c00       Array containing the C00 terms
-** \param[in]  iatt_sim  Array of pointers to the simulated results
-**
-*****************************************************************************/
-static void st_simulate_result(DbGrid* db,
-                               Id ix0,
-                               Id iz0,
-                               ST_Seismic_Neigh* ngh,
-                               Id nbsimu,
-                               Id /*nfeq*/,
-                               Id nred,
-                               const VectorInt& flag,
-                               const MatrixDense& wgt,
-                               const MatrixDense& rhs,
-                               const MatrixSquare& c00,
-                               Id* iatt_sim)
-{
-  Id i, ivar, jvar, nech, lec, isimu, iech;
-  double result[2], value, sigma0, sigma1, sigma2, z1, z2, l0, lb[4];
-
-  /* Initializations */
-
-  nech = ngh->nactive;
-  if (OptDbg::query(EDbg::RESULTS)) mestitle(0, "(Co-) Simulation results");
-
-  /* Pre-calculations */
-
-  for (ivar = 0; ivar < NVAR; ivar++)
-    for (jvar = 0; jvar < NVAR; jvar++)
-    {
-      value = 0.;
-      for (i = 0; i < nred; i++)
-        value += wgt.getValue(i, ivar) * rhs.getValue(i, jvar);
-      LB(ivar, jvar) = value;
-    }
-
-  /* Loop on the simulations */
-
-  for (isimu = 0; isimu < nbsimu; isimu++)
+  /****************************************************************************/
+  /*!
+  **  Establish the Kriging Weights
+  **
+  ** \return  Error return code
+  **
+  ** \param[in]  ngh       Current ST_Seismic_Neigh structure
+  ** \param[in]  nred      Reduced number of Kriging equations
+  ** \param[in]  flag      Array giving the flag
+  ** \param[in]  lhs       Array of Kriging L.H.S.
+  ** \param[in]  rhs       Array of Kriging R.H.S.
+  **
+  ** \param[out] wgt       Array containing the Kriging Weights
+  **
+  *****************************************************************************/
+  static Id st_estimate_wgt(
+    ST_Seismic_Neigh* ngh,
+    Model* /*model*/,
+    Id nred,
+    const VectorInt& flag,
+    MatrixSquare& lhs,
+    const MatrixDense& rhs,
+    MatrixDense& wgt)
   {
+    Id nech = ngh->nactive;
+    if (nech <= 0) return (0);
 
-    /* Estimation of the variables (processed individually) */
+    /* Calculate the kriging weights */
+
+    lhs.invert();
+    AMatrix::prodMatMatInPlace(lhs, rhs, wgt);
+
+    if (OptDbg::query(EDbg::KRIGING))
+      st_wgt_print(ngh, NVAR, nech, nred, flag.data(), wgt.getValues().data());
+
+    return (0);
+  }
+
+  /****************************************************************************/
+  /*!
+  **  Perform the Kriging
+  **
+  ** \param[in]  db        Grid Db structure
+  ** \param[in]  ngh       Current ST_Seismic_Neigh structure
+  ** \param[in]  flag_std  1 for the calculation of the St. Dev.
+  ** \param[in]  nred      Reduced number of equations
+  ** \param[in]  flag      Array giving the flag
+  ** \param[in]  wgt       Array containing the Kriging weights
+  ** \param[in]  rhs       Array containing the R.H.S. member
+  ** \param[in]  var0      Array containing the C00 terms
+  ** \param[in]  iatt_est  Array of pointers to the kriged result
+  ** \param[in]  iatt_std  Array of pointers to the variance of estimation
+  **
+  *****************************************************************************/
+  static void st_estimate_result(
+    Db* db,
+    ST_Seismic_Neigh* ngh,
+    Id flag_std,
+    Id /*nfeq*/,
+    Id nred,
+    const VectorInt& flag,
+    const MatrixDense& wgt,
+    const MatrixDense& rhs,
+    const VectorDouble& var0,
+    Id* iatt_est,
+    Id* iatt_std)
+  {
+    Id i, ivar, jvar, nech, lec;
+    double result, value, stdev;
+
+    /* Initializations */
+
+    nech = ngh->nactive;
+    if (OptDbg::query(EDbg::RESULTS)) mestitle(0, "(Co-) Kriging results");
+
+    /* Loop on the variables */
 
     for (ivar = 0; ivar < NVAR; ivar++)
     {
 
       /* Estimation */
 
-      result[ivar] = 0.;
-      lec          = 0;
+      result = stdev = 0.;
+      lec = 0;
       for (jvar = 0; jvar < NVAR; jvar++)
         for (i = 0; i < nech; i++)
         {
           if (!flag[jvar * nech + i]) continue;
-          iech  = st_absolute_index(db, ix0 + ngh->ix_ngh[i], iz0 + ngh->iz_ngh[i]);
-          value = db->getArray(iech, iatt_sim[jvar] + isimu);
-          result[ivar] += wgt.getValue(lec++, ivar) * value;
+          value = (jvar == 0) ? ngh->v1_ngh[i] : ngh->v2_ngh[i];
+          result += wgt.getValue(lec++, ivar) * value;
         }
-    }
+      db->setArray(IECH_OUT, iatt_est[ivar], result);
 
-    /* Link the two variables */
+      /* Variance of estimation */
 
-    sigma1 = c00.getValue(0, 0) - LB(0, 0);
-    sigma2 = c00.getValue(1, 1) - LB(1, 1);
-
-    z2 = db->getArray(IECH_OUT, iatt_sim[1] + isimu);
-    if (FFFF(z2)) z2 = result[1] + sqrt(MAX(0, sigma2)) * law_gaussian();
-    z1 = db->getArray(IECH_OUT, iatt_sim[0] + isimu);
-    if (FFFF(z1) && sigma2 > 0)
-    {
-      l0     = (c00.getValue(0, 1) - LB(0, 1)) / sigma2;
-      sigma0 = sigma1 - l0 * (c00.getValue(0, 1) - LB(1, 0));
-      sigma0 = sqrt(MAX(0, sigma0));
-      z1     = result[0] + (z2 - result[1]) * l0 + sigma0 * law_gaussian();
-    }
-    result[0] = z1;
-    result[1] = z2;
-
-    /* Store the results */
-
-    for (ivar = 0; ivar < NVAR; ivar++)
-    {
-      db->setArray(IECH_OUT, iatt_sim[ivar] + isimu, result[ivar]);
+      if (flag_std)
+      {
+        stdev = var0[ivar];
+        lec = 0;
+        for (i = 0; i < nred; i++)
+          stdev -= rhs.getValue(lec + i, ivar) * wgt.getValue(lec + i, ivar);
+        stdev = (stdev > 0) ? sqrt(stdev) : 0.;
+        db->setArray(IECH_OUT, iatt_std[ivar], stdev);
+      }
 
       if (OptDbg::query(EDbg::RESULTS))
       {
-        message("Simulation #%d of Z%-2d : ", isimu + 1, ivar + 1);
-        printElement(result[ivar], " = ");
+        printElement(ivar + 1);
+        printElement(result, " - Estimate  = ");
+        if (flag_std) printElement(stdev, " - St. Dev.  = ");
         message("\n");
       }
     }
   }
-}
 
-/****************************************************************************/
-/*!
- **  Order the traces to be processed
- **
- ** \return Error return code
- **
- ** \param[in] presence  Array giving the number of valid samples per trace
- **
- ** \param[out] rank     Array giving the order of the traces
- **
- *****************************************************************************/
-static Id st_estimate_sort(const VectorInt& presence, VectorInt& rank)
-{
-  double distmin, distval;
-  Id ix, jx;
-  VectorDouble dist(NX);
-
-  /* Sort the traces */
-  for (ix = 0; ix < NX; ix++)
+  /****************************************************************************/
+  /*!
+  **  Perform the Simulation
+  **
+  ** \param[in]  db        Grid Db structure
+  ** \param[in]  ix0       Rank of the target trace
+  ** \param[in]  iz0       Rank of the target sample within the target trace
+  ** \param[in]  ngh       Current ST_Seismic_Neigh structure
+  ** \param[in]  nbsimu    Number of simulations
+  ** \param[in]  nred      Reduced number of equations
+  ** \param[in]  flag      Array giving the flag
+  ** \param[in]  wgt       Array containing the Kriging weights
+  ** \param[in]  rhs       Array containing the R.H.S. member
+  ** \param[in]  c00       Array containing the C00 terms
+  ** \param[in]  iatt_sim  Array of pointers to the simulated results
+  **
+  *****************************************************************************/
+  static void st_simulate_result(
+    DbGrid* db,
+    Id ix0,
+    Id iz0,
+    ST_Seismic_Neigh* ngh,
+    Id nbsimu,
+    Id /*nfeq*/,
+    Id nred,
+    const VectorInt& flag,
+    const MatrixDense& wgt,
+    const MatrixDense& rhs,
+    const MatrixSquare& c00,
+    Id* iatt_sim)
   {
-    rank[ix] = ix;
-    distmin  = MAXIMUM_BIG;
-    for (jx = 0; jx < NX; jx++)
+    Id i, ivar, jvar, nech, lec, isimu, iech;
+    double result[2], value, sigma0, sigma1, sigma2, z1, z2, l0, lb[4];
+
+    /* Initializations */
+
+    nech = ngh->nactive;
+    if (OptDbg::query(EDbg::RESULTS)) mestitle(0, "(Co-) Simulation results");
+
+    /* Pre-calculations */
+
+    for (ivar = 0; ivar < NVAR; ivar++)
+      for (jvar = 0; jvar < NVAR; jvar++)
+      {
+        value = 0.;
+        for (i = 0; i < nred; i++)
+          value += wgt.getValue(i, ivar) * rhs.getValue(i, jvar);
+        LB(ivar, jvar) = value;
+      }
+
+    /* Loop on the simulations */
+
+    for (isimu = 0; isimu < nbsimu; isimu++)
     {
-      if (presence[jx] <= 0) continue;
-      distval = ABS(ix - jx);
-      if (distval <= distmin) distmin = distval;
+
+      /* Estimation of the variables (processed individually) */
+
+      for (ivar = 0; ivar < NVAR; ivar++)
+      {
+
+        /* Estimation */
+
+        result[ivar] = 0.;
+        lec = 0;
+        for (jvar = 0; jvar < NVAR; jvar++)
+          for (i = 0; i < nech; i++)
+          {
+            if (!flag[jvar * nech + i]) continue;
+            iech =
+              st_absolute_index(db, ix0 + ngh->ix_ngh[i], iz0 + ngh->iz_ngh[i]);
+            value = db->getArray(iech, iatt_sim[jvar] + isimu);
+            result[ivar] += wgt.getValue(lec++, ivar) * value;
+          }
+      }
+
+      /* Link the two variables */
+
+      sigma1 = c00.getValue(0, 0) - LB(0, 0);
+      sigma2 = c00.getValue(1, 1) - LB(1, 1);
+
+      z2 = db->getArray(IECH_OUT, iatt_sim[1] + isimu);
+      if (FFFF(z2)) z2 = result[1] + sqrt(MAX(0, sigma2)) * law_gaussian();
+      z1 = db->getArray(IECH_OUT, iatt_sim[0] + isimu);
+      if (FFFF(z1) && sigma2 > 0)
+      {
+        l0 = (c00.getValue(0, 1) - LB(0, 1)) / sigma2;
+        sigma0 = sigma1 - l0 * (c00.getValue(0, 1) - LB(1, 0));
+        sigma0 = sqrt(MAX(0, sigma0));
+        z1 = result[0] + (z2 - result[1]) * l0 + sigma0 * law_gaussian();
+      }
+      result[0] = z1;
+      result[1] = z2;
+
+      /* Store the results */
+
+      for (ivar = 0; ivar < NVAR; ivar++)
+      {
+        db->setArray(IECH_OUT, iatt_sim[ivar] + isimu, result[ivar]);
+
+        if (OptDbg::query(EDbg::RESULTS))
+        {
+          message("Simulation #%d of Z%-2d : ", isimu + 1, ivar + 1);
+          printElement(result[ivar], " = ");
+          message("\n");
+        }
+      }
     }
-    dist[ix] = distmin;
   }
-  ut_sort_double(1, NX, rank.data(), dist.data());
 
-  return (0);
-}
-
-/****************************************************************************/
-/*!
- **  Perform a bivariate estimation on a grid
- **
- ** \return  Error return code
- **
- ** \param[in,out]  db     Grid Db structure
- ** \param[in]  model      Model structure
- ** \param[in]  nbench     Vertical Radius of the neighborhood (center excluded)
- ** \param[in]  nv2max     Maximum number of traces of second variable on each
- **                        side of the target trace
- ** \param[in]  flag_ks    1 for a Simple Kriging; otherwise Ordinary Kriging
- ** \param[in]  flag_std   1 for the calculation of the St. Dev.
- ** \param[in]  flag_sort  1 if the traces to be treated are sorted
- **                        by increasing distance to trace where first
- **                        variable is defined
- ** \param[in]  flag_stat  1 for producing final statistics
- **
- *****************************************************************************/
-Id seismic_estimate_XZ(DbGrid* db,
-                       Model* model,
-                       Id nbench,
-                       Id nv2max,
-                       Id flag_ks,
-                       Id flag_std,
-                       Id flag_sort,
-                       Id flag_stat)
-{
-  Id npres[2], iatt_est[2], iatt_std[2];
-  Id i, ix0, jx0, iz0, nvois, size, error, nred, nfeq, iatt_z1, iatt_z2;
-  Id nb_total, nb_process, nb_calcul;
-  ST_Seismic_Neigh *ngh_cur, *ngh_old;
-  MatrixSquare lhs;
-  MatrixDense rhs;
-  MatrixDense wgt;
-  VectorDouble var0;
-  VectorInt flag;
-  VectorInt rank;
-  VectorVectorInt presence(2);
-
-  /* Initializations */
-
-  error = 1;
-  nvois = nred = nb_total = nb_process = nb_calcul = 0;
-  nfeq                                             = (flag_ks) ? 0 : 1;
-  ngh_cur = ngh_old = nullptr;
-  for (i = 0; i < 2; i++)
+  /****************************************************************************/
+  /*!
+   **  Order the traces to be processed
+   **
+   ** \return Error return code
+   **
+   ** \param[in] presence  Array giving the number of valid samples per trace
+   **
+   ** \param[out] rank     Array giving the order of the traces
+   **
+   *****************************************************************************/
+  static Id st_estimate_sort(const VectorInt& presence, VectorInt& rank)
   {
-    iatt_est[i] = -1;
-    iatt_std[i] = -1;
-    presence[i].clear();
-    npres[i] = 0;
+    double distmin, distval;
+    Id ix, jx;
+    VectorDouble dist(NX);
+
+    /* Sort the traces */
+    for (ix = 0; ix < NX; ix++)
+    {
+      rank[ix] = ix;
+      distmin = MAXIMUM_BIG;
+      for (jx = 0; jx < NX; jx++)
+      {
+        if (presence[jx] <= 0) continue;
+        distval = ABS(ix - jx);
+        if (distval <= distmin) distmin = distval;
+      }
+      dist[ix] = distmin;
+    }
+    ut_sort_double(1, NX, rank.data(), dist.data());
+
+    return (0);
   }
-  if (krige_koption_manage(1, 1, EKrigOpt::POINT, 1, VectorInt())) goto label_end;
 
-  /* Check that the grid is XZ */
-
-  if (!db->isGrid())
+  /****************************************************************************/
+  /*!
+   **  Perform a bivariate estimation on a grid
+   **
+   ** \return  Error return code
+   **
+   ** \param[in,out]  db     Grid Db structure
+   ** \param[in]  model      Model structure
+   ** \param[in]  nbench     Vertical Radius of the neighborhood (center excluded)
+   ** \param[in]  nv2max     Maximum number of traces of second variable on each
+   **                        side of the target trace
+   ** \param[in]  flag_ks    1 for a Simple Kriging; otherwise Ordinary Kriging
+   ** \param[in]  flag_std   1 for the calculation of the St. Dev.
+   ** \param[in]  flag_sort  1 if the traces to be treated are sorted
+   **                        by increasing distance to trace where first
+   **                        variable is defined
+   ** \param[in]  flag_stat  1 for producing final statistics
+   **
+   *****************************************************************************/
+  Id seismic_estimate_XZ(
+    DbGrid* db,
+    Model* model,
+    Id nbench,
+    Id nv2max,
+    Id flag_ks,
+    Id flag_std,
+    Id flag_sort,
+    Id flag_stat)
   {
-    messerr("The Db structure must be a Grid Db");
-    return (1);
-  }
-  NX      = db->getNX(0);
-  NY      = db->getNX(1);
-  NZ      = db->getNX(2);
-  DX      = db->getDX(0);
-  DZ      = db->getDX(2);
-  NVAR    = db->getNLoc(ELoc::Z);
-  iatt_z1 = db->getUIDByLocator(ELoc::Z, 0);
-  iatt_z2 = db->getUIDByLocator(ELoc::Z, 1);
+    Id npres[2], iatt_est[2], iatt_std[2];
+    Id i, ix0, jx0, iz0, nvois, size, error, nred, nfeq, iatt_z1, iatt_z2;
+    Id nb_total, nb_process, nb_calcul;
+    ST_Seismic_Neigh *ngh_cur, *ngh_old;
+    MatrixSquare lhs;
+    MatrixDense rhs;
+    MatrixDense wgt;
+    VectorDouble var0;
+    VectorInt flag;
+    VectorInt rank;
+    VectorVectorInt presence(2);
 
-  if (NX <= 1 || NY != 1 || NZ <= 1)
-  {
-    messerr("The Db grid is not XZ");
-    goto label_end;
-  }
-  if (NVAR != 2)
-  {
-    messerr("This function is restricted to the use of two variable");
-    goto label_end;
-  }
+    /* Initializations */
 
-  /* Core allocation (first) */
-
-  for (i = 0; i < 2; i++)
-  {
-    presence[i].resize(NX);
-  }
-
-  /* Look for columns where each variable is defined */
-
-  for (i = 0; i < 2; i++)
-    st_estimate_check_presence(db, i, &npres[i], presence[i]);
-
-  /* Maximum dimension of the neighborhood */
-
-  nvois = (2 * nbench + 1) * (npres[0] + 2 * nv2max + 1);
-  size  = NVAR * (nvois + nfeq);
-
-  /* Core allocation (second) */
-
-  ngh_cur = st_estimate_neigh_management(1, nvois, ngh_cur);
-  if (ngh_cur == nullptr) goto label_end;
-  ngh_old = st_estimate_neigh_management(1, nvois, ngh_old);
-  if (ngh_old == nullptr) goto label_end;
-  covtab = MatrixSquare(NVAR);
-  lhs.reset(size, size);
-  rhs.reset(size, NVAR);
-  wgt.reset(size, NVAR);
-  flag.resize(size);
-  rank.resize(NX);
-  if (flag_std) var0.resize(NVAR);
-
-  /* Add the resulting variables */
-
-  for (i = 0; i < 2; i++)
-  {
-    iatt_est[i] = db->addColumnsByConstant(1, TEST);
-    if (iatt_est[i] < 0) goto label_end;
-  }
-  if (flag_std)
+    error = 1;
+    nvois = nred = nb_total = nb_process = nb_calcul = 0;
+    nfeq = (flag_ks) ? 0 : 1;
+    ngh_cur = ngh_old = nullptr;
     for (i = 0; i < 2; i++)
     {
-      iatt_std[i] = db->addColumnsByConstant(1, TEST);
-      if (iatt_std[i] < 0) goto label_end;
+      iatt_est[i] = -1;
+      iatt_std[i] = -1;
+      presence[i].clear();
+      npres[i] = 0;
+    }
+    if (krige_koption_manage(1, 1, EKrigOpt::POINT, 1, VectorInt()))
+      goto label_end;
+
+    /* Check that the grid is XZ */
+
+    if (!db->isGrid())
+    {
+      messerr("The Db structure must be a Grid Db");
+      return (1);
+    }
+    NX = db->getNX(0);
+    NY = db->getNX(1);
+    NZ = db->getNX(2);
+    DX = db->getDX(0);
+    DZ = db->getDX(2);
+    NVAR = db->getNLoc(ELoc::Z);
+    iatt_z1 = db->getUIDByLocator(ELoc::Z, 0);
+    iatt_z2 = db->getUIDByLocator(ELoc::Z, 1);
+
+    if (NX <= 1 || NY != 1 || NZ <= 1)
+    {
+      messerr("The Db grid is not XZ");
+      goto label_end;
+    }
+    if (NVAR != 2)
+    {
+      messerr("This function is restricted to the use of two variable");
+      goto label_end;
     }
 
-  /* Calculate the constant terms for the variances */
+    /* Core allocation (first) */
 
-  if (flag_std) st_estimate_var0(model, var0);
-
-  /* Calculate the order of the columns to be treated */
-
-  if (st_estimate_sort(presence[0], rank)) goto label_end;
-
-  /* Loop on the grid nodes */
-
-  for (jx0 = 0; jx0 < NX; jx0++)
-  {
-    ix0 = (flag_sort) ? rank[jx0] : jx0;
-    for (iz0 = 0; iz0 < NZ; iz0++)
+    for (i = 0; i < 2; i++)
     {
-      nb_total++;
-      IECH_OUT = st_absolute_index(db, ix0, iz0);
-      OptDbg::setCurrentIndex(IECH_OUT + 1);
-      if (!db->isActive(IECH_OUT)) continue;
+      presence[i].resize(NX);
+    }
 
-      /* Look for the neighborhood */
+    /* Look for columns where each variable is defined */
 
-      if (st_estimate_neigh_create(db, 0, iatt_z1, iatt_z2, ix0, iz0, nbench,
-                                   nv2max, npres, presence, ngh_cur)) continue;
+    for (i = 0; i < 2; i++)
+      st_estimate_check_presence(db, i, &npres[i], presence[i]);
 
-      /* Check if the neighborhood is unchanged */
+    /* Maximum dimension of the neighborhood */
 
-      if (!st_estimate_neigh_unchanged(ngh_old, ngh_cur) || OptDbg::force())
+    nvois = (2 * nbench + 1) * (npres[0] + 2 * nv2max + 1);
+    size = NVAR * (nvois + nfeq);
+
+    /* Core allocation (second) */
+
+    ngh_cur = st_estimate_neigh_management(1, nvois, ngh_cur);
+    if (ngh_cur == nullptr) goto label_end;
+    ngh_old = st_estimate_neigh_management(1, nvois, ngh_old);
+    if (ngh_old == nullptr) goto label_end;
+    covtab = MatrixSquare(NVAR);
+    lhs.reset(size, size);
+    rhs.reset(size, NVAR);
+    wgt.reset(size, NVAR);
+    flag.resize(size);
+    rank.resize(NX);
+    if (flag_std) var0.resize(NVAR);
+
+    /* Add the resulting variables */
+
+    for (i = 0; i < 2; i++)
+    {
+      iatt_est[i] = db->addColumnsByConstant(1, TEST);
+      if (iatt_est[i] < 0) goto label_end;
+    }
+    if (flag_std)
+      for (i = 0; i < 2; i++)
       {
-        nb_calcul++;
-
-        /* Establish the flag */
-
-        st_estimate_flag(ngh_cur, nfeq, flag, &nred);
-
-        /* Establish the kriging L.H.S. */
-
-        st_estimate_lhs(ngh_cur, model, nfeq, nred, flag, lhs);
-
-        /* Establish the kriging R.H.S. */
-
-        st_estimate_rhs(ngh_cur, model, nfeq, nred, flag, rhs);
-
-        /* Derive the kriging weights */
-
-        if (st_estimate_wgt(ngh_cur, model, nred, flag, lhs, rhs, wgt)) continue;
+        iatt_std[i] = db->addColumnsByConstant(1, TEST);
+        if (iatt_std[i] < 0) goto label_end;
       }
 
-      /* Perform the estimation */
+    /* Calculate the constant terms for the variances */
 
-      st_estimate_result(db, ngh_cur, flag_std, nfeq, nred,
-                         flag, wgt, rhs, var0, iatt_est, iatt_std);
+    if (flag_std) st_estimate_var0(model, var0);
 
-      /* Save the neighborhood */
+    /* Calculate the order of the columns to be treated */
 
-      st_estimate_neigh_copy(ngh_cur, ngh_old);
-      nb_process++;
-    }
-  }
+    if (st_estimate_sort(presence[0], rank)) goto label_end;
 
-  /* Set the error return code */
+    /* Loop on the grid nodes */
 
-  error = 0;
-
-label_end:
-  OptDbg::setCurrentIndex(0);
-  if (flag_stat)
-  {
-    message("Statistics on the number of nodes:\n");
-    message("- Total number of grid nodes  = %d\n", nb_total);
-    message("- Nodes sucessfully processed = %d\n", nb_process);
-    message("- Kriging system calculated   = %d\n", nb_calcul);
-  }
-  for (i = 0; i < 2; i++)
-  {
-    presence[i].clear();
-    if (error && iatt_est[i] >= 0) db->deleteColumnByUID(iatt_est[i]);
-    if (error && iatt_std[i] >= 0) db->deleteColumnByUID(iatt_std[i]);
-  }
-  (void)krige_koption_manage(-1, 1, EKrigOpt::POINT, 1, VectorInt());
-  st_estimate_neigh_management(-1, nvois, ngh_cur);
-  st_estimate_neigh_management(-1, nvois, ngh_old);
-
-  return (error);
-}
-
-/****************************************************************************/
-/*!
- **  Copy the main attributes in the simulations
- **
- ** \param[in]  db       Grid Db structure
- ** \param[in]  nbsimu   Number of simulations
- ** \param[in]  iatt     Address of the first item for each variable
- **
- *****************************************************************************/
-static void st_copy_attribute(Db* db, Id nbsimu, Id* iatt)
-{
-  Id ivar, isimu, iech, nech;
-  double value;
-
-  /* Initializations */
-
-  nech = db->getNSample();
-
-  /* Loop on the variables */
-
-  for (ivar = 0; ivar < NVAR; ivar++)
-  {
-
-    /* Loop on the samples */
-
-    for (iech = 0; iech < nech; iech++)
+    for (jx0 = 0; jx0 < NX; jx0++)
     {
-      value = db->getZVariable(iech, ivar);
-
-      /* Loop on the simulations */
-
-      for (isimu = 0; isimu < nbsimu; isimu++)
-        db->setArray(iech, iatt[ivar] + isimu, value);
-    }
-  }
-}
-
-/****************************************************************************/
-/*!
- **  Perform a bivariate cosimulation on a grid
- **
- ** \return  Error return code
- **
- ** \param[in,out] db      Grid Db structure
- ** \param[in]  model      Model structure
- ** \param[in]  nbench     Vertical Radius of the neighborhood (center excluded)
- ** \param[in]  nv2max     Maximum number of traces of second variable on each
- **                        side of the target trace
- ** \param[in]  nbsimu     Number of simulations
- ** \param[in]  seed       Seed for the random number generator
- ** \param[in]  flag_ks    1 for a Simple Kriging; otherwise Ordinary Kriging
- ** \param[in]  flag_sort  1 if the traces to be treated are sorted
- **                        by increasing distance to trace where first
- **                        variable is defined
- ** \param[in]  flag_stat  1 for producing final statistics
- **
- *****************************************************************************/
-Id seismic_simulate_XZ(DbGrid* db,
-                       Model* model,
-                       Id nbench,
-                       Id nv2max,
-                       Id nbsimu,
-                       Id seed,
-                       Id flag_ks,
-                       Id flag_sort,
-                       Id flag_stat)
-{
-  Id npres[2], iatt_sim[2];
-  Id i, isimu, ix0, iz0, nvois, size, error, nred, nfeq, jx0;
-  Id nb_total, nb_process, nb_calcul;
-  ST_Seismic_Neigh *ngh_cur, *ngh_old;
-  MatrixSquare lhs;
-  MatrixDense rhs;
-  MatrixDense wgt;
-  MatrixSquare c00;
-  VectorInt flag;
-  VectorInt rank;
-  VectorVectorInt presence(2);
-
-  /* Initializations */
-
-  error = 1;
-  nvois = nred = nb_total = nb_process = nb_calcul = 0;
-  nfeq                                             = (flag_ks) ? 0 : 1;
-  ngh_cur = ngh_old = nullptr;
-  for (i = 0; i < 2; i++)
-  {
-    iatt_sim[i] = -1;
-    npres[i]    = 0;
-    presence[i].clear();
-  }
-
-  /* Check that the grid is XZ */
-
-  if (!db->isGrid())
-  {
-    messerr("The Db structure must be a Grid Db");
-    return (1);
-  }
-  NX   = db->getNX(0);
-  NY   = db->getNX(1);
-  NZ   = db->getNX(2);
-  DX   = db->getDX(0);
-  DZ   = db->getDX(2);
-  NVAR = db->getNLoc(ELoc::Z);
-
-  if (NX <= 1 || NY != 1 || NZ <= 1)
-  {
-    messerr("The Db grid is not XZ");
-    goto label_end;
-  }
-  if (NVAR != 2)
-  {
-    messerr("This function is restricted to the use of two variable");
-    goto label_end;
-  }
-
-  /* Core allocation (first) */
-
-  for (i = 0; i < 2; i++)
-  {
-    presence[i].resize(NX);
-  }
-
-  /* Look for columns where each variable is defined */
-
-  law_set_random_seed(seed);
-  for (i = 0; i < 2; i++)
-    st_estimate_check_presence(db, i, &npres[i], presence[i]);
-
-  /* Maximum dimension of the neighborhood */
-
-  nvois = (2 * nbench + 1) * (npres[0] + 2 * nv2max + 1);
-  size  = NVAR * (nvois + nfeq);
-
-  /* Core allocation (second) */
-
-  ngh_cur = st_estimate_neigh_management(1, nvois, ngh_cur);
-  if (ngh_cur == nullptr) goto label_end;
-  ngh_old = st_estimate_neigh_management(1, nvois, ngh_old);
-  if (ngh_old == nullptr) goto label_end;
-  covtab = MatrixSquare(NVAR);
-  lhs.reset(size, size);
-  rhs.reset(size, NVAR);
-  wgt.reset(size, NVAR);
-  c00.reset(NVAR, NVAR);
-  flag.resize(size);
-  rank.resize(NX);
-
-  /* Add the resulting variables */
-
-  for (i = 0; i < NVAR; i++)
-  {
-    iatt_sim[i] = db->addColumnsByConstant(nbsimu, TEST);
-    if (iatt_sim[i] < 0) goto label_end;
-  }
-
-  /* Copy the known values in the simulation arrays */
-
-  st_copy_attribute(db, nbsimu, iatt_sim);
-
-  /* Calculate the constant terms for the variances */
-
-  st_estimate_c00(model, c00);
-
-  /* Calculate the order of the columns to be treated */
-
-  if (st_estimate_sort(presence[0], rank)) goto label_end;
-
-  /* Loop on the grid nodes */
-
-  for (jx0 = 0; jx0 < NX; jx0++)
-  {
-    ix0 = (flag_sort) ? rank[jx0] : jx0;
-    for (iz0 = 0; iz0 < NZ; iz0++)
-    {
-      nb_total++;
-      IECH_OUT = st_absolute_index(db, ix0, iz0);
-      OptDbg::setCurrentIndex(IECH_OUT + 1);
-      if (!db->isActive(IECH_OUT)) continue;
-
-      /* Look for the neighborhood */
-
-      if (st_estimate_neigh_create(db, 1, iatt_sim[0], iatt_sim[1], ix0, iz0,
-                                   nbench, nv2max, npres, presence, ngh_cur))
-        continue;
-
-      /* Check if the neighborhood is unchanged */
-
-      if (!st_estimate_neigh_unchanged(ngh_old, ngh_cur) || OptDbg::force())
+      ix0 = (flag_sort) ? rank[jx0] : jx0;
+      for (iz0 = 0; iz0 < NZ; iz0++)
       {
-        nb_calcul++;
+        nb_total++;
+        IECH_OUT = st_absolute_index(db, ix0, iz0);
+        OptDbg::setCurrentIndex(IECH_OUT + 1);
+        if (!db->isActive(IECH_OUT)) continue;
 
-        /* Establish the flag */
+        /* Look for the neighborhood */
 
-        st_estimate_flag(ngh_cur, nfeq, flag, &nred);
+        if (st_estimate_neigh_create(
+              db, 0, iatt_z1, iatt_z2, ix0, iz0, nbench, nv2max, npres,
+              presence, ngh_cur))
+          continue;
 
-        /* Establish the kriging L.H.S. */
+        /* Check if the neighborhood is unchanged */
 
-        st_estimate_lhs(ngh_cur, model, nfeq, nred, flag, lhs);
+        if (!st_estimate_neigh_unchanged(ngh_old, ngh_cur) || OptDbg::force())
+        {
+          nb_calcul++;
 
-        /* Establish the kriging R.H.S. */
+          /* Establish the flag */
 
-        st_estimate_rhs(ngh_cur, model, nfeq, nred, flag, rhs);
+          st_estimate_flag(ngh_cur, nfeq, flag, &nred);
 
-        /* Derive the kriging weights */
+          /* Establish the kriging L.H.S. */
 
-        if (st_estimate_wgt(ngh_cur, model, nred, flag, lhs, rhs, wgt)) continue;
+          st_estimate_lhs(ngh_cur, model, nfeq, nred, flag, lhs);
+
+          /* Establish the kriging R.H.S. */
+
+          st_estimate_rhs(ngh_cur, model, nfeq, nred, flag, rhs);
+
+          /* Derive the kriging weights */
+
+          if (st_estimate_wgt(ngh_cur, model, nred, flag, lhs, rhs, wgt))
+            continue;
+        }
+
+        /* Perform the estimation */
+
+        st_estimate_result(
+          db, ngh_cur, flag_std, nfeq, nred, flag, wgt, rhs, var0, iatt_est,
+          iatt_std);
+
+        /* Save the neighborhood */
+
+        st_estimate_neigh_copy(ngh_cur, ngh_old);
+        nb_process++;
       }
-
-      /* Perform the estimation */
-
-      st_simulate_result(db, ix0, iz0, ngh_cur, nbsimu, nfeq, nred,
-                         flag, wgt, rhs, c00, iatt_sim);
-
-      /* Save the neighborhood */
-
-      st_estimate_neigh_copy(ngh_cur, ngh_old);
-      nb_process++;
     }
-    presence[1][ix0] = 1;
+
+    /* Set the error return code */
+
+    error = 0;
+
+  label_end:
+    OptDbg::setCurrentIndex(0);
+    if (flag_stat)
+    {
+      message("Statistics on the number of nodes:\n");
+      message("- Total number of grid nodes  = %d\n", nb_total);
+      message("- Nodes sucessfully processed = %d\n", nb_process);
+      message("- Kriging system calculated   = %d\n", nb_calcul);
+    }
+    for (i = 0; i < 2; i++)
+    {
+      presence[i].clear();
+      if (error && iatt_est[i] >= 0) db->deleteColumnByUID(iatt_est[i]);
+      if (error && iatt_std[i] >= 0) db->deleteColumnByUID(iatt_std[i]);
+    }
+    (void)krige_koption_manage(-1, 1, EKrigOpt::POINT, 1, VectorInt());
+    st_estimate_neigh_management(-1, nvois, ngh_cur);
+    st_estimate_neigh_management(-1, nvois, ngh_old);
+
+    return (error);
   }
 
-  /* Set the error return code */
-
-  error = 0;
-
-label_end:
-  OptDbg::setCurrentIndex(0);
-  if (flag_stat)
+  /****************************************************************************/
+  /*!
+   **  Copy the main attributes in the simulations
+   **
+   ** \param[in]  db       Grid Db structure
+   ** \param[in]  nbsimu   Number of simulations
+   ** \param[in]  iatt     Address of the first item for each variable
+   **
+   *****************************************************************************/
+  static void st_copy_attribute(Db* db, Id nbsimu, Id* iatt)
   {
-    message("Statistics on the number of nodes:\n");
-    message("- Total number of grid nodes  = %d\n", nb_total);
-    message("- Nodes sucessfully processed = %d\n", nb_process);
-    message("- Kriging system calculated   = %d\n", nb_calcul);
-  }
-  for (i = 0; i < 2; i++)
-  {
-    presence[i].clear();
-    if (error)
-      for (isimu = 0; isimu < nbsimu; isimu++)
-        db->deleteColumnByUID(iatt_sim[i] + isimu);
-  }
-  st_estimate_neigh_management(-1, nvois, ngh_cur);
-  st_estimate_neigh_management(-1, nvois, ngh_old);
+    Id ivar, isimu, iech, nech;
+    double value;
 
-  return (error);
-}
+    /* Initializations */
+
+    nech = db->getNSample();
+
+    /* Loop on the variables */
+
+    for (ivar = 0; ivar < NVAR; ivar++)
+    {
+
+      /* Loop on the samples */
+
+      for (iech = 0; iech < nech; iech++)
+      {
+        value = db->getZVariable(iech, ivar);
+
+        /* Loop on the simulations */
+
+        for (isimu = 0; isimu < nbsimu; isimu++)
+          db->setArray(iech, iatt[ivar] + isimu, value);
+      }
+    }
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Perform a bivariate cosimulation on a grid
+   **
+   ** \return  Error return code
+   **
+   ** \param[in,out] db      Grid Db structure
+   ** \param[in]  model      Model structure
+   ** \param[in]  nbench     Vertical Radius of the neighborhood (center excluded)
+   ** \param[in]  nv2max     Maximum number of traces of second variable on each
+   **                        side of the target trace
+   ** \param[in]  nbsimu     Number of simulations
+   ** \param[in]  seed       Seed for the random number generator
+   ** \param[in]  flag_ks    1 for a Simple Kriging; otherwise Ordinary Kriging
+   ** \param[in]  flag_sort  1 if the traces to be treated are sorted
+   **                        by increasing distance to trace where first
+   **                        variable is defined
+   ** \param[in]  flag_stat  1 for producing final statistics
+   **
+   *****************************************************************************/
+  Id seismic_simulate_XZ(
+    DbGrid* db,
+    Model* model,
+    Id nbench,
+    Id nv2max,
+    Id nbsimu,
+    Id seed,
+    Id flag_ks,
+    Id flag_sort,
+    Id flag_stat)
+  {
+    Id npres[2], iatt_sim[2];
+    Id i, isimu, ix0, iz0, nvois, size, error, nred, nfeq, jx0;
+    Id nb_total, nb_process, nb_calcul;
+    ST_Seismic_Neigh *ngh_cur, *ngh_old;
+    MatrixSquare lhs;
+    MatrixDense rhs;
+    MatrixDense wgt;
+    MatrixSquare c00;
+    VectorInt flag;
+    VectorInt rank;
+    VectorVectorInt presence(2);
+
+    /* Initializations */
+
+    error = 1;
+    nvois = nred = nb_total = nb_process = nb_calcul = 0;
+    nfeq = (flag_ks) ? 0 : 1;
+    ngh_cur = ngh_old = nullptr;
+    for (i = 0; i < 2; i++)
+    {
+      iatt_sim[i] = -1;
+      npres[i] = 0;
+      presence[i].clear();
+    }
+
+    /* Check that the grid is XZ */
+
+    if (!db->isGrid())
+    {
+      messerr("The Db structure must be a Grid Db");
+      return (1);
+    }
+    NX = db->getNX(0);
+    NY = db->getNX(1);
+    NZ = db->getNX(2);
+    DX = db->getDX(0);
+    DZ = db->getDX(2);
+    NVAR = db->getNLoc(ELoc::Z);
+
+    if (NX <= 1 || NY != 1 || NZ <= 1)
+    {
+      messerr("The Db grid is not XZ");
+      goto label_end;
+    }
+    if (NVAR != 2)
+    {
+      messerr("This function is restricted to the use of two variable");
+      goto label_end;
+    }
+
+    /* Core allocation (first) */
+
+    for (i = 0; i < 2; i++)
+    {
+      presence[i].resize(NX);
+    }
+
+    /* Look for columns where each variable is defined */
+
+    law_set_random_seed(seed);
+    for (i = 0; i < 2; i++)
+      st_estimate_check_presence(db, i, &npres[i], presence[i]);
+
+    /* Maximum dimension of the neighborhood */
+
+    nvois = (2 * nbench + 1) * (npres[0] + 2 * nv2max + 1);
+    size = NVAR * (nvois + nfeq);
+
+    /* Core allocation (second) */
+
+    ngh_cur = st_estimate_neigh_management(1, nvois, ngh_cur);
+    if (ngh_cur == nullptr) goto label_end;
+    ngh_old = st_estimate_neigh_management(1, nvois, ngh_old);
+    if (ngh_old == nullptr) goto label_end;
+    covtab = MatrixSquare(NVAR);
+    lhs.reset(size, size);
+    rhs.reset(size, NVAR);
+    wgt.reset(size, NVAR);
+    c00.reset(NVAR, NVAR);
+    flag.resize(size);
+    rank.resize(NX);
+
+    /* Add the resulting variables */
+
+    for (i = 0; i < NVAR; i++)
+    {
+      iatt_sim[i] = db->addColumnsByConstant(nbsimu, TEST);
+      if (iatt_sim[i] < 0) goto label_end;
+    }
+
+    /* Copy the known values in the simulation arrays */
+
+    st_copy_attribute(db, nbsimu, iatt_sim);
+
+    /* Calculate the constant terms for the variances */
+
+    st_estimate_c00(model, c00);
+
+    /* Calculate the order of the columns to be treated */
+
+    if (st_estimate_sort(presence[0], rank)) goto label_end;
+
+    /* Loop on the grid nodes */
+
+    for (jx0 = 0; jx0 < NX; jx0++)
+    {
+      ix0 = (flag_sort) ? rank[jx0] : jx0;
+      for (iz0 = 0; iz0 < NZ; iz0++)
+      {
+        nb_total++;
+        IECH_OUT = st_absolute_index(db, ix0, iz0);
+        OptDbg::setCurrentIndex(IECH_OUT + 1);
+        if (!db->isActive(IECH_OUT)) continue;
+
+        /* Look for the neighborhood */
+
+        if (st_estimate_neigh_create(
+              db, 1, iatt_sim[0], iatt_sim[1], ix0, iz0, nbench, nv2max, npres,
+              presence, ngh_cur))
+          continue;
+
+        /* Check if the neighborhood is unchanged */
+
+        if (!st_estimate_neigh_unchanged(ngh_old, ngh_cur) || OptDbg::force())
+        {
+          nb_calcul++;
+
+          /* Establish the flag */
+
+          st_estimate_flag(ngh_cur, nfeq, flag, &nred);
+
+          /* Establish the kriging L.H.S. */
+
+          st_estimate_lhs(ngh_cur, model, nfeq, nred, flag, lhs);
+
+          /* Establish the kriging R.H.S. */
+
+          st_estimate_rhs(ngh_cur, model, nfeq, nred, flag, rhs);
+
+          /* Derive the kriging weights */
+
+          if (st_estimate_wgt(ngh_cur, model, nred, flag, lhs, rhs, wgt))
+            continue;
+        }
+
+        /* Perform the estimation */
+
+        st_simulate_result(
+          db, ix0, iz0, ngh_cur, nbsimu, nfeq, nred, flag, wgt, rhs, c00,
+          iatt_sim);
+
+        /* Save the neighborhood */
+
+        st_estimate_neigh_copy(ngh_cur, ngh_old);
+        nb_process++;
+      }
+      presence[1][ix0] = 1;
+    }
+
+    /* Set the error return code */
+
+    error = 0;
+
+  label_end:
+    OptDbg::setCurrentIndex(0);
+    if (flag_stat)
+    {
+      message("Statistics on the number of nodes:\n");
+      message("- Total number of grid nodes  = %d\n", nb_total);
+      message("- Nodes sucessfully processed = %d\n", nb_process);
+      message("- Kriging system calculated   = %d\n", nb_calcul);
+    }
+    for (i = 0; i < 2; i++)
+    {
+      presence[i].clear();
+      if (error)
+        for (isimu = 0; isimu < nbsimu; isimu++)
+          db->deleteColumnByUID(iatt_sim[i] + isimu);
+    }
+    st_estimate_neigh_management(-1, nvois, ngh_cur);
+    st_estimate_neigh_management(-1, nvois, ngh_old);
+
+    return (error);
+  }
 } // namespace gstlrn

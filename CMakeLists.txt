@@ -1,9 +1,9 @@
 # For recent UseSWIG
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.26)
 
 # Define project here
 project(gstlearn
-        VERSION      1.10.1 # Make it consistent with CHANGES
+        VERSION      1.11.1 # Make it consistent with CHANGES
         DESCRIPTION  "Geostatistics & Machine Learning toolbox"
         HOMEPAGE_URL "https://gstlearn.org"
         LANGUAGES    C CXX) # Enable C language for third party libraries
@@ -119,7 +119,7 @@ endif()
 
 if (BUILD_PYTHON)
   add_subdirectory(python)
-  set(SWIG ON)  
+  set(SWIG ON)
 endif()
 
 if (BUILD_R)

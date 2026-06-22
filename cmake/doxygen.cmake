@@ -37,7 +37,7 @@ set(DOXYGEN_ENABLE_PROCESSING YES)
 set(DOXYGEN_MACRO_EXPANSION YES)
 set(DOXYGEN_EXPAND_ONLY_PREDEF YES)
 
-set(DOXYGEN_PREDEFINED "GSTLEARN_EXPORT=" 
+set(DOXYGEN_PREDEFINED "GSTLEARN_EXPORT="
                        "VectorDouble" "VectorNumT<double>"
                        "VectorInt" "VectorNumT<int>"
                        "VectorFloat" "VectorNumT<float>"
@@ -88,7 +88,7 @@ add_custom_target(doc_macro
 
 # Add target for generating the doxymentation
 doxygen_add_docs(doxygen
-                 ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/src 
+                 ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/src
                  ${CMAKE_SOURCE_DIR}/README.md
                  ${GENERATED_HPP_FILES}
                  COMMENT "Generate doxygen documentation")

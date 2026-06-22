@@ -22,7 +22,7 @@ env:
   CMAKE_BUILD_TYPE : Release
   BUILD_DIR : build
   CMAKE_GENERATOR : "MSYS Makefiles"
-  R_VERSION : "4.5.2"
+  R_VERSION : "4.6.0"
   SWIG_ROOT : ${{github.workspace}}\swig
   GSTLEARN_OUTPUT_DIR: ${{ github.workspace }}/build/gstlearn_dir
 
@@ -32,18 +32,18 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
-    - name: Setup R Version
-      uses: r-lib/actions/setup-r@v2
+    - name: Install the customized SWIG from source
+      uses: fabien-ors/install-swig-windows-action@v3
+      with:
+        swig-root: ${{env.SWIG_ROOT}}
+        generator: "Visual Studio 18 2026"
+
+    - name: Setup R
+      uses: ./.github/actions/setup_r
       with:
         r-version: ${{env.R_VERSION}}
-
-    - name: Install R packages
-      uses: r-lib/actions/setup-r-dependencies@v2
-      with:
-        packages: ggpubr, ggplot2, ggnewscale, sf, terra
-        install-pandoc: false
 
     - name: Install dependencies
       run: |
@@ -52,12 +52,6 @@ jobs:
         pacman -Sy --noconfirm mingw-w64-x86_64-eigen3
         pacman -Sy --noconfirm mingw-w64-x86_64-nlopt
         pacman -Sy --noconfirm mingw-w64-x86_64-hdf5
-
-    - name: Install the customized SWIG from source
-      uses: fabien-ors/install-swig-windows-action@v2
-      with:
-        swig-root: ${{env.SWIG_ROOT}}
-        generator: "Visual Studio 17 2022"
 
     - name: Configure build directory
       run: |
@@ -78,26 +72,8 @@ jobs:
       run: |
         cmake --build ${{env.BUILD_DIR}} --parallel 3 --target check
 
-    - name: Compress output logs and neutral files
-      if: success() || failure()
-      shell: bash
-      run: |
-        cd ${{env.BUILD_DIR}}/tests
-        find . -type f -name "*.out" -print0 | tar -czvf rtools-logs.tar.gz --null -T -
-        cd $GITHUB_WORKSPACE/build/gstlearn_dir
-        find . -type f -name "*.*" -print0 | tar -czvf rtools-neutral.tar.gz --null -T -
-        mv rtools-neutral.tar.gz $GITHUB_WORKSPACE/
-
-    - name: Publish output logs as artefact
+    - name: Compress and upload artifacts
       if: always()
-      uses: actions/upload-artifact@v4
+      uses: ./.github/actions/compress_and_upload_nonreg_artifacts
       with:
-        name: rtools-nonreg-logs
-        path: ${{env.BUILD_DIR}}/tests/rtools-logs.tar.gz
-
-    - name: Publish output neutral files as artefact
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: rtools-neutral-files
-        path: ${{github.workspace}}/rtools-neutral.tar.gz
+        os-name: rtools

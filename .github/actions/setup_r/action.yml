@@ -1,0 +1,25 @@
+name: 'Setup R'
+description: 'Setup R with version and install common gstlearn packages'
+inputs:
+  r-version:
+    description: 'R version to install'
+    required: true
+  extra-repositories:
+    description: 'Extra R repositories (e.g. for macOS)'
+    required: false
+    default: ''
+runs:
+  using: "composite"
+  steps:
+
+    - name: Setup R Version
+      uses: r-lib/actions/setup-r@v2
+      with:
+        r-version: ${{ inputs.r-version }}
+        extra-repositories: ${{ inputs.extra-repositories }}
+
+    - name: Install R packages
+      uses: r-lib/actions/setup-r-dependencies@v2
+      with:
+        packages: ggpubr, ggplot2, ggnewscale, sf, terra
+        install-pandoc: false

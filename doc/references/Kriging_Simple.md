@@ -1,16 +1,16 @@
-# Kriging 
+# Kriging
 
-Let suppose that 
+Let suppose that
 
 $Z(s_i) = X_i\beta + Y(s_i)$
 
 where $Y$ is a second order stationary random field with mean 0 and covariance function $C$.
 
-If $Z$ is a vector of observations, we denote 
+If $Z$ is a vector of observations, we denote
 $Z = X\beta + Y$ with $\Sigma$ the covariance of Y
 
-## Simple Kriging 
-If $\beta$ is known, we can obtain the simple kriging 
+## Simple Kriging
+If $\beta$ is known, we can obtain the simple kriging
 
 $Z_0^{SK} = X_0\beta + \Sigma_0^t\Sigma^{-1}(Z-X\beta) = X_0\beta + \lambda_{SK}^t(Z-X\beta)$
 
@@ -18,7 +18,7 @@ with:
 
 - the simple kriging weights
 
-$\lambda_{SK}=\Sigma^{-1}\Sigma_0$ 
+$\lambda_{SK}=\Sigma^{-1}\Sigma_0$
 
 - the variance of the estimator
 
@@ -48,7 +48,7 @@ $$
 
 Estimation
 
-$$  
+$$
   Z_0^{SK} =
      \begin{bmatrix}
 	    Z

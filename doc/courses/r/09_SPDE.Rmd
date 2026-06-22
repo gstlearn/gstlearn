@@ -7,7 +7,7 @@ output:
     toc: true
   pdf_document:
     toc: true
-editor_options: 
+editor_options:
   chunk_output_type: console
 ---
 
@@ -16,9 +16,9 @@ editor_options:
 <!-- CATEGORY: Courses -->
 
 ```{r setup,include=FALSE, fig.show='hide'}
-knitr::opts_chunk$set(fig.width=4, fig.height=4, 
+knitr::opts_chunk$set(fig.width=4, fig.height=4,
                       out.width="50%",
-                      fig.align = "center") 
+                      fig.align = "center")
 ```
 
 # Preamble
@@ -127,7 +127,7 @@ p = p + geom_segment(aes(x = 0, y = coeffs[1], xend = 400, yend = coeffs[1] + 40
 plot.end(p)
 ```
 
-# Estimation 
+# Estimation
 
 We perform the Estimation in the SPDE framework (considering the Elevation as the Global Trend)
 

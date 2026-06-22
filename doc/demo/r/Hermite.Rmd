@@ -5,7 +5,7 @@ date: "May 17th 2022"
 output:
   pdf_document: default
   html_document: default
-editor_options: 
+editor_options:
   chunk_output_type: console
 ---
 
@@ -54,7 +54,7 @@ Many methods can be used to compute these draw.matrix:
 
 * the Monte-Carlo integration (easy)
 
-* the computation of the Hermite coefficient for $\phi$ and $\phi^2$ 
+* the computation of the Hermite coefficient for $\phi$ and $\phi^2$
 
 $$
 \int_{-\infty}^{+\infty} \eta_n(\alpha + \beta \, u)\, g(u) \, du = (1-\beta^2)^n \, \eta_n(\frac{\alpha}{\sqrt{1-\beta^2}})
@@ -119,7 +119,7 @@ get.title <- function(type,calcul,flag.est,params)
     else
       title = paste("Metal St.Dev. above Cutoff (",params$yc,")")
   }
-  
+
   if (type == 1)
     title = paste(title," using Hermite (",params$nbpoly,")")
   else if (type == 2)
@@ -134,13 +134,13 @@ get.title <- function(type,calcul,flag.est,params)
 calculate.matrix <- function(type,calcul,flag.est,params)
 {
   # Setting the result grid
-  
+
   db = DbGrid_create(nx=c(ny,nr),x0=c(y0,0),dx=c(dy,dr))
-  
+
   if (type == 1)
   {
     # Calculation using Hermite expansion
-    
+
     if (calcul == 1)
     {
       if (flag.est)
@@ -168,7 +168,7 @@ calculate.matrix <- function(type,calcul,flag.est,params)
   else if (type == 2)
   {
     # Calculation using Monte Carlo
-    
+
     if (calcul == 1)
     {
       if (flag.est)
@@ -195,7 +195,7 @@ calculate.matrix <- function(type,calcul,flag.est,params)
   }
   else
     stop("Wrong value for 'type'")
-  
+
   uid = db$addColumns(as.numeric(psi),"psi")
   db
 }
@@ -268,7 +268,7 @@ We consider the second order stationary model $Z_{\lambda}(x) = e^{\lambda Y(x) 
 * $Cov(Z_{\lambda}(x), Z_{\lambda}(x+h)) = E\{Z_{\lambda}(x)Z_{\lambda}(x+h)\} - 1 = e^{\lambda^2\rho(h)} - 1$
 
 
-The anamorphosis $\phi_{\lambda}$ maps the Gaussian field into the lognormal SOS model 
+The anamorphosis $\phi_{\lambda}$ maps the Gaussian field into the lognormal SOS model
 $Z_{\lambda} = \phi_{\lambda}(Y) = \sum_{n=0}^{+\infty}\phi_n{(\lambda)}H_n(Y)$.
 
 The Hermite coefficients are $\phi_n{(\lambda)} = \frac{(-\lambda)^n}{\sqrt{n!}}$ and we have
@@ -295,7 +295,7 @@ GM_hermite <- function(y, nh){
   h
 }
 
-# fonct 
+# fonct
 GM_LN_psi <- function(lambda, nh){
   (-lambda)^{0:nh} / sqrt(factorial(0:nh))
 }
@@ -341,7 +341,7 @@ plot.end(p)
 ```{r}
 p = plot.init()
 p = p + plot.XY(zz_theo, zz_hm, color = "blue", flagLine=TRUE)
-p = p + plot.decoration(xlab = "theoretical", ylab = "Hermite pol.", 
+p = p + plot.decoration(xlab = "theoretical", ylab = "Hermite pol.",
                         title = "Lognormal transform")
 plot.end(p)
 ```
@@ -355,7 +355,7 @@ C_nh   <- GM_LN_Cov_nh(lambda = lambda, nh = nh)
 p = plot.init()
 p = p + plot.XY(r, C_theo(r), color = "red", flagLine=TRUE)
 p = p + plot.XY(r,C_nh(r), color = "blue", linetype="dashed", flagLine=TRUE)
-p = p + plot.decoration(xlab = "Covariance of Y", ylab = "Covarariance of Z", 
+p = p + plot.decoration(xlab = "Covariance of Y", ylab = "Covarariance of Z",
                         title = "Lognormal transform")
 plot.end(p)
 ```
@@ -396,11 +396,11 @@ Covariance
 
 ```{r}
 mod_y <- Model(nvar=1, ndim=2)
-mod_y$addCovFromParam(ECov_SPHERICAL(),range=1,sill=1)
+err = mod_y$addCovFromParam(ECov_SPHERICAL(),range=1,sill=1)
 h     <- seq(from = 0, to =1, by = 0.01)
 r = mod_y$evalIvarNlag(h)
 C_theo<- GM_LN_Cov_theo(lambda = lambda)
-cov_theo<- C_theo(rho = r) 
+cov_theo<- C_theo(rho = r)
 
 # Creation of the lognormal model (il faudrait pouvoir créer un modèle gaussien à partir de la covariance de la gaussienne mod_Y et de l'anamorphose gaussienne ana)
 # mod_Z <- model.create.GM(model = mod_Y, anam = ana)
@@ -415,9 +415,9 @@ model.eval.GM <- function(model, anam, h){
 cov_rg <- model.eval.GM(model = mod_y, anam = ana, h = h)
 
 p = plot.init()
-p = p + plot.XY(r, cov_theo, color = "red", flagLine=TRUE) 
+p = p + plot.XY(r, cov_theo, color = "red", flagLine=TRUE)
 p = p + plot.XY(r, cov_rg, color = "blue", linetype = "dashed", flagLine=TRUE)
-p = p + plot.decoration(xlab = "Covariance of Y", ylab = "Covariance of Z", 
+p = p + plot.decoration(xlab = "Covariance of Y", ylab = "Covariance of Z",
                         title = "Lognormal transform")
 plot.end(p)
 
@@ -428,7 +428,7 @@ The empirical anamorphosis does not reproduce the lognormal transform and the He
 
 # Part III
 
-The observed variable is 
+The observed variable is
 
 $$
 Y_{y_c} = \phi_{y_c}(Y) = Y\times 1_{Y \geq y_c} + y_c \times 1_{Y < y_c} =
@@ -462,7 +462,7 @@ ylim = c(-3.5, 3.5)
 p = plot.init()
 p = p + plot.XY(yy, zz, color = "red", flagLine=TRUE)
 p = p + plot.XY(yy, pmax(yc, yy), color = "blue", linetype = "dashed", flagLine=TRUE)
-p = p + plot.decoration(xlab = "Y", ylab = "Z", 
+p = p + plot.decoration(xlab = "Y", ylab = "Z",
                         title = paste0("cut = ",round(yc,2), " nh = ", nh))
 p = p + plot.geometry(ylim=ylim)
 plot.end(p)
@@ -478,8 +478,8 @@ zz <- hm %*% psi
 
 p = plot.init()
 p = p + plot.XY(yy, zz, color = "red", flagLine=TRUE)
-p = p + plot.decoration(xlab = "Y", ylab = "Indicator", 
-                        title = paste0("cut = ",round(yc,2), " nh = ", nh)) 
+p = p + plot.decoration(xlab = "Y", ylab = "Indicator",
+                        title = paste0("cut = ",round(yc,2), " nh = ", nh))
 p = p + plot.geometry(ylim = range(-0.5, 1.5))
 p = p + plot.XY(yy, as.numeric(yy >= yc), color = "blue", linetype="dashed", flagLine=TRUE)
 plot.end(p)

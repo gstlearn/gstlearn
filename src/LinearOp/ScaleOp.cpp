@@ -11,6 +11,7 @@
 #include "LinearOp/ScaleOp.hpp"
 
 using namespace gstlrn;
+
 ScaleOp::ScaleOp(Id n, double scale)
   : _n(n)
   , _scale(scale)
@@ -30,7 +31,6 @@ ScaleOp::~ScaleOp() {}
 *****************************************************************************/
 Id ScaleOp::_addToDest(const constvect inv, vect outv) const
 {
-  for (Id i = 0, n = _n; i < n; i++)
-    outv[i] += _scale * inv[i];
+  for (Id i = 0, n = _n; i < n; i++) outv[i] += _scale * inv[i];
   return 0;
 }

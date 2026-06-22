@@ -14,20 +14,20 @@
 // - in Moving and Unique Neighborhood
 // A printout is provided
 
-#include "Enum/ECst.hpp"
-#include "Matrix/MatrixSymmetric.hpp"
+#include "Basic/File.hpp"
+#include "Basic/Law.hpp"
+#include "Basic/NamingConvention.hpp"
+#include "Basic/OptCst.hpp"
+#include "Basic/OptDbg.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
-#include "Basic/Law.hpp"
-#include "Basic/VectorHelper.hpp"
-#include "Basic/NamingConvention.hpp"
+#include "Enum/ECst.hpp"
+#include "Estimation/Estimations.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Model/Model.hpp"
-#include "Basic/File.hpp"
-#include "Basic/OptDbg.hpp"
-#include "Basic/OptCst.hpp"
-#include "Neigh/NeighUnique.hpp"
 #include "Neigh/NeighMoving.hpp"
-#include "Estimation/CalcKriging.hpp"
+#include "Neigh/NeighUnique.hpp"
 
 using namespace gstlrn;
 
@@ -43,11 +43,11 @@ int main(int argc, char* argv[])
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Parameters
-  bool flagSK     = false;
+  bool flagSK = false;
   bool flagUnique = false;
-  bool verbose    = true;
-  Id nech         = 3;
-  Id nvar         = (flagUnique) ? 1 : 2;
+  bool verbose = true;
+  Id nech = 3;
+  Id nvar = (flagUnique) ? 1 : 2;
 
   // Generate the data base
   Db* data = Db::createFillRandom(nech, ndim, nvar, 0);
@@ -58,9 +58,9 @@ int main(int argc, char* argv[])
   // Create the Model
   double scale = 0.7;
   MatrixSymmetric* sills = MatrixSymmetric::createRandomDefinitePositive(nvar);
-  Model* model =
-    Model::createFromParam(ECov::EXPONENTIAL, scale, 0., 0., VectorDouble(),
-                           *sills, VectorDouble(), nullptr, false);
+  Model* model = Model::createFromParam(
+    ECov::EXPONENTIAL, scale, 0., 0., VectorDouble(), *sills, VectorDouble(),
+    nullptr, false);
   if (flagSK)
   {
     VectorDouble means = VH::simulateGaussian(nvar);
@@ -71,7 +71,7 @@ int main(int argc, char* argv[])
 
   // Unique Neighborhood
   ANeigh* neigh;
-  Id nmaxi      = nech;
+  Id nmaxi = nech;
   double radius = 5.;
   if (flagUnique)
     neigh = NeighUnique::create();

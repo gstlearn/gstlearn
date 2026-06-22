@@ -11,7 +11,6 @@
 #include "LinearOp/ShiftOpMatrix.hpp"
 
 #include "Basic/AException.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Covariances/CovAniso.hpp"
@@ -33,1345 +32,1366 @@
 
 namespace gstlrn
 {
-ShiftOpMatrix::ShiftOpMatrix()
-  : AShiftOp()
-  , _TildeC()
-  , _S(nullptr)
-  , _nCovAnisoGradParam(0)
-  , _SGrad()
-  , _TildeCGrad()
-  , _LambdaGrad()
-  , _flagNoStatByHH(false)
-  , _ndim(0)
-{
-}
-
-ShiftOpMatrix::ShiftOpMatrix(const AMesh* amesh,
-                             const CovAniso* cova,
-                             const Db* dbout,
-                             bool verbose)
-  : AShiftOp()
-  , _TildeC()
-  , _S(nullptr)
-  , _nCovAnisoGradParam(0)
-  , _SGrad()
-  , _TildeCGrad()
-  , _LambdaGrad()
-  , _flagNoStatByHH(false)
-  , _ndim(amesh->getEmbeddedNDim())
-{
-  if (amesh != nullptr)
-    _napices = amesh->getNApices();
-  (void)initFromMesh(amesh, cova, dbout, verbose);
-}
-
-ShiftOpMatrix::ShiftOpMatrix(const MatrixSparse* S,
-                             const VectorDouble& TildeC,
-                             const VectorDouble& Lambda,
-                             const CovAniso* cova,
-                             bool verbose)
-  : AShiftOp()
-  , _TildeC()
-  , _S(nullptr)
-  , _nCovAnisoGradParam(0)
-  , _SGrad()
-  , _TildeCGrad()
-  , _LambdaGrad()
-  , _flagNoStatByHH(false)
-  , _ndim(0)
-{
-  if (S != nullptr)
-    _napices = S->getNCols();
-  (void)initFromCS(S, TildeC, Lambda, cova, verbose);
-  (void)initFromCS(S, TildeC, Lambda, cova, verbose);
-}
-
-ShiftOpMatrix::ShiftOpMatrix(const ShiftOpMatrix& shift)
-  : AShiftOp(shift)
-  , _TildeC()
-  , _S(nullptr)
-  , _nCovAnisoGradParam(0)
-  , _SGrad()
-  , _TildeCGrad()
-  , _LambdaGrad()
-  , _flagNoStatByHH(false)
-  , _ndim(0)
-{
-  _reallocate(shift);
-}
-
-ShiftOpMatrix& ShiftOpMatrix::operator=(const ShiftOpMatrix& shift)
-{
-  if (this != &shift)
+  ShiftOpMatrix::ShiftOpMatrix()
+    : AShiftOp()
+    , _TildeC()
+    , _S(nullptr)
+    , _nCovAnisoGradParam(0)
+    , _SGrad()
+    , _TildeCGrad()
+    , _LambdaGrad()
+    , _flagNoStatByHH(false)
+    , _ndim(0)
   {
-    _reset();
+  }
+
+  ShiftOpMatrix::ShiftOpMatrix(
+    const AMesh* amesh,
+    const CovAniso* cova,
+    const Db* dbout,
+    bool verbose)
+    : AShiftOp()
+    , _TildeC()
+    , _S(nullptr)
+    , _nCovAnisoGradParam(0)
+    , _SGrad()
+    , _TildeCGrad()
+    , _LambdaGrad()
+    , _flagNoStatByHH(false)
+    , _ndim(amesh->getEmbeddedNDim())
+  {
+    if (amesh != nullptr) _napices = amesh->getNApices();
+    (void)initFromMesh(amesh, cova, dbout, verbose);
+  }
+
+  ShiftOpMatrix::ShiftOpMatrix(
+    const MatrixSparse* S,
+    const VectorDouble& TildeC,
+    const VectorDouble& Lambda,
+    const CovAniso* cova,
+    bool verbose)
+    : AShiftOp()
+    , _TildeC()
+    , _S(nullptr)
+    , _nCovAnisoGradParam(0)
+    , _SGrad()
+    , _TildeCGrad()
+    , _LambdaGrad()
+    , _flagNoStatByHH(false)
+    , _ndim(0)
+  {
+    if (S != nullptr) _napices = S->getNCols();
+    (void)initFromCS(S, TildeC, Lambda, cova, verbose);
+    (void)initFromCS(S, TildeC, Lambda, cova, verbose);
+  }
+
+  ShiftOpMatrix::ShiftOpMatrix(const ShiftOpMatrix& shift)
+    : AShiftOp(shift)
+    , _TildeC()
+    , _S(nullptr)
+    , _nCovAnisoGradParam(0)
+    , _SGrad()
+    , _TildeCGrad()
+    , _LambdaGrad()
+    , _flagNoStatByHH(false)
+    , _ndim(0)
+  {
     _reallocate(shift);
   }
-  return *this;
-}
 
-ShiftOpMatrix::~ShiftOpMatrix()
-{
-  _reset();
-}
-
-ShiftOpMatrix* ShiftOpMatrix::create(const AMesh* amesh,
-                                     const CovAniso* cova,
-                                     const Db* dbout,
-                                     bool verbose)
-{
-  return new ShiftOpMatrix(amesh, cova, dbout, verbose);
-}
-
-ShiftOpMatrix* ShiftOpMatrix::createFromSparse(const MatrixSparse* S,
-                                               const VectorDouble& TildeC,
-                                               const VectorDouble& Lambda,
-                                               const CovAniso* cova,
-                                               bool verbose)
-{
-  return new ShiftOpMatrix(S, TildeC, Lambda, cova, verbose);
-}
-
-/**
- *
- * @param amesh Meshing description (New format)
- * @param cova Pointer to the CovAniso structure
- * @param dbout Pointer to the Db structure
- * @param flagAdvection When TRUE, S is replaced by G
- * @param verbose Verbose flag
- * @return Error return code
- */
-Id ShiftOpMatrix::initFromMesh(const AMesh* amesh,
-                               const CovAniso* cova,
-                               const Db* /*dbout*/,
-                               bool flagAdvection,
-                               bool verbose)
-{
-  DECLARE_UNUSED(flagAdvection, verbose);
-
-  // Initializations
-
-  _setCovAniso(cova);
-  _napices = amesh->getNApices();
-  try
+  ShiftOpMatrix& ShiftOpMatrix::operator=(const ShiftOpMatrix& shift)
   {
-    _ndim = amesh->getEmbeddedNDim();
-
-    // Attach the Non-stationary to Mesh and Db (optional)
-
-    _cova->informMeshByMeshForAnisotropy(amesh);
-
-    // Calculating and storing the mesh sizes
-    VectorDouble units = amesh->getMeshSizes();
-
-    // Define if parameterization is in HH or in range/angle
-    _determineFlagNoStatByHH();
-
-    // Identify the covariance
-
-    // Construct S sparse Matrix
-    if (_buildS(amesh))
-      my_throw("Problem when buildS");
-
-    // Construct the Lambda vector
-
-    _buildLambda(amesh);
-  }
-
-  catch (const AException& e)
-  {
-    messerr("initFromMesh has failed: %s", e.what());
-    _reset();
-    return 1;
-  }
-  catch (const std::exception& e)
-  {
-    messerr("initFromMesh has failed: %s", e.what());
-    _reset();
-    return 1;
-  }
-  return 0;
-}
-
-/**
- * Initialize the environment for calculation of derivatives of S
- * @param amesh Meshing description (New format)
- * @param cova Pointer to the CovAniso structure
- * @param verbose Verbose flag
- * @param tol Smallest value below which the value is not stored in sparse matrix
- * @return Error return code
- */
-Id ShiftOpMatrix::initGradFromMesh(const AMesh* amesh,
-                                   const CovAniso* cova,
-                                   bool verbose,
-                                   double tol)
-{
-  // Initializations
-  DECLARE_UNUSED(verbose)
-  _setCovAniso(cova);
-
-  try
-  {
-    _cova->informMeshByMesh(amesh);
-
-    // Construct S sparse Matrix
-    if (_buildSGrad(amesh, tol))
-      my_throw("Problem when buildSGrad");
-
-    if (_buildLambdaGrad(amesh))
-      my_throw("Problem when buildLambdaGrad");
-  }
-
-  catch (const AException& e)
-  {
-    messerr("initGradFromMesh has failed: %s", e.what());
-    _reset();
-    return 1;
-  }
-  catch (const std::exception& e)
-  {
-    messerr("initGradFromMesh has failed: %s", e.what());
-    _reset();
-    return 1;
-  }
-
-  return 0;
-}
-
-/**
- *
- * @param S Sparse matrix describing the S information
- * @param TildeC Diagonal array containing TildeC
- * @param Lambda Normalization vector
- * @param cova Pointer to the CovAniso structure
- * @param verbose Verbose flag
- * @return
- */
-Id ShiftOpMatrix::initFromCS(const MatrixSparse* S,
-                             const VectorDouble& TildeC,
-                             const VectorDouble& Lambda,
-                             const CovAniso* cova,
-                             bool verbose)
-{
-  DECLARE_UNUSED(verbose);
-
-  // Initializations
-
-  _setCovAniso(cova);
-
-  try
-  {
-    // Store the TildeC & Lambda vectors
-
-    _TildeC = TildeC;
-    _Lambda = Lambda;
-    _ndim   = cova->getNDim();
-
-    // Duplicate the Shift Operator sparse matrix
-
-    _S       = S->clone();
-    _napices = S->getNCols();
-  }
-
-  catch (const AException& e)
-  {
-    messerr("initFromCS has failed: %s", e.what());
-    return 1;
-  }
-  catch (const std::exception& e)
-  {
-    messerr("initFromCS has failed: %s", e.what());
-    return 1;
-  }
-  return 0;
-}
-
-/****************************************************************************/
-/*!
- **  Perform the operation: y = x * C^power
- **
- ** \param[in] x       Input vector
- ** \param[in] y       Output vector
- ** \param[in] power   Value of the exponent
- **
- ** \remarks 'C' is a member (_TildeC) that stands as a vector
- ** \remarks Specific coding has been realized for the cases
- ** \remarks where 'power' is equal to 1, -1, 0.5 and -0.5
- **
- *****************************************************************************/
-void ShiftOpMatrix::prodTildeC(const VectorDouble& x,
-                               VectorDouble& y,
-                               const EPowerPT& power) const
-{
-  if (power == EPowerPT::ONE)
-  {
-    for (Id i = 0, n = getSize(); i < n; i++)
-      y[i] = x[i] * _TildeC[i];
-  }
-  else if (power == EPowerPT::MINUSONE)
-  {
-    for (Id i = 0, n = getSize(); i < n; i++)
-      y[i] = x[i] / _TildeC[i];
-  }
-  else if (power == EPowerPT::HALF)
-  {
-    for (Id i = 0, n = getSize(); i < n; i++)
-      y[i] = x[i] * sqrt(_TildeC[i]);
-  }
-  else if (power == EPowerPT::MINUSHALF)
-  {
-    for (Id i = 0, n = getSize(); i < n; i++)
-      y[i] = x[i] / sqrt(_TildeC[i]);
-  }
-  else if (power == EPowerPT::LOG)
-  {
-    for (Id i = 0, n = getSize(); i < n; i++)
-      y[i] = x[i];
-  }
-  else
-  {
-    my_throw("Unexpected value for argument 'power'");
-  }
-}
-
-void ShiftOpMatrix::normalizeLambdaBySills(const AMesh* mesh)
-{
-  VectorDouble tab;
-
-  if (_cova->isNoStatForVariance())
-  {
-    _cova->informMeshByApexForSills(mesh);
-    Id number = static_cast<Id>(_Lambda.size());
-
-    for (Id imesh = 0; imesh < number; imesh++)
+    if (this != &shift)
     {
-      _cova->updateCovByMesh(imesh, false);
-      double sill      = _cova->getSill(0, 0);
-      double invsillsq = 1. / sqrt(sill);
-      _Lambda[imesh] *= invsillsq;
+      _reset();
+      _reallocate(shift);
     }
+    return *this;
   }
-  else
+
+  ShiftOpMatrix::~ShiftOpMatrix()
   {
-    double invsillsq = 1. / sqrt(_getCovAniso()->getSill(0, 0));
-    for (auto& e: _Lambda)
+    _reset();
+  }
+
+  ShiftOpMatrix* ShiftOpMatrix::create(
+    const AMesh* amesh,
+    const CovAniso* cova,
+    const Db* dbout,
+    bool verbose)
+  {
+    return new ShiftOpMatrix(amesh, cova, dbout, verbose);
+  }
+
+  ShiftOpMatrix* ShiftOpMatrix::createFromSparse(
+    const MatrixSparse* S,
+    const VectorDouble& TildeC,
+    const VectorDouble& Lambda,
+    const CovAniso* cova,
+    bool verbose)
+  {
+    return new ShiftOpMatrix(S, TildeC, Lambda, cova, verbose);
+  }
+
+  /**
+   *
+   * @param amesh Meshing description (New format)
+   * @param cova Pointer to the CovAniso structure
+   * @param dbout Pointer to the Db structure
+   * @param flagAdvection When TRUE, S is replaced by G
+   * @param verbose Verbose flag
+   * @return Error return code
+   */
+  Id ShiftOpMatrix::initFromMesh(
+    const AMesh* amesh,
+    const CovAniso* cova,
+    const Db* /*dbout*/,
+    bool flagAdvection,
+    bool verbose)
+  {
+    DECLARE_UNUSED(flagAdvection, verbose);
+
+    // Initializations
+
+    _setCovAniso(cova);
+    _napices = amesh->getNApices();
+    try
     {
-      e *= invsillsq;
+      _ndim = amesh->getEmbeddedNDim();
+
+      // Attach the Non-stationary to Mesh and Db (optional)
+
+      _cova->informMeshByMeshForAnisotropy(amesh);
+
+      // Calculating and storing the mesh sizes
+      VectorDouble units = amesh->getMeshSizes();
+
+      // Define if parameterization is in HH or in range/angle
+      _determineFlagNoStatByHH();
+
+      // Identify the covariance
+
+      // Construct S sparse Matrix
+      if (_buildS(amesh)) my_throw("Problem when buildS");
+
+      // Construct the Lambda vector
+
+      _buildLambda(amesh);
     }
-  }
-}
 
-void ShiftOpMatrix::prodLambdaOnSqrtTildeC(const VectorDouble& inv,
-                                           VectorDouble& outv,
-                                           double puis) const
-{
-  for (Id i = 0; i < getSize(); i++)
-    outv[i] = inv[i] * pow(_Lambda[i] / sqrt(_TildeC[i]), puis);
-}
-
-/****************************************************************************/
-/*!
- **  Perform the operation: y = S * x
- **
- ** \param[in] inv     Input vector
- ** \param[in] outv    Output vector
- **
- ** \remarks 'S' is a member that stands as a sparse matrix
- **
- *****************************************************************************/
-Id ShiftOpMatrix::_addToDest(const constvect inv, vect outv) const
-{
-  _S->addProdMatVecInPlaceC(inv, outv);
-  return 0;
-}
-
-Id ShiftOpMatrix::_resetGrad()
-{
-  if (_SGrad.empty()) return 1;
-  for (Id i = 0; i < static_cast<Id>(_SGrad.size()); i++)
-  {
-    delete _SGrad[i];
-    _SGrad[i] = nullptr;
-  }
-  return 0;
-}
-
-void ShiftOpMatrix::_reset()
-{
-  delete _S;
-  _S = nullptr;
-  _resetGrad();
-}
-
-void ShiftOpMatrix::_reallocate(const ShiftOpMatrix& shift)
-{
-  _TildeC             = shift._TildeC;
-  _Lambda             = shift._Lambda;
-  _S                  = shift._S->clone();
-  _nCovAnisoGradParam = shift._nCovAnisoGradParam;
-  for (Id i = 0; i < static_cast<Id>(_SGrad.size()); i++)
-    _SGrad[i] = shift._SGrad[i]->clone();
-  for (Id i = 0; i < static_cast<Id>(_LambdaGrad.size()); i++)
-    _LambdaGrad[i] = shift._LambdaGrad[i];
-  _flagNoStatByHH = shift._flagNoStatByHH;
-
-  _cova    = shift._cova;
-  _ndim    = shift._ndim;
-  _napices = shift._napices;
-}
-
-MatrixSparse* ShiftOpMatrix::getTildeCGrad(Id iapex, Id igparam) const
-{
-
-  if (_TildeCGrad.empty())
-  {
-    messerr("You must initialize the Gradients with 'initGradFromMesh' beforehand");
-    return nullptr;
-  }
-  auto iad = getSGradAddress(iapex, igparam);
-  if (iad < 0) return nullptr;
-
-  return _TildeCGrad[iad];
-}
-
-MatrixSparse* ShiftOpMatrix::getSGrad(Id iapex, Id igparam) const
-{
-  if (_SGrad.empty())
-  {
-    messerr("You must initialize the Gradients with 'initGradFromMesh' beforehand");
-    return nullptr;
-  }
-  auto iad = getSGradAddress(iapex, igparam);
-  if (iad < 0) return nullptr;
-
-  return _SGrad[iad];
-}
-
-/**
- * Locally update the covariance (does nothing in Stationary Case)
- * @param cova Local CovAniso structure (updated here)
- * @param imesh Rank of the active mesh
- */
-void ShiftOpMatrix::_updateCova(std::shared_ptr<CovAniso>& cova, Id imesh)
-{
-  cova->updateCovByMesh(imesh, true);
-}
-
-void ShiftOpMatrix::_updateHH(MatrixSymmetric& hh, Id imesh)
-{
-  DECLARE_UNUSED(imesh)
-  if (!_isNoStat()) return;
-  auto ndim = getNDim();
-
-  for (Id idim = 0; idim < ndim; idim++)
-    for (Id jdim = idim; jdim < ndim; jdim++)
+    catch (const AException& e)
     {
-      double value = 0.; // TODO repare
-      //  double value = nostat->getValue(EConsElem::TENSOR, 0, imesh, idim, jdim);
-      hh.setValue(idim, jdim, value);
+      messerr("initFromMesh has failed: %s", e.what());
+      _reset();
+      return 1;
     }
-}
-
-/**
- * Calculate HH matrix from parameters
- * Note that this function is also called in Stationary case...
- * So it must be workable without any updates
- * @param hh Output Array
- * @param imesh Rank of the active mesh
- */
-void ShiftOpMatrix::_loadHHRegular(MatrixSymmetric& hh, Id imesh)
-{
-  auto ndim = getNDim();
-  // Locally update the covariance for non-stationarity (if necessary)
-  _updateCova(_getCovAniso(), imesh);
-
-  // Calculate the current HH matrix (using local covariance parameters)
-  const MatrixSquare& rotmat = _getCovAniso()->getAnisoInvMat();
-
-  VH::power(_diag, _getCovAniso()->getScales(), 2.);
-  thread_local MatrixSymmetric temp;
-  temp.resize(ndim, ndim);
-  temp.setDiagonal(_diag);
-  hh.normMatrix(rotmat, temp);
-}
-
-void ShiftOpMatrix::_loadHHVariety(MatrixSymmetric& hh, Id imesh)
-{
-  auto ndim = getNDim();
-
-  // Locally update the covariance for non-stationarity (if necessary)
-  _updateCova(_getCovAniso(), imesh);
-
-  // Calculate the current HH matrix (using local covariance parameters)
-  VectorDouble diag = VH::power(_getCovAniso()->getScales(), 2.);
-
-  hh.fill(0.);
-  for (Id idim = 0; idim < ndim; idim++)
-    hh.setValue(idim, idim, diag[0]);
-}
-
-/**
- * Calculate HH Gradient matrix from one of the CovAniso parameters for the given Apex.
- * @param amesh Meshing description (New format)
- * @param hh         Output Array (updated here)
- * @param igparam    Rank of the parameter for derivation
- * @param ipref      Rank of the point
- *
- * @details: The parameters 'igparam' are sorted as follows:
- * @details: - 0:(ndim-1)   : ranges in each Space direction
- * @details: - ndim:ngparam : rotation angles (=ndim or 1 in 2-D)
- */
-
-void ShiftOpMatrix::_loadHHGrad(const AMesh* amesh,
-                                MatrixSymmetric& hh,
-                                Id igparam,
-                                Id ipref)
-{
-  auto ndim = getNDim();
-
-  if (_flagNoStatByHH)
-  {
-    // Case where the derivation must be performed on the HH terms
-
-    hh.fill(0.);
-    Id ecr = 0;
-    for (Id idim = 0; idim < ndim; idim++)
-      for (Id jdim = idim; jdim < ndim; jdim++)
-      {
-        if (ecr == igparam) hh.setValue(idim, jdim, 1.);
-        ecr++;
-      }
-  }
-  else
-  {
-    // Case where the derivation is performed on ranges and angles
-
-    // Locally update the covariance for non-stationarity (if necessary)
-
-    _updateCova(_getCovAniso(), ipref);
-    const MatrixSquare& rotmat = _getCovAniso()->getAnisoRotMat();
-    VectorDouble diag          = VH::power(_getCovAniso()->getScales(), 2.);
-
-    MatrixSymmetric temp(ndim);
-    if (igparam < ndim)
+    catch (const std::exception& e)
     {
-      // Derivation with respect to the Range 'igparam'
-      temp.fill(0.);
-      temp.setValue(igparam, igparam, 2. * _getCovAniso()->getScale(igparam));
-      hh.normMatrix(rotmat, temp);
+      messerr("initFromMesh has failed: %s", e.what());
+      _reset();
+      return 1;
+    }
+    return 0;
+  }
+
+  /**
+   * Initialize the environment for calculation of derivatives of S
+   * @param amesh Meshing description (New format)
+   * @param cova Pointer to the CovAniso structure
+   * @param verbose Verbose flag
+   * @param tol Smallest value below which the value is not stored in sparse matrix
+   * @return Error return code
+   */
+  Id ShiftOpMatrix::initGradFromMesh(
+    const AMesh* amesh,
+    const CovAniso* cova,
+    bool verbose,
+    double tol)
+  {
+    // Initializations
+    DECLARE_UNUSED(verbose)
+    _setCovAniso(cova);
+
+    try
+    {
+      _cova->informMeshByMesh(amesh);
+
+      // Construct S sparse Matrix
+      if (_buildSGrad(amesh, tol)) my_throw("Problem when buildSGrad");
+
+      if (_buildLambdaGrad(amesh)) my_throw("Problem when buildLambdaGrad");
+    }
+
+    catch (const AException& e)
+    {
+      messerr("initGradFromMesh has failed: %s", e.what());
+      _reset();
+      return 1;
+    }
+    catch (const std::exception& e)
+    {
+      messerr("initGradFromMesh has failed: %s", e.what());
+      _reset();
+      return 1;
+    }
+
+    return 0;
+  }
+
+  /**
+   *
+   * @param S Sparse matrix describing the S information
+   * @param TildeC Diagonal array containing TildeC
+   * @param Lambda Normalization vector
+   * @param cova Pointer to the CovAniso structure
+   * @param verbose Verbose flag
+   * @return
+   */
+  Id ShiftOpMatrix::initFromCS(
+    const MatrixSparse* S,
+    const VectorDouble& TildeC,
+    const VectorDouble& Lambda,
+    const CovAniso* cova,
+    bool verbose)
+  {
+    DECLARE_UNUSED(verbose);
+
+    // Initializations
+
+    _setCovAniso(cova);
+
+    try
+    {
+      // Store the TildeC & Lambda vectors
+
+      _TildeC = TildeC;
+      _Lambda = Lambda;
+      _ndim = cova->getNDim();
+
+      // Duplicate the Shift Operator sparse matrix
+
+      _S = S->clone();
+      _napices = S->getNCols();
+    }
+
+    catch (const AException& e)
+    {
+      messerr("initFromCS has failed: %s", e.what());
+      return 1;
+    }
+    catch (const std::exception& e)
+    {
+      messerr("initFromCS has failed: %s", e.what());
+      return 1;
+    }
+    return 0;
+  }
+
+  /****************************************************************************/
+  /*!
+   **  Perform the operation: y = x * C^power
+   **
+   ** \param[in] x       Input vector
+   ** \param[in] y       Output vector
+   ** \param[in] power   Value of the exponent
+   **
+   ** \remarks 'C' is a member (_TildeC) that stands as a vector
+   ** \remarks Specific coding has been realized for the cases
+   ** \remarks where 'power' is equal to 1, -1, 0.5 and -0.5
+   **
+   *****************************************************************************/
+  void ShiftOpMatrix::prodTildeC(
+    const VectorDouble& x,
+    VectorDouble& y,
+    const EPowerPT& power) const
+  {
+    if (power == EPowerPT::ONE)
+    {
+      for (Id i = 0, n = getSize(); i < n; i++) y[i] = x[i] * _TildeC[i];
+    }
+    else if (power == EPowerPT::MINUSONE)
+    {
+      for (Id i = 0, n = getSize(); i < n; i++) y[i] = x[i] / _TildeC[i];
+    }
+    else if (power == EPowerPT::HALF)
+    {
+      for (Id i = 0, n = getSize(); i < n; i++) y[i] = x[i] * sqrt(_TildeC[i]);
+    }
+    else if (power == EPowerPT::MINUSHALF)
+    {
+      for (Id i = 0, n = getSize(); i < n; i++) y[i] = x[i] / sqrt(_TildeC[i]);
+    }
+    else if (power == EPowerPT::LOG)
+    {
+      for (Id i = 0, n = getSize(); i < n; i++) y[i] = x[i];
     }
     else
     {
-      // Derivation with respect to the Angle 'igparam'-ndim
-      Id ir          = igparam - ndim;
-      auto covini    = _getCovAniso();
-      auto covaderiv = cloneAndCast(covini);
-      _updateCova(covaderiv, ipref);
-      _getCovAniso()->setAnisoAngle(ir, covaderiv->getAnisoAngle(ir) + 90.);
-      const MatrixSquare& drotmat = covaderiv->getAnisoRotMat();
-
-      diag.divideCst(180. / GV_PI); // Necessary as angles are provided in degrees. Factor 2 is for derivative
-      temp.setDiagonal(diag);
-      hh.innerMatrix(temp, drotmat, rotmat);
+      my_throw("Unexpected value for argument 'power'");
     }
   }
 
-  Id number = amesh->getNApexPerMesh();
-  hh.prodScalar(1. / number);
-}
-
-double ShiftOpMatrix::_computeGradLogDetHH(const AMesh* amesh,
-                                           Id igparam,
-                                           Id ipref,
-                                           const MatrixSymmetric& invHH,
-                                           MatrixSymmetric& work,
-                                           MatrixSymmetric& work2)
-{
-  auto ndim = getNDim();
-  Id number = amesh->getNApexPerMesh();
-
-  if (igparam < ndim)
+  void ShiftOpMatrix::normalizeLambdaBySills(const AMesh* mesh)
   {
-    _updateCova(_getCovAniso(), ipref);
-    const MatrixSquare& rotmat = _getCovAniso()->getAnisoRotMat();
-    MatrixSymmetric temp(ndim);
-    temp.setDiagonal(_getCovAniso()->getScales());
-    for (Id idim = 0; idim < ndim; idim++)
+    VectorDouble tab;
+
+    if (_cova->isNoStatForVariance())
     {
-      if (idim != igparam)
+      _cova->informMeshByApexForSills(mesh);
+      Id number = static_cast<Id>(_Lambda.size());
+
+      for (Id imesh = 0; imesh < number; imesh++)
       {
-        temp.setValue(idim, idim, 0.);
+        _cova->updateCovByMesh(imesh, false);
+        double sill = _cova->getSill(0, 0);
+        double invsillsq = 1. / sqrt(sill);
+        _Lambda[imesh] *= invsillsq;
       }
-      else
-      {
-        temp.setValue(idim, idim, 2. * _getCovAniso()->getScale(idim) / number);
-      }
-    }
-
-    work.normMatrix(rotmat, temp);
-    work2.prodMatMatInPlace(&work, &invHH);
-    double result = work2.trace();
-    return result;
-  }
-  return 0.;
-}
-
-/**
- * Constitute HH (only in non-stationary case)
- * @param hh   Returned HH symmetric matrix
- * @param amesh Pointer to the meshing
- * @param imesh Rank of the mesh
- */
-void ShiftOpMatrix::_loadHH(const AMesh* amesh,
-                            MatrixSymmetric& hh,
-                            Id imesh)
-{
-  if (_flagNoStatByHH)
-  {
-    _updateHH(hh, imesh);
-  }
-  else
-  {
-    if (amesh->getVariety() == 0)
-      _loadHHRegular(hh, imesh);
-    else
-      _loadHHVariety(hh, imesh);
-  }
-}
-
-void ShiftOpMatrix::_loadAux(VectorDouble& tab, const EConsElem& type, Id imesh) {
-  DECLARE_UNUSED(tab, type, imesh)
-  // TODO Repare
-  // if (! _isNoStat()) return;
-  // if (tab.empty()) return;
-  // Id size = static_cast<Id> (tab.size());
-
-  // VectorDouble tabloc(size, 0.);
-  // for (Id i = 0; i < size; i++) tab[i] = 0;
-
-  // const ANoStatCov* nostat = _getCovAniso()->getNoStat();
-  // for (Id i = 0; i < (Id) tab.size(); i++)
-  //   if (nostat->isDefined(type, i, -1))
-  //     tab[i] = nostat->getValue(type, 0, imesh, i, -1);
-}
-
-Id ShiftOpMatrix::_preparMatrices(const AMesh* amesh,
-                                  Id imesh,
-                                  MatrixSquare& matu,
-                                  MatrixDense& matw) const
-{
-  Id ndim    = _ndim;
-  Id ncorner = amesh->getNApexPerMesh();
-
-  for (Id icorn = 0; icorn < ncorner; icorn++)
-  {
-    for (Id idim = 0; idim < ndim; idim++)
-      matu.setValue(idim, icorn, amesh->getCoor(imesh, icorn, idim));
-    matu.setValue(ncorner - 1, icorn, 1.);
-  }
-
-  if (matu.invert())
-  {
-    messerr("Problem for Mesh #%d", imesh + 1);
-    amesh->printMesh(imesh);
-    return 1;
-  }
-
-  for (Id icorn = 0; icorn < ncorner; icorn++)
-    for (Id idim = 0; idim < ndim; idim++)
-      matw.setValue(idim, icorn, matu.getValue(icorn, idim));
-
-  return 0;
-}
-
-MatrixSparse* ShiftOpMatrix::_BuildTildeCGradfromMap(std::map<Id, double>& tab) const
-{
-  std::map<Id, double>::iterator it;
-
-  NF_Triplet NF_T;
-  Id ip1_max = -1;
-
-  it = tab.begin();
-  while (it != tab.end())
-  {
-    Id ip1 = it->first;
-    NF_T.add(ip1, ip1, it->second);
-    if (ip1 > ip1_max) ip1_max = ip1;
-    it++;
-  }
-
-  // Add the fictitious value at maximum sparse matrix dimension
-
-  NF_T.force(getSize(), getSize());
-
-  /* Optional printout */
-
-  return MatrixSparse::createFromTriplet(NF_T, getSize(), getSize(), -1);
-}
-
-Id ShiftOpMatrix::_prepareMatricesSVariety(const AMesh* amesh,
-                                           Id imesh,
-                                           VectorVectorDouble& coords,
-                                           MatrixDense& matM,
-                                           MatrixSymmetric& matMtM,
-                                           MatrixDense& matP,
-                                           double* deter) const
-{
-  auto ndim  = getNDim();
-  Id ncorner = amesh->getNApexPerMesh();
-
-  amesh->getEmbeddedCoordinatesPerMeshInPlace(imesh, coords);
-
-  for (Id icorn = 0; icorn < ncorner - 1; icorn++)
-  {
-    for (Id idim = 0; idim < ndim; idim++)
-    {
-      double val = coords[icorn][idim] - coords[ncorner - 1][idim];
-      matM.setValue(idim, icorn, val);
-    }
-  }
-
-  // Calculate M^t %*% M
-
-  matMtM.normMatrix(matM);
-  *deter = matMtM.determinant();
-
-  // Calculate (M^t %*% M)^{-1}
-  thread_local MatrixSymmetric matMtM2;
-  matMtM2        = matMtM;
-  const auto ret = matMtM2.invertOutOfPlace(matMtM);
-
-  if (ret)
-  {
-    messerr("Problem for Mesh #%d", imesh + 1);
-    amesh->printMesh(imesh);
-    return 1;
-  }
-
-  // Calculate P = (M^t %*% M)^{-1} %*% M^t
-  matP.prodMatMatNoCheck<false, true>(matMtM, matM);
-  return 0;
-}
-
-Id ShiftOpMatrix::_prepareMatricesSphere(const AMesh* amesh,
-                                         Id imesh,
-                                         VectorVectorDouble& coords,
-                                         MatrixSquare& matMs,
-                                         double* deter) const
-{
-  auto ndim  = getNDim();
-  Id ncorner = amesh->getNApexPerMesh();
-
-  amesh->getEmbeddedCoordinatesPerMeshInPlace(imesh, coords);
-
-  for (Id icorn = 0; icorn < ncorner - 1; icorn++)
-  {
-    for (Id idim = 0; idim < ndim; idim++)
-    {
-      double val = coords[icorn][idim] - coords[ncorner - 1][idim];
-      matMs.setValue(idim, icorn, val);
-    }
-  }
-
-  double detM = matMs.determinant();
-  *deter      = detM * detM;
-  if (matMs.invert())
-  {
-    messerr("Problem for Mesh #%d", imesh + 1);
-    amesh->printMesh(imesh);
-    return 1;
-  }
-  return 0;
-}
-
-/**
- * Calculate the private member "_S" directly from the Mesh on a Variety in 3-D space
- * @param amesh Description of the Mesh (New class)
- * @param tol Tolerance beyond which elements are not stored in S matrix
- * @return Error return code
- *
- * @remark TildeC is calculated at the same time
- */
-Id ShiftOpMatrix::_buildS(const AMesh* amesh, double tol)
-{
-  DECLARE_UNUSED(tol);
-  Id error   = 1;
-  auto ndim  = getNDim();
-  Id ncorner = amesh->getNApexPerMesh();
-  Id napices = amesh->getNApices();
-  Id nmeshes = amesh->getNMeshes();
-
-  _TildeC.clear();
-  _TildeC.resize(napices, 0.);
-
-  // Initialize the arrays
-
-  VectorDouble srot(2);
-  MatrixSymmetric hh(ndim);
-  MatrixSymmetric matMtM(ncorner - 1);
-  MatrixDense matP(ncorner - 1, ndim);
-  MatrixDense matM(ndim, ncorner - 1);
-  MatrixSquare matMs(ndim);
-  MatrixSymmetric matPinvHPt(ncorner - 1);
-  VectorVectorDouble coords = amesh->getEmbeddedCoordinatesPerMesh();
-  double detMtM             = 0.;
-  double dethh              = 0.;
-
-  // Define the global matrices
-
-  if (_isGlobalHH())
-  {
-    _loadHH(amesh, hh, 0);
-    dethh = 1. / hh.determinant();
-  }
-
-  // TODO : repare shpere
-  /* if (! _isNoStat())
-    _loadAux(srot, EConsElem::SPHEROT, 0); */
-
-  _S = _prepareSparse(amesh);
-  if (_S == nullptr) goto label_end;
-
-  /* Loop on the active meshes */
-
-  for (Id imesh = 0; imesh < nmeshes; imesh++)
-  {
-    OptDbg::setCurrentIndex(imesh + 1);
-
-    // Non stationary case
-
-    if (_cova->isNoStatForAnisotropy())
-    {
-      _loadHH(amesh, hh, imesh);
-      dethh = 1. / hh.determinant();
-    }
-    // if (nostat->isDefined(EConsElem::SPHEROT, -1, -1))
-    //   _loadAux(srot, EConsElem::SPHEROT, imesh);
-
-    // Prepare M matrix
-
-    bool flagSphere = (amesh->getVariety() != 0);
-    flagSphere      = false; // Modif DR a valider
-    if (!flagSphere)
-    {
-      if (_prepareMatricesSVariety(amesh, imesh, coords, matM, matMtM, matP, &detMtM))
-        my_throw("Matrix inversion");
-      matPinvHPt.normMatrix(matP, hh, true);
     }
     else
     {
-      if (_prepareMatricesSphere(amesh, imesh, coords, matMs, &detMtM))
-        my_throw("Matrix inversion");
-      matPinvHPt.normMatrix(matMs, hh, true);
-    }
-
-    // Storing in the Element of the Sparse Matrix
-
-    double ratio = sqrt(dethh * detMtM);
-    double S     = 0.;
-    for (Id j0 = 0; j0 < ncorner - 1; j0++)
-    {
-      Id ip0 = amesh->getApex(imesh, j0);
-      _TildeC[ip0] += ratio / 6.;
-
-      double s = 0.;
-      for (Id j1 = 0; j1 < ncorner - 1; j1++)
+      double invsillsq = 1. / sqrt(_getCovAniso()->getSill(0, 0));
+      for (auto& e: _Lambda)
       {
-        Id ip1      = amesh->getApex(imesh, j1);
-        double vald = matPinvHPt.getValue(j0, j1) * ratio / 2.;
-        s += vald;
-        _S->addValue(ip0, ip1, vald);
+        e *= invsillsq;
       }
-      Id ip1 = amesh->getApex(imesh, ncorner - 1);
-      _S->addValue(ip0, ip1, -s);
-      _S->addValue(ip1, ip0, -s);
-      S += s;
     }
-    Id ip0 = amesh->getApex(imesh, ncorner - 1);
-    _TildeC[ip0] += ratio / 6.;
-    _S->addValue(ip0, ip0, S);
   }
 
-  // Ending S construction
+  void ShiftOpMatrix::prodLambdaOnSqrtTildeC(
+    const VectorDouble& inv,
+    VectorDouble& outv,
+    double puis) const
+  {
+    for (Id i = 0; i < getSize(); i++)
+      outv[i] = inv[i] * pow(_Lambda[i] / sqrt(_TildeC[i]), puis);
+  }
 
-  _S->prodNormDiagVecInPlace(_TildeC, -3);
+  /****************************************************************************/
+  /*!
+   **  Perform the operation: y = S * x
+   **
+   ** \param[in] inv     Input vector
+   ** \param[in] outv    Output vector
+   **
+   ** \remarks 'S' is a member that stands as a sparse matrix
+   **
+   *****************************************************************************/
+  Id ShiftOpMatrix::_addToDest(const constvect inv, vect outv) const
+  {
+    AMatrix::productInPlace(outv, *_S, inv);
+    return 0;
+  }
 
-  /* Set the error return code */
+  Id ShiftOpMatrix::_resetGrad()
+  {
+    if (_SGrad.empty()) return 1;
+    for (Id i = 0; i < static_cast<Id>(_SGrad.size()); i++)
+    {
+      delete _SGrad[i];
+      _SGrad[i] = nullptr;
+    }
+    return 0;
+  }
 
-  error = 0;
-
-label_end:
-  if (error)
+  void ShiftOpMatrix::_reset()
   {
     delete _S;
     _S = nullptr;
+    _resetGrad();
   }
-  return error;
-}
 
-MatrixSparse* ShiftOpMatrix::_prepareSparse(const AMesh* amesh)
-{
-  MatrixSparse* Sret = nullptr;
-  MatrixSparse* Sl   = nullptr;
-  Id nmeshes         = amesh->getNMeshes();
-  Id ncorner         = amesh->getNApexPerMesh();
-
-  // Define Sl as the sparse matrix giving the clutter of apices among vertices
-  NF_Triplet NF_T;
-  for (Id imesh = 0; imesh < nmeshes; imesh++)
+  void ShiftOpMatrix::_reallocate(const ShiftOpMatrix& shift)
   {
-    for (Id ic = 0; ic < ncorner; ic++)
-    {
-      Id iapex = amesh->getApex(imesh, ic);
-      NF_T.add(iapex, imesh, 1.);
-    }
+    _TildeC = shift._TildeC;
+    _Lambda = shift._Lambda;
+    _S = shift._S->clone();
+    _nCovAnisoGradParam = shift._nCovAnisoGradParam;
+    for (Id i = 0; i < static_cast<Id>(_SGrad.size()); i++)
+      _SGrad[i] = shift._SGrad[i]->clone();
+    for (Id i = 0; i < static_cast<Id>(_LambdaGrad.size()); i++)
+      _LambdaGrad[i] = shift._LambdaGrad[i];
+    _flagNoStatByHH = shift._flagNoStatByHH;
+
+    _cova = shift._cova;
+    _ndim = shift._ndim;
+    _napices = shift._napices;
   }
-  Sl = MatrixSparse::createFromTriplet(NF_T);
 
-  // Operate the product Sl * t(Sl) to get the final matrix Sret
-  Sret = prodNormMat(Sl, false);
-  delete Sl;
-
-  // Blank out the contents of the sparse matrix
-  Sret->setConstant(0.);
-
-  return Sret;
-}
-
-bool ShiftOpMatrix::_cond(Id indref, Id igparam, Id ipref)
-{
-  return ipref == indref && igparam == 0;
-}
-
-/**
- * Calculate the private member "_SGrad" directly from the Mesh
- * @param amesh Description of the Mesh (New class)
- * @param tol Tolerance beyond which elements are not stored in S matrix
- * @return Error return code
- */
-Id ShiftOpMatrix::_buildSGrad(const AMesh* amesh, double tol)
-{
-  auto cova           = _getCovAniso();
-  _nCovAnisoGradParam = cova->getNGradParam();
-  Id number           = _nCovAnisoGradParam * getSize();
-  VectorT<std::map<Id, double>> tab(number);
-  std::vector<std::map<std::pair<Id, Id>, double>> Mtab(number);
-
-  auto ndim  = getNDim();
-  Id ncorner = amesh->getNApexPerMesh();
-  Id ngparam = _nCovAnisoGradParam;
-
-  // Initialize the arrays
-
-  MatrixSymmetric hh(ndim);
-  MatrixSymmetric work(ndim);
-  MatrixSymmetric work2(ndim);
-  MatrixSymmetric hhGrad(ndim);
-  MatrixDense matM(ndim, ncorner - 1);
-  MatrixSymmetric matMtM(ncorner - 1);
-  MatrixDense matP(ncorner - 1, ndim);
-  MatrixSquare matMs(ndim);
-  MatrixSymmetric matPGradHPt(ncorner - 1);
-  MatrixSymmetric matPHHPt(ncorner - 1);
-
-  double detMtM       = 0.;
-  double dethh        = 0.;
-  double gradLogDetHH = 0.;
-  // Define the global matrices
-
-  if (_isGlobalHH())
-    _loadHH(amesh, hhGrad, 0);
-
-  /* Loop on the meshes */
-
-  VectorVectorDouble coords = amesh->getEmbeddedCoordinatesPerMesh();
-  for (Id imesh = 0; imesh < amesh->getNMeshes(); imesh++)
+  MatrixSparse* ShiftOpMatrix::getTildeCGrad(Id iapex, Id igparam) const
   {
-    OptDbg::setCurrentIndex(imesh + 1);
 
-    // Prepare M matrix
-    if (_cova->isNoStatForAnisotropy())
-      _loadHH(amesh, hh, imesh);
-    bool flagSphere = (amesh->getVariety() == 1);
-    flagSphere      = false; // Modif DR a valider
-    if (!flagSphere)
+    if (_TildeCGrad.empty())
     {
-      if (_prepareMatricesSVariety(amesh, imesh, coords, matM, matMtM, matP, &detMtM))
-        my_throw("Matrix inversion");
-      matPHHPt.normMatrix(matP, hh, true);
+      messerr(
+        "You must initialize the Gradients with 'initGradFromMesh' beforehand");
+      return nullptr;
     }
+    auto iad = getSGradAddress(iapex, igparam);
+    if (iad < 0) return nullptr;
 
+    return _TildeCGrad[iad];
+  }
+
+  MatrixSparse* ShiftOpMatrix::getSGrad(Id iapex, Id igparam) const
+  {
+    if (_SGrad.empty())
+    {
+      messerr(
+        "You must initialize the Gradients with 'initGradFromMesh' beforehand");
+      return nullptr;
+    }
+    auto iad = getSGradAddress(iapex, igparam);
+    if (iad < 0) return nullptr;
+
+    return _SGrad[iad];
+  }
+
+  /**
+   * Locally update the covariance (does nothing in Stationary Case)
+   * @param cova Local CovAniso structure (updated here)
+   * @param imesh Rank of the active mesh
+   */
+  void ShiftOpMatrix::_updateCova(std::shared_ptr<CovAniso>& cova, Id imesh)
+  {
+    cova->updateCovByMesh(imesh, true);
+  }
+
+  void ShiftOpMatrix::_updateHH(MatrixSymmetric& hh, Id imesh)
+  {
+    DECLARE_UNUSED(imesh)
+    if (!_isNoStat()) return;
+    auto ndim = getNDim();
+
+    for (Id idim = 0; idim < ndim; idim++)
+      for (Id jdim = idim; jdim < ndim; jdim++)
+      {
+        double value = 0.; // TODO repare
+        //  double value = nostat->getValue(EConsElem::TENSOR, 0, imesh, idim, jdim);
+        hh.setValue(idim, jdim, value);
+      }
+  }
+
+  /**
+   * Calculate HH matrix from parameters
+   * Note that this function is also called in Stationary case...
+   * So it must be workable without any updates
+   * @param hh Output Array
+   * @param imesh Rank of the active mesh
+   */
+  void ShiftOpMatrix::_loadHHRegular(MatrixSymmetric& hh, Id imesh)
+  {
+    auto ndim = getNDim();
+    // Locally update the covariance for non-stationarity (if necessary)
+    _updateCova(_getCovAniso(), imesh);
+
+    // Calculate the current HH matrix (using local covariance parameters)
+    const MatrixSquare& rotmat = _getCovAniso()->getAnisoInvMat();
+
+    VH::power(_diag, _getCovAniso()->getScales(), 2.);
+    thread_local MatrixSymmetric temp;
+    temp.resize(ndim, ndim);
+    temp.setDiagonal(_diag);
+    hh.normMatrix(rotmat, temp);
+  }
+
+  void ShiftOpMatrix::_loadHHVariety(MatrixSymmetric& hh, Id imesh)
+  {
+    auto ndim = getNDim();
+
+    // Locally update the covariance for non-stationarity (if necessary)
+    _updateCova(_getCovAniso(), imesh);
+
+    // Calculate the current HH matrix (using local covariance parameters)
+    VectorDouble diag = VH::power(_getCovAniso()->getScales(), 2.);
+
+    hh.fill(0.);
+    for (Id idim = 0; idim < ndim; idim++) hh.setValue(idim, idim, diag[0]);
+  }
+
+  /**
+   * Calculate HH Gradient matrix from one of the CovAniso parameters for the given Apex.
+   * @param amesh Meshing description (New format)
+   * @param hh         Output Array (updated here)
+   * @param igparam    Rank of the parameter for derivation
+   * @param ipref      Rank of the point
+   *
+   * @details: The parameters 'igparam' are sorted as follows:
+   * @details: - 0:(ndim-1)   : ranges in each Space direction
+   * @details: - ndim:ngparam : rotation angles (=ndim or 1 in 2-D)
+   */
+
+  void ShiftOpMatrix::_loadHHGrad(
+    const AMesh* amesh,
+    MatrixSymmetric& hh,
+    Id igparam,
+    Id ipref)
+  {
+    auto ndim = getNDim();
+
+    if (_flagNoStatByHH)
+    {
+      // Case where the derivation must be performed on the HH terms
+
+      hh.fill(0.);
+      Id ecr = 0;
+      for (Id idim = 0; idim < ndim; idim++)
+        for (Id jdim = idim; jdim < ndim; jdim++)
+        {
+          if (ecr == igparam) hh.setValue(idim, jdim, 1.);
+          ecr++;
+        }
+    }
     else
     {
-      if (_prepareMatricesSphere(amesh, imesh, coords, matMs, &detMtM))
-        my_throw("Matrix inversion");
-      matPHHPt.normMatrix(matMs, hh, true);
-    }
+      // Case where the derivation is performed on ranges and angles
 
-    dethh = 1. / hh.determinant();
-    hh.invert();
+      // Locally update the covariance for non-stationarity (if necessary)
 
-    // Loop on the derivative terms
+      _updateCova(_getCovAniso(), ipref);
+      const MatrixSquare& rotmat = _getCovAniso()->getAnisoRotMat();
+      VectorDouble diag = VH::power(_getCovAniso()->getScales(), 2.);
 
-    for (Id igparam = 0; igparam < ngparam; igparam++)
-    {
-      for (Id jref = 0; jref < ncorner; jref++)
+      MatrixSymmetric temp(ndim);
+      if (igparam < ndim)
       {
-        Id ipref = amesh->getApex(imesh, jref);
-        auto iad = getSGradAddress(ipref, igparam);
+        // Derivation with respect to the Range 'igparam'
+        temp.fill(0.);
+        temp.setValue(igparam, igparam, 2. * _getCovAniso()->getScale(igparam));
+        hh.normMatrix(rotmat, temp);
+      }
+      else
+      {
+        // Derivation with respect to the Angle 'igparam'-ndim
+        Id ir = igparam - ndim;
+        auto covini = _getCovAniso();
+        auto covaderiv = cloneAndCast(covini);
+        _updateCova(covaderiv, ipref);
+        _getCovAniso()->setAnisoAngle(ir, covaderiv->getAnisoAngle(ir) + 90.);
+        const MatrixSquare& drotmat = covaderiv->getAnisoRotMat();
 
-        // Update HH matrix
-
-        _loadHHGrad(amesh, hhGrad, igparam, ipref);
-        gradLogDetHH = _computeGradLogDetHH(amesh, igparam, ipref, hh, work, work2);
-
-        if (amesh->getVariety() == 0)
-          matPGradHPt.normMatrix(matP, hhGrad, true);
-        else
-          matPGradHPt.normMatrix(matMs, hhGrad, true);
-
-        // Storing in the Map
-
-        double ratio  = sqrt(dethh * detMtM);
-        double dratio = -0.5 * gradLogDetHH * ratio;
-        double S      = 0.;
-        for (Id j0 = 0; j0 < ncorner - 1; j0++)
-        {
-          Id ip0 = amesh->getApex(imesh, j0);
-          _mapTildeCUpdate(tab[iad], ip0, dratio / 6.);
-          double s = 0.;
-          for (Id j1 = 0; j1 < ncorner - 1; j1++)
-          {
-            Id ip1       = amesh->getApex(imesh, j1);
-            double vald  = matPGradHPt.getValue(j0, j1) / 2.;
-            double valdS = matPHHPt.getValue(j0, j1) / 2.;
-            vald         = ratio * vald + dratio * valdS;
-            s += vald;
-            _mapGradUpdate(Mtab[iad], ip0, ip1, vald, tol);
-          }
-          Id ip1 = amesh->getApex(imesh, ncorner - 1);
-          _mapGradUpdate(Mtab[iad], ip0, ip1, -s, tol);
-          _mapGradUpdate(Mtab[iad], ip1, ip0, -s, tol);
-          S += s;
-        }
-        Id ip0 = amesh->getApex(imesh, ncorner - 1);
-        _mapTildeCUpdate(tab[iad], ip0, dratio / 6.);
-        _mapGradUpdate(Mtab[iad], ip0, ip0, S, tol);
+        diag /=
+          180.
+          / GV_PI; // Necessary as angles are provided in degrees. Factor 2 is for derivative
+        temp.setDiagonal(diag);
+        hh.innerMatrix(temp, drotmat, rotmat);
       }
     }
+
+    Id number = amesh->getNApexPerMesh();
+    hh.prodCst(1. / number);
   }
 
-  // Construct the SGrad member
-  _resetGrad();
-  _SGrad.resize(number);
-  _TildeCGrad.resize(number);
-
-  for (Id i = 0; i < number; i++)
+  double ShiftOpMatrix::_computeGradLogDetHH(
+    const AMesh* amesh,
+    Id igparam,
+    Id ipref,
+    const MatrixSymmetric& invHH,
+    MatrixSymmetric& work,
+    MatrixSymmetric& work2)
   {
-    _SGrad[i] = _BuildSGradfromMap(Mtab[i]);
-    if (_SGrad[i] == nullptr) return 1;
-    _TildeCGrad[i] = _BuildTildeCGradfromMap(tab[i]);
-    if (_TildeCGrad[i] == nullptr) return 1;
-  }
+    auto ndim = getNDim();
+    Id number = amesh->getNApexPerMesh();
 
-  VectorDouble sqrtTildeC    = VH::power(_TildeC, 0.5);
-  VectorDouble invSqrtTildeC = VH::power(_TildeC, -0.5);
-  VectorDouble tempVec       = VH::inverse(_TildeC);
-  tempVec.multiplyCst(-0.5);
-
-  Id ind                      = 0;
-  MatrixSparse* tildeCGradMat = nullptr;
-  MatrixSparse* A             = nullptr;
-  MatrixSparse* At            = nullptr;
-  for (Id ipar = 0; ipar < _nCovAnisoGradParam; ipar++)
-  {
-    for (Id iap = 0; iap < getSize(); iap++)
+    if (igparam < ndim)
     {
-      VectorDouble tildeCGrad = _TildeCGrad[ind]->getDiagonal();
+      _updateCova(_getCovAniso(), ipref);
+      const MatrixSquare& rotmat = _getCovAniso()->getAnisoRotMat();
+      MatrixSymmetric temp(ndim);
+      temp.setDiagonal(_getCovAniso()->getScales());
+      for (Id idim = 0; idim < ndim; idim++)
+      {
+        if (idim != igparam)
+        {
+          temp.setValue(idim, idim, 0.);
+        }
+        else
+        {
+          temp.setValue(
+            idim, idim, 2. * _getCovAniso()->getScale(idim) / number);
+        }
+      }
 
-      tildeCGrad.multiply(tempVec);
-      _SGrad[ind]->prodNormDiagVecInPlace(invSqrtTildeC, 1);
+      work.normMatrix(rotmat, temp);
+      AMatrix::prodMatMatInPlace(work2, work, invHH);
+      double result = work2.trace();
+      return result;
+    }
+    return 0.;
+  }
 
-      tildeCGradMat = MatrixSparse::diagVec(tildeCGrad);
-      A             = MatrixFactory::prodMatMat<MatrixSparse>(_S, tildeCGradMat);
-      delete tildeCGradMat;
-      At = A->transpose();
-      A->addMat(*At);
-      _SGrad[ind]->addMat(*A);
-      delete At;
-      delete A;
-      ind++;
+  /**
+   * Constitute HH (only in non-stationary case)
+   * @param hh   Returned HH symmetric matrix
+   * @param amesh Pointer to the meshing
+   * @param imesh Rank of the mesh
+   */
+  void ShiftOpMatrix::_loadHH(const AMesh* amesh, MatrixSymmetric& hh, Id imesh)
+  {
+    if (_flagNoStatByHH)
+    {
+      _updateHH(hh, imesh);
+    }
+    else
+    {
+      if (amesh->getVariety() == 0)
+        _loadHHRegular(hh, imesh);
+      else
+        _loadHHVariety(hh, imesh);
     }
   }
 
-  return 0;
-}
+  void
+    ShiftOpMatrix::_loadAux(VectorDouble& tab, const EConsElem& type, Id imesh){
+      DECLARE_UNUSED(tab, type, imesh)
+      // TODO Repare
+      // if (! _isNoStat()) return;
+      // if (tab.empty()) return;
+      // Id size = static_cast<Id> (tab.size());
 
-void ShiftOpMatrix::_mapTildeCUpdate(std::map<Id, double>& tab,
-                                     Id ip0,
-                                     double value,
-                                     double tol)
-{
-  std::pair<std::map<Id, double>::iterator, bool> ret;
+      // VectorDouble tabloc(size, 0.);
+      // for (Id i = 0; i < size; i++) tab[i] = 0;
 
-  if (ABS(value) < tol) return;
-  ret = tab.insert(std::pair<Id, double>(ip0, value));
-  if (!ret.second) ret.first->second += value;
-}
-
-VectorT<std::map<Id, double>> ShiftOpMatrix::_mapTildeCCreate() const
-{
-  Id number = _ndim * getSize();
-  VectorT<std::map<Id, double>> tab(number);
-  for (Id i = 0; i < number; i++)
+      // const ANoStatCov* nostat = _getCovAniso()->getNoStat();
+      // for (Id i = 0; i < (Id) tab.size(); i++)
+      //   if (nostat->isDefined(type, i, -1))
+      //     tab[i] = nostat->getValue(type, 0, imesh, i, -1);
+    } Id
+    ShiftOpMatrix::_preparMatrices(
+      const AMesh* amesh,
+      Id imesh,
+      MatrixSquare& matu,
+      MatrixDense& matw) const
   {
-    tab.push_back(std::map<Id, double>());
+    Id ndim = _ndim;
+    Id ncorner = amesh->getNApexPerMesh();
+
+    for (Id icorn = 0; icorn < ncorner; icorn++)
+    {
+      for (Id idim = 0; idim < ndim; idim++)
+        matu.setValue(idim, icorn, amesh->getCoor(imesh, icorn, idim));
+      matu.setValue(ncorner - 1, icorn, 1.);
+    }
+
+    if (matu.invert())
+    {
+      messerr("Problem for Mesh #%d", imesh + 1);
+      amesh->printMesh(imesh);
+      return 1;
+    }
+
+    for (Id icorn = 0; icorn < ncorner; icorn++)
+      for (Id idim = 0; idim < ndim; idim++)
+        matw.setValue(idim, icorn, matu.getValue(icorn, idim));
+
+    return 0;
   }
-  return tab;
-}
 
-VectorT<std::map<Id, double>> ShiftOpMatrix::_mapCreate() const
-{
-  auto size = getSize();
-  if (size <= 0) my_throw("_mapCreate");
-  VectorT<std::map<Id, double>> tab(size);
-  return tab;
-}
-
-VectorT<VectorT<std::map<Id, double>>> ShiftOpMatrix::_mapVectorCreate() const
-{
-  Id number = _nCovAnisoGradParam * getSize();
-  if (number <= 0) my_throw("_mapVectorCreate");
-  VectorT<VectorT<std::map<Id, double>>> Mtab(number);
-  for (Id i = 0; i < number; i++)
+  MatrixSparse*
+    ShiftOpMatrix::_BuildTildeCGradfromMap(std::map<Id, double>& tab) const
   {
-    Mtab[i] = _mapCreate();
+    std::map<Id, double>::iterator it;
+
+    NF_Triplet NF_T;
+    Id ip1_max = -1;
+
+    it = tab.begin();
+    while (it != tab.end())
+    {
+      Id ip1 = it->first;
+      NF_T.add(ip1, ip1, it->second);
+      if (ip1 > ip1_max) ip1_max = ip1;
+      it++;
+    }
+
+    // Add the fictitious value at maximum sparse matrix dimension
+
+    NF_T.force(getSize(), getSize());
+
+    /* Optional printout */
+
+    return MatrixSparse::createFromTriplet(NF_T, getSize(), getSize(), -1);
   }
-  return Mtab;
-}
 
-/**
- * Construct the _Lambda vector (Dimension: _napices)
- * @param amesh Description of the Mesh
- */
-void ShiftOpMatrix::_buildLambda(const AMesh* amesh)
-{
-  auto ndim  = getNDim();
-  Id nvertex = amesh->getNApices();
-  // Id nmeshes = amesh->getNMeshes();
-  auto cova = _getCovAniso();
-
-  /* Load global matrices */
-
-  _Lambda.clear();
-  _Lambda.resize(nvertex, 0.);
-
-  MatrixSymmetric hh(ndim);
-  // double param = cova->getParam();
-  bool flagSphere = (amesh->getVariety() == 1);
-
-  double correc = cova->getCorrec();
-  double factor = 1.;
-  if (flagSphere)
+  Id ShiftOpMatrix::_prepareMatricesSVariety(
+    const AMesh* amesh,
+    Id imesh,
+    VectorVectorDouble& coords,
+    MatrixDense& matM,
+    MatrixSymmetric& matMtM,
+    MatrixDense& matP,
+    double* deter) const
   {
-    const ASpace* space = getDefaultSpaceSh().get();
-    const auto* spaceSn = dynamic_cast<const SpaceSN*>(space);
-    double r            = 1.;
-    if (spaceSn != nullptr) r = spaceSn->getRadius();
-    double normalizing = cova->normalizeOnSphere(50); // useful only for Markov
-    correc             = pow(r, -2.) * normalizing;
+    auto ndim = getNDim();
+    Id ncorner = amesh->getNApexPerMesh();
+
+    amesh->getEmbeddedCoordinatesPerMeshInPlace(imesh, coords);
+
+    for (Id icorn = 0; icorn < ncorner - 1; icorn++)
+    {
+      for (Id idim = 0; idim < ndim; idim++)
+      {
+        double val = coords[icorn][idim] - coords[ncorner - 1][idim];
+        matM.setValue(idim, icorn, val);
+      }
+    }
+
+    // Calculate M^t %*% M
+
+    matMtM.normMatrix(matM);
+    *deter = matMtM.determinant();
+
+    // Calculate (M^t %*% M)^{-1}
+    thread_local MatrixSymmetric matMtM2;
+    matMtM2 = matMtM;
+    const auto ret = matMtM2.invertOutOfPlace(matMtM);
+
+    if (ret)
+    {
+      messerr("Problem for Mesh #%d", imesh + 1);
+      amesh->printMesh(imesh);
+      return 1;
+    }
+
+    // Calculate P = (M^t %*% M)^{-1} %*% M^t
+    matP.prodMatMatNoCheck<false, true>(matMtM, matM);
+    return 0;
+  }
+
+  Id ShiftOpMatrix::_prepareMatricesSphere(
+    const AMesh* amesh,
+    Id imesh,
+    VectorVectorDouble& coords,
+    MatrixSquare& matMs,
+    double* deter) const
+  {
+    auto ndim = getNDim();
+    Id ncorner = amesh->getNApexPerMesh();
+
+    amesh->getEmbeddedCoordinatesPerMeshInPlace(imesh, coords);
+
+    for (Id icorn = 0; icorn < ncorner - 1; icorn++)
+    {
+      for (Id idim = 0; idim < ndim; idim++)
+      {
+        double val = coords[icorn][idim] - coords[ncorner - 1][idim];
+        matMs.setValue(idim, icorn, val);
+      }
+    }
+
+    double detM = matMs.determinant();
+    *deter = detM * detM;
+    if (matMs.invert())
+    {
+      messerr("Problem for Mesh #%d", imesh + 1);
+      amesh->printMesh(imesh);
+      return 1;
+    }
+    return 0;
+  }
+
+  /**
+   * Calculate the private member "_S" directly from the Mesh on a Variety in 3-D space
+   * @param amesh Description of the Mesh (New class)
+   * @param tol Tolerance beyond which elements are not stored in S matrix
+   * @return Error return code
+   *
+   * @remark TildeC is calculated at the same time
+   */
+  Id ShiftOpMatrix::_buildS(const AMesh* amesh, double tol)
+  {
+    DECLARE_UNUSED(tol);
+    Id error = 1;
+    auto ndim = getNDim();
+    Id ncorner = amesh->getNApexPerMesh();
+    Id napices = amesh->getNApices();
+    Id nmeshes = amesh->getNMeshes();
+
+    _TildeC.clear();
+    _TildeC.resize(napices, 0.);
+
+    // Initialize the arrays
+
+    VectorDouble srot(2);
+    MatrixSymmetric hh(ndim);
+    MatrixSymmetric matMtM(ncorner - 1);
+    MatrixDense matP(ncorner - 1, ndim);
+    MatrixDense matM(ndim, ncorner - 1);
+    MatrixSquare matMs(ndim);
+    MatrixSymmetric matPinvHPt(ncorner - 1);
+    VectorVectorDouble coords = amesh->getEmbeddedCoordinatesPerMesh();
+    double detMtM = 0.;
+    double dethh = 0.;
+
+    // Define the global matrices
+
     if (_isGlobalHH())
     {
       _loadHH(amesh, hh, 0);
-      factor = sqrt(hh.determinant());
+      dethh = 1. / hh.determinant();
     }
-  }
 
-  for (Id ip = 0; ip < nvertex; ip++)
-  {
-    _Lambda[ip] = sqrt(_TildeC[ip] * correc * factor);
-  }
-}
+    // TODO : repare shpere
+    /* if (! _isNoStat())
+      _loadAux(srot, EConsElem::SPHEROT, 0); */
 
-/**
- * Construct the _Lambda vector (Dimension: _napices)
- * @param amesh Description of the Mesh (New class)
- * @return
- */
-bool ShiftOpMatrix::_buildLambdaGrad(const AMesh* amesh)
-{
-  Id nvertex = amesh->getNApices();
-  auto cova  = cloneAndCast(_cova);
+    _S = _prepareSparse(amesh);
+    if (_S == nullptr) goto label_end;
 
-  /* Core allocation */
+    /* Loop on the active meshes */
 
-  auto number = getLambdaGradSize();
-  if (_LambdaGrad.empty())
-  {
-    _LambdaGrad.clear();
-    VectorDouble temp(nvertex);
-    for (Id i = 0; i < number; i++)
-      _LambdaGrad.push_back(temp);
-  }
-
-  // Filling by range / angle
-
-  for (Id ip = 0; ip < nvertex; ip++)
-  {
-    // Locally update the covariance for non-stationarity (if necessary)
-    _updateCova(cova, ip);
-
-    for (Id idim = 0; idim < number; idim++)
+    for (Id imesh = 0; imesh < nmeshes; imesh++)
     {
-      _LambdaGrad[idim][ip] = -_Lambda[ip] / (2. * cova->getScale(idim));
+      OptDbg::setCurrentIndex(imesh + 1);
+
+      // Non stationary case
+
+      if (_cova->isNoStatForAnisotropy())
+      {
+        _loadHH(amesh, hh, imesh);
+        dethh = 1. / hh.determinant();
+      }
+      // if (nostat->isDefined(EConsElem::SPHEROT, -1, -1))
+      //   _loadAux(srot, EConsElem::SPHEROT, imesh);
+
+      // Prepare M matrix
+
+      bool flagSphere = (amesh->getVariety() != 0);
+      flagSphere = false; // Modif DR a valider
+      if (!flagSphere)
+      {
+        if (_prepareMatricesSVariety(
+              amesh, imesh, coords, matM, matMtM, matP, &detMtM))
+          my_throw("Matrix inversion");
+        matPinvHPt.normMatrix(matP, hh, true);
+      }
+      else
+      {
+        if (_prepareMatricesSphere(amesh, imesh, coords, matMs, &detMtM))
+          my_throw("Matrix inversion");
+        matPinvHPt.normMatrix(matMs, hh, true);
+      }
+
+      // Storing in the Element of the Sparse Matrix
+
+      double ratio = sqrt(dethh * detMtM);
+      double S = 0.;
+      for (Id j0 = 0; j0 < ncorner - 1; j0++)
+      {
+        Id ip0 = amesh->getApex(imesh, j0);
+        _TildeC[ip0] += ratio / 6.;
+
+        double s = 0.;
+        for (Id j1 = 0; j1 < ncorner - 1; j1++)
+        {
+          Id ip1 = amesh->getApex(imesh, j1);
+          double vald = matPinvHPt.getValue(j0, j1) * ratio / 2.;
+          s += vald;
+          _S->addValue(ip0, ip1, vald);
+        }
+        Id ip1 = amesh->getApex(imesh, ncorner - 1);
+        _S->addValue(ip0, ip1, -s);
+        _S->addValue(ip1, ip0, -s);
+        S += s;
+      }
+      Id ip0 = amesh->getApex(imesh, ncorner - 1);
+      _TildeC[ip0] += ratio / 6.;
+      _S->addValue(ip0, ip0, S);
+    }
+
+    // Workaround for 1d
+    if (ndim == 1)
+    {
+      _TildeC *= 3.;
+      _S->prodCst(2.);
+    }
+
+    // Ending S construction
+
+    _S->prodNormDiagVecInPlace(_TildeC, -3);
+
+    /* Set the error return code */
+
+    error = 0;
+
+  label_end:
+    if (error)
+    {
+      delete _S;
+      _S = nullptr;
+    }
+    return error;
+  }
+
+  MatrixSparse* ShiftOpMatrix::_prepareSparse(const AMesh* amesh)
+  {
+    MatrixSparse* Sret = nullptr;
+    MatrixSparse* Sl = nullptr;
+    Id nmeshes = amesh->getNMeshes();
+    Id ncorner = amesh->getNApexPerMesh();
+
+    // Define Sl as the sparse matrix giving the clutter of apices among vertices
+    NF_Triplet NF_T;
+    for (Id imesh = 0; imesh < nmeshes; imesh++)
+    {
+      for (Id ic = 0; ic < ncorner; ic++)
+      {
+        Id iapex = amesh->getApex(imesh, ic);
+        NF_T.add(iapex, imesh, 1.);
+      }
+    }
+    Sl = MatrixSparse::createFromTriplet(NF_T);
+
+    // Operate the product Sl * t(Sl) to get the final matrix Sret
+    Sret = prodNormMat(Sl, false);
+    delete Sl;
+
+    // Blank out the contents of the sparse matrix
+    Sret->setConstant(0.);
+
+    return Sret;
+  }
+
+  bool ShiftOpMatrix::_cond(Id indref, Id igparam, Id ipref)
+  {
+    return ipref == indref && igparam == 0;
+  }
+
+  /**
+   * Calculate the private member "_SGrad" directly from the Mesh
+   * @param amesh Description of the Mesh (New class)
+   * @param tol Tolerance beyond which elements are not stored in S matrix
+   * @return Error return code
+   */
+  Id ShiftOpMatrix::_buildSGrad(const AMesh* amesh, double tol)
+  {
+    auto cova = _getCovAniso();
+    _nCovAnisoGradParam = cova->getNGradParam();
+    Id number = _nCovAnisoGradParam * getSize();
+    VectorT<std::map<Id, double>> tab(number);
+    std::vector<std::map<std::pair<Id, Id>, double>> Mtab(number);
+
+    auto ndim = getNDim();
+    Id ncorner = amesh->getNApexPerMesh();
+    Id ngparam = _nCovAnisoGradParam;
+
+    // Initialize the arrays
+
+    MatrixSymmetric hh(ndim);
+    MatrixSymmetric work(ndim);
+    MatrixSymmetric work2(ndim);
+    MatrixSymmetric hhGrad(ndim);
+    MatrixDense matM(ndim, ncorner - 1);
+    MatrixSymmetric matMtM(ncorner - 1);
+    MatrixDense matP(ncorner - 1, ndim);
+    MatrixSquare matMs(ndim);
+    MatrixSymmetric matPGradHPt(ncorner - 1);
+    MatrixSymmetric matPHHPt(ncorner - 1);
+
+    double detMtM = 0.;
+    double dethh = 0.;
+    double gradLogDetHH = 0.;
+    // Define the global matrices
+
+    if (_isGlobalHH()) _loadHH(amesh, hhGrad, 0);
+
+    /* Loop on the meshes */
+
+    VectorVectorDouble coords = amesh->getEmbeddedCoordinatesPerMesh();
+    for (Id imesh = 0; imesh < amesh->getNMeshes(); imesh++)
+    {
+      OptDbg::setCurrentIndex(imesh + 1);
+
+      // Prepare M matrix
+      if (_cova->isNoStatForAnisotropy()) _loadHH(amesh, hh, imesh);
+      bool flagSphere = (amesh->getVariety() == 1);
+      flagSphere = false; // Modif DR a valider
+      if (!flagSphere)
+      {
+        if (_prepareMatricesSVariety(
+              amesh, imesh, coords, matM, matMtM, matP, &detMtM))
+          my_throw("Matrix inversion");
+        matPHHPt.normMatrix(matP, hh, true);
+      }
+
+      else
+      {
+        if (_prepareMatricesSphere(amesh, imesh, coords, matMs, &detMtM))
+          my_throw("Matrix inversion");
+        matPHHPt.normMatrix(matMs, hh, true);
+      }
+
+      dethh = 1. / hh.determinant();
+      hh.invert();
+
+      // Loop on the derivative terms
+
+      for (Id igparam = 0; igparam < ngparam; igparam++)
+      {
+        for (Id jref = 0; jref < ncorner; jref++)
+        {
+          Id ipref = amesh->getApex(imesh, jref);
+          auto iad = getSGradAddress(ipref, igparam);
+
+          // Update HH matrix
+
+          _loadHHGrad(amesh, hhGrad, igparam, ipref);
+          gradLogDetHH =
+            _computeGradLogDetHH(amesh, igparam, ipref, hh, work, work2);
+
+          if (amesh->getVariety() == 0)
+            matPGradHPt.normMatrix(matP, hhGrad, true);
+          else
+            matPGradHPt.normMatrix(matMs, hhGrad, true);
+
+          // Storing in the Map
+
+          double ratio = sqrt(dethh * detMtM);
+          double dratio = -0.5 * gradLogDetHH * ratio;
+          double S = 0.;
+          for (Id j0 = 0; j0 < ncorner - 1; j0++)
+          {
+            Id ip0 = amesh->getApex(imesh, j0);
+            _mapTildeCUpdate(tab[iad], ip0, dratio / 6.);
+            double s = 0.;
+            for (Id j1 = 0; j1 < ncorner - 1; j1++)
+            {
+              Id ip1 = amesh->getApex(imesh, j1);
+              double vald = matPGradHPt.getValue(j0, j1) / 2.;
+              double valdS = matPHHPt.getValue(j0, j1) / 2.;
+              vald = ratio * vald + dratio * valdS;
+              s += vald;
+              _mapGradUpdate(Mtab[iad], ip0, ip1, vald, tol);
+            }
+            Id ip1 = amesh->getApex(imesh, ncorner - 1);
+            _mapGradUpdate(Mtab[iad], ip0, ip1, -s, tol);
+            _mapGradUpdate(Mtab[iad], ip1, ip0, -s, tol);
+            S += s;
+          }
+          Id ip0 = amesh->getApex(imesh, ncorner - 1);
+          _mapTildeCUpdate(tab[iad], ip0, dratio / 6.);
+          _mapGradUpdate(Mtab[iad], ip0, ip0, S, tol);
+        }
+      }
+    }
+
+    // Construct the SGrad member
+    _resetGrad();
+    _SGrad.resize(number);
+    _TildeCGrad.resize(number);
+
+    for (Id i = 0; i < number; i++)
+    {
+      _SGrad[i] = _BuildSGradfromMap(Mtab[i]);
+      if (_SGrad[i] == nullptr) return 1;
+      _TildeCGrad[i] = _BuildTildeCGradfromMap(tab[i]);
+      if (_TildeCGrad[i] == nullptr) return 1;
+    }
+
+    VectorDouble sqrtTildeC = VH::power(_TildeC, 0.5);
+    VectorDouble invSqrtTildeC = VH::power(_TildeC, -0.5);
+    VectorDouble tempVec = VH::inverse(_TildeC);
+    tempVec *= -0.5;
+
+    Id ind = 0;
+    MatrixSparse* tildeCGradMat = nullptr;
+    MatrixSparse* A = nullptr;
+    MatrixSparse* At = nullptr;
+    for (Id ipar = 0; ipar < _nCovAnisoGradParam; ipar++)
+    {
+      for (Id iap = 0; iap < getSize(); iap++)
+      {
+        VectorDouble tildeCGrad = _TildeCGrad[ind]->getDiagonal();
+
+        tildeCGrad *= tempVec;
+        _SGrad[ind]->prodNormDiagVecInPlace(invSqrtTildeC, 1);
+
+        tildeCGradMat = MatrixSparse::diagVec(tildeCGrad);
+        A = MatrixFactory::prodMatMat<MatrixSparse>(_S, tildeCGradMat);
+        delete tildeCGradMat;
+        At = A->transpose();
+        AMatrix::addInPlace(*A, *A, *At);
+        AMatrix::addInPlace(*_SGrad[ind], *_SGrad[ind], *A);
+        delete At;
+        delete A;
+        ind++;
+      }
+    }
+
+    return 0;
+  }
+
+  void ShiftOpMatrix::_mapTildeCUpdate(
+    std::map<Id, double>& tab,
+    Id ip0,
+    double value,
+    double tol)
+  {
+    std::pair<std::map<Id, double>::iterator, bool> ret;
+
+    if (ABS(value) < tol) return;
+    ret = tab.insert(std::pair<Id, double>(ip0, value));
+    if (!ret.second) ret.first->second += value;
+  }
+
+  VectorT<std::map<Id, double>> ShiftOpMatrix::_mapTildeCCreate() const
+  {
+    Id number = _ndim * getSize();
+    VectorT<std::map<Id, double>> tab(number);
+    for (Id i = 0; i < number; i++)
+    {
+      tab.push_back(std::map<Id, double>());
+    }
+    return tab;
+  }
+
+  VectorT<std::map<Id, double>> ShiftOpMatrix::_mapCreate() const
+  {
+    auto size = getSize();
+    if (size <= 0) my_throw("_mapCreate");
+    VectorT<std::map<Id, double>> tab(size);
+    return tab;
+  }
+
+  VectorT<VectorT<std::map<Id, double>>> ShiftOpMatrix::_mapVectorCreate() const
+  {
+    Id number = _nCovAnisoGradParam * getSize();
+    if (number <= 0) my_throw("_mapVectorCreate");
+    VectorT<VectorT<std::map<Id, double>>> Mtab(number);
+    for (Id i = 0; i < number; i++)
+    {
+      Mtab[i] = _mapCreate();
+    }
+    return Mtab;
+  }
+
+  /**
+   * Construct the _Lambda vector (Dimension: _napices)
+   * @param amesh Description of the Mesh
+   */
+  void ShiftOpMatrix::_buildLambda(const AMesh* amesh)
+  {
+    auto ndim = getNDim();
+    Id nvertex = amesh->getNApices();
+    // Id nmeshes = amesh->getNMeshes();
+    auto cova = _getCovAniso();
+
+    /* Load global matrices */
+
+    _Lambda.clear();
+    _Lambda.resize(nvertex, 0.);
+
+    MatrixSymmetric hh(ndim);
+    // double param = cova->getParam();
+    bool flagSphere = (amesh->getVariety() == 1);
+
+    double correc = cova->getCorrec();
+    double factor = 1.;
+    if (flagSphere)
+    {
+      const ASpace* space = getDefaultSpaceSh().get();
+      const auto* spaceSn = dynamic_cast<const SpaceSN*>(space);
+      double r = 1.;
+      if (spaceSn != nullptr) r = spaceSn->getRadius();
+      double normalizing =
+        cova->normalizeOnSphere(50); // useful only for Markov
+      correc = pow(r, -2.) * normalizing;
+      if (_isGlobalHH())
+      {
+        _loadHH(amesh, hh, 0);
+        factor = sqrt(hh.determinant());
+      }
+    }
+
+    for (Id ip = 0; ip < nvertex; ip++)
+    {
+      _Lambda[ip] = sqrt(_TildeC[ip] * correc * factor);
     }
   }
-  return false;
-}
 
-/**
- * Project the coordinates of the mesh vertices on the sphere
- * @param amesh Mesh structure
- * @param srot  Rotation parameters
- * @param imesh Rank of the mesh of interest
- * @param coeff Coordinates of the projected vertices
- */
-void ShiftOpMatrix::_projectMesh(const AMesh* amesh,
-                                 const VectorDouble& srot,
-                                 Id imesh,
-                                 double coeff[3][2])
-{
-  double xyz[3][3];
-
-  // Calculate the Mesh Center
-
-  VectorDouble center(3, 0.);
-  for (Id icorn = 0; icorn < amesh->getNApexPerMesh(); icorn++)
+  /**
+   * Construct the _Lambda vector (Dimension: _napices)
+   * @param amesh Description of the Mesh (New class)
+   * @return
+   */
+  bool ShiftOpMatrix::_buildLambdaGrad(const AMesh* amesh)
   {
-    GH::convertSph2Cart(amesh->getCoor(imesh, icorn, 0),
-                        amesh->getCoor(imesh, icorn, 1),
-                        &xyz[icorn][0], &xyz[icorn][1], &xyz[icorn][2]);
-    for (Id i = 0; i < 3; i++)
-      center[i] += xyz[icorn][i];
-  }
-  center.normalizeInPlace();
+    Id nvertex = amesh->getNApices();
+    auto cova = cloneAndCast(_cova);
 
-  // Center gives the vector joining the origin to the center of triangle
-  double phi    = srot[1] * GV_PI / 180.;
-  double theta  = srot[0] * GV_PI / 180.;
-  double sinphi = sin(phi);
-  double cosphi = cos(phi);
-  double sintet = sin(theta);
-  double costet = cos(theta);
+    /* Core allocation */
 
-  // W is the Pole vector
-  VectorDouble w;
-  w.push_back(sinphi * costet);
-  w.push_back(sinphi * sintet);
-  w.push_back(cosphi);
+    auto number = getLambdaGradSize();
+    if (_LambdaGrad.empty())
+    {
+      _LambdaGrad.clear();
+      VectorDouble temp(nvertex);
+      for (Id i = 0; i < number; i++) _LambdaGrad.push_back(temp);
+    }
 
-  // V1 = Center ^ w: first axis
-  VectorDouble v1 = VH::crossProduct3D(center, w);
-  v1.normalizeInPlace();
+    // Filling by range / angle
 
-  // V2 = Center ^ V1: second axis
-  VectorDouble v2 = VH::crossProduct3D(center, v1);
-  v2.normalizeInPlace();
+    for (Id ip = 0; ip < nvertex; ip++)
+    {
+      // Locally update the covariance for non-stationarity (if necessary)
+      _updateCova(cova, ip);
 
-  // Get the end points from Unit vectors
-  VectorDouble axe1 = center.addVec(v1);
-  VectorDouble axe2 = center.addVec(v2);
-
-  /* Projection */
-
-  for (Id icorn = 0; icorn < 3; icorn++)
-  {
-    coeff[icorn][0] = coeff[icorn][1] = 0.;
-    for (Id i = 0; i < 3; i++)
-      coeff[icorn][0] += (axe1[i] - center[i]) * (xyz[icorn][i] - center[i]);
-    for (Id i = 0; i < 3; i++)
-      coeff[icorn][1] += (axe2[i] - center[i]) * (xyz[icorn][i] - center[i]);
-  }
-}
-
-/**
- * Returns the internal address for a given vertex and a given parameter
- * It returns -1 if the address is ivalid
- * @param iapex  Rank of the target apex
- * @param igparam  Rank of the target parameter
- * @return
- */
-Id ShiftOpMatrix::getSGradAddress(Id iapex, Id igparam) const
-{
-  Id ngparam   = _nCovAnisoGradParam;
-  auto napices = getSize();
-  if (!checkArg("Mesh Apex index", iapex, napices)) return -1;
-  if (!checkArg("Rank of the CovAniso parameter", igparam, ngparam)) return -1;
-  return napices * igparam + iapex;
-}
-
-double ShiftOpMatrix::_getMaxEigenValue() const
-{
-  return getS()->L1Norm();
-}
-
-Id ShiftOpMatrix::getLambdaGradSize() const
-{
-  return _ndim;
-}
-
-void ShiftOpMatrix::_mapGradUpdate(std::map<std::pair<Id, Id>, double>& tab,
-                                   Id ip0,
-                                   Id ip1,
-                                   double value,
-                                   double tol)
-{
-  std::pair<std::map<std::pair<Id, Id>, double>::iterator, bool> ret;
-
-  if (ABS(value) < tol) return;
-  std::pair<Id, Id> key(ip0, ip1);
-  ret = tab.insert(std::pair<std::pair<Id, Id>, double>(key, value)); // ret.second = false if key is already in the map
-  if (!ret.second) ret.first->second += value;
-}
-
-/**
- * Transform the Map into a square cparse matrix
- * @param tab   Input Map
- * @return
- */
-MatrixSparse* ShiftOpMatrix::_BuildSGradfromMap(std::map<std::pair<Id, Id>, double>& tab) const
-{
-  std::map<std::pair<Id, Id>, double>::iterator it;
-
-  NF_Triplet NF_T;
-  Id ip0_max = -1;
-  Id ip1_max = -1;
-
-  it = tab.begin();
-  while (it != tab.end())
-  {
-    Id ip0 = it->first.first;
-    Id ip1 = it->first.second;
-    NF_T.add(ip0, ip1, it->second);
-    if (ip0 > ip0_max) ip0_max = ip0;
-    if (ip1 > ip1_max) ip1_max = ip1;
-    it++;
+      for (Id idim = 0; idim < number; idim++)
+      {
+        _LambdaGrad[idim][ip] = -_Lambda[ip] / (2. * cova->getScale(idim));
+      }
+    }
+    return false;
   }
 
-  // Add the fictitious value at maximum sparse matrix dimension (if 'nmax' provided)
+  /**
+   * Project the coordinates of the mesh vertices on the sphere
+   * @param amesh Mesh structure
+   * @param srot  Rotation parameters
+   * @param imesh Rank of the mesh of interest
+   * @param coeff Coordinates of the projected vertices
+   */
+  void ShiftOpMatrix::_projectMesh(
+    const AMesh* amesh,
+    const VectorDouble& srot,
+    Id imesh,
+    double coeff[3][2])
+  {
+    double xyz[3][3];
 
-  NF_T.force(getSize(), getSize());
+    // Calculate the Mesh Center
 
-  /* Optional printout */
+    VectorDouble center(3, 0.);
+    for (Id icorn = 0; icorn < amesh->getNApexPerMesh(); icorn++)
+    {
+      GH::convertSph2Cart(
+        amesh->getCoor(imesh, icorn, 0), amesh->getCoor(imesh, icorn, 1),
+        &xyz[icorn][0], &xyz[icorn][1], &xyz[icorn][2]);
+      for (Id i = 0; i < 3; i++) center[i] += xyz[icorn][i];
+    }
+    center.normalizeInPlace();
 
-  return MatrixSparse::createFromTriplet(NF_T, getSize(), getSize());
-}
+    // Center gives the vector joining the origin to the center of triangle
+    double phi = srot[1] * GV_PI / 180.;
+    double theta = srot[0] * GV_PI / 180.;
+    double sinphi = sin(phi);
+    double cosphi = cos(phi);
+    double sintet = sin(theta);
+    double costet = cos(theta);
 
-void ShiftOpMatrix::_determineFlagNoStatByHH()
-{
-  _flagNoStatByHH = false;
-  if (!_isNoStat()) return;
-  _flagNoStatByHH = _cova->isNoStatForTensor();
-}
+    // W is the Pole vector
+    VectorDouble w;
+    w.push_back(sinphi * costet);
+    w.push_back(sinphi * sintet);
+    w.push_back(cosphi);
+
+    // V1 = Center ^ w: first axis
+    VectorDouble v1 = VH::crossProduct3D(center, w);
+    v1.normalizeInPlace();
+
+    // V2 = Center ^ V1: second axis
+    VectorDouble v2 = VH::crossProduct3D(center, v1);
+    v2.normalizeInPlace();
+
+    // Get the end points from Unit vectors
+    VectorDouble axe1 = center + v1;
+    VectorDouble axe2 = center + v2;
+
+    /* Projection */
+
+    for (Id icorn = 0; icorn < 3; icorn++)
+    {
+      coeff[icorn][0] = coeff[icorn][1] = 0.;
+      for (Id i = 0; i < 3; i++)
+        coeff[icorn][0] += (axe1[i] - center[i]) * (xyz[icorn][i] - center[i]);
+      for (Id i = 0; i < 3; i++)
+        coeff[icorn][1] += (axe2[i] - center[i]) * (xyz[icorn][i] - center[i]);
+    }
+  }
+
+  /**
+   * Returns the internal address for a given vertex and a given parameter
+   * It returns -1 if the address is ivalid
+   * @param iapex  Rank of the target apex
+   * @param igparam  Rank of the target parameter
+   * @return
+   */
+  Id ShiftOpMatrix::getSGradAddress(Id iapex, Id igparam) const
+  {
+    Id ngparam = _nCovAnisoGradParam;
+    auto napices = getSize();
+    if (!checkArg("Mesh Apex index", iapex, napices)) return -1;
+    if (!checkArg("Rank of the CovAniso parameter", igparam, ngparam))
+      return -1;
+    return napices * igparam + iapex;
+  }
+
+  double ShiftOpMatrix::_getMaxEigenValue() const
+  {
+    return getS()->L1Norm();
+  }
+
+  Id ShiftOpMatrix::getLambdaGradSize() const
+  {
+    return _ndim;
+  }
+
+  void ShiftOpMatrix::_mapGradUpdate(
+    std::map<std::pair<Id, Id>, double>& tab,
+    Id ip0,
+    Id ip1,
+    double value,
+    double tol)
+  {
+    std::pair<std::map<std::pair<Id, Id>, double>::iterator, bool> ret;
+
+    if (ABS(value) < tol) return;
+    std::pair<Id, Id> key(ip0, ip1);
+    ret = tab.insert(
+      std::pair<std::pair<Id, Id>, double>(
+        key, value)); // ret.second = false if key is already in the map
+    if (!ret.second) ret.first->second += value;
+  }
+
+  /**
+   * Transform the Map into a square cparse matrix
+   * @param tab   Input Map
+   * @return
+   */
+  MatrixSparse* ShiftOpMatrix::_BuildSGradfromMap(
+    std::map<std::pair<Id, Id>, double>& tab) const
+  {
+    std::map<std::pair<Id, Id>, double>::iterator it;
+
+    NF_Triplet NF_T;
+    Id ip0_max = -1;
+    Id ip1_max = -1;
+
+    it = tab.begin();
+    while (it != tab.end())
+    {
+      Id ip0 = it->first.first;
+      Id ip1 = it->first.second;
+      NF_T.add(ip0, ip1, it->second);
+      if (ip0 > ip0_max) ip0_max = ip0;
+      if (ip1 > ip1_max) ip1_max = ip1;
+      it++;
+    }
+
+    // Add the fictitious value at maximum sparse matrix dimension (if 'nmax' provided)
+
+    NF_T.force(getSize(), getSize());
+
+    /* Optional printout */
+
+    return MatrixSparse::createFromTriplet(NF_T, getSize(), getSize());
+  }
+
+  void ShiftOpMatrix::_determineFlagNoStatByHH()
+  {
+    _flagNoStatByHH = false;
+    if (!_isNoStat()) return;
+    _flagNoStatByHH = _cova->isNoStatForTensor();
+  }
 
 } // namespace gstlrn

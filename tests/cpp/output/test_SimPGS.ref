@@ -1,0 +1,252 @@
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Matern (Third Parameter = 1)
+- Sill         =       1.000
+- Range        =       0.200
+- Theo. Range  =       0.058
+Total Sill     =       1.000
+Known Mean(s)      0.000
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Exponential
+- Sill         =       1.000
+- Range        =       0.300
+- Theo. Range  =       0.100
+Total Sill     =       1.000
+Known Mean(s)      0.000
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Matern (Third Parameter = 1)
+- Sill         =       1.000
+- Range        =       0.200
+- Theo. Range  =       0.058
+Total Sill     =       1.000
+Known Mean(s)      0.000
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Spherical
+- Sill         =       1.000
+- Range        =       0.100
+Total Sill     =       1.000
+Known Mean(s)      0.000
+
+Unique Neighborhood
+===================
+
+Lithotype Rule
+==============
+- Number of nodes               = 5
+- Number of facies              = 3
+- Number of thresholds along G1 = 2
+- Number of thresholds along G2 = 0
+- Description: S S F1 F2 F3 
+
+
+Facies Characteristics
+----------------------
+Facies 1 - Name = F1 - Color = Blue - Assigned Value = 1
+Facies 2 - Name = F2 - Color = Orange - Assigned Value = 2
+Facies 3 - Name = F3 - Color = Green - Assigned Value = 3
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Statistics
+--------------------
+4 - Name PGS-Facies.1 - Locator facies1
+ Nb of data          =       10000
+ Nb of active values =       10000
+ Minimum value       =       1.000
+ Maximum value       =       3.000
+ Mean value          =       2.124
+ Standard Deviation  =       0.677
+ Variance            =       0.458
+5 - Name PGS-Facies.2 - Locator facies2
+ Nb of data          =       10000
+ Nb of active values =       10000
+ Minimum value       =       1.000
+ Maximum value       =       3.000
+ Mean value          =       2.014
+ Standard Deviation  =       0.719
+ Variance            =       0.518
+
+Lithotype Rule
+==============
+- Number of nodes               = 3
+- Number of facies              = 2
+- Number of thresholds along G1 = 1
+- Number of thresholds along G2 = 0
+- Description: S F1 F2 
+
+
+Facies Characteristics
+----------------------
+Facies 1 - Name = F1 - Color = Blue - Assigned Value = 1
+Facies 2 - Name = F2 - Color = Orange - Assigned Value = 2
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Statistics
+--------------------
+6 - Name BiPGS-Facies.1 - Locator facies1
+ Nb of data          =       10000
+ Nb of active values =       10000
+ Minimum value       =       1.000
+ Maximum value       =       3.000
+ Mean value          =       2.024
+ Standard Deviation  =       0.824
+ Variance            =       0.678
+7 - Name BiPGS-Facies.2 - Locator facies2
+ Nb of data          =       10000
+ Nb of active values =       10000
+ Minimum value       =       1.000
+ Maximum value       =       3.000
+ Mean value          =       1.889
+ Standard Deviation  =       0.811
+ Variance            =       0.657
+8 - Name BiPGS-Facies.3 - Locator facies3
+ Nb of data          =       10000
+ Nb of active values =       10000
+ Minimum value       =       1.000
+ Maximum value       =       2.000
+ Mean value          =       1.521
+ Standard Deviation  =       0.500
+ Variance            =       0.250
+9 - Name BiPGS-Facies.4 - Locator facies4
+ Nb of data          =       10000
+ Nb of active values =       10000
+ Minimum value       =       1.000
+ Maximum value       =       2.000
+ Mean value          =       1.468
+ Standard Deviation  =       0.499
+ Variance            =       0.249
+
+Lithotype Rule
+==============
+- Number of nodes               = 7
+- Number of facies              = 4
+- Number of thresholds along G1 = 3
+- Number of thresholds along G2 = 0
+- Description: S S S F1 F2 F3 F4 
+
+
+Shift Option
+............
+Translation Vector      0.200      0.350
+(With the 'Shift' option, only the first GRF is used)
+
+Facies Characteristics
+----------------------
+Facies 1 - Name = F1 - Color = Blue - Assigned Value = 1
+Facies 2 - Name = F2 - Color = Orange - Assigned Value = 2
+Facies 3 - Name = F3 - Color = Green - Assigned Value = 3
+Facies 4 - Name = F4 - Color = Red - Assigned Value = 4
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Statistics
+--------------------
+10 - Name PGS-Shift-Facies.1 - Locator facies1
+ Nb of data          =       10000
+ Nb of active values =        5200
+ Minimum value       =       1.000
+ Maximum value       =       4.000
+ Mean value          =       3.028
+ Standard Deviation  =       0.965
+ Variance            =       0.931
+11 - Name PGS-Shift-Facies.2 - Locator facies2
+ Nb of data          =       10000
+ Nb of active values =        5200
+ Minimum value       =       1.000
+ Maximum value       =       4.000
+ Mean value          =       2.725
+ Standard Deviation  =       1.132
+ Variance            =       1.281
+
+Lithotype Rule
+==============
+- Number of nodes               = 5
+- Number of facies              = 3
+- Number of thresholds along G1 = 1
+- Number of thresholds along G2 = 1
+- Description: S T F1 F2 F3 
+
+
+Shadow Option
+.............
+Normalized Translation Vector =       0.496      0.868
+Slope for shadow                  = 0.5(degrees)
+Upwards shift for the threshold   = 0.5
+Downwards shift for the threshold = -0.2
+
+Note for non-stationary case:
+- P1 gives the proportion of Island
+- P2 gives the value of Upwards shift
+- P3 gives the value of Downwards shift
+(With the 'Shadow' option, only the first GRF is used)
+
+Facies Characteristics
+----------------------
+Facies 1 - Name = F1 - Color = Blue - Assigned Value = 1
+Facies 2 - Name = F2 - Color = Orange - Assigned Value = 2
+Facies 3 - Name = F3 - Color = Green - Assigned Value = 3
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Statistics
+--------------------
+12 - Name PGS-Shadow-Facies.1 - Locator facies1
+ Nb of data          =       10000
+ Nb of active values =       10000
+ Minimum value       =       1.000
+ Maximum value       =       3.000
+ Mean value          =       2.274
+ Standard Deviation  =       0.892
+ Variance            =       0.796
+13 - Name PGS-Shadow-Facies.2 - Locator facies2
+ Nb of data          =       10000
+ Nb of active values =       10000
+ Minimum value       =       1.000
+ Maximum value       =       3.000
+ Mean value          =       2.252
+ Standard Deviation  =       0.849
+ Variance            =       0.720

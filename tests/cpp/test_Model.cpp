@@ -28,6 +28,7 @@
 #include "Model/Model.hpp"
 
 using namespace gstlrn;
+
 /****************************************************************************/
 /*!
  ** Main Program
@@ -47,9 +48,9 @@ int main(int argc, char* argv[])
 
   ///////////////////////
   // Creating the Db
-  VectorInt nx       = {2, 3};
-  VectorDouble x0    = {5.2, 8.3};
-  VectorDouble dx    = {1.3, 0.6};
+  VectorInt nx = {2, 3};
+  VectorDouble x0 = {5.2, 8.3};
+  VectorDouble dx = {1.3, 0.6};
   DbGrid* workingDbc = DbGrid::create(nx, dx, x0);
 
   // Building the Covariance Context
@@ -81,7 +82,9 @@ int main(int argc, char* argv[])
   VectorDouble hh = VH::sequenceVD(0., 3., 3. / 50.);
   CovCalcMode mode(ECalcMember::LHS);
   mode.setAsVario(true);
-  printVector(modellmc.sample(hh, VectorDouble(), 0, 0, &mode), "\nModel sampled", true, true);
+  printVector(
+    modellmc.sample(hh, VectorDouble(), 0, 0, &mode), "\nModel sampled", true,
+    true);
 
   /////////////////////////////
   // Creating the Tapered Model
@@ -95,7 +98,9 @@ int main(int argc, char* argv[])
   modeltape.display();
 
   // Sample the Tapered Model at regular steps
-  printVector(modeltape.sample(hh, VectorDouble(), 0, 0, &mode), "\nTapered Model", true, true);
+  printVector(
+    modeltape.sample(hh, VectorDouble(), 0, 0, &mode), "\nTapered Model", true,
+    true);
 
   /////////////////////////////
   // Creating the Convoluted Model
@@ -108,14 +113,17 @@ int main(int argc, char* argv[])
   modelconv.setCovAnisoList(&covconv);
   modelconv.display();
   // Sample the Tapered Model at regular steps
-  printVector(modelconv.sample(hh, VectorDouble(), 0, 0, &mode), "\nConvoluted Model", true, true);
+  printVector(
+    modelconv.sample(hh, VectorDouble(), 0, 0, &mode), "\nConvoluted Model",
+    true, true);
 
   /////////////////////////////////////////
   // Creating Covariance and Drift matrices
   Model* modelS = Model::createFromEnvironment(1, 3);
   modelS->addCovFromParam(ECov::CUBIC, 10., 12.);
-  modelS->addCovFromParam(ECov::SPHERICAL, TEST, 23., TEST, {2., 3., 4.},
-                          MatrixSymmetric(), {10., 20., 30.});
+  modelS->addCovFromParam(
+    ECov::SPHERICAL, TEST, 23., TEST, {2., 3., 4.}, MatrixSymmetric(),
+    {10., 20., 30.});
   DriftM FF;
   modelS->addDrift(&FF);
   FF = DriftM(VectorInt({1}));
@@ -137,8 +145,7 @@ int main(int argc, char* argv[])
   MatrixDense driftM;
 
   Model* modelM = Model::createFromEnvironment(2, 2);
-  MatrixSymmetric* sills =
-    MatrixSymmetric::createFromVD({2., 1., 1., 4.});
+  MatrixSymmetric* sills = MatrixSymmetric::createFromVD({2., 1., 1., 4.});
   modelM->addCovFromParam(ECov::CUBIC, 10., TEST, 0., VectorDouble(), *sills);
   delete sills;
   FF = DriftM(); // Universality Condition
@@ -155,7 +162,7 @@ int main(int argc, char* argv[])
   workingDbc->addColumns(rnd1, "Z1");
   // Adding a second variable (with one TEST values)
   VectorDouble rnd2 = VH::simulateGaussian(nsample);
-  rnd2[1]           = TEST;
+  rnd2[1] = TEST;
   workingDbc->addColumns(rnd2, "Z2");
   VectorDouble verr1(nsample, 0.1);
   verr1[3] = TEST;
@@ -166,7 +173,8 @@ int main(int argc, char* argv[])
   workingDbc->addColumns({1, 1, 1, 0, 1, 0}, "Sel");
   OptCst::define(ECst::NTCOL, -1);
   OptCst::define(ECst::NTROW, -1);
-  DbStringFormat* dbfmt = DbStringFormat::createFromFlags(false, true, false, false, true);
+  DbStringFormat* dbfmt =
+    DbStringFormat::createFromFlags(false, true, false, false, true);
   workingDbc->display(dbfmt);
 
   // Complete Matrices on the whole grid
@@ -209,7 +217,8 @@ int main(int argc, char* argv[])
 
   // Adding the variables (heterotopic multivariate & Verr)
   workingDbc->setLocators({"V*"}, ELoc::V, 0);
-  message("Covariance Matrix (with selection & heterotopic multivariate & verr)\n");
+  message(
+    "Covariance Matrix (with selection & heterotopic multivariate & verr)\n");
   covM = modelM->evalCovMatSym(workingDbc);
   covM.display();
 
@@ -221,7 +230,8 @@ int main(int argc, char* argv[])
   VectorInt nbgh = {0, 2, 3, 5};
   printVector(nbgh, "Ranks of selected samples = ", true, true);
 
-  message("Covariance Matrix (selection & heterotopic multivariate & sampling)\n");
+  message(
+    "Covariance Matrix (selection & heterotopic multivariate & sampling)\n");
   covM = modelM->evalCovMatSym(workingDbc, nbgh, -1);
   covM.display();
 
@@ -232,11 +242,12 @@ int main(int argc, char* argv[])
   // Testing Models on the Sphere
 
   defineDefaultSpace(ESpaceType::SN, 2);
-  Id ns             = 20;
-  Id nincr          = 30;
-  VectorDouble incr = VH::sequenceVD(0., GV_PI + EPSILON10, GV_PI / (nincr - 1.));
-  double mu         = 1.0;
-  double kappa      = 2.0;
+  Id ns = 20;
+  Id nincr = 30;
+  VectorDouble incr =
+    VH::sequenceVD(0., GV_PI + EPSILON10, GV_PI / (nincr - 1.));
+  double mu = 1.0;
+  double kappa = 2.0;
 
   //  Model* modelSph = Model::createFromParam(ECov::LINEARSPH);
   //  Model* modelSph = Model::createFromParam(ECov::GEOMETRIC, 0.9);
@@ -244,11 +255,14 @@ int main(int argc, char* argv[])
   //  Model* modelSph = Model::createFromParam(ECov::EXPONENTIAL, 5.0, 1., 0.,
   //                                           VectorDouble(), MatrixSymmetric(), VectorDouble(),
   //                                           nullptr, true);
-  Model* modelSph = Model::createFromParam(ECov::MATERN, 1. / kappa, 1., mu,
-                                           VectorDouble(), MatrixSymmetric(),
-                                           VectorDouble(), nullptr, false);
-  printVector(modelSph->getCovAniso(0)->evalSpectrumOnSphere(ns), "Spectrum", true, true);
-  printVector(modelSph->getCovAniso(0)->evalCovOnSphereVec(incr), "Covariance", true, true);
+  Model* modelSph = Model::createFromParam(
+    ECov::MATERN, 1. / kappa, 1., mu, VectorDouble(), MatrixSymmetric(),
+    VectorDouble(), nullptr, false);
+  printVector(
+    modelSph->getCovAniso(0)->evalSpectrumOnSphere(ns), "Spectrum", true, true);
+  printVector(
+    modelSph->getCovAniso(0)->evalCovOnSphereVec(incr, 50, false), "Covariance",
+    true, true);
 
   delete workingDbc;
   delete modelM;

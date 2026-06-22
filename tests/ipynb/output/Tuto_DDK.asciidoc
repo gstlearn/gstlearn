@@ -11,12 +11,12 @@
 
        Coupures sur la variable Z       
    0.3       0.5       0.7       0.9    
-  0.712     0.920     1.241     1.778    
+  0.657     0.861     1.089     1.547    
 
-Bound( 1 ) : [ 0 ; 0.712209 [
-Bound( 2 ) : [ 0.712209 ; 0.920089 [
-Bound( 3 ) : [ 0.920089 ; 1.24076 [
-Bound( 4 ) : [ 1.24076 ; 1.77795 [
+Bound( 1 ) : [ 0 ; 0.657081 [
+Bound( 2 ) : [ 0.657081 ; 0.860675 [
+Bound( 3 ) : [ 0.860675 ; 1.08931 [
+Bound( 4 ) : [ 1.08931 ; 1.54692 [
 ----
 
 
@@ -46,12 +46,36 @@ Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = Y - Locator = NA
 Column = 4 - Name = Z - Locator = NA
-Column = 5 - Name = Indicator.Z.Class.1 - Locator = NA
-Column = 6 - Name = Indicator.Z.Class.2 - Locator = NA
-Column = 7 - Name = Indicator.Z.Class.3 - Locator = NA
-Column = 8 - Name = Indicator.Z.Class.4 - Locator = NA
+Column = 5 - Name = Indicator.Z.Class.S1 - Locator = NA
+Column = 6 - Name = Indicator.Z.Class.S2 - Locator = NA
+Column = 7 - Name = Indicator.Z.Class.S3 - Locator = NA
+Column = 8 - Name = Indicator.Z.Class.S4 - Locator = NA
 Column = 9 - Name = Indicator.Z.Mean - Locator = z1
 
+
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Exponential
+- Sill         =       0.235
+- Range        =       0.190
+- Theo. Range  =       0.063
+Total Sill     =       0.235
+Known Mean(s)      0.000
 
 #NO_DIFF#XXX
 ----
@@ -70,46 +94,14 @@ Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
-Exponential
-- Sill         =      0.152
-- Range        =      0.091
-- Theo. Range  =      0.030
-Exponential
-- Sill         =      0.207
-- Range        =      0.627
-- Theo. Range  =      0.209
-Total Sill     =      0.359
-Known Mean(s)     0.000
-
-#NO_DIFF#XXX
-----
-
-
-#NO_DIFF#XXX
-----
-
-Model characteristics
-=====================
-Space dimension              = 2
-Number of variable(s)        = 1
-Number of basic structure(s) = 3
-Number of drift function(s)  = 0
-Number of drift equation(s)  = 0
-
-Covariance Part
----------------
 Nugget Effect
-- Sill         =      0.016
+- Sill         =       0.015
 Exponential
-- Sill         =      0.054
-- Range        =      0.074
-- Theo. Range  =      0.025
-Exponential
-- Sill         =      0.079
-- Range        =      0.641
-- Theo. Range  =      0.214
-Total Sill     =      0.149
-Known Mean(s)     0.000
+- Sill         =       0.075
+- Range        =       0.171
+- Theo. Range  =       0.057
+Total Sill     =       0.090
+Known Mean(s)      0.000
 
 #NO_DIFF#XXX
 ----
@@ -127,56 +119,56 @@ Known Mean(s)     0.000
 PCA Contents
 ------------
 Means
-               [,  0]
-     [  0,]     0.300
-     [  1,]     0.200
-     [  2,]     0.200
-     [  3,]     0.200
+                 [,  0]
+      [  0,]      0.300
+      [  1,]      0.200
+      [  2,]      0.200
+      [  3,]      0.200
 Covariance Matrix
-               [,  0]    [,  1]    [,  2]    [,  3]
-     [  0,]     0.210    -0.060    -0.060    -0.060
-     [  1,]    -0.060     0.160    -0.040    -0.040
-     [  2,]    -0.060    -0.040     0.160    -0.040
-     [  3,]    -0.060    -0.040    -0.040     0.160
+                 [,  0]     [,  1]     [,  2]     [,  3]
+      [  0,]      0.210     -0.060     -0.060     -0.060
+      [  1,]     -0.060      0.160     -0.040     -0.040
+      [  2,]     -0.060     -0.040      0.160     -0.040
+      [  3,]     -0.060     -0.040     -0.040      0.160
 Variogram Matrix at lag h
-               [,  0]    [,  1]    [,  2]    [,  3]
-     [  0,]     0.137    -0.055    -0.043    -0.034
-     [  1,]    -0.055     0.144    -0.044    -0.033
-     [  2,]    -0.043    -0.044     0.155    -0.048
-     [  3,]    -0.034    -0.033    -0.048     0.148
+                 [,  0]     [,  1]     [,  2]     [,  3]
+      [  0,]      0.139     -0.056     -0.050     -0.027
+      [  1,]     -0.056      0.146     -0.039     -0.038
+      [  2,]     -0.050     -0.039      0.162     -0.053
+      [  3,]     -0.027     -0.038     -0.053      0.148
 Matrix MZ2F to transform standardized Variables Z into Factors F
-               [,  0]    [,  1]    [,  2]    [,  3]
-     [  0,]     0.822     1.539     0.682     3.132
-     [  1,]     1.307     0.292     2.998     2.050
-     [  2,]    -0.586     2.663     2.276     1.539
-     [  3,]     2.387     2.536     1.344     1.025
+                 [,  0]     [,  1]     [,  2]     [,  3]
+      [  0,]      0.522      1.464      1.316      3.029
+      [  1,]      0.258     -0.126      3.393      1.841
+      [  2,]     -1.440      2.299      2.379      1.402
+      [  3,]      1.663      2.342      2.466      0.809
 Y = (Z - m) * MZ2F)
 Matrix MF2Z to back-transform Factors F into standardized Variables Z
-               [,  0]    [,  1]    [,  2]    [,  3]
-     [  0,]    -0.014     0.088    -0.291     0.304
-     [  1,]    -0.006    -0.254     0.221     0.195
-     [  2,]    -0.254     0.294     0.150    -0.037
-     [  3,]     0.381     0.038    -0.065    -0.168
+                 [,  0]     [,  1]     [,  2]     [,  3]
+      [  0,]      0.081      0.001     -0.339      0.282
+      [  1,]      0.037     -0.294      0.192      0.200
+      [  2,]     -0.218      0.270      0.067      0.085
+      [  3,]      0.393      0.024     -0.064     -0.182
 Z = m + Y * MF2Z
 ----
 
 
 #NO_DIFF#XXX
 ----array([ 1.        ,  1.        ,  1.        ,  1.        ,  1.        ,
-       -0.2989824 ,  1.1754654 , -3.55711089,  3.87611926, -2.09200035,
-       -0.39522446, -3.02283878,  2.90560547,  2.5865877 , -3.75303541,
-       -2.26694779,  3.73995343,  1.93405171, -0.39606933, -3.75502824,
-        2.4777356 ,  0.76783218, -0.50985692, -1.79568474, -4.35778781])----
+        0.55658326,  0.06374285, -4.18255387,  3.57504371, -0.58221515,
+       -0.02103059, -3.53166061,  2.53235977,  2.638828  , -3.21596253,
+       -2.10934593,  3.50233549,  0.96706836,  1.18478447, -4.98033883,
+        2.60081743,  0.59417793, -0.50424895, -1.98696404, -4.00838216])----
 
 
 #NO_DIFF#XXX
 ----
 Correlation between factors MAF
-[[ 1.          0.         -0.         -0.         -0.        ]
- [-0.          6.27627515  0.04800852  0.18515279 -0.15941253]
- [-0.          0.04800852  6.30949487  0.33603074 -0.34771972]
- [-0.          0.18515279  0.33603074  6.5286751   0.47064898]
- [-0.         -0.15941253 -0.34771972  0.47064898  4.55558437]]
+[[ 1.         -0.         -0.         -0.         -0.        ]
+ [ 0.          6.18258443 -0.09285813  0.0205728  -0.32366654]
+ [-0.         -0.09285813  6.20415136  0.25623598 -0.45105452]
+ [-0.          0.0205728   0.25623598  6.73623743  0.19835165]
+ [-0.         -0.32366654 -0.45105452  0.19835165  4.54705626]]
 
 #NO_DIFF#XXX
 ----

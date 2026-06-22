@@ -1,52 +1,67 @@
----
-# This requires a version of clang-format above 19
-AlignAfterOpenBracket: Align
-AlignConsecutiveAssignments: true
+# This requires a version of clang-format above 22
+AlignAfterOpenBracket: true
+AlignArrayOfStructures: None
+AlignConsecutiveAssignments: None
 AlignConsecutiveDeclarations: false
-AlignConsecutiveMacros: AcrossComments
+AlignConsecutiveMacros: None
 AlignEscapedNewlines: Right
-AlignTrailingComments: true
+AlignOperands: AlignAfterOperator
+AlignTrailingComments: false
 AllowAllArgumentsOnNextLine: false
 AllowAllParametersOfDeclarationOnNextLine: false
 AllowShortBlocksOnASingleLine: Never
+AllowShortCaseLabelsOnASingleLine: true
 AllowShortFunctionsOnASingleLine: Inline
 AllowShortIfStatementsOnASingleLine: WithoutElse
 AllowShortLoopsOnASingleLine: true
-AllowShortCaseLabelsOnASingleLine: true
-#AlwaysBreakAfterReturnType: None
 AlwaysBreakAfterDefinitionReturnType: None
 AlwaysBreakTemplateDeclarations: 'Yes'
-AlignOperands: AlignAfterOperator
 BinPackArguments: true
-BinPackParameters: false
+BinPackParameters: OnePerLine
+BitFieldColonSpacing: After
 BraceWrapping:
   AfterControlStatement: Always
-BreakBeforeBinaryOperators: None
-BreakAfterReturnType: None
+BreakAfterReturnType: Automatic
+BreakAfterOpenBracketFunction: true
+BreakBeforeBinaryOperators: NonAssignment
 BreakBeforeBraces: Allman
 BreakConstructorInitializers: BeforeComma
+BreakTemplateDeclarations: 'Yes'
+ColumnLimit: 80
 ConstructorInitializerIndentWidth: 2
 ContinuationIndentWidth: 2
-ColumnLimit: 0 # To prevent automatic line breaking
 DerivePointerAlignment: false
 EmptyLineBeforeAccessModifier: Always
+EnumTrailingComma: Remove
+FixNamespaceComments: true
+IncludeBlocks: Preserve
 IndentCaseLabels: true
+IndentPPDirectives: None
 IndentWidth: 2
-IndentPPDirectives: AfterHash
-NamespaceIndentation: None
-PackConstructorInitializers: Never
-PenaltyReturnTypeOnItsOwnLine: 10  # Strongly discourages breaking return type
-PenaltyBreakBeforeFirstCallParameter: 100  # Keeps function name & first parameter together
+IndentWrappedFunctionNames: true
+LineEnding: LF
+NamespaceIndentation: All
 PPIndentWidth: 2
+PackConstructorInitializers: Never
+PenaltyBreakBeforeFirstCallParameter: 100
+PenaltyReturnTypeOnItsOwnLine: 10
 PointerAlignment: Left
+QualifierAlignment: Left
 ReferenceAlignment: Left
-ReflowComments: true
-SortIncludes: true
+ReflowComments: IndentOnly
+RemoveEmptyLinesInUnwrappedLines: true
+RemoveParentheses: MultipleParentheses
+SeparateDefinitionBlocks: Always
+ShortNamespaceLines: 0
+SortIncludes:
+  Enabled: true
+SortUsingDeclarations: Lexicographic
 SpaceAfterCStyleCast: false
+SpaceAfterLogicalNot: false
 SpaceAfterTemplateKeyword: false
 SpaceBeforeAssignmentOperators: true
 SpaceBeforeCaseColon: false
-SpaceBeforeCpp11BracedList: true
+SpaceBeforeCpp11BracedList: false
 SpaceBeforeInheritanceColon: false
 SpaceBeforeParens: ControlStatementsExceptControlMacros
 SpaceBeforeRangeBasedForLoopColon: false
@@ -59,5 +74,5 @@ SpacesInCStyleCastParentheses: false
 SpacesInConditionalStatement: false
 SpacesInContainerLiterals: false
 SpacesInSquareBrackets: false
+Standard: c++20
 UseTab: Never
-...

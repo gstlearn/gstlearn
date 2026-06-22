@@ -1,5 +1,5 @@
 # List special non-regression test sources
-set(TEST_SOURCES 
+set(TEST_SOURCES
   testim.cpp
   testpgs.cpp
   testvar.cpp)

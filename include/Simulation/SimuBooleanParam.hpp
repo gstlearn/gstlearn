@@ -17,39 +17,51 @@
 
 namespace gstlrn
 {
-class GSTLEARN_EXPORT SimuBooleanParam: public AStringable
-{
-public:
-  SimuBooleanParam(Id maxiter = 100000,
-                   double tmax = 100.,
-                   double background = TEST,
-                   double facies = 1.,
-                   const VectorDouble& dilate = VectorDouble());
-  SimuBooleanParam(const SimuBooleanParam &r);
-  SimuBooleanParam& operator=(const SimuBooleanParam &r);
-  virtual ~SimuBooleanParam();
+  class GSTLEARN_EXPORT SimuBooleanParam: public AStringable
+  {
+  public:
+    SimuBooleanParam(
+      Id maxiter = 100000,
+      double tmax = 100.,
+      double background = TEST,
+      double facies = 1.,
+      const VectorDouble& dilate = VectorDouble());
+    SimuBooleanParam(const SimuBooleanParam& r);
+    SimuBooleanParam& operator=(const SimuBooleanParam& r);
+    virtual ~SimuBooleanParam();
 
-  /// Interface to AStringable
-  String toString(const AStringFormat* strfmt = nullptr) const override;
+    /// Interface to AStringable
+    String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  double getBackground() const { return _background; }
-  void setBackground(double background) { _background = background; }
-  double getFacies() const { return _facies; }
-  void setFacies(double facies) { _facies = facies; }
-  Id getMaxiter() const { return _maxiter; }
-  void setMaxiter(Id maxiter) { _maxiter = maxiter; }
-  double getTmax() const { return _tmax; }
-  void setTmax(double tmax) { _tmax = tmax; }
-  const VectorDouble& getDilate() const { return _dilate; }
-  void setDilate(const VectorDouble& dilate) { _dilate = dilate; }
-  double getDilate(Id idim) const;
-  bool isDilate() const { return ! _dilate.empty(); }
+    double getBackground() const { return _background; }
 
-private:
-  Id    _maxiter;
-  double _tmax;
-  double _background;
-  double _facies;
-  VectorDouble _dilate;
-};
-}
+    void setBackground(double background) { _background = background; }
+
+    double getFacies() const { return _facies; }
+
+    void setFacies(double facies) { _facies = facies; }
+
+    Id getMaxiter() const { return _maxiter; }
+
+    void setMaxiter(Id maxiter) { _maxiter = maxiter; }
+
+    double getTmax() const { return _tmax; }
+
+    void setTmax(double tmax) { _tmax = tmax; }
+
+    const VectorDouble& getDilate() const { return _dilate; }
+
+    void setDilate(const VectorDouble& dilate) { _dilate = dilate; }
+
+    double getDilate(Id idim) const;
+
+    bool isDilate() const { return !_dilate.empty(); }
+
+  private:
+    Id _maxiter;
+    double _tmax;
+    double _background;
+    double _facies;
+    VectorDouble _dilate;
+  };
+} // namespace gstlrn

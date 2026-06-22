@@ -23,7 +23,7 @@
 #include "Basic/OptDbg.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
-#include "Estimation/CalcKriging.hpp"
+#include "Estimation/Estimations.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/NeighMoving.hpp"
 #include "Neigh/NeighUnique.hpp"
@@ -46,10 +46,10 @@ int main(int argc, char* argv[])
   OptCst::define(ECst::NTCOL, -1);
 
   // Parameters
-  bool verbose    = true;
-  Id nech         = 3;
-  Id nvar         = 2;
-  bool flagSK     = false;
+  bool verbose = true;
+  Id nech = 3;
+  Id nvar = 2;
+  bool flagSK = false;
   bool flagUnique = false;
 
   // Generate the data base
@@ -62,13 +62,14 @@ int main(int argc, char* argv[])
   Db* target = Db::createFillRandom(1, ndim, 0, 0);
 
   // Create the Model
-  Id order     = (flagSK) ? -1 : 0;
-  Model* model = Model::createFillRandom(ndim, nvar, {ECov::EXPONENTIAL}, 1., order);
+  Id order = (flagSK) ? -1 : 0;
+  Model* model =
+    Model::createFillRandom(ndim, nvar, {ECov::EXPONENTIAL}, 1., order);
   model->display();
 
   // Neighborhood
   ANeigh* neigh;
-  Id nmaxi      = nech;
+  Id nmaxi = nech;
   double radius = 5.;
   if (flagUnique)
     neigh = NeighUnique::create();
