@@ -14,6 +14,7 @@
 #include "Basic/OptDbg.hpp"
 #include "Basic/SerializeHDF5.hpp"
 #include "Basic/String.hpp"
+#include "Core/Colors.hpp"
 #include "Db/Db.hpp"
 #include "LithoRule/Node.hpp"
 #include "LithoRule/Rule.hpp"
@@ -39,10 +40,9 @@ namespace gstlrn
 {
   static const VectorString symbol = {"F", "S", "T"};
   static Id GAUSS_MODE = 1;
-  constexpr std::array<Id, 5> DEFAULT_COLORS = {0x1f77b4ff, 0xff7f0eff,
-                                                0x2ca02cff, 0xd62728ff,
-                                                0x9467bdff};
-  constexpr Id DEFAULT_COLOR = 0x000000ff;
+  const std::array<std::string, 5> DEFAULT_COLORS = {"Blue", "Orange", "Green",
+                                                     "Red", "Violet"};
+  constexpr const char* DEFAULT_COLOR = "Black";
 
   /****************************************************************************/
   /*!
@@ -99,6 +99,7 @@ namespace gstlrn
     , _flagProp(0)
     , _rho(rho)
     , _mainNode(nullptr)
+    , _score(TEST)
     , _facies()
     , _props()
     , _facnames()
@@ -114,6 +115,7 @@ namespace gstlrn
     , _flagProp(m._flagProp)
     , _rho(m._rho)
     , _mainNode(new Node(*m._mainNode))
+    , _score(m._score)
     , _facies(m._facies)
     , _props(m._props)
     , _facnames(m._facnames)
@@ -132,6 +134,7 @@ namespace gstlrn
       _flagProp = m._flagProp;
       _rho = m._rho;
       _mainNode = new Node(*m._mainNode);
+      _score = m._score;
       _facies = m._facies;
       _props = m._props;
       _facnames = m._facnames;
@@ -149,6 +152,7 @@ namespace gstlrn
   void Rule::_clear()
   {
     delete _mainNode;
+    _mainNode = nullptr;
   }
 
   /**
@@ -158,7 +162,7 @@ namespace gstlrn
    * @param rho GRFs correlation coefficient
    * @return
    */
-  Id Rule::resetFromNumericalCoding(
+  Id Rule::_resetFromNumericalCoding(
     const VectorInt& n_type,
     const VectorInt& n_facs,
     double rho)
@@ -186,15 +190,6 @@ namespace gstlrn
     _modeRule = ERule::STD;
     _rho = rho;
     setMainNodeFromNodNames(nodnames);
-    return 0;
-  }
-
-  Id Rule::resetFromCodes(const VectorInt& nodes, double rho)
-  {
-    _clear();
-    _modeRule = ERule::STD;
-    _rho = rho;
-    setMainNodeFromNodNames(nodes);
     return 0;
   }
 
@@ -279,7 +274,7 @@ namespace gstlrn
       else
         name << symbol[NODE_TYPE(inode)];
 
-      // Allocate the Node
+      // Allocate the Node (deleting the previously defined one (if any) )
 
       auto* node_loc = new Node(name.str(), NODE_TYPE(inode), facies);
       if (inode == 0) _mainNode = node_loc;
@@ -343,12 +338,19 @@ namespace gstlrn
     sstr << "- Number of facies              = " << nfac_tot << std::endl;
     sstr << "- Number of thresholds along G1 = " << ny1_tot << std::endl;
     sstr << "- Number of thresholds along G2 = " << ny2_tot << std::endl;
+    double score = getScore();
+    if (!isNA(score))
+      sstr << "- Score                         = " << score << std::endl;
+    sstr << "- Description: " << namesPrint() << std::endl;
 
     sstr << displaySpecific();
 
     // Description of the Nodes
-    sstr << toStrTitle(1, "Node Characteristics");
-    sstr << _mainNode->nodePrint(dsf.getFlagProp(), dsf.getFlagThresh());
+    if (dsf.getFlagProp() || dsf.getFlagThresh())
+    {
+      sstr << toStrTitle(1, "Node Characteristics");
+      sstr << _mainNode->nodePrint(dsf.getFlagProp(), dsf.getFlagThresh());
+    }
 
     // Description of the Facies
     sstr << toStrTitle(1, "Facies Characteristics");
@@ -357,8 +359,12 @@ namespace gstlrn
       sstr << "Facies " << ifac + 1;
       if (_flagProp) sstr << " Proportion = " << _props[ifac];
       sstr << " - Name = " << getFaciesName(ifac);
-      sstr << " - Color = #" << std::hex << std::setw(8) << std::setfill('0')
-           << getFaciesColor(ifac) << std::dec;
+      auto colorName = getFaciesColorName(ifac);
+      if (!colorName.empty())
+        sstr << " - Color = " << getFaciesColorName(ifac);
+      else
+        sstr << " - Color = #" << std::hex << std::setw(8) << std::setfill('0')
+             << getFaciesColor(ifac) << std::dec;
       sstr << " - Assigned Value = " << getFaciesValue(ifac);
       sstr << std::endl;
     }
@@ -388,8 +394,7 @@ namespace gstlrn
 
   Id Rule::getNGRF() const
   {
-    auto ny2 = getNY2();
-    return (ny2 > 0 ? 2 : 1);
+    return (getNY2() > 0 ? 2 : 1);
   }
 
   Id Rule::getNY1() const
@@ -407,14 +412,12 @@ namespace gstlrn
     if (statistics(0, &node_tot, &nfac, &nmax, &ny1, &ny2, &prop)) return 0;
     if (getModeRule() == ERule::SHADOW || getModeRule() == ERule::SHIFT)
       ny2 = 0;
-    if (_rho == 1.) ny2 = 0;
-    return ny2;
+    return (_rho == 1.) ? 0 : ny2;
   }
 
   bool Rule::isYUsed(Id igrf) const
   {
-    if (igrf == 0) return getNY1() > 0;
-    return getNY2() > 0;
+    return (igrf == 0) ? (getNY1() > 0) : (getNY2() > 0);
   }
 
   VectorBool Rule::whichGRFUsed() const
@@ -452,25 +455,23 @@ namespace gstlrn
     Id* ny2_tot,
     double* prop_tot) const
   {
-    Id nfac, ifac, ntot;
-
     /* Establish the statistics on the Lithotype Rule */
 
     _mainNode->getStatistics(node_tot, nfac_tot, ny1_tot, ny2_tot, prop_tot);
 
     /* Check that the facies are defined */
 
-    nfac = (*nfac_tot);
+    Id nfac = (*nfac_tot);
     _facies.clear();
     _facies.resize(nfac);
     if (_mainNode->isValid(_facies)) return 1;
 
     /* Check that the first consecutive facies are defined */
 
-    ntot = 0;
-    for (ifac = 0; ifac < nfac; ifac++)
+    Id ntot = 0;
+    for (Id ifac = 0; ifac < nfac; ifac++)
       if (_facies[ifac] > 0) ntot = ifac + 1;
-    for (ifac = 0; ifac < nfac; ifac++)
+    for (Id ifac = 0; ifac < nfac; ifac++)
     {
       if (_facies[ifac] <= 0)
       {
@@ -676,11 +677,14 @@ namespace gstlrn
   /**
    * Define constant proportions
    * @param proportions The vector of constant proportions.
-   * It should be dimensioned to the number of facies.
+   * @param flagGaussian If true, the proportions are defined in Gaussian space.
+   *
+   * Note: 'proportions' should be dimensioned to the number of facies.
    * If absent, all proportions are considered equal.
    * @return
    */
-  Id Rule::setProportions(const VectorDouble& proportions) const
+  Id Rule::setProportions(const VectorDouble& proportions, bool flagGaussian)
+    const
   {
     Id node_tot, nfac_tot, nmax_tot, ny1_tot, ny2_tot;
     double prop_tot;
@@ -711,9 +715,7 @@ namespace gstlrn
 
     /* Convert from proportions to thresholds */
 
-    _mainNode->proportionToThresh(
-      _rho, get_rule_extreme(-1), get_rule_extreme(+1), get_rule_extreme(-1),
-      get_rule_extreme(+1));
+    _mainNode->proportionToThresh(_rho, TEST, TEST, TEST, TEST, flagGaussian);
 
     /* Debug printout (optional) */
 
@@ -1124,31 +1126,62 @@ namespace gstlrn
     return rule;
   }
 
-  Rule* Rule::createFromCodes(const VectorInt& nodes, double rho)
+  /**
+   * @brief Create a Rule from a vector of integers
+   *
+   * @param icodes  Vector on integers representing the Rule.
+   * Each integer can be:
+   * - the rank of the Facies (when < 1000)
+   * - 1001: represents a threshold along Y1
+   * - 1002: represents a threshold along Y2
+   */
+  Rule::Rule(const VectorInt& icodes)
+    : AStringable()
+    , ASerializable()
+    , _modeRule(ERule::STD)
+    , _flagProp(0)
+    , _rho(0.)
+    , _mainNode(nullptr)
+    , _score(TEST)
+    , _facies()
+    , _props()
+    , _facnames()
+    , _faccols()
+    , _facvalues()
   {
-    auto* rule = new Rule();
-    if (rule->resetFromCodes(nodes, rho))
+    Id NRULE = static_cast<Id>(icodes.size());
+    VectorInt n_type = VectorInt(NRULE);
+    VectorInt n_facs = VectorInt(NRULE);
+
+    for (Id i = 0; i < NRULE; i++)
     {
-      messerr("Problem when creating Rule from a vector of Codes");
-      delete rule;
-      return nullptr;
+      if (icodes[i] <= 1000)
+      {
+        n_type[i] = 0;
+        n_facs[i] = icodes[i];
+      }
+      else if (icodes[i] == 1001)
+      {
+        n_type[i] = 1;
+        n_facs[i] = 0;
+      }
+      else if (icodes[i] == 1002)
+      {
+        n_type[i] = 2;
+        n_facs[i] = 0;
+      }
+      else
+        messageAbort("Unexpected rule number");
     }
-    return rule;
+    _resetFromNumericalCoding(n_type, n_facs);
   }
 
-  Rule* Rule::createFromNumericalCoding(
-    const VectorInt& n_type,
-    const VectorInt& n_facs,
-    double rho)
+  Rule::Rule(const VectorInt& n_type, const VectorInt& n_facs, double rho)
   {
-    auto* rule = new Rule();
-    if (rule->resetFromNumericalCoding(n_type, n_facs, rho))
+    if (_resetFromNumericalCoding(n_type, n_facs, rho))
     {
       messerr("Problem when creating Rule from Numerical Coding");
-      delete rule;
-      return nullptr;
     }
-    return rule;
   }
 
   Rule* Rule::createFromFaciesCount(Id nfacies, double rho)
@@ -1173,8 +1206,15 @@ namespace gstlrn
   Id Rule::getFaciesColor(Id facies) const
   {
     if (!checkArg("getFaciesColor: Argument 'facies'", 0, getNFacies()))
-      return DEFAULT_COLOR;
+      return gstlrn::nameToPackedRGB(DEFAULT_COLOR);
     return _faccols[facies];
+  }
+
+  String Rule::getFaciesColorName(Id facies) const
+  {
+    if (!checkArg("getFaciesColorName: Argument 'facies'", 0, getNFacies()))
+      return String();
+    return gstlrn::packedRGBToName(_faccols[facies]);
   }
 
   Id Rule::getFaciesValue(Id facies) const
@@ -1190,16 +1230,52 @@ namespace gstlrn
     _facnames[facies] = name;
   }
 
-  void Rule::setFaciesColor(Id facies, Id color)
+  void Rule::setFaciesColorByName(Id facies, const String& color)
   {
-    if (!checkArg("setFaciesColor: Argument 'facies'", 0, getNFacies())) return;
-    _faccols[facies] = color;
+    if (!checkArg("setFaciesColorByName: Argument 'facies'", 0, getNFacies()))
+      return;
+    _faccols[facies] = gstlrn::nameToPackedRGB(color);
+  }
+
+  void Rule::setFaciesColorByInt(Id facies, const Id& value)
+  {
+    if (!checkArg("setFaciesColorByInt: Argument 'facies'", 0, getNFacies()))
+      return;
+    _faccols[facies] = gstlrn::intToPackedRGB(value);
+  }
+
+  void Rule::setFaciesColorByHexa(Id facies, const String& hexa)
+  {
+    if (!checkArg("setFaciesColorByHexa: Argument 'facies'", 0, getNFacies()))
+      return;
+    _faccols[facies] = gstlrn::hexaToPackedRGB(hexa);
   }
 
   void Rule::setFaciesValue(Id facies, Id value)
   {
     if (!checkArg("setFaciesValue: Argument 'facies'", 0, getNFacies())) return;
     _facvalues[facies] = value;
+  }
+
+  /**
+   * @brief Define the characteristics of a given facies
+   *
+   * @param facies Rank of the facies (0 based)
+   * @param name Name assigned to the target facies (or String() to keep the current name)
+   * @param color Color assigned to the target facies (or String() to keep the current color)
+   * @param value Value assigned to the target facies (or ITEST to keep the current value)
+   */
+  void Rule::setCharacteristics(
+    Id facies,
+    const String& name,
+    const String& color,
+    Id value)
+  {
+    if (!checkArg("setCharacteristics: Argument 'facies'", 0, getNFacies()))
+      return;
+    if (!name.empty()) _facnames[facies] = name;
+    if (!color.empty()) _faccols[facies] = gstlrn::nameToPackedRGB(color);
+    if (!isNA(value)) _facvalues[facies] = value;
   }
 
   void Rule::_initCharacteristics()
@@ -1227,9 +1303,9 @@ namespace gstlrn
       for (Id ifac = 0; ifac < nfac; ifac++)
       {
         if (ifac < static_cast<Id>(DEFAULT_COLORS.size()))
-          _faccols[ifac] = DEFAULT_COLORS[ifac];
+          _faccols[ifac] = gstlrn::nameToPackedRGB(DEFAULT_COLORS[ifac]);
         else
-          _faccols[ifac] = DEFAULT_COLOR;
+          _faccols[ifac] = gstlrn::nameToPackedRGB(DEFAULT_COLOR);
       }
     }
 
@@ -1240,6 +1316,37 @@ namespace gstlrn
 
       for (Id ifac = 0; ifac < nfac; ifac++) _facvalues[ifac] = ifac + 1;
     }
+  }
+
+  String Rule::namesPrint() const
+  {
+    std::stringstream sstr;
+
+    auto nodes = getNodes();
+    auto number = static_cast<Id>(nodes.size() / 6);
+    Id lec = 0;
+    for (Id i = 0; i < number; i++)
+    {
+      lec += 3;
+      Id node_type = nodes[lec++];
+      lec++;
+      Id facies = nodes[lec++];
+
+      if (node_type == 1)
+      {
+        sstr << "S ";
+      }
+      else if (node_type == 2)
+      {
+        sstr << "T ";
+      }
+      else
+      {
+        sstr << "F" << facies << " ";
+      }
+    }
+    sstr << std::endl;
+    return sstr.str();
   }
 
 #ifdef HDF5

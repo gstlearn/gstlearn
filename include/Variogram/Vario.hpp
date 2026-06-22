@@ -23,24 +23,11 @@
 
 namespace gstlrn
 {
-  typedef struct
-  {
-    Id nalloc;
-    Id npair;
-    Id size_aux;
-    Id flag_dist;
-    VectorInt tab_iech;
-    VectorInt tab_jech;
-    VectorInt tab_ipas;
-    VectorInt tab_sort;
-    std::vector<char> tab_aux_iech;
-    std::vector<char> tab_aux_jech;
-    VectorDouble tab_dist;
-  } Vario_Order;
 
   class Db;
   class Model;
   class DirParam;
+  class VarioOrder;
 
   /**
    * \brief
@@ -244,6 +231,11 @@ namespace gstlrn
     const VectorDouble& getAllSw(Id idir = 0) const;
     const VectorDouble& getAllUtilize(Id idir = 0) const;
 
+    void setAllGg(Id idir, const VectorDouble& gg);
+    void setAllHh(Id idir, const VectorDouble& hh);
+    void setAllSw(Id idir, const VectorDouble& sw);
+    void setAllUtilize(Id idir, const VectorDouble& utilize);
+
     void setGgByIndex(Id idir, Id i, double gg);
     void setHhByIndex(Id idir, Id i, double hh);
     void setSwByIndex(Id idir, Id i, double sw);
@@ -322,9 +314,9 @@ namespace gstlrn
       Id niter_UK = 0,
       bool verbose = false,
       Id nfacmax = -1);
-    Id computeGeometry(Db* db, Vario_Order* vorder, Id* npair);
+    Id computeGeometry(Db* db, VarioOrder& vorder, Id* npair);
     Id computeVarioVect(Db* db, Id ncomp);
-    Id computeGeometryMLayers(Db* db, VectorInt& seltab, Vario_Order* vorder)
+    Id computeGeometryMLayers(Db* db, VectorInt& seltab, VarioOrder& vorder)
       const;
 
     Id regularizeFromModel(
@@ -504,29 +496,29 @@ namespace gstlrn
     Id _calculateOnGrid(DbGrid* db);
 
     static Id _getRelativeSampleRank(Db* db, Id iech0);
-    Id _updateUK(Db* db, Vario_Order* vorder);
+    Id _updateUK(Db* db, VarioOrder& vorder);
     void _finalCorrectC00(Db* db, Id idir);
     Id _get_generalized_variogram_order();
     void _getStatistics(Db* db);
-    Id _updateVerr(Db* db, Id idir, Vario_Order* vorder, Id verr_mode);
+    Id _updateVerr(Db* db, Id idir, VarioOrder& vorder, Id verr_mode);
     static double _s(Db* db, Id iech, Id jech);
     double _g(Db* db, Id iech, Id jech) const;
     void _calculateBiasLocal(
       Db* db,
       Id idir,
       Id ilag,
-      Vario_Order* vorder,
+      VarioOrder& vorder,
       Id ifirst,
       Id ilast);
     void _calculateBiasGlobal(Db* db);
     double _getBias(Id iiech, Id jjech);
 
-    void _calculateFromGeometry(Db* db, Id idir, Vario_Order* vorder);
+    void _calculateFromGeometry(Db* db, Id idir, VarioOrder& vorder);
     Id _calculateGeneralByPair(
       Db* db,
       Id idir,
       const Id* rindex,
-      Vario_Order* vorder);
+      VarioOrder& vorder);
     Id _calculateGeneralBySample(Db* db, Id idir, const Id* rindex);
     Id _calculateOnGridSolution(DbGrid* db, Id idir);
     Id _calculateGenOnGridSolution(DbGrid* db, Id idir, Id norder);
@@ -599,41 +591,6 @@ namespace gstlrn
     mutable VectorVectorDouble _meanSqLocal2;
   };
 
-  GSTLEARN_EXPORT Vario_Order*
-    vario_order_manage(Id mode, Id flag_dist, Id size_aux, Vario_Order* vorder);
-  GSTLEARN_EXPORT Vario_Order*
-    vario_order_final(Vario_Order* vorder, Id* npair);
-  GSTLEARN_EXPORT void vario_order_print(
-    Vario_Order* vorder,
-    Id idir_target,
-    Id ipas_target,
-    Id verbose);
-  GSTLEARN_EXPORT void vario_order_get_bounds(
-    Vario_Order* vorder,
-    Id idir,
-    Id ilag,
-    Id* ifirst,
-    Id* ilast);
-  GSTLEARN_EXPORT void vario_order_get_indices(
-    Vario_Order* vorder,
-    Id ipair,
-    Id* iech,
-    Id* jech,
-    double* dist);
-  GSTLEARN_EXPORT void vario_order_get_auxiliary(
-    Vario_Order* vorder,
-    Id ipair,
-    char* aux_iech,
-    char* aux_jech);
-  GSTLEARN_EXPORT Id vario_order_add(
-    Vario_Order* vorder,
-    Id iech,
-    Id jech,
-    void* aux_iech,
-    void* aux_jech,
-    Id ilag,
-    Id idir,
-    double dist);
   GSTLEARN_EXPORT Vario* variogramCalculate(
     Db* db,
     const ECalcVario& calculType = ECalcVario::fromKey("VARIOGRAM"),

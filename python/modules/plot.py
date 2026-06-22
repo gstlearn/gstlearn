@@ -272,6 +272,11 @@ def _getFirstElement(tab):
     return None  # Return None if `tab` is empty or not subscriptable.
 
 
+def _facies_color(color):
+    """Convertit un entier 0xRRGGBB en chaîne '#rrggbb'."""
+    return f"#{int(color) & 0xFFFFFF:06x}"
+
+
 def _dataWithRule(data, rule):
     # Nombre de faciès
     nfac = rule.getNFacies()
@@ -280,7 +285,7 @@ def _dataWithRule(data, rule):
     mapping = {rule.getFaciesValue(ifac): ifac for ifac in range(nfac)}
 
     # Couleurs des faciès
-    colors = [f"#{rule.getFaciesColor(ifac):08x}" for ifac in range(nfac)]
+    colors = [_facies_color(rule.getFaciesColor(ifac)) for ifac in range(nfac)]
 
     # Labels des faciès
     labels = [rule.getFaciesName(ifac) for ifac in range(nfac)]
@@ -295,10 +300,8 @@ def _dataWithRule(data, rule):
     fill_value = -1
 
     # Remapping
-    idata = np.full(data.shape, fill_value, dtype=int)
-
-    for value, index in mapping.items():
-        idata[data == value] = index
+    mapping_array = np.vectorize(lambda x: mapping.get(x, fill_value))
+    idata = mapping_array(data)
 
     return idata, cmap, norm, labels, colors
 
@@ -1512,8 +1515,15 @@ def _ax_raster(
 
     if rule is not None:
         data, cmap, norm, labels, colfacs = _dataWithRule(data, rule)
+        data = np.ma.masked_equal(data, -1)
+        cmap.set_bad(color=(0, 0, 0, 0))  # ou "black"
         kwargs["cmap"] = cmap
         kwargs["norm"] = norm
+    else:
+        data = np.ma.masked_invalid(data)
+        cmap = kwargs.get("cmap", None)
+        if hasattr(cmap, "set_bad"):
+            cmap.set_bad(color=(0, 0, 0, 0))
 
     res = ax.pcolormesh(X, Y, data, transform=tr + ax.transData, **kwargs)
 
@@ -2058,22 +2068,56 @@ def rule(ruleobj, *args, **kwargs):
     return _ax_rule(ax, ruleobj=ruleobj, *args, **kwargs)
 
 
-def _ax_rule(ax, ruleobj, proportions=[], maxG=3.0):
+def _ax_rule(
+    ax,
+    ruleobj,
+    proportions=[],
+    maxG=3.0,
+    flagLegend=False,
+    legendName="Facies",
+    flagGaussian=True,
+):
     if _isNotCorrect(object=ruleobj, types=["Rule"]):
         return None
 
     nfac = ruleobj.getNFacies()
-    ruleobj.setProportions(proportions)
+    ruleobj.setProportions(proportions, flagGaussian)
+
+    handles = []
 
     for ifac in range(nfac):
         bds = ruleobj.getThresh(ifac + 1)
-        col = f"#{ruleobj.getFaciesColor(ifac):08x}"
+
+        col = _facies_color(ruleobj.getFaciesColor(ifac))
+
         rect = ptc.Rectangle(
-            (bds[0], bds[2]), bds[1] - bds[0], bds[3] - bds[2], color=col
+            (bds[0], bds[2]),
+            bds[1] - bds[0],
+            bds[3] - bds[2],
+            facecolor=col,
         )
         ax.add_patch(rect)
 
-    ax.geometry(xlim=[-maxG, +maxG], ylim=[-maxG, +maxG])
+        handles.append(
+            Patch(
+                facecolor=col,
+                label=ruleobj.getFaciesName(ifac),
+            )
+        )
+
+    if flagGaussian:
+        ax.geometry(xlim=[-maxG, +maxG], ylim=[-maxG, +maxG])
+    else:
+        ax.geometry(xlim=[0, 1], ylim=[0, 1])
+
+    if flagLegend:
+        ax.legend(
+            handles=handles,
+            title=legendName,
+            loc="center left",
+            bbox_to_anchor=(1.02, 0.5),
+            borderaxespad=0.0,
+        )
 
     return ax
 

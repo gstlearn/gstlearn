@@ -43,6 +43,7 @@ namespace gstlrn
     void _initLikelihoodForOptim(bool verbose = false);
     Id _addSimulateToDest(const constvect whitenoise, vect outv) const override;
     Id _addToDest(constvect inv, vect outv) const override;
+    bool _calculateBeta(bool verbose = false);
 
   private:
     virtual void _solveQ(constvect inv, vect outv) const = 0;

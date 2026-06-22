@@ -1523,6 +1523,32 @@ namespace gstlrn
       this, oper, vmin, vmax, option, radius, flagDistErode, verbose, namconv);
   }
 
+  Id DbGrid::morphoOnSelection(
+    const EMorpho& oper,
+    Id option,
+    const VectorInt& radius,
+    bool flagDistErode,
+    bool verbose,
+    const NamingConvention& namconv)
+  {
+    if (!hasLocVariable(ELoc::SEL))
+    {
+      messerr(
+        "Morphological operations on selection are not allowed when a "
+        "selection variable already exists");
+      return 1;
+    }
+
+    // The variable corresponding to the selection is now set to the ELoc::Z variable
+    auto name = getNameByLocator(ELoc::SEL);
+    setLocator(name, ELoc::Z);
+
+    double vmin = 0.5;
+    double vmax = 1.5;
+    return dbMorpho(
+      this, oper, vmin, vmax, option, radius, flagDistErode, verbose, namconv);
+  }
+
   Id DbGrid::smooth(
     ANeigh* neigh,
     Id type,

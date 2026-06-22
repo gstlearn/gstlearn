@@ -17,6 +17,7 @@
 #include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixSquare.hpp"
 #include "Model/Model.hpp"
+#include "Variogram/VarioOrder.hpp"
 #include "geoslib_old_f.h"
 
 #define IAD(n, i, j) ((n) * (i) + (j))
@@ -1669,7 +1670,7 @@ namespace gstlrn
    **
    ** \return  Error return code (proportions not calculatable)
    **
-   ** \param[in]  vorder     Vario_Order structure
+   ** \param[in]  vorder     VarioOrder structure
    ** \param[in]  ifirst     Index of the first pair (included)
    ** \param[in]  ilast      Index of the last pair (excluded)
    ** \param[in]  zval       Array containing the sample values
@@ -1684,7 +1685,7 @@ namespace gstlrn
    **
    *****************************************************************************/
   Id MLayers::_evaluateLag(
-    Vario_Order* vorder,
+    VarioOrder& vorder,
     Id ifirst,
     Id ilast,
     VectorDouble& zval,
@@ -1711,10 +1712,9 @@ namespace gstlrn
 
     for (Id ipair = ifirst; ipair < ilast; ipair++)
     {
-      vario_order_get_indices(vorder, ipair, &iiech, &jjech, &dist);
-      vario_order_get_auxiliary(
-        vorder, ipair, reinterpret_cast<char*>(&iech),
-        reinterpret_cast<char*>(&jech));
+      vorder.getIndices(ipair, &iiech, &jjech, &dist);
+      vorder.getAuxiliary(
+        ipair, reinterpret_cast<char*>(&iech), reinterpret_cast<char*>(&jech));
       double z1 = zval[iiech];
       double z2 = zval[jjech];
       (*distsum) += dist;
@@ -1758,7 +1758,7 @@ namespace gstlrn
    **
    ** \return  Error return code
    **
-   ** \param[in]  vorder     Vario_Order structure
+   ** \param[in]  vorder     VarioOrder structure
    ** \param[in]  zval       Data vector
    ** \param[in]  idir       Rank of the Direction
    **
@@ -1766,7 +1766,7 @@ namespace gstlrn
    **
    *****************************************************************************/
   Id MLayers::_getVarioCHH(
-    Vario_Order* vorder,
+    VarioOrder& vorder,
     VectorDouble& zval,
     Id idir,
     Vario* vario)
@@ -1792,7 +1792,7 @@ namespace gstlrn
 
     for (Id ilag = 0; ilag < vario->getNLag(idir); ilag++)
     {
-      vario_order_get_bounds(vorder, idir, ilag, &ifirst, &ilast);
+      vorder.getBounds(idir, ilag, &ifirst, &ilast);
       Id number = ilast - ifirst;
       if (number <= 0) continue;
 
@@ -2143,11 +2143,6 @@ namespace gstlrn
    *****************************************************************************/
   Id MLayers::vario(Vario* vario, bool verbose)
   {
-    Id error = 1;
-    Vario_Order* vorder = nullptr;
-
-    /* Core allocation */
-
     VectorDouble prop1(_nlayers);
     VectorDouble zval(_nechmax);
 
@@ -2163,27 +2158,21 @@ namespace gstlrn
 
     /* Subtract the optimal average or drift */
 
-    if (_subtractOptimalDrift(verbose, seltab, zval)) goto label_end;
+    if (_subtractOptimalDrift(verbose, seltab, zval)) return 1;
 
     /* Evaluate the Geometry */
 
-    vorder = vario_order_manage(1, 1, sizeof(Id), NULL);
-    if (vario->computeGeometryMLayers(_dbin, seltab, vorder)) goto label_end;
+    VarioOrder vorder(1, sizeof(Id));
+    if (vario->computeGeometryMLayers(_dbin, seltab, vorder)) return 1;
 
     /* Evaluate the variogram */
 
     for (Id idir = 0; idir < vario->getNDir(); idir++)
     {
-      if (_getVarioCHH(vorder, zval, idir, vario)) goto label_end;
+      if (_getVarioCHH(vorder, zval, idir, vario)) return 1;
     }
 
-    /* Set the error return code */
-
-    error = 0;
-
-  label_end:
-    vario_order_manage(-1, 1, sizeof(Id), vorder);
-    return (error);
+    return 0;
   }
 
   /****************************************************************************/

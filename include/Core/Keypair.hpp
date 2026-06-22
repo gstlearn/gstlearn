@@ -16,7 +16,6 @@
 
 namespace gstlrn
 {
-
   GSTLEARN_EXPORT void set_keypair(
     const char* keyword,
     Id origin,

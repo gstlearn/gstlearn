@@ -8,7 +8,6 @@
 
 %include gstlearn_export.hpp // Do not forget this file in priority (for SWIG preprocessor)
 
-
 // Export VectorXXX classes
 %include Basic/VectorT.hpp
 %template(VectorTInt)         gstlrn::VectorT< long long >;
@@ -242,6 +241,7 @@
 %include Variogram/DirParam.hpp
 %include Variogram/VMap.hpp
 %include Variogram/VCloud.hpp
+%include Variogram/VarioOrder.hpp
 
 %include Basic/ParamInfo.hpp
 %include Basic/ListParams.hpp
@@ -448,6 +448,11 @@
 
 %include Spatial/Projection.hpp
 %include Spatial/SpatialIndices.hpp
+
+%include PluriGaussian/TracePGS.hpp
+%include PluriGaussian/CorPGS.hpp
+%include PluriGaussian/DiscretePGS.hpp
+%include PluriGaussian/CalcModelPGS.hpp
 
 %include Core/Acknowledge.hpp
 %include Core/Seismic.hpp

@@ -28,25 +28,29 @@ env:
   BUILD_DIR : build
   CMAKE_GENERATOR : "MSYS Makefiles"
   SWIG_ROOT : ${{github.workspace}}\swig
-  DOXYGEN_ROOT : ${{github.workspace}}\doxygen
-  DOXYGEN_VERSION : "1.9.8"
   CMAKE_TOOLCHAIN_FILE : C:\vcpkg\scripts\buildsystems\vcpkg.cmake
   VCPKG_LIBRARY_LINKAGE: static
 
 jobs:
 
   build:
-    runs-on: windows-2022
+    runs-on: windows-2025
     outputs:
       # https://docs.github.com/en/actions/using-jobs/defining-outputs-for-jobs
       cran_path: ${{ steps.define_cran_path.outputs.CRAN_PATH }}
     strategy:
       matrix:
         # Last releases from here https://cran.r-project.org/src/base/R-4/
-        r_version: [4.2.3, 4.3.3, 4.4.3, 4.5.2]
+        r_version: [4.2.3, 4.3.3, 4.4.3, 4.5.3, 4.6.0]
 
     steps:
     - uses: actions/checkout@v6
+
+    - name: Install the customized SWIG from source
+      uses: fabien-ors/install-swig-windows-action@v3
+      with:
+        swig-root: ${{env.SWIG_ROOT}}
+        generator: "Visual Studio 18 2026"
 
     - name: Setup R Version
       uses: r-lib/actions/setup-r@v2
@@ -76,16 +80,8 @@ jobs:
         pacman -Sy --noconfirm mingw-w64-x86_64-eigen3
 
     - name: Install Doxygen under windows
-      uses: fabien-ors/install-doxygen-windows-action@v1
-      with:
-        doxygen-root: ${{env.DOXYGEN_ROOT}}
-        doxygen-version: ${{env.DOXYGEN_VERSION}}
-
-    - name: Install the customized SWIG from source
-      uses: fabien-ors/install-swig-windows-action@v3
-      with:
-        swig-root: ${{env.SWIG_ROOT}}
-        generator: "Visual Studio 17 2022"
+      run: |
+        choco install doxygen.install graphviz
 
     - name: Build & install nlopt static libraries
       uses: ./.github/actions/nlopt_static_windows
@@ -102,8 +98,7 @@ jobs:
           -DBUILD_R=ON `
           -DHDF5_USE_STATIC_LIBRARIES=ON `
           -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig `
-          -DBUILD_DOC=ON `
-          -DDoxygen_ROOT=${{env.DOXYGEN_ROOT}}
+          -DBUILD_DOC=ON
       env:
         HDF5_ROOT: "C:/Program Files/HDF5/cmake/"
 
@@ -140,11 +135,11 @@ jobs:
 
   test:
     needs: build
-    runs-on: windows-2022
+    runs-on: windows-2025
     strategy:
       matrix:
         # Last releases from here https://cran.r-project.org/src/base/R-4/
-        r_version: [4.2.3, 4.3.3, 4.4.3, 4.5.2]
+        r_version: [4.2.3, 4.3.3, 4.4.3, 4.5.3, 4.6.0]
 
     steps:
     - uses: actions/checkout@v6
@@ -183,7 +178,7 @@ jobs:
       # Publish packages to our CRAN
       - env:
           CRAN_PATH: ${{needs.build.outputs.cran_path}}
-        uses: fabien-ors/cran-publish-action@v4
+        uses: fabien-ors/cran-publish-action@v5
         with:
           host: ${{secrets.CG_HOST}}
           username: ${{secrets.CG_USR}}

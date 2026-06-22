@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.26)
 
 # Define project here
 project(gstlearn
-        VERSION      1.11.0 # Make it consistent with CHANGES
+        VERSION      1.12.0 # Make it consistent with CHANGES
         DESCRIPTION  "Geostatistics & Machine Learning toolbox"
         HOMEPAGE_URL "https://gstlearn.org"
         LANGUAGES    C CXX) # Enable C language for third party libraries

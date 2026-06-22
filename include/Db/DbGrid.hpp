@@ -472,6 +472,7 @@ namespace gstlrn
       bool flagDistErode = false,
       bool verbose = false,
       const NamingConvention& namconv = NamingConvention("Morpho"));
+
     Id smooth(
       ANeigh* neigh,
       Id type = 1,
@@ -484,6 +485,14 @@ namespace gstlrn
       Id radius = 0,
       Id option = 0,
       const VectorInt& dilation = VectorInt(),
+      bool verbose = false,
+      const NamingConvention& namconv =
+        NamingConvention("Morpho", false, false, true, ELoc::fromKey("SEL")));
+    Id morphoOnSelection(
+      const EMorpho& oper,
+      Id option = 0,
+      const VectorInt& radius = VectorInt(),
+      bool flagDistErode = false,
       bool verbose = false,
       const NamingConvention& namconv =
         NamingConvention("Morpho", false, false, true, ELoc::fromKey("SEL")));

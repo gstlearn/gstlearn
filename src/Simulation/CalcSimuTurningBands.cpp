@@ -432,7 +432,6 @@ namespace gstlrn
    *****************************************************************************/
   void CalcSimuTurningBands::_initializeSeedBands()
   {
-    _setDensity();
     auto ncova = _getNCov();
     auto nvar = _getNVar();
     auto nbtuba = getNbtuba();
@@ -960,6 +959,8 @@ namespace gstlrn
     _initializeDirections();
 
     _extendBands();
+
+    _setDensity();
 
     return true;
   }

@@ -123,6 +123,39 @@ namespace gstlrn
     _updateModel(verbose);
   }
 
+  bool ALikelihood::_calculateBeta(bool verbose)
+  {
+    // Calculate t(L-1) %*% D-1 %*% L-1 applied to X (L and D from Vecchia)
+    _computeCm1X();
+
+    // Calculate XtCm1X = Xt * Cm1 * X
+    _XtCm1X.resize(_X.getNCols(), _X.getNCols());
+    AMatrix::prodMatMatInPlace(_XtCm1X, _X, _Cm1X, true, false);
+
+    // Construct ZtCm1X = Zt * Cm1 * X and perform its Cholesky decomposition
+    // workaround to create a shared_ptr which is not deleted at the end of the scope
+    VectorDouble ZtCm1X = AMatrix::product(_Y, _Cm1X);
+    CholeskyDense XtCm1XChol(_XtCm1X);
+    if (!XtCm1XChol.isReady())
+    {
+      messerr("Cholesky decomposition of XtCm1X matrix failed");
+      return false;
+    }
+
+    // Calculate beta = (XtCm1X)-1 * ZtCm1X
+    if (XtCm1XChol.solve(ZtCm1X, _beta))
+    {
+      messerr("Error when calculating Likelihood");
+      return false;
+    }
+    _model->setBetaHat(_beta);
+
+    if (verbose)
+      printVector(_beta, "Optimal Drift coefficients = ", true, true);
+
+    return true;
+  }
+
   double ALikelihood::computeLogLikelihood(bool flagPrint, bool verbose)
   {
     updateModel(verbose);
@@ -141,33 +174,8 @@ namespace gstlrn
     }
     if (_nDrift > 0)
     {
-      // Calculate t(L-1) %*% D-1 %*% L-1 applied to X (L and D from Vecchia)
-      _computeCm1X();
-
-      // Calculate XtCm1X = Xt * Cm1 * X
-      _XtCm1X.resize(_X.getNCols(), _X.getNCols());
-      AMatrix::prodMatMatInPlace(_XtCm1X, _X, _Cm1X, true, false);
-
-      // Construct ZtCm1X = Zt * Cm1 * X and perform its Cholesky decomposition
-      // workaround to create a shared_ptr which is not deleted at the end of the scope
-      VectorDouble ZtCm1X = AMatrix::product(_Y, _Cm1X);
-      CholeskyDense XtCm1XChol(_XtCm1X);
-      if (!XtCm1XChol.isReady())
-      {
-        messerr("Cholesky decomposition of XtCm1X matrix failed");
-        return TEST;
-      }
-
-      // Calculate beta = (XtCm1X)-1 * ZtCm1X
-      if (XtCm1XChol.solve(ZtCm1X, _beta))
-      {
-        messerr("Error when calculating Likelihood");
-        return TEST;
-      }
-      _model->setBetaHat(_beta);
-
-      if (verbose)
-        printVector(_beta, "Optimal Drift coefficients = ", true, true);
+      // Calculate the set of Drift Coefficients
+      if (!_calculateBeta(verbose)) return TEST;
 
       // Center the data by the optimal drift: Yc = Y - beta * X
       VH::subtractInPlace(AMatrix::product(_X, _beta), _Y, _Yc);

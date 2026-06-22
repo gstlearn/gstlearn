@@ -3932,14 +3932,19 @@ namespace gstlrn
    * @brief - the variable 'ivar' exists but sample is not defined
    *
    * @param ranks Vector of the (defined) sample indices
-   * @param ivar Index of the variable of interest
+   * @param ivar Index of the variable of interest (see remarks)
    * @param useSel  Discard the masked samples (if True)
+   * @param checkVariableContents Check if the variable is defined for each sample
    * @return Count of samples defined
+   *
+   * @remark If 'ivar' is not consistent with the actual number of Z variables in the file,
+   * @remark the function does not check that the sample value is defined.
    */
   Id Db::_getListOfSampleIndicesPerVariableInPlace(
     VectorInt& ranks,
     Id ivar,
-    bool useSel) const
+    bool useSel,
+    bool checkVariableContents) const
   {
     auto nech = getNSample();
     auto nvar = getNLoc(ELoc::Z);
@@ -3949,8 +3954,11 @@ namespace gstlrn
     for (Id iech = 0; iech < nech; iech++)
     {
       if (useSel && !isActive(iech)) continue;
-      double value = getLocVariable(ELoc::Z, iech, ivar);
-      if (FFFF(value) && nvar > 0) continue;
+      if (checkVariableContents && ivar >= 0 && ivar < nvar)
+      {
+        double value = getLocVariable(ELoc::Z, iech, ivar);
+        if (FFFF(value) && nvar > 0) continue;
+      }
 
       ranks[count++] = iech;
     }
@@ -3968,6 +3976,7 @@ namespace gstlrn
    * @param cumul Vector of cumulated number of defined samples per variable
    * @param ranks Vector of vectors of ranks of defined samples
    * @param useSel Discard the masked samples (if True)
+   * @param checkVariableContents Check if the variable is defined for each sample
    *
    * @return The total number of samples where ALL variables are defined
    *
@@ -3978,7 +3987,8 @@ namespace gstlrn
     Id nvar,
     VectorInt& cumul,
     VectorVectorInt& ranks,
-    bool useSel) const
+    bool useSel,
+    bool checkVariableContents) const
   {
     cumul.resize(nvar);
     ranks.resize(nvar);
@@ -3987,8 +3997,8 @@ namespace gstlrn
     Id total = 0;
     for (Id ivar = 0; ivar < nvar; ivar++)
     {
-      auto number =
-        _getListOfSampleIndicesPerVariableInPlace(ranks[ivar], ivar, useSel);
+      auto number = _getListOfSampleIndicesPerVariableInPlace(
+        ranks[ivar], ivar, useSel, checkVariableContents);
       cumul[ivar] = total;
       total += number;
     }
