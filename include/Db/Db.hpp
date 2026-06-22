@@ -757,7 +757,8 @@ namespace gstlrn
       Id nvar,
       VectorInt& cumul,
       VectorVectorInt& ranks,
-      bool useSel = true) const;
+      bool useSel = true,
+      bool checkVariableContents = true) const;
     double getWeight(Id iech) const;
     VectorDouble getWeights(bool useSel = false) const;
 
@@ -1201,7 +1202,8 @@ namespace gstlrn
     Id _getListOfSampleIndicesPerVariableInPlace(
       VectorInt& ranks,
       Id ivar = 0,
-      bool useSel = true) const;
+      bool useSel = true,
+      bool checkVariableContents = true) const;
 
     // Higher level methods
     bool

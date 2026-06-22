@@ -479,14 +479,14 @@ namespace gstlrn
     if (_db1 != nullptr)
     {
       _NumberRel1 = _db1->getListOfSampleIndicesInPlace(
-        nvar, _cumulRanks1, _varRanks1, true);
+        nvar, _cumulRanks1, _varRanks1, true, false);
       _convertAbsToRel(_db1->getNSample(false), _varRanks1, _varInverse1);
     }
     _NumberRel2 = 0;
     if (_db2 != nullptr)
     {
       _NumberRel2 = _db2->getListOfSampleIndicesInPlace(
-        nvar, _cumulRanks2, _varRanks2, true);
+        nvar, _cumulRanks2, _varRanks2, true, true);
       _convertAbsToRel(_db2->getNSample(false), _varRanks2, _varInverse2);
     }
     _NumberAbs1 = (_db1 != nullptr) ? _db1->getNSample() : 0;

@@ -59,17 +59,17 @@ Node #  0/  1 - Indices [    0;    11[ - Radius = 0.617832 - Centroid = 0.451086
 List of Neighbors for NN search
 -------------------------------
 All samples ranks are given in Absolute mode
-For Db_1   0 :   0        N/A        N/A        N/A
-For Db_1   1 :   1          0        N/A        N/A
-For Db_1   2 :   2          0          1        N/A
-For Db_1   3 :   3          1          2          0
-For Db_1   4 :   4          3          1          2
-For Db_2   5 :           5          4          3          1
-For Db_2   6 :           6          4          5          3
-For Db_2   7 :           7          0          2          4
-For Db_2   8 :           8          4          1          2
-For Db_2   9 :           9          4          3          6
-For Db_2  10 :          10          7          0          2
+For Db_1   0 :          0        N/A        N/A        N/A
+For Db_1   1 :          1          0        N/A        N/A
+For Db_1   2 :          2          0          1        N/A
+For Db_1   3 :          3          1          2          0
+For Db_1   4 :          4          3          1          2
+For Db_2   5 :          5          4          3          1
+For Db_2   6 :          6          4          5          3
+For Db_2   7 :          7          0          2          4
+For Db_2   8 :          8          4          1          2
+For Db_2   9 :          9          4          3          6
+For Db_2  10 :         10          7          0          2
 
 
 Processing Neighborhood for constructing Lower Matrix for Vecchia
@@ -88,21 +88,21 @@ Row Number    4 (Db 1 Var 0) - Abs Rank =    4 - Coors:      0.544      0.632
   1 |   0 |       2    |      2   |      0.749      0.066
 Row Number    5 (Db 2 Var 0) - Abs Rank =    0 - Coors:      0.022      0.959
  Db | Var | Col Number | Abs Rank |           Coors
-  1 |   0 |       3    |      4   |      0.544      0.632
+  1 |   0 |       4    |      4   |      0.544      0.632
   1 |   0 |       1    |      1   |      0.798      0.820
 Row Number    6 (Db 2 Var 0) - Abs Rank =    1 - Coors:      0.317      0.715
  Db | Var | Col Number | Abs Rank |           Coors
-  1 |   0 |       3    |      4   |      0.544      0.632
-  2 |   0 |       4    |      0   |      0.022      0.959
+  1 |   0 |       4    |      4   |      0.544      0.632
+  2 |   0 |       5    |      0   |      0.022      0.959
 Row Number    8 (Db 2 Var 0) - Abs Rank =    3 - Coors:      0.738      0.474
  Db | Var | Col Number | Abs Rank |           Coors
-  1 |   0 |       3    |      4   |      0.544      0.632
+  1 |   0 |       4    |      4   |      0.544      0.632
   1 |   0 |       1    |      1   |      0.798      0.820
   1 |   0 |       2    |      2   |      0.749      0.066
 Row Number    9 (Db 2 Var 0) - Abs Rank =    4 - Coors:      0.517      0.773
  Db | Var | Col Number | Abs Rank |           Coors
-  1 |   0 |       3    |      4   |      0.544      0.632
-  2 |   0 |       5    |      1   |      0.317      0.715
+  1 |   0 |       4    |      4   |      0.544      0.632
+  2 |   0 |       6    |      1   |      0.317      0.715
 Row Number   10 (Db 2 Var 0) - Abs Rank =    5 - Coors:      0.257      0.166
  Db | Var | Col Number | Abs Rank |           Coors
   1 |   0 |       0    |      0   |      0.017      0.122
@@ -110,33 +110,35 @@ Row Number   10 (Db 2 Var 0) - Abs Rank =    5 - Coors:      0.257      0.166
 
 Lower Vecchia Matrix
 --------------------
-- Number of rows    = 9
-- Number of columns = 9
+- Number of rows    = 10
+- Number of columns = 10
 - Sparse Format
                  [,  0]     [,  1]     [,  2]     [,  3]     [,  4]     [,  5]     [,  6]
       [  0,]      1.000          .          .          .          .          .          .
       [  1,]      0.000      1.000          .          .          .          .          .
       [  2,]      0.000      0.000      1.000          .          .          .          .
-      [  3,]          .     -0.009      0.000      1.000          .          .          .
-      [  4,]          .      0.000          .      0.000      1.000          .          .
-      [  5,]          .          .          .     -0.027     -0.003      1.000          .
-      [  6,]          .     -0.005     -0.002     -0.023          .          .      1.000
-      [  7,]          .          .          .     -0.116          .     -0.041          .
-      [  8,]     -0.026          .     -0.001          .          .          .          .
-                 [,  7]     [,  8]
-      [  0,]          .          .
-      [  1,]          .          .
-      [  2,]          .          .
-      [  3,]          .          .
-      [  4,]          .          .
-      [  5,]          .          .
-      [  6,]          .          .
-      [  7,]      1.000          .
-      [  8,]          .      1.000
+      [  3,]          .          .          .          .          .          .          .
+      [  4,]          .     -0.009      0.000          .      1.000          .          .
+      [  5,]          .      0.000          .          .      0.000      1.000          .
+      [  6,]          .          .          .          .     -0.027     -0.003      1.000
+      [  7,]          .     -0.005     -0.002          .     -0.023          .          .
+      [  8,]          .          .          .          .     -0.116          .     -0.041
+      [  9,]     -0.026          .     -0.001          .          .          .          .
+                 [,  7]     [,  8]     [,  9]
+      [  0,]          .          .          .
+      [  1,]          .          .          .
+      [  2,]          .          .          .
+      [  3,]          .          .          .
+      [  4,]          .          .          .
+      [  5,]          .          .          .
+      [  6,]          .          .          .
+      [  7,]      1.000          .          .
+      [  8,]          .      1.000          .
+      [  9,]          .          .      1.000
 Diagonal of Vecchia Matrix
                  [,  0]     [,  1]     [,  2]     [,  3]     [,  4]     [,  5]     [,  6]
-      [  0,]      0.446      0.446      0.446      0.446      0.446      0.446      0.446
-      [  7,]      0.453      0.446
+      [  0,]      0.446      0.446      0.446      0.000      0.446      0.446      0.446
+      [  7,]      0.446      0.453      0.446
 
 Kriging with Vecchia approximation
 ==================================
@@ -157,15 +159,15 @@ Node #  0/  1 - Indices [    0;     9[ - Radius = 0.642982 - Centroid = 0.390982
 List of Neighbors for NN search
 -------------------------------
 All samples ranks are given in Absolute mode
-For Db_1   0 :   0        N/A        N/A        N/A
-For Db_1   1 :   1          0        N/A        N/A
-For Db_1   2 :   2          0          1        N/A
-For Db_1   3 :   3          2          1          0
-For Db_2   4 :           4          2          3          0
-For Db_2   5 :           5          1          0          3
-For Db_2   6 :           6          3          4          2
-For Db_2   7 :           7          6          3          1
-For Db_2   8 :           8          7          3          6
+For Db_1   0 :          0        N/A        N/A        N/A
+For Db_1   1 :          1          0        N/A        N/A
+For Db_1   2 :          2          0          1        N/A
+For Db_1   3 :          3          2          1          0
+For Db_2   4 :          4          2          3          0
+For Db_2   5 :          5          1          0          3
+For Db_2   6 :          6          3          4          2
+For Db_2   7 :          7          6          3          1
+For Db_2   8 :          8          7          3          6
 
 
 Processing Neighborhood for constructing Lower Matrix for Vecchia

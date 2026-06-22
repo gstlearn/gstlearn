@@ -23,6 +23,7 @@ namespace gstlrn
   public:
     ASimulableMatrix();
     virtual ~ASimulableMatrix();
+
     double computeLogDet(Id nMC = 1) const override;
     virtual const MatrixSparse& getQMat() const = 0;
 
