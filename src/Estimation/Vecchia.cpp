@@ -67,8 +67,11 @@ namespace gstlrn
     , _matCov(r._matCov)
     , _vectCov(r._vectCov)
     , _work(r._work)
+    , _LdY(r._LdY)
     , _DFull(r._DFull)
     , _LFull(r._LFull)
+    , _Qmat(r._Qmat)
+    , _chol(nullptr)
     , _NumberAbs1(r._NumberAbs1)
     , _NumberRel1(r._NumberRel1)
     , _NumberRel2(r._NumberRel2)
@@ -90,9 +93,14 @@ namespace gstlrn
       _nbVecchia = r._nbVecchia;
       _db1 = r._db1;
       _db2 = r._db2;
-      _Y = r._Y;
+      _Ranks = r._Ranks;
+      _matCov = r._matCov;
+      _vectCov = r._vectCov;
+      _work = r._work;
+      _LdY = r._LdY;
       _DFull = r._DFull;
       _LFull = r._LFull;
+      _Qmat = r._Qmat;
       _NumberAbs1 = r._NumberAbs1;
       _NumberRel1 = r._NumberRel1;
       _NumberRel2 = r._NumberRel2;
@@ -356,25 +364,62 @@ namespace gstlrn
   {
     auto icase = _getCase();
     Id ecr = 0;
+    Id nech;
     if (icase == 1)
     {
       _Y.resize(_NumberRel1);
       Id nvar = static_cast<Id>(_cumulRanks1.size());
       for (Id ivar = 0; ivar < nvar; ivar++)
-        for (Id iech = 0, nech = static_cast<Id>(_varRanks1[ivar].size());
-             iech < nech; iech++)
+      {
+        nech = static_cast<Id>(_varRanks1[ivar].size());
+        for (Id iech = 0; iech < nech; iech++)
           _Y[ecr++] =
             _db1->getLocVariable(ELoc::Z, _varRanks1[ivar][iech], ivar);
+      }
     }
     else
     {
       _Y.resize(_NumberRel2);
       Id nvar = static_cast<Id>(_cumulRanks2.size());
       for (Id ivar = 0; ivar < nvar; ivar++)
-        for (Id iech = 0, nech = static_cast<Id>(_varRanks2[ivar].size());
-             iech < nech; iech++)
+      {
+        nech = static_cast<Id>(_varRanks2[ivar].size());
+        for (Id iech = 0; iech < nech; iech++)
           _Y[ecr++] =
             _db2->getLocVariable(ELoc::Z, _varRanks2[ivar][iech], ivar);
+      }
+
+      // Centering the Data by the Mean
+      centerInPlace(icase, -1, _Y);
+    }
+  }
+
+  void Vecchia::centerInPlace(Id icaseDb, Id sign, VectorDouble& tab)
+  {
+    // Discard this centering if a Drift is available in the model,
+    // since the centering is done by the optimal Drift coefficients
+    if (_model->hasDrift()) return;
+
+    Id ecr = 0;
+    if (icaseDb == 1)
+    {
+      Id nvar = static_cast<Id>(_cumulRanks1.size());
+      for (Id ivar = 0; ivar < nvar; ivar++)
+      {
+        Id nech = static_cast<Id>(_varRanks1[ivar].size());
+        double meanValue = sign * _model->getMean(ivar);
+        for (Id iech = 0; iech < nech; iech++) tab[ecr++] += meanValue;
+      }
+    }
+    else
+    {
+      Id nvar = static_cast<Id>(_cumulRanks2.size());
+      for (Id ivar = 0; ivar < nvar; ivar++)
+      {
+        Id nech = static_cast<Id>(_varRanks2[ivar].size());
+        double meanValue = sign * _model->getMean(ivar);
+        for (Id iech = 0; iech < nech; iech++) tab[ecr++] += meanValue;
+      }
     }
   }
 
@@ -651,6 +696,15 @@ namespace gstlrn
     bool verbose,
     const NamingConvention& namconv)
   {
+    // Temporary protection: to be suppressed later
+    if (dbin != nullptr && nb_vecchia > dbin->getNSample())
+    {
+      messerr(
+        "Number of Vecchia neighbors exceeds Number of samples in 'dbin'");
+      messerr("This crashes the current implementation.");
+      messerr("This limitation should be removed in a future version.");
+      return 1;
+    }
     Vecchia V(model, nb_vecchia, dbout, dbin);
 
     MatrixT<Id> Ranks = findNN(dbout, dbin, nb_vecchia + 1, false, verbose);
@@ -687,9 +741,13 @@ namespace gstlrn
     VectorDouble result = cholW.solveX(FtLdY);
     for (Id i = 0; i < nt; i++) result[i] = -result[i];
 
+    // UnCentering the result by the Mean
+    V.centerInPlace(1, +1, result);
+
     // Saving the results
     Id iptr = dbout->addColumns(result, String(), ELoc::UNDEFINED, 0, true);
-    namconv.setNamesAndLocators(dbout, iptr, "estim", nvar);
+    namconv.setNamesAndLocators(
+      dbin, VectorString(), ELoc::Z, nvar, dbout, iptr, "estim");
 
     return 0;
   }

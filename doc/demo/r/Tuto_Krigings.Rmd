@@ -1,0 +1,203 @@
+---
+title: "Various Krigings"
+author: "gstlearn core team"
+date: "`r Sys.Date()`"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+editor_options:
+  chunk_output_type: console
+---
+
+# Introduction
+
+This script is meant to compare the different methods to compute the kriging estimate:
+
+* kriging with a unique neighbourhood
+* kriging with a moving neighbourhood
+* kriging with the Vecchia approximation
+* kriging with the SPDE approach
+
+Simple and ordinary kriging are used.
+
+The spatial univariate covariance is a Matern's covariance function with a nugget effect.
+
+The kriging with a unique neighbourhood is considered as the reference.
+
+Notes:
+1) on the Vecchia implementation
+
+* it computes only the estimate but not the std. of the kriging error,
+* it uses the naming convention differently (the name of the variable is not retrieved from the db),
+* it does not use the actual mean for the Simple Kriging (m = 0 is used instead)
+
+2) on the SPDE implementation
+
+* the std. values differ from the reference. The default mesh should adapted?
+
+We will use the Geostatistics library **gstlearn**.
+
+```{r setup, include=FALSE, echo=TRUE}
+knitr::opts_chunk$set(echo = TRUE)
+rm(list=ls())
+library(gstlearn)
+OptCst_defineByKey("ASP", 0)
+library(ggplot2)
+library(ggpubr)
+
+ndim = 2
+err = defineDefaultSpace(ESpaceType_RN(), ndim)
+```
+
+# Model and data
+
+A Model is created which:
+
+* allows to simulate values at the conditioning data points
+
+* is used for subsequent Kriging operations
+
+```{r def_model, echo=TRUE, eval=TRUE}
+type = "SK"
+# known mean if SK
+m   = 5.0
+# variance of the nugget effect
+c0  = 0.0
+# Matern's covariance
+sill = 2.0
+range = 0.3
+param = 1
+
+model = Model(CovContext(nvar = 1, space = SpaceRN_create(ndim = ndim)))
+if (c0 > 0) {
+  err = model$addCovFromParam(ECov_NUGGET(), sill = c0)
+  }
+err = model$addCovFromParam(ECov_MATERN(), range = range, sill = sill, param = param)
+if (type == "OK") {
+err = model$setDriftIRF(order = 0)
+} else if (type == "SK") {
+err = model$setMean(m)
+}
+model
+```
+
+The set of conditioning data points is generated at random into the 1 by 1 square. Simulation at the conditioning data points is performed using the Turning Bands method.
+
+```{r def_data, echo=TRUE, eval=TRUE}
+ndat = 100
+data = Db_createFillRandom(ndat = ndat, ndim = ndim, nvar = 0)
+err  = simtub(dbin = NULL, dbout = data, model = model,
+                   nbsimu = 1, nbtuba = 1000, seed = 1234,
+                   namconv = NamingConvention("Z"))
+```
+
+A Grid is created which covers the area of the conditioning data set.
+
+```{r def_grid, echo=TRUE, eval=TRUE}
+nmesh = 100
+grid = DbGrid_create(nx = c(nmesh, nmesh), dx = c(1.0 / nmesh, 1.0 / nmesh))
+```
+
+## Standard Kriging using a Unique neighbourhood
+
+The standard Kriging requires the definition of a Neighbourhood. Due to the reasonably small number of data, a Unique neighbourhood has been chosen.
+
+```{r standard_kriging_unique, echo=TRUE, eval=TRUE}
+neighU = NeighUnique_create()
+err = kriging(dbin = data, dbout = grid, model = model,
+              neigh = neighU,
+              flag_est = TRUE, flag_std = TRUE,
+              namconv = NamingConvention(paste(sep = ".", type, "Unique")))
+```
+
+# Standard Kriging using a Moving neighbourhood
+
+```{r kriging_moving, echo=TRUE, eval=TRUE}
+neighM = NeighMoving_create(nmaxi = 20, nmini = 20)
+err = kriging(dbin = data, dbout = grid, model = model,
+              neigh = neighM,
+              flag_est = TRUE, flag_std = TRUE,
+              namconv = NamingConvention(paste(sep = ".", type, "Moving")))
+```
+
+# Kriging using the Vecchia approximation
+
+```{r kriging_vecchia, echo=TRUE, eval=TRUE}
+nb_vecchia = 50
+err = krigingVecchia(dbin = data, dbout = grid, model = model,
+              nb_vecchia = nb_vecchia,
+              # flag_est = TRUE, flag_std = TRUE,
+              namconv = NamingConvention(paste(sep = ".", type, "Vecchia")))
+```
+
+# Kriging using the SPDE approach
+
+```{r kriging_spde, echo=TRUE, eval=TRUE}
+err = krigingSPDE(dbin = data, dbout = grid, model = model,
+              flag_est = TRUE, flag_std = TRUE,
+              namconv = NamingConvention(paste(sep = ".", type, "SPDE")))
+```
+
+# Base map for the reference estimate
+
+```{r ref_base_map, echo=FALSE, eval=TRUE}
+p  = plot.init(asp = 1.0) +
+  plot.raster(grid, name=paste(sep = ".", type, "Unique", "Z",  "estim"),
+              palette = "Spectral") +
+  plot.symbol(data, nameSize="Z", color="black") +
+  plot.decoration(title = "Estimated value")
+
+q  = plot.init(asp = 1.0) +
+  plot.raster(grid, name=paste(sep = ".", type, "Unique", "Z",  "stdev"),
+              palette = "Spectral") +
+  plot.decoration(title = "Std. of kriging error")
+ggarrange(p, q, nrow = 1, ncol = 2)
+```
+
+# Correlation plot for the estimates
+
+```{r correlation_estimate}
+for (met in c("Moving", "Vecchia", "SPDE")) {
+  p  = plot.init(asp = 1.0) +
+    plot.correlation(grid,
+           namex = paste(sep = ".", type, met, "Z",  "estim"),
+           namey = paste(sep = ".", type, "Unique", "Z",  "estim"),
+           flagDiag = TRUE, diagColor = "red", asPoint = TRUE) +
+    plot.decoration(title = paste0(type, " estimate"), xlab = met, ylab = "Unique")
+  plot.end(p)
+}
+```
+
+# Correlation plot for the Std. of kriging error
+
+```{r correlation_stdev}
+for (met in c("Moving", "SPDE")) {
+  p  = plot.init(asp = 1.0) +
+    plot.correlation(grid,
+           namex = paste(sep = ".", type, met, "Z",  "stdev"),
+           namey = paste(sep = ".", type, "Unique", "Z",  "stdev"),
+           flagDiag = TRUE, diagColor = "red", asPoint = TRUE) +
+    plot.decoration(title = paste0("Std. of ", type, " error"), xlab = met, ylab = "Unique")
+  plot.end(p)
+}
+```
+
+# Base map for SPDE
+
+This last paragraph is meant to understand the strange feature of the Standard Deviation of the Estimation error with SPDE option.
+
+```{r stdev_Comparison, echo=FALSE, eval=TRUE}
+p  = plot.init(asp = 1.0) +
+  plot.raster(grid, name=paste(sep = ".", type, "Unique", "Z",  "stdev"),
+              palette = "Spectral") +
+  plot.symbol(data, nameSize="Z", color="black") +
+  plot.decoration(title = "Std. with Kriging")
+
+q  = plot.init(asp = 1.0) +
+  plot.raster(grid, name=paste(sep = ".", type, "SPDE", "Z",  "stdev"),
+              palette = "Spectral") +
+  plot.symbol(data, nameSize="Z", color="black") +
+  plot.decoration(title = "Std. with SPDE")
+ggarrange(p, q, nrow = 1, ncol = 2)
+```

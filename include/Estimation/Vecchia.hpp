@@ -73,6 +73,7 @@ namespace gstlrn
     VectorDouble calculateFtLdY(const VectorDouble& LdY) const;
     MatrixSparse* calculateW(const VectorDouble& D_dd) const;
     VectorDouble computeAndGetY();
+    void centerInPlace(Id icaseDb, Id sign, VectorDouble& tab);
 
   private:
     void _solveQ(constvect inv, vect outv) const override;
@@ -120,8 +121,9 @@ namespace gstlrn
       Id* ipAbs) const;
 
   private:
-    // Following members are copies of pointers (not to be deleted)
     Id _nbVecchia;
+
+    // Following members are copies of pointers (not to be deleted)
     const Db* _db1;
     const Db* _db2;
 

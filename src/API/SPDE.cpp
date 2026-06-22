@@ -20,7 +20,6 @@
 #include "LinearOp/ASimulable.hpp"
 #include "LinearOp/ASimulableMatrix.hpp"
 #include "LinearOp/InvNuggetOp.hpp"
-#include "LinearOp/MultiGridSolver.hpp"
 #include "LinearOp/PrecisionOpMulti.hpp"
 #include "LinearOp/PrecisionOpMultiMatrix.hpp"
 #include "LinearOp/ProjMatrix.hpp"
@@ -721,7 +720,7 @@ namespace gstlrn
    *
    * @param dbin Input Db (must contain the variable to be estimated)
    * @param model Model definition
-   * @param useCholesky Define the choice regarding Cholesky (see _defineCholesky)
+   * @param useCholesky Define the choice regarding Cholesky (see _defineFlagCholesky)
    * @param meshesK Meshes description (optional)
    * @param projInK Matrix of projection (optional)
    * @param params Set of SPDE parameters
@@ -769,7 +768,7 @@ namespace gstlrn
    * @param model Model definition
    * @param flag_est True for the estimation
    * @param flag_std True for the standard deviation of estimation error
-   * @param useCholesky Define the choice regarding Cholesky (see _defineCholesky)
+   * @param useCholesky Define the choice regarding Cholesky (see _defineFlagCholesky)
    * @param meshesK Meshes description (optional)
    * @param projInK Matrix of projection (optional)
    * @param meshesS Meshes used for Variance calulcation (optional)
@@ -875,7 +874,7 @@ namespace gstlrn
    * @param dbout Output Db where the estimation must be performed
    * @param model Model definition
    * @param nbsimu Number of simulations
-   * @param useCholesky Define the choice regarding Cholesky (see _defineCholesky)
+   * @param useCholesky Define the choice regarding Cholesky (see _defineFlagCholesky)
    * @param meshesK Meshes used for Kriging (optional)
    * @param projInK Matrix of projection used for Kriging (optional)
    * @param meshesS Meshes used for Simulations (optional)
@@ -983,7 +982,7 @@ namespace gstlrn
    * @param model Model definition
    * @param ruleprop RuleProp structure describing the Rule and the Proportions
    * @param nbsimu Number of simulations
-   * @param useCholesky Define the choice regarding Cholesky (see _defineCholesky)
+   * @param useCholesky Define the choice regarding Cholesky (see _defineFlagCholesky)
    * @param meshesK Meshes used for Kriging (optional)
    * @param projInK Matrix of projection used for Kriging (optional)
    * @param meshesS Meshes used for Simulations (optional)
@@ -1098,7 +1097,7 @@ namespace gstlrn
    *
    * @param dbin Input Db (must contain the variable to be estimated)
    * @param model Model definition
-   * @param useCholesky Define the choice regarding Cholesky (see _defineCholesky)
+   * @param useCholesky Define the choice regarding Cholesky (see _defineFlagCholesky)
    * @param meshes Meshes description (optional)
    * @param projIn Matrix of projection (optional)
    * @param invnoiseobj Inverse noise object (optional)

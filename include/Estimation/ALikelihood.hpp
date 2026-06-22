@@ -28,9 +28,6 @@ namespace gstlrn
   {
   public:
     ALikelihood(ModelGeneric* model, const Db* db, bool reml = false);
-    ALikelihood(const ALikelihood& r);
-    ALikelihood& operator=(const ALikelihood& r);
-    virtual ~ALikelihood();
 
     double computeCost(bool flagPrint = false, bool verbose = false) override;
     double computeLogLikelihood(bool flagPrint = false, bool verbose = false);

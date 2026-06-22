@@ -76,8 +76,8 @@ namespace gstlrn
       const IProj* projS = nullptr) const;
     VectorDouble simCondGibbs(
       const VectorDouble& dat,
-      const VectorDouble& gibbsUpperBound,
       const VectorDouble& gibbsLowerBound,
+      const VectorDouble& gibbsUpperBound,
       const IProj* projK = nullptr,
       const IProj* projS = nullptr,
       Id nIter = 5,

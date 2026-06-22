@@ -21,48 +21,12 @@ namespace gstlrn
 {
   ALikelihood::ALikelihood(ModelGeneric* model, const Db* db, bool reml)
     : AModelOptim(model)
+    , ASimulableMatrix()
     , _db(db)
     , _reml(reml)
   {
     _nDrift = _model->getNDriftEquation();
   }
-
-  ALikelihood::ALikelihood(const ALikelihood& r)
-    : AModelOptim(r)
-    , ASimulableMatrix(r)
-    , _db(r._db)
-    , _Z(r._Z)
-    , _Y(r._Y)
-    , _Yc(r._Yc)
-    , _X(r._X)
-    , _beta(r._beta)
-    , _Cm1X(r._Cm1X)
-    , _Cm1Yc(r._Cm1Yc)
-    , _XtCm1X(r._XtCm1X)
-    , _reml(r._reml)
-    , _nDrift(r._nDrift) {};
-
-  ALikelihood& ALikelihood::operator=(const ALikelihood& r)
-  {
-    if (this != &r)
-    {
-      AModelOptim::operator=(r);
-      _db = r._db;
-      _Z = r._Z;
-      _Y = r._Y;
-      _Yc = r._Yc;
-      _X = r._X;
-      _beta = r._beta;
-      _Cm1X = r._Cm1X;
-      _Cm1Yc = r._Cm1Yc;
-      _XtCm1X = r._XtCm1X;
-      _reml = r._reml;
-      _nDrift = r._nDrift;
-    }
-    return *this;
-  }
-
-  ALikelihood::~ALikelihood() {}
 
   double ALikelihood::computeLogDet(Id nMC) const
   {
