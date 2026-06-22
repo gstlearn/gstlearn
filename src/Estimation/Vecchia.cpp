@@ -28,41 +28,44 @@ namespace gstlrn
   Vecchia::Vecchia(
     ModelGeneric* model,
     Id nb_vecchia,
-    const Db* db1,
-    const Db* db2,
+    const Db* dbin,
+    const Db* dbout,
     bool reml,
     bool verbose)
-    : ALikelihood(model, db1, reml)
+    : ALikelihood(model, (dbin && dbout) ? dbin : dbout, reml)
     , _nbVecchia(nb_vecchia)
-    , _db1(db1)
-    , _db2(db2)
+    , _dbout(dbout)
+    , _dbin(dbin)
     , _Ranks()
     , _matCov()
     , _vectCov()
     , _work()
     , _DFull()
     , _LFull()
-    , _NumberAbs1(0)
-    , _NumberRel1(0)
-    , _NumberRel2(0)
-    , _cumulRanks1()
-    , _cumulRanks2()
-    , _varRanks1()
-    , _varRanks2()
-    , _varInverse1()
-    , _varInverse2()
+    , _NumberShift(0)
+    , _NumberRelOut(0)
+    , _NumberRelIn(0)
+    , _cumulRanksOut()
+    , _cumulRanksIn()
+    , _varRanksOut()
+    , _varRanksIn()
+    , _varInverseOut()
+    , _varInverseIn()
   {
     setAuthorizedAnalyticalGradients(false);
     _chol = new CholeskyDense();
     _init(verbose);
-    if (db2 == nullptr) initLikelihood(verbose);
+
+    // The likelihood is initialized here, since the calculation of the Drift coefficients
+    // may be used in Vecchia for centering the input variable and decentering the results
+    initLikelihood(verbose);
   }
 
   Vecchia::Vecchia(const Vecchia& r)
     : ALikelihood(r)
     , _nbVecchia(r._nbVecchia)
-    , _db1(r._db1)
-    , _db2(r._db2)
+    , _dbout(r._dbout)
+    , _dbin(r._dbin)
     , _Ranks(r._Ranks)
     , _matCov(r._matCov)
     , _vectCov(r._vectCov)
@@ -72,15 +75,15 @@ namespace gstlrn
     , _LFull(r._LFull)
     , _Qmat(r._Qmat)
     , _chol(nullptr)
-    , _NumberAbs1(r._NumberAbs1)
-    , _NumberRel1(r._NumberRel1)
-    , _NumberRel2(r._NumberRel2)
-    , _cumulRanks1(r._cumulRanks1)
-    , _cumulRanks2(r._cumulRanks2)
-    , _varRanks1(r._varRanks1)
-    , _varRanks2(r._varRanks2)
-    , _varInverse1(r._varInverse1)
-    , _varInverse2(r._varInverse2)
+    , _NumberShift(r._NumberShift)
+    , _NumberRelOut(r._NumberRelOut)
+    , _NumberRelIn(r._NumberRelIn)
+    , _cumulRanksOut(r._cumulRanksOut)
+    , _cumulRanksIn(r._cumulRanksIn)
+    , _varRanksOut(r._varRanksOut)
+    , _varRanksIn(r._varRanksIn)
+    , _varInverseOut(r._varInverseOut)
+    , _varInverseIn(r._varInverseIn)
   {
     _chol = new CholeskyDense(*r._chol);
   }
@@ -91,8 +94,8 @@ namespace gstlrn
     {
       ALikelihood::operator=(r);
       _nbVecchia = r._nbVecchia;
-      _db1 = r._db1;
-      _db2 = r._db2;
+      _dbout = r._dbout;
+      _dbin = r._dbin;
       _Ranks = r._Ranks;
       _matCov = r._matCov;
       _vectCov = r._vectCov;
@@ -101,15 +104,15 @@ namespace gstlrn
       _DFull = r._DFull;
       _LFull = r._LFull;
       _Qmat = r._Qmat;
-      _NumberAbs1 = r._NumberAbs1;
-      _NumberRel1 = r._NumberRel1;
-      _NumberRel2 = r._NumberRel2;
-      _cumulRanks1 = r._cumulRanks1;
-      _cumulRanks2 = r._cumulRanks2;
-      _varRanks1 = r._varRanks1;
-      _varRanks2 = r._varRanks2;
-      _varInverse1 = r._varInverse1;
-      _varInverse2 = r._varInverse2;
+      _NumberShift = r._NumberShift;
+      _NumberRelOut = r._NumberRelOut;
+      _NumberRelIn = r._NumberRelIn;
+      _cumulRanksOut = r._cumulRanksOut;
+      _cumulRanksIn = r._cumulRanksIn;
+      _varRanksOut = r._varRanksOut;
+      _varRanksIn = r._varRanksIn;
+      _varInverseOut = r._varInverseOut;
+      _varInverseIn = r._varInverseIn;
 
       delete _chol;
       _chol = new CholeskyDense(*r._chol);
@@ -124,15 +127,15 @@ namespace gstlrn
 
   void Vecchia::_init(bool verbose)
   {
-    _Ranks = findNN(_db1, _db2, _nbVecchia + 1, false, verbose);
+    _Ranks = findNN(_dbout, _dbin, _nbVecchia + 1, false, verbose);
   }
 
   Id Vecchia::_getCase() const
   {
     Id icase = 0;
-    if (_db1 != nullptr) icase = 1;
-    if (_db2 != nullptr) icase = 2;
-    if (_db1 != nullptr && _db2 != nullptr) icase = 2;
+    if (_dbout != nullptr) icase = 1;
+    if (_dbin != nullptr) icase = 2;
+    if (_dbout != nullptr && _dbin != nullptr) icase = 2;
     return icase;
   }
 
@@ -151,7 +154,7 @@ namespace gstlrn
   {
     Id rank = Ranks(irow, icol);
     if (isNA(rank)) return false;
-    if (rank < _NumberAbs1)
+    if (rank < _NumberShift)
     {
       // Information belongs to the first Db
       *icaseDb = 1;
@@ -160,7 +163,7 @@ namespace gstlrn
     else
     {
       *icaseDb = 2;
-      *ipAbs = rank - _NumberAbs1;
+      *ipAbs = rank - _NumberShift;
     }
     return true;
   }
@@ -178,14 +181,14 @@ namespace gstlrn
     Id irel = 0;
     if (icaseDb == 1)
     {
-      if (ivar > 0) irel = _cumulRanks1[ivar];
-      irel += _varInverse1[ivar][ipAbs];
+      if (ivar > 0) irel = _cumulRanksOut[ivar];
+      irel += _varInverseOut[ivar][ipAbs];
     }
     else
     {
-      irel = _NumberRel1;
-      if (ivar > 0) irel = _cumulRanks2[ivar];
-      irel += _varInverse2[ivar][ipAbs];
+      irel = _NumberRelOut;
+      if (ivar > 0) irel = _cumulRanksIn[ivar];
+      irel += _varInverseIn[ivar][ipAbs];
     }
     return irel;
   }
@@ -248,9 +251,9 @@ namespace gstlrn
       VectorDouble coor(ndim);
       (void)_identifyDbAndAbsoluteRank(Ranks, isample, 0, &icase1, &ipAbs);
       if (icase1 == 1)
-        _db1->getCoordinatesInPlace(coor, ipAbs);
+        _dbout->getCoordinatesInPlace(coor, ipAbs);
       else
-        _db2->getCoordinatesInPlace(coor, ipAbs);
+        _dbin->getCoordinatesInPlace(coor, ipAbs);
 
       message("Row Number %4d (Db %d Var %d)", isample, icase1, ivar);
       message(" - Abs Rank = %4d", ipAbs);
@@ -262,9 +265,9 @@ namespace gstlrn
         auto icase2 = neighDescr[item][0];
         auto iabs2 = neighDescr[item][3];
         if (icase2 == 1)
-          _db1->getCoordinatesInPlace(coor, iabs2);
+          _dbout->getCoordinatesInPlace(coor, iabs2);
         else
-          _db2->getCoordinatesInPlace(coor, iabs2);
+          _dbin->getCoordinatesInPlace(coor, iabs2);
         message(
           " %2d |  %2d |    %4d    |   %4d   |", neighDescr[item][0],
           neighDescr[item][1], neighDescr[item][2], neighDescr[item][3]);
@@ -288,9 +291,9 @@ namespace gstlrn
       Id ivar1 = neighDescr[i1][1];
       Id iabs1 = neighDescr[i1][3];
       if (icase1 == 1)
-        _db1->getSampleAsSPInPlace(p1, iabs1);
+        _dbout->getSampleAsSPInPlace(p1, iabs1);
       else
-        _db2->getSampleAsSPInPlace(p1, iabs1);
+        _dbin->getSampleAsSPInPlace(p1, iabs1);
 
       for (Id i2 = 0; i2 <= i1; i2++)
       {
@@ -298,9 +301,9 @@ namespace gstlrn
         Id ivar2 = neighDescr[i2][1];
         Id iabs2 = neighDescr[i2][3];
         if (icase2 == 1)
-          _db1->getSampleAsSPInPlace(p2, iabs2);
+          _dbout->getSampleAsSPInPlace(p2, iabs2);
         else
-          _db2->getSampleAsSPInPlace(p2, iabs2);
+          _dbin->getSampleAsSPInPlace(p2, iabs2);
 
         _model->getCov()->updateCovByPoints(icase1, iabs1, icase2, iabs2);
 
@@ -309,13 +312,13 @@ namespace gstlrn
       }
 
       // Update the Diagonal due to the presence of Variance of Measurement Error
-      if (_db1->hasLocVariable(ELoc::V) && icase1 == 1)
+      if (_dbout->hasLocVariable(ELoc::V) && icase1 == 1)
       {
-        Id icolVerr = _db1->getColIdxByLocator(ELoc::V, ivar1);
+        Id icolVerr = _dbout->getColIdxByLocator(ELoc::V, ivar1);
 
         double verr = 0.;
 
-        if (icolVerr >= 0) verr = _db1->getValueByColIdx(iabs1, icolVerr);
+        if (icolVerr >= 0) verr = _dbout->getValueByColIdx(iabs1, icolVerr);
 
         // Update the Covariance matrix
         if (verr > 0) matCov.updValue(i1, i1, EOperator::ADD, verr);
@@ -335,9 +338,9 @@ namespace gstlrn
     SpacePoint p2(_model->getSpace());
 
     if (icase2 == 1)
-      _db1->getSampleAsSPInPlace(p2, iabs2);
+      _dbout->getSampleAsSPInPlace(p2, iabs2);
     else
-      _db2->getSampleAsSPInPlace(p2, iabs2);
+      _dbin->getSampleAsSPInPlace(p2, iabs2);
 
     for (Id i1 = 0; i1 < nitems; i1++)
     {
@@ -345,9 +348,9 @@ namespace gstlrn
       Id ivar1 = neighDescr[i1][1];
       Id iabs1 = neighDescr[i1][3];
       if (icase1 == 1)
-        _db1->getSampleAsSPInPlace(p1, iabs1);
+        _dbout->getSampleAsSPInPlace(p1, iabs1);
       else
-        _db2->getSampleAsSPInPlace(p1, iabs1);
+        _dbin->getSampleAsSPInPlace(p1, iabs1);
 
       _model->getCov()->updateCovByPoints(icase1, iabs1, icase2, iabs2);
       double value = _model->evalCov(p1, p2, ivar1, ivar2);
@@ -367,73 +370,91 @@ namespace gstlrn
     Id nech;
     if (icase == 1)
     {
-      _Y.resize(_NumberRel1);
-      Id nvar = static_cast<Id>(_cumulRanks1.size());
+      _Y.resize(_NumberRelOut);
+      Id nvar = static_cast<Id>(_cumulRanksOut.size());
       for (Id ivar = 0; ivar < nvar; ivar++)
       {
-        nech = static_cast<Id>(_varRanks1[ivar].size());
+        nech = static_cast<Id>(_varRanksOut[ivar].size());
         for (Id iech = 0; iech < nech; iech++)
           _Y[ecr++] =
-            _db1->getLocVariable(ELoc::Z, _varRanks1[ivar][iech], ivar);
+            _dbout->getLocVariable(ELoc::Z, _varRanksOut[ivar][iech], ivar);
       }
     }
     else
     {
-      _Y.resize(_NumberRel2);
-      Id nvar = static_cast<Id>(_cumulRanks2.size());
+      _Y.resize(_NumberRelIn);
+      Id nvar = static_cast<Id>(_cumulRanksIn.size());
       for (Id ivar = 0; ivar < nvar; ivar++)
       {
-        nech = static_cast<Id>(_varRanks2[ivar].size());
+        nech = static_cast<Id>(_varRanksIn[ivar].size());
         for (Id iech = 0; iech < nech; iech++)
           _Y[ecr++] =
-            _db2->getLocVariable(ELoc::Z, _varRanks2[ivar][iech], ivar);
+            _dbin->getLocVariable(ELoc::Z, _varRanksIn[ivar][iech], ivar);
       }
-
-      // Centering the Data by the Mean
-      centerInPlace(icase, -1, _Y);
     }
   }
 
-  void Vecchia::centerInPlace(Id icaseDb, Id sign, VectorDouble& tab)
+  /**
+   * @brief Suppress a drift from the Data vector
+   */
+  void Vecchia::centerDataInPlace()
   {
-    // Discard this centering if a Drift is available in the model,
-    // since the centering is done by the optimal Drift coefficients
-    if (_model->hasDrift()) return;
-
-    Id ecr = 0;
-    if (icaseDb == 1)
+    if (!_model->hasDrift())
     {
-      Id nvar = static_cast<Id>(_cumulRanks1.size());
-      for (Id ivar = 0; ivar < nvar; ivar++)
+      // The Model has no Drift, simply remove the constant mean from the data
+      auto nvar = static_cast<Id>(_cumulRanksIn.size());
+      for (Id ivar = 0, ecr = 0; ivar < nvar; ivar++)
       {
-        Id nech = static_cast<Id>(_varRanks1[ivar].size());
-        double meanValue = sign * _model->getMean(ivar);
+        double meanValue = _model->getMean(ivar);
+        auto nech = static_cast<Id>(_varRanksIn[ivar].size());
+        for (Id iech = 0; iech < nech; iech++) _Y[ecr++] -= meanValue;
+      }
+    }
+    else
+    {
+      // Evaluate the Drift matrix at the Data points ('dbin')
+      auto X = _model->evalDriftMat(_dbin);
+      // Center the data by the optimal drift: Y = Y - beta * X
+      VH::subtractInPlace(AMatrix::product(X, _model->getBetaHat()), _Y, _Y);
+    }
+  }
+
+  /**
+   * @brief Add a drift to the Result vector
+   *
+   * @param tab: VectorDouble to be modified
+   */
+  void Vecchia::uncenterResultsInPlace(VectorDouble& tab)
+  {
+    if (!_model->hasDrift())
+    {
+      auto nt = getNT();
+      auto nvar = _model->getNVar();
+      for (Id ivar = 0, ecr = 0; ivar < nvar; ivar++)
+      {
+        Id nech = nt / nvar;
+        double meanValue = _model->getMean(ivar);
         for (Id iech = 0; iech < nech; iech++) tab[ecr++] += meanValue;
       }
     }
     else
     {
-      Id nvar = static_cast<Id>(_cumulRanks2.size());
-      for (Id ivar = 0; ivar < nvar; ivar++)
-      {
-        Id nech = static_cast<Id>(_varRanks2[ivar].size());
-        double meanValue = sign * _model->getMean(ivar);
-        for (Id iech = 0; iech < nech; iech++) tab[ecr++] += meanValue;
-      }
+      // Evaluate the Drift matrix at the Target points ('dbout')
+      auto X = _model->evalDriftMat(_dbout);
+      // Uncenter the results by the optimal drift: Y = Y + beta * X
+      VH::addInPlace(AMatrix::product(X, _model->getBetaHat()), tab);
     }
   }
 
   bool Vecchia::_isVariableDefined(Id icaseDb, Id ipAbs, Id ivar) const
   {
-    Id nvar = 0;
     const Db* db;
     if (icaseDb == 1)
-      db = _db1;
+      db = _dbout;
     else
-      db = _db2;
-    nvar = _db->getNLoc(ELoc::Z);
+      db = _dbin;
+    Id nvar = db->getNLoc(ELoc::Z);
     if (nvar <= 0) return true;
-
     double value = db->getLocVariable(ELoc::Z, ipAbs, ivar);
     return !FFFF(value);
   }
@@ -461,9 +482,9 @@ namespace gstlrn
   {
     SpacePoint p1(_model->getSpace());
     if (icaseDb == 1)
-      _db1->getSampleAsSPInPlace(p1, ipAbs);
+      _dbout->getSampleAsSPInPlace(p1, ipAbs);
     else
-      _db2->getSampleAsSPInPlace(p1, ipAbs);
+      _dbin->getSampleAsSPInPlace(p1, ipAbs);
 
     if (_model->isNoStat())
     {
@@ -473,10 +494,10 @@ namespace gstlrn
 
     if (icaseDb == 1)
     {
-      if (_db1->hasLocVariable(ELoc::V))
+      if (_dbout->hasLocVariable(ELoc::V))
       {
-        Id icolVerr = _db1->getColIdxByLocator(ELoc::V, ivar);
-        if (icolVerr >= 0) var0 += _db1->getValueByColIdx(ipAbs, icolVerr);
+        Id icolVerr = _dbout->getColIdxByLocator(ELoc::V, ivar);
+        if (icolVerr >= 0) var0 += _dbout->getValueByColIdx(ipAbs, icolVerr);
       }
     }
     return var0;
@@ -502,14 +523,14 @@ namespace gstlrn
   {
     // Handle non stationarities if any
     // It has to be made before covariance computations since the model may have changed.
-    _model->manage(_db1, _db2);
+    _model->manage(_dbout, _dbin);
 
     // Preliminary check
     Id ndim;
-    if (!haveSameNDim(_db1, _db2, _model, &ndim)) return 1;
+    if (!haveSameNDim(_dbout, _dbin, _model, &ndim)) return 1;
 
     Id nvar;
-    if (!haveCompatibleNVar(_db1, _db2, _model, &nvar)) return 1;
+    if (!haveCompatibleNVar(_dbout, _dbin, _model, &nvar)) return 1;
 
     if (verbose)
       mestitle(
@@ -520,24 +541,24 @@ namespace gstlrn
     Id nsample = static_cast<Id>(Ranks.getNRows());
     Id nb_vecchia = static_cast<Id>(Ranks.getNCols()) - 1;
 
-    _NumberRel1 = 0;
-    if (_db1 != nullptr)
+    _NumberRelOut = 0;
+    if (_dbout != nullptr)
     {
-      _NumberRel1 = _db1->getListOfSampleIndicesInPlace(
-        nvar, _cumulRanks1, _varRanks1, true, false);
-      _convertAbsToRel(_db1->getNSample(false), _varRanks1, _varInverse1);
+      _NumberRelOut = _dbout->getListOfSampleIndicesInPlace(
+        nvar, _cumulRanksOut, _varRanksOut, true, false);
+      _convertAbsToRel(_dbout->getNSample(false), _varRanksOut, _varInverseOut);
     }
-    _NumberRel2 = 0;
-    if (_db2 != nullptr)
+    _NumberRelIn = 0;
+    if (_dbin != nullptr)
     {
-      _NumberRel2 = _db2->getListOfSampleIndicesInPlace(
-        nvar, _cumulRanks2, _varRanks2, true, true);
-      _convertAbsToRel(_db2->getNSample(false), _varRanks2, _varInverse2);
+      _NumberRelIn = _dbin->getListOfSampleIndicesInPlace(
+        nvar, _cumulRanksIn, _varRanksIn, true, true);
+      _convertAbsToRel(_dbin->getNSample(false), _varRanksIn, _varInverseIn);
     }
-    _NumberAbs1 = (_db1 != nullptr) ? _db1->getNSample() : 0;
+    _NumberShift = (_dbout != nullptr) ? _dbout->getNSample() : 0;
 
     // Resizing
-    Id ntot = _NumberRel1 + _NumberRel2;
+    Id ntot = _NumberRelOut + _NumberRelIn;
     _DFull.resize(ntot);
     _LFull = MatrixSparse(ntot, ntot, nb_vecchia + 1);
 
@@ -566,7 +587,6 @@ namespace gstlrn
           Ranks, ndim, icaseDb, isample, ivar, nb_vecchia, neighDescr, verbose);
 
         // Fill the full matrix
-
         _LFull.setValue(irel1, irel1, 1.);
         double varK = _buildC00(icaseDb, ipAbs, ivar);
 
@@ -619,10 +639,11 @@ namespace gstlrn
     auto nd = getND();
     auto nt = getNT();
     VectorDouble LdY(nd);
+    double value;
 
     for (Id id = 0; id < nd; id++)
     {
-      double value = 0.;
+      value = 0.;
       for (Id jd = 0; jd < nd; jd++)
         value += getLFull(id + nt, jd + nt) * Y[jd];
       LdY[id] = value;
@@ -636,9 +657,11 @@ namespace gstlrn
     auto nd = getND();
     auto nt = getNT();
     VectorDouble FtLdY(nt);
+    double value;
+
     for (Id it = 0; it < nt; it++)
     {
-      double value = 0.;
+      value = 0.;
       for (Id id = 0; id < nd; id++) value += getLFull(id + nt, it) * LdY[id];
       FtLdY[it] = value;
     }
@@ -684,72 +707,13 @@ namespace gstlrn
 
   VectorDouble Vecchia::computeAndGetY()
   {
+    // Load the Data from the dbin and dbout into the vector _Y
     _loadDataFlattened();
+
+    // Centering the Data by the Mean or Drift
+    centerDataInPlace();
+
     return _Y;
-  }
-
-  Id krigingVecchia(
-    Db* dbin,
-    Db* dbout,
-    ModelGeneric* model,
-    Id nb_vecchia,
-    bool verbose,
-    const NamingConvention& namconv)
-  {
-    // Temporary protection: to be suppressed later
-    if (dbin != nullptr && nb_vecchia > dbin->getNSample())
-    {
-      messerr(
-        "Number of Vecchia neighbors exceeds Number of samples in 'dbin'");
-      messerr("This crashes the current implementation.");
-      messerr("This limitation should be removed in a future version.");
-      return 1;
-    }
-    Vecchia V(model, nb_vecchia, dbout, dbin);
-
-    MatrixT<Id> Ranks = findNN(dbout, dbin, nb_vecchia + 1, false, verbose);
-    if (V.computeLower(Ranks, verbose)) return 1;
-
-    // Extract sub-part of 'Diagonal' vector
-    const auto& DFull = V.getDFull();
-    auto nd = V.getND();
-    auto nt = V.getNT();
-    Id nvar = model->getNVar();
-    VectorDouble D_dd(nd);
-    VH::extractInPlace(DFull, D_dd, nt);
-
-    // Calculate LdY
-    const VectorDouble& Y = V.computeAndGetY();
-    VectorDouble LdY = V.calculateLdY(Y);
-    LdY *= D_dd;
-
-    // Calculate FtLdY
-    VectorDouble FtLdY = V.calculateFtLdY(LdY);
-
-    // Calculating 'W'
-    MatrixSparse* W = V.calculateW(D_dd);
-
-    // Compute the Cholesky decomposition of 'W'
-    CholeskySparse cholW(*W);
-    if (!cholW.isReady())
-    {
-      messerr("Cholesky decomposition of Covariance matrix failed");
-      return 1;
-    }
-
-    // Perform the estimation
-    VectorDouble result = cholW.solveX(FtLdY);
-    for (Id i = 0; i < nt; i++) result[i] = -result[i];
-
-    // UnCentering the result by the Mean
-    V.centerInPlace(1, +1, result);
-
-    // Saving the results
-    Id iptr = dbout->addColumns(result, String(), ELoc::UNDEFINED, 0, true);
-    namconv.setNamesAndLocators(
-      dbin, VectorString(), ELoc::Z, nvar, dbout, iptr, "estim");
-
-    return 0;
   }
 
   void Vecchia::productVecchia(constvect Y, vect res) const
@@ -776,33 +740,6 @@ namespace gstlrn
     }
   }
 
-  /**
-   * Compute the log-likelihood (based on Vecchia approximation for covMat)
-   *
-   * @param db  Db structure where variable are loaded from
-   * @param model ModelGeneric structure used for the calculation
-   * @param nb_vecchia Number of neighbors to consider in the Vecchia approximation
-   * @param flagPrint Print the output results
-   * @param verbose Verbose flag
-   *
-   * @remarks The calculation considers all the active samples.
-   * @remarks It can work in multivariate case with or without drift conditions (linked or not)
-   * @remarks The algorithm is stopped (with a message) in the heterotopic case
-   */
-  double logLikelihoodVecchia(
-    const Db* db,
-    ModelGeneric* model,
-    Id nb_vecchia,
-    bool flagPrint,
-    bool verbose)
-  {
-    auto* vec = new Vecchia(model, nb_vecchia, db, nullptr, false, verbose);
-    vec->initLikelihood(verbose);
-    double result = -vec->computeCost(flagPrint, verbose);
-    delete vec;
-    return result;
-  }
-
   Vecchia* Vecchia::createForOptim(
     ModelGeneric* model,
     const Db* db,
@@ -810,9 +747,9 @@ namespace gstlrn
     bool reml,
     bool verbose)
   {
-
-    auto* vec = new Vecchia(model, nb_vecchia, db, nullptr, reml, verbose);
-
+    // The 'db' is passed as the 'dbout' in the Vecchia constructor, since this is the compulsory Data Base
+    // However it is the one used for the likelihood calculation.
+    auto* vec = new Vecchia(model, nb_vecchia, nullptr, db, reml, verbose);
     vec->_initLikelihoodForOptim(verbose);
     return vec;
   }
@@ -842,4 +779,104 @@ namespace gstlrn
   {
     productVecchia(inv, outv);
   }
+
+  /**
+   * Perform the estimation by Kriging (based on Vecchia approximation for covMat)
+   *
+   * @param dbin  Db structure where variable are loaded from
+   * @param dbout Db structure where results are stored
+   * @param model ModelGeneric structure used for the calculation
+   * @param nb_vecchia Number of neighbors to consider in the Vecchia approximation
+   * @param verbose Verbose flag
+   * @param namconv NamingConvention structure used to store the results in 'dbout'
+   */
+  Id krigingVecchia(
+    Db* dbin,
+    Db* dbout,
+    ModelGeneric* model,
+    Id nb_vecchia,
+    bool verbose,
+    const NamingConvention& namconv)
+  {
+    // Instantiate a small Vecchia based on dbin alone
+    // This is meant to calculate the optimal drift coefficients (which will be stored in model)
+    // It will be used to center the data and uncenter the results
+    Vecchia Vdat(model, nb_vecchia, nullptr, dbin, false, verbose);
+    Vdat.updateModel(verbose);
+    if (model->hasDrift()) Vdat.calculateBeta(verbose);
+
+    Vecchia V(model, nb_vecchia, dbin, dbout);
+    MatrixT<Id> Ranks = findNN(dbout, dbin, nb_vecchia + 1, false, verbose);
+    if (V.computeLower(Ranks, verbose)) return 1;
+
+    // Extract sub-part of 'Diagonal' vector
+    const auto& DFull = V.getDFull();
+    auto nd = V.getND();
+    auto nt = V.getNT();
+    Id nvar = model->getNVar();
+    VectorDouble D_dd(nd);
+    VH::extractInPlace(DFull, D_dd, nt);
+
+    // Calculate LdY
+    const VectorDouble& Y = V.computeAndGetY();
+    auto LdY = V.calculateLdY(Y);
+    LdY *= D_dd;
+
+    // Calculate FtLdY
+    auto FtLdY = V.calculateFtLdY(LdY);
+
+    // Calculating 'W'
+    MatrixSparse* W = V.calculateW(D_dd);
+
+    // Compute the Cholesky decomposition of 'W'
+    CholeskySparse cholW(*W);
+    if (!cholW.isReady())
+    {
+      messerr("Cholesky decomposition of Covariance matrix failed");
+      return 1;
+    }
+
+    // Perform the estimation
+    VectorDouble result = cholW.solveX(FtLdY);
+    for (Id i = 0; i < nt; i++) result[i] = -result[i];
+
+    // UnCentering the result by the Mean
+    V.uncenterResultsInPlace(result);
+
+    // Saving the results
+    Id iptr = dbout->addColumns(result, String(), ELoc::UNDEFINED, 0, true);
+    namconv.setNamesAndLocators(
+      dbin, VectorString(), ELoc::Z, nvar, dbout, iptr, "estim");
+
+    return 0;
+  }
+
+  /**
+   * Compute the log-likelihood (based on Vecchia approximation for covMat)
+   *
+   * @param db  Db structure where variable are loaded from
+   * @param model ModelGeneric structure used for the calculation
+   * @param nb_vecchia Number of neighbors to consider in the Vecchia approximation
+   * @param flagPrint Print the output results
+   * @param verbose Verbose flag
+   *
+   * @remarks The calculation considers all the active samples.
+   * @remarks It can work in multivariate case with or without drift conditions (linked or not)
+   * @remarks The algorithm is stopped (with a message) in the heterotopic case
+   */
+  double logLikelihoodVecchia(
+    const Db* db,
+    ModelGeneric* model,
+    Id nb_vecchia,
+    bool flagPrint,
+    bool verbose)
+  {
+    // The 'db' is passed as the 'dbout' in the Vecchia constructor, since this is the compulsory Data Base
+    // However it is the one used for the likelihood calculation.
+    auto* vec = new Vecchia(model, nb_vecchia, nullptr, db, false, verbose);
+    double result = -vec->computeCost(flagPrint, verbose);
+    delete vec;
+    return result;
+  }
+
 } // namespace gstlrn

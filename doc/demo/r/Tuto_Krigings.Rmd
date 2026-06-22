@@ -59,9 +59,11 @@ A Model is created which:
 * is used for subsequent Kriging operations
 
 ```{r def_model, echo=TRUE, eval=TRUE}
-type = "SK"
+type = "OK"
 # known mean if SK
 m   = 5.0
+# Drift order if !SK
+order = 0
 # variance of the nugget effect
 c0  = 0.0
 # Matern's covariance
@@ -75,7 +77,7 @@ if (c0 > 0) {
   }
 err = model$addCovFromParam(ECov_MATERN(), range = range, sill = sill, param = param)
 if (type == "OK") {
-err = model$setDriftIRF(order = 0)
+err = model$setDriftIRF(order = order)
 } else if (type == "SK") {
 err = model$setMean(m)
 }
@@ -181,23 +183,4 @@ for (met in c("Moving", "SPDE")) {
     plot.decoration(title = paste0("Std. of ", type, " error"), xlab = met, ylab = "Unique")
   plot.end(p)
 }
-```
-
-# Base map for SPDE
-
-This last paragraph is meant to understand the strange feature of the Standard Deviation of the Estimation error with SPDE option.
-
-```{r stdev_Comparison, echo=FALSE, eval=TRUE}
-p  = plot.init(asp = 1.0) +
-  plot.raster(grid, name=paste(sep = ".", type, "Unique", "Z",  "stdev"),
-              palette = "Spectral") +
-  plot.symbol(data, nameSize="Z", color="black") +
-  plot.decoration(title = "Std. with Kriging")
-
-q  = plot.init(asp = 1.0) +
-  plot.raster(grid, name=paste(sep = ".", type, "SPDE", "Z",  "stdev"),
-              palette = "Spectral") +
-  plot.symbol(data, nameSize="Z", color="black") +
-  plot.decoration(title = "Std. with SPDE")
-ggarrange(p, q, nrow = 1, ncol = 2)
 ```

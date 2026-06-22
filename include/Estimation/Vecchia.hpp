@@ -33,8 +33,8 @@ namespace gstlrn
     Vecchia(
       ModelGeneric* model,
       Id nb_vecchia,
-      const Db* db1,
-      const Db* db2 = nullptr,
+      const Db* dbin,
+      const Db* dbout,
       bool reml = false,
       bool verbose = false);
     Vecchia(const Vecchia& r);
@@ -46,7 +46,7 @@ namespace gstlrn
 
     static Vecchia* createForOptim(
       ModelGeneric* model,
-      const Db* db1,
+      const Db* db,
       Id nb_vecchia = 30,
       bool reml = false,
       bool verbose = false);
@@ -61,9 +61,9 @@ namespace gstlrn
 
     double getLFull(Id i, Id j) const { return _LFull.getValue(i, j); }
 
-    Id getND() const { return _NumberRel2; }
+    Id getND() const { return _NumberRelIn; }
 
-    Id getNT() const { return _NumberRel1; }
+    Id getNT() const { return _NumberRelOut; }
 
     Id getNonZeros() const { return _LFull.getNonZeros(); }
 
@@ -73,15 +73,18 @@ namespace gstlrn
     VectorDouble calculateFtLdY(const VectorDouble& LdY) const;
     MatrixSparse* calculateW(const VectorDouble& D_dd) const;
     VectorDouble computeAndGetY();
-    void centerInPlace(Id icaseDb, Id sign, VectorDouble& tab);
+    void centerDataInPlace();
+    void uncenterResultsInPlace(VectorDouble& tab);
 
   private:
     void _solveQ(constvect inv, vect outv) const override;
-    void _init(bool verbose = false) override;
     void _updateModel(bool verbose = false) override;
     void _computeCm1X() override;
     void _computeCm1Yc() override;
     double _computeLogDet() const override;
+
+    void _init(bool verbose = false) override;
+
     Id _buildNeighborhood(
       const MatrixT<Id>& Ranks,
       Id ndim,
@@ -124,8 +127,8 @@ namespace gstlrn
     Id _nbVecchia;
 
     // Following members are copies of pointers (not to be deleted)
-    const Db* _db1;
-    const Db* _db2;
+    const Db* _dbout;
+    const Db* _dbin;
 
     MatrixT<Id> _Ranks; // Matrix of ranks for the Vecchia approximation
     MatrixSymmetric _matCov;
@@ -135,19 +138,18 @@ namespace gstlrn
     mutable VectorDouble _DFull;
     mutable MatrixSparse _LFull;
     mutable MatrixSparse _Qmat;
-    mutable CholeskyDense*
-      _chol; // Cholesky decomposition of the covariance matrix
+    mutable CholeskyDense* _chol; // Cholesky decomposition of Cov. matrix
+
     // Local calculation results (to be deleted later)
-    mutable Id
-      _NumberAbs1; // Number of samples in Db1 (used for shift calculations)
-    mutable Id _NumberRel1;
-    mutable Id _NumberRel2;
-    mutable VectorInt _cumulRanks1;
-    mutable VectorInt _cumulRanks2;
-    mutable VectorVectorInt _varRanks1;
-    mutable VectorVectorInt _varRanks2;
-    mutable VectorVectorInt _varInverse1;
-    mutable VectorVectorInt _varInverse2;
+    mutable Id _NumberShift; // Number of samples in _dbout (shift)
+    mutable Id _NumberRelOut;
+    mutable Id _NumberRelIn;
+    mutable VectorInt _cumulRanksOut;
+    mutable VectorInt _cumulRanksIn;
+    mutable VectorVectorInt _varRanksOut;
+    mutable VectorVectorInt _varRanksIn;
+    mutable VectorVectorInt _varInverseOut;
+    mutable VectorVectorInt _varInverseIn;
   };
 
   GSTLEARN_EXPORT Id krigingVecchia(

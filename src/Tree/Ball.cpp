@@ -229,7 +229,7 @@ namespace gstlrn
    * - the number of rows is equal to the number of active (non masked) samples
    *
    * @param dbin First Db structure
-   * @param dbout Second Db structure (can be null)
+   * @param dbout Second Db structure (can be nullptr)
    * @param nb_neigh Number of neighbors to consider
    * @param flagShuffle True if the samples are considered in random order
    * @param verbose   Verbose flag
@@ -252,12 +252,32 @@ namespace gstlrn
     MatrixT<Id> mat;
 
     // Preliminary checks
-    Id ndim = dbin->getNDim();
-    if (dbout != nullptr && ndim != dbout->getNDim())
+    Id ndim = 0;
+    if (dbin != nullptr)
     {
-      messerr(
-        "Dbin(%d) and Dbout(%d) should have the same dimension", ndim,
-        dbout->getNDim());
+      if (ndim > 0 && ndim != dbin->getNDim())
+      {
+        messerr(
+          "Dbin(%d) and Dbout(%d) should have the same dimension", ndim,
+          dbin->getNDim());
+        return mat;
+      }
+      ndim = dbin->getNDim();
+    }
+    if (dbout != nullptr)
+    {
+      if (ndim > 0 && ndim != dbout->getNDim())
+      {
+        messerr(
+          "Dbin(%d) and Dbout(%d) should have the same dimension", ndim,
+          dbout->getNDim());
+        return mat;
+      }
+      ndim = dbout->getNDim();
+    }
+    if (ndim <= 0)
+    {
+      messerr("Dbin and Dbout should have at least one dimension");
       return mat;
     }
 

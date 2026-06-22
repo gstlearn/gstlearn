@@ -10,7 +10,6 @@
 /******************************************************************************/
 
 #include "Tree/BallFaulted.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Mesh/MeshEFaulted.hpp"
 #include "Space/SpacePoint.hpp"
 #include "Tree/Ball.hpp"
