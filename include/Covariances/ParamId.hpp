@@ -88,7 +88,7 @@ namespace gstlrn
     bool operator()(const ParamId& lhs, const ParamId& rhs) const
     {
       return lhs.getType() == rhs.getType() && lhs.getIV1() == rhs.getIV1()
-          && lhs.getIV2() == lhs.getIV2();
+          && lhs.getIV2() == rhs.getIV2();
     }
   };
 } // namespace gstlrn
