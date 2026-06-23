@@ -548,12 +548,22 @@ namespace gstlrn
     return vec;
   }
 
-  VectorDouble VectorHelper::simulateUniform(Id n, double mini, double maxi)
+  VectorDouble VectorHelper::simulateUniform(
+    Id n,
+    double mini,
+    double maxi,
+    double normSum)
   {
     VectorDouble vec(n);
+    double total = 0.;
     for (auto& el: vec)
     {
       el = law_uniform(mini, maxi);
+      total += el;
+    }
+    if (normSum != TEST && total != 0.)
+    {
+      for (auto& el: vec) el /= total;
     }
     return vec;
   }

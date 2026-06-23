@@ -319,7 +319,7 @@ def init(nx=1, ny=1, figsize=None, flagEqual=False):
     General procedure for initializing a new graphic with matplotlib.pyplot.
     It allows suppressing the dependency to matplotlib in your scripts
     nx, ny:    Number of subplots along X and Y
-    figsize:   When defined, this dictates the dimension of all Axes
+    figsize:   When defined, this dictates the dimension of the Global Figure (in inches)
     flagEqual: When True, all subsequent Axes have an 'aspect' set to 1
     """
     fig, axs = plt.subplots(nrows=nx, ncols=ny)

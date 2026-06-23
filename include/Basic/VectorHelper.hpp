@@ -178,8 +178,11 @@ namespace gstlrn
     static VectorBool simulateBoolean(Id n, double probaTrue = 0.5);
     static VectorInt
       simulateInteger(Id n, const VectorDouble& probas = VectorDouble(5, 0.2));
-    static VectorDouble
-      simulateUniform(Id n = 1, double mini = 0., double maxi = 1.);
+    static VectorDouble simulateUniform(
+      Id n = 1,
+      double mini = 0.,
+      double maxi = 1.,
+      double normSum = TEST);
     static VectorDouble simulateBernoulli(
       Id n = 1,
       double proba = 0.5,

@@ -15,6 +15,7 @@
 #include "PluriGaussian/CalcModelPGS.hpp"
 #include "geoslib_f_private.h"
 #include <algorithm>
+#include <numeric>
 #include <vector>
 
 namespace gstlrn
@@ -255,9 +256,19 @@ namespace gstlrn
 
   Id RuleProp::getNRule() const
   {
+    if (_rules.empty()) return 0;
     return std::count_if(
       _rules.begin(), _rules.end(),
       [](const std::unique_ptr<Rule>& r) { return r != nullptr; });
+  }
+
+  Id RuleProp::getNGRF() const
+  {
+    if (_rules.empty()) return 0;
+    return std::accumulate(
+      _rules.begin(), _rules.end(), 0,
+      [](Id acc, const std::unique_ptr<Rule>& r)
+      { return acc + (r ? r->getNGRF() : 0); });
   }
 
   /**

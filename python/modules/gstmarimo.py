@@ -13,6 +13,7 @@
 # Reminder: all methods staring by "W" are dedicated to UI
 
 import gstlearn as gl
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import marimo as mo
@@ -70,16 +71,15 @@ def _WgetTitle(title, flagTitle=True):
         return mo.md("")
 
 
-def _displayItem(contents=None, flagForced=False):
+def _saveAndDisplay(contents=None, filename="myFile.NF", flagForceDisplay=False):
     if contents is None:
         return
-    if optionPrintGlobal or flagForced:
-        contents.display()
 
-
-def _saveNF(contents=None, filename="myFile.NF"):
-    if contents is not None and optionSaveGlobal:
+    if optionSaveGlobal:
         contents.dumpToNF(filename)
+
+    if optionPrintGlobal or flagForceDisplay:
+        contents.display()
 
 
 # ================================================================
@@ -88,20 +88,26 @@ def _saveNF(contents=None, filename="myFile.NF"):
 # ================================================================
 
 
-def WdefineOneCovariance(ic=0, ncovmax=1, distmax=100, varmax=100, typeRef="Spherical"):
+def WdefineOneCovariance(
+    ic=0, ncovmax=1, ncovdef=-1, distmax=100, varmax=100, typeRef="Spherical"
+):
     """
     Returns the widget for inquiring the parameters for a single Basic structure
-    ncovmax: Maximum number of Basic structures (used for defaulting range)
+    ncovmax: Maximum number of Basic structures
+    ncovdef: Number of covariances used by default (if < 0: it is set to 'ncovmax')
     distmax: Maximum distance
     varmax:  Maximum Variance value
     typeRef: Type of covariance used as default
     """
-    distRef = distmax * (ic + 1) / (ncovmax + 1)
+    if ncovdef < 0:
+        ncovdef = ncovmax
+    distRef = distmax * (ic + 1) / (ncovdef + 1)
     distAux = distRef
-    varRef = varmax / ncovmax
+    varRef = varmax / ncovdef
     angRef = 0
 
     WCovUsed = mo.ui.switch(True, label="Basic Structure Used")
+    # WCovUsed = mo.ui.switch(ic < ncovdef, label="Basic Structure Used")
     WCovType = mo.ui.dropdown(
         options=_getCovarianceDict(), value=typeRef, label="Structure"
     )
@@ -174,15 +180,19 @@ def WgetOneCovariance(WAll):
 # ========================================
 
 
-def WdefineCovariances(ncovmax=1, distmax=100, varmax=100):
+def WdefineCovariances(ncovmax=1, ncovdef=-1, distmax=100, varmax=100):
     """
     Returns the array of widgets for inquiring a series of 'ncovmax' basic structures
-    ncovmax: Maximum number of Basic structures (used for defaulting range)
+    ncovmax: Maximum number of Basic structures
+    ncovdef: Number of covariances used by default (if < 0: it is set to 'ncovmax')
     distmax: Maximum distance
     varmax:  Maximum Variance value
     """
     return mo.ui.array(
-        [WdefineOneCovariance(ic, ncovmax, distmax, varmax) for ic in range(ncovmax)]
+        [
+            WdefineOneCovariance(ic, ncovmax, ncovdef, distmax, varmax)
+            for ic in range(ncovmax)
+        ]
     )
 
 
@@ -223,11 +233,18 @@ def WshowBasicList(basic_list, flagTitle=True):
 
 
 def WdefineModel(
-    ncovmax=1, distmax=100, varmax=100, vario=None, deftypes=["Spherical"], valdef="Fit"
+    ncovmax=1,
+    ncovdef=-1,
+    distmax=100,
+    varmax=100,
+    vario=None,
+    deftypes=["Spherical"],
+    valdef="Fit",
 ):
     """
     Returns the array of widgets for inquiring a series of 'ncovmax' basic structures
     ncovmax: Maximum number of Basic structures (used for defaulting range)
+    ncovdef: Number of covariances used by default (if < 0: it is set to 'ncovmax')
     distmax: Maximum distance
     varmax:  Maximum Variance value
     vario: Vario used for providing default values (if provided)
@@ -240,7 +257,9 @@ def WdefineModel(
     WMChoice = mo.ui.radio(
         options={"Interactive": 1, "Fit": 2, "From NF": 3}, value=valdef
     )
-    WInter = WdefineCovariances(ncovmax=ncovmax, distmax=distmax, varmax=varmax)
+    WInter = WdefineCovariances(
+        ncovmax=ncovmax, ncovdef=ncovdef, distmax=distmax, varmax=varmax
+    )
     WFitVario = WdefineModelFitVario(deftypes=deftypes)
     WMFromNF = WdefineModelFromNF()
 
@@ -285,8 +304,7 @@ def WgetModel(WAll, vario=None):
         # Add the Universality Condition (always)
         model.setDriftIRF(order=0, nfex=0)
 
-        _saveNF(model, "myModel.NF")
-        _displayItem(model)
+    _saveAndDisplay(model, "myModel.NF")
 
     return model
 
@@ -327,9 +345,9 @@ def WgetModelFitVario(WAll, vario):
     return model
 
 
-# =====================================
+# =======================================
 # Widget to manage a Grid (radix = WGrid)
-# =====================================
+# =======================================
 
 
 def WdefineGrid(nxdef=50):
@@ -377,9 +395,9 @@ def WgetGrid(WAll):
     return grid
 
 
-# =====================================
+# ===========================================
 # Widget to manage Simulations (radix = WSim)
-# =====================================
+# ===========================================
 
 
 def WdefineSimtub(nbtuba=100, nbsimu=1, seed=13134):
@@ -397,21 +415,30 @@ def WdefineSimtub(nbtuba=100, nbsimu=1, seed=13134):
     )
     WSimSeed = mo.ui.number(start=0, stop=None, value=seed, label="Seed")
 
+    WDisplayBinary = mo.ui.switch(False, label="Display in Binary Mode")
+
     WDisplaySimu = mo.ui.switch(
         True, label="Display Simulations rather than Average / Dispersion"
     )
-    WDisplayBinary = mo.ui.switch(False, label="Display in Binary Mode")
 
-    return mo.ui.array([WSimNbtuba, WSimNbsimu, WSimSeed, WDisplaySimu, WDisplayBinary])
+    return mo.ui.array([WSimNbtuba, WSimNbsimu, WSimSeed, WDisplayBinary, WDisplaySimu])
 
 
-def WshowSimtub(WAll, flagTitle=True, gapv=2):
-    [WSimNbtuba, WSimNbsimu, WSimSeed, WDisplaySimu, WDisplayBinary] = WAll
+def WshowSimtub(WAll, flagTitle=True, gapv=2, allowAveragingSimulations=True):
+    [WSimNbtuba, WSimNbsimu, WSimSeed, WDisplayBinary, WDisplaySimu] = WAll
     WSimTitle = _WgetTitle("Turning Bands Method", flagTitle)
-    return mo.vstack(
-        [WSimTitle, WSimNbtuba, WSimNbsimu, WSimSeed, WDisplaySimu, WDisplayBinary],
-        gap=gapv,
-    )
+    widgets = [
+        WSimTitle,
+        WSimNbtuba,
+        WSimNbsimu,
+        WSimSeed,
+    ]
+
+    if allowAveragingSimulations:
+        widgets.append(WDisplayBinary)
+        widgets.append(WDisplaySimu)
+
+    return mo.vstack(widgets, gap=gapv)
 
 
 def WgetSimtub(WAll):
@@ -425,9 +452,9 @@ def WgetSimtub(WAll):
     )
 
 
-# =========================
+# =====================================
 # Widget to manage a Vario (radix = WV)
-# =========================
+# =====================================
 
 
 def WdefineVario(nlag=10, ndir=4, dlag=None, db=None, valdef="Omni"):
@@ -491,9 +518,7 @@ def WgetVario(WAll, db=None):
             varioparam, db, calculType=gl.ECalcVario.VARIOGRAM, verbose=True
         )
 
-    if vario is not None:
-        _saveNF(vario, "myVario.NF")
-        _displayItem(vario)
+    _saveAndDisplay(vario, "myVario.NF")
 
     return vario
 
@@ -597,9 +622,9 @@ def WgetVarioFromNF(WAll):
     return gl.Vario.createFromNF(str(WVFile.path(index=0)))
 
 
-# ======================
+# ==================================
 # Widget to manage a Db (radix = WD)
-# ======================
+# ==================================
 
 
 def WdefineDb(
@@ -671,9 +696,7 @@ def WgetDb(WAll):
     else:
         db = None
 
-    if db is not None:
-        _saveNF(db, "myDb.NF")
-        _displayItem(db)
+    _saveAndDisplay(db, "myDb.NF")
 
     return db
 
@@ -925,9 +948,9 @@ def WgetGridN(WAll, box):
     return gl.DbGrid.create(nx=[nx, ny], dx=[dx, dy], x0=[x0, y0])
 
 
-# =======================================
+# ==================================================
 # Widget to manage a Editing of a Db (radix : WEdit)
-# =======================================
+# ==================================================
 
 
 def WdefineEdit(db):
@@ -962,15 +985,180 @@ def WgetEdit(WAll, db):
         if name in df.columns:
             db.setColumn(df[name], name)
 
-    _saveNF(db, "myDb.NF")
-    _displayItem(db)
+    _saveAndDisplay(db, "myDb.NF")
 
     return db
 
 
 # =======================================
-# Some display functions used in Marimo
+# Widget to manage a Rule (radix : WRule)
 # =======================================
+
+
+def WdefineRule(ruleDef=None, maxFacies=10):
+    if ruleDef is None:
+        ruleDef = ["S", "T", "F1", "F2", "F3"]
+
+    WRule = mo.ui.text(
+        value=", ".join(ruleDef),
+        label="Rule",
+    )
+
+    WProps = mo.ui.array(
+        [
+            mo.ui.number(
+                start=0.0, stop=None, value=1.0, label=f"Proportion of Facies {i + 1}"
+            )
+            for i in range(maxFacies)
+        ]
+    )
+
+    return mo.ui.array([WRule, WProps])
+
+
+def WshowRule(WAll, flagTitle=True, gapv=0):
+    [WRule, WProps] = WAll
+    WRuleTitle = _WgetTitle("Rule and Proportions", flagTitle=flagTitle)
+
+    widgets = [
+        WRuleTitle,
+        WRule,
+        *WProps,
+    ]
+
+    return mo.vstack(widgets, gap=gapv)
+
+
+def WgetRule(WAll):
+    [WRule, WProps] = WAll
+
+    ruleDef = [s.strip() for s in WRule.value.split(",") if s.strip()]
+    rule = gl.Rule.createFromNames(ruleDef)
+
+    nfacies = rule.getNFacies() if rule is not None else 1
+
+    raw_props = np.array([float(WProps[i].value) for i in range(nfacies)])
+
+    s = raw_props.sum()
+
+    if s == 0:
+        props = np.ones(nfacies) / nfacies
+    else:
+        props = raw_props / s
+
+    _saveAndDisplay(rule, "myRule.NF")
+
+    ruleprop = gl.RuleProp.createFromRule(rule, props)
+    return ruleprop
+
+
+# =========================================
+# Widget to manage Layout (radix = WLayout)
+# =========================================
+
+
+def WdefineLayout(nx=3, ny=3, dimx=5, dimy=5):
+    """
+    Returns parameters for the Graphic Layout
+    nx: Number of columns in the grid of figures
+    ny: Number of rows in the grid of figures
+    dimx: Width of each figure
+    dimy: Height of each figure
+    """
+    WLayoutNx = mo.ui.number(start=1, stop=None, value=nx, label="Number of Columns")
+    WLayoutNy = mo.ui.number(start=1, stop=None, value=ny, label="Number of Rows")
+    WLayoutDimX = mo.ui.number(
+        start=1, stop=None, value=dimx, label="Width of Each Figure"
+    )
+    WLayoutDimY = mo.ui.number(
+        start=1, stop=None, value=dimy, label="Height of Each Figure"
+    )
+
+    WDisplayRule = mo.ui.switch(True, label="Display Lythotype Rule")
+    WDisplayModel = mo.ui.switch(True, label="Display Model(s)")
+    WDisplayEstimation = mo.ui.switch(True, label="Display Estimation Map(s)")
+    WDisplayStDev = mo.ui.switch(True, label="Display St. Dev. Map(s)")
+    WDisplaySimulation = mo.ui.switch(True, label="Display Simulation Map(s)")
+    WDisplayAverage = mo.ui.switch(True, label="Display Simulation Average Map(s)")
+
+    return mo.ui.array(
+        [
+            WLayoutNx,
+            WLayoutNy,
+            WLayoutDimX,
+            WLayoutDimY,
+            WDisplayRule,
+            WDisplayModel,
+            WDisplayEstimation,
+            WDisplayStDev,
+            WDisplaySimulation,
+            WDisplayAverage,
+        ]
+    )
+
+
+def WshowLayout(WAll, flagTitle=True, gapv=1):
+    title = _WgetTitle("Graphic Layout", flagTitle)
+
+    return mo.vstack([title, *WAll], gap=gapv)
+
+
+def WgetLayout(WAll, nvar=1, nbsimu=1, ngrf=1):
+    (
+        WLayoutNx,
+        WLayoutNy,
+        WLayoutDimX,
+        WLayoutDimY,
+        WDisplayRule,
+        WDisplayModel,
+        WDisplayEstimation,
+        WDisplayStDev,
+        WDisplaySimulation,
+        WDisplayAverage,
+    ) = WAll
+
+    layout = {
+        "nx": WLayoutNx.value,
+        "ny": WLayoutNy.value,
+        "dimx": WLayoutDimX.value,
+        "dimy": WLayoutDimY.value,
+        "rule": WDisplayRule.value,
+        "model": WDisplayModel.value,
+        "estimation": WDisplayEstimation.value,
+        "stdev": WDisplayStDev.value,
+        "simulation": WDisplaySimulation.value,
+        "average": WDisplayAverage.value,
+    }
+
+    # construction du tableau contents
+    contents = []
+
+    if layout["rule"]:
+        contents.append("rule")
+
+    if layout["model"]:
+        contents += ["model"] * ngrf
+
+    if layout["estimation"]:
+        contents += ["estimation"] * nvar
+
+    if layout["stdev"]:
+        contents += ["stdev"] * nvar
+
+    if layout["simulation"]:
+        contents += ["simu"] * nbsimu * nvar
+
+    if layout["average"]:
+        contents += ["average"] * nvar
+
+    layout["contents"] = contents
+
+    return layout
+
+
+# =====================================
+# Some display functions used in Marimo
+# =====================================
 
 
 def plotData(ax, db, name, box=None, title=None, flagProj=False, flagBackground=False):
@@ -1009,7 +1197,8 @@ def plotVario(ax, vario=None, model=None, title=None, showPairs=True):
 def plotGrid(
     ax,
     grid,
-    name,
+    name=None,
+    rule=None,
     title=None,
     flagLegend=False,
     flagBinary=False,
@@ -1024,8 +1213,13 @@ def plotGrid(
         title = f"Grid: {name}"
     if flagBinary:
         flagLegend = False
+
     ax.raster(
-        dbgrid=grid, name=name, alpha=0.5, flagLegend=flagLegend, flagBinary=flagBinary
+        dbgrid=grid,
+        name=name,
+        rule=rule,
+        flagLegend=flagLegend,
+        flagBinary=flagBinary,
     )
     if nlevel > 0 and not flagBinary:
         ax.isoline(
@@ -1036,5 +1230,28 @@ def plotGrid(
             colors="black",
             linewidths=0.5,
         )
+
+    ax.decoration(title=title)
+    ax.geometry(aspect=1)
+
+
+# Plot a Lithotype Rule
+# * ax: Marimo axis
+# * rule: Rule to plot
+# * title: Title of the plot (optional)
+# * flagLegend: Whether to display the legend (default: False)
+def plotRule(
+    ax,
+    rule,
+    title=None,
+    flagLegend=False,
+):
+    if rule is None:
+        return
+    ax.rule(
+        ruleobj=rule,
+        flagLegend=flagLegend,
+    )
+
     ax.decoration(title=title)
     ax.geometry(aspect=1)
