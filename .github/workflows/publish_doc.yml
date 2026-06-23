@@ -84,6 +84,8 @@ jobs:
   call-demos:
     uses: ./.github/workflows/publish_demos.yml
     secrets: inherit
+  call-check-html:
+    uses: ./.github/workflows/publish_check_html.yml
 
   call-publish:
     needs: [get-version, call-data, call-references, call-doxygen, call-courses, call-demos]
