@@ -21,8 +21,6 @@ def _():
 
 @app.cell(hide_code=True)
 def _(gmo):
-    # Define all the necessary widgets
-
     WidgetModel1 = gmo.WdefineModel(
         ncovmax=2, ncovdef=1, distmax=30, varmax=50, valdef="Interactive"
     )
@@ -58,13 +56,9 @@ def _(
 ):
     def myaction():
         grid = gmo.WgetGrid(WidgetGrid)
-
         model1 = gmo.WgetModel(WidgetModel1)
         model2 = gmo.WgetModel(WidgetModel2)
-
-        nbtuba, nbsimu, seed, flagDisplaySimu, flagDisplayBinary = gmo.WgetSimtub(
-            WidgetSimtub
-        )
+        nbtuba, nbsimu, seed, flagDisplayBinary = gmo.WgetSimtub(WidgetSimtub)
 
         ruleprop = gmo.WgetRule(WidgetRule)
 

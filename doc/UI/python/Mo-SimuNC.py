@@ -24,31 +24,20 @@ def _(gmo):
     WidgetModel = gmo.WdefineModel(
         ncovmax=2, distmax=100, varmax=50, valdef="Interactive"
     )
-    return (WidgetModel,)
-
-
-@app.cell(hide_code=True)
-def _(gmo):
     WidgetGrid = gmo.WdefineGrid()
-    return (WidgetGrid,)
-
-
-@app.cell(hide_code=True)
-def _(gmo):
     WidgetSimtub = gmo.WdefineSimtub(nbsimu=4)
-    return (WidgetSimtub,)
+    WidgetLayout = gmo.WdefineLayout(3, 3, 3, 3)
+    return WidgetGrid, WidgetLayout, WidgetModel, WidgetSimtub
 
 
 @app.cell(hide_code=True)
-def _(WidgetGrid, WidgetModel, WidgetSimtub, gl, gmo, gp, mo):
+def _(WidgetGrid, WidgetLayout, WidgetModel, WidgetSimtub, gl, gmo, gp, mo):
     def myaction():
         grid = gmo.WgetGrid(WidgetGrid)
 
         model = gmo.WgetModel(WidgetModel)
 
-        nbtuba, nbsimu, seed, flagDisplaySimu, flagDisplayBinary = gmo.WgetSimtub(
-            WidgetSimtub
-        )
+        nbtuba, nbsimu, seed, flagDisplayBinary = gmo.WgetSimtub(WidgetSimtub)
 
         if model is not None and grid is not None:
             gl.simtub(
@@ -58,73 +47,54 @@ def _(WidgetGrid, WidgetModel, WidgetSimtub, gl, gmo, gp, mo):
                 names=["Simu.*"], opers=[gl.EStatOption.MEAN, gl.EStatOption.STDV]
             )
 
-        fig, ax = gp.init(2, 2, figsize=[8, 8])
-        fig.suptitle("Model and Simulations", fontsize=15, fontweight="bold")
+        layout = gmo.WgetLayout(WidgetLayout, 1, nbsimu, 1)
+        nx = layout["nx"]
+        ny = layout["ny"]
+        dimx = layout["dimx"]
+        dimy = layout["dimy"]
 
-        # First figure (Model)
-        gmo.plotVario(ax[0, 0], model=model)
+        contents = layout["contents"]
+        valid = {"model", "simu", "average"}  # Constraint to available outputs
+        contents_local = (c for c in contents if c in valid)
 
-        # Second Figure (Always first simulation)
-        if nbsimu >= 1:
-            title = f"Simulation #1/{nbsimu}"
-            name = "Simu"
-            if nbsimu > 1:
-                name = "Simu.S1"
-            gmo.plotGrid(
-                ax[1, 0],
-                grid,
-                name=name,
-                title=title,
-                flagLegend=True,
-                flagBinary=flagDisplayBinary,
-            )
+        fig, ax = gp.init(nx, ny, figsize=[ny * dimx, nx * dimy])
+        axes = ax.ravel()
 
-        # Third figure: Second simulation or Average
-        if flagDisplaySimu:
-            if nbsimu >= 2:
-                title = f"Simulation #2/{nbsimu}"
+        isimu = 0
+        iaverage = 0
+        for axi in axes:
+            content = next(contents_local, None)
+
+            if content == "model":
+                gmo.plotVario(axi, model=model)
+
+            elif content == "simu":
+                isimu += 1
                 gmo.plotGrid(
-                    ax[0, 1],
+                    axi,
                     grid,
-                    name="Simu.S2",
-                    title=title,
-                    flagLegend=True,
+                    name="Simu" if nbsimu == 1 else f"Simu.S{isimu}",
+                    title=f"Simulation #{isimu}/{nbsimu}",
+                    flagLegend=False,
                     flagBinary=flagDisplayBinary,
                 )
-        else:
-            title = "Average of Simulations"
-            gmo.plotGrid(
-                ax[0, 1],
-                grid,
-                name="Stats.MEAN",
-                title=title,
-                flagLegend=True,
-                flagBinary=flagDisplayBinary,
-            )
 
-        # Fourth figure: Third simulation or Dispersion
-        if flagDisplaySimu:
-            if nbsimu >= 3:
-                title = f"Simulation #3/{nbsimu}"
+            elif content == "average":
+                iaverage += 1
                 gmo.plotGrid(
-                    ax[1, 1],
+                    axi,
                     grid,
-                    name="Simu.S3",
-                    title=title,
-                    flagLegend=True,
+                    name="Stats.MEAN" if iaverage == 1 else "Stats.STDV",
+                    title="Average" if iaverage == 1 else "Dispersion",
+                    flagLegend=False,
                     flagBinary=flagDisplayBinary,
                 )
-        else:
-            if nbsimu > 1:
-                title = "St. Deviation of Simulations"
-                gmo.plotGrid(
-                    ax[1, 1],
-                    grid,
-                    name="Stats.STDV",
-                    title=title,
-                    flagLegend=True,
-                    flagBinary=False,
-                )
+
+            else:
+                axi.axis("off")  # ou skip visuel propre
+
+        fig.tight_layout(pad=0)
+
         mo.mpl.interactive(fig)
 
         return fig
@@ -133,12 +103,13 @@ def _(WidgetGrid, WidgetModel, WidgetSimtub, gl, gmo, gp, mo):
 
 
 @app.cell(hide_code=True)
-def _(WidgetGrid, WidgetModel, WidgetSimtub, gmo, mo, myaction):
+def _(WidgetGrid, WidgetLayout, WidgetModel, WidgetSimtub, gmo, mo, myaction):
     param = mo.ui.tabs(
         {
             "Grid": gmo.WshowGrid(WidgetGrid),
             "Model": gmo.WshowModel(WidgetModel),
             "Simulation": gmo.WshowSimtub(WidgetSimtub),
+            "Layout": gmo.WshowLayout(WidgetLayout),
         }
     ).style({"minWidth": "400px", "width": "350px"})
 

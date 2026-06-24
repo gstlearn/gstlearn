@@ -16,13 +16,8 @@ def _():
     import numpy as np
     import matplotlib.pyplot as plt
 
-    return gmo, gp, mo
-
-
-@app.cell(hide_code=True)
-def _(gmo):
     gmo.setEnvironment(optionSaveNF=True, optionPrint=False)
-    return
+    return gmo, gp, mo
 
 
 @app.cell(hide_code=True)
@@ -34,13 +29,8 @@ def _(gmo):
 @app.cell(hide_code=True)
 def _(WidgetDb, gmo):
     dbinit = gmo.WgetDb(WidgetDb)
-    return (dbinit,)
-
-
-@app.cell(hide_code=True)
-def _(dbinit, gmo):
     WidgetEdit = gmo.WdefineEdit(dbinit)
-    return (WidgetEdit,)
+    return WidgetEdit, dbinit
 
 
 @app.cell(hide_code=True)
@@ -50,17 +40,12 @@ def _(WidgetEdit, dbinit, gmo):
 
 
 @app.cell(hide_code=True)
-def _(db, gmo, gp):
+def _(WidgetDb, WidgetEdit, db, gmo, gp, mo):
     def myplot():
         fig, ax = gp.init(figsize=(4, 4))
         gmo.plotData(ax, db, name="z")
         return fig
 
-    return (myplot,)
-
-
-@app.cell(hide_code=True)
-def _(WidgetDb, WidgetEdit, gmo, mo, myplot):
     param = mo.ui.tabs(
         {"Data": gmo.WshowDb(WidgetDb), "Edit": gmo.WshowEdit(WidgetEdit)}
     ).style({"minWidth": "700px", "width": "350px"})

@@ -417,15 +417,11 @@ def WdefineSimtub(nbtuba=100, nbsimu=1, seed=13134):
 
     WDisplayBinary = mo.ui.switch(False, label="Display in Binary Mode")
 
-    WDisplaySimu = mo.ui.switch(
-        True, label="Display Simulations rather than Average / Dispersion"
-    )
-
-    return mo.ui.array([WSimNbtuba, WSimNbsimu, WSimSeed, WDisplayBinary, WDisplaySimu])
+    return mo.ui.array([WSimNbtuba, WSimNbsimu, WSimSeed, WDisplayBinary])
 
 
 def WshowSimtub(WAll, flagTitle=True, gapv=2, allowAveragingSimulations=True):
-    [WSimNbtuba, WSimNbsimu, WSimSeed, WDisplayBinary, WDisplaySimu] = WAll
+    [WSimNbtuba, WSimNbsimu, WSimSeed, WDisplayBinary] = WAll
     WSimTitle = _WgetTitle("Turning Bands Method", flagTitle)
     widgets = [
         WSimTitle,
@@ -436,18 +432,16 @@ def WshowSimtub(WAll, flagTitle=True, gapv=2, allowAveragingSimulations=True):
 
     if allowAveragingSimulations:
         widgets.append(WDisplayBinary)
-        widgets.append(WDisplaySimu)
 
     return mo.vstack(widgets, gap=gapv)
 
 
 def WgetSimtub(WAll):
-    [WSimNbtuba, WSimNbsimu, WSimSeed, WDisplaySimu, WDisplayBinary] = WAll
+    [WSimNbtuba, WSimNbsimu, WSimSeed, WDisplayBinary] = WAll
     return (
         WSimNbtuba.value,
         WSimNbsimu.value,
         WSimSeed.value,
-        WDisplaySimu.value,
         WDisplayBinary.value,
     )
 
@@ -1149,7 +1143,7 @@ def WgetLayout(WAll, nvar=1, nbsimu=1, ngrf=1):
         contents += ["simu"] * nbsimu * nvar
 
     if layout["average"]:
-        contents += ["average"] * nvar
+        contents += ["average"] * nvar * 2  # Average and Dispersion
 
     layout["contents"] = contents
 
