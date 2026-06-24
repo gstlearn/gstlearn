@@ -318,9 +318,9 @@ namespace gstlrn
    **
    ** \param[in]  db           Db descriptor
    ** \param[in]  varioparam   VarioParam structure
+   ** \param[in]  lagmax       Maximum distance
    ** \param[in]  calculType   Calculation type
    ** \param[in]  flag_ergodic Ergodic flag
-   ** \param[in]  lagmax       Maximum distance
    ** \param[in]  varmax       Maximum Variance value (see remarks)
    ** \param[in]  lagnb        Number of discretization steps along distance axis
    ** \param[in]  varnb        Number of discretization steps along variance axis
@@ -335,9 +335,9 @@ namespace gstlrn
   DbGrid* db_vcloud(
     Db* db,
     const VarioParam* varioparam,
+    double lagmax,
     const ECalcVario& calculType,
     bool flag_ergodic,
-    double lagmax,
     double varmax,
     Id lagnb,
     Id varnb,
@@ -448,7 +448,7 @@ namespace gstlrn
       varioparam = VarioParam::createOmniDirection(nlag, dlag, toldis);
 
     auto* dbgrid = db_vcloud(
-      db, varioparam, calculType, flag_ergodic, TEST, TEST, lagnb, varnb);
+      db, varioparam, TEST, calculType, flag_ergodic, TEST, lagnb, varnb);
 
     return dbgrid;
   }

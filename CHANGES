@@ -4,7 +4,7 @@ This file contains the logs between consecutive releases
 
 Release 1.12.0
 ==============
-
+- In db_vcloud: allow varioparam being defaulted and modify argument order (lagmax is now third)
 
 Release 1.11.1
 ==============
