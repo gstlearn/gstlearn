@@ -12,8 +12,12 @@
 
 #include "Enum/AEnum.hpp"
 
-#define ENUM_SIMUTYPE                                                          \
-  ESimuType, UNDEFINED, UNDEFINED, 0, "Not defined yet", TB, 1,                \
-    "Turning Bands method", SPECTRAL, 2, "Spectral method"
+// clang-format off
+#define ENUM_SIMUTYPE                                                  \
+  ESimuType, UNDEFINED,                                                \
+  UNDEFINED, 0, "Not defined yet",                                     \
+  TB, 1, "Turning Bands method",                                       \
+  SPECTRAL, 2, "Spectral method"
+// clang-format on
 
 ENUM_DECLARE(ENUM_SIMUTYPE)

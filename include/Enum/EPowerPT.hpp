@@ -12,9 +12,15 @@
 
 #include "Enum/AEnum.hpp"
 
-#define ENUM_POWER_PT                                                          \
-  EPowerPT, ONE, UNDEFINED, -1, "Power is undefined", ONE, 0, "Power is 1",    \
-    MINUSONE, 1, "Power is -1", MINUSHALF, 2, "Power is -0.5", HALF, 3,        \
-    "Power is 0.5", LOG, 4, "Logarithm"
+// clang-format off
+#define ENUM_POWER_PT                                                  \
+  EPowerPT, ONE,                                                       \
+  UNDEFINED, -1, "Power is undefined",                                 \
+  ONE, 0, "Power is 1",                                                \
+  MINUSONE, 1, "Power is -1",                                          \
+  MINUSHALF, 2, "Power is -0.5",                                       \
+  HALF, 3, "Power is 0.5",                                             \
+  LOG, 4, "Logarithm"
+// clang-format on
 
 ENUM_DECLARE(ENUM_POWER_PT)
