@@ -91,14 +91,7 @@ namespace gstlrn
     Id _IPTR;
   };
 
-  GSTLEARN_EXPORT DbGrid* vcloudGrid(
-    const Db* db,
-    double lagmax = TEST,
-    double varmax = TEST,
-    Id lagnb = 100,
-    Id varnb = 100);
-
-  GSTLEARN_EXPORT DbGrid* db_vcloud(
+  GSTLEARN_EXPORT DbGrid* vcloudFromDb(
     Db* db,
     const VarioParam* varioparam = nullptr,
     double lagmax = TEST,
@@ -109,7 +102,7 @@ namespace gstlrn
     Id varnb = 100,
     const NamingConvention& namconv = NamingConvention("Cloud"));
 
-  GSTLEARN_EXPORT DbGrid* vcloudCalculate(
+  GSTLEARN_EXPORT DbGrid* vcloudFromParam(
     Db* db,
     const ECalcVario& calculType = ECalcVario::fromKey("VARIOGRAM"),
     bool flag_ergodic = true,

@@ -288,28 +288,6 @@ namespace gstlrn
     return _dbcloud->indiceToRank(indg);
   }
 
-  DbGrid*
-    vcloudGrid(const Db* db, double lagmax, double varmax, Id lagnb, Id varnb)
-  {
-    if (FFFF(lagmax)) lagmax = db->getExtensionDiagonal();
-    if (FFFF(varmax))
-      varmax = 3. * db->getVariance(db->getNameByLocator(ELoc::Z));
-
-    // Create a grid as a support for the variogram cloud calculations
-
-    VectorInt nx(2);
-    nx[0] = lagnb;
-    nx[1] = varnb;
-    VectorDouble dx(2);
-    dx[0] = lagmax / static_cast<double>(lagnb);
-    dx[1] = varmax / static_cast<double>(varnb);
-    VectorDouble x0(2);
-    x0[0] = 0.;
-    x0[1] = 0.;
-    DbGrid* dbgrid = DbGrid::create(nx, dx, x0);
-    return dbgrid;
-  }
-
   /****************************************************************************/
   /*!
    **  Evaluate the experimental variogram cloud
@@ -332,7 +310,7 @@ namespace gstlrn
    ** variance of the first variable (Z_locator)
    **
    *****************************************************************************/
-  DbGrid* db_vcloud(
+  DbGrid* vcloudFromDb(
     Db* db,
     const VarioParam* varioparam,
     double lagmax,
@@ -345,7 +323,20 @@ namespace gstlrn
   {
     // Create a grid as a support for the variogram cloud calculations
 
-    DbGrid* dbgrid = vcloudGrid(db, lagmax, varmax, lagnb, varnb);
+    if (FFFF(lagmax)) lagmax = db->getExtensionDiagonal();
+    if (FFFF(varmax))
+      varmax = 3. * db->getVariance(db->getNameByLocator(ELoc::Z));
+
+    VectorInt nx(2);
+    nx[0] = lagnb;
+    nx[1] = varnb;
+    VectorDouble dx(2);
+    dx[0] = lagmax / static_cast<double>(lagnb);
+    dx[1] = varmax / static_cast<double>(varnb);
+    VectorDouble x0(2);
+    x0[0] = 0.;
+    x0[1] = 0.;
+    DbGrid* dbgrid = DbGrid::create(nx, dx, x0);
 
     // Create an omnidirectional varioparam (if not provided)
 
@@ -425,7 +416,7 @@ namespace gstlrn
     return sstr.str();
   }
 
-  DbGrid* vcloudCalculate(
+  DbGrid* vcloudFromParam(
     Db* db,
     const ECalcVario& calculType,
     bool flag_ergodic,
@@ -447,7 +438,7 @@ namespace gstlrn
     else
       varioparam = VarioParam::createOmniDirection(nlag, dlag, toldis);
 
-    auto* dbgrid = db_vcloud(
+    auto* dbgrid = vcloudFromDb(
       db, varioparam, TEST, calculType, flag_ergodic, TEST, lagnb, varnb);
 
     return dbgrid;
