@@ -100,7 +100,7 @@ namespace gstlrn
 
   GSTLEARN_EXPORT DbGrid* db_vcloud(
     Db* db,
-    const VarioParam* varioparam,
+    const VarioParam* varioparam = nullptr,
     const ECalcVario& calculType = ECalcVario::fromKey("VARIOGRAM"),
     bool flag_ergodic = true,
     double lagmax = TEST,

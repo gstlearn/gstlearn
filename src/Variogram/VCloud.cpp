@@ -158,8 +158,7 @@ namespace gstlrn
   {
     if (db == nullptr) return (1);
 
-    /* Preliminary checks */
-
+    // Preliminary checks
     if (db->getNDim() != _varioparam->getNDim())
     {
       messerr("Inconsistent parameters:");
@@ -174,8 +173,7 @@ namespace gstlrn
       return (1);
     }
 
-    /* Allocate new variables */
-
+    // Allocate new variables
     setCalcul(calculType);
     setErgodic(flag_ergodic);
     if (getFlagAsym())
@@ -187,8 +185,7 @@ namespace gstlrn
     Id iptr = _dbcloud->addColumnsByConstant(ndir, 0.);
     if (iptr < 0) return (1);
 
-    /* Loop on the directions to evaluate */
-
+    // Loop on the directions
     for (Id idir = 0; idir < ndir; idir++)
     {
       _IPTR = iptr + idir;
@@ -197,7 +194,6 @@ namespace gstlrn
     }
 
     // Naming of the newly created variables
-
     namconv.setNamesAndLocators(
       db, VectorString(), ELoc::Z, -1, _dbcloud, iptr, String(), ndir, false);
 
@@ -243,8 +239,7 @@ namespace gstlrn
     Id nech = db->getNSample();
     Id nvar = db->getNLoc(ELoc::Z);
 
-    /* Loop on the first point */
-
+    // Loop on the first point
     for (Id iech = 0; iech < nech - 1; iech++)
     {
       if (hasSel && !db->isActive(iech)) continue;
@@ -259,6 +254,7 @@ namespace gstlrn
         // Reject the point as soon as one BiTargetChecker is not correct
         if (!vario->keepPair(idir, T1, T2, &dist)) continue;
 
+        // Add the contribution of the pair to the Variogram Cloud
         (this->*_evaluate)(db, nvar, iech, jech, idir, 0, dist, false);
       }
     }
@@ -350,6 +346,18 @@ namespace gstlrn
     // Create a grid as a support for the variogram cloud calculations
 
     DbGrid* dbgrid = vcloudGrid(db, lagmax, varmax, lagnb, varnb);
+
+    // Create an omnidirectional varioparam (if not provided)
+
+    if (varioparam == nullptr)
+    {
+      auto lagmax_local = lagmax;
+      if (FFFF(lagmax_local)) lagmax_local = db->getExtensionDiagonal();
+      // Evaluate the lag so that the maximum distance fit 'lagmax'
+      // (given the tolerance on distance which is defaulted to 0.5)
+      auto dlag = lagmax_local / 1.5;
+      varioparam = VarioParam::createOmniDirection(1, dlag, 0.5);
+    }
 
     // Initialize the variogram cloud structure
 

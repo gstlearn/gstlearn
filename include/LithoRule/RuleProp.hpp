@@ -81,7 +81,7 @@ namespace gstlrn
     std::vector<Rule> fit(
       Db* db,
       const VarioParam* varioparam,
-      Id ngrfmax,
+      Id ngrfmax = 1,
       bool use_discrete = false,
       bool verbose = false);
     Id gaussToCategory(
