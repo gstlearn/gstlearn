@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import unquote
+import os
 
 COURSES_PYTHON_FOLDER = (
     "https://soft.mines-paristech.fr/gstlearn/courses-latest/python/"
@@ -51,6 +52,21 @@ def extract_html_filenames(url, condition_func):
     return files
 
 
+def extract_html_links_of_file(url, condition_func):
+    soup = get_soup(url)
+    if not soup:
+        return set()
+
+    links = set()
+    for link in soup.find_all("a"):
+        href = link.get("href")
+        if href and condition_func(href):
+            decoded_href = unquote(href)
+            links.add(decoded_href)
+
+    return links
+
+
 def check_courses(python_folder_url, r_folder_url, shared_page_url):
     print(f"\n{'=' * 50}")
     print("-- Analysis report (Courses)")
@@ -62,6 +78,26 @@ def check_courses(python_folder_url, r_folder_url, shared_page_url):
     r_files = extract_html_filenames(r_folder_url, lambda h: h.endswith(".html"))
     all_page_links = extract_html_filenames(shared_page_url, lambda h: ".html" in h)
 
+    linked_files = extract_html_links_of_file(
+        shared_page_url, lambda h: h.endswith(".html")
+    )
+
+    wrong_folder = False
+    for link in linked_files:
+        copy_link = link
+
+        folder, file = os.path.split(copy_link)
+
+        folder_clean = folder.strip("/")
+
+        if folder_clean == COURSES_PYTHON_FOLDER.strip(
+            "/"
+        ) or folder_clean == COURSES_R_FOLDER.strip("/"):
+            continue
+
+        print(f"Wrong folder for file {file}")
+        wrong_folder = True
+
     if not python_files and not r_files and not all_page_links:
         return
 
@@ -70,7 +106,7 @@ def check_courses(python_folder_url, r_folder_url, shared_page_url):
     all_folder_files = python_files | r_files
     dead_links = all_page_links - all_folder_files
 
-    if not missing_python and not missing_r and not dead_links:
+    if not missing_python and not missing_r and not dead_links and not wrong_folder:
         print("Everything is perfectly in sync!")
         return
 
@@ -98,13 +134,31 @@ def check_demos(folder_url, page_url, language):
     folder_files = extract_html_filenames(folder_url, lambda h: h.endswith(".html"))
     page_links = extract_html_filenames(page_url, lambda h: ".html" in h)
 
+    linked_files = extract_html_links_of_file(page_url, lambda h: h.endswith(".html"))
+
+    wrong_folder = False
+    for link in linked_files:
+        copy_link = link
+
+        folder, file = os.path.split(copy_link)
+
+        folder_clean = folder.strip("/")
+
+        if folder_clean == DEMOS_PYTHON_FOLDER.strip(
+            "/"
+        ) or folder_clean == DEMOS_R_FOLDER.strip("/"):
+            continue
+
+        print(f"Wrong folder for file {file}")
+        wrong_folder = True
+
     if not folder_files and not page_links:
         return
 
     missing_on_page = folder_files - page_links - DEMOS_BLACK_LIST
     dead_links = page_links - folder_files
 
-    if not missing_on_page and not dead_links:
+    if not missing_on_page and not dead_links and not wrong_folder:
         print("Everything is perfectly in sync!")
         return
 
@@ -126,5 +180,5 @@ if __name__ == "__main__":
     check_demos(DEMOS_R_FOLDER, DEMOS_R_PAGE, "R")
 
     print(f"\n{'=' * 50}")
-    print("Analysis complete.")
+    print("-- Analysis complete.")
     print(f"{'=' * 50}")
