@@ -27,16 +27,26 @@ def _(gmo):
     WidgetGrid = gmo.WdefineGrid()
     WidgetSimtub = gmo.WdefineSimtub(nbsimu=4)
     WidgetLayout = gmo.WdefineLayout(3, 3, 3, 3)
-    return WidgetGrid, WidgetLayout, WidgetModel, WidgetSimtub
+    WidgetAutoSave = gmo.WdefineAutoSave()
+    return WidgetAutoSave, WidgetGrid, WidgetLayout, WidgetModel, WidgetSimtub
 
 
 @app.cell(hide_code=True)
-def _(WidgetGrid, WidgetLayout, WidgetModel, WidgetSimtub, gl, gmo, gp, mo):
+def _(
+    WidgetAutoSave,
+    WidgetGrid,
+    WidgetLayout,
+    WidgetModel,
+    WidgetSimtub,
+    gl,
+    gmo,
+    gp,
+    mo,
+):
     def myaction():
+        autosave = gmo.WgetAutoSave(WidgetAutoSave)
         grid = gmo.WgetGrid(WidgetGrid)
-
         model = gmo.WgetModel(WidgetModel)
-
         nbtuba, nbsimu, seed, flagDisplayBinary = gmo.WgetSimtub(WidgetSimtub)
 
         if model is not None and grid is not None:
@@ -103,13 +113,23 @@ def _(WidgetGrid, WidgetLayout, WidgetModel, WidgetSimtub, gl, gmo, gp, mo):
 
 
 @app.cell(hide_code=True)
-def _(WidgetGrid, WidgetLayout, WidgetModel, WidgetSimtub, gmo, mo, myaction):
+def _(
+    WidgetAutoSave,
+    WidgetGrid,
+    WidgetLayout,
+    WidgetModel,
+    WidgetSimtub,
+    gmo,
+    mo,
+    myaction,
+):
     param = mo.ui.tabs(
         {
             "Grid": gmo.WshowGrid(WidgetGrid),
             "Model": gmo.WshowModel(WidgetModel),
             "Simulation": gmo.WshowSimtub(WidgetSimtub),
             "Layout": gmo.WshowLayout(WidgetLayout),
+            "AutoSave": gmo.WshowAutoSave(WidgetAutoSave),
         }
     ).style({"minWidth": "400px", "width": "350px"})
 

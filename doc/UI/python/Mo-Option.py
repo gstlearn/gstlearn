@@ -21,7 +21,7 @@ def _():
 
 @app.cell(hide_code=True)
 def _(gmo):
-    gmo.setEnvironment(optionSaveNF=True, optionPrint=False)
+    gmo.setEnvironment(optionBackup=True, optionDisplay=False)
     return
 
 

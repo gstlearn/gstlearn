@@ -30,8 +30,10 @@ def _(gmo):
     WidgetGrid = gmo.WdefineGrid()
     WidgetSimtub = gmo.WdefineSimtub(nbsimu=7)
     WidgetRule = gmo.WdefineRule()
-    WidgetLayout = gmo.WdefineLayout(3, 3, 5, 5)
+    WidgetLayout = gmo.WdefineLayout(3, 3, 3, 3)
+    WidgetAutoSave = gmo.WdefineAutoSave()
     return (
+        WidgetAutoSave,
         WidgetGrid,
         WidgetLayout,
         WidgetModel1,
@@ -43,6 +45,7 @@ def _(gmo):
 
 @app.cell(hide_code=True)
 def _(
+    WidgetAutoSave,
     WidgetGrid,
     WidgetLayout,
     WidgetModel1,
@@ -55,6 +58,7 @@ def _(
     mo,
 ):
     def myaction():
+        autosave = gmo.WgetAutoSave(WidgetAutoSave)
         grid = gmo.WgetGrid(WidgetGrid)
         model1 = gmo.WgetModel(WidgetModel1)
         model2 = gmo.WgetModel(WidgetModel2)
@@ -132,6 +136,7 @@ def _(
 
 @app.cell(hide_code=True)
 def _(
+    WidgetAutoSave,
     WidgetGrid,
     WidgetLayout,
     WidgetModel1,
@@ -148,12 +153,11 @@ def _(
             "Model1": gmo.WshowModel(WidgetModel1),
             "Model2": gmo.WshowModel(WidgetModel2),
             "Rule": gmo.WshowRule(WidgetRule),
-            "Simulation": gmo.WshowSimtub(
-                WidgetSimtub, allowAveragingSimulations=False
-            ),
+            "Simulation": gmo.WshowSimtub(WidgetSimtub),
             "Layout": gmo.WshowLayout(WidgetLayout, gapv=1),
+            "AutoSave": gmo.WshowAutoSave(WidgetAutoSave),
         }
-    ).style({"minWidth": "400px", "width": "350px"})
+    ).style({"minWidth": "470px", "width": "400px"})
 
     simu = mo.as_html(myaction())
 

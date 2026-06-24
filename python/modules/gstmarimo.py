@@ -12,6 +12,11 @@
 # to be included in Marimo interface
 # Reminder: all methods staring by "W" are dedicated to UI
 
+
+from curses.panel import panel
+
+from curses.panel import panel
+
 import gstlearn as gl
 import matplotlib.pyplot as plt
 import numpy as np
@@ -19,22 +24,27 @@ import pandas as pd
 import marimo as mo
 import contextily as ctx
 import os
+import pathlib
 
-optionPrintGlobal = False
-optionSaveGlobal = True
+optionGlobalDisplay = False
+optionGlobalBackup = True
+optionGlobalRadix = "My"
 
 
-def setEnvironment(optionSaveNF=True, optionPrint=False):
+def setEnvironment(optionBackup=True, optionDisplay=False, optionRadix="My"):
     """
     Use this function to set options for gstmarimo environment
 
-    :param optionPrint: Provoke the printout of the newly created objects
-    :param optionSaveNF: Provoke the saving of the newly created objects as a Neutral File
+    :param optionBackup: Provoke the saving of the newly created objects as a Neutral File
+    :param optionDisplay: Provoke the display of the newly created objects
+    :param optionRadix: Defaulted radix for the Neutral File name
     """
-    global optionPrintGlobal
-    global optionSaveGlobal
-    optionPrintGlobal = optionPrint
-    optionSaveGlobal = optionSaveNF
+    global optionGlobalDisplay
+    global optionGlobalBackup
+    global optionGlobalRadix
+    optionGlobalDisplay = optionDisplay
+    optionGlobalBackup = optionBackup
+    optionGlobalRadix = optionRadix
 
 
 # Ensure that no output directory is set for gstlearn
@@ -71,14 +81,15 @@ def _WgetTitle(title, flagTitle=True):
         return mo.md("")
 
 
-def _saveAndDisplay(contents=None, filename="myFile.NF", flagForceDisplay=False):
+def _saveAndDisplay(contents=None, filename="File.NF", flagForceDisplay=False):
     if contents is None:
         return
 
-    if optionSaveGlobal:
-        contents.dumpToNF(filename)
+    if optionGlobalBackup:
+        local_filename = f"{optionGlobalRadix}{filename}"
+        contents.dumpToNF(local_filename)
 
-    if optionPrintGlobal or flagForceDisplay:
+    if optionGlobalDisplay or flagForceDisplay:
         contents.display()
 
 
@@ -304,7 +315,7 @@ def WgetModel(WAll, vario=None):
         # Add the Universality Condition (always)
         model.setDriftIRF(order=0, nfex=0)
 
-    _saveAndDisplay(model, "myModel.NF")
+    _saveAndDisplay(model, "Model.NF")
 
     return model
 
@@ -420,7 +431,7 @@ def WdefineSimtub(nbtuba=100, nbsimu=1, seed=13134):
     return mo.ui.array([WSimNbtuba, WSimNbsimu, WSimSeed, WDisplayBinary])
 
 
-def WshowSimtub(WAll, flagTitle=True, gapv=2, allowAveragingSimulations=True):
+def WshowSimtub(WAll, flagTitle=True, gapv=2):
     [WSimNbtuba, WSimNbsimu, WSimSeed, WDisplayBinary] = WAll
     WSimTitle = _WgetTitle("Turning Bands Method", flagTitle)
     widgets = [
@@ -428,10 +439,8 @@ def WshowSimtub(WAll, flagTitle=True, gapv=2, allowAveragingSimulations=True):
         WSimNbtuba,
         WSimNbsimu,
         WSimSeed,
+        WDisplayBinary,
     ]
-
-    if allowAveragingSimulations:
-        widgets.append(WDisplayBinary)
 
     return mo.vstack(widgets, gap=gapv)
 
@@ -512,7 +521,7 @@ def WgetVario(WAll, db=None):
             varioparam, db, calculType=gl.ECalcVario.VARIOGRAM, verbose=True
         )
 
-    _saveAndDisplay(vario, "myVario.NF")
+    _saveAndDisplay(vario, "Vario.NF")
 
     return vario
 
@@ -690,7 +699,7 @@ def WgetDb(WAll):
     else:
         db = None
 
-    _saveAndDisplay(db, "myDb.NF")
+    _saveAndDisplay(db, "Db.NF")
 
     return db
 
@@ -979,7 +988,7 @@ def WgetEdit(WAll, db):
         if name in df.columns:
             db.setColumn(df[name], name)
 
-    _saveAndDisplay(db, "myDb.NF")
+    _saveAndDisplay(db, "Db.NF")
 
     return db
 
@@ -1014,13 +1023,23 @@ def WshowRule(WAll, flagTitle=True, gapv=0):
     [WRule, WProps] = WAll
     WRuleTitle = _WgetTitle("Rule and Proportions", flagTitle=flagTitle)
 
-    widgets = [
-        WRuleTitle,
-        WRule,
-        *WProps,
-    ]
+    return mo.vstack(
+        [
+            WRuleTitle,
+            WRule,
+            mo.md(
+                """
+                **Proportions**
 
-    return mo.vstack(widgets, gap=gapv)
+                You must define the Proportions of each facies.
+                Only those included in the Rule will be considered.
+                They are normalized internally so that they sum to 1.
+                """
+            ),
+            *WProps,
+        ],
+        gap=gapv,
+    )
 
 
 def WgetRule(WAll):
@@ -1040,7 +1059,7 @@ def WgetRule(WAll):
     else:
         props = raw_props / s
 
-    _saveAndDisplay(rule, "myRule.NF")
+    _saveAndDisplay(rule, "Rule.NF")
 
     ruleprop = gl.RuleProp.createFromRule(rule, props)
     return ruleprop
@@ -1148,6 +1167,83 @@ def WgetLayout(WAll, nvar=1, nbsimu=1, ngrf=1):
     layout["contents"] = contents
 
     return layout
+
+
+# =============================================
+# Widget to manage AutoSave (radix = WAutoSave)
+# =============================================
+
+
+def WdefineAutoSave(
+    autosave=False, autoDisplay=False, rootname="My", directory=str(pathlib.Path.cwd())
+):
+    """
+    Returns parameters for the AutoSave
+    autosave: Whether to save automatically
+    autoDisplay: Whether to display automatically
+    rootname: Root name of the file
+    directory: Directory where to save
+    """
+    return {
+        "autosave": mo.ui.checkbox(
+            value=autosave,
+            label="Automatic Backup of item as Neutral File",
+        ),
+        "autoDisplay": mo.ui.checkbox(
+            value=autoDisplay,
+            label="Automatic Display of item",
+        ),
+        "rootname": mo.ui.text(
+            value=rootname,
+            label="Radix of the Neutral File name",
+        ),
+        "directory": mo.ui.file_browser(
+            initial_path=directory,
+            multiple=False,
+            label="Directory of backup",
+            filetypes=[],
+        ),
+    }
+
+
+def WshowAutoSave(panel):
+    return mo.vstack(
+        [
+            mo.md(
+                """
+                **Automatic Backup**
+
+                When this option is enabled, a Neutral File will be created
+                automatically after any Item is modified in the interface.
+                The file will be saved in the selected directory with the specified root name.
+                """,
+            ),
+            panel["autosave"],
+            panel["autoDisplay"],
+            panel["rootname"],
+            panel["directory"],
+        ]
+    )
+
+
+def WgetAutoSave(panel):
+    selected = panel["directory"].value
+
+    directory = selected[0].path if selected else str(pathlib.Path.cwd())
+
+    global optionGlobalBackup
+    global optionGlobalDisplay
+    global optionGlobalRadix
+    optionGlobalBackup = panel["autosave"].value
+    optionGlobalDisplay = panel["autoDisplay"].value
+    optionGlobalRadix = panel["rootname"].value
+
+    return {
+        "autosave": panel["autosave"].value,
+        "autoDisplay": panel["autoDisplay"].value,
+        "rootname": panel["rootname"].value,
+        "directory": directory,
+    }
 
 
 # =====================================
