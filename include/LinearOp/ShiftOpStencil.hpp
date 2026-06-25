@@ -19,6 +19,43 @@ namespace gstlrn
   class CovAniso;
   class MeshETurbo;
   class AMesh;
+  class Grid;
+
+  /**
+   * @brief Helper class for ShiftOpStencil, it stores the weights and the
+   * relative shifts needed to apply them.
+   */
+  class GSTLEARN_EXPORT ShiftStencil
+  {
+  public:
+    ShiftStencil() = default;
+    ShiftStencil(const MeshETurbo* mesh, const CovAniso* cova, bool verbose);
+
+    const VectorVectorInt& relativeShifts() const { return _relativeShifts; }
+
+    const VectorInt& absoluteShifts() const { return _absoluteShifts; }
+
+    Id getNWeights() const { return static_cast<Id>(_weights.size()); }
+
+    const VectorDouble& weights() const;
+
+    double getLambda() const { return _lambdaVal; }
+
+    double& getLambda() { return _lambdaVal; }
+
+    void multiplyByValueAndAddDiagonal(double v1 = 1., double v2 = 0.) const;
+    void resetModif() const;
+
+    void print() const;
+
+  private:
+    VectorVectorInt _relativeShifts;
+    VectorInt _absoluteShifts;
+    VectorDouble _weights;
+    mutable VectorDouble _weightsSimu;
+    double _lambdaVal = 0.;
+    mutable bool _useModifiedShift = false;
+  };
 
   /**
    * @brief This is an implementation of ShiftOp dedicated to case where:
@@ -32,7 +69,7 @@ namespace gstlrn
    * _absoluteShifts Vector of shifts to calculate where the weights should apply
    *                 calculated on the global target grid.
    *                 This can only be used if the grid has no selection
-   * _weights        Vector of weights (only significative ones are kept)
+   * _weights        Vector of weights (only significant ones are kept)
    * _isInside       Vector telling if each node of the grid is located on its edge
    *                 and should be bypassed for matrix calculations, or not
    */
@@ -43,9 +80,9 @@ namespace gstlrn
       const MeshETurbo* mesh = nullptr,
       const CovAniso* cova = nullptr,
       bool verbose = false);
-    ShiftOpStencil(const ShiftOpStencil& shift);
-    ShiftOpStencil& operator=(const ShiftOpStencil& shift);
-    virtual ~ShiftOpStencil();
+    ShiftOpStencil(const ShiftOpStencil& shift) = default;
+    ShiftOpStencil& operator=(const ShiftOpStencil& shift) = default;
+    ~ShiftOpStencil() override = default;
     /// ICloneable interface
     IMPLEMENT_CLONING(ShiftOpStencil)
 
@@ -67,19 +104,11 @@ namespace gstlrn
       const MeshETurbo* mesh,
       const CovAniso* cova,
       bool verbose);
-    void _printStencil() const;
-
-    Id _getNWeights() const { return static_cast<Id>(_weights.size()); }
 
   private:
-    VectorVectorInt _relativeShifts;
-    VectorInt _absoluteShifts;
-    VectorDouble _weights;
-    mutable VectorDouble _weightsSimu;
+    ShiftStencil _stencil;
     VectorBool _isInside;
-    double _lambdaVal;
     bool _useLambdaSingleVal;
-    mutable bool _useModifiedShift;
     const MeshETurbo* _mesh; // not to be deleted
   };
 } // namespace gstlrn
