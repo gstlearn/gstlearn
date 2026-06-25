@@ -46,6 +46,10 @@ namespace gstlrn
       const VectorMeshes& meshes = VectorMeshes(),
       bool stencil = false,
       bool buildOp = true);
+    PrecisionOpMulti(
+      std::vector<PrecisionOp*> pops,
+      Model* model,
+      const VectorMeshes& meshes);
     PrecisionOpMulti(const PrecisionOpMulti& m) = delete;
     PrecisionOpMulti& operator=(const PrecisionOpMulti& m) = delete;
     virtual ~PrecisionOpMulti();
@@ -112,6 +116,7 @@ namespace gstlrn
     VectorInt _nmeshList;
     bool _allStat;
     bool _ready;
+    bool _destroyPrecisionOp;
 
     mutable VectorVectorDouble _works;
     mutable VectorDouble _workTot;

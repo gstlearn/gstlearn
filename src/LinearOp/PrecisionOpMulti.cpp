@@ -106,6 +106,7 @@ namespace gstlrn
     , _nmeshList()
     , _allStat(true)
     , _ready(false)
+    , _destroyPrecisionOp(true)
   {
     if (!_isValidModel(model)) return;
 
@@ -132,6 +133,59 @@ namespace gstlrn
     {
       bool localStencil = stencil && meshes.isTurbo();
       buildQop(localStencil);
+    }
+  }
+
+  PrecisionOpMulti::PrecisionOpMulti(
+    std::vector<PrecisionOp*> pops,
+    Model* model,
+    const VectorMeshes& meshes)
+    : _pops(pops)
+    , _isNoStatForVariance(false)
+    , _sills()
+    , _localSills()
+    , _invCholSillsNoStat()
+    , _cholSillsNoStat()
+    , _invCholSillsStat()
+    , _cholSillsStat()
+    , _model(nullptr)
+    , _meshes()
+    , _size(0)
+    , _isValid(false)
+    , _covList()
+    , _nmeshList()
+    , _allStat(true)
+    , _ready(false)
+    , _destroyPrecisionOp(false)
+  {
+    if (!_isValidModel(model)) return;
+
+    if (!_isValidMeshes(meshes)) return;
+
+    if (!_matchModelAndMeshes()) return;
+
+    _isValid = true;
+    _computeSize();
+    Id ncov = static_cast<Id>(meshes.size());
+    _isNoStatForVariance.resize(ncov, false);
+
+    _works.resize(ncov);
+
+    for (Id icov = 0; icov < ncov; icov++)
+    {
+      bool nostaticov = _model->getCovAniso(icov)->isNoStatForVariance();
+      _isNoStatForVariance[icov] = nostaticov;
+      _allStat = _allStat && !nostaticov;
+    }
+    _buildMatrices();
+
+    if (static_cast<gstlrn::Id>(_pops.size()) != _getNCov())
+    {
+      messerr("List of operators does not match model.");
+    }
+    else
+    {
+      _ready = true;
     }
   }
 
@@ -165,7 +219,7 @@ namespace gstlrn
 
   PrecisionOpMulti::~PrecisionOpMulti()
   {
-    _popsClear();
+    if (_destroyPrecisionOp) _popsClear();
   }
 
   /*****************************************************************************/
