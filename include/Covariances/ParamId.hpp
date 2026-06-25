@@ -17,6 +17,8 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/ICloneable.hpp"
 
+#include <boost/container_hash/hash.hpp>
+
 namespace gstlrn
 {
   /**
@@ -75,11 +77,11 @@ namespace gstlrn
   {
     std::size_t operator()(const ParamId& p) const
     {
-      std::size_t hash_a = std::hash<Id>()(p.getType().toEnum());
-      std::size_t hash_b = std::hash<Id>()(p.getIV1());
-      std::size_t hash_c = std::hash<Id>()(p.getIV2());
-      // Combinaison des hachages avec une méthode simple (exemple: XOR et décalage)
-      return hash_a ^ (hash_b << 1) ^ (hash_c << 2);
+      std::size_t hash = 0;
+      boost::hash_combine(hash, p.getType().toEnum());
+      boost::hash_combine(hash, p.getIV1());
+      boost::hash_combine(hash, p.getIV2());
+      return hash;
     }
   };
 
