@@ -111,7 +111,7 @@ namespace gstlrn
     if (_isSingle()) return;
 
     MatrixSparse current(0, 0);
-    for (Id istruct = 0; istruct < _getNCov(); istruct++)
+    for (Id istruct = 0; istruct < getNCov(); istruct++)
     {
       const MatrixSparse* Q =
         dynamic_cast<const PrecisionOpMatrix*>(_pops[istruct])->getQ();
@@ -143,7 +143,7 @@ namespace gstlrn
     {
       messerr("PrecisionOpMultiMatrix does not support stencil option\n");
     }
-    for (Id icov = 0, number = _getNCov(); icov < number; icov++)
+    for (Id icov = 0, number = getNCov(); icov < number; icov++)
     {
       CovAniso* cova = _model->getCovAniso(_getCovInd(icov));
       _pops.push_back(new PrecisionOpMatrix(_meshes(icov), cova));

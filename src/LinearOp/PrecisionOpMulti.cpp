@@ -23,7 +23,7 @@
   IN, OUT, TAB, getmat, OP, IY, COMPUTEOP, XORY, START, END, IVAR, JVAR)       \
   {                                                                            \
     auto nvar = _getNVar();                                                    \
-    auto ncov = _getNCov();                                                    \
+    auto ncov = getNCov();                                                     \
     Id iad_x = 0;                                                              \
     Id iad_struct = 0;                                                         \
     vect y;                                                                    \
@@ -179,7 +179,7 @@ namespace gstlrn
     }
     _buildMatrices();
 
-    if (static_cast<gstlrn::Id>(_pops.size()) != _getNCov())
+    if (static_cast<gstlrn::Id>(_pops.size()) != getNCov())
     {
       messerr("List of operators does not match model.");
     }
@@ -209,7 +209,7 @@ namespace gstlrn
 
   void PrecisionOpMulti::_buildQop(bool stencil)
   {
-    for (Id i = 0, number = _getNCov(); i < number; i++)
+    for (Id i = 0, number = getNCov(); i < number; i++)
     {
       CovAniso* cova = _model->getCovAniso(_covList[i]);
       bool localStencil = stencil && !cova->isNoStatForAnisotropy();
@@ -280,12 +280,12 @@ namespace gstlrn
 
   bool PrecisionOpMulti::_matchModelAndMeshes() const
   {
-    if (_getNCov() != _getNMesh())
+    if (getNCov() != _getNMesh())
     {
       messerr(
         "The number of meshes (%d) and the number of covariances (%d) do not "
         "match",
-        _getNMesh(), _getNCov());
+        _getNMesh(), getNCov());
       return false;
     }
     return true;
@@ -297,7 +297,7 @@ namespace gstlrn
     return _model->getNVar();
   }
 
-  Id PrecisionOpMulti::_getNCov() const
+  Id PrecisionOpMulti::getNCov() const
   {
     if (_covList.empty()) return 0;
     return static_cast<Id>(_covList.size());
@@ -317,7 +317,7 @@ namespace gstlrn
   void PrecisionOpMulti::_computeSize()
   {
     auto nvar = _getNVar();
-    auto ncov = _getNCov();
+    auto ncov = getNCov();
     _size = 0;
     for (Id i = 0; i < ncov; i++)
     {
@@ -380,7 +380,7 @@ namespace gstlrn
     if (_model == nullptr) return 1;
     if (_getNVar() == 1) return 0;
 
-    auto ncov = _getNCov();
+    auto ncov = getNCov();
 
     // Do nothing if the array has already been calculated (correct dimension)
     if (ncov == static_cast<Id>(_cholSillsStat.size())) return 0;
@@ -419,7 +419,7 @@ namespace gstlrn
     std::stringstream sstr;
 
     sstr << "Number of Variables   = " << _getNVar() << std::endl;
-    sstr << "Number of Covariances = " << _getNCov() << std::endl;
+    sstr << "Number of Covariances = " << getNCov() << std::endl;
     sstr << "Number of Meshes      = " << _getNMesh() << std::endl;
     sstr << "Vector dimension      = " << getSize() << std::endl;
 
@@ -506,11 +506,11 @@ namespace gstlrn
 
   PrecisionOp* PrecisionOpMulti::getPrecision(Id idx) const
   {
-    if (idx < 0 || idx > _getNCov())
+    if (idx < 0 || idx > getNCov())
     {
       messerr(
         "The index passed to getPrecision() must be between 0 and %d\n",
-        _getNCov() - 1);
+        getNCov() - 1);
       return nullptr;
     }
     return _pops[idx];

@@ -62,6 +62,7 @@ namespace gstlrn
     double computeLogDet(Id nMC = 1) const override;
     std::pair<double, double> rangeEigenVal(Id ndiscr = 100) const override;
 
+    Id getNCov() const;
     PrecisionOp* getPrecision(Id idx) const;
 
   protected:
@@ -72,7 +73,6 @@ namespace gstlrn
 
     void buildQop(bool stencil = false);
     Id size(Id imesh) const;
-    Id _getNCov() const;
 
     Id _getCovInd(Id i) const { return _covList[i]; }
 
