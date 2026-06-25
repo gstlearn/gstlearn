@@ -504,7 +504,7 @@ namespace gstlrn
     return result;
   }
 
-  PrecisionOp* PrecisionOpMulti::getPrecision(Id idx)
+  PrecisionOp* PrecisionOpMulti::getPrecision(Id idx) const
   {
     if (idx < 0 || idx > _getNCov())
     {
