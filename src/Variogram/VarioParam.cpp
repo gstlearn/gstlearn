@@ -124,6 +124,7 @@ namespace gstlrn
    * @param breaks Definition of the irregular intervals
    * @param scale Scaling factor
    * @param dates Range of dates
+   * @param benchdir Direction of the bench (if any)
    * @param space Pointer to the space definition
    * @return
    */
@@ -139,11 +140,12 @@ namespace gstlrn
     const VectorDouble& breaks,
     double scale,
     const VectorDouble& dates,
+    const VectorDouble& benchdir,
     const ASpaceSharedPtr& space)
   {
     DirParam* dir = DirParam::createOmniDirection(
       nlag, dlag, toldis, opt_code, idate, bench, cylrad, tolcode, breaks,
-      space);
+      benchdir, space);
     auto* varioparam = new VarioParam(scale, dates);
     varioparam->addDir(*dir);
     delete dir;
@@ -237,7 +239,7 @@ namespace gstlrn
     {
       DirParam dirparam(
         nlag, dlag, toldis, tolang, 0, 0, TEST, TEST, 0., VectorDouble(),
-        VectorDouble(), TEST, space);
+        VectorDouble(), TEST, VectorDouble(), space);
 
       VectorDouble codir(ndim, 0.);
       codir[idim] = 1.;

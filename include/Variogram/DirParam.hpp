@@ -38,7 +38,7 @@ namespace gstlrn
    * given in degrees.
    * - the distance between the two points (measured along the axis perpendicular to the direction)
    * must be smaller than a maximum cylinder distance (**cylrad**).
-   * - the distance between the two points (measured along the highest space dimension) must be smaller than a bench height (**bench**)
+   * - the distance between the two points (measured along the direction provided by **benchDir** [defaulted to the *vertical*]) must be smaller than a bench height (**bench**)
    * - the difference between the code values (locator ELoc::CODE) defined at both samples must be either smaller or larger
    * than the tolerance on the code (**tolcode**).
    * - the two saples must share the same data (ELoc::DATE)
@@ -62,6 +62,7 @@ namespace gstlrn
       const VectorDouble& breaks = VectorDouble(),
       const VectorDouble& codir = VectorDouble(),
       double angle2D = TEST,
+      const VectorDouble& benchdir = VectorDouble(),
       const ASpaceSharedPtr& space = ASpaceSharedPtr());
     DirParam(
       const DbGrid* dbgrid,
@@ -85,6 +86,7 @@ namespace gstlrn
       const VectorDouble& breaks = VectorDouble(),
       const VectorDouble& codir = VectorDouble(),
       double angle2D = TEST,
+      const VectorDouble& benchdir = VectorDouble(),
       const ASpaceSharedPtr& space = ASpaceSharedPtr());
     static DirParam* createOmniDirection(
       Id nlag = 10,
@@ -96,6 +98,7 @@ namespace gstlrn
       double cylrad = TEST,
       double tolcode = 0.,
       const VectorDouble& breaks = VectorDouble(),
+      const VectorDouble& benchdir = VectorDouble(),
       const ASpaceSharedPtr& space = ASpaceSharedPtr());
     static DirParam* createFromGrid(
       const DbGrid* dbgrid,
@@ -129,6 +132,8 @@ namespace gstlrn
     bool isConsistent(const ASpace* space) const override;
 
     double getBench() const { return _bench; }
+
+    const VectorDouble& getBenchDir() const { return _benchDir; }
 
     const VectorDouble& getBreaks() const { return _breaks; }
 
@@ -179,6 +184,8 @@ namespace gstlrn
 
     void setBench(double bench) { _bench = bench; }
 
+    void setBenchDir(const VectorDouble& benchdir) { _benchDir = benchdir; }
+
     void setCylRad(double cylrad) { _cylRad = cylrad; }
 
     void setTolDist(double toldist) { _tolDist = toldist; }
@@ -216,5 +223,6 @@ namespace gstlrn
     VectorDouble _breaks;
     VectorDouble _codir;
     VectorInt _grincr;
+    VectorDouble _benchDir;
   };
 } // namespace gstlrn

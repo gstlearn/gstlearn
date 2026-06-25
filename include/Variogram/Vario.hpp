@@ -619,5 +619,6 @@ namespace gstlrn
     double toldis = 0.5,
     double tolang = TEST,
     double bench = TEST,
-    double cylrad = TEST);
+    double cylrad = TEST,
+    const VectorDouble& benchdir = VectorDouble());
 } // namespace gstlrn

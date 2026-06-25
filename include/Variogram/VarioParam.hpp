@@ -72,6 +72,7 @@ namespace gstlrn
       const VectorDouble& breaks = VectorDouble(),
       double scale = 0.,
       const VectorDouble& dates = VectorDouble(),
+      const VectorDouble& benchdir = VectorDouble(),
       const ASpaceSharedPtr& space = ASpaceSharedPtr());
     static VarioParam* createMultiple(
       Id ndir,

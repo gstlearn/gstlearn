@@ -4,7 +4,8 @@ This file contains the logs between consecutive releases
 
 Release 1.12.0
 ==============
-
+- In Variogram calculation with Bench criterion, BenchDir has been added
+- Bench and Cylrad criteria are now saved in Neutral Files (H5 format only)
 
 Release 1.11.1
 ==============
