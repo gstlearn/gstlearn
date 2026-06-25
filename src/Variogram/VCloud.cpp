@@ -158,8 +158,7 @@ namespace gstlrn
   {
     if (db == nullptr) return (1);
 
-    /* Preliminary checks */
-
+    // Preliminary checks
     if (db->getNDim() != _varioparam->getNDim())
     {
       messerr("Inconsistent parameters:");
@@ -174,8 +173,7 @@ namespace gstlrn
       return (1);
     }
 
-    /* Allocate new variables */
-
+    // Allocate new variables
     setCalcul(calculType);
     setErgodic(flag_ergodic);
     if (getFlagAsym())
@@ -187,8 +185,7 @@ namespace gstlrn
     Id iptr = _dbcloud->addColumnsByConstant(ndir, 0.);
     if (iptr < 0) return (1);
 
-    /* Loop on the directions to evaluate */
-
+    // Loop on the directions
     for (Id idir = 0; idir < ndir; idir++)
     {
       _IPTR = iptr + idir;
@@ -197,7 +194,6 @@ namespace gstlrn
     }
 
     // Naming of the newly created variables
-
     namconv.setNamesAndLocators(
       db, VectorString(), ELoc::Z, -1, _dbcloud, iptr, String(), ndir, false);
 
@@ -243,8 +239,7 @@ namespace gstlrn
     Id nech = db->getNSample();
     Id nvar = db->getNLoc(ELoc::Z);
 
-    /* Loop on the first point */
-
+    // Loop on the first point
     for (Id iech = 0; iech < nech - 1; iech++)
     {
       if (hasSel && !db->isActive(iech)) continue;
@@ -259,6 +254,7 @@ namespace gstlrn
         // Reject the point as soon as one BiTargetChecker is not correct
         if (!vario->keepPair(idir, T1, T2, &dist)) continue;
 
+        // Add the contribution of the pair to the Variogram Cloud
         (this->*_evaluate)(db, nvar, iech, jech, idir, 0, dist, false);
       }
     }
@@ -292,28 +288,6 @@ namespace gstlrn
     return _dbcloud->indiceToRank(indg);
   }
 
-  DbGrid*
-    vcloudGrid(const Db* db, double lagmax, double varmax, Id lagnb, Id varnb)
-  {
-    if (FFFF(lagmax)) lagmax = db->getExtensionDiagonal();
-    if (FFFF(varmax))
-      varmax = 3. * db->getVariance(db->getNameByLocator(ELoc::Z));
-
-    // Create a grid as a support for the variogram cloud calculations
-
-    VectorInt nx(2);
-    nx[0] = lagnb;
-    nx[1] = varnb;
-    VectorDouble dx(2);
-    dx[0] = lagmax / static_cast<double>(lagnb);
-    dx[1] = varmax / static_cast<double>(varnb);
-    VectorDouble x0(2);
-    x0[0] = 0.;
-    x0[1] = 0.;
-    DbGrid* dbgrid = DbGrid::create(nx, dx, x0);
-    return dbgrid;
-  }
-
   /****************************************************************************/
   /*!
    **  Evaluate the experimental variogram cloud
@@ -322,9 +296,9 @@ namespace gstlrn
    **
    ** \param[in]  db           Db descriptor
    ** \param[in]  varioparam   VarioParam structure
+   ** \param[in]  lagmax       Maximum distance
    ** \param[in]  calculType   Calculation type
    ** \param[in]  flag_ergodic Ergodic flag
-   ** \param[in]  lagmax       Maximum distance
    ** \param[in]  varmax       Maximum Variance value (see remarks)
    ** \param[in]  lagnb        Number of discretization steps along distance axis
    ** \param[in]  varnb        Number of discretization steps along variance axis
@@ -336,12 +310,12 @@ namespace gstlrn
    ** variance of the first variable (Z_locator)
    **
    *****************************************************************************/
-  DbGrid* db_vcloud(
+  DbGrid* vcloudFromDb(
     Db* db,
     const VarioParam* varioparam,
+    double lagmax,
     const ECalcVario& calculType,
     bool flag_ergodic,
-    double lagmax,
     double varmax,
     Id lagnb,
     Id varnb,
@@ -349,7 +323,32 @@ namespace gstlrn
   {
     // Create a grid as a support for the variogram cloud calculations
 
-    DbGrid* dbgrid = vcloudGrid(db, lagmax, varmax, lagnb, varnb);
+    if (FFFF(lagmax)) lagmax = db->getExtensionDiagonal();
+    if (FFFF(varmax))
+      varmax = 3. * db->getVariance(db->getNameByLocator(ELoc::Z));
+
+    VectorInt nx(2);
+    nx[0] = lagnb;
+    nx[1] = varnb;
+    VectorDouble dx(2);
+    dx[0] = lagmax / static_cast<double>(lagnb);
+    dx[1] = varmax / static_cast<double>(varnb);
+    VectorDouble x0(2);
+    x0[0] = 0.;
+    x0[1] = 0.;
+    DbGrid* dbgrid = DbGrid::create(nx, dx, x0);
+
+    // Create an omnidirectional varioparam (if not provided)
+
+    if (varioparam == nullptr)
+    {
+      auto lagmax_local = lagmax;
+      if (FFFF(lagmax_local)) lagmax_local = db->getExtensionDiagonal();
+      // Evaluate the lag so that the maximum distance fit 'lagmax'
+      // (given the tolerance on distance which is defaulted to 0.5)
+      auto dlag = lagmax_local / 1.5;
+      varioparam = VarioParam::createOmniDirection(1, dlag, 0.5);
+    }
 
     // Initialize the variogram cloud structure
 
@@ -417,7 +416,7 @@ namespace gstlrn
     return sstr.str();
   }
 
-  DbGrid* vcloudCalculate(
+  DbGrid* vcloudFromParam(
     Db* db,
     const ECalcVario& calculType,
     bool flag_ergodic,
@@ -439,8 +438,8 @@ namespace gstlrn
     else
       varioparam = VarioParam::createOmniDirection(nlag, dlag, toldis);
 
-    auto* dbgrid = db_vcloud(
-      db, varioparam, calculType, flag_ergodic, TEST, TEST, lagnb, varnb);
+    auto* dbgrid = vcloudFromDb(
+      db, varioparam, TEST, calculType, flag_ergodic, TEST, lagnb, varnb);
 
     return dbgrid;
   }

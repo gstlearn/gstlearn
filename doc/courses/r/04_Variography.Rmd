@@ -51,7 +51,7 @@ cat(loadDoc("Variogram_Cloud.md"), sep="\n")
 
 ```{r Variogram_Cloud}
 varioParamOmni = VarioParam_createOmniDirection(nlag = 100)
-grid.cloud = db_vcloud(dat, varioParamOmni)
+grid.cloud = vcloudFromDb(dat, varioParamOmni)
 grid.cloud$display()
 ```
 
