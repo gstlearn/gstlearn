@@ -16,53 +16,42 @@ def _():
     import numpy as np
     import matplotlib.pyplot as plt
 
-    return gmo, gp, mo
+    gmo.setEnvironment(optionBackup=True, optionDisplay=False)
+    return (gmo,)
 
 
 @app.cell(hide_code=True)
 def _(gmo):
-    gmo.setEnvironment(optionSaveNF=True, optionPrint=False)
-    return
-
-
-@app.cell(hide_code=True)
-def _(gmo):
+    WidgetAutoSave = gmo.WdefineAutoSave()
     WidgetDb = gmo.WdefineDb()
-    return (WidgetDb,)
+    return WidgetAutoSave, WidgetDb
 
 
 @app.cell(hide_code=True)
 def _(WidgetDb, gmo):
     dbinit = gmo.WgetDb(WidgetDb)
-    return (dbinit,)
-
-
-@app.cell(hide_code=True)
-def _(dbinit, gmo):
     WidgetEdit = gmo.WdefineEdit(dbinit)
-    return (WidgetEdit,)
+    return WidgetEdit, dbinit
 
 
 @app.cell(hide_code=True)
-def _(WidgetEdit, dbinit, gmo):
+def _(WidgetAutoSave, WidgetEdit, dbinit, gmo):
+    autosave = gmo.WgetAutoSave(WidgetAutoSave)
     db = gmo.WgetEdit(WidgetEdit, dbinit)
-    return (db,)
+    return
 
 
-@app.cell(hide_code=True)
-def _(db, gmo, gp):
+app._unparsable_cell(
+    r"""
     def myplot():
         fig, ax = gp.init(figsize=(4, 4))
         gmo.plotData(ax, db, name="z")
         return fig
 
-    return (myplot,)
-
-
-@app.cell(hide_code=True)
-def _(WidgetDb, WidgetEdit, gmo, mo, myplot):
     param = mo.ui.tabs(
-        {"Data": gmo.WshowDb(WidgetDb), "Edit": gmo.WshowEdit(WidgetEdit)}
+        {"Data": gmo.WshowDb(WidgetDb),
+         "Edit": gmo.WshowEdit(WidgetEdit)},
+         "AutoSave": gmo.WshowAutoSave(WidgetAutoSave),
     ).style({"minWidth": "700px", "width": "350px"})
 
     simu = mo.vstack(
@@ -70,7 +59,12 @@ def _(WidgetDb, WidgetEdit, gmo, mo, myplot):
     )
 
     mo.hstack([param, simu], gap=4)
-    return
+    """,
+    column=None,
+    disabled=False,
+    hide_code=True,
+    name="_",
+)
 
 
 if __name__ == "__main__":
