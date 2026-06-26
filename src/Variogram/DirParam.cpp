@@ -32,6 +32,7 @@ namespace gstlrn
     const VectorDouble& breaks,
     const VectorDouble& codir,
     double angle2D,
+    const VectorDouble& benchdir,
     const ASpaceSharedPtr& space)
     : ASpaceObject(space)
     , _nLag(nlag)
@@ -46,6 +47,7 @@ namespace gstlrn
     , _breaks(breaks)
     , _codir(codir)
     , _grincr()
+    , _benchDir(benchdir)
   {
     _completeDefinition(angle2D);
   }
@@ -68,6 +70,7 @@ namespace gstlrn
     , _breaks()
     , _codir()
     , _grincr(grincr)
+    , _benchDir()
   {
     auto ndim = getDefaultSpaceDimension();
     if (space != nullptr) ndim = static_cast<Id>(space->getNDim());
@@ -93,6 +96,7 @@ namespace gstlrn
     , _breaks(r._breaks)
     , _codir(r._codir)
     , _grincr(r._grincr)
+    , _benchDir(r._benchDir)
   {
   }
 
@@ -113,6 +117,7 @@ namespace gstlrn
       _breaks = r._breaks;
       _codir = r._codir;
       _grincr = r._grincr;
+      _benchDir = r._benchDir;
     }
     return *this;
   }
@@ -132,11 +137,12 @@ namespace gstlrn
     const VectorDouble& breaks,
     const VectorDouble& codir,
     double angle2D,
+    const VectorDouble& benchdir,
     const ASpaceSharedPtr& space)
   {
     return new DirParam(
       nlag, dlag, toldis, tolang, opt_code, idate, bench, cylrad, tolcode,
-      breaks, codir, angle2D, space);
+      breaks, codir, angle2D, benchdir, space);
   }
 
   DirParam* DirParam::createOmniDirection(
@@ -149,11 +155,12 @@ namespace gstlrn
     double cylrad,
     double tolcode,
     const VectorDouble& breaks,
+    const VectorDouble& benchdir,
     const ASpaceSharedPtr& space)
   {
     return new DirParam(
       nlag, dlag, toldis, 90.1, opt_code, idate, bench, cylrad, tolcode, breaks,
-      VectorDouble(), TEST, space);
+      VectorDouble(), TEST, benchdir, space);
   }
 
   DirParam* DirParam::createFromGrid(
@@ -203,6 +210,17 @@ namespace gstlrn
 
     // Capping the tolerance on angles
     if (_tolAngle > 90.) _tolAngle = 90.;
+
+    // Constructing 'benchDir' if not provided. Otherwise normalize the vector
+    if (_benchDir.empty())
+    {
+      _benchDir.resize(ndim, 0.);
+      _benchDir[ndim - 1] = 1.;
+    }
+    else
+    {
+      _benchDir.normalizeInPlace();
+    }
   }
 
   void DirParam::setTolAngle(double tolang)
@@ -288,7 +306,11 @@ namespace gstlrn
            << " (degrees)" << std::endl;
 
     if (!FFFF(_bench) && _bench > 0.)
+    {
       sstr << "Slice bench                 = " << toStr(_bench) << std::endl;
+      sstr << toStrVector("Bench Direction             = ", _benchDir);
+    }
+
     if (!FFFF(_cylRad) && _cylRad > 0.)
       sstr << "Slice radius                = " << toStr(_cylRad) << std::endl;
 
@@ -316,7 +338,6 @@ namespace gstlrn
     {
 
       // Case of a variogram defined on a Grid db
-
       sstr << toStrVector("Grid Direction coefficients = ", _grincr);
     }
 
@@ -353,7 +374,7 @@ namespace gstlrn
       double tolang = 90. / static_cast<double>(ndir);
       DirParam dirparam = DirParam(
         nlag, dlag, toldis, tolang, 0, 0, TEST, TEST, 0., VectorDouble(), codir,
-        TEST, space);
+        TEST, VectorDouble(), space);
       dirs.push_back(dirparam);
     }
     return dirs;
@@ -386,7 +407,7 @@ namespace gstlrn
       (void)GH::rotationGetDirection2D(anglesloc, codir);
       DirParam dirparam = DirParam(
         nlag, dlag, toldis, tolang, 0, 0, TEST, TEST, 0., VectorDouble(), codir,
-        TEST, space);
+        TEST, VectorDouble(), space);
       dirs.push_back(dirparam);
     }
     return dirs;
@@ -419,7 +440,7 @@ namespace gstlrn
       codir[idim] = 1;
       DirParam* dirparam = DirParam::create(
         nlag, dlag, 0.5, 0., 0, 0, TEST, TEST, 0., VectorDouble(), codir, TEST,
-        space);
+        VectorDouble(), space);
       dirs.push_back(*dirparam);
       delete dirparam;
     }

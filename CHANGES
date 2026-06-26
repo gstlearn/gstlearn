@@ -5,6 +5,8 @@ This file contains the logs between consecutive releases
 Release 1.12.0
 ==============
 - krigingVecchia can now handle any drift.
+- In Variogram calculation with Bench criterion, BenchDir has been added
+- Bench and Cylrad criteria are now saved in Neutral Files (H5 format only)
 - vcloudFromDb: (new name for db_vcloud), allows varioparam being defaulted and modify argument order (lagmax is now third)
 - vcloudCalculate() is now called vcloudFromParam()
 - Change the order of arguments for Vecchia constructor: dbin then dbout

@@ -12,7 +12,11 @@
 
 #include "Enum/AEnum.hpp"
 
-#define ENUM_DIRGEN                                                            \
-  EDirGen, VDC, VDC, 0, "Van der Corput", RND, 1, "Random Directions"
+// clang-format off
+#define ENUM_DIRGEN                                                    \
+  EDirGen, VDC,                                                        \
+  VDC, 0, "Van der Corput",                                            \
+  RND, 1, "Random Directions"
+// clang-format on
 
 ENUM_DECLARE(ENUM_DIRGEN)

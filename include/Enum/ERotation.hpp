@@ -56,13 +56,33 @@ about the rotated z axis. Wolfram Mathworld claim this is the most common
 convention : http://mathworld.wolfram.com/EulerAngles.html.
  *
  */
-#define ENUM_ROTATION                                                          \
-  ERotation, SXYZ, SXYZ, 0, "sxyz", SXYX, 1, "sxyx", SXZY, 2, "sxzy", SXZX, 3, \
-    "sxzx", SYZX, 4, "syzx", SYZY, 5, "syzy", SYXZ, 6, "syxz", SYXY, 7,        \
-    "syxy", SZXY, 8, "szxy", SZXZ, 9, "szxz", SZYX, 10, "szyx", SZYZ, 11,      \
-    "szyz", RZYX, 12, "rzyx", RXYX, 13, "rxyx", RYZX, 14, "ryzx", RXZX, 15,    \
-    "rxzx", RXZY, 16, "rxzy", RYZY, 17, "ryzy", RZXY, 18, "rzxy", RYXY, 19,    \
-    "ryxy", RYXZ, 20, "ryxz", RZXZ, 21, "rzxz", RXYZ, 22, "rxyz", RZYZ, 23,    \
-    "rzyz"
+// clang-format off
+#define ENUM_ROTATION                                                  \
+  ERotation, SXYZ,                                                     \
+  SXYZ, 0, "sxyz",                                                     \
+  SXYX, 1, "sxyx",                                                     \
+  SXZY, 2, "sxzy",                                                     \
+  SXZX, 3, "sxzx",                                                     \
+  SYZX, 4, "syzx",                                                     \
+  SYZY, 5, "syzy",                                                     \
+  SYXZ, 6, "syxz",                                                     \
+  SYXY, 7, "syxy",                                                     \
+  SZXY, 8, "szxy",                                                     \
+  SZXZ, 9, "szxz",                                                     \
+  SZYX, 10, "szyx",                                                    \
+  SZYZ, 11, "szyz",                                                    \
+  RZYX, 12, "rzyx",                                                    \
+  RXYX, 13, "rxyx",                                                    \
+  RYZX, 14, "ryzx",                                                    \
+  RXZX, 15, "rxzx",                                                    \
+  RXZY, 16, "rxzy",                                                    \
+  RYZY, 17, "ryzy",                                                    \
+  RZXY, 18, "rzxy",                                                    \
+  RYXY, 19, "ryxy",                                                    \
+  RYXZ, 20, "ryxz",                                                    \
+  RZXZ, 21, "rzxz",                                                    \
+  RXYZ, 22, "rxyz",                                                    \
+  RZYZ, 23, "rzyz"
+// clang-format on
 
 ENUM_DECLARE(ENUM_ROTATION)

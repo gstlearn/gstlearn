@@ -163,6 +163,24 @@ namespace gstlrn
       return file;
     }
 
+    inline bool existsH5Item(
+      const H5::H5Object& grp,
+      const String& name,
+      bool verbose = false)
+    {
+      const auto grp_name = grp.getObjName();
+
+      if (!grp.attrExists(name))
+      {
+        if (verbose)
+          messerr(
+            "Could not read value '%s' in group '%s': attribute does not exist",
+            name.c_str(), grp_name.data());
+        return false;
+      }
+      return true;
+    }
+
     /**
      * @brief Read a HDF5 DataSet into a generic VectorT
      *

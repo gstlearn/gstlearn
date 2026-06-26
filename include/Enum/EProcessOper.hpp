@@ -12,9 +12,13 @@
 
 #include "Enum/AEnum.hpp"
 
-#define ENUM_PROCESS_OPER                                                      \
-  EProcessOper, COPY, UNDEFINED, -1, "Undefined Process Operation", COPY, 0,   \
-    "Copy Process", MARGINAL, 1, "Marginal Process", CONDITIONAL, 2,           \
-    "Conditional Process"
+// clang-format off
+#define ENUM_PROCESS_OPER                                              \
+  EProcessOper, COPY,                                                  \
+  UNDEFINED, -1, "Undefined Process Operation",                        \
+  COPY, 0, "Copy Process",                                             \
+  MARGINAL, 1, "Marginal Process",                                     \
+  CONDITIONAL, 2, "Conditional Process"
+// clang-format on
 
 ENUM_DECLARE(ENUM_PROCESS_OPER)

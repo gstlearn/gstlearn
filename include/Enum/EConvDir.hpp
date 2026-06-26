@@ -12,8 +12,14 @@
 
 #include "Enum/AEnum.hpp"
 
-#define ENUM_CONVDIR                                                           \
-  EConvDir, X, X, 0, "Along X", Y, 1, "Along Y", Z, 2, "Along Z", XY, 3,       \
-    "Along X-Y", XYZ, 4, "Along X-Y-Z"
+// clang-format off
+#define ENUM_CONVDIR                                                   \
+  EConvDir, X,                                                         \
+  X, 0, "Along X",                                                     \
+  Y, 1, "Along Y",                                                     \
+  Z, 2, "Along Z",                                                     \
+  XY, 3, "Along X-Y",                                                  \
+  XYZ, 4, "Along X-Y-Z"
+// clang-format on
 
 ENUM_DECLARE(ENUM_CONVDIR)

@@ -21,7 +21,8 @@ namespace gstlrn
     double tolang,
     double bench,
     double cylrad,
-    bool flagasym);
+    bool flagasym,
+    const VectorDouble& benchdir);
 
   BiTargetCheckGeometry::BiTargetCheckGeometry(
     Id ndim,
@@ -29,7 +30,8 @@ namespace gstlrn
     double tolang,
     double bench,
     double cylrad,
-    bool flagasym)
+    bool flagasym,
+    const VectorDouble& benchdir)
     : ABiTargetCheck()
     , _ndim(ndim)
     , _codir(codir)
@@ -37,6 +39,7 @@ namespace gstlrn
     , _bench(bench)
     , _cylrad(cylrad)
     , _flagAsym(flagasym)
+    , _benchDir(benchdir)
     , _psmin(0.)
     , _dist(0.)
   {
@@ -51,6 +54,7 @@ namespace gstlrn
     , _bench(r._bench)
     , _cylrad(r._cylrad)
     , _flagAsym(r._flagAsym)
+    , _benchDir(r._benchDir)
     , _psmin(r._psmin)
     , _dist(r._dist)
   {
@@ -68,6 +72,7 @@ namespace gstlrn
       _bench = r._bench;
       _cylrad = r._cylrad;
       _flagAsym = r._flagAsym;
+      _benchDir = r._benchDir;
       _psmin = r._psmin;
       _dist = r._dist;
     }
@@ -82,10 +87,11 @@ namespace gstlrn
     double tolang,
     double bench,
     double cylrad,
-    bool flagasym)
+    bool flagasym,
+    const VectorDouble& benchdir)
   {
     return new BiTargetCheckGeometry(
-      ndim, codir, tolang, bench, cylrad, flagasym);
+      ndim, codir, tolang, bench, cylrad, flagasym, benchdir);
   }
 
   String BiTargetCheckGeometry::toString(const AStringFormat* /*strfmt*/) const
@@ -95,7 +101,11 @@ namespace gstlrn
     sstr << "- Direction" << toStrVector(String(), _codir) << std::endl;
     sstr << "- Tolerance angular" << _tolAng << std::endl;
     if (!FFFF(_bench) && _bench > 0.)
+    {
       sstr << "Bench (%lf)" << _bench << std::endl;
+      sstr << "Bench Direction" << toStrVector(String(), _benchDir)
+           << std::endl;
+    }
     if (!FFFF(_cylrad) && _cylrad > 0.)
       sstr << "Cylinder check (%lf)" << _cylrad << std::endl;
 
@@ -141,7 +151,7 @@ namespace gstlrn
     // Check for vertical slicing test
     if (!FFFF(_bench) && _bench > 0.)
     {
-      double dvect = ABS(_delta[_ndim - 1]);
+      double dvect = ABS(_delta.innerProduct(_benchDir));
       if (dvect > _bench) return false;
     }
 

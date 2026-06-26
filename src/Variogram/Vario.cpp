@@ -286,7 +286,8 @@ namespace gstlrn
       {
         BiTargetCheckGeometry* bipts = BiTargetCheckGeometry::create(
           _db->getNDim(), dirparam.getCodirs(), dirparam.getTolAngle(),
-          dirparam.getBench(), dirparam.getCylRad(), getFlagAsym());
+          dirparam.getBench(), dirparam.getCylRad(), getFlagAsym(),
+          dirparam.getBenchDir());
         _addBiTargetCheck(bipts);
         _biPtsPerDirection++;
       }
@@ -2125,7 +2126,7 @@ namespace gstlrn
       auto space = SpaceRN::create(ndim);
       DirParam dirparam = DirParam(
         nlag, dlag, toldis, tolang, opt_code, 0, TEST, TEST, tolcode,
-        VectorDouble(), codir, TEST, space);
+        VectorDouble(), codir, TEST, VectorDouble(), space);
       if (isDefinedForGrid) dirparam.setGrincr(grincr);
       _varioparam.addDir(dirparam);
 
@@ -5472,16 +5473,33 @@ namespace gstlrn
       double tolcode = 0.;
       double dlag = 0.;
       double toldist = 0.;
+      double bench = 0.;
       double tolang = 0.;
+      double cylrad = 0.;
       bool flagGrid = false;
       VectorInt grincr;
       VectorDouble codir;
+      VectorDouble benchdir;
 
       ret = ret && SerializeHDF5::readValue(*dirG, "NLag", nlag);
       ret = ret && SerializeHDF5::readValue(*dirG, "Code", optionCode);
       ret = ret && SerializeHDF5::readValue(*dirG, "TolCode", tolcode);
       ret = ret && SerializeHDF5::readValue(*dirG, "Lag", dlag);
       ret = ret && SerializeHDF5::readValue(*dirG, "TolDist", toldist);
+
+      // The parameters 'cylrad', 'bench' and 'benchdir' are optional (to cope with old version of the class)
+      if (SerializeHDF5::existsH5Item(*dirG, "CylRad", false))
+      {
+        ret = ret && SerializeHDF5::readValue(*dirG, "CylRad", cylrad);
+      }
+      if (SerializeHDF5::existsH5Item(*dirG, "Bench", false))
+      {
+        ret = ret && SerializeHDF5::readValue(*dirG, "Bench", bench);
+      }
+      if (SerializeHDF5::existsH5Item(*dirG, "BenchDir", false))
+      {
+        ret = ret && SerializeHDF5::readVec(*dirG, "BenchDir", benchdir);
+      }
       ret = ret && SerializeHDF5::readValue(*dirG, "GridDef", flagGrid);
 
       if (!flagGrid)
@@ -5496,8 +5514,8 @@ namespace gstlrn
 
       auto space = SpaceRN::create(ndim);
       DirParam dirparam = DirParam(
-        nlag, dlag, toldist, tolang, optionCode, 0, TEST, TEST, tolcode,
-        VectorDouble(), codir, TEST, space);
+        nlag, dlag, toldist, tolang, optionCode, 0, bench, cylrad, tolcode,
+        VectorDouble(), codir, TEST, benchdir, space);
       if (flagGrid) dirparam.setGrincr(grincr);
 
       _varioparam.addDir(dirparam);
@@ -5545,8 +5563,7 @@ namespace gstlrn
          && SerializeHDF5::writeVec(
               varioG, "Variances", getVarMatrix().getValues());
 
-    /* Loop on the directions */
-
+    // Loop on the directions
     auto dirsG = varioG.createGroup("Directions");
     for (Id idir = 0; ret && idir < getNDir(); idir++)
     {
@@ -5562,6 +5579,12 @@ namespace gstlrn
       ret = ret && SerializeHDF5::writeValue(dirG, "Lag", dirparam.getDPas());
       ret = ret
          && SerializeHDF5::writeValue(dirG, "TolDist", dirparam.getTolDist());
+      ret =
+        ret && SerializeHDF5::writeValue(dirG, "CylRad", dirparam.getCylRad());
+      ret =
+        ret && SerializeHDF5::writeValue(dirG, "Bench", dirparam.getBench());
+      ret = ret
+         && SerializeHDF5::writeVec(dirG, "BenchDir", dirparam.getBenchDir());
       ret = ret
          && SerializeHDF5::writeValue(
               dirG, "GridDef", dirparam.isDefinedForGrid());
@@ -5648,7 +5671,7 @@ namespace gstlrn
     else
       varioparam = VarioParam::createOmniDirection(
         nlag, dlag, toldis, 0, 0, TEST, TEST, 0., VectorDouble(), 0.,
-        VectorDouble(), space);
+        VectorDouble(), VectorDouble(), space);
 
     auto* vario = new Vario(*varioparam);
     if (vario->compute(
@@ -5726,7 +5749,8 @@ namespace gstlrn
     double toldis,
     double tolang,
     double bench,
-    double cylrad)
+    double cylrad,
+    const VectorDouble& benchdir)
   {
 
     auto space = SpaceRN::create(db->getNDim());
@@ -5736,7 +5760,7 @@ namespace gstlrn
     double tolcode = 0.;
     auto dirparam = DirParam(
       nlag, dlag, toldis, tolang, opt_code, 0, bench, cylrad, tolcode,
-      VectorDouble(), codir, TEST, space);
+      VectorDouble(), codir, TEST, benchdir, space);
     auto* varioparam = new VarioParam();
     varioparam->addDir(dirparam);
 

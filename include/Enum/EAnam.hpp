@@ -12,10 +12,14 @@
 
 #include "Enum/AEnum.hpp"
 
-#define ENUM_ANAM                                                              \
-  EAnam, HERMITIAN, EXTERNAL, 1, "External anamorphosis", HERMITIAN, 2,        \
-    "Hermitian anamorphosis", EMPIRICAL, 3, "Empirical anamorphosis",          \
-    DISCRETE_DD, 4, "Disjunctive Discrete anamorphosis", DISCRETE_IR, 5,       \
-    "Indicator Residuals anamorphosis"
+// clang-format off
+#define ENUM_ANAM                                                      \
+  EAnam, HERMITIAN,                                                    \
+  EXTERNAL, 1, "External anamorphosis",                                \
+  HERMITIAN, 2, "Hermitian anamorphosis",                              \
+  EMPIRICAL, 3, "Empirical anamorphosis",                              \
+  DISCRETE_DD, 4, "Disjunctive Discrete anamorphosis",                 \
+  DISCRETE_IR, 5, "Indicator Residuals anamorphosis"
+// clang-format on
 
 ENUM_DECLARE(ENUM_ANAM)

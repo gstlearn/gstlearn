@@ -25,7 +25,8 @@ namespace gstlrn
       double tolang = 90.,
       double bench = 0.,
       double cylrad = 0.,
-      bool flagasym = false);
+      bool flagasym = false,
+      const VectorDouble& benchdir = VectorDouble());
     BiTargetCheckGeometry(const BiTargetCheckGeometry& r);
     BiTargetCheckGeometry& operator=(const BiTargetCheckGeometry& r);
     virtual ~BiTargetCheckGeometry();
@@ -44,7 +45,8 @@ namespace gstlrn
       double tolang = 90.,
       double bench = 0.,
       double cylrad = 0.,
-      bool flagasym = false);
+      bool flagasym = false,
+      const VectorDouble& benchdir = VectorDouble());
 
     double getDist() const { return _dist; }
 
@@ -55,6 +57,7 @@ namespace gstlrn
     double _bench;
     double _cylrad;
     bool _flagAsym;
+    VectorDouble _benchDir;
 
     mutable VectorDouble _delta;
     mutable double _psmin;
