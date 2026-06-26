@@ -12,8 +12,12 @@
 
 #include "Enum/AEnum.hpp"
 
-#define ENUM_RULE                                                              \
-  ERule, STD, STD, 0, "Standard Lithotype Rule", SHIFT, 1,                     \
-    "Shift Lithotype Rule", SHADOW, 2, "Shadow Lithotype Rule"
+// clang-format off
+#define ENUM_RULE                                                      \
+  ERule, STD,                                                          \
+  STD, 0, "Standard Lithotype Rule",                                   \
+  SHIFT, 1, "Shift Lithotype Rule",                                    \
+  SHADOW, 2, "Shadow Lithotype Rule"
+// clang-format on
 
 ENUM_DECLARE(ENUM_RULE)

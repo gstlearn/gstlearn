@@ -12,8 +12,13 @@
 
 #include "Enum/AEnum.hpp"
 
-#define ENUM_MODEL_PROPERTY                                                    \
-  EModelProperty, CONV, NONE, 0, "No specific property (LMC)", CONV, 1,        \
-    "Convolution mode", ANAM, 2, "Anamorphosis mode", TAPE, 3, "Tapering mode"
+// clang-format off
+#define ENUM_MODEL_PROPERTY                                            \
+  EModelProperty, CONV,                                                \
+  NONE, 0, "No specific property (LMC)",                               \
+  CONV, 1, "Convolution mode",                                         \
+  ANAM, 2, "Anamorphosis mode",                                        \
+  TAPE, 3, "Tapering mode"
+// clang-format on
 
 ENUM_DECLARE(ENUM_MODEL_PROPERTY)

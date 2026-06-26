@@ -12,8 +12,11 @@
 
 #include "Enum/AEnum.hpp"
 
-#define ENUM_LOAD_BY                                                           \
-  ELoadBy, COLUMN, COLUMN, 0, "Values are provided sorted by columns", SAMPLE, \
-    1, "Values are provided sorted by sample"
+// clang-format off
+#define ENUM_LOAD_BY                                                   \
+  ELoadBy, COLUMN,                                                     \
+  COLUMN, 0, "Values are provided sorted by columns",                  \
+  SAMPLE, 1, "Values are provided sorted by sample"
+// clang-format on
 
 ENUM_DECLARE(ENUM_LOAD_BY)

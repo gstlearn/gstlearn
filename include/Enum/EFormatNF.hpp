@@ -12,8 +12,12 @@
 
 #include "Enum/AEnum.hpp"
 
-#define ENUM_FORMATNF                                                          \
-  EFormatNF, DEFAULT, DEFAULT, 0, "Using the Defaulted Format", ASCII, 1,      \
-    "Using ASCII Format", H5, 2, "Using the HDF5 Format"
+// clang-format off
+#define ENUM_FORMATNF                                                  \
+  EFormatNF, DEFAULT,                                                  \
+  DEFAULT, 0, "Using the Defaulted Format",                            \
+  ASCII, 1, "Using ASCII Format",                                      \
+  H5, 2, "Using the HDF5 Format"
+// clang-format on
 
 ENUM_DECLARE(ENUM_FORMATNF)

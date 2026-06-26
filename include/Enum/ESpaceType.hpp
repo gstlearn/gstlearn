@@ -12,8 +12,12 @@
 
 #include "Enum/AEnum.hpp"
 
-#define ENUM_SPACETYPE                                                         \
-  ESpaceType, RN, COMPOSITE, 0, "Composite Space", RN, 1, "Euclidean Space",   \
-    SN, 2, "Geometry on Sphere"
+// clang-format off
+#define ENUM_SPACETYPE                                                 \
+  ESpaceType, RN,                                                      \
+  COMPOSITE, 0, "Composite Space",                                     \
+  RN, 1, "Euclidean Space",                                            \
+  SN, 2, "Geometry on Sphere"
+// clang-format on
 
 ENUM_DECLARE(ENUM_SPACETYPE)

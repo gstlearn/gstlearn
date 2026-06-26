@@ -12,8 +12,13 @@
 
 #include "Enum/AEnum.hpp"
 
-#define ENUM_CONVTYPE                                                          \
-  EConvType, UNIFORM, UNIFORM, 0, "Uniform", EXPONENTIAL, 1, "Exponential",    \
-    GAUSSIAN, 2, "Gaussian", SINCARD, 3, "Cardinal Sine"
+// clang-format off
+#define ENUM_CONVTYPE                                                  \
+  EConvType, UNIFORM,                                                  \
+  UNIFORM, 0, "Uniform",                                               \
+  EXPONENTIAL, 1, "Exponential",                                       \
+  GAUSSIAN, 2, "Gaussian",                                             \
+  SINCARD, 3, "Cardinal Sine"
+// clang-format on
 
 ENUM_DECLARE(ENUM_CONVTYPE)

@@ -12,9 +12,12 @@
 
 #include "Enum/AEnum.hpp"
 
-#define ENUM_CALC_MEMBER                                                       \
-  ECalcMember, LHS, LHS, 0, "Left-hand Side of the Kriging System", RHS, 1,    \
-    "Right-hand Side of the Kriging System", VAR, 2,                           \
-    "Variance of the Kriging System"
+// clang-format off
+#define ENUM_CALC_MEMBER                                               \
+  ECalcMember, LHS,                                                    \
+  LHS, 0, "Left-hand Side of the Kriging System",                      \
+  RHS, 1, "Right-hand Side of the Kriging System",                     \
+  VAR, 2, "Variance of the Kriging System"
+// clang-format on
 
 ENUM_DECLARE(ENUM_CALC_MEMBER)
