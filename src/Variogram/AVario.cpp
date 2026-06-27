@@ -74,22 +74,26 @@ namespace gstlrn
     return _flagAVarioCheck;
   }
 
+  // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
   double AVario::_evaluateScaleVariogram(double w1, double w2)
   {
     return w1 * w2;
   }
 
+  // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
   double AVario::_evaluateScalePoisson(double w1, double w2)
   {
     return (w1 * w2) / (w1 + w2);
   }
 
+  // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
   double AVario::_evaluateScaleCovariogram(double w1, double w2)
   {
     DECLARE_UNUSED(w1);
     return w2;
   }
 
+  // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
   double AVario::_evaluateResultVariogram(
     Id icase,
     double z11,
@@ -101,6 +105,7 @@ namespace gstlrn
     return (z12 - z11) * (z22 - z21) / 2.;
   }
 
+  // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
   double AVario::_evaluateResultMadogram(
     Id icase,
     double z11,
@@ -112,6 +117,7 @@ namespace gstlrn
     return sqrt(ABS((z12 - z11) * (z22 - z21))) / 2.;
   }
 
+  // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
   double AVario::_evaluateResultRodogram(
     Id icase,
     double z11,
@@ -123,6 +129,7 @@ namespace gstlrn
     return pow(ABS((z12 - z11) * (z22 - z21)), 0.25) / 2.;
   }
 
+  // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
   double AVario::_evaluateResultCovariance(
     Id icase,
     double z11,
@@ -134,6 +141,7 @@ namespace gstlrn
     return z12 * z21;
   }
 
+  // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
   double AVario::_evaluateResultOrder4(
     Id icase,
     double z11,

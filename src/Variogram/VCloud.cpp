@@ -12,7 +12,6 @@
 
 #include "Anamorphosis/AAnam.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
-#include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
@@ -25,14 +24,18 @@
 
 namespace gstlrn
 {
-  static Polygons* POLYGON = nullptr;
-  static VectorDouble IDS;
-
   VCloud::VCloud(DbGrid* dbcloud, const VarioParam* varioparam)
     : AVario()
     , _dbcloud(dbcloud)
     , _varioparam(varioparam)
     , _IPTR(-1)
+    , _samples()
+    , _flagSelection(false)
+    , _IDS()
+    , _polygon(nullptr)
+    , _distmax(TEST)
+    , _varmin(TEST)
+    , _countmax(ITEST)
   {
   }
 
@@ -41,6 +44,13 @@ namespace gstlrn
     , _dbcloud(r._dbcloud)
     , _varioparam(r._varioparam)
     , _IPTR(r._IPTR)
+    , _samples(r._samples)
+    , _flagSelection(r._flagSelection)
+    , _IDS(r._IDS)
+    , _polygon(r._polygon)
+    , _distmax(r._distmax)
+    , _varmin(r._varmin)
+    , _countmax(r._countmax)
   {
   }
 
@@ -52,6 +62,13 @@ namespace gstlrn
       _dbcloud = r._dbcloud;
       _varioparam = r._varioparam;
       _IPTR = r._IPTR;
+      _samples = r._samples;
+      _flagSelection = r._flagSelection;
+      _IDS = r._IDS;
+      _polygon = r._polygon;
+      _distmax = r._distmax;
+      _varmin = r._varmin;
+      _countmax = r._countmax;
     }
     return *this;
   }
@@ -61,6 +78,27 @@ namespace gstlrn
   double VCloud::_getIVAR(const Db* db, Id iech, Id ivar) const
   {
     return db->getZVariable(iech, ivar);
+  }
+
+  void VCloud::setPolygon(const Polygons* polygon)
+  {
+    if (polygon == nullptr) return;
+    _polygon = polygon;
+    _flagSelection = true;
+  }
+
+  void VCloud::setIntervals(double distmax, double varmin, Id countmax)
+  {
+    if (isNA(distmax) && isNA(varmin)) return;
+    _flagSelection = true;
+    _distmax = distmax;
+    _varmin = varmin;
+    _countmax = countmax;
+  }
+
+  void VCloud::setSamples(const VectorInt& samples)
+  {
+    _samples = samples;
   }
 
   /****************************************************************************/
@@ -82,7 +120,7 @@ namespace gstlrn
    ** \param[in]  z2          Value of second variable
    ** \param[in]  dist        Distance
    ** \param[in]  value       Variogram value
-   **
+   **IDS
    *****************************************************************************/
   void VCloud::_setAVarioResult(
     Id iech1,
@@ -113,26 +151,30 @@ namespace gstlrn
     DECLARE_UNUSED(z1);
     DECLARE_UNUSED(z2);
 
-    Id igrid = _update_discretization_grid(dist, value);
+    Id igrid = _getDiscretizedCellRank(dist, value);
     if (igrid < 0) return;
 
-    if (POLYGON == nullptr)
-    {
-      // Store in the output grid
-      _dbcloud->updArray(igrid, _IPTR, EOperator::ADD, 1.);
-    }
-    else
+    // Update the output grid
+    _dbcloud->updArray(igrid, _IPTR, EOperator::ADD, 1.);
+
+    if (!_flagSelection) return;
+
+    if (_flagByPolygon())
     {
       VectorInt indg(2);
       VectorDouble coor(2);
       _dbcloud->rankToIndice(igrid, indg);
       _dbcloud->indicesToCoordinateInPlace(indg, coor);
-      if (!POLYGON->inside(coor, false)) return;
-      {
-        IDS[iech1] += 1.;
-        IDS[iech2] += 1.;
-      }
+      if (!_polygon->inside(coor, false)) return;
     }
+    else if (_flagByIntervals())
+    {
+      if (!isNA(_distmax) && dist > _distmax) return;
+      if (!isNA(_varmin) && value < _varmin) return;
+    }
+
+    _IDS[iech1] += 1;
+    _IDS[iech2] += 1;
 
     _storage(iech1, iech2, dist, value);
   }
@@ -186,11 +228,41 @@ namespace gstlrn
     if (iptr < 0) return (1);
 
     // Loop on the directions
+    Id nech = db->getNSample();
+    if (_flagSelection) _IDS.resize(nech, 0.);
     for (Id idir = 0; idir < ndir; idir++)
     {
       _IPTR = iptr + idir;
-      _variogram_cloud(db, idir);
-      _final_discretization_grid();
+
+      if (_flagSelection) _IDS.fill(0.);
+
+      if (_flagBySamples())
+        _variogramCloudBySamples(db, idir);
+      else
+        _variogramCloud(db, idir);
+
+      _finalDiscretizationOnGrid();
+
+      if (_flagSelection)
+      {
+
+        // Printout the scores: they are ranked by decreasing number
+        mestitle(
+          0,
+          "Samples for Direction %d (by decreasing order of "
+          "occurence)",
+          idir + 1);
+        VectorInt ranks = VH::orderRanks(_IDS, false);
+        for (Id iech = 0; iech < nech; iech++)
+        {
+          if (_countmax > 0 && iech >= _countmax) break;
+          Id jech = ranks[iech];
+          if (_IDS[jech] <= 0.) break;
+          message(
+            " Sample #%3d/%3d: %d occurence(s)\n", jech + 1, nech, _IDS[jech]);
+        }
+        message("\n");
+      }
     }
 
     // Naming of the newly created variables
@@ -205,7 +277,7 @@ namespace gstlrn
    **  Replace zero values by TEST values
    **
    *****************************************************************************/
-  void VCloud::_final_discretization_grid()
+  void VCloud::_finalDiscretizationOnGrid()
   {
     for (Id iech = 0, nech = _dbcloud->getNSample(); iech < nech; iech++)
     {
@@ -223,7 +295,7 @@ namespace gstlrn
    ** \param[in]  idir    Rank of the Direction
    **
    *****************************************************************************/
-  void VCloud::_variogram_cloud(Db* db, Id idir)
+  void VCloud::_variogramCloud(Db* db, Id idir)
   {
     double dist;
     SpaceTarget T1(_varioparam->getSpace());
@@ -264,6 +336,56 @@ namespace gstlrn
 
   /****************************************************************************/
   /*!
+   **  Evaluate the variogram cloud
+   **
+   ** \param[in]  db      Db descriptor
+   ** \param[in]  idir    Rank of the Direction
+   **
+   *****************************************************************************/
+  void VCloud::_variogramCloudBySamples(Db* db, Id idir)
+  {
+    double dist;
+    SpaceTarget T1(_varioparam->getSpace());
+    SpaceTarget T2(_varioparam->getSpace());
+
+    // Creating a local Vario structure (to constitute the BiTargetCheck list
+    Vario* vario = Vario::create(*_varioparam);
+    vario->setDb(db);
+    if (vario->prepare()) return;
+
+    // Local variables to speed up calculations
+    bool hasSel = db->hasLocVariable(ELoc::SEL);
+    Id nech = db->getNSample();
+    Id nvar = db->getNLoc(ELoc::Z);
+    Id nsamples = static_cast<Id>(_samples.size());
+    Id iech;
+
+    // Loop on the first point
+    for (Id iiech = 0; iiech < nsamples; iiech++)
+    {
+      iech = _samples[iiech];
+      if (hasSel && !db->isActive(iech)) continue;
+      db->getSampleAsSTInPlace(iech, T1);
+
+      Id ideb = (_varioparam->isDateUsed(db)) ? 0 : iech + 1;
+      for (Id jech = ideb; jech < nech; jech++)
+      {
+        if (hasSel && !db->isActive(jech)) continue;
+        db->getSampleAsSTInPlace(jech, T2);
+
+        // Reject the point as soon as one BiTargetChecker is not correct
+        if (!vario->keepPair(idir, T1, T2, &dist)) continue;
+
+        // Add the contribution of the pair to the Variogram Cloud
+        (this->*_evaluate)(db, nvar, iech, jech, idir, 0, dist, false);
+      }
+    }
+
+    delete vario;
+  }
+
+  /****************************************************************************/
+  /*!
    **  Add one pick to the discretization grid
    **
    ** \return  Index of the grid cell (or -1)
@@ -272,7 +394,7 @@ namespace gstlrn
    ** \param[in]  y     Coordinate along the first axis
    **
    *****************************************************************************/
-  Id VCloud::_update_discretization_grid(double x, double y)
+  Id VCloud::_getDiscretizedCellRank(double x, double y)
   {
     Id ndim = _dbcloud->getNDim();
     VectorInt indg(ndim, 0);
@@ -288,121 +410,6 @@ namespace gstlrn
     return _dbcloud->indiceToRank(indg);
   }
 
-  /****************************************************************************/
-  /*!
-   **  Evaluate the experimental variogram cloud
-   **
-   ** \return  Error return code
-   **
-   ** \param[in]  db           Db descriptor
-   ** \param[in]  varioparam   VarioParam structure
-   ** \param[in]  lagmax       Maximum distance
-   ** \param[in]  calculType   Calculation type
-   ** \param[in]  flag_ergodic Ergodic flag
-   ** \param[in]  varmax       Maximum Variance value (see remarks)
-   ** \param[in]  lagnb        Number of discretization steps along distance axis
-   ** \param[in]  varnb        Number of discretization steps along variance axis
-   ** \param[in]  namconv      Naming convention
-   **
-   ** \remarks If 'lagmax' is not provided, it is set to the diagonal of the
-   ** area covered by the active samples within 'db'.
-   ** \remarks If 'varmax' is not defined, it is set to 3 times the experimental
-   ** variance of the first variable (Z_locator)
-   **
-   *****************************************************************************/
-  DbGrid* vcloudFromDb(
-    Db* db,
-    const VarioParam* varioparam,
-    double lagmax,
-    const ECalcVario& calculType,
-    bool flag_ergodic,
-    double varmax,
-    Id lagnb,
-    Id varnb,
-    const NamingConvention& namconv)
-  {
-    // Create a grid as a support for the variogram cloud calculations
-
-    if (FFFF(lagmax)) lagmax = db->getExtensionDiagonal();
-    if (FFFF(varmax))
-      varmax = 3. * db->getVariance(db->getNameByLocator(ELoc::Z));
-
-    VectorInt nx(2);
-    nx[0] = lagnb;
-    nx[1] = varnb;
-    VectorDouble dx(2);
-    dx[0] = lagmax / static_cast<double>(lagnb);
-    dx[1] = varmax / static_cast<double>(varnb);
-    VectorDouble x0(2);
-    x0[0] = 0.;
-    x0[1] = 0.;
-    DbGrid* dbgrid = DbGrid::create(nx, dx, x0);
-
-    // Create an omnidirectional varioparam (if not provided)
-
-    if (varioparam == nullptr)
-    {
-      auto lagmax_local = lagmax;
-      if (FFFF(lagmax_local)) lagmax_local = db->getExtensionDiagonal();
-      // Evaluate the lag so that the maximum distance fit 'lagmax'
-      // (given the tolerance on distance which is defaulted to 0.5)
-      auto dlag = lagmax_local / 1.5;
-      varioparam = VarioParam::createOmniDirection(1, dlag, 0.5);
-    }
-
-    // Initialize the variogram cloud structure
-
-    VCloud vcloud(dbgrid, varioparam);
-
-    // Calling the variogram cloud calculation function
-
-    if (vcloud.compute(db, calculType, flag_ergodic, namconv))
-    {
-      delete dbgrid;
-      dbgrid = nullptr;
-    }
-    return dbgrid;
-  }
-
-  /****************************************************************************/
-  /*!
-   **  Check the samples which are involved in the pairs which are located
-   **  within the polygon
-   **
-   ** \param[in]  db      Db descriptor
-   ** \param[in]  polygon Polygons structure
-   ** \param[in]  idir    Rank of the direction of itnerest
-   **
-   *****************************************************************************/
-  Id VCloud::selectFromPolygon(Db* db, Polygons* polygon, Id idir)
-  {
-    POLYGON = polygon;
-    Id nech = db->getNSample();
-    IDS.resize(nech, 0.);
-
-    _variogram_cloud(db, idir);
-
-    /* Printout the scores: they are ranked by decreasing number */
-
-    mestitle(
-      0, "Samples in variogram cloud (by decreasing order of occurence)");
-    VectorInt rank = VH::sequence(nech);
-    ut_sort_double(0, nech, rank.data(), IDS.data());
-
-    for (Id iech = 0; iech < nech; iech++)
-    {
-      Id jech = nech - iech - 1;
-      if (IDS[jech] <= 0.) break;
-      message(
-        "Sample #%3d: %d occurence(s)\n", rank[jech] + 1,
-        static_cast<Id>(IDS[jech]));
-    }
-
-    POLYGON = nullptr;
-    IDS.clear();
-    return 0;
-  }
-
   String VCloud::toString(const AStringFormat* strfmt) const
   {
     std::stringstream sstr;
@@ -414,155 +421,6 @@ namespace gstlrn
     // TODO: to be completed
 
     return sstr.str();
-  }
-
-  DbGrid* vcloudFromParam(
-    Db* db,
-    const ECalcVario& calculType,
-    bool flag_ergodic,
-    Id nlag,
-    double dlag,
-    Id ndir,
-    const VectorDouble& angles,
-    double toldis,
-    double tolang,
-    Id lagnb,
-    Id varnb)
-  {
-    VarioParam* varioparam = nullptr;
-    if (ndir > 1)
-      varioparam = VarioParam::createMultiple(ndir, nlag, dlag, toldis);
-    else if (!angles.empty())
-      varioparam =
-        VarioParam::createSeveral2D(angles, nlag, dlag, toldis, tolang);
-    else
-      varioparam = VarioParam::createOmniDirection(nlag, dlag, toldis);
-
-    auto* dbgrid = vcloudFromDb(
-      db, varioparam, TEST, calculType, flag_ergodic, TEST, lagnb, varnb);
-
-    return dbgrid;
-  }
-
-  /**
-   * @brief Dump the storage of variogram pair calculations
-   *
-   * @param mode See remarks
-   * @param distmax  Maximum distance for pairs to be considered (mode=1 or 2)
-   * @param varmin   Minimum variogram value for pairs to be considered (mode=2)
-   * @param npairmax Maximum number of pairs to be displayed (mode=1)
-   * @param ndatamax Maximum number of data to be displayed (mode=2)
-   *
-   * @remarks The argument 'mode' can be:
-   * - 0 : Full dump of all the pairs
-   * - 1 : Printout of the pairs (up to 'nparimax') with largest variogram values for a distance lower then 'distmax'
-   * - 2 : Printout of the sample mostly involved in large varioagrma value (> 'varmin') for a distance lower then 'distmax'
-   */
-  void VCloud::dumpStorage(
-    Id mode,
-    double distmax,
-    double varmin,
-    Id npairmax,
-    Id ndatamax)
-  {
-    if (!_isStorage()) return;
-
-    mestitle(0, "Storage of variogram pair calculations");
-    Id npairs = static_cast<Id>(_getStorageSize());
-    message("Number of pairs = %d\n", npairs);
-
-    if (mode == 0)
-    {
-      // Provide the full dump of all the pairs
-      for (Id ipair = 0; ipair < npairs; ++ipair)
-      {
-        const auto& record = _getStorage(ipair);
-        message(
-          "Pair (%3d, %3d) - Dist: %lf - Value: %lf\n",
-          static_cast<Id>(record[0]), static_cast<Id>(record[1]), record[2],
-          record[3]);
-      }
-    }
-    else if (mode == 1)
-    {
-      // Provide only the summary of the pairs
-
-      if (!FFFF(distmax))
-        message(
-          "- Pairs are considered up to a Maximum Distance = %lf\n", distmax);
-      if (!IFFFF(npairmax))
-        message(
-          "- Only the %d largest variogram values are displayed\n", npairmax);
-
-      VectorDouble values;
-      VectorInt ipairs;
-      for (Id ipair = 0; ipair < npairs; ++ipair)
-      {
-        double distloc = _getStorage(ipair)[2];
-        double valloc = _getStorage(ipair)[3];
-        if (!FFFF(distmax) && distloc > distmax) continue;
-        values.push_back(valloc);
-        ipairs.push_back(ipair);
-      }
-      VectorInt order = VH::orderRanks(values, false);
-
-      // Dump the pairs in descending order of the value
-      Id nstat = order.size();
-      if (!IFFFF(npairmax)) nstat = MIN(npairmax, nstat);
-      for (Id irank = 0; irank < nstat; ++irank)
-      {
-        Id jrank = order[irank];
-        const auto& record = _getStorage(ipairs[jrank]);
-        message(
-          "Pair (%3d, %3d) - Dist: %lf - Value: %lf\n",
-          static_cast<Id>(record[0]), static_cast<Id>(record[1]), record[2],
-          record[3]);
-      }
-    }
-    else if (mode == 2)
-    {
-      // Provide only the summary of the pairs
-
-      if (!FFFF(distmax))
-        message(
-          "- Pairs are considered up to a Maximum Distance = %lf\n", distmax);
-      if (varmin > 0.)
-        message(
-          "- Pairs are considered with a Minimum Variogram Value = %lf\n",
-          varmin);
-
-      // Find the largest sample number;
-      Id nbdata = -1;
-      for (Id ipair = 0; ipair < npairs; ++ipair)
-      {
-        double iech1 = static_cast<Id>(_getStorage(ipair)[0]);
-        if (iech1 > nbdata) nbdata = iech1;
-        double iech2 = static_cast<Id>(_getStorage(ipair)[1]);
-        if (iech2 > nbdata) nbdata = iech2;
-      }
-      VectorInt count(nbdata + 1, 0.);
-
-      for (Id ipair = 0; ipair < npairs; ++ipair)
-      {
-        double distloc = _getStorage(ipair)[2];
-        double valloc = _getStorage(ipair)[3];
-        if (!FFFF(distmax) && distloc > distmax) continue;
-        if (varmin > 0. && valloc < varmin) continue;
-        double iech1 = static_cast<Id>(_getStorage(ipair)[0]);
-        count[iech1]++;
-        double iech2 = static_cast<Id>(_getStorage(ipair)[1]);
-        count[iech2]++;
-      }
-      VectorInt order = VH::orderRanks(count, false);
-
-      Id nstat = count.size();
-      if (!IFFFF(ndatamax)) nstat = MIN(ndatamax, nstat);
-      for (Id irank = 0; irank < nstat; ++irank)
-      {
-        Id jrank = order[irank];
-        message("Sample %3d - Number of calls: %d\n", jrank, count[jrank]);
-      }
-    }
   }
 
 } // namespace gstlrn

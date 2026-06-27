@@ -1,0 +1,93 @@
+#NO_DIFF#XXX
+----
+
+<IPython.core.display.Javascript object>----
+
+
+#NO_DIFF#XXX
+----
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 5
+Total number of samples      = 102
+
+Data Base Extension
+-------------------
+Coor #1 - Min =     109.850 - Max =     143.010 - Ext = 33.16
+Coor #2 - Min =     483.660 - Max =     513.040 - Ext = 29.38
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = X - Locator = x1
+Column = 2 - Name = Y - Locator = x2
+Column = 3 - Name = Zn - Locator = z1
+Column = 4 - Name = Pb - Locator = p1
+----
+
+
+#NO_DIFF#XXX
+----
+List of all variable names = ('rank', 'X', 'Y', 'Zn', 'Pb')
+----
+
+
+#NO_DIFF#XXX
+----
+          Number     Minimum     Maximum        Mean    St. Dev.    Variance
+rank     102.000       1.000     102.000      51.500      29.443     866.917
+   X     102.000     109.850     143.010     119.802       6.516      42.461
+   Y     102.000     483.660     513.040     498.778       7.987      63.791
+  Zn     102.000       1.090      33.200       3.642       4.705      22.137
+  Pb     101.000       3.000      31.600       6.104       3.594      12.916
+----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+Experimental Variance = 22.355841661813223
+----
+
+
+#NO_DIFF#XXX
+----
+
+Samples for Direction 1 (by decreasing order of occurence)
+==========================================================
+ Sample # 74/102: 80 occurence(s)
+ Sample # 31/102: 59 occurence(s)
+ Sample #102/102: 18 occurence(s)
+ Sample # 44/102: 3 occurence(s)
+ Sample # 45/102: 3 occurence(s)
+
+----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----

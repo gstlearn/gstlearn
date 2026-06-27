@@ -135,13 +135,4 @@ namespace gstlrn
     Id _IPTW;
   };
 
-  GSTLEARN_EXPORT DbGrid* db_vmap(
-    Db* db,
-    Id radius = 0,
-    bool flag_FFT = true,
-    const ECalcVario& calculType = ECalcVario::fromKey("VARIOGRAM"),
-    bool flag_ergodic = true,
-    const VectorInt& nxx = VectorInt(),
-    const VectorDouble& dxx = VectorDouble(),
-    const NamingConvention& namconv = NamingConvention("VMAP"));
 } // namespace gstlrn

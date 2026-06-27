@@ -107,6 +107,20 @@ namespace gstlrn
       double scale = 0.,
       const VectorDouble& dates = VectorDouble(),
       const ASpaceSharedPtr& space = ASpaceSharedPtr());
+    static VarioParam* createForDb(
+      Id ndir = 1,
+      Id nlag = 10,
+      double dlag = 1.,
+      const VectorDouble& angles = VectorDouble(),
+      double toldis = 0.5,
+      double tolang = TEST,
+      const ASpaceSharedPtr& space = ASpaceSharedPtr());
+    static VarioParam* createForGrid(
+      const DbGrid* dbgrid,
+      bool flagAllDirections = true,
+      Id nlag = 10,
+      const VectorVectorInt& dirincr = VectorVectorInt(),
+      const ASpaceSharedPtr& space = ASpaceSharedPtr());
 
     void addDir(const DirParam& dirparam);
     void addMultiDirs(const std::vector<DirParam>& dirparams);

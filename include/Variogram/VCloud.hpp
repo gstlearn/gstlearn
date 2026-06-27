@@ -25,7 +25,19 @@ namespace gstlrn
   /**
    * \brief
    * Class containing the Variogram Cloud which uses an DbGrid provided by the user
-   * This function simply calculate and add the results as new field in this DbGrid.
+   * This function simply calculates and adds the results as new field in this DbGrid.
+   *
+   * Some improvements:
+   * - you can define a set of 'samples' so that the calculation compare all samples of 'db'
+   *   with these specific samples only. Use method: 'setSamples'
+   *   This is useful when you want to compare a set of 'reference' samples with all the others.
+   * - you can provide a polygon in order to issue the scores of the Samples included
+   *   in this polygon
+   * - you can provide a maximum distance ('dismax') and a minimum variability ('varmin')
+   *   in order to keep the description of the pair of Samples included in this range
+   * These two selections are exclusive.
+   * For these two cases, a specific printout is provided after the run, summarizing
+   * the samples which are most frequently involved in this selective calculations.
    */
   class GSTLEARN_EXPORT VCloud: public AVario
   {
@@ -70,48 +82,33 @@ namespace gstlrn
       bool flag_ergodic = true,
       const NamingConvention& namconv = NamingConvention("Cloud"));
 
-    Id selectFromPolygon(Db* db, Polygons* polygon, Id idir = 0);
-
-    void dumpStorage(
-      Id mode = 0,
-      double distmax = TEST,
-      double varmin = 0.,
-      Id npairmax = ITEST,
-      Id ndataMax = ITEST);
+    void setPolygon(const Polygons* polygon);
+    void setIntervals(double distmax, double varmin, Id countmax);
+    void setSamples(const VectorInt& samples);
 
   private:
-    void _variogram_cloud(Db* db, Id idir);
-    void _final_discretization_grid();
-    Id _update_discretization_grid(double x, double y);
+    void _variogramCloud(Db* db, Id idir);
+    void _variogramCloudBySamples(Db* db, Id idir);
+    void _finalDiscretizationOnGrid();
+    Id _getDiscretizedCellRank(double x, double y);
+
+    bool _flagBySamples() const { return !_samples.empty(); }
+
+    bool _flagByPolygon() const { return _polygon != nullptr; }
+
+    bool _flagByIntervals() const { return !isNA(_distmax) || !isNA(_varmin); }
 
   private:
-    DbGrid*
-      _dbcloud; // Pointer to the already existing output DbGrid (not to be deleted)
+    DbGrid* _dbcloud; // Pointer to DbGrid (not to be deleted)
     const VarioParam* _varioparam; // Pointer (not to be deleted)
     Id _IPTR;
+    VectorInt _samples;
+    bool _flagSelection;
+    VectorInt _IDS;
+    const Polygons* _polygon; // Pointer (not to be deleted)
+    double _distmax;
+    double _varmin;
+    Id _countmax;
   };
 
-  GSTLEARN_EXPORT DbGrid* vcloudFromDb(
-    Db* db,
-    const VarioParam* varioparam = nullptr,
-    double lagmax = TEST,
-    const ECalcVario& calculType = ECalcVario::fromKey("VARIOGRAM"),
-    bool flag_ergodic = true,
-    double varmax = TEST,
-    Id lagnb = 100,
-    Id varnb = 100,
-    const NamingConvention& namconv = NamingConvention("Cloud"));
-
-  GSTLEARN_EXPORT DbGrid* vcloudFromParam(
-    Db* db,
-    const ECalcVario& calculType = ECalcVario::fromKey("VARIOGRAM"),
-    bool flag_ergodic = true,
-    Id nlag = 10,
-    double dlag = 1.,
-    Id ndir = 1,
-    const VectorDouble& angles = VectorDouble(),
-    double toldis = 0.5,
-    double tolang = TEST,
-    Id lagnb = 100,
-    Id varnb = 100);
 } // namespace gstlrn
