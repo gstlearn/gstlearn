@@ -75,8 +75,13 @@ plot.init <- function(dims = NA, xlim = NA, ylim = NA, asp = NA) {
   }
 
   # Initialize a new plot
-  ggplot() +
-    plot.geometry(xlim = xlim, ylim = ylim, asp = asp)
+  p = ggplot()
+
+  # Set the geometry of the figure
+  p = p + plot.geometry(xlim = xlim, ylim = ylim, asp = asp)
+
+  # Return the ggplot object
+  p
 }
 
 #' Append a new ggplot2 scale (colour, fill, linetype, size)
@@ -85,15 +90,8 @@ plot.init <- function(dims = NA, xlim = NA, ylim = NA, asp = NA) {
 #' @return Modified ggplot object
 #' @keywords internal
 #' @noRd
-.appendNewScale <- function(p, aestype = c("colour", "fill", "linetype", "size")) {
-
-  aestype <- match.arg(aestype)
-
-  p$scales$scales <- c(
-    p$scales$scales,
-    list(ggplot2::new_scale(aestype))
-  )
-
+.appendNewScale <- function(p, aestype) {
+  p <- append(p, list(new_scale(aestype)))
   p
 }
 
