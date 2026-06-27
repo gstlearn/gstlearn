@@ -209,8 +209,7 @@ namespace gstlrn
   {
     for (Id iech = 0, nech = _dbcloud->getNSample(); iech < nech; iech++)
     {
-      double value = _dbcloud->getArray(iech, _IPTR);
-      if (value != 0.) continue;
+      if (_dbcloud->getArray(iech, _IPTR) != 0.) continue;
       _dbcloud->setArray(iech, _IPTR, TEST);
     }
   }
@@ -279,9 +278,9 @@ namespace gstlrn
 
     Id ix = static_cast<Id>(
       floor((x - _dbcloud->getX0(0)) / _dbcloud->getDX(0) + 0.5));
+    if (ix < 0 || ix >= _dbcloud->getNX(0)) return (-1);
     Id iy = static_cast<Id>(
       floor((y - _dbcloud->getX0(1)) / _dbcloud->getDX(1) + 0.5));
-    if (ix < 0 || ix >= _dbcloud->getNX(0)) return (-1);
     if (iy < 0 || iy >= _dbcloud->getNX(1)) return (-1);
     indg[0] = ix;
     indg[1] = iy;
@@ -327,15 +326,11 @@ namespace gstlrn
     if (FFFF(varmax))
       varmax = 3. * db->getVariance(db->getNameByLocator(ELoc::Z));
 
-    VectorInt nx(2);
-    nx[0] = lagnb;
-    nx[1] = varnb;
-    VectorDouble dx(2);
-    dx[0] = lagmax / static_cast<double>(lagnb);
-    dx[1] = varmax / static_cast<double>(varnb);
-    VectorDouble x0(2);
-    x0[0] = 0.;
-    x0[1] = 0.;
+    VectorInt nx = {lagnb, varnb};
+    VectorDouble dx = {lagmax / static_cast<double>(lagnb),
+                       varmax / static_cast<double>(varnb)};
+    VectorDouble x0(2, 0.);
+
     DbGrid* dbgrid = DbGrid::create(nx, dx, x0);
 
     // Create an omnidirectional varioparam (if not provided)

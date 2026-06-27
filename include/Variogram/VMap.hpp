@@ -75,7 +75,7 @@ namespace gstlrn
       const NamingConvention& namconv = NamingConvention("VMAP"));
 
   private:
-    Id _grid_fft(DbGrid* dbgrid, const NamingConvention& namconv);
+    Id _grid_fft(DbGrid* dbgrid, bool verbose, const NamingConvention& namconv);
     static void _extract(
       const Id* nxmap,
       const Id* nxgrid,
@@ -89,7 +89,6 @@ namespace gstlrn
     static Id _vmap_load_simple(
       DbGrid* dbgrid,
       Id ndim,
-      Id sizetot,
       const Id* dims,
       Id* dinv,
       Id ivar,
@@ -101,7 +100,6 @@ namespace gstlrn
     static Id _vmap_load_cross(
       DbGrid* dbgrid,
       Id ndim,
-      Id sizetot,
       const Id* dims,
       Id* dinv,
       Id ivar,
