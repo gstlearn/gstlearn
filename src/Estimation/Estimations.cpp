@@ -371,6 +371,60 @@ namespace gstlrn
     return krige.getKtest();
   }
 
+  Id krigWeights(
+    Db* dbin,
+    Db* dbout,
+    ModelGeneric* model,
+    ANeigh* neigh,
+    Id iech0,
+    const KrigOpt& krigopt,
+    bool verbose,
+    const NamingConvention& namconv)
+  {
+    auto* neighLocal = ANeigh::createDefaultNeighborhood(neigh, dbin, dbout);
+    CalcKriging krige(true, true, false);
+    krige.setDbin(dbin);
+    krige.setDbout(dbout);
+    krige.setModelGeneric(model);
+    krige.setNeigh(neighLocal);
+    krige.setKrigopt(krigopt);
+    krige.setIechSingleTarget(iech0);
+    krige.setVerboseSingleTarget(verbose);
+
+    Id error = (krige.run()) ? 0 : 1;
+
+    if (error == 0) krige.addWeights(namconv);
+    if (neigh != neighLocal) delete neighLocal;
+    return error;
+  }
+
+  Id xvalidWeights(
+    Db* db,
+    ModelGeneric* model,
+    ANeigh* neigh,
+    Id iech0,
+    const KrigOpt& krigopt,
+    bool verbose,
+    const NamingConvention& namconv)
+  {
+    auto* neighLocal = ANeigh::createDefaultNeighborhood(neigh, db);
+    CalcKriging krige(true, true, false);
+    krige.setDbin(db);
+    krige.setDbout(db);
+    krige.setModelGeneric(model);
+    krige.setNeigh(neighLocal);
+    krige.setKrigopt(krigopt);
+    krige.setFlagXvalid(true);
+    krige.setIechSingleTarget(iech0);
+    krige.setVerboseSingleTarget(verbose);
+
+    Id error = (krige.run()) ? 0 : 1;
+
+    if (error == 0) krige.addWeights(namconv);
+    if (neigh != neighLocal) delete neighLocal;
+    return error;
+  }
+
   /****************************************************************************/
   /*!
    **  Punctual Kriging in the Anamorphosed Gaussian Model

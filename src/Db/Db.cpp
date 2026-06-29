@@ -1973,6 +1973,31 @@ namespace gstlrn
     return 0;
   }
 
+  void Db::resizeSamples(Id nnew)
+  {
+    if (!mayChangeSampleNumber())
+    {
+      messerr(
+        "This type of Data Base does not allow modifying the Count of Samples");
+      return;
+    }
+    Id nech = _nech;
+    if (nnew <= 0) return;
+
+    // More samples
+    if (nnew > nech)
+    {
+      addSamples(nnew - nech, TEST);
+      return;
+    }
+
+    // Less samples
+    for (Id iech = nech - 1; iech >= nnew; iech--)
+    {
+      deleteSample(iech);
+    }
+  }
+
   /**
    * Deleting a sample
    * @param e_del Index of the sample to be deleted
@@ -2640,6 +2665,17 @@ namespace gstlrn
 
   void Db::setValueByColIdx(Id iech, Id icol, double value, bool flagCheck)
   {
+    if (flagCheck)
+    {
+      if (!isColIdxValid(icol)) return;
+      if (!isSampleIndexValid(iech)) return;
+    }
+    _data.setValue(iech, icol, 0, value);
+  }
+
+  void Db::setValueByUID(Id iech, Id iuid, double value, bool flagCheck)
+  {
+    Id icol = getColIdxByUID(iuid);
     if (flagCheck)
     {
       if (!isColIdxValid(icol)) return;
@@ -5387,6 +5423,33 @@ namespace gstlrn
       if (ifac > nfac) nfac = ifac;
     }
     return nfac;
+  }
+
+  /**
+   * Returns the Number of different elements for a given Locator
+   */
+  Id Db::getNOccurence(const ELoc& loctype) const
+  {
+    if (getNLoc(loctype) != 1)
+    {
+      messerr(
+        "This function requires the number of locators (%d) to be "
+        "equal to 1",
+        getNLoc(loctype));
+      return 0;
+    }
+    auto nech = getNSample();
+
+    // Find the number of Occurrences
+
+    Id noccurence = 0;
+    for (Id iech = 0; iech < nech; iech++)
+    {
+      if (!isActive(iech)) continue;
+      Id ioccurence = static_cast<Id>(getFromLocator(loctype, iech, 0));
+      if (ioccurence > noccurence) noccurence = ioccurence;
+    }
+    return noccurence;
   }
 
   VectorBool Db::getActiveArray() const

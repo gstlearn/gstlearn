@@ -265,6 +265,7 @@ namespace gstlrn
     auto np = getNPoints();
     if (np <= 3) return centroid;
 
+    double LARGE = 1e+10;
     double factor = 0.;
     double area = 0.0;
     for (Id i = 0; i < np - 1; i++)
@@ -273,6 +274,9 @@ namespace gstlrn
       double y0 = getY(i);
       double x1 = getX(i + 1);
       double y1 = getY(i + 1);
+      if (ABS(x0) > LARGE || ABS(y0) > LARGE || ABS(x1) > LARGE
+          || ABS(y1) > LARGE)
+        continue;
       factor = (x0 * y1 - x1 * y0);
       area += factor;
       centroid[0] += (x0 + x1) * factor;
@@ -282,7 +286,7 @@ namespace gstlrn
     // Check if the PolyElem is closed
     if (!_isClosed())
     {
-      // Close the polygon artificialy
+      // Close the polygon artificially
       double x0 = getX(np - 1);
       double y0 = getY(np - 1);
       double x1 = getX(0);

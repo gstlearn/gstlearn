@@ -98,6 +98,8 @@ namespace gstlrn
 
     Krigtest_Res getKtest() const { return _ktest; }
 
+    void addWeights(const NamingConvention& namconv);
+
   private:
     bool _check() override;
     bool _preprocess() override;

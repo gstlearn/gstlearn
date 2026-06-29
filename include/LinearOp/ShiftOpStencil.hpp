@@ -46,7 +46,7 @@ namespace gstlrn
     void multiplyByValueAndAddDiagonal(double v1 = 1., double v2 = 0.) const;
     void resetModif() const;
 
-    void print() const;
+    void printContents() const;
 
   private:
     VectorVectorInt _relativeShifts;

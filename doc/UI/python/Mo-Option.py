@@ -1,10 +1,10 @@
 import marimo
 
-__generated_with = "0.19.2"
+__generated_with = "0.23.11"
 app = marimo.App(width="full")
 
 
-@app.cell(hide_code=True)
+@app.cell
 def _():
     import marimo as mo
 
@@ -16,18 +16,12 @@ def _():
     import numpy as np
     import pandas as pd
 
+    gmo.setEnvironment(optionBackup=True, optionDisplay=False)
     return gl, gmo, gp, mo, plt
 
 
 @app.cell(hide_code=True)
 def _(gmo):
-    gmo.setEnvironment(optionBackup=True, optionDisplay=False)
-    return
-
-
-@app.cell(hide_code=True)
-def _(gmo):
-    # Définition du super-widget
     WidgetDb = gmo.WdefineDb()
     return (WidgetDb,)
 
@@ -80,7 +74,7 @@ def _(gmo, vario):
     return (WidgetModel,)
 
 
-@app.cell(hide_code=True)
+@app.cell
 def _(
     WidgetDb,
     WidgetGrid,
@@ -152,7 +146,7 @@ def _(
     return (myaction,)
 
 
-@app.cell(hide_code=True)
+@app.cell
 def _(
     WidgetDb,
     WidgetEdit,
