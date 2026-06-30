@@ -281,8 +281,7 @@ namespace gstlrn
   {
     for (Id iech = 0, nech = _dbcloud->getNSample(); iech < nech; iech++)
     {
-      double value = _dbcloud->getArray(iech, _IPTR);
-      if (value != 0.) continue;
+      if (_dbcloud->getArray(iech, _IPTR) != 0.) continue;
       _dbcloud->setArray(iech, _IPTR, TEST);
     }
   }
@@ -401,9 +400,9 @@ namespace gstlrn
 
     Id ix = static_cast<Id>(
       floor((x - _dbcloud->getX0(0)) / _dbcloud->getDX(0) + 0.5));
+    if (ix < 0 || ix >= _dbcloud->getNX(0)) return (-1);
     Id iy = static_cast<Id>(
       floor((y - _dbcloud->getX0(1)) / _dbcloud->getDX(1) + 0.5));
-    if (ix < 0 || ix >= _dbcloud->getNX(0)) return (-1);
     if (iy < 0 || iy >= _dbcloud->getNX(1)) return (-1);
     indg[0] = ix;
     indg[1] = iy;

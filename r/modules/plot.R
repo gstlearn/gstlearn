@@ -84,9 +84,10 @@ plot.init <- function(dims = NA, xlim = NA, ylim = NA, asp = NA) {
   p
 }
 
-#' Allow redefining a new aesthetic element (if already defined)
-#' @param aestype Should be "colour" or "fill" or "linetype" or "size"
-#'
+#' Append a new ggplot2 scale (colour, fill, linetype, size)
+#' @param p A ggplot object
+#' @param aestype Character. One of "colour", "fill", "linetype", "size"
+#' @return Modified ggplot object
 #' @keywords internal
 #' @noRd
 .appendNewScale <- function(p, aestype) {
