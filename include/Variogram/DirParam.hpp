@@ -88,6 +88,7 @@ namespace gstlrn
       double angle2D = TEST,
       const VectorDouble& benchdir = VectorDouble(),
       const ASpaceSharedPtr& space = ASpaceSharedPtr());
+
     static DirParam* createOmniDirection(
       Id nlag = 10,
       double dlag = 1.,
@@ -100,11 +101,13 @@ namespace gstlrn
       const VectorDouble& breaks = VectorDouble(),
       const VectorDouble& benchdir = VectorDouble(),
       const ASpaceSharedPtr& space = ASpaceSharedPtr());
+
     static DirParam* createFromGrid(
       const DbGrid* dbgrid,
       Id nlag = 10,
       const VectorInt& grincr = VectorInt(),
       const ASpaceSharedPtr& space = ASpaceSharedPtr());
+
     static std::vector<DirParam> createMultiple(
       Id ndir,
       Id nlag = 10,
@@ -112,6 +115,7 @@ namespace gstlrn
       double toldis = 0.5,
       double angref = 0.,
       const ASpaceSharedPtr& space = ASpaceSharedPtr());
+
     static std::vector<DirParam> createSeveral2D(
       const VectorDouble& angles,
       Id nlag = 10,
@@ -119,6 +123,7 @@ namespace gstlrn
       double toldis = 0.5,
       double tolang = TEST,
       const ASpaceSharedPtr& space = ASpaceSharedPtr());
+
     static std::vector<DirParam> createMultipleInSpace(
       Id nlag,
       double dlag = 1.,
