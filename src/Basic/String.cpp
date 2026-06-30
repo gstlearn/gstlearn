@@ -354,7 +354,7 @@ namespace gstlrn
     return ss.str();
   }
 
-  String encodeString(const String& string, Id item, Id nChar)
+  String decorateString(const String& string, Id item, Id nChar)
   {
     std::stringstream ss;
     ss << trim(string) << std::setw(static_cast<int>(nChar))

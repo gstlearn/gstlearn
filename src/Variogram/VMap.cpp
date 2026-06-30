@@ -163,7 +163,7 @@ namespace gstlrn
 
       if (flag_FFT)
       {
-        if (_grid_fft(dbgrid, namconv)) return 1;
+        if (_grid_fft(dbgrid, false, namconv)) return 1;
       }
       else
       {
@@ -283,15 +283,16 @@ namespace gstlrn
    ** \return  Error return code
    **
    ** \param[in]  dbgrid       Db of Grid type containing the data
+   ** \param[in]  verbose      Verbose mode
    ** \param[in]  namconv      Naming convention
    **
    *****************************************************************************/
-  Id VMap::_grid_fft(DbGrid* dbgrid, const NamingConvention& namconv)
+  Id VMap::_grid_fft(
+    DbGrid* dbgrid,
+    bool verbose,
+    const NamingConvention& namconv)
   {
     DECLARE_UNUSED(namconv);
-    Id dims[3], dinv[3], nxmap[3], nxgrid[3], sizemap, sizegrid;
-    Id ndim, nvar, ijvar;
-    static bool verbose = false;
     VectorVectorDouble i1i1;
     VectorVectorDouble z1i1;
     VectorVectorDouble i2i2;
@@ -305,10 +306,6 @@ namespace gstlrn
     VectorDouble res_nn;
     VectorDouble res_m1;
     VectorDouble res_m2;
-
-    /* Initializations */
-
-    Id sizetot = 0;
 
     /* Preliminary checks */
 
@@ -349,6 +346,7 @@ namespace gstlrn
       }
     }
 
+    Id nxmap[3], nxgrid[3];
     for (Id idim = 0; idim < 3; idim++) nxgrid[idim] = nxmap[idim] = 1;
     for (Id idim = 0; idim < dbgrid->getNDim(); idim++)
       nxgrid[idim] = dbgrid->getNX(idim);
@@ -357,9 +355,11 @@ namespace gstlrn
 
     /* Preliminary calculations */
 
-    nvar = dbgrid->getNLoc(ELoc::Z);
-    ndim = 0;
-    sizetot = sizemap = sizegrid = 1;
+    Id nvar = dbgrid->getNLoc(ELoc::Z);
+    Id ndim = 0;
+    Id sizetot = 1;
+    Id sizemap = 1;
+    Id dims[3], dinv[3];
     for (Id i = 0; i < 3; i++)
     {
       dinv[i] = 1;
@@ -372,7 +372,6 @@ namespace gstlrn
         dims[i] = static_cast<Id>(
                     ceil(static_cast<double>(nxgrid[i] + nxmap[i] - 1) / 8.))
                 * 8;
-        sizegrid *= nxgrid[i];
         sizemap *= nxmap[i];
         sizetot *= dims[i];
         ndim++;
@@ -422,7 +421,7 @@ namespace gstlrn
 
     /* Loop on the variables */
 
-    ijvar = 0;
+    Id ijvar = 0;
     for (Id ivar = 0; ivar < nvar; ivar++)
       for (Id jvar = 0; jvar <= ivar; jvar++, ijvar++)
       {
@@ -432,8 +431,7 @@ namespace gstlrn
         if (getCalcul() == ECalcVario::VARIOGRAM)
         {
           if (_vmap_load_simple(
-                dbgrid, ndim, sizetot, dims, dinv, ivar, jvar, i1i2, z1i2, z2i1,
-                z2z1))
+                dbgrid, ndim, dims, dinv, ivar, jvar, i1i2, z1i2, z2i1, z2z1))
             continue;
 
           /* Calculate the number of pairs */
@@ -457,8 +455,7 @@ namespace gstlrn
         else
         {
           if (_vmap_load_cross(
-                dbgrid, ndim, sizetot, dims, dinv, ivar, jvar, i1i1, z1i1, i2i2,
-                z2i2))
+                dbgrid, ndim, dims, dinv, ivar, jvar, i1i1, z1i1, i2i2, z2i2))
             continue;
 
           /* Calculate the number of pairs */
@@ -896,7 +893,6 @@ namespace gstlrn
    **
    ** \param[in] dbgrid    Db structure containing the input grid
    ** \param[in] ndim      Space dimension
-   ** \param[in] sizetot   Dimension of the vectors
    ** \param[in] dims      Array of dimensions of the extended images
    ** \param[in] dinv      Array of dimensions of the extended images (inverted)
    ** \param[in] ivar      Rank of the first variable
@@ -913,7 +909,6 @@ namespace gstlrn
   Id VMap::_vmap_load_simple(
     DbGrid* dbgrid,
     Id ndim,
-    Id sizetot,
     const Id* dims,
     Id* dinv,
     Id ivar,
@@ -923,7 +918,6 @@ namespace gstlrn
     VectorVectorDouble& z2i1,
     VectorVectorDouble& z2z1)
   {
-    DECLARE_UNUSED(sizetot);
     Id ind1, ind2;
     VectorInt indice(3, 0);
 
@@ -985,7 +979,6 @@ namespace gstlrn
    **
    ** \param[in] dbgrid    Db structure containing the input grid
    ** \param[in] ndim      Space dimension
-   ** \param[in] sizetot   Dimension of the vectors
    ** \param[in] dims      Array of dimensions of the extended images
    ** \param[in] dinv      Array of dimensions of the extended images (inverted)
    ** \param[in] ivar      Rank of the first variable
@@ -1002,7 +995,6 @@ namespace gstlrn
   Id VMap::_vmap_load_cross(
     DbGrid* dbgrid,
     Id ndim,
-    Id sizetot,
     const Id* dims,
     Id* dinv,
     Id ivar,
@@ -1012,7 +1004,6 @@ namespace gstlrn
     VectorVectorDouble& i2i2,
     VectorVectorDouble& z2i2)
   {
-    DECLARE_UNUSED(sizetot);
     Id ind1, ind2;
     VectorInt indice(ndim, 0);
 

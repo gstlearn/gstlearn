@@ -601,7 +601,6 @@ namespace gstlrn
               loc_number = std::to_string(item + 1);
             else
               loc_number = concatenateString("S", item + 1, "");
-            // loc_number = encodeString("S", item + 1, 5);
           }
         }
 
@@ -792,7 +791,6 @@ namespace gstlrn
       {
         if (nbsimu > 1 && isimu > 0)
           loc_qualifier = concatenateString("S", isimu, "");
-        // loc_qualifier = encodeString("S", isimu + 1, 5);
       }
     }
 

@@ -127,15 +127,13 @@ namespace gstlrn
    *****************************************************************************/
   void VarioOrder::getBounds(Id idir, Id ilag, Id* ifirst, Id* ilast) const
   {
-    Id ipair, jpair;
-
     Id ival = ilag + idir * QUANT_DIR;
     if (_npair > 0 && _tabSort.empty()) messageAbort("getBounds");
     *ifirst = _npair;
     *ilast = -1;
-    for (ipair = 0; ipair < _npair; ipair++)
+    for (Id ipair = 0; ipair < _npair; ipair++)
     {
-      jpair = _tabSort[ipair];
+      Id jpair = _tabSort[ipair];
       if (_tabIpas[jpair] == ival)
       {
         if (ipair < *ifirst) *ifirst = ipair;
