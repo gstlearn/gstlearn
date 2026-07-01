@@ -39,6 +39,7 @@ namespace gstlrn
     , _precond(precond)
     , _verbose(false)
     , _ndat(0)
+    , _simCondGibbsInProgress(false)
   {
     if (_projInKriging == nullptr) return;
     if (_invNoise == nullptr) return;
@@ -117,27 +118,33 @@ namespace gstlrn
 
   void ASPDEOp::_simCond(const constvect data, vect outvK, vect outvS) const
   {
-    // Resize if necessary
-    _workdat3.resize(_getNDat());
-    _workdat4.resize(_getNDat());
-    _workNoiseMesh.resize(getSizeSimu());
-    _workNoiseData.resize(_getNDat());
+    // Resize if necessary.
+    _prepare(true, false);
+    _work1.resize(getSizeSimu());
 
     // Non conditional simulation on Simulation mesh
-    VH::simulateGaussianInPlace(_workNoiseMesh);
-    _QSimu->evalSimulate(_workNoiseMesh, outvS);
+    VH::simulateGaussianInPlace(_work1);
+    _QSimu->evalSimulate(_work1, outvS);
 
     // Simulation at data locations (projection + noise)
-    _projInSimu->mesh2point(outvS, _workdat3); // Projection on data locations
-    VH::simulateGaussianInPlace(_workNoiseData);
-    _invNoise->addSimulateToDest(_workNoiseData, _workdat3); // Add noise
+    _projInSimu->mesh2point(outvS, _workdat1); // Projection on data locations
+    _work1.resize(_getNDat());
+    VH::simulateGaussianInPlace(_work1);
+    _invNoise->addSimulateToDest(_work1, _workdat1); // Add noise
 
-    // compute residual _workdat4 = data - outv
-    VH::subtractInPlace(_workdat3, data, _workdat4);
+    // compute residual _work1 = data - outv
+    VH::subtractInPlace(_workdat1, data, _work1);
+
+    // _simCondGibbs() reuses some intermediate results. _workdat1 is reused
+    // in _kriging() so copy it elsewhere first.
+    if (_simCondGibbsInProgress)
+    {
+      _work2 = _workdat1;
+    }
 
     // Co-Kriging of the residual on the Kriging mesh
     _solver->setTolerance(1e-5);
-    _kriging(_workdat4, outvK);
+    _kriging(_work1, outvK);
   }
 
   void ASPDEOp::_simCondGibbs(
@@ -165,10 +172,11 @@ namespace gstlrn
       _workGibbsData.assign(data.begin(), data.end());
     }
 
+    _simCondGibbsInProgress = true; // notify _simCond() to keep intermediate
     for (Id i_gibbs = 0; i_gibbs < nIter; ++i_gibbs)
     {
       _simCond(_workGibbsData.asConstVect(), outvK, outvS);
-      VectorDouble means = _workdat3 + _workdat4;
+      VectorDouble means = _work2 + _work1;
 
       for (Id i_data = 0; i_data < _getNDat(); ++i_data)
       {
@@ -192,6 +200,7 @@ namespace gstlrn
         _workGibbsData[i_data] = mean + noise / invNoiseSqrt;
       }
     }
+    _simCondGibbsInProgress = false;
 
     _simCond(_workGibbsData.asConstVect(), outvK, outvS);
   }
@@ -199,11 +208,11 @@ namespace gstlrn
   void ASPDEOp::_simNonCond(vect outv) const
   {
     // Resize if necessary
-    _workNoiseMesh.resize(getSizeSimu());
+    _work1.resize(getSizeSimu());
 
     // Non conditional simulation on mesh
-    VH::simulateGaussianInPlace(_workNoiseMesh);
-    _QSimu->evalSimulate(_workNoiseMesh, outv);
+    VH::simulateGaussianInPlace(_work1);
+    _QSimu->evalSimulate(_work1, outv);
   }
 
   VectorDouble
@@ -477,20 +486,19 @@ namespace gstlrn
 
   void ASPDEOp::evalInvCov(const constvect inv, vect result) const
   {
-    _prepare(false, true);
+    _prepare();
 
     // InvNoise - InvNoise * Proj' * (Q + Proj * InvNoise * Proj')^-1 * Proj * InvNoise
 
     _rhs.resize(getSize());
-    _workmesh.resize(getSize());
-    _workdat3.resize(_getNDat());
+    _work2.resize(getSize());
 
     _invNoise->evalDirect(inv, result);
     _projInKriging->point2mesh(result, _rhs);
-    _solve(_rhs, _workmesh);
-    _projInKriging->mesh2point(_workmesh, _workdat2);
-    _invNoise->evalDirect(_workdat2, _workdat3);
-    VectorHelper::subtractInPlace(_workdat3, result, result);
+    _solve(_rhs, _work2);
+    _projInKriging->mesh2point(_work2, _workdat2);
+    _invNoise->evalDirect(_workdat2, _workdat1);
+    VectorHelper::subtractInPlace(_workdat1, result, result);
   }
 
   VectorDouble ASPDEOp::computeDriftCoeffs(
@@ -533,11 +541,11 @@ namespace gstlrn
 
   double ASPDEOp::getMaxEigenValProj() const
   {
-    _workmesh.resize(getSize());
-    _workNoiseMesh.resize(getSize());
-    std::fill(_workmesh.begin(), _workmesh.end(), 1.);
-    _projOp(_workmesh, _workNoiseMesh);
-    return _workNoiseMesh.maximum();
+    _work2.resize(getSize());
+    _work1.resize(getSize());
+    std::fill(_work2.begin(), _work2.end(), 1.);
+    _projOp(_work2, _work1);
+    return _work1.maximum();
   }
 
   VectorDouble ASPDEOp::getRangeEigenVal(Id ndiscr) const
@@ -572,23 +580,23 @@ namespace gstlrn
   {
     Chebychev logPoly;
     _preparePoly(logPoly);
-    _workNoiseMesh.resize(getSize());
-    _workmesh.resize(getSize());
+    _work1.resize(getSize());
+    _work2.resize(getSize());
     double val = 0.;
     for (Id i = 0; i < nbsimu; i++)
     {
-      VH::simulateGaussianInPlace(_workNoiseMesh);
-      std::fill(_workmesh.begin(), _workmesh.end(), 0.);
-      logPoly.addEvalOp(this, _workNoiseMesh, _workmesh);
-      val += _workNoiseMesh.innerProduct(_workmesh);
+      VH::simulateGaussianInPlace(_work1);
+      std::fill(_work2.begin(), _work2.end(), 0.);
+      logPoly.addEvalOp(this, _work1, _work2);
+      val += _work1.innerProduct(_work2);
     }
     return val / nbsimu;
   }
 
   double ASPDEOp::computeQuadratic(const VectorDouble& x) const
   {
-    _workdat4.resize(_getNDat());
-    vect w1s(_workdat4);
+    _work1.resize(_getNDat());
+    vect w1s(_work1);
     constvect xm(x);
     evalInvCov(xm, w1s);
     return VH::innerProductCV(w1s, xm);

@@ -168,14 +168,12 @@ namespace gstlrn
     APreconditioner* _precond;
     bool _verbose;
 
+    mutable VectorDouble _rhs;
     mutable VectorDouble _workdat1;
     mutable VectorDouble _workdat2;
-    mutable VectorDouble _workdat3;
-    mutable VectorDouble _workdat4;
-    mutable VectorDouble _workNoiseMesh;
-    mutable VectorDouble _workNoiseData;
-    mutable VectorDouble _rhs;
-    mutable VectorDouble _workmesh;
+    mutable VectorDouble _work1;
+    mutable VectorDouble _work2;
+    mutable bool _simCondGibbsInProgress;
     mutable VectorDouble _workGibbsData;
 
   private:
