@@ -173,6 +173,7 @@ namespace gstlrn
     mutable VectorDouble _workdat2;
     mutable VectorDouble _work1;
     mutable VectorDouble _work2;
+    mutable VectorDouble _work3;
     mutable bool _simCondGibbsInProgress;
     mutable VectorDouble _workGibbsData;
 

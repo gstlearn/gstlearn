@@ -173,6 +173,7 @@ namespace gstlrn
     }
 
     _simCondGibbsInProgress = true; // notify _simCond() to keep intermediate
+    _work2.resize(_getNDat());
     for (Id i_gibbs = 0; i_gibbs < nIter; ++i_gibbs)
     {
       _simCond(_workGibbsData.asConstVect(), outvK, outvS);
@@ -507,27 +508,25 @@ namespace gstlrn
     const MatrixDense& driftMat,
     bool verbose) const
   {
-    _prepare(true, false);
-
     Id xsize = (driftMat.getNCols());
     VectorDouble XtInvSigmaZ(xsize);
     MatrixSymmetric XtInvSigmaX(xsize);
     VectorDouble result(xsize);
 
-    vect w1s(_workdat1);
+    _work3.resize(_getNDat());
+    vect w3s(_work3);
     for (Id i = 0; i < xsize; i++)
     {
       auto xm = driftMat.getViewOnColumn(i);
-      evalInvCov(xm, w1s);
+      evalInvCov(xm, w3s);
 
       constvect ym(Z.data(), Z.size());
-      constvect wd1(_workdat1.data(), _workdat1.size());
-      XtInvSigmaZ[i] = VH::innerProductCV(ym, wd1);
+      XtInvSigmaZ[i] = VH::innerProductCV(ym, w3s);
 
       for (Id j = i; j < xsize; j++)
       {
         constvect xmj = driftMat.getViewOnColumn(j);
-        double prod = VH::innerProductCV(xmj, w1s);
+        double prod = VH::innerProductCV(xmj, w3s);
         XtInvSigmaX.setValue(i, j, prod);
       }
     }
@@ -596,11 +595,11 @@ namespace gstlrn
 
   double ASPDEOp::computeQuadratic(const VectorDouble& x) const
   {
-    _work1.resize(_getNDat());
-    vect w1s(_work1);
+    _work3.resize(_getNDat());
+    vect w3s(_work3);
     constvect xm(x);
-    evalInvCov(xm, w1s);
-    return VH::innerProductCV(w1s, xm);
+    evalInvCov(xm, w3s);
+    return VH::innerProductCV(w3s, xm);
   }
 
   double ASPDEOp::computeLogDetQ(Id nMC) const

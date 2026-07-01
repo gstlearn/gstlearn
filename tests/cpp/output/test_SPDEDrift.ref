@@ -138,11 +138,11 @@ Data Base Statistics
 5 - Name KrigingSPDE.January_temp.estim - Locator NA
  Nb of data          =      11097
  Nb of active values =       3092
- Minimum value       =     -9.430
- Maximum value       =      4.943
- Mean value          =      1.250
- Standard Deviation  =      2.094
- Variance            =      4.383
+ Minimum value       =     -5.600
+ Maximum value       =      4.925
+ Mean value          =      1.840
+ Standard Deviation  =      1.520
+ Variance            =      2.310
 6 - Name Kriging.January_temp.estim - Locator z1
  Nb of data          =      11097
  Nb of active values =       3092
