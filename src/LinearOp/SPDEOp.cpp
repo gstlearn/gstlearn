@@ -38,8 +38,8 @@ namespace gstlrn
     , _solver(nullptr)
     , _precond(precond)
     , _verbose(false)
-    , _ndat(0)
     , _simCondGibbsInProgress(false)
+    , _ndat(0)
   {
     if (_projInKriging == nullptr) return;
     if (_invNoise == nullptr) return;
@@ -486,19 +486,20 @@ namespace gstlrn
 
   void ASPDEOp::evalInvCov(const constvect inv, vect result) const
   {
-    _prepare();
+    _prepare(false, true);
 
     // InvNoise - InvNoise * Proj' * (Q + Proj * InvNoise * Proj')^-1 * Proj * InvNoise
 
     _rhs.resize(getSize());
-    _work2.resize(getSize());
+    _work1.resize(getSize());
+    _work2.resize(_getNDat());
 
     _invNoise->evalDirect(inv, result);
     _projInKriging->point2mesh(result, _rhs);
-    _solve(_rhs, _work2);
-    _projInKriging->mesh2point(_work2, _workdat2);
-    _invNoise->evalDirect(_workdat2, _workdat1);
-    VectorHelper::subtractInPlace(_workdat1, result, result);
+    _solve(_rhs, _work1);
+    _projInKriging->mesh2point(_work1, _workdat2);
+    _invNoise->evalDirect(_workdat2, _work1);
+    VectorHelper::subtractInPlace(_work1, result, result);
   }
 
   VectorDouble ASPDEOp::computeDriftCoeffs(
