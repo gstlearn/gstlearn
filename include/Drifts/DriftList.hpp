@@ -102,7 +102,7 @@ namespace gstlrn
 
     ////////////////////////////////////////////////
 
-    const VectorDouble& getBetaHats() const { return _betaHat; }
+    const VectorDouble& getBetaHat() const { return _betaHat; }
 
     void setDriftCLByPart(Id ivar, Id ib, const VectorDouble& coef);
     void resetDriftList();

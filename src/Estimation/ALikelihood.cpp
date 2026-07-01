@@ -58,6 +58,7 @@ namespace gstlrn
 
   void ALikelihood::initLikelihood(bool verbose)
   {
+    if (_db == nullptr) return;
     MatrixSymmetric vars = dbVarianceMatrix(_db);
     double hmax = _db->getExtensionDiagonal();
     double vmax = _db->getColumnByLocator(ELoc::Z, 0).maximum();
@@ -123,7 +124,7 @@ namespace gstlrn
     _updateModel(verbose);
   }
 
-  bool ALikelihood::_calculateBeta(bool verbose)
+  bool ALikelihood::calculateBeta(bool verbose)
   {
     // Calculate t(L-1) %*% D-1 %*% L-1 applied to X (L and D from Vecchia)
     _computeCm1X();
@@ -150,8 +151,7 @@ namespace gstlrn
     }
     _model->setBetaHat(_beta);
 
-    if (verbose)
-      printVector(_beta, "Optimal Drift coefficients = ", true, true);
+    if (verbose) _beta.dump("Optimal Drift Coefficients = ", false);
 
     return true;
   }
@@ -175,7 +175,7 @@ namespace gstlrn
     if (_nDrift > 0)
     {
       // Calculate the set of Drift Coefficients
-      if (!_calculateBeta(verbose)) return TEST;
+      if (!calculateBeta(verbose)) return TEST;
 
       // Center the data by the optimal drift: Yc = Y - beta * X
       VH::subtractInPlace(AMatrix::product(_X, _beta), _Y, _Yc);

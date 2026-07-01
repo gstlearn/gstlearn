@@ -105,7 +105,7 @@ int main(int argc, char* argv[])
     db2->display(&dbfmt);
 
     Model* model = _createModel(1);
-    Vecchia V(model, nbVecchia, db1, db2);
+    Vecchia V(model, nbVecchia, db2, db1);
     auto Ranks = findNN(db1, db2, nbVecchia + 1, false, verbose);
     (void)V.computeLower(Ranks, verbose);
     delete db1;
@@ -122,7 +122,7 @@ int main(int argc, char* argv[])
     Db* db = _createDb(1, 5);
     Model* model = _createModel(1);
     DbGrid* grid = _createGrid();
-    krigingVecchia(db, grid, model, nbVecchia, true);
+    krigingVecchia(db, grid, model, nbVecchia);
     grid->display(&dbfmt);
     delete db;
     delete model;

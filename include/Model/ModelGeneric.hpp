@@ -180,6 +180,7 @@ namespace gstlrn
     FORWARD_METHOD(getDriftList, getPriorMeans)
     FORWARD_METHOD(getDriftList, getPriorCovs)
     FORWARD_METHOD(getDriftList, getPriorCov, TEST)
+    FORWARD_METHOD(getDriftList, getBetaHat)
 
     FORWARD_METHOD_NON_CONST(_getDriftListModify, setFlagLinked)
     FORWARD_METHOD_NON_CONST(_getDriftListModify, setBetaHat)
