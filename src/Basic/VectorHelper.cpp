@@ -1324,6 +1324,18 @@ namespace gstlrn
     return idx;
   }
 
+  VectorInt
+    VectorHelper::sortRanks(const VectorInt& vecin, bool ascending, Id size)
+  {
+    if (vecin.empty()) return VectorInt();
+    if (size < 0) size = static_cast<Id>(vecin.size());
+    VectorInt order = orderRanks(vecin, ascending, size);
+    VectorInt idx(size);
+    for (Id i = 0; i < size; i++) idx[order[i]] = i;
+
+    return idx;
+  }
+
   VectorInt VectorHelper::reorder(
     const VectorInt& vecin,
     const VectorInt& order,

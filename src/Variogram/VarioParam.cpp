@@ -249,6 +249,71 @@ namespace gstlrn
     return varioparam;
   }
 
+  VarioParam* VarioParam::createForDb(
+    Id ndir,
+    Id nlag,
+    double dlag,
+    const VectorDouble& angles,
+    double toldis,
+    double tolang,
+    const ASpaceSharedPtr& space)
+  {
+    VarioParam* varioparam = nullptr;
+    if (ndir > 1)
+      varioparam = VarioParam::createMultiple(
+        ndir, nlag, dlag, toldis, 0., 0., VectorDouble(), space);
+    else if (!angles.empty())
+      varioparam = VarioParam::createSeveral2D(
+        angles, nlag, dlag, toldis, tolang, 0., VectorDouble(), space);
+    else
+      varioparam = VarioParam::createOmniDirection(
+        nlag, dlag, toldis, 0, 0, TEST, TEST, 0., VectorDouble(), 0.,
+        VectorDouble(), VectorDouble(), space);
+
+    return varioparam;
+  }
+
+  VarioParam* VarioParam::createForGrid(
+    const DbGrid* dbgrid,
+    bool flagAllDirections,
+    Id nlag,
+    const VectorVectorInt& dirincr,
+    const ASpaceSharedPtr& space)
+  {
+    VarioParam* varioparam = nullptr;
+
+    if (flagAllDirections)
+    {
+      varioparam = VarioParam::createMultipleFromGrid(
+        dbgrid, nlag, 0., VectorDouble(), space);
+    }
+    else
+    {
+      varioparam = new VarioParam();
+      if (!dirincr.empty())
+      {
+        for (const auto& dir: dirincr)
+        {
+          DirParam* dirparam =
+            DirParam::createFromGrid(dbgrid, nlag, dir, space);
+          varioparam->addDir(*dirparam);
+          delete dirparam;
+        }
+      }
+      else
+      {
+        VectorInt dir(dbgrid->getNDim(), 0);
+        dir[0] = 1;
+        DirParam* dirparam = DirParam::createFromGrid(dbgrid, nlag, dir, space);
+        varioparam->addDir(*dirparam);
+        delete dirparam;
+        varioparam = VarioParam::createMultipleFromGrid(
+          dbgrid, nlag, 0., VectorDouble(), space);
+      }
+    }
+    return varioparam;
+  }
+
   VarioParam* VarioParam::createSeveral2D(
     const VectorDouble& angles,
     Id nlag,

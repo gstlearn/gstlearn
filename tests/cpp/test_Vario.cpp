@@ -23,6 +23,7 @@
 #include "Simulation/Simulations.hpp"
 #include "Variogram/VMap.hpp"
 #include "Variogram/Vario.hpp"
+#include "Variogram/Variograms.hpp"
 
 using namespace gstlrn;
 
@@ -114,7 +115,7 @@ int main(int argc, char* argv[])
   // ==========================================
 
   mestitle(0, "Variogram Map on Isolated Data");
-  Db* vmapP = db_vmap(db);
+  Db* vmapP = vmapFromDb(db);
   vmapP->display();
   delete vmapP;
 
@@ -123,7 +124,7 @@ int main(int argc, char* argv[])
   // =================================
 
   mestitle(0, "Variogram Map on Grid");
-  Db* vmapG = db_vmap(grid);
+  Db* vmapG = vmapFromDb(grid);
   DbStringFormat dbfmt(FLAG_STATS, {"VMAP*"});
   vmapG->display(&dbfmt);
   delete vmapG;

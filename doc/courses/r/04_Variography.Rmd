@@ -234,7 +234,7 @@ cat(loadDoc("Variogram_Map.md"), sep="\n")
 ```
 
 ```{r Variogram_Map}
-grid.vmap = db_vmap(dat)
+grid.vmap = vmapFromDb(dat)
 ```
 
 ```{r Variogram_Map_Plot}

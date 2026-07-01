@@ -234,6 +234,7 @@
 %include Neigh/NeighBench.hpp
 %include Neigh/NeighCell.hpp
 
+%include Variogram/Variograms.hpp
 %include Variogram/AVario.hpp
 %include Variogram/VarioParam.hpp
 %include Variogram/Vario.hpp

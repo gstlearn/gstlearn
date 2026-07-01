@@ -22,6 +22,7 @@
 #include "Space/ASpaceObject.hpp"
 #include "Stats/Classical.hpp"
 #include "Variogram/Vario.hpp"
+#include "Variogram/Variograms.hpp"
 
 using namespace gstlrn;
 

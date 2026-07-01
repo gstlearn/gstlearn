@@ -591,34 +591,4 @@ namespace gstlrn
     mutable VectorVectorDouble _meanSqLocal2;
   };
 
-  GSTLEARN_EXPORT Vario* variogramCalculate(
-    Db* db,
-    const ECalcVario& calculType = ECalcVario::fromKey("VARIOGRAM"),
-    bool flag_ergodic = true,
-    Id nlag = 10,
-    double dlag = 1.,
-    Id ndir = 1,
-    const VectorDouble& angles = VectorDouble(),
-    double toldis = 0.5,
-    double tolang = TEST,
-    bool verbose = false);
-  GSTLEARN_EXPORT Vario* varioGridCalculate(
-    DbGrid* dbgrid,
-    const ECalcVario& calculType = ECalcVario::fromKey("VARIOGRAM"),
-    bool flag_ergodic = true,
-    Id nlag = 10,
-    bool flagAllDirections = true,
-    const VectorVectorInt& dirincr = VectorVectorInt(),
-    bool verbose = false);
-  GSTLEARN_EXPORT VectorInt variogramPerPoint(
-    Db* db,
-    Id iech0,
-    Id ilag0 = 10,
-    double dlag = 1.,
-    const VectorDouble& codir = VectorDouble(),
-    double toldis = 0.5,
-    double tolang = TEST,
-    double bench = TEST,
-    double cylrad = TEST,
-    const VectorDouble& benchdir = VectorDouble());
 } // namespace gstlrn

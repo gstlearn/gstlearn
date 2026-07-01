@@ -223,6 +223,8 @@ namespace gstlrn
     static VectorInt
       sortRanks(const VectorDouble& vecin, bool ascending = true, Id size = -1);
     static VectorInt
+      sortRanks(const VectorInt& vecin, bool ascending = true, Id size = -1);
+    static VectorInt
       reorder(const VectorInt& vecin, const VectorInt& order, Id size = -1);
     static VectorDouble
       reorder(const VectorDouble& vecin, const VectorInt& order, Id size = -1);

@@ -21,6 +21,7 @@
 #include "Simulation/Simulations.hpp"
 #include "Variogram/VMap.hpp"
 #include "Variogram/Vario.hpp"
+#include "Variogram/Variograms.hpp"
 
 using namespace gstlrn;
 
@@ -139,7 +140,8 @@ int main(int argc, char* argv[])
   message("- for %d by %d cells (automatic dimensions)\n", ncell, ncell);
 
   timer.reset();
-  Db* vmapP = db_vmap(db, 0, true, ECalcVario::VARIOGRAM, true, {ncell, ncell});
+  Db* vmapP =
+    vmapFromDb(db, 0, true, ECalcVario::VARIOGRAM, true, {ncell, ncell});
   timer.displayIntervalMilliseconds("Variogram Map on Isolated Points", 2400);
 
   // =================================
@@ -148,7 +150,8 @@ int main(int argc, char* argv[])
 
   mestitle(1, "Variogram Map on Grid");
   timer.reset();
-  Db* vmapG = db_vmap(grid, 0, true, ECalcVario::VARIOGRAM, true, {100, 100});
+  Db* vmapG =
+    vmapFromDb(grid, 0, true, ECalcVario::VARIOGRAM, true, {100, 100});
   timer.displayIntervalMilliseconds("Variogram Map on Regular Grid", 100);
 
   delete db;
