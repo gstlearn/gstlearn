@@ -34,6 +34,7 @@
 #include "Variogram/VMap.hpp"
 #include "Variogram/Vario.hpp"
 #include "Variogram/VarioParam.hpp"
+#include "Variogram/Variograms.hpp"
 #include "geoslib_define.h"
 #include "geoslib_old_f.h"
 
@@ -98,7 +99,7 @@ static void _thirdTest(
 {
   mestitle(0, "Sill Fitting from Variogram Map (new version)");
 
-  DbGrid* dbmap = db_vmap(dbgrid, 0, true, calcul, true, {50, 50});
+  DbGrid* dbmap = vmapFromDb(dbgrid, 0, true, calcul, true, {50, 50});
   (void)dbmap->dumpToNF("VMap.NF");
 
   model->fitNew(nullptr, nullptr, dbmap, nullptr, mop, ITEST, verbose, trace);

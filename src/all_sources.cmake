@@ -223,6 +223,7 @@ set(SRC
   Variogram/VarioParam.cpp
   Variogram/DirParam.cpp
   Variogram/VarioOrder.cpp
+  Variogram/Variograms.cpp
   Basic/Optim.cpp
   Basic/ParamInfo.cpp
   Basic/ListParams.cpp

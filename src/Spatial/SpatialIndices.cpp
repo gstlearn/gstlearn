@@ -20,6 +20,7 @@
 #include "Polygon/Polygons.hpp"
 #include "Space/SpacePoint.hpp"
 #include "Variogram/VMap.hpp"
+#include "Variogram/Variograms.hpp"
 #include "geoslib_define.h"
 
 namespace gstlrn
@@ -565,7 +566,7 @@ namespace gstlrn
     Id ncol = 2 * nlag + 1;
     message(
       "nrow=%d ncol=%d dx=%lf dy=%lf maille=%lf\n", nrow, ncol, dx, dy, maille);
-    DbGrid* vmap = db_vmap(
+    DbGrid* vmap = vmapFromDb(
       grid, 0, true, ECalcVario::E_COVARIOGRAM, true, {nlag, nlag}, {dx, dy});
     vmap->dumpToNF("vmap.NF");
 

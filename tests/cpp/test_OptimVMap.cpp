@@ -16,6 +16,7 @@
 #include "Variogram/VMap.hpp"
 #include "Variogram/Vario.hpp"
 #include "Variogram/VarioParam.hpp"
+#include "Variogram/Variograms.hpp"
 
 using namespace gstlrn;
 
@@ -49,7 +50,7 @@ int main(int argc, char* argv[])
 
   // Calculating the experimental variogram Map
   DbGrid* dbmap =
-    db_vmap(dbgrid, 0, true, ECalcVario::VARIOGRAM, true, {50, 50});
+    vmapFromDb(dbgrid, 0, true, ECalcVario::VARIOGRAM, true, {50, 50});
   (void)dbmap->dumpToNF("VMap.NF");
 
   mestitle(1, "Initial Model");

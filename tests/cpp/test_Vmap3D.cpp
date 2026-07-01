@@ -11,17 +11,17 @@
 /* This file is meant to demonstrate the process of using PGS                 */
 /*                                                                            */
 /******************************************************************************/
-#include "Enum/ECalcVario.hpp"
-#include "Enum/ECov.hpp"
-
 #include "Basic/ASerializable.hpp"
 #include "Basic/File.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
+#include "Enum/ECalcVario.hpp"
+#include "Enum/ECov.hpp"
 #include "Model/Model.hpp"
 #include "Simulation/Simulations.hpp"
 #include "Variogram/VMap.hpp"
 #include "Variogram/Vario.hpp"
+#include "Variogram/Variograms.hpp"
 
 using namespace gstlrn;
 
@@ -61,7 +61,7 @@ int main(int argc, char* argv[])
   // =================================
 
   DbGrid* vmap =
-    db_vmap(grid, 0, true, ECalcVario::VARIOGRAM, true, {10, 10, 3});
+    vmapFromDb(grid, 0, true, ECalcVario::VARIOGRAM, true, {10, 10, 3});
   DbStringFormat dbfmt(FLAG_STATS, {"VMAP*"});
   vmap->display(&dbfmt);
 

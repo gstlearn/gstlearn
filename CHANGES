@@ -4,6 +4,8 @@ This file contains the logs between consecutive releases
 
 Release 1.12.0
 ==============
+- db_vmap() is now called vmapFromDb()
+- All API regarding Variogram, Vmap and VCloud calculations are regrouped in Variogram/Variograms.hpp
 - Rename encodeString() into decorateString() (to avoid conflict with 'package:base')
 - In Variogram calculation with Bench criterion, BenchDir has been added
 - Bench and Cylrad criteria are now saved in Neutral Files (H5 format only)
