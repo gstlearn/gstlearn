@@ -56,7 +56,7 @@ namespace gstlrn
      */
     virtual size_t getNSamples() const = 0;
     /**
-     * @brief Returns the count of values in the variable (for all Cols) which are not undefined.
+     * @brief Returns the Total count of samples (for all Columnss) which are not undefined.
      *
      * @return size_t
      */
@@ -68,7 +68,7 @@ namespace gstlrn
      */
     virtual VectorDouble getValues(Id icol = 0) const = 0;
     /**
-     * @brief Get the All Values object (for all columns) as a VectorDouble object
+     * @brief Get the Values for one Column as a VectorDouble object
      *
      * @return VectorDouble
      */
@@ -94,13 +94,6 @@ namespace gstlrn
     size_t getNCols() const { return _nCols; }
 
     bool isNAAllowed() const { return _NAAllowed; }
-
-    /**
-     * @brief Returns the count of values in the variable (e.g.: number of samples * number of columns)
-     *
-     * @return size_t
-     */
-    size_t getNAllValues() const { return getNSamples() * getNCols(); };
 
   protected:
     static bool _getFlagVariableCheck();

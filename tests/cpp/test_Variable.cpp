@@ -130,8 +130,6 @@ int main(int argc, char* argv[])
   varDblM.setValues({4., 5., NADbl, 4., 1., 3.}, 1);
   std::cout << "Number of cols = " << varDblM.getNCols() << std::endl;
   std::cout << "Number of samples = " << varDblM.getNSamples() << std::endl;
-  std::cout << "Total number of values = " << varDblM.getNAllValues()
-            << std::endl;
   std::cout << "Total number of defined values = " << varDblM.getNAllDefined()
             << std::endl;
   for (size_t item = 0; item < varDblM.getNCols(); ++item)
@@ -153,8 +151,6 @@ int main(int argc, char* argv[])
 
   std::cout << "Number of samples = " << varStringM.getNSamples() << std::endl;
   std::cout << "Number of cols = " << varStringM.getNCols() << std::endl;
-  std::cout << "Total number of values = " << varStringM.getNAllValues()
-            << std::endl;
   std::cout << "Total number of defined values = "
             << varStringM.getNAllDefined() << std::endl;
   for (size_t item = 0; item < varStringM.getNCols(); ++item)

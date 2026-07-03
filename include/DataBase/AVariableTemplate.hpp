@@ -65,7 +65,7 @@ namespace gstlrn
     size_t getNAllDefined() const override
     {
       size_t ndef = 0;
-      for (size_t i = 0; i < getNAllValues(); ++i)
+      for (size_t i = 0, n = getNSamples() * getNCols(); i < n; ++i)
       {
         if (!isUndefined(i)) ++ndef;
       }
