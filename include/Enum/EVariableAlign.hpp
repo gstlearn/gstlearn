@@ -13,12 +13,10 @@
 #include "Enum/AEnum.hpp"
 
 // clang-format off
-#define ENUM_CONVTYPE                                                  \
-  EConvType, UNIFORM,                                                  \
-  UNIFORM,     0, "Uniform",                                           \
-  EXPONENTIAL, 1, "Exponential",                                       \
-  GAUSSIAN,    2, "Gaussian",                                          \
-  SINCARD,     3, "Cardinal Sine"
+#define ENUM_VARIABLEALIGN                                            \
+  EVariableAlign, RIGHT,                                              \
+  LEFT,  0, "Align to the Left",                                      \
+  RIGHT, 1, "Align to the Right"
 // clang-format on
 
-ENUM_DECLARE(ENUM_CONVTYPE)
+ENUM_DECLARE(ENUM_VARIABLEALIGN)

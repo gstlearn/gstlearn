@@ -28,6 +28,7 @@ namespace gstlrn
 #define DOUBLE_NA TEST
 #define INT_NA ITEST
 #define STRING_NA "NA"
+#define UNDEF_STRING "UNDEF"
 #define FLOAT_NA                                                               \
   static_cast<float>(                                                          \
     TEST) // 1.234e30 is ok for 4 bytes but needs a cast for Windows

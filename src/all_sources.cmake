@@ -161,6 +161,12 @@ set(SRC
   Anamorphosis/AnamDiscreteIR.cpp
   Anamorphosis/AnamEmpirical.cpp
   Anamorphosis/PPMT.cpp
+  DataBase/AVariable.cpp
+  DataBase/VariableDouble.cpp
+  DataBase/VariableInt.cpp
+  DataBase/VariableString.cpp
+  DataBase/VariableBool.cpp
+  DataBase/VariableFormat.cpp
   Db/Db.cpp
   Db/DbGrid.cpp
   Db/DbLine.cpp

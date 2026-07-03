@@ -43,6 +43,9 @@
 #include "Enum/ESpaceType.hpp"
 #include "Enum/EStatOption.hpp"
 #include "Enum/ETape.hpp"
+#include "Enum/EVariableAlign.hpp"
+#include "Enum/EVariableNumeric.hpp"
+#include "Enum/EVariableTruncate.hpp"
 
 ENUM_DEFINE(ENUM_LOAD_BY)
 ENUM_DEFINE(ENUM_NEIGH)
@@ -79,3 +82,6 @@ ENUM_DEFINE(ENUM_POST_STAT)
 ENUM_DEFINE(ENUM_FORMATNF)
 ENUM_DEFINE(ENUM_CSV)
 ENUM_DEFINE(ENUM_SIMUTYPE)
+ENUM_DEFINE(ENUM_VARIABLEALIGN)
+ENUM_DEFINE(ENUM_VARIABLETRUNCATE)
+ENUM_DEFINE(ENUM_VARIABLENUMERIC)

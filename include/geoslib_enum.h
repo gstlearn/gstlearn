@@ -54,25 +54,6 @@ namespace gstlrn
   //  COV_EXP2DFACT = 20,    //!< Factorized Factorized in 2-D
   //  COV_EXPFACT = 21,      //!< Factorized Exponential
 
-#ifndef SWIG
-  // Internal enums (currently not exported via SWIG)
-  typedef enum
-  {
-    CONV_UNIFORM = 1, //!< Uniform
-    CONV_EXPONENTIAL = 2, //!< Exponential
-    CONV_GAUSSIAN = 3, //!< Gaussian
-    CONV_SINCARD = 4 //!< Sine Cardinal
-  } ENUM_CONVS;
-
-  typedef enum
-  {
-    CONV_DIRX = 1, //!< Along X
-    CONV_DIRY = 2, //!< Along Y
-    CONV_DIRZ = 3, //!< Along Z
-    CONV_DIRXY = 4, //!< Along XY
-    CONV_DIRXYZ = 5 //!< Along XYZ
-  } ENUM_CONVDIRS;
-#endif
 /*
 typedef enum
 {
