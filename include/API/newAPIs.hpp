@@ -18,9 +18,7 @@
 
 namespace gstlrn
 {
-
   class GaussianProcess;
-  class Db;
   class ECov;
 
   using DataFrame = std::map<std::string, VectorDouble>;

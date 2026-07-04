@@ -15,12 +15,11 @@
 
 #include "Basic/AStringable.hpp"
 #include "Basic/VectorNumT.hpp"
+#include "Db/Db.hpp"
 #include "Spatial/Projection.hpp"
 
 namespace gstlrn
 {
-
-  class Db;
   class MatrixDense;
 
   class GSTLEARN_EXPORT SpatialIndices: public AStringable
