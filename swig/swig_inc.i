@@ -303,13 +303,7 @@
   #include "API/SPDEParam.hpp"
   #include "API/Potential.hpp"
 
-  #include "DataBase/AVariable.hpp"
-  #include "DataBase/AVariableTemplate.hpp"
-  #include "DataBase/VariableDouble.hpp"
-  #include "DataBase/VariableInt.hpp"
-  #include "DataBase/VariableString.hpp"
-  #include "DataBase/VariableBool.hpp"
-  #include "DataBase/VariableFormat.hpp"
+
 
   #include "Db/Db.hpp"
   #include "Db/DbGrid.hpp"
