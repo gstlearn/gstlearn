@@ -303,6 +303,8 @@
   #include "API/SPDEParam.hpp"
   #include "API/Potential.hpp"
 
+  #include "DataBase/DbCol.hpp"
+
   #include "Db/Db.hpp"
   #include "Db/DbGrid.hpp"
   #include "Db/DbLine.hpp"
@@ -1252,7 +1254,87 @@ namespace gstlrn {
   {
     return VectorHelper::divideCst(v1, v2, flagOpposite);
   }
+}
 
+%extend gstlrn::DbData {
+/**
+  * @brief List of methods from class DbData exported for Target Language
+  */
+  void addArrayDbl(const VectorDouble& array, const String& name)
+  {
+    $self->addArray(array, name);
+  }
+  void addArrayInt(const VectorInt& array, const String& name)
+  {
+    $self->addArray(array, name);
+  }
+  void addArrayStr(const VectorString& array, const String& name)
+  {
+    $self->addArray(array, name);
+  }
+
+  double getValueDbl(Id iech, Id icol, double def = -1.)
+  {
+    return $self->getValue<double>(iech, icol).value_or(def);
+  }
+  Id getValueInt(Id iech, Id icol, Id def = -1)
+  {
+    return $self->getValue<int>(iech, icol).value_or(def);
+  }
+  String getValueStr(Id iech, Id icol, const String& def = String("failed"))
+  {
+    return $self->getValue<String>(iech, icol).value_or(def);
+  }
+
+  bool setValueDbl(Id iech, Id icol, double value)
+  {
+    return $self->setValue(iech, icol, value);
+  }
+    bool setValueInt(Id iech, Id icol, int value)
+  {
+    return $self->setValue(iech, icol, value);
+  }
+    bool setValueStr(Id iech, Id icol, const String& value)
+  {
+    return $self->setValue(iech, icol, value);
+  }
+
+  VectorDouble getArrayDbl(Id icol)
+  {
+      auto col = $self->getArray(icol);
+      if (!col) return {};
+
+      const VectorDouble* vec =
+          col->get().getArray<VectorDouble>();
+
+      return vec ? *vec : VectorDouble{};
+  }
+  VectorInt getArrayInt(Id icol)
+  {
+      auto col = $self->getArray(icol);
+      if (!col) return VectorInt();
+
+      const VectorInt* vec =
+          col->get().getArray<VectorInt>();
+
+      return vec ? *vec : VectorInt{};
+  }
+  VectorString getArrayStr(Id icol)
+  {
+      auto col = $self->getArray(icol);
+      if (!col) return VectorString();
+
+      const VectorString* vec =
+          col->get().getArray<VectorString>();
+
+      return vec ? *vec : VectorString{};
+  }
+
+  String getName(Id icol)
+  {
+      auto name = $self->getArrayName(icol);
+      return name ? *name : String{};
+  }
 }
 
 // Prevent memory leaks from 'create*' and 'clone' methods

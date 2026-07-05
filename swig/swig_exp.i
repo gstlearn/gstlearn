@@ -333,6 +333,8 @@
 %include API/SPDEParam.hpp
 %include API/Potential.hpp
 
+%include DataBase/DbCol.hpp
+
 %include Db/Db.hpp
 %include Db/DbGrid.hpp
 %include Db/DbLine.hpp
