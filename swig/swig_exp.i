@@ -14,7 +14,7 @@
 %template(VectorTDouble)      gstlrn::VectorT< double >;
 %template(VectorTFloat)       gstlrn::VectorT< float >;
 %template(VectorBool)         gstlrn::VectorT< UChar >; // See VectorT.hpp
-%template(VectorString)       gstlrn::VectorT< String >;
+%template(VectorString)       gstlrn::VectorT< std::string >; // Needed absolutely (RENARD on 2 July 2026)
 
 %include Basic/VectorNumT.hpp
 %template(VectorInt)          gstlrn::VectorNumT< long long >;
@@ -334,6 +334,7 @@
 %include API/Potential.hpp
 
 %include DataBase/DbCol.hpp
+%include DataBase/DbData.hpp
 
 %include Db/Db.hpp
 %include Db/DbGrid.hpp
@@ -469,3 +470,22 @@
 
 %template(LinearOpCGSolver) LinearOpCGSolver< ScaleOp >;
 %template(LinearSPDEOpCGSolver) LinearOpCGSolver< SPDEOp >;
+
+%template(addArrayDbl)  gstlrn::DbData::addArray<VectorDouble>;
+%template(addArrayInt)  gstlrn::DbData::addArray<VectorInt>;
+%template(addArrayBool) gstlrn::DbData::addArray<VectorBool>;
+%template(addArrayStr)  gstlrn::DbData::addArray<VectorString>;
+
+%template(setValueDbl)  gstlrn::DbData::setValue<double>;
+%template(setValueInt)  gstlrn::DbData::setValue<int>;
+%template(setValueBool) gstlrn::DbData::setValue<bool>;
+%template(setValueStr)  gstlrn::DbData::setValue<std::string>;
+
+// The following lines should be released when necessary stuff is available in SWIG
+// (e.g. std_reference_wrapper.i, std_optional.i)
+// For the time being, I used %extend for class DbData in swig_inc.i (to be deleted)
+//
+//%template(getValueDbl)  gstlrn::DbData::getValue<double>;
+//%template(getValueInt)  gstlrn::DbData::getValue<int>;
+//%template(getValueBool) gstlrn::DbData::getValue<bool>;
+//%template(getValueStr)  gstlrn::DbData::getValue<std::string>;

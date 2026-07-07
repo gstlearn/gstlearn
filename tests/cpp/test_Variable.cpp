@@ -9,7 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Basic/VectorNumT.hpp"
-#include "DataBase/DbCol.hpp"
+#include "DataBase/DbData.hpp"
 
 using namespace gstlrn;
 
@@ -31,9 +31,9 @@ int main()
             << data.getValue<int>(2, 1).value_or(-1) << " "
             << data.getValue<String>(2, 2).value_or("failed") << "\n";
 
-  data.setValue(2, 0, 4);
-  data.setValue(2, 1, 8);
-  data.setValue(2, 2, "foobar");
+  data.setValue(4., 2, 0);
+  data.setValue(8, 2, 1);
+  data.setValue("foobar", 2, 2);
 
   std::cout << data.getValue<double>(2, 0).value_or(-1.) << " "
             << data.getValue<int>(2, 1).value_or(-1) << " "
