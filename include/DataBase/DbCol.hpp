@@ -118,12 +118,13 @@ namespace gstlrn
     template<typename T>
     std::optional<T> getValue(const Id isample, const Id iversion = 0) const
     {
-      if (!this->_isValidIDs(isample, iversion)) return std::nullopt;
+      if (!isValidIDs(isample, iversion)) return std::nullopt;
 
       std::optional<T> v{};
       std::visit(
         [isample, iversion, &v](auto&& arg)
         {
+          DECLARE_UNUSED(iversion);
           using VectorType = std::decay_t<decltype(arg)>;
           if constexpr (isConsistent<T, VectorType>())
           {
@@ -145,12 +146,13 @@ namespace gstlrn
     template<typename T>
     bool setValue(const T& v, const Id isample, const Id iversion = 0)
     {
-      if (!this->_isValidIDs(isample, iversion)) return false;
+      if (!isValidIDs(isample, iversion)) return false;
 
       bool res = false;
       std::visit(
         [isample, iversion, &v, &res](auto&& arg)
         {
+          DECLARE_UNUSED(iversion);
           using VectorType = std::decay_t<decltype(arg)>;
           if constexpr (isConsistent<T, VectorType>())
           {
@@ -176,8 +178,7 @@ namespace gstlrn
       return std::get_if<VectorType>(&_data);
     }
 
-  private:
-    bool _isValidIDs(Id isample, Id iversion = 0) const
+    bool isValidIDs(Id isample, Id iversion = 0) const
     {
       return isample >= 0 && isample < _nSample && iversion >= 0
           && iversion < _nVersion;

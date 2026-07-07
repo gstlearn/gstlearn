@@ -57,6 +57,7 @@ namespace gstlrn
       this->_cols.emplace_back(
         std::move(name), std::forward<VectorType>(array));
 
+      // Update the map as the list of Columns may have been modified
       _buildNameToICol();
     }
 
@@ -74,6 +75,7 @@ namespace gstlrn
       }
       this->_cols.emplace_back(name, std::forward<VectorType>(array));
 
+      // Update the map as the list of Columns may have been modified
       _buildNameToICol();
     }
 
@@ -82,6 +84,7 @@ namespace gstlrn
       const auto icol = _identifyCol(name);
       if (icol >= 0) this->removeArray(icol);
 
+      // Update the map as the list of Columns may have been modified
       _buildNameToICol();
     }
 
@@ -89,6 +92,7 @@ namespace gstlrn
     {
       this->_cols.erase(this->_cols.begin() + icol);
 
+      // Update the map as the list of Columns may have been modified
       _buildNameToICol();
     }
 
