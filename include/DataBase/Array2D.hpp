@@ -21,7 +21,6 @@
 
 namespace gstlrn
 {
-
   template<typename VectorType>
   class Array2D
   {
