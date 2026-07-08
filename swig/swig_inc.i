@@ -313,6 +313,7 @@
   #include "Db/DbHelper.hpp"
   #include "Db/RankHandler.hpp"
 
+  #include "DataBase/Array2D.hpp"
   #include "DataBase/DbCol.hpp"
   #include "DataBase/DbData.hpp"
 
@@ -1289,40 +1290,32 @@ namespace gstlrn {
     auto col = $self->getArray(icol);
     if (!col) return {};
 
-    const VectorDouble* vec =
-      col->get().getArray<VectorDouble>();
-
-    return vec ? *vec : VectorDouble{};
+    auto vec = col->get().getVector<VectorDouble>();
+    return vec ? vec->get() : VectorDouble{};
   }
   VectorInt getArrayInt(Id icol)
   {
     auto col = $self->getArray(icol);
-    if (!col) return VectorInt();
+    if (!col) return {};
 
-    const VectorInt* vec =
-      col->get().getArray<VectorInt>();
-
-    return vec ? *vec : VectorInt{};
+    auto vec = col->get().getVector<VectorInt>();
+    return vec ? vec->get() : VectorInt{};
   }
   VectorBool getArrayBool(Id icol)
   {
     auto col = $self->getArray(icol);
-    if (!col) return VectorBool();
+    if (!col) return {};
 
-    const VectorBool* vec =
-      col->get().getArray<VectorBool>();
-
-    return vec ? *vec : VectorBool{};
+    auto vec = col->get().getVector<VectorBool>();
+    return vec ? vec->get() : VectorBool{};
   }
   VectorString getArrayStr(Id icol)
   {
     auto col = $self->getArray(icol);
-    if (!col) return VectorString();
+    if (!col) return {};
 
-    const VectorString* vec =
-      col->get().getArray<VectorString>();
-
-    return vec ? *vec : VectorString{};
+    auto vec = col->get().getVector<VectorString>();
+    return vec ? vec->get() : VectorString{};
   }
 
   String getArrayName(Id icol)

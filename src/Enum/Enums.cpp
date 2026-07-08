@@ -34,6 +34,7 @@
 #include "Enum/EPostUpscale.hpp"
 #include "Enum/EPowerPT.hpp"
 #include "Enum/EProcessOper.hpp"
+#include "Enum/ERole.hpp"
 #include "Enum/ERotation.hpp"
 #include "Enum/ERule.hpp"
 #include "Enum/ESPDECalcMode.hpp"
@@ -85,3 +86,4 @@ ENUM_DEFINE(ENUM_SIMUTYPE)
 ENUM_DEFINE(ENUM_VARIABLEALIGN)
 ENUM_DEFINE(ENUM_VARIABLETRUNCATE)
 ENUM_DEFINE(ENUM_VARIABLENUMERIC)
+ENUM_DEFINE(ENUM_ROLE)

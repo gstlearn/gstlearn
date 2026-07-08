@@ -333,6 +333,7 @@
 %include API/SPDEParam.hpp
 %include API/Potential.hpp
 
+%include DataBase/Array2D.hpp
 %include DataBase/DbCol.hpp
 %include DataBase/DbData.hpp
 

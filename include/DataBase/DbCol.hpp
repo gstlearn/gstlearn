@@ -12,6 +12,7 @@
 
 #include "Basic/VectorNumT.hpp"
 #include "Basic/VectorT.hpp"
+#include "DataBase/Array2D.hpp"
 #include "gstlearn_export.hpp"
 
 #include <optional>
@@ -20,36 +21,29 @@
 
 namespace gstlrn
 {
-
   /**
    * @brief Generic implementation of a Column inside a Db
    */
   class GSTLEARN_EXPORT DbCol
   {
   public:
-    DbCol(String&& name)
+    DbCol(String&& name, const Id nsample = 0, const Id nversion = 1)
       : _name{std::move(name)}
-      , _nSample{0}
-      , _nVersion{1}
-      , _data{VectorDouble{}}
+      , _data{Array2D<VectorDouble>{nsample, nversion}}
     {
     }
 
     template<typename VectorType>
     DbCol(String&& name, VectorType&& array)
       : _name{std::move(name)}
-      , _nSample{static_cast<Id>(array.size())}
-      , _nVersion{1}
-      , _data{array}
+      , _data{std::forward<VectorType>(array)}
     {
     }
 
     template<typename VectorType>
     DbCol(const String& name, VectorType&& array)
       : _name{name}
-      , _nSample{static_cast<Id>(array.size())}
-      , _nVersion{1}
-      , _data{array}
+      , _data{std::forward<VectorType>(array)}
     {
     }
 
@@ -67,30 +61,6 @@ namespace gstlrn
      * @return const String&
      */
     const String& getColName() const { return this->_name; }
-
-    /**
-     * @brief Get the number of samples contained in the Column
-     *
-     * @return const Id
-     */
-    Id getNSample() const { return this->_nSample; }
-
-    /**
-     * @brief Get the number of versions contained in the Column
-     *
-     * @return const Id
-     */
-    Id getNVersion() const { return this->_nVersion; }
-
-    bool setNVersion(const Id nVersion)
-    {
-      if (nVersion <= 0) return false;
-      if (getNSample() % nVersion != 0) return false;
-
-      this->_nVersion = nVersion;
-      this->_nSample = getNSample() / nVersion;
-      return true;
-    }
 
     /**
      * @brief Check the consistency of input with the type of the array
@@ -115,17 +85,19 @@ namespace gstlrn
     template<typename T>
     std::optional<T> getValue(const Id isample, const Id iversion = 0) const
     {
-      if (!isValidIDs(isample, iversion)) return std::nullopt;
-
       std::optional<T> v{};
       std::visit(
         [isample, iversion, &v](auto&& arg)
         {
-          DECLARE_UNUSED(iversion);
-          using VectorType = std::decay_t<decltype(arg)>;
+          if (iversion < 0 || iversion >= arg.outer() || isample < 0
+              || isample >= arg.inner())
+          {
+            return;
+          }
+          using VectorType = std::decay_t<decltype(arg)>::vector_type;
           if constexpr (isConsistent<T, VectorType>())
           {
-            v = arg[isample];
+            v = arg[iversion][isample];
           }
         },
         this->_data);
@@ -143,17 +115,19 @@ namespace gstlrn
     template<typename T>
     bool setValue(const T& v, const Id isample, const Id iversion = 0)
     {
-      if (!isValidIDs(isample, iversion)) return false;
-
       bool res = false;
       std::visit(
         [isample, iversion, &v, &res](auto&& arg)
         {
-          DECLARE_UNUSED(iversion);
-          using VectorType = std::decay_t<decltype(arg)>;
+          if (iversion < 0 || iversion >= arg.outer() || isample < 0
+              || isample >= arg.inner())
+          {
+            return;
+          }
+          using VectorType = std::decay_t<decltype(arg)>::vector_type;
           if constexpr (isConsistent<T, VectorType>())
           {
-            arg[isample] = v;
+            arg[iversion][isample] = v;
             res = true;
           }
         },
@@ -161,37 +135,44 @@ namespace gstlrn
       return res;
     }
 
-    /**
-     * @brief Get the array of a specific type
-     *
-     * @tparam VectorType The type of the array to get
-     * @return const VectorType* Pointer to the array if it exists, nullptr otherwise
-     *
-     * @remark This method has been added to allow getArray to be used from DbData.
-     */
-    template<typename VectorType>
-    const VectorType* getArray() const
+    template<typename T>
+    void addSamples(const Id nnewsamp, const T val)
     {
-      return std::get_if<VectorType>(&_data);
+      std::visit(
+        [nnewsamp, val](auto&& arg)
+        {
+          using VectorType = std::decay_t<decltype(arg)>::vector_type;
+          if constexpr (isConsistent<T, VectorType>())
+          {
+            arg.addSamples(nnewsamp, val);
+          }
+        },
+        this->_data);
     }
 
-    bool isValidIDs(Id isample, Id iversion = 0) const
+    void deleteSample(const Id isample)
     {
-      return isample >= 0 && isample < _nSample && iversion >= 0
-          && iversion < _nVersion;
+      std::visit(
+        [isample](auto&& arg) { arg.deleteSample(isample); }, this->_data);
+    }
+
+    template<typename VectorType>
+    std::optional<std::reference_wrapper<VectorType>> getVector()
+    {
+      auto* pv = std::get_if<Array2D<VectorType>>(&this->_data);
+      if (pv == nullptr) return {};
+      return pv->getBuffer();
     }
 
   private:
     String _name;
-    Id _nSample{0};
-    Id _nVersion{0};
     std::variant<
-      VectorDouble,
-      VectorFloat,
-      VectorInt,
-      VectorUChar,
-      VectorString,
-      VectorBool>
+      Array2D<VectorDouble>,
+      Array2D<VectorFloat>,
+      Array2D<VectorInt>,
+      Array2D<VectorUChar>,
+      Array2D<VectorString>,
+      Array2D<VectorBool>>
       _data;
   };
 

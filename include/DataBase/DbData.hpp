@@ -12,6 +12,7 @@
 #pragma once
 
 #include "DataBase/DbCol.hpp"
+#include "Enum/ERole.hpp"
 
 #include <functional>
 #include <iostream>
@@ -19,6 +20,25 @@
 
 namespace gstlrn
 {
+  struct DbColInfo
+  {
+    DbCol col;
+    ERole role = ERole::UNDEFINED;
+    Id rank = 0;
+
+    template<typename VectorType>
+    DbColInfo(
+      String name,
+      VectorType&& array,
+      const ERole& role = ERole::UNDEFINED,
+      Id rank = 0)
+      : col(std::move(name), std::forward<VectorType>(array))
+      , role(role)
+      , rank(rank)
+    {
+    }
+  };
+
   /**
    * @brief Similar to vtkFieldData
    */
@@ -28,52 +48,45 @@ namespace gstlrn
     /**
      * @brief Produces a summary of the DbData content
      */
+
     void printContents() const
     {
-      Id ncols = this->_cols.size();
+      Id ncols = this->_colInfos.size();
 
       std::cout << "DbData contains " << ncols << " columns\n";
       Id icol = 0;
-      for (const auto& col: this->_cols)
+      for (const auto& c: this->_colInfos)
       {
         std::cout << "Column " << icol << "/" << ncols << " : "
-                  << col.getColName() << std::endl;
+                  << c.col.getColName();
+        if (c.role != ERole::UNDEFINED)
+        {
+          std::cout << " (Role: " << c.role.getKey() << ", Rank: " << c.rank
+                    << ")";
+        }
+        std::cout << std::endl;
         ++icol;
       }
     }
 
     template<typename VectorType>
-    void addArray(VectorType&& array, String&& name)
+    void addArray(
+      VectorType&& array,
+      const String& name,
+      const ERole& role = ERole::UNDEFINED,
+      Id rank = 0)
     {
       Id icol{};
-      for (auto& col: this->_cols)
+      for (auto& c: this->_colInfos)
       {
-        if (col.getColName() == name)
+        if (c.col.getColName() == name)
         {
-          this->removeArray(icol);
+          removeArray(icol);
+          break;
         }
         icol++;
       }
-      this->_cols.emplace_back(
-        std::move(name), std::forward<VectorType>(array));
-
-      // Update the map as the list of Columns may have been modified
-      _buildNameToICol();
-    }
-
-    template<typename VectorType>
-    void addArray(VectorType&& array, const String& name)
-    {
-      Id icol{};
-      for (auto& col: this->_cols)
-      {
-        if (col.getColName() == name)
-        {
-          this->removeArray(icol);
-        }
-        icol++;
-      }
-      this->_cols.emplace_back(name, std::forward<VectorType>(array));
+      _colInfos.emplace_back(name, std::forward<VectorType>(array), role, rank);
 
       // Update the map as the list of Columns may have been modified
       _buildNameToICol();
@@ -83,14 +96,11 @@ namespace gstlrn
     {
       const auto icol = _identifyCol(name);
       if (icol >= 0) this->removeArray(icol);
-
-      // Update the map as the list of Columns may have been modified
-      _buildNameToICol();
     }
 
     void removeArray(const Id icol)
     {
-      this->_cols.erase(this->_cols.begin() + icol);
+      this->_colInfos.erase(this->_colInfos.begin() + icol);
 
       // Update the map as the list of Columns may have been modified
       _buildNameToICol();
@@ -99,14 +109,14 @@ namespace gstlrn
     std::optional<std::reference_wrapper<DbCol>> getArray(const Id icol)
     {
       if (!_isValidCol(icol)) return std::nullopt;
-      return {this->_cols[icol]};
+      return {this->_colInfos[icol].col};
     }
 
     std::optional<std::reference_wrapper<const DbCol>>
       getArray(const Id icol) const
     {
       if (!_isValidCol(icol)) return std::nullopt;
-      return {this->_cols[icol]};
+      return {this->_colInfos[icol].col};
     }
 
     std::optional<std::reference_wrapper<const DbCol>>
@@ -114,10 +124,10 @@ namespace gstlrn
     {
       Id icol = _identifyCol(name);
       if (icol < 0) return std::nullopt;
-      return {this->_cols[icol]};
+      return {this->_colInfos[icol].col};
     }
 
-    std::optional<String> getName(const Id icol)
+    std::optional<String> getName(const Id icol) const
     {
       auto arr = this->getArray(icol);
       return arr ? std::optional<String>{arr->get().getColName()}
@@ -140,17 +150,6 @@ namespace gstlrn
       return val;
     }
 
-    // template<typename T>
-    // std::optional<T>
-    //   getValue(const Id isample, const String& name, const Id iversion = 0)
-    //     const
-    // {
-    //   const auto array = this->getArray(name);
-    //   if (!array) return std::nullopt;
-    //   const auto val = array->get().getValue<T>(isample, iversion);
-    //   return val;
-    // }
-
     template<typename T>
     bool setValue(
       const T value,
@@ -163,22 +162,30 @@ namespace gstlrn
       return array->get().setValue<T>(value, isample, iversion);
     }
 
-    // template<typename T>
-    // bool setValue(
-    //   const T value,
-    //   const Id isample,
-    //   const String& name,
-    //   const Id iversion = 0)
-    // {
-    //   const auto array = this->getArray(name);
-    //   if (!array) return false;
-    //   return array->get().setValue<T>(value, isample, iversion);
-    // }
+    std::optional<ERole> getRole(Id icol) const
+    {
+      if (!_isValidCol(icol)) return std::nullopt;
+      return _colInfos[icol].role;
+    }
+
+    std::optional<Id> getRank(Id icol) const
+    {
+      if (!_isValidCol(icol)) return std::nullopt;
+      return _colInfos[icol].rank;
+    }
+
+    bool setRole(Id icol, const ERole& role, Id rank = 0)
+    {
+      if (!_isValidCol(icol)) return false;
+      _colInfos[icol].role = role;
+      _colInfos[icol].rank = rank;
+      return true;
+    }
 
   private:
     bool _isValidCol(const Id icol) const
     {
-      return (icol >= 0 && icol < static_cast<Id>(this->_cols.size()));
+      return (icol >= 0 && icol < static_cast<Id>(this->_colInfos.size()));
     }
 
     /**
@@ -188,9 +195,11 @@ namespace gstlrn
     {
       _nameToICol.clear();
 
-      for (Id icol = 0; icol < static_cast<Id>(_cols.size()); ++icol)
+      Id icol = 0;
+      for (const auto& info: _colInfos)
       {
-        _nameToICol[_cols[icol].getColName()] = icol;
+        _nameToICol[info.col.getColName()] = icol;
+        ++icol;
       }
     }
 
@@ -205,7 +214,7 @@ namespace gstlrn
     }
 
   private:
-    std::vector<DbCol> _cols;
+    std::vector<DbColInfo> _colInfos;
     std::unordered_map<String, Id> _nameToICol;
   };
 
