@@ -10,7 +10,6 @@
 /******************************************************************************/
 #pragma once
 
-#include "Basic/Utilities.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/VectorT.hpp"
 #include "gstlearn_export.hpp"
@@ -54,6 +53,12 @@ namespace gstlrn
     {
     }
 
+    DbCol(const DbCol&) = default;
+    DbCol(DbCol&&) = default;
+    DbCol& operator=(const DbCol&) = default;
+    DbCol& operator=(DbCol&&) = default;
+    ~DbCol() = default;
+
     /**
      * @brief Get the Name of the Column
      *
@@ -77,18 +82,9 @@ namespace gstlrn
 
     bool setNVersion(const Id nVersion)
     {
-      if (nVersion <= 0)
-      {
-        return false;
-      }
-      if (!isMultiple(getNSample(), nVersion))
-      {
-        messerr(
-          "Dimension of '_data' (%d) should be a multiple of the number of "
-          "versions (%d).",
-          getNSample(), nVersion);
-        return false;
-      }
+      if (nVersion <= 0) return false;
+      if (getNSample() % nVersion != 0) return false;
+
       this->_nVersion = nVersion;
       this->_nSample = getNSample() / nVersion;
       return true;
