@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Enum/ECst.hpp"
-
 #include "API/SPDE.hpp"
 #include "Basic/File.hpp"
 #include "Basic/OptCst.hpp"
@@ -17,6 +15,7 @@
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
+#include "Enum/ECst.hpp"
 #include "Model/Model.hpp"
 
 using namespace gstlrn;
