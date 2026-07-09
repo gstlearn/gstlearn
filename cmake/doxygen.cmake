@@ -100,13 +100,13 @@ add_dependencies(doxygen_html doc_macro)
 
 set(DOXYGEN_GENERATE_HTML NO)
 set(DOXYGEN_GENERATE_XML YES)
-set(DOXYGEN_PREDEFINED ${COMMON_PREDEFINED} "SWIG")
+set(DOXYGEN_PREDEFINED ${COMMON_PREDEFINED})
 
 doxygen_add_docs(doxygen_xml
                  ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/src
                  ${CMAKE_SOURCE_DIR}/README.md
                  ${GENERATED_HPP_FILES}
-                 COMMENT "Generate XML doxygen documentation (with SWIG)")
+                 COMMENT "Generate XML doxygen documentation")
 add_dependencies(doxygen_xml doc_macro)
 
 
