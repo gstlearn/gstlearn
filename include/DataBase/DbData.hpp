@@ -11,7 +11,6 @@
 #pragma once
 
 #include "DataBase/DbCol.hpp"
-
 #include "Enum/ERole.hpp"
 #include "gstlearn_export.hpp"
 

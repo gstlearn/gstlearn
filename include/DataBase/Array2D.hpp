@@ -10,19 +10,13 @@
 /******************************************************************************/
 #pragma once
 
-#include "Basic/VectorNumT.hpp"
 #include "Basic/VectorT.hpp"
 #include "gstlearn_export.hpp"
-
-#include <functional>
-#include <optional>
-#include <type_traits>
-#include <variant>
 
 namespace gstlrn
 {
   template<typename VectorType>
-  class Array2D
+  class GSTLEARN_EXPORT Array2D
   {
   public:
     using vector_type = VectorType;
