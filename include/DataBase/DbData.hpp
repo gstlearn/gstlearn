@@ -11,7 +11,9 @@
 #pragma once
 
 #include "DataBase/DbCol.hpp"
+
 #include "Enum/ERole.hpp"
+#include "gstlearn_export.hpp"
 
 #include <functional>
 #include <iostream>
@@ -41,7 +43,7 @@ namespace gstlrn
   /**
    * @brief Similar to vtkFieldData
    */
-  class DbData
+  class GSTLEARN_EXPORT DbData
   {
   public:
     /**
