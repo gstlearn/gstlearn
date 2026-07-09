@@ -54,6 +54,8 @@ To report a bug or contact us:
 * feel free to post an [issue](https://github.com/gstlearn/gstlearn/issues) or
 * visit our [Help](https://gstlearn.org/?page_id=468) page
 
+See our CONTRIBUTING rules [here](https://github.com/gstlearn/gstlearn/tree/dev/CONTRIBUTING.md)
+
 ## Development
 
 ### Requirements

@@ -96,11 +96,6 @@ namespace gstlrn
    * More good practices available
    *   [here](www.possibility.com/Cpp/CppCodingStandard.html)
    *
-   * Important note: All C++ coding rules are configured in the .clang-format
-   *                 file. located in the root folder. Developers can use the
-   *                 "Clang format" VS code extension to benefit from the
-   *                 automatic formating feature
-   *
    * ## Class' constructors/destructors
    *
    * Here are some rules regarding constructors and destructors:
@@ -120,6 +115,17 @@ namespace gstlrn
    *   functions}, constructors and destructors
    * - Define pointer for ENUM. Example to point to EMorpho Enum:  \link
    *   EMorpho.hpp EMorpho \endlink
+   *
+   * ## Code formatting Rules
+   *
+   * - All code formatting rules are configured in the .clang-format file
+   *   located in the root folder.
+   * - Developers can use the "Clang format" VS Code extension
+   *   to benefit from the automatic formatting feature.
+   * - It is recommended to install and configure pre-commit hooks
+   *   (see [here](https://pre-commit.com/) to automatically format
+   *   the code before each git commit.
+   *
    */
   class GSTLEARN_EXPORT Style
   {
