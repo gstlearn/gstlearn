@@ -290,6 +290,7 @@ class DoxygenParser:
             "strong",
             "eqn",
             "deqn",
+            "enumerate",
         }
 
         def replacer(match):
@@ -335,6 +336,9 @@ class DoxygenParser:
 
             if elem.tag == "itemizedlist":
                 parts.append("\n\\itemize{\n")
+
+            if elem.tag == "orderedlist":
+                parts.append("\n\\enumerate{\n")
 
             if elem.tag == "listitem":
                 parts.append("  \\item ")
@@ -390,6 +394,9 @@ class DoxygenParser:
             if elem.tag == "listitem":
                 parts.append("\n")
                 state["in_listitem"] = False
+
+            if elem.tag == "orderedlist":
+                parts.append("}\n")
 
             if elem.tag == "itemizedlist":
                 parts.append("}\n")
@@ -493,6 +500,13 @@ class DoxygenParser:
 
                     g_funcs = []
                     for m_node in compdef.findall(".//memberdef[@kind='function']"):
+                        g_m_name = m_node.findtext("name", "")
+                        if any(
+                            word in g_m_name
+                            for word in ["operator", "~", "final_scalar_type"]
+                        ):
+                            continue
+
                         g_funcs.append(
                             {
                                 "name": m_node.findtext("name", ""),
@@ -521,7 +535,8 @@ class DoxygenParser:
 
             for compounddef in root.findall(".//compounddef"):
                 kind = compounddef.attrib.get("kind", "")
-                if kind not in ("class", "struct"):
+
+                if kind not in ("class", "struct", "file", "namespace"):
                     continue
 
                 c_name = compounddef.findtext("compoundname", "")
@@ -553,7 +568,6 @@ class DoxygenParser:
                 methods = []
                 fields = []
                 class_bound_groups = {}
-
                 method_counts = {}
 
                 for member_node in compounddef.findall(".//member"):
@@ -583,14 +597,21 @@ class DoxygenParser:
                         m_kind = member.attrib.get("kind", "")
 
                         if m_kind == "function":
+                            skip_words = ["operator", "~", "final_scalar_type"]
                             is_in_any_group = any(
-                                m_name in g["functions"]
+                                any(f["name"] == m_name for f in g["functions"])
                                 for g in class_bound_groups.values()
                             )
                             if is_in_any_group:
                                 continue
 
-                            f_name = f"{c_name}_{m_name}"
+                            if kind in ("file", "namespace"):
+                                f_name = m_name
+                            else:
+                                f_name = f"{c_name}_{m_name}"
+
+                            if any(word in m_name for word in skip_words):
+                                continue
 
                             if m_name not in method_counts:
                                 method_counts[m_name] = 1
@@ -599,7 +620,8 @@ class DoxygenParser:
                                 method_counts[m_name] += 1
                                 f_filename = f"{f_name}_{method_counts[m_name]}"
 
-                            methods.append(f_filename)
+                            if kind in ("class", "struct"):
+                                methods.append(f_filename)
 
                             f_detailed_node = member.find("detaileddescription")
                             f_desc = self._format_links(
@@ -613,13 +635,12 @@ class DoxygenParser:
 
                             title = m_name
                             usage_f_name = m_name
-                            if member.attrib.get("static") == "yes":
+                            if member.attrib.get("static") == "yes" and kind in (
+                                "class",
+                                "struct",
+                            ):
                                 title = f_name
                                 usage_f_name = f_name
-
-                            skip_words = ["operator", "~", "final_scalar_type"]
-                            if any(word in f_name for word in skip_words):
-                                continue
 
                             functions.append(
                                 Function(
@@ -633,27 +654,30 @@ class DoxygenParser:
                                     filename=f_filename,
                                 )
                             )
-                        elif m_kind in ("variable", "property"):
+                        elif m_kind in ("variable", "property") and kind in (
+                            "class",
+                            "struct",
+                        ):
                             f_field_desc = self._format_links(
                                 self._text(member.find("briefdescription"))
                             )
                             fields.append({"name": m_name, "description": f_field_desc})
 
-                skip_words = ["operator", "~", "final_scalar_type"]
-                if any(word in c_name for word in skip_words):
-                    continue
+                if kind in ("class", "struct"):
+                    if any(word in c_name for word in skip_words):
+                        continue
 
-                classes.append(
-                    Class(
-                        name=c_name,
-                        title=c_name,
-                        description=desc,
-                        methods=methods,
-                        fields=fields,
-                        groups=list(class_bound_groups.values()),
-                        note=c_remark,
+                    classes.append(
+                        Class(
+                            name=c_name,
+                            title=c_name,
+                            description=desc,
+                            methods=methods,
+                            fields=fields,
+                            groups=list(class_bound_groups.values()),
+                            note=c_remark,
+                        )
                     )
-                )
 
         return functions, classes
 
@@ -709,6 +733,10 @@ if __name__ == "__main__":
     for file in os.listdir(args.INPUT_DIR):
         if file.endswith(".xml") and file.startswith("E"):
             xml_file_path = os.path.join(args.INPUT_DIR, file)
-            enum_obj = parser.enum_parser(xml_file_path)
-            if enum_obj is not None:
-                enum_obj.write(args.OUTPUT_DIR)
+            try:
+                enum_obj = parser.enum_parser(xml_file_path)
+                if enum_obj is not None:
+                    enum_obj.write(args.OUTPUT_DIR)
+            except Exception as e:
+                print(f"Error parsing {file}: {e}")
+                continue
