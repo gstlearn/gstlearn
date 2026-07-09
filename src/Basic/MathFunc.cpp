@@ -2571,7 +2571,7 @@ namespace gstlrn
   /*!
    **  Returns the Legendre Function described as follows:
    **
-   **     legendre_p(n,v) = 1/{2^n n!) d^n/dx^n [x^2-1)^n with |x|<=1
+   **     legendre_p(n,v) = 1/(2^n n!) d^n/dx^n (x^2-1)^n with |x|<=1
    **
    **  If flagNorm is switched ON, the Boost library cannot be used anymore.
    **  We have to rely on the ode provided by X; Freulon.

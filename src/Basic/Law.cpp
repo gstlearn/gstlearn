@@ -1120,7 +1120,7 @@ namespace gstlrn
    **
    ** \remarks Consider nvar1 = nvar + 1
    ** \remarks Sample temp[1:nvar1] is authorized for Constraint 'iconst' if:
-   ** \remarks  Sum_ivar1^{1:nvar1) consts[iconst,ivar1) * temp[ivar1] > 0
+   ** \remarks  Sum_ivar1^[1:nvar1] consts[iconst,ivar1] * temp[ivar1] > 0
    **
    *****************************************************************************/
   VectorDouble law_exp_sample(
