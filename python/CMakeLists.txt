@@ -162,6 +162,24 @@ set_target_properties(python_build PROPERTIES
   COMPILE_FLAGS ${COMP_FLAGS}
 )
 
+if (BUILD_DOC)
+  add_custom_command(
+    TARGET python_build
+    POST_BUILD
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/doc/cleaner.py "${PYTHON_PACKAGE_DESTINATION_FOLDER}/__init__.py"
+            --xml-dir "${PROJECT_BINARY_DIR}/doxygen/xml"
+            --conf-py "${CMAKE_CURRENT_SOURCE_DIR}/doc/source/conf.py"
+            --module-name "${PYTHON_PACKAGE_NAME}"
+            --output-rst "${CMAKE_CURRENT_SOURCE_DIR}/doc/source/classes.rst"
+    COMMENT "Cleaning and generating docstring files for Sphinx documentation"
+    COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PYTHON_PACKAGE_ROOT_FOLDER}
+              sphinx-build -b html
+              ${CMAKE_CURRENT_SOURCE_DIR}/doc/source
+              ${CMAKE_CURRENT_BINARY_DIR}/sphinx/html
+    COMMENT "Generating Sphinx documentation"
+  )
+endif()
+
 # Find appropriate Python.h
 target_include_directories(python_build PRIVATE ${Python3_INCLUDE_DIRS})
 

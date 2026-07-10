@@ -1,0 +1,125 @@
+name: publish_sphinx
+
+on:
+  # Permit calling the workflow from outside (https://github.com/actions/runner/discussions/1884)
+  workflow_call:
+    inputs:
+      dry_publish:
+        description: 'Dry publish (no upload)'
+        type: boolean
+        required: false
+        default: true
+  # Permit manual trigger
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Manual'
+        required: false
+        default: ''
+      dry_publish:
+        description: 'Dry publish (no upload)'
+        type: boolean
+        required: false
+        default: false
+
+env:
+  BUILD_DIR : build
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      # https://docs.github.com/en/actions/using-jobs/defining-outputs-for-jobs
+      project_full_version: ${{ steps.main_step.outputs.PROJECT_FULL_VERSION }}
+
+    steps:
+    - uses: actions/checkout@v6
+
+    - name: Install dependencies
+      run: |
+        sudo rm /etc/apt/sources.list.d/microsoft-prod.list
+        sudo apt-get update
+        sudo apt-get install -yq \
+          libhdf5-dev \
+          libsuitesparse-dev \
+          libopenmpi-dev \
+          libboost-dev \
+          libeigen3-dev \
+          libpng-dev \
+          libhdf5-dev \
+          libnlopt-dev \
+          pandoc
+
+    - name: Setup uv
+      uses: astral-sh/setup-uv@v8.1.0
+      with:
+        python-version: ${{env.PYTHON_VERSION}}
+        activate-environment: true
+
+    # Downgrade notebook and plotly (for 3D render) using nbconvert generation
+    - name: Install Python dependencies
+      run: |
+        uv pip install numpy
+        uv pip install jupyter
+        uv pip install notebook==6.1.6
+        uv pip install matplotlib
+        uv pip install plotly==6.0.1
+        uv pip install pandas
+        uv pip install scipy
+        uv pip install dash
+        uv pip install scikit-sparse==0.4.16
+        uv pip install myst-parser
+        uv pip install sphinx
+        uv pip install sphinx_rtd_theme
+
+    - name: Install the customized SWIG from source
+      uses: fabien-ors/install-swig-unix-action@v1
+      with:
+        swig-root: ${{env.SWIG_ROOT}}
+        generator: "Unix Makefiles"
+
+    - name: Configure build directory
+      run: |
+        cmake \
+          -B${{ env.BUILD_DIR }} \
+          -DBUILD_PYTHON=ON \
+          -DBUILD_R=ON \
+          -DBUILD_DOC=ON \
+          -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig
+
+    - name: Build python
+      id: main_step
+      run: |
+        cmake --build ${{env.BUILD_DIR}} --target python_build
+        PROJECT_FULL_VERSION=$(cmake --build ${{env.BUILD_DIR}} --target print_version | grep PROJECT_FULL_VERSION | cut -d "=" -f2 | xargs)
+        echo "HTML_FOLDER=${{env.BUILD_DIR}}/python/sphinx/html" >> "$GITHUB_ENV"
+        echo "PROJECT_FULL_VERSION=${PROJECT_FULL_VERSION}" >> "$GITHUB_OUTPUT"
+
+    - uses: actions/upload-artifact@v6
+      with:
+        # This will become the folder name in the server
+        name: sphinx
+        path: ${{ env.HTML_FOLDER }}
+
+  publish:
+    needs: build
+    if: ${{inputs.dry_publish == false}}
+
+    # Only ubuntu can upload to a server easily (ssh)
+    runs-on: ubuntu-latest
+
+    steps:
+      - env:
+          PROJECT_FULL_VERSION: ${{needs.build.outputs.project_full_version}}
+
+        uses: fabien-ors/folder-publish-action@v4
+        with:
+          host: ${{ secrets.CG_HOST }}
+          username: ${{ secrets.CG_USR }}
+          password: ${{ secrets.CG_PWD }}
+          dest-path: "/var/www/html/gstlearn/${{ env.PROJECT_FULL_VERSION }}"
+
+      # Delete the artifacts (for freeing storage space under github)
+      - uses: geekyeggo/delete-artifact@v5
+        with:
+          name: sphinx

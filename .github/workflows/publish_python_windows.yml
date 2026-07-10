@@ -64,6 +64,9 @@ jobs:
     - name: Install Python dependencies
       run: |
         uv pip install numpy
+        uv pip install myst-parser
+        uv pip install sphinx
+        uv pip install sphinx_rtd_theme
 
     - name: Install Doxygen under windows
       run: |
