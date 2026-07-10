@@ -88,7 +88,9 @@ class Function:
         safe_name = (
             self.filename.replace("gstlrn::", "")
             .replace("gstlrn_", "")
-            .replace("/", "|")
+            .replace("::", "_")
+            .replace("/", "_")
+            .replace("|", "_")
             .replace("=", "_")
         )
         rd_file = output_dir / f"{safe_name}.Rd"
@@ -216,7 +218,9 @@ class Class:
         safe_name = (
             self.name.replace("gstlrn::", "")
             .replace("gstlrn_", "")
-            .replace("/", "|")
+            .replace("::", "_")
+            .replace("/", "_")
+            .replace("|", "_")
             .replace("=", "_")
         )
         rd_file = output_dir / f"{safe_name}.Rd"
@@ -250,7 +254,9 @@ class Enumeration:
         safe_name = (
             self.name.replace("gstlrn::", "")
             .replace("gstlrn_", "")
-            .replace("/", "|")
+            .replace("::", "_")
+            .replace("/", "_")
+            .replace("|", "_")
             .replace("=", "_")
         )
         rd_file = output_dir / f"{safe_name}.Rd"
