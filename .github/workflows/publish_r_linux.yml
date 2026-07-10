@@ -51,9 +51,6 @@ jobs:
       run: Rscript -e "install.packages (c('ggplot2', 'ggpubr', 'ggnewscale'),
                                          repos='https://cran.rstudio.com/')"
 
-    - name: Install Python dependencies for R documentation script
-      run: pip install enum
-
     - name : Configure build directory
       run : |
         cmake \
