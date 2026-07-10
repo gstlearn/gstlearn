@@ -92,6 +92,8 @@ class Function:
             .replace("/", "_")
             .replace("|", "_")
             .replace("=", "_")
+            .replace("<", "_")
+            .replace(">", "_")
         )
         rd_file = output_dir / f"{safe_name}.Rd"
         with open(rd_file, "w", encoding="utf-8") as f:
@@ -222,6 +224,8 @@ class Class:
             .replace("/", "_")
             .replace("|", "_")
             .replace("=", "_")
+            .replace("<", "_")
+            .replace(">", "_")
         )
         rd_file = output_dir / f"{safe_name}.Rd"
         with open(rd_file, "w", encoding="utf-8") as f:
@@ -258,6 +262,8 @@ class Enumeration:
             .replace("/", "_")
             .replace("|", "_")
             .replace("=", "_")
+            .replace("<", "_")
+            .replace(">", "_")
         )
         rd_file = output_dir / f"{safe_name}.Rd"
         with open(rd_file, "w", encoding="utf-8") as f:
