@@ -4,6 +4,7 @@ endif()
 
 # TODO : Do not regenerate doxymentation if nothing has changed in the source code
 find_package(Doxygen REQUIRED)
+find_package(Python3 REQUIRED)
 
 # Configure doxyfile
 

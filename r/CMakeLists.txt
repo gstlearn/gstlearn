@@ -21,6 +21,9 @@ find_package(SWIG 4.3.0 REQUIRED)
 message(STATUS "Found SWIG: " ${SWIG_EXECUTABLE} " (found version \"" ${SWIG_VERSION} "\")")
 include(${SWIG_USE_FILE})
 
+# Look for Python 3.11+ (needed by doxy2rd.py)
+find_package(Python3 3.11 COMPONENTS Interpreter REQUIRED)
+
 # Generation folders
 if (IS_MULTI_CONFIG)
   set(R_PACKAGE_ROOT_FOLDER        ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>)
@@ -37,6 +40,7 @@ set(R_PACKAGE_SRC_FOLDER           ${R_PACKAGE_DESTINATION_FOLDER}/src)
 #
 
 add_custom_target(r_doc
+  COMMAND ${CMAKE_COMMAND} -E echo "Launching doxy2rd.py"
   COMMAND ${Python3_EXECUTABLE}
     ${CMAKE_CURRENT_SOURCE_DIR}/doc/doxy2rd.py
     ${PROJECT_BINARY_DIR}/doxygen/xml
@@ -256,9 +260,8 @@ else()
   else()
     set(VENDOR "pc")
     if(DEFINED ENV{CONDA_PREFIX})
-        set(VENDOR "conda")
+      set(VENDOR "conda")
     endif()
-
     set(ARCHIVE_FILE_NAME "${PROJECT_NAME}_${PROJECT_VERSION}_R_x86_64-${VENDOR}-linux-gnu.tar.gz")
     set(DST_ARCHIVE_FILE_NAME "${PROJECT_NAME}_${PROJECT_VERSION}.tar.gz")
   endif()
