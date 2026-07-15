@@ -218,12 +218,8 @@ namespace gstlrn
     VectorInt ranks;
     for (Id ivar = 0; ivar < _nvar; ivar++)
     {
-      const double* zadd = nullptr;
       ranks.clear();
-      if (!_iptrZ.empty())
-      {
-        zadd = _db->getColAdressByColIdx(_iptrZ[ivar]);
-      }
+      const auto icol = _iptrZ.empty() ? -1 : _iptrZ[ivar];
       // Loop on the elligible sample ranks
       for (Id irel = 0; irel < nech; irel++)
       {
@@ -233,7 +229,7 @@ namespace gstlrn
         // The sample is valid for the current variable: its Z value is stored
         if (!_iptrZ.empty())
         {
-          value = zadd[iabs];
+          value = _db->getValueByColIdx(iabs, icol);
           _Zflatten->push_back(value);
         }
         // The sample is finally accepted: its ABSOLUTE index is stored

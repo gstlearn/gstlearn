@@ -22,6 +22,7 @@
 #include "Basic/ICloneable.hpp"
 #include "Basic/Limits.hpp"
 #include "Basic/NamingConvention.hpp"
+#include "Db/DbCol.hpp"
 #include "Db/PtrGeos.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Matrix/Table.hpp"
@@ -82,9 +83,11 @@ namespace gstlrn
   {
   public:
     Db();
-    Db(const Db& r);
-    Db& operator=(const Db& r);
-    virtual ~Db();
+    Db(const Db& r) = default;
+    Db& operator=(const Db& r) = default;
+    Db(Db&& r) = default;
+    Db& operator=(Db&& r) = default;
+    ~Db() override = default;
 
   public:
     /// Has a specific implementation in the Target language
@@ -273,8 +276,6 @@ namespace gstlrn
       bool flagAddSampleRank = true);
 
     /**@}*/
-
-    const VectorDouble& getArrays() const { return _array; }
 
     /** @addtogroup DB_Names Manipulating Names of the variables contained in a Db
      * \ingroup DB
@@ -613,7 +614,6 @@ namespace gstlrn
       double value);
 
     double getValueByColIdx(Id iech, Id icol, bool flagCheck = true) const;
-    const double* getColAdressByColIdx(Id icol) const;
 
     void
       setValueByColIdx(Id iech, Id icol, double value, bool flagCheck = true);
@@ -1108,11 +1108,11 @@ namespace gstlrn
       auto icol = getColIdxByUID(iuid);
       if (!isColIdxValid(icol)) return dummy;
       if (!isSampleIndexValid(iech)) return dummy;
-      auto iad = _getAddress(iech, icol);
-      return _array[iad];
+      auto& vec = _data.GetArray(icol)->get().getVector<VectorDouble>()->get();
+      return vec[iech];
     }
 
-    const double& operator()(Id iech, const String& name) const
+    double operator()(Id iech, const String& name) const
     {
       static const double dummy = std::numeric_limits<double>::quiet_NaN();
       auto iuid = getUID(name);
@@ -1120,8 +1120,7 @@ namespace gstlrn
       auto icol = getColIdxByUID(iuid);
       if (!isColIdxValid(icol)) return dummy;
       if (!isSampleIndexValid(iech)) return dummy;
-      auto iad = _getAddress(iech, icol);
-      return _array[iad];
+      return *_data.getValue<double>(iech, icol);
     }
 
   protected:
@@ -1149,11 +1148,6 @@ namespace gstlrn
 
   private:
     Id _getNextLocator(const ELoc& locatorType) const;
-
-    const VectorInt& _getUIDcol() const { return _uidcol; }
-
-    VectorString _getNames() const { return _colNames; }
-
     Id _getUIDcol(Id iuid) const;
     Id _getAddress(Id iech, Id icol) const;
     void _columnInit(
@@ -1224,7 +1218,7 @@ namespace gstlrn
   private:
     Id _ncol; //!< Number of Columns of data
     Id _nech; //!< Number of samples
-    VectorDouble _array; //!< Array of values
+    DbData _data;
     VectorInt _uidcol; //!< UID to Column
     VectorString _colNames; //!< Names of the variables
     std::vector<PtrGeos> _p; //!< Locator characteristics
