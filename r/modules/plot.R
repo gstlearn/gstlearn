@@ -585,9 +585,9 @@ plot.init <- function(dims = NA, xlim = NA, ylim = NA, asp = NA) {
 .readPointCoor <- function(db, useSel=TRUE, posX=0, posY=1)
 {
   if (db$getNDim() > 0)
-    x = db$getOneCoordinate(posX,useSel)
+    x = db$getVecCoordinate(posX,useSel)
   if (db$getNDim() > 1)
-    y = db$getOneCoordinate(posY,useSel)
+    y = db$getVecCoordinate(posY,useSel)
   df = data.frame(x,y)
   df
 }

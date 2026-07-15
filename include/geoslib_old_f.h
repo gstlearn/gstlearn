@@ -148,7 +148,6 @@ namespace gstlrn
     grid_iterator_init(Grid* grid, const VectorInt& order = VectorInt());
   GSTLEARN_EXPORT VectorInt grid_iterator_next(Grid* grid);
 
-  GSTLEARN_EXPORT Id db_name_identify(Db* db, const String& string);
   GSTLEARN_EXPORT Id db_locator_attribute_add(
     Db* db,
     const ELoc& locatorType,

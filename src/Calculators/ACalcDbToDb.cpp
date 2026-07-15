@@ -272,14 +272,13 @@ namespace gstlrn
     bool flagSetLocator,
     Id locatorShift)
   {
-    if (whichDb == 1)
-      _namconv.setNamesAndLocators(
-        _dbin, names, locatorType, nvar, _dbin, iptr, qualifier, count,
-        flagSetLocator, locatorShift);
-    else
-      _namconv.setNamesAndLocators(
-        _dbin, names, locatorType, nvar, _dbout, iptr, qualifier, count,
-        flagSetLocator, locatorShift);
+    auto nameloc = names;
+    if (nameloc.empty() && _dbin != nullptr)
+      nameloc = _dbin->getNamesByLocator(locatorType);
+    auto* db = (whichDb == 1) ? _dbin : _dbout;
+
+    _namconv.setOutput(
+      nameloc, nvar, db, iptr, qualifier, count, flagSetLocator, locatorShift);
   }
 
   void ACalcDbToDb::_cleanVariableDb(Id status)

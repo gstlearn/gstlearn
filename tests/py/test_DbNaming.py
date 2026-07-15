@@ -160,6 +160,9 @@ grid
 grid.deleteColumn("x1")
 grid
 
+# Note the field containing the first coordinate does not exist anymore.
+# However, the data base is still a 2-D grid.
+
 # The previous printout shows the current contents of the data base where
 # the field *x1* has been suppressed.
 # Note an important feature of the *locator* notion. For a given locator type

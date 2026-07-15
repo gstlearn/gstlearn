@@ -499,7 +499,8 @@ namespace gstlrn
 
     /* Set the error return code */
 
-    namconv.setNamesAndLocators(db, VectorString(), ELoc::Z, -1, db, iptr);
+    auto names = db->getNamesByLocator(ELoc::Z);
+    namconv.setOutput(names, 0, db, iptr);
     return 0;
   }
 
@@ -588,8 +589,8 @@ namespace gstlrn
 
     /* Set the error return code */
 
-    namconv.setNamesAndLocators(
-      dbout, VectorString(), ELoc::Z, -1, dbout, iptr);
+    auto names = dbin->getNamesByLocator(ELoc::Z);
+    namconv.setOutput(names, 0, dbout, iptr);
 
     return 0;
   }
@@ -683,9 +684,9 @@ namespace gstlrn
 
     /* Set the error return code */
 
-    namconv.setNamesAndLocators(db, iptr, "DistMin");
-    namconv.setNamesAndLocators(db, iptr + 1, "DistInter");
-    namconv.setNamesAndLocators(db, iptr + 2, "Angle");
+    namconv.setOutput(VectorString(), 0, db, iptr, "DistMin");
+    namconv.setOutput(VectorString(), 0, db, iptr + 1, "DistInter");
+    namconv.setOutput(VectorString(), 0, db, iptr + 2, "Angle");
 
     return 0;
   }

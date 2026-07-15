@@ -40,7 +40,7 @@ Data Base Statistics
  Mean value          =      5.187
  Standard Deviation  =      2.651
  Variance            =      7.027
-4 - Name lower1 - Locator lower1
+4 - Name lower1 - Locator l1
  Nb of data          =         10
  Nb of active values =          9
  Minimum value       =      0.616
@@ -48,7 +48,7 @@ Data Base Statistics
  Mean value          =      5.390
  Standard Deviation  =      2.467
  Variance            =      6.084
-5 - Name upper1 - Locator upper1
+5 - Name upper1 - Locator u1
  Nb of data          =         10
  Nb of active values =         10
  Minimum value       =      0.616

@@ -338,12 +338,40 @@ namespace gstlrn
     return other;
   }
 
-  String
-    incrementStringVersion(const String& string, Id rank, const String& delim)
+  String generateOneName(const String& string, Id rank, const String& delim)
   {
     std::stringstream ss;
     ss << string << delim << rank;
     return ss.str();
+  }
+
+  Id extractVersion(
+    const String& string,
+    const String& radical,
+    const String& delim)
+  {
+    const String prefix = radical + delim;
+
+    if (string.compare(0, prefix.size(), prefix) != 0) return -1;
+
+    const String suffix = string.substr(prefix.size());
+
+    if (suffix.empty()) return -1;
+
+    try
+    {
+      size_t pos = 0;
+      Id rank = std::stoll(suffix, &pos);
+
+      // Vérifie que toute la fin de chaîne est bien un nombre
+      if (pos != suffix.size()) return -1;
+
+      return rank;
+    }
+    catch (...)
+    {
+      return -1;
+    }
   }
 
   String
@@ -403,7 +431,7 @@ namespace gstlrn
 
     for (Id i = 0; i < number; i++)
     {
-      list.push_back(incrementStringVersion(radix, i + 1, delim));
+      list.push_back(generateOneName(radix, i + 1, delim));
     }
     return list;
   }
@@ -443,7 +471,7 @@ namespace gstlrn
 
       // We have found a similar name. Modify it as long as it matches an already existing name
 
-      newList[i] = incrementStringVersion(nameref, rank);
+      newList[i] = generateOneName(nameref, rank);
       goto label_try;
     }
   }
@@ -469,7 +497,7 @@ namespace gstlrn
 
       // We have found a similar name
 
-      list[itarget] = incrementStringVersion(nameref, rank);
+      list[itarget] = generateOneName(nameref, rank);
       goto label_try;
     }
   }

@@ -631,6 +631,7 @@ namespace gstlrn
   {
     ELoc locatorType;
     Id locatorIndex;
+    Id mult;
 
     // Constitute the list of Variables to be migrated
 
@@ -642,7 +643,7 @@ namespace gstlrn
 
       // Skip the coordinates
       String name = dbin->getNameByColIdx(icol);
-      if (dbin->getLocatorByColIdx(icol, &locatorType, &locatorIndex))
+      if (dbin->getLocatorByColIdx(icol, &locatorType, &locatorIndex, &mult))
       {
         if (locatorType == ELoc::X) continue;
       }
@@ -660,12 +661,11 @@ namespace gstlrn
       return false;
 
     // Duplicate the locators
-    for (Id icol = 0; icol < natts; icol++)
+    for (Id iatt = 0; iatt < natts; iatt++)
     {
-      if (dbin->getLocatorByColIdx(iatts[icol], &locatorType, &locatorIndex))
-        setLocatorByColIdx(icolOut + icol, locatorType, locatorIndex);
-      else
-        setLocatorByColIdx(icolOut + icol, ELoc::UNDEFINED, 0);
+      (void)
+        dbin->getLocatorByUID(iatts[iatt], &locatorType, &locatorIndex, &mult);
+      setLocatorByColIdx(icolOut + iatt, locatorType, locatorIndex);
     }
     return true;
   }
@@ -681,7 +681,7 @@ namespace gstlrn
     // Set the Names
 
     for (Id idim = 0; idim < ndim; idim++)
-      _setNameByColIdx(icol0 + idim, getLocatorName(ELoc::X, idim));
+      getData().setName(icol0 + idim, getLocatorName(ELoc::X, idim));
 
     // Set the locators
 
@@ -771,6 +771,11 @@ namespace gstlrn
   Id DbGrid::getNDim() const
   {
     return (_grid.getNDim());
+  }
+
+  Id DbGrid::getNSamples() const
+  {
+    return (_grid.getNTotal());
   }
 
   /**

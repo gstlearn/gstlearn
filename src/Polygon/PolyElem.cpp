@@ -264,8 +264,8 @@ namespace gstlrn
     VectorDouble centroid(2, 0.);
     auto np = getNPoints();
     if (np <= 3) return centroid;
+    auto hugeCoordinate = 1e+10;
 
-    double LARGE = 1e+10;
     double factor = 0.;
     double area = 0.0;
     for (Id i = 0; i < np - 1; i++)
@@ -274,8 +274,8 @@ namespace gstlrn
       double y0 = getY(i);
       double x1 = getX(i + 1);
       double y1 = getY(i + 1);
-      if (ABS(x0) > LARGE || ABS(y0) > LARGE || ABS(x1) > LARGE
-          || ABS(y1) > LARGE)
+      if (ABS(x0) > hugeCoordinate || ABS(y0) > hugeCoordinate
+          || ABS(x1) > hugeCoordinate || ABS(y1) > hugeCoordinate)
         continue;
       factor = (x0 * y1 - x1 * y0);
       area += factor;

@@ -257,7 +257,8 @@ namespace gstlrn
 
     /* Set the error return code */
 
-    namconv.setNamesAndLocators(db, VectorString(), ELoc::Z, -1, db, iptr);
+    auto names = db->getNamesByLocator(ELoc::Z);
+    namconv.setOutput(names, 0, db, iptr);
     return 0;
   }
 
@@ -305,7 +306,8 @@ namespace gstlrn
 
     /* Set the error return code */
 
-    namconv.setNamesAndLocators(db, VectorString(), ELoc::Z, -1, db, iptr);
+    auto names = db->getNamesByLocator(ELoc::Z);
+    namconv.setOutput(names, 0, db, iptr);
     return 0;
   }
 

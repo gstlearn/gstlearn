@@ -34,6 +34,7 @@
 #include "Enum/EPostUpscale.hpp"
 #include "Enum/EPowerPT.hpp"
 #include "Enum/EProcessOper.hpp"
+#include "Enum/ERole.hpp"
 #include "Enum/ERotation.hpp"
 #include "Enum/ERule.hpp"
 #include "Enum/ESPDECalcMode.hpp"
@@ -79,3 +80,4 @@ ENUM_DEFINE(ENUM_POST_STAT)
 ENUM_DEFINE(ENUM_FORMATNF)
 ENUM_DEFINE(ENUM_CSV)
 ENUM_DEFINE(ENUM_SIMUTYPE)
+ENUM_DEFINE(ENUM_ROLE)

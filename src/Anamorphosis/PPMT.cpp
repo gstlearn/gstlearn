@@ -15,6 +15,7 @@
 #include "Basic/MathFunc.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
+#include "Enum/ELoc.hpp"
 #include "Geometry/GeometryHelper.hpp"
 #include "Matrix/AMatrix.hpp"
 #include "Matrix/MatrixDense.hpp"
@@ -489,7 +490,7 @@ namespace gstlrn
     {
       Id iptr =
         db->addColumns(Y.getValues(), String(), ELoc::UNDEFINED, 0, true);
-      namconv.setNamesAndLocators(exp_names, db, iptr);
+      namconv.setOutput(exp_names, 0, db, iptr);
     }
     return 0;
   }
@@ -539,7 +540,7 @@ namespace gstlrn
 
     // Add the newly created information in the Db
     Id iptr = db->addColumns(Y.getValues(), String(), ELoc::UNDEFINED, 0, true);
-    namconv.setNamesAndLocators(exp_names, db, iptr);
+    namconv.setOutput(exp_names, 0, db, iptr);
 
     return 0;
   }
@@ -601,7 +602,7 @@ namespace gstlrn
 
     // Add the newly created information in the Db
     Id iptr = db->addColumns(Y.getValues(), String(), ELoc::UNDEFINED, 0, true);
-    namconv.setNamesAndLocators(exp_names, db, iptr);
+    namconv.setOutput(exp_names, 0, db, iptr);
 
     return 0;
   }

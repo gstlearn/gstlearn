@@ -10,6 +10,8 @@
 
 // Export VectorXXX classes
 %include Basic/VectorT.hpp
+typedef unsigned char UChar; // Add to allow aliasing Boolean and UChar
+typedef std::string String;  // Add to allow aliasing String and std::string
 %template(VectorTInt)         gstlrn::VectorT< long long >;
 %template(VectorTDouble)      gstlrn::VectorT< double >;
 %template(VectorTFloat)       gstlrn::VectorT< float >;
@@ -73,6 +75,7 @@
 %include Enum/EPostStat.hpp
 %include Enum/EFormatNF.hpp
 %include Enum/ESimuType.hpp
+%include Enum/ERole.hpp
 
 %include Basic/ArgumentTest.hpp
 %include Basic/AStringable.hpp
@@ -333,6 +336,27 @@
 %include API/SPDEParam.hpp
 %include API/Potential.hpp
 
+// 1. Load typemaps BEFOREHAND so that SWIG knows them
+#ifdef SWIGPYTHON
+%include "typemaps_optional_python.i"
+%include "typemaps_colID_python.i"
+#endif
+
+#ifdef SWIGR
+%include "typemaps_optional_r.i"
+%include "typemaps_colID_r.i"
+#endif
+
+// 2. Define types
+%include "DataBase/RoleID.hpp"
+%include "DataBase/ColID.hpp"
+
+// 3. Mpad the headers that use ColID
+%include "DataBase/DbData.hpp"
+%include "DataBase/DbCol.hpp"
+//%include DataBase/Dictionary.hpp
+//%include DataBase/VectorCategory.hpp
+
 %include Db/Db.hpp
 %include Db/DbGrid.hpp
 %include Db/DbLine.hpp
@@ -467,3 +491,20 @@
 
 %template(LinearOpCGSolver) LinearOpCGSolver< ScaleOp >;
 %template(LinearSPDEOpCGSolver) LinearOpCGSolver< SPDEOp >;
+
+// In DbData: addColumn()
+%template(addColumnEmptyD)  gstlrn::DbData::addColumnEmpty<VectorDouble>;
+%template(addColumnEmptyF)  gstlrn::DbData::addColumnEmpty<VectorFloat>;
+%template(addColumnEmptyI)  gstlrn::DbData::addColumnEmpty<VectorInt>;
+%template(addColumnEmptyU)  gstlrn::DbData::addColumnEmpty<VectorUChar>;
+%template(addColumnEmptyS)  gstlrn::DbData::addColumnEmpty<VectorString>;
+%template(addColumnEmptyB)  gstlrn::DbData::addColumnEmpty<VectorBool>;
+//%template(addColumnEmptyC)  gstlrn::DbData::addColumnEmpty<VectorCategory>;
+
+%template(addColumnD)  gstlrn::DbData::addColumn<VectorDouble>;
+%template(addColumnF)  gstlrn::DbData::addColumn<VectorFloat>;
+%template(addColumnI)  gstlrn::DbData::addColumn<VectorInt>;
+%template(addColumnU)  gstlrn::DbData::addColumn<VectorUChar>;
+%template(addColumnS)  gstlrn::DbData::addColumn<VectorString>;
+%template(addColumnB)  gstlrn::DbData::addColumn<VectorBool>;
+//%template(addColumnC)  gstlrn::DbData::addColumn<VectorCategory>;

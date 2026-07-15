@@ -249,8 +249,7 @@ namespace gstlrn
             100. * _ktest.wgt.getValue(lec++, ivar));
         }
     }
-    namconv.setNamesAndLocators(
-      getDbin(), names, ELoc::Z, nvar, getDbin(), iuid, String(), nvar, false);
+    namconv.setOutput(names, nvar, getDbin(), iuid, String(), nvar, false);
   }
 
   /****************************************************************************/

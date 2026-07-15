@@ -143,14 +143,10 @@ namespace gstlrn
       {
         std::ostringstream oper;
         oper << "Var" << ivar + 1 << "." << _stats[istat].getDescr();
-        if (_flagUpscale)
-          _renameVariable(
-            2, VectorString(), ELoc::UNDEFINED, 0, _iattOut + ecr, oper.str(),
-            1);
-        else
-          _renameVariable(
-            1, VectorString(), ELoc::UNDEFINED, 0, _iattOut + ecr, oper.str(),
-            1);
+        Id whichDb = _flagUpscale ? 2 : 1;
+        _renameVariable(
+          whichDb, VectorString(), ELoc::UNDEFINED, 0, _iattOut + ecr,
+          oper.str(), 1, false);
         ecr++;
       }
     return true;

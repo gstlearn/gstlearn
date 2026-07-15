@@ -60,10 +60,6 @@ namespace gstlrn
   GSTLEARN_EXPORT void
     correctNewNameForDuplicates(VectorString& list, Id target);
 
-  GSTLEARN_EXPORT String incrementStringVersion(
-    const String& string,
-    Id rank = 1,
-    const String& delim = ".");
   GSTLEARN_EXPORT String concatenateString(
     const String& string,
     double value,
@@ -77,6 +73,14 @@ namespace gstlrn
   GSTLEARN_EXPORT String
     decorateString(const String& string, Id item, Id nChar = 5);
 
+  GSTLEARN_EXPORT Id extractVersion(
+    const String& string,
+    const String& radical,
+    const String& delim = ".");
+  GSTLEARN_EXPORT String generateOneName(
+    const String& string,
+    Id rank = 1,
+    const String& delim = ".");
   GSTLEARN_EXPORT VectorString generateMultipleNames(
     const String& radix,
     Id number,

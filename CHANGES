@@ -4,6 +4,11 @@ This file contains the logs between consecutive releases
 
 Release 1.12.0
 ==============
+- The member _uidcol has been removed from Db class.
+- The members of 'Db' class have been simplified (premices for merging 'Db' and 'DbData' classes)
+- Method NamingConvention::setNamesAndLocators() with multiple implementations has been replaced by the methods setOutput() and setOutputForSimulations()
+- PtrGeos Class has disappeared (from Db). The nicknames of few locators ('lower', 'upper', 'code' has been modified)
+- Suppressing the warnings when producing R version (typemaps errors)
 - krigingVecchia can now handle any drift.
 - new function krigWeight and xvalidWeight to store the kriging weights in dbin.
 - db_vmap() is now called vmapFromDb()

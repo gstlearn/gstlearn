@@ -22,7 +22,7 @@ Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x-1 - Locator = x1
 Column = 2 - Name = x-2 - Locator = x2
 Column = 3 - Name = z - Locator = NA
-Column = 4 - Name = code - Locator = code
+Column = 4 - Name = code - Locator = c
 Column = 5 - Name = MyVar.code.Class.S1 - Locator = z1
 Column = 6 - Name = MyVar.code.Class.S2 - Locator = z2
 Column = 7 - Name = MyVar.code.Class.S3 - Locator = z3

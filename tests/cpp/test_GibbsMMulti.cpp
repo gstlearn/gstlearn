@@ -132,7 +132,7 @@ int main(int argc, char* argv[])
       Vario vario(varioparam);
       vario.compute(db, ECalcVario::VARIOGRAM);
       (void)vario.dumpToNF(
-        incrementStringVersion("Vario", static_cast<Id>(isimu) + 1));
+        generateOneName("Vario", static_cast<Id>(isimu) + 1));
     }
   }
 

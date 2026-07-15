@@ -59,7 +59,7 @@ static Db* createLocalDb(Id nech, Id ndim, Id nvar, Id seed)
     if (nvar == 1)
       data->setNameByUID(3 + ivar, "Var");
     else
-      data->setNameByUID(3 + ivar, incrementStringVersion("Var", ivar + 1));
+      data->setNameByUID(3 + ivar, generateOneName("Var", ivar + 1));
     data->setLocatorByUID(3 + ivar, ELoc::Z, ivar);
   }
   return data;

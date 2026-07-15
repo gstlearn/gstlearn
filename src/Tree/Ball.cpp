@@ -397,7 +397,7 @@ namespace gstlrn
       Id nrow = dbin->getNSample(useSel);
       for (Id icol = 0; icol < ncol; icol++)
       {
-        oneColumn = dbin->getOneCoordinate(icol, useSel);
+        oneColumn = dbin->getVecCoordinate(icol, useSel);
         for (Id irow = 0; irow < nrow; irow++)
           internal(ns + irow, icol) = oneColumn[irow];
       }
@@ -410,7 +410,7 @@ namespace gstlrn
       Id nrow = dbout->getNSample(useSel);
       for (Id icol = 0; icol < ncol; icol++)
       {
-        oneColumn = dbout->getOneCoordinate(icol, useSel);
+        oneColumn = dbout->getVecCoordinate(icol, useSel);
         for (Id irow = 0; irow < nrow; irow++)
           internal(ns + irow, icol) = oneColumn[irow];
       }

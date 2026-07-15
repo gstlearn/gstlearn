@@ -931,7 +931,7 @@ Column = 4 - Name = January_temp - Locator = z1
   18 -        TIME : Time variable
   19 -       LAYER : Layer rank
   20 -      NOSTAT : Non-stationary parameter
-  21 -        TGTE : Tangent
+  21 -         TGT : Tangent
   22 -        SIMU : Conditional or non-conditional simulations
   23 -      FACIES : Facies simulated
   24 -     GAUSFAC : Gaussian value for Facies

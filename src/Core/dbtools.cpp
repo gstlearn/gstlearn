@@ -1720,9 +1720,8 @@ namespace gstlrn
       AprojOut.mesh2point(props[i], propout);
       Id iptr = dbout->addColumns(propout, String(), ELoc::UNDEFINED, 0, true);
       if (i == 0) iptr0 = iptr;
-      namconv.setNamesAndLocators(
-        nullptr, VectorString(), ELoc::UNDEFINED, -1, dbout, iptr,
-        concatenateStrings("-", toStr(i + 1)));
+      namconv.setOutput(
+        VectorString(), 0, dbout, iptr, concatenateStrings("-", toStr(i + 1)));
     }
     namconv.setLocators(dbout, iptr0, 1, ncat);
 

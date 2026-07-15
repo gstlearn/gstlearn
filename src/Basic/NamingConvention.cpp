@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Basic/NamingConvention.hpp"
 #include "Basic/String.hpp"
-#include "Basic/VectorNumT.hpp"
 #include "Db/Db.hpp"
 
 #include <string>
@@ -20,6 +19,14 @@ namespace gstlrn
   // Default value for the Style used for Variable encoding
   bool Old_Style = false;
 
+  /**
+   * @brief Activate or deactivate the old naming convention.
+   *
+   * This method is provided for compatibility with the historical naming
+   * convention.
+   *
+   * @param status If true, activate the old naming convention.
+   */
   void NamingConvention::Naming_Old_Style(bool status)
   {
     Old_Style = status;
@@ -75,15 +82,24 @@ namespace gstlrn
   NamingConvention::~NamingConvention() {}
 
   /**
-   * Construct an item of the Naming Convention Class
-   * @param prefix Name given to the prefix
-   * @param flag_varname When TRUE, the 'varname' is included in the output names
-   * @param flag_qualifier When TRUE, the 'qualifier' is included in the output names
-   * @param flag_locator When TRUE, the output variables receive a 'locator'
-   * @param locatorOutType Type of locator assigned to the output variables
-   * @param delim Symbol used as a delimitor separating the different parts of the output names
-   * @param cleanSameLocator When TRUE and if 'flag_locator' is TRUE, all variables assigned to the same locator are cancelled beforehand
-   * @return
+   * @brief Create a NamingConvention object.
+   *
+   * This static method is a convenience function for creating a
+   * NamingConvention object with the specified naming options.
+   *
+   * @param prefix Prefix used for naming the output variables.
+   * @param flag_varname If true, the variable name is included in the
+   * generated name.
+   * @param flag_qualifier If true, the qualifier is included in the
+   * generated name.
+   * @param flag_locator If true, a locator is assigned to the output
+   * variables.
+   * @param locatorOutType Type of locator assigned to the output variables.
+   * @param delim Delimiter used to separate the components of the generated
+   * name.
+   * @param cleanSameLocator If true, variables with the same locator are
+   * cleaned beforehand.
+   * @return Pointer to the newly created NamingConvention object.
    */
   NamingConvention* NamingConvention::create(
     const String& prefix,
@@ -100,147 +116,27 @@ namespace gstlrn
   }
 
   /**
-   * Newly created variables are named as follows:
+   * @brief Generate names for output variables.
    *
-   * 'prefix'.'qualifier'.'item_rank'
+   * The generated names are assigned to the output variables starting at
+   * the specified attribute index. Depending on the options of the
+   * NamingConvention object, the input variable name and qualifier can be
+   * included in the generated names.
    *
-   * @param dbout Pointer to the output Db
-   * @param iattout_start Starting attribute index
-   * @param qualifier Optional qualifier
-   * @param nitems Number of items
-   * @param flagSetLocator True if the variable must be assigned the locator
-   * @param locatorShift Shift to be applied to the locator currently defined
+   * The output variables can also be assigned the configured locator.
+   *
+   * @param names Names of the input variables.
+   * @param nvar Number of variables.
+   * @param dbout Output Db containing the variables to be named.
+   * @param iattout_start Index of the first output variable.
+   * @param qualifier Qualifier describing the output variables.
+   * @param nitems Number of items generated for each variable.
+   * @param flagSetLocator If true, assign the configured locator to the
+   * output variables.
+   * @param locatorShift Shift applied when assigning the locator.
    */
-  void NamingConvention::setNamesAndLocators(
-    Db* dbout,
-    Id iattout_start,
-    const String& qualifier,
-    Id nitems,
-    bool flagSetLocator,
-    Id locatorShift) const
-  {
-    _setNames(dbout, iattout_start, VectorString(), 0, qualifier, nitems);
-
-    if (flagSetLocator)
-      setLocators(dbout, iattout_start, 1, nitems, locatorShift);
-  }
-
-  /**
-   * Newly created variables are named as follows:
-   *
-   * 'prefix'.'names[i]'.qualifier'.'item_rank'
-   *
-   * @param names Vector of variable names
-   * @param dbout Pointer to the output Db
-   * @param iattout_start Starting attribute index
-   * @param qualifier Optional qualifier
-   * @param nitems Number of items
-   * @param flagSetLocator True if the variable must be assigned the locator
-   * @param locatorShift Shift to be applied to the locator currently defined
-   */
-  void NamingConvention::setNamesAndLocators(
+  void NamingConvention::setOutput(
     const VectorString& names,
-    Db* dbout,
-    Id iattout_start,
-    const String& qualifier,
-    Id nitems,
-    bool flagSetLocator,
-    Id locatorShift) const
-  {
-    if (iattout_start < 0) return;
-    Id nvar = static_cast<Id>(names.size());
-    if (nvar <= 0) return;
-
-    _setNames(dbout, iattout_start, names, nvar, qualifier, nitems);
-
-    if (flagSetLocator)
-      setLocators(dbout, iattout_start, nvar, nitems, locatorShift);
-  }
-
-  /**
-   * Newly created variables are named as follows:
-   *
-   * "names[i]"
-   *
-   * @param dbout Pointer to the output Db
-   * @param iattout_start Starting attribute index
-   * @param names Vector of output variable names
-   * @param flagSetLocator True if the variable must be assigned the locator
-   * @param locatorShift Shift to be applied to the locator currently defined
-   */
-  void NamingConvention::setNamesAndLocators(
-    Db* dbout,
-    Id iattout_start,
-    const VectorString& names,
-    bool flagSetLocator,
-    Id locatorShift) const
-  {
-    if (iattout_start < 0) return;
-    Id nvar = static_cast<Id>(names.size());
-
-    for (Id ivar = 0; ivar < nvar; ivar++)
-      dbout->setNameByUID(iattout_start + ivar, names[ivar]);
-
-    if (flagSetLocator)
-      setLocators(dbout, iattout_start, nvar, 1, locatorShift);
-  }
-
-  /**
-   * Newly created variables are named as follow:
-   *
-   * 'prefix'.'namin'.'qualifier'.'item_rank'
-   *
-   * @param namin variable name
-   * @param dbout Pointer to the output Db
-   * @param iattout_start Starting attribute index
-   * @param qualifier Optional qualifier
-   * @param nitems Number of items
-   * @param flagSetLocator True if the variable must be assigned the locator
-   * @param locatorShift Shift to be applied to the locator currently defined
-   */
-  void NamingConvention::setNamesAndLocators(
-    const String& namin,
-    Db* dbout,
-    Id iattout_start,
-    const String& qualifier,
-    Id nitems,
-    bool flagSetLocator,
-    Id locatorShift) const
-  {
-    if (iattout_start < 0) return;
-    VectorString names;
-    names.push_back(namin);
-
-    _setNames(dbout, iattout_start, names, 0, qualifier, nitems);
-
-    if (flagSetLocator)
-      setLocators(dbout, iattout_start, 1, nitems, locatorShift);
-  }
-
-  /**
-   * Newly created variables are named as follow:
-   *
-   * 'prefix'.'name'.'qualifier'.'item_rank'
-   *
-   * where 'name' stands for the name of the variable(s) in 'names' or, if absent,
-   * the name of the variable with locator 'Loc' in 'dbin'
-   *
-   * @param dbin  Pointer to the input Db (kept for symmetry)
-   * @param names Vector of names (from 'dbin'). If not defined, use the locator instead
-   * @param locatorInType Locator Type of the variables in Input Db
-   * @param nvar Number of items belonging to the locatorType
-   *             (if -1, all the items available for this locator are used)
-   * @param dbout Pointer to the output Db
-   * @param iattout_start Starting attribute index
-   * @param qualifier Optional qualifier
-   * @param nitems Number of items
-   * @param flagSetLocator True if the variable must be assigned the locator
-   * @param locatorShift Shift to be applied to the locator currently defined
-   */
-  void NamingConvention::setNamesAndLocators(
-    const Db* dbin,
-    const VectorString& names,
-    const ELoc& locatorInType,
     Id nvar,
     Db* dbout,
     Id iattout_start,
@@ -249,151 +145,70 @@ namespace gstlrn
     bool flagSetLocator,
     Id locatorShift) const
   {
-    // No variable is concerned: simply return
     if (iattout_start < 0) return;
 
-    // Update the list of variable names
-    VectorString namloc = names;
-    if (namloc.empty())
+    auto nameloc = names;
+    if (nameloc.empty())
     {
-      // No list of variable names is provided. Attempt to construct it
-      if (dbin != nullptr && locatorInType != ELoc::UNDEFINED)
-      {
-        // Variables are designated using the locator in a 'db'.
-        // If 'nvar' is not defined, 'namloc' defines the count of variables
-        // If 'nvar' is defined, it prevails.
-        namloc = dbin->getNamesByLocator(locatorInType);
-        if (nvar <= 0)
-          nvar = static_cast<Id>(namloc.size());
-        else
-          namloc.resize(nvar);
-      }
-      else
-      {
-        // 'namloc' remain empty. Argument 'nvar' prevails. If zero, it is set to 1
-        if (nvar < 0) nvar = 1;
-      }
+      // 'names' is not provided, 'nvar' prevails (if not defined, it is set to 1)
+      if (nvar <= 0) nvar = 1;
     }
     else
     {
-      // 'namloc' is defined as input argument
-      if (static_cast<Id>(namloc.size()) == 1 && nvar > 1)
+      // 'names' is provided
+      auto namesize = static_cast<Id>(nameloc.size());
+      if (nvar <= 0)
       {
-        // Particular case of a single string in 'namloc' but 'nvar' > 1; expand the name
-        namloc = generateMultipleNames(namloc[0], nvar);
+        // If 'nvar' is not defined, argument 'names' prevails
+        nvar = namesize;
       }
-
-      // The number items in 'namloc' overrides 'nvar'
-      nvar = static_cast<Id>(namloc.size());
+      else
+      {
+        // 'names' and 'nvar' are both defined: 'nvar' prevails
+        if (namesize == 1 && nvar > 1)
+        {
+          // Particular case where 'nvar' > 1 but 'names' contains a single name: the name is expanded
+          nameloc = generateMultipleNames(names[0], nvar);
+        }
+        else
+        {
+          // 'names' and 'nvar' are both defined: 'names' is reset to 'nvar' if needed
+          nameloc.resize(nvar);
+        }
+      }
     }
 
-    _setNames(dbout, iattout_start, namloc, nvar, qualifier, nitems);
+    _setNames(dbout, iattout_start, nameloc, nvar, qualifier, nitems);
 
     if (flagSetLocator)
       setLocators(dbout, iattout_start, nvar, nitems, locatorShift);
   }
 
   /**
-   * Newly created variables are named as follow:
+   * @brief Generate names for simulation output variables.
    *
-   * 'prefix'.'v[i]'.'qualifier'.'item_rank'
+   * This method generates names using both the variable and simulation
+   * indices. The order of these two indices is controlled by
+   * `flagSimuFirst`.
    *
-   * where v[i] is the variable with rank 'i' within 'dbin'
+   * For example, for two variables and two simulations, the generated names
+   * can be:
+   * - V1.S1, V1.S2, V2.S1, V2.S2 when `flagSimuFirst` is false;
+   * - S1.V1, S1.V2, S2.V1, S2.V2 when `flagSimuFirst` is true.
    *
-   * @param dbin  Pointer to the input Db (kept for symmetry)
-   * @param iatts Vector of attribute indices of the variables in Input Db
-   * @param dbout Pointer to the output Db
-   * @param iattout_start Starting attribute index
-   * @param qualifier Optional qualifier
-   * @param nitems Number of items
-   * @param flagSetLocator True if the variable must be assigned the locator
-   * @param locatorShift Shift to be applied to the locator currently defined
+   * @param names Names of the input variables.
+   * @param nvar Number of variables.
+   * @param dbout Output Db containing the simulation variables.
+   * @param iattout_start Index of the first output variable.
+   * @param nbsimu Number of simulations.
+   * @param flagSimuFirst If true, the simulation index is placed before the
+   * variable index.
+   * @param flagSetLocator If true, assign the configured locator to the
+   * output variables.
+   * @param locatorShift Shift applied when assigning the locator.
    */
-  void NamingConvention::setNamesAndLocators(
-    const Db* dbin,
-    const VectorInt& iatts,
-    Db* dbout,
-    Id iattout_start,
-    const String& qualifier,
-    Id nitems,
-    bool flagSetLocator,
-    Id locatorShift) const
-  {
-    if (iattout_start < 0) return;
-    if (dbin == nullptr) return;
-    Id nvar = static_cast<Id>(iatts.size());
-    if (nvar <= 0) return;
-
-    VectorString names;
-    for (Id ivar = 0; ivar < nvar; ivar++)
-      names.push_back(dbin->getNameByUID(iatts[ivar]));
-
-    _setNames(dbout, iattout_start, names, nvar, qualifier, nitems);
-
-    if (flagSetLocator)
-      setLocators(dbout, iattout_start, nvar, nitems, locatorShift);
-  }
-
-  /**
-   * Newly created variables are named as follow:
-   *
-   * 'prefix'.'v[iatt]'.'qualifier'.'item_rank'
-   *
-   * @param dbin  Pointer to the input Db (kept for symmetry)
-   * @param iatt  Attribute index of the variables in Input Db
-   * @param dbout Pointer to the output Db
-   * @param iattout_start Starting attribute index
-   * @param qualifier Optional qualifier
-   * @param nitems Number of items
-   * @param flagSetLocator True if the variable must be assigned the locator
-   * @param locatorShift Shift to be applied to the locator currently defined
-   */
-  void NamingConvention::setNamesAndLocators(
-    const Db* dbin,
-    Id iatt,
-    Db* dbout,
-    Id iattout_start,
-    const String& qualifier,
-    Id nitems,
-    bool flagSetLocator,
-    Id locatorShift) const
-  {
-    if (iattout_start < 0) return;
-    if (dbin == nullptr) return;
-
-    VectorString names;
-    names.push_back(dbin->getNameByUID(iatt));
-
-    _setNames(dbout, iattout_start, names, 0, qualifier, nitems);
-
-    if (flagSetLocator)
-      setLocators(dbout, iattout_start, 1, nitems, locatorShift);
-  }
-
-  /**
-   * Newly created variables for multivariate simulations are named with explicit V/S indicators.
-   *
-   * For non-conditional simulations (names empty):
-   *   Names are: prefix.V1.S1, prefix.V2.S1, ..., prefix.Vnvar.S1, prefix.V1.S2, ...
-   *
-   * For conditional simulations (names provided):
-   *   Names are: prefix.name1.S1, prefix.name2.S1, ..., prefix.nameN.S1, prefix.name1.S2, ...
-   *
-   * @param dbin  Pointer to the input Db (optional, for getting variable names)
-   * @param names Vector of variable names (empty for non-conditional simulations)
-   * @param locatorInType Locator Type of the variables in Input Db
-   * @param nvar Number of variables
-   * @param dbout Pointer to the output Db
-   * @param iattout_start Starting attribute index
-   * @param nbsimu Number of simulations
-   * @param flagSimuFirst True if simulations vary first in storage order (default: true)
-   * @param flagSetLocator True if the variable must be assigned the locator
-   * @param locatorShift Shift to be applied to the locator currently defined
-   */
-  void NamingConvention::setNamesAndLocatorsForSimulations(
-    const Db* dbin,
+  void NamingConvention::setOutputForSimulations(
     const VectorString& names,
-    const ELoc& locatorInType,
     Id nvar,
     Db* dbout,
     Id iattout_start,
@@ -404,43 +219,18 @@ namespace gstlrn
   {
     if (iattout_start < 0) return;
 
-    // Update the list of variable names
-    VectorString namloc = names;
-    if (namloc.empty())
+    if (names.empty())
     {
-      // No list of variable names is provided. Attempt to construct it
-      if (dbin != nullptr && locatorInType != ELoc::UNDEFINED)
-      {
-        // Variables are designated using the locator in a 'db'.
-        namloc = dbin->getNamesByLocator(locatorInType);
-        if (nvar <= 0)
-          nvar = static_cast<Id>(namloc.size());
-        else
-          namloc.resize(nvar);
-      }
-      else
-      {
-        // 'namloc' remains empty for non-conditional simulations
-        if (nvar < 0) nvar = 1;
-      }
+      if (nvar <= 0) nvar = 1;
     }
     else
     {
-      // The number items in 'namloc' overrides 'nvar'
-      nvar = static_cast<Id>(namloc.size());
+      nvar = static_cast<Id>(names.size());
     }
 
     // Create simulation names
     VectorString outnames =
-      _createSimulationNames(namloc, nvar, nbsimu, flagSimuFirst);
-
-    // Debug: print the names we're creating
-    // std::cout << "DEBUG: Created names: ";
-    // for (size_t i = 0; i < outnames.size(); i++) {
-    //   std::cout << outnames[i];
-    //   if (i < outnames.size() - 1) std::cout << ", ";
-    // }
-    // std::cout << std::endl;
+      _createSimulationNames(names, nvar, nbsimu, flagSimuFirst);
 
     // Set the names in the database
     Id ntotal = nvar * nbsimu;
@@ -465,6 +255,18 @@ namespace gstlrn
     }
   }
 
+  /**
+   * @brief Assign the configured locator to output variables.
+   *
+   * The locator is assigned to a set of output variables starting at
+   * `iattout_start`.
+   *
+   * @param dbout Output Db containing the variables.
+   * @param iattout_start Index of the first variable receiving the locator.
+   * @param nvar Number of variables.
+   * @param nitems Number of items associated with each variable.
+   * @param locatorShift Shift applied when assigning the locator.
+   */
   void NamingConvention::setLocators(
     Db* dbout,
     Id iattout_start,
@@ -485,12 +287,6 @@ namespace gstlrn
         iattout_start + ecr, _locatorOutType, ecr + locatorShift);
   }
 
-  /**
-   * Define the rule for defining the number of variables
-   * @param names Vector of variable strings (may be empty)
-   * @param nvar  Number of variables (may be 0)
-   * @return A valid number of variables
-   */
   Id NamingConvention::_getNameCount(const VectorString& names, Id nvar)
   {
     if (nvar <= 0)
@@ -499,24 +295,15 @@ namespace gstlrn
       if (names.empty()) return 1;
       return static_cast<Id>(names.size());
     }
+
     // Argument 'nvar' is provided: is it consistent with 'names'
     if (names.empty()) return nvar;
+
     // Both 'nvar' and 'names' are provided. For safety reasons,
     // the number of variables is the minimum between the two
     return MIN(nvar, static_cast<Id>(names.size()));
   }
 
-  /**
-   * Defines the names of the output variables. These variables are located
-   * in 'dbout'; they have consecutive UIDs, starting from 'iattout_start'
-   *
-   * @param dbout   Pointer to the output Db structure
-   * @param iattout_start Rank of the first variable to be named
-   * @param names Vector of Names or empty (dimension: nvar)
-   * @param nvar Number of variables (if provided)
-   * @param qualifier Optional qualifier
-   * @param nitems Number of items to be renamed
-   */
   void NamingConvention::_setNames(
     Db* dbout,
     Id iattout_start,
@@ -540,16 +327,6 @@ namespace gstlrn
     }
   }
 
-  /**
-   * Defines the names of the output variables.
-   *
-   * @param names Vector of Names or empty (dimension: nvar)
-   * @param nvar Number of variables (or 0)
-   * @param qualifier Optional qualifier
-   * @param nitems Number of items to be renamed
-   *
-   * @return outnames An array of variable names (Dimension: nvar * nitems)
-   */
   VectorString NamingConvention::_createNames(
     const VectorString& names,
     Id nvar,
@@ -615,23 +392,6 @@ namespace gstlrn
     return outnames;
   }
 
-  /**
-   * Creates names for multivariate simulations with explicit V/S indicators
-   *
-   * @param names Vector of variable names (empty for non-conditional simulations)
-   * @param nvar Number of variables
-   * @param nbsimu Number of simulations
-   * @param flagSimuFirst True if simulations vary first (storage order)
-   *
-   * @return outnames An array of variable names (Dimension: nvar * nbsimu)
-   *
-   * @remarks For non-conditional simulations (names empty):
-   *   Names are: prefix.V1.S1, prefix.V2.S1, ..., prefix.Vnvar.S1, prefix.V1.S2, ...
-   *   (if flagSimuFirst=true, order is: prefix.V1.S1, prefix.V1.S2, ..., prefix.V2.S1, ...)
-   *
-   * @remarks For conditional simulations (names provided):
-   *   Names are: prefix.name1.S1, prefix.name2.S1, ..., prefix.nameN.S1, prefix.name1.S2, ...
-   */
   VectorString NamingConvention::_createSimulationNames(
     const VectorString& names,
     Id nvar,
@@ -718,34 +478,24 @@ namespace gstlrn
   }
 
   /**
-   * Defines the name of one output variable.
+   * @brief Generate a variable name according to the naming convention.
    *
-   * @param prefix Initial part of the returned name
-   * @param db  Pointer to the Db where the variable name is searched for (optional)
-   * @param ivar Index of the variable (1 based) or -1 if not applicable
-   * @param nvar Number of variables
-   * @param isimu Index of the simulation (1 based) or -1 if not applicable
-   * @param nbsimu Number of simulations
-   * @param extension Optional extension
-   * @param delim Delimiter for concatenating parts
+   * This static method provides a way to generate a variable name without
+   * creating a NamingConvention object.
    *
-   * @remark The returned 'name' is constructed as follows:
-   *              'prefix' + 'delim' + 'varname' + 'delim' + 'qualifier'
-   *   where:
-   *   - 'prefix' is always provided
-   *   - 'varname' is determined as follows:
-   *     - If 'db' is provided, the variable name is extracted from 'db' using the locator (ELoc::Z, ivar)
-   *     - If 'db' is not provided:
-   *       . If ivar<0, the variable name is generated as "*"
-   *       . If nvar<=1, the variable name is ignored
-   *       . If nvar>1 && ivar>0, the variable name is generated as "V" + "ivar"
-   *   - 'qualifier' is determined as follows:
-   *     - If 'extension' is provided, it is used as the qualifier
-   *     - If 'extension' is not provided:
-   *       . If isimu<0, the qualifier is generated as "*"
-   *       . If nbsimu <= 1, the qualifier is ignored
-   *       . If nbsimu > 1 && isimu>0, the qualifier is set as "S" + "isimu"
-   *   - If the resulting name is empty, it defaults to "Dummy"
+   * Depending on the arguments, the generated name can include the input
+   * variable name, variable rank, simulation rank and an extension.
+   *
+   * @param prefix Prefix used in the generated name.
+   * @param db Db containing the input variable names. May be nullptr when
+   * the variable name is not required.
+   * @param ivar Index of the input variable.
+   * @param nvar Number of variables.
+   * @param isimu Index of the simulation.
+   * @param nbsimu Number of simulations.
+   * @param extension Additional extension appended to the generated name.
+   * @param delim Delimiter used to separate the different components.
+   * @return Generated variable name.
    */
   String NamingConvention::getNameEncoded(
     const String& prefix,

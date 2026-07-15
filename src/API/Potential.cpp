@@ -384,7 +384,7 @@ namespace gstlrn
       if (!_dbtgt->isActive(iech)) continue;
       Id found = 0;
       for (Id idim = 0; idim < _ndim && found == 0; idim++)
-        if (FFFF(_dbtgt->getLocVariable(ELoc::TGTE, iech, idim))) found = 1;
+        if (FFFF(_dbtgt->getLocVariable(ELoc::TGT, iech, idim))) found = 1;
       if (found) continue;
       set_IAD_TGT(ntgt++, iech);
     }
@@ -2339,7 +2339,7 @@ namespace gstlrn
           double tgte = 0.;
           for (Id idim = 0; idim < _ndim; idim++)
             tgte +=
-              result[1 + idim] * _dbtgt->getLocVariable(ELoc::TGTE, iech, idim);
+              result[1 + idim] * _dbtgt->getLocVariable(ELoc::TGT, iech, idim);
 
           // Print the results
 

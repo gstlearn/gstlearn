@@ -113,7 +113,7 @@ int main(int argc, char* argv[])
     db->clearLocators(ELoc::Z);
     db->setLocator(names[isimu], ELoc::Z, 0);
     vario.compute(db, ECalcVario::VARIOGRAM);
-    (void)vario.dumpToNF(incrementStringVersion("Vario", isimu + 1));
+    (void)vario.dumpToNF(generateOneName("Vario", isimu + 1));
   }
 
   // Cleaning structures

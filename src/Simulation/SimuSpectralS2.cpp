@@ -262,8 +262,8 @@ namespace gstlrn
     }
 
     // Simulation
-    VectorDouble phi = db->getOneCoordinate(0);
-    VectorDouble theta = db->getOneCoordinate(1);
+    VectorDouble phi = db->getVecCoordinate(0);
+    VectorDouble theta = db->getVecCoordinate(1);
     VectorDouble sim(nech, 0.);
     VectorDouble x(nech);
     VectorDouble w(nech);

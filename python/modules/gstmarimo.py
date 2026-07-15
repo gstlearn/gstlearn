@@ -881,8 +881,8 @@ def createDefaultTgtePot(nech=1, seed=42683):
         flagAddSampleRank=False,
     )
     # Add the tangent coordinates
-    dbTgte.addColumnsByConstant(1, 1.0, "tx", gl.ELoc.TGTE, 0)
-    dbTgte.addColumnsByConstant(1, 0.0, "ty", gl.ELoc.TGTE, 1)
+    dbTgte.addColumnsByConstant(1, 1.0, "tx", gl.ELoc.TGT, 0)
+    dbTgte.addColumnsByConstant(1, 0.0, "ty", gl.ELoc.TGT, 1)
 
     dbTgte.setName("x-1", "x")
     dbTgte.setName("x-2", "y")

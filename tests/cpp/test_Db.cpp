@@ -169,9 +169,9 @@ int main(int argc, char* argv[])
 
     // Testing invalid answers
     value = (*db)(3000, "z-1");
-    messerr("This should be an error = %f", value);
+    messerr("Previous statement is an error");
     value = (*db)(3, "stupid");
-    messerr("This should be an error = %f", value);
+    messerr("Previous statement is an error");
 
     (*db)(30000, "z-1") = 12.;
     messerr("Previous statement is an error");

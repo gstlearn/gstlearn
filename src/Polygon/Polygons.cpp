@@ -723,7 +723,8 @@ namespace gstlrn
 
     /* Set the error return code */
 
-    namconv.setNamesAndLocators(db, VectorString(), ELoc::Z, -1, db, iptr);
+    auto names = db->getNamesByLocator(ELoc::Z);
+    namconv.setOutput(names, 0, db, iptr);
 
     return (0);
   }
@@ -1047,7 +1048,7 @@ namespace gstlrn
     }
 
     // Setting the output variable
-    namconv.setNamesAndLocators(db, iatt);
+    namconv.setOutput(VectorString(), 0, db, iatt);
   }
 
   /*****************************************************************************/
@@ -1117,7 +1118,7 @@ namespace gstlrn
     }
 
     // Set the Naming Convention
-    namconv.setNamesAndLocators(db2, isel);
+    namconv.setOutput(VectorString(), 0, db2, isel);
 
     delete polygons;
     return 0;

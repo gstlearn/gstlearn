@@ -12,7 +12,6 @@
 
 #include "Enum/AEnum.hpp"
 
-// TODO Keep sync' with PtrGeos
 // clang-format off
 #define ENUM_LOC                                                       \
   ELoc, Z,                                                             \
@@ -38,7 +37,7 @@
   TIME, 18, "Time variable",                                           \
   LAYER, 19, "Layer rank",                                             \
   NOSTAT, 20, "Non-stationary parameter",                              \
-  TGTE, 21, "Tangent",                                                 \
+  TGT, 21, "Tangent",                                                  \
   SIMU, 22, "Conditional or non-conditional simulations",              \
   FACIES, 23, "Facies simulated",                                      \
   GAUSFAC, 24, "Gaussian value for Facies",                            \

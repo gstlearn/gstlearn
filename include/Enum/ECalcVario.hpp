@@ -41,7 +41,7 @@ ENUM_DECLARE(ENUM_CALC_VARIO)
 // The next Global variable is there to store additional attributes
 // It must be dimensioned parallel to the above ENUM structure
 
-struct qualifier
+struct varioQualifier
 {
   bool
     isSymmetric; // True if the tool is symmetric (e.g. Variogram), false otherwise (e.g. Covariance)
@@ -52,7 +52,7 @@ struct qualifier
   bool isFittable; // True if this tool can be used for fitting a model
 };
 
-const std::map<std::string, qualifier> ECalcVarioAttr = {
+inline const std::map<std::string_view, varioQualifier> ECalcVarioAttr = {
   {"UNDEFINED", {true, false, false, true}},
   {"VARIOGRAM", {true, false, false, true}},
   {"COVARIANCE", {false, true, false, true}},

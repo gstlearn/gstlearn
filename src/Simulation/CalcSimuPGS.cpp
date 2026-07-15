@@ -603,22 +603,21 @@ namespace gstlrn
       if (!_keep(RESULT, TYPE_PROP) && _iptrRP >= 0)
         getDbout()->deleteColumnsByLocator(ELoc::P);
       else
-        namconv.setNamesAndLocators(
-          NULL, VectorString(), ELoc::Z, -1, getDbout(), _iptrRP, "Props",
-          _nfactot, false);
+        namconv.setOutput(
+          VectorString(), 0, getDbout(), _iptrRP, "Props", _nfactot, false);
 
       if (!_keep(RESULT, TYPE_GAUS) && _iptrRN >= 0)
         getDbout()->deleteColumnsByLocator(ELoc::SIMU);
       else
-        namconv.setNamesAndLocators(
-          NULL, VectorString(), ELoc::Z, -1, getDbout(), _iptrRN, "Gaus",
+        namconv.setOutput(
+          VectorString(), 0, getDbout(), _iptrRN, "Gaus",
           _ngrftot * getNbSimu(), false);
 
       if (!_keep(RESULT, TYPE_FACIES) && _iptrRF >= 0)
         getDbout()->deleteColumnsByLocator(ELoc::FACIES);
       else
-        namconv.setNamesAndLocators(
-          NULL, VectorString(), ELoc::Z, -1, getDbout(), _iptrRF, String(),
+        namconv.setOutput(
+          VectorString(), 0, getDbout(), _iptrRF, String(),
           _numberPGS * getNbSimu());
     }
 
@@ -627,15 +626,15 @@ namespace gstlrn
       if (!_keep(DATA, TYPE_GAUS) && _iptrDN >= 0)
         getDbin()->deleteColumnsByLocator(ELoc::SIMU);
       else
-        namconv.setNamesAndLocators(
-          NULL, VectorString(), ELoc::Z, -1, getDbin(), _iptrDN, "Gaus",
-          _ngrftot * getNbSimu(), false);
+        namconv.setOutput(
+          VectorString(), 0, getDbin(), _iptrDN, "Gaus", _ngrftot * getNbSimu(),
+          false);
 
       if (!_keep(DATA, TYPE_FACIES) && _iptrDF >= 0)
         getDbin()->deleteColumnsByLocator(ELoc::FACIES);
       else
-        namconv.setNamesAndLocators(
-          NULL, VectorString(), ELoc::Z, -1, getDbin(), _iptrDF, String(),
+        namconv.setOutput(
+          VectorString(), 0, getDbin(), _iptrDF, String(),
           _numberPGS * getNbSimu(), false);
 
       getDbin()->deleteColumnsByLocator(ELoc::GAUSFAC);

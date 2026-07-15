@@ -404,13 +404,13 @@ def getCoordinates(db, nameCoorX=None, nameCoorY=None, useSel=True, posX=0, posY
         tabx = db.getColumn(nameCoorX, useSel)
     else:
         if db.getNDim() > 0:
-            tabx = db.getOneCoordinate(posX, useSel)
+            tabx = db.getVecCoordinate(posX, useSel)
 
     if nameCoorY is not None:
         taby = db.getColumn(nameCoorY, useSel)
     else:
         if db.getNDim() > 1:
-            taby = db.getOneCoordinate(posY, useSel)
+            taby = db.getVecCoordinate(posY, useSel)
 
     if len(tabx) <= 0 or len(taby) <= 0:
         return None
@@ -444,7 +444,7 @@ def _getTangents(db, useSel=True):
     db: current Data Base
     useSel: True if the selection must be taken into account
     """
-    if db.getNLoc(gl.ELoc.TGTE) <= 0:
+    if db.getNLoc(gl.ELoc.TGT) <= 0:
         return None, None
 
     # Extract Tangent information
@@ -1723,8 +1723,8 @@ def _ax_graphO(
         return None
 
     if flagSample:
-        x = dbgraphO.getOneCoordinate(0)
-        y = dbgraphO.getOneCoordinate(1)
+        x = dbgraphO.getVecCoordinate(0)
+        y = dbgraphO.getVecCoordinate(1)
         ax.plot(x, y, marker=".", color=colorPoint, linestyle="None")
 
     narcs = dbgraphO.getNArc()

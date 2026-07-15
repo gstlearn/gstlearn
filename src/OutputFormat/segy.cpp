@@ -2100,7 +2100,7 @@ namespace gstlrn
 
     // Assign Name and Locator to the newly created variable
 
-    namconv.setNamesAndLocators(grid3D, iatt, String());
+    namconv.setOutput(VectorString(), 0, grid3D, iatt, String());
 
     if (file != nullptr) fclose(file);
     return 0;

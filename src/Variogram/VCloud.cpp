@@ -266,8 +266,8 @@ namespace gstlrn
     }
 
     // Naming of the newly created variables
-    namconv.setNamesAndLocators(
-      db, VectorString(), ELoc::Z, -1, _dbcloud, iptr, String(), ndir, false);
+    auto names = db->getNamesByLocator(ELoc::Z);
+    namconv.setOutput(names, 0, _dbcloud, iptr, String(), ndir, false);
 
     return (0);
   }
