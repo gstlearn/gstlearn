@@ -1,6 +1,8 @@
 name: publish_check_html
 
 on:
+  # Permit calling the workflow from outside (https://github.com/actions/runner/discussions/1884)
+  workflow_call:
   workflow_dispatch:
     inputs:
       logLevel:

@@ -62,6 +62,9 @@ jobs:
     - name: Install Python dependencies
       run: |
         uv pip install numpy
+        uv pip install myst-parser
+        uv pip install sphinx
+        uv pip install sphinx_rtd_theme
 
     - name: Build & install NLopt static libraries
       uses: ./.github/actions/nlopt_static_unix

@@ -78,6 +78,9 @@ jobs:
   call-doxygen:
     uses: ./.github/workflows/publish_doxygen.yml
     secrets: inherit
+  call-sphinx:
+    uses: ./.github/workflows/publish_sphinx.yml
+    secrets: inherit
   call-courses:
     uses: ./.github/workflows/publish_courses.yml
     secrets: inherit
