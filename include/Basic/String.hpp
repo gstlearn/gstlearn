@@ -101,38 +101,6 @@ namespace gstlrn
     bool verbose = false);
 
   /**
-   * @brief Ask for a value interactively
-   *
-   * @param v Input string
-   * @param defval Default value
-   * @param authTest If an NA answer is authorized
-   */
-  // Template générique (déclaré mais pas défini)
-  template<typename T>
-  T question(const String& v, T defval = getNA<T>(), bool authTest = false);
-
-  // Spécialisation pour double
-  template<>
-  inline double question<double>(const String& v, double defval, bool authTest)
-  {
-    return _askDouble(v, defval, authTest);
-  }
-
-  // Spécialisation pour Id
-  template<>
-  inline Id question<Id>(const String& v, Id defval, bool authTest)
-  {
-    return _askInt(v, defval, authTest);
-  }
-
-  // Spécialisation pour bool
-  template<>
-  inline bool question<bool>(const String& v, bool defval, bool authTest)
-  {
-    return _askBool(v, defval, authTest);
-  }
-
-  /**
    * @brief Convert the contents of any argument (double, Id, String) into a String
    *
    * @param v Identified argument

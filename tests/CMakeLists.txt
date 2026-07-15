@@ -13,7 +13,6 @@ set(MY_CTEST_COMMAND ${CMAKE_CTEST_COMMAND} ${VERBOSE_TEST} ${CONFIG_TEST} --out
 
 add_subdirectory(data)
 add_subdirectory(cpp)
-add_subdirectory(inter)
 set(CHECK_DEP check_cpp check_data)
 
 if (BUILD_PYTHON)
