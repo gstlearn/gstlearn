@@ -28,12 +28,12 @@
 #' @param flag_varz A Boolean scalar. If TRUE, the variance of the kriging value is computed
 #' Computation of the residual, the drift or the drift coefficients
 #' @param estim_list  A list of variables to be estimated with
-#' type %in% 1:4 with
+#' type \%in\% 1:4 with
 #'  1 - "observed value"
 #'  2 - "residual"
 #'  3 - "drift"
 #'  4 - "coefficient"
-#' idx  %in% c(NULL, 0:(nfac+1))
+#' idx  \%in\% c(NULL, 0:(nfac+1))
 #' @param flag_centeredFactors A Boolean scalar
 #'  If TRUE, the spatially varying factors are centered
 #' @param prefix A string to build the name of the variables storing the results

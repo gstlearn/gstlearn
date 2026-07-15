@@ -35,27 +35,12 @@ set(R_PACKAGE_SRC_FOLDER           ${R_PACKAGE_DESTINATION_FOLDER}/src)
 ######################################
 # DOCUMENTATION
 #
-# Ensure documentation.i is existing
-# TODO : put documentation.i out of the source
-#add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/doc/documentation.i
-#  COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_SOURCE_DIR}/doc/documentation.i
-#  COMMENT "Ensure that documentation.i exists")
-#
-# Generate python documentation (before wrapper)
-# TODO : Do not regenerate python documentation if doxygen output is up to date
-#add_custom_target(python_doc
-#  COMMAND ${Python3_EXECUTABLE}
-#    ${CMAKE_CURRENT_SOURCE_DIR}/doc/doxy2swig.py -q
-#    ${PROJECT_BINARY_DIR}/doxygen/xml/index.xml
-#    ${CMAKE_CURRENT_SOURCE_DIR}/doc/documentation.i
-#  COMMENT "Generate python documentation from doxygen output"
-#)
-#
-# Tell that we need to generate doxymentation before building python package
-#add_dependencies(python_doc doxygen)
 
-# TODO: r_build should call first r_swig (to be created) followed by r_doc (and then r_install)
 add_custom_target(r_doc
+  COMMAND ${Python3_EXECUTABLE}
+    ${CMAKE_CURRENT_SOURCE_DIR}/doc/doxy2rd.py
+    ${PROJECT_BINARY_DIR}/doxygen/xml
+    ${R_PACKAGE_DESTINATION_FOLDER}/man
   COMMAND ${CMAKE_COMMAND} -E echo "Launching create_doc.R"
   COMMAND ${R_EXECUTABLE} CMD BATCH --no-echo --no-timing --no-save --no-restore ${CMAKE_CURRENT_SOURCE_DIR}/doc/create_doc.R ${R_PACKAGE_ROOT_FOLDER}/create_doc.out
   COMMAND ${CMAKE_COMMAND} -E cat ${R_PACKAGE_ROOT_FOLDER}/create_doc.out
@@ -63,6 +48,10 @@ add_custom_target(r_doc
   WORKING_DIRECTORY ${R_PACKAGE_DESTINATION_FOLDER}
   VERBATIM
 )
+
+if (BUILD_DOC)
+  add_dependencies(r_doc doxygen)
+endif()
 
 ####CUSTOM WRAPPER
 add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/swig/generated_r.i
@@ -265,7 +254,12 @@ else()
     set(ARCHIVE_FILE_NAME "${PROJECT_NAME}_${PROJECT_VERSION}.tgz")
     set(DST_ARCHIVE_FILE_NAME "${PROJECT_NAME}_${PROJECT_VERSION}.tgz")
   else()
-    set(ARCHIVE_FILE_NAME "${PROJECT_NAME}_${PROJECT_VERSION}_R_x86_64-pc-linux-gnu.tar.gz")
+    set(VENDOR "pc")
+    if(DEFINED ENV{CONDA_PREFIX})
+        set(VENDOR "conda")
+    endif()
+
+    set(ARCHIVE_FILE_NAME "${PROJECT_NAME}_${PROJECT_VERSION}_R_x86_64-${VENDOR}-linux-gnu.tar.gz")
     set(DST_ARCHIVE_FILE_NAME "${PROJECT_NAME}_${PROJECT_VERSION}.tar.gz")
   endif()
 endif()

@@ -37,7 +37,7 @@ set(DOXYGEN_ENABLE_PROCESSING YES)
 set(DOXYGEN_MACRO_EXPANSION YES)
 set(DOXYGEN_EXPAND_ONLY_PREDEF YES)
 
-set(DOXYGEN_PREDEFINED "GSTLEARN_EXPORT="
+set(COMMON_PREDEFINED "GSTLEARN_EXPORT="
                        "VectorDouble" "VectorNumT<double>"
                        "VectorInt" "VectorNumT<int>"
                        "VectorFloat" "VectorNumT<float>"
@@ -86,11 +86,28 @@ add_custom_target(doc_macro
 
 ########
 
-# Add target for generating the doxymentation
-doxygen_add_docs(doxygen
+set(DOXYGEN_GENERATE_HTML YES)
+set(DOXYGEN_GENERATE_XML NO)
+set(DOXYGEN_PREDEFINED ${COMMON_PREDEFINED})
+
+doxygen_add_docs(doxygen_html
                  ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/src
                  ${CMAKE_SOURCE_DIR}/README.md
                  ${GENERATED_HPP_FILES}
-                 COMMENT "Generate doxygen documentation")
+                 COMMENT "Generate HTML doxygen documentation")
+add_dependencies(doxygen_html doc_macro)
 
-add_dependencies(doxygen doc_macro)
+
+set(DOXYGEN_GENERATE_HTML NO)
+set(DOXYGEN_GENERATE_XML YES)
+set(DOXYGEN_PREDEFINED ${COMMON_PREDEFINED})
+
+doxygen_add_docs(doxygen_xml
+                 ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/src
+                 ${CMAKE_SOURCE_DIR}/README.md
+                 ${GENERATED_HPP_FILES}
+                 COMMENT "Generate XML doxygen documentation")
+add_dependencies(doxygen_xml doc_macro)
+
+
+add_custom_target(doxygen DEPENDS doxygen_html doxygen_xml)
