@@ -82,6 +82,11 @@ jobs:
       run: |
         cmake --build ${{env.BUILD_DIR}} --parallel 3
 
+    - name: Submit Dependency Graph
+      uses: gradle/actions/dependency-submission@v6
+      with:
+        build-root-directory: build
+
     - name: Install packages and execute non-regression tests
       run: |
         cmake --build ${{env.BUILD_DIR}} --parallel 3 --target check
