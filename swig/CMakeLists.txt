@@ -2,7 +2,7 @@ if(NOT SWIG)
   return()
 endif()
 
-find_package(Python3 REQUIRED)  # Trouver Python3
+find_package(Python3 REQUIRED)
 
 set(PYTHON_SCRIPT  ${PROJECT_SOURCE_DIR}/tools/scripts/classanalysis.py)
 set(PYTHON_SCRIPT2 ${PROJECT_SOURCE_DIR}/tools/scripts/toString.py)
