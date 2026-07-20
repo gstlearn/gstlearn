@@ -67,6 +67,7 @@ jobs:
         uv pip install myst-parser
         uv pip install sphinx
         uv pip install sphinx_rtd_theme
+        uv pip install sphinx-cmake
 
     - name: Install Doxygen under windows
       run: |

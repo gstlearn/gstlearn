@@ -73,6 +73,7 @@ jobs:
         uv pip install myst-parser
         uv pip install sphinx
         uv pip install sphinx_rtd_theme
+        uv pip install sphinx-cmake
 
     - name: Install the customized SWIG from source
       uses: fabien-ors/install-swig-unix-action@v1
