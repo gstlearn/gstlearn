@@ -621,7 +621,7 @@ namespace gstlrn
         char temp[1024];
         if (!fgets(temp, sizeof(temp), file)) return -1; // EOF ou erreur
 
-        if (OptDbg::query(EDbg::INTERFACE)) message("Lecture ASCII = %s", temp);
+        if (OptDbg::query(EDbg::INTERFACE)) message("Reading ASCII = %s", temp);
         currentLine = temp;
         pos = 0;
 
