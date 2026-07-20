@@ -30,6 +30,7 @@ autosummary_generate = True
 suppress_warnings = ["autodoc", "docutils"]
 
 
+# fmt: off
 def autodoc_skip_member_handler(app, what, name, obj, skip, options):
     short_name = name.split(".")[-1]
 
@@ -232,6 +233,9 @@ def autodoc_skip_member_handler(app, what, name, obj, skip, options):
     if name in functions_to_skip:
         return True
     return skip
+
+
+# fmt: on
 
 
 def setup(app):

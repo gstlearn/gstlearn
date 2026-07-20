@@ -61,12 +61,12 @@ jobs:
 
     - uses: actions/upload-artifact@v6
       with:
-        name: bib-file-${{env.PROJECT_FULL_VERSION}}
+        name: bib-file
         path: ${{env.BIB_FILE}}
 
     - uses: actions/upload-artifact@v6
       with:
-        name: r-readme-${{env.PROJECT_FULL_VERSION}}
+        name: r-readme
         path: ${{env.R_README_FILE}}
 
   call-data:
@@ -157,7 +157,7 @@ jobs:
           username: ${{ secrets.CG_USR }}
           password: ${{ secrets.CG_PWD }}
           dest-path: "/var/www/html/gstlearn/${{env.PROJECT_FULL_VERSION}}"
-          pattern: "bib-file*"
+          pattern: "bib-file"
 
       - env:
           PROJECT_FULL_VERSION: ${{needs.get-version.outputs.project_full_version}}
@@ -167,4 +167,4 @@ jobs:
           username: ${{ secrets.CG_USR }}
           password: ${{ secrets.CG_PWD }}
           dest-path: "/var/www/html/gstlearn/${{env.PROJECT_FULL_VERSION}}"
-          pattern: "r-readme*"
+          pattern: "r-readme"

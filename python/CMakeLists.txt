@@ -18,6 +18,11 @@ set(Python3_NumPy_VERSION_MAJOR ${CMAKE_MATCH_1})
 math(EXPR Python3_NumPy_NEXT_MAJOR "${Python3_NumPy_VERSION_MAJOR} + 1")
 message(STATUS "Found Numpy Version ${Python3_NumPy_VERSION} in ${Python3_NumPy_INCLUDE_DIRS}")
 
+# Look for sphinx
+if (BUILD_DOC)
+  find_package(Sphinx REQUIRED)
+endif()
+
 # Look for SWIG 4 [No need for customized swig]
 find_package(SWIG 4.0 REQUIRED)
 include(${SWIG_USE_FILE})
@@ -171,7 +176,6 @@ if (BUILD_DOC)
             --conf-py "${CMAKE_CURRENT_SOURCE_DIR}/doc/source/conf.py"
             --module-name "${PYTHON_PACKAGE_NAME}"
             --output-rst "${CMAKE_CURRENT_SOURCE_DIR}/doc/source/classes.rst"
-    COMMENT "Cleaning and generating docstring files for Sphinx documentation"
     COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PYTHON_PACKAGE_ROOT_FOLDER}
               sphinx-build -b html
               ${CMAKE_CURRENT_SOURCE_DIR}/doc/source

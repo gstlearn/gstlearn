@@ -123,7 +123,7 @@ endif()
 
 # Look for Boost
 #set(Boost_DEBUG 1)
-find_package(Boost REQUIRED)
+find_package(Boost CONFIG REQUIRED)
 # TODO : If Boost not found, fetch it from the web ?
 option(USE_BOOST_SPAN "Use Boost span instead of std (C++17 builds)" OFF)
 mark_as_advanced(USE_BOOST_SPAN)

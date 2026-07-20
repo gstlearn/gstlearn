@@ -85,6 +85,7 @@ jobs:
         uv pip install myst-parser
         uv pip install sphinx
         uv pip install sphinx_rtd_theme
+        uv pip install sphinx-cmake
 
     - name: Build & install NLopt static libraries
       uses: ./.github/actions/nlopt_static_unix
