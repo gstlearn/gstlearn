@@ -96,7 +96,7 @@ namespace gstlrn
   {
     if (_isSingle())
     {
-      return dynamic_cast<const PrecisionOpMatrix*>(_pops[0])->getQ();
+      return dynamic_cast<const PrecisionOpMatrix&>(getPrecision(0)).getQ();
     }
     return &_Q;
   }
@@ -114,7 +114,7 @@ namespace gstlrn
     for (Id istruct = 0; istruct < getNCov(); istruct++)
     {
       const MatrixSparse* Q =
-        dynamic_cast<const PrecisionOpMatrix*>(_pops[istruct])->getQ();
+        dynamic_cast<const PrecisionOpMatrix&>(getPrecision(istruct)).getQ();
 
       if (_model->getNVar() == 1)
       {
@@ -146,7 +146,9 @@ namespace gstlrn
     for (Id icov = 0, number = getNCov(); icov < number; icov++)
     {
       CovAniso* cova = _model->getCovAniso(_getCovInd(icov));
-      _pops.push_back(new PrecisionOpMatrix(_meshes(icov), cova));
+      PrecisionOpMatrix* op = new PrecisionOpMatrix(_meshes(icov), cova);
+      _storedPops.push_back(std::unique_ptr<PrecisionOp>(op));
+      _pops.push_back(*op);
     }
   }
 

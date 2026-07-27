@@ -50,7 +50,7 @@
         if (COMPUTEOP)                                                         \
         {                                                                      \
           if ((nvar > 1) || (ncov > 1)) std::fill(y.begin(), y.end(), 0.);     \
-          _pops[icov]->OP(x, y);                                               \
+          _pops[icov].get().OP(x, y);                                          \
         }                                                                      \
         if ((nvar == 1) && (ncov == 1)) break;                                 \
         if (nvar == 1)                                                         \
@@ -91,6 +91,7 @@ namespace gstlrn
     bool stencil,
     bool buildOp)
     : _pops()
+    , _storedPops()
     , _isNoStatForVariance(false)
     , _sills()
     , _localSills()
@@ -106,7 +107,6 @@ namespace gstlrn
     , _nmeshList()
     , _allStat(true)
     , _ready(false)
-    , _destroyPrecisionOp(true)
   {
     if (!_isValidModel(model)) return;
 
@@ -140,7 +140,8 @@ namespace gstlrn
     std::vector<PrecisionOp*> pops,
     Model* model,
     const VectorMeshes& meshes)
-    : _pops(pops)
+    : _pops()
+    , _storedPops()
     , _isNoStatForVariance(false)
     , _sills()
     , _localSills()
@@ -156,7 +157,6 @@ namespace gstlrn
     , _nmeshList()
     , _allStat(true)
     , _ready(false)
-    , _destroyPrecisionOp(false)
   {
     if (!_isValidModel(model)) return;
 
@@ -185,6 +185,7 @@ namespace gstlrn
     }
     else
     {
+      for (auto p: pops) _pops.push_back(*p);
       _ready = true;
     }
   }
@@ -213,13 +214,10 @@ namespace gstlrn
     {
       CovAniso* cova = _model->getCovAniso(_covList[i]);
       bool localStencil = stencil && !cova->isNoStatForAnisotropy();
-      _pops.push_back(PrecisionOp::create(_meshes(i), cova, localStencil));
+      PrecisionOp* op = PrecisionOp::create(_meshes(i), cova, localStencil);
+      _storedPops.push_back(std::unique_ptr<PrecisionOp>(op));
+      _pops.push_back(*op);
     }
-  }
-
-  PrecisionOpMulti::~PrecisionOpMulti()
-  {
-    if (_destroyPrecisionOp) _popsClear();
   }
 
   /*****************************************************************************/
@@ -270,12 +268,6 @@ namespace gstlrn
     _meshes = meshes;
 
     return true;
-  }
-
-  void PrecisionOpMulti::_popsClear()
-  {
-    for (Id i = 0, n = static_cast<Id>(_pops.size()); i < n; i++)
-      delete _pops[i];
   }
 
   bool PrecisionOpMulti::_matchModelAndMeshes() const
@@ -476,11 +468,11 @@ namespace gstlrn
 
   std::pair<double, double> PrecisionOpMulti::rangeEigenVal(Id ndiscr) const
   {
-    std::pair<double, double> result = _pops[0]->rangeEigenVal(ndiscr);
+    std::pair<double, double> result = _pops[0].get().rangeEigenVal(ndiscr);
 
     for (Id i = 1; i < static_cast<Id>(_pops.size()); i++)
     {
-      std::pair<double, double> vals = _pops[i]->rangeEigenVal(ndiscr);
+      std::pair<double, double> vals = _pops[i].get().rangeEigenVal(ndiscr);
       result.first = MIN(result.first, vals.first);
       result.second = MAX(result.second, vals.second);
     }
@@ -499,20 +491,13 @@ namespace gstlrn
     double result = 0.;
     for (const auto& e: _pops)
     {
-      result += e->computeLogDet(nMC);
+      result += e.get().computeLogDet(nMC);
     }
     return result;
   }
 
-  PrecisionOp* PrecisionOpMulti::getPrecision(Id idx) const
+  PrecisionOp& PrecisionOpMulti::getPrecision(Id idx) const
   {
-    if (idx < 0 || idx > getNCov())
-    {
-      messerr(
-        "The index passed to getPrecision() must be between 0 and %d\n",
-        getNCov() - 1);
-      return nullptr;
-    }
     return _pops[idx];
   }
 

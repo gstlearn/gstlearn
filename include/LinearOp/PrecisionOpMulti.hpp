@@ -52,7 +52,7 @@ namespace gstlrn
       const VectorMeshes& meshes);
     PrecisionOpMulti(const PrecisionOpMulti& m) = delete;
     PrecisionOpMulti& operator=(const PrecisionOpMulti& m) = delete;
-    virtual ~PrecisionOpMulti();
+    virtual ~PrecisionOpMulti() = default;
 
     /// AStringable Interface
     String toString(const AStringFormat* strfmt = nullptr) const override;
@@ -63,7 +63,7 @@ namespace gstlrn
     std::pair<double, double> rangeEigenVal(Id ndiscr = 100) const override;
 
     Id getNCov() const;
-    PrecisionOp* getPrecision(Id idx) const;
+    PrecisionOp& getPrecision(Id idx) const;
 
   protected:
 #ifndef SWIG
@@ -92,11 +92,11 @@ namespace gstlrn
     Id _buildGlobalMatricesStationary(Id icov);
     Id _buildLocalMatricesNoStat(Id icov);
     Id _buildMatrices();
-    void _popsClear();
     void _computeSize();
 
   protected:
-    std::vector<PrecisionOp*> _pops;
+    std::vector<std::reference_wrapper<PrecisionOp>> _pops;
+    std::vector<std::unique_ptr<PrecisionOp>> _storedPops;
     VectorBool _isNoStatForVariance;
     std::vector<MatrixSymmetric> _sills;
     std::vector<std::vector<MatrixSymmetric>>
@@ -116,7 +116,6 @@ namespace gstlrn
     VectorInt _nmeshList;
     bool _allStat;
     bool _ready;
-    bool _destroyPrecisionOp;
 
     mutable VectorVectorDouble _works;
     mutable VectorDouble _workTot;
