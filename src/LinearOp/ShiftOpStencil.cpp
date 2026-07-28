@@ -29,65 +29,19 @@ namespace gstlrn
     const CovAniso* cova,
     bool verbose)
     : AShiftOp()
-    , _relativeShifts()
-    , _absoluteShifts()
-    , _weights()
+    , _stencil()
     , _isInside()
-    , _lambdaVal(0.)
     , _useLambdaSingleVal(true)
-    , _useModifiedShift(false)
     , _mesh()
   {
     if (_buildInternal(mesh, cova, verbose)) return;
   }
 
-  ShiftOpStencil::ShiftOpStencil(const ShiftOpStencil& shift)
-    : AShiftOp(shift)
-    , _relativeShifts(shift._relativeShifts)
-    , _absoluteShifts(shift._absoluteShifts)
-    , _weights(shift._weights)
-    , _weightsSimu(shift._weightsSimu)
-    , _isInside(shift._isInside)
-    , _lambdaVal(shift._lambdaVal)
-    , _useLambdaSingleVal(shift._useLambdaSingleVal)
-    , _useModifiedShift(shift._useModifiedShift)
-    , _mesh(shift._mesh)
-  {
-  }
-
-  ShiftOpStencil& ShiftOpStencil::operator=(const ShiftOpStencil& shift)
-  {
-    AShiftOp::operator=(shift);
-    if (this != &shift)
-    {
-      _relativeShifts = shift._relativeShifts;
-      _absoluteShifts = shift._absoluteShifts;
-      _weights = shift._weights;
-      _weightsSimu = shift._weightsSimu;
-      _isInside = shift._isInside;
-      _lambdaVal = shift._lambdaVal;
-      _useLambdaSingleVal = shift._useLambdaSingleVal;
-      _useModifiedShift = shift._useModifiedShift;
-      _mesh = shift._mesh;
-    }
-    return *this;
-  }
-
-  ShiftOpStencil::~ShiftOpStencil() {}
-
   Id ShiftOpStencil::_addToDest(const constvect inv, vect outv) const
   {
-    const VectorDouble* currentWeights;
-    if (_useModifiedShift)
-    {
-      currentWeights = &_weightsSimu;
-    }
-    else
-    {
-      currentWeights = &_weights;
-    }
+    const VectorDouble& currentWeights = _stencil.weights();
 
-    auto nw = _getNWeights();
+    auto nw = _stencil.getNWeights();
     Id size = static_cast<Id>(inv.size());
     const Indirection& indirect = _mesh->getGridIndirect();
 
@@ -95,6 +49,7 @@ namespace gstlrn
 
     if (!indirect.isDefined())
     {
+      const VectorInt& absoluteShifts = _stencil.absoluteShifts();
       // Use the fast option when no selection is defined on the Grid
 #pragma omp parallel for num_threads(nbthread)
       for (Id ic = 0; ic < size; ic++)
@@ -104,10 +59,10 @@ namespace gstlrn
         {
           for (Id iw = 0; iw < nw; iw++)
           {
-            Id iabs = ic + _absoluteShifts[iw];
+            Id iabs = ic + absoluteShifts[iw];
             if (_isInside[iabs])
             {
-              total += (*currentWeights)[iw] * inv[iabs];
+              total += currentWeights[iw] * inv[iabs];
             }
           }
         }
@@ -118,6 +73,7 @@ namespace gstlrn
     {
       const Grid& grid = _mesh->getGrid();
       Id ndim = _mesh->getNDim();
+      const VectorVectorInt& relativeShifts = _stencil.relativeShifts();
 
       VectorInt center(ndim);
       VectorInt local(ndim);
@@ -134,10 +90,10 @@ namespace gstlrn
           grid.rankToIndice(rank, center);
           for (Id iw = 0; iw < nw; iw++)
           {
-            VH::add(local, center, _relativeShifts[iw]);
+            VH::add(local, center, relativeShifts[iw]);
             Id ie = grid.indiceToRank(local);
             rank = indirect.getAToR(ie);
-            if (rank >= 0) total += (*currentWeights)[iw] * inv[rank];
+            if (rank >= 0) total += currentWeights[iw] * inv[rank];
           }
         }
         outv[ic] = total;
@@ -148,7 +104,7 @@ namespace gstlrn
 
   void ShiftOpStencil::resetModif() const
   {
-    _useModifiedShift = false;
+    _stencil.resetModif();
   }
 
   void ShiftOpStencil::normalizeLambdaBySills(const AMesh* mesh)
@@ -158,21 +114,21 @@ namespace gstlrn
       _Lambda.resize(_napices);
       for (auto& e: _Lambda)
       {
-        e = _lambdaVal;
+        e = _stencil.getLambda();
       }
       AShiftOp::normalizeLambdaBySills(mesh);
       _useLambdaSingleVal = false;
     }
     else
     {
-      _lambdaVal /= sqrt(_cova->getSill(0, 0));
+      _stencil.getLambda() /= sqrt(_cova->getSill(0, 0));
     }
   }
 
   double ShiftOpStencil::_getMaxEigenValue() const
   {
     double s = 0.;
-    for (const auto& e: _weights)
+    for (const auto& e: _stencil.weights())
     {
       s += ABS(e);
     }
@@ -181,24 +137,19 @@ namespace gstlrn
 
   double ShiftOpStencil::getLambda(Id iapex) const
   {
-    if (_useLambdaSingleVal) return _lambdaVal;
+    if (_useLambdaSingleVal) return _stencil.getLambda();
     return AShiftOp::getLambda(iapex);
   }
 
   double ShiftOpStencil::logDetLambda() const
   {
-    if (_useLambdaSingleVal) return 2. * log(_lambdaVal) * _napices;
+    if (_useLambdaSingleVal) return 2. * log(_stencil.getLambda()) * _napices;
     return AShiftOp::logDetLambda();
   }
 
   void ShiftOpStencil::multiplyByValueAndAddDiagonal(double v1, double v2) const
   {
-    _weightsSimu = VectorDouble(_weights.size());
-    for (Id i = 0; i < static_cast<Id>(_weights.size()); i++)
-      _weightsSimu[i] = v1 * _weights[i];
-    Id center = static_cast<Id>(_relativeShifts.size()) / 2;
-    _weightsSimu[center] += v2;
-    _useModifiedShift = true;
+    _stencil.multiplyByValueAndAddDiagonal(v1, v2);
   }
 
   Id ShiftOpStencil::_buildInternal(
@@ -231,7 +182,50 @@ namespace gstlrn
       return 1;
     }
 
-    // Create a local Turbo Meshing starting from a DbGrid (Dimension 5 sgould be sufficient)
+    _stencil = ShiftStencil(_mesh, _cova.get(), verbose);
+
+    const Grid& grid = mesh->getGrid();
+    VectorInt center(ndim);
+    VectorInt NXs = grid.getNXs();
+
+    // Delineate the border of the grid (not to be treated)
+    Id size = _mesh->getNApices();
+    _isInside.fill(true, size);
+
+    const Indirection& indirect = _mesh->getGridIndirect();
+    for (Id i = 0; i < size; i++)
+    {
+      Id rank = indirect.isDefined() ? indirect.getRToA(i) : i;
+      grid.rankToIndice(rank, center);
+      bool flagInside = true;
+      for (Id idim = 0; idim < ndim && flagInside; idim++)
+      {
+        Id ival = center[idim];
+        if (ival <= 0 || ival >= NXs[idim] - 1) flagInside = false;
+      }
+      _isInside[i] = flagInside;
+    }
+
+    if (verbose)
+    {
+      Id ntreated = 0;
+      for (Id i = 0; i < size; i++)
+        if (_isInside[i]) ntreated++;
+      message(
+        "Number of pixels inside the grid (no edge effect) = %d/%d\n", ntreated,
+        size);
+    }
+
+    return 0;
+  }
+
+  ShiftStencil::ShiftStencil(
+    const MeshETurbo* mesh,
+    const CovAniso* cova,
+    bool verbose)
+  {
+    // Create a local Turbo Meshing starting from a DbGrid (dimension 3 should be sufficient but 5 is safer)
+    Id ndim = mesh->getNDim();
     const Grid& grid = mesh->getGrid();
     VectorInt NXs = grid.getNXs();
     VectorInt nxlocal(ndim, 5);
@@ -254,8 +248,6 @@ namespace gstlrn
     localMesh.getApexIndicesInPlace(centerApex, center);
 
     // Get the non-zero elements of the center column
-    _relativeShifts.clear();
-    _weights.clear();
     for (Id i = 0, n = static_cast<Id>(centerColumn.size()); i < n; i++)
     {
       double weight = centerColumn[i];
@@ -265,7 +257,8 @@ namespace gstlrn
       _relativeShifts.push_back(other);
       _weights.push_back(weight);
     }
-    auto nw = _getNWeights();
+
+    auto nw = getNWeights();
 
     // Calculate the shifts (from the center cell) for each weight
     // This is calculated for a reference pixel (center of the grid)
@@ -281,37 +274,44 @@ namespace gstlrn
       _absoluteShifts[iw] = iabs - iorigin;
     }
 
-    // Delineate the border of the grid (not to be treated)
-    Id size = _mesh->getNApices();
-    _isInside.fill(true, size);
-
-    const Indirection& indirect = _mesh->getGridIndirect();
-    for (Id i = 0; i < size; i++)
-    {
-      Id rank = indirect.isDefined() ? indirect.getRToA(i) : i;
-      grid.rankToIndice(rank, center);
-      bool flagInside = true;
-      for (Id idim = 0; idim < ndim && flagInside; idim++)
-      {
-        Id ival = center[idim];
-        if (ival <= 0 || ival >= NXs[idim] - 1) flagInside = false;
-      }
-      _isInside[i] = flagInside;
-    }
-
     // Print the contents of non-zero elements
-    if (verbose) _printStencil();
-
-    return 0;
+    if (verbose) print();
   }
 
-  void ShiftOpStencil::_printStencil() const
+  const VectorDouble& ShiftStencil::weights() const
   {
-    auto nweight = _getNWeights();
-    Id ndim = _mesh->getNDim();
-    Id size = _mesh->getNApices();
+    if (_useModifiedShift)
+    {
+      return _weightsSimu;
+    }
+    else
+    {
+      return _weights;
+    }
+  }
+
+  void ShiftStencil::multiplyByValueAndAddDiagonal(double v1, double v2) const
+  {
+    _weightsSimu = VectorDouble(_weights.size());
+    for (Id i = 0; i < static_cast<Id>(_weights.size()); i++)
+      _weightsSimu[i] = v1 * _weights[i];
+    Id center = static_cast<Id>(_relativeShifts.size()) / 2;
+    _weightsSimu[center] += v2;
+    _useModifiedShift = true;
+  }
+
+  void ShiftStencil::resetModif() const
+  {
+    _useModifiedShift = false;
+  }
+
+  void ShiftStencil::print() const
+  {
+    auto nweight = _weights.size();
+    Id ndim = _relativeShifts.front().size();
+
     mestitle(0, "Stencil contents");
-    for (Id i = 0; i < nweight; i++)
+    for (size_t i = 0; i < nweight; i++)
     {
       message("Weight %d/%d - Relative (", i + 1, nweight);
       for (Id idim = 0; idim < ndim; idim++)
@@ -319,12 +319,5 @@ namespace gstlrn
       message(") - Absolute (%4d)", _absoluteShifts[i]);
       message(" : %lf\n", _weights[i]);
     }
-
-    Id ntreated = 0;
-    for (Id i = 0; i < size; i++)
-      if (_isInside[i]) ntreated++;
-    message(
-      "Number of pixels inside the grid (no edge effect) = %d/%d\n", ntreated,
-      size);
   }
 } // namespace gstlrn

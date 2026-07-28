@@ -48,7 +48,7 @@ namespace gstlrn
     void _prepareMatrix();
     void _buildQop(bool stencil = false) override;
 
-    bool _isSingle() const { return _getNVar() == 1 && _getNCov() == 1; }
+    bool _isSingle() const { return _getNVar() == 1 && getNCov() == 1; }
 
   private:
     MatrixSparse _Q;

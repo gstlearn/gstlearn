@@ -46,9 +46,13 @@ namespace gstlrn
       const VectorMeshes& meshes = VectorMeshes(),
       bool stencil = false,
       bool buildOp = true);
+    PrecisionOpMulti(
+      std::vector<PrecisionOp*> pops,
+      Model* model,
+      const VectorMeshes& meshes);
     PrecisionOpMulti(const PrecisionOpMulti& m) = delete;
     PrecisionOpMulti& operator=(const PrecisionOpMulti& m) = delete;
-    virtual ~PrecisionOpMulti();
+    virtual ~PrecisionOpMulti() = default;
 
     /// AStringable Interface
     String toString(const AStringFormat* strfmt = nullptr) const override;
@@ -58,7 +62,8 @@ namespace gstlrn
     double computeLogDet(Id nMC = 1) const override;
     std::pair<double, double> rangeEigenVal(Id ndiscr = 100) const override;
 
-    PrecisionOp* getPrecision(Id idx);
+    Id getNCov() const;
+    PrecisionOp& getPrecision(Id idx) const;
 
   protected:
 #ifndef SWIG
@@ -68,7 +73,6 @@ namespace gstlrn
 
     void buildQop(bool stencil = false);
     Id size(Id imesh) const;
-    Id _getNCov() const;
 
     Id _getCovInd(Id i) const { return _covList[i]; }
 
@@ -88,11 +92,11 @@ namespace gstlrn
     Id _buildGlobalMatricesStationary(Id icov);
     Id _buildLocalMatricesNoStat(Id icov);
     Id _buildMatrices();
-    void _popsClear();
     void _computeSize();
 
   protected:
-    std::vector<PrecisionOp*> _pops;
+    std::vector<std::reference_wrapper<PrecisionOp>> _pops;
+    std::vector<std::unique_ptr<PrecisionOp>> _storedPops;
     VectorBool _isNoStatForVariance;
     std::vector<MatrixSymmetric> _sills;
     std::vector<std::vector<MatrixSymmetric>>
