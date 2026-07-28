@@ -179,7 +179,7 @@ namespace gstlrn
     }
     _buildMatrices();
 
-    if (static_cast<gstlrn::Id>(_pops.size()) != getNCov())
+    if (static_cast<gstlrn::Id>(pops.size()) != getNCov())
     {
       messerr("List of operators does not match model.");
     }
@@ -214,9 +214,10 @@ namespace gstlrn
     {
       CovAniso* cova = _model->getCovAniso(_covList[i]);
       bool localStencil = stencil && !cova->isNoStatForAnisotropy();
-      PrecisionOp* op = PrecisionOp::create(_meshes(i), cova, localStencil);
-      _storedPops.push_back(std::unique_ptr<PrecisionOp>(op));
-      _pops.push_back(*op);
+      auto op = std::make_unique<PrecisionOp>(_meshes(i), cova, localStencil);
+      PrecisionOp& ref_op = *op;
+      _storedPops.push_back(std::move(op));
+      _pops.push_back(ref_op);
     }
   }
 
