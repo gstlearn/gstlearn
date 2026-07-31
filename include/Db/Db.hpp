@@ -428,6 +428,7 @@ namespace gstlrn
     Id addSamples(Id nadd, double valinit = TEST);
     Id deleteSample(Id e_del);
     Id deleteSamples(const VectorInt& e_dels);
+    void resizeSamples(Id nnew);
     void switchLocator(const ELoc& locatorType_in, const ELoc& locatorType_out);
     Id getLastUID(Id number = 0) const;
     String getLastName(Id number = 0) const;
@@ -539,6 +540,7 @@ namespace gstlrn
     void copyByCol(Id icolIn, Id icolOut);
 
     Id getNFacies(void) const;
+    Id getNOccurence(const ELoc& loctype) const;
     bool hasLocatorDefined(
       const String& name,
       const ELoc& locatorType,
@@ -617,6 +619,7 @@ namespace gstlrn
 
     void
       setValueByColIdx(Id iech, Id icol, double value, bool flagCheck = true);
+    void setValueByUID(Id iech, Id iuid, double value, bool flagCheck = true);
     VectorDouble getValuesByNames(
       const VectorInt& iechs,
       const VectorString& names,

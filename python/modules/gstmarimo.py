@@ -16,8 +16,12 @@
 from curses.panel import panel
 
 from curses.panel import panel
+from pyexpat import model
+
+from shapely import node
 
 import gstlearn as gl
+import gstlearn.plot as gp
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -91,6 +95,61 @@ def _saveAndDisplay(contents=None, filename="File.NF", flagForceDisplay=False):
 
     if optionGlobalDisplay or flagForceDisplay:
         contents.display()
+
+
+# =========================
+# Widget to handle messages
+# =========================
+
+
+def WdefineMessage():
+    get_message, set_message = mo.state("")
+    return get_message, set_message
+
+
+def WshowMessage(
+    WMessages,
+    border=False,
+    minHeight="100px",
+    width="500px",
+):
+    get_message, _ = WMessages
+
+    style = {
+        "padding": "8px",
+        "minHeight": minHeight,
+        "width": width,
+    }
+
+    if border:
+        style["border"] = "1px solid #ccc"
+
+    return mo.md(get_message()).style(style)
+
+
+def WsetMessage(WMessages, *args, sep=" ", newline=True):
+    _, set_message = WMessages
+
+    message = sep.join(str(arg) for arg in args)
+    if newline:
+        message += "<br>"
+
+    set_message(message)
+
+
+def WaddMessage(WMessages, *args, sep=" ", newline=True):
+    get_message, set_message = WMessages
+
+    message = sep.join(str(arg) for arg in args)
+    if newline:
+        message += "<br>"
+
+    set_message(get_message() + message)
+
+
+def WclearMessage(WMessages):
+    _, set_message = WMessages
+    set_message("")
 
 
 # ================================================================
@@ -361,15 +420,15 @@ def WgetModelFitVario(WAll, vario):
 # =======================================
 
 
-def WdefineGrid(nxdef=50):
+def WdefineGrid(nxdef=100, dxdef=1):
     """
     Returns parameters for a regular 2-D grid
     nxdef: Number of grid meshes (same along X and Y)
     """
     WGridNX = mo.ui.number(start=1, stop=200, value=nxdef)
     WGridNY = mo.ui.number(start=1, stop=200, value=nxdef)
-    WGridDX = mo.ui.number(start=1, stop=None, value=1)
-    WGridDY = mo.ui.number(start=1, stop=None, value=1)
+    WGridDX = mo.ui.number(start=1, stop=None, value=dxdef)
+    WGridDY = mo.ui.number(start=1, stop=None, value=dxdef)
     WGridX0 = mo.ui.number(start=0, stop=None, value=0)
     WGridY0 = mo.ui.number(start=0, stop=None, value=0)
     return mo.ui.array([WGridNX, WGridNY, WGridDX, WGridDY, WGridX0, WGridY0])
@@ -704,6 +763,363 @@ def WgetDb(WAll):
     return db
 
 
+# ===========================
+# Widget to manage a DbIsoPot
+# ===========================
+
+
+def createDefaultIsoPot(nech=3, seed=13424):
+    """
+    Create the default database used to define the IsoPotential.
+    """
+    dbIso = gl.Db.createFillRandom(
+        ndat=nech,
+        ndim=2,
+        nvar=0,
+        coormin=[0.0, 0.0],
+        coormax=[100.0, 100.0],
+        seed=seed,
+        flagAddSampleRank=False,
+    )
+    # Adding the Layer information
+    dbIso.addColumnsByConstant(1, 1.0, "Layer", gl.ELoc.LAYER)
+    dbIso.setName("x-1", "x")
+    dbIso.setName("x-2", "y")
+    return dbIso
+
+
+def WdefineIsoPot(dbIsoPot):
+    return WdefineEdit(dbIsoPot)
+
+
+def WshowIsoPot(WAll, flagTitle=True, gapv=0):
+    if WAll is None:
+        return None
+
+    comments = mo.md(
+        """
+        Define the iso-potential values by editing the table below.
+        - You can add / remove / modify iso-potential points as needed.
+        - Samples of the same IsoPotential must have the same **Layer**.
+        """
+    )
+
+    return mo.vstack(
+        [
+            comments,
+            WshowEdit(WAll, flagTitle=flagTitle, gapv=gapv),
+        ],
+        gap=gapv,
+    )
+
+
+def WgetIsoPot(WAll, dbIsoPot):
+    return WgetEdit(WAll, dbIsoPot)
+
+
+def createDefaultGradPot(nech=1, seed=13424):
+    """
+    Create the default database used to define the Gradient for Potential.
+    """
+    dbGrad = gl.Db.createFillRandom(
+        ndat=nech,
+        ndim=2,
+        nvar=0,
+        coormin=[0.0, 0.0],
+        coormax=[100.0, 100.0],
+        seed=seed,
+        flagAddSampleRank=False,
+    )
+    # Add the gradient coordinates
+    dbGrad.addColumnsByConstant(1, 1.0, "gx", gl.ELoc.G, 0)
+    dbGrad.addColumnsByConstant(1, 0.0, "gy", gl.ELoc.G, 1)
+
+    dbGrad.setName("x-1", "x")
+    dbGrad.setName("x-2", "y")
+    return dbGrad
+
+
+def WdefineGradPot(dbGradPot):
+    return WdefineEdit(dbGradPot)
+
+
+def WshowGradPot(WAll, flagTitle=True, gapv=0):
+    if WAll is None:
+        return None
+
+    comments = mo.md(
+        """
+        Define the gradient values by editing the table below.
+        - You can add / remove / modify Gradient Points as needed.
+        """
+    )
+
+    return mo.vstack(
+        [
+            comments,
+            WshowEdit(WAll, flagTitle=flagTitle, gapv=gapv),
+        ],
+        gap=gapv,
+    )
+
+
+def WgetGradPot(WAll, dbGradPot):
+    return WgetEdit(WAll, dbGradPot)
+
+
+def createDefaultTgtePot(nech=1, seed=42683):
+    """
+    Create the default database used to define the Tangent for Potential.
+    """
+    dbTgte = gl.Db.createFillRandom(
+        ndat=nech,
+        ndim=2,
+        nvar=0,
+        coormin=[0.0, 0.0],
+        coormax=[100.0, 100.0],
+        seed=seed,
+        flagAddSampleRank=False,
+    )
+    # Add the tangent coordinates
+    dbTgte.addColumnsByConstant(1, 1.0, "tx", gl.ELoc.TGTE, 0)
+    dbTgte.addColumnsByConstant(1, 0.0, "ty", gl.ELoc.TGTE, 1)
+
+    dbTgte.setName("x-1", "x")
+    dbTgte.setName("x-2", "y")
+    return dbTgte
+
+
+def WdefineTgtePot(dbTgtePot, flagUseTangent=False):
+    flagTgtePot = mo.ui.checkbox(
+        label="Use tangent points",
+        value=flagUseTangent,
+    )
+
+    WAll = WdefineEdit(dbTgtePot)
+
+    return flagTgtePot, WAll
+
+
+def WshowTgtePot(flagTgtePot, WAll, flagTitle=True, gapv=0):
+    comments = mo.md(
+        """
+        Define the Tangent values by editing the table below.
+        - You can add / remove / modify Tangent Points as needed.
+        """
+    )
+
+    return mo.vstack(
+        [
+            flagTgtePot,
+            comments,
+            WshowEdit(WAll, flagTitle=flagTitle, gapv=gapv),
+        ],
+        gap=gapv,
+    )
+
+
+def WgetTgtePot(flagTgtePot, WAll, dbTgtePot):
+    if not flagTgtePot.value:
+        return None
+
+    return WgetEdit(WAll, dbTgtePot)
+
+
+def WdefineModelPot(
+    type="Cubic",
+    isotropic=True,
+    range=60,
+    rangeU=60,
+    rangeV=60,
+    angle=0.0,
+    driftOrder=0,
+):
+    """
+    Returns parameters for defining a Potential Model
+
+    Parameters
+    ----------
+    type : str
+        Covariance type ("Cubic", "Gaussian", "Spline")
+    isotropic : bool
+        True for isotropic model, False for anisotropic model
+    range : float
+        Main range value
+    rangeU : float
+        Anisotropic range along U direction
+    rangeV : float
+        Anisotropic range along V direction
+    angle : float
+        Anisotropy angle
+    driftOrder : int
+        Drift order (0, 1 or 2)
+    """
+
+    WType = mo.ui.radio(
+        options={
+            "Cubic": "Cubic",
+            "Gaussian": "Gaussian",
+            "Spline": "Spline",
+        },
+        value=type,
+    )
+
+    WIso = mo.ui.radio(
+        options={
+            "Isotropic": True,
+            "Anisotropic": False,
+        },
+        value="Isotropic" if isotropic else "Anisotropic",
+    )
+
+    WRange = mo.ui.number(
+        start=0.0,
+        value=range,
+    )
+
+    WRangeU = mo.ui.number(
+        start=0.0,
+        value=rangeU,
+    )
+
+    WRangeV = mo.ui.number(
+        start=0.0,
+        value=rangeV,
+    )
+
+    WAngle = mo.ui.number(
+        value=angle,
+    )
+
+    WDriftOrder = mo.ui.dropdown(
+        options={
+            "Stationary": 0,
+            "Order 1": 1,
+            "Order 2": 2,
+        },
+        value={
+            0: "Stationary",
+            1: "Order 1",
+            2: "Order 2",
+        }[driftOrder],
+    )
+
+    return mo.ui.array(
+        [
+            WType,
+            WIso,
+            WRange,
+            WRangeU,
+            WRangeV,
+            WAngle,
+            WDriftOrder,
+        ]
+    )
+
+
+def WshowModelPot(WAll, flagTitle=True, gapv=0, gaph=1):
+    [
+        WType,
+        WIso,
+        WRange,
+        WRangeU,
+        WRangeV,
+        WAngle,
+        WDriftOrder,
+    ] = WAll
+
+    WModelTitle = _WgetTitle("Model Definition", flagTitle)
+
+    def _line(label, widget):
+        return mo.hstack(
+            [
+                mo.md(f"<div style='width:120px'>{label}</div>"),
+                widget,
+            ],
+            justify="start",
+            gap=gaph,
+        )
+
+    WModelGrid = [
+        _line("Type", WType),
+        _line("Geometry", WIso),
+        _line("Range", WRange),
+    ]
+
+    if not WIso.value:
+        WModelGrid.extend(
+            [
+                _line("Range U", WRangeU),
+                _line("Range V", WRangeV),
+                _line("Angle", WAngle),
+            ]
+        )
+
+    WModelGrid.append(_line("Drift Order", WDriftOrder))
+
+    return mo.vstack(
+        [
+            WModelTitle,
+            mo.vstack(
+                WModelGrid,
+                gap=gapv,
+            ),
+        ],
+        gap=gapv,
+    )
+
+
+def WgetModelPot(WAll):
+    [
+        WType,
+        WIso,
+        WRange,
+        WRangeU,
+        WRangeV,
+        WAngle,
+        WDriftOrder,
+    ] = WAll
+
+    type = WType.value
+    if type == "Cubic":
+        type = gl.ECov.CUBIC
+    elif type == "Gaussian":
+        type = gl.ECov.GAUSSIAN
+    elif type == "Spline":
+        type = gl.ECov.SPLINE2_GC
+    else:
+        raise ValueError(f"Unknown covariance type: {type}")
+
+    isotropic = WIso.value
+
+    modelRef = None
+    if isotropic:
+        range = WRange.value
+        modelRef = gl.Model.createFromParam(type, range=range)
+    else:
+        rangeU = WRangeU.value
+        rangeV = WRangeV.value
+        angle = WAngle.value
+        modelRef = gl.Model.createFromParam(
+            type, ranges=[rangeU, rangeV], angles=[angle, 0.0]
+        )
+
+    covp = gl.CovGradientAnalytic(modelRef.getCovAniso(0))
+
+    model = gl.Model()
+    model.setCov(covp)
+    model.setDriftIRF(order=int(WDriftOrder.value), nfex=0)
+
+    _saveAndDisplay(model, "Model.NF")
+
+    return model
+
+
+# ===============================
+# Widget to manage a Regular Grid
+# ===============================
+
+
 def WdefineDbFromGrid(nvarmax=1, nxdef=10, seed=14543):
     WDbGridNX = mo.ui.number(start=1, stop=100, value=nxdef, label="NX")
     WDbGridNY = mo.ui.number(start=1, stop=100, value=nxdef, label="NY")
@@ -841,9 +1257,9 @@ def WgetDbFromCSV(WAll, flagHeader=True):
     return db
 
 
-# ===============================================
-# Widget to manage a Box based on an optional Db (radix = WBox)
-# ===============================================
+# ==============================================
+# Widget to manage a Box based on an optional Db
+# ==============================================
 
 
 def WdefineBox(db=None):
@@ -961,17 +1377,23 @@ def WdefineEdit(db):
         return
     names = db.getAllNames()
     cols = db.getColumnsAsVVD(names)
-    df = pd.DataFrame(cols.T, columns=names)
+    df = pd.DataFrame(cols.T, columns=names).round(3)
     Wedit = mo.ui.data_editor(df).form(bordered=False)
     return mo.ui.array([Wedit])
 
 
-def WshowEdit(WAll, flagTitle=True, gapv=0, gaph=1):
+def WshowEdit(WAll, flagTitle=True, gapv=1, gaph=1):
     if WAll is None:
         return None
+
     [Wedit] = WAll
+
     WeditTitle = _WgetTitle("Edit Database", flagTitle=flagTitle)
-    return mo.vstack([WeditTitle, Wedit], gap=gapv)
+
+    return mo.vstack(
+        [WeditTitle, Wedit],
+        gap=gapv,
+    )
 
 
 def WgetEdit(WAll, db):
@@ -982,6 +1404,10 @@ def WgetEdit(WAll, db):
         return db
 
     df = Wedit.value
+
+    if df.shape[0] != db.getNSample():
+        db.resizeSamples(df.shape[0])
+
     names = db.getAllNames()
 
     for name in names:
@@ -1069,102 +1495,120 @@ def WgetRule(WAll):
 # Widget to manage Layout (radix = WLayout)
 # =========================================
 
+_LAYOUT_OPTIONS = {
+    "data": {"label": "Display Data", "default": True},
+    "rule": {"label": "Display Lithotype Rule", "default": True},
+    "model": {"label": "Display Model(s)", "default": True},
+    "estimation": {"label": "Display Estimation Map(s)", "default": True},
+    "stdev": {"label": "Display Standard Deviation Map(s)", "default": True},
+    "simulation": {"label": "Display Simulation Map(s)", "default": True},
+    "average": {
+        "label": "Display Simulation Average and Dispersion Map(s)",
+        "default": True,
+    },
+    "KWeights": {"label": "Display Kriging Weights", "default": True},
+    "XWeights": {"label": "Display Cross-Validation", "default": True},
+}
 
-def WdefineLayout(nx=3, ny=3, dimx=5, dimy=5):
-    """
-    Returns parameters for the Graphic Layout
-    nx: Number of columns in the grid of figures
-    ny: Number of rows in the grid of figures
-    dimx: Width of each figure
-    dimy: Height of each figure
-    """
-    WLayoutNx = mo.ui.number(start=1, stop=None, value=nx, label="Number of Columns")
-    WLayoutNy = mo.ui.number(start=1, stop=None, value=ny, label="Number of Rows")
-    WLayoutDimX = mo.ui.number(
-        start=1, stop=None, value=dimx, label="Width of Each Figure"
-    )
-    WLayoutDimY = mo.ui.number(
-        start=1, stop=None, value=dimy, label="Height of Each Figure"
-    )
 
-    WDisplayRule = mo.ui.switch(True, label="Display Lythotype Rule")
-    WDisplayModel = mo.ui.switch(True, label="Display Model(s)")
-    WDisplayEstimation = mo.ui.switch(True, label="Display Estimation Map(s)")
-    WDisplayStDev = mo.ui.switch(True, label="Display St. Dev. Map(s)")
-    WDisplaySimulation = mo.ui.switch(True, label="Display Simulation Map(s)")
-    WDisplayAverage = mo.ui.switch(True, label="Display Simulation Average Map(s)")
+def WdefineLayout(nrow=3, ncol=3, width=5, height=5, defaults=None):
+    widgets = [
+        mo.ui.number(start=1, value=nrow),
+        mo.ui.number(start=1, value=ncol),
+        mo.ui.number(start=1, value=width),
+        mo.ui.number(start=1, value=height),
+    ]
+    defaults = defaults or {}
 
-    return mo.ui.array(
+    for key, opt in _LAYOUT_OPTIONS.items():
+        widgets.append(
+            mo.ui.switch(
+                defaults.get(key, opt["default"]),
+                label=opt["label"],
+            )
+        )
+
+    return mo.ui.array(widgets)
+
+
+def WshowLayout(WAll, flagTitle=True, gapv=0, gaph=1):
+    WTitle = _WgetTitle("Graphic Layout", flagTitle)
+
+    WLayoutNrow, WLayoutNcol, WLayoutWidth, WLayoutHeight = WAll[:4]
+    switches = WAll[4:]
+
+    # --- 2x2 grid for geometry parameters
+    geometry = mo.hstack(
         [
-            WLayoutNx,
-            WLayoutNy,
-            WLayoutDimX,
-            WLayoutDimY,
-            WDisplayRule,
-            WDisplayModel,
-            WDisplayEstimation,
-            WDisplayStDev,
-            WDisplaySimulation,
-            WDisplayAverage,
-        ]
+            mo.vstack(
+                [mo.md("Layout"), mo.md("Along X"), mo.md("Along Y")],
+                gap=gapv,
+            ),
+            mo.vstack(
+                [mo.md("Number of cells"), WLayoutNcol, WLayoutNrow],
+                align="end",
+                gap=gapv,
+            ),
+            mo.vstack(
+                [mo.md("Figure size"), WLayoutWidth, WLayoutHeight],
+                align="end",
+                gap=gapv,
+            ),
+        ],
+        gap=gaph,
+    )
+
+    # --- switches block
+    options = mo.vstack(
+        switches,
+        gap=0.3,
+    )
+
+    return mo.vstack(
+        [
+            WTitle,
+            mo.md("### Geometry"),
+            geometry,
+            mo.md("### Options"),
+            options,
+        ],
+        gap=gapv,
     )
 
 
-def WshowLayout(WAll, flagTitle=True, gapv=1):
-    title = _WgetTitle("Graphic Layout", flagTitle)
-
-    return mo.vstack([title, *WAll], gap=gapv)
-
-
-def WgetLayout(WAll, nvar=1, nbsimu=1, ngrf=1):
-    (
-        WLayoutNx,
-        WLayoutNy,
-        WLayoutDimX,
-        WLayoutDimY,
-        WDisplayRule,
-        WDisplayModel,
-        WDisplayEstimation,
-        WDisplayStDev,
-        WDisplaySimulation,
-        WDisplayAverage,
-    ) = WAll
+def WgetLayout(WAll, nvar=1, nbsimu=1, ngrf=1, valid=()):
+    WLayoutNrow, WLayoutNcol, WLayoutWidth, WLayoutHeight = WAll[:4]
+    switches = WAll[4:]
 
     layout = {
-        "nx": WLayoutNx.value,
-        "ny": WLayoutNy.value,
-        "dimx": WLayoutDimX.value,
-        "dimy": WLayoutDimY.value,
-        "rule": WDisplayRule.value,
-        "model": WDisplayModel.value,
-        "estimation": WDisplayEstimation.value,
-        "stdev": WDisplayStDev.value,
-        "simulation": WDisplaySimulation.value,
-        "average": WDisplayAverage.value,
+        "nx": WLayoutNrow.value,
+        "ny": WLayoutNcol.value,
+        "dimx": WLayoutWidth.value,
+        "dimy": WLayoutHeight.value,
     }
 
-    # construction du tableau contents
-    contents = []
+    # ✔️ map full UI state
+    for key, widget in zip(_LAYOUT_OPTIONS.keys(), switches):
+        layout[key] = widget.value
 
-    if layout["rule"]:
-        contents.append("rule")
+    # ✔️ CRITICAL: valid defines API capability
+    render_plan = []
 
-    if layout["model"]:
-        contents += ["model"] * ngrf
+    def add_if_allowed(key, count):
+        if key in valid and layout.get(key):
+            render_plan.append((key, count))
 
-    if layout["estimation"]:
-        contents += ["estimation"] * nvar
+    add_if_allowed("data", nvar)
+    add_if_allowed("rule", 1)
+    add_if_allowed("model", ngrf)
+    add_if_allowed("estimation", nvar)
+    add_if_allowed("stdev", nvar)
+    add_if_allowed("simulation", nbsimu * nvar)
+    add_if_allowed("average", 2 * nvar)
+    add_if_allowed("KWeights", 1)
+    add_if_allowed("XWeights", 1)
 
-    if layout["stdev"]:
-        contents += ["stdev"] * nvar
-
-    if layout["simulation"]:
-        contents += ["simu"] * nbsimu * nvar
-
-    if layout["average"]:
-        contents += ["average"] * nvar * 2  # Average and Dispersion
-
-    layout["contents"] = contents
+    layout["render_plan"] = render_plan
 
     return layout
 
@@ -1246,25 +1690,150 @@ def WgetAutoSave(panel):
     }
 
 
+# ==============================================
+# Widget to manage Neighborhood (radix = WNeigh)
+# ==============================================
+
+
+def WdefineNeigh(nmaxi=10, radius=10.0, flagUnique=False):
+    """
+    Returns parameters for the Neighborhood
+    """
+    Wunique = mo.ui.checkbox(label="Unique Neighborhood", value=flagUnique)
+    Wnmaxi = mo.ui.number(start=1, value=nmaxi, label="Maximum number of samples")
+    Wradius = mo.ui.number(value=radius, step=0.1, label="Search radius")
+    Wnmini = mo.ui.number(start=1, value=1, label="Minimum number of samples")
+    Wnsect = mo.ui.number(start=1, value=1, label="Number of sectors")
+    Wnsmax = mo.ui.number(value=10, label="Maximum samples per sector")
+    Wangle = mo.ui.number(value=0, label="Rotation Angle (degree)")
+
+    return mo.ui.array(
+        [
+            Wunique,
+            Wnmaxi,
+            Wradius,
+            Wnmini,
+            Wnsect,
+            Wnsmax,
+            Wangle,
+        ]
+    )
+
+
+def WshowNeigh(WAll, flagTitle=True, gapv=1):
+    [Wunique, Wnmaxi, Wradius, Wnmini, Wnsect, Wnsmax, Wangle] = WAll
+    WNeighTitle = _WgetTitle("Neighborhood", flagTitle)
+    # mode UNIQUE → on masque tout sauf titre + switch
+    if Wunique.value:
+        widgets = [
+            WNeighTitle,
+            Wunique,
+        ]
+    else:
+        widgets = [
+            WNeighTitle,
+            Wunique,
+            Wnmaxi,
+            Wradius,
+            Wnmini,
+            Wnsect,
+            Wnsmax,
+            Wangle,
+        ]
+    return mo.vstack(widgets, gap=gapv)
+
+
+def WgetNeigh(WAll):
+    [Wunique, Wnmaxi, Wradius, Wnmini, Wnsect, Wnsmax, Wangle] = WAll
+    if Wunique.value:
+        return gl.NeighUnique()
+
+    return gl.NeighMoving.create(
+        flag_xvalid=False,
+        nmaxi=Wnmaxi.value,
+        radius=Wradius.value,
+        nmini=Wnmini.value,
+        nsect=Wnsect.value,
+        nsmax=Wnsmax.value,
+        angles=[Wangle.value, 0.0],
+    )
+
+
+# ===================================================
+# Widget to manage Kriging Weights (radix = WWeights)
+# ===================================================
+
+
+def WdefineWeights():
+    """
+    Returns parameters for the Kriging Weights
+    """
+    WKindex = mo.ui.number(start=0, step=1, value=0, label="Index of the Target Site")
+    WXindex = mo.ui.number(start=0, step=1, value=0, label="Index of the Data Sample")
+
+    return mo.ui.array(
+        [
+            WKindex,
+            WXindex,
+        ]
+    )
+
+
+def WshowWeights(WAll, flagTitle=True, gapv=1):
+    [WKindex, WXindex] = WAll
+    WWeightsTitle = _WgetTitle("Kriging Weights", flagTitle)
+    widgets = [
+        WWeightsTitle,
+        WKindex,
+        WXindex,
+    ]
+    return mo.vstack(widgets, gap=gapv)
+
+
+def WgetWeights(WAll):
+    [WKindex, WXindex] = WAll
+    return (
+        WKindex.value,
+        WXindex.value,
+    )
+
+
 # =====================================
 # Some display functions used in Marimo
 # =====================================
 
 
-def plotData(ax, db, name, box=None, title=None, flagProj=False, flagBackground=False):
+def plotData(
+    ax,
+    db,
+    name=None,
+    box=None,
+    title=None,
+    flagLiteral=True,
+    flagCst=False,
+    flagProj=False,
+    flagBackground=False,
+    flagTitle=True,
+    s=20,
+    c="r",
+):
     if db is None:
-        return None
-    if name is None or db.getColIdx(name) <= 0:
         return None
 
     if box is not None:
         ax.baseMap(db=db, box=box, flagProj=flagProj)
-    ax.literal(db=db, name=name, fontsize=6)
+
+    if flagLiteral:
+        ax.literal(db=db, name=name, fontsize=6, c=c)
+    else:
+        ax.symbol(db=db, nameSize=name, flagCst=flagCst, s=s, c=c)
+
     if flagBackground:
         ctx.add_basemap(ax, source=ctx.providers.OpenStreetMap.Mapnik, crs="EPSG:4326")
     if title is None:
         title = name
-    ax.decoration(title=title)
+    if flagTitle and title is not None:
+        ax.decoration(title=title)
     ax.geometry(aspect=1)
 
 
@@ -1272,7 +1841,8 @@ def plotVario(ax, vario=None, model=None, title=None, showPairs=True):
     ax.varmod(vario, model, showPairs=showPairs)
     if title is None:
         title = "Variogram & Model"
-    ax.decoration(title=title)
+    if title is not None:
+        ax.decoration(title=title)
 
 
 # Plot a grid with optional isolines
@@ -1284,6 +1854,9 @@ def plotVario(ax, vario=None, model=None, title=None, showPairs=True):
 # * flagBinary: Whether to use a binary color map (default: False)
 # * nlevel: Number of isoline levels (default: 10, set to 0 for no isolines or flagBinary=True)
 # * levels: Optional list of specific levels for isolines (overrides nlevel if provided)
+# * flagTitle: Whether to display the title (default: True)
+# * levelColor: Color of the isoline levels (default: "black")
+# * levelWidth: Width of the isoline levels (default: 0.5)
 def plotGrid(
     ax,
     grid,
@@ -1294,6 +1867,9 @@ def plotGrid(
     flagBinary=False,
     nlevel=10,
     levels=None,
+    flagTitle=True,
+    levelColor="black",
+    levelWidth=0.5,
 ):
     if grid is None:
         return
@@ -1317,11 +1893,13 @@ def plotGrid(
             name=name,
             nlevel=nlevel,
             levels=levels,
-            colors="black",
-            linewidths=0.5,
+            colors=levelColor,
+            linewidths=levelWidth,
+            linestyles="solid",
         )
 
-    ax.decoration(title=title)
+    if flagTitle and title is not None:
+        ax.decoration(title=title)
     ax.geometry(aspect=1)
 
 
@@ -1343,5 +1921,107 @@ def plotRule(
         flagLegend=flagLegend,
     )
 
-    ax.decoration(title=title)
+    if title is not None:
+        ax.decoration(title=title)
     ax.geometry(aspect=1)
+
+
+# Plot a Neighborhood
+# * ax: Marimo axis
+# * neigh: Neighborhood to plot
+# * grid: DbGrid to plot the neighborhood on
+# * node: Rank of the node where centering the neighborhood (default: 0)
+# * title: Title of the plot (optional)
+# * flagCell: Whether to display the cell (default: False)
+def plotNeigh(
+    ax,
+    neigh,
+    grid,
+    node=0,
+    flagCell=False,
+    title=None,
+):
+    if neigh is None:
+        return
+    ax.neigh(neighobj=neigh, grid=grid, node=node, flagCell=flagCell)
+
+    if title is not None:
+        ax.decoration(title=title)
+    ax.geometry(aspect=1)
+
+
+# Plot the Kriging weights
+# * ax: Marimo axis
+# * target: Data Base containing the target points (used for picking)
+# * db: Db which is displayed as a background and also contains the weights
+# * node: Rank of the node where centering the neighborhood (default: -1)
+# * title: Title of the plot (optional)
+def plotWeights(
+    ax,
+    target,
+    db,
+    nameW,
+    neigh,
+    node=-1,
+    flagCell=False,
+    title=None,
+):
+    # Display the target points without any decoration (used for picking)
+    plotData(ax, target, flagLiteral=False, flagCst=True, s=2, c="red")
+
+    plotData(ax, db, flagLiteral=False, flagCst=True, s=10, c="blue")
+    xlim = ax.get_xlim()
+    ylim = ax.get_ylim()
+
+    if node >= 0 and node < db.getNSample():
+        # Display the Weights on the data points involved in the Neighborhood
+        plotData(ax, db, name=nameW, flagLiteral=True, c="green")
+        xlim = ax.get_xlim()
+        ylim = ax.get_ylim()
+
+        # Display the Neighborhood characteristics
+        plotNeigh(ax, neigh, target, node, flagCell)
+
+    ax.set_xlim(xlim)
+    ax.set_ylim(ylim)
+    if title is not None:
+        ax.decoration(title=title)
+    ax.geometry(aspect=1)
+
+
+def getSelectedIndex(plot_widget, db):
+    """
+    Retourne l'indice du premier échantillon sélectionné.
+
+    Parameters
+    ----------
+    plot_widget : marimo plot widget
+        Widget interactif contenant la sélection.
+    db : gl.Db
+        Base de données contenant les coordonnées.
+
+    Returns
+    -------
+    int
+        - -1 si aucun axe n'est fourni ;
+        - -1 si aucune sélection n'est active ;
+        - le premier indice sélectionné sinon.
+    """
+
+    if plot_widget is None:
+        return -1
+
+    sel = plot_widget.value
+
+    if sel is None:
+        return -1
+
+    tabx, taby = gp.getCoordinates(db)
+
+    mask = sel.get_mask(tabx, taby)
+
+    if mask is None:
+        return -1
+
+    selected = np.flatnonzero(mask)
+    return -1 if selected.size == 0 else int(selected[0])

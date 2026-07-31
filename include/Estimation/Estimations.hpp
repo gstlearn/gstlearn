@@ -34,12 +34,14 @@ namespace gstlrn
     ModelGeneric* model,
     Id ivar0 = 0,
     bool verbose = false);
+
   GSTLEARN_EXPORT Global_Result global_kriging(
     Db* dbin,
     Db* dbout,
     ModelGeneric* model,
     Id ivar0 = 0,
     bool verbose = false);
+
   GSTLEARN_EXPORT Id krimage(
     DbGrid* dbgrid,
     Model* model,
@@ -48,6 +50,7 @@ namespace gstlrn
     bool verbose = false,
     Id seed = 13431,
     const NamingConvention& namconv = NamingConvention("Filtering"));
+
   GSTLEARN_EXPORT Id dbMorpho(
     DbGrid* dbgrid,
     const EMorpho& oper,
@@ -58,6 +61,7 @@ namespace gstlrn
     bool flagDistErode = false,
     bool verbose = false,
     const NamingConvention& namconv = NamingConvention("Morpho"));
+
   GSTLEARN_EXPORT Id dbSmoother(
     DbGrid* dbgrid,
     ANeigh* neigh,
@@ -75,6 +79,7 @@ namespace gstlrn
     bool flag_varz = false,
     const KrigOpt& krigopt = KrigOpt(),
     const NamingConvention& namconv = NamingConvention("Kriging"));
+
   GSTLEARN_EXPORT Id krigcell(
     Db* dbin,
     Db* dbout,
@@ -84,6 +89,7 @@ namespace gstlrn
     bool flag_std = true,
     const KrigOpt& krigopt = KrigOpt(),
     const NamingConvention& namconv = NamingConvention("KrigCell"));
+
   GSTLEARN_EXPORT Id kribayes(
     Db* dbin,
     Db* dbout,
@@ -92,6 +98,7 @@ namespace gstlrn
     bool flag_est = true,
     bool flag_std = true,
     const NamingConvention& namconv = NamingConvention("Bayes"));
+
   GSTLEARN_EXPORT Id kriggam(
     Db* dbin,
     Db* dbout,
@@ -99,6 +106,7 @@ namespace gstlrn
     ANeigh* neigh,
     AAnam* anam,
     const NamingConvention& namconv = NamingConvention("KrigGam"));
+
   GSTLEARN_EXPORT Krigtest_Res krigtest(
     Db* dbin,
     Db* dbout,
@@ -107,6 +115,26 @@ namespace gstlrn
     Id iech0 = 0,
     const KrigOpt& krigopt = KrigOpt(),
     bool verbose = true);
+
+  GSTLEARN_EXPORT Id krigWeights(
+    Db* dbin,
+    Db* dbout,
+    ModelGeneric* model,
+    ANeigh* neigh = nullptr,
+    Id iech0 = 0,
+    const KrigOpt& krigopt = KrigOpt(),
+    bool verbose = false,
+    const NamingConvention& namconv = NamingConvention("KWeights"));
+
+  GSTLEARN_EXPORT Id xvalidWeights(
+    Db* db,
+    ModelGeneric* model,
+    ANeigh* neigh = nullptr,
+    Id iech0 = 0,
+    const KrigOpt& krigopt = KrigOpt(),
+    bool verbose = false,
+    const NamingConvention& namconv = NamingConvention("XWeights"));
+
   GSTLEARN_EXPORT Id xvalid(
     Db* db,
     ModelGeneric* model,
@@ -117,6 +145,7 @@ namespace gstlrn
     Id flag_xvalid_varz = 0,
     const KrigOpt& krigopt = KrigOpt(),
     const NamingConvention& namconv = NamingConvention("Xvalid"));
+
   GSTLEARN_EXPORT Id test_neigh(
     Db* dbin,
     Db* dbout,

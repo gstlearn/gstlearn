@@ -216,6 +216,43 @@ namespace gstlrn
     _ktest.var = ksys.getVariance();
   }
 
+  /**
+   * @brief The Kriging weights are added to the input Db
+   * They are multiplied by 100 for better legibility
+   *
+   * @param namconv
+   */
+  void CalcKriging::addWeights(const NamingConvention& namconv)
+  {
+    Id nvar = _getNVar();
+    Id nech = _ktest.nech;
+    auto names = getDbin()->getNamesByLocator(ELoc::Z);
+    auto iuid = getDbin()->addColumnsByConstant(nvar * nvar, TEST, "Weight");
+
+    // Loop on the variables
+    for (Id ivar = 0; ivar < nvar; ++ivar)
+    {
+      // Loop on the data variables
+      Id lec = 0;
+      for (Id jvar = 0; jvar < nvar; ++jvar)
+
+        // Loop on the samples involved in neighborhood
+        for (Id iech = 0; iech < nech; ++iech)
+        {
+          Id jech = _ktest.nbgh[iech];
+
+          auto value = getDbin()->getZVariable(jech, jvar);
+          if (FFFF(value)) continue;
+
+          getDbin()->setValueByUID(
+            jech, iuid + jvar + nvar * ivar,
+            100. * _ktest.wgt.getValue(lec++, ivar));
+        }
+    }
+    namconv.setNamesAndLocators(
+      getDbin(), names, ELoc::Z, nvar, getDbin(), iuid, String(), nvar, false);
+  }
+
   /****************************************************************************/
   /*!
    **  Standard Kriging
@@ -256,7 +293,7 @@ namespace gstlrn
     for (Id iech_out = 0, nech_out = getDbout()->getNSample();
          iech_out < nech_out; iech_out++)
     {
-      if (_iechSingleTarget > 0)
+      if (_iechSingleTarget >= 0)
       {
         if (iech_out != _iechSingleTarget) continue;
         if (_verboseSingleTarget) OptDbg::defineAll();
@@ -268,7 +305,7 @@ namespace gstlrn
 
       bool error = ksys.estimate(iech_out);
 
-      if (_iechSingleTarget > 0)
+      if (_iechSingleTarget >= 0)
       {
         if (_verboseSingleTarget) OptDbg::undefineAll();
       }

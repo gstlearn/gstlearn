@@ -275,7 +275,7 @@ namespace gstlrn
     }
 
     // Print the contents of non-zero elements
-    if (verbose) print();
+    if (verbose) printContents();
   }
 
   const VectorDouble& ShiftStencil::weights() const
@@ -284,10 +284,7 @@ namespace gstlrn
     {
       return _weightsSimu;
     }
-    else
-    {
-      return _weights;
-    }
+    return _weights;
   }
 
   void ShiftStencil::multiplyByValueAndAddDiagonal(double v1, double v2) const
@@ -305,7 +302,7 @@ namespace gstlrn
     _useModifiedShift = false;
   }
 
-  void ShiftStencil::print() const
+  void ShiftStencil::printContents() const
   {
     auto nweight = _weights.size();
     Id ndim = _relativeShifts.front().size();

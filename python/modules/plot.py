@@ -314,21 +314,22 @@ def close():
     plt.show()
 
 
-def init(nx=1, ny=1, figsize=None, flagEqual=False):
+def init(nx=1, ny=1, figsize=None, flagEqual=False, squeeze=True):
     """
     General procedure for initializing a new graphic with matplotlib.pyplot.
     It allows suppressing the dependency to matplotlib in your scripts
     nx, ny:    Number of subplots along X and Y
     figsize:   When defined, this dictates the dimension of the Global Figure (in inches)
     flagEqual: When True, all subsequent Axes have an 'aspect' set to 1
+    squeeze:   When True, if nx=ny=1, the returned Axes is not an array but a single Axes
     """
-    fig, axs = plt.subplots(nrows=nx, ncols=ny)
+    fig, axs = plt.subplots(nrows=nx, ncols=ny, squeeze=squeeze)
 
     aspect = None
     if flagEqual:
         aspect = 1
 
-    if nx * ny > 1:
+    if nx * ny > 1 or not squeeze:
         for ax in axs.flat:
             _ax_geometry(ax, dims=figsize, aspect=aspect)
     else:
@@ -383,7 +384,7 @@ def _legendDiscrete(
     ax.legend(handles=size_handles, title=legendName, loc=loc)
 
 
-def _getCoordinates(db, nameCoorX=None, nameCoorY=None, useSel=True, posX=0, posY=1):
+def getCoordinates(db, nameCoorX=None, nameCoorY=None, useSel=True, posX=0, posY=1):
     """
     Returns a set of two vectors containing the coordinates
 
@@ -1063,13 +1064,18 @@ def _ax_symbol(
     posY: rank of the second coordinate
     **kwargs : arguments passed to matplotllib.pyplot.scatter
     """
-    tabx, taby = _getCoordinates(db, nameCoorX, nameCoorY, useSel, posX, posY)
+    tabx, taby = getCoordinates(db, nameCoorX, nameCoorY, useSel, posX, posY)
     if len(tabx) <= 0:
         return
 
     nb = len(tabx)
     valid = np.full(nb, True)
     name = ""
+
+    # Define a default variable just for posting points
+    if nameColor is None and nameSize is None:
+        nameSize = db.getNameByColIdx(0)
+        flagCst = True
 
     # Color of symbol
     colval = c
@@ -1137,7 +1143,12 @@ def _ax_symbol(
                 borderaxespad=0.0,
             )
 
-    if flagLegendSize and nameSize is not None:
+    if (
+        flagLegendSize
+        and nameSize is not None
+        and sizvmin is not None
+        and sizvmax is not None
+    ):
         _legendDiscrete(ax, sizmin, sizmax, sizvmin, sizvmax, c, legendNameSize)
 
     return res
@@ -1182,7 +1193,7 @@ def _ax_literal(
     posY: rank of the second coordinate
     **kwargs : arguments passed to matplotllib.pyplot.scatter
     """
-    tabx, taby = _getCoordinates(db, nameCoorX, nameCoorY, useSel, posX, posY)
+    tabx, taby = getCoordinates(db, nameCoorX, nameCoorY, useSel, posX, posY)
     if len(tabx) <= 0:
         return
 
@@ -1229,7 +1240,7 @@ def _ax_gradient(
     posY: rank of the second coordinate
     **kwargs : arguments passed to quiver.
     """
-    tabx, taby = _getCoordinates(db, nameCoorX, nameCoorY, useSel, posX, posY)
+    tabx, taby = getCoordinates(db, nameCoorX, nameCoorY, useSel, posX, posY)
     if len(tabx) <= 0:
         return
 
@@ -1266,7 +1277,7 @@ def _ax_tangent(
     posY: rank of the second coordinate
     **kwargs : arguments passed to quiver.
     """
-    tabx, taby = _getCoordinates(db, nameCoorX, nameCoorY, useSel, posX, posY)
+    tabx, taby = getCoordinates(db, nameCoorX, nameCoorY, useSel, posX, posY)
     if len(tabx) <= 0:
         return
 
@@ -2221,12 +2232,6 @@ def _ax_mesh(
 
 def baseMap(
     db,
-    crsFrom="EPSG:4326",
-    crsTo="EPSG:3857",
-    box=None,
-    flagProj=False,
-    color="blue",
-    size=10,
     *args,
     **kwargs,
 ):
@@ -2235,9 +2240,7 @@ def baseMap(
     """
     ax = _getNewAxes()
 
-    return _ax_baseMap(
-        ax, db, crsFrom, crsTo, box, flagProj, color, size, *args, **kwargs
-    )
+    return _ax_baseMap(ax, db, *args, **kwargs)
 
 
 def _ax_baseMap(

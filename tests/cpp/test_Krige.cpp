@@ -232,7 +232,7 @@ int main(int argc, char* argv[])
     message("\n<----- Kriging Test in Moving Neighborhood ----->\n");
     delete grid_res;
     grid_res = grid->clone();
-    ktest = krigtest(data, grid_res, model, neighM, 0);
+    ktest = krigtest(data, grid_res, model, neighM, 0, KrigOpt(), false);
     message("\nTesting KrigTest facility\n");
     message("- Space Dimension = %d\n", ktest.ndim);
     message("- Number of Neighbors = %d\n", ktest.nech);
@@ -377,7 +377,7 @@ int main(int argc, char* argv[])
     delete data_res;
     data_res = data->clone();
     kriging(data_res, data_res, model, neighU);
-    OptDbg::setReference(0);
+    OptDbg::setReference(-1);
   }
 
   if (mode == 0 || mode == 18)
@@ -385,7 +385,7 @@ int main(int argc, char* argv[])
     message("\n---> Kriging in general\n");
     OptDbg::setReference(1);
     kriging(data, grid_res, model, neighU);
-    OptDbg::setReference(0);
+    OptDbg::setReference(-1);
   }
 
   // ====================== Testing Specials ==================================
