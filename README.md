@@ -73,7 +73,7 @@ For **compiling and installing** *gstlearn* C++ library, the following tools mus
   * Windows:
     * Python users: Microsoft Visual Studio C++ 14 or higher
     * R users: MinGW 7 (RTools 4.2) or higher
-* Boost header files 1.65 or higher
+* Boost header files 1.70 or higher
 * Eigen3 header files 3.4 or higher
 * NLopt library 2.7 or higher
 * HDF5 [Optional] C++ library and header files 1.8 or higher
