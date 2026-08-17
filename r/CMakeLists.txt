@@ -53,10 +53,6 @@ add_custom_target(r_doc
   VERBATIM
 )
 
-if (BUILD_DOC)
-  add_dependencies(r_doc doxygen)
-endif()
-
 ####CUSTOM WRAPPER
 add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/swig/generated_r.i
 COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_BINARY_DIR}/swig/generated_r.i
@@ -76,7 +72,7 @@ add_custom_target(r_clean_namespace
 
 # Tell that we need to generate doxymentation before building R package (if required)
 if (BUILD_DOC)
-  add_dependencies(r_doc doxygen)
+  add_dependencies(r_doc doxygen_xml)
 endif()
 
 ######################################
