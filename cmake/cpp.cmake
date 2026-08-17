@@ -123,7 +123,13 @@ endif()
 
 # Look for Boost
 #set(Boost_DEBUG 1)
-find_package(Boost CONFIG REQUIRED)
+
+# Get rid of the warning CMP0167
+# https://stackoverflow.com/a/79147222
+if(POLICY CMP0167)
+  cmake_policy(SET CMP0167 NEW)
+endif()
+find_package(Boost 1.70 REQUIRED)
 # TODO : If Boost not found, fetch it from the web ?
 option(USE_BOOST_SPAN "Use Boost span instead of std (C++17 builds)" OFF)
 mark_as_advanced(USE_BOOST_SPAN)

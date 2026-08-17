@@ -96,6 +96,11 @@ message(STATUS "USE_HDF5="      ${USE_HDF5})
 # Create gstlearn cmake file path in the build tree
 cmake_path(APPEND GSTLEARN_CMAKE_FILE ${PROJECT_BINARY_DIR} "gstlearn.cmake")
 
+# Activate the support of upper case XXX_ROOT variables
+if(POLICY CMP0144)
+  cmake_policy(SET CMP0144 NEW)
+endif()
+
 ####################################################
 ## EXTERNAL LIBS
 add_subdirectory(3rd-party/gmtsph)
