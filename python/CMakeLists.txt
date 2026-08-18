@@ -48,7 +48,7 @@ add_custom_target(python_doc
 
 # Tell that we need to generate doxymentation before building python package
 if (BUILD_DOC)
-  add_dependencies(python_doc doxygen)
+  add_dependencies(python_doc doxygen_xml)
 endif()
 
 ####CUSTOM WRAPPER

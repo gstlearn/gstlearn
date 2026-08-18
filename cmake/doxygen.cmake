@@ -102,6 +102,7 @@ add_dependencies(doxygen_html doc_macro)
 set(DOXYGEN_GENERATE_HTML NO)
 set(DOXYGEN_GENERATE_XML YES)
 set(DOXYGEN_PREDEFINED ${COMMON_PREDEFINED})
+set(DOXYGEN_LAYOUT_FILE "")
 
 doxygen_add_docs(doxygen_xml
                  ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/src
