@@ -873,7 +873,7 @@ namespace gstlrn
 }
 
 %typemap(typecheck, precedence=SWIG_TYPECHECK_STRING) const std::string_view {
-  $1 = PyString_Check($input) ? 1 : 0;
+  $1 = PyUnicode_Check($input) || PyBytes_Check($input);
 }
 }//namespace gstlrn
 //////////////////////////////////////////////////////////////
