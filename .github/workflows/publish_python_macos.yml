@@ -81,7 +81,6 @@ jobs:
           -DHDF5_USE_STATIC_LIBRARIES=ON \
           -DBUILD_PYTHON=ON \
           -DBUILD_R=OFF \
-          -DPython3_ROOT_DIR="${{env.pythonLocation}}" \
           -DBUILD_DOC=ON
       env:
         CC: ${{matrix.arch.pat}}/opt/llvm/bin/clang

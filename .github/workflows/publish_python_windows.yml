@@ -91,7 +91,7 @@ jobs:
           -A ${{matrix.arch.of}} `
           -DBUILD_PYTHON=ON `
           -DBUILD_R=OFF `
-          -DPython3_ROOT_DIR="${{env.pythonLocation}}" `
+          -DSphinx_DIR=${{ env.VIRTUAL_ENV }}/share/Sphinx/cmake `
           -DHDF5_USE_STATIC_LIBRARIES=ON `
           -DBUILD_DOC=ON
 
