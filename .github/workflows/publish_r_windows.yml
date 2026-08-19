@@ -57,12 +57,16 @@ jobs:
       with:
         r-version: ${{matrix.r_version}}
 
-    # In R 4.2 ggplot2 & ggpubr prefer older Matrix version
+    # In R 4.2, ggplot2 & ggpubr prefer older Matrix version
     - name: Install R Matrix dependency
       run: Rscript -e "install.packages ('https://cran.r-project.org/src/contrib/Archive/Matrix/Matrix_1.6-5.tar.gz')"
 
+    # In R 4.3 & R 4.4, ggpubr needs rstatix >=1 which is not preinstalled
+    - name: Install R rstatix dependency
+      run: Rscript -e "install.packages (c('rstatix', type='source'))"
+
     - name: Install R dependencies (binary)
-      run: Rscript -e "install.packages (c('ggplot2', 'ggpubr', 'ggnewscale', 'roxygen2', 'pkgbuild'), type='binary')"
+      run: Rscript -e "install.packages (c('ggplot2', 'ggpubr', 'ggnewscale', 'roxygen2','pkgbuild'), type='binary')"
 
     - name: Fix CMake Path (system prefered to rtools)
       run: |
@@ -156,6 +160,10 @@ jobs:
     # In R 4.2 ggplot2 & ggpubr prefer older Matrix version
     - name: Install R Matrix dependency
       run: Rscript -e "install.packages ('https://cran.r-project.org/src/contrib/Archive/Matrix/Matrix_1.6-5.tar.gz')"
+
+    # In R 4.3 & R 4.4, ggpubr needs rstatix >=1 which is not preinstalled
+    - name: Install R rstatix dependency
+      run: Rscript -e "install.packages (c('rstatix', type='source'))"
 
     - name: Install R dependencies (binary)
       run: Rscript -e "install.packages (c('ggplot2', 'ggpubr', 'ggnewscale', 'roxygen2', 'pkgbuild'), type='binary')"
