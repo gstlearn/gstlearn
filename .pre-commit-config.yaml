@@ -18,6 +18,10 @@ repos:
     rev: 'v22.1.1'
     hooks:
       - id: clang-format
+  - repo: 'https://github.com/kynan/nbstripout'
+    rev: '0.9.1'
+    hooks:
+      - id: nbstripout
 exclude: |
     (?x)^(
         doc/data|
