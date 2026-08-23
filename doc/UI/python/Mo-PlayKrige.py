@@ -1,27 +1,27 @@
 import marimo
 
-__generated_with = "0.23.11"
+__generated_with = "0.23.14"
 app = marimo.App(width="full")
 
 
 @app.cell(hide_code=True)
-def _():
+def my_imports():
     import marimo as mo
 
     import gstlearn as gl
     import gstlearn.plot as gp
     import gstlearn.gstmarimo as gmo
-    import gstlearn.document as gdoc
-
-    import numpy as np
     import matplotlib.pyplot as plt
 
+    import numpy as np
+    import pandas as pd
+
     gmo.setEnvironment(optionBackup=True, optionDisplay=False)
-    return gl, gmo, gp, mo
+    return gl, gmo, gp, mo, plt
 
 
 @app.cell(hide_code=True)
-def _(gmo):
+def define_widgets(gmo):
     WidgetAutoSave = gmo.WdefineAutoSave()
     WidgetDb = gmo.WdefineDb()
     WidgetGrid = gmo.WdefineGrid(nxdef=20, dxdef=5)
@@ -29,9 +29,6 @@ def _(gmo):
     WidgetNeigh = gmo.WdefineNeigh(radius=50)
     WidgetWeights = gmo.WdefineWeights()
     WidgetLayout = gmo.WdefineLayout(nrow=2, ncol=3, width=3, height=3)
-    # WidgetLayout = gmo.WdefineLayout(nrow=2, ncol=2, width=3, height=3, defaults={
-    #     "estimation": False,
-    #     "stdev": False, })
     return (
         WidgetAutoSave,
         WidgetDb,
@@ -44,25 +41,15 @@ def _(gmo):
 
 
 @app.cell(hide_code=True)
-def _(WidgetDb, gmo):
+def define_widget_model(WidgetDb, WidgetVario, gmo):
     db0 = gmo.WgetDb(WidgetDb)
-    return (db0,)
-
-
-@app.cell(hide_code=True)
-def _(WidgetVario, db0, gmo):
     vario = gmo.WgetVario(WidgetVario, db=db0)
-    return (vario,)
-
-
-@app.cell(hide_code=True)
-def _(gmo, vario):
     WidgetModel = gmo.WdefineModel(ncovmax=3, vario=vario)
     return (WidgetModel,)
 
 
 @app.cell(hide_code=True)
-def _(
+def define_action(
     WidgetAutoSave,
     WidgetDb,
     WidgetGrid,
@@ -74,43 +61,34 @@ def _(
     gl,
     gmo,
     gp,
+    mo,
+    plt,
 ):
-    def myaction(Kindex_pick=-1, Xindex_pick=-1):
-        # Define the autosave option
+    def myaction():
         autosave = gmo.WgetAutoSave(WidgetAutoSave)
 
-        # Read the elements
         data = gmo.WgetDb(WidgetDb)
         grid = gmo.WgetGrid(WidgetGrid)
         vario = gmo.WgetVario(WidgetVario, data)
         model = gmo.WgetModel(WidgetModel, vario)
         neigh = gmo.WgetNeigh(WidgetNeigh)
 
-        # Read the target nodes (from interface or from Picking)
         Kindex, Xindex = gmo.WgetWeights(WidgetWeights)
-        if Kindex_pick >= 0:
-            Kindex = Kindex_pick
 
-        if Xindex_pick >= 0:
-            Xindex = Xindex_pick
-
-        print("Kindex final = ", Kindex)
-        print("Xindex final = ", Xindex)
-
-        # Perform the Estimation
         if (
             data is not None
             and grid is not None
             and model is not None
             and neigh is not None
         ):
-            err = gl.kriging(data, grid, model, neigh)
-            if Kindex >= 0:
-                err = gl.krigWeights(data, grid, model, neigh, Kindex)
-            if Xindex >= 0:
-                err = gl.xvalidWeights(data, model, neigh, Xindex)
+            gl.kriging(data, grid, model, neigh)
 
-        nvar = data.getNLoc(gl.ELoc.Z)
+            if Kindex >= 0 and Kindex < grid.getNSample():
+                gl.krigWeights(data, grid, model, neigh, Kindex)
+
+            if Xindex >= 0 and Xindex < data.getNSample():
+                gl.xvalidWeights(data, model, neigh, Xindex)
+
         layout = gmo.WgetLayout(
             WidgetLayout,
             nvar=1,
@@ -127,9 +105,7 @@ def _(
         axes = ax.ravel()
 
         i = 0
-        ax_KWeight = None
-        ax_XWeight = None
-        for name, count in layout["render_plan"]:
+        for name, count in layout.get("render_plan", []):
             for k in range(count):
                 if i >= len(axes):
                     break
@@ -158,71 +134,53 @@ def _(
                     gmo.plotData(axi, data, name=targetName, flagTitle=False, c="blue")
 
                 elif name == "KWeights":
-                    ax_Picking = axi
-                    name = "KWeights." + targetName
-                    gmo.plotWeights(
-                        axi,
-                        grid,
-                        data,
-                        name,
-                        neigh,
-                        Kindex,
-                        title="Kriging Weights",
-                    )
+                    name_kw = "KWeights." + targetName
+                    if Kindex >= 0 and Kindex < grid.getNSample():
+                        gmo.plotWeights(
+                            axi,
+                            grid,
+                            data,
+                            name_kw,
+                            neigh,
+                            Kindex,
+                            title="Kriging Weights",
+                        )
+                    else:
+                        axi.set_title("Kriging Weights")
 
                 elif name == "XWeights":
-                    name = "XWeights." + targetName
-                    gmo.plotWeights(
-                        axi,
-                        data,
-                        data,
-                        name,
-                        neigh,
-                        Xindex,
-                        title="Cross-Validation Weights",
-                    )
+                    name_xw = "XWeights." + targetName
+                    if Xindex >= 0 and Xindex < data.getNSample():
+                        gmo.plotWeights(
+                            axi,
+                            data,
+                            data,
+                            name_xw,
+                            neigh,
+                            Xindex,
+                            title="Cross-Validation Weights",
+                        )
+                    else:
+                        axi.set_title("Cross-Validation Weights")
 
                 else:
                     axi.axis("off")
 
                 i += 1
 
-        # hide remaining axes
         for axi in axes[i:]:
             axi.axis("off")
 
-        fig.tight_layout(pad=0)
-
-        return fig, axes, data, grid, ax_Picking
+        plt.tight_layout(pad=0.2)
+        mo.mpl.interactive(fig)
+        return fig
 
     return (myaction,)
 
 
-@app.cell
-def _(mo):
-    Kindex_state, set_Kindex = mo.state(-1)
-    Xindex_state, set_Xindex = mo.state(-1)
-    return Kindex_state, Xindex_state, set_Kindex, set_Xindex
-
-
 @app.cell(hide_code=True)
-def _(Kindex_state, Xindex_state, myaction):
-    fig, axs, data, grid, ax_Picking = myaction(
-        Kindex_pick=Kindex_state(),
-        Xindex_pick=Xindex_state(),
-    )
-    return ax_Picking, data, grid
-
-
-@app.cell(hide_code=True)
-def _(ax_Picking, mo):
-    if ax_Picking is not None:
-        widget_Picking = mo.ui.matplotlib(ax_Picking, debounce=True)
-    return (widget_Picking,)
-
-
-@app.cell(hide_code=True)
-def _(
+def render_ui(
+    WidgetAutoSave,
     WidgetDb,
     WidgetGrid,
     WidgetLayout,
@@ -232,7 +190,7 @@ def _(
     WidgetWeights,
     gmo,
     mo,
-    widget_Picking,
+    myaction,
 ):
     param = mo.ui.tabs(
         {
@@ -243,38 +201,14 @@ def _(
             "Neigh": gmo.WshowNeigh(WidgetNeigh),
             "Weights": gmo.WshowWeights(WidgetWeights),
             "Layout": gmo.WshowLayout(WidgetLayout),
+            "AutoSave": gmo.WshowAutoSave(WidgetAutoSave),
         }
-    ).style({"minWidth": "450px", "width": "450px"})
+    ).style({"minWidth": "350px", "width": "350px"})
 
-    layout = mo.hstack(
-        [
-            param,
-            widget_Picking,
-        ],
-        gap=4,
-    )
+    simu = mo.vstack([mo.md(""), mo.md(f"{mo.as_html(myaction())}")], gap=0)
 
+    layout = mo.hstack([param, simu], gap=4)
     layout
-    return
-
-
-@app.cell(hide_code=True)
-def _(WidgetWeights, data, gmo, grid, set_Kindex, set_Xindex, widget_Picking):
-    index_data = gmo.getSelectedIndex(widget_Picking, data)
-    index_grid = gmo.getSelectedIndex(widget_Picking, grid)
-
-    Kindex, Xindex = gmo.WgetWeights(WidgetWeights)
-
-    if index_grid >= 0:
-        Kindex = index_grid
-        set_Kindex(Kindex)
-
-    if index_data >= 0:
-        Xindex = index_data
-        set_Xindex(Xindex)
-
-    print("Effective Kindex =", Kindex)
-    print("Effective Xindex =", Xindex)
     return
 
 

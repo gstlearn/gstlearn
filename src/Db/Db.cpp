@@ -2526,7 +2526,7 @@ namespace gstlrn
       if (!isColIdxValid(icol)) return;
       if (!isSampleIndexValid(iech)) return;
     }
-    _data.setValue(iech, icol, value);
+    _data.setValue(icol, iech, value);
   }
 
   void Db::setValuesByNamesInPlace(

@@ -1764,19 +1764,11 @@ def WgetNeigh(WAll):
 # ===================================================
 
 
-def WdefineWeights():
-    """
-    Returns parameters for the Kriging Weights
-    """
-    WKindex = mo.ui.number(start=0, step=1, value=0, label="Index of the Target Site")
-    WXindex = mo.ui.number(start=0, step=1, value=0, label="Index of the Data Sample")
+def WdefineWeights(Kindex=0, Xindex=0):
+    WKindex = mo.ui.number(start=0, step=1, value=Kindex, label="Target Site Index")
+    WXindex = mo.ui.number(start=0, step=1, value=Xindex, label="Data Sample Index")
 
-    return mo.ui.array(
-        [
-            WKindex,
-            WXindex,
-        ]
-    )
+    return mo.ui.array([WKindex, WXindex])
 
 
 def WshowWeights(WAll, flagTitle=True, gapv=1):

@@ -1,11 +1,11 @@
 import marimo
 
-__generated_with = "0.23.11"
+__generated_with = "0.23.14"
 app = marimo.App(width="full")
 
 
-@app.cell
-def _():
+@app.cell(hide_code=True)
+def my_imports():
     import marimo as mo
 
     import gstlearn as gl
@@ -21,61 +21,61 @@ def _():
 
 
 @app.cell(hide_code=True)
-def _(gmo):
+def define_db_widget(gmo):
     WidgetDb = gmo.WdefineDb()
     return (WidgetDb,)
 
 
 @app.cell(hide_code=True)
-def _(WidgetDb, gmo):
+def get_initial_db(WidgetDb, gmo):
     dbinit = gmo.WgetDb(WidgetDb)
     return (dbinit,)
 
 
 @app.cell(hide_code=True)
-def _(dbinit, gmo):
+def define_edit_widget(dbinit, gmo):
     WidgetEdit = gmo.WdefineEdit(dbinit)
     return (WidgetEdit,)
 
 
 @app.cell(hide_code=True)
-def _(WidgetEdit, dbinit, gmo):
+def get_edited_db(WidgetEdit, dbinit, gmo):
     db = gmo.WgetEdit(WidgetEdit, dbinit)
     return (db,)
 
 
 @app.cell(hide_code=True)
-def _(db, gmo):
+def define_view_widget(db, gmo):
     WidgetView = gmo.WdefineBox(db)
     return (WidgetView,)
 
 
 @app.cell(hide_code=True)
-def _(gmo):
+def define_grid_widget(gmo):
     WidgetGrid = gmo.WdefineGridN()
     return (WidgetGrid,)
 
 
 @app.cell(hide_code=True)
-def _(db, gmo):
+def define_vario_widget(db, gmo):
     WidgetVario = gmo.WdefineVario(nlag=10, db=db)
     return (WidgetVario,)
 
 
 @app.cell(hide_code=True)
-def _(WidgetVario, db, gmo):
+def get_variogram(WidgetVario, db, gmo):
     vario = gmo.WgetVario(WidgetVario, db=db)
     return (vario,)
 
 
 @app.cell(hide_code=True)
-def _(gmo, vario):
+def define_model_widget(gmo, vario):
     WidgetModel = gmo.WdefineModel(ncovmax=3, vario=vario)
     return (WidgetModel,)
 
 
-@app.cell
-def _(
+@app.cell(hide_code=True)
+def define_action(
     WidgetDb,
     WidgetGrid,
     WidgetModel,
@@ -124,7 +124,7 @@ def _(
         ):
             err = gl.kriging(db, grid, model, neigh)
 
-        fig, ax = gp.init(2, 2, figsize=(8, 8))
+        fig, ax = gp.init(2, 2, figsize=(6, 6))
         gmo.plotData(
             ax[0, 0], db, name=targetName, box=box, flagBackground=flagBackground
         )
@@ -138,7 +138,8 @@ def _(
         gmo.plotData(
             ax[1, 1], db, name=targetName, box=box, flagBackground=flagBackground
         )
-        plt.tight_layout()
+
+        plt.tight_layout(pad=0.2)
         mo.mpl.interactive(fig)
 
         return fig
@@ -146,8 +147,8 @@ def _(
     return (myaction,)
 
 
-@app.cell
-def _(
+@app.cell(hide_code=True)
+def render_ui(
     WidgetDb,
     WidgetEdit,
     WidgetGrid,
@@ -169,11 +170,10 @@ def _(
         }
     ).style({"minWidth": "350px", "width": "350px"})
 
-    simu = mo.vstack(
-        [mo.md(""), mo.md(f"Data and its Estimation {mo.as_html(myaction())}")], gap=4
-    )
+    simu = mo.vstack([mo.md(""), mo.md(f"{mo.as_html(myaction())}")], gap=0)
 
-    mo.hstack([param, simu], gap=4)
+    layout = mo.hstack([param, simu], gap=4)
+    layout
     return
 
 

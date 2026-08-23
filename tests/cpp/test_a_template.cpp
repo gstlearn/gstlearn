@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
-  ASerializable::setPrefixName("test_a_template-");
+  ASerializable::setPrefixName("mytest-");
 
   return (0);
 }

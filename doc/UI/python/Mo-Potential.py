@@ -5,7 +5,7 @@ app = marimo.App(width="full")
 
 
 @app.cell(hide_code=True)
-def _():
+def my_imports():
     import marimo as mo
 
     import gstlearn as gl
@@ -16,12 +16,12 @@ def _():
     import numpy as np
     import pandas as pd
 
-    gmo.setEnvironment(optionBackup=False, optionDisplay=False)
+    gmo.setEnvironment(optionBackup=True, optionDisplay=False)
     return gl, gmo, gp, mo, np, plt
 
 
 @app.cell(hide_code=True)
-def _(gmo):
+def define_widgets(gmo):
     dbIsoPot = gmo.createDefaultIsoPot()
     dbGradPot = gmo.createDefaultGradPot()
     dbTgtePot = gmo.createDefaultTgtePot()
@@ -48,7 +48,7 @@ def _(gmo):
 
 
 @app.cell(hide_code=True)
-def _(
+def define_action(
     WidgetGradPot,
     WidgetGrid,
     WidgetIsoPot,
@@ -157,7 +157,7 @@ def _(
                 linestyles="solid",
             )
 
-        plt.tight_layout()
+        plt.tight_layout(pad=0.2)
         mo.mpl.interactive(fig)
 
         return fig
@@ -166,7 +166,7 @@ def _(
 
 
 @app.cell(hide_code=True)
-def _(
+def render_ui(
     WidgetGradPot,
     WidgetGrid,
     WidgetIsoPot,
@@ -203,7 +203,8 @@ def _(
         gap=4,
     )
 
-    mo.hstack([LeftPanel, Potential], gap=4)
+    layout = mo.hstack([LeftPanel, Potential], gap=4)
+    layout
     return
 
 
