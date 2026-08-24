@@ -20,7 +20,6 @@ namespace gstlrn
   class GSTLEARN_EXPORT ColID
   {
   public:
-    ColID();
     ColID(const std::string& name, Id version = 0);
     ColID(const std::string_view name, Id version = 0);
     ColID(Id icol, Id version = 0);

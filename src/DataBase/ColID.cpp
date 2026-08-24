@@ -12,14 +12,6 @@
 
 namespace gstlrn
 {
-  ColID::ColID()
-    : _icol(-1)
-    , _name()
-    , _roleID()
-    , _version(0)
-  {
-  }
-
   // Kept for SWIG, which currently resolves this overload more reliably than
   // the std::string_view constructor.
   ColID::ColID(const std::string& name, Id version)

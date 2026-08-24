@@ -111,14 +111,14 @@ namespace gstlrn
     /**
      * @brief Adds elements to all series.
      *
-     * @param nnewsamp Number of elements to add to each series.
+     * @param nnewelem Number of elements to add to each series.
      * @param val Value assigned to the newly added elements.
      *
      * Existing values are preserved.
      */
-    void addSamples(const Id nnewsamp, const value_type val)
+    void addElements(const Id nnewelem, const value_type val)
     {
-      VectorType newbuf(this->_outer * (this->_inner + nnewsamp), val);
+      VectorType newbuf(this->_outer * (this->_inner + nnewelem), val);
       for (Id o = 0; o < this->_outer; ++o)
       {
         for (Id i = 0; i < this->_inner; ++i)
@@ -126,19 +126,19 @@ namespace gstlrn
           newbuf[(o * this->_inner) + i] = this->_buf[(o * this->_inner) + i];
         }
       }
-      this->_inner += nnewsamp;
+      this->_inner += nnewelem;
       std::swap(this->_buf, newbuf);
     }
 
     /**
      * @brief Deletes one element from all series.
      *
-     * The element identified by @p isamp is removed from every series.
+     * The element identified by @p ielem is removed from every series.
      * Existing values of the other elements are preserved.
      *
-     * @param isamp Index of the element to delete.
+     * @param ielem Index of the element to delete.
      */
-    void deleteSample(const Id isamp)
+    void deleteElement(const Id ielem)
     {
       VectorType newbuf(this->_buf);
       newbuf.resize(this->_outer * (this->_inner - 1));
@@ -148,7 +148,7 @@ namespace gstlrn
         Id a{};
         for (Id i = 0; i < this->_inner; ++i)
         {
-          if (i == isamp)
+          if (i == ielem)
           {
             continue;
           }

@@ -306,7 +306,7 @@ namespace gstlrn
         using VectorType = std::decay_t<decltype(arg)>::vector_type;
         if constexpr (_isWritable<T, VectorType>())
         {
-          arg.addSamples(nnewsample, val);
+          arg.addElements(nnewsample, val);
         }
         else
         {

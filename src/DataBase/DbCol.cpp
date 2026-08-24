@@ -169,7 +169,7 @@ namespace gstlrn
   void DbCol::deleteSample(const Id isample)
   {
     std::visit(
-      [isample](auto&& arg) { arg.deleteSample(isample); }, this->_data);
+      [isample](auto&& arg) { arg.deleteElement(isample); }, this->_data);
   }
 
   Id DbCol::getNSamples() const

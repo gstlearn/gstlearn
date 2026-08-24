@@ -186,11 +186,10 @@ namespace gstlrn
   ColID DbData::getColID(const ColID& colid) const
   {
     const auto icol = _getColumnIndex(colid, false);
-    if (!icol) return ColID();
+    if (!icol) return ColID(-1);
 
-    ColID colIDout;
+    ColID colIDout(*icol);
     colIDout.setName(_cols[*icol].getName());
-    colIDout.setICol(*icol);
     colIDout.setRoleID(_roleIDs[*icol]);
     return colIDout;
   }
