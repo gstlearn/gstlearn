@@ -2596,7 +2596,16 @@ def _ax_neigh(
     target = grid.getSampleCoordinates(node)
 
     # Represent the target location
-    _ax_sample(ax, target, **kwargs)
+    _ax_sample(
+        ax,
+        target,
+        marker="s",
+        markersize=10,
+        markerfacecolor="none",
+        markeredgecolor="black",
+        markeredgewidth=1.5,
+        **kwargs,
+    )
 
     # Represent the edge of the target (if block)
     if flagCell and grid.isGrid():

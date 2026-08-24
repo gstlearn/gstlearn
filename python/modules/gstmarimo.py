@@ -1961,11 +1961,12 @@ def plotWeights(
     # Display the target points without any decoration (used for picking)
     plotData(ax, target, flagLiteral=False, flagCst=True, s=2, c="red")
 
+    # Display the data points without any decoration (used for picking)
     plotData(ax, db, flagLiteral=False, flagCst=True, s=10, c="blue")
     xlim = ax.get_xlim()
     ylim = ax.get_ylim()
 
-    if node >= 0 and node < db.getNSample():
+    if node >= 0 and node < target.getNSample():
         # Display the Weights on the data points involved in the Neighborhood
         plotData(ax, db, name=nameW, flagLiteral=True, c="green")
         xlim = ax.get_xlim()
