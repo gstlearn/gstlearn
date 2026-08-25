@@ -185,7 +185,7 @@ namespace gstlrn
       sstr << "N/A";
     else
       sstr << zmin;
-    message(" ; ");
+    sstr << " ; ";
     if (FFFF(zmax))
       sstr << "N/A";
     else
