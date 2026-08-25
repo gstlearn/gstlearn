@@ -351,7 +351,7 @@ typedef std::string String;  // Add to allow aliasing String and std::string
 %include "DataBase/RoleID.hpp"
 %include "DataBase/ColID.hpp"
 
-// 3. Mpad the headers that use ColID
+// 3. Load the headers that use ColID
 %include "DataBase/DbData.hpp"
 %include "DataBase/DbCol.hpp"
 //%include DataBase/Dictionary.hpp
