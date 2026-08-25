@@ -13,9 +13,9 @@
 #include "gstlearn_export.hpp"
 
 #include "DataBase/Dictionary.hpp"
-#include <cstddef> // size_t
-#include <optional> // std::optional
-#include <vector> // std::vector
+#include <cstddef>
+#include <optional>
+#include <vector>
 
 namespace gstlrn
 {
