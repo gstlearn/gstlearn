@@ -8,7 +8,7 @@
 # License: BSD 3-clause                                                        #
 #                                                                              #
 ################################################################################
-# This part is meant to distribute (as is) a set of functions written in Python
+# This part is intended to distribute (as is) a set of functions written in Python
 # to be included in Marimo interface
 # Reminder: all methods staring by "W" are dedicated to UI
 
@@ -37,11 +37,11 @@ optionGlobalRadix = "My"
 
 def setEnvironment(optionBackup=True, optionDisplay=False, optionRadix="My"):
     """
-    Use this function to set options for gstmarimo environment
+    Use this function to set the options for the gstmarimo environment
 
-    :param optionBackup: Provoke the saving of the newly created objects as a Neutral File
-    :param optionDisplay: Provoke the display of the newly created objects
-    :param optionRadix: Defaulted radix for the Neutral File name
+    optionBackup: Triggers saving newly created objects as a Neutral File
+    optionDisplay: Triggers displaying newly created objects
+    optionRadix: Default prefix for the Neutral File name
     """
     global optionGlobalDisplay
     global optionGlobalBackup
@@ -51,7 +51,7 @@ def setEnvironment(optionBackup=True, optionDisplay=False, optionRadix="My"):
     optionGlobalRadix = optionRadix
 
 
-# Ensure that no output directory is set for gstlearn
+# Ensure no output directory is set for gstlearn
 os.environ["GSTLEARN_OUTPUT_DIR"] = ""
 
 
@@ -69,7 +69,7 @@ def _getCovarianceDict():
 
 def _WLock(WTest, condition, colorBackground="white", colorText="black"):
     """
-    Turns to grey (as if it was locked if 'condition' is fulfilled)
+    Turns gray (as if locked if the 'condition' is met)
     """
     if not condition:
         newWTest = WTest.style({"backgroundColor": colorBackground, "color": colorText})
@@ -98,7 +98,7 @@ def _saveAndDisplay(contents=None, filename="File.NF", flagForceDisplay=False):
 
 
 # =========================
-# Widget to handle messages
+# Widget to manage messages
 # =========================
 
 
@@ -153,8 +153,8 @@ def WclearMessage(WMessages):
 
 
 # ================================================================
-# Widget to manage one Covariance (radix = WCov)
-# The covariance is ranked within a list of 'ncovmax' covariances
+# Widget to manage a Covariance (prefix = WCov)
+# The covariance is classified in a list of 'ncovmax' covariances
 # ================================================================
 
 
@@ -177,7 +177,6 @@ def WdefineOneCovariance(
     angRef = 0
 
     WCovUsed = mo.ui.switch(True, label="Basic Structure Used")
-    # WCovUsed = mo.ui.switch(ic < ncovdef, label="Basic Structure Used")
     WCovType = mo.ui.dropdown(
         options=_getCovarianceDict(), value=typeRef, label="Structure"
     )
@@ -221,7 +220,7 @@ def WgetOneCovariance(WAll):
 
     if WCovUsed.value:
         if not WCovAniso.value:
-            # isotropic covariance
+            # Isotropic covariance
             return gl.CovAniso.createIsotropic(
                 ctxt=gl.CovContext(1, 2),
                 type=gl.ECov.fromKey(WCovType.value),
@@ -231,7 +230,7 @@ def WgetOneCovariance(WAll):
                 flagRange=True,
             )
         else:
-            # anisotropic covariance
+            # Anisotropic covariance
             return gl.CovAniso.createAnisotropic(
                 ctxt=gl.CovContext(1, 2),
                 type=gl.ECov.fromKey(WCovType.value),
@@ -297,9 +296,9 @@ def WshowBasicList(basic_list, flagTitle=True):
     return mo.ui.array([WTitle, WList])
 
 
-# =====================================
-# Widget to manage a Model (radix = WM)
-# =====================================
+# ========================
+# Widget to manage a Model
+# ========================
 
 
 def WdefineModel(
@@ -415,9 +414,9 @@ def WgetModelFitVario(WAll, vario):
     return model
 
 
-# =======================================
-# Widget to manage a Grid (radix = WGrid)
-# =======================================
+# =======================
+# Widget to manage a Grid
+# =======================
 
 
 def WdefineGrid(nxdef=100, dxdef=1):
@@ -465,9 +464,9 @@ def WgetGrid(WAll):
     return grid
 
 
-# ===========================================
-# Widget to manage Simulations (radix = WSim)
-# ===========================================
+# ============================
+# Widget to manage Simulations
+# ============================
 
 
 def WdefineSimtub(nbtuba=100, nbsimu=1, seed=13134):
@@ -514,9 +513,9 @@ def WgetSimtub(WAll):
     )
 
 
-# =====================================
-# Widget to manage a Vario (radix = WV)
-# =====================================
+# ========================
+# Widget to manage a Vario
+# ========================
 
 
 def WdefineVario(nlag=10, ndir=4, dlag=None, db=None, valdef="Omni"):
@@ -684,9 +683,9 @@ def WgetVarioFromNF(WAll):
     return gl.Vario.createFromNF(str(WVFile.path(index=0)))
 
 
-# ==================================
-# Widget to manage a Db (radix = WD)
-# ==================================
+# =====================
+# Widget to manage a Db
+# =====================
 
 
 def WdefineDb(
@@ -881,8 +880,8 @@ def createDefaultTgtePot(nech=1, seed=42683):
         flagAddSampleRank=False,
     )
     # Add the tangent coordinates
-    dbTgte.addColumnsByConstant(1, 1.0, "tx", gl.ELoc.TGTE, 0)
-    dbTgte.addColumnsByConstant(1, 0.0, "ty", gl.ELoc.TGTE, 1)
+    dbTgte.addColumnsByConstant(1, 1.0, "tx", gl.ELoc.TGT, 0)
+    dbTgte.addColumnsByConstant(1, 0.0, "ty", gl.ELoc.TGT, 1)
 
     dbTgte.setName("x-1", "x")
     dbTgte.setName("x-2", "y")
@@ -1323,9 +1322,9 @@ def WgetBox(WAll):
     return box, WBoxFlagBackground.value
 
 
-# =======================================
-# Widget to manage a discretization Grid (radix : WGridN)
-# =======================================
+# ======================================
+# Widget to manage a discretization Grid
+# ======================================
 
 
 def WdefineGridN(nxdef=50):
@@ -1367,9 +1366,9 @@ def WgetGridN(WAll, box):
     return gl.DbGrid.create(nx=[nx, ny], dx=[dx, dy], x0=[x0, y0])
 
 
-# ==================================================
-# Widget to manage a Editing of a Db (radix : WEdit)
-# ==================================================
+# ==================================
+# Widget to manage a Editing of a Db
+# ==================================
 
 
 def WdefineEdit(db):
@@ -1419,9 +1418,9 @@ def WgetEdit(WAll, db):
     return db
 
 
-# =======================================
-# Widget to manage a Rule (radix : WRule)
-# =======================================
+# =======================
+# Widget to manage a Rule
+# =======================
 
 
 def WdefineRule(ruleDef=None, maxFacies=10):
@@ -1491,9 +1490,9 @@ def WgetRule(WAll):
     return ruleprop
 
 
-# =========================================
-# Widget to manage Layout (radix = WLayout)
-# =========================================
+# =======================
+# Widget to manage Layout
+# =======================
 
 _LAYOUT_OPTIONS = {
     "data": {"label": "Display Data", "default": True},
@@ -1613,9 +1612,9 @@ def WgetLayout(WAll, nvar=1, nbsimu=1, ngrf=1, valid=()):
     return layout
 
 
-# =============================================
-# Widget to manage AutoSave (radix = WAutoSave)
-# =============================================
+# =========================
+# Widget to manage AutoSave
+# =========================
 
 
 def WdefineAutoSave(
@@ -1690,9 +1689,9 @@ def WgetAutoSave(panel):
     }
 
 
-# ==============================================
-# Widget to manage Neighborhood (radix = WNeigh)
-# ==============================================
+# =============================
+# Widget to manage Neighborhood
+# =============================
 
 
 def WdefineNeigh(nmaxi=10, radius=10.0, flagUnique=False):
@@ -1756,45 +1755,6 @@ def WgetNeigh(WAll):
         nsect=Wnsect.value,
         nsmax=Wnsmax.value,
         angles=[Wangle.value, 0.0],
-    )
-
-
-# ===================================================
-# Widget to manage Kriging Weights (radix = WWeights)
-# ===================================================
-
-
-def WdefineWeights():
-    """
-    Returns parameters for the Kriging Weights
-    """
-    WKindex = mo.ui.number(start=0, step=1, value=0, label="Index of the Target Site")
-    WXindex = mo.ui.number(start=0, step=1, value=0, label="Index of the Data Sample")
-
-    return mo.ui.array(
-        [
-            WKindex,
-            WXindex,
-        ]
-    )
-
-
-def WshowWeights(WAll, flagTitle=True, gapv=1):
-    [WKindex, WXindex] = WAll
-    WWeightsTitle = _WgetTitle("Kriging Weights", flagTitle)
-    widgets = [
-        WWeightsTitle,
-        WKindex,
-        WXindex,
-    ]
-    return mo.vstack(widgets, gap=gapv)
-
-
-def WgetWeights(WAll):
-    [WKindex, WXindex] = WAll
-    return (
-        WKindex.value,
-        WXindex.value,
     )
 
 
@@ -1969,11 +1929,12 @@ def plotWeights(
     # Display the target points without any decoration (used for picking)
     plotData(ax, target, flagLiteral=False, flagCst=True, s=2, c="red")
 
+    # Display the data points without any decoration (used for picking)
     plotData(ax, db, flagLiteral=False, flagCst=True, s=10, c="blue")
     xlim = ax.get_xlim()
     ylim = ax.get_ylim()
 
-    if node >= 0 and node < db.getNSample():
+    if node >= 0 and node < target.getNSample():
         # Display the Weights on the data points involved in the Neighborhood
         plotData(ax, db, name=nameW, flagLiteral=True, c="green")
         xlim = ax.get_xlim()
@@ -1991,21 +1952,20 @@ def plotWeights(
 
 def getSelectedIndex(plot_widget, db):
     """
-    Retourne l'indice du premier échantillon sélectionné.
+    Returns the index of the first selected sample.
 
     Parameters
     ----------
     plot_widget : marimo plot widget
-        Widget interactif contenant la sélection.
+        Interactive widget containing the selection.
     db : gl.Db
-        Base de données contenant les coordonnées.
+        Database containing coordinates.
 
     Returns
     -------
-    int
-        - -1 si aucun axe n'est fourni ;
-        - -1 si aucune sélection n'est active ;
-        - le premier indice sélectionné sinon.
+        - -1 if no axis is provided;
+        - -1 if no selection is active;
+        - the first selected index otherwise.
     """
 
     if plot_widget is None:
