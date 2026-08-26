@@ -33,8 +33,8 @@ namespace gstlrn
       return;
     }
 
-    VectorDouble x = db->getOneCoordinate(0, true);
-    VectorDouble y = db->getOneCoordinate(1, true);
+    VectorDouble x = db->getVecCoordinate(0, true);
+    VectorDouble y = db->getVecCoordinate(1, true);
 
     _xcenter = x.mean();
     _ycenter = y.mean();
@@ -146,8 +146,8 @@ namespace gstlrn
     }
 
     // Extract the vector of coordinates
-    VectorDouble x = db->getOneCoordinate(0, true);
-    VectorDouble y = db->getOneCoordinate(1, true);
+    VectorDouble x = db->getVecCoordinate(0, true);
+    VectorDouble y = db->getVecCoordinate(1, true);
 
     // Perform the projection
     if (operateVecInPlace(x, y)) return 1;

@@ -981,7 +981,7 @@ namespace gstlrn
     /* Set the error return code */
 
     error = 0;
-    namconv.setNamesAndLocators(dbgrid, iatt_in, dbgrid, iatt_out);
+    namconv.setOutput(dbgrid->getNamesByUID({iatt_in}), 0, dbgrid, iatt_out);
 
   label_end:
     delete skin;
@@ -1033,7 +1033,7 @@ namespace gstlrn
     Id iatt = db->addColumns(sel);
 
     // Setting the output variable
-    namconv.setNamesAndLocators(db, iatt);
+    namconv.setOutput(VectorString(), 1, db, iatt);
 
     return 0;
   }
@@ -1303,7 +1303,7 @@ namespace gstlrn
   {
     DbGrid* dbout;
     VectorDouble coor;
-    Id ncol, icol, iech, iad, item, rank, ndim;
+    Id ncol, icol, iech, iad, item, rank, ndim, mult;
     ELoc locatorType;
 
     /* Initializations */
@@ -1324,7 +1324,7 @@ namespace gstlrn
     if (rank < 0) goto label_end;
     for (icol = 0; icol < ncol; icol++)
     {
-      (void)dbin->getLocatorByColIdx(icol, &locatorType, &item);
+      (void)dbin->getLocatorByColIdx(icol, &locatorType, &item, &mult);
       dbout->setLocatorByUID(icol, locatorType, item);
     }
 
@@ -1442,9 +1442,8 @@ namespace gstlrn
 
     /* Set the error return code */
 
-    namconv.setNamesAndLocators(
-      dbgrid, VectorString(), ELoc::Z, -1, dbgrid, iatt_out);
-
+    auto names = dbgrid->getNamesByLocator(ELoc::Z);
+    namconv.setOutput(names, 0, dbgrid, iatt_out);
     return 0;
   }
 

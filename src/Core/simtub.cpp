@@ -574,16 +574,11 @@ namespace gstlrn
     /* Set the error return flag */
 
     error = 0;
-    namconv.setNamesAndLocators(
-      dbin, VectorString(), ELoc::UNDEFINED, nvar, dbin, iptr, String(),
-      nbsimu);
+    namconv.setOutput(VectorString(), nvar, dbin, iptr, String(), nbsimu);
     if (iptr_cstd >= 0)
-      namconv.setNamesAndLocators(
-        dbin, VectorString(), ELoc::UNDEFINED, nvar, dbin, iptr_cstd, "STD",
-        nvar);
+      namconv.setOutput(VectorString(), nvar, dbin, iptr_cstd, "STD", nvar);
     if (iptr_ce >= 0)
-      namconv.setNamesAndLocators(
-        dbin, VectorString(), ELoc::UNDEFINED, nvar, dbin, iptr_ce, "CE", nvar);
+      namconv.setOutput(VectorString(), nvar, dbin, iptr_ce, "CE", nvar);
 
   label_end:
     return (error);
@@ -1399,8 +1394,7 @@ namespace gstlrn
     SimuSpherical simsphe(1, seed);
     if (simsphe.simulate(db, model, sphepar, iptr, verbose)) return 1;
 
-    namconv.setNamesAndLocators(
-      db, VectorString(), ELoc::UNDEFINED, 1, db, iptr, "Simu");
+    namconv.setOutput(VectorString(), 1, db, iptr, "Simu");
     return 0;
   }
 

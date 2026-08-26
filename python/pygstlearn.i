@@ -506,6 +506,31 @@ namespace gstlrn
   $1 = SWIG_CheckState(isNumericVector($input));
 }
 
+%typemap(typecheck, noblock=1, fragment="ToCpp", precedence=SWIG_TYPECHECK_DOUBLE_ARRAY)
+VectorNumT<double>&&,
+VectorNumT<float>&&,
+VectorNumT<long long>&&,
+VectorNumT<UChar>&&,
+VectorNumT<bool>&&
+{
+  $1 = SWIG_CheckState(isNumericVector($input));
+}
+
+%typemap(typecheck, noblock=1, fragment="ToCpp",
+         precedence=SWIG_TYPECHECK_DOUBLE_ARRAY)
+VectorT<UChar>&&
+{
+  $1 = SWIG_CheckState(isNumericVector($input));
+}
+
+%typemap(typecheck, noblock=1, fragment="ToCpp",
+         precedence=SWIG_TYPECHECK_STRING_ARRAY)
+VectorString&&,
+VectorT<String>&&
+{
+  $1 = SWIG_CheckState(isStringVector($input));
+}
+
 // Add generic vector typecheck typemaps for dispatching functions
 %typemap(typecheck, noblock=1, fragment="ToCpp", precedence=SWIG_TYPECHECK_STRING_ARRAY) const VectorString&, VectorString
 {
@@ -612,35 +637,88 @@ namespace gstlrn
     using SizeType = typename Vector::size_type;
     using InputType = typename Vector::value_type;
 
-    // Conversion
-    if (hasFixedSize<InputType>()) // Convert to 1D NumPy array
+    // Special case for VectorBool
+    // VectorBool is stored as VectorT<UChar>, but must be exported
+    // as a NumPy boolean array.
+    if constexpr (std::is_same_v<Vector, VectorBool>)
     {
-      using OutputType = typename OutTraits<InputType>::OutputType;
       SizeType size = vec.size();
-      npy_intp dims[1] = { (npy_intp)size };
-      //*obj = PyArray_SimpleNew(1, dims, numpyType<InputType>());
-      PyArray_Descr* descr = PyArray_DescrFromType(numpyType<InputType>());
-      *obj = PyArray_NewFromDescr(&PyArray_Type, descr, 1, dims, NULL, NULL, 0, NULL);
+      npy_intp dims[1] = { static_cast<npy_intp>(size) };
+
+      PyArray_Descr* descr = PyArray_DescrFromType(NPY_BOOL);
+      *obj = PyArray_NewFromDescr(&PyArray_Type,
+                                  descr,
+                                  1,
+                                  dims,
+                                  NULL,
+                                  NULL,
+                                  0,
+                                  NULL);
+
       if (*obj != NULL)
       {
-        OutputType* array_ptr = (OutputType*) PyArray_DATA((PyArrayObject*)(*obj));
-        std::transform(vec.cbegin(), vec.cend(), array_ptr, convertFromCpp<InputType>);
+        bool* array_ptr =
+          static_cast<bool*>(
+            PyArray_DATA(reinterpret_cast<PyArrayObject*>(*obj)));
+
+        std::transform(
+          vec.cbegin(),
+          vec.cend(),
+          array_ptr,
+          [](const auto& value) { return value != 0; });
+
         myres = SWIG_OK;
       }
     }
-    else // Convert to a tuple using standard std_vector
+    // General case
+    else if (hasFixedSize<InputType>())
     {
-      // Test NA values
+      // Convert to 1D NumPy array
+      using OutputType = typename OutTraits<InputType>::OutputType;
+      SizeType size = vec.size();
+      npy_intp dims[1] = { static_cast<npy_intp>(size) };
+
+      PyArray_Descr* descr = PyArray_DescrFromType(numpyType<InputType>());
+      *obj = PyArray_NewFromDescr(&PyArray_Type,
+                                  descr,
+                                  1,
+                                  dims,
+                                  NULL,
+                                  NULL,
+                                  0,
+                                  NULL);
+
+      if (*obj != NULL)
+      {
+        OutputType* array_ptr =
+          static_cast<OutputType*>(
+            PyArray_DATA(reinterpret_cast<PyArrayObject*>(*obj)));
+
+        std::transform(
+          vec.cbegin(),
+          vec.cend(),
+          array_ptr,
+          convertFromCpp<InputType>);
+
+        myres = SWIG_OK;
+      }
+    }
+    else
+    {
+      // Convert to a tuple using standard std_vector
       auto vec2 = vec.getVector();
       SizeType size = vec2.size();
-      for(SizeType i = 0; i < size; i++)
+
+      for (SizeType i = 0; i < size; i++)
       {
         vec2[i] = convertFromCpp(vec2[i]);
       }
+
       // Convert to tuple
       *obj = swig::from(vec.getVector());
       myres = (*obj) == NULL ? SWIG_TypeError : SWIG_OK;
     }
+
     return myres;
   }
 
@@ -876,6 +954,7 @@ namespace gstlrn
   $1 = PyUnicode_Check($input) || PyBytes_Check($input);
 }
 }//namespace gstlrn
+
 //////////////////////////////////////////////////////////////
 //         C++ library SWIG includes and typemaps           //
 //////////////////////////////////////////////////////////////
@@ -944,7 +1023,13 @@ namespace gstlrn {
 %extend VectorNumT<float> {
   std::string __repr__() {  return $self->toString(); }
 }
-%extend VectorNumT<UChar> {
+%extend VectorT<UChar> {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend VectorT<unsigned char>{
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend VectorT<std::string>{
   std::string __repr__() {  return $self->toString(); }
 }
 %extend VectorNumT<VectorNumT<long long> > {

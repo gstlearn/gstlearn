@@ -844,7 +844,7 @@ namespace gstlrn
     for (Id i = 1; i < nfacies; i++) nodnames.push_back("S");
 
     for (Id i = 0; i < nfacies; i++)
-      nodnames.push_back(incrementStringVersion("F", i + 1, ""));
+      nodnames.push_back(generateOneName("F", i + 1, ""));
 
     return nodnames;
   }

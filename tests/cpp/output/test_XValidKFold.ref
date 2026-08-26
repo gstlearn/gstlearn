@@ -16,7 +16,7 @@ Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = X - Locator = x1
 Column = 2 - Name = Y - Locator = x2
 Column = 3 - Name = S - Locator = sel
-Column = 4 - Name = C - Locator = code
+Column = 4 - Name = C - Locator = c
 Column = 5 - Name = V - Locator = z1
 
 Neigh ranks for each target:

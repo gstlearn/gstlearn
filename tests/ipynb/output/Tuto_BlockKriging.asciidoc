@@ -379,8 +379,8 @@ Column = 3 - Name = Point_Kriging.Simu.estim - Locator = NA
 Column = 4 - Name = Point_Kriging.Simu.stdev - Locator = NA
 Column = 5 - Name = Block_Kriging.Simu.estim - Locator = NA
 Column = 6 - Name = Block_Kriging.Simu.stdev - Locator = NA
-Column = 7 - Name = X-ext - Locator = dblk1
-Column = 8 - Name = Y-ext - Locator = dblk2
+Column = 7 - Name = X-ext - Locator = blex1
+Column = 8 - Name = Y-ext - Locator = blex2
 Column = 9 - Name = Irregular_Kriging.Simu.estim - Locator = z1
 Column = 10 - Name = Irregular_Kriging.Simu.stdev - Locator = NA----
 

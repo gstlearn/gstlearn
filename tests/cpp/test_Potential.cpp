@@ -133,7 +133,7 @@ int main(int argc, char* argv[])
     VectorDouble tabtgt = {3., 7., 1., 0., 9., 7., 0.5, -0.5};
     Db* dbtgt = Db::createFromSamples(
       2, ELoadBy::SAMPLE, tabtgt, {"x", "y", "tx", "ty"},
-      {"x1", "x2", "tangent1", "tangent2"});
+      {"x1", "x2", "tgt1", "tgt2"});
 
     // Generate the output grid
     VectorInt nx = {101, 101};

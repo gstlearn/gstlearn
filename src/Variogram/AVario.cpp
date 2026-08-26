@@ -319,11 +319,11 @@ namespace gstlrn
     }
 
     // Define the different flags
-    String cle = std::string(_calculType.getKey());
-    _flagAsym = !ECalcVarioAttr.at(cle).isSymmetric;
-    _flagCentered = ECalcVarioAttr.at(cle).isCentered;
-    _flagScaled = ECalcVarioAttr.at(cle).isScaled;
-    _flagNeedStats = _flagCentered || _flagScaled;
+    const auto& attr = ECalcVarioAttr.at(_calculType.getKey());
+    _flagAsym = !attr.isSymmetric;
+    _flagCentered = attr.isCentered;
+    _flagScaled = attr.isScaled;
+    _flagNeedStats = attr.isCentered || attr.isScaled;
   }
 
   void AVario::setStorage(bool flag)

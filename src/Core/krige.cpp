@@ -2883,8 +2883,8 @@ namespace gstlrn
     dbin->clearLocators(ELoc::Z);
     for (Id ivar = 0; ivar < nvar; ivar++)
       dbin->setLocatorByUID(iuids[ivar], ELoc::Z, ivar);
-    namconv.setNamesAndLocators(
-      dbin, VectorString(), ELoc::Z, nvar, dbout, iptr_est, "estim");
+    auto names = dbin->getNamesByLocator(ELoc::Z);
+    namconv.setOutput(names, nvar, dbout, iptr_est, "estim");
 
     return 0;
   }

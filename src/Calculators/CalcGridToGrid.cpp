@@ -142,7 +142,7 @@ namespace gstlrn
   {
     if (!ACalcDbToDb::_preprocess()) return false;
 
-    // Number of variable
+    // Number of variables
     _iattOut = _addVariableDb(2, 1, ELoc::UNDEFINED, 0, 1, 0.);
     if (_iattOut < 0) return false;
 
@@ -151,7 +151,6 @@ namespace gstlrn
       _iattAux = _addVariableDb(2, 2, ELoc::UNDEFINED, 0, 1, 0.);
       if (_iattAux < 0) return false;
     }
-
     return true;
   }
 
@@ -351,7 +350,8 @@ namespace gstlrn
     VectorInt iuidBot = getDbin()->getUIDs(_nameBots);
 
     // Loop on the output file
-    for (Id iech_out = 0; iech_out < getDbout()->getNSample(true); iech_out++)
+    for (Id iech_out = 0, nech_out = getDbout()->getNSample();
+         iech_out < nech_out; iech_out++)
     {
       if (!getDbout()->isActive(iech_out)) continue;
       getGridout()->rankToIndice(iech_out, indgOut);

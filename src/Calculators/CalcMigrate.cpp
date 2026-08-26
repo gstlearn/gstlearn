@@ -838,7 +838,7 @@ namespace gstlrn
     migrate.setNamingConvention(namconv);
 
     VectorInt iuids = atts;
-    if (iuids.empty()) iuids = dbin->getAllUIDs();
+    if (iuids.empty()) iuids = dbin->getUIDsDefined();
 
     migrate.setIuids(iuids);
     migrate.setDistType(dist_type);

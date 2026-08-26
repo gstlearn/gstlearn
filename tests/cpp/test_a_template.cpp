@@ -15,9 +15,12 @@ using namespace gstlrn;
 
 int main(int argc, char* argv[])
 {
-  // Do not remove
+  // Unless you test a specific feature, bring it to its minimal expansion
+  // e.g. the few lines below
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
-  ASerializable::setPrefixName("test_a_template-"); // Here set the test name
+  ASerializable::setPrefixName("test_a_template-");
+
+  return (0);
 }

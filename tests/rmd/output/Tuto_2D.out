@@ -20,7 +20,7 @@ Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = X - Locator = x1
 Column = 2 - Name = Y - Locator = x2
 Column = 3 - Name = Zn - Locator = z1
-Column = 4 - Name = Pb - Locator = p1
+Column = 4 - Name = Pb - Locator = NA
 NULL
 List of all variable names = rank X Y Zn Pb[1] 5
 NULL

@@ -83,8 +83,8 @@ namespace gstlrn
     const String& qualifier,
     Id count)
   {
-    _namconv.setNamesAndLocators(
-      _db, VectorString(), locatorInType, nvar, _db, iptr, qualifier, count);
+    auto names = _db->getNamesByLocator(locatorInType);
+    _namconv.setOutput(names, nvar, _db, iptr, qualifier, count);
   }
 
   void ACalcDbVarCreator::_cleanVariableDb(Id status)

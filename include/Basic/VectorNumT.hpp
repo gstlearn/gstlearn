@@ -63,7 +63,6 @@ namespace gstlrn
     typedef typename Vector::const_reverse_iterator const_reverse_iterator;
     using scalar_type = final_scalar_type_t<T>; // type scalaire final concret
 
-  public:
     inline VectorNumT()
       : Parent()
     {

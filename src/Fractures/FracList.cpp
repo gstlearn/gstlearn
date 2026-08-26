@@ -1259,7 +1259,7 @@ namespace gstlrn
       }
     }
 
-    namconv.setNamesAndLocators(dbgrid, iptr);
+    namconv.setOutput(VectorString(), 1, dbgrid, iptr);
     return 0;
   }
 

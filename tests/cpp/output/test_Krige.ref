@@ -20,8 +20,8 @@ Variables
 Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
-Column = 3 - Name = Extend-1 - Locator = dblk1
-Column = 4 - Name = Extend-2 - Locator = dblk2
+Column = 3 - Name = Extend-1 - Locator = blex1
+Column = 4 - Name = Extend-2 - Locator = blex2
 
 Data Base Characteristics
 =========================
@@ -126,7 +126,7 @@ Data Base Statistics
  Mean value          =      24.500
  Standard Deviation  =      14.431
  Variance            =     208.250
-4 - Name Extend-1 - Locator dblk1
+4 - Name Extend-1 - Locator blex1
  Nb of data          =        2500
  Nb of active values =        2500
  Minimum value       =       1.000
@@ -134,7 +134,7 @@ Data Base Statistics
  Mean value          =       1.000
  Standard Deviation  =       0.000
  Variance            =       0.000
-5 - Name Extend-2 - Locator dblk2
+5 - Name Extend-2 - Locator blex2
  Nb of data          =        2500
  Nb of active values =        2500
  Minimum value       =       1.000

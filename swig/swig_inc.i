@@ -50,6 +50,7 @@
   #include "Enum/EPostUpscale.hpp"
   #include "Enum/EPostStat.hpp"
   #include "Enum/ESimuType.hpp"
+  #include "Enum/ERole.hpp"
 
   #include "Basic/VectorT.hpp"
   #include "Basic/VectorNumT.hpp"
@@ -312,6 +313,13 @@
   #include "Db/DbStringFormat.hpp"
   #include "Db/DbHelper.hpp"
   #include "Db/RankHandler.hpp"
+
+  #include "DataBase/ColID.hpp"
+  #include "DataBase/RoleID.hpp"
+  #include "DataBase/DbCol.hpp"
+  #include "DataBase/DbData.hpp"
+  //#include "DataBase/Dictionary.hpp"
+  //#include "DataBase/VectorCategory.hpp"
 
   #include "Anamorphosis/CalcAnamTransform.hpp"
   #include "Anamorphosis/AAnam.hpp"
@@ -838,10 +846,101 @@ namespace gstlrn {
   }
 }
 
+%typemap(in, fragment="ToCpp")
+VectorNumT<double>&& (void *argp, VectorNumT<double> vec),
+VectorNumT<float>&& (void *argp, VectorNumT<float> vec),
+VectorNumT<long long>&& (void *argp, VectorNumT<long long> vec),
+VectorNumT<UChar>&& (void *argp, VectorNumT<UChar> vec),
+VectorNumT<bool>&& (void *argp, VectorNumT<bool> vec),
+VectorT<UChar>&& (void *argp, VectorT<UChar> vec)
+{
+  int errcode = vectorToCpp($input, vec);
+
+  if (errcode == SWIG_NullReferenceError)
+  {
+    $1 = &vec;
+  }
+  else if (!SWIG_IsOK(errcode))
+  {
+    try
+    {
+      errcode = SWIG_ConvertPtr($input, &argp, $descriptor, %convertptr_flags);
+      if (SWIG_IsOK(errcode))
+      {
+        if (!argp)
+          %argument_nullref("$type", $symname, $argnum);
+
+        $1 = %reinterpret_cast(argp, $ltype);
+      }
+      else
+      {
+        %argument_fail(errcode, "$type", $symname, $argnum);
+      }
+    }
+    catch(...)
+    {
+      %argument_fail(errcode, "$type", $symname, $argnum);
+    }
+  }
+  else
+  {
+    $1 = &vec;
+  }
+}
+
+%typemap(in, fragment="ToCpp")
+VectorT<std::string>&& (void *argp, VectorT<std::string> vec)
+{
+  int errcode = vectorToCpp($input, vec);
+
+  if (errcode == SWIG_NullReferenceError)
+  {
+    $1 = &vec;
+  }
+  else if (!SWIG_IsOK(errcode))
+  {
+    try
+    {
+      errcode = SWIG_ConvertPtr($input, &argp, $descriptor, %convertptr_flags);
+
+      if (SWIG_IsOK(errcode))
+      {
+        if (!argp)
+          %argument_nullref("$type", $symname, $argnum);
+
+        $1 = %reinterpret_cast(argp, $ltype);
+      }
+      else
+      {
+        %argument_fail(errcode, "$type", $symname, $argnum);
+      }
+    }
+    catch(...)
+    {
+      %argument_fail(errcode, "$type", $symname, $argnum);
+    }
+  }
+  else
+  {
+    $1 = &vec;
+  }
+}
+
+%typemap(in, fragment="ToCpp")
+VectorT<String> (VectorT<String> vec)
+{
+  int errcode = vectorToCpp($input, vec);
+
+  if (!SWIG_IsOK(errcode))
+    %argument_fail(errcode, "$type", $symname, $argnum);
+
+  $1 = vec;
+}
+
 %typemap(in, fragment="ToCpp") const MatrixDense&     (void *argp, MatrixDense mat),
                                const MatrixDense*     (void *argp, MatrixDense mat),
-                               const MatrixSquare&   (void *argp, MatrixSquare mat),
-                               const MatrixSquare*   (void *argp, MatrixSquare mat),
+                               const MatrixSquare&    (void *argp, MatrixSquare mat),
+                               const MatrixSquare*    (void *argp, MatrixSquare mat),
                                const MatrixSymmetric& (void *argp, MatrixSymmetric mat),
                                const MatrixSymmetric* (void *argp, MatrixSymmetric mat)
 {
@@ -949,6 +1048,14 @@ namespace gstlrn {
                                   bool*,   const bool*,   bool&,   const bool&
 {
   $result = objectFromCpp(*$1);
+}
+
+%typemap(out, fragment="FromCpp") VectorBool
+{
+  int errcode = vectorFromCpp(&($result), $1);
+  if (!SWIG_IsOK(errcode))
+    SWIG_exception_fail(SWIG_ArgError(errcode),
+                        "in method $symname, wrong return value: $type");
 }
 
 %typemap(out, fragment="FromCpp") VectorInt,
@@ -1252,6 +1359,123 @@ namespace gstlrn {
   {
     return VectorHelper::divideCst(v1, v2, flagOpposite);
   }
+
+}
+
+%extend gstlrn::DbData {
+
+//----> In DbData: getValue()
+
+double getValueD(ColID&& colid, Id isample, double def = -1.)
+{
+  return $self->getValue<double>(std::move(colid), isample).value_or(def);
+}
+
+float getValueF(ColID&& colid, Id isample, float def = -1.)
+{
+  return $self->getValue<float>(std::move(colid), isample).value_or(def);
+}
+
+Id getValueI(ColID&& colid, Id isample, Id def = -1)
+{
+  return $self->getValue<Id>(std::move(colid), isample).value_or(def);
+}
+
+UChar getValueU(ColID&& colid, Id isample, UChar def = 0)
+{
+  return $self->getValue<UChar>(std::move(colid), isample).value_or(def);
+}
+
+String getValueS(ColID&& colid, Id isample)
+{
+  return $self->getValue<String>(
+    std::move(colid), isample).value_or(String("failed"));
+}
+
+bool getValueB(ColID&& colid, Id isample, bool def = false)
+{
+  return $self->getValue<bool>(std::move(colid), isample).value_or(def);
+}
+
+//Dictionary::Category getValueC(ColID&& colid, Id isample,
+//          const Dictionary::Category& def = Dictionary::Category())
+//{
+//    return $self->getValue<Dictionary::Category>(std::move(colid), isample).value_or(def);
+//}
+
+//----> In DbData: setValue()
+
+void setValueD(ColID&& colid, Id isample, double value)
+{
+  $self->setValue<double>(std::move(colid), isample, value);
+}
+
+void setValueF(ColID&& colid, Id isample, float value)
+{
+  $self->setValue<float>(std::move(colid), isample, value);
+}
+
+void setValueI(ColID&& colid, Id isample, Id value)
+{
+  $self->setValue<Id>(std::move(colid), isample, value);
+}
+
+void setValueU(ColID&& colid, Id isample, UChar value)
+{
+  $self->setValue<UChar>(std::move(colid), isample, value);
+}
+
+void setValueS(ColID&& colid, Id isample, const String& value)
+{
+  $self->setValue<String>(std::move(colid), isample, value);
+}
+
+void setValueB(ColID&& colid, Id isample, bool value)
+{
+  $self->setValue<bool>(std::move(colid), isample, value);
+}
+
+//void setValueC(ColID&& colid, Id isample, const Dictionary::Category& value)
+//{
+//    $self->setValue<Dictionary::Category>(std::move(colid), isample, value);
+//}
+
+//----> In DbData: getColumn()
+
+VectorDouble getColumnD(ColID&& colid)
+{
+  return $self->getColumn<VectorDouble>(std::move(colid));
+}
+
+VectorFloat getColumnF(ColID&& colid)
+{
+  return $self->getColumn<VectorFloat>(std::move(colid));
+}
+
+VectorInt getColumnI(ColID&& colid)
+{
+  return $self->getColumn<VectorInt>(std::move(colid));
+}
+
+VectorUChar getColumnU(ColID&& colid)
+{
+  return $self->getColumn<VectorUChar>(std::move(colid));
+}
+
+VectorString getColumnS(ColID&& colid)
+{
+  return $self->getColumn<VectorString>(std::move(colid));
+}
+
+VectorBool getColumnB(ColID&& colid)
+{
+  return $self->getColumn<VectorBool>(std::move(colid));
+}
+
+//VectorCategory getColumnC(ColID&& colid)
+//{
+//  return $self->getColumn<VectorCategory>(std::move(colid));
+//}
 
 }
 

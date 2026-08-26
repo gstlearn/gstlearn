@@ -288,7 +288,7 @@ namespace gstlrn
       double value = 0.;
       for (Id idim = 0; idim < ndim; idim++)
         value +=
-          dbtgt->getLocVariable(ELoc::TGTE, iech, idim)
+          dbtgt->getLocVariable(ELoc::TGT, iech, idim)
           * dbtgt->getSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, nvar);
       dbtgt->setSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, nvar, value);
     }

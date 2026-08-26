@@ -2,7 +2,7 @@ Db
 7 # Number of variables
 2334 # Number of samples
 # Locators
-NA x1 x2 lower1 upper1 z1 sel 
+NA x1 x2 l1 u1 z1 sel 
 # Names
 rank X Y Thickness Thickness_1 ThicknessSides Duplicate 
 # Array of values

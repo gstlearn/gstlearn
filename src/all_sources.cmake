@@ -168,9 +168,14 @@ set(SRC
   Db/DbMeshTurbo.cpp
   Db/DbMeshStandard.cpp
   Db/DbStringFormat.cpp
-  Db/PtrGeos.cpp
   Db/DbHelper.cpp
   Db/RankHandler.cpp
+  DataBase/ColID.cpp
+  DataBase/RoleID.cpp
+  DataBase/DbCol.cpp
+  DataBase/DbData.cpp
+  DataBase/VectorCategory.cpp
+  DataBase/Dictionary.cpp
   LinearOp/LogStats.cpp
   LinearOp/CGParam.cpp
   LinearOp/InvNuggetOp.cpp

@@ -852,16 +852,16 @@ namespace gstlrn
     {
       VectorDouble result = spde.kriging(Z);
       Id iuid = dbout->addColumns(result, "estim", ELoc::Z, 0, true, 0., nvar);
-      namconv.setNamesAndLocators(
-        dbin, VectorString(), ELoc::Z, nvar, dbout, iuid, "estim");
+      namconv.setOutput(
+        dbin->getNamesByLocator(ELoc::Z), 0, dbout, iuid, "estim");
     }
     if (flag_std)
     {
       VectorDouble result = spde.stdev(Z);
       Id iuid =
         dbout->addColumns(result, "stdev", ELoc::UNDEFINED, 0, true, 0., nvar);
-      namconv.setNamesAndLocators(
-        dbin, VectorString(), ELoc::Z, nvar, dbout, iuid, "stdev");
+      namconv.setOutput(
+        dbin->getNamesByLocator(ELoc::Z), 0, dbout, iuid, "stdev");
     }
 
     return 0;
@@ -968,8 +968,9 @@ namespace gstlrn
         dbout->setColumnByUID(local, juid, true);
       }
     }
-    namconv.setNamesAndLocators(
-      dbin, VectorString(), ELoc::Z, nvar, dbout, iuid, "", nbsimu);
+    auto names =
+      (dbin != nullptr) ? dbin->getNamesByLocator(ELoc::Z) : VectorString();
+    namconv.setOutput(names, 0, dbout, iuid, "", nbsimu);
 
     return 0;
   }

@@ -26,9 +26,9 @@ Total number of samples      = 25
 
 Grid characteristics:
 ---------------------
-Origin :     10.000    20.000
-Mesh   :      1.000     1.000
-Number :          5         5
+Origin :      10.000     20.000
+Mesh   :       1.000      1.000
+Number :           5          5
 
 Variables
 ---------
@@ -40,21 +40,10 @@ Column = 4 - Name = second-1 - Locator = z1
 Column = 5 - Name = first.1 - Locator = z2
 Column = 6 - Name = first.2 - Locator = z3
 
-List of unsorted UIDs
----------------------
-Maximum number of positions = 7
-Number of Columns           = 7
-UID = 0 1 2 3 4 5 6 
-
-
-List of locators
-----------------
-1 - Locator: x
-- Attributes = 1 2 
-- Columns    = 1 2 
-2 - Locator: z
-- Attributes = 4 5 6 
-- Columns    = 4 5 6 
+List of Roles
+-------------
+Role: X (2) - Columns = 1 2 
+Role: Z (3) - Columns = 4 5 6 
 
 
 Data Base Grid Characteristics
@@ -69,9 +58,9 @@ Total number of samples      = 25
 
 Grid characteristics:
 ---------------------
-Origin :     10.000    20.000
-Mesh   :      1.000     1.000
-Number :          5         5
+Origin :      10.000     20.000
+Mesh   :       1.000      1.000
+Number :           5          5
 
 Variables
 ---------
@@ -82,21 +71,10 @@ Column = 3 - Name = second-1 - Locator = z1
 Column = 4 - Name = first.1 - Locator = z2
 Column = 5 - Name = first.2 - Locator = z3
 
-List of unsorted UIDs
----------------------
-Maximum number of positions = 7
-Number of Columns           = 6
-UID = 0 -1 1 2 3 4 5 
-
-
-List of locators
-----------------
-1 - Locator: x
-- Attributes = 2 
-- Columns    = 1 
-2 - Locator: z
-- Attributes = 4 5 6 
-- Columns    = 3 4 5 
+List of Roles
+-------------
+Role: X (1) - Columns = 1 
+Role: Z (3) - Columns = 3 4 5 
 
 
 Remark on Space Dimension
@@ -117,28 +95,28 @@ Total number of samples      = 25
 
 Grid characteristics:
 ---------------------
-Origin :     10.000    20.000
-Mesh   :      1.000     1.000
-Number :          5         5
+Origin :      10.000     20.000
+Mesh   :       1.000      1.000
+Number :           5          5
 
 Data Base Contents
 ------------------
-                 rank        x2     first  second-1   first.1   first.2       X-1
-     [  0,]     1.000    20.000     0.269     0.748     0.489     0.736    10.000
-     [  1,]     2.000    20.000     0.245     0.590     0.353     0.253    11.000
-     [  2,]     3.000    20.000     0.702     0.923     0.084     0.536    12.000
-     [  3,]     4.000    20.000     0.707     0.867     0.818     0.308    13.000
-     [  4,]     5.000    20.000     0.262     0.987     0.857     0.330    14.000
-     [  5,]     6.000    21.000     0.558     0.591     0.954     0.681    10.000
-     [  6,]     7.000    21.000     0.626     0.107     0.166     0.538    11.000
-                  X-2      RANK
-     [  0,]    20.000     1.000
-     [  1,]    20.000     2.000
-     [  2,]    20.000     3.000
-     [  3,]    20.000     4.000
-     [  4,]    20.000     5.000
-     [  5,]    21.000     6.000
-     [  6,]    21.000     7.000
+                   rank         x2      first   second-1    first.1    first.2        X-1
+      [  0,]      1.000     20.000      0.269      0.748      0.489      0.736     10.000
+      [  1,]      2.000     20.000      0.245      0.590      0.353      0.253     11.000
+      [  2,]      3.000     20.000      0.702      0.923      0.084      0.536     12.000
+      [  3,]      4.000     20.000      0.707      0.867      0.818      0.308     13.000
+      [  4,]      5.000     20.000      0.262      0.987      0.857      0.330     14.000
+      [  5,]      6.000     21.000      0.558      0.591      0.954      0.681     10.000
+      [  6,]      7.000     21.000      0.626      0.107      0.166      0.538     11.000
+                    X-2       RANK
+      [  0,]     20.000      1.000
+      [  1,]     20.000      2.000
+      [  2,]     20.000      3.000
+      [  3,]     20.000      4.000
+      [  4,]     20.000      5.000
+      [  5,]     21.000      6.000
+      [  6,]     21.000      7.000
 (Nrows=7[from 25])
 
 Variables

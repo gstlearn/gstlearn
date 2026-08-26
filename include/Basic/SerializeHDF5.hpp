@@ -26,37 +26,35 @@ namespace gstlrn
 
   namespace SerializeHDF5
   {
+    namespace
+    {
+      template<typename>
+      constexpr bool dependent_false_v = false;
+    } // namespace
+
     /**
      * @brief Map values to corresponding HDF5 C++ types
      */
-    inline H5::DataType getHDF5Type([[maybe_unused]] const I32 a)
+    template<typename T>
+    H5::DataType getHDF5Type()
     {
-      return H5::PredType::NATIVE_INT;
-    }
-
-    inline H5::DataType getHDF5Type([[maybe_unused]] const double a)
-    {
-      return H5::PredType::NATIVE_DOUBLE;
-    }
-
-    inline H5::DataType getHDF5Type([[maybe_unused]] const Id a)
-    {
-      return H5::PredType::NATIVE_LLONG;
-    }
-
-    inline H5::DataType getHDF5Type([[maybe_unused]] const bool a)
-    {
-      return H5::PredType::NATIVE_HBOOL;
-    }
-
-    inline H5::DataType getHDF5Type([[maybe_unused]] const std::string& a)
-    {
-      return H5::StrType{0, H5T_VARIABLE};
-    }
-
-    inline H5::DataType getHDF5Type([[maybe_unused]] const char a[])
-    {
-      return H5::StrType{0, H5T_VARIABLE};
+      if constexpr (std::is_same_v<T, double>)
+        return H5::PredType::NATIVE_DOUBLE;
+      else if constexpr (std::is_same_v<T, float>)
+        return H5::PredType::NATIVE_FLOAT;
+      else if constexpr (std::is_same_v<T, I32>)
+        return H5::PredType::NATIVE_INT;
+      else if constexpr (std::is_same_v<T, Id>)
+        return H5::PredType::NATIVE_LLONG;
+      else if constexpr (std::is_same_v<T, unsigned char>)
+        return H5::PredType::NATIVE_UCHAR;
+      else if constexpr (std::is_same_v<T, bool>)
+        return H5::PredType::NATIVE_HBOOL;
+      else if constexpr (std::is_same_v<T, std::string>
+                         || std::is_convertible_v<T, const char*>)
+        return H5::StrType{0, H5T_VARIABLE};
+      else
+        static_assert(dependent_false_v<T>, "Unsupported HDF5 type");
     }
 
     /**
@@ -288,7 +286,7 @@ namespace gstlrn
     ds.getSimpleExtentDims(&dim);
     vec.resize(dim);
 
-    data.read(vec.data(), getHDF5Type(T{}));
+    data.read(vec.data(), getHDF5Type<T>());
 
     return true;
   }
@@ -355,8 +353,8 @@ namespace gstlrn
     hsize_t dim = vec.size();
     H5::DataSpace ds{1, &dim};
 
-    auto data = grp.createDataSet(title, getHDF5Type(vec[0]), ds);
-    data.write(vec.constData(), getHDF5Type(vec[0]));
+    auto data = grp.createDataSet(title, getHDF5Type<T>(), ds);
+    data.write(vec.constData(), getHDF5Type<T>());
     return true;
   }
 
@@ -402,7 +400,7 @@ namespace gstlrn
     }
 
     auto attr = grp.openAttribute(name);
-    if (attr.getDataType() != getHDF5Type(value))
+    if (attr.getDataType() != getHDF5Type<T>())
     {
       messerr(
         "Could not read value '%s' in group '%s': mismatch in datatypes",
@@ -410,10 +408,10 @@ namespace gstlrn
       return false;
     }
 
-    const auto type = getHDF5Type(value);
-    if constexpr (std::is_same<T, std::string>::value)
+    const auto type = getHDF5Type<T>();
+    if constexpr (std::is_same_v<T, std::string>)
       attr.read(type, value);
-    else if constexpr (std::is_convertible<T, std::string>::value)
+    else if constexpr (std::is_convertible_v<T, std::string>)
       attr.read(type, std::string{value});
     else
       attr.read(type, &value);
@@ -432,11 +430,11 @@ namespace gstlrn
 
     const hsize_t dim = 1;
     const H5::DataSpace ds{1, &dim};
-    auto attr = grp.createAttribute(name, getHDF5Type(value), ds);
-    const auto type = getHDF5Type(value);
-    if constexpr (std::is_same<T, std::string>::value)
+    auto attr = grp.createAttribute(name, getHDF5Type<T>(), ds);
+    const auto type = getHDF5Type<T>();
+    if constexpr (std::is_same_v<T, std::string>)
       attr.write(type, value);
-    else if constexpr (std::is_convertible<T, std::string>::value)
+    else if constexpr (std::is_convertible_v<T, std::string>)
       attr.write(type, std::string{value});
     else
       attr.write(type, &value);

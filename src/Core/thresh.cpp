@@ -213,7 +213,7 @@ namespace gstlrn
 
     // Naming convention
 
-    namconv.setNamesAndLocators(db, iptr);
+    namconv.setOutput(VectorString(), 1, db, iptr);
     error = 0;
 
   label_end:
@@ -397,9 +397,9 @@ namespace gstlrn
     // Naming convention
 
     nc.setLocatorOutType(ELoc::L);
-    nc.setNamesAndLocators(nullptr, VectorInt(), db, iptrl, "Lower", ngrf);
+    nc.setOutput(VectorString(), ngrf, db, iptrl, "Lower", ngrf);
     nc.setLocatorOutType(ELoc::U);
-    nc.setNamesAndLocators(nullptr, VectorInt(), db, iptru, "Upper", ngrf);
+    nc.setOutput(VectorString(), ngrf, db, iptru, "Upper", ngrf);
     error = 0;
 
   label_end:
@@ -518,21 +518,21 @@ namespace gstlrn
     rank = 0;
     for (Id ifac = 0; ifac < nfacies; ifac++)
     {
-      namconv.setNamesAndLocators(
-        db, iptr + rank,
+      namconv.setOutput(
+        VectorString(), 0, db, iptr + rank,
         concatenateStrings("Thresh-F", toStr(ifac + 1), "-Y1-Low"));
       rank++;
-      namconv.setNamesAndLocators(
-        db, iptr + rank,
+      namconv.setOutput(
+        VectorString(), 0, db, iptr + rank,
         concatenateStrings("Thresh-F", toStr(ifac + 1), "-Y1-Up"));
       rank++;
       if (ngrf == 1) continue;
-      namconv.setNamesAndLocators(
-        db, iptr + rank,
+      namconv.setOutput(
+        VectorString(), 0, db, iptr + rank,
         concatenateStrings("Thresh-F", toStr(ifac + 1), "-Y2-Low"));
       rank++;
-      namconv.setNamesAndLocators(
-        db, iptr + rank,
+      namconv.setOutput(
+        VectorString(), 0, db, iptr + rank,
         concatenateStrings("Thresh-F", toStr(ifac + 1), "-Y2-Up"));
       rank++;
     }

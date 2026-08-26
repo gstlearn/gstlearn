@@ -299,7 +299,7 @@ namespace gstlrn
 
     for (Id idim = 0; idim < db->getNDim(); idim++)
     {
-      VectorDouble tab = db->getOneCoordinate(idim);
+      VectorDouble tab = db->getVecCoordinate(idim);
       StatResults stats =
         ut_statistics(db->getNSample(), tab.data(), sel.data(), wgt.data());
       center[idim] = stats.mean;
@@ -318,8 +318,7 @@ namespace gstlrn
    **
    ** \remark This function considers the grid characteristics and updates
    ** \remark the locators dedicated to coordinates
-   ** \remark This makes sense when a new grid is generated or when the
-   *grid
+   ** \remark This makes sense when a new grid is generated or when the grid
    ** \remark characteristics have changed
    **
    *****************************************************************************/
@@ -1181,8 +1180,7 @@ namespace gstlrn
    ** \param[in]  current     Array of ranks of the last modified locator
    ** \param[in]  flag_locnew Reset all locators
    **
-   ** \remark  The elements of the array current are numbered starting
-   *from 1
+   ** \remark  The elements of the array current are numbered starting from 1
    **
    *****************************************************************************/
   void db_locators_correct(
@@ -1508,16 +1506,12 @@ namespace gstlrn
    ** \param[in]  ang_conv  Convention on the angles
    ** \li                   1: Trigonometry (From East counter-clockwise)
    ** \li                   2: From North clockwise
-   ** \param[in]  iad_mod   Rank of the 'modulus' attribute
-   ** \param[in]  iad_ang   Rank of the 'angle' attribute (defined in
-   *degrees)
-   ** \param[in]  iad_gx    Rank of the 'gx' attribute (defined in
-   *degrees)
-   ** \param[in]  iad_gy    Rank of the 'gy' attribute (defined in
-   *degrees)
+   ** \param[in]  iad_mod   Rank of 'modulus' attribute
+   ** \param[in]  iad_ang   Rank of 'angle' attribute (defined in degrees)
+   ** \param[in]  iad_gx    Rank of 'gx' attribute (defined in degrees)
+   ** \param[in]  iad_gy    Rank of 'gy' attribute (defined in degrees)
    **
-   ** \remarks  Attributes 'gx' and 'gy' may coincide with 'modulus' and
-   *'angle'
+   ** \remarks  Attributes 'gx' and 'gy' may coincide with 'modulus' and 'angle'
    **
    *****************************************************************************/
   Id db_gradient_modang_to_component(
@@ -1565,20 +1559,15 @@ namespace gstlrn
    **
    ** \param[in]  db        Initial Db
    ** \param[in]  verbose   1 for the verbose option
-   ** \param[in]  iad_gx    Rank of the 'gx' attribute (defined in
-   *degrees)
-   ** \param[in]  iad_gy    Rank of the 'gy' attribute (defined in
-   *degrees)
-   ** \param[in]  iad_mod   Rank of the 'modulus' attribute
-   ** \param[in]  iad_ang   Rank of the 'angle' attribute (defined in
-   *degrees)
+   ** \param[in]  iad_gx    Rank of 'gx' attribute (defined in degrees)
+   ** \param[in]  iad_gy    Rank of 'gy' attribute (defined in degrees)
+   ** \param[in]  iad_mod   Rank of 'modulus' attribute
+   ** \param[in]  iad_ang   Rank of 'angle' attribute (defined in degrees)
    ** \param[in]  scale     Scaling factor for the modulus
    ** \param[in]  ve        Moderation factor
    **
-   ** \remarks  Attributes 'gx' and 'gy' may coincide with 'modulus' and
-   *'angle'
-   ** \remarks  Nothing is done (more than the conversion if scale=1 and
-   *ve=0)
+   ** \remarks  Attributes 'gx' and 'gy' may coincide with 'modulus' and 'angle'
+   ** \remarks  Nothing is done (more than the conversion if scale=1 and ve=0)
    **
    *****************************************************************************/
   Id db_gradient_component_to_modang(
@@ -1650,8 +1639,7 @@ namespace gstlrn
    **
    ** \param[in]  dbgrid   Db Grid structure
    ** \param[in]  iptr     Rank of the column
-   ** \param[in]  indg     Working index array (Dimension:
-   *get_NDIM(dbgrid))
+   ** \param[in]  indg     Working index array (Dimension: ndim)
    ** \param[in]  ix       Rank of the node along first dimension
    ** \param[in]  iy       Rank of the node along second dimension
    ** \param[in]  iz       Rank of the node along third dimension
@@ -1684,8 +1672,7 @@ namespace gstlrn
    **
    ** \param[in]  dbgrid   Db Grid structure
    ** \param[in]  iptr     Rank of the column
-   ** \param[in]  indg     Working index array (Dimension:
-   *get_NDIM(dbgrid))
+   ** \param[in]  indg     Working index array (Dimension: ndim)
    ** \param[in]  ix       Rank of the node along first dimension
    ** \param[in]  iy       Rank of the node along second dimension
    ** \param[in]  iz       Rank of the node along third dimension
@@ -1715,8 +1702,7 @@ namespace gstlrn
   /****************************************************************************/
   /*!
    **  Extract the subgrid (from a grid) which contains the only cells
-   *where
-   **  the target variable lies wuthin the target interval
+   **  where the target variable lies wuthin the target interval
    **  Selection in the input grid is taken into account
    **
    ** \param[in]  db_grid       Db structure
@@ -1724,8 +1710,7 @@ namespace gstlrn
    ** \param[in]  margin        Array of margins (or NULL)
    ** \param[in]  limmin        Array of minimum dimensions (or NULL)
    ** \param[in]  flag_sel      Create the selection
-   ** \param[in]  flag_copy     1 if the selection must be copied in
-   *sub-grid
+   ** \param[in]  flag_copy     1 if selection must be copied in sub-grid
    ** \param[in]  verbose       Verbose flag
    ** \param[in]  vmin          Lower bound (included)
    ** \param[in]  vmax          Upper bound (excluded)
@@ -1896,21 +1881,17 @@ namespace gstlrn
    ** \param[in]  iptr_db       Rank of the attribute in the main grid
    ** \param[in]  iptr_rank     Rank of the attribute storing object rank
    **                           If <0, no check is performed: always patch
-   ** \param[in]  new_rank      Rank of the current object to patch in
-   *main grid
+   ** \param[in]  new_rank      Rank of current object to patch in main grid
    ** \param[in]  oper          >0 for larger; <0 for smaller
    ** \param[in]  verbose       Verbose flag
    **
    ** \remarks When 'iptr_rank' is defined (>=0), defined pixels of the
-   *current
-   ** \remarks sub-grid overwrites the corresponding pixel within the main
-   *grid
-   ** \remarks only if its rank ('new_rank') is larger (oper>0) or smaller
-   ** \remarks (oper<0)) than the rank of the same pixel in the main grid
-   ** \remarks (attribute 'iptr_rank')
+   ** \remarks current sub-grid overwrites the corresponding pixel within
+   ** \remarks the main grid only if its rank ('new_rank')
+   ** \remarks is larger (oper>0) or smaller (oper<0)) than the rank of
+   ** \remarks the same pixel in the main grid (attribute 'iptr_rank')
    ** \remarks When 'iptr_rank' is undefined, arguments 'new_rank', 'oper'
-   *are
-   ** \remarks useless
+   ** \remarks are useless
    **
    *****************************************************************************/
   Id db_grid_patch(
@@ -2076,26 +2057,6 @@ namespace gstlrn
 
   label_end:
     return (error);
-  }
-
-  /****************************************************************************/
-  /*!
-   **  Identify the attribute by its name
-   **
-   ** \return  Rank of the variable starting from 0 (or -1 if not found)
-   **
-   ** \param[in]  db       Db descriptor
-   ** \param[in]  string   attribute name
-   **
-   *****************************************************************************/
-  Id db_name_identify(Db* db, const String& string)
-  {
-    for (Id iatt = 0, natt = db->getNUIDMax(); iatt < natt; iatt++)
-    {
-      Id icol = db->getColIdxByUID(iatt);
-      if (string != db->getNameByColIdx(icol)) return iatt;
-    }
-    return (-1);
   }
 
   /****************************************************************************/

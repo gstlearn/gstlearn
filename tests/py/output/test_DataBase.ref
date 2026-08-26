@@ -1,0 +1,165 @@
+Checking that the DbData is empty
+The Data Base contains 0 column(s) of 0 samples
+
+Adding Columns of various types
+===============================
+- Column 0 of type Double with role X, filled with [1.0, 2.0, 3.0]
+- Column 1 of type Int, filled with [5, 6, 7]
+- Column 2 of type String, filled with ['foo', 'bar', 'baz']
+- Column 3 of type Bool, filled with [True, False, True]
+- Column 4 of type Double, with 5 versions and role F, filled with 3.0
+The Data Base contains 5 column(s) of 3 samples
+Column 0/5 : VD (Type: Double) {Role: x1}
+Column 1/5 : VI (Type: Id) {Role: NA}
+Column 2/5 : VS (Type: String) {Role: z1}
+Column 3/5 : VB (Type: Char) {Role: NA}
+Column 4/5 : VDS [5] (Type: Double) {Role: f1}
+
+Various ways to specify a column (e.g. for retreiving its name):
+================================================================
+- by Name: VD
+- by Name and Version: VDS
+- by Index: VDS
+- by Index and Version: VDS
+- by ColID: VI
+- by RoleID: VDS
+- by RoleID and Version: VDS
+- by Role: VS
+- by Role and Index: VS
+- by Role and Index and Version: VS
+
+Checking the presence of the columns in the DbData:
+===================================================
+- Column called 'VD':  True
+- Column called 'VI':  True
+- Column called 'VS':  True
+- Column called 'VB':  True
+- Column called 'VDS':  True
+
+Checking that we can retrieve the whole contents of any column:
+===============================================================
+ - Column 0: [1. 2. 3.]
+ - Column 1: [5 6 7]
+ - Column 2: ('foo', 'bar', 'baz')
+ - Column 3: [ True False  True]
+ - Column 4: [3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3.]
+
+Checking that we can manipulate one Target Sample from any column:
+==================================================================
+Retrieving a Target Sample ( 2 ) from any column
+- From column 0 (specified by its role):  3.0
+- From column 1 (specified by its name):  7
+- From column 2 (specified by its index):  baz
+
+Modifying the value at Target: Col 0: 4.0, Col 1: 8, Col 2: 'mystring'
+
+Checking the new value of the Target Sample
+Contents of element # 2  for Column 0:  4.0
+Contents of element # 2  for Column 1:  8
+Contents of element # 2  for Column 2:  mystring
+
+Misuses of the DbData
+=====================
+- Initial situation
+The Data Base contains 5 column(s) of 3 samples
+Column 0/5 : VD (Type: Double) {Role: x1}
+Column 1/5 : VI (Type: Id) {Role: NA}
+Column 2/5 : VS (Type: String) {Role: z1}
+Column 3/5 : VB (Type: Char) {Role: NA}
+Column 4/5 : VDS [5] (Type: Double) {Role: f1}
+Adding Column with existing name (VI) but different type (Double)
+Adding Column with existing Role (X) but non consecutive index (10)
+Adding a Column with an already existing Role (X) and existing Index (0)
+- Final situation
+The Data Base contains 8 column(s) of 3 samples
+Column 0/8 : VD (Type: Double) {Role: NA}
+Column 1/8 : VI (Type: Id) {Role: NA}
+Column 2/8 : VS (Type: String) {Role: z1}
+Column 3/8 : VB (Type: Char) {Role: NA}
+Column 4/8 : VDS [5] (Type: Double) {Role: f1}
+Column 5/8 : VI.1 (Type: Double) {Role: NA}
+Column 6/8 : VD.1 (Type: Double) {Role: x2}
+Column 7/8 : VD.2 (Type: Double) {Role: x1}
+
+Deleting a Column (VI.1)
+========================
+- Initial situation
+The Data Base contains 8 column(s) of 3 samples
+Column 0/8 : VD (Type: Double) {Role: NA}
+Column 1/8 : VI (Type: Id) {Role: NA}
+Column 2/8 : VS (Type: String) {Role: z1}
+Column 3/8 : VB (Type: Char) {Role: NA}
+Column 4/8 : VDS [5] (Type: Double) {Role: f1}
+Column 5/8 : VI.1 (Type: Double) {Role: NA}
+Column 6/8 : VD.1 (Type: Double) {Role: x2}
+Column 7/8 : VD.2 (Type: Double) {Role: x1}
+- Final situation
+The Data Base contains 7 column(s) of 3 samples
+Column 0/7 : VD (Type: Double) {Role: NA}
+Column 1/7 : VI (Type: Id) {Role: NA}
+Column 2/7 : VS (Type: String) {Role: z1}
+Column 3/7 : VB (Type: Char) {Role: NA}
+Column 4/7 : VDS [5] (Type: Double) {Role: f1}
+Column 5/7 : VD.1 (Type: Double) {Role: x2}
+Column 6/7 : VD.2 (Type: Double) {Role: x1}
+
+Testing the MultiVersion feature of the DbData
+==============================================
+After adding the 'VDS' column (with 4 versions)
+The Data Base contains 8 column(s) of 3 samples
+Column 0/8 : VD (Type: Double) {Role: NA}
+Column 1/8 : VI (Type: Id) {Role: NA}
+Column 2/8 : VS (Type: String) {Role: z1}
+Column 3/8 : VB (Type: Char) {Role: NA}
+Column 4/8 : VDS [5] (Type: Double) {Role: f1}
+Column 5/8 : VD.1 (Type: Double) {Role: x2}
+Column 6/8 : VD.2 (Type: Double) {Role: x1}
+Column 7/8 : VDS.1 [4] (Type: Double) {Role: NA} [NA forbidden]
+
+Various inquiries on the DbData
+===============================
+- Number of columns:  8
+- Number of samples:  3
+- Number of Versions in column 'VDS.1':  4
+
+Erroneous operations on the DbData
+==================================
+- Initial situation
+The Data Base contains 8 column(s) of 3 samples
+Column 0/8 : VD (Type: Double) {Role: NA}
+Column 1/8 : VI (Type: Id) {Role: NA}
+Column 2/8 : VS (Type: String) {Role: z1}
+Column 3/8 : VB (Type: Char) {Role: NA}
+Column 4/8 : VDS [5] (Type: Double) {Role: f1}
+Column 5/8 : VD.1 (Type: Double) {Role: x2}
+Column 6/8 : VD.2 (Type: Double) {Role: x1}
+Column 7/8 : VDS.1 [4] (Type: Double) {Role: NA} [NA forbidden]
+
+Trying to delete a non existing column (VI.22)
+Column 'VI.22' does not exist.
+
+Trying to add the Column (VD_bad_samples) with a different number of samples
+The number of values (4) is not compatible with the number of samples (3) and versions (1).
+
+Trying to set a value in a non existing column (VI.22)
+Column 'VI.22' does not exist.
+
+Trying to modify the contents of the Column 'VD' (double) by string
+Cannot assign value to Column 'VD':
+Input type 'String' is not compatible with column type 'Double'.
+
+Trying to use a wrong version (5) in Column 'VDS' (4 versions)
+Version 5 is invalid for Column 'VDS' which contains 5 version(s).
+
+Trying to set a value to NA in Column 'VDS.1' (forbidNA = True)
+Cannot set NA to sample 0 of Column 'VDS.1': NA values are forbidden.
+- Final situation
+The Data Base contains 8 column(s) of 3 samples
+Column 0/8 : VD (Type: Double) {Role: NA}
+Column 1/8 : VI (Type: Id) {Role: NA}
+Column 2/8 : VS (Type: String) {Role: z1}
+Column 3/8 : VB (Type: Char) {Role: NA}
+Column 4/8 : VDS [5] (Type: Double) {Role: f1}
+Column 5/8 : VD.1 (Type: Double) {Role: x2}
+Column 6/8 : VD.2 (Type: Double) {Role: x1}
+Column 7/8 : VDS.1 [4] (Type: Double) {Role: NA} [NA forbidden]

@@ -17,6 +17,12 @@
 
 namespace gstlrn
 {
+  namespace
+  {
+    template<typename>
+    constexpr bool dependent_false_v = false;
+  } // namespace
+
   class GSTLEARN_EXPORT VectorHelper
   {
   public:
@@ -841,6 +847,27 @@ namespace gstlrn
   {
     VectorHelper::divide(v1, v1, v2, false);
     return v1;
+  }
+
+  template<typename T>
+  String getGenericTypeName()
+  {
+    if constexpr (std::is_same_v<T, double>)
+      return "Double";
+    else if constexpr (std::is_same_v<T, float>)
+      return "Float";
+    else if constexpr (std::is_same_v<T, int>)
+      return "Int";
+    else if constexpr (std::is_same_v<T, Id>)
+      return "Id";
+    else if constexpr (std::is_same_v<T, unsigned char>)
+      return "Char";
+    else if constexpr (std::is_same_v<T, String> || std::is_array_v<T>)
+      return "String";
+    else if constexpr (std::is_same_v<T, bool>)
+      return "Bool";
+    else
+      static_assert(dependent_false_v<T>, "Unsupported type");
   }
 
 } // namespace gstlrn

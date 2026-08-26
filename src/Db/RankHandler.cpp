@@ -46,7 +46,10 @@ namespace gstlrn
     _index.resize(_nvar);
 
     // Column index for selection (if 'useSel' and if present)
-    _iptrSel = (_useSel) ? _db->getColIdxByLocator(ELoc::SEL, 0) : -1;
+    _iptrSel = (_useSel && _db->hasLocator(ELoc::SEL))
+               ? _db->getColIdxByLocator(ELoc::SEL, 0)
+               : -1;
+
     // Column indices for variables (if 'useZ' and if present)
     _iptrZ = VectorInt();
     if (useZ && _db->hasLocator(ELoc::Z))

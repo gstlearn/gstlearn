@@ -2284,7 +2284,7 @@ namespace gstlrn
 
     Id nvar = dbout->getNLoc(ELoc::Z);
 
-    namconv.setNamesAndLocators(dbout, iptr, "estim", nvar);
+    namconv.setOutput(VectorString(), nvar, dbout, iptr, "estim");
 
     return 0;
   }

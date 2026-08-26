@@ -253,7 +253,7 @@ namespace gstlrn
   void Table::plot(Id isimu) const
   {
     if (empty()) return;
-    String filename = incrementStringVersion("TableStats", isimu + 1);
+    String filename = generateOneName("TableStats", isimu + 1);
     (void)dumpToNF(filename);
   }
 

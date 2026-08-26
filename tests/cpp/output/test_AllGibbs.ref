@@ -20,8 +20,8 @@ Variables
 Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
-Column = 3 - Name = Bounds - Locator = lower1
-Column = 4 - Name = Bounds.1 - Locator = upper1
+Column = 3 - Name = Bounds - Locator = l1
+Column = 4 - Name = Bounds.1 - Locator = u1
 
 Model characteristics
 =====================

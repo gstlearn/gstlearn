@@ -196,9 +196,9 @@ def ScatterOnDb(
 
     meshing = dict(
         type="scatter3d",
-        x=db.getOneCoordinate(0),
-        y=db.getOneCoordinate(1),
-        z=db.getOneCoordinate(2),
+        x=db.getVecCoordinate(0),
+        y=db.getVecCoordinate(1),
+        z=db.getVecCoordinate(2),
         mode=mode,
         marker_symbol=m_symbol,
         marker_line_color=m_line,
@@ -412,9 +412,9 @@ def IsoSurfaceOnDbGrid(
 
     shape = list(grid.getNXs())
 
-    x = grid.getOneCoordinate(0, useSel).reshape(shape)
-    y = grid.getOneCoordinate(1, useSel).reshape(shape)
-    z = grid.getOneCoordinate(2, useSel).reshape(shape)
+    x = grid.getVecCoordinate(0, useSel).reshape(shape)
+    y = grid.getVecCoordinate(1, useSel).reshape(shape)
+    z = grid.getVecCoordinate(2, useSel).reshape(shape)
     values = grid.getColumn(name, useSel).reshape(shape)
 
     surfaces = go.Isosurface(
@@ -473,8 +473,8 @@ def PointDb(
     if fromLongLat:
         if __invalidFileDimension(db, 2):
             return None
-        long = db.getOneCoordinate(0, useSel)
-        lat = db.getOneCoordinate(1, useSel)
+        long = db.getVecCoordinate(0, useSel)
+        lat = db.getVecCoordinate(1, useSel)
         tab = np.array(gl.GH.convertLongLatTo3D(long, lat, dilate, np.nan))
         x = tab[0, :]
         y = tab[1, :]
@@ -482,9 +482,9 @@ def PointDb(
     else:
         if __invalidFileDimension(db, 3):
             return None
-        x = db.getOneCoordinate(posX, useSel)
-        y = db.getOneCoordinate(posY, useSel)
-        z = db.getOneCoordinate(posZ, useSel)
+        x = db.getVecCoordinate(posX, useSel)
+        y = db.getVecCoordinate(posY, useSel)
+        z = db.getVecCoordinate(posZ, useSel)
 
     if nameColor is not None:
         colors = __linearInterpolate(
@@ -521,9 +521,9 @@ def GradientDb(
     if __invalidFileDimension(db, 3):
         return None
 
-    x = db.getOneCoordinate(0, useSel)
-    y = db.getOneCoordinate(1, useSel)
-    z = db.getOneCoordinate(2, useSel)
+    x = db.getVecCoordinate(0, useSel)
+    y = db.getVecCoordinate(1, useSel)
+    z = db.getVecCoordinate(2, useSel)
 
     gx = db.getGradient(0, useSel)
     gy = db.getGradient(1, useSel)
@@ -560,9 +560,9 @@ def TangentDb(
     if __invalidFileDimension(db, 3):
         return None
 
-    x = db.getOneCoordinate(0, useSel)
-    y = db.getOneCoordinate(1, useSel)
-    z = db.getOneCoordinate(2, useSel)
+    x = db.getVecCoordinate(0, useSel)
+    y = db.getVecCoordinate(1, useSel)
+    z = db.getVecCoordinate(2, useSel)
 
     tx = db.getTangent(0, useSel)
     ty = db.getTangent(1, useSel)

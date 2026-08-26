@@ -40,7 +40,7 @@ namespace gstlrn {
 
   template <> int convertToCpp(SEXP obj, Id& value)
   {
-    // Test argument
+    // Check argument
     if (obj == NULL) return SWIG_TypeError;
 
     int myres = SWIG_TypeError;
@@ -558,13 +558,14 @@ namespace gstlrn {
 //                     MatrixSparse,          MatrixSparse*,          MatrixSparse&
 // %{    %}
 
-// This for automatically convert R string to NamingConvention
+// Automatic Conversion for NamingConvention
 %typemap(scoercein) NamingConvention, NamingConvention &, const NamingConvention, const NamingConvention &
 %{
   if (typeof($input) == "character") $input = NamingConvention($input);
-  if (inherits($input, "ExternalReference")) $input = slot($input,"ref");
+  if (inherits($input, "ExternalReference")) $input = slot($input, "ref");
 %}
 }
+
 //////////////////////////////////////////////////////////////
 //         C++ library SWIG includes and typemaps           //
 //////////////////////////////////////////////////////////////
@@ -686,7 +687,7 @@ setMethod(f = "show", signature = "_p_gstlrn__VectorNumTT_long_long_t",         
 setMethod(f = "show", signature = "_p_gstlrn__VectorTT_float_t",                definition = function(object){ VectorTFloat_display(object) })
 setMethod(f = "show", signature = "_p_gstlrn__VectorNumTT_float_t",             definition = function(object){ VectorTFloat_display(object) })
 
-setMethod(f = "show", signature = "_p_gstlrn__VectorTT_gstlrn__String_t",       definition = function(object){ VectorString_display(object) })
+setMethod(f = "show", signature = "_p_gstlrn__VectorTT_String_t",               definition = function(object){ VectorString_display(object) })
 
 setMethod(f = "show", signature = "_p_gstlrn__VectorNumTT_VectorNumTT_long_long_t_t", definition = function(object){ VectorVectorInt_display(object) })
 
@@ -795,26 +796,26 @@ setMethod('[',    '_p_gstlrn__VectorTT_long_long_t',                          ge
 setMethod('[<-',  '_p_gstlrn__VectorTT_long_long_t',                          setVitem)
 setMethod('[',    '_p_gstlrn__VectorTT_double_t',                             getVitem)
 setMethod('[<-',  '_p_gstlrn__VectorTT_double_t',                             setVitem)
-setMethod('[',    '_p_gstlrn__VectorTT_gstlrn__String_t',                     getVitem) # TODO : Different from swigex and don't know why (_p_VectorTT_std__string_t)
-setMethod('[<-',  '_p_gstlrn__VectorTT_gstlrn__String_t',                     setVitem) # TODO : Different from swigex and don't know why (_p_VectorTT_std__string_t)
+setMethod('[',    '_p_gstlrn__VectorTT_String_t',                             getVitem) # TODO : Different from swigex and don't know why (_p_VectorTT_std__string_t)
+setMethod('[<-',  '_p_gstlrn__VectorTT_String_t',                             setVitem) # TODO : Different from swigex and don't know why (_p_VectorTT_std__string_t)
 setMethod('[',    '_p_gstlrn__VectorTT_float_t',                              getVitem)
 setMethod('[<-',  '_p_gstlrn__VectorTT_float_t',                              setVitem)
-setMethod('[',    '_p_gstlrn__VectorTT_gstlrn__UChar_t',                      getVitem)
-setMethod('[<-',  '_p_gstlrn__VectorTT_gstlrn__UChar_t',                      setVitem)
+setMethod('[',    '_p_gstlrn__VectorTT_UChar_t',                              getVitem)
+setMethod('[<-',  '_p_gstlrn__VectorTT_UChar_t',                              setVitem)
 setMethod('[',    '_p_gstlrn__VectorNumTT_long_long_t',                       getVitem)
 setMethod('[<-',  '_p_gstlrn__VectorNumTT_long_long_t',                       setVitem)
 setMethod('[',    '_p_gstlrn__VectorNumTT_double_t',                          getVitem)
 setMethod('[<-',  '_p_gstlrn__VectorNumTT_double_t',                          setVitem)
 setMethod('[',    '_p_gstlrn__VectorNumTT_float_t',                           getVitem)
 setMethod('[<-',  '_p_gstlrn__VectorNumTT_float_t',                           setVitem)
-setMethod('[',    '_p_gstlrn__VectorNumTT_gstlrn__UChar_t',                   getVitem)
-setMethod('[<-',  '_p_gstlrn__VectorNumTT_gstlrn__UChar_t',                   setVitem)
-setMethod('[[',   '_p_gstlrn__VectorNumTT_VectorNumTT_long_long_t_t', getVitem)
-setMethod('[[<-', '_p_gstlrn__VectorNumTT_VectorNumTT_long_long_t_t', setVitem)
-setMethod('[[',   '_p_gstlrn__VectorNumTT_VectorNumTT_double_t_t',    getVitem)
-setMethod('[[<-', '_p_gstlrn__VectorNumTT_VectorNumTT_double_t_t',    setVitem)
-setMethod('[[',   '_p_gstlrn__VectorNumTT_VectorNumTT_float_t_t',     getVitem)
-setMethod('[[<-', '_p_gstlrn__VectorNumTT_VectorNumTT_float_t_t',     setVitem)
+setMethod('[',    '_p_gstlrn__VectorNumTT_UChar_t',                           getVitem)
+setMethod('[<-',  '_p_gstlrn__VectorNumTT_UChar_t',                           setVitem)
+setMethod('[[',   '_p_gstlrn__VectorNumTT_VectorNumTT_long_long_t_t',         getVitem)
+setMethod('[[<-', '_p_gstlrn__VectorNumTT_VectorNumTT_long_long_t_t',         setVitem)
+setMethod('[[',   '_p_gstlrn__VectorNumTT_VectorNumTT_double_t_t',            getVitem)
+setMethod('[[<-', '_p_gstlrn__VectorNumTT_VectorNumTT_double_t_t',            setVitem)
+setMethod('[[',   '_p_gstlrn__VectorNumTT_VectorNumTT_float_t_t',             getVitem)
+setMethod('[[<-', '_p_gstlrn__VectorNumTT_VectorNumTT_float_t_t',             setVitem)
 
 ##
 ## Add toTL for Vector* R classes
@@ -977,7 +978,7 @@ function (x,i,j,...,drop=TRUE)
   {
     # Case of already an existing variable: replacement
 
-    db$setValuesByNames(rows,namcols, value)
+    db$setValuesByNamesInPlace(rows, namcols, value)
   }
   db
 }
@@ -1101,21 +1102,21 @@ setMethod('[<-',  '_p_gstlrn__Table',               setTableitem)
 ## ----------------------------- ##
 
 matrix_general_toLatex <- function(self, col_titles = NULL, row_titles = NULL, precision = 3) {
-  # Récupération des valeurs depuis l'objet
+  # Retreiving values from the object
   values <- self$getValues()
   N <- self$getNRows()
   P <- self$getNCols()
 
-  # Reshape en matrice N x P
+  # Reshape as a N x P matrix
   matrix_vals <- matrix(values, nrow = N, ncol = P, byrow = FALSE)
 
-# Déterminer l’alignement des colonnes
+# Determine the columns alignment
   num_cols <- P + ifelse(!is.null(row_titles), 1, 0)
   col_format <- paste(rep("c", num_cols), collapse = "")
 
   lines <- c()
 
-  # Ligne d’en-tête
+  # Header line
   if (!is.null(col_titles)) {
     if (!is.null(row_titles)) {
       header <- c("", col_titles)
@@ -1125,7 +1126,7 @@ matrix_general_toLatex <- function(self, col_titles = NULL, row_titles = NULL, p
     lines <- c(lines, paste(header, collapse = " & "))
   }
 
-  # Lignes du tableau
+  # Array lines
   for (i in seq_len(N)) {
     formatted_row <- formatC(matrix_vals[i, ], format = "f", digits = precision)
 
@@ -1138,8 +1139,8 @@ matrix_general_toLatex <- function(self, col_titles = NULL, row_titles = NULL, p
     lines <- c(lines, paste(line, collapse = " & "))
   }
 
-  # Concaténation LaTeX propre (sans \n)
-  latex_body <- paste(lines, collapse = " \\\\")  # juste "\\" pour LaTeX
+  # Clean concatenation for Latex (without \n)
+  latex_body <- paste(lines, collapse = " \\\\")  # simply "\\" for LaTeX
 
   latex_code <- paste0(
     "$$",

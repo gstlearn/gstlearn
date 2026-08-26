@@ -92,7 +92,7 @@ namespace gstlrn
     {
       return (idim >= _ndim)
              ? 0.
-             : _dbtgt->getLocVariable(ELoc::TGTE, IAD_TGT(it), idim);
+             : _dbtgt->getLocVariable(ELoc::TGT, IAD_TGT(it), idim);
     }
 
     double GRD_COO(Id ig, Id idim) const

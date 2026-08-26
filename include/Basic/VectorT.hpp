@@ -372,8 +372,15 @@ namespace gstlrn
       value = at(i);
       if (isNA(value))
         sstr << "NA";
+      else if constexpr (std::is_same_v<T, UChar>)
+      {
+        // This is meant to allow processing vectors of UChar (e.g. for boolean)
+        sstr << int(at(i));
+      }
       else
+      {
         sstr << at(i);
+      }
       if (i != n - 1) sstr << " ";
     }
     sstr << "]" << std::endl;

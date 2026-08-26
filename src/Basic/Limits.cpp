@@ -11,7 +11,6 @@
 #include "Basic/Limits.hpp"
 #include "Basic/Interval.hpp"
 #include "Basic/NamingConvention.hpp"
-#include "Basic/Utilities.hpp"
 #include "Db/Db.hpp"
 #include "geoslib_define.h"
 
@@ -403,7 +402,8 @@ namespace gstlrn
       db->setArray(iech, iptr, static_cast<double>(ival));
     }
 
-    namconv.setNamesAndLocators(db, iatt, db, iptr);
+    VectorString names = db->getNamesByUID({iatt});
+    namconv.setOutput(names, 0, db, iptr);
 
     return (0);
   }
@@ -621,17 +621,24 @@ namespace gstlrn
     }
 
     // Naming convention
+
+    VectorString names = db->getNamesByUID({iatt});
     if (flag_indic == 1)
     {
       if (flagBelow)
-        namconv.setNamesAndLocators(db, iatt, db, iptr_below, "Below", 1);
-      namconv.setNamesAndLocators(db, iatt, db, iptr_indic, "Class", nclass);
+      {
+        namconv.setOutput(names, 0, db, iptr_below, "Below", 1);
+      }
+      namconv.setOutput(names, 0, db, iptr_indic, "Class", nclass);
       if (flagAbove)
-        namconv.setNamesAndLocators(db, iatt, db, iptr_above, "Above", 1);
+      {
+        namconv.setOutput(names, 0, db, iptr_above, "Above", 1);
+      }
     }
     else
-      namconv.setNamesAndLocators(db, iatt, db, iptr_mean, "Mean", 1);
-
+    {
+      namconv.setOutput(names, 0, db, iptr_mean, "Mean", 1);
+    }
     return (0);
   }
 

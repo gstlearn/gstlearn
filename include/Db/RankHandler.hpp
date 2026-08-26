@@ -10,7 +10,6 @@
 /******************************************************************************/
 #pragma once
 
-#include "Basic/ICloneable.hpp"
 #include "Matrix/MatrixT.hpp"
 #include "gstlearn_export.hpp"
 

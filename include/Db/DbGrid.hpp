@@ -91,6 +91,7 @@ namespace gstlrn
 
     double getUnit(Id idim = 0) const override;
     Id getNDim() const override;
+    Id getNSamples() const override;
 
     bool mayChangeSampleNumber() const override { return false; }
 

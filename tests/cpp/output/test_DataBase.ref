@@ -1,0 +1,153 @@
+The Data Base contains 0 column(s) of 0 samples
+
+Adding Columns to a DbData
+--------------------------
+The Data Base contains 6 column(s) of 3 samples
+Column 0/6 : VD (Type: Double) {Role: x1}
+Column 1/6 : VI (Type: Id) {Role: z1}
+Column 2/6 : VS (Type: String) {Role: z2}
+Column 3/6 : VB (Type: Char) {Role: NA}
+Column 4/6 : VDS [6] (Type: Double) {Role: f1}
+Column 5/6 : VIS [5] (Type: Id) {Role: z3}
+
+Saving and recovering a DbData from a Neutral File
+--------------------------------------------------
+Before Saving in a Neutral File
+The Data Base contains 6 column(s) of 3 samples
+Column 0/6 : VD (Type: Double) {Role: x1}
+Column 1/6 : VI (Type: Id) {Role: z1}
+Column 2/6 : VS (Type: String) {Role: z2}
+Column 3/6 : VB (Type: Char) {Role: NA}
+Column 4/6 : VDS [6] (Type: Double) {Role: f1}
+Column 5/6 : VIS [5] (Type: Id) {Role: z3}
+C0: [1 2 3]
+C1: [5 6 7]
+C2: [foo bar baz]
+C3: [1 0 1]
+C4: [2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19]
+C5: [3 5 7 9 11 13 15 17 19 21 23 25 27 29 31]
+
+After recovering from the Neutral File
+C0: [1 2 3]
+C1: [5 6 7]
+C2: [foo bar baz]
+C3: [1 0 1]
+C4: [2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19]
+C5: [3 5 7 9 11 13 15 17 19 21 23 25 27 29 31]
+
+Checking aliases
+----------------
+Various ways to get value of 'VIS' for version 0 at sample 2
+- By Name: 7
+- By Name and Version: 7
+- Role: 7
+
+Different manners to refer to a Column
+--------------------------------------
+- by Name: VD
+- by Name and Version: VDS
+- by Index: VDS
+- by Index and Version: VDS
+- by RoleID: VDS
+- by RoleID and Version: VDS
+- by Role: VI
+
+Retrieving and modifying values in a DbData
+-------------------------------------------
+Initial values
+3.000000
+7
+baz
+
+Values after modification
+4.000000
+8
+mystring
+
+Testing implicit conversions
+----------------------------
+double from double: 2.000000
+int from double: 2
+Cannot read value from Column 'VS':
+Requested type 'Double' is not compatible with Stored type 'String'.
+double from String: -999.000000
+
+Testing proxy access syntax
+---------------------------
+Value of X(0) at sample 2: 123.000000
+Value of F(0) at sample index 2 version index 3: 12.340000
+Value of Z(2) at sample index 2 version index 4: 999
+
+Checking the aliases using ALL(_)
+The Data Base contains 6 column(s) of 3 samples
+Column 0/6 : VD (Type: Double) {Role: x1}
+Column 1/6 : VI (Type: Id) {Role: z1}
+Column 2/6 : VS (Type: String) {Role: z2}
+Column 3/6 : VB (Type: Char) {Role: NA}
+Column 4/6 : VDS [6] (Type: Double) {Role: f1}
+Column 5/6 : VIS [5] (Type: Id) {Role: z3}
+data.F()()
+[2 3 4 5 6 7 8 9 10 11 12 12.34 14 15 16 17 18 19]
+data.F()(_, _)
+[2 3 4 5 6 7 8 9 10 11 12 12.34 14 15 16 17 18 19]
+data.F()(_)
+[2 3 4 5 6 7 8 9 10 11 12 12.34 14 15 16 17 18 19]
+data.F()(_, 1)
+[5 6 7]
+data.F()(1, _)
+[3 6 9 12 15 18]
+After global modification of F()
+[1234 1234 1234 1234 1234 1234 1234 1234 1234 1234 1234 1234 1234 1234 1234 1234 1234 1234]
+After modification of F()(2, _)
+[1234 1234 5678 1234 1234 5678 1234 1234 5678 1234 1234 5678 1234 1234 5678 1234 1234 5678]
+After modification of F()(_, 3)
+[1234 1234 5678 1234 1234 5678 1234 1234 5678 91011 91011 91011 1234 1234 5678 1234 1234 5678]
+
+Adding Columns with the same Name and/or Role
+---------------------------------------------
+Initial
+The Data Base contains 6 column(s) of 3 samples
+Column 0/6 : VD (Type: Double) {Role: x1}
+Column 1/6 : VI (Type: Id) {Role: z1}
+Column 2/6 : VS (Type: String) {Role: z2}
+Column 3/6 : VB (Type: Char) {Role: NA}
+Column 4/6 : VDS [6] (Type: Double) {Role: f1}
+Column 5/6 : VIS [5] (Type: Id) {Role: z3}
+
+Final
+The Data Base contains 9 column(s) of 3 samples
+Column 0/9 : VD (Type: Double) {Role: NA}
+Column 1/9 : VI (Type: Id) {Role: z1}
+Column 2/9 : VS (Type: String) {Role: z2}
+Column 3/9 : VB (Type: Char) {Role: NA}
+Column 4/9 : VDS [6] (Type: Double) {Role: f1}
+Column 5/9 : VIS [5] (Type: Id) {Role: z3}
+Column 6/9 : VD2 (Type: Double) {Role: x2}
+Column 7/9 : VI2 (Type: Double) {Role: x1}
+Column 8/9 : VI2.1 (Type: Double) {Role: x3}
+
+Modifying a Column with the wrong type
+--------------------------------------
+Initial Column
+[1 2 123]
+After valid change
+[1 2 11123]
+Trying to modify a Column with the wrong type
+Cannot assign value to Column 'VD':
+Input type 'String' is not compatible with column type 'Double'.
+
+Retrieving series of columns for various criteria
+-------------------------------------------------
+The Data Base contains 3 column(s) of 3 samples
+Column 0/3 : VD (Type: Double) {Role: x1}
+Column 1/3 : VDbis (Type: Id) {Role: x2}
+Column 2/3 : VDback (Type: Double) {Role: x3}
+
+Matching the name 'VDb*', the following columns are found:
+Matching Column: Name: VDbis, Index: 1, Role: x2, Version: 0
+Matching Column: Name: VDback, Index: 2, Role: x3, Version: 0
+
+Matching the role 'X', the following columns are found:
+Matching Column: Name: VD, Index: 0, Role: x1, Version: 0
+Matching Column: Name: VDbis, Index: 1, Role: x2, Version: 0
+Matching Column: Name: VDback, Index: 2, Role: x3, Version: 0

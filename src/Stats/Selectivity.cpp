@@ -1240,8 +1240,8 @@ namespace gstlrn
 
     // Set the names
 
-    namconv.setNamesAndLocators(db, iuidT, "T", ncuts);
-    namconv.setNamesAndLocators(db, iuidQ, "Q", ncuts);
+    namconv.setOutput(VectorString(), 0, db, iuidT, "T");
+    namconv.setOutput(VectorString(), 0, db, iuidQ, "Q");
     return 0;
   }
 

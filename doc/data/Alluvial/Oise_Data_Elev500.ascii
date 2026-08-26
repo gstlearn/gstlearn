@@ -2,7 +2,7 @@ Db
 10 # Number of variables
 2470 # Number of samples
 # Locators
-NA x1 x2 lower1 upper1 NA NA NA z1 sel 
+NA x1 x2 l1 u1 NA NA NA z1 sel 
 # Names
 rank X Y Z Z_1 Elev Elev.1 Elev.1.1 Elev.1.1.1 Duplicate 
 # Array of values
