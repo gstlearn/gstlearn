@@ -13,24 +13,84 @@ data = DbData()
 invisible(data$printContents("Checking that the DbData is empty"))
 
 invisible(mestitle(0, "Adding Columns of various types"))
-writeLines("- Column 0 of type Double with role X, filled with [1.0, 2.0, 3.0]")
+writeLines("- Column VD of type Double with role X, filled with [1.0, 2.0, 3.0]")
 invisible(data$addColumnD("VD", c(1.0, 2.0, 3.0), RoleID(ERole_X())))
 
-writeLines("- Column 1 of type Int, filled with [5, 6, 7]")
+writeLines("- Column VI of type Int, filled with [5, 6, 7]")
 invisible(data$addColumnI("VI", c(5, 6, 7), RoleID(ERole_Z())))
 
-writeLines("- Column 2 of type String, filled with ['foo', 'bar', 'baz']")
+writeLines("- Column VS of type String, filled with ['foo', 'bar', 'baz']")
 invisible(data$addColumnS("VS", c("foo", "bar", "baz"), RoleID(ERole_Z())))
 
-writeLines("- Column 3 of type Bool, filled with [True, False, True]")
+writeLines("- Column VB of type Bool, filled with [True, False, True]")
 invisible(data$addColumnB("VB", c(TRUE, FALSE, TRUE)))
 
-writeLines("- Column 4 of type Double, with 5 versions and role F, filled with 3.0")
+writeLines("- Column VDS of type Double, with 5 versions and role F, filled with 3.0")
 invisible(data$addColumnEmptyD("VDS", 0, 5, RoleID(ERole_F()), 3.0))
+
+writeLines("- Column VIS of type Int, with 5 versions and role Z, filled with 1")
+invisible(data$addColumnEmptyI("VIS", 0, 5, RoleID(ERole_Z()), 1))
 invisible(data$printContents())
 
-# ####################################################################
-# # In this part, we check the different ways to construct the ColID #
+############################################
+# Special section for Categorical variable #
+
+invisible(mestitle(0, "Creating the Dictionary for the categorical variable"))
+dictionary = Dictionary()
+keys = c(1, 3, 7)
+labels = c("red", "blue", "green")
+for (i in 1:length(keys)) {
+  dictionary$addCategory(keys[i], labels[i])
+}
+invisible(data$printContents())
+ncategory = dictionary$getNCategories()
+writeLines(paste0("Number of categories in the dictionary: ", ncategory))
+
+writeLines("Creating the VectorCategory for the categorical variable")
+vc = VectorCategory(3, dictionary)
+for (i in 0:2) {
+  j = i %% ncategory + 1
+  vc$setCategory(i, keys[j])
+}
+invisible(data$addColumnC("VC", vc))
+invisible(data$printContents())
+
+##############################
+# Checking the Neutral Files #
+
+invisible(mestitle(1, "Saving and recovering a DbData from a Neutral File"))
+invisible(data$printContents("Before Saving in a Neutral File"))
+writeLines(paste0("VD: ",  paste(data$getColumnD("VD"), collapse = ", ")))
+writeLines(paste0("VI: ",  paste(data$getColumnI("VI"), collapse = ", ")))
+writeLines(paste0("VS: ",  paste(data$getColumnS("VS"), collapse = ", ")))
+writeLines(paste0("VB: ",  paste(data$getColumnB("VB"), collapse = ", ")))
+writeLines(paste0("VDS: ", paste(data$getColumnD("VDS"), collapse = ", ")))
+writeLines(paste0("VIS: ", paste(data$getColumnI("VIS"), collapse = ", ")))
+writeLines(paste0("VC: ",  paste(data$getColumnC("VC"), collapse = ", ")))
+invisible(data$dumpToNF("test_DataBase.NF"))
+
+data2 = DbData_createFromNF("test_DataBase.NF", TRUE)
+writeLines(paste0("VD: ",  paste(data2$getColumnD("VD"), collapse = ", ")))
+writeLines(paste0("VI: ",  paste(data2$getColumnI("VI"), collapse = ", ")))
+writeLines(paste0("VS: ",  paste(data2$getColumnS("VS"), collapse = ", ")))
+writeLines(paste0("VB: ",  paste(data2$getColumnB("VB"), collapse = ", ")))
+writeLines(paste0("VDS: ", paste(data2$getColumnD("VDS"), collapse = ", ")))
+writeLines(paste0("VIS: ", paste(data2$getColumnI("VIS"), collapse = ", ")))
+writeLines(paste0("VC: ",  paste(data2$getColumnC("VC"), collapse = ", ")))
+invisible(data2$dumpToNF("test_DataBase.NF"))
+
+########################################################
+# Particular test for the case of Categorical variable #
+invisible(mestitle(1, "Checking the use of a Categorical Variable"))
+# Reading the category of the first sample and store it in 'cat'
+cat = data$getValueC("VC", 0)
+# Setting the category 'cat' to the second sample
+invisible(data$setValueC("VC", 1, cat))
+# Cheking the result on the dump of the whole vector
+writeLines(paste0("VC: ",  paste(data2$getColumnC("VC"), collapse = ", ")))
+
+####################################################################
+# In this part, we check the different ways to construct the ColID #
 
 invisible(mestitle(0, "Various ways to specify a column (e.g. for retreiving its name):"))
 writeLines(paste0("- by Name : ", data$getName("VD")))

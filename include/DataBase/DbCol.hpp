@@ -196,9 +196,8 @@ namespace gstlrn
       Array2D<VectorInt>,
       Array2D<VectorUChar>,
       Array2D<VectorString>,
-      Array2D<VectorBool>
-      // Array2D<VectorCategory>
-      >
+      Array2D<VectorBool>,
+      Array2D<VectorCategory>>
       _data;
     bool _forbidNA = false;
     Id _uniqueIndex = 0;

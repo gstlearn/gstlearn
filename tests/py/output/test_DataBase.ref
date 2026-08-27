@@ -3,17 +3,65 @@ The Data Base contains 0 column(s) of 0 samples
 
 Adding Columns of various types
 ===============================
-- Column 0 of type Double with role X, filled with [1.0, 2.0, 3.0]
-- Column 1 of type Int, filled with [5, 6, 7]
-- Column 2 of type String, filled with ['foo', 'bar', 'baz']
-- Column 3 of type Bool, filled with [True, False, True]
-- Column 4 of type Double, with 5 versions and role F, filled with 3.0
-The Data Base contains 5 column(s) of 3 samples
-Column 0/5 : VD (Type: Double) {Role: x1}
-Column 1/5 : VI (Type: Id) {Role: NA}
-Column 2/5 : VS (Type: String) {Role: z1}
-Column 3/5 : VB (Type: Char) {Role: NA}
-Column 4/5 : VDS [5] (Type: Double) {Role: f1}
+- Column VD of type Double with role X, filled with [1.0, 2.0, 3.0]
+- Column VI of type Int, filled with [5, 6, 7]
+- Column VS of type String, filled with ['foo', 'bar', 'baz']
+- Column VB of type Bool, filled with [True, False, True]
+- Column VDS of type Double, with 5 versions and role F, filled with 3.0
+- Column VIS of type Int, with 5 versions and role Z, filled with 1
+The Data Base contains 6 column(s) of 3 samples
+Column 0/6 : VD (Type: Double) {Role: x1}
+Column 1/6 : VI (Type: Id) {Role: NA}
+Column 2/6 : VS (Type: String) {Role: NA}
+Column 3/6 : VB (Type: Char) {Role: NA}
+Column 4/6 : VDS [5] (Type: Double) {Role: f1}
+Column 5/6 : VIS [5] (Type: Id) {Role: z1}
+
+Creating the Dictionary for the categorical variable
+====================================================
+Dictionary (3 categories):
+  1 : red
+  3 : blue
+  7 : green
+Creating the VectorCategory for the categorical variable
+The Data Base contains 7 column(s) of 3 samples
+Column 0/7 : VD (Type: Double) {Role: x1}
+Column 1/7 : VI (Type: Id) {Role: NA}
+Column 2/7 : VS (Type: String) {Role: NA}
+Column 3/7 : VB (Type: Char) {Role: NA}
+Column 4/7 : VDS [5] (Type: Double) {Role: f1}
+Column 5/7 : VIS [5] (Type: Id) {Role: z1}
+Column 6/7 : VC (Type: Category) {Role: NA}
+
+Saving and recovering a DbData from a Neutral File
+--------------------------------------------------
+Before Saving in a Neutral File
+The Data Base contains 7 column(s) of 3 samples
+Column 0/7 : VD (Type: Double) {Role: x1}
+Column 1/7 : VI (Type: Id) {Role: NA}
+Column 2/7 : VS (Type: String) {Role: NA}
+Column 3/7 : VB (Type: Char) {Role: NA}
+Column 4/7 : VDS [5] (Type: Double) {Role: f1}
+Column 5/7 : VIS [5] (Type: Id) {Role: z1}
+Column 6/7 : VC (Type: Category) {Role: NA}
+VD:  [1. 2. 3.]
+VI:  [5 6 7]
+VS:  ('foo', 'bar', 'baz')
+VB:  [ True False  True]
+VDS:  [3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3.]
+VIS:  [1 1 1 1 1 1 1 1 1 1 1 1 1 1 1]
+VC:  [red blue green]
+VD:  [1. 2. 3.]
+VI:  [5 6 7]
+VS:  ('foo', 'bar', 'baz')
+VB:  [ True False  True]
+VDS:  [3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3. 3.]
+VIS:  [1 1 1 1 1 1 1 1 1 1 1 1 1 1 1]
+VC:  [red blue green]
+
+Checking the use of a Categorical Variable
+------------------------------------------
+VC:  [red red green]
 
 Various ways to specify a column (e.g. for retreiving its name):
 ================================================================
@@ -24,9 +72,9 @@ Various ways to specify a column (e.g. for retreiving its name):
 - by ColID: VI
 - by RoleID: VDS
 - by RoleID and Version: VDS
-- by Role: VS
-- by Role and Index: VS
-- by Role and Index and Version: VS
+- by Role: VIS
+- by Role and Index: VIS
+- by Role and Index and Version: VIS
 
 Checking the presence of the columns in the DbData:
 ===================================================
@@ -61,79 +109,91 @@ Contents of element # 2  for Column 2:  mystring
 Misuses of the DbData
 =====================
 - Initial situation
-The Data Base contains 5 column(s) of 3 samples
-Column 0/5 : VD (Type: Double) {Role: x1}
-Column 1/5 : VI (Type: Id) {Role: NA}
-Column 2/5 : VS (Type: String) {Role: z1}
-Column 3/5 : VB (Type: Char) {Role: NA}
-Column 4/5 : VDS [5] (Type: Double) {Role: f1}
+The Data Base contains 7 column(s) of 3 samples
+Column 0/7 : VD (Type: Double) {Role: x1}
+Column 1/7 : VI (Type: Id) {Role: NA}
+Column 2/7 : VS (Type: String) {Role: NA}
+Column 3/7 : VB (Type: Char) {Role: NA}
+Column 4/7 : VDS [5] (Type: Double) {Role: f1}
+Column 5/7 : VIS [5] (Type: Id) {Role: z1}
+Column 6/7 : VC (Type: Category) {Role: NA}
 Adding Column with existing name (VI) but different type (Double)
 Adding Column with existing Role (X) but non consecutive index (10)
 Adding a Column with an already existing Role (X) and existing Index (0)
 - Final situation
-The Data Base contains 8 column(s) of 3 samples
-Column 0/8 : VD (Type: Double) {Role: NA}
-Column 1/8 : VI (Type: Id) {Role: NA}
-Column 2/8 : VS (Type: String) {Role: z1}
-Column 3/8 : VB (Type: Char) {Role: NA}
-Column 4/8 : VDS [5] (Type: Double) {Role: f1}
-Column 5/8 : VI.1 (Type: Double) {Role: NA}
-Column 6/8 : VD.1 (Type: Double) {Role: x2}
-Column 7/8 : VD.2 (Type: Double) {Role: x1}
+The Data Base contains 10 column(s) of 3 samples
+Column 0/10 : VD (Type: Double) {Role: NA}
+Column 1/10 : VI (Type: Id) {Role: NA}
+Column 2/10 : VS (Type: String) {Role: NA}
+Column 3/10 : VB (Type: Char) {Role: NA}
+Column 4/10 : VDS [5] (Type: Double) {Role: f1}
+Column 5/10 : VIS [5] (Type: Id) {Role: z1}
+Column 6/10 : VC (Type: Category) {Role: NA}
+Column 7/10 : VI.1 (Type: Double) {Role: NA}
+Column 8/10 : VD.1 (Type: Double) {Role: x2}
+Column 9/10 : VD.2 (Type: Double) {Role: x1}
 
 Deleting a Column (VI.1)
 ========================
 - Initial situation
-The Data Base contains 8 column(s) of 3 samples
-Column 0/8 : VD (Type: Double) {Role: NA}
-Column 1/8 : VI (Type: Id) {Role: NA}
-Column 2/8 : VS (Type: String) {Role: z1}
-Column 3/8 : VB (Type: Char) {Role: NA}
-Column 4/8 : VDS [5] (Type: Double) {Role: f1}
-Column 5/8 : VI.1 (Type: Double) {Role: NA}
-Column 6/8 : VD.1 (Type: Double) {Role: x2}
-Column 7/8 : VD.2 (Type: Double) {Role: x1}
+The Data Base contains 10 column(s) of 3 samples
+Column 0/10 : VD (Type: Double) {Role: NA}
+Column 1/10 : VI (Type: Id) {Role: NA}
+Column 2/10 : VS (Type: String) {Role: NA}
+Column 3/10 : VB (Type: Char) {Role: NA}
+Column 4/10 : VDS [5] (Type: Double) {Role: f1}
+Column 5/10 : VIS [5] (Type: Id) {Role: z1}
+Column 6/10 : VC (Type: Category) {Role: NA}
+Column 7/10 : VI.1 (Type: Double) {Role: NA}
+Column 8/10 : VD.1 (Type: Double) {Role: x2}
+Column 9/10 : VD.2 (Type: Double) {Role: x1}
 - Final situation
-The Data Base contains 7 column(s) of 3 samples
-Column 0/7 : VD (Type: Double) {Role: NA}
-Column 1/7 : VI (Type: Id) {Role: NA}
-Column 2/7 : VS (Type: String) {Role: z1}
-Column 3/7 : VB (Type: Char) {Role: NA}
-Column 4/7 : VDS [5] (Type: Double) {Role: f1}
-Column 5/7 : VD.1 (Type: Double) {Role: x2}
-Column 6/7 : VD.2 (Type: Double) {Role: x1}
+The Data Base contains 9 column(s) of 3 samples
+Column 0/9 : VD (Type: Double) {Role: NA}
+Column 1/9 : VI (Type: Id) {Role: NA}
+Column 2/9 : VS (Type: String) {Role: NA}
+Column 3/9 : VB (Type: Char) {Role: NA}
+Column 4/9 : VDS [5] (Type: Double) {Role: f1}
+Column 5/9 : VIS [5] (Type: Id) {Role: z1}
+Column 6/9 : VC (Type: Category) {Role: NA}
+Column 7/9 : VD.1 (Type: Double) {Role: x2}
+Column 8/9 : VD.2 (Type: Double) {Role: x1}
 
 Testing the MultiVersion feature of the DbData
 ==============================================
 After adding the 'VDS' column (with 4 versions)
-The Data Base contains 8 column(s) of 3 samples
-Column 0/8 : VD (Type: Double) {Role: NA}
-Column 1/8 : VI (Type: Id) {Role: NA}
-Column 2/8 : VS (Type: String) {Role: z1}
-Column 3/8 : VB (Type: Char) {Role: NA}
-Column 4/8 : VDS [5] (Type: Double) {Role: f1}
-Column 5/8 : VD.1 (Type: Double) {Role: x2}
-Column 6/8 : VD.2 (Type: Double) {Role: x1}
-Column 7/8 : VDS.1 [4] (Type: Double) {Role: NA} [NA forbidden]
+The Data Base contains 10 column(s) of 3 samples
+Column 0/10 : VD (Type: Double) {Role: NA}
+Column 1/10 : VI (Type: Id) {Role: NA}
+Column 2/10 : VS (Type: String) {Role: NA}
+Column 3/10 : VB (Type: Char) {Role: NA}
+Column 4/10 : VDS [5] (Type: Double) {Role: f1}
+Column 5/10 : VIS [5] (Type: Id) {Role: z1}
+Column 6/10 : VC (Type: Category) {Role: NA}
+Column 7/10 : VD.1 (Type: Double) {Role: x2}
+Column 8/10 : VD.2 (Type: Double) {Role: x1}
+Column 9/10 : VDS.1 [4] (Type: Double) {Role: NA} [NA forbidden]
 
 Various inquiries on the DbData
 ===============================
-- Number of columns:  8
+- Number of columns:  10
 - Number of samples:  3
 - Number of Versions in column 'VDS.1':  4
 
 Erroneous operations on the DbData
 ==================================
 - Initial situation
-The Data Base contains 8 column(s) of 3 samples
-Column 0/8 : VD (Type: Double) {Role: NA}
-Column 1/8 : VI (Type: Id) {Role: NA}
-Column 2/8 : VS (Type: String) {Role: z1}
-Column 3/8 : VB (Type: Char) {Role: NA}
-Column 4/8 : VDS [5] (Type: Double) {Role: f1}
-Column 5/8 : VD.1 (Type: Double) {Role: x2}
-Column 6/8 : VD.2 (Type: Double) {Role: x1}
-Column 7/8 : VDS.1 [4] (Type: Double) {Role: NA} [NA forbidden]
+The Data Base contains 10 column(s) of 3 samples
+Column 0/10 : VD (Type: Double) {Role: NA}
+Column 1/10 : VI (Type: Id) {Role: NA}
+Column 2/10 : VS (Type: String) {Role: NA}
+Column 3/10 : VB (Type: Char) {Role: NA}
+Column 4/10 : VDS [5] (Type: Double) {Role: f1}
+Column 5/10 : VIS [5] (Type: Id) {Role: z1}
+Column 6/10 : VC (Type: Category) {Role: NA}
+Column 7/10 : VD.1 (Type: Double) {Role: x2}
+Column 8/10 : VD.2 (Type: Double) {Role: x1}
+Column 9/10 : VDS.1 [4] (Type: Double) {Role: NA} [NA forbidden]
 
 Trying to delete a non existing column (VI.22)
 Column 'VI.22' does not exist.
@@ -154,12 +214,14 @@ Version 5 is invalid for Column 'VDS' which contains 5 version(s).
 Trying to set a value to NA in Column 'VDS.1' (forbidNA = True)
 Cannot set NA to sample 0 of Column 'VDS.1': NA values are forbidden.
 - Final situation
-The Data Base contains 8 column(s) of 3 samples
-Column 0/8 : VD (Type: Double) {Role: NA}
-Column 1/8 : VI (Type: Id) {Role: NA}
-Column 2/8 : VS (Type: String) {Role: z1}
-Column 3/8 : VB (Type: Char) {Role: NA}
-Column 4/8 : VDS [5] (Type: Double) {Role: f1}
-Column 5/8 : VD.1 (Type: Double) {Role: x2}
-Column 6/8 : VD.2 (Type: Double) {Role: x1}
-Column 7/8 : VDS.1 [4] (Type: Double) {Role: NA} [NA forbidden]
+The Data Base contains 10 column(s) of 3 samples
+Column 0/10 : VD (Type: Double) {Role: NA}
+Column 1/10 : VI (Type: Id) {Role: NA}
+Column 2/10 : VS (Type: String) {Role: NA}
+Column 3/10 : VB (Type: Char) {Role: NA}
+Column 4/10 : VDS [5] (Type: Double) {Role: f1}
+Column 5/10 : VIS [5] (Type: Id) {Role: z1}
+Column 6/10 : VC (Type: Category) {Role: NA}
+Column 7/10 : VD.1 (Type: Double) {Role: x2}
+Column 8/10 : VD.2 (Type: Double) {Role: x1}
+Column 9/10 : VDS.1 [4] (Type: Double) {Role: NA} [NA forbidden]

@@ -75,6 +75,9 @@ jobs:
           -DBUILD_R=ON \
           -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig
       env:
+        # Next line is meant to let ALL the warnings to be trapped before job stops
+        # This option must be improved and has been commented out for the time being.
+        # CXXFLAGS: -Wno-error=unused-but-set-global
         CC: ${{env.LLVM_ROOT}}/opt/llvm/bin/clang
         CXX: ${{env.LLVM_ROOT}}/opt/llvm/bin/clang++
         SCCACHE_GHA_ENABLED: "true"

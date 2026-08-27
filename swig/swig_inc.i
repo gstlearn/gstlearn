@@ -318,8 +318,9 @@
   #include "DataBase/RoleID.hpp"
   #include "DataBase/DbCol.hpp"
   #include "DataBase/DbData.hpp"
-  //#include "DataBase/Dictionary.hpp"
-  //#include "DataBase/VectorCategory.hpp"
+  #include "DataBase/Category.hpp"
+  #include "DataBase/Dictionary.hpp"
+  #include "DataBase/VectorCategory.hpp"
 
   #include "Anamorphosis/CalcAnamTransform.hpp"
   #include "Anamorphosis/AAnam.hpp"
@@ -1397,11 +1398,11 @@ bool getValueB(ColID&& colid, Id isample, bool def = false)
   return $self->getValue<bool>(std::move(colid), isample).value_or(def);
 }
 
-//Dictionary::Category getValueC(ColID&& colid, Id isample,
-//          const Dictionary::Category& def = Dictionary::Category())
-//{
-//    return $self->getValue<Dictionary::Category>(std::move(colid), isample).value_or(def);
-//}
+Category getValueC(ColID&& colid, Id isample,
+          const Category& def = Category())
+{
+    return $self->getValue<Category>(std::move(colid), isample).value_or(def);
+}
 
 //----> In DbData: setValue()
 
@@ -1435,10 +1436,10 @@ void setValueB(ColID&& colid, Id isample, bool value)
   $self->setValue<bool>(std::move(colid), isample, value);
 }
 
-//void setValueC(ColID&& colid, Id isample, const Dictionary::Category& value)
-//{
-//    $self->setValue<Dictionary::Category>(std::move(colid), isample, value);
-//}
+void setValueC(ColID&& colid, Id isample, const Category& value)
+{
+    $self->setValue<Category>(std::move(colid), isample, value);
+}
 
 //----> In DbData: getColumn()
 
@@ -1472,10 +1473,10 @@ VectorBool getColumnB(ColID&& colid)
   return $self->getColumn<VectorBool>(std::move(colid));
 }
 
-//VectorCategory getColumnC(ColID&& colid)
-//{
-//  return $self->getColumn<VectorCategory>(std::move(colid));
-//}
+VectorCategory getColumnC(ColID&& colid)
+{
+  return $self->getColumn<VectorCategory>(std::move(colid));
+}
 
 }
 

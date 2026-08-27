@@ -46,10 +46,21 @@ namespace gstlrn {
     int myres = SWIG_TypeError;
     if (Rf_length(obj) > 0) // Prevent NULL value from becoming NA
     {
-      myres = SWIG_AsVal_long_SS_long(obj, &value);
-      //std::cout << "convertToCpp(int): value=" << value << std::endl;
-      if (SWIG_IsOK(myres) && value == R_NaInt) // NA, NaN, Inf or out of bounds value becomes NA
-        value = getNA<Id>();
+      if (TYPEOF(obj) == REALSXP)
+      {
+        double dval = REAL(obj)[0];
+        if (!R_finite(dval))
+          value = getNA<Id>();
+        else
+          value = static_cast<Id>(dval);
+        myres = SWIG_OK;
+      }
+      else
+      {
+        myres = SWIG_AsVal_long_SS_long(obj, &value);
+        if (SWIG_IsOK(myres) && value == R_NaInt) // NA, NaN, Inf or out of bounds value becomes NA
+          value = getNA<Id>();
+      }
     }
     return myres;
   }
@@ -693,6 +704,8 @@ setMethod(f = "show", signature = "_p_gstlrn__VectorNumTT_VectorNumTT_long_long_
 setMethod(f = "show", signature = "_p_gstlrn__VectorNumTT_VectorNumTT_double_t_t", definition = function(object){ VectorVectorDouble_display(object) })
 
 setMethod(f = "show", signature = "_p_gstlrn__VectorNumTT_VectorNumTT_float_t_t",  definition = function(object){ VectorVectorFloat_display(object) })
+
+setMethod(f = "as.character", signature = "_p_gstlrn__VectorCategory",             definition = function(x, ...) { x$toString() })
 
 ##
 ## Add function for fixing inheritance issue (known caveat):

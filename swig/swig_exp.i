@@ -336,15 +336,16 @@ typedef std::string String;  // Add to allow aliasing String and std::string
 %include API/SPDEParam.hpp
 %include API/Potential.hpp
 
-// Define types
+// 2. Define types
 %include "DataBase/RoleID.hpp"
 %include "DataBase/ColID.hpp"
 
 // Load the headers that use ColID
 %include "DataBase/DbData.hpp"
 %include "DataBase/DbCol.hpp"
-//%include DataBase/Dictionary.hpp
-//%include DataBase/VectorCategory.hpp
+%include "DataBase/Category.hpp"
+%include "DataBase/Dictionary.hpp"
+%include "DataBase/VectorCategory.hpp"
 
 %include Db/Db.hpp
 %include Db/DbGrid.hpp
@@ -488,7 +489,7 @@ typedef std::string String;  // Add to allow aliasing String and std::string
 %template(addColumnEmptyU)  gstlrn::DbData::addColumnEmpty<VectorUChar>;
 %template(addColumnEmptyS)  gstlrn::DbData::addColumnEmpty<VectorString>;
 %template(addColumnEmptyB)  gstlrn::DbData::addColumnEmpty<VectorBool>;
-//%template(addColumnEmptyC)  gstlrn::DbData::addColumnEmpty<VectorCategory>;
+%template(addColumnEmptyC)  gstlrn::DbData::addColumnEmpty<VectorCategory>;
 
 %template(addColumnD)  gstlrn::DbData::addColumn<VectorDouble>;
 %template(addColumnF)  gstlrn::DbData::addColumn<VectorFloat>;
@@ -496,4 +497,4 @@ typedef std::string String;  // Add to allow aliasing String and std::string
 %template(addColumnU)  gstlrn::DbData::addColumn<VectorUChar>;
 %template(addColumnS)  gstlrn::DbData::addColumn<VectorString>;
 %template(addColumnB)  gstlrn::DbData::addColumn<VectorBool>;
-//%template(addColumnC)  gstlrn::DbData::addColumn<VectorCategory>;
+%template(addColumnC)  gstlrn::DbData::addColumn<VectorCategory>;

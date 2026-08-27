@@ -14,21 +14,79 @@ data.printContents("Checking that the DbData is empty")
 
 gl.mestitle(0, "Adding Columns of various types")
 
-print("- Column 0 of type Double with role X, filled with [1.0, 2.0, 3.0]")
+print("- Column VD of type Double with role X, filled with [1.0, 2.0, 3.0]")
 data.addColumnD("VD", [1.0, 2.0, 3.0], gl.RoleID(gl.ERole.X))
 
-print("- Column 1 of type Int, filled with [5, 6, 7]")
+print("- Column VI of type Int, filled with [5, 6, 7]")
 data.addColumnI("VI", [5, 6, 7], gl.RoleID(gl.ERole.Z))
 
-print("- Column 2 of type String, filled with ['foo', 'bar', 'baz']")
+print("- Column VS of type String, filled with ['foo', 'bar', 'baz']")
 data.addColumnS("VS", ["foo", "bar", "baz"], gl.RoleID(gl.ERole.Z))
 
-print("- Column 3 of type Bool, filled with [True, False, True]")
+print("- Column VB of type Bool, filled with [True, False, True]")
 data.addColumnB("VB", [True, False, True])
 
-print("- Column 4 of type Double, with 5 versions and role F, filled with 3.0")
+print("- Column VDS of type Double, with 5 versions and role F, filled with 3.0")
 data.addColumnEmptyD("VDS", 0, 5, gl.RoleID(gl.ERole.F), 3.0)
+
+print("- Column VIS of type Int, with 5 versions and role Z, filled with 1")
+data.addColumnEmptyI("VIS", 0, 5, gl.RoleID(gl.ERole.Z), 1)
 data.printContents()
+
+############################################
+# Special section for Categorical variable #
+
+gl.mestitle(0, "Creating the Dictionary for the categorical variable")
+dictionary = gl.Dictionary()
+keys = [1, 3, 7]
+labels = ["red", "blue", "green"]
+for i in range(len(keys)):
+    dictionary.addCategory(list(keys)[i], list(labels)[i])
+ncategory = dictionary.getNCategories()
+dictionary.display()
+print("Creating the VectorCategory for the categorical variable")
+vc = gl.VectorCategory(3, dictionary)
+for i in range(3):
+    j = i % ncategory
+    vc.setCategory(i, keys[j])
+
+data.addColumnC("VC", vc)
+data.printContents()
+
+##############################
+# Checking the Neutral Files #
+
+gl.mestitle(1, "Saving and recovering a DbData from a Neutral File")
+data.printContents("Before Saving in a Neutral File")
+print("VD: ", data.getColumnD("VD"))
+print("VI: ", data.getColumnI("VI"))
+print("VS: ", data.getColumnS("VS"))
+print("VB: ", data.getColumnB("VB"))
+print("VDS: ", data.getColumnD("VDS"))
+print("VIS: ", data.getColumnI("VIS"))
+print("VC: ", data.getColumnC("VC"))
+data.dumpToNF("test_DataBase.NF")
+vc2 = data.getColumnC("VC")
+
+data2 = gl.DbData.createFromNF("test_DataBase.NF", True)
+print("VD: ", data2.getColumnD("VD"))
+print("VI: ", data2.getColumnI("VI"))
+print("VS: ", data2.getColumnS("VS"))
+print("VB: ", data2.getColumnB("VB"))
+print("VDS: ", data2.getColumnD("VDS"))
+print("VIS: ", data2.getColumnI("VIS"))
+print("VC: ", data2.getColumnC("VC"))
+data2.dumpToNF("test_DataBase.NF")
+
+########################################################
+# Particular test for the case of Categorical variable #
+gl.mestitle(1, "Checking the use of a Categorical Variable")
+# Reading the category of the first sample and store it in 'cat'
+cat = data.getValueC("VC", 0)
+# Setting the category 'cat' to the second sample
+data.setValueC("VC", 1, cat)
+# Cheking the result on the dump of the whole vector
+print("VC: ", data.getColumnC("VC"))
 
 ####################################################################
 # In this part, we check the different ways to construct the ColID #

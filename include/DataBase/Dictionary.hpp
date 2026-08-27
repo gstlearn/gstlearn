@@ -10,14 +10,15 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
-
+#include "Basic/ASerializable.hpp"
+#include "Basic/AStringable.hpp"
+#include "DataBase/Category.hpp"
 #include "geoslib_define.h"
+#include "gstlearn_export.hpp"
 
 #include <map>
 #include <optional>
-#include <string_view>
-#include <utility>
+#include <vector>
 
 namespace gstlrn
 {
@@ -26,22 +27,10 @@ namespace gstlrn
    *
    * A dictionary stores a set of categories identified by an integer key.
    * Each category is associated with a textual label.
-   *
-   * The category is represented by the @c Category type, which is a pair
-   * containing the category identifier and its label.
    */
-  class Dictionary
-  // class GSTLEARN_EXPORT Dictionary
+  class GSTLEARN_EXPORT Dictionary: public ASerializable, public AStringable
   {
   public:
-    /**
-     * @brief Category identifier and label.
-     *
-     * The first element is the category identifier and the second element
-     * is its associated label.
-     */
-    using Category = std::pair<Id, std::string_view>;
-
     Dictionary() = default;
 
     /**
@@ -56,9 +45,25 @@ namespace gstlrn
     {
     }
 
+    /// AStringable Interface
+    String toString(const AStringFormat* strfmt = nullptr) const override;
+
+    /// ASerializable interface
+    String getNFName() const override { return "Dictionary"; }
+#ifdef HDF5
+    bool deserializeH5(H5::Group& grp) override;
+    bool serializeH5(H5::Group& grp) const override;
+#endif
+
     bool addCategory(const Id key, const String& val);
 
     bool hasCategory(const Category& cat) const;
+
+    std::optional<Category> getCategory(const Id key) const;
+
+    std::vector<Category> getCategories() const;
+
+    Id getNCategories() const { return static_cast<Id>(this->_data.size()); }
 
 #ifndef SWIG
     /**
@@ -71,11 +76,13 @@ namespace gstlrn
      */
     std::optional<Category> operator[](const Id key) const
     {
-      const auto it = this->_data.find(key);
-      if (it == this->_data.end()) return {};
-      return *it;
+      return getCategory(key);
     }
 #endif
+
+    static Id getCategoryKey(const Category& cat) { return cat.getId(); }
+
+    static String getCategoryName(const Category& cat) { return cat.getName(); }
 
   private:
     std::map<Id, String> _data;
