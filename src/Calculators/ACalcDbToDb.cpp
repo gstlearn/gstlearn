@@ -272,6 +272,7 @@ namespace gstlrn
     bool flagSetLocator,
     Id locatorShift)
   {
+    if (iptr < 0) return;
     auto nameloc = names;
     if (nameloc.empty() && _dbin != nullptr)
       nameloc = _dbin->getNamesByLocator(locatorType);
@@ -310,7 +311,8 @@ namespace gstlrn
       // In 'dbin'
       if (!_listVariableTempDbIn.empty())
       {
-        for (Id i = 0; i < static_cast<Id>(_listVariableTempDbIn.size()); i++)
+        for (Id i = 0, n = static_cast<Id>(_listVariableTempDbIn.size()); i < n;
+             i++)
           _dbin->deleteColumnByUID(_listVariableTempDbIn[i]);
       }
       _listVariableTempDbIn.clear();
@@ -318,7 +320,8 @@ namespace gstlrn
       // In 'dbout'
       if (!_listVariableTempDbOut.empty())
       {
-        for (Id i = 0; i < static_cast<Id>(_listVariableTempDbOut.size()); i++)
+        for (Id i = 0, n = static_cast<Id>(_listVariableTempDbOut.size());
+             i < n; i++)
           _dbout->deleteColumnByUID(_listVariableTempDbOut[i]);
       }
       _listVariableTempDbOut.clear();

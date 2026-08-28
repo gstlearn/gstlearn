@@ -92,7 +92,7 @@ int main(int argc, char* argv[])
       auto name = NC::getNameEncoded("SimuTB", nullptr, ivar + 1, nvar, -1);
       grid->getCorrelationAsTable({name}).display();
     }
-    grid->setLocators({"SimuTB"}, ELoc::Z, 0, true);
+    grid->setLocators({"SimuTB*"}, ELoc::Z, 0, true);
     auto* varioTB = varioGridCalculate(grid);
     (void)varioTB->dumpToNF("Vario_TB");
   }
@@ -110,7 +110,7 @@ int main(int argc, char* argv[])
       auto name = NC::getNameEncoded("SimuSPT", nullptr, ivar + 1, nvar, -1);
       grid->getCorrelationAsTable({name}).display();
     }
-    grid->setLocators({"SimuSPT"}, ELoc::Z, 0, true);
+    grid->setLocators({"SimuSPT*"}, ELoc::Z, 0, true);
     auto* varioSPT = varioGridCalculate(grid);
     (void)varioSPT->dumpToNF("Vario_SPT");
   }
@@ -129,7 +129,7 @@ int main(int argc, char* argv[])
       auto name = NC::getNameEncoded("SimuFFT", nullptr, ivar + 1, nvar, -1);
       grid->getCorrelationAsTable({name}).display();
     }
-    grid->setLocators({"SimuFFT"}, ELoc::Z, 0, true);
+    grid->setLocators({"SimuFFT*"}, ELoc::Z, 0, true);
     auto* varioFFT = varioGridCalculate(grid);
     (void)varioFFT->dumpToNF("Vario_FFT");
   }

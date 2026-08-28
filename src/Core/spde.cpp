@@ -5682,7 +5682,9 @@ namespace gstlrn
       st_m2d_drift_save(m2denv, dbout, nlayer, gwork.data());
       for (Id ilayer = 0; ilayer < nlayer; ilayer++)
       {
-        dbout->setColumnByUIDOldStyle(&GWORK(ilayer, 0), iatt_out + ilayer);
+        auto start = gwork.begin() + ilayer * ngrid;
+        VectorDouble gworkLocal(start, start + ngrid);
+        dbout->setColumnByUID(gworkLocal, iatt_out + ilayer);
         (void)gslSPrintf(string_encode, "Drift%d", ilayer + 1);
         dbout->setNameByUID(iatt_out + ilayer, string_encode);
       }
@@ -5838,8 +5840,9 @@ namespace gstlrn
         st_m2d_stats_gaus("Depth on grid", nlayer, ngrid, gwork.data());
         for (Id ilayer = 0; ilayer < nlayer; ilayer++)
         {
-          dbout->setColumnByUIDOldStyle(
-            &GWORK(ilayer, 0), iatt_out + isimu * nlayer + ilayer);
+          auto start = gwork.begin() + ilayer * ngrid;
+          VectorDouble gworkLocal(start, start + ngrid);
+          dbout->setColumnByUID(gworkLocal, iatt_out + isimu * nlayer + ilayer);
         }
       }
 

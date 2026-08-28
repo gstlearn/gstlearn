@@ -108,7 +108,6 @@ namespace gstlrn
 
     template<typename VectorType>
     bool setVersion(ColID&& colid, const VectorType& values, Id iversion = 0);
-
 #endif
 
 #ifndef SWIG
@@ -118,7 +117,6 @@ namespace gstlrn
     ColProxy F(Id rank = 0);
     ColProxy SEL(Id rank = 0);
     ColProxy role(const ERole& role, Id rank = 0);
-
 #endif
 
     bool renameColumn(ColID&& colid, const String& newName);
@@ -159,6 +157,8 @@ namespace gstlrn
 
     String summaryRoles(void) const;
 
+    bool isValidColumn(Id icol) const;
+
   private:
     std::optional<std::reference_wrapper<DbCol>> _identifyColumn(ColID&& colid);
     std::optional<std::reference_wrapper<const DbCol>>
@@ -192,6 +192,7 @@ namespace gstlrn
     std::vector<DbCol> _cols;
     std::vector<RoleID> _roleIDs;
     Id _uniqueIndexCounter = 0;
+    mutable Id _lastColumnIndex = 0; // Optimize the search by UID
   };
 
   /***************************************************************************/
