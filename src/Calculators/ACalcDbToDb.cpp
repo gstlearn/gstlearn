@@ -274,6 +274,7 @@ namespace gstlrn
     bool flagSetLocator,
     Id locatorShift)
   {
+    if (iptr < 0) return;
     auto nameloc = names;
     if (nameloc.empty() && _dbin != nullptr)
       nameloc = _dbin->getNamesByLocator(locatorType);

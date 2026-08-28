@@ -10,15 +10,12 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
-
-#include "geoslib_define.h"
-
-#include "Enum/EAnam.hpp"
-
 #include "Basic/ASerializable.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Basic/NamingConvention.hpp"
+#include "Enum/EAnam.hpp"
+#include "geoslib_define.h"
+#include "gstlearn_export.hpp"
 
 namespace gstlrn
 {

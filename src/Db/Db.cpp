@@ -236,16 +236,7 @@ namespace gstlrn
    */
   bool Db::isUIDValid(Id iuid) const
   {
-    Id icol = _data.getColMatchUniqueIndex(iuid);
-    return icol >= 0;
-  }
-
-  /**
-   * Check if the argument 'icol' is a valid Column rank (0-based)
-   */
-  bool Db::isColIdxValid(Id icol) const
-  {
-    return checkArg("Column Index", icol, getNColumn());
+    return _data.getColMatchUniqueIndex(iuid) >= 0;
   }
 
   /**
@@ -343,63 +334,31 @@ namespace gstlrn
   }
 
   /**
-   * Find the locator characteristics of a given Column
-   * @param icol       Index of the target column
-   * @param ret_locatorType Locator type
+   * Returns the locator characteristics of a given ColID
+   * @param colID            ColID structure
+   * @param ret_locatorType  Locator type
    * @param ret_locatorIndex Locator index (starting from 0)
-   * @param ret_mult   Resulting Locator multiplicity (1: unique; 0: multiple)
-   * @return true if the target variable has a locator assigned and false otherwise
+   * @param ret_multiplicity Resulting Locator multiplicity (1: unique; 0: multiple)
+   *
+   * @return True if the input ColID is valid; Flase otherwise
    */
-  bool Db::getLocatorByColIdx(
-    Id icol,
+  bool Db::_getLocatorIdentify(
+    const ColID& colID,
     ELoc* ret_locatorType,
     Id* ret_locatorIndex,
-    Id* ret_mult) const
+    Id* ret_multiplicity)
   {
-    auto colID = _data.getColID(icol);
     if (colID.hasRoleDefined())
     {
       *ret_locatorType = temporaryToLocator(colID.getRole());
       *ret_locatorIndex = colID.getIndex();
-      *ret_mult = colID.getRoleID().isUnique();
+      *ret_multiplicity = colID.getRoleID().isUnique();
       return true;
     }
     *ret_locatorType = ELoc::UNDEFINED;
     *ret_locatorIndex = -1;
-    *ret_mult = 0;
+    *ret_multiplicity = 0;
     return false;
-  }
-
-  bool Db::getLocatorByUID(
-    Id iuid,
-    ELoc* ret_locatorType,
-    Id* ret_locatorIndex,
-    Id* ret_mult) const
-  {
-    auto icol = getColIdxByUID(iuid);
-    if (icol < 0) return false;
-    return getLocatorByColIdx(
-      icol, ret_locatorType, ret_locatorIndex, ret_mult);
-  }
-
-  /**
-   * Return the locator information corresponding to the input variable
-   * @param name Input variable name (unique)
-   * @param ret_locatorType Locator Type
-   * @param ret_locatorIndex Locator Index (starting from 0)
-   * @param ret_mult   Resulting Locator multiplicity (1: unique; 0: multiple)
-   * @return
-   */
-  bool Db::getLocator(
-    const String& name,
-    ELoc* ret_locatorType,
-    Id* ret_locatorIndex,
-    Id* ret_mult) const
-  {
-    VectorInt iuids = _ids(name, true);
-    if (iuids.empty()) return false;
-    return getLocatorByUID(
-      iuids[0], ret_locatorType, ret_locatorIndex, ret_mult);
   }
 
   /**
@@ -420,8 +379,9 @@ namespace gstlrn
     if (icol < 0) return false;
     ELoc ret_locatorType;
     Id ret_locatorIndex;
-    Id ret_mult;
-    getLocatorByColIdx(icol, &ret_locatorType, &ret_locatorIndex, &ret_mult);
+    Id ret_multiplicity;
+    getLocatorByColIdx(
+      icol, &ret_locatorType, &ret_locatorIndex, &ret_multiplicity);
     if (ret_locatorType != locatorType) return false;
     if (locatorIndex >= 0 && ret_locatorIndex != locatorIndex) return false;
     return true;
@@ -460,32 +420,29 @@ namespace gstlrn
   VectorInt Db::_ids(const String& name, bool flagOne, bool verbose) const
   {
     VectorString exp_names = expandNameList(name);
-    VectorInt iuids = _getUIDsBasic(exp_names);
-    if (!_isCountValid(iuids, flagOne, verbose)) return VectorInt();
-    return iuids;
+    if (!_isCountValid(exp_names, flagOne, verbose)) return VectorInt();
+    return _getUIDsBasic(exp_names);
   }
 
   VectorInt
     Db::_ids(const VectorString& names, bool flagOne, bool verbose) const
   {
     VectorString exp_names = expandNameList(names);
-    VectorInt iuids = _getUIDsBasic(exp_names);
-    if (!_isCountValid(iuids, flagOne, verbose)) return VectorInt();
-    return iuids;
+    if (!_isCountValid(exp_names, flagOne, verbose)) return VectorInt();
+    return _getUIDsBasic(exp_names);
   }
 
   VectorInt Db::_ids(const ELoc& locatorType, bool flagOne, bool verbose) const
   {
     VectorString exp_names = getNamesByLocator(locatorType);
-    VectorInt iuids = _getUIDsBasic(exp_names);
-    if (!_isCountValid(iuids, flagOne, verbose)) return VectorInt();
-    return iuids;
+    if (!_isCountValid(exp_names, flagOne, verbose)) return VectorInt();
+    return _getUIDsBasic(exp_names);
   }
 
   VectorInt Db::_ids(const VectorInt& iuids, bool flagOne, bool verbose) const
   {
     VectorString exp_names = getNamesByUID(iuids);
-    if (!_isCountValid(iuids, flagOne, verbose)) return VectorInt();
+    if (!_isCountValid(exp_names, flagOne, verbose)) return VectorInt();
     return iuids;
   }
 
@@ -503,7 +460,7 @@ namespace gstlrn
 
     /* Main array */
 
-    if (nech * ncol > 0)
+    if (nech > 0 && ncol > 0)
     {
       auto colNames = generateMultipleNames(UIDString, ncol);
       for (Id i = 0; i < ncol; ++i)
@@ -635,93 +592,52 @@ namespace gstlrn
     Db::getArrayVec(const VectorInt& iechs, Id iuid, VectorDouble& values) const
   {
     auto icol = getColIdxByUID(iuid);
-    if (!isColIdxValid(icol)) return;
-    for (Id i = 0, n = static_cast<Id>(iechs.size()); i < n; i++)
-    {
-      values[i] = *_data.getValue<double>(icol, iechs[i]);
-    }
-  }
+    if (icol < 0) return;
 
-  VectorDouble Db::getArrayByUID(Id iuid, bool useSel) const
-  {
-    auto nech = getNSample();
-    VectorDouble sel, tab;
-    if (!isUIDValid(iuid)) return tab;
-
-    tab.resize(nech);
-    if (useSel) sel = getSelections();
-
-    Id ecr = 0;
-    for (Id iech = 0; iech < nech; iech++)
-    {
-      if (useSel && !sel.empty() && isZero(sel[iech])) continue;
-      tab[ecr] = getArray(iech, iuid);
-      ecr++;
-    }
-    tab.resize(ecr);
-    return tab;
-  }
-
-  void Db::setArrayByUID(const VectorDouble& tab, Id iuid)
-  {
-    auto nech = getNSample();
-    if (!isUIDValid(iuid)) return;
-
-    Id ecr = 0;
-    for (Id iech = 0; iech < nech; iech++)
-    {
-      setArray(iech, iuid, tab[ecr]);
-      ecr++;
-    }
+    Id nech = static_cast<Id>(iechs.size());
+    if (static_cast<Id>(values.size()) != nech) values.resize(nech);
+    for (Id i = 0; i < nech; i++)
+      values[i] =
+        _data.getValue<double>(icol, iechs[i]).value_or(getNA<double>());
   }
 
   void Db::getArrayBySample(VectorDouble& vals, Id iech) const
   {
     VectorInt uids = getUIDsDefined();
-    vals.resize(uids.size());
-    for (Id iuid = 0; iuid < static_cast<Id>(uids.size()); iuid++)
+    auto nuid = static_cast<Id>(uids.size());
+    vals.resize(nuid);
+    for (Id iuid = 0; iuid < nuid; iuid++)
       vals[iuid] = getArray(iech, uids[iuid]);
   }
 
   void Db::setArrayBySample(Id iech, const VectorDouble& vec)
   {
     VectorInt uids = getUIDsDefined();
-    if (static_cast<Id>(uids.size()) != static_cast<Id>(vec.size()))
+    auto nuid = static_cast<Id>(uids.size());
+    if (nuid != static_cast<Id>(vec.size()))
     {
       messerr(
         "Dimension of 'vec'(%d) does not match number of columns(%)",
         static_cast<Id>(vec.size()), static_cast<Id>(uids.size()));
       return;
     }
-    for (Id iuid = 0; iuid < static_cast<Id>(uids.size()); iuid++)
+    for (Id iuid = 0; iuid < nuid; iuid++)
       setArray(iech, uids[iuid], vec[iuid]);
-  }
-
-  void Db::updArray(Id iech, Id iuid, const EOperator& oper, double value)
-  {
-    if (!isSampleIndexValid(iech)) return;
-
-    auto icol = getColIdxByUID(iuid);
-    if (!isColIdxValid(icol)) return;
-
-    double oldval = *_data.getValue<double>(icol, iech);
-    double newval = modifyOperator(oper, oldval, value);
-    _data.setValue(icol, iech, newval);
   }
 
   void Db::updArrayVec(
     const VectorInt& iechs,
     Id iuid,
     const EOperator& oper,
-    VectorDouble& values)
+    const VectorDouble& values)
   {
     auto icol = getColIdxByUID(iuid);
-    if (!isColIdxValid(icol)) return;
+    if (icol < 0) return;
 
     for (Id i = 0, n = static_cast<Id>(iechs.size()); i < n; i++)
     {
-      double oldval = *_data.getValue<double>(icol, iechs[i]);
-      double newval = modifyOperator(oper, oldval, values[i]);
+      const double oldval = *_data.getValue<double>(icol, iechs[i]);
+      const double newval = modifyOperator(oper, oldval, values[i]);
       _data.setValue(icol, iechs[i], newval);
     }
   }
@@ -791,7 +707,8 @@ namespace gstlrn
     if (static_cast<Id>(jechs.size()) != number)
     {
       messerr(
-        "Arguments 'iechs'(%d) and 'jechs'(%d) should share the same dimension",
+        "Arguments 'iechs'(%d) and 'jechs'(%d) should share the same "
+        "dimension",
         static_cast<Id>(iechs.size()), static_cast<Id>(jechs.size()));
       return tab;
     }
@@ -827,7 +744,7 @@ namespace gstlrn
     // Load the code (optional)
     if (P.checkCode())
     {
-      if (hasLocVariable(ELoc::C))
+      if (hasLocator(ELoc::C))
       {
         P.setCode(getLocVariable(ELoc::C, iech, 0));
       }
@@ -836,7 +753,7 @@ namespace gstlrn
     // Load the Date (optional)
     if (P.checkDate())
     {
-      if (hasLocVariable(ELoc::DATE))
+      if (hasLocator(ELoc::DATE))
       {
         P.setCode(getLocVariable(ELoc::DATE, iech, 0));
       }
@@ -896,7 +813,7 @@ namespace gstlrn
     if (number <= 0) return vec;
     vec.resize(number);
     for (Id i = 0; i < number; i++)
-      vec[i] = getFromLocator(locatorType, iech, i);
+      vec[i] = getLocVariable(locatorType, iech, i);
     return vec;
   }
 
@@ -911,7 +828,7 @@ namespace gstlrn
   {
     DECLARE_UNUSED(flag_rotate);
     if (idim >= getNDim()) return TEST;
-    return getFromLocator(ELoc::X, iech, idim);
+    return getLocVariable(ELoc::X, iech, idim);
   }
 
   /**
@@ -1063,16 +980,15 @@ namespace gstlrn
 
   void Db::setCoordinate(Id iech, Id idim, double value)
   {
-    if (!isSampleIndexValid(iech)) return;
     auto icol = getColIdxByLocator(ELoc::X, idim);
-    if (!isColIdxValid(icol)) return;
-    _data.setValue(icol, iech, value);
+    if (icol < 0) return;
+    _data.setValue<double>(icol, iech, value);
   }
 
   void Db::setCoordinates(Id idim, const VectorDouble& coor, bool useSel)
   {
     auto icol = getColIdxByLocator(ELoc::X, idim);
-    if (!isColIdxValid(icol)) return;
+    if (icol < 0) return;
     setColumnByColIdx(coor, icol, useSel);
   }
 
@@ -1123,12 +1039,6 @@ namespace gstlrn
     return _data.getColumn<VectorDouble>(icol).data();
   }
 
-  bool Db::hasLocator(const ELoc& locatorType) const
-  {
-    auto nrole = _data.getNRoles(temporaryToRole(locatorType));
-    return nrole > 0;
-  }
-
   void Db::_clear(void)
   {
     _data.removeAllRoles();
@@ -1158,101 +1068,11 @@ namespace gstlrn
   {
     auto number = getNLoc(locatorType);
     messerr(
-      "Db::_getNextLocator: Selecting next locator for %s: %d (will be removed "
+      "Db::_getNextLocator: Selecting next locator for %s: %d (will be "
+      "removed "
       "soon!)",
       std::string(locatorType.getKey()).c_str(), number);
     return number;
-  }
-
-  /**
-   * Setting the locator for a set of variables designated by their names
-   * @param names        Vector of variable names
-   * @param locatorType  Locator type
-   * @param locatorIndex Starting locator rank (starting from 0)
-   * @param cleanSameLocator When TRUE, clean variables with same locator beforehand
-   *
-   */
-  void Db::setLocators(
-    const VectorString& names,
-    const ELoc& locatorType,
-    Id locatorIndex,
-    bool cleanSameLocator)
-  {
-    VectorInt iuids = _ids(names, false);
-    if (iuids.empty()) return;
-
-    if (cleanSameLocator) clearLocators(locatorType);
-
-    if (locatorIndex < 0) locatorIndex = _getNextLocator(locatorType);
-
-    for (Id i = 0; i < static_cast<Id>(iuids.size()); i++)
-      setLocatorByUID(iuids[i], locatorType, locatorIndex + i);
-  }
-
-  /**
-   * Define the Locator(s) for the given variable(s)
-   * @param name Variable name
-   * @param locatorType Locator Type
-   * @param locatorIndex Locator Index (for the first variable) (starting from 0)
-   * @param cleanSameLocator When TRUE, clean variables with same locator beforehand
-   */
-  void Db::setLocator(
-    const String& name,
-    const ELoc& locatorType,
-    Id locatorIndex,
-    bool cleanSameLocator)
-  {
-    VectorInt iuids = _ids(name, false);
-    if (iuids.empty()) return;
-
-    if (cleanSameLocator) clearLocators(locatorType);
-
-    if (locatorIndex < 0) locatorIndex = _getNextLocator(locatorType);
-
-    for (Id i = 0; i < static_cast<Id>(iuids.size()); i++)
-      setLocatorByUID(iuids[i], locatorType, locatorIndex + i);
-  }
-
-  /**
-   * Setting the locator for a variable designated by its UID
-   * @param icol          Index of the Column
-   * @param locatorType   Type of locator
-   * @param locatorIndex  Rank in the Locator (starting from 0)
-   * @param cleanSameLocator When TRUE, clean variables with same locator beforehand
-   * @remark: 1) At this stage, no check is performed to see if items
-   * @remark: are consecutive and all defined. This allow using this function in any order.
-   * @remark: Argument 'locatorIndex' can be set to a negative value: in that case,
-   * @remark: the next index of the same 'locatorType' is generated automatically
-   */
-  void Db::setLocatorByColIdx(
-    Id icol,
-    const ELoc& locatorType,
-    Id locatorIndex,
-    bool cleanSameLocator)
-  {
-    if (!isColIdxValid(icol)) return;
-
-    if (locatorType.isDifferent(ELoc::UNDEFINED))
-    {
-      // Optional clean
-      if (cleanSameLocator) clearLocators(locatorType);
-
-      if (locatorIndex < 0) locatorIndex = _getNextLocator(locatorType);
-    }
-
-    auto role = temporaryToRole(locatorType);
-    _data.setRoleID(icol, RoleID(role, locatorIndex));
-  }
-
-  void Db::setLocatorByUID(
-    Id iuid,
-    const ELoc& locatorType,
-    Id locatorIndex,
-    bool cleanSameLocator)
-  {
-    auto icol = getColIdxByUID(iuid);
-    if (icol < 0) return;
-    setLocatorByColIdx(icol, locatorType, locatorIndex, cleanSameLocator);
   }
 
   String Db::_getLocatorNameByColIdx(Id icol) const
@@ -1262,60 +1082,6 @@ namespace gstlrn
     Id mult;
     (void)getLocatorByColIdx(icol, &locatorType, &locatorIndex, &mult);
     return getLocatorName(locatorType, locatorIndex);
-  }
-
-  /**
-   * Set the Locators for a set of variables identified by their UID
-   * @param number        Number of variables to be set
-   * @param iuid          Index of the first UID
-   * @param locatorType   Type of the Locator
-   * @param locatorIndex  Rank of the first Locator index (starting from 0)
-   * @param cleanSameLocator When TRUE, clean variables with same locator beforehand
-   */
-  void Db::setLocatorsByUID(
-    Id number,
-    Id iuid,
-    const ELoc& locatorType,
-    Id locatorIndex,
-    bool cleanSameLocator)
-  {
-    if (cleanSameLocator) clearLocators(locatorType);
-
-    if (locatorIndex < 0) locatorIndex = _getNextLocator(locatorType);
-
-    for (Id i = 0; i < number; i++)
-      setLocatorByUID(iuid + i, locatorType, locatorIndex + i);
-  }
-
-  void Db::setLocatorsByUID(
-    const VectorInt& iuids,
-    const ELoc& locatorType,
-    Id locatorIndex,
-    bool cleanSameLocator)
-  {
-    if (cleanSameLocator) clearLocators(locatorType);
-
-    if (locatorIndex < 0) locatorIndex = _getNextLocator(locatorType);
-
-    for (Id i = 0, number = static_cast<Id>(iuids.size()); i < number; i++)
-      setLocatorByUID(iuids[i], locatorType, locatorIndex + i);
-  }
-
-  void Db::setLocatorsByColIdx(
-    const VectorInt& icols,
-    const ELoc& locatorType,
-    Id locatorIndex,
-    bool cleanSameLocator)
-  {
-    if (cleanSameLocator) clearLocators(locatorType);
-
-    if (locatorIndex < 0) locatorIndex = _getNextLocator(locatorType);
-
-    for (Id icol = 0, ncol = static_cast<Id>(icols.size()); icol < ncol; icol++)
-    {
-      auto iuid = getUIDByColIdx(icol);
-      setLocatorByUID(iuid, locatorType, locatorIndex + icol);
-    }
   }
 
   /**
@@ -1536,7 +1302,7 @@ namespace gstlrn
     bool useSel,
     Id version)
   {
-    if (!isColIdxValid(icol)) return;
+    if (!_data.isValidColumn(icol)) return;
     VectorDouble sel;
 
     if (useSel) sel = getSelections();
@@ -1577,7 +1343,8 @@ namespace gstlrn
     if (static_cast<Id>(icols.size()) * nech != static_cast<Id>(tabs.size()))
     {
       messerr(
-        "Dimensions of 'icols'(%d), 'nech'(%d) and 'tabs'(%d) are inconsistent",
+        "Dimensions of 'icols'(%d), 'nech'(%d) and 'tabs'(%d) are "
+        "inconsistent",
         static_cast<Id>(icols.size()), nech, static_cast<Id>(tabs.size()));
       return;
     }
@@ -1657,7 +1424,8 @@ namespace gstlrn
     VectorInt iuids = _ids(name, true, false);
     if (iuids.empty())
     {
-      (void)addColumns(tab, name, locatorType, locatorIndex, useSel);
+      // If the variable does not exist, add a new column
+      (void)addColumns(tab, name, ELoc::UNDEFINED, 0, useSel);
     }
     else
     {
@@ -1952,7 +1720,9 @@ namespace gstlrn
       messerr(
         "This type of Data Base does not allow modifying the Count of "
         "Samples");
-      return -1;
+        "This type of Data Base does not allow modifying the Count of "
+        "Samples");
+        return -1;
     }
     Id nech = getNSamples();
     if (nadd <= 0) return (-1);
@@ -1995,7 +1765,9 @@ namespace gstlrn
       messerr(
         "This type of Data Base does not allow modifying the Count of "
         "Samples");
-      return;
+        "This type of Data Base does not allow modifying the Count of "
+        "Samples");
+        return;
     }
     Id nech = getNSamples();
     if (nnew <= 0) return;
@@ -2024,7 +1796,9 @@ namespace gstlrn
       messerr(
         "This type of Data Base does not allow modifying the Count of "
         "Samples");
-      return 1;
+        "This type of Data Base does not allow modifying the Count of "
+        "Samples");
+        return 1;
     }
 
     auto nech = getNSamples();
@@ -2044,12 +1818,8 @@ namespace gstlrn
    */
   void Db::deleteColumnByColIdx(Id icol_del)
   {
-    if (!isColIdxValid(icol_del)) return;
-    auto name = _data.getName(icol_del);
-    VectorInt iuids = _ids(name, true);
-    if (iuids.empty()) return;
-    deleteColumnByUID(iuids[0]);
-    // _data.deleteColumn(icol_del); Should not be called directly
+    if (!_data.isValidColumn(icol_del)) return;
+    _data.deleteColumn(icol_del);
   }
 
   /**
@@ -2060,8 +1830,6 @@ namespace gstlrn
   {
     Id c_del = getColIdxByUID(iuid_del);
     if (c_del < 0) return;
-    if (!isColIdxValid(c_del)) return;
-
     _data.deleteColumn(c_del);
   }
 
@@ -2644,7 +2412,7 @@ namespace gstlrn
         {
           Id iech = iechs[j];
           Id icol = icols[i];
-          if (!isColIdxValid(icol)) return VectorDouble();
+          if (!_data.isValidColumn(icol)) return VectorDouble();
           if (!isSampleIndexValid(iech)) return VectorDouble();
           vec.push_back(getValueByColIdx(iech, icol, true, version));
         }
@@ -2656,33 +2424,12 @@ namespace gstlrn
         {
           Id iech = iechs[j];
           Id icol = icols[i];
-          if (!isColIdxValid(icol)) return VectorDouble();
+          if (!_data.isValidColumn(icol)) return VectorDouble();
           if (!isSampleIndexValid(iech)) return VectorDouble();
           vec.push_back(getValueByColIdx(iech, icol, true, version));
         }
     }
     return vec;
-  }
-
-  void Db::setValueByColIdx(Id iech, Id icol, double value, bool flagCheck)
-  {
-    if (flagCheck)
-    {
-      if (!isColIdxValid(icol)) return;
-      if (!isSampleIndexValid(iech)) return;
-    }
-    _data.setValue(icol, iech, value);
-  }
-
-  void Db::setValueByUID(Id iech, Id iuid, double value, bool flagCheck)
-  {
-    Id icol = getColIdxByUID(iuid);
-    if (flagCheck)
-    {
-      if (!isColIdxValid(icol)) return;
-      if (!isSampleIndexValid(iech)) return;
-    }
-    _data.setValue(icol, iech, value);
   }
 
   void Db::setValuesByNamesInPlace(
@@ -2720,7 +2467,7 @@ namespace gstlrn
         {
           Id icol = icols[i];
           Id iech = iechs[j];
-          if (!isColIdxValid(icol)) return;
+          if (!_data.isValidColumn(icol)) return;
           if (!isSampleIndexValid(iech)) return;
           _data.setValue(icol, iech, values[lec++]);
         }
@@ -2732,7 +2479,7 @@ namespace gstlrn
         {
           Id icol = icols[i];
           Id iech = iechs[j];
-          if (!isColIdxValid(icol)) return;
+          if (!_data.isValidColumn(icol)) return;
           if (!isSampleIndexValid(iech)) return;
           _data.setValue(icol, iech, values[lec++]);
         }
@@ -2891,6 +2638,8 @@ namespace gstlrn
         messerr(
           "This function requires nvar <= %d variables (locator 'Z'). The "
           "'Db' "
+          "This function requires nvar <= %d variables (locator 'Z'). The "
+          "'Db' "
           "contains %d variables",
           nvar, getNLoc(ELoc::Z));
         return false;
@@ -2901,6 +2650,8 @@ namespace gstlrn
       if (!(getNLoc(ELoc::Z) > nvar))
       {
         messerr(
+          "This function requires nvar >= %d variables (locator 'Z'). The "
+          "'Db' "
           "This function requires nvar >= %d variables (locator 'Z'). The "
           "'Db' "
           "contains %d variables",
@@ -2988,8 +2739,8 @@ namespace gstlrn
         rklow, rkup);
       return;
     }
-    setFromLocator(ELoc::RKLOW, iech, item, rklow);
-    setFromLocator(ELoc::RKUP, iech, item, rkup);
+    setLocVariable(ELoc::RKLOW, iech, item, rklow);
+    setLocVariable(ELoc::RKUP, iech, item, rkup);
   }
 
   void Db::setBound(Id iech, Id item, double lower, double upper)
@@ -3036,7 +2787,7 @@ namespace gstlrn
 
   VectorDouble Db::getGradient(Id item, bool useSel) const
   {
-    if (!hasLocVariable(ELoc::G)) return VectorDouble();
+    if (!hasLocator(ELoc::G)) return VectorDouble();
     VectorDouble tab;
 
     for (Id iech = 0; iech < getNSample(); iech++)
@@ -3049,7 +2800,7 @@ namespace gstlrn
 
   VectorDouble Db::getTangent(Id item, bool useSel) const
   {
-    if (!hasLocVariable(ELoc::TGT)) return VectorDouble();
+    if (!hasLocator(ELoc::TGT)) return VectorDouble();
     VectorDouble tab;
 
     for (Id iech = 0; iech < getNSample(); iech++)
@@ -3058,21 +2809,6 @@ namespace gstlrn
       tab.push_back(getLocVariable(ELoc::TGT, iech, item));
     }
     return tab;
-  }
-
-  /**
-   * Return the Selection value at Sample 'iech'
-   * @param iech Sample number
-   * @return
-   * @remark If the selection value if TEST, the sample is considered as masked off.
-   */
-  Id Db::getSelection(Id iech) const
-  {
-    if (!hasLocVariable(ELoc::SEL)) return 1;
-    double value = getFromLocator(ELoc::SEL, iech, 0);
-    if (FFFF(value)) return 0;
-    Id sel = (!isZero(value)) ? 1 : 0;
-    return (sel);
   }
 
   /**
@@ -3086,14 +2822,14 @@ namespace gstlrn
    */
   GSTLEARN_DEPRECATED Id Db::getNSampleActive() const
   {
-    if (!hasLocVariable(ELoc::SEL)) return (getNSample());
+    if (!hasLocator(ELoc::SEL)) return (getNSample());
 
     /* Case when a selection is present */
 
     Id count = 0;
     for (Id iech = 0; iech < getNSample(); iech++)
     {
-      if (!isZero(getFromLocator(ELoc::SEL, iech, 0))) count++;
+      if (!isZero(getLocVariable(ELoc::SEL, iech, 0))) count++;
     }
     return count;
   }
@@ -3105,7 +2841,7 @@ namespace gstlrn
    */
   Id Db::getRankRelativeToAbsolute(Id irel) const
   {
-    if (!hasLocVariable(ELoc::SEL)) return irel;
+    if (!hasLocator(ELoc::SEL)) return irel;
     auto nech = getNSample(false);
     Id jech = 0;
     for (Id iabs = 0; iabs < nech; iabs++)
@@ -3119,7 +2855,7 @@ namespace gstlrn
 
   Id Db::getRankAbsoluteToRelative(Id iabs) const
   {
-    if (!hasLocVariable(ELoc::SEL)) return iabs;
+    if (!hasLocator(ELoc::SEL)) return iabs;
     auto nech = getNSample(false);
     Id irel = 0;
     for (Id jabs = 0; jabs < nech; jabs++)
@@ -3153,7 +2889,7 @@ namespace gstlrn
     Id count = 0;
     for (Id iech = 0; iech < nechtot; iech++)
     {
-      if (isZero(getFromLocator(ELoc::SEL, iech, 0))) continue;
+      if (isZero(getLocVariable(ELoc::SEL, iech, 0))) continue;
       vec[count++] = iech;
     }
     return vec;
@@ -3173,7 +2909,7 @@ namespace gstlrn
     Id count = 0;
     for (Id iech = 0; iech < nechtot; iech++)
     {
-      if (isZero(getFromLocator(ELoc::SEL, iech, 0)))
+      if (isZero(getLocVariable(ELoc::SEL, iech, 0)))
         vec[iech] = ITEST;
       else
         vec[iech] = count++;
@@ -3189,22 +2925,22 @@ namespace gstlrn
    */
   Id Db::getNSample(bool useSel) const
   {
-    if (!hasLocVariable(ELoc::SEL)) return getNSamples();
+    if (!hasLocator(ELoc::SEL)) return getNSamples();
     if (!useSel) return getNSamples();
 
     Id count = 0;
     Id nech = getNSamples();
     for (Id iech = 0; iech < nech; iech++)
     {
-      if (!isZero(getFromLocator(ELoc::SEL, iech, 0))) count++;
+      if (!isZero(getLocVariable(ELoc::SEL, iech, 0))) count++;
     }
     return count;
   }
 
   double Db::getWeight(Id iech) const
   {
-    if (!hasLocVariable(ELoc::W)) return 1.;
-    double w = getFromLocator(ELoc::W, iech, 0);
+    if (!hasLocator(ELoc::W)) return 1.;
+    double w = getLocVariable(ELoc::W, iech, 0);
     if (FFFF(w)) w = 1.;
     if (w < 0) w = 0.;
     return (w);
@@ -3218,7 +2954,7 @@ namespace gstlrn
     VectorDouble tab(nech);
 
     if (useSel) sel = getSelections();
-    if (hasLocVariable(ELoc::W)) icol = getColIdxByLocator(ELoc::W, 0);
+    if (hasLocator(ELoc::W)) icol = getColIdxByLocator(ELoc::W, 0);
 
     Id ecr = 0;
     for (Id iech = 0; iech < nech; iech++)
@@ -3263,9 +2999,9 @@ namespace gstlrn
 
   bool Db::isActiveDomain(Id iech) const
   {
-    if (!hasLocVariable(ELoc::DOM)) return true;
+    if (!hasLocator(ELoc::DOM)) return true;
     if (!GlobalEnvironment::getEnv()->isDomainReference()) return true;
-    double value = getFromLocator(ELoc::DOM, iech, 0);
+    double value = getLocVariable(ELoc::DOM, iech, 0);
     if (FFFF(value)) return false;
     if (!GlobalEnvironment::getEnv()->matchDomainReference(value)) return true;
     return false;
@@ -3575,7 +3311,7 @@ namespace gstlrn
     sstr << "Space dimension              = " << getNDim() << std::endl;
     sstr << "Number of Columns            = " << getNColumn() << std::endl;
     sstr << "Total number of samples      = " << getNSample() << std::endl;
-    if (hasLocVariable(ELoc::SEL))
+    if (hasLocator(ELoc::SEL))
       sstr << "Number of active samples     = " << getNSample(true)
            << std::endl;
     return sstr.str();
@@ -3651,7 +3387,7 @@ namespace gstlrn
     for (Id jcol = 0; jcol < ncol; jcol++)
     {
       Id icol = (cols.empty()) ? jcol : cols[jcol];
-      if (!isColIdxValid(icol)) continue;
+      if (!_data.isValidColumn(icol)) continue;
 
       auto nversion = getNVersionsByColIdx(icol);
       for (Id version = 0; version < nversion; version++, ecr++)
@@ -3813,10 +3549,9 @@ namespace gstlrn
     auto nech = getNSample();
     VectorDouble tab;
 
-    if (!hasLocVariable(ELoc::SEL)) return tab;
+    if (!hasLocator(ELoc::SEL)) return tab;
     auto icol = getColIdxByLocator(ELoc::SEL, 0);
-    if (!isColIdxValid(icol)) return tab;
-
+    if (!_data.isValidColumn(icol)) return tab;
     tab.resize(nech);
     for (Id iech = 0; iech < nech; iech++)
       tab[iech] = getValueByColIdx(iech, icol);
@@ -4114,7 +3849,8 @@ namespace gstlrn
 
     // Create the column index for the selection (only if 'useSel')
     Id icol = -1;
-    if (useSel) icol = getColIdxByLocator(ELoc::SEL, 0);
+    if (useSel && getNLoc(ELoc::SEL) > 0)
+      icol = getColIdxByLocator(ELoc::SEL, 0);
 
     // Update the search for variable, if no variable is defined
     if (getNLoc(ELoc::Z) <= 0) ivar = -1;
@@ -4146,14 +3882,14 @@ namespace gstlrn
       // Check against the existence of a target variable
       if (useZ && ivar >= 0)
       {
-        value = getFromLocator(ELoc::Z, iabs, ivar);
+        value = getLocVariable(ELoc::Z, iabs, ivar);
         if (FFFF(value)) continue;
       }
 
       // Check against validity of the Variance of Measurement Error variable
       if (useV)
       {
-        value = getFromLocator(ELoc::V, iabs, ivar);
+        value = getLocVariable(ELoc::V, iabs, ivar);
         if (FFFF(value) || value < 0) continue;
       }
 
@@ -4221,7 +3957,7 @@ namespace gstlrn
       const
   {
     auto nech = getNSample(false);
-    if (!isColIdxValid(icol)) return VectorDouble();
+    if (!_data.isValidColumn(icol)) return VectorDouble();
 
     VectorDouble tab(nech, TEST);
     VectorDouble sel;
@@ -4835,59 +4571,6 @@ namespace gstlrn
   }
 
   /**
-   * Returns the rank of the Single Column corresponding to 'name'
-   * @param name Named for the searched column
-   * @return The rank of the Single column or -1
-   */
-  Id Db::getColIdx(const String& name) const
-  {
-    VectorString exp_name = expandNameList(name);
-    if (exp_name.empty()) return -1;
-    return _data.getICol(exp_name[0]);
-  }
-
-  VectorInt Db::getColIdxs(const String& name) const
-  {
-    VectorString exp_names = expandNameList(name);
-    return getColIdxs(exp_names);
-  }
-
-  VectorInt Db::getColIdxs(const VectorString& names) const
-  {
-    VectorString exp_names = expandNameList(names);
-    if (exp_names.size() <= 0) return VectorInt();
-    Id number = static_cast<Id>(exp_names.size());
-    VectorInt icols(number);
-    for (Id i = 0; i < number; i++) icols[i] = getColIdx(exp_names[i]);
-    return icols;
-  }
-
-  VectorInt Db::getColIdxsByLocator(const ELoc& locatorType) const
-  {
-    VectorInt icols;
-    auto number = getNLoc(locatorType);
-    if (number <= 0) return icols;
-
-    icols.resize(number);
-    for (Id i = 0; i < number; i++)
-      icols[i] = getColIdxByLocator(locatorType, i);
-    return icols;
-  }
-
-  /**
-   * Returns the Single UID which corresponds to the searched name
-   * @param name Name to be searched for
-   * @return Rank of the UID or -1
-   */
-  Id Db::getUID(const String& name) const
-  {
-    VectorInt iuids = _ids(name, true);
-    if (iuids.empty()) return -1;
-    auto icol = getColIdxByUID(iuids[0]);
-    return getUIDByColIdx(icol);
-  }
-
-  /**
    * This is a BASIC function returning the vector of ranks of the UID
    * which corresponds to a set of existing names
    */
@@ -4905,31 +4588,6 @@ namespace gstlrn
       if (iuid < 0) continue;
       iuids.push_back(iuid);
     }
-    return iuids;
-  }
-
-  VectorInt Db::getUIDs(const VectorString& names) const
-  {
-    if (names.empty()) return VectorInt();
-    VectorInt iuids = _ids(names, false);
-    return iuids;
-  }
-
-  VectorInt Db::getUIDsByLocator(const ELoc& locatorType) const
-  {
-    VectorInt iuids;
-    auto number = getNLoc(locatorType);
-    if (number <= 0) return iuids;
-    iuids.resize(number);
-    for (Id i = 0; i < number; i++) iuids[i] = getUIDByLocator(locatorType, i);
-    return iuids;
-  }
-
-  VectorInt Db::getUIDsByColIdx(const VectorInt& icols) const
-  {
-    VectorInt iuids;
-    for (Id i = 0; i < static_cast<Id>(icols.size()); i++)
-      iuids.push_back(getUIDByColIdx(icols[i]));
     return iuids;
   }
 
@@ -5398,22 +5056,21 @@ namespace gstlrn
     }
   }
 
-  bool
-    Db::_isCountValid(const VectorInt& iuids, bool flagOne, bool verbose) const
+  bool Db::_isCountValid(const VectorString& names, bool flagOne, bool verbose)
   {
-    if (iuids.empty() && flagOne)
+    if (names.empty() && flagOne)
     {
       if (verbose) messerr("No variable name corresponding to your criterion");
       return false;
     }
-    if (iuids.size() > 1 && flagOne)
+    if (names.size() > 1 && flagOne)
     {
       if (verbose)
       {
         messerr("You wanted to designate a SINGLE variable.");
         messerr("There are several variables matching your criterion:");
-        for (size_t i = 0; i < iuids.size(); i++)
-          messerr("- %s", getNameByUID(iuids[i]).c_str());
+        for (size_t i = 0; i < names.size(); i++)
+          messerr("- %s", names[i].c_str());
       }
       return false;
     }
@@ -5470,7 +5127,7 @@ namespace gstlrn
     for (Id iech = 0; iech < nech; iech++)
     {
       if (!isActive(iech)) continue;
-      Id ioccurence = static_cast<Id>(getFromLocator(loctype, iech, 0));
+      Id ioccurence = static_cast<Id>(getLocVariable(loctype, iech, 0));
       if (ioccurence > noccurence) noccurence = ioccurence;
     }
     return noccurence;
@@ -5695,7 +5352,7 @@ namespace gstlrn
     VectorInt ranksel = ranks;
     if (ranksel.empty())
     {
-      if (dbin->hasLocVariable(ELoc::SEL))
+      if (dbin->hasLocator(ELoc::SEL))
         dbin->getSampleRanksPerVariable(ranksel);
       else
         ranksel = VH::sequence(dbin->getNSample());
@@ -6422,8 +6079,8 @@ namespace gstlrn
 
   void Db::copyByCol(Id icolIn, Id icolOut, Id versionIn, Id versionOut)
   {
-    if (!isColIdxValid(icolIn)) return;
-    if (!isColIdxValid(icolOut)) return;
+    if (!_data.isValidColumn(icolIn)) return;
+    if (!_data.isValidColumn(icolOut)) return;
 
     for (Id iech = 0, nech = getNSample(); iech < nech; iech++)
       _data.setValue(
@@ -6589,23 +6246,685 @@ namespace gstlrn
    * @param string     Locator string
    * @param ret_locatorType  Resulting Locator type
    * @param ret_locatorIndex Resulting Locator rank (starting from 0)
-   * @param ret_mult   Resulting Locator multiplicity (1: unique; 0: multiple)
+   * @param ret_multiplicity Resulting Locator multiplicity (1: unique; 0: multiple)
    * @return Error code
    */
   Id locatorIdentify(
     const String& string,
     ELoc* ret_locatorType,
     Id* ret_locatorIndex,
-    Id* ret_mult)
+    Id* ret_multiplicity)
   {
     auto roleID = RoleID::createFromName(string);
     if (!roleID) return 1;
 
     *ret_locatorType = Db::temporaryToLocator(roleID->getRole());
     *ret_locatorIndex = roleID->getIndex();
-    *ret_mult = roleID->isUnique() ? 1 : 0;
+    *ret_multiplicity = roleID->isUnique() ? 1 : 0;
 
     return 0;
+  }
+
+  // ================================================================ //
+  // All methods listed in this paragraph are direct access to DbData //
+  // ================================================================ //
+
+  Id Db::_getColumnFromLocator(const ELoc& locatorType, Id locatorIndex) const
+  {
+    auto colID = _data.getColID({temporaryToRole(locatorType), locatorIndex});
+    auto icol = colID.getICol();
+    _debugConditionalStatement(icol);
+    return icol;
+  }
+
+  Id Db::_getColumnFromColID(Id icol0) const
+  {
+    auto icol = _data.isValidColumn(icol0) ? icol0 : -1;
+    _debugConditionalStatement(icol);
+    return icol;
+  }
+
+  Id Db::_getColumnFromUID(Id iuid) const
+  {
+    auto icol = _data.getColMatchUniqueIndex(iuid);
+    _debugConditionalStatement(icol);
+    return icol;
+  }
+
+  Id Db::_getColumnFromName(const String& name) const
+  {
+    auto colID = _data.getColID(name);
+    auto icol = colID.getICol();
+    _debugConditionalStatement(icol);
+    return icol;
+  }
+
+  String Db::getNameByLocator(const ELoc& locatorType, Id locatorIndex) const
+  {
+    auto icol = _getColumnFromLocator(locatorType, locatorIndex);
+    return _data.getName(icol);
+  }
+
+  String Db::getNameByColIdx(Id icol0) const
+  {
+    auto icol = _getColumnFromColID(icol0);
+    return _data.getName(icol);
+  }
+
+  String Db::getNameByUID(Id iuid) const
+  {
+    auto icol = _getColumnFromUID(iuid);
+    return getNameByColIdx(icol);
+  }
+
+  VectorString Db::getName(const String& name) const
+  {
+    return expandNameList(name);
+  }
+
+  VectorString Db::getNames(const VectorString& names) const
+  {
+    return expandNameList(names);
+  }
+
+  VectorString Db::getNamesByLocator(const ELoc& locatorType) const
+  {
+    VectorString namelist;
+    auto ncol = getNLoc(locatorType);
+    if (ncol <= 0) return namelist;
+    for (Id i = 0; i < ncol; i++)
+    {
+      auto icol = _getColumnFromLocator(locatorType, i);
+      namelist.push_back(_data.getName(icol));
+    }
+    return namelist;
+  }
+
+  VectorString Db::getNamesByColIdx(const VectorInt& icols) const
+  {
+    VectorString namelist;
+    auto ncol = static_cast<Id>(icols.size());
+    if (ncol <= 0) return namelist;
+
+    for (Id i = 0; i < ncol; i++)
+    {
+      namelist.push_back(_data.getName(icols[i]));
+    }
+    return namelist;
+  }
+
+  VectorString Db::getNamesByUID(const VectorInt& iuids) const
+  {
+    VectorString namelist;
+    Id ncol = static_cast<Id>(iuids.size());
+    if (ncol <= 0) return namelist;
+
+    for (Id i = 0; i < ncol; i++)
+    {
+      auto icol = _getColumnFromUID(iuids[i]);
+      namelist.push_back(_data.getName(icol));
+    }
+    return namelist;
+  }
+
+  void Db::setName(const String& old_name, const String& name)
+  {
+    auto icol = _getColumnFromName(old_name);
+    _data.setName(icol, name);
+  }
+
+  void Db::setName(const VectorString& list, const String& name)
+  {
+    auto ncol = static_cast<Id>(list.size());
+    if (ncol <= 0) return;
+
+    for (Id i = 0; i < ncol; i++)
+    {
+      auto icol = _getColumnFromName(list[i]);
+      auto newname = generateOneName(name, i + 1);
+      _data.setName(icol, newname);
+    }
+  }
+
+  void Db::setNameByUID(Id iuid, const String& name)
+  {
+    auto icol = _getColumnFromUID(iuid);
+    _data.setName(icol, name);
+  }
+
+  void Db::setNameByColIdx(Id icol0, const String& name)
+  {
+    auto icol = _getColumnFromColID(icol0);
+    _data.setName(icol, name);
+  }
+
+  void Db::setNameByLocator(const ELoc& locatorType, const String& name)
+  {
+    auto ncol = getNLoc(locatorType);
+    if (ncol <= 0) return;
+
+    for (Id i = 0; i < ncol; i++)
+    {
+      auto icol = _getColumnFromLocator(locatorType, i);
+      auto newName = generateOneName(name, i + 1);
+      _data.setName(icol, newName);
+    }
+  }
+
+  Id Db::getColIdx(const String& name) const
+  {
+    VectorString namesLoc = expandNameList(name);
+    if (namesLoc.empty()) return -1;
+    return _data.getICol(namesLoc[0]);
+  }
+
+  Id Db::getColIdxByUID(Id iuid) const
+  {
+    return _getColumnFromUID(iuid);
+  }
+
+  Id Db::getColIdxByLocator(const ELoc& locatorType, Id locatorIndex) const
+  {
+    return _getColumnFromLocator(locatorType, locatorIndex);
+  }
+
+  VectorInt Db::getColIdxs(const VectorString& names) const
+  {
+    VectorString namesLoc = expandNameList(names);
+    auto ncol = static_cast<Id>(namesLoc.size());
+    if (ncol <= 0) return VectorInt();
+
+    VectorInt icols(ncol);
+    for (Id i = 0; i < ncol; i++) icols[i] = _getColumnFromName(namesLoc[i]);
+    return icols;
+  }
+
+  VectorInt Db::getColIdxs(const String& name) const
+  {
+    VectorString namesLoc = expandNameList(name);
+    auto ncol = static_cast<Id>(namesLoc.size());
+    if (ncol <= 0) return VectorInt();
+
+    VectorInt icols(ncol);
+    for (Id i = 0; i < ncol; i++) icols[i] = _getColumnFromName(namesLoc[i]);
+    return icols;
+  }
+
+  VectorInt Db::getColIdxsByUID(const VectorInt& iuids) const
+  {
+    VectorInt cols;
+    auto ncol = static_cast<Id>(iuids.size());
+    if (ncol <= 0) return cols;
+
+    for (const auto& iuid: iuids) cols.push_back(_getColumnFromUID(iuid));
+    return cols;
+  }
+
+  VectorInt Db::getColIdxsByLocator(const ELoc& locatorType) const
+  {
+    VectorInt cols;
+    auto ncol = getNLoc(locatorType);
+    if (ncol <= 0) return cols;
+
+    for (Id i = 0; i < ncol; i++)
+      cols.push_back(_getColumnFromLocator(locatorType, i));
+    return cols;
+  }
+
+  bool Db::hasLocator(const ELoc& locatorType) const
+  {
+    return _data.getNRoles(temporaryToRole(locatorType)) > 0;
+  }
+
+  // Should be replaced by hasLocator()
+  GSTLEARN_DEPRECATED bool Db::hasLocVariable(const ELoc& loctype) const
+  {
+    return hasLocator(loctype);
+  }
+
+  void Db::setLocator(
+    const String& name,
+    const ELoc& locatorType,
+    Id locatorIndex,
+    bool cleanSameLocator)
+  {
+    VectorString namesLoc = expandNameList(name);
+    auto ncol = static_cast<Id>(namesLoc.size());
+    if (ncol <= 0) return;
+
+    if (locatorType.isDifferent(ELoc::UNDEFINED))
+    {
+      if (cleanSameLocator) clearLocators(locatorType);
+      if (locatorIndex < 0) locatorIndex = _getNextLocator(locatorType);
+    }
+
+    for (Id i = 0; i < ncol; i++)
+    {
+      auto icol = _getColumnFromName(namesLoc[i]);
+      _data.setRoleID(
+        icol, RoleID(temporaryToRole(locatorType), locatorIndex + i));
+    }
+  }
+
+  void Db::setLocatorByColIdx(
+    Id icol0,
+    const ELoc& locatorType,
+    Id locatorIndex,
+    bool cleanSameLocator)
+  {
+    auto icol = _getColumnFromColID(icol0);
+
+    if (locatorType.isDifferent(ELoc::UNDEFINED))
+    {
+      if (cleanSameLocator) clearLocators(locatorType);
+      if (locatorIndex < 0) locatorIndex = _getNextLocator(locatorType);
+    }
+
+    _data.setRoleID(icol, RoleID(temporaryToRole(locatorType), locatorIndex));
+  }
+
+  void Db::setLocatorByUID(
+    Id iuid,
+    const ELoc& locatorType,
+    Id locatorIndex,
+    bool cleanSameLocator)
+  {
+    auto icol = _getColumnFromUID(iuid);
+
+    if (locatorType.isDifferent(ELoc::UNDEFINED))
+    {
+      if (cleanSameLocator) clearLocators(locatorType);
+      if (locatorIndex < 0) locatorIndex = _getNextLocator(locatorType);
+    }
+
+    _data.setRoleID(icol, RoleID(temporaryToRole(locatorType), locatorIndex));
+  }
+
+  void Db::setLocators(
+    const VectorString& names,
+    const ELoc& locatorType,
+    Id locatorIndex,
+    bool cleanSameLocator)
+  {
+    VectorString namesLoc = expandNameList(names);
+    auto ncol = static_cast<Id>(namesLoc.size());
+    if (ncol <= 0) return;
+
+    if (locatorType.isDifferent(ELoc::UNDEFINED))
+    {
+      if (cleanSameLocator) clearLocators(locatorType);
+      if (locatorIndex < 0) locatorIndex = _getNextLocator(locatorType);
+    }
+
+    for (Id i = 0; i < ncol; i++)
+    {
+      auto icol = _getColumnFromName(namesLoc[i]);
+      _data.setRoleID(
+        icol, RoleID(temporaryToRole(locatorType), locatorIndex + i));
+    }
+  }
+
+  void Db::setLocatorsByUID(
+    const VectorInt& iuids,
+    const ELoc& locatorType,
+    Id locatorIndex,
+    bool cleanSameLocator)
+  {
+    auto ncol = static_cast<Id>(iuids.size());
+    if (ncol <= 0) return;
+
+    if (locatorType.isDifferent(ELoc::UNDEFINED))
+    {
+      if (cleanSameLocator) clearLocators(locatorType);
+      if (locatorIndex < 0) locatorIndex = _getNextLocator(locatorType);
+    }
+
+    for (Id i = 0; i < ncol; i++)
+    {
+      auto icol = _getColumnFromUID(iuids[i]);
+      _data.setRoleID(
+        icol, RoleID(temporaryToRole(locatorType), locatorIndex + i));
+    }
+  }
+
+  void Db::setLocatorsByUID(
+    Id number,
+    Id iuid,
+    const ELoc& locatorType,
+    Id locatorIndex,
+    bool cleanSameLocator)
+  {
+    if (locatorType.isDifferent(ELoc::UNDEFINED))
+    {
+      if (cleanSameLocator) clearLocators(locatorType);
+      if (locatorIndex < 0) locatorIndex = _getNextLocator(locatorType);
+    }
+
+    for (Id i = 0; i < number; i++)
+    {
+      auto icol = _getColumnFromUID(iuid + i);
+      _data.setRoleID(
+        icol, RoleID(temporaryToRole(locatorType), locatorIndex + i));
+    }
+  }
+
+  void Db::setLocatorsByColIdx(
+    const VectorInt& icols,
+    const ELoc& locatorType,
+    Id locatorIndex,
+    bool cleanSameLocator)
+  {
+    auto ncol = static_cast<Id>(icols.size());
+    if (ncol <= 0) return;
+
+    if (locatorType.isDifferent(ELoc::UNDEFINED))
+    {
+      if (cleanSameLocator) clearLocators(locatorType);
+      if (locatorIndex < 0) locatorIndex = _getNextLocator(locatorType);
+    }
+
+    for (Id i = 0; i < ncol; i++)
+    {
+      auto icol = _getColumnFromColID(icols[i]);
+      _data.setRoleID(
+        icol, RoleID(temporaryToRole(locatorType), locatorIndex + i));
+    }
+  }
+
+  bool Db::getLocatorByColIdx(
+    Id icol,
+    ELoc* ret_locatorType,
+    Id* ret_locatorIndex,
+    Id* ret_multiplicity) const
+  {
+    auto colID = _data.getColID(icol);
+    return _getLocatorIdentify(
+      colID, ret_locatorType, ret_locatorIndex, ret_multiplicity);
+  }
+
+  bool Db::getLocatorByUID(
+    Id iuid,
+    ELoc* ret_locatorType,
+    Id* ret_locatorIndex,
+    Id* ret_multiplicity) const
+  {
+    auto icol = _getColumnFromUID(iuid);
+    auto colID = _data.getColID(icol);
+    return _getLocatorIdentify(
+      colID, ret_locatorType, ret_locatorIndex, ret_multiplicity);
+  }
+
+  bool Db::getLocator(
+    const String& name,
+    ELoc* ret_locatorType,
+    Id* ret_locatorIndex,
+    Id* ret_multiplicity) const
+  {
+    auto colID = _data.getColID(name);
+    return _getLocatorIdentify(
+      colID, ret_locatorType, ret_locatorIndex, ret_multiplicity);
+  }
+
+  Id Db::getUID(const String& name) const
+  {
+    auto icol = _getColumnFromName(name);
+    return _data.getUniqueIndex(icol);
+  }
+
+  Id Db::getUIDByColIdx(Id icol0) const
+  {
+    auto icol = _getColumnFromColID(icol0);
+    return _data.getUniqueIndex(icol);
+  }
+
+  Id Db::getUIDByLocator(const ELoc& locatorType, Id locatorIndex) const
+  {
+    auto icol = _getColumnFromLocator(locatorType, locatorIndex);
+    return _data.getUniqueIndex(icol);
+  }
+
+  VectorInt Db::getUIDs(const VectorString& names) const
+  {
+    VectorInt iuids;
+    VectorString namesLoc = expandNameList(names);
+    auto ncol = static_cast<Id>(namesLoc.size());
+    if (ncol <= 0) return iuids;
+
+    for (Id i = 0; i < ncol; i++)
+    {
+      auto icol = _getColumnFromName(namesLoc[i]);
+      iuids.push_back(_data.getUniqueIndex(icol));
+    }
+    return iuids;
+  }
+
+  VectorInt Db::getUIDsByLocator(const ELoc& locatorType) const
+  {
+    VectorInt iuids;
+    auto ncol = getNLoc(locatorType);
+    if (ncol <= 0) return iuids;
+
+    for (Id i = 0; i < ncol; i++)
+    {
+      auto icol = _getColumnFromLocator(locatorType, i);
+      iuids.push_back(_data.getUniqueIndex(icol));
+    }
+    return iuids;
+  }
+
+  VectorInt Db::getUIDsByColIdx(const VectorInt& icols) const
+  {
+    VectorInt iuids;
+    auto ncol = static_cast<Id>(icols.size());
+    if (ncol <= 0) return iuids;
+
+    for (Id i = 0; i < ncol; i++)
+    {
+      auto icol = _getColumnFromColID(icols[i]);
+      iuids.push_back(_data.getUniqueIndex(icol));
+    }
+    return iuids;
+  }
+
+  double Db::getArray(Id iech, Id iuid) const
+  {
+    auto icol = _getColumnFromUID(iuid);
+    if (icol < 0) return getNA<double>();
+    return _data.getValue<double>(icol, iech).value_or(getNA<double>());
+  }
+
+  VectorDouble Db::getArrayByUID(Id iuid, bool useSel) const
+  {
+    auto nech = getNSample();
+    VectorDouble tab;
+
+    auto icol = _getColumnFromUID(iuid);
+    if (icol < 0) return tab;
+
+    tab.resize(nech);
+    VectorDouble sel;
+    if (useSel) sel = getSelections();
+
+    Id ecr = 0;
+    for (Id iech = 0; iech < nech; iech++)
+    {
+      if (useSel && !sel.empty() && isZero(sel[iech])) continue;
+      tab[ecr++] = _data.getValue<double>(icol, iech).value_or(getNA<double>());
+    }
+    tab.resize(ecr);
+    return tab;
+  }
+
+  void Db::setArray(Id iech, Id iuid, double value)
+  {
+    auto icol = _getColumnFromUID(iuid);
+    if (icol < 0) return;
+    _data.setValue<double>(icol, iech, value);
+  }
+
+  void Db::setArrayByUID(const VectorDouble& tab, Id iuid, bool useSel)
+  {
+    auto icol = _getColumnFromUID(iuid);
+    if (icol < 0) return;
+
+    auto nech = getNSample();
+
+    VectorDouble sel;
+    if (useSel) sel = getSelections();
+
+    Id lec = 0;
+    for (Id iech = 0; iech < nech; iech++)
+    {
+      if (useSel && !sel.empty() && isZero(sel[iech])) continue;
+      _data.setValue<double>(icol, iech, tab[lec++]);
+    }
+  }
+
+  void Db::updArray(Id iech, Id iuid, const EOperator& oper, double value)
+  {
+    auto icol = _getColumnFromUID(iuid);
+    if (icol < 0) return;
+
+    const double oldval =
+      _data.getValue<double>(icol, iech).value_or(getNA<double>());
+    const double newval = modifyOperator(oper, oldval, value);
+    _data.setValue<double>(icol, iech, newval);
+  }
+
+  double Db::getValue(const String& name, Id iech) const
+  {
+    auto icol = _getColumnFromName(name);
+    if (icol < 0) return getNA<double>();
+    return _data.getValue<double>(icol, iech).value_or(getNA<double>());
+  }
+
+  double Db::getValueByUID(Id iech, Id iuid) const
+  {
+    auto icol = _getColumnFromUID(iuid);
+    return *_data.getValue<double>(icol, iech);
+  }
+
+  double Db::getValueByColIdx(Id iech, Id icol0, bool flagCheck) const
+  {
+    DECLARE_UNUSED(flagCheck);
+    auto icol = _getColumnFromColID(icol0);
+    return *_data.getValue<double>(icol, iech);
+  }
+
+  void Db::setValue(const String& name, Id iech, double value)
+  {
+    auto icol = _getColumnFromName(name);
+    if (icol < 0) return;
+    _data.setValue<double>(icol, iech, value);
+  }
+
+  void Db::setValueByColIdx(Id iech, Id icol0, double value, bool flagCheck)
+  {
+    DECLARE_UNUSED(flagCheck);
+    auto icol = _getColumnFromColID(icol0);
+    _data.setValue<double>(icol, iech, value);
+  }
+
+  void Db::setValueByUID(Id iech, Id iuid, double value, bool flagCheck)
+  {
+    DECLARE_UNUSED(flagCheck);
+    auto icol = _getColumnFromUID(iuid);
+    _data.setValue<double>(icol, iech, value);
+  }
+
+  Id Db::getNLoc(const ELoc& locatorType) const
+  {
+    return _data.getNRoles(temporaryToRole(locatorType));
+  }
+
+  double
+    Db::getLocVariable(const ELoc& locatorType, Id iech, Id locatorIndex) const
+  {
+    if (locatorType.isEqual(ELoc::UNDEFINED)) return TEST;
+
+    auto icol = _getColumnFromLocator(locatorType, locatorIndex);
+    if (icol < 0) return (TEST);
+
+    return _data.getValue<double>(icol, iech).value_or(TEST);
+  }
+
+  // This function should be replaced by getLocVariable()
+  GSTLEARN_DEPRECATED double
+    Db::getFromLocator(const ELoc& locatorType, Id iech, Id locatorIndex) const
+  {
+    return getLocVariable(locatorType, iech, locatorIndex);
+  }
+
+  void Db::setLocVariable(
+    const ELoc& locatorType,
+    Id iech,
+    Id locatorIndex,
+    double value)
+  {
+    if (locatorType.isEqual(ELoc::UNDEFINED)) return;
+    auto icol = _getColumnFromLocator(locatorType, locatorIndex);
+    if (icol < 0) return;
+    _data.setValue(icol, iech, value);
+  }
+
+  // This function should be replaced by setLocaVariable()
+  GSTLEARN_DEPRECATED void Db::setFromLocator(
+    const ELoc& locatorType,
+    Id iech,
+    Id locatorIndex,
+    double value)
+  {
+    setLocVariable(locatorType, iech, locatorIndex, value);
+  }
+
+  void Db::updLocVariable(
+    const ELoc& locatorType,
+    Id iech,
+    Id locatorIndex,
+    const EOperator& oper,
+    double value)
+  {
+    if (locatorType.isEqual(ELoc::UNDEFINED)) return;
+    auto icol = _getColumnFromLocator(locatorType, locatorIndex);
+    if (icol < 0) return;
+
+    const double oldval = *_data.getValue<double>(icol, iech);
+    const double newval = modifyOperator(oper, oldval, value);
+    _data.setValue(icol, iech, newval);
+  }
+
+  Id Db::getSelection(Id iech) const
+  {
+    auto icol = _getColumnFromLocator(ELoc::SEL, 0);
+    if (icol < 0) return 1;
+    double value = _data.getValue<double>(icol, iech).value_or(TEST);
+    if (FFFF(value)) return 0;
+    return (!isZero(value)) ? 1 : 0;
+  }
+
+  double Db::getZVariable(Id iech, Id item) const
+  {
+    auto icol = _getColumnFromLocator(ELoc::Z, item);
+    if (icol < 0) return (TEST);
+
+    return _data.getValue<double>(icol, iech).value_or(TEST);
+  }
+
+  void Db::setZVariable(Id iech, Id item, double value)
+  {
+    auto icol = _getColumnFromLocator(ELoc::Z, item);
+    if (icol < 0) return;
+    _data.setValue(icol, iech, value);
+  }
+
+  void Db::updZVariable(Id iech, Id item, const EOperator& oper, double value)
+  {
+    auto icol = _getColumnFromLocator(ELoc::Z, item);
+    if (icol < 0) return;
+
+    const double oldval = *_data.getValue<double>(icol, iech);
+    const double newval = modifyOperator(oper, oldval, value);
+    _data.setValue(icol, iech, newval);
   }
 
 } // namespace gstlrn

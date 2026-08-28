@@ -42,8 +42,7 @@ int main(int argc, char* argv[])
     filename = getTestData("Pollution", "Pollution.dat");
     db = Db::createFromCSV(filename, CSVformat(), false);
     db->setLocators({"X", "Y"}, ELoc::X);
-    db->setLocator("Zn", ELoc::Z);
-    db->setLocator("Pb");
+    db->setLocator("Zn", ELoc::Z, 0, true);
     model->setDriftIRF(0);
     model->fitNew(
       db, nullptr, nullptr, nullptr, ModelOptimParam(), ITEST, verbose, trace);
