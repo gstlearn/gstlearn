@@ -22,12 +22,5 @@ int main(int argc, char* argv[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
   ASerializable::setPrefixName("test_a_template-");
-
-  auto* grid = DbGrid::create({3, 4}, {0.0, 0.0}, {1.0, 1.0});
-  grid->display();
-  grid->addColumnsRandom(1, 4, "MyVar");
-  grid->display();
-
-  grid->dumpToNF("avoir.dat");
   return (0);
 }

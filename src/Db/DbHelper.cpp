@@ -719,7 +719,7 @@ namespace gstlrn
     for (Id icol = 0; icol < ncol; icol++)
     {
       jcol = cols[icol];
-      if (!db->isColIdxValid(jcol))
+      if (!db->getData().isValidColumn(jcol))
       {
         messerr("Column %d is not defined", cols[icol]);
         return (1);
