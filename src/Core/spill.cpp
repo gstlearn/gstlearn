@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Basic/String.hpp"
-#include "Basic/Utilities.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "geoslib_old_f.h"
@@ -47,7 +46,6 @@ namespace gstlrn
   static Id TX; /* Allocated size of BITMAP along X */
   static Id TY; /* Allocated size of BITMAP along Y */
   static Id TXY;
-  static Id SXY;
   static Id STEP = 0;
   static Id Hsize = 0;
 
@@ -661,7 +659,6 @@ namespace gstlrn
     TX = SX + 2 * BORD;
     TY = SY + 2 * BORD;
     TXY = TX * TY;
-    SXY = SX * SY;
 
     /* Initializations */
 

@@ -17,8 +17,6 @@ namespace gstlrn
   GSTLEARN_EXPORT void record_close(void);
 #ifndef SWIG
   GSTLEARN_EXPORT void redefine_message(void (*write_func)(const char*));
-  GSTLEARN_EXPORT void redefine_error(void (*warn_func)(const char*));
-  GSTLEARN_EXPORT void redefine_read(void (*read_func)(const char*, char*));
   GSTLEARN_EXPORT void redefine_exit(void (*exit_func)(void));
 #endif
   GSTLEARN_EXPORT void mem_error(Id nbyte);

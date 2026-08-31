@@ -33,13 +33,9 @@ namespace gstlrn
 
   // TODO : No more char* and printf ! Use std::string and iostream
   static void st_print(const char* string);
-  static void st_read(const char* prompt, char* buffer);
   static void st_exit(void);
   static void (*WRITE_FUNC)(const char*) =
     static_cast<void (*)(const char*)>(st_print);
-  static void (*WARN_FUNC)(const char*) =
-    static_cast<void (*)(const char*)>(st_print);
-  static void (*READ_FUNC)(const char*, char*) = st_read;
   static void (*EXIT_FUNC)(void) = st_exit;
 
   static std::string currentLine;
@@ -77,38 +73,6 @@ namespace gstlrn
 
   /****************************************************************************/
   /*!
-   **  Read a string from the Standard Input
-   **
-   ** \param[in]  prompt String to be prompted to ask the question
-   ** \param[in]  buffer Array where the Input string is stored
-   **
-   *****************************************************************************/
-  static void st_read(const char* prompt, char* buffer)
-  {
-    // TODO: buffer maximum length should be defined inthe calling function
-    // which seems to be the interface between R and C++.
-    // It is set to 1000 here as a temporary solution
-    // to avoid buffer overflow
-    Id buffer_max = 1000;
-
-    // Id buffer_length = 1000; // TODO to be adjusted dependeing on calling function
-    message("%s :", prompt);
-
-    String ligne;
-    if (std::getline(std::cin, ligne))
-    {
-      // ligne contient le texte lu (sans le '\n')
-      (void)gslStrcpy(buffer, buffer_max, ligne.data());
-      buffer[strlen(buffer) - 1] = '\0';
-    }
-    else
-    {
-      ligne.clear(); // rien lu (EOF ou erreur)
-    }
-  }
-
-  /****************************************************************************/
-  /*!
    **  Redefine the IO routine for printing message
    **
    ** \param[in]  write_func Writing function
@@ -117,30 +81,6 @@ namespace gstlrn
   void redefine_message(void (*write_func)(const char*))
   {
     if (write_func != nullptr) WRITE_FUNC = write_func;
-  }
-
-  /****************************************************************************/
-  /*!
-   **  Redefine the IO routine for printing error message
-   **
-   ** \param[in]  warn_func  Warning function
-   **
-   *****************************************************************************/
-  void redefine_error(void (*warn_func)(const char*))
-  {
-    if (warn_func != nullptr) WARN_FUNC = warn_func;
-  }
-
-  /****************************************************************************/
-  /*!
-   **  Redefine the IO routine for Reading
-   **
-   ** \param[in]  read_func  Reading function
-   **
-   *****************************************************************************/
-  void redefine_read(void (*read_func)(const char*, char*))
-  {
-    if (read_func != nullptr) READ_FUNC = read_func;
   }
 
   /****************************************************************************/

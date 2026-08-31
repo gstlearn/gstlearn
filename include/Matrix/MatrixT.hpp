@@ -6,6 +6,7 @@
 #include <span>
 #endif
 
+#include <algorithm>
 #include <vector>
 
 namespace gstlrn

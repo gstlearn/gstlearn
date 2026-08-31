@@ -658,10 +658,6 @@ namespace gstlrn {
 
 %init %{
   redefine_message(R_Write);
-  redefine_error(R_Warning);
-#ifndef _WIN32
-  redefine_read(R_Read);
-#endif // Not _WIN32
   redefine_exit(R_Exit);
 %}
 

@@ -171,7 +171,6 @@ namespace gstlrn
   /*! \endcond */
   static Id DEBUG = 0;
   static Id VERBOSE = 0;
-  static Id FLAG_KEYPAIR = 0;
   static double FACDIM[] = {0., 1., 2., 6.};
   static Id SPDE_CURRENT_IGRF = 0;
   static Id SPDE_CURRENT_ICOV = 0;
@@ -3177,7 +3176,6 @@ namespace gstlrn
     models[0] = model1;
     models[1] = model2;
 
-    FLAG_KEYPAIR = static_cast<Id>(get_keypone("SPDE_FLAG_KEYPAIR", 0));
     DEBUG = static_cast<Id>(get_keypone("SPDE_DEBUG", DEBUG));
     S_DECIDE.simu_chol = static_cast<Id>(get_keypone("Flag_Simu_Chol", 0));
     S_DECIDE.simu_cheb = !S_DECIDE.simu_chol;
