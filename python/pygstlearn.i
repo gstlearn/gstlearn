@@ -1003,8 +1003,6 @@ void exit_f(void)
 
 %init %{
   redefine_message(write_f);
-  redefine_error(warn_f);
-  redefine_read(read_f);
   redefine_exit(exit_f);
 %}
 

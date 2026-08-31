@@ -59,20 +59,6 @@
 
 namespace gstlrn
 {
-
-  static double GIBBS_RHO, GIBBS_SQR;
-
-  /****************************************************************************/
-  /*!
-   **  Initialize the global values
-   **
-   *****************************************************************************/
-  static void st_simulation_environment(void)
-  {
-    GIBBS_RHO = 0.;
-    GIBBS_SQR = 0.;
-  }
-
   /****************************************************************************/
   /*!
    **  Check for the presence of mandatory attributes
@@ -907,10 +893,6 @@ namespace gstlrn
       goto label_end;
     }
 
-    /* Define the environment variables for printout */
-
-    st_simulation_environment();
-
     /* Add the attributes for storing the results */
 
     iptrv = dbout->addColumnsByConstant(1, 0.);
@@ -1067,10 +1049,6 @@ namespace gstlrn
       messerr("This feature is limited to the monovariate case");
       goto label_end;
     }
-
-    /* Define the environment variables for printout */
-
-    st_simulation_environment();
 
     /* Add the attributes for storing the results */
 
@@ -1251,10 +1229,6 @@ namespace gstlrn
     if (propdef.define(
           false, true, {1, 0}, {nvar, 0}, dbin, NULL, VectorDouble()))
       goto label_end;
-
-    /* Define the environment variables for printout */
-
-    st_simulation_environment();
 
     /* Add the attributes for storing the results */
 
