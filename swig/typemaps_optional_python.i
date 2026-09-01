@@ -1,6 +1,9 @@
 /******************************************************************************
  *
- * SWIG typemaps for std::optional<T>
+ * SWIG typemaps for std::optional<T> (Python target)
+ *
+ * Handles automatic conversion between Python objects (or None) and
+ * std::optional<T> types in C++.
  *
  *****************************************************************************/
 
@@ -8,11 +11,41 @@
 #include <optional>
 %}
 
-
-/*
- * optional<double>
+/**
+ * @brief Macro helper to factorize SWIG typemaps for simple numeric integral types.
+ * Converts Py_None to std::nullopt and valid Python integers to std::optional<TYPE>.
  */
-%typemap(in) std::optional<double>
+%define OPTIONAL_TYPEMAP_NUMERIC(TYPE, CHECK_FUNC, CONV_FUNC, TYPE_NAME)
+%typemap(in) std::optional<TYPE>
+{
+    if ($input == Py_None)
+    {
+        $1 = std::nullopt;
+    }
+    else if (CHECK_FUNC($input))
+    {
+        $1 = static_cast<TYPE>(CONV_FUNC($input));
+    }
+    else
+    {
+        SWIG_exception_fail(
+            SWIG_TypeError,
+            "Expected " TYPE_NAME " or None for optional<" TYPE_NAME ">"
+        );
+    }
+}
+%enddef
+
+OPTIONAL_TYPEMAP_NUMERIC(int, PyLong_Check, PyLong_AsLong, "int")
+OPTIONAL_TYPEMAP_NUMERIC(long, PyLong_Check, PyLong_AsLong, "int")
+OPTIONAL_TYPEMAP_NUMERIC(long long, PyLong_Check, PyLong_AsLongLong, "int")
+
+/**
+ * @brief Macro helper to factorize SWIG typemaps for floating point types.
+ * Accepts both Python floats and Python integers, converting Py_None to std::nullopt.
+ */
+%define OPTIONAL_TYPEMAP_FLOAT(TYPE, CONV_FUNC, TYPE_NAME)
+%typemap(in) std::optional<TYPE>
 {
     if ($input == Py_None)
     {
@@ -20,89 +53,24 @@
     }
     else if (PyFloat_Check($input) || PyLong_Check($input))
     {
-        $1 = static_cast<double>(PyFloat_AsDouble($input));
+        $1 = static_cast<TYPE>(CONV_FUNC($input));
     }
     else
     {
         SWIG_exception_fail(
             SWIG_TypeError,
-            "Expected float or None for optional<double>"
+            "Expected float or None for optional<" TYPE_NAME ">"
         );
     }
 }
+%enddef
 
+OPTIONAL_TYPEMAP_FLOAT(double, PyFloat_AsDouble, "double")
+OPTIONAL_TYPEMAP_FLOAT(float, PyFloat_AsDouble, "float")
 
-/*
- * optional<float>
- */
-%typemap(in) std::optional<float>
-{
-    if ($input == Py_None)
-    {
-        $1 = std::nullopt;
-    }
-    else if (PyFloat_Check($input) || PyLong_Check($input))
-    {
-        $1 = static_cast<float>(PyFloat_AsDouble($input));
-    }
-    else
-    {
-        SWIG_exception_fail(
-            SWIG_TypeError,
-            "Expected float or None for optional<float>"
-        );
-    }
-}
-
-
-/*
- * optional<int>
- */
-%typemap(in) std::optional<int>
-{
-    if ($input == Py_None)
-    {
-        $1 = std::nullopt;
-    }
-    else if (PyLong_Check($input))
-    {
-        $1 = static_cast<int>(PyLong_AsLong($input));
-    }
-    else
-    {
-        SWIG_exception_fail(
-            SWIG_TypeError,
-            "Expected int or None for optional<int>"
-        );
-    }
-}
-
-
-/*
- * optional<long>
- */
-%typemap(in) std::optional<long>
-{
-    if ($input == Py_None)
-    {
-        $1 = std::nullopt;
-    }
-    else if (PyLong_Check($input))
-    {
-        $1 = static_cast<long>(PyLong_AsLong($input));
-    }
-    else
-    {
-        SWIG_exception_fail(
-            SWIG_TypeError,
-            "Expected int or None for optional<long>"
-        );
-    }
-}
-
-
-/*
- * optional<bool>
+/**
+ * @brief Typemap for std::optional<bool>.
+ * Converts Python None to std::nullopt and Python booleans to std::optional<bool>.
  */
 %typemap(in) std::optional<bool>
 {
@@ -123,9 +91,9 @@
     }
 }
 
-
-/*
- * optional<std::string>
+/**
+ * @brief Typemap for std::optional<std::string>.
+ * Converts Python None to std::nullopt and UTF-8 Python strings to std::optional<std::string>.
  */
 %typemap(in) std::optional<std::string>
 {
