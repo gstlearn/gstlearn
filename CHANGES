@@ -4,6 +4,7 @@ This file contains the logs between consecutive releases
 
 Release 1.12.0
 ==============
+- The typemaps specific to languages have been moved from Swig Directory to Language Directories.
 - The member _uidcol has been removed from Db class.
 - The members of 'Db' class have been simplified (premices for merging 'Db' and 'DbData' classes)
 - Method NamingConvention::setNamesAndLocators() with multiple implementations has been replaced by the methods setOutput() and setOutputForSimulations()

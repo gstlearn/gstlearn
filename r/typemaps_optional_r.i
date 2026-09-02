@@ -1,10 +1,5 @@
 /******************************************************************************
  *
- * SWIG typemaps for std::optional<T>
- *
- *****************************************************************************/
-/******************************************************************************
- *
  * SWIG R typemaps for std::optional<T>
  *
  *****************************************************************************/
@@ -17,7 +12,7 @@
  */
 %typemap(in) std::optional<double>
 {
-    if (Rf_isNull($input))
+    if (TYPEOF($input) == NILSXP)
     {
         $1 = std::nullopt;
     }
@@ -27,8 +22,7 @@
     }
     else
     {
-        Rf_error(
-            "Expected numeric or NULL for optional<double>");
+        Rf_error("Expected numeric or NULL for optional<double>");
     }
 }
 
@@ -38,7 +32,7 @@
  */
 %typemap(in) std::optional<float>
 {
-    if (Rf_isNull($input))
+    if (TYPEOF($input) == NILSXP)
     {
         $1 = std::nullopt;
     }
@@ -48,8 +42,7 @@
     }
     else
     {
-        Rf_error(
-            "Expected numeric or NULL for optional<float>");
+        Rf_error("Expected numeric or NULL for optional<float>");
     }
 }
 
@@ -59,18 +52,17 @@
  */
 %typemap(in) std::optional<int>
 {
-    if (Rf_isNull($input))
+    if (TYPEOF($input) == NILSXP)
     {
         $1 = std::nullopt;
     }
-    else if (Rf_isInteger($input))
+    else if (TYPEOF($input) == INTSXP)
     {
         $1 = INTEGER($input)[0];
     }
     else
     {
-        Rf_error(
-            "Expected integer or NULL for optional<int>");
+        Rf_error("Expected integer or NULL for optional<int>");
     }
 }
 
@@ -80,18 +72,17 @@
  */
 %typemap(in) std::optional<long>
 {
-    if (Rf_isNull($input))
+    if (TYPEOF($input) == NILSXP)
     {
         $1 = std::nullopt;
     }
-    else if (Rf_isInteger($input))
+    else if (TYPEOF($input) == INTSXP)
     {
         $1 = static_cast<long>(INTEGER($input)[0]);
     }
     else
     {
-        Rf_error(
-            "Expected integer or NULL for optional<long>");
+        Rf_error("Expected integer or NULL for optional<long>");
     }
 }
 
@@ -101,18 +92,17 @@
  */
 %typemap(in) std::optional<bool>
 {
-    if (Rf_isNull($input))
+    if (TYPEOF($input) == NILSXP)
     {
         $1 = std::nullopt;
     }
-    else if (Rf_isLogical($input))
+    else if (TYPEOF($input) == LGLSXP)
     {
         $1 = (LOGICAL($input)[0] != 0);
     }
     else
     {
-        Rf_error(
-            "Expected logical or NULL for optional<bool>");
+        Rf_error("Expected logical or NULL for optional<bool>");
     }
 }
 
@@ -122,18 +112,16 @@
  */
 %typemap(in) std::optional<std::string>
 {
-    if (Rf_isNull($input))
+    if (TYPEOF($input) == NILSXP)
     {
         $1 = std::nullopt;
     }
-    else if (Rf_isString($input))
+    else if (TYPEOF($input) == STRSXP)
     {
-        $1 = std::string(
-            CHAR(STRING_ELT($input,0)));
+        $1 = std::string(CHAR(STRING_ELT($input, 0)));
     }
     else
     {
-        Rf_error(
-            "Expected character or NULL for optional<string>");
+        Rf_error("Expected character or NULL for optional<string>");
     }
 }

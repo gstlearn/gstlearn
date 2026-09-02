@@ -42,6 +42,9 @@
   _import_array(); // Mandatory for using PyArray_* functions
 %}
 
+%include "typemaps_optional_python.i"
+%include "typemaps_colID_python.i"
+
 %begin %{
 // For converting NumPy integers to C++ integers
 // https://github.com/swig/swig/issues/888

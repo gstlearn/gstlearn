@@ -336,22 +336,11 @@ typedef std::string String;  // Add to allow aliasing String and std::string
 %include API/SPDEParam.hpp
 %include API/Potential.hpp
 
-// 1. Load typemaps BEFOREHAND so that SWIG knows them
-#ifdef SWIGPYTHON
-%include "typemaps_optional_python.i"
-%include "typemaps_colID_python.i"
-#endif
-
-#ifdef SWIGR
-%include "typemaps_optional_r.i"
-%include "typemaps_colID_r.i"
-#endif
-
-// 2. Define types
+// Define types
 %include "DataBase/RoleID.hpp"
 %include "DataBase/ColID.hpp"
 
-// 3. Load the headers that use ColID
+// Load the headers that use ColID
 %include "DataBase/DbData.hpp"
 %include "DataBase/DbCol.hpp"
 //%include DataBase/Dictionary.hpp
