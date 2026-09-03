@@ -31,7 +31,7 @@ include(${SWIG_USE_FILE})
 # DOCUMENTATION
 
 # Ensure documentation.i is existing
-# TODO : put documentation.i out of the source (be careful of pygstlearn.i)
+# TODO : put documentation.i out of the source (be careful to pygstlearn.i)
 add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/doc/documentation.i
   COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_SOURCE_DIR}/doc/documentation.i
   COMMENT "Ensure that documentation.i exists")

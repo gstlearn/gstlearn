@@ -14,7 +14,6 @@
 /*      (RoleID(...),version)   -> ColID(RoleID(...),version)              */
 /*                                                                         */
 /*      ERole.X                 -> ColID(ERole::X)                         */
-/*                                                                         */
 /*      ColID(...)              -> copy constructor                        */
 /*                                                                         */
 /***************************************************************************/
@@ -29,15 +28,15 @@
 
     if (PyTuple_Check(obj))
     {
-        if (PyTuple_Size(obj) != 2)
+        if (PyTuple_GET_SIZE(obj) != 2)
         {
             SWIG_exception_fail(
                 SWIG_TypeError,
                 "ColID tuple must contain exactly two elements");
         }
 
-        PyObject *first  = PyTuple_GET_ITEM(obj,0);
-        PyObject *second = PyTuple_GET_ITEM(obj,1);
+        PyObject *first  = PyTuple_GET_ITEM(obj, 0);
+        PyObject *second = PyTuple_GET_ITEM(obj, 1);
 
         if (!PyLong_Check(second))
         {
@@ -46,42 +45,19 @@
                 "Second tuple element must be an integer version");
         }
 
-        version =
-            static_cast<gstlrn::Id>(PyLong_AsLong(second));
-
+        version = static_cast<gstlrn::Id>(PyLong_AsLong(second));
         obj = first;
     }
 
 
     /**********************************************************************/
-    /* Existing ColID                                                     */
+    /* Fast path: Native Python types (String & Integer)                  */
     /**********************************************************************/
 
-    gstlrn::ColID *colid = nullptr;
-
-    int res = SWIG_ConvertPtr(
-        obj,
-        (void**)&colid,
-        SWIGTYPE_p_gstlrn__ColID,
-        0);
-
-    if (SWIG_IsOK(res) && colid != nullptr)
-    {
-        $1 = new gstlrn::ColID(
-            gstlrn::ColID::create(*colid, version));
-    }
-
-
-    /**********************************************************************/
-    /* String                                                             */
-    /**********************************************************************/
-
-    else if (PyUnicode_Check(obj))
+    if (PyUnicode_Check(obj))
     {
         Py_ssize_t size = 0;
-
-        const char *str =
-            PyUnicode_AsUTF8AndSize(obj, &size);
+        const char *str = PyUnicode_AsUTF8AndSize(obj, &size);
 
         if (str == nullptr)
         {
@@ -96,11 +72,6 @@
                 version));
     }
 
-
-    /**********************************************************************/
-    /* Integer                                                            */
-    /**********************************************************************/
-
     else if (PyLong_Check(obj))
     {
         $1 = new gstlrn::ColID(
@@ -111,64 +82,78 @@
 
 
     /**********************************************************************/
-    /* RoleID                                                             */
+    /* C++ Wrapped Objects (ColID, RoleID, ERole) with Type Query Cache   */
     /**********************************************************************/
 
     else
     {
-        gstlrn::RoleID *roleID = nullptr;
+        // Cache SWIG type descriptors to avoid string lookups on every call
+        static swig_type_info *type_ColID  = SWIG_TypeQuery("gstlrn::ColID *");
+        static swig_type_info *type_RoleID = SWIG_TypeQuery("gstlrn::RoleID *");
+        static swig_type_info *type_ERole  = SWIG_TypeQuery("gstlrn::ERole *");
 
-        res = SWIG_ConvertPtr(
+        gstlrn::ColID *colid = nullptr;
+
+        int res = SWIG_ConvertPtr(
             obj,
-            (void**)&roleID,
-            SWIGTYPE_p_gstlrn__RoleID,
+            (void**)&colid,
+            type_ColID ? type_ColID : SWIGTYPE_p_gstlrn__ColID,
             0);
 
-        if (SWIG_IsOK(res) && roleID != nullptr)
+        if (SWIG_IsOK(res) && colid != nullptr)
         {
             $1 = new gstlrn::ColID(
-                gstlrn::ColID::create(*roleID, version));
+                gstlrn::ColID::create(*colid, version));
         }
-
-
-        /******************************************************************/
-        /* ERole                                                           */
-        /******************************************************************/
-
         else
         {
-            gstlrn::ERole *role = nullptr;
+            gstlrn::RoleID *roleID = nullptr;
 
             res = SWIG_ConvertPtr(
                 obj,
-                (void**)&role,
-                SWIGTYPE_p_gstlrn__ERole,
+                (void**)&roleID,
+                type_RoleID ? type_RoleID : SWIGTYPE_p_gstlrn__RoleID,
                 0);
 
-            if (SWIG_IsOK(res) && role != nullptr)
+            if (SWIG_IsOK(res) && roleID != nullptr)
             {
-                /*
-                 * Tuple (ERole,version) deliberately not supported:
-                 * ambiguous with (ERole,index)
-                 */
-                if (version != 0)
+                $1 = new gstlrn::ColID(
+                    gstlrn::ColID::create(*roleID, version));
+            }
+            else
+            {
+                gstlrn::ERole *role = nullptr;
+
+                res = SWIG_ConvertPtr(
+                    obj,
+                    (void**)&role,
+                    type_ERole ? type_ERole : SWIGTYPE_p_gstlrn__ERole,
+                    0);
+
+                if (SWIG_IsOK(res) && role != nullptr)
+                {
+                    /*
+                     * Tuple (ERole,version) deliberately not supported:
+                     * ambiguous with (ERole,index)
+                     */
+                    if (version != 0)
+                    {
+                        SWIG_exception_fail(
+                            SWIG_TypeError,
+                            "(ERole,version) syntax is not supported");
+                    }
+
+                    $1 = new gstlrn::ColID(
+                        gstlrn::ColID::create(*role));
+                }
+                else
                 {
                     SWIG_exception_fail(
                         SWIG_TypeError,
-                        "(ERole,version) syntax is not supported");
+                        "Expected ColID, string, integer, RoleID, ERole, "
+                        "(string,version), (integer,version) or "
+                        "(RoleID,version)");
                 }
-
-                $1 = new gstlrn::ColID(
-                    gstlrn::ColID::create(*role));
-            }
-
-            else
-            {
-                SWIG_exception_fail(
-                    SWIG_TypeError,
-                    "Expected ColID, string, integer, RoleID, ERole, "
-                    "(string,version), (integer,version) or "
-                    "(RoleID,version)");
             }
         }
     }
