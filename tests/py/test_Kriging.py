@@ -210,11 +210,11 @@ def test_kriging_internal(
 
     # Creation of a db2 without selection to build the complete covariance matrix
     db2 = db.clone()
-    db2.setLocator("sel")
+    db2.setLocator("sel", gl.ELoc.UNDEFINED)
     vect = gl.VectorDouble(nvar**2 * db2.getNSample() ** 2)
 
     target2 = target.clone()
-    target2.setLocator("sel")
+    target2.setLocator("sel", gl.ELoc.UNDEFINED)
 
     covgl = np.array(list(vect)).reshape(nvar * db2.getNSample(), -1)[indF, :][:, indF]
 
