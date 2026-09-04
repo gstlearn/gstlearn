@@ -12,6 +12,7 @@
 #include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "DataBase/DbData.hpp"
+#include "DataBase/Dictionary.hpp"
 
 using namespace gstlrn;
 
@@ -34,6 +35,7 @@ int main(int argc, char* argv[])
 
   // Checking the different types of Columns that can be added to a DbData
   mestitle(1, "Adding Columns to a DbData");
+  auto nech = 3;
   data.addColumn("VD", VectorDouble{1., 2., 3.}, RoleID{ERole::X});
   data.addColumn("VI", VectorInt{5, 6, 7}, RoleID{ERole::Z});
   data.addColumn("VS", VectorString{"foo", "bar", "baz"}, RoleID{ERole::Z, 1});
@@ -42,26 +44,55 @@ int main(int argc, char* argv[])
   data.addColumn("VIS", VH::sequence(15, 3, 2), RoleID(ERole::Z, 2), 5);
   data.printContents();
 
+  // Checking the addition of a Categorical variable
+  message("Creating the Dictionary for the categorical variable\n");
+  VectorInt keys{1, 3, 7};
+  VectorString labels{"red", "blue", "green"};
+  Dictionary dict;
+  for (size_t i = 0; i < keys.size(); ++i) dict.addCategory(keys[i], labels[i]);
+  auto ncategory = dict.getNCategories();
+
+  message("Creating the VectorCategory for the categorical variable\n");
+  VectorCategory vc(nech, dict);
+  for (Id i = 0; i < nech; ++i)
+  {
+    auto j = static_cast<Id>(i % ncategory);
+    vc.setCategory(i, keys[j]);
+  }
+  data.addColumn("VC", VectorCategory(vc));
+  data.printContents();
+
   // Checking the use of Neutral Files
   mestitle(1, "Saving and recovering a DbData from a Neutral File");
   data.printContents("Before Saving in a Neutral File");
-  std::cout << "C0: " << data.getColumn<VectorDouble>("VD");
-  std::cout << "C1: " << data.getColumn<VectorInt>("VI");
-  std::cout << "C2: " << data.getColumn<VectorString>("VS");
-  std::cout << "C3: " << data.getColumn<VectorBool>("VB");
-  std::cout << "C4: " << data.getColumn<VectorDouble>("VDS");
-  std::cout << "C5: " << data.getColumn<VectorInt>("VIS");
+  std::cout << "VD: " << data.getColumn<VectorDouble>("VD");
+  std::cout << "VI: " << data.getColumn<VectorInt>("VI");
+  std::cout << "VS: " << data.getColumn<VectorString>("VS");
+  std::cout << "VB: " << data.getColumn<VectorBool>("VB");
+  std::cout << "VDS: " << data.getColumn<VectorDouble>("VDS");
+  std::cout << "VIS: " << data.getColumn<VectorInt>("VIS");
+  std::cout << "VC: " << data.getColumn<VectorCategory>("VC");
   data.dumpToNF("test_DataBase.NF");
 
   message("\nAfter recovering from the Neutral File\n");
   auto* data2 = DbData::createFromNF("test_DataBase.NF", true);
-  std::cout << "C0: " << data2->getColumn<VectorDouble>("VD");
-  std::cout << "C1: " << data2->getColumn<VectorInt>("VI");
-  std::cout << "C2: " << data2->getColumn<VectorString>("VS");
-  std::cout << "C3: " << data2->getColumn<VectorBool>("VB");
-  std::cout << "C4: " << data2->getColumn<VectorDouble>("VDS");
-  std::cout << "C5: " << data2->getColumn<VectorInt>("VIS");
+  std::cout << "VD: " << data2->getColumn<VectorDouble>("VD");
+  std::cout << "VI: " << data2->getColumn<VectorInt>("VI");
+  std::cout << "VS: " << data2->getColumn<VectorString>("VS");
+  std::cout << "VB: " << data2->getColumn<VectorBool>("VB");
+  std::cout << "VDS: " << data2->getColumn<VectorDouble>("VDS");
+  std::cout << "VIS: " << data2->getColumn<VectorInt>("VIS");
+  std::cout << "VC: " << data2->getColumn<VectorCategory>("VC");
   delete data2;
+
+  // Particular test for the case of Categorical variable
+  mestitle(1, "Checking the use of a Categorical Variable");
+  // Reading the category of the first sample and store it in 'cat'
+  Category cat = data.getValue<Category>("VC", 0).value_or(getNA<Category>());
+  // Setting the category 'cat' to the second sample
+  data.setValue("VC", 1, cat);
+  // Cheking the result on the dump of the whole vector
+  std::cout << "VC: " << data.getColumn<VectorCategory>("VC");
 
   // Checking aliases for accessing values in a DbData
   mestitle(1, "Checking aliases");

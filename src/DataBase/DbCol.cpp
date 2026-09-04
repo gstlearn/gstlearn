@@ -18,28 +18,86 @@ namespace gstlrn
 
   bool DbCol::serializeH5(H5::Group& grp) const
   {
-    // Metadata
     SerializeHDF5::writeValue(grp, "Name", getName());
     SerializeHDF5::writeValue(grp, "NVersion", getNVersions());
     SerializeHDF5::writeValue(grp, "ForbidNA", forbidNA());
 
-    // Buffer
+    const bool isCategory =
+      std::holds_alternative<Array2D<VectorCategory>>(this->_data);
+
+    SerializeHDF5::writeValue(grp, "IsCategory", isCategory);
+
+    bool success = true;
+
     visitData(
       [&](const auto& array)
       {
-        using ArrayType = std::decay_t<decltype(array)>;
-        using T = typename ArrayType::value_type;
+        if (!success) return;
 
-        // Dimensions
+        using ArrayType = std::decay_t<decltype(array)>;
+        using ValueType = typename ArrayType::value_type;
+
         hsize_t dims[2] = {static_cast<hsize_t>(array.outer()),
                            static_cast<hsize_t>(array.inner())};
         H5::DataSpace space(2, dims);
 
         /*
+         * Categorical case
+         */
+        if constexpr (std::is_same_v<ArrayType, Array2D<VectorCategory>>)
+        {
+          /*
+           * VectorCategory case.
+           *
+           * The dictionary is common to all versions and is therefore
+           * serialized only once.
+           */
+          const auto& vc = array.getBuffer();
+
+          H5::Group dictGrp = grp.createGroup("Dictionary");
+
+          if (!vc.getDictionary().serializeH5(dictGrp))
+          {
+            success = false;
+            return;
+          }
+
+          std::vector<Id> values;
+          values.reserve(array.outer() * array.inner());
+
+          for (Id iversion = 0; iversion < array.outer(); ++iversion)
+          {
+            /*
+             * The VectorCategory contains all versions consecutively.
+             */
+            const auto offset = static_cast<size_t>(iversion * array.inner());
+
+            for (Id isample = 0; isample < array.inner(); ++isample)
+            {
+              const auto cat =
+                vc.getCategory(offset + static_cast<size_t>(isample));
+
+              if (!cat)
+              {
+                values.push_back(-1);
+                continue;
+              }
+              values.push_back(cat->getIdentifier());
+            }
+          }
+
+          const auto& type = SerializeHDF5::getHDF5Type<Id>();
+
+          auto ds = grp.createDataSet("Values", type, space);
+
+          if (!values.empty()) ds.write(values.data(), type);
+        }
+
+        /*
          * String case
          */
-        if constexpr (std::is_same_v<T, String>
-                      || std::is_same_v<T, std::string>)
+        else if constexpr (std::is_same_v<ValueType, String>
+                           || std::is_same_v<ValueType, std::string>)
         {
           H5::StrType strType(H5::PredType::C_S1, H5T_VARIABLE);
 
@@ -51,15 +109,15 @@ namespace gstlrn
 
           for (const auto& s: array.getBuffer()) buffer.push_back(s.c_str());
 
-          ds.write(buffer.data(), strType);
+          if (!buffer.empty()) ds.write(buffer.data(), strType);
         }
 
-        /*
-         * Numeric case
-         */
         else
         {
-          const auto& type = SerializeHDF5::getHDF5Type<T>();
+          /*
+           * Numeric case
+           */
+          const auto& type = SerializeHDF5::getHDF5Type<ValueType>();
 
           auto ds = grp.createDataSet("Values", type, space);
 
@@ -67,7 +125,7 @@ namespace gstlrn
         }
       });
 
-    return true;
+    return success;
   }
 
   bool DbCol::deserializeH5(H5::Group& grp)
@@ -91,10 +149,64 @@ namespace gstlrn
     hsize_t dims[2];
     space.getSimpleExtentDims(dims);
 
-    const size_t outer = dims[0];
-    const size_t inner = dims[1];
-    const size_t size = outer * inner;
+    const Id outer = static_cast<Id>(dims[0]);
+    const Id inner = static_cast<Id>(dims[1]);
+    const auto size = static_cast<size_t>(outer * inner);
 
+    /*
+     * Check Categorical case
+     */
+    bool isCategory = false;
+    SerializeHDF5::readValue(grp, "IsCategory", isCategory);
+
+    if (isCategory)
+    {
+      /*
+       * Read dictionary.
+       */
+      H5::Group dictGrp = grp.openGroup("Dictionary");
+
+      Dictionary dict;
+
+      if (!dict.deserializeH5(dictGrp)) return false;
+
+      /*
+       * Read category indices.
+       */
+      hid_t h5type = dtype.getId();
+
+      if (H5Tget_class(h5type) != H5T_INTEGER) return false;
+
+      if (H5Tget_size(h5type) != sizeof(Id) || H5Tget_sign(h5type) != H5T_SGN_2)
+        return false;
+
+      std::vector<Id> values(size);
+
+      const auto& type = SerializeHDF5::getHDF5Type<Id>();
+
+      if (!values.empty()) ds.read(values.data(), type);
+
+      /*
+       * Rebuild the VectorCategory.
+       */
+      VectorCategory vc(size, dict);
+
+      if (!vc.setCategoriesByKey(values)) return false;
+
+      /*
+       * Build the Array2D.
+       *
+       * The dictionary is already stored in vc and is therefore
+       * automatically common to all versions.
+       */
+      _data = Array2D<VectorCategory>(std::move(vc), outer);
+
+      return true;
+    }
+
+    /*
+     * Non-categorical cases
+     */
     hid_t type = dtype.getId();
 
     switch (H5Tget_class(type))
@@ -191,7 +303,6 @@ namespace gstlrn
       {
         using VectorType = std::decay_t<decltype(arg)>::vector_type;
         using ValueType = typename VectorType::value_type;
-
         return getGenericTypeName<ValueType>();
       },
       this->_data);

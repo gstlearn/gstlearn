@@ -1039,6 +1039,9 @@ namespace gstlrn {
 %extend VectorNumT<VectorNumT<double> >{
   std::string __repr__() {  return $self->toString(); }
 }
+%extend VectorCategory {
+  std::string __repr__() {  return $self->toString(); }
+}
 
 } // namespace gstlrn
 

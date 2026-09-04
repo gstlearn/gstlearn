@@ -12,6 +12,7 @@
 
 #include "Basic/Message.hpp"
 #include "Basic/VectorNumT.hpp"
+#include "DataBase/Category.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
@@ -866,6 +867,8 @@ namespace gstlrn
       return "String";
     else if constexpr (std::is_same_v<T, bool>)
       return "Bool";
+    else if constexpr (std::is_same_v<T, Category>)
+      return "Category";
     else
       static_assert(dependent_false_v<T>, "Unsupported type");
   }

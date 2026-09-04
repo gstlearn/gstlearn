@@ -8,6 +8,26 @@
 %}
 
 /*
+ * optional<long long>
+ */
+%typemap(in) std::optional<long long>
+{
+    if (Rf_isNull($input))
+    {
+        $1 = std::nullopt;
+    }
+    else if (Rf_isReal($input) || Rf_isInteger($input))
+    {
+        $1 = static_cast<long long>(Rf_asReal($input));
+    }
+    else
+    {
+        Rf_error(
+            "Expected numeric or NULL for optional<long long>");
+    }
+}
+
+/*
  * optional<double>
  */
 %typemap(in) std::optional<double>
