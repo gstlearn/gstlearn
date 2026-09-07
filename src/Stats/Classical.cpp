@@ -1650,7 +1650,7 @@ namespace gstlrn
     for (Id icol = 0; icol < ncol; icol++)
     {
       Id jcol = cols[icol];
-      if (!db->getData().isValidColumn(jcol))
+      if (!db->isColIdxValid(jcol))
       {
         messerr("Error: Variable %d is not defined", cols[icol]);
         return Table();
