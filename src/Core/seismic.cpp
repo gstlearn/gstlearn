@@ -1552,7 +1552,7 @@ namespace gstlrn
 
     /* Create the output variables */
 
-    iatt_t = db_t->addColumnsByConstant(natt, 0.);
+    iatt_t = db_t->addColumnsByConstant(natt, 1, 0.);
     if (iatt_t < 0) goto label_end;
     iatt_z = db_z->getUIDByLocator(ELoc::Z, 0);
 
@@ -1620,7 +1620,7 @@ namespace gstlrn
 
     /* Create the output variables */
 
-    iatt_z = db_z->addColumnsByConstant(natt, 0.);
+    iatt_z = db_z->addColumnsByConstant(natt, 1, 0.);
     if (iatt_z < 0) goto label_end;
     iatt_t = db_t->getUIDByLocator(ELoc::Z, 0);
 
@@ -1675,7 +1675,7 @@ namespace gstlrn
 
     iatt_in = db->getUIDByLocator(ELoc::Z, 0);
     if (iatt_in < 0) return (1);
-    iatt_out = db->addColumnsByConstant(natt, 0.);
+    iatt_out = db->addColumnsByConstant(natt, 1, 0.);
     if (iatt_out < 0) return (1);
 
     if (st_seismic_operate(db, oper, natt, nt, iatt_in, iatt_out, dt))
@@ -1847,7 +1847,7 @@ namespace gstlrn
     error = 1;
     iatt_in = db->getUIDByLocator(ELoc::Z, 0);
     if (iatt_in < 0) return (1);
-    iatt_out = db->addColumnsByConstant(natt, 0.);
+    iatt_out = db->addColumnsByConstant(natt, 1, 0.);
     if (iatt_out < 0) return (1);
 
     /* Core allocation */
@@ -3076,13 +3076,13 @@ namespace gstlrn
 
     for (i = 0; i < 2; i++)
     {
-      iatt_est[i] = db->addColumnsByConstant(1, TEST);
+      iatt_est[i] = db->addColumnsByConstant(1, 1, TEST);
       if (iatt_est[i] < 0) goto label_end;
     }
     if (flag_std)
       for (i = 0; i < 2; i++)
       {
-        iatt_std[i] = db->addColumnsByConstant(1, TEST);
+        iatt_std[i] = db->addColumnsByConstant(1, 1, TEST);
         if (iatt_std[i] < 0) goto label_end;
       }
 
@@ -3330,7 +3330,7 @@ namespace gstlrn
 
     for (i = 0; i < NVAR; i++)
     {
-      iatt_sim[i] = db->addColumnsByConstant(nbsimu, TEST);
+      iatt_sim[i] = db->addColumnsByConstant(nbsimu, 1, TEST);
       if (iatt_sim[i] < 0) goto label_end;
     }
 

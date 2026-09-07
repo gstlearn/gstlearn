@@ -432,21 +432,21 @@ namespace gstlrn
     _iptrCover = -1;
     if (getDbin() != nullptr)
     {
-      _iptrCover = _addVariableDb(1, 2, ELoc::SIMU, 0, 1, 0.);
+      _iptrCover = _addVariableDb(1, 2, ELoc::SIMU, 0, 1, 1, 0.);
       if (_iptrCover < 0) return false;
     }
     _iptrSimu = -1;
     if (_flagSimu)
     {
       _iptrSimu = _addVariableDb(
-        2, 1, ELoc::SIMU, 0, getNbSimu(), _boolparam.getBackground());
+        2, 1, ELoc::SIMU, 0, getNbSimu(), 1, _boolparam.getBackground());
       if (_iptrSimu < 0) return false;
     }
     _iptrRank = -1;
     if (_flagRank)
     {
       _iptrRank = _addVariableDb(
-        2, 1, ELoc::SIMU, 0, getNbSimu(), _boolparam.getBackground());
+        2, 1, ELoc::SIMU, 0, getNbSimu(), 1, _boolparam.getBackground());
       if (_iptrRank < 0) return false;
     }
     return true;

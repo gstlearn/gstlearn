@@ -237,14 +237,16 @@ namespace gstlrn
     const ELoc& locatorType,
     Id locatorIndex,
     Id number,
+    Id nversion,
     double valinit)
   {
     Db* db = _whichDb(whichDb);
     if (db == nullptr) return -1;
+    auto count = number * nversion;
     Id iuid = db->addColumnsByConstant(
-      number, valinit, "tempVar", locatorType, locatorIndex);
+      count, 1, valinit, "tempVar", locatorType, locatorIndex);
     if (iuid < 0) return -1;
-    VectorInt iuids = VH::sequence(number, iuid);
+    VectorInt iuids = VH::sequence(count, iuid);
     _storeInVariableList(whichDb, status, iuids);
     return iuid;
   }

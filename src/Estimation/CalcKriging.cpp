@@ -89,25 +89,25 @@ namespace gstlrn
     if (_flagEst)
     {
       _iptrEst =
-        _addVariableDb(2, status, ELoc::UNDEFINED, 0, _getNVar(), TEST);
+        _addVariableDb(2, status, ELoc::UNDEFINED, 0, _getNVar(), 1, TEST);
       if (_iptrEst < 0) return false;
     }
     if (_flagStd)
     {
       _iptrStd =
-        _addVariableDb(2, status, ELoc::UNDEFINED, 0, _getNVar(), TEST);
+        _addVariableDb(2, status, ELoc::UNDEFINED, 0, _getNVar(), 1, TEST);
       if (_iptrStd < 0) return false;
     }
     if (_flagVarZ)
     {
       _iptrVarZ =
-        _addVariableDb(2, status, ELoc::UNDEFINED, 0, _getNVar(), TEST);
+        _addVariableDb(2, status, ELoc::UNDEFINED, 0, _getNVar(), 1, TEST);
       if (_iptrVarZ < 0) return false;
     }
     if (_flagNeighOnly)
     {
       _iptrNeigh =
-        _addVariableDb(2, status, ELoc::UNDEFINED, 0, _nbNeigh, TEST);
+        _addVariableDb(2, status, ELoc::UNDEFINED, 0, _nbNeigh, 1, TEST);
       if (_iptrNeigh < 0) return false;
     }
 
@@ -227,7 +227,7 @@ namespace gstlrn
     Id nvar = _getNVar();
     Id nech = _ktest.nech;
     auto names = getDbin()->getNamesByLocator(ELoc::Z);
-    auto iuid = getDbin()->addColumnsByConstant(nvar * nvar, TEST, "Weight");
+    auto iuid = getDbin()->addColumnsByConstant(nvar * nvar, 1, TEST, "Weight");
 
     // Loop on the variables
     for (Id ivar = 0; ivar < nvar; ++ivar)

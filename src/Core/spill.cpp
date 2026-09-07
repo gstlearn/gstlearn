@@ -682,7 +682,7 @@ namespace gstlrn
 
     /* Add the attribute */
 
-    Id iptr_spill = dbgrid->addColumnsByConstant(1, 0., "Spill", ELoc::Z);
+    Id iptr_spill = dbgrid->addColumnsByConstant(1, 1, 0., "Spill", ELoc::Z);
     if (iptr_spill < 0) goto label_end;
 
     /* Core allocation */

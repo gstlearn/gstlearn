@@ -70,7 +70,7 @@ grid
 # Note the returned value: it corresponds to the attribute number assigned
 # to the first new variable.
 
-iatt2 = grid.addColumnsByConstant(3, 5.0, "second", gl.ELoc.Z)
+iatt2 = grid.addColumnsByConstant(3, 1, 5.0, "second", gl.ELoc.Z)
 print(f"Attribute corresponding to the first variable named 'second-x' = {iatt2}")
 grid
 

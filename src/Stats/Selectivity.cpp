@@ -1217,9 +1217,9 @@ namespace gstlrn
 
     // Variable allocations
 
-    Id iuidT = db->addColumnsByConstant(ncuts, TEST);
+    Id iuidT = db->addColumnsByConstant(ncuts, 1, TEST);
     if (iuidT < 0) return -1;
-    Id iuidQ = db->addColumnsByConstant(ncuts, TEST);
+    Id iuidQ = db->addColumnsByConstant(ncuts, 1, TEST);
     if (iuidQ < 0) return -1;
 
     // Loop on the samples

@@ -258,11 +258,11 @@ namespace gstlrn
 
     // Allocate the new attributes:
 
-    iptr_ce = db->addColumnsByConstant(nvar, 0.);
+    iptr_ce = db->addColumnsByConstant(nvar, 1, 0.);
     if (iptr_ce < 0) goto label_end;
-    iptr_cstd = db->addColumnsByConstant(nvar, 0.);
+    iptr_cstd = db->addColumnsByConstant(nvar, 1, 0.);
     if (iptr_cstd < 0) goto label_end;
-    iptr_nb = db->addColumnsByConstant(nvar, 0.);
+    iptr_nb = db->addColumnsByConstant(nvar, 1, 0.);
     if (iptr_nb < 0) goto label_end;
 
     // Loop on the simulations
@@ -895,9 +895,9 @@ namespace gstlrn
 
     /* Add the attributes for storing the results */
 
-    iptrv = dbout->addColumnsByConstant(1, 0.);
+    iptrv = dbout->addColumnsByConstant(1, 1, 0.);
     if (iptrv < 0) goto label_end;
-    iptrr = dbout->addColumnsByConstant(1, 0.);
+    iptrr = dbout->addColumnsByConstant(1, 1, 0.);
     if (iptrr < 0) goto label_end;
     if (db_locator_attribute_add(dbout, ELoc::SEL, 1, 0, 0., &iptrs))
       goto label_end;
@@ -1363,7 +1363,7 @@ namespace gstlrn
 
     /* Create the new variable in the Data base */
 
-    Id iptr = db->addColumnsByConstant(1, 0., String(), ELoc::SIMU);
+    Id iptr = db->addColumnsByConstant(1, 1, 0., String(), ELoc::SIMU);
 
     SimuSpherical simsphe(1, seed);
     if (simsphe.simulate(db, model, sphepar, iptr, verbose)) return 1;

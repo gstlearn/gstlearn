@@ -480,7 +480,7 @@ namespace gstlrn
     double valinit,
     Id* iptr)
   {
-    (*iptr) = db->addColumnsByConstant(number, valinit);
+    (*iptr) = db->addColumnsByConstant(number, 1, valinit);
     if ((*iptr) < 0) return (1);
     db->setLocatorsByUID(number, *iptr, locatorType, r_tem);
 
@@ -539,7 +539,7 @@ namespace gstlrn
 
     /* Add the variables */
 
-    Id iptr = db2->addColumnsByConstant(ncol, TEST);
+    Id iptr = db2->addColumnsByConstant(ncol, 1, TEST);
 
     /* Loop on the output grid Db */
 
@@ -1055,7 +1055,7 @@ namespace gstlrn
 
     /* Allocate the variables */
 
-    Id iptr = dbgrid->addColumnsByConstant(nclass, 0.);
+    Id iptr = dbgrid->addColumnsByConstant(nclass, 1, 0.);
     if (iptr < 0) return 1;
     dbgrid->setLocatorsByUID(nclass, iptr, ELoc::P, 0);
 
@@ -1149,7 +1149,7 @@ namespace gstlrn
 
     /* Add the new variable */
 
-    iptr = db->addColumnsByConstant(1, TEST);
+    iptr = db->addColumnsByConstant(1, 1, TEST);
 
     /* Loop on the samples */
 
@@ -1822,7 +1822,7 @@ namespace gstlrn
 
     if (flag_sel)
     {
-      isel = ss_grid->addColumnsByConstant(1, 0., String(), ELoc::SEL);
+      isel = ss_grid->addColumnsByConstant(1, 1, 0., String(), ELoc::SEL);
       for (Id i = 0; i < ss_grid->getNSample(); i++)
       {
         ss_grid->rankToIndice(i, indcur);
@@ -1838,7 +1838,7 @@ namespace gstlrn
 
     if (flag_copy)
     {
-      icopy = ss_grid->addColumnsByConstant(1, 0., String(), ELoc::SEL);
+      icopy = ss_grid->addColumnsByConstant(1, 1, 0., String(), ELoc::SEL);
       for (Id i = 0; i < ss_grid->getNSample(); i++)
       {
         ss_grid->rankToIndice(i, indcur);

@@ -1217,7 +1217,7 @@ namespace gstlrn
 
     // Allocate the new variable
 
-    Id iptr = dbgrid->addColumnsByConstant(1, perm_mat);
+    Id iptr = dbgrid->addColumnsByConstant(1, 1, perm_mat);
 
     // Plunge the environment
 
@@ -1600,12 +1600,12 @@ namespace gstlrn
 
     /* Allocate the new variable */
 
-    iptr_perm = dbgrid->addColumnsByConstant(1, 0);
+    iptr_perm = dbgrid->addColumnsByConstant(1, 1, 0);
     if (!isNA(col_perm)) dbgrid->copyByUID(col_perm, iptr_perm);
 
     if (flag_fluid)
     {
-      iptr_fluid = dbgrid->addColumnsByConstant(1, 0.);
+      iptr_fluid = dbgrid->addColumnsByConstant(1, 1, 0.);
       if (!isNA(col_fluid)) dbgrid->copyByUID(col_fluid, iptr_fluid);
     }
 

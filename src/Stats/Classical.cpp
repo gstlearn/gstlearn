@@ -947,7 +947,7 @@ namespace gstlrn
 
     /* Create the new variables in the output file */
 
-    Id iptr = dbout->addColumnsByConstant(nfacies, TEST);
+    Id iptr = dbout->addColumnsByConstant(nfacies, 1, TEST);
     if (iptr < 0) return 1;
 
     /* Loop on the elements of the output grid */
@@ -1047,7 +1047,7 @@ namespace gstlrn
 
     /* Create the new variables in the output file */
 
-    Id iptr = dbout->addColumnsByConstant(nfacies * nfacies, TEST);
+    Id iptr = dbout->addColumnsByConstant(nfacies * nfacies, 1, TEST);
     if (iptr < 0) return 1;
 
     /* Loop on the elements of the output grid */
@@ -1845,9 +1845,9 @@ namespace gstlrn
 
     if (oper == EStatOption::MEAN || oper == EStatOption::VAR
         || oper == EStatOption::STDV)
-      iptn = dbgrid->addColumnsByConstant(1, 0.);
+      iptn = dbgrid->addColumnsByConstant(1, 1, 0.);
     if (oper == EStatOption::VAR || oper == EStatOption::STDV)
-      iptm = dbgrid->addColumnsByConstant(1, 0.);
+      iptm = dbgrid->addColumnsByConstant(1, 1, 0.);
 
     /* Core allocation */
 

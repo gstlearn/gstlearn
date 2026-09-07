@@ -37,7 +37,7 @@ int main(int argc, char* argv[])
   {
     Id nvar = 2;
     Id nsim = 2;
-    Id iatt = grid->addColumnsByConstant(nvar * nsim, 0.);
+    Id iatt = grid->addColumnsByConstant(nvar * nsim, 1, 0.);
 
     NamingConvention namconv("Test1", false, false, false);
     namconv.setOutputForSimulations(
@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
   {
     Id nvar = 2;
     Id nsim = 2;
-    Id iatt = grid->addColumnsByConstant(nvar * nsim, 0.);
+    Id iatt = grid->addColumnsByConstant(nvar * nsim, 1, 0.);
 
     VectorString varnames = {"Fe", "Al"};
     NamingConvention namconv("Test2", false, false, false);
@@ -78,7 +78,7 @@ int main(int argc, char* argv[])
   {
     Id nvar = 2;
     Id nsim = 2;
-    Id iatt = grid->addColumnsByConstant(nvar * nsim, 0.);
+    Id iatt = grid->addColumnsByConstant(nvar * nsim, 1, 0.);
 
     NamingConvention namconv("Test3", false, false, false);
     namconv.setOutputForSimulations(
@@ -98,7 +98,7 @@ int main(int argc, char* argv[])
   {
     Id nvar = 2;
     Id nsim = 1;
-    Id iatt = grid->addColumnsByConstant(nvar * nsim, 0.);
+    Id iatt = grid->addColumnsByConstant(nvar * nsim, 1, 0.);
 
     NamingConvention namconv("Test4", false, false, false);
     namconv.setOutputForSimulations(
@@ -118,7 +118,7 @@ int main(int argc, char* argv[])
   {
     Id nvar = 3;
     Id nsim = 3;
-    Id iatt = grid->addColumnsByConstant(nvar * nsim, 0.);
+    Id iatt = grid->addColumnsByConstant(nvar * nsim, 1, 0.);
 
     VectorString varnames = {"Cu", "Pb", "Zn"};
     NamingConvention namconv("Test5", false, false, false);
