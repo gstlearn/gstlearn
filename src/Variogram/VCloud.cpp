@@ -224,7 +224,7 @@ namespace gstlrn
       return 1;
     }
     Id ndir = _varioparam->getNDir();
-    Id iptr = _dbcloud->addColumnsByConstant(ndir, 0.);
+    Id iptr = _dbcloud->addColumnsByConstant(ndir, 1, 0.);
     if (iptr < 0) return (1);
 
     // Loop on the directions

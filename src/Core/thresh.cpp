@@ -80,7 +80,7 @@ namespace gstlrn
     /**********************/
 
     /* Storage of the simulations in the output file */
-    iptr = db->addColumnsByConstant(nbsimu, 0.);
+    iptr = db->addColumnsByConstant(nbsimu, 1, 0.);
     if (iptr < 0) goto label_end;
     db->setLocatorsByUID(nbsimu, iptr, ELoc::FACIES, 0);
 
@@ -191,7 +191,7 @@ namespace gstlrn
     /**********************/
 
     /* Storage of the simulations in the output file */
-    iptr = db->addColumnsByConstant(1, 0., "Facies", ELoc::FACIES);
+    iptr = db->addColumnsByConstant(1, 1, 0., "Facies", ELoc::FACIES);
     if (iptr < 0) goto label_end;
 
     /* Identify the Non conditional simulations at target points */
@@ -486,7 +486,7 @@ namespace gstlrn
     /* Add the attributes */
     /**********************/
 
-    iptr = db->addColumnsByConstant(2 * ngrf * nfacies, 0.);
+    iptr = db->addColumnsByConstant(2 * ngrf * nfacies, 1, 0.);
     if (iptr < 0) goto label_end;
 
     /* Calculate the thresholds and store them in the Db file */

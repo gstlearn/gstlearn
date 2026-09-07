@@ -64,7 +64,7 @@ static Id st_save(
     if (db_locator_attribute_add(dbgrid, ELoc::U, 1, 0, 0., &iptr)) return (1);
     for (Id i = 0; i < nech; i++) dbgrid->setArray(i, iptr, consmax[i]);
   }
-  iptr = dbgrid->addColumnsByConstant(1, 0., "Color");
+  iptr = dbgrid->addColumnsByConstant(1, 1, 0., "Color");
   for (Id i = 0; i < nech; i++) dbgrid->setArray(i, iptr, colors[i]);
   if (db_locator_attribute_add(dbgrid, ELoc::Z, 1, 0, 0., &iptr)) return (1);
   for (Id i = 0; i < nech; i++) dbgrid->setArray(i, iptr, z[i]);

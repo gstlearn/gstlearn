@@ -232,7 +232,7 @@ namespace gstlrn
 
     /* Allocate new variables */
 
-    Id iptr = db->addColumnsByConstant(nvar, TEST);
+    Id iptr = db->addColumnsByConstant(nvar, 1, TEST);
     if (iptr < 0) return 1;
 
     // Optional title
@@ -281,7 +281,7 @@ namespace gstlrn
 
     /* Allocate new variables */
 
-    Id iptr = db->addColumnsByConstant(nvar, TEST);
+    Id iptr = db->addColumnsByConstant(nvar, 1, TEST);
     if (iptr < 0) return 1;
 
     // Optional title

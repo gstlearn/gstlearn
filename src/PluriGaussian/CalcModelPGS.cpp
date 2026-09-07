@@ -1086,7 +1086,7 @@ namespace gstlrn
         is_prop_defined = false;
         if (flag_prop && _db->getNLoc(ELoc::P) != _nfacies)
         {
-          iptr = _db->addColumnsByConstant(_nfacies, 0., String(), ELoc::P);
+          iptr = _db->addColumnsByConstant(_nfacies, 1, 0., String(), ELoc::P);
           if (iptr < 0) return (1);
           is_prop_defined = true;
         }
@@ -1095,20 +1095,20 @@ namespace gstlrn
 
         if (!_useDiscrete)
         {
-          iptr = _db->addColumnsByConstant(number, 0., "Lower", ELoc::L);
+          iptr = _db->addColumnsByConstant(number, 1, 0., "Lower", ELoc::L);
           if (iptr < 0) return (1);
 
-          iptr = _db->addColumnsByConstant(number, 0., "Upper", ELoc::U);
+          iptr = _db->addColumnsByConstant(number, 1, 0., "Upper", ELoc::U);
           if (iptr < 0) return (1);
         }
         else
         {
           iptr =
-            _db->addColumnsByConstant(number, 0., "Lower Rank", ELoc::RKLOW);
+            _db->addColumnsByConstant(number, 1, 0., "Lower Rank", ELoc::RKLOW);
           if (iptr < 0) return (1);
 
           iptr =
-            _db->addColumnsByConstant(number, 0., "Upper Rank", ELoc::RKUP);
+            _db->addColumnsByConstant(number, 1, 0., "Upper Rank", ELoc::RKUP);
           if (iptr < 0) return (1);
         }
         break;

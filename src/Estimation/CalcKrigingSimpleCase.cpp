@@ -76,19 +76,19 @@ namespace gstlrn
     if (_flagEst)
     {
       _iptrEst =
-        _addVariableDb(2, status, ELoc::UNDEFINED, 0, _getNVar(), TEST);
+        _addVariableDb(2, status, ELoc::UNDEFINED, 0, _getNVar(), 1, TEST);
       if (_iptrEst < 0) return false;
     }
     if (_flagStd)
     {
       _iptrStd =
-        _addVariableDb(2, status, ELoc::UNDEFINED, 0, _getNVar(), TEST);
+        _addVariableDb(2, status, ELoc::UNDEFINED, 0, _getNVar(), 1, TEST);
       if (_iptrStd < 0) return false;
     }
     if (_flagVarZ)
     {
       _iptrVarZ =
-        _addVariableDb(2, status, ELoc::UNDEFINED, 0, _getNVar(), TEST);
+        _addVariableDb(2, status, ELoc::UNDEFINED, 0, _getNVar(), 1, TEST);
       if (_iptrVarZ < 0) return false;
     }
 

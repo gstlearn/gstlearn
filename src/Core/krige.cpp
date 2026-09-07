@@ -1904,7 +1904,7 @@ namespace gstlrn
 
     /* Add the attribute for storing the result */
 
-    IPTR_EST = db->addColumnsByConstant(nvarin, 0.);
+    IPTR_EST = db->addColumnsByConstant(nvarin, 1, 0.);
     if (IPTR_EST < 0) goto label_end;
     DBOUT = db;
 
@@ -2596,7 +2596,7 @@ namespace gstlrn
 
     /* Add the attribute for storing the result */
 
-    IPTR_EST = db->addColumnsByConstant(nvarin, 0.);
+    IPTR_EST = db->addColumnsByConstant(nvarin, 1, 0.);
     if (IPTR_EST < 0) goto label_end;
     DBOUT = db;
 
@@ -2786,7 +2786,7 @@ namespace gstlrn
 
     /* Add the attributes for storing the results */
 
-    Id iptr_est = dbout->addColumnsByConstant(nvar, 0.);
+    Id iptr_est = dbout->addColumnsByConstant(nvar, 1, 0.);
     if (iptr_est < 0) return 1;
     VectorInt active(nvar);
     VectorDouble lterm(nvar);
@@ -3475,12 +3475,12 @@ namespace gstlrn
 
     if (FLAG_EST)
     {
-      IPTR_EST = dbout->addColumnsByConstant(nvar, 0.);
+      IPTR_EST = dbout->addColumnsByConstant(nvar, 1, 0.);
       if (IPTR_EST < 0) return 1;
     }
     if (FLAG_STD)
     {
-      IPTR_STD = dbout->addColumnsByConstant(nvar, 0.);
+      IPTR_STD = dbout->addColumnsByConstant(nvar, 1, 0.);
       if (IPTR_STD < 0) return 1;
     }
 
@@ -3863,7 +3863,7 @@ namespace gstlrn
 
     /* Add the kriging weight as a new variable */
 
-    Id iptr = dbin->addColumnsByConstant(1, 0.);
+    Id iptr = dbin->addColumnsByConstant(1, 1, 0.);
     if (iptr < 0) return 1;
 
     /* Produce statistics on the target variable before declustering */
@@ -3910,7 +3910,7 @@ namespace gstlrn
 
     if (flag_sel)
     {
-      Id iptr_sel = dbin->addColumnsByConstant(1, 0.);
+      Id iptr_sel = dbin->addColumnsByConstant(1, 1, 0.);
       if (iptr_sel < 0) return 1;
       for (Id iech = 0; iech < dbin->getNSample(); iech++)
       {
@@ -4522,12 +4522,12 @@ namespace gstlrn
 
     if (FLAG_EST)
     {
-      IPTR_EST = dbout->addColumnsByConstant(nvar, 0.);
+      IPTR_EST = dbout->addColumnsByConstant(nvar, 1, 0.);
       if (IPTR_EST < 0) goto label_end;
     }
     if (FLAG_STD)
     {
-      IPTR_STD = dbout->addColumnsByConstant(nvar, 0.);
+      IPTR_STD = dbout->addColumnsByConstant(nvar, 1, 0.);
       if (IPTR_STD < 0) goto label_end;
     }
     nred = neq = np = dbdat->getNSampleActiveAndDefined(0);

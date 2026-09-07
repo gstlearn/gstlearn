@@ -656,7 +656,7 @@ namespace gstlrn
     if (!ACalcDbToDb::_preprocess()) return false;
 
     auto nvar = _getNVar();
-    _iattOut = _addVariableDb(2, 1, ELoc::UNDEFINED, 0, nvar, 0.);
+    _iattOut = _addVariableDb(2, 1, ELoc::UNDEFINED, 0, nvar, 1, 0.);
     return (_iattOut >= 0);
   }
 
@@ -1550,15 +1550,15 @@ namespace gstlrn
 
     /* Variable allocation */
 
-    iatt_edge = dbgrid->addColumnsByConstant(1, 0.);
+    iatt_edge = dbgrid->addColumnsByConstant(1, 1, 0.);
     if (iatt_edge < 0) goto label_end;
-    iatt_rank = dbpoint->addColumnsByConstant(1, 0.);
+    iatt_rank = dbpoint->addColumnsByConstant(1, 1, 0.);
     if (iatt_rank < 0) goto label_end;
-    iatt_surf = dbpoint->addColumnsByConstant(1, 0.);
+    iatt_surf = dbpoint->addColumnsByConstant(1, 1, 0.);
     if (iatt_surf < 0) goto label_end;
-    iatt_vol = dbpoint->addColumnsByConstant(1, 0.);
+    iatt_vol = dbpoint->addColumnsByConstant(1, 1, 0.);
     if (iatt_vol < 0) goto label_end;
-    iatt_code = dbpoint->addColumnsByConstant(1, 1.);
+    iatt_code = dbpoint->addColumnsByConstant(1, 1, 0.);
     if (iatt_code < 0) goto label_end;
 
     /* Create the sample rank attribute and expand it over the grid */

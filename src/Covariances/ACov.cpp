@@ -2300,7 +2300,7 @@ namespace gstlrn
 
     /* Create the variables in the Variogram Map file */
 
-    Id iptr = dbgrid->addColumnsByConstant(nv2, 0.);
+    Id iptr = dbgrid->addColumnsByConstant(nv2, 1, 0.);
     if (iptr < 0) return 1;
 
     /* Loop on the grid nodes */

@@ -969,7 +969,7 @@ namespace gstlrn
     }
     auto ndim = getNDim();
     VectorDouble coors(ndim);
-    (void)addColumnsByConstant(ndim, 0., radix, ELoc::X);
+    (void)addColumnsByConstant(ndim, 1, 0., radix, ELoc::X);
     for (Id iech = 0; iech < getNSample(); iech++)
     {
       _grid.rankToCoordinatesInPlace(iech, coors);
@@ -1671,7 +1671,7 @@ namespace gstlrn
       VectorVectorDouble varm(nvar);
       for (Id ivar = 0; ivar < nvar; ivar++)
         varm[ivar] = VH::simulateUniform(ndat, 0., varmax);
-      dbgrid->addColumnsByVVD(varm, "v", ELoc::V);
+      dbgrid->addColumnsByVVD(varm, "v", ELoc::V, 0, 1);
     }
 
     // Generate the External Drift functions (optional)
@@ -1680,7 +1680,7 @@ namespace gstlrn
       VectorVectorDouble fex(nfex);
       for (Id ifex = 0; ifex < nfex; ifex++)
         fex[ifex] = VH::simulateGaussian(ndat);
-      dbgrid->addColumnsByVVD(fex, "f", ELoc::F);
+      dbgrid->addColumnsByVVD(fex, "f", ELoc::F, 0, 1);
     }
 
     // Generate the selection (optional)
@@ -1707,7 +1707,7 @@ namespace gstlrn
           if (rnd[idat] <= heteroRatio[ivar]) vars[ivar][idat] = TEST;
       }
     }
-    dbgrid->addColumnsByVVD(vars, "z", ELoc::Z);
+    dbgrid->addColumnsByVVD(vars, "z", ELoc::Z, 0, 1);
 
     // Generate the code (optional)
     if (ncode > 0)
@@ -1818,7 +1818,7 @@ namespace gstlrn
     // Add the variables of interest
     VectorInt iuidOut(nvar);
     for (Id ivar = 0; ivar < nvar; ivar++)
-      iuidOut[ivar] = gridOut->addColumnsByConstant(1, TEST, names[ivar]);
+      iuidOut[ivar] = gridOut->addColumnsByConstant(1, 1, TEST, names[ivar]);
 
     // Loop on the nodes of the output sub-grid
     VectorInt indg(ndim);
@@ -1947,7 +1947,7 @@ namespace gstlrn
 
     // Create the variables in the 3D grid and identify their UIDs
     for (Id ivar = 0; ivar < nvar; ivar++)
-      grid3Dout->addColumnsByConstant(1, TEST, names[ivar]);
+      grid3Dout->addColumnsByConstant(1, 1, TEST, names[ivar]);
     VectorInt iuids = grid3Dout->getUIDs(names);
 
     // Define local variables
@@ -2087,7 +2087,7 @@ namespace gstlrn
 
     // Create the variables in the 3D grid and identify their UIDs
     for (Id ivar = 0; ivar < nvar; ivar++)
-      grid3Dout->addColumnsByConstant(1, TEST, names[ivar]);
+      grid3Dout->addColumnsByConstant(1, 1, TEST, names[ivar]);
     VectorInt iuids = grid3Dout->getUIDs(names);
 
     // Define local variables
@@ -2229,7 +2229,7 @@ namespace gstlrn
     const String& nameBot)
   {
     // Create the selection new variable
-    Id iuidSel = addColumnsByConstant(1, 1, "SelLayer", ELoc::SEL);
+    Id iuidSel = addColumnsByConstant(1, 1, 1, "SelLayer", ELoc::SEL);
 
     if (nameTop.empty() || nameBot.empty()) return -1;
 
@@ -2479,7 +2479,7 @@ namespace gstlrn
     auto nech = getNSample();
 
     VectorString names = db->getNamesByColIdx({0});
-    Id iuid = addColumnsByConstant(1);
+    Id iuid = addColumnsByConstant(1, 1);
     if (dbStatisticsInGridTool(db, this, names, EStatOption::NUM, radius, iuid))
       return 1;
     VectorDouble stats = getColumnByUID(iuid, false, false);

@@ -64,7 +64,7 @@ int main(int argc, char* argv[])
   Id nfac = static_cast<Id>(props.size());
   VectorString names = generateMultipleNames("Props", nfac);
   for (Id ifac = 0; ifac < nfac; ifac++)
-    dbprop->addColumnsByConstant(1, props[ifac], names[ifac], ELoc::P, ifac);
+    dbprop->addColumnsByConstant(1, 1, props[ifac], names[ifac], ELoc::P, ifac);
   dbprop->display();
 
   // Creating the Model(s) of the Underlying GRF(s)
