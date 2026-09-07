@@ -182,7 +182,7 @@ def update_sphinx_conf(conf_py_path, skipped_functions):
     with open(conf_py_path, "r", encoding="utf-8") as f:
         content = f.read()
 
-    functions_list_str = str(list(skipped_functions))
+    functions_list_str = str(sorted(list(skipped_functions)))
 
     hook_code = f"""
 def autodoc_skip_member_handler(app, what, name, obj, skip, options):
