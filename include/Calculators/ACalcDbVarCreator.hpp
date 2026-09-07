@@ -50,6 +50,7 @@ namespace gstlrn
       const ELoc& locatorType,
       Id locatorIndex = 0,
       Id number = 1,
+      Id nversion = 1,
       double valinit = 0.);
     void _renameVariable(
       Id nvar,

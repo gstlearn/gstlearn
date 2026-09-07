@@ -665,7 +665,7 @@ namespace gstlrn
 
     /* Create the variables */
 
-    Id iptr = db->addColumnsByConstant(ncut, TEST);
+    Id iptr = db->addColumnsByConstant(ncut, 1, TEST);
     if (iptr < 0) return 1;
 
     /* Loop on the samples */
@@ -778,7 +778,7 @@ namespace gstlrn
 
     iptrz = dbgrid->getColIdxByLocator(ELoc::Z, 0);
     if (iptrz < 0) goto label_end;
-    iptr = dbgrid->addColumnsByConstant(ndim, TEST, String(), ELoc::G);
+    iptr = dbgrid->addColumnsByConstant(ndim, 1, TEST, String(), ELoc::G);
 
     /* Calculate the Gradient components */
 
@@ -993,9 +993,9 @@ namespace gstlrn
 
     coor.resize(ndim);
     coor0.resize(ndim);
-    iptr_time = dbgrid->addColumnsByConstant(1, TEST);
+    iptr_time = dbgrid->addColumnsByConstant(1, 1, TEST);
     if (iptr_time < 0) goto label_end;
-    iptr_accu = dbgrid->addColumnsByConstant(1, 0.);
+    iptr_accu = dbgrid->addColumnsByConstant(1, 1, 0.);
     if (iptr_accu < 0) goto label_end;
 
     /* Calculate the gradient */

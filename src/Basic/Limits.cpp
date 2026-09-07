@@ -364,7 +364,7 @@ namespace gstlrn
 
     /* Create the variable */
 
-    Id iptr = db->addColumnsByConstant(1, TEST);
+    Id iptr = db->addColumnsByConstant(1, 1, TEST);
     if (iptr < 0) return (1);
 
     /* Loop on the samples */
@@ -496,20 +496,20 @@ namespace gstlrn
     {
       if (flagBelow)
       {
-        iptr_below = db->addColumnsByConstant(1, 0.);
+        iptr_below = db->addColumnsByConstant(1, 1, 0.);
         if (iptr_below < 0) return 1;
       }
-      iptr_indic = db->addColumnsByConstant(nclass, 0.);
+      iptr_indic = db->addColumnsByConstant(nclass, 1, 0.);
       if (iptr_indic < 0) return 1;
       if (flagAbove)
       {
-        iptr_above = db->addColumnsByConstant(1, 0.);
+        iptr_above = db->addColumnsByConstant(1, 1, 0.);
         if (iptr_above < 0) return 1;
       }
     }
     else
     {
-      iptr_mean = db->addColumnsByConstant(1, TEST);
+      iptr_mean = db->addColumnsByConstant(1, 1, TEST);
       if (iptr_mean < 0) return 1;
     }
 

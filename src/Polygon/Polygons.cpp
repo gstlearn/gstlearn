@@ -614,7 +614,7 @@ namespace gstlrn
 
     // Create a new attribute
 
-    Id iptr = db->addColumnsByConstant(1, TEST);
+    Id iptr = db->addColumnsByConstant(1, 1, TEST);
     if (iptr < 0) return (1);
 
     // Loop on the polyelems
@@ -1020,7 +1020,7 @@ namespace gstlrn
   {
     // Adding a new variable
 
-    Id iatt = db->addColumnsByConstant(1);
+    Id iatt = db->addColumnsByConstant(1, 1);
 
     /* Loop on the samples */
 
@@ -1081,7 +1081,7 @@ namespace gstlrn
 
     // Create the variable in the output Db
 
-    Id isel = db2->addColumnsByConstant(1, 1.);
+    Id isel = db2->addColumnsByConstant(1, 1, 1.);
 
     /* Loop on the samples of the second Db */
     // Note that all samples must be checked as a sample, initially masked, can be

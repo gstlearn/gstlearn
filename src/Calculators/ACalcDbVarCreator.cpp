@@ -65,13 +65,15 @@ namespace gstlrn
     const ELoc& locatorType,
     Id locatorIndex,
     Id number,
+    Id nversion,
     double valinit)
   {
     if (_db == nullptr) return -1;
+    auto count = number * nversion;
     Id iuid = _db->addColumnsByConstant(
-      number, valinit, String(), locatorType, locatorIndex);
+      count, 1, valinit, String(), locatorType, locatorIndex);
     if (iuid < 0) return -1;
-    VectorInt iuids = VH::sequence(number, iuid);
+    VectorInt iuids = VH::sequence(count, iuid);
     _storeInVariableList(status, iuids);
     return iuid;
   }

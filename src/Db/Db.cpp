@@ -946,6 +946,7 @@ namespace gstlrn
    * Create a set of new variables in an already existing Db and initialize
    * their contents to a constant value
    * @param nadd     Number of variables to be added
+   * @param nversion Number of versions for the new variables (default is 1)
    * @param valinit  Value to be used for variable initialization
    * @param radix    Generic radix given to the newly created variables
    * @param locatorType Generic locator assigned to new variables
@@ -955,13 +956,14 @@ namespace gstlrn
    */
   Id Db::addColumnsByConstant(
     Id nadd,
+    Id nversion,
     double valinit,
     const String& radix,
     const ELoc& locatorType,
     Id locatorIndex,
     Id nechInit)
   {
-    if (nadd <= 0) return (-1);
+    if (nadd * nversion <= 0) return (-1);
     auto iuid0 = _getNUIDMax();
 
     /* Case of an empty Db, define the number of samples using 'nechInit' */
@@ -982,7 +984,7 @@ namespace gstlrn
     /* Dimension the array */
     for (Id i = 0; i < nadd; ++i)
       _data.addColumnEmpty<VectorDouble>(
-        newNames[i], nech, 1, RoleID(), valinit);
+        newNames[i], nech, nversion, RoleID(), valinit);
 
     // Set the locator (if defined)
     if (locatorType.isDifferent(ELoc::UNDEFINED))
@@ -995,6 +997,7 @@ namespace gstlrn
    * Create a set of new variables in an already existing Db and initialize
    * their contents as a random value (from Normal distribution)
    * @param nadd     Number of variables to be added
+   * @param nversion Number of versions for the new variables (default is 1)
    * @param radix    Generic radix given to the newly created variables
    * @param locatorType Generic locator assigned to new variables
    * @param locatorIndex   Locator index (starting from 0)
@@ -1005,6 +1008,7 @@ namespace gstlrn
    */
   Id Db::addColumnsRandom(
     Id nadd,
+    Id nversion,
     const String& radix,
     const ELoc& locatorType,
     Id locatorIndex,
@@ -1012,7 +1016,7 @@ namespace gstlrn
     Id nechInit)
   {
     Id ncol = getNColumn();
-    if (nadd <= 0) return (-1);
+    if (nadd * nversion <= 0) return (-1);
 
     /* Case of an empty Db, define the number of samples using 'nechInit' */
 
@@ -1021,11 +1025,12 @@ namespace gstlrn
     _setNSamples(nech);
 
     /* Dimension the array */
-    Id iuid0 = addColumnsByConstant(nadd, 0., radix, locatorType, locatorIndex);
+    Id iuid0 = addColumnsByConstant(
+      nadd, nversion, 0., radix, locatorType, locatorIndex);
 
     // Initialize the variables with a random value
     law_set_random_seed(seed);
-    _columnInit(nadd, ncol, false);
+    _columnInit(nadd * nversion, ncol, false);
 
     return iuid0;
   }
@@ -1035,13 +1040,16 @@ namespace gstlrn
     const String& radix,
     const ELoc& locatorType,
     Id locatorIndex,
+    Id nversion,
     bool useSel)
   {
     VectorDouble tabv;
-    Id nvar = static_cast<Id>(tab.size());
+    Id ncol = static_cast<Id>(tab.size());
+    Id nvar = ncol / nversion;
     for (const auto& e: tab)
       for (const auto& f: e) tabv.push_back(f);
-    addColumns(tabv, radix, locatorType, locatorIndex, useSel, TEST, nvar);
+    addColumns(
+      tabv, radix, locatorType, locatorIndex, useSel, TEST, nvar, nversion);
   }
 
   /**
@@ -1056,13 +1064,17 @@ namespace gstlrn
    * @param useSel true if the Selection must be taken into account
    * @param valinit initial value (for unselected samples)
    * @param nvar   Number of variables loaded
+   * @param nversion Number of versions for the new variables (default is 1)
    *
    * @return Rank of the first UID
    *
    * @remark When 'useSel' is used, you must have a Selection already defined. Then the number
-   * @remark of samples provided in 'tab' must match the number of active samples
-   * @remark When a vector 'tab' is provided, the number of variables 'nvar'
-   * @remark is calculated as its size divided by the number of samples in the grid.
+   * @remark of samples provided in 'tab' must match the number of active samples.
+   * @remark The dimensioning elements are (sorted by decreasing degree of confidence);
+   * @remark - the number of (active) samples in the Db (if it is not empty)
+   * @remark - the number of samples provided in 'tab' (if it is not empty)
+   * @remark - the number of versions ('nversion') provided in the argument
+   * @remark - the number of variables ('nvar') provided in the argument
    */
   Id Db::addColumns(
     const VectorDouble& tab,
@@ -1071,37 +1083,62 @@ namespace gstlrn
     Id locatorIndex,
     bool useSel,
     double valinit,
-    Id nvar)
+    Id nvar,
+    Id nversion)
   {
     // If the input array 'tab' is empty, nothing is done
     if (tab.empty()) return 0;
 
-    // Particular case where the Db is empty.
-    // Set its dimension to the number of samples of the input array 'tab'
+    Id size = static_cast<Id>(tab.size());
     auto nech = getNSample(useSel);
-    if (nech <= 0) nech = static_cast<Id>(tab.size()) / nvar;
-    nvar = static_cast<Id>(tab.size()) / nech;
-    if (static_cast<Id>(tab.size()) != nvar * nech)
+    auto ncol = nvar * nversion; // Total number of columns (from arguments)
+    if (ncol <= 0)
     {
       messerr(
-        "Db::addColumns : Incompatibility between 'tab'(%d) and 'nvar'(%d) * "
-        "'nech'(%d)",
-        tab.size(), nvar, nech);
+        "Db::addColumns : Arguments 'nvar' (%d) and 'nversion' (%d) are "
+        "incorrect",
+        nvar, nversion);
       return 1;
     }
+
+    // Particular case where the Db is empty.
+    // Set its dimension to the number of samples of the input array 'tab'
+    if (nech <= 0) nech = size / ncol;
+
+    // Now 'ncol' (total number of columns) can be derived safely
+    // from the size of the input array 'tab' and the number of samples 'nech'
+    ncol = size / nech;
+    if (size != ncol * nech)
+    {
+      messerr(
+        "Db::addColumns : Incompatibility between 'tab'(%d) and 'ntot'(%d) * "
+        "'nech'(%d)",
+        size, ncol, nech);
+      return 1;
+    }
+
+    // 'nvar' is derived from the total number of columns 'ncol'
+    nvar = ncol / nversion;
+    if (nvar * nversion != ncol)
+    {
+      messerr(
+        "Db::addColumns : Incompatibility between 'nvar'(%d) * 'nversion'(%d) "
+        "and 'ncol'(%d)",
+        nvar, nversion, ncol);
+      return 1;
+    }
+
+    // Setting the dimensions
     _setNSamples(nech);
 
     // Adding the new Columns
-    Id iuid =
-      addColumnsByConstant(nvar, valinit, radix, locatorType, locatorIndex);
+    Id iuid = addColumnsByConstant(
+      nvar, nversion, valinit, radix, locatorType, locatorIndex);
     if (iuid < 0) return 1;
 
-    for (Id ivar = 0; ivar < nvar; ivar++)
-    {
-      auto start = tab.begin() + ivar * nech;
-      VectorDouble colData(start, start + nech);
-      setColumnByUID(colData, iuid + ivar, useSel);
-    }
+    const double* local = tab.data();
+    for (Id i = 0; i < ncol; i++)
+      setColumnByUIDOldStyle(&local[i * nech], iuid + i, useSel);
 
     return iuid;
   }
@@ -3693,7 +3730,7 @@ namespace gstlrn
       {
         // sublist is empty: the variable must be created
 
-        (void)addColumnsByConstant(1, TEST, colnames[i]);
+        (void)addColumnsByConstant(1, 1, TEST, colnames[i]);
         exp_names.push_back(colnames[i]);
       }
       else
@@ -5390,7 +5427,7 @@ namespace gstlrn
         (static_cast<Id>(coormax.size()) == ndim) ? coormax[idim] : 1.;
       coor[idim] = VH::simulateUniform(ndat, mini, maxi);
     }
-    db->addColumnsByVVD(coor, "x", ELoc::X);
+    db->addColumnsByVVD(coor, "x", ELoc::X, 0, 1);
 
     // Generate the Vectors of Variance of measurement error (optional)
     if (varmax > 0.)
@@ -5398,7 +5435,7 @@ namespace gstlrn
       VectorVectorDouble varm(nvar);
       for (Id ivar = 0; ivar < nvar; ivar++)
         varm[ivar] = VH::simulateUniform(ndat, 0., varmax);
-      db->addColumnsByVVD(varm, "v", ELoc::V);
+      db->addColumnsByVVD(varm, "v", ELoc::V, 0, 1);
     }
 
     // Generate the External Drift functions (optional)
@@ -5407,7 +5444,7 @@ namespace gstlrn
       VectorVectorDouble fex(nfex);
       for (Id ifex = 0; ifex < nfex; ifex++)
         fex[ifex] = VH::simulateGaussian(ndat);
-      db->addColumnsByVVD(fex, "f", ELoc::F);
+      db->addColumnsByVVD(fex, "f", ELoc::F, 0, 1);
     }
 
     // Generate the selection (optional)
@@ -5433,7 +5470,7 @@ namespace gstlrn
           if (rnd[idat] <= heteroRatio[ivar]) vars[ivar][idat] = TEST;
       }
     }
-    db->addColumnsByVVD(vars, "z", ELoc::Z);
+    db->addColumnsByVVD(vars, "z", ELoc::Z, 0, 1);
 
     // Generate the code (optional)
     if (ncode > 0)
@@ -5466,7 +5503,7 @@ namespace gstlrn
     // Generate the vector of coordinates
     VectorVectorDouble coor(ndim);
     for (Id idim = 0; idim < ndim; idim++) coor[idim] = VectorDouble(ndat, 0.);
-    db->addColumnsByVVD(coor, "x", ELoc::X);
+    db->addColumnsByVVD(coor, "x", ELoc::X, 0, 1);
 
     // Generate the Vectors of Variance of measurement error (optional)
     if (flagVerr)
@@ -5474,7 +5511,7 @@ namespace gstlrn
       VectorVectorDouble varm(nvar);
       for (Id ivar = 0; ivar < nvar; ivar++)
         varm[ivar] = VectorDouble(ndat, 0.);
-      db->addColumnsByVVD(varm, "v", ELoc::V);
+      db->addColumnsByVVD(varm, "v", ELoc::V, 0, 1);
     }
 
     // Generate the External Drift functions (optional)
@@ -5482,7 +5519,7 @@ namespace gstlrn
     {
       VectorVectorDouble fex(nfex);
       for (Id ifex = 0; ifex < nfex; ifex++) fex[ifex] = VectorDouble(ndat, 0.);
-      db->addColumnsByVVD(fex, "f", ELoc::F);
+      db->addColumnsByVVD(fex, "f", ELoc::F, 0, 1);
     }
 
     // Generate the selection (optional)
@@ -5496,14 +5533,14 @@ namespace gstlrn
     // Generate the variables
     VectorVectorDouble vars(nvar);
     for (Id ivar = 0; ivar < nvar; ivar++) vars[ivar] = VectorDouble(ndat, 0.);
-    db->addColumnsByVVD(vars, "z", ELoc::Z);
+    db->addColumnsByVVD(vars, "z", ELoc::Z, 0, 1);
 
     // Generate the code (optional)
     if (ncode > 0)
     {
       VectorDouble codes(ndat);
       codes.fill(0.);
-      db->addColumns(codes, "code", ELoc::C);
+      db->addColumns(codes, "code", ELoc::C, 0, 1);
     }
 
     return db;

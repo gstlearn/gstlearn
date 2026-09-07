@@ -768,7 +768,7 @@ namespace gstlrn
 
     /* Creation of the new attributes */
 
-    iptr = db->addColumnsByConstant(ncol, TEST);
+    iptr = db->addColumnsByConstant(ncol, 1, TEST);
     if (iptr < 0) return (1);
 
     /* Loop on the samples */
@@ -924,7 +924,7 @@ namespace gstlrn
     // Create the new variable and duplicate the Z-locator variable
 
     Id iatt_in = dbgrid->getUIDByLocator(ELoc::Z, 0);
-    Id iatt_out = dbgrid->addColumnsByConstant(1);
+    Id iatt_out = dbgrid->addColumnsByConstant(1, 1);
     dbgrid->duplicateColumnByUID(iatt_in, iatt_out);
     dbgrid->setLocatorByUID(iatt_out, ELoc::Z, 0);
 
@@ -1320,7 +1320,7 @@ namespace gstlrn
 
     dbout = DbGrid::createMultiple(dbin, nmult, 1);
     if (dbout == nullptr) goto label_end;
-    rank = dbout->addColumnsByConstant(ncol, TEST);
+    rank = dbout->addColumnsByConstant(ncol, 1, TEST);
     if (rank < 0) goto label_end;
     for (icol = 0; icol < ncol; icol++)
     {

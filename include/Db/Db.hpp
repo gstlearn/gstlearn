@@ -454,6 +454,7 @@ namespace gstlrn
       const String& radix,
       const ELoc& locatorType,
       Id locatorIndex = 0,
+      Id nversion = 1,
       bool useSel = false);
     Id addColumns(
       const VectorDouble& tab,
@@ -462,9 +463,11 @@ namespace gstlrn
       Id locatorIndex = 0,
       bool useSel = false,
       double valinit = 0.,
-      Id nvar = 1);
+      Id nvar = 1,
+      Id nversion = 1);
     Id addColumnsByConstant(
       Id nadd = 1,
+      Id nversion = 1,
       double valinit = 0.,
       const String& radix = "New",
       const ELoc& locatorType = ELoc::fromKey("UNDEFINED"),
@@ -472,6 +475,7 @@ namespace gstlrn
       Id nechInit = 0);
     Id addColumnsRandom(
       Id nadd,
+      Id nversion = 1,
       const String& radix = "New",
       const ELoc& locatorType = ELoc::fromKey("Z"),
       Id locatorIndex = 0,
