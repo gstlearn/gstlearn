@@ -20,7 +20,7 @@ def clean_file(file_path):
         '            strthis = self.getDescr() + " | " + str(self.getValue())\n',
         "            return strthis\n",
     ]
-    lines[22:22] = text_to_insert
+    lines[slice(21, 21) if os.name == "nt" else slice(18, 18)] = text_to_insert
 
     cleaned_lines = []
     i = 0
