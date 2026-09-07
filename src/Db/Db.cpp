@@ -2040,7 +2040,7 @@ namespace gstlrn
    * with either a constant value or a value drawn at random (persample)
    *
    * @param ncol
-   * @param icol
+   * @param icol0
    * @param flagCst
    * @param valinit
    */
