@@ -283,7 +283,7 @@ namespace gstlrn
     // ================================================================ //
     // The idea is to keep these entries so that calling classes are not modified.
     String getNameByLocator(const ELoc& locatorType, Id locatorIndex = 0) const;
-    String getNameByColIdx(Id icol0) const;
+    String getNameByColIdx(Id icol) const;
     String getNameByUID(Id iuid) const;
 
     VectorString getName(const String& name) const;
@@ -295,7 +295,7 @@ namespace gstlrn
     void setName(const String& old_name, const String& name);
     void setName(const VectorString& list, const String& name);
     void setNameByLocator(const ELoc& locatorType, const String& name);
-    void setNameByColIdx(Id icol0, const String& name);
+    void setNameByColIdx(Id icol, const String& name);
     void setNameByUID(Id iuid, const String& name);
 
     Id getColIdx(const String& name) const;
@@ -310,6 +310,7 @@ namespace gstlrn
     bool hasLocator(const ELoc& locatorType) const;
     bool hasLocVariable(const ELoc& loctype) const;
 
+    void clearLocator(const String& name);
     void setLocator(
       const String& name,
       const ELoc& locatorType,
@@ -321,7 +322,7 @@ namespace gstlrn
       Id locatorIndex = 0,
       bool cleanSameLocator = false);
     void setLocatorByColIdx(
-      Id icol0,
+      Id icol,
       const ELoc& locatorType,
       Id locatorIndex = 0,
       bool cleanSameLocator = false);
@@ -365,7 +366,7 @@ namespace gstlrn
       Id* ret_multiplicity) const;
 
     Id getUID(const String& name) const;
-    Id getUIDByColIdx(Id icol0) const;
+    Id getUIDByColIdx(Id icol) const;
     Id getUIDByLocator(const ELoc& locatorType, Id locatorIndex = 0) const;
 
     VectorInt getUIDs(const VectorString& names) const;
@@ -382,11 +383,11 @@ namespace gstlrn
 
     double getValue(const String& name, Id iech) const;
     double getValueByUID(Id iech, Id iuid) const;
-    double getValueByColIdx(Id iech, Id icol0, bool flagCheck = true) const;
+    double getValueByColIdx(Id iech, Id icol, bool flagCheck = true) const;
 
     void setValue(const String& name, Id iech, double value);
     void
-      setValueByColIdx(Id iech, Id icol0, double value, bool flagCheck = true);
+      setValueByColIdx(Id iech, Id icol, double value, bool flagCheck = true);
     void setValueByUID(Id iech, Id iuid, double value, bool flagCheck = true);
 
     Id getNLoc(const ELoc& locatorType) const;
@@ -1002,6 +1003,7 @@ namespace gstlrn
      *  @{
      */
     bool isUIDValid(Id iuid) const;
+    bool isColIdxValid(Id icol) const;
     bool isSampleIndexValid(Id iech) const;
     bool
       isSampleIndicesValid(const VectorInt& iechs, bool useSel = false) const;
@@ -1162,7 +1164,7 @@ namespace gstlrn
 
     // Methods to ease the communication with DbData
     Id _getColumnFromLocator(const ELoc& locatorType, Id locatorIndex) const;
-    Id _getColumnFromColID(Id icol0) const;
+    Id _getColumnFromColID(Id icol) const;
     Id _getColumnFromUID(Id iuid) const;
     Id _getColumnFromName(const String& name) const;
 
