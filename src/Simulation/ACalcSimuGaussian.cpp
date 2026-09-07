@@ -76,11 +76,12 @@ namespace gstlrn
     {
       if (_isConditional() && !_flagOnGridOnly)
       {
-        Id iptr_in = _addVariableDb(1, 2, ELoc::SIMU, 0, nvar * nbsimu);
+        Id iptr_in =
+          _addVariableDb(1, 2, ELoc::SIMU, 0, nvar * nbsimu, 1, TEST);
         if (iptr_in < 0) return false;
       }
 
-      _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 0, nvar * nbsimu);
+      _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 0, nvar * nbsimu, 1, TEST);
       if (_iattOut < 0) return false;
     }
 
@@ -107,7 +108,7 @@ namespace gstlrn
   {
     if (_iattOut < 0)
       _iattOut = getDbout()->addColumnsByConstant(
-        _getNVar() * getNbSimu(), 0., "Simu", ELoc::SIMU);
+        _getNVar() * getNbSimu(), 1, 0., "Simu", ELoc::SIMU);
   }
 
   bool ACalcSimuGaussian::_run()

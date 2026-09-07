@@ -111,12 +111,13 @@ namespace gstlrn
 
     auto nvar = _getNVar();
     if (_flagFilter)
-      _iattOut = _addVariableDb(2, 1, ELoc::UNDEFINED, 0, nvar, 0.);
+      _iattOut = _addVariableDb(2, 1, ELoc::UNDEFINED, 0, nvar, 1, 0.);
 
     if (_flagMorpho)
-      _iattOut = _addVariableDb(2, 1, ELoc::UNDEFINED, 0, _nvarMorpho, 0.);
+      _iattOut = _addVariableDb(2, 1, ELoc::UNDEFINED, 0, _nvarMorpho, 1, 0.);
 
-    if (_flagSmooth) _iattOut = _addVariableDb(2, 1, ELoc::UNDEFINED, 0, 1, 0.);
+    if (_flagSmooth)
+      _iattOut = _addVariableDb(2, 1, ELoc::UNDEFINED, 0, 1, 1, 0.);
 
     if (_iattOut < 0) return false;
     return true;
@@ -251,7 +252,8 @@ namespace gstlrn
 
     // Create the relevant DbGrid
     DbGrid* dbgrid = DbGrid::create(nx);
-    Id iuid = dbgrid->addColumnsByConstant(nvar * nvar, 0., "Weights", ELoc::Z);
+    Id iuid =
+      dbgrid->addColumnsByConstant(nvar * nvar, 1, 0., "Weights", ELoc::Z);
     VectorInt center = dbgrid->getCenterIndices();
 
     // Loop on the valid weights

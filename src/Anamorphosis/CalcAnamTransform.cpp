@@ -239,7 +239,7 @@ namespace gstlrn
     if (_flagDisjKrig)
     {
       auto nvarout = _getNSel();
-      _iattSel = getDb()->addColumnsByConstant(nvarout, TEST);
+      _iattSel = getDb()->addColumnsByConstant(nvarout, 1, TEST);
       if (_iattSel < 0) return 1;
       return true;
     }
@@ -247,7 +247,7 @@ namespace gstlrn
     if (_flagCondExp)
     {
       auto nvarout = _getNSel();
-      _iattSel = getDb()->addColumnsByConstant(nvarout, TEST);
+      _iattSel = getDb()->addColumnsByConstant(nvarout, 1, TEST);
       if (_iattSel < 0) return 1;
       return true;
     }
@@ -255,7 +255,7 @@ namespace gstlrn
     if (_flagUniCond)
     {
       auto nvarout = _getNSel();
-      _iattSel = getDb()->addColumnsByConstant(nvarout, TEST);
+      _iattSel = getDb()->addColumnsByConstant(nvarout, 1, TEST);
       if (_iattSel < 0) return 1;
       return true;
     }
@@ -741,9 +741,9 @@ namespace gstlrn
 
     /* Add variables for storage */
 
-    Id iptr_sV = db->addColumnsByConstant(1, TEST);
+    Id iptr_sV = db->addColumnsByConstant(1, 1, TEST);
     if (iptr_sV < 0) return 1;
-    Id iptr_yV = db->addColumnsByConstant(1, TEST);
+    Id iptr_yV = db->addColumnsByConstant(1, 1, TEST);
     if (iptr_yV < 0) return 1;
 
     // Calculate the change of support coefficient

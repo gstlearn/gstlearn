@@ -477,13 +477,14 @@ namespace gstlrn
 
     if (_flagPot)
     {
-      Id uid = db->addColumnsByConstant(nvar, value, "Potential", loctype_pot);
+      Id uid =
+        db->addColumnsByConstant(nvar, 1, value, "Potential", loctype_pot);
       uid_pot.push_back(uid);
     }
     if (_flagGrad)
     {
       Id uid = db->addColumnsByConstant(
-        nvar * _ndim, value, "Gradients", loctype_grad);
+        nvar * _ndim, 1, value, "Gradients", loctype_grad);
       for (Id idim = 0; idim < _ndim; idim++) uid_grad.push_back(uid + idim);
     }
   }
@@ -1334,7 +1335,7 @@ namespace gstlrn
 
     /* Add the selection */
 
-    _dbExt->addColumnsByConstant(1, 0., String(), ELoc::SEL);
+    _dbExt->addColumnsByConstant(1, 1, 0., String(), ELoc::SEL);
 
     /* Complementary core allocation */
 
@@ -2639,7 +2640,7 @@ namespace gstlrn
       _dbtgt, 2 * nbsimu, 0., ELoc::SIMU, ELoc::UNDEFINED, uid_tgt_pot,
       uid_tgt_grad);
     if (flag_tempere)
-      (void)dbout->addColumnsByConstant(1, TEST, String(), ELoc::Z);
+      (void)dbout->addColumnsByConstant(1, 1, TEST, String(), ELoc::Z);
 
     /* Processing the non-conditional simulation over the iso-values */
     {
@@ -2749,7 +2750,7 @@ namespace gstlrn
 
     // Allocating the output variables
     int nvar = (flag_dist_conv) ? 4 : 2;
-    (void)_dbiso->addColumnsByConstant(nvar, TEST, String(), ELoc::Z);
+    (void)_dbiso->addColumnsByConstant(nvar, 1, TEST, String(), ELoc::Z);
 
     // Core allocation
     VectorDouble zval(_nequa);

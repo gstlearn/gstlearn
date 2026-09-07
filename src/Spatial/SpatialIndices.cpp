@@ -764,7 +764,7 @@ namespace gstlrn
     }
 
     // Store the patch rank in the Data Base
-    Id iuid = _db->addColumnsByConstant(1, ITEST, "Patch");
+    Id iuid = _db->addColumnsByConstant(1, 1, ITEST, "Patch");
     for (Id i = 0, n = static_cast<Id>(origRank.size()); i < n; i++)
       _db->setArray(origs[i], iuid, ig[i]);
 

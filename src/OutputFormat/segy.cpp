@@ -1993,7 +1993,7 @@ namespace gstlrn
 
     // Allocate the new vector in the output file
 
-    iatt = grid3D->addColumnsByConstant(1, TEST);
+    iatt = grid3D->addColumnsByConstant(1, 1, TEST);
     if (iatt < 0) return 1;
 
     // Working arrays

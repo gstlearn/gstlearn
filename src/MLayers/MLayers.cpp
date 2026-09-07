@@ -2036,7 +2036,7 @@ namespace gstlrn
   {
     Id nvar = _nlayers;
     if (_flagStd) nvar += _nlayers;
-    Id iptr = _dbout->addColumnsByConstant(nvar, TEST, String(), ELoc::Z);
+    Id iptr = _dbout->addColumnsByConstant(nvar, 1, TEST, String(), ELoc::Z);
 
     /* Core allocation */
 

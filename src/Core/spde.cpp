@@ -3674,7 +3674,7 @@ namespace gstlrn
 
     // Add an attribute
 
-    Id iptr = dbc->addColumnsByConstant(1, TEST);
+    Id iptr = dbc->addColumnsByConstant(1, 1, TEST);
     if (iptr < 0) return 1;
 
     // Core allocation
@@ -3736,7 +3736,7 @@ namespace gstlrn
 
       /* Identify the drift at the constraining samples */
 
-      m2denv->iatt_fd = dbc->addColumnsByConstant(nlayer, TEST);
+      m2denv->iatt_fd = dbc->addColumnsByConstant(nlayer, 1, TEST);
       if (m2denv->iatt_fd < 0) return (1);
 
       /* If pinch-out is defined, interpolate it at well data */
@@ -3760,7 +3760,7 @@ namespace gstlrn
 
       /* Identify the drift at the target grid nodes */
 
-      m2denv->iatt_fg = dbout->addColumnsByConstant(nlayer, TEST);
+      m2denv->iatt_fg = dbout->addColumnsByConstant(nlayer, 1, TEST);
       if (m2denv->iatt_fg < 0) return (1);
       st_m2d_set_M(m2denv, nlayer, icol_pinch, dbout, m2denv->iatt_fg);
     }
@@ -5614,7 +5614,7 @@ namespace gstlrn
     /* Preparing the variables in 'dbout' */
 
     nfois = (flag_drift) ? 1 : nbsimu;
-    iatt_out = dbout->addColumnsByConstant(nlayer * nfois, TEST);
+    iatt_out = dbout->addColumnsByConstant(nlayer * nfois, 1, TEST);
     if (iatt_out < 0) goto label_end;
 
     /* Core allocation */

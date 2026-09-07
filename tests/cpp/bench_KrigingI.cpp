@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
   // Generate the grid
   VectorInt nx = {360, 240};
   DbGrid* image = DbGrid::create(nx);
-  image->addColumnsByConstant(1, 1.2, "Var", ELoc::Z);
+  image->addColumnsByConstant(1, 1, 1.2, "Var", ELoc::Z);
   if (verbose) image->display();
 
   // Create the Model
