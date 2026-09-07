@@ -239,6 +239,11 @@ namespace gstlrn
     return _data.getColMatchUniqueIndex(iuid) >= 0;
   }
 
+  bool Db::isColIdxValid(Id icol) const
+  {
+    return checkArg("Column Index", icol, getNColumn());
+  }
+
   /**
    * Check if the argument 'iech' is a valid Sample rank (0-based)
    */
@@ -2313,7 +2318,7 @@ namespace gstlrn
   }
 
   /**
-   * @brief Initiaze the contents of one or several columns with the Db
+   * @brief Initialize the contents of one or several columns with the Db
    * with either a constant value or a value drawn at random (persample)
    *
    * @param ncol
@@ -6277,9 +6282,9 @@ namespace gstlrn
     return icol;
   }
 
-  Id Db::_getColumnFromColID(Id icol0) const
+  Id Db::_getColumnFromColID(Id icol) const
   {
-    auto icol = _data.isValidColumn(icol0) ? icol0 : -1;
+    icol = _data.isValidColumn(icol) ? icol : -1;
     _debugConditionalStatement(icol);
     return icol;
   }
@@ -6305,9 +6310,9 @@ namespace gstlrn
     return _data.getName(icol);
   }
 
-  String Db::getNameByColIdx(Id icol0) const
+  String Db::getNameByColIdx(Id icol) const
   {
-    auto icol = _getColumnFromColID(icol0);
+    icol = _getColumnFromColID(icol);
     return _data.getName(icol);
   }
 
@@ -6392,9 +6397,9 @@ namespace gstlrn
     _data.setName(icol, name);
   }
 
-  void Db::setNameByColIdx(Id icol0, const String& name)
+  void Db::setNameByColIdx(Id icol, const String& name)
   {
-    auto icol = _getColumnFromColID(icol0);
+    icol = _getColumnFromColID(icol);
     _data.setName(icol, name);
   }
 
@@ -6482,6 +6487,19 @@ namespace gstlrn
     return hasLocator(loctype);
   }
 
+  void Db::clearLocator(const String& name)
+  {
+    VectorString namesLoc = expandNameList(name);
+    auto ncol = static_cast<Id>(namesLoc.size());
+    if (ncol <= 0) return;
+
+    for (Id i = 0; i < ncol; i++)
+    {
+      auto icol = _getColumnFromName(namesLoc[i]);
+      _data.setRoleID(icol, RoleID(temporaryToRole(ELoc::UNDEFINED)));
+    }
+  }
+
   void Db::setLocator(
     const String& name,
     const ELoc& locatorType,
@@ -6507,12 +6525,12 @@ namespace gstlrn
   }
 
   void Db::setLocatorByColIdx(
-    Id icol0,
+    Id icol,
     const ELoc& locatorType,
     Id locatorIndex,
     bool cleanSameLocator)
   {
-    auto icol = _getColumnFromColID(icol0);
+    icol = _getColumnFromColID(icol);
 
     if (locatorType.isDifferent(ELoc::UNDEFINED))
     {
@@ -6671,9 +6689,9 @@ namespace gstlrn
     return _data.getUniqueIndex(icol);
   }
 
-  Id Db::getUIDByColIdx(Id icol0) const
+  Id Db::getUIDByColIdx(Id icol) const
   {
-    auto icol = _getColumnFromColID(icol0);
+    icol = _getColumnFromColID(icol);
     return _data.getUniqueIndex(icol);
   }
 
@@ -6804,10 +6822,10 @@ namespace gstlrn
     return *_data.getValue<double>(icol, iech);
   }
 
-  double Db::getValueByColIdx(Id iech, Id icol0, bool flagCheck) const
+  double Db::getValueByColIdx(Id iech, Id icol, bool flagCheck) const
   {
     DECLARE_UNUSED(flagCheck);
-    auto icol = _getColumnFromColID(icol0);
+    icol = _getColumnFromColID(icol);
     return *_data.getValue<double>(icol, iech);
   }
 
@@ -6818,10 +6836,10 @@ namespace gstlrn
     _data.setValue<double>(icol, iech, value);
   }
 
-  void Db::setValueByColIdx(Id iech, Id icol0, double value, bool flagCheck)
+  void Db::setValueByColIdx(Id iech, Id icol, double value, bool flagCheck)
   {
     DECLARE_UNUSED(flagCheck);
-    auto icol = _getColumnFromColID(icol0);
+    icol = _getColumnFromColID(icol);
     _data.setValue<double>(icol, iech, value);
   }
 
