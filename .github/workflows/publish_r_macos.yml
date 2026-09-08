@@ -46,9 +46,14 @@ jobs:
     steps:
     - uses: actions/checkout@v6
 
+    - uses: prefix-dev/setup-pixi@v0.10.2
+      with:
+        run-install: false
+
     - name: Install dependencies
       run: |
-        brew install --formula doxygen
+        pixi init
+        pixi add doxygen==1.17.0
         brew install llvm
         brew install bison
         brew install boost
@@ -81,7 +86,7 @@ jobs:
 
     - name : Configure build directory
       run : |
-        cmake \
+        pixi run cmake \
           -B${{ env.BUILD_DIR }} \
           -DCMAKE_COMPILE_WARNING_AS_ERROR=ON \
           -DHDF5_USE_STATIC_LIBRARIES=ON \
