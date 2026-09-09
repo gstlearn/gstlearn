@@ -162,8 +162,9 @@ namespace gstlrn
     const VectorVectorDouble coords = getDbout()->getAllCoordinates();
     static ANeigh* neigh = nullptr;
 
-    const double* selcol = getDbout()->getColumnPtr(ELoc::SEL, 0);
     bool hassel = getDbout()->hasLocator(ELoc::SEL);
+    const double* selcol =
+      hassel ? getDbout()->getColumnPtr(ELoc::SEL, 0) : nullptr;
 #pragma omp threadprivate(neigh)
 #pragma omp parallel for firstprivate(pin, pout, tabwork, algebra, model)      \
   schedule(guided) num_threads(nbthread) if (use_parallel)

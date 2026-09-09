@@ -149,7 +149,7 @@ namespace gstlrn
 
   Id DbData::getUniqueIndex(ColID&& colid) const
   {
-    const auto icol = _getColumnIndex(colid);
+    const auto icol = _getColumnIndex(colid, true);
     return icol ? _cols[*icol].getUniqueIndex() : -1;
   }
 
@@ -303,14 +303,12 @@ namespace gstlrn
     return _cols[*icol].getNVersions();
   }
 
-  /**
-   * @brief Count the number of entries with a given Role
-   *
-   * @param role Target Role to be matched
-   */
   Id DbData::getNRoles(const ERole& role) const
   {
     Id count = 0;
+
+    if (role.isEqual(ERole::UNDEFINED)) return 0;
+
     for (const auto& roleID: _roleIDs)
       if (roleID.getRole().isEqual(role)) ++count;
     return count;
@@ -346,7 +344,7 @@ namespace gstlrn
    */
   void DbData::printContents(const String& title) const
   {
-    Id ncols = _cols.size();
+    Id ncols = getNColumns();
 
     if (!title.empty()) std::cout << title << '\n';
     std::cout << "The Data Base contains " << ncols << " column(s) of "
@@ -389,7 +387,6 @@ namespace gstlrn
       {
         // 'localName' may contain a regular expression, so we use matchRegexp to check for a match
         if (matchRegexp(_cols[icol].getName(), localName)) return icol;
-        //  if (_cols[icol].getName() == localName) return icol;
       }
       if (verbose) _unknownName(localName);
       return std::nullopt;
@@ -408,9 +405,13 @@ namespace gstlrn
     }
 
     // Try to identify by Column rank
-    if (colid.getICol() >= 0) return colid.getICol();
-    if (verbose) messerr("Column does not exist.");
-    return std::nullopt;
+    auto icol0 = colid.getICol();
+    if (icol0 < 0 || icol0 >= ncol)
+    {
+      if (verbose) messerr("Column index is out of range.");
+      return std::nullopt;
+    }
+    return icol0;
   }
 
   /**
@@ -577,25 +578,21 @@ namespace gstlrn
 
   Id DbData::getColMatchUniqueIndex(Id uniqueIndex) const
   {
-    // This trick is meant to save time as this function systematically searches
-    // for a match over the 'ncol' columns.
-    // If two consecutive calls are made with the same uniqueIndex, the second call
-    // will start the loop at the position of the previous search
-    static Id lastUniqueIndex = 0;
-
     const Id ncol = getNColumns();
+    if (ncol <= 0) return -1;
+
+    if (_lastColumnIndex >= ncol) _lastColumnIndex = 0;
 
     for (Id icol = 0; icol < ncol; icol++)
     {
-      const Id jcol = (icol + lastUniqueIndex) % ncol;
+      const Id jcol = (icol + _lastColumnIndex) % ncol;
 
       if (_cols[jcol].getUniqueIndex() == uniqueIndex)
       {
-        lastUniqueIndex = jcol; // Save this for the next search
+        _lastColumnIndex = jcol; // Save this for the next search
         return jcol;
       }
     }
-
     return -1;
   }
 
@@ -609,6 +606,11 @@ namespace gstlrn
         nversion);
       nversion = 1;
     }
+  }
+
+  bool DbData::isValidColumn(Id icol) const
+  {
+    return (icol >= 0 && icol < getNColumns());
   }
 
   String DbData::summaryRoles(void) const

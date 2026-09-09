@@ -145,7 +145,13 @@ namespace gstlrn
     bool flagSetLocator,
     Id locatorShift) const
   {
+    // If (starting) UID is negative, simply skip the naming process
+    // (this is a common case when no output variable is created)
     if (iattout_start < 0) return;
+
+    // The corresponding column may have been deleted in the meantime,
+    // so we check that the UID is still valid
+    if (!dbout->isUIDValid(iattout_start)) return;
 
     auto nameloc = names;
     if (nameloc.empty())
@@ -217,7 +223,13 @@ namespace gstlrn
     bool flagSetLocator,
     Id locatorShift) const
   {
+    // If (starting) UID is negative, simply skip the naming process
+    // (this is a common case when no output variable is created)
     if (iattout_start < 0) return;
+
+    // The corresponding column may have been deleted in the meantime,
+    // so we check that the UID is still valid
+    if (!dbout->isUIDValid(iattout_start)) return;
 
     if (names.empty())
     {
