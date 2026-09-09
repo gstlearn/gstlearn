@@ -45,10 +45,15 @@ jobs:
     steps:
     - uses: actions/checkout@v6
 
+    - uses: prefix-dev/setup-pixi@v0.10.2
+      with:
+        run-install: false
+
     - name: Install dependencies
       run: |
+        pixi init
+        pixi add doxygen==1.17.0
         brew install swig
-        brew install --formula doxygen
         brew install llvm
         brew install boost
         brew install eigen
@@ -75,7 +80,7 @@ jobs:
 
     - name : Configure build directory
       run : |
-        cmake \
+        pixi run cmake \
           -B${{ env.BUILD_DIR }} \
           -DCMAKE_COMPILE_WARNING_AS_ERROR=ON \
           -DHDF5_USE_STATIC_LIBRARIES=ON \
