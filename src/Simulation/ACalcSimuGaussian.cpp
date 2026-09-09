@@ -76,12 +76,11 @@ namespace gstlrn
     {
       if (_isConditional() && !_flagOnGridOnly)
       {
-        Id iptr_in =
-          _addVariableDb(1, 2, ELoc::SIMU, 0, nvar * nbsimu, 1, TEST);
+        Id iptr_in = _addVariableDb(1, 2, ELoc::SIMU, 0, nvar, nbsimu, TEST);
         if (iptr_in < 0) return false;
       }
 
-      _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 0, nvar * nbsimu, 1, TEST);
+      _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 0, nvar, nbsimu, TEST);
       if (_iattOut < 0) return false;
     }
 
