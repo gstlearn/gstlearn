@@ -337,7 +337,7 @@ Projection of 'dbin' for Kriging: Created from Db and Mesh(es)
 - Number of Apices    = 5625
 - Number of Points    = 1000
 Drift coefficients = 
-      0.079
+      0.064
 LogDet of Q + ADA': 11568.583760
 LogDet of Q: 11585.782711
 LogDet of InvNoise: 2302.585093
@@ -347,7 +347,7 @@ Nb. active samples = 1000
 Nb. Monte-Carlo    = 100
 Cholesky           = 0
 Log-Determinant    = -2319.784044
-Quadratic term     = 1105.223469
-Log-likelihood     = -311.658246
--> likelihood by New API with cholesky=0 -311.6582
+Quadratic term     = 1105.216289
+Log-likelihood     = -311.654656
+-> likelihood by New API with cholesky=0 -311.6547
 ----
