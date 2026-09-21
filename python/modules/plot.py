@@ -454,24 +454,26 @@ def _getTangents(db, useSel=True):
     return tabtx, tabty
 
 
-def _getVariable(db, name, posX=0, posY=1, corner=None, useSel=True, asGrid=True):
+def _getVariable(
+    db, name, version=0, posX=0, posY=1, corner=None, useSel=True, asGrid=True
+):
     if db.isGrid() and asGrid:
         if corner is None:
             corner = np.zeros(db.getNDim())
 
         if db.getNDim() == 1:
-            tab = db.getColumn(name, useSel, False)
+            tab = db.getColumn(name, useSel, False, version)
         else:
-            tab = db.getOneSlice(name, posX, posY, corner, useSel)
+            tab = db.getOneSlice(name, posX, posY, corner, useSel, version)
     else:
-        tab = db.getColumn(name, useSel, True)
+        tab = db.getColumn(name, useSel, True, version)
     tab = np.array(tab).transpose()
 
     return tab
 
 
 def _getGridVariable(
-    dbgrid, name, useSel=True, posX=0, posY=1, corner=None, shading="flat"
+    dbgrid, name, version=0, useSel=True, posX=0, posY=1, corner=None, shading="flat"
 ):
     x0 = dbgrid.getX0(posX)
     y0 = dbgrid.getX0(posY)
@@ -483,7 +485,7 @@ def _getGridVariable(
     if posX == 0 and posY == 1:
         angle = dbgrid.getAngle(posX)
 
-    data = _getVariable(dbgrid, name, posX, posY, corner, useSel, True)
+    data = _getVariable(dbgrid, name, version, posX, posY, corner, useSel, True)
     data = np.reshape(data, (ny, nx))
 
     tr = transform.Affine2D().rotate_deg_around(x0, y0, angle)
@@ -1017,6 +1019,8 @@ def _ax_symbol(
     db,
     nameColor=None,
     nameSize=None,
+    versionColor=0,
+    versionSize=0,
     nameCoorX=None,
     nameCoorY=None,
     useSel=True,
@@ -1081,7 +1085,9 @@ def _ax_symbol(
     colval = c
     if nameColor is not None:
         name = name + " " + nameColor
-        colval = _getVariable(db, nameColor, posX, posY, None, useSel, False)
+        colval = _getVariable(
+            db, nameColor, versionColor, posX, posY, None, useSel, False
+        )
         valid = np.logical_and(valid, ~np.isnan(colval))
 
         if rule is not None:
@@ -1095,7 +1101,9 @@ def _ax_symbol(
     sizval = s
     if nameSize is not None:
         name = name + " " + nameSize
-        sizval = _getVariable(db, nameSize, posX, posY, None, useSel, False)
+        sizval = _getVariable(
+            db, nameSize, versionSize, posX, posY, None, useSel, False
+        )
         valid = np.logical_and(valid, ~np.isnan(sizval))
 
         if flagCst:
@@ -1170,6 +1178,7 @@ def _ax_literal(
     ax,
     db,
     name=None,
+    version=0,
     nameCoorX=None,
     nameCoorY=None,
     useSel=True,
@@ -1186,6 +1195,7 @@ def _ax_literal(
     ax: matplotlib.Axes (necessary when used as a method of the class)
     db: Db containing the variable to be plotted
     name: Name of the variable containing the label per sample
+    version: Version of the variable to be plotted
     useSel : Boolean to indicate if the selection has to be considered
     flagLegend: Flag for representing the Color Bar
     legendName: title of the Legend (set to 'name' if not defined
@@ -1201,7 +1211,7 @@ def _ax_literal(
     if name is None:
         return None
 
-    labval = _getVariable(db, name, posX, posY, None, useSel, False)
+    labval = _getVariable(db, name, version, posX, posY, None, useSel, False)
     valid = ~np.isnan(labval)
 
     res = ax.scatter(x=tabx[valid], y=taby[valid], **kwargs)
@@ -1487,6 +1497,7 @@ def _ax_raster(
     ax,
     dbgrid,
     name=None,
+    version=0,
     useSel=True,
     rule=None,
     posX=0,
@@ -1503,6 +1514,7 @@ def _ax_raster(
     ax: matplotlib.Axes (necessary when used as a method of the class)
     dbgrid: DbGrid containing the variable to be plotted
     name: Name of the variable to be represented (by default, the first Z locator, or the last field)
+    version: Version of the variable
     useSel : Boolean to indicate if the selection has to be considered
     rule: Optional rule to be applied for categorical variable
     flagLegend: Flag for representing the Color Bar
@@ -1515,7 +1527,7 @@ def _ax_raster(
         return None
 
     x0, y0, X, Y, Xrot, Yrot, data, tr = _getGridVariable(
-        dbgrid, name, useSel, posX=posX, posY=posY, corner=corner
+        dbgrid, name, version, useSel, posX=posX, posY=posY, corner=corner
     )
 
     if flagBinary:
@@ -1575,6 +1587,7 @@ def _ax_isoline(
     ax,
     dbgrid,
     name=None,
+    version=0,
     useSel=True,
     posX=0,
     posY=1,
@@ -1591,6 +1604,7 @@ def _ax_isoline(
     ax: matplotlib.Axes (necessary when used as a method of the class)
     dbgrid: DbGrid containing the variable to be plotted
     name: Name of the variable to be represented (by default, the first Z locator, or the last field)
+    version: version of the variable
     useSel : Boolean to indicate if the selection has to be considered
     levels: Vector of isovalues to be represented
     nlevel: Number of levels for automatic generation of 'labels' (if not provided)
@@ -1605,7 +1619,14 @@ def _ax_isoline(
         return None
 
     x0, y0, X, Y, Xrot, Yrot, data, tr = _getGridVariable(
-        dbgrid, name, useSel, posX=posX, posY=posY, corner=corner, shading="nearest"
+        dbgrid,
+        name,
+        version,
+        useSel,
+        posX=posX,
+        posY=posY,
+        corner=corner,
+        shading="nearest",
     )
     ax.set_xlim(np.nanmin(Xrot), np.nanmax(Xrot))
     ax.set_ylim(np.nanmin(Yrot), np.nanmax(Yrot))
@@ -1815,7 +1836,7 @@ def _ax_grid1D(
     dx = dbgrid.getDX(0)
 
     tabx = dbgrid.getColumnByLocator(gl.ELoc.X, 0, useSel)
-    data = _getVariable(dbgrid, name, 0, 1, None, useSel, True)
+    data = _getVariable(dbgrid, name, 0, 0, 1, None, useSel, True)
 
     _ax_curve(ax, data1=tabx, data2=data, color=color, flagLegend=flagLegend, **kwargs)
 
@@ -1824,31 +1845,33 @@ def _ax_grid1D(
     return ax
 
 
-def histogram(db, name=None, *args, **kwargs):
+def histogram(db, name=None, version=0, *args, **kwargs):
     """
     Plotting the histogram of a variable contained in a Db
 
     db: Db containing the variable to be plotted
     name: Name of the variable to be used for histogram
+    version: Version of the variable to be used for histogram
     *args, **kwargs : arguments passed to _ax_histogram
     """
     ax = _getNewAxes()
-    return _ax_histogram(ax, db=db, name=name, *args, **kwargs)
+    return _ax_histogram(ax, db=db, name=name, version=version, *args, **kwargs)
 
 
-def _ax_histogram(ax, db, name, useSel=True, **kwargs):
+def _ax_histogram(ax, db, name, version=0, useSel=True, **kwargs):
     """
     Plotting the histogram of a variable contained in a Db
     ax: matplotlib.Axes
     db: Db containing the variable to be plotted
     name: Name of the variable to be used for histogram
+    version: Version of the variable to be used for histogram
+    useSel : Boolean to indicate if the selection has to be considered
     *args, **kwargs : arguments passed to matplotlib.pyplot.hist
     """
     if _isNotCorrect(object=db, types=["Db", "DbGrid"]):
         return None
 
-    db.useSel = useSel
-    val = db[name]
+    val = db.getColumn(name, useSel, False, version)
     if len(val) == 0:
         return None
 
@@ -2361,14 +2384,23 @@ def _ax_baseMap(
         ax.scatter(extPoints[:, 0], extPoints[:, 1], c="white", s=0.1)
 
 
-def correlation(db, namex, namey, *args, **kwargs):
+def correlation(db, namex, namey, versionx=0, versiony=0, *args, **kwargs):
     """
     Plotting the scatter plot between two variables contained in a Db
 
     **kwargs: additional arguments passed to _ax_scatter
     """
     ax = _getNewAxes()
-    return _ax_correlation(ax, db=db, namex=namex, namey=namey, *args, **kwargs)
+    return _ax_correlation(
+        ax,
+        db=db,
+        namex=namex,
+        namey=namey,
+        versionx=versionx,
+        versiony=versiony,
+        *args,
+        **kwargs,
+    )
 
 
 def _ax_correlation(
@@ -2376,6 +2408,8 @@ def _ax_correlation(
     db,
     namex,
     namey,
+    versionx=0,
+    versiony=0,
     db2=None,
     asPoint=False,
     flagSameAxes=False,
@@ -2408,11 +2442,11 @@ def _ax_correlation(
         print("Db and Db2 should have the same number of samples")
         return None
 
-    res = gl.correlationPairs(db, db, namex, namey)
-    tabx = db.getValuesByNames(res[0], [namex])
+    res = gl.correlationPairs(db, db, namex, namey, False, False, versionx, versiony)
+    tabx = db.getValuesByNames(res[0], [namex], False, versionx)
     if len(tabx) == 0:
         return None
-    taby = db2.getValuesByNames(res[0], [namey])
+    taby = db2.getValuesByNames(res[0], [namey], False, versiony)
     if len(taby) == 0:
         return None
 
@@ -2469,7 +2503,9 @@ def _ax_correlation(
     return ax
 
 
-def hscatter(db, namex, namey, varioparam, ilag, *args, **kwargs):
+def hscatter(
+    db, namex, namey, varioparam, ilag, versionx=0, versiony=0, *args, **kwargs
+):
     """
     Plotting the scatter plot between two variables contained in a Db
 
@@ -2481,6 +2517,8 @@ def hscatter(db, namex, namey, varioparam, ilag, *args, **kwargs):
         db=db,
         namex=namex,
         namey=namey,
+        versionx=versionx,
+        versiony=versiony,
         varioparam=varioparam,
         ilag=ilag,
         *args,
@@ -2493,6 +2531,8 @@ def _ax_hscatter(
     db,
     namex,
     namey,
+    versionx,
+    versiony,
     varioparam,
     ilag=0,
     idir=0,
@@ -2509,11 +2549,14 @@ def _ax_hscatter(
     if _isNotCorrect(object=db, types=["Db", "DbGrid"]):
         return None
 
-    res = gl.hscatterPairs(db, namex, namey, varioparam, ilag, idir)
-    tabx = db.getValuesByNames(res[0], [namex])
+    res = gl.hscatterPairs(
+        db, namex, namey, varioparam, ilag, idir, False, versionx, versiony
+    )
+
+    tabx = db.getValuesByNames(res[0], [namex], False, versionx)
     if len(tabx) == 0:
         return None
-    taby = db.getValuesByNames(res[0], [namey])
+    taby = db.getValuesByNames(res[0], [namey], False, versiony)
     if len(taby) == 0:
         return None
 

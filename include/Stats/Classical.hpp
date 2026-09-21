@@ -121,7 +121,9 @@ namespace gstlrn
     const String& name1,
     const String& name2,
     bool flagFrom1 = false,
-    bool verbose = false);
+    bool verbose = false,
+    Id version1 = 0,
+    Id version2 = 0);
   GSTLEARN_EXPORT VectorVectorInt hscatterPairs(
     Db* db,
     const String& name1,
@@ -129,7 +131,9 @@ namespace gstlrn
     VarioParam* varioparam,
     Id ilag = 0,
     Id idir = 0,
-    bool verbose = false);
+    bool verbose = false,
+    Id version1 = 0,
+    Id version2 = 0);
   GSTLEARN_EXPORT Id correlationIdentify(
     Db* db1,
     Db* db2,
@@ -151,11 +155,8 @@ namespace gstlrn
     contingencyTable2(const VectorInt& values, const VectorInt& bins);
   GSTLEARN_EXPORT MatrixSymmetric dbVarianceMatrix(const Db* db);
 
-#ifndef SWIG
   // All the following functions assume that the variables in the output Db used
-  // to store the results are already created. This is the reason why they are
-  // not supposed to be presented to the Target Language.
-
+  // to store the results are already created.
   /** @addtogroup STATS_2 Statistics stored in already created variables
    * \ingroup STATS
    *
@@ -188,5 +189,4 @@ namespace gstlrn
     Id radius,
     Id iptr0);
 
-#endif // SWIG
 } // namespace gstlrn

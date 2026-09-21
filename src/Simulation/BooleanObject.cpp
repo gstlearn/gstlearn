@@ -493,6 +493,7 @@ namespace gstlrn
     DbGrid* dbout,
     Id iptr_simu,
     Id iptr_rank,
+    Id isimu,
     Id facies,
     Id rank)
   {
@@ -571,13 +572,13 @@ namespace gstlrn
 
           if (iptr_simu >= 0)
           {
-            dbout->setArray(iad, iptr_simu, facies);
+            dbout->setArray(iad, iptr_simu, facies, isimu);
           }
           if (iptr_rank >= 0)
           {
-            double value = dbout->getArray(iad, iptr_rank);
+            double value = dbout->getArray(iad, iptr_rank, isimu);
             if (FFFF(value) || value == 0)
-              dbout->setArray(iad, iptr_rank, static_cast<double>(rank));
+              dbout->setArray(iad, iptr_rank, static_cast<double>(rank), isimu);
           }
         }
   }

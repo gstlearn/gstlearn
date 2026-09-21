@@ -57,7 +57,7 @@ Number :         150        100         30
 
 Data Base Statistics
 --------------------
-5 - Name Interpolation - Locator z1
+1 - Name Interpolation 
  Nb of data          =      450000
  Nb of active values =      141816
  Minimum value       =      -5.863

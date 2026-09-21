@@ -320,7 +320,7 @@ Total number of samples      = 236
 
 Data Base Statistics
 --------------------
-4 - Name Elevation - Locator NA
+1 - Name Elevation 
  Nb of data          =         236
  Nb of active values =         236
  Minimum value       =       2.000
@@ -328,7 +328,7 @@ Data Base Statistics
  Mean value          =     146.441
  Standard Deviation  =     165.138
  Variance            =   27270.713
-5 - Name January_temp - Locator z1
+2 - Name January_temp 
  Nb of data          =         236
  Nb of active values =         151
  Minimum value       =       0.600

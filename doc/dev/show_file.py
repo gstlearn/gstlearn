@@ -12,7 +12,7 @@ if len(args) < 2:
     print("- filename: Name of the Serialized file")
     print(" ")
     print(
-        "- varnames: (only for Db and Dbgrid) name(s) of variables for statistics (all is name unknown)"
+        "- varnames: (only for Db and Dbgrid) name(s) of variables for statistics (all if name unknown)"
     )
     exit()
 filename = args[1]

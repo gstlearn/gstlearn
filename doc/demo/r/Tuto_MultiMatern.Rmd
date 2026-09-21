@@ -140,13 +140,14 @@ compute_vario_on_grid <- function(val1, val2, nlag = 10, dir = c(1,0), dx = c(1,
 #' to compute the various plot to check the simulations on a two dimensional grid
 #' @param grid a **gstlearn** DbGrid containing the simulations
 #' @param names of the simulations
+#' @param version Rank of the simulation
 #' @param model is the simulated **gstlearn** model.
 #' @param main is the title used for graphics
 #' @param flag.hist a boolean equal to TRUE to plot the histogram of each variable
 #' @param flag.map a boolean equal to TRUE to plot a base map for each variable
 #' @param flag.vario a boolean equal to TRUE to plot all the simple an cross variograms
 #' @value no return value
-plot_hist_map_vario <- function(grid, names, model,
+plot_hist_map_vario <- function(grid, names, version, model,
                                 main = NULL,
                                 flag.hist = TRUE, flag.map = TRUE, flag.vario = TRUE) {
 
@@ -163,7 +164,8 @@ plot_hist_map_vario <- function(grid, names, model,
   p2 = SpacePoint()
   d  = model$getNDim()
   for (ivar in seq_along(names)) {
-    simu1 = matrix(grid[names[ivar]], nx[1], nx[2])
+  #  simu1 = matrix(grid[names[ivar]], nx[1], nx[2])
+    simu1 = matrix(grid$getColumn(names[ivar], version=version-1), nx[1], nx[2])
     # histograms
     if (flag.hist) {
       hist(simu1, main = NULL)
@@ -184,7 +186,8 @@ plot_hist_map_vario <- function(grid, names, model,
       for (jvar in ivar:length(names)) {
         c0 = model$evalCov(p1 = p1, p2 = p1, ivar = ivar-1, jvar = jvar-1)
         ylim = c(0, c0)
-        simu2 = matrix(grid[names[jvar]], nx[1], nx[2])
+        #simu2 = matrix(grid[names[jvar]], nx[1], nx[2])
+        simu2 = matrix(grid$getColumn(names[jvar], version=version-1), nx[1], nx[2])
         plot(NULL, NULL, xlim = c(0, nlag*max(dir_norm)), ylim = ylim,
              xlab = "Distance", ylab = "Variogram")
         abline(v = c(0), col = "black", lty = 3)
@@ -217,7 +220,6 @@ plot_hist_map_vario <- function(grid, names, model,
   } # loop over ivar
   invisible(NULL)
 }
-
 ```
 
 # The multivariate Matern'model
@@ -312,7 +314,7 @@ for(idir in 1:length(dir_angles)) {
 ## Spectrums of the multi-variate model
 
 ```{r plot_of_spectrum, echo=FALSE, eval=TRUE}
-# plot of the spectrums
+# plot of the spectra
 
 s0 = NULL
 for (ivar in 1:p) {
@@ -358,9 +360,7 @@ for(idir in 1:length(dir_angles)) {
          col = var_col[1:idx],
          lty = 1)
 }
-
 ```
-
 
 # Simulations
 
@@ -379,10 +379,11 @@ err = simuSpectral(dbin = NULL, dbout = grid, model = modelGeneric, nbsimu = nbs
                    seed = seed, ns = ns, verbose = FALSE,
                    namconv = NamingConvention(prefix))
 
+nm_var = paste(prefix, paste0("V", 1:p), sep = ".")
+knitr::kable(dbStatisticsMono(db = grid, names = nm_var, opers = opers)$toTL(), digits = 4)
+
 for (isim in 1:nbsimu) {
-  nm_var = paste(prefix, paste0("V", 1:p), paste0("S", isim), sep = ".")
-  knitr::kable(dbStatisticsMono(db = grid, names = nm_var, opers = opers)$toTL(), digits = 4)
-  plot_hist_map_vario(grid = grid, names = nm_var, model = gsMatern,
+  plot_hist_map_vario(grid = grid, names = nm_var, version = isim, model = gsMatern,
                       main = paste0("Matern: d = ", gsMatern$getNDim(),
                                     ", p = ", gsMatern$getNVar()),
                       flag.hist = TRUE, flag.map = TRUE, flag.vario = TRUE)

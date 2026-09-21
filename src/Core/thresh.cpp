@@ -245,7 +245,7 @@ namespace gstlrn
     bool flag_stat,
     Id nfacies)
   {
-    Id iptr;
+    Id iptrl, iptru;
 
     /* Input Db */
 
@@ -288,10 +288,12 @@ namespace gstlrn
     /**********************/
 
     /* Lower bound at input data points */
-    if (db_locator_attribute_add(db, ELoc::L, ngrf, 0, 0., &iptr)) return 1;
+    iptrl = db->addColumnsByConstant(ngrf, 1, 0., String(), ELoc::L);
+    if (iptrl < 0) return 1;
 
     /* Upper bound at input data points */
-    if (db_locator_attribute_add(db, ELoc::U, ngrf, 0, 0., &iptr)) return 1;
+    iptru = db->addColumnsByConstant(ngrf, 1, 0., String(), ELoc::U);
+    if (iptru < 0) return 1;
 
     /* Calculate the thresholds and store them in the Db file */
 
@@ -379,12 +381,12 @@ namespace gstlrn
     /**********************/
 
     /* Lower bound at input data points */
-    if (db_locator_attribute_add(db, ELoc::L, ngrf, 0, 0., &iptrl))
-      goto label_end;
+    iptrl = db->addColumnsByConstant(ngrf, 1, 0., String(), ELoc::L);
+    if (iptrl < 0) goto label_end;
 
     /* Upper bound at input data points */
-    if (db_locator_attribute_add(db, ELoc::U, ngrf, 0, 0., &iptru))
-      goto label_end;
+    iptru = db->addColumnsByConstant(ngrf, 1, 0., String(), ELoc::U);
+    if (iptru < 0) goto label_end;
 
     /* Calculate the thresholds and store them in the Db file */
 

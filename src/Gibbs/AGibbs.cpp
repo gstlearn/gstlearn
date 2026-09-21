@@ -307,7 +307,7 @@ namespace gstlrn
     auto nact = _getSampleRankNumber();
     VectorVectorDouble y(_getDimension());
     for (Id i = 0, nsize = static_cast<Id>(y.size()); i < nsize; i++)
-      y[i].resize(nact);
+      y[i].resize(nact, 0.);
     return y;
   }
 
@@ -321,7 +321,6 @@ namespace gstlrn
    */
   void AGibbs::storeResult(const VectorVectorDouble& y, Id isimu, Id ipgs)
   {
-    auto nsize = _getDimension();
     auto nact = _getSampleRankNumber();
     auto nvar = getNvar();
 
@@ -330,14 +329,12 @@ namespace gstlrn
     for (Id ivar = 0; ivar < nvar; ivar++)
     {
       auto icase = getRank(ipgs, ivar);
-      Id rank = icase + nsize * isimu;
 
       /* Loop on the samples */
-
       for (Id iact = 0; iact < nact; iact++)
       {
         auto iech = getSampleRank(iact);
-        _db->setFromLocator(ELoc::GAUSFAC, iech, rank, y[icase][iact]);
+        _db->setFromLocator(ELoc::GAUSFAC, iech, icase, y[icase][iact], isimu);
       }
     }
 
@@ -543,7 +540,8 @@ namespace gstlrn
     /* Iterations of the Gibbs sampler */
 
     Timer timer;
-    for (Id iter = 0; iter < getNiter(); iter++) update(y, isimu0, ipgs0, iter);
+    for (Id iter = 0, niter = getNiter(); iter < niter; iter++)
+      update(y, isimu0, ipgs0, iter);
     if (verboseTimer) timer.displayIntervalMilliseconds("Gibbs iterations");
 
     /* Check the validity of the Gibbs results (optional) */

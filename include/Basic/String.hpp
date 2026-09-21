@@ -56,7 +56,8 @@ namespace gstlrn
     bool caseSensitive = true);
   GSTLEARN_EXPORT void correctNamesForDuplicates(
     VectorString& newList,
-    const VectorString& oldList = VectorString());
+    const VectorString& oldList = VectorString(),
+    const VectorString& reservedList = VectorString());
   GSTLEARN_EXPORT void
     correctNewNameForDuplicates(VectorString& list, Id target);
 

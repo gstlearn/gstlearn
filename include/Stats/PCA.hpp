@@ -65,6 +65,8 @@ namespace gstlrn
 
     double getSigma(Id ivar) const { return _sigma[ivar]; }
 
+    void setNVar(Id nvar) { _nVar = nvar; }
+
     void setMeans(const VectorDouble& mean) { _mean = mean; }
 
     void setSigmas(const VectorDouble& sigma) { _sigma = sigma; }
@@ -110,6 +112,12 @@ namespace gstlrn
     VectorDouble mafOfIndex() const;
 
   private:
+    static Id _countNVar(const Db* db);
+
+    static Id _getNSample(const Db* db);
+
+    static VectorString _getNames(const Db* db);
+
     double _getF2Z(Id ivar, Id ifac) const { return _F2Z.getValue(ivar, ifac); }
 
     void _setF2Z(Id ivar, Id ifac, double f2z)

@@ -101,7 +101,7 @@ namespace gstlrn
 
     Id iattp = dbpoint->getNColumn() - 1;
     if (expandPointToGrid(
-          dbpoint, dbgrid, iattp, -1, 0, -1, -1, -1, -1, 0, VectorDouble(),
+          dbpoint, dbgrid, iattp, 0, -1, 0, -1, -1, -1, -1, 0, VectorDouble(),
           simgrid))
       return 1;
 

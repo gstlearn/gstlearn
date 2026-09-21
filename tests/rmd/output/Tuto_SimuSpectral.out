@@ -4,13 +4,14 @@ Simulation of the spectrum
 - Number of spectral components = 1000
 Spectral Simulation on a set of Isolated Points
 - Number of samples = 10000
+NULL
 
 
 Table: MATERN model (nu = 0.75)
 
 |         | Number| Minimum| Maximum|   Mean| St. Dev.|
 |:--------|------:|-------:|-------:|------:|--------:|
-|Simu     |  10000|  -3.368|   3.784|  0.030|    0.967|
+|SimuRef  |  10000|  -3.368|   3.784|  0.030|    0.967|
 |Simu.S1  |  10000|  -3.342|   3.376|  0.002|    0.971|
 |Simu.S2  |  10000|  -3.454|   3.717| -0.009|    0.947|
 |Simu.S3  |  10000|  -3.341|   3.376|  0.002|    0.971|
@@ -31,6 +32,7 @@ Table: MATERN model (nu = 0.75)
 |Simu.S18 |  10000|  -3.817|   3.238| -0.028|    0.948|
 |Simu.S19 |  10000|  -3.287|   3.623|  0.014|    0.934|
 |Simu.S20 |  10000|  -3.850|   3.279| -0.028|    0.948|
+NULL
 
 
 Table: MATERN model (nu = 0.75)

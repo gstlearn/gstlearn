@@ -4,11 +4,11 @@ Data Base Characteristics
 
 Data Base Contents
 ------------------
-                 rank       x-1       x-2         z
-     [  0,]     1.000     0.652     0.557    -0.774
-     [  1,]     2.000     0.483     0.433       N/A
-     [  2,]     3.000     0.762     0.497    -0.454
-     [  3,]     4.000     0.015     0.140    -0.872
+                   rank        x-1        x-2          z
+      [  0,]      1.000      0.652      0.557     -0.774
+      [  1,]      2.000      0.483      0.433        N/A
+      [  2,]      3.000      0.762      0.497     -0.454
+      [  3,]      4.000      0.015      0.140     -0.872
 
 Data Base Characteristics
 =========================
@@ -39,9 +39,9 @@ Total number of samples      = 1
 
 Grid characteristics:
 ---------------------
-Origin :      0.500     0.500
-Mesh   :      0.200     0.300
-Number :          1         1
+Origin :       0.500      0.500
+Mesh   :       0.200      0.300
+Number :           1          1
 
 Variables
 ---------
@@ -127,19 +127,19 @@ Data Base Grid Characteristics
 
 Data Base Statistics
 --------------------
-4 - Name Kriging.z.estim - Locator z1
- Nb of data          =          1
- Nb of active values =          1
- Minimum value       =     -0.896
- Maximum value       =     -0.896
- Mean value          =     -0.896
- Standard Deviation  =      0.000
- Variance            =      0.000
-5 - Name Kriging.z.stdev - Locator NA
- Nb of data          =          1
- Nb of active values =          1
- Minimum value       =      0.801
- Maximum value       =      0.801
- Mean value          =      0.801
- Standard Deviation  =      0.000
- Variance            =      0.000
+1 - Name Kriging.z.estim
+ Nb of data          =           1
+ Nb of active values =           1
+ Minimum value       =      -0.896
+ Maximum value       =      -0.896
+ Mean value          =      -0.896
+ Standard Deviation  =       0.000
+ Variance            =       0.000
+2 - Name Kriging.z.stdev
+ Nb of data          =           1
+ Nb of active values =           1
+ Minimum value       =       0.801
+ Maximum value       =       0.801
+ Mean value          =       0.801
+ Standard Deviation  =       0.000
+ Variance            =       0.000

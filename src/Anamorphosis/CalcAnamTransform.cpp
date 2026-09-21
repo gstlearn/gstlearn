@@ -225,7 +225,13 @@ namespace gstlrn
     if (_flagVars)
     {
       auto nvar = _getNVar();
-      _iattVar = getDb()->addColumnsByConstant(nvar);
+      // Add the output variable(s) (with the same number of 'versions' as the input variable(s))
+      for (Id ivar = 0; ivar < nvar; ivar++)
+      {
+        Id nversion = getDb()->getNVersionsByLocator(ELoc::Z, ivar);
+        auto iatt = getDb()->addColumnsByConstant(1, nversion);
+        if (_iattVar < 0) _iattVar = iatt;
+      }
       return (_iattVar >= 0);
     }
 
@@ -366,7 +372,7 @@ namespace gstlrn
 
     if (_flagUniCond)
     {
-      AnamHermite* anam_hermite = dynamic_cast<AnamHermite*>(_anam);
+      auto* anam_hermite = dynamic_cast<AnamHermite*>(_anam);
       return (!_uniformConditioning(
         getDb(), anam_hermite, _selectivity, _iattSel, _iptrEst[0],
         _iptrStd[0]));
@@ -392,9 +398,15 @@ namespace gstlrn
 
     for (Id ivar = 0; ivar < nvar; ivar++)
     {
-      VectorDouble data = getDb()->getColumnByLocator(ELoc::Z, ivar);
-      VectorDouble vec = VH::normalScore(data, wt);
-      if (!vec.empty()) getDb()->setColumnByUID(vec, _iattVar + ivar);
+      auto nversion = getDb()->getNVersionsByLocator(ELoc::Z, ivar);
+      for (Id ivers = 0; ivers < nversion; ivers++)
+      {
+        VectorDouble data =
+          getDb()->getColumnByLocator(ELoc::Z, ivar, false, true, ivers);
+        VectorDouble vec = VH::normalScore(data, wt);
+        if (!vec.empty())
+          getDb()->setColumnByUID(vec, _iattVar + ivar, false, ivers);
+      }
     }
     return true;
   }
@@ -406,10 +418,15 @@ namespace gstlrn
 
     for (Id ivar = 0; ivar < nvar; ivar++)
     {
-      VectorDouble z = getDb()->getColumnByLocator(ELoc::Z, ivar, true);
-      if (z.size() <= 0) continue;
-      VectorDouble y = anamC->rawToGaussianVector(z);
-      getDb()->setColumnByUID(y, _iattVar + ivar, true);
+      auto nversion = getDb()->getNVersionsByLocator(ELoc::Z, ivar);
+      for (Id ivers = 0; ivers < nversion; ivers++)
+      {
+        VectorDouble z =
+          getDb()->getColumnByLocator(ELoc::Z, ivar, true, true, ivers);
+        if (z.size() <= 0) continue;
+        VectorDouble y = anamC->rawToGaussianVector(z);
+        getDb()->setColumnByUID(y, _iattVar + ivar, true, ivers);
+      }
     }
     return true;
   }
@@ -421,10 +438,15 @@ namespace gstlrn
 
     for (Id ivar = 0; ivar < nvar; ivar++)
     {
-      VectorDouble y = getDb()->getColumnByLocator(ELoc::Z, ivar, true);
-      if (y.size() <= 0) continue;
-      VectorDouble z = anamC->gaussianToRawVector(y);
-      getDb()->setColumnByUID(z, _iattVar + ivar, true);
+      auto nversion = getDb()->getNVersionsByLocator(ELoc::Z, ivar);
+      for (Id ivers = 0; ivers < nversion; ivers++)
+      {
+        VectorDouble y =
+          getDb()->getColumnByLocator(ELoc::Z, ivar, true, true, ivers);
+        if (y.size() <= 0) continue;
+        VectorDouble z = anamC->gaussianToRawVector(y);
+        getDb()->setColumnByUID(z, _iattVar + ivar, true, ivers);
+      }
     }
     return true;
   }
