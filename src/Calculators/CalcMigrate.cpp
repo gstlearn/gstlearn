@@ -80,6 +80,7 @@ namespace gstlrn
    ** \param[in]  db_grid   descriptor of the grid parameters
    ** \param[in]  indg      Working array
    ** \param[in]  iatt      Rank of the grid attribute
+   ** \param[in]  version   Version of the migration algorithm
    **
    ** \param[out]  value    Output value
    **
@@ -88,12 +89,13 @@ namespace gstlrn
     DbGrid* db_grid,
     const VectorInt& indg,
     Id iatt,
+    Id version,
     double* value)
   {
     Id jech = db_grid->indiceToRank(indg);
     if (jech < 0) return (1);
     if (!db_grid->isActive(jech)) return (1);
-    *value = db_grid->getArray(jech, iatt);
+    *value = db_grid->getArray(jech, iatt, version);
     if (FFFF(*value)) return (1);
     return (0);
   }
@@ -106,6 +108,7 @@ namespace gstlrn
    **
    ** \param[in]  dbgrid    descriptor of the grid parameters
    ** \param[in]  iatt      rank of the target variable in dbgrid
+   ** \param[in]  version   rank of the version in dbgrid
    ** \param[in]  distType  Type of distance for calculating maximum distance
    **                       1 for L1 and 2 for L2 distance
    ** \param[in]  dmax      Array of maximum distances (optional)
@@ -115,6 +118,7 @@ namespace gstlrn
   static double st_multilinear_interpolation(
     DbGrid* dbgrid,
     Id iatt,
+    Id version,
     Id distType,
     const VectorDouble& dmax,
     const VectorDouble& coor)
@@ -170,7 +174,7 @@ namespace gstlrn
       /* Get the sample value */
 
       double value;
-      if (!st_multilinear_evaluate(dbgrid, iwork2, iatt, &value))
+      if (!st_multilinear_evaluate(dbgrid, iwork2, iatt, version, &value))
       {
         estim += weight * value;
         wgt_tot += weight;
@@ -566,6 +570,7 @@ namespace gstlrn
    ** \param[in]  db_grid   descriptor of the grid parameters
    ** \param[in]  db_point  descriptor of the point parameters
    ** \param[in]  iatt      rank of the grid attribute
+   ** \param[in]  version   Version of the point attribute
    ** \param[in]  distType  Type of distance for calculating maximum distance
    **                       1 for L1 and 2 for L2 distance
    ** \param[in]  dmax      Array of maximum distances (optional)
@@ -577,6 +582,7 @@ namespace gstlrn
     DbGrid* db_grid,
     Db* db_point,
     Id iatt,
+    Id version,
     Id distType,
     const VectorDouble& dmax,
     VectorDouble& tab)
@@ -606,7 +612,7 @@ namespace gstlrn
         (void)distance_inter(db_grid, db_point, rank, iech, dvect);
         if (st_larger_than_dmax(ndim_min, dvect, distType, dmax)) continue;
       }
-      tab[iech] = db_grid->getArray(rank, iatt);
+      tab[iech] = db_grid->getArray(rank, iatt, version);
     }
     return 0;
   }
@@ -615,6 +621,7 @@ namespace gstlrn
     : ACalcDbToDb(false)
     , _iattOut(-1)
     , _iuids()
+    , _nversion(0)
     , _distType(1)
     , _dmax()
     , _flagFill(false)
@@ -633,13 +640,31 @@ namespace gstlrn
     if (!hasDbin()) return false;
     if (!hasDbout()) return false;
 
-    if (_iuids.empty())
+    auto niuid = static_cast<Id>(_iuids.size());
+    if (niuid <= 0)
     {
       messerr("At least one variable should be defined");
       return false;
     }
 
-    _setNvar(static_cast<Id>(_iuids.size()), true);
+    // Set the number of variables to be migrated
+    _setNvar(niuid, true);
+
+    // Check that if the input variable has multiple versions, it must be alone
+    _nversion = 0;
+    for (Id i = 0; i < niuid; i++)
+    {
+      auto nverLoc = getDbin()->getNVersions(_iuids[i]);
+      if (_nversion > 0 && nverLoc != _nversion)
+      {
+        messerr("Simultaneous Migration concerns %d variables", niuid);
+        messerr("They should share the same version number (%d)", _nversion);
+        messerr("Variable %d has %d versions", i, nverLoc);
+        return false;
+      }
+      _nversion = nverLoc;
+    }
+
     if (_distType != 1 && _distType != 2)
     {
       messerr(
@@ -655,8 +680,8 @@ namespace gstlrn
   {
     if (!ACalcDbToDb::_preprocess()) return false;
 
-    auto nvar = _getNVar();
-    _iattOut = _addVariableDb(2, 1, ELoc::UNDEFINED, 0, nvar, 1, 0.);
+    _iattOut =
+      _addVariableDb(2, 1, ELoc::UNDEFINED, 0, _getNVar(), _getNVersions(), 0.);
     return (_iattOut >= 0);
   }
 
@@ -690,18 +715,20 @@ namespace gstlrn
    *****************************************************************************/
   bool CalcMigrate::_run()
   {
-    auto nvar = _getNVar();
-
     // Perform the migrations
 
-    for (Id i = 0; i < nvar; i++)
+    for (Id ivar = 0, nvar = _getNVar(); ivar < nvar; ivar++)
     {
-      Id iatt1 = _iuids[i];
-      Id iatt2 = _iattOut + i;
-      if (_migrate(
-            getDbin(), getDbout(), iatt1, iatt2, _distType, _dmax, _flagFill,
-            _flagInter, _flagBall))
-        return false;
+      for (Id version = 0, nversion = _getNVersions(); version < nversion;
+           version++)
+      {
+        Id iatt1 = _iuids[ivar];
+        Id iatt2 = _iattOut + ivar;
+        if (_migrate(
+              getDbin(), getDbout(), iatt1, iatt2, version, _distType, _dmax,
+              _flagFill, _flagInter, _flagBall))
+          return false;
+      }
     }
 
     return true;
@@ -1158,7 +1185,7 @@ namespace gstlrn
       if (ndim >= 2) coor[1] = yp[ip];
       if (ndim >= 3) coor[2] = zp[ip];
       tab[ip] =
-        st_multilinear_interpolation(dbgrid, iatt, 0, VectorDouble(), coor);
+        st_multilinear_interpolation(dbgrid, iatt, 0, 0, VectorDouble(), coor);
     }
     return 0;
   }
@@ -1240,8 +1267,10 @@ namespace gstlrn
 
       /* Calculate the target variable value at segment endpoints */
 
-      vi1 = st_multilinear_interpolation(dbgrid, iatt, 0, VectorDouble(), xi1);
-      vi2 = st_multilinear_interpolation(dbgrid, iatt, 0, VectorDouble(), xi2);
+      vi1 =
+        st_multilinear_interpolation(dbgrid, iatt, 0, 0, VectorDouble(), xi1);
+      vi2 =
+        st_multilinear_interpolation(dbgrid, iatt, 0, 0, VectorDouble(), xi2);
       v1 = MIN(vi1, vi2);
       v2 = MAX(vi1, vi2);
 
@@ -1276,6 +1305,7 @@ namespace gstlrn
    ** \param[in]  db_point    Descriptor of the point parameters
    ** \param[in]  db_grid     Descriptor of the grid parameters
    ** \param[in]  iatt        Rank of the point attribute
+   ** \param[in]  version     Version of the point attribute
    ** \param[in]  iatt_time   Optional variable for Time shift
    ** \param[in]  iatt_angle  Optional variable for anisotropy angle (around Z)
    ** \param[in]  iatt_scaleu Optional variable for anisotropy scale factor (U)
@@ -1299,6 +1329,7 @@ namespace gstlrn
     Db* db_point,
     DbGrid* db_grid,
     Id iatt,
+    Id version,
     Id iatt_time,
     Id iatt_angle,
     Id iatt_scaleu,
@@ -1337,7 +1368,7 @@ namespace gstlrn
     for (Id ip = np = 0; ip < db_point->getNSample(); ip++)
     {
       if (!db_point->isActive(ip)) continue;
-      if (FFFF(db_point->getArray(ip, iatt))) continue;
+      if (FFFF(db_point->getArray(ip, iatt, version))) continue;
       xtab[np] = db_point->getCoordinate(ip, idim_ref);
       np++;
     }
@@ -1413,7 +1444,7 @@ namespace gstlrn
         if (flag_index)
           tab[ig] = static_cast<double>(jpmin);
         else
-          tab[ig] = db_point->getArray(jpmin, iatt);
+          tab[ig] = db_point->getArray(jpmin, iatt, version);
       }
     }
     return 0;
@@ -1566,7 +1597,7 @@ namespace gstlrn
     for (Id iech = 0; iech < dbpoint->getNSample(); iech++)
       dbpoint->setArray(iech, iatt_rank, static_cast<double>(iech));
     if (expandPointToGrid(
-          dbpoint, dbgrid, iatt_rank, iatt_time, iatt_angle, iatt_scaleu,
+          dbpoint, dbgrid, iatt_rank, 0, iatt_time, iatt_angle, iatt_scaleu,
           iatt_scalev, iatt_scalew, flag_index, 0, VectorDouble(), tab1))
       goto label_end;
 
@@ -1789,6 +1820,7 @@ namespace gstlrn
    ** \param[in]  db2        descriptor of the output Db
    ** \param[in]  iatt1      Attribute in Db1 to be migrated
    ** \param[in]  iatt2      Attribute in Db2 where the result must be stored
+   ** \param[in]  version    Version of the migration algorithm
    ** \param[in]  distType   Type of distance for calculating maximum distance
    **                        1 for L1 and 2 for L2 distance
    ** \param[in]  dmax       Array of maximum distances (optional)
@@ -1802,6 +1834,7 @@ namespace gstlrn
     Db* db2,
     Id iatt1,
     Id iatt2,
+    Id version,
     Id distType,
     const VectorDouble& dmax,
     bool flag_fill,
@@ -1826,21 +1859,23 @@ namespace gstlrn
           if (!flag_inter)
           {
             // Grid to Grid (flag_fill = TRUE)
-            if (_expandGridToGrid(db1grid, db2grid, iatt1, distType, dmax, tab))
+            if (_expandGridToGrid(
+                  db1grid, db2grid, iatt1, version, distType, dmax, tab))
               return 1;
           }
           else
           {
             // Interpolate Grid to Grid
             if (_interpolateGridToPoint(
-                  db1grid, db2grid, iatt1, distType, dmax, tab))
+                  db1grid, db2grid, iatt1, version, distType, dmax, tab))
               return 1;
           }
         }
         else
         {
           // Grid to Grid (flag_fill = FALSE)
-          if (_migrateGridToGrid(db1grid, db2grid, iatt1, distType, dmax, tab))
+          if (_migrateGridToGrid(
+                db1grid, db2grid, iatt1, version, distType, dmax, tab))
             return 1;
         }
       }
@@ -1854,14 +1889,14 @@ namespace gstlrn
           {
             // Note that we do not benefit from the fact that db2 is a Grid
             if (_expandPointToPointBall(
-                  db1, db2grid, iatt1, distType, dmax, tab))
+                  db1, db2grid, iatt1, version, distType, dmax, tab))
               return 1;
           }
           else
           {
             if (expandPointToGrid(
-                  db1, db2grid, iatt1, -1, -1, -1, -1, -1, 0, distType, dmax,
-                  tab))
+                  db1, db2grid, iatt1, version, -1, -1, -1, -1, -1, 0, distType,
+                  dmax, tab))
               return 1;
           }
         }
@@ -1869,7 +1904,8 @@ namespace gstlrn
         {
           // Point to Grid (flag_fill = FALSE)
           // flag_ball option is not considered as it does not save time
-          if (_migratePointToGrid(db1, db2grid, iatt1, distType, dmax, tab))
+          if (_migratePointToGrid(
+                db1, db2grid, iatt1, version, distType, dmax, tab))
             return 1;
         }
       }
@@ -1882,13 +1918,15 @@ namespace gstlrn
       if (flag_inter)
       {
         // Grid to Point (flag_inter = TRUE)
-        if (_interpolateGridToPoint(db1grid, db2, iatt1, distType, dmax, tab))
+        if (_interpolateGridToPoint(
+              db1grid, db2, iatt1, version, distType, dmax, tab))
           return 1;
       }
       else
       {
         // Grid to Point (flag_inter = FALSE)
-        if (_migrateGridToPoint(db1grid, db2, iatt1, distType, dmax, tab))
+        if (_migrateGridToPoint(
+              db1grid, db2, iatt1, version, distType, dmax, tab))
           return 1;
       }
     }
@@ -1897,7 +1935,8 @@ namespace gstlrn
       // Point to Point
       if (flag_ball)
       {
-        if (_expandPointToPointBall(db1, db2, iatt1, distType, dmax, tab))
+        if (_expandPointToPointBall(
+              db1, db2, iatt1, version, distType, dmax, tab))
           return 1;
       }
       else
@@ -1907,8 +1946,8 @@ namespace gstlrn
     }
 
     // Store the resulting array in the output Db
+    db2->setColumnByUID(tab, iatt2, false, version);
 
-    db2->setColumnByUID(tab, iatt2);
     return 0;
   }
 
@@ -1922,6 +1961,7 @@ namespace gstlrn
    ** \param[in]  db_point  Descriptor of the point parameters
    ** \param[in]  db_grid   Descriptor of the grid parameters
    ** \param[in]  iatt      Rank of the point attribute
+   ** \param[in]  version    Version of the point attribute
    ** \param[in]  distType  Type of distance for calculating maximum distance
    **                       1 for L1 and 2 for L2 distance
    ** \param[in]  dmax      Array of maximum distances (optional)
@@ -1933,6 +1973,7 @@ namespace gstlrn
     Db* db_point,
     DbGrid* db_grid,
     Id iatt,
+    Id version,
     Id distType,
     const VectorDouble& dmax,
     VectorDouble& tab)
@@ -1958,7 +1999,7 @@ namespace gstlrn
     for (Id iech = 0; iech < db_point->getNSample(); iech++)
     {
       if (FFFF(local[iech])) continue;
-      if (FFFF(db_point->getArray(iech, iatt))) continue;
+      if (FFFF(db_point->getArray(iech, iatt, version))) continue;
       Id inode = static_cast<Id>(local[iech]);
       nb_assign++;
       if (FFFF(tab[inode]))
@@ -1989,7 +2030,8 @@ namespace gstlrn
     for (Id jnode = 0; jnode < db_grid->getNSample(); jnode++)
     {
       if (FFFF(tab[jnode])) continue;
-      tab[jnode] = db_point->getArray(static_cast<Id>(tab[jnode]), iatt);
+      tab[jnode] =
+        db_point->getArray(static_cast<Id>(tab[jnode]), iatt, version);
     }
     return 0;
   }
@@ -2004,6 +2046,7 @@ namespace gstlrn
    ** \param[in]  db1       Descriptor of the input parameters
    ** \param[in]  db2       Descriptor of the output parameters
    ** \param[in]  iatt      Rank of the input attribute
+   ** \param[in]  version    Version of the migration algorithm
    ** \param[in]  distType  Type of distance for calculating maximum distance
    **                       1 for L1 and 2 for L2 distance
    ** \param[in]  dmax      Array of maximum distances (optional)
@@ -2017,6 +2060,7 @@ namespace gstlrn
     Db* db1,
     Db* db2,
     Id iatt,
+    Id version,
     Id distType,
     const VectorDouble& dmax,
     VectorDouble& tab)
@@ -2045,7 +2089,7 @@ namespace gstlrn
         if (st_larger_than_dmax(ndim, dvect, distType, dmax)) continue;
       }
 
-      tab[inode] = db1->getArray(iech, iatt);
+      tab[inode] = db1->getArray(iech, iatt, version);
     }
     return 0;
   }
@@ -2060,6 +2104,7 @@ namespace gstlrn
    ** \param[in]  db_gridin  descriptor of the grid parameters
    ** \param[in]  db_gridout descriptor of the point parameters
    ** \param[in]  iatt       rank of the grid attribute
+   ** \param[in]  version    Version of the migration algorithm
    ** \param[in]  distType   Type of distance for calculating maximum distance
    **                        1 for L1 and 2 for L2 distance
    ** \param[in]  dmax       Array of maximum distances (optional)
@@ -2071,6 +2116,7 @@ namespace gstlrn
     DbGrid* db_gridin,
     DbGrid* db_gridout,
     Id iatt,
+    Id version,
     Id distType,
     const VectorDouble& dmax,
     VectorDouble& tab)
@@ -2094,7 +2140,7 @@ namespace gstlrn
 
     for (Id iech = 0; iech < db_gridin->getNSample(); iech++)
     {
-      double value = db_gridin->getArray(iech, iatt);
+      double value = db_gridin->getArray(iech, iatt, version);
       if (FFFF(value)) continue;
 
       /* Get the coordinates of the node from the input grid node */
@@ -2189,6 +2235,7 @@ namespace gstlrn
    ** \param[in]  db_gridin  descriptor of the grid parameters
    ** \param[in]  db_gridout descriptor of the point parameters
    ** \param[in]  iatt       rank of the grid attribute
+   ** \param[in]  version    Version of the migration algorithm
    ** \param[in]  distType   Type of distance for calculating maximum distance
    **                        1 for L1 and 2 for L2 distance
    ** \param[in]  dmax       Array of maximum distance (optional)
@@ -2200,6 +2247,7 @@ namespace gstlrn
     DbGrid* db_gridin,
     DbGrid* db_gridout,
     Id iatt,
+    Id version,
     Id distType,
     const VectorDouble& dmax,
     VectorDouble& tab)
@@ -2241,7 +2289,7 @@ namespace gstlrn
         distance_inter(db_gridin, db_gridout, jech, iech, dvect);
       if (st_larger_than_dmax(ndim_min, dvect, distType, dmax)) continue;
       if (dist_loc > dist[iech]) continue;
-      tab[iech] = db_gridin->getArray(jech, iatt);
+      tab[iech] = db_gridin->getArray(jech, iatt, version);
       dist[iech] = dist_loc;
     }
     return 0;
@@ -2257,6 +2305,7 @@ namespace gstlrn
    ** \param[in]  db_grid   descriptor of the grid parameters
    ** \param[in]  db_point  descriptor of the point parameters
    ** \param[in]  iatt      rank of the grid attribute
+   ** \param[in]  version   Version of the migration algorithm
    ** \param[in]  distType  Type of distance for calculating maximum distance
    **                       1 for L1 and 2 for L2 distance
    ** \param[in]  dmax      Array of maximum distances (optional)
@@ -2271,6 +2320,7 @@ namespace gstlrn
     DbGrid* db_grid,
     Db* db_point,
     Id iatt,
+    Id version,
     Id distType,
     const VectorDouble& dmax,
     VectorDouble& tab)
@@ -2287,8 +2337,8 @@ namespace gstlrn
     {
       if (!db_point->isActive(iech)) continue;
       db_point->getCoordinatesInPlace(coor, iech);
-      tab[iech] =
-        st_multilinear_interpolation(db_grid, iatt, distType, dmax, coor);
+      tab[iech] = st_multilinear_interpolation(
+        db_grid, iatt, version, distType, dmax, coor);
     }
     return 0;
   }

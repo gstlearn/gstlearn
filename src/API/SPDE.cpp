@@ -953,7 +953,7 @@ namespace gstlrn
     // Perform the Simulation and storage.
     // All is done in ONE step to avoid additional storage
 
-    Id iuid = dbout->addColumnsByConstant(nvar * nbsimu);
+    Id iuid = dbout->addColumnsByConstant(nvar, nbsimu);
     VectorDouble local(nechred);
     VectorDouble result;
 
@@ -964,13 +964,12 @@ namespace gstlrn
       for (Id ivar = 0; ivar < nvar; ivar++)
       {
         VH::extractInPlace(result, local, ivar * nechred);
-        Id juid = iuid + ivar * nbsimu + isimu;
-        dbout->setColumnByUID(local, juid, true);
+        dbout->setColumnByUID(local, iuid + ivar, true, isimu);
       }
     }
     auto names =
       (dbin != nullptr) ? dbin->getNamesByLocator(ELoc::Z) : VectorString();
-    namconv.setOutput(names, 0, dbout, iuid, "", nbsimu);
+    namconv.setOutput(names, 0, dbout, iuid, "", 1);
 
     return 0;
   }

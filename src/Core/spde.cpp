@@ -4158,8 +4158,8 @@ namespace gstlrn
 
     if (m2denv->flag_ed)
     {
-      if (db_locator_attribute_add(dbin, ELoc::F, nlayer, 0, TEST, iatt_f))
-        goto label_end;
+      *iatt_f = dbin->addColumnsByConstant(nlayer, 1, TEST, String(), ELoc::F);
+      if (*iatt_f < 0) goto label_end;
     }
 
     /* Loop on the layers */

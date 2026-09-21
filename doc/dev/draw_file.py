@@ -3,6 +3,10 @@
 
 import sys
 
+import matplotlib
+
+matplotlib.use("Qt5Agg")
+
 import gstlearn as gl
 import gstlearn.plot as gp
 import matplotlib.pyplot as plt
@@ -95,7 +99,7 @@ elif filetype == "DbGrid":
 
     if flagDb:
         if dbgrid.getNDim() > 1:
-            gp.raster(dbgrid, name, flagLegend=True, legendName="")
+            gp.raster(dbgrid, name, version=0, flagLegend=True, legendName="")
             gp.decoration(title=name)
             plt.show()
         else:

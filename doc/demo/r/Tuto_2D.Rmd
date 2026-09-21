@@ -87,7 +87,7 @@ We first define the geometry of the variogram calculations
 ```{r}
 myVarioParamOmni = VarioParam()
 mydir = DirParam_create(nlag=10,dlag=1.)
-myVarioParamOmni$addDir(mydir)
+err = myVarioParamOmni$addDir(mydir)
 ```
 
 We use the variogram definition in order to calculate the variogram cloud.
@@ -109,7 +109,7 @@ Calculating the experimental omni-directional variogram
 myVarioOmni = Vario(myVarioParamOmni)
 err = myVarioOmni$compute(mydb, ECalcVario_VARIOGRAM())
 if (verbose)
-    myVarioOmni$display()
+    err = myVarioOmni$display()
 ```
 
 The variogram is represented graphically for a quick check
@@ -129,7 +129,7 @@ myvarioParam$addMultiDirs(mydirs)
 myvario = Vario(myvarioParam)
 myvario$compute(mydb, ECalcVario_VARIOGRAM())
 if (verbose)
-    myvario$display()
+    err = myvario$display()
 ```
 
 ```{r}
@@ -143,7 +143,7 @@ Calculating the Variogram Map
 ```{r}
 myvmap = vmapFromDb(db=mydb, nxx=c(20,20))
 if (verbose)
-    myvmap$display()
+    err = myvmap$display()
 ```
 
 ```{r}
@@ -188,9 +188,9 @@ We can impose inequality constraints by using EConsType.LOWER or EConsType.UPPER
 ## Adding a drift
 
 ```{r}
-mymodel$addDrift(DriftM())
+err = mymodel$addDrift(DriftM())
 if (verbose)
-    mymodel$display()
+    err = mymodel$display()
 ```
 
 # Defining the Neighborhood
@@ -200,7 +200,7 @@ We initiate a Neigborhood (Moving with a small number of samples for Demonstrati
 ```{r}
 myneigh = NeighMoving_create(flag_xvalid=FALSE,nmaxi=6,radius=10)
 if (verbose)
-    myneigh$display()
+    err = myneigh$display()
 ```
 
 ## Checking the Moving Neighborhood
@@ -211,7 +211,7 @@ We must first create a Grid which covers the area of interest
 mygrid = DbGrid_createCoveringDb(dbin=mydb,nx=c(80,72),dx=c(0.5,0.5),
                                  x0=c(107.,481.),margin=c(2,2))
 if (verbose)
-    mygrid$display()
+    err = mygrid$display()
 ```
 
 We can now test the neighborhood characteristics for each node of the previously defined grid.
@@ -219,7 +219,7 @@ We can now test the neighborhood characteristics for each node of the previously
 ```{r}
 err = test_neigh(mydb,mygrid,mymodel,myneigh)
 if (verbose)
-    mygrid$display()
+    err = mygrid$display()
 ```
 
 We can visualize some of the newly created variables, such as:
@@ -255,7 +255,7 @@ We can now process the cross-validation step
 ```{r}
 err = xvalid(mydb,mymodel,myneigh)
 if (verbose)
-    mydb$display()
+    err = mydb$display()
 ```
 
 ```{r}
@@ -274,11 +274,11 @@ We now perform the Estimation by Ordinary Kriging.
 The Neighborhood is changed into a Unique Neighborhood.
 
 ```{r}
-mydb$setLocator("Pb",ELoc_Z())
+err = mydb$setLocator("Pb",ELoc_Z())
 myneigh = NeighUnique_create()
 err = kriging(mydb,mygrid,mymodel,myneigh)
 if (verbose)
-    mygrid$display()
+    err = mygrid$display()
 ```
 
 Visualizing the results
@@ -328,10 +328,10 @@ if (graphics)
 The next step consists in translating the target variable ('Pb') into its Gaussian transform
 
 ```{r}
-mydb$setLocator("Pb",ELoc_Z())
+err = mydb$setLocator("Pb",ELoc_Z())
 err = myanamPb$rawToGaussianByLocator(mydb)
 if (verbose)
-    mydb$display()
+    err = mydb$display()
 ```
 
 We quickly calculate experimental (omni-directional) variograms using the already defined directions.
@@ -339,7 +339,7 @@ We quickly calculate experimental (omni-directional) variograms using the alread
 ```{r}
 myvarioParam = VarioParam()
 mydir = DirParam_create(nlag=10,dlag=1.)
-myvarioParam$addDir(mydir)
+err = myvarioParam$addDir(mydir)
 myVario = Vario(myvarioParam)
 err = myvario$compute(mydb,ECalcVario_VARIOGRAM())
 ```
@@ -350,7 +350,9 @@ We fit the model by automatic fit (with the constraints that the total sill be e
 mymodelG = Model_createFromDb(mydb)
 err = mymodelG$fit(myvario,types=ECov_fromKeys(c("EXPONENTIAL")))
 if (graphics)
-    plot.init() + plot.varmod(myvario,mymodelG) + plot.decoration(title="Model for Gaussian Pb")
+  plot.init() +
+  plot.varmod(myvario,mymodelG) +
+  plot.decoration(title="Model for Gaussian Pb")
 ```
 
 We perform a set of 10 conditional simulations using the Turning Bands Method.
@@ -358,14 +360,14 @@ We perform a set of 10 conditional simulations using the Turning Bands Method.
 ```{r}
 err = simtub(mydb,mygrid,mymodel,myneigh,nbsimu=10)
 if (verbose)
-    mygrid$display()
+    err = mygrid$display()
 ```
 
 Some statistics on the Conditional simulations in Gaussian scale
 
 ```{r}
 if (verbose)
-  dbStatisticsMono(mygrid, mygrid$getNamesByLocator(ELoc_Z()),
+  err = dbStatisticsMono(mygrid, mygrid$getNamesByLocator(ELoc_Z()),
         opers = EStatOption_fromKeys(c("MEAN","STDV","MINI","MAXI")))$display()
 ```
 
@@ -375,7 +377,7 @@ We visualize a conditional simulation in Gaussian scale
 if (graphics)
 {
     p = plot.init()
-    p = p + plot(mygrid,name="Simu.Y.Pb.S1")
+    p = p + plot(mygrid,name="Simu.Y.Pb")
     p = p + plot(mydb,nameColor="Pb",size=3)
     p = p + plot.decoration(title="One Simulation of Pb in Gaussian Scale")
     plot.end(p)
@@ -386,16 +388,16 @@ We turn the Gaussian conditional simulations into Raw scale (using the Anamorpho
 
 ```{r}
 err = myanamPb$gaussianToRaw(mygrid,name="Simu.Y.*")
-mygrid$deleteColumn("Simu.Y.*")
+err = mygrid$deleteColumn("Simu.Y.*")
 if (verbose)
-    mygrid$display()
+    er = mygrid$display()
 ```
 
 We calculate some statistics on the Conditional Simulations in Raw scale.
 
 ```{r}
 if (verbose)
-  dbStatisticsMono(mygrid, mygrid$getNamesByLocator(ELoc_Z()),
+  err = dbStatisticsMono(mygrid, mygrid$getNamesByLocator(ELoc_Z()),
         opers = EStatOption_fromKeys(c("MEAN","STDV","MINI","MAXI")))$display()
 ```
 
@@ -405,7 +407,7 @@ We visualize a Conditional Simulation in Raw Scale
 if (graphics)
 {
   p = plot.init()
-  p = p + plot(mygrid,name="Z.Simu.Y.Pb.S1")
+  p = p + plot(mygrid,name="Z.Simu.Y.Pb")
   p = p + plot(mydb,nameColor="Pb")
   p = p + plot.decoration(title="One simulation of Pb in Raw Scale")
   plot.end(p)
@@ -415,10 +417,10 @@ if (graphics)
 Let us now average the conditional simulations in order to have a comparison with the estimation by kriging.
 
 ```{r}
-mygrid$statisticsBySample(mygrid$getNamesByLocator(ELoc_Z()),
+err = mygrid$statisticsBySample(mygrid$getNamesByLocator(ELoc_Z()),
                                  opers = EStatOption_fromKeys(c("MEAN")))
 if (verbose)
-    mygrid$display()
+    err = mygrid$display()
 ```
 
 Displaying the average of the Conditional Simulations
@@ -427,7 +429,7 @@ Displaying the average of the Conditional Simulations
 if (graphics)
 {
   p = plot.init()
-  p = p + plot(mygrid,name="Stats*MEAN")
+  p = p + plot(mygrid,name="Stats.MEAN")
   p = p + plot(mydb,nameColor="Pb")
   p = p + plot.decoration(title="Mean of Pb simulations")
   plot.end(p)
@@ -439,9 +441,9 @@ if (graphics)
 The Gaussian transform of the Pb variable has already been calculated. It suffices to perform the Gaussian transform of the Zn variable.
 
 ```{r}
-mydb$setLocator("Zn",ELoc_Z())
+err = mydb$setLocator("Zn",ELoc_Z())
 myanamZn = AnamHermite(nbpoly=30)
-myanamZn$fit(mydb, "Zn")
+err = myanamZn$fit(mydb, "Zn")
 if (verbose)
     myanamZn
 ```
@@ -459,17 +461,17 @@ if (graphics)
 We convert the raw data into its Gaussian equivalent
 
 ```{r}
-mydb$setLocator("Zn",ELoc_Z())
+err = mydb$setLocator("Zn",ELoc_Z())
 err = myanamZn$rawToGaussianByLocator(mydb)
 if (verbose)
-    mydb$display()
+    err = mydb$display()
 ```
 
 We now perform the multivariate variogram calculation
 
 ```{r}
-mydb$setLocator("Y.Pb",ELoc_Z(),0)
-mydb$setLocator("Y.Zn",ELoc_Z(),1)
+err = mydb$setLocator("Y.Pb",ELoc_Z(),0)
+err = mydb$setLocator("Y.Zn",ELoc_Z(),1)
 myvario = Vario(myvarioParam)
 err = myvario$compute(mydb,ECalcVario_VARIOGRAM())
 mymodelM = Model_createFromDb(mydb)
@@ -481,10 +483,10 @@ if (graphics)
 We perform 10 bivariate conditional simulations (deleting the previous monovariate simulation outcomes first for better legibility).
 
 ```{r}
-mygrid$deleteColumn("Z.Simu*")
+err = mygrid$deleteColumn("Z.Simu*")
 err = simtub(mydb,mygrid,mymodelM,myneigh,nbsimu=10)
 if (verbose)
-    mygrid$display()
+    err = mygrid$display()
 ```
 
 We back-transform each set of simulation outcomes using its own Gaussian Anamorphosis function. Finally we delete the Gaussian variables and ask for the statistics on the simulated variables in the Raw Scale.
@@ -492,9 +494,9 @@ We back-transform each set of simulation outcomes using its own Gaussian Anamorp
 ```{r}
 err = myanamZn$gaussianToRaw(mygrid,"Simu.Y.Zn*")
 err = myanamPb$gaussianToRaw(mygrid,"Simu.Y.Pb*")
-mygrid$deleteColumn("Simu.Y*")
+err = mygrid$deleteColumn("Simu.Y*")
 if (verbose)
-    dbStatisticsMono(mygrid, mygrid$getNamesByLocator(ELoc_Z()),
+    err = dbStatisticsMono(mygrid, mygrid$getNamesByLocator(ELoc_Z()),
           opers = EStatOption_fromKeys(c("MEAN","STDV","MINI","MAXI")))$display()
 ```
 
@@ -511,7 +513,7 @@ We first build the indicators for each class.
 ```{r}
 limits = Limits(c(NA, 4., 6., NA))
 if (verbose)
-    limits$display()
+    err = limits$display()
 ```
 
 We apply the set of limits previously defined in order to transform the input variable into Indicators of the different classes.
@@ -519,18 +521,18 @@ We apply the set of limits previously defined in order to transform the input va
 ```{r}
 err = limits$toIndicator(mydb,name="Pb")
 if (verbose)
-    mydb$display()
+    err = mydb$display()
 ```
 
 We calculate the variogram of the Indicators for future use
 
 ```{r}
 myvarioindParam = VarioParam()
-myvarioindParam$addDir(mydir)
+err = myvarioindParam$addDir(mydir)
 myvarioInd = Vario(myvarioindParam)
 err = myvarioInd$compute(mydb,ECalcVario_VARIOGRAM())
 if (verbose)
-    myvarioInd$display()
+    err = myvarioInd$display()
 ```
 
 ```{r}
@@ -550,6 +552,6 @@ if (verbose)
                  flag_stats = TRUE)
   dbfmt$setNames("Category*")
   dbfmt$setMode(mode=2) # Consider the variable categorical
-  mydb$display(dbfmt)
+  err = mydb$display(dbfmt)
 }
 ```

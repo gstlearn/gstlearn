@@ -139,12 +139,22 @@ namespace gstlrn
    * @brief Get the Name object
    *
    * @param colid Column Indentifier
+   * @param withVersion Whether to include the version in the name
    * @return String
    */
-  String DbData::getName(ColID&& colid) const
+  String DbData::getName(ColID&& colid, bool withVersion) const
   {
     const auto icol = _getColumnIndex(colid);
-    return icol ? _cols[*icol].getName() : String();
+    if (!icol) return String();
+
+    auto nversion = _cols[*icol].getNVersions();
+    auto name = _cols[*icol].getName();
+    if (nversion <= 1 || !withVersion) return name;
+
+    auto version = colid.getVersion();
+    auto loc_number = concatenateString("S", version + 1, "");
+
+    return concatenateStrings(".", name, loc_number);
   }
 
   Id DbData::getUniqueIndex(ColID&& colid) const
@@ -203,6 +213,14 @@ namespace gstlrn
     auto roleIDLocal = roleID;
     _updateRoleIDAddition(*icol, roleIDLocal);
     _roleIDs[*icol] = roleIDLocal;
+  }
+
+  void DbData::deleteVersion(ColID&& colid, Id iversion)
+  {
+    const auto icol = _getColumnIndex(colid);
+    if (!icol) return;
+
+    _cols[*icol].deleteVersion(iversion);
   }
 
   void DbData::setName(ColID&& colid, const String& newName)
@@ -423,15 +441,15 @@ namespace gstlrn
   void DbData::_updateName(String& name) const
   {
     // Establish the list of already existing names
-    VectorString proposedNames = getNames();
-    auto ncol = static_cast<Id>(proposedNames.size());
+    VectorString existingNames = getNames();
 
-    // Add the new proposal to the list of already existing names
-    proposedNames.push_back(name);
+    // Prepare a list with the name to be checked for duplicates
+    VectorString newNames = {name};
 
-    // Modify the 'ncol' proposal and retrive the modified value
-    correctNamesForDuplicates(proposedNames, ncol);
-    name = proposedNames[ncol];
+    // Check for duplicates
+    correctNamesForDuplicates(newNames, existingNames);
+
+    name = newNames[0];
   }
 
   /**
@@ -440,12 +458,15 @@ namespace gstlrn
    * @param icol0 Index of the column to be added (<0 for a non existing column)
    * @param roleID RoleID of the new column to be added (possibly modified)
    *
-   * @remark If the Role of the new Column is already present in the already defined ones:
+   * @remark
+   * If the Role of the new Column is already present in the already defined ones:
    * - if the Rank of the new Column matches the one of the old matching Column:
    *   the Old matching Column is moved to an UNDEFINED Role (and a Rank set to 0).
    *   the New Column keeps its Role and Rank unchanged
    * - if the Rank of the new Column does not match the one of the old matching Column,
    *   this rank is calculated as the largest Rank found in matching Columns incremented by 1.
+   * A safety patch:
+   * - If a Colulmn has several version, the Role cannot be accepted (except for SIMU)
    */
   void DbData::_updateRoleIDAddition(Id icol0, RoleID& roleID)
   {
@@ -453,6 +474,11 @@ namespace gstlrn
     auto wasDefined = icol0 >= 0 && _roleIDs[icol0].isDefined();
     const auto newRole = roleID.getRole();
     const auto newIndex = roleID.getIndex();
+
+    // Check that the new Role can be accepted
+    if (icol0 >= 0
+        && !roleID.checkRoleVsMultipleVersions(getNVersions(icol0), false))
+      return;
 
     // Check if the target Column does not already have the same roleID (ERole and Index)
     if (icol0 >= 0 && roleID.isEqual(_roleIDs[icol0], true)) return;

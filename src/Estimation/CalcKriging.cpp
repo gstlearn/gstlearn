@@ -83,8 +83,7 @@ namespace gstlrn
 
     if (getKrigopt().hasMatLC()) _setNvar(getKrigopt().getMatLCNRows(), true);
 
-    Id status = 1;
-    if (_iechSingleTarget >= 0) status = 2;
+    Id status = (_iechSingleTarget >= 0) ? 2 : 1;
 
     if (_flagEst)
     {
@@ -176,9 +175,16 @@ namespace gstlrn
     {
       if (!getKrigopt().hasMatLC())
       {
-        _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrVarZ, "varz", 1);
-        _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrStd, "stdev", 1);
-        _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrEst, "estim", 1);
+        // In case of Kriging Test, no output variable should be stored
+        if (_iechSingleTarget < 0)
+        {
+          _renameVariable(
+            2, VectorString(), ELoc::Z, nvar, _iptrVarZ, "varz", 1);
+          _renameVariable(
+            2, VectorString(), ELoc::Z, nvar, _iptrStd, "stdev", 1);
+          _renameVariable(
+            2, VectorString(), ELoc::Z, nvar, _iptrEst, "estim", 1);
+        }
       }
       else
       {

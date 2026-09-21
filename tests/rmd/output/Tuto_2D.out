@@ -45,7 +45,6 @@ Column = 3 - Name = Zn - Locator = NA
 Column = 4 - Name = Pb - Locator = z1
 Column = 5 - Name = sel - Locator = sel
 NULL
-NULL
 
 Variogram characteristics
 =========================
@@ -77,7 +76,6 @@ For variable 1
           7    187.000      7.000      2.708
           8    204.000      7.996      2.772
           9    184.000      8.990      2.868
-NULL
 NULL
 [1] 0
 
@@ -176,7 +174,6 @@ For variable 1
           7     49.000      6.975      3.425
           8     60.000      8.004      2.408
           9     53.000      8.972      3.996
-NULL
 
 Data Base Grid Characteristics
 ==============================
@@ -202,7 +199,6 @@ Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = VMAP.Pb.Var - Locator = z1
 Column = 4 - Name = VMAP.Pb.Nb - Locator = NA
 NULL
-NULL
 
 Model characteristics
 =====================
@@ -223,7 +219,6 @@ Spherical
 - Range        =       5.880
 Total Sill     =       2.638
 Known Mean(s)      0.000
-NULL
 
 Model characteristics
 =====================
@@ -257,14 +252,12 @@ Total Sill     =       2.645
 Drift Part
 ----------
 Universality_Condition
-NULL
 
 Moving Neighborhood
 ===================
 Minimum number of samples           = 1
 Maximum number of samples           = 6
 Maximum horizontal distance         = 10
-NULL
 
 Data Base Grid Characteristics
 ==============================
@@ -286,7 +279,6 @@ Variables
 ---------
 Column = 0 - Name = x1 - Locator = x1
 Column = 1 - Name = x2 - Locator = x2
-NULL
 
 Data Base Grid Characteristics
 ==============================
@@ -313,7 +305,6 @@ Column = 3 - Name = Neigh.Pb.MaxDist - Locator = NA
 Column = 4 - Name = Neigh.Pb.MinDist - Locator = NA
 Column = 5 - Name = Neigh.Pb.NbNESect - Locator = NA
 Column = 6 - Name = Neigh.Pb.NbCESect - Locator = z1
-NULL
 
 Data Base Characteristics
 =========================
@@ -336,8 +327,6 @@ Column = 4 - Name = Pb - Locator = NA
 Column = 5 - Name = sel - Locator = sel
 Column = 6 - Name = Xvalid.Pb.esterr - Locator = z1
 Column = 7 - Name = Xvalid.Pb.stderr - Locator = NA
-NULL
-NULL
 
 Data Base Grid Characteristics
 ==============================
@@ -366,7 +355,6 @@ Column = 5 - Name = Neigh.Pb.NbNESect - Locator = NA
 Column = 6 - Name = Neigh.Pb.NbCESect - Locator = NA
 Column = 7 - Name = Kriging.Pb.estim - Locator = z1
 Column = 8 - Name = Kriging.Pb.stdev - Locator = NA
-NULL
 
 Hermitian Anamorphosis
 ----------------------
@@ -388,7 +376,6 @@ Normalized coefficients for Hermite polynomials (punctual variable)
       [ 14,]      0.037      0.007     -0.031      0.010      0.018     -0.019     -0.003
       [ 21,]      0.019     -0.010     -0.014      0.019      0.006     -0.023      0.004
       [ 28,]      0.022     -0.013
-NULL
 
 Data Base Characteristics
 =========================
@@ -412,8 +399,6 @@ Column = 5 - Name = sel - Locator = sel
 Column = 6 - Name = Xvalid.Pb.esterr - Locator = NA
 Column = 7 - Name = Xvalid.Pb.stderr - Locator = NA
 Column = 8 - Name = Y.Pb - Locator = z1
-NULL
-NULL
 
 Data Base Grid Characteristics
 ==============================
@@ -422,7 +407,7 @@ Data Base Summary
 -----------------
 File is organized as a regular grid
 Space dimension              = 2
-Number of Columns            = 19
+Number of Columns            = 10
 Total number of samples      = 5913
 
 Grid characteristics:
@@ -442,17 +427,7 @@ Column = 5 - Name = Neigh.Pb.NbNESect - Locator = NA
 Column = 6 - Name = Neigh.Pb.NbCESect - Locator = NA
 Column = 7 - Name = Kriging.Pb.estim - Locator = NA
 Column = 8 - Name = Kriging.Pb.stdev - Locator = NA
-Column = 9 - Name = Simu.Y.Pb.S1 - Locator = z1
-Column = 10 - Name = Simu.Y.Pb.S2 - Locator = z2
-Column = 11 - Name = Simu.Y.Pb.S3 - Locator = z3
-Column = 12 - Name = Simu.Y.Pb.S4 - Locator = z4
-Column = 13 - Name = Simu.Y.Pb.S5 - Locator = z5
-Column = 14 - Name = Simu.Y.Pb.S6 - Locator = z6
-Column = 15 - Name = Simu.Y.Pb.S7 - Locator = z7
-Column = 16 - Name = Simu.Y.Pb.S8 - Locator = z8
-Column = 17 - Name = Simu.Y.Pb.S9 - Locator = z9
-Column = 18 - Name = Simu.Y.Pb.S10 - Locator = z10
-NULL
+Column = 9 - Name = Simu.Y.Pb - Locator = z1 - Versions = 10
                      Mean    St. Dev.     Minimum     Maximum
  Simu.Y.Pb.S1       0.693       1.584      -5.824       6.166
  Simu.Y.Pb.S2       0.187       1.520      -5.038       5.632
@@ -464,8 +439,6 @@ NULL
  Simu.Y.Pb.S8       0.232       1.605      -5.435       6.321
  Simu.Y.Pb.S9       0.028       1.588      -5.054       6.100
 Simu.Y.Pb.S10      -0.058       1.554      -5.495       5.467
-NULL
-NULL
 
 Data Base Grid Characteristics
 ==============================
@@ -474,7 +447,7 @@ Data Base Summary
 -----------------
 File is organized as a regular grid
 Space dimension              = 2
-Number of Columns            = 19
+Number of Columns            = 10
 Total number of samples      = 5913
 
 Grid characteristics:
@@ -494,17 +467,7 @@ Column = 5 - Name = Neigh.Pb.NbNESect - Locator = NA
 Column = 6 - Name = Neigh.Pb.NbCESect - Locator = NA
 Column = 7 - Name = Kriging.Pb.estim - Locator = NA
 Column = 8 - Name = Kriging.Pb.stdev - Locator = NA
-Column = 9 - Name = Z.Simu.Y.Pb.S1 - Locator = z1
-Column = 10 - Name = Z.Simu.Y.Pb.S2 - Locator = z2
-Column = 11 - Name = Z.Simu.Y.Pb.S3 - Locator = z3
-Column = 12 - Name = Z.Simu.Y.Pb.S4 - Locator = z4
-Column = 13 - Name = Z.Simu.Y.Pb.S5 - Locator = z5
-Column = 14 - Name = Z.Simu.Y.Pb.S6 - Locator = z6
-Column = 15 - Name = Z.Simu.Y.Pb.S7 - Locator = z7
-Column = 16 - Name = Z.Simu.Y.Pb.S8 - Locator = z8
-Column = 17 - Name = Z.Simu.Y.Pb.S9 - Locator = z9
-Column = 18 - Name = Z.Simu.Y.Pb.S10 - Locator = z10
-NULL
+Column = 9 - Name = Z.Simu.Y.Pb - Locator = z1 - Versions = 10
                        Mean    St. Dev.     Minimum     Maximum
  Z.Simu.Y.Pb.S1       7.275       3.080       3.003      12.978
  Z.Simu.Y.Pb.S2       6.329       2.740       3.003      12.978
@@ -516,8 +479,6 @@ NULL
  Z.Simu.Y.Pb.S8       6.461       2.874       3.003      12.978
  Z.Simu.Y.Pb.S9       6.112       2.728       3.003      12.978
 Z.Simu.Y.Pb.S10       5.952       2.616       3.003      12.978
-NULL
-NULL
 
 Data Base Grid Characteristics
 ==============================
@@ -526,7 +487,7 @@ Data Base Summary
 -----------------
 File is organized as a regular grid
 Space dimension              = 2
-Number of Columns            = 20
+Number of Columns            = 11
 Total number of samples      = 5913
 
 Grid characteristics:
@@ -546,20 +507,8 @@ Column = 5 - Name = Neigh.Pb.NbNESect - Locator = NA
 Column = 6 - Name = Neigh.Pb.NbCESect - Locator = NA
 Column = 7 - Name = Kriging.Pb.estim - Locator = NA
 Column = 8 - Name = Kriging.Pb.stdev - Locator = NA
-Column = 9 - Name = Z.Simu.Y.Pb.S1 - Locator = NA
-Column = 10 - Name = Z.Simu.Y.Pb.S2 - Locator = NA
-Column = 11 - Name = Z.Simu.Y.Pb.S3 - Locator = NA
-Column = 12 - Name = Z.Simu.Y.Pb.S4 - Locator = NA
-Column = 13 - Name = Z.Simu.Y.Pb.S5 - Locator = NA
-Column = 14 - Name = Z.Simu.Y.Pb.S6 - Locator = NA
-Column = 15 - Name = Z.Simu.Y.Pb.S7 - Locator = NA
-Column = 16 - Name = Z.Simu.Y.Pb.S8 - Locator = NA
-Column = 17 - Name = Z.Simu.Y.Pb.S9 - Locator = NA
-Column = 18 - Name = Z.Simu.Y.Pb.S10 - Locator = NA
-Column = 19 - Name = Stats.MEAN - Locator = z1
-NULL
-NULL
-[1] 0
+Column = 9 - Name = Z.Simu.Y.Pb - Locator = NA - Versions = 10
+Column = 10 - Name = Stats.MEAN - Locator = z1
 
 Hermitian Anamorphosis
 ----------------------
@@ -581,7 +530,6 @@ Normalized coefficients for Hermite polynomials (punctual variable)
       [ 14,]      0.005      0.044     -0.026     -0.020      0.034      0.001     -0.033
       [ 21,]      0.010      0.027     -0.016     -0.019      0.016      0.012     -0.014
       [ 28,]     -0.005      0.011
-NULL
 
 Data Base Characteristics
 =========================
@@ -606,10 +554,6 @@ Column = 6 - Name = Xvalid.Pb.esterr - Locator = NA
 Column = 7 - Name = Xvalid.Pb.stderr - Locator = NA
 Column = 8 - Name = Y.Pb - Locator = NA
 Column = 9 - Name = Y.Zn - Locator = z1
-NULL
-NULL
-NULL
-NULL
 
 Data Base Grid Characteristics
 ==============================
@@ -618,7 +562,7 @@ Data Base Summary
 -----------------
 File is organized as a regular grid
 Space dimension              = 2
-Number of Columns            = 30
+Number of Columns            = 12
 Total number of samples      = 5913
 
 Grid characteristics:
@@ -639,28 +583,8 @@ Column = 6 - Name = Neigh.Pb.NbCESect - Locator = NA
 Column = 7 - Name = Kriging.Pb.estim - Locator = NA
 Column = 8 - Name = Kriging.Pb.stdev - Locator = NA
 Column = 9 - Name = Stats.MEAN - Locator = NA
-Column = 10 - Name = Simu.Y.Pb.S1 - Locator = z1
-Column = 11 - Name = Simu.Y.Pb.S2 - Locator = z2
-Column = 12 - Name = Simu.Y.Pb.S3 - Locator = z3
-Column = 13 - Name = Simu.Y.Pb.S4 - Locator = z4
-Column = 14 - Name = Simu.Y.Pb.S5 - Locator = z5
-Column = 15 - Name = Simu.Y.Pb.S6 - Locator = z6
-Column = 16 - Name = Simu.Y.Pb.S7 - Locator = z7
-Column = 17 - Name = Simu.Y.Pb.S8 - Locator = z8
-Column = 18 - Name = Simu.Y.Pb.S9 - Locator = z9
-Column = 19 - Name = Simu.Y.Pb.S10 - Locator = z10
-Column = 20 - Name = Simu.Y.Zn.S1 - Locator = z11
-Column = 21 - Name = Simu.Y.Zn.S2 - Locator = z12
-Column = 22 - Name = Simu.Y.Zn.S3 - Locator = z13
-Column = 23 - Name = Simu.Y.Zn.S4 - Locator = z14
-Column = 24 - Name = Simu.Y.Zn.S5 - Locator = z15
-Column = 25 - Name = Simu.Y.Zn.S6 - Locator = z16
-Column = 26 - Name = Simu.Y.Zn.S7 - Locator = z17
-Column = 27 - Name = Simu.Y.Zn.S8 - Locator = z18
-Column = 28 - Name = Simu.Y.Zn.S9 - Locator = z19
-Column = 29 - Name = Simu.Y.Zn.S10 - Locator = z20
-NULL
-NULL
+Column = 10 - Name = Simu.Y.Pb - Locator = z1 - Versions = 10
+Column = 11 - Name = Simu.Y.Zn - Locator = z2 - Versions = 10
                        Mean    St. Dev.     Minimum     Maximum
  Z.Simu.Y.Pb.S1       5.718       1.680       3.003      12.978
  Z.Simu.Y.Pb.S2       5.764       1.700       3.003      12.978
@@ -672,11 +596,9 @@ NULL
  Z.Simu.Y.Pb.S8       5.753       1.855       3.003      12.978
  Z.Simu.Y.Pb.S9       5.835       1.721       3.003      12.978
 Z.Simu.Y.Pb.S10       5.926       1.765       3.003      12.978
-NULL
 Bound( 1 ) : ] -Inf ; 4 [
 Bound( 2 ) : [ 4 ; 6 [
 Bound( 3 ) : [ 6 ;  +Inf [
-NULL
 
 Data Base Characteristics
 =========================
@@ -704,8 +626,6 @@ Column = 9 - Name = Y.Zn - Locator = NA
 Column = 10 - Name = Indicator.Pb.Class.S1 - Locator = z1
 Column = 11 - Name = Indicator.Pb.Class.S2 - Locator = z2
 Column = 12 - Name = Indicator.Pb.Class.S3 - Locator = z3
-NULL
-NULL
 
 Variogram characteristics
 =========================
@@ -806,17 +726,15 @@ For variable 3
           7    187.000      7.000      0.270
           8    204.000      7.996      0.240
           9    184.000      8.990      0.226
-NULL
 
 Data Base Characteristics
 =========================
 
 Data Base Statistics
 --------------------
-14 - Name Category.Pb - Locator z1
+1 - Name Category.Pb
  Nb of data          =         102
  Nb of active values =          99
  Class          1 =          12 (     12.121%)
  Class          2 =          51 (     51.515%)
  Class          3 =          36 (     36.364%)
-NULL

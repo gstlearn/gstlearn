@@ -458,44 +458,6 @@ namespace gstlrn
 
   /****************************************************************************/
   /*!
-   **  Add and initiate several attributes corresponding to a given
-   *locator
-   **
-   ** \return  Error return code
-   **
-   ** \param[in]  db      Db structure
-   ** \param[in]  locatorType  Rank of the Pointer (ELoc)
-   ** \param[in]  number  Number of locators to be defined
-   ** \param[in]  r_tem   Rank of the first item in the pointer
-   ** \param[in]  valinit Value to be used for initialization
-   **
-   ** \param[out] iptr    Rank of the first new attribute
-   **
-   *****************************************************************************/
-  Id db_locator_attribute_add(
-    Db* db,
-    const ELoc& locatorType,
-    Id number,
-    Id r_tem,
-    double valinit,
-    Id* iptr)
-  {
-    (*iptr) = db->addColumnsByConstant(number, 1, valinit);
-    if ((*iptr) < 0) return (1);
-    db->setLocatorsByUID(number, *iptr, locatorType, r_tem);
-
-    /* Set the default names to the newly created variables */
-
-    for (Id i = 0; i < number; i++)
-    {
-      String string = getLocatorName(locatorType, r_tem + i);
-      db->setNameByUID((*iptr) + i, string);
-    }
-    return (0);
-  }
-
-  /****************************************************************************/
-  /*!
    **  Copy a set of variables from a grid Db to another grid Db
    **
    ** \return  Error return code

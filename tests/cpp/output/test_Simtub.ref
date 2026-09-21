@@ -194,7 +194,7 @@ Data Base Characteristics
 
 Data Base Statistics
 --------------------
-1 - Name rank - Locator NA
+1 - Name rank
  Nb of data          =         100
  Nb of active values =         100
  Minimum value       =       1.000
@@ -202,7 +202,7 @@ Data Base Statistics
  Mean value          =      50.500
  Standard Deviation  =      28.866
  Variance            =     833.250
-2 - Name x1 - Locator x1
+2 - Name x1
  Nb of data          =         100
  Nb of active values =         100
  Minimum value       =       0.132
@@ -210,7 +210,7 @@ Data Base Statistics
  Mean value          =      24.459
  Standard Deviation  =      14.653
  Variance            =     214.725
-3 - Name x2 - Locator x2
+3 - Name x2
  Nb of data          =         100
  Nb of active values =         100
  Minimum value       =       0.711
@@ -218,7 +218,7 @@ Data Base Statistics
  Mean value          =      26.034
  Standard Deviation  =      14.238
  Variance            =     202.713
-4 - Name Var - Locator z1
+4 - Name Var
  Nb of data          =         100
  Nb of active values =         100
  Minimum value       =      -1.945
@@ -258,7 +258,7 @@ Data Base Grid Characteristics
 
 Data Base Statistics
 --------------------
-4 - Name Simu.Var.S1 - Locator z1
+1 - Name Simu.Var.S1
  Nb of data          =        2500
  Nb of active values =        2500
  Minimum value       =      -2.677
@@ -266,7 +266,7 @@ Data Base Statistics
  Mean value          =       0.184
  Standard Deviation  =       0.949
  Variance            =       0.901
-5 - Name Simu.Var.S2 - Locator z2
+2 - Name Simu.Var.S2
  Nb of data          =        2500
  Nb of active values =        2500
  Minimum value       =      -2.780
@@ -274,7 +274,7 @@ Data Base Statistics
  Mean value          =       0.182
  Standard Deviation  =       0.967
  Variance            =       0.935
-6 - Name Simu.Var.S3 - Locator z3
+3 - Name Simu.Var.S3
  Nb of data          =        2500
  Nb of active values =        2500
  Minimum value       =      -2.895
@@ -290,7 +290,7 @@ Data Base Grid Characteristics
 
 Data Base Statistics
 --------------------
-4 - Name Simu.Var.S1 - Locator z1
+1 - Name Simu.Var.S1
  Nb of data          =        2500
  Nb of active values =        2500
  Minimum value       =      -2.667
@@ -298,7 +298,7 @@ Data Base Statistics
  Mean value          =       0.184
  Standard Deviation  =       0.948
  Variance            =       0.898
-5 - Name Simu.Var.S2 - Locator z2
+2 - Name Simu.Var.S2
  Nb of data          =        2500
  Nb of active values =        2500
  Minimum value       =      -2.772
@@ -306,7 +306,7 @@ Data Base Statistics
  Mean value          =       0.184
  Standard Deviation  =       0.965
  Variance            =       0.931
-6 - Name Simu.Var.S3 - Locator z3
+3 - Name Simu.Var.S3
  Nb of data          =        2500
  Nb of active values =        2500
  Minimum value       =      -2.894
@@ -314,4 +314,4 @@ Data Base Statistics
  Mean value          =       0.114
  Standard Deviation  =       0.902
  Variance            =       0.814
-#NO_DIFF# Turning Band Simulations: 192 ms. (Ref = 773 ms.)
+#NO_DIFF# Turning Band Simulations: 672 ms. (Ref = 773 ms.)

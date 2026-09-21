@@ -67,7 +67,6 @@ namespace gstlrn
     // The test on the presence of the output file is performed here (before creating variables)
     if (!hasDbout()) return false;
 
-    Id nbsimu = getNbSimu();
     Id nvar = getNVar();
 
     /* Add the attributes for storing the results */
@@ -76,11 +75,12 @@ namespace gstlrn
     {
       if (_isConditional() && !_flagOnGridOnly)
       {
-        Id iptr_in = _addVariableDb(1, 2, ELoc::SIMU, 0, nvar, nbsimu, TEST);
+        Id iptr_in =
+          _addVariableDb(1, 2, ELoc::SIMU, 0, nvar, getNbSimu(), TEST);
         if (iptr_in < 0) return false;
       }
 
-      _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 0, nvar, nbsimu, TEST);
+      _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 0, nvar, getNbSimu(), TEST);
       if (_iattOut < 0) return false;
     }
 
@@ -97,8 +97,7 @@ namespace gstlrn
 
     if (!_isAllocationAlreadyDone())
       _renameVariable(
-        2, VectorString(), ELoc::Z, _getNVar(), _iattOut, String(),
-        getNbSimu());
+        2, VectorString(), ELoc::Z, _getNVar(), _iattOut, String(), 1);
 
     return true;
   }
@@ -107,7 +106,7 @@ namespace gstlrn
   {
     if (_iattOut < 0)
       _iattOut = getDbout()->addColumnsByConstant(
-        _getNVar() * getNbSimu(), 1, 0., "Simu", ELoc::SIMU);
+        _getNVar(), getNbSimu(), 0., "Simu", ELoc::SIMU);
   }
 
   bool ACalcSimuGaussian::_run()
@@ -212,7 +211,7 @@ namespace gstlrn
     for (Id idim = 0; idim < ndim; idim++)
     {
 
-      /* Simulation at the initial location */
+      /* For Gradient calculation: Simulation at the initial location */
 
       jsimu = isimu + idim * nbsimu;
       setShift(jsimu);
@@ -224,7 +223,7 @@ namespace gstlrn
           dbgrd->setCoordinate(
             iech, idim, dbgrd->getCoordinate(iech, idim) + delta);
 
-      /* Simulation at the shift location */
+      /* For Gradient calculation: Simulation at the shifted location */
 
       jsimu = isimu + idim * nbsimu + ndim * nbsimu;
       setShift(jsimu);

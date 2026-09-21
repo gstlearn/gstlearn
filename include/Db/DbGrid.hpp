@@ -425,19 +425,22 @@ namespace gstlrn
       const String& name,
       Id pos = 0,
       Id indice = 0,
-      bool useSel = false) const;
+      bool useSel = false,
+      Id version = 0) const;
     VectorDouble getOneSlice(
       const String& name,
       Id posx = 0,
       Id posy = 1,
       const VectorInt& corner = VectorInt(),
-      bool useSel = false) const;
+      bool useSel = false,
+      Id version = 0) const;
     VectorDouble getOneSliceForCoordinate(
       Id idim,
       Id posx = 0,
       Id posy = 1,
       const VectorInt& corner = VectorInt(),
-      bool useSel = false) const;
+      bool useSel = false,
+      Id version = 0) const;
     Id assignGridColumn(
       const String& name,
       Id idim,

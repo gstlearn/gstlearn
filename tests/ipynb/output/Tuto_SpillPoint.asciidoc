@@ -25824,7 +25824,7 @@ Data Base Grid Characteristics
 
 Data Base Statistics
 --------------------
-5 - Name Topo - Locator NA
+1 - Name Topo 
  Nb of data          =        1000
  Nb of active values =        1000
  Minimum value       =      -3.276
@@ -25832,7 +25832,7 @@ Data Base Statistics
  Mean value          =      -0.084
  Standard Deviation  =       0.983
  Variance            =       0.966
-6 - Name Spill - Locator z1
+2 - Name Spill 
  Nb of data          =        1000
  Nb of active values =        1000
  Minimum value       =       0.000

@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Basic/ASerializable.hpp"
+#include "Db/DbGrid.hpp"
 #include "geoslib_define.h"
 
 using namespace gstlrn;
@@ -22,5 +23,11 @@ int main(int argc, char* argv[])
   StdoutRedirect sr(sfn.str(), argc, argv);
   ASerializable::setPrefixName("test_a_template-");
 
+  auto* grid = DbGrid::create({3, 4}, {0.0, 0.0}, {1.0, 1.0});
+  grid->display();
+  grid->addColumnsRandom(1, 4, "MyVar");
+  grid->display();
+
+  grid->dumpToNF("avoir.dat");
   return (0);
 }

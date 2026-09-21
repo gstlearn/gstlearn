@@ -111,16 +111,16 @@ err = simpgs(dbin=data, dbout=grid, ruleprop=ruleprop, model1=model_gaus,
 
 ```{r Show_several_simulation_outcome}
 p1 = plot.init(dims=c(6,6)) +
-  plot(grid, name=NC_getNameEncoded("SimuPGS", NULL, 1, 1, 1, nbsimu), palette=cmap) +
+  plot(grid, name=NC_getNameEncoded("SimuPGS", NULL, 1, 1, 1, 0), version=0, palette=cmap) +
   plot(data, nameColor="facies", nameSize="connect", palette=cmap)
 p2 = plot.init(dims=c(6,6)) +
-  plot(grid, name=NC_getNameEncoded("SimuPGS", NULL, 1, 1, 2, nbsimu), palette=cmap) +
+  plot(grid, name=NC_getNameEncoded("SimuPGS", NULL, 1, 1, 2, 0), version=1, palette=cmap) +
   plot(data, nameColor="facies", nameSize="connect", palette=cmap)
 p3 = plot.init(dims=c(6,6)) +
-  plot(grid, name=NC_getNameEncoded("SimuPGS", NULL, 1, 1, 3, nbsimu), palette=cmap,) +
+  plot(grid, name=NC_getNameEncoded("SimuPGS", NULL, 1, 1, 3, 0), version=2, palette=cmap,) +
   plot(data, nameColor="facies", nameSize="connect", palette=cmap)
 p4 = plot.init(dims=c(6,6)) +
-  plot(grid, name=NC_getNameEncoded("SimuPGS", NULL, 1, 1, 4, nbsimu), palette=cmap) +
+  plot(grid, name=NC_getNameEncoded("SimuPGS", NULL, 1, 1, 4, 0), version=3, palette=cmap) +
   plot(data, nameColor="facies", nameSize="connect", palette=cmap)
 ggarrange(p1,p2,p3,p4, nrow=2, ncol=2)
 ```
@@ -132,7 +132,7 @@ Acceptation Function
 Acceptation internal function: Select a **Target Facies** and build its Connected Components. For each simulation outcome, check the ranks of the connected component(s) at constraining wells and **accept** the simulation if all ranks are similar.
 
 ```{r Acceptation_function}
-accept <- function(data, grid, name, verbose=FALSE, transBinary=TRUE, faccc=2)
+accept <- function(data, grid, name, isimu, verbose=FALSE, transBinary=TRUE, faccc=2)
 {
   # Get the indices of samples which should be connected (starting from 0)
   rankData = which(data["connect"] == 1) - 1
@@ -144,8 +144,10 @@ accept <- function(data, grid, name, verbose=FALSE, transBinary=TRUE, faccc=2)
     cat("Their ranks in the output Data Base =",rankGrid,"\n")
 	}
 
-  # Perform the labelling into connected components
-  err = grid$setLocator(name, ELoc_Z(), cleanSameLocator=TRUE)
+  # Perform the labeling into connected components
+  nameLocal = "Local"
+  err = grid$extractVersion(name, nameLocal, version=isimu-1)
+  err = grid$setLocator(nameLocal, ELoc_Z(), cleanSameLocator=TRUE)
   err = dbMorpho(grid, EMorpho_CC(), vmin=faccc-0.5, vmax=faccc+0.5)
   cc_list = grid[rankGrid,"Morpho*"]
   if (verbose)
@@ -159,9 +161,11 @@ accept <- function(data, grid, name, verbose=FALSE, transBinary=TRUE, faccc=2)
 
   # Convert the valid Simulation outcome into a binary image
   if (retval && transBinary)
+    grid$setColumn(grid["Morpho*"] == cc_list[1], name, version=isimu-1)
     grid[name] = (grid["Morpho*"] == cc_list[1])
 
   grid$deleteColumn("Morpho*")
+  grid$deleteColumn(nameLocal)
   retval
 }
 ```
@@ -169,7 +173,7 @@ accept <- function(data, grid, name, verbose=FALSE, transBinary=TRUE, faccc=2)
 Experiment the Acceptation Function on one Simulation outcome
 
 ```{r Check_acceptation_function_on_one_simulation}
-isValid = accept(data, grid, NC_getNameEncoded("SimuPGS", NULL, 1, 1, 1, nbsimu), TRUE)
+isValid = accept(data, grid, "SimuPGS", 1, TRUE)
 cat("Connectivity for Simulation #1 :",isValid,"\n")
 ```
 
@@ -182,11 +186,11 @@ This operation provides the probability that each pixel belongs to the Target Fa
 
 ```{r Select_valid_simulation_outcomes}
 nb.valid = 0
-for (i in 1:nbsimu)
+for (i in rev(seq_len(nbsimu)))
 {
   name = NC_getNameEncoded("SimuPGS", NULL, 1, 1, i, nbsimu)
   cat("Simulation",name)
-  isValid = accept(data, grid, name)
+  isValid = accept(data, grid, "SimuPGS", i)
   if (isValid)
   {
     cat(" is valid\n")
@@ -195,7 +199,7 @@ for (i in 1:nbsimu)
   else
   {
     cat(" is invalid\n")
-    grid$deleteColumn(name)
+    grid$deleteVersion("SimuPGS", i-1)
   }
 }
 cat("Number of valid simulations =", nb.valid, "out of", nbsimu, "\n")
@@ -204,7 +208,7 @@ cat("Number of valid simulations =", nb.valid, "out of", nbsimu, "\n")
 Derive the Probability Map
 
 ```{r Probability}
-grid$statisticsBySample(c("SimuPGS*"),EStatOption_fromKeys(c("MEAN")))
+err = grid$statisticsBySample(c("SimuPGS*"),EStatOption_fromKeys(c("MEAN")))
 ```
 
 Display

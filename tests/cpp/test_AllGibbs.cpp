@@ -107,7 +107,7 @@ int main(int argc, char* argv[])
   std::vector<DirParam> dirparams = DirParam::createMultipleInSpace(nlag);
   varioparam.addMultiDirs(dirparams);
   Vario vario(varioparam);
-  VectorString names = db->getName("Gibbs*");
+  VectorString names = db->getNames("Gibbs*");
   for (Id isimu = 0; isimu < nbsimu; isimu++)
   {
     db->clearLocators(ELoc::Z);

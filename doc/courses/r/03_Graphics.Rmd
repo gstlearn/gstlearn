@@ -24,7 +24,7 @@ library(gstlearn)
 We define the Space dimension
 
 ```{r}
-defineDefaultSpace(ESpaceType_RN(), 2)
+err = defineDefaultSpace(ESpaceType_RN(), 2)
 ```
 
 Creating a dummy Model used for simulating a random field
@@ -46,7 +46,7 @@ x0 = c(-40, 20)
 mygrid = DbGrid_create(nx,dx,x0)
 
 err = simtub(NULL,mygrid,mymodel,nbsimu=2)
-mygrid$display()
+err = mygrid$display()
 ```
 
 We construct a Selection
@@ -83,8 +83,8 @@ Displaying the grid nodes only
 
 ```{r}
 p = plot.init(asp=1)
-p = p + plot.symbol(mygrid, nameSize="Simu.S1", nameColor="Simu.S2", flagLegend = TRUE,
-                   legendNameColor="myColor", legendNameSize="mySize")
+p = p + plot.symbol(mygrid, nameSize="Simu", nameColor="Simu", versionSize=0, versionColor=1,
+                    flagLegend = TRUE, legendNameColor="myColor", legendNameSize="mySize")
 p = p + plot.decoration(title="Display of Grid Nodes")
 plot.end(p)
 ```
@@ -101,7 +101,7 @@ Displaying the cell contents in the rotated grid
 
 ```{r}
 p = plot.init(asp=1)
-p = p + plot.raster(mygrid, name="Simu.S1")
+p = p + plot.raster(mygrid, name="Simu", version=0)
 p = p + plot.decoration(title="Display of Rotated Grid")
 plot.end(p)
 ```
@@ -110,7 +110,8 @@ As a set of grid nodes
 
 ```{r}
 p = plot.init(asp=1)
-p = p + plot.symbol(mygrid, nameSize="Simu.S1", nameColor="Simu.S2", flagLegend = TRUE)
+p = p + plot.symbol(mygrid, nameSize="Simu", nameColor="Simu",
+                    versionSize=0, versionColor=1, flagLegend = TRUE)
 p = p + plot.decoration(title="Display of Rotated Grid Nodes")
 plot.end(p)
 ```
@@ -158,13 +159,15 @@ Following the same idea, we now want to display two simulations defined on Grid 
 # Performing two simulations on a new grid
 mygrid = DbGrid_create(nx=c(100,150))
 mymodel = Model_createFromParam(ECov_SPHERICAL(), ranges = c(50, 30), angles = c(30, 0))
-simtub(NULL, mygrid, mymodel, nbsimu=2, nbtuba=1000, namconv=NamingConvention("Simu"))
+err = simtub(NULL, mygrid, mymodel, nbsimu=2, nbtuba=1000, namconv=NamingConvention("Simu"))
 
 # Representing the two figures on the same pa
-p1 = plot.init(asp=1) + plot.raster(mygrid, name="Simu.S1",
+p1 = plot.init(asp=1)
+p1 = p1 + plot.raster(mygrid, name="Simu",version=0,
                                     flagLegend=TRUE, legendName="Colors #1")
 p1 = p1 + plot.decoration(title="Simulation 1", xlab="Easting", ylab="Northing")
-p2 = plot.init(asp=1) + plot.raster(mygrid, name="Simu.S2", flagLegend=FALSE)
+p2 = plot.init(asp=1)
+p2 = p2 + plot.raster(mygrid, name="Simu", version=1,flagLegend=FALSE)
 p2 = p2 + plot.decoration(title="Simulation 2", xlab="Easting", ylab="")
 p = ggarrange(p1, p2, ncol = 2, nrow = 1, align="hv")
 plot.end(p)
@@ -175,9 +178,14 @@ plot.end(p)
 We calculate the variogram along the two main directions of the 2-D grid. We compute it for the 2 variables currently defined in the Grid file.
 
 ```{r}
-varioparam = VarioParam_createMultipleFromGrid(mygrid,nlag=10)
+varioparam = VarioParam_createMultipleFromGrid(mygrid,nlag=50)
 vario = Vario(varioparam)
+err = mygrid$extractVersion("Simu", "Simu.V1", version=0)
+err = mygrid$extractVersion("Simu", "Simu.V2", version=1)
+err = mygrid$setLocators(c("Simu.V1", "Simu.V2"), ELoc_Z())
 err = vario$compute(mygrid,ECalcVario_VARIOGRAM())
+err = mygrid$deleteColumn("Simu.V1")
+err = mygrid$deleteColumn("Simu.V2")
 ```
 
 We fit a Model (automatic procedure)
