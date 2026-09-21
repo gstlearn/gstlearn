@@ -123,7 +123,7 @@ namespace gstlrn
     void deleteColumn(ColID&& colid);
     void deleteAllColumns();
     bool hasColumn(ColID&& colid) const;
-    String getName(ColID&& colid) const;
+    String getName(ColID&& colid, bool withVersion = false) const;
     VectorString getNames() const;
     Id getICol(ColID&& colid) const;
     Id getUniqueIndex(ColID&& colid) const;
@@ -150,6 +150,7 @@ namespace gstlrn
     void clearAllRoles();
     void addSamples(Id nadd, const double valinit);
     void deleteSample(Id idel);
+    void deleteVersion(ColID&& colid, Id iversion);
 
     Id getColMatchUniqueIndex(Id uniqueIndex) const;
 

@@ -258,11 +258,11 @@ namespace gstlrn
 
     // Allocate the new attributes:
 
-    iptr_ce = db->addColumnsByConstant(nvar, 1, 0.);
+    iptr_ce = db->addColumnsByConstant(nvar, 1, 0., "CE");
     if (iptr_ce < 0) goto label_end;
-    iptr_cstd = db->addColumnsByConstant(nvar, 1, 0.);
+    iptr_cstd = db->addColumnsByConstant(nvar, 1, 0., "CSTD");
     if (iptr_cstd < 0) goto label_end;
-    iptr_nb = db->addColumnsByConstant(nvar, 1, 0.);
+    iptr_nb = db->addColumnsByConstant(nvar, 1, 0., "NB");
     if (iptr_nb < 0) goto label_end;
 
     // Loop on the simulations
@@ -498,9 +498,9 @@ namespace gstlrn
     /* Add the attributes */
     /**********************/
 
-    if (db_locator_attribute_add(
-          dbin, ELoc::GAUSFAC, nbsimu * nvar, 0, 0., &iptr))
-      goto label_end;
+    iptr =
+      dbin->addColumnsByConstant(nvar, nbsimu, 0., String(), ELoc::GAUSFAC);
+    if (iptr < 0) goto label_end;
 
     /*****************/
     /* Gibbs sampler */
@@ -542,8 +542,7 @@ namespace gstlrn
             dbin, ELoc::GAUSFAC, nbsimu, nvar, &iptr_ce, &iptr_cstd))
         goto label_end;
 
-      // We release the attributes dedicated to simulations on Dbout
-
+      // We release the attributes dedicated to simulations
       if (!flag_ce)
       {
         dbin->deleteColumnsByUIDRange(iptr_ce, nvar);
@@ -555,12 +554,13 @@ namespace gstlrn
         iptr_cstd = -1;
       }
       dbin->deleteColumnsByLocator(ELoc::GAUSFAC);
+      iptr = -1;
     }
 
     /* Set the error return flag */
 
     error = 0;
-    namconv.setOutput(VectorString(), nvar, dbin, iptr, String(), nbsimu);
+    namconv.setOutput(VectorString(), nvar, dbin, iptr, String(), 1);
     if (iptr_cstd >= 0)
       namconv.setOutput(VectorString(), nvar, dbin, iptr_cstd, "STD", nvar);
     if (iptr_ce >= 0)
@@ -899,10 +899,10 @@ namespace gstlrn
     if (iptrv < 0) goto label_end;
     iptrr = dbout->addColumnsByConstant(1, 1, 0.);
     if (iptrr < 0) goto label_end;
-    if (db_locator_attribute_add(dbout, ELoc::SEL, 1, 0, 0., &iptrs))
-      goto label_end;
-    if (db_locator_attribute_add(dbout, ELoc::SIMU, 1, 0, 0., &iptrg))
-      goto label_end;
+    iptrs = dbout->addColumnsByConstant(1, 1, 0., String(), ELoc::SEL);
+    if (iptrs < 0) goto label_end;
+    iptrg = dbout->addColumnsByConstant(1, 1, 0., String(), ELoc::SIMU);
+    if (iptrg < 0) goto label_end;
 
     /* Implicit loop on the simulations */
 
@@ -1055,10 +1055,10 @@ namespace gstlrn
     sort.resize(nech);
     pton.resize(ncut);
     pres.resize(ncut - 1);
-    if (db_locator_attribute_add(dbout, ELoc::SEL, 1, 0, 0., &iptrs))
-      goto label_end;
-    if (db_locator_attribute_add(dbout, ELoc::SIMU, 1, 0, 0., &iptrg))
-      goto label_end;
+    iptrs = dbout->addColumnsByConstant(1, 1, 0., String(), ELoc::SEL);
+    if (iptrs < 0) goto label_end;
+    iptrg = dbout->addColumnsByConstant(1, 1, 0., String(), ELoc::SIMU);
+    if (iptrg < 0) goto label_end;
 
     /* Preliminary calculations */
 
@@ -1232,13 +1232,13 @@ namespace gstlrn
 
     /* Add the attributes for storing the results */
 
-    if (db_locator_attribute_add(dbin, ELoc::GAUSFAC, nbsimu, 0, 0., &iptr))
-      goto label_end;
-    if (db_locator_attribute_add(dbin, ELoc::SIMU, nvar * nbsimu, 0, 0., &iptr))
-      goto label_end;
-    if (db_locator_attribute_add(
-          dbout, ELoc::SIMU, nvar * nbsimu, 0, 0., &iptr))
-      goto label_end;
+    iptr =
+      dbin->addColumnsByConstant(nvar, nbsimu, 0., String(), ELoc::GAUSFAC);
+    if (iptr < 0) goto label_end;
+    iptr = dbin->addColumnsByConstant(nvar, nbsimu, 0., String(), ELoc::SIMU);
+    if (iptr < 0) goto label_end;
+    iptr = dbout->addColumnsByConstant(nvar, nbsimu, 0., String(), ELoc::SIMU);
+    if (iptr < 0) goto label_end;
 
     /*****************/
     /* Gibbs sampler */

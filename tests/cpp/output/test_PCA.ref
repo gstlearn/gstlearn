@@ -23,7 +23,7 @@ Data Base Summary
 -----------------
 File is organized as a set of isolated points
 Space dimension              = 2
-Number of Columns            = 8
+Number of Columns            = 4
 Total number of samples      = 1000
 
 Variables
@@ -31,11 +31,7 @@ Variables
 Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x-1 - Locator = x1
 Column = 2 - Name = x-2 - Locator = x2
-Column = 3 - Name = Simu.S1 - Locator = z1
-Column = 4 - Name = Simu.S2 - Locator = z2
-Column = 5 - Name = Simu.S3 - Locator = z3
-Column = 6 - Name = Simu.S4 - Locator = z4
-Column = 7 - Name = Simu.S5 - Locator = z5
+Column = 3 - Name = Simu - Locator = z1 - Versions = 5
 
 Testing PCA
 ===========

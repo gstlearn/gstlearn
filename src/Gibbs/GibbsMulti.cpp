@@ -9,10 +9,8 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Gibbs/GibbsMulti.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/OptDbg.hpp"
-#include "Basic/Utilities.hpp"
 #include "Db/Db.hpp"
 #include "Gibbs/AGibbs.hpp"
 #include "Model/Model.hpp"

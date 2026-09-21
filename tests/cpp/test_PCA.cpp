@@ -72,18 +72,16 @@ int main(int argc, char* argv[])
 
   // Comparing initial and back-transformed variables
   for (Id i = 0; i < nbsimu; i++)
-  {
     (void)db->areSame(
-      NC::getNameEncoded("Simu", nullptr, 1, 1, i + 1, nbsimu),
-      NC::getNameEncoded("PCA.Z", nullptr, i + 1, nbsimu), eps);
-  }
+      "Simu", NC::getNameEncoded("PCA.Z", nullptr, i + 1, nbsimu), eps, true,
+      false, i);
 
   // ============
   // Evaluate MAF
   // ============
 
   mestitle(0, "Testing MAF");
-  db->setLocator("Simu*", ELoc::Z, 0);
+  db->setLocator("Simu*", ELoc::Z, 0, true);
   PCA maf;
   maf.maf_compute_interval(db, 0.95, 1.05);
   maf.display();
@@ -94,11 +92,10 @@ int main(int argc, char* argv[])
   maf.dbF2Z(db, false, NamingConvention("MAF.Z", false));
 
   // Comparing initial and back-transformed variables
-
   for (Id i = 0; i < nbsimu; i++)
     (void)db->areSame(
-      NC::getNameEncoded("Simu", nullptr, 1, 1, i + 1, nbsimu),
-      NC::getNameEncoded("MAF.Z", nullptr, i + 1, nbsimu), eps);
+      "Simu", NC::getNameEncoded("MAF.Z", nullptr, i + 1, nbsimu), eps, true,
+      false, i);
 
   delete db;
   delete models;

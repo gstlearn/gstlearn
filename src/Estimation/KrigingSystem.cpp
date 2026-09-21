@@ -1064,12 +1064,13 @@ namespace gstlrn
 
     /* Loop on the results */
 
-    for (Id ivar = 0, ecr = 0; ivar < _nvar; ivar++)
-      for (Id isimu = 0; isimu < _nbsimu; isimu++, ecr++)
+    for (Id ivar = 0; ivar < _nvar; ivar++)
+      for (Id isimu = 0; isimu < _nbsimu; isimu++)
       {
         message("Simulation #%d of Z%-2d : ", isimu + 1, ivar + 1);
-        double value =
-          (status == 0) ? _dbout->getArray(_iechOut, _iptrEst + ecr) : TEST;
+        double value = (status == 0)
+                       ? _dbout->getArray(_iechOut, _iptrEst + ivar, isimu)
+                       : TEST;
         printElement(value, " = ");
         message("\n");
       }

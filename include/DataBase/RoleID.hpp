@@ -60,6 +60,8 @@ namespace gstlrn
 
     bool isDefined() const { return _role != ERole::UNDEFINED; }
 
+    bool checkRoleVsMultipleVersions(Id nVersions, bool verbose = false);
+
   private:
     ERole _role{ERole::UNDEFINED};
     Id _index{0};

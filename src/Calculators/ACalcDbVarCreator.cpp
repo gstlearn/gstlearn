@@ -69,11 +69,10 @@ namespace gstlrn
     double valinit)
   {
     if (_db == nullptr) return -1;
-    auto count = number * nversion;
     Id iuid = _db->addColumnsByConstant(
-      count, 1, valinit, String(), locatorType, locatorIndex);
+      number, nversion, valinit, String(), locatorType, locatorIndex);
     if (iuid < 0) return -1;
-    VectorInt iuids = VH::sequence(count, iuid);
+    VectorInt iuids = VH::sequence(number, iuid);
     _storeInVariableList(status, iuids);
     return iuid;
   }

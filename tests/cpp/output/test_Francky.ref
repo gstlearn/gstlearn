@@ -4,20 +4,20 @@ Data Base Grid Characteristics
 
 Data Base Statistics
 --------------------
-4 - Name Kriging.Data.estim - Locator NA
- Nb of data          =      10201
- Nb of active values =      10201
- Minimum value       =     -2.877
- Maximum value       =      1.974
- Mean value          =     -0.224
- Standard Deviation  =      0.713
- Variance            =      0.509
-5 - Name KrigingSPDE.Data.estim - Locator z1
- Nb of data          =      10201
- Nb of active values =      10201
- Minimum value       =     -2.944
- Maximum value       =      1.948
- Mean value          =     -0.232
- Standard Deviation  =      0.751
- Variance            =      0.565
+1 - Name Kriging.Data.estim
+ Nb of data          =       10201
+ Nb of active values =       10201
+ Minimum value       =      -2.877
+ Maximum value       =       1.974
+ Mean value          =      -0.224
+ Standard Deviation  =       0.713
+ Variance            =       0.509
+2 - Name KrigingSPDE.Data.estim
+ Nb of data          =       10201
+ Nb of active values =       10201
+ Minimum value       =      -2.944
+ Maximum value       =       1.948
+ Mean value          =      -0.232
+ Standard Deviation  =       0.751
+ Variance            =       0.565
 Test performed successfully

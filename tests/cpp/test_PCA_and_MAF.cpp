@@ -38,8 +38,7 @@ int main(int argc, char* argv[])
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
-
-  DECLARE_UNUSED(argc, argv)
+  ASerializable::setPrefixName("test_MAF_and_PCA-");
 
   Id error = 0;
   Id ndim = 2;
@@ -51,12 +50,7 @@ int main(int argc, char* argv[])
   VectorInt nx_S = {100, 100};
   VectorDouble dx_S = {0.01, 0.01};
   DbGrid* grid = DbGrid::create(nx_S, dx_S);
-  if (grid == nullptr)
-  {
-    messerr("Error creating grid");
-    return 1;
-  }
-
+  if (grid == nullptr) return 1;
   mestitle(0, "Created Grid");
   grid->display();
 
@@ -65,68 +59,29 @@ int main(int argc, char* argv[])
   // Simulation of the Gaussian factors for structure #1 (Nugget Effect)
   mestitle(1, "Simulating Structure #1 (Nugget)");
   Model* m1 = Model::createFromParam(ECov::NUGGET, 0., 1.0);
-  if (m1 == nullptr)
-  {
-    messerr("Error creating model 1");
-    delete grid;
+  if (m1 == nullptr) return 1;
+  if (simtub(
+        nullptr, grid, m1, nullptr, nvar, 432423, 100, false,
+        VectorVectorDouble(), NamingConvention("U1")))
     return 1;
-  }
-  error = simtub(
-    nullptr, grid, m1, nullptr, nvar, 432423, 100, false, VectorVectorDouble(),
-    NamingConvention("U1"));
-  if (error != 0)
-  {
-    messerr("Error in simtub for structure 1");
-    delete grid;
-    delete m1;
-    return 1;
-  }
 
   // Simulation of the Gaussian factors for structure #2 (Exponential)
   mestitle(1, "Simulating Structure #2 (Exponential)");
   Model* m2 = Model::createFromParam(ECov::EXPONENTIAL, 0.1, 1.0);
-  if (m2 == nullptr)
-  {
-    messerr("Error creating model 2");
-    delete grid;
-    delete m1;
+  if (m2 == nullptr) return 1;
+  if (simtub(
+        nullptr, grid, m2, nullptr, nvar, 432424, 100, false,
+        VectorVectorDouble(), NamingConvention("U2")))
     return 1;
-  }
-  error = simtub(
-    nullptr, grid, m2, nullptr, nvar, 432424, 100, false, VectorVectorDouble(),
-    NamingConvention("U2"));
-  if (error != 0)
-  {
-    messerr("Error in simtub for structure 2");
-    delete grid;
-    delete m1;
-    delete m2;
-    return 1;
-  }
 
   // Simulation of the Gaussian factors for structure #3 (Cubic)
   mestitle(1, "Simulating Structure #3 (Cubic)");
   Model* m3 = Model::createFromParam(ECov::CUBIC, 0.25, 1.0);
-  if (m3 == nullptr)
-  {
-    messerr("Error creating model 3");
-    delete grid;
-    delete m1;
-    delete m2;
+  if (m3 == nullptr) return 1;
+  if (simtub(
+        nullptr, grid, m3, nullptr, nvar, 432425, 100, false,
+        VectorVectorDouble(), NamingConvention("U3")))
     return 1;
-  }
-  error = simtub(
-    nullptr, grid, m3, nullptr, nvar, 432425, 100, false, VectorVectorDouble(),
-    NamingConvention("U3"));
-  if (error != 0)
-  {
-    messerr("Error in simtub for structure 3");
-    delete grid;
-    delete m1;
-    delete m2;
-    delete m3;
-    return 1;
-  }
 
   // Create correlated variables from the simulated factors
   // This is a simplified version - in reality, we'd need to apply correlation matrices
@@ -134,169 +89,137 @@ int main(int argc, char* argv[])
 
   // For simplicity, we'll just copy and scale the simulated data
   // Z1, Z2, Z3 are created from linear combinations
-  VectorDouble z1 = grid->getColumnByLocator(ELoc::Z, 0);
-  VectorDouble z2 = grid->getColumnByLocator(ELoc::Z, 1);
-  VectorDouble z3 = grid->getColumnByLocator(ELoc::Z, 2);
+  VectorDouble z1 = grid->getColumn("U1");
+  VectorDouble z2 = grid->getColumn("U2");
+  VectorDouble z3 = grid->getColumn("U3");
 
-  // Simple linear combinations (simplified from the Rmd script)
   for (Id i = 0; i < np; i++)
   {
     z1[i] = 1.0 + 0.25 * z1[i];
-    z2[i] = 2.0 + 3.0 * z2[i];
-    z3[i] = 3.0 + 1.5 * z3[i];
+    z2[i] = 2.0 + 3.00 * z2[i];
+    z3[i] = 3.0 + 1.50 * z3[i];
   }
 
   grid->setColumn(z1, "Z1");
   grid->setColumn(z2, "Z2");
   grid->setColumn(z3, "Z3");
+  grid->display();
 
   // Data extraction - create sampling from grid
   mestitle(1, "Extracting data samples");
   Id npSamples = 500;
   VectorString names = {"x1", "x2", "Z1", "Z2", "Z3"};
-  Db data;
-  data.resetSamplingDb(grid, 0., npSamples, names, 432426);
+  auto* data = Db::createSamplingDb(grid, 0., npSamples, names, 432426);
 
-  data.setLocator("Z*", ELoc::Z, 0);
+  data->setLocator("Z*", ELoc::Z, 0);
   mestitle(0, "Extracted Data");
-  data.display();
+  data->display();
+
+  // Defining the Variogram calculation parameters
+  Id nlag = 10;
+  double dlag = 0.025;
+  auto* varioparam = VarioParam::createOmniDirection(nlag, dlag);
+  if (varioparam == nullptr) return 1;
 
   // Computing the experimental variogram
   mestitle(1, "Computing experimental variogram on raw data");
-  Id nlag = 10;
-  double dlag = 0.025;
-  VarioParam* varioparam = VarioParam::createOmniDirection(nlag, dlag);
-  if (varioparam == nullptr)
-  {
-    messerr("Error creating variogram parameters");
-    delete grid;
-    delete m1;
-    delete m2;
-    delete m3;
-    return 1;
-  }
-
-  Vario vario_raw(*varioparam);
-  vario_raw.compute(&data);
+  auto* vario_raw = Vario::computeFromDb(*varioparam, data);
+  if (vario_raw == nullptr) return 1;
+  vario_raw->dumpToNF("Vario_Raw.NF");
+  vario_raw->display();
 
   // Fitting the variogram model on the experimental variogram
   mestitle(1, "Fitting variogram model on raw data");
-  Model model_raw{};
-
   Constraints ctr;
   Option_VarioFit ovf;
   Option_AutoFit oaf;
   oaf.setVerbose(false);
   auto types = ECov::fromKeys({"NUGGET", "EXPONENTIAL", "CUBIC"});
-  error = model_raw.fit(&vario_raw, types, ctr, ovf, oaf, false);
-  if (error != 0)
-  {
-    messerr("Error fitting model");
-  }
-
-  mestitle(0, "Fitted Model for Raw Data");
-  model_raw.display();
+  auto* model_raw =
+    Model::createFromVario(vario_raw, types, ctr, ovf, oaf, false);
+  if (model_raw == nullptr) return 1;
+  model_raw->dumpToNF("Model_Raw.NF");
+  model_raw->display();
 
   // ============
   // Evaluate PCA
   // ============
   mestitle(0, "Testing PCA");
-  data.setLocator("Z*", ELoc::Z, 0);
+  data->setLocator("Z*", ELoc::Z, 0);
   PCA pca(nvar);
 
-  error = pca.pca_compute(&data, true);
-  if (error != 0)
-  {
-    messerr("Error computing PCA");
-  }
+  if (pca.pca_compute(data, true)) return 1;
   pca.display();
 
   // Store the transformed variables
-  error = pca.dbZ2F(&data, true, NamingConvention("U", false));
-  if (error != 0)
-  {
-    messerr("Error transforming Z to PCA factors");
-  }
+  if (pca.dbZ2F(data, true, NamingConvention("U", false))) return 1;
 
   // Set locators for PCA factors
-  data.setLocator("U*", ELoc::Z, 0);
+  data->setLocator("U*", ELoc::Z, 0);
 
   // Fitting the variogram model on PCA factors
   mestitle(1, "Computing and fitting variogram on PCA factors");
-  Vario* vario_PCA = Vario::computeFromDb(*varioparam, &data);
-  if (vario_PCA == nullptr)
-  {
-    messerr("Error computing PCA variogram");
-  }
-  else
-  {
-    vario_PCA->display();
-    ctr.display();
-    ovf.display();
-    oaf.display();
-    Model model_PCA{};
-    error = model_PCA.fit(vario_PCA, types, ctr, ovf, oaf, true);
-    if (error == 0)
-    {
-      mestitle(0, "Fitted Model for PCA");
-      model_PCA.display();
-    }
+  Vario* vario_PCA = Vario::computeFromDb(*varioparam, data);
+  if (vario_PCA == nullptr) return 1;
+  vario_PCA->dumpToNF("Vario_PCA.NF");
+  vario_PCA->display();
 
-    delete vario_PCA;
-  }
+  // Fitting the variogram model on PCA factors
+  mestitle(0, "Fitted Model for PCA");
+  ctr.display();
+  ovf.display();
+  oaf.display();
+  auto* model_PCA =
+    Model::createFromVario(vario_PCA, types, ctr, ovf, oaf, true);
+  if (model_PCA == nullptr) return 1;
+  model_PCA->dumpToNF("Model_PCA.NF");
+  model_PCA->display();
 
   // ============
   // Evaluate MAF
   // ============
   mestitle(0, "Testing MAF");
-  data.setLocator("Z*", ELoc::Z, 0);
+  data->setLocator("Z*", ELoc::Z, 0);
   PCA maf(nvar);
 
   // MAF computation using variogram at a specific lag
   Id ilag = 3; // lag index 3 (corresponding to ilag-1 in 0-based indexing)
-  error = maf.maf_compute(&data, *varioparam, ilag - 1, 0, true);
-  if (error != 0)
-  {
-    messerr("Error computing MAF");
-  }
+  if (maf.maf_compute(data, *varioparam, ilag - 1, 0, true)) return 1;
   maf.display();
 
   // Store the transformed variables
-  error = maf.dbZ2F(&data, true, NamingConvention("F", false));
-  if (error != 0)
-  {
-    messerr("Error transforming Z to MAF factors");
-  }
+  if (maf.dbZ2F(data, true, NamingConvention("F", false))) return 1;
 
   // Set locators for MAF factors
-  data.setLocator("F*", ELoc::Z, 0);
+  data->setLocator("F*", ELoc::Z, 0);
 
   // Fitting the variogram model on MAF factors
   mestitle(1, "Computing and fitting variogram on MAF factors");
-  Vario* vario_MAF = Vario::computeFromDb(*varioparam, &data);
-  if (vario_MAF == nullptr)
-  {
-    messerr("Error computing MAF variogram");
-  }
-  else
-  {
-    vario_MAF->display();
-    ctr.display();
-    ovf.display();
-    oaf.display();
-    Model model_MAF{};
-    auto types_maf = ECov::fromKeys({"NUGGET", "EXPONENTIAL", "SPHERICAL"});
-    error = model_MAF.fit(vario_MAF, types_maf, ctr, ovf, oaf, true);
-    if (error == 0)
-    {
-      mestitle(0, "Fitted Model for MAF");
-      model_MAF.display();
-    }
-    delete vario_MAF;
-  }
+  Vario* vario_MAF = Vario::computeFromDb(*varioparam, data);
+  if (vario_MAF == nullptr) return 1;
+  vario_MAF->dumpToNF("Vario_MAF.NF");
+  vario_MAF->display();
+
+  mestitle(0, "Fitted Model for MAF");
+  ctr.display();
+  ovf.display();
+  oaf.display();
+  auto types_maf = ECov::fromKeys({"NUGGET", "EXPONENTIAL", "SPHERICAL"});
+  auto* model_MAF =
+    Model::createFromVario(vario_MAF, types_maf, ctr, ovf, oaf, true);
+  if (model_MAF == nullptr) return 1;
+  model_MAF->dumpToNF("Model_MAF.NF");
+  model_MAF->display();
 
   // Cleanup
   delete grid;
+  delete data;
+  delete vario_raw;
+  delete model_raw;
+  delete vario_PCA;
+  delete model_PCA;
+  delete vario_MAF;
+  delete model_MAF;
   delete m1;
   delete m2;
   delete m3;

@@ -6,14 +6,14 @@ Data Base Grid Characteristics
 
 Data Base Statistics
 --------------------
-6 - Name P - Locator NA
- Nb of data          =     262144
- Nb of active values =     242306
- Minimum value       =      0.000
- Maximum value       =    314.000
- Mean value          =     31.767
- Standard Deviation  =     21.759
- Variance            =    473.457
+1 - Name P
+ Nb of data          =      262144
+ Nb of active values =      242306
+ Minimum value       =       0.000
+ Maximum value       =     314.000
+ Mean value          =      31.767
+ Standard Deviation  =      21.759
+ Variance            =     473.457
 NULL
 NULL
 
@@ -22,14 +22,14 @@ Data Base Grid Characteristics
 
 Data Base Statistics
 --------------------
-5 - Name Ni - Locator NA
- Nb of data          =     262144
- Nb of active values =     262144
- Minimum value       =   1840.000
- Maximum value       =  12593.000
- Mean value          =  10111.444
- Standard Deviation  =    884.996
- Variance            = 783217.898
+1 - Name Ni
+ Nb of data          =      262144
+ Nb of active values =      262144
+ Minimum value       =    1840.000
+ Maximum value       =   12593.000
+ Mean value          =   10111.444
+ Standard Deviation  =     884.996
+ Variance            =  783217.898
 NULL
 NULL
 
@@ -38,14 +38,14 @@ Data Base Grid Characteristics
 
 Data Base Statistics
 --------------------
-4 - Name Cr - Locator NA
- Nb of data          =     262144
- Nb of active values =     262144
- Minimum value       =   2591.000
- Maximum value       =  24982.000
- Mean value          =  16800.231
- Standard Deviation  =    936.213
- Variance            = 876495.558
+1 - Name Cr
+ Nb of data          =      262144
+ Nb of active values =      262144
+ Minimum value       =    2591.000
+ Maximum value       =   24982.000
+ Mean value          =   16800.231
+ Standard Deviation  =     936.213
+ Variance            =  876495.558
 NULL
 NULL
 NULL
@@ -61,11 +61,11 @@ Number of drift equation(s)  = 1
 Covariance Part
 ---------------
 Nugget Effect
-- Sill         =    356.014
+- Sill         =     356.014
 Spherical
-- Sill         =     75.975
-- Range        =      5.705
-Total Sill     =    431.989
+- Sill         =      75.975
+- Range        =       5.705
+Total Sill     =     431.989
 
 Drift Part
 ----------
@@ -84,12 +84,12 @@ Number of drift equation(s)  = 1
 Covariance Part
 ---------------
 Nugget Effect
-- Sill         =    356.014
+- Sill         =     356.014
   (This component is Filtered)
 Spherical
-- Sill         =     75.975
-- Range        =      5.705
-Total Sill     =    431.989
+- Sill         =      75.975
+- Range        =       5.705
+Total Sill     =     431.989
 
 Drift Part
 ----------
@@ -97,8 +97,8 @@ Universality_Condition
 
 Convolution Pattern
 -------------------
-                        Minimum    Maximum
-Weight of Z1 for Z*1     -0.004      0.099
+                         Minimum     Maximum
+Weight of Z1 for Z*1      -0.004       0.099
 NULL
 NULL
 
@@ -114,22 +114,22 @@ Covariance Part
 ---------------
 Nugget Effect
 - Sill matrix:
-               [,  0]    [,  1]    [,  2]
-     [  0,]   374.141   235.177  -300.219
-     [  1,]   235.177167267.806 12741.118
-     [  2,]  -300.219 12741.118119349.758
+                 [,  0]     [,  1]     [,  2]
+      [  0,]    374.141    235.177   -300.219
+      [  1,]    235.177 167267.806  12741.118
+      [  2,]   -300.219  12741.118 119349.758
 Spherical
 - Sill matrix:
-               [,  0]    [,  1]    [,  2]
-     [  0,]    61.993  5144.087 -4483.493
-     [  1,]  5144.087651989.758-594845.183
-     [  2,] -4483.493-594845.183633142.577
-- Range        =     10.595
+                 [,  0]     [,  1]     [,  2]
+      [  0,]     61.993   5144.087  -4483.493
+      [  1,]   5144.087 651989.758-594845.183
+      [  2,]  -4483.493-594845.183 633142.577
+- Range        =      10.595
 Total Sill
-               [,  0]    [,  1]    [,  2]
-     [  0,]   436.134  5379.264 -4783.712
-     [  1,]  5379.264819257.564-582104.065
-     [  2,] -4783.712-582104.065752492.335
+                 [,  0]     [,  1]     [,  2]
+      [  0,]    436.134   5379.264  -4783.712
+      [  1,]   5379.264 819257.564-582104.065
+      [  2,]  -4783.712-582104.065 752492.335
 
 
 Drift Part
@@ -140,13 +140,13 @@ NULL
 
 Convolution Pattern
 -------------------
-                        Minimum    Maximum
-Weight of Z1 for Z*1     -0.001      0.032
-Weight of Z2 for Z*1      0.000      0.002
-Weight of Z3 for Z*1     -0.002      0.000
-Weight of Z1 for Z*2     -0.011      0.522
-Weight of Z2 for Z*2     -0.003      0.281
-Weight of Z3 for Z*2     -0.274      0.011
-Weight of Z1 for Z*3     -0.151      0.043
-Weight of Z2 for Z*3     -0.202      0.008
-Weight of Z3 for Z*3     -0.003      0.354
+                         Minimum     Maximum
+Weight of Z1 for Z*1      -0.001       0.032
+Weight of Z2 for Z*1       0.000       0.002
+Weight of Z3 for Z*1      -0.002       0.000
+Weight of Z1 for Z*2      -0.011       0.522
+Weight of Z2 for Z*2      -0.003       0.281
+Weight of Z3 for Z*2      -0.274       0.011
+Weight of Z1 for Z*3      -0.151       0.043
+Weight of Z2 for Z*3      -0.202       0.008
+Weight of Z3 for Z*3      -0.003       0.354

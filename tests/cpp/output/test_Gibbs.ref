@@ -8,7 +8,7 @@ Data Base Grid Characteristics
 
 Data Base Statistics
 --------------------
-1 - Name rank - Locator NA
+1 - Name rank
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =    1.000000
@@ -16,7 +16,7 @@ Data Base Statistics
  Mean value          = 5000.500000
  Standard Deviation  = 2886.751332
  Variance            = 8333333.250000
-2 - Name x1 - Locator x1
+2 - Name x1
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =    0.000000
@@ -24,7 +24,7 @@ Data Base Statistics
  Mean value          =   49.500000
  Standard Deviation  =   28.866070
  Variance            =  833.250000
-3 - Name x2 - Locator x2
+3 - Name x2
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =    0.000000
@@ -32,7 +32,7 @@ Data Base Statistics
  Mean value          =   49.500000
  Standard Deviation  =   28.866070
  Variance            =  833.250000
-4 - Name SimuSPDE.S1 - Locator NA
+4 - Name SimuSPDE.S1
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =   -2.208432
@@ -40,7 +40,7 @@ Data Base Statistics
  Mean value          =    0.056239
  Standard Deviation  =    0.786283
  Variance            =    0.618241
-5 - Name SimuSPDE.S2 - Locator z2
+5 - Name SimuSPDE.S2
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =   -2.287530
@@ -48,7 +48,7 @@ Data Base Statistics
  Mean value          =    0.211059
  Standard Deviation  =    0.639021
  Variance            =    0.408348
-6 - Name l1 - Locator l1
+6 - Name l1
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =   -2.287530
@@ -56,7 +56,7 @@ Data Base Statistics
  Mean value          =   -0.210434
  Standard Deviation  =    0.695913
  Variance            =    0.484295
-7 - Name u1 - Locator u1
+7 - Name u1
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =   -0.708047
@@ -64,7 +64,7 @@ Data Base Statistics
  Mean value          =    0.477732
  Standard Deviation  =    0.563464
  Variance            =    0.317492
-8 - Name Color - Locator NA
+8 - Name Color
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =    1.000000
@@ -72,7 +72,7 @@ Data Base Statistics
  Mean value          =    3.607400
  Standard Deviation  =    1.904696
  Variance            =    3.627865
-9 - Name z1 - Locator z1
+9 - Name z1
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =   -0.720975

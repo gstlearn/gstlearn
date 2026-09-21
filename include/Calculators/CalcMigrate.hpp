@@ -53,11 +53,14 @@ namespace gstlrn
     bool _postprocess() override;
     void _rollback() override;
 
+    Id _getNVersions() const { return _nversion; }
+
     static Id _migrate(
       Db* db1,
       Db* db2,
       Id iatt1,
       Id iatt2,
+      Id version,
       Id distType,
       const VectorDouble& dmax,
       bool flag_fill,
@@ -67,6 +70,7 @@ namespace gstlrn
       Db* db_point,
       DbGrid* db_grid,
       Id iatt,
+      Id version,
       Id distType,
       const VectorDouble& dmax,
       VectorDouble& tab);
@@ -74,6 +78,7 @@ namespace gstlrn
       Db* db1,
       Db* db2,
       Id iatt,
+      Id version,
       Id distType,
       const VectorDouble& dmax,
       VectorDouble& tab);
@@ -81,6 +86,7 @@ namespace gstlrn
       DbGrid* db_gridin,
       DbGrid* db_gridout,
       Id iatt,
+      Id version,
       Id distType,
       const VectorDouble& dmax,
       VectorDouble& tab);
@@ -95,6 +101,7 @@ namespace gstlrn
       DbGrid* db_gridin,
       DbGrid* db_gridout,
       Id iatt,
+      Id version,
       Id distType,
       const VectorDouble& dmax,
       VectorDouble& tab);
@@ -102,6 +109,7 @@ namespace gstlrn
       DbGrid* db_grid,
       Db* db_point,
       Id iatt,
+      Id version,
       Id distType,
       const VectorDouble& dmax,
       VectorDouble& tab);
@@ -109,6 +117,7 @@ namespace gstlrn
       DbGrid* db_grid,
       Db* db_point,
       Id iatt,
+      Id version,
       Id distType,
       const VectorDouble& dmax,
       VectorDouble& tab);
@@ -116,6 +125,7 @@ namespace gstlrn
   private:
     Id _iattOut;
     VectorInt _iuids;
+    Id _nversion;
     Id _distType;
     VectorDouble _dmax;
     bool _flagFill;
@@ -204,6 +214,7 @@ namespace gstlrn
     Db* db_point,
     DbGrid* db_grid,
     Id iatt,
+    Id version,
     Id iatt_time,
     Id iatt_angle,
     Id iatt_scaleu,

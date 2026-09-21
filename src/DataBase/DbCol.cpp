@@ -280,8 +280,18 @@ namespace gstlrn
 
   void DbCol::deleteSample(const Id isample)
   {
+    if (!_checkSample(isample, getNSamples())) return;
+
     std::visit(
       [isample](auto&& arg) { arg.deleteElement(isample); }, this->_data);
+  }
+
+  void DbCol::deleteVersion(const Id iversion)
+  {
+    if (!_checkVersion(iversion, getNVersions())) return;
+
+    std::visit(
+      [iversion](auto&& arg) { arg.deleteSerie(iversion); }, this->_data);
   }
 
   Id DbCol::getNSamples() const
@@ -325,7 +335,7 @@ namespace gstlrn
     if (iversion < 0 || iversion >= nversion)
     {
       messerr(
-        "Version %d is invalid for Column '%s' which contains %d "
+        "DbCol: Version %d is invalid for Column '%s' which contains %d "
         "version(s).",
         static_cast<Id>(iversion), getName().c_str(),
         static_cast<Id>(nversion));

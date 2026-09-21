@@ -96,7 +96,7 @@ namespace gstlrn
     for (Id iobj = 0, nobj = _getNObjects(); iobj < nobj; iobj++)
     {
       _objlist[iobj].projectToGrid(
-        dbout, _iptrSimu + isimu, _iptrRank + isimu,
+        dbout, _iptrSimu, _iptrRank, isimu,
         static_cast<Id>(_boolparam.getFacies()), iobj + 1);
     }
   }
@@ -439,14 +439,14 @@ namespace gstlrn
     if (_flagSimu)
     {
       _iptrSimu = _addVariableDb(
-        2, 1, ELoc::SIMU, 0, getNbSimu(), 1, _boolparam.getBackground());
+        2, 1, ELoc::SIMU, 0, 1, getNbSimu(), _boolparam.getBackground());
       if (_iptrSimu < 0) return false;
     }
     _iptrRank = -1;
     if (_flagRank)
     {
       _iptrRank = _addVariableDb(
-        2, 1, ELoc::SIMU, 0, getNbSimu(), 1, _boolparam.getBackground());
+        2, 1, ELoc::SIMU, 0, 1, getNbSimu(), _boolparam.getBackground());
       if (_iptrRank < 0) return false;
     }
     return true;
@@ -460,7 +460,7 @@ namespace gstlrn
     for (Id isimu = 0, nbsimu = getNbSimu(); isimu < nbsimu; isimu++)
     {
       if (getVerbose())
-        message("\nSimulating realization #%d of %d\n", isimu + 1, getNbSimu());
+        message("\nSimulating realization #%d of %d\n", isimu + 1, nbsimu);
 
       if (!_simulate(isimu)) return false;
     }
@@ -472,11 +472,9 @@ namespace gstlrn
     /* Free the temporary variables */
     _cleanVariableDb(2);
 
-    _renameVariable(
-      2, VectorString(), ELoc::Z, 1, _iptrSimu, "Facies", getNbSimu());
+    _renameVariable(2, VectorString(), ELoc::Z, 1, _iptrSimu, "Facies", 1);
 
-    _renameVariable(
-      2, VectorString(), ELoc::Z, 1, _iptrRank, "Rank", getNbSimu());
+    _renameVariable(2, VectorString(), ELoc::Z, 1, _iptrRank, "Rank", 1);
     return true;
   }
 

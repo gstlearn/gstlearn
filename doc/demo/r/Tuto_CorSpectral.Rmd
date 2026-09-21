@@ -823,7 +823,8 @@ MyCorAniso <- function(type = MyType_[3], sigma = 1.0, params = NULL,
       val = compute_simulation(sp = sp_, X = X, verbose = verbose)
       isim = 1
       for (ivar in 1:nvar) {
-        nm_var = NC_getNameEncoded(prefix, NULL, ivar, nvar, isim, isim)
+        #nm_var = NC_getNameEncoded(prefix, NULL, ivar, nvar, isim, isim)
+        nm_var = NC_getNameEncoded(prefix, NULL, ivar, nvar, isim, 0)
         dbout[nm_var] = val[ivar,]
       }
       NULL
@@ -967,7 +968,8 @@ MyCorMatern <- function(type = MyType_[3],
       val = compute_simulation(sp = sp_, X = X, verbose = verbose)
       isim = 1
       for (ivar in 1:nvar) {
-        nm_var = NC_getNameEncoded(prefix, NULL, ivar, nvar, isim, isim)
+        #nm_var = NC_getNameEncoded(prefix, NULL, ivar, nvar, isim, isim)
+        nm_var = NC_getNameEncoded(prefix, NULL, ivar, nvar, isim, 0)
         dbout[nm_var] = val[ivar,]
       }
       NULL
@@ -1131,7 +1133,8 @@ MyCorGaussianMixture <- function(type = MyType_[3], nu = 1/2, kappa = rep(1.0, l
       val = compute_simulation(sp = sp_, X = X, verbose = verbose)
       isim = 1
       for (ivar in 1:nvar) {
-        nm_var = NC_getNameEncoded(prefix, NULL, ivar, nvar, isim, isim)
+        #nm_var = NC_getNameEncoded(prefix, NULL, ivar, nvar, isim, isim)
+        nm_var = NC_getNameEncoded(prefix, NULL, ivar, nvar, isim, 0)
         dbout[nm_var] = val[ivar,]
       }
       NULL
@@ -1267,7 +1270,8 @@ MyCorGneiting <- function(type = MyType_[7], nu = 1/2, kappa = rep(1.0, length(n
       val = compute_simulation(sp = sp_, X = X, verbose = verbose)
       isim = 1
       for (ivar in 1:nvar) {
-        nm_var = NC_getNameEncoded(prefix, NULL, ivar, nvar, isim, isim)
+        #nm_var = NC_getNameEncoded(prefix, NULL, ivar, nvar, isim, isim)
+        nm_var = NC_getNameEncoded(prefix, NULL, ivar, nvar, isim, 0)
         dbout[nm_var] = val[ivar,]
       }
       NULL
@@ -1415,7 +1419,10 @@ set.seed(seed)
 # slice in R^2 \times R (1:xOy, 2:xOt, 3:yOt)
 idx_slice = 2
 stopifnot(idx_slice %in% 1:3)
+```
 
+
+```{r covariance_test_A, echo = FALSE, eval = TRUE}
 # ==============================================================================
 for (id in seq_len(length(list_test))) {
 # ==============================================================================
@@ -1671,9 +1678,11 @@ for (id in seq_len(length(list_test))) {
   tab_var = NULL
   isim = 1
   for (ivar in 1:nvar) {
-    nm_var = NC_getNameEncoded(prefix, NULL, ivar, nvar, isim, isim)
-    tab_var = c(tab_var, nm_var )
-    val = grid[nm_var]
+    nm0_var = NC_getNameEncoded(prefix, NULL, ivar, nvar, isim, isim)
+    nm_var = NC_getNameEncoded(prefix, NULL, ivar, nvar, isim, 0)
+    tab_var = c(tab_var, nm0_var )
+    #val = grid[nm_var]
+    val = grid$getColumn(nm_var, version=isim-1)
     # compute statistics
     tab = rbind(tab, t(compute_statistics(val)))
     # plots
@@ -1727,16 +1736,18 @@ for (id in seq_len(length(list_test))) {
     # processing the simulation
     ig = 0
     for (ivar in 1:nvar) {
-      nm_vari = NC_getNameEncoded(prefix, NULL, ivar, nvar, isim, nsim)
-      sim_vari = matrix(grid[nm_vari], nx[idx_x], nx[idx_y])
+      nm0_vari = NC_getNameEncoded(prefix, NULL, ivar, nvar, isim, nsim)
+      nm_vari = NC_getNameEncoded(prefix, NULL, ivar, nvar, isim, 0)
+      sim_vari = matrix(grid$getColumn(nm_vari, version=isim-1), nx[idx_x], nx[idx_y])
       # statistics
-      var_name = c(var_name, nm_vari)
-      tab = rbind(tab, t(compute_statistics(grid[nm_vari])))
+      var_name = c(var_name, nm0_vari)
+      tab = rbind(tab, t(compute_statistics(grid$getColumn(nm_vari, version=isim-1))))
 
       for (jvar in ivar:nvar) {
         ig = ig+1
-        nm_varj = NC_getNameEncoded(prefix, NULL, jvar, nvar, isim, nsim)
-        sim_varj = matrix(grid[nm_varj], nx[idx_x], nx[idx_y])
+        nm0_varj = NC_getNameEncoded(prefix, NULL, jvar, nvar, isim, nsim)
+        nm_varj = NC_getNameEncoded(prefix, NULL, jvar, nvar, isim, 0)
+        sim_varj = matrix(grid$getColumn(nm_varj, version=isim-1), nx[idx_x], nx[idx_y])
         # variogram
         for (idir in 1:nrow(dir_list)) {
         gam = compute_vario_on_grid(val = sim_vari, val2 = sim_varj,

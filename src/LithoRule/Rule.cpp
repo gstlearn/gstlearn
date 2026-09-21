@@ -1062,41 +1062,34 @@ namespace gstlrn
     Id ipgs,
     Id nbsimu) const
   {
-    Id iech, nadd, nech, facies;
     double t1min, t1max, t2min, t2max;
 
     /* Initializations */
 
     if (dbin == nullptr) return (0);
-    nadd = 0;
-    nech = dbin->getNSample();
+    auto nech = dbin->getNSample();
+    auto locindex = propdef.getRank(ipgs, igrf);
 
     /* Dispatch */
 
-    for (iech = 0; iech < nech; iech++)
+    for (Id iech = 0; iech < nech; iech++)
     {
       if (!dbin->isActive(iech)) continue;
-      facies = static_cast<Id>(dbin->getZVariable(iech, 0));
+      Id facies = static_cast<Id>(dbin->getZVariable(iech, 0));
       if (propdef.ruleThreshDefine(
             dbin, this, facies, iech, isimu, nbsimu, 1, &t1min, &t1max, &t2min,
             &t2max))
         return (1);
       if (igrf == 0)
       {
-        dbin->setLocVariable(ELoc::L, iech, propdef.getRank(ipgs, igrf), t1min);
-        dbin->setLocVariable(ELoc::U, iech, propdef.getRank(ipgs, igrf), t1max);
+        dbin->setLocVariable(ELoc::L, iech, locindex, t1min);
+        dbin->setLocVariable(ELoc::U, iech, locindex, t1max);
       }
       else
       {
-        dbin->setLocVariable(ELoc::L, iech, propdef.getRank(ipgs, igrf), t2min);
-        dbin->setLocVariable(ELoc::U, iech, propdef.getRank(ipgs, igrf), t2max);
+        dbin->setLocVariable(ELoc::L, iech, locindex, t2min);
+        dbin->setLocVariable(ELoc::U, iech, locindex, t2max);
       }
-    }
-
-    if (igrf == 0 && nadd > 0)
-    {
-      message("Initial count of data = %d\n", nech);
-      message("Number of replicates  = %d\n", nadd);
     }
     return (0);
   }

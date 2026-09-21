@@ -985,6 +985,7 @@ namespace gstlrn
    * @param posy Rank of the second extracted coordinate (in [0, ndim[)
    * @param corner  Vector giving a reference node that belongs to the extracted section
    * @param useSel Use of the current Selection
+   * @param version Version of the variable to be extracted
    * @return
    *
    * @remark The argument 'corner' gives the indices of a node that belongs to the
@@ -995,7 +996,8 @@ namespace gstlrn
     Id posx,
     Id posy,
     const VectorInt& corner,
-    bool useSel) const
+    bool useSel,
+    Id version) const
   {
     VectorDouble tab;
     auto ndim = getNDim();
@@ -1047,7 +1049,7 @@ namespace gstlrn
         indices[posy] = i2;
         Id iech = indiceToRank(indices);
         if (!useSel || isActive(iech))
-          tab[ecr] = getArray(iech, iuid);
+          tab[ecr] = getArray(iech, iuid, version);
         else
           tab[ecr] = TEST;
       }
@@ -1061,6 +1063,7 @@ namespace gstlrn
    * @param posy Rank of the second extracted coordinate (in [0, ndim[)
    * @param corner  Vector giving a reference node that belongs to the extracted section
    * @param useSel Use of the current Selection
+   * @param version Version of the variable to be extracted
    * @return
    *
    * @remark If idim does not match the Space dimension of the DbGrid, empty vector if returned
@@ -1076,7 +1079,8 @@ namespace gstlrn
     Id posx,
     Id posy,
     const VectorInt& corner,
-    bool useSel) const
+    bool useSel,
+    Id version) const
   {
     VectorDouble tab;
     auto ndim = getNDim();
@@ -1116,7 +1120,7 @@ namespace gstlrn
     if (getNLoc(ELoc::X) > 0)
     {
       String name = getNameByLocator(ELoc::X, idim);
-      return getOneSlice(name, posx, posy, corner, useSel);
+      return getOneSlice(name, posx, posy, corner, useSel, version);
     }
     // The variable does not exist, it must be generated on the fly
     auto n1 = getNX(posx);
@@ -1230,13 +1234,19 @@ namespace gstlrn
    * @param pos    Type of section: 0 for YoZ; 1 for XoZ and 2 for XoY
    * @param indice Rank of the section
    * @param useSel Use the active selection
+   * @param version Rank of the version (default = 0)
+   *
    * @return A VectorVectorDouble with 4 columns, i.e: X, Y, Z, Var
    *
    * @remark In presence of a selection and if useSel is TRUE,
    * @remarks values are returned but set to TEST
    */
-  VectorVectorDouble
-    DbGrid::getSlice(const String& name, Id pos, Id indice, bool useSel) const
+  VectorVectorDouble DbGrid::getSlice(
+    const String& name,
+    Id pos,
+    Id indice,
+    bool useSel,
+    Id version) const
   {
     VectorVectorDouble tab;
     Id nvect = 4;
@@ -1281,7 +1291,7 @@ namespace gstlrn
           tab[1][ecr] = coor[1];
           tab[2][ecr] = coor[2];
           if (!useSel || isActive(iech))
-            tab[3][ecr] = getArray(iech, iuid);
+            tab[3][ecr] = getArray(iech, iuid, version);
           else
             tab[3][ecr] = TEST;
         }
@@ -1310,7 +1320,7 @@ namespace gstlrn
           tab[1][ecr] = coor[1];
           tab[2][ecr] = coor[2];
           if (!useSel || isActive(iech))
-            tab[3][ecr] = getArray(iech, iuid);
+            tab[3][ecr] = getArray(iech, iuid, version);
           else
             tab[3][ecr] = TEST;
         }
@@ -1339,7 +1349,7 @@ namespace gstlrn
           tab[1][ecr] = coor[1];
           tab[2][ecr] = coor[2];
           if (!useSel || isActive(iech))
-            tab[3][ecr] = getArray(iech, iuid);
+            tab[3][ecr] = getArray(iech, iuid, version);
           else
             tab[3][ecr] = TEST;
         }

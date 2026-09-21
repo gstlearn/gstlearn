@@ -382,10 +382,13 @@ namespace gstlrn
     if (names.empty()) return;
     VectorInt iuids = db->getUIDs(names);
     Id niuid = static_cast<Id>(iuids.size());
+    if (iuids.empty()) return;
+    auto ntot = db->getSumNVersions(iuids);
+    if (ntot <= 0) return;
 
     /* Loop on the samples */
 
-    VectorDouble local(niuid);
+    VectorDouble local(ntot);
     for (Id iech = 0; iech < db->getNSample(); iech++)
     {
       if (!db->isActive(iech)) continue;
@@ -404,20 +407,24 @@ namespace gstlrn
       for (Id iuid = 0; iuid < niuid; iuid++)
       {
         Id juid = iuids[iuid];
-        double value = db->getArray(iech, juid);
-        if (FFFF(value)) continue;
+        auto ncol = db->getNVersions(juid);
+        for (Id version = 0; version < ncol; version++)
+        {
+          double value = db->getArray(iech, juid, version);
+          if (FFFF(value)) continue;
 
-        local[neff] = value;
-        neff++;
-        mean += value;
-        sum += value;
-        var += value * value;
-        if (value < mini) mini = value;
-        if (value > maxi) maxi = value;
-        if (!FFFF(vmin) && value < vmin) continue;
-        if (!FFFF(vmax) && value > vmax) continue;
-        metal += value;
-        nperc++;
+          local[neff] = value;
+          neff++;
+          mean += value;
+          sum += value;
+          var += value * value;
+          if (value < mini) mini = value;
+          if (value > maxi) maxi = value;
+          if (!FFFF(vmin) && value < vmin) continue;
+          if (!FFFF(vmax) && value > vmax) continue;
+          metal += value;
+          nperc++;
+        }
       }
 
       // Normalization
@@ -491,12 +498,18 @@ namespace gstlrn
     const String& title)
   {
     Table table;
+
+    Id noper = static_cast<Id>(opers.size());
+    if (noper <= 0) return table;
+    if (names.empty()) return table;
     VectorInt iuids = db->getUIDs(names);
     Id niuid = static_cast<Id>(iuids.size());
-    Id noper = static_cast<Id>(opers.size());
+    if (iuids.empty()) return table;
+    auto ntot = db->getSumNVersions(iuids);
+    if (ntot <= 0) return table;
     Id nech = db->getNSample();
 
-    // Find the Isotopic samples (optional)
+    // Find the Isotopic samples (conditional to 'flagIso')
 
     VectorDouble tab;
     VectorDouble local(nech, 0.);
@@ -509,128 +522,141 @@ namespace gstlrn
       Id nundef = 0;
       for (Id iuid = 0; iuid < niuid; iuid++)
       {
-        double value = db->getArray(iech, iuids[iuid]);
-        if (FFFF(value)) nundef++;
+        auto nversion = db->getNVersions(iuids[iuid]);
+        for (Id version = 0; version < nversion && nundef <= 0; version++)
+        {
+          double value = db->getArray(iech, iuids[iuid], version);
+          if (FFFF(value)) nundef++;
+        }
       }
       if (flagIso && nundef > 0) accept[iech] = false;
     }
 
-    /* Loop on the attributes */
-
+    // Loop on the attributes
+    auto nrow = 0;
     for (Id iuid = 0; iuid < niuid; iuid++)
     {
-      Id neff = 0;
-      Id nperc = 0;
-      double mean = 0.;
-      double var = 0.;
-      double stdv = 0.;
-      double sum = 0.;
-      double metal = 0.;
-      double mini = MAXIMUM_BIG;
-      double maxi = MINIMUM_BIG;
-      double median = TEST;
-      VectorDouble valmed;
-
-      /* Loop on the samples */
-
-      for (Id iech = 0; iech < nech; iech++)
+      // Loop on the versions of the attribute
+      auto nversion = db->getNVersions(iuids[iuid]);
+      for (Id version = 0; version < nversion; version++)
       {
-        if (!accept[iech]) continue;
-        double value = db->getArray(iech, iuids[iuid]);
-        // Skip TEST values (this test is necessary when flagIso is set to FALSE)
-        if (FFFF(value)) continue;
+        nrow++;
+        Id neff = 0;
+        Id nperc = 0;
+        double mean = 0.;
+        double var = 0.;
+        double stdv = 0.;
+        double sum = 0.;
+        double metal = 0.;
+        double mini = MAXIMUM_BIG;
+        double maxi = MINIMUM_BIG;
+        double median = TEST;
+        VectorDouble valmed;
 
-        local[neff] = value;
-        neff++;
-        mean += value;
-        sum += value;
-        var += value * value;
-        if (value < mini) mini = value;
-        if (value > maxi) maxi = value;
-        if (!FFFF(vmin) && value < vmin) continue;
-        if (!FFFF(vmax) && value > vmax) continue;
-        metal += value;
-        valmed.push_back(value);
-        nperc++;
-      }
-
-      // Normalization
-
-      if (neff > 0)
-      {
-        mean /= neff;
-        var = var / neff - mean * mean;
-        stdv = (var >= 0) ? sqrt(var) : 0.;
-        VH::sortInPlace(valmed);
-        if (isOdd(neff))
-          median = valmed[neff / 2];
-        else
+        // Loop on the samples
+        for (Id iech = 0; iech < nech; iech++)
         {
-          median = 0.5 * (valmed[neff / 2] + valmed[neff / 2 - 1]);
+          if (!accept[iech]) continue;
+          double value = db->getArray(iech, iuids[iuid], version);
+          // Skip TEST values (this test is necessary when flagIso is set to FALSE)
+          if (FFFF(value)) continue;
+
+          local[neff] = value;
+          neff++;
+          mean += value;
+          sum += value;
+          var += value * value;
+          if (value < mini) mini = value;
+          if (value > maxi) maxi = value;
+          if (!FFFF(vmin) && value < vmin) continue;
+          if (!FFFF(vmax) && value > vmax) continue;
+          metal += value;
+          valmed.push_back(value);
+          nperc++;
         }
-      }
 
-      // Constitute the array to be printed
+        // Normalization
 
-      for (Id i = 0; i < noper; i++)
-      {
         if (neff > 0)
         {
-          if (opers[i] == EStatOption::NUM)
-            tab.push_back(static_cast<double>(neff));
-          else if (opers[i] == EStatOption::MEAN)
-            tab.push_back(mean);
-          else if (opers[i] == EStatOption::VAR)
-            tab.push_back(var);
-          else if (opers[i] == EStatOption::STDV)
-            tab.push_back(stdv);
-          else if (opers[i] == EStatOption::MINI)
-            tab.push_back(mini);
-          else if (opers[i] == EStatOption::MAXI)
-            tab.push_back(maxi);
-          else if (opers[i] == EStatOption::SUM)
-            tab.push_back(sum);
-          else if (opers[i] == EStatOption::PROP || opers[i] == EStatOption::T)
-            tab.push_back(
-              static_cast<double>(nperc) / static_cast<double>(neff));
-          else if (opers[i] == EStatOption::QUANT)
-            tab.push_back(_getQuantile(local, neff, proba));
-          else if (opers[i] == EStatOption::Q)
-            tab.push_back(metal / static_cast<double>(neff));
-          else if (opers[i] == EStatOption::M)
-            tab.push_back(
-              (nperc > 0) ? metal / static_cast<double>(nperc) : TEST);
-          else if (opers[i] == EStatOption::B)
-            tab.push_back(
-              (!FFFF(vmin)) ? (metal - vmin) / static_cast<double>(neff)
-                            : TEST);
-          else if (opers[i] == EStatOption::MEDIAN)
-            tab.push_back(median);
+          mean /= neff;
+          var = var / neff - mean * mean;
+          stdv = (var >= 0) ? sqrt(var) : 0.;
+          VH::sortInPlace(valmed);
+          if (isOdd(neff))
+            median = valmed[neff / 2];
           else
           {
-            messerr("The operator %s is not calculated yet", opers[i].getKey());
-            return table;
+            median = 0.5 * (valmed[neff / 2] + valmed[neff / 2 - 1]);
           }
         }
-        else
+
+        // Constitute the array to be printed
+
+        for (Id i = 0; i < noper; i++)
         {
-          if (opers[i] == EStatOption::NUM)
-            tab.push_back(static_cast<double>(neff));
-          else if (opers[i] == EStatOption::MEAN || opers[i] == EStatOption::VAR
-                   || opers[i] == EStatOption::STDV
-                   || opers[i] == EStatOption::MINI
-                   || opers[i] == EStatOption::MAXI
-                   || opers[i] == EStatOption::SUM
-                   || opers[i] == EStatOption::PROP
-                   || opers[i] == EStatOption::QUANT
-                   || opers[i] == EStatOption::T || opers[i] == EStatOption::Q
-                   || opers[i] == EStatOption::M || opers[i] == EStatOption::B
-                   || opers[i] == EStatOption::MEDIAN)
-            tab.push_back(TEST);
+          if (neff > 0)
+          {
+            if (opers[i] == EStatOption::NUM)
+              tab.push_back(static_cast<double>(neff));
+            else if (opers[i] == EStatOption::MEAN)
+              tab.push_back(mean);
+            else if (opers[i] == EStatOption::VAR)
+              tab.push_back(var);
+            else if (opers[i] == EStatOption::STDV)
+              tab.push_back(stdv);
+            else if (opers[i] == EStatOption::MINI)
+              tab.push_back(mini);
+            else if (opers[i] == EStatOption::MAXI)
+              tab.push_back(maxi);
+            else if (opers[i] == EStatOption::SUM)
+              tab.push_back(sum);
+            else if (opers[i] == EStatOption::PROP
+                     || opers[i] == EStatOption::T)
+              tab.push_back(
+                static_cast<double>(nperc) / static_cast<double>(neff));
+            else if (opers[i] == EStatOption::QUANT)
+              tab.push_back(_getQuantile(local, neff, proba));
+            else if (opers[i] == EStatOption::Q)
+              tab.push_back(metal / static_cast<double>(neff));
+            else if (opers[i] == EStatOption::M)
+              tab.push_back(
+                (nperc > 0) ? metal / static_cast<double>(nperc) : TEST);
+            else if (opers[i] == EStatOption::B)
+              tab.push_back(
+                (!FFFF(vmin)) ? (metal - vmin) / static_cast<double>(neff)
+                              : TEST);
+            else if (opers[i] == EStatOption::MEDIAN)
+              tab.push_back(median);
+            else
+            {
+              messerr(
+                "The operator %s is not calculated yet", opers[i].getKey());
+              return table;
+            }
+          }
           else
           {
-            messerr("The operator %s is not calculated yet", opers[i].getKey());
-            return table;
+            if (opers[i] == EStatOption::NUM)
+              tab.push_back(static_cast<double>(neff));
+            else if (opers[i] == EStatOption::MEAN
+                     || opers[i] == EStatOption::VAR
+                     || opers[i] == EStatOption::STDV
+                     || opers[i] == EStatOption::MINI
+                     || opers[i] == EStatOption::MAXI
+                     || opers[i] == EStatOption::SUM
+                     || opers[i] == EStatOption::PROP
+                     || opers[i] == EStatOption::QUANT
+                     || opers[i] == EStatOption::T || opers[i] == EStatOption::Q
+                     || opers[i] == EStatOption::M || opers[i] == EStatOption::B
+                     || opers[i] == EStatOption::MEDIAN)
+              tab.push_back(TEST);
+            else
+            {
+              messerr(
+                "The operator %s is not calculated yet", opers[i].getKey());
+              return table;
+            }
           }
         }
       }
@@ -641,10 +667,14 @@ namespace gstlrn
     else
       table.setTitle(title);
     table.setSkipDescription(true);
-    table.resetFromVD(niuid, noper, tab, false);
+    table.resetFromVD(nrow, noper, tab, false);
 
-    for (Id irow = 0; irow < niuid; irow++)
-      table.setRowName(irow, db->getNameByUID(iuids[irow]));
+    for (Id iuid = 0, irow = 0; iuid < niuid; iuid++)
+    {
+      auto nversion = db->getNVersions(iuids[iuid]);
+      for (Id version = 0; version < nversion; version++, irow++)
+        table.setRowName(irow, db->getNameByUID(iuids[iuid], version, true));
+    }
     for (Id icol = 0; icol < noper; icol++)
       table.setColumnName(icol, String{opers[icol].getDescr()});
 
@@ -751,93 +781,96 @@ namespace gstlrn
   {
     VectorInt iuids = db->getUIDs(names);
     Id niuid = static_cast<Id>(iuids.size());
+    auto ncol = db->getSumNVersions(iuids);
 
     /* Core allocation */
 
-    VectorDouble data(niuid, 0.);
-    VectorDouble mean(niuid, 0.);
-    VectorDouble var(niuid, 0.);
-    VectorDouble num(niuid, 0.);
-    VectorDouble cov(niuid * niuid, 0.);
+    VectorDouble data(ncol, 0.);
+    VectorDouble mean(ncol, 0.);
+    VectorDouble var(ncol, 0.);
+    VectorDouble num(ncol, 0.);
+    VectorDouble cov(ncol * ncol, 0.);
 
     /* Loop on the samples */
 
     Id numiso = 0;
-    for (Id iech = 0; iech < db->getNSample(); iech++)
+    Id ijcol = 0;
+    for (Id iech = 0, nech = db->getNSample(); iech < nech; iech++)
     {
       if (!db->isActive(iech)) continue;
 
       /* Look for isotopic sample */
 
       Id nundef = 0;
-      for (Id iuid = 0; iuid < niuid; iuid++)
+      for (Id iuid = 0, icol = 0; iuid < niuid; iuid++)
       {
-        data[iuid] = db->getArray(iech, iuids[iuid]);
-        if (FFFF(data[iuid])) nundef++;
+        auto nversion = db->getNVersions(iuids[iuid]);
+        for (Id version = 0; version < nversion; version++, icol++)
+        {
+          data[icol] = db->getArray(iech, iuids[iuid], version);
+          if (FFFF(data[icol])) nundef++;
+        }
       }
       if (flagIso && nundef > 0) continue;
 
       /* Calculate the 1-point statistics */
 
-      for (Id iuid = 0; iuid < niuid; iuid++)
+      for (Id icol = 0; icol < ncol; icol++)
       {
-        if (FFFF(data[iuid])) continue;
-        num[iuid] += 1.;
-        mean[iuid] += data[iuid];
-        var[iuid] += data[iuid] * data[iuid];
+        if (FFFF(data[icol])) continue;
+        num[icol] += 1.;
+        mean[icol] += data[icol];
+        var[icol] += data[icol] * data[icol];
       }
-
       if (nundef > 0) continue;
+
       numiso++;
-      Id ijuid = 0;
-      for (Id iuid = 0; iuid < niuid; iuid++)
-        for (Id juid = 0; juid < niuid; juid++)
-        {
-          cov[ijuid] += data[iuid] * data[juid];
-          ijuid++;
-        }
+      for (Id icol = ijcol = 0; icol < ncol; icol++)
+        for (Id jcol = 0; jcol < ncol; jcol++, ijcol++)
+          cov[ijcol] += data[icol] * data[jcol];
     }
 
     /* Normalization */
 
-    for (Id iuid = 0; iuid < niuid; iuid++)
+    for (Id icol = 0; icol < ncol; icol++)
     {
-      if (num[iuid] > 0)
+      if (num[icol] > 0)
       {
-        mean[iuid] /= num[iuid];
-        var[iuid] /= num[iuid];
-        var[iuid] -= mean[iuid] * mean[iuid];
-        if (var[iuid] <= 0) var[iuid] = 0.;
+        mean[icol] /= num[icol];
+        var[icol] /= num[icol];
+        var[icol] -= mean[icol] * mean[icol];
+        if (var[icol] <= 0) var[icol] = 0.;
       }
     }
     if (numiso > 0)
     {
-      Id ijuid = 0;
-      for (Id iuid = 0; iuid < niuid; iuid++)
-        for (Id juid = 0; juid < niuid; juid++)
+      for (Id icol = ijcol = 0; icol < ncol; icol++)
+        for (Id jcol = 0; jcol < ncol; jcol++, ijcol++)
         {
-          cov[ijuid] /= numiso;
-          cov[ijuid] -= mean[iuid] * mean[juid];
-          cov[ijuid] /= sqrt(var[iuid] * var[juid]);
-          ijuid++;
+          cov[ijcol] /= numiso;
+          cov[ijcol] -= mean[icol] * mean[jcol];
+          cov[ijcol] /= sqrt(var[icol] * var[jcol]);
         }
     }
 
     // Store the results in the symmetric square matrix
-    VectorString namloc = db->getNames(names);
-    Id nvar = static_cast<Id>(namloc.size());
-
     Table table;
     if (title.empty())
       table.setSkipTitle(true);
     else
       table.setTitle(title);
     table.setSkipDescription(true);
-    table.resetFromVD(nvar, nvar, cov, false);
-    for (Id ivar = 0; ivar < nvar; ivar++)
-      table.setColumnName(ivar, db->getNameByUID(iuids[ivar]));
-    for (Id ivar = 0; ivar < nvar; ivar++)
-      table.setRowName(ivar, db->getNameByUID(iuids[ivar]));
+    table.resetFromVD(ncol, ncol, cov, false);
+
+    for (Id iuid = 0, irow = 0; iuid < niuid; iuid++)
+    {
+      auto nversion = db->getNVersions(iuids[iuid]);
+      for (Id version = 0; version < nversion; version++, irow++)
+      {
+        table.setRowName(irow, db->getNameByUID(iuids[iuid], version, true));
+        table.setColumnName(irow, db->getNameByUID(iuids[iuid], version, true));
+      }
+    }
 
     return table;
   }
@@ -1141,11 +1174,11 @@ namespace gstlrn
     const String& title,
     const String& radix)
   {
+    String string;
     VectorInt iuids = db->getUIDs(names);
     if (iuids.empty()) return;
-
-    String string;
-    Id ncol = static_cast<Id>(iuids.size());
+    Id niuid = static_cast<Id>(iuids.size());
+    auto ncol = db->getSumNVersions(iuids);
 
     /* Preliminary checks */
 
@@ -1156,39 +1189,32 @@ namespace gstlrn
 
     VectorDouble data(ncol, 0.);
     VectorDouble mean(ncol, 0.);
-    VectorDouble mini(ncol, 0.);
-    VectorDouble maxi(ncol, 0.);
+    VectorDouble mini(ncol, MAXIMUM_BIG);
+    VectorDouble maxi(ncol, MINIMUM_BIG);
     VectorDouble var(ncol, 0.);
     VectorDouble num(ncol, 0.);
     VectorDouble cov;
     if (flagCorrel) cov.resize(ncol * ncol, 0.);
 
-    /* Initializations */
+    /* Loop on the samples */
 
     Id numiso = 0;
     Id ijcol = 0;
-    for (Id icol = 0; icol < ncol; icol++)
-    {
-      mean[icol] = var[icol] = num[icol] = 0.;
-      mini[icol] = MAXIMUM_BIG;
-      maxi[icol] = MINIMUM_BIG;
-      if (flagCorrel)
-        for (Id jcol = 0; jcol < ncol; jcol++, ijcol++) cov[ijcol] = 0.;
-    }
-
-    /* Loop on the samples */
-
-    for (Id iech = 0; iech < db->getNSample(); iech++)
+    for (Id iech = 0, nech = db->getNSample(); iech < nech; iech++)
     {
       if (!db->isActive(iech)) continue;
 
       /* Look for isotopic sample */
 
       Id nundef = 0;
-      for (Id icol = 0; icol < ncol; icol++)
+      for (Id iuid = 0, icol = 0; iuid < niuid; iuid++)
       {
-        data[icol] = db->getArray(iech, iuids[icol]);
-        if (FFFF(data[icol])) nundef++;
+        auto nversion = db->getNVersions(iuids[iuid]);
+        for (Id version = 0; version < nversion; version++, icol++)
+        {
+          data[icol] = db->getArray(iech, iuids[iuid], version);
+          if (FFFF(data[icol])) nundef++;
+        }
       }
       if (flagIso && nundef > 0) continue;
 
@@ -1203,8 +1229,8 @@ namespace gstlrn
         if (data[icol] < mini[icol]) mini[icol] = data[icol];
         if (data[icol] > maxi[icol]) maxi[icol] = data[icol];
       }
-
       if (nundef > 0) continue;
+
       numiso++;
       if (flagCorrel)
         for (Id icol = ijcol = 0; icol < ncol; icol++)
@@ -1226,8 +1252,7 @@ namespace gstlrn
     }
     if (numiso > 0 && flagCorrel)
     {
-      ijcol = 0;
-      for (Id icol = 0; icol < ncol; icol++)
+      for (Id icol = ijcol = 0; icol < ncol; icol++)
         for (Id jcol = 0; jcol < ncol; jcol++, ijcol++)
         {
           cov[ijcol] /= numiso;
@@ -1245,10 +1270,16 @@ namespace gstlrn
     /* Calculate the maximum size of the variable */
 
     Id taille = 0;
-    for (Id icol = 0; icol < ncol; icol++)
+    for (Id iuid = 0, icol = 0; iuid < niuid; iuid++)
     {
-      _getRowname(radix, ncol, icol, db->getNameByUID(iuids[icol]), string);
-      taille = MAX(taille, static_cast<Id>(string.size()));
+      auto nversion = db->getNVersions(iuids[iuid]);
+      for (Id version = 0; version < nversion; version++, icol++)
+      {
+        _getRowname(
+          radix, ncol, icol, db->getNameByUID(iuids[iuid], version, true),
+          string);
+        taille = MAX(taille, static_cast<Id>(string.size()));
+      }
     }
 
     /* Print the header of the monovariate statistics */
@@ -1264,33 +1295,38 @@ namespace gstlrn
 
     /* Print the monovariate statistics */
 
-    for (Id icol = 0; icol < ncol; icol++)
+    for (Id iuid = 0, icol = 0; iuid < niuid; iuid++)
     {
-      _getRowname(radix, ncol, icol, db->getNameByUID(iuids[icol]), string);
-      message("%s", _toStrRowHeader({string}, 0, taille).c_str());
+      auto nversion = db->getNVersions(iuids[iuid]);
+      for (Id version = 0; version < nversion; version++, icol++)
+      {
+        _getRowname(
+          radix, ncol, icol, db->getNameByUID(iuids[iuid], version, true),
+          string);
+        message("%s", _toStrRowHeader({string}, 0, taille).c_str());
 
-      if (_operExists(opers, EStatOption::NUM))
-        printElement(static_cast<Id>(num[icol]));
-      if (num[icol] > 0)
-      {
-        if (_operExists(opers, EStatOption::MINI)) printElement(mini[icol]);
-        if (_operExists(opers, EStatOption::MAXI)) printElement(maxi[icol]);
-        if (_operExists(opers, EStatOption::MEAN)) printElement(mean[icol]);
-        if (_operExists(opers, EStatOption::STDV))
-          printElement(sqrt(var[icol]));
-        if (_operExists(opers, EStatOption::VAR)) printElement(var[icol]);
+        if (_operExists(opers, EStatOption::NUM))
+          printElement(static_cast<Id>(num[icol]));
+        if (num[icol] > 0)
+        {
+          if (_operExists(opers, EStatOption::MINI)) printElement(mini[icol]);
+          if (_operExists(opers, EStatOption::MAXI)) printElement(maxi[icol]);
+          if (_operExists(opers, EStatOption::MEAN)) printElement(mean[icol]);
+          if (_operExists(opers, EStatOption::STDV))
+            printElement(sqrt(var[icol]));
+          if (_operExists(opers, EStatOption::VAR)) printElement(var[icol]);
+        }
+        else
+        {
+          if (_operExists(opers, EStatOption::MINI)) printElement(STRING_NA);
+          if (_operExists(opers, EStatOption::MAXI)) printElement(STRING_NA);
+          if (_operExists(opers, EStatOption::MEAN)) printElement(STRING_NA);
+          if (_operExists(opers, EStatOption::STDV)) printElement(STRING_NA);
+          if (_operExists(opers, EStatOption::VAR)) printElement(STRING_NA);
+        }
+        message("\n");
       }
-      else
-      {
-        if (_operExists(opers, EStatOption::MINI)) printElement(STRING_NA);
-        if (_operExists(opers, EStatOption::MAXI)) printElement(STRING_NA);
-        if (_operExists(opers, EStatOption::MEAN)) printElement(STRING_NA);
-        if (_operExists(opers, EStatOption::STDV)) printElement(STRING_NA);
-        if (_operExists(opers, EStatOption::VAR)) printElement(STRING_NA);
-      }
-      message("\n");
     }
-    message("\n");
 
     /* Print the correlation matrix  and count of isotopic samples */
 
@@ -2021,6 +2057,8 @@ namespace gstlrn
    ** \param[in]  name2        Name of the second variable
    ** \param[in]  flagFrom1    Start numbering of indices from 1 if True
    ** \param[in]  verbose      Verbose flag
+   ** \param[in]  version1     Version of the first variable (default = 0)
+   ** \param[in]  version2     Version of the second variable (default = 0)
    **
    ** \remarks The two input Db must match exactly (same number of samples with
    ** \remarks same set of coordinates and same optional selection)
@@ -2037,7 +2075,9 @@ namespace gstlrn
     const String& name1,
     const String& name2,
     bool flagFrom1,
-    bool verbose)
+    bool verbose,
+    Id version1,
+    Id version2)
   {
     VectorVectorInt indices;
 
@@ -2066,9 +2106,9 @@ namespace gstlrn
     for (Id iech = 0; iech < nech; iech++)
     {
       if (!db1->isActive(iech)) continue;
-      double val1 = db1->getValue(name1, iech);
+      double val1 = db1->getValue(name1, iech, version1);
       if (FFFF(val1)) continue;
-      double val2 = db2->getValue(name2, iech);
+      double val2 = db2->getValue(name2, iech, version2);
       if (FFFF(val2)) continue;
 
       indices[0].push_back(iech + shift);
@@ -2105,6 +2145,8 @@ namespace gstlrn
    ** \param[in]  ilag         Rank of the lag of interest
    ** \param[in]  idir         Rank of the direction of interest (within VarioParam)
    ** \param[in]  verbose      Verbose flag
+   ** \param[in]  version1     Version of the first variable (default = 0)
+   ** \param[in]  version2     Version of the second variable (default = 0)
    **
    ** \remarks The returned Vector of Vector of integer 'indices' contain
    ** \remarks the set of indices of the pairs of samples.
@@ -2119,7 +2161,9 @@ namespace gstlrn
     VarioParam* varioparam,
     Id ilag,
     Id idir,
-    bool verbose)
+    bool verbose,
+    Id version1,
+    Id version2)
   {
     VectorVectorInt indices;
     double dist = 0.;
@@ -2153,14 +2197,14 @@ namespace gstlrn
     for (Id iech = 0; iech < nech - 1; iech++)
     {
       if (hasSel && !db->isActive(iech)) continue;
-      double val1 = db->getValue(name1, iech);
+      double val1 = db->getValue(name1, iech, version1);
       if (FFFF(val1)) continue;
       db->getSampleAsSTInPlace(iech, T1);
 
       for (Id jech = iech + 1; jech < nech; jech++)
       {
         if (hasSel && !db->isActive(jech)) continue;
-        double val2 = db->getValue(name2, jech);
+        double val2 = db->getValue(name2, jech, version2);
         if (FFFF(val2)) continue;
         db->getSampleAsSTInPlace(jech, T2);
 

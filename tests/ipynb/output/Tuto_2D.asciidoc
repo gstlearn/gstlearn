@@ -54,7 +54,7 @@ Number of active samples     = 99
 
 Data Base Statistics
 --------------------
-1 - Name rank - Locator NA
+1 - Name rank
  Nb of data          =         102
  Nb of active values =          99
  Minimum value       =       1.000
@@ -62,7 +62,7 @@ Data Base Statistics
  Mean value          =      51.808
  Standard Deviation  =      29.114
  Variance            =     847.650
-2 - Name X - Locator x1
+2 - Name X
  Nb of data          =         102
  Nb of active values =          99
  Minimum value       =     109.850
@@ -70,7 +70,7 @@ Data Base Statistics
  Mean value          =     119.924
  Standard Deviation  =       6.549
  Variance            =      42.890
-3 - Name Y - Locator x2
+3 - Name Y
  Nb of data          =         102
  Nb of active values =          99
  Minimum value       =     483.660
@@ -78,7 +78,7 @@ Data Base Statistics
  Mean value          =     498.622
  Standard Deviation  =       8.000
  Variance            =      64.001
-4 - Name Zn - Locator NA
+4 - Name Zn
  Nb of data          =         102
  Nb of active values =          99
  Minimum value       =       1.090
@@ -86,7 +86,7 @@ Data Base Statistics
  Mean value          =       2.881
  Standard Deviation  =       1.667
  Variance            =       2.779
-5 - Name Pb - Locator z1
+5 - Name Pb
  Nb of data          =         102
  Nb of active values =          99
  Minimum value       =       3.000
@@ -94,7 +94,7 @@ Data Base Statistics
  Mean value          =       5.658
  Standard Deviation  =       1.697
  Variance            =       2.881
-6 - Name sel - Locator sel
+6 - Name sel
  Nb of data          =         102
  Nb of active values =          99
  Minimum value       =       1.000
@@ -507,7 +507,7 @@ Number :          75         68
 
 Data Base Statistics
 --------------------
-1 - Name x1 - Locator x1
+1 - Name x1
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =     107.850
@@ -515,7 +515,7 @@ Data Base Statistics
  Mean value          =     126.350
  Standard Deviation  =      10.824
  Variance            =     117.167
-2 - Name x2 - Locator x2
+2 - Name x2
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =     481.660
@@ -523,7 +523,7 @@ Data Base Statistics
  Mean value          =     498.410
  Standard Deviation  =       9.814
  Variance            =      96.313
-3 - Name Neigh.Pb.Number - Locator NA
+3 - Name Neigh.Pb.Number
  Nb of data          =        5100
  Nb of active values =        4596
  Minimum value       =       1.000
@@ -531,7 +531,7 @@ Data Base Statistics
  Mean value          =       5.381
  Standard Deviation  =       1.538
  Variance            =       2.366
-4 - Name Neigh.Pb.MaxDist - Locator NA
+4 - Name Neigh.Pb.MaxDist
  Nb of data          =        5100
  Nb of active values =        4596
  Minimum value       =       0.935
@@ -539,7 +539,7 @@ Data Base Statistics
  Mean value          =       5.598
  Standard Deviation  =       2.497
  Variance            =       6.233
-5 - Name Neigh.Pb.MinDist - Locator NA
+5 - Name Neigh.Pb.MinDist
  Nb of data          =        5100
  Nb of active values =        4596
  Minimum value       =       0.014
@@ -547,7 +547,7 @@ Data Base Statistics
  Mean value          =       3.484
  Standard Deviation  =       2.514
  Variance            =       6.320
-6 - Name Neigh.Pb.NbNESect - Locator NA
+6 - Name Neigh.Pb.NbNESect
  Nb of data          =        5100
  Nb of active values =        4596
  Minimum value       =       1.000
@@ -555,7 +555,7 @@ Data Base Statistics
  Mean value          =       1.000
  Standard Deviation  =       0.000
  Variance            =       0.000
-7 - Name Neigh.Pb.NbCESect - Locator NA
+7 - Name Neigh.Pb.NbCESect
  Nb of data          =        5100
  Nb of active values =        4596
  Minimum value       =       0.000
@@ -563,7 +563,7 @@ Data Base Statistics
  Mean value          =       0.000
  Standard Deviation  =       0.000
  Variance            =       0.000
-8 - Name Kriging.Pb.estim - Locator z1
+8 - Name Kriging.Pb.estim
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       3.411
@@ -682,7 +682,7 @@ Data Base Summary
 -----------------
 File is organized as a regular grid
 Space dimension              = 2
-Number of Columns            = 19
+Number of Columns            = 10
 Total number of samples      = 5100
 
 Grid characteristics:
@@ -702,16 +702,7 @@ Column = 5 - Name = Neigh.Pb.NbNESect - Locator = NA
 Column = 6 - Name = Neigh.Pb.NbCESect - Locator = NA
 Column = 7 - Name = Kriging.Pb.estim - Locator = NA
 Column = 8 - Name = Kriging.Pb.stdev - Locator = NA
-Column = 9 - Name = Simu.Y.Pb.S1 - Locator = z1
-Column = 10 - Name = Simu.Y.Pb.S2 - Locator = z2
-Column = 11 - Name = Simu.Y.Pb.S3 - Locator = z3
-Column = 12 - Name = Simu.Y.Pb.S4 - Locator = z4
-Column = 13 - Name = Simu.Y.Pb.S5 - Locator = z5
-Column = 14 - Name = Simu.Y.Pb.S6 - Locator = z6
-Column = 15 - Name = Simu.Y.Pb.S7 - Locator = z7
-Column = 16 - Name = Simu.Y.Pb.S8 - Locator = z8
-Column = 17 - Name = Simu.Y.Pb.S9 - Locator = z9
-Column = 18 - Name = Simu.Y.Pb.S10 - Locator = z10
+Column = 9 - Name = Simu.Y.Pb - Locator = z1 - Versions = 10
 ----
 
 
@@ -725,7 +716,7 @@ Data Base Summary
 -----------------
 File is organized as a regular grid
 Space dimension              = 2
-Number of Columns            = 23
+Number of Columns            = 14
 Total number of samples      = 5100
 
 Grid characteristics:
@@ -736,7 +727,7 @@ Number :          75         68
 
 Data Base Statistics
 --------------------
-1 - Name x1 - Locator x1
+1 - Name x1
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =     107.850
@@ -744,7 +735,7 @@ Data Base Statistics
  Mean value          =     126.350
  Standard Deviation  =      10.824
  Variance            =     117.167
-2 - Name x2 - Locator x2
+2 - Name x2
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =     481.660
@@ -752,7 +743,7 @@ Data Base Statistics
  Mean value          =     498.410
  Standard Deviation  =       9.814
  Variance            =      96.313
-3 - Name Neigh.Pb.Number - Locator NA
+3 - Name Neigh.Pb.Number
  Nb of data          =        5100
  Nb of active values =        4596
  Minimum value       =       1.000
@@ -760,7 +751,7 @@ Data Base Statistics
  Mean value          =       5.381
  Standard Deviation  =       1.538
  Variance            =       2.366
-4 - Name Neigh.Pb.MaxDist - Locator NA
+4 - Name Neigh.Pb.MaxDist
  Nb of data          =        5100
  Nb of active values =        4596
  Minimum value       =       0.935
@@ -768,7 +759,7 @@ Data Base Statistics
  Mean value          =       5.598
  Standard Deviation  =       2.497
  Variance            =       6.233
-5 - Name Neigh.Pb.MinDist - Locator NA
+5 - Name Neigh.Pb.MinDist
  Nb of data          =        5100
  Nb of active values =        4596
  Minimum value       =       0.014
@@ -776,7 +767,7 @@ Data Base Statistics
  Mean value          =       3.484
  Standard Deviation  =       2.514
  Variance            =       6.320
-6 - Name Neigh.Pb.NbNESect - Locator NA
+6 - Name Neigh.Pb.NbNESect
  Nb of data          =        5100
  Nb of active values =        4596
  Minimum value       =       1.000
@@ -784,7 +775,7 @@ Data Base Statistics
  Mean value          =       1.000
  Standard Deviation  =       0.000
  Variance            =       0.000
-7 - Name Neigh.Pb.NbCESect - Locator NA
+7 - Name Neigh.Pb.NbCESect
  Nb of data          =        5100
  Nb of active values =        4596
  Minimum value       =       0.000
@@ -792,7 +783,7 @@ Data Base Statistics
  Mean value          =       0.000
  Standard Deviation  =       0.000
  Variance            =       0.000
-8 - Name Kriging.Pb.estim - Locator NA
+8 - Name Kriging.Pb.estim
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       3.411
@@ -880,7 +871,7 @@ Data Base Statistics
  Mean value          =       0.382
  Standard Deviation  =       1.507
  Variance            =       2.271
-19 - Name Simu.Y.Pb.S10 - Locator NA
+19 - Name Simu.Y.Pb.S10
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =      -5.067
@@ -932,20 +923,11 @@ Column = 5 - Name = Neigh.Pb.NbNESect - Locator = NA
 Column = 6 - Name = Neigh.Pb.NbCESect - Locator = NA
 Column = 7 - Name = Kriging.Pb.estim - Locator = NA
 Column = 8 - Name = Kriging.Pb.stdev - Locator = NA
-Column = 9 - Name = Simu.Y.Pb.S1 - Locator = NA
-Column = 10 - Name = Simu.Y.Pb.S2 - Locator = NA
-Column = 11 - Name = Simu.Y.Pb.S3 - Locator = NA
-Column = 12 - Name = Simu.Y.Pb.S4 - Locator = NA
-Column = 13 - Name = Simu.Y.Pb.S5 - Locator = NA
-Column = 14 - Name = Simu.Y.Pb.S6 - Locator = NA
-Column = 15 - Name = Simu.Y.Pb.S7 - Locator = NA
-Column = 16 - Name = Simu.Y.Pb.S8 - Locator = NA
-Column = 17 - Name = Simu.Y.Pb.S9 - Locator = NA
-Column = 18 - Name = Simu.Y.Pb.S10 - Locator = NA
-Column = 19 - Name = Stats.MINI - Locator = NA
-Column = 20 - Name = Stats.MAXI - Locator = NA
-Column = 21 - Name = Stats.MEAN - Locator = NA
-Column = 22 - Name = Stats.STDV - Locator = z1
+Column = 9 - Name = Simu.Y.Pb - Locator = NA - Versions = 10
+Column = 10 - Name = Stats.MINI - Locator = NA
+Column = 11 - Name = Stats.MAXI - Locator = NA
+Column = 12 - Name = Stats.MEAN - Locator = NA
+Column = 13 - Name = Stats.STDV - Locator = z1
 ----
 
 
@@ -965,7 +947,7 @@ Data Base Summary
 -----------------
 File is organized as a regular grid
 Space dimension              = 2
-Number of Columns            = 19
+Number of Columns            = 10
 Total number of samples      = 5100
 
 Grid characteristics:
@@ -985,16 +967,7 @@ Column = 5 - Name = Neigh.Pb.NbNESect - Locator = NA
 Column = 6 - Name = Neigh.Pb.NbCESect - Locator = NA
 Column = 7 - Name = Kriging.Pb.estim - Locator = NA
 Column = 8 - Name = Kriging.Pb.stdev - Locator = NA
-Column = 9 - Name = Z.Simu.Y.Pb.S1 - Locator = z1
-Column = 10 - Name = Z.Simu.Y.Pb.S2 - Locator = z2
-Column = 11 - Name = Z.Simu.Y.Pb.S3 - Locator = z3
-Column = 12 - Name = Z.Simu.Y.Pb.S4 - Locator = z4
-Column = 13 - Name = Z.Simu.Y.Pb.S5 - Locator = z5
-Column = 14 - Name = Z.Simu.Y.Pb.S6 - Locator = z6
-Column = 15 - Name = Z.Simu.Y.Pb.S7 - Locator = z7
-Column = 16 - Name = Z.Simu.Y.Pb.S8 - Locator = z8
-Column = 17 - Name = Z.Simu.Y.Pb.S9 - Locator = z9
-Column = 18 - Name = Z.Simu.Y.Pb.S10 - Locator = z10
+Column = 9 - Name = Z.Simu.Y.Pb - Locator = z1 - Versions = 10
 ----
 
 
@@ -1008,7 +981,7 @@ Data Base Summary
 -----------------
 File is organized as a regular grid
 Space dimension              = 2
-Number of Columns            = 23
+Number of Columns            = 14
 Total number of samples      = 5100
 
 Grid characteristics:
@@ -1019,7 +992,7 @@ Number :          75         68
 
 Data Base Statistics
 --------------------
-1 - Name x1 - Locator x1
+1 - Name x1
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =     107.850
@@ -1027,7 +1000,7 @@ Data Base Statistics
  Mean value          =     126.350
  Standard Deviation  =      10.824
  Variance            =     117.167
-2 - Name x2 - Locator x2
+2 - Name x2
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =     481.660
@@ -1035,7 +1008,7 @@ Data Base Statistics
  Mean value          =     498.410
  Standard Deviation  =       9.814
  Variance            =      96.313
-3 - Name Neigh.Pb.Number - Locator NA
+3 - Name Neigh.Pb.Number
  Nb of data          =        5100
  Nb of active values =        4596
  Minimum value       =       1.000
@@ -1043,7 +1016,7 @@ Data Base Statistics
  Mean value          =       5.381
  Standard Deviation  =       1.538
  Variance            =       2.366
-4 - Name Neigh.Pb.MaxDist - Locator NA
+4 - Name Neigh.Pb.MaxDist
  Nb of data          =        5100
  Nb of active values =        4596
  Minimum value       =       0.935
@@ -1051,7 +1024,7 @@ Data Base Statistics
  Mean value          =       5.598
  Standard Deviation  =       2.497
  Variance            =       6.233
-5 - Name Neigh.Pb.MinDist - Locator NA
+5 - Name Neigh.Pb.MinDist
  Nb of data          =        5100
  Nb of active values =        4596
  Minimum value       =       0.014
@@ -1059,7 +1032,7 @@ Data Base Statistics
  Mean value          =       3.484
  Standard Deviation  =       2.514
  Variance            =       6.320
-6 - Name Neigh.Pb.NbNESect - Locator NA
+6 - Name Neigh.Pb.NbNESect
  Nb of data          =        5100
  Nb of active values =        4596
  Minimum value       =       1.000
@@ -1067,7 +1040,7 @@ Data Base Statistics
  Mean value          =       1.000
  Standard Deviation  =       0.000
  Variance            =       0.000
-7 - Name Neigh.Pb.NbCESect - Locator NA
+7 - Name Neigh.Pb.NbCESect
  Nb of data          =        5100
  Nb of active values =        4596
  Minimum value       =       0.000
@@ -1075,7 +1048,7 @@ Data Base Statistics
  Mean value          =       0.000
  Standard Deviation  =       0.000
  Variance            =       0.000
-8 - Name Kriging.Pb.estim - Locator NA
+8 - Name Kriging.Pb.estim
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       3.411
@@ -1215,20 +1188,11 @@ Column = 5 - Name = Neigh.Pb.NbNESect - Locator = NA
 Column = 6 - Name = Neigh.Pb.NbCESect - Locator = NA
 Column = 7 - Name = Kriging.Pb.estim - Locator = NA
 Column = 8 - Name = Kriging.Pb.stdev - Locator = NA
-Column = 9 - Name = Z.Simu.Y.Pb.S1 - Locator = NA
-Column = 10 - Name = Z.Simu.Y.Pb.S2 - Locator = NA
-Column = 11 - Name = Z.Simu.Y.Pb.S3 - Locator = NA
-Column = 12 - Name = Z.Simu.Y.Pb.S4 - Locator = NA
-Column = 13 - Name = Z.Simu.Y.Pb.S5 - Locator = NA
-Column = 14 - Name = Z.Simu.Y.Pb.S6 - Locator = NA
-Column = 15 - Name = Z.Simu.Y.Pb.S7 - Locator = NA
-Column = 16 - Name = Z.Simu.Y.Pb.S8 - Locator = NA
-Column = 17 - Name = Z.Simu.Y.Pb.S9 - Locator = NA
-Column = 18 - Name = Z.Simu.Y.Pb.S10 - Locator = NA
-Column = 19 - Name = Stats.MINI - Locator = NA
-Column = 20 - Name = Stats.MAXI - Locator = NA
-Column = 21 - Name = Stats.MEAN - Locator = NA
-Column = 22 - Name = Stats.STDV - Locator = z1
+Column = 9 - Name = Z.Simu.Y.Pb - Locator = NA - Versions = 10
+Column = 10 - Name = Stats.MINI - Locator = NA
+Column = 11 - Name = Stats.MAXI - Locator = NA
+Column = 12 - Name = Stats.MEAN - Locator = NA
+Column = 13 - Name = Stats.STDV - Locator = z1
 ----
 
 
@@ -1248,7 +1212,7 @@ Data Base Summary
 -----------------
 File is organized as a regular grid
 Space dimension              = 2
-Number of Columns            = 20
+Number of Columns            = 11
 Total number of samples      = 5100
 
 Grid characteristics:
@@ -1259,7 +1223,7 @@ Number :          75         68
 
 Data Base Statistics
 --------------------
-1 - Name x1 - Locator x1
+1 - Name x1
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =     107.850
@@ -1267,7 +1231,7 @@ Data Base Statistics
  Mean value          =     126.350
  Standard Deviation  =      10.824
  Variance            =     117.167
-2 - Name x2 - Locator x2
+2 - Name x2
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =     481.660
@@ -1275,7 +1239,7 @@ Data Base Statistics
  Mean value          =     498.410
  Standard Deviation  =       9.814
  Variance            =      96.313
-3 - Name Neigh.Pb.Number - Locator NA
+3 - Name Neigh.Pb.Number
  Nb of data          =        5100
  Nb of active values =        4596
  Minimum value       =       1.000
@@ -1283,7 +1247,7 @@ Data Base Statistics
  Mean value          =       5.381
  Standard Deviation  =       1.538
  Variance            =       2.366
-4 - Name Neigh.Pb.MaxDist - Locator NA
+4 - Name Neigh.Pb.MaxDist
  Nb of data          =        5100
  Nb of active values =        4596
  Minimum value       =       0.935
@@ -1291,7 +1255,7 @@ Data Base Statistics
  Mean value          =       5.598
  Standard Deviation  =       2.497
  Variance            =       6.233
-5 - Name Neigh.Pb.MinDist - Locator NA
+5 - Name Neigh.Pb.MinDist
  Nb of data          =        5100
  Nb of active values =        4596
  Minimum value       =       0.014
@@ -1299,7 +1263,7 @@ Data Base Statistics
  Mean value          =       3.484
  Standard Deviation  =       2.514
  Variance            =       6.320
-6 - Name Neigh.Pb.NbNESect - Locator NA
+6 - Name Neigh.Pb.NbNESect
  Nb of data          =        5100
  Nb of active values =        4596
  Minimum value       =       1.000
@@ -1307,7 +1271,7 @@ Data Base Statistics
  Mean value          =       1.000
  Standard Deviation  =       0.000
  Variance            =       0.000
-7 - Name Neigh.Pb.NbCESect - Locator NA
+7 - Name Neigh.Pb.NbCESect
  Nb of data          =        5100
  Nb of active values =        4596
  Minimum value       =       0.000
@@ -1315,7 +1279,7 @@ Data Base Statistics
  Mean value          =       0.000
  Standard Deviation  =       0.000
  Variance            =       0.000
-8 - Name Kriging.Pb.estim - Locator NA
+8 - Name Kriging.Pb.estim
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       3.411
@@ -1431,17 +1395,8 @@ Column = 5 - Name = Neigh.Pb.NbNESect - Locator = NA
 Column = 6 - Name = Neigh.Pb.NbCESect - Locator = NA
 Column = 7 - Name = Kriging.Pb.estim - Locator = NA
 Column = 8 - Name = Kriging.Pb.stdev - Locator = NA
-Column = 9 - Name = Z.Simu.Y.Pb.S1 - Locator = NA
-Column = 10 - Name = Z.Simu.Y.Pb.S2 - Locator = NA
-Column = 11 - Name = Z.Simu.Y.Pb.S3 - Locator = NA
-Column = 12 - Name = Z.Simu.Y.Pb.S4 - Locator = NA
-Column = 13 - Name = Z.Simu.Y.Pb.S5 - Locator = NA
-Column = 14 - Name = Z.Simu.Y.Pb.S6 - Locator = NA
-Column = 15 - Name = Z.Simu.Y.Pb.S7 - Locator = NA
-Column = 16 - Name = Z.Simu.Y.Pb.S8 - Locator = NA
-Column = 17 - Name = Z.Simu.Y.Pb.S9 - Locator = NA
-Column = 18 - Name = Z.Simu.Y.Pb.S10 - Locator = NA
-Column = 19 - Name = Stats.MEAN - Locator = z1
+Column = 9 - Name = Z.Simu.Y.Pb - Locator = NA - Versions = 10
+Column = 10 - Name = Stats.MEAN - Locator = z1
 ----
 
 
@@ -1528,7 +1483,7 @@ Data Base Summary
 -----------------
 File is organized as a regular grid
 Space dimension              = 2
-Number of Columns            = 30
+Number of Columns            = 12
 Total number of samples      = 5100
 
 Grid characteristics:
@@ -1549,26 +1504,8 @@ Column = 6 - Name = Neigh.Pb.NbCESect - Locator = NA
 Column = 7 - Name = Kriging.Pb.estim - Locator = NA
 Column = 8 - Name = Kriging.Pb.stdev - Locator = NA
 Column = 9 - Name = Stats.MEAN - Locator = NA
-Column = 10 - Name = Simu.Y.Pb.S1 - Locator = z1
-Column = 11 - Name = Simu.Y.Pb.S2 - Locator = z2
-Column = 12 - Name = Simu.Y.Pb.S3 - Locator = z3
-Column = 13 - Name = Simu.Y.Pb.S4 - Locator = z4
-Column = 14 - Name = Simu.Y.Pb.S5 - Locator = z5
-Column = 15 - Name = Simu.Y.Pb.S6 - Locator = z6
-Column = 16 - Name = Simu.Y.Pb.S7 - Locator = z7
-Column = 17 - Name = Simu.Y.Pb.S8 - Locator = z8
-Column = 18 - Name = Simu.Y.Pb.S9 - Locator = z9
-Column = 19 - Name = Simu.Y.Pb.S10 - Locator = z10
-Column = 20 - Name = Simu.Y.Zn.S1 - Locator = z11
-Column = 21 - Name = Simu.Y.Zn.S2 - Locator = z12
-Column = 22 - Name = Simu.Y.Zn.S3 - Locator = z13
-Column = 23 - Name = Simu.Y.Zn.S4 - Locator = z14
-Column = 24 - Name = Simu.Y.Zn.S5 - Locator = z15
-Column = 25 - Name = Simu.Y.Zn.S6 - Locator = z16
-Column = 26 - Name = Simu.Y.Zn.S7 - Locator = z17
-Column = 27 - Name = Simu.Y.Zn.S8 - Locator = z18
-Column = 28 - Name = Simu.Y.Zn.S9 - Locator = z19
-Column = 29 - Name = Simu.Y.Zn.S10 - Locator = z20
+Column = 10 - Name = Simu.Y.Pb - Locator = z1 - Versions = 10
+Column = 11 - Name = Simu.Y.Zn - Locator = z2 - Versions = 10
 ----
 
 
@@ -1582,7 +1519,7 @@ Data Base Summary
 -----------------
 File is organized as a regular grid
 Space dimension              = 2
-Number of Columns            = 33
+Number of Columns            = 15
 Total number of samples      = 5100
 
 Grid characteristics:
@@ -1593,7 +1530,7 @@ Number :          75         68
 
 Data Base Statistics
 --------------------
-1 - Name x1 - Locator x1
+1 - Name x1
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =     107.850
@@ -1601,7 +1538,7 @@ Data Base Statistics
  Mean value          =     126.350
  Standard Deviation  =      10.824
  Variance            =     117.167
-2 - Name x2 - Locator x2
+2 - Name x2
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =     481.660
@@ -1609,7 +1546,7 @@ Data Base Statistics
  Mean value          =     498.410
  Standard Deviation  =       9.814
  Variance            =      96.313
-3 - Name Neigh.Pb.Number - Locator NA
+3 - Name Neigh.Pb.Number
  Nb of data          =        5100
  Nb of active values =        4596
  Minimum value       =       1.000
@@ -1617,7 +1554,7 @@ Data Base Statistics
  Mean value          =       5.381
  Standard Deviation  =       1.538
  Variance            =       2.366
-4 - Name Neigh.Pb.MaxDist - Locator NA
+4 - Name Neigh.Pb.MaxDist
  Nb of data          =        5100
  Nb of active values =        4596
  Minimum value       =       0.935
@@ -1625,7 +1562,7 @@ Data Base Statistics
  Mean value          =       5.598
  Standard Deviation  =       2.497
  Variance            =       6.233
-5 - Name Neigh.Pb.MinDist - Locator NA
+5 - Name Neigh.Pb.MinDist
  Nb of data          =        5100
  Nb of active values =        4596
  Minimum value       =       0.014
@@ -1633,7 +1570,7 @@ Data Base Statistics
  Mean value          =       3.484
  Standard Deviation  =       2.514
  Variance            =       6.320
-6 - Name Neigh.Pb.NbNESect - Locator NA
+6 - Name Neigh.Pb.NbNESect
  Nb of data          =        5100
  Nb of active values =        4596
  Minimum value       =       1.000
@@ -1641,7 +1578,7 @@ Data Base Statistics
  Mean value          =       1.000
  Standard Deviation  =       0.000
  Variance            =       0.000
-7 - Name Neigh.Pb.NbCESect - Locator NA
+7 - Name Neigh.Pb.NbCESect
  Nb of data          =        5100
  Nb of active values =        4596
  Minimum value       =       0.000
@@ -1649,7 +1586,7 @@ Data Base Statistics
  Mean value          =       0.000
  Standard Deviation  =       0.000
  Variance            =       0.000
-8 - Name Kriging.Pb.estim - Locator NA
+8 - Name Kriging.Pb.estim
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       3.411
@@ -1673,7 +1610,7 @@ Data Base Statistics
  Mean value          =       2.775
  Standard Deviation  =       1.509
  Variance            =       2.276
-11 - Name Z.Simu.Y.Zn.S2 - Locator NA
+11 - Name Z.Simu.Y.Zn.S2
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       1.147
@@ -1681,7 +1618,7 @@ Data Base Statistics
  Mean value          =       2.931
  Standard Deviation  =       1.737
  Variance            =       3.016
-12 - Name Z.Simu.Y.Zn.S3 - Locator NA
+12 - Name Z.Simu.Y.Zn.S3
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       1.147
@@ -1689,7 +1626,7 @@ Data Base Statistics
  Mean value          =       2.984
  Standard Deviation  =       1.780
  Variance            =       3.169
-13 - Name Z.Simu.Y.Zn.S4 - Locator NA
+13 - Name Z.Simu.Y.Zn.S4
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       1.147
@@ -1697,7 +1634,7 @@ Data Base Statistics
  Mean value          =       2.830
  Standard Deviation  =       1.567
  Variance            =       2.455
-14 - Name Z.Simu.Y.Zn.S5 - Locator NA
+14 - Name Z.Simu.Y.Zn.S5
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       1.147
@@ -1705,7 +1642,7 @@ Data Base Statistics
  Mean value          =       2.845
  Standard Deviation  =       1.598
  Variance            =       2.555
-15 - Name Z.Simu.Y.Zn.S6 - Locator NA
+15 - Name Z.Simu.Y.Zn.S6
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       1.147
@@ -1713,7 +1650,7 @@ Data Base Statistics
  Mean value          =       2.883
  Standard Deviation  =       1.752
  Variance            =       3.071
-16 - Name Z.Simu.Y.Zn.S7 - Locator NA
+16 - Name Z.Simu.Y.Zn.S7
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       1.147
@@ -1721,7 +1658,7 @@ Data Base Statistics
  Mean value          =       2.991
  Standard Deviation  =       1.769
  Variance            =       3.130
-17 - Name Z.Simu.Y.Zn.S8 - Locator NA
+17 - Name Z.Simu.Y.Zn.S8
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       1.147
@@ -1729,7 +1666,7 @@ Data Base Statistics
  Mean value          =       2.871
  Standard Deviation  =       1.660
  Variance            =       2.756
-18 - Name Z.Simu.Y.Zn.S9 - Locator NA
+18 - Name Z.Simu.Y.Zn.S9
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       1.147
@@ -1737,7 +1674,7 @@ Data Base Statistics
  Mean value          =       2.925
  Standard Deviation  =       1.686
  Variance            =       2.843
-19 - Name Z.Simu.Y.Zn.S10 - Locator NA
+19 - Name Z.Simu.Y.Zn.S10
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       1.147
@@ -1745,7 +1682,7 @@ Data Base Statistics
  Mean value          =       2.829
  Standard Deviation  =       1.511
  Variance            =       2.283
-20 - Name Z.Simu.Y.Pb.S1 - Locator NA
+20 - Name Z.Simu.Y.Pb.S1
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       3.003
@@ -1753,7 +1690,7 @@ Data Base Statistics
  Mean value          =       5.724
  Standard Deviation  =       1.762
  Variance            =       3.106
-21 - Name Z.Simu.Y.Pb.S2 - Locator NA
+21 - Name Z.Simu.Y.Pb.S2
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       3.003
@@ -1761,7 +1698,7 @@ Data Base Statistics
  Mean value          =       5.793
  Standard Deviation  =       1.811
  Variance            =       3.281
-22 - Name Z.Simu.Y.Pb.S3 - Locator NA
+22 - Name Z.Simu.Y.Pb.S3
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       3.003
@@ -1769,7 +1706,7 @@ Data Base Statistics
  Mean value          =       5.833
  Standard Deviation  =       1.721
  Variance            =       2.961
-23 - Name Z.Simu.Y.Pb.S4 - Locator NA
+23 - Name Z.Simu.Y.Pb.S4
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       3.003
@@ -1777,7 +1714,7 @@ Data Base Statistics
  Mean value          =       5.842
  Standard Deviation  =       1.732
  Variance            =       2.999
-24 - Name Z.Simu.Y.Pb.S5 - Locator NA
+24 - Name Z.Simu.Y.Pb.S5
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       3.003
@@ -1785,7 +1722,7 @@ Data Base Statistics
  Mean value          =       5.730
  Standard Deviation  =       1.784
  Variance            =       3.183
-25 - Name Z.Simu.Y.Pb.S6 - Locator NA
+25 - Name Z.Simu.Y.Pb.S6
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       3.003
@@ -1793,7 +1730,7 @@ Data Base Statistics
  Mean value          =       5.535
  Standard Deviation  =       1.602
  Variance            =       2.566
-26 - Name Z.Simu.Y.Pb.S7 - Locator NA
+26 - Name Z.Simu.Y.Pb.S7
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       3.003
@@ -1801,7 +1738,7 @@ Data Base Statistics
  Mean value          =       5.788
  Standard Deviation  =       1.783
  Variance            =       3.179
-27 - Name Z.Simu.Y.Pb.S8 - Locator NA
+27 - Name Z.Simu.Y.Pb.S8
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       3.003
@@ -1809,7 +1746,7 @@ Data Base Statistics
  Mean value          =       5.848
  Standard Deviation  =       1.941
  Variance            =       3.767
-28 - Name Z.Simu.Y.Pb.S9 - Locator NA
+28 - Name Z.Simu.Y.Pb.S9
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       3.003
@@ -1817,7 +1754,7 @@ Data Base Statistics
  Mean value          =       5.887
  Standard Deviation  =       1.814
  Variance            =       3.291
-29 - Name Z.Simu.Y.Pb.S10 - Locator NA
+29 - Name Z.Simu.Y.Pb.S10
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       3.003
@@ -1825,7 +1762,7 @@ Data Base Statistics
  Mean value          =       5.840
  Standard Deviation  =       1.791
  Variance            =       3.208
-30 - Name Stats.MINI - Locator NA
+30 - Name Stats.MINI
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       1.147
@@ -1833,7 +1770,7 @@ Data Base Statistics
  Mean value          =       1.835
  Standard Deviation  =       0.286
  Variance            =       0.082
-31 - Name Stats.MAXI - Locator NA
+31 - Name Stats.MAXI
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       3.445
@@ -1841,7 +1778,7 @@ Data Base Statistics
  Mean value          =       9.193
  Standard Deviation  =       2.062
  Variance            =       4.252
-32 - Name Stats.MEAN - Locator NA
+32 - Name Stats.MEAN
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       2.376
@@ -1849,7 +1786,7 @@ Data Base Statistics
  Mean value          =       4.334
  Standard Deviation  =       0.595
  Variance            =       0.354
-33 - Name Stats.STDV - Locator z1
+33 - Name Stats.STDV
  Nb of data          =        5100
  Nb of active values =        5100
  Minimum value       =       0.579
@@ -1869,30 +1806,12 @@ Column = 5 - Name = Neigh.Pb.NbNESect - Locator = NA
 Column = 6 - Name = Neigh.Pb.NbCESect - Locator = NA
 Column = 7 - Name = Kriging.Pb.estim - Locator = NA
 Column = 8 - Name = Kriging.Pb.stdev - Locator = NA
-Column = 9 - Name = Z.Simu.Y.Zn.S1 - Locator = NA
-Column = 10 - Name = Z.Simu.Y.Zn.S2 - Locator = NA
-Column = 11 - Name = Z.Simu.Y.Zn.S3 - Locator = NA
-Column = 12 - Name = Z.Simu.Y.Zn.S4 - Locator = NA
-Column = 13 - Name = Z.Simu.Y.Zn.S5 - Locator = NA
-Column = 14 - Name = Z.Simu.Y.Zn.S6 - Locator = NA
-Column = 15 - Name = Z.Simu.Y.Zn.S7 - Locator = NA
-Column = 16 - Name = Z.Simu.Y.Zn.S8 - Locator = NA
-Column = 17 - Name = Z.Simu.Y.Zn.S9 - Locator = NA
-Column = 18 - Name = Z.Simu.Y.Zn.S10 - Locator = NA
-Column = 19 - Name = Z.Simu.Y.Pb.S1 - Locator = NA
-Column = 20 - Name = Z.Simu.Y.Pb.S2 - Locator = NA
-Column = 21 - Name = Z.Simu.Y.Pb.S3 - Locator = NA
-Column = 22 - Name = Z.Simu.Y.Pb.S4 - Locator = NA
-Column = 23 - Name = Z.Simu.Y.Pb.S5 - Locator = NA
-Column = 24 - Name = Z.Simu.Y.Pb.S6 - Locator = NA
-Column = 25 - Name = Z.Simu.Y.Pb.S7 - Locator = NA
-Column = 26 - Name = Z.Simu.Y.Pb.S8 - Locator = NA
-Column = 27 - Name = Z.Simu.Y.Pb.S9 - Locator = NA
-Column = 28 - Name = Z.Simu.Y.Pb.S10 - Locator = NA
-Column = 29 - Name = Stats.MINI - Locator = NA
-Column = 30 - Name = Stats.MAXI - Locator = NA
-Column = 31 - Name = Stats.MEAN - Locator = NA
-Column = 32 - Name = Stats.STDV - Locator = z1
+Column = 9 - Name = Z.Simu.Y.Zn - Locator = NA - Versions = 10
+Column = 10 - Name = Z.Simu.Y.Pb - Locator = NA - Versions = 10
+Column = 11 - Name = Stats.MINI - Locator = NA
+Column = 12 - Name = Stats.MAXI - Locator = NA
+Column = 13 - Name = Stats.MEAN - Locator = NA
+Column = 14 - Name = Stats.STDV - Locator = z1
 ----
 
 
@@ -2063,7 +1982,7 @@ Number of active samples     = 99
 
 Data Base Statistics
 --------------------
-14 - Name Category.Pb - Locator z1
+1 - Name Category.Pb
  Nb of data          =         102
  Nb of active values =          99
  Class          1 =          12 (     12.121%)
