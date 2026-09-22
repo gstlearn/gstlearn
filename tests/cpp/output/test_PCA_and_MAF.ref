@@ -43,6 +43,31 @@ Data Base Summary
 -----------------
 File is organized as a regular grid
 Space dimension              = 2
+Number of Columns            = 6
+Total number of samples      = 10000
+
+Grid characteristics:
+---------------------
+Origin :       0.000      0.000
+Mesh   :       0.010      0.010
+Number :         100        100
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = U1 - Locator = NA
+Column = 4 - Name = U2 - Locator = NA
+Column = 5 - Name = U3 - Locator = z1
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
 Number of Columns            = 9
 Total number of samples      = 10000
 
@@ -57,9 +82,9 @@ Variables
 Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
-Column = 3 - Name = U1 - Locator = NA - Versions = 3
-Column = 4 - Name = U2 - Locator = NA - Versions = 3
-Column = 5 - Name = U3 - Locator = z1 - Versions = 3
+Column = 3 - Name = U1 - Locator = NA
+Column = 4 - Name = U2 - Locator = NA
+Column = 5 - Name = U3 - Locator = z1
 Column = 6 - Name = Z1 - Locator = NA
 Column = 7 - Name = Z2 - Locator = NA
 Column = 8 - Name = Z3 - Locator = NA
@@ -315,15 +340,15 @@ Transform from Z to Factors
 Statistics on Factors
 ---------------------
              Number    Minimum    Maximum       Mean   St. Dev.   Variance
-Factor-1        500      0.183      1.618      1.020      0.241      0.058
-Factor-2        500     -8.588      8.656      1.819      2.905      8.439
-Factor-3        500     -1.567      8.519      2.973      1.665      2.771
+Factor-1        500     -3.581      2.351      0.000      0.999      0.998
+Factor-2        500     -2.731      3.319      0.000      0.999      0.998
+Factor-3        500     -3.409      2.538      0.000      0.999      0.998
 Number of isotopic active samples = 500
 Correlation matrix
                  [,  0]     [,  1]     [,  2]
-      [  0,]      1.000      0.101     -0.014
-      [  1,]      0.101      1.000      0.006
-      [  2,]     -0.014      0.006      1.000
+      [  0,]      1.000      0.000      0.000
+      [  1,]      0.000      1.000      0.000
+      [  2,]      0.000      0.000      1.000
 
 
 Computing and fitting variogram on PCA factors
@@ -587,15 +612,15 @@ Transform from Z to Factors
 Statistics on Factors
 ---------------------
              Number    Minimum    Maximum       Mean   St. Dev.   Variance
-Factor-1        500      0.183      1.618      1.020      0.241      0.058
-Factor-2        500     -8.588      8.656      1.819      2.905      8.439
-Factor-3        500     -1.567      8.519      2.973      1.665      2.771
+Factor-1        500     -3.329      2.596      0.000      0.999      0.998
+Factor-2        500     -3.511      2.343      0.000      0.999      0.998
+Factor-3        500     -2.708      3.360      0.000      0.999      0.998
 Number of isotopic active samples = 500
 Correlation matrix
                  [,  0]     [,  1]     [,  2]
-      [  0,]      1.000      0.101     -0.014
-      [  1,]      0.101      1.000      0.006
-      [  2,]     -0.014      0.006      1.000
+      [  0,]      1.000      0.000      0.000
+      [  1,]      0.000      1.000      0.000
+      [  2,]      0.000      0.000      1.000
 
 
 Computing and fitting variogram on MAF factors

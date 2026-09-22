@@ -61,8 +61,8 @@ int main(int argc, char* argv[])
   Model* m1 = Model::createFromParam(ECov::NUGGET, 0., 1.0);
   if (m1 == nullptr) return 1;
   if (simtub(
-        nullptr, grid, m1, nullptr, nvar, 432423, 100, false,
-        VectorVectorDouble(), NamingConvention("U1")))
+        nullptr, grid, m1, nullptr, 1, 432423, 100, false, VectorVectorDouble(),
+        NamingConvention("U1")))
     return 1;
 
   // Simulation of the Gaussian factors for structure #2 (Exponential)
@@ -70,8 +70,8 @@ int main(int argc, char* argv[])
   Model* m2 = Model::createFromParam(ECov::EXPONENTIAL, 0.1, 1.0);
   if (m2 == nullptr) return 1;
   if (simtub(
-        nullptr, grid, m2, nullptr, nvar, 432424, 100, false,
-        VectorVectorDouble(), NamingConvention("U2")))
+        nullptr, grid, m2, nullptr, 1, 432424, 100, false, VectorVectorDouble(),
+        NamingConvention("U2")))
     return 1;
 
   // Simulation of the Gaussian factors for structure #3 (Cubic)
@@ -79,13 +79,15 @@ int main(int argc, char* argv[])
   Model* m3 = Model::createFromParam(ECov::CUBIC, 0.25, 1.0);
   if (m3 == nullptr) return 1;
   if (simtub(
-        nullptr, grid, m3, nullptr, nvar, 432425, 100, false,
-        VectorVectorDouble(), NamingConvention("U3")))
+        nullptr, grid, m3, nullptr, 1, 432425, 100, false, VectorVectorDouble(),
+        NamingConvention("U3")))
     return 1;
 
   // Create correlated variables from the simulated factors
   // This is a simplified version - in reality, we'd need to apply correlation matrices
   mestitle(1, "Creating correlated variables");
+
+  grid->display();
 
   // For simplicity, we'll just copy and scale the simulated data
   // Z1, Z2, Z3 are created from linear combinations
