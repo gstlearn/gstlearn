@@ -16,7 +16,7 @@ Coor #2 - Min =      20.000 - Max =      50.000 - Ext = 30
 
 Data Base Statistics
 --------------------
-1 - Name x1 
+1 - Name x1
  Nb of data          =           5
  Nb of active values =           5
  Minimum value       =      10.000
@@ -24,7 +24,7 @@ Data Base Statistics
  Mean value          =      34.200
  Standard Deviation  =      16.080
  Variance            =     258.560
-2 - Name x2 
+2 - Name x2
  Nb of data          =           5
  Nb of active values =           5
  Minimum value       =      20.000
@@ -32,7 +32,7 @@ Data Base Statistics
  Mean value          =      30.000
  Standard Deviation  =      10.954
  Variance            =     120.000
-3 - Name z1 
+3 - Name z1
  Nb of data          =           5
  Nb of active values =           5
  Minimum value       =       0.000
@@ -40,7 +40,7 @@ Data Base Statistics
  Mean value          =       0.800
  Standard Deviation  =       0.748
  Variance            =       0.560
-4 - Name z2 
+4 - Name z2
  Nb of data          =           5
  Nb of active values =           5
  Minimum value       =       0.000
@@ -95,7 +95,7 @@ Data Base Summary
 -----------------
 File is organized as a regular grid
 Space dimension              = 2
-Number of Columns            = 4
+Number of Columns            = 2
 Total number of samples      = 10000
 
 Grid characteristics:
@@ -111,47 +111,47 @@ Coor #2 - Min =       0.000 - Max =      99.000 - Ext = 99
 
 Data Base Statistics
 --------------------
-1 - Name Facies.S1 
+1 - Name Facies.S1.S1
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =       1.000
  Maximum value       =       3.000
- Mean value          =       1.568
- Standard Deviation  =       0.723
- Variance            =       0.523
-2 - Name Facies.S2 
+ Mean value          =       1.470
+ Standard Deviation  =       0.726
+ Variance            =       0.527
+2 - Name Facies.S1.S2
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =       1.000
  Maximum value       =       3.000
- Mean value          =       1.207
- Standard Deviation  =       0.486
- Variance            =       0.236
-3 - Name Facies.S3 
+ Mean value          =       1.146
+ Standard Deviation  =       0.393
+ Variance            =       0.154
+3 - Name Facies.S2.S1
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =       1.000
  Maximum value       =       3.000
- Mean value          =       1.585
- Standard Deviation  =       0.750
- Variance            =       0.562
-4 - Name Facies.S4 
+ Mean value          =       1.477
+ Standard Deviation  =       0.595
+ Variance            =       0.353
+4 - Name Facies.S2.S2
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =       1.000
  Maximum value       =       3.000
- Mean value          =       2.024
- Standard Deviation  =       0.910
- Variance            =       0.828
+ Mean value          =       1.974
+ Standard Deviation  =       0.834
+ Variance            =       0.696
 
 Data Base Contents
 ------------------
-              Facies.S1  Facies.S2  Facies.S3  Facies.S4
-      [  0,]      2.000      1.000      3.000      3.000
-      [  1,]      2.000      1.000      3.000      3.000
-      [  2,]      2.000      1.000      3.000      3.000
-      [  3,]      2.000      1.000      3.000      3.000
-      [  4,]      2.000      1.000      3.000      3.000
-      [  5,]      2.000      1.000      3.000      3.000
-      [  6,]      1.000      1.000      3.000      3.000
+            Facies.S1.S1Facies.S1.S2Facies.S2.S1Facies.S2.S2
+      [  0,]       1.000       1.000       1.000       3.000
+      [  1,]       1.000       1.000       1.000       3.000
+      [  2,]       1.000       1.000       1.000       3.000
+      [  3,]       1.000       1.000       1.000       3.000
+      [  4,]       1.000       1.000       1.000       3.000
+      [  5,]       1.000       1.000       1.000       3.000
+      [  6,]       1.000       1.000       1.000       3.000
 (Nrows=7[from 10000])

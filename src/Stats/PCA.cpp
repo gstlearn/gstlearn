@@ -248,10 +248,11 @@ namespace gstlrn
     _pcaZ2F(iptr, db, isoFlag, _mean, _sigma);
 
     /* Optional printout */
-
     if (verbose)
     {
-      VectorString names = _getNames(db);
+      VectorInt cols(nvar);
+      for (Id ivar = 0; ivar < nvar; ivar++) cols[ivar] = iptr + ivar;
+      VectorString names = db->getNamesByUID(cols);
       dbStatisticsPrint(
         db, names, {}, true, true, "Statistics on Factors", "Factor");
     }
@@ -298,7 +299,9 @@ namespace gstlrn
 
     if (verbose)
     {
-      VectorString names = _getNames(db);
+      VectorInt cols(nvar);
+      for (Id ivar = 0; ivar < nvar; ivar++) cols[ivar] = iptr + ivar;
+      VectorString names = db->getNamesByUID(cols);
       dbStatisticsPrint(
         db, names, {}, true, true, "Statistics on Variables", "Variable");
     }
@@ -520,13 +523,12 @@ namespace gstlrn
       _center(data1, mean, sigma, true, false);
       VectorDouble data2 = AMatrix::product(_Z2F, data1, true);
 
-      auto ecr = 0;
-      for (Id ifac = 0; ifac < nfac; ifac++)
+      for (Id ifac = 0, ecr = 0; ifac < nfac; ifac++)
       {
         auto nversion = db->getNVersionsByLocator(ELoc::Z, ifac);
-        for (Id iversion = 0; iversion < nversion; iversion++, ecr++)
+        for (Id version = 0; version < nversion; version++, ecr++)
         {
-          db->setArray(iech, iptr + ecr, data2[ecr]);
+          db->setArray(iech, iptr + ifac, data2[ecr], version);
         }
       }
     }
