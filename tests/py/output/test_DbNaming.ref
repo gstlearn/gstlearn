@@ -76,6 +76,7 @@ List of Roles
 Role: X (1) - Columns = 1 
 Role: Z (3) - Columns = 3 4 5 
 
+The argument 'iuid'=1 is not valid
 
 Remark on Space Dimension
 =========================
