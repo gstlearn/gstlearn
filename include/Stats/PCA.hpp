@@ -113,10 +113,12 @@ namespace gstlrn
 
   private:
     static Id _countNVar(const Db* db);
-
+    static Id _countNVarZ(const Db* db);
     static Id _getNSample(const Db* db);
 
     static VectorString _getNames(const Db* db);
+
+    static Id _createVariables(Db* db);
 
     double _getF2Z(Id ivar, Id ifac) const { return _F2Z.getValue(ivar, ifac); }
 

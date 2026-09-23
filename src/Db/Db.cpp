@@ -286,7 +286,7 @@ namespace gstlrn
     auto icol = _data.getColMatchUniqueIndex(iuid);
     if (icol < 0)
     {
-      messerr("The argument 'iuid'=%d is not valid (check simulations)", iuid);
+      messerr("The argument 'iuid'=%d is not valid", iuid);
       return -1;
     }
     return icol;
@@ -1213,6 +1213,15 @@ namespace gstlrn
       setLocatorByUID(iuids[i], locatorType, locatorIndex + i);
   }
 
+  void Db::clearLocator(const String& name)
+  {
+    VectorInt iuids = _ids(name, false);
+    if (iuids.empty()) return;
+
+    for (Id i = 0; i < static_cast<Id>(iuids.size()); i++)
+      setLocatorByUID(iuids[i], ELoc::UNDEFINED, -1);
+  }
+
   /**
    * Setting the locator for a variable designated by its UID
    * @param icol          Index of the Column
@@ -1638,26 +1647,19 @@ namespace gstlrn
    * Note that, if the Column does not exist, this Column is added beforehand
    * @param tab    Array of values to be stored in the target Column
    * @param name   Name of the Column
-   * @param locatorType Locator type
-   * @param locatorIndex   Locator index (starting from 0)
    * @param useSel Should an already existing Selection be taken into account
    * @param version Version of the Column to be updated
-   *
-   * @remark: Arguments 'locatorType'  and 'locatorIndex' are only used
-   * @remark: for newly added variables
    */
   void Db::setColumn(
     const VectorDouble& tab,
     const String& name,
-    const ELoc& locatorType,
-    Id locatorIndex,
     bool useSel,
     Id version)
   {
     VectorInt iuids = _ids(name, true, false);
     if (iuids.empty())
     {
-      (void)addColumns(tab, name, locatorType, locatorIndex, useSel);
+      (void)addColumns(tab, name, ELoc::UNDEFINED, 0, useSel);
     }
     else
     {
