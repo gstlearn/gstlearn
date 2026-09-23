@@ -278,17 +278,10 @@ namespace gstlrn
 
     virtual void initThread() const {}
 
-    /**@}*/
-
-    /** @addtogroup DB_Names Manipulating Names of the variables contained in a Db
-     * \ingroup DB
-     *
-     * All methods used to manipulated Names of one or several Variables
-     * contained in a Db.
-     *  @{
-     */
-    String getName(const String& name, Id version = 0, bool withVersion = false)
-      const;
+    // ================================================================ //
+    // All methods listed in this paragraph are direct access to DbData //
+    // ================================================================ //
+    // The idea is to keep these entries so that calling classes are not modified.
     String getNameByLocator(
       const ELoc& locatorType,
       Id locatorIndex = 0,
@@ -298,46 +291,35 @@ namespace gstlrn
       getNameByColIdx(Id icol, Id version = 0, bool withVersion = false) const;
     String
       getNameByUID(Id iuid, Id version = 0, bool withVersion = false) const;
-
+    String getName(const String& name, Id version = 0, bool withVersion = false)
+      const;
     VectorString getNames(const String& name) const;
     VectorString getNames(const VectorString& names) const;
     VectorString getNamesByLocator(const ELoc& locatorType) const;
     VectorString getNamesByColIdx(const VectorInt& icols) const;
     VectorString getNamesByUID(const VectorInt& iuids) const;
-    VectorString getAllNames(
-      bool excludeRankAndCoordinates = false,
-      bool verbose = false) const;
-
     void setName(const String& old_name, const String& name);
     void setName(const VectorString& list, const String& name);
-    void setNameByUID(Id iuid, const String& name);
-    void setNameByColIdx(Id icol, const String& name);
     void setNameByLocator(const ELoc& locatorType, const String& name);
+    void setNameByColIdx(Id icol, const String& name);
+    void setNameByUID(Id iuid, const String& name);
 
-    VectorString expandNameList(const VectorString& names) const;
-    VectorString expandNameList(const String& names) const;
-    VectorString identifyNames(const VectorString& names) const;
+    Id getColIdx(const String& name) const;
+    Id getColIdxByUID(Id iuid) const;
+    Id getColIdxByLocator(const ELoc& locatorType, Id locatorIndex = 0) const;
+    VectorInt getColIdxs(const String& name) const;
+    VectorInt getColIdxs(const VectorString& names) const;
+    VectorInt getColIdxsByUID(const VectorInt& iuids) const;
+    VectorInt getColIdxsByLocator(const ELoc& locatorType) const;
 
-    /**@}*/
+    bool hasLocator(const ELoc& locatorType) const;
+    bool hasLocVariable(const ELoc& locatorType) const;
 
-    // Unprotected access (used temporarily while DbData is part of Db)
-    DbData& getData() { return _data; }
-
-    inline Id getNColumn() const { return _data.getNColumns(); }
-
-    Id getNSample(bool useSel = false) const;
-    Id getNSampleActiveAndDefined(Id item) const;
-    Id getNSampleActiveAndDefined(const String& name) const;
-    Id getNSampleActive() const;
-    Id getRankRelativeToAbsolute(Id irel) const;
-    Id getRankAbsoluteToRelative(Id iabs) const;
-    VectorInt getRankRelativeToAbsoluteVec() const;
-    VectorInt getRankAbsoluteToRelativeVec() const;
-
-    void clearLocators(const ELoc& locatorType);
-
-    void clearSelection() { clearLocators(ELoc::SEL); }
-
+    void setLocator(
+      const String& name,
+      const ELoc& locatorType = ELoc::fromKey("UNDEFINED"),
+      Id locatorIndex = 0,
+      bool cleanSameLocator = false);
     void setLocatorByUID(
       Id iuid,
       const ELoc& locatorType = ELoc::fromKey("UNDEFINED"),
@@ -348,12 +330,6 @@ namespace gstlrn
       const ELoc& locatorType = ELoc::fromKey("UNDEFINED"),
       Id locatorIndex = 0,
       bool cleanSameLocator = false);
-    void setLocator(
-      const String& name,
-      const ELoc& locatorType = ELoc::fromKey("UNDEFINED"),
-      Id locatorIndex = 0,
-      bool cleanSameLocator = false);
-    void clearLocator(const String& name);
 
     void setLocators(
       const VectorString& names,
@@ -376,6 +352,113 @@ namespace gstlrn
       const ELoc& locatorType = ELoc::fromKey("UNDEFINED"),
       Id locatorIndex = 0,
       bool cleanSameLocator = false);
+
+    bool getLocator(
+      const String& name,
+      ELoc* ret_locatorType,
+      Id* ret_locatorIndex,
+      Id* ret_mult) const;
+    bool getLocatorByColIdx(
+      Id icol,
+      ELoc* ret_locatorType,
+      Id* ret_locatorIndex,
+      Id* ret_mult) const;
+    bool getLocatorByUID(
+      Id iuid,
+      ELoc* ret_locatorType,
+      Id* ret_locatorIndex,
+      Id* ret_mult) const;
+
+    Id getUID(const String& name) const;
+    Id getUIDByColIdx(Id icol) const;
+    Id getUIDByLocator(const ELoc& locatorType, Id locatorIndex = 0) const;
+
+    VectorInt getUIDs(const VectorString& names) const;
+    VectorInt getUIDsByLocator(const ELoc& locatorType) const;
+    VectorInt getUIDsByColIdx(const VectorInt& icols) const;
+
+    double getArray(Id iech, Id iuid, Id version = 0) const;
+    VectorDouble getArrayByUID(Id iuid, bool useSel = false) const;
+
+    void setArray(Id iech, Id iuid, double value, Id version = 0);
+    void setArrayByUID(const VectorDouble& tab, Id iuid);
+
+    void updArray(Id iech, Id iuid, const EOperator& oper, double value);
+
+    double getValue(const String& name, Id iech, Id version = 0) const;
+    double
+      getValueByColIdx(Id iech, Id icol, bool flagCheck = true, Id version = 0)
+        const;
+    void setValue(const String& name, Id iech, double value, Id version = 0);
+    void
+      setValueByColIdx(Id iech, Id icol, double value, bool flagCheck = true);
+    void setValueByUID(Id iech, Id iuid, double value, bool flagCheck = true);
+
+    Id getNLoc(const ELoc& locatorType) const;
+    double getLocVariable(
+      const ELoc& locatorType,
+      Id iech,
+      Id locindex,
+      Id version = 0) const;
+    double getFromLocator(
+      const ELoc& locatorType,
+      Id iech,
+      Id locatorIndex = 0,
+      Id version = 0) const;
+    void setLocVariable(
+      const ELoc& locatorType,
+      Id iech,
+      Id locindex,
+      double value,
+      Id version = 0);
+    void setFromLocator(
+      const ELoc& locatorType,
+      Id iech,
+      Id locatorIndex,
+      double value,
+      Id version = 0);
+    void updLocVariable(
+      const ELoc& locatorType,
+      Id iech,
+      Id locindex,
+      const EOperator& oper,
+      double value,
+      Id version = 0);
+
+    Id getSelection(Id iech) const;
+
+    double getZVariable(Id iech, Id item) const;
+    void setZVariable(Id iech, Id item, double value);
+    void updZVariable(Id iech, Id item, const EOperator& oper, double value);
+
+    // ================================================================ //
+
+    VectorString getAllNames(
+      bool excludeRankAndCoordinates = false,
+      bool verbose = false) const;
+
+    VectorString expandNameList(const VectorString& names) const;
+    VectorString expandNameList(const String& names) const;
+    VectorString identifyNames(const VectorString& names) const;
+
+    // Unprotected access (used temporarily while DbData is part of Db)
+    DbData& getData() { return _data; }
+
+    inline Id getNColumn() const { return _data.getNColumns(); }
+
+    Id getNSample(bool useSel = false) const;
+    Id getNSampleActiveAndDefined(Id item) const;
+    Id getNSampleActiveAndDefined(const String& name) const;
+    Id getNSampleActive() const;
+    Id getRankRelativeToAbsolute(Id irel) const;
+    Id getRankAbsoluteToRelative(Id iabs) const;
+    VectorInt getRankRelativeToAbsoluteVec() const;
+    VectorInt getRankAbsoluteToRelativeVec() const;
+
+    void clearLocator(const String& name);
+    void clearLocators(const ELoc& locatorType);
+
+    void clearSelection() { clearLocators(ELoc::SEL); }
 
     void switchLocator(const ELoc& locatorType_in, const ELoc& locatorType_out);
 
@@ -453,14 +536,6 @@ namespace gstlrn
     Id getLastUID() const;
     String getLastName(Id number = 0) const;
 
-    Id getColIdx(const String& name) const;
-    Id getColIdxByUID(Id iuid) const;
-    Id getColIdxByLocator(const ELoc& locatorType, Id locatorIndex = 0) const;
-    VectorInt getColIdxs(const String& name) const;
-    VectorInt getColIdxs(const VectorString& names) const;
-    VectorInt getColIdxsByUID(const VectorInt& iuids) const;
-    VectorInt getColIdxsByLocator(const ELoc& locatorType) const;
-
     void setColumn(
       const VectorDouble& tab,
       const String& name,
@@ -506,6 +581,7 @@ namespace gstlrn
       const VectorInt& rows,
       const VectorString& colnames,
       bool useSel = false) const;
+
     VectorVectorDouble
       getItem(const VectorInt& rows, const String& colname, bool useSel = false)
         const;
@@ -551,32 +627,10 @@ namespace gstlrn
       const VectorDouble& values,
       bool useSel = false);
 
-    bool getLocator(
-      const String& name,
-      ELoc* ret_locatorType,
-      Id* ret_locatorIndex,
-      Id* ret_mult) const;
-    bool getLocatorByColIdx(
-      Id icol,
-      ELoc* ret_locatorType,
-      Id* ret_locatorIndex,
-      Id* ret_mult) const;
-    bool getLocatorByUID(
-      Id iuid,
-      ELoc* ret_locatorType,
-      Id* ret_locatorIndex,
-      Id* ret_mult) const;
     VectorString getLocators(
       bool anyLocator = true,
       const ELoc& locatorType = ELoc::fromKey("UNDEFINED")) const;
 
-    Id getUID(const String& name) const;
-    Id getUIDByColIdx(Id icol) const;
-    Id getUIDByLocator(const ELoc& locatorType, Id locatorIndex = 0) const;
-
-    VectorInt getUIDs(const VectorString& names) const;
-    VectorInt getUIDsByLocator(const ELoc& locatorType) const;
-    VectorInt getUIDsByColIdx(const VectorInt& icols) const;
     VectorInt getUIDsDefined() const;
 
     void copyByUID(Id iuidIn, Id iuidOut, Id versionIn = 0, Id versionOut = 0);
@@ -588,7 +642,7 @@ namespace gstlrn
       Id versionOut = 0);
 
     Id getNFacies(void) const;
-    Id getNOccurence(const ELoc& loctype) const;
+    Id getNOccurence(const ELoc& locatorType) const;
     bool hasLocatorDefined(
       const String& name,
       const ELoc& locatorType,
@@ -616,6 +670,13 @@ namespace gstlrn
     void setCoordinates(Id idim, const VectorDouble& coor, bool useSel = false);
     void setSampleCoordinates(Id iech, const VectorDouble& coor);
 
+    Id getNVersions(const String& name) const;
+    Id getNVersions(Id iuid) const;
+    Id getNVersionsByColIdx(Id icol) const;
+    Id
+      getNVersionsByLocator(const ELoc& locatorType, Id locatorIndex = 0) const;
+    Id getSumNVersions(const VectorInt& iuids) const;
+
     double
       getDistance1D(Id iech, Id jech, Id idim = 0, bool flagAbs = false) const;
     double getDistance(Id iech, Id jech) const;
@@ -625,35 +686,13 @@ namespace gstlrn
       VectorDouble& dd,
       const Db* db2 = nullptr) const;
 
-    Id getNVersions(const String& name) const;
-    Id getNVersions(Id iuid) const;
-    Id getNVersionsByColIdx(Id icol) const;
-    Id
-      getNVersionsByLocator(const ELoc& locatorType, Id locatorIndex = 0) const;
-    Id getSumNVersions(const VectorInt& iuids) const;
-
-    double getValue(const String& name, Id iech, Id version = 0) const;
-    void setValue(const String& name, Id iech, double value, Id version = 0);
-
-    double getArray(Id iech, Id iuid, Id version = 0) const;
-    VectorDouble getArrayByUID(Id iuid, bool useSel = false) const;
     void getArrayBySample(VectorDouble& vals, Id iech) const;
     void
       getArrayVec(const VectorInt& iechs, Id iuid, VectorDouble& values) const;
 
-    void setArray(Id iech, Id iuid, double value, Id version = 0);
-    void setArrayByUID(const VectorDouble& tab, Id iuid);
-
     void setArrayBySample(Id iech, const VectorDouble& vec);
     void
       setArrayVec(const VectorInt& iechs, Id iuid, const VectorDouble& values);
-
-    void updArray(Id iech, Id iuid, const EOperator& oper, double value);
-    void updArrayVec(
-      const VectorInt& iechs,
-      Id iuid,
-      const EOperator& oper,
-      VectorDouble& values);
 
     void getSamplesAsSP(
       std::vector<SpacePoint>& pvec,
@@ -664,24 +703,6 @@ namespace gstlrn
       const ASpaceSharedPtr& space,
       const VectorInt& nbgh) const;
 
-    bool hasLocator(const ELoc& locatorType) const;
-    double getFromLocator(
-      const ELoc& locatorType,
-      Id iech,
-      Id locatorIndex = 0,
-      Id version = 0) const;
-    void setFromLocator(
-      const ELoc& locatorType,
-      Id iech,
-      Id locatorIndex,
-      double value,
-      Id version = 0);
-    double
-      getValueByColIdx(Id iech, Id icol, bool flagCheck = true, Id version = 0)
-        const;
-    void
-      setValueByColIdx(Id iech, Id icol, double value, bool flagCheck = true);
-    void setValueByUID(Id iech, Id iuid, double value, bool flagCheck = true);
     VectorDouble getValuesByNames(
       const VectorInt& iechs,
       const VectorString& names,
@@ -692,7 +713,6 @@ namespace gstlrn
       const VectorInt& icols,
       bool bySample = false,
       Id version = 0) const;
-
     void setValuesByNamesInPlace(
       const VectorInt& iechs,
       const VectorString& names,
@@ -719,60 +739,17 @@ namespace gstlrn
       const VectorString& names = VectorString(),
       bool useSel = false) const;
 
-    /** @addtogroup DB_0 Getting and Setting functions by Locator
-     * \ingroup DB
-     *
-     * Various functions for accessing fields of the Db using the **locator** designation.
-     * They use the argument 'loctype' which refers to the Locator type (see ELoc enumeration).
-     * In most cases, they also refer to 'item' i.e. the rank (0 based) for the target locator.
-     *
-     * @param loctype Target locator
-     * @param iech    Target sample (0 based)
-     * @param item    Rank of the 'loctype' locator (0 based)
-     * @param oper    Type of operation
-     * \li                 0 : New = New + Old
-     * \li                 1 : New = New * Old
-     * \li                 2 : New = New - Old
-     * \li                 3 : New = Old / New
-     * \li                 4 : New = New (only if old is defined)
-     * \li                 5 : New = MAX(New, Old)
-     * \li                 6 : New = MIN(New, Old)
-     * @param value   Assigned value
-     *  @{
-     */
-    Id getNLoc(const ELoc& loctype) const;
-    bool hasLocVariable(const ELoc& loctype) const;
-    double
-      getLocVariable(const ELoc& loctype, Id iech, Id locindex, Id version = 0)
-        const;
-    void setLocVariable(
-      const ELoc& loctype,
-      Id iech,
-      Id locindex,
-      double value,
-      Id version = 0);
-    void updLocVariable(
-      const ELoc& loctype,
-      Id iech,
-      Id locindex,
-      const EOperator& oper,
-      double value,
-      Id version = 0);
-    /**@}*/
-
-    double getZVariable(Id iech, Id item) const;
-    void setZVariable(Id iech, Id item, double value);
-    void updZVariable(Id iech, Id item, const EOperator& oper, double value);
-
     VectorDouble
-      getLocVariables(const ELoc& loctype, Id iech, Id nitemax = 0) const;
-    void
-      setLocVariables(const ELoc& loctype, Id iech, const VectorDouble& values);
+      getLocVariables(const ELoc& locatorType, Id iech, Id nitemax = 0) const;
+    void setLocVariables(
+      const ELoc& locatorType,
+      Id iech,
+      const VectorDouble& values);
 
     bool isNVarComparedTo(Id nvar, Id compare = 0) const;
     bool isIsotopic(Id iech, Id nvar_max = -1) const;
     bool isAllUndefined(Id iech) const;
-    bool isAllUndefinedByType(const ELoc& loctype, Id iech) const;
+    bool isAllUndefinedByType(const ELoc& locatorType, Id iech) const;
     bool isAllIsotopic() const;
 
     void setInterval(Id iech, Id item, double rklow = TEST, double rkup = TEST);
@@ -784,7 +761,6 @@ namespace gstlrn
     VectorDouble getTangent(Id item, bool useSel = false) const;
     VectorDouble getCodeList(void) const;
 
-    Id getSelection(Id iech) const;
     VectorDouble getSelections(void) const;
     void getSampleRanksPerVariable(
       VectorInt& ranks,
@@ -1087,8 +1063,8 @@ namespace gstlrn
      *
      *  @{
      */
-    bool isColIdxValid(Id icol) const;
     bool isUIDValid(Id iuid) const;
+    bool isColIdxValid(Id icol) const;
     bool isSampleIndexValid(Id iech) const;
     bool
       isSampleIndicesValid(const VectorInt& iechs, bool useSel = false) const;
@@ -1229,6 +1205,33 @@ namespace gstlrn
     String _summaryString(void) const;
 
   private:
+    static bool _getLocatorIdentify(
+      const ColID& colID,
+      ELoc* ret_locatorType,
+      Id* ret_locatorIndex,
+      Id* ret_multiplicity);
+
+  private:
+    // The next function is used to check the validity of the column index.
+    // It is plugged conditionally to Debug mode to avoid reducing performance.
+    static inline void _debugConditionalStatement(Id icol)
+    {
+#ifndef NDEBUG
+      if (icol < 0)
+      {
+        messerr("The index of the Column seems invalid");
+      }
+#else
+      (void)icol; // Évite les warnings "unused parameter" en Release
+#endif
+    }
+
+    // Methods to ease the communication with DbData
+    Id _getColumnFromLocator(const ELoc& locatorType, Id locatorIndex) const;
+    Id _getColumnFromColID(Id icol) const;
+    Id _getColumnFromUID(Id iuid) const;
+    Id _getColumnFromName(const String& name) const;
+
     void _setNSamples(Id nsamples) { _nsamples = nsamples; }
 
     Id _getNUIDMax() const { return _data.getUniqueIndexCounter(); }

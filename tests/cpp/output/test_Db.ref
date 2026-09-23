@@ -256,11 +256,11 @@ Data Base Contents
       [ 14,]     15.000      0.470      0.687      1.000     -0.434      0.094     -1.002
 Error in Sample Index. The index (3000) should be non-negative and lower than 15
 Previous statement is an error
-No variable name corresponding to your criterion
+Column index is out of range.
 Previous statement is an error
 Error in Sample Index. The index (30000) should be non-negative and lower than 15
 Previous statement is an error
-No variable name corresponding to your criterion
+Column index is out of range.
 Previous statement is an error
 
 Testing getStatsAsTable facility
