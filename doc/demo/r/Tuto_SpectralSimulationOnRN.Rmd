@@ -409,8 +409,8 @@ QC_section <- function(model, grid, prefix, nsimu, isec = 1,
             v1_nm = NC_getNameEncoded(prefix, NULL, ivar, nvar, is, 0)
             #v2_nm = NC_getNameEncoded(prefix, NULL, jvar, nvar, is, nsim)
             v2_nm = NC_getNameEncoded(prefix, NULL, jvar, nvar, is, 0)
-            v1    = grid$getColumns(names = v1_nm, version=is-1)
-            v2    = grid$getColumns(names = v2_nm, version=is-1)
+            v1    = grid$getColumn(name = v1_nm, version=is-1)
+            v2    = grid$getColumn(name = v2_nm, version=is-1)
             if (length(dx) == 1) {
               varexp = compute_vario_on_1d_grid(
                 val  = v1,

@@ -353,6 +353,7 @@ namespace gstlrn
       const ELoc& locatorType = ELoc::fromKey("UNDEFINED"),
       Id locatorIndex = 0,
       bool cleanSameLocator = false);
+    void clearLocator(const String& name);
 
     void setLocators(
       const VectorString& names,
@@ -463,8 +464,6 @@ namespace gstlrn
     void setColumn(
       const VectorDouble& tab,
       const String& name,
-      const ELoc& locatorType = ELoc::fromKey("UNDEFINED"),
-      Id locatorIndex = 0,
       bool useSel = false,
       Id version = 0);
     void setColumnByUID(

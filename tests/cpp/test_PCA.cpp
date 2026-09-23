@@ -71,10 +71,11 @@ int main(int argc, char* argv[])
   pca.dbF2Z(db, false, NamingConvention("PCA.Z", false));
 
   // Comparing initial and back-transformed variables
-  for (Id i = 0; i < nbsimu; i++)
-    (void)db->areSame(
-      "Simu", NC::getNameEncoded("PCA.Z", nullptr, i + 1, nbsimu), eps, true,
-      false, i);
+  for (Id ivar = 0; ivar < nvar; ivar++)
+    for (Id isimu = 0; isimu < nbsimu; isimu++)
+      (void)db->areSame(
+        "Simu", NC::getNameEncoded("PCA.Z", nullptr, ivar + 1, 0), eps, true,
+        false, isimu, isimu);
 
   // ============
   // Evaluate MAF
@@ -92,10 +93,11 @@ int main(int argc, char* argv[])
   maf.dbF2Z(db, false, NamingConvention("MAF.Z", false));
 
   // Comparing initial and back-transformed variables
-  for (Id i = 0; i < nbsimu; i++)
-    (void)db->areSame(
-      "Simu", NC::getNameEncoded("MAF.Z", nullptr, i + 1, nbsimu), eps, true,
-      false, i);
+  for (Id ivar = 0; ivar < nvar; ivar++)
+    for (Id isimu = 0; isimu < nbsimu; isimu++)
+      (void)db->areSame(
+        "Simu", NC::getNameEncoded("MAF.Z", nullptr, isimu + 1, 0), eps, true,
+        false, isimu, isimu);
 
   delete db;
   delete models;

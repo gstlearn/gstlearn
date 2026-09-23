@@ -218,7 +218,7 @@ Cannot assign value to Column 'VD':
 Input type 'String' is not compatible with column type 'Double'.
 
 Trying to use a wrong version (5) in Column 'VDS' (4 versions)
-Version 5 is invalid for Column 'VDS' which contains 5 version(s).
+DbCol: Version 5 is invalid for Column 'VDS' which contains 5 version(s).
 [1] -1
 
 Trying to set a value to NA in Column 'VDS.1' (forbidNA = TRUE)
