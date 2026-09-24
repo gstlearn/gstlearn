@@ -1205,33 +1205,6 @@ namespace gstlrn
     String _summaryString(void) const;
 
   private:
-    static bool _getLocatorIdentify(
-      const ColID& colID,
-      ELoc* ret_locatorType,
-      Id* ret_locatorIndex,
-      Id* ret_multiplicity);
-
-  private:
-    // The next function is used to check the validity of the column index.
-    // It is plugged conditionally to Debug mode to avoid reducing performance.
-    static inline void _debugConditionalStatement(Id icol)
-    {
-#ifndef NDEBUG
-      if (icol < 0)
-      {
-        messerr("The index of the Column seems invalid");
-      }
-#else
-      (void)icol; // Évite les warnings "unused parameter" en Release
-#endif
-    }
-
-    // Methods to ease the communication with DbData
-    Id _getColumnFromLocator(const ELoc& locatorType, Id locatorIndex) const;
-    Id _getColumnFromColID(Id icol) const;
-    Id _getColumnFromUID(Id iuid) const;
-    Id _getColumnFromName(const String& name) const;
-
     void _setNSamples(Id nsamples) { _nsamples = nsamples; }
 
     Id _getNUIDMax() const { return _data.getUniqueIndexCounter(); }
