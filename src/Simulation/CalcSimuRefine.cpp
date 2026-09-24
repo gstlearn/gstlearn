@@ -76,7 +76,7 @@ namespace gstlrn
       db2 = DbGrid::create(
         nx2, dx2, x02, dbin->getGrid().getRotAngles(), ELoadBy::SAMPLE,
         VectorDouble(), VectorString(), VectorString(), 1);
-      Id iatt2 = db2->addColumnsByConstant(1, TEST);
+      Id iatt2 = db2->addColumnsByConstant(1, 1, TEST);
 
       /* Establish the Kriging system */
 
@@ -103,7 +103,7 @@ namespace gstlrn
       db1 = DbGrid::create(
         nx1, dx1, x01, dbin->getGrid().getRotAngles(), ELoadBy::SAMPLE,
         VectorDouble(), VectorString(), VectorString(), 1);
-      iatt1 = db1->addColumnsByConstant(1, TEST);
+      iatt1 = db1->addColumnsByConstant(1, 1, TEST);
 
       /* Truncate the output grid for next step */
 

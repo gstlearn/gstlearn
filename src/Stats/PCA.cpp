@@ -75,7 +75,7 @@ namespace gstlrn
 
   void PCA::init(Id nvar)
   {
-    _nVar = nvar;
+    setNVar(nvar);
     _mean.resize(nvar, 0);
     _sigma.resize(nvar, 0);
     _eigval.resize(nvar, 0);
@@ -88,7 +88,7 @@ namespace gstlrn
 
   void PCA::_pcaFunctions(bool verbose)
   {
-    Id nvar = _nVar;
+    Id nvar = getNVar();
 
     // Transpose for getting the F2Z function from Z2F
 
@@ -118,7 +118,7 @@ namespace gstlrn
 
   void PCA::_mafFunctions(bool verbose)
   {
-    Id nvar = _nVar;
+    Id nvar = getNVar();
 
     // Construct Z2F
 
@@ -144,6 +144,8 @@ namespace gstlrn
 
   Id PCA::_calculateEigen(bool verbose, bool optionPositive)
   {
+    auto nvar = getNVar();
+
     // Eigen decomposition
 
     auto eigenvectors = EigenVectors(_c0, nullptr, optionPositive);
@@ -154,7 +156,7 @@ namespace gstlrn
 
     if (verbose)
     {
-      printMatrix(_eigval, 1, _nVar, "Eigen values");
+      printMatrix(_eigval, 1, nvar, "Eigen values");
       printMatrix(_eigvec, "Eigen Vectors");
     }
     return 0;
@@ -162,7 +164,7 @@ namespace gstlrn
 
   Id PCA::_calculateGEigen(bool verbose)
   {
-    Id nvar = _nVar;
+    auto nvar = getNVar();
 
     // Generalized Eigen decomposition
 
@@ -187,14 +189,15 @@ namespace gstlrn
     const auto* pcafmt = dynamic_cast<const PCAStringFormat*>(strfmt);
     PCAStringFormat dsf;
     if (pcafmt != nullptr) dsf = *pcafmt;
-    if (_nVar <= 0) return sstr.str();
+    auto nvar = getNVar();
+    if (nvar <= 0) return sstr.str();
 
     sstr << toStrTitle(1, "PCA Contents");
 
     if (dsf.getflagCenter())
     {
       sstr << toStrMatrix(
-        "Means", VectorString(), VectorString(), true, _nVar, 1, _mean);
+        "Means", VectorString(), VectorString(), true, nvar, 1, _mean);
     }
     if (dsf.getflagStats())
     {
@@ -213,6 +216,20 @@ namespace gstlrn
     return sstr.str();
   }
 
+  Id PCA::_createVariables(Db* db)
+  {
+    Id iptr = -1;
+    auto nvarZ = _countNVarZ(db);
+    for (Id ivar = 0; ivar < nvarZ; ivar++)
+    {
+      auto nversion = db->getNVersionsByLocator(ELoc::Z, ivar);
+      auto iptrLoc = db->addColumnsByConstant(1, nversion, TEST);
+      if (iptrLoc < 0) return -1;
+      if (iptr < 0) iptr = iptrLoc;
+    }
+    return iptr;
+  }
+
   Id PCA::dbZ2F(Db* db, bool verbose, const NamingConvention& namconv)
   {
     if (db == nullptr)
@@ -220,19 +237,19 @@ namespace gstlrn
       messerr("You must define 'Db'");
       return 1;
     }
-    Id nvar = db->getNLoc(ELoc::Z);
-    if (nvar != _nVar)
+    Id nvar = _countNVar(db);
+    if (nvar != getNVar())
     {
       messerr(
         "The number of Z variables (%d) does not match the number of variables "
         "in PCA (%d)",
-        nvar, _nVar);
+        nvar, getNVar());
       return 1;
     }
 
     /* Allocate new variables */
 
-    Id iptr = db->addColumnsByConstant(nvar, TEST);
+    Id iptr = _createVariables(db);
     if (iptr < 0) return 1;
 
     // Optional title
@@ -245,7 +262,6 @@ namespace gstlrn
     _pcaZ2F(iptr, db, isoFlag, _mean, _sigma);
 
     /* Optional printout */
-
     if (verbose)
     {
       VectorInt cols(nvar);
@@ -257,7 +273,7 @@ namespace gstlrn
 
     /* Set the error return code */
 
-    auto names = db->getNamesByLocator(ELoc::Z);
+    VectorString names = _getNames(db);
     namconv.setOutput(names, 0, db, iptr);
     return 0;
   }
@@ -269,19 +285,19 @@ namespace gstlrn
       messerr("You must define 'Db'");
       return 1;
     }
-    Id nvar = db->getNLoc(ELoc::Z);
-    if (nvar != _nVar)
+    Id nvar = _countNVar(db);
+    if (nvar != getNVar())
     {
       messerr(
         "The number of Z variables (%d) does not match the number of variables "
         "in PCA (%d)",
-        nvar, _nVar);
+        nvar, getNVar());
       return 1;
     }
 
     /* Allocate new variables */
 
-    Id iptr = db->addColumnsByConstant(nvar, TEST);
+    Id iptr = _createVariables(db);
     if (iptr < 0) return 1;
 
     // Optional title
@@ -306,7 +322,7 @@ namespace gstlrn
 
     /* Set the error return code */
 
-    auto names = db->getNamesByLocator(ELoc::Z);
+    VectorString names = _getNames(db);
     namconv.setOutput(names, 0, db, iptr);
     return 0;
   }
@@ -336,8 +352,8 @@ namespace gstlrn
     bool flag_nm1)
   {
     Id niso = 0;
-    Id nvar = db->getNLoc(ELoc::Z);
-    Id nech = db->getNSample();
+    Id nvar = _countNVar(db);
+    Id nech = _getNSample(db);
     VectorDouble data(nvar);
 
     for (Id ivar = 0; ivar < nvar; ivar++) _mean[ivar] = _sigma[ivar] = 0.;
@@ -397,9 +413,9 @@ namespace gstlrn
     bool verbose,
     bool flag_nm1)
   {
-    Id nvar = db->getNLoc(ELoc::Z);
-    Id nech = db->getNSample();
     Id niso = 0;
+    Id nvar = _countNVar(db);
+    Id nech = _getNSample(db);
     VectorDouble data1(nvar);
 
     // Initialize the matrix contents
@@ -507,8 +523,9 @@ namespace gstlrn
     const VectorDouble& mean,
     const VectorDouble& sigma)
   {
-    Id nvar = db->getNLoc(ELoc::Z);
-    Id nech = db->getNSample();
+    Id nvar = _countNVar(db);
+    Id nech = _getNSample(db);
+    Id nfacZ = _countNVarZ(db);
     VectorDouble data1(nvar, 0.);
 
     /* Loop on the samples */
@@ -520,8 +537,14 @@ namespace gstlrn
       _center(data1, mean, sigma, true, false);
       VectorDouble data2 = AMatrix::product(_Z2F, data1, true);
 
-      for (Id ifac = 0; ifac < nvar; ifac++)
-        db->setArray(iech, ifac + iptr, data2[ifac]);
+      for (Id ifac = 0, ecr = 0; ifac < nfacZ; ifac++)
+      {
+        auto nversion = db->getNVersionsByLocator(ELoc::Z, ifac);
+        for (Id version = 0; version < nversion; version++, ecr++)
+        {
+          db->setArray(iech, iptr + ifac, data2[ecr], version);
+        }
+      }
     }
   }
 
@@ -543,8 +566,9 @@ namespace gstlrn
     const VectorDouble& mean,
     const VectorDouble& sigma)
   {
-    Id nvar = db->getNLoc(ELoc::Z);
-    Id nech = db->getNSample();
+    Id nvar = _countNVar(db);
+    Id nech = _getNSample(db);
+    Id nvarZ = _countNVarZ(db);
     VectorDouble data1(nvar);
     VectorDouble data2(nvar);
 
@@ -557,8 +581,14 @@ namespace gstlrn
       data2 = AMatrix::product(_F2Z, data1, true);
       _uncenter(data2, mean, sigma, true, false);
 
-      for (Id ivar = 0; ivar < nvar; ivar++)
-        db->setArray(iech, ivar + iptr, data2[ivar]);
+      for (Id ivar = 0, ecr = 0; ivar < nvarZ; ivar++)
+      {
+        auto nversion = db->getNVersionsByLocator(ELoc::Z, ivar);
+        for (Id version = 0; version < nversion; version++, ecr++)
+        {
+          db->setArray(iech, iptr + ivar, data2[ecr], version);
+        }
+      }
     }
   }
 
@@ -572,7 +602,7 @@ namespace gstlrn
       messerr("You must define the 'Db'");
       return 1;
     }
-    Id nvar = db->getNLoc(ELoc::Z);
+    Id nvar = _countNVar(db);
     if (nvar <= 0)
     {
       messerr("You must define 'Db' with some Z-variables");
@@ -677,7 +707,7 @@ namespace gstlrn
       messerr("You must define 'Db' beforehand");
       return 1;
     }
-    Id nvar = db->getNLoc(ELoc::Z);
+    Id nvar = _countNVar(db);
     if (nvar <= 0)
     {
       messerr("You must define 'Db' with some Z-variables");
@@ -735,8 +765,8 @@ namespace gstlrn
 
     // Initializations
 
-    Id nech = db->getNSample();
-    Id nvar = db->getNLoc(ELoc::Z);
+    Id nech = _getNSample(db);
+    Id nvar = _countNVar(db);
     Id npairs = 0;
 
     // Core allocations
@@ -833,7 +863,7 @@ namespace gstlrn
 
   VectorBool PCA::_getVectorIsotopic(const Db* db)
   {
-    Id nech = db->getNSample();
+    Id nech = _getNSample(db);
     VectorBool isoFlag(nech);
 
     for (Id iech = 0; iech < nech; iech++)
@@ -848,9 +878,17 @@ namespace gstlrn
 
   void PCA::_loadData(const Db* db, Id iech, VectorDouble& data)
   {
-    Id nvar = db->getNLoc(ELoc::Z);
-    for (Id ivar = 0; ivar < nvar; ivar++)
-      data[ivar] = db->getZVariable(iech, ivar);
+    Id nitem = 0;
+    auto nvarZ = _countNVarZ(db);
+    for (Id ivar = 0; ivar < nvarZ; ivar++)
+    {
+      auto nversion = db->getNVersionsByLocator(ELoc::Z, ivar);
+      for (Id iversion = 0; iversion < nversion; iversion++)
+      {
+        data[nitem] = db->getFromLocator(ELoc::Z, iech, ivar, iversion);
+        nitem++;
+      }
+    }
   }
 
   VectorDouble PCA::mafOfIndex() const
@@ -879,6 +917,37 @@ namespace gstlrn
       VH::concatenate(VH::initVDouble(nclass, 1.), local.getValues());
 
     return maf_index;
+  }
+
+  Id PCA::_countNVarZ(const Db* db)
+  {
+    return db->getNLoc(ELoc::Z);
+  }
+
+  Id PCA::_countNVar(const Db* db)
+  {
+    Id nitem = 0;
+    for (Id ivar = 0, nvar = db->getNLoc(ELoc::Z); ivar < nvar; ivar++)
+      nitem += db->getNVersionsByLocator(ELoc::Z, ivar);
+    return nitem;
+  }
+
+  Id PCA::_getNSample(const Db* db)
+  {
+    return db->getNSample();
+  }
+
+  VectorString PCA::_getNames(const Db* db)
+  {
+    VectorString names;
+    auto nvarZ = _countNVarZ(db);
+    for (Id ivar = 0; ivar < nvarZ; ivar++)
+    {
+      String name = db->getNameByLocator(ELoc::Z, ivar, 0, false);
+      names.push_back(name);
+    }
+
+    return names;
   }
 
 } // namespace gstlrn

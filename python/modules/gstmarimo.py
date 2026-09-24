@@ -781,7 +781,7 @@ def createDefaultIsoPot(nech=3, seed=13424):
         flagAddSampleRank=False,
     )
     # Adding the Layer information
-    dbIso.addColumnsByConstant(1, 1.0, "Layer", gl.ELoc.LAYER)
+    dbIso.addColumnsByConstant(1, 1, 1.0, "Layer", gl.ELoc.LAYER)
     dbIso.setName("x-1", "x")
     dbIso.setName("x-2", "y")
     return dbIso
@@ -830,8 +830,8 @@ def createDefaultGradPot(nech=1, seed=13424):
         flagAddSampleRank=False,
     )
     # Add the gradient coordinates
-    dbGrad.addColumnsByConstant(1, 1.0, "gx", gl.ELoc.G, 0)
-    dbGrad.addColumnsByConstant(1, 0.0, "gy", gl.ELoc.G, 1)
+    dbGrad.addColumnsByConstant(1, 1, 1.0, "gx", gl.ELoc.G, 0)
+    dbGrad.addColumnsByConstant(1, 1, 0.0, "gy", gl.ELoc.G, 1)
 
     dbGrad.setName("x-1", "x")
     dbGrad.setName("x-2", "y")
@@ -880,8 +880,8 @@ def createDefaultTgtePot(nech=1, seed=42683):
         flagAddSampleRank=False,
     )
     # Add the tangent coordinates
-    dbTgte.addColumnsByConstant(1, 1.0, "tx", gl.ELoc.TGT, 0)
-    dbTgte.addColumnsByConstant(1, 0.0, "ty", gl.ELoc.TGT, 1)
+    dbTgte.addColumnsByConstant(1, 1, 1.0, "tx", gl.ELoc.TGT, 0)
+    dbTgte.addColumnsByConstant(1, 1, 0.0, "ty", gl.ELoc.TGT, 1)
 
     dbTgte.setName("x-1", "x")
     dbTgte.setName("x-2", "y")
@@ -1166,7 +1166,7 @@ def WgetDbFromGrid(WAll):
         x0=[WDbGridX0.value, WDbGridY0.value],
     )
     db = gl.Db.createFromGridRandomized(grid, randperc=WDbGridPerc.value)
-    db.addColumnsRandom(WDbGridNvar.value, "z", seed=WDbGridSeed.value)
+    db.addColumnsRandom(WDbGridNvar.value, 1, "z", seed=WDbGridSeed.value)
     return db
 
 

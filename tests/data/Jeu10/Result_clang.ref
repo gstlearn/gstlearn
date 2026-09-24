@@ -16,7 +16,7 @@ Coor #2 - Min = 6622949.000 - Max = 6624963.000 - Ext = 2014
 
 Data Base Statistics
 --------------------
-1 - Name x1 - Locator x1
+1 - Name x1 
  Nb of data          =          13
  Nb of active values =          13
  Minimum value       =  422626.800
@@ -24,7 +24,7 @@ Data Base Statistics
  Mean value          =  423577.977
  Standard Deviation  =     605.441
  Variance            =  366559.372
-2 - Name x2 - Locator x2
+2 - Name x2 
  Nb of data          =          13
  Nb of active values =          13
  Minimum value       = 6622949.000
@@ -32,7 +32,7 @@ Data Base Statistics
  Mean value          = 6624113.385
  Standard Deviation  =     586.240
  Variance            =  343677.153
-3 - Name z1 - Locator z1
+3 - Name z1 
  Nb of data          =          13
  Nb of active values =          13
  Minimum value       =    3234.000
@@ -40,7 +40,7 @@ Data Base Statistics
  Mean value          =    3317.191
  Standard Deviation  =      41.126
  Variance            =    1691.381
-4 - Name f1 - Locator f1
+4 - Name f1 
  Nb of data          =          13
  Nb of active values =          13
  Minimum value       =    2690.737
@@ -84,7 +84,7 @@ Coor #2 - Min = 6622920.000 - Max = 6625132.500 - Ext = 2212.5
 
 Data Base Statistics
 --------------------
-1 - Name f1 - Locator f1
+1 - Name f1 
  Nb of data          =       30616
  Nb of active values =       30616
  Minimum value       =    2677.968
@@ -92,7 +92,7 @@ Data Base Statistics
  Mean value          =    2740.171
  Standard Deviation  =      23.619
  Variance            =     557.871
-2 - Name Simu.z1 - Locator z1
+2 - Name Simu.z1 
  Nb of data          =       30616
  Nb of active values =       30616
  Minimum value       =    3209.963

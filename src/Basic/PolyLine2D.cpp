@@ -476,7 +476,7 @@ namespace gstlrn
 
     /* Add the variables */
 
-    Id iptr = db->addColumnsByConstant(2, 0.);
+    Id iptr = db->addColumnsByConstant(2, 1, 0.);
     if (iptr < 0) return 1;
 
     /* Project the starting point */
@@ -551,7 +551,7 @@ namespace gstlrn
     /* Add the variables */
 
     Id ncol = static_cast<Id>(cols.size());
-    Id iptr = dbout->addColumnsByConstant(ncol, TEST);
+    Id iptr = dbout->addColumnsByConstant(ncol, 1, TEST);
     if (iptr < 0) return 1;
 
     /* Project the starting point */
@@ -633,7 +633,7 @@ namespace gstlrn
 
     // Allocate the output variables
 
-    Id iptr = db->addColumnsByConstant(3, TEST);
+    Id iptr = db->addColumnsByConstant(3, 1, TEST);
     if (iptr < 0) return 1;
 
     // Loop on the active samples of the Data Base

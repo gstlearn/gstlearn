@@ -17,7 +17,7 @@ Number :        101       101
 
 Data Base Statistics
 --------------------
-1 - Name rank - Locator NA
+1 - Name rank 
  Nb of data          =      10201
  Nb of active values =      10201
  Minimum value       =      1.000
@@ -25,7 +25,7 @@ Data Base Statistics
  Mean value          =   5101.000
  Standard Deviation  =   2944.775
  Variance            = 8671700.000
-2 - Name x1 - Locator x1
+2 - Name x1 
  Nb of data          =      10201
  Nb of active values =      10201
  Minimum value       =      0.000
@@ -33,7 +33,7 @@ Data Base Statistics
  Mean value          =     50.000
  Standard Deviation  =     29.155
  Variance            =    850.000
-3 - Name x2 - Locator x2
+3 - Name x2
  Nb of data          =      10201
  Nb of active values =      10201
  Minimum value       =      0.000
@@ -41,7 +41,7 @@ Data Base Statistics
  Mean value          =     50.000
  Standard Deviation  =     29.155
  Variance            =    850.000
-4 - Name Simu - Locator NA
+4 - Name Simu 
  Nb of data          =      10201
  Nb of active values =      10201
  Minimum value       =     -3.474
@@ -49,7 +49,7 @@ Data Base Statistics
  Mean value          =      0.158
  Standard Deviation  =      1.119
  Variance            =      1.253
-5 - Name SimuSPDE - Locator z1
+5 - Name SimuSPDE
  Nb of data          =      10201
  Nb of active values =      10201
  Minimum value       =     -5.851

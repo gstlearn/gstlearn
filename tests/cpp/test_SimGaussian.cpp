@@ -87,12 +87,8 @@ int main(int argc, char* argv[])
       dbin, grid, model, nullptr, nbsimu, 425631, nfeatures, false,
       VectorVectorDouble(), NamingConvention("SimuTB"));
     grid->getStatsAsTable({"SimuTB*"}).display();
-    for (Id ivar = 0; ivar < nvar; ivar++)
-    {
-      auto name = NC::getNameEncoded("SimuTB", nullptr, ivar + 1, nvar, -1);
-      grid->getCorrelationAsTable({name}).display();
-    }
-    grid->setLocators({"SimuTB*"}, ELoc::Z, 0, true);
+    grid->getCorrelationAsTable({"SimuTB*"}).display();
+    grid->setLocators({"SimuTB"}, ELoc::Z, 0, true);
     auto* varioTB = varioGridCalculate(grid);
     (void)varioTB->dumpToNF("Vario_TB");
   }
@@ -105,12 +101,8 @@ int main(int argc, char* argv[])
       dbin, grid, model, nullptr, nbsimu, 425631, nfeatures, 100, false,
       NamingConvention("SimuSPT"));
     grid->getStatsAsTable({"SimuSPT*"}).display();
-    for (Id ivar = 0; ivar < nvar; ivar++)
-    {
-      auto name = NC::getNameEncoded("SimuSPT", nullptr, ivar + 1, nvar, -1);
-      grid->getCorrelationAsTable({name}).display();
-    }
-    grid->setLocators({"SimuSPT*"}, ELoc::Z, 0, true);
+    grid->getCorrelationAsTable({"SimuSPT*"}).display();
+    grid->setLocators({"SimuSPT"}, ELoc::Z, 0, true);
     auto* varioSPT = varioGridCalculate(grid);
     (void)varioSPT->dumpToNF("Vario_SPT");
   }
@@ -124,12 +116,8 @@ int main(int argc, char* argv[])
       dbin, grid, model, simparam, nbsimu, 425631, false,
       NamingConvention("SimuFFT"));
     grid->getStatsAsTable({"SimuFFT*"}).display();
-    for (Id ivar = 0; ivar < nvar; ivar++)
-    {
-      auto name = NC::getNameEncoded("SimuFFT", nullptr, ivar + 1, nvar, -1);
-      grid->getCorrelationAsTable({name}).display();
-    }
-    grid->setLocators({"SimuFFT*"}, ELoc::Z, 0, true);
+    grid->getCorrelationAsTable({"SimuFFT*"}).display();
+    grid->setLocators({"SimuFFT"}, ELoc::Z, 0, true);
     auto* varioFFT = varioGridCalculate(grid);
     (void)varioFFT->dumpToNF("Vario_FFT");
   }

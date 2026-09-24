@@ -16,7 +16,7 @@ Coor #2 - Min =       1.354 - Max =      94.996 - Ext = 93.6414
 
 Data Base Statistics
 --------------------
-1 - Name x1 - Locator x1
+1 - Name x1
  Nb of data          =          10
  Nb of active values =          10
  Minimum value       =       5.055
@@ -24,7 +24,7 @@ Data Base Statistics
  Mean value          =      41.520
  Standard Deviation  =      23.518
  Variance            =     553.079
-2 - Name x2 - Locator x2
+2 - Name x2
  Nb of data          =          10
  Nb of active values =          10
  Minimum value       =       1.354
@@ -32,7 +32,7 @@ Data Base Statistics
  Mean value          =      35.921
  Standard Deviation  =      33.053
  Variance            =    1092.518
-3 - Name z1 - Locator z1
+3 - Name z1
  Nb of data          =          10
  Nb of active values =          10
  Minimum value       =       0.616
@@ -60,7 +60,7 @@ Data Base Summary
 -----------------
 File is organized as a regular grid
 Space dimension              = 2
-Number of Columns            = 5
+Number of Columns            = 1
 Total number of samples      = 10000
 
 Grid characteristics:
@@ -76,7 +76,7 @@ Coor #2 - Min =       0.000 - Max =      99.000 - Ext = 99
 
 Data Base Statistics
 --------------------
-1 - Name Simu.z1.S1 - Locator z1
+1 - Name Simu.z1.S1
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =       0.809
@@ -84,7 +84,7 @@ Data Base Statistics
  Mean value          =       5.327
  Standard Deviation  =       1.034
  Variance            =       1.070
-2 - Name Simu.z1.S2 - Locator z2
+2 - Name Simu.z1.S2
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =       0.560
@@ -92,7 +92,7 @@ Data Base Statistics
  Mean value          =       5.065
  Standard Deviation  =       1.073
  Variance            =       1.152
-3 - Name Simu.z1.S3 - Locator z3
+3 - Name Simu.z1.S3
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =       1.370
@@ -100,7 +100,7 @@ Data Base Statistics
  Mean value          =       5.222
  Standard Deviation  =       1.015
  Variance            =       1.029
-4 - Name Simu.z1.S4 - Locator z4
+4 - Name Simu.z1.S4
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =       0.621
@@ -108,7 +108,7 @@ Data Base Statistics
  Mean value          =       5.193
  Standard Deviation  =       1.056
  Variance            =       1.114
-5 - Name Simu.z1.S5 - Locator z5
+5 - Name Simu.z1.S5
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =       0.530

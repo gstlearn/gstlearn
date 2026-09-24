@@ -75,6 +75,7 @@ namespace gstlrn
       DbGrid* dbout,
       Id iptr_simu,
       Id iptr_rank,
+      Id isimu,
       Id facies,
       Id rank);
     Id coverageUpdate(Db* db, Id iptr_cover, Id val);

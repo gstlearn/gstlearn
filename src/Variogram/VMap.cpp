@@ -148,9 +148,9 @@ namespace gstlrn
 
     Id nvar = db->getNLoc(ELoc::Z);
     Id nvs2 = nvar * (nvar + 1) / 2;
-    _IPTV = _dbmap->addColumnsByConstant(nvs2, 0.);
+    _IPTV = _dbmap->addColumnsByConstant(nvs2, 1, 0.);
     if (_IPTV < 0) return 1;
-    _IPTW = _dbmap->addColumnsByConstant(nvs2, 0.);
+    _IPTW = _dbmap->addColumnsByConstant(nvs2, 1, 0.);
     if (_IPTW < 0) return 1;
 
     // Calculating the variogram map in different ways

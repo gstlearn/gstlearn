@@ -595,6 +595,7 @@ plot.init <- function(dims = NA, xlim = NA, ylim = NA, asp = NA) {
 #' Read the coordinates and one variable along a section of a Grid
 #' @param dbgrid Grid data base from the gstlearn library
 #' @param name Name of the target variable
+#' @param version Version of the target variable
 #' @param useSel Use of an optional selection
 #' @param posX rank of the coordinate which will serve as the first coordinate
 #' @param posY rank of the coordinate which will serve as the second coordinate
@@ -604,17 +605,17 @@ plot.init <- function(dims = NA, xlim = NA, ylim = NA, asp = NA) {
 #'
 #' @keywords internal
 #' @noRd
-.readGridCoor <- function(dbgrid, name, useSel = FALSE, posX = 0, posY = 1, corner = NA) {
+.readGridCoor <- function(dbgrid, name, version=0, useSel = FALSE, posX = 0, posY = 1, corner = NA) {
   if (.isNotDef(corner)) {
     corner = rep(0, dbgrid$getNDim())
   }
 
   if (dbgrid$getNDim() == 1) {
-    data = dbgrid$getColumn(name, useSel, FALSE)
+    data = dbgrid$getColumn(name, useSel, FALSE, version)
     x = dbgrid$getColumnByLocator(ELoc_X(), posX, FALSE, FALSE)
     y = dbgrid$getColumnByLocator(ELoc_X(), posY, FALSE, FALSE)
   } else {
-    data = dbgrid$getOneSlice(name, posX, posY, corner, useSel)
+    data = dbgrid$getOneSlice(name, posX, posY, corner, useSel, version)
     nameX = dbgrid$getNameByLocator(ELoc_X(), posX)
     x = dbgrid$getOneSlice(nameX, posX, posY, corner, FALSE)
     nameY = dbgrid$getNameByLocator(ELoc_X(), posY)
@@ -997,6 +998,8 @@ multi.varmod <- function(vario, model=NA, ivar=-1, jvar=-1, idir=-1,
 #' @param db Data Base containing the information to be displayed
 #' @param nameColor Name of the variable to be represented in color
 #' @param nameSize Name of the variable to be represented in proportional symbols
+#' @param versionColor Version of the variable to be represented in color
+#' @param versionSize Version of the variable to be represented in proportional symbols
 #' @param flagAbsSize Using the absolute value of the variable for graphic representation
 #' @param flagCst Represent the location of the active samples only
 #' @param useSel Use of the optional selection
@@ -1017,6 +1020,8 @@ multi.varmod <- function(vario, model=NA, ivar=-1, jvar=-1, idir=-1,
 plot.symbol <- function(db,
                         nameColor = NULL,
                         nameSize = NULL,
+                        versionColor = 0,
+                        versionSize = 0,
                         flagAbsSize = FALSE,
                         flagCst = FALSE,
                         useSel = TRUE,
@@ -1053,7 +1058,7 @@ plot.symbol <- function(db,
   # ---------------------------------------------------------
 
   if (!is.null(nameColor)) {
-    colval <- db$getColumn(nameColor, TRUE)
+    colval <- db$getColumn(nameColor, TRUE, TRUE, versionColor)
 
     if (isFacies) {
       nfac <- rule$getNFacies()
@@ -1092,7 +1097,7 @@ plot.symbol <- function(db,
   # ---------------------------------------------------------
 
   if (!is.null(nameSize) && !flagCst) {
-    sizval <- db$getColumn(nameSize, TRUE)
+    sizval <- db$getColumn(nameSize, TRUE, TRUE, versionSize)
 
     if (flagAbsSize) {
       sizval <- abs(sizval)
@@ -1322,6 +1327,7 @@ plot.literal <- function(db, name=NULL, digit=2, useSel=TRUE, posX=0, posY=1,
 #' Represent the contents of a variable defined on a grid as an Image
 #' @param dbgrid Grid data base from gstlearn
 #' @param name Name of the variable to be represented
+#' @param version Version of the variable to be represented
 #' @param useSel Use of an optional selection
 #' @param rule optional Rule for categorical representation
 #' @param posX rank of the coordinate which will serve as the first coordinate
@@ -1339,6 +1345,7 @@ plot.literal <- function(db, name=NULL, digit=2, useSel=TRUE, posX=0, posY=1,
 
 plot.raster <- function(dbgrid,
                         name = NULL,
+                        version = 0,
                         useSel = TRUE,
                         rule = NULL,
                         posX = 0,
@@ -1375,6 +1382,7 @@ plot.raster <- function(dbgrid,
   df <- .readGridCoor(
     dbgrid,
     name,
+    version,
     useSel,
     posX,
     posY,
@@ -1527,6 +1535,7 @@ plot.raster <- function(dbgrid,
 #' Represent the contents of a variable defined on a grid with isovalues
 #' @param dbgrid Grid data base from gstlearn
 #' @param name Name of the variable to be represented
+#' @param version Version of the variable to be represented
 #' @param useSel Use of an optional selection
 #' @param posX rank of the coordinate which will serve as the first coordinate
 #' @param posY rank of the coordinate which will serve as the second coordinate
@@ -1537,7 +1546,7 @@ plot.raster <- function(dbgrid,
 #' @param flagLegend Display the legend for grid representation as an image
 #' @param ... Arguments passed to geom_contour()
 #' @return The description of the contents of the figure
-plot.contour <- function(dbgrid, name=NULL, useSel = TRUE, posX=0, posY=1, corner=NA,
+plot.contour <- function(dbgrid, name=NULL, version=0, useSel = TRUE, posX=0, posY=1, corner=NA,
     palette=NULL, naColor="transparent", legendName=NA, flagLegend=FALSE, ...)
 {
   if (!.isGrid(dbgrid, TRUE)) stop()
@@ -1550,7 +1559,7 @@ plot.contour <- function(dbgrid, name=NULL, useSel = TRUE, posX=0, posY=1, corne
     return(NULL)
 
   # Reading the Grid information
-  df = .readGridCoor(dbgrid, name, useSel, posX, posY, corner)
+  df = .readGridCoor(dbgrid, name, version, useSel, posX, posY, corner)
 
   # Define the contents
   layer <- geom_contour(
@@ -1602,12 +1611,13 @@ plot.polygon <- function(poly, cols=NA, flagTitle=FALSE, ...)
 #' @param db A data base object from the gstlearn library
 #' @param name Name of the target variable
 #' @param useSel Use of an optional selection
+#' @param version Version of the variable to be represented
 #' @param ... List of arguments passed to geom_histogram( )
 #' @return The ggplot object
-plot.hist <- function(db, name, useSel=TRUE, ...)
+plot.hist <- function(db, name, useSel=TRUE, version=0, ...)
 {
   p = list()
-  val  = db$getColumn(name, useSel)
+  val  = db$getColumn(name, useSel, TRUE, version)
   df = data.frame(val)
 
   p <- append(p, geom_histogram(data=df, mapping=aes(x=val), na.rm=TRUE, ...))

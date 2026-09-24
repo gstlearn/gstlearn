@@ -2,18 +2,18 @@ This test is meant to test Kriging using Unique Neighborhood
 - the Data Set contains 100 samples
 - the output Grid contains 10000 nodes
 - the Unique Neighborhood is required
-#NO_DIFF# Kriging in Unique Neighborhood: 108 ms. (Ref = 700 ms.)
+#NO_DIFF# Kriging in Unique Neighborhood: 31 ms. (Ref = 700 ms.)
 
 Data Base Grid Characteristics
 ==============================
 
 Data Base Statistics
 --------------------
-4 - Name Kriging.z.estim - Locator z1
- Nb of data          =      10000
- Nb of active values =      10000
- Minimum value       =     -2.203
- Maximum value       =      2.167
- Mean value          =      0.021
- Standard Deviation  =      0.651
- Variance            =      0.424
+1 - Name Kriging.z.estim
+ Nb of data          =       10000
+ Nb of active values =       10000
+ Minimum value       =      -2.203
+ Maximum value       =       2.167
+ Mean value          =       0.021
+ Standard Deviation  =       0.651
+ Variance            =       0.424

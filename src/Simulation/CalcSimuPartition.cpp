@@ -101,7 +101,7 @@ namespace gstlrn
 
     Id iattp = dbpoint->getNColumn() - 1;
     if (expandPointToGrid(
-          dbpoint, dbgrid, iattp, -1, 0, -1, -1, -1, -1, 0, VectorDouble(),
+          dbpoint, dbgrid, iattp, 0, -1, 0, -1, -1, -1, -1, 0, VectorDouble(),
           simgrid))
       return 1;
 
@@ -281,7 +281,7 @@ namespace gstlrn
   {
     if (!ACalcSimulation::_preprocess()) return false;
 
-    _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 0, getNbSimu());
+    _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 0, getNbSimu(), 1);
     return (_iattOut >= 0);
   }
 

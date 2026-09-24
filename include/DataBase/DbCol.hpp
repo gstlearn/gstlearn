@@ -141,6 +141,7 @@ namespace gstlrn
     static DbCol createEmpty() { return DbCol(); }
 
     void deleteSample(const Id isample);
+    void deleteVersion(const Id iversion);
 
     Id getUniqueIndex() const { return _uniqueIndex; }
 

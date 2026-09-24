@@ -19,19 +19,19 @@ Total number of samples      = 102
 
 Data Base Extension
 -------------------
-Coor #1 - Min =    109.850 - Max =    143.010 - Ext = 33.16
-Coor #2 - Min =    483.660 - Max =    513.040 - Ext = 29.38
+Coor #1 - Min =     109.850 - Max =     143.010 - Ext = 33.16
+Coor #2 - Min =     483.660 - Max =     513.040 - Ext = 29.38
 
 Data Base Statistics
 --------------------
-5 - Name Pb - Locator z1
- Nb of data          =        102
- Nb of active values =        101
- Minimum value       =      3.000
- Maximum value       =     31.600
- Mean value          =      6.104
- Standard Deviation  =      3.594
- Variance            =     12.916
+1 - Name Pb
+ Nb of data          =         102
+ Nb of active values =         101
+ Minimum value       =       3.000
+ Maximum value       =      31.600
+ Mean value          =       6.104
+ Standard Deviation  =       3.594
+ Variance            =      12.916
 
 Variables
 ---------
@@ -71,19 +71,19 @@ Number of active samples     = 99
 
 Data Base Extension
 -------------------
-Coor #1 - Min =    109.850 - Max =    143.010 - Ext = 33.16
-Coor #2 - Min =    483.660 - Max =    513.040 - Ext = 29.38
+Coor #1 - Min =     109.850 - Max =     143.010 - Ext = 33.16
+Coor #2 - Min =     483.660 - Max =     513.040 - Ext = 29.38
 
 Data Base Statistics
 --------------------
-5 - Name Pb - Locator z1
- Nb of data          =        102
- Nb of active values =         99
- Minimum value       =      3.000
- Maximum value       =     12.700
- Mean value          =      5.658
- Standard Deviation  =      1.697
- Variance            =      2.881
+1 - Name Pb
+ Nb of data          =         102
+ Nb of active values =          99
+ Minimum value       =       3.000
+ Maximum value       =      12.700
+ Mean value          =       5.658
+ Standard Deviation  =       1.697
+ Variance            =       2.881
 
 Variables
 ---------
@@ -128,13 +128,13 @@ Number of drift equation(s)  = 1
 Covariance Part
 ---------------
 Exponential
-- Sill         =      0.966
-- Range        =      0.637
-- Theo. Range  =      0.212
+- Sill         =       0.966
+- Range        =       0.637
+- Theo. Range  =       0.212
 Spherical
-- Sill         =      1.670
-- Range        =      5.757
-Total Sill     =      2.637
+- Sill         =       1.670
+- Range        =       5.757
+Total Sill     =       2.637
 
 Drift Part
 ----------
@@ -183,12 +183,12 @@ Mean                          = 5.65758
 Variance                      = 2.86296
 Number of Hermite polynomials = 30
 Normalized coefficients for Hermite polynomials (punctual variable)
-               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
-     [  0,]     5.658    -1.625     0.440    -0.069    -0.017     0.082    -0.061
-     [  7,]     0.001     0.036    -0.044     0.004     0.047    -0.030    -0.029
-     [ 14,]     0.037     0.007    -0.031     0.010     0.018    -0.019    -0.003
-     [ 21,]     0.019    -0.010    -0.014     0.019     0.006    -0.023     0.004
-     [ 28,]     0.022    -0.013
+                 [,  0]     [,  1]     [,  2]     [,  3]     [,  4]     [,  5]     [,  6]
+      [  0,]      5.658     -1.625      0.440     -0.069     -0.017      0.082     -0.061
+      [  7,]      0.001      0.036     -0.044      0.004      0.047     -0.030     -0.029
+      [ 14,]      0.037      0.007     -0.031      0.010      0.018     -0.019     -0.003
+      [ 21,]      0.019     -0.010     -0.014      0.019      0.006     -0.023      0.004
+      [ 28,]      0.022     -0.013
 ----
 
 
@@ -214,27 +214,27 @@ Number of active samples     = 99
 
 Data Base Extension
 -------------------
-Coor #1 - Min =    109.850 - Max =    143.010 - Ext = 33.16
-Coor #2 - Min =    483.660 - Max =    513.040 - Ext = 29.38
+Coor #1 - Min =     109.850 - Max =     143.010 - Ext = 33.16
+Coor #2 - Min =     483.660 - Max =     513.040 - Ext = 29.38
 
 Data Base Statistics
 --------------------
-5 - Name Pb - Locator NA
- Nb of data          =        102
- Nb of active values =         99
- Minimum value       =      3.000
- Maximum value       =     12.700
- Mean value          =      5.658
- Standard Deviation  =      1.697
- Variance            =      2.881
-7 - Name Y.Pb - Locator z1
- Nb of data          =        102
- Nb of active values =         99
- Minimum value       =     -2.700
- Maximum value       =      2.513
- Mean value          =     -0.005
- Standard Deviation  =      1.007
- Variance            =      1.014
+1 - Name Pb
+ Nb of data          =         102
+ Nb of active values =          99
+ Minimum value       =       3.000
+ Maximum value       =      12.700
+ Mean value          =       5.658
+ Standard Deviation  =       1.697
+ Variance            =       2.881
+2 - Name Y.Pb
+ Nb of data          =         102
+ Nb of active values =          99
+ Minimum value       =      -2.700
+ Maximum value       =       2.513
+ Mean value          =      -0.005
+ Standard Deviation  =       1.007
+ Variance            =       1.014
 
 Variables
 ---------
@@ -276,35 +276,35 @@ Number of active samples     = 99
 
 Data Base Extension
 -------------------
-Coor #1 - Min =    109.850 - Max =    143.010 - Ext = 33.16
-Coor #2 - Min =    483.660 - Max =    513.040 - Ext = 29.38
+Coor #1 - Min =     109.850 - Max =     143.010 - Ext = 33.16
+Coor #2 - Min =     483.660 - Max =     513.040 - Ext = 29.38
 
 Data Base Statistics
 --------------------
-5 - Name Pb - Locator NA
- Nb of data          =        102
- Nb of active values =         99
- Minimum value       =      3.000
- Maximum value       =     12.700
- Mean value          =      5.658
- Standard Deviation  =      1.697
- Variance            =      2.881
-7 - Name Y.Pb - Locator NA
- Nb of data          =        102
- Nb of active values =         99
- Minimum value       =     -2.700
- Maximum value       =      2.513
- Mean value          =     -0.005
- Standard Deviation  =      1.007
- Variance            =      1.014
-8 - Name Z.Y.Pb - Locator z1
- Nb of data          =        102
- Nb of active values =         99
- Minimum value       =      3.003
- Maximum value       =     12.700
- Mean value          =      5.658
- Standard Deviation  =      1.697
- Variance            =      2.881
+1 - Name Pb
+ Nb of data          =         102
+ Nb of active values =          99
+ Minimum value       =       3.000
+ Maximum value       =      12.700
+ Mean value          =       5.658
+ Standard Deviation  =       1.697
+ Variance            =       2.881
+2 - Name Y.Pb
+ Nb of data          =         102
+ Nb of active values =          99
+ Minimum value       =      -2.700
+ Maximum value       =       2.513
+ Mean value          =      -0.005
+ Standard Deviation  =       1.007
+ Variance            =       1.014
+3 - Name Z.Y.Pb
+ Nb of data          =         102
+ Nb of active values =          99
+ Minimum value       =       3.003
+ Maximum value       =      12.700
+ Mean value          =       5.658
+ Standard Deviation  =       1.697
+ Variance            =       2.881
 
 Variables
 ---------

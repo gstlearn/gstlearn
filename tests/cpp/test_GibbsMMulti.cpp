@@ -72,16 +72,16 @@ int main(int argc, char* argv[])
   DbGrid* db = DbGrid::create({nx, nx}, {1., 1.});
   if (!FFFF(bound))
   {
-    db->addColumnsByConstant(1, -bound, "Lower", ELoc::L);
-    db->addColumnsByConstant(1, +bound, "Upper", ELoc::U);
+    db->addColumnsByConstant(1, 1, -bound, "Lower", ELoc::L);
+    db->addColumnsByConstant(1, 1, +bound, "Upper", ELoc::U);
   }
   else
   {
-    db->addColumnsByConstant(1, TEST, "Lower", ELoc::L);
-    db->addColumnsByConstant(1, TEST, "Upper", ELoc::U);
+    db->addColumnsByConstant(1, 1, TEST, "Lower", ELoc::L);
+    db->addColumnsByConstant(1, 1, TEST, "Upper", ELoc::U);
   }
-  if (db_locator_attribute_add(db, ELoc::GAUSFAC, nbsimu * nvar, 0, 0., &iptr))
-    return 1;
+  iptr = db->addColumnsByConstant(nvar, nbsimu, 0., String(), ELoc::GAUSFAC);
+  if (iptr < 0) return 1;
 
   // Model
 
@@ -124,7 +124,7 @@ int main(int argc, char* argv[])
     VarioParam varioparam;
     std::vector<DirParam> dirparams = DirParam::createMultipleInSpace(nlag);
     varioparam.addMultiDirs(dirparams);
-    VectorString names = db->getName("gausfac*");
+    VectorString names = db->getNames("gausfac*");
     for (size_t isimu = 0; isimu < names.size(); isimu++)
     {
       db->clearLocators(ELoc::Z);

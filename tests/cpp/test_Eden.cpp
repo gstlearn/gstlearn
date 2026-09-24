@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
 
   // Add a Fluid information
   Id nfluids = 1;
-  grid->addColumnsByConstant(nfluids, TEST, "Fluid");
+  grid->addColumnsByConstant(nfluids, 1, TEST, "Fluid");
   (void)grid->assignGridColumn("Fluid", 0, 100, 1.);
 
   // Fluid propagation

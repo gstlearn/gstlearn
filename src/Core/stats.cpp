@@ -717,7 +717,7 @@ namespace gstlrn
     /* Create the new variable in the output file */
 
     ncol = 3;
-    iptr = dbgrid2->addColumnsByConstant(ncol, TEST);
+    iptr = dbgrid2->addColumnsByConstant(ncol, 1, TEST);
     if (iptr < 0) goto label_end;
     dbgrid2->setLocatorsByUID(ncol, iptr, ELoc::Z, 0);
 
@@ -1337,7 +1337,7 @@ namespace gstlrn
 
     /* Create the new variable in the output file */
 
-    iptr = dbgrid2->addColumnsByConstant(1, TEST);
+    iptr = dbgrid2->addColumnsByConstant(1, 1, TEST);
     if (iptr < 0) goto label_end;
 
     /* Loop on the cells of the Output Grid */

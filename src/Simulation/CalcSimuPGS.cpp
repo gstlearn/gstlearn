@@ -342,59 +342,59 @@ namespace gstlrn
   {
     if (!ACalcSimulation::_preprocess()) return false;
 
-    Id iptr;
-
     /* Storage of the proportions */
     if (_flagProp)
     {
-      if (db_locator_attribute_add(
-            getDbout(), ELoc::P, _nfactot, 0, 0., &_iptrRP))
-        return false;
+      _iptrRP =
+        getDbout()->addColumnsByConstant(_nfactot, 1, 0., String(), ELoc::P);
+      if (_iptrRP < 0) return false;
     }
 
     /* Storage of the facies simulations in the output file */
-    if (db_locator_attribute_add(
-          getDbout(), ELoc::FACIES, _numberPGS * getNbSimu(), 0, 0., &_iptrRF))
-      return false;
+    _iptrRF = getDbout()->addColumnsByConstant(
+      _numberPGS, getNbSimu(), 0., String(), ELoc::FACIES);
+    if (_iptrRF < 0) return false;
 
     /* Storage of the facies simulations in the input file */
     if (_flagCond)
     {
-      if (db_locator_attribute_add(
-            getDbin(), ELoc::FACIES, _numberPGS * getNbSimu(), 0, 0., &_iptrDF))
-        return false;
+      _iptrDF = getDbin()->addColumnsByConstant(
+        _numberPGS, getNbSimu(), 0., String(), ELoc::FACIES);
+      if (_iptrDF < 0) return false;
     }
 
     /* Gaussian transform of the facies input data */
     if (_flagCond)
     {
-      if (db_locator_attribute_add(
-            getDbin(), ELoc::GAUSFAC, _ngrftot * getNbSimu(), 0, 0., &iptr))
-        return false;
+      auto iptr = getDbin()->addColumnsByConstant(
+        _ngrftot, getNbSimu(), 0., String(), ELoc::GAUSFAC);
+      if (iptr < 0) return false;
     }
 
     /* Non-conditional gaussian simulations at data points */
     if (_flagCond)
     {
-      if (db_locator_attribute_add(
-            getDbin(), ELoc::SIMU, _ngrftot * getNbSimu(), 0, 0., &_iptrDN))
-        return false;
+      _iptrDN = getDbin()->addColumnsByConstant(
+        _ngrftot, getNbSimu(), 0., String(), ELoc::SIMU);
+      if (_iptrDN < 0) return false;
     }
 
     /* Non-conditional gaussian simulations at target points */
-    if (db_locator_attribute_add(
-          getDbout(), ELoc::SIMU, _ngrftot * getNbSimu(), 0, 0., &_iptrRN))
-      return false;
+    _iptrRN = getDbout()->addColumnsByConstant(
+      _ngrftot, getNbSimu(), 0., String(), ELoc::SIMU);
+    if (_iptrRN < 0) return false;
 
     if (_flagCond)
     {
       /* Lower bound at input data points */
-      if (db_locator_attribute_add(getDbin(), ELoc::L, _ngrftot, 0, 0., &iptr))
-        return false;
+      auto iptrl =
+        getDbin()->addColumnsByConstant(_ngrftot, 1, 0., String(), ELoc::L);
+      if (iptrl < 0) return false;
 
       /* Upper bound at input data points */
-      if (db_locator_attribute_add(getDbin(), ELoc::U, _ngrftot, 0, 0., &iptr))
-        return false;
+      auto iptru =
+        getDbin()->addColumnsByConstant(_ngrftot, 1, 0., String(), ELoc::U);
+      if (iptru < 0) return false;
     }
     return true;
   }
@@ -444,6 +444,7 @@ namespace gstlrn
           getDbin(), modvec, _ruleprop->getRule(ipgs)->getRho(), false);
         gibbs->init(
           _numberPGS, _numberGRF[ipgs], _gibbsNBurn, _gibbsNIter, getSeed());
+        auto flagCheck = false;
 
         /* Allocate the covariance matrix inverted */
 
@@ -465,7 +466,7 @@ namespace gstlrn
                   getNbSimu()))
               return false;
 
-          if (gibbs->run(y, ipgs, isimu, getVerbose())) return false;
+          if (gibbs->run(y, ipgs, isimu, getVerbose(), flagCheck)) return false;
         }
 
         /* Convert gaussian to facies on data point */
@@ -610,15 +611,13 @@ namespace gstlrn
         getDbout()->deleteColumnsByLocator(ELoc::SIMU);
       else
         namconv.setOutput(
-          VectorString(), 0, getDbout(), _iptrRN, "Gaus",
-          _ngrftot * getNbSimu(), false);
+          VectorString(), 0, getDbout(), _iptrRN, "Gaus", _ngrftot, false);
 
       if (!_keep(RESULT, TYPE_FACIES) && _iptrRF >= 0)
         getDbout()->deleteColumnsByLocator(ELoc::FACIES);
       else
         namconv.setOutput(
-          VectorString(), 0, getDbout(), _iptrRF, String(),
-          _numberPGS * getNbSimu());
+          VectorString(), 0, getDbout(), _iptrRF, String(), _numberPGS);
     }
 
     if (isConditional())

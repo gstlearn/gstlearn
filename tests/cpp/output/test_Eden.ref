@@ -4,7 +4,7 @@ Data Base Grid Characteristics
 
 Data Base Statistics
 --------------------
-1 - Name rank - Locator NA
+1 - Name rank
  Nb of data          =       30401
  Nb of active values =       30401
  Minimum value       =       1.000
@@ -12,7 +12,7 @@ Data Base Statistics
  Mean value          =   15201.000
  Standard Deviation  =    8776.013
  Variance            = 77018400.000
-2 - Name x1 - Locator x1
+2 - Name x1
  Nb of data          =       30401
  Nb of active values =       30401
  Minimum value       =       0.000
@@ -20,7 +20,7 @@ Data Base Statistics
  Mean value          =     150.000
  Standard Deviation  =      86.891
  Variance            =    7550.000
-3 - Name x2 - Locator x2
+3 - Name x2
  Nb of data          =       30401
  Nb of active values =       30401
  Minimum value       =       0.000
@@ -28,7 +28,7 @@ Data Base Statistics
  Mean value          =      50.000
  Standard Deviation  =      29.155
  Variance            =     850.000
-4 - Name Simu - Locator NA
+4 - Name Simu
  Nb of data          =       30401
  Nb of active values =       30401
  Minimum value       =      -3.388
@@ -36,7 +36,7 @@ Data Base Statistics
  Mean value          =      -0.106
  Standard Deviation  =       0.975
  Variance            =       0.952
-5 - Name Facies - Locator NA
+5 - Name Facies
  Nb of data          =       30401
  Nb of active values =       30401
  Minimum value       =       1.000
@@ -44,7 +44,7 @@ Data Base Statistics
  Mean value          =       1.939
  Standard Deviation  =       0.545
  Variance            =       0.297
-6 - Name Fluid - Locator NA
+6 - Name Fluid
  Nb of data          =       30401
  Nb of active values =       30401
  Minimum value       =       1.000
@@ -52,7 +52,7 @@ Data Base Statistics
  Mean value          =       1.000
  Standard Deviation  =       0.000
  Variance            =       0.000
-7 - Name Eden.Fluid - Locator NA
+7 - Name Eden.Fluid
  Nb of data          =       30401
  Nb of active values =       30401
  Minimum value       =       0.000
@@ -60,7 +60,7 @@ Data Base Statistics
  Mean value          =       0.000
  Standard Deviation  =       0.000
  Variance            =       0.000
-8 - Name Eden.Date - Locator z1
+8 - Name Eden.Date
  Nb of data          =       30401
  Nb of active values =       30401
  Minimum value       =       1.000

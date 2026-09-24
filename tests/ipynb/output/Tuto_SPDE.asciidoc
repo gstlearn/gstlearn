@@ -54,7 +54,7 @@ Number :          50         50
 
 Data Base Statistics
 --------------------
-4 - Name SimuSPDE - Locator z1
+1 - Name SimuSPDE 
  Nb of data          =        2500
  Nb of active values =        2500
  Minimum value       =      -3.342
@@ -93,7 +93,7 @@ Total number of samples      = 1000
 
 Data Base Statistics
 --------------------
-3 - Name SimuSPDE - Locator z1
+1 - Name SimuSPDE 
  Nb of data          =        1000
  Nb of active values =        1000
  Minimum value       =      -2.990
@@ -144,7 +144,7 @@ Number :          75         75
 
 Data Base Statistics
 --------------------
-1 - Name rank - Locator NA
+1 - Name rank 
  Nb of data          =        5625
  Nb of active values =        2500
  Minimum value       =     989.000
@@ -152,7 +152,7 @@ Data Base Statistics
  Mean value          =    2851.000
  Standard Deviation  =    1082.411
  Variance            = 1171614.500
-2 - Name x1 - Locator x1
+2 - Name x1 
  Nb of data          =        5625
  Nb of active values =        2500
  Minimum value       =       0.010
@@ -160,7 +160,7 @@ Data Base Statistics
  Mean value          =       0.500
  Standard Deviation  =       0.289
  Variance            =       0.083
-3 - Name x2 - Locator x2
+3 - Name x2 
  Nb of data          =        5625
  Nb of active values =        2500
  Minimum value       =       0.010
@@ -168,7 +168,7 @@ Data Base Statistics
  Mean value          =       0.500
  Standard Deviation  =       0.289
  Variance            =       0.083
-4 - Name NewSel - Locator sel
+4 - Name NewSel 
  Nb of data          =        5625
  Nb of active values =        2500
  Minimum value       =       1.000
@@ -176,7 +176,7 @@ Data Base Statistics
  Mean value          =       1.000
  Standard Deviation  =       0.000
  Variance            =       0.000
-5 - Name KrigingSPDE-Free.SimuSPDE.estim - Locator NA
+5 - Name KrigingSPDE-Free.SimuSPDE.estim 
  Nb of data          =        5625
  Nb of active values =        2500
  Minimum value       =      -2.550
@@ -184,7 +184,7 @@ Data Base Statistics
  Mean value          =       0.108
  Standard Deviation  =       0.867
  Variance            =       0.752
-6 - Name KrigingSPDE-Chol.SimuSPDE.estim - Locator z1
+6 - Name KrigingSPDE-Chol.SimuSPDE.estim 
  Nb of data          =        5625
  Nb of active values =        2500
  Minimum value       =      -2.550

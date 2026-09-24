@@ -12,7 +12,7 @@ Data Base Grid Characteristics
 
 Data Base Statistics
 --------------------
-6 - Name P - Locator NA
+1 - Name P 
  Nb of data          =          262144
  Nb of active values =          242306
  Minimum value       =           0.000
@@ -44,7 +44,7 @@ Number :             512            512
 
 Data Base Statistics
 --------------------
-4 - Name Cr - Locator NA
+1 - Name Cr 
  Nb of data          =          262144
  Nb of active values =          262144
  Minimum value       =        2591.000
@@ -52,7 +52,7 @@ Data Base Statistics
  Mean value          =       16800.231
  Standard Deviation  =         936.213
  Variance            =      876495.558
-5 - Name Ni - Locator NA
+2 - Name Ni
  Nb of data          =          262144
  Nb of active values =          262144
  Minimum value       =        1840.000

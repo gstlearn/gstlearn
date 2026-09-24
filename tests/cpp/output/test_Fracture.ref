@@ -11,9 +11,9 @@ Total number of samples      = 30401
 
 Grid characteristics:
 ---------------------
-Origin :      0.000     0.000
-Mesh   :      1.000     1.000
-Number :        301       101
+Origin :       0.000      0.000
+Mesh   :       1.000      1.000
+Number :         301        101
 
 Variables
 ---------
@@ -498,35 +498,35 @@ Data Base Grid Characteristics
 
 Data Base Statistics
 --------------------
-1 - Name rank - Locator NA
- Nb of data          =      30401
- Nb of active values =      30401
- Minimum value       =      1.000
- Maximum value       =  30401.000
- Mean value          =  15201.000
- Standard Deviation  =   8776.013
+1 - Name rank
+ Nb of data          =       30401
+ Nb of active values =       30401
+ Minimum value       =       1.000
+ Maximum value       =   30401.000
+ Mean value          =   15201.000
+ Standard Deviation  =    8776.013
  Variance            = 77018400.000
-2 - Name x1 - Locator x1
- Nb of data          =      30401
- Nb of active values =      30401
- Minimum value       =      0.000
- Maximum value       =    300.000
- Mean value          =    150.000
- Standard Deviation  =     86.891
- Variance            =   7550.000
-3 - Name x2 - Locator x2
- Nb of data          =      30401
- Nb of active values =      30401
- Minimum value       =      0.000
- Maximum value       =    100.000
- Mean value          =     50.000
- Standard Deviation  =     29.155
- Variance            =    850.000
-4 - Name Fractures - Locator z1
- Nb of data          =      30401
- Nb of active values =      30401
- Minimum value       =      0.000
- Maximum value       =     20.000
- Mean value          =      0.908
- Standard Deviation  =      2.994
- Variance            =      8.964
+2 - Name x1
+ Nb of data          =       30401
+ Nb of active values =       30401
+ Minimum value       =       0.000
+ Maximum value       =     300.000
+ Mean value          =     150.000
+ Standard Deviation  =      86.891
+ Variance            =    7550.000
+3 - Name x2
+ Nb of data          =       30401
+ Nb of active values =       30401
+ Minimum value       =       0.000
+ Maximum value       =     100.000
+ Mean value          =      50.000
+ Standard Deviation  =      29.155
+ Variance            =     850.000
+4 - Name Fractures
+ Nb of data          =       30401
+ Nb of active values =       30401
+ Minimum value       =       0.000
+ Maximum value       =      20.000
+ Mean value          =       0.908
+ Standard Deviation  =       2.994
+ Variance            =       8.964

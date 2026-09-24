@@ -127,9 +127,9 @@ namespace gstlrn
     if (!ACalcDbToDb::_preprocess()) return false;
 
     if (_flagUpscale)
-      _iattOut = _addVariableDb(2, 1, ELoc::UNDEFINED, 0, _getNVarout(), 0.);
+      _iattOut = _addVariableDb(2, 1, ELoc::UNDEFINED, 0, _getNVarout(), 1, 0.);
     else
-      _iattOut = _addVariableDb(1, 1, ELoc::UNDEFINED, 0, _getNVarout(), 0.);
+      _iattOut = _addVariableDb(1, 1, ELoc::UNDEFINED, 0, _getNVarout(), 1, 0.);
     if (_iattOut < 0) return false;
 
     return true;

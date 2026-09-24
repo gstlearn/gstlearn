@@ -237,12 +237,14 @@ namespace gstlrn
     const ELoc& locatorType,
     Id locatorIndex,
     Id number,
+    Id nversion,
     double valinit)
   {
     Db* db = _whichDb(whichDb);
     if (db == nullptr) return -1;
+
     Id iuid = db->addColumnsByConstant(
-      number, valinit, "tempVar", locatorType, locatorIndex);
+      number, nversion, valinit, String(), locatorType, locatorIndex);
     if (iuid < 0) return -1;
     VectorInt iuids = VH::sequence(number, iuid);
     _storeInVariableList(whichDb, status, iuids);
@@ -309,22 +311,22 @@ namespace gstlrn
     else
     {
       // In 'dbin'
-      if (!_listVariableTempDbIn.empty())
+      auto n_in = static_cast<Id>(_listVariableTempDbIn.size());
+      if (n_in > 0)
       {
-        for (Id i = 0, n = static_cast<Id>(_listVariableTempDbIn.size()); i < n;
-             i++)
+        for (Id i = 0; i < n_in; i++)
           _dbin->deleteColumnByUID(_listVariableTempDbIn[i]);
+        _listVariableTempDbIn.clear();
       }
-      _listVariableTempDbIn.clear();
 
       // In 'dbout'
-      if (!_listVariableTempDbOut.empty())
+      auto n_out = static_cast<Id>(_listVariableTempDbOut.size());
+      if (n_out > 0)
       {
-        for (Id i = 0, n = static_cast<Id>(_listVariableTempDbOut.size());
-             i < n; i++)
+        for (Id i = 0; i < n_out; i++)
           _dbout->deleteColumnByUID(_listVariableTempDbOut[i]);
+        _listVariableTempDbOut.clear();
       }
-      _listVariableTempDbOut.clear();
     }
   }
 

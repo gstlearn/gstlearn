@@ -83,31 +83,30 @@ namespace gstlrn
 
     if (getKrigopt().hasMatLC()) _setNvar(getKrigopt().getMatLCNRows(), true);
 
-    Id status = 1;
-    if (_iechSingleTarget >= 0) status = 2;
+    Id status = (_iechSingleTarget >= 0) ? 2 : 1;
 
     if (_flagEst)
     {
       _iptrEst =
-        _addVariableDb(2, status, ELoc::UNDEFINED, 0, _getNVar(), TEST);
+        _addVariableDb(2, status, ELoc::UNDEFINED, 0, _getNVar(), 1, TEST);
       if (_iptrEst < 0) return false;
     }
     if (_flagStd)
     {
       _iptrStd =
-        _addVariableDb(2, status, ELoc::UNDEFINED, 0, _getNVar(), TEST);
+        _addVariableDb(2, status, ELoc::UNDEFINED, 0, _getNVar(), 1, TEST);
       if (_iptrStd < 0) return false;
     }
     if (_flagVarZ)
     {
       _iptrVarZ =
-        _addVariableDb(2, status, ELoc::UNDEFINED, 0, _getNVar(), TEST);
+        _addVariableDb(2, status, ELoc::UNDEFINED, 0, _getNVar(), 1, TEST);
       if (_iptrVarZ < 0) return false;
     }
     if (_flagNeighOnly)
     {
       _iptrNeigh =
-        _addVariableDb(2, status, ELoc::UNDEFINED, 0, _nbNeigh, TEST);
+        _addVariableDb(2, status, ELoc::UNDEFINED, 0, _nbNeigh, 1, TEST);
       if (_iptrNeigh < 0) return false;
     }
 
@@ -176,9 +175,16 @@ namespace gstlrn
     {
       if (!getKrigopt().hasMatLC())
       {
-        _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrVarZ, "varz", 1);
-        _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrStd, "stdev", 1);
-        _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrEst, "estim", 1);
+        // In case of Kriging Test, no output variable should be stored
+        if (_iechSingleTarget < 0)
+        {
+          _renameVariable(
+            2, VectorString(), ELoc::Z, nvar, _iptrVarZ, "varz", 1);
+          _renameVariable(
+            2, VectorString(), ELoc::Z, nvar, _iptrStd, "stdev", 1);
+          _renameVariable(
+            2, VectorString(), ELoc::Z, nvar, _iptrEst, "estim", 1);
+        }
       }
       else
       {
@@ -227,7 +233,7 @@ namespace gstlrn
     Id nvar = _getNVar();
     Id nech = _ktest.nech;
     auto names = getDbin()->getNamesByLocator(ELoc::Z);
-    auto iuid = getDbin()->addColumnsByConstant(nvar * nvar, TEST, "Weight");
+    auto iuid = getDbin()->addColumnsByConstant(nvar * nvar, 1, TEST, "Weight");
 
     // Loop on the variables
     for (Id ivar = 0; ivar < nvar; ++ivar)

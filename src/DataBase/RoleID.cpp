@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "DataBase/RoleID.hpp"
+#include "Basic/Message.hpp"
 #include <algorithm>
 #include <cctype>
 
@@ -113,6 +114,35 @@ namespace gstlrn
   {
     _role = ERole::UNDEFINED;
     _index = 0;
+  }
+
+  /**
+   * @brief Check that the Role to be assigned to a Colun is compatible
+   *
+   * @param nVersions Number of versions of the column
+   * @param verbose Whether to print error messages
+   */
+  bool RoleID::checkRoleVsMultipleVersions(Id nVersions, bool verbose)
+  {
+    // This check is irrelevant when the number of versions is one.
+    if (nVersions <= 1) return true;
+
+    // Undefined role is always accpetable
+    if (_role == ERole::UNDEFINED) return true;
+
+    // Some Roles are compatible with multiple versions.
+    if (_role == ERole::SIMU || _role == ERole::FACIES
+        || _role == ERole::GAUSFAC || _role == ERole::Z)
+      return true;
+
+    // The other roles are not compatible with multiple versions.
+
+    if (verbose)
+      messerr(
+        "Role '%s' is not compatible with multiple versions (%d).",
+        _role.getKey().data(), nVersions);
+    _role = ERole::UNDEFINED;
+    return false;
   }
 
 } // namespace gstlrn

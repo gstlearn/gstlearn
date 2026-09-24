@@ -56,17 +56,21 @@ static Id st_save(
 
   if (!consmin.empty())
   {
-    if (db_locator_attribute_add(dbgrid, ELoc::L, 1, 0, 0., &iptr)) return (1);
+    iptr = dbgrid->addColumnsByConstant(1, 1, 0., String(), ELoc::L);
+    if (iptr < 0) return 1;
     for (Id i = 0; i < nech; i++) dbgrid->setArray(i, iptr, consmin[i]);
   }
   if (!consmax.empty())
   {
-    if (db_locator_attribute_add(dbgrid, ELoc::U, 1, 0, 0., &iptr)) return (1);
+    iptr = dbgrid->addColumnsByConstant(1, 1, 0., String(), ELoc::U);
+    if (iptr < 0) return 1;
     for (Id i = 0; i < nech; i++) dbgrid->setArray(i, iptr, consmax[i]);
   }
-  iptr = dbgrid->addColumnsByConstant(1, 0., "Color");
+  iptr = dbgrid->addColumnsByConstant(1, 1, 0., "Color");
+  if (iptr < 0) return 1;
   for (Id i = 0; i < nech; i++) dbgrid->setArray(i, iptr, colors[i]);
-  if (db_locator_attribute_add(dbgrid, ELoc::Z, 1, 0, 0., &iptr)) return (1);
+  iptr = dbgrid->addColumnsByConstant(1, 1, 0., String(), ELoc::Z);
+  if (iptr < 0) return 1;
   for (Id i = 0; i < nech; i++) dbgrid->setArray(i, iptr, z[i]);
 
   /* Save the resulting 'dbgrid' in a neutral file */
@@ -327,13 +331,13 @@ int main(int argc, char* argv[])
   Id useCholesky = 1;
   (void)simulateSPDE(nullptr, dbgrid, model2, nsimu, useCholesky);
 
-  auto rank = dbgrid->getNColumn();
+  auto rank = dbgrid->getUID("SimuSPDE");
   for (Id i = 0; i < nvertex; i++)
   {
     consmin[i] =
-      MIN(dbgrid->getArray(i, rank - 1), dbgrid->getArray(i, rank - 2));
+      MIN(dbgrid->getArray(i, rank, 0), dbgrid->getArray(i, rank, 1));
     consmax[i] =
-      MAX(dbgrid->getArray(i, rank - 1), dbgrid->getArray(i, rank - 2));
+      MAX(dbgrid->getArray(i, rank, 0), dbgrid->getArray(i, rank, 1));
     z[i] = (consmin[i] + consmax[i]) / 2.;
   }
 

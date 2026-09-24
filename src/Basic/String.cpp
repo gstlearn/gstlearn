@@ -437,17 +437,22 @@ namespace gstlrn
   }
 
   /**
-   * Check that the names in 'list' are not conflicting with any previous name.
-   * If it does, increment its name by a version number.
+   * Check that the names in 'newlist' are not conflicting with any name in 'oldList'.
+   * A series of 'reservedList' should not be checked for duplicates.
+   * If a name in 'newList' is found in 'oldList', it is modified by adding a version number (1, 2, 3, ...).
    * @param newList List of new names (suggested in Input and possibly corrected)
    * @param oldList List of already accepted names
+   * @param reservedList List of reserved names (not to be checked)
    */
   void correctNamesForDuplicates(
     VectorString& newList,
-    const VectorString& oldList)
+    const VectorString& oldList,
+    const VectorString& reservedList)
   {
     Id nnew = static_cast<Id>(newList.size());
     Id nold = static_cast<Id>(oldList.size());
+    Id nres = static_cast<Id>(reservedList.size());
+    Id found;
 
     VectorString catList = oldList; // start with contents of 'a'
     catList.insert(
@@ -459,10 +464,20 @@ namespace gstlrn
       String nameref = newList[i];
       if (nameref.empty()) continue;
 
+      // Check if the name is reserved or not
+      found = -1;
+      for (Id j = 0; j < nres && found < 0; j++)
+      {
+        if (newList[i] == reservedList[j]) found = j;
+      }
+      // If the new name coincides with a reserved name,
+      // check for duplicate check should not be performed
+      if (found >= 0) continue;
+
       Id rank = 0;
     label_try:
       rank++;
-      Id found = -1;
+      found = -1;
       for (Id j = 0; j < i + nold && found < 0; j++)
       {
         if (newList[i] == catList[j]) found = j;
@@ -470,7 +485,6 @@ namespace gstlrn
       if (found < 0) continue;
 
       // We have found a similar name. Modify it as long as it matches an already existing name
-
       newList[i] = generateOneName(nameref, rank);
       goto label_try;
     }

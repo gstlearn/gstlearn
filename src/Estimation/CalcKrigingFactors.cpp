@@ -121,12 +121,14 @@ namespace gstlrn
 
     if (_flagEst)
     {
-      _iptrEst = _addVariableDb(2, 1, ELoc::UNDEFINED, 0, _getNFactors(), 0.);
+      _iptrEst =
+        _addVariableDb(2, 1, ELoc::UNDEFINED, 0, _getNFactors(), 1, 0.);
       if (_iptrEst < 0) return false;
     }
     if (_flagStd)
     {
-      _iptrStd = _addVariableDb(2, 1, ELoc::UNDEFINED, 0, _getNFactors(), 0.);
+      _iptrStd =
+        _addVariableDb(2, 1, ELoc::UNDEFINED, 0, _getNFactors(), 1, 0.);
       if (_iptrStd < 0) return false;
     }
     return true;

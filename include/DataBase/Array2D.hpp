@@ -131,6 +131,25 @@ namespace gstlrn
     }
 
     /**
+     * @brief Adds series to the array.
+     *
+     * @param nnewserie Number of series to add.
+     * @param val Value assigned to elements of the newly added series.
+     *
+     * Existing values are preserved.
+     */
+    void addSeries(const Id nnewserie = 1, const value_type val = {})
+    {
+      if (nnewserie <= 0) return;
+
+      VectorType newbuf(this->_buf);
+      newbuf.resize((this->_outer + nnewserie) * this->_inner, val);
+
+      this->_outer += nnewserie;
+      std::swap(this->_buf, newbuf);
+    }
+
+    /**
      * @brief Deletes one element from all series.
      *
      * The element identified by @p ielem is removed from every series.
@@ -159,6 +178,46 @@ namespace gstlrn
       }
 
       this->_inner -= 1;
+      std::swap(this->_buf, newbuf);
+    }
+
+    /**
+     * @brief Deletes one serie from the array.
+     *
+     * The serie identified by @p iserie is removed.
+     * Existing values of the other series are preserved.
+     *
+     * @param iserie Index of the serie to delete.
+     */
+    void deleteSerie(const Id iserie)
+    {
+      if (this->_outer <= 1)
+      {
+        this->_outer = 0;
+        this->_buf =
+          VectorType(); // <--- Remplacer clear() par l'assignation d'un constructeur par défaut
+        return;
+      }
+
+      VectorType newbuf(this->_buf);
+      newbuf.resize((this->_outer - 1) * this->_inner);
+
+      Id a{};
+      for (Id o = 0; o < this->_outer; ++o)
+      {
+        if (o == iserie)
+        {
+          continue;
+        }
+
+        for (Id i = 0; i < this->_inner; ++i)
+        {
+          newbuf[(a * this->_inner) + i] = this->_buf[(o * this->_inner) + i];
+        }
+        a++;
+      }
+
+      this->_outer -= 1;
       std::swap(this->_buf, newbuf);
     }
 
