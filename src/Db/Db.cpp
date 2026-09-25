@@ -719,15 +719,33 @@ namespace gstlrn
     }
   }
 
-  double Db::getDistance1D(Id iech, Id jech, Id idim, bool flagAbs) const
+  /**
+   * Returns the 1-D distance between samples 'iech' and 'jech' along the Space Dimension 'idim'
+   * @param iech Rank of the first sample
+   * @param jech Rank of the second sample
+   * @param idim Rank of the Space Dimension
+   * @return 1-D distance (or TEST if one of the coordinates is undefined)
+   */
+  double Db::getDistance1D(Id iech, Id jech, Id idim) const
+  {
+    double delta = getIncrement1D(iech, jech, idim);
+    return (FFFF(delta)) ? TEST : ABS(delta);
+  }
+
+  /**
+   * Returns the 1-D increment from sample 'jech' to sample 'iech' along the Space Dimension 'idim'
+   * @param iech Rank of the first sample
+   * @param jech Rank of the second sample
+   * @param idim Rank of the Space Dimension
+   * @return 1-D (signed) increment (or TEST if one of the coordinates is undefined)
+   */
+  double Db::getIncrement1D(Id iech, Id jech, Id idim) const
   {
     double v1 = getCoordinate(iech, idim);
     if (FFFF(v1)) return TEST;
     double v2 = getCoordinate(jech, idim);
     if (FFFF(v2)) return TEST;
-    double delta = v1 - v2;
-    if (flagAbs) delta = ABS(delta);
-    return delta;
+    return v1 - v2;
   }
 
   double Db::getDistance(Id iech, Id jech) const
@@ -4646,7 +4664,7 @@ namespace gstlrn
     double dn2 = 0.;
     for (Id idim = 0; idim < getNDim(); idim++)
     {
-      double delta = getDistance1D(iech1, iech2, idim);
+      double delta = getIncrement1D(iech1, iech2, idim);
       if (FFFF(delta)) return TEST;
       cosdir += delta * codir[idim];
       dn1 += delta * delta;

@@ -621,8 +621,8 @@ namespace gstlrn
     void setCoordinates(Id idim, const VectorDouble& coor, bool useSel = false);
     void setSampleCoordinates(Id iech, const VectorDouble& coor);
 
-    double
-      getDistance1D(Id iech, Id jech, Id idim = 0, bool flagAbs = false) const;
+    double getIncrement1D(Id iech, Id jech, Id idim = 0) const;
+    double getDistance1D(Id iech, Id jech, Id idim = 0) const;
     double getDistance(Id iech, Id jech) const;
     Id getDistanceVecInPlace(
       Id iech,

@@ -1783,7 +1783,7 @@ namespace gstlrn
       for (Id jjech = iiech + 1; jjech < nech; jjech++)
       {
         Id jech = rindex[jjech];
-        if (_db->getDistance1D(iech, jech) > maxdist) break;
+        if (_db->getIncrement1D(jech, iech, 0) > maxdist) break;
         if (hasSel && !_db->isActive(jech)) continue;
         if (hasWeight && FFFF(_db->getWeight(jech))) continue;
         if (_discardPoint(jech)) continue;
