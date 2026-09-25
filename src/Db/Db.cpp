@@ -4606,6 +4606,17 @@ namespace gstlrn
     return status;
   }
 
+  VectorBool Db::getActiveAndDefinedArray(Id item) const
+  {
+    auto nech = getNSample();
+    VectorBool status(nech);
+    for (Id iech = 0; iech < nech; iech++)
+    {
+      status[iech] = isActive(iech) && !FFFF(getZVariable(iech, item));
+    }
+    return status;
+  }
+
   /****************************************************************************/
   /*!
   **  Return the vector of ordered samples by increasing coordinate along X

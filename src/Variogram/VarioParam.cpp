@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Variogram/VarioParam.hpp"
-#include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Model/Model.hpp"
 #include "Space/ASpace.hpp"
@@ -520,66 +519,30 @@ namespace gstlrn
       return nullptr;
     }
 
-    // Creating a local Vario structure (to constitute the BiTargetCheck list
+    // Creating a local Vario structure (to constitute the BiTargetCheck list)
     Vario vario(varioparam);
     vario.setDb(db);
     if (vario.prepare()) return nullptr;
 
-    // Creating the output Db
-    Db* newdb = Db::create();
-    Id ndim = db->getNDim();
+    // Output data structures
     VectorVectorDouble ranks(2);
     VectorDouble lags;
     VectorDouble dirs;
     VectorDouble dists;
-    VectorDouble vec(ndim);
 
-    SpaceTarget T1(varioparam.getSpace());
-    SpaceTarget T2(varioparam.getSpace());
+    bool hasDate = varioparam.isDateUsed(db);
 
     // Calculating the admissible pairs
-    VectorInt rindex = db->getSortArray();
-
-    // Local variables to speed up calculations
-    bool hasSel = db->hasLocVariable(ELoc::SEL);
-    bool hasWeight = db->hasLocVariable(ELoc::W);
-    bool hasDate = varioparam.isDateUsed(db);
-    double dist = 0.;
-
     for (Id idir = 0; idir < varioparam.getNDir(); idir++)
     {
       const DirParam& dirparam = varioparam.getDirParam(idir);
-      Id nech = db->getNSample();
-      double maxdist = dirparam.getMaximumDistance();
 
-      /* Loop on the first point */
-
-      for (Id iiech = 0; iiech < nech - 1; iiech++)
-      {
-        Id iech = rindex[iiech];
-        if (hasSel && !db->isActive(iech)) continue;
-        if (hasWeight && FFFF(db->getWeight(iech))) continue;
-        db->getSampleAsSTInPlace(iech, T1);
-
-        Id ideb = (hasDate) ? 0 : iiech + 1;
-        for (Id jjech = ideb; jjech < nech; jjech++)
+      loopOnPairs(
+        db, varioparam.getSpace(), idir, dirparam, hasDate,
+        [&vario](Id id, SpaceTarget& t1, SpaceTarget& t2, double* d)
+        { return vario.keepPair(id, t1, t2, d); },
+        [&](Id iech, Id jech, Id ilag, double dist)
         {
-          Id jech = rindex[jjech];
-          if (db->getIncrement1D(jech, iech) > maxdist) break;
-          if (hasSel && !db->isActive(jech)) continue;
-          if (hasWeight && FFFF(db->getWeight(jech))) continue;
-          db->getSampleAsSTInPlace(jech, T2);
-
-          // Reject the point as soon as one BiTargetChecker is not correct
-          if (!vario.keepPair(idir, T1, T2, &dist)) continue;
-
-          /* Get the rank of the lag */
-
-          auto ilag = dirparam.getLagRank(dist);
-          if (isNA(ilag)) continue;
-
-          // The pair is kept
-
           ranks[0].push_back(static_cast<double>(iech));
           ranks[1].push_back(static_cast<double>(jech));
           ranks[0].push_back(static_cast<double>(jech));
@@ -590,12 +553,11 @@ namespace gstlrn
           lags.push_back(static_cast<double>(ilag));
           dists.push_back(dist);
           dists.push_back(dist);
-        }
-      }
+        });
     }
 
-    // Loading the coordinate vectors in the newly created Db
-
+    // Creating the output Db and loading the coordinate vectors
+    Db* newdb = Db::create();
     newdb->addColumnsByVVD(ranks, "Sample", ELoc::UNDEFINED);
     newdb->addColumns(lags, "Lag", ELoc::UNDEFINED);
     newdb->addColumns(dirs, "Direction", ELoc::UNDEFINED);

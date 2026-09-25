@@ -2826,62 +2826,63 @@ namespace gstlrn
    *****************************************************************************/
   void Vario::_calculateBiasGlobal(Db* db)
   {
-    double covtab, value;
-
     /* Initializations */
-
     Id nbfl = _model->getNDrift();
     Id ndim = static_cast<Id>(_model->getNDim());
-    Id nech = db->getNSampleActiveAndDefined(0);
     VectorDouble d1(ndim, 0.);
 
     /* Calculate the c00 term */
-
     double c00 = _model->evaluateOneGeneric(nullptr, d1);
 
-    /* Calculate the term: G %*% X */
-
-    Id iiech = 0;
-    for (Id iech = 0; iech < db->getNSample(); iech++)
+    // Retreiving indices for active samples where variable 0 is defined
+    VectorBool activeAndDefined = db->getActiveAndDefinedArray(0);
+    VectorInt activeSamples;
+    activeSamples.reserve(db->getNSample());
+    for (Id i = 0; i < db->getNSample(); i++)
     {
-      if (!db->isActiveAndDefined(iech, 0)) continue;
+      if (activeAndDefined[i]) activeSamples.push_back(i);
+    }
+
+    Id nechActive = static_cast<Id>(activeSamples.size());
+
+    /* Calculate the term: G %*% X */
+    for (Id iiech = 0; iiech < nechActive; iiech++)
+    {
+      Id iech = activeSamples[iiech];
+
       for (Id il = 0; il < nbfl; il++)
       {
-        value = 0;
-        Id jjech = 0;
-        for (Id jech = 0; jech < db->getNSample(); jech++)
+        double value = 0.0;
+        for (Id jjech = 0; jjech < nechActive; jjech++)
         {
-          if (!db->isActiveAndDefined(jech, 0)) continue;
+          Id jech = activeSamples[jjech];
+
           for (Id idim = 0; idim < ndim; idim++)
             d1[idim] = db->getIncrement1D(jech, iech, idim);
-          covtab = _model->evaluateOneGeneric(nullptr, d1);
+
+          double covtab = _model->evaluateOneGeneric(nullptr, d1);
           value += (c00 - covtab) * _DRFTAB.getValue(jjech, il);
-          jjech++;
         }
         _DRFGX.setValue(iiech, il, value);
       }
-      iiech++;
     }
 
     /* Calculate the term: t(X) %*% G %*% X */
-
     for (Id il = 0; il < nbfl; il++)
+    {
       for (Id jl = 0; jl < nbfl; jl++)
       {
-        value = 0;
-        for (Id iech = 0; iech < nech; iech++)
+        double value = 0.0;
+        for (Id iech = 0; iech < nechActive; iech++)
           value += _DRFGX.getValue(iech, il) * _DRFTAB.getValue(iech, jl);
         _DRFXGX.setValue(il, jl, value);
       }
+    }
 
     /* Calculate the term: diag(bias) */
-
-    iiech = 0;
-    for (Id iech = 0; iech < db->getNSample(); iech++)
+    for (Id iiech = 0; iiech < nechActive; iiech++)
     {
-      if (!db->isActiveAndDefined(iech, 0)) continue;
       _DRFDIAG[iiech] = _getBias(iiech, iiech);
-      iiech++;
     }
   }
 
@@ -3532,89 +3533,49 @@ namespace gstlrn
   Id Vario::_calculateGeneralByPair(
     Db* db,
     Id idir,
-    const Id* rindex,
+    const Id* /*rindex*/,
     VarioOrder& vorder)
   {
-    SpaceTarget T1(getSpace(), false);
-    SpaceTarget T2(getSpace(), false);
-    Id iech, jech, ilag, ideb;
-
     DirParam dirparam = getDirParam(idir);
-    Id nech = db->getNSample();
     auto nvar = getNVar();
-    double maxdist = getMaximumDistance(idir);
     const VarioParam& varioparam = getVarioParam();
-
-    // Local variables to speed up calculations
-    bool hasSel = db->hasLocVariable(ELoc::SEL);
-    bool hasWeight = db->hasLocVariable(ELoc::W);
     bool hasDate = varioparam.isDateUsed(db);
-    double dist = 0.;
 
-    /* Loop on the first point */
-
-    for (Id iiech = 0; iiech < nech - 1; iiech++)
-    {
-      iech = rindex[iiech];
-      if (hasSel && !db->isActive(iech)) continue;
-      if (hasWeight && FFFF(db->getWeight(iech))) continue;
-      db->getSampleAsSTInPlace(iech, T1);
-
-      ideb = (hasDate) ? 0 : iiech + 1;
-      for (Id jjech = ideb; jjech < nech; jjech++)
+    loopOnPairs(
+      db, getSpace(), idir, dirparam, hasDate,
+      [this](Id id, SpaceTarget& t1, SpaceTarget& t2, double* d)
+      { return keepPair(id, t1, t2, d); },
+      [&](Id iech, Id jech, Id ilag, double dist)
       {
-        jech = rindex[jjech];
-        if (hasSel && !db->isActive(jech)) continue;
-        // if (db->getIncrement1D(jech, iech) > maxdist) break;
-        if (db->getIncrement1D(iech, jech) > maxdist) break;
-
-        if (hasWeight && FFFF(db->getWeight(jech))) continue;
-        db->getSampleAsSTInPlace(jech, T2);
-
-        // Reject the point as soon as one BiTargetChecker is not correct
-        if (!keepPair(idir, T1, T2, &dist)) continue;
-
-        /* Get the rank of the lag */
-
-        ilag = dirparam.getLagRank(dist);
-        if (isNA(ilag)) continue;
-
         /* Case of internal storage */
-
         if (!vorder.empty())
         {
           vorder.add(iech, jech, NULL, NULL, ilag, idir, dist);
         }
         else
         {
-
           /* Evaluate the variogram */
-
           (this->*_evaluate)(db, nvar, iech, jech, idir, ilag, dist, true);
         }
-      }
-    }
+      });
 
-    /* Internal storage */
-
+    /* Internal storage processing */
     if (!vorder.empty())
     {
       vorder.final();
     }
     else
     {
-
       /* Scale the variogram calculations */
       finalScaleByWeights(idir);
 
       /* Center the covariance function */
-
       _finalCorrectByStats(idir);
 
       /* Patch the central value */
-
       _finalCorrectC00(db, idir);
     }
+
     return 0;
   }
 
@@ -3683,85 +3644,44 @@ namespace gstlrn
    ** \param[in]  rindex Array of sorted samples
    **
    *****************************************************************************/
-  Id Vario::_calculateGeneralBySample(Db* db, Id idir, const Id* rindex)
+  Id Vario::_calculateGeneralBySample(Db* db, Id idir, const Id* /*rindex*/)
   {
-    SpaceTarget T1(getSpace(), false);
-    SpaceTarget T2(getSpace(), false);
-    Id iech, jech, i, ilag, ideb;
-
     /* Initializations */
-
     const VarioParam& varioparam = getVarioParam();
     const DirParam& dirparam = getDirParam(idir);
-    Id nech = db->getNSample();
     auto size = getDirSize(idir);
     auto nvar = getNVar();
-    double maxdist = getMaximumDistance(idir);
 
     /* Core allocation */
-
     VectorDouble gg_sum(size, 0);
     VectorDouble hh_sum(size, 0);
     VectorDouble sw_sum(size, 0);
 
-    // Local variables to speed up calculations
-    bool hasSel = db->hasLocVariable(ELoc::SEL);
-    bool hasWeight = db->hasLocVariable(ELoc::W);
     bool hasDate = varioparam.isDateUsed(db);
-    double w1 = 1.;
-    double dist = 0.;
 
-    /* Loop on the first sample */
-
-    for (Id iiech = 0; iiech < nech; iiech++)
-    {
-      iech = rindex[iiech];
-      if (hasSel && !db->isActive(iech)) continue;
-      if (hasWeight)
+    loopOnPairs(
+      db, getSpace(), idir, dirparam, hasDate,
+      [this](Id id, SpaceTarget& t1, SpaceTarget& t2, double* d)
+      { return keepPair(id, t1, t2, d); },
+      [&](Id iech, Id jech, Id ilag, double dist)
       {
-        w1 = db->getWeight(iech);
-        if (FFFF(w1)) continue;
-      }
-      db->getSampleAsSTInPlace(iech, T1);
-
-      /* Looking for the second sample */
-
-      ideb = (hasDate) ? 0 : iiech + 1;
-      for (Id jjech = ideb; jjech < nech; jjech++)
-      {
-        jech = rindex[jjech];
-        if (hasSel && !db->isActive(jech)) continue;
-        if (db->getIncrement1D(jech, iech) > maxdist) break;
-        if (hasWeight && FFFF(db->getWeight(jech))) continue;
-        db->getSampleAsSTInPlace(jech, T2);
-
-        // Reject the point as soon as one BiTargetChecker is not correct
-        if (!keepPair(idir, T1, T2, &dist)) continue;
-
-        /* Get the rank of the lag */
-
-        ilag = dirparam.getLagRank(dist);
-        if (isNA(ilag)) continue;
-
         /* Evaluate the variogram */
-
         (this->*_evaluate)(db, nvar, iech, jech, idir, ilag, dist, true);
-      }
-
-      /* Cumulate to the global variogram */
-
-      for (i = 0; i < size; i++)
+      },
+      [&](Id /*iech*/, double w1)
       {
-        if (getSwByIndex(idir, i) <= 0) continue;
-        sw_sum[i] += w1;
-        gg_sum[i] += w1 * getGgByIndex(idir, i) / getSwByIndex(idir, i);
-        hh_sum[i] += w1 * getHhByIndex(idir, i) / getSwByIndex(idir, i);
-      }
-    }
+        /* Cumulate to the global variogram at the end of outer loop for iech */
+        for (Id i = 0; i < size; i++)
+        {
+          if (getSwByIndex(idir, i) <= 0) continue;
+          sw_sum[i] += w1;
+          gg_sum[i] += w1 * getGgByIndex(idir, i) / getSwByIndex(idir, i);
+          hh_sum[i] += w1 * getHhByIndex(idir, i) / getSwByIndex(idir, i);
+        }
+      });
 
     /* Copy the cumulated variogram into the Vario structure */
-
-    for (i = 0; i < size; i++)
+    for (Id i = 0; i < size; i++)
     {
       setGgByIndex(idir, i, gg_sum[i]);
       setHhByIndex(idir, i, hh_sum[i]);
@@ -3769,15 +3689,12 @@ namespace gstlrn
     }
 
     /* Scale the variogram calculations */
-
     finalScaleByWeights(idir);
 
     /* Center the covariance function */
-
     _finalCorrectByStats(idir);
 
     /* Patch the central value */
-
     _finalCorrectC00(db, idir);
 
     return 0;
@@ -4144,16 +4061,11 @@ namespace gstlrn
    *****************************************************************************/
   Id Vario::computeGeometry(Db* db, VarioOrder& vorder, Id* npair)
   {
-    SpaceTarget T1(getSpace(), false);
-    SpaceTarget T2(getSpace(), false);
-
     /* Initializations */
-
     if (db == nullptr) return 1;
     const VarioParam& varioparam = getVarioParam();
 
     /* Preliminary checks */
-
     if (!_isCompatible(db)) return 1;
     if (_get_generalized_variogram_order() > 0)
     {
@@ -4162,59 +4074,26 @@ namespace gstlrn
       return 1;
     }
 
-    /* Sort the data */
-    VectorInt rindex = db->getSortArray();
-
-    // Local variables to speed up calculations
-    bool hasSel = db->hasLocVariable(ELoc::SEL);
-    bool hasWeight = db->hasLocVariable(ELoc::W);
     bool hasDate = varioparam.isDateUsed(db);
-    Id nech = db->getNSample();
     auto ndir = getNDir();
-    double dist = 0.;
 
     /* Loop on the directions */
-
     for (Id idir = 0; idir < ndir; idir++)
     {
       const DirParam& dirparam = getDirParam(idir);
-      double maxdist = getMaximumDistance(idir);
 
-      /* Loop on the first point */
-
-      for (Id iiech = 0; iiech < nech - 1; iiech++)
-      {
-        Id iech = rindex[iiech];
-        if (hasSel && !db->isActive(iech)) continue;
-        if (hasWeight && FFFF(db->getWeight(iech))) continue;
-        db->getSampleAsSTInPlace(iech, T1);
-
-        Id ideb = (hasDate) ? 0 : iiech + 1;
-        for (Id jjech = ideb; jjech < nech; jjech++)
+      loopOnPairs(
+        db, getSpace(), idir, dirparam, hasDate,
+        [this](Id id, SpaceTarget& t1, SpaceTarget& t2, double* d)
+        { return keepPair(id, t1, t2, d); },
+        [&](Id iech, Id jech, Id ilag, double dist)
         {
-          Id jech = rindex[jjech];
-          if (hasSel && !db->isActive(jech)) continue;
-          if (db->getIncrement1D(jech, iech) > maxdist) break;
-          if (hasWeight && FFFF(db->getWeight(jech))) continue;
-          db->getSampleAsSTInPlace(jech, T2);
-
-          // Reject the point as soon as one BiTargetChecker is not correct
-          if (!keepPair(idir, T1, T2, &dist)) continue;
-
-          /* Get the rank of the lag */
-
-          auto ilag = dirparam.getLagRank(dist);
-          if (isNA(ilag)) continue;
-
           /* Case of internal storage */
-
           vorder.add(iech, jech, NULL, NULL, ilag, idir, dist);
-        }
-      }
+        });
     }
 
     /* Sort the geometry */
-
     *npair = vorder.final();
 
     return 0;
@@ -4365,64 +4244,35 @@ namespace gstlrn
     Db* db,
     Id idir,
     Id ncomp,
-    const Id* rindex)
+    const Id* /*rindex*/)
   {
-    SpaceTarget T1(getSpace(), false);
-    SpaceTarget T2(getSpace(), false);
-    Id iech, jech, ilag, i, icomp;
-    double w1, w2, zi1, zi2, zj1, zj2, v12, v21, di1, di2, dj1, dj2;
-
     const DirParam& dirparam = getDirParam(idir);
-    Id nech = db->getNSample();
     auto nvar = getNVar();
-    double maxdist = getMaximumDistance(idir);
 
-    // Local variables to speed up calculations
-    bool hasSel = db->hasLocVariable(ELoc::SEL);
-    bool hasWeight = db->hasLocVariable(ELoc::W);
-    double dist = 0.;
-
-    /* Loop on the first point */
-
-    for (Id iiech = 0; iiech < nech - 1; iiech++)
-    {
-      iech = rindex[iiech];
-      if (hasSel && !db->isActive(iech)) continue;
-      if (hasWeight && FFFF(db->getWeight(iech))) continue;
-      db->getSampleAsSTInPlace(iech, T1);
-
-      for (Id jjech = iiech + 1; jjech < nech; jjech++)
+    loopOnPairs(
+      db, getSpace(), idir, dirparam, false,
+      [this](Id id, SpaceTarget& t1, SpaceTarget& t2, double* d)
+      { return keepPair(id, t1, t2, d); },
+      [&](Id iech, Id jech, Id ilag, double dist)
       {
-        jech = rindex[jjech];
-        if (hasSel && !db->isActive(jech)) continue;
-        if (db->getIncrement1D(jech, iech) > maxdist) break;
-        if (hasWeight && FFFF(db->getWeight(jech))) continue;
-        db->getSampleAsSTInPlace(jech, T2);
-
-        // Reject the point as soon as one BiTargetChecker is not correct
-        if (!keepPair(idir, T1, T2, &dist)) continue;
-
-        /* Get the rank of the lag */
-
-        ilag = dirparam.getLagRank(dist);
-        if (isNA(ilag)) continue;
-
-        w1 = db->getWeight(iech);
-        w2 = db->getWeight(jech);
+        double w1 = db->getWeight(iech);
+        double w2 = db->getWeight(jech);
 
         for (Id ivar = 0; ivar < nvar; ivar++)
+        {
           for (Id jvar = 0; jvar <= ivar; jvar++)
           {
-
             /* Evaluate the variogram */
+            double v12 = 0., v21 = 0.;
+            double di1 = 0., di2 = 0., dj1 = 0., dj2 = 0.;
 
-            v12 = v21 = di1 = di2 = dj1 = dj2 = 0.;
-            for (icomp = 0; icomp < ncomp; icomp++)
+            for (Id icomp = 0; icomp < ncomp; icomp++)
             {
-              zi1 = _getIVAR(db, iech, ivar * ncomp + icomp);
-              zi2 = _getIVAR(db, iech, jvar * ncomp + icomp);
-              zj1 = _getIVAR(db, jech, ivar * ncomp + icomp);
-              zj2 = _getIVAR(db, jech, jvar * ncomp + icomp);
+              double zi1 = _getIVAR(db, iech, ivar * ncomp + icomp);
+              double zi2 = _getIVAR(db, iech, jvar * ncomp + icomp);
+              double zj1 = _getIVAR(db, jech, ivar * ncomp + icomp);
+              double zj2 = _getIVAR(db, jech, jvar * ncomp + icomp);
+
               if (FFFF(zi1) || FFFF(zi2) || FFFF(zj1) || FFFF(zj2))
               {
                 v12 = v21 = TEST;
@@ -4435,9 +4285,11 @@ namespace gstlrn
               dj1 += zj1 * zj1;
               dj2 += zj2 * zj2;
             }
+
             if (FFFF(v12) || FFFF(v21)) continue;
             if (ABS(di1) < EPSILON8 || ABS(di2) < EPSILON8) continue;
             if (ABS(dj1) < EPSILON8 || ABS(dj2) < EPSILON8) continue;
+
             di1 = sqrt(di1);
             di2 = sqrt(di2);
             dj1 = sqrt(dj1);
@@ -4445,7 +4297,7 @@ namespace gstlrn
             v12 = ABS(v12) / (di1 * dj2);
             v21 = ABS(v21) / (di2 * dj1);
 
-            i = getAddressForGg(idir, ivar, jvar, ilag, 1);
+            Id i = getAddressForGg(idir, ivar, jvar, ilag, 1);
             setGgByIndex(idir, i, getGgByIndex(idir, i) + w1 * w2 * v12);
             setHhByIndex(idir, i, getHhByIndex(idir, i) + w1 * w2 * dist);
             setSwByIndex(idir, i, getSwByIndex(idir, i) + w1 * w2);
@@ -4455,19 +4307,16 @@ namespace gstlrn
             setHhByIndex(idir, i, getHhByIndex(idir, i) + w1 * w2 * dist);
             setSwByIndex(idir, i, getSwByIndex(idir, i) + w1 * w2);
           }
-      }
-    }
+        }
+      });
 
     /* Scale the variogram calculations */
-
     finalScaleByWeights(idir);
 
     /* Center the covariance function */
-
     _finalCorrectByStats(idir);
 
     /* Patch the central value */
-
     _finalCorrectC00(db, idir);
 
     return 0;

@@ -807,7 +807,7 @@ namespace gstlrn
     bool isActiveDomain(Id iech) const;
     bool isActiveAndDefined(Id iech, Id item) const;
     VectorBool getActiveArray() const;
-
+    VectorBool getActiveAndDefinedArray(Id item) const;
     VectorInt getSortArray() const;
     double
       getCosineToDirection(Id iech1, Id iech2, const VectorDouble& codir) const;

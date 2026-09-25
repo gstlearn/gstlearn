@@ -1749,92 +1749,86 @@ namespace gstlrn
    *****************************************************************************/
   Id CalcModelPGS::_variogramGeometryPgsCalcul(Id idir)
   {
-    Id iad;
-    SpaceTarget T1(_vario->getSpace());
-    SpaceTarget T2(_vario->getSpace());
-
-    /* Retrieve information */
-
     Id nech = _db->getNSample();
     Id nvar = _vario->getNVar();
-    double maxdist = _vario->getMaximumDistance(idir);
     const DirParam& dirparam = _vario->getDirParam(idir);
+    bool flagAsym = _vario->getFlagAsym();
+    bool hasDate = _vario->hasDate();
 
-    // Local variables to speed up calculations
-    bool hasSel = _db->hasLocVariable(ELoc::SEL);
-    bool hasWeight = _db->hasLocVariable(ELoc::W);
-    double dist = 0.;
-
-    /* Sort the data */
-
-    VectorInt rindex = _db->getSortArray();
-
-    /* Loop on the first point */
-
-    for (Id iiech = 0; iiech < nech - 1; iiech++)
+    // 1. O(N) PRE-CALCULATION: Reuse Db active array and append _discardPoint condition
+    VectorBool activeSample = _db->getActiveArray();
+    for (Id iech = 0; iech < nech; iech++)
     {
-      Id iech = rindex[iiech];
-      if (hasSel && !_db->isActive(iech)) continue;
-      if (hasWeight && FFFF(_db->getWeight(iech))) continue;
-      if (_discardPoint(iech)) continue;
-      _db->getSampleAsSTInPlace(iech, T1);
-      mes_process("Calculating Variogram Geometry", nech, iech);
-
-      for (Id jjech = iiech + 1; jjech < nech; jjech++)
+      if (activeSample[iech] && _discardPoint(iech))
       {
-        Id jech = rindex[jjech];
-        if (_db->getIncrement1D(jech, iech, 0) > maxdist) break;
-        if (hasSel && !_db->isActive(jech)) continue;
-        if (hasWeight && FFFF(_db->getWeight(jech))) continue;
-        if (_discardPoint(jech)) continue;
-        _db->getSampleAsSTInPlace(jech, T2);
-
-        // Reject the point as soon as one BiTargetChecker is not correct
-        if (!_vario->keepPair(idir, T1, T2, &dist)) continue;
-
-        /* Get the rank of the lag */
-
-        auto ilag = dirparam.getLagRank(dist);
-        if (isNA(ilag)) continue;
-
-        /* Add the sample (only positive lags are of interest) */
-
-        if (ilag < 0) ilag = -ilag;
-        if (_vorder.add(iech, jech, NULL, NULL, ilag, idir, dist)) return 1;
-        dist = ABS(dist);
-
-        /* Update the distance and weight for all GRFs */
-
-        for (Id ivar = 0; ivar < nvar; ivar++)
-          for (Id jvar = 0; jvar <= ivar; jvar++)
-          {
-            if (_vario->getFlagAsym())
-            {
-              iad = _vario->getAddressForGg(idir, ivar, jvar, ilag, 1);
-              _vario->setGgByIndex(idir, iad, 0.);
-              _vario->setHhByIndex(
-                idir, iad, _vario->getHhByIndex(idir, iad) - dist);
-              _vario->setSwByIndex(
-                idir, iad, _vario->getSwByIndex(idir, iad) + 1);
-              iad = _vario->getAddressForGg(idir, ivar, jvar, ilag, -1);
-              _vario->setGgByIndex(idir, iad, 0.);
-              _vario->setHhByIndex(
-                idir, iad, _vario->getHhByIndex(idir, iad) + dist);
-              _vario->setSwByIndex(
-                idir, iad, _vario->getSwByIndex(idir, iad) + 1);
-            }
-            else
-            {
-              iad = _vario->getAddressForGg(idir, ivar, jvar, ilag);
-              _vario->setGgByIndex(idir, iad, 0.);
-              _vario->setHhByIndex(
-                idir, iad, _vario->getHhByIndex(idir, iad) + dist);
-              _vario->setSwByIndex(
-                idir, iad, _vario->getSwByIndex(idir, iad) + 1);
-            }
-          }
+        activeSample[iech] = false;
       }
     }
+
+    // 2. LAMBDA KEEPPAIR: Check pre-calculated active state and variogram conditions
+    auto keepPairFunc =
+      [&](Id idir_in, SpaceTarget& T1, SpaceTarget& T2, double* dist)
+    {
+      // Direct O(1) lookup using getIech() instead of getSampleRank()
+      if (!activeSample[T1.getIech()] || !activeSample[T2.getIech()])
+        return false;
+
+      return _vario->keepPair(idir_in, T1, T2, dist);
+    };
+
+    // 3. LAMBDA PROCESSPAIR: Geometry computations for valid pairs
+    auto processPairFunc = [&](Id iech, Id jech, Id ilag, double dist)
+    {
+      if (ilag < 0) ilag = -ilag;
+
+      // Register pair in order structure
+      if (_vorder.add(iech, jech, nullptr, nullptr, ilag, idir, dist)) return;
+
+      double absDist = std::abs(dist);
+
+      // Update distances and weights across all variables
+      for (Id ivar = 0; ivar < nvar; ivar++)
+      {
+        for (Id jvar = 0; jvar <= ivar; jvar++)
+        {
+          if (flagAsym)
+          {
+            Id iad1 = _vario->getAddressForGg(idir, ivar, jvar, ilag, 1);
+            _vario->setGgByIndex(idir, iad1, 0.);
+            _vario->setHhByIndex(
+              idir, iad1, _vario->getHhByIndex(idir, iad1) - absDist);
+            _vario->setSwByIndex(
+              idir, iad1, _vario->getSwByIndex(idir, iad1) + 1.0);
+
+            Id iad2 = _vario->getAddressForGg(idir, ivar, jvar, ilag, -1);
+            _vario->setGgByIndex(idir, iad2, 0.);
+            _vario->setHhByIndex(
+              idir, iad2, _vario->getHhByIndex(idir, iad2) + absDist);
+            _vario->setSwByIndex(
+              idir, iad2, _vario->getSwByIndex(idir, iad2) + 1.0);
+          }
+          else
+          {
+            Id iad = _vario->getAddressForGg(idir, ivar, jvar, ilag);
+            _vario->setGgByIndex(idir, iad, 0.);
+            _vario->setHhByIndex(
+              idir, iad, _vario->getHhByIndex(idir, iad) + absDist);
+            _vario->setSwByIndex(
+              idir, iad, _vario->getSwByIndex(idir, iad) + 1.0);
+          }
+        }
+      }
+    };
+
+    // 4. LAMBDA OUTEREND: Calculation progress feedback
+    auto processOuterEndFunc = [&](Id iech, double /*w1*/)
+    { mes_process("Calculating Variogram Geometry", nech, iech); };
+
+    // 5. EXECUTION: Pass ASpaceSharedPtr directly via _vario->getSpace()
+    loopOnPairs(
+      _db, _vario->getSpace(), idir, dirparam, hasDate, keepPairFunc,
+      processPairFunc, processOuterEndFunc);
+
     return 0;
   }
 

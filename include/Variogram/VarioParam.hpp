@@ -16,13 +16,34 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Basic/VectorNumT.hpp"
+#include "Db/Db.hpp"
 #include "Faults/Faults.hpp"
+#include "Space/SpaceTarget.hpp"
 #include "Variogram/DirParam.hpp"
 
 namespace gstlrn
 {
-  class Db;
   class Model;
+  class Db;
+
+#ifndef SWIG
+  /**
+   * Generic pair iterator over a Db for variogram computations
+   */
+  template<
+    typename KeepPairFunc,
+    typename ProcessPairFunc,
+    typename ProcessOuterEndFunc = std::nullptr_t>
+  void loopOnPairs(
+    const Db* db,
+    const ASpaceSharedPtr& space,
+    Id idir,
+    const DirParam& dirparam,
+    bool hasDate,
+    KeepPairFunc&& keepPair,
+    ProcessPairFunc&& processPair,
+    ProcessOuterEndFunc&& processOuterEnd = nullptr);
+#endif // SWIG
 
   /**
    * \brief
@@ -191,4 +212,80 @@ namespace gstlrn
 
   GSTLEARN_EXPORT Db*
     buildDbFromVarioParam(Db* db, const VarioParam& varioparam);
+
+  // -----------------------------------------------------------------------------
+  // Template Implementation
+  // -----------------------------------------------------------------------------
+
+#ifndef SWIG
+  template<
+    typename KeepPairFunc,
+    typename ProcessPairFunc,
+    typename ProcessOuterEndFunc>
+  void loopOnPairs(
+    const Db* db,
+    const ASpaceSharedPtr& space,
+    Id idir,
+    const DirParam& dirparam,
+    bool hasDate,
+    KeepPairFunc&& keepPair,
+    ProcessPairFunc&& processPair,
+    ProcessOuterEndFunc&& processOuterEnd)
+  {
+    SpaceTarget T1(space, false);
+    SpaceTarget T2(space, false);
+
+    VectorInt rindex = db->getSortArray();
+    Id nech = db->getNSample();
+    double maxdist = dirparam.getMaximumDistance();
+
+    bool hasSel = db->hasLocVariable(ELoc::SEL);
+    bool hasWeight = db->hasLocVariable(ELoc::W);
+
+    // Pre filtering of valid samples
+    VectorInt validRanks;
+    validRanks.reserve(nech);
+    for (Id iiech = 0; iiech < nech; iiech++)
+    {
+      Id iech = rindex[iiech];
+      if (hasSel && !db->isActive(iech)) continue;
+      if (hasWeight && FFFF(db->getWeight(iech))) continue;
+      validRanks.push_back(iech);
+    }
+
+    Id nvalid = static_cast<Id>(validRanks.size());
+    double dist = 0.;
+
+    for (Id i = 0; i < nvalid; i++)
+    {
+      Id iech = validRanks[i];
+      double w1 = hasWeight ? db->getWeight(iech) : 1.0;
+      db->getSampleAsSTInPlace(iech, T1);
+
+      Id jstart = hasDate ? 0 : i + 1;
+      for (Id j = jstart; j < nvalid; j++)
+      {
+        Id jech = validRanks[j];
+
+        if (db->getIncrement1D(jech, iech) > maxdist) break;
+
+        db->getSampleAsSTInPlace(jech, T2);
+
+        if (!keepPair(idir, T1, T2, &dist)) continue;
+
+        Id ilag = dirparam.getLagRank(dist);
+        if (isNA(ilag)) continue;
+
+        processPair(iech, jech, ilag, dist);
+      }
+
+      if constexpr (!std::is_same_v<
+                      std::decay_t<ProcessOuterEndFunc>, std::nullptr_t>)
+      {
+        processOuterEnd(iech, w1);
+      }
+    }
+  }
+
+#endif // SWIG
 } // namespace gstlrn
