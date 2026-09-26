@@ -629,7 +629,7 @@ namespace gstlrn
         flag_out = 0;
         for (Id idim = 1; idim < ndim && flag_out == 0; idim++)
         {
-          delta[idim] = db->getDistance1D(iech2, iech1, idim);
+          delta[idim] = db->getIncrement1D(iech2, iech1, idim);
           if (delta[idim] > mid[idim]) flag_out = 1;
         }
         if (flag_out) continue;

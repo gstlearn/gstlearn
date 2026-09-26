@@ -177,6 +177,16 @@ namespace gstlrn
     return knn.getIndex(0, 0);
   }
 
+  void Ball::queryRadiusInPlace(
+    const VectorDouble& test,
+    double radius,
+    VectorInt& indices) const
+  {
+    indices.clear();
+    constvect pt(test.data(), test.size());
+    _tree.query_radius_depth_first(0, pt, radius, indices);
+  }
+
   Id Ball::queryOneInPlace(
     const VectorDouble& test,
     Id n_neighbors,

@@ -621,8 +621,8 @@ namespace gstlrn
     void setCoordinates(Id idim, const VectorDouble& coor, bool useSel = false);
     void setSampleCoordinates(Id iech, const VectorDouble& coor);
 
-    double
-      getDistance1D(Id iech, Id jech, Id idim = 0, bool flagAbs = false) const;
+    double getIncrement1D(Id iech, Id jech, Id idim = 0) const;
+    double getDistance1D(Id iech, Id jech, Id idim = 0) const;
     double getDistance(Id iech, Id jech) const;
     Id getDistanceVecInPlace(
       Id iech,
@@ -807,7 +807,7 @@ namespace gstlrn
     bool isActiveDomain(Id iech) const;
     bool isActiveAndDefined(Id iech, Id item) const;
     VectorBool getActiveArray() const;
-
+    VectorBool getActiveAndDefinedArray(Id item) const;
     VectorInt getSortArray() const;
     double
       getCosineToDirection(Id iech1, Id iech2, const VectorDouble& codir) const;
