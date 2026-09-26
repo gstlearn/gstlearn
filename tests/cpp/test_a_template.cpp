@@ -26,7 +26,7 @@ int main(int argc, char* argv[])
   StdoutRedirect sr(sfn.str(), argc, argv);
   ASerializable::setPrefixName("test_a_template-");
 
-  auto* db = Db::createFillRandom(5000, 2, 1);
+  auto* db = Db::createFillRandom(20000, 2, 1);
   auto* varioparam = VarioParam::createOmniDirection(10, 0.05);
   Timer timer;
 

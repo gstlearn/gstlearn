@@ -6364,6 +6364,7 @@ namespace gstlrn
 
   Id Db::getSelection(Id iech) const
   {
+    if (getNLoc(ELoc::SEL) <= 0) return 1;
     auto icol = _getColumnFromLocator(ELoc::SEL, 0);
     if (icol < 0) return 1;
     double value = _data.getValue<double>(icol, iech).value_or(TEST);

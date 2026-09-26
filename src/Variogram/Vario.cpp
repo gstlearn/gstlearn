@@ -2994,15 +2994,12 @@ namespace gstlrn
     }
 
     /* Scale the variogram calculations */
-
     finalScaleByWeights(idir);
 
     /* Center the covariance function */
-
     _finalCorrectByStats(idir);
 
     /* Patch the central value */
-
     _finalCorrectC00(db, idir);
   }
 
@@ -3506,15 +3503,12 @@ namespace gstlrn
     }
 
     /* Scale the variogram calculations */
-
     finalScaleByWeights(idir);
 
     /* Center the covariance function */
-
     _finalCorrectByStats(idir);
 
     /* Patch the central value */
-
     _finalCorrectC00(db, idir);
   }
 
@@ -3538,26 +3532,28 @@ namespace gstlrn
   {
     DirParam dirparam = getDirParam(idir);
     auto nvar = getNVar();
-    const VarioParam& varioparam = getVarioParam();
-    bool hasDate = varioparam.isDateUsed(db);
+    bool hasDate = getVarioParam().isDateUsed(db);
+
+    // 1. Lambda: Geometric and directional pair validation
+    auto keepPairFunc =
+      [&](Id idir_in, SpaceTarget& T1, SpaceTarget& T2, double* dist)
+    { return keepPair(idir_in, T1, T2, dist); };
+
+    // 2. Lambda: Process accepted pair and evaluate variogram
+    auto processPairFunc = [&](Id iech, Id jech, Id ilag, double dist)
+    {
+      if (!vorder.empty())
+      {
+        vorder.add(iech, jech, nullptr, nullptr, ilag, idir, dist);
+      }
+      else
+      {
+        (this->*_evaluate)(db, nvar, iech, jech, idir, ilag, dist, true);
+      }
+    };
 
     loopOnPairs(
-      db, getSpace(), idir, dirparam, hasDate,
-      [this](Id id, SpaceTarget& t1, SpaceTarget& t2, double* d)
-      { return keepPair(id, t1, t2, d); },
-      [&](Id iech, Id jech, Id ilag, double dist)
-      {
-        /* Case of internal storage */
-        if (!vorder.empty())
-        {
-          vorder.add(iech, jech, NULL, NULL, ilag, idir, dist);
-        }
-        else
-        {
-          /* Evaluate the variogram */
-          (this->*_evaluate)(db, nvar, iech, jech, idir, ilag, dist, true);
-        }
-      });
+      db, getSpace(), idir, dirparam, hasDate, keepPairFunc, processPairFunc);
 
     /* Internal storage processing */
     if (!vorder.empty())
@@ -3647,17 +3643,14 @@ namespace gstlrn
   Id Vario::_calculateGeneralBySample(Db* db, Id idir, const Id* /*rindex*/)
   {
     /* Initializations */
-    const VarioParam& varioparam = getVarioParam();
     const DirParam& dirparam = getDirParam(idir);
     auto size = getDirSize(idir);
     auto nvar = getNVar();
+    bool hasDate = getVarioParam().isDateUsed(db);
 
-    /* Core allocation */
     VectorDouble gg_sum(size, 0);
     VectorDouble hh_sum(size, 0);
     VectorDouble sw_sum(size, 0);
-
-    bool hasDate = varioparam.isDateUsed(db);
 
     loopOnPairs(
       db, getSpace(), idir, dirparam, hasDate,
@@ -3765,15 +3758,12 @@ namespace gstlrn
     }
 
     /* Scale the variogram calculations */
-
     finalScaleByWeights(idir);
 
     /* Center the covariance function */
-
     _finalCorrectByStats(idir);
 
     /* Patch the central value */
-
     _finalCorrectC00(db, idir);
 
     return 0;
@@ -3862,15 +3852,12 @@ namespace gstlrn
     }
 
     /* Scale the variogram calculations */
-
     finalScaleByWeights(idir);
 
     /* Center the covariance function */
-
     _finalCorrectByStats(idir);
 
     /* Patch the central value */
-
     _finalCorrectC00(db, idir);
 
     return 0;
@@ -4063,9 +4050,6 @@ namespace gstlrn
   {
     /* Initializations */
     if (db == nullptr) return 1;
-    const VarioParam& varioparam = getVarioParam();
-
-    /* Preliminary checks */
     if (!_isCompatible(db)) return 1;
     if (_get_generalized_variogram_order() > 0)
     {
@@ -4074,7 +4058,7 @@ namespace gstlrn
       return 1;
     }
 
-    bool hasDate = varioparam.isDateUsed(db);
+    bool hasDate = getVarioParam().isDateUsed(db);
     auto ndir = getNDir();
 
     /* Loop on the directions */
