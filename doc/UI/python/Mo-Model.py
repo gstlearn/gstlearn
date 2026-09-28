@@ -9,8 +9,8 @@ def my_imports():
     import marimo as mo
 
     import gstlearn as gl
-    import gstlearn.plot as gp
     import gstlearn.gstmarimo as gmo
+    import gstlearn.plot as gp
     import matplotlib.pyplot as plt
 
     import numpy as np
@@ -21,25 +21,24 @@ def my_imports():
 
 
 @app.cell(hide_code=True)
-def define_widgets(gmo):
-    WidgetModel = gmo.WdefineModel(
-        ncovmax=2, distmax=100, varmax=50, valdef="Interactive"
-    )
+def widget_definition(gmo):
     WidgetGrid = gmo.WdefineGrid()
-    WidgetSimtub = gmo.WdefineSimtub(nbsimu=4)
+    WidgetSimtub = gmo.WdefineSimtub(nbsimu=1)
+    WidgetModel = gmo.WdefineModel(
+        ncovmax=2, distmax=100, varmax=50, valdef="Interactive", withFit=False
+    )
 
-    # Définition des options sous forme de tuples (short_name, long_name, default_bool)
     options_list = [
-        ("model", "Display Model(s)", True),
         ("simulation", "Display Simulations", True),
-        ("average", "Display Simulation Average", False),
-        ("dispersion", "Display Simulation Dispersion", False),
+        ("vmap", "Display Variogram Map", True),
+        ("model", "Display Model(s)", True),
+        ("vario", "Display Experimental Variograms", True),
     ]
 
     WidgetLayout = gmo.WdefineLayout(
         options_list,
-        nrow=3,
-        ncol=3,
+        nrow=2,
+        ncol=2,
         width=3,
         height=3,
     )
@@ -74,13 +73,20 @@ def define_action(
         model = gmo.WgetModel(WidgetModel)
         nbtuba, nbsimu, seed, flagDisplayBinary = gmo.WgetSimtub(WidgetSimtub)
 
-        if model is not None and grid is not None:
-            gl.simtub(
-                None, dbout=grid, model=model, nbtuba=nbtuba, nbsimu=nbsimu, seed=seed
-            )
-            grid.statisticsBySample(
-                names=["Simu.*"], opers=[gl.EStatOption.MEAN, gl.EStatOption.STDV]
-            )
+        n = 50
+        ymax = 1.4
+        nlag = grid.getNX(0) / 2
+        hmax = grid.getDX(0) * grid.getNX(0) / 2
+
+        dbp = gl.DbGrid.create(nx=[1, 1], x0=[n, n])
+        db = gl.DbGrid.create(nx=[2 * n, 2 * n])
+        gl.simtub(None, db, model, nbtuba=nbtuba, seed=seed)
+        db["model"] = 1 - model.evalCovMat(db, dbp).toTL()
+        sill = model.getTotalSill(0, 0)
+        gmax = sill * ymax if sill > 0 else 1.0
+
+        varioparam = gl.VarioParam.createMultipleFromGrid(db, nlag)
+        vario = gl.Vario.computeFromDb(varioparam, db)
 
         layout = gmo.WgetLayout(
             WidgetLayout,
@@ -98,47 +104,32 @@ def define_action(
         isimu = 0
 
         for content in layout.get("selected", []):
-            if content == "model":
-                if model is not None and i < len(axes):
-                    gmo.plotVario(axes[i], model=model)
+            if content == "vmap":
+                if i < len(axes):
+                    axes[i].raster(db, "model")
+                    axes[i].decoration(title="Model")
                     i += 1
 
             elif content == "simulation":
-                for sim_idx in range(nbsimu):
-                    if i < len(axes):
-                        isimu += 1
-                        gmo.plotGrid(
-                            axes[i],
-                            grid,
-                            name="Simu" if nbsimu == 1 else f"Simu.S{isimu}",
-                            title=f"Simulation #{isimu}/{nbsimu}",
-                            flagLegend=False,
-                            flagBinary=flagDisplayBinary,
-                        )
-                        i += 1
-
-            elif content == "average":
                 if i < len(axes):
-                    gmo.plotGrid(
-                        axes[i],
-                        grid,
-                        name="Stats.MEAN",
-                        title="Simulation Average",
-                        flagLegend=False,
-                        flagBinary=flagDisplayBinary,
-                    )
+                    axes[i].raster(db, "*Simu")
+                    axes[i].decoration(title="Simulation")
                     i += 1
 
-            elif content == "dispersion":
+            elif content == "model":
                 if i < len(axes):
-                    gmo.plotGrid(
-                        axes[i],
-                        grid,
-                        name="Stats.STDV",
-                        title="Simulation Dispersion",
-                        flagLegend=False,
-                        flagBinary=flagDisplayBinary,
-                    )
+                    axes[i].model(model, hmax=70, codir=[1, 0], color="red")
+                    axes[i].model(model, hmax=70, codir=[0, 1], color="black")
+                    axes[i].geometry(xlim=[0, hmax], ylim=[0, gmax])
+                    axes[i].decoration(title="Variogram Model")
+                    i += 1
+
+            elif content == "vario":
+                if i < len(axes):
+                    axes[i].variogram(vario, idir=0, color="red")
+                    axes[i].variogram(vario, idir=1, color="black")
+                    axes[i].geometry(xlim=[0, hmax], ylim=[0, gmax])
+                    axes[i].decoration(title="Experimental Variogram")
                     i += 1
 
         for axi in axes[i:]:
@@ -146,6 +137,9 @@ def define_action(
 
         plt.tight_layout(pad=0.2)
         mo.mpl.interactive(fig)
+
+        db.deleteColumn("model")
+        db.deleteColumn("*Simu")
 
         return fig
 

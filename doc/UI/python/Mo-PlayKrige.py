@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.23.14"
+__generated_with = "0.24.0"
 app = marimo.App(width="full")
 
 
@@ -37,7 +37,18 @@ def cell_define_widgets(gmo):
         radius=50,
     )
 
+    # Définition des options propres à l'application
+    options_list = [
+        ("data", "Display Data", True),
+        ("model", "Display Model", True),
+        ("estimation", "Display Estimation Map(s)", True),
+        ("stdev", "Display Standard Deviation Map(s)", True),
+        ("KWeights", "Display Kriging Weights", True),
+        ("XWeights", "Display Cross-Validation", True),
+    ]
+
     WidgetLayout = gmo.WdefineLayout(
+        options_list,
         nrow=2,
         ncol=3,
         width=3,
@@ -50,6 +61,7 @@ def cell_define_widgets(gmo):
         WidgetLayout,
         WidgetNeigh,
         WidgetVario,
+        options_list,
     )
 
 
@@ -75,239 +87,12 @@ def cell_define_picking_state(mo):
 
 
 @app.cell(hide_code=True)
-def cell_get_render_layout(WidgetLayout, gmo):
+def cell_get_render_layout(WidgetLayout, gmo, options_list):
     render_layout = gmo.WgetLayout(
         WidgetLayout,
-        nvar=1,
-        nbsimu=0,
-        ngrf=1,
-        valid=[
-            "data",
-            "model",
-            "estimation",
-            "stdev",
-            "KWeights",
-            "XWeights",
-        ],
+        options_list,
     )
     return (render_layout,)
-
-
-@app.cell(hide_code=True)
-def cell_get_picking_objects(WidgetDb, WidgetGrid, gmo):
-    pick_data = gmo.WgetDb(
-        WidgetDb,
-    )
-
-    pick_grid = gmo.WgetGrid(
-        WidgetGrid,
-    )
-    return pick_data, pick_grid
-
-
-@app.cell(hide_code=True)
-def cell_make_picking_figure(
-    WidgetDb,
-    WidgetGrid,
-    WidgetModel,
-    WidgetNeigh,
-    WidgetVario,
-    gl,
-    gmo,
-    gp,
-    picking_indices_state,
-    plt,
-    render_layout,
-):
-    pick_Kindex, pick_Xindex = picking_indices_state()
-
-    pick_data_local = gmo.WgetDb(WidgetDb)
-    pick_grid_local = gmo.WgetGrid(WidgetGrid)
-    pick_vario_local = gmo.WgetVario(WidgetVario, pick_data_local)
-    pick_model_local = gmo.WgetModel(WidgetModel, pick_vario_local)
-    pick_neigh_local = gmo.WgetNeigh(WidgetNeigh)
-
-    if (
-        pick_data_local is not None
-        and pick_grid_local is not None
-        and pick_model_local is not None
-        and pick_neigh_local is not None
-    ):
-        gl.kriging(
-            pick_data_local,
-            pick_grid_local,
-            pick_model_local,
-            pick_neigh_local,
-        )
-
-        if pick_Kindex >= 0 and pick_Kindex < pick_grid_local.getNSample():
-            gl.krigWeights(
-                pick_data_local,
-                pick_grid_local,
-                pick_model_local,
-                pick_neigh_local,
-                pick_Kindex,
-            )
-
-        if pick_Xindex >= 0 and pick_Xindex < pick_data_local.getNSample():
-            gl.xvalidWeights(
-                pick_data_local,
-                pick_model_local,
-                pick_neigh_local,
-                pick_Xindex,
-            )
-
-    pick_nx = render_layout["nx"]
-    pick_ny = render_layout["ny"]
-    pick_dimx = render_layout["dimx"]
-    pick_dimy = render_layout["dimy"]
-
-    pick_fig, pick_ax = gp.init(
-        pick_nx,
-        pick_ny,
-        figsize=[pick_ny * pick_dimy, pick_nx * pick_dimx],
-        squeeze=False,
-    )
-
-    pick_axes = pick_ax.ravel()
-    pick_Kaxis = None
-    pick_i = 0
-
-    for pick_name, pick_count in render_layout.get("render_plan", []):
-        for pick_k in range(pick_count):
-            if pick_i >= len(pick_axes):
-                break
-
-            pick_axi = pick_axes[pick_i]
-            pick_targetName = pick_data_local.getNameByLocator(gl.ELoc.Z, pick_k)
-
-            if pick_name == "data":
-                gmo.plotData(
-                    pick_axi,
-                    pick_data_local,
-                    name=pick_targetName,
-                    title="Data:" + pick_targetName,
-                    c="blue",
-                )
-
-            elif pick_name == "model":
-                gmo.plotVario(pick_axi, pick_vario_local, pick_model_local)
-
-            elif pick_name == "estimation":
-                pick_gridName = "Kriging." + pick_targetName + ".estim"
-                gmo.plotGrid(
-                    pick_axi,
-                    pick_grid_local,
-                    name=pick_gridName,
-                    title="Estimation",
-                )
-                gmo.plotData(
-                    pick_axi,
-                    pick_data_local,
-                    name=pick_targetName,
-                    flagTitle=False,
-                    c="blue",
-                )
-
-            elif pick_name == "stdev":
-                pick_gridName = "Kriging." + pick_targetName + ".stdev"
-                gmo.plotGrid(
-                    pick_axi,
-                    pick_grid_local,
-                    name=pick_gridName,
-                    title="St. dev. of Estimation Error",
-                )
-                gmo.plotData(
-                    pick_axi,
-                    pick_data_local,
-                    name=pick_targetName,
-                    flagTitle=False,
-                    c="blue",
-                )
-
-            elif pick_name == "KWeights":
-                pick_Kaxis = pick_axi
-                pick_name_kw = "KWeights." + pick_targetName
-                pick_title_kw = (
-                    f"Kriging (Index: {pick_Kindex})"
-                    if pick_Kindex >= 0
-                    else "Kriging (Pick target)"
-                )
-                gmo.plotWeights(
-                    pick_axi,
-                    pick_grid_local,
-                    pick_data_local,
-                    pick_name_kw,
-                    pick_neigh_local,
-                    pick_Kindex,
-                    title=pick_title_kw,
-                )
-
-            elif pick_name == "XWeights":
-                pick_name_xw = "XWeights." + pick_targetName
-                pick_title_xw = (
-                    f"XValidation (Index: {pick_Xindex})"
-                    if pick_Xindex >= 0
-                    else "XValidation (Pick target)"
-                )
-                gmo.plotWeights(
-                    pick_axi,
-                    pick_data_local,
-                    pick_data_local,
-                    pick_name_xw,
-                    pick_neigh_local,
-                    pick_Xindex,
-                    title=pick_title_xw,
-                )
-
-            else:
-                pick_axi.axis("off")
-
-            pick_i += 1
-
-    for pick_axi in pick_axes[pick_i:]:
-        pick_axi.axis("off")
-
-    plt.tight_layout(pad=0.2)
-    return (pick_Kaxis,)
-
-
-@app.cell(hide_code=True)
-def cell_make_KWidget(mo, pick_Kaxis):
-    KWidget = None
-
-    if pick_Kaxis is not None:
-        KWidget = mo.ui.matplotlib(
-            pick_Kaxis,
-            debounce=True,
-        )
-    return (KWidget,)
-
-
-@app.cell(hide_code=True)
-def cell_update_indices_from_KWidget(
-    KWidget,
-    gmo,
-    pick_data,
-    pick_grid,
-    picking_indices_state,
-    set_picking_indices,
-):
-    # KWidget.value est un dictionnaire. S'il est totalement vide ou correspond
-    # à un état non-défini suite à la réinstanciation de la figure, on ignore
-    if KWidget is not None and bool(KWidget.value):
-        selected_grid_index = gmo.getSelectedIndex(KWidget, pick_grid)
-        selected_data_index = gmo.getSelectedIndex(KWidget, pick_data)
-
-        grid_idx = selected_grid_index if selected_grid_index is not None else -1
-        data_idx = selected_data_index if selected_data_index is not None else -1
-
-        new_indices = (grid_idx, data_idx)
-        current_indices = picking_indices_state()
-
-        if new_indices != current_indices:
-            set_picking_indices(new_indices)
-    return
 
 
 @app.cell(hide_code=True)
@@ -372,7 +157,7 @@ def cell_compute_results(
 
 
 @app.cell(hide_code=True)
-def cell_make_result_figure(
+def cell_make_figure(
     gl,
     gmo,
     gp,
@@ -399,15 +184,20 @@ def cell_make_result_figure(
     )
 
     result_axes = result_ax.ravel()
+    result_Kaxis = None
     result_i = 0
 
-    for result_name, result_count in render_layout.get("render_plan", []):
-        for result_k in range(result_count):
+    n_targets = result_data.getNLoc(gl.ELoc.Z) if result_data is not None else 1
+
+    for result_name in render_layout.get("selected", []):
+        for result_k in range(n_targets):
             if result_i >= len(result_axes):
                 break
 
             result_axi = result_axes[result_i]
-            result_targetName = result_data.getNameByLocator(gl.ELoc.Z, result_k)
+            result_targetName = (
+                result_data.getNameByLocator(gl.ELoc.Z, result_k) if result_data else ""
+            )
 
             if result_name == "data":
                 gmo.plotData(
@@ -454,6 +244,7 @@ def cell_make_result_figure(
                 )
 
             elif result_name == "KWeights":
+                result_Kaxis = result_axi
                 result_name_kw = "KWeights." + result_targetName
                 result_title_kw = (
                     f"Kriging (Index: {result_Kindex})"
@@ -496,7 +287,44 @@ def cell_make_result_figure(
         result_axi.axis("off")
 
     plt.tight_layout(pad=0.2)
-    return (result_fig,)
+    return result_Kaxis, result_fig
+
+
+@app.cell(hide_code=True)
+def cell_make_KWidget(mo, result_Kaxis):
+    KWidget = None
+
+    if result_Kaxis is not None:
+        KWidget = mo.ui.matplotlib(
+            result_Kaxis,
+            debounce=True,
+        )
+    return (KWidget,)
+
+
+@app.cell(hide_code=True)
+def cell_update_indices_from_KWidget(
+    KWidget,
+    gmo,
+    picking_indices_state,
+    result_data,
+    result_grid,
+    set_picking_indices,
+):
+    if KWidget is not None and bool(KWidget.value):
+        selected_grid_index = gmo.getSelectedIndex(KWidget, result_grid)
+        selected_data_index = gmo.getSelectedIndex(KWidget, result_data)
+
+        grid_idx = selected_grid_index if selected_grid_index is not None else -1
+        data_idx = selected_data_index if selected_data_index is not None else -1
+
+        new_indices = (grid_idx, data_idx)
+        current_indices = picking_indices_state()
+
+        # Met à jour l'état uniquement s'il y a un réel changement d'indice sélectionné
+        if new_indices != current_indices and new_indices != (-1, -1):
+            set_picking_indices(new_indices)
+    return
 
 
 @app.cell(hide_code=True)
@@ -511,6 +339,7 @@ def cell_render_ui(
     WidgetVario,
     gmo,
     mo,
+    options_list,
     result_fig,
 ):
     ui_param = mo.ui.tabs(
@@ -520,7 +349,7 @@ def cell_render_ui(
             "Variogram": gmo.WshowVario(WidgetVario),
             "Model": gmo.WshowModel(WidgetModel),
             "Neigh": gmo.WshowNeigh(WidgetNeigh),
-            "Layout": gmo.WshowLayout(WidgetLayout),
+            "Layout": gmo.WshowLayout(WidgetLayout, options_list),
             "AutoSave": gmo.WshowAutoSave(WidgetAutoSave),
         }
     ).style(
