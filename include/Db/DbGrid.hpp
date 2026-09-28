@@ -220,8 +220,8 @@ namespace gstlrn
       bool flagAddSelection = true,
       bool flagAddSampleRank = true);
 
-    DbGrid* coarsify(const VectorInt& nmult);
-    DbGrid* refine(const VectorInt& nmult);
+    DbGrid* coarsify(const VectorInt& nmult, bool flagCell = 1);
+    DbGrid* refine(const VectorInt& nmult, bool flagCell = 0);
     bool migrateAllVariables(
       Db* dbin,
       bool flag_fill = true,

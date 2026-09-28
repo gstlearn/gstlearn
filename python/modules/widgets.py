@@ -62,9 +62,7 @@ def label(title="", value=""):
 
 
 def dropDown(title="", options=["1", "2", "3"], value=0, eventhandler=None):
-    object = ipw.Dropdown(
-        options=options, value=value, description=title, continuous_update=False
-    )
+    object = ipw.Dropdown(options=options, value=value, description=title)
     if eventhandler is not None:
         object.observe(eventhandler, names="value")
     return object

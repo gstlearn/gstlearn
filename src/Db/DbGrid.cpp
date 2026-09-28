@@ -366,9 +366,9 @@ namespace gstlrn
     return dbgrid;
   }
 
-  DbGrid* DbGrid::coarsify(const VectorInt& nmult)
+  DbGrid* DbGrid::coarsify(const VectorInt& nmult, bool flagCell)
   {
-    return createCoarse(this, nmult, 1);
+    return createCoarse(this, nmult, flagCell);
   }
 
   DbGrid* DbGrid::createCoarse(
@@ -579,9 +579,9 @@ namespace gstlrn
     return nxs;
   }
 
-  DbGrid* DbGrid::refine(const VectorInt& nmult)
+  DbGrid* DbGrid::refine(const VectorInt& nmult, bool flagCell)
   {
-    return createRefine(this, nmult, 0);
+    return createRefine(this, nmult, flagCell);
   }
 
   DbGrid* DbGrid::createRefine(
