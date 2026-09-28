@@ -709,23 +709,6 @@ namespace gstlrn
     _data.setValue(icol, iech, newval);
   }
 
-  void Db::updArrayVec(
-    const VectorInt& iechs,
-    Id iuid,
-    const EOperator& oper,
-    VectorDouble& values)
-  {
-    auto icol = getColIdxByUID(iuid);
-    if (!isColIdxValid(icol)) return;
-
-    for (Id i = 0, n = static_cast<Id>(iechs.size()); i < n; i++)
-    {
-      double oldval = *_data.getValue<double>(icol, iechs[i]);
-      double newval = modifyOperator(oper, oldval, values[i]);
-      _data.setValue(icol, iechs[i], newval);
-    }
-  }
-
   VectorDouble Db::getSampleCoordinates(Id iech) const
   {
     VectorDouble coor(getNDim());
@@ -2746,21 +2729,21 @@ namespace gstlrn
    *
    * @return Number of fields
    */
-  Id Db::getNLoc(const ELoc& loctype) const
+  Id Db::getNLoc(const ELoc& locatorType) const
   {
-    if (loctype.isEqual(ELoc::UNDEFINED)) return 0;
-    return _data.getNRoles(temporaryToRole(loctype));
+    if (locatorType.isEqual(ELoc::UNDEFINED)) return 0;
+    return _data.getNRoles(temporaryToRole(locatorType));
   }
 
   /**
    * Check if there is at least one field corresponding to the target locator
    *
-   * @return TRUE if at least one field corresponds to 'loctype' locator; FALSE otherwise
+   * @return TRUE if at least one field corresponds to 'locatorType' locator; FALSE otherwise
    */
-  bool Db::hasLocVariable(const ELoc& loctype) const
+  bool Db::hasLocVariable(const ELoc& locatorType) const
   {
-    if (loctype.isEqual(ELoc::UNDEFINED)) return false;
-    return hasLocator(loctype);
+    if (locatorType.isEqual(ELoc::UNDEFINED)) return false;
+    return hasLocator(locatorType);
   }
 
   /**
@@ -2768,12 +2751,14 @@ namespace gstlrn
    *
    * @return Returned value
    */
-  double
-    Db::getLocVariable(const ELoc& loctype, Id iech, Id locindex, Id version)
-      const
+  double Db::getLocVariable(
+    const ELoc& locatorType,
+    Id iech,
+    Id locindex,
+    Id version) const
   {
-    if (!hasLocVariable(loctype)) return (TEST);
-    return getFromLocator(loctype, iech, locindex, version);
+    if (!hasLocVariable(locatorType)) return (TEST);
+    return getFromLocator(locatorType, iech, locindex, version);
   }
 
   double Db::getZVariable(Id iech, Id item) const
@@ -2782,16 +2767,16 @@ namespace gstlrn
   }
 
   VectorDouble
-    Db::getLocVariables(const ELoc& loctype, Id iech, Id nitemax) const
+    Db::getLocVariables(const ELoc& locatorType, Id iech, Id nitemax) const
   {
     VectorDouble vec;
-    auto number = getNLoc(loctype);
+    auto number = getNLoc(locatorType);
     if (number <= 0) return vec;
     Id nitem = (nitemax > 0) ? MIN(nitemax, number) : number;
 
     vec.resize(nitem, TEST);
     for (Id item = 0; item < nitem; item++)
-      vec[item] = getLocVariable(loctype, iech, item);
+      vec[item] = getLocVariable(locatorType, iech, item);
     return vec;
   }
 
@@ -2800,14 +2785,14 @@ namespace gstlrn
    *
    */
   void Db::setLocVariable(
-    const ELoc& loctype,
+    const ELoc& locatorType,
     Id iech,
     Id locindex,
     double value,
     Id version)
   {
-    if (loctype.isEqual(ELoc::UNDEFINED)) return;
-    setFromLocator(loctype, iech, locindex, value, version);
+    if (locatorType.isEqual(ELoc::UNDEFINED)) return;
+    setFromLocator(locatorType, iech, locindex, value, version);
   }
 
   void Db::setZVariable(Id iech, Id item, double value)
@@ -2816,11 +2801,11 @@ namespace gstlrn
   }
 
   void Db::setLocVariables(
-    const ELoc& loctype,
+    const ELoc& locatorType,
     Id iech,
     const VectorDouble& values)
   {
-    auto number = getNLoc(loctype);
+    auto number = getNLoc(locatorType);
     Id size = static_cast<Id>(values.size());
     if (number != size)
     {
@@ -2831,7 +2816,8 @@ namespace gstlrn
       messerr("Nothing is done");
       return;
     }
-    for (Id i = 0; i < number; i++) setFromLocator(loctype, iech, i, values[i]);
+    for (Id i = 0; i < number; i++)
+      setFromLocator(locatorType, iech, i, values[i]);
   }
 
   /**
@@ -2839,16 +2825,16 @@ namespace gstlrn
    *
    */
   void Db::updLocVariable(
-    const ELoc& loctype,
+    const ELoc& locatorType,
     Id iech,
     Id locindex,
     const EOperator& oper,
     double value,
     Id version)
   {
-    if (loctype.isEqual(ELoc::UNDEFINED)) return;
+    if (locatorType.isEqual(ELoc::UNDEFINED)) return;
     if (!isSampleIndexValid(iech)) return;
-    auto icol = getColIdxByLocator(loctype, locindex);
+    auto icol = getColIdxByLocator(locatorType, locindex);
     if (icol < 0) return;
 
     const double oldval = *_data.getValue<double>({icol, version}, iech);
@@ -2960,14 +2946,14 @@ namespace gstlrn
     return false;
   }
 
-  bool Db::isAllUndefinedByType(const ELoc& loctype, Id iech) const
+  bool Db::isAllUndefinedByType(const ELoc& locatorType, Id iech) const
   {
     if (!isSampleIndexValid(iech)) return false;
-    auto natt = getNLoc(loctype);
+    auto natt = getNLoc(locatorType);
     if (natt <= 0) return false;
 
     for (Id iatt = 0; iatt < natt; iatt++)
-      if (!FFFF(getLocVariable(loctype, iech, iatt))) return true;
+      if (!FFFF(getLocVariable(locatorType, iech, iatt))) return true;
     return false;
   }
 
@@ -5454,14 +5440,14 @@ namespace gstlrn
   /**
    * Returns the Number of different elements for a given Locator
    */
-  Id Db::getNOccurence(const ELoc& loctype) const
+  Id Db::getNOccurence(const ELoc& locatorType) const
   {
-    if (getNLoc(loctype) != 1)
+    if (getNLoc(locatorType) != 1)
     {
       messerr(
         "This function requires the number of locators (%d) to be "
         "equal to 1",
-        getNLoc(loctype));
+        getNLoc(locatorType));
       return 0;
     }
     auto nech = getNSample();
@@ -5472,7 +5458,7 @@ namespace gstlrn
     for (Id iech = 0; iech < nech; iech++)
     {
       if (!isActive(iech)) continue;
-      Id ioccurence = static_cast<Id>(getFromLocator(loctype, iech, 0));
+      Id ioccurence = static_cast<Id>(getFromLocator(locatorType, iech, 0));
       if (ioccurence > noccurence) noccurence = ioccurence;
     }
     return noccurence;
