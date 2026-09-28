@@ -108,7 +108,7 @@ namespace gstlrn
                 << std::endl;
     else
     {
-      _coord.resize(size); // Added by DR for safety (25/09/2026)
+      // _coord.resize(size); // Added by DR for safety (25/09/2026)
       for (Id idim = 0; idim < size; idim++) _coord[idim] = coord[idim];
     }
   }

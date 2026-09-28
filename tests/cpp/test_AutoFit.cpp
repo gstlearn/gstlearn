@@ -36,75 +36,82 @@ int main(int argc, char* argv[])
   ASerializable::setPrefixName("test_AutoFit-");
   Id seed = 10355;
   law_set_random_seed(seed);
+  auto mode = -1;
 
-  ////
-  //// Basic 2-D example
-  ////
+  if (mode < 0 || mode == 1)
+  {
+    ////
+    //// Basic 2-D example
+    ////
 
-  // Defining the Space Dimension
-  Id ndim = 2;
-  defineDefaultSpace(ESpaceType::RN, ndim);
-  mestitle(0, "Testing Model Fitting in 2-D");
+    // Defining the Space Dimension
+    Id ndim = 2;
+    defineDefaultSpace(ESpaceType::RN, ndim);
+    mestitle(0, "Testing Model Fitting in 2-D");
 
-  // Defining a Model for simulating a data set
-  Model* model = Model::createFromParam(ECov::CUBIC, 20.);
+    // Defining a Model for simulating a data set
+    auto* model = Model::createFromParam(ECov::CUBIC, 20.);
 
-  // Defining a Data Base
-  Db* db = Db::createFromBox(100, {0., 0.}, {100., 100.});
+    // Defining a Data Base
+    auto* db = Db::createFromBox(100, {0., 0.}, {100., 100.});
 
-  // Simulate a Gaussian Random Function on the Data Base
-  (void)simtub(nullptr, db, model);
+    // Simulate a Gaussian Random Function on the Data Base
+    (void)simtub(nullptr, db, model);
 
-  // Calculate the experimental variogram
-  VarioParam* varioparam = VarioParam::createOmniDirection(10);
-  Vario* vario = Vario::create(*varioparam);
-  vario->compute(db);
-  vario->display();
-  vario->dumpToNF("Vario2D");
+    // Calculate the experimental variogram
+    auto* varioparam = VarioParam::createOmniDirection(10);
+    auto* vario = Vario::create(*varioparam);
+    vario->compute(db);
+    vario->display();
+    vario->dumpToNF("Vario2D");
 
-  // Fitting an omni-directional model
-  auto* model_fit = new Model(1, ndim);
-  model_fit->fit(vario, {ECov::LINEAR});
-  model_fit->display();
-  model_fit->dumpToNF("Model2D");
+    // Fitting an omni-directional model
+    auto* model_fit = new Model(1, ndim);
+    model_fit->fit(vario, {ECov::LINEAR});
+    model_fit->display();
+    model_fit->dumpToNF("Model2D");
 
-  delete model;
-  delete db;
-  delete varioparam;
-  delete vario;
-  delete model_fit;
+    delete model;
+    delete db;
+    delete varioparam;
+    delete vario;
+    delete model_fit;
+  }
 
-  ////
-  //// Basic 4-D example
-  ////
+  if (mode < 0 || mode == 2)
+  {
+    ////
+    //// Basic 4-D example
+    ////
 
-  // Defining the Space Dimension
-  ndim = 4;
-  defineDefaultSpace(ESpaceType::RN, ndim);
-  mestitle(0, "Testing Model Fitting in 4-D");
+    // Defining the Space Dimension
+    Id ndim = 4;
+    defineDefaultSpace(ESpaceType::RN, ndim);
+    mestitle(0, "Testing Model Fitting in 4-D");
 
-  // Defining a Data Base
-  db = Db::createFromBox(100, {0., 0., 0., 0.}, {100., 100., 100., 100.});
-  VectorDouble tab = VH::simulateGaussian(db->getNSampleActive(), 0., 1.);
-  db->addColumns(tab, "Var", ELoc::Z);
+    // Defining a Data Base
+    auto* db =
+      Db::createFromBox(100, {0., 0., 0., 0.}, {100., 100., 100., 100.});
+    VectorDouble tab = VH::simulateGaussian(db->getNSampleActive(), 0., 1.);
+    db->addColumns(tab, "Var", ELoc::Z);
 
-  // Calculate the experimental variogram
-  varioparam = VarioParam::createOmniDirection(20);
-  vario = Vario::create(*varioparam);
-  vario->compute(db);
-  vario->display();
-  vario->dumpToNF("Vario4D");
+    // Calculate the experimental variogram
+    auto* varioparam = VarioParam::createOmniDirection(20);
+    auto* vario = Vario::create(*varioparam);
+    vario->compute(db);
+    vario->display();
+    vario->dumpToNF("Vario4D");
 
-  // Fitting an omni-directional model
-  model_fit = Model::createFromEnvironment(1, ndim);
-  model_fit->fit(vario, {ECov::GAUSSIAN});
-  model_fit->display();
-  model_fit->dumpToNF("Model4D");
+    // Fitting an omni-directional model
+    auto* model_fit = Model::createFromEnvironment(1, ndim);
+    model_fit->fit(vario, {ECov::GAUSSIAN});
+    model_fit->display();
+    model_fit->dumpToNF("Model4D");
 
-  delete db;
-  delete varioparam;
-  delete vario;
-  delete model_fit;
-
+    delete db;
+    delete varioparam;
+    delete vario;
+    delete model_fit;
+  }
   return 0;
 }
