@@ -113,5 +113,6 @@ int main(int argc, char* argv[])
     delete vario;
     delete model_fit;
   }
+
   return 0;
 }
