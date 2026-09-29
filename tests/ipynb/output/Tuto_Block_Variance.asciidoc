@@ -1,7 +1,7 @@
 #NO_DIFF#XXX
-----<IPython.core.display.Javascript object>
-
 ----
+
+<IPython.core.display.Javascript object>----
 
 
 #NO_DIFF#XXX
@@ -43,17 +43,17 @@ Gammavv = 0.51
 
 Here we compare the empirical variance reduction with the one given by the model :
 
-The empirical punctual variance is obtained by 
+The empirical punctual variance is obtained by
 
 $$\hat\sigma^2 = \frac{1}{N}\sum_{i=1}^N z^2(x_i)- \left(\frac{1}{N}\sum_{i=1}^N z(x_i))\right)^2$$
 
-The empirical block variance 
+The empirical block variance
 
 $$\hat\sigma_v^2 = \frac{1}{N_v}\sum_{i=1}^{N_v} z^2(v_i)- \left(\frac{1}{N_v}\sum_{i=1}^{N_v} z(v_i))\right)^2$$
 
 The true (empirical) variance reduction is $$Empirical = \hat\sigma^2-\hat\sigma_v^2$$
 
-The variance reduction computed by the model is 
+The variance reduction computed by the model is
 
 $$Theoretical = \bar{\gamma}(v,v) = C(0)-\bar{C}(v,v)$$
 </md-block>
@@ -61,4 +61,4 @@ $$Theoretical = \bar{\gamma}(v,v) = C(0)-\bar{C}(v,v)$$
 
 
 #NO_DIFF#XXX
-----FloatSlider(value=20.0, continuous_update=False, description='Range', max=50.0, min=1.0, step=1.0)HBox(children=(IntSlider(value=10, continuous_update=False, description='Coarsify', max=14, min=1),))HBox(children=(Text(value='', description='Empirical', placeholder=''), Text(value='', description='Theoretica…----
+----VBox(children=(FloatSlider(value=20.0, continuous_update=False, description='Range', max=50.0, min=1.0, step=1…----
