@@ -1510,33 +1510,32 @@ _LAYOUT_OPTIONS = {
 }
 
 
-def WdefineLayout(nrow=3, ncol=3, width=5, height=5, defaults=None):
-    widgets = [
-        mo.ui.number(start=1, value=nrow),
-        mo.ui.number(start=1, value=ncol),
-        mo.ui.number(start=1, value=width),
-        mo.ui.number(start=1, value=height),
-    ]
-    defaults = defaults or {}
+def WdefineLayout(options_list, nrow=3, ncol=3, width=5, height=5):
+    """
+    options_list: liste de tuples (nom_court, nom_long, defaut_bool)
+    """
+    geometry_widgets = {
+        "nrow": mo.ui.number(start=1, value=nrow),
+        "ncol": mo.ui.number(start=1, value=ncol),
+        "width": mo.ui.number(start=1, value=width),
+        "height": mo.ui.number(start=1, value=height),
+    }
 
-    for key, opt in _LAYOUT_OPTIONS.items():
-        widgets.append(
-            mo.ui.switch(
-                defaults.get(key, opt["default"]),
-                label=opt["label"],
-            )
-        )
+    switches = {
+        short_name: mo.ui.switch(value=default_val, label=long_name)
+        for short_name, long_name, default_val in options_list
+    }
 
-    return mo.ui.array(widgets)
+    return mo.ui.dictionary({**geometry_widgets, **switches})
 
 
-def WshowLayout(WAll, flagTitle=True, gapv=0, gaph=1):
+def WshowLayout(WDict, options_list, flagTitle=True, gapv=0, gaph=1):
+    """
+    Affiche l'interface du Layout en isolant la géométrie et la liste dynamique des switches.
+    """
     WTitle = _WgetTitle("Graphic Layout", flagTitle)
 
-    WLayoutNrow, WLayoutNcol, WLayoutWidth, WLayoutHeight = WAll[:4]
-    switches = WAll[4:]
-
-    # --- 2x2 grid for geometry parameters
+    # --- Bloc Géométrie
     geometry = mo.hstack(
         [
             mo.vstack(
@@ -1544,12 +1543,12 @@ def WshowLayout(WAll, flagTitle=True, gapv=0, gaph=1):
                 gap=gapv,
             ),
             mo.vstack(
-                [mo.md("Number of cells"), WLayoutNcol, WLayoutNrow],
+                [mo.md("Number of cells"), WDict["ncol"], WDict["nrow"]],
                 align="end",
                 gap=gapv,
             ),
             mo.vstack(
-                [mo.md("Figure size"), WLayoutWidth, WLayoutHeight],
+                [mo.md("Figure size"), WDict["width"], WDict["height"]],
                 align="end",
                 gap=gapv,
             ),
@@ -1557,11 +1556,8 @@ def WshowLayout(WAll, flagTitle=True, gapv=0, gaph=1):
         gap=gaph,
     )
 
-    # --- switches block
-    options = mo.vstack(
-        switches,
-        gap=0.3,
-    )
+    # --- Bloc Options : Récupération des switches par nom court
+    switches_ui = [WDict[short_name] for short_name, _, _ in options_list]
 
     return mo.vstack(
         [
@@ -1569,46 +1565,28 @@ def WshowLayout(WAll, flagTitle=True, gapv=0, gaph=1):
             mo.md("### Geometry"),
             geometry,
             mo.md("### Options"),
-            options,
+            mo.vstack(switches_ui, gap=0.3),
         ],
         gap=gapv,
     )
 
 
-def WgetLayout(WAll, nvar=1, nbsimu=1, ngrf=1, valid=()):
-    WLayoutNrow, WLayoutNcol, WLayoutWidth, WLayoutHeight = WAll[:4]
-    switches = WAll[4:]
-
+def WgetLayout(WDict, options_list):
+    """
+    Extrait la géométrie et la liste des noms courts sélectionnés (switch à True).
+    """
     layout = {
-        "nx": WLayoutNrow.value,
-        "ny": WLayoutNcol.value,
-        "dimx": WLayoutWidth.value,
-        "dimy": WLayoutHeight.value,
+        "nx": WDict["nrow"].value,
+        "ny": WDict["ncol"].value,
+        "dimx": WDict["width"].value,
+        "dimy": WDict["height"].value,
     }
 
-    # ✔️ map full UI state
-    for key, widget in zip(_LAYOUT_OPTIONS.keys(), switches):
-        layout[key] = widget.value
+    selected_short_names = [
+        short_name for short_name, _, _ in options_list if WDict[short_name].value
+    ]
 
-    # ✔️ CRITICAL: valid defines API capability
-    render_plan = []
-
-    def add_if_allowed(key, count):
-        if key in valid and layout.get(key):
-            render_plan.append((key, count))
-
-    add_if_allowed("data", nvar)
-    add_if_allowed("rule", 1)
-    add_if_allowed("model", ngrf)
-    add_if_allowed("estimation", nvar)
-    add_if_allowed("stdev", nvar)
-    add_if_allowed("simulation", nbsimu * nvar)
-    add_if_allowed("average", 2 * nvar)
-    add_if_allowed("KWeights", 1)
-    add_if_allowed("XWeights", 1)
-
-    layout["render_plan"] = render_plan
-
+    layout["selected"] = selected_short_names
     return layout
 
 
