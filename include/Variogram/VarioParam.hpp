@@ -11,18 +11,50 @@
 #pragma once
 
 #include "Space/ASpace.hpp"
+#include "Tree/Ball.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Basic/AStringable.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Basic/VectorNumT.hpp"
+#include "Db/Db.hpp"
 #include "Faults/Faults.hpp"
+#include "Space/SpaceTarget.hpp"
 #include "Variogram/DirParam.hpp"
 
 namespace gstlrn
 {
-  class Db;
   class Model;
+  class Db;
+
+#ifndef SWIG
+  /**
+   * Generic pair iterator over a Db for variogram computations.
+   * Supports both spatial BallTree neighborhood queries and standard 1D sorted scans.
+   *
+   * @param db               Pointer to the Db structure containing samples
+   * @param space            Shared pointer to the spatial context
+   * @param idir             Rank of the current calculation direction
+   * @param dirparam         Directional parameter defining distance/angle limits
+   * @param hasDate          Boolean indicating if temporal checks require full pair scanning
+   * @param keepPair         Lambda predicate: (idir, T1, T2, &dist) -> bool
+   * @param processPair      Lambda action on valid pair: (iech, jech, ilag, dist) -> void
+   * @param processOuterEnd  Optional lambda action executed at the end of the outer loop: (iech, weight) -> void
+   */
+  template<
+    typename KeepPairFunc,
+    typename ProcessPairFunc,
+    typename ProcessOuterEndFunc = std::nullptr_t>
+  void loopOnPairs(
+    const Db* db,
+    const ASpaceSharedPtr& space,
+    Id idir,
+    const DirParam& dirparam,
+    bool hasDate,
+    KeepPairFunc&& keepPair,
+    ProcessPairFunc&& processPair,
+    ProcessOuterEndFunc&& processOuterEnd = nullptr);
+#endif // SWIG
 
   /**
    * \brief
@@ -191,4 +223,140 @@ namespace gstlrn
 
   GSTLEARN_EXPORT Db*
     buildDbFromVarioParam(Db* db, const VarioParam& varioparam);
+
+  // -----------------------------------------------------------------------------
+  // Template Implementation
+  // -----------------------------------------------------------------------------
+
+#ifndef SWIG
+
+  template<
+    typename KeepPairFunc,
+    typename ProcessPairFunc,
+    typename ProcessOuterEndFunc>
+  void loopOnPairs(
+    const Db* db,
+    const ASpaceSharedPtr& space,
+    Id idir,
+    const DirParam& dirparam,
+    bool hasDate,
+    KeepPairFunc&& keepPair,
+    ProcessPairFunc&& processPair,
+    ProcessOuterEndFunc&& processOuterEnd)
+  {
+    // Local flag the use of Ball Tree sort (to speed up processing)
+    bool flagBall = true;
+
+    SpaceTarget T1(space, false);
+    SpaceTarget T2(space, false);
+
+    Id nech = db->getNSample();
+    double maxdist = dirparam.getMaximumDistance();
+    bool hasSel = db->hasLocVariable(ELoc::SEL);
+    bool hasWeight = db->hasLocVariable(ELoc::W);
+
+    // Common O(N) pre-filtering: build sorted validRanks vector AND boolean active mask
+    VectorInt validRanks;
+    validRanks.reserve(nech);
+    VectorBool activeSample(nech, false);
+
+    VectorInt rindex = db->getSortArray();
+
+    for (Id iiech = 0; iiech < nech; iiech++)
+    {
+      Id iech = rindex[iiech];
+      if (hasSel && !db->isActive(iech)) continue;
+      if (hasWeight && FFFF(db->getWeight(iech))) continue;
+
+      validRanks.push_back(iech);
+      activeSample[iech] = true;
+    }
+
+    Id nvalid = static_cast<Id>(validRanks.size());
+    double dist = 0.;
+
+    // -------------------------------------------------------------------------
+    // OPTION 1: Spatial Partitioning via BallTree (ONLY if !hasDate && flagBall)
+    // -------------------------------------------------------------------------
+    if (flagBall && !hasDate)
+    {
+      Ball ball(db, nullptr, 10, true, 1, false);
+      VectorDouble coords(db->getNDim());
+      VectorInt neighbors;
+
+      for (Id i = 0; i < nvalid; i++)
+      {
+        Id iech = validRanks[i];
+
+        db->getSampleAsSTInPlace(iech, T1);
+        db->getCoordinatesInPlace(coords, iech);
+
+        // Query spatial neighbors within maxdist bounding sphere
+        ball.queryRadiusInPlace(coords, maxdist, neighbors);
+
+        for (Id jech: neighbors)
+        {
+          // Enforce unique unordered pairs (j > i)
+          if (jech <= iech) continue;
+
+          // Fast O(1) check using the active boolean mask
+          if (!activeSample[jech]) continue;
+
+          db->getSampleAsSTInPlace(jech, T2);
+
+          if (!keepPair(idir, T1, T2, &dist)) continue;
+
+          Id ilag = dirparam.getLagRank(dist);
+          if (isNA(ilag)) continue;
+
+          processPair(iech, jech, ilag, dist);
+        }
+
+        if constexpr (!std::is_same_v<
+                        std::decay_t<ProcessOuterEndFunc>, std::nullptr_t>)
+        {
+          double w1 = hasWeight ? db->getWeight(iech) : 1.0;
+          processOuterEnd(iech, w1);
+        }
+      }
+    }
+    // -------------------------------------------------------------------------
+    // OPTION 2: Standard 1D Sorted Array Scan (Legacy / Date Fallback)
+    // -------------------------------------------------------------------------
+    else
+    {
+      for (Id i = 0; i < nvalid; i++)
+      {
+        Id iech = validRanks[i];
+        db->getSampleAsSTInPlace(iech, T1);
+
+        // Triangular scan if no dates, full rectangular scan if dates are active
+        Id jstart = hasDate ? 0 : i + 1;
+        for (Id j = jstart; j < nvalid; j++)
+        {
+          Id jech = validRanks[j];
+
+          // Early break along the 1D main projection axis
+          if (db->getIncrement1D(jech, iech) > maxdist) break;
+
+          db->getSampleAsSTInPlace(jech, T2);
+
+          if (!keepPair(idir, T1, T2, &dist)) continue;
+
+          Id ilag = dirparam.getLagRank(dist);
+          if (isNA(ilag)) continue;
+
+          processPair(iech, jech, ilag, dist);
+        }
+
+        if constexpr (!std::is_same_v<
+                        std::decay_t<ProcessOuterEndFunc>, std::nullptr_t>)
+        {
+          double w1 = hasWeight ? db->getWeight(iech) : 1.0;
+          processOuterEnd(iech, w1);
+        }
+      }
+    }
+  }
+#endif // SWIG
 } // namespace gstlrn

@@ -10,9 +10,9 @@
 /******************************************************************************/
 #include "Covariances/CovContext.hpp"
 #include "Basic/VectorNumT.hpp"
-#include "Db/Db.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Space/ASpace.hpp"
+#include "Space/ASpaceObject.hpp"
 #include "Space/SpaceRN.hpp"
 #include "Variogram/Vario.hpp"
 
@@ -25,12 +25,12 @@ namespace gstlrn
    * @param space        Space definition
    */
   CovContext::CovContext(Id nvar, const ASpaceSharedPtr& space)
-
-    : ASpaceObject(space)
-    , _nVar(nvar)
+    : _nVar(nvar)
     , _field(TEST)
     , _covar0()
+    , _space(space)
   {
+    if (_space == nullptr) _space = getDefaultSpaceSh();
     _update();
   }
 
@@ -42,44 +42,36 @@ namespace gstlrn
    * @param covar0       Vector of variance-covariance
    */
   CovContext::CovContext(Id nvar, Id ndim, const VectorDouble& covar0)
-    : ASpaceObject(SpaceRN::create(ndim))
+    : AStringable()
     , _nVar(nvar)
     , _field(TEST)
     , _covar0(covar0)
+    , _space(getDefaultSpaceSh())
   {
-    _update();
-  }
-
-  CovContext::CovContext(const Db* db, const ASpaceSharedPtr& space)
-    : ASpaceObject(space)
-    , _nVar(0)
-    , _field(TEST)
-    , _covar0()
-  {
-    /// TODO : check Db dimension vs provided space
-    _nVar = db->getNLoc(ELoc::Z);
-    // As it does not make sense not to have any variable, this number is set to 1 at least
-    if (_nVar <= 1) _nVar = 1;
+    _space = SpaceRN::create(static_cast<Id>(ndim));
     _update();
   }
 
   CovContext::CovContext(const Vario* vario)
-    : ASpaceObject(vario->getSpace())
+    : AStringable()
     , _nVar(0)
     , _field(TEST)
     , _covar0()
+    , _space(getDefaultSpaceSh())
   {
     /// TODO : check vario dimension vs provided space
+    _space = SpaceRN::create(static_cast<Id>(vario->getNDim()));
     _nVar = vario->getNVar();
     _field = vario->getHmax();
     _update();
   }
 
   CovContext::CovContext(const CovContext& r)
-    : ASpaceObject(r)
+    : AStringable(r)
     , _nVar(r._nVar)
     , _field(r._field)
     , _covar0(r._covar0)
+    , _space(r._space)
   {
   }
 
@@ -87,10 +79,11 @@ namespace gstlrn
   {
     if (this != &r)
     {
-      ASpaceObject::operator=(r);
+      AStringable::operator=(r);
       _nVar = r._nVar;
       _field = r._field;
       _covar0 = r._covar0;
+      _space = r._space;
     }
     return *this;
   }
@@ -99,8 +92,8 @@ namespace gstlrn
 
   String CovContext::toString(const AStringFormat* strfmt) const
   {
+    DECLARE_UNUSED(strfmt);
     std::stringstream sstr;
-    sstr << ASpaceObject::toString(strfmt);
     sstr << "Nb Variables       = " << _nVar << std::endl;
     if (!FFFF(_field)) sstr << "Field Size         = " << _field << std::endl;
     sstr << "Covariance (0)     = " << toStrVector(String(), _covar0);
@@ -113,13 +106,13 @@ namespace gstlrn
     return ctxt;
   }
 
-  bool CovContext::isConsistent(const ASpace* space) const
-  {
-    /// TODO: Consistency of CovContext toward a space: Possible duplicate:
-    /// - CovFactory::_isValid
-    /// - AKernel::isConsistent
-    return (_space->isEqual(space));
-  }
+  // bool CovContext::isConsistent(const ASpace* space) const
+  // {
+  //   /// TODO: Consistency of CovContext toward a space: Possible duplicate:
+  //   /// - CovFactory::_isValid
+  //   /// - AKernel::isConsistent
+  //   return (_space->isEqual(space));
+  // }
 
   /**
    * Checks that two CovContext are 'similar'
