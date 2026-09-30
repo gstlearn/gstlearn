@@ -378,8 +378,9 @@ namespace gstlrn
       thread_local SpacePoint p2;
       if (p1.getSpace() != space)
       {
-        p1.setSpace(ASpaceSharedPtr(space));
-        p2.setSpace(ASpaceSharedPtr(space));
+        // The default space has changed. Therefore P1 and P2 must be re-initialized to the new space.
+        p1 = SpacePoint(space);
+        p2 = SpacePoint(space);
       }
       p1.setCoords(x1, n_features);
       p2.setCoords(x2, n_features);
