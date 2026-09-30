@@ -380,6 +380,7 @@ def WgetModel(WAll, vario=None):
 
 def WdefineModelFromNF():
     WMFile = mo.ui.file_browser(
+        initial_path=str(pathlib.Path.cwd()),
         label="Select a 'Model' Neutral File",
         multiple=False,
     )
@@ -667,6 +668,7 @@ def WgetVarioParamMulti(WAll):
 
 def WdefineVarioFromNF():
     WVFile = mo.ui.file_browser(
+        initial_path=str(pathlib.Path.cwd()),
         label="Select a 'Vario' Neutral File",
         multiple=False,
     )
@@ -1201,7 +1203,11 @@ def WgetDbFromBox(WAll):
 
 
 def WdefineDbFromNF():
-    WDFile = mo.ui.file_browser(label="Select a 'Db' Neutral File", multiple=False)
+    WDFile = mo.ui.file_browser(
+        initial_path=str(pathlib.Path.cwd()),
+        label="Select a 'Db' Neutral File",
+        multiple=False,
+    )
     # Add filetypes=[".NF", ".ascii"]
     # if you want to filter only NF or ascii files (extension)
     return mo.ui.array([WDFile])
@@ -1222,7 +1228,9 @@ def WdefineDbFromCSV(
     WDCSVnameY = mo.ui.text(label="Y Coordinate", value=nameY)
     WDCSVnameVar = mo.ui.text(label="Variable Name", value=nameVar)
     WDCSVengStyle = mo.ui.checkbox(label="English Style", value=flagEnglishStyle)
-    WDCSVFile = mo.ui.file_browser(label="Select a CSV File", multiple=False)
+    WDCSVFile = mo.ui.file_browser(
+        initial_path=str(pathlib.Path.cwd()), label="Select a CSV File", multiple=False
+    )
     # Add filetypes=[".csv"] if you want to filter only CSV files (extension)
     return mo.ui.array([WDCSVnameX, WDCSVnameY, WDCSVnameVar, WDCSVengStyle, WDCSVFile])
 
@@ -1494,21 +1502,6 @@ def WgetRule(WAll):
 # Widget to manage Layout
 # =======================
 
-_LAYOUT_OPTIONS = {
-    "data": {"label": "Display Data", "default": True},
-    "rule": {"label": "Display Lithotype Rule", "default": True},
-    "model": {"label": "Display Model(s)", "default": True},
-    "estimation": {"label": "Display Estimation Map(s)", "default": True},
-    "stdev": {"label": "Display Standard Deviation Map(s)", "default": True},
-    "simulation": {"label": "Display Simulation Map(s)", "default": True},
-    "average": {
-        "label": "Display Simulation Average and Dispersion Map(s)",
-        "default": True,
-    },
-    "KWeights": {"label": "Display Kriging Weights", "default": True},
-    "XWeights": {"label": "Display Cross-Validation", "default": True},
-}
-
 
 def WdefineLayout(options_list, nrow=3, ncol=3, width=5, height=5):
     """
@@ -1650,7 +1643,16 @@ def WshowAutoSave(panel):
 def WgetAutoSave(panel):
     selected = panel["directory"].value
 
-    directory = selected[0].path if selected else str(pathlib.Path.cwd())
+    if selected and len(selected) > 0:
+        item = selected[0]
+        if hasattr(item, "path"):
+            directory = str(item.path)
+        elif isinstance(item, dict) and "path" in item:
+            directory = str(item["path"])
+        else:
+            directory = str(item)
+    else:
+        directory = str(pathlib.Path.cwd())
 
     global optionGlobalBackup
     global optionGlobalDisplay

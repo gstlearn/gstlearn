@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.23.14"
+__generated_with = "0.25.0"
 app = marimo.App(width="full")
 
 
@@ -21,9 +21,24 @@ def my_imports():
 
 
 @app.cell(hide_code=True)
-def define_db_widget(gmo):
+def define_independent_widgets(gmo):
     WidgetDb = gmo.WdefineDb()
-    return (WidgetDb,)
+    WidgetGrid = gmo.WdefineGridN()
+
+    options_list = [
+        ("data", "Display of Data", True),
+        ("model", "Display of Variogram and Model", True),
+        ("estimation", "Display Estimation Map", True),
+        ("stdev", "Display St. Dev. map", True),
+    ]
+    WidgetLayout = gmo.WdefineLayout(
+        options_list,
+        nrow=2,
+        ncol=2,
+        width=3,
+        height=3,
+    )
+    return WidgetDb, WidgetGrid, WidgetLayout, options_list
 
 
 @app.cell(hide_code=True)
@@ -45,21 +60,10 @@ def get_edited_db(WidgetEdit, dbinit, gmo):
 
 
 @app.cell(hide_code=True)
-def define_view_widget(db, gmo):
+def define_dependent_widgets(db, gmo):
     WidgetView = gmo.WdefineBox(db)
-    return (WidgetView,)
-
-
-@app.cell(hide_code=True)
-def define_grid_widget(gmo):
-    WidgetGrid = gmo.WdefineGridN()
-    return (WidgetGrid,)
-
-
-@app.cell(hide_code=True)
-def define_vario_widget(db, gmo):
     WidgetVario = gmo.WdefineVario(nlag=10, db=db)
-    return (WidgetVario,)
+    return WidgetVario, WidgetView
 
 
 @app.cell(hide_code=True)
@@ -78,6 +82,7 @@ def define_model_widget(gmo, vario):
 def define_action(
     WidgetDb,
     WidgetGrid,
+    WidgetLayout,
     WidgetModel,
     WidgetVario,
     WidgetView,
@@ -85,6 +90,7 @@ def define_action(
     gmo,
     gp,
     mo,
+    options_list,
     plt,
 ):
     def myaction():
@@ -112,32 +118,81 @@ def define_action(
         # Define the Model
         model = gmo.WgetModel(WidgetModel, vario)
 
+        # Récupération du layout sélectionné
+        layout = gmo.WgetLayout(WidgetLayout, options_list)
+        selected_options = layout.get("selected", [])
+
         # Define Neighborhood (Unique)
         neigh = gl.NeighUnique.create()
 
-        # Perform the Estimation
+        # Perform the Estimation si nécessaire
         if (
-            db is not None
+            ("estimation" in selected_options or "stdev" in selected_options)
+            and db is not None
             and grid is not None
             and model is not None
             and neigh is not None
         ):
             err = gl.kriging(db, grid, model, neigh)
 
-        fig, ax = gp.init(2, 2, figsize=(6, 6))
-        gmo.plotData(
-            ax[0, 0], db, name=targetName, box=box, flagBackground=flagBackground
-        )
-        gmo.plotVario(ax[0, 1], vario, model, showPairs=True)
+        nx = layout.get("nx", 1)
+        ny = layout.get("ny", 1)
+        dimx = layout.get("dimx", 4)
+        dimy = layout.get("dimy", 4)
 
-        gmo.plotGrid(ax[1, 0], grid, name="Kriging.*.estim", flagLegend=True, nlevel=20)
-        gmo.plotData(
-            ax[1, 0], db, name=targetName, box=box, flagBackground=flagBackground
-        )
-        gmo.plotGrid(ax[1, 1], grid, name="Kriging.*.stdev", flagLegend=True)
-        gmo.plotData(
-            ax[1, 1], db, name=targetName, box=box, flagBackground=flagBackground
-        )
+        fig, ax = gp.init(nx, ny, figsize=[ny * dimx, nx * dimy], squeeze=False)
+        axes = ax.ravel()
+
+        i = 0
+        for content in selected_options:
+            if content == "data":
+                gmo.plotData(
+                    axes[i],
+                    db,
+                    name=targetName,
+                    box=box,
+                    flagBackground=flagBackground,
+                )
+                axes[i].set_title("Data Display")
+                i += 1
+
+            elif content == "model":
+                gmo.plotVario(axes[i], vario, model, showPairs=True)
+                axes[i].set_title("Variogram and Model")
+                i += 1
+
+            elif content == "estimation":
+                gmo.plotGrid(
+                    axes[i],
+                    grid,
+                    name="Kriging.*.estim",
+                    flagLegend=True,
+                    nlevel=20,
+                )
+                gmo.plotData(
+                    axes[i],
+                    db,
+                    name=targetName,
+                    box=box,
+                    flagBackground=flagBackground,
+                )
+                axes[i].set_title("Estimation Map")
+                i += 1
+
+            elif content == "stdev":
+                gmo.plotGrid(axes[i], grid, name="Kriging.*.stdev", flagLegend=True)
+                gmo.plotData(
+                    axes[i],
+                    db,
+                    name=targetName,
+                    box=box,
+                    flagBackground=flagBackground,
+                )
+                axes[i].set_title("St. Dev. Map")
+                i += 1
+
+        for axi in axes[i:]:
+            axi.axis("off")
 
         plt.tight_layout(pad=0.2)
         mo.mpl.interactive(fig)
@@ -152,12 +207,14 @@ def render_ui(
     WidgetDb,
     WidgetEdit,
     WidgetGrid,
+    WidgetLayout,
     WidgetModel,
     WidgetVario,
     WidgetView,
     gmo,
     mo,
     myaction,
+    options_list,
 ):
     param = mo.ui.tabs(
         {
@@ -167,12 +224,13 @@ def render_ui(
             "Grid": gmo.WshowGridN(WidgetGrid),
             "Variogram": gmo.WshowVario(WidgetVario),
             "Model": gmo.WshowModel(WidgetModel),
+            "Layout": gmo.WshowLayout(WidgetLayout, options_list),
         }
     ).style({"minWidth": "350px", "width": "350px"})
 
-    simu = mo.vstack([mo.md(""), mo.md(f"{mo.as_html(myaction())}")], gap=0)
+    simu = mo.vstack([mo.as_html(myaction())], gap=2)
 
-    layout = mo.hstack([param, simu], gap=4)
+    layout = mo.hstack([param, simu], gap=4, justify="start", align="start")
     layout
     return
 

@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.23.14"
+__generated_with = "0.25.0"
 app = marimo.App(width="full")
 
 
@@ -27,9 +27,31 @@ def define_widgets(gmo):
     )
     WidgetGrid = gmo.WdefineGrid()
     WidgetSimtub = gmo.WdefineSimtub(nbsimu=4)
-    WidgetLayout = gmo.WdefineLayout(3, 3, 3, 3)
+
+    # Définition des options sous forme de tuples (short_name, long_name, default_bool)
+    options_list = [
+        ("model", "Display Model(s)", True),
+        ("simulation", "Display Simulations", True),
+        ("average", "Display Simulation Average", False),
+        ("dispersion", "Display Simulation Dispersion", False),
+    ]
+
+    WidgetLayout = gmo.WdefineLayout(
+        options_list,
+        nrow=3,
+        ncol=3,
+        width=3,
+        height=3,
+    )
     WidgetAutoSave = gmo.WdefineAutoSave()
-    return WidgetAutoSave, WidgetGrid, WidgetLayout, WidgetModel, WidgetSimtub
+    return (
+        WidgetAutoSave,
+        WidgetGrid,
+        WidgetLayout,
+        WidgetModel,
+        WidgetSimtub,
+        options_list,
+    )
 
 
 @app.cell(hide_code=True)
@@ -43,6 +65,7 @@ def define_action(
     gmo,
     gp,
     mo,
+    options_list,
     plt,
 ):
     def myaction():
@@ -61,10 +84,7 @@ def define_action(
 
         layout = gmo.WgetLayout(
             WidgetLayout,
-            nvar=1,
-            nbsimu=nbsimu,
-            ngrf=1,
-            valid=["model", "simulation", "average"],
+            options_list,
         )
         nx = layout["nx"]
         ny = layout["ny"]
@@ -76,44 +96,50 @@ def define_action(
 
         i = 0
         isimu = 0
-        iaverage = 0
 
-        for name, count in layout.get("render_plan", []):
-            for k in range(count):
-                if i >= len(axes):
-                    break
+        for content in layout.get("selected", []):
+            if content == "model":
+                if model is not None and i < len(axes):
+                    gmo.plotVario(axes[i], model=model)
+                    i += 1
 
-                axi = axes[i]
+            elif content == "simulation":
+                for sim_idx in range(nbsimu):
+                    if i < len(axes):
+                        isimu += 1
+                        gmo.plotGrid(
+                            axes[i],
+                            grid,
+                            name="Simu" if nbsimu == 1 else f"Simu.S{isimu}",
+                            title=f"Simulation #{isimu}/{nbsimu}",
+                            flagLegend=False,
+                            flagBinary=flagDisplayBinary,
+                        )
+                        i += 1
 
-                if name == "model":
-                    gmo.plotVario(axi, model=model)
-
-                elif name == "simulation":
-                    isimu += 1
+            elif content == "average":
+                if i < len(axes):
                     gmo.plotGrid(
-                        axi,
+                        axes[i],
                         grid,
-                        name="Simu" if nbsimu == 1 else f"Simu.S{isimu}",
-                        title=f"Simulation #{isimu}/{nbsimu}",
+                        name="Stats.MEAN",
+                        title="Simulation Average",
                         flagLegend=False,
                         flagBinary=flagDisplayBinary,
                     )
+                    i += 1
 
-                elif name == "average":
-                    iaverage += 1
+            elif content == "dispersion":
+                if i < len(axes):
                     gmo.plotGrid(
-                        axi,
+                        axes[i],
                         grid,
-                        name="Stats.MEAN" if iaverage == 1 else "Stats.STDV",
-                        title="Average" if iaverage == 1 else "Dispersion",
+                        name="Stats.STDV",
+                        title="Simulation Dispersion",
                         flagLegend=False,
                         flagBinary=flagDisplayBinary,
                     )
-
-                else:
-                    axi.axis("off")
-
-                i += 1
+                    i += 1
 
         for axi in axes[i:]:
             axi.axis("off")
@@ -136,13 +162,14 @@ def render_ui(
     gmo,
     mo,
     myaction,
+    options_list,
 ):
     param = mo.ui.tabs(
         {
             "Grid": gmo.WshowGrid(WidgetGrid),
             "Model": gmo.WshowModel(WidgetModel),
             "Simulation": gmo.WshowSimtub(WidgetSimtub),
-            "Layout": gmo.WshowLayout(WidgetLayout),
+            "Layout": gmo.WshowLayout(WidgetLayout, options_list),
             "AutoSave": gmo.WshowAutoSave(WidgetAutoSave),
         }
     ).style({"minWidth": "400px", "width": "400px"})
