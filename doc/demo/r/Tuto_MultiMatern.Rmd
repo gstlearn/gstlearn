@@ -164,7 +164,6 @@ plot_hist_map_vario <- function(grid, names, version, model,
   p2 = SpacePoint()
   d  = model$getNDim()
   for (ivar in seq_along(names)) {
-  #  simu1 = matrix(grid[names[ivar]], nx[1], nx[2])
     simu1 = matrix(grid$getColumn(names[ivar], version=version-1), nx[1], nx[2])
     # histograms
     if (flag.hist) {
@@ -186,7 +185,6 @@ plot_hist_map_vario <- function(grid, names, version, model,
       for (jvar in ivar:length(names)) {
         c0 = model$evalCov(p1 = p1, p2 = p1, ivar = ivar-1, jvar = jvar-1)
         ylim = c(0, c0)
-        #simu2 = matrix(grid[names[jvar]], nx[1], nx[2])
         simu2 = matrix(grid$getColumn(names[jvar], version=version-1), nx[1], nx[2])
         plot(NULL, NULL, xlim = c(0, nlag*max(dir_norm)), ylim = ylim,
              xlab = "Distance", ylab = "Variogram")
@@ -383,7 +381,7 @@ nm_var = paste(prefix, paste0("V", 1:p), sep = ".")
 knitr::kable(dbStatisticsMono(db = grid, names = nm_var, opers = opers)$toTL(), digits = 4)
 
 for (isim in 1:nbsimu) {
-  plot_hist_map_vario(grid = grid, names = nm_var, version = isim, model = gsMatern,
+  plot_hist_map_vario(grid = grid, names = nm_var, version = isim-1, model = gsMatern,
                       main = paste0("Matern: d = ", gsMatern$getNDim(),
                                     ", p = ", gsMatern$getNVar()),
                       flag.hist = TRUE, flag.map = TRUE, flag.vario = TRUE)

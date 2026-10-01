@@ -498,8 +498,7 @@ namespace gstlrn
     /* Add the attributes */
     /**********************/
 
-    iptr =
-      dbin->addColumnsByConstant(nvar, nbsimu, 0., String(), ELoc::GAUSFAC);
+    iptr = dbin->addColumnsByConstant(nvar, nbsimu, 0., "", ELoc::GAUSFAC);
     if (iptr < 0) goto label_end;
 
     /*****************/
@@ -899,9 +898,9 @@ namespace gstlrn
     if (iptrv < 0) goto label_end;
     iptrr = dbout->addColumnsByConstant(1, 1, 0.);
     if (iptrr < 0) goto label_end;
-    iptrs = dbout->addColumnsByConstant(1, 1, 0., String(), ELoc::SEL);
+    iptrs = dbout->addColumnsByConstant(1, 1, 0., "", ELoc::SEL);
     if (iptrs < 0) goto label_end;
-    iptrg = dbout->addColumnsByConstant(1, 1, 0., String(), ELoc::SIMU);
+    iptrg = dbout->addColumnsByConstant(1, 1, 0., "", ELoc::SIMU);
     if (iptrg < 0) goto label_end;
 
     /* Implicit loop on the simulations */
@@ -1055,9 +1054,9 @@ namespace gstlrn
     sort.resize(nech);
     pton.resize(ncut);
     pres.resize(ncut - 1);
-    iptrs = dbout->addColumnsByConstant(1, 1, 0., String(), ELoc::SEL);
+    iptrs = dbout->addColumnsByConstant(1, 1, 0., "", ELoc::SEL);
     if (iptrs < 0) goto label_end;
-    iptrg = dbout->addColumnsByConstant(1, 1, 0., String(), ELoc::SIMU);
+    iptrg = dbout->addColumnsByConstant(1, 1, 0., "", ELoc::SIMU);
     if (iptrg < 0) goto label_end;
 
     /* Preliminary calculations */
@@ -1232,12 +1231,11 @@ namespace gstlrn
 
     /* Add the attributes for storing the results */
 
-    iptr =
-      dbin->addColumnsByConstant(nvar, nbsimu, 0., String(), ELoc::GAUSFAC);
+    iptr = dbin->addColumnsByConstant(nvar, nbsimu, 0., "", ELoc::GAUSFAC);
     if (iptr < 0) goto label_end;
-    iptr = dbin->addColumnsByConstant(nvar, nbsimu, 0., String(), ELoc::SIMU);
+    iptr = dbin->addColumnsByConstant(nvar, nbsimu, 0., "", ELoc::SIMU);
     if (iptr < 0) goto label_end;
-    iptr = dbout->addColumnsByConstant(nvar, nbsimu, 0., String(), ELoc::SIMU);
+    iptr = dbout->addColumnsByConstant(nvar, nbsimu, 0., "", ELoc::SIMU);
     if (iptr < 0) goto label_end;
 
     /*****************/
@@ -1363,7 +1361,7 @@ namespace gstlrn
 
     /* Create the new variable in the Data base */
 
-    Id iptr = db->addColumnsByConstant(1, 1, 0., String(), ELoc::SIMU);
+    Id iptr = db->addColumnsByConstant(1, 1, 0., "", ELoc::SIMU);
 
     SimuSpherical simsphe(1, seed);
     if (simsphe.simulate(db, model, sphepar, iptr, verbose)) return 1;

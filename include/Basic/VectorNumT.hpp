@@ -161,7 +161,7 @@ namespace gstlrn
     inline Id count(Id flagDef = 0) const;
     inline void identify() const;
     inline void
-      dump(const String& title = String(), bool newLineAfterTitle = true) const;
+      dump(const String& title = "", bool newLineAfterTitle = true) const;
 
     inline double innerProduct(const VectorNumT<T>& v, Id size = 0) const;
 

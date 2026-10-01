@@ -224,7 +224,7 @@ namespace gstlrn
   }
 
   /**
-   * Check if the argument 'idim' is a valid Space rank (0-based)
+   * Check if the argument 'idim' is a valid Space index (0-based)
    */
   bool Db::isDimensionIndexValid(Id idim) const
   {
@@ -241,7 +241,7 @@ namespace gstlrn
   }
 
   /**
-   * Check if the argument 'icol' is a valid Column rank (0-based)
+   * Check if the argument 'icol' is a valid Column index (0-based)
    */
   bool Db::isColIdxValid(Id icol) const
   {
@@ -249,7 +249,7 @@ namespace gstlrn
   }
 
   /**
-   * Check if the argument 'iech' is a valid Sample rank (0-based)
+   * Check if the argument 'iech' is a valid Sample index (0-based)
    */
   bool Db::isSampleIndexValid(Id iech) const
   {
@@ -257,7 +257,7 @@ namespace gstlrn
   }
 
   /**
-   * Check if the argument 'iechs' are valid Sample ranks (0-based)
+   * Check if the argument 'iechs' are valid Sample indices (0-based)
    */
   bool Db::isSampleIndicesValid(const VectorInt& iechs, bool useSel) const
   {
@@ -484,7 +484,6 @@ namespace gstlrn
 
   VectorInt Db::_ids(const VectorInt& iuids, bool flagOne, bool verbose) const
   {
-    VectorString exp_names = getNamesByUID(iuids);
     if (!_isCountValid(iuids, flagOne, verbose)) return VectorInt();
     return iuids;
   }
@@ -1668,6 +1667,16 @@ namespace gstlrn
     }
   }
 
+  /**
+   * @brief Duplicate a column from the input variable specified by 'iuid_in'
+   * and a possible version index 'versionIn'
+   * to the output variable specified by 'iuid_out' and a possible version index 'versionOut'.
+   *
+   * @param iuid_in
+   * @param iuid_out
+   * @param versionIn
+   * @param versionOut
+   */
   void Db::duplicateColumnByUID(
     Id iuid_in,
     Id iuid_out,
@@ -2548,7 +2557,7 @@ namespace gstlrn
   }
 
   /**
-   * @brief Initiaze the contents of one or several columns with the Db
+   * @brief Initialize the contents of one or several columns with the Db
    * with either a constant value or a value drawn at random (persample)
    *
    * @param ncol
@@ -2813,11 +2822,6 @@ namespace gstlrn
     setFromLocator(locatorType, iech, locindex, value, version);
   }
 
-  void Db::setZVariable(Id iech, Id item, double value)
-  {
-    setFromLocator(ELoc::Z, iech, item, value);
-  }
-
   void Db::setLocVariables(
     const ELoc& locatorType,
     Id iech,
@@ -2858,17 +2862,6 @@ namespace gstlrn
     const double oldval = *_data.getValue<double>({icol, version}, iech);
     const double newval = modifyOperator(oper, oldval, value);
     _data.setValue({icol, version}, iech, newval);
-  }
-
-  void Db::updZVariable(Id iech, Id item, const EOperator& oper, double value)
-  {
-    if (!isSampleIndexValid(iech)) return;
-    auto icol = getColIdxByLocator(ELoc::Z, item);
-    if (icol < 0) return;
-
-    const double oldval = *_data.getValue<double>(icol, iech);
-    const double newval = modifyOperator(oper, oldval, value);
-    _data.setValue(icol, iech, newval);
   }
 
   /**
@@ -2953,6 +2946,13 @@ namespace gstlrn
     return true;
   }
 
+  /**
+   * @brief Check if all the variables (ELOC.Z) for the sample 'iech' are undefined
+   *
+   * @param iech Target sample index
+   * @return true
+   * @return false
+   */
   bool Db::isAllUndefined(Id iech) const
   {
     if (!isSampleIndexValid(iech)) return false;
@@ -2960,10 +2960,18 @@ namespace gstlrn
     if (nvar <= 0) return false;
 
     for (Id ivar = 0; ivar < nvar; ivar++)
-      if (!FFFF(getZVariable(iech, ivar))) return true;
-    return false;
+      if (!FFFF(getZVariable(iech, ivar))) return false;
+    return true;
   }
 
+  /**
+   * @brief Check if all the variables for the sample 'iech' are undefined for a given locator type
+   *
+   * @param locatorType Target locator type
+   * @param iech Target sample index
+   * @return true
+   * @return false
+   */
   bool Db::isAllUndefinedByType(const ELoc& locatorType, Id iech) const
   {
     if (!isSampleIndexValid(iech)) return false;
@@ -2971,8 +2979,8 @@ namespace gstlrn
     if (natt <= 0) return false;
 
     for (Id iatt = 0; iatt < natt; iatt++)
-      if (!FFFF(getLocVariable(locatorType, iech, iatt))) return true;
-    return false;
+      if (!FFFF(getLocVariable(locatorType, iech, iatt))) return false;
+    return true;
   }
 
   Id Db::getNInterval() const
@@ -4219,7 +4227,7 @@ namespace gstlrn
   }
 
   /**
-   *  Returns the column referred by its rank (0-based)
+   *  Returns the column referred by its index (0-based)
    *
    */
   VectorDouble

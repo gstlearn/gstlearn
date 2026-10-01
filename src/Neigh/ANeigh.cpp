@@ -389,15 +389,15 @@ namespace gstlrn
 
     if (!_flagSimu)
     {
-      if (_dbin->isAllUndefined(iech)) return 0;
+      if (_dbin->isAllUndefined(iech)) return 1;
     }
     else
     {
       // Here the check is performed on all variables belonging to ELoc::SIMU
       // The number of variables is equal to 'nbsimu' * 'nvar'
-      if (_dbin->isAllUndefinedByType(ELoc::SIMU, iech)) return 0;
+      if (_dbin->isAllUndefinedByType(ELoc::SIMU, iech)) return 1;
     }
-    return 1;
+    return 0;
   }
 
   /****************************************************************************/

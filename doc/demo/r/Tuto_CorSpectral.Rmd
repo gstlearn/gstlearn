@@ -823,7 +823,6 @@ MyCorAniso <- function(type = MyType_[3], sigma = 1.0, params = NULL,
       val = compute_simulation(sp = sp_, X = X, verbose = verbose)
       isim = 1
       for (ivar in 1:nvar) {
-        #nm_var = NC_getNameEncoded(prefix, NULL, ivar, nvar, isim, isim)
         nm_var = NC_getNameEncoded(prefix, NULL, ivar, nvar, isim, 0)
         dbout[nm_var] = val[ivar,]
       }
@@ -968,7 +967,6 @@ MyCorMatern <- function(type = MyType_[3],
       val = compute_simulation(sp = sp_, X = X, verbose = verbose)
       isim = 1
       for (ivar in 1:nvar) {
-        #nm_var = NC_getNameEncoded(prefix, NULL, ivar, nvar, isim, isim)
         nm_var = NC_getNameEncoded(prefix, NULL, ivar, nvar, isim, 0)
         dbout[nm_var] = val[ivar,]
       }
@@ -1133,7 +1131,6 @@ MyCorGaussianMixture <- function(type = MyType_[3], nu = 1/2, kappa = rep(1.0, l
       val = compute_simulation(sp = sp_, X = X, verbose = verbose)
       isim = 1
       for (ivar in 1:nvar) {
-        #nm_var = NC_getNameEncoded(prefix, NULL, ivar, nvar, isim, isim)
         nm_var = NC_getNameEncoded(prefix, NULL, ivar, nvar, isim, 0)
         dbout[nm_var] = val[ivar,]
       }
@@ -1270,7 +1267,6 @@ MyCorGneiting <- function(type = MyType_[7], nu = 1/2, kappa = rep(1.0, length(n
       val = compute_simulation(sp = sp_, X = X, verbose = verbose)
       isim = 1
       for (ivar in 1:nvar) {
-        #nm_var = NC_getNameEncoded(prefix, NULL, ivar, nvar, isim, isim)
         nm_var = NC_getNameEncoded(prefix, NULL, ivar, nvar, isim, 0)
         dbout[nm_var] = val[ivar,]
       }
@@ -1681,7 +1677,6 @@ for (id in seq_len(length(list_test))) {
     nm0_var = NC_getNameEncoded(prefix, NULL, ivar, nvar, isim, isim)
     nm_var = NC_getNameEncoded(prefix, NULL, ivar, nvar, isim, 0)
     tab_var = c(tab_var, nm0_var )
-    #val = grid[nm_var]
     val = grid$getColumn(nm_var, version=isim-1)
     # compute statistics
     tab = rbind(tab, t(compute_statistics(val)))
