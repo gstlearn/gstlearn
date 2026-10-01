@@ -256,11 +256,12 @@ gsMatern = CorMatern_create(
   ranges = ani_scales[1:d] ,
   angles = ani_angles[1:d],
   flagRange = FALSE)
+```
 
+```{r Define_Model_by_covariance}
 # the model is defined by the covariance
 gsMod = ModelGeneric(ctxt = ctxt)
 err   = gsMod$setCov(cova = gsMatern)
-
 ```
 
 
@@ -381,7 +382,7 @@ nm_var = paste(prefix, paste0("V", 1:p), sep = ".")
 knitr::kable(dbStatisticsMono(db = grid, names = nm_var, opers = opers)$toTL(), digits = 4)
 
 for (isim in 1:nbsimu) {
-  plot_hist_map_vario(grid = grid, names = nm_var, version = isim-1, model = gsMatern,
+  plot_hist_map_vario(grid = grid, names = nm_var, version = isim, model = gsMatern,
                       main = paste0("Matern: d = ", gsMatern$getNDim(),
                                     ", p = ", gsMatern$getNVar()),
                       flag.hist = TRUE, flag.map = TRUE, flag.vario = TRUE)
