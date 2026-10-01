@@ -22,6 +22,7 @@ from shapely import node
 
 import gstlearn as gl
 import gstlearn.plot as gp
+import gstlearn.document as gdoc
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -29,6 +30,7 @@ import marimo as mo
 import contextily as ctx
 import os
 import pathlib
+import math
 
 optionGlobalDisplay = False
 optionGlobalBackup = True
@@ -95,6 +97,25 @@ def _saveAndDisplay(contents=None, filename="File.NF", flagForceDisplay=False):
 
     if optionGlobalDisplay or flagForceDisplay:
         contents.display()
+
+
+def _getDivisors(n):
+    large_divisors = []
+    for i in range(1, int(math.sqrt(n) + 1)):
+        if n % i == 0:
+            yield i
+            if i * i != n:
+                large_divisors.append(n / i)
+    for divisor in reversed(large_divisors):
+        yield int(divisor)
+
+
+def _get_median_divisor(divs):
+    n = len(divs)
+    if n == 0:
+        return "1"
+    idx = n // 2
+    return str(divs[idx])
 
 
 # =========================
@@ -309,6 +330,7 @@ def WdefineModel(
     vario=None,
     deftypes=["Spherical"],
     valdef="Fit",
+    withFit=True,
 ):
     """
     Returns the array of widgets for inquiring a series of 'ncovmax' basic structures
@@ -318,14 +340,22 @@ def WdefineModel(
     varmax:  Maximum Variance value
     vario: Vario used for providing default values (if provided)
     valdef: Defaulted option for Model definition
+    withFit: If False, disables/removes the 'Fit' option
     """
     if vario is not None:
         distmax = vario.getMaximumDistance()
         varmax = vario.getVar()
 
-    WMChoice = mo.ui.radio(
-        options={"Interactive": 1, "Fit": 2, "From NF": 3}, value=valdef
-    )
+    # Définition des options disponibles selon withFit
+    if withFit:
+        options = {"Interactive": 1, "Fit": 2, "From NF": 3}
+    else:
+        options = {"Interactive": 1, "From NF": 3}
+        # Si la valeur par défaut était "Fit", on la bascule sur "Interactive"
+        if valdef == "Fit":
+            valdef = "Interactive"
+
+    WMChoice = mo.ui.radio(options=options, value=valdef)
     WInter = WdefineCovariances(
         ncovmax=ncovmax, ncovdef=ncovdef, distmax=distmax, varmax=varmax
     )
@@ -1669,73 +1699,149 @@ def WgetAutoSave(panel):
     }
 
 
-# =============================
-# Widget to manage Neighborhood
-# =============================
+# ============================
+# Widget to manage Coarse Grid
+# ============================
 
 
-def WdefineNeigh(nmaxi=10, radius=10.0, flagUnique=False):
-    """
-    Returns parameters for the Neighborhood
-    """
-    Wunique = mo.ui.checkbox(label="Unique Neighborhood", value=flagUnique)
-    Wnmaxi = mo.ui.number(start=1, value=nmaxi, label="Maximum number of samples")
-    Wradius = mo.ui.number(value=radius, step=0.1, label="Search radius")
-    Wnmini = mo.ui.number(start=1, value=1, label="Minimum number of samples")
-    Wnsect = mo.ui.number(start=1, value=1, label="Number of sectors")
-    Wnsmax = mo.ui.number(value=10, label="Maximum samples per sector")
-    Wangle = mo.ui.number(value=0, label="Rotation Angle (degree)")
+def WdefineCoarseGrid(grid_fine=None, ndisc_default=20):
+    if grid_fine is None:
+        return None
 
-    return mo.ui.array(
+    # Extraction des nombres de mailles de la grille fine
+    nx_fine = grid_fine.getNX(0)
+    ny_fine = grid_fine.getNX(1)
+
+    # Obtenir la liste des diviseurs valides sous forme de chaînes/entiers
+    div_x = list(_getDivisors(nx_fine))
+    div_y = list(_getDivisors(ny_fine))
+    default_x = _get_median_divisor(div_x)
+    default_y = _get_median_divisor(div_y)
+
+    Wnxfact = mo.ui.dropdown(
+        options=[str(d) for d in div_x],
+        value=str(default_x),
+        label=f"Factor X (Divisors of {nx_fine})",
+    )
+    Wnyfact = mo.ui.dropdown(
+        options=[str(d) for d in div_y],
+        value=str(default_y),
+        label=f"Factor Y (Divisors of {ny_fine})",
+    )
+    WNDisc = mo.ui.number(
+        start=1, stop=100, label="Discretization Points", value=ndisc_default
+    )
+
+    return mo.ui.dictionary(
+        {
+            "nxfact": Wnxfact,
+            "nyfact": Wnyfact,
+            "ndisc": WNDisc,
+        }
+    )
+
+
+def WshowCoarseGrid(WidgetCoarseGrid, flagTitle=True, gapv=1):
+    if WidgetCoarseGrid is None:
+        return mo.md("No fine grid provided")
+
+    WCoarseGridTitle = _WgetTitle("Coarse Grid", flagTitle)
+    return mo.vstack(
         [
-            Wunique,
-            Wnmaxi,
-            Wradius,
-            Wnmini,
-            Wnsect,
-            Wnsmax,
-            Wangle,
-        ]
+            WCoarseGridTitle,
+            WidgetCoarseGrid["nxfact"],
+            WidgetCoarseGrid["nyfact"],
+            WidgetCoarseGrid["ndisc"],
+        ],
+        gap=1,
     )
 
 
-def WshowNeigh(WAll, flagTitle=True, gapv=1):
-    [Wunique, Wnmaxi, Wradius, Wnmini, Wnsect, Wnsmax, Wangle] = WAll
-    WNeighTitle = _WgetTitle("Neighborhood", flagTitle)
-    # mode UNIQUE → on masque tout sauf titre + switch
-    if Wunique.value:
-        widgets = [
-            WNeighTitle,
-            Wunique,
-        ]
-    else:
-        widgets = [
-            WNeighTitle,
-            Wunique,
-            Wnmaxi,
-            Wradius,
-            Wnmini,
-            Wnsect,
-            Wnsmax,
-            Wangle,
-        ]
-    return mo.vstack(widgets, gap=gapv)
+def WgetCoarseGrid(WidgetCoarseGrid, grid_fine):
+    if WidgetCoarseGrid is None or grid_fine is None:
+        return None
+
+    nxfact = int(WidgetCoarseGrid["nxfact"].value)
+    nyfact = int(WidgetCoarseGrid["nyfact"].value)
+
+    grid_coarse = grid_fine.coarsify(nmult=[nxfact, nyfact])
+    return grid_coarse
 
 
-def WgetNeigh(WAll):
-    [Wunique, Wnmaxi, Wradius, Wnmini, Wnsect, Wnsmax, Wangle] = WAll
-    if Wunique.value:
-        return gl.NeighUnique()
+def WexplainMarkdown(
+    get_show_modal,
+    close_btn,
+    filepaths,
+    modal_title="Documentation",
+):
+    """
+    Generate a view in a separate window containing the printout of Markdown files.
+    """
+    if not get_show_modal():
+        return mo.md("")
 
-    return gl.NeighMoving.create(
-        flag_xvalid=False,
-        nmaxi=Wnmaxi.value,
-        radius=Wradius.value,
-        nmini=Wnmini.value,
-        nsect=Wnsect.value,
-        nsmax=Wnsmax.value,
-        angles=[Wangle.value, 0.0],
+    if isinstance(filepaths, str):
+        filepaths = [filepaths]
+
+    md_blocks = []
+    for fname in filepaths:
+        try:
+            doc_content = gdoc.loadDoc(fname)
+            md_blocks.append(doc_content)
+        except Exception as e:
+            md_blocks.append(f"**Error:** Impossible de charger `{fname}` : {e}")
+
+    full_md = "\n\n---\n\n".join(md_blocks)
+
+    overlay_style = {
+        "position": "fixed",
+        "top": "0",
+        "left": "0",
+        "width": "100vw",
+        "height": "100vh",
+        "backgroundColor": "rgba(0, 0, 0, 0.4)",
+        "backdropFilter": "blur(3px)",
+        "zIndex": "9999",
+        "pointerEvents": "auto",
+    }
+
+    window_style = {
+        "position": "fixed",
+        "top": "50%",
+        "left": "50%",
+        "transform": "translate(-50%, -50%)",
+        "backgroundColor": "#ffffff",
+        "padding": "24px",
+        "borderRadius": "12px",
+        "maxWidth": "700px",
+        "width": "90%",
+        "maxHeight": "75vh",
+        "boxSizing": "border-box",
+        "display": "flex",
+        "flexDirection": "column",
+        "boxShadow": "0 25px 50px -12px rgba(0, 0, 0, 0.35)",
+        "zIndex": "10000",
+        "overflow": "hidden",
+    }
+
+    body_style = {
+        "overflowY": "auto",
+        "maxHeight": "calc(75vh - 110px)",
+        "marginTop": "12px",
+        "paddingRight": "8px",
+        "boxSizing": "border-box",
+    }
+
+    header = mo.hstack(
+        [mo.md(f"## {modal_title}"), close_btn],
+        justify="space-between",
+        align="center",
     )
+
+    body = mo.vstack([mo.md(full_md)]).style(body_style)
+    modal_box = mo.vstack([header, body], gap=1).style(window_style)
+
+    return mo.vstack([modal_box]).style(overlay_style)
 
 
 # =====================================
