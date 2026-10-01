@@ -195,7 +195,7 @@ namespace gstlrn
       {
         this->_outer = 0;
         this->_buf =
-          VectorType(); // <--- Remplacer clear() par l'assignation d'un constructeur par défaut
+          VectorType(); // <--- Remplace clear() by an assignment of a default constructor
         return;
       }
 

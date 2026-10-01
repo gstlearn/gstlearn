@@ -428,8 +428,6 @@ namespace gstlrn
     Id getSelection(Id iech) const;
 
     double getZVariable(Id iech, Id item) const;
-    void setZVariable(Id iech, Id item, double value);
-    void updZVariable(Id iech, Id item, const EOperator& oper, double value);
 
     // ================================================================ //
 
