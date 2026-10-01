@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.23.14"
+__generated_with = "0.25.0"
 app = marimo.App(width="full")
 
 
@@ -193,17 +193,17 @@ def render_ui(
             param,
             gmo.WshowMessage(WidgetMessage),
         ],
-        gap=8,
+        gap=2,
     )
 
     Potential = mo.vstack(
         [
             mo.as_html(myaction()),
         ],
-        gap=4,
+        gap=2,
     )
 
-    layout = mo.hstack([LeftPanel, Potential], gap=4)
+    layout = mo.hstack([LeftPanel, Potential], gap=4, justify="start", align="start")
     layout
     return
 
