@@ -2640,16 +2640,15 @@ namespace gstlrn
 
     /* Loop on the directions to evaluate */
 
-    VectorInt rindex = db->getSortArray();
     for (Id idir = 0; idir < getNDir(); idir++)
     {
       if (!flag_sample)
       {
-        if (_calculateGeneralByPair(db, idir, rindex.data(), vorder)) return 1;
+        if (_calculateGeneralByPair(db, idir, vorder)) return 1;
       }
       else
       {
-        if (_calculateGeneralBySample(db, idir, rindex.data())) return 1;
+        if (_calculateGeneralBySample(db, idir)) return 1;
       }
 
       if (!vorder.empty()) _calculateFromGeometry(db, idir, vorder);
@@ -3520,15 +3519,10 @@ namespace gstlrn
    **
    ** \param[in]  db     Db description
    ** \param[in]  idir   Rank of the direction
-   ** \param[in]  rindex Array of sorted samples
    ** \param[in]  vorder VarioOrder structure
    **
    *****************************************************************************/
-  Id Vario::_calculateGeneralByPair(
-    Db* db,
-    Id idir,
-    const Id* /*rindex*/,
-    VarioOrder& vorder)
+  Id Vario::_calculateGeneralByPair(Db* db, Id idir, VarioOrder& vorder)
   {
     DirParam dirparam = getDirParam(idir);
     auto nvar = getNVar();
@@ -3637,10 +3631,9 @@ namespace gstlrn
    **
    ** \param[in]  db     Db descriptor
    ** \param[in]  idir   Rank of the direction
-   ** \param[in]  rindex Array of sorted samples
    **
    *****************************************************************************/
-  Id Vario::_calculateGeneralBySample(Db* db, Id idir, const Id* /*rindex*/)
+  Id Vario::_calculateGeneralBySample(Db* db, Id idir)
   {
     /* Initializations */
     const DirParam& dirparam = getDirParam(idir);
@@ -4221,14 +4214,9 @@ namespace gstlrn
    ** \param[in]  db     Db description
    ** \param[in]  idir   Rank of the Direction
    ** \param[in]  ncomp  Number of components
-   ** \param[in]  rindex Array of sorted samples
    **
    *****************************************************************************/
-  Id Vario::_calculateVarioVectSolution(
-    Db* db,
-    Id idir,
-    Id ncomp,
-    const Id* /*rindex*/)
+  Id Vario::_calculateVarioVectSolution(Db* db, Id idir, Id ncomp)
   {
     const DirParam& dirparam = getDirParam(idir);
     auto nvar = getNVar();
@@ -4330,10 +4318,9 @@ namespace gstlrn
 
     /* Loop on the directions to evaluate */
 
-    VectorInt rindex = db->getSortArray();
     for (Id idir = 0; idir < getNDir(); idir++)
     {
-      if (_calculateVarioVectSolution(db, idir, ncomp, rindex.data())) return 1;
+      if (_calculateVarioVectSolution(db, idir, ncomp)) return 1;
     }
     return 0;
   }
