@@ -439,8 +439,6 @@ Column = 9 - Name = Simu.Y.Pb - Locator = z1 - Versions = 10
  Simu.Y.Pb.S8       0.503       1.622      -5.305       6.607
  Simu.Y.Pb.S9       0.214       1.540      -5.142       5.751
 Simu.Y.Pb.S10       0.154       1.514      -4.822       6.484
-NULL
-NULL
 
 Data Base Grid Characteristics
 ==============================
@@ -481,8 +479,6 @@ Column = 9 - Name = Z.Simu.Y.Pb - Locator = z1 - Versions = 10
  Z.Simu.Y.Pb.S8       6.923       3.007       3.003      12.978
  Z.Simu.Y.Pb.S9       6.381       2.786       3.003      12.978
 Z.Simu.Y.Pb.S10       6.269       2.720       3.003      12.978
-NULL
-NULL
 
 Data Base Grid Characteristics
 ==============================
