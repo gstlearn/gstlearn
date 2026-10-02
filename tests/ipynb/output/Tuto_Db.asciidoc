@@ -55,7 +55,7 @@ Total number of samples      = 500
 
 Data Base Statistics
 --------------------
-4 - Name sel - Locator NA
+1 - Name sel 
  Nb of data          =        500
  Nb of active values =        500
  Minimum value       =      0.000

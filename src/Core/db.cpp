@@ -458,44 +458,6 @@ namespace gstlrn
 
   /****************************************************************************/
   /*!
-   **  Add and initiate several attributes corresponding to a given
-   *locator
-   **
-   ** \return  Error return code
-   **
-   ** \param[in]  db      Db structure
-   ** \param[in]  locatorType  Rank of the Pointer (ELoc)
-   ** \param[in]  number  Number of locators to be defined
-   ** \param[in]  r_tem   Rank of the first item in the pointer
-   ** \param[in]  valinit Value to be used for initialization
-   **
-   ** \param[out] iptr    Rank of the first new attribute
-   **
-   *****************************************************************************/
-  Id db_locator_attribute_add(
-    Db* db,
-    const ELoc& locatorType,
-    Id number,
-    Id r_tem,
-    double valinit,
-    Id* iptr)
-  {
-    (*iptr) = db->addColumnsByConstant(number, valinit);
-    if ((*iptr) < 0) return (1);
-    db->setLocatorsByUID(number, *iptr, locatorType, r_tem);
-
-    /* Set the default names to the newly created variables */
-
-    for (Id i = 0; i < number; i++)
-    {
-      String string = getLocatorName(locatorType, r_tem + i);
-      db->setNameByUID((*iptr) + i, string);
-    }
-    return (0);
-  }
-
-  /****************************************************************************/
-  /*!
    **  Copy a set of variables from a grid Db to another grid Db
    **
    ** \return  Error return code
@@ -539,7 +501,7 @@ namespace gstlrn
 
     /* Add the variables */
 
-    Id iptr = db2->addColumnsByConstant(ncol, TEST);
+    Id iptr = db2->addColumnsByConstant(ncol, 1, TEST);
 
     /* Loop on the output grid Db */
 
@@ -1055,7 +1017,7 @@ namespace gstlrn
 
     /* Allocate the variables */
 
-    Id iptr = dbgrid->addColumnsByConstant(nclass, 0.);
+    Id iptr = dbgrid->addColumnsByConstant(nclass, 1, 0.);
     if (iptr < 0) return 1;
     dbgrid->setLocatorsByUID(nclass, iptr, ELoc::P, 0);
 
@@ -1149,7 +1111,7 @@ namespace gstlrn
 
     /* Add the new variable */
 
-    iptr = db->addColumnsByConstant(1, TEST);
+    iptr = db->addColumnsByConstant(1, 1, TEST);
 
     /* Loop on the samples */
 
@@ -1822,7 +1784,7 @@ namespace gstlrn
 
     if (flag_sel)
     {
-      isel = ss_grid->addColumnsByConstant(1, 0., String(), ELoc::SEL);
+      isel = ss_grid->addColumnsByConstant(1, 1, 0., String(), ELoc::SEL);
       for (Id i = 0; i < ss_grid->getNSample(); i++)
       {
         ss_grid->rankToIndice(i, indcur);
@@ -1838,7 +1800,7 @@ namespace gstlrn
 
     if (flag_copy)
     {
-      icopy = ss_grid->addColumnsByConstant(1, 0., String(), ELoc::SEL);
+      icopy = ss_grid->addColumnsByConstant(1, 1, 0., String(), ELoc::SEL);
       for (Id i = 0; i < ss_grid->getNSample(); i++)
       {
         ss_grid->rankToIndice(i, indcur);

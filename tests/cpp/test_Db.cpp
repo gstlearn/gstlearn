@@ -203,5 +203,6 @@ int main(int argc, char* argv[])
 
     db->getStatsByCategoryAsTable("z", "code").display();
   }
+
   return 0;
 }

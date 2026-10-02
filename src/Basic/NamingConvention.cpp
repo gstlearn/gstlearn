@@ -191,83 +191,6 @@ namespace gstlrn
   }
 
   /**
-   * @brief Generate names for simulation output variables.
-   *
-   * This method generates names using both the variable and simulation
-   * indices. The order of these two indices is controlled by
-   * `flagSimuFirst`.
-   *
-   * For example, for two variables and two simulations, the generated names
-   * can be:
-   * - V1.S1, V1.S2, V2.S1, V2.S2 when `flagSimuFirst` is false;
-   * - S1.V1, S1.V2, S2.V1, S2.V2 when `flagSimuFirst` is true.
-   *
-   * @param names Names of the input variables.
-   * @param nvar Number of variables.
-   * @param dbout Output Db containing the simulation variables.
-   * @param iattout_start Index of the first output variable.
-   * @param nbsimu Number of simulations.
-   * @param flagSimuFirst If true, the simulation index is placed before the
-   * variable index.
-   * @param flagSetLocator If true, assign the configured locator to the
-   * output variables.
-   * @param locatorShift Shift applied when assigning the locator.
-   */
-  void NamingConvention::setOutputForSimulations(
-    const VectorString& names,
-    Id nvar,
-    Db* dbout,
-    Id iattout_start,
-    Id nbsimu,
-    bool flagSimuFirst,
-    bool flagSetLocator,
-    Id locatorShift) const
-  {
-    // If (starting) UID is negative, simply skip the naming process
-    // (this is a common case when no output variable is created)
-    if (iattout_start < 0) return;
-
-    // The corresponding column may have been deleted in the meantime,
-    // so we check that the UID is still valid
-    if (!dbout->isUIDValid(iattout_start)) return;
-
-    if (names.empty())
-    {
-      if (nvar <= 0) nvar = 1;
-    }
-    else
-    {
-      nvar = static_cast<Id>(names.size());
-    }
-
-    // Create simulation names
-    VectorString outnames =
-      _createSimulationNames(names, nvar, nbsimu, flagSimuFirst);
-
-    // Set the names in the database
-    Id ntotal = nvar * nbsimu;
-    for (Id i = 0; i < ntotal; i++)
-    {
-      dbout->setNameByUID(iattout_start + i, outnames[i]);
-    }
-
-    if (flagSetLocator)
-    {
-      if (_flagLocator && _locatorOutType != ELoc::UNDEFINED)
-      {
-        // Erase already existing locators of the same Type
-        if (_cleanSameLocator && locatorShift == 0)
-          dbout->clearLocators(_locatorOutType);
-
-        // Set the locator for all variables
-        for (Id i = 0; i < ntotal; i++)
-          dbout->setLocatorByUID(
-            iattout_start + i, _locatorOutType, i + locatorShift);
-      }
-    }
-  }
-
-  /**
    * @brief Assign the configured locator to output variables.
    *
    * The locator is assigned to a set of output variables starting at
@@ -326,16 +249,25 @@ namespace gstlrn
   {
     auto nloc = _getNameCount(names, nvar);
     VectorString outnames = _createNames(names, nloc, qualifier, nitems);
-    correctNamesForDuplicates(outnames, dbout->getAllNames());
 
-    Id ecr = 0;
-    for (Id ivar = 0; ivar < nloc; ivar++)
+    VectorInt iuids;
+    VectorString reservedList;
+    for (Id ivar = 0, ecr = 0; ivar < nloc; ivar++)
     {
-      for (Id item = 0; item < nitems; item++)
+      for (Id item = 0; item < nitems; item++, ecr++)
       {
-        dbout->setNameByUID(iattout_start + ecr, outnames[ecr]);
-        ecr++;
+        auto iuid = iattout_start + ecr;
+        iuids.push_back(iuid);
+        reservedList.push_back(dbout->getNameByUID(iuid));
       }
+    }
+    auto navoid = static_cast<Id>(reservedList.size());
+
+    correctNamesForDuplicates(outnames, dbout->getAllNames(), reservedList);
+
+    for (Id i = 0; i < navoid; i++)
+    {
+      dbout->setNameByUID(iuids[i], outnames[i]);
     }
   }
 
@@ -401,72 +333,6 @@ namespace gstlrn
         outnames.push_back(name);
       }
     }
-    return outnames;
-  }
-
-  VectorString NamingConvention::_createSimulationNames(
-    const VectorString& names,
-    Id nvar,
-    Id nbsimu,
-    bool flagSimuFirst) const
-  {
-    if (nvar <= 0 || nbsimu <= 0) return {};
-
-    VectorString outnames;
-
-    // Determine variable names
-    VectorString varnames;
-    bool isConditional = !names.empty();
-
-    if (isConditional)
-    {
-      // Conditional simulation: use provided variable names
-      varnames = names;
-      if (static_cast<Id>(varnames.size()) != nvar && nvar > 0)
-        varnames.resize(nvar);
-    }
-    else
-    {
-      // Non-conditional simulation: use V1, V2, ... format
-      for (Id ivar = 0; ivar < nvar; ivar++)
-      {
-        String varname = 'V' + std::to_string(ivar + 1);
-        varnames.push_back(varname);
-      }
-    }
-
-    // Create names based on storage order
-    if (flagSimuFirst)
-    {
-      // Simulation varies first: V1.S1, V1.S2, ..., V1.Sn, V2.S1, V2.S2, ...
-      for (Id ivar = 0; ivar < nvar; ivar++)
-      {
-        for (Id isimu = 0; isimu < nbsimu; isimu++)
-        {
-          String simuname = 'S' + std::to_string(isimu + 1);
-          String name =
-            concatenateStrings(_delim, _prefix, varnames[ivar], simuname);
-          if (name.empty()) name = "Dummy";
-          outnames.push_back(name);
-        }
-      }
-    }
-    else
-    {
-      // Variable varies first: V1.S1, V2.S1, ..., Vn.S1, V1.S2, V2.S2, ...
-      for (Id isimu = 0; isimu < nbsimu; isimu++)
-      {
-        for (Id ivar = 0; ivar < nvar; ivar++)
-        {
-          String simuname = 'S' + std::to_string(isimu + 1);
-          String name =
-            concatenateStrings(_delim, _prefix, varnames[ivar], simuname);
-          if (name.empty()) name = "Dummy";
-          outnames.push_back(name);
-        }
-      }
-    }
-
     return outnames;
   }
 

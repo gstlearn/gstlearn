@@ -94,8 +94,7 @@ plot.end(p)
 # ------------------------------------------------------------
 # QC of simulations
 # ------------------------------------------------------------
-qc_simulations <- function(grid, names, var_model, title, stat_keys) {
-  nsim = length(names)
+qc_simulations <- function(grid, names, nsim, var_model, title, stat_keys) {
 
   # statistics
   tab = dbStatisticsMono(grid, names = names, opers = EStatOption_fromKeys(stat_keys))
@@ -104,7 +103,7 @@ qc_simulations <- function(grid, names, var_model, title, stat_keys) {
 
   # histogram of simulation  #1
   i = 1
-  hist(grid[names[i]], xlab = names[i], main = title, nc = 25, col = "orange", bg = "gray")
+  hist(grid[names[i]], xlab = names, main = title, nc = 25, col = "orange", bg = "gray")
   # p = plot.init() +
   #     plot.hist(grid, name = names[i], useSel = TRUE, col = "gray", fill = "orange") +
   #     plot.decoration(xlab = names[i], title = title)
@@ -112,7 +111,7 @@ qc_simulations <- function(grid, names, var_model, title, stat_keys) {
 
   # base map
   p = plot.init(asp=1) +
-    plot.raster(grid, name = names[i], flagLegend = TRUE, legendName = "Y",
+    plot.raster(grid, name = names, flagLegend = TRUE, legendName = "Y",
                 palette = "Spectral") +
     # plot.symbol(dat, color = "red") +
     plot.decoration(xlab = "Easting", ylab = "Northing",
@@ -125,9 +124,11 @@ qc_simulations <- function(grid, names, var_model, title, stat_keys) {
   vario_list = list()
   for (i in 1:nsim) {
     vario = Vario(varioparam)
-    err   = grid$setLocator(name = names[i], locatorType = ELoc_Z(), cleanSameLocator = TRUE)
+    err = grid$extractVersion(names, "Local", version = i-1)
+    err   = grid$setLocator(name = "Local", locatorType = ELoc_Z(), cleanSameLocator = TRUE)
     err   = vario$compute(grid)
     vario_list[[1 + length(vario_list)]] <- vario
+    grid$deleteColumn("Local")
   }
 
   # plot of mean variogram per direction
@@ -221,8 +222,7 @@ list_title = c("Using Turning Bands", "Using SPDE approach")
 list_key   = c("TB", "SPDE")
 for (i in seq_along(list_title)) {
   ssname = paste(list_key[i], "nc.simu", sep = ".")
-  err = qc_simulations(grid = grid,
-                       names = paste(ssname, 1:nsim, sep = ".S"),
+  err = qc_simulations(grid = grid, ssname, nsim,
                        var_model = model, title = list_title[i], stat_keys = stat_keys)
 }
 ```
@@ -254,25 +254,19 @@ p = plot.init() +
   plot.decoration(xlab = "Simple Kriging", ylab = "SPDE estimate", title = "Mono structure")
 plot.end(p)
 
-# cross plot of kriging std. (SPDE vs. kriging)
-nm_sims = grid$getNames(names = "SPDE.Z.S*")
-tab = matrix(grid$getColumns(names = nm_sims) , nrow = grid$getNSample(),
-             ncol = length(nm_sims))
-estim = apply(X = tab, MARGIN = 1, FUN = mean)
-stdev = apply(X = tab, MARGIN = 1, FUN = sd)
-grid["SPDE.ZMC.estim"] = estim
-grid["SPDE.ZMC.stdev"] = stdev
+err = grid$statisticsBySample("SPDE.Z",opers=EStatOption_fromKeys(c("MEAN", "STDV")),
+                        namconv = NamingConvention("SPDE.ZMC"))
 
 # conditional simulations
-p1 = plot.init(asp=1) + plot.raster(grid, name = "SPDE.Z.S1", palette = "Spectral")
-p2 = plot.init(asp=1) + plot.raster(grid, name = "SPDE.Z.S2", palette = "Spectral")
-p3 = plot.init(asp=1) + plot.raster(grid, name = "SPDE.Z.S3", palette = "Spectral")
-p4 = plot.init(asp=1) + plot.raster(grid, name = "SPDE.Z.S4", palette = "Spectral")
+p1 = plot.init(asp=1) + plot.raster(grid, name = "SPDE.Z", version=0, palette = "Spectral")
+p2 = plot.init(asp=1) + plot.raster(grid, name = "SPDE.Z", version=1, palette = "Spectral")
+p3 = plot.init(asp=1) + plot.raster(grid, name = "SPDE.Z", version=2, palette = "Spectral")
+p4 = plot.init(asp=1) + plot.raster(grid, name = "SPDE.Z", version=3, palette = "Spectral")
 ggarrange(p1, p2, p3, p4, nrow = 2, ncol = 2)
 
 # estimate by MC
 p = plot.init() +
-  plot.correlation(grid, namex = "SPDE.Z.estim", namey = "SPDE.ZMC.estim",
+  plot.correlation(grid, namex = "SPDE.Z.estim", namey = "SPDE.ZMC.MEAN",
                    flagDiag = TRUE, diagColor = "red", flagSameAxes = TRUE, bins=100) +
   plot.decoration(xlab = "SPDE Kriging", ylab = "SPDE conditional exp.",
                   title = "Mono structure")
@@ -280,7 +274,7 @@ plot.end(p)
 
 # stdev
 p = plot.init() +
-  plot.correlation(grid, namex = "kriging.Z.stdev", namey = "SPDE.ZMC.stdev",
+  plot.correlation(grid, namex = "kriging.Z.stdev", namey = "SPDE.ZMC.STDV",
                    flagDiag = TRUE, diagColor = "red", flagSameAxes = TRUE, bins=100) +
   plot.decoration(xlab = "Simple Kriging Std.", ylab = "SPDE conditional Std.",
                   title = "Mono structure")
@@ -303,7 +297,7 @@ p1 = plot.init(asp=1) +
               palette = "Spectral", flagLegend = TRUE, legendName = "kriging") +
   plot.decoration(xlab = "Easting", ylab = "Northing")
 p2 = plot.init(asp=1) +
-  plot.raster(grid, name = "SPDE.ZMC.stdev",
+  plot.raster(grid, name = "SPDE.ZMC.STDV",
               palette = "Spectral", flagLegend = TRUE, legendName = "SPDE") +
   plot.decoration(xlab = "Easting", ylab = "Northing")
 ggarrange(p1, p2, nrow = 1, ncol = 2)
@@ -336,8 +330,7 @@ list_title = c("Using Turning Bands", "Using SPDE approach")
 list_key   = c("TB", "SPDE")
 for (i in seq_along(list_title)) {
   ssname = paste(list_key[i], "nc.simu", sep = ".")
-  err = qc_simulations(grid = grid,
-                       names = paste(ssname, 1:nsim, sep = ".S"),
+  err = qc_simulations(grid = grid, ssname, nsim,
                        var_model = model, title = list_title[i], stat_keys = stat_keys)
 }
 ```
@@ -370,30 +363,26 @@ p = plot.init() +
 plot.end(p)
 
 # cross plot of kriging std. (SPDE vs. kriging)
-nm_sims = grid$getNames(names = "SPDE.Z.S*")
-tab = matrix(grid$getColumns(names = nm_sims) , nrow = grid$getNSample(), ncol = length(nm_sims))
-estim = apply(X = tab, MARGIN = 1, FUN = mean)
-stdev = apply(X = tab, MARGIN = 1, FUN = sd)
-grid["SPDE.ZMC.estim"] = estim
-grid["SPDE.ZMC.stdev"] = stdev
+err = grid$statisticsBySample("SPDE.Z",opers=EStatOption_fromKeys(c("MEAN", "STDV")),
+                        namconv = NamingConvention("SPDE.ZMC"))
 
 # conditional simulations
-p1 = plot.init(asp=1) + plot.raster(grid, name = "SPDE.Z.S1", palette = "Spectral")
-p2 = plot.init(asp=1) + plot.raster(grid, name = "SPDE.Z.S2", palette = "Spectral")
-p3 = plot.init(asp=1) + plot.raster(grid, name = "SPDE.Z.S3", palette = "Spectral")
-p4 = plot.init(asp=1) + plot.raster(grid, name = "SPDE.Z.S4", palette = "Spectral")
+p1 = plot.init(asp=1) + plot.raster(grid, name = "SPDE.Z", version=0, palette = "Spectral")
+p2 = plot.init(asp=1) + plot.raster(grid, name = "SPDE.Z", version=1, palette = "Spectral")
+p3 = plot.init(asp=1) + plot.raster(grid, name = "SPDE.Z", version=2, palette = "Spectral")
+p4 = plot.init(asp=1) + plot.raster(grid, name = "SPDE.Z", version=3, palette = "Spectral")
 ggarrange(p1, p2, p3, p4, nrow = 2, ncol = 2)
 
 # estimate by MC
 p = plot.init() +
-  plot.correlation(grid, namex = "SPDE.Z.estim", namey = "SPDE.ZMC.estim",
+  plot.correlation(grid, namex = "SPDE.Z.estim", namey = "SPDE.ZMC.MEAN",
                    flagDiag = TRUE, diagColor = "red", flagSameAxes = TRUE, bins=100) +
   plot.decoration(xlab = "SPDE Kriging", ylab = "SPDE conditional exp.", title = "Mono structure")
 plot.end(p)
 
 # stdev
 p = plot.init() +
-  plot.correlation(grid, namex = "kriging.Z.stdev", namey = "SPDE.ZMC.stdev",
+  plot.correlation(grid, namex = "kriging.Z.stdev", namey = "SPDE.ZMC.STDV",
                    flagDiag = TRUE, diagColor = "red", flagSameAxes = TRUE, bins=100) +
   plot.decoration(xlab = "Simple Kriging Std.", ylab = "SPDE conditional Std.",
                   title = "Multi structure")
@@ -405,7 +394,7 @@ p1 = plot.init(asp=1) +
               palette = "Spectral", flagLegend = TRUE, legendName = "kriging") +
   plot.decoration(xlab = "Easting", ylab = "Northing")
 p2 = plot.init(asp=1) +
-  plot.raster(grid, name = "SPDE.ZMC.estim",
+  plot.raster(grid, name = "SPDE.ZMC.MEAN",
               palette = "Spectral", flagLegend = TRUE, legendName = "SPDE") +
   plot.decoration(xlab = "Easting", ylab = "Northing")
 ggarrange(p1, p2, nrow = 1, ncol = 2)
@@ -416,7 +405,7 @@ p1 = plot.init(asp=1) +
               palette = "Spectral", flagLegend = TRUE, legendName = "kriging") +
   plot.decoration(xlab = "Easting", ylab = "Northing")
 p2 = plot.init(asp=1) +
-  plot.raster(grid, name = "SPDE.ZMC.stdev",
+  plot.raster(grid, name = "SPDE.ZMC.STDV",
               palette = "Spectral", flagLegend = TRUE, legendName = "SPDE") +
   plot.decoration(xlab = "Easting", ylab = "Northing")
 ggarrange(p1, p2, nrow = 1, ncol = 2)

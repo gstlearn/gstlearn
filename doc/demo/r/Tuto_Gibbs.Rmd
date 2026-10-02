@@ -188,14 +188,14 @@ library(gstlearn)
 # QC of simulations
 # ------------------------------------------------------------
 #' @param db a Db data base with the simulations to evaluate
-#' @param names a list of strings with the names of the simulation in db
+#' @param names a list of strings with the radix of the simulation in db
+#' @param nbsimu Number of simulations
 #' @param vario_param defines the variogram parameters
 #' @param vario_model defines the simulated model
 #' @param title a string to be used as the title of the figures
 #' @param stat_keys a list of strings for statistics to be computed on the simulation
 #' @values no returned value (invisible)
-qc_simulations <- function(db, names, vario_param, vario_model, title, stat_keys) {
-  nsim = length(names)
+qc_simulations <- function(db, names, nbsimu, vario_param, vario_model, title, stat_keys) {
   # statistics
   # tab = as.matrix(dbStatisticsMono(db, names = names,
   #                               opers = EStatOption_fromKeys(stat_keys))$toTL())
@@ -204,15 +204,15 @@ qc_simulations <- function(db, names, vario_param, vario_model, title, stat_keys
   # histogram of simulation  #1
   i = 1
   p = plot.init() +
-    plot.hist(db = db, name = names[i], useSel = TRUE, bins = 25,
+    plot.hist(db = db, name = names, useSel = TRUE, bins = 25,
               col = "orange", bg = "gray") +
-    plot.decoration(xlab = names[i], title = title)
+    plot.decoration(xlab = names, title = title)
   plot.end(p)
 
   # base map
   p = plot.init(asp=1)
   if (db$isGrid()) {
-    p = p + plot.raster(db, name = names[i], flagLegend = TRUE,
+    p = p + plot.raster(db, name = names, flagLegend = TRUE,
                       legendName = "Y",  palette = "Spectral")
   } else  {
     p = p + plot.symbol(db, nameColor = names[i], flagLegend = TRUE,
@@ -223,12 +223,14 @@ qc_simulations <- function(db, names, vario_param, vario_model, title, stat_keys
 
   # variogram computations
   vario_list = list()
-  for (i in 1:nsim) {
+  for (i in 1:nbsimu) {
     vario = Vario(vario_param)
-    err   = db$setLocator(name = names[i], locatorType = ELoc_Z(),
+    db$extractVersion(names, "Local", version = i-1)
+    err   = db$setLocator(name = names, locatorType = ELoc_Z(),
                           cleanSameLocator = TRUE)
     err   = vario$compute(db)
     vario_list[[1 + length(vario_list)]] <- vario
+    db$deleteColumn("Local")
   }
 
   # plot of mean variogram per direction
@@ -374,12 +376,11 @@ err = gibbs_sampler(dbin = data, model = model,
       )
 
 # variograms
-names = paste(prefix, 1:nbsimu, sep = ".S")
-qc_simulations(db = data, names = names,
+qc_simulations(db = data, names = prefix, nbsimu = nbsimu,
                vario_param = varioParam, vario_model = model,
                title = paste0("Gibbs sampler: np = ", np), stat_keys = stat_keys)
 # statistics
-tab = dbStatisticsMono(data, names = names, opers = opers)$toTL()
+tab = dbStatisticsMono(data, names = prefix, opers = opers)$toTL()
 knitr::kable(tab, caption = paste0("Statistics for case ", prefix), digits = 3)
 ```
 
@@ -433,20 +434,20 @@ err = gibbs_sampler(dbin = data, model = model,
 
 # QC of the simulations
 stat_keys = c
-names = paste(prefix, 1:nbsimu, sep = ".S")
-qc_simulations(db = data, names = names,
+qc_simulations(db = data, names = prefix, nbsimu = nbsimu,
                vario_param = varioParam, vario_model = model,
                title = paste0("Gibbs sampler: np = ", np), stat_keys = stat_keys)
 
-tab = dbStatisticsMono(data, names = names, opers = opers)$toTL()
+tab = dbStatisticsMono(data, names = prefix, opers = opers)$toTL()
 knitr::kable(tab, caption = paste0("Statistics for case ", prefix), digits = 3)
 
 # QC of inequality constraints
 qc_inBounds = rep(FALSE, nbsimu)
 for (s in 1:nbsimu){
   vn = paste(prefix, s, sep = ".S")
+  datavn = data$getColumn(prefix, version=s-1)
   qc_inBounds[s] <- sum(
-    (data["upperBound"] >= data[vn])&(data["lowerBound"] <= data[vn]),
+    (data["upperBound"] >= datavn)&(data["lowerBound"] <= datavn),
     na.rm = TRUE)
 }
 stopifnot((range(qc_inBounds)[1] == np)&(range(qc_inBounds)[1] == np))

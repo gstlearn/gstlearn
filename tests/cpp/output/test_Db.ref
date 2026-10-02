@@ -25,7 +25,7 @@ Data Base Grid Characteristics
 
 Data Base Statistics
 --------------------
-4 - Name Sel1 - Locator NA
+1 - Name Sel1
  Nb of data          =          24
  Nb of active values =           5
  Minimum value       =       1.000
@@ -33,7 +33,7 @@ Data Base Statistics
  Mean value          =       1.000
  Standard Deviation  =       0.000
  Variance            =       0.000
-5 - Name Sel2 - Locator sel
+2 - Name Sel2
  Nb of data          =          24
  Nb of active values =           5
  Minimum value       =       1.000
@@ -256,11 +256,11 @@ Data Base Contents
       [ 14,]     15.000      0.470      0.687      1.000     -0.434      0.094     -1.002
 Error in Sample Index. The index (3000) should be non-negative and lower than 15
 Previous statement is an error
-Column index is out of range.
+No variable name corresponding to your criterion
 Previous statement is an error
 Error in Sample Index. The index (30000) should be non-negative and lower than 15
 Previous statement is an error
-Column index is out of range.
+No variable name corresponding to your criterion
 Previous statement is an error
 
 Testing getStatsAsTable facility

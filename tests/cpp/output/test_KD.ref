@@ -71,7 +71,7 @@ Data Base Grid Characteristics
 
 Data Base Statistics
 --------------------
-1 - Name rank - Locator NA
+1 - Name rank
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =       1.000
@@ -79,7 +79,7 @@ Data Base Statistics
  Mean value          =    5000.500
  Standard Deviation  =    2886.751
  Variance            = 8333333.250
-2 - Name x1 - Locator x1
+2 - Name x1
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =       0.000
@@ -87,7 +87,7 @@ Data Base Statistics
  Mean value          =       0.495
  Standard Deviation  =       0.289
  Variance            =       0.083
-3 - Name x2 - Locator x2
+3 - Name x2
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =       0.000
@@ -95,7 +95,7 @@ Data Base Statistics
  Mean value          =       0.495
  Standard Deviation  =       0.289
  Variance            =       0.083
-4 - Name Y - Locator z1
+4 - Name Y
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =      -3.258
@@ -103,7 +103,7 @@ Data Base Statistics
  Mean value          =      -0.007
  Standard Deviation  =       0.988
  Variance            =       0.976
-5 - Name Z - Locator NA
+5 - Name Z
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =       0.260
@@ -117,7 +117,7 @@ Data Base Characteristics
 
 Data Base Statistics
 --------------------
-1 - Name rank - Locator NA
+1 - Name rank
  Nb of data          =         500
  Nb of active values =         500
  Minimum value       =       1.000
@@ -125,7 +125,7 @@ Data Base Statistics
  Mean value          =     250.500
  Standard Deviation  =     144.337
  Variance            =   20833.250
-2 - Name x1 - Locator x1
+2 - Name x1
  Nb of data          =         500
  Nb of active values =         500
  Minimum value       =       0.000
@@ -133,7 +133,7 @@ Data Base Statistics
  Mean value          =       0.494
  Standard Deviation  =       0.293
  Variance            =       0.086
-3 - Name x2 - Locator x2
+3 - Name x2
  Nb of data          =         500
  Nb of active values =         500
  Minimum value       =       0.000
@@ -141,7 +141,7 @@ Data Base Statistics
  Mean value          =       0.494
  Standard Deviation  =       0.282
  Variance            =       0.079
-4 - Name Y - Locator NA
+4 - Name Y
  Nb of data          =         500
  Nb of active values =         500
  Minimum value       =      -2.690
@@ -149,7 +149,7 @@ Data Base Statistics
  Mean value          =       0.017
  Standard Deviation  =       0.959
  Variance            =       0.920
-5 - Name Z - Locator z1
+5 - Name Z
  Nb of data          =         500
  Nb of active values =         500
  Minimum value       =       0.345

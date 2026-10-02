@@ -73,7 +73,7 @@ Total number of samples      = 1000
 
 Data Base Statistics
 --------------------
-1 - Name rank - Locator NA
+1 - Name rank
  Nb of data          =        1000
  Nb of active values =        1000
  Minimum value       =       1.000
@@ -81,7 +81,7 @@ Data Base Statistics
  Mean value          =     500.500
  Standard Deviation  =     288.675
  Variance            =   83333.250
-2 - Name x-1 - Locator x1
+2 - Name x-1
  Nb of data          =        1000
  Nb of active values =        1000
  Minimum value       =       0.065
@@ -89,7 +89,7 @@ Data Base Statistics
  Mean value          =      49.178
  Standard Deviation  =      29.030
  Variance            =     842.744
-3 - Name x-2 - Locator x2
+3 - Name x-2
  Nb of data          =        1000
  Nb of active values =        1000
  Minimum value       =       0.022
@@ -97,7 +97,7 @@ Data Base Statistics
  Mean value          =      50.158
  Standard Deviation  =      28.975
  Variance            =     839.526
-4 - Name SimuNC - Locator z1
+4 - Name SimuNC
  Nb of data          =        1000
  Nb of active values =        1000
  Minimum value       =      -4.069
@@ -124,7 +124,7 @@ Number :         101        101
 
 Data Base Statistics
 --------------------
-1 - Name rank - Locator NA
+1 - Name rank
  Nb of data          =       10201
  Nb of active values =       10201
  Minimum value       =       1.000
@@ -132,7 +132,7 @@ Data Base Statistics
  Mean value          =    5101.000
  Standard Deviation  =    2944.775
  Variance            = 8671700.000
-2 - Name x1 - Locator x1
+2 - Name x1
  Nb of data          =       10201
  Nb of active values =       10201
  Minimum value       =       0.000
@@ -140,7 +140,7 @@ Data Base Statistics
  Mean value          =      50.000
  Standard Deviation  =      29.155
  Variance            =     850.000
-3 - Name x2 - Locator x2
+3 - Name x2
  Nb of data          =       10201
  Nb of active values =       10201
  Minimum value       =       0.000
@@ -148,7 +148,7 @@ Data Base Statistics
  Mean value          =      50.000
  Standard Deviation  =      29.155
  Variance            =     850.000
-4 - Name SimuNC - Locator z1
+4 - Name SimuNC
  Nb of data          =       10201
  Nb of active values =       10201
  Minimum value       =      -5.349
@@ -156,7 +156,7 @@ Data Base Statistics
  Mean value          =      -0.336
  Standard Deviation  =       1.058
  Variance            =       1.120
-5 - Name Kriging - Locator NA
+5 - Name Kriging
  Nb of data          =       10201
  Nb of active values =       10201
  Minimum value       =      -0.434

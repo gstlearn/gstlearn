@@ -159,7 +159,7 @@ int main(int argc, char* argv[])
   // Generate the output grid
   VectorInt nx = {50, 50};
   DbGrid* grid = DbGrid::create(nx);
-  grid->addColumnsByConstant(2, 1., "Extend", ELoc::BLEX);
+  grid->addColumnsByConstant(2, 1, 1., "Extend", ELoc::BLEX);
   grid->display();
 
   // Generate the data base

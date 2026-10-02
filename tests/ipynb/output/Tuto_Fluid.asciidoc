@@ -6,7 +6,7 @@ Data Base Grid Characteristics
 
 Data Base Statistics
 --------------------
-5 - Name Permeability - Locator NA
+1 - Name Permeability 
  Nb of data          =       2500
  Nb of active values =       2500
  Minimum value       =      1.086
@@ -14,7 +14,7 @@ Data Base Statistics
  Mean value          =    551.502
  Standard Deviation  =   1528.406
  Variance            = 2336025.270
-6 - Name LogPerm - Locator NA
+2 - Name LogPerm
  Nb of data          =       2500
  Nb of active values =       2500
  Minimum value       =      0.000

@@ -62,7 +62,7 @@ Data Base Grid Characteristics
 
 Data Base Statistics
 --------------------
-1 - Name rank - Locator NA
+1 - Name rank
  Nb of data          =       10201
  Nb of active values =       10201
  Minimum value       =       1.000
@@ -70,7 +70,7 @@ Data Base Statistics
  Mean value          =    5101.000
  Standard Deviation  =    2944.775
  Variance            = 8671700.000
-2 - Name x1 - Locator x1
+2 - Name x1
  Nb of data          =       10201
  Nb of active values =       10201
  Minimum value       =       0.000
@@ -78,7 +78,7 @@ Data Base Statistics
  Mean value          =       0.500
  Standard Deviation  =       0.292
  Variance            =       0.085
-3 - Name x2 - Locator x2
+3 - Name x2
  Nb of data          =       10201
  Nb of active values =       10201
  Minimum value       =       0.000
@@ -86,7 +86,7 @@ Data Base Statistics
  Mean value          =       0.500
  Standard Deviation  =       0.292
  Variance            =       0.085
-4 - Name SimPGSSPDE - Locator NA
+4 - Name SimPGSSPDE
  Nb of data          =       10201
  Nb of active values =       10201
  Minimum value       =       1.000
@@ -94,7 +94,7 @@ Data Base Statistics
  Mean value          =       2.192
  Standard Deviation  =       0.690
  Variance            =       0.476
-5 - Name SimPGSSPDE.1 - Locator NA
+5 - Name SimPGSSPDE.1
  Nb of data          =       10201
  Nb of active values =       10201
  Minimum value       =       1.000
@@ -102,7 +102,7 @@ Data Base Statistics
  Mean value          =       2.187
  Standard Deviation  =       0.727
  Variance            =       0.529
-6 - Name SimPGSSPDE.2 - Locator z1
+6 - Name SimPGSSPDE.2
  Nb of data          =       10201
  Nb of active values =       10201
  Minimum value       =       1.000

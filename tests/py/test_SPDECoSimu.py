@@ -138,14 +138,14 @@ grid.dumpToNF("grid.NF")
 err = gl.migrate(
     grid,
     dat,
-    gl.NC.getNameEncoded("GF.Data", None, 1, nvar, 1, nbsimu),
+    gl.NC.getNameEncoded("GF.Data", None, 1, nvar, 1, 0),
     namconv=gl.NamingConvention("m1", False),
 )
 if nvar == 2:
     err = gl.migrate(
         grid,
         dat,
-        gl.NC.getNameEncoded("GF.Data", None, 2, nvar, 1, nbsimu),
+        gl.NC.getNameEncoded("GF.Data", None, 2, nvar, 1, 0),
         namconv=gl.NamingConvention("m2", False),
     )
 

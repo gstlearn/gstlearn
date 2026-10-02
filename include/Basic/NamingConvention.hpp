@@ -27,12 +27,11 @@ namespace gstlrn
    * will be named afterwards and will possibly be assigned a locator.
    *
    * The generic name is generated as follows:
-   *      'prefix'.'varname'.'qualifier'|'rank'
+   *      'prefix'.'varname'.'qualifier'
    *
    * - prefix: string provided in the constructor of this class
    * - varname: name of the (input) variable on which the procedure is performed
    * - qualifier: type of element stored in the variable
-   * - rank: rank of the output variable (if several simulations are generated)
    *
    * The choice of the 'prefix' is done by the user when launching the procedure;
    * the other parameters are usually defined within the calling procedure.
@@ -48,24 +47,7 @@ namespace gstlrn
    * - MyPrefix.Pb.stdev (St. Dev. of estimation error of Pb by CoKriging)
    * - MyPrefix.Zn.stdev (St. Dev. of estimation error of Zn by CoKriging)
    *
-   * Then the non-conditional simulation procedure generates variables such as:
-   * - MyPrefix.S1 (for first simulation)
-   * - MyPrefix.S2 (for second simulation)
    * ...
-   *
-   * Then the conditional simulation procedure generates variables such as:
-   * - MyPrefix.var.S1 (for first simulation)
-   * - MyPrefix.var.S2 (for second simulation)
-   * ...
-   *
-   * For multivariate simulations, the setOutputForSimulations method
-   * provides consistent naming with explicit Variable and Simulation indicators:
-   *
-   * Non-conditional multivariate simulations (e.g., 2 variables, 2 simulations):
-   * - MyPrefix.V1.S1, MyPrefix.V1.S2, MyPrefix.V2.S1, MyPrefix.V2.S2
-   *
-   * Conditional multivariate simulations (e.g., variables Fe and Al, 2 simulations):
-   * - MyPrefix.Fe.S1, MyPrefix.Fe.S2, MyPrefix.Al.S1, MyPrefix.Al.S2
    *
    * Ultimately, the newly created variables are assigned a locator.
    *
@@ -125,16 +107,6 @@ namespace gstlrn
       bool flagSetLocator = true,
       Id locatorShift = 0) const;
 
-    void setOutputForSimulations(
-      const VectorString& names,
-      Id nvar,
-      Db* dbout,
-      Id iattout_start,
-      Id nbsimu,
-      bool flagSimuFirst = true,
-      bool flagSetLocator = true,
-      Id locatorShift = 0) const;
-
     void setLocatorOutType(const ELoc& l) { _locatorOutType = l; }
 
     void setLocators(
@@ -143,6 +115,8 @@ namespace gstlrn
       Id nvar,
       Id nitems = 1,
       Id locatorShift = 0) const;
+
+    static void Naming_Old_Style(bool status);
 
     static String getNameEncoded(
       const String& prefix,
@@ -153,8 +127,6 @@ namespace gstlrn
       Id nbsimu = 0,
       const String& extension = "",
       const String& delim = ".");
-
-    static void Naming_Old_Style(bool status);
 
   private:
     void _setNames(
@@ -170,12 +142,6 @@ namespace gstlrn
       Id nvar,
       const String& qualifier = "",
       Id nitems = 1) const;
-
-    VectorString _createSimulationNames(
-      const VectorString& names,
-      Id nvar,
-      Id nbsimu,
-      bool flagSimuFirst) const;
 
     static Id _getNameCount(const VectorString& names, Id nvar);
 

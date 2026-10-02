@@ -379,7 +379,7 @@ Data Base Grid Characteristics
 
 Data Base Statistics
 --------------------
-4 - Name VMAP.Simu.Var - Locator z1
+1 - Name VMAP.Simu.Var
  Nb of data          =        1681
  Nb of active values =        1681
  Minimum value       =       0.000
@@ -387,7 +387,7 @@ Data Base Statistics
  Mean value          =       0.798
  Standard Deviation  =       0.185
  Variance            =       0.034
-5 - Name VMAP.Simu.Nb - Locator NA
+2 - Name VMAP.Simu.Nb
  Nb of data          =        1681
  Nb of active values =        1681
  Minimum value       =    6400.000

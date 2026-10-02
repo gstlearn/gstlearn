@@ -80,9 +80,10 @@ namespace gstlrn
     if (!ACalcDbToDb::_preprocess()) return false;
 
     if (_flagStats)
-      _iattOut = _addVariableDb(2, 1, ELoc::UNDEFINED, 0, _getNVar(), 0.);
+      _iattOut = _addVariableDb(2, 1, ELoc::UNDEFINED, 0, _getNVar(), 1, 0.);
 
-    if (_flagRegr) _iattOut = _addVariableDb(1, 1, ELoc::UNDEFINED, 0, 1, 0.);
+    if (_flagRegr)
+      _iattOut = _addVariableDb(1, 1, ELoc::UNDEFINED, 0, 1, 1, 0.);
 
     if (_iattOut < 0) return false;
     return true;

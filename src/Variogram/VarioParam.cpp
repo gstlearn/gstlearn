@@ -596,7 +596,7 @@ namespace gstlrn
 
     // Loading the coordinate vectors in the newly created Db
 
-    newdb->addColumnsByVVD(ranks, "Sample", ELoc::UNDEFINED);
+    newdb->addColumnsByVVD(ranks, "Sample", ELoc::UNDEFINED, 0, 1);
     newdb->addColumns(lags, "Lag", ELoc::UNDEFINED);
     newdb->addColumns(dirs, "Direction", ELoc::UNDEFINED);
     newdb->addColumns(dists, "Distance", ELoc::UNDEFINED);

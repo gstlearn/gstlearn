@@ -453,7 +453,7 @@ namespace gstlrn
     VectorDouble computeWeightsFromVario(Id wmode) const;
     void finalScaleByWeights(Id idir);
 
-    void varioDump(Id idir = 0, const String& title = String()) const;
+    void varioDump(Id idir = 0, const String& title = "") const;
     VectorInt getPairs(Db* db, Id iech, Id ilag0);
 
   protected:

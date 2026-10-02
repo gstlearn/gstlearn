@@ -129,9 +129,10 @@ for (i in 1:N) {
 
 # conversion into uniform thickness
 for (i in 1:N) {
-  val = matrix(surfaces$getColumns(names = paste0("Y_", i , ".S", 1:nbsim[i]),
-                                   useSel = FALSE),
-               nrow = surfaces$getNSample(useSel = FALSE), ncol = nbsim[i])
+  val = matrix(nrow = surfaces$getNSample(useSel = FALSE), ncol = nbsim[i])
+  for (k in 1:nbsim[i]) {
+    val[,k] = surfaces$getColumn(name = paste0("Y_", i), version=k-1, useSel=FALSE)
+  }
   val = h_mean[i] * pnorm(val)
   for (k in 1:nbsim[i]) {
     err = surfaces$setColumn(tab = val[, k], name = paste0("Z_", i , ".", k),
@@ -356,7 +357,8 @@ for (r in cell_selected) {
 
 ```{r}
 err = surfaces$clearSelection()
-err = simuPostPropByLayer(dbin = surfaces, dbout = grid, names = paste0("Z_", 1:length(nbsim), "*"),
+err = simuPostPropByLayer(dbin = surfaces, dbout = grid,
+                          names = paste0("Z_", 1:length(nbsim), "*"),
                           flag_match=FALSE,
                           upscale = EPostUpscale_fromKey("MEAN"),
                           stats = EPostStat_fromKeys(c("MINI","MAXI","MED","MEAN","STD")),
@@ -374,7 +376,7 @@ U = runif(10)
 # standard deviation on the samples
 u = round(sd(U), digits = 6)
 
-# formulae
+# formula
 local_mean <- function(u) {sum(u)/length(u)}
 local_varP <- function(u) {sum(u^2)/length(u) - local_mean(u)^2}
 local_var  <- function(u) {m = local_mean(u); sum((u-m)^2)/(length(u) - 1)}

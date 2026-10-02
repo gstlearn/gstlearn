@@ -684,8 +684,10 @@ namespace gstlrn
     if (static_cast<Id>(indice.size()) != _nDim)
     {
       messerr(
-        "Argument 'indice' should have the correct size. Output argument "
-        "'indice' not modified.");
+        "Argument 'indice' (%d) should have the correct size  (%d). Output "
+        "argument "
+        "'indice' not modified.",
+        static_cast<int>(indice.size()), _nDim);
       return -1;
     }
 

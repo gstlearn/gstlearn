@@ -71,19 +71,18 @@ int main(int argc, char* argv[])
   pca.dbF2Z(db, false, NamingConvention("PCA.Z", false));
 
   // Comparing initial and back-transformed variables
-  for (Id i = 0; i < nbsimu; i++)
-  {
-    (void)db->areSame(
-      NC::getNameEncoded("Simu", nullptr, 1, 1, i + 1, nbsimu),
-      NC::getNameEncoded("PCA.Z", nullptr, i + 1, nbsimu), eps);
-  }
+  for (Id ivar = 0; ivar < nvar; ivar++)
+    for (Id isimu = 0; isimu < nbsimu; isimu++)
+      (void)db->areSame(
+        "Simu", NC::getNameEncoded("PCA.Z", nullptr, ivar + 1, 0), eps, true,
+        false, isimu, isimu);
 
   // ============
   // Evaluate MAF
   // ============
 
   mestitle(0, "Testing MAF");
-  db->setLocator("Simu*", ELoc::Z, 0);
+  db->setLocator("Simu*", ELoc::Z, 0, true);
   PCA maf;
   maf.maf_compute_interval(db, 0.95, 1.05);
   maf.display();
@@ -94,11 +93,11 @@ int main(int argc, char* argv[])
   maf.dbF2Z(db, false, NamingConvention("MAF.Z", false));
 
   // Comparing initial and back-transformed variables
-
-  for (Id i = 0; i < nbsimu; i++)
-    (void)db->areSame(
-      NC::getNameEncoded("Simu", nullptr, 1, 1, i + 1, nbsimu),
-      NC::getNameEncoded("MAF.Z", nullptr, i + 1, nbsimu), eps);
+  for (Id ivar = 0; ivar < nvar; ivar++)
+    for (Id isimu = 0; isimu < nbsimu; isimu++)
+      (void)db->areSame(
+        "Simu", NC::getNameEncoded("MAF.Z", nullptr, isimu + 1, 0), eps, true,
+        false, isimu, isimu);
 
   delete db;
   delete models;

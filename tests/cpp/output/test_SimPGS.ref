@@ -89,7 +89,7 @@ Data Base Grid Characteristics
 
 Data Base Statistics
 --------------------
-4 - Name PGS-Facies.1 - Locator facies1
+1 - Name PGS-Facies.S1
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =       1.000
@@ -97,7 +97,7 @@ Data Base Statistics
  Mean value          =       2.124
  Standard Deviation  =       0.677
  Variance            =       0.458
-5 - Name PGS-Facies.2 - Locator facies2
+2 - Name PGS-Facies.S2
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =       1.000
@@ -125,7 +125,7 @@ Data Base Grid Characteristics
 
 Data Base Statistics
 --------------------
-6 - Name BiPGS-Facies.1 - Locator facies1
+1 - Name BiPGS-Facies.1.S1
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =       1.000
@@ -133,7 +133,7 @@ Data Base Statistics
  Mean value          =       2.024
  Standard Deviation  =       0.824
  Variance            =       0.678
-7 - Name BiPGS-Facies.2 - Locator facies2
+2 - Name BiPGS-Facies.1.S2
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =       1.000
@@ -141,7 +141,7 @@ Data Base Statistics
  Mean value          =       1.889
  Standard Deviation  =       0.811
  Variance            =       0.657
-8 - Name BiPGS-Facies.3 - Locator facies3
+3 - Name BiPGS-Facies.2.S1
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =       1.000
@@ -149,7 +149,7 @@ Data Base Statistics
  Mean value          =       1.521
  Standard Deviation  =       0.500
  Variance            =       0.250
-9 - Name BiPGS-Facies.4 - Locator facies4
+4 - Name BiPGS-Facies.2.S2
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =       1.000
@@ -184,7 +184,7 @@ Data Base Grid Characteristics
 
 Data Base Statistics
 --------------------
-10 - Name PGS-Shift-Facies.1 - Locator facies1
+1 - Name PGS-Shift-Facies.S1
  Nb of data          =       10000
  Nb of active values =        5200
  Minimum value       =       1.000
@@ -192,7 +192,7 @@ Data Base Statistics
  Mean value          =       3.028
  Standard Deviation  =       0.965
  Variance            =       0.931
-11 - Name PGS-Shift-Facies.2 - Locator facies2
+2 - Name PGS-Shift-Facies.S2
  Nb of data          =       10000
  Nb of active values =        5200
  Minimum value       =       1.000
@@ -234,7 +234,7 @@ Data Base Grid Characteristics
 
 Data Base Statistics
 --------------------
-12 - Name PGS-Shadow-Facies.1 - Locator facies1
+1 - Name PGS-Shadow-Facies.S1
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =       1.000
@@ -242,7 +242,7 @@ Data Base Statistics
  Mean value          =       2.274
  Standard Deviation  =       0.892
  Variance            =       0.796
-13 - Name PGS-Shadow-Facies.2 - Locator facies2
+2 - Name PGS-Shadow-Facies.S2
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =       1.000

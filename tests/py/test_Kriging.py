@@ -3,7 +3,7 @@ import gstlearn.test as gt
 import numpy as np
 
 
-from scipy.spatial import distance_matrix
+import scipy.spatial.distance
 
 
 def cova(x, sills=1):
@@ -205,16 +205,18 @@ def test_kriging_internal(
 
     v = np.array([db["x0"], db["x1"]]).T
     v0 = np.array([target["x1"][indOut], target["x2"][indOut]]).T
-    cov = cova(distance_matrix(v, v), modeln.getSills(0).toTL())[indF, :][:, indF]
-    c0 = cova(distance_matrix(v, v0), modeln.getSills(0).toTL())[indF, :]
+    cov = cova(scipy.spatial.distance.cdist(v, v), modeln.getSills(0).toTL())[indF, :][
+        :, indF
+    ]
+    c0 = cova(scipy.spatial.distance.cdist(v, v0), modeln.getSills(0).toTL())[indF, :]
 
     # Creation of a db2 without selection to build the complete covariance matrix
     db2 = db.clone()
-    db2.clearLocator("sel")
+    db2.clearSelection()
     vect = gl.VectorDouble(nvar**2 * db2.getNSample() ** 2)
 
     target2 = target.clone()
-    target2.clearLocator("sel")
+    target2.clearSelection()
 
     covgl = np.array(list(vect)).reshape(nvar * db2.getNSample(), -1)[indF, :][:, indF]
 

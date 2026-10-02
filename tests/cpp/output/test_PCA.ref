@@ -23,7 +23,7 @@ Data Base Summary
 -----------------
 File is organized as a set of isolated points
 Space dimension              = 2
-Number of Columns            = 8
+Number of Columns            = 4
 Total number of samples      = 1000
 
 Variables
@@ -31,11 +31,7 @@ Variables
 Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x-1 - Locator = x1
 Column = 2 - Name = x-2 - Locator = x2
-Column = 3 - Name = Simu.S1 - Locator = z1
-Column = 4 - Name = Simu.S2 - Locator = z2
-Column = 5 - Name = Simu.S3 - Locator = z3
-Column = 6 - Name = Simu.S4 - Locator = z4
-Column = 7 - Name = Simu.S5 - Locator = z5
+Column = 3 - Name = Simu - Locator = z1 - Versions = 5
 
 Testing PCA
 ===========
@@ -79,11 +75,11 @@ Matrix MF2Z to back-transform Factors F into standardized Variables Z
       [  3,]      0.324      0.536      0.434      0.265     -0.329
       [  4,]     -0.432      0.447      0.208     -0.171      0.438
 Z = m + Y * MF2Z
-Variables Simu.S1 and PCA.Z.V1 are similar (eps=0.000001)
-Variables Simu.S2 and PCA.Z.V2 are similar (eps=0.000001)
-Variables Simu.S3 and PCA.Z.V3 are similar (eps=0.000001)
-Variables Simu.S4 and PCA.Z.V4 are similar (eps=0.000001)
-Variables Simu.S5 and PCA.Z.V5 are similar (eps=0.000001)
+Variables Simu.S1 and PCA.Z.S1 are similar (eps=0.000001)
+Variables Simu.S2 and PCA.Z.S2 are similar (eps=0.000001)
+Variables Simu.S3 and PCA.Z.S3 are similar (eps=0.000001)
+Variables Simu.S4 and PCA.Z.S4 are similar (eps=0.000001)
+Variables Simu.S5 and PCA.Z.S5 are similar (eps=0.000001)
 
 Testing MAF
 ===========
@@ -127,8 +123,8 @@ Matrix MF2Z to back-transform Factors F into standardized Variables Z
       [  3,]      0.021      0.359      0.791     -0.227     -0.292
       [  4,]      0.743     -0.211      0.227     -0.051      0.627
 Z = m + Y * MF2Z
-Variables Simu.S1 and MAF.Z.V1 are similar (eps=0.000001)
-Variables Simu.S2 and MAF.Z.V2 are similar (eps=0.000001)
-Variables Simu.S3 and MAF.Z.V3 are similar (eps=0.000001)
-Variables Simu.S4 and MAF.Z.V4 are similar (eps=0.000001)
-Variables Simu.S5 and MAF.Z.V5 are similar (eps=0.000001)
+Variables Simu.S1 and MAF.Z.S1 are similar (eps=0.000001)
+Variables Simu.S2 and MAF.Z.S2 are similar (eps=0.000001)
+Variables Simu.S3 and MAF.Z.S3 are similar (eps=0.000001)
+Variables Simu.S4 and MAF.Z.S4 are similar (eps=0.000001)
+Variables Simu.S5 and MAF.Z.S5 are similar (eps=0.000001)

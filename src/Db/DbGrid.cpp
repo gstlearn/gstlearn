@@ -969,7 +969,7 @@ namespace gstlrn
     }
     auto ndim = getNDim();
     VectorDouble coors(ndim);
-    (void)addColumnsByConstant(ndim, 0., radix, ELoc::X);
+    (void)addColumnsByConstant(ndim, 1, 0., radix, ELoc::X);
     for (Id iech = 0; iech < getNSample(); iech++)
     {
       _grid.rankToCoordinatesInPlace(iech, coors);
@@ -985,6 +985,7 @@ namespace gstlrn
    * @param posy Rank of the second extracted coordinate (in [0, ndim[)
    * @param corner  Vector giving a reference node that belongs to the extracted section
    * @param useSel Use of the current Selection
+   * @param version Version of the variable to be extracted
    * @return
    *
    * @remark The argument 'corner' gives the indices of a node that belongs to the
@@ -995,7 +996,8 @@ namespace gstlrn
     Id posx,
     Id posy,
     const VectorInt& corner,
-    bool useSel) const
+    bool useSel,
+    Id version) const
   {
     VectorDouble tab;
     auto ndim = getNDim();
@@ -1047,7 +1049,7 @@ namespace gstlrn
         indices[posy] = i2;
         Id iech = indiceToRank(indices);
         if (!useSel || isActive(iech))
-          tab[ecr] = getArray(iech, iuid);
+          tab[ecr] = getArray(iech, iuid, version);
         else
           tab[ecr] = TEST;
       }
@@ -1061,6 +1063,7 @@ namespace gstlrn
    * @param posy Rank of the second extracted coordinate (in [0, ndim[)
    * @param corner  Vector giving a reference node that belongs to the extracted section
    * @param useSel Use of the current Selection
+   * @param version Version of the variable to be extracted
    * @return
    *
    * @remark If idim does not match the Space dimension of the DbGrid, empty vector if returned
@@ -1076,7 +1079,8 @@ namespace gstlrn
     Id posx,
     Id posy,
     const VectorInt& corner,
-    bool useSel) const
+    bool useSel,
+    Id version) const
   {
     VectorDouble tab;
     auto ndim = getNDim();
@@ -1116,7 +1120,7 @@ namespace gstlrn
     if (getNLoc(ELoc::X) > 0)
     {
       String name = getNameByLocator(ELoc::X, idim);
-      return getOneSlice(name, posx, posy, corner, useSel);
+      return getOneSlice(name, posx, posy, corner, useSel, version);
     }
     // The variable does not exist, it must be generated on the fly
     auto n1 = getNX(posx);
@@ -1230,13 +1234,19 @@ namespace gstlrn
    * @param pos    Type of section: 0 for YoZ; 1 for XoZ and 2 for XoY
    * @param indice Rank of the section
    * @param useSel Use the active selection
+   * @param version Rank of the version (default = 0)
+   *
    * @return A VectorVectorDouble with 4 columns, i.e: X, Y, Z, Var
    *
    * @remark In presence of a selection and if useSel is TRUE,
    * @remarks values are returned but set to TEST
    */
-  VectorVectorDouble
-    DbGrid::getSlice(const String& name, Id pos, Id indice, bool useSel) const
+  VectorVectorDouble DbGrid::getSlice(
+    const String& name,
+    Id pos,
+    Id indice,
+    bool useSel,
+    Id version) const
   {
     VectorVectorDouble tab;
     Id nvect = 4;
@@ -1281,7 +1291,7 @@ namespace gstlrn
           tab[1][ecr] = coor[1];
           tab[2][ecr] = coor[2];
           if (!useSel || isActive(iech))
-            tab[3][ecr] = getArray(iech, iuid);
+            tab[3][ecr] = getArray(iech, iuid, version);
           else
             tab[3][ecr] = TEST;
         }
@@ -1310,7 +1320,7 @@ namespace gstlrn
           tab[1][ecr] = coor[1];
           tab[2][ecr] = coor[2];
           if (!useSel || isActive(iech))
-            tab[3][ecr] = getArray(iech, iuid);
+            tab[3][ecr] = getArray(iech, iuid, version);
           else
             tab[3][ecr] = TEST;
         }
@@ -1339,7 +1349,7 @@ namespace gstlrn
           tab[1][ecr] = coor[1];
           tab[2][ecr] = coor[2];
           if (!useSel || isActive(iech))
-            tab[3][ecr] = getArray(iech, iuid);
+            tab[3][ecr] = getArray(iech, iuid, version);
           else
             tab[3][ecr] = TEST;
         }
@@ -1671,7 +1681,7 @@ namespace gstlrn
       VectorVectorDouble varm(nvar);
       for (Id ivar = 0; ivar < nvar; ivar++)
         varm[ivar] = VH::simulateUniform(ndat, 0., varmax);
-      dbgrid->addColumnsByVVD(varm, "v", ELoc::V);
+      dbgrid->addColumnsByVVD(varm, "v", ELoc::V, 0, 1);
     }
 
     // Generate the External Drift functions (optional)
@@ -1680,7 +1690,7 @@ namespace gstlrn
       VectorVectorDouble fex(nfex);
       for (Id ifex = 0; ifex < nfex; ifex++)
         fex[ifex] = VH::simulateGaussian(ndat);
-      dbgrid->addColumnsByVVD(fex, "f", ELoc::F);
+      dbgrid->addColumnsByVVD(fex, "f", ELoc::F, 0, 1);
     }
 
     // Generate the selection (optional)
@@ -1707,7 +1717,7 @@ namespace gstlrn
           if (rnd[idat] <= heteroRatio[ivar]) vars[ivar][idat] = TEST;
       }
     }
-    dbgrid->addColumnsByVVD(vars, "z", ELoc::Z);
+    dbgrid->addColumnsByVVD(vars, "z", ELoc::Z, 0, 1);
 
     // Generate the code (optional)
     if (ncode > 0)
@@ -1818,7 +1828,7 @@ namespace gstlrn
     // Add the variables of interest
     VectorInt iuidOut(nvar);
     for (Id ivar = 0; ivar < nvar; ivar++)
-      iuidOut[ivar] = gridOut->addColumnsByConstant(1, TEST, names[ivar]);
+      iuidOut[ivar] = gridOut->addColumnsByConstant(1, 1, TEST, names[ivar]);
 
     // Loop on the nodes of the output sub-grid
     VectorInt indg(ndim);
@@ -1947,7 +1957,7 @@ namespace gstlrn
 
     // Create the variables in the 3D grid and identify their UIDs
     for (Id ivar = 0; ivar < nvar; ivar++)
-      grid3Dout->addColumnsByConstant(1, TEST, names[ivar]);
+      grid3Dout->addColumnsByConstant(1, 1, TEST, names[ivar]);
     VectorInt iuids = grid3Dout->getUIDs(names);
 
     // Define local variables
@@ -2087,7 +2097,7 @@ namespace gstlrn
 
     // Create the variables in the 3D grid and identify their UIDs
     for (Id ivar = 0; ivar < nvar; ivar++)
-      grid3Dout->addColumnsByConstant(1, TEST, names[ivar]);
+      grid3Dout->addColumnsByConstant(1, 1, TEST, names[ivar]);
     VectorInt iuids = grid3Dout->getUIDs(names);
 
     // Define local variables
@@ -2229,7 +2239,7 @@ namespace gstlrn
     const String& nameBot)
   {
     // Create the selection new variable
-    Id iuidSel = addColumnsByConstant(1, 1, "SelLayer", ELoc::SEL);
+    Id iuidSel = addColumnsByConstant(1, 1, 1, "SelLayer", ELoc::SEL);
 
     if (nameTop.empty() || nameBot.empty()) return -1;
 
@@ -2479,7 +2489,7 @@ namespace gstlrn
     auto nech = getNSample();
 
     VectorString names = db->getNamesByColIdx({0});
-    Id iuid = addColumnsByConstant(1);
+    Id iuid = addColumnsByConstant(1, 1);
     if (dbStatisticsInGridTool(db, this, names, EStatOption::NUM, radius, iuid))
       return 1;
     VectorDouble stats = getColumnByUID(iuid, false, false);

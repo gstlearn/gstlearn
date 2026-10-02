@@ -611,8 +611,9 @@ namespace gstlrn
     for (Id iech = 0; iech < db->getNSample(); iech++)
     {
       if (!db->isActive(iech)) continue;
-      Id facies =
-        static_cast<Id>(db->getFromLocator(ELoc::FACIES, iech, iptr_simu)) - 1;
+      Id facies = static_cast<Id>(
+                    db->getFromLocator(ELoc::FACIES, iech, iptr_simu, isimu))
+                - 1;
       Id rank = _getFacies(ipgs, facies);
       double prop = db->getLocVariable(ELoc::P, iech, rank) + 1.;
       db->setLocVariable(ELoc::P, iech, rank, prop);
@@ -633,7 +634,7 @@ namespace gstlrn
     for (Id iech = 0; iech < db->getNSample(); iech++)
     {
       if (!db->isActive(iech)) continue;
-      double simval = db->getFromLocator(ELoc::SIMU, iech, iptr_simu);
+      double simval = db->getFromLocator(ELoc::SIMU, iech, iptr_simu, isimu);
       db->updLocVariable(ELoc::Z, iech, 0, EOperator::ADD, simval);
       db->updLocVariable(ELoc::Z, iech, 1, EOperator::ADD, simval * simval);
     }
