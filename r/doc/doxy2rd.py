@@ -609,6 +609,7 @@ class DoxygenParser:
                         m_kind = member.attrib.get("kind", "")
 
                         if m_kind == "function":
+                            # Function to be ignored
                             skip_words = ["operator", "~", "final_scalar_type"]
                             is_in_any_group = any(
                                 any(f["name"] == m_name for f in g["functions"])
@@ -676,6 +677,8 @@ class DoxygenParser:
                             fields.append({"name": m_name, "description": f_field_desc})
 
                 if kind in ("class", "struct"):
+                    # Class to be ignored
+                    skip_words = [""]
                     if any(word in c_name for word in skip_words):
                         continue
 
