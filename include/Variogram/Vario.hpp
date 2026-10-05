@@ -514,15 +514,11 @@ namespace gstlrn
     double _getBias(Id iiech, Id jjech);
 
     void _calculateFromGeometry(Db* db, Id idir, VarioOrder& vorder);
-    Id _calculateGeneralByPair(
-      Db* db,
-      Id idir,
-      const Id* rindex,
-      VarioOrder& vorder);
-    Id _calculateGeneralBySample(Db* db, Id idir, const Id* rindex);
+    Id _calculateGeneralByPair(Db* db, Id idir, VarioOrder& vorder);
+    Id _calculateGeneralBySample(Db* db, Id idir);
     Id _calculateOnGridSolution(DbGrid* db, Id idir);
     Id _calculateGenOnGridSolution(DbGrid* db, Id idir, Id norder);
-    Id _calculateVarioVectSolution(Db* db, Id idir, Id ncomp, const Id* rindex);
+    Id _calculateVarioVectSolution(Db* db, Id idir, Id ncomp);
     void _calculateOnLineSolution(Db* db, Id idir, Id norder);
 
     void _driftManage(Db* db);

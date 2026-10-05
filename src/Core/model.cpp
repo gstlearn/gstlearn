@@ -78,8 +78,7 @@ namespace gstlrn
     double* scale,
     double* parmax)
   {
-    auto space =
-      SpaceRN::create(1); // Use 1-D in order to retrieve all covariances
+    // Use 1-D in order to retrieve all covariances
     CovContext ctxt(1, 1);
     AKernel* cov = CovFactory::createCovFunc(type, ctxt);
     (void)gslStrcpy(

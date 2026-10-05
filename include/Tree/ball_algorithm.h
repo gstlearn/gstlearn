@@ -91,12 +91,17 @@ namespace gstlrn
     Id init_node(Id i_node, Id idx_start, Id idx_end);
     void recursive_build(Id i_node, Id idx_start, Id idx_end);
     double min_dist(Id i_node, const constvect pt) const;
-    Id query_depth_first(
+    void query_depth_first(
       Id i_node,
       const constvect pt,
       Id i_pt,
       t_nheap& heap,
       double dist) const;
+    void query_radius_depth_first(
+      Id i_node,
+      const constvect pt,
+      double radius,
+      VectorInt& results) const;
   };
 
   /*

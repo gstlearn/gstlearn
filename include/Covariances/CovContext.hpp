@@ -10,20 +10,19 @@
 /******************************************************************************/
 #pragma once
 
+#include "Basic/AStringable.hpp"
 #include "Space/ASpace.hpp"
-#include "Space/ASpaceObject.hpp"
 
 namespace gstlrn
 {
   class Db;
   class Vario;
 
-  class GSTLEARN_EXPORT CovContext: public ASpaceObject
+  class GSTLEARN_EXPORT CovContext: public AStringable
   {
   public:
     CovContext(Id nvar = 1, const ASpaceSharedPtr& space = ASpaceSharedPtr());
     CovContext(Id nvar, Id ndim, const VectorDouble& covar0 = VectorDouble());
-    CovContext(const Db* db, const ASpaceSharedPtr& space = ASpaceSharedPtr());
     CovContext(const Vario* vario);
     // CovContext(const Vario* vario, const ASpaceSharedPtr& space = ASpaceSharedPtr());
     CovContext(const CovContext& r);
@@ -34,7 +33,7 @@ namespace gstlrn
     String toString(const AStringFormat* strfmt = nullptr) const override;
 
     /// Indicate if I am consistent with the provided space
-    bool isConsistent(const ASpace* space) const override;
+    // bool isConsistent(const ASpace* space) const override;
 
     static CovContext* create(Id nvar, Id ndim);
 
@@ -63,11 +62,18 @@ namespace gstlrn
 
     const CovContext* createReduce(const VectorInt& validVars) const;
 
+    ASpaceSharedPtr getSpace() const { return _space; }
+
+    size_t getNDim(Id ispace = -1) const { return _space->getNDim(ispace); }
+
+    void setSpace(const ASpaceSharedPtr& space) { _space = space; }
+
   private:
     Id _nVar; /*! Number of variables */
     double _field; /*! Field maximum size */
     VectorDouble
       _covar0; /*! Variance-Covariance matrix (used for covariances) */
+    mutable ASpaceSharedPtr _space;
 
   private:
     Id _getIndex(Id ivar, Id jvar) const;
