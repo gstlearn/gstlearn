@@ -567,12 +567,20 @@ namespace gstlrn
     void extractVersion(
       const String& nameIn,
       const String& nameOut,
-      Id versionIn = 0);
+      Id versionIn = 0,
+      const ELoc& locatorType = ELoc::fromKey("UNDEFINED"),
+      Id locatorIndex = 0,
+      bool cleanSameLocator = false);
     void duplicateColumnByUID(
       Id iuid_in,
       Id iuid_out,
       Id versionIn = 0,
       Id versionOut = 0);
+    void extractAllVersions(
+      const String& name,
+      const ELoc& locatorType = ELoc::fromKey("UNDEFINED"),
+      bool cleanSameLocator = false,
+      bool deleteInitialColumn = false);
 
     const double* getColumnPtr(const ELoc& locatorType, Id locatorIndex = 0);
     VectorVectorDouble getItem(
@@ -1180,6 +1188,9 @@ namespace gstlrn
       return *_data.getValue<double>(icol, iech);
     }
 
+    static void setOldStyle(bool status, bool verbose = true);
+    static bool isOldStyle();
+
   protected:
     bool _deserializeAscii(std::istream& is) override;
     bool _serializeAscii(std::ostream& os) const override;
@@ -1287,6 +1298,9 @@ namespace gstlrn
   private:
     Id _nsamples; //!< Number of samples (needed when creating an empty Db)
     DbData _data;
+
+    // Internal variable used to store the status of the Old Style naming convention
+    static bool Old_Style_status;
   };
 
   GSTLEARN_EXPORT bool haveSameNDim(

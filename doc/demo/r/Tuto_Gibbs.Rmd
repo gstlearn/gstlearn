@@ -225,9 +225,8 @@ qc_simulations <- function(db, names, nbsimu, vario_param, vario_model, title, s
   vario_list = list()
   for (i in 1:nbsimu) {
     vario = Vario(vario_param)
-    db$extractVersion(names, "Local", version = i-1)
-    err   = db$setLocator(name = names, locatorType = ELoc_Z(),
-                          cleanSameLocator = TRUE)
+    db$extractVersion(names, "Local", version = i - 1,
+      locatorType = ELoc_Z(), cleanSameLocator = TRUE )
     err   = vario$compute(db)
     vario_list[[1 + length(vario_list)]] <- vario
     db$deleteColumn("Local")

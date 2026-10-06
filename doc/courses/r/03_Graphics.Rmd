@@ -180,9 +180,8 @@ We calculate the variogram along the two main directions of the 2-D grid. We com
 ```{r}
 varioparam = VarioParam_createMultipleFromGrid(mygrid,nlag=50)
 vario = Vario(varioparam)
-err = mygrid$extractVersion("Simu", "Simu.V1", version=0)
-err = mygrid$extractVersion("Simu", "Simu.V2", version=1)
-err = mygrid$setLocators(c("Simu.V1", "Simu.V2"), ELoc_Z())
+err = mygrid$extractVersion("Simu", "Simu.V1", version = 0, locatorType = ELoc_Z(), locatorIndex = 0)
+err = mygrid$extractVersion("Simu", "Simu.V2", version = 1, locatorType = ELoc_Z(), locatorIndex = 1)
 err = vario$compute(mygrid,ECalcVario_VARIOGRAM())
 err = mygrid$deleteColumn("Simu.V1")
 err = mygrid$deleteColumn("Simu.V2")

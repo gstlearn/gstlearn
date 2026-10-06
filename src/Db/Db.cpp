@@ -46,6 +46,32 @@ namespace gstlrn
 {
   static String UIDString = "VariableUID";
 
+  // Default value for the Style used for Variable encoding
+  bool Db::Old_Style_status = false;
+
+  /**
+   * @brief Activate or deactivate the old naming convention.
+   *
+   * @param status If true, activate the old naming convention.
+   * @param verbose If true, print a message to the console when switching to TRUE
+   */
+  void Db::setOldStyle(bool status, bool verbose)
+  {
+    if (verbose && status && !Old_Style_status)
+    {
+      message(
+        "Db::setOldStyle: Activating the Old Style for Storing multi-version "
+        "variables in Db\n");
+      message("This feature is deprecated and will be abandoned soon\n");
+    }
+    Old_Style_status = status;
+  }
+
+  bool Db::isOldStyle()
+  {
+    return Old_Style_status;
+  }
+
   Db::Db()
     : AStringable()
     , ASerializable()
@@ -773,7 +799,8 @@ namespace gstlrn
     if (static_cast<Id>(jechs.size()) != number)
     {
       messerr(
-        "Arguments 'iechs'(%d) and 'jechs'(%d) should share the same dimension",
+        "Arguments 'iechs'(%d) and 'jechs'(%d) should share the same "
+        "dimension",
         static_cast<Id>(iechs.size()), static_cast<Id>(jechs.size()));
       return tab;
     }
@@ -1158,7 +1185,8 @@ namespace gstlrn
   {
     auto number = getNLoc(locatorType);
     messerr(
-      "Db::_getNextLocator: Selecting next locator for %s: %d (will be removed "
+      "Db::_getNextLocator: Selecting next locator for %s: %d (will be "
+      "removed "
       "soon!)",
       std::string(locatorType.getKey()).c_str(), number);
     return number;
@@ -1518,7 +1546,8 @@ namespace gstlrn
     if (nvar * nversion != ncol)
     {
       messerr(
-        "Db::addColumns : Incompatibility between 'nvar'(%d) * 'nversion'(%d) "
+        "Db::addColumns : Incompatibility between 'nvar'(%d) * "
+        "'nversion'(%d) "
         "and 'ncol'(%d)",
         nvar, nversion, ncol);
       return 1;
@@ -1586,7 +1615,8 @@ namespace gstlrn
     if (static_cast<Id>(icols.size()) * nech != static_cast<Id>(tabs.size()))
     {
       messerr(
-        "Dimensions of 'icols'(%d), 'nech'(%d) and 'tabs'(%d) are inconsistent",
+        "Dimensions of 'icols'(%d), 'nech'(%d) and 'tabs'(%d) are "
+        "inconsistent",
         static_cast<Id>(icols.size()), nech, static_cast<Id>(tabs.size()));
       return;
     }
@@ -1691,16 +1721,47 @@ namespace gstlrn
     }
   }
 
+  void Db::extractAllVersions(
+    const String& name,
+    const ELoc& locatorType,
+    bool cleanSameLocator,
+    bool deleteInitialColumn)
+  {
+    // Check the number of versions attached to the input variable
+    auto nversions = getNVersions(name);
+    if (nversions <= 1) return;
+
+    if (locatorType.isDifferent(ELoc::UNDEFINED) && cleanSameLocator)
+      clearLocators(locatorType);
+
+    // Extract all versions as separate variables
+    for (Id version = 0; version < nversions; version++)
+    {
+      auto nameOut = NamingConvention::getNameEncoded(
+        name, nullptr, 0, -1, version + 1, nversions);
+      extractVersion(name, nameOut, version, locatorType, version);
+    }
+
+    // Delete the initial column (optional)
+    if (deleteInitialColumn) deleteColumn(name);
+  }
+
   void Db::extractVersion(
     const String& nameIn,
     const String& nameOut,
-    Id versionIn)
+    Id versionIn,
+    const ELoc& locatorType,
+    Id locatorIndex,
+    bool cleanSameLocator)
   {
     VectorInt iuids_in = _ids(nameIn, true);
     if (iuids_in.empty()) return;
     Id iuid_out = addColumnsByConstant(1, 1, 0., nameOut);
 
     duplicateColumnByUID(iuids_in[0], iuid_out, versionIn);
+
+    if (locatorType.isDifferent(ELoc::UNDEFINED))
+      setLocatorByUID(iuid_out, locatorType, locatorIndex, cleanSameLocator);
   }
 
   /**

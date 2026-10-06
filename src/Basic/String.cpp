@@ -345,35 +345,6 @@ namespace gstlrn
     return ss.str();
   }
 
-  Id extractVersion(
-    const String& string,
-    const String& radical,
-    const String& delim)
-  {
-    const String prefix = radical + delim;
-
-    if (string.compare(0, prefix.size(), prefix) != 0) return -1;
-
-    const String suffix = string.substr(prefix.size());
-
-    if (suffix.empty()) return -1;
-
-    try
-    {
-      size_t pos = 0;
-      Id rank = std::stoll(suffix, &pos);
-
-      // Vérifie que toute la fin de chaîne est bien un nombre
-      if (pos != suffix.size()) return -1;
-
-      return rank;
-    }
-    catch (...)
-    {
-      return -1;
-    }
-  }
-
   String
     concatenateString(const String& string, double value, const String& delim)
   {

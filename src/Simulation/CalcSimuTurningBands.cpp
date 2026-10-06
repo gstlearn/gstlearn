@@ -1529,7 +1529,6 @@ namespace gstlrn
     if (!ACalcSimuGaussian::_postprocess()) return false;
 
     // Clean variables created for Expansion
-
     if (_expandInformation(-1, ELoc::F)) return false;
     if (_expandInformation(-1, ELoc::NOSTAT)) return false;
 

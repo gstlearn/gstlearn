@@ -146,8 +146,7 @@ accept <- function(data, grid, name, isimu, verbose=FALSE, transBinary=TRUE, fac
 
   # Perform the labeling into connected components
   nameLocal = "Local"
-  err = grid$extractVersion(name, nameLocal, version=isimu-1)
-  err = grid$setLocator(nameLocal, ELoc_Z(), cleanSameLocator=TRUE)
+  err = grid$extractVersion(name, nameLocal, version = isimu - 1, locatorType = ELoc_Z(), cleanSameLocator = TRUE)
   err = dbMorpho(grid, EMorpho_CC(), vmin=faccc-0.5, vmax=faccc+0.5)
   cc_list = grid[rankGrid,"Morpho*"]
   if (verbose)

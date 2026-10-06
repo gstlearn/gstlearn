@@ -124,8 +124,8 @@ qc_simulations <- function(grid, names, nsim, var_model, title, stat_keys) {
   vario_list = list()
   for (i in 1:nsim) {
     vario = Vario(varioparam)
-    err = grid$extractVersion(names, "Local", version = i-1)
-    err   = grid$setLocator(name = "Local", locatorType = ELoc_Z(), cleanSameLocator = TRUE)
+    err = grid$extractVersion(names, "Local", version = i - 1,
+      locatorType = ELoc_Z(), cleanSameLocator = TRUE )
     err   = vario$compute(grid)
     vario_list[[1 + length(vario_list)]] <- vario
     grid$deleteColumn("Local")
