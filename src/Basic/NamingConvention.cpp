@@ -17,7 +17,7 @@
 namespace gstlrn
 {
   // Default value for the Style used for Variable encoding
-  bool Old_Style = false;
+  bool NamingConvention::Old_Style_status = false;
 
   /**
    * @brief Activate or deactivate the old naming convention.
@@ -26,10 +26,23 @@ namespace gstlrn
    * convention.
    *
    * @param status If true, activate the old naming convention.
+   * @param verbose If true, display a message indicating the change in naming convention.
    */
-  void NamingConvention::Naming_Old_Style(bool status)
+  void NamingConvention::setOldStyle(bool status, bool verbose)
   {
-    Old_Style = status;
+    if (verbose && status && !Old_Style_status)
+    {
+      message(
+        "NamingConvention::setOldStyle: Activating the Old Style for naming "
+        "variables in Db\n");
+      message("This feature is deprecated and will be abandoned soon\n");
+    }
+    Old_Style_status = status;
+  }
+
+  bool NamingConvention::isOldStyle()
+  {
+    return Old_Style_status;
   }
 
   NamingConvention::NamingConvention(
@@ -184,10 +197,38 @@ namespace gstlrn
       }
     }
 
-    _setNames(dbout, iattout_start, nameloc, nvar, qualifier, nitems);
+    VectorString outnames;
+    _setNames(dbout, iattout_start, nameloc, nvar, qualifier, nitems, outnames);
 
     if (flagSetLocator)
       setLocators(dbout, iattout_start, nvar, nitems, locatorShift);
+
+    if (Db::isOldStyle())
+    {
+      // In the case of Old_Style storage, the output variable in the multiversion case,
+      // must be replaced by a set of monoversion columns.
+      _setMultipleVariables(dbout, outnames);
+    }
+  }
+
+  void NamingConvention::_setMultipleVariables(
+    Db* dbout,
+    const VectorString& names) const
+  {
+    if (dbout == nullptr) return;
+    if (names.empty()) return;
+    Id number = static_cast<Id>(names.size());
+    for (Id i = 0; i < number; i++)
+    {
+      const auto& name = names[i];
+
+      // Check if the variable is multiversion
+      auto nversions = dbout->getNVersions(name);
+      if (nversions <= 1) continue;
+
+      // The variable is multiversion: replace it by a set of monoversion columns
+      dbout->extractAllVersions(name, _locatorOutType, true, true);
+    }
   }
 
   /**
@@ -245,10 +286,11 @@ namespace gstlrn
     const VectorString& names,
     Id nvar,
     const String& qualifier,
-    Id nitems) const
+    Id nitems,
+    VectorString& outnames) const
   {
     auto nloc = _getNameCount(names, nvar);
-    VectorString outnames = _createNames(names, nloc, qualifier, nitems);
+    outnames = _createNames(names, nloc, qualifier, nitems);
 
     VectorInt iuids;
     VectorString reservedList;
@@ -291,7 +333,7 @@ namespace gstlrn
         if (static_cast<Id>(names.size()) == nvar) loc_varname = names[ivar];
         if (loc_varname.empty() && nvar > 1)
         {
-          if (Old_Style)
+          if (isOldStyle())
             loc_varname = std::to_string(ivar + 1);
           else
             loc_varname = concatenateString("V", ivar + 1, "");
@@ -302,7 +344,7 @@ namespace gstlrn
         // Build the rank from the variable number (possibly overwritten by item number)
         if (nvar > 1)
         {
-          if (Old_Style)
+          if (isOldStyle())
             loc_number = std::to_string(ivar + 1);
           else
             loc_number = concatenateString("V", ivar + 1, "");
@@ -318,7 +360,7 @@ namespace gstlrn
           loc_qualifier = qualifier;
           if (nitems > 1)
           {
-            if (Old_Style)
+            if (isOldStyle())
               loc_number = std::to_string(item + 1);
             else
               loc_number = concatenateString("S", item + 1, "");

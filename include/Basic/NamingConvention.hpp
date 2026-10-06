@@ -116,8 +116,6 @@ namespace gstlrn
       Id nitems = 1,
       Id locatorShift = 0) const;
 
-    static void Naming_Old_Style(bool status);
-
     static String getNameEncoded(
       const String& prefix,
       const Db* db = nullptr,
@@ -128,6 +126,9 @@ namespace gstlrn
       const String& extension = "",
       const String& delim = ".");
 
+    static void setOldStyle(bool status, bool verbose = true);
+    static bool isOldStyle();
+
   private:
     void _setNames(
       Db* dbout,
@@ -135,7 +136,8 @@ namespace gstlrn
       const VectorString& names,
       Id nvar,
       const String& qualifier,
-      Id nitems) const;
+      Id nitems,
+      VectorString& outnames) const;
 
     VectorString _createNames(
       const VectorString& names,
@@ -143,6 +145,7 @@ namespace gstlrn
       const String& qualifier = "",
       Id nitems = 1) const;
 
+    void _setMultipleVariables(Db* dbout, const VectorString& names) const;
     static Id _getNameCount(const VectorString& names, Id nvar);
 
   private:
@@ -153,6 +156,9 @@ namespace gstlrn
     bool _flagLocator; //!< When TRUE, assign a locator to the new variables
     ELoc _locatorOutType; //!< Type of locator assigned ('flagLocator' is TRUE)
     bool _cleanSameLocator; //!< Clean variables with same locator beforehand
+
+    // Internal variable used to store the status of the Old Style naming convention
+    static bool Old_Style_status;
   };
 
   // typedef NamingConvention NC;

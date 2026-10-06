@@ -111,9 +111,7 @@ grid$deleteColumn(var_name)
 vl = list()
 for (s in 1:ns) {
   var_name = NC_getNameEncoded(prefix, NULL, 1, 1, s, ns)
-  err = grid$extractVersion("Simu", var_name, version=s-1)
-  err = grid$setLocator(name = var_name,
-                        locatorType = ELoc_Z(), cleanSameLocator = TRUE)
+  err = grid$extractVersion("Simu", var_name, version = s - 1, locatorType = ELoc_Z(), cleanSameLocator = TRUE)
   vl[[1 + length(vl)]] <- Vario_computeFromDb(varioPar, grid)
   grid$deleteColumn(var_name)
 }

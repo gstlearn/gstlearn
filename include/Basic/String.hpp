@@ -74,10 +74,6 @@ namespace gstlrn
   GSTLEARN_EXPORT String
     decorateString(const String& string, Id item, Id nChar = 5);
 
-  GSTLEARN_EXPORT Id extractVersion(
-    const String& string,
-    const String& radical,
-    const String& delim = ".");
   GSTLEARN_EXPORT String generateOneName(
     const String& string,
     Id rank = 1,
