@@ -130,13 +130,11 @@ namespace gstlrn
     // Undefined role is always accpetable
     if (_role == ERole::UNDEFINED) return true;
 
-    // Some Roles are compatible with multiple versions.
-    if (_role == ERole::SIMU || _role == ERole::FACIES
-        || _role == ERole::GAUSFAC || _role == ERole::Z)
-      return true;
+    // Some Roles are compatible with multiple versions.4
+    auto it = ERoleAttr.find(_role.getKey());
+    if (it->second.isMultiVersionAvailable) return true;
 
     // The other roles are not compatible with multiple versions.
-
     if (verbose)
       messerr(
         "Role '%s' is not compatible with multiple versions (%d).",
