@@ -993,7 +993,7 @@ namespace gstlrn
       *flag_created = true;
       for (Id info = 0; info < ninfo; info++)
       {
-        String name = dbgrid->getNameByLocator(locatorType, info);
+        String name = dbgrid->getName({toERole(locatorType), info});
         if (migrate(dbgrid, dbin, name, 0, VectorDouble(), false, false, false))
           continue;
       }

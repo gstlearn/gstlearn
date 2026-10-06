@@ -943,7 +943,7 @@ namespace gstlrn
     auto nvarZ = _countNVarZ(db);
     for (Id ivar = 0; ivar < nvarZ; ivar++)
     {
-      String name = db->getNameByLocator(ELoc::Z, ivar, 0, false);
+      String name = db->getName({toERole(ELoc::Z), ivar});
       names.push_back(name);
     }
 

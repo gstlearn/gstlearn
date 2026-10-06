@@ -274,7 +274,7 @@ namespace gstlrn
    */
   bool Db::isLocatorIndexValid(const ELoc& locatorType, Id locatorIndex) const
   {
-    auto nrole = _data.getNRoles(temporaryToRole(locatorType));
+    auto nrole = _data.getNRoles(toERole(locatorType));
     return checkArg("Locator Index", locatorIndex, nrole);
   }
 
@@ -310,7 +310,7 @@ namespace gstlrn
 
   Id Db::getUIDByLocator(const ELoc& locatorType, Id locatorIndex) const
   {
-    auto colID = _data.getColID({temporaryToRole(locatorType), locatorIndex});
+    auto colID = _data.getColID({toERole(locatorType), locatorIndex});
     return getUIDByColIdx(colID.getICol());
   }
 
@@ -322,13 +322,13 @@ namespace gstlrn
    */
   Id Db::getColIdxByLocator(const ELoc& locatorType, Id locatorIndex) const
   {
-    auto colID = _data.getColID({temporaryToRole(locatorType), locatorIndex});
+    auto colID = _data.getColID({toERole(locatorType), locatorIndex});
     return colID.getICol();
   }
 
   Id Db::_findUIDInLocator(const ELoc& locatorType, Id iuid) const
   {
-    auto colIDs = _data.getColIDs(temporaryToRole(locatorType));
+    auto colIDs = _data.getColIDs(toERole(locatorType));
     for (const auto& colID: colIDs)
     {
       if (getUIDByColIdx(colID.getICol()) == iuid) return colID.getIndex();
@@ -359,7 +359,7 @@ namespace gstlrn
     auto colID = _data.getColID(icol);
     if (colID.hasRoleDefined())
     {
-      *ret_locatorType = temporaryToLocator(colID.getRole());
+      *ret_locatorType = toELoc(colID.getRole());
       *ret_locatorIndex = colID.getIndex();
       *ret_mult = colID.getRoleID().isUnique();
       return true;
@@ -619,7 +619,7 @@ namespace gstlrn
 
   Id Db::getNVersionsByLocator(const ELoc& locatorType, Id locatorIndex) const
   {
-    auto colID = _data.getColID({temporaryToRole(locatorType), locatorIndex});
+    auto colID = _data.getColID({toERole(locatorType), locatorIndex});
     return getNVersionsByColIdx(colID.getICol());
   }
 
@@ -1125,7 +1125,7 @@ namespace gstlrn
 
   bool Db::hasLocator(const ELoc& locatorType) const
   {
-    auto nrole = _data.getNRoles(temporaryToRole(locatorType));
+    auto nrole = _data.getNRoles(toERole(locatorType));
     return nrole > 0;
   }
 
@@ -1150,7 +1150,7 @@ namespace gstlrn
 
   void Db::clearLocators(const ELoc& locatorType)
   {
-    auto role = temporaryToRole(locatorType);
+    auto role = toERole(locatorType);
     _data.clearRole(role);
   }
 
@@ -1249,7 +1249,7 @@ namespace gstlrn
       if (locatorIndex < 0) locatorIndex = _getNextLocator(locatorType);
     }
 
-    auto role = temporaryToRole(locatorType);
+    auto role = toERole(locatorType);
     _data.setRoleID(icol, RoleID(role, locatorIndex));
   }
 
@@ -2083,7 +2083,7 @@ namespace gstlrn
    */
   void Db::deleteColumnsByLocator(const ELoc& locatorType)
   {
-    auto colIDs = _data.getColIDs(temporaryToRole(locatorType));
+    auto colIDs = _data.getColIDs(toERole(locatorType));
 
     for (auto it = colIDs.rbegin(); it != colIDs.rend(); ++it)
     {
@@ -2308,7 +2308,7 @@ namespace gstlrn
           if (locatorIdentify(namloc[j], &locatorType, &locatorIndex, &mult)
               != 0)
             continue;
-          String local = getNameByLocator(locatorType, locatorIndex);
+          String local = getName({toERole(locatorType), locatorIndex});
           ret_names.push_back(local);
         }
         continue;
@@ -2605,8 +2605,8 @@ namespace gstlrn
   void
     Db::switchLocator(const ELoc& locatorType_in, const ELoc& locatorType_out)
   {
-    Id n_in = _data.getNRoles(temporaryToRole(locatorType_in));
-    Id n_out = _data.getNRoles(temporaryToRole(locatorType_out));
+    Id n_in = _data.getNRoles(toERole(locatorType_in));
+    Id n_out = _data.getNRoles(toERole(locatorType_out));
 
     /* Move the gradient components into additional variables */
     for (Id i_in = 0; i_in < n_in; i_in++)
@@ -2615,7 +2615,7 @@ namespace gstlrn
 
       // Correction for the Temporary Locator
       auto icol = getColIdxByLocator(locatorType_in, i_in);
-      auto role = temporaryToRole(locatorType_out);
+      auto role = toERole(locatorType_out);
       _data.setRoleID(icol, RoleID(role, n_out + i_in));
     }
     // p_in.clear();
@@ -2759,7 +2759,7 @@ namespace gstlrn
   Id Db::getNLoc(const ELoc& locatorType) const
   {
     if (locatorType.isEqual(ELoc::UNDEFINED)) return 0;
-    return _data.getNRoles(temporaryToRole(locatorType));
+    return _data.getNRoles(toERole(locatorType));
   }
 
   /**
@@ -3419,28 +3419,10 @@ namespace gstlrn
     return (getNColumn() - number - 1);
   }
 
-  String Db::getNameByLocator(
-    const ELoc& locatorType,
-    Id locatorIndex,
-    Id version,
-    bool withVersion) const
-  {
-    auto icol = getColIdxByLocator(locatorType, locatorIndex);
-    if (icol < 0) return String();
-    return _data.getName({icol, version}, withVersion);
-  }
-
-  String Db::getNameByColIdx(Id icol, Id version, bool withVersion) const
-  {
-    if (!isColIdxValid(icol)) return String();
-    return _data.getName({icol, version}, withVersion);
-  }
-
   String Db::getNameByUID(Id iuid, Id version, bool withVersion) const
   {
     auto icol = getColIdxByUID(iuid);
-    if (icol < 0) return String();
-    return getNameByColIdx(icol, version, withVersion);
+    return getName({icol, version}, withVersion);
   }
 
   VectorString Db::getNamesByLocator(const ELoc& locatorType) const
@@ -3451,7 +3433,7 @@ namespace gstlrn
     for (Id i = 0; i < count; i++)
     {
       auto icol = getColIdxByLocator(locatorType, i);
-      namelist.push_back(getNameByColIdx(icol));
+      namelist.push_back(getName(icol));
     }
     return namelist;
   }
@@ -3474,14 +3456,14 @@ namespace gstlrn
     for (Id i = 0; i < count; i++)
     {
       auto icol = getColIdxByUID(iuids[i]);
-      namelist.push_back(getNameByColIdx(icol));
+      namelist.push_back(getName(icol));
     }
     return namelist;
   }
 
-  String Db::getName(const String& name, Id version, bool withVersion) const
+  String Db::getName(ColID&& colid, bool withVersion) const
   {
-    return _data.getName({name, version}, withVersion);
+    return _data.getName(std::move(colid), withVersion);
   }
 
   VectorString Db::getNames(const String& name) const
@@ -3562,7 +3544,7 @@ namespace gstlrn
 
   void Db::setNameByLocator(const ELoc& locatorType, const String& name)
   {
-    auto colIDs = _data.getColIDs(temporaryToRole(locatorType));
+    auto colIDs = _data.getColIDs(toERole(locatorType));
     Id count = colIDs.size();
     if (count <= 0) return;
     for (Id i = 0; i < count; i++)
@@ -3631,7 +3613,7 @@ namespace gstlrn
     {
       auto nversion = getNVersionsByColIdx(icol);
       sstr << "Column = " << icol;
-      sstr << " - Name = " << getNameByColIdx(icol);
+      sstr << " - Name = " << getName(icol);
       sstr << " - Locator = " << _getLocatorNameByColIdx(icol);
       if (nversion > 1) sstr << " - Versions = " << nversion;
       sstr << std::endl;
@@ -3678,7 +3660,7 @@ namespace gstlrn
         // Note: the Locator is no longer printed here
         // as it does not make sense for multi-version variables
         // where the locator is repeated for each version.
-        sstr << ecr + 1 << " - Name " << getNameByColIdx(icol, version, true)
+        sstr << ecr + 1 << " - Name " << getName({icol, version}, true)
              << std::endl;
         sstr << " Nb of data          = " << toStr(nech) << std::endl;
         sstr << " Nb of active values = " << toStr(stats.nvalid) << std::endl;
@@ -3751,7 +3733,7 @@ namespace gstlrn
       {
         VectorDouble local = getColumnByColIdx(icol, useSel, true, version);
         tab.insert(tab.end(), local.begin(), local.end());
-        colnames.push_back(getNameByColIdx(icol, version, true));
+        colnames.push_back(getName({icol, version}, true));
       }
     }
 
@@ -6160,8 +6142,8 @@ namespace gstlrn
     }
 
     // Summary of the results
-    String name1loc = getName(name1, version1, true);
-    String name2loc = getName(name2, version2, true);
+    String name1loc = getName({name1, version1}, true);
+    String name2loc = getName({name2, version2}, true);
     if (ndiff > 0)
       message(
         "Differences between %s and %s (eps = %lf) = %d / %d\n",
@@ -6604,8 +6586,7 @@ namespace gstlrn
    */
   String getLocatorName(const ELoc& locatorType, Id locatorIndex)
   {
-    const RoleID roleID =
-      RoleID(Db::temporaryToRole(locatorType), locatorIndex);
+    const RoleID roleID = RoleID(toERole(locatorType), locatorIndex);
     return roleID.getName();
   }
 
@@ -6626,7 +6607,7 @@ namespace gstlrn
     auto roleID = RoleID::createFromName(string);
     if (!roleID) return 1;
 
-    *ret_locatorType = Db::temporaryToLocator(roleID->getRole());
+    *ret_locatorType = toELoc(roleID->getRole());
     *ret_locatorIndex = roleID->getIndex();
     *ret_mult = roleID->isUnique() ? 1 : 0;
 

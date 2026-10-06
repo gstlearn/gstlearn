@@ -1,10 +1,10 @@
 /******************************************************************************/
 /*                                                                            */
-/*                            VB C++ Library                            */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
 /* Copyright (c) (2023) MINES Paris / ARMINES                                 */
-/* Authors: VB Team                                                     */
-/* Website: https://VB.org                                              */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://gstlearn.org                                              */
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/

@@ -1168,13 +1168,13 @@ def find_column_names(self, columns):
         names = self.identifyNames(np.atleast_1d(columns))
 
     elif isinstance(columns, (int, np.int_)):
-        names = self.getNameByColIdx(columns)
+        names = self.getName(columns)
 
     elif isinstance(columns, slice):
         Nmax = self.getNColumn()
         names = []
         for i in range(Nmax)[columns]:
-            names.append(self.getNameByColIdx(i))
+            names.append(self.getName(i))
 
     elif is_list_type(columns, (int, np.int_)):
         names = []
@@ -1183,7 +1183,7 @@ def find_column_names(self, columns):
             if i >= Nfields:
                 print("Warning: the index {} is out of bounds with {}, this index is ignored".format(i,Nfields))
             else:
-                names.append(self.getNameByColIdx(int(i)))
+                names.append(self.getName(int(i)))
 
     else:
         raise ValueError("Argument for columns of wrong type: {}".format(type(columns)))

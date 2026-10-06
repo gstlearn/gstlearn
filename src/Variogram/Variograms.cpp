@@ -261,7 +261,7 @@ namespace gstlrn
 
     if (FFFF(lagmax)) lagmax = db->getExtensionDiagonal();
     if (FFFF(varmax))
-      varmax = 3. * db->getVariance(db->getNameByLocator(ELoc::Z));
+      varmax = 3. * db->getVariance(db->getName({toERole(ELoc::Z), 0}));
 
     VectorInt nx(2);
     nx[0] = lagnb;
