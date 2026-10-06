@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.23.14"
+__generated_with = "0.24.0"
 app = marimo.App(width="full")
 
 
@@ -31,7 +31,21 @@ def define_widgets(gmo):
     WidgetGrid = gmo.WdefineGrid()
     WidgetSimtub = gmo.WdefineSimtub(nbsimu=7)
     WidgetRule = gmo.WdefineRule()
-    WidgetLayout = gmo.WdefineLayout(3, 3, 3, 3)
+
+    # Définition de la liste d'options sous forme de tuples (short_name, long_name, default_bool)
+    options_list = [
+        ("rule", "Display Lithotype Rule", True),
+        ("model", "Display Model(s)", True),
+        ("simulation", "Display Simulations", True),
+    ]
+
+    WidgetLayout = gmo.WdefineLayout(
+        options_list,
+        nrow=3,
+        ncol=3,
+        width=3,
+        height=3,
+    )
     WidgetAutoSave = gmo.WdefineAutoSave()
     return (
         WidgetAutoSave,
@@ -41,6 +55,7 @@ def define_widgets(gmo):
         WidgetModel2,
         WidgetRule,
         WidgetSimtub,
+        options_list,
     )
 
 
@@ -57,6 +72,7 @@ def define_action(
     gmo,
     gp,
     mo,
+    options_list,
     plt,
 ):
     def myaction():
@@ -85,10 +101,7 @@ def define_action(
 
         layout = gmo.WgetLayout(
             WidgetLayout,
-            nvar=1,
-            nbsimu=nbsimu,
-            ngrf=ngrf,
-            valid=["model", "rule", "simu", "simulation", "average"],
+            options_list,
         )
         nx = layout["nx"]
         ny = layout["ny"]
@@ -98,44 +111,42 @@ def define_action(
         fig, ax = gp.init(nx, ny, figsize=[ny * dimx, nx * dimy], squeeze=False)
         axes = ax.ravel()
 
-        render_plan = layout.get("render_plan", [])
-        plan_items = []
-        for name, count in render_plan:
-            plan_items.extend([name] * count)
-
         i = 0
         imodel = 0
         isimu = 0
 
-        for axi in axes:
-            content = plan_items[i] if i < len(plan_items) else None
-
+        for content in layout.get("selected", []):
             if content == "rule":
-                gmo.plotRule(axi, rule, flagLegend=True)
+                if i < len(axes):
+                    gmo.plotRule(axes[i], rule, flagLegend=True)
+                    i += 1
 
             elif content == "model":
-                imodel += 1
-                model = model1 if imodel == 1 else model2
-                title = f"Model #{imodel}"
-                gmo.plotVario(axi, model=model, title=title)
+                for m in [model1, model2]:
+                    if m is not None and i < len(axes):
+                        imodel += 1
+                        title = f"Model #{imodel}"
+                        gmo.plotVario(axes[i], model=m, title=title)
+                        i += 1
 
             elif content in ("simu", "simulation"):
-                isimu += 1
-                title = f"Simulation #{isimu}/{nbsimu}"
-                gmo.plotGrid(
-                    axi,
-                    grid,
-                    name="Facies" if nbsimu == 1 else f"Facies.S{isimu}",
-                    rule=rule,
-                    title=title,
-                    nlevel=0,
-                    flagLegend=False,
-                )
+                for sim_idx in range(nbsimu):
+                    if i < len(axes):
+                        isimu += 1
+                        title = f"Simulation #{isimu}/{nbsimu}"
+                        gmo.plotGrid(
+                            axes[i],
+                            grid,
+                            name="Facies" if nbsimu == 1 else f"Facies.S{isimu}",
+                            rule=rule,
+                            title=title,
+                            nlevel=0,
+                            flagLegend=False,
+                        )
+                        i += 1
 
-            else:
-                axi.axis("off")
-
-            i += 1
+        for axi in axes[i:]:
+            axi.axis("off")
 
         plt.tight_layout(pad=0.2)
         mo.mpl.interactive(fig)
@@ -157,6 +168,7 @@ def render_ui(
     gmo,
     mo,
     myaction,
+    options_list,
 ):
     param = mo.ui.tabs(
         {
@@ -165,7 +177,7 @@ def render_ui(
             "Model2": gmo.WshowModel(WidgetModel2),
             "Rule": gmo.WshowRule(WidgetRule),
             "Simulation": gmo.WshowSimtub(WidgetSimtub),
-            "Layout": gmo.WshowLayout(WidgetLayout, gapv=1),
+            "Layout": gmo.WshowLayout(WidgetLayout, options_list, gapv=1),
             "AutoSave": gmo.WshowAutoSave(WidgetAutoSave),
         }
     ).style({"minWidth": "350px", "width": "350px"})

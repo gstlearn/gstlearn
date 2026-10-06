@@ -1424,7 +1424,7 @@ def cell(dbgrid, *args, **kwargs):
     return _ax_cell(ax, dbgrid, *args, **kwargs)
 
 
-def _ax_cell(ax, dbgrid, posX=0, posY=1, corner=None, step=1, **kwargs):
+def _ax_cell(ax, dbgrid, posX=0, posY=1, corner=None, step=1, shift=-1, **kwargs):
     """
     Plotting the cell edges from a DbGrid
 
@@ -1433,9 +1433,10 @@ def _ax_cell(ax, dbgrid, posX=0, posY=1, corner=None, step=1, **kwargs):
     posX: rank of the first coordinate
     posY: rank of the second coordinate
     step: step for representing the cell edge every 'step' values
+    shift: shift for the coordinates (should be either 0 or -1)
     **kwargs : arguments passed to subsequent functions
     """
-    shift = np.ones(dbgrid.getNDim()) * (-1)
+    shift = np.ones(dbgrid.getNDim()) * (shift)
     if corner is None:
         corner = np.zeros(dbgrid.getNDim())
     indices = corner
@@ -1539,7 +1540,7 @@ def _ax_raster(
     if rule is not None:
         data, cmap, norm, labels, colfacs = _dataWithRule(data, rule)
         data = np.ma.masked_equal(data, -1)
-        cmap.set_bad(color=(0, 0, 0, 0))  # ou "black"
+        cmap.set_bad(color=(0, 0, 0, 0))  # or "black"
         kwargs["cmap"] = cmap
         kwargs["norm"] = norm
     else:

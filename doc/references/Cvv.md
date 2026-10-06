@@ -1,6 +1,8 @@
 # Covariance over block
 
-To compute $$\bar{C}(v,v)=\frac{1}{|v|^2}\int_v\int_v C(x,y)dxdy$$
+To compute
+
+$$\bar{C}(v,v)=\frac{1}{|v|^2}\int_v\int_v C(x,y)dxdy$$
 
 you need to define $v$ and the model.
 
