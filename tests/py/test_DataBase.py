@@ -15,22 +15,22 @@ data.printContents("Checking that the DbData is empty")
 gl.mestitle(0, "Adding Columns of various types")
 
 print("- Column VD of type Double with role X, filled with [1.0, 2.0, 3.0]")
-data.addColumnD("VD", [1.0, 2.0, 3.0], gl.RoleID(gl.ERole.X))
+data.addColumnD("VD", [1.0, 2.0, 3.0], gl.ERole.X)
 
 print("- Column VI of type Int, filled with [5, 6, 7]")
-data.addColumnI("VI", [5, 6, 7], gl.RoleID(gl.ERole.Z))
+data.addColumnI("VI", [5, 6, 7], gl.ERole.Z)
 
 print("- Column VS of type String, filled with ['foo', 'bar', 'baz']")
-data.addColumnS("VS", ["foo", "bar", "baz"], gl.RoleID(gl.ERole.Z))
+data.addColumnS("VS", ["foo", "bar", "baz"], gl.ERole.Z)
 
 print("- Column VB of type Bool, filled with [True, False, True]")
 data.addColumnB("VB", [True, False, True])
 
 print("- Column VDS of type Double, with 5 versions and role F, filled with 3.0")
-data.addColumnEmptyD("VDS", 0, 5, gl.RoleID(gl.ERole.F), 3.0)
+data.addColumnEmptyD("VDS", 0, 5, gl.ERole.F, 3.0)
 
 print("- Column VIS of type Int, with 5 versions and role Z, filled with 1")
-data.addColumnEmptyI("VIS", 0, 5, gl.RoleID(gl.ERole.Z), 1)
+data.addColumnEmptyI("VIS", 0, 5, gl.ERole.Z, 1)
 data.printContents()
 
 ############################################
@@ -97,12 +97,13 @@ print("- by Name and Version:", data.getName(("VDS", 1)))
 print("- by Index:", data.getName(4))
 print("- by Index and Version:", data.getName((4, 1)))
 print("- by ColID:", data.getName(gl.ColID(1)))
-print("- by RoleID:", data.getName(gl.RoleID(gl.ERole.F)))
-print("- by RoleID and Version:", data.getName((gl.RoleID(gl.ERole.F), 0)))
+print("- by RoleID:", data.getName(gl.ERole.F))
+print("- by RoleID and Version:", data.getName((gl.ERole.F, 0)))
 print("- by Role:", data.getName(gl.ERole.Z))
 print("- by Role and Index:", data.getName((gl.ERole.Z, 0)))
 # Next line is the Unique way to define a ColID based on a Role and specifying the Index and the Version
-print("- by Role and Index and Version:", data.getName((gl.RoleID(gl.ERole.Z, 0), 2)))
+data.printContents("Pour comprendre")
+print("- by Role and Index and Version:", data.getName((gl.ERole.Z, 0), 3))
 
 #####################################################################
 # In this part, we check the different ways to enquiry the DataBase #
@@ -148,10 +149,10 @@ print("Adding Column with existing name (VI) but different type (Double)")
 data.addColumnD("VI", [10.0, 11.0, 12.0])
 
 print("Adding Column with existing Role (X) but non consecutive index (10)")
-data.addColumnD("VD", [101.0, 102.0, 103.0], gl.RoleID(gl.ERole.X, 10))
+data.addColumnD("VD", [101.0, 102.0, 103.0], (gl.ERole.X, 10))
 
 print("Adding a Column with an already existing Role (X) and existing Index (0)")
-data.addColumnD("VD", [101.0, 102.0, 103.0], gl.RoleID(gl.ERole.X, 0))
+data.addColumnD("VD", [101.0, 102.0, 103.0], (gl.ERole.X, 0))
 data.printContents("- Final situation")
 
 ##############################
