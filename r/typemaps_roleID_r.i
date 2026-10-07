@@ -1,6 +1,6 @@
 /* =========================================================================
  * Typemaps for gstlrn::RoleID (R Interface)
- * Fixes OBJSXP / ENVSXP unwrapping inside R lists for overload dispatch.
+ * Safe heap allocation + freearg cleanup (Fixes macOS/Windows crashes)
  * ========================================================================= */
 
 %{
@@ -66,9 +66,9 @@ static inline SEXP unwrap_swig_r_obj(SEXP obj) {
 }
 
 // -------------------------------------------------------------------------
-// In Typemap
+// In Typemap : Allocation dynamique sécurisée
 // -------------------------------------------------------------------------
-%typemap(in) const gstlrn::RoleID& (gstlrn::RoleID temp)
+%typemap(in) const gstlrn::RoleID&
 {
     SEXP obj = $input;
     gstlrn::Id index = 0;
@@ -117,12 +117,12 @@ static inline SEXP unwrap_swig_r_obj(SEXP obj) {
 
     if (SWIG_IsOK(res1) && roleID != nullptr)
     {
-        temp = *roleID;
+        gstlrn::RoleID *p_temp = new gstlrn::RoleID(*roleID);
         if (has_custom_index)
         {
-            temp.setIndex(index);
+            p_temp->setIndex(index);
         }
-        $1 = &temp;
+        $1 = p_temp;
     }
     else
     {
@@ -135,13 +135,22 @@ static inline SEXP unwrap_swig_r_obj(SEXP obj) {
 
         if (SWIG_IsOK(res2) && role != nullptr)
         {
-            temp = gstlrn::RoleID(*role, index);
-            $1 = &temp;
+            $1 = new gstlrn::RoleID(*role, index);
         }
         else
         {
             Rf_error("Expected RoleID, ERole, list(RoleID, index) or list(ERole, index)");
         }
+    }
+}
+
+// -------------------------------------------------------------------------
+// Freearg Typemap : Libération mémoire garantie après l'appel C++
+// -------------------------------------------------------------------------
+%typemap(freearg) const gstlrn::RoleID&
+{
+    if ($1) {
+        delete $1;
     }
 }
 
