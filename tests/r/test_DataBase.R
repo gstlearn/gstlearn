@@ -10,7 +10,7 @@ suppressWarnings(suppressMessages(library(gstlearn)))
 # We intantiate the DbData object and load information
 
 data = DbData()
-invisible(data$printContents("Checking that the DbData is empty"))
+invisible(data$printContents("Checking that the initial DbData is empty"))
 
 invisible(mestitle(0, "Adding Columns of various types"))
 writeLines("- Column VD of type Double with role X, filled with [1.0, 2.0, 3.0]")
