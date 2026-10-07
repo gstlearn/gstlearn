@@ -102,8 +102,7 @@ print("- by RoleID and Version:", data.getName((gl.ERole.F, 0)))
 print("- by Role:", data.getName(gl.ERole.Z))
 print("- by Role and Index:", data.getName((gl.ERole.Z, 0)))
 # Next line is the Unique way to define a ColID based on a Role and specifying the Index and the Version
-data.printContents("Pour comprendre")
-print("- by Role and Index and Version:", data.getName((gl.ERole.Z, 0), 3))
+print("- by Role and Index and Version:", data.getName((gl.ERole.Z, 0), 2))
 
 #####################################################################
 # In this part, we check the different ways to enquiry the DataBase #

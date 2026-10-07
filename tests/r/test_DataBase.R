@@ -14,22 +14,22 @@ invisible(data$printContents("Checking that the DbData is empty"))
 
 invisible(mestitle(0, "Adding Columns of various types"))
 writeLines("- Column VD of type Double with role X, filled with [1.0, 2.0, 3.0]")
-invisible(data$addColumnD("VD", c(1.0, 2.0, 3.0), RoleID(ERole_X())))
+invisible(data$addColumnD("VD", c(1.0, 2.0, 3.0), ERole_X()))
 
 writeLines("- Column VI of type Int, filled with [5, 6, 7]")
-invisible(data$addColumnI("VI", c(5, 6, 7), RoleID(ERole_Z())))
+invisible(data$addColumnI("VI", c(5, 6, 7), ERole_Z()))
 
 writeLines("- Column VS of type String, filled with ['foo', 'bar', 'baz']")
-invisible(data$addColumnS("VS", c("foo", "bar", "baz"), RoleID(ERole_Z())))
+invisible(data$addColumnS("VS", c("foo", "bar", "baz"), ERole_Z()))
 
 writeLines("- Column VB of type Bool, filled with [True, False, True]")
 invisible(data$addColumnB("VB", c(TRUE, FALSE, TRUE)))
 
 writeLines("- Column VDS of type Double, with 5 versions and role F, filled with 3.0")
-invisible(data$addColumnEmptyD("VDS", 0, 5, RoleID(ERole_F()), 3.0))
+invisible(data$addColumnEmptyD("VDS", 0, 5, ERole_F(), 3.0))
 
 writeLines("- Column VIS of type Int, with 5 versions and role Z, filled with 1")
-invisible(data$addColumnEmptyI("VIS", 0, 5, RoleID(ERole_Z()), 1))
+invisible(data$addColumnEmptyI("VIS", 0, 5, ERole_Z(), 1))
 invisible(data$printContents())
 
 ############################################
@@ -104,11 +104,11 @@ writeLines(paste0("- by Name and Version : ", data$getName(list("VDS", 1))))
 writeLines(paste0("- by Index : ", data$getName(4)))
 writeLines(paste0("- by Index and Version : ", data$getName(list(4, 1))))
 
-writeLines(paste0("- by RoleID and Version : ", data$getName(list(RoleID(ERole_F()), 0))))
+writeLines(paste0("- by RoleID and Version : ", data$getName(list(ERole_F(), 0))))
 writeLines(paste0("- by Role : ", data$getName(ERole_Z()))) # Pb
 writeLines(paste0("- by Role and Index : ", data$getName(list(ERole_Z(), 0)))) # Pb
 # Next line is the Unique way to define a ColID based on a Role and specifying the Index and the Version
-writeLines(paste0("- by Role and Index and Version : ", data$getName(list(RoleID(ERole_Z(), 0), 2))))
+writeLines(paste0("- by Role and Index and Version : ", data$getName(list(ERole_Z(), 0))))
 
 #####################################################################
 # In this part, we check the different ways to enquiry the DataBase #
@@ -154,10 +154,10 @@ writeLines("Adding Column with existing name (VI) but different type (Double)")
 invisible(data$addColumnD("VI", c(10.0, 11.0, 12.0)))
 
 writeLines("Adding Column with existing Role (X) but non consecutive index (10)")
-invisible(data$addColumnD("VD", c(101.0, 102.0, 103.0), RoleID(ERole_X(), 10)))
+invisible(data$addColumnD("VD", c(101.0, 102.0, 103.0), list(ERole_X(), 10), 1))
 
 writeLines("Adding a Column with an already existing Role (X) and existing Index (0)")
-invisible(data$addColumnD("VD", c(101.0, 102.0, 103.0), RoleID(ERole_X(), 0)))
+invisible(data$addColumnD("VD", c(101.0, 102.0, 103.0), list(ERole_X(), 0)))
 invisible(data$printContents("- Final situation"))
 
 ##############################
