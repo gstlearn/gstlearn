@@ -16,6 +16,7 @@
 #include "Basic/ICloneable.hpp"
 #include "Basic/Limits.hpp"
 #include "Basic/NamingConvention.hpp"
+#include "DataBase/ColID.hpp"
 #include "DataBase/DbData.hpp"
 #include "Enum/ELoadBy.hpp"
 #include "Enum/EStatOption.hpp"
@@ -281,18 +282,10 @@ namespace gstlrn
     // ================================================================ //
     // All methods listed in this paragraph are direct access to DbData //
     // ================================================================ //
-    // The idea is to keep these entries so that calling classes are not modified.
-    String getNameByLocator(
-      const ELoc& locatorType,
-      Id locatorIndex = 0,
-      Id version = 0,
-      bool withVersion = false) const;
-    String
-      getNameByColIdx(Id icol, Id version = 0, bool withVersion = false) const;
+    String getName(ColID&& colid, bool withVersion = false) const;
     String
       getNameByUID(Id iuid, Id version = 0, bool withVersion = false) const;
-    String getName(const String& name, Id version = 0, bool withVersion = false)
-      const;
+
     VectorString getNames(const String& name) const;
     VectorString getNames(const VectorString& names) const;
     VectorString getNamesByLocator(const ELoc& locatorType) const;
@@ -1272,18 +1265,6 @@ namespace gstlrn
       _isCountValid(const VectorInt& iuids, bool flagOne, bool verbose = true)
         const;
 
-  public:
-    // This section is dedicated to smooth transition towards DbData
-    static ERole temporaryToRole(const ELoc& locatorType)
-    {
-      return ERole::fromKey(locatorType.getKey());
-    }
-
-    static ELoc temporaryToLocator(const ERole& role)
-    {
-      return ELoc::fromKey(role.getKey());
-    }
-
   protected:
     void _defineVariableAndLocators(
       const Db* dbin,
@@ -1320,5 +1301,15 @@ namespace gstlrn
     ELoc* ret_locatorType,
     Id* ret_locatorIndex,
     Id* ret_mult);
+
+  inline ERole toERole(const ELoc& locatorType)
+  {
+    return ERole::fromKey(locatorType.getKey());
+  }
+
+  inline ELoc toELoc(const ERole& role)
+  {
+    return ELoc::fromKey(role.getKey());
+  }
 
 } // namespace gstlrn

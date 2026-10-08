@@ -642,7 +642,7 @@ namespace gstlrn
       if (flagAddSampleRank && icol == 0) continue;
 
       // Skip the coordinates
-      String name = dbin->getNameByColIdx(icol);
+      String name = dbin->getName(icol);
       if (dbin->getLocatorByColIdx(icol, &locatorType, &locatorIndex, &mult))
       {
         if (locatorType == ELoc::X) continue;
@@ -1119,7 +1119,7 @@ namespace gstlrn
     // Check if the variable name already exists
     if (getNLoc(ELoc::X) > 0)
     {
-      String name = getNameByLocator(ELoc::X, idim);
+      String name = getName({toERole(ELoc::X), idim});
       return getOneSlice(name, posx, posy, corner, useSel, version);
     }
     // The variable does not exist, it must be generated on the fly
@@ -1555,7 +1555,7 @@ namespace gstlrn
     }
 
     // The variable corresponding to the selection is now set to the ELoc::Z variable
-    auto name = getNameByLocator(ELoc::SEL);
+    auto name = getName({toERole(ELoc::SEL), 0});
     setLocator(name, ELoc::Z);
 
     double vmin = 0.5;

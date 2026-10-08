@@ -99,7 +99,7 @@ def define_action(
         if db is None:
             return None
 
-        targetName = db.getNameByLocator(gl.ELoc.Z)
+        targetName = db.getName({gl.toERole(gl.ELoc.Z), 0})
         ndim = db.getNLoc(gl.ELoc.X)
         if ndim != 2:
             print("The 'db' should be 2-D (", ndim, ")")

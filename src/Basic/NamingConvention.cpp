@@ -431,7 +431,7 @@ namespace gstlrn
     if (db != nullptr)
     {
       if (db->getNLoc(ELoc::Z) > 0)
-        loc_varname = db->getNameByLocator(ELoc::Z, ivar);
+        loc_varname = db->getName({toERole(ELoc::Z), ivar});
     }
     else
     {

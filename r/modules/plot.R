@@ -331,11 +331,12 @@ plot.init <- function(dims = NA, xlim = NA, ylim = NA, asp = NA) {
   # If no variable is defined, return a variable name by default
   if (db$getNLoc(ELoc_Z()) > 0) {
     # Use the first Z-Locator variable (if defined)
-    return(db$getNameByLocator(ELoc_Z(), 0))
+    name = db$getName(c(toERole(ELoc_Z()), 0))
   } else {
     # Use the last defined variable
-    return(db$getLastName())
+    name = db$getLastName()
   }
+  return(name)
 
   # No solution is found, return an error
   cat("No variable name is provided. Procedure is aborted")
@@ -616,9 +617,9 @@ plot.init <- function(dims = NA, xlim = NA, ylim = NA, asp = NA) {
     y = dbgrid$getColumnByLocator(ELoc_X(), posY, FALSE, FALSE)
   } else {
     data = dbgrid$getOneSlice(name, posX, posY, corner, useSel, version)
-    nameX = dbgrid$getNameByLocator(ELoc_X(), posX)
+    nameX = dbgrid$getName(c(toERole(ELoc_X()), posX))
     x = dbgrid$getOneSlice(nameX, posX, posY, corner, FALSE)
-    nameY = dbgrid$getNameByLocator(ELoc_X(), posY)
+    nameY = dbgrid$getName(c(toERole(ELoc_X()), posY))
     y = dbgrid$getOneSlice(nameY, posX, posY, corner, FALSE)
   }
 

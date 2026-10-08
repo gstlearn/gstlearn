@@ -88,7 +88,7 @@ def _getDefaultVariableName(db, name):
     """
     if name is None:
         if db.getNLoc(gl.ELoc.Z) > 0:
-            name = db.getNameByLocator(gl.ELoc.Z, 0)
+            name = db.getName(gl.RoleID(gl.toERole(gl.ELoc.Z), 0))
         else:  # if no Z locator, choose the last field
             name = db.getLastName()
     else:
@@ -1078,7 +1078,7 @@ def _ax_symbol(
 
     # Define a default variable just for posting points
     if nameColor is None and nameSize is None:
-        nameSize = db.getNameByColIdx(0)
+        nameSize = db.getName(0)
         flagCst = True
 
     # Color of symbol
@@ -1827,8 +1827,8 @@ def _ax_grid1D(
 
     if name is None:
         if dbgrid.getNLoc(gl.ELoc.Z) > 0:
-            name = dbgrid.getNameByLocator(
-                gl.ELoc.Z, 0
+            name = dbgrid.getName(
+                gl.RoleID(gl.toERole(gl.ELoc.Z), 0)
             )  # select locator z1, prints an error if no Z locator
         else:  # if no Z locator, choose the last field
             name = dbgrid.getLastName()

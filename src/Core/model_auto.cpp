@@ -4349,7 +4349,7 @@ namespace gstlrn
     MatrixSymmetric aux(nvar);
     for (Id ivar = 0; ivar < nvar; ivar++)
     {
-      String name = dbmap->getNameByLocator(ELoc::Z, ivar);
+      String name = dbmap->getName({toERole(ELoc::Z), ivar});
       VectorDouble ranges = dbmap->getRange(name);
       aux.setValue(ivar, ivar, ranges[1] - ranges[0]);
     }

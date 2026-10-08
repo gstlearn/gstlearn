@@ -2550,7 +2550,7 @@ namespace gstlrn
     for (Id ivar = 0; ivar < nvar; ivar++)
     {
       if (ivar < db->getNLoc(ELoc::Z))
-        setVariableName(ivar, db->getNameByLocator(ELoc::Z, ivar));
+        setVariableName(ivar, db->getName({toERole(ELoc::Z), ivar}));
     }
 
     // Dispatch

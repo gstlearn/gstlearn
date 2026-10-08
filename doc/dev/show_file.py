@@ -24,7 +24,7 @@ def getVariableNames(db, ranks):
     names = []
     for i in ranks:
         if isnumeric(i):
-            name = db.getNameByColIdx(int(i))
+            name = db.getName(int(i))
         else:
             name = i
         names.append(name)

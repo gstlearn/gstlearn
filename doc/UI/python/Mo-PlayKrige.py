@@ -196,7 +196,9 @@ def cell_make_figure(
 
             result_axi = result_axes[result_i]
             result_targetName = (
-                result_data.getNameByLocator(gl.ELoc.Z, result_k) if result_data else ""
+                result_data.getName(gl.RoleID(gl.toERole(gl.ELoc.Z), result_k))
+                if result_data
+                else ""
             )
 
             if result_name == "data":
