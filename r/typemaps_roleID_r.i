@@ -1,6 +1,7 @@
 /* =========================================================================
  * Typemaps for gstlrn::RoleID (R Interface)
- * Safe heap allocation + freearg cleanup (Fixes macOS/Windows crashes)
+ * Fixes OBJSXP / ENVSXP unwrapping inside R lists for overload dispatch.
+ * Prevents memory buffer overread when converting ERole vs RoleID pointers.
  * ========================================================================= */
 
 %{
@@ -14,7 +15,7 @@
   #define SWIG_MAYBE_UNUSED
 #endif
 
-// Déclaration extern "C" pour éviter le name-mangling C++ sur l'API C de R
+// Declare C symbol explicitly to prevent C++ name mangling issues with R's C-API
 extern "C" {
     SEXP Rf_findVar(SEXP, SEXP);
 }
@@ -31,13 +32,13 @@ static inline SEXP unwrap_swig_r_obj(SEXP obj) {
     int type = TYPEOF(obj);
 
     if (type == ENVSXP) {
-        // Wrapper S3 SWIG : cherche .S3Type dans l'environnement
+        // SWIG S3 environment wrapper: search for .S3Type in the environment
         SEXP sym = Rf_install(".S3Type");
         SEXP ref = Rf_findVar(sym, obj);
         if (ref != R_UnboundValue) return ref;
     }
     else if (type == OBJSXP) {
-        // Wrapper S4 SWIG : extrait le slot "ref"
+        // SWIG S4 object wrapper: extract "ref" slot
         SEXP sym = Rf_install("ref");
         if (R_has_slot(obj, sym)) {
             return R_do_slot(obj, sym);
@@ -56,7 +57,7 @@ static inline SEXP unwrap_swig_r_obj(SEXP obj) {
     int type = TYPEOF(obj);
 
     if (type == VECSXP) {
-        // Valide s'il s'agit d'une liste R de longueur 2 : list(RoleID|ERole, index)
+        // Valid if it's an R list of length 2: list(RoleID|ERole, index)
         $1 = (Rf_length(obj) == 2) ? 1 : 0;
     } else if (type == ENVSXP || type == OBJSXP || type == EXTPTRSXP) {
         $1 = 1;
@@ -66,15 +67,15 @@ static inline SEXP unwrap_swig_r_obj(SEXP obj) {
 }
 
 // -------------------------------------------------------------------------
-// In Typemap : Allocation dynamique sécurisée
+// In Typemap
 // -------------------------------------------------------------------------
-%typemap(in) const gstlrn::RoleID&
+%typemap(in) const gstlrn::RoleID& (gstlrn::RoleID temp)
 {
     SEXP obj = $input;
     gstlrn::Id index = 0;
     bool has_custom_index = false;
 
-    // 1. Dépaquetage de la liste : list(RoleID|ERole, index)
+    // 1. Unpack list input: list(RoleID|ERole, index)
     if (TYPEOF(obj) == VECSXP)
     {
         if (Rf_length(obj) != 2)
@@ -93,7 +94,7 @@ static inline SEXP unwrap_swig_r_obj(SEXP obj) {
         index = static_cast<gstlrn::Id>(Rf_asInteger(second));
         has_custom_index = true;
 
-        // Extraction du pointeur natif (OBJSXP/ENVSXP -> EXTPTRSXP)
+        // Extract underlying native pointer (OBJSXP/ENVSXP -> EXTPTRSXP)
         obj = unwrap_swig_r_obj(first);
     }
     else
@@ -101,41 +102,44 @@ static inline SEXP unwrap_swig_r_obj(SEXP obj) {
         obj = unwrap_swig_r_obj(obj);
     }
 
-    // 2. Recherche des descripteurs de types SWIG
+    // 2. Query SWIG type descriptors
     static swig_type_info *type_RoleID = SWIG_TypeQuery("gstlrn::RoleID *");
     static swig_type_info *type_ERole  = SWIG_TypeQuery("gstlrn::ERole *");
 
     gstlrn::RoleID *roleID = nullptr;
     gstlrn::ERole  *role   = nullptr;
 
-    // 3. Tentative de conversion vers gstlrn::RoleID*
-    int res1 = SWIG_ConvertPtr(
+    // 3. MUST check ERole* FIRST!
+    // Attempting SWIG_ConvertPtr to RoleID* on an ERole* object causes a
+    // memory buffer overread (reading 48 bytes out of a 40-byte ERole object).
+    int res_role = SWIG_ConvertPtr(
         obj,
-        reinterpret_cast<void**>(&roleID),
-        type_RoleID ? type_RoleID : SWIGTYPE_p_gstlrn__RoleID,
+        reinterpret_cast<void**>(&role),
+        type_ERole ? type_ERole : SWIGTYPE_p_gstlrn__ERole,
         0);
 
-    if (SWIG_IsOK(res1) && roleID != nullptr)
+    if (SWIG_IsOK(res_role) && role != nullptr)
     {
-        gstlrn::RoleID *p_temp = new gstlrn::RoleID(*roleID);
-        if (has_custom_index)
-        {
-            p_temp->setIndex(index);
-        }
-        $1 = p_temp;
+        temp = gstlrn::RoleID(*role, index);
+        $1 = &temp;
     }
     else
     {
-        // 4. Tentative de conversion vers gstlrn::ERole*
-        int res2 = SWIG_ConvertPtr(
+        // 4. If not an ERole*, check for gstlrn::RoleID*
+        int res_roleID = SWIG_ConvertPtr(
             obj,
-            reinterpret_cast<void**>(&role),
-            type_ERole ? type_ERole : SWIGTYPE_p_gstlrn__ERole,
+            reinterpret_cast<void**>(&roleID),
+            type_RoleID ? type_RoleID : SWIGTYPE_p_gstlrn__RoleID,
             0);
 
-        if (SWIG_IsOK(res2) && role != nullptr)
+        if (SWIG_IsOK(res_roleID) && roleID != nullptr)
         {
-            $1 = new gstlrn::RoleID(*role, index);
+            temp = *roleID;
+            if (has_custom_index)
+            {
+                temp.setIndex(index);
+            }
+            $1 = &temp;
         }
         else
         {
@@ -145,16 +149,6 @@ static inline SEXP unwrap_swig_r_obj(SEXP obj) {
 }
 
 // -------------------------------------------------------------------------
-// Freearg Typemap : Libération mémoire garantie après l'appel C++
-// -------------------------------------------------------------------------
-%typemap(freearg) const gstlrn::RoleID&
-{
-    if ($1) {
-        delete $1;
-    }
-}
-
-// -------------------------------------------------------------------------
-// Application aux signatures par valeur (après les définitions)
+// Apply typemaps to value signatures (after definitions to avoid Warning 453)
 // -------------------------------------------------------------------------
 %apply const gstlrn::RoleID& { gstlrn::RoleID };
