@@ -74,7 +74,7 @@ Various ways to specify a column (e.g. for retreiving its name):
 - by RoleID and Version: VDS
 - by Role: VIS
 - by Role and Index: VIS
-- by Role and Index and Version: VIS
+- by Role and Index and Version: VIS.S1
 
 Checking the presence of the columns in the DbData:
 ===================================================

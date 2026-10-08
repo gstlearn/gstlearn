@@ -578,6 +578,7 @@ namespace gstlrn {
 }
 
 %include "typemaps_optional_r.i"
+%include "typemaps_roleID_r.i"
 %include "typemaps_colID_r.i"
 
 //////////////////////////////////////////////////////////////

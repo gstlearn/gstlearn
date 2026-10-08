@@ -44,6 +44,7 @@
 
 %include "typemaps_optional_python.i"
 %include "typemaps_colID_python.i"
+%include "typemaps_roleID_python.i"
 
 %begin %{
 // For converting NumPy integers to C++ integers

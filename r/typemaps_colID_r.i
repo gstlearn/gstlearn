@@ -1,8 +1,23 @@
 /***************************************************************************/
 /*                                                                         */
-/*  Typemap SWIG simple pour gstlrn::ColID&&                               */
+/*  R typemap for gstlrn::ColID&&                                          */
 /*                                                                         */
-/*  VERSION V17 - OPTIMIZED                                                */
+/*  Accepted R objects:                                                    */
+/*                                                                         */
+/*      "name"                    -> ColID("name")                         */
+/*      list("name", version)     -> ColID("name", version)                */
+/*                                                                         */
+/*      icol                      -> ColID(icol)                           */
+/*      list(icol, version)       -> ColID(icol, version)                  */
+/*                                                                         */
+/*      RoleID(...)               -> ColID(RoleID(...))                    */
+/*      list(RoleID(...), version)-> ColID(RoleID(...), version)           */
+/*                                                                         */
+/*      ERole                     -> ColID(ERole, index=0, version=0)      */
+/*      list(ERole, index)        -> ColID(ERole, index, version=0)        */
+/*                                                                         */
+/*      ColID(...)                -> copy constructor                      */
+/*      list(ColID(...), version) -> ColID(ColID(...), version)            */
 /*                                                                         */
 /***************************************************************************/
 
@@ -15,7 +30,7 @@
     gstlrn::Id version = 0;
 
     /* ================================================================== */
-    /* 1. Liste de deux éléments                                          */
+    /* 1. Two-element list                                                */
     /* ================================================================== */
 
     if (TYPEOF(obj) == VECSXP && LENGTH(obj) == 2)
@@ -36,7 +51,7 @@
         }
 
         /*
-         * list(ERole, Id) représente un RoleID :
+         * list(ERole, Id) represents a RoleID:
          *     list(ERole_Z(), 0) -> RoleID(ERole_Z(), 0) -> ColID(RoleID, version=0)
          */
         if (Rf_inherits(target, "_p_gstlrn__ERole"))
@@ -45,17 +60,17 @@
         }
         else
         {
-            /* Pour ColID ou RoleID, le second élément représente la version */
+            /* For ColID or RoleID, the second element represents the version */
             version = val;
         }
     }
 
     /* ================================================================== */
-    /* 2. Diagnostic général (ignoré en release)                        */
+    /* 2. General diagnostic (ignored in release)                        */
     /* ================================================================== */
 
     /* ================================================================== */
-    /* 3. Nom de colonne                                                 */
+    /* 3. Column name                                                     */
     /* ================================================================== */
 
     const SEXPTYPE target_type = TYPEOF(target);
@@ -70,7 +85,7 @@
     }
 
     /* ================================================================== */
-    /* 4. External pointer direct                                        */
+    /* 4. Direct external pointer                                         */
     /* ================================================================== */
 
     else if (target_type == EXTPTRSXP)
@@ -108,7 +123,7 @@
             }
             else
             {
-                Rf_error("Impossible de récupérer le pointeur C++ de ColID");
+                Rf_error("Cannot extract C++ pointer for ColID");
             }
         }
 
@@ -127,7 +142,7 @@
             }
             else
             {
-                Rf_error("Impossible de récupérer le pointeur C++ de RoleID");
+                Rf_error("Cannot extract C++ pointer for RoleID");
             }
         }
 
@@ -146,22 +161,22 @@
             }
             else
             {
-                Rf_error("Impossible de récupérer le pointeur C++ de ERole");
+                Rf_error("Cannot extract C++ pointer for ERole");
             }
         }
 
         /* -------------------------------------------------------------- */
-        /* 4d. Tag inconnu                                                */
+        /* 4d. Unknown tag                                                */
         /* -------------------------------------------------------------- */
 
         else
         {
-            Rf_error("External pointer SWIG inconnu : impossible de déterminer ColID, RoleID ou ERole");
+            Rf_error("Unknown SWIG external pointer: unable to determine ColID, RoleID or ERole");
         }
     }
 
     /* ================================================================== */
-    /* 5. ERole S4                                                       */
+    /* 5. S4 ERole                                                       */
     /* ================================================================== */
 
     else if (Rf_inherits(target, "_p_gstlrn__ERole"))
@@ -181,12 +196,12 @@
         }
         else
         {
-            Rf_error("Impossible de récupérer le pointeur C++ de ERole");
+            Rf_error("Cannot extract C++ pointer for ERole");
         }
     }
 
     /* ================================================================== */
-    /* 6. ColID S4                                                       */
+    /* 6. S4 ColID                                                       */
     /* ================================================================== */
 
     else if (Rf_inherits(target, "_p_gstlrn__ColID"))
@@ -207,12 +222,12 @@
         }
         else
         {
-            Rf_error("Impossible de récupérer le pointeur C++ de ColID");
+            Rf_error("Cannot extract C++ pointer for ColID");
         }
     }
 
     /* ================================================================== */
-    /* 7. RoleID S4                                                      */
+    /* 7. S4 RoleID                                                      */
     /* ================================================================== */
 
     else if (Rf_inherits(target, "_p_gstlrn__RoleID"))
@@ -232,12 +247,12 @@
         }
         else
         {
-            Rf_error("Impossible de récupérer le pointeur C++ de RoleID");
+            Rf_error("Cannot extract C++ pointer for RoleID");
         }
     }
 
     /* ================================================================== */
-    /* 8. Index brut                                                     */
+    /* 8. Raw index                                                      */
     /* ================================================================== */
 
     else if ((target_type == INTSXP || target_type == REALSXP) && LENGTH(target) > 0)
@@ -250,12 +265,12 @@
     }
 
     /* ================================================================== */
-    /* 9. Échec                                                          */
+    /* 9. Failure                                                         */
     /* ================================================================== */
 
     else
     {
-        Rf_error("Impossible de convertir l'objet R en ColID");
+        Rf_error("Cannot convert R object to ColID");
     }
 
     $1 = temp_colid;
