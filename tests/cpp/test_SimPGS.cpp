@@ -92,7 +92,7 @@ int main(int argc, char* argv[])
   // Perform a non-conditional PGS simulation on a grid
 
   (void)simpgs(nullptr, dbgrid, ruleprop1, model1, model2, neighU, nbsimu);
-  dbgrid->setNameByLocator(ELoc::FACIES, "PGS-Facies");
+  dbgrid->setName(toERole(ELoc::FACIES), "PGS-Facies");
   dbfmt = DbStringFormat(FLAG_STATS, {"PGS-Facies*"});
   dbgrid->display(&dbfmt);
   (void)dbgrid->dumpToNF("simupgs.NF");
@@ -108,7 +108,7 @@ int main(int argc, char* argv[])
   (void)simbipgs(
     nullptr, dbgrid, rulepropbi, model1, model2, model3, model4, neighU,
     nbsimu);
-  dbgrid->setNameByLocator(ELoc::FACIES, "BiPGS-Facies");
+  dbgrid->setName(toERole(ELoc::FACIES), "BiPGS-Facies");
   dbfmt = DbStringFormat(FLAG_STATS, {"BiPGS-Facies*"});
   dbgrid->display(&dbfmt);
   (void)dbgrid->dumpToNF("simubipgs.NF");
@@ -132,7 +132,7 @@ int main(int argc, char* argv[])
 
   // Perform a non-conditional PGS Shift simulation on a grid
   (void)simpgs(nullptr, dbgrid, rulepropshift, model1, nullptr, neighU, nbsimu);
-  dbgrid->setNameByLocator(ELoc::FACIES, "PGS-Shift-Facies");
+  dbgrid->setName(toERole(ELoc::FACIES), "PGS-Shift-Facies");
   dbfmt = DbStringFormat(FLAG_STATS, {"PGS-Shift-Facies*"});
   dbgrid->display(&dbfmt);
   (void)dbgrid->dumpToNF("simushiftpgs.NF");
@@ -151,7 +151,7 @@ int main(int argc, char* argv[])
   // Perform a non-conditional PGS Shadow simulation on a grid
   (void)
     simpgs(nullptr, dbgrid, rulepropshadow, model1, nullptr, neighU, nbsimu);
-  dbgrid->setNameByLocator(ELoc::FACIES, "PGS-Shadow-Facies");
+  dbgrid->setName(toERole(ELoc::FACIES), "PGS-Shadow-Facies");
   dbfmt = DbStringFormat(FLAG_STATS, {"PGS-Shadow-Facies*"});
   dbgrid->display(&dbfmt);
   (void)dbgrid->dumpToNF("simushadowpgs.NF");

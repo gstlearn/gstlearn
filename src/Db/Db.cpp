@@ -3512,11 +3512,6 @@ namespace gstlrn
     return _data.getName(std::move(colid_copy), withVersion);
   }
 
-  String Db::getName2(ColID&& colid, bool withVersion) const
-  {
-    return _data.getName(std::move(colid), withVersion);
-  }
-
   GSTLEARN_DEPRECATED String
     Db::getNameByUID(Id iuid, Id version, bool withVersion) const
   {
@@ -3567,46 +3562,23 @@ namespace gstlrn
     return names;
   }
 
-  void Db::setNameByUID(Id iuid, const String& name)
+  void Db::setName(const ColID& colid, const String& name)
   {
-    auto icol = getColIdxByUID(iuid);
-    if (icol < 0) return;
-    _data.setName(icol, name);
+    ColID colid_copy = colid;
+    _data.setName(std::move(colid_copy), name);
   }
 
-  void Db::setNameByColIdx(Id icol, const String& name)
+  GSTLEARN_DEPRECATED void Db::setNameByUID(Id iuid, const String& name)
   {
-    _data.setName(icol, name);
+    setName(fromUID(iuid), name);
   }
 
-  void Db::setName(const String& old_name, const String& name)
-  {
-    auto icol = _data.getICol(old_name);
-    if (icol < 0) return;
-    _data.setName(icol, name);
-  }
-
-  void Db::setName(const VectorString& list, const String& name)
+  void Db::setNames(const VectorString& list, const String& name)
   {
     auto count = static_cast<Id>(list.size());
     for (Id i = 0; i < count; i++)
     {
       auto icol = _data.getICol(list[i]);
-      if (icol < 0) continue;
-      auto newName = name;
-      if (count > 1) newName = generateOneName(name, i + 1);
-      _data.setName(icol, newName);
-    }
-  }
-
-  void Db::setNameByLocator(const ELoc& locatorType, const String& name)
-  {
-    auto colIDs = _data.getColIDs(toERole(locatorType));
-    Id count = colIDs.size();
-    if (count <= 0) return;
-    for (Id i = 0; i < count; i++)
-    {
-      auto icol = _data.getICol(std::move(colIDs[i]));
       if (icol < 0) continue;
       auto newName = name;
       if (count > 1) newName = generateOneName(name, i + 1);
@@ -5288,7 +5260,7 @@ namespace gstlrn
       // Update the column names and locators
       for (Id icol = 0; icol < ncol; icol++)
       {
-        setNameByColIdx(icol, names[icol]);
+        setName(icol, names[icol]);
         setLocatorByColIdx(icol, tabloc[icol], tabnum[icol]);
       }
     }

@@ -135,7 +135,7 @@ namespace gstlrn
         // Check against the existence of a target variable
         if (!_iptrZ.empty())
         {
-          double value = _db->getValue(_iptrZ[ivar], static_cast<Id>(iabs));
+          value = _db->getValue(_iptrZ[ivar], static_cast<Id>(iabs));
           if (FFFF(value))
           {
             _elligible.setValue(ivar, iabs, false);

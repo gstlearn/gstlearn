@@ -290,7 +290,6 @@ namespace gstlrn
     }
 
     String getName(const ColID& colid, bool withVersion = false) const;
-    String getName2(ColID&& colid, bool withVersion = false) const;
     String
       getNameByUID(Id iuid, Id version = 0, bool withVersion = false) const;
 
@@ -299,11 +298,11 @@ namespace gstlrn
     VectorString getNamesByLocator(const ELoc& locatorType) const;
     VectorString getNamesByColIdx(const VectorInt& icols) const;
     VectorString getNamesByUID(const VectorInt& iuids) const;
-    void setName(const String& old_name, const String& name);
-    void setName(const VectorString& list, const String& name);
-    void setNameByLocator(const ELoc& locatorType, const String& name);
-    void setNameByColIdx(Id icol, const String& name);
+
+    void setName(const ColID& colid, const String& name);
     void setNameByUID(Id iuid, const String& name);
+
+    void setNames(const VectorString& list, const String& name);
 
     Id getColIdx(const String& name) const;
     Id getColIdxByUID(Id iuid) const;
