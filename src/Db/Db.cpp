@@ -3512,7 +3512,13 @@ namespace gstlrn
     return _data.getName(std::move(colid_copy), withVersion);
   }
 
-  String Db::getNameByUID(Id iuid, Id version, bool withVersion) const
+  String Db::getName2(ColID&& colid, bool withVersion) const
+  {
+    return _data.getName(std::move(colid), withVersion);
+  }
+
+  GSTLEARN_DEPRECATED String
+    Db::getNameByUID(Id iuid, Id version, bool withVersion) const
   {
     return getName(fromUID(iuid, version), withVersion);
   }

@@ -290,9 +290,7 @@ namespace gstlrn
     }
 
     String getName(const ColID& colid, bool withVersion = false) const;
-#ifndef SWIG
-    [[deprecated("Use getName(ColID) instead.")]]
-#endif
+    String getName2(ColID&& colid, bool withVersion = false) const;
     String
       getNameByUID(Id iuid, Id version = 0, bool withVersion = false) const;
 
