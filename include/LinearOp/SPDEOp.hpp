@@ -115,6 +115,11 @@ namespace gstlrn
       const MatrixDense& driftMat,
       const VectorDouble& driftCoeffs);
     static Id centerDataByMeanVec(VectorDouble& Z, const VectorDouble& meanVec);
+    double loglikelihood(
+      const VectorDouble& Z,
+      Id nmc = 1,
+      Id seed = 134343,
+      bool verbose = false) const;
 
     void setVerbose(bool v) { _verbose = v; }
 
