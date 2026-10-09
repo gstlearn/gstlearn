@@ -768,7 +768,7 @@ namespace gstlrn
         double total = coeffs[0];
         for (Id ivar = 0; ivar < nb_est; ivar++)
         {
-          double value = db->getArray(iech, cols_est[ivar]);
+          double value = db->getValue(db->fromUID(cols_est[ivar]), iech);
           total += coeffs[ivar + 1] * value;
         }
         zestim = total;
@@ -789,7 +789,7 @@ namespace gstlrn
           double value = 1.0;
           if (ivar < nb_std)
           {
-            value = db->getArray(iech, cols_std[ivar]);
+            value = db->getValue(db->fromUID(cols_std[ivar]), iech);
           }
           total += coeffs[ivar + 1] * coeffs[ivar + 1] * value * value;
         }
@@ -812,7 +812,7 @@ namespace gstlrn
             double total = s_cc[0];
             for (Id ivar = 0; ivar < nb_est; ivar++)
             {
-              double value = db->getArray(iech, cols_est[ivar]);
+              double value = db->getValue(db->fromUID(cols_est[ivar]), iech);
               total += s_cc[ivar + 1] * value;
             }
             selectivity->setTest(icut, total);
@@ -828,7 +828,7 @@ namespace gstlrn
               double value = 1.0;
               if (ivar < nb_std)
               {
-                value = db->getArray(iech, cols_std[ivar]);
+                value = db->getValue(db->fromUID(cols_std[ivar]), iech);
               }
               total += s_cc[ivar + 1] * s_cc[ivar + 1] * value * value;
             }
@@ -847,7 +847,7 @@ namespace gstlrn
             double total = s_cc[0];
             for (Id ivar = 0; ivar < nb_est; ivar++)
             {
-              double value = db->getArray(iech, cols_est[ivar]);
+              double value = db->getValue(db->fromUID(cols_est[ivar]), iech);
               total += s_cc[ivar + 1] * value;
             }
             selectivity->setQest(icut, total);
@@ -863,7 +863,7 @@ namespace gstlrn
               double value = 1.0;
               if (ivar < nb_std)
               {
-                value = db->getArray(iech, cols_std[ivar]);
+                value = db->getValue(db->fromUID(cols_std[ivar]), iech);
               }
               total += s_cc[ivar + 1] * s_cc[ivar + 1] * value * value;
             }

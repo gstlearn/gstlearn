@@ -55,7 +55,7 @@ namespace gstlrn
       {
         for (Id i = 0; i < _dbgrid->getNDim(); i++)
           fprintf(_file, "%lf,", _dbgrid->getCoordinate(lec, i));
-        double value = _dbgrid->getArray(lec, _cols[0]);
+        double value = _dbgrid->getValue(_dbgrid->fromUID(_cols[0]), lec);
         if (FFFF(value))
           fprintf(_file, "1E+30\n");
         else

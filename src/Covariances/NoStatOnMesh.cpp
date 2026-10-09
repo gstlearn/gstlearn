@@ -9,16 +9,17 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Covariances/NoStatOnMesh.hpp"
-#include "Basic/VectorHelper.hpp"
+
 #include "Db/Db.hpp"
 #include "geoslib_define.h"
+#include <utility>
 
 namespace gstlrn
 {
   NoStatOnMesh::NoStatOnMesh(
     std::shared_ptr<const Db> dbref,
     const String& colname)
-    : NoStatArray(dbref, colname)
+    : NoStatArray(std::move(dbref), colname)
   {
   }
 
@@ -55,7 +56,7 @@ namespace gstlrn
 
     for (Id iech = 0; iech < nech; iech++)
     {
-      tab[iech] = _dbNoStat->getArray(iech, iatt);
+      tab[iech] = _dbNoStat->getValue(_dbNoStat->fromUID(iatt), iech);
     }
   }
 

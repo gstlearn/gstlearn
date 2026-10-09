@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "DataBase/ColID.hpp"
+#include "Basic/Message.hpp"
 
 namespace gstlrn
 {
@@ -113,6 +114,14 @@ namespace gstlrn
     ColID res(colid);
     if (version != 0) res.setVersion(version);
     return res;
+  }
+
+  void ColID::dump() const
+  {
+    message("Name: %s\n", getDescr().c_str());
+    message("Column Index = %d\n", _icol);
+    message("Role = %s\n", _roleID.getName().c_str());
+    message("Version = %d\n", _version);
   }
 
 } // namespace gstlrn

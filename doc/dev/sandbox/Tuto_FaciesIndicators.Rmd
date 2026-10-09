@@ -182,7 +182,7 @@ Calculate the connected components for each facies.
 
 ```{r connected_components}
 eps = 0.5
-compnum = grid$getColumnByUID(att_simu)
+compnum = grid$getColumn(grid$fromUID(att_simu))
 for (fac in ufacies) {
     vmin = fac - eps
     vmax = fac + eps

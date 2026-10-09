@@ -26,13 +26,15 @@
 
 #define ARRAY(ix, iy) (array[(iy) * NX + (ix)])
 #define LIMIT(ix, iy) (limit[(iy) * NX + (ix)])
-#define VV(itr, iz) (db_v->getArray(iatt_v, NTRACE * (iz) + itr) / VFACT)
+#define VV(itr, iz)                                                            \
+  (db_v->getValue(db_v->fromUID(iatt_v), NTRACE * (iz) + itr) / VFACT)
 #define LB(ivar, jvar) (lb[(jvar) * NVAR + (ivar)])
 #define IND(iech, ivar) ((iech) + (ivar) * nech)
 #define RHS(i, iv, jv) (rhs[IND(i, iv) + neqmax * (jv)])
 #define ARRAY(ix, iy) (array[(iy) * NX + (ix)])
 #define LIMIT(ix, iy) (limit[(iy) * NX + (ix)])
-#define VV(itr, iz) (db_v->getArray(iatt_v, NTRACE * (iz) + itr) / VFACT)
+#define VV(itr, iz)                                                            \
+  (db_v->getValue(db_v->fromUID(iatt_v), NTRACE * (iz) + itr) / VFACT)
 #define LB(ivar, jvar) (lb[(jvar) * NVAR + (ivar)])
 
 /*! \endcond */
@@ -570,7 +572,7 @@ namespace gstlrn
 
     /* Read the velocity variable */
 
-    VectorDouble vv = db_z->getColumnByUID(iatt_v);
+    VectorDouble vv = db_z->getColumn(db_z->fromUID(iatt_v));
     if (st_velocity_minmax(nech, vv.data(), &v0, &v1, &vmin, &vmax)) return 1;
 
     /* Update the vertical direction */
@@ -641,7 +643,7 @@ namespace gstlrn
 
     /* Read the velocity variable */
 
-    VectorDouble vv = db_t->getColumnByUID(iatt_v);
+    VectorDouble vv = db_t->getColumn(db_t->fromUID(iatt_v));
     if (st_velocity_minmax(nech, vv.data(), &v0, &v1, &vmin, &vmax)) return 1;
 
     /* Update the vertical direction */
@@ -691,12 +693,12 @@ namespace gstlrn
     {
       case 0: /* Copy from Db into array */
         for (Id i = 0; i < nval; i++)
-          tab[i] = db->getArray(nby * i + ival, iatt);
+          tab[i] = db->getValue(db->fromUID(iatt), nby * i + ival);
         break;
 
       case 1: /* Copy from array into Db */
         for (Id i = 0; i < nval; i++)
-          db->setArray(iatt + nby * i + ival, iatt, tab[i]);
+          db->setValue(db->fromUID(iatt), iatt + nby * i + ival, tab[i]);
         break;
     }
   }
@@ -960,7 +962,8 @@ namespace gstlrn
    *****************************************************************************/
   static double TR_IN(Db* db, Id iatt_in, Id iatt, Id itrace, Id it)
   {
-    return (db->getArray(iatt_in + iatt, NTRACE * (it) + (itrace)));
+    return (
+      db->getValue(db->fromUID(iatt_in + iatt), NTRACE * (it) + (itrace)));
   }
 
   /****************************************************************************/
@@ -977,7 +980,7 @@ namespace gstlrn
    *****************************************************************************/
   static void TR_OUT(Db* db, Id iatt_out, Id iatt, Id itr, Id it, double value)
   {
-    db->setArray(iatt_out + iatt, NTRACE * (it) + (itr), value);
+    db->setValue(db->fromUID(iatt_out + iatt), NTRACE * (it) + (itr), value);
   }
 
   /****************************************************************************/
@@ -1554,7 +1557,7 @@ namespace gstlrn
 
     iatt_t = db_t->addColumnsByConstant(natt, 1, 0.);
     if (iatt_t < 0) goto label_end;
-    iatt_z = db_z->getUIDByLocator(ELoc::Z, 0);
+    iatt_z = db_z->getUID({ERole::Z, 0});
 
     /* Core allocation */
 
@@ -1622,7 +1625,7 @@ namespace gstlrn
 
     iatt_z = db_z->addColumnsByConstant(natt, 1, 0.);
     if (iatt_z < 0) goto label_end;
-    iatt_t = db_t->getUIDByLocator(ELoc::Z, 0);
+    iatt_t = db_t->getUID({ERole::Z, 0});
 
     /* Core allocation */
 
@@ -1673,7 +1676,7 @@ namespace gstlrn
 
     /* Create the output variables */
 
-    iatt_in = db->getUIDByLocator(ELoc::Z, 0);
+    iatt_in = db->getUID({ERole::Z, 0});
     if (iatt_in < 0) return (1);
     iatt_out = db->addColumnsByConstant(natt, 1, 0.);
     if (iatt_out < 0) return (1);
@@ -1845,7 +1848,7 @@ namespace gstlrn
     /* Create the output variables */
 
     error = 1;
-    iatt_in = db->getUIDByLocator(ELoc::Z, 0);
+    iatt_in = db->getUID({ERole::Z, 0});
     if (iatt_in < 0) return (1);
     iatt_out = db->addColumnsByConstant(natt, 1, 0.);
     if (iatt_out < 0) return (1);
@@ -2009,9 +2012,9 @@ namespace gstlrn
 
     /* Read the new values */
 
-    v1 = db->getArray(iech, iatt_z1);
+    v1 = db->getValue(db->fromUID(iatt_z1), iech);
     if (flag_test == 1 && FFFF(v1)) return;
-    v2 = db->getArray(iech, iatt_z2);
+    v2 = db->getValue(db->fromUID(iatt_z2), iech);
     if (flag_test == 2 && FFFF(v2)) return;
     if (flag_test == 0 && FFFF(v1) && FFFF(v2)) return;
 
@@ -2057,7 +2060,7 @@ namespace gstlrn
       for (iz = 0; iz < NZ; iz++)
       {
         iech = st_absolute_index(db, ix, iz);
-        if (!FFFF(db->getZVariable(iech, ivar))) presence[ix]++;
+        if (!FFFF(db->getValue({ERole::Z, ivar}, iech))) presence[ix]++;
       }
       if (presence[ix] > 0) (*npres)++;
     }
@@ -2789,7 +2792,7 @@ namespace gstlrn
           value = (jvar == 0) ? ngh->v1_ngh[i] : ngh->v2_ngh[i];
           result += wgt.getValue(lec++, ivar) * value;
         }
-      db->setArray(IECH_OUT, iatt_est[ivar], result);
+      db->setValue(db->fromUID(iatt_est[ivar]), IECH_OUT, result);
 
       /* Variance of estimation */
 
@@ -2800,7 +2803,7 @@ namespace gstlrn
         for (i = 0; i < nred; i++)
           stdev -= rhs.getValue(lec + i, ivar) * wgt.getValue(lec + i, ivar);
         stdev = (stdev > 0) ? sqrt(stdev) : 0.;
-        db->setArray(IECH_OUT, iatt_std[ivar], stdev);
+        db->setValue(db->fromUID(iatt_std[ivar]), IECH_OUT, stdev);
       }
 
       if (OptDbg::query(EDbg::RESULTS))
@@ -2883,7 +2886,7 @@ namespace gstlrn
             if (!flag[jvar * nech + i]) continue;
             iech =
               st_absolute_index(db, ix0 + ngh->ix_ngh[i], iz0 + ngh->iz_ngh[i]);
-            value = db->getArray(iech, iatt_sim[jvar] + isimu);
+            value = db->getValue(db->fromUID(iatt_sim[jvar] + isimu), iech);
             result[ivar] += wgt.getValue(lec++, ivar) * value;
           }
       }
@@ -2893,9 +2896,9 @@ namespace gstlrn
       sigma1 = c00.getValue(0, 0) - LB(0, 0);
       sigma2 = c00.getValue(1, 1) - LB(1, 1);
 
-      z2 = db->getArray(IECH_OUT, iatt_sim[1] + isimu);
+      z2 = db->getValue(db->fromUID(iatt_sim[1] + isimu), IECH_OUT);
       if (FFFF(z2)) z2 = result[1] + sqrt(MAX(0, sigma2)) * law_gaussian();
-      z1 = db->getArray(IECH_OUT, iatt_sim[0] + isimu);
+      z1 = db->getValue(db->fromUID(iatt_sim[0] + isimu), IECH_OUT);
       if (FFFF(z1) && sigma2 > 0)
       {
         l0 = (c00.getValue(0, 1) - LB(0, 1)) / sigma2;
@@ -2910,7 +2913,8 @@ namespace gstlrn
 
       for (ivar = 0; ivar < NVAR; ivar++)
       {
-        db->setArray(IECH_OUT, iatt_sim[ivar] + isimu, result[ivar]);
+        db->setValue(
+          db->fromUID(iatt_sim[ivar] + isimu), IECH_OUT, result[ivar]);
 
         if (OptDbg::query(EDbg::RESULTS))
         {
@@ -3027,8 +3031,8 @@ namespace gstlrn
     DX = db->getDX(0);
     DZ = db->getDX(2);
     NVAR = db->getNLoc(ELoc::Z);
-    iatt_z1 = db->getUIDByLocator(ELoc::Z, 0);
-    iatt_z2 = db->getUIDByLocator(ELoc::Z, 1);
+    iatt_z1 = db->getUID({ERole::Z, 0});
+    iatt_z2 = db->getUID({ERole::Z, 1});
 
     if (NX <= 1 || NY != 1 || NZ <= 1)
     {
@@ -3166,8 +3170,8 @@ namespace gstlrn
     for (i = 0; i < 2; i++)
     {
       presence[i].clear();
-      if (error && iatt_est[i] >= 0) db->deleteColumnByUID(iatt_est[i]);
-      if (error && iatt_std[i] >= 0) db->deleteColumnByUID(iatt_std[i]);
+      if (error && iatt_est[i] >= 0) db->deleteColumn(db->fromUID(iatt_est[i]));
+      if (error && iatt_std[i] >= 0) db->deleteColumn(db->fromUID(iatt_std[i]));
     }
     (void)krige_koption_manage(-1, 1, EKrigOpt::POINT, 1, VectorInt());
     st_estimate_neigh_management(-1, nvois, ngh_cur);
@@ -3203,12 +3207,12 @@ namespace gstlrn
 
       for (iech = 0; iech < nech; iech++)
       {
-        value = db->getZVariable(iech, ivar);
+        value = db->getValue({ERole::Z, ivar}, iech);
 
         /* Loop on the simulations */
 
         for (isimu = 0; isimu < nbsimu; isimu++)
-          db->setArray(iech, iatt[ivar] + isimu, value);
+          db->setValue(db->fromUID(iatt[ivar] + isimu), iech, value);
       }
     }
   }
@@ -3421,7 +3425,7 @@ namespace gstlrn
       presence[i].clear();
       if (error)
         for (isimu = 0; isimu < nbsimu; isimu++)
-          db->deleteColumnByUID(iatt_sim[i] + isimu);
+          db->deleteColumn(db->fromUID(iatt_sim[i] + isimu));
     }
     st_estimate_neigh_management(-1, nvois, ngh_cur);
     st_estimate_neigh_management(-1, nvois, ngh_old);

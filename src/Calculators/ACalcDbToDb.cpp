@@ -186,7 +186,7 @@ namespace gstlrn
 
   String ACalcDbToDb::_identifyVariable(Id iuid) const
   {
-    return _dbin->getNameByUID(iuid);
+    return _dbin->getName(_dbin->fromUID(iuid));
   }
 
   /**
@@ -294,7 +294,7 @@ namespace gstlrn
       if (!_listVariablePermDbIn.empty())
       {
         for (Id i = 0; i < static_cast<Id>(_listVariablePermDbIn.size()); i++)
-          _dbin->deleteColumnByUID(_listVariablePermDbIn[i]);
+          _dbin->deleteColumn(_dbin->fromUID(_listVariablePermDbIn[i]));
       }
       _listVariablePermDbIn.clear();
 
@@ -303,7 +303,7 @@ namespace gstlrn
       {
         for (Id i = 0; i < static_cast<Id>(_listVariablePermDbOut.size()); i++)
         {
-          _dbout->deleteColumnByUID(_listVariablePermDbOut[i]);
+          _dbout->deleteColumn(_dbout->fromUID(_listVariablePermDbOut[i]));
         }
       }
       _listVariablePermDbOut.clear();
@@ -315,7 +315,7 @@ namespace gstlrn
       if (n_in > 0)
       {
         for (Id i = 0; i < n_in; i++)
-          _dbin->deleteColumnByUID(_listVariableTempDbIn[i]);
+          _dbin->deleteColumn(_dbin->fromUID(_listVariableTempDbIn[i]));
         _listVariableTempDbIn.clear();
       }
 
@@ -324,7 +324,7 @@ namespace gstlrn
       if (n_out > 0)
       {
         for (Id i = 0; i < n_out; i++)
-          _dbout->deleteColumnByUID(_listVariableTempDbOut[i]);
+          _dbout->deleteColumn(_dbout->fromUID(_listVariableTempDbOut[i]));
         _listVariableTempDbOut.clear();
       }
     }

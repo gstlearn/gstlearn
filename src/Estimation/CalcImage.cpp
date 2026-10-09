@@ -167,7 +167,7 @@ namespace gstlrn
     VectorInt local(ndim);
     for (Id iech = 0; iech < nech; iech++)
     {
-      if (FFFF(dblocal->getZVariable(iech, 0))) continue;
+      if (FFFF(dblocal->getValue({ERole::Z, 0}, iech))) continue;
 
       // The sample is valid, get its indices
       dblocal->rankToIndice(iech, local);
@@ -267,8 +267,9 @@ namespace gstlrn
       Id ecr = 0;
       for (Id ivar = 0; ivar < nvar; ivar++)
         for (Id jvar = 0; jvar < nvar; jvar++, ecr++)
-          dbgrid->setArray(
-            iadd, iuid + ecr, wgt.getValue(nbneigh * jvar + ineigh, ivar));
+          dbgrid->setValue(
+            dbgrid->fromUID(iuid + ecr), iadd,
+            wgt.getValue(nbneigh * jvar + ineigh, ivar));
     }
 
     // Optional printout
@@ -395,7 +396,7 @@ namespace gstlrn
       double total = 0.;
       for (Id iech = 0; iech < nb_neigh; iech++)
       {
-        if (FFFF(dbaux->getZVariable(iech, 0))) continue;
+        if (FFFF(dbaux->getValue({ERole::Z, 0}, iech))) continue;
         dbaux->rankToIndice(iech, indnl);
         double d2 = 0.;
         for (Id i = 0; i < ndim; i++)
@@ -408,7 +409,7 @@ namespace gstlrn
         }
 
         Id jech = dbgrid->indiceToRank(indgl);
-        double data = dbgrid->getZVariable(jech, 0);
+        double data = dbgrid->getValue({ERole::Z, 0}, jech);
         if (!FFFF(data))
         {
           double weight = (type == 1) ? 1. : exp(-d2 / r2);
@@ -417,7 +418,7 @@ namespace gstlrn
         }
       }
       estim = (total <= 0.) ? TEST : estim / total;
-      dbgrid->setArray(iech_out, iptr0, estim);
+      dbgrid->setValue(dbgrid->fromUID(iptr0), iech_out, estim);
     }
   }
 

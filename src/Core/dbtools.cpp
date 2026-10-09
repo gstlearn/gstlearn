@@ -334,10 +334,10 @@ namespace gstlrn
 
       /* Keep sample defined by locator */
 
-      double cote = db->getFromLocator(ptype, iech);
+      double cote = db->getValue({toERole(ptype), 0}, iech);
       if (!FFFF(cote))
       {
-        Id layer = db->getFromLocator(ELoc::LAYER, iech);
+        Id layer = db->getValue({ERole::LAYER}, iech);
         xs.resize(ns + 1);
         ys.resize(ns + 1);
         lys.resize(ns + 1);
@@ -355,8 +355,8 @@ namespace gstlrn
 
       for (Id ivar = 0; ivar < nvar; ivar++)
       {
-        bound[0] = db->getLocVariable(ELoc::L, iech, ivar);
-        bound[1] = db->getLocVariable(ELoc::U, iech, ivar);
+        bound[0] = db->getValue({ERole::L, ivar}, iech);
+        bound[1] = db->getValue({ERole::U, ivar}, iech);
         for (Id ib = 0; ib < 2; ib++)
         {
           if (FFFF(bound[ib])) continue;
@@ -514,7 +514,7 @@ namespace gstlrn
       for (Id jg = 0, ng = dbgrid->getNSampleActive(); jg < ng; jg++)
       {
         if (!dbgrid->isActiveAndDefined(jg, 0)) continue;
-        double densloc = dbgrid->getZVariable(jg, 0);
+        double densloc = dbgrid->getValue({ERole::Z, 0}, jg);
         if (densloc >= 0) denstot += densloc;
         dens[ig++] = denstot;
       }
@@ -546,7 +546,7 @@ namespace gstlrn
         for (Id ig = 0; ig < ngrid && indip < 0; ig++)
         {
           if (!dbgrid->isActive(ig)) continue;
-          double densloc = dbgrid->getZVariable(ig, 0);
+          double densloc = dbgrid->getValue({ERole::Z, 0}, ig);
           if (FFFF(densloc) || densloc < 0) continue;
           denscum += densloc;
           if (denscum > proba) indip = ig;
@@ -566,8 +566,8 @@ namespace gstlrn
       if (flag_region)
       {
         for (Id idim = 0; idim < ndim; idim++)
-          radip[idim] = dbgrid->getFromLocator(ELoc::NOSTAT, indip, idim);
-        angip = dbgrid->getFromLocator(ELoc::NOSTAT, indip, ndim);
+          radip[idim] = dbgrid->getValue({ERole::NOSTAT, idim}, indip);
+        angip = dbgrid->getValue({ERole::NOSTAT, ndim}, indip);
       }
 
       // Check if the point is acceptable
@@ -598,10 +598,9 @@ namespace gstlrn
             for (Id idim = 0; idim < ndim; idim++)
               radius[idim] = 2.
                            / (radip[idim]
-                              + dbgrid->getFromLocator(
-                                ELoc::NOSTAT, indjp, idim));
+                              + dbgrid->getValue({ERole::NOSTAT, idim}, indjp));
             double angle =
-              (angip + dbgrid->getFromLocator(ELoc::NOSTAT, indjp, ndim)) / 2.;
+              (angip + dbgrid->getValue({ERole::NOSTAT, ndim}, indjp)) / 2.;
             Tensor tensor(ndim);
             tensor.setRotationAngle(0, angle);
             tensor.setRadiusVec(radius);
@@ -653,7 +652,7 @@ namespace gstlrn
     for (Id iech = 0; iech < nech; iech++)
     {
       if (!db->isActive(iech)) continue;
-      double value = db->getArray(iech, ivar);
+      double value = db->getValue(db->fromUID(ivar), iech);
       if (FFFF(value)) continue;
       ntot++;
 
@@ -673,7 +672,7 @@ namespace gstlrn
     for (Id iech = 0; iech < nech; iech++)
     {
       if (!db->isActive(iech)) continue;
-      double value = db->getArray(iech, ivar);
+      double value = db->getValue(db->fromUID(ivar), iech);
       if (FFFF(value)) continue;
 
       /* Loop on the cutoffs */
@@ -687,7 +686,7 @@ namespace gstlrn
         double ton_cut0 = tonnage[icut];
         double ton_cut1 = (icut > 0) ? tonnage[icut - 1] : 1.;
         Id ir = ind_cut0 / ton_cut0 - ind_cut1 / ton_cut1;
-        db->setArray(iech, iptr + icut, ir);
+        db->setValue(db->fromUID(iptr + icut), iech, ir);
       }
     }
 
@@ -719,7 +718,7 @@ namespace gstlrn
       norme = 0.;
       for (Id idim = 0; idim < ndim; idim++)
       {
-        grad = dbgrid->getLocVariable(ELoc::G, iech, idim);
+        grad = dbgrid->getValue({ERole::G, idim}, iech);
         norme += grad * grad;
       }
 
@@ -728,8 +727,8 @@ namespace gstlrn
 
       for (Id idim = 0; idim < ndim; idim++)
       {
-        grad = dbgrid->getLocVariable(ELoc::G, iech, idim);
-        dbgrid->setLocVariable(ELoc::G, iech, idim, grad / norme);
+        grad = dbgrid->getValue({ERole::G, idim}, iech);
+        dbgrid->setValue({ERole::G, idim}, iech, grad / norme);
       }
     }
   }
@@ -776,7 +775,7 @@ namespace gstlrn
 
     /* Create the new variable */
 
-    iptrz = dbgrid->getColIdxByLocator(ELoc::Z, 0);
+    iptrz = dbgrid->getColIdx({ERole::Z, 0});
     if (iptrz < 0) goto label_end;
     iptr = dbgrid->addColumnsByConstant(ndim, 1, TEST, String(), ELoc::G);
 
@@ -861,7 +860,8 @@ namespace gstlrn
     ndim = dbgrid->getNDim();
     for (Id idim = 0; idim < ndim; idim++)
     {
-      if (FFFF(dbgrid->getArray(iech, iptr_grad + idim))) return (1);
+      if (FFFF(dbgrid->getValue(dbgrid->fromUID(iptr_grad + idim), iech)))
+        return (1);
     }
     return (0);
   }
@@ -886,7 +886,7 @@ namespace gstlrn
     ndim = dbgrid->getNDim();
     for (Id idim = 0; idim < ndim; idim++)
     {
-      delta = dbgrid->getArray(iech, iptr_grad + idim);
+      delta = dbgrid->getValue(dbgrid->fromUID(iptr_grad + idim), iech);
       grad += delta * delta;
     }
     return (grad < 1.e-5);
@@ -919,7 +919,7 @@ namespace gstlrn
     knd_loc = dbgrid->coordinateToRank(coor);
     if (knd_loc < 0) return 1;
     if (!dbgrid->isActive(knd_loc)) return 1;
-    surf_loc = dbgrid->getZVariable(knd_loc, 0);
+    surf_loc = dbgrid->getValue({ERole::Z, 0}, knd_loc);
     if (FFFF(surf_loc) || st_is_undefined(dbgrid, iptr_grad, knd_loc))
       return (1);
     if (st_is_zero(dbgrid, iptr_grad, knd_loc)) return (1);
@@ -1010,7 +1010,7 @@ namespace gstlrn
           dbgrid->getNLoc(ELoc::G));
         goto label_end;
       }
-      iptr_grad = dbgrid->getColIdxByLocator(ELoc::G, 0);
+      iptr_grad = dbgrid->getColIdx({ERole::G, 0});
     }
     else
     {
@@ -1048,7 +1048,8 @@ namespace gstlrn
       for (Id i = 0; i < niter; i++)
       {
         for (idim = 0; idim < ndim; idim++)
-          coor[idim] -= step * dbgrid->getArray(knd, iptr_grad + idim);
+          coor[idim] -=
+            step * dbgrid->getValue(dbgrid->fromUID(iptr_grad + idim), knd);
         if (st_get_next(dbgrid, iptr_grad, coor, &knd, &surf)) break;
 
         /* Store the new point in the Streamline */
@@ -1067,9 +1068,9 @@ namespace gstlrn
 
         /* Update variables in the grid Db */
 
-        date = MIN(dbgrid->getArray(knd, iptr_time), i + 1.);
-        dbgrid->setArray(knd, iptr_time, date);
-        dbgrid->updArray(knd, iptr_accu, EOperator::ADD, 1.);
+        date = MIN(dbgrid->getValue(dbgrid->fromUID(iptr_time), knd), i + 1.);
+        dbgrid->setValue(dbgrid->fromUID(iptr_time), knd, date);
+        dbgrid->updValue(dbgrid->fromUID(iptr_accu), knd, EOperator::ADD, 1.);
       }
 
       /* Add the endpoint */
@@ -1246,7 +1247,7 @@ namespace gstlrn
       return dbnew;
     }
 
-    if (!db->hasLocVariable(ELoc::C))
+    if (!db->hasLocator(ELoc::C))
     {
       messerr(
         "This function requires the definition of a CODE variable in 'db'");
@@ -1282,7 +1283,7 @@ namespace gstlrn
     {
       if (!db->isActive(iech)) continue;
       mes_process("Regularize Wells", ntot, iech);
-      Id code = db->getLocVariable(ELoc::C, iech, 0);
+      Id code = db->getValue({ERole::C}, iech);
 
       // Identify the rank of the code
 
@@ -1304,7 +1305,7 @@ namespace gstlrn
 
       Id not_defined = 0;
       for (Id ivar = 0; ivar < nvar && not_defined == 0; ivar++)
-        if (FFFF(db->getZVariable(iech, ivar))) not_defined = 1;
+        if (FFFF(db->getValue({ERole::Z, ivar}, iech))) not_defined = 1;
       if (not_defined) continue;
 
       // Cumulate this sample
@@ -1313,7 +1314,7 @@ namespace gstlrn
       for (Id idim = 0; idim < ndim; idim++)
         WCOR(iz, icode, idim) += db->getCoordinate(iech, idim);
       for (Id ivar = 0; ivar < nvar; ivar++)
-        WTAB(iz, icode, ivar) += db->getZVariable(iech, ivar);
+        WTAB(iz, icode, ivar) += db->getValue({ERole::Z, ivar}, iech);
     }
 
     // Normalization
@@ -1357,7 +1358,7 @@ namespace gstlrn
     ecr = 0;
     dbnew->setLocatorsByUID(ndim, ecr, ELoc::X, 0);
     ecr += ndim;
-    dbnew->setLocatorByUID(ecr, ELoc::C, 0);
+    dbnew->setLocator(dbnew->fromUID(ecr), ELoc::C, 0);
     ecr += 1;
     dbnew->setLocatorsByUID(nvar, ecr, ELoc::Z, 0);
     ecr += nvar;
@@ -1391,7 +1392,7 @@ namespace gstlrn
   Id db_grid2point_sampling(
     DbGrid* dbgrid,
     Id nvar,
-    Id* vars,
+    const Id* vars,
     const Id* npacks,
     Id npcell,
     Id nmini,
@@ -1529,7 +1530,7 @@ namespace gstlrn
       for (Id idim = 0; idim < ndim; idim++)
         coor[ecrc++] = dbgrid->getCoordinate(iech, idim);
       for (Id ivar = 0; ivar < nvar; ivar++)
-        data[ecrd++] = dbgrid->getArray(iech, vars[ivar]);
+        data[ecrd++] = dbgrid->getValue(dbgrid->fromUID(vars[ivar]), iech);
     }
 
     // Set the error return code
@@ -1637,8 +1638,8 @@ namespace gstlrn
     for (Id idim = 0; idim < ndim; idim++)
     {
       Id jdim = (flagAddSampleRank) ? idim + 1 : idim;
-      db->setNameByUID(jdim, names[idim]);
-      db->setLocatorByUID(jdim, ELoc::X, idim);
+      db->setName(db->fromUID(jdim), names[idim]);
+      db->setLocator(db->fromUID(jdim), ELoc::X, idim);
     }
     return (db);
   }
@@ -1707,7 +1708,7 @@ namespace gstlrn
     Id ncat = static_cast<Id>(propGlob.size());
     OptimCostColored Oc(ncat, &Qprop, &AprojDat);
 
-    VectorDouble facies = dbin->getColumnByLocator(ELoc::Z);
+    VectorDouble facies = dbin->getColumn({ERole::Z});
     VectorVectorDouble props =
       Oc.minimize(facies, splits, propGlob, verbose, niter);
 

@@ -388,7 +388,8 @@ namespace gstlrn
   Id CalcSimuEden::_getFACIES(Id iech) const
   {
     auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
-    Id ifacies = static_cast<Id>(dbgrid->getArray(iech, _indFacies));
+    Id ifacies =
+      static_cast<Id>(dbgrid->getValue(dbgrid->fromUID(_indFacies), iech));
     if (ifacies < 0 || ifacies > _nfacies || isNA(ifacies)) ifacies = SHALE;
     return (ifacies);
   }
@@ -406,7 +407,7 @@ namespace gstlrn
   {
     if (_indPerm <= 0) return (1);
     auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
-    double perm = dbgrid->getArray(iech, _indPerm);
+    double perm = dbgrid->getValue(dbgrid->fromUID(_indPerm), iech);
     if (FFFF(perm) || perm < 0.) perm = 0.;
     return (static_cast<Id>(perm));
   }
@@ -426,7 +427,7 @@ namespace gstlrn
 
     if (_indDate <= 0) return (0);
     auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
-    date = dbgrid->getArray(iech, _indDate);
+    date = dbgrid->getValue(dbgrid->fromUID(_indDate), iech);
     if (FFFF(date)) return (0);
     date = MAX(1., date);
     return (date);
@@ -444,7 +445,8 @@ namespace gstlrn
   Id CalcSimuEden::_getFLUID(Id iech) const
   {
     auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
-    Id ifluid = static_cast<Id>(dbgrid->getArray(iech, _indFluid));
+    Id ifluid =
+      static_cast<Id>(dbgrid->getValue(dbgrid->fromUID(_indFluid), iech));
     if (ifluid < 0 || ifluid > _nfluids || isNA(ifluid)) ifluid = UNDEF_FLUID;
     return (ifluid);
   }
@@ -462,7 +464,7 @@ namespace gstlrn
   Id CalcSimuEden::_getFLUID_OLD(Id iech) const
   {
     auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
-    double ifluid = dbgrid->getArray(iech, _indFluid);
+    double ifluid = dbgrid->getValue(dbgrid->fromUID(_indFluid), iech);
     if (ifluid < 0 || ifluid > _nfluids) ifluid = UNDEF_FLUID;
     return (static_cast<Id>(ifluid));
   }
@@ -480,7 +482,7 @@ namespace gstlrn
   {
     if (_indPoro <= 0) return (1);
     auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
-    double poro = dbgrid->getArray(iech, _indPoro);
+    double poro = dbgrid->getValue(dbgrid->fromUID(_indPoro), iech);
     if (FFFF(poro)) return (0);
     poro = MIN(1., MAX(0., poro));
     return (poro);
@@ -618,7 +620,7 @@ namespace gstlrn
   void CalcSimuEden::_setFLUID(Id iech, Id ifluid)
   {
     auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
-    dbgrid->setArray(iech, _indFluid, ifluid);
+    dbgrid->setValue(dbgrid->fromUID(_indFluid), iech, ifluid);
   }
 
   /****************************************************************************/
@@ -632,7 +634,7 @@ namespace gstlrn
   void CalcSimuEden::_setFACIES(Id iech, Id ifacies)
   {
     auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
-    dbgrid->setArray(iech, _indFacies, ifacies);
+    dbgrid->setValue(dbgrid->fromUID(_indFacies), iech, ifacies);
   }
 
   /****************************************************************************/
@@ -645,8 +647,10 @@ namespace gstlrn
   void CalcSimuEden::_setFACIES_CORK(Id iech)
   {
     auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
-    Id ifacies = static_cast<Id>(dbgrid->getArray(iech, _indFacies));
-    dbgrid->setArray(iech, _indFacies, -ifacies);
+    if (dbgrid == nullptr) return;
+    Id ifacies =
+      static_cast<Id>(dbgrid->getValue(dbgrid->fromUID(_indFacies), iech));
+    dbgrid->setValue(dbgrid->fromUID(_indFacies), iech, -ifacies);
   }
 
   /****************************************************************************/
@@ -661,7 +665,7 @@ namespace gstlrn
   {
     double value = (isNA(idate)) ? TEST : idate;
     auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
-    dbgrid->setArray(iech, _iptrDate, value);
+    dbgrid->setValue(dbgrid->fromUID(_iptrDate), iech, value);
   }
 
   /*****************************************************************************/
@@ -873,12 +877,17 @@ namespace gstlrn
 
       auto ifluid = _getFLUID(iech);
       if (ifluid > 0)
-        dbgrid->updArray(iech, _iptrStatFluid + ifluid - 1, EOperator::ADD, 1);
+        dbgrid->updValue(
+          dbgrid->fromUID(_iptrStatFluid + ifluid - 1), iech, EOperator::ADD,
+          1);
 
       /* Update the Cork statistics */
 
-      Id ifacies = static_cast<Id>(dbgrid->getArray(iech, _indFacies));
-      if (ifacies < 0) dbgrid->updArray(iech, _iptrStatCork, EOperator::ADD, 1);
+      Id ifacies =
+        static_cast<Id>(dbgrid->getValue(dbgrid->fromUID(_indFacies), iech));
+      if (ifacies < 0)
+        dbgrid->updValue(
+          dbgrid->fromUID(_iptrStatCork), iech, EOperator::ADD, 1);
     }
   }
 
@@ -904,7 +913,9 @@ namespace gstlrn
     for (Id iech = 0; iech < _nxyz; iech++)
     {
       auto ifluid = _getFLUID_OLD(iech);
-      Id ifacies = static_cast<Id>(dbgrid->getArray(iech, _indFacies));
+      if (dbgrid == nullptr) continue;
+      Id ifacies =
+        static_cast<Id>(dbgrid->getValue(dbgrid->fromUID(_indFacies), iech));
 
       /* Update the Facies information */
 
@@ -951,14 +962,15 @@ namespace gstlrn
       /* Normalize the Fluid statistics */
 
       for (Id ifluid = 0; ifluid < _nfluids; ifluid++)
-        dbgrid->updArray(
-          iech, _iptrStatFluid + ifluid, EOperator::DIVIDE,
+        dbgrid->updValue(
+          dbgrid->fromUID(_iptrStatFluid + ifluid), iech, EOperator::DIVIDE,
           static_cast<double>(niter));
 
       /* Update the Cork statistics */
 
-      dbgrid->updArray(
-        iech, _iptrStatCork, EOperator::DIVIDE, static_cast<double>(niter));
+      dbgrid->updValue(
+        dbgrid->fromUID(_iptrStatCork), iech, EOperator::DIVIDE,
+        static_cast<double>(niter));
     }
   }
 

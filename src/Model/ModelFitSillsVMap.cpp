@@ -134,7 +134,7 @@ namespace gstlrn
 
       Id ntest = 0;
       for (Id ijvar = 0; ijvar < _nvs2; ijvar++)
-        if (!FFFF(dbmap->getZVariable(iech, ijvar))) ntest++;
+        if (!FFFF(dbmap->getValue({ERole::Z, ijvar}, iech))) ntest++;
       if (ntest <= 0) continue;
 
       for (Id ijvar = 0; ijvar < _nvs2; ijvar++)
@@ -142,7 +142,7 @@ namespace gstlrn
         _WT(ijvar, ipadir) = 0.;
         _GG(ijvar, ipadir) = 0.;
 
-        double value = dbmap->getZVariable(iech, ijvar);
+        double value = dbmap->getValue({ERole::Z, ijvar}, iech);
         if (FFFF(value)) continue;
 
         _WT(ijvar, ipadir) = wgt;
@@ -215,7 +215,7 @@ namespace gstlrn
     {
       Id ndef = 0;
       for (Id ijvar = 0; ijvar < _nvs2; ijvar++)
-        if (!FFFF(_dbmap->getZVariable(iech, ijvar))) ndef++;
+        if (!FFFF(_dbmap->getValue({ERole::Z, ijvar}, iech))) ndef++;
       nbexp += ndef;
       if (ndef > 0) npadir++;
     }

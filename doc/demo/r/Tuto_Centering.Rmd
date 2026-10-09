@@ -54,7 +54,7 @@ manual_centering <- function(data, target) {
 
     # storing
     for (i in seq_along(xy_nm)) {
-      data$setColumn(tab = xy_disc[,i], name = paste0(xy_nm[i], "_disc"))
+      data$setColumn(paste0(xy_nm[i], "_disc"), tab = xy_disc[, i], useSel = FALSE)
     }
     data$setLocators(paste0(xy_nm, "_disc"), ELoc_X())
 

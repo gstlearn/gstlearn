@@ -102,9 +102,9 @@ int main(int argc, char* argv[])
     z3[i] = 3.0 + 1.50 * z3[i];
   }
 
-  grid->setColumn(z1, "Z1");
-  grid->setColumn(z2, "Z2");
-  grid->setColumn(z3, "Z3");
+  grid->setColumn("Z1", z1);
+  grid->setColumn("Z2", z2);
+  grid->setColumn("Z3", z3);
   grid->display();
 
   // Data extraction - create sampling from grid
@@ -113,7 +113,7 @@ int main(int argc, char* argv[])
   VectorString names = {"x1", "x2", "Z1", "Z2", "Z3"};
   auto* data = Db::createSamplingDb(grid, 0., npSamples, names, 432426);
 
-  data->setLocator("Z*", ELoc::Z, 0);
+  data->setLocators({"Z*"}, ELoc::Z, 0);
   mestitle(0, "Extracted Data");
   data->display();
 
@@ -147,7 +147,7 @@ int main(int argc, char* argv[])
   // Evaluate PCA
   // ============
   mestitle(0, "Testing PCA");
-  data->setLocator("Z*", ELoc::Z, 0);
+  data->setLocators({"Z*"}, ELoc::Z, 0);
   PCA pca(nvar);
 
   if (pca.pca_compute(data, true)) return 1;
@@ -157,7 +157,7 @@ int main(int argc, char* argv[])
   if (pca.dbZ2F(data, true, NamingConvention("U", false))) return 1;
 
   // Set locators for PCA factors
-  data->setLocator("U*", ELoc::Z, 0);
+  data->setLocators({"U*"}, ELoc::Z, 0);
 
   // Fitting the variogram model on PCA factors
   mestitle(1, "Computing and fitting variogram on PCA factors");
@@ -181,7 +181,7 @@ int main(int argc, char* argv[])
   // Evaluate MAF
   // ============
   mestitle(0, "Testing MAF");
-  data->setLocator("Z*", ELoc::Z, 0);
+  data->setLocators({"Z*"}, ELoc::Z, 0);
   PCA maf(nvar);
 
   // MAF computation using variogram at a specific lag
@@ -193,7 +193,7 @@ int main(int argc, char* argv[])
   if (maf.dbZ2F(data, true, NamingConvention("F", false))) return 1;
 
   // Set locators for MAF factors
-  data->setLocator("F*", ELoc::Z, 0);
+  data->setLocators({"F*"}, ELoc::Z, 0);
 
   // Fitting the variogram model on MAF factors
   mestitle(1, "Computing and fitting variogram on MAF factors");

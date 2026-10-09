@@ -127,7 +127,8 @@ namespace gstlrn
           if (ndim >= 3) iwork2[2] = jz;
           ind = dbgrid->indiceToRank(iwork2);
           numtab1[ecr] = 1.;
-          value = dbgrid->isActive(ind) ? dbgrid->getZVariable(ind, 0) : TEST;
+          value =
+            dbgrid->isActive(ind) ? dbgrid->getValue({ERole::Z, 0}, ind) : TEST;
           if (FFFF(value))
             valtab1[ecr] = (flag_ffff) ? 0 : TEST;
           else
@@ -765,9 +766,9 @@ namespace gstlrn
 
       /* Store the result */
 
-      dbgrid2->setLocVariable(ELoc::Z, iech, 0, result1);
-      dbgrid2->setLocVariable(ELoc::Z, iech, 1, result2);
-      dbgrid2->setLocVariable(ELoc::Z, iech, 2, result);
+      dbgrid2->setValue({ERole::Z, 0}, iech, result1);
+      dbgrid2->setValue({ERole::Z, 1}, iech, result2);
+      dbgrid2->setValue({ERole::Z, 2}, iech, result);
     }
 
     /* Set the error return code */
@@ -1393,7 +1394,7 @@ namespace gstlrn
 
       /* Store the result */
 
-      dbgrid2->setArray(iech, iptr, diff_coeff);
+      dbgrid2->setValue(dbgrid2->fromUID(iptr), iech, diff_coeff);
     }
 
     /* Set the error return code */

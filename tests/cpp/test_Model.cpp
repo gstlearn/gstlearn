@@ -196,7 +196,7 @@ int main(int argc, char* argv[])
   driftM.display();
 
   // Adding the selection
-  workingDbc->setLocator("Sel", ELoc::SEL, 0);
+  workingDbc->setLocator("Sel", ELoc::SEL);
   message("Covariance Matrix (with selection)\n");
   covM = modelM->evalCovMatSym(workingDbc);
   covM.display();

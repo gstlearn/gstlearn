@@ -49,9 +49,9 @@ if (nfac > 0) {
   for (i in seq_along(nm_fac)) {
     Z = dbin[nm_var[1+i]] * dbin[nm_fac[i]]
   }
-  err = dbin$setColumn(tab = Z, name = "z")
+  err = dbin$setColumn("z", tab = Z)
   err = dbin$setLocators(names = "z", locatorType = ELoc_Z(), cleanSameLocator = TRUE)
-  err = dbin$deleteColumns(names = paste("z", 1:(1+nfac), sep = "-"))
+  err = dbin$deleteColumns(c(paste("z", 1:(1 + nfac), sep = "-")))
 }
 nm_var = dbin$getNamesByLocator(locatorType = ELoc_Z())
 
@@ -186,7 +186,7 @@ if (length(nms)) {
     for (cs in c("estim", "stdev", "varz")[c(flag_est, flag_std, flag_varz)]) {
       nm_1 = paste("SVC", nm, cs, sep = ".")
       nm_2 = paste(pr, nm, cs, sep = ".")
-      if(all(abs(dbout$getColumn(name = nm_1, useSel = TRUE) - dbout$getColumn(name = nm_2, useSel = TRUE)) < 1e-6)) {
+      if(all(abs(dbout$getColumn(nm_1, useSel = TRUE) - dbout$getColumn(nm_2, useSel = TRUE)) < 1e-6)) {
         res = paste0("Test passed: ", "SVC == ", pr)
       } else {
         res = paste0("Test failed: ", "SVC != ", pr)
@@ -375,7 +375,7 @@ if (length(nms)) {
     for (cs in c("estim", "stdev", "varz")[c(flag_est, flag_std, flag_varz)]) {
       nm_1 = paste("SVC", nm, cs, sep = ".")
       nm_2 = paste(pr, nm, cs, sep = ".")
-      if(all(abs(dbout$getColumn(name = nm_1, useSel = TRUE) - dbout$getColumn(name = nm_2, useSel = TRUE)) < epsilon)) {
+      if(all(abs(dbout$getColumn(nm_1, useSel = TRUE) - dbout$getColumn(nm_2, useSel = TRUE)) < epsilon)) {
         res = paste0("Test passed: ", "SVC == ", pr)
       } else {
         res = paste0("Test failed: ", "SVC != ", pr)

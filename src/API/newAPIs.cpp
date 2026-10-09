@@ -26,7 +26,7 @@ namespace gstlrn
     for (const auto& [name, values]: *dat)
     {
 
-      db->setColumn(values, name);
+      db->setColumn(name, values);
     }
     db->setLocators(coordinates, ELoc::X);
     return db;

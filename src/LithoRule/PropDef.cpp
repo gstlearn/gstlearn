@@ -125,7 +125,7 @@ namespace gstlrn
         double total = 0.;
         for (ifac = 0; ifac < _nfacprod; ifac++)
         {
-          _propfix[ifac] = _dbprop->getLocVariable(ELoc::P, *jech, ifac);
+          _propfix[ifac] = _dbprop->getValue({ERole::P, ifac}, *jech);
           total += _propfix[ifac];
         }
         // Discard case where the proportions are not available
@@ -137,7 +137,7 @@ namespace gstlrn
         /* The proportions are already available from the dbin */
 
         for (ifac = 0; ifac < _nfacprod; ifac++)
-          _propfix[ifac] = db->getLocVariable(ELoc::P, iech, ifac);
+          _propfix[ifac] = db->getValue({ERole::P, ifac}, iech);
       }
 
       /* Transform proportions (from CST to WRK) */
@@ -605,18 +605,17 @@ namespace gstlrn
     Id nbsimu) const
   {
     Id iptr_simu = Db::getSimRank(isimu, 0, ipgs, nbsimu, 1);
+    auto colid = ColID({ERole::FACIES, iptr_simu}, isimu);
 
     /* Loop on the grid cells */
 
     for (Id iech = 0; iech < db->getNSample(); iech++)
     {
       if (!db->isActive(iech)) continue;
-      Id facies = static_cast<Id>(
-                    db->getFromLocator(ELoc::FACIES, iech, iptr_simu, isimu))
-                - 1;
+      Id facies = static_cast<Id>(db->getValue(colid, iech)) - 1;
       Id rank = _getFacies(ipgs, facies);
-      double prop = db->getLocVariable(ELoc::P, iech, rank) + 1.;
-      db->setLocVariable(ELoc::P, iech, rank, prop);
+      double prop = db->getValue({ERole::P, rank}, iech) + 1.;
+      db->setValue({ERole::P, rank}, iech, prop);
     }
 
     /* Optional printout */
@@ -628,15 +627,16 @@ namespace gstlrn
   void PropDef::updateContinuous(Db* db, bool verbose, Id isimu, Id nbsimu)
   {
     Id iptr_simu = Db::getSimRank(isimu, 0, 0, nbsimu, 1);
+    auto colid = ColID({ERole::SIMU, iptr_simu}, isimu);
 
     /* Loop on the grid cells */
 
     for (Id iech = 0; iech < db->getNSample(); iech++)
     {
       if (!db->isActive(iech)) continue;
-      double simval = db->getFromLocator(ELoc::SIMU, iech, iptr_simu, isimu);
-      db->updLocVariable(ELoc::Z, iech, 0, EOperator::ADD, simval);
-      db->updLocVariable(ELoc::Z, iech, 1, EOperator::ADD, simval * simval);
+      double simval = db->getValue(colid, iech);
+      db->updValue({ERole::Z, 0}, iech, EOperator::ADD, simval);
+      db->updValue({ERole::Z, 1}, iech, EOperator::ADD, simval * simval);
     }
 
     /* Optional printout */
@@ -654,11 +654,11 @@ namespace gstlrn
     for (Id iech = 0; iech < db->getNSample(); iech++)
     {
       if (!db->isActive(iech)) continue;
-      mean = db->getZVariable(iech, 0) / nbsimu;
-      db->setLocVariable(ELoc::Z, iech, 0, mean);
-      stdv = db->getZVariable(iech, 1) / nbsimu - mean * mean;
+      mean = db->getValue({ERole::Z, 0}, iech) / nbsimu;
+      db->setValue({ERole::Z, 0}, iech, mean);
+      stdv = db->getValue({ERole::Z, 1}, iech) / nbsimu - mean * mean;
       stdv = (stdv > 0) ? sqrt(stdv) : 0.;
-      db->setLocVariable(ELoc::Z, iech, 1, stdv);
+      db->setValue({ERole::Z, 1}, iech, stdv);
     }
 
     /* Optional printout */
@@ -679,8 +679,8 @@ namespace gstlrn
       {
         Id rank = _getFacies(ipgs, ifac);
         double prop =
-          db->getLocVariable(ELoc::P, iech, rank) / static_cast<double>(nbsimu);
-        db->setLocVariable(ELoc::P, iech, rank, prop);
+          db->getValue({ERole::P, rank}, iech) / static_cast<double>(nbsimu);
+        db->setValue({ERole::P, rank}, iech, prop);
       }
     }
 

@@ -208,7 +208,7 @@ The locators are used to specify the **role** assigned to a Column for the rest 
 
 ```{r}
 dat$setLocators(c("Longitude","Latitude"), ELoc_X())
-dat$setLocator("*temp", ELoc_Z(), cleanSameLocator=TRUE)
+dat$setLocators({"*temp"}, ELoc_Z(), cleanSameLocator=TRUE)
 dat
 ```
 

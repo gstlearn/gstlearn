@@ -870,7 +870,7 @@ namespace gstlrn
     _st_morpho_image_radius_define(radius);
     Id ndim = dbgrid->getNDim();
     VectorInt indg(ndim);
-    Id iptrz = dbgrid->getColIdxByLocator(ELoc::Z);
+    Id icolz = dbgrid->getColIdx({ERole::Z, 0});
 
     /* Processing */
 
@@ -884,7 +884,7 @@ namespace gstlrn
         indg[0] = iix;
         indg[1] = iiy;
         iad = dbgrid->indiceToRank(indg);
-        double z0 = dbgrid->getArray(iad, iptrz);
+        double z0 = dbgrid->getValue(dbgrid->fromUID(icolz), iad);
         if (FFFF(z0)) continue;
 
         for (Id jx = -RADIUS[0]; jx <= RADIUS[0]; jx++)
@@ -899,7 +899,7 @@ namespace gstlrn
             iad = dbgrid->indiceToRank(indg);
             double xi = dbgrid->getCoordinate(iad, 0);
             double yi = dbgrid->getCoordinate(iad, 1);
-            double zi = dbgrid->getArray(iad, iptrz);
+            double zi = dbgrid->getValue(dbgrid->fromUID(icolz), iad);
             if (FFFF(zi)) continue;
             zi -= z0;
             a.updValue(0, 0, EOperator::ADD, xi * xi);
@@ -921,7 +921,8 @@ namespace gstlrn
         if (ndim >= 1) indg[0] = iix;
         if (ndim >= 2) indg[1] = iiy;
         if (ndim >= 3) indg[2] = iiz;
-        dbgrid->setArray(dbgrid->indiceToRank(indg), iptr0, result);
+        dbgrid->setValue(
+          dbgrid->fromUID(iptr0), dbgrid->indiceToRank(indg), result);
       }
   }
 
@@ -937,7 +938,7 @@ namespace gstlrn
     VectorInt NX = dbgrid->getNXsExt(3);
     Id ndim = dbgrid->getNDim();
     VectorInt indg(ndim);
-    Id iptrz = dbgrid->getColIdxByLocator(ELoc::Z);
+    Id iptrz = dbgrid->getColIdx({ERole::Z, 0});
 
     /* Calculate the Gradient components */
 
@@ -961,11 +962,13 @@ namespace gstlrn
             {
               j1 = (ix + 1 > nmax - 1) ? ix : ix + 1;
               indg[0] = j1;
-              v1 = dbgrid->getArray(dbgrid->indiceToRank(indg), iptrz);
+              v1 = dbgrid->getValue(
+                dbgrid->fromUID(iptrz), dbgrid->indiceToRank(indg));
               if (FFFF(v1)) continue;
               j2 = (ix - 1 < 0) ? ix : ix - 1;
               indg[0] = j2;
-              v2 = dbgrid->getArray(dbgrid->indiceToRank(indg), iptrz);
+              v2 = dbgrid->getValue(
+                dbgrid->fromUID(iptrz), dbgrid->indiceToRank(indg));
               if (FFFF(v2)) continue;
               number = j1 - j2;
             }
@@ -974,11 +977,13 @@ namespace gstlrn
             {
               j1 = (iy + 1 > nmax - 1) ? iy : iy + 1;
               indg[1] = j1;
-              v1 = dbgrid->getArray(dbgrid->indiceToRank(indg), iptrz);
+              v1 = dbgrid->getValue(
+                dbgrid->fromUID(iptrz), dbgrid->indiceToRank(indg));
               if (FFFF(v1)) continue;
               j2 = (iy - 1 < 0) ? iy : iy - 1;
               indg[1] = j2;
-              v2 = dbgrid->getArray(dbgrid->indiceToRank(indg), iptrz);
+              v2 = dbgrid->getValue(
+                dbgrid->fromUID(iptrz), dbgrid->indiceToRank(indg));
               if (FFFF(v2)) continue;
               number = j1 - j2;
             }
@@ -987,11 +992,13 @@ namespace gstlrn
             {
               j1 = (iz + 1 > nmax - 1) ? iz : iz + 1;
               indg[2] = j1;
-              v1 = dbgrid->getArray(dbgrid->indiceToRank(indg), iptrz);
+              v1 = dbgrid->getValue(
+                dbgrid->fromUID(iptrz), dbgrid->indiceToRank(indg));
               if (FFFF(v1)) continue;
               j2 = (iz - 1 < 0) ? iz : iz - 1;
               indg[2] = j2;
-              v2 = dbgrid->getArray(dbgrid->indiceToRank(indg), iptrz);
+              v2 = dbgrid->getValue(
+                dbgrid->fromUID(iptrz), dbgrid->indiceToRank(indg));
               if (FFFF(v2)) continue;
               number = j1 - j2;
             }
@@ -1000,7 +1007,8 @@ namespace gstlrn
             if (ndim >= 2) indg[1] = iy;
             if (ndim >= 3) indg[2] = iz;
             double delta = (v1 - v2) / (number * dinc);
-            dbgrid->setArray(dbgrid->indiceToRank(indg), iptr + idim, delta);
+            dbgrid->setValue(
+              dbgrid->fromUID(iptr + idim), dbgrid->indiceToRank(indg), delta);
           }
         }
   }
@@ -1022,7 +1030,7 @@ namespace gstlrn
     Id ntotal = dbgrid->getNSample();
     VectorInt nxy = dbgrid->getNXs();
 
-    VectorDouble tabin = dbgrid->getColumnByLocator(ELoc::Z);
+    VectorDouble tabin = dbgrid->getColumn({ERole::Z});
     BImage image = morpho_double2image(nxy, tabin, vmin, vmax);
 
     if (verbose)
@@ -1100,7 +1108,7 @@ namespace gstlrn
     }
     if (!alreadySaved)
     {
-      dbgrid->setColumnByUID(tabout, iptr0);
+      dbgrid->setColumn(dbgrid->fromUID(iptr0), tabout);
     }
     return 0;
   }

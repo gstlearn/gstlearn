@@ -122,17 +122,17 @@ namespace gstlrn
   }
 
   std::optional<std::reference_wrapper<const DbCol>>
-    DbData::_identifyColumn(ColID&& colid) const
+    DbData::_identifyColumn(ColID&& colid, bool verbose) const
   {
-    const auto icol = _getColumnIndex(colid);
+    const auto icol = _getColumnIndex(colid, verbose);
     if (!icol) return std::nullopt;
     return {this->_cols[*icol]};
   }
 
   bool DbData::hasColumn(ColID&& colid) const
   {
-    const auto icol = _getColumnIndex(colid);
-    return static_cast<bool>(icol);
+    const auto icol = _getColumnIndex(colid, false);
+    return static_cast<bool>(icol >= 0);
   }
 
   /**
@@ -196,12 +196,32 @@ namespace gstlrn
   ColID DbData::getColID(const ColID& colid) const
   {
     const auto icol = _getColumnIndex(colid, false);
-    if (!icol) return ColID(-1);
+    if (!icol || !isValidColumn(*icol)) return ColID(-1);
 
     ColID colIDout(*icol);
     colIDout.setName(_cols[*icol].getName());
     colIDout.setRoleID(_roleIDs[*icol]);
     return colIDout;
+  }
+
+  ColID DbData::fromUID(Id iuid, Id version) const
+  {
+    const auto ncol = getNColumns();
+    if (ncol <= 0 || iuid < 0) return ColID(-1);
+
+    const Id startColumn = (iuid < ncol) ? iuid : 0;
+
+    for (Id icol = 0; icol < ncol; ++icol)
+    {
+      const Id jcol = (icol + startColumn) % ncol;
+
+      if (_cols[jcol].getUniqueIndex() == iuid)
+      {
+        return ColID(jcol, version);
+      }
+    }
+
+    return ColID(-1);
   }
 
   void DbData::setRoleID(ColID&& colid, const RoleID& roleID)
@@ -397,39 +417,50 @@ namespace gstlrn
   {
     auto ncol = getNColumns();
 
-    // Try to identify by Column Name
+    // By Index
+    auto icol = colid.getICol();
+    if (icol >= 0)
+    {
+      if (icol >= ncol)
+      {
+        if (verbose)
+        {
+          messerr("Column index (%d) is out of range.", icol);
+          messerr("It should be between 0 and %d", ncol - 1);
+        }
+        return std::nullopt;
+      }
+
+      // TODO: we should check the UID (if defined)
+      return icol;
+    }
+
+    // By Name
     const String& localName = colid.getName();
     if (!localName.empty())
     {
-      for (Id icol = 0; icol < ncol; ++icol)
+      for (Id jcol = 0; jcol < ncol; ++jcol)
       {
         // 'localName' may contain a regular expression, so we use matchRegexp to check for a match
-        if (matchRegexp(_cols[icol].getName(), localName)) return icol;
+        if (matchRegexp(_cols[jcol].getName(), localName)) return jcol;
       }
       if (verbose) _unknownName(localName);
       return std::nullopt;
     }
 
-    // Try to identify by Column Role
+    // By Role
     if (colid.getRole().isDifferent(ERole::UNDEFINED))
     {
       const RoleID& roleID = colid.getRoleID();
-      for (Id icol = 0; icol < ncol; ++icol)
+      for (Id jcol = 0; jcol < ncol; ++jcol)
       {
-        if (_roleIDs[icol].isEqual(roleID, true)) return icol;
+        if (_roleIDs[jcol].isEqual(roleID, true)) return jcol;
       }
       if (verbose) _unknownRoleID(roleID);
       return std::nullopt;
     }
 
-    // Try to identify by Column rank
-    auto icol0 = colid.getICol();
-    if (icol0 < 0 || icol0 >= ncol)
-    {
-      if (verbose) messerr("Column index is out of range.");
-      return std::nullopt;
-    }
-    return icol0;
+    return icol;
   }
 
   /**

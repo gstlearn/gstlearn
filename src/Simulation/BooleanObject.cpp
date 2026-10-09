@@ -278,7 +278,7 @@ namespace gstlrn
     else
     {
       Id iech = dbout->coordinateToRank(coor, false, eps);
-      theta = dbout->getLocVariable(ELoc::P, iech, 0);
+      theta = dbout->getValue({ERole::P}, iech);
     }
     return (law_uniform(0., 1.) > theta);
   }
@@ -355,17 +355,17 @@ namespace gstlrn
 
   bool BooleanObject::isPore(const Db* db, Id iech)
   {
-    return (db->getZVariable(iech, 0) == 0);
+    return (db->getValue({ERole::Z, 0}, iech) == 0);
   }
 
   bool BooleanObject::isGrain(const Db* db, Id iech)
   {
-    return (db->getZVariable(iech, 0) != 0);
+    return (db->getValue({ERole::Z, 0}, iech) != 0);
   }
 
   Id BooleanObject::_getCoverageAtSample(const Db* db, Id iptr_cover, Id iech)
   {
-    return static_cast<Id>(db->getArray(iech, iptr_cover));
+    return static_cast<Id>(db->getValue(db->fromUID(iptr_cover), iech));
   }
 
   void BooleanObject::_updateCoverageAtSample(
@@ -374,7 +374,9 @@ namespace gstlrn
     Id iech,
     Id ival)
   {
-    db->setArray(iech, iptr_cover, db->getArray(iech, iptr_cover) + ival);
+    db->setValue(
+      db->fromUID(iptr_cover), iech,
+      db->getValue(db->fromUID(iptr_cover), iech) + ival);
   }
 
   /*****************************************************************************/
@@ -572,13 +574,16 @@ namespace gstlrn
 
           if (iptr_simu >= 0)
           {
-            dbout->setArray(iad, iptr_simu, facies, isimu);
+            dbout->setValue(dbout->fromUID(iptr_simu, isimu), iad, facies);
           }
           if (iptr_rank >= 0)
           {
-            double value = dbout->getArray(iad, iptr_rank, isimu);
+            double value =
+              dbout->getValue(dbout->fromUID(iptr_rank, isimu), iad);
             if (FFFF(value) || value == 0)
-              dbout->setArray(iad, iptr_rank, static_cast<double>(rank), isimu);
+              dbout->setValue(
+                dbout->fromUID(iptr_rank, isimu), iad,
+                static_cast<double>(rank));
           }
         }
   }

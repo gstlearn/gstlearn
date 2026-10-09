@@ -104,7 +104,7 @@ def createDbIn(
     if ndrift > 0:
         for i in range(ndrift):
             db["ff" + str(i)] = np.random.normal(size=ndat)
-        db.setLocator("ff*", gl.ELoc.F, 0)
+        db.setLocators(["ff*"], gl.ELoc.F, 0)
 
     return db, indF
 

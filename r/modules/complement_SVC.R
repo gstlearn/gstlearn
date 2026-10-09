@@ -225,15 +225,15 @@ kriging_SVC <- function(dbin, dbout, model, neigh,
   for (ivar in seq_along(estim_nm)) {
     if (flag_est) {
       nm  = paste(prefix, estim_nm[ivar], "estim", sep = ".")
-      err = dbout$setColumn(tab = res_est[,ivar], name = nm, useSel = FALSE)
+      err = dbout$setColumn(nm, tab = res_est[,ivar], useSel = FALSE)
     }
     if (flag_std) {
       nm  = paste(prefix, estim_nm[ivar], "stdev", sep = ".")
-      err = dbout$setColumn(tab = res_std[,ivar], name = nm, useSel = FALSE)
+      err = dbout$setColumn(nm, tab = res_std[,ivar], useSel = FALSE)
     }
     if (flag_varz) {
       nm  = paste(prefix, estim_nm[ivar], "varz", sep = ".")
-      err = dbout$setColumn(tab = res_varz[,ivar], name = nm, useSel = FALSE)
+      err = dbout$setColumn(nm, tab = res_varz[,ivar], useSel = FALSE)
     }
   }
   err
