@@ -132,6 +132,7 @@ namespace gstlrn
     ColID getColID(const ColID& colid) const;
     void removeRole(ColID&& colid);
     void removeAllRoles();
+    ColID fromUID(Id iuid, Id version = 0) const;
 
     std::vector<ColID> getColIDs(const String& name) const;
     std::vector<ColID> getColIDs(const VectorString& name) const;

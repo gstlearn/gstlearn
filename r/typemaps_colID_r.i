@@ -1,27 +1,70 @@
 /***************************************************************************/
 /*                                                                         */
-/*  R typemap for gstlrn::ColID&&                                          */
-/*                                                                         */
-/*  Accepted R objects:                                                    */
-/*                                                                         */
-/*      "name"                    -> ColID("name")                         */
-/*      list("name", version)     -> ColID("name", version)                */
-/*                                                                         */
-/*      icol                      -> ColID(icol)                           */
-/*      list(icol, version)       -> ColID(icol, version)                  */
-/*                                                                         */
-/*      RoleID(...)               -> ColID(RoleID(...))                    */
-/*      list(RoleID(...), version)-> ColID(RoleID(...), version)           */
-/*                                                                         */
-/*      ERole                     -> ColID(ERole, index=0, version=0)      */
-/*      list(ERole, index)        -> ColID(ERole, index, version=0)        */
-/*                                                                         */
-/*      ColID(...)                -> copy constructor                      */
-/*      list(ColID(...), version) -> ColID(ColID(...), version)            */
+/*  R typemaps for gstlrn::ColID (Version #10 - In-file Toggle)            */
 /*                                                                         */
 /***************************************************************************/
 
-%typemap(in) gstlrn::ColID&& (gstlrn::ColID *temp_colid = nullptr)
+%{
+#include <R.h>
+#include <Rinternals.h>
+
+/* Set to false to disable all debug prints for non-regression tests */
+static const bool COLID_DEBUG_ENABLED = false;
+
+#define COLID_DEBUG_LOG(...) \
+    do { \
+        if (COLID_DEBUG_ENABLED) { \
+            Rprintf(__VA_ARGS__); \
+        } \
+    } while(0)
+%}
+
+/* ========================================================================= */
+/* 1. BYPASS SWIG R AUTOMATIC S4 COERCION & AS() CONVERSIONS                 */
+/* ========================================================================= */
+
+%typemap(rtype)      gstlrn::ColID, const gstlrn::ColID&, gstlrn::ColID&&, gstlrn::ColID* "ANY";
+%typemap(scoercein)  gstlrn::ColID, const gstlrn::ColID&, gstlrn::ColID&&, gstlrn::ColID* "$input";
+%typemap(sclass)     gstlrn::ColID, const gstlrn::ColID&, gstlrn::ColID&&, gstlrn::ColID* "ANY";
+
+/* ========================================================================= */
+/* 2. UNIVERSAL TYPECHECK FOR SWIG OVERLOAD RESOLUTION                       */
+/* ========================================================================= */
+
+%typemap(typecheck, precedence=SWIG_TYPECHECK_POINTER)
+    gstlrn::ColID,
+    const gstlrn::ColID&,
+    gstlrn::ColID&&,
+    gstlrn::ColID*
+{
+    SEXP obj = $input;
+    if (TYPEOF(obj) == VECSXP && LENGTH(obj) == 2)
+    {
+        obj = VECTOR_ELT(obj, 0);
+    }
+
+    const SEXPTYPE t = TYPEOF(obj);
+    COLID_DEBUG_LOG("[ColID Typemap V10] TYPECHECK: SEXPTYPE = %d\n", static_cast<int>(t));
+
+    if (t == STRSXP || t == INTSXP || t == REALSXP || t == EXTPTRSXP || Rf_isS4(obj))
+    {
+        $1 = 1;
+    }
+    else
+    {
+        $1 = 0;
+    }
+}
+
+/* ========================================================================= */
+/* 3. INPUT CONVERSION TYPEMAP WITH EXPLICIT TEMPORARY DECLARATION          */
+/* ========================================================================= */
+
+%typemap(in, typemap="in")
+    gstlrn::ColID                (gstlrn::ColID *temp_colid = nullptr),
+    const gstlrn::ColID&         (gstlrn::ColID *temp_colid = nullptr),
+    gstlrn::ColID&&              (gstlrn::ColID *temp_colid = nullptr),
+    gstlrn::ColID*               (gstlrn::ColID *temp_colid = nullptr)
 {
     SEXP obj = $input;
     SEXP target = obj;
@@ -29,12 +72,15 @@
     gstlrn::Id index = 0;
     gstlrn::Id version = 0;
 
-    /* ================================================================== */
-    /* 1. Two-element list                                                */
-    /* ================================================================== */
+    COLID_DEBUG_LOG("[ColID Typemap V10] IN: Entering conversion. TYPEOF = %d\n", static_cast<int>(TYPEOF(obj)));
+
+    /* ----------------------------------------------------------------- */
+    /* 1. Two-element list                                               */
+    /* ----------------------------------------------------------------- */
 
     if (TYPEOF(obj) == VECSXP && LENGTH(obj) == 2)
     {
+        COLID_DEBUG_LOG("[ColID Typemap V10] Matched: 2-element VECSXP (list)\n");
         target = VECTOR_ELT(obj, 0);
         SEXP param = VECTOR_ELT(obj, 1);
 
@@ -50,47 +96,40 @@
             val = static_cast<gstlrn::Id>(REAL(param)[0]);
         }
 
-        /*
-         * list(ERole, Id) represents a RoleID:
-         *     list(ERole_Z(), 0) -> RoleID(ERole_Z(), 0) -> ColID(RoleID, version=0)
-         */
         if (Rf_inherits(target, "_p_gstlrn__ERole"))
         {
             index = val;
         }
         else
         {
-            /* For ColID or RoleID, the second element represents the version */
             version = val;
         }
     }
 
-    /* ================================================================== */
-    /* 2. General diagnostic (ignored in release)                        */
-    /* ================================================================== */
-
-    /* ================================================================== */
-    /* 3. Column name                                                     */
-    /* ================================================================== */
+    /* ----------------------------------------------------------------- */
+    /* 2. Column name (STRSXP)                                           */
+    /* ----------------------------------------------------------------- */
 
     const SEXPTYPE target_type = TYPEOF(target);
 
     if (target_type == STRSXP && LENGTH(target) > 0)
     {
         const char *name = CHAR(STRING_ELT(target, 0));
+        COLID_DEBUG_LOG("[ColID Typemap V10] Matched: STRSXP (String) -> '%s' (version=%d)\n", name, static_cast<int>(version));
 
         temp_colid = new gstlrn::ColID(
             std::string(name),
             version);
     }
 
-    /* ================================================================== */
-    /* 4. Direct external pointer                                         */
-    /* ================================================================== */
+    /* ----------------------------------------------------------------- */
+    /* 3. Direct external pointer                                        */
+    /* ----------------------------------------------------------------- */
 
     else if (target_type == EXTPTRSXP)
     {
-        // Cache SWIG type descriptors to avoid repeated lookups
+        COLID_DEBUG_LOG("[ColID Typemap V10] Matched: EXTPTRSXP\n");
+
         static swig_type_info *type_ColID  = SWIG_TypeQuery("gstlrn::ColID *");
         static swig_type_info *type_RoleID = SWIG_TypeQuery("gstlrn::RoleID *");
         static swig_type_info *type_ERole  = SWIG_TypeQuery("gstlrn::ERole *");
@@ -107,10 +146,6 @@
         swig_type_info *expected_RoleID = type_RoleID ? type_RoleID : SWIGTYPE_p_gstlrn__RoleID;
         swig_type_info *expected_ERole  = type_ERole  ? type_ERole  : SWIGTYPE_p_gstlrn__ERole;
 
-        /* -------------------------------------------------------------- */
-        /* 4a. ColID                                                      */
-        /* -------------------------------------------------------------- */
-
         if (tag_type == expected_ColID)
         {
             gstlrn::ColID *col_ptr = nullptr;
@@ -123,14 +158,9 @@
             }
             else
             {
-                Rf_error("Cannot extract C++ pointer for ColID");
+                Rf_error("[ColID Typemap Error] Cannot extract C++ pointer for ColID");
             }
         }
-
-        /* -------------------------------------------------------------- */
-        /* 4b. RoleID                                                     */
-        /* -------------------------------------------------------------- */
-
         else if (tag_type == expected_RoleID)
         {
             gstlrn::RoleID *roleid_ptr = nullptr;
@@ -142,14 +172,9 @@
             }
             else
             {
-                Rf_error("Cannot extract C++ pointer for RoleID");
+                Rf_error("[ColID Typemap Error] Cannot extract C++ pointer for RoleID");
             }
         }
-
-        /* -------------------------------------------------------------- */
-        /* 4c. ERole                                                      */
-        /* -------------------------------------------------------------- */
-
         else if (tag_type == expected_ERole)
         {
             gstlrn::ERole *role_ptr = nullptr;
@@ -161,26 +186,22 @@
             }
             else
             {
-                Rf_error("Cannot extract C++ pointer for ERole");
+                Rf_error("[ColID Typemap Error] Cannot extract C++ pointer for ERole");
             }
         }
-
-        /* -------------------------------------------------------------- */
-        /* 4d. Unknown tag                                                */
-        /* -------------------------------------------------------------- */
-
         else
         {
-            Rf_error("Unknown SWIG external pointer: unable to determine ColID, RoleID or ERole");
+            Rf_error("[ColID Typemap Error] Unknown SWIG external pointer");
         }
     }
 
-    /* ================================================================== */
-    /* 5. S4 ERole                                                       */
-    /* ================================================================== */
+    /* ----------------------------------------------------------------- */
+    /* 4. S4 ERole                                                       */
+    /* ----------------------------------------------------------------- */
 
     else if (Rf_inherits(target, "_p_gstlrn__ERole"))
     {
+        COLID_DEBUG_LOG("[ColID Typemap V10] Matched: S4 ERole\n");
         static SEXP sym_ref = Rf_install("ref");
         static swig_type_info *type_ERole = SWIG_TypeQuery("gstlrn::ERole *");
 
@@ -196,16 +217,17 @@
         }
         else
         {
-            Rf_error("Cannot extract C++ pointer for ERole");
+            Rf_error("[ColID Typemap Error] Cannot extract C++ pointer for ERole");
         }
     }
 
-    /* ================================================================== */
-    /* 6. S4 ColID                                                       */
-    /* ================================================================== */
+    /* ----------------------------------------------------------------- */
+    /* 5. S4 ColID                                                       */
+    /* ----------------------------------------------------------------- */
 
     else if (Rf_inherits(target, "_p_gstlrn__ColID"))
     {
+        COLID_DEBUG_LOG("[ColID Typemap V10] Matched: S4 ColID\n");
         static SEXP sym_ref = Rf_install("ref");
         static swig_type_info *type_ColID = SWIG_TypeQuery("gstlrn::ColID *");
 
@@ -222,16 +244,17 @@
         }
         else
         {
-            Rf_error("Cannot extract C++ pointer for ColID");
+            Rf_error("[ColID Typemap Error] Cannot extract C++ pointer for ColID");
         }
     }
 
-    /* ================================================================== */
-    /* 7. S4 RoleID                                                      */
-    /* ================================================================== */
+    /* ----------------------------------------------------------------- */
+    /* 6. S4 RoleID                                                      */
+    /* ----------------------------------------------------------------- */
 
     else if (Rf_inherits(target, "_p_gstlrn__RoleID"))
     {
+        COLID_DEBUG_LOG("[ColID Typemap V10] Matched: S4 RoleID\n");
         static SEXP sym_ref = Rf_install("ref");
         static swig_type_info *type_RoleID = SWIG_TypeQuery("gstlrn::RoleID *");
 
@@ -247,13 +270,13 @@
         }
         else
         {
-            Rf_error("Cannot extract C++ pointer for RoleID");
+            Rf_error("[ColID Typemap Error] Cannot extract C++ pointer for RoleID");
         }
     }
 
-    /* ================================================================== */
-    /* 8. Raw index                                                      */
-    /* ================================================================== */
+    /* ----------------------------------------------------------------- */
+    /* 7. Raw index (INTSXP / REALSXP)                                   */
+    /* ----------------------------------------------------------------- */
 
     else if ((target_type == INTSXP || target_type == REALSXP) && LENGTH(target) > 0)
     {
@@ -261,23 +284,35 @@
             ? static_cast<gstlrn::Id>(INTEGER(target)[0])
             : static_cast<gstlrn::Id>(REAL(target)[0]);
 
+        COLID_DEBUG_LOG("[ColID Typemap V10] Matched: Integer/Real index -> %d (version=%d)\n", static_cast<int>(icol), static_cast<int>(version));
+
         temp_colid = new gstlrn::ColID(icol, version);
     }
 
-    /* ================================================================== */
-    /* 9. Failure                                                         */
-    /* ================================================================== */
+    /* ----------------------------------------------------------------- */
+    /* 8. Failure                                                        */
+    /* ----------------------------------------------------------------- */
 
     else
     {
-        Rf_error("Cannot convert R object to ColID");
+        COLID_DEBUG_LOG("[ColID Typemap V10] Conversion FAILED for target_type = %d\n", static_cast<int>(target_type));
+        Rf_error("[ColID Typemap Error] Cannot convert R object to ColID");
     }
 
     $1 = temp_colid;
 }
 
-%typemap(freearg) gstlrn::ColID&&
+/* ========================================================================= */
+/* 4. FREE ARG TYPEMAP                                                       */
+/* ========================================================================= */
+
+%typemap(freearg)
+    gstlrn::ColID,
+    const gstlrn::ColID&,
+    gstlrn::ColID&&,
+    gstlrn::ColID*
 {
+    COLID_DEBUG_LOG("[ColID Typemap V10] FREEARG: Cleaning up temporary ColID\n");
     if ($1)
         delete $1;
 }

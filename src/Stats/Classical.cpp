@@ -673,7 +673,8 @@ namespace gstlrn
     {
       auto nversion = db->getNVersions(iuids[iuid]);
       for (Id version = 0; version < nversion; version++, irow++)
-        table.setRowName(irow, db->getNameByUID(iuids[iuid], version, true));
+        table.setRowName(
+          irow, db->getName(db->fromUID(iuids[iuid], version), true));
     }
     for (Id icol = 0; icol < noper; icol++)
       table.setColumnName(icol, String{opers[icol].getDescr()});
@@ -867,8 +868,10 @@ namespace gstlrn
       auto nversion = db->getNVersions(iuids[iuid]);
       for (Id version = 0; version < nversion; version++, irow++)
       {
-        table.setRowName(irow, db->getNameByUID(iuids[iuid], version, true));
-        table.setColumnName(irow, db->getNameByUID(iuids[iuid], version, true));
+        table.setRowName(
+          irow, db->getName(db->fromUID(iuids[iuid], version), true));
+        table.setColumnName(
+          irow, db->getName(db->fromUID(iuids[iuid], version), true));
       }
     }
 
@@ -1276,8 +1279,8 @@ namespace gstlrn
       for (Id version = 0; version < nversion; version++, icol++)
       {
         _getRowname(
-          radix, ncol, icol, db->getNameByUID(iuids[iuid], version, true),
-          string);
+          radix, ncol, icol,
+          db->getName(db->fromUID(iuids[iuid], version), true), string);
         taille = MAX(taille, static_cast<Id>(string.size()));
       }
     }
@@ -1301,8 +1304,8 @@ namespace gstlrn
       for (Id version = 0; version < nversion; version++, icol++)
       {
         _getRowname(
-          radix, ncol, icol, db->getNameByUID(iuids[iuid], version, true),
-          string);
+          radix, ncol, icol,
+          db->getName(db->fromUID(iuids[iuid], version), true), string);
         message("%s", _toStrRowHeader({string}, 0, taille).c_str());
 
         if (_operExists(opers, EStatOption::NUM))
@@ -1834,10 +1837,10 @@ namespace gstlrn
     {
       table.resetFromVD(ncol, ncol, result, false);
       for (Id icol = 0; icol < ncol; icol++)
-        table.setColumnName(icol, db->getNameByUID(cols[icol]));
+        table.setColumnName(icol, db->getName(db->fromUID(cols[icol])));
     }
     for (Id irow = 0; irow < ncol; irow++)
-      table.setRowName(irow, db->getNameByUID(cols[irow]));
+      table.setRowName(irow, db->getName(db->fromUID(cols[irow])));
 
     return table;
   }
@@ -2106,9 +2109,9 @@ namespace gstlrn
     for (Id iech = 0; iech < nech; iech++)
     {
       if (!db1->isActive(iech)) continue;
-      double val1 = db1->getValue(name1, iech, version1);
+      double val1 = db1->getValue({name1, version1}, iech);
       if (FFFF(val1)) continue;
-      double val2 = db2->getValue(name2, iech, version2);
+      double val2 = db2->getValue({name2, version2}, iech);
       if (FFFF(val2)) continue;
 
       indices[0].push_back(iech + shift);
@@ -2197,14 +2200,14 @@ namespace gstlrn
     for (Id iech = 0; iech < nech - 1; iech++)
     {
       if (hasSel && !db->isActive(iech)) continue;
-      double val1 = db->getValue(name1, iech, version1);
+      double val1 = db->getValue({name1, version1}, iech);
       if (FFFF(val1)) continue;
       db->getSampleAsSTInPlace(iech, T1);
 
       for (Id jech = iech + 1; jech < nech; jech++)
       {
         if (hasSel && !db->isActive(jech)) continue;
-        double val2 = db->getValue(name2, jech, version2);
+        double val2 = db->getValue({name2, version2}, jech);
         if (FFFF(val2)) continue;
         db->getSampleAsSTInPlace(jech, T2);
 

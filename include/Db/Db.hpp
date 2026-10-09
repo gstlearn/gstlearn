@@ -282,7 +282,15 @@ namespace gstlrn
     // ================================================================ //
     // All methods listed in this paragraph are direct access to DbData //
     // ================================================================ //
-    String getName(ColID&& colid, bool withVersion = false) const;
+    // Next function is a temporary version to allow the transition for
+    // all methods of Db such as getXXXByUID() ou setXXXByUID(). It will be removed in the future.
+    ColID fromUID(Id iuid, Id version = 0) const
+    {
+      return _data.fromUID(iuid, version);
+    }
+
+    String getName(const ColID& colid, bool withVersion = false) const;
+    [[deprecated("Use getName(ColID) instead.")]]
     String
       getNameByUID(Id iuid, Id version = 0, bool withVersion = false) const;
 
@@ -300,6 +308,7 @@ namespace gstlrn
     Id getColIdx(const String& name) const;
     Id getColIdxByUID(Id iuid) const;
     Id getColIdxByLocator(const ELoc& locatorType, Id locatorIndex = 0) const;
+
     VectorInt getColIdxs(const String& name) const;
     VectorInt getColIdxs(const VectorString& names) const;
     VectorInt getColIdxsByUID(const VectorInt& iuids) const;
@@ -378,10 +387,8 @@ namespace gstlrn
 
     void updArray(Id iech, Id iuid, const EOperator& oper, double value);
 
-    double getValue(const String& name, Id iech, Id version = 0) const;
-    double
-      getValueByColIdx(Id iech, Id icol, bool flagCheck = true, Id version = 0)
-        const;
+    double getValue(const ColID& colid, Id iech) const;
+
     void setValue(const String& name, Id iech, double value, Id version = 0);
     void
       setValueByColIdx(Id iech, Id icol, double value, bool flagCheck = true);

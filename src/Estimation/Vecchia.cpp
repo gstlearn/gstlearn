@@ -318,7 +318,7 @@ namespace gstlrn
 
         double verr = 0.;
 
-        if (icolVerr >= 0) verr = _dbout->getValueByColIdx(iabs1, icolVerr);
+        if (icolVerr >= 0) verr = _dbout->getValue(icolVerr, iabs1);
 
         // Update the Covariance matrix
         if (verr > 0) matCov.updValue(i1, i1, EOperator::ADD, verr);
@@ -497,7 +497,7 @@ namespace gstlrn
       if (_dbout->hasLocVariable(ELoc::V))
       {
         Id icolVerr = _dbout->getColIdxByLocator(ELoc::V, ivar);
-        if (icolVerr >= 0) var0 += _dbout->getValueByColIdx(ipAbs, icolVerr);
+        if (icolVerr >= 0) var0 += _dbout->getValue(icolVerr, ipAbs);
       }
     }
     return var0;

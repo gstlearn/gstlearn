@@ -443,7 +443,7 @@ namespace gstlrn
       {
         for (Id rank = 0; rank < ncol; rank++)
         {
-          st_csv_print_string(db->getNameByUID(rank).c_str());
+          st_csv_print_string(db->getName(db->fromUID(rank)).c_str());
         }
       }
       else
@@ -452,12 +452,12 @@ namespace gstlrn
           for (Id idim = 0; idim < ndim; idim++)
           {
             Id iatt = db->getUIDByLocator(ELoc::X, idim);
-            st_csv_print_string(db->getNameByUID(iatt).c_str());
+            st_csv_print_string(db->getName(db->fromUID(iatt)).c_str());
           }
         for (Id ivar = 0; ivar < nvar; ivar++)
         {
           Id iatt = db->getUIDByLocator(ELoc::Z, ivar);
-          st_csv_print_string(db->getNameByUID(iatt).c_str());
+          st_csv_print_string(db->getName(db->fromUID(iatt)).c_str());
         }
       }
     }
@@ -471,7 +471,7 @@ namespace gstlrn
       if (flag_allcol)
       {
         for (Id rank = 0; rank < ncol; rank++)
-          csv_print_double(db->getValueByColIdx(iech, rank));
+          csv_print_double(db->getValue(rank, iech));
       }
       else
       {
