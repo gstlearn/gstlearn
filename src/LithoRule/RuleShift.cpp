@@ -361,13 +361,13 @@ namespace gstlrn
     {
       /* Convert the proportions into thresholds for data point */
       if (!dbin->isActive(iech)) continue;
-      Id facies = static_cast<Id>(dbin->getZVariable(iech, 0));
+      Id facies = static_cast<Id>(dbin->getValue({ERole::Z, 0}, iech));
       if (propdef.ruleThreshDefine(
             dbin, this, facies, iech, isimu, nbsimu, 1, &t1min, &t1max, &t2min,
             &t2max))
         return (1);
-      dbin->setLocVariable(ELoc::L, iech, propdef.getRank(ipgs, igrf), t1min);
-      dbin->setLocVariable(ELoc::U, iech, propdef.getRank(ipgs, igrf), t1max);
+      dbin->setValue({ERole::L, propdef.getRank(ipgs, igrf)}, iech, t1min);
+      dbin->setValue({ERole::U, propdef.getRank(ipgs, igrf)}, iech, t1max);
       if (facies == SHADOW_ISLAND) continue;
 
       /* Add one replicate */
@@ -397,11 +397,11 @@ namespace gstlrn
 
       /* Set the attributes of the replicate */
       if (facies == SHADOW_WATER)
-        dbin->setLocVariable(ELoc::Z, jech, 0, SHADOW_WATER);
+        dbin->setValue({ERole::Z, 0}, jech, SHADOW_WATER);
       if (facies == SHADOW_SHADOW)
-        dbin->setLocVariable(ELoc::Z, jech, 0, SHADOW_ISLAND);
-      dbin->setLocVariable(ELoc::L, jech, propdef.getRank(ipgs, igrf), s2min);
-      dbin->setLocVariable(ELoc::U, jech, propdef.getRank(ipgs, igrf), s2max);
+        dbin->setValue({ERole::Z, 0}, jech, SHADOW_ISLAND);
+      dbin->setValue({ERole::L, propdef.getRank(ipgs, igrf)}, jech, s2min);
+      dbin->setValue({ERole::U, propdef.getRank(ipgs, igrf)}, jech, s2max);
       nadd++;
     }
 

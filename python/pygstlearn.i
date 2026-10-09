@@ -1343,7 +1343,7 @@ def setdbitem(self,name,tab):
 
         tab_i[np.isnan(tab_i)] = np.nan
         vect_double = np.double(tab_i)
-        self.setColumn(vect_double.tolist(), name, use_sel)
+        self.setColumn(name, vect_double.tolist(), use_sel)
 
     return
 

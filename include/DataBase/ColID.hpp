@@ -59,6 +59,8 @@ namespace gstlrn
 
     bool hasRoleDefined() const;
 
+    void dump() const;
+
     /**
      * Factory helpers mainly intended for language bindings (SWIG).
      */

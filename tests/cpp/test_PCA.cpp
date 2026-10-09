@@ -82,7 +82,7 @@ int main(int argc, char* argv[])
   // ============
 
   mestitle(0, "Testing MAF");
-  db->setLocator("Simu*", ELoc::Z, 0, true);
+  db->setLocators({"Simu*"}, ELoc::Z, 0, true);
   PCA maf;
   maf.maf_compute_interval(db, 0.95, 1.05);
   maf.display();

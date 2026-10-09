@@ -73,7 +73,7 @@ int main(int argc, char* argv[])
   ProjConvolution Aproj(convolution, grid_seismic);
 
   // Extract the simulation from the input Grid
-  VectorDouble data = grid_data->getColumnByUID(uid_in);
+  VectorDouble data = grid_data->getColumn(grid_data->fromUID(uid_in));
 
   // Perform the convolution
   VectorDouble seismic(grid_seismic->getNSample());

@@ -104,22 +104,19 @@ test_kriging <- function(dbin, dbout, model, neigh,
   if (flag_est) {
     nm = paste(prefix, nm_var, "estim", sep = ".")
     for (ivar in 1:nvar) {
-      err = dbout$setColumn(tab = res_est[,ivar], name = nm[ivar],
-                            useSel = FALSE)
+      err = dbout$setColumn(nm[ivar], tab = res_est[,ivar], useSel = FALSE)
     }
   }
   if (flag_std) {
     nm = paste(prefix, nm_var, "stdev", sep = ".")
     for (ivar in 1:nvar) {
-      err = dbout$setColumn(tab = res_std[,ivar], name = nm[ivar],
-                            useSel = FALSE)
+      err = dbout$setColumn(nm[ivar], tab = res_std[,ivar], useSel = FALSE)
     }
   }
   if (flag_varz) {
     nm = paste(prefix, nm_var, "varz", sep = ".")
     for (ivar in 1:nvar) {
-      err = dbout$setColumn(tab = res_varz[,ivar], name = nm[ivar],
-                            useSel = FALSE)
+      err = dbout$setColumn(nm[ivar], tab = res_varz[,ivar], useSel = FALSE)
     }
   }
   err

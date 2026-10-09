@@ -14,10 +14,6 @@
 #include <iostream>
 #include <sstream>
 
-#include "Db/Db.hpp"
-#include "Drifts/ADrift.hpp"
-#include "Drifts/DriftF.hpp"
-
 namespace gstlrn
 {
   DriftF::DriftF(Id rank_fex)
@@ -46,7 +42,7 @@ namespace gstlrn
 
   double DriftF::eval(const Db* db, Id iech) const
   {
-    return db->getLocVariable(ELoc::F, iech, _rankFex);
+    return db->getValue({ERole::F, _rankFex}, iech);
   }
 
   String DriftF::getDriftName() const

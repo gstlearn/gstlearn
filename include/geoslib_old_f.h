@@ -260,7 +260,7 @@ namespace gstlrn
     const Id* ind1,
     const Id* ind2,
     Id ncol,
-    Id* cols);
+    const Id* cols);
   GSTLEARN_EXPORT Id db_grid_copy_dilate(
     DbGrid* db1,
     Id iatt1,
@@ -270,7 +270,7 @@ namespace gstlrn
     const Id* nshift);
   GSTLEARN_EXPORT Id
     db_proportion(Db* db, DbGrid* dbgrid, Id nfac1max, Id nfac2max, Id* nclout);
-  GSTLEARN_EXPORT Id db_merge(Db* db, Id ncol, Id* cols);
+  GSTLEARN_EXPORT Id db_merge(Db* db, Id ncol, const Id* cols);
   GSTLEARN_EXPORT Id db_count_defined(Db* db, Id icol);
 
   GSTLEARN_EXPORT Id db_prop_read(DbGrid* db, Id ix, Id iy, double* props);
@@ -308,7 +308,7 @@ namespace gstlrn
   GSTLEARN_EXPORT Id db_grid2point_sampling(
     DbGrid* dbgrid,
     Id nvar,
-    Id* vars,
+    const Id* vars,
     const Id* npacks,
     Id npcell,
     Id nmini,

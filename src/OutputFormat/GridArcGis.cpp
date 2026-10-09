@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "OutputFormat/GridArcGis.hpp"
-#include "Basic/AStringable.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "OutputFormat/AOF.hpp"
@@ -70,7 +69,7 @@ namespace gstlrn
     for (Id ix = 0; ix < _dbgrid->getNX(0); ix++)
       for (Id iy = 0; iy < _dbgrid->getNX(1); iy++)
       {
-        double value = _dbgrid->getArray(lec, _cols[0]);
+        double value = _dbgrid->getValue(_dbgrid->fromUID(_cols[0]), lec);
         if (FFFF(value))
           fprintf(_file, "%lf\n", noValue);
         else

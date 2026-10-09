@@ -159,7 +159,7 @@ namespace gstlrn
     {
       for (Id ivar = 0; ivar < nb_est; ivar++)
       {
-        value = db->getArray(iech, cols_est[ivar]);
+        value = db->getValue(db->fromUID(cols_est[ivar]), iech);
         if (FFFF(value)) return true;
       }
     }
@@ -169,7 +169,7 @@ namespace gstlrn
     {
       for (Id ivar = 0; ivar < nb_std; ivar++)
       {
-        value = db->getArray(iech, cols_std[ivar]);
+        value = db->getValue(db->fromUID(cols_std[ivar]), iech);
         if (FFFF(value)) return true;
       }
     }
@@ -246,10 +246,10 @@ namespace gstlrn
         locatorType.getValue(), number);
       return 1;
     }
-    VectorDouble tab = db->getColumnByLocator(locatorType, 0, true);
+    VectorDouble tab = db->getColumn({toERole(locatorType), 0}, true);
     VectorDouble wt;
-    if (db->hasLocVariable(ELoc::W))
-      wt = db->getColumnByLocator(ELoc::W, 0, true);
+    if (db->hasLocator(ELoc::W))
+      wt = db->getColumn({toERole(ELoc::W), 0}, true);
 
     if (fitFromArray(tab, wt)) return 1;
     _flagFitted = true;
@@ -260,8 +260,8 @@ namespace gstlrn
   {
     VectorDouble tab = db->getColumn(name, true);
     VectorDouble wt;
-    if (db->hasLocVariable(ELoc::W))
-      wt = db->getColumnByLocator(ELoc::W, 0, true);
+    if (db->hasLocator(ELoc::W))
+      wt = db->getColumn({toERole(ELoc::W), 0}, true);
 
     if (fitFromArray(tab, wt)) return 1;
     _flagFitted = true;

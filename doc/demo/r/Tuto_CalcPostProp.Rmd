@@ -85,8 +85,8 @@ plot.end(p)
 sel  = (grid["x1"] >= 0.20)&(grid["x1"] <= 0.70) &
        (grid["x3"] >= 0.10)&(grid["x3"] <= 0.70)
 sel  = as.numeric(sel)
-err  = grid$setColumn(tab = sel, name = "sel")
-err  = grid$setLocator(name = "sel", ELoc_SEL(), cleanSameLocator = TRUE)
+err  = grid$setColumn("sel", sel)
+err  = grid$setLocator("sel", ELoc_SEL(), cleanSameLocator = TRUE)
 
 # ----------------------
 # plot of a slice
@@ -101,7 +101,7 @@ corner[posy] = 0
 slice = DbGrid_create(nx = c(nx[posx], nx[posy]), dx = c(dx[posx], dx[posy]), x0 = c(x0[posx], x0[posy]))
 val = grid$getOneSlice(name = var_nm, posx = posx - 1, posy = posy - 1 , corner = c(0,0,k-1),
                        useSel = TRUE)
-err   = slice$setColumn(tab = val, name = paste0("K = ", k))
+err   = slice$setColumn(paste0("K = ", k), val)
 p = plot.init(asp=1) +
     plot.raster(slice, name = paste0("K = ", k), useSel = TRUE, legendName = var_nm,
             flagLegend = TRUE) +
@@ -131,12 +131,11 @@ for (i in 1:N) {
 for (i in 1:N) {
   val = matrix(nrow = surfaces$getNSample(useSel = FALSE), ncol = nbsim[i])
   for (k in 1:nbsim[i]) {
-    val[,k] = surfaces$getColumn(name = paste0("Y_", i), version=k-1, useSel=FALSE)
+    val[,k] = surfaces$getColumn(list(paste0("Y_", i), k-1), useSel=FALSE)
   }
   val = h_mean[i] * pnorm(val)
   for (k in 1:nbsim[i]) {
-    err = surfaces$setColumn(tab = val[, k], name = paste0("Z_", i , ".", k),
-                             useSel = FALSE)
+    err = surfaces$setColumn(paste0("Z_", i , ".", k), val[, k], useSel = FALSE)
   }
 }
 
@@ -214,12 +213,12 @@ select_samples <- function(dbin, rank, grid, nameSel = "inBlock") {
   x0  = grid$getX0s()
   dx  = grid$getDXs()
   xCell = x0 + dx * (cell - 1)
-  u1  = dbin$getColumn(name = "x1", useSel = FALSE)
-  u2  = dbin$getColumn(name = "x2", useSel = FALSE)
+  u1  = dbin$getColumn("x1", useSel = FALSE)
+  u2  = dbin$getColumn("x2", useSel = FALSE)
   sel = as.numeric( (abs(u1 - xCell[1]) <= dx[1]/2)&(abs(u2 - xCell[2]) <= dx[2]/2))
-  err = dbin$deleteColumn(name = nameSel)
-  err = dbin$setColumn(tab = sel, name = nameSel, useSel=FALSE)
-  err = dbin$setLocator(name = nameSel, locatorType = ELoc_SEL(), cleanSameLocator = TRUE)
+  err = dbin$deleteColumn(nameSel)
+  err = dbin$setColumn(nameSel, tab = sel, useSel=FALSE)
+  err = dbin$setLocator(nameSel, locatorType = ELoc_SEL(), cleanSameLocator = TRUE)
   dbin$getNSample(useSel = TRUE)
 }
 
@@ -230,7 +229,7 @@ print(paste0(">>> number of selected samples = ", select_samples(surfaces, rank 
 # plot of selected samples of the surface grid
 
 err = surfaces$clearSelection()
-err = surfaces$setLocator(name = "inBlock", locatorType = ELoc_SEL(),
+err = surfaces$setLocator("inBlock", locatorType = ELoc_SEL(),
                           cleanSameLocator = TRUE)
 var_nm = "Z_1.3"
 p = plot.init(asp=1) +
@@ -241,8 +240,8 @@ p = plot.init(asp=1) +
                   title = paste0("2D surface: variable = ", var_nm))
 plot.end(p)
 
-u1 = surfaces$getColumn(name = "x1", useSel = TRUE)
-u2 = surfaces$getColumn(name = "x2", useSel = TRUE)
+u1 = surfaces$getColumn("x1", useSel = TRUE)
+u2 = surfaces$getColumn("x2", useSel = TRUE)
 
 #
 X0 = grid$getX0s()
@@ -270,7 +269,7 @@ points(u1, u2, col = "red", pch = 19)
 
 ```{r multivariate_simulation, echo=TRUE, eval=TRUE}
 flag.match = FALSE
-ranks = grid$getColumn(name = "rank", useSel = TRUE)
+ranks = grid$getColumn("rank", useSel = TRUE)
 # processing some cells
 cell_selected = sort(sample(ranks, size = 5, replace = FALSE))
 

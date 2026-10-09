@@ -84,7 +84,8 @@ namespace gstlrn
 
 #ifndef SWIG
     template<typename T>
-    std::optional<T> getValue(ColID&& colid, Id isample) const;
+    std::optional<T>
+      getValue(ColID&& colid, Id isample, bool verbose = true) const;
 
     template<typename T>
     bool setValue(ColID&& colid, const Id isample, const T& value);
@@ -132,6 +133,7 @@ namespace gstlrn
     ColID getColID(const ColID& colid) const;
     void removeRole(ColID&& colid);
     void removeAllRoles();
+    ColID fromUID(Id iuid, Id version = 0) const;
 
     std::vector<ColID> getColIDs(const String& name) const;
     std::vector<ColID> getColIDs(const VectorString& name) const;
@@ -163,7 +165,7 @@ namespace gstlrn
   private:
     std::optional<std::reference_wrapper<DbCol>> _identifyColumn(ColID&& colid);
     std::optional<std::reference_wrapper<const DbCol>>
-      _identifyColumn(ColID&& colid) const;
+      _identifyColumn(ColID&& colid, bool verbose = false) const;
     std::optional<Id>
       _getColumnIndex(const ColID& colid, bool verbose = true) const;
 
@@ -708,9 +710,10 @@ namespace gstlrn
 
 #ifndef SWIG
   template<typename T>
-  std::optional<T> DbData::getValue(ColID&& colid, Id isample) const
+  std::optional<T>
+    DbData::getValue(ColID&& colid, Id isample, bool verbose) const
   {
-    const auto array = this->_identifyColumn(std::move(colid));
+    const auto array = this->_identifyColumn(std::move(colid), verbose);
     if (!array) return std::nullopt;
 
     const Id version = colid.getVersion();

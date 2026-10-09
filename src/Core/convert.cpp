@@ -443,7 +443,7 @@ namespace gstlrn
       {
         for (Id rank = 0; rank < ncol; rank++)
         {
-          st_csv_print_string(db->getNameByUID(rank).c_str());
+          st_csv_print_string(db->getName(db->fromUID(rank)).c_str());
         }
       }
       else
@@ -451,13 +451,13 @@ namespace gstlrn
         if (flag_coor)
           for (Id idim = 0; idim < ndim; idim++)
           {
-            Id iatt = db->getUIDByLocator(ELoc::X, idim);
-            st_csv_print_string(db->getNameByUID(iatt).c_str());
+            Id iatt = db->getUID({ERole::X, idim});
+            st_csv_print_string(db->getName(db->fromUID(iatt)).c_str());
           }
         for (Id ivar = 0; ivar < nvar; ivar++)
         {
-          Id iatt = db->getUIDByLocator(ELoc::Z, ivar);
-          st_csv_print_string(db->getNameByUID(iatt).c_str());
+          Id iatt = db->getUID({ERole::Z, ivar});
+          st_csv_print_string(db->getName(db->fromUID(iatt)).c_str());
         }
       }
     }
@@ -471,20 +471,19 @@ namespace gstlrn
       if (flag_allcol)
       {
         for (Id rank = 0; rank < ncol; rank++)
-          csv_print_double(db->getValueByColIdx(iech, rank));
+          csv_print_double(db->getValue(rank, iech));
       }
       else
       {
         if (flag_coor)
           for (Id idim = 0; idim < ndim; idim++)
           {
-            Id iatt = db->getUIDByLocator(ELoc::X, idim);
+            Id iatt = db->getUID({ERole::X, idim});
             csv_print_double(db->getCoordinate(iech, iatt));
           }
         for (Id ivar = 0; ivar < nvar; ivar++)
         {
-          Id iatt = db->getUIDByLocator(ELoc::Z, ivar);
-          csv_print_double(db->getZVariable(iech, iatt));
+          csv_print_double(db->getValue({ERole::Z, ivar}, iech));
         }
       }
     }

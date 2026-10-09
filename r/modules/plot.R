@@ -331,7 +331,7 @@ plot.init <- function(dims = NA, xlim = NA, ylim = NA, asp = NA) {
   # If no variable is defined, return a variable name by default
   if (db$getNLoc(ELoc_Z()) > 0) {
     # Use the first Z-Locator variable (if defined)
-    name = db$getName(c(toERole(ELoc_Z()), 0))
+    name = db$getName(RoleID(ERole_Z(), 0))
   } else {
     # Use the last defined variable
     name = db$getLastName()
@@ -612,14 +612,14 @@ plot.init <- function(dims = NA, xlim = NA, ylim = NA, asp = NA) {
   }
 
   if (dbgrid$getNDim() == 1) {
-    data = dbgrid$getColumn(name, useSel, FALSE, version)
-    x = dbgrid$getColumnByLocator(ELoc_X(), posX, FALSE, FALSE)
-    y = dbgrid$getColumnByLocator(ELoc_X(), posY, FALSE, FALSE)
+    data = dbgrid$getColumn(ColID(name, version), useSel, FALSE)
+    x = dbgrid$getColumn(RoleID(ERole_X(), posX), FALSE, FALSE)
+    y = dbgrid$getColumn(RoleID(ERole_X(), posY), FALSE, FALSE)
   } else {
     data = dbgrid$getOneSlice(name, posX, posY, corner, useSel, version)
-    nameX = dbgrid$getName(c(toERole(ELoc_X()), posX))
+    nameX = dbgrid$getName(RoleID(ERole_X(), posX))
     x = dbgrid$getOneSlice(nameX, posX, posY, corner, FALSE)
-    nameY = dbgrid$getName(c(toERole(ELoc_X()), posY))
+    nameY = dbgrid$getName(RoleID(ERole_X(), posY))
     y = dbgrid$getOneSlice(nameY, posX, posY, corner, FALSE)
   }
 
@@ -1059,7 +1059,7 @@ plot.symbol <- function(db,
   # ---------------------------------------------------------
 
   if (!is.null(nameColor)) {
-    colval <- db$getColumn(nameColor, TRUE, TRUE, versionColor)
+    colval <- db$getColumn(ColID(nameColor,versionColor), TRUE, TRUE)
 
     if (isFacies) {
       nfac <- rule$getNFacies()
@@ -1098,7 +1098,7 @@ plot.symbol <- function(db,
   # ---------------------------------------------------------
 
   if (!is.null(nameSize) && !flagCst) {
-    sizval <- db$getColumn(nameSize, TRUE, TRUE, versionSize)
+    sizval <- db$getColumn(ColID(nameSize, versionSize), TRUE, TRUE)
 
     if (flagAbsSize) {
       sizval <- abs(sizval)
@@ -1618,7 +1618,7 @@ plot.polygon <- function(poly, cols=NA, flagTitle=FALSE, ...)
 plot.hist <- function(db, name, useSel=TRUE, version=0, ...)
 {
   p = list()
-  val  = db$getColumn(name, useSel, TRUE, version)
+  val  = db$getColumn(ColID(name, version), useSel, TRUE)
   df = data.frame(val)
 
   p <- append(p, geom_histogram(data=df, mapping=aes(x=val), na.rm=TRUE, ...))

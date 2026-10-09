@@ -987,7 +987,7 @@ namespace gstlrn
       if (!db->isActive(jech)) continue;
       if (rankZ >= 0)
       {
-        double testval = db->getFromLocator(ELoc::Z, jech, rankZ);
+        double testval = db->getValue({ERole::Z, rankZ}, jech);
         if (FFFF(testval)) continue;
       }
       nvalid++;

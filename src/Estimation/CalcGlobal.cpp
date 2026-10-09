@@ -285,7 +285,7 @@ namespace gstlrn
 
     /* Calculating basic statistics */
 
-    auto iatt = getDbin()->getUIDByLocator(ELoc::Z, _ivar0);
+    auto iatt = getDbin()->getUID({ERole::Z, _ivar0});
     double wtot;
     double ave;
     double var;

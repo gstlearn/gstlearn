@@ -328,7 +328,7 @@ namespace gstlrn
         {
           if (isZero(_getDriftCL(ivar, il, ib))) continue;
           for (Id iech = 0; iech < nech; iech++)
-            if (!FFFF(db->getLocVariable(loctype, nbgh[iech], ivar)))
+            if (!FFFF(db->getValue({toERole(loctype), ivar}, nbgh[iech])))
               return true;
         }
     }
@@ -336,7 +336,8 @@ namespace gstlrn
     {
       for (Id ivar = 0; ivar < nvar; ivar++)
         for (Id iech = 0; iech < nech; iech++)
-          if (!FFFF(db->getLocVariable(loctype, nbgh[iech], ivar))) return true;
+          if (!FFFF(db->getValue({toERole(loctype), ivar}, nbgh[iech])))
+            return true;
     }
     return false;
   }

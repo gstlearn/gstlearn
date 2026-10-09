@@ -147,7 +147,7 @@ namespace gstlrn
           double phi =
             ut_deg2rad(db->getCoordinate(jech, 0)); // Longitude [0,360]
           double t2 = cos(phi * order_loc + phase_loc);
-          db->updArray(jech, iptr, EOperator::ADD, t1 * t2);
+          db->updValue(db->fromUID(iptr), jech, EOperator::ADD, t1 * t2);
         }
       }
     }
@@ -157,7 +157,8 @@ namespace gstlrn
     double val = 2. / sqrt(static_cast<double>(nbf));
     for (Id iech = 0; iech < nech; iech++)
     {
-      if (db->isActive(iech)) db->updArray(iech, iptr, EOperator::DIVIDE, val);
+      if (db->isActive(iech))
+        db->updValue(db->fromUID(iptr), iech, EOperator::DIVIDE, val);
     }
     return 0;
   }

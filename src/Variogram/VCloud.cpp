@@ -77,7 +77,7 @@ namespace gstlrn
 
   double VCloud::_getIVAR(const Db* db, Id iech, Id ivar) const
   {
-    return db->getZVariable(iech, ivar);
+    return db->getValue({ERole::Z, ivar}, iech);
   }
 
   void VCloud::setPolygon(const Polygons* polygon)
@@ -155,7 +155,7 @@ namespace gstlrn
     if (igrid < 0) return;
 
     // Update the output grid
-    _dbcloud->updArray(igrid, _IPTR, EOperator::ADD, 1.);
+    _dbcloud->updValue(_dbcloud->fromUID(_IPTR), igrid, EOperator::ADD, 1.);
 
     if (!_flagSelection) return;
 
@@ -281,8 +281,8 @@ namespace gstlrn
   {
     for (Id iech = 0, nech = _dbcloud->getNSample(); iech < nech; iech++)
     {
-      if (_dbcloud->getArray(iech, _IPTR) != 0.) continue;
-      _dbcloud->setArray(iech, _IPTR, TEST);
+      if (_dbcloud->getValue(_dbcloud->fromUID(_IPTR), iech) != 0.) continue;
+      _dbcloud->setValue(_dbcloud->fromUID(_IPTR), iech, TEST);
     }
   }
 
@@ -306,7 +306,7 @@ namespace gstlrn
     if (vario->prepare()) return;
 
     // Local variables to speed up calculations
-    bool hasSel = db->hasLocVariable(ELoc::SEL);
+    bool hasSel = db->hasLocator(ELoc::SEL);
     Id nech = db->getNSample();
     Id nvar = db->getNLoc(ELoc::Z);
 
@@ -353,7 +353,7 @@ namespace gstlrn
     if (vario->prepare()) return;
 
     // Local variables to speed up calculations
-    bool hasSel = db->hasLocVariable(ELoc::SEL);
+    bool hasSel = db->hasLocator(ELoc::SEL);
     Id nech = db->getNSample();
     Id nvar = db->getNLoc(ELoc::Z);
     Id nsamples = static_cast<Id>(_samples.size());

@@ -257,9 +257,9 @@ namespace gstlrn
     Id iuid_out = _addVariableDb(1, 2, ELoc::UNDEFINED, 0, _getNDim(), 1, TEST);
     for (Id idim = 0; idim < _getNDim(); idim++)
     {
-      Id iuid_in = getDbin()->getUIDByLocator(ELoc::X, idim);
+      Id iuid_in = getDbin()->getUID({ERole::X, idim});
       getDbin()->duplicateColumnByUID(iuid_in, iuid_out + idim);
-      getDbin()->setLocatorByUID(iuid_out + idim, ELoc::X, idim);
+      getDbin()->setLocator(getDbin()->fromUID(iuid_out + idim), ELoc::X, idim);
     }
     return DbH::centerPointToGrid(getDbin(), dbgrid, 0.);
   }

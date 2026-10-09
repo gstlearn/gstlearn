@@ -160,7 +160,7 @@ accept <- function(data, grid, name, isimu, verbose=FALSE, transBinary=TRUE, fac
 
   # Convert the valid Simulation outcome into a binary image
   if (retval && transBinary)
-    grid$setColumn(grid["Morpho*"] == cc_list[1], name, version=isimu-1)
+    grid$setColumn(list(name, isimu-1), grid["Morpho*"] == cc_list[1])
     grid[name] = (grid["Morpho*"] == cc_list[1])
 
   grid$deleteColumn("Morpho*")

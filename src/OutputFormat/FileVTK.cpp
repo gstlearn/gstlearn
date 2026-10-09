@@ -153,7 +153,8 @@ namespace gstlrn
         for (Id iech = 0; iech < nech; iech++)
           if (_db->isActive(iech))
           {
-            double value = static_cast<float>(_db->getArray(iech, _cols[icol]));
+            double value = static_cast<float>(
+              _db->getValue(_db->fromUID(_cols[icol]), iech));
             if (FFFF(value))
               tab[icol][ecr] = static_cast<float>(TEST);
             else
@@ -171,8 +172,8 @@ namespace gstlrn
               Id iad = ix + dims[0] * (iy + dims[1] * iz);
               if (_dbgrid->isActive(iad))
               {
-                double value = static_cast<float>(
-                  _dbgrid->getValueByColIdx(iad, _cols[icol]));
+                double value =
+                  static_cast<float>(_dbgrid->getValue(_cols[icol], iad));
                 if (FFFF(value))
                   tab[icol][ecr] = static_cast<float>(TEST);
                 else
