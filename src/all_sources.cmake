@@ -215,6 +215,7 @@ set(SRC
   MLayers/MLayers.cpp
   Space/SpaceSN.cpp
   Space/SpaceRN.cpp
+  Space/SpaceCyl.cpp
   Space/SpacePoint.cpp
   Space/SpaceTarget.cpp
   Space/ASpaceObject.cpp
@@ -302,6 +303,7 @@ set(SRC
   Mesh/MeshETurbo.cpp
   Mesh/Delaunay.cpp
   Mesh/MeshSpherical.cpp
+  Mesh/MeshCylindrical.cpp
   Mesh/MeshSphericalExt.cpp
   Mesh/MeshEFaulted.cpp
   Mesh/MeshEStandard.cpp

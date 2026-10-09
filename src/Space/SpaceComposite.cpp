@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Space/SpaceComposite.hpp"
 #include "Space/ASpaceObject.hpp"
+#include "Space/SpaceCyl.hpp"
 #include "Space/SpaceRN.hpp"
 #include "Space/SpaceSN.hpp"
 

@@ -79,6 +79,8 @@ namespace gstlrn
 
     const SPDEOp* getSPDEOp() const { return _spdeop; }
 
+    double
+      computeLogLikelihood(const VectorDouble& Z, bool verbose = false) const;
     const MatrixSparse* getQ() const;
     const MatrixSparse* getProj() const;
     const PrecisionOpMulti* getPrecisionKrig() const;
