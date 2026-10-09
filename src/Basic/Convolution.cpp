@@ -140,7 +140,7 @@ namespace gstlrn
         Id jech = _dbgrid->indiceToRank(current);
         for (Id ivar = 0; ivar < nvar && valid; ivar++)
         {
-          double value = _dbgrid->getZVariable(jech, ivar);
+          double value = _dbgrid->getValue(RoleID(ERole::Z, ivar), jech);
           if (FFFF(value))
             valid = false;
           else
@@ -179,7 +179,7 @@ namespace gstlrn
           value = result[ivar];
           if (!means.empty()) value += means[ivar];
         }
-        _dbgrid->setArray(iech, iatt + ivar, value);
+        _dbgrid->setValue(_dbgrid->fromUID(iatt + ivar), iech, value);
       }
     }
     return 0;
@@ -229,7 +229,7 @@ namespace gstlrn
       Id j = _dbgrid->indiceToRank(indices);
 
       for (Id iv2 = 0; iv2 < nv2; iv2++)
-        kernelRe[iv2][j] = marpat->getLocVariable(ELoc::Z, i, iv2);
+        kernelRe[iv2][j] = marpat->getValue(RoleID(ERole::Z, iv2), i);
     }
 
     // Perform the FFT forward transform for each kernel
@@ -245,7 +245,7 @@ namespace gstlrn
     imageIm.resize(nvar);
     for (Id ivar = 0; ivar < nvar; ivar++)
     {
-      imageRe[ivar] = _dbgrid->getColumnByLocator(ELoc::Z, ivar);
+      imageRe[ivar] = _dbgrid->getColumn(RoleID(ERole::Z, ivar));
       if (!means.empty()) imageRe[ivar] -= means[ivar];
       imageIm[ivar].resize(sImage, 0.);
 
@@ -285,7 +285,7 @@ namespace gstlrn
 
       // Store the results in the Db
       if (!means.empty()) result += means[ivar];
-      _dbgrid->setArrayByUID(result, iatt + ivar);
+      _dbgrid->setArraysByUID(result, iatt + ivar);
     }
     return 0;
   }

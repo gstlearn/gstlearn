@@ -174,10 +174,9 @@ namespace gstlrn
     }
 
     // Extract the array of data and weights
-    VectorDouble tab = db->getColumnByLocator(ELoc::Z, 0, true);
+    VectorDouble tab = db->getColumn(RoleID(ERole::Z, 0), true);
     VectorDouble wtab;
-    if (db->hasLocVariable(ELoc::W))
-      wtab = db->getColumnByLocator(ELoc::W, 0, true);
+    if (db->hasLocator(ELoc::W)) wtab = db->getColumn(ERole::W, true);
 
     return calculateFromArray(tab, wtab, autoCuts);
   }
@@ -1028,9 +1027,11 @@ namespace gstlrn
     /* Store the recovered grade */
 
     if (isUsedEst(ESelectivity::Z))
-      db->setArray(iech0, getAddressQTEst(ESelectivity::Z, iptr), zestim);
+      db->setValue(
+        db->fromUID(getAddressQTEst(ESelectivity::Z, iptr)), iech0, zestim);
     if (isUsedStD(ESelectivity::Z))
-      db->setArray(iech0, getAddressQTStd(ESelectivity::Z, iptr), zstdev);
+      db->setValue(
+        db->fromUID(getAddressQTStd(ESelectivity::Z, iptr)), iech0, zstdev);
 
     /* Loop on the cutoff classes */
 
@@ -1046,24 +1047,36 @@ namespace gstlrn
       // Tonnage
 
       if (isUsedEst(ESelectivity::T))
-        db->setArray(iech0, getAddressQTEst(ESelectivity::T, iptr, icut), tval);
+        db->setValue(
+          db->fromUID(getAddressQTEst(ESelectivity::T, iptr, icut)), iech0,
+          tval);
       if (isUsedStD(ESelectivity::T))
-        db->setArray(iech0, getAddressQTStd(ESelectivity::T, iptr, icut), tstd);
+        db->setValue(
+          db->fromUID(getAddressQTStd(ESelectivity::T, iptr, icut)), iech0,
+          tstd);
 
       // Metal Quantity
 
       if (isUsedEst(ESelectivity::Q))
-        db->setArray(iech0, getAddressQTEst(ESelectivity::Q, iptr, icut), qval);
+        db->setValue(
+          db->fromUID(getAddressQTEst(ESelectivity::Q, iptr, icut)), iech0,
+          qval);
       if (isUsedStD(ESelectivity::Q))
-        db->setArray(iech0, getAddressQTStd(ESelectivity::Q, iptr, icut), qstd);
+        db->setValue(
+          db->fromUID(getAddressQTStd(ESelectivity::Q, iptr, icut)), iech0,
+          qstd);
 
       // Conventional Benefit
       if (isUsedEst(ESelectivity::B))
-        db->setArray(iech0, getAddressQTEst(ESelectivity::B, iptr, icut), bval);
+        db->setValue(
+          db->fromUID(getAddressQTEst(ESelectivity::B, iptr, icut)), iech0,
+          bval);
 
       // Average recovered Grade
       if (isUsedEst(ESelectivity::M))
-        db->setArray(iech0, getAddressQTEst(ESelectivity::M, iptr, icut), mval);
+        db->setValue(
+          db->fromUID(getAddressQTEst(ESelectivity::M, iptr, icut)), iech0,
+          mval);
     }
   }
 
@@ -1227,14 +1240,14 @@ namespace gstlrn
     for (Id iech = 0; iech < db->getNSample(); iech++)
     {
       if (!db->isActive(iech)) continue;
-      double value = db->getArray(iech, iuid);
+      double value = db->getValue(db->fromUID(iuid), iech);
 
       for (Id icut = 0; icut < ncuts; icut++)
       {
         double tonnage = (value >= zcuts[icut]);
-        db->setArray(iech, iuidT + icut, tonnage);
+        db->setValue(db->fromUID(iuidT + icut), iech, tonnage);
         double metal = tonnage * value;
-        db->setArray(iech, iuidQ + icut, metal);
+        db->setValue(db->fromUID(iuidQ + icut), iech, metal);
       }
     }
 

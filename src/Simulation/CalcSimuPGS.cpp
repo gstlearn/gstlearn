@@ -127,7 +127,7 @@ namespace gstlrn
       _nechInitial = getDbin()->getNSample();
       if (!getDbin()->isNVarComparedTo(_numberPGS)) return false;
       for (Id ipgs = 0; ipgs < _numberPGS; ++ipgs)
-        _iattZ[ipgs] = getDbin()->getUIDByLocator(ELoc::Z, ipgs);
+        _iattZ[ipgs] = getDbin()->getUID(RoleID(ERole::Z, ipgs));
     }
 
     /* Output Db */
@@ -197,7 +197,7 @@ namespace gstlrn
       if (_flagCond)
       {
         getDbin()->clearLocators(ELoc::Z);
-        getDbin()->setLocatorByUID(_iattZ[ipgs], ELoc::Z, 0);
+        getDbin()->setLocator(getDbin()->fromUID(_iattZ[ipgs]), ELoc::Z, 0);
       }
       if (!_isEnvironmentValid(ipgs)) return false;
     }
@@ -416,7 +416,7 @@ namespace gstlrn
       if (_flagCond)
       {
         getDbin()->clearLocators(ELoc::Z);
-        getDbin()->setLocatorByUID(_iattZ[ipgs], ELoc::Z, 0);
+        getDbin()->setLocator(getDbin()->fromUID(_iattZ[ipgs]), ELoc::Z, 0);
       }
 
       if (_numberPGS == 1)
@@ -554,7 +554,7 @@ namespace gstlrn
     for (iech = 0; iech < _nechInitial; iech++)
     {
       if (!getDbin()->isActive(iech)) continue;
-      facdat = static_cast<Id>(getDbin()->getZVariable(iech, 0));
+      facdat = static_cast<Id>(getDbin()->getValue(RoleID(ERole::Z, 0), iech));
       if (facdat < 1 || facdat > nfacies) continue;
       jech = index_point_to_grid(getDbin(), iech, 0, dbgrid, coor.data());
       if (jech < 0) continue;

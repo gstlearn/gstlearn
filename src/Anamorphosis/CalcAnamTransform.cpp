@@ -228,7 +228,7 @@ namespace gstlrn
       // Add the output variable(s) (with the same number of 'versions' as the input variable(s))
       for (Id ivar = 0; ivar < nvar; ivar++)
       {
-        Id nversion = getDb()->getNVersionsByLocator(ELoc::Z, ivar);
+        Id nversion = getDb()->getNVersions(RoleID(ERole::Z, ivar));
         auto iatt = getDb()->addColumnsByConstant(1, nversion);
         if (_iattVar < 0) _iattVar = iatt;
       }
@@ -389,8 +389,8 @@ namespace gstlrn
     // Reading the optional weight
 
     VectorDouble wt;
-    if (getDb()->hasLocVariable(ELoc::W))
-      wt = getDb()->getColumnByLocator(ELoc::W);
+    if (getDb()->hasLocator(ELoc::W))
+      wt = getDb()->getColumn(ERole::W);
     else
       wt.resize(nech, 1.);
 
@@ -398,14 +398,16 @@ namespace gstlrn
 
     for (Id ivar = 0; ivar < nvar; ivar++)
     {
-      auto nversion = getDb()->getNVersionsByLocator(ELoc::Z, ivar);
+      auto nversion = getDb()->getNVersions(RoleID(ERole::Z, ivar));
+      auto roleid = RoleID(ERole::Z, ivar);
       for (Id ivers = 0; ivers < nversion; ivers++)
       {
         VectorDouble data =
-          getDb()->getColumnByLocator(ELoc::Z, ivar, false, true, ivers);
+          getDb()->getColumn(ColID(roleid, ivers), false, true);
         VectorDouble vec = VH::normalScore(data, wt);
         if (!vec.empty())
-          getDb()->setColumnByUID(vec, _iattVar + ivar, false, ivers);
+          getDb()->setColumn(
+            getDb()->fromUID(_iattVar + ivar, ivers), vec, false);
       }
     }
     return true;
@@ -418,14 +420,14 @@ namespace gstlrn
 
     for (Id ivar = 0; ivar < nvar; ivar++)
     {
-      auto nversion = getDb()->getNVersionsByLocator(ELoc::Z, ivar);
+      auto nversion = getDb()->getNVersions(RoleID(ERole::Z, ivar));
+      auto roleid = RoleID(ERole::Z, ivar);
       for (Id ivers = 0; ivers < nversion; ivers++)
       {
-        VectorDouble z =
-          getDb()->getColumnByLocator(ELoc::Z, ivar, true, true, ivers);
+        VectorDouble z = getDb()->getColumn(ColID(roleid, ivers), true, true);
         if (z.size() <= 0) continue;
         VectorDouble y = anamC->rawToGaussianVector(z);
-        getDb()->setColumnByUID(y, _iattVar + ivar, true, ivers);
+        getDb()->setColumn(getDb()->fromUID(_iattVar + ivar, ivers), y, true);
       }
     }
     return true;
@@ -438,14 +440,14 @@ namespace gstlrn
 
     for (Id ivar = 0; ivar < nvar; ivar++)
     {
-      auto nversion = getDb()->getNVersionsByLocator(ELoc::Z, ivar);
+      auto nversion = getDb()->getNVersions(RoleID(ERole::Z, ivar));
+      auto roleid = RoleID(ERole::Z, ivar);
       for (Id ivers = 0; ivers < nversion; ivers++)
       {
-        VectorDouble y =
-          getDb()->getColumnByLocator(ELoc::Z, ivar, true, true, ivers);
+        VectorDouble y = getDb()->getColumn(ColID(roleid, ivers), true, true);
         if (y.size() <= 0) continue;
         VectorDouble z = anamC->gaussianToRawVector(y);
-        getDb()->setColumnByUID(z, _iattVar + ivar, true, ivers);
+        getDb()->setColumn(getDb()->fromUID(_iattVar + ivar, ivers), z, true);
       }
     }
     return true;
@@ -458,12 +460,13 @@ namespace gstlrn
     for (Id iech = 0; iech < getDb()->getNSample(); iech++)
     {
       if (!getDb()->isActive(iech)) continue;
-      double zval = getDb()->getZVariable(iech, 0);
+      double zval = getDb()->getValue(RoleID(ERole::Z, 0), iech);
       if (FFFF(zval)) continue;
       VectorDouble factors = _anam->z2factor(zval, _ifacs);
       if (factors.empty()) continue;
       for (Id ifac = 0; ifac < nfact; ifac++)
-        getDb()->setArray(iech, _iattFac + ifac, factors[ifac]);
+        getDb()->setValue(
+          getDb()->fromUID(_iattFac + ifac), iech, factors[ifac]);
     }
     return true;
   }
@@ -800,11 +803,12 @@ namespace gstlrn
       if (!db->isActive(iech)) continue;
       anam->setPsiHns(psi_hn);
       anam->calculateMeanAndVariance();
-      double zvstar = db->getArray(iech, col_est);
-      double varv = db->getArray(iech, col_var);
+      double zvstar = db->getValue(db->fromUID(col_est), iech);
+      double varv = db->getValue(db->fromUID(col_var), iech);
       if (anamPointToBlock(anam, 0, varv, TEST, TEST)) continue;
-      db->setArray(iech, iptr_sV, anam->getRCoef());
-      db->setArray(iech, iptr_yV, anam->rawToTransformValue(zvstar));
+      db->setValue(db->fromUID(iptr_sV), iech, anam->getRCoef());
+      db->setValue(
+        db->fromUID(iptr_yV), iech, anam->rawToTransformValue(zvstar));
 
       if (varv < vv_min) vv_min = varv;
       if (varv > vv_max) vv_max = varv;
@@ -817,8 +821,8 @@ namespace gstlrn
     for (Id iech = 0; iech < db->getNSample(); iech++)
     {
       if (!db->isActive(iech)) continue;
-      double sv = db->getArray(iech, iptr_sV);
-      double yv = db->getArray(iech, iptr_yV);
+      double sv = db->getValue(db->fromUID(iptr_sV), iech);
+      double yv = db->getValue(db->fromUID(iptr_yV), iech);
 
       /* Loop on the cutoffs */
 
@@ -848,8 +852,8 @@ namespace gstlrn
       selectivity->storeInDb(db, iech, iptr0, TEST, TEST);
     }
 
-    if (iptr_sV >= 0) db->deleteColumnByUID(iptr_sV);
-    if (iptr_yV >= 0) db->deleteColumnByUID(iptr_yV);
+    if (iptr_sV >= 0) db->deleteColumn(db->fromUID(iptr_sV));
+    if (iptr_yV >= 0) db->deleteColumn(db->fromUID(iptr_yV));
     return 0;
   }
 
@@ -882,8 +886,8 @@ namespace gstlrn
     double* krigstd)
   {
     DECLARE_UNUSED(flag_OK);
-    *krigest = db->getArray(iech, col_est);
-    *krigstd = db->getArray(iech, col_std);
+    *krigest = db->getValue(db->fromUID(col_est), iech);
+    *krigstd = db->getValue(db->fromUID(col_std), iech);
 
     //  if (flag_OK)
     //  {
@@ -972,9 +976,9 @@ namespace gstlrn
     {
       if (!db->isActive(iech)) continue;
       if (selectivity->isUsedEst(ESelectivity::Z))
-        db->setArray(iech, iptrEst, valest[iech]);
+        db->setValue(db->fromUID(iptrEst), iech, valest[iech]);
       if (selectivity->isUsedStD(ESelectivity::Z))
-        db->setArray(iech, iptrStd, valstd[iech]);
+        db->setValue(db->fromUID(iptrStd), iech, valstd[iech]);
     }
     return (0);
   }
@@ -1036,14 +1040,14 @@ namespace gstlrn
         if (mode == 1)
         {
           if (selectivity->isUsedEst(ESelectivity::T))
-            db->setArray(iech, iptrEst, valest[iech]);
+            db->setValue(db->fromUID(iptrEst), iech, valest[iech]);
           if (selectivity->isUsedStD(ESelectivity::T))
-            db->setArray(iech, iptrStd, valstd[iech]);
+            db->setValue(db->fromUID(iptrStd), iech, valstd[iech]);
         }
         else
         {
           if (selectivity->isUsedEst(ESelectivity::PROP))
-            db->setArray(iech, iptrProba, 1. - valest[iech]);
+            db->setValue(db->fromUID(iptrProba), iech, 1. - valest[iech]);
         }
       }
     }
@@ -1085,7 +1089,7 @@ namespace gstlrn
       if (!db->isActive(iech)) continue;
       _correctForOK(db, iech, col_est, col_std, flag_OK, &krigest, &krigstd);
       double y = krigest + krigstd * law_invcdf_gaussian(proba);
-      db->setArray(iech, iptrQuant, anam->transformToRawValue(y));
+      db->setValue(db->fromUID(iptrQuant), iech, anam->transformToRawValue(y));
     }
     return (0);
   }
@@ -1146,9 +1150,9 @@ namespace gstlrn
       {
         if (!db->isActive(iech)) continue;
         if (selectivity->isUsedEst(ESelectivity::Q))
-          db->setArray(iech, iptrEst, valest[iech]);
+          db->setValue(db->fromUID(iptrEst), iech, valest[iech]);
         if (selectivity->isUsedStD(ESelectivity::Q))
-          db->setArray(iech, iptrStd, valstd[iech]);
+          db->setValue(db->fromUID(iptrStd), iech, valstd[iech]);
       }
     }
     return (0);
@@ -1188,9 +1192,9 @@ namespace gstlrn
       {
         if (!db->isActive(iech)) continue;
 
-        t = db->getArray(iech, iptrT);
-        q = db->getArray(iech, iptrQ);
-        db->setArray(iech, iptrB, q - t * ycuts[icut]);
+        t = db->getValue(db->fromUID(iptrT), iech);
+        q = db->getValue(db->fromUID(iptrQ), iech);
+        db->setValue(db->fromUID(iptrB), iech, q - t * ycuts[icut]);
       }
     }
     return (0);
@@ -1225,9 +1229,9 @@ namespace gstlrn
       {
         if (!db->isActive(iech)) continue;
 
-        t = db->getArray(iech, iptrT);
-        q = db->getArray(iech, iptrQ);
-        db->setArray(iech, iptrM, (t > EPSILON3) ? q / t : TEST);
+        t = db->getValue(db->fromUID(iptrT), iech);
+        q = db->getValue(db->fromUID(iptrQ), iech);
+        db->setValue(db->fromUID(iptrM), iech, (t > EPSILON3) ? q / t : TEST);
       }
     }
     return (0);

@@ -97,7 +97,7 @@ namespace gstlrn
       if (!_listVariablePermDb.empty())
       {
         for (Id i = 0; i < static_cast<Id>(_listVariablePermDb.size()); i++)
-          _db->deleteColumnByUID(_listVariablePermDb[i]);
+          _db->deleteColumn(_db->fromUID(_listVariablePermDb[i]));
       }
       _listVariablePermDb.clear();
     }
@@ -106,7 +106,7 @@ namespace gstlrn
       if (!_listVariableTempDb.empty())
       {
         for (Id i = 0; i < static_cast<Id>(_listVariableTempDb.size()); i++)
-          _db->deleteColumnByUID(_listVariableTempDb[i]);
+          _db->deleteColumn(_db->fromUID(_listVariableTempDb[i]));
       }
       _listVariableTempDb.clear();
     }

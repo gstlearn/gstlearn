@@ -643,7 +643,7 @@ namespace gstlrn
 
       // Skip the coordinates
       String name = dbin->getName(icol);
-      if (dbin->getLocatorByColIdx(icol, &locatorType, &locatorIndex, &mult))
+      if (dbin->getLocator(icol, &locatorType, &locatorIndex, &mult))
       {
         if (locatorType == ELoc::X) continue;
       }
@@ -663,9 +663,9 @@ namespace gstlrn
     // Duplicate the locators
     for (Id iatt = 0; iatt < natts; iatt++)
     {
-      (void)
-        dbin->getLocatorByUID(iatts[iatt], &locatorType, &locatorIndex, &mult);
-      setLocatorByColIdx(icolOut + iatt, locatorType, locatorIndex);
+      (void)dbin->getLocator(
+        dbin->fromUID(iatts[iatt]), &locatorType, &locatorIndex, &mult);
+      setLocator(icolOut + iatt, locatorType, locatorIndex);
     }
     return true;
   }
@@ -697,7 +697,7 @@ namespace gstlrn
       _grid.iteratorNext(indices);
       _grid.indicesToCoordinateInPlace(indices, coors);
       for (Id idim = 0; idim < ndim; idim++)
-        setArray(iech, icol0 + idim, coors[idim]);
+        setValue(fromUID(icol0 + idim), iech, coors[idim]);
     }
   }
 
@@ -1049,7 +1049,7 @@ namespace gstlrn
         indices[posy] = i2;
         Id iech = indiceToRank(indices);
         if (!useSel || isActive(iech))
-          tab[ecr] = getArray(iech, iuid, version);
+          tab[ecr] = getValue(fromUID(iuid, version), iech);
         else
           tab[ecr] = TEST;
       }
@@ -1119,7 +1119,7 @@ namespace gstlrn
     // Check if the variable name already exists
     if (getNLoc(ELoc::X) > 0)
     {
-      String name = getName({toERole(ELoc::X), idim});
+      String name = getName(RoleID(ERole::X, idim));
       return getOneSlice(name, posx, posy, corner, useSel, version);
     }
     // The variable does not exist, it must be generated on the fly
@@ -1291,7 +1291,7 @@ namespace gstlrn
           tab[1][ecr] = coor[1];
           tab[2][ecr] = coor[2];
           if (!useSel || isActive(iech))
-            tab[3][ecr] = getArray(iech, iuid, version);
+            tab[3][ecr] = getValue(fromUID(iuid, version), iech);
           else
             tab[3][ecr] = TEST;
         }
@@ -1320,7 +1320,7 @@ namespace gstlrn
           tab[1][ecr] = coor[1];
           tab[2][ecr] = coor[2];
           if (!useSel || isActive(iech))
-            tab[3][ecr] = getArray(iech, iuid, version);
+            tab[3][ecr] = getValue(fromUID(iuid, version), iech);
           else
             tab[3][ecr] = TEST;
         }
@@ -1349,7 +1349,7 @@ namespace gstlrn
           tab[1][ecr] = coor[1];
           tab[2][ecr] = coor[2];
           if (!useSel || isActive(iech))
-            tab[3][ecr] = getArray(iech, iuid, version);
+            tab[3][ecr] = getValue(fromUID(iuid, version), iech);
           else
             tab[3][ecr] = TEST;
         }
@@ -1514,7 +1514,7 @@ namespace gstlrn
   VectorDouble DbGrid::getBlockExtensions(Id node) const
   {
     VectorDouble dxsPerCell;
-    if (!hasLocVariable(ELoc::BLEX))
+    if (!hasLocator(ELoc::BLEX))
       dxsPerCell = getDXs();
     else
     {
@@ -1546,7 +1546,7 @@ namespace gstlrn
     bool verbose,
     const NamingConvention& namconv)
   {
-    if (!hasLocVariable(ELoc::SEL))
+    if (!hasLocator(ELoc::SEL))
     {
       messerr(
         "Morphological operations on selection are not allowed when a "
@@ -1555,7 +1555,7 @@ namespace gstlrn
     }
 
     // The variable corresponding to the selection is now set to the ELoc::Z variable
-    auto name = getName({toERole(ELoc::SEL), 0});
+    auto name = getName(ERole::SEL);
     setLocator(name, ELoc::Z);
 
     double vmin = 0.5;
@@ -1848,8 +1848,8 @@ namespace gstlrn
       // Loop on the variables
       for (Id ivar = 0; ivar < nvar; ivar++)
       {
-        value = gridIn->getArray(igin, iuidIn[ivar]);
-        gridOut->setArray(igout, iuidOut[ivar], value);
+        value = gridIn->getValue(gridIn->fromUID(iuidIn[ivar]), igin);
+        gridOut->setValue(gridOut->fromUID(iuidOut[ivar]), igout, value);
       }
     }
     return gridOut;
@@ -1984,8 +1984,8 @@ namespace gstlrn
         if (!surf2D->isActive(ig2D)) continue;
 
         // Read the Top and Bottom
-        top = surf2D->getArray(ig2D, iuidTop);
-        bot = surf2D->getArray(ig2D, iuidBot);
+        top = surf2D->getValue(surf2D->fromUID(iuidTop), ig2D);
+        bot = surf2D->getValue(surf2D->fromUID(iuidBot), ig2D);
         thick = top - bot;
         if (thick < thickmin) continue;
 
@@ -2123,8 +2123,8 @@ namespace gstlrn
         if (!surf2D->isActive(ig2D)) continue;
 
         // Read the Top and Bottom
-        top = surf2D->getArray(ig2D, iuidTop);
-        bot = surf2D->getArray(ig2D, iuidBot);
+        top = surf2D->getValue(surf2D->fromUID(iuidTop), ig2D);
+        bot = surf2D->getValue(surf2D->fromUID(iuidBot), ig2D);
 
         // Loop on the variables to be transformed
         for (Id ivar = 0; ivar < nvar; ivar++)
@@ -2182,8 +2182,8 @@ namespace gstlrn
     {
       // Discard not relevant pixels
       if (!isActive(iech)) continue;
-      double top = getArray(iech, iuid_top);
-      double bot = getArray(iech, iuid_bot);
+      double top = getValue(fromUID(iuid_top), iech);
+      double bot = getValue(fromUID(iuid_bot), iech);
       if (FFFF(top) || FFFF(bot) || bot > top) continue;
 
       rankToIndice(iech, indg);
@@ -2253,11 +2253,11 @@ namespace gstlrn
     {
       // Discard not relevant pixels
       if (!isActive(iech)) continue;
-      double top = getArray(iech, iuid_top);
-      double bot = getArray(iech, iuid_bot);
+      double top = getValue(fromUID(iuid_top), iech);
+      double bot = getValue(fromUID(iuid_bot), iech);
       if (FFFF(top) || FFFF(bot) || bot > top)
       {
-        setArray(iech, iuidSel, 0);
+        setValue(fromUID(iuidSel), iech, 0);
         continue;
       }
     }
@@ -2492,16 +2492,16 @@ namespace gstlrn
     Id iuid = addColumnsByConstant(1, 1);
     if (dbStatisticsInGridTool(db, this, names, EStatOption::NUM, radius, iuid))
       return 1;
-    VectorDouble stats = getColumnByUID(iuid, false, false);
+    VectorDouble stats = getColumn(fromUID(iuid), false, false);
     for (Id iech = 0; iech < nech; iech++)
       stats[iech] = (stats[iech] <= nmin) ? 0. : 1.;
-    setColumnByUID(stats, iuid, false);
-    setLocatorByUID(iuid, ELoc::Z, 0, true);
+    setColumn(fromUID(iuid), stats, false);
+    setLocator(fromUID(iuid), ELoc::Z, 0, true);
 
     Id err = morpho(
       EMorpho::DILATION, 0.5, 1.5, option, dilation, false, verbose, namconv);
 
-    deleteColumnByUID(iuid);
+    deleteColumn(fromUID(iuid));
     return err;
   }
 
@@ -2549,8 +2549,9 @@ namespace gstlrn
       Id nval = ntot;
       for (Id idim = ndim - 1; idim >= 0; idim--)
       {
-        double taille =
-          (!flagPerCell) ? getDX(idim) : getLocVariable(ELoc::BLEX, iech, idim);
+        double taille = (!flagPerCell)
+                        ? getDX(idim)
+                        : getValue(RoleID(ERole::BLEX, idim), iech);
         Id nd = ndiscs[idim];
         nval /= nd;
         Id j = jech / nval;

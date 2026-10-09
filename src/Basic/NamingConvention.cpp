@@ -259,8 +259,9 @@ namespace gstlrn
 
     // Set the locator for all variables
     for (Id ecr = 0; ecr < nvar * nitems; ecr++)
-      dbout->setLocatorByUID(
-        iattout_start + ecr, _locatorOutType, ecr + locatorShift);
+      dbout->setLocator(
+        dbout->fromUID(iattout_start + ecr), _locatorOutType,
+        ecr + locatorShift);
   }
 
   Id NamingConvention::_getNameCount(const VectorString& names, Id nvar)
@@ -300,7 +301,7 @@ namespace gstlrn
       {
         auto iuid = iattout_start + ecr;
         iuids.push_back(iuid);
-        reservedList.push_back(dbout->getNameByUID(iuid));
+        reservedList.push_back(dbout->getName(dbout->fromUID(iuid)));
       }
     }
     auto navoid = static_cast<Id>(reservedList.size());
@@ -309,7 +310,7 @@ namespace gstlrn
 
     for (Id i = 0; i < navoid; i++)
     {
-      dbout->setNameByUID(iuids[i], outnames[i]);
+      dbout->setName(dbout->fromUID(iuids[i]), outnames[i]);
     }
   }
 
@@ -431,7 +432,7 @@ namespace gstlrn
     if (db != nullptr)
     {
       if (db->getNLoc(ELoc::Z) > 0)
-        loc_varname = db->getName({toERole(ELoc::Z), ivar});
+        loc_varname = db->getName(RoleID(ERole::Z, ivar));
     }
     else
     {

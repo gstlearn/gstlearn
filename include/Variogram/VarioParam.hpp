@@ -252,8 +252,8 @@ namespace gstlrn
 
     Id nech = db->getNSample();
     double maxdist = dirparam.getMaximumDistance();
-    bool hasSel = db->hasLocVariable(ELoc::SEL);
-    bool hasWeight = db->hasLocVariable(ELoc::W);
+    bool hasSel = db->hasLocator(ELoc::SEL);
+    bool hasWeight = db->hasLocator(ELoc::W);
 
     // Common O(N) pre-filtering: build sorted validRanks vector AND boolean active mask
     VectorInt validRanks;

@@ -283,9 +283,11 @@ namespace gstlrn
           value =
             db->getSimvar(locatorType, iech, ivar, isimu, 0, nvar, nbsimu);
           if (FFFF(value)) continue;
-          db->updArray(iech, iptr_ce + ivar, EOperator::ADD, value);
-          db->updArray(iech, iptr_cstd + ivar, EOperator::ADD, value * value);
-          db->updArray(iech, iptr_nb + ivar, EOperator::ADD, 1.);
+          db->updValue(
+            db->fromUID(iptr_ce + ivar), iech, EOperator::ADD, value);
+          db->updValue(
+            db->fromUID(iptr_cstd + ivar), iech, EOperator::ADD, value * value);
+          db->updValue(db->fromUID(iptr_nb + ivar), iech, EOperator::ADD, 1.);
         }
       }
     }
@@ -298,19 +300,20 @@ namespace gstlrn
 
       for (Id ivar = 0; ivar < nvar; ivar++)
       {
-        count = db->getArray(iech, iptr_nb + ivar);
+        count = db->getValue(db->fromUID(iptr_nb + ivar), iech);
         if (count <= 0)
         {
-          db->setArray(iech, iptr_ce + ivar, TEST);
-          db->setArray(iech, iptr_cstd + ivar, TEST);
+          db->setValue(db->fromUID(iptr_ce + ivar), iech, TEST);
+          db->setValue(db->fromUID(iptr_cstd + ivar), iech, TEST);
         }
         else
         {
-          mean = db->getArray(iech, iptr_ce + ivar) / count;
-          db->setArray(iech, iptr_ce + ivar, mean);
-          var = db->getArray(iech, iptr_cstd + ivar) / count - mean * mean;
+          mean = db->getValue(db->fromUID(iptr_ce + ivar), iech) / count;
+          db->setValue(db->fromUID(iptr_ce + ivar), iech, mean);
+          var = db->getValue(db->fromUID(iptr_cstd + ivar), iech) / count
+              - mean * mean;
           var = (var > 0.) ? sqrt(var) : 0.;
-          db->setArray(iech, iptr_cstd + ivar, var);
+          db->setValue(db->fromUID(iptr_cstd + ivar), iech, var);
         }
       }
     }
@@ -471,12 +474,12 @@ namespace gstlrn
             if (!dbin->isActive(iech)) continue;
             for (Id ivar = 0; ivar < nvar; ivar++)
             {
-              double value = dbin->getLocVariable(ELoc::Z, iech, ivar);
+              double value = dbin->getValue(RoleID(ERole::Z, ivar), iech);
               if (FFFF(value)) continue;
 
               // Set the bounds to the known exact value
-              dbin->setLocVariable(ELoc::L, iech, ivar, value);
-              dbin->setLocVariable(ELoc::U, iech, ivar, value);
+              dbin->setValue(RoleID(ERole::L, ivar), iech, value);
+              dbin->setValue(RoleID(ERole::U, ivar), iech, value);
             }
           }
 
@@ -707,7 +710,7 @@ namespace gstlrn
 
         /* Load the target simulation into the interface buffer */
 
-        tab = dbout->getColumnByUID(iatt, true);
+        tab = dbout->getColumn(dbout->fromUID(iatt), true);
 
         /* Check if the simulation is valid */
 
@@ -720,7 +723,7 @@ namespace gstlrn
 
           /* Delete the current simulation */
 
-          dbout->deleteColumnByUID(iatt);
+          dbout->deleteColumn(dbout->fromUID(iatt));
 
           /* Interrupt the loop (if requested) */
 
@@ -740,7 +743,7 @@ namespace gstlrn
 
             /* Update the vector (optional) */
 
-            dbout->setColumnByUID(tab, iatt);
+            dbout->setColumn(dbout->fromUID(iatt), tab);
           }
           cols.push_back(iatt);
           nvalid++;
@@ -789,9 +792,9 @@ namespace gstlrn
     for (iech = number = 0; iech < dbout->getNSample(); iech++)
     {
       if (!dbout->isActive(iech)) continue;
-      valsim = dbout->getArray(iech, iptrv);
+      valsim = dbout->getValue(dbout->fromUID(iptrv), iech);
       if (valsim > seuil / scale)
-        dbout->setArray(iech, iptrs, 0.);
+        dbout->setValue(dbout->fromUID(iptrs), iech, 0.);
       else
         number++;
     }
@@ -827,12 +830,12 @@ namespace gstlrn
     for (iech = 0; iech < dbout->getNSample(); iech++)
     {
       if (!dbout->isActive(iech)) continue;
-      valold = dbout->getArray(iech, iptrv);
-      valsim = dbout->getArray(iech, iptrg) / scale;
+      valold = dbout->getValue(dbout->fromUID(iptrv), iech);
+      valsim = dbout->getValue(dbout->fromUID(iptrg), iech) / scale;
       if (valsim > valold)
       {
-        dbout->setArray(iech, iptrv, valsim);
-        dbout->setArray(iech, iptrr, iter0);
+        dbout->setValue(dbout->fromUID(iptrv), iech, valsim);
+        dbout->setValue(dbout->fromUID(iptrr), iech, iter0);
         (*last) = iter0;
       }
     }
@@ -956,10 +959,10 @@ namespace gstlrn
     error = 0;
 
   label_end:
-    if (iptrs >= 0) dbout->deleteColumnByUID(iptrs);
-    if (iptrg >= 0) dbout->deleteColumnByUID(iptrg);
-    if (!flag_rank && iptrr >= 0) dbout->deleteColumnByUID(iptrr);
-    if (!flag_simu && iptrv >= 0) dbout->deleteColumnByUID(iptrv);
+    if (iptrs >= 0) dbout->deleteColumn(dbout->fromUID(iptrs));
+    if (iptrg >= 0) dbout->deleteColumn(dbout->fromUID(iptrg));
+    if (!flag_rank && iptrr >= 0) dbout->deleteColumn(dbout->fromUID(iptrr));
+    if (!flag_simu && iptrv >= 0) dbout->deleteColumn(dbout->fromUID(iptrv));
     return (error);
   }
 
@@ -1090,8 +1093,7 @@ namespace gstlrn
 
     /* Set the mask to the whole set of grid nodes */
 
-    for (iech = 0; iech < nech; iech++)
-      dbout->setLocVariable(ELoc::SEL, iech, 0, 1.);
+    for (iech = 0; iech < nech; iech++) dbout->setValue(ERole::SEL, iech, 1.);
 
     /* Loop on the cutoff classes */
 
@@ -1120,7 +1122,7 @@ namespace gstlrn
         if (!FFFF(seuil) && simval >= seuil) continue;
         dbout->setSimvar(
           ELoc::SIMU, iech, 0, 0, 0, 1, 1, static_cast<double>(icut + 1));
-        dbout->setLocVariable(ELoc::SEL, iech, 0, 0.);
+        dbout->setValue(ERole::SEL, iech, 0.);
         count++;
       }
       total += count;
@@ -1146,7 +1148,7 @@ namespace gstlrn
     error = 0;
 
   label_end:
-    if (iptrs >= 0) dbout->deleteColumnByUID(iptrs);
+    if (iptrs >= 0) dbout->deleteColumn(dbout->fromUID(iptrs));
     return (error);
   }
 
@@ -1441,7 +1443,8 @@ namespace gstlrn
   static Id
     st_getFACIES(const DbGrid* dbgrid, Id nfacies, Id indFacies, Id iech)
   {
-    Id ifacies = static_cast<Id>(dbgrid->getArray(iech, indFacies));
+    Id ifacies =
+      static_cast<Id>(dbgrid->getValue(dbgrid->fromUID(indFacies), iech));
     if (ifacies < 0 || ifacies > nfacies || isNA(ifacies)) ifacies = 0;
     return (ifacies);
   }
@@ -1449,7 +1452,7 @@ namespace gstlrn
   static double st_getPORO(const DbGrid* dbgrid, Id indPoro, Id iech)
   {
     if (indPoro <= 0) return (1);
-    double poro = dbgrid->getArray(iech, indPoro);
+    double poro = dbgrid->getValue(dbgrid->fromUID(indPoro), iech);
     if (FFFF(poro) || poro < 0.) poro = 0.;
     return (poro);
   }
@@ -1459,7 +1462,7 @@ namespace gstlrn
     double date;
 
     if (indDate <= 0) return (0);
-    date = dbgrid->getArray(iech, indDate);
+    date = dbgrid->getValue(dbgrid->fromUID(indDate), iech);
     if (FFFF(date)) return (0);
     date = MAX(1., date);
     return (date);
@@ -1467,7 +1470,8 @@ namespace gstlrn
 
   static Id st_getFLUID(const DbGrid* dbgrid, Id nfluids, Id indFluid, Id iech)
   {
-    Id ifluid = static_cast<Id>(dbgrid->getArray(iech, indFluid));
+    Id ifluid =
+      static_cast<Id>(dbgrid->getValue(dbgrid->fromUID(indFluid), iech));
     if (ifluid < 0 || ifluid > nfluids || isNA(ifluid)) ifluid = 0;
     return (ifluid);
   }

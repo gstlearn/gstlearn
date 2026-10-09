@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "OutputFormat/GridZycor.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/String.hpp"
 #include "Core/io.hpp"
 #include "Db/Db.hpp"
@@ -95,7 +94,7 @@ namespace gstlrn
       Id ii = ((nx[1] * nx[0]) - (jj + 1));
       for (Id loop = 1; loop <= nx[1]; loop++)
       {
-        buff[kk++] = _dbgrid->getArray(ii, _cols[0]);
+        buff[kk++] = _dbgrid->getValue(_dbgrid->fromUID(_cols[0]), ii);
         ii -= nx[0];
         if (kk == nbyline)
         {

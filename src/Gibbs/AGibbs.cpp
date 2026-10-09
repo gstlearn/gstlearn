@@ -160,8 +160,8 @@ namespace gstlrn
     const Db* db = getDb();
     auto icase = getRank(ipgs, ivar);
     auto iech = getSampleRank(iact);
-    double vmin = db->getLocVariable(ELoc::L, iech, icase);
-    double vmax = db->getLocVariable(ELoc::U, iech, icase);
+    double vmin = db->getValue(RoleID(ERole::L, icase), iech, false);
+    double vmax = db->getValue(RoleID(ERole::U, icase), iech, false);
 
     if (!FFFF(vmin) && !FFFF(vmax) && (vmin) > (vmax))
     {
@@ -277,8 +277,8 @@ namespace gstlrn
       for (Id iact = 0; iact < nact; iact++)
       {
         auto iech = getSampleRank(iact);
-        double vmin = _db->getLocVariable(ELoc::L, iech, icase);
-        double vmax = _db->getLocVariable(ELoc::U, iech, icase);
+        double vmin = _db->getValue(RoleID(ERole::L, icase), iech, false);
+        double vmax = _db->getValue(RoleID(ERole::U, icase), iech, false);
         _printInequalities(iact, ivar, y[icase][iact], vmin, vmax);
       }
     }
@@ -329,12 +329,13 @@ namespace gstlrn
     for (Id ivar = 0; ivar < nvar; ivar++)
     {
       auto icase = getRank(ipgs, ivar);
+      auto colid = ColID(RoleID(ERole::GAUSFAC, icase), isimu);
 
       /* Loop on the samples */
       for (Id iact = 0; iact < nact; iact++)
       {
         auto iech = getSampleRank(iact);
-        _db->setFromLocator(ELoc::GAUSFAC, iech, icase, y[icase][iact], isimu);
+        _db->setValue(colid, iech, y[icase][iact]);
       }
     }
 
@@ -349,7 +350,7 @@ namespace gstlrn
   VectorInt AGibbs::_calculateSampleRanks() const
   {
 
-    if (!_db->hasLocVariable(ELoc::SEL)) return VH::sequence(_db->getNSample());
+    if (!_db->hasLocator(ELoc::SEL)) return VH::sequence(_db->getNSample());
 
     VectorInt ranks;
     for (Id iech = 0; iech < _db->getNSample(); iech++)
@@ -467,8 +468,8 @@ namespace gstlrn
   {
     auto iech = getSampleRank(iact);
 
-    double vmin = _db->getLocVariable(ELoc::L, iech, icase);
-    double vmax = _db->getLocVariable(ELoc::U, iech, icase);
+    double vmin = _db->getValue(RoleID(ERole::L, icase), iech, false);
+    double vmax = _db->getValue(RoleID(ERole::U, icase), iech, false);
 
     bool isActive = !FFFF(vmin) && !FFFF(vmax) && isEqual(vmin, vmax);
     if (isActive)

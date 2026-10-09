@@ -964,7 +964,7 @@ namespace gstlrn
       for (Id ivar = 0; ivar < nvar; ivar++)
       {
         VH::extractInPlace(result, local, ivar * nechred);
-        dbout->setColumnByUID(local, iuid + ivar, true, isimu);
+        dbout->setColumn(dbout->fromUID(iuid + ivar, isimu), local, true);
       }
     }
     auto names =
@@ -1079,7 +1079,7 @@ namespace gstlrn
       {
         VH::extractInPlace(result, local, ivar * nechred);
         Id juid = iuid + ivar * nbsimu + isimu;
-        dbout->setColumnByUID(local, juid, true);
+        dbout->setColumn(dbout->fromUID(juid), local, true);
         iuids.push_back(juid);
       }
 

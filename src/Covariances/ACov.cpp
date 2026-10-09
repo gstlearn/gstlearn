@@ -1591,21 +1591,21 @@ namespace gstlrn
     const VectorVectorInt& index1)
   {
     // Check if the correction can take place at all
-    if (!db1->hasLocVariable(ELoc::V)) return;
+    if (!db1->hasLocator(ELoc::V)) return;
 
     // Loop on Data
     Id irow = 0;
     for (Id ivar1 = 0, nvar1 = static_cast<Id>(index1.size()); ivar1 < nvar1;
          ivar1++)
     {
-      Id icolVerr = db1->getColIdxByLocator(ELoc::V, ivar1);
+      Id icolVerr = db1->getColIdx(RoleID(ERole::V, ivar1));
       const VectorInt& index1i = index1[ivar1];
       for (const auto iabs1: index1i.getVector())
       {
         double verr = 0.;
 
         // Update the Diagonal due to the presence of Variance of Measurement Error
-        if (icolVerr >= 0) verr = db1->getValueByColIdx(iabs1, icolVerr);
+        if (icolVerr >= 0) verr = db1->getValue(icolVerr, iabs1);
 
         // Update the Covariance matrix
         if (verr > 0) mat->updValue(irow, irow, EOperator::ADD, verr);
@@ -2325,7 +2325,8 @@ namespace gstlrn
       Id ecr = 0;
       for (Id ivar = 0; ivar < nvar; ivar++)
         for (Id jvar = 0; jvar <= ivar; jvar++, ecr++)
-          dbgrid->setArray(iech, iptr + ecr, mat.getValue(ivar, jvar));
+          dbgrid->setValue(
+            dbgrid->fromUID(iptr + ecr), iech, mat.getValue(ivar, jvar));
     }
 
     /* Set the error return code */

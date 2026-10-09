@@ -1180,7 +1180,8 @@ MyCorGaussianMixture <- function(type = MyType_[3], nu = 1/2, kappa = rep(1.0, l
 # ------------------------------------------------------------------------------
 # Gneiting model for $d %\in% c(1,2,3)$
 # Gneiting model for $type %\in% c(6,7,8)$  Spatial covariance is Gaussian, Matern, or Cauchy
-MyCorGneiting <- function(type = MyType_[7], nu = 1/2, kappa = rep(1.0, length(nu)), sigma = rep(1.0, length(nu)),
+MyCorGneiting <- function(type = MyType_[7], nu = 1/2, kappa = rep(1.0, length(nu)),
+                          sigma = rep(1.0, length(nu)),
                             anisotropy = MyAniso(),
                             alpha = 1.0, beta = 1.0, timeRange = 1.0,
                             verbose = TRUE
@@ -1319,7 +1320,8 @@ MyCorGneiting <- function(type = MyType_[7], nu = 1/2, kappa = rep(1.0, length(n
 # ------------------------------------------------------------------------------
 # MySimu Spectral is implemented in the simuSpectral function
 # ------------------------------------------------------------------------------
-MySimuSpectral <- function(grid, cov, nsim = 1, ns = 1000, seed = NULL, verbose = FALSE, cov0 = NULL,
+MySimuSpectral <- function(grid, cov, nsim = 1, ns = 1000, seed = NULL, verbose = FALSE,
+                           cov0 = NULL,
                            prefix = "MySimu") {
   ierr = 0
   ndim = cov$getNDim()
@@ -1677,7 +1679,7 @@ for (id in seq_len(length(list_test))) {
     nm0_var = NC_getNameEncoded(prefix, NULL, ivar, nvar, isim, isim)
     nm_var = NC_getNameEncoded(prefix, NULL, ivar, nvar, isim, 0)
     tab_var = c(tab_var, nm0_var )
-    val = grid$getColumn(nm_var, version=isim-1)
+    val = grid$getColumn(ColID(nm_var, isim - 1))
     # compute statistics
     tab = rbind(tab, t(compute_statistics(val)))
     # plots
@@ -1733,16 +1735,18 @@ for (id in seq_len(length(list_test))) {
     for (ivar in 1:nvar) {
       nm0_vari = NC_getNameEncoded(prefix, NULL, ivar, nvar, isim, nsim)
       nm_vari = NC_getNameEncoded(prefix, NULL, ivar, nvar, isim, 0)
-      sim_vari = matrix(grid$getColumn(nm_vari, version=isim-1), nx[idx_x], nx[idx_y])
+      veci = grid$getColumn(ColID(nm_vari, isim - 1))
+      sim_vari = matrix(veci, nx[idx_x], nx[idx_y])
       # statistics
       var_name = c(var_name, nm0_vari)
-      tab = rbind(tab, t(compute_statistics(grid$getColumn(nm_vari, version=isim-1))))
+      tab = rbind(tab, t(compute_statistics(veci)))
 
       for (jvar in ivar:nvar) {
         ig = ig+1
         nm0_varj = NC_getNameEncoded(prefix, NULL, jvar, nvar, isim, nsim)
         nm_varj = NC_getNameEncoded(prefix, NULL, jvar, nvar, isim, 0)
-        sim_varj = matrix(grid$getColumn(nm_varj, version=isim-1), nx[idx_x], nx[idx_y])
+        vecj = grid$getColumn(ColID(nm_varj, isim - 1))
+        sim_varj = matrix(vecj, nx[idx_x], nx[idx_y])
         # variogram
         for (idir in 1:nrow(dir_list)) {
         gam = compute_vario_on_grid(val = sim_vari, val2 = sim_varj,

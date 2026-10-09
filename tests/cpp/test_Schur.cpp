@@ -55,7 +55,7 @@ static Db* _dataTargetDeplement(Db* data, const VectorInt& varXvalid, Id iech0)
 
   // Delete the cross-validation information
   for (Id i = 0, nval = static_cast<Id>(varXvalid.size()); i < nval; i++)
-    datap->setLocVariable(ELoc::Z, iech0, varXvalid[i], TEST);
+    datap->setValue(RoleID(ERole::Z, varXvalid[i]), iech0, TEST);
   datap->display(dbfmt);
 
   return datap;
@@ -107,7 +107,7 @@ static void _firstTest(Db* data, Db* target, ModelGeneric* model, ANeigh* neigh)
   Table table;
   kribayes(dataP, target, modelc, neigh, true, true);
   table = target->printOneSample(iech0, {"Bayes*"}, true, true);
-  target->deleteColumn("Bayes*");
+  target->deleteColumns({"Bayes*"});
   table.display();
 
   // ---------------------- Using Schur Class ------------------------------

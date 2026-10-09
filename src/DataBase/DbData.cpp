@@ -122,24 +122,38 @@ namespace gstlrn
   }
 
   std::optional<std::reference_wrapper<const DbCol>>
-    DbData::_identifyColumn(ColID&& colid) const
+    DbData::_identifyColumn(ColID&& colid, bool verbose) const
   {
-    const auto icol = _getColumnIndex(colid);
+    const auto icol = _getColumnIndex(colid, verbose);
     if (!icol) return std::nullopt;
     return {this->_cols[*icol]};
   }
 
   bool DbData::hasColumn(ColID&& colid) const
   {
-    const auto icol = _getColumnIndex(colid);
-    return static_cast<bool>(icol);
+    const auto icol = _getColumnIndex(colid, false);
+    return static_cast<bool>(icol >= 0);
+  }
+
+  bool DbData::hasValidVersion(ColID&& colid) const
+  {
+    const auto icol = _getColumnIndex(colid, false);
+    if (!icol) return false;
+
+    auto version = colid.getVersion();
+
+    if (version < 0) return true;
+
+    auto a = _cols[*icol];
+    auto nversion = a.getNVersions();
+    return a.checkVersion(version, nversion);
   }
 
   /**
    * @brief Get the Name object
    *
    * @param colid Column Indentifier
-   * @param withVersion Whether to include the version in the name
+   * @param withVersion Whether to include the 'version' in the name
    * @return String
    */
   String DbData::getName(ColID&& colid, bool withVersion) const
@@ -147,14 +161,17 @@ namespace gstlrn
     const auto icol = _getColumnIndex(colid);
     if (!icol) return String();
 
-    auto nversion = _cols[*icol].getNVersions();
+    if (!hasValidVersion(std::move(colid))) return String();
+
     auto name = _cols[*icol].getName();
-    if (nversion <= 1 || !withVersion) return name;
 
-    auto version = colid.getVersion();
-    auto loc_number = concatenateString("S", version + 1, "");
-
-    return concatenateStrings(".", name, loc_number);
+    if (withVersion && _cols[*icol].getNVersions() > 1)
+    {
+      auto version = colid.getVersion();
+      auto loc_number = concatenateString("S", version + 1, "");
+      name = concatenateStrings(".", name, loc_number);
+    }
+    return name;
   }
 
   Id DbData::getUniqueIndex(ColID&& colid) const
@@ -196,12 +213,32 @@ namespace gstlrn
   ColID DbData::getColID(const ColID& colid) const
   {
     const auto icol = _getColumnIndex(colid, false);
-    if (!icol) return ColID(-1);
+    if (!icol || !isValidColumn(*icol)) return ColID(-1);
 
     ColID colIDout(*icol);
     colIDout.setName(_cols[*icol].getName());
     colIDout.setRoleID(_roleIDs[*icol]);
     return colIDout;
+  }
+
+  ColID DbData::fromUID(Id iuid, Id version) const
+  {
+    const auto ncol = getNColumns();
+    if (ncol <= 0 || iuid < 0) return ColID(-1);
+
+    const Id startColumn = (iuid < ncol) ? iuid : 0;
+
+    for (Id icol = 0; icol < ncol; ++icol)
+    {
+      const Id jcol = (icol + startColumn) % ncol;
+
+      if (_cols[jcol].getUniqueIndex() == iuid)
+      {
+        return ColID(jcol, version);
+      }
+    }
+
+    return ColID(-1);
   }
 
   void DbData::setRoleID(ColID&& colid, const RoleID& roleID)
@@ -215,12 +252,12 @@ namespace gstlrn
     _roleIDs[*icol] = roleIDLocal;
   }
 
-  void DbData::deleteVersion(ColID&& colid, Id iversion)
+  void DbData::deleteVersion(ColID&& colid, Id version)
   {
     const auto icol = _getColumnIndex(colid);
     if (!icol) return;
 
-    _cols[*icol].deleteVersion(iversion);
+    _cols[*icol].deleteVersion(version);
   }
 
   void DbData::setName(ColID&& colid, const String& newName)
@@ -397,39 +434,56 @@ namespace gstlrn
   {
     auto ncol = getNColumns();
 
-    // Try to identify by Column Name
+    // By Index
+    auto icol = colid.getICol();
+    if (icol >= 0)
+    {
+      if (icol >= ncol)
+      {
+        if (verbose)
+        {
+          messerr("Column index (%d) is out of range.", icol);
+          messerr("It should be between 0 and %d", ncol - 1);
+        }
+        return std::nullopt;
+      }
+
+      // TODO: we should check the UID (if defined)
+      return icol;
+    }
+
+    // By Name
     const String& localName = colid.getName();
     if (!localName.empty())
     {
-      for (Id icol = 0; icol < ncol; ++icol)
+      for (Id jcol = 0; jcol < ncol; ++jcol)
       {
         // 'localName' may contain a regular expression, so we use matchRegexp to check for a match
-        if (matchRegexp(_cols[icol].getName(), localName)) return icol;
+        if (matchRegexp(_cols[jcol].getName(), localName))
+        {
+          return jcol;
+        }
       }
       if (verbose) _unknownName(localName);
       return std::nullopt;
     }
 
-    // Try to identify by Column Role
+    // By Role
     if (colid.getRole().isDifferent(ERole::UNDEFINED))
     {
       const RoleID& roleID = colid.getRoleID();
-      for (Id icol = 0; icol < ncol; ++icol)
+      for (Id jcol = 0; jcol < ncol; ++jcol)
       {
-        if (_roleIDs[icol].isEqual(roleID, true)) return icol;
+        if (_roleIDs[jcol].isEqual(roleID, true))
+        {
+          return jcol;
+        }
       }
       if (verbose) _unknownRoleID(roleID);
       return std::nullopt;
     }
 
-    // Try to identify by Column rank
-    auto icol0 = colid.getICol();
-    if (icol0 < 0 || icol0 >= ncol)
-    {
-      if (verbose) messerr("Column index is out of range.");
-      return std::nullopt;
-    }
-    return icol0;
+    return -1;
   }
 
   /**
@@ -467,7 +521,7 @@ namespace gstlrn
    * - if the Rank of the new Column does not match the one of the old matching Column,
    *   this rank is calculated as the largest Rank found in matching Columns incremented by 1.
    * A safety patch:
-   * - If a Colulmn has several version, the Role cannot be accepted (except for SIMU)
+   * - If a Column has several versions, the Role cannot be accepted (except for SIMU)
    */
   void DbData::_updateRoleIDAddition(Id icol0, RoleID& roleID)
   {
@@ -622,7 +676,7 @@ namespace gstlrn
     return -1;
   }
 
-  void DbData::_checkVersion(Id& nversion)
+  void DbData::_checkNVersion(Id& nversion)
   {
     if (nversion <= 0)
     {
@@ -677,27 +731,29 @@ namespace gstlrn
   /************************************************************************/
   DbData::ColProxy DbData::X(Id rank)
   {
-    return ColProxy(*this, ColID(ERole::X, rank));
+    return ColProxy(*this, ColID(RoleID(ERole::X, rank)));
   }
 
   DbData::ColProxy DbData::Z(Id rank)
   {
-    return ColProxy(*this, ColID(ERole::Z, rank));
+    return ColProxy(*this, ColID(RoleID(ERole::Z, rank)));
   }
 
   DbData::ColProxy DbData::W(Id rank)
   {
-    return ColProxy(*this, ColID(ERole::W, rank));
+    DECLARE_UNUSED(rank);
+    return ColProxy(*this, ColID(ERole::W));
   }
 
   DbData::ColProxy DbData::F(Id rank)
   {
-    return ColProxy(*this, ColID(ERole::F, rank));
+    return ColProxy(*this, ColID(RoleID(ERole::F, rank)));
   }
 
   DbData::ColProxy DbData::SEL(Id rank)
   {
-    return ColProxy(*this, ColID(ERole::SEL, rank));
+    DECLARE_UNUSED(rank);
+    return ColProxy(*this, ColID(ERole::SEL));
   }
 
   DbData::ColProxy DbData::role(const ERole& role, Id rank)

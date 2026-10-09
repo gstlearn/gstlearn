@@ -63,7 +63,7 @@ namespace gstlrn
       double valprt = valtest;
       if (_dbgrid->getSelection(i))
       {
-        double value = _dbgrid->getArray(i, _cols[0]);
+        double value = _dbgrid->getValue(_dbgrid->fromUID(_cols[0]), i);
         if (!FFFF(value)) valprt = value;
       }
       fprintf(_file, "%lf ", valprt);

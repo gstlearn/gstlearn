@@ -7,6 +7,8 @@ output:
     toc: true
   pdf_document:
     toc: true
+editor_options:
+  chunk_output_type: console
 ---
 
 <!-- SUMMARY: Description of the Data Base (numerical). How to create a Db (from different sources), to use shortcuts (assessors), to assign roles to variables (locators).  -->

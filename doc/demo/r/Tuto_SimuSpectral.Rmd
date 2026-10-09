@@ -97,7 +97,7 @@ plot.end(p)
 # experimental variogram for the first simulation and simulated model
 nlag = 50
 varioPar = VarioParam_createMultipleFromGrid(grid, nlag = nlag)
-err = grid$setLocator(name = var_name, locatorType = ELoc_Z(),
+err = grid$setLocator(var_name, locatorType = ELoc_Z(),
                       cleanSameLocator = TRUE)
 vario = Vario_computeFromDb(varioPar, grid)
 p = plot.init() +
@@ -161,9 +161,9 @@ plot.end(p)
 grid1["sel"] <- VectorHelper_simulateBernoulli(grid1$getNSample(), proba=0.005)
 err = grid1$setLocator("sel", ELoc_SEL(), cleanSameLocator = TRUE)
 db = Db()
-db["x1"] <- grid1$getColumn(name = "x1", useSel = TRUE)
-db["x2"] <- grid1$getColumn(name = "x2", useSel = TRUE)
-db[paste("grid1", var_name, sep = ".")] <- grid1$getColumn(name = var_name, useSel = TRUE)
+db["x1"] <- grid1$getColumn("x1", useSel = TRUE)
+db["x2"] <- grid1$getColumn("x2", useSel = TRUE)
+db[paste("grid1", var_name, sep = ".")] <- grid1$getColumn(var_name, useSel = TRUE)
 err = db$setLocators(c("x1", "x2"), ELoc_X(), cleanSameLocator = TRUE)
 err = grid1$clearSelection()
 

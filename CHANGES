@@ -5,6 +5,8 @@ This file contains the logs between consecutive releases
 Release 1.12.0
 ==============
 - Build under macos-15 (no more macos-14)
+- A major change occured in all the methods used to manage the columns of the data base Db:
+  they have been normalzed by using ColID as first argument (read the FAQ in discussion)
 - The typemaps specific to languages have been moved from Swig Directory to Language Directories.
 - The member _uidcol has been removed from Db class.
 - The members of 'Db' class have been simplified (premices for merging 'Db' and 'DbData' classes)

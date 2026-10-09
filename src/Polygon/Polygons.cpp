@@ -636,13 +636,13 @@ namespace gstlrn
         pldist = polyline.getPLIndex(target);
         double distloc = pldist.dist;
         if (FFFF(distloc)) continue;
-        distmin = db->getArray(iech, iptr);
+        distmin = db->getValue(db->fromUID(iptr), iech);
         if (FFFF(distmin))
           distmin = distloc;
         else
           distmin = MIN(distmin, distloc);
         if (!FFFF(dmax) && distmin > dmax) distmin = dmax;
-        db->setArray(iech, iptr, distmin);
+        db->setValue(db->fromUID(iptr), iech, distmin);
       }
     }
 
@@ -655,7 +655,7 @@ namespace gstlrn
       for (Id iech = 0; iech < nech; iech++)
       {
         if (!db->isActive(iech)) continue;
-        double distloc = db->getArray(iech, iptr);
+        double distloc = db->getValue(db->fromUID(iptr), iech);
         if (FFFF(distloc)) continue;
         if (polin != 0)
         {
@@ -684,10 +684,10 @@ namespace gstlrn
         for (Id iech = 0; iech < nech; iech++)
         {
           if (!db->isActive(iech)) continue;
-          double distloc = db->getArray(iech, iptr);
+          double distloc = db->getValue(db->fromUID(iptr), iech);
           if (FFFF(distloc)) continue;
           double value = (distloc - distmin) / (distmax - distmin);
-          db->setArray(iech, iptr, value);
+          db->setValue(db->fromUID(iptr), iech, value);
         }
       }
       else
@@ -695,10 +695,10 @@ namespace gstlrn
         for (Id iech = 0; iech < nech; iech++)
         {
           if (!db->isActive(iech)) continue;
-          double distloc = db->getArray(iech, iptr);
+          double distloc = db->getValue(db->fromUID(iptr), iech);
           if (FFFF(distloc)) continue;
           double value = (distloc - distmax) / (distmin - distmax);
-          db->setArray(iech, iptr, value);
+          db->setValue(db->fromUID(iptr), iech, value);
         }
       }
       distmin = 0.;
@@ -716,8 +716,9 @@ namespace gstlrn
       {
         Id inside = polygon->inside(
           db->getCoordinate(iech, 0), db->getCoordinate(iech, 1));
-        if (polin > 0 && !inside) db->setArray(iech, iptr, valtest);
-        if (polin < 0 && inside) db->setArray(iech, iptr, valtest);
+        if (polin > 0 && !inside)
+          db->setValue(db->fromUID(iptr), iech, valtest);
+        if (polin < 0 && inside) db->setValue(db->fromUID(iptr), iech, valtest);
       }
     }
 
@@ -930,8 +931,8 @@ namespace gstlrn
 
     // Load the vector of coordinates (of active samples)
 
-    VectorDouble xinit = db->getColumnByLocator(ELoc::X, 0, true);
-    VectorDouble yinit = db->getColumnByLocator(ELoc::X, 1, true);
+    VectorDouble xinit = db->getColumn(RoleID(ERole::X, 0), true);
+    VectorDouble yinit = db->getColumn(RoleID(ERole::X, 1), true);
 
     // Calculate the indices that are retained in the convex hull
 
@@ -1044,7 +1045,7 @@ namespace gstlrn
           selval = selval || polygon->inside(coor, flag_nested);
         }
       }
-      db->setArray(iech, iatt, static_cast<double>(selval));
+      db->setValue(db->fromUID(iatt), iech, static_cast<double>(selval));
     }
 
     // Setting the output variable
@@ -1098,7 +1099,7 @@ namespace gstlrn
       db2->getCoordinatesInPlace(coor, iech);
       if (!polygons->inside(coor, false))
       {
-        db2->setArray(iech, isel, 0.);
+        db2->setValue(db2->fromUID(isel), iech, 0.);
         nout++;
       }
       else

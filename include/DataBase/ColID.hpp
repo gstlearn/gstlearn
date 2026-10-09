@@ -12,19 +12,23 @@
 
 #include "gstlearn_export.hpp"
 
+#include "Basic/AStringable.hpp"
 #include "DataBase/RoleID.hpp"
 #include "geoslib_define.h"
 
 namespace gstlrn
 {
-  class GSTLEARN_EXPORT ColID
+  class GSTLEARN_EXPORT ColID: public AStringable
   {
   public:
     ColID(const std::string& name, Id version = 0);
     ColID(const std::string_view name, Id version = 0);
     ColID(Id icol, Id version = 0);
     ColID(const RoleID& roleID, Id version = 0);
-    ColID(const ERole& role, Id index = 0, Id version = 0);
+    ColID(const ERole& role, Id version = 0);
+    // Constructure from Enum does not allow setting the 'index' directly.
+    // Constructor with 3 arguments is discarded in order to avoid
+    // ambiguity between "index" and "version".
 
 #ifndef SWIG
     // catch string literals and dispatch them to the string_view constructor
@@ -34,6 +38,9 @@ namespace gstlrn
     {
     }
 #endif
+
+    /// AStringable Interface
+    String toString(const AStringFormat* strfmt = nullptr) const override;
 
     const String& getName() const { return _name; }
 
@@ -46,8 +53,6 @@ namespace gstlrn
     Id getIndex() const { return _roleID.getIndex(); }
 
     Id getVersion() const { return _version; }
-
-    String getDescr() const;
 
     void setName(const String& name) { _name = name; }
 
@@ -68,8 +73,6 @@ namespace gstlrn
     static ColID create(Id icol, Id version = 0);
 
     static ColID create(const RoleID& roleID, Id version = 0);
-
-    static ColID create(const ERole& role, Id index = 0, Id version = 0);
 
     static ColID create(const ColID& colid, Id version = 0);
 #endif

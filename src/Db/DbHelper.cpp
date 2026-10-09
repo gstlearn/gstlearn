@@ -36,7 +36,8 @@ namespace gstlrn
     Id isAlreadyFilled(Id ipos) const override
     {
       if (!DB_GRID_FILL->getSelection(ipos)) return (0);
-      Id value = FFFF(DB_GRID_FILL->getZVariable(ipos, 0)) ? 0 : 1;
+      Id value =
+        FFFF(DB_GRID_FILL->getValue(RoleID(ERole::Z, 0), ipos)) ? 0 : 1;
       return (value);
     }
 
@@ -53,7 +54,8 @@ namespace gstlrn
 
     {
       if (!DB_GRID_FILL->getSelection(ipos)) return (0);
-      Id value = FFFF(DB_GRID_FILL->getZVariable(ipos, 0)) ? 1 : 0;
+      Id value =
+        FFFF(DB_GRID_FILL->getValue(RoleID(ERole::Z, 0), ipos)) ? 1 : 0;
       return (value);
     }
   };
@@ -95,14 +97,14 @@ namespace gstlrn
       case 0: break;
 
       case 1: /* Code must be close */
-        code1 = db1->getLocVariable(ELoc::C, iech, 0);
-        code2 = db2->getLocVariable(ELoc::C, jech, 0);
+        code1 = db1->getValue(ERole::C, iech);
+        code2 = db2->getValue(ERole::C, jech);
         if (ABS(code1 - code2) > tolcode) return (1);
         break;
 
       case 2: /* Code must be different */
-        code1 = db1->getLocVariable(ELoc::C, iech, 0);
-        code2 = db2->getLocVariable(ELoc::C, jech, 0);
+        code1 = db1->getValue(ERole::C, iech);
+        code2 = db2->getValue(ERole::C, jech);
         if (code1 == code2) return (1);
         break;
     }
@@ -164,7 +166,7 @@ namespace gstlrn
           iwork2[2] = iwork1[2] + iz;
           if (iwork2[2] < 0 || iwork2[2] >= nmz) continue;
           jpos = DB_GRID_FILL->indiceToRank(iwork2);
-          value = DB_GRID_FILL->getZVariable(jpos, 0);
+          value = DB_GRID_FILL->getValue(RoleID(ERole::Z, 0), jpos);
           if (FFFF(value)) continue;
           tabind[nech] = jpos;
           tabval[nech] = value;
@@ -281,7 +283,7 @@ namespace gstlrn
 
     /* Assign the result */
 
-    DB_GRID_FILL->setLocVariable(ELoc::Z, ipos, 0, result);
+    DB_GRID_FILL->setValue(RoleID(ERole::Z, 0), ipos, result);
     return (0);
   }
 
@@ -302,7 +304,7 @@ namespace gstlrn
     Id ivar;
 
     for (ivar = 0; ivar < nvar; ivar++)
-      db->setArray(iech, iatt[ivar], tab[ivar]);
+      db->setValue(db->fromUID(iatt[ivar]), iech, tab[ivar]);
   }
 
   /*****************************************************************************/
@@ -326,7 +328,7 @@ namespace gstlrn
     Id flag_zero,
     Id iech,
     Id nvar,
-    Id* iatt,
+    const Id* iatt,
     double eps,
     double* tab)
   {
@@ -340,7 +342,7 @@ namespace gstlrn
 
     for (ivar = 0; ivar < nvar; ivar++)
     {
-      tab[ivar] = db->getArray(iech, iatt[ivar]);
+      tab[ivar] = db->getValue(db->fromUID(iatt[ivar]), iech);
       if (FFFF(tab[ivar])) return (0);
     }
 
@@ -424,7 +426,7 @@ namespace gstlrn
       Id k = st_find_interval(x, ndef, X);
       if (k < 0) continue;
       double y = Y[k] + (Y[k + 1] - Y[k]) * (x - X[k]) / (X[k + 1] - X[k]);
-      dbgrid->setLocVariable(ELoc::Z, iech, ivar, y);
+      dbgrid->setValue(RoleID(ERole::Z, ivar), iech, y);
     }
   }
 
@@ -507,7 +509,7 @@ namespace gstlrn
             + Cp[k];
         }
       }
-      dbgrid->setLocVariable(ELoc::Z, iech, ivar, y);
+      dbgrid->setValue(RoleID(ERole::Z, ivar), iech, y);
     }
     return 0;
   }
@@ -607,8 +609,7 @@ namespace gstlrn
     const VectorDouble& dist,
     VectorDouble& sel)
   {
-    bool flag_code =
-      db1->hasLocVariable(ELoc::C) && db2->hasLocVariable(ELoc::C);
+    bool flag_code = db1->hasLocator(ELoc::C) && db2->hasLocator(ELoc::C);
     Id nmerge = 0;
 
     // Title (optional)
@@ -783,7 +784,7 @@ namespace gstlrn
       proptot = 0.;
       for (Id icol = 0; icol < ncol; icol++)
       {
-        value = db->getArray(iech, cols[icol]);
+        value = db->getValue(db->fromUID(cols[icol]), iech);
         if (FFFF(value)) continue;
         if (!strcmp(oper, "prop")) value = MIN(1., MAX(0., value));
 
@@ -802,10 +803,10 @@ namespace gstlrn
       {
         for (Id icol = 0; icol < ncol; icol++)
         {
-          value = db->getArray(iech, cols[icol]);
+          value = db->getValue(db->fromUID(cols[icol]), iech);
           value = MIN(1., MAX(0., value));
           if (ndef == ncol && proptot > 0.)
-            db->setArray(iech, iptr + icol, value / proptot);
+            db->setValue(db->fromUID(iptr + icol), iech, value / proptot);
         }
       }
     }
@@ -836,22 +837,24 @@ namespace gstlrn
         for (Id icol = 0; icol < ncol; icol++)
         {
           jcol = cols[icol];
-          value = db->getArray(iech, jcol);
+          value = db->getValue(db->fromUID(jcol), iech);
           if (!strcmp(oper, "mean"))
           {
             if (!FFFF(mm[icol]))
-              db->setArray(iech, iptr + icol, value + center - mm[icol]);
+              db->setValue(
+                db->fromUID(iptr + icol), iech, value + center - mm[icol]);
           }
           else if (!strcmp(oper, "stdv"))
           {
             if (!FFFF(vv[icol]) && vv[icol] > 0.)
-              db->setArray(iech, iptr + icol, value * stdv / sqrt(vv[icol]));
+              db->setValue(
+                db->fromUID(iptr + icol), iech, value * stdv / sqrt(vv[icol]));
           }
           else if (!strcmp(oper, "scal"))
           {
             if (!FFFF(vv[icol]) && vv[icol] > 0. && !FFFF(mm[icol]))
-              db->setArray(
-                iech, iptr + icol,
+              db->setValue(
+                db->fromUID(iptr + icol), iech,
                 center + (value - mm[icol]) * stdv / sqrt(vv[icol]));
           }
         }
@@ -923,10 +926,10 @@ namespace gstlrn
 
     // Create the new variable and duplicate the Z-locator variable
 
-    Id iatt_in = dbgrid->getUIDByLocator(ELoc::Z, 0);
+    Id iatt_in = dbgrid->getUID(RoleID(ERole::Z, 0));
     Id iatt_out = dbgrid->addColumnsByConstant(1, 1);
     dbgrid->duplicateColumnByUID(iatt_in, iatt_out);
-    dbgrid->setLocatorByUID(iatt_out, ELoc::Z, 0);
+    dbgrid->setLocator(dbgrid->fromUID(iatt_out), ELoc::Z, 0);
 
     /* Global variables */
 
@@ -1324,8 +1327,8 @@ namespace gstlrn
     if (rank < 0) goto label_end;
     for (icol = 0; icol < ncol; icol++)
     {
-      (void)dbin->getLocatorByColIdx(icol, &locatorType, &item, &mult);
-      dbout->setLocatorByUID(icol, locatorType, item);
+      (void)dbin->getLocator(icol, &locatorType, &item, &mult);
+      dbout->setLocator(icol, locatorType, item);
     }
 
     /* Loop on the samples of the output grid */
@@ -1340,7 +1343,7 @@ namespace gstlrn
       /* Loop on the variables of the input grid */
 
       for (icol = 0; icol < ncol; icol++)
-        dbout->setValueByColIdx(iech, icol, dbin->getValueByColIdx(iad, icol));
+        dbout->setValue(icol, iech, dbin->getValue(icol, iad));
     }
 
   label_end:
@@ -1397,7 +1400,7 @@ namespace gstlrn
     Id iatt_out = dbgrid->addColumnsByConstant(nvar);
     for (Id ivar = 0; ivar < nvar; ivar++)
     {
-      Id iatt_in = dbgrid->getUIDByLocator(ELoc::Z, ivar);
+      Id iatt_in = dbgrid->getUID(RoleID(ERole::Z, ivar));
       dbgrid->duplicateColumnByUID(iatt_in, iatt_out + ivar);
     }
 
@@ -1421,7 +1424,7 @@ namespace gstlrn
       for (Id iech = 0; iech < nech; iech++)
       {
         if (!dbgrid->isActive(iech)) continue;
-        double value = dbgrid->getZVariable(iech, ivar);
+        double value = dbgrid->getValue(RoleID(ERole::Z, ivar), iech);
         if (FFFF(value)) continue;
         X[ndef] = dbgrid->getCoordinate(iech, 0);
         Y[ndef] = value;
