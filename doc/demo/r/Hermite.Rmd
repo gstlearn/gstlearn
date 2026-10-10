@@ -364,7 +364,7 @@ plot.end(p)
 
 ```{r rgeostats_test, echo=TRUE, eval=TRUE}
 db <- Db_createFromSamples(np,ELoadBy_SAMPLE(),zz_theo)
-db$setNameByUID(db$getLastUID(),"zz_theo")
+db$setName(fromUID(db$getLastUID()), "zz_theo")
 
 ana = AnamHermite_create(nh)
 err = ana$fit(db, name="zz_theo")

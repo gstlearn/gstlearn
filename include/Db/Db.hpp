@@ -292,15 +292,14 @@ namespace gstlrn
     String getName(const ColID& colid, bool withVersion = false) const;
     String
       getNameByUID(Id iuid, Id version = 0, bool withVersion = false) const;
+    void setName(const ColID& colid, const String& name);
+    void setNameByUID(Id iuid, const String& name);
 
     VectorString getNames(const String& name) const;
     VectorString getNames(const VectorString& names) const;
     VectorString getNamesByLocator(const ELoc& locatorType) const;
     VectorString getNamesByColIdx(const VectorInt& icols) const;
     VectorString getNamesByUID(const VectorInt& iuids) const;
-
-    void setName(const ColID& colid, const String& name);
-    void setNameByUID(Id iuid, const String& name);
 
     void setNames(const VectorString& list, const String& name);
 
@@ -381,12 +380,10 @@ namespace gstlrn
     double getArray(Id iech, Id iuid, Id version = 0) const;
     VectorDouble getArrayByUID(Id iuid, bool useSel = false) const;
 
+    double getValue(const ColID& colid, Id iech) const;
     void setArray(Id iech, Id iuid, double value, Id version = 0);
     void setArrayByUID(const VectorDouble& tab, Id iuid);
-
     void updArray(Id iech, Id iuid, const EOperator& oper, double value);
-
-    double getValue(const ColID& colid, Id iech) const;
 
     void setValue(const String& name, Id iech, double value, Id version = 0);
     void

@@ -5375,7 +5375,7 @@ namespace gstlrn
       // Update the column names and locators
       for (Id i = 0; i < ncol; i++)
       {
-        setNameByUID(colIds[i], names[i]);
+        setName(fromUID(colIds[i]), names[i]);
         setLocatorByUID(colIds[i], tabloc[i], tabnum[i]);
       }
     }
@@ -5399,7 +5399,7 @@ namespace gstlrn
     {
       for (Id iech = 0; iech < getNSample(); iech++)
         setValueByColIdx(iech, jcol, iech + 1);
-      setNameByUID(jcol, "rank");
+      setName(fromUID(jcol), "rank");
       jcol++;
     }
 
@@ -5670,7 +5670,7 @@ namespace gstlrn
     Id mult;
     for (Id icol = 0, ncol = static_cast<Id>(names.size()); icol < ncol; icol++)
     {
-      setNameByUID(icol + shift, names[icol]);
+      setName(fromUID(icol + shift), names[icol]);
       if (dbin->getLocator(names[icol], &locatorType, &locatorIndex, &mult))
         setLocator(names[icol], locatorType, locatorIndex);
     }

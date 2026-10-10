@@ -309,7 +309,7 @@ namespace gstlrn
 
     for (Id i = 0; i < navoid; i++)
     {
-      dbout->setNameByUID(iuids[i], outnames[i]);
+      dbout->setName(dbout->fromUID(iuids[i]), outnames[i]);
     }
   }
 
