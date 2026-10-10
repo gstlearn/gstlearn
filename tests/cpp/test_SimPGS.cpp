@@ -26,7 +26,6 @@
 #include "LithoRule/RuleShadow.hpp"
 #include "LithoRule/RuleShift.hpp"
 #include "Model/Model.hpp"
-#include "Neigh/NeighUnique.hpp"
 #include "Simulation/CalcSimuPGS.hpp"
 #include "Variogram/Vario.hpp"
 
@@ -77,10 +76,6 @@ int main(int argc, char* argv[])
   model4->display();
   (void)model4->dumpToNF("PGSmodel4.NF");
 
-  // Creating the Neighborhood
-  NeighUnique* neighU = NeighUnique::create();
-  neighU->display();
-
   // Creating the Rules
   Rule* rule1 = Rule::createFromNames({"S", "S", "F1", "F2", "F3"});
   rule1->display();
@@ -91,7 +86,7 @@ int main(int argc, char* argv[])
 
   // Perform a non-conditional PGS simulation on a grid
 
-  (void)simpgs(nullptr, dbgrid, ruleprop1, model1, model2, neighU, nbsimu);
+  (void)simpgs(nullptr, dbgrid, ruleprop1, model1, model2, nullptr, nbsimu);
   dbgrid->setName(toERole(ELoc::FACIES), "PGS-Facies");
   dbfmt = DbStringFormat(FLAG_STATS, {"PGS-Facies*"});
   dbgrid->display(&dbfmt);
@@ -106,7 +101,7 @@ int main(int argc, char* argv[])
 
   // Perform a non-conditional BiPGS simulation on a grid
   (void)simbipgs(
-    nullptr, dbgrid, rulepropbi, model1, model2, model3, model4, neighU,
+    nullptr, dbgrid, rulepropbi, model1, model2, model3, model4, nullptr,
     nbsimu);
   dbgrid->setName(toERole(ELoc::FACIES), "BiPGS-Facies");
   dbfmt = DbStringFormat(FLAG_STATS, {"BiPGS-Facies*"});
@@ -131,7 +126,8 @@ int main(int argc, char* argv[])
   }
 
   // Perform a non-conditional PGS Shift simulation on a grid
-  (void)simpgs(nullptr, dbgrid, rulepropshift, model1, nullptr, neighU, nbsimu);
+  (void)
+    simpgs(nullptr, dbgrid, rulepropshift, model1, nullptr, nullptr, nbsimu);
   dbgrid->setName(toERole(ELoc::FACIES), "PGS-Shift-Facies");
   dbfmt = DbStringFormat(FLAG_STATS, {"PGS-Shift-Facies*"});
   dbgrid->display(&dbfmt);
@@ -150,7 +146,7 @@ int main(int argc, char* argv[])
 
   // Perform a non-conditional PGS Shadow simulation on a grid
   (void)
-    simpgs(nullptr, dbgrid, rulepropshadow, model1, nullptr, neighU, nbsimu);
+    simpgs(nullptr, dbgrid, rulepropshadow, model1, nullptr, nullptr, nbsimu);
   dbgrid->setName(toERole(ELoc::FACIES), "PGS-Shadow-Facies");
   dbfmt = DbStringFormat(FLAG_STATS, {"PGS-Shadow-Facies*"});
   dbgrid->display(&dbfmt);
@@ -165,7 +161,6 @@ int main(int argc, char* argv[])
   delete rulepropbi;
   delete rulepropshift;
   delete rulepropshadow;
-  delete neighU;
   delete model1;
   delete model2;
   delete model3;

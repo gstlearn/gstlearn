@@ -66,9 +66,6 @@ Spherical
 Total Sill     =       1.000
 Known Mean(s)      0.000
 
-Unique Neighborhood
-===================
-
 Lithotype Rule
 ==============
 - Number of nodes               = 5
@@ -125,7 +122,7 @@ Data Base Grid Characteristics
 
 Data Base Statistics
 --------------------
-1 - Name BiPGS-Facies.1.S1
+1 - Name BiPGS-Facies.S1
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =       1.000
@@ -133,7 +130,7 @@ Data Base Statistics
  Mean value          =       2.024
  Standard Deviation  =       0.824
  Variance            =       0.678
-2 - Name BiPGS-Facies.1.S2
+2 - Name BiPGS-Facies.S2
  Nb of data          =       10000
  Nb of active values =       10000
  Minimum value       =       1.000
@@ -141,22 +138,6 @@ Data Base Statistics
  Mean value          =       1.889
  Standard Deviation  =       0.811
  Variance            =       0.657
-3 - Name BiPGS-Facies.2.S1
- Nb of data          =       10000
- Nb of active values =       10000
- Minimum value       =       1.000
- Maximum value       =       2.000
- Mean value          =       1.521
- Standard Deviation  =       0.500
- Variance            =       0.250
-4 - Name BiPGS-Facies.2.S2
- Nb of data          =       10000
- Nb of active values =       10000
- Minimum value       =       1.000
- Maximum value       =       2.000
- Mean value          =       1.468
- Standard Deviation  =       0.499
- Variance            =       0.249
 
 Lithotype Rule
 ==============
