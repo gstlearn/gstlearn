@@ -167,7 +167,7 @@ m_Z = 1.5
 s_Z = 0.5
 grid["Z"] = m_Z * exp(s_Z * grid["Y"] - 0.5*s_Z^2)
 
-p = ggplot(asp=1)
+p = ggplot() + coord_fixed(ratio = 1)
 p = p + plot.raster(grid, "Z")
 plot.end(p)
 

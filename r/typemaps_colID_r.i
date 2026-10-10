@@ -1,6 +1,6 @@
 /***************************************************************************/
 /*                                                                         */
-/*  R typemaps for gstlrn::ColID (Version #10 - In-file Toggle)            */
+/*  R typemaps for gstlrn::ColID (Version #12 - Final CI & Double-Delete Fix)*/
 /*                                                                         */
 /***************************************************************************/
 
@@ -8,7 +8,7 @@
 #include <R.h>
 #include <Rinternals.h>
 
-/* Set to false to disable all debug prints for non-regression tests */
+/* Modifier à 'true' pour réactiver les messages de debug lors des tests */
 static const bool COLID_DEBUG_ENABLED = false;
 
 #define COLID_DEBUG_LOG(...) \
@@ -23,9 +23,9 @@ static const bool COLID_DEBUG_ENABLED = false;
 /* 1. BYPASS SWIG R AUTOMATIC S4 COERCION & AS() CONVERSIONS                 */
 /* ========================================================================= */
 
-%typemap(rtype)      gstlrn::ColID, const gstlrn::ColID&, gstlrn::ColID&&, gstlrn::ColID* "ANY";
-%typemap(scoercein)  gstlrn::ColID, const gstlrn::ColID&, gstlrn::ColID&&, gstlrn::ColID* "$input";
-%typemap(sclass)     gstlrn::ColID, const gstlrn::ColID&, gstlrn::ColID&&, gstlrn::ColID* "ANY";
+%typemap(rtype)      gstlrn::ColID, const gstlrn::ColID&, gstlrn::ColID&& "ANY";
+%typemap(scoercein)  gstlrn::ColID, const gstlrn::ColID&, gstlrn::ColID&& "$input";
+%typemap(sclass)     gstlrn::ColID, const gstlrn::ColID&, gstlrn::ColID&& "ANY";
 
 /* ========================================================================= */
 /* 2. UNIVERSAL TYPECHECK FOR SWIG OVERLOAD RESOLUTION                       */
@@ -34,8 +34,7 @@ static const bool COLID_DEBUG_ENABLED = false;
 %typemap(typecheck, precedence=SWIG_TYPECHECK_POINTER)
     gstlrn::ColID,
     const gstlrn::ColID&,
-    gstlrn::ColID&&,
-    gstlrn::ColID*
+    gstlrn::ColID&&
 {
     SEXP obj = $input;
     if (TYPEOF(obj) == VECSXP && LENGTH(obj) == 2)
@@ -44,7 +43,7 @@ static const bool COLID_DEBUG_ENABLED = false;
     }
 
     const SEXPTYPE t = TYPEOF(obj);
-    COLID_DEBUG_LOG("[ColID Typemap V10] TYPECHECK: SEXPTYPE = %d\n", static_cast<int>(t));
+    COLID_DEBUG_LOG("[ColID Typemap V12] TYPECHECK: SEXPTYPE = %d\n", static_cast<int>(t));
 
     if (t == STRSXP || t == INTSXP || t == REALSXP || t == EXTPTRSXP || Rf_isS4(obj))
     {
@@ -57,14 +56,13 @@ static const bool COLID_DEBUG_ENABLED = false;
 }
 
 /* ========================================================================= */
-/* 3. INPUT CONVERSION TYPEMAP WITH EXPLICIT TEMPORARY DECLARATION          */
+/* 3. INPUT CONVERSION TYPEMAP FOR REFERENCES & VALUES ONLY                  */
 /* ========================================================================= */
 
 %typemap(in, typemap="in")
     gstlrn::ColID                (gstlrn::ColID *temp_colid = nullptr),
     const gstlrn::ColID&         (gstlrn::ColID *temp_colid = nullptr),
-    gstlrn::ColID&&              (gstlrn::ColID *temp_colid = nullptr),
-    gstlrn::ColID*               (gstlrn::ColID *temp_colid = nullptr)
+    gstlrn::ColID&&              (gstlrn::ColID *temp_colid = nullptr)
 {
     SEXP obj = $input;
     SEXP target = obj;
@@ -72,7 +70,7 @@ static const bool COLID_DEBUG_ENABLED = false;
     gstlrn::Id index = 0;
     gstlrn::Id version = 0;
 
-    COLID_DEBUG_LOG("[ColID Typemap V10] IN: Entering conversion. TYPEOF = %d\n", static_cast<int>(TYPEOF(obj)));
+    COLID_DEBUG_LOG("[ColID Typemap V12] IN: Entering conversion. TYPEOF = %d\n", static_cast<int>(TYPEOF(obj)));
 
     /* ----------------------------------------------------------------- */
     /* 1. Two-element list                                               */
@@ -80,7 +78,7 @@ static const bool COLID_DEBUG_ENABLED = false;
 
     if (TYPEOF(obj) == VECSXP && LENGTH(obj) == 2)
     {
-        COLID_DEBUG_LOG("[ColID Typemap V10] Matched: 2-element VECSXP (list)\n");
+        COLID_DEBUG_LOG("[ColID Typemap V12] Matched: 2-element VECSXP (list)\n");
         target = VECTOR_ELT(obj, 0);
         SEXP param = VECTOR_ELT(obj, 1);
 
@@ -115,7 +113,7 @@ static const bool COLID_DEBUG_ENABLED = false;
     if (target_type == STRSXP && LENGTH(target) > 0)
     {
         const char *name = CHAR(STRING_ELT(target, 0));
-        COLID_DEBUG_LOG("[ColID Typemap V10] Matched: STRSXP (String) -> '%s' (version=%d)\n", name, static_cast<int>(version));
+        COLID_DEBUG_LOG("[ColID Typemap V12] Matched: STRSXP (String) -> '%s' (version=%d)\n", name, static_cast<int>(version));
 
         temp_colid = new gstlrn::ColID(
             std::string(name),
@@ -128,7 +126,7 @@ static const bool COLID_DEBUG_ENABLED = false;
 
     else if (target_type == EXTPTRSXP)
     {
-        COLID_DEBUG_LOG("[ColID Typemap V10] Matched: EXTPTRSXP\n");
+        COLID_DEBUG_LOG("[ColID Typemap V12] Matched: EXTPTRSXP\n");
 
         static swig_type_info *type_ColID  = SWIG_TypeQuery("gstlrn::ColID *");
         static swig_type_info *type_RoleID = SWIG_TypeQuery("gstlrn::RoleID *");
@@ -201,7 +199,7 @@ static const bool COLID_DEBUG_ENABLED = false;
 
     else if (Rf_inherits(target, "_p_gstlrn__ERole"))
     {
-        COLID_DEBUG_LOG("[ColID Typemap V10] Matched: S4 ERole\n");
+        COLID_DEBUG_LOG("[ColID Typemap V12] Matched: S4 ERole\n");
         static SEXP sym_ref = Rf_install("ref");
         static swig_type_info *type_ERole = SWIG_TypeQuery("gstlrn::ERole *");
 
@@ -227,7 +225,7 @@ static const bool COLID_DEBUG_ENABLED = false;
 
     else if (Rf_inherits(target, "_p_gstlrn__ColID"))
     {
-        COLID_DEBUG_LOG("[ColID Typemap V10] Matched: S4 ColID\n");
+        COLID_DEBUG_LOG("[ColID Typemap V12] Matched: S4 ColID\n");
         static SEXP sym_ref = Rf_install("ref");
         static swig_type_info *type_ColID = SWIG_TypeQuery("gstlrn::ColID *");
 
@@ -254,7 +252,7 @@ static const bool COLID_DEBUG_ENABLED = false;
 
     else if (Rf_inherits(target, "_p_gstlrn__RoleID"))
     {
-        COLID_DEBUG_LOG("[ColID Typemap V10] Matched: S4 RoleID\n");
+        COLID_DEBUG_LOG("[ColID Typemap V12] Matched: S4 RoleID\n");
         static SEXP sym_ref = Rf_install("ref");
         static swig_type_info *type_RoleID = SWIG_TypeQuery("gstlrn::RoleID *");
 
@@ -284,7 +282,7 @@ static const bool COLID_DEBUG_ENABLED = false;
             ? static_cast<gstlrn::Id>(INTEGER(target)[0])
             : static_cast<gstlrn::Id>(REAL(target)[0]);
 
-        COLID_DEBUG_LOG("[ColID Typemap V10] Matched: Integer/Real index -> %d (version=%d)\n", static_cast<int>(icol), static_cast<int>(version));
+        COLID_DEBUG_LOG("[ColID Typemap V12] Matched: Integer/Real index -> %d (version=%d)\n", static_cast<int>(icol), static_cast<int>(version));
 
         temp_colid = new gstlrn::ColID(icol, version);
     }
@@ -295,7 +293,7 @@ static const bool COLID_DEBUG_ENABLED = false;
 
     else
     {
-        COLID_DEBUG_LOG("[ColID Typemap V10] Conversion FAILED for target_type = %d\n", static_cast<int>(target_type));
+        COLID_DEBUG_LOG("[ColID Typemap V12] Conversion FAILED for target_type = %d\n", static_cast<int>(target_type));
         Rf_error("[ColID Typemap Error] Cannot convert R object to ColID");
     }
 
@@ -303,16 +301,18 @@ static const bool COLID_DEBUG_ENABLED = false;
 }
 
 /* ========================================================================= */
-/* 4. FREE ARG TYPEMAP                                                       */
+/* 4. FREE ARG TYPEMAP (CLEANUP TEMPORARY INSTANCES)                         */
 /* ========================================================================= */
 
 %typemap(freearg)
     gstlrn::ColID,
     const gstlrn::ColID&,
-    gstlrn::ColID&&,
-    gstlrn::ColID*
+    gstlrn::ColID&&
 {
-    COLID_DEBUG_LOG("[ColID Typemap V10] FREEARG: Cleaning up temporary ColID\n");
+    COLID_DEBUG_LOG("[ColID Typemap V12] FREEARG: Cleaning up temporary ColID\n");
     if ($1)
         delete $1;
 }
+
+/* Neutralisation stricte pour les pointeurs bruts (evite le double delete) */
+%typemap(freearg) gstlrn::ColID * "";
