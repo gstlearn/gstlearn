@@ -186,7 +186,7 @@ namespace gstlrn
 
   String ACalcDbToDb::_identifyVariable(Id iuid) const
   {
-    return _dbin->getNameByUID(iuid);
+    return _dbin->getName(_dbin->fromUID(iuid));
   }
 
   /**

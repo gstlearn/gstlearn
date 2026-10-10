@@ -1605,7 +1605,7 @@ namespace gstlrn
         double verr = 0.;
 
         // Update the Diagonal due to the presence of Variance of Measurement Error
-        if (icolVerr >= 0) verr = db1->getValueByColIdx(iabs1, icolVerr);
+        if (icolVerr >= 0) verr = db1->getValue(icolVerr, iabs1);
 
         // Update the Covariance matrix
         if (verr > 0) mat->updValue(irow, irow, EOperator::ADD, verr);

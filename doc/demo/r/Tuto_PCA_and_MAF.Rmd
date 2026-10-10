@@ -68,7 +68,7 @@ grid$setColumn(Z[,3], name = "Z3")
 
 for (i in 1:nv) {
   nm_var = paste0("Z", i)
-  p = ggplot(asp=1) +
+  p = ggplot() + coord_fixed(ratio = 1) +
     plot.raster(grid, nm_var) +
     plot.decoration(xlab = "Easting", ylab = "Northing", title = nm_var)
   plot.end(p)

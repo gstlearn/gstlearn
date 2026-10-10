@@ -97,7 +97,7 @@ namespace gstlrn
         // Check against a possible selection
         if (_iptrSel >= 0)
         {
-          value = _db->getValueByColIdx(static_cast<Id>(iabs), _iptrSel);
+          value = _db->getValue(_iptrSel, static_cast<Id>(iabs));
           if (value <= 0)
           {
             _elligible.setValue(ivar, iabs, false);
@@ -108,7 +108,7 @@ namespace gstlrn
         // Check against validity of the Variance of Measurement Error variable
         if (!_iptrVerr.empty())
         {
-          value = _db->getValueByColIdx(static_cast<Id>(iabs), _iptrVerr[ivar]);
+          value = _db->getValue(_iptrVerr[ivar], static_cast<Id>(iabs));
           if (FFFF(value) || value <= 0)
           {
             _elligible.setValue(ivar, iabs, false);
@@ -122,8 +122,7 @@ namespace gstlrn
           bool valid = true;
           for (Id iext = 0; iext < _nExtD && valid; iext++)
           {
-            value =
-              _db->getValueByColIdx(static_cast<Id>(iabs), _iptrExtD[iext]);
+            value = _db->getValue(_iptrExtD[iext], static_cast<Id>(iabs));
             if (FFFF(value)) valid = false;
           }
           if (!valid)
@@ -136,7 +135,7 @@ namespace gstlrn
         // Check against the existence of a target variable
         if (!_iptrZ.empty())
         {
-          value = _db->getValueByColIdx(static_cast<Id>(iabs), _iptrZ[ivar]);
+          value = _db->getValue(_iptrZ[ivar], static_cast<Id>(iabs));
           if (FFFF(value))
           {
             _elligible.setValue(ivar, iabs, false);
@@ -232,7 +231,7 @@ namespace gstlrn
         // The sample is valid for the current variable: its Z value is stored
         if (!_iptrZ.empty())
         {
-          value = _db->getValueByColIdx(iabs, icol);
+          value = _db->getValue(icol, iabs);
           _Zflatten->push_back(value);
         }
         // The sample is finally accepted: its ABSOLUTE index is stored

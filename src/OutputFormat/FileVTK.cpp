@@ -171,8 +171,8 @@ namespace gstlrn
               Id iad = ix + dims[0] * (iy + dims[1] * iz);
               if (_dbgrid->isActive(iad))
               {
-                double value = static_cast<float>(
-                  _dbgrid->getValueByColIdx(iad, _cols[icol]));
+                double value =
+                  static_cast<float>(_dbgrid->getValue(_cols[icol], iad));
                 if (FFFF(value))
                   tab[icol][ecr] = static_cast<float>(TEST);
                 else

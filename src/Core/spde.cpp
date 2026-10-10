@@ -4716,27 +4716,27 @@ namespace gstlrn
     // Assigning names to the variables (not pointers yet)
 
     ecr = 0;
-    db->setNameByUID(ecr++, "rank");
+    db->setName(db->fromUID(ecr++), "rank");
     for (Id idim = 0; idim < ndim; idim++)
     {
       (void)gslSPrintf(string_encode, "X%d", idim + 1);
-      db->setNameByUID(ecr++, string_encode);
+      db->setName(db->fromUID(ecr++), string_encode);
     }
     for (Id ilayer = 0; ilayer < nlayer; ilayer++)
     {
       (void)gslSPrintf(string_encode, "Lower%d", ilayer + 1);
-      db->setNameByUID(ecr++, string_encode);
+      db->setName(db->fromUID(ecr++), string_encode);
       (void)gslSPrintf(string_encode, "Upper%d", ilayer + 1);
-      db->setNameByUID(ecr++, string_encode);
+      db->setName(db->fromUID(ecr++), string_encode);
       (void)gslSPrintf(string_encode, "Value%d", ilayer + 1);
-      db->setNameByUID(ecr++, string_encode);
+      db->setName(db->fromUID(ecr++), string_encode);
     }
     if (m2denv->flag_ed)
     {
       for (Id ilayer = 0; ilayer < nlayer; ilayer++)
       {
         (void)gslSPrintf(string_encode, "Drift%d", ilayer + 1);
-        db->setNameByUID(ecr++, string_encode);
+        db->setName(db->fromUID(ecr++), string_encode);
       }
     }
 
@@ -5686,7 +5686,7 @@ namespace gstlrn
         VectorDouble gworkLocal(start, start + ngrid);
         dbout->setColumnByUID(gworkLocal, iatt_out + ilayer);
         (void)gslSPrintf(string_encode, "Drift%d", ilayer + 1);
-        dbout->setNameByUID(iatt_out + ilayer, string_encode);
+        dbout->setName(dbout->fromUID(iatt_out + ilayer), string_encode);
       }
       error = 0;
       goto label_end;
@@ -5855,7 +5855,7 @@ namespace gstlrn
         {
           (void)gslSPrintfCat(
             string_encode, "Layer-%d_Simu-%d", ilayer + 1, isimu + 1);
-          dbout->setNameByUID(iatt_out + ecr, string_encode);
+          dbout->setName(dbout->fromUID(iatt_out + ecr), string_encode);
           ecr++;
         }
       }
@@ -5892,13 +5892,13 @@ namespace gstlrn
           for (Id ilayer = 0; ilayer < nlayer; ilayer++)
           {
             (void)gslSPrintf(string_encode, "Layer-%d_CE", ilayer + 1);
-            dbout->setNameByUID(iptr_ce + ilayer, string_encode);
+            dbout->setName(dbout->fromUID(iptr_ce + ilayer), string_encode);
           }
         if (iptr_cstd >= 0)
           for (Id ilayer = 0; ilayer < nlayer; ilayer++)
           {
             (void)gslSPrintf(string_encode, "Layer-%d_CStd", ilayer + 1);
-            dbout->setNameByUID(iptr_cstd + ilayer, string_encode);
+            dbout->setName(dbout->fromUID(iptr_cstd + ilayer), string_encode);
           }
       }
     }

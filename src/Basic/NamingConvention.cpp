@@ -300,7 +300,7 @@ namespace gstlrn
       {
         auto iuid = iattout_start + ecr;
         iuids.push_back(iuid);
-        reservedList.push_back(dbout->getNameByUID(iuid));
+        reservedList.push_back(dbout->getName(dbout->fromUID(iuid)));
       }
     }
     auto navoid = static_cast<Id>(reservedList.size());
@@ -309,7 +309,7 @@ namespace gstlrn
 
     for (Id i = 0; i < navoid; i++)
     {
-      dbout->setNameByUID(iuids[i], outnames[i]);
+      dbout->setName(dbout->fromUID(iuids[i]), outnames[i]);
     }
   }
 

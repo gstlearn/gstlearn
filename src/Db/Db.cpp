@@ -576,11 +576,11 @@ namespace gstlrn
    * This function does not use 'ids' mechanism in order to allow
    * referring to a non-existing variable
    */
-  double Db::getValue(const String& name, Id iech, Id version) const
+  double Db::getValue(const ColID& colid, Id iech) const
   {
-    auto iuid = getUID(name);
-    if (iuid < 0) return TEST;
-    return getArray(iech, iuid, version);
+    if (!isSampleIndexValid(iech)) return (TEST);
+    ColID colid_copy = colid;
+    return *_data.getValue<double>(std::move(colid_copy), iech);
   }
 
   /**
@@ -2682,16 +2682,6 @@ namespace gstlrn
     // p_in.clear();
   }
 
-  double
-    Db::getValueByColIdx(Id iech, Id icol, bool flagCheck, Id version) const
-  {
-    if (flagCheck)
-    {
-      if (!isColIdxValid(icol)) return TEST;
-    }
-    return *_data.getValue<double>({icol, version}, iech);
-  }
-
   VectorDouble Db::getValuesByNames(
     const VectorInt& iechs,
     const VectorString& names,
@@ -2719,7 +2709,7 @@ namespace gstlrn
           Id icol = icols[i];
           if (!isColIdxValid(icol)) return VectorDouble();
           if (!isSampleIndexValid(iech)) return VectorDouble();
-          vec.push_back(getValueByColIdx(iech, icol, true, version));
+          vec.push_back(getValue({icol, version}, iech));
         }
     }
     else
@@ -2731,7 +2721,7 @@ namespace gstlrn
           Id icol = icols[i];
           if (!isColIdxValid(icol)) return VectorDouble();
           if (!isSampleIndexValid(iech)) return VectorDouble();
-          vec.push_back(getValueByColIdx(iech, icol, true, version));
+          vec.push_back(getValue({icol, version}, iech));
         }
     }
     return vec;
@@ -3300,7 +3290,7 @@ namespace gstlrn
     {
       if (useSel && !sel.empty() && isZero(sel[iech])) continue;
       if (icol >= 0)
-        tab[ecr] = getValueByColIdx(iech, icol);
+        tab[ecr] = getValue(icol, iech);
       else
         tab[ecr] = 1.;
       ecr++;
@@ -3480,12 +3470,6 @@ namespace gstlrn
     return (getNColumn() - number - 1);
   }
 
-  String Db::getNameByUID(Id iuid, Id version, bool withVersion) const
-  {
-    auto icol = getColIdxByUID(iuid);
-    return getName({icol, version}, withVersion);
-  }
-
   VectorString Db::getNamesByLocator(const ELoc& locatorType) const
   {
     VectorString namelist;
@@ -3522,9 +3506,16 @@ namespace gstlrn
     return namelist;
   }
 
-  String Db::getName(ColID&& colid, bool withVersion) const
+  String Db::getName(const ColID& colid, bool withVersion) const
   {
-    return _data.getName(std::move(colid), withVersion);
+    ColID colid_copy = colid;
+    return _data.getName(std::move(colid_copy), withVersion);
+  }
+
+  GSTLEARN_DEPRECATED String
+    Db::getNameByUID(Id iuid, Id version, bool withVersion) const
+  {
+    return getName(fromUID(iuid, version), withVersion);
   }
 
   VectorString Db::getNames(const String& name) const
@@ -3571,46 +3562,23 @@ namespace gstlrn
     return names;
   }
 
-  void Db::setNameByUID(Id iuid, const String& name)
+  void Db::setName(const ColID& colid, const String& name)
   {
-    auto icol = getColIdxByUID(iuid);
-    if (icol < 0) return;
-    _data.setName(icol, name);
+    ColID colid_copy = colid;
+    _data.setName(std::move(colid_copy), name);
   }
 
-  void Db::setNameByColIdx(Id icol, const String& name)
+  GSTLEARN_DEPRECATED void Db::setNameByUID(Id iuid, const String& name)
   {
-    _data.setName(icol, name);
+    setName(fromUID(iuid), name);
   }
 
-  void Db::setName(const String& old_name, const String& name)
-  {
-    auto icol = _data.getICol(old_name);
-    if (icol < 0) return;
-    _data.setName(icol, name);
-  }
-
-  void Db::setName(const VectorString& list, const String& name)
+  void Db::setNames(const VectorString& list, const String& name)
   {
     auto count = static_cast<Id>(list.size());
     for (Id i = 0; i < count; i++)
     {
       auto icol = _data.getICol(list[i]);
-      if (icol < 0) continue;
-      auto newName = name;
-      if (count > 1) newName = generateOneName(name, i + 1);
-      _data.setName(icol, newName);
-    }
-  }
-
-  void Db::setNameByLocator(const ELoc& locatorType, const String& name)
-  {
-    auto colIDs = _data.getColIDs(toERole(locatorType));
-    Id count = colIDs.size();
-    if (count <= 0) return;
-    for (Id i = 0; i < count; i++)
-    {
-      auto icol = _data.getICol(std::move(colIDs[i]));
       if (icol < 0) continue;
       auto newName = name;
       if (count > 1) newName = generateOneName(name, i + 1);
@@ -3875,8 +3843,7 @@ namespace gstlrn
     if (!isColIdxValid(icol)) return tab;
 
     tab.resize(nech);
-    for (Id iech = 0; iech < nech; iech++)
-      tab[iech] = getValueByColIdx(iech, icol);
+    for (Id iech = 0; iech < nech; iech++) tab[iech] = getValue(icol, iech);
     return tab;
   }
 
@@ -4196,7 +4163,7 @@ namespace gstlrn
       // Check against a possible selection
       if (icol >= 0)
       {
-        value = getValueByColIdx(iabs, icol);
+        value = getValue(icol, iabs);
         if (value <= 0) continue;
       }
 
@@ -4299,7 +4266,7 @@ namespace gstlrn
       }
       else
       {
-        value = getValueByColIdx(iech, icol, true, version);
+        value = getValue({icol, version}, iech);
       }
       tab[ecr] = value;
       ecr++;
@@ -5293,7 +5260,7 @@ namespace gstlrn
       // Update the column names and locators
       for (Id icol = 0; icol < ncol; icol++)
       {
-        setNameByColIdx(icol, names[icol]);
+        setName(icol, names[icol]);
         setLocatorByColIdx(icol, tabloc[icol], tabnum[icol]);
       }
     }
@@ -5408,7 +5375,7 @@ namespace gstlrn
       // Update the column names and locators
       for (Id i = 0; i < ncol; i++)
       {
-        setNameByUID(colIds[i], names[i]);
+        setName(fromUID(colIds[i]), names[i]);
         setLocatorByUID(colIds[i], tabloc[i], tabnum[i]);
       }
     }
@@ -5432,7 +5399,7 @@ namespace gstlrn
     {
       for (Id iech = 0; iech < getNSample(); iech++)
         setValueByColIdx(iech, jcol, iech + 1);
-      setNameByUID(jcol, "rank");
+      setName(fromUID(jcol), "rank");
       jcol++;
     }
 
@@ -5470,7 +5437,7 @@ namespace gstlrn
         messerr("You wanted to designate a SINGLE variable.");
         messerr("There are several variables matching your criterion:");
         for (size_t i = 0; i < iuids.size(); i++)
-          messerr("- %s", getNameByUID(iuids[i]).c_str());
+          messerr("- %s", getName(fromUID(iuids[i])).c_str());
       }
       return false;
     }
@@ -5703,7 +5670,7 @@ namespace gstlrn
     Id mult;
     for (Id icol = 0, ncol = static_cast<Id>(names.size()); icol < ncol; icol++)
     {
-      setNameByUID(icol + shift, names[icol]);
+      setName(fromUID(icol + shift), names[icol]);
       if (dbin->getLocator(names[icol], &locatorType, &locatorIndex, &mult))
         setLocator(names[icol], locatorType, locatorIndex);
     }
@@ -5730,7 +5697,7 @@ namespace gstlrn
     {
       Id jcol = db->getColIdx(names[icol]);
       for (Id iech = 0; iech < nech; iech++)
-        values[iech] = db->getValueByColIdx(ranks[iech], jcol);
+        values[iech] = db->getValue(jcol, ranks[iech]);
       setColumnByColIdx(values, icol + shift);
     }
   }

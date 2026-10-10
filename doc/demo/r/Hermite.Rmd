@@ -205,7 +205,7 @@ draw.matrix <- function(type,calcul,flag.est,params,flag.cut=TRUE)
 {
   title = get.title(type,calcul,flag.est,params)
   db = calculate.matrix(type,calcul,flag.est,params)
-  p = ggplot(asp=1)
+  p = ggplot() + coord_fixed(ratio = 1)
   p = p + plot.raster(db,name="psi")
   p = p + plot.decoration(title=title)
   if (flag.cut) p <- p + geom_vline(xintercept = params$yc)
@@ -364,7 +364,7 @@ plot.end(p)
 
 ```{r rgeostats_test, echo=TRUE, eval=TRUE}
 db <- Db_createFromSamples(np,ELoadBy_SAMPLE(),zz_theo)
-db$setNameByUID(db$getLastUID(),"zz_theo")
+db$setName(db$fromUID(db$getLastUID()), "zz_theo")
 
 ana = AnamHermite_create(nh)
 err = ana$fit(db, name="zz_theo")

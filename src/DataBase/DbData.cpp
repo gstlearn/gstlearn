@@ -204,6 +204,26 @@ namespace gstlrn
     return colIDout;
   }
 
+  ColID DbData::fromUID(Id iuid, Id version) const
+  {
+    const auto ncol = getNColumns();
+    if (ncol <= 0 || iuid < 0) return ColID(-1);
+
+    const Id startColumn = (iuid < ncol) ? iuid : 0;
+
+    for (Id icol = 0; icol < ncol; ++icol)
+    {
+      const Id jcol = (icol + startColumn) % ncol;
+
+      if (_cols[jcol].getUniqueIndex() == iuid)
+      {
+        return ColID(jcol, version);
+      }
+    }
+
+    return ColID(-1);
+  }
+
   void DbData::setRoleID(ColID&& colid, const RoleID& roleID)
   {
     const auto icol = _getColumnIndex(colid);

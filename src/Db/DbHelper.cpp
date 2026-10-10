@@ -1340,7 +1340,7 @@ namespace gstlrn
       /* Loop on the variables of the input grid */
 
       for (icol = 0; icol < ncol; icol++)
-        dbout->setValueByColIdx(iech, icol, dbin->getValueByColIdx(iad, icol));
+        dbout->setValueByColIdx(iech, icol, dbin->getValue(icol, iad));
     }
 
   label_end:

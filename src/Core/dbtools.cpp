@@ -1637,7 +1637,7 @@ namespace gstlrn
     for (Id idim = 0; idim < ndim; idim++)
     {
       Id jdim = (flagAddSampleRank) ? idim + 1 : idim;
-      db->setNameByUID(jdim, names[idim]);
+      db->setName(db->fromUID(jdim), names[idim]);
       db->setLocatorByUID(jdim, ELoc::X, idim);
     }
     return (db);

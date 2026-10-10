@@ -282,24 +282,31 @@ namespace gstlrn
     // ================================================================ //
     // All methods listed in this paragraph are direct access to DbData //
     // ================================================================ //
-    String getName(ColID&& colid, bool withVersion = false) const;
+    // Next function is a temporary version to allow the transition for
+    // all methods of Db such as getXXXByUID() ou setXXXByUID(). It will be removed in the future.
+    ColID fromUID(Id iuid, Id version = 0) const
+    {
+      return _data.fromUID(iuid, version);
+    }
+
+    String getName(const ColID& colid, bool withVersion = false) const;
     String
       getNameByUID(Id iuid, Id version = 0, bool withVersion = false) const;
+    void setName(const ColID& colid, const String& name);
+    void setNameByUID(Id iuid, const String& name);
 
     VectorString getNames(const String& name) const;
     VectorString getNames(const VectorString& names) const;
     VectorString getNamesByLocator(const ELoc& locatorType) const;
     VectorString getNamesByColIdx(const VectorInt& icols) const;
     VectorString getNamesByUID(const VectorInt& iuids) const;
-    void setName(const String& old_name, const String& name);
-    void setName(const VectorString& list, const String& name);
-    void setNameByLocator(const ELoc& locatorType, const String& name);
-    void setNameByColIdx(Id icol, const String& name);
-    void setNameByUID(Id iuid, const String& name);
+
+    void setNames(const VectorString& list, const String& name);
 
     Id getColIdx(const String& name) const;
     Id getColIdxByUID(Id iuid) const;
     Id getColIdxByLocator(const ELoc& locatorType, Id locatorIndex = 0) const;
+
     VectorInt getColIdxs(const String& name) const;
     VectorInt getColIdxs(const VectorString& names) const;
     VectorInt getColIdxsByUID(const VectorInt& iuids) const;
@@ -373,15 +380,11 @@ namespace gstlrn
     double getArray(Id iech, Id iuid, Id version = 0) const;
     VectorDouble getArrayByUID(Id iuid, bool useSel = false) const;
 
+    double getValue(const ColID& colid, Id iech) const;
     void setArray(Id iech, Id iuid, double value, Id version = 0);
     void setArrayByUID(const VectorDouble& tab, Id iuid);
-
     void updArray(Id iech, Id iuid, const EOperator& oper, double value);
 
-    double getValue(const String& name, Id iech, Id version = 0) const;
-    double
-      getValueByColIdx(Id iech, Id icol, bool flagCheck = true, Id version = 0)
-        const;
     void setValue(const String& name, Id iech, double value, Id version = 0);
     void
       setValueByColIdx(Id iech, Id icol, double value, bool flagCheck = true);
