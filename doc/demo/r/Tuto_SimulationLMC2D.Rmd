@@ -62,11 +62,11 @@ matern_param = 1.0
 ```{r domain_definition, echo=TRUE, eval=TRUE}
 # observations
 dat = Db_create()
-err = dat$setColumn(tab = runif(n=ndat), name = "x")
-err = dat$setColumn(tab = runif(n=ndat), name = "y")
+err = dat$setColumn("x", tab = runif(n=ndat))
+err = dat$setColumn("y", tab = runif(n=ndat))
 err = dat$setLocators(names = c("x", "y"), locatorType = ELoc_X(), cleanSameLocator = TRUE)
-err = dat$setColumn(tab = rnorm(ndat), name = "Z")
-err = dat$setLocator(name = "Z", locatorType = ELoc_Z());
+err = dat$setColumn("Z", tab = rnorm(ndat))
+err = dat$setLocator("Z", locatorType = ELoc_Z());
 # grid for the simulations
 grid    = DbGrid_create(nx,dx,x0)
 

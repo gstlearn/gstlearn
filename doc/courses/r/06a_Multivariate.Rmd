@@ -419,7 +419,7 @@ Now that the residuals are explicitly computed and available in the observation 
 We start by setting their locator to `z` to specify that they are now our variable of interest within the data base (instead of the raw temperature observations).
 
 ```{r Change_locator, echo=TRUE}
-dat$setLocator("RegRes*",ELoc_Z(), cleanSameLocator=TRUE)
+dat$setLocators({"RegRes*"},ELoc_Z(), cleanSameLocator=TRUE)
 ```
 
 Then we can compute an experimental variogram for the residuals and fit a model on them.

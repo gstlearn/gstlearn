@@ -107,7 +107,7 @@ namespace gstlrn
 
     /* Save the grid in dbgrid */
 
-    dbgrid->setColumnByUID(simgrid, _iattOut);
+    dbgrid->setColumn(dbgrid->fromUID(_iattOut), simgrid);
 
     delete dbpoint;
     return true;
@@ -183,7 +183,7 @@ namespace gstlrn
                   ? planes[ip].getRndval()
                   : -planes[ip].getRndval();
       }
-      dbgrid->setArray(iech, _iattOut, valtot);
+      dbgrid->setValue(dbgrid->fromUID(_iattOut), iech, valtot);
     }
 
     /* Printout statistics on the information process */
@@ -197,7 +197,7 @@ namespace gstlrn
     for (Id iech = 0; iech < dbgrid->getNSample(); iech++)
     {
       if (!dbgrid->isActive(iech)) continue;
-      double valref = dbgrid->getArray(iech, _iattOut);
+      double valref = dbgrid->getValue(dbgrid->fromUID(_iattOut), iech);
       if (FFFF(valref)) continue;
 
       /* Check if the value has already been treated */
@@ -208,7 +208,7 @@ namespace gstlrn
 
         /* Not in the stack: read the value from the Gaussian field */
 
-        valsim = dbgrid->getArray(iech, iattg);
+        valsim = dbgrid->getValue(dbgrid->fromUID(iattg), iech);
 
         /* Add this new value to the stack */
 
@@ -220,12 +220,12 @@ namespace gstlrn
 
       /* Substitute the values in the Gaussian field */
 
-      dbgrid->setArray(iech, iattg, valsim);
+      dbgrid->setValue(dbgrid->fromUID(iattg), iech, valsim);
     }
 
     // Delete the internal Simulation
 
-    dbgrid->deleteColumnByUID(iattg);
+    dbgrid->deleteColumn(dbgrid->fromUID(iattg));
 
     return true;
   }

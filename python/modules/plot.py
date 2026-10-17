@@ -88,7 +88,7 @@ def _getDefaultVariableName(db, name):
     """
     if name is None:
         if db.getNLoc(gl.ELoc.Z) > 0:
-            name = db.getName(gl.RoleID(gl.toERole(gl.ELoc.Z), 0))
+            name = db.getName(gl.RoleID(gl.ERole.Z, 0))
         else:  # if no Z locator, choose the last field
             name = db.getLastName()
     else:
@@ -462,11 +462,11 @@ def _getVariable(
             corner = np.zeros(db.getNDim())
 
         if db.getNDim() == 1:
-            tab = db.getColumn(name, useSel, False, version)
+            tab = db.getColumn(gl.ColID(name, version), useSel, False)
         else:
             tab = db.getOneSlice(name, posX, posY, corner, useSel, version)
     else:
-        tab = db.getColumn(name, useSel, True, version)
+        tab = db.getColumn(gl.ColID(name, version), useSel, True)
     tab = np.array(tab).transpose()
 
     return tab
@@ -1827,16 +1827,16 @@ def _ax_grid1D(
 
     if name is None:
         if dbgrid.getNLoc(gl.ELoc.Z) > 0:
-            name = dbgrid.getName(
-                gl.RoleID(gl.toERole(gl.ELoc.Z), 0)
-            )  # select locator z1, prints an error if no Z locator
-        else:  # if no Z locator, choose the last field
+            # select locator z1, prints an error if no Z locator
+            name = dbgrid.getName(gl.RoleID(gl.ERole.Z, 0))
+        else:
+            # if no Z locator, choose the last field
             name = dbgrid.getLastName()
     x0 = dbgrid.getX0(0)
     nx = dbgrid.getNX(0)
     dx = dbgrid.getDX(0)
 
-    tabx = dbgrid.getColumnByLocator(gl.ELoc.X, 0, useSel)
+    tabx = dbgrid.getColumn(gl.RoleID(gl.ERole.X, 0), useSel)
     data = _getVariable(dbgrid, name, 0, 0, 1, None, useSel, True)
 
     _ax_curve(ax, data1=tabx, data2=data, color=color, flagLegend=flagLegend, **kwargs)
@@ -1872,7 +1872,7 @@ def _ax_histogram(ax, db, name, version=0, useSel=True, **kwargs):
     if _isNotCorrect(object=db, types=["Db", "DbGrid"]):
         return None
 
-    val = db.getColumn(name, useSel, False, version)
+    val = db.getColumn(gl.ColID(name, version), useSel, False)
     if len(val) == 0:
         return None
 

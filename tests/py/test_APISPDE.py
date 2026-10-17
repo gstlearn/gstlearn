@@ -58,7 +58,7 @@ data = gl.Db()
 data["x1"] = resultDb["x1"][ind]
 data["x2"] = resultDb["x1"][ind]
 data["z"] = resultDb["Simu"][ind]
-data.setLocator("x*", gl.ELoc.X)
+data.setLocators(["x*"], gl.ELoc.X)
 data.setLocator("z", gl.ELoc.Z)
 data
 

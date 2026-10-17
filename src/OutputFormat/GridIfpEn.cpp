@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "OutputFormat/GridIfpEn.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/String.hpp"
 #include "Core/io.hpp"
 #include "Db/Db.hpp"
@@ -90,7 +89,7 @@ namespace gstlrn
     for (Id j = 0; j < ncol; j++)
       for (Id i = 0; i < ntot; i++)
       {
-        double value = _dbgrid->getArray(i, _cols[j]);
+        double value = _dbgrid->getValue(_dbgrid->fromUID(_cols[j]), i);
         _writeLine(2, NULL, 0, value, NULL);
       }
 

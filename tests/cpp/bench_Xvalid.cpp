@@ -51,7 +51,7 @@ int main(int argc, char* argv[])
 
   // Generate the data base
   Db* data = Db::createFillRandom(nech, ndim, nvar, 0);
-  data->setLocVariable(ELoc::Z, 1, 0, TEST);
+  data->setValue({ERole::Z, 0}, 1, TEST);
   DbStringFormat* dbfmt = DbStringFormat::create(FLAG_ARRAY);
   data->display(dbfmt);
 
@@ -83,12 +83,12 @@ int main(int argc, char* argv[])
   OptCst::define(ECst::NTCOL, -1);
 
   // Perform the cross-validation
-  data->setLocator("z*", ELoc::Z);
+  data->setLocators({"z*"}, ELoc::Z);
   xvalid(data, model, neigh, false);
   OptDbg::setReference(0);
 
   // Perform the cross-validation
-  data->setLocator("z*", ELoc::Z);
+  data->setLocators({"z*"}, ELoc::Z);
   xvalid(data, model, neigh, false, -1, -1);
 
   // Produce some statistics for comparison

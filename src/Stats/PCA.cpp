@@ -222,7 +222,7 @@ namespace gstlrn
     auto nvarZ = _countNVarZ(db);
     for (Id ivar = 0; ivar < nvarZ; ivar++)
     {
-      auto nversion = db->getNVersionsByLocator(ELoc::Z, ivar);
+      auto nversion = db->getNVersions({ERole::Z, ivar});
       auto iptrLoc = db->addColumnsByConstant(1, nversion, TEST);
       if (iptrLoc < 0) return -1;
       if (iptr < 0) iptr = iptrLoc;
@@ -539,10 +539,10 @@ namespace gstlrn
 
       for (Id ifac = 0, ecr = 0; ifac < nfacZ; ifac++)
       {
-        auto nversion = db->getNVersionsByLocator(ELoc::Z, ifac);
+        auto nversion = db->getNVersions({ERole::Z, ifac});
         for (Id version = 0; version < nversion; version++, ecr++)
         {
-          db->setArray(iech, iptr + ifac, data2[ecr], version);
+          db->setValue(db->fromUID(iptr + ifac, version), iech, data2[ecr]);
         }
       }
     }
@@ -583,10 +583,10 @@ namespace gstlrn
 
       for (Id ivar = 0, ecr = 0; ivar < nvarZ; ivar++)
       {
-        auto nversion = db->getNVersionsByLocator(ELoc::Z, ivar);
+        auto nversion = db->getNVersions({ERole::Z, ivar});
         for (Id version = 0; version < nversion; version++, ecr++)
         {
-          db->setArray(iech, iptr + ivar, data2[ecr], version);
+          db->setValue(db->fromUID(iptr + ivar, version), iech, data2[ecr]);
         }
       }
     }
@@ -882,10 +882,11 @@ namespace gstlrn
     auto nvarZ = _countNVarZ(db);
     for (Id ivar = 0; ivar < nvarZ; ivar++)
     {
-      auto nversion = db->getNVersionsByLocator(ELoc::Z, ivar);
+      auto nversion = db->getNVersions({ERole::Z, ivar});
+      auto roleid = RoleID(ERole::Z, ivar);
       for (Id iversion = 0; iversion < nversion; iversion++)
       {
-        data[nitem] = db->getFromLocator(ELoc::Z, iech, ivar, iversion);
+        data[nitem] = db->getValue({roleid, iversion}, iech);
         nitem++;
       }
     }
@@ -928,7 +929,7 @@ namespace gstlrn
   {
     Id nitem = 0;
     for (Id ivar = 0, nvar = db->getNLoc(ELoc::Z); ivar < nvar; ivar++)
-      nitem += db->getNVersionsByLocator(ELoc::Z, ivar);
+      nitem += db->getNVersions({ERole::Z, ivar});
     return nitem;
   }
 
@@ -943,7 +944,7 @@ namespace gstlrn
     auto nvarZ = _countNVarZ(db);
     for (Id ivar = 0; ivar < nvarZ; ivar++)
     {
-      String name = db->getName({toERole(ELoc::Z), ivar});
+      String name = db->getName({ERole::Z, ivar});
       names.push_back(name);
     }
 

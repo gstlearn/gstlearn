@@ -478,8 +478,8 @@ namespace gstlrn
   bool VarioParam::isDateUsed(const Db* db1, const Db* db2) const
   {
     if (getDates().empty()) return false;
-    if (!db1->hasLocVariable(ELoc::DATE)) return false;
-    if (db2 != nullptr && !db2->hasLocVariable(ELoc::DATE)) return false;
+    if (!db1->hasLocator(ELoc::DATE)) return false;
+    if (db2 != nullptr && !db2->hasLocator(ELoc::DATE)) return false;
     return true;
   }
 

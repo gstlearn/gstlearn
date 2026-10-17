@@ -260,8 +260,7 @@ namespace gstlrn
     // Create a grid as a support for the variogram cloud calculations
 
     if (FFFF(lagmax)) lagmax = db->getExtensionDiagonal();
-    if (FFFF(varmax))
-      varmax = 3. * db->getVariance(db->getName({toERole(ELoc::Z), 0}));
+    if (FFFF(varmax)) varmax = 3. * db->getVariance(db->getName({ERole::Z, 0}));
 
     VectorInt nx(2);
     nx[0] = lagnb;

@@ -629,7 +629,7 @@ namespace gstlrn
     {
       Id ndef = 0;
       for (Id ijvar = 0; ijvar < nvs2; ijvar++)
-        if (!FFFF(dbmap->getZVariable(iech, ijvar))) ndef++;
+        if (!FFFF(dbmap->getValue({ERole::Z, ijvar}, iech))) ndef++;
       nbexp += ndef;
       if (ndef > 0) npadir++;
     }
@@ -2358,7 +2358,7 @@ namespace gstlrn
       for (Id ivar = 0; ivar < nvar; ivar++)
         for (Id jvar = 0; jvar <= ivar; jvar++, ijvar++)
         {
-          if (FFFF(DBMAP->getZVariable(iech, ijvar))) continue;
+          if (FFFF(DBMAP->getValue({ERole::Z, ijvar}, iech))) continue;
           tabge[ecr++] = model->evalIvarIpas(1., d0, ivar, jvar, &mode);
         }
     }
@@ -4349,7 +4349,7 @@ namespace gstlrn
     MatrixSymmetric aux(nvar);
     for (Id ivar = 0; ivar < nvar; ivar++)
     {
-      String name = dbmap->getName({toERole(ELoc::Z), ivar});
+      String name = dbmap->getName({ERole::Z, ivar});
       VectorDouble ranges = dbmap->getRange(name);
       aux.setValue(ivar, ivar, ranges[1] - ranges[0]);
     }
@@ -4920,7 +4920,7 @@ namespace gstlrn
 
       Id ntest = 0;
       for (Id ijvar = 0; ijvar < nvs2; ijvar++)
-        if (!FFFF(DBMAP->getZVariable(iech, ijvar))) ntest++;
+        if (!FFFF(DBMAP->getValue({ERole::Z, ijvar}, iech))) ntest++;
       if (ntest <= 0) continue;
 
       for (Id ijvar = 0; ijvar < nvs2; ijvar++)
@@ -4928,7 +4928,7 @@ namespace gstlrn
         WT(ijvar, ipadir) = 0.;
         GG(ijvar, ipadir) = 0.;
 
-        double value = DBMAP->getZVariable(iech, ijvar);
+        double value = DBMAP->getValue({ERole::Z, ijvar}, iech);
         if (FFFF(value)) continue;
 
         WT(ijvar, ipadir) = wgt;

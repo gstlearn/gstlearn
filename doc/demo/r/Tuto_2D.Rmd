@@ -388,7 +388,7 @@ We turn the Gaussian conditional simulations into Raw scale (using the Anamorpho
 
 ```{r}
 err = myanamPb$gaussianToRaw(mygrid,name="Simu.Y.*")
-err = mygrid$deleteColumn("Simu.Y.*")
+err = mygrid$deleteColumns("Simu.Y.*")
 if (verbose)
     er = mygrid$display()
 ```
@@ -483,7 +483,7 @@ if (graphics)
 We perform 10 bivariate conditional simulations (deleting the previous monovariate simulation outcomes first for better legibility).
 
 ```{r}
-err = mygrid$deleteColumn("Z.Simu*")
+err = mygrid$deleteColumns("Z.Simu*")
 err = simtub(mydb,mygrid,mymodelM,myneigh,nbsimu=10)
 if (verbose)
     err = mygrid$display()
@@ -494,7 +494,7 @@ We back-transform each set of simulation outcomes using its own Gaussian Anamorp
 ```{r}
 err = myanamZn$gaussianToRaw(mygrid,"Simu.Y.Zn*")
 err = myanamPb$gaussianToRaw(mygrid,"Simu.Y.Pb*")
-err = mygrid$deleteColumn("Simu.Y*")
+err = mygrid$deleteColumns("Simu.Y*")
 if (verbose)
     err = dbStatisticsMono(mygrid, mygrid$getNamesByLocator(ELoc_Z()),
           opers = EStatOption_fromKeys(c("MEAN","STDV","MINI","MAXI")))$display()

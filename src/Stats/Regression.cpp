@@ -92,14 +92,14 @@ namespace gstlrn
     switch (mode)
     {
       case 0:
-        if (db1->getColIdxByUID(icol0) < 0)
+        if (db1->getColIdx(db1->fromUID(icol0)) < 0)
         {
           messerr("The regression requires a valid target variable");
           return false;
         }
         for (Id icol = 0; icol < ncol; icol++)
         {
-          if (db2->getColIdxByUID(icols[icol]) < 0)
+          if (db2->getColIdx(db2->fromUID(icols[icol])) < 0)
           {
             messerr(
               "The regression requires a valid auxiliary variable (#%d)",
@@ -154,23 +154,23 @@ namespace gstlrn
     switch (mode)
     {
       case 0:
-        *value = db1->getArray(iech, icol0);
+        *value = db1->getValue(db1->fromUID(icol0), iech);
         if (flagCst) x[ecr++] = 1.;
         for (Id icol = 0; icol < static_cast<Id>(icols.size()); icol++)
-          x[ecr++] = db2->getArray(iech, icols[icol]);
+          x[ecr++] = db2->getValue(db2->fromUID(icols[icol]), iech);
         break;
 
       case 1:
         nfex = db2->getNLoc(ELoc::F);
-        *value = db1->getZVariable(iech, 0);
+        *value = db1->getValue({ERole::Z, 0}, iech);
         if (flagCst) x[ecr++] = 1.;
         for (Id i = 0; i < nfex; i++)
-          x[ecr++] = db2->getLocVariable(ELoc::F, iech, i);
+          x[ecr++] = db2->getValue({ERole::F, i}, iech);
         break;
 
       case 2:
         nbfl = model->getNDrift();
-        *value = db1->getZVariable(iech, 0);
+        *value = db1->getValue({ERole::Z, 0}, iech);
         for (Id i = 0; i < nbfl; i++)
           x[ecr++] = model->evalDrift(db2, iech, i, ECalcMember::LHS);
         break;
@@ -427,7 +427,7 @@ namespace gstlrn
           for (Id i = 0; i < size; i++) value -= x[i] * getCoeff(i);
         }
       }
-      db1->setArray(iech, iptr0, value);
+      db1->setValue(db1->fromUID(iptr0), iech, value);
     }
     return 0;
   }

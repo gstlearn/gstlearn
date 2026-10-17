@@ -47,7 +47,7 @@ namespace gstlrn
 
     // Column index for selection (if 'useSel' and if present)
     _iptrSel = (_useSel && _db->hasLocator(ELoc::SEL))
-               ? _db->getColIdxByLocator(ELoc::SEL, 0)
+               ? _db->getColIdx({ERole::SEL})
                : -1;
 
     // Column indices for variables (if 'useZ' and if present)
@@ -56,7 +56,7 @@ namespace gstlrn
     {
       _iptrZ.resize(_nvar);
       for (Id ivar = 0; ivar < _nvar; ivar++)
-        _iptrZ[ivar] = _db->getColIdxByLocator(ELoc::Z, ivar);
+        _iptrZ[ivar] = _db->getColIdx({ERole::Z, ivar});
     }
 
     // Column indices for variance of measurement error (if 'useVerr' and if present)
@@ -65,7 +65,7 @@ namespace gstlrn
     {
       _iptrVerr.resize(_nvar);
       for (Id ivar = 0; ivar < _nvar; ivar++)
-        _iptrVerr[ivar] = _db->getColIdxByLocator(ELoc::V, ivar);
+        _iptrVerr[ivar] = _db->getColIdx({ERole::V, ivar});
     }
 
     // Column indices for external drifts (if 'useExtD' and if present)
@@ -76,7 +76,7 @@ namespace gstlrn
       _nExtD = _db->getNLoc(ELoc::F);
       _iptrExtD.resize(_nExtD);
       for (Id iext = 0; iext < _nExtD; iext++)
-        _iptrExtD[iext] = _db->getColIdxByLocator(ELoc::F, iext);
+        _iptrExtD[iext] = _db->getColIdx({ERole::F, iext});
     }
     _initElligible();
   }
@@ -97,7 +97,7 @@ namespace gstlrn
         // Check against a possible selection
         if (_iptrSel >= 0)
         {
-          value = _db->getValueByColIdx(static_cast<Id>(iabs), _iptrSel);
+          value = _db->getValue(_iptrSel, static_cast<Id>(iabs));
           if (value <= 0)
           {
             _elligible.setValue(ivar, iabs, false);
@@ -108,7 +108,7 @@ namespace gstlrn
         // Check against validity of the Variance of Measurement Error variable
         if (!_iptrVerr.empty())
         {
-          value = _db->getValueByColIdx(static_cast<Id>(iabs), _iptrVerr[ivar]);
+          value = _db->getValue(_iptrVerr[ivar], static_cast<Id>(iabs));
           if (FFFF(value) || value <= 0)
           {
             _elligible.setValue(ivar, iabs, false);
@@ -122,8 +122,7 @@ namespace gstlrn
           bool valid = true;
           for (Id iext = 0; iext < _nExtD && valid; iext++)
           {
-            value =
-              _db->getValueByColIdx(static_cast<Id>(iabs), _iptrExtD[iext]);
+            value = _db->getValue(_iptrExtD[iext], static_cast<Id>(iabs));
             if (FFFF(value)) valid = false;
           }
           if (!valid)
@@ -136,7 +135,7 @@ namespace gstlrn
         // Check against the existence of a target variable
         if (!_iptrZ.empty())
         {
-          value = _db->getValueByColIdx(static_cast<Id>(iabs), _iptrZ[ivar]);
+          value = _db->getValue(_iptrZ[ivar], static_cast<Id>(iabs));
           if (FFFF(value))
           {
             _elligible.setValue(ivar, iabs, false);
@@ -232,7 +231,7 @@ namespace gstlrn
         // The sample is valid for the current variable: its Z value is stored
         if (!_iptrZ.empty())
         {
-          value = _db->getValueByColIdx(iabs, icol);
+          value = _db->getValue(icol, iabs);
           _Zflatten->push_back(value);
         }
         // The sample is finally accepted: its ABSOLUTE index is stored

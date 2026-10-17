@@ -88,10 +88,10 @@ namespace gstlrn
     for (igrf = 0; igrf < 2; igrf++)
     {
       if (!flagUsed[igrf]) continue;
-      iptr = db->getUIDByLocator(ELoc::SIMU, igrf);
+      iptr = db->getUID({ERole::SIMU, igrf});
       if (iptr < 0)
       {
-        iptr = db->getUIDByLocator(ELoc::Z, igrf);
+        iptr = db->getUID({ERole::Z, igrf});
         if (iptr < 0)
         {
           messerr(
@@ -100,7 +100,7 @@ namespace gstlrn
             igrf + 1);
           goto label_end;
         }
-        db->setLocatorByUID(iptr, ELoc::SIMU, igrf);
+        db->setLocator(db->fromUID(iptr), ELoc::SIMU, igrf);
       }
     }
 
@@ -503,14 +503,14 @@ namespace gstlrn
               db, rule, ifac + 1, iech, 0, 0, 0, &t1min, &t1max, &t2min,
               &t2max))
           goto label_end;
-        db->setArray(iech, iptr + rank, t1min);
+        db->setValue(db->fromUID(iptr + rank), iech, t1min);
         rank++;
-        db->setArray(iech, iptr + rank, t1max);
+        db->setValue(db->fromUID(iptr + rank), iech, t1max);
         rank++;
         if (ngrf == 1) continue;
-        db->setArray(iech, iptr + rank, t2min);
+        db->setValue(db->fromUID(iptr + rank), iech, t2min);
         rank++;
-        db->setArray(iech, iptr + rank, t2max);
+        db->setValue(db->fromUID(iptr + rank), iech, t2max);
         rank++;
       }
     }

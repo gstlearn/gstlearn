@@ -200,7 +200,8 @@ namespace gstlrn
   {
     auto nvar = _getNVar();
     for (Id ivar = 0; ivar < nvar; ivar++)
-      tabin[ivar] = getDbin()->getArray(iech, _iuids[ivar][indices[ivar]]);
+      tabin[ivar] = getDbin()->getValue(
+        getDbin()->fromUID(_iuids[ivar][indices[ivar]]), iech);
 
     if (_mustBeChecked(1))
     {
@@ -215,7 +216,8 @@ namespace gstlrn
   void CalcSimuPost::_writeOut(Id iech, const VectorDouble& tabout) const
   {
     for (Id ivar = 0; ivar < _getNVarout(); ivar++)
-      getDbout()->setArray(iech, _iattOut + ivar, tabout[ivar]);
+      getDbout()->setValue(
+        getDbout()->fromUID(_iattOut + ivar), iech, tabout[ivar]);
   }
 
   /**

@@ -1652,7 +1652,7 @@ namespace gstlrn
         if (ranks[i] <= 0) continue; // Target or Steiner
         ndata1[ivar]++;
         iech = ranks[i] - 1;
-        value = (FFFF(dbin->getZVariable(iech, ivar))) ? 0. : 1.;
+        value = (FFFF(dbin->getValue({ERole::Z, ivar}, iech))) ? 0. : 1.;
         Btriplet.add(iech, i, value);
       }
       // Add a fictitious sample (zero value) as a dimension constraint
@@ -1690,7 +1690,7 @@ namespace gstlrn
           iech = ranks[i] - 1;
 
           // Could the data be considered as a target (heterotopic case)
-          if (FFFF(dbin->getZVariable(iech, ivar)))
+          if (FFFF(dbin->getValue({ERole::Z, ivar}, iech)))
           {
             // The sample is not defined for the current variable: it is a target
             flag_add = 1;
@@ -3316,7 +3316,7 @@ namespace gstlrn
     // Initializations
 
     Id nech = dbgrid->getNSample();
-    VectorDouble tab = dbgrid->getColumnByUID(icol_pinch);
+    VectorDouble tab = dbgrid->getColumn(dbgrid->fromUID(icol_pinch));
 
     // Check that values are within [0,1] interval
 
@@ -3530,7 +3530,7 @@ namespace gstlrn
       iatt = m2denv->iatt_fd;
     else
       iatt = m2denv->iatt_fg;
-    value = db->getArray(iech, iatt + ilayer);
+    value = db->getValue(db->fromUID(iatt + ilayer), iech);
     return (value);
   }
 
@@ -3576,10 +3576,10 @@ namespace gstlrn
   {
     double value, previous;
 
-    value = db->getLocVariable(ELoc::F, iech0, ilayer0);
+    value = db->getValue({ERole::F, ilayer0}, iech0);
     if (FFFF(value)) return (TEST);
     if (ilayer0 > 1)
-      previous = db->getLocVariable(ELoc::F, iech0, ilayer0 - 1);
+      previous = db->getValue({ERole::F, ilayer0 - 1}, iech0);
     else
       previous = m2denv->dmini;
     if (FFFF(previous)) return (TEST);
@@ -3639,13 +3639,13 @@ namespace gstlrn
         {
           drift = st_m2d_get_drift(m2denv, db, ilayer, iech);
           if (!FFFF(drift) && ilayer > 0 && icol_pinch >= 0)
-            drift *= db->getArray(iech, icol_pinch);
+            drift *= db->getValue(db->fromUID(icol_pinch), iech);
         }
         else
         {
           drift = TEST;
         }
-        db->setArray(iech, iatt + ilayer, drift);
+        db->setValue(db->fromUID(iatt + ilayer), iech, drift);
       }
     }
   }
@@ -3685,13 +3685,13 @@ namespace gstlrn
 
     if (migrateByAttribute(dbout, dbc, iuids, 0, VectorDouble(), false, false))
     {
-      dbc->deleteColumnByUID(iptr);
+      dbc->deleteColumn(dbc->fromUID(iptr));
       return 1;
     }
 
     // Store the resulting array in the file
 
-    dbc->setColumnByUID(tab, iptr);
+    dbc->setColumn(dbc->fromUID(iptr), tab);
 
     // Set the error returned code
 
@@ -3743,7 +3743,7 @@ namespace gstlrn
 
       iptr = st_m2d_migrate_pinch_to_point(dbout, dbc, icol_pinch);
       st_m2d_set_M(m2denv, nlayer, iptr, dbc, m2denv->iatt_fd);
-      if (iptr >= 0) dbc->deleteColumnByUID(iptr);
+      if (iptr >= 0) dbc->deleteColumn(dbc->fromUID(iptr));
 
       /* Check validity of drift at data points */
 
@@ -3814,8 +3814,8 @@ namespace gstlrn
       for (Id iech = 0; iech < nech; iech++)
       {
         if (!dbin->isActive(iech)) continue;
-        lower = dbin->getLocVariable(ELoc::L, iech, ilayer);
-        upper = dbin->getLocVariable(ELoc::U, iech, ilayer);
+        lower = dbin->getValue({ERole::L, ilayer}, iech, false);
+        upper = dbin->getValue({ERole::U, ilayer}, iech, false);
 
         // Process the minimum bound
 
@@ -3913,7 +3913,7 @@ namespace gstlrn
 
       for (Id iech = 0; iech < nech; iech++)
       {
-        zval = dbc->getZVariable(iech, ilayer);
+        zval = dbc->getValue({ERole::Z, ilayer}, iech);
 
         nb += 1.;
         mm += zval;
@@ -4002,8 +4002,8 @@ namespace gstlrn
 
       for (Id ilayer = 0; ilayer < nlayer; ilayer++)
       {
-        zmin = dbc->getLocVariable(ELoc::L, iech, ilayer);
-        zmax = dbc->getLocVariable(ELoc::U, iech, ilayer);
+        zmin = dbc->getValue({ERole::L, ilayer}, iech);
+        zmax = dbc->getValue({ERole::U, ilayer}, iech);
         work[ilayer] =
           st_m2d_draw_elevation(m2denv, nlayer, ilayer, zmin, zmax);
       }
@@ -4021,8 +4021,8 @@ namespace gstlrn
 
           /* Determine the bounds at data locations */
 
-          zmin = dbc->getLocVariable(ELoc::L, iech, ilayer);
-          zmax = dbc->getLocVariable(ELoc::U, iech, ilayer);
+          zmin = dbc->getValue({ERole::L, ilayer}, iech);
+          zmax = dbc->getValue({ERole::U, ilayer}, iech);
 
           /* Loop on the other layers */
 
@@ -4086,8 +4086,8 @@ namespace gstlrn
           njter_max);
         for (Id ilayer = 0; ilayer < nlayer; ilayer++)
         {
-          zmin = dbc->getLocVariable(ELoc::L, iech, ilayer);
-          zmax = dbc->getLocVariable(ELoc::U, iech, ilayer);
+          zmin = dbc->getValue({ERole::L, ilayer}, iech);
+          zmax = dbc->getValue({ERole::U, ilayer}, iech);
           st_print_constraints_per_point(
             ilayer, iech, work[ilayer], TEST, TEST, zmin, zmax);
         }
@@ -4101,7 +4101,7 @@ namespace gstlrn
       /* Store the resulting values */
 
       for (Id ilayer = 0; ilayer < nlayer; ilayer++)
-        dbc->setLocVariable(ELoc::Z, iech, ilayer, work[ilayer]);
+        dbc->setValue({ERole::Z, ilayer}, iech, work[ilayer]);
     }
 
     return (0);
@@ -4172,7 +4172,7 @@ namespace gstlrn
 
       if (m2denv->flag_ed)
       {
-        iuids[0] = dbout->getUIDByLocator(ELoc::F, ilayer);
+        iuids[0] = dbout->getUID({ERole::F, ilayer});
 
         // Migrate the information from Grid to Wells
 
@@ -4183,7 +4183,7 @@ namespace gstlrn
         for (Id iech = 0; iech < dbout->getNSample(); iech++)
         {
           if (!dbout->isActive(iech)) continue;
-          value = dbout->getLocVariable(ELoc::F, iech, ilayer);
+          value = dbout->getValue({ERole::F, ilayer}, iech);
           if (FFFF(value)) continue;
           nb++;
           if (FFFF(m2denv->dmini) || value < m2denv->dmini)
@@ -4201,7 +4201,7 @@ namespace gstlrn
         if (m2denv->flag_ed)
         {
           if (FFFF(dval[iech])) continue;
-          dbin->setLocVariable(ELoc::F, iech, ilayer, dval[iech]);
+          dbin->setValue({ERole::F, ilayer}, iech, dval[iech]);
         }
       }
     }
@@ -4255,16 +4255,15 @@ namespace gstlrn
     nvar = nbdmin = nbdmax = 0;
     for (Id iech = 0; iech < nech; iech++)
     {
-      value = dbc->getZVariable(iech, ilayer);
+      value = dbc->getValue({ERole::Z, ilayer}, iech);
       if (!FFFF(value)) nvar++;
-      lower = dbc->getLocVariable(ELoc::L, iech, ilayer);
-      upper = dbc->getLocVariable(ELoc::U, iech, ilayer);
+      lower = dbc->getValue({ERole::L, ilayer}, iech);
+      upper = dbc->getValue({ERole::U, ilayer}, iech);
       if (!FFFF(lower)) nbdmin++;
       if (!FFFF(upper)) nbdmax++;
     }
 
     // Printout
-
     message("  . Number of hard data    = %d\n", nvar);
     message("  . Number of lower limits = %d\n", nbdmin);
     message("  . Number of upper limits = %d\n", nbdmax);
@@ -4334,9 +4333,9 @@ namespace gstlrn
 
         /* Get the values at the data point */
 
-        epais = dbc->getZVariable(iech, ilayer);
+        epais = dbc->getValue({ERole::Z, ilayer}, iech);
         if (ilayer > 0)
-          epais -= dbc->getZVariable(iech, ilayer - 1);
+          epais -= dbc->getValue({ERole::Z, ilayer - 1}, iech);
         else
           epais -= m2denv->zmini;
 
@@ -4477,8 +4476,8 @@ namespace gstlrn
 
     for (Id ilayer = 0; ilayer < nlayer; ilayer++)
     {
-      vmin = db->getLocVariable(ELoc::L, iech, ilayer);
-      vmax = db->getLocVariable(ELoc::U, iech, ilayer);
+      vmin = db->getValue({ERole::L, ilayer}, iech);
+      vmax = db->getValue({ERole::U, ilayer}, iech);
       if (!bypass)
       {
         if (FFFF(vmin) && FFFF(vmax)) continue;
@@ -4544,8 +4543,8 @@ namespace gstlrn
 
     for (Id ilayer = 0; ilayer < nlayer; ilayer++)
     {
-      lower = db->getLocVariable(ELoc::L, iech, ilayer);
-      upper = db->getLocVariable(ELoc::U, iech, ilayer);
+      lower = db->getValue({ERole::L, ilayer}, iech);
+      upper = db->getValue({ERole::U, ilayer}, iech);
 
       tab[ecr++] = lower;
       tab[ecr++] = upper;
@@ -4556,7 +4555,7 @@ namespace gstlrn
 
     if (m2denv->flag_ed)
       for (Id ilayer = 0; ilayer < nlayer; ilayer++)
-        tab[ecr++] = db->getLocVariable(ELoc::F, iech, ilayer);
+        tab[ecr++] = db->getValue({ERole::F, ilayer}, iech);
 
     /* Increment the number of records by 1 */
 
@@ -4589,9 +4588,9 @@ namespace gstlrn
     ivar += ndim;
     for (Id ilayer = 0; ilayer < nlayer; ilayer++)
     {
-      db->setLocatorByUID(ivar++, ELoc::L, ilayer);
-      db->setLocatorByUID(ivar++, ELoc::U, ilayer);
-      if (ilayer < nvar) db->setLocatorByUID(ivar, ELoc::Z, ilayer);
+      db->setLocator(db->fromUID(ivar++), ELoc::L, ilayer);
+      db->setLocator(db->fromUID(ivar++), ELoc::U, ilayer);
+      if (ilayer < nvar) db->setLocator(db->fromUID(ivar), ELoc::Z, ilayer);
       ivar++;
     }
     if (m2denv->flag_ed) db->setLocatorsByUID(nlayer, ivar, ELoc::F, 0);
@@ -4716,27 +4715,27 @@ namespace gstlrn
     // Assigning names to the variables (not pointers yet)
 
     ecr = 0;
-    db->setNameByUID(ecr++, "rank");
+    db->setName(db->fromUID(ecr++), "rank");
     for (Id idim = 0; idim < ndim; idim++)
     {
       (void)gslSPrintf(string_encode, "X%d", idim + 1);
-      db->setNameByUID(ecr++, string_encode);
+      db->setName(db->fromUID(ecr++), string_encode);
     }
     for (Id ilayer = 0; ilayer < nlayer; ilayer++)
     {
       (void)gslSPrintf(string_encode, "Lower%d", ilayer + 1);
-      db->setNameByUID(ecr++, string_encode);
+      db->setName(db->fromUID(ecr++), string_encode);
       (void)gslSPrintf(string_encode, "Upper%d", ilayer + 1);
-      db->setNameByUID(ecr++, string_encode);
+      db->setName(db->fromUID(ecr++), string_encode);
       (void)gslSPrintf(string_encode, "Value%d", ilayer + 1);
-      db->setNameByUID(ecr++, string_encode);
+      db->setName(db->fromUID(ecr++), string_encode);
     }
     if (m2denv->flag_ed)
     {
       for (Id ilayer = 0; ilayer < nlayer; ilayer++)
       {
         (void)gslSPrintf(string_encode, "Drift%d", ilayer + 1);
-        db->setNameByUID(ecr++, string_encode);
+        db->setName(db->fromUID(ecr++), string_encode);
       }
     }
 
@@ -5063,8 +5062,8 @@ namespace gstlrn
 
     for (Id ilayer = 0; ilayer < nlayer; ilayer++)
     {
-      zmin = dbc->getLocVariable(ELoc::L, iech, ilayer);
-      zmax = dbc->getLocVariable(ELoc::U, iech, ilayer);
+      zmin = dbc->getValue({ERole::L, ilayer}, iech);
+      zmax = dbc->getValue({ERole::U, ilayer}, iech);
       message("Z(%d)=%lf in", ilayer, work[ilayer]);
       st_print_concatenate_interval(NULL, zmin, zmax, 1);
     }
@@ -5134,8 +5133,8 @@ namespace gstlrn
 
         // Getting the elevation and the bounds for the current layer
 
-        zmin = dbc->getLocVariable(ELoc::L, iech, ilayer);
-        zmax = dbc->getLocVariable(ELoc::U, iech, ilayer);
+        zmin = dbc->getValue({ERole::L, ilayer}, iech);
+        zmax = dbc->getValue({ERole::U, ilayer}, iech);
         if (verbose)
         {
           message("ilayer=%d", ilayer);
@@ -5245,8 +5244,8 @@ namespace gstlrn
 
         // Getting the elevation and the bounds for the current layer
 
-        zmin = dbc->getLocVariable(ELoc::L, iech, ilayer);
-        zmax = dbc->getLocVariable(ELoc::U, iech, ilayer);
+        zmin = dbc->getValue({ERole::L, ilayer}, iech);
+        zmax = dbc->getValue({ERole::U, ilayer}, iech);
 
         // Check consistency
 
@@ -5370,7 +5369,7 @@ namespace gstlrn
       /* Loop on the layers */
 
       for (Id ilayer = 0; ilayer < nlayer; ilayer++)
-        work[ilayer] = dbc->getZVariable(iech, ilayer);
+        work[ilayer] = dbc->getValue({ERole::Z, ilayer}, iech);
 
       /* Convert from the depth to thickness */
 
@@ -5426,10 +5425,10 @@ namespace gstlrn
       if (!db->isActive(iech)) continue;
       for (Id ilayer = 0; ilayer < nlayer; ilayer++)
       {
-        lower = db->getLocVariable(ELoc::L, iech, ilayer);
-        upper = db->getLocVariable(ELoc::U, iech, ilayer);
-        value = db->getZVariable(iech, ilayer);
-        drift = db->getLocVariable(ELoc::F, iech, ilayer);
+        lower = db->getValue({ERole::L, ilayer}, iech);
+        upper = db->getValue({ERole::U, ilayer}, iech);
+        value = db->getValue({ERole::Z, ilayer}, iech);
+        drift = db->getValue({ERole::F, ilayer}, iech);
         vgaus = (!ydat.empty()) ? YDAT(ilayer, iech) : TEST;
         st_print_constraints_per_point(
           ilayer, iech, value, drift, vgaus, lower, upper);
@@ -5684,9 +5683,9 @@ namespace gstlrn
       {
         auto start = gwork.begin() + ilayer * ngrid;
         VectorDouble gworkLocal(start, start + ngrid);
-        dbout->setColumnByUID(gworkLocal, iatt_out + ilayer);
+        dbout->setColumn(dbout->fromUID(iatt_out + ilayer), gworkLocal);
         (void)gslSPrintf(string_encode, "Drift%d", ilayer + 1);
-        dbout->setNameByUID(iatt_out + ilayer, string_encode);
+        dbout->setName(dbout->fromUID(iatt_out + ilayer), string_encode);
       }
       error = 0;
       goto label_end;
@@ -5842,7 +5841,8 @@ namespace gstlrn
         {
           auto start = gwork.begin() + ilayer * ngrid;
           VectorDouble gworkLocal(start, start + ngrid);
-          dbout->setColumnByUID(gworkLocal, iatt_out + isimu * nlayer + ilayer);
+          dbout->setColumn(
+            dbout->fromUID(iatt_out + isimu * nlayer + ilayer), gworkLocal);
         }
       }
 
@@ -5855,7 +5855,7 @@ namespace gstlrn
         {
           (void)gslSPrintfCat(
             string_encode, "Layer-%d_Simu-%d", ilayer + 1, isimu + 1);
-          dbout->setNameByUID(iatt_out + ecr, string_encode);
+          dbout->setName(dbout->fromUID(iatt_out + ecr), string_encode);
           ecr++;
         }
       }
@@ -5892,13 +5892,13 @@ namespace gstlrn
           for (Id ilayer = 0; ilayer < nlayer; ilayer++)
           {
             (void)gslSPrintf(string_encode, "Layer-%d_CE", ilayer + 1);
-            dbout->setNameByUID(iptr_ce + ilayer, string_encode);
+            dbout->setName(dbout->fromUID(iptr_ce + ilayer), string_encode);
           }
         if (iptr_cstd >= 0)
           for (Id ilayer = 0; ilayer < nlayer; ilayer++)
           {
             (void)gslSPrintf(string_encode, "Layer-%d_CStd", ilayer + 1);
-            dbout->setNameByUID(iptr_cstd + ilayer, string_encode);
+            dbout->setName(dbout->fromUID(iptr_cstd + ilayer), string_encode);
           }
       }
     }
