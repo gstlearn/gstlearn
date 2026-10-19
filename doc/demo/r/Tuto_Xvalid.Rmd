@@ -90,7 +90,7 @@ err = xvalid(db = data,
 data
 ```
 
-Checking the results gathered on the first sample
+Checking the results gathered on the first sample (first argument) and for the first 8 columns of the Data Base.
 
 ```{r}
 data[1,1:8]
@@ -238,7 +238,7 @@ neigh = NeighMoving_create(nmini = 10, nmaxi = 10)
 We perform the cross-validation (using Ordinary Kriging) without the folds: it is based on the Leave-One-Out algorithm..
 
 ```{r}
-err = dbin$deleteColumns(names = "*.xval.*")
+err = dbin$deleteColumns("*.xval.*")
 
 err = dbin$setLocators("Y", locatorType = ELoc_Z(), cleanSameLocator = TRUE)
 err = xvalid(

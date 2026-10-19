@@ -84,7 +84,7 @@ namespace gstlrn
     const String& qualifier,
     Id count)
   {
-    auto names = _db->getNamesByLocator(locatorInType);
+    auto names = _db->getNames(toERole(locatorInType));
     _namconv.setOutput(names, nvar, _db, iptr, qualifier, count);
   }
 

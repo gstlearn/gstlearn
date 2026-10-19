@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
                       70., 70.0, 4.2, 3, 4, 80., 80.0, 6.2, 4, 4};
   auto* db = Db::createFromSamples(
     nech, ELoadBy::SAMPLE, tab, {"x1", "x2", "z1", "layer", "well"});
-  db->setLocators({"x1", "x2"}, ELoc::X);
+  db->setLocators(VectorString({"x1", "x2"}), ELoc::X);
   db->setLocators({"z1"}, ELoc::Z);
   db->setLocators({"layer"}, ELoc::LAYER);
   db->display();

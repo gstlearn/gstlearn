@@ -442,7 +442,7 @@ namespace gstlrn
     }
 
     // Delete the Indicators (created locally)
-    _db->deleteColumnsByLocator(ELoc::Z);
+    _db->deleteColumns(ERole::Z);
     _db->setLocator(_db->fromUID(iatt), ELoc::Z, 0);
 
     return 0;
@@ -4560,7 +4560,7 @@ namespace gstlrn
     if (_model == nullptr) return;
 
     Id nbfl = _model->getNDrift();
-    Id nech = db->getNSampleActiveAndDefined(0);
+    Id nech = db->getNSampleActiveAndDefined(RoleID(ERole::Z, 0));
 
     _BETA.resize(nbfl, 0.);
     _DRFDIAG.resize(nech, 0.);

@@ -54,7 +54,7 @@ sf_to_gstlearn <- function(x, quiet = TRUE)
     xy = st_coordinates(x)
     val[colnames(xy)[1]] <- xy[,1]
     val[colnames(xy)[2]] <- xy[,2]
-    err = val$setLocators(names = colnames(xy), locatorType = ELoc_X(),
+    err = val$setLocators(colnames(xy), locatorType = ELoc_X(),
           cleanSameLocator = TRUE)
     dat = st_drop_geometry(x)
     vn = colnames(dat)
@@ -110,7 +110,7 @@ gstlearn_to_sf <- function(x, crs = NA)
 
   if (class(x)[1] == "_p_gstlrn__Db") {
     df <- x[]
-    val <- st_as_sf(df, coords = x$getNamesByLocator(ELoc_X()))
+    val <- st_as_sf(df, coords = x$getNames(ERole_X()))
     st_set_crs(val, crs)
   }
   if (is.null(val)) {

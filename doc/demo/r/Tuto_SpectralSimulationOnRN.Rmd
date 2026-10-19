@@ -585,7 +585,7 @@ err = draw_model(model = mod, prefix = type)
 model = ModelGeneric(ctxt = ctxt)
 err   = model$setCov(mod)
 
-err   = grid$deleteColumns(names = paste(type, "*", sep = "."))
+err   = grid$deleteColumns(paste(type, "*", sep = "."))
 err   = simuSpectral(dbin = NULL, dbout = grid, model = model, nbsimu = nsim, ns = ns,
                    verbose = flag.verbose,
                    namconv = NamingConvention(type))

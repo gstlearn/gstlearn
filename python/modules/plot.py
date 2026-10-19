@@ -2444,10 +2444,10 @@ def _ax_correlation(
         return None
 
     res = gl.correlationPairs(db, db, namex, namey, False, False, versionx, versiony)
-    tabx = db.getValuesByNames(res[0], [namex], False, versionx)
+    tabx = db.getValues([namex], res[0], False, versionx)
     if len(tabx) == 0:
         return None
-    taby = db2.getValuesByNames(res[0], [namey], False, versiony)
+    taby = db2.getValues([namey], res[0], False, versiony)
     if len(taby) == 0:
         return None
 
@@ -2554,10 +2554,10 @@ def _ax_hscatter(
         db, namex, namey, varioparam, ilag, idir, False, versionx, versiony
     )
 
-    tabx = db.getValuesByNames(res[0], [namex], False, versionx)
+    tabx = db.getValues([namex], res[0], False, versionx)
     if len(tabx) == 0:
         return None
-    taby = db.getValuesByNames(res[0], [namey], False, versiony)
+    taby = db.getValues([namey], res[0], False, versiony)
     if len(taby) == 0:
         return None
 

@@ -149,7 +149,7 @@ int main(int argc, char* argv[])
       iatt_ind = dbin->getNColumn();
       Limits limits(nclass);
       limits.toIndicator(dbin);
-      dbin->setLocatorsByUID(nclass, iatt_ind, ELoc::Z, 0);
+      dbin->setLocatorsByUIDRange(nclass, iatt_ind, ELoc::Z, 0);
 
       /* Calculate the experimental variograms */
 

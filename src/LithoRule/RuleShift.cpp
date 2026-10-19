@@ -262,7 +262,6 @@ namespace gstlrn
   ** \param[in]  flag_used  1 if the gaussian is used; 0 otherwise
   ** \param[in]  ipgs       Rank of the PGS
   ** \param[in]  isimu      Rank of the simulation
-  ** \param[in]  nbsimu     Number of simulations
   **
   ** \remark Attributes ELoc::FACIES and ELoc::SIMU are mandatory
   **
@@ -272,8 +271,7 @@ namespace gstlrn
     Db* dbout,
     const VectorBool& /*flag_used*/,
     Id ipgs,
-    Id isimu,
-    Id nbsimu) const
+    Id isimu) const
   {
     auto* dbgrid = dynamic_cast<DbGrid*>(dbout);
     if (dbgrid == nullptr) return 1;
@@ -286,6 +284,8 @@ namespace gstlrn
     _xyz.resize(ndim);
     _ind1.resize(ndim);
     _ind2.resize(ndim);
+    Id icase = propdef.getRank(ipgs, 0);
+    auto colid = Db::buildColIDForSim(ELoc::SIMU, isimu, 0, icase, 1);
 
     /* Processing the translation */
 
@@ -296,26 +296,26 @@ namespace gstlrn
       Id facies = ITEST;
       y.fill(TEST, 2);
 
-      Id icase = propdef.getRank(ipgs, 0);
-      y[0] = dbgrid->getSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, 1);
+      y[0] = dbgrid->getValue(colid, iech);
       if (FFFF(y[0])) break;
 
       if (propdef.ruleThreshDefine(
-            dbgrid, this, ITEST, iech, isimu, nbsimu, 1, &t1min, &t1max, &t2min,
+            dbgrid, this, ITEST, iech, isimu, 1, &t1min, &t1max, &t2min,
             &t2max))
         return 1;
       dbgrid->rankToIndice(iech, _ind2);
       for (Id idim = 0; idim < ndim; idim++) _ind2[idim] -= _ind1[idim];
       Id jech = dbgrid->indiceToRank(_ind2);
       if (jech >= 0)
-        y[1] = dbgrid->getSimvar(ELoc::SIMU, jech, isimu, 0, icase, nbsimu, 1);
+        y[1] = dbgrid->getValue(colid, jech);
       else
         y[1] = TEST;
       facies = getFaciesFromGaussian(y[0], y[1]);
       double value =
         (facies > 0) ? static_cast<double>(getFaciesValue(facies - 1)) : TEST;
 
-      dbgrid->setSimvar(ELoc::FACIES, iech, isimu, 0, ipgs, nbsimu, 1, value);
+      auto colid = Db::buildColIDForSim(ELoc::FACIES, isimu, 0, ipgs, 1);
+      dbgrid->setValue(colid, iech, value);
     }
     return 0;
   }
@@ -332,7 +332,6 @@ namespace gstlrn
   ** \param[in]  isimu      Rank of the simulation (if EProcessOper::CONDITIONAL)
   ** \param[in]  igrf       Rank of the GRF
   ** \param[in]  ipgs       Rank of the GS
-  ** \param[in]  nbsimu     Number of simulations (if EProcessOper::CONDITIONAL)
   **
   *****************************************************************************/
   Id RuleShift::evaluateBounds(
@@ -341,8 +340,7 @@ namespace gstlrn
     Db* dbout,
     Id isimu,
     Id igrf,
-    Id ipgs,
-    Id nbsimu) const
+    Id ipgs) const
   {
     double t1min, t1max, t2min, t2max, s1min, s1max, s2min, s2max;
 
@@ -363,8 +361,7 @@ namespace gstlrn
       if (!dbin->isActive(iech)) continue;
       Id facies = static_cast<Id>(dbin->getValue(RoleID(ERole::Z, 0), iech));
       if (propdef.ruleThreshDefine(
-            dbin, this, facies, iech, isimu, nbsimu, 1, &t1min, &t1max, &t2min,
-            &t2max))
+            dbin, this, facies, iech, isimu, 1, &t1min, &t1max, &t2min, &t2max))
         return (1);
       dbin->setValue(
         RoleID(ERole::L, propdef.getRank(ipgs, igrf)), iech, t1min);
@@ -390,8 +387,7 @@ namespace gstlrn
 
       /* Convert the proportions into thresholds for replicate */
       if (propdef.ruleThreshDefine(
-            dbin, this, facies, jech, isimu, nbsimu, 1, &s1min, &s1max, &s2min,
-            &s2max))
+            dbin, this, facies, jech, isimu, 1, &s1min, &s1max, &s2min, &s2max))
       {
         (void)dbin->deleteSample(jech);
         return (1);

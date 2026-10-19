@@ -206,7 +206,7 @@ plot.init() +
 
 ```{r one_simulation, echo=TRUE, eval = TRUE}
 seed = 54251
-err  = grd$deleteColumns(names = paste0(covname, "*"))
+err  = grd$deleteColumns(paste0(covname, "*"))
 modelSph2 = ModelGeneric()
 modelSph2$setCov(cova)
 err = simuSpectral(dbin=NULL, dbout=grd, model=modelSph2, ns=ns, nd=nd, seed=seed,
@@ -297,7 +297,7 @@ legend("bottomright",
 ## Quantification of the fluctuations on the variogram
 
 ```{r multi_simulations, echo = TRUE, eval = TRUE}
-err = grd$deleteColumns(names = paste0(covname, "*"))
+err = grd$deleteColumns(paste0(covname, "*"))
 nsim = 20 # number of simulation
 err = simuSpectral(dbin = NULL, dbout = grd, model = modelSph2, seed = 2584, ns=ns,
                    nbsimu=nsim, namconv = NamingConvention(covname))

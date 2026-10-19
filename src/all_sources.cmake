@@ -171,6 +171,7 @@ set(SRC
   Db/DbHelper.cpp
   Db/RankHandler.cpp
   DataBase/ColID.cpp
+  DataBase/MultID.cpp
   DataBase/RoleID.cpp
   DataBase/DbCol.cpp
   DataBase/DbData.cpp

@@ -231,7 +231,7 @@ To create and work with multivariate models, we simply need to work with `Db` ob
 Let us illustrate our point with our running example. We would like now to consider a bivariate model of the temperature and the elevation. To do so, we simply allocate, in the observation data base `dat`, a `z` locator to both variables using the `setLocators`  method.
 
 ```{r Locators_cokriging, echo=TRUE}
-dat$setLocators(names=c("Temperature", "Elevation"),
+dat$setLocators(c("Temperature", "Elevation"),
                 locatorType=ELoc_Z())
 dat
 ```

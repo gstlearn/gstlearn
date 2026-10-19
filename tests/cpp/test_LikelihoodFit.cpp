@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
     message("Test on Pollution dataset\n");
     filename = getTestData("Pollution", "Pollution.dat");
     db = Db::createFromCSV(filename, CSVformat(), false);
-    db->setLocators({"X", "Y"}, ELoc::X);
+    db->setLocators(VectorString({"X", "Y"}), ELoc::X);
     db->setLocator("Zn", ELoc::Z, 0, true);
     model->setDriftIRF(0);
     model->fitNew(
@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
     filename = getTestData("Scotland", "Scotland_Temperatures.csv");
     db = Db::createFromCSV(filename, CSVformat(), false);
 
-    db->setLocators({"Longitude", "Latitude"}, ELoc::X);
+    db->setLocators(VectorString({"Longitude", "Latitude"}), ELoc::X);
     db->setLocator("January_temp", ELoc::Z);
 
     model->setDriftIRF(0);
@@ -72,7 +72,7 @@ int main(int argc, char* argv[])
     filename = getTestData("Scotland", "Scotland_Temperatures.csv");
     db = Db::createFromCSV(filename, CSVformat(), false);
 
-    db->setLocators({"Longitude", "Latitude"}, ELoc::X);
+    db->setLocators(VectorString({"Longitude", "Latitude"}), ELoc::X);
     db->setLocator("January_temp", ELoc::Z);
 
     model->setDriftIRF(0);

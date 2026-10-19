@@ -266,7 +266,7 @@ namespace gstlrn
     {
       VectorInt cols(nvar);
       for (Id ivar = 0; ivar < nvar; ivar++) cols[ivar] = iptr + ivar;
-      VectorString names = db->getNamesByUID(cols);
+      VectorString names = db->getNames(db->fromUIDs(cols));
       dbStatisticsPrint(
         db, names, {}, true, true, "Statistics on Factors", "Factor");
     }
@@ -315,7 +315,7 @@ namespace gstlrn
     {
       VectorInt cols(nvar);
       for (Id ivar = 0; ivar < nvar; ivar++) cols[ivar] = iptr + ivar;
-      VectorString names = db->getNamesByUID(cols);
+      VectorString names = db->getNames(db->fromUIDs(cols));
       dbStatisticsPrint(
         db, names, {}, true, true, "Statistics on Variables", "Variable");
     }

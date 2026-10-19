@@ -41,8 +41,8 @@ def computeRef(dat, model, debug=False):
 # Renvoie un vecteur de bool indiquant pour chaque variable d'un échantillon donné
 # si elle est observée (1) ou non (0)
 def heterobool(dat, iech):
-    names = dat.getNamesByLocator(gl.ELoc.Z)
-    return ~np.isnan(dat.getValuesByNames(iech, names))
+    names = dat.getNames(gl.ERole.Z)
+    return ~np.isnan(dat.getValues(names, iech))
 
 
 # Fonction qui s'applique au résultat de la fonction précédente et qui renvoit un indice
@@ -104,7 +104,7 @@ def update(dat, sillMat, iech):
 # puis définit l'indice de démarrage de l'indexation pour chaque variable
 # (pour le remplissage de l'inverse de la matrice de covariance
 def startingIndex(dat):
-    names = dat.getNamesByLocator(gl.ELoc.Z)
+    names = dat.getNames(gl.ERole.Z)
     nvar = dat.getNLoc(gl.ELoc.Z)
     count = np.array(
         [0 for i in range(nvar)]
@@ -173,7 +173,7 @@ def patch(nvar, isdefined, triplet, starind, count, tempmat):
 # Calcule l'inverse de la matrice de covariance
 # quand on n'est pas dans le cas Isotopique + Stationnaire + toutes les erreurs de mesure égales
 def GeneralCase(dat, model):
-    nvar = len(dat.getNamesByLocator(gl.ELoc.Z))
+    nvar = len(dat.getNames(gl.ERole.Z))
 
     # std::vector<MatrixSymmetric>
     matrices = [None for i in range(2**nvar)]

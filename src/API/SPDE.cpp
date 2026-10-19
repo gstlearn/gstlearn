@@ -322,7 +322,7 @@ namespace gstlrn
 
     Id nrow = 0;
     for (Id ivar = 0; ivar < nvar; ivar++)
-      nrow += db->getNSampleActiveAndDefined(ivar);
+      nrow += db->getNSampleActiveAndDefined(RoleID(ERole::Z, ivar));
     if (nrow != npoint)
     {
       messerr("Number of Rows of 'projm' (%d) is not correct", npoint);
@@ -330,7 +330,7 @@ namespace gstlrn
       for (Id ivar = 0; ivar < nvar; ivar++)
         messerr(
           "- Number of samples for variable %ld = %l\n", ivar,
-          db->getNSampleActiveAndDefined(ivar));
+          db->getNSampleActiveAndDefined(RoleID(ERole::Z, ivar)));
       return false;
     }
     return true;
@@ -852,16 +852,14 @@ namespace gstlrn
     {
       VectorDouble result = spde.kriging(Z);
       Id iuid = dbout->addColumns(result, "estim", ELoc::Z, 0, true, 0., nvar);
-      namconv.setOutput(
-        dbin->getNamesByLocator(ELoc::Z), 0, dbout, iuid, "estim");
+      namconv.setOutput(dbin->getNames(ERole::Z), 0, dbout, iuid, "estim");
     }
     if (flag_std)
     {
       VectorDouble result = spde.stdev(Z);
       Id iuid =
         dbout->addColumns(result, "stdev", ELoc::UNDEFINED, 0, true, 0., nvar);
-      namconv.setOutput(
-        dbin->getNamesByLocator(ELoc::Z), 0, dbout, iuid, "stdev");
+      namconv.setOutput(dbin->getNames(ERole::Z), 0, dbout, iuid, "stdev");
     }
 
     return 0;
@@ -967,8 +965,7 @@ namespace gstlrn
         dbout->setColumn(dbout->fromUID(iuid + ivar, isimu), local, true);
       }
     }
-    auto names =
-      (dbin != nullptr) ? dbin->getNamesByLocator(ELoc::Z) : VectorString();
+    auto names = (dbin != nullptr) ? dbin->getNames(ERole::Z) : VectorString();
     namconv.setOutput(names, 0, dbout, iuid, "", 1);
 
     return 0;
@@ -1064,7 +1061,7 @@ namespace gstlrn
 
     // Perform the Simulation and storage.
     // All is done in ONE step to avoid additional storage
-    Id iuid = dbout->addColumnsByConstant(nvar * nbsimu);
+    Id iuid0 = dbout->addColumnsByConstant(nvar * nbsimu);
     VectorDouble local(nechred);
     VectorDouble result;
 
@@ -1078,16 +1075,21 @@ namespace gstlrn
       for (Id ivar = 0; ivar < nvar; ivar++)
       {
         VH::extractInPlace(result, local, ivar * nechred);
-        Id juid = iuid + ivar * nbsimu + isimu;
+        Id juid = iuid0 + ivar * nbsimu + isimu;
         dbout->setColumn(dbout->fromUID(juid), local, true);
         iuids.push_back(juid);
       }
 
       // Convert the resulting simulation into categories
-      dbout->setLocatorsByUID(iuids, ELoc::SIMU);
+      dbout->setLocators(iuids, ELoc::SIMU);
       ruleprop.gaussToCategory(dbout, namconv);
-      dbout->deleteColumnsByUID(iuids);
+      // Deletion of the Gaussian vector has been delayed until all simulations are performed
+      // in order to avoid the columns reordering in the Db.
     }
+
+    // Delete the Gaussian vectors
+    VectorInt iuids = VH::sequence(nvar * nbsimu, iuid0);
+    dbout->deleteColumns(dbout->fromUIDs(iuids));
 
     return 0;
   }

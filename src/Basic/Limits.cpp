@@ -402,7 +402,7 @@ namespace gstlrn
       db->setValue(db->fromUID(iptr), iech, static_cast<double>(ival));
     }
 
-    VectorString names = db->getNamesByUID({iatt});
+    VectorString names = db->getNames(db->fromUIDs({iatt}));
     namconv.setOutput(names, 0, db, iptr);
 
     return (0);
@@ -629,7 +629,7 @@ namespace gstlrn
 
     // Naming convention
 
-    VectorString names = db->getNamesByUID({iatt});
+    VectorString names = db->getNames(db->fromUIDs({iatt}));
     if (flag_indic == 1)
     {
       if (flagBelow)

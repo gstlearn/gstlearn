@@ -35,7 +35,7 @@ manual_centering <- function(data, target) {
     nx = target$getNXs()
     theta = target$getAngles()
 
-    xy_nm = data$getNamesByLocator(ELoc_X())
+    xy_nm = data$getNames(ERole_X())
     # initial coordinates
     xy = matrix(NaN, nrow = data$getNSample(), ncol = length(xy_nm))
     for (i in seq_along(xy_nm)) {

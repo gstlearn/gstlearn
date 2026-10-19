@@ -10,7 +10,10 @@
 /******************************************************************************/
 #include "DataBase/DbData.hpp"
 #include "Basic/SerializeHDF5.hpp"
+#include "DataBase/MultID.hpp"
 #include <boost/math/special_functions/detail/fp_traits.hpp>
+
+#include <unordered_set>
 
 namespace gstlrn
 {
@@ -110,7 +113,7 @@ namespace gstlrn
   /**
    * @brief Identify and returns a reference on the Column of interest
    *
-   * @param colid Column Indentifier
+   * @param colid Column Identifier
    * @return std::optional<std::reference_wrapper<DbCol>>
    */
   std::optional<std::reference_wrapper<DbCol>>
@@ -152,8 +155,8 @@ namespace gstlrn
   /**
    * @brief Get the Name object
    *
-   * @param colid Column Indentifier
-   * @param withVersion Whether to include the 'version' in the name
+   * @param colid Column Identifier
+   * @param withVersion Whether to include the version in the name
    * @return String
    */
   String DbData::getName(ColID&& colid, bool withVersion) const
@@ -183,7 +186,7 @@ namespace gstlrn
   /**
    * @brief Get the Index of the Column
    *
-   * @param colid Column indentifier
+   * @param colid Column Identifier
    * @return Id
    */
   Id DbData::getICol(ColID&& colid) const
@@ -195,7 +198,7 @@ namespace gstlrn
   /**
    * @brief Get the RoleID of the Column
    *
-   * @param colid Column indentifier
+   * @param colid Column Identifier
    * @return RoleID
    */
   RoleID DbData::getRoleID(ColID&& colid) const
@@ -221,10 +224,9 @@ namespace gstlrn
     return colIDout;
   }
 
-  ColID DbData::fromUID(Id iuid, Id version) const
+  Id DbData::_searchColumnByUID(Id iuid) const
   {
     const auto ncol = getNColumns();
-    if (ncol <= 0 || iuid < 0) return ColID(-1);
 
     const Id startColumn = (iuid < ncol) ? iuid : 0;
 
@@ -234,11 +236,34 @@ namespace gstlrn
 
       if (_cols[jcol].getUniqueIndex() == iuid)
       {
-        return ColID(jcol, version);
+        return jcol;
       }
     }
+    return -1;
+  }
 
+  ColID DbData::fromUID(Id iuid, Id version) const
+  {
+    const auto ncol = getNColumns();
+    if (ncol <= 0 || iuid < 0) return ColID(-1);
+
+    Id jcol = _searchColumnByUID(iuid);
+    if (jcol >= 0)
+    {
+      return ColID(jcol, version);
+    }
     return ColID(-1);
+  }
+
+  MultID DbData::fromUIDs(const VectorInt& iuids) const
+  {
+    VectorInt icols;
+    for (const auto& iuid: iuids)
+    {
+      Id icol = _searchColumnByUID(iuid);
+      if (icol >= 0) icols.push_back(icol);
+    }
+    return MultID(icols);
   }
 
   void DbData::setRoleID(ColID&& colid, const RoleID& roleID)
@@ -418,13 +443,13 @@ namespace gstlrn
   }
 
   /**
-   * @brief Returns the Column index corresponding to the given Column Indentifier (ColID)
+   * @brief Returns the Column index corresponding to the given Column Identifier (ColID)
    *
-   * @param colid Column Indentifier
+   * @param colid Column Identifier
    * @param verbose Whether to print error messages if the Column is not found (default = true)
    * @return std::optional<Id>
    *
-   * @remark: The Column Indentifier (ColID) is searched in the following order:
+   * @remark: The Column Identifier (ColID) is searched in the following order:
    * - by Column Name
    * - by Column Role (and Rank)
    * - by Column index
@@ -483,7 +508,109 @@ namespace gstlrn
       return std::nullopt;
     }
 
-    return -1;
+    // Try to identify by Column rank
+    auto icol0 = colid.getICol();
+    if (icol0 < 0 || icol0 >= ncol)
+    {
+      if (verbose) messerr("Column index is out of range.");
+      return std::nullopt;
+    }
+    return icol0;
+  }
+
+  /**
+   * @brief Returns a list of ColIDs corresponding to the given Column Identifier (ColID)
+   *
+   * @param multid Multi-Column Identifier
+   *
+   * @remark: The Column Identifier (ColID) is searched in the following order:
+   * - by Column Name
+   * - by Column Role (and Rank)
+   * - by Column index
+   *
+   * @note:
+   * - the order of the input columns in 'multid' is maintained
+   * (as long as duplicate column references are suppressed).
+   * - the invalid column references are ignored
+   */
+  std::vector<ColID> DbData::getColumnIndices(const MultID& multid) const
+  {
+    auto ncols = getNColumns();
+    VectorInt found;
+    std::unordered_set<Id> seen;
+
+    // Utilitaire local pour ajouter un indice s'il est valide et non déjà présent (préserve l'ordre)
+    auto add_unique = [&](Id icol)
+    {
+      if (icol >= 0 && icol < ncols)
+      {
+        if (seen.insert(icol).second)
+        {
+          found.push_back(icol);
+        }
+      }
+    };
+
+    // Try to identify by Column Names
+    const VectorString& names = multid.getNames();
+    if (!names.empty())
+    {
+      VectorString matchNames = expandList(getNames(), names);
+      for (const auto& matchName: matchNames)
+      {
+        auto icolOpt = _getColumnIndex(matchName, false);
+        if (icolOpt)
+        {
+          add_unique(*icolOpt);
+        }
+      }
+    }
+
+    // Try to identify the Column indices
+    const VectorInt& icols = multid.getICols();
+    if (!icols.empty())
+    {
+      for (const auto& icol: icols)
+      {
+        add_unique(icol);
+      }
+    }
+
+    // Try to identify by Column Role: columns must be added:
+    // - if they belong to the Targeted Role
+    // - by their increasing 'index'
+    if (multid.getRole().isDifferent(ERole::UNDEFINED))
+    {
+      // Information stored in std::map is automatically sorted by increasing key
+      std::map<int, Id> sortedRoleCols;
+
+      for (Id icol = 0; icol < ncols; ++icol)
+      {
+        if (_roleIDs[icol].getRole().isEqual(multid.getRole()))
+        {
+          int roleIndex = _roleIDs[icol].getIndex();
+          sortedRoleCols[roleIndex] = icol;
+        }
+      }
+      // Loop on the map to store the columns
+      for (const auto& pair: sortedRoleCols)
+      {
+        add_unique(pair.second);
+      }
+    }
+
+    // Create the list of ColIDs corresponding to the found columns
+    std::vector<ColID> colids;
+    colids.reserve(found.size());
+    for (Id icol: found)
+    {
+      ColID colid(icol);
+      colid.setName(_cols[icol].getName());
+      colid.setRoleID(_roleIDs[icol]);
+      colids.push_back(colid);
+    }
+
+    return colids;
   }
 
   /**

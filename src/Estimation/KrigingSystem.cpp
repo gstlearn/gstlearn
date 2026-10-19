@@ -134,7 +134,7 @@ namespace gstlrn
     {
       if (!_dbinUidToBeDeleted.empty())
       {
-        (void)_dbin->deleteColumnsByUID(_dbinUidToBeDeleted);
+        (void)_dbin->deleteColumns(_dbin->fromUIDs(_dbinUidToBeDeleted));
       }
     }
 
@@ -144,7 +144,7 @@ namespace gstlrn
     {
       if (!_dboutUidToBeDeleted.empty())
       {
-        (void)_dbout->deleteColumnsByUID(_dboutUidToBeDeleted);
+        (void)_dbout->deleteColumns(_dbout->fromUIDs(_dboutUidToBeDeleted));
       }
     }
   }
@@ -321,8 +321,9 @@ namespace gstlrn
               Id jech = _nbgh[iech];
 
               // Get the simulated difference at data point (Simu - Data)
-              double diff = _dbin->getSimvar(
-                ELoc::SIMU, jech, isimu, jvar, _rankPGS, _nbsimu, _nvar);
+              auto colid =
+                Db::buildColIDForSim(ELoc::SIMU, isimu, jvar, _rankPGS, _nvar);
+              double diff = _dbin->getValue(colid, jech);
               if (FFFF(diff)) continue;
 
               // Get the kriging weight
@@ -340,9 +341,9 @@ namespace gstlrn
         }
 
         /* Add the conditioning kriging to the NC simulation at target */
-        _dbout->updSimvar(
-          ELoc::SIMU, _iechOut, isimu, ivar, _rankPGS, _nbsimu, _nvar,
-          EOperator::ADD, simu);
+        auto colid =
+          Db::buildColIDForSim(ELoc::SIMU, isimu, ivar, _rankPGS, _nvar);
+        _dbout->updValue(colid, _iechOut, EOperator::ADD, simu);
       }
   }
 
@@ -714,7 +715,7 @@ namespace gstlrn
       {
         if (_indexTargetWithinData < 0)
         {
-          _valuesColCok = _dbout->getLocVariables(ELoc::Z, _iechOut);
+          _valuesColCok = _dbout->getValues(ERole::Z, {_iechOut});
           if (_algebra.setColCokUnique(
                 &_valuesColCok, &_krigopt.getRankColCok()))
             return 1;
@@ -1518,7 +1519,7 @@ namespace gstlrn
         {
           if (migrateByLocator(_dbout, _dbin, ELoc::F)) return false;
           // Store the UID of the newly created variables to be deleted at the end of the process
-          _dbinUidToBeDeleted = _dbin->getUIDsByLocator(ELoc::F);
+          _dbinUidToBeDeleted = _dbin->getUIDs(ERole::F);
         }
         if (nfex != _dbin->getNLoc(ELoc::F))
         {

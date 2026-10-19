@@ -487,9 +487,11 @@ namespace gstlrn
         value = DBIN->getValue(RoleID(ERole::Z, ivar), rank);
       else
 
-        // Case of the traditional kriging based on Z-variables
-
-        value = DBIN->getSimvar(ELoc::SIMU, rank, 0, ivar, 0, 1, 0);
+      // Case of the traditional kriging based on Z-variables
+      {
+        auto colid = Db::buildColIDForSim(ELoc::SIMU, 0, ivar, 0, 0);
+        value = DBIN->getValue(colid, rank);
+      }
     }
     else
     {
@@ -2795,7 +2797,7 @@ namespace gstlrn
     if (iptr_est < 0) return 1;
     VectorInt active(nvar);
     VectorDouble lterm(nvar);
-    VectorInt iuids = dbin->getUIDsByLocator(ELoc::Z);
+    VectorInt iuids = dbin->getUIDs(ERole::Z);
 
     /* Setting options */
 
@@ -2890,7 +2892,7 @@ namespace gstlrn
     dbin->clearLocators(ELoc::Z);
     for (Id ivar = 0; ivar < nvar; ivar++)
       dbin->setLocator(dbin->fromUID(iuids[ivar]), ELoc::Z, ivar);
-    auto names = dbin->getNamesByLocator(ELoc::Z);
+    auto names = dbin->getNames(ERole::Z);
     namconv.setOutput(names, nvar, dbout, iptr_est, "estim");
 
     return 0;
@@ -3967,10 +3969,10 @@ namespace gstlrn
 
     /* Initializations */
 
-    n1 =
-      (test_def1) ? db1->getNSampleActiveAndDefined(0) : db1->getNSample(true);
-    n2 =
-      (test_def2) ? db2->getNSampleActiveAndDefined(0) : db2->getNSample(true);
+    n1 = (test_def1) ? db1->getNSampleActiveAndDefined(RoleID(ERole::Z, 0))
+                     : db1->getNSample(true);
+    n2 = (test_def2) ? db2->getNSampleActiveAndDefined(RoleID(ERole::Z, 0))
+                     : db2->getNSample(true);
 
     /* Core allocation */
 
@@ -4037,8 +4039,8 @@ namespace gstlrn
 
     /* Initializations */
 
-    n1 =
-      (test_def1) ? db1->getNSampleActiveAndDefined(0) : db1->getNSample(true);
+    n1 = (test_def1) ? db1->getNSampleActiveAndDefined(RoleID(ERole::Z, 0))
+                     : db1->getNSample(true);
     nbfl = model->getNDrift();
 
     /* Core allocation */
@@ -4103,10 +4105,10 @@ namespace gstlrn
 
     /* Initializations */
 
-    n1 =
-      (test_def1) ? db1->getNSampleActiveAndDefined(0) : db1->getNSample(true);
-    ns =
-      (test_def2) ? db2->getNSampleActiveAndDefined(0) : db2->getNSample(true);
+    n1 = (test_def1) ? db1->getNSampleActiveAndDefined(RoleID(ERole::Z, 0))
+                     : db1->getNSample(true);
+    ns = (test_def2) ? db2->getNSampleActiveAndDefined(RoleID(ERole::Z, 0))
+                     : db2->getNSample(true);
     ndim = db1->getNDim();
 
     /* Core allocation */
@@ -4222,7 +4224,7 @@ namespace gstlrn
 
     /* Initializations */
 
-    np = dbdat->getNSampleActiveAndDefined(0);
+    np = dbdat->getNSampleActiveAndDefined(RoleID(ERole::Z, 0));
     ns = dbsrc->getNSample(true);
 
     /* Covariance matrix between Mesures */
@@ -4278,7 +4280,7 @@ namespace gstlrn
 
     /* Initializations */
 
-    np = dbdat->getNSampleActiveAndDefined(0);
+    np = dbdat->getNSampleActiveAndDefined(RoleID(ERole::Z, 0));
     ns = dbsrc->getNSample(true);
     ng = dbout->getNSample(true);
 
@@ -4540,7 +4542,7 @@ namespace gstlrn
       IPTR_STD = dbout->addColumnsByConstant(nvar, 1, 0.);
       if (IPTR_STD < 0) goto label_end;
     }
-    nred = neq = np = dbdat->getNSampleActiveAndDefined(0);
+    nred = neq = np = dbdat->getNSampleActiveAndDefined(RoleID(ERole::Z, 0));
     nfeq = 0;
     ns = dbsrc->getNSample(true);
     ng = dbout->getNSample(true);

@@ -886,7 +886,6 @@ namespace gstlrn
   ** \param[in]  flag_used  True if the gaussian is used; False otherwise
   ** \param[in]  ipgs       Rank of the PGS
   ** \param[in]  isimu      Rank of the simulation
-  ** \param[in]  nbsimu     Number of simulations
   **
   ** \remark Attributes ELoc::GAUSFAC are mandatory
   ** \remark Attributes ELoc::FACIES are mandatory
@@ -898,8 +897,7 @@ namespace gstlrn
     Db* /*dbout*/,
     const VectorBool& flag_used,
     Id ipgs,
-    Id isimu,
-    Id nbsimu) const
+    Id isimu) const
   {
     double t1min, t1max, t2min, t2max;
     VectorDouble y;
@@ -920,24 +918,19 @@ namespace gstlrn
       y.fill(TEST, 2);
 
       if (propdef.ruleThreshDefine(
-            dbin, this, ITEST, iech, isimu, nbsimu, 1, &t1min, &t1max, &t2min,
-            &t2max))
+            dbin, this, ITEST, iech, isimu, 1, &t1min, &t1max, &t2min, &t2max))
         return 1;
 
       for (Id igrf = 0; igrf < 2; igrf++)
       {
         auto icase = propdef.getRank(ipgs, igrf);
-        y[igrf] =
-          (flag_used[igrf])
-            ? dbin->getSimvar(ELoc::GAUSFAC, iech, isimu, 0, icase, nbsimu, 1)
-            : 0.;
+        auto colid = Db::buildColIDForSim(ELoc::GAUSFAC, isimu, 0, icase, 1);
+        y[igrf] = (flag_used[igrf]) ? dbin->getValue(colid, iech) : 0.;
       }
       facies = getFaciesFromGaussian(y[0], y[1]);
       Id value = getFaciesValue(facies - 1);
-
-      dbin->setSimvar(
-        ELoc::FACIES, iech, isimu, 0, ipgs, nbsimu, 1,
-        static_cast<double>(value));
+      auto colid = Db::buildColIDForSim(ELoc::FACIES, isimu, 0, ipgs, 1);
+      dbin->setValue(colid, iech, static_cast<double>(value));
     }
     return 0;
   }
@@ -953,7 +946,6 @@ namespace gstlrn
   ** \param[in]  flag_used  True if the gaussian is used; False otherwise
   ** \param[in]  ipgs       Rank of the PGS
   ** \param[in]  isimu      Rank of the simulation
-  ** \param[in]  nbsimu     Number of simulations
   **
   ** \remark Attributes ELoc::FACIES and ELoc::SIMU are mandatory
   **
@@ -963,8 +955,7 @@ namespace gstlrn
     Db* dbout,
     const VectorBool& flag_used,
     Id ipgs,
-    Id isimu,
-    Id nbsimu) const
+    Id isimu) const
   {
     check_mandatory_attribute("rule_gaus2fac_result", dbout, ELoc::FACIES);
     check_mandatory_attribute("rule_gaus2fac_result", dbout, ELoc::SIMU);
@@ -985,23 +976,18 @@ namespace gstlrn
       y.fill(TEST, 2);
 
       if (propdef.ruleThreshDefine(
-            dbout, this, ITEST, iech, isimu, nbsimu, 1, &t1min, &t1max, &t2min,
-            &t2max))
+            dbout, this, ITEST, iech, isimu, 1, &t1min, &t1max, &t2min, &t2max))
         return 1;
       for (Id igrf = 0; igrf < 2; igrf++)
       {
         Id icase = propdef.getRank(ipgs, igrf);
-        y[igrf] =
-          (flag_used[igrf])
-            ? dbout->getSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, 1)
-            : 0.;
+        auto colid = Db::buildColIDForSim(ELoc::SIMU, isimu, 0, icase, 1);
+        y[igrf] = (flag_used[igrf]) ? dbout->getValue(colid, iech) : 0.;
       }
       facies = getFaciesFromGaussian(y[0], y[1]);
       Id value = getFaciesValue(facies - 1);
-
-      dbout->setSimvar(
-        ELoc::FACIES, iech, isimu, 0, ipgs, nbsimu, 1,
-        static_cast<double>(value));
+      auto colid = Db::buildColIDForSim(ELoc::FACIES, isimu, 0, ipgs, 1);
+      dbout->setValue(colid, iech, static_cast<double>(value));
     }
 
     return 0;
@@ -1050,7 +1036,6 @@ namespace gstlrn
   ** \param[in]  isimu      Rank of the simulation (if EProcessOper::CONDITIONAL)
   ** \param[in]  igrf       Rank of the GRF
   ** \param[in]  ipgs       Rank of the GS
-  ** \param[in]  nbsimu     Number of simulations (if EProcessOper::CONDITIONAL)
   **
   *****************************************************************************/
   Id Rule::evaluateBounds(
@@ -1059,8 +1044,7 @@ namespace gstlrn
     Db* /*dbout*/,
     Id isimu,
     Id igrf,
-    Id ipgs,
-    Id nbsimu) const
+    Id ipgs) const
   {
     double t1min, t1max, t2min, t2max;
 
@@ -1077,8 +1061,7 @@ namespace gstlrn
       if (!dbin->isActive(iech)) continue;
       Id facies = static_cast<Id>(dbin->getValue(RoleID(ERole::Z, 0), iech));
       if (propdef.ruleThreshDefine(
-            dbin, this, facies, iech, isimu, nbsimu, 1, &t1min, &t1max, &t2min,
-            &t2max))
+            dbin, this, facies, iech, isimu, 1, &t1min, &t1max, &t2min, &t2max))
         return (1);
       if (igrf == 0)
       {

@@ -19,6 +19,7 @@
 #include "Db/DbGrid.hpp"
 #include "Db/DbHelper.hpp"
 #include "Drifts/DriftList.hpp"
+#include "Enum/ERole.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Model/Model.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
@@ -1541,38 +1542,24 @@ namespace gstlrn
 
       // Load the gradient simulation errors
 
+      auto colid =
+        Db::buildColIDForSim(ELoc::SIMU, isimu + 0 * nbsimu, 0, 0, 1);
       for (Id ig = 0; ig < _ngrd; ig++)
       {
         if (_ndim >= 1)
-          zvals.setValue(
-            GRX(ig), isimu,
-            _dbgrd->getSimvar(
-              ELoc::SIMU, IAD_GRD(ig), isimu + 0 * nbsimu, 0, 0, _ndim * nbsimu,
-              1)
-              - GRD_VAL(ig, 0));
+          zvals.setValue(GRX(ig), isimu, _dbgrd->getValue(colid, IAD_GRD(ig)));
         if (_ndim >= 2)
-          zvals.setValue(
-            GRY(ig), isimu,
-            _dbgrd->getSimvar(
-              ELoc::SIMU, IAD_GRD(ig), isimu + 1 * nbsimu, 0, 0, _ndim * nbsimu,
-              1)
-              - GRD_VAL(ig, 1));
+          zvals.setValue(GRY(ig), isimu, _dbgrd->getValue(colid, IAD_GRD(ig)));
         if (_ndim >= 3)
-          zvals.setValue(
-            GRZ(ig), isimu,
-            _dbgrd->getSimvar(
-              ELoc::SIMU, IAD_GRD(ig), isimu + 2 * nbsimu, 0, 0, _ndim * nbsimu,
-              1)
-              - GRD_VAL(ig, 2));
+          zvals.setValue(GRZ(ig), isimu, _dbgrd->getValue(colid, IAD_GRD(ig)));
       }
 
       // Load the tangent simulation errors
 
       for (Id it = 0; it < _ntgt; it++)
       {
-        zvals.setValue(
-          TGT(it), isimu,
-          _dbtgt->getSimvar(ELoc::SIMU, IAD_TGT(it), isimu, 0, 0, nbsimu, 1));
+        auto colid = Db::buildColIDForSim(ELoc::SIMU, isimu, 0, 0, 1);
+        zvals.setValue(TGT(it), isimu, _dbtgt->getValue(colid, IAD_TGT(it)));
       }
 
       // Load the iso-potential simulation errors
@@ -1580,12 +1567,11 @@ namespace gstlrn
       for (Id ic = 0; ic < _nlayers; ic++)
         for (Id j = 1; j < _nbPerLayer[ic]; j++)
         {
+          auto colid = Db::buildColIDForSim(ELoc::SIMU, isimu, 0, 0, 1);
           zvals.setValue(
             ISC(ic, j), isimu,
-            _dbiso->getSimvar(
-              ELoc::SIMU, IAD_ISO(ic, j), isimu, 0, 0, nbsimu, 1)
-              - _dbiso->getSimvar(
-                ELoc::SIMU, IAD_ISO(ic, 0), isimu, 0, 0, nbsimu, 1));
+            _dbiso->getValue(colid, IAD_ISO(ic, j))
+              - _dbiso->getValue(colid, IAD_ISO(ic, 0)));
         }
     }
 
@@ -1760,14 +1746,14 @@ namespace gstlrn
       if (!uid_pot.empty())
       {
         db_target->setValue(db_target->fromUID(uid_pot[0]), iech, result[0]);
-        db_target->setLocatorsByUID(uid_pot, ELoc::Z, 0);
+        db_target->setLocators(uid_pot, ELoc::Z, 0);
       }
       if (!uid_grad.empty())
       {
         for (Id idim = 0; idim < _ndim; idim++)
           db_target->setValue(
             db_target->fromUID(uid_grad[idim]), iech, result[idim + 1]);
-        db_target->setLocatorsByUID(uid_grad, ELoc::G, 0);
+        db_target->setLocators(uid_grad, ELoc::G, 0);
       }
     }
   }
@@ -2165,14 +2151,14 @@ namespace gstlrn
 
         // Convert into simulation error
 
-        result[0] =
-          (dbout->getSimvar(ELoc::SIMU, iech, isimu, 0, 0, nbsimu, 1)
-           - result[0]);
+        auto colid = Db::buildColIDForSim(ELoc::SIMU, isimu, 0, 0, 1);
+        result[0] = dbout->getValue(colid, iech) - result[0];
         for (Id idim = 0; idim < ndim; idim++)
-          result[1 + idim] =
-            (_dbgrd->getSimvar(
-               ELoc::SIMU, iech, isimu + idim * nbsimu, 0, 0, ndim * nbsimu, 1)
-             - result[1 + idim]);
+        {
+          auto colid2 =
+            Db::buildColIDForSim(ELoc::SIMU, isimu + idim * nbsimu, 0, 0, 1);
+          result[1 + idim] = _dbgrd->getValue(colid2, iech) - result[1 + idim];
+        }
 
         // Center to the reference potential
 
@@ -2188,8 +2174,8 @@ namespace gstlrn
         if (flag_trans) _convertPotentialToLayer(isimu, potsim, result);
 
         // Store the results
-
-        dbout->setSimvar(ELoc::SIMU, iech, isimu, 0, 0, nbsimu, 1, result[0]);
+        colid = Db::buildColIDForSim(ELoc::SIMU, isimu, 0, 0, 1);
+        dbout->setValue(colid, iech, result[0]);
       }
     }
     OptDbg::setCurrentIndex(-1);
@@ -2267,9 +2253,10 @@ namespace gstlrn
             // Convert into simulation error
 
             if (nbsimu > 0)
-              result[0] =
-                _dbiso->getSimvar(ELoc::SIMU, iech, isimu, 0, 0, nbsimu, 1)
-                - result[0];
+            {
+              auto colid = Db::buildColIDForSim(ELoc::SIMU, isimu, 0, 0, 1);
+              result[0] = _dbiso->getValue(colid, iech) - result[0];
+            }
 
             // Print the results
 
@@ -2304,11 +2291,12 @@ namespace gstlrn
           if (nbsimu > 0)
           {
             for (Id idim = 0; idim < _ndim; idim++)
+            {
+              auto colid = Db::buildColIDForSim(
+                ELoc::SIMU, isimu + idim * nbsimu, 0, 0, 1);
               result[1 + idim] =
-                (_dbgrd->getSimvar(
-                   ELoc::SIMU, iech, isimu + idim * nbsimu, 0, 0,
-                   _ndim * nbsimu, 1)
-                 - result[1 + idim]);
+                _dbgrd->getValue(colid, iech) - result[1 + idim];
+            }
           }
 
           // Print the results
@@ -2417,9 +2405,10 @@ namespace gstlrn
       // Convert into simulation error
 
       if (nbsimu > 0)
-        result[0] =
-          (_dbiso->getSimvar(ELoc::SIMU, ip1, isimu, 0, 0, nbsimu, 1)
-           - result[0]);
+      {
+        auto colid = Db::buildColIDForSim(ELoc::SIMU, isimu, 0, 0, 1);
+        result[0] = _dbiso->getValue(colid, ip1) - result[0];
+      }
 
       // Center to the reference potential
 
@@ -2723,7 +2712,7 @@ namespace gstlrn
       dist_tempere, flag_trans, nbsimu, dbout, refpot, potsim.data(), zdual,
       zduals, rhs);
 
-    if (flag_tempere) dbout->deleteColumnsByLocator(ELoc::Z);
+    if (flag_tempere) dbout->deleteColumns(ERole::Z);
     return 0;
   }
 

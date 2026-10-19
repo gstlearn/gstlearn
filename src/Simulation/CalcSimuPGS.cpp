@@ -462,8 +462,7 @@ namespace gstlrn
 
           for (Id igrf = 0; igrf < _numberGRF[ipgs]; igrf++)
             if (_ruleprop->getRule(ipgs)->evaluateBounds(
-                  propdef, getDbin(), getDbout(), isimu, igrf, ipgs,
-                  getNbSimu()))
+                  propdef, getDbin(), getDbout(), isimu, igrf, ipgs))
               return false;
 
           if (gibbs->run(y, ipgs, isimu, getVerbose(), flagCheck)) return false;
@@ -475,8 +474,7 @@ namespace gstlrn
           for (Id isimu = 0; isimu < getNbSimu(); isimu++)
           {
             if (_ruleprop->getRule(ipgs)->gaus2facData(
-                  propdef, getDbin(), getDbout(), _flagUsed[ipgs], ipgs, isimu,
-                  getNbSimu()))
+                  propdef, getDbin(), getDbout(), _flagUsed[ipgs], ipgs, isimu))
               return false;
           }
 
@@ -561,16 +559,14 @@ namespace gstlrn
 
       for (isimu = 0; isimu < nbsimu; isimu++)
       {
-        facres = static_cast<Id>(
-          dbgrid->getSimvar(ELoc::FACIES, jech, isimu, 0, ipgs, nbsimu, 1));
+        auto colid = Db::buildColIDForSim(ELoc::FACIES, isimu, 0, ipgs, 1);
+        facres = static_cast<Id>(dbgrid->getValue(colid, jech));
         if (_flagShow)
         {
           if (facdat == facres)
-            dbgrid->setSimvar(
-              ELoc::FACIES, jech, isimu, 0, ipgs, nbsimu, 1, -facdat);
+            dbgrid->setValue(colid, jech, -facdat);
           else
-            dbgrid->setSimvar(
-              ELoc::FACIES, jech, isimu, 0, ipgs, nbsimu, 1, 0.);
+            dbgrid->setValue(colid, jech, 0.);
         }
 
         if (facdat == facres) continue;
@@ -602,19 +598,19 @@ namespace gstlrn
     if (getDbout() != nullptr)
     {
       if (!_keep(RESULT, TYPE_PROP) && _iptrRP >= 0)
-        getDbout()->deleteColumnsByLocator(ELoc::P);
+        getDbout()->deleteColumns(ERole::P);
       else
         namconv.setOutput(
           VectorString(), 0, getDbout(), _iptrRP, "Props", _nfactot, false);
 
       if (!_keep(RESULT, TYPE_GAUS) && _iptrRN >= 0)
-        getDbout()->deleteColumnsByLocator(ELoc::SIMU);
+        getDbout()->deleteColumns(ERole::SIMU);
       else
         namconv.setOutput(
           VectorString(), 0, getDbout(), _iptrRN, "Gaus", _ngrftot, false);
 
       if (!_keep(RESULT, TYPE_FACIES) && _iptrRF >= 0)
-        getDbout()->deleteColumnsByLocator(ELoc::FACIES);
+        getDbout()->deleteColumns(ERole::FACIES);
       else
         namconv.setOutput(
           VectorString(), 0, getDbout(), _iptrRF, String(), _numberPGS);
@@ -623,22 +619,22 @@ namespace gstlrn
     if (isConditional())
     {
       if (!_keep(DATA, TYPE_GAUS) && _iptrDN >= 0)
-        getDbin()->deleteColumnsByLocator(ELoc::SIMU);
+        getDbin()->deleteColumns(ERole::SIMU);
       else
         namconv.setOutput(
           VectorString(), 0, getDbin(), _iptrDN, "Gaus", _ngrftot * getNbSimu(),
           false);
 
       if (!_keep(DATA, TYPE_FACIES) && _iptrDF >= 0)
-        getDbin()->deleteColumnsByLocator(ELoc::FACIES);
+        getDbin()->deleteColumns(ERole::FACIES);
       else
         namconv.setOutput(
           VectorString(), 0, getDbin(), _iptrDF, String(),
           _numberPGS * getNbSimu(), false);
 
-      getDbin()->deleteColumnsByLocator(ELoc::GAUSFAC);
-      getDbin()->deleteColumnsByLocator(ELoc::L);
-      getDbin()->deleteColumnsByLocator(ELoc::U);
+      getDbin()->deleteColumns(ERole::GAUSFAC);
+      getDbin()->deleteColumns(ERole::L);
+      getDbin()->deleteColumns(ERole::U);
     }
 
     // Some samples may have been added to the input Db for PGS with Shift or Shadow options.

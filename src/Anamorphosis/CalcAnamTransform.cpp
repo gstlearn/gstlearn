@@ -398,8 +398,8 @@ namespace gstlrn
 
     for (Id ivar = 0; ivar < nvar; ivar++)
     {
-      auto nversion = getDb()->getNVersions(RoleID(ERole::Z, ivar));
       auto roleid = RoleID(ERole::Z, ivar);
+      auto nversion = getDb()->getNVersions(roleid);
       for (Id ivers = 0; ivers < nversion; ivers++)
       {
         VectorDouble data =
@@ -420,8 +420,8 @@ namespace gstlrn
 
     for (Id ivar = 0; ivar < nvar; ivar++)
     {
-      auto nversion = getDb()->getNVersions(RoleID(ERole::Z, ivar));
       auto roleid = RoleID(ERole::Z, ivar);
+      auto nversion = getDb()->getNVersions(roleid);
       for (Id ivers = 0; ivers < nversion; ivers++)
       {
         VectorDouble z = getDb()->getColumn(ColID(roleid, ivers), true, true);
@@ -440,8 +440,8 @@ namespace gstlrn
 
     for (Id ivar = 0; ivar < nvar; ivar++)
     {
-      auto nversion = getDb()->getNVersions(RoleID(ERole::Z, ivar));
       auto roleid = RoleID(ERole::Z, ivar);
+      auto nversion = getDb()->getNVersions(roleid);
       for (Id ivers = 0; ivers < nversion; ivers++)
       {
         VectorDouble y = getDb()->getColumn(ColID(roleid, ivers), true, true);

@@ -272,7 +272,6 @@ namespace gstlrn
     Id icase = 0;
     auto nvar = getNVar();
     auto ndim = dbtgt->getNDim();
-    auto nbsimu = getNbSimu();
 
     /* Perform the simulation of the gradients at tangent points */
 
@@ -280,16 +279,16 @@ namespace gstlrn
 
     /* Calculate the simulated tangent */
 
+    auto colid = Db::buildColIDForSim(ELoc::SIMU, isimu, 0, icase, nvar);
     for (Id iech = 0; iech < dbtgt->getNSample(); iech++)
     {
       if (!activeArray[iech]) continue;
 
       double value = 0.;
       for (Id idim = 0; idim < ndim; idim++)
-        value +=
-          dbtgt->getValue(RoleID(ERole::TGT, idim), iech)
-          * dbtgt->getSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, nvar);
-      dbtgt->setSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, nvar, value);
+        value += dbtgt->getValue(RoleID(ERole::TGT, idim), iech)
+               * dbtgt->getValue(colid, iech);
+      dbtgt->setValue(colid, iech, value);
     }
   }
 
@@ -334,12 +333,11 @@ namespace gstlrn
       for (Id ivar = 0; ivar < nvar; ivar++)
         for (Id iech = 0; iech < nech; iech++)
         {
+          auto colid = Db::buildColIDForSim(ELoc::SIMU, isimu, ivar, 0, nvar);
           double zvar = dbin->getValue(RoleID(ERole::Z, ivar), iech);
-          double simval =
-            dbin->getSimvar(ELoc::SIMU, iech, isimu, ivar, 0, nbsimu, nvar);
+          double simval = dbin->getValue(colid, iech);
           double simunc = (FFFF(zvar) || FFFF(simval)) ? TEST : simval - zvar;
-          dbin->setSimvar(
-            ELoc::SIMU, iech, isimu, ivar, 0, nbsimu, nvar, simunc);
+          dbin->setValue(colid, iech, simunc);
         }
   }
 
@@ -359,7 +357,6 @@ namespace gstlrn
     VectorVectorDouble& tab)
   {
     auto* dbin = getDbin();
-    auto nbsimu = getNbSimu();
     auto nvar = getNVar();
 
     double r = 1.;
@@ -387,8 +384,9 @@ namespace gstlrn
           double zvar = TEST;
           if (_getFlagGibbs())
           {
-            zvar = dbin->getSimvar(
-              ELoc::GAUSFAC, iech, isimu, ivar, 0, nbsimu, nvar);
+            auto colid =
+              Db::buildColIDForSim(ELoc::GAUSFAC, isimu, ivar, 0, nvar);
+            zvar = dbin->getValue(colid, iech);
             if (OptDbg::query(EDbg::SIMULATE)) printElement(zvar);
           }
           else
@@ -412,11 +410,12 @@ namespace gstlrn
       /* Case of PGS: Data varies per simulation (monovariate) */
       /*********************************************************/
 
+      auto colid =
+        Db::buildColIDForSim(ELoc::GAUSFAC, isimu, 0, _getIcase(), 1);
       for (Id iech = 0; iech < dbin->getNSample(); iech++)
       {
         if (!activeArray[iech]) continue;
-        double zvar = dbin->getSimvar(
-          ELoc::GAUSFAC, iech, isimu, 0, _getIcase(), nbsimu, 1);
+        double zvar = dbin->getValue(colid, iech);
         if (!FFFF(zvar)) tab[0][iech] -= zvar;
       }
     }
@@ -484,6 +483,7 @@ namespace gstlrn
 
         /* We have found a close data point: perform the assignment */
 
+        auto icase = _getIcase();
         for (Id isimu = 0; isimu < nbsimu; isimu++)
           for (Id ivar = 0; ivar < nvar; ivar++)
           {
@@ -491,11 +491,15 @@ namespace gstlrn
             if (!_getFlagPGS())
               valdat = dbin->getValue(RoleID(ERole::Z, ivar), ip);
             else
-              valdat = dbin->getSimvar(
-                ELoc::GAUSFAC, ip, isimu, 0, _getIcase(), nbsimu, 1);
+            {
+              auto colid2 =
+                Db::buildColIDForSim(ELoc::GAUSFAC, isimu, 0, icase, 1);
+              valdat = dbin->getValue(colid2, ip);
+            }
             if (FFFF(valdat)) continue;
-            dbgrid->setSimvar(
-              ELoc::SIMU, rank, isimu, ivar, _getIcase(), nbsimu, nvar, valdat);
+            auto colid =
+              Db::buildColIDForSim(ELoc::SIMU, isimu, ivar, icase, nvar);
+            dbgrid->setValue(colid, rank, valdat);
           }
       }
     }
@@ -536,6 +540,7 @@ namespace gstlrn
 
         /* We have found a close data point: perform the assignment */
 
+        auto icase = _getIcase();
         for (Id isimu = 0; isimu < nbsimu; isimu++)
           for (Id ivar = 0; ivar < nvar; ivar++)
           {
@@ -543,11 +548,15 @@ namespace gstlrn
             if (!_getFlagPGS())
               valdat = dbin->getValue(RoleID(ERole::Z, ivar), ip_close);
             else
-              valdat = dbin->getSimvar(
-                ELoc::GAUSFAC, ip_close, isimu, 0, _getIcase(), nbsimu, 1);
+            {
+              auto colid2 =
+                Db::buildColIDForSim(ELoc::GAUSFAC, isimu, 0, icase, 1);
+              valdat = dbin->getValue(colid2, ip_close);
+            }
             if (FFFF(valdat)) continue;
-            dbout->setSimvar(
-              ELoc::SIMU, ik, isimu, ivar, _getIcase(), nbsimu, nvar, valdat);
+            auto colid =
+              Db::buildColIDForSim(ELoc::SIMU, isimu, ivar, icase, nvar);
+            dbout->setValue(colid, ik, valdat);
           }
       }
     }
@@ -667,7 +676,6 @@ namespace gstlrn
     const VectorBool& activeArray,
     const VectorVectorDouble& tab) const
   {
-    auto nbsimu = getNbSimu();
     auto nvar = getNVar();
     auto icase = _getIcase();
 
@@ -675,9 +683,11 @@ namespace gstlrn
     {
       if (!activeArray[iech]) continue;
       for (Id ivar = 0; ivar < nvar; ivar++)
-        db->setSimvar(
-          ELoc::SIMU, iech, _getShift() + isimu, ivar, icase, nbsimu, nvar,
-          tab[ivar][iech]);
+      {
+        auto colid = Db::buildColIDForSim(
+          ELoc::SIMU, _getShift() + isimu, ivar, icase, nvar);
+        db->setValue(colid, iech, tab[ivar][iech]);
+      }
     }
   }
 
