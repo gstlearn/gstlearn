@@ -9,6 +9,11 @@
 #include <Rinternals.h>
 #include <Rdefines.h>
 
+// For old R version
+#ifndef OBJSXP
+  #define OBJSXP S4SXP
+#endif
+
 #if defined(__GNUG__) || defined(__clang__)
   #define SWIG_MAYBE_UNUSED __attribute__((unused))
 #else
