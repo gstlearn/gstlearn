@@ -40,7 +40,7 @@ jobs:
         # Only one arm64 and one x86_64 Mac OS version are needed
         arch: [
             {ar: x86_64, os: macos-15-intel, pat: /usr/local},
-            {ar: arm64,  os: macos-14, pat: /opt/homebrew},
+            {ar: arm64,  os: macos-15, pat: /opt/homebrew},
          ]
 
     steps:
@@ -105,7 +105,7 @@ jobs:
         cmake --build ${{env.BUILD_DIR}} --parallel 3 --target r_install
         PKG_ARCHIVE=$(ls ${{env.BUILD_DIR}}/r/${{env.CMAKE_BUILD_TYPE}}/gstlearn_*.tgz)
         echo "Archive file is $PKG_ARCHIVE and OS_TYPE is $OS_TYPE"
-        if [ "$OS_TYPE" = "macos-14" ]; then
+        if [ "$OS_TYPE" = "macos-15" ]; then
           tar -xzf $PKG_ARCHIVE
           sed -i '' 's/darwin23/darwin20/g' gstlearn/DESCRIPTION
           tar -czf $PKG_ARCHIVE gstlearn
@@ -145,7 +145,7 @@ jobs:
         # Only one arm64 and one x86_64 Mac OS version are needed
         arch: [
             {ar: x86_64, os: macos-15-intel},
-            {ar: arm64,  os: macos-14},
+            {ar: arm64,  os: macos-15},
           ]
 
     steps:
