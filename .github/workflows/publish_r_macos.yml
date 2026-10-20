@@ -34,6 +34,7 @@ jobs:
       # https://docs.github.com/en/actions/using-jobs/defining-outputs-for-jobs
       cran_path: ${{ steps.define_cran_path.outputs.CRAN_PATH }}
     strategy:
+      fail-fast: false
       matrix:
         # Last releases from here https://cran.r-project.org/src/base/R-4/
         r_version: [4.2.3, 4.3.3, 4.4.3, 4.5.3, 4.6.0]
@@ -139,6 +140,7 @@ jobs:
     needs: build
     runs-on: ${{matrix.arch.os}}
     strategy:
+      fail-fast: false
       matrix:
         # Last releases from here https://cran.r-project.org/src/base/R-4/
         r_version: [4.2.3, 4.3.3, 4.4.3, 4.5.3, 4.6.0]
