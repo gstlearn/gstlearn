@@ -30,6 +30,7 @@ jobs:
   build:
     runs-on: ${{matrix.arch.os}}
     strategy:
+      fail-fast: false
       matrix:
         # Python version
         python: [
@@ -123,6 +124,7 @@ jobs:
     needs: build
     runs-on: ${{matrix.arch.os}}
     strategy:
+      fail-fast: false
       matrix:
         python: [
         # Double quote for version is needed otherwise 3.10 => 3.1

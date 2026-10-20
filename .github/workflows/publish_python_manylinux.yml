@@ -131,6 +131,7 @@ jobs:
     container:
       image: quay.io/pypa/${{ matrix.image }}
     strategy:
+      fail-fast: false
       matrix:
         # Python version
         python: [
