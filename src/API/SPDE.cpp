@@ -1250,24 +1250,9 @@ namespace gstlrn
 
   double SPDE::loglikelihood(const VectorDouble& Z, bool verbose) const
   {
-    Id size = static_cast<Id>(Z.size());
-    double logdet = getSPDEOp()->computeTotalLogDet(getNMC(), getSeed());
-    double quad = getSPDEOp()->computeQuadratic(Z);
-    double loglike = TEST;
-    if (!FFFF(logdet) && !FFFF(quad))
-      loglike = -0.5 * (logdet + quad + size * log(2. * GV_PI));
-
-    if (verbose)
-    {
-      message("Likelihood calculation:\n");
-      message("Nb. active samples = %d\n", size);
-      message("Nb. Monte-Carlo    = %d\n", getNMC());
-      message("Cholesky           = %d\n", getFlagCholesky());
-      message("Log-Determinant    = %lf\n", logdet);
-      message("Quadratic term     = %lf\n", quad);
-      message("Log-likelihood     = %lf\n", loglike);
-    }
-    return loglike;
+    Id nmc = getNMC();
+    Id seed = getSeed();
+    return _spdeop->loglikelihood(Z, nmc, seed, verbose);
   }
 
 } // namespace gstlrn
