@@ -12,12 +12,13 @@
 
 #include "gstlearn_export.hpp"
 
+#include "Basic/AStringable.hpp"
 #include "DataBase/RoleID.hpp"
 #include "geoslib_define.h"
 
 namespace gstlrn
 {
-  class GSTLEARN_EXPORT ColID
+  class GSTLEARN_EXPORT ColID: public AStringable
   {
   public:
     ColID(const std::string& name, Id version = 0);
@@ -35,6 +36,9 @@ namespace gstlrn
     }
 #endif
 
+    /// AStringable Interface
+    String toString(const AStringFormat* strfmt = nullptr) const override;
+
     const String& getName() const { return _name; }
 
     Id getICol() const { return _icol; }
@@ -47,8 +51,6 @@ namespace gstlrn
 
     Id getVersion() const { return _version; }
 
-    String getDescr() const;
-
     void setName(const String& name) { _name = name; }
 
     void setICol(Id icol) { _icol = icol; }
@@ -58,8 +60,6 @@ namespace gstlrn
     void setVersion(Id version) { _version = version; }
 
     bool hasRoleDefined() const;
-
-    void dump() const;
 
     /**
      * Factory helpers mainly intended for language bindings (SWIG).

@@ -1053,7 +1053,7 @@ namespace gstlrn
       /* Update the number of samples in the cell */
 
       dbgrid->setValue(
-        {ERole::P, iclass}, jech,
+        RoleID(ERole::P, iclass), jech,
         dbgrid->getValue({ERole::P, iclass}, jech) + 1);
     }
 

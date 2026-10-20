@@ -216,12 +216,12 @@ int main(int argc, char* argv[])
   message("\nMatching the name 'VDb*', the following columns are found:\n");
   auto colIDs = data.getColIDs("VDb*");
   for (auto& colID: colIDs)
-    message("Matching Column: %s\n", colID.getDescr().c_str());
+    message("Matching Column: %s\n", colID.getName().c_str());
 
   message("\nMatching the role 'X', the following columns are found:\n");
   colIDs = data.getColIDs(ERole::X);
   for (auto& colID: colIDs)
-    message("Matching Column: %s\n", colID.getDescr().c_str());
+    message("Matching Column: %s\n", colID.getName().c_str());
 
   return 0;
 }

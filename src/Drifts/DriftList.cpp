@@ -328,7 +328,7 @@ namespace gstlrn
         {
           if (isZero(_getDriftCL(ivar, il, ib))) continue;
           for (Id iech = 0; iech < nech; iech++)
-            if (!FFFF(db->getValue({toERole(loctype), ivar}, nbgh[iech])))
+            if (!FFFF(db->getValue(RoleID(toERole(loctype), ivar), nbgh[iech])))
               return true;
         }
     }
@@ -336,7 +336,7 @@ namespace gstlrn
     {
       for (Id ivar = 0; ivar < nvar; ivar++)
         for (Id iech = 0; iech < nech; iech++)
-          if (!FFFF(db->getValue({toERole(loctype), ivar}, nbgh[iech])))
+          if (!FFFF(db->getValue(RoleID(toERole(loctype), ivar), nbgh[iech])))
             return true;
     }
     return false;

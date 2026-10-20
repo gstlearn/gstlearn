@@ -1555,7 +1555,7 @@ namespace gstlrn
     }
 
     // The variable corresponding to the selection is now set to the ELoc::Z variable
-    auto name = getName({ERole::SEL});
+    auto name = getName(ERole::SEL);
     setLocator(name, ELoc::Z);
 
     double vmin = 0.5;

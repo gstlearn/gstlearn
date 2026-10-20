@@ -298,7 +298,7 @@ namespace gstlrn
                   ? _dbout->getValue(_dbout->fromUID(_colrefT), iech)
                   : 0.;
       if (FFFF(t0)) return (1);
-      double t1 = _dbout->getValue({toERole(_ptime), ilayer0 - 1}, iech);
+      double t1 = _dbout->getValue(RoleID(toERole(_ptime), ilayer0 - 1), iech);
       if (FFFF(t1)) return (1);
       tlast = t0;
 
@@ -306,7 +306,7 @@ namespace gstlrn
 
       for (Id ilayer = 0; ilayer < ilayer0; ilayer++)
       {
-        double tt = _dbout->getValue({toERole(_ptime), ilayer}, iech);
+        double tt = _dbout->getValue(RoleID(toERole(_ptime), ilayer), iech);
         if (FFFF(tt)) return (1);
         double pval = (tt - tlast) / (t1 - t0);
         if (pval < 0 || pval > 1) return (1);
@@ -850,7 +850,8 @@ namespace gstlrn
 
         if (_flagVel)
         {
-          double dtime = _dbout->getValue({toERole(_ptime), ilayer - 1}, igrid);
+          double dtime =
+            _dbout->getValue(RoleID(toERole(_ptime), ilayer - 1), igrid);
           if (_colrefT >= 0)
             dtime -= _dbout->getValue(_dbout->fromUID(_colrefT), igrid);
           value /= dtime;
@@ -1473,7 +1474,7 @@ namespace gstlrn
 
           if (_flagVel)
           {
-            time = _dbout->getValue({toERole(_ptime), ilayer}, iechout);
+            time = _dbout->getValue(RoleID(toERole(_ptime), ilayer), iechout);
             delta = time - time0;
             depth = depth0 + value * delta;
             if (_flagStd) stdv *= delta;
@@ -1490,7 +1491,7 @@ namespace gstlrn
 
           if (_flagVel)
           {
-            time = _dbout->getValue({toERole(_ptime), ilayer}, iechout);
+            time = _dbout->getValue(RoleID(toERole(_ptime), ilayer), iechout);
             delta = time - time_prev;
             depth = depth_prev + value * delta;
             if (_flagStd) stdv *= delta;

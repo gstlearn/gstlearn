@@ -390,7 +390,7 @@ namespace gstlrn
 
     VectorDouble wt;
     if (getDb()->hasLocator(ELoc::W))
-      wt = getDb()->getColumn({toERole(ELoc::W), 0});
+      wt = getDb()->getColumn({ERole::W, 0});
     else
       wt.resize(nech, 1.);
 
@@ -399,7 +399,7 @@ namespace gstlrn
     for (Id ivar = 0; ivar < nvar; ivar++)
     {
       auto nversion = getDb()->getNVersions({ERole::Z, ivar});
-      auto roleid = RoleID(toERole(ELoc::Z), ivar);
+      auto roleid = RoleID(ERole::Z, ivar);
       for (Id ivers = 0; ivers < nversion; ivers++)
       {
         VectorDouble data = getDb()->getColumn({roleid, ivers}, false, true);
@@ -420,7 +420,7 @@ namespace gstlrn
     for (Id ivar = 0; ivar < nvar; ivar++)
     {
       auto nversion = getDb()->getNVersions({ERole::Z, ivar});
-      auto roleid = RoleID(toERole(ELoc::Z), ivar);
+      auto roleid = RoleID(ERole::Z, ivar);
       for (Id ivers = 0; ivers < nversion; ivers++)
       {
         VectorDouble z = getDb()->getColumn({roleid, ivers}, true, true);
@@ -440,7 +440,7 @@ namespace gstlrn
     for (Id ivar = 0; ivar < nvar; ivar++)
     {
       auto nversion = getDb()->getNVersions({ERole::Z, ivar});
-      auto roleid = RoleID(toERole(ELoc::Z), ivar);
+      auto roleid = RoleID(ERole::Z, ivar);
       for (Id ivers = 0; ivers < nversion; ivers++)
       {
         VectorDouble y = getDb()->getColumn({roleid, ivers}, true, true);

@@ -45,35 +45,43 @@ namespace gstlrn
    * Notes:
    * - For short, this Data Base organization is referred to as **Db**,
    * - At any time, variables can be added, renamed or deleted,
-   * - In the current version, this Data Set is currently limited to numerical contents.
    * The data frame is necessarily completely filled with values: therefore, a specific value
    * stands for a missing value (printed as **NA**);
    *
-   * Moreover each variable may be assigned a *role* (or functionality) in the rest of a script.
-   * This role is defined by a **locator**: for example, a variable can serve as a coordinate,
-   * or a target variable. The locators can be viewed in the following list (see ELoc.hpp).
+   * Moreover each variable may be assigned a *role* (or functionality) in the rest of a script:
+   * for example, a variable can serve as a coordinate (Role::X) or a target variable (Role::Z).
+   * The roles can be viewed in the following list (see ERole.hpp).
    * Note that a variable which does not play any role in particular may be assigned to an idle
-   * role (locator NA);
-   * This locator may be modified or cancelled (by the user) at any time.
+   * role (Role::NA);
+   * This Role may be modified or cancelled (by the user) at any time.
    *
-   * There are two status for these locators: **unique** or **multiple**.
+   * There are two status for these Roles: **unique** or **multiple**.
    *
-   * *Unique*. Only one variable can be assigned this unique locator: this is the
+   * *Unique*. Only one variable can be assigned this unique Role: this is the
    * case for the selection (*SEL*) as there may be only one current selection activated at a time.
    *
-   * *Multiple*. Several variable may be assigned the same locator: this is the case for the
-   * coordinates (*X*). In that case, the locator name is followed by its rank (1-based).
-   * Then the first coordinate will correspond to the locator *X1*, the second coordinate to *X2*, ...
+   * *Multiple*. Several variable may be assigned the same Role: this is the case for the
+   * coordinates (*X*). In that case, the Role name is followed by its rank (1-based).
+   * Then the first coordinate will correspond to the Role *X1*, the second coordinate to *X2*, ...
    * Note that:
-   * - for a given locator name, the ranks are always consecutive between 1 and N (if it
-   * happens that you delete X3, the locator X4 is automatically modified into X3, X5 into X4, and
+   * - for a given Role name, the ranks are always consecutive between 1 and N (if it
+   * happens that you delete X3, the Role X4 is automatically modified into X3, X5 into X4, and
    * so on up to X{N} into X{N-1}.
-   * - there is no limitation in the number of ranks for a given locator name.
+   * - there is no limitation in the number of ranks for a given Role name.
+   * The regroupment of the Role name and the Role rank is called a *RoleID* (see RoleID.hpp).
    *
    * Each variable (or column) can be designated:
    * - by its name (unique in the Data Base) or
-   * - by its locator (name and rank) or
+   * - by its Role (name and rank) or
    * - by its column index (0-based): this designation mode is dangerous (and not recommended) as the index may change over time.
+   *
+   * All methods used for Column Management always start with a systematic first argument:
+   * - a ColID structure (see ColID.hpp) when the method addresses a single column, or
+   * - a multID structure (see MultID.hpp) when the method addresses several columns.
+   * Both structures are very versatile as they can be specified using:
+   * - by Column name
+   * - by RoleID
+   * - by Column index
    */
   class GSTLEARN_EXPORT Db: public AStringable,
                             public ASerializable,

@@ -8,7 +8,7 @@
 #include <R.h>
 #include <Rinternals.h>
 
-/* Modifier à 'true' pour réactiver les messages de debug lors des tests */
+/* Set the variable to TRUE to enable messages in the DEBUG mode */
 static const bool COLID_DEBUG_ENABLED = false;
 
 #define COLID_DEBUG_LOG(...) \
@@ -314,5 +314,5 @@ static const bool COLID_DEBUG_ENABLED = false;
         delete $1;
 }
 
-/* Neutralisation stricte pour les pointeurs bruts (evite le double delete) */
+/* Strict neutralization for raw pointers (prevents double delete) */
 %typemap(freearg) gstlrn::ColID * "";

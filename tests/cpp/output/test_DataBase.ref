@@ -164,10 +164,10 @@ Column 1/3 : VDbis (Type: Id) {Role: x2}
 Column 2/3 : VDback (Type: Double) {Role: x3}
 
 Matching the name 'VDb*', the following columns are found:
-Matching Column: Name: VDbis, Index: 1, Role: x2, Version: 0
-Matching Column: Name: VDback, Index: 2, Role: x3, Version: 0
+Matching Column: VDbis
+Matching Column: VDback
 
 Matching the role 'X', the following columns are found:
-Matching Column: Name: VD, Index: 0, Role: x1, Version: 0
-Matching Column: Name: VDbis, Index: 1, Role: x2, Version: 0
-Matching Column: Name: VDback, Index: 2, Role: x3, Version: 0
+Matching Column: VD
+Matching Column: VDbis
+Matching Column: VDback

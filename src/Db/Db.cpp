@@ -775,7 +775,7 @@ namespace gstlrn
     if (number <= 0) return vec;
     vec.resize(number);
     for (Id i = 0; i < number; i++)
-      vec[i] = getValue({toERole(locatorType), i}, iech);
+      vec[i] = getValue(RoleID(toERole(locatorType), i), iech);
     return vec;
   }
 
@@ -990,7 +990,7 @@ namespace gstlrn
 
   const double* Db::getColumnPtr(const ELoc& locatorType, Id locatorIndex)
   {
-    auto icol = getColIdx({toERole(locatorType), locatorIndex});
+    auto icol = getColIdx(RoleID(toERole(locatorType), locatorIndex));
     if (icol < 0) return nullptr;
     return _data.getColumn<VectorDouble>(icol).data();
   }
@@ -2094,7 +2094,7 @@ namespace gstlrn
           if (locatorIdentify(namloc[j], &locatorType, &locatorIndex, &mult)
               != 0)
             continue;
-          String local = getName({toERole(locatorType), locatorIndex});
+          String local = getName(RoleID(toERole(locatorType), locatorIndex));
           ret_names.push_back(local);
         }
         continue;
@@ -2400,7 +2400,7 @@ namespace gstlrn
       // p_out.setLocatorByIndex(n_out + i_in, p_in.getLocatorByIndex(i_in));
 
       // Correction for the Temporary Locator
-      auto icol = getColIdx({toERole(locatorType_in), i_in});
+      auto icol = getColIdx(RoleID(toERole(locatorType_in), i_in));
       auto role = toERole(locatorType_out);
       _data.setRoleID(icol, RoleID(role, n_out + i_in));
     }
@@ -2527,7 +2527,7 @@ namespace gstlrn
 
     vec.resize(nitem, TEST);
     for (Id item = 0; item < nitem; item++)
-      vec[item] = getValue({toERole(locatorType), item}, iech);
+      vec[item] = getValue(RoleID(toERole(locatorType), item), iech);
     return vec;
   }
 
@@ -2548,7 +2548,7 @@ namespace gstlrn
       return;
     }
     for (Id i = 0; i < number; i++)
-      setValue({toERole(locatorType), i}, iech, values[i]);
+      setValue(RoleID(toERole(locatorType), i), iech, values[i]);
   }
 
   /**
@@ -2666,7 +2666,8 @@ namespace gstlrn
     if (natt <= 0) return false;
 
     for (Id iatt = 0; iatt < natt; iatt++)
-      if (!FFFF(getValue({toERole(locatorType), iatt}, iech))) return false;
+      if (!FFFF(getValue(RoleID(toERole(locatorType), iatt), iech)))
+        return false;
     return true;
   }
 
@@ -2985,7 +2986,7 @@ namespace gstlrn
     Id nvar) const
   {
     auto locatorIndex = getSimRank(isimu, ivar, icase, nbsimu, nvar);
-    auto icol = getColIdx({toERole(locatorType), locatorIndex});
+    auto icol = getColIdx(RoleID(toERole(locatorType), locatorIndex));
     if (icol < 0) return TEST;
 
     return *_data.getValue<double>({icol, isimu}, iech);
@@ -3005,7 +3006,7 @@ namespace gstlrn
     double value)
   {
     auto locatorIndex = getSimRank(isimu, ivar, icase, nbsimu, nvar);
-    auto icol = getColIdx({toERole(locatorType), locatorIndex});
+    auto icol = getColIdx(RoleID(toERole(locatorType), locatorIndex));
     if (icol < 0) return;
 
     _data.setValue({icol, isimu}, iech, value);
@@ -3026,7 +3027,7 @@ namespace gstlrn
     double value)
   {
     auto locatorIndex = getSimRank(isimu, ivar, icase, nbsimu, nvar);
-    auto icol = getColIdx({toERole(locatorType), locatorIndex});
+    auto icol = getColIdx(RoleID(toERole(locatorType), locatorIndex));
     if (icol < 0) return;
 
     auto colid = ColID(icol, isimu);
@@ -3112,7 +3113,7 @@ namespace gstlrn
     if (count <= 0) return namelist;
     for (Id i = 0; i < count; i++)
     {
-      auto icol = getColIdx({toERole(locatorType), i});
+      auto icol = getColIdx(RoleID(toERole(locatorType), i));
       namelist.push_back(getName(icol));
     }
     return namelist;
@@ -3203,6 +3204,14 @@ namespace gstlrn
     _data.setName(std::move(colid_copy), name);
   }
 
+  /**
+   * @brief Redefine the name of a list of input variables.
+   * Each one will receive the new 'name' with an additional suffix number
+   * generated automatically
+   *
+   * @param list List of variabls to be renamed
+   * @param name New name (which serves as a radix)
+   */
   void Db::setNames(const VectorString& list, const String& name)
   {
     auto count = static_cast<Id>(list.size());
@@ -3866,6 +3875,14 @@ namespace gstlrn
     return retval;
   }
 
+  /**
+   * @brief Retusn a Vector containing the contents of the Column identified by 'colid'.
+   *
+   * @param colid Column identificator
+   * @param useSel When TRUE, the value for the masked off samples will be ignored
+   * @param flagCompress When TRUE, the masked samples are skipped. Then the size of the returned vector is smaller than the total number of samples
+   * @return VectorDouble
+   */
   VectorDouble
     Db::getColumn(const ColID& colid, bool useSel, bool flagCompress) const
   {
@@ -4135,9 +4152,9 @@ namespace gstlrn
    */
   void Db::setAllColumns(const VectorVectorDouble& tabs)
   {
-    VectorInt iuids = getUIDsDefined();
-    for (Id iuid = 0; iuid < static_cast<Id>(iuids.size()); iuid++)
-      setColumn(fromUID(iuids[iuid]), tabs[iuid], false);
+    VectorInt uids = getUIDsDefined();
+    for (Id i = 0; i < static_cast<Id>(uids.size()); i++)
+      setColumn(fromUID(uids[i]), tabs[i], false);
   }
 
   /**
@@ -4225,6 +4242,12 @@ namespace gstlrn
     return tab;
   }
 
+  /**
+   * @brief Returns the index (0-based) of the Column identified by 'colid' in the Data Base.
+   *
+   * @param colid Column identifier
+   * @return Id Returned Column index
+   */
   Id Db::getColIdx(const ColID& colid) const
   {
     ColID colid_copy = colid;
@@ -4255,7 +4278,7 @@ namespace gstlrn
 
     icols.resize(number);
     for (Id i = 0; i < number; i++)
-      icols[i] = getColIdx({toERole(locatorType), i});
+      icols[i] = getColIdx(RoleID(toERole(locatorType), i));
     return icols;
   }
 
@@ -4300,7 +4323,7 @@ namespace gstlrn
     if (number <= 0) return iuids;
     iuids.resize(number);
     for (Id i = 0; i < number; i++)
-      iuids[i] = getUID({toERole(locatorType), i});
+      iuids[i] = getUID(RoleID(toERole(locatorType), i));
     return iuids;
   }
 
@@ -4851,7 +4874,7 @@ namespace gstlrn
     {
       if (!isActive(iech)) continue;
       Id ioccurence =
-        static_cast<Id>(getValue({toERole(locatorType), 0}, iech));
+        static_cast<Id>(getValue(RoleID(toERole(locatorType), 0), iech));
       if (ioccurence > noccurence) noccurence = ioccurence;
     }
     return noccurence;

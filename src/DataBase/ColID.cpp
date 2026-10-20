@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "DataBase/ColID.hpp"
-#include "Basic/Message.hpp"
 
 namespace gstlrn
 {
@@ -64,26 +63,6 @@ namespace gstlrn
   {
   }
 
-  /**
-   * @brief Constructs a String which gives all possible information on a Column Identifier
-   *
-   * @return String
-   */
-  String ColID::getDescr() const
-  {
-    String descr;
-
-    if (!_name.empty()) descr += "Name: " + _name + ", ";
-
-    if (_icol >= 0) descr += "Index: " + std::to_string(_icol) + ", ";
-
-    if (hasRoleDefined()) descr += "Role: " + _roleID.getName() + ", ";
-
-    descr += "Version: " + std::to_string(_version);
-
-    return descr;
-  }
-
   bool ColID::hasRoleDefined() const
   {
     return _roleID.getRole().isDifferent(ERole::UNDEFINED);
@@ -116,12 +95,17 @@ namespace gstlrn
     return res;
   }
 
-  void ColID::dump() const
+  String ColID::toString(const AStringFormat* strfmt) const
   {
-    message("Name: %s\n", getDescr().c_str());
-    message("Column Index = %d\n", _icol);
-    message("Role = %s\n", _roleID.getName().c_str());
-    message("Version = %d\n", _version);
+    DECLARE_UNUSED(strfmt);
+    std::stringstream sstr;
+
+    sstr << "Name: " << _name << "\n";
+    sstr << "Column Index: " << _icol << "\n";
+    sstr << "Role: " << _roleID.getName() << "\n";
+    sstr << "Version: " << _version << "\n";
+
+    return sstr.str();
   }
 
 } // namespace gstlrn

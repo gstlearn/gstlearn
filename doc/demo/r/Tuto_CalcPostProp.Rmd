@@ -131,7 +131,7 @@ for (i in 1:N) {
 for (i in 1:N) {
   val = matrix(nrow = surfaces$getNSample(useSel = FALSE), ncol = nbsim[i])
   for (k in 1:nbsim[i]) {
-    val[,k] = surfaces$getColumn(list(paste0("Y_", i), k-1), useSel=FALSE)
+    val[,k] = surfaces$getColumn(ColID(paste0("Y_", i), k-1), useSel=FALSE)
   }
   val = h_mean[i] * pnorm(val)
   for (k in 1:nbsim[i]) {

@@ -246,10 +246,9 @@ namespace gstlrn
         locatorType.getValue(), number);
       return 1;
     }
-    VectorDouble tab = db->getColumn({toERole(locatorType), 0}, true);
+    VectorDouble tab = db->getColumn(RoleID(toERole(locatorType), 0), true);
     VectorDouble wt;
-    if (db->hasLocator(ELoc::W))
-      wt = db->getColumn({toERole(ELoc::W), 0}, true);
+    if (db->hasLocator(ELoc::W)) wt = db->getColumn(RoleID(ERole::W, 0), true);
 
     if (fitFromArray(tab, wt)) return 1;
     _flagFitted = true;
@@ -260,8 +259,7 @@ namespace gstlrn
   {
     VectorDouble tab = db->getColumn(name, true);
     VectorDouble wt;
-    if (db->hasLocator(ELoc::W))
-      wt = db->getColumn({toERole(ELoc::W), 0}, true);
+    if (db->hasLocator(ELoc::W)) wt = db->getColumn(RoleID(ERole::W, 0), true);
 
     if (fitFromArray(tab, wt)) return 1;
     _flagFitted = true;

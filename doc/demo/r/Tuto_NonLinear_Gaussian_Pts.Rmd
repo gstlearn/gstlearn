@@ -796,7 +796,7 @@ grid$setName("CE.Z-estim", "CE.Z.estim")
 grid$setName("CE.Z-stdev", "CE.Z.stdev")
 
 # Disjunctive kriging
-data$setLocators({"F.*"}, ELoc_Z(), cleanSameLocator=TRUE)
+data$setLocators("F.*", ELoc_Z(), cleanSameLocator=TRUE)
 err = krigingFactors(dbin   = data,   # Input data set (a Db structure)
                      dbout  = grid,  # Ouput data set (a DbGrid structure)
                      model  = model, neigh,

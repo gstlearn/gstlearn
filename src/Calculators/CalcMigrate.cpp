@@ -996,7 +996,7 @@ namespace gstlrn
       *flag_created = true;
       for (Id info = 0; info < ninfo; info++)
       {
-        String name = dbgrid->getName({toERole(locatorType), info});
+        String name = dbgrid->getName(RoleID(toERole(locatorType), info));
         if (migrate(dbgrid, dbin, name, 0, VectorDouble(), false, false, false))
           continue;
       }
@@ -1010,7 +1010,7 @@ namespace gstlrn
     }
     for (Id info = 0; info < ninfo; info++)
     {
-      Id jatt = dbin->getUID({toERole(locatorType), info});
+      Id jatt = dbin->getUID(RoleID(toERole(locatorType), info));
       dbin->deleteColumn(dbin->fromUID(jatt));
     }
     return 0;

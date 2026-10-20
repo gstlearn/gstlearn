@@ -334,7 +334,7 @@ namespace gstlrn
 
       /* Keep sample defined by locator */
 
-      double cote = db->getValue({toERole(ptype), 0}, iech);
+      double cote = db->getValue(RoleID(toERole(ptype), 0), iech);
       if (!FFFF(cote))
       {
         Id layer = db->getValue({ERole::LAYER}, iech);
