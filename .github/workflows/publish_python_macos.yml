@@ -39,7 +39,7 @@ jobs:
         # Only one arm64 and one x86_64 Mac OS version are needed
         arch: [
             {ar: x86_64, os: macos-15-intel, pat: /usr/local},
-            {ar: arm64,  os: macos-14, pat: /opt/homebrew},
+            {ar: arm64,  os: macos-15, pat: /opt/homebrew},
           ]
 
     steps:
@@ -135,7 +135,7 @@ jobs:
         # Only one arm64 and one x86_64 Mac OS version are needed
         arch: [
             {ar: x86_64, os: macos-15-intel},
-            {ar: arm64,  os: macos-14},
+            {ar: arm64,  os: macos-15},
           ]
 
     steps:
