@@ -12,15 +12,17 @@
 /*  Accepted Python inputs:                                                */
 /*                                                                         */
 /*    - "name"                  -> ColID("name")                           */
-/*    - ("name", version)       -> ColID("name", v)                        */
+/*    - "name", version         -> ColID("name", version)                  */
 /*    - icol                    -> ColID(icol)                             */
-/*    - (icol, version)         -> ColID(icol, v)                          */
-/*    - RoleID(role, index)     -> ColID(RoleID)                           */
-/*    - (RoleID, version)       -> ColID(RoleID, v)                        */
-/*    - ERole.X                 -> ColID(ERole::X)                         */
+/*    - icol, version           -> ColID(icol, version)                    */
+/*    - RoleID                  -> ColID(RoleID)                           */
+/*    - RoleID, version         -> ColID(RoleID, version)                  */
+/*    - ERole                   -> ColID(RoleID(ERole))                    */
+/*    - ERole, index            -> ColID(RoleID(ERole, index))             */
 /*    - ColID(...)              -> Copy constructor                        */
-/*    - (ColID, version)        -> ColID(ColID, v)                         */
-/*    - (ERole, index, version) -> ColID(ERole, i, v)                      */
+/*                                                                         */
+/*  Warning:                                                               */
+/*    We intentionnally forbid creating a ColID from ERole, index, version */
 /*                                                                         */
 /*  Memory Safety:                                                         */
 /*    A heap-allocated ColID object is constructed in %typemap(in) and     */

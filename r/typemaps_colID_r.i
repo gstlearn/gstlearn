@@ -11,16 +11,18 @@
 /*                                                                         */
 /*  Accepted R inputs:                                                     */
 /*                                                                         */
-/*    - String:           "name"                -> ColID("name")           */
-/*    - String List:      list("name", version) -> ColID("name", v)        */
-/*    - Integer/Real:     icol                  -> ColID(icol)             */
-/*    - Integer List:     list(icol, version)   -> ColID(icol, v)          */
-/*    - RoleID object:    RoleID(role, index)   -> ColID(RoleID)           */
-/*    - RoleID List:      list(RoleID, version) -> ColID(RoleID, v)        */
-/*    - ERole enum/S4:    ERole.X()             -> ColID(ERole_X())        */
-/*    - ERole List:       list(ERole_X(), index)-> ColID(ERole_X(), index) */
-/*    - ColID object:     ColID(...)            -> Copy constructor        */
-/*    - ColID List:       list(ColID, version)  -> ColID(ColID, v)         */
+/*    - "name"                  -> ColID("name")                           */
+/*    - "name", version         -> ColID("name", version)                  */
+/*    - icol                    -> ColID(icol)                             */
+/*    - icol, version           -> ColID(icol, version)                    */
+/*    - RoleID                  -> ColID(RoleID)                           */
+/*    - RoleID, version         -> ColID(RoleID, version)                  */
+/*    - ERole                   -> ColID(RoleID(ERole))                    */
+/*    - ERole, index            -> ColID(RoleID(ERole, index))             */
+/*    - ColID(...)              -> Copy constructor                        */
+/*                                                                         */
+/*  Warning:                                                               */
+/*    We intentionnally forbid creating a ColID from ERole, index, version */
 /*                                                                         */
 /*  Memory Safety:                                                         */
 /*    A heap-allocated ColID object is constructed in %typemap(in) and     */

@@ -25,9 +25,9 @@ namespace gstlrn
     ColID(const std::string_view name, Id version = 0);
     ColID(Id icol, Id version = 0);
     ColID(const RoleID& roleID, Id version = 0);
+#ifndef SWIG
     ColID(const ERole& role, Id index = 0, Id version = 0);
 
-#ifndef SWIG
     // catch string literals and dispatch them to the string_view constructor
     template<int N>
     ColID(const char (&name)[N], Id version = 0)

@@ -55,6 +55,7 @@ namespace gstlrn
   {
   }
 
+#ifndef SWIG
   ColID::ColID(const ERole& role, Id index, Id version)
     : _icol(-1)
     , _name()
@@ -62,12 +63,14 @@ namespace gstlrn
     , _version(version)
   {
   }
+#endif
 
   bool ColID::hasRoleDefined() const
   {
     return _roleID.getRole().isDifferent(ERole::UNDEFINED);
   }
 
+#ifndef SWIG
   ColID ColID::create(std::string_view name, Id version)
   {
     return ColID(name, version);
@@ -94,6 +97,7 @@ namespace gstlrn
     if (version != 0) res.setVersion(version);
     return res;
   }
+#endif
 
   String ColID::toString(const AStringFormat* strfmt) const
   {
