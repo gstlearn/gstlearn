@@ -93,16 +93,16 @@ print("VC: ", data.getColumnC("VC"))
 
 gl.mestitle(0, "Various ways to specify a column (e.g. for retreiving its name):")
 print("- by Name:", data.getName("VD"))
-print("- by Name and Version:", data.getName(("VDS", 1)))
+print("- by Name and Version:", data.getName(gl.ColID("VDS", 1)))
 print("- by Index:", data.getName(4))
 print("- by Index and Version:", data.getName((4, 1)))
 print("- by ColID:", data.getName(gl.ColID(1)))
 print("- by RoleID:", data.getName(gl.ERole.F))
-print("- by RoleID and Version:", data.getName((gl.ERole.F, 0)))
+print("- by RoleID and Version:", data.getName(gl.ColID(gl.ERole.F, 0)))
 print("- by Role:", data.getName(gl.ERole.Z))
-print("- by Role and Index:", data.getName((gl.ERole.Z, 0)))
+print("- by Role and Index:", data.getName(gl.ColID(gl.ERole.Z, 0)))
 # Next line is the Unique way to define a ColID based on a Role and specifying the Index and the Version
-print("- by Role and Index and Version:", data.getName((gl.ERole.Z, 0), 2))
+print("- by Role and Index and Version:", data.getName(gl.ColID(gl.ERole.Z, 0), 2))
 
 #####################################################################
 # In this part, we check the different ways to enquiry the DataBase #
@@ -197,7 +197,7 @@ data.setValueS("VD", 0, "Invalid String")
 
 print("\nTrying to use a wrong version (5) in Column 'VDS' (4 versions)")
 colid = gl.ColID("VDS", 5)
-data.getValueD(("VDS", 5), 0)
+data.getValueD(gl.ColID("VDS", 5), 0)
 
 print("\nTrying to set a value to NA in Column 'VDS.1' (forbidNA = True)")
 data.setValueD("VDS.1", 0, gl.TEST)

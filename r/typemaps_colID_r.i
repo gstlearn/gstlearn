@@ -1,6 +1,31 @@
 /***************************************************************************/
 /*                                                                         */
-/*  R typemaps for gstlrn::ColID (Version #12 - Final CI & Double-Delete Fix)*/
+/*  R typemaps for gstlrn::ColID                                           */
+/*                                                                         */
+/*  Dual-binding support for both:                                         */
+/*    1. const gstlrn::ColID&  (Preferred API facade in Db.hpp)            */
+/*    2. gstlrn::ColID&&       (Legacy / Low-level engine in DbData.hpp)   */
+/*                                                                         */
+/*  This typemap transparently converts high-level R arguments into        */
+/*  a C++ ColID temporary instance.                                        */
+/*                                                                         */
+/*  Accepted R inputs:                                                     */
+/*                                                                         */
+/*    - String:           "name"                -> ColID("name")           */
+/*    - String List:      list("name", version) -> ColID("name", v)        */
+/*    - Integer/Real:     icol                  -> ColID(icol)             */
+/*    - Integer List:     list(icol, version)   -> ColID(icol, v)          */
+/*    - RoleID object:    RoleID(role, index)   -> ColID(RoleID)           */
+/*    - RoleID List:      list(RoleID, version) -> ColID(RoleID, v)        */
+/*    - ERole enum/S4:    ERole.X()             -> ColID(ERole_X())        */
+/*    - ERole List:       list(ERole_X(), index)-> ColID(ERole_X(), index) */
+/*    - ColID object:     ColID(...)            -> Copy constructor        */
+/*    - ColID List:       list(ColID, version)  -> ColID(ColID, v)         */
+/*                                                                         */
+/*  Memory Safety:                                                         */
+/*    A heap-allocated ColID object is constructed in %typemap(in) and     */
+/*    automatically reclaimed in %typemap(freearg) after the C++ method    */
+/*    call returns.                                                        */
 /*                                                                         */
 /***************************************************************************/
 

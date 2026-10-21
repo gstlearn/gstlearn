@@ -3132,7 +3132,7 @@ namespace gstlrn
       iatt_old = db->getUID({ERole::W});
       iadd_new = db->addColumnsByConstant(1, 1, 0.);
       if (iadd_new < 0) return 1;
-      db->setLocator(db->fromUID(iadd_new), ELoc::W, 0);
+      db->setLocator(db->fromUID(iadd_new), ELoc::W);
       maille = db->getCellSize();
       for (Id iech = 0; iech < db->getNSample(); iech++)
         db->setValue({ERole::W}, iech, maille);
@@ -3161,7 +3161,7 @@ namespace gstlrn
     if (getCalcul() == ECalcVario::COVARIOGRAM)
     {
       if (iadd_new > 0) db->deleteColumn(db->fromUID(iadd_new));
-      if (iatt_old > 0) db->setLocator(db->fromUID(iatt_old), ELoc::W, 0);
+      if (iatt_old > 0) db->setLocator(db->fromUID(iatt_old), ELoc::W);
     }
     return 0;
   }

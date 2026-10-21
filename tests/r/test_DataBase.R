@@ -94,21 +94,21 @@ writeLines(paste0("VC: ",  paste(data2$getColumnC("VC"), collapse = ", ")))
 
 invisible(mestitle(0, "Various ways to specify a column (e.g. for retreiving its name):"))
 writeLines(paste0("- by Name : ", data$getName("VD")))
-writeLines(paste0("- by Name and Version : ", data$getName(list("VDS", 1))))
+writeLines(paste0("- by Name and Version : ", data$getName(ColID("VDS", 1))))
 writeLines(paste0("- by Index :  ", data$getName(4)))
-writeLines(paste0("- by Index and Version : ", data$getName(list(4, 1))))
+writeLines(paste0("- by Index and Version : ", data$getName(ColID(4, 1))))
 
 invisible(mestitle(0, "Various ways to specify a column (e.g. for retreiving its name):"))
 writeLines(paste0("- by Name : ", data$getName("VD")))
-writeLines(paste0("- by Name and Version : ", data$getName(list("VDS", 1))))
+writeLines(paste0("- by Name and Version : ", data$getName(ColID("VDS", 1))))
 writeLines(paste0("- by Index : ", data$getName(4)))
-writeLines(paste0("- by Index and Version : ", data$getName(list(4, 1))))
+writeLines(paste0("- by Index and Version : ", data$getName(ColID(4, 1))))
 
-writeLines(paste0("- by RoleID and Version : ", data$getName(list(ERole_F(), 0))))
+writeLines(paste0("- by RoleID and Version : ", data$getName(ColID(ERole_F(), 0))))
 writeLines(paste0("- by Role : ", data$getName(ERole_Z()))) # Pb
-writeLines(paste0("- by Role and Index : ", data$getName(list(ERole_Z(), 0)))) # Pb
+writeLines(paste0("- by Role and Index : ", data$getName(ColID(ERole_Z(), 0)))) # Pb
 # Next line is the Unique way to define a ColID based on a Role and specifying the Index and the Version
-writeLines(paste0("- by Role and Index and Version : ", data$getName(list(ERole_Z(), 0))))
+writeLines(paste0("- by Role and Index and Version : ", data$getName(ColID(ERole_Z(), 0))))
 
 #####################################################################
 # In this part, we check the different ways to enquiry the DataBase #
@@ -202,7 +202,7 @@ writeLines("\nTrying to modify the contents of the Column 'VD' (double) by strin
 invisible(data$setValueS("VD", 0, "Invalid String"))
 
 writeLines("\nTrying to use a wrong version (5) in Column 'VDS' (4 versions)")
-data$getValueD(list("VDS", 5), 0)
+data$getValueD(ColID("VDS", 5), 0)
 
 writeLines("\nTrying to set a value to NA in Column 'VDS.1' (forbidNA = TRUE)")
 invisible(data$setValueD("VDS.1", 0, NA))
