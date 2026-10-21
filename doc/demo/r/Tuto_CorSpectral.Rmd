@@ -1679,7 +1679,7 @@ for (id in seq_len(length(list_test))) {
     nm0_var = NC_getNameEncoded(prefix, NULL, ivar, nvar, isim, isim)
     nm_var = NC_getNameEncoded(prefix, NULL, ivar, nvar, isim, 0)
     tab_var = c(tab_var, nm0_var )
-    val = grid$getColumn(list(nm_var, isim - 1))
+    val = grid$getColumn(ColID(nm_var, isim - 1))
     # compute statistics
     tab = rbind(tab, t(compute_statistics(val)))
     # plots
@@ -1735,7 +1735,7 @@ for (id in seq_len(length(list_test))) {
     for (ivar in 1:nvar) {
       nm0_vari = NC_getNameEncoded(prefix, NULL, ivar, nvar, isim, nsim)
       nm_vari = NC_getNameEncoded(prefix, NULL, ivar, nvar, isim, 0)
-      veci = grid$getColumn(list(nm_vari, isim - 1))
+      veci = grid$getColumn(ColID(nm_vari, isim - 1))
       sim_vari = matrix(veci, nx[idx_x], nx[idx_y])
       # statistics
       var_name = c(var_name, nm0_vari)
@@ -1745,7 +1745,7 @@ for (id in seq_len(length(list_test))) {
         ig = ig+1
         nm0_varj = NC_getNameEncoded(prefix, NULL, jvar, nvar, isim, nsim)
         nm_varj = NC_getNameEncoded(prefix, NULL, jvar, nvar, isim, 0)
-        vecj = grid$getColumn(list(nm_varj, isim - 1))
+        vecj = grid$getColumn(ColID(nm_varj, isim - 1))
         sim_varj = matrix(vecj, nx[idx_x], nx[idx_y])
         # variogram
         for (idir in 1:nrow(dir_list)) {

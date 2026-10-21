@@ -196,7 +196,7 @@ def cell_make_figure(
 
             result_axi = result_axes[result_i]
             result_targetName = (
-                result_data.getName(gl.RoleID(gl.ERole.Z, result_k))
+                result_data.getName(gl.ColID(gl.ERole.Z, result_k))
                 if result_data
                 else ""
             )

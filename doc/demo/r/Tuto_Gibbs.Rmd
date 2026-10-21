@@ -443,7 +443,7 @@ knitr::kable(tab, caption = paste0("Statistics for case ", prefix), digits = 3)
 # QC of inequality constraints
 qc_inBounds = rep(FALSE, nbsimu)
 for (s in 1:nbsimu){
-  datavn = data$getColumn(list(prefix, s-1))
+  datavn = data$getColumn(ColID(prefix, s-1))
   qc_inBounds[s] <- sum(
     (data["upperBound"] >= datavn)&(data["lowerBound"] <= datavn),
     na.rm = TRUE)

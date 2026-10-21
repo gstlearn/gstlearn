@@ -11,15 +11,16 @@
 /*                                                                         */
 /*  Accepted Python inputs:                                                */
 /*                                                                         */
-/*    - String:              "name"                -> ColID("name")        */
-/*    - String Tuple:        ("name", version)     -> ColID("name", v)     */
-/*    - Integer:             icol                  -> ColID(icol)          */
-/*    - Integer Tuple:       (icol, version)       -> ColID(icol, v)       */
-/*    - RoleID object:       RoleID(role, index)   -> ColID(RoleID)        */
-/*    - RoleID Tuple:        (RoleID, version)     -> ColID(RoleID, v)     */
-/*    - ERole enum:          ERole.X               -> ColID(ERole::X)      */
-/*    - ColID object:        ColID(...)            -> Copy constructor     */
-/*    - ColID Tuple:         (ColID, version)      -> ColID(ColID, v)      */
+/*    - "name"                  -> ColID("name")                           */
+/*    - ("name", version)       -> ColID("name", v)                        */
+/*    - icol                    -> ColID(icol)                             */
+/*    - (icol, version)         -> ColID(icol, v)                          */
+/*    - RoleID(role, index)     -> ColID(RoleID)                           */
+/*    - (RoleID, version)       -> ColID(RoleID, v)                        */
+/*    - ERole.X                 -> ColID(ERole::X)                         */
+/*    - ColID(...)              -> Copy constructor                        */
+/*    - (ColID, version)        -> ColID(ColID, v)                         */
+/*    - (ERole, index, version) -> ColID(ERole, i, v)                      */
 /*                                                                         */
 /*  Memory Safety:                                                         */
 /*    A heap-allocated ColID object is constructed in %typemap(in) and     */

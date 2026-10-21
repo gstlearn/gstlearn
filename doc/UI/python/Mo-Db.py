@@ -91,7 +91,7 @@ def render_ui(
         n_targets = db.getNLoc(gl.ELoc.Z) if db is not None else 1
 
         if "data" in selected:
-            target_name = db.getName(gl.RoleID(gl.ERole.Z, 0)) if db else "z"
+            target_name = db.getName(gl.ColID(gl.ERole.Z, 0)) if db else "z"
             gmo.plotData(axi, db, name=target_name, title=f"Data: {target_name}")
         else:
             axi.axis("off")
