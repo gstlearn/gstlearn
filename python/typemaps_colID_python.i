@@ -19,7 +19,6 @@
 /*    - RoleID, version         -> ColID(RoleID, version)                  */
 /*    - ERole                   -> ColID(RoleID(ERole))                    */
 /*    - ERole, index            -> ColID(RoleID(ERole, index))             */
-/*    - ColID(...)              -> Copy constructor                        */
 /*                                                                         */
 /*  Warning:                                                               */
 /*    We intentionnally forbid creating a ColID from ERole, index, version */

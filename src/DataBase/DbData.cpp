@@ -135,11 +135,25 @@ namespace gstlrn
     return static_cast<bool>(icol >= 0);
   }
 
+  bool DbData::hasValidVersion(ColID&& colid) const
+  {
+    const auto icol = _getColumnIndex(colid, false);
+    if (!icol) return false;
+
+    auto version = colid.getVersion();
+
+    if (version < 0) return true;
+
+    auto a = _cols[*icol];
+    auto nversion = a.getNVersions();
+    return a.checkVersion(version, nversion);
+  }
+
   /**
    * @brief Get the Name object
    *
    * @param colid Column Indentifier
-   * @param withVersion Whether to include the version in the name
+   * @param withVersion Whether to include the 'version' in the name
    * @return String
    */
   String DbData::getName(ColID&& colid, bool withVersion) const
@@ -147,14 +161,17 @@ namespace gstlrn
     const auto icol = _getColumnIndex(colid);
     if (!icol) return String();
 
-    auto nversion = _cols[*icol].getNVersions();
+    if (!hasValidVersion(std::move(colid))) return String();
+
     auto name = _cols[*icol].getName();
-    if (nversion <= 1 || !withVersion) return name;
 
-    auto version = colid.getVersion();
-    auto loc_number = concatenateString("S", version + 1, "");
-
-    return concatenateStrings(".", name, loc_number);
+    if (withVersion && _cols[*icol].getNVersions() > 1)
+    {
+      auto version = colid.getVersion();
+      auto loc_number = concatenateString("S", version + 1, "");
+      name = concatenateStrings(".", name, loc_number);
+    }
+    return name;
   }
 
   Id DbData::getUniqueIndex(ColID&& colid) const
@@ -235,12 +252,12 @@ namespace gstlrn
     _roleIDs[*icol] = roleIDLocal;
   }
 
-  void DbData::deleteVersion(ColID&& colid, Id iversion)
+  void DbData::deleteVersion(ColID&& colid, Id version)
   {
     const auto icol = _getColumnIndex(colid);
     if (!icol) return;
 
-    _cols[*icol].deleteVersion(iversion);
+    _cols[*icol].deleteVersion(version);
   }
 
   void DbData::setName(ColID&& colid, const String& newName)
@@ -442,7 +459,10 @@ namespace gstlrn
       for (Id jcol = 0; jcol < ncol; ++jcol)
       {
         // 'localName' may contain a regular expression, so we use matchRegexp to check for a match
-        if (matchRegexp(_cols[jcol].getName(), localName)) return jcol;
+        if (matchRegexp(_cols[jcol].getName(), localName))
+        {
+          return jcol;
+        }
       }
       if (verbose) _unknownName(localName);
       return std::nullopt;
@@ -454,13 +474,16 @@ namespace gstlrn
       const RoleID& roleID = colid.getRoleID();
       for (Id jcol = 0; jcol < ncol; ++jcol)
       {
-        if (_roleIDs[jcol].isEqual(roleID, true)) return jcol;
+        if (_roleIDs[jcol].isEqual(roleID, true))
+        {
+          return jcol;
+        }
       }
       if (verbose) _unknownRoleID(roleID);
       return std::nullopt;
     }
 
-    return icol;
+    return -1;
   }
 
   /**
@@ -498,7 +521,7 @@ namespace gstlrn
    * - if the Rank of the new Column does not match the one of the old matching Column,
    *   this rank is calculated as the largest Rank found in matching Columns incremented by 1.
    * A safety patch:
-   * - If a Colulmn has several version, the Role cannot be accepted (except for SIMU)
+   * - If a Column has several versions, the Role cannot be accepted (except for SIMU)
    */
   void DbData::_updateRoleIDAddition(Id icol0, RoleID& roleID)
   {
@@ -653,7 +676,7 @@ namespace gstlrn
     return -1;
   }
 
-  void DbData::_checkVersion(Id& nversion)
+  void DbData::_checkNVersion(Id& nversion)
   {
     if (nversion <= 0)
     {

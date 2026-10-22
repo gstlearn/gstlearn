@@ -145,6 +145,8 @@ namespace gstlrn
 
     Id getUniqueIndex() const { return _uniqueIndex; }
 
+    bool checkVersion(Id iversion, Id nversion) const;
+
   private:
     // This line allows the deserialization of DbCol from DbData,
     // which needs to create a DbCol without knowing explicitly its type.
@@ -186,7 +188,6 @@ namespace gstlrn
     template<typename T>
     void _wrongWriteType() const;
 
-    bool _checkVersion(Id iversion, Id nversion) const;
     bool _checkSample(Id isample, Id nsample) const;
 
   private:
@@ -253,7 +254,7 @@ namespace gstlrn
       {
         if (!_checkSample(isample, arg.inner())) return;
 
-        if (!_checkVersion(iversion, arg.outer())) return;
+        if (!checkVersion(iversion, arg.outer())) return;
 
         using VectorType = std::decay_t<decltype(arg)>::vector_type;
         if constexpr (_isReadable<T, VectorType>())
@@ -281,7 +282,7 @@ namespace gstlrn
       {
         if (!_checkSample(isample, arg.inner())) return;
 
-        if (!_checkVersion(iversion, arg.outer())) return;
+        if (!checkVersion(iversion, arg.outer())) return;
 
         using VectorType = std::decay_t<decltype(arg)>::vector_type;
         if constexpr (_isWritable<T, VectorType>())
@@ -340,7 +341,7 @@ namespace gstlrn
     auto* pv = _getArray<VectorType>();
     if (pv == nullptr) return {};
 
-    if (!_checkVersion(iversion, pv->outer())) return {};
+    if (!checkVersion(iversion, pv->outer())) return {};
 
     auto& buffer = pv->getBuffer();
 
@@ -355,7 +356,7 @@ namespace gstlrn
     auto* pv = _getArray<VectorType>();
     if (pv == nullptr) return {};
 
-    if (!_checkVersion(iversion, pv->outer())) return {};
+    if (!checkVersion(iversion, pv->outer())) return {};
 
     const auto& buffer = pv->getBuffer();
 
@@ -380,7 +381,7 @@ namespace gstlrn
   template<typename VectorType>
   bool DbCol::setVersion(const VectorType& values, Id iversion)
   {
-    if (!_checkVersion(iversion, getNVersions())) return false;
+    if (!checkVersion(iversion, getNVersions())) return false;
 
     if (!_checkVersionSize(values, iversion)) return false;
 

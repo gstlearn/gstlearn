@@ -228,7 +228,7 @@ grid.getColumn(gl.ColID(gl.ERole.X, 0))
 
 grid.generateCoordinates("X")
 
-grid.getColumn(gl.ColID(gl.ERole.X, 0))
+grid.getColumn(gl.RoleID(gl.ERole.X, 0))
 
 # Similarly, we can generate a field containing the sample rank (similar as
 # the information contained in the Field #1). Here again, we generate a new

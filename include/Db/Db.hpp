@@ -384,6 +384,7 @@ namespace gstlrn
      *  @{
      */
     bool hasColumn(const ColID& colid) const;
+    bool hasValidVersion(const ColID& colid) const;
 
     String getName(const ColID& colid, bool withVersion = false) const;
     void setName(const ColID& colid, const String& name);

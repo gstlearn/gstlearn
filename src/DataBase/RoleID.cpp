@@ -117,7 +117,7 @@ namespace gstlrn
   }
 
   /**
-   * @brief Check that the Role to be assigned to a Colun is compatible
+   * @brief Check that the Role to be assigned to a Column is compatible
    *
    * @param nVersions Number of versions of the column
    * @param verbose Whether to print error messages

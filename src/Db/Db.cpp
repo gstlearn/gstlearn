@@ -1388,11 +1388,12 @@ namespace gstlrn
   void Db::setColumn(const ColID& colid, const VectorDouble& tab, bool useSel)
   {
     auto nech = getNSample(useSel);
-    if (nech > 0 && nech != static_cast<Id>(tab.size()))
+    auto count = static_cast<Id>(tab.size());
+    if (nech > 0 && count > 0 && nech != count)
     {
       messerr(
         "Dimensions of 'tabs'(%d) does not match the number of samples (%d)",
-        static_cast<Id>(tab.size()), nech);
+        count, nech);
       messerr("Operation is cancelled");
       return;
     }
@@ -1400,7 +1401,10 @@ namespace gstlrn
     if (!hasColumn(colid))
       (void)addColumns(tab, colid.getName(), ELoc::UNDEFINED, -1, useSel);
     else
+    {
+      if (!hasValidVersion(colid)) return;
       _setColumnOldStyle(colid, tab.data(), useSel);
+    }
   }
 
   void
@@ -3148,6 +3152,12 @@ namespace gstlrn
     return _data.hasColumn(std::move(colid_copy));
   }
 
+  bool Db::hasValidVersion(const ColID& colid) const
+  {
+    ColID colid_copy = colid;
+    return _data.hasValidVersion(std::move(colid_copy));
+  }
+
   String Db::getName(const ColID& colid, bool withVersion) const
   {
     ColID colid_copy = colid;
@@ -3876,7 +3886,7 @@ namespace gstlrn
   }
 
   /**
-   * @brief Retusn a Vector containing the contents of the Column identified by 'colid'.
+   * @brief Return a Vector containing the contents of the Column identified by 'colid'.
    *
    * @param colid Column identificator
    * @param useSel When TRUE, the value for the masked off samples will be ignored
@@ -3887,6 +3897,7 @@ namespace gstlrn
     Db::getColumn(const ColID& colid, bool useSel, bool flagCompress) const
   {
     if (!hasColumn(colid)) return VectorDouble();
+    if (!hasValidVersion(colid)) return VectorDouble();
     auto nech = getNSample(false);
 
     VectorDouble tab(nech, TEST);

@@ -98,17 +98,17 @@ namespace gstlrn
 
     template<typename VectorType>
     std::span<typename VectorType::value_type>
-      getVersion(ColID&& colid, Id iversion = 0);
+      getVersion(ColID&& colid, Id version = 0);
 
     template<typename VectorType>
     std::span<const typename VectorType::value_type>
-      getVersion(ColID&& colid, Id iversion = 0) const;
+      getVersion(ColID&& colid, Id version = 0) const;
 
     template<typename VectorType>
     bool setColumn(ColID&& colid, const VectorType& values);
 
     template<typename VectorType>
-    bool setVersion(ColID&& colid, const VectorType& values, Id iversion = 0);
+    bool setVersion(ColID&& colid, const VectorType& values, Id version = 0);
 #endif
 
 #ifndef SWIG
@@ -124,6 +124,7 @@ namespace gstlrn
     void deleteColumn(ColID&& colid);
     void deleteAllColumns();
     bool hasColumn(ColID&& colid) const;
+    bool hasValidVersion(ColID&& colid) const;
     String getName(ColID&& colid, bool withVersion = false) const;
     VectorString getNames() const;
     Id getICol(ColID&& colid) const;
@@ -152,7 +153,7 @@ namespace gstlrn
     void clearAllRoles();
     void addSamples(Id nadd, const double valinit);
     void deleteSample(Id idel);
-    void deleteVersion(ColID&& colid, Id iversion);
+    void deleteVersion(ColID&& colid, Id version);
 
     Id getColMatchUniqueIndex(Id uniqueIndex) const;
 
@@ -186,7 +187,7 @@ namespace gstlrn
     void _updateRoleIDDeletion(RoleID& roleID);
 
     static bool _checkForbidNA(const VectorCategory& tab);
-    static void _checkVersion(Id& nversion);
+    static void _checkNVersion(Id& nversion);
     static void _unknownName(const String& name);
     static void _unknownRoleID(const RoleID& roleID);
 
@@ -488,17 +489,17 @@ namespace gstlrn
       return ValueProxy(_db, copy, isample);
     }
 
-    ValueProxy operator()(Id isample, Id iversion)
+    ValueProxy operator()(Id isample, Id version)
     {
       ColID copy = _colid;
-      copy.setVersion(iversion);
+      copy.setVersion(version);
       return ValueProxy(_db, copy, isample);
     }
 
-    ValueProxy operator()(Id isample, Id iversion) const
+    ValueProxy operator()(Id isample, Id version) const
     {
       ColID copy = _colid;
-      copy.setVersion(iversion);
+      copy.setVersion(version);
       return ValueProxy(_db, copy, isample);
     }
 
@@ -506,18 +507,18 @@ namespace gstlrn
     // 2. Slice Access via Expanders (ALL / _) returning SliceProxy
     // ------------------------------------------------------------------------
 
-    SliceProxy operator()(AllType /*all*/, Id iversion)
+    SliceProxy operator()(AllType /*all*/, Id version)
     {
       return SliceProxy(
         _db, _colid, SliceProxy::SliceMode::ALL_SAMPLES_SINGLE_VERSION,
-        iversion);
+        version);
     }
 
-    SliceProxy operator()(AllType /*all*/, Id iversion) const
+    SliceProxy operator()(AllType /*all*/, Id version) const
     {
       return SliceProxy(
         const_cast<DbData&>(_db), _colid,
-        SliceProxy::SliceMode::ALL_SAMPLES_SINGLE_VERSION, iversion);
+        SliceProxy::SliceMode::ALL_SAMPLES_SINGLE_VERSION, version);
     }
 
     SliceProxy operator()(Id isample, AllType /*all*/)
@@ -551,9 +552,9 @@ namespace gstlrn
     // ------------------------------------------------------------------------
 
     template<typename VectorType>
-    void setVersion(Id iversion, const VectorType& values)
+    void setVersion(Id version, const VectorType& values)
     {
-      _db.setVersion<VectorType>(ColID(_colid), values, iversion);
+      _db.setVersion<VectorType>(ColID(_colid), values, version);
     }
 
     // ------------------------------------------------------------------------
@@ -638,7 +639,7 @@ namespace gstlrn
     Id nversion,
     bool forbidNA)
   {
-    _checkVersion(nversion);
+    _checkNVersion(nversion);
     if (!_checkNSample(array, nversion)) return;
 
     auto nameLocal = name;
@@ -677,7 +678,7 @@ namespace gstlrn
     Id nversion,
     bool forbidNA)
   {
-    _checkVersion(nversion);
+    _checkNVersion(nversion);
     if (!_checkNSample(array, nversion)) return;
 
     auto nameLocal = name;
@@ -760,12 +761,12 @@ namespace gstlrn
 
   template<typename VectorType>
   std::span<typename VectorType::value_type>
-    DbData::getVersion(ColID&& colid, Id iversion)
+    DbData::getVersion(ColID&& colid, Id version)
   {
     auto col = this->_identifyColumn(std::move(colid));
     if (!col) return {};
 
-    auto span = col->get().template getVersion<VectorType>(iversion);
+    auto span = col->get().template getVersion<VectorType>(version);
     if (!span) return {};
 
     return *span;
@@ -773,12 +774,12 @@ namespace gstlrn
 
   template<typename VectorType>
   std::span<const typename VectorType::value_type>
-    DbData::getVersion(ColID&& colid, Id iversion) const
+    DbData::getVersion(ColID&& colid, Id version) const
   {
     auto col = this->_identifyColumn(std::move(colid));
     if (!col) return {};
 
-    auto span = col->get().template getVersion<VectorType>(iversion);
+    auto span = col->get().template getVersion<VectorType>(version);
     if (!span) return {};
 
     return *span;
@@ -794,12 +795,12 @@ namespace gstlrn
   }
 
   template<typename VectorType>
-  bool DbData::setVersion(ColID&& colid, const VectorType& values, Id iversion)
+  bool DbData::setVersion(ColID&& colid, const VectorType& values, Id version)
   {
     auto col = this->_identifyColumn(std::move(colid));
     if (!col) return false;
 
-    return col->get().template setVersion<VectorType>(values, iversion);
+    return col->get().template setVersion<VectorType>(values, version);
   }
 
   template<class VectorType>
