@@ -337,7 +337,7 @@ namespace gstlrn
       double cote = db->getValue(RoleID(toERole(ptype), 0), iech);
       if (!FFFF(cote))
       {
-        Id layer = db->getValue({ERole::LAYER}, iech);
+        Id layer = db->getValue(ERole::LAYER, iech);
         xs.resize(ns + 1);
         ys.resize(ns + 1);
         lys.resize(ns + 1);
@@ -355,8 +355,8 @@ namespace gstlrn
 
       for (Id ivar = 0; ivar < nvar; ivar++)
       {
-        bound[0] = db->getValue({ERole::L, ivar}, iech);
-        bound[1] = db->getValue({ERole::U, ivar}, iech);
+        bound[0] = db->getValue(RoleID(ERole::L, ivar), iech);
+        bound[1] = db->getValue(RoleID(ERole::U, ivar), iech);
         for (Id ib = 0; ib < 2; ib++)
         {
           if (FFFF(bound[ib])) continue;
@@ -514,7 +514,7 @@ namespace gstlrn
       for (Id jg = 0, ng = dbgrid->getNSampleActive(); jg < ng; jg++)
       {
         if (!dbgrid->isActiveAndDefined(jg, 0)) continue;
-        double densloc = dbgrid->getValue({ERole::Z, 0}, jg);
+        double densloc = dbgrid->getValue(RoleID(ERole::Z, 0), jg);
         if (densloc >= 0) denstot += densloc;
         dens[ig++] = denstot;
       }
@@ -546,7 +546,7 @@ namespace gstlrn
         for (Id ig = 0; ig < ngrid && indip < 0; ig++)
         {
           if (!dbgrid->isActive(ig)) continue;
-          double densloc = dbgrid->getValue({ERole::Z, 0}, ig);
+          double densloc = dbgrid->getValue(RoleID(ERole::Z, 0), ig);
           if (FFFF(densloc) || densloc < 0) continue;
           denscum += densloc;
           if (denscum > proba) indip = ig;
@@ -566,8 +566,8 @@ namespace gstlrn
       if (flag_region)
       {
         for (Id idim = 0; idim < ndim; idim++)
-          radip[idim] = dbgrid->getValue({ERole::NOSTAT, idim}, indip);
-        angip = dbgrid->getValue({ERole::NOSTAT, ndim}, indip);
+          radip[idim] = dbgrid->getValue(RoleID(ERole::NOSTAT, idim), indip);
+        angip = dbgrid->getValue(RoleID(ERole::NOSTAT, ndim), indip);
       }
 
       // Check if the point is acceptable
@@ -598,9 +598,11 @@ namespace gstlrn
             for (Id idim = 0; idim < ndim; idim++)
               radius[idim] = 2.
                            / (radip[idim]
-                              + dbgrid->getValue({ERole::NOSTAT, idim}, indjp));
+                              + dbgrid->getValue(
+                                RoleID(ERole::NOSTAT, idim), indjp));
             double angle =
-              (angip + dbgrid->getValue({ERole::NOSTAT, ndim}, indjp)) / 2.;
+              (angip + dbgrid->getValue(RoleID(ERole::NOSTAT, ndim), indjp))
+              / 2.;
             Tensor tensor(ndim);
             tensor.setRotationAngle(0, angle);
             tensor.setRadiusVec(radius);
@@ -718,7 +720,7 @@ namespace gstlrn
       norme = 0.;
       for (Id idim = 0; idim < ndim; idim++)
       {
-        grad = dbgrid->getValue({ERole::G, idim}, iech);
+        grad = dbgrid->getValue(RoleID(ERole::G, idim), iech);
         norme += grad * grad;
       }
 
@@ -727,8 +729,8 @@ namespace gstlrn
 
       for (Id idim = 0; idim < ndim; idim++)
       {
-        grad = dbgrid->getValue({ERole::G, idim}, iech);
-        dbgrid->setValue({ERole::G, idim}, iech, grad / norme);
+        grad = dbgrid->getValue(RoleID(ERole::G, idim), iech);
+        dbgrid->setValue(RoleID(ERole::G, idim), iech, grad / norme);
       }
     }
   }
@@ -775,7 +777,7 @@ namespace gstlrn
 
     /* Create the new variable */
 
-    iptrz = dbgrid->getColIdx({ERole::Z, 0});
+    iptrz = dbgrid->getColIdx(RoleID(ERole::Z, 0));
     if (iptrz < 0) goto label_end;
     iptr = dbgrid->addColumnsByConstant(ndim, 1, TEST, String(), ELoc::G);
 
@@ -919,7 +921,7 @@ namespace gstlrn
     knd_loc = dbgrid->coordinateToRank(coor);
     if (knd_loc < 0) return 1;
     if (!dbgrid->isActive(knd_loc)) return 1;
-    surf_loc = dbgrid->getValue({ERole::Z, 0}, knd_loc);
+    surf_loc = dbgrid->getValue(RoleID(ERole::Z, 0), knd_loc);
     if (FFFF(surf_loc) || st_is_undefined(dbgrid, iptr_grad, knd_loc))
       return (1);
     if (st_is_zero(dbgrid, iptr_grad, knd_loc)) return (1);
@@ -1010,7 +1012,7 @@ namespace gstlrn
           dbgrid->getNLoc(ELoc::G));
         goto label_end;
       }
-      iptr_grad = dbgrid->getColIdx({ERole::G, 0});
+      iptr_grad = dbgrid->getColIdx(RoleID(ERole::G, 0));
     }
     else
     {
@@ -1283,7 +1285,7 @@ namespace gstlrn
     {
       if (!db->isActive(iech)) continue;
       mes_process("Regularize Wells", ntot, iech);
-      Id code = db->getValue({ERole::C}, iech);
+      Id code = db->getValue(ERole::C, iech);
 
       // Identify the rank of the code
 
@@ -1305,7 +1307,7 @@ namespace gstlrn
 
       Id not_defined = 0;
       for (Id ivar = 0; ivar < nvar && not_defined == 0; ivar++)
-        if (FFFF(db->getValue({ERole::Z, ivar}, iech))) not_defined = 1;
+        if (FFFF(db->getValue(RoleID(ERole::Z, ivar), iech))) not_defined = 1;
       if (not_defined) continue;
 
       // Cumulate this sample
@@ -1314,7 +1316,7 @@ namespace gstlrn
       for (Id idim = 0; idim < ndim; idim++)
         WCOR(iz, icode, idim) += db->getCoordinate(iech, idim);
       for (Id ivar = 0; ivar < nvar; ivar++)
-        WTAB(iz, icode, ivar) += db->getValue({ERole::Z, ivar}, iech);
+        WTAB(iz, icode, ivar) += db->getValue(RoleID(ERole::Z, ivar), iech);
     }
 
     // Normalization
@@ -1708,7 +1710,7 @@ namespace gstlrn
     Id ncat = static_cast<Id>(propGlob.size());
     OptimCostColored Oc(ncat, &Qprop, &AprojDat);
 
-    VectorDouble facies = dbin->getColumn({ERole::Z});
+    VectorDouble facies = dbin->getColumn(RoleID(ERole::Z, 0));
     VectorVectorDouble props =
       Oc.minimize(facies, splits, propGlob, verbose, niter);
 

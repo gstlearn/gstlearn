@@ -55,7 +55,7 @@ static Db* _dataTargetDeplement(Db* data, const VectorInt& varXvalid, Id iech0)
 
   // Delete the cross-validation information
   for (Id i = 0, nval = static_cast<Id>(varXvalid.size()); i < nval; i++)
-    datap->setValue({ERole::Z, varXvalid[i]}, iech0, TEST);
+    datap->setValue(RoleID(ERole::Z, varXvalid[i]), iech0, TEST);
   datap->display(dbfmt);
 
   return datap;

@@ -88,7 +88,7 @@ def _getDefaultVariableName(db, name):
     """
     if name is None:
         if db.getNLoc(gl.ELoc.Z) > 0:
-            name = db.getName(gl.ColID(gl.ERole.Z, 0))
+            name = db.getName(gl.RoleID(gl.ERole.Z, 0))
         else:  # if no Z locator, choose the last field
             name = db.getLastName()
     else:
@@ -1828,7 +1828,7 @@ def _ax_grid1D(
     if name is None:
         if dbgrid.getNLoc(gl.ELoc.Z) > 0:
             # select locator z1, prints an error if no Z locator
-            name = dbgrid.getName(gl.ColID(gl.ERole.Z, 0))
+            name = dbgrid.getName(gl.RoleID(gl.ERole.Z, 0))
         else:
             # if no Z locator, choose the last field
             name = dbgrid.getLastName()
@@ -1836,7 +1836,7 @@ def _ax_grid1D(
     nx = dbgrid.getNX(0)
     dx = dbgrid.getDX(0)
 
-    tabx = dbgrid.getColumn(gl.ColID(gl.ERole.X, 0), useSel)
+    tabx = dbgrid.getColumn(gl.RoleID(gl.ERole.X, 0), useSel)
     data = _getVariable(dbgrid, name, 0, 0, 1, None, useSel, True)
 
     _ax_curve(ax, data1=tabx, data2=data, color=color, flagLegend=flagLegend, **kwargs)

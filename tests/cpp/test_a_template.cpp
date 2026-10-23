@@ -29,15 +29,8 @@ int main(int argc, char* argv[])
   auto* db = Db::createFillRandom(nech);
   db->addColumnsByConstant(1, nvers, 0., "myf", ELoc::SIMU);
 
-  auto colid = ColID(4, 13);
-  message("%d\n", db->hasColumn(colid));
-  message("%d\n", db->hasValidVersion(colid));
+  auto index = 3;
+  std::cout << db->getName(ColID(ERole::SIMU, index), true) << std::endl;
 
-  exit(0);
-
-  auto name = db->getName(ColID("z", 1), true);
-  message("Name = %s\n", name.c_str());
-  auto value = db->getValue(ColID("z", 1), 0);
-  message("Value = %lf\n", value);
   return 0;
 }

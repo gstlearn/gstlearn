@@ -42,7 +42,7 @@ namespace gstlrn
 
   double DriftF::eval(const Db* db, Id iech) const
   {
-    return db->getValue({ERole::F, _rankFex}, iech);
+    return db->getValue(RoleID(ERole::F, _rankFex), iech);
   }
 
   String DriftF::getDriftName() const

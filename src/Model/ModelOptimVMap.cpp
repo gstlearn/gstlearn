@@ -140,7 +140,7 @@ namespace gstlrn
     {
       Id ndef = 0;
       for (Id ijvar = 0; ijvar < nvs2; ijvar++)
-        if (!FFFF(_dbmap->getValue({ERole::Z, ijvar}, iech))) ndef++;
+        if (!FFFF(_dbmap->getValue(RoleID(ERole::Z, ijvar), iech))) ndef++;
       nbexp += ndef;
       if (ndef > 0) npadir++;
     }
@@ -186,7 +186,7 @@ namespace gstlrn
       for (Id ivar = 0; ivar < _nvar; ivar++)
         for (Id jvar = 0; jvar <= ivar; jvar++, ijvar++)
         {
-          double vexp = _dbmap->getValue({ERole::Z, ijvar}, iech);
+          double vexp = _dbmap->getValue(RoleID(ERole::Z, ijvar), iech);
           if (FFFF(vexp)) continue;
           double vtheo = _model->evalCov(origin, P, ivar, jvar, &_calcmode);
           double delta = vexp - vtheo;
@@ -225,7 +225,7 @@ namespace gstlrn
         for (Id ivar = 0; ivar < _nvar; ivar++)
           for (Id jvar = 0; jvar <= ivar; jvar++, ijvar++)
           {
-            double vexp = _dbmap->getValue({ERole::Z, ijvar}, iech);
+            double vexp = _dbmap->getValue(RoleID(ERole::Z, ijvar), iech);
             if (FFFF(vexp)) continue;
             double vtheo = _model->evalCov(origin, P, ivar, jvar, &_calcmode);
             const auto& func = gradcov[i];

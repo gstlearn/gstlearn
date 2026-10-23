@@ -222,7 +222,7 @@ namespace gstlrn
       // Perform the estimation
       for (Id i = 0; i < static_cast<Id>(nbgh.size()); i++)
       {
-        double value = dbin->getValue({ERole::Z, 0}, nbgh[i]);
+        double value = dbin->getValue(RoleID(ERole::Z, 0), nbgh[i]);
         if (FFFF(value))
         {
           nbgh.clear();
@@ -338,7 +338,7 @@ namespace gstlrn
       for (Id jech = 0; jech < nSize; jech++)
       {
         Id jech1 = nbgh[jech];
-        double zval = dbin->getValue({ERole::Z, 0}, jech1);
+        double zval = dbin->getValue(RoleID(ERole::Z, 0), jech1);
         if (FFFF(zval)) continue;
         VectorDouble Vdata = drft->evalDriftBySample(dbin, jech1);
 
@@ -430,7 +430,7 @@ namespace gstlrn
       {
         if (!dbin->isActive(iech_in)) continue;
         dbin->getCoordinatesInPlace(coor, iech_in);
-        double val_neigh = dbin->getValue({ERole::Z, 0}, iech_in);
+        double val_neigh = dbin->getValue(RoleID(ERole::Z, 0), iech_in);
         if (FFFF(val_neigh)) continue;
 
         /* Check that the data point is a valid neighbor */
@@ -544,7 +544,7 @@ namespace gstlrn
         /* Check the value */
 
         Id iech_neigh = dbin->indiceToRank(indg);
-        double val_neigh = dbin->getValue({ERole::Z, 0}, iech_neigh);
+        double val_neigh = dbin->getValue(RoleID(ERole::Z, 0), iech_neigh);
         if (FFFF(val_neigh))
         {
           nbgh.clear();
@@ -584,7 +584,7 @@ namespace gstlrn
     for (Id i = 0, n = static_cast<Id>(nbgh.size()); i < n; i++)
     {
       Id iech = nbgh[i];
-      double value = dbin->getValue({ERole::Z, 0}, iech);
+      double value = dbin->getValue(RoleID(ERole::Z, 0), iech);
       if (FFFF(value)) return TEST;
       result += value * weights[i];
 

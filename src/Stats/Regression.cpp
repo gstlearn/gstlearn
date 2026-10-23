@@ -162,15 +162,15 @@ namespace gstlrn
 
       case 1:
         nfex = db2->getNLoc(ELoc::F);
-        *value = db1->getValue({ERole::Z, 0}, iech);
+        *value = db1->getValue(RoleID(ERole::Z, 0), iech);
         if (flagCst) x[ecr++] = 1.;
         for (Id i = 0; i < nfex; i++)
-          x[ecr++] = db2->getValue({ERole::F, i}, iech);
+          x[ecr++] = db2->getValue(RoleID(ERole::F, i), iech);
         break;
 
       case 2:
         nbfl = model->getNDrift();
-        *value = db1->getValue({ERole::Z, 0}, iech);
+        *value = db1->getValue(RoleID(ERole::Z, 0), iech);
         for (Id i = 0; i < nbfl; i++)
           x[ecr++] = model->evalDrift(db2, iech, i, ECalcMember::LHS);
         break;

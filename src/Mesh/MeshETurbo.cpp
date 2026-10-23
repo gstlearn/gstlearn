@@ -719,7 +719,7 @@ namespace gstlrn
       if (!db->isActive(jech)) continue;
       if (rankZ >= 0)
       {
-        if (FFFF(db->getValue({ERole::Z, rankZ}, jech))) continue;
+        if (FFFF(db->getValue(RoleID(ERole::Z, rankZ), jech))) continue;
       }
       nvalid++;
 

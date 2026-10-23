@@ -1598,7 +1598,7 @@ namespace gstlrn
     for (Id ivar1 = 0, nvar1 = static_cast<Id>(index1.size()); ivar1 < nvar1;
          ivar1++)
     {
-      Id icolVerr = db1->getColIdx({ERole::V, ivar1});
+      Id icolVerr = db1->getColIdx(RoleID(ERole::V, ivar1));
       const VectorInt& index1i = index1[ivar1];
       for (const auto iabs1: index1i.getVector())
       {

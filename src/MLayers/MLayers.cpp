@@ -365,7 +365,7 @@ namespace gstlrn
   {
     if (!_flagExt) return (TEST);
     _isValidLayer("_getDriftResult", ilayer0);
-    return _dbout->getValue({ERole::F, ilayer0 - 1}, iech);
+    return _dbout->getValue(RoleID(ERole::F, ilayer0 - 1), iech);
   }
 
   /****************************************************************************/
@@ -618,7 +618,7 @@ namespace gstlrn
       for (Id jfois = 0; jfois < seltab[jech]; jfois++, jjech++)
       {
         Id jlayer = (jfois == 0)
-                    ? static_cast<Id>(_dbin->getValue({ERole::LAYER}, jech))
+                    ? static_cast<Id>(_dbin->getValue(ERole::LAYER, jech))
                     : _nlayers;
 
         /* Evaluate the proportion vector */
@@ -694,7 +694,7 @@ namespace gstlrn
       for (Id ifois = 0; ifois < seltab[jech]; ifois++, jjech++)
       {
         Id jlayer = (ifois == 0)
-                    ? static_cast<Id>(_dbin->getValue({ERole::LAYER}, jech))
+                    ? static_cast<Id>(_dbin->getValue(ERole::LAYER, jech))
                     : _nlayers;
 
         /* Evaluate the proportion vector */
@@ -763,7 +763,7 @@ namespace gstlrn
       for (Id ifois = 0; ifois < seltab[iech]; ifois++, iiech++)
       {
         Id ilayer = (ifois == 0)
-                    ? static_cast<Id>(_dbin->getValue({ERole::LAYER}, iech))
+                    ? static_cast<Id>(_dbin->getValue(ERole::LAYER, iech))
                     : _nlayers;
 
         /* Evaluate the proportion vector */
@@ -824,7 +824,7 @@ namespace gstlrn
       for (Id ifois = 0; ifois < seltab[iech]; ifois++, iiech++)
       {
         Id ilayer = (ifois == 0)
-                    ? static_cast<Id>(_dbin->getValue({ERole::LAYER}, iech))
+                    ? static_cast<Id>(_dbin->getValue(ERole::LAYER, iech))
                     : _nlayers;
 
         if (ifois == 0)
@@ -832,7 +832,7 @@ namespace gstlrn
 
           /* Depth of the actual sample */
 
-          value = _dbin->getValue({ERole::Z, 0}, iech);
+          value = _dbin->getValue(RoleID(ERole::Z, 0), iech);
         }
         else
         {
@@ -906,7 +906,7 @@ namespace gstlrn
       for (Id ifois = 0; ifois < seltab[iech]; ifois++, iiech++)
       {
         Id ilayer = (ifois == 0)
-                    ? static_cast<Id>(_dbin->getValue({ERole::LAYER}, iech))
+                    ? static_cast<Id>(_dbin->getValue(ERole::LAYER, iech))
                     : _nlayers;
 
         /* Evaluate the proportion vector */
@@ -957,7 +957,7 @@ namespace gstlrn
       for (Id ifois = 0; ifois < seltab[iech]; ifois++, iiech++)
       {
         Id ilayer = (ifois == 0)
-                    ? static_cast<Id>(_dbin->getValue({ERole::LAYER}, iech))
+                    ? static_cast<Id>(_dbin->getValue(ERole::LAYER, iech))
                     : _nlayers;
 
         /* Evaluate the proportion vector */
@@ -1033,7 +1033,7 @@ namespace gstlrn
       if (ABS(dx) > eps) continue;
       double dy = _dbin->getCoordinate(iech, 1) - coor[1];
       if (ABS(dy) > eps) continue;
-      Id ilayer = static_cast<Id>(_dbin->getValue({ERole::LAYER}, iech));
+      Id ilayer = static_cast<Id>(_dbin->getValue(ERole::LAYER, iech));
       if (ilayer == _nlayers) return 0;
     }
     return 1;
@@ -1337,9 +1337,9 @@ namespace gstlrn
 
         /* Store the result */
 
-        _dbout->setValue({ERole::Z, ilayer}, iechout, estim);
+        _dbout->setValue(RoleID(ERole::Z, ilayer), iechout, estim);
         if (_flagStd)
-          _dbout->setValue({ERole::Z, _nlayers + ilayer}, iechout, stdv);
+          _dbout->setValue(RoleID(ERole::Z, _nlayers + ilayer), iechout, stdv);
         if (OptDbg::query(EDbg::RESULTS))
         {
           message("Estimate = %lf", estim);
@@ -1371,7 +1371,7 @@ namespace gstlrn
       if (seltab[iech] == 0) continue;
       coor[0] = _dbin->getCoordinate(iech, 0);
       coor[1] = _dbin->getCoordinate(iech, 1);
-      Id ilayer = static_cast<Id>(_dbin->getValue({ERole::LAYER}, iech));
+      Id ilayer = static_cast<Id>(_dbin->getValue(ERole::LAYER, iech));
       Id igrid = _locateSampleInDbout(iech);
       if (isNA(igrid)) goto label_suppress;
 
@@ -1463,9 +1463,9 @@ namespace gstlrn
 
         /* Read the estimated value */
 
-        double value = _dbout->getValue({ERole::Z, ilayer}, iechout);
+        double value = _dbout->getValue(RoleID(ERole::Z, ilayer), iechout);
         if (_flagStd)
-          stdv = _dbout->getValue({ERole::Z, _nlayers + ilayer}, iechout);
+          stdv = _dbout->getValue(RoleID(ERole::Z, _nlayers + ilayer), iechout);
 
         if (_flagCumul)
         {
@@ -1506,9 +1506,9 @@ namespace gstlrn
 
         /* Store the transformed results */
 
-        _dbout->setValue({ERole::Z, ilayer}, iechout, depth);
+        _dbout->setValue(RoleID(ERole::Z, ilayer), iechout, depth);
         if (_flagStd)
-          _dbout->setValue({ERole::Z, _nlayers + ilayer}, iechout, stdv);
+          _dbout->setValue(RoleID(ERole::Z, _nlayers + ilayer), iechout, stdv);
       }
     }
   }
@@ -1543,7 +1543,7 @@ namespace gstlrn
       for (Id ifois = 0; ifois < seltab[iech]; ifois++, iiech++)
       {
         Id ilayer = (ifois == 0)
-                    ? static_cast<Id>(_dbin->getValue({ERole::LAYER}, iech))
+                    ? static_cast<Id>(_dbin->getValue(ERole::LAYER, iech))
                     : _nlayers;
 
         /* Evaluate the proportion vector */
@@ -1728,10 +1728,10 @@ namespace gstlrn
       double z2 = zval[jjech];
       (*distsum) += dist;
 
-      ilayer = static_cast<Id>(_dbin->getValue({ERole::LAYER}, iech));
+      ilayer = static_cast<Id>(_dbin->getValue(ERole::LAYER, iech));
       if (_getPropsData(iech, ilayer, phia)) return (1);
 
-      jlayer = static_cast<Id>(_dbin->getValue({ERole::LAYER}, jech));
+      jlayer = static_cast<Id>(_dbin->getValue(ERole::LAYER, jech));
       if (_getPropsData(jech, jlayer, phib)) return (1);
 
       Id ecr1 = 0;
@@ -2024,7 +2024,7 @@ namespace gstlrn
     for (Id iech = 0; iech < _nechmax; iech++)
     {
       seltab[iech] = 0;
-      Id ilayer = static_cast<Id>(_dbin->getValue({ERole::LAYER}, iech));
+      Id ilayer = static_cast<Id>(_dbin->getValue(ERole::LAYER, iech));
       if (ilayer < 1 || ilayer > _nlayers) continue;
       if (_getPropsData(iech, ilayer, props)) continue;
       seltab[iech] = 1;

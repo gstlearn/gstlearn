@@ -1557,7 +1557,7 @@ namespace gstlrn
 
     iatt_t = db_t->addColumnsByConstant(natt, 1, 0.);
     if (iatt_t < 0) goto label_end;
-    iatt_z = db_z->getUID({ERole::Z, 0});
+    iatt_z = db_z->getUID(RoleID(ERole::Z, 0));
 
     /* Core allocation */
 
@@ -1625,7 +1625,7 @@ namespace gstlrn
 
     iatt_z = db_z->addColumnsByConstant(natt, 1, 0.);
     if (iatt_z < 0) goto label_end;
-    iatt_t = db_t->getUID({ERole::Z, 0});
+    iatt_t = db_t->getUID(RoleID(ERole::Z, 0));
 
     /* Core allocation */
 
@@ -1676,7 +1676,7 @@ namespace gstlrn
 
     /* Create the output variables */
 
-    iatt_in = db->getUID({ERole::Z, 0});
+    iatt_in = db->getUID(RoleID(ERole::Z, 0));
     if (iatt_in < 0) return (1);
     iatt_out = db->addColumnsByConstant(natt, 1, 0.);
     if (iatt_out < 0) return (1);
@@ -1848,7 +1848,7 @@ namespace gstlrn
     /* Create the output variables */
 
     error = 1;
-    iatt_in = db->getUID({ERole::Z, 0});
+    iatt_in = db->getUID(RoleID(ERole::Z, 0));
     if (iatt_in < 0) return (1);
     iatt_out = db->addColumnsByConstant(natt, 1, 0.);
     if (iatt_out < 0) return (1);
@@ -2060,7 +2060,7 @@ namespace gstlrn
       for (iz = 0; iz < NZ; iz++)
       {
         iech = st_absolute_index(db, ix, iz);
-        if (!FFFF(db->getValue({ERole::Z, ivar}, iech))) presence[ix]++;
+        if (!FFFF(db->getValue(RoleID(ERole::Z, ivar), iech))) presence[ix]++;
       }
       if (presence[ix] > 0) (*npres)++;
     }
@@ -3031,8 +3031,8 @@ namespace gstlrn
     DX = db->getDX(0);
     DZ = db->getDX(2);
     NVAR = db->getNLoc(ELoc::Z);
-    iatt_z1 = db->getUID({ERole::Z, 0});
-    iatt_z2 = db->getUID({ERole::Z, 1});
+    iatt_z1 = db->getUID(RoleID(ERole::Z, 0));
+    iatt_z2 = db->getUID(RoleID(ERole::Z, 1));
 
     if (NX <= 1 || NY != 1 || NZ <= 1)
     {
@@ -3207,7 +3207,7 @@ namespace gstlrn
 
       for (iech = 0; iech < nech; iech++)
       {
-        value = db->getValue({ERole::Z, ivar}, iech);
+        value = db->getValue(RoleID(ERole::Z, ivar), iech);
 
         /* Loop on the simulations */
 

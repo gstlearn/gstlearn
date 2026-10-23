@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
 
   // Generate the data base
   Db* data = Db::createFillRandom(nech, ndim, nvar, 0);
-  data->setValue({ERole::Z, 0}, 1, TEST);
+  data->setValue(RoleID(ERole::Z, 0), 1, TEST);
   DbStringFormat* dbfmt = DbStringFormat::create(FLAG_ARRAY);
   data->display(dbfmt);
 

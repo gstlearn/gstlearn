@@ -1231,7 +1231,7 @@ namespace gstlrn
     /* Initializations */
 
     ndim = dbgrid->getNDim();
-    iatt = dbgrid->getColIdx({ERole::Z, 0});
+    iatt = dbgrid->getColIdx(RoleID(ERole::Z, 0));
 
     /* Preliminary checks */
 

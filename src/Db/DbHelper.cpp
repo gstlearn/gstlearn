@@ -36,7 +36,8 @@ namespace gstlrn
     Id isAlreadyFilled(Id ipos) const override
     {
       if (!DB_GRID_FILL->getSelection(ipos)) return (0);
-      Id value = FFFF(DB_GRID_FILL->getValue({ERole::Z, 0}, ipos)) ? 0 : 1;
+      Id value =
+        FFFF(DB_GRID_FILL->getValue(RoleID(ERole::Z, 0), ipos)) ? 0 : 1;
       return (value);
     }
 
@@ -53,7 +54,8 @@ namespace gstlrn
 
     {
       if (!DB_GRID_FILL->getSelection(ipos)) return (0);
-      Id value = FFFF(DB_GRID_FILL->getValue({ERole::Z, 0}, ipos)) ? 1 : 0;
+      Id value =
+        FFFF(DB_GRID_FILL->getValue(RoleID(ERole::Z, 0), ipos)) ? 1 : 0;
       return (value);
     }
   };
@@ -95,14 +97,14 @@ namespace gstlrn
       case 0: break;
 
       case 1: /* Code must be close */
-        code1 = db1->getValue({ERole::C}, iech);
-        code2 = db2->getValue({ERole::C}, jech);
+        code1 = db1->getValue(ERole::C, iech);
+        code2 = db2->getValue(ERole::C, jech);
         if (ABS(code1 - code2) > tolcode) return (1);
         break;
 
       case 2: /* Code must be different */
-        code1 = db1->getValue({ERole::C}, iech);
-        code2 = db2->getValue({ERole::C}, jech);
+        code1 = db1->getValue(ERole::C, iech);
+        code2 = db2->getValue(ERole::C, jech);
         if (code1 == code2) return (1);
         break;
     }
@@ -164,7 +166,7 @@ namespace gstlrn
           iwork2[2] = iwork1[2] + iz;
           if (iwork2[2] < 0 || iwork2[2] >= nmz) continue;
           jpos = DB_GRID_FILL->indiceToRank(iwork2);
-          value = DB_GRID_FILL->getValue({ERole::Z, 0}, jpos);
+          value = DB_GRID_FILL->getValue(RoleID(ERole::Z, 0), jpos);
           if (FFFF(value)) continue;
           tabind[nech] = jpos;
           tabval[nech] = value;
@@ -281,7 +283,7 @@ namespace gstlrn
 
     /* Assign the result */
 
-    DB_GRID_FILL->setValue({ERole::Z, 0}, ipos, result);
+    DB_GRID_FILL->setValue(RoleID(ERole::Z, 0), ipos, result);
     return (0);
   }
 
@@ -424,7 +426,7 @@ namespace gstlrn
       Id k = st_find_interval(x, ndef, X);
       if (k < 0) continue;
       double y = Y[k] + (Y[k + 1] - Y[k]) * (x - X[k]) / (X[k + 1] - X[k]);
-      dbgrid->setValue({ERole::Z, ivar}, iech, y);
+      dbgrid->setValue(RoleID(ERole::Z, ivar), iech, y);
     }
   }
 
@@ -507,7 +509,7 @@ namespace gstlrn
             + Cp[k];
         }
       }
-      dbgrid->setValue({ERole::Z, ivar}, iech, y);
+      dbgrid->setValue(RoleID(ERole::Z, ivar), iech, y);
     }
     return 0;
   }
@@ -924,7 +926,7 @@ namespace gstlrn
 
     // Create the new variable and duplicate the Z-locator variable
 
-    Id iatt_in = dbgrid->getUID({ERole::Z, 0});
+    Id iatt_in = dbgrid->getUID(RoleID(ERole::Z, 0));
     Id iatt_out = dbgrid->addColumnsByConstant(1, 1);
     dbgrid->duplicateColumnByUID(iatt_in, iatt_out);
     dbgrid->setLocator(dbgrid->fromUID(iatt_out), ELoc::Z, 0);
@@ -1398,7 +1400,7 @@ namespace gstlrn
     Id iatt_out = dbgrid->addColumnsByConstant(nvar);
     for (Id ivar = 0; ivar < nvar; ivar++)
     {
-      Id iatt_in = dbgrid->getUID({ERole::Z, ivar});
+      Id iatt_in = dbgrid->getUID(RoleID(ERole::Z, ivar));
       dbgrid->duplicateColumnByUID(iatt_in, iatt_out + ivar);
     }
 
@@ -1422,7 +1424,7 @@ namespace gstlrn
       for (Id iech = 0; iech < nech; iech++)
       {
         if (!dbgrid->isActive(iech)) continue;
-        double value = dbgrid->getValue({ERole::Z, ivar}, iech);
+        double value = dbgrid->getValue(RoleID(ERole::Z, ivar), iech);
         if (FFFF(value)) continue;
         X[ndef] = dbgrid->getCoordinate(iech, 0);
         Y[ndef] = value;

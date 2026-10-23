@@ -316,7 +316,7 @@ namespace gstlrn
   //
   //    // Loop in the current dimension
   //
-  //    exts2 = DBIN->getValue({ERole::BLEX,idim}, it->rank1) / 2.;
+  //    exts2 = DBIN->getValue(RoleID(ERole::BLEX,idim), it->rank1) / 2.;
   //    dsize = KOPTION->dsize[idim];
   //
   //    if (exts2 <= 0. || dsize <= 0.)
@@ -348,7 +348,7 @@ namespace gstlrn
   //
   //    // Loop in the current dimension
   //
-  //    exts2 = DBIN->getValue({ERole::BLEX, jdim}, it->rank2) / 2.;
+  //    exts2 = DBIN->getValue(RoleID(ERole::BLEX, jdim), it->rank2) / 2.;
   //    dsize = KOPTION->dsize[jdim];
   //
   //    if (exts2 <= 0 || dsize <= 0.)
@@ -484,7 +484,7 @@ namespace gstlrn
 
         // Particular case of simulations
 
-        value = DBIN->getValue({ERole::Z, ivar}, rank);
+        value = DBIN->getValue(RoleID(ERole::Z, ivar), rank);
       else
 
         // Case of the traditional kriging based on Z-variables
@@ -521,11 +521,11 @@ namespace gstlrn
 
     if (rank >= 0)
     {
-      value = DBIN->getValue({ERole::V, ivar}, rank);
+      value = DBIN->getValue(RoleID(ERole::V, ivar), rank);
     }
     else
     {
-      value = DBOUT->getValue({ERole::V, ivar}, IECH_OUT);
+      value = DBOUT->getValue(RoleID(ERole::V, ivar), IECH_OUT);
     }
     return (value);
   }
@@ -929,7 +929,7 @@ namespace gstlrn
       for (idim = ndim - 1; idim >= 0; idim--)
       {
         taille = (mode == 0) ? dbgrid->getDX(idim)
-                             : DBOUT->getValue({ERole::BLEX, idim}, iech);
+                             : DBOUT->getValue(RoleID(ERole::BLEX, idim), iech);
         nd = KOPTION.ndisc[idim];
         nval /= nd;
         j = jech / nval;
@@ -1257,13 +1257,14 @@ namespace gstlrn
         for (idim = 0; idim < ndim; idim++)
           printElement(st_get_idim(nbgh_ranks[iech], idim));
         if (DBIN->hasLocator(ELoc::C))
-          printElement(DBIN->getValue({ERole::C}, nbgh_ranks[iech]));
+          printElement(DBIN->getValue(ERole::C, nbgh_ranks[iech]));
         if (DBIN->getNLoc(ELoc::V) > 0)
           printElement(st_get_verr(nbgh_ranks[iech], (FLAG_PROF) ? 0 : jvar_m));
         if (KOPTION.flag_data_disc)
         {
           for (idim = 0; idim < ndim; idim++)
-            printElement(DBIN->getValue({ERole::BLEX, idim}, nbgh_ranks[iech]));
+            printElement(
+              DBIN->getValue(RoleID(ERole::BLEX, idim), nbgh_ranks[iech]));
         }
         if (icase < 0)
           printElement(st_get_ivar(nbgh_ranks[iech], jvar_m));
@@ -1457,7 +1458,7 @@ namespace gstlrn
     {
       for (i = 0; i < dbgrid->getNSample(); i++)
       {
-        value = dbgrid->getValue({ERole::Z, 0}, i);
+        value = dbgrid->getValue(RoleID(ERole::Z, 0), i);
         if (!FFFF(value)) dsum += value;
       }
       flag_value = 1;
@@ -1823,7 +1824,8 @@ namespace gstlrn
 
     result = 0.;
     for (i = -nbefore; i <= nafter; i++)
-      result += wgt[i + nbefore] * db->getValue({ERole::Z, 0}, IECH_OUT + i);
+      result +=
+        wgt[i + nbefore] * db->getValue(RoleID(ERole::Z, 0), IECH_OUT + i);
 
     return (result);
   }
@@ -2114,7 +2116,7 @@ namespace gstlrn
           indg[2] = jz1;
           iad = db->indiceToRank(indg);
           if (!db->isActive(iad)) continue;
-          val1 = db->getValue({ERole::Z, 0}, iad);
+          val1 = db->getValue(RoleID(ERole::Z, 0), iad);
           if (FFFF(val1)) continue;
 
           /* Loop on the second point within the covariance array */
@@ -2140,7 +2142,7 @@ namespace gstlrn
                 indg[2] = jz2;
                 jad = db->indiceToRank(indg);
                 if (!db->isActive(jad)) continue;
-                val2 = db->getValue({ERole::Z, 0}, jad);
+                val2 = db->getValue(RoleID(ERole::Z, 0), jad);
                 if (FFFF(val2)) continue;
 
                 /* Update the Covariance */
@@ -2247,7 +2249,7 @@ namespace gstlrn
           indg[1] = jy;
           indg[2] = jz;
           locrank = db->indiceToRank(indg);
-          if (FFFF(db->getValue({ERole::Z, 0}, locrank))) continue;
+          if (FFFF(db->getValue(RoleID(ERole::Z, 0), locrank))) continue;
           NEI_CUR(ix, iy, iz) = locrank;
           nbgh_ranks.push_back(locrank);
           flag_global[number] = 1;
@@ -2453,7 +2455,7 @@ namespace gstlrn
         {
           if (NEI_CUR(ix, iy, iz) < 0) continue;
           result +=
-            weight[i] * db->getValue({ERole::Z, 0}, NEI_CUR(ix, iy, iz));
+            weight[i] * db->getValue(RoleID(ERole::Z, 0), NEI_CUR(ix, iy, iz));
           i++;
         }
 
@@ -2669,7 +2671,7 @@ namespace gstlrn
           DBOUT->setValue(DBOUT->fromUID(IPTR_EST), IECH_OUT, TEST);
 
           if (!db->isActive(IECH_OUT)) continue;
-          if (FFFF(db->getValue({ERole::Z, 0}, IECH_OUT))) continue;
+          if (FFFF(db->getValue(RoleID(ERole::Z, 0), IECH_OUT))) continue;
           if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH)
               || OptDbg::query(EDbg::RESULTS))
           {
@@ -2842,7 +2844,7 @@ namespace gstlrn
       while (!correct)
       {
         double seistot = 0.;
-        double seisloc = dbout->getValue({ERole::SUM, 0}, iech_out);
+        double seisloc = dbout->getValue(RoleID(ERole::SUM, 0), iech_out);
         for (Id ivar = 0; ivar < nvar; ivar++)
         {
           if (active[ivar]) continue;
@@ -3152,7 +3154,7 @@ namespace gstlrn
 
     /* Get the vector of active data and subtract the mean */
 
-    VectorDouble data = db->getColumn({ERole::Z});
+    VectorDouble data = db->getColumn({RoleID(ERole::Z, 0)});
     for (Id i = 0; i < nutil; i++) datm[i] = data[rutil[i]] - model->getMean(0);
     AMatrix::productInPlace(aux1, datm, tutil);
     AMatrix::productInPlace(aux2, aux1, invsig);
@@ -3174,7 +3176,7 @@ namespace gstlrn
 
       if (flag_abs)
       {
-        double true_value = db->getValue({ERole::Z, 0}, iech);
+        double true_value = db->getValue(RoleID(ERole::Z, 0), iech);
         if (FFFF(true_value))
           data_est[iech] = TEST;
         else
@@ -3239,7 +3241,7 @@ namespace gstlrn
 
     /* Set the data vector (corrected by the mean */
 
-    VectorDouble data = db->getColumn({ERole::Z});
+    VectorDouble data = db->getColumn({RoleID(ERole::Z, 0)});
     for (Id i = 0; i < nsize1; i++)
       datm[i] = data[ranks1[i]] - model->getMean(0);
 
@@ -3259,7 +3261,7 @@ namespace gstlrn
 
       estim = datm.innerProduct(temp_loc);
       olderr[ecr] =
-        estim + model->getMean(0) - db->getValue({ERole::Z, 0}, iech);
+        estim + model->getMean(0) - db->getValue(RoleID(ERole::Z, 0), iech);
 
       sigma = cs.innerProduct(temp_loc);
       olddiv[ecr] = olderr[ecr] / (c00[0] - sigma);
@@ -3524,7 +3526,7 @@ namespace gstlrn
 
     /* Get the vector of active data and subtract the mean */
 
-    VectorDouble data = dbin->getColumn({ERole::Z});
+    VectorDouble data = dbin->getColumn({RoleID(ERole::Z, 0)});
     for (i = 0; i < nutil; i++) datm[i] = data[rutil[i]] - model->getMean(0);
     AMatrix::productInPlace(aux1, datm, tutil);
     AMatrix::productInPlace(aux2, aux1, invsig);
@@ -3598,7 +3600,7 @@ namespace gstlrn
     for (Id iech = 0; iech < db->getNSample(); iech++)
     {
       if (!db->isActive(iech)) continue;
-      zval = db->getValue({ERole::Z, 0}, iech);
+      zval = db->getValue(RoleID(ERole::Z, 0), iech);
       if (FFFF(zval)) continue;
       coeff = (mode == 0) ? 1. : db->getValue(db->fromUID(iptr), iech);
       coeff = ABS(coeff);
@@ -3655,7 +3657,7 @@ namespace gstlrn
     for (Id iech = 0; iech < db->getNSample(); iech++)
     {
       if (!db->isActive(iech)) continue;
-      if (FFFF(db->getValue({ERole::Z, 0}, iech))) continue;
+      if (FFFF(db->getValue(RoleID(ERole::Z, 0), iech))) continue;
       coeff = db->getValue(db->fromUID(iptr), iech);
       if (coeff < 0)
         db->setValue(db->fromUID(iptr), iech, 0.);
@@ -3668,7 +3670,7 @@ namespace gstlrn
     for (Id iech = 0; iech < db->getNSample(); iech++)
     {
       if (!db->isActive(iech)) continue;
-      if (FFFF(db->getValue({ERole::Z, 0}, iech))) continue;
+      if (FFFF(db->getValue(RoleID(ERole::Z, 0), iech))) continue;
       db->updValue(db->fromUID(iptr), iech, EOperator::DIVIDE, total);
     }
   }
@@ -3700,14 +3702,14 @@ namespace gstlrn
     for (Id iech = 0; iech < db->getNSample(); iech++)
     {
       if (!db->isActive(iech)) continue;
-      if (FFFF(db->getValue({ERole::Z, 0}, iech))) continue;
+      if (FFFF(db->getValue(RoleID(ERole::Z, 0), iech))) continue;
 
       /* Loop on the second sample */
 
       for (Id jech = 0; jech < db->getNSample(); jech++)
       {
         if (!db->isActive(jech)) continue;
-        double value = db->getValue({ERole::Z, 0}, jech);
+        double value = db->getValue(RoleID(ERole::Z, 0), jech);
         if (FFFF(value)) continue;
         (void)distance_intra(db, iech, jech, vec.data());
 
@@ -3730,13 +3732,13 @@ namespace gstlrn
     for (Id iech = 0; iech < db->getNSample(); iech++)
     {
       if (!db->isActive(iech)) continue;
-      if (FFFF(db->getValue({ERole::Z, 0}, iech))) continue;
+      if (FFFF(db->getValue(RoleID(ERole::Z, 0), iech))) continue;
       total += 1. / db->getValue(db->fromUID(iptr), iech);
     }
     for (Id iech = 0; iech < db->getNSample(); iech++)
     {
       if (!db->isActive(iech)) continue;
-      if (FFFF(db->getValue({ERole::Z, 0}, iech))) continue;
+      if (FFFF(db->getValue(RoleID(ERole::Z, 0), iech))) continue;
       db->setValue(
         db->fromUID(iptr), iech,
         1. / db->getValue(db->fromUID(iptr), iech) / total);
@@ -4561,7 +4563,7 @@ namespace gstlrn
     for (Id iip = ip = 0; iip < dbdat->getNSample(); iip++)
     {
       if (!dbdat->isActiveAndDefined(iip, 0)) continue;
-      data[ip] = dbdat->getValue({ERole::Z, 0}, iip);
+      data[ip] = dbdat->getValue(RoleID(ERole::Z, 0), iip);
       ip++;
     }
 

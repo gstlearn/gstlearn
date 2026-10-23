@@ -343,23 +343,23 @@ namespace gstlrn
 
       // Code
       if (ncode > 0)
-        printElement(static_cast<Id>(_dbin->getValue({ERole::C}, iech)));
+        printElement(static_cast<Id>(_dbin->getValue(ERole::C, iech)));
       // Coordinates
       for (Id idim = 0; idim < ndim; idim++)
         printElement(_dbin->getCoordinate(iech, idim));
 
       // Variables
       for (Id ivar = 0; ivar < nvar; ivar++)
-        printElement(_dbin->getValue({ERole::Z, ivar}, iech));
+        printElement(_dbin->getValue(RoleID(ERole::Z, ivar), iech));
       // Variance of measurement errors
       for (Id ierr = 0; ierr < nerr; ierr++)
-        printElement(_dbin->getValue({ERole::V, ierr}, iech));
+        printElement(_dbin->getValue(RoleID(ERole::V, ierr), iech));
 
       // Variable block extension
       if (nblex > 0)
       {
         for (Id idim = 0; idim < ndim; idim++)
-          printElement(_dbin->getValue({ERole::BLEX, idim}, iech));
+          printElement(_dbin->getValue(RoleID(ERole::BLEX, idim), iech));
       }
 
       // Sector
@@ -423,8 +423,8 @@ namespace gstlrn
     else
     {
       if (!_dbin->hasLocator(ELoc::C)) return 0;
-      if (_dbin->getValue({ERole::C}, iech_in)
-          == _dbout->getValue({ERole::C}, iech_out))
+      if (_dbin->getValue(ERole::C, iech_in)
+          == _dbout->getValue(ERole::C, iech_out))
         return 1;
     }
     return 0;

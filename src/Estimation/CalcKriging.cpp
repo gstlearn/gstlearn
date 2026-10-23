@@ -247,7 +247,7 @@ namespace gstlrn
         {
           Id jech = _ktest.nbgh[iech];
 
-          auto value = getDbin()->getValue({ERole::Z, jvar}, jech);
+          auto value = getDbin()->getValue(RoleID(ERole::Z, jvar), jech);
           if (FFFF(value)) continue;
 
           getDbin()->setValue(

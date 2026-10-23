@@ -131,7 +131,7 @@ grid.getColumn(grid.fromUID(5))[0:4]
 # We note that the target variable corresponds to the locator *z2* which is
 # the second one (index 1) or the Z-locator type.
 
-grid.getColumn(gl.ColID(gl.ERole.Z, 1))[0:4]
+grid.getColumn(gl.RoleID(gl.ERole.Z, 1))[0:4]
 
 ## Difference between Column and Attribute
 gl.mestitle(0, "Difference between Column and Attribute")

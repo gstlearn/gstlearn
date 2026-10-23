@@ -58,7 +58,7 @@ namespace gstlrn
 
   double VMap::_getIVAR(const Db* db, Id iech, Id ivar) const
   {
-    return db->getValue({ERole::Z, ivar}, iech);
+    return db->getValue(RoleID(ERole::Z, ivar), iech);
   }
 
   /****************************************************************************/
@@ -856,8 +856,8 @@ namespace gstlrn
           indice[2] = iz;
           Id iech = dbgrid->indiceToRank(indice);
           if (!dbgrid->getSelection(iech)) continue;
-          double val1 = dbgrid->getValue({ERole::Z, jvar}, iech);
-          double val2 = dbgrid->getValue({ERole::Z, ivar}, iech);
+          double val1 = dbgrid->getValue(RoleID(ERole::Z, jvar), iech);
+          double val2 = dbgrid->getValue(RoleID(ERole::Z, ivar), iech);
           ind1 = (!FFFF(val1));
           ind2 = (!FFFF(val2));
 
@@ -942,8 +942,8 @@ namespace gstlrn
           indice[2] = iz;
           Id iech = dbgrid->indiceToRank(indice);
           if (!dbgrid->getSelection(iech)) continue;
-          double val1 = dbgrid->getValue({ERole::Z, jvar}, iech);
-          double val2 = dbgrid->getValue({ERole::Z, ivar}, iech);
+          double val1 = dbgrid->getValue(RoleID(ERole::Z, jvar), iech);
+          double val2 = dbgrid->getValue(RoleID(ERole::Z, ivar), iech);
           ind1 = (!FFFF(val1));
           ind2 = (!FFFF(val2));
 

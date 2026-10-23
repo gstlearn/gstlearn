@@ -51,7 +51,7 @@ if (nfac > 0) {
   }
   err = dbin$setColumn("z", tab = Z)
   err = dbin$setLocators(names = "z", locatorType = ELoc_Z(), cleanSameLocator = TRUE)
-  err = dbin$deleteColumns(ColID(paste("z", 1:(1 + nfac), sep = "-")))
+  err = dbin$deleteColumns(paste("z", 1:(1 + nfac), sep = "-"))
 }
 nm_var = dbin$getNamesByLocator(locatorType = ELoc_Z())
 

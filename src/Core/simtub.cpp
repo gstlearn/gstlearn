@@ -474,12 +474,12 @@ namespace gstlrn
             if (!dbin->isActive(iech)) continue;
             for (Id ivar = 0; ivar < nvar; ivar++)
             {
-              double value = dbin->getValue({ERole::Z, ivar}, iech);
+              double value = dbin->getValue(RoleID(ERole::Z, ivar), iech);
               if (FFFF(value)) continue;
 
               // Set the bounds to the known exact value
-              dbin->setValue({ERole::L, ivar}, iech, value);
-              dbin->setValue({ERole::U, ivar}, iech, value);
+              dbin->setValue(RoleID(ERole::L, ivar), iech, value);
+              dbin->setValue(RoleID(ERole::U, ivar), iech, value);
             }
           }
 
@@ -1093,7 +1093,7 @@ namespace gstlrn
 
     /* Set the mask to the whole set of grid nodes */
 
-    for (iech = 0; iech < nech; iech++) dbout->setValue({ERole::SEL}, iech, 1.);
+    for (iech = 0; iech < nech; iech++) dbout->setValue(ERole::SEL, iech, 1.);
 
     /* Loop on the cutoff classes */
 
@@ -1122,7 +1122,7 @@ namespace gstlrn
         if (!FFFF(seuil) && simval >= seuil) continue;
         dbout->setSimvar(
           ELoc::SIMU, iech, 0, 0, 0, 1, 1, static_cast<double>(icut + 1));
-        dbout->setValue({ERole::SEL}, iech, 0.);
+        dbout->setValue(ERole::SEL, iech, 0.);
         count++;
       }
       total += count;

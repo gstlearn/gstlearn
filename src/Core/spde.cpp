@@ -1652,7 +1652,7 @@ namespace gstlrn
         if (ranks[i] <= 0) continue; // Target or Steiner
         ndata1[ivar]++;
         iech = ranks[i] - 1;
-        value = (FFFF(dbin->getValue({ERole::Z, ivar}, iech))) ? 0. : 1.;
+        value = (FFFF(dbin->getValue(RoleID(ERole::Z, ivar), iech))) ? 0. : 1.;
         Btriplet.add(iech, i, value);
       }
       // Add a fictitious sample (zero value) as a dimension constraint
@@ -1690,7 +1690,7 @@ namespace gstlrn
           iech = ranks[i] - 1;
 
           // Could the data be considered as a target (heterotopic case)
-          if (FFFF(dbin->getValue({ERole::Z, ivar}, iech)))
+          if (FFFF(dbin->getValue(RoleID(ERole::Z, ivar), iech)))
           {
             // The sample is not defined for the current variable: it is a target
             flag_add = 1;
@@ -3576,10 +3576,10 @@ namespace gstlrn
   {
     double value, previous;
 
-    value = db->getValue({ERole::F, ilayer0}, iech0);
+    value = db->getValue(RoleID(ERole::F, ilayer0), iech0);
     if (FFFF(value)) return (TEST);
     if (ilayer0 > 1)
-      previous = db->getValue({ERole::F, ilayer0 - 1}, iech0);
+      previous = db->getValue(RoleID(ERole::F, ilayer0 - 1), iech0);
     else
       previous = m2denv->dmini;
     if (FFFF(previous)) return (TEST);
@@ -3814,8 +3814,8 @@ namespace gstlrn
       for (Id iech = 0; iech < nech; iech++)
       {
         if (!dbin->isActive(iech)) continue;
-        lower = dbin->getValue({ERole::L, ilayer}, iech, false);
-        upper = dbin->getValue({ERole::U, ilayer}, iech, false);
+        lower = dbin->getValue(RoleID(ERole::L, ilayer), iech, false);
+        upper = dbin->getValue(RoleID(ERole::U, ilayer), iech, false);
 
         // Process the minimum bound
 
@@ -3913,7 +3913,7 @@ namespace gstlrn
 
       for (Id iech = 0; iech < nech; iech++)
       {
-        zval = dbc->getValue({ERole::Z, ilayer}, iech);
+        zval = dbc->getValue(RoleID(ERole::Z, ilayer), iech);
 
         nb += 1.;
         mm += zval;
@@ -4002,8 +4002,8 @@ namespace gstlrn
 
       for (Id ilayer = 0; ilayer < nlayer; ilayer++)
       {
-        zmin = dbc->getValue({ERole::L, ilayer}, iech);
-        zmax = dbc->getValue({ERole::U, ilayer}, iech);
+        zmin = dbc->getValue(RoleID(ERole::L, ilayer), iech);
+        zmax = dbc->getValue(RoleID(ERole::U, ilayer), iech);
         work[ilayer] =
           st_m2d_draw_elevation(m2denv, nlayer, ilayer, zmin, zmax);
       }
@@ -4021,8 +4021,8 @@ namespace gstlrn
 
           /* Determine the bounds at data locations */
 
-          zmin = dbc->getValue({ERole::L, ilayer}, iech);
-          zmax = dbc->getValue({ERole::U, ilayer}, iech);
+          zmin = dbc->getValue(RoleID(ERole::L, ilayer), iech);
+          zmax = dbc->getValue(RoleID(ERole::U, ilayer), iech);
 
           /* Loop on the other layers */
 
@@ -4086,8 +4086,8 @@ namespace gstlrn
           njter_max);
         for (Id ilayer = 0; ilayer < nlayer; ilayer++)
         {
-          zmin = dbc->getValue({ERole::L, ilayer}, iech);
-          zmax = dbc->getValue({ERole::U, ilayer}, iech);
+          zmin = dbc->getValue(RoleID(ERole::L, ilayer), iech);
+          zmax = dbc->getValue(RoleID(ERole::U, ilayer), iech);
           st_print_constraints_per_point(
             ilayer, iech, work[ilayer], TEST, TEST, zmin, zmax);
         }
@@ -4101,7 +4101,7 @@ namespace gstlrn
       /* Store the resulting values */
 
       for (Id ilayer = 0; ilayer < nlayer; ilayer++)
-        dbc->setValue({ERole::Z, ilayer}, iech, work[ilayer]);
+        dbc->setValue(RoleID(ERole::Z, ilayer), iech, work[ilayer]);
     }
 
     return (0);
@@ -4172,7 +4172,7 @@ namespace gstlrn
 
       if (m2denv->flag_ed)
       {
-        iuids[0] = dbout->getUID({ERole::F, ilayer});
+        iuids[0] = dbout->getUID(RoleID(ERole::F, ilayer));
 
         // Migrate the information from Grid to Wells
 
@@ -4183,7 +4183,7 @@ namespace gstlrn
         for (Id iech = 0; iech < dbout->getNSample(); iech++)
         {
           if (!dbout->isActive(iech)) continue;
-          value = dbout->getValue({ERole::F, ilayer}, iech);
+          value = dbout->getValue(RoleID(ERole::F, ilayer), iech);
           if (FFFF(value)) continue;
           nb++;
           if (FFFF(m2denv->dmini) || value < m2denv->dmini)
@@ -4201,7 +4201,7 @@ namespace gstlrn
         if (m2denv->flag_ed)
         {
           if (FFFF(dval[iech])) continue;
-          dbin->setValue({ERole::F, ilayer}, iech, dval[iech]);
+          dbin->setValue(RoleID(ERole::F, ilayer), iech, dval[iech]);
         }
       }
     }
@@ -4255,10 +4255,10 @@ namespace gstlrn
     nvar = nbdmin = nbdmax = 0;
     for (Id iech = 0; iech < nech; iech++)
     {
-      value = dbc->getValue({ERole::Z, ilayer}, iech);
+      value = dbc->getValue(RoleID(ERole::Z, ilayer), iech);
       if (!FFFF(value)) nvar++;
-      lower = dbc->getValue({ERole::L, ilayer}, iech);
-      upper = dbc->getValue({ERole::U, ilayer}, iech);
+      lower = dbc->getValue(RoleID(ERole::L, ilayer), iech);
+      upper = dbc->getValue(RoleID(ERole::U, ilayer), iech);
       if (!FFFF(lower)) nbdmin++;
       if (!FFFF(upper)) nbdmax++;
     }
@@ -4333,9 +4333,9 @@ namespace gstlrn
 
         /* Get the values at the data point */
 
-        epais = dbc->getValue({ERole::Z, ilayer}, iech);
+        epais = dbc->getValue(RoleID(ERole::Z, ilayer), iech);
         if (ilayer > 0)
-          epais -= dbc->getValue({ERole::Z, ilayer - 1}, iech);
+          epais -= dbc->getValue(RoleID(ERole::Z, ilayer - 1), iech);
         else
           epais -= m2denv->zmini;
 
@@ -4476,8 +4476,8 @@ namespace gstlrn
 
     for (Id ilayer = 0; ilayer < nlayer; ilayer++)
     {
-      vmin = db->getValue({ERole::L, ilayer}, iech);
-      vmax = db->getValue({ERole::U, ilayer}, iech);
+      vmin = db->getValue(RoleID(ERole::L, ilayer), iech);
+      vmax = db->getValue(RoleID(ERole::U, ilayer), iech);
       if (!bypass)
       {
         if (FFFF(vmin) && FFFF(vmax)) continue;
@@ -4543,8 +4543,8 @@ namespace gstlrn
 
     for (Id ilayer = 0; ilayer < nlayer; ilayer++)
     {
-      lower = db->getValue({ERole::L, ilayer}, iech);
-      upper = db->getValue({ERole::U, ilayer}, iech);
+      lower = db->getValue(RoleID(ERole::L, ilayer), iech);
+      upper = db->getValue(RoleID(ERole::U, ilayer), iech);
 
       tab[ecr++] = lower;
       tab[ecr++] = upper;
@@ -4555,7 +4555,7 @@ namespace gstlrn
 
     if (m2denv->flag_ed)
       for (Id ilayer = 0; ilayer < nlayer; ilayer++)
-        tab[ecr++] = db->getValue({ERole::F, ilayer}, iech);
+        tab[ecr++] = db->getValue(RoleID(ERole::F, ilayer), iech);
 
     /* Increment the number of records by 1 */
 
@@ -5062,8 +5062,8 @@ namespace gstlrn
 
     for (Id ilayer = 0; ilayer < nlayer; ilayer++)
     {
-      zmin = dbc->getValue({ERole::L, ilayer}, iech);
-      zmax = dbc->getValue({ERole::U, ilayer}, iech);
+      zmin = dbc->getValue(RoleID(ERole::L, ilayer), iech);
+      zmax = dbc->getValue(RoleID(ERole::U, ilayer), iech);
       message("Z(%d)=%lf in", ilayer, work[ilayer]);
       st_print_concatenate_interval(NULL, zmin, zmax, 1);
     }
@@ -5133,8 +5133,8 @@ namespace gstlrn
 
         // Getting the elevation and the bounds for the current layer
 
-        zmin = dbc->getValue({ERole::L, ilayer}, iech);
-        zmax = dbc->getValue({ERole::U, ilayer}, iech);
+        zmin = dbc->getValue(RoleID(ERole::L, ilayer), iech);
+        zmax = dbc->getValue(RoleID(ERole::U, ilayer), iech);
         if (verbose)
         {
           message("ilayer=%d", ilayer);
@@ -5244,8 +5244,8 @@ namespace gstlrn
 
         // Getting the elevation and the bounds for the current layer
 
-        zmin = dbc->getValue({ERole::L, ilayer}, iech);
-        zmax = dbc->getValue({ERole::U, ilayer}, iech);
+        zmin = dbc->getValue(RoleID(ERole::L, ilayer), iech);
+        zmax = dbc->getValue(RoleID(ERole::U, ilayer), iech);
 
         // Check consistency
 
@@ -5369,7 +5369,7 @@ namespace gstlrn
       /* Loop on the layers */
 
       for (Id ilayer = 0; ilayer < nlayer; ilayer++)
-        work[ilayer] = dbc->getValue({ERole::Z, ilayer}, iech);
+        work[ilayer] = dbc->getValue(RoleID(ERole::Z, ilayer), iech);
 
       /* Convert from the depth to thickness */
 
@@ -5425,10 +5425,10 @@ namespace gstlrn
       if (!db->isActive(iech)) continue;
       for (Id ilayer = 0; ilayer < nlayer; ilayer++)
       {
-        lower = db->getValue({ERole::L, ilayer}, iech);
-        upper = db->getValue({ERole::U, ilayer}, iech);
-        value = db->getValue({ERole::Z, ilayer}, iech);
-        drift = db->getValue({ERole::F, ilayer}, iech);
+        lower = db->getValue(RoleID(ERole::L, ilayer), iech);
+        upper = db->getValue(RoleID(ERole::U, ilayer), iech);
+        value = db->getValue(RoleID(ERole::Z, ilayer), iech);
+        drift = db->getValue(RoleID(ERole::F, ilayer), iech);
         vgaus = (!ydat.empty()) ? YDAT(ilayer, iech) : TEST;
         st_print_constraints_per_point(
           ilayer, iech, value, drift, vgaus, lower, upper);

@@ -233,31 +233,31 @@ namespace gstlrn
     {
       for (Id ivar = 0; ivar < db->getNLoc(ELoc::Z); ivar++)
       {
-        double value = db->getValue({ERole::Z, ivar}, iech);
+        double value = db->getValue(RoleID(ERole::Z, ivar), iech);
         if (FFFF(value))
           message("Variable   #%d = NA\n", ivar + 1);
         else
           message(
             "Variable   #%d = %lf\n", ivar + 1,
-            db->getValue({ERole::Z, ivar}, iech));
+            db->getValue(RoleID(ERole::Z, ivar), iech));
       }
     }
     if (flag_nerr != 0)
     {
       for (Id ierr = 0; ierr < db->getNLoc(ELoc::V); ierr++)
       {
-        double value = db->getValue({ERole::V, ierr}, iech);
+        double value = db->getValue(RoleID(ERole::V, ierr), iech);
         if (FFFF(value))
           message("Variance   #%d = NA\n", ierr + 1);
         else
           message(
             "Variance   #%d = %lf\n", ierr + 1,
-            db->getValue({ERole::V, ierr}, iech));
+            db->getValue(RoleID(ERole::V, ierr), iech));
       }
     }
     if (db->hasLocator(ELoc::C))
     {
-      double value = db->getValue({ERole::C}, iech);
+      double value = db->getValue(ERole::C, iech);
       if (FFFF(value))
         message("Code          = NA\n");
       else
@@ -267,7 +267,7 @@ namespace gstlrn
     {
       for (Id iblk = 0; iblk < db->getNLoc(ELoc::V); iblk++)
       {
-        double value = db->getValue({ERole::BLEX, iblk}, iech);
+        double value = db->getValue(RoleID(ERole::BLEX, iblk), iech);
         if (FFFF(value))
           message("Code          = NA\n");
         else
@@ -293,8 +293,8 @@ namespace gstlrn
 
     /* Initializations */
 
-    if (db->hasLocator(ELoc::SEL)) sel = db->getColumn({ERole::SEL});
-    if (db->hasLocator(ELoc::W)) wgt = db->getColumn({ERole::W});
+    if (db->hasLocator(ELoc::SEL)) sel = db->getColumn(ERole::SEL);
+    if (db->hasLocator(ELoc::W)) wgt = db->getColumn(ERole::W);
 
     /* Loop on the space dimension */
 
@@ -354,7 +354,7 @@ namespace gstlrn
       for (Id idim = 0; idim < ndim; idim++)
       {
         coor[idim] += db->getX0(idim);
-        db->setValue({ERole::X, idim}, iech, coor[idim]);
+        db->setValue(RoleID(ERole::X, idim), iech, coor[idim]);
       }
 
       /* Calculate the new coordinates */
@@ -1004,9 +1004,9 @@ namespace gstlrn
     {
       if (nmax[ivar] <= 0)
       {
-        VectorDouble tab = db->getColumn({ERole::Z, ivar});
+        VectorDouble tab = db->getColumn(RoleID(ERole::Z, ivar));
         VectorDouble sel;
-        if (db->hasLocator(ELoc::SEL)) sel = db->getColumn({ERole::SEL});
+        if (db->hasLocator(ELoc::SEL)) sel = db->getColumn(ERole::SEL);
         ut_facies_statistics(
           nech, tab.data(), sel.data(), &nval, &mini, &nmax[ivar]);
       }
@@ -1032,7 +1032,8 @@ namespace gstlrn
 
       for (Id ivar = invalid = 0; ivar < nvar && invalid == 0; ivar++)
       {
-        ifac[ivar] = static_cast<Id>(db->getValue({ERole::Z, ivar}, iech));
+        ifac[ivar] =
+          static_cast<Id>(db->getValue(RoleID(ERole::Z, ivar), iech));
         if (ifac[ivar] > nmax[ivar]) invalid = 1;
       }
       if (invalid) continue;
@@ -1054,7 +1055,7 @@ namespace gstlrn
 
       dbgrid->setValue(
         RoleID(ERole::P, iclass), jech,
-        dbgrid->getValue({ERole::P, iclass}, jech) + 1);
+        dbgrid->getValue(RoleID(ERole::P, iclass), jech) + 1);
     }
 
     /* Normalization phase */
@@ -1065,21 +1066,21 @@ namespace gstlrn
 
       double total = 0.;
       for (Id iclass = 0; iclass < nclass; iclass++)
-        total += dbgrid->getValue({ERole::P, iclass}, jech);
+        total += dbgrid->getValue(RoleID(ERole::P, iclass), jech);
       if (total == 1.) continue;
       if (total <= 0.)
       {
         /* No sample in the current cell */
 
         for (Id iclass = 0; iclass < nclass; iclass++)
-          dbgrid->setValue({ERole::P, iclass}, jech, TEST);
+          dbgrid->setValue(RoleID(ERole::P, iclass), jech, TEST);
       }
       else
       {
         for (Id iclass = 0; iclass < nclass; iclass++)
           dbgrid->setValue(
-            {ERole::P, iclass}, jech,
-            dbgrid->getValue({ERole::P, iclass}, jech) / total);
+            RoleID(ERole::P, iclass), jech,
+            dbgrid->getValue(RoleID(ERole::P, iclass), jech) / total);
       }
     }
 
@@ -1333,7 +1334,7 @@ namespace gstlrn
       total = 0.;
       for (Id iprop = flag_no = 0; iprop < nprop && flag_no == 0; iprop++)
       {
-        value = db->getValue({ERole::P, iprop}, iech);
+        value = db->getValue(RoleID(ERole::P, iprop), iech);
         if (FFFF(value))
           flag_no = 1;
         else
@@ -1343,7 +1344,7 @@ namespace gstlrn
       for (Id iprop = 0; iprop < nprop; iprop++, ecr++)
         props[ecr] = (flag_no && total > 0)
                      ? TEST
-                     : db->getValue({ERole::P, iprop}, iech) / total;
+                     : db->getValue(RoleID(ERole::P, iprop), iech) / total;
     }
     return (0);
   }
@@ -1388,7 +1389,7 @@ namespace gstlrn
       indices[2] = iz;
       Id iech = db->indiceToRank(indices);
       for (Id iprop = 0; iprop < nprop; iprop++, ecr++)
-        db->setValue({ERole::P, iprop}, iech, props[ecr]);
+        db->setValue(RoleID(ERole::P, iprop), iech, props[ecr]);
     }
     return (0);
   }

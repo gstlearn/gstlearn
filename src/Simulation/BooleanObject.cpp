@@ -278,7 +278,7 @@ namespace gstlrn
     else
     {
       Id iech = dbout->coordinateToRank(coor, false, eps);
-      theta = dbout->getValue({ERole::P}, iech);
+      theta = dbout->getValue(RoleID(ERole::P, 0), iech);
     }
     return (law_uniform(0., 1.) > theta);
   }
@@ -355,12 +355,12 @@ namespace gstlrn
 
   bool BooleanObject::isPore(const Db* db, Id iech)
   {
-    return (db->getValue({ERole::Z, 0}, iech) == 0);
+    return (db->getValue(RoleID(ERole::Z, 0), iech) == 0);
   }
 
   bool BooleanObject::isGrain(const Db* db, Id iech)
   {
-    return (db->getValue({ERole::Z, 0}, iech) != 0);
+    return (db->getValue(RoleID(ERole::Z, 0), iech) != 0);
   }
 
   Id BooleanObject::_getCoverageAtSample(const Db* db, Id iptr_cover, Id iech)

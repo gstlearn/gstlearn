@@ -55,15 +55,13 @@ namespace gstlrn
   {
   }
 
-#ifndef SWIG
-  ColID::ColID(const ERole& role, Id index, Id version)
+  ColID::ColID(const ERole& role, Id version)
     : _icol(-1)
     , _name()
-    , _roleID(role, index)
+    , _roleID(role, 0)
     , _version(version)
   {
   }
-#endif
 
   bool ColID::hasRoleDefined() const
   {
@@ -84,11 +82,6 @@ namespace gstlrn
   ColID ColID::create(const RoleID& roleID, Id version)
   {
     return ColID(roleID, version);
-  }
-
-  ColID ColID::create(const ERole& role, Id index, Id version)
-  {
-    return ColID(role, index, version);
   }
 
   ColID ColID::create(const ColID& colid, Id version)

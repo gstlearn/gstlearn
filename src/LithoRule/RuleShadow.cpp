@@ -224,9 +224,9 @@ namespace gstlrn
       *sh_dsup_max = *sh_down_max = 0.;
       for (iech = 0; iech < dbprop->getNSample(); iech++)
       {
-        val2 = dbprop->getValue({ERole::P, 1}, iech);
+        val2 = dbprop->getValue(RoleID(ERole::P, 1), iech);
         if (val2 > (*sh_dsup_max)) (*sh_dsup_max) = val2;
-        val3 = dbprop->getValue({ERole::P, 2}, iech);
+        val3 = dbprop->getValue(RoleID(ERole::P, 2), iech);
         if (val3 > (*sh_down_max)) (*sh_down_max) = val3;
       }
     }
@@ -567,14 +567,16 @@ namespace gstlrn
       /* Convert the proportions into thresholds for data point */
       if (!dbin->isActive(iech)) continue;
       if (!point_inside_grid(dbin, iech, dbgrid)) continue;
-      facies = static_cast<Id>(dbin->getValue({ERole::Z, 0}, iech));
+      facies = static_cast<Id>(dbin->getValue(RoleID(ERole::Z, 0), iech));
       if (propdef.ruleThreshShadowDefine(
             dbin, this, facies, iech, isimu, nbsimu, &t1min, &t1max, &t2min,
             &t2max, &sh_dsup, &sh_down))
         return (1);
       yc_down = sh_down;
-      dbin->setValue({ERole::L, propdef.getRank(ipgs, igrf)}, iech, t1min);
-      dbin->setValue({ERole::U, propdef.getRank(ipgs, igrf)}, iech, t1max);
+      dbin->setValue(
+        RoleID(ERole::L, propdef.getRank(ipgs, igrf)), iech, t1min);
+      dbin->setValue(
+        RoleID(ERole::U, propdef.getRank(ipgs, igrf)), iech, t1max);
 
       /* The data belongs to the island, no replicate */
 
@@ -630,11 +632,12 @@ namespace gstlrn
         }
 
         /* Set the attributes of the replicate */
-        dbin->setValue({ERole::Z, 0}, jech, SHADOW_ISLAND);
+        dbin->setValue(RoleID(ERole::Z, 0), jech, SHADOW_ISLAND);
         dbin->setValue(
-          {ERole::L, propdef.getRank(ipgs, igrf)}, jech, MAX(seuil, s1max));
+          RoleID(ERole::L, propdef.getRank(ipgs, igrf)), jech,
+          MAX(seuil, s1max));
         dbin->setValue(
-          {ERole::U, propdef.getRank(ipgs, igrf)}, jech, THRESH_SUP);
+          RoleID(ERole::U, propdef.getRank(ipgs, igrf)), jech, THRESH_SUP);
         nadd++;
       }
 
@@ -686,11 +689,12 @@ namespace gstlrn
             continue;
           }
 
-          dbin->setValue({ERole::Z, 0}, jech, SHADOW_IDLE);
+          dbin->setValue(RoleID(ERole::Z, 0), jech, SHADOW_IDLE);
           dbin->setValue(
-            {ERole::L, propdef.getRank(ipgs, igrf)}, jech, THRESH_INF);
+            RoleID(ERole::L, propdef.getRank(ipgs, igrf)), jech, THRESH_INF);
           dbin->setValue(
-            {ERole::U, propdef.getRank(ipgs, igrf)}, jech, MAX(seuil, s1max));
+            RoleID(ERole::U, propdef.getRank(ipgs, igrf)), jech,
+            MAX(seuil, s1max));
           nadd++;
         }
       }

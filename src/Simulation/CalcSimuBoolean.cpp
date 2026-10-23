@@ -367,7 +367,7 @@ namespace gstlrn
     }
     else
     {
-      VectorDouble vec = dbout->getColumn({ERole::P, 0}, true);
+      VectorDouble vec = dbout->getColumn(RoleID(ERole::P, 0), true);
       theta = vec.mean();
     }
 

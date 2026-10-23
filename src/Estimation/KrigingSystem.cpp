@@ -371,7 +371,7 @@ namespace gstlrn
     {
       for (Id ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
       {
-        double valdat = _dbin->getValue({ERole::Z, ivarCL}, _iechOut);
+        double valdat = _dbin->getValue(RoleID(ERole::Z, ivarCL), _iechOut);
         double estim =
           (_flagEst)
             ? _dbout->getValue(_dbout->fromUID(_iptrEst + ivarCL), _iechOut)
@@ -827,7 +827,7 @@ namespace gstlrn
     {
       Id ivar = _krigopt.getRankColCok(jvar);
       if (ivar < 0 || ivar >= _dbout->getNLoc(ELoc::Z)) continue;
-      double value = _dbout->getValue({ERole::Z, ivar}, _iechOut);
+      double value = _dbout->getValue(RoleID(ERole::Z, ivar), _iechOut);
       if (FFFF(value)) continue;
 
       // There is a new pseudo-data due to Collocated Option.
@@ -980,8 +980,9 @@ namespace gstlrn
 
         if (_iptrEst >= 0)
         {
-          double trueval =
-            (status == 0) ? _dbin->getValue({ERole::Z, ivar}, _iechOut) : TEST;
+          double trueval = (status == 0)
+                           ? _dbin->getValue(RoleID(ERole::Z, ivar), _iechOut)
+                           : TEST;
           double estim =
             (status == 0)
               ? _dbout->getValue(_dbout->fromUID(_iptrEst + ivar), _iechOut)

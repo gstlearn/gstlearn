@@ -125,7 +125,7 @@ namespace gstlrn
         double total = 0.;
         for (ifac = 0; ifac < _nfacprod; ifac++)
         {
-          _propfix[ifac] = _dbprop->getValue({ERole::P, ifac}, *jech);
+          _propfix[ifac] = _dbprop->getValue(RoleID(ERole::P, ifac), *jech);
           total += _propfix[ifac];
         }
         // Discard case where the proportions are not available
@@ -137,7 +137,7 @@ namespace gstlrn
         /* The proportions are already available from the dbin */
 
         for (ifac = 0; ifac < _nfacprod; ifac++)
-          _propfix[ifac] = db->getValue({ERole::P, ifac}, iech);
+          _propfix[ifac] = db->getValue(RoleID(ERole::P, ifac), iech);
       }
 
       /* Transform proportions (from CST to WRK) */
@@ -605,7 +605,7 @@ namespace gstlrn
     Id nbsimu) const
   {
     Id iptr_simu = Db::getSimRank(isimu, 0, ipgs, nbsimu, 1);
-    auto colid = ColID({ERole::FACIES, iptr_simu}, isimu);
+    auto colid = ColID(RoleID(ERole::FACIES, iptr_simu), isimu);
 
     /* Loop on the grid cells */
 
@@ -614,8 +614,8 @@ namespace gstlrn
       if (!db->isActive(iech)) continue;
       Id facies = static_cast<Id>(db->getValue(colid, iech)) - 1;
       Id rank = _getFacies(ipgs, facies);
-      double prop = db->getValue({ERole::P, rank}, iech) + 1.;
-      db->setValue({ERole::P, rank}, iech, prop);
+      double prop = db->getValue(RoleID(ERole::P, rank), iech) + 1.;
+      db->setValue(RoleID(ERole::P, rank), iech, prop);
     }
 
     /* Optional printout */
@@ -627,7 +627,7 @@ namespace gstlrn
   void PropDef::updateContinuous(Db* db, bool verbose, Id isimu, Id nbsimu)
   {
     Id iptr_simu = Db::getSimRank(isimu, 0, 0, nbsimu, 1);
-    auto colid = ColID({ERole::SIMU, iptr_simu}, isimu);
+    auto colid = ColID(RoleID(ERole::SIMU, iptr_simu), isimu);
 
     /* Loop on the grid cells */
 
@@ -635,8 +635,8 @@ namespace gstlrn
     {
       if (!db->isActive(iech)) continue;
       double simval = db->getValue(colid, iech);
-      db->updValue({ERole::Z, 0}, iech, EOperator::ADD, simval);
-      db->updValue({ERole::Z, 1}, iech, EOperator::ADD, simval * simval);
+      db->updValue(RoleID(ERole::Z, 0), iech, EOperator::ADD, simval);
+      db->updValue(RoleID(ERole::Z, 1), iech, EOperator::ADD, simval * simval);
     }
 
     /* Optional printout */
@@ -654,11 +654,11 @@ namespace gstlrn
     for (Id iech = 0; iech < db->getNSample(); iech++)
     {
       if (!db->isActive(iech)) continue;
-      mean = db->getValue({ERole::Z, 0}, iech) / nbsimu;
-      db->setValue({ERole::Z, 0}, iech, mean);
-      stdv = db->getValue({ERole::Z, 1}, iech) / nbsimu - mean * mean;
+      mean = db->getValue(RoleID(ERole::Z, 0), iech) / nbsimu;
+      db->setValue(RoleID(ERole::Z, 0), iech, mean);
+      stdv = db->getValue(RoleID(ERole::Z, 1), iech) / nbsimu - mean * mean;
       stdv = (stdv > 0) ? sqrt(stdv) : 0.;
-      db->setValue({ERole::Z, 1}, iech, stdv);
+      db->setValue(RoleID(ERole::Z, 1), iech, stdv);
     }
 
     /* Optional printout */
@@ -678,9 +678,9 @@ namespace gstlrn
       for (Id ifac = 0; ifac < nfacies; ifac++)
       {
         Id rank = _getFacies(ipgs, ifac);
-        double prop =
-          db->getValue({ERole::P, rank}, iech) / static_cast<double>(nbsimu);
-        db->setValue({ERole::P, rank}, iech, prop);
+        double prop = db->getValue(RoleID(ERole::P, rank), iech)
+                    / static_cast<double>(nbsimu);
+        db->setValue(RoleID(ERole::P, rank), iech, prop);
       }
     }
 

@@ -931,8 +931,8 @@ namespace gstlrn
 
     // Load the vector of coordinates (of active samples)
 
-    VectorDouble xinit = db->getColumn({ERole::X, 0}, true);
-    VectorDouble yinit = db->getColumn({ERole::X, 1}, true);
+    VectorDouble xinit = db->getColumn(RoleID(ERole::X, 0), true);
+    VectorDouble yinit = db->getColumn(RoleID(ERole::X, 1), true);
 
     // Calculate the indices that are retained in the convex hull
 

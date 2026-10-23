@@ -421,7 +421,7 @@ namespace gstlrn
 
     // Translate the 'Facies' into 'categories'   VectorDouble props =
     Limits limits(nclass);
-    Id iatt = _db->getUID({ERole::Z, 0});
+    Id iatt = _db->getUID(RoleID(ERole::Z, 0));
     if (limits.toIndicatorByAttribute(_db, iatt))
     {
       messerr("Problem when translating Facies into Categories");
@@ -2550,7 +2550,7 @@ namespace gstlrn
     for (Id ivar = 0; ivar < nvar; ivar++)
     {
       if (ivar < db->getNLoc(ELoc::Z))
-        setVariableName(ivar, db->getName({ERole::Z, ivar}));
+        setVariableName(ivar, db->getName(RoleID(ERole::Z, ivar)));
     }
 
     // Dispatch
@@ -3129,13 +3129,13 @@ namespace gstlrn
 
     if (getCalcul() == ECalcVario::COVARIOGRAM)
     {
-      iatt_old = db->getUID({ERole::W});
+      iatt_old = db->getUID(ERole::W);
       iadd_new = db->addColumnsByConstant(1, 1, 0.);
       if (iadd_new < 0) return 1;
       db->setLocator(db->fromUID(iadd_new), ELoc::W);
       maille = db->getCellSize();
       for (Id iech = 0; iech < db->getNSample(); iech++)
-        db->setValue({ERole::W}, iech, maille);
+        db->setValue(ERole::W, iech, maille);
     }
 
     /* Evaluate the drift coefficients */
@@ -3421,7 +3421,7 @@ namespace gstlrn
   {
     return (
       0.5
-      * (db->getValue({ERole::V, 0}, iech) + db->getValue({ERole::V, 0}, jech)));
+      * (db->getValue(RoleID(ERole::V, 0), iech) + db->getValue(RoleID(ERole::V, 0), jech)));
   }
 
   /****************************************************************************/
@@ -4498,7 +4498,7 @@ namespace gstlrn
    *****************************************************************************/
   double Vario::_getIVAR(const Db* db, Id iech, Id ivar) const
   {
-    double zz = db->getValue({ERole::Z, ivar}, iech);
+    double zz = db->getValue(RoleID(ERole::Z, ivar), iech);
     if (FFFF(zz)) return (TEST);
     if (_BETA.empty()) return (zz);
     if (ivar != 0) return (TEST);
@@ -4594,7 +4594,7 @@ namespace gstlrn
       if (!db->isActiveAndDefined(iech, 0)) continue;
       VectorDouble drfloc =
         _model->evalDriftBySample(db, iech, ECalcMember::LHS);
-      double zval = db->getValue({ERole::Z, 0}, iech);
+      double zval = db->getValue(RoleID(ERole::Z, 0), iech);
 
       for (Id il = 0; il < nbfl; il++)
       {

@@ -269,7 +269,7 @@ namespace gstlrn
     for (Id iech = 0; iech < nech; iech++)
     {
       if (!getDbin()->isActive(iech)) continue;
-      double value = getDbin()->getValue({ERole::Z, 0}, iech);
+      double value = getDbin()->getValue(RoleID(ERole::Z, 0), iech);
       getDbout()->setValue(getDbout()->fromUID(_iattOut), iech, value);
     }
     return true;
@@ -289,7 +289,7 @@ namespace gstlrn
       getGridout()->rankToIndice(iech_out, indgOut);
       _reduceIndices(indgOut, indgIn);
       Id iech_in = getGridin()->indiceToRank(indgIn);
-      double value = getDbin()->getValue({ERole::Z, 0}, iech_in);
+      double value = getDbin()->getValue(RoleID(ERole::Z, 0), iech_in);
       getDbout()->setValue(getDbout()->fromUID(_iattOut), iech_out, value);
     }
     return true;
@@ -309,7 +309,7 @@ namespace gstlrn
       getGridin()->rankToIndice(iech_in, indgIn);
       _reduceIndices(indgIn, indgOut);
       Id iech_out = getGridout()->indiceToRank(indgOut);
-      double value = getDbout()->getValue({ERole::Z, 0}, iech_out);
+      double value = getDbout()->getValue(RoleID(ERole::Z, 0), iech_out);
       if (!FFFF(value))
       {
         value += getDbout()->getValue(getDbout()->fromUID(_iattOut), iech_out);
@@ -370,8 +370,8 @@ namespace gstlrn
       if (ret)
       {
         getGridout()->rankToCoordinatesInPlace(iech_out, coorOut);
-        double valTop = getDbin()->getValue({ERole::Z, 0}, iech_in);
-        double valBot = getDbin()->getValue({ERole::Z, 1}, iech_in);
+        double valTop = getDbin()->getValue(RoleID(ERole::Z, 0), iech_in);
+        double valBot = getDbin()->getValue(RoleID(ERole::Z, 1), iech_in);
         value = _interpolate(nvar, valTop, valBot, coorTop, coorBot, coorOut);
       }
       getDbout()->setValue(getDbout()->fromUID(_iattOut), iech_out, value);

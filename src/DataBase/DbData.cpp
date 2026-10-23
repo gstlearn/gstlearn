@@ -731,27 +731,29 @@ namespace gstlrn
   /************************************************************************/
   DbData::ColProxy DbData::X(Id rank)
   {
-    return ColProxy(*this, ColID(ERole::X, rank));
+    return ColProxy(*this, ColID(RoleID(ERole::X, rank)));
   }
 
   DbData::ColProxy DbData::Z(Id rank)
   {
-    return ColProxy(*this, ColID(ERole::Z, rank));
+    return ColProxy(*this, ColID(RoleID(ERole::Z, rank)));
   }
 
   DbData::ColProxy DbData::W(Id rank)
   {
-    return ColProxy(*this, ColID(ERole::W, rank));
+    DECLARE_UNUSED(rank);
+    return ColProxy(*this, ColID(ERole::W));
   }
 
   DbData::ColProxy DbData::F(Id rank)
   {
-    return ColProxy(*this, ColID(ERole::F, rank));
+    return ColProxy(*this, ColID(RoleID(ERole::F, rank)));
   }
 
   DbData::ColProxy DbData::SEL(Id rank)
   {
-    return ColProxy(*this, ColID(ERole::SEL, rank));
+    DECLARE_UNUSED(rank);
+    return ColProxy(*this, ColID(ERole::SEL));
   }
 
   DbData::ColProxy DbData::role(const ERole& role, Id rank)

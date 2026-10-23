@@ -56,7 +56,7 @@ namespace gstlrn
 
     /* Store information from the input grid */
 
-    Id iatt1 = dbin->getUID({ERole::Z, 0});
+    Id iatt1 = dbin->getUID(RoleID(ERole::Z, 0));
     if (iatt1 <= 0) return 1;
 
     /* Loop on the refinement factors */

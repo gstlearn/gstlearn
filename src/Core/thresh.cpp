@@ -88,10 +88,10 @@ namespace gstlrn
     for (igrf = 0; igrf < 2; igrf++)
     {
       if (!flagUsed[igrf]) continue;
-      iptr = db->getUID({ERole::SIMU, igrf});
+      iptr = db->getUID(RoleID(ERole::SIMU, igrf));
       if (iptr < 0)
       {
-        iptr = db->getUID({ERole::Z, igrf});
+        iptr = db->getUID(RoleID(ERole::Z, igrf));
         if (iptr < 0)
         {
           messerr(

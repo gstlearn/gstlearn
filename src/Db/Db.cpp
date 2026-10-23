@@ -40,6 +40,7 @@
 
 #include <cmath>
 #include <cstdio>
+#include <iostream>
 #include <vector>
 
 namespace gstlrn
@@ -708,7 +709,7 @@ namespace gstlrn
     {
       if (hasLocator(ELoc::C))
       {
-        P.setCode(getValue({ERole::C}, iech));
+        P.setCode(getValue(ERole::C, iech));
       }
     }
 
@@ -717,7 +718,7 @@ namespace gstlrn
     {
       if (hasLocator(ELoc::DATE))
       {
-        P.setCode(getValue({ERole::DATE, 0}, iech));
+        P.setCode(getValue(ERole::DATE, iech));
       }
     }
   }
@@ -790,7 +791,7 @@ namespace gstlrn
   {
     DECLARE_UNUSED(flag_rotate);
     if (idim >= getNDim()) return TEST;
-    return getValue({ERole::X, idim}, iech);
+    return getValue(RoleID(ERole::X, idim), iech);
   }
 
   /**
@@ -810,7 +811,7 @@ namespace gstlrn
     Id ndim = MIN(nsize, getNDim());
     for (Id idim = 0; idim < ndim; idim++)
     {
-      auto icol = getColIdx({ERole::X, idim});
+      auto icol = getColIdx(RoleID(ERole::X, idim));
       if (icol < 0) continue;
       coor[idim] = *_data.getValue<double>(icol, iech);
     }
@@ -961,14 +962,14 @@ namespace gstlrn
   void Db::setCoordinate(Id iech, Id idim, double value)
   {
     if (!isSampleIndexValid(iech)) return;
-    auto icol = getColIdx({ERole::X, idim});
+    auto icol = getColIdx(RoleID(ERole::X, idim));
     if (!isColIdxValid(icol)) return;
     _data.setValue(icol, iech, value);
   }
 
   void Db::setCoordinates(Id idim, const VectorDouble& coor, bool useSel)
   {
-    auto icol = getColIdx({ERole::X, idim});
+    auto icol = getColIdx(RoleID(ERole::X, idim));
     if (!isColIdxValid(icol)) return;
     setColumn(icol, coor, useSel);
   }
@@ -2381,7 +2382,7 @@ namespace gstlrn
         {
           for (Id iech = 0; iech < nech; iech++)
           {
-            value = getValue({ERole::DOM, 0}, iech);
+            value = getValue(ERole::DOM, iech);
             if (GlobalEnvironment::getEnv()->matchDomainReference(value))
               _data.setValue(std::move(colid), iech, value);
             else
@@ -2621,7 +2622,7 @@ namespace gstlrn
     if (!isSampleIndexValid(iech)) return false;
 
     for (Id ivar = 0; ivar < nvar; ivar++)
-      if (FFFF(getValue({ERole::Z, ivar}, iech))) return false;
+      if (FFFF(getValue(RoleID(ERole::Z, ivar), iech))) return false;
     return true;
   }
 
@@ -2651,7 +2652,7 @@ namespace gstlrn
     if (nvar <= 0) return false;
 
     for (Id ivar = 0; ivar < nvar; ivar++)
-      if (!FFFF(getValue({ERole::Z, ivar}, iech))) return false;
+      if (!FFFF(getValue(RoleID(ERole::Z, ivar), iech))) return false;
     return true;
   }
 
@@ -2694,8 +2695,8 @@ namespace gstlrn
         rklow, rkup);
       return;
     }
-    setValue({ERole::RKLOW, item}, iech, rklow);
-    setValue({ERole::RKUP, item}, iech, rkup);
+    setValue(RoleID(ERole::RKLOW, item), iech, rklow);
+    setValue(RoleID(ERole::RKUP, item), iech, rkup);
   }
 
   void Db::setBound(Id iech, Id item, double lower, double upper)
@@ -2707,16 +2708,16 @@ namespace gstlrn
         upper);
       return;
     }
-    setValue({ERole::L, item}, iech, lower);
-    setValue({ERole::U, item}, iech, upper);
+    setValue(RoleID(ERole::L, item), iech, lower);
+    setValue(RoleID(ERole::U, item), iech, upper);
   }
 
   VectorDouble Db::getWithinBounds(Id item, bool useSel) const
   {
     auto nech = getNSample(useSel);
     VectorDouble vec(nech);
-    VectorDouble vecl = getColumn({ERole::L, item}, useSel);
-    VectorDouble vecu = getColumn({ERole::U, item}, useSel);
+    VectorDouble vecl = getColumn(RoleID(ERole::L, item), useSel);
+    VectorDouble vecu = getColumn(RoleID(ERole::U, item), useSel);
 
     for (Id iech = 0; iech < nech; iech++)
     {
@@ -2748,7 +2749,7 @@ namespace gstlrn
     for (Id iech = 0; iech < getNSample(); iech++)
     {
       if (useSel && !isActive(iech)) continue;
-      tab.push_back(getValue({ERole::G, item}, iech));
+      tab.push_back(getValue(RoleID(ERole::G, item), iech));
     }
     return tab;
   }
@@ -2761,7 +2762,7 @@ namespace gstlrn
     for (Id iech = 0; iech < getNSample(); iech++)
     {
       if (useSel && !isActive(iech)) continue;
-      tab.push_back(getValue({ERole::TGT, item}, iech));
+      tab.push_back(getValue(RoleID(ERole::TGT, item), iech));
     }
     return tab;
   }
@@ -2775,7 +2776,7 @@ namespace gstlrn
   Id Db::getSelection(Id iech) const
   {
     if (!hasLocator(ELoc::SEL)) return 1;
-    double value = getValue({ERole::SEL}, iech);
+    double value = getValue(ERole::SEL, iech);
     if (FFFF(value)) return 0;
     Id sel = (!isZero(value)) ? 1 : 0;
     return (sel);
@@ -2799,7 +2800,7 @@ namespace gstlrn
     Id count = 0;
     for (Id iech = 0; iech < getNSample(); iech++)
     {
-      if (!isZero(getValue({ERole::SEL}, iech))) count++;
+      if (!isZero(getValue(ERole::SEL, iech))) count++;
     }
     return count;
   }
@@ -2859,7 +2860,7 @@ namespace gstlrn
     Id count = 0;
     for (Id iech = 0; iech < nechtot; iech++)
     {
-      if (isZero(getValue({ERole::SEL}, iech))) continue;
+      if (isZero(getValue(ERole::SEL, iech))) continue;
       vec[count++] = iech;
     }
     return vec;
@@ -2879,7 +2880,7 @@ namespace gstlrn
     Id count = 0;
     for (Id iech = 0; iech < nechtot; iech++)
     {
-      if (isZero(getValue({ERole::SEL}, iech)))
+      if (isZero(getValue(ERole::SEL, iech)))
         vec[iech] = ITEST;
       else
         vec[iech] = count++;
@@ -2902,7 +2903,7 @@ namespace gstlrn
     Id nech = getNSamples();
     for (Id iech = 0; iech < nech; iech++)
     {
-      if (!isZero(getValue({ERole::SEL}, iech))) count++;
+      if (!isZero(getValue(ERole::SEL, iech))) count++;
     }
     return count;
   }
@@ -2910,7 +2911,7 @@ namespace gstlrn
   double Db::getWeight(Id iech) const
   {
     if (!hasLocator(ELoc::W)) return 1.;
-    double w = getValue({ERole::W}, iech);
+    double w = getValue(ERole::W, iech);
     if (FFFF(w)) w = 1.;
     if (w < 0) w = 0.;
     return (w);
@@ -2924,7 +2925,7 @@ namespace gstlrn
     VectorDouble tab(nech);
 
     if (useSel) sel = getSelections();
-    if (hasLocator(ELoc::W)) icol = getColIdx({ERole::W});
+    if (hasLocator(ELoc::W)) icol = getColIdx(ERole::W);
 
     Id ecr = 0;
     for (Id iech = 0; iech < nech; iech++)
@@ -2957,7 +2958,7 @@ namespace gstlrn
     Id number = 0;
     for (Id iech = 0; iech < nech; iech++)
     {
-      if (isActive(iech)) work[number++] = getValue({ERole::C}, iech);
+      if (isActive(iech)) work[number++] = getValue(ERole::C, iech);
     }
 
     /* Get the Unique occurrence */
@@ -2971,7 +2972,7 @@ namespace gstlrn
   {
     if (!hasLocator(ELoc::DOM)) return true;
     if (!GlobalEnvironment::getEnv()->isDomainReference()) return true;
-    double value = getValue({ERole::DOM, 0}, iech);
+    double value = getValue(ERole::DOM, iech);
     if (FFFF(value)) return false;
     if (!GlobalEnvironment::getEnv()->matchDomainReference(value)) return true;
     return false;
@@ -3048,7 +3049,7 @@ namespace gstlrn
   bool Db::isActiveAndDefined(Id iech, Id item) const
   {
     if (!isActive(iech)) return false;
-    return (!FFFF(getValue({ERole::Z, item}, iech)));
+    return (!FFFF(getValue(RoleID(ERole::Z, item), iech)));
   }
 
   /**
@@ -3064,7 +3065,7 @@ namespace gstlrn
     for (Id iech = 0; iech < nech; iech++)
     {
       if (!isActive(iech)) continue;
-      if (FFFF(getValue({ERole::Z, item}, iech))) continue;
+      if (FFFF(getValue(RoleID(ERole::Z, item), iech))) continue;
       number++;
     }
     return (number);
@@ -3488,7 +3489,7 @@ namespace gstlrn
     VectorDouble tab;
 
     if (!hasLocator(ELoc::SEL)) return tab;
-    auto icol = getColIdx({ERole::SEL});
+    auto icol = getColIdx(ERole::SEL);
     if (!isColIdxValid(icol)) return tab;
 
     tab.resize(nech);
@@ -3529,7 +3530,8 @@ namespace gstlrn
       const VectorInt& local = sampleRanks[ivar];
       for (Id iech = 0, nech = static_cast<Id>(local.size()); iech < nech;
            iech++)
-        values->push_back(getValue({ERole::Z, jvar}, local[iech]) - meanlocal);
+        values->push_back(
+          getValue(RoleID(ERole::Z, jvar), local[iech]) - meanlocal);
     }
   }
 
@@ -3624,7 +3626,7 @@ namespace gstlrn
       if (useSel && !isActive(iech)) continue;
       if (checkVariableContents && ivar >= 0 && ivar < nvar)
       {
-        double value = getValue({ERole::Z, ivar}, iech);
+        double value = getValue(RoleID(ERole::Z, ivar), iech);
         if (FFFF(value) && nvar > 0) continue;
       }
 
@@ -3787,7 +3789,7 @@ namespace gstlrn
 
     // Create the column index for the selection (only if 'useSel')
     Id icol = -1;
-    if (useSel) icol = getColIdx({ERole::SEL});
+    if (useSel) icol = getColIdx(ERole::SEL);
 
     // Update the search for variable, if no variable is defined
     if (getNLoc(ELoc::Z) <= 0) ivar = -1;
@@ -3799,7 +3801,7 @@ namespace gstlrn
     bool useV = false;
     if (useVerr && ivar >= 0)
     {
-      if (getColIdx({ERole::V, ivar}) >= 0) useV = true;
+      if (getColIdx(RoleID(ERole::V, ivar)) >= 0) useV = true;
     }
 
     // Constitute the resulting vector of selected sample ranks
@@ -3819,14 +3821,14 @@ namespace gstlrn
       // Check against the existence of a target variable
       if (useZ && ivar >= 0)
       {
-        value = getValue({ERole::Z, ivar}, iabs);
+        value = getValue(RoleID(ERole::Z, ivar), iabs);
         if (FFFF(value)) continue;
       }
 
       // Check against validity of the Variance of Measurement Error variable
       if (useV)
       {
-        value = getValue({ERole::V, ivar}, iabs);
+        value = getValue(RoleID(ERole::V, ivar), iabs);
         if (FFFF(value) || value < 0) continue;
       }
 
@@ -3836,7 +3838,7 @@ namespace gstlrn
         bool valid = true;
         for (Id iext = 0; iext < nExtD; iext++)
         {
-          value = getValue({ERole::F, iext}, iabs);
+          value = getValue(RoleID(ERole::F, iext), iabs);
           if (FFFF(value))
           {
             valid = false;
@@ -4856,7 +4858,7 @@ namespace gstlrn
     for (Id iech = 0; iech < nech; iech++)
     {
       if (!isActiveAndDefined(iech, 0)) continue;
-      Id ifac = static_cast<Id>(getValue({ERole::Z, 0}, iech));
+      Id ifac = static_cast<Id>(getValue(RoleID(ERole::Z, 0), iech));
       if (ifac <= 0) continue;
       if (ifac > nfac) nfac = ifac;
     }
@@ -4905,7 +4907,8 @@ namespace gstlrn
     VectorBool status(nech);
     for (Id iech = 0; iech < nech; iech++)
     {
-      status[iech] = isActive(iech) && !FFFF(getValue({ERole::Z, item}, iech));
+      status[iech] =
+        isActive(iech) && !FFFF(getValue(RoleID(ERole::Z, item), iech));
     }
     return status;
   }
@@ -5365,7 +5368,7 @@ namespace gstlrn
     }
 
     // Read an already existing selection
-    VectorDouble oldsel = getColumn({ERole::SEL});
+    VectorDouble oldsel = getColumn(ERole::SEL);
     if (oldsel.empty()) return;
 
     if (combine == "or")

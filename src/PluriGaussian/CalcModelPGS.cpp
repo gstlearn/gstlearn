@@ -146,9 +146,9 @@ namespace gstlrn
 
         /* In the stationary case, search in the lookup table first */
 
-        ifac1 = static_cast<Id>(db->getValue({ERole::Z, 0}, i1)) - 1;
+        ifac1 = static_cast<Id>(db->getValue(RoleID(ERole::Z, 0), i1)) - 1;
         if (ifac1 < 0 || ifac1 >= la->getNFacies()) continue;
-        ifac2 = static_cast<Id>(db->getValue({ERole::Z, 0}, i2)) - 1;
+        ifac2 = static_cast<Id>(db->getValue(RoleID(ERole::Z, 0), i2)) - 1;
         if (ifac2 < 0 || ifac2 >= la->getNFacies()) continue;
         proba = la->getStatProba(ifac1, ifac2);
       }
@@ -159,17 +159,17 @@ namespace gstlrn
         auto igrf = la->getIgrfCur();
         if (!la->getUseDiscrete())
         {
-          low[0] = db->getValue({ERole::L, igrf}, i1);
-          up[0] = db->getValue({ERole::U, igrf}, i1);
-          low[1] = db->getValue({ERole::L, igrf}, i2);
-          up[1] = db->getValue({ERole::U, igrf}, i2);
+          low[0] = db->getValue(RoleID(ERole::L, igrf), i1);
+          up[0] = db->getValue(RoleID(ERole::U, igrf), i1);
+          low[1] = db->getValue(RoleID(ERole::L, igrf), i2);
+          up[1] = db->getValue(RoleID(ERole::U, igrf), i2);
         }
         else
         {
-          low[0] = db->getValue({ERole::RKLOW, igrf}, i1);
-          up[0] = db->getValue({ERole::RKUP, igrf}, i1);
-          low[1] = db->getValue({ERole::RKLOW, igrf}, i2);
-          up[1] = db->getValue({ERole::RKUP, igrf}, i2);
+          low[0] = db->getValue(RoleID(ERole::RKLOW, igrf), i1);
+          up[0] = db->getValue(RoleID(ERole::RKUP, igrf), i1);
+          low[1] = db->getValue(RoleID(ERole::RKLOW, igrf), i2);
+          up[1] = db->getValue(RoleID(ERole::RKUP, igrf), i2);
         }
 
         proba = la->getProbaInd(correl, low, up, iconf0);
@@ -861,7 +861,7 @@ namespace gstlrn
       for (Id iech = 0; iech < _db->getNSample(); iech++)
       {
         if (!_db->isActive(iech)) continue;
-        Id ifac = static_cast<Id>(_db->getValue({ERole::Z, 0}, iech));
+        Id ifac = static_cast<Id>(_db->getValue(RoleID(ERole::Z, 0), iech));
         if (_propdef.ruleThreshDefine(
               _db, _rule, ifac, iech, 0, 0, 0, &t1min, &t1max, &t2min, &t2max))
           return;
@@ -1127,7 +1127,7 @@ namespace gstlrn
           for (Id i = 0; i < nloop; i++)
           {
             ifac = (flag_one)
-                   ? static_cast<Id>(_db->getValue({ERole::Z, 0}, iech))
+                   ? static_cast<Id>(_db->getValue(RoleID(ERole::Z, 0), iech))
                    : i;
             jfac = (flag_one) ? ifac : ifac + 1;
             if (_propdef.ruleThreshDefine(
@@ -1138,7 +1138,8 @@ namespace gstlrn
             /* Define the proportions */
 
             if (flag_prop)
-              _db->setValue({ERole::P, ifac}, iech, _propdef._propmem[ifac]);
+              _db->setValue(
+                RoleID(ERole::P, ifac), iech, _propdef._propmem[ifac]);
 
             /* Define the bounds */
 
@@ -1222,35 +1223,35 @@ namespace gstlrn
     }
     else
     {
-      ploc[0] = _db->getValue({ERole::P, ifac1}, iech1);
-      ploc[1] = _db->getValue({ERole::P, ifac2}, iech2);
+      ploc[0] = _db->getValue(RoleID(ERole::P, ifac1), iech1);
+      ploc[1] = _db->getValue(RoleID(ERole::P, ifac2), iech2);
 
       if (!_useDiscrete)
       {
-        low[0] = _db->getValue({ERole::L, ifac1}, iech1);
-        up[0] = _db->getValue({ERole::U, ifac1}, iech1);
-        low[1] = _db->getValue({ERole::L, ifac2}, iech2);
-        up[1] = _db->getValue({ERole::U, ifac2}, iech2);
+        low[0] = _db->getValue(RoleID(ERole::L, ifac1), iech1);
+        up[0] = _db->getValue(RoleID(ERole::U, ifac1), iech1);
+        low[1] = _db->getValue(RoleID(ERole::L, ifac2), iech2);
+        up[1] = _db->getValue(RoleID(ERole::U, ifac2), iech2);
         if (_ngrf > 1)
         {
-          low[2] = _db->getValue({ERole::L, _nfacies + ifac1}, iech1);
-          up[2] = _db->getValue({ERole::U, _nfacies + ifac1}, iech1);
-          low[3] = _db->getValue({ERole::L, _nfacies + ifac2}, iech2);
-          up[3] = _db->getValue({ERole::U, _nfacies + ifac2}, iech2);
+          low[2] = _db->getValue(RoleID(ERole::L, _nfacies + ifac1), iech1);
+          up[2] = _db->getValue(RoleID(ERole::U, _nfacies + ifac1), iech1);
+          low[3] = _db->getValue(RoleID(ERole::L, _nfacies + ifac2), iech2);
+          up[3] = _db->getValue(RoleID(ERole::U, _nfacies + ifac2), iech2);
         }
       }
       else
       {
-        low[0] = _db->getValue({ERole::RKLOW, ifac1}, iech1);
-        up[0] = _db->getValue({ERole::RKUP, ifac1}, iech1);
-        low[1] = _db->getValue({ERole::RKLOW, ifac2}, iech2);
-        up[1] = _db->getValue({ERole::RKUP, ifac2}, iech2);
+        low[0] = _db->getValue(RoleID(ERole::RKLOW, ifac1), iech1);
+        up[0] = _db->getValue(RoleID(ERole::RKUP, ifac1), iech1);
+        low[1] = _db->getValue(RoleID(ERole::RKLOW, ifac2), iech2);
+        up[1] = _db->getValue(RoleID(ERole::RKUP, ifac2), iech2);
         if (_ngrf > 1)
         {
-          low[2] = _db->getValue({ERole::RKLOW, _nfacies + ifac1}, iech1);
-          up[2] = _db->getValue({ERole::RKUP, _nfacies + ifac1}, iech1);
-          low[3] = _db->getValue({ERole::RKLOW, _nfacies + ifac2}, iech2);
-          up[3] = _db->getValue({ERole::RKUP, _nfacies + ifac2}, iech2);
+          low[2] = _db->getValue(RoleID(ERole::RKLOW, _nfacies + ifac1), iech1);
+          up[2] = _db->getValue(RoleID(ERole::RKUP, _nfacies + ifac1), iech1);
+          low[3] = _db->getValue(RoleID(ERole::RKLOW, _nfacies + ifac2), iech2);
+          up[3] = _db->getValue(RoleID(ERole::RKUP, _nfacies + ifac2), iech2);
         }
       }
     }
@@ -1468,12 +1469,12 @@ namespace gstlrn
       if (!_db->isActive(iech)) continue;
       for (Id ivar = 0; ivar < _nfacies; ivar++)
       {
-        double p1 = _db->getValue({ERole::P, ivar}, iech);
+        double p1 = _db->getValue(RoleID(ERole::P, ivar), iech);
         mean[ivar] += p1;
 
         for (Id jvar = 0; jvar < _nfacies; jvar++)
         {
-          double p2 = _db->getValue({ERole::P, jvar}, iech);
+          double p2 = _db->getValue(RoleID(ERole::P, jvar), iech);
           COVS(ivar, jvar) += p1 * p2;
         }
       }
@@ -1717,7 +1718,7 @@ namespace gstlrn
 
     /* Check on the facies */
 
-    Id ifac = static_cast<Id>(_db->getValue({ERole::Z, 0}, iech));
+    Id ifac = static_cast<Id>(_db->getValue(RoleID(ERole::Z, 0), iech));
     if (ifac < 1 || ifac > _nfacies) return (1);
 
     /* Check on the thresholds */
@@ -1725,16 +1726,16 @@ namespace gstlrn
     if (!_useDiscrete)
     {
       if (_db->getNInterval() <= 0) return (0);
-      low = _db->getValue({ERole::L, _igrfcur}, iech);
-      up = _db->getValue({ERole::U, _igrfcur}, iech);
+      low = _db->getValue(RoleID(ERole::L, _igrfcur), iech);
+      up = _db->getValue(RoleID(ERole::U, _igrfcur), iech);
     }
     else
     {
       if (get_LOCATOR_NITEM(_db, ELoc::RKLOW) <= 0
           && get_LOCATOR_NITEM(_db, ELoc::RKUP) <= 0)
         return (0);
-      low = _db->getValue({ERole::RKLOW, _igrfcur}, iech);
-      up = _db->getValue({ERole::RKUP, _igrfcur}, iech);
+      low = _db->getValue(RoleID(ERole::RKLOW, _igrfcur), iech);
+      up = _db->getValue(RoleID(ERole::RKUP, _igrfcur), iech);
     }
     if (up <= low) return (1);
 
@@ -2176,8 +2177,8 @@ namespace gstlrn
     for (Id ipair = _ifirst; ipair < _ilast; ipair++)
     {
       _vorder.getIndices(ipair, &i1, &i2, &dist);
-      if (ifac1 != _db->getValue({ERole::Z, 0}, i1)) continue;
-      if (ifac2 != _db->getValue({ERole::Z, 0}, i2)) continue;
+      if (ifac1 != _db->getValue(RoleID(ERole::Z, 0), i1)) continue;
+      if (ifac2 != _db->getValue(RoleID(ERole::Z, 0), i2)) continue;
       double w1 = _db->getWeight(i1);
       double w2 = _db->getWeight(i2);
       number += static_cast<Id>(w1 * w2);
@@ -2304,8 +2305,8 @@ namespace gstlrn
     for (Id ipair = _ifirst; ipair < _ilast; ipair++)
     {
       _vorder.getIndices(ipair, &i1, &i2, &dist);
-      Id ifac1 = static_cast<Id>(_db->getValue({ERole::Z, 0}, i1));
-      Id ifac2 = static_cast<Id>(_db->getValue({ERole::Z, 0}, i2));
+      Id ifac1 = static_cast<Id>(_db->getValue(RoleID(ERole::Z, 0), i1));
+      Id ifac2 = static_cast<Id>(_db->getValue(RoleID(ERole::Z, 0), i2));
       double w1 = _db->getWeight(i1);
       double w2 = _db->getWeight(i2);
 

@@ -451,12 +451,12 @@ namespace gstlrn
         if (flag_coor)
           for (Id idim = 0; idim < ndim; idim++)
           {
-            Id iatt = db->getUID({ERole::X, idim});
+            Id iatt = db->getUID(RoleID(ERole::X, idim));
             st_csv_print_string(db->getName(db->fromUID(iatt)).c_str());
           }
         for (Id ivar = 0; ivar < nvar; ivar++)
         {
-          Id iatt = db->getUID({ERole::Z, ivar});
+          Id iatt = db->getUID(RoleID(ERole::Z, ivar));
           st_csv_print_string(db->getName(db->fromUID(iatt)).c_str());
         }
       }
@@ -478,12 +478,12 @@ namespace gstlrn
         if (flag_coor)
           for (Id idim = 0; idim < ndim; idim++)
           {
-            Id iatt = db->getUID({ERole::X, idim});
+            Id iatt = db->getUID(RoleID(ERole::X, idim));
             csv_print_double(db->getCoordinate(iech, iatt));
           }
         for (Id ivar = 0; ivar < nvar; ivar++)
         {
-          csv_print_double(db->getValue({ERole::Z, ivar}, iech));
+          csv_print_double(db->getValue(RoleID(ERole::Z, ivar), iech));
         }
       }
     }

@@ -1119,7 +1119,7 @@ namespace gstlrn
     // Check if the variable name already exists
     if (getNLoc(ELoc::X) > 0)
     {
-      String name = getName({ERole::X, idim});
+      String name = getName(RoleID(ERole::X, idim));
       return getOneSlice(name, posx, posy, corner, useSel, version);
     }
     // The variable does not exist, it must be generated on the fly
@@ -2549,8 +2549,9 @@ namespace gstlrn
       Id nval = ntot;
       for (Id idim = ndim - 1; idim >= 0; idim--)
       {
-        double taille =
-          (!flagPerCell) ? getDX(idim) : getValue({ERole::BLEX, idim}, iech);
+        double taille = (!flagPerCell)
+                        ? getDX(idim)
+                        : getValue(RoleID(ERole::BLEX, idim), iech);
         Id nd = ndiscs[idim];
         nval /= nd;
         Id j = jech / nval;

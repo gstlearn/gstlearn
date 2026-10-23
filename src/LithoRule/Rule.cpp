@@ -1075,20 +1075,20 @@ namespace gstlrn
     for (Id iech = 0; iech < nech; iech++)
     {
       if (!dbin->isActive(iech)) continue;
-      Id facies = static_cast<Id>(dbin->getValue({ERole::Z, 0}, iech));
+      Id facies = static_cast<Id>(dbin->getValue(RoleID(ERole::Z, 0), iech));
       if (propdef.ruleThreshDefine(
             dbin, this, facies, iech, isimu, nbsimu, 1, &t1min, &t1max, &t2min,
             &t2max))
         return (1);
       if (igrf == 0)
       {
-        dbin->setValue({ERole::L, locindex}, iech, t1min);
-        dbin->setValue({ERole::U, locindex}, iech, t1max);
+        dbin->setValue(RoleID(ERole::L, locindex), iech, t1min);
+        dbin->setValue(RoleID(ERole::U, locindex), iech, t1max);
       }
       else
       {
-        dbin->setValue({ERole::L, locindex}, iech, t2min);
-        dbin->setValue({ERole::U, locindex}, iech, t2max);
+        dbin->setValue(RoleID(ERole::L, locindex), iech, t2min);
+        dbin->setValue(RoleID(ERole::U, locindex), iech, t2max);
       }
     }
     return (0);

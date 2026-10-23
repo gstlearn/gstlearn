@@ -134,7 +134,7 @@ namespace gstlrn
     VectorDouble& prop)
   {
     Id rank = dbin->getGrid().indiceToRank(indg);
-    Id ifac = static_cast<Id>(dbin->getValue({ERole::Z, 0}, rank));
+    Id ifac = static_cast<Id>(dbin->getValue(RoleID(ERole::Z, 0), rank));
     if (ifac < 1 || ifac > nfacies) return;
     prop[ifac - 1] += 1.;
   }
@@ -163,10 +163,10 @@ namespace gstlrn
     Id jpos = indg[pos] + orient;
     if (jpos <= 0 || jpos >= dbin->getNX(pos)) return;
     Id ifac1 = static_cast<Id>(
-      dbin->getValue({ERole::Z, 0}, dbin->getGrid().indiceToRank(indg)));
+      dbin->getValue(RoleID(ERole::Z, 0), dbin->getGrid().indiceToRank(indg)));
     indg[pos] += orient;
     Id ifac2 = static_cast<Id>(
-      dbin->getValue({ERole::Z, 0}, dbin->getGrid().indiceToRank(indg)));
+      dbin->getValue(RoleID(ERole::Z, 0), dbin->getGrid().indiceToRank(indg)));
     indg[pos] -= orient;
 
     if (ifac1 < 1 || ifac1 > nfacies || ifac2 < 1 || ifac2 > nfacies) return;
@@ -713,7 +713,7 @@ namespace gstlrn
     for (Id iech = 0; iech < nech; iech++)
     {
       if (!db->isActiveAndDefined(iech, 0)) continue;
-      Id ifac = static_cast<Id>(db->getValue({ERole::Z, 0}, iech));
+      Id ifac = static_cast<Id>(db->getValue(RoleID(ERole::Z, 0), iech));
       if (ifac <= 0) continue;
       props[ifac - 1] += 1.;
       neff++;
@@ -756,7 +756,7 @@ namespace gstlrn
     for (Id iech = 0; iech < db->getNSample(); iech++)
     {
       if (!db->isActiveAndDefined(iech, 0)) continue;
-      Id ifac = static_cast<Id>(db->getValue({ERole::Z, 0}, iech));
+      Id ifac = static_cast<Id>(db->getValue(RoleID(ERole::Z, 0), iech));
       if (ifac == 1) prop += 1.;
       neff++;
     }
@@ -903,7 +903,7 @@ namespace gstlrn
       Id nundef = 0;
       for (Id ivar = 0; ivar < nvar; ivar++)
       {
-        data[ivar] = db->getValue({ERole::Z, ivar}, iech);
+        data[ivar] = db->getValue(RoleID(ERole::Z, ivar), iech);
         if (FFFF(data[ivar])) nundef++;
       }
       if (nundef > 0) continue;

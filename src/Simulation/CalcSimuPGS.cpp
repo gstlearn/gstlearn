@@ -127,7 +127,7 @@ namespace gstlrn
       _nechInitial = getDbin()->getNSample();
       if (!getDbin()->isNVarComparedTo(_numberPGS)) return false;
       for (Id ipgs = 0; ipgs < _numberPGS; ++ipgs)
-        _iattZ[ipgs] = getDbin()->getUID({ERole::Z, ipgs});
+        _iattZ[ipgs] = getDbin()->getUID(RoleID(ERole::Z, ipgs));
     }
 
     /* Output Db */
@@ -554,7 +554,7 @@ namespace gstlrn
     for (iech = 0; iech < _nechInitial; iech++)
     {
       if (!getDbin()->isActive(iech)) continue;
-      facdat = static_cast<Id>(getDbin()->getValue({ERole::Z, 0}, iech));
+      facdat = static_cast<Id>(getDbin()->getValue(RoleID(ERole::Z, 0), iech));
       if (facdat < 1 || facdat > nfacies) continue;
       jech = index_point_to_grid(getDbin(), iech, 0, dbgrid, coor.data());
       if (jech < 0) continue;

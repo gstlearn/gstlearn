@@ -160,8 +160,8 @@ namespace gstlrn
     const Db* db = getDb();
     auto icase = getRank(ipgs, ivar);
     auto iech = getSampleRank(iact);
-    double vmin = db->getValue({ERole::L, icase}, iech, false);
-    double vmax = db->getValue({ERole::U, icase}, iech, false);
+    double vmin = db->getValue(RoleID(ERole::L, icase), iech, false);
+    double vmax = db->getValue(RoleID(ERole::U, icase), iech, false);
 
     if (!FFFF(vmin) && !FFFF(vmax) && (vmin) > (vmax))
     {
@@ -277,8 +277,8 @@ namespace gstlrn
       for (Id iact = 0; iact < nact; iact++)
       {
         auto iech = getSampleRank(iact);
-        double vmin = _db->getValue({ERole::L, icase}, iech, false);
-        double vmax = _db->getValue({ERole::U, icase}, iech, false);
+        double vmin = _db->getValue(RoleID(ERole::L, icase), iech, false);
+        double vmax = _db->getValue(RoleID(ERole::U, icase), iech, false);
         _printInequalities(iact, ivar, y[icase][iact], vmin, vmax);
       }
     }
@@ -329,7 +329,7 @@ namespace gstlrn
     for (Id ivar = 0; ivar < nvar; ivar++)
     {
       auto icase = getRank(ipgs, ivar);
-      auto colid = ColID({ERole::GAUSFAC, icase}, isimu);
+      auto colid = ColID(RoleID(ERole::GAUSFAC, icase), isimu);
 
       /* Loop on the samples */
       for (Id iact = 0; iact < nact; iact++)
@@ -468,8 +468,8 @@ namespace gstlrn
   {
     auto iech = getSampleRank(iact);
 
-    double vmin = _db->getValue({ERole::L, icase}, iech, false);
-    double vmax = _db->getValue({ERole::U, icase}, iech, false);
+    double vmin = _db->getValue(RoleID(ERole::L, icase), iech, false);
+    double vmax = _db->getValue(RoleID(ERole::U, icase), iech, false);
 
     bool isActive = !FFFF(vmin) && !FFFF(vmax) && isEqual(vmin, vmax);
     if (isActive)

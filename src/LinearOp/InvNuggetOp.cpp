@@ -228,7 +228,7 @@ namespace gstlrn
     {
       for (Id iverr = 0; iverr < nverr && flag_uniqueVerr; iverr++)
       {
-        VectorDouble verr = db->getColumn({ERole::V, iverr});
+        VectorDouble verr = db->getColumn(RoleID(ERole::V, iverr));
         if (static_cast<Id>(VH::unique(verr).size()) > 1)
           flag_uniqueVerr = false;
         verrDef[iverr] = verr[0];
@@ -319,7 +319,7 @@ namespace gstlrn
             {
               // Add the Variance of measurement error (optional)
               if (flag_verr && idef < nverr)
-                value += db->getValue({ERole::V, identity[idef]}, iech);
+                value += db->getValue(RoleID(ERole::V, identity[idef]), iech);
 
               // Check the minimum values over the diagonal
               value = MAX(value, MAX(local.getValue(idef, idef), minNug[idef]));

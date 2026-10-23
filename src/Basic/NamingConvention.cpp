@@ -431,7 +431,8 @@ namespace gstlrn
     String loc_varname;
     if (db != nullptr)
     {
-      if (db->getNLoc(ELoc::Z) > 0) loc_varname = db->getName({ERole::Z, ivar});
+      if (db->getNLoc(ELoc::Z) > 0)
+        loc_varname = db->getName(RoleID(ERole::Z, ivar));
     }
     else
     {

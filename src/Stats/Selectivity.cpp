@@ -174,9 +174,9 @@ namespace gstlrn
     }
 
     // Extract the array of data and weights
-    VectorDouble tab = db->getColumn({ERole::Z, 0}, true);
+    VectorDouble tab = db->getColumn(RoleID(ERole::Z, 0), true);
     VectorDouble wtab;
-    if (db->hasLocator(ELoc::W)) wtab = db->getColumn({ERole::W, 0}, true);
+    if (db->hasLocator(ELoc::W)) wtab = db->getColumn(ERole::W, true);
 
     return calculateFromArray(tab, wtab, autoCuts);
   }

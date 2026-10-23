@@ -77,7 +77,7 @@ namespace gstlrn
 
   double VCloud::_getIVAR(const Db* db, Id iech, Id ivar) const
   {
-    return db->getValue({ERole::Z, ivar}, iech);
+    return db->getValue(RoleID(ERole::Z, ivar), iech);
   }
 
   void VCloud::setPolygon(const Polygons* polygon)

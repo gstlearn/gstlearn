@@ -73,7 +73,7 @@ void st_test(
 
   // Define the data base (with 'nech' samples)
   Db* data = Db::createFillRandom(nech, ndim, nvar, 0);
-  data->setValue({ERole::Z, 0}, 1, TEST);
+  data->setValue(RoleID(ERole::Z, 0), 1, TEST);
   if (flagEnviron)
   {
     message("Data Db\n");

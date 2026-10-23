@@ -145,7 +145,7 @@ namespace gstlrn
       if (!dbgrid->isActive(iech)) continue;
       double value = (_subparam.isFlagDirect())
                      ? dbgrid->getValue(dbgrid->fromUID(_iattOut), iech)
-                     : dbgrid->getValue({ERole::Z, 0}, iech);
+                     : dbgrid->getValue(RoleID(ERole::Z, 0), iech);
       if (value < vmin) vmin = value;
       if (value > vmax) vmax = value;
     }
@@ -207,7 +207,7 @@ namespace gstlrn
         if (!dbgrid->isActive(iech)) continue;
         double value = (_subparam.isFlagDirect())
                        ? dbgrid->getValue(dbgrid->fromUID(_iattOut), iech)
-                       : dbgrid->getValue({ERole::Z, 0}, iech);
+                       : dbgrid->getValue(RoleID(ERole::Z, 0), iech);
         Id ival = static_cast<Id>((value - vmin) / (vmax - vmin) * nstates);
         if (ival < 0) ival = 0;
         if (ival >= nstates) ival = nstates - 1;

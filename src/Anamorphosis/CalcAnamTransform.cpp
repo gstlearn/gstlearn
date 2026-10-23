@@ -228,7 +228,7 @@ namespace gstlrn
       // Add the output variable(s) (with the same number of 'versions' as the input variable(s))
       for (Id ivar = 0; ivar < nvar; ivar++)
       {
-        Id nversion = getDb()->getNVersions({ERole::Z, ivar});
+        Id nversion = getDb()->getNVersions(RoleID(ERole::Z, ivar));
         auto iatt = getDb()->addColumnsByConstant(1, nversion);
         if (_iattVar < 0) _iattVar = iatt;
       }
@@ -390,7 +390,7 @@ namespace gstlrn
 
     VectorDouble wt;
     if (getDb()->hasLocator(ELoc::W))
-      wt = getDb()->getColumn({ERole::W, 0});
+      wt = getDb()->getColumn(ERole::W);
     else
       wt.resize(nech, 1.);
 
@@ -398,7 +398,7 @@ namespace gstlrn
 
     for (Id ivar = 0; ivar < nvar; ivar++)
     {
-      auto nversion = getDb()->getNVersions({ERole::Z, ivar});
+      auto nversion = getDb()->getNVersions(RoleID(ERole::Z, ivar));
       auto roleid = RoleID(ERole::Z, ivar);
       for (Id ivers = 0; ivers < nversion; ivers++)
       {
@@ -419,7 +419,7 @@ namespace gstlrn
 
     for (Id ivar = 0; ivar < nvar; ivar++)
     {
-      auto nversion = getDb()->getNVersions({ERole::Z, ivar});
+      auto nversion = getDb()->getNVersions(RoleID(ERole::Z, ivar));
       auto roleid = RoleID(ERole::Z, ivar);
       for (Id ivers = 0; ivers < nversion; ivers++)
       {
@@ -439,7 +439,7 @@ namespace gstlrn
 
     for (Id ivar = 0; ivar < nvar; ivar++)
     {
-      auto nversion = getDb()->getNVersions({ERole::Z, ivar});
+      auto nversion = getDb()->getNVersions(RoleID(ERole::Z, ivar));
       auto roleid = RoleID(ERole::Z, ivar);
       for (Id ivers = 0; ivers < nversion; ivers++)
       {
@@ -459,7 +459,7 @@ namespace gstlrn
     for (Id iech = 0; iech < getDb()->getNSample(); iech++)
     {
       if (!getDb()->isActive(iech)) continue;
-      double zval = getDb()->getValue({ERole::Z, 0}, iech);
+      double zval = getDb()->getValue(RoleID(ERole::Z, 0), iech);
       if (FFFF(zval)) continue;
       VectorDouble factors = _anam->z2factor(zval, _ifacs);
       if (factors.empty()) continue;

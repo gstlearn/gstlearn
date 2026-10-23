@@ -314,7 +314,7 @@ namespace gstlrn
       // Update the Diagonal due to the presence of Variance of Measurement Error
       if (_dbout->hasLocator(ELoc::V) && icase1 == 1)
       {
-        Id icolVerr = _dbout->getColIdx({ERole::V, ivar1});
+        Id icolVerr = _dbout->getColIdx(RoleID(ERole::V, ivar1));
 
         double verr = 0.;
 
@@ -377,7 +377,7 @@ namespace gstlrn
         nech = static_cast<Id>(_varRanksOut[ivar].size());
         for (Id iech = 0; iech < nech; iech++)
           _Y[ecr++] =
-            _dbout->getValue({ERole::Z, ivar}, _varRanksOut[ivar][iech]);
+            _dbout->getValue(RoleID(ERole::Z, ivar), _varRanksOut[ivar][iech]);
       }
     }
     else
@@ -389,7 +389,7 @@ namespace gstlrn
         nech = static_cast<Id>(_varRanksIn[ivar].size());
         for (Id iech = 0; iech < nech; iech++)
           _Y[ecr++] =
-            _dbin->getValue({ERole::Z, ivar}, _varRanksIn[ivar][iech]);
+            _dbin->getValue(RoleID(ERole::Z, ivar), _varRanksIn[ivar][iech]);
       }
     }
   }
@@ -455,7 +455,7 @@ namespace gstlrn
       db = _dbin;
     Id nvar = db->getNLoc(ELoc::Z);
     if (nvar <= 0) return true;
-    double value = db->getValue({ERole::Z, ivar}, ipAbs);
+    double value = db->getValue(RoleID(ERole::Z, ivar), ipAbs);
     return !FFFF(value);
   }
 
@@ -496,7 +496,7 @@ namespace gstlrn
     {
       if (_dbout->hasLocator(ELoc::V))
       {
-        Id icolVerr = _dbout->getColIdx({ERole::V, ivar});
+        Id icolVerr = _dbout->getColIdx(RoleID(ERole::V, ivar));
         if (icolVerr >= 0) var0 += _dbout->getValue(icolVerr, ipAbs);
       }
     }
