@@ -1030,7 +1030,7 @@ namespace gstlrn
     Id ntotal = dbgrid->getNSample();
     VectorInt nxy = dbgrid->getNXs();
 
-    VectorDouble tabin = dbgrid->getColumn(RoleID(ERole::Z));
+    VectorDouble tabin = dbgrid->getColumn(RoleID(ERole::Z, 0));
     BImage image = morpho_double2image(nxy, tabin, vmin, vmax);
 
     if (verbose)

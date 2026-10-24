@@ -1053,9 +1053,8 @@ namespace gstlrn
 
       /* Update the number of samples in the cell */
 
-      dbgrid->setValue(
-        RoleID(ERole::P, iclass), jech,
-        dbgrid->getValue(RoleID(ERole::P, iclass), jech) + 1);
+      auto roleid = RoleID(ERole::P, iclass);
+      dbgrid->setValue(roleid, jech, dbgrid->getValue(roleid, jech) + 1);
     }
 
     /* Normalization phase */

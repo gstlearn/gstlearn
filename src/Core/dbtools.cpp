@@ -720,7 +720,8 @@ namespace gstlrn
       norme = 0.;
       for (Id idim = 0; idim < ndim; idim++)
       {
-        grad = dbgrid->getValue(RoleID(ERole::G, idim), iech);
+        auto roleid = RoleID(ERole::G, idim);
+        grad = dbgrid->getValue(roleid, iech);
         norme += grad * grad;
       }
 
@@ -729,8 +730,9 @@ namespace gstlrn
 
       for (Id idim = 0; idim < ndim; idim++)
       {
-        grad = dbgrid->getValue(RoleID(ERole::G, idim), iech);
-        dbgrid->setValue(RoleID(ERole::G, idim), iech, grad / norme);
+        auto roleid = RoleID(ERole::G, idim);
+        grad = dbgrid->getValue(roleid, iech);
+        dbgrid->setValue(roleid, iech, grad / norme);
       }
     }
   }

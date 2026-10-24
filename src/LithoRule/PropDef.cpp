@@ -614,8 +614,9 @@ namespace gstlrn
       if (!db->isActive(iech)) continue;
       Id facies = static_cast<Id>(db->getValue(colid, iech)) - 1;
       Id rank = _getFacies(ipgs, facies);
-      double prop = db->getValue(RoleID(ERole::P, rank), iech) + 1.;
-      db->setValue(RoleID(ERole::P, rank), iech, prop);
+      auto roleid = RoleID(ERole::P, rank);
+      double prop = db->getValue(roleid, iech) + 1.;
+      db->setValue(roleid, iech, prop);
     }
 
     /* Optional printout */
@@ -678,9 +679,9 @@ namespace gstlrn
       for (Id ifac = 0; ifac < nfacies; ifac++)
       {
         Id rank = _getFacies(ipgs, ifac);
-        double prop = db->getValue(RoleID(ERole::P, rank), iech)
-                    / static_cast<double>(nbsimu);
-        db->setValue(RoleID(ERole::P, rank), iech, prop);
+        auto roleid = RoleID(ERole::P, rank);
+        double prop = db->getValue(roleid, iech) / static_cast<double>(nbsimu);
+        db->setValue(roleid, iech, prop);
       }
     }
 

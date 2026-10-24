@@ -1723,7 +1723,7 @@ namespace gstlrn
 
       // Store the results
 
-      dbout->setValue(ERole::Z, iech, result[0]);
+      dbout->setValue(RoleID(ERole::Z, 0), iech, result[0]);
       if (flag_grad)
         for (Id idim = 0; idim < _ndim; idim++)
           dbout->setValue(RoleID(ERole::G, idim), iech, result[idim + 1]);

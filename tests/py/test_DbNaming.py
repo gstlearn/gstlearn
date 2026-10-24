@@ -219,7 +219,7 @@ gl.mestitle(0, "Remark on Space Dimension")
 # variable *x2*, despite its locator rank *1* (i.e. index 0) actually contains
 # the **second** coordinate of the samples, as demonstrated in the next line
 
-grid.getColumn(gl.ColID(gl.ERole.X, 0))
+grid.getColumn(gl.RoleID(gl.ERole.X, 0))
 
 # Note that at any time, the coordinate vectors can be regenerated.
 # To avoid confusion, the newly generated coordinate fields are named using

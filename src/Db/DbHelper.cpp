@@ -1328,7 +1328,7 @@ namespace gstlrn
     for (icol = 0; icol < ncol; icol++)
     {
       (void)dbin->getLocator(icol, &locatorType, &item, &mult);
-      dbout->setLocator(dbout->fromUID(icol), locatorType, item);
+      dbout->setLocator(icol, locatorType, item);
     }
 
     /* Loop on the samples of the output grid */

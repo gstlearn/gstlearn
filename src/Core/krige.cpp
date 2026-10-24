@@ -417,7 +417,7 @@ namespace gstlrn
   //
   //    // Loop in the current dimension
   //
-  //    exts2 = DBIN->getValue({ELoc::BLEX, idim}, it->rank1) / 2.;
+  //    exts2 = DBIN->getValue(RoleID(ELoc::BLEX, idim), it->rank1) / 2.;
   //    dsize = KOPTION->dsize[idim];
   //
   //    if (exts2 <= 0. || dsize <= 0.)
@@ -3154,7 +3154,7 @@ namespace gstlrn
 
     /* Get the vector of active data and subtract the mean */
 
-    VectorDouble data = db->getColumn({RoleID(ERole::Z, 0)});
+    VectorDouble data = db->getColumn(RoleID(ERole::Z, 0));
     for (Id i = 0; i < nutil; i++) datm[i] = data[rutil[i]] - model->getMean(0);
     AMatrix::productInPlace(aux1, datm, tutil);
     AMatrix::productInPlace(aux2, aux1, invsig);
@@ -3241,7 +3241,7 @@ namespace gstlrn
 
     /* Set the data vector (corrected by the mean */
 
-    VectorDouble data = db->getColumn({RoleID(ERole::Z, 0)});
+    VectorDouble data = db->getColumn(RoleID(ERole::Z, 0));
     for (Id i = 0; i < nsize1; i++)
       datm[i] = data[ranks1[i]] - model->getMean(0);
 
@@ -3526,7 +3526,7 @@ namespace gstlrn
 
     /* Get the vector of active data and subtract the mean */
 
-    VectorDouble data = dbin->getColumn({RoleID(ERole::Z, 0)});
+    VectorDouble data = dbin->getColumn(RoleID(ERole::Z, 0));
     for (i = 0; i < nutil; i++) datm[i] = data[rutil[i]] - model->getMean(0);
     AMatrix::productInPlace(aux1, datm, tutil);
     AMatrix::productInPlace(aux2, aux1, invsig);

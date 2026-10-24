@@ -402,7 +402,8 @@ namespace gstlrn
       auto roleid = RoleID(ERole::Z, ivar);
       for (Id ivers = 0; ivers < nversion; ivers++)
       {
-        VectorDouble data = getDb()->getColumn({roleid, ivers}, false, true);
+        VectorDouble data =
+          getDb()->getColumn(ColID(roleid, ivers), false, true);
         VectorDouble vec = VH::normalScore(data, wt);
         if (!vec.empty())
           getDb()->setColumn(
@@ -423,7 +424,7 @@ namespace gstlrn
       auto roleid = RoleID(ERole::Z, ivar);
       for (Id ivers = 0; ivers < nversion; ivers++)
       {
-        VectorDouble z = getDb()->getColumn({roleid, ivers}, true, true);
+        VectorDouble z = getDb()->getColumn(ColID(roleid, ivers), true, true);
         if (z.size() <= 0) continue;
         VectorDouble y = anamC->rawToGaussianVector(z);
         getDb()->setColumn(getDb()->fromUID(_iattVar + ivar, ivers), y, true);
@@ -443,7 +444,7 @@ namespace gstlrn
       auto roleid = RoleID(ERole::Z, ivar);
       for (Id ivers = 0; ivers < nversion; ivers++)
       {
-        VectorDouble y = getDb()->getColumn({roleid, ivers}, true, true);
+        VectorDouble y = getDb()->getColumn(ColID(roleid, ivers), true, true);
         if (y.size() <= 0) continue;
         VectorDouble z = anamC->gaussianToRawVector(y);
         getDb()->setColumn(getDb()->fromUID(_iattVar + ivar, ivers), z, true);

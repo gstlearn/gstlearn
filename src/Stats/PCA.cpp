@@ -882,11 +882,11 @@ namespace gstlrn
     auto nvarZ = _countNVarZ(db);
     for (Id ivar = 0; ivar < nvarZ; ivar++)
     {
-      auto nversion = db->getNVersions(RoleID(ERole::Z, ivar));
       auto roleid = RoleID(ERole::Z, ivar);
+      auto nversion = db->getNVersions(roleid);
       for (Id iversion = 0; iversion < nversion; iversion++)
       {
-        data[nitem] = db->getValue({roleid, iversion}, iech);
+        data[nitem] = db->getValue(ColID(roleid, iversion), iech);
         nitem++;
       }
     }
