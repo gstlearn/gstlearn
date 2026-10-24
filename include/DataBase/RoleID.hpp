@@ -38,7 +38,9 @@ namespace gstlrn
   class GSTLEARN_EXPORT RoleID
   {
   public:
-    RoleID(const ERole& role = ERole::UNDEFINED, Id index = 0);
+    // The qualifier 'explicit' has been added to avoid implicit conversion from ERole to RoleID
+    // which could be confusing when used during the construction of a ColID.
+    explicit RoleID(const ERole& role = ERole::UNDEFINED, Id index = 0);
 
     const ERole& getRole() const { return _role; }
 
