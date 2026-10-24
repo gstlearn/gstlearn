@@ -134,7 +134,7 @@ namespace gstlrn
     VectorDouble& prop)
   {
     Id rank = dbin->getGrid().indiceToRank(indg);
-    Id ifac = static_cast<Id>(dbin->getZVariable(rank, 0));
+    Id ifac = static_cast<Id>(dbin->getValue(RoleID(ERole::Z, 0), rank));
     if (ifac < 1 || ifac > nfacies) return;
     prop[ifac - 1] += 1.;
   }
@@ -163,10 +163,10 @@ namespace gstlrn
     Id jpos = indg[pos] + orient;
     if (jpos <= 0 || jpos >= dbin->getNX(pos)) return;
     Id ifac1 = static_cast<Id>(
-      dbin->getZVariable(dbin->getGrid().indiceToRank(indg), 0));
+      dbin->getValue(RoleID(ERole::Z, 0), dbin->getGrid().indiceToRank(indg)));
     indg[pos] += orient;
     Id ifac2 = static_cast<Id>(
-      dbin->getZVariable(dbin->getGrid().indiceToRank(indg), 0));
+      dbin->getValue(RoleID(ERole::Z, 0), dbin->getGrid().indiceToRank(indg)));
     indg[pos] -= orient;
 
     if (ifac1 < 1 || ifac1 > nfacies || ifac2 < 1 || ifac2 > nfacies) return;
@@ -197,7 +197,7 @@ namespace gstlrn
         value = TEST;
       else
         value = tab[ifac] / total;
-      dbout->setArray(iech, iptr + ifac, value);
+      dbout->setValue(dbout->fromUID(iptr + ifac), iech, value);
     }
   }
 
@@ -407,10 +407,10 @@ namespace gstlrn
       for (Id iuid = 0; iuid < niuid; iuid++)
       {
         Id juid = iuids[iuid];
-        auto ncol = db->getNVersions(juid);
+        auto ncol = db->getNVersions(db->fromUID(juid));
         for (Id version = 0; version < ncol; version++)
         {
-          double value = db->getArray(iech, juid, version);
+          double value = db->getValue(db->fromUID(juid, version), iech);
           if (FFFF(value)) continue;
 
           local[neff] = value;
@@ -471,7 +471,7 @@ namespace gstlrn
           else
             return;
         }
-        db->setArray(iech, iptr0 + i, tab);
+        db->setValue(db->fromUID(iptr0 + i), iech, tab);
       }
     }
   }
@@ -522,10 +522,10 @@ namespace gstlrn
       Id nundef = 0;
       for (Id iuid = 0; iuid < niuid; iuid++)
       {
-        auto nversion = db->getNVersions(iuids[iuid]);
+        auto nversion = db->getNVersions(db->fromUID(iuids[iuid]));
         for (Id version = 0; version < nversion && nundef <= 0; version++)
         {
-          double value = db->getArray(iech, iuids[iuid], version);
+          double value = db->getValue(db->fromUID(iuids[iuid], version), iech);
           if (FFFF(value)) nundef++;
         }
       }
@@ -537,7 +537,7 @@ namespace gstlrn
     for (Id iuid = 0; iuid < niuid; iuid++)
     {
       // Loop on the versions of the attribute
-      auto nversion = db->getNVersions(iuids[iuid]);
+      auto nversion = db->getNVersions(db->fromUID(iuids[iuid]));
       for (Id version = 0; version < nversion; version++)
       {
         nrow++;
@@ -557,7 +557,7 @@ namespace gstlrn
         for (Id iech = 0; iech < nech; iech++)
         {
           if (!accept[iech]) continue;
-          double value = db->getArray(iech, iuids[iuid], version);
+          double value = db->getValue(db->fromUID(iuids[iuid], version), iech);
           // Skip TEST values (this test is necessary when flagIso is set to FALSE)
           if (FFFF(value)) continue;
 
@@ -671,9 +671,10 @@ namespace gstlrn
 
     for (Id iuid = 0, irow = 0; iuid < niuid; iuid++)
     {
-      auto nversion = db->getNVersions(iuids[iuid]);
+      auto nversion = db->getNVersions(db->fromUID(iuids[iuid]));
       for (Id version = 0; version < nversion; version++, irow++)
-        table.setRowName(irow, db->getNameByUID(iuids[iuid], version, true));
+        table.setRowName(
+          irow, db->getName(db->fromUID(iuids[iuid], version), true));
     }
     for (Id icol = 0; icol < noper; icol++)
       table.setColumnName(icol, String{opers[icol].getDescr()});
@@ -712,7 +713,7 @@ namespace gstlrn
     for (Id iech = 0; iech < nech; iech++)
     {
       if (!db->isActiveAndDefined(iech, 0)) continue;
-      Id ifac = static_cast<Id>(db->getZVariable(iech, 0));
+      Id ifac = static_cast<Id>(db->getValue(RoleID(ERole::Z, 0), iech));
       if (ifac <= 0) continue;
       props[ifac - 1] += 1.;
       neff++;
@@ -755,7 +756,7 @@ namespace gstlrn
     for (Id iech = 0; iech < db->getNSample(); iech++)
     {
       if (!db->isActiveAndDefined(iech, 0)) continue;
-      Id ifac = static_cast<Id>(db->getZVariable(iech, 0));
+      Id ifac = static_cast<Id>(db->getValue(RoleID(ERole::Z, 0), iech));
       if (ifac == 1) prop += 1.;
       neff++;
     }
@@ -804,10 +805,10 @@ namespace gstlrn
       Id nundef = 0;
       for (Id iuid = 0, icol = 0; iuid < niuid; iuid++)
       {
-        auto nversion = db->getNVersions(iuids[iuid]);
+        auto nversion = db->getNVersions(db->fromUID(iuids[iuid]));
         for (Id version = 0; version < nversion; version++, icol++)
         {
-          data[icol] = db->getArray(iech, iuids[iuid], version);
+          data[icol] = db->getValue(db->fromUID(iuids[iuid], version), iech);
           if (FFFF(data[icol])) nundef++;
         }
       }
@@ -864,11 +865,13 @@ namespace gstlrn
 
     for (Id iuid = 0, irow = 0; iuid < niuid; iuid++)
     {
-      auto nversion = db->getNVersions(iuids[iuid]);
+      auto nversion = db->getNVersions(db->fromUID(iuids[iuid]));
       for (Id version = 0; version < nversion; version++, irow++)
       {
-        table.setRowName(irow, db->getNameByUID(iuids[iuid], version, true));
-        table.setColumnName(irow, db->getNameByUID(iuids[iuid], version, true));
+        table.setRowName(
+          irow, db->getName(db->fromUID(iuids[iuid], version), true));
+        table.setColumnName(
+          irow, db->getName(db->fromUID(iuids[iuid], version), true));
       }
     }
 
@@ -900,7 +903,7 @@ namespace gstlrn
       Id nundef = 0;
       for (Id ivar = 0; ivar < nvar; ivar++)
       {
-        data[ivar] = db->getLocVariable(ELoc::Z, iech, ivar);
+        data[ivar] = db->getValue(RoleID(ERole::Z, ivar), iech);
         if (FFFF(data[ivar])) nundef++;
       }
       if (nundef > 0) continue;
@@ -1209,10 +1212,10 @@ namespace gstlrn
       Id nundef = 0;
       for (Id iuid = 0, icol = 0; iuid < niuid; iuid++)
       {
-        auto nversion = db->getNVersions(iuids[iuid]);
+        auto nversion = db->getNVersions(db->fromUID(iuids[iuid]));
         for (Id version = 0; version < nversion; version++, icol++)
         {
-          data[icol] = db->getArray(iech, iuids[iuid], version);
+          data[icol] = db->getValue(db->fromUID(iuids[iuid], version), iech);
           if (FFFF(data[icol])) nundef++;
         }
       }
@@ -1272,12 +1275,12 @@ namespace gstlrn
     Id taille = 0;
     for (Id iuid = 0, icol = 0; iuid < niuid; iuid++)
     {
-      auto nversion = db->getNVersions(iuids[iuid]);
+      auto nversion = db->getNVersions(db->fromUID(iuids[iuid]));
       for (Id version = 0; version < nversion; version++, icol++)
       {
         _getRowname(
-          radix, ncol, icol, db->getNameByUID(iuids[iuid], version, true),
-          string);
+          radix, ncol, icol,
+          db->getName(db->fromUID(iuids[iuid], version), true), string);
         taille = MAX(taille, static_cast<Id>(string.size()));
       }
     }
@@ -1297,12 +1300,12 @@ namespace gstlrn
 
     for (Id iuid = 0, icol = 0; iuid < niuid; iuid++)
     {
-      auto nversion = db->getNVersions(iuids[iuid]);
+      auto nversion = db->getNVersions(db->fromUID(iuids[iuid]));
       for (Id version = 0; version < nversion; version++, icol++)
       {
         _getRowname(
-          radix, ncol, icol, db->getNameByUID(iuids[iuid], version, true),
-          string);
+          radix, ncol, icol,
+          db->getName(db->fromUID(iuids[iuid], version), true), string);
         message("%s", _toStrRowHeader({string}, 0, taille).c_str());
 
         if (_operExists(opers, EStatOption::NUM))
@@ -1491,12 +1494,12 @@ namespace gstlrn
 
       if (flag1)
       {
-        z1 = db->getArray(iech, iuid);
+        z1 = db->getValue(db->fromUID(iuid), iech);
         if (FFFF(z1)) continue;
       }
       if (flag2)
       {
-        z2 = db->getArray(iech, juid);
+        z2 = db->getValue(db->fromUID(juid), iech);
         if (FFFF(z2)) continue;
       }
 
@@ -1702,7 +1705,7 @@ namespace gstlrn
       for (Id icol1 = 0; icol1 < ncol; icol1++)
       {
         Id jcol1 = cols[icol1];
-        double val1 = db->getArray(iech, jcol1);
+        double val1 = db->getValue(db->fromUID(jcol1), iech);
         if (FFFF(val1)) continue;
 
         /* Loop on the second variable */
@@ -1710,7 +1713,7 @@ namespace gstlrn
         for (Id icol2 = 0; icol2 < ncol; icol2++)
         {
           Id jcol2 = cols[icol2];
-          double val2 = db->getArray(iech, jcol2);
+          double val2 = db->getValue(db->fromUID(jcol2), iech);
           if (FFFF(val2)) continue;
 
           /* Update statistics */
@@ -1834,10 +1837,10 @@ namespace gstlrn
     {
       table.resetFromVD(ncol, ncol, result, false);
       for (Id icol = 0; icol < ncol; icol++)
-        table.setColumnName(icol, db->getNameByUID(cols[icol]));
+        table.setColumnName(icol, db->getName(db->fromUID(cols[icol])));
     }
     for (Id irow = 0; irow < ncol; irow++)
-      table.setRowName(irow, db->getNameByUID(cols[irow]));
+      table.setRowName(irow, db->getName(db->fromUID(cols[irow])));
 
     return table;
   }
@@ -1915,7 +1918,7 @@ namespace gstlrn
         db->getCoordinatesInPlace(coor, iech);
         if (dbgrid->getGrid().coordinateToIndicesInPlace(coor, indg0, true))
           continue;
-        double value = db->getArray(iech, juid);
+        double value = db->getValue(db->fromUID(juid), iech);
         if (FFFF(value)) continue;
 
         /* Loop on the neighboring cells */
@@ -1928,28 +1931,29 @@ namespace gstlrn
 
           if (oper == EStatOption::NUM)
           {
-            dbgrid->updArray(iad, iptr, EOperator::ADD, 1.);
+            dbgrid->updValue(dbgrid->fromUID(iptr), iad, EOperator::ADD, 1.);
           }
           else if (oper == EStatOption::MEAN)
           {
-            dbgrid->updArray(iad, iptn, EOperator::ADD, 1.);
-            dbgrid->updArray(iad, iptr, EOperator::ADD, value);
+            dbgrid->updValue(dbgrid->fromUID(iptn), iad, EOperator::ADD, 1.);
+            dbgrid->updValue(dbgrid->fromUID(iptr), iad, EOperator::ADD, value);
           }
           else if (oper == EStatOption::VAR || oper == EStatOption::STDV)
           {
-            dbgrid->updArray(iad, iptn, EOperator::ADD, 1.);
-            dbgrid->updArray(iad, iptm, EOperator::ADD, value);
-            dbgrid->updArray(iad, iptr, EOperator::ADD, value * value);
+            dbgrid->updValue(dbgrid->fromUID(iptn), iad, EOperator::ADD, 1.);
+            dbgrid->updValue(dbgrid->fromUID(iptm), iad, EOperator::ADD, value);
+            dbgrid->updValue(
+              dbgrid->fromUID(iptr), iad, EOperator::ADD, value * value);
           }
           else if (oper == EStatOption::MINI)
           {
-            if (value < dbgrid->getArray(iad, iptr))
-              dbgrid->setArray(iad, iptr, value);
+            if (value < dbgrid->getValue(dbgrid->fromUID(iptr), iad))
+              dbgrid->setValue(dbgrid->fromUID(iptr), iad, value);
           }
           else if (oper == EStatOption::MAXI)
           {
-            if (value > dbgrid->getArray(iad, iptr))
-              dbgrid->setArray(iad, iptr, value);
+            if (value > dbgrid->getValue(dbgrid->fromUID(iptr), iad))
+              dbgrid->setValue(dbgrid->fromUID(iptr), iad, value);
           }
           else if (oper == EStatOption::MEDIAN)
           {
@@ -1957,15 +1961,18 @@ namespace gstlrn
           }
           else if (oper == EStatOption::PLUS)
           {
-            if (value > 0.) dbgrid->updArray(iad, iptr, EOperator::ADD, 1.);
+            if (value > 0.)
+              dbgrid->updValue(dbgrid->fromUID(iptr), iad, EOperator::ADD, 1.);
           }
           else if (oper == EStatOption::MOINS)
           {
-            if (value < 0.) dbgrid->updArray(iad, iptr, EOperator::ADD, 1.);
+            if (value < 0.)
+              dbgrid->updValue(dbgrid->fromUID(iptr), iad, EOperator::ADD, 1.);
           }
           else if (oper == EStatOption::ZERO)
           {
-            if (value == 0.) dbgrid->updArray(iad, iptr, EOperator::ADD, 1.);
+            if (value == 0.)
+              dbgrid->updValue(dbgrid->fromUID(iptr), iad, EOperator::ADD, 1.);
           }
           else
           {
@@ -1980,29 +1987,31 @@ namespace gstlrn
       {
         for (Id i = 0; i < nxyz; i++)
         {
-          double ratio = dbgrid->getArray(i, iptn);
+          double ratio = dbgrid->getValue(dbgrid->fromUID(iptn), i);
           if (ratio <= 0.)
-            dbgrid->setArray(i, iptr, TEST);
+            dbgrid->setValue(dbgrid->fromUID(iptr), i, TEST);
           else
-            dbgrid->updArray(i, iptr, EOperator::DIVIDE, ratio);
+            dbgrid->updValue(
+              dbgrid->fromUID(iptr), i, EOperator::DIVIDE, ratio);
         }
       }
       else if (oper == EStatOption::VAR || oper == EStatOption::STDV)
       {
         for (Id i = 0; i < nxyz; i++)
         {
-          double ratio = dbgrid->getArray(i, iptn);
+          double ratio = dbgrid->getValue(dbgrid->fromUID(iptn), i);
           if (ratio <= 0.)
-            dbgrid->setArray(i, iptr, TEST);
+            dbgrid->setValue(dbgrid->fromUID(iptr), i, TEST);
           else
           {
-            double mean = dbgrid->getArray(i, iptm) / ratio;
-            double value = dbgrid->getArray(i, iptr) / ratio - mean * mean;
+            double mean = dbgrid->getValue(dbgrid->fromUID(iptm), i) / ratio;
+            double value =
+              dbgrid->getValue(dbgrid->fromUID(iptr), i) / ratio - mean * mean;
             if (value < 0) value = 0.;
             if (oper == EStatOption::VAR)
-              dbgrid->setArray(i, iptr, value);
+              dbgrid->setValue(dbgrid->fromUID(iptr), i, value);
             else
-              dbgrid->setArray(i, iptr, sqrt(value));
+              dbgrid->setValue(dbgrid->fromUID(iptr), i, sqrt(value));
           }
         }
       }
@@ -2011,23 +2020,25 @@ namespace gstlrn
         for (Id i = 0; i < nxyz; i++)
         {
           double value = (nmed > 0) ? medtab[nmed / 2] : TEST;
-          dbgrid->setArray(i, iptr, value);
+          dbgrid->setValue(dbgrid->fromUID(iptr), i, value);
         }
       }
       else if (oper == EStatOption::MINI)
       {
         for (Id i = 0; i < nxyz; i++)
         {
-          double value = dbgrid->getArray(i, iptr);
-          if (value == MAXIMUM_BIG) dbgrid->setArray(i, iptr, TEST);
+          double value = dbgrid->getValue(dbgrid->fromUID(iptr), i);
+          if (value == MAXIMUM_BIG)
+            dbgrid->setValue(dbgrid->fromUID(iptr), i, TEST);
         }
       }
       else if (oper == EStatOption::MAXI)
       {
         for (Id i = 0; i < nxyz; i++)
         {
-          double value = dbgrid->getArray(i, iptr);
-          if (value == MINIMUM_BIG) dbgrid->setArray(i, iptr, TEST);
+          double value = dbgrid->getValue(dbgrid->fromUID(iptr), i);
+          if (value == MINIMUM_BIG)
+            dbgrid->setValue(dbgrid->fromUID(iptr), i, TEST);
         }
       }
     }
@@ -2037,9 +2048,9 @@ namespace gstlrn
     if ((oper == EStatOption::MEAN || oper == EStatOption::VAR
          || oper == EStatOption::STDV)
         && iptn > 0)
-      dbgrid->deleteColumnByUID(iptn);
+      dbgrid->deleteColumn(dbgrid->fromUID(iptn));
     if ((oper == EStatOption::VAR || oper == EStatOption::STDV) && iptm > 0)
-      dbgrid->deleteColumnByUID(iptm);
+      dbgrid->deleteColumn(dbgrid->fromUID(iptm));
 
     return 0;
   }
@@ -2106,9 +2117,9 @@ namespace gstlrn
     for (Id iech = 0; iech < nech; iech++)
     {
       if (!db1->isActive(iech)) continue;
-      double val1 = db1->getValue(name1, iech, version1);
+      double val1 = db1->getValue({name1, version1}, iech);
       if (FFFF(val1)) continue;
-      double val2 = db2->getValue(name2, iech, version2);
+      double val2 = db2->getValue({name2, version2}, iech);
       if (FFFF(val2)) continue;
 
       indices[0].push_back(iech + shift);
@@ -2191,20 +2202,20 @@ namespace gstlrn
     if (vario->prepare()) return 1;
 
     // Local variables to speed up calculations
-    bool hasSel = db->hasLocVariable(ELoc::SEL);
+    bool hasSel = db->hasLocator(ELoc::SEL);
 
     Id nb = 0;
     for (Id iech = 0; iech < nech - 1; iech++)
     {
       if (hasSel && !db->isActive(iech)) continue;
-      double val1 = db->getValue(name1, iech, version1);
+      double val1 = db->getValue({name1, version1}, iech);
       if (FFFF(val1)) continue;
       db->getSampleAsSTInPlace(iech, T1);
 
       for (Id jech = iech + 1; jech < nech; jech++)
       {
         if (hasSel && !db->isActive(jech)) continue;
-        double val2 = db->getValue(name2, jech, version2);
+        double val2 = db->getValue({name2, version2}, jech);
         if (FFFF(val2)) continue;
         db->getSampleAsSTInPlace(jech, T2);
 
@@ -2271,9 +2282,9 @@ namespace gstlrn
     for (Id iech = 0; iech < nech; iech++)
     {
       if (!db1->isActive(iech)) continue;
-      double val1 = db1->getArray(iech, icol1);
+      double val1 = db1->getValue(db1->fromUID(icol1), iech);
       if (FFFF(val1)) continue;
-      double val2 = db2->getArray(iech, icol2);
+      double val2 = db2->getValue(db2->fromUID(icol2), iech);
       if (FFFF(val2)) continue;
 
       /* Check of the sample belongs to the polygon */
@@ -2329,9 +2340,9 @@ namespace gstlrn
     for (Id iech = 0; iech < db1->getNSample(); iech++)
     {
       if (!db1->isActive(iech)) continue;
-      double val1 = db1->getArray(iech, icol1);
+      double val1 = db1->getValue(db1->fromUID(icol1), iech);
       if (FFFF(val1)) continue;
-      double val2 = db2->getArray(iech, icol2);
+      double val2 = db2->getValue(db2->fromUID(icol2), iech);
       if (FFFF(val2)) continue;
       if (val2 < mini || val2 > maxi) continue;
 

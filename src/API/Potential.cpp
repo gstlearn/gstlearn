@@ -254,7 +254,7 @@ namespace gstlrn
     for (Id iech = 0; iech < nech; iech++)
     {
       if (!_dbiso->isActive(iech)) continue;
-      double value = _dbiso->getFromLocator(ELoc::LAYER, iech);
+      double value = _dbiso->getValue(ERole::LAYER, iech);
       if (FFFF(value)) continue;
       Id ival = static_cast<Id>(value);
 
@@ -317,7 +317,7 @@ namespace gstlrn
       for (Id iech = 0; iech < nech; iech++)
       {
         if (!_dbiso->isActive(iech)) continue;
-        double value = _dbiso->getFromLocator(ELoc::LAYER, iech);
+        double value = _dbiso->getValue(ERole::LAYER, iech);
         if (FFFF(value)) continue;
         Id ival = static_cast<Id>(value);
         if (ival != layval[i]) continue;
@@ -350,7 +350,7 @@ namespace gstlrn
       if (!_dbgrd->isActive(iech)) continue;
       Id found = 0;
       for (Id idim = 0; idim < _ndim && found == 0; idim++)
-        if (FFFF(_dbgrd->getLocVariable(ELoc::G, iech, idim))) found = 1;
+        if (FFFF(_dbgrd->getValue(RoleID(ERole::G, idim), iech))) found = 1;
       if (found) continue;
       set_IAD_GRD(ngrd++, iech);
     }
@@ -384,7 +384,7 @@ namespace gstlrn
       if (!_dbtgt->isActive(iech)) continue;
       Id found = 0;
       for (Id idim = 0; idim < _ndim && found == 0; idim++)
-        if (FFFF(_dbtgt->getLocVariable(ELoc::TGT, iech, idim))) found = 1;
+        if (FFFF(_dbtgt->getValue(RoleID(ERole::TGT, idim), iech))) found = 1;
       if (found) continue;
       set_IAD_TGT(ntgt++, iech);
     }
@@ -1447,7 +1447,7 @@ namespace gstlrn
 
           /* Check that the external drift value is defined */
 
-          double drift = dbgrid->getLocVariable(ELoc::F, iech, 0);
+          double drift = dbgrid->getValue(ERole::F, iech);
           if (FFFF(drift)) return (1);
           _dataExt[ecr] = drift;
           ecr++;
@@ -1723,10 +1723,10 @@ namespace gstlrn
 
       // Store the results
 
-      dbout->setLocVariable(ELoc::Z, iech, 0, result[0]);
+      dbout->setValue(RoleID(ERole::Z, 0), iech, result[0]);
       if (flag_grad)
         for (Id idim = 0; idim < _ndim; idim++)
-          dbout->setLocVariable(ELoc::G, iech, idim, result[idim + 1]);
+          dbout->setValue(RoleID(ERole::G, idim), iech, result[idim + 1]);
     }
     OptDbg::setCurrentIndex(-1);
   }
@@ -1759,13 +1759,14 @@ namespace gstlrn
 
       if (!uid_pot.empty())
       {
-        db_target->setArray(iech, uid_pot[0], result[0]);
+        db_target->setValue(db_target->fromUID(uid_pot[0]), iech, result[0]);
         db_target->setLocatorsByUID(uid_pot, ELoc::Z, 0);
       }
       if (!uid_grad.empty())
       {
         for (Id idim = 0; idim < _ndim; idim++)
-          db_target->setArray(iech, uid_grad[idim], result[idim + 1]);
+          db_target->setValue(
+            db_target->fromUID(uid_grad[idim]), iech, result[idim + 1]);
         db_target->setLocatorsByUID(uid_grad, ELoc::G, 0);
       }
     }
@@ -1985,12 +1986,12 @@ namespace gstlrn
 
         // Storing the results
 
-        _dbiso->setLocVariable(ELoc::Z, iech0, 0, result[0]);
-        _dbiso->setLocVariable(ELoc::Z, iech0, 1, variance);
+        _dbiso->setValue(RoleID(ERole::Z, 0), iech0, result[0]);
+        _dbiso->setValue(RoleID(ERole::Z, 1), iech0, variance);
         if (flag_dist_conv)
         {
-          _dbiso->setLocVariable(ELoc::Z, iech0, 2, dist_euc);
-          _dbiso->setLocVariable(ELoc::Z, iech0, 3, dist_geo);
+          _dbiso->setValue(RoleID(ERole::Z, 2), iech0, dist_euc);
+          _dbiso->setValue(RoleID(ERole::Z, 3), iech0, dist_geo);
         }
 
         // Update statistics */
@@ -2068,7 +2069,7 @@ namespace gstlrn
     static Id test = 0;
 
     double simerr = result[0] - reskrige;
-    double kdist = dbout->getZVariable(iech, 0);
+    double kdist = dbout->getValue(RoleID(ERole::Z, 0), iech);
 
     switch (test)
     {
@@ -2339,8 +2340,8 @@ namespace gstlrn
         {
           double tgte = 0.;
           for (Id idim = 0; idim < _ndim; idim++)
-            tgte +=
-              result[1 + idim] * _dbtgt->getLocVariable(ELoc::TGT, iech, idim);
+            tgte += result[1 + idim]
+                  * _dbtgt->getValue(RoleID(ERole::TGT, idim), iech);
 
           // Print the results
 
@@ -2454,9 +2455,9 @@ namespace gstlrn
     // Highlight the isoline of interest
     for (Id iech = 0; iech < dbout->getNSample(); iech++)
     {
-      double value = dbout->getZVariable(iech, 0);
+      double value = dbout->getValue(RoleID(ERole::Z, 0), iech);
       if (!FFFF(value) && ABS(value) > eps)
-        dbout->setLocVariable(ELoc::Z, iech, 0, TEST);
+        dbout->setValue(RoleID(ERole::Z, 0), iech, TEST);
     }
 
     // Calculate the distance

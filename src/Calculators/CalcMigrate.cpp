@@ -95,7 +95,7 @@ namespace gstlrn
     Id jech = db_grid->indiceToRank(indg);
     if (jech < 0) return (1);
     if (!db_grid->isActive(jech)) return (1);
-    *value = db_grid->getArray(jech, iatt, version);
+    *value = db_grid->getValue(db_grid->fromUID(iatt, version), jech);
     if (FFFF(*value)) return (1);
     return (0);
   }
@@ -219,7 +219,7 @@ namespace gstlrn
       // Rotation angle in degrees (optional)
       if (iatt_angle >= 0 && ndim >= 2)
       {
-        angle = dbgrid->getArray(ig, iatt_angle);
+        angle = dbgrid->getValue(dbgrid->fromUID(iatt_angle), ig);
         GH::rotationGetSinCos(angle, &cosa, &sina);
         x = dvect[0];
         y = dvect[1];
@@ -231,7 +231,8 @@ namespace gstlrn
       dd = 0;
       if (ndim >= 1)
       {
-        if (iatt_scaleu >= 0) scaleu = dbgrid->getArray(ig, iatt_scaleu);
+        if (iatt_scaleu >= 0)
+          scaleu = dbgrid->getValue(dbgrid->fromUID(iatt_scaleu), ig);
         if (!FFFF(scaleu) && scaleu > 0)
         {
           dloc = dvect[0] / scaleu;
@@ -240,7 +241,8 @@ namespace gstlrn
       }
       if (ndim >= 2)
       {
-        if (iatt_scalev >= 0) scalev = dbgrid->getArray(ig, iatt_scalev);
+        if (iatt_scalev >= 0)
+          scalev = dbgrid->getValue(dbgrid->fromUID(iatt_scalev), ig);
         if (!FFFF(scalev) && scalev > 0.)
         {
           dloc = dvect[1] / scalev;
@@ -249,7 +251,8 @@ namespace gstlrn
       }
       if (ndim >= 3)
       {
-        if (iatt_scalew >= 0) scalew = dbgrid->getArray(ig, iatt_scalew);
+        if (iatt_scalew >= 0)
+          scalew = dbgrid->getValue(dbgrid->fromUID(iatt_scalew), ig);
         if (!FFFF(scalew) && scalew > 0.)
         {
           dloc = dvect[2] / scalew;
@@ -269,7 +272,7 @@ namespace gstlrn
     // Add the Time Shift penalty (optional)
     if (iatt_time >= 0)
     {
-      double time = dbpoint->getArray(ip, iatt_time);
+      double time = dbpoint->getValue(dbpoint->fromUID(iatt_time), ip);
       if (time > 0) dd = (FFFF(dd)) ? time : dd + time;
     }
     return dd;
@@ -612,7 +615,7 @@ namespace gstlrn
         (void)distance_inter(db_grid, db_point, rank, iech, dvect);
         if (st_larger_than_dmax(ndim_min, dvect, distType, dmax)) continue;
       }
-      tab[iech] = db_grid->getArray(rank, iatt, version);
+      tab[iech] = db_grid->getValue(db_grid->fromUID(iatt, version), rank);
     }
     return 0;
   }
@@ -654,7 +657,7 @@ namespace gstlrn
     _nversion = 0;
     for (Id i = 0; i < niuid; i++)
     {
-      auto nverLoc = getDbin()->getNVersions(_iuids[i]);
+      auto nverLoc = getDbin()->getNVersions(getDbin()->fromUID(_iuids[i]));
       if (_nversion > 0 && nverLoc != _nversion)
       {
         messerr("Simultaneous Migration concerns %d variables", niuid);
@@ -993,7 +996,7 @@ namespace gstlrn
       *flag_created = true;
       for (Id info = 0; info < ninfo; info++)
       {
-        String name = dbgrid->getName({toERole(locatorType), info});
+        String name = dbgrid->getName(RoleID(toERole(locatorType), info));
         if (migrate(dbgrid, dbin, name, 0, VectorDouble(), false, false, false))
           continue;
       }
@@ -1007,8 +1010,8 @@ namespace gstlrn
     }
     for (Id info = 0; info < ninfo; info++)
     {
-      Id jatt = dbin->getUIDByLocator(locatorType, info);
-      dbin->deleteColumnByUID(jatt);
+      Id jatt = dbin->getUID(RoleID(toERole(locatorType), info));
+      dbin->deleteColumn(dbin->fromUID(jatt));
     }
     return 0;
   }
@@ -1228,7 +1231,7 @@ namespace gstlrn
     /* Initializations */
 
     ndim = dbgrid->getNDim();
-    iatt = dbgrid->getColIdxByLocator(ELoc::Z, 0);
+    iatt = dbgrid->getColIdx(RoleID(ERole::Z, 0));
 
     /* Preliminary checks */
 
@@ -1368,7 +1371,8 @@ namespace gstlrn
     for (Id ip = np = 0; ip < db_point->getNSample(); ip++)
     {
       if (!db_point->isActive(ip)) continue;
-      if (FFFF(db_point->getArray(ip, iatt, version))) continue;
+      if (FFFF(db_point->getValue(db_point->fromUID(iatt, version), ip)))
+        continue;
       xtab[np] = db_point->getCoordinate(ip, idim_ref);
       np++;
     }
@@ -1381,7 +1385,7 @@ namespace gstlrn
     {
       for (Id ip = 0; ip < np; ip++)
       {
-        double time = db_point->getArray(ip, iatt_time);
+        double time = db_point->getValue(db_point->fromUID(iatt_time), ip);
         if (time > time_max) time_max = time;
       }
     }
@@ -1444,7 +1448,7 @@ namespace gstlrn
         if (flag_index)
           tab[ig] = static_cast<double>(jpmin);
         else
-          tab[ig] = db_point->getArray(jpmin, iatt, version);
+          tab[ig] = db_point->getValue(db_point->fromUID(iatt, version), jpmin);
       }
     }
     return 0;
@@ -1515,7 +1519,7 @@ namespace gstlrn
           iechmin = iech1;
         }
       }
-      if (iechmin >= 0) tab[iech2] = db1->getArray(iechmin, iatt);
+      if (iechmin >= 0) tab[iech2] = db1->getValue(db1->fromUID(iatt), iechmin);
     }
     return 0;
   }
@@ -1595,7 +1599,8 @@ namespace gstlrn
     /* Create the sample rank attribute and expand it over the grid */
 
     for (Id iech = 0; iech < dbpoint->getNSample(); iech++)
-      dbpoint->setArray(iech, iatt_rank, static_cast<double>(iech));
+      dbpoint->setValue(
+        dbpoint->fromUID(iatt_rank), iech, static_cast<double>(iech));
     if (expandPointToGrid(
           dbpoint, dbgrid, iatt_rank, 0, iatt_time, iatt_angle, iatt_scaleu,
           iatt_scalev, iatt_scalew, flag_index, 0, VectorDouble(), tab1))
@@ -1627,7 +1632,8 @@ namespace gstlrn
 
       /* Increment the volume by one */
 
-      dbpoint->updArray(val_iech, iatt_vol, EOperator::ADD, 1.);
+      dbpoint->updValue(
+        dbpoint->fromUID(iatt_vol), val_iech, EOperator::ADD, 1.);
 
       /* Loop on the neighborhood nodes */
 
@@ -1642,7 +1648,7 @@ namespace gstlrn
 
           /* The center point is located on the edge of the field */
 
-          dbpoint->setArray(val_iech, iatt_code, 2.);
+          dbpoint->setValue(dbpoint->fromUID(iatt_code), val_iech, 2.);
         }
         else
         {
@@ -1652,12 +1658,15 @@ namespace gstlrn
 
           /* Increment the perimeter by one */
 
-          dbpoint->updArray(val_iech, iatt_surf, EOperator::ADD, 1.);
+          dbpoint->updValue(
+            dbpoint->fromUID(iatt_surf), val_iech, EOperator::ADD, 1.);
 
           /* Set the edge */
 
           tab2[iech] =
-            (iatt_size >= 0) ? dbpoint->getArray(val_iech, iatt_size) : 1.;
+            (iatt_size >= 0)
+              ? dbpoint->getValue(dbpoint->fromUID(iatt_size), val_iech)
+              : 1.;
         }
       }
     }
@@ -1683,7 +1692,7 @@ namespace gstlrn
     /* Save the array 'tab' in the Grid Db file */
 
   label_suite:
-    dbgrid->setColumnByUID(tab2, iatt_edge);
+    dbgrid->setColumn(dbgrid->fromUID(iatt_edge), tab2);
 
     /* Set the error return code */
 
@@ -1692,7 +1701,7 @@ namespace gstlrn
     /* Core deallocation */
 
   label_end:
-    if (iatt_rank >= 0) dbpoint->deleteColumnByUID(iatt_rank);
+    if (iatt_rank >= 0) dbpoint->deleteColumn(dbpoint->fromUID(iatt_rank));
     return (error);
   }
 
@@ -1735,7 +1744,8 @@ namespace gstlrn
     for (Id iech = 0; iech < np; iech++)
     {
       if (FFFF(tab[iech])) continue;
-      tab[iech] = db_grid->getArray(static_cast<Id>(tab[iech]), iatt);
+      tab[iech] =
+        db_grid->getValue(db_grid->fromUID(iatt), static_cast<Id>(tab[iech]));
     }
     return 0;
   }
@@ -1805,7 +1815,7 @@ namespace gstlrn
           iechmin = iech1;
         }
       }
-      if (iechmin >= 0) tab[iech2] = db1->getArray(iechmin, iatt);
+      if (iechmin >= 0) tab[iech2] = db1->getValue(db1->fromUID(iatt), iechmin);
     }
     return 0;
   }
@@ -1946,7 +1956,7 @@ namespace gstlrn
     }
 
     // Store the resulting array in the output Db
-    db2->setColumnByUID(tab, iatt2, false, version);
+    db2->setColumn(db2->fromUID(iatt2, version), tab, false);
 
     return 0;
   }
@@ -1999,7 +2009,8 @@ namespace gstlrn
     for (Id iech = 0; iech < db_point->getNSample(); iech++)
     {
       if (FFFF(local[iech])) continue;
-      if (FFFF(db_point->getArray(iech, iatt, version))) continue;
+      if (FFFF(db_point->getValue(db_point->fromUID(iatt, version), iech)))
+        continue;
       Id inode = static_cast<Id>(local[iech]);
       nb_assign++;
       if (FFFF(tab[inode]))
@@ -2030,8 +2041,8 @@ namespace gstlrn
     for (Id jnode = 0; jnode < db_grid->getNSample(); jnode++)
     {
       if (FFFF(tab[jnode])) continue;
-      tab[jnode] =
-        db_point->getArray(static_cast<Id>(tab[jnode]), iatt, version);
+      tab[jnode] = db_point->getValue(
+        db_point->fromUID(iatt, version), static_cast<Id>(tab[jnode]));
     }
     return 0;
   }
@@ -2089,7 +2100,7 @@ namespace gstlrn
         if (st_larger_than_dmax(ndim, dvect, distType, dmax)) continue;
       }
 
-      tab[inode] = db1->getArray(iech, iatt, version);
+      tab[inode] = db1->getValue(db1->fromUID(iatt, version), iech);
     }
     return 0;
   }
@@ -2140,7 +2151,8 @@ namespace gstlrn
 
     for (Id iech = 0; iech < db_gridin->getNSample(); iech++)
     {
-      double value = db_gridin->getArray(iech, iatt, version);
+      double value =
+        db_gridin->getValue(db_gridin->fromUID(iatt, version), iech);
       if (FFFF(value)) continue;
 
       /* Get the coordinates of the node from the input grid node */
@@ -2219,7 +2231,7 @@ namespace gstlrn
           iechmin = iech1;
         }
       }
-      if (iechmin >= 0) tab[iech2] = db1->getArray(iechmin, iatt);
+      if (iechmin >= 0) tab[iech2] = db1->getValue(db1->fromUID(iatt), iechmin);
     }
     return 0;
   }
@@ -2289,7 +2301,7 @@ namespace gstlrn
         distance_inter(db_gridin, db_gridout, jech, iech, dvect);
       if (st_larger_than_dmax(ndim_min, dvect, distType, dmax)) continue;
       if (dist_loc > dist[iech]) continue;
-      tab[iech] = db_gridin->getArray(jech, iatt, version);
+      tab[iech] = db_gridin->getValue(db_gridin->fromUID(iatt, version), jech);
       dist[iech] = dist_loc;
     }
     return 0;

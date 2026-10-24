@@ -378,16 +378,16 @@ err = simuSpectral(dbin = NULL, dbout = grd, model = modelGeneric, seed = 0,
 gg  = array(NaN, dim = c(nlag, ndir, nsim))
 hh  = array(NaN, dim = c(nlag, ndir, nsim))
 for (is in 1:nsim) {
-  err = grd$setLocator(
-    name = NC_getNameEncoded(prefix, NULL, 1, 1, is, nsim),
-    locatorType = ELoc_Z(),
-    cleanSameLocator = TRUE)
+
+  grd$extractVersion(prefix, "Local", version = is - 1,
+                     locatorType = ELoc_Z(), cleanSameLocator = TRUE )
   vario = Vario(varioPar)
   err   = vario$compute(grd)
   for (idir in 1:ndir){
     gg[,idir, is] = vario$getAllGg(idir = idir-1)
     hh[,idir, is] = vario$getAllHh(idir = idir-1)
   }
+  grd$deleteColumn("Local")
 }
 # Average variogram
  gg_moy = apply(X = gg, MARGIN = c(1,2), FUN = mean)

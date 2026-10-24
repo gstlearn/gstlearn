@@ -312,13 +312,13 @@ namespace gstlrn
       }
 
       // Update the Diagonal due to the presence of Variance of Measurement Error
-      if (_dbout->hasLocVariable(ELoc::V) && icase1 == 1)
+      if (_dbout->hasLocator(ELoc::V) && icase1 == 1)
       {
-        Id icolVerr = _dbout->getColIdxByLocator(ELoc::V, ivar1);
+        Id icolVerr = _dbout->getColIdx(RoleID(ERole::V, ivar1));
 
         double verr = 0.;
 
-        if (icolVerr >= 0) verr = _dbout->getValueByColIdx(iabs1, icolVerr);
+        if (icolVerr >= 0) verr = _dbout->getValue(icolVerr, iabs1);
 
         // Update the Covariance matrix
         if (verr > 0) matCov.updValue(i1, i1, EOperator::ADD, verr);
@@ -377,7 +377,7 @@ namespace gstlrn
         nech = static_cast<Id>(_varRanksOut[ivar].size());
         for (Id iech = 0; iech < nech; iech++)
           _Y[ecr++] =
-            _dbout->getLocVariable(ELoc::Z, _varRanksOut[ivar][iech], ivar);
+            _dbout->getValue(RoleID(ERole::Z, ivar), _varRanksOut[ivar][iech]);
       }
     }
     else
@@ -389,7 +389,7 @@ namespace gstlrn
         nech = static_cast<Id>(_varRanksIn[ivar].size());
         for (Id iech = 0; iech < nech; iech++)
           _Y[ecr++] =
-            _dbin->getLocVariable(ELoc::Z, _varRanksIn[ivar][iech], ivar);
+            _dbin->getValue(RoleID(ERole::Z, ivar), _varRanksIn[ivar][iech]);
       }
     }
   }
@@ -455,7 +455,7 @@ namespace gstlrn
       db = _dbin;
     Id nvar = db->getNLoc(ELoc::Z);
     if (nvar <= 0) return true;
-    double value = db->getLocVariable(ELoc::Z, ipAbs, ivar);
+    double value = db->getValue(RoleID(ERole::Z, ivar), ipAbs);
     return !FFFF(value);
   }
 
@@ -494,10 +494,10 @@ namespace gstlrn
 
     if (icaseDb == 1)
     {
-      if (_dbout->hasLocVariable(ELoc::V))
+      if (_dbout->hasLocator(ELoc::V))
       {
-        Id icolVerr = _dbout->getColIdxByLocator(ELoc::V, ivar);
-        if (icolVerr >= 0) var0 += _dbout->getValueByColIdx(ipAbs, icolVerr);
+        Id icolVerr = _dbout->getColIdx(RoleID(ERole::V, ivar));
+        if (icolVerr >= 0) var0 += _dbout->getValue(icolVerr, ipAbs);
       }
     }
     return var0;

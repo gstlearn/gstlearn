@@ -247,11 +247,11 @@ namespace gstlrn
         {
           Id jech = _ktest.nbgh[iech];
 
-          auto value = getDbin()->getZVariable(jech, jvar);
+          auto value = getDbin()->getValue(RoleID(ERole::Z, jvar), jech);
           if (FFFF(value)) continue;
 
-          getDbin()->setValueByUID(
-            jech, iuid + jvar + nvar * ivar,
+          getDbin()->setValue(
+            getDbin()->fromUID(iuid + jvar + nvar * ivar), jech,
             100. * _ktest.wgt.getValue(lec++, ivar));
         }
     }

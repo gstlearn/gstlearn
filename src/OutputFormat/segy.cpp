@@ -591,11 +591,13 @@ namespace gstlrn
 
     // Check if the top has been defined
 
-    if (iatt_top >= 0) *cztop = surfaces->getArray(rank, iatt_top);
+    if (iatt_top >= 0)
+      *cztop = surfaces->getValue(surfaces->fromUID(iatt_top), rank);
 
     // Check if the top has been defined
 
-    if (iatt_bot >= 0) *czbot = surfaces->getArray(rank, iatt_bot);
+    if (iatt_bot >= 0)
+      *czbot = surfaces->getValue(surfaces->fromUID(iatt_bot), rank);
 
     if (FFFF(*cztop) && FFFF(*czbot)) return (1);
     if (!FFFF(*cztop) && !FFFF(*czbot) && (*cztop) < (*czbot)) return (1);
@@ -1105,7 +1107,7 @@ namespace gstlrn
 
     if (iaux_top >= 0)
     {
-      double cote = surfaces->getArray(rank, iaux_top);
+      double cote = surfaces->getValue(surfaces->fromUID(iaux_top), rank);
       refstats.auxtop = TEST;
       (void)st_within_layer(
         z0, delta, cztop, czbot, cote, option, nz, &iz1, &iz2,
@@ -1116,7 +1118,7 @@ namespace gstlrn
 
     if (iaux_bot >= 0)
     {
-      double cote = surfaces->getArray(rank, iaux_bot);
+      double cote = surfaces->getValue(surfaces->fromUID(iaux_bot), rank);
       refstats.auxbot = TEST;
       (void)st_within_layer(
         z0, delta, cztop, czbot, cote, option, nz, &iz1, &iz2,
@@ -2077,7 +2079,7 @@ namespace gstlrn
         double dmean = st_get_average(nz, writes);
         indg[2] = 0;
         rank = grid3D->indiceToRank(indg);
-        if (rank >= 0) grid3D->setArray(rank, iatt, dmean);
+        if (rank >= 0) grid3D->setValue(grid3D->fromUID(iatt), rank, dmean);
       }
       else
       {
@@ -2086,7 +2088,7 @@ namespace gstlrn
           indg[2] = iz;
           rank = grid3D->indiceToRank(indg);
           if (rank < 0) continue;
-          grid3D->setArray(rank, iatt, writes[iz]);
+          grid3D->setValue(grid3D->fromUID(iatt), rank, writes[iz]);
         }
       }
     }

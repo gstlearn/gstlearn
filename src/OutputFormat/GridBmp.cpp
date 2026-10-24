@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "OutputFormat/GridBmp.hpp"
-#include "Basic/AStringable.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "OutputFormat/AOF.hpp"
@@ -181,7 +180,7 @@ namespace gstlrn
     for (Id i = 0; i < nx * ny; i++)
     {
       if (!_dbgrid->isActive(i)) continue;
-      double value = _dbgrid->getArray(i, _cols[0]);
+      double value = _dbgrid->getValue(_dbgrid->fromUID(_cols[0]), i);
       if (FFFF(value)) continue;
       if (value < vmin) vmin = value;
       if (value > vmax) vmax = value;
@@ -317,7 +316,7 @@ namespace gstlrn
     if (!_dbgrid->isActive(iech)) return COLOR_MASK;
 
     /* Read the value */
-    double value = _dbgrid->getArray(iech, _cols[0]);
+    double value = _dbgrid->getValue(_dbgrid->fromUID(_cols[0]), iech);
 
     /* Check if the value is defined */
     if (FFFF(value)) return COLOR_FFFF;

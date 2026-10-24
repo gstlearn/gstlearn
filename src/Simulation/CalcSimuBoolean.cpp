@@ -61,8 +61,9 @@ namespace gstlrn
   {
     if (!isConditional()) return;
     {
+      auto colid = getDbin()->fromUID(_iptrCover);
       for (Id iech = 0, nech = getDbin()->getNSample(); iech < nech; iech++)
-        getDbin()->setArray(iech, _iptrCover, 0);
+        getDbin()->setValue(colid, iech, 0);
     }
   }
 
@@ -146,7 +147,7 @@ namespace gstlrn
       if (BooleanObject::isPore(db, iech)) continue;
 
       // Check if the grain is already covered
-      if (db->getArray(iech, _iptrCover) > 0) continue;
+      if (db->getValue(db->fromUID(_iptrCover), iech) > 0) continue;
 
       // Return the index of the grain if it is the one we are looking for
       if (number == rank) return iech;
@@ -366,7 +367,7 @@ namespace gstlrn
     }
     else
     {
-      VectorDouble vec = dbout->getColumnByLocator(ELoc::P, 0, true);
+      VectorDouble vec = dbout->getColumn(RoleID(ERole::P, 0), true);
       theta = vec.mean();
     }
 

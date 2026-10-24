@@ -102,7 +102,7 @@ int main(int argc, char* argv[])
 
   // Produce some stats for comparison
   data = Db::createFillRandom(100000, 2, 1);
-  grid->deleteColumn("Kriging.*");
+  grid->deleteColumns({"Kriging.*"});
   neighM = NeighMoving::create(
     false, nmaxi, radius, nmini, nsect, nsmax, VectorDouble(), VectorDouble(),
     true, leaf_size);

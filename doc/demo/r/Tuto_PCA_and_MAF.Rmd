@@ -62,13 +62,13 @@ U3 = matrix(grid$getColumns(names = "U3.*"), nrow = grid$getNSample(), ncol = nv
 Z = outer(X = rep(1, np), Y = m_Z, FUN = "*") +
   (U1 %*% t(LM_1) + U2 %*% t(LM_2) + U3 %*% t(LM_3)) %*% diag(S_Z)
 
-grid$setColumn(Z[,1], name = "Z1")
-grid$setColumn(Z[,2], name = "Z2")
-grid$setColumn(Z[,3], name = "Z3")
+grid$setColumn("Z1", Z[,1])
+grid$setColumn("Z2", Z[,2])
+grid$setColumn("Z3", Z[,3])
 
 for (i in 1:nv) {
   nm_var = paste0("Z", i)
-  p = ggplot(asp=1) +
+  p = ggplot() + coord_fixed(ratio = 1) +
     plot.raster(grid, nm_var) +
     plot.decoration(xlab = "Easting", ylab = "Northing", title = nm_var)
   plot.end(p)
@@ -164,9 +164,9 @@ ZZ = outer(X = rep(1.0, np), Y = mZ) + data_PCA %*% M_Y2Z
 round(range(abs(data_Z - ZZ)),8)
 
 # adding the transform to the data base
-data$setColumn(tab = data_PCA[, 1], name = "U1")
-data$setColumn(tab = data_PCA[, 2], name = "U2")
-data$setColumn(tab = data_PCA[, 3], name = "U3")
+data$setColumn("U1", tab = data_PCA[, 1])
+data$setColumn("U2", tab = data_PCA[, 2])
+data$setColumn("U3", tab = data_PCA[, 3])
 data$setLocators("U*", ELoc_Z())
 
 # Fitting the variogram model on the experimental variogram
@@ -230,9 +230,9 @@ ZZ = outer(X = rep(1.0, np), Y = mZ) + data_MAF %*% M_F2Z
 round(range(abs(data_Z - ZZ)),8)
 
 # adding the transform to the data base
-data$setColumn(tab = data_MAF[, 1], name = "F1")
-data$setColumn(tab = data_MAF[, 2], name = "F2")
-data$setColumn(tab = data_MAF[, 3], name = "F3")
+data$setColumn("F1", tab = data_MAF[, 1])
+data$setColumn("F2", tab = data_MAF[, 2])
+data$setColumn("F3", tab = data_MAF[, 3])
 data$setLocators("F*", ELoc_Z())
 
 # Fitting the variogram model on the experimental variogram

@@ -480,7 +480,7 @@ namespace gstlrn
     for (Id i = 0; i < ncol; i++)
     {
       Id j = (flagAddSampleRank) ? i + 1 : i;
-      db->setNameByUID(j, names[i]);
+      db->setName(db->fromUID(j), names[i]);
     }
 
     /* Core deallocation */

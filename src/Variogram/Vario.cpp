@@ -421,7 +421,7 @@ namespace gstlrn
 
     // Translate the 'Facies' into 'categories'   VectorDouble props =
     Limits limits(nclass);
-    Id iatt = _db->getUIDByLocator(ELoc::Z, 0);
+    Id iatt = _db->getUID(RoleID(ERole::Z, 0));
     if (limits.toIndicatorByAttribute(_db, iatt))
     {
       messerr("Problem when translating Facies into Categories");
@@ -443,7 +443,7 @@ namespace gstlrn
 
     // Delete the Indicators (created locally)
     _db->deleteColumnsByLocator(ELoc::Z);
-    _db->setLocatorByUID(iatt, ELoc::Z, 0);
+    _db->setLocator(_db->fromUID(iatt), ELoc::Z, 0);
 
     return 0;
   }
@@ -2550,7 +2550,7 @@ namespace gstlrn
     for (Id ivar = 0; ivar < nvar; ivar++)
     {
       if (ivar < db->getNLoc(ELoc::Z))
-        setVariableName(ivar, db->getName({toERole(ELoc::Z), ivar}));
+        setVariableName(ivar, db->getName(RoleID(ERole::Z, ivar)));
     }
 
     // Dispatch
@@ -2909,7 +2909,7 @@ namespace gstlrn
       messerr("Calculation facility is dedicated to line architecture");
       return (1);
     }
-    if (!db->hasLocVariable(ELoc::C))
+    if (!db->hasLocator(ELoc::C))
     {
       messerr("Calculation facility requires the definition of a CODE");
       return (1);
@@ -2947,7 +2947,7 @@ namespace gstlrn
     auto nvar = getNVar();
     double dist0 = 0.;
     double dist = 0.;
-    bool hasSel = db->hasLocVariable(ELoc::SEL);
+    bool hasSel = db->hasLocator(ELoc::SEL);
 
     /* Loop on the first point */
 
@@ -3129,13 +3129,13 @@ namespace gstlrn
 
     if (getCalcul() == ECalcVario::COVARIOGRAM)
     {
-      iatt_old = db->getUIDByLocator(ELoc::W, 0);
+      iatt_old = db->getUID(ERole::W);
       iadd_new = db->addColumnsByConstant(1, 1, 0.);
       if (iadd_new < 0) return 1;
-      db->setLocatorByUID(iadd_new, ELoc::W, 0);
+      db->setLocator(db->fromUID(iadd_new), ELoc::W);
       maille = db->getCellSize();
       for (Id iech = 0; iech < db->getNSample(); iech++)
-        db->setLocVariable(ELoc::W, iech, 0, maille);
+        db->setValue(ERole::W, iech, maille);
     }
 
     /* Evaluate the drift coefficients */
@@ -3160,8 +3160,8 @@ namespace gstlrn
 
     if (getCalcul() == ECalcVario::COVARIOGRAM)
     {
-      if (iadd_new > 0) db->deleteColumnByUID(iadd_new);
-      if (iatt_old > 0) db->setLocatorByUID(iatt_old, ELoc::W, 0);
+      if (iadd_new > 0) db->deleteColumn(db->fromUID(iadd_new));
+      if (iatt_old > 0) db->setLocator(db->fromUID(iatt_old), ELoc::W);
     }
     return 0;
   }
@@ -3421,7 +3421,7 @@ namespace gstlrn
   {
     return (
       0.5
-      * (db->getLocVariable(ELoc::V, iech, 0) + db->getLocVariable(ELoc::V, jech, 0)));
+      * (db->getValue(RoleID(ERole::V, 0), iech) + db->getValue(RoleID(ERole::V, 0), jech)));
   }
 
   /****************************************************************************/
@@ -3593,8 +3593,8 @@ namespace gstlrn
     _setListBiTargetCheck();
 
     // Local variables to speed up calculations
-    bool hasSel = db->hasLocVariable(ELoc::SEL);
-    bool hasWeight = db->hasLocVariable(ELoc::W);
+    bool hasSel = db->hasLocator(ELoc::SEL);
+    bool hasWeight = db->hasLocator(ELoc::W);
     double dist = 0.;
 
     /* Loop on the first point */
@@ -3708,8 +3708,8 @@ namespace gstlrn
     const DirParam& dirparam = getDirParam(idir);
 
     // Local variables to speed up calculations
-    bool hasSel = db->hasLocVariable(ELoc::SEL);
-    bool hasWeight = db->hasLocVariable(ELoc::W);
+    bool hasSel = db->hasLocator(ELoc::SEL);
+    bool hasWeight = db->hasLocator(ELoc::W);
     double dist = 0.;
     auto nvar = getNVar();
     Id ndim = db->getNDim();
@@ -3790,7 +3790,7 @@ namespace gstlrn
 
     // Local variables to speed up calculations
 
-    bool hasSel = db->hasLocVariable(ELoc::SEL);
+    bool hasSel = db->hasLocator(ELoc::SEL);
     double dist = 0.;
 
     /* Core allocation */
@@ -4498,7 +4498,7 @@ namespace gstlrn
    *****************************************************************************/
   double Vario::_getIVAR(const Db* db, Id iech, Id ivar) const
   {
-    double zz = db->getZVariable(iech, ivar);
+    double zz = db->getValue(RoleID(ERole::Z, ivar), iech);
     if (FFFF(zz)) return (TEST);
     if (_BETA.empty()) return (zz);
     if (ivar != 0) return (TEST);
@@ -4594,7 +4594,7 @@ namespace gstlrn
       if (!db->isActiveAndDefined(iech, 0)) continue;
       VectorDouble drfloc =
         _model->evalDriftBySample(db, iech, ECalcMember::LHS);
-      double zval = db->getZVariable(iech, 0);
+      double zval = db->getValue(RoleID(ERole::Z, 0), iech);
 
       for (Id il = 0; il < nbfl; il++)
       {
@@ -4790,7 +4790,7 @@ namespace gstlrn
     if (db == nullptr) return 1;
 
     // Local variables to speed up calculations
-    bool hasSel = db->hasLocVariable(ELoc::SEL);
+    bool hasSel = db->hasLocator(ELoc::SEL);
     Id nech = db->getNSample();
     auto ndir = getNDir();
     double dist = 0.;

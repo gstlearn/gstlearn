@@ -316,7 +316,7 @@ namespace gstlrn
   //
   //    // Loop in the current dimension
   //
-  //    exts2 = DBIN->getLocVariable(ELoc::BLEX,it->rank1, idim) / 2.;
+  //    exts2 = DBIN->getValue(RoleID(ERole::BLEX,idim), it->rank1) / 2.;
   //    dsize = KOPTION->dsize[idim];
   //
   //    if (exts2 <= 0. || dsize <= 0.)
@@ -348,7 +348,7 @@ namespace gstlrn
   //
   //    // Loop in the current dimension
   //
-  //    exts2 = DBIN->getLocVariable(ELoc::BLEX,it->rank2, jdim) / 2.;
+  //    exts2 = DBIN->getValue(RoleID(ERole::BLEX, jdim), it->rank2) / 2.;
   //    dsize = KOPTION->dsize[jdim];
   //
   //    if (exts2 <= 0 || dsize <= 0.)
@@ -417,7 +417,7 @@ namespace gstlrn
   //
   //    // Loop in the current dimension
   //
-  //    exts2 = DBIN->getLocVariable(ELoc::BLEX,it->rank1, idim) / 2.;
+  //    exts2 = DBIN->getValue(RoleID(ELoc::BLEX, idim), it->rank1) / 2.;
   //    dsize = KOPTION->dsize[idim];
   //
   //    if (exts2 <= 0. || dsize <= 0.)
@@ -484,7 +484,7 @@ namespace gstlrn
 
         // Particular case of simulations
 
-        value = DBIN->getZVariable(rank, ivar);
+        value = DBIN->getValue(RoleID(ERole::Z, ivar), rank);
       else
 
         // Case of the traditional kriging based on Z-variables
@@ -500,7 +500,7 @@ namespace gstlrn
       if (jvar < 0)
         value = TEST;
       else
-        value = DBOUT->getArray(IECH_OUT, jvar);
+        value = DBOUT->getValue(DBOUT->fromUID(jvar), IECH_OUT);
     }
 
     return (value);
@@ -521,11 +521,11 @@ namespace gstlrn
 
     if (rank >= 0)
     {
-      value = DBIN->getLocVariable(ELoc::V, rank, ivar);
+      value = DBIN->getValue(RoleID(ERole::V, ivar), rank);
     }
     else
     {
-      value = DBOUT->getLocVariable(ELoc::V, IECH_OUT, ivar);
+      value = DBOUT->getValue(RoleID(ERole::V, ivar), IECH_OUT);
     }
     return (value);
   }
@@ -929,7 +929,7 @@ namespace gstlrn
       for (idim = ndim - 1; idim >= 0; idim--)
       {
         taille = (mode == 0) ? dbgrid->getDX(idim)
-                             : DBOUT->getLocVariable(ELoc::BLEX, iech, idim);
+                             : DBOUT->getValue(RoleID(ERole::BLEX, idim), iech);
         nd = KOPTION.ndisc[idim];
         nval /= nd;
         j = jech / nval;
@@ -1225,7 +1225,7 @@ namespace gstlrn
       String strloc = getLocatorName(ELoc::X, idim);
       printElement(strloc);
     }
-    if (DBIN->hasLocVariable(ELoc::C)) printElement("Code");
+    if (DBIN->hasLocator(ELoc::C)) printElement("Code");
     if (DBIN->getNLoc(ELoc::V) > 0) printElement("Err.");
     if (KOPTION.flag_data_disc)
       for (idim = 0; idim < ndim; idim++)
@@ -1256,15 +1256,15 @@ namespace gstlrn
         printElement(iech + 1);
         for (idim = 0; idim < ndim; idim++)
           printElement(st_get_idim(nbgh_ranks[iech], idim));
-        if (DBIN->hasLocVariable(ELoc::C))
-          printElement(DBIN->getLocVariable(ELoc::C, nbgh_ranks[iech], 0));
+        if (DBIN->hasLocator(ELoc::C))
+          printElement(DBIN->getValue(ERole::C, nbgh_ranks[iech]));
         if (DBIN->getNLoc(ELoc::V) > 0)
           printElement(st_get_verr(nbgh_ranks[iech], (FLAG_PROF) ? 0 : jvar_m));
         if (KOPTION.flag_data_disc)
         {
           for (idim = 0; idim < ndim; idim++)
             printElement(
-              DBIN->getLocVariable(ELoc::BLEX, nbgh_ranks[iech], idim));
+              DBIN->getValue(RoleID(ERole::BLEX, idim), nbgh_ranks[iech]));
         }
         if (icase < 0)
           printElement(st_get_ivar(nbgh_ranks[iech], jvar_m));
@@ -1364,15 +1364,17 @@ namespace gstlrn
         message("Variable Z%-2d\n", ivar + 1);
         if (FLAG_EST)
         {
-          value =
-            (status == 0) ? DBOUT->getArray(IECH_OUT, IPTR_EST + ivar) : TEST;
+          value = (status == 0)
+                  ? DBOUT->getValue(DBOUT->fromUID(IPTR_EST + ivar), IECH_OUT)
+                  : TEST;
           printElement(value, " - Estimate  = ");
           message("\n");
         }
         if (FLAG_STD)
         {
-          value =
-            (status == 0) ? DBOUT->getArray(IECH_OUT, IPTR_STD + ivar) : TEST;
+          value = (status == 0)
+                  ? DBOUT->getValue(DBOUT->fromUID(IPTR_STD + ivar), IECH_OUT)
+                  : TEST;
           printElement(value, " - Std. Dev. = ");
           value = (status == 0) ? VAR0(ivar, ivar) : TEST;
           message("\n");
@@ -1381,8 +1383,9 @@ namespace gstlrn
         }
         if (FLAG_VARZ)
         {
-          value =
-            (status == 0) ? DBOUT->getArray(IECH_OUT, IPTR_VARZ + ivar) : TEST;
+          value = (status == 0)
+                  ? DBOUT->getValue(DBOUT->fromUID(IPTR_VARZ + ivar), IECH_OUT)
+                  : TEST;
           printElement(value, " - Var(Z*)   = ");
           message("\n");
         }
@@ -1455,7 +1458,7 @@ namespace gstlrn
     {
       for (i = 0; i < dbgrid->getNSample(); i++)
       {
-        value = dbgrid->getZVariable(i, 0);
+        value = dbgrid->getValue(RoleID(ERole::Z, 0), i);
         if (!FFFF(value)) dsum += value;
       }
       flag_value = 1;
@@ -1821,7 +1824,8 @@ namespace gstlrn
 
     result = 0.;
     for (i = -nbefore; i <= nafter; i++)
-      result += wgt[i + nbefore] * db->getZVariable(IECH_OUT + i, 0);
+      result +=
+        wgt[i + nbefore] * db->getValue(RoleID(ERole::Z, 0), IECH_OUT + i);
 
     return (result);
   }
@@ -1940,7 +1944,7 @@ namespace gstlrn
 
       /* Discard the grid nodes which doe not belong to the processed area */
 
-      DBOUT->setArray(IECH_OUT, IPTR_EST, TEST);
+      DBOUT->setValue(DBOUT->fromUID(IPTR_EST), IECH_OUT, TEST);
 
       /* Look for the neighborhood */
 
@@ -1982,7 +1986,7 @@ namespace gstlrn
       /* Calculate the estimation */
 
       result = st_estim_exp(db, wgt_global, nbefore, nafter);
-      DBOUT->setArray(IECH_OUT, IPTR_EST, result);
+      DBOUT->setValue(DBOUT->fromUID(IPTR_EST), IECH_OUT, result);
       if (OptDbg::query(EDbg::RESULTS))
         st_result_kriging_print(0, nvarin, status);
     }
@@ -2112,7 +2116,7 @@ namespace gstlrn
           indg[2] = jz1;
           iad = db->indiceToRank(indg);
           if (!db->isActive(iad)) continue;
-          val1 = db->getZVariable(iad, 0);
+          val1 = db->getValue(RoleID(ERole::Z, 0), iad);
           if (FFFF(val1)) continue;
 
           /* Loop on the second point within the covariance array */
@@ -2138,7 +2142,7 @@ namespace gstlrn
                 indg[2] = jz2;
                 jad = db->indiceToRank(indg);
                 if (!db->isActive(jad)) continue;
-                val2 = db->getZVariable(jad, 0);
+                val2 = db->getValue(RoleID(ERole::Z, 0), jad);
                 if (FFFF(val2)) continue;
 
                 /* Update the Covariance */
@@ -2245,7 +2249,7 @@ namespace gstlrn
           indg[1] = jy;
           indg[2] = jz;
           locrank = db->indiceToRank(indg);
-          if (FFFF(db->getZVariable(locrank, 0))) continue;
+          if (FFFF(db->getValue(RoleID(ERole::Z, 0), locrank))) continue;
           NEI_CUR(ix, iy, iz) = locrank;
           nbgh_ranks.push_back(locrank);
           flag_global[number] = 1;
@@ -2450,7 +2454,8 @@ namespace gstlrn
         for (iz = -nei_nn[2]; iz <= nei_nn[2]; iz++)
         {
           if (NEI_CUR(ix, iy, iz) < 0) continue;
-          result += weight[i] * db->getZVariable(NEI_CUR(ix, iy, iz), 0);
+          result +=
+            weight[i] * db->getValue(RoleID(ERole::Z, 0), NEI_CUR(ix, iy, iz));
           i++;
         }
 
@@ -2663,10 +2668,10 @@ namespace gstlrn
 
           /* Initialize the result to TEST */
 
-          DBOUT->setArray(IECH_OUT, IPTR_EST, TEST);
+          DBOUT->setValue(DBOUT->fromUID(IPTR_EST), IECH_OUT, TEST);
 
-          if (FFFF(db->getZVariable(IECH_OUT, 0)) || !db->isActive(IECH_OUT))
-            continue;
+          if (!db->isActive(IECH_OUT)) continue;
+          if (FFFF(db->getValue(RoleID(ERole::Z, 0), IECH_OUT))) continue;
           if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH)
               || OptDbg::query(EDbg::RESULTS))
           {
@@ -2722,7 +2727,7 @@ namespace gstlrn
           /* Calculate the estimation */
 
           result = st_estim_exp_3D(db, nei_ss, nei_nn, nei_cur, wgt_global);
-          DBOUT->setArray(IECH_OUT, IPTR_EST, result);
+          DBOUT->setValue(DBOUT->fromUID(IPTR_EST), IECH_OUT, result);
           if (OptDbg::query(EDbg::RESULTS))
             st_result_kriging_print(0, nvarin, status);
         }
@@ -2796,7 +2801,7 @@ namespace gstlrn
 
     // Locally turn the problem to a Monovariate case to have it accepted
     dbin->clearLocators(ELoc::Z);
-    dbin->setLocatorByUID(iuids[0], ELoc::Z, 0);
+    dbin->setLocator(dbin->fromUID(iuids[0]), ELoc::Z, 0);
     KrigingSystem ksys(dbin, dbout, model, neigh);
     if (ksys.updKrigOptEstim(iptr_est, -1, -1)) return 1;
     if (ksys.setKrigOptFlagLTerm(true)) return 1;
@@ -2807,7 +2812,7 @@ namespace gstlrn
     for (Id ivar = 0; ivar < nvar; ivar++)
     {
       dbin->clearLocators(ELoc::Z);
-      dbin->setLocatorByUID(iuids[ivar], ELoc::Z, 0);
+      dbin->setLocator(dbin->fromUID(iuids[ivar]), ELoc::Z, 0);
       if (ksys.resetData()) return 1;
       if (ksys.updKrigOptEstim(iptr_est + ivar, -1, -1)) return 1;
       (void)gslSPrintf(string, "Kriging of variable #%d at sample", ivar + 1);
@@ -2839,11 +2844,12 @@ namespace gstlrn
       while (!correct)
       {
         double seistot = 0.;
-        double seisloc = dbout->getFromLocator(ELoc::SUM, iech_out);
+        double seisloc = dbout->getValue(RoleID(ERole::SUM, 0), iech_out);
         for (Id ivar = 0; ivar < nvar; ivar++)
         {
           if (active[ivar]) continue;
-          double estim = dbout->getArray(iech_out, iptr_est + ivar);
+          double estim =
+            dbout->getValue(dbout->fromUID(iptr_est + ivar), iech_out);
           seistot += lterm[ivar];
           seisloc -= estim;
         }
@@ -2859,9 +2865,9 @@ namespace gstlrn
           double estim = 0.;
           if (!active[ivar])
             estim =
-              (dbout->getArray(iech_out, iptr_est + ivar)
+              (dbout->getValue(dbout->fromUID(iptr_est + ivar), iech_out)
                + lterm[ivar] * seisloc / seistot);
-          dbout->setArray(iech_out, iptr_est + ivar, estim);
+          dbout->setValue(dbout->fromUID(iptr_est + ivar), iech_out, estim);
         }
         correct = true;
 
@@ -2871,7 +2877,8 @@ namespace gstlrn
         {
           for (Id ivar = 0; ivar < nvar; ivar++)
           {
-            active[ivar] = (dbout->getArray(iech_out, iptr_est + ivar) < 0);
+            active[ivar] =
+              (dbout->getValue(dbout->fromUID(iptr_est + ivar), iech_out) < 0);
             if (active[ivar]) correct = false;
           }
         }
@@ -2882,7 +2889,7 @@ namespace gstlrn
 
     dbin->clearLocators(ELoc::Z);
     for (Id ivar = 0; ivar < nvar; ivar++)
-      dbin->setLocatorByUID(iuids[ivar], ELoc::Z, ivar);
+      dbin->setLocator(dbin->fromUID(iuids[ivar]), ELoc::Z, ivar);
     auto names = dbin->getNamesByLocator(ELoc::Z);
     namconv.setOutput(names, nvar, dbout, iptr_est, "estim");
 
@@ -3147,7 +3154,7 @@ namespace gstlrn
 
     /* Get the vector of active data and subtract the mean */
 
-    VectorDouble data = db->getColumnByLocator(ELoc::Z);
+    VectorDouble data = db->getColumn(RoleID(ERole::Z, 0));
     for (Id i = 0; i < nutil; i++) datm[i] = data[rutil[i]] - model->getMean(0);
     AMatrix::productInPlace(aux1, datm, tutil);
     AMatrix::productInPlace(aux2, aux1, invsig);
@@ -3169,7 +3176,7 @@ namespace gstlrn
 
       if (flag_abs)
       {
-        double true_value = db->getZVariable(iech, 0);
+        double true_value = db->getValue(RoleID(ERole::Z, 0), iech);
         if (FFFF(true_value))
           data_est[iech] = TEST;
         else
@@ -3234,7 +3241,7 @@ namespace gstlrn
 
     /* Set the data vector (corrected by the mean */
 
-    VectorDouble data = db->getColumnByLocator(ELoc::Z);
+    VectorDouble data = db->getColumn(RoleID(ERole::Z, 0));
     for (Id i = 0; i < nsize1; i++)
       datm[i] = data[ranks1[i]] - model->getMean(0);
 
@@ -3253,7 +3260,8 @@ namespace gstlrn
       temp.setColumn(ecr, temp_loc);
 
       estim = datm.innerProduct(temp_loc);
-      olderr[ecr] = estim + model->getMean(0) - db->getZVariable(iech, 0);
+      olderr[ecr] =
+        estim + model->getMean(0) - db->getValue(RoleID(ERole::Z, 0), iech);
 
       sigma = cs.innerProduct(temp_loc);
       olddiv[ecr] = olderr[ecr] / (c00[0] - sigma);
@@ -3518,7 +3526,7 @@ namespace gstlrn
 
     /* Get the vector of active data and subtract the mean */
 
-    VectorDouble data = dbin->getColumnByLocator(ELoc::Z);
+    VectorDouble data = dbin->getColumn(RoleID(ERole::Z, 0));
     for (i = 0; i < nutil; i++) datm[i] = data[rutil[i]] - model->getMean(0);
     AMatrix::productInPlace(aux1, datm, tutil);
     AMatrix::productInPlace(aux2, aux1, invsig);
@@ -3544,7 +3552,7 @@ namespace gstlrn
 
       AMatrix::productInPlace(aux3, s, tutil);
       estim = aux2.innerProduct(aux3) + model->getMean(0);
-      DBOUT->setArray(IECH_OUT, IPTR_EST, estim);
+      DBOUT->setValue(DBOUT->fromUID(IPTR_EST), IECH_OUT, estim);
 
       if (FLAG_STD)
       {
@@ -3552,7 +3560,7 @@ namespace gstlrn
         sigma = aux3.innerProduct(aux4);
         sigma = c00[0] - sigma;
         sigma = (sigma > 0) ? sqrt(sigma) : 0.;
-        DBOUT->setArray(IECH_OUT, IPTR_STD, sigma);
+        DBOUT->setValue(DBOUT->fromUID(IPTR_STD), IECH_OUT, sigma);
       }
 
       /* Optional printout */
@@ -3592,9 +3600,9 @@ namespace gstlrn
     for (Id iech = 0; iech < db->getNSample(); iech++)
     {
       if (!db->isActive(iech)) continue;
-      zval = db->getZVariable(iech, 0);
+      zval = db->getValue(RoleID(ERole::Z, 0), iech);
       if (FFFF(zval)) continue;
-      coeff = (mode == 0) ? 1. : db->getArray(iech, iptr);
+      coeff = (mode == 0) ? 1. : db->getValue(db->fromUID(iptr), iech);
       coeff = ABS(coeff);
       sumwgt += coeff;
       mean += coeff * zval;
@@ -3649,10 +3657,10 @@ namespace gstlrn
     for (Id iech = 0; iech < db->getNSample(); iech++)
     {
       if (!db->isActive(iech)) continue;
-      if (FFFF(db->getZVariable(iech, 0))) continue;
-      coeff = db->getArray(iech, iptr);
+      if (FFFF(db->getValue(RoleID(ERole::Z, 0), iech))) continue;
+      coeff = db->getValue(db->fromUID(iptr), iech);
       if (coeff < 0)
-        db->setArray(iech, iptr, 0.);
+        db->setValue(db->fromUID(iptr), iech, 0.);
       else
         total += coeff;
     }
@@ -3662,8 +3670,8 @@ namespace gstlrn
     for (Id iech = 0; iech < db->getNSample(); iech++)
     {
       if (!db->isActive(iech)) continue;
-      if (FFFF(db->getZVariable(iech, 0))) continue;
-      db->updArray(iech, iptr, EOperator::DIVIDE, total);
+      if (FFFF(db->getValue(RoleID(ERole::Z, 0), iech))) continue;
+      db->updValue(db->fromUID(iptr), iech, EOperator::DIVIDE, total);
     }
   }
 
@@ -3694,14 +3702,14 @@ namespace gstlrn
     for (Id iech = 0; iech < db->getNSample(); iech++)
     {
       if (!db->isActive(iech)) continue;
-      if (FFFF(db->getZVariable(iech, 0))) continue;
+      if (FFFF(db->getValue(RoleID(ERole::Z, 0), iech))) continue;
 
       /* Loop on the second sample */
 
       for (Id jech = 0; jech < db->getNSample(); jech++)
       {
         if (!db->isActive(jech)) continue;
-        double value = db->getZVariable(iech, 0);
+        double value = db->getValue(RoleID(ERole::Z, 0), jech);
         if (FFFF(value)) continue;
         (void)distance_intra(db, iech, jech, vec.data());
 
@@ -3714,7 +3722,7 @@ namespace gstlrn
           dist += vec[idim] * vec[idim];
         }
         if (dist > 1) continue;
-        db->updArray(iech, iptr, EOperator::ADD, 1);
+        db->updValue(db->fromUID(iptr), iech, EOperator::ADD, 1);
       }
     }
 
@@ -3724,14 +3732,16 @@ namespace gstlrn
     for (Id iech = 0; iech < db->getNSample(); iech++)
     {
       if (!db->isActive(iech)) continue;
-      if (FFFF(db->getZVariable(iech, 0))) continue;
-      total += 1. / db->getArray(iech, iptr);
+      if (FFFF(db->getValue(RoleID(ERole::Z, 0), iech))) continue;
+      total += 1. / db->getValue(db->fromUID(iptr), iech);
     }
     for (Id iech = 0; iech < db->getNSample(); iech++)
     {
       if (!db->isActive(iech)) continue;
-      if (FFFF(db->getZVariable(iech, 0))) continue;
-      db->setArray(iech, iptr, 1. / db->getArray(iech, iptr) / total);
+      if (FFFF(db->getValue(RoleID(ERole::Z, 0), iech))) continue;
+      db->setValue(
+        db->fromUID(iptr), iech,
+        1. / db->getValue(db->fromUID(iptr), iech) / total);
     }
     return 0;
   }
@@ -3914,10 +3924,10 @@ namespace gstlrn
       if (iptr_sel < 0) return 1;
       for (Id iech = 0; iech < dbin->getNSample(); iech++)
       {
-        dbin->setArray(iech, iptr_sel, 0.);
+        dbin->setValue(dbin->fromUID(iptr_sel), iech, 0.);
         if (!dbin->isActive(iech)) continue;
-        double indic = (dbin->getArray(iech, iptr) > 0.);
-        dbin->setArray(iech, iptr_sel, indic);
+        double indic = (dbin->getValue(dbin->fromUID(iptr), iech) > 0.);
+        dbin->setValue(dbin->fromUID(iptr_sel), iech, indic);
       }
     }
 
@@ -4553,7 +4563,7 @@ namespace gstlrn
     for (Id iip = ip = 0; iip < dbdat->getNSample(); iip++)
     {
       if (!dbdat->isActiveAndDefined(iip, 0)) continue;
-      data[ip] = dbdat->getZVariable(iip, 0);
+      data[ip] = dbdat->getValue(RoleID(ERole::Z, 0), iip);
       ip++;
     }
 
@@ -4689,8 +4699,8 @@ namespace gstlrn
 
       /* Store the result */
 
-      dbout->setArray(IECH_OUT, IPTR_EST, estim);
-      dbout->setArray(IECH_OUT, IPTR_STD, stdev);
+      dbout->setValue(dbout->fromUID(IPTR_EST), IECH_OUT, estim);
+      dbout->setValue(dbout->fromUID(IPTR_STD), IECH_OUT, stdev);
 
       /* Optional printout */
 

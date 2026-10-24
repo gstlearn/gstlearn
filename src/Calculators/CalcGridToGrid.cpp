@@ -269,8 +269,8 @@ namespace gstlrn
     for (Id iech = 0; iech < nech; iech++)
     {
       if (!getDbin()->isActive(iech)) continue;
-      double value = getDbin()->getZVariable(iech, 0);
-      getDbout()->setArray(iech, _iattOut, value);
+      double value = getDbin()->getValue(RoleID(ERole::Z, 0), iech);
+      getDbout()->setValue(getDbout()->fromUID(_iattOut), iech, value);
     }
     return true;
   }
@@ -289,8 +289,8 @@ namespace gstlrn
       getGridout()->rankToIndice(iech_out, indgOut);
       _reduceIndices(indgOut, indgIn);
       Id iech_in = getGridin()->indiceToRank(indgIn);
-      double value = getDbin()->getZVariable(iech_in, 0);
-      getDbout()->setArray(iech_out, _iattOut, value);
+      double value = getDbin()->getValue(RoleID(ERole::Z, 0), iech_in);
+      getDbout()->setValue(getDbout()->fromUID(_iattOut), iech_out, value);
     }
     return true;
   }
@@ -309,27 +309,31 @@ namespace gstlrn
       getGridin()->rankToIndice(iech_in, indgIn);
       _reduceIndices(indgIn, indgOut);
       Id iech_out = getGridout()->indiceToRank(indgOut);
-      double value = getDbout()->getZVariable(iech_out, 0);
+      double value = getDbout()->getValue(RoleID(ERole::Z, 0), iech_out);
       if (!FFFF(value))
       {
-        value += getDbout()->getArray(iech_out, _iattOut);
-        getDbout()->setArray(iech_out, _iattOut, value);
-        double count = getDbout()->getArray(iech_out, _iattAux);
-        getDbout()->setArray(iech_out, _iattAux, count + 1.);
+        value += getDbout()->getValue(getDbout()->fromUID(_iattOut), iech_out);
+        getDbout()->setValue(getDbout()->fromUID(_iattOut), iech_out, value);
+        double count =
+          getDbout()->getValue(getDbout()->fromUID(_iattAux), iech_out);
+        getDbout()->setValue(
+          getDbout()->fromUID(_iattAux), iech_out, count + 1.);
       }
     }
 
     // Normalization
     for (Id iech_out = 0; iech_out < getDbout()->getNSample(true); iech_out++)
     {
-      double ratio = getDbout()->getArray(iech_out, _iattAux);
+      double ratio =
+        getDbout()->getValue(getDbout()->fromUID(_iattAux), iech_out);
       if (ratio > 0.)
       {
-        double value = getDbout()->getArray(iech_out, _iattOut) / ratio;
-        getDbout()->setArray(iech_out, _iattOut, value);
+        double value =
+          getDbout()->getValue(getDbout()->fromUID(_iattOut), iech_out) / ratio;
+        getDbout()->setValue(getDbout()->fromUID(_iattOut), iech_out, value);
       }
       else
-        getDbout()->setArray(iech_out, _iattOut, TEST);
+        getDbout()->setValue(getDbout()->fromUID(_iattOut), iech_out, TEST);
     }
     return true;
   }
@@ -366,11 +370,11 @@ namespace gstlrn
       if (ret)
       {
         getGridout()->rankToCoordinatesInPlace(iech_out, coorOut);
-        double valTop = getDbin()->getZVariable(iech_in, 0);
-        double valBot = getDbin()->getZVariable(iech_in, 1);
+        double valTop = getDbin()->getValue(RoleID(ERole::Z, 0), iech_in);
+        double valBot = getDbin()->getValue(RoleID(ERole::Z, 1), iech_in);
         value = _interpolate(nvar, valTop, valBot, coorTop, coorBot, coorOut);
       }
-      getDbout()->setArray(iech_out, _iattOut, value);
+      getDbout()->setValue(getDbout()->fromUID(_iattOut), iech_out, value);
     }
     return true;
   }
@@ -430,7 +434,7 @@ namespace gstlrn
   {
     for (Id ivar = 0; ivar < nvar; ivar++)
     {
-      coor[ivar] = getDbin()->getArray(iech, iuids[ivar]);
+      coor[ivar] = getDbin()->getValue(getDbin()->fromUID(iuids[ivar]), iech);
       if (FFFF(coor[ivar])) return false;
     }
     return true;

@@ -372,7 +372,7 @@ namespace gstlrn
     for (Id iech = 0; iech < db->getNSample(); iech++)
     {
       if (!db->isActive(iech)) continue;
-      double value = db->getArray(iech, iatt);
+      double value = db->getValue(db->fromUID(iatt), iech);
       if (FFFF(value)) continue;
 
       /* Loop on the limits classes */
@@ -399,7 +399,7 @@ namespace gstlrn
 
       /* Set the returning value */
 
-      db->setArray(iech, iptr, static_cast<double>(ival));
+      db->setValue(db->fromUID(iptr), iech, static_cast<double>(ival));
     }
 
     VectorString names = db->getNamesByUID({iatt});
@@ -518,7 +518,7 @@ namespace gstlrn
     for (Id iech = 0; iech < db->getNSample(); iech++)
     {
       if (!db->isActive(iech)) continue;
-      double value = db->getArray(iech, iatt);
+      double value = db->getValue(db->fromUID(iatt), iech);
       if (FFFF(value)) continue;
 
       /* Loop on the limit classes */
@@ -542,7 +542,10 @@ namespace gstlrn
 
         /* Store the indicator (if required) */
 
-        if (flag_indic) db->setArray(iech, iptr_indic + iclass, belong);
+        if (flag_indic)
+          db->setValue(
+            db->fromUID(iptr_indic + iclass), iech,
+            static_cast<double>(belong));
 
         if (belong)
         {
@@ -556,9 +559,13 @@ namespace gstlrn
 
       if (flag_indic)
       {
-        if (flagBelow) db->setArray(iech, iptr_below, value < zmini);
+        if (flagBelow)
+          db->setValue(
+            db->fromUID(iptr_below), iech, static_cast<double>(value < zmini));
 
-        if (flagAbove) db->setArray(iech, iptr_above, value > zmaxi);
+        if (flagAbove)
+          db->setValue(
+            db->fromUID(iptr_above), iech, static_cast<double>(value > zmaxi));
       }
 
       /* Update the statistics for classes below and above */
@@ -584,7 +591,7 @@ namespace gstlrn
         iclass = found;
       }
       if (!flag_indic)
-        db->setArray(iech, iptr_mean, static_cast<double>(iclass));
+        db->setValue(db->fromUID(iptr_mean), iech, static_cast<double>(iclass));
     }
 
     /* Calculate the statistics */
@@ -608,15 +615,15 @@ namespace gstlrn
       for (Id iech = 0; iech < db->getNSample(); iech++)
       {
         if (!db->isActive(iech)) continue;
-        double value = db->getArray(iech, iptr_mean);
+        double value = db->getValue(db->fromUID(iptr_mean), iech);
         if (FFFF(value)) continue;
         Id iclass = static_cast<Id>(value);
         if (iclass < 0)
-          db->setArray(iech, iptr_mean, mbelow);
+          db->setValue(db->fromUID(iptr_mean), iech, mbelow);
         else if (iclass < nclass)
-          db->setArray(iech, iptr_mean, mean[iclass]);
+          db->setValue(db->fromUID(iptr_mean), iech, mean[iclass]);
         else
-          db->setArray(iech, iptr_mean, mabove);
+          db->setValue(db->fromUID(iptr_mean), iech, mabove);
       }
     }
 
@@ -718,7 +725,7 @@ namespace gstlrn
     for (Id iech = 0; iech < db->getNSample(); iech++)
     {
       if (!db->isActive(iech)) continue;
-      double value = db->getArray(iech, iatt);
+      double value = db->getValue(db->fromUID(iatt), iech);
       if (FFFF(value)) continue;
 
       /* Loop on the limit classes */

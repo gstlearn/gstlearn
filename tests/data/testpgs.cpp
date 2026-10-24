@@ -94,7 +94,7 @@ int main(int argc, char* argv[])
   ascii_filename("Data", 0, 0, filename);
   dbin = Db::createFromNF(filename, verbose);
   if (dbin == nullptr) goto label_end;
-  iatt_z = dbin->getUIDByLocator(ELoc::Z, 0);
+  iatt_z = dbin->getUID(RoleID(ERole::Z, 0));
   dbfmt.setFlags(true, false, true, true, true);
   dbin->display(&dbfmt);
 
@@ -163,8 +163,8 @@ int main(int argc, char* argv[])
 
       dbin->clearLocators(ELoc::Z);
       for (ifac = 0; ifac < nclass; ifac++)
-        dbin->deleteColumnByUID(iatt_ind + ifac);
-      dbin->setLocatorByUID(iatt_z, ELoc::Z, 0);
+        dbin->deleteColumn(dbin->fromUID(iatt_ind + ifac));
+      dbin->setLocator(dbin->fromUID(iatt_z), ELoc::Z, 0);
     }
   }
 

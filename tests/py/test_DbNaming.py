@@ -15,7 +15,7 @@ gl.mestitle(0, "Preparing the Environment")
 
 ndim = 2
 gl.defineDefaultSpace(gl.ESpaceType.RN, ndim)
-gl.ASerializable.setPrefixName("test_DbNaling-")
+gl.ASerializable.setPrefixName("test_DbNaming-")
 # The following object will enable having a complete view of
 # the column / attribute manipulation. It will be used later in the notebook.
 
@@ -102,9 +102,9 @@ grid
 # In order to make the next paragrah more demonstrative, we change the contents
 # of several fields
 
-grid.setColumn(gl.VH.simulateUniform(nech), "second-1")
-grid.setColumn(gl.VH.simulateUniform(nech), "first.1")
-grid.setColumn(gl.VH.simulateUniform(nech), "first.2")
+grid.setColumn("second-1", gl.VH.simulateUniform(nech))
+grid.setColumn("first.1", gl.VH.simulateUniform(nech))
+grid.setColumn("first.2", gl.VH.simulateUniform(nech))
 
 grid
 
@@ -120,18 +120,18 @@ grid.getColumn("first.1")[0:4]
 # We recall that the index numbering starts from 0.
 # Therefore field *first-1*  corresponds to the index 5.
 
-grid.getColumnByColIdx(5)[0:4]
+grid.getColumn(5)[0:4]
 
 ### By Attribute Index
 
-grid.getColumnByUID(5)[0:4]
+grid.getColumn(grid.fromUID(5))[0:4]
 
 ### By Locator
 
 # We note that the target variable corresponds to the locator *z2* which is
 # the second one (index 1) or the Z-locator type.
 
-grid.getColumnByLocator(gl.ELoc.Z, 1)[0:4]
+grid.getColumn(gl.RoleID(gl.ERole.Z, 1))[0:4]
 
 ## Difference between Column and Attribute
 gl.mestitle(0, "Difference between Column and Attribute")
@@ -191,16 +191,16 @@ grid.getColumn("first.1")[0:4]
 # We can similarly address it by its column index (the column has moved to
 # rank 5)
 
-grid.getColumnByColIdx(4)[0:4]
+grid.getColumn(4)[0:4]
 
 # The magic of the *attribute* notion is that it can still be used **unchanged**
 
-grid.getColumnByUID(5)[0:4]
+grid.getColumn(grid.fromUID(5))[0:4]
 
 # Obviously, trying to read the field which corresponds to the field *x1*
 # (that has just been deleted) returns an empty vector.
 
-grid.getColumnByUID(1)
+grid.getColumn(grid.fromUID(1))
 
 ## Remark on Space Dimension
 gl.mestitle(0, "Remark on Space Dimension")
@@ -219,7 +219,7 @@ gl.mestitle(0, "Remark on Space Dimension")
 # variable *x2*, despite its locator rank *1* (i.e. index 0) actually contains
 # the **second** coordinate of the samples, as demonstrated in the next line
 
-grid.getColumnByLocator(gl.ELoc.X, 0)
+grid.getColumn(gl.RoleID(gl.ERole.X, 0))
 
 # Note that at any time, the coordinate vectors can be regenerated.
 # To avoid confusion, the newly generated coordinate fields are named using
@@ -228,7 +228,7 @@ grid.getColumnByLocator(gl.ELoc.X, 0)
 
 grid.generateCoordinates("X")
 
-grid.getColumnByLocator(gl.ELoc.X, 0)
+grid.getColumn(gl.RoleID(gl.ERole.X, 0))
 
 # Similarly, we can generate a field containing the sample rank (similar as
 # the information contained in the Field #1). Here again, we generate a new

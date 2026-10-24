@@ -255,7 +255,7 @@ namespace gstlrn
       {
         ind[0] = ix;
         ind[1] = iy;
-        double value = DB->getArray(DB->indiceToRank(ind), iatt);
+        double value = DB->getValue(DB->fromUID(iatt), DB->indiceToRank(ind));
         BITMAP(image, ix, iy) = (FFFF(defval)) ? defval : value;
       }
   }
@@ -277,7 +277,8 @@ namespace gstlrn
       {
         ind[0] = ix;
         ind[1] = iy;
-        DB->setArray(DB->indiceToRank(ind), iatt, BITMAP(image, ix, iy));
+        DB->setValue(
+          DB->fromUID(iatt), DB->indiceToRank(ind), BITMAP(image, ix, iy));
       }
   }
 

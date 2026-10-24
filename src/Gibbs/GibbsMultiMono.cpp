@@ -132,8 +132,8 @@ namespace gstlrn
     // Read the Bounds
 
     const Db* db = getDb();
-    double vmin = db->getLocVariable(ELoc::L, iech, icase);
-    double vmax = db->getLocVariable(ELoc::U, iech, icase);
+    double vmin = db->getValue(RoleID(ERole::L, icase), iech, false);
+    double vmax = db->getValue(RoleID(ERole::U, icase), iech, false);
 
     // Apply optional decay
 
@@ -203,8 +203,8 @@ namespace gstlrn
       for (Id iact = 0; iact < nact; iact++)
       {
         auto iech = getSampleRank(iact);
-        double vmin = db->getLocVariable(ELoc::L, iech, icase);
-        double vmax = db->getLocVariable(ELoc::U, iech, icase);
+        double vmin = db->getValue(RoleID(ERole::L, icase), iech, false);
+        double vmax = db->getValue(RoleID(ERole::U, icase), iech, false);
         if (FFFF(vmin)) vmin = MINIMUM_BIG;
         if (FFFF(vmax)) vmax = MAXIMUM_BIG;
 

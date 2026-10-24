@@ -72,7 +72,7 @@ def createDbIn(
         sel = np.zeros(shape=ndat)
         sel[indIn] = 1
         db["sel"] = sel
-        db.setLocator("sel", gl.ELoc.SEL, 0)
+        db.setLocator("sel", gl.ELoc.SEL)
 
     # Creation of an heterotopic data set
     indList = []
@@ -192,7 +192,7 @@ def test_kriging_internal(
         sel = np.zeros(shape=target.getNSample())
         sel[indOut] = 1
         target["sel"] = sel
-        target.setLocator("sel", gl.ELoc.SEL, 0)
+        target.setLocator("sel", gl.ELoc.SEL)
 
     if irf is not None:
         modeln.setDriftIRF(irf)

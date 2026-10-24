@@ -513,7 +513,7 @@ namespace gstlrn
       double total = 0.;
       for (Id ivar = 0; ivar < ncleff; ivar++)
       {
-        double value = db->getArray(iech, cols_est[ivar]);
+        double value = db->getValue(db->fromUID(cols_est[ivar]), iech);
         total += value;
         selloc->setTest(ivar, total * getIRStatT(ivar + 1));
       }
@@ -529,7 +529,7 @@ namespace gstlrn
         total = 0.;
         for (Id ivar = 0; ivar < ncleff; ivar++)
         {
-          double value = db->getArray(iech, cols_std[ivar]);
+          double value = db->getValue(db->fromUID(cols_std[ivar]), iech);
           total += value * value;
           selloc->setTstd(ivar, sqrt(total) * getIRStatT(ivar + 1));
         }
@@ -559,7 +559,7 @@ namespace gstlrn
           total = 0.;
           for (Id jvar = 0; jvar < ivar; jvar++)
           {
-            double value = db->getArray(iech, cols_std[jvar]);
+            double value = db->getValue(db->fromUID(cols_std[jvar]), iech);
             total += value * value;
           }
           double prod =
@@ -567,7 +567,8 @@ namespace gstlrn
           total *= prod * prod;
           for (Id jvar = ivar + 1; jvar < ncleff; jvar++)
           {
-            prod = db->getArray(iech, cols_std[jvar]) * getIRStatB(ivar + 1);
+            prod = db->getValue(db->fromUID(cols_std[jvar]), iech)
+                 * getIRStatB(ivar + 1);
             total += prod * prod;
           }
           selloc->setQstd(ivar, sqrt(total));
@@ -593,8 +594,8 @@ namespace gstlrn
         total = 0.;
         for (Id ivar = 0; ivar < ncleff; ivar++)
         {
-          double prod =
-            db->getArray(iech, cols_std[ivar]) * getIRStatB(ivar + 1);
+          double prod = db->getValue(db->fromUID(cols_std[ivar]), iech)
+                      * getIRStatB(ivar + 1);
           total += prod * prod;
         }
         zstdev = sqrt(total);

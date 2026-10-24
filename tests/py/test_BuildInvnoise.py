@@ -71,7 +71,8 @@ def measurementErrorAllEquals(dat):
     ok = 1
     for i in range(nvar):
         if i < nverr:
-            err = [dat.getLocVariable(gl.ELoc.V, iech, i) for iech in range(nech)]
+            roleid = gl.RoleID(gl.ERole.V, i)
+            err = [dat.getValue(roleid, iech) for iech in range(nech)]
             ok *= len(np.unique(err)) == 1
     return ok
 
@@ -85,7 +86,8 @@ def getVerr(dat, iech):
     nverr = dat.getNLoc(gl.ELoc.V)
     for i in range(nvar):
         if i < nverr:
-            verr[i] = dat.getLocVariable(gl.ELoc.V, iech, i)
+            roleid = gl.RoleID(gl.ERole.V, i)
+            verr[i] = dat.getValue(roleid, iech)
     return verr
 
 
