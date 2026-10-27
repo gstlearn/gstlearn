@@ -77,7 +77,7 @@ namespace gstlrn
         indg[0] = ix;
         indg[1] = iy;
         Id iech = _dbgrid->indiceToRank(indg);
-        double value = _dbgrid->getArray(iech, _cols[0]);
+        double value = _dbgrid->getValue(_dbgrid->fromUID(_cols[0]), iech);
         if (FFFF(value)) value = 9999990.;
         fprintf(_file, "%10.3lf ", value);
         necr++;

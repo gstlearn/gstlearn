@@ -103,14 +103,16 @@ namespace gstlrn
             VectorDouble vector(3);
             if (_subparam.getColfac() >= 0)
             {
-              factor = dbgrid->getArray(iech, _subparam.getColfac());
+              factor =
+                dbgrid->getValue(dbgrid->fromUID(_subparam.getColfac()), iech);
               SimuSubstitutionParam::isValidFactor(&factor);
             }
             if (_subparam.isAngleLocal())
             {
               for (Id i = 0; i < 3; i++)
                 if (_subparam.getColang(i) >= 0)
-                  vector[i] = dbgrid->getArray(iech, _subparam.getColang(i));
+                  vector[i] = dbgrid->getValue(
+                    dbgrid->fromUID(_subparam.getColang(i)), iech);
               SimuSubstitutionParam::isValidOrientation(vector);
             }
             _calculValue(ip, factor, vector);
@@ -119,7 +121,7 @@ namespace gstlrn
           double valloc = _planes[ip].getValue() / 2.;
           valtot += (prod + _planes[ip].getIntercept() > 0) ? valloc : -valloc;
         }
-        dbgrid->setArray(iech, _iattOut, valtot);
+        dbgrid->setValue(dbgrid->fromUID(_iattOut), iech, valtot);
       }
 
       /* Printout statistics on the information process */
@@ -142,8 +144,8 @@ namespace gstlrn
     {
       if (!dbgrid->isActive(iech)) continue;
       double value = (_subparam.isFlagDirect())
-                     ? dbgrid->getArray(iech, _iattOut)
-                     : dbgrid->getZVariable(iech, 0);
+                     ? dbgrid->getValue(dbgrid->fromUID(_iattOut), iech)
+                     : dbgrid->getValue(RoleID(ERole::Z, 0), iech);
       if (value < vmin) vmin = value;
       if (value > vmax) vmax = value;
     }
@@ -204,12 +206,12 @@ namespace gstlrn
       {
         if (!dbgrid->isActive(iech)) continue;
         double value = (_subparam.isFlagDirect())
-                       ? dbgrid->getArray(iech, _iattOut)
-                       : dbgrid->getZVariable(iech, 0);
+                       ? dbgrid->getValue(dbgrid->fromUID(_iattOut), iech)
+                       : dbgrid->getValue(RoleID(ERole::Z, 0), iech);
         Id ival = static_cast<Id>((value - vmin) / (vmax - vmin) * nstates);
         if (ival < 0) ival = 0;
         if (ival >= nstates) ival = nstates - 1;
-        dbgrid->setArray(iech, _iattOut, 1 + status[ival]);
+        dbgrid->setValue(dbgrid->fromUID(_iattOut), iech, 1 + status[ival]);
       }
 
       /* Printout statistics */

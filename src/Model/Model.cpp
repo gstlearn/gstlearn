@@ -1131,26 +1131,29 @@ namespace gstlrn
       if (ABS(total[ivar] - 1.) > EPSILON6) flag_norm = true;
     }
 
-    /* Scale the different sills for the different variables */
-
-    for (Id ivar = 0; ivar < nvar; ivar++)
-      for (Id jvar = 0; jvar < nvar; jvar++)
-        for (Id icov = 0; icov < ncov; icov++)
-        {
-          double sill = getSill(icov, ivar, jvar);
-          sill /= total[ivar] * total[jvar];
-          setSill(icov, ivar, jvar, sill);
-        }
-
-    /* Printout */
-
-    if (verbose && flag_norm)
+    if (flag_norm)
     {
-      message("The model has been normalized\n");
+      /* Scale the different sills for the different variables */
+
       for (Id ivar = 0; ivar < nvar; ivar++)
-        message(
-          "- Variable %d : Scaling factor = %lf\n", ivar + 1,
-          total[ivar] * total[ivar]);
+        for (Id jvar = 0; jvar < nvar; jvar++)
+          for (Id icov = 0; icov < ncov; icov++)
+          {
+            double sill = getSill(icov, ivar, jvar);
+            sill /= total[ivar] * total[jvar];
+            setSill(icov, ivar, jvar, sill);
+          }
+
+      /* Printout */
+
+      if (verbose)
+      {
+        message("The model has been normalized\n");
+        for (Id ivar = 0; ivar < nvar; ivar++)
+          message(
+            "- Variable %d : Scaling factor = %lf\n", ivar + 1,
+            total[ivar] * total[ivar]);
+      }
     }
     return 0;
   }

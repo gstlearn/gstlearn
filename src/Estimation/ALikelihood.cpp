@@ -61,7 +61,7 @@ namespace gstlrn
     if (_db == nullptr) return;
     MatrixSymmetric vars = dbVarianceMatrix(_db);
     double hmax = _db->getExtensionDiagonal();
-    double vmax = _db->getColumnByLocator(ELoc::Z, 0).maximum();
+    double vmax = _db->getColumn(RoleID(ERole::Z, 0)).maximum();
     setEnvironment(vars, hmax, EPSILON6, 0., vmax);
     Id nvar = _db->getNLoc(ELoc::Z);
     if (nvar < 1)
@@ -115,7 +115,7 @@ namespace gstlrn
     initLikelihood(verbose);
     MatrixSymmetric vars = dbVarianceMatrix(_db);
     double hmax = _db->getExtensionDiagonal();
-    double vmax = _db->getColumnByLocator(ELoc::Z, 0).maximum();
+    double vmax = _db->getColumn(RoleID(ERole::Z, 0)).maximum();
     setEnvironment(vars, hmax, EPSILON6, 0., vmax);
   }
 

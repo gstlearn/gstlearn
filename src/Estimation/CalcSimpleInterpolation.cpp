@@ -222,7 +222,7 @@ namespace gstlrn
       // Perform the estimation
       for (Id i = 0; i < static_cast<Id>(nbgh.size()); i++)
       {
-        double value = dbin->getZVariable(nbgh[i], 0);
+        double value = dbin->getValue(RoleID(ERole::Z, 0), nbgh[i]);
         if (FFFF(value))
         {
           nbgh.clear();
@@ -328,7 +328,7 @@ namespace gstlrn
       Id nSize = static_cast<Id>(nbgh.size());
       if (nSize < ndrift)
       {
-        dbout->setArray(iech, _iattEst, TEST);
+        dbout->setValue(dbout->fromUID(_iattEst), iech, TEST);
         continue;
       }
 
@@ -338,7 +338,7 @@ namespace gstlrn
       for (Id jech = 0; jech < nSize; jech++)
       {
         Id jech1 = nbgh[jech];
-        double zval = dbin->getZVariable(jech1, 0);
+        double zval = dbin->getValue(RoleID(ERole::Z, 0), jech1);
         if (FFFF(zval)) continue;
         VectorDouble Vdata = drft->evalDriftBySample(dbin, jech1);
 
@@ -363,7 +363,7 @@ namespace gstlrn
       double result = X.innerProduct(Vtarget);
 
       // Assign the result
-      dbout->setArray(iech, _iattEst, result);
+      dbout->setValue(dbout->fromUID(_iattEst), iech, result);
     }
     return 0;
   }
@@ -430,7 +430,7 @@ namespace gstlrn
       {
         if (!dbin->isActive(iech_in)) continue;
         dbin->getCoordinatesInPlace(coor, iech_in);
-        double val_neigh = dbin->getZVariable(iech_in, 0);
+        double val_neigh = dbin->getValue(RoleID(ERole::Z, 0), iech_in);
         if (FFFF(val_neigh)) continue;
 
         /* Check that the data point is a valid neighbor */
@@ -494,8 +494,8 @@ namespace gstlrn
       dbout->getCoordinatesInPlace(cooref, iech);
       if (dbin->coordinateToIndicesInPlace(cooref, indref))
       {
-        if (_flagEst) dbout->setArray(iech, _iattEst, TEST);
-        if (_flagStd) dbout->setArray(iech, _iattStd, TEST);
+        if (_flagEst) dbout->setValue(dbout->fromUID(_iattEst), iech, TEST);
+        if (_flagStd) dbout->setValue(dbout->fromUID(_iattStd), iech, TEST);
         continue;
       }
 
@@ -544,7 +544,7 @@ namespace gstlrn
         /* Check the value */
 
         Id iech_neigh = dbin->indiceToRank(indg);
-        double val_neigh = dbin->getZVariable(iech_neigh, 0);
+        double val_neigh = dbin->getValue(RoleID(ERole::Z, 0), iech_neigh);
         if (FFFF(val_neigh))
         {
           nbgh.clear();
@@ -584,7 +584,7 @@ namespace gstlrn
     for (Id i = 0, n = static_cast<Id>(nbgh.size()); i < n; i++)
     {
       Id iech = nbgh[i];
-      double value = dbin->getZVariable(iech, 0);
+      double value = dbin->getValue(RoleID(ERole::Z, 0), iech);
       if (FFFF(value)) return TEST;
       result += value * weights[i];
 
@@ -654,8 +654,8 @@ namespace gstlrn
     }
 
     // Assign the result
-    if (_flagEst) dbout->setArray(iech, _iattEst, result);
-    if (_flagStd) dbout->setArray(iech, _iattStd, stdev);
+    if (_flagEst) dbout->setValue(dbout->fromUID(_iattEst), iech, result);
+    if (_flagStd) dbout->setValue(dbout->fromUID(_iattStd), iech, stdev);
   }
 
 } // namespace gstlrn

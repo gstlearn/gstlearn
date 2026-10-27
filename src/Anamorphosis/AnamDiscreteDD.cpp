@@ -899,7 +899,7 @@ namespace gstlrn
         double total = ct.getValue(0, iclass);
         for (Id ivar = 0; ivar < nb_est; ivar++)
         {
-          double value = db->getArray(iech, cols_est[ivar]);
+          double value = db->getValue(db->fromUID(cols_est[ivar]), iech);
           total += value * ct.getValue(ivar + 1, iclass);
         }
         selloc->setTest(iclass, total);
@@ -918,8 +918,9 @@ namespace gstlrn
           double total = 0.;
           for (Id ivar = 0; ivar < ncleff - 1; ivar++)
           {
-            double value =
-              (ivar < nb_std) ? db->getArray(iech, cols_std[ivar]) : 1.;
+            double value = (ivar < nb_std)
+                           ? db->getValue(db->fromUID(cols_std[ivar]), iech)
+                           : 1.;
             double prod = value * ct.getValue(ivar + 1, iclass);
             total += prod * prod;
           }
@@ -950,8 +951,9 @@ namespace gstlrn
           double total = 0.;
           for (Id ivar = 0; ivar < ncleff - 1; ivar++)
           {
-            double value =
-              (ivar < nb_std) ? db->getArray(iech, cols_std[ivar]) : 1.;
+            double value = (ivar < nb_std)
+                           ? db->getValue(db->fromUID(cols_std[ivar]), iech)
+                           : 1.;
             double prod = value * cq.getValue(ivar + 1, iclass);
             total += prod * prod;
           }
@@ -978,8 +980,9 @@ namespace gstlrn
         double total = 0;
         for (Id ivar = 0; ivar < ncleff - 1; ivar++)
         {
-          double value =
-            (ivar < nb_std) ? db->getArray(iech, cols_std[ivar]) : 1.;
+          double value = (ivar < nb_std)
+                         ? db->getValue(db->fromUID(cols_std[ivar]), iech)
+                         : 1.;
           double prod = value * getDDStatCnorm(ivar);
           total += prod * prod;
         }

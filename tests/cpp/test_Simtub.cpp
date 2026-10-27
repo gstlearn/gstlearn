@@ -44,16 +44,16 @@ static Db* createLocalDb(Id nech, Id ndim, Id nvar)
   }
 
   Db* data = Db::createFromSamples(nech, ELoadBy::COLUMN, tab);
-  data->setNameByUID(1, "x1");
-  data->setNameByUID(2, "x2");
+  data->setName(data->fromUID(1), "x1");
+  data->setName(data->fromUID(2), "x2");
 
-  data->setLocatorByUID(1, ELoc::X, 0);
-  data->setLocatorByUID(2, ELoc::X, 1);
+  data->setLocator(data->fromUID(1), ELoc::X, 0);
+  data->setLocator(data->fromUID(2), ELoc::X, 1);
 
   for (Id ivar = 0; ivar < nvar; ivar++)
   {
-    data->setNameByUID(3 + ivar, "Var");
-    data->setLocatorByUID(3 + ivar, ELoc::Z, ivar);
+    data->setName(data->fromUID(3 + ivar), "Var");
+    data->setLocator(data->fromUID(3 + ivar), ELoc::Z, ivar);
   }
   return data;
 }
@@ -85,11 +85,11 @@ Id st_mini_test()
   // Modify the variables by adding their mean
   VectorDouble z1 = db->getColumn("z-1");
   z1 += means[0];
-  db->setColumn(z1, "z-1");
+  db->setColumn("z-1", z1);
 
   VectorDouble z2 = db->getColumn("z-2");
   z2 += means[1];
-  db->setColumn(z2, "z-2");
+  db->setColumn("z-2", z2);
 
   DbStringFormat* dbfmt =
     DbStringFormat::createFromFlags(false, false, false, false, true);

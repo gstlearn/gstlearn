@@ -168,7 +168,7 @@ namespace gstlrn
     double wvalue, value, weight;
     Id nech = _db->getNSample();
     Id ndim = _db->getNDim();
-    bool flag_w = _db->hasLocVariable(ELoc::W);
+    bool flag_w = _db->hasLocator(ELoc::W);
 
     /* Calculate the Center of Gravity */
 
@@ -244,7 +244,7 @@ namespace gstlrn
     double wvalue, value1, value2, weight;
     Id nech = _db->getNSample();
     Id ndim = _db->getNDim();
-    bool flag_w = _db->hasLocVariable(ELoc::W);
+    bool flag_w = _db->hasLocator(ELoc::W);
 
     /* Calculate the Local Index of Collocation */
 
@@ -405,7 +405,7 @@ namespace gstlrn
     }
     double wvalue, value, weight;
     Id ndim = _db->getNDim();
-    bool flag_w = _db->hasLocVariable(ELoc::W);
+    bool flag_w = _db->hasLocator(ELoc::W);
     VectorDouble coor(ndim, 0.);
 
     /* Loop on the samples */
@@ -455,7 +455,7 @@ namespace gstlrn
     // Initializations
     double wvalue, value, weight;
     Id ndim = _db->getNDim();
-    bool flag_w = _db->hasLocVariable(ELoc::W);
+    bool flag_w = _db->hasLocator(ELoc::W);
     VectorDouble coor(ndim, 0.);
 
     /* Calculate the Center of Gravity */
@@ -509,7 +509,7 @@ namespace gstlrn
     // Initializations
     double wvalue, value, weight;
     Id ndim = _db->getNDim();
-    bool flag_w = _db->hasLocVariable(ELoc::W);
+    bool flag_w = _db->hasLocator(ELoc::W);
     VectorDouble coor(ndim, 0.);
 
     // Calculate the Field extension
@@ -691,7 +691,7 @@ namespace gstlrn
     // Initializations
     double wvalue, value, weight;
     Id ndim = _db->getNDim();
-    bool flag_w = _db->hasLocVariable(ELoc::W);
+    bool flag_w = _db->hasLocator(ELoc::W);
     VectorDouble coor(ndim, 0.);
 
     // Store the active samples in a list of Space Points
@@ -766,7 +766,7 @@ namespace gstlrn
     // Store the patch rank in the Data Base
     Id iuid = _db->addColumnsByConstant(1, 1, ITEST, "Patch");
     for (Id i = 0, n = static_cast<Id>(origRank.size()); i < n; i++)
-      _db->setArray(origs[i], iuid, ig[i]);
+      _db->setValue(_db->fromUID(iuid), origs[i], ig[i]);
 
     // Calculate the global center of gravity
 

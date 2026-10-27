@@ -117,8 +117,8 @@ We define the observations from the initial non conditional simulation.
 
 ```{r input_data, echo=TRUE, eval=TRUE}
 dat = Db_create()
-err = dat$setColumn(tab = runif(n=ndat), name = "x")
-err = dat$setColumn(tab = runif(n=ndat), name = "y")
+err = dat$setColumn("x", tab = runif(n=ndat))
+err = dat$setColumn("y", tab = runif(n=ndat))
 err = dat$setLocators(names = c("x", "y"), locatorType = ELoc_X(), cleanSameLocator = TRUE)
 ```
 

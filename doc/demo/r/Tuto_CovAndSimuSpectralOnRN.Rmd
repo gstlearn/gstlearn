@@ -31,7 +31,7 @@ matToGst <- function(mat) {
   stopifnot(is.matrix(mat))
   res = MatrixDense(nr, nc)
   for (i in 1:nc) {
-      res$setColumn(icol = i-1, mat[,i])
+      res$setColumn(i-1, mat[,i])
     }
   res
 }

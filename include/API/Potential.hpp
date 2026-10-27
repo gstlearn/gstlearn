@@ -92,7 +92,7 @@ namespace gstlrn
     {
       return (idim >= _ndim)
              ? 0.
-             : _dbtgt->getLocVariable(ELoc::TGT, IAD_TGT(it), idim);
+             : _dbtgt->getValue(RoleID(ERole::TGT, idim), IAD_TGT(it));
     }
 
     double GRD_COO(Id ig, Id idim) const
@@ -104,7 +104,7 @@ namespace gstlrn
     {
       return (idim >= _ndim)
              ? 0.
-             : _dbgrd->getLocVariable(ELoc::G, IAD_GRD(ig), idim);
+             : _dbgrd->getValue(RoleID(ERole::G, idim), IAD_GRD(ig));
     }
 
     double ISO_COO(Id ic, Id j, Id idim) const

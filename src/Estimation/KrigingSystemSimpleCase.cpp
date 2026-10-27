@@ -92,7 +92,7 @@ namespace gstlrn
     _algebra.setRankHandler(rkh);
     _algebra.setZ(rkh->getZflatten());
     // Define local constants
-    _flagVerr = _dbin->hasLocVariable(ELoc::V);
+    _flagVerr = _dbin->hasLocator(ELoc::V);
 
     _resetMemoryGeneral();
   }
@@ -243,9 +243,10 @@ namespace gstlrn
           double wgt = algebra.getLambda()->getValue(jech, ivarCL);
           Id iech = (*algebra.getSampleRanksByVariable(0))[jech];
           if (_flagSet)
-            _dbin->setArray(iech, _iptrWeights + ivarCL, wgt);
+            _dbin->setValue(_dbin->fromUID(_iptrWeights), iech, wgt);
           else
-            _dbin->updArray(iech, _iptrWeights, EOperator::ADD, wgt);
+            _dbin->updValue(
+              _dbin->fromUID(_iptrWeights), iech, EOperator::ADD, wgt);
         }
       }
     }
@@ -263,7 +264,7 @@ namespace gstlrn
       /* Store the parameter */
 
       double value = (status == 0) ? tab[i] : TEST;
-      _dbout->setArray(iechout, _iptrNeigh + i, value);
+      _dbout->setValue(_dbout->fromUID(_iptrNeigh + i), iechout, value);
     }
 
     if (OptDbg::query(EDbg::NBGH) && status == 0)
@@ -304,7 +305,8 @@ namespace gstlrn
       return;
     }
     for (Id ivarCL = 0; ivarCL < 1; ivarCL++)
-      _dbout->setArray(iechout, _iptrEst + ivarCL, local[ivarCL]);
+      _dbout->setValue(
+        _dbout->fromUID(_iptrEst + ivarCL), iechout, local[ivarCL]);
   }
 
   /****************************************************************************/
@@ -324,8 +326,9 @@ namespace gstlrn
     const VectorDouble& local = algebra.getStdv();
     if (local.size() <= 0) return;
     for (Id ivarCL = 0; ivarCL < 1; ivarCL++)
-      _dbout->setArray(
-        iechout, _iptrStd + ivarCL, status ? TEST : local[ivarCL]);
+      _dbout->setValue(
+        _dbout->fromUID(_iptrStd + ivarCL), iechout,
+        status ? TEST : local[ivarCL]);
   }
 
   /****************************************************************************/
@@ -344,8 +347,9 @@ namespace gstlrn
   {
     DECLARE_UNUSED(status)
     for (Id ivarCL = 0; ivarCL < 1; ivarCL++)
-      _dbout->setArray(
-        iechout, _iptrVarZ + ivarCL, algebra.getVarianceZstar(ivarCL));
+      _dbout->setValue(
+        _dbout->fromUID(_iptrVarZ + ivarCL), iechout,
+        algebra.getVarianceZstar(ivarCL));
   }
 
   void KrigingSystemSimpleCase::updateLHS(
@@ -557,14 +561,18 @@ namespace gstlrn
       if (_iptrEst >= 0)
       {
         double value =
-          (status == 0) ? _dbout->getArray(iechout, _iptrEst + ivar) : TEST;
+          (status == 0)
+            ? _dbout->getValue(_dbout->fromUID(_iptrEst + ivar), iechout)
+            : TEST;
         printElement(value, " - Estimate  = ");
         message("\n");
       }
       if (_iptrStd >= 0)
       {
         double value =
-          (status == 0) ? _dbout->getArray(iechout, _iptrStd + ivar) : TEST;
+          (status == 0)
+            ? _dbout->getValue(_dbout->fromUID(_iptrStd + ivar), iechout)
+            : TEST;
         printElement(value, " - Std. Dev. = ");
         message("\n");
         printElement(FFFF(value) ? TEST : value * value, " - Variance  = ");
@@ -577,7 +585,9 @@ namespace gstlrn
       if (_iptrVarZ >= 0)
       {
         double value =
-          (status == 0) ? _dbout->getArray(iechout, _iptrVarZ + ivar) : TEST;
+          (status == 0)
+            ? _dbout->getValue(_dbout->fromUID(_iptrVarZ + ivar), iechout)
+            : TEST;
         printElement(value, " - Var(Z*)   = ");
         message("\n");
       }

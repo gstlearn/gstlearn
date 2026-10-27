@@ -48,19 +48,19 @@ static Db* createLocalDb(Id nech, Id ndim, Id nvar, Id seed)
   }
 
   Db* data = Db::createFromSamples(nech, ELoadBy::COLUMN, tab);
-  data->setNameByUID(1, "x1");
-  data->setNameByUID(2, "x2");
+  data->setName(data->fromUID(1), "x1");
+  data->setName(data->fromUID(2), "x2");
 
-  data->setLocatorByUID(1, ELoc::X, 0);
-  data->setLocatorByUID(2, ELoc::X, 1);
+  data->setLocator(data->fromUID(1), ELoc::X, 0);
+  data->setLocator(data->fromUID(2), ELoc::X, 1);
 
   for (Id ivar = 0; ivar < nvar; ivar++)
   {
     if (nvar == 1)
-      data->setNameByUID(3 + ivar, "Var");
+      data->setName(data->fromUID(3 + ivar), "Var");
     else
-      data->setNameByUID(3 + ivar, generateOneName("Var", ivar + 1));
-    data->setLocatorByUID(3 + ivar, ELoc::Z, ivar);
+      data->setName(data->fromUID(3 + ivar), generateOneName("Var", ivar + 1));
+    data->setLocator(data->fromUID(3 + ivar), ELoc::Z, ivar);
   }
   return data;
 }

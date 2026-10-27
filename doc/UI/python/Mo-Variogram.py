@@ -145,7 +145,6 @@ def define_action(
     variance,
 ):
     def myaction():
-
         # Retrieve parameter values from widgets
         autosave = gmo.WgetAutoSave(WidgetAutoSave)
         cloud_params = gmo.WgetCloud(WidgetCloud)

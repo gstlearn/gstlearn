@@ -287,7 +287,7 @@ namespace gstlrn
       double value = 0.;
       for (Id idim = 0; idim < ndim; idim++)
         value +=
-          dbtgt->getLocVariable(ELoc::TGT, iech, idim)
+          dbtgt->getValue(RoleID(ERole::TGT, idim), iech)
           * dbtgt->getSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, nvar);
       dbtgt->setSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, nvar, value);
     }
@@ -334,7 +334,7 @@ namespace gstlrn
       for (Id ivar = 0; ivar < nvar; ivar++)
         for (Id iech = 0; iech < nech; iech++)
         {
-          double zvar = dbin->getZVariable(iech, ivar);
+          double zvar = dbin->getValue(RoleID(ERole::Z, ivar), iech);
           double simval =
             dbin->getSimvar(ELoc::SIMU, iech, isimu, ivar, 0, nbsimu, nvar);
           double simunc = (FFFF(zvar) || FFFF(simval)) ? TEST : simval - zvar;
@@ -393,7 +393,7 @@ namespace gstlrn
           }
           else
           {
-            zvar = dbin->getZVariable(iech, ivar);
+            zvar = dbin->getValue(RoleID(ERole::Z, ivar), iech);
           }
 
           double simval = tab[ivar][iech];
@@ -489,7 +489,7 @@ namespace gstlrn
           {
             double valdat;
             if (!_getFlagPGS())
-              valdat = dbin->getZVariable(ip, ivar);
+              valdat = dbin->getValue(RoleID(ERole::Z, ivar), ip);
             else
               valdat = dbin->getSimvar(
                 ELoc::GAUSFAC, ip, isimu, 0, _getIcase(), nbsimu, 1);
@@ -541,7 +541,7 @@ namespace gstlrn
           {
             double valdat;
             if (!_getFlagPGS())
-              valdat = dbin->getZVariable(ip_close, ivar);
+              valdat = dbin->getValue(RoleID(ERole::Z, ivar), ip_close);
             else
               valdat = dbin->getSimvar(
                 ELoc::GAUSFAC, ip_close, isimu, 0, _getIcase(), nbsimu, 1);
@@ -626,7 +626,7 @@ namespace gstlrn
 
     /* Add the attributes for storing the results */
 
-    Id iptr_est = dbout->getColIdxByLocator(ELoc::SIMU, 0);
+    Id iptr_est = dbout->getColIdx(RoleID(ERole::SIMU, 0));
     if (iptr_est < 0) return 1;
 
     /* Setting options */

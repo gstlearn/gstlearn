@@ -166,10 +166,10 @@ int main(int argc, char* argv[])
          "neighbors are used");
     Db* db = Db::createFillRandom(
       ndat, 2, 1, 0, 0, 1., 0., 0., {0., 0.}, {1., 1.}, 1234, false);
-    db->setColumn(VectorDouble(ndat, 0.01), "verr");
+    db->setColumn("verr", VectorDouble(ndat, 0.01));
     db->setLocator("verr", ELoc::V);
     auto ran = VH::sequenceVD(1, 1 + ndat - 1, 1);
-    db->setColumn(ran, "ranges");
+    db->setColumn("ranges", ran);
     // Add duplicate
     db->setSampleCoordinates(
       1, {db->getCoordinate(0, 0), db->getCoordinate(0, 1)});

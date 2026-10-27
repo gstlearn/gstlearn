@@ -55,32 +55,12 @@ namespace gstlrn
   {
   }
 
-  ColID::ColID(const ERole& role, Id index, Id version)
+  ColID::ColID(const ERole& role, Id version)
     : _icol(-1)
     , _name()
-    , _roleID(role, index)
+    , _roleID(role, 0)
     , _version(version)
   {
-  }
-
-  /**
-   * @brief Constructs a String which gives all possible information on a Column Identifier
-   *
-   * @return String
-   */
-  String ColID::getDescr() const
-  {
-    String descr;
-
-    if (!_name.empty()) descr += "Name: " + _name + ", ";
-
-    if (_icol >= 0) descr += "Index: " + std::to_string(_icol) + ", ";
-
-    if (hasRoleDefined()) descr += "Role: " + _roleID.getName() + ", ";
-
-    descr += "Version: " + std::to_string(_version);
-
-    return descr;
   }
 
   bool ColID::hasRoleDefined() const
@@ -88,6 +68,7 @@ namespace gstlrn
     return _roleID.getRole().isDifferent(ERole::UNDEFINED);
   }
 
+#ifndef SWIG
   ColID ColID::create(std::string_view name, Id version)
   {
     return ColID(name, version);
@@ -103,16 +84,25 @@ namespace gstlrn
     return ColID(roleID, version);
   }
 
-  ColID ColID::create(const ERole& role, Id index, Id version)
-  {
-    return ColID(role, index, version);
-  }
-
   ColID ColID::create(const ColID& colid, Id version)
   {
     ColID res(colid);
     if (version != 0) res.setVersion(version);
     return res;
+  }
+#endif
+
+  String ColID::toString(const AStringFormat* strfmt) const
+  {
+    DECLARE_UNUSED(strfmt);
+    std::stringstream sstr;
+
+    sstr << "Name: " << _name << "\n";
+    sstr << "Column Index: " << _icol << "\n";
+    sstr << "Role: " << _roleID.getName() << "\n";
+    sstr << "Version: " << _version << "\n";
+
+    return sstr.str();
   }
 
 } // namespace gstlrn

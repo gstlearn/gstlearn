@@ -1301,7 +1301,8 @@ namespace gstlrn
       coor[1] = y1 + deltay * i / number;
 
       Id iech = dbgrid->coordinateToRank(coor);
-      if (iech >= 0) dbgrid->updArray(iech, iptr, EOperator::MAX, value);
+      if (iech >= 0)
+        dbgrid->updValue(dbgrid->fromUID(iptr), iech, EOperator::MAX, value);
     }
   }
 
@@ -1767,7 +1768,7 @@ namespace gstlrn
           double red = _cubic(h);
           perm = perm2 + (perm1 - perm2) * red;
         }
-        dbgrid->setArray(iech, iptr, perm);
+        dbgrid->setValue(dbgrid->fromUID(iptr), iech, perm);
       }
     }
   }

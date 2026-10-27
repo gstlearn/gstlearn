@@ -58,7 +58,7 @@ namespace gstlrn
 
   double VMap::_getIVAR(const Db* db, Id iech, Id ivar) const
   {
-    return db->getZVariable(iech, ivar);
+    return db->getValue(RoleID(ERole::Z, ivar), iech);
   }
 
   /****************************************************************************/
@@ -107,8 +107,9 @@ namespace gstlrn
     DECLARE_UNUSED(z1);
     DECLARE_UNUSED(z2);
     auto ijvar = _get_variable_order(nvar, ivar, jvar);
-    _dbmap->updArray(ilag, _IPTV + ijvar, EOperator::ADD, ww * value);
-    _dbmap->updArray(ilag, _IPTW + ijvar, EOperator::ADD, ww);
+    _dbmap->updValue(
+      _dbmap->fromUID(_IPTV + ijvar), ilag, EOperator::ADD, ww * value);
+    _dbmap->updValue(_dbmap->fromUID(_IPTW + ijvar), ilag, EOperator::ADD, ww);
     _storage(iech1, iech2, dist, value);
   }
 
@@ -855,8 +856,8 @@ namespace gstlrn
           indice[2] = iz;
           Id iech = dbgrid->indiceToRank(indice);
           if (!dbgrid->getSelection(iech)) continue;
-          double val1 = dbgrid->getZVariable(iech, jvar);
-          double val2 = dbgrid->getZVariable(iech, ivar);
+          double val1 = dbgrid->getValue(RoleID(ERole::Z, jvar), iech);
+          double val2 = dbgrid->getValue(RoleID(ERole::Z, ivar), iech);
           ind1 = (!FFFF(val1));
           ind2 = (!FFFF(val2));
 
@@ -941,8 +942,8 @@ namespace gstlrn
           indice[2] = iz;
           Id iech = dbgrid->indiceToRank(indice);
           if (!dbgrid->getSelection(iech)) continue;
-          double val1 = dbgrid->getZVariable(iech, jvar);
-          double val2 = dbgrid->getZVariable(iech, ivar);
+          double val1 = dbgrid->getValue(RoleID(ERole::Z, jvar), iech);
+          double val2 = dbgrid->getValue(RoleID(ERole::Z, ivar), iech);
           ind1 = (!FFFF(val1));
           ind2 = (!FFFF(val2));
 
@@ -1076,7 +1077,7 @@ namespace gstlrn
           indice[1] = iy;
           indice[2] = iz;
           Id iech = _dbmap->indiceToRank(indice);
-          _dbmap->setArray(iech, iptr, tab[ecr]);
+          _dbmap->setValue(_dbmap->fromUID(iptr), iech, tab[ecr]);
         }
   }
 
@@ -1123,11 +1124,12 @@ namespace gstlrn
     {
       for (Id ijvar = 0; ijvar < nv2; ijvar++)
       {
-        double value = _dbmap->getArray(iech, _IPTW + ijvar);
+        double value = _dbmap->getValue(_dbmap->fromUID(_IPTW + ijvar), iech);
         if (value <= 0.)
-          _dbmap->setArray(iech, _IPTV + ijvar, TEST);
+          _dbmap->setValue(_dbmap->fromUID(_IPTV + ijvar), iech, TEST);
         else
-          _dbmap->updArray(iech, _IPTV + ijvar, EOperator::DIVIDE, value);
+          _dbmap->updValue(
+            _dbmap->fromUID(_IPTV + ijvar), iech, EOperator::DIVIDE, value);
       }
     }
   }

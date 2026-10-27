@@ -118,7 +118,7 @@ namespace gstlrn
     if (neigh != nullptr) neigh->reset();
 
     // Define local constants
-    _flagVerr = _dbin->hasLocVariable(ELoc::V);
+    _flagVerr = _dbin->hasLocator(ELoc::V);
 
     _resetMemoryGeneral();
   }
@@ -371,11 +371,15 @@ namespace gstlrn
     {
       for (Id ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
       {
-        double valdat = _dbin->getZVariable(_iechOut, ivarCL);
+        double valdat = _dbin->getValue(RoleID(ERole::Z, ivarCL), _iechOut);
         double estim =
-          (_flagEst) ? _dbout->getArray(_iechOut, _iptrEst + ivarCL) : TEST;
+          (_flagEst)
+            ? _dbout->getValue(_dbout->fromUID(_iptrEst + ivarCL), _iechOut)
+            : TEST;
         double stdv =
-          (_flagStd) ? _dbout->getArray(_iechOut, _iptrStd + ivarCL) : TEST;
+          (_flagStd)
+            ? _dbout->getValue(_dbout->fromUID(_iptrStd + ivarCL), _iechOut)
+            : TEST;
 
         // Modification of Estimation
 
@@ -384,7 +388,8 @@ namespace gstlrn
           if (_xvalidEstim)
           {
             double estloc = (FFFF(valdat)) ? TEST : estim - valdat;
-            _dbout->setArray(_iechOut, _iptrEst + ivarCL, estloc);
+            _dbout->setValue(
+              _dbout->fromUID(_iptrEst + ivarCL), _iechOut, estloc);
           }
         }
 
@@ -397,7 +402,8 @@ namespace gstlrn
             stdv = (FFFF(estim) || FFFF(valdat) || stdv <= 0.)
                    ? TEST
                    : (estim - valdat) / stdv;
-            _dbout->setArray(_iechOut, _iptrStd + ivarCL, stdv);
+            _dbout->setValue(
+              _dbout->fromUID(_iptrStd + ivarCL), _iechOut, stdv);
           }
         }
       }
@@ -415,9 +421,10 @@ namespace gstlrn
           double wgt = _algebra.getLambda()->getValue(jech, ivarCL);
           Id iech = _nbgh[jech];
           if (_flagSet)
-            _dbin->setArray(iech, _iptrWeights + ivarCL, wgt);
+            _dbin->setValue(_dbin->fromUID(_iptrWeights + ivarCL), iech, wgt);
           else
-            _dbin->updArray(iech, _iptrWeights, EOperator::ADD, wgt);
+            _dbin->updValue(
+              _dbin->fromUID(_iptrWeights), iech, EOperator::ADD, wgt);
         }
       }
     }
@@ -432,7 +439,7 @@ namespace gstlrn
       /* Store the parameter */
 
       double value = (status == 0) ? tab[i] : TEST;
-      _dbout->setArray(_iechOut, _iptrNeigh + i, value);
+      _dbout->setValue(_dbout->fromUID(_iptrNeigh + i), _iechOut, value);
     }
 
     if (OptDbg::query(EDbg::NBGH) && status == 0)
@@ -466,7 +473,8 @@ namespace gstlrn
       if (static_cast<Id>(local.size()) < _nvarCL) return;
     }
     for (Id ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
-      _dbout->setArray(_iechOut, _iptrEst + ivarCL, local[ivarCL]);
+      _dbout->setValue(
+        _dbout->fromUID(_iptrEst + ivarCL), _iechOut, local[ivarCL]);
   }
 
   /****************************************************************************/
@@ -485,7 +493,8 @@ namespace gstlrn
       if (static_cast<Id>(local.size()) < _nvarCL) return;
     }
     for (Id ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
-      _dbout->setArray(_iechOut, _iptrStd + ivarCL, local[ivarCL]);
+      _dbout->setValue(
+        _dbout->fromUID(_iptrStd + ivarCL), _iechOut, local[ivarCL]);
   }
 
   /****************************************************************************/
@@ -504,7 +513,8 @@ namespace gstlrn
       if (static_cast<Id>(local.size()) < _nvarCL) return;
     }
     for (Id ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
-      _dbout->setArray(_iechOut, _iptrVarZ + ivarCL, local[ivarCL]);
+      _dbout->setValue(
+        _dbout->fromUID(_iptrVarZ + ivarCL), _iechOut, local[ivarCL]);
   }
 
   Id KrigingSystem::resetData()
@@ -817,7 +827,7 @@ namespace gstlrn
     {
       Id ivar = _krigopt.getRankColCok(jvar);
       if (ivar < 0 || ivar >= _dbout->getNLoc(ELoc::Z)) continue;
-      double value = _dbout->getZVariable(_iechOut, ivar);
+      double value = _dbout->getValue(RoleID(ERole::Z, ivar), _iechOut);
       if (FFFF(value)) continue;
 
       // There is a new pseudo-data due to Collocated Option.
@@ -970,10 +980,13 @@ namespace gstlrn
 
         if (_iptrEst >= 0)
         {
-          double trueval =
-            (status == 0) ? _dbin->getZVariable(_iechOut, ivar) : TEST;
+          double trueval = (status == 0)
+                           ? _dbin->getValue(RoleID(ERole::Z, ivar), _iechOut)
+                           : TEST;
           double estim =
-            (status == 0) ? _dbout->getArray(_iechOut, _iptrEst + ivar) : TEST;
+            (status == 0)
+              ? _dbout->getValue(_dbout->fromUID(_iptrEst + ivar), _iechOut)
+              : TEST;
 
           if (status == 0)
           {
@@ -999,7 +1012,9 @@ namespace gstlrn
         if (_iptrStd >= 0)
         {
           double stdev =
-            (status == 0) ? _dbout->getArray(_iechOut, _iptrStd + ivar) : TEST;
+            (status == 0)
+              ? _dbout->getValue(_dbout->fromUID(_iptrStd + ivar), _iechOut)
+              : TEST;
 
           if (status == 0)
           {
@@ -1030,14 +1045,18 @@ namespace gstlrn
         if (_iptrEst >= 0)
         {
           double value =
-            (status == 0) ? _dbout->getArray(_iechOut, _iptrEst + ivar) : TEST;
+            (status == 0)
+              ? _dbout->getValue(_dbout->fromUID(_iptrEst + ivar), _iechOut)
+              : TEST;
           printElement(value, " - Estimate  = ");
           message("\n");
         }
         if (_iptrStd >= 0)
         {
           double value =
-            (status == 0) ? _dbout->getArray(_iechOut, _iptrStd + ivar) : TEST;
+            (status == 0)
+              ? _dbout->getValue(_dbout->fromUID(_iptrStd + ivar), _iechOut)
+              : TEST;
           printElement(value, " - Std. Dev. = ");
           message("\n");
           printElement(FFFF(value) ? TEST : value * value, " - Variance  = ");
@@ -1050,7 +1069,9 @@ namespace gstlrn
         if (_iptrVarZ >= 0)
         {
           double value =
-            (status == 0) ? _dbout->getArray(_iechOut, _iptrVarZ + ivar) : TEST;
+            (status == 0)
+              ? _dbout->getValue(_dbout->fromUID(_iptrVarZ + ivar), _iechOut)
+              : TEST;
           printElement(value, " - Var(Z*)   = ");
           message("\n");
         }
@@ -1069,7 +1090,8 @@ namespace gstlrn
       {
         message("Simulation #%d of Z%-2d : ", isimu + 1, ivar + 1);
         double value = (status == 0)
-                       ? _dbout->getArray(_iechOut, _iptrEst + ivar, isimu)
+                       ? _dbout->getValue(
+                           _dbout->fromUID(_iptrEst + ivar, isimu), _iechOut)
                        : TEST;
         printElement(value, " = ");
         message("\n");
@@ -1195,7 +1217,7 @@ namespace gstlrn
           messerr("K-FOLD is not available in Unique Neighborhood");
           return 1;
         }
-        if (!_dbin->hasLocVariable(ELoc::C))
+        if (!_dbin->hasLocator(ELoc::C))
           messerr("The K-FOLD option is ignored as no Code is defined");
       }
       _neigh->setFlagKFold(flag_kfold);
@@ -1716,21 +1738,21 @@ namespace gstlrn
 
     /* Get the estimation */
 
-    double est = _dbout->getArray(_iechOut, _iptrEst);
+    double est = _dbout->getValue(_dbout->fromUID(_iptrEst), _iechOut);
 
     /* Get the variance of the kriging error */
 
-    double std = _dbout->getArray(_iechOut, _iptrStd);
+    double std = _dbout->getValue(_dbout->fromUID(_iptrStd), _iechOut);
 
     /* Calculate the conditional expectation */
 
     double condexp = hermiteCondExpElement(est, std, anam_hermite->getPsiHns());
-    _dbout->setArray(_iechOut, _iptrEst, condexp);
+    _dbout->setValue(_dbout->fromUID(_iptrEst), _iechOut, condexp);
 
     /* Calculate the conditional variance */
 
     double condvar = hermiteCondStdElement(est, std, anam_hermite->getPsiHns());
-    _dbout->setArray(_iechOut, _iptrStd, condvar);
+    _dbout->setValue(_dbout->fromUID(_iptrStd), _iechOut, condvar);
   }
 
   void KrigingSystem::_setInternalShortCutVariablesModel()

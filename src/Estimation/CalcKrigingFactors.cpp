@@ -35,7 +35,7 @@ namespace gstlrn
   {
     // Turn the problem to Monovariate before checking consistency with 'Model'
     getDbin()->clearLocators(ELoc::Z);
-    getDbin()->setLocatorByUID(_iuidFactors[0], ELoc::Z, 0);
+    getDbin()->setLocator(getDbin()->fromUID(_iuidFactors[0]), ELoc::Z, 0);
 
     if (!ACalcInterpolator::_check()) return false;
 
@@ -186,7 +186,8 @@ namespace gstlrn
       Id jptr_est = (_flagEst) ? _iptrEst + iclass - 1 : -1;
       Id jptr_std = (_flagStd) ? _iptrStd + iclass - 1 : -1;
       getDbin()->clearLocators(ELoc::Z);
-      getDbin()->setLocatorByUID(_iuidFactors[iclass - 1], ELoc::Z, 0);
+      getDbin()->setLocator(
+        getDbin()->fromUID(_iuidFactors[iclass - 1]), ELoc::Z, 0);
       if (ksys.updKrigOptEstim(jptr_est, jptr_std, -1)) return 1;
       if (ksys.updKrigOptIclass(iclass, _getNFactors())) return 1;
 

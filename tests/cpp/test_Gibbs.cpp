@@ -58,20 +58,24 @@ static Id st_save(
   {
     iptr = dbgrid->addColumnsByConstant(1, 1, 0., String(), ELoc::L);
     if (iptr < 0) return 1;
-    for (Id i = 0; i < nech; i++) dbgrid->setArray(i, iptr, consmin[i]);
+    for (Id i = 0; i < nech; i++)
+      dbgrid->setValue(dbgrid->fromUID(iptr), i, consmin[i]);
   }
   if (!consmax.empty())
   {
     iptr = dbgrid->addColumnsByConstant(1, 1, 0., String(), ELoc::U);
     if (iptr < 0) return 1;
-    for (Id i = 0; i < nech; i++) dbgrid->setArray(i, iptr, consmax[i]);
+    for (Id i = 0; i < nech; i++)
+      dbgrid->setValue(dbgrid->fromUID(iptr), i, consmax[i]);
   }
   iptr = dbgrid->addColumnsByConstant(1, 1, 0., "Color");
   if (iptr < 0) return 1;
-  for (Id i = 0; i < nech; i++) dbgrid->setArray(i, iptr, colors[i]);
+  for (Id i = 0; i < nech; i++)
+    dbgrid->setValue(dbgrid->fromUID(iptr), i, colors[i]);
   iptr = dbgrid->addColumnsByConstant(1, 1, 0., String(), ELoc::Z);
   if (iptr < 0) return 1;
-  for (Id i = 0; i < nech; i++) dbgrid->setArray(i, iptr, z[i]);
+  for (Id i = 0; i < nech; i++)
+    dbgrid->setValue(dbgrid->fromUID(iptr), i, z[i]);
 
   /* Save the resulting 'dbgrid' in a neutral file */
 
@@ -334,10 +338,12 @@ int main(int argc, char* argv[])
   auto rank = dbgrid->getUID("SimuSPDE");
   for (Id i = 0; i < nvertex; i++)
   {
-    consmin[i] =
-      MIN(dbgrid->getArray(i, rank, 0), dbgrid->getArray(i, rank, 1));
-    consmax[i] =
-      MAX(dbgrid->getArray(i, rank, 0), dbgrid->getArray(i, rank, 1));
+    consmin[i] = MIN(
+      dbgrid->getValue(dbgrid->fromUID(rank, 0), i),
+      dbgrid->getValue(dbgrid->fromUID(rank, 1), i));
+    consmax[i] = MAX(
+      dbgrid->getValue(dbgrid->fromUID(rank, 0), i),
+      dbgrid->getValue(dbgrid->fromUID(rank, 1), i));
     z[i] = (consmin[i] + consmax[i]) / 2.;
   }
 

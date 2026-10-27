@@ -294,9 +294,11 @@ namespace gstlrn
 
       /* Working in velocities */
 
-      double t0 = (_colrefT >= 0) ? _dbout->getArray(iech, _colrefT) : 0.;
+      double t0 = (_colrefT >= 0)
+                  ? _dbout->getValue(_dbout->fromUID(_colrefT), iech)
+                  : 0.;
       if (FFFF(t0)) return (1);
-      double t1 = _dbout->getFromLocator(_ptime, iech, ilayer0 - 1);
+      double t1 = _dbout->getValue(RoleID(toERole(_ptime), ilayer0 - 1), iech);
       if (FFFF(t1)) return (1);
       tlast = t0;
 
@@ -304,7 +306,7 @@ namespace gstlrn
 
       for (Id ilayer = 0; ilayer < ilayer0; ilayer++)
       {
-        double tt = _dbout->getFromLocator(_ptime, iech, ilayer);
+        double tt = _dbout->getValue(RoleID(toERole(_ptime), ilayer), iech);
         if (FFFF(tt)) return (1);
         double pval = (tt - tlast) / (t1 - t0);
         if (pval < 0 || pval > 1) return (1);
@@ -363,7 +365,7 @@ namespace gstlrn
   {
     if (!_flagExt) return (TEST);
     _isValidLayer("_getDriftResult", ilayer0);
-    return _dbout->getLocVariable(ELoc::F, iech, ilayer0 - 1);
+    return _dbout->getValue(RoleID(ERole::F, ilayer0 - 1), iech);
   }
 
   /****************************************************************************/
@@ -616,7 +618,7 @@ namespace gstlrn
       for (Id jfois = 0; jfois < seltab[jech]; jfois++, jjech++)
       {
         Id jlayer = (jfois == 0)
-                    ? static_cast<Id>(_dbin->getFromLocator(ELoc::LAYER, jech))
+                    ? static_cast<Id>(_dbin->getValue(ERole::LAYER, jech))
                     : _nlayers;
 
         /* Evaluate the proportion vector */
@@ -692,7 +694,7 @@ namespace gstlrn
       for (Id ifois = 0; ifois < seltab[jech]; ifois++, jjech++)
       {
         Id jlayer = (ifois == 0)
-                    ? static_cast<Id>(_dbin->getFromLocator(ELoc::LAYER, jech))
+                    ? static_cast<Id>(_dbin->getValue(ERole::LAYER, jech))
                     : _nlayers;
 
         /* Evaluate the proportion vector */
@@ -761,7 +763,7 @@ namespace gstlrn
       for (Id ifois = 0; ifois < seltab[iech]; ifois++, iiech++)
       {
         Id ilayer = (ifois == 0)
-                    ? static_cast<Id>(_dbin->getFromLocator(ELoc::LAYER, iech))
+                    ? static_cast<Id>(_dbin->getValue(ERole::LAYER, iech))
                     : _nlayers;
 
         /* Evaluate the proportion vector */
@@ -822,7 +824,7 @@ namespace gstlrn
       for (Id ifois = 0; ifois < seltab[iech]; ifois++, iiech++)
       {
         Id ilayer = (ifois == 0)
-                    ? static_cast<Id>(_dbin->getFromLocator(ELoc::LAYER, iech))
+                    ? static_cast<Id>(_dbin->getValue(ERole::LAYER, iech))
                     : _nlayers;
 
         if (ifois == 0)
@@ -830,26 +832,28 @@ namespace gstlrn
 
           /* Depth of the actual sample */
 
-          value = _dbin->getZVariable(iech, 0);
+          value = _dbin->getValue(RoleID(ERole::Z, 0), iech);
         }
         else
         {
 
           /* Depth of the collocated bottom sample */
 
-          value = _dbout->getArray(igrid, _colrefB);
+          value = _dbout->getValue(_dbout->fromUID(_colrefB), igrid);
         }
 
         /* Centering to the reference Depth surface */
-
-        if (_colrefD >= 0) value -= _dbout->getArray(igrid, _colrefD);
+        if (_colrefD >= 0)
+          value -= _dbout->getValue(_dbout->fromUID(_colrefD), igrid);
 
         /* Converting into velocities */
 
         if (_flagVel)
         {
-          double dtime = _dbout->getFromLocator(_ptime, igrid, ilayer - 1);
-          if (_colrefT >= 0) dtime -= _dbout->getArray(igrid, _colrefT);
+          double dtime =
+            _dbout->getValue(RoleID(toERole(_ptime), ilayer - 1), igrid);
+          if (_colrefT >= 0)
+            dtime -= _dbout->getValue(_dbout->fromUID(_colrefT), igrid);
           value /= dtime;
         }
         zval[iiech] = value;
@@ -902,7 +906,7 @@ namespace gstlrn
       for (Id ifois = 0; ifois < seltab[iech]; ifois++, iiech++)
       {
         Id ilayer = (ifois == 0)
-                    ? static_cast<Id>(_dbin->getFromLocator(ELoc::LAYER, iech))
+                    ? static_cast<Id>(_dbin->getValue(ERole::LAYER, iech))
                     : _nlayers;
 
         /* Evaluate the proportion vector */
@@ -953,7 +957,7 @@ namespace gstlrn
       for (Id ifois = 0; ifois < seltab[iech]; ifois++, iiech++)
       {
         Id ilayer = (ifois == 0)
-                    ? static_cast<Id>(_dbin->getFromLocator(ELoc::LAYER, iech))
+                    ? static_cast<Id>(_dbin->getValue(ERole::LAYER, iech))
                     : _nlayers;
 
         /* Evaluate the proportion vector */
@@ -1029,7 +1033,7 @@ namespace gstlrn
       if (ABS(dx) > eps) continue;
       double dy = _dbin->getCoordinate(iech, 1) - coor[1];
       if (ABS(dy) > eps) continue;
-      Id ilayer = static_cast<Id>(_dbin->getFromLocator(ELoc::LAYER, iech));
+      Id ilayer = static_cast<Id>(_dbin->getValue(ERole::LAYER, iech));
       if (ilayer == _nlayers) return 0;
     }
     return 1;
@@ -1068,8 +1072,9 @@ namespace gstlrn
   {
     (*ratio) = 0.;
 
-    double botval = _dbout->getArray(iechout, _colrefB);
-    if (_colrefD >= 0) botval -= _dbout->getArray(iechout, _colrefD);
+    double botval = _dbout->getValue(_dbout->fromUID(_colrefB), iechout);
+    if (_colrefD >= 0)
+      botval -= _dbout->getValue(_dbout->fromUID(_colrefD), iechout);
 
     if (_getPropsResult(iechout, _nlayers, prop1)) return 1;
     double c0 =
@@ -1332,9 +1337,9 @@ namespace gstlrn
 
         /* Store the result */
 
-        _dbout->setLocVariable(ELoc::Z, iechout, ilayer, estim);
+        _dbout->setValue(RoleID(ERole::Z, ilayer), iechout, estim);
         if (_flagStd)
-          _dbout->setLocVariable(ELoc::Z, iechout, _nlayers + ilayer, stdv);
+          _dbout->setValue(RoleID(ERole::Z, _nlayers + ilayer), iechout, stdv);
         if (OptDbg::query(EDbg::RESULTS))
         {
           message("Estimate = %lf", estim);
@@ -1366,7 +1371,7 @@ namespace gstlrn
       if (seltab[iech] == 0) continue;
       coor[0] = _dbin->getCoordinate(iech, 0);
       coor[1] = _dbin->getCoordinate(iech, 1);
-      Id ilayer = static_cast<Id>(_dbin->getFromLocator(ELoc::LAYER, iech));
+      Id ilayer = static_cast<Id>(_dbin->getValue(ERole::LAYER, iech));
       Id igrid = _locateSampleInDbout(iech);
       if (isNA(igrid)) goto label_suppress;
 
@@ -1380,7 +1385,7 @@ namespace gstlrn
       // Case of a Depth Reference variable
       if (_colrefD >= 0)
       {
-        double value = _dbout->getArray(igrid, _colrefD);
+        double value = _dbout->getValue(_dbout->fromUID(_colrefD), igrid);
         if (FFFF(value)) goto label_suppress;
       }
 
@@ -1388,7 +1393,7 @@ namespace gstlrn
       newval = 1;
       if (_colrefB >= 0)
       {
-        double value = _dbout->getArray(igrid, _colrefB);
+        double value = _dbout->getValue(_dbout->fromUID(_colrefB), igrid);
         if (FFFF(value)) goto label_suppress;
 
         // Check if a duplicate sample must be added:       //
@@ -1438,12 +1443,15 @@ namespace gstlrn
 
       /* Identify the reference surface */
 
-      double depth0 =
-        (_colrefD >= 0) ? _dbout->getArray(iechout, _colrefD) : 0.;
+      double depth0 = (_colrefD >= 0)
+                      ? _dbout->getValue(_dbout->fromUID(_colrefD), iechout)
+                      : 0.;
 
       /* Identify the reference time (for velocity) */
 
-      double time0 = (_colrefT >= 0) ? _dbout->getArray(iechout, _colrefT) : 0.;
+      double time0 = (_colrefT >= 0)
+                     ? _dbout->getValue(_dbout->fromUID(_colrefT), iechout)
+                     : 0.;
 
       double depth_prev = depth0;
       double time_prev = time0;
@@ -1455,8 +1463,9 @@ namespace gstlrn
 
         /* Read the estimated value */
 
-        double value = _dbout->getZVariable(iechout, ilayer);
-        if (_flagStd) stdv = _dbout->getZVariable(iechout, _nlayers + ilayer);
+        double value = _dbout->getValue(RoleID(ERole::Z, ilayer), iechout);
+        if (_flagStd)
+          stdv = _dbout->getValue(RoleID(ERole::Z, _nlayers + ilayer), iechout);
 
         if (_flagCumul)
         {
@@ -1465,7 +1474,7 @@ namespace gstlrn
 
           if (_flagVel)
           {
-            time = _dbout->getFromLocator(_ptime, iechout, ilayer);
+            time = _dbout->getValue(RoleID(toERole(_ptime), ilayer), iechout);
             delta = time - time0;
             depth = depth0 + value * delta;
             if (_flagStd) stdv *= delta;
@@ -1482,7 +1491,7 @@ namespace gstlrn
 
           if (_flagVel)
           {
-            time = _dbout->getFromLocator(_ptime, iechout, ilayer);
+            time = _dbout->getValue(RoleID(toERole(_ptime), ilayer), iechout);
             delta = time - time_prev;
             depth = depth_prev + value * delta;
             if (_flagStd) stdv *= delta;
@@ -1497,9 +1506,9 @@ namespace gstlrn
 
         /* Store the transformed results */
 
-        _dbout->setLocVariable(ELoc::Z, iechout, ilayer, depth);
+        _dbout->setValue(RoleID(ERole::Z, ilayer), iechout, depth);
         if (_flagStd)
-          _dbout->setLocVariable(ELoc::Z, iechout, _nlayers + ilayer, stdv);
+          _dbout->setValue(RoleID(ERole::Z, _nlayers + ilayer), iechout, stdv);
       }
     }
   }
@@ -1534,7 +1543,7 @@ namespace gstlrn
       for (Id ifois = 0; ifois < seltab[iech]; ifois++, iiech++)
       {
         Id ilayer = (ifois == 0)
-                    ? static_cast<Id>(_dbin->getFromLocator(ELoc::LAYER, iech))
+                    ? static_cast<Id>(_dbin->getValue(ERole::LAYER, iech))
                     : _nlayers;
 
         /* Evaluate the proportion vector */
@@ -1719,10 +1728,10 @@ namespace gstlrn
       double z2 = zval[jjech];
       (*distsum) += dist;
 
-      ilayer = static_cast<Id>(_dbin->getFromLocator(ELoc::LAYER, iech));
+      ilayer = static_cast<Id>(_dbin->getValue(ERole::LAYER, iech));
       if (_getPropsData(iech, ilayer, phia)) return (1);
 
-      jlayer = static_cast<Id>(_dbin->getFromLocator(ELoc::LAYER, jech));
+      jlayer = static_cast<Id>(_dbin->getValue(ERole::LAYER, jech));
       if (_getPropsData(jech, jlayer, phib)) return (1);
 
       Id ecr1 = 0;
@@ -2015,7 +2024,7 @@ namespace gstlrn
     for (Id iech = 0; iech < _nechmax; iech++)
     {
       seltab[iech] = 0;
-      Id ilayer = static_cast<Id>(_dbin->getFromLocator(ELoc::LAYER, iech));
+      Id ilayer = static_cast<Id>(_dbin->getValue(ERole::LAYER, iech));
       if (ilayer < 1 || ilayer > _nlayers) continue;
       if (_getPropsData(iech, ilayer, props)) continue;
       seltab[iech] = 1;

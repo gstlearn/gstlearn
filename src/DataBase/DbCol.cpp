@@ -288,7 +288,7 @@ namespace gstlrn
 
   void DbCol::deleteVersion(const Id iversion)
   {
-    if (!_checkVersion(iversion, getNVersions())) return;
+    if (!checkVersion(iversion, getNVersions())) return;
 
     std::visit(
       [iversion](auto&& arg) { arg.deleteSerie(iversion); }, this->_data);
@@ -330,7 +330,7 @@ namespace gstlrn
     return descr;
   }
 
-  bool DbCol::_checkVersion(Id iversion, Id nversion) const
+  bool DbCol::checkVersion(Id iversion, Id nversion) const
   {
     if (iversion < 0 || iversion >= nversion)
     {

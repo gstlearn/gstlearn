@@ -56,7 +56,7 @@ namespace gstlrn
 
     /* Store information from the input grid */
 
-    Id iatt1 = dbin->getUIDByLocator(ELoc::Z, 0);
+    Id iatt1 = dbin->getUID(RoleID(ERole::Z, 0));
     if (iatt1 <= 0) return 1;
 
     /* Loop on the refinement factors */
@@ -321,7 +321,7 @@ namespace gstlrn
       ind[2] = iz;
     }
     Id iad = db->indiceToRank(ind);
-    return db->getArray(iad, iatt);
+    return db->getValue(db->fromUID(iatt), iad);
   }
 
   /****************************************************************************/
@@ -349,7 +349,7 @@ namespace gstlrn
     ind[1] = iy0;
     ind[2] = iz0;
     Id iad = db->indiceToRank(ind);
-    db->setArray(iad, iatt, value);
+    db->setValue(db->fromUID(iatt), iad, value);
   }
 
   /****************************************************************************/
