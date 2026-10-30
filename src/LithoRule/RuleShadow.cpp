@@ -361,6 +361,7 @@ namespace gstlrn
   {
     double t1min, t1max, t2min, t2max, sh_dsup, sh_down;
     VectorDouble y;
+    auto colid = ColID(0);
 
     /* Initializations */
 
@@ -385,11 +386,11 @@ namespace gstlrn
       for (Id igrf = 0; igrf < 2; igrf++)
       {
         auto icase = propdef.getRank(ipgs, igrf);
-        auto colid = Db::buildColIDForSim(ELoc::GAUSFAC, isimu, 0, icase, 1);
+        colid = Db::buildColIDForSim(ELoc::GAUSFAC, isimu, 0, icase, 1);
         y[igrf] = (flag_used[igrf]) ? dbin->getValue(colid, iech) : 0.;
       }
       facies = getFaciesFromGaussian(y[0], y[1]);
-      auto colid = Db::buildColIDForSim(ELoc::FACIES, isimu, 0, ipgs, 1);
+      colid = Db::buildColIDForSim(ELoc::FACIES, isimu, 0, ipgs, 1);
       dbin->setValue(colid, iech, static_cast<double>(facies));
     }
     return 0;
@@ -430,6 +431,7 @@ namespace gstlrn
     check_mandatory_attribute("rule_gaus2fac_result_shadow", dbout, ELoc::SIMU);
     auto* dbgrid = dynamic_cast<DbGrid*>(dbout);
     if (dbgrid == nullptr) return 1;
+    auto colid = ColID(0);
 
     error = 1;
     nstep = 0;
@@ -447,7 +449,6 @@ namespace gstlrn
     nstep = static_cast<Id>(floor(getDMax() / dinc));
     dy = dinc * getTgte();
     for (idim = 0; idim < ndim; idim++) del[idim] = dinc * _shift[idim];
-    auto colid = Db::buildColIDForSim(ELoc::SIMU, isimu, 0, icase, 1);
 
     /* Processing the translation */
 
@@ -459,7 +460,7 @@ namespace gstlrn
 
       facies = TEST;
       for (igrf = 0; igrf < 2; igrf++) y[igrf] = TEST;
-
+      colid = Db::buildColIDForSim(ELoc::SIMU, isimu, 0, icase, 1);
       y[0] = dbgrid->getValue(colid, iech);
       if (FFFF(y[0])) break;
       if (propdef.ruleThreshShadowDefine(
@@ -498,7 +499,7 @@ namespace gstlrn
 
       /* Combine the underlying GRFs to derive Facies */
 
-      auto colid = Db::buildColIDForSim(ELoc::FACIES, isimu, 0, ipgs, 1);
+      colid = Db::buildColIDForSim(ELoc::FACIES, isimu, 0, ipgs, 1);
       dbgrid->setValue(colid, iech, facies);
     }
 

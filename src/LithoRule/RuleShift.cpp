@@ -277,6 +277,7 @@ namespace gstlrn
     if (dbgrid == nullptr) return 1;
     check_mandatory_attribute("rule_gaus2fac_result", dbout, ELoc::FACIES);
     check_mandatory_attribute("rule_gaus2fac_result", dbout, ELoc::SIMU);
+    auto colid = ColID(0);
 
     double t1min, t1max, t2min, t2max;
     VectorDouble y;
@@ -285,7 +286,6 @@ namespace gstlrn
     _ind1.resize(ndim);
     _ind2.resize(ndim);
     Id icase = propdef.getRank(ipgs, 0);
-    auto colid = Db::buildColIDForSim(ELoc::SIMU, isimu, 0, icase, 1);
 
     /* Processing the translation */
 
@@ -295,7 +295,7 @@ namespace gstlrn
 
       Id facies = ITEST;
       y.fill(TEST, 2);
-
+      colid = Db::buildColIDForSim(ELoc::SIMU, isimu, 0, icase, 1);
       y[0] = dbgrid->getValue(colid, iech);
       if (FFFF(y[0])) break;
 
@@ -314,7 +314,7 @@ namespace gstlrn
       double value =
         (facies > 0) ? static_cast<double>(getFaciesValue(facies - 1)) : TEST;
 
-      auto colid = Db::buildColIDForSim(ELoc::FACIES, isimu, 0, ipgs, 1);
+      colid = Db::buildColIDForSim(ELoc::FACIES, isimu, 0, ipgs, 1);
       dbgrid->setValue(colid, iech, value);
     }
     return 0;
