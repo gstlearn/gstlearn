@@ -1533,6 +1533,7 @@ namespace gstlrn
    *****************************************************************************/
   void Potential::_fillDualSimulation(Id nbsimu, MatrixDense& zvals)
   {
+    auto colid = ColID(0);
     zvals.fill(0.);
 
     // Loop on the simulations */
@@ -1542,8 +1543,7 @@ namespace gstlrn
 
       // Load the gradient simulation errors
 
-      auto colid =
-        Db::buildColIDForSim(ELoc::SIMU, isimu + 0 * nbsimu, 0, 0, 1);
+      colid = Db::buildColIDForSim(ELoc::SIMU, isimu + 0 * nbsimu, 0, 0, 1);
       for (Id ig = 0; ig < _ngrd; ig++)
       {
         if (_ndim >= 1)
@@ -1558,7 +1558,7 @@ namespace gstlrn
 
       for (Id it = 0; it < _ntgt; it++)
       {
-        auto colid = Db::buildColIDForSim(ELoc::SIMU, isimu, 0, 0, 1);
+        colid = Db::buildColIDForSim(ELoc::SIMU, isimu, 0, 0, 1);
         zvals.setValue(TGT(it), isimu, _dbtgt->getValue(colid, IAD_TGT(it)));
       }
 
@@ -1567,7 +1567,7 @@ namespace gstlrn
       for (Id ic = 0; ic < _nlayers; ic++)
         for (Id j = 1; j < _nbPerLayer[ic]; j++)
         {
-          auto colid = Db::buildColIDForSim(ELoc::SIMU, isimu, 0, 0, 1);
+          colid = Db::buildColIDForSim(ELoc::SIMU, isimu, 0, 0, 1);
           zvals.setValue(
             ISC(ic, j), isimu,
             _dbiso->getValue(colid, IAD_ISO(ic, j))
