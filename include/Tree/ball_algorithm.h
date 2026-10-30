@@ -80,12 +80,12 @@ namespace gstlrn
 
     t_btree() = default;
     t_btree(
-      MatrixT<double>&& data,
-      Id n_samples,
-      Id n_features,
+      MatrixT<double>&& data_arg,
+      Id n_samples_arg,
+      Id n_features_arg,
       bool all_available,
-      Id leaf_size,
-      Id default_distance_function);
+      Id leaf_size_arg,
+      Id default_distance_function_arg);
 
     void display(Id level = -1) const;
     Id init_node(Id i_node, Id idx_start, Id idx_end);
