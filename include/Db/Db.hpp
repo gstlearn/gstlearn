@@ -69,7 +69,7 @@ namespace gstlrn
    * so on up to X{N} into X{N-1}.
    * - there is no limitation in the number of ranks for a given Role name
    * - Roles are defined using a 0-based convention in the code, but they are **printed**
-   *   using a 1-based convention (for example, the first coordinate is X1, but its rank is 0).
+   *   using a 1-based convention (for example, the first coordinate is printed x1, but its index is 0 in the code.).
    * The regroupment of the Role name and the Role rank is called a *RoleID* (see RoleID.hpp).
    *
    * Each variable (or column) can be designated:
@@ -446,13 +446,11 @@ namespace gstlrn
 
     Id getNSampleActiveAndDefined(const ColID& colid) const;
 
-    double* getColumnPtrUnprotected(const ColID& colid);
-
     const double* getColumnPtrUnprotected(const ColID& colid) const;
 
     /**@}*/
 
-    /** @addtogroup DB_Multi_Column Methods for a Managing Single Column.
+    /** @addtogroup DB_Multi_Column Methods for a Managing Several Column.
      * \ingroup DB
      *
      * All methods systematically use the MultID standardized first argument.

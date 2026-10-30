@@ -15,6 +15,8 @@
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
+#include <initializer_list>
+
 namespace gstlrn
 {
   class GSTLEARN_EXPORT MultID
@@ -32,6 +34,10 @@ namespace gstlrn
       : MultID(String(name))
     {
     }
+
+    MultID(std::initializer_list<const char*> names);
+    MultID(std::initializer_list<String> names);
+    MultID(std::initializer_list<Id> icols);
 #endif
 
     const VectorString& getNames() const { return _names; }

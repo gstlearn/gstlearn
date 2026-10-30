@@ -1081,15 +1081,10 @@ namespace gstlrn
       }
 
       // Convert the resulting simulation into categories
-      dbout->setLocators(iuids, ELoc::SIMU);
+      dbout->setLocators(dbout->fromUIDs(iuids), ELoc::SIMU);
       ruleprop.gaussToCategory(dbout, namconv);
-      // Deletion of the Gaussian vector has been delayed until all simulations are performed
-      // in order to avoid the columns reordering in the Db.
+      dbout->deleteColumns(dbout->fromUIDs(iuids));
     }
-
-    // Delete the Gaussian vectors
-    VectorInt iuids = VH::sequence(nvar * nbsimu, iuid0);
-    dbout->deleteColumns(dbout->fromUIDs(iuids));
 
     return 0;
   }

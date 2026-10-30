@@ -49,6 +49,31 @@ namespace gstlrn
     _icols.push_back(icol);
   }
 
+  MultID::MultID(std::initializer_list<const char*> names)
+    : _icols()
+    , _names()
+    , _role(ERole::UNDEFINED)
+  {
+    for (const auto& name: names)
+    {
+      _names.push_back(String(name));
+    }
+  }
+
+  MultID::MultID(std::initializer_list<String> names)
+    : _icols()
+    , _names(names)
+    , _role(ERole::UNDEFINED)
+  {
+  }
+
+  MultID::MultID(std::initializer_list<Id> icols)
+    : _icols(icols)
+    , _names()
+    , _role(ERole::UNDEFINED)
+  {
+  }
+
   /**
    * @brief Constructs a String which gives all possible information on a Column Identifier
    *

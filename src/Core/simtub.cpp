@@ -1035,7 +1035,7 @@ namespace gstlrn
     VectorDouble sort;
     VectorDouble pton;
     VectorDouble pres;
-    auto colid = Db::buildColIDForSim(ELoc::SIMU, 0, 0, 0, 1);
+    auto colid = ColID(0);
 
     /* Initializations */
 
@@ -1113,7 +1113,7 @@ namespace gstlrn
 
       proba = 1. - pres[icut];
       seuil = (icut < ncut - 1) ? st_quantile(dbout, proba, sort.data()) : TEST;
-      auto colid = Db::buildColIDForSim(ELoc::SIMU, 0, 0, 0, 1);
+      colid = Db::buildColIDForSim(ELoc::SIMU, 0, 0, 0, 1);
 
       /* Update the current selection */
 

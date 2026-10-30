@@ -978,13 +978,6 @@ namespace gstlrn
       setCoordinate(iech, idim, coor[idim]);
   }
 
-  double* Db::getColumnPtrUnprotected(const ColID& colid)
-  {
-    auto icol = getColIdx(colid);
-    if (!isColIdxValid(icol)) return nullptr;
-    return _data.getColumn<VectorDouble>(icol).data();
-  }
-
   const double* Db::getColumnPtrUnprotected(const ColID& colid) const
   {
     auto icol = getColIdx(colid);

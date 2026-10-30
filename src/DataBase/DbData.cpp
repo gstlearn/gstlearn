@@ -582,13 +582,13 @@ namespace gstlrn
     if (multid.getRole().isDifferent(ERole::UNDEFINED))
     {
       // Information stored in std::map is automatically sorted by increasing key
-      std::map<int, Id> sortedRoleCols;
+      std::map<Id, Id> sortedRoleCols;
 
       for (Id icol = 0; icol < ncols; ++icol)
       {
         if (_roleIDs[icol].getRole().isEqual(multid.getRole()))
         {
-          int roleIndex = _roleIDs[icol].getIndex();
+          Id roleIndex = _roleIDs[icol].getIndex();
           sortedRoleCols[roleIndex] = icol;
         }
       }
