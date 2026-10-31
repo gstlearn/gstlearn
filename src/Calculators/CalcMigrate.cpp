@@ -695,11 +695,11 @@ namespace gstlrn
 
     auto nvar = _getNVar();
     _renameVariable(
-      2, getDbin()->getNamesByUID(_iuids), ELoc::UNDEFINED, nvar, _iattOut,
-      String(), 1);
+      2, getDbin()->getNames(getDbin()->fromUIDs(_iuids)), ELoc::UNDEFINED,
+      nvar, _iattOut, String(), 1);
 
     if (_flagLocate)
-      getDbout()->setLocatorsByUID(nvar, _iattOut, _locatorType, 0);
+      getDbout()->setLocatorsByUIDRange(nvar, _iattOut, _locatorType, 0);
 
     return true;
   }
@@ -918,7 +918,7 @@ namespace gstlrn
     migrate.setDbout(dbout);
     migrate.setNamingConvention(namconv);
 
-    VectorString names = dbin->getNamesByLocator(locatorType);
+    VectorString names = dbin->getNames(toERole(locatorType));
     VectorInt iuids = dbin->getUIDs(names);
     migrate.setIuids(iuids);
     migrate.setDistType(dist_type);
@@ -1043,7 +1043,7 @@ namespace gstlrn
     bool flagCap)
   {
     VectorVectorDouble tab;
-    VectorInt iatts = dbgrid->getUIDsByLocator(ptype);
+    VectorInt iatts = dbgrid->getUIDs(toERole(ptype));
     Id nsurf = static_cast<Id>(iatts.size());
     if (nsurf <= 0) return tab;
 

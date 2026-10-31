@@ -1360,11 +1360,11 @@ namespace gstlrn
     if (dbnew == nullptr) goto label_end;
 
     ecr = 0;
-    dbnew->setLocatorsByUID(ndim, ecr, ELoc::X, 0);
+    dbnew->setLocatorsByUIDRange(ndim, ecr, ELoc::X, 0);
     ecr += ndim;
     dbnew->setLocator(dbnew->fromUID(ecr), ELoc::C, 0);
     ecr += 1;
-    dbnew->setLocatorsByUID(nvar, ecr, ELoc::Z, 0);
+    dbnew->setLocatorsByUIDRange(nvar, ecr, ELoc::Z, 0);
     ecr += nvar;
     DECLARE_UNUSED(ecr);
 

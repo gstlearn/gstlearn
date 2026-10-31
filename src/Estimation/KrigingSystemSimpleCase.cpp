@@ -108,7 +108,7 @@ namespace gstlrn
     {
       if (!_dbinUidToBeDeleted.empty())
       {
-        _dbin->deleteColumnsByUID(_dbinUidToBeDeleted);
+        _dbin->deleteColumns(_dbin->fromUIDs(_dbinUidToBeDeleted));
       }
     }
 
@@ -118,7 +118,7 @@ namespace gstlrn
     {
       if (!_dboutUidToBeDeleted.empty())
       {
-        _dbout->deleteColumnsByUID(_dboutUidToBeDeleted);
+        _dbout->deleteColumns(_dbout->fromUIDs(_dboutUidToBeDeleted));
       }
     }
   }
@@ -799,7 +799,7 @@ namespace gstlrn
         {
           if (migrateByLocator(_dbout, _dbin, ELoc::F)) return false;
           // Store the UID of the newly created variables to be deleted at the end of the process
-          _dbinUidToBeDeleted = _dbin->getUIDsByLocator(ELoc::F);
+          _dbinUidToBeDeleted = _dbin->getUIDs(ERole::F);
         }
         if (nfex != _dbin->getNLoc(ELoc::F))
         {

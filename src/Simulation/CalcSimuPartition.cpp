@@ -88,7 +88,7 @@ namespace gstlrn
     /* Create the Point Data Base */
 
     Db* dbpoint = Db::createFromSamples(nbpoints, ELoadBy::SAMPLE, coor);
-    dbpoint->setLocatorsByUID(ndim, 0, ELoc::X, 0);
+    dbpoint->setLocatorsByUIDRange(ndim, 0, ELoc::X, 0);
     VectorDouble simpoint(dbpoint->getNSample());
 
     /* Perform the simulation at the seed points */

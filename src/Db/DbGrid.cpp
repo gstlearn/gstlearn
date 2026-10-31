@@ -19,6 +19,7 @@
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Enum/EMorpho.hpp"
+#include "Enum/ERole.hpp"
 #include "Estimation/Estimations.hpp"
 #include "Polygon/Polygons.hpp"
 #include "Space/SpaceTarget.hpp"
@@ -144,7 +145,7 @@ namespace gstlrn
     {
       Id jcol = 0;
       if (flagAddSampleRank) jcol++;
-      setLocatorsByUID(ndim, jcol, ELoc::X, 0);
+      setLocatorsByUIDRange(ndim, jcol, ELoc::X, 0);
       _defineDefaultLocators(number, locatorNames);
     }
     initThread();
@@ -221,7 +222,7 @@ namespace gstlrn
     // Create the locators
 
     Id jcol = 0;
-    setLocatorsByUID(ndim, jcol, ELoc::X, 0);
+    setLocatorsByUIDRange(ndim, jcol, ELoc::X, 0);
 
     return 0;
   }
@@ -281,7 +282,7 @@ namespace gstlrn
     // Create the locators
     Id jcol = 0;
     if (flagAddSampleRank) jcol++;
-    setLocatorsByUID(ndim, jcol, ELoc::X, 0);
+    setLocatorsByUIDRange(ndim, jcol, ELoc::X, 0);
 
     // Add a selection (optional)
     if (flagAddSelection)
@@ -685,7 +686,7 @@ namespace gstlrn
 
     // Set the locators
 
-    setLocatorsByUID(getNDim(), icol0, ELoc::X, 0);
+    setLocatorsByUIDRange(getNDim(), icol0, ELoc::X, 0);
 
     // Generate the vector of coordinates
 
@@ -1519,7 +1520,7 @@ namespace gstlrn
     else
     {
       auto ndim = getNDim();
-      dxsPerCell = getLocVariables(ELoc::BLEX, node, ndim);
+      dxsPerCell = getValues(ERole::BLEX, {node}, false, ndim);
     }
     return dxsPerCell;
   }
@@ -2488,7 +2489,7 @@ namespace gstlrn
 
     auto nech = getNSample();
 
-    VectorString names = db->getNamesByColIdx({0});
+    VectorString names = db->getNames(0);
     Id iuid = addColumnsByConstant(1, 1);
     if (dbStatisticsInGridTool(db, this, names, EStatOption::NUM, radius, iuid))
       return 1;

@@ -364,7 +364,7 @@ for(idir in 1:length(dir_angles)) {
 # Simulations
 
 ```{r simu_matern, echo = TRUE, eval = TRUE}
-err = grid$deleteColumns(names = paste(prefix, "*", sep = "."))
+err = grid$deleteColumns(paste(prefix, "*", sep = "."))
 
 # simulation parameters
 seed = 258425

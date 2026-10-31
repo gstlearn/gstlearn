@@ -279,9 +279,8 @@ namespace gstlrn
 
         for (Id ivar = 0; ivar < nvar; ivar++)
         {
-          // Arguments 'simu' and 'nvar' are interchanged to keep correct order
-          value =
-            db->getSimvar(locatorType, iech, ivar, isimu, 0, nvar, nbsimu);
+          auto colid = Db::buildColIDForSim(locatorType, isimu, ivar, 0, nvar);
+          value = db->getValue(colid, iech);
           if (FFFF(value)) continue;
           db->updValue(
             db->fromUID(iptr_ce + ivar), iech, EOperator::ADD, value);
@@ -555,7 +554,7 @@ namespace gstlrn
         dbin->deleteColumnsByUIDRange(iptr_cstd, nvar);
         iptr_cstd = -1;
       }
-      dbin->deleteColumnsByLocator(ELoc::GAUSFAC);
+      dbin->deleteColumns(ERole::GAUSFAC);
       iptr = -1;
     }
 
@@ -991,7 +990,8 @@ namespace gstlrn
     for (iech = nval = 0; iech < nech; iech++)
     {
       if (!dbout->isActive(iech)) continue;
-      sort[nval++] = dbout->getSimvar(ELoc::SIMU, iech, 0, 0, 0, 1, 1);
+      auto colid = Db::buildColIDForSim(ELoc::SIMU, 0, 0, 0, 1);
+      sort[nval++] = dbout->getValue(colid, iech);
     }
 
     /* Sorting the array */
@@ -1035,6 +1035,7 @@ namespace gstlrn
     VectorDouble sort;
     VectorDouble pton;
     VectorDouble pres;
+    auto colid = ColID(0);
 
     /* Initializations */
 
@@ -1112,16 +1113,16 @@ namespace gstlrn
 
       proba = 1. - pres[icut];
       seuil = (icut < ncut - 1) ? st_quantile(dbout, proba, sort.data()) : TEST;
+      colid = Db::buildColIDForSim(ELoc::SIMU, 0, 0, 0, 1);
 
       /* Update the current selection */
 
       for (iech = count = 0; iech < nech; iech++)
       {
         if (!dbout->getSelection(iech)) continue;
-        simval = dbout->getSimvar(ELoc::SIMU, iech, 0, 0, 0, 1, 1);
+        simval = dbout->getValue(colid, iech);
         if (!FFFF(seuil) && simval >= seuil) continue;
-        dbout->setSimvar(
-          ELoc::SIMU, iech, 0, 0, 0, 1, 1, static_cast<double>(icut + 1));
+        dbout->setValue(colid, iech, static_cast<double>(icut + 1));
         dbout->setValue(ERole::SEL, iech, 0.);
         count++;
       }
@@ -1136,11 +1137,11 @@ namespace gstlrn
 
     for (iech = 0; iech < nech; iech++)
     {
-      icut = static_cast<Id>(dbout->getSimvar(ELoc::SIMU, iech, 0, 0, 0, 1, 1));
+      icut = static_cast<Id>(dbout->getValue(colid, iech));
       if (icut < 1 || icut > ncut)
-        dbout->setSimvar(ELoc::SIMU, iech, 0, 0, 0, 1, 1, TEST);
+        dbout->setValue(colid, iech, TEST);
       else
-        dbout->setSimvar(ELoc::SIMU, iech, 0, 0, 0, 1, 1, zcut[icut - 1]);
+        dbout->setValue(colid, iech, zcut[icut - 1]);
     }
 
     /* Set the error return flag */
@@ -1276,8 +1277,8 @@ namespace gstlrn
 
     /* Free the temporary variables not used anymore */
 
-    dbin->deleteColumnsByLocator(ELoc::GAUSFAC);
-    dbin->deleteColumnsByLocator(ELoc::SIMU);
+    dbin->deleteColumns(ERole::GAUSFAC);
+    dbin->deleteColumns(ERole::SIMU);
 
     /* Convert the simulations */
 
@@ -1289,7 +1290,7 @@ namespace gstlrn
 
       // We release the attributes dedicated to simulations on Dbout
 
-      dbout->deleteColumnsByLocator(ELoc::SIMU);
+      dbout->deleteColumns(ERole::SIMU);
       if (!flag_ce)
       {
         dbout->deleteColumnsByUIDRange(iptr_ce, nvar);

@@ -12,11 +12,11 @@ test_kriging <- function(dbin, dbout, model, neigh,
                          flag_est = TRUE, flag_std = TRUE, flag_varz = FALSE,
                          prefix = "test_kriging") {
 
-  nm_var = dbin$getNamesByLocator(ELoc_Z())
+  nm_var = dbin$getNames(ERole_Z())
   nvar = length(nm_var)
   stopifnot(model$getNVar() == nvar)
   if (model$getNDrift() == 0) {order = -1} # TODO: does a method getOrder exist?
-  iech_out = dbout$getColumns(names = "rank", useSel = TRUE)
+  iech_out = dbout$getColumns("rank", useSel = TRUE)
   nout = length(iech_out)
   if (flag_est) {
     res_est = matrix(NaN, nrow = dbout$getNSample(useSel = FALSE), ncol = nvar)

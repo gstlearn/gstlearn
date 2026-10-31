@@ -580,6 +580,7 @@ namespace gstlrn {
 %include "typemaps_optional_r.i"
 %include "typemaps_roleID_r.i"
 %include "typemaps_colID_r.i"
+%include "typemaps_multID_r.i"
 
 //////////////////////////////////////////////////////////////
 //         C++ library SWIG includes and typemaps           //
@@ -874,11 +875,11 @@ setMethod('[[<-', '_p_gstlrn__VectorNumTT_VectorNumTT_float_t_t',             se
 {
   namcol <- NA
 
-  # Decode the Column number
+  # Decode the Column number(s)
   if (is.numeric(j)) {
-    # Translate into 0-based number if numeric
-    namcol <- j - 1
-    namcol = db$getNamesByColIdx(j-1)
+    # Translate into 0-based numbers if numeric and handle vectors
+    indices <- as.integer(j - 1)
+    namcol <- sapply(indices, function(idx) db$getName(idx))
   } else {
     namcol <- db$identifyNames(j)
   }
@@ -886,7 +887,7 @@ setMethod('[[<-', '_p_gstlrn__VectorNumTT_VectorNumTT_float_t_t',             se
 }
 
 "getDbitem" <-
-function (x,i,j,...,drop=TRUE)
+function (x, i, j, ..., drop = TRUE)
 {
   db   <- x
   args = list()
@@ -901,14 +902,11 @@ function (x,i,j,...,drop=TRUE)
   namcols <- NA
 
   if (nargs == 2) {
-
     # Case of both arguments are defined
     rows = DbIdentifyRows(db, unlist(args[1]))
     namcols = DbIdentifyCols(db, unlist(args[2]))
-
   } else if (nargs == 1) {
-
-    # Case where only one argument in defined: it is the column identification
+    # Case where only one argument is defined: it is the column identification
     namcols = DbIdentifyCols(db, unlist(args[1]))
   }
 
@@ -928,10 +926,13 @@ function (x,i,j,...,drop=TRUE)
     messerr("This is not authorized in this function")
     stop()
   } else {
-    res <- db$getValuesByNames(rows,namcols)
-     if (nrow > 1 && ncol > 1)
+    # Fetch values from the database using the unified C++ engine
+    res <- db$getValues(namcols, rows)
+
+    # Convert to data.frame only if there are multiple rows AND multiple columns
+    if (nrow > 1 && ncol > 1)
     {
-      res <- as.data.frame(matrix(res, nrow=nrow, ncol=ncol))
+      res <- as.data.frame(matrix(res, nrow = nrow, ncol = ncol, byrow = FALSE))
       names(res) = namcols
       row.names(res) = row_names
     }
@@ -991,7 +992,7 @@ function (x,i,j,...,drop=TRUE)
   {
     # Case of already an existing variable: replacement
 
-    db$setValuesByNamesInPlace(rows, namcols, value)
+    db$setValues(namcols, rows, value)
   }
   db
 }
@@ -1011,7 +1012,7 @@ setMethod('[<-',  '_p_gstlrn__DbGrid',           setDbitem)
   nc = x$getNColumn()
   vals = NULL
   for (i in seq(0,nc-1)) {
-    vals = cbind(vals,x$getColumnsByColIdx(i))
+    vals = cbind(vals,x$getColumns(i))
   }
   df = data.frame(vals)
   names(df) = names

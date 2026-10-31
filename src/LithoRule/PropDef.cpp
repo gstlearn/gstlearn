@@ -83,7 +83,6 @@ namespace gstlrn
    ** \param[in]  db         Db input structure
    ** \param[in]  iech       Rank of the data in the input Db
    ** \param[in]  isimu      Rank of the simulation (EProcessOper::CONDITIONAL)
-   ** \param[in]  nbsimu     Number of simulations
    **
    ** \param[out] jech       Rank of the auxiliary data in the input Db
    **
@@ -93,12 +92,7 @@ namespace gstlrn
    ** \remark            mode == EProcessOper::CONDITIONAL (simbipgs)
    **
    *****************************************************************************/
-  Id PropDef::proportionDefine(
-    const Db* db,
-    Id iech,
-    Id isimu,
-    Id nbsimu,
-    Id* jech) const
+  Id PropDef::proportionDefine(const Db* db, Id iech, Id isimu, Id* jech) const
   {
     Id ifac, ifac_ref;
 
@@ -150,8 +144,8 @@ namespace gstlrn
     ifac_ref = -1;
     if (_mode == EProcessOper::CONDITIONAL)
     {
-      ifac_ref = static_cast<Id>(
-        db->getSimvar(ELoc::FACIES, iech, isimu, 0, 0, nbsimu, 1));
+      auto colid = Db::buildColIDForSim(ELoc::FACIES, isimu, 0, 0, 1);
+      ifac_ref = static_cast<Id>(db->getValue(colid, iech));
       if (ifac_ref < 1 || ifac_ref > _nfac[0]) return (1);
     }
     _proportionLocate(ifac_ref);
@@ -279,7 +273,6 @@ namespace gstlrn
    ** \param[in]  facies     Facies of interest (or ITEST) starting from 1
    ** \param[in]  iech       Rank of the data in the input Db
    ** \param[in]  isimu      Rank of the simulation (EProcessOper::CONDITIONAL)
-   ** \param[in]  nbsimu     Number of simulations
    ** \param[in]  flag_check 1 if the consistency check with the actual
    **                        proportion of the current facies must be done
    **
@@ -295,7 +288,6 @@ namespace gstlrn
     Id facies,
     Id iech,
     Id isimu,
-    Id nbsimu,
     Id flag_check,
     double* t1min,
     double* t1max,
@@ -318,7 +310,7 @@ namespace gstlrn
     /* Define the proportions */
 
     Id jech;
-    if (proportionDefine(db, iech, isimu, nbsimu, &jech))
+    if (proportionDefine(db, iech, isimu, &jech))
     {
       *t1min = *t2min = get_rule_extreme(-1);
       *t1max = *t2max = get_rule_extreme(+1);
@@ -400,7 +392,6 @@ namespace gstlrn
    ** \param[in]  facies     Facies of interest (or ITEST)
    ** \param[in]  iech       Rank of the data in the input Db
    ** \param[in]  isimu      Rank of the simulation (EProcessOper::CONDITIONAL)
-   ** \param[in]  nbsimu     Number of simulations (EProcessOper::CONDITIONAL)
    **
    ** \param[out] t1min      Minimum threshold for Y1
    ** \param[out] t1max      Maximum threshold for Y1
@@ -416,7 +407,6 @@ namespace gstlrn
     Id facies,
     Id iech,
     Id isimu,
-    Id nbsimu,
     double* t1min,
     double* t1max,
     double* t2min,
@@ -442,7 +432,7 @@ namespace gstlrn
 
     /* Define the proportions */
 
-    if (proportionDefine(dbgrid, iech, isimu, nbsimu, &jech))
+    if (proportionDefine(dbgrid, iech, isimu, &jech))
     {
       *t1min = *t2min = get_rule_extreme(-1);
       *t1max = *t2max = get_rule_extreme(+1);
@@ -604,8 +594,7 @@ namespace gstlrn
     Id isimu,
     Id nbsimu) const
   {
-    Id iptr_simu = Db::getSimRank(isimu, 0, ipgs, nbsimu, 1);
-    auto colid = ColID(RoleID(ERole::FACIES, iptr_simu), isimu);
+    auto colid = Db::buildColIDForSim(ELoc::FACIES, isimu, 0, ipgs, 1);
 
     /* Loop on the grid cells */
 
@@ -627,8 +616,7 @@ namespace gstlrn
 
   void PropDef::updateContinuous(Db* db, bool verbose, Id isimu, Id nbsimu)
   {
-    Id iptr_simu = Db::getSimRank(isimu, 0, 0, nbsimu, 1);
-    auto colid = ColID(RoleID(ERole::SIMU, iptr_simu), isimu);
+    auto colid = Db::buildColIDForSim(ELoc::FACIES, isimu, 0, 0, 1);
 
     /* Loop on the grid cells */
 
@@ -699,7 +687,7 @@ namespace gstlrn
     Id isimu,
     Id nbsimu) const
   {
-    rule->gaus2facResult(*this, db, flag_used, ipgs, isimu, nbsimu);
+    rule->gaus2facResult(*this, db, flag_used, ipgs, isimu);
 
     /* Optional printout */
 

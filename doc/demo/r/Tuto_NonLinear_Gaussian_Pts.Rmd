@@ -920,9 +920,9 @@ invisible()
 
 ```{r}
 # QC of the DK
-Hn.est <- matrix(grid$getColumns(names = c("SK.F.*.estim"), useSel = FALSE),
+Hn.est <- matrix(grid$getColumns(c("SK.F.*.estim"), useSel = FALSE),
                  ncol = nfactor, nrow = grid$getNSample())
-Hn.std <- matrix(grid$getColumns(names = c("SK.F.*.stdev"), useSel = FALSE),
+Hn.std <- matrix(grid$getColumns(c("SK.F.*.stdev"), useSel = FALSE),
                 ncol = nfactor, nrow = grid$getNSample())
 
 # estimation of Z using DK
@@ -1012,7 +1012,7 @@ knitr::kable(dbStatisticsMono(grid, nm, opers=opers)$toTL(), digits=3,
 # Scoring rules
 scoringRules <- function(db, nm_val, nm_est, nm_std){
   val  <- matrix(
-    db$getColumns(names = c(nm_val, nm_est, nm_std), useSel = TRUE),
+    db$getColumns(c(nm_val, nm_est, nm_std), useSel = TRUE),
     nrow = db$getNSample(TRUE),
     ncol = 3, byrow = FALSE)
   err  <- (val[,1] - val[,2])

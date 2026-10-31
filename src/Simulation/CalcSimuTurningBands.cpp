@@ -1516,7 +1516,7 @@ namespace gstlrn
       if (dbgrid != nullptr)
       {
         // Duplicating the coordinate variable names before centering
-        _nameCoord = getDbin()->getNamesByLocator(ELoc::X);
+        _nameCoord = getDbin()->getNames(ERole::X);
         if (_centerDataToGrid(dbgrid)) return false;
       }
     }

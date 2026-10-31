@@ -339,6 +339,7 @@ typedef std::string String;  // Add to allow aliasing String and std::string
 // 2. Define types
 %include "DataBase/RoleID.hpp"
 %include "DataBase/ColID.hpp"
+%include "DataBase/MultID.hpp"
 
 // Load the headers that use ColID
 %include "DataBase/DbData.hpp"

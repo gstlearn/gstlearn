@@ -721,7 +721,7 @@ namespace gstlrn
     ncol = 3;
     iptr = dbgrid2->addColumnsByConstant(ncol, 1, TEST);
     if (iptr < 0) goto label_end;
-    dbgrid2->setLocatorsByUID(ncol, iptr, ELoc::Z, 0);
+    dbgrid2->setLocatorsByUIDRange(ncol, iptr, ELoc::Z, 0);
 
     /* Core allocation */
 

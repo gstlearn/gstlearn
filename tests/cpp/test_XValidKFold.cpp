@@ -61,7 +61,7 @@ int main(int argc, char* argv[])
 
   // Generate the input data base
   Db* data = Db::createFromSamples(ndat, ELoadBy::COLUMN, vals, names);
-  data->setLocators({"X", "Y"}, ELoc::X);
+  data->setLocators(VectorString({"X", "Y"}), ELoc::X);
   data->setLocator("S", ELoc::SEL);
   data->setLocator("C", ELoc::C);
   data->setLocator("V", ELoc::Z);

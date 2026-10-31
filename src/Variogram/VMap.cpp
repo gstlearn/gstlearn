@@ -177,7 +177,7 @@ namespace gstlrn
       if (_vmap_general(db, radius, namconv)) return 1;
     }
 
-    auto names = db->getNamesByLocator(ELoc::Z);
+    auto names = db->getNames(ERole::Z);
     if (_IPTW >= 0)
     {
       namconv.setOutput(names, 1, _dbmap, _IPTW, "Nb", 1, false);

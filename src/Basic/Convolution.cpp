@@ -285,7 +285,7 @@ namespace gstlrn
 
       // Store the results in the Db
       if (!means.empty()) result += means[ivar];
-      _dbgrid->setArraysByUID(result, iatt + ivar);
+      _dbgrid->setColumn(_dbgrid->fromUID(iatt + ivar), result);
     }
     return 0;
   }

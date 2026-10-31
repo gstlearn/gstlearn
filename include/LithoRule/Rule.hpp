@@ -137,23 +137,20 @@ namespace gstlrn
       Db* dbout,
       const VectorBool& flag_used,
       Id ipgs,
-      Id isimu,
-      Id nbsimu) const;
+      Id isimu) const;
     virtual Id gaus2facResult(
       const PropDef& propdef,
       Db* dbout,
       const VectorBool& flag_used,
       Id ipgs,
-      Id isimu,
-      Id nbsimu) const;
+      Id isimu) const;
     virtual Id evaluateBounds(
       const PropDef& propdef,
       Db* dbin,
       Db* dbout,
       Id isimu,
       Id igrf,
-      Id ipgs,
-      Id nbsimu) const;
+      Id ipgs) const;
 
     Id getFlagProp() const { return _flagProp; }
 

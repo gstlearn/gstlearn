@@ -82,7 +82,7 @@ namespace gstlrn
     /* Storage of the simulations in the output file */
     iptr = db->addColumnsByConstant(nbsimu, 1, 0.);
     if (iptr < 0) goto label_end;
-    db->setLocatorsByUID(nbsimu, iptr, ELoc::FACIES, 0);
+    db->setLocatorsByUIDRange(nbsimu, iptr, ELoc::FACIES, 0);
 
     /* Identify the Non conditional simulations at target points */
     for (igrf = 0; igrf < 2; igrf++)
@@ -107,8 +107,7 @@ namespace gstlrn
     /* Combine the conditional simulation for each GRF */
 
     for (Id isimu = 0; isimu < nbsimu; isimu++)
-      if (rule->gaus2facResult(propdef, db, flagUsed, 0, isimu, nbsimu))
-        goto label_end;
+      if (rule->gaus2facResult(propdef, db, flagUsed, 0, isimu)) goto label_end;
 
     /* Set the error return flag */
 
@@ -204,7 +203,7 @@ namespace gstlrn
 
     /* Translate Gaussian into Facies */
 
-    if (rule->gaus2facResult(propdef, db, flagUsed, 0, 0, 1)) goto label_end;
+    if (rule->gaus2facResult(propdef, db, flagUsed, 0, 0)) goto label_end;
 
     // Returning to the initial locators (if the initial variable
     // had a ELoc::Z locator which has been temporarily modified into ELoc::SIMU)
@@ -300,7 +299,7 @@ namespace gstlrn
     for (Id igrf = 0; igrf < ngrf; igrf++)
     {
       if (!flagUsed[igrf]) continue;
-      if (rule->evaluateBounds(propdef, db, db, 0, igrf, 0, 0)) return 1;
+      if (rule->evaluateBounds(propdef, db, db, 0, igrf, 0)) return 1;
     }
 
     return 0;
@@ -393,7 +392,7 @@ namespace gstlrn
     for (Id igrf = 0; igrf < ngrf; igrf++)
     {
       if (!flagUsed[igrf]) continue;
-      if (rule->evaluateBounds(propdef, db, db, 0, igrf, 0, 0)) goto label_end;
+      if (rule->evaluateBounds(propdef, db, db, 0, igrf, 0)) goto label_end;
     }
 
     // Naming convention
@@ -500,8 +499,7 @@ namespace gstlrn
       for (Id ifac = 0; ifac < nfacies; ifac++)
       {
         if (propdef.ruleThreshDefine(
-              db, rule, ifac + 1, iech, 0, 0, 0, &t1min, &t1max, &t2min,
-              &t2max))
+              db, rule, ifac + 1, iech, 0, 0, &t1min, &t1max, &t2min, &t2max))
           goto label_end;
         db->setValue(db->fromUID(iptr + rank), iech, t1min);
         rank++;

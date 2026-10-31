@@ -294,7 +294,7 @@ for (r in cell_selected) {
   # mono-variate simulations of the N variables for the selected samples
   H = list()
   for (n in 1:N) {
-    H[[1+length(H)]] <- matrix(surfaces$getColumns(names = paste0("Z_", n, ".*"),
+    H[[1+length(H)]] <- matrix(surfaces$getColumns(paste0("Z_", n, ".*"),
                                                    useSel = TRUE),
                nrow = surfaces$getNSample(useSel = TRUE),
                ncol = nbsim[n]

@@ -49,10 +49,10 @@ namespace gstlrn
    * stands for a missing value (printed as **NA**);
    *
    * Moreover each variable may be assigned a *role* (or functionality) in the rest of a script:
-   * for example, a variable can serve as a coordinate (Role::X) or a target variable (Role::Z).
+   * for example, a variable can serve as a coordinate (ERole::X) or a target variable (ERole::Z).
    * The roles can be viewed in the following list (see ERole.hpp).
    * Note that a variable which does not play any role in particular may be assigned to an idle
-   * role (Role::NA);
+   * role (ERole::NA);
    * This Role may be modified or cancelled (by the user) at any time.
    *
    * There are two status for these Roles: **unique** or **multiple**.
@@ -67,7 +67,9 @@ namespace gstlrn
    * - for a given Role name, the ranks are always consecutive between 1 and N (if it
    * happens that you delete X3, the Role X4 is automatically modified into X3, X5 into X4, and
    * so on up to X{N} into X{N-1}.
-   * - there is no limitation in the number of ranks for a given Role name.
+   * - there is no limitation in the number of ranks for a given Role name
+   * - Roles are defined using a 0-based convention in the code, but they are **printed**
+   *   using a 1-based convention (for example, the first coordinate is X1, but its rank is 0).
    * The regroupment of the Role name and the Role rank is called a *RoleID* (see RoleID.hpp).
    *
    * Each variable (or column) can be designated:
@@ -304,6 +306,18 @@ namespace gstlrn
       return _data.fromUID(iuid, version);
     }
 
+    MultID fromUIDs(const VectorInt& iuids) const
+    {
+      return _data.fromUIDs(iuids);
+    }
+
+    static ColID buildColIDForSim(
+      const ELoc& locatorType,
+      Id isimu,
+      Id ivar,
+      Id icase,
+      Id nvar);
+
     /** @addtogroup DB_Add_Column Methods for adding one or several Columns
      * \ingroup DB
      *
@@ -380,7 +394,7 @@ namespace gstlrn
     /** @addtogroup DB_Mono_Column Methods for a Managing Single Column.
      * \ingroup DB
      *
-     * All methods systematically use the ColID standadized first argument.
+     * All methods systematically use the ColID standardized first argument.
      *  @{
      */
     bool hasColumn(const ColID& colid) const;
@@ -429,114 +443,67 @@ namespace gstlrn
       bool flagCompress = true) const;
 
     void deleteColumn(const ColID& colid);
+
+    Id getNSampleActiveAndDefined(const ColID& colid) const;
+
+    double* getColumnPtrUnprotected(const ColID& colid);
+
+    const double* getColumnPtrUnprotected(const ColID& colid) const;
+
     /**@}*/
 
-    /** @addtogroup DB_Multi_Column Methods for a Managing Several Columns.
+    /** @addtogroup DB_Multi_Column Methods for a Managing Single Column.
      * \ingroup DB
+     *
+     * All methods systematically use the MultID standardized first argument.
      *  @{
      */
-    VectorString getNames(const String& name) const;
-    VectorString getNames(const VectorString& names) const;
-    VectorString getNamesByLocator(const ELoc& locatorType) const;
-    VectorString getNamesByColIdx(const VectorInt& icols) const;
-    VectorString getNamesByUID(const VectorInt& iuids) const;
 
-    void setNames(const VectorString& list, const String& name);
+    VectorString getNames(const MultID& multid) const;
+    void setNames(const MultID& multid, const String& name);
+    VectorInt getColIdxs(const MultID& multid) const;
 
-    VectorInt getColIdxs(const String& name) const;
-    VectorInt getColIdxs(const VectorString& names) const;
-    VectorInt getColIdxsByUID(const VectorInt& iuids) const;
-    VectorInt getColIdxsByLocator(const ELoc& locatorType) const;
+    VectorInt getUIDs(const MultID& multid) const;
 
-    VectorDouble getValuesByNames(
+    void deleteColumns(const MultID& multid);
+
+    VectorDouble getValues(
+      const MultID& multid,
       const VectorInt& iechs,
-      const VectorString& names,
       bool bySample = false,
-      Id version = 0) const;
-    VectorDouble getValuesByColIdx(
+      Id nitemmax = 0) const;
+    void setValues(
+      const MultID& multid,
       const VectorInt& iechs,
-      const VectorInt& icols,
-      bool bySample = false,
-      Id version = 0) const;
-    void setValuesByNamesInPlace(
-      const VectorInt& iechs,
-      const VectorString& names,
       const VectorDouble& values,
       bool bySample = false);
-    void setValuesByColIdxInPlace(
-      const VectorInt& iechs,
-      const VectorInt& icols,
-      const VectorDouble& values,
-      bool bySample = false);
+
+    VectorDouble getColumns(
+      const MultID& multid,
+      bool useSel = false,
+      bool flagCompress = true,
+      const VectorDouble& origins = VectorDouble()) const;
+    void setColumns(
+      const MultID& multid,
+      const VectorDouble& tabs,
+      bool useSel = false);
 
     void setLocators(
-      const VectorString& names,
+      const MultID& multid,
       const ELoc& locatorType = ELoc::fromKey("UNDEFINED"),
       Id locatorIndex = 0,
       bool cleanSameLocator = false);
-    void setLocatorsByUID(
+
+    Id getNLoc(const ELoc& locatorType) const;
+
+    // TODO: still to be upgraded
+    void deleteColumnsByUIDRange(Id i_del, Id n_del);
+    void setLocatorsByUIDRange(
       Id number,
       Id iuid,
       const ELoc& locatorType = ELoc::fromKey("UNDEFINED"),
       Id locatorIndex = 0,
       bool cleanSameLocator = false);
-    void setLocatorsByUID(
-      const VectorInt& iuids,
-      const ELoc& locatorType = ELoc::fromKey("UNDEFINED"),
-      Id locatorIndex = 0,
-      bool cleanSameLocator = false);
-    void setLocatorsByColIdx(
-      const VectorInt& icols,
-      const ELoc& locatorType = ELoc::fromKey("UNDEFINED"),
-      Id locatorIndex = 0,
-      bool cleanSameLocator = false);
-
-    VectorInt getUIDs(const VectorString& names) const;
-    VectorInt getUIDsByLocator(const ELoc& locatorType) const;
-    VectorInt getUIDsByColIdx(const VectorInt& icols) const;
-
-    void setArraysByUID(const VectorDouble& tab, Id iuid);
-
-    void setColumnsByColIdx(
-      const VectorDouble& tabs,
-      const VectorInt& icols,
-      bool useSel = false);
-
-    Id getNLoc(const ELoc& locatorType) const;
-
-    VectorDouble
-      getLocVariables(const ELoc& locatorType, Id iech, Id nitemax = 0) const;
-    void setLocVariables(
-      const ELoc& locatorType,
-      Id iech,
-      const VectorDouble& values);
-
-    VectorDouble getColumns(
-      const VectorString& names = VectorString(),
-      bool useSel = false,
-      bool flagCompress = true,
-      const VectorDouble& origins = VectorDouble()) const;
-    VectorDouble getColumnsByLocator(
-      const ELoc& locatorType,
-      bool useSel = false,
-      bool flagCompress = true,
-      const VectorDouble& origins = VectorDouble()) const;
-    VectorDouble getColumnsByColIdx(
-      const VectorInt& icols = VectorInt(),
-      bool useSel = false,
-      bool flagCompress = true,
-      const VectorDouble& origins = VectorDouble()) const;
-    VectorDouble getColumnsByUID(
-      const VectorInt& iuids,
-      bool useSel = false,
-      bool flagCompress = true,
-      const VectorDouble& origins = VectorDouble()) const;
-
-    void deleteColumns(const VectorString& names);
-    void deleteColumnsByLocator(const ELoc& locatorType);
-    void deleteColumnsByUID(const VectorInt& iuids);
-    void deleteColumnsByColIdx(const VectorInt& icols);
-
     /**@}*/
 
     VectorString getAllNames(
@@ -553,8 +520,7 @@ namespace gstlrn
     inline Id getNColumn() const { return _data.getNColumns(); }
 
     Id getNSample(bool useSel = false) const;
-    Id getNSampleActiveAndDefined(Id item) const;
-    Id getNSampleActiveAndDefined(const String& name) const;
+
     Id getNSampleActive() const;
     Id getRankRelativeToAbsolute(Id irel) const;
     Id getRankAbsoluteToRelative(Id iabs) const;
@@ -596,8 +562,6 @@ namespace gstlrn
       const ELoc& locatorType = ELoc::fromKey("UNDEFINED"),
       bool cleanSameLocator = false,
       bool deleteInitialColumn = false);
-
-    const double* getColumnPtr(const ELoc& locatorType, Id locatorIndex = 0);
 
     VectorString getLocators(
       bool anyLocator = true,
@@ -752,52 +716,6 @@ namespace gstlrn
     double getWeight(Id iech) const;
     VectorDouble getWeights(bool useSel = false) const;
 
-    /** @addtogroup DB_1 Designating Variables (used for simulations in particular)
-     * \ingroup DB
-     *
-     * These functions allow designation of columns which contain the results of one simulation
-     * for one variable in particular.
-     *
-     * @param locatorType Target locator type
-     * @param iech Rank of the target sample
-     * @param isimu Rank of the simulation (0-based)
-     * @param ivar Rank of the variable (0-based)
-     * @param icase Rank of the GRF / PGS
-     * @param nbsimu Number of simulations
-     * @param nvar Number of variables
-     * @param value Value to be assigned
-     *  @{
-     */
-    static Id getSimRank(Id isimu, Id ivar, Id icase, Id nbsimu, Id nvar);
-    double getSimvar(
-      const ELoc& locatorType,
-      Id iech,
-      Id isimu,
-      Id ivar,
-      Id icase,
-      Id nbsimu,
-      Id nvar) const;
-    void setSimvar(
-      const ELoc& locatorType,
-      Id iech,
-      Id isimu,
-      Id ivar,
-      Id icase,
-      Id nbsimu,
-      Id nvar,
-      double value);
-    void updSimvar(
-      const ELoc& locatorType,
-      Id iech,
-      Id isimu,
-      Id ivar,
-      Id icase,
-      Id nbsimu,
-      Id nvar,
-      const EOperator& oper,
-      double value);
-    /**@}*/
-
     bool isActive(Id iech) const;
     bool isActiveDomain(Id iech) const;
     bool isActiveAndDefined(Id iech, Id item) const;
@@ -835,8 +753,6 @@ namespace gstlrn
       bool flagCompress = true) const;
 
     void setAllColumns(const VectorVectorDouble& tabs);
-
-    void deleteColumnsByUIDRange(Id i_del, Id n_del);
 
     /** @addtogroup DB_4 Calculating Spatial characteristics on the Db
      * \ingroup DB

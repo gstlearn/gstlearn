@@ -591,7 +591,7 @@ namespace gstlrn
     krige.setKrigopt(krigopt);
     krige.setNamingConvention(namconv);
 
-    krige.setIuidFactors(dbin->getUIDsByLocator(ELoc::Z));
+    krige.setIuidFactors(dbin->getUIDs(ERole::Z));
 
     Id error = (krige.run()) ? 0 : 1;
     return error;

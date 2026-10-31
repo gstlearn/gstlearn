@@ -297,7 +297,7 @@ err = kriging(data, grd, mod_Z_IRF0, neigh,
               namconv = NamingConvention("OK"))
 
 # computing the LC of kriging
-grd["LC.OK.estim"]  = matrix(grd$getColumns(names = paste("OK", colnames(matLC), "estim", sep = ".")),
+grd["LC.OK.estim"]  = matrix(grd$getColumns(paste("OK", colnames(matLC), "estim", sep = ".")),
                     nrow = grd$getNSample(),  ncol = dim(matLC)[2]) %*% t(matLC)[,1]
 
 # statistics
@@ -481,7 +481,7 @@ err = kriging(data, grd, mod_Z_SOS, neigh,
               namconv = NamingConvention("SK"))
 
 # computing the LC of kriging
-grd["LC.SK.estim"]  = matrix(grd$getColumns(names = paste("SK", colnames(matLC), "estim", sep = ".")),
+grd["LC.SK.estim"]  = matrix(grd$getColumns(paste("SK", colnames(matLC), "estim", sep = ".")),
                     nrow = grd$getNSample(),  ncol = dim(matLC)[2]) %*% t(matLC)[,1]
 
 # statistics
