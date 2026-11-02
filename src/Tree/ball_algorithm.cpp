@@ -167,29 +167,29 @@ namespace gstlrn
   }
 
   t_btree::t_btree(
-    MatrixT<double>&& data,
-    Id n_samples,
-    Id n_features,
+    MatrixT<double>&& data_arg,
+    Id n_samples_arg,
+    Id n_features_arg,
     bool all_available,
-    Id leaf_size,
-    Id default_distance_function)
-    : data(std::move(data))
+    Id leaf_size_arg,
+    Id default_distance_function_arg)
+    : data(std::move(data_arg))
     , leaf_size(40)
     , n_levels(0)
     , n_nodes(0)
-    , default_distance_function(default_distance_function)
+    , default_distance_function(default_distance_function_arg)
   {
-    this->available.resize(n_samples, all_available);
-    this->leaf_size = leaf_size;
+    this->available.resize(n_samples_arg, all_available);
+    this->leaf_size = leaf_size_arg;
 
-    if (leaf_size < 1)
+    if (leaf_size_arg < 1)
     {
       messerr("leaf_size must be greater than or equal to 1\n");
       return;
     }
 
-    this->n_samples = n_samples;
-    this->n_features = n_features;
+    this->n_samples = n_samples_arg;
+    this->n_features = n_features_arg;
 
     this->n_levels =
       log2(fmax(1, static_cast<double>(this->n_samples - 1) / this->leaf_size))

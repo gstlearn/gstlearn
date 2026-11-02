@@ -51,7 +51,7 @@ static void _firstTest()
   opt->setLowerBounds(lb);
   VectorDouble ub = {5., 10.};
   opt->setUpperBounds(ub);
-  auto func = [](const VectorDouble& x) { return myfunc2(x); };
+  auto func = [](const VectorDouble& x_arg) { return myfunc2(x_arg); };
   opt->setObjective(func);
   opt->setXtolRel(EPSILON4);
   double minf = opt->minimize(x);
