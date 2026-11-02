@@ -12,7 +12,8 @@
 #include "Basic/Law.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Simulation/TurningBandOperate.hpp"
-#include "cmath"
+
+#include <boost/math/special_functions/bessel.hpp>
 
 namespace gstlrn
 {
@@ -76,7 +77,9 @@ namespace gstlrn
     double order = (static_cast<double>(ndim) - 2.0) / 2.0;
 
     // Compute cylindrical Bessel function J_order(x) (requires C++17 <cmath>)
-    double bessel_val = std::cyl_bessel_j(order, x);
+    double bessel_val = boost::math::cyl_bessel_j(order, x);
+    // Utilisation des fonctions C POSIX POSIX math (pour n entier)
+    // double bessel_val = std::cyl_bessel_j(order, x);
 
     // Normalized spectral density scaling according to dimension
     double val = pow(bessel_val / pow(x, order), 2.0);

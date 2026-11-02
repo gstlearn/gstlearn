@@ -12,7 +12,8 @@
 #include "Basic/Law.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Simulation/TurningBandOperate.hpp"
-#include "cmath"
+
+#include <boost/math/special_functions/bessel.hpp>
 
 namespace gstlrn
 {
@@ -97,7 +98,8 @@ namespace gstlrn
     double order = static_cast<double>(ndim) / 2.0;
 
     // Higher-order behavior for the cubic model spectral representation
-    double bessel_val = std::cyl_bessel_j(order, x);
+    double bessel_val = boost::math::cyl_bessel_j(order, x);
+    // double bessel_val = std::cyl_bessel_j(order, x);
 
     // Stable evaluation to prevent numerical instability at very low frequencies
     double val;
