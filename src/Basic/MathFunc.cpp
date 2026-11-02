@@ -19,6 +19,7 @@
 #include "Matrix/MatrixDense.hpp"
 
 #include <Geometry/GeometryHelper.hpp>
+#include <boost/math/special_functions/bessel.hpp>
 #include <boost/math/special_functions/legendre.hpp>
 #include <boost/math/special_functions/spherical_harmonic.hpp>
 #include <cmath>
@@ -2511,6 +2512,20 @@ namespace gstlrn
       }
     }
     return (ncalc);
+  }
+
+  double cylBesselJ(double order, double x)
+  {
+    if (x < 0.) throw std::domain_error("cylBesselJ: x must be non-negative");
+    if (order < 0.)
+      throw std::domain_error("cylBesselJ: order must be non-negative");
+
+    // Compute cylindrical Bessel function J_order(x) (requires C++17 <cmath>)
+    double value = boost::math::cyl_bessel_j(order, x);
+
+    // double bessel_val = std::cyl_bessel_j(order, x);
+
+    return value;
   }
 
   /*****************************************************************************/

@@ -678,7 +678,7 @@ namespace gstlrn
   {
     if (!isValidForSimulation(ESimuType::SPECTRAL))
     {
-      messerr("Covariance not valid for spectral simulation on RN");
+      messerr("Covariance not implemented for spectral simulation on RN");
       return nullptr;
     }
     Id ncov = getNCov();
