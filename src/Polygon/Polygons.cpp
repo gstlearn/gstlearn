@@ -724,7 +724,7 @@ namespace gstlrn
 
     /* Set the error return code */
 
-    auto names = db->getNamesByLocator(ELoc::Z);
+    auto names = db->getNames(ERole::Z);
     namconv.setOutput(names, 0, db, iptr);
 
     return (0);

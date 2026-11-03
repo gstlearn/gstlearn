@@ -179,8 +179,8 @@ p = plot.init() +
 plot.end(p)
 
 # defining the names of the data
-nm_obs = data$getNamesByLocator(locatorType = ELoc_Z())
-nm_fac = data$getNamesByLocator(locatorType = ELoc_F())
+nm_obs = data$getNames(ERole_Z())
+nm_fac = data$getNames(ERole_F())
 ```
 
 
@@ -306,7 +306,7 @@ define_estim <- function(estim, model, verbose = FALSE) {
 
 ```{r KED_estim, echo=TRUE, eval=TRUE}
 # cleaning the target data base
-err = grd$deleteColumns(names = paste0(prefix_section, ".*.", c("estim", "stdev"), ".*"))
+err = grd$deleteColumns(paste0(prefix_section, ".*.", c("estim", "stdev"), ".*"))
 
 for (iest in seq_along(estim_list)) {
   if (verbose) {
@@ -383,7 +383,7 @@ knitr::kable(dbStatisticsMono(db = grd,
                               opers = opers)$toTL(),
              caption = paste0("Statistics on the residual (", neigh_txt, ")"), digits = 2)
 
-err = grd$deleteColumns(names = paste(prefix_section, "diff", "*", sep="."))
+err = grd$deleteColumns(paste(prefix_section, "diff", "*", sep="."))
 ```
 
 # Kriging with spatially varying coefficients with a unique/moving neighbourhood
@@ -417,7 +417,7 @@ err = model_svc$setDriftIRF(order = 0, nfex = nfac)
 ```{r SVC_estim, echo=TRUE, eval=TRUE}
 # cleaning the target data base
 err = grd$clearLocators(locatorType = ELoc_Z())
-err = grd$deleteColumns(names = paste0(prefix_section, ".*.", c("estim", "stdev"), ".*"))
+err = grd$deleteColumns(paste0(prefix_section, ".*.", c("estim", "stdev"), ".*"))
 
 err = kriging_SVC(dbin = data, dbout = grd, model = model_svc, neigh = neigh,
                 flag_est = flag_est, flag_std = flag_std, flag_varz = flag_varz,
@@ -468,7 +468,7 @@ knitr::kable(dbStatisticsMono(db = grd,
                               opers = opers)$toTL(),
              caption = paste0("Statistics on the residual (", neigh_txt, ")"), digits = 2)
 
-err = grd$deleteColumns(names = paste(prefix_section, "diff", "*", sep="."))
+err = grd$deleteColumns(paste(prefix_section, "diff", "*", sep="."))
 
 ```
 

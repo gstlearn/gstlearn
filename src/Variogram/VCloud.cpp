@@ -266,7 +266,7 @@ namespace gstlrn
     }
 
     // Naming of the newly created variables
-    auto names = db->getNamesByLocator(ELoc::Z);
+    auto names = db->getNames(ERole::Z);
     namconv.setOutput(names, 0, _dbcloud, iptr, String(), ndir, false);
 
     return (0);

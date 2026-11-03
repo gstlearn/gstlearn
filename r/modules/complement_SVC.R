@@ -51,11 +51,11 @@ kriging_SVC <- function(dbin, dbout, model, neigh,
   #-----------------------------------------------------------------------
   # the observed variable
   #-----------------------------------------------------------------------
-  nm_obs = dbin$getNamesByLocator(ELoc_Z())
+  nm_obs = dbin$getNames(ERole_Z())
   stopifnot(length(nm_obs) == 1)
 
   # the factors
-  nm_fac = dbin$getNamesByLocator(ELoc_F())
+  nm_fac = dbin$getNames(ERole_F())
   nfac = 1+length(nm_fac)       # the constant is added (ifac in 0:nfac)
   nvar = model$getNVar()
   stopifnot(nvar <= nfac)
@@ -63,7 +63,7 @@ kriging_SVC <- function(dbin, dbout, model, neigh,
   #-----------------------------------------------------------------------
   # Targets
   #-----------------------------------------------------------------------
-  iech_out = dbout$getColumns(names = "rank", useSel = TRUE)
+  iech_out = dbout$getColumns("rank", useSel = TRUE)
   nout     = length(iech_out)
 
   #-----------------------------------------------------------------------

@@ -103,7 +103,7 @@ namespace gstlrn
       {
         // Center the information in the blocks of the output grid
         // Duplicating the coordinate variable names before centering
-        _nameCoord = getDbin()->getNamesByLocator(ELoc::X);
+        _nameCoord = getDbin()->getNames(ERole::X);
         Id error = _centerDataToGrid(dbgrid);
         if (error) return false;
       }
@@ -112,7 +112,7 @@ namespace gstlrn
         // Center the information in sub-blocks when the output grid defines panels
         const auto& ndiscs = getKrigopt().getDiscs();
         DbGrid* dbsmu = DbGrid::createDivider(dbgrid, ndiscs, 1);
-        _nameCoord = getDbin()->getNamesByLocator(ELoc::X);
+        _nameCoord = getDbin()->getNames(ERole::X);
         Id error = _centerDataToGrid(dbsmu);
         delete dbsmu;
         if (error) return false;
@@ -139,7 +139,7 @@ namespace gstlrn
     /* Free the temporary variables */
     _cleanVariableDb(2);
 
-    getDbin()->setLocatorsByUID(_iuidFactors, ELoc::Z, 0);
+    getDbin()->setLocators(_iuidFactors, ELoc::Z, 0);
 
     auto nfactor = _getNFactors();
     _renameVariable(2, VectorString(), ELoc::Z, nfactor, _iptrStd, "stdev", 1);

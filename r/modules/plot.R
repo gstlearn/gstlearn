@@ -1748,8 +1748,8 @@ plot.correlation <- function(db1, namex, namey, db2=NULL,
 {
   if (is.null(db2)) db2 = db1
   res = correlationPairs(db1, db2, namex, namey)
-  x = db1$getValuesByNames(res[[1]], namex)
-  y = db2$getValuesByNames(res[[2]], namey)
+  x = db1$getValues(namex, res[[1]])
+  y = db2$getValues(namey, res[[2]])
 
   p = list()
   if (asPoint)
@@ -1838,8 +1838,8 @@ plot.hscatter <- function(db, namex, namey, varioparam, ilag=0, idir=0, asPoint=
     ...)
 {
   res = hscatterPairs(db, namex, namey, varioparam, ilag, idir)
-  x = db$getValuesByNames(res[[1]], namex)
-  y = db$getValuesByNames(res[[2]], namey)
+  x = db$getValues(namex, res[[1]])
+  y = db$getValues(namey, res[[2]])
 
   p = list()
   if (asPoint)

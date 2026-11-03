@@ -277,7 +277,7 @@ namespace gstlrn
     if (iptr < 0) return;
     auto nameloc = names;
     if (nameloc.empty() && _dbin != nullptr)
-      nameloc = _dbin->getNamesByLocator(locatorType);
+      nameloc = _dbin->getNames(toERole(locatorType));
     auto* db = (whichDb == 1) ? _dbin : _dbout;
 
     _namconv.setOutput(
@@ -450,7 +450,7 @@ namespace gstlrn
     }
     else
     {
-      getDbin()->deleteColumnsByLocator(locatorType);
+      getDbin()->deleteColumns(toERole(locatorType));
     }
     return 0;
   }

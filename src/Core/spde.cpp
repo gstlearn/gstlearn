@@ -4584,7 +4584,7 @@ namespace gstlrn
     Id ivar;
 
     ivar = 1;
-    db->setLocatorsByUID(ndim, ivar, ELoc::X, 0);
+    db->setLocatorsByUIDRange(ndim, ivar, ELoc::X, 0);
     ivar += ndim;
     for (Id ilayer = 0; ilayer < nlayer; ilayer++)
     {
@@ -4593,7 +4593,7 @@ namespace gstlrn
       if (ilayer < nvar) db->setLocator(db->fromUID(ivar), ELoc::Z, ilayer);
       ivar++;
     }
-    if (m2denv->flag_ed) db->setLocatorsByUID(nlayer, ivar, ELoc::F, 0);
+    if (m2denv->flag_ed) db->setLocatorsByUIDRange(nlayer, ivar, ELoc::F, 0);
   }
 
   /****************************************************************************/
@@ -5866,7 +5866,8 @@ namespace gstlrn
       {
         // Modify the locator to ELoc::GAUSFAC before grouping to CE estimation
 
-        dbout->setLocatorsByUID(nbsimu * nlayer, iatt_out, ELoc::GAUSFAC, 0);
+        dbout->setLocatorsByUIDRange(
+          nbsimu * nlayer, iatt_out, ELoc::GAUSFAC, 0);
 
         if (db_simulations_to_ce(
               dbout, ELoc::GAUSFAC, nbsimu, nlayer, &iptr_ce, &iptr_cstd))
@@ -5884,7 +5885,7 @@ namespace gstlrn
           dbout->deleteColumnsByUIDRange(iptr_cstd, nlayer);
           iptr_cstd = -1;
         }
-        dbout->deleteColumnsByLocator(ELoc::GAUSFAC);
+        dbout->deleteColumns(ERole::GAUSFAC);
 
         // Renaming the resulting variables
 

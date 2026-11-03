@@ -242,7 +242,6 @@ namespace gstlrn
    ** \param[in]  dbgrid Db structure
    ** \param[in]  isimu  Rank of the simulation
    ** \param[in]  icase  Rank of the Simulation storage
-   ** \param[in]  nbsimu Number of simulations
    **
    ** \param[out]  xyz0  Working array
    **
@@ -251,16 +250,16 @@ namespace gstlrn
     DbGrid* dbgrid,
     Id isimu,
     Id icase,
-    Id nbsimu,
     VectorDouble& xyz0) const
   {
     double top = 0.;
     double bot = 0.;
     Id ndim = dbgrid->getNDim();
+    auto colid = Db::buildColIDForSim(ELoc::SIMU, isimu, 0, icase, 1);
 
     /* First point */
     Id iech = dbgrid->indiceToRank(_ind2);
-    double z = dbgrid->getSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, 1);
+    double z = dbgrid->getValue(colid, iech);
     if (!FFFF(z))
     {
       double d2 = 0.;
@@ -278,7 +277,7 @@ namespace gstlrn
     /* Second point */
     _ind2[0] += 1;
     iech = dbgrid->indiceToRank(_ind2);
-    z = dbgrid->getSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, 1);
+    z = dbgrid->getValue(colid, iech);
     if (!FFFF(z))
     {
       double d2 = 0.;
@@ -296,7 +295,7 @@ namespace gstlrn
     /* Third point */
     _ind2[1] += 1;
     iech = dbgrid->indiceToRank(_ind2);
-    z = dbgrid->getSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, 1);
+    z = dbgrid->getValue(colid, iech);
     if (!FFFF(z))
     {
       double d2 = 0.;
@@ -314,7 +313,7 @@ namespace gstlrn
     /* Fourth point */
     _ind2[0] -= 1;
     iech = dbgrid->indiceToRank(_ind2);
-    z = dbgrid->getSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, 1);
+    z = dbgrid->getValue(colid, iech);
     if (!FFFF(z))
     {
       double d2 = 0.;
@@ -347,7 +346,6 @@ namespace gstlrn
    ** \param[in]  flag_used  1 if the gaussian is used; 0 otherwise
    ** \param[in]  ipgs       Rank of the PGS
    ** \param[in]  isimu      Rank of the simulation
-   ** \param[in]  nbsimu     Number of simulations
    **
    ** \remark Attributes ELoc::GAUSFAC are mandatory
    ** \remark Attributes ELoc::FACIES are mandatory
@@ -359,11 +357,11 @@ namespace gstlrn
     Db* /*dbout*/,
     const VectorBool& flag_used,
     Id ipgs,
-    Id isimu,
-    Id nbsimu) const
+    Id isimu) const
   {
     double t1min, t1max, t2min, t2max, sh_dsup, sh_down;
     VectorDouble y;
+    auto colid = ColID(0);
 
     /* Initializations */
 
@@ -381,23 +379,19 @@ namespace gstlrn
       y.fill(TEST, 2);
 
       if (propdef.ruleThreshShadowDefine(
-            dbin, this, ITEST, iech, isimu, nbsimu, &t1min, &t1max, &t2min,
-            &t2max, &sh_dsup, &sh_down))
+            dbin, this, ITEST, iech, isimu, &t1min, &t1max, &t2min, &t2max,
+            &sh_dsup, &sh_down))
         return 1;
 
       for (Id igrf = 0; igrf < 2; igrf++)
       {
         auto icase = propdef.getRank(ipgs, igrf);
-        y[igrf] =
-          (flag_used[igrf])
-            ? dbin->getSimvar(ELoc::GAUSFAC, iech, isimu, 0, icase, nbsimu, 1)
-            : 0.;
+        colid = Db::buildColIDForSim(ELoc::GAUSFAC, isimu, 0, icase, 1);
+        y[igrf] = (flag_used[igrf]) ? dbin->getValue(colid, iech) : 0.;
       }
       facies = getFaciesFromGaussian(y[0], y[1]);
-
-      dbin->setSimvar(
-        ELoc::FACIES, iech, isimu, 0, ipgs, nbsimu, 1,
-        static_cast<double>(facies));
+      colid = Db::buildColIDForSim(ELoc::FACIES, isimu, 0, ipgs, 1);
+      dbin->setValue(colid, iech, static_cast<double>(facies));
     }
     return 0;
   }
@@ -413,7 +407,6 @@ namespace gstlrn
    ** \param[in]  flag_used  1 if the gaussian is used; 0 otherwise
    ** \param[in]  ipgs       Rank of the PGS
    ** \param[in]  isimu      Rank of the simulation
-   ** \param[in]  nbsimu     Number of simulations
    **
    ** \remark Attributes ELoc::FACIES and ELoc::SIMU are mandatory
    **
@@ -423,8 +416,7 @@ namespace gstlrn
     Db* dbout,
     const VectorBool& /*flag_used*/,
     Id ipgs,
-    Id isimu,
-    Id nbsimu) const
+    Id isimu) const
   {
     Id ndim, nech, iech, jech, error, idim, nstep, istep, flag, flag_shadow,
       igrf, icase;
@@ -439,6 +431,7 @@ namespace gstlrn
     check_mandatory_attribute("rule_gaus2fac_result_shadow", dbout, ELoc::SIMU);
     auto* dbgrid = dynamic_cast<DbGrid*>(dbout);
     if (dbgrid == nullptr) return 1;
+    auto colid = ColID(0);
 
     error = 1;
     nstep = 0;
@@ -467,12 +460,12 @@ namespace gstlrn
 
       facies = TEST;
       for (igrf = 0; igrf < 2; igrf++) y[igrf] = TEST;
-
-      y[0] = dbgrid->getSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, 1);
+      colid = Db::buildColIDForSim(ELoc::SIMU, isimu, 0, icase, 1);
+      y[0] = dbgrid->getValue(colid, iech);
       if (FFFF(y[0])) break;
       if (propdef.ruleThreshShadowDefine(
-            dbgrid, this, SHADOW_WATER, iech, isimu, nbsimu, &t1min, &t1max,
-            &t2min, &t2max, &yc_dsup, &yc_down))
+            dbgrid, this, SHADOW_WATER, iech, isimu, &t1min, &t1max, &t2min,
+            &t2max, &yc_dsup, &yc_down))
         goto label_end;
       dbgrid->rankToIndice(iech, _ind2);
       dbgrid->indicesToCoordinateInPlace(_ind2, _xyz);
@@ -490,12 +483,12 @@ namespace gstlrn
           flag = point_to_grid(dbgrid, _xyz.data(), 0, _ind2.data());
           if (flag > 0) break;
           if (flag < 0) continue;
-          ys = _st_grid_eval(dbgrid, isimu, icase, nbsimu, _xyz);
+          ys = _st_grid_eval(dbgrid, isimu, icase, _xyz);
           if (FFFF(ys)) continue;
           jech = dbgrid->indiceToRank(_ind2);
           if (propdef.ruleThreshShadowDefine(
-                dbgrid, this, SHADOW_WATER, jech, isimu, nbsimu, &s1min, &s1max,
-                &s2min, &s2max, &sh_dsup, &sh_down))
+                dbgrid, this, SHADOW_WATER, jech, isimu, &s1min, &s1max, &s2min,
+                &s2max, &sh_dsup, &sh_down))
             return (1);
           if (ys < s1max) continue; /* Upstream point not in island */
           seuil = t1max - yc_down + dy * istep;
@@ -506,7 +499,8 @@ namespace gstlrn
 
       /* Combine the underlying GRFs to derive Facies */
 
-      dbgrid->setSimvar(ELoc::FACIES, iech, isimu, 0, ipgs, nbsimu, 1, facies);
+      colid = Db::buildColIDForSim(ELoc::FACIES, isimu, 0, ipgs, 1);
+      dbgrid->setValue(colid, iech, facies);
     }
 
     /* Set the error return code */
@@ -529,7 +523,6 @@ namespace gstlrn
    ** \param[in]  isimu      Rank of the simulation (if EProcessOper::CONDITIONAL)
    ** \param[in]  igrf       Rank of the GRF
    ** \param[in]  ipgs       Rank of the GS
-   ** \param[in]  nbsimu     Number of simulations (if EProcessOper::CONDITIONAL)
    **
    *****************************************************************************/
   Id RuleShadow::evaluateBounds(
@@ -538,8 +531,7 @@ namespace gstlrn
     Db* dbout,
     Id isimu,
     Id igrf,
-    Id ipgs,
-    Id nbsimu) const
+    Id ipgs) const
   {
     Id iech, jech, nadd, nech, idim, facies, nstep, istep, valid;
     double dist, t1min, t1max, t2min, t2max, s1min, s1max, s2min, s2max;
@@ -569,8 +561,8 @@ namespace gstlrn
       if (!point_inside_grid(dbin, iech, dbgrid)) continue;
       facies = static_cast<Id>(dbin->getValue(RoleID(ERole::Z, 0), iech));
       if (propdef.ruleThreshShadowDefine(
-            dbin, this, facies, iech, isimu, nbsimu, &t1min, &t1max, &t2min,
-            &t2max, &sh_dsup, &sh_down))
+            dbin, this, facies, iech, isimu, &t1min, &t1max, &t2min, &t2max,
+            &sh_dsup, &sh_down))
         return (1);
       yc_down = sh_down;
       dbin->setValue(
@@ -620,8 +612,8 @@ namespace gstlrn
 
           /* Get proportion at the tentative replicate */
           if (propdef.ruleThreshShadowDefine(
-                dbin, this, facies, jech, isimu, nbsimu, &s1min, &s1max, &s2min,
-                &s2max, &sh_dsup, &sh_down))
+                dbin, this, facies, jech, isimu, &s1min, &s1max, &s2min, &s2max,
+                &sh_dsup, &sh_down))
           {
             (void)dbin->deleteSample(jech);
             return (1);
@@ -673,8 +665,8 @@ namespace gstlrn
 
           /* Get proportion at the tentative replicate */
           if (propdef.ruleThreshShadowDefine(
-                dbin, this, facies, jech, isimu, nbsimu, &s1min, &s1max, &s2min,
-                &s2max, &sh_dsup, &sh_down))
+                dbin, this, facies, jech, isimu, &s1min, &s1max, &s2min, &s2max,
+                &sh_dsup, &sh_down))
           {
             (void)dbin->deleteSample(jech);
             return (1);

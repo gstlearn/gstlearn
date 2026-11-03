@@ -64,7 +64,7 @@ matern_param = 1.0
 dat = Db_create()
 err = dat$setColumn("x", tab = runif(n=ndat))
 err = dat$setColumn("y", tab = runif(n=ndat))
-err = dat$setLocators(names = c("x", "y"), locatorType = ELoc_X(), cleanSameLocator = TRUE)
+err = dat$setLocators(c("x", "y"), locatorType = ELoc_X(), cleanSameLocator = TRUE)
 err = dat$setColumn("Z", tab = rnorm(ndat))
 err = dat$setLocator("Z", locatorType = ELoc_Z());
 # grid for the simulations
@@ -201,7 +201,7 @@ qc_variogram <- function(var_list, var_param, var_model, titre) {
 # A single structure
 
 ```{r s1_mod, echo=TRUE, eval=TRUE}
-err = grid$deleteColumns(names = c("*.nc.simu.*","kriging.Z*",
+err = grid$deleteColumns(c("*.nc.simu.*","kriging.Z*",
                                    "SPDE.Z.kriging", "SPDE.Z.condSimu.*", "SPDE.Z.*"))
 # a simple Matern's covariance model
 model = Model()
@@ -306,7 +306,7 @@ ggarrange(p1, p2, nrow = 1, ncol = 2)
 # Linear model of covariances
 
 ```{r LMC_mod, echo=TRUE, eval=TRUE}
-err = grid$deleteColumns(names = c("*.nc.simu.*","kriging.Z*",
+err = grid$deleteColumns(c("*.nc.simu.*","kriging.Z*",
                                    "SPDE.Z.kriging", "SPDE.Z.condSimu.*", "SPDE.Z.*"))
 # a covariance model defined as a sum of two Matern's covariance functions and a nugget effect
 model = Model()

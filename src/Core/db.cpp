@@ -1021,7 +1021,7 @@ namespace gstlrn
 
     Id iptr = dbgrid->addColumnsByConstant(nclass, 1, 0.);
     if (iptr < 0) return 1;
-    dbgrid->setLocatorsByUID(nclass, iptr, ELoc::P, 0);
+    dbgrid->setLocatorsByUIDRange(nclass, iptr, ELoc::P, 0);
 
     /* Loop on the samples of the input data Db */
 

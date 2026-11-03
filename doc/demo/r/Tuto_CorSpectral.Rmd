@@ -1654,7 +1654,7 @@ for (id in seq_len(length(list_test))) {
   cat("\n")
 
   # ----------------------------------------------------------------------------
-  err  = grid$deleteColumns(names = paste(prefix, "*", sep = "."))
+  err  = grid$deleteColumns(paste(prefix, "*", sep = "."))
   if (flag.gstlearn) {
     # using the interface
     modelGeneric = ModelGeneric(gs_ctxt)
@@ -1701,7 +1701,7 @@ for (id in seq_len(length(list_test))) {
   print(sprintf("Average variogram on various simulations"))
   cat("\n")
   # ----------------------------------------------------------------------------
-  err  = grid$deleteColumns(names = paste(prefix, "*", sep = "."))
+  err  = grid$deleteColumns(paste(prefix, "*", sep = "."))
   if (flag.gstlearn) {
     # using the *gstlearn* interface
     modelGeneric = ModelGeneric(gs_ctxt)

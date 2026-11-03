@@ -410,8 +410,8 @@ QC_section <- function(model, grid, prefix, nsimu, isec = 1,
       for (is in 1:nsimu) {
         v1_nm = NC_getNameEncoded(prefix, NULL, ivar, nvar, is, nsimu)
         v2_nm = NC_getNameEncoded(prefix, NULL, jvar, nvar, is, nsimu)
-        v1    = grid$getColumns(names = v1_nm)
-        v2    = grid$getColumns(names = v2_nm)
+        v1    = grid$getColumns(v1_nm)
+        v2    = grid$getColumns(v2_nm)
         if (length(dx) == 1) {
           varexp = compute_vario_on_1d_grid(
             val  = v1,

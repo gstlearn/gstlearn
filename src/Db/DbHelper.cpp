@@ -984,7 +984,8 @@ namespace gstlrn
     /* Set the error return code */
 
     error = 0;
-    namconv.setOutput(dbgrid->getNamesByUID({iatt_in}), 0, dbgrid, iatt_out);
+    namconv.setOutput(
+      dbgrid->getNames(dbgrid->fromUIDs({iatt_in})), 0, dbgrid, iatt_out);
 
   label_end:
     delete skin;
@@ -1445,7 +1446,7 @@ namespace gstlrn
 
     /* Set the error return code */
 
-    auto names = dbgrid->getNamesByLocator(ELoc::Z);
+    auto names = dbgrid->getNames(ERole::Z);
     namconv.setOutput(names, 0, dbgrid, iatt_out);
     return 0;
   }

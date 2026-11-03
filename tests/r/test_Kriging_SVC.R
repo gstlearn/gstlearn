@@ -42,18 +42,18 @@ dbout   = Db_createFillRandom(ndat = nout, ndim = ndim,
                               nvar = 0, nfex = nfac, ncode = 0,
                               varmax = 0., selRatio = p_sel, heteroRatio = VectorDouble(),
                               coormin = VectorDouble(), coormax = VectorDouble(), seed = seedout)
-nm_fac = dbin$getNamesByLocator(locatorType = ELoc_F())
-nm_var = dbin$getNamesByLocator(locatorType = ELoc_Z())
+nm_fac = dbin$getNames(ERole_F())
+nm_var = dbin$getNames(ERole_Z())
 if (nfac > 0) {
   Z = dbin[nm_var[1]]
   for (i in seq_along(nm_fac)) {
     Z = dbin[nm_var[1+i]] * dbin[nm_fac[i]]
   }
   err = dbin$setColumn("z", tab = Z)
-  err = dbin$setLocators(names = "z", locatorType = ELoc_Z(), cleanSameLocator = TRUE)
+  err = dbin$setLocators("z", locatorType = ELoc_Z(), cleanSameLocator = TRUE)
   err = dbin$deleteColumns(paste("z", 1:(1 + nfac), sep = "-"))
 }
-nm_var = dbin$getNamesByLocator(locatorType = ELoc_Z())
+nm_var = dbin$getNames(ERole_Z())
 
 # defining the model of the effects
 C0 = matrix(runif(nvar*nvar, min = -1, max = 1), ncol = nvar, nrow = nvar)
@@ -242,10 +242,10 @@ dbout   = Db_createFillRandom(ndat = nout, ndim = ndim,
                               varmax = 0., selRatio = p_sel, heteroRatio = VectorDouble(),
                               coormin = VectorDouble(), coormax = VectorDouble(), seed = seedout)
 
-nm_var = dbin$getNamesByLocator(locatorType = ELoc_Z())
+nm_var = dbin$getNames(ERole_Z())
 dbin["z"] = as.matrix(dbin[nm_var]) %*% fac
-err = dbin$setLocators(names = "z", locatorType = ELoc_Z(), cleanSameLocator = TRUE)
-nm_var = dbin$getNamesByLocator(locatorType = ELoc_Z())
+err = dbin$setLocators("z", locatorType = ELoc_Z(), cleanSameLocator = TRUE)
+nm_var = dbin$getNames(ERole_Z())
 
 
 for (ifac in seq_along(fac[-1])) {
@@ -253,15 +253,15 @@ for (ifac in seq_along(fac[-1])) {
   dbout[paste("f", ifac, sep = "-")] = rep(fac[-1][ifac], dbout$getNSample())
 }
 err = dbin$setLocators(
-  names = paste0("f-", 1:(nvar-1)),
+  paste0("f-", 1:(nvar-1)),
   locatorType = ELoc_F(),
   cleanSameLocator = TRUE)
 err = dbout$setLocators(
-  names = paste0("f-", 1:(nvar-1)),
+  paste0("f-", 1:(nvar-1)),
   locatorType = ELoc_F(),
   cleanSameLocator = TRUE)
 
-nm_fac = dbin$getNamesByLocator(locatorType = ELoc_F())
+nm_fac = dbin$getNames(ERole_F())
 nfac = length(nm_fac)
 
 # neighborhood
@@ -425,8 +425,8 @@ dbout   = Db_createFillRandom(ndat = nout, ndim = ndim,
                               varmax = 0., selRatio = p_sel, heteroRatio = VectorDouble(),
                               coormin = VectorDouble(), coormax = VectorDouble(), seed = seedout)
 
-nm_var = dbin$getNamesByLocator(locatorType = ELoc_Z())
-nm_fac = dbin$getNamesByLocator(locatorType = ELoc_F())
+nm_var = dbin$getNames(ERole_Z())
+nm_fac = dbin$getNames(ERole_F())
 nfac = length(nm_fac)
 
 # neighborhood

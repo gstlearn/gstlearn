@@ -499,7 +499,7 @@ namespace gstlrn
 
     /* Set the error return code */
 
-    auto names = db->getNamesByLocator(ELoc::Z);
+    auto names = db->getNames(ERole::Z);
     namconv.setOutput(names, 0, db, iptr);
     return 0;
   }
@@ -589,7 +589,7 @@ namespace gstlrn
 
     /* Set the error return code */
 
-    auto names = dbin->getNamesByLocator(ELoc::Z);
+    auto names = dbin->getNames(ERole::Z);
     namconv.setOutput(names, 0, dbout, iptr);
 
     return 0;

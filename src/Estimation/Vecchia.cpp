@@ -845,7 +845,7 @@ namespace gstlrn
 
     // Saving the results
     Id iptr = dbout->addColumns(result, String(), ELoc::UNDEFINED, 0, true);
-    auto names = dbin->getNamesByLocator(ELoc::Z);
+    auto names = dbin->getNames(ERole::Z);
     namconv.setOutput(names, nvar, dbout, iptr, "estim");
 
     return 0;

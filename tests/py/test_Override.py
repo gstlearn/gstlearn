@@ -51,14 +51,14 @@ def findColumnNames(self, columns):
         names = self.getNames(np.atleast_1d(columns))
 
     elif isinstance(columns, gl.ELoc):  # get variable(s) by locator
-        names = self.getNamesByLocator(columns)
+        names = self.getNames(gl.toERole(columns))
 
     elif is_list_type(columns, gl.ELoc):
         if not (len(columns)) == 1:
             raise ValueError(
                 "The input for columns should not be a list of several Locators"
             )
-        names = self.getNamesByLocator(columns[0])
+        names = self.getNames(gl.toERole(columns[0]))
 
     elif isinstance(columns, (int, np.int_)):
         names = self.getName(columns)

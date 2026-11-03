@@ -119,13 +119,13 @@ We define the observations from the initial non conditional simulation.
 dat = Db_create()
 err = dat$setColumn("x", tab = runif(n=ndat))
 err = dat$setColumn("y", tab = runif(n=ndat))
-err = dat$setLocators(names = c("x", "y"), locatorType = ELoc_X(), cleanSameLocator = TRUE)
+err = dat$setLocators(c("x", "y"), locatorType = ELoc_X(), cleanSameLocator = TRUE)
 ```
 
 We perform a quick non conditional simulation on the data location, which will serve for conditioning data set.
 
 ```{r simu_data, echo=TRUE, eval=TRUE}
-err = dat$deleteColumns(names = "Z")
+err = dat$deleteColumns("Z")
 err = simulateSPDE(dbin = NULL, dbout = dat, model = model,
                    namconv = NamingConvention("Z"))
 ```
@@ -153,7 +153,7 @@ neighU = NeighUnique()
 Kriging is computed using the traditional method.
 
 ```{r traditional_kriging, echo=TRUE, eval=TRUE}
-err = grid$deleteColumns(names = "standardK.*")
+err = grid$deleteColumns("standardK.*")
 err = kriging(dbin = dat, dbout = grid, model = model, neigh = neighU,
               namconv = NamingConvention("standardK"))
 ```
@@ -196,7 +196,7 @@ ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
 ## Non conditional simulations
 
 ```{r nc_simu_spde, echo=TRUE, eval=TRUE}
-err = grid$deleteColumns(names = "spdeNC.*")
+err = grid$deleteColumns("spdeNC.*")
 err = simulateSPDE(dbin = NULL, dbout = grid, model = model, nbsimu=4,
                    namconv = NamingConvention("spdeNC"))
 ```
@@ -218,7 +218,7 @@ ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
 ## Conditional simulations
 
 ```{r cond_simu_spde, echo=TRUE, eval=TRUE}
-err = grid$deleteColumns(names = "spdeCD.*")
+err = grid$deleteColumns("spdeCD.*")
 err = simulateSPDE(dbin = dat, dbout = grid, model = model, nbsimu=4,
                    namconv = NamingConvention("spdeCD"))
 ```
@@ -240,7 +240,7 @@ ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
 ## Kriging
 
 ```{r kriging_spde, echo=TRUE, eval=TRUE}
-err = grid$deleteColumns(names = c("spdeK*.Z.*"))
+err = grid$deleteColumns(c("spdeK*.Z.*"))
 err = krigingSPDE(dbin = dat, dbout = grid, model = model,
                   flag_est = TRUE, flag_std = TRUE,
                   namconv = NamingConvention("spdeK"))

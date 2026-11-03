@@ -863,7 +863,7 @@ namespace gstlrn
         if (!_db->isActive(iech)) continue;
         Id ifac = static_cast<Id>(_db->getValue(RoleID(ERole::Z, 0), iech));
         if (_propdef.ruleThreshDefine(
-              _db, _rule, ifac, iech, 0, 0, 0, &t1min, &t1max, &t2min, &t2max))
+              _db, _rule, ifac, iech, 0, 0, &t1min, &t1max, &t2min, &t2max))
           return;
         _setBounds(true, ifac, iech, t1min, t1max, t2min, t2max);
       }
@@ -887,7 +887,7 @@ namespace gstlrn
     for (Id ifac = 0; ifac < _nfacies; ifac++)
     {
       if (_propdef.ruleThreshDefine(
-            _db, _rule, ifac + 1, 0, 0, 0, 0, &t1min, &t1max, &t2min, &t2max))
+            _db, _rule, ifac + 1, 0, 0, 0, &t1min, &t1max, &t2min, &t2max))
         return (1);
       if (!_useDiscrete)
       {
@@ -1131,8 +1131,7 @@ namespace gstlrn
                    : i;
             jfac = (flag_one) ? ifac : ifac + 1;
             if (_propdef.ruleThreshDefine(
-                  _db, _rule, jfac, iech, 0, 0, 0, &t1min, &t1max, &t2min,
-                  &t2max))
+                  _db, _rule, jfac, iech, 0, 0, &t1min, &t1max, &t2min, &t2max))
               return (1);
 
             /* Define the proportions */
@@ -1154,17 +1153,17 @@ namespace gstlrn
 
         if (flag_prop && is_prop_defined)
         {
-          _db->deleteColumnsByLocator(ELoc::P);
+          _db->deleteColumns(ERole::P);
         }
         if (!_useDiscrete)
         {
-          _db->deleteColumnsByLocator(ELoc::L);
-          _db->deleteColumnsByLocator(ELoc::U);
+          _db->deleteColumns(ERole::L);
+          _db->deleteColumns(ERole::U);
         }
         else
         {
-          _db->deleteColumnsByLocator(ELoc::RKLOW);
-          _db->deleteColumnsByLocator(ELoc::RKUP);
+          _db->deleteColumns(ERole::RKLOW);
+          _db->deleteColumns(ERole::RKUP);
         }
         break;
     }
@@ -2313,10 +2312,10 @@ namespace gstlrn
       /* Get the bounds */
 
       (void)_propdef.ruleThreshDefine(
-        _db, _rule, ifac1, i1, 0, 0, 1, lower.data(), upper.data(), &lower[2],
+        _db, _rule, ifac1, i1, 0, 1, lower.data(), upper.data(), &lower[2],
         &upper[2]);
       (void)_propdef.ruleThreshDefine(
-        _db, _rule, ifac2, i2, 0, 0, 1, &lower[1], &upper[1], &lower[3],
+        _db, _rule, ifac2, i2, 0, 1, &lower[1], &upper[1], &lower[3],
         &upper[3]);
 
       if (flag_reset)

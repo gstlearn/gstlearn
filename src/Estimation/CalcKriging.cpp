@@ -119,7 +119,7 @@ namespace gstlrn
       if (dbgrid != nullptr)
       {
         // Duplicating the coordinate variable names before centering
-        _nameCoord = getDbin()->getNamesByLocator(ELoc::X);
+        _nameCoord = getDbin()->getNames(ERole::X);
         if (_centerDataToGrid(dbgrid)) return false;
       }
     }
@@ -232,7 +232,7 @@ namespace gstlrn
   {
     Id nvar = _getNVar();
     Id nech = _ktest.nech;
-    auto names = getDbin()->getNamesByLocator(ELoc::Z);
+    auto names = getDbin()->getNames(ERole::Z);
     auto iuid = getDbin()->addColumnsByConstant(nvar * nvar, 1, TEST, "Weight");
 
     // Loop on the variables

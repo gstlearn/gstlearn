@@ -315,6 +315,7 @@
   #include "Db/RankHandler.hpp"
 
   #include "DataBase/ColID.hpp"
+  #include "DataBase/MultID.hpp"
   #include "DataBase/RoleID.hpp"
   #include "DataBase/DbCol.hpp"
   #include "DataBase/DbData.hpp"

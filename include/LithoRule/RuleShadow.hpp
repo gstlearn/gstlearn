@@ -56,23 +56,20 @@ namespace gstlrn
       Db* dbout,
       const VectorBool& flag_used,
       Id ipgs,
-      Id isimu,
-      Id nbsimu) const override;
+      Id isimu) const override;
     Id gaus2facResult(
       const PropDef& propdef,
       Db* dbout,
       const VectorBool& flag_used,
       Id ipgs,
-      Id isimu,
-      Id nbsimu) const override;
+      Id isimu) const override;
     Id evaluateBounds(
       const PropDef& propdef,
       Db* dbin,
       Db* dbout,
       Id isimu,
       Id igrf,
-      Id ipgs,
-      Id nbsimu) const override;
+      Id ipgs) const override;
 
     double getShDown() const { return _shDown; }
 
@@ -100,12 +97,8 @@ namespace gstlrn
       Id flag_stat,
       double* sh_dsup_max,
       double* sh_down_max) const;
-    double _st_grid_eval(
-      DbGrid* dbgrid,
-      Id isimu,
-      Id icase,
-      Id nbsimu,
-      VectorDouble& xyz0) const;
+    double _st_grid_eval(DbGrid* dbgrid, Id isimu, Id icase, VectorDouble& xyz0)
+      const;
     void _normalizeShift();
 
   private:

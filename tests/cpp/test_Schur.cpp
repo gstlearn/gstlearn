@@ -42,7 +42,7 @@ static Db*
 
   auto iech = datap->addSamples(1);
   datap->setSampleCoordinates(iech, target->getSampleCoordinates(0));
-  datap->setLocVariables(ELoc::Z, iech, valuesTarget);
+  datap->setValues(ERole::Z, {iech}, valuesTarget);
   datap->display(dbfmt);
   return datap;
 }

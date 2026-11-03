@@ -14,6 +14,7 @@
 #include "DataBase/ColID.hpp"
 #include "DataBase/DbCol.hpp"
 #include "DataBase/Dictionary.hpp"
+#include "DataBase/MultID.hpp"
 #include "DataBase/RoleID.hpp"
 #include "DataBase/VectorCategory.hpp"
 #include "gstlearn_export.hpp"
@@ -135,7 +136,7 @@ namespace gstlrn
     void removeRole(ColID&& colid);
     void removeAllRoles();
     ColID fromUID(Id iuid, Id version = 0) const;
-
+    MultID fromUIDs(const VectorInt& iuids) const;
     std::vector<ColID> getColIDs(const String& name) const;
     std::vector<ColID> getColIDs(const VectorString& name) const;
     std::vector<ColID> getColIDs(const ERole& role) const;
@@ -162,6 +163,7 @@ namespace gstlrn
     String summaryRoles(void) const;
 
     bool isValidColumn(Id icol) const;
+    std::vector<ColID> getColumnIndices(const MultID& multid) const;
 
   private:
     std::optional<std::reference_wrapper<DbCol>> _identifyColumn(ColID&& colid);
@@ -185,6 +187,8 @@ namespace gstlrn
     void _updateName(String& name) const;
     void _updateRoleIDAddition(Id icol0, RoleID& roleID);
     void _updateRoleIDDeletion(RoleID& roleID);
+
+    Id _searchColumnByUID(Id iuid) const;
 
     static bool _checkForbidNA(const VectorCategory& tab);
     static void _checkNVersion(Id& nversion);
@@ -643,7 +647,7 @@ namespace gstlrn
     if (!_checkNSample(array, nversion)) return;
 
     auto nameLocal = name;
-    for (const auto& col: this->_cols)
+    for (const auto& col: _cols)
     {
       if (col.getName() == name)
       {
@@ -660,7 +664,7 @@ namespace gstlrn
       if (!_checkForbidNA(array)) return;
     }
 
-    this->_cols.emplace_back(
+    _cols.emplace_back(
       _uniqueIndexCounter, std::move(nameLocal),
       std::forward<VectorType>(array), nversion, forbidNA);
 
@@ -682,7 +686,7 @@ namespace gstlrn
     if (!_checkNSample(array, nversion)) return;
 
     auto nameLocal = name;
-    for (const auto& col: this->_cols)
+    for (const auto& col: _cols)
     {
       if (col.getName() == name)
       {
@@ -714,7 +718,7 @@ namespace gstlrn
   std::optional<T>
     DbData::getValue(ColID&& colid, Id isample, bool verbose) const
   {
-    const auto array = this->_identifyColumn(std::move(colid), verbose);
+    const auto array = _identifyColumn(std::move(colid), verbose);
     if (!array) return std::nullopt;
 
     const Id version = colid.getVersion();
@@ -724,7 +728,7 @@ namespace gstlrn
   template<typename T>
   bool DbData::setValue(ColID&& colid, const Id isample, const T& value)
   {
-    const auto array = this->_identifyColumn(std::move(colid));
+    const auto array = _identifyColumn(std::move(colid));
     if (!array) return false;
 
     const Id version = colid.getVersion();
@@ -736,7 +740,7 @@ namespace gstlrn
   {
     static VectorType empty{};
 
-    auto col = this->_identifyColumn(std::move(colid));
+    auto col = _identifyColumn(std::move(colid));
     if (!col) return empty;
 
     auto vec = col->get().template getVector<VectorType>();
@@ -750,7 +754,7 @@ namespace gstlrn
   {
     static const VectorType empty{};
 
-    auto col = this->_identifyColumn(std::move(colid));
+    auto col = _identifyColumn(std::move(colid));
     if (!col) return empty;
 
     auto vec = col->get().template getVector<VectorType>();
@@ -763,7 +767,7 @@ namespace gstlrn
   std::span<typename VectorType::value_type>
     DbData::getVersion(ColID&& colid, Id version)
   {
-    auto col = this->_identifyColumn(std::move(colid));
+    auto col = _identifyColumn(std::move(colid));
     if (!col) return {};
 
     auto span = col->get().template getVersion<VectorType>(version);
@@ -776,7 +780,7 @@ namespace gstlrn
   std::span<const typename VectorType::value_type>
     DbData::getVersion(ColID&& colid, Id version) const
   {
-    auto col = this->_identifyColumn(std::move(colid));
+    auto col = _identifyColumn(std::move(colid));
     if (!col) return {};
 
     auto span = col->get().template getVersion<VectorType>(version);
@@ -797,7 +801,7 @@ namespace gstlrn
   template<typename VectorType>
   bool DbData::setVersion(ColID&& colid, const VectorType& values, Id version)
   {
-    auto col = this->_identifyColumn(std::move(colid));
+    auto col = _identifyColumn(std::move(colid));
     if (!col) return false;
 
     return col->get().template setVersion<VectorType>(values, version);

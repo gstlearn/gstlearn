@@ -367,7 +367,7 @@ Some statistics on the Conditional simulations in Gaussian scale
 
 ```{r}
 if (verbose)
-  err = dbStatisticsMono(mygrid, mygrid$getNamesByLocator(ELoc_Z()),
+  err = dbStatisticsMono(mygrid, mygrid$getNames(ERole_Z()),
         opers = EStatOption_fromKeys(c("MEAN","STDV","MINI","MAXI")))$display()
 ```
 
@@ -397,7 +397,7 @@ We calculate some statistics on the Conditional Simulations in Raw scale.
 
 ```{r}
 if (verbose)
-  err = dbStatisticsMono(mygrid, mygrid$getNamesByLocator(ELoc_Z()),
+  err = dbStatisticsMono(mygrid, mygrid$getNames(ERole_Z()),
         opers = EStatOption_fromKeys(c("MEAN","STDV","MINI","MAXI")))$display()
 ```
 
@@ -417,7 +417,7 @@ if (graphics)
 Let us now average the conditional simulations in order to have a comparison with the estimation by kriging.
 
 ```{r}
-err = mygrid$statisticsBySample(mygrid$getNamesByLocator(ELoc_Z()),
+err = mygrid$statisticsBySample(mygrid$getNames(ERole_Z()),
                                  opers = EStatOption_fromKeys(c("MEAN")))
 if (verbose)
     err = mygrid$display()
@@ -496,7 +496,7 @@ err = myanamZn$gaussianToRaw(mygrid,"Simu.Y.Zn*")
 err = myanamPb$gaussianToRaw(mygrid,"Simu.Y.Pb*")
 err = mygrid$deleteColumn("Simu.Y*")
 if (verbose)
-    err = dbStatisticsMono(mygrid, mygrid$getNamesByLocator(ELoc_Z()),
+    err = dbStatisticsMono(mygrid, mygrid$getNames(ERole_Z()),
           opers = EStatOption_fromKeys(c("MEAN","STDV","MINI","MAXI")))$display()
 ```
 

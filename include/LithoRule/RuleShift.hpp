@@ -55,16 +55,14 @@ namespace gstlrn
       Db* dbout,
       const VectorBool& flag_used,
       Id ipgs,
-      Id isimu,
-      Id nbsimu) const override;
+      Id isimu) const override;
     Id evaluateBounds(
       const PropDef& propdef,
       Db* dbin,
       Db* dbout,
       Id isimu,
       Id igrf,
-      Id ipgs,
-      Id nbsimu) const override;
+      Id ipgs) const override;
 
     bool checkModel(const Model* model, Id nvar = 0) const override;
 

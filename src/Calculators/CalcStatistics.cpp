@@ -120,7 +120,7 @@ namespace gstlrn
     if (_flagStats)
     {
       auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
-      VectorString names = getDbin()->getNamesByLocator(ELoc::Z);
+      VectorString names = getDbin()->getNames(ERole::Z);
       if (dbStatisticsInGridTool(
             getDbin(), dbgrid, names, _oper, _radius, _iattOut))
         return false;

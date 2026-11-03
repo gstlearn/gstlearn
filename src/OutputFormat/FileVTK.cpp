@@ -186,7 +186,7 @@ namespace gstlrn
       }
     }
 
-    VectorString names = _db->getNamesByColIdx(_cols);
+    VectorString names = _db->getNames(_cols);
     std::vector<const char*> vc(names.size(), nullptr);
     for (Id i = 0; i < static_cast<Id>(names.size()); i++)
     {

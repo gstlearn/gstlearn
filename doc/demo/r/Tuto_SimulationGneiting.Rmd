@@ -257,7 +257,7 @@ err = gssimu$setModelGeneric(modelGeneric)
 err = gssimu$simulateSpectralTest()
 
 # computation
-err = grd$deleteColumns(names = paste0(prefix, "*"))
+err = grd$deleteColumns(paste0(prefix, "*"))
 err = gssimu$computeSpectralTest(dbout = grd)
 
 v_name  = paste(prefix, "V1", "simu", sep = ".")
@@ -365,7 +365,7 @@ Performing multiple simulations using the *simuSpectral* interface:
 ```{r multiple_simulations, echo = TRUE, eval = TRUE}
 # simulations
 nsim = 20
-err = grd$deleteColumns(names = paste0(prefix, "*"))
+err = grd$deleteColumns(paste0(prefix, "*"))
 modelGeneric = ModelGeneric(CovContext(nvar = 1, ndim = d))
 err = modelGeneric$setCov(mg_in_gstlearn)
 err = simuSpectral(dbin = NULL, dbout = grd, model = modelGeneric, seed = 0,

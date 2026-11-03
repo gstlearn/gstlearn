@@ -26,8 +26,9 @@ namespace gstlrn
     ColID(Id icol, Id version = 0);
     ColID(const RoleID& roleID, Id version = 0);
     ColID(const ERole& role, Id version = 0);
-    // Constructure from Enum does not allow setting the 'index' directly.
-    // Constructor with 3 arguments is discarded in order to avoid
+    // Important notes:
+    // - Constructor from Enum does not allow setting the 'index' directly.
+    // - Constructor with 3 arguments is discarded in order to avoid
     // ambiguity between "index" and "version".
 
 #ifndef SWIG
@@ -69,11 +70,8 @@ namespace gstlrn
      */
 #ifndef SWIG
     static ColID create(std::string_view name, Id version = 0);
-
     static ColID create(Id icol, Id version = 0);
-
     static ColID create(const RoleID& roleID, Id version = 0);
-
     static ColID create(const ColID& colid, Id version = 0);
 #endif
 

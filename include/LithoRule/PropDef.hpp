@@ -36,8 +36,7 @@ namespace gstlrn
     void defineRuleMethod(const EProcessOper& oper);
     void reset() const;
 
-    Id proportionDefine(const Db* db, Id iech, Id isimu, Id nbsimu, Id* jech)
-      const;
+    Id proportionDefine(const Db* db, Id iech, Id isimu, Id* jech) const;
     Id define(
       bool flag_facies,
       bool flag_stat,
@@ -52,7 +51,6 @@ namespace gstlrn
       Id facies,
       Id iech,
       Id isimu,
-      Id nbsimu,
       Id flag_check,
       double* t1min,
       double* t1max,
@@ -64,7 +62,6 @@ namespace gstlrn
       Id facies,
       Id iech,
       Id isimu,
-      Id nbsimu,
       double* t1min,
       double* t1max,
       double* t2min,
