@@ -158,6 +158,7 @@ typedef std::string String;  // Add to allow aliasing String and std::string
 %include Space/ASpaceObject.hpp
 %include Space/SpacePoint.hpp
 %include Space/SpaceTarget.hpp
+%include Space/SpaceCyl.hpp
 %include Space/SpaceRN.hpp
 %include Space/SpaceShape.hpp
 %include Space/SpaceSN.hpp
@@ -189,6 +190,7 @@ typedef std::string String;  // Add to allow aliasing String and std::string
 %include Mesh/MeshEStandard.hpp
 %include Mesh/MeshEFaulted.hpp
 %include Mesh/MeshETurbo.hpp
+%include Mesh/MeshCylindrical.hpp
 %include Mesh/MeshSpherical.hpp
 %include Mesh/MeshSphericalExt.hpp
 %include Mesh/VectorMeshes.hpp
