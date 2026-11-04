@@ -194,6 +194,8 @@ namespace gstlrn
     static void _checkNVersion(Id& nversion);
     static void _unknownName(const String& name);
     static void _unknownRoleID(const RoleID& roleID);
+    static void _unknownICol(Id icol, Id ncol);
+    static void _invalidUID(Id uidCol, Id uidRef);
 
   private:
     // Private section of DbData
