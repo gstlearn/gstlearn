@@ -715,6 +715,75 @@ def WgetVarioFromNF(WAll):
     return gl.Vario.createFromNF(str(WVFile.path(index=0)))
 
 
+# ==============================================
+# Widget to manage Neighborhood (radix = WNeigh)
+# ==============================================
+
+
+def WdefineNeigh(nmaxi=10, radius=10.0, flagUnique=False):
+    """
+    Returns parameters for the Neighborhood
+    """
+    Wunique = mo.ui.checkbox(label="Unique Neighborhood", value=flagUnique)
+    Wnmaxi = mo.ui.number(start=1, value=nmaxi, label="Maximum number of samples")
+    Wradius = mo.ui.number(value=radius, step=0.1, label="Search radius")
+    Wnmini = mo.ui.number(start=1, value=1, label="Minimum number of samples")
+    Wnsect = mo.ui.number(start=1, value=1, label="Number of sectors")
+    Wnsmax = mo.ui.number(value=10, label="Maximum samples per sector")
+    Wangle = mo.ui.number(value=0, label="Rotation Angle (degree)")
+
+    return mo.ui.array(
+        [
+            Wunique,
+            Wnmaxi,
+            Wradius,
+            Wnmini,
+            Wnsect,
+            Wnsmax,
+            Wangle,
+        ]
+    )
+
+
+def WshowNeigh(WAll, flagTitle=True, gapv=1):
+    [Wunique, Wnmaxi, Wradius, Wnmini, Wnsect, Wnsmax, Wangle] = WAll
+    WNeighTitle = _WgetTitle("Neighborhood", flagTitle)
+    # mode UNIQUE → on masque tout sauf titre + switch
+    if Wunique.value:
+        widgets = [
+            WNeighTitle,
+            Wunique,
+        ]
+    else:
+        widgets = [
+            WNeighTitle,
+            Wunique,
+            Wnmaxi,
+            Wradius,
+            Wnmini,
+            Wnsect,
+            Wnsmax,
+            Wangle,
+        ]
+    return mo.vstack(widgets, gap=gapv)
+
+
+def WgetNeigh(WAll):
+    [Wunique, Wnmaxi, Wradius, Wnmini, Wnsect, Wnsmax, Wangle] = WAll
+    if Wunique.value:
+        return gl.NeighUnique()
+
+    return gl.NeighMoving.create(
+        flag_xvalid=False,
+        nmaxi=Wnmaxi.value,
+        radius=Wradius.value,
+        nmini=Wnmini.value,
+        nsect=Wnsect.value,
+        nsmax=Wnsmax.value,
+        angles=[Wangle.value, 0.0],
+    )
+
+
 # =====================
 # Widget to manage a Db
 # =====================
