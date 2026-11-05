@@ -498,8 +498,7 @@ namespace gstlrn
       Id jvar = 0,
       const CovCalcMode* mode = nullptr) const;
     double evaluateOneIncr(
-      double hh,
-      const VectorDouble& codir = VectorDouble(),
+      const VectorDouble& d1 = VectorDouble(),
       Id ivar = 0,
       Id jvar = 0,
       const CovCalcMode* mode = nullptr) const;

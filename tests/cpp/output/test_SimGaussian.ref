@@ -49,10 +49,10 @@ SimuSPT.Data.S3       0.037       0.099       1.000
 
 <----- Simulation using FFT Method ----->
                      Number     Minimum     Maximum        Mean    St. Dev.    Variance
-SimuFFT.Data.S1   10000.000      90.519     110.648     100.248       2.849       8.118
-SimuFFT.Data.S2   10000.000      88.296     110.982      99.924       3.035       9.209
-SimuFFT.Data.S3   10000.000      89.381     110.929      99.640       2.893       8.371
+SimuFFT.Data.S1   10000.000      89.526     113.178     100.274       2.911       8.471
+SimuFFT.Data.S2   10000.000      87.048     110.873      99.912       3.218      10.357
+SimuFFT.Data.S3   10000.000      87.102     111.266      99.269       2.867       8.220
                  *T.Data.S1  *T.Data.S2  *T.Data.S3
-SimuFFT.Data.S1       1.000       0.068      -0.022
-SimuFFT.Data.S2       0.068       1.000      -0.002
-SimuFFT.Data.S3      -0.022      -0.002       1.000
+SimuFFT.Data.S1       1.000       0.063      -0.139
+SimuFFT.Data.S2       0.063       1.000      -0.104
+SimuFFT.Data.S3      -0.139      -0.104       1.000
