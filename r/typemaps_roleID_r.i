@@ -139,11 +139,11 @@ static inline SEXP unwrap_swig_r_obj(SEXP obj) {
 
         if (SWIG_IsOK(res_roleID) && roleID != nullptr)
         {
-            temp = *roleID;
-            if (has_custom_index)
-            {
-                temp.setIndex(index);
-            }
+            // Reconstruct RoleID using constructor instead of protected setters
+            temp = gstlrn::RoleID(
+                roleID->getRole(),
+                has_custom_index ? index : roleID->getIndex()
+            );
             $1 = &temp;
         }
         else
