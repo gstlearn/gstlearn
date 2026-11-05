@@ -85,14 +85,6 @@ namespace gstlrn
 
     Id getVersion() const { return _version; }
 
-    void setName(const String& name) { _name = name; }
-
-    void setICol(Id icol) { _icol = icol; }
-
-    void setRoleID(const RoleID& roleID) { _roleID = roleID; }
-
-    void setVersion(Id version) { _version = version; }
-
     bool hasRoleDefined() const;
 
     Id getUniqueIndex() const { return _uid; }
@@ -109,12 +101,23 @@ namespace gstlrn
     static ColID create(const ColID& colid, Id version = 0);
 #endif
 
+  protected:
+    void _setName(const String& name) { _name = name; }
+
+    void _setICol(Id icol) { _icol = icol; }
+
+    void _setRoleID(const RoleID& roleID) { _roleID = roleID; }
+
+    void _setVersion(Id version) { _version = version; }
+
   private:
     Id _icol{-1};
     String _name{};
     RoleID _roleID{RoleID(ERole::UNDEFINED, 0)};
     Id _version{0};
     Id _uid{-1};
+
+    friend class DbData;
   };
 
 } // namespace gstlrn

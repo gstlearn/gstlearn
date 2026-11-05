@@ -220,8 +220,8 @@ namespace gstlrn
     if (!icol || !isValidColumn(*icol)) return ColID(-1);
 
     ColID colIDout(*icol);
-    colIDout.setName(_cols[*icol].getName());
-    colIDout.setRoleID(_roleIDs[*icol]);
+    colIDout._setName(_cols[*icol].getName());
+    colIDout._setRoleID(_roleIDs[*icol]);
     return colIDout;
   }
 
@@ -521,7 +521,7 @@ namespace gstlrn
       }
 
       // Modify the Index of the new Column (if necessary)
-      if (rankMin >= 0 && newIndex > rankMin) roleID.setIndex(rankMin + 1);
+      if (rankMin >= 0 && newIndex > rankMin) roleID._setIndex(rankMin + 1);
     }
     else
     {
@@ -539,7 +539,7 @@ namespace gstlrn
           if (curIndex > oldIndex)
           {
             // Same role and a larger rank already exists: decrease the index of the old Column by one
-            _roleIDs[icol].setIndex(curIndex - 1);
+            _roleIDs[icol]._setIndex(curIndex - 1);
           }
         }
       }
@@ -558,7 +558,7 @@ namespace gstlrn
       {
         // Same role and a larger rank already exists:
         // Decrease the rank of the old one by 1
-        id.setIndex(id.getIndex() - 1);
+        id._setIndex(id.getIndex() - 1);
       }
     }
   }
@@ -851,9 +851,9 @@ namespace gstlrn
    * @param multid Multi-Column Identifier
    *
    * @remark: The Column Identifier (ColID) is searched in the following order:
-   * - by Column Name
-   * - by Column Role (and Rank)
-   * - by Column index
+   * - by Column indices
+   * - by Column Names
+   * - by Column Roles (and Ranks)
    *
    * @note:
    * - the order of the input columns in 'multid' is maintained
@@ -866,7 +866,7 @@ namespace gstlrn
     VectorInt found;
     std::unordered_set<Id> seen;
 
-    // Utilitaire local pour ajouter un indice s'il est valide et non déjà présent (préserve l'ordre)
+    // Local utility to add an index if it is valid and not already present (preserves order)
     auto add_unique = [&](Id icol)
     {
       if (icol >= 0 && icol < ncols)
@@ -877,6 +877,16 @@ namespace gstlrn
         }
       }
     };
+
+    // Try to identify the Column indices
+    const VectorInt& icols = multid.getICols();
+    if (!icols.empty())
+    {
+      for (const auto& icol: icols)
+      {
+        add_unique(icol);
+      }
+    }
 
     // Try to identify by Column Names
     const VectorString& names = multid.getNames();
@@ -893,17 +903,8 @@ namespace gstlrn
       }
     }
 
-    // Try to identify the Column indices
-    const VectorInt& icols = multid.getICols();
-    if (!icols.empty())
-    {
-      for (const auto& icol: icols)
-      {
-        add_unique(icol);
-      }
-    }
-
-    // Try to identify by Column Role: columns must be added:
+    // Try to identify by Column Roles
+    // Important remark. Columns must be added:
     // - if they belong to the Targeted Role
     // - by their increasing 'index'
     if (multid.getRole().isDifferent(ERole::UNDEFINED))
@@ -932,8 +933,8 @@ namespace gstlrn
     for (Id icol: found)
     {
       ColID colid(icol);
-      colid.setName(_cols[icol].getName());
-      colid.setRoleID(_roleIDs[icol]);
+      colid._setName(_cols[icol].getName());
+      colid._setRoleID(_roleIDs[icol]);
       colids.push_back(colid);
     }
 

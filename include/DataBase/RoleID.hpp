@@ -46,10 +46,6 @@ namespace gstlrn
 
     Id getIndex() const { return _index; }
 
-    void setRole(const ERole& role) { _role = role; }
-
-    void setIndex(Id index) { _index = index; }
-
     bool isEqual(const RoleID& RoleID, bool checkIndex = true) const;
 
     bool isUnique() const;
@@ -64,9 +60,16 @@ namespace gstlrn
 
     bool checkRoleVsMultipleVersions(Id nVersions, bool verbose = false);
 
+  protected:
+    void _setRole(const ERole& role) { _role = role; }
+
+    void _setIndex(Id index) { _index = index; }
+
   private:
     ERole _role{ERole::UNDEFINED};
     Id _index{0};
+
+    friend class DbData;
   };
 
 } // namespace gstlrn

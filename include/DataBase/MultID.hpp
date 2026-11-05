@@ -20,9 +20,9 @@
 namespace gstlrn
 {
   /**
-   * @brief Thie class describes a set of Columns in a DbData. They can be described by:
-   * - their column indexes
-   * - their names (unique in the Data Base)
+   * @brief This class describes a set of Columns in a DbData. They can be described by:
+   * - their column index
+   * - their name (unique in the Data Base)
    * - their Role (name and rank)
    * Note that the Column Name(s) can take the regexp syntax into account,
    * allowing to select a set of Columns by their name(s) adding the '*' special symbol.
@@ -64,12 +64,6 @@ namespace gstlrn
 
     String getDescr() const;
 
-    void setNames(const VectorString& names) { _names = names; }
-
-    void setICols(const VectorInt& icols) { _icols = icols; }
-
-    void setERole(const ERole& role) { _role = role; }
-
     bool hasRoleDefined() const;
 
     /**
@@ -83,10 +77,19 @@ namespace gstlrn
     static MultID create(const MultID& MultID);
 #endif
 
+  protected:
+    void _setNames(const VectorString& names) { _names = names; }
+
+    void _setICols(const VectorInt& icols) { _icols = icols; }
+
+    void _setERole(const ERole& role) { _role = role; }
+
   private:
     VectorInt _icols{};
     VectorString _names{};
     ERole _role{ERole::UNDEFINED};
+
+    friend class DbData;
   };
 
 } // namespace gstlrn
