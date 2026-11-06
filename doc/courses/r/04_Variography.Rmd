@@ -96,6 +96,19 @@ We can also adapt the size of experimental variogram points in the plot so that 
 plot.init() + plot.varmod(varioexp,drawPsize=TRUE)
 ```
 
+Another feature is to anotate each lag with the number of pairs.
+
+```{r Plot_Experimental_Variogram_continued2}
+plot.init() + plot.varmod(varioexp,drawPlabel=TRUE)
+```
+
+Another interesting feature is to represent the number of pairs as a Bar-Plot on the bottom of the window, with the corresponding scale in blue on the right edge of the figure
+
+```{r Plot_Experimental_Variogram_continued3}
+plot.init() + plot.varmod(varioexp,drawPbar=TRUE)
+```
+
+
 ---
 
 ### Automatic Model Fitting
