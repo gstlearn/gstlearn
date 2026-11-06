@@ -39,11 +39,15 @@ namespace gstlrn
 
     bool isValidForSimulation(const ESimuType& simuType) const override
     {
-      return (simuType == ESimuType::TB);
+      return (simuType == ESimuType::TB || simuType == ESimuType::SPECTRAL);
     }
 
     double
       simulateTurningBand(double t0, TurningBandOperate& operTB) const override;
+
+    double evaluateSpectrum(double freq) const override;
+
+    MatrixDense simulateSpectralOmega(Id nb) const override;
 
   protected:
     double _evaluateCov(double h) const override;

@@ -435,12 +435,12 @@ QC_section <- function(model, grid, prefix, nsimu, isec = 1,
           titre = sprintf("%s[%d, %d]: idir = %d in section %s",
                           prefix, ivar, jvar, idir, sec_lab[isec])
           plot(NULL, NULL, xlim = c(0, max(hh_simu)), ylim = 1.1*c(0, C0[ivar, jvar]),
-               xlab = "Distance", ylab = "Variogram", main = titre)
+               xlab = "Distance", ylab = "Variogram", xaxs="i", yaxs="i", main = titre)
           abline(h = c(0, C0[ivar, jvar]), col = "gray", lw = 1, lty = 3)
           abline(v = c(0), col = "gray", lw = 1, lty = 3)
           # experimental variogram
           for (is in 1:nsimu) {
-            lines(hh_simu, gg_simu[is, ], col = "gray", lw = 1, lty = 2)
+            lines(hh_simu, gg_simu[is, ], col = "gray", lw = 1, lty = 2, )
           }
           for (n in seq_along(probs)) {
             lines(hh_simu,
@@ -497,42 +497,54 @@ grid = DbGrid_create(nx = nx, dx = dx)
 # 2d univariate (CorAniso)
 
 ```{r 2d1v_coraniso, eval=TRUE}
-idx  = 3
-type = c("EXPONENTIAL", "GAUSSIAN", "MATERN")[idx]
-nvar = 1
-# parameters for the space trace
-nu   = c(NA, NA, 3/4)[idx]
+# Option : -1 for all Models, or the index of the Model to be treated (1 for Spherical, ...)
+performOne <- 3
+types = c("SPHERICAL", "CUBIC", "EXPONENTIAL", "GAUSSIAN", "MATERN")
+nus   = c(NA, NA, NA, NA, 3/4)
+
 # space anisotropy
 timeRange = 2.0
-ranges = c(5,10)[1:ndim]
+ranges = c(7,15)[1:ndim]
 angles = c(30, 0)[1:ndim]
+nvar = 1
 
-# covariance model
 ctxt = CovContext(nvar = nvar, space = SpaceRN_create(ndim))
-mod  = CorAniso_create(ctxt = ctxt, type = ECov_fromKey(type),
-                      params = nu,
-                      ranges = ranges, angles = angles,
-                      flagRange = FALSE)
-err = draw_model(model = mod, prefix = type)
 
-# simulation using "gstlearn API"
-model = ModelGeneric(ctxt = ctxt)
-err   = model$setCov(cova = mod)
-err   = simuSpectral(dbin = NULL, dbout = grid, model = model, nbsimu = nsim, ns = ns,
-                   verbose = flag.verbose,
-                   namconv = NamingConvention(type))
+# Determine indices to process based on performOne
+indices_to_run <- if (performOne == -1) seq_along(types) else performOne
 
-# QC
-res = QC_section (model = model$getCov(), grid = grid, prefix = type, nsimu = nsim, isec = 1,
-                       flag.histo = TRUE, flag.map = TRUE, flag.vario = TRUE,
-                       verbose = flag.verbose)
-knitr::kable(res$tab , digits = 3, caption = sprintf("Statistics for %s", res$prefix))
+for (idx in indices_to_run) {
+  type <- types[idx]
+  nu <- nus[idx]
+
+  # covariance model
+  mod  <- CorAniso_create(ctxt = ctxt, type = ECov_fromKey(type),
+                          params = nu,
+                          ranges = ranges, angles = angles,
+                          flagRange = FALSE)
+  err <- draw_model(model = mod, prefix = type)
+
+  # simulation using "gstlearn API"
+  model <- ModelGeneric(ctxt = ctxt)
+  err   <- model$setCov(cova = mod)
+  err   <- simuSpectral(dbin = NULL, dbout = grid, model = model, nbsimu = nsim, ns = ns,
+                        verbose = flag.verbose,
+                        namconv = NamingConvention(type))
+
+  # QC
+  res <- QC_section(model = model$getCov(), grid = grid, prefix = type, nsimu = nsim, isec = 1,
+                    flag.histo = TRUE, flag.map = TRUE, flag.vario = TRUE,
+                    verbose = flag.verbose)
+
+  cat("\n\n### Modèle :", type, "\n\n")
+  print(knitr::kable(res$tab, digits = 3, caption = sprintf("Statistics for %s", res$prefix)))
+}
+
 ```
 
 # Factorized covariance in 2d
 
 ```{r cov_2d1v_fac, echo=TRUE, eval=TRUE}
-
 type = "Fac2d_exp_gauss"
 ctxt1d = CovContext(nvar = 1, space = SpaceRN_create(1))
 ctxt2d = CovContext(nvar = 1, space = SpaceRN_create(2))
