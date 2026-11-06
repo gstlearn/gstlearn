@@ -538,8 +538,10 @@ def __ax_varioElem(
     ivar=0,
     jvar=0,
     idir=0,
+    ndir=1,
     hmax=None,
     showPairs=False,
+    showBars=False,
     varColor="black",
     varLinestyle="dotted",
     flagDrawVariance=True,
@@ -593,6 +595,57 @@ def __ax_varioElem(
                 textcoords="offset points",
                 ha="center",
             )
+
+    # Representing the number of pairs as side-by-side histogram bars (optional)
+    if showBars:
+        pairs = vario.getSwVec(idir, ivar, jvar)
+        if len(pairs) > 0:
+            # Create or reuse a secondary Y-axis for the number of pairs (without ylabel, matching the left axis)
+            if not hasattr(ax, "_twin_pairs"):
+                ax._twin_pairs = ax.twinx()
+                ax._twin_pairs.tick_params(axis="y", labelcolor="blue")
+                ax._twin_pairs.grid(False)
+
+            # Determine bar index and total bars based on idir and ndir
+            total_bars = ndir
+            bar_idx = 0 if total_bars == 1 else idir
+
+            # Compute local individual widths based on neighboring lag distances
+            if len(hh) > 1:
+                diffs = np.diff(hh)
+                widths = np.empty_like(hh, dtype=float)
+                widths[0] = diffs[0]
+                widths[-1] = diffs[-1]
+                if len(hh) > 2:
+                    widths[1:-1] = 0.5 * (hh[2:] - hh[:-2])
+                base_width = widths * 0.7
+            else:
+                base_width = np.array([1.0], dtype=float)
+
+            # Adjust bar width and add a small gap factor to prevent edge touching
+            bar_width = (base_width / max(total_bars, 1)) * 0.9
+
+            # Compute individual offsets for side-by-side placement
+            offset = (bar_idx - total_bars / 2.0 + 0.5) * bar_width
+            hh_shifted = hh + offset
+
+            # Automatically retrieve the curve color from kwargs
+            bar_color = kwargs.get("color", "black")
+
+            ax._twin_pairs.bar(
+                hh_shifted,
+                pairs,
+                width=bar_width,
+                color=bar_color,
+                alpha=0.7,  # Transparency for visual comfort
+                edgecolor="black",
+                linewidth=0.5,
+            )
+
+            # Dynamically adjust the secondary axis limits
+            max_p = np.max(pairs) if len(pairs) > 0 else 1
+            curr_ylim = ax._twin_pairs.get_ylim()
+            ax._twin_pairs.set_ylim(0, max(curr_ylim[1], max_p * 3.0))
 
     # Displaying the Legend (optional)
     if flagLegend:
@@ -649,6 +702,7 @@ def _ax_varmod(
     hmax=None,
     codir=None,
     showPairs=False,
+    showBars=False,
     asCov=False,
     flagDrawVariance=True,
     varioLinestyle="dashed",
@@ -674,6 +728,7 @@ def _ax_varmod(
     nh : number of points between 0 and hmax where the model variogram is calculated (default is 100).
     hmax : Maximum distance to be represented.
     showPairs : True to show the number of pairs per lag
+    showBars: True to represent the number of pairs per lag as a bar chart
     flagDrawVariance : Flag to add the variance (default is True)
     varioLinestyle: Linestyle for representing the experimental variogram
     modelLinestyle: Linestyle for representing the Model
@@ -751,7 +806,9 @@ def _ax_varmod(
                         iv,
                         jv,
                         idirUtil,
+                        len(ndirUtil),
                         showPairs=showPairs,
+                        showBars=showBars,
                         hmax=hmax,
                         flagDrawVariance=flagDrawVariance,
                         varColor=varColor,
@@ -792,6 +849,7 @@ def _ax_varmod(
             # This should be valid for any representation of Variogram and/or Model
             ax.plot(0.0, 0.0)
 
+    plt.tight_layout()
     return axs
 
 

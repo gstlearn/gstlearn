@@ -401,67 +401,135 @@ plot.init <- function(dims = NA, xlim = NA, ylim = NA, asp = NA) {
   return(status)
 }
 
-
 #' Draw an elementary experimental variogram
 #'
 #' @keywords internal
 #' @noRd
-.varioElementary <- function(vario, ivar=0, jvar=0, idir=0,
+.varioElementary <- function(vario, ivar=0, jvar=0, idir=0, ndir=1,
     varColor='black', varLinetype="dashed", varSize=0.5,
     drawVariance = TRUE, drawPsize = 0,
-    drawPlabel = FALSE, flagLimits=TRUE,
+    drawPlabel = FALSE, drawPbar = FALSE, flagLimits=TRUE,
     dirName="Direction", lineName="Experimental",
     legendNameColor= "Direction", legendNameLine="Type", ...)
 {
   dots = list(...)
   p = list()
-  gg = vario$getGgVec(idir,ivar,jvar)
-  hh = vario$getHhVec(idir,ivar,jvar)
-  sw = vario$getSwVec(idir,ivar,jvar)
+  gg = vario$getGgVec(idir, ivar, jvar)
+  hh = vario$getHhVec(idir, ivar, jvar)
+  sw = vario$getSwVec(idir, ivar, jvar)
   df = data.frame(gg = gg, hh = hh, sw = sw)
 
   # Representing the Experimental variogram
-  p = append(p, geom_line(data = df,
-              mapping=aes(x=hh, y=gg, color=dirName, linetype=lineName),
-              na.rm=TRUE, ...))
+  p = append(p, geom_line(
+    data = df,
+    mapping = aes(x = hh, y = gg, color = dirName, linetype = lineName),
+    na.rm = TRUE, ...
+  ))
   p = append(p, list(labs(color = legendNameColor, linetype = legendNameLine)))
 
   # Representing the number of pairs (by size)
-  if (drawPsize > 0)
-  {
-    p = append(p, geom_point(data = df, mapping=aes(x=hh, y=gg, size=sw),
-            na.rm=TRUE, ...))
+  if (drawPsize > 0) {
+    p = append(p, geom_point(
+      data = df, mapping = aes(x = hh, y = gg, size = sw),
+      na.rm = TRUE, ...
+    ))
     p = append(p, list(labs(size = "Nb. pairs")))
-  }
-  else if (drawPsize < 0)
-  {
-    p = append(p, geom_point(data = df, mapping=aes(x=hh, y=gg),
-            na.rm=TRUE, ...))
+  } else if (drawPsize < 0) {
+    p = append(p, geom_point(
+      data = df, mapping = aes(x = hh, y = gg),
+      na.rm = TRUE, ...
+    ))
   }
 
-  # Representing the number of pairs (by label)
-  if (drawPlabel)
-    p = append(p, geom_text(data = df, mapping=aes(x=hh, y=gg,
-               label=as.character(sw)), na.rm=TRUE, ...))
+  # Representing the number of pairs (by label) with an increased vertical nudge
+  if (drawPlabel) {
+    max_gg <- max(abs(gg), na.rm = TRUE)
+    if (max_gg == 0 || is.na(max_gg)) max_gg <- 1.0
+    nudge_val <- max_gg * 0.08
+    p = append(p, geom_text(data = df, mapping = aes(
+      x = hh, y = gg,
+      label = as.character(sw)
+    ), nudge_y = nudge_val, na.rm = TRUE, ...))
+  }
+
+  # Representing the number of pairs as side-by-side histogram bars (optional)
+  if (drawPbar) {
+    if (length(sw) > 0 && max(sw, na.rm = TRUE) > 0) {
+      total_bars <- ndir
+      bar_idx <- if (total_bars == 1) 0 else idir
+
+      # Compute local individual widths based on neighboring lag distances
+      if (length(hh) > 1) {
+        diffs <- diff(hh)
+        widths <- numeric(length(hh))
+        widths[1] <- diffs[1]
+        widths[length(hh)] <- diffs[length(hh) - 1]
+        if (length(hh) > 2) {
+          widths[2:(length(hh) - 1)] <- 0.5 * (hh[3:length(hh)] - hh[1:(length(hh) - 2)])
+        }
+        base_width <- widths * 0.7
+      } else {
+        base_width <- 1.0
+      }
+
+      bar_width <- (base_width / max(total_bars, 1)) * 0.9
+      offset <- (bar_idx - total_bars / 2.0 + 0.5) * bar_width
+      hh_shifted <- hh + offset
+
+      # Scaling factor to project pair counts onto the bottom part of the primary axis
+      max_gg <- max(abs(gg), na.rm = TRUE)
+      if (max_gg == 0 || is.na(max_gg)) max_gg <- 1.0
+      max_sw <- max(sw, na.rm = TRUE)
+      scale_factor <- max_gg / (max_sw * 3.0)
+
+      df_bar <- data.frame(hh = hh_shifted, gg = sw * scale_factor, sw = sw)
+
+      # Match bar fill color with the direction color
+      cols_list <- .getColors()
+      dir_col <- cols_list[(idir %% length(cols_list)) + 1]
+
+      p = append(p, geom_col(
+        data = df_bar, mapping = aes(x = hh, y = gg),
+        width = bar_width, color = "black", fill = dir_col,
+        na.rm = TRUE
+      ))
+
+      # Secondary axis on the right with pair count units (blue text and ticks, no title)
+      p = append(p, scale_y_continuous(
+        sec.axis = sec_axis(~ . / scale_factor,
+          name = NULL,
+          labels = function(b) round(b)
+        )
+      ))
+      p = append(p, list(theme(
+        axis.text.y.right = element_text(color = "blue"),
+        axis.ticks.y.right = element_line(color = "blue")
+      )))
+    }
+  }
 
   # Adding the vertical axis at X=0
-  p = append(p, geom_vline(xintercept = 0., color='black', linewidth=0.5))
+  p = append(p, geom_vline(xintercept = 0., color = "black", linewidth = 0.5))
 
   # Adding the horizontal axis at Y=0
-  p = append(p, geom_hline(yintercept = 0., color="black", linewidth=0.5))
+  p = append(p, geom_hline(yintercept = 0., color = "black", linewidth = 0.5))
 
   # Drawing the variance-covariance reference line (optional)
-  if (drawVariance)
-    p = append(p, geom_hline(yintercept=vario$getVar(ivar,jvar),
-            color=varColor, linetype=varLinetype, linewidth=varSize))
+  if (drawVariance) {
+    p = append(p, geom_hline(
+      yintercept = vario$getVar(ivar, jvar),
+      color = varColor, linetype = varLinetype, linewidth = varSize
+    ))
+  }
 
-  # Tuning the bounds of graphics. This is optional in order to avoid multiple limit definitions
-  if (flagLimits)
-  {
-    if (.onlyPositiveX(vario=vario, ivar=ivar, jvar=jvar))
+  # Tuning the bounds of graphics (optional)
+  if (flagLimits) {
+    if (.onlyPositiveX(vario = vario, ivar = ivar, jvar = jvar)) {
       p = append(p, plot.geometry(xlim = c(0, NA)))
-    if (.onlyPositiveY(vario=vario, ivar=ivar, jvar=jvar))
+    }
+    if (.onlyPositiveY(vario = vario, ivar = ivar, jvar = jvar)) {
       p = append(p, plot.geometry(ylim = c(0, NA)))
+    }
   }
   p
 }
@@ -777,6 +845,7 @@ plot.vario <- function(vario, ivar=-1, jvar=-1, idir=-1,...)
 #' @param hmax Maximum distance (used if 'vario' is not defined)
 #' @param drawPsize Represent variogram lags with a symbol proportional to the number of pairs
 #' @param drawPlabel Represent variogram lags with the number of pairs displayed
+#' @param drawPbar Represent variogram lags with a bar proportional to the number of pairs
 #' @param asCov Represent the variogram as a covariance
 #' @param drawVariance Represent statistical variance (or covariance)
 #' @param flagEnvelop Represent the coregionalization envelop (multivariate case)
@@ -794,7 +863,7 @@ plot.vario <- function(vario, ivar=-1, jvar=-1, idir=-1,...)
 #' @param ... Arguments passed to varioElementary() and modelElementary()
 #' @return The ggplot object
 plot.varmod <- function(vario=NA, model=NA, ivar=0, jvar=0, idir=-1,
-    nh = 100, hmax = NA, drawPsize=-1, drawPlabel=FALSE,
+    nh = 100, hmax = NA, drawPsize=-1, drawPlabel=FALSE, drawPbar=FALSE,
     asCov=FALSE, drawVariance = TRUE, flagEnvelop=TRUE,
     varioLinetype = "dashed", modelLinetype = "solid",
     varColor='black', varLinetype="dashed", varSize=0.5,
@@ -862,10 +931,10 @@ plot.varmod <- function(vario=NA, model=NA, ivar=0, jvar=0, idir=-1,
           dotloc = dots
           p = append(p, do.call(.varioElementary, c(list(
             vario = vario,
-            ivar = ivar, jvar = jvar, idir = idir,
+            ivar = ivar, jvar = jvar, idir = idir, ndir = length(idirUtil),
             varColor = varColor, varLinetype = varLinetype, varSize = varSize,
             drawVariance = drawVariance, drawPsize = drawPsize,
-            drawPlabel = drawPlabel,
+            drawPlabel = drawPlabel, drawPbar=drawPbar,
             flagLimits = FALSE, dirName = dirName,
             legendNameColor=legendNameColor, legendNameLine=legendNameLine
           ), dotloc)))
@@ -915,6 +984,7 @@ plot.varmod <- function(vario=NA, model=NA, ivar=0, jvar=0, idir=-1,
 #' @param hmax Maximum distance (used if 'vario' is not defined)
 #' @param drawPsize Represent variogram lags with a symbol proportional to the number of pairs
 #' @param drawPlabel Represent variogram lags with the number of pairs displayed
+#' @param drawPbar Represent variogram lags with a bar proportional to the number of pairs
 #' @param asCov Represent the variogram as a covariance
 #' @param drawVariance Represent statistical variance (or covariance)
 #' @param flagEnvelop Represent the coregionalization envelop (multivariate case)
@@ -929,7 +999,7 @@ plot.varmod <- function(vario=NA, model=NA, ivar=0, jvar=0, idir=-1,
 #' @param ... Arguments passed to plot.varmod()
 #' @return The ggplot object
 multi.varmod <- function(vario, model=NA, ivar=-1, jvar=-1, idir=-1,
-    nh = 100, hmax = NA, drawPsize=-1, drawPlabel=FALSE,
+    nh = 100, hmax = NA, drawPsize=-1, drawPlabel=FALSE, drawPbar=FALSE,
     asCov=FALSE, drawVariance = TRUE, flagEnvelop=TRUE,
     varioLinetype = "dashed", modelLinetype = "solid",
     varColor='black', varLinetype="dashed", varSize=0.5,
@@ -976,7 +1046,7 @@ multi.varmod <- function(vario, model=NA, ivar=-1, jvar=-1, idir=-1,
       } else {
         g = g + plot.varmod(
           vario = vario, model = model, ivar = ivar, jvar = jvar, idir = -1,
-          nh = nh, hmax = hmax, drawPsize = drawPsize, drawPlabel = drawPlabel,
+          nh = nh, hmax = hmax, drawPsize = drawPsize, drawPlabel = drawPlabel, drawPbar = drawPbar,
           asCov = asCov, drawVariance = drawVariance, flagEnvelop = flagEnvelop,
           varioLinetype = varioLinetype, modelLinetype = modelLinetype,
           varColor = varColor, varLinetype = varLinetype, varSize = varSize,
