@@ -491,7 +491,6 @@ namespace gstlrn
   {
     if (!isSampleIndexValid(iech)) return (TEST);
     ColID colid_copy = colid;
-    // auto value = *_data.getValue<double>(std::move(colid_copy), iech, verbose);
     return _data.getValue<double>(std::move(colid_copy), iech, verbose)
       .value_or(TEST);
   }
@@ -2400,10 +2399,8 @@ namespace gstlrn
       for (Id j = 0; j < nech; j++)
         for (Id i = 0; i < ncol; i++)
         {
-          Id icol = colids[i].getICol();
-          Id iech = iechs[j];
-          if (!isSampleIndexValid(iech)) return;
-          _data.setValue(icol, iech, values[lec++]);
+          if (!isSampleIndexValid(iechs[j])) return;
+          _data.setValue(std::move(colids[i]), iechs[j], values[lec++]);
         }
     }
     else
@@ -2411,10 +2408,8 @@ namespace gstlrn
       for (Id i = 0; i < ncol; i++)
         for (Id j = 0; j < nech; j++)
         {
-          Id icol = colids[i].getICol();
-          Id iech = iechs[j];
-          if (!isSampleIndexValid(iech)) return;
-          _data.setValue(icol, iech, values[lec++]);
+          if (!isSampleIndexValid(iechs[j])) return;
+          _data.setValue(std::move(colids[i]), iechs[j], values[lec++]);
         }
     }
   }
@@ -3799,10 +3794,10 @@ namespace gstlrn
     const VectorDouble& values)
   {
     auto icol = getUID(name);
+    auto colid = ColID(fromUID(icol));
     for (Id jjrow = 0; jjrow < static_cast<Id>(rows.size()); jjrow++)
     {
-      Id jrow = rows[jjrow];
-      setValue(fromUID(icol), jrow, values[jjrow]);
+      setValue(colid, rows[jjrow], values[jjrow]);
     }
   }
 
@@ -3811,10 +3806,11 @@ namespace gstlrn
     auto icol = getUID(name);
     auto nrows = getNSample();
     Id jjrow = 0;
+    auto colid = ColID(fromUID(icol));
     for (Id jrow = 0; jrow < nrows; jrow++)
     {
       if (useSel && !isActive(jrow)) continue;
-      setValue(fromUID(icol), jjrow, values[jrow]);
+      setValue(colid, jjrow, values[jrow]);
       jjrow++;
     }
   }
@@ -4086,13 +4082,13 @@ namespace gstlrn
     Id ecr = 0;
     for (Id icol = 0; icol < ntab; icol++)
     {
-      Id jcol = icol + shift;
+      auto colid = ColID(icol + shift);
       for (Id iech = 0; iech < nech; iech++, ecr++)
       {
         if (order == ELoadBy::SAMPLE)
-          setValue(jcol, iech, tab[icol + ntab * iech]);
+          setValue(colid, iech, tab[icol + ntab * iech]);
         else
-          setValue(jcol, iech, tab[ecr]);
+          setValue(colid, iech, tab[ecr]);
       }
     }
 
@@ -4119,10 +4115,8 @@ namespace gstlrn
   void Db::_createRank(Id icol)
   {
     auto nech = getNSample();
-    for (Id iech = 0; iech < nech; iech++)
-      setValue(fromUID(icol), iech, iech + 1);
-
-    // Set the name
+    auto colid = ColID(fromUID(icol));
+    for (Id iech = 0; iech < nech; iech++) setValue(colid, iech, iech + 1);
 
     _data.setName(icol, "rank");
   }
@@ -4483,12 +4477,13 @@ namespace gstlrn
     Id ecr = 0;
     for (Id icol = 0; icol < ntab; icol++)
     {
+      auto colid = ColID(jcol);
       for (Id iech = 0; iech < nsample; iech++, ecr++)
       {
         if (order == ELoadBy::SAMPLE)
-          setValue(jcol, iech, tab[icol + ntab * iech]);
+          setValue(colid, iech, tab[icol + ntab * iech]);
         else
-          setValue(jcol, iech, tab[icol * nsample + iech]);
+          setValue(colid, iech, tab[icol * nsample + iech]);
       }
       jcol++;
     }
@@ -5534,9 +5529,10 @@ namespace gstlrn
     if (!isColIdxValid(icolIn)) return;
     if (!isColIdxValid(icolOut)) return;
 
+    auto colIDOut = ColID(icolOut, versionOut);
     for (Id iech = 0, nech = getNSample(); iech < nech; iech++)
       _data.setValue(
-        {icolOut, versionOut}, iech,
+        std::move(colIDOut), iech,
         *_data.getValue<double>({icolIn, versionIn}, iech));
   }
 

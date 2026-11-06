@@ -65,11 +65,11 @@
 
     if (SWIG_IsOK(res1) && roleID != nullptr)
     {
-        temp = *roleID;
-        if (has_custom_index)
-        {
-            temp.setIndex(index);
-        }
+        // Reconstruct RoleID using constructor instead of protected setters
+        temp = gstlrn::RoleID(
+            roleID->getRole(),
+            has_custom_index ? index : roleID->getIndex()
+        );
         $1 = &temp;
     }
     else

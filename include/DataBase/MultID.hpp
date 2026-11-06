@@ -19,6 +19,22 @@
 
 namespace gstlrn
 {
+  /**
+   * @brief This class describes a set of Columns in a DbData. They can be described by:
+   * - their column index
+   * - their name (unique in the Data Base)
+   * - their Role (name and rank)
+   * Note that the Column Name(s) can take the regexp syntax into account,
+   * allowing to select a set of Columns by their name(s) adding the '*' special symbol.
+   *
+   * Two special entries have been provided:
+   * - using a single Name, as this name can be inflated to many names using the '*' special symbol
+   * - using a single Column Index: this entry is weird as it only corresponds to a single column.
+   * Nevertheless, it is provided for consistency with the other entries, and to allow a single column selection.
+   *
+   * The aim of this class is to return internally a list of ColID(s), where one Colid is asggined
+   * to each one of the targeted Columns.
+   */
   class GSTLEARN_EXPORT MultID
   {
   public:
@@ -48,12 +64,6 @@ namespace gstlrn
 
     String getDescr() const;
 
-    void setNames(const VectorString& names) { _names = names; }
-
-    void setICols(const VectorInt& icols) { _icols = icols; }
-
-    void setERole(const ERole& role) { _role = role; }
-
     bool hasRoleDefined() const;
 
     /**
@@ -67,10 +77,19 @@ namespace gstlrn
     static MultID create(const MultID& MultID);
 #endif
 
+  protected:
+    void _setNames(const VectorString& names) { _names = names; }
+
+    void _setICols(const VectorInt& icols) { _icols = icols; }
+
+    void _setERole(const ERole& role) { _role = role; }
+
   private:
     VectorInt _icols{};
     VectorString _names{};
     ERole _role{ERole::UNDEFINED};
+
+    friend class DbData;
   };
 
 } // namespace gstlrn

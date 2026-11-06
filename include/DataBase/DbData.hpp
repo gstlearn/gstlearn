@@ -194,6 +194,8 @@ namespace gstlrn
     static void _checkNVersion(Id& nversion);
     static void _unknownName(const String& name);
     static void _unknownRoleID(const RoleID& roleID);
+    static void _unknownICol(Id icol, Id ncol);
+    static void _invalidUID(Id uidCol, Id uidRef);
 
   private:
     // Private section of DbData
@@ -314,7 +316,7 @@ namespace gstlrn
         for (Id v = 0; v < nversions; ++v)
         {
           ColID copy = _colid;
-          copy.setVersion(v);
+          copy._setVersion(v);
           auto val = _db.getValue<double>(std::move(copy), _targetIdx);
           result[v] = val ? *val : getNA<double>();
         }
@@ -328,7 +330,7 @@ namespace gstlrn
       for (Id v = 0; v < nversions; ++v)
       {
         ColID colIDref = _colid;
-        colIDref.setVersion(v);
+        colIDref._setVersion(v);
         for (Id i = 0; i < nsamples; ++i)
         {
           ColID colIDsample = colIDref;
@@ -376,7 +378,7 @@ namespace gstlrn
         for (Id i = 0; i < nsamples; ++i)
         {
           ColID copy = _colid;
-          copy.setVersion(_targetIdx);
+          copy._setVersion(_targetIdx);
           _db.setValue<T>(std::move(copy), i, value);
         }
       }
@@ -386,7 +388,7 @@ namespace gstlrn
         for (Id v = 0; v < nversions; ++v)
         {
           ColID copy = _colid;
-          copy.setVersion(v);
+          copy._setVersion(v);
           _db.setValue<T>(std::move(copy), _targetIdx, value);
         }
       }
@@ -399,7 +401,7 @@ namespace gstlrn
           for (Id i = 0; i < nsamples; ++i)
           {
             ColID copy = _colid;
-            copy.setVersion(v);
+            copy._setVersion(v);
             _db.setValue<T>(std::move(copy), i, value);
           }
         }
@@ -425,7 +427,7 @@ namespace gstlrn
         for (Id v = 0; v < nversions && v < static_cast<Id>(values.size()); ++v)
         {
           ColID copy = _colid;
-          copy.setVersion(v);
+          copy._setVersion(v);
           _db.setValue(std::move(copy), _targetIdx, values[v]);
         }
       }
@@ -482,28 +484,28 @@ namespace gstlrn
     ValueProxy operator()(Id isample)
     {
       ColID copy = _colid;
-      copy.setVersion(0);
+      copy._setVersion(0);
       return ValueProxy(_db, copy, isample);
     }
 
     ValueProxy operator()(Id isample) const
     {
       ColID copy = _colid;
-      copy.setVersion(0);
+      copy._setVersion(0);
       return ValueProxy(_db, copy, isample);
     }
 
     ValueProxy operator()(Id isample, Id version)
     {
       ColID copy = _colid;
-      copy.setVersion(version);
+      copy._setVersion(version);
       return ValueProxy(_db, copy, isample);
     }
 
     ValueProxy operator()(Id isample, Id version) const
     {
       ColID copy = _colid;
-      copy.setVersion(version);
+      copy._setVersion(version);
       return ValueProxy(_db, copy, isample);
     }
 
@@ -583,7 +585,7 @@ namespace gstlrn
         for (Id i = 0; i < nsamples; ++i)
         {
           ColID copy = _colid;
-          copy.setVersion(v);
+          copy._setVersion(v);
           _db.setValue<T>(std::move(copy), i, value);
         }
       }

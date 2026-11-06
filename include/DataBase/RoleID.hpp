@@ -29,9 +29,9 @@ namespace gstlrn
    * As an example, one can think of a Column where:
    * - the 'Role' is set to ERole::X
    * - the 'index' is set to 2
-   * This stands for a Column containing the third coordinate os samples
+   * This stands for a Column containing the third coordinate of samples
    *
-   * Important remark: 'index' is a à-based number. However, the printout of this Role1D
+   * Important remark: 'index' is a 0-based number. However, the printout of this Role1D
    * is performed using a 1-based number (i.e. index+1) to be more user friendly.
    * The previous example will be printed as "x3".
    */
@@ -45,10 +45,6 @@ namespace gstlrn
     const ERole& getRole() const { return _role; }
 
     Id getIndex() const { return _index; }
-
-    void setRole(const ERole& role) { _role = role; }
-
-    void setIndex(Id index) { _index = index; }
 
     bool isEqual(const RoleID& RoleID, bool checkIndex = true) const;
 
@@ -64,9 +60,16 @@ namespace gstlrn
 
     bool checkRoleVsMultipleVersions(Id nVersions, bool verbose = false);
 
+  protected:
+    void _setRole(const ERole& role) { _role = role; }
+
+    void _setIndex(Id index) { _index = index; }
+
   private:
     ERole _role{ERole::UNDEFINED};
     Id _index{0};
+
+    friend class DbData;
   };
 
 } // namespace gstlrn
