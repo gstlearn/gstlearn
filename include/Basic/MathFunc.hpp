@@ -55,6 +55,7 @@ namespace gstlrn
   GSTLEARN_EXPORT Id besselj_table(double x, double alpha, Id nb, double* b);
   GSTLEARN_EXPORT double besselj(double x, Id n);
   GSTLEARN_EXPORT Id besselk(double x, double alpha, Id nb, double* bk);
+  GSTLEARN_EXPORT double cylBesselJ(double order, double x);
   GSTLEARN_EXPORT double loggamma(double parameter);
 
   GSTLEARN_EXPORT double ut_legendre(Id n, double v, bool flagNorm = true);
