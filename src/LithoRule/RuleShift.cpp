@@ -177,24 +177,10 @@ namespace gstlrn
     Id /*flag_stat*/) const
   {
     Id ndim = (model != nullptr) ? static_cast<Id>(model->getNDim()) : 0;
-    VectorDouble wxyz(ndim);
-    double rhoval;
-
-    /* Dispatch */
-
-    _xyz.resize(ndim);
-    double hval = 0.;
-    for (Id idim = 0; idim < ndim; idim++)
-    {
-      _xyz[idim] = _shift[idim];
-      hval += _xyz[idim] * _xyz[idim];
-    }
-    hval = sqrt(hval);
 
     /* Calculate the covariance between the two GRF */
 
-    for (Id idim = 0; idim < ndim; idim++) wxyz[idim] = _xyz[idim];
-    rhoval = model->evaluateOneIncr(hval, wxyz);
+    double rhoval = model->evaluateOneIncr(_shift);
     setRho(rhoval);
 
     /* Translate the shift into grid increments */

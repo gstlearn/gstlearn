@@ -51,13 +51,8 @@ namespace gstlrn
     static Id _getNOptimalEven(Id number, Id largeFactor = 11);
     static VectorInt _getFactors(Id number);
     void _gridDilate();
-    bool _checkCorrect(
-      const VectorVectorDouble& xyz,
-      Id ix,
-      Id iy,
-      Id iz,
-      double percent);
-    void _prepar(bool flag_amplitude, double eps = EPSILON5);
+    bool _checkCorrect(const VectorVectorDouble& xyz, Id ix, Id iy, Id iz);
+    void _prepar();
     void _setVariance(Id ix, Id iy, Id iz);
     void _defineSymmetry(void);
     void _defineSym1();
@@ -72,6 +67,8 @@ namespace gstlrn
     double _support3(double sigma);
     double _rhoSigma(double sigma, Id ix, Id iy, Id iz);
 
+    double _getIncrCovariance(const VectorDouble& delta) const;
+
   private:
     SimuFFTParam _param;
     Id _nxyz;
@@ -85,6 +82,8 @@ namespace gstlrn
     VectorDouble _u;
     VectorDouble _v;
     NeighUnique* _neigh; // This is a useless member, but needed for _check()
+    double _c00;
+    DbGrid* _dbgrid; // Pointer to dbout (not to be deleted)
   };
 
 } // namespace gstlrn

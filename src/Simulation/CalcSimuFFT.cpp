@@ -19,8 +19,8 @@
 
 #include <cmath>
 
-#define IND(ix, iy, iz) ((iz) + _dims[2] * ((iy) + _dims[1] * (ix)))
-#define U(ix, iy, iz) (_u[IND(ix, iy, iz)])
+// #define IND(ix, iy, iz) ((iz) + _dims[2] * ((iy) + _dims[1] * (ix)))
+#define IND(ix, iy, iz) ((ix) + _dims[0] * ((iy) + _dims[1] * (iz)))
 
 namespace gstlrn
 {
@@ -38,6 +38,7 @@ namespace gstlrn
     , _u()
     , _v()
     , _neigh(nullptr)
+    , _c00(0.)
   {
     setFlagOnGridOnly(true);
     _neigh = NeighUnique::create();
@@ -57,9 +58,26 @@ namespace gstlrn
 
     /* Preparation of the FFT environment */
 
-    _prepar(true);
+    _prepar();
 
     return true;
+  }
+
+  /**
+   * @brief Internal function to calculate the covariance value for an increment
+   *
+   * @param delta Increment vector
+   * @return double
+   */
+  double CalcSimuFFT::_getIncrCovariance(const VectorDouble& delta) const
+  {
+    auto ndim = _getNDim();
+    VectorDouble incr(ndim);
+    for (Id i = 0; i < ndim; ++i)
+    {
+      incr[i] = delta[i];
+    }
+    return getModelGeneric()->evaluateOneIncr(incr);
   }
 
   /****************************************************************************/
@@ -69,21 +87,28 @@ namespace gstlrn
    *****************************************************************************/
   void CalcSimuFFT::_allocate()
   {
-    auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+    _dbgrid = dynamic_cast<DbGrid*>(getDbout());
 
     _nx.resize(3, 0);
     _shift.resize(3, 0);
     _dims.resize(3, 0);
     _dim2.resize(3, 0);
     _nxyz = 1;
+    auto ndim = _getNDim();
+
     for (Id i = 0; i < 3; i++)
     {
-      if (i < _getNDim())
+      if (i < ndim)
       {
-        _nx[i] = dbgrid->getNX(i);
+        _nx[i] = _dbgrid->getNX(i);
         _nxyz *= _nx[i];
       }
     }
+
+    /* Covariance at the origin (calculated once for all) */
+
+    VectorDouble d0(ndim, 0.);
+    _c00 = _getIncrCovariance(d0);
 
     /* Dilate the grid */
 
@@ -93,9 +118,10 @@ namespace gstlrn
 
     for (Id i = 0; i < 3; i++)
     {
-      if (i < _getNDim())
+      if (i < ndim)
       {
-        auto nval = _getNOptimalEven(_shift[i] + dbgrid->getNX(i));
+        _nx[i] = _dbgrid->getNX(i);
+        auto nval = _getNOptimalEven(_shift[i] + _nx[i]);
         _dims[i] = nval;
         _dim2[i] = nval / 2;
       }
@@ -107,18 +133,15 @@ namespace gstlrn
     }
 
     Id total = 1;
-    for (Id idim = 0; idim < _getNDim(); idim++) total *= _dims[idim];
+    for (Id idim = 0; idim < ndim; idim++) total *= _dims[idim];
     _sizes_alloc = total;
 
     if (getVerbose())
     {
       message("Grid parameters after Optimal Dilation :\n");
-      if (_getNDim() >= 1)
-        message("- Number of Nodes along X = %d\n", _dims[0]);
-      if (_getNDim() >= 2)
-        message("- Number of Nodes along Y = %d\n", _dims[1]);
-      if (_getNDim() >= 3)
-        message("- Number of Nodes along Z = %d\n", _dims[2]);
+      if (ndim >= 1) message("- Number of Nodes along X = %d\n", _dims[0]);
+      if (ndim >= 2) message("- Number of Nodes along Y = %d\n", _dims[1]);
+      if (ndim >= 3) message("- Number of Nodes along Z = %d\n", _dims[2]);
       message("- Total count of grid nodes = %d\n", _sizes_alloc);
     }
 
@@ -210,27 +233,25 @@ namespace gstlrn
    *****************************************************************************/
   void CalcSimuFFT::_gridDilate()
   {
-    auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+    /* Origin of the grid */
+
+    auto ndim = _getNDim();
+
     VectorInt indg(3);
     VectorDouble xyz0(3);
     VectorVectorDouble xyz(3);
-    double percent = _param.getPercent();
+    for (Id i = 0; i < 3; i++) xyz[i].resize(3);
 
-    /* Origin of the grid */
+    /* Location of the elementary end points */
 
-    for (Id i = 0; i < 3; i++) indg[i] = 0;
-    dbgrid->rankToCoordinatesInPlace(dbgrid->indiceToRank(indg), xyz0);
-    xyz0.resize(3, 0.);
-    xyz.resize(3);
-
-    /* Location of the elementary end point */
+    indg.fill(0.);
+    _dbgrid->rankToCoordinatesInPlace(_dbgrid->indiceToRank(indg), xyz0);
 
     for (Id i = 0; i < 3; i++)
     {
-      for (Id j = 0; j < 3; j++) indg[j] = 0;
+      indg.fill(0.);
       indg[i] = 1;
-      xyz[i].resize(3);
-      dbgrid->rankToCoordinatesInPlace(dbgrid->indiceToRank(indg), xyz[i]);
+      _dbgrid->rankToCoordinatesInPlace(_dbgrid->indiceToRank(indg), xyz[i]);
     }
 
     /* Coordinates of the grid vector in the rotated space */
@@ -239,93 +260,57 @@ namespace gstlrn
       for (Id i = 0; i < 3; i++)
       {
         xyz[j][i] -= xyz0[i];
-        if (j >= _getNDim()) xyz[j][i] = 0.;
+        if (j >= ndim) xyz[j][i] = 0.;
       }
 
     /* Evaluate the count of elementary grid mesh (in each direction) */
-    /* for the covariance to become negligeable (<percent)*/
+    /* for the covariance to become negligeable */
 
     Id ndx = 1;
     Id ndy = 1;
     Id ndz = 1;
-    bool not_ok = true;
 
-    while (not_ok)
+    /* Extension along X */
+
+    if (ndim >= 1)
     {
-      not_ok = false;
-
-      /* Extension along X */
-
-      if (_getNDim() >= 1)
+      bool ok_dir = false;
+      while (!ok_dir)
       {
-        bool not_ok_dir = true;
-        while (not_ok_dir)
-        {
-          bool correct = true;
-          for (Id idy = 0; idy < ndy && correct; idy++)
-            for (Id idz = 0; idz < ndz && correct; idz++)
-              correct = _checkCorrect(xyz, ndx, idy, idz, percent);
-
-          if (correct)
-            not_ok_dir = false;
-          else
-          {
-            ndx++;
-            not_ok = true;
-          }
-        }
+        ok_dir = _checkCorrect(xyz, ndx, 0, 0);
+        if (!ok_dir) ndx++;
       }
+    }
 
-      /* Extension along Y */
+    /* Extension along Y */
 
-      if (_getNDim() >= 2)
+    if (ndim >= 2)
+    {
+      bool ok_dir = false;
+      while (!ok_dir)
       {
-        bool not_ok_dir = true;
-        while (not_ok_dir)
-        {
-          bool correct = true;
-          for (Id idx = 0; idx < ndx && correct; idx++)
-            for (Id idz = 0; idz < ndz && correct; idz++)
-              correct = _checkCorrect(xyz, idx, ndy, idz, percent);
-
-          if (correct)
-            not_ok_dir = false;
-          else
-          {
-            ndy++;
-            not_ok = true;
-          }
-        }
+        ok_dir = _checkCorrect(xyz, 0, ndy, 0);
+        if (!ok_dir) ndy++;
       }
+    }
 
-      /* Extension along Z */
+    /* Extension along Z */
 
-      if (_getNDim() >= 3)
+    if (ndim >= 3)
+    {
+      bool ok_dir = false;
+      while (!ok_dir)
       {
-        bool not_ok_dir = true;
-        while (not_ok_dir)
-        {
-          bool correct = true;
-          for (Id idx = 0; idx < ndx && correct; idx++)
-            for (Id idy = 0; idy < ndy && correct; idy++)
-              correct = _checkCorrect(xyz, idx, idy, ndz, percent);
-
-          if (correct)
-            not_ok_dir = false;
-          else
-          {
-            ndz++;
-            not_ok = true;
-          }
-        }
+        ok_dir = _checkCorrect(xyz, 0, 0, ndz);
+        if (!ok_dir) ndz++;
       }
     }
 
     /* Ultimate corrections */
 
-    if (_getNDim() < 3) ndz = 0;
-    if (_getNDim() < 2) ndy = 0;
-    if (_getNDim() < 1) ndx = 0;
+    if (ndim < 3) ndz = 0;
+    if (ndim < 2) ndy = 0;
+    if (ndim < 1) ndx = 0;
 
     /* Storing arguments */
 
@@ -338,9 +323,9 @@ namespace gstlrn
     if (getVerbose())
     {
       message("Grid Dilation parameters :\n");
-      if (_getNDim() >= 1) message("- Number of Nodes along X = %d\n", ndx);
-      if (_getNDim() >= 2) message("- Number of Nodes along Y = %d\n", ndy);
-      if (_getNDim() >= 3) message("- Number of Nodes along Z = %d\n", ndz);
+      if (ndim >= 1) message("- Number of Nodes along X = %d\n", ndx);
+      if (ndim >= 2) message("- Number of Nodes along Y = %d\n", ndy);
+      if (ndim >= 3) message("- Number of Nodes along Z = %d\n", ndz);
     }
   }
 
@@ -348,93 +333,62 @@ namespace gstlrn
   /*!
    **  Checks if the covariance is below threshold for tested distance
    **
-   ** \return True if the grid node is below threshold; 0 otherwise
+   ** \return True if the covariance for the current increment is below threshold; 0 otherwise
    **
    ** \param[in]   xyz     Grid increment
    ** \param[in]   ix      Grid index along X
    ** \param[in]   iy      Grid index along Y
    ** \param[in]   iz      Grid index along Z
-   ** \param[in]   percent Percentage of the model variance below which the
-   **                      covariance is considered as small enough for dilation
    **
    *****************************************************************************/
   bool CalcSimuFFT::_checkCorrect(
     const VectorVectorDouble& xyz,
     Id ix,
     Id iy,
-    Id iz,
-    double percent)
+    Id iz)
   {
     auto ndim = _getNDim();
-    ModelGeneric* modelGeneric = getModelGeneric();
-
-    /* Calculate the reference C(0) value */
-
-    double refval = modelGeneric->evaluateOneIncr(0.);
-
-    /* Evaluate the covariance value */
-
-    VectorDouble d(ndim, 0.);
+    VectorDouble delta(ndim, 0.);
     for (Id i = 0; i < ndim; i++)
-      d[i] = ix * xyz[i][0] + iy * xyz[i][1] + iz * xyz[i][2];
-    double hh = d.norm();
-    double value = modelGeneric->evaluateOneIncr(hh);
+      delta[i] = ix * xyz[i][0] + iy * xyz[i][1] + iz * xyz[i][2];
+    double value = _getIncrCovariance(delta);
 
-    return (value / refval <= percent / 100);
+    double percent = MIN(MAX(_param.getPercent(), 1.0), 100.0);
+    return (value <= _c00 * percent / 100.);
   }
 
   /****************************************************************************/
   /*!
    **  Prepares the simulation on a grid using Discrete FFT
    **
-   ** \param[in]  flag_amplitude  1 to convert into amplitude
-   ** \param[in]  eps             Tolerance
-   **
    *****************************************************************************/
-  void CalcSimuFFT::_prepar(bool flag_amplitude, double eps)
+  void CalcSimuFFT::_prepar()
   {
-    double value;
-    VectorDouble del(3);
-    VectorDouble xyz0(3);
-    VectorDouble xyz(3);
-    VectorDouble delta(3);
-    VectorInt indg(3);
+    VectorDouble del(3, 0.);
+    VectorDouble xyz0(3, 0.);
+    VectorDouble xyz(3, 0.);
+    VectorDouble delta(3, 0.);
+    VectorInt indg(3, 0);
     VectorInt jnd(3);
     VectorVectorDouble xyz1(3);
-    auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
-    ModelGeneric* modelGeneric = getModelGeneric();
+    for (Id i = 0; i < 3; i++) xyz1[i].resize(3, 0.);
+    _dbgrid->rankToCoordinatesInPlace(_dbgrid->indiceToRank(indg), xyz0);
 
     /* Initializations */
 
-    Id kbmax = (_param.isFlagAliasing()) ? 1 : 0;
-    VectorDouble cplx(_sizes_alloc);
-    VectorDouble cply(_sizes_alloc);
-
-    /* Local core allocation */
-
-    double hnorm = 1.;
-    for (Id i = 0; i < 3; i++)
-    {
-      indg[i] = 0;
-      delta[i] = del[i] = 0.;
-      xyz[i] = xyz0[i] = 0.;
-      xyz1[i].resize(3);
-      for (Id j = 0; j < 3; j++) xyz1[i][j] = 0.;
-    }
-    dbgrid->rankToCoordinatesInPlace(dbgrid->indiceToRank(indg), xyz0);
-    xyz0.resize(3, 0.);
+    auto ndim = _getNDim();
+    VectorDouble cplx(_sizes_alloc, 0.);
+    VectorDouble cply(_sizes_alloc, 0.);
 
     for (Id i = 0; i < 3; i++)
     {
-      for (Id j = 0; j < 3; j++) indg[j] = 0;
+      indg.fill(0);
       indg[i] = 1;
-      xyz1[i].resize(3);
-      if (i < _getNDim())
+      if (i < ndim)
       {
-        dbgrid->rankToCoordinatesInPlace(dbgrid->indiceToRank(indg), xyz1[i]);
-        xyz1[i].resize(3, 0.);
+        _dbgrid->rankToCoordinatesInPlace(_dbgrid->indiceToRank(indg), xyz1[i]);
         for (Id j = 0; j < 3; j++) xyz1[i][j] -= xyz0[j];
-        delta[i] = dbgrid->getDX(i) * dbgrid->getNX(i);
+        delta[i] = _dbgrid->getDX(i) * _dbgrid->getNX(i);
       }
       else
       {
@@ -443,118 +397,75 @@ namespace gstlrn
       }
     }
 
-    /* Loop for anti-aliasing */
+    // Filling the covariance matrix on the dilated grid
 
-    for (Id kbound = 0; kbound <= kbmax; kbound++)
+    Id ecr = 0;
+    for (Id iz = 0; iz < _dims[2]; iz++)
+      for (Id iy = 0; iy < _dims[1]; iy++)
+        for (Id ix = 0; ix < _dims[0]; ix++)
+        {
+          jnd[0] = (ix <= _dim2[0]) ? ix : ix - _dims[0];
+          jnd[1] = (iy <= _dim2[1]) ? iy : iy - _dims[1];
+          jnd[2] = (iz <= _dim2[2]) ? iz : iz - _dims[2];
+
+          for (Id i = 0; i < 3; i++)
+          {
+            double proj = 0.;
+            for (Id j = 0; j < 3; j++) proj += jnd[j] * xyz1[j][i];
+            del[i] = (i < ndim) ? proj : 0.;
+          }
+          cplx[ecr] = _getIncrCovariance(del);
+          cply[ecr] = 0.;
+          ecr++;
+        }
+
+    /* Perform the Fast Fourier Transform */
+
+    (void)fftn(ndim, _dims.data(), cplx.data(), cply.data(), -1, 1.);
+
+    /* Looking for negative terms */
+
+    double total_plus = 0.;
+    double total_moins = 0.;
+    for (Id i = 0; i < _sizes_alloc; i++)
     {
-
-      /* Local initializations */
-
-      Id kb1 = (_getNDim() >= 1) ? kbound : 0;
-      Id kb2 = (_getNDim() >= 2) ? kbound : 0;
-      Id kb3 = (_getNDim() >= 3) ? kbound : 0;
-      for (Id i = 0; i < _sizes_alloc; i++) cplx[i] = cply[i] = 0.;
-
-      /* Calculate the normation scale */
-
-      double scale = 0.;
-      for (Id k1 = -kb1; k1 <= kb1; k1++)
-        for (Id k2 = -kb2; k2 <= kb2; k2++)
-          for (Id k3 = -kb3; k3 <= kb3; k3++)
-          {
-            del[0] = k1 * delta[0];
-            del[1] = k2 * delta[1];
-            del[2] = k3 * delta[2];
-            hnorm = del.norm();
-            value = modelGeneric->evaluateOneIncr(hnorm);
-            scale += value;
-          }
-      for (Id i = 0; i < 3; i++) del[i] = 0.;
-      hnorm = del.norm();
-      value = modelGeneric->evaluateOneIncr(hnorm);
-      double coeff = value / scale;
-
-      Id ecr = 0;
-      for (Id iz = 0; iz < _dims[2]; iz++)
-        for (Id iy = 0; iy < _dims[1]; iy++)
-          for (Id ix = 0; ix < _dims[0]; ix++, ecr++)
-          {
-            jnd[0] = (ix <= _dim2[0]) ? ix : ix - _dims[0];
-            jnd[1] = (iy <= _dim2[1]) ? iy : iy - _dims[1];
-            jnd[2] = (iz <= _dim2[2]) ? iz : iz - _dims[2];
-            for (Id i = 0; i < 3; i++)
-            {
-              double proj = 0.;
-              for (Id j = 0; j < 3; j++) proj += jnd[j] * xyz1[j][i];
-              xyz[i] = (i < _getNDim()) ? proj : 0.;
-            }
-            for (Id k1 = -kb1; k1 <= kb1; k1++)
-              for (Id k2 = -kb2; k2 <= kb2; k2++)
-                for (Id k3 = -kb3; k3 <= kb3; k3++)
-                {
-                  del[0] = xyz[0] + k1 * delta[0];
-                  del[1] = xyz[1] + k2 * delta[1];
-                  del[2] = xyz[2] + k3 * delta[2];
-                  hnorm = del.norm();
-                  value = modelGeneric->evaluateOneIncr(hnorm);
-                  cplx[ecr] += coeff * value;
-                }
-          }
-
-      /* Perform the Fast Fourier Transform */
-
-      (void)fftn(_getNDim(), _dims.data(), cplx.data(), cply.data(), -1, 1.);
-
-      /* Looking for negative terms */
-
-      double total_plus = 0.;
-      double total_moins = 0.;
-      for (Id i = 0; i < _sizes_alloc; i++)
-      {
-        cplx[i] /= static_cast<double>(_sizes_alloc);
-        if (cplx[i] < 0)
-          total_moins -= cplx[i];
-        else
-          total_plus += cplx[i];
-      }
-
-      /* Correcting positive terms of the spectrum */
-
-      double correc = (total_plus - total_moins) / total_plus;
-      if (total_moins > 0)
-      {
-        for (Id i = 0; i < _sizes_alloc; i++)
-          if (cplx[i] < 0.)
-            cplx[i] = 0.;
-          else
-            cplx[i] *= correc;
-      }
-
-      /* Converting into amplitude */
-
-      if (flag_amplitude)
-        for (Id i = 0; i < _sizes_alloc; i++) cplx[i] = sqrt(cplx[i] / 2.);
-
-      // Returned arguments
-
-      _cmat = cplx;
-      _rnd = cply;
-
-      /* Printout statistics */
-
-      if (getVerbose())
-      {
-        message("Statistics on the Discrete Periodic Covariance\n");
-        if (_param.isFlagAliasing())
-          message("- Anti-aliasing switched ON (Iteration=%d)\n", kbound + 1);
-        else
-          message("- Anti-aliasing switched OFF\n");
-        message("- Total of positive frequencies = %lf\n", total_plus);
-        message("- Total of negative frequencies = %lf\n", total_moins);
-        message("\n");
-      }
-      if (ABS(correc - 1.) < eps) break;
+      cplx[i] /= static_cast<double>(_sizes_alloc);
+      if (cplx[i] < 0)
+        total_moins -= cplx[i];
+      else
+        total_plus += cplx[i];
     }
+
+    /* Correcting positive terms of the spectrum */
+
+    double correc = (total_plus - total_moins) / total_plus;
+    if (total_moins > 0)
+    {
+      for (Id i = 0; i < _sizes_alloc; i++)
+        if (cplx[i] < 0.)
+          cplx[i] = 0.;
+        else
+          cplx[i] *= correc;
+    }
+
+    /* Converting into amplitude */
+
+    for (Id i = 0; i < _sizes_alloc; i++) cplx[i] = sqrt(cplx[i] / 2.);
+
+    /* Printout statistics */
+
+    if (getVerbose())
+    {
+      message("Statistics on the Discrete Periodic Covariance\n");
+      message("- Total of positive frequencies = %lf\n", total_plus);
+      message("- Total of negative frequencies = %lf\n", total_moins);
+      message("\n");
+    }
+
+    // Returned arguments
+
+    _cmat = cplx;
+    _rnd = cply;
   }
 
   /****************************************************************************/
@@ -885,7 +796,7 @@ namespace gstlrn
           Id jx = ix + _shift[0];
           Id jy = iy + _shift[1];
           Id jz = iz + _shift[2];
-          tab[0][ecr] = U(jx, jy, jz);
+          tab[0][ecr] = _u[IND(jx, jy, jz)];
         }
   }
 
@@ -1045,9 +956,7 @@ namespace gstlrn
 
   bool CalcSimuFFT::_preprocess()
   {
-    if (!ACalcSimuGaussian::_preprocess()) return false;
-
-    return _initializeSimulations();
+    return ACalcSimuGaussian::_preprocess();
   }
 
   void CalcSimuFFT::_rollback()
@@ -1063,7 +972,7 @@ namespace gstlrn
 
     /* Preparation of the FFT environment */
 
-    _prepar(true);
+    _prepar();
 
     /* Calculate the correlation matrix (possibly rescaled) */
 
