@@ -2053,6 +2053,7 @@ def plotVario(ax, vario=None, model=None, title=None, showPairs=True):
 # * ax: Marimo axis
 # * grid: DbGrid to plot
 # * name: Name of the variable to plot (must be in the DbGrid)
+# * version: Version of the variable to plot (default: 0)
 # * title: Title of the plot (optional)
 # * flagLegend: Whether to display the legend (default: False)
 # * flagBinary: Whether to use a binary color map (default: False)
@@ -2065,6 +2066,7 @@ def plotGrid(
     ax,
     grid,
     name=None,
+    version=0,
     rule=None,
     title=None,
     flagLegend=False,
@@ -2087,6 +2089,7 @@ def plotGrid(
     ax.raster(
         dbgrid=grid,
         name=name,
+        version=version,
         rule=rule,
         flagLegend=flagLegend,
         flagBinary=flagBinary,
@@ -2095,6 +2098,7 @@ def plotGrid(
         ax.isoline(
             dbgrid=grid,
             name=name,
+            version=version,
             nlevel=nlevel,
             levels=levels,
             colors=levelColor,
