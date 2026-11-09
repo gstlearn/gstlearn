@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.24.0"
+__generated_with = "0.25.0"
 app = marimo.App(width="full")
 
 
@@ -73,9 +73,9 @@ def cell_define_widget_model(WidgetDb, WidgetVario, gmo):
     )
 
     WidgetModel = gmo.WdefineModel(
-        ncovmax=3,
-        vario=model_vario,
+        ncovmax=3, ncovdef=1, vario=model_vario, valdef="Interactive"
     )
+
     return (WidgetModel,)
 
 
@@ -249,7 +249,7 @@ def cell_make_figure(
                 result_Kaxis = result_axi
                 result_name_kw = "KWeights." + result_targetName
                 result_title_kw = (
-                    f"Kriging (Index: {result_Kindex})"
+                    f"Kriging Weights (Index: {result_Kindex})"
                     if result_Kindex >= 0
                     else "Kriging (Pick target)"
                 )

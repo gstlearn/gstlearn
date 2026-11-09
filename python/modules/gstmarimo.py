@@ -69,15 +69,16 @@ def _getCovarianceDict():
     return options
 
 
-def _WLock(WTest, condition, colorBackground="white", colorText="black"):
+def _WLock(WTest, condition):
     """
-    Turns gray (as if locked if the 'condition' is met)
+    Applies display style to hide or show the widget based on condition
     """
-    if not condition:
-        newWTest = WTest.style({"backgroundColor": colorBackground, "color": colorText})
+    if condition:
+        return WTest.style({"display": "none"})
     else:
-        newWTest = WTest.style({"backgroundColor": "#f0f0f0", "color": "#a0a0a0"})
-    return newWTest
+        return WTest.style(
+            {"display": "block", "opacity": "1.0", "pointerEvents": "auto"}
+        )
 
 
 def _WgetTitle(title, flagTitle=True):
@@ -180,12 +181,12 @@ def WclearMessage(WMessages):
 
 
 def WdefineOneCovariance(
-    ic=0, ncovmax=1, ncovdef=-1, distmax=100, varmax=100, typeRef="Spherical"
+    ic=0, ncovmax=1, ncovdef=1, distmax=100, varmax=100, typeRef="Spherical"
 ):
     """
     Returns the widget for inquiring the parameters for a single Basic structure
     ncovmax: Maximum number of Basic structures
-    ncovdef: Number of covariances used by default (if < 0: it is set to 'ncovmax')
+    ncovdef: Number of covariances used by default (if < 0: set to 'ncovmax')
     distmax: Maximum distance
     varmax:  Maximum Variance value
     typeRef: Type of covariance used as default
@@ -196,48 +197,77 @@ def WdefineOneCovariance(
     distAux = distRef
     varRef = varmax / ncovdef
     angRef = 0
+    paramRef = 1
 
-    WCovUsed = mo.ui.switch(True, label="Basic Structure Used")
+    # Only activate the switch for the first structure(s) defined by ncovdef
+    is_used = ic < ncovdef
+
+    WCovUsed = mo.ui.switch(is_used, label="Basic Structure Used")
     WCovType = mo.ui.dropdown(
         options=_getCovarianceDict(), value=typeRef, label="Structure"
     )
     WCovRange = mo.ui.number(start=None, stop=None, value=distRef, label="Range")
     WCovSill = mo.ui.number(start=0, stop=None, value=varRef, label="Sill")
+    WCovParam = mo.ui.number(start=1, stop=5, value=paramRef, label="3rd Param")
     WCovAniso = mo.ui.switch(value=False, label="Anisotropy")
     WCovRange2 = mo.ui.number(start=0, stop=None, value=distAux, label="Range Aux.")
     WCovAngle = mo.ui.number(start=0, stop=None, value=angRef, label="Angle")
     return mo.ui.array(
-        [WCovUsed, WCovType, WCovRange, WCovSill, WCovAniso, WCovRange2, WCovAngle]
+        [
+            WCovUsed,
+            WCovType,
+            WCovRange,
+            WCovSill,
+            WCovParam,
+            WCovAniso,
+            WCovRange2,
+            WCovAngle,
+        ]
     )
 
 
 def WshowOneCovariance(WAll, flagTitle=True):
-    [WCovUsed, WCovType, WCovRange, WCovSill, WCovAniso, WCovRange2, WCovAngle] = WAll
+    [
+        WCovUsed,
+        WCovType,
+        WCovRange,
+        WCovSill,
+        WCovParam,
+        WCovAniso,
+        WCovRange2,
+        WCovAngle,
+    ] = WAll
 
-    WCovTitle = _WgetTitle("Covariance Definition", flagTitle)
+    # Lock/hide parameters if "Basic Structure Used" is turned OFF
+    is_locked = not WCovUsed.value
 
-    WCovTypeupd = _WLock(WCovType, not WCovUsed.value)
-    WCovRangeupd = _WLock(WCovRange, not WCovUsed.value)
-    WCovSillupd = _WLock(WCovSill, not WCovUsed.value)
-    WCovAnisoupd = _WLock(WCovAniso, not WCovUsed.value)
-    WCovRange2upd = _WLock(WCovRange2, not WCovUsed.value or not WCovAniso.value)
-    WCovAngleupd = _WLock(WCovAngle, not WCovUsed.value or not WCovAniso.value)
+    # We keep the raw widgets in the array so mo.ui.array works correctly
+    # (mo.ui.array requires raw widgets, not styled objects)
     return mo.ui.array(
         [
-            WCovTitle,
             WCovUsed,
-            WCovTypeupd,
-            WCovRangeupd,
-            WCovSillupd,
-            WCovAnisoupd,
-            WCovRange2upd,
-            WCovAngleupd,
+            WCovType,
+            WCovRange,
+            WCovSill,
+            WCovParam,
+            WCovAniso,
+            WCovRange2,
+            WCovAngle,
         ]
     )
 
 
 def WgetOneCovariance(WAll):
-    [WCovUsed, WCovType, WCovRange, WCovSill, WCovAniso, WCovRange2, WCovAngle] = WAll
+    [
+        WCovUsed,
+        WCovType,
+        WCovRange,
+        WCovSill,
+        WCovParam,
+        WCovAniso,
+        WCovRange2,
+        WCovAngle,
+    ] = WAll
 
     if WCovUsed.value:
         if not WCovAniso.value:
@@ -247,7 +277,7 @@ def WgetOneCovariance(WAll):
                 type=gl.ECov.fromKey(WCovType.value),
                 range=WCovRange.value,
                 sill=WCovSill.value,
-                param=1.0,
+                param=WCovParam.value,
                 flagRange=True,
             )
         else:
@@ -257,7 +287,7 @@ def WgetOneCovariance(WAll):
                 type=gl.ECov.fromKey(WCovType.value),
                 ranges=[WCovRange.value, WCovRange2.value],
                 sill=WCovSill.value,
-                param=1.0,
+                param=WCovParam.value,
                 angles=[WCovAngle.value, 0.0],
                 flagRange=True,
             )
@@ -270,7 +300,7 @@ def WgetOneCovariance(WAll):
 # ========================================
 
 
-def WdefineCovariances(ncovmax=1, ncovdef=-1, distmax=100, varmax=100):
+def WdefineCovariances(ncovmax=1, ncovdef=1, distmax=100, varmax=100):
     """
     Returns the array of widgets for inquiring a series of 'ncovmax' basic structures
     ncovmax: Maximum number of Basic structures
@@ -299,10 +329,17 @@ def WshowCovariances(WAll, flagTitle=True):
 
 def WgetCovariances(WAll):
     model = gl.Model()
+    ncov_added = 0
     for cov in WAll:
         cova = WgetOneCovariance(cov)
         if cova is not None:
             model.addCov(cova)
+            ncov_added += 1
+
+    # Return None if no basic structure is used to prevent gstlearn crashes
+    if ncov_added == 0:
+        return None
+
     return model
 
 
@@ -324,7 +361,7 @@ def WshowBasicList(basic_list, flagTitle=True):
 
 def WdefineModel(
     ncovmax=1,
-    ncovdef=-1,
+    ncovdef=1,
     distmax=100,
     varmax=100,
     vario=None,
@@ -370,11 +407,59 @@ def WshowModel(WAll, flagTitle=True, gapv=2):
     WMTitle = _WgetTitle("Model Definition", flagTitle)
     option = WMChoice.value
 
-    # Contenu à afficher selon le choix
+    # Content to display based on selection
     if option == 1:
-        UI = mo.accordion(
-            {f"Covariance {ic + 1}": mo.vstack(WInter[ic]) for ic in range(len(WInter))}
-        )
+        ui_covs = {}
+        for ic, cov in enumerate(WInter):
+            [
+                WCovUsed,
+                WCovType,
+                WCovRange,
+                WCovSill,
+                WCovParam,
+                WCovAniso,
+                WCovRange2,
+                WCovAngle,
+            ] = cov
+
+            is_locked = not WCovUsed.value
+            is_aniso = WCovAniso.value
+
+            # Minimalist status indicator: green dot for active, red dot for inactive
+            status_dot = "🟢" if WCovUsed.value else "🔴"
+            cov_title = f"Covariance {ic + 1}  {status_dot}"
+
+            # Dynamically apply display style at render time without breaking mo.ui.array
+            type_style = {"display": "none"} if is_locked else {"display": "block"}
+            range_style = {"display": "none"} if is_locked else {"display": "block"}
+            sill_style = {"display": "none"} if is_locked else {"display": "block"}
+            param_style = {"display": "none"} if is_locked else {"display": "block"}
+            aniso_style = {"display": "none"} if is_locked else {"display": "block"}
+            range2_style = (
+                {"display": "none"}
+                if (is_locked or not is_aniso)
+                else {"display": "block"}
+            )
+            angle_style = (
+                {"display": "none"}
+                if (is_locked or not is_aniso)
+                else {"display": "block"}
+            )
+
+            ui_covs[cov_title] = mo.vstack(
+                [
+                    WCovUsed,
+                    WCovType.style(type_style),
+                    WCovRange.style(range_style),
+                    WCovSill.style(sill_style),
+                    WCovParam.style(param_style),
+                    WCovAniso.style(aniso_style),
+                    WCovRange2.style(range2_style),
+                    WCovAngle.style(angle_style),
+                ]
+            )
+
+        UI = mo.accordion(ui_covs)
         return mo.vstack([WMTitle, WMChoice, UI], gap=gapv)
     elif option == 2:
         return mo.vstack([WMTitle, WMChoice, *WFitVario], gap=gapv)
