@@ -75,7 +75,6 @@ def cell_define_widget_model(WidgetDb, WidgetVario, gmo):
     WidgetModel = gmo.WdefineModel(
         ncovmax=3, ncovdef=1, vario=model_vario, valdef="Interactive"
     )
-
     return (WidgetModel,)
 
 
@@ -249,9 +248,9 @@ def cell_make_figure(
                 result_Kaxis = result_axi
                 result_name_kw = "KWeights." + result_targetName
                 result_title_kw = (
-                    f"Kriging Weights (Index: {result_Kindex})"
+                    f"Kriging Weights (#{result_Kindex})"
                     if result_Kindex >= 0
-                    else "Kriging (Pick target)"
+                    else "Kriging Weights (Pick target)"
                 )
                 gmo.plotWeights(
                     result_axi,
@@ -266,9 +265,9 @@ def cell_make_figure(
             elif result_name == "XWeights":
                 result_name_xw = "XWeights." + result_targetName
                 result_title_xw = (
-                    f"XValidation (Index: {result_Xindex})"
+                    f"XValid. Weights (#{result_Xindex})"
                     if result_Xindex >= 0
-                    else "XValidation (Pick target)"
+                    else "XValidation Weights"
                 )
                 gmo.plotWeights(
                     result_axi,
