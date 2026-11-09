@@ -62,7 +62,7 @@ def widget_definition(gmo):
 def read_data(cdist, gdoc, gl, np):
     temp_nf = gdoc.loadData("Scotland", "Scotland_Temperatures.NF")
     db = gl.Db.createFromNF(temp_nf)
-    db.setLocator("Janvier", gl.ELoc.Z)
+    db.setLocator("January_temp", gl.ELoc.Z)
 
     # Retrieve Coordinates and Variable from db
     zp = db["*temp"]
@@ -174,12 +174,8 @@ def define_action(
             direction1 = gl.DirParam.create(
                 nlag, lag, tol, tolangle, angle2D=angle, cylrad=cylrad
             )
-            direction2 = gl.DirParam.create(
-                nlag, lag, tol, tolangle, angle2D=angle + 90, cylrad=cylrad
-            )
             varioParam = gl.VarioParam()
             varioParam.addDir(direction1)
-            varioParam.addDir(direction2)
         vario = gl.Vario.computeFromDb(varioParam, db)
 
         # Compute the variogram Map

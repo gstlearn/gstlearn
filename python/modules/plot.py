@@ -1633,6 +1633,8 @@ def _ax_isoline(
     ax.set_ylim(np.nanmin(Yrot), np.nanmax(Yrot))
 
     trans_data = tr + ax.transData
+    if np.nanmax(data) <= np.nanmin(data):
+        return None
 
     if levels is None:
         levels = np.linspace(np.nanmin(data), np.nanmax(data), nlevel)

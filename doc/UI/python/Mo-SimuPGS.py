@@ -137,7 +137,8 @@ def define_action(
                         gmo.plotGrid(
                             axes[i],
                             grid,
-                            name="Facies" if nbsimu == 1 else f"Facies.S{isimu}",
+                            name="Facies",
+                            version=isimu - 1,
                             rule=rule,
                             title=title,
                             nlevel=0,
