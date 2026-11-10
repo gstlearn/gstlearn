@@ -196,13 +196,13 @@ Column 8/10 : VD.2 (Type: Double) {Role: x1}
 Column 9/10 : VDS.1 [4] (Type: Double) {Role: NA} [NA forbidden]
 
 Trying to delete a non existing column (VI.22)
-Column 'VI.22' does not exist.
+Column Name 'VI.22' does not exist.
 
 Trying to add the Column (VD_bad_samples) with a different number of samples
 The number of values (4) is not compatible with the number of samples (3) and versions (1).
 
 Trying to set a value in a non existing column (VI.22)
-Column 'VI.22' does not exist.
+Column Name 'VI.22' does not exist.
 
 Trying to modify the contents of the Column 'VD' (double) by string
 Cannot assign value to Column 'VD':

@@ -254,13 +254,13 @@ Data Base Contents
       [ 12,]     13.000      0.336      0.952      1.000        N/A      0.957     -0.507
       [ 13,]     14.000      0.300      0.987      1.000     -2.812     -0.774        N/A
       [ 14,]     15.000      0.470      0.687      1.000     -0.434      0.094     -1.002
-Error in Sample Index. The index (3000) should be non-negative and lower than 15
+Error in Sample Index. The index (3000) should be non-negative and strictly lower than 15
 Previous statement is an error
-Column 'stupid' does not exist.
+Column Name 'stupid' does not exist.
 Previous statement is an error
-Error in Sample Index. The index (30000) should be non-negative and lower than 15
+Error in Sample Index. The index (30000) should be non-negative and strictly lower than 15
 Previous statement is an error
-Column 'stupid' does not exist.
+Column Name 'stupid' does not exist.
 Previous statement is an error
 
 Testing getStatsAsTable facility
@@ -277,3 +277,75 @@ Testing getStatsByCategoryAsTable facility
 Category: 0.000000      36.000      -1.224       1.743       0.190       0.760       0.578
 Category: 1.000000      32.000      -2.242       2.031      -0.017       1.037       1.076
 Category: 2.000000      32.000      -2.009       2.180      -0.172       0.950       0.903
+
+Testing the managment of Db through ColID
+=========================================
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 6
+Total number of samples      = 6
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x-1 - Locator = x1
+Column = 2 - Name = x-2 - Locator = x2
+Column = 3 - Name = f - Locator = f1
+Column = 4 - Name = z - Locator = z1
+Column = 5 - Name = toto - Locator = NA
+Variable 'toto' is located in Column 5 (0-based)
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 5
+Total number of samples      = 6
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x-1 - Locator = x1
+Column = 2 - Name = x-2 - Locator = x2
+Column = 3 - Name = z - Locator = z1
+Column = 4 - Name = toto - Locator = NA
+        rank         x-1         x-2           z        toto
+       1.000       0.652       0.497       0.922       3.000
+       2.000       0.483       0.140       1.102       3.000
+       3.000       0.762       0.729      -0.061    -200.000
+       4.000       0.015       0.537      -2.071    -300.000
+       5.000       0.557       0.408      -0.063       3.000
+       6.000       0.433       0.851       1.559       3.000
+--> Error must be issued: unknown sample index
+Error in Sample Index. The index (6) should be non-negative and strictly lower than 6
+--> Error must be issued: unknown column name
+Column Name 'titi' does not exist.
+--> Error must be issued: unknown column index
+Error in Column Index. The index (100) should be non-negative and strictly lower than 4
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 5
+Total number of samples      = 6
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x-1 - Locator = x1
+Column = 2 - Name = x-2 - Locator = x2
+Column = 3 - Name = z - Locator = NA
+Column = 4 - Name = NamConv - Locator = z1

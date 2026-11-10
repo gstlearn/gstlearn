@@ -486,8 +486,8 @@ namespace gstlrn
    *
    * @param dbout Db file containing the variable to be renamed.
    * @param colid Column descriptor of the variable to be renamed.
-   * @param qualifier Radix of the new Name
-   * @param radix Suffix of the new Name (if not defined, the name is set to 'qualifier')
+   * @param radix Radix of the new Name
+   * @param name Suffix of the new Name (if not defined, the name is set to 'qualifier')
    * @param flagSetRole When TRUE, set the locator (as defined in NamingConvetion class)
    * @param roleIndex Index of the Role
    */
